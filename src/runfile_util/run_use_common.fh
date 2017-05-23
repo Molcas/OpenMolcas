@@ -1,0 +1,31 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      Integer   nTocCA
+      Parameter ( nTocCA = 32 )
+      Integer   nTocDA
+      Parameter ( nTocDA = 256 )
+      Integer   nTocDS
+      Parameter ( nTocDS = 64 )
+      Integer   nTocIA
+      Parameter ( nTocIA = 128 )
+      Integer   nTocIS
+      Parameter ( nTocIS = 64 )
+
+      integer i_run_CA_used
+      common /run_ca_s/  i_run_CA_used(nTocCA)
+      integer  i_run_DA_used
+      common /run_da_s/ i_run_DA_used(nTocDA)
+      integer  i_run_DS_used
+      common /run_ds_s/  i_run_DS_used(nTocDS)
+      integer  i_run_IA_used
+      common /run_ia_s/  i_run_IA_used(nTocIA)
+      integer  i_run_IS_used
+      common /run_is_s/  i_run_IS_used(nTocIS)

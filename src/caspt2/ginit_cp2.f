@@ -1,0 +1,196 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 1994,2006, Per Ake Malmqvist                           *
+************************************************************************
+*--------------------------------------------*
+* 1994  PER-AAKE MALMQUIST                   *
+* DEPARTMENT OF THEORETICAL CHEMISTRY        *
+* UNIVERSITY OF LUND                         *
+* SWEDEN                                     *
+* 2006  PER-AAKE MALMQUIST                   *
+*--------------------------------------------*
+      SUBROUTINE GINIT_CP2
+      IMPLICIT REAL*8 (A-H,O-Z)
+#include "rasdim.fh"
+#include "caspt2.fh"
+#include "output.fh"
+#include "WrkSpc.fh"
+#include "pt2_guga.fh"
+      COMMON /SEGTAB/ IC1(26),IC2(26),ITVPT(26),IBVPT(26),ISVC(26),
+     &                NIVR,LIVR,NSGMNT,LSGMNT
+
+      CALL QENTER('GINIT')
+
+C SET UP A FULL PALDUS DRT TABLE:
+      IB0=ISPIN-1
+      IA0=(NACTEL-IB0)/2
+      IC0=NLEV-IA0-IB0
+      IF ((2*IA0+IB0).NE.NACTEL) GOTO 9001
+      IF((IA0.LT.0).OR.(IB0.LT.0).OR.(IC0.LT.0)) GOTO 9001
+      IAC=MIN(IA0,IC0)
+      NVERT0=((IA0+1)*(IC0+1)*(2*IB0+IAC+2))/2-(IAC*(IAC+1)*(IAC+2))/6
+      NDRT0=5*NVERT0
+      NDOWN0=4*NVERT0
+      CALL GETMEM('DRT0','ALLO','INTEGER',LDRT0,NDRT0)
+      CALL GETMEM('DOWN0','ALLO','INTEGER',LDOWN0,NDOWN0)
+      NVCD=((NLEV+1)*(NLEV+2))/2
+      CALL GETMEM('VCD','ALLO','INTEGER',LVCD,NVCD)
+      CALL DRT0_CP2(IA0,IB0,IC0,NVERT0,IWORK(LDRT0),IWORK(LDOWN0),
+     &           NVCD,IWORK(LVCD))
+      CALL GETMEM('VCD','FREE','INTEGER',LVCD,NVCD)
+#ifdef _DEBUG_
+      WRITE(6,*)
+      WRITE(6,*)' PALDUS DRT TABLE (UNRESTRICTED):'
+      CALL PRDRT_CP2(NVERT0,IWORK(LDRT0),IWORK(LDOWN0))
+#endif
+      LDRT=LDRT0
+      NDRT=NDRT0
+      LDOWN=LDOWN0
+      NDOWN=NDOWN0
+      NVERT=NVERT0
+C RESTRICTIONS?
+      IF((NRAS1T+NRAS3T).NE.0) THEN
+C  CONSTRUCT A RESTRICTED GRAPH.
+        CALL GETMEM('VERT','ALLO','INTEG',LV,NVERT0)
+        LV1RAS=NRAS1T
+        LV3RAS=LV1RAS+NRAS2T
+        LM1RAS=2*LV1RAS-NHOLE1
+        LM3RAS=NACTEL-NELE3
+        CALL RESTR_RPT2(LV1RAS,LM1RAS,LV3RAS,LM3RAS,
+     &              IWORK(LDRT0),IWORK(LDOWN0),IWORK(LV))
+        NDRT=5*NVERT
+        NDOWN=4*NVERT
+        CALL GETMEM('DRT','ALLO','INTEG',LDRT,NDRT)
+        CALL GETMEM('DOWN','ALLO','INTEG',LDOWN,NDOWN)
+        CALL DRT_RPT2(IWORK(LDRT0),IWORK(LDOWN0),IWORK(LV),
+     &             IWORK(LDRT),IWORK(LDOWN))
+        CALL GETMEM('VERT','FREE','INTEG',LV,NVERT0)
+        CALL GETMEM('DRT0','FREE','INTEG',LDRT0,NDRT0)
+        CALL GETMEM('DOWN0','FREE','INTEG',LDOWN0,NDOWN0)
+#ifdef _DEBUG_
+        WRITE(6,*)
+        WRITE(6,*)' PALDUS DRT TABLE (RESTRICTED):'
+        CALL PRDRT_CP2(NVERT,IWORK(LDRT),IWORK(LDOWN))
+#endif
+      END IF
+C CALCULATE DIRECT ARC WEIGHT AND LTV TABLES.
+      NDAW=5*NVERT
+      CALL GETMEM('DAW','ALLO','INTEG',LDAW,NDAW)
+      NLTV=NLEV+2
+      CALL GETMEM('LTV','ALLO','INTEG',LLTV,NLTV)
+      CALL MKDAW_CP2(IWORK(LDRT),IWORK(LDOWN),IWORK(LDAW),IWORK(LLTV))
+C UPCHAIN INDEX TABLE:
+      NUP=4*NVERT
+      CALL GETMEM('UP','ALLO','INTEG',LUP,NUP)
+C REVERSE ARC WEIGHT TABLE:
+      NRAW=5*NVERT
+      CALL GETMEM('RAW','ALLO','INTEG',LRAW,NRAW)
+C DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
+      NMAW=4*NVERT
+      CALL GETMEM('MAW','ALLO','INTEG',LMAW,NMAW)
+      CALL MKMAW_CP2(IWORK(LDOWN),IWORK(LDAW),IWORK(LUP),IWORK(LRAW),
+     &           IWORK(LMAW),IWORK(LLTV))
+C THE DAW, UP AND RAW TABLES WILL NOT BE NEEDED ANY MORE:
+      CALL GETMEM('DAW','FREE','INTEG',LDAW,NDAW)
+      CALL GETMEM('UP','FREE','INTEG',LUP,NUP)
+      CALL GETMEM('RAW','FREE','INTEG',LRAW,NRAW)
+C CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.
+      NIVR=2*NVERT
+      CALL GETMEM('IVR','ALLO','INTEG',LIVR,NIVR)
+      NMVL=2*NMIDV
+      NMVR=2*NMIDV
+      CALL GETMEM('MVL','ALLO','INTEG',LMVL,NMVL)
+      CALL GETMEM('MVR','ALLO','INTEG',LMVR,NMVR)
+      NSGMNT=26*NVERT
+      CALL GETMEM('ISGM','ALLO','INTEG',LISGM,NSGMNT)
+      CALL GETMEM('VSGM','ALLO','REAL',LVSGM,NSGMNT)
+      CALL MKSEG_CP2(IWORK(LDRT),IWORK(LDOWN),IWORK(LLTV),IWORK(LIVR),
+     &           IWORK(LMVL),IWORK(LMVR),IWORK(LISGM),WORK(LVSGM))
+      CALL GETMEM('DOWN','FREE','INTEG',LDOWN,NDOWN)
+      CALL GETMEM('LTV','FREE','INTEG',LLTV,NLTV)
+C FORM VARIOUS OFFSET TABLES:
+      NNOW=2*NMIDV*NSYM
+      NIOW=NNOW
+      CALL GETMEM('NOW','ALLO','INTEG',LNOW,NNOW)
+      CALL GETMEM('IOW','ALLO','INTEG',LIOW,NIOW)
+      MXEO=(NLEV*(NLEV+5))/2
+      NNOCP=MXEO*NMIDV*NSYM
+      NIOCP=NNOCP
+      NNRL=(1+MXEO)*NVERT*NSYM
+      CALL GETMEM('NOCP','ALLO','INTEG',LNOCP,NNOCP)
+      CALL GETMEM('IOCP','ALLO','INTEG',LIOCP,NIOCP)
+      CALL GETMEM('NRL','ALLO','INTEG',LNRL,NNRL)
+      NNOCSF=NMIDV*(NSYM**2)
+      NIOCSF=NNOCSF
+C NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
+      NIPWLK=1+(MIDLEV-1)/15
+      NIPWLK=MAX(NIPWLK,1+(NLEV-MIDLEV-1)/15)
+      CALL GETMEM('NOCSF','ALLO','INTEG',LNOCSF,NNOCSF)
+      CALL GETMEM('IOCSF','ALLO','INTEG',LIOCSF,NIOCSF)
+      CALL NRCOUP_CP2(IWORK(LDRT),IWORK(LISGM),IWORK(LNOW),
+     &            IWORK(LIOW),IWORK(LNOCP),IWORK(LIOCP),IWORK(LNOCSF),
+     &            IWORK(LIOCSF),IWORK(LNRL),IWORK(LMVL),IWORK(LMVR))
+      CALL GETMEM('DRT','FREE','INTEG',LDRT,NDRT)
+      CALL GETMEM('NRL','FREE','INTEG',LNRL,NNRL)
+      NILNDW=NWALK
+      NICASE=NWALK*NIPWLK
+      CALL GETMEM('ICASE','ALLO','INTEG',LICASE,NICASE)
+      NNICOUP=3*NICOUP
+      CALL GETMEM('ICOUP','ALLO','INTEG',LICOUP,NNICOUP)
+      NVTAB_TMP=20000
+      CALL GETMEM('VTAB_TMP','ALLO','REAL',LVTAB_TMP,NVTAB_TMP)
+      NSCR=7*(NLEV+1)
+      CALL GETMEM('ILNDW','ALLO','INTEG',LILNDW,NILNDW)
+      CALL GETMEM('SCR','ALLO','INTEG',LSCR,NSCR)
+      CALL GETMEM('VAL','ALLO','REAL',LVAL,NLEV+1)
+      CALL MKCOUP_CP2(IWORK(LIVR),IWORK(LMAW),IWORK(LISGM),
+     &            WORK(LVSGM),IWORK(LNOW),IWORK(LIOW),IWORK(LNOCP),
+     &     IWORK(LIOCP),IWORK(LILNDW),IWORK(LICASE),IWORK(LICOUP),
+     &     NVTAB_TMP,WORK(LVTAB_TMP),NVTAB_FINAL,IWORK(LSCR),
+     &     WORK(LVAL))
+* Set NVTAB in common block /IGUGA/ in file pt2_guga.fh:
+      NVTAB=NVTAB_FINAL
+      CALL GETMEM('VTAB','ALLO','REAL',LVTAB,NVTAB)
+      CALL DCOPY_(NVTAB,WORK(LVTAB_TMP),1,WORK(LVTAB),1)
+      CALL GETMEM('VTAB_TMP','FREE','REAL',LVTAB_TMP,NVTAB_TMP)
+      CALL GETMEM('ILNDW','FREE','INTEG',LILNDW,NILNDW)
+      CALL GETMEM('SCR','FREE','INTEG',LSCR,NSCR)
+      CALL GETMEM('VAL','FREE','REAL',LVAL,NLEV+1)
+      CALL GETMEM('ISGM','FREE','INTEG',LISGM,NSGMNT)
+      CALL GETMEM('VSGM','FREE','REAL',LVSGM,NSGMNT)
+      CALL GETMEM('MAW','FREE','INTEG',LMAW,NMAW)
+      CALL GETMEM('IVR','FREE','INTEG',LIVR,NIVR)
+
+      CALL QEXIT('GINIT')
+
+      RETURN
+ 9001 WRITE(6,*)' ERROR IN SUBROUTINE GINIT.'
+      WRITE(6,*)'  NR OF ACTIVE ORBITALS:',NLEV
+      WRITE(6,*)' NR OF ACTIVE ELECTRONS:',NACTEL
+      WRITE(6,*)'        SPIN DEGENERACY:',ISPIN
+      CALL ABEND()
+      END
+
+#ifdef _DEBUG_
+      SUBROUTINE PRDRT_CP2(NVERT,DRT,DOWN)
+      IMPLICIT NONE
+      INTEGER NVERT,DRT(NVERT,5),DOWN(NVERT,0:3)
+      INTEGER I,S,V
+      WRITE(6,*)
+      WRITE(6,*)' VERT      L  N    A  B  C      CHAINING INDICES.'
+      DO V=1,NVERT
+        WRITE(6,'(1X,I4,5X,2I3,2X,3I3,5X,4I4)')
+     &                         V,(DRT(V,I),I=1,5),(DOWN(V,S),S=0,3)
+      END DO
+      WRITE(6,*)
+      RETURN
+      END
+#endif

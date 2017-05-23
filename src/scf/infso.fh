@@ -1,0 +1,25 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+* include file for second order update info
+* eventually can be merged with infscf.fh
+* and addr.fh
+*
+*     iterso   - second order iteration number
+*              - comes into play
+*     micItT   - # of linesearch (micro) iterations
+*     MemRsv   - memory kept unallocated in LList management
+*     QNRTh    - threshold for QNR/C2Diis startup
+*     DltNTh   - convergence threshold for Norm of delta
+*     DltNrm   - actual Norm of delta after QNR/C2Diis extrapolation
+      Integer   iterso, MemRsv
+      Real*8 QNRTh,DltNTh,DltNrm
+*
+      Common /INFSO/ QNRTh,DltNTh,DltNrm,iterso,micItT,MemRsv

@@ -1,0 +1,16 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+C Note: MXATOM to be taken from Molcas.fh
+      INTEGER               NGROUP,IGROUP,NATOMS,COOR
+      COMMON /STRUCT_RASSI/ NGROUP,IGROUP(8),NATOMS,COOR(3,MXATOM)
+C Atom labels, 4 bytes each.
+      CHARACTER*(LENIN) ATLBL
+      COMMON /ATOMS / ATLBL(MXATOM)

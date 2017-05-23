@@ -1,0 +1,31 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+#include "constants.fh"
+      Real*8 diel,rPi,UTOAU,elmass,ATOKG,elcharge,rNAVO,cLight,autocm,
+     &       rPlanck,rBohr,cm_s,Debye,Angstrom,RF,auToHz
+      Parameter ( diel=   CONST_DIELECTRIC_IN_SI_ )
+      Parameter (rPi =    CONST_PI_ )       ! 1
+      Parameter (UTOAU = CONV_AMU_TO_AU_ )
+      Parameter ( elmass = CONST_ELECTRON_MASS_IN_SI_ )
+      Parameter (ATOKG =  CONST_AMU_IN_SI_ )       ! kg
+      Parameter (elcharge= CONST_ELEMENTARY_CHARGE_IN_SI_ )
+      Parameter ( rNAVO = CONST_AVOGADRO_ )           ! 1/mole
+      Parameter (cLight = CONST_C_IN_SI_ )          ! m/s
+      Parameter ( autocm = CONV_AU_TO_CM1_ )      !
+      Parameter ( rPlanck= CONST_PLANCK_ )     ! Js
+      Parameter ( rBohr = CONST_BOHR_RADIUS_IN_SI_ )      ! m
+      Parameter (cm_s  =  cLight*1.0D2    )
+      Parameter (Debye =
+     &  CONV_AU_TO_DEBYE_ )
+      Parameter ( Angstrom  = rBohr*1.0D10 )
+      Parameter ( RF=rPi*rNAVO/(3.0d0*cLight**2)
+     &             /(4.0d0*rpi*diel)*elcharge**2/atokg/1000.D0 )
+      Parameter ( auToHz=CONV_AU_TO_HZ_ )

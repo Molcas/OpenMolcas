@@ -1,0 +1,35 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      Logical mp2grad,nonvar
+      Integer ipEOcc, ipEVir, ipCMO
+      Dimension mAdOcc(8), mAdVir(8),mAdFro(8), mAdDel(8)
+      Dimension iPoDensOcc(9)
+      Dimension iPoDensVir(9)
+      Dimension iPoLagr(9)
+      Dimension iPoDiag(9)
+      Dimension iPoVec(9), iPoMat(9),iPoCMO(9), iPoTri(9)
+      Integer ip_First_Density, ip_Density,
+     &        ip_First_WDensity, ip_WDensity,
+     &        ip_First_Mp2Lagr,ip_Mp2Lagr,
+     &        ip_First_DiaA, ip_DiaA
+      Integer l_Mp2Lagr, l_DiaA, l_Density
+      Common /mpdata/ EMP2, VECL2, Pab
+      Common /mpgrad/  mAdOcc, mAdVir,          iLagr,iDensOcc,iDensVir,
+     & iPoDensOcc,iPoDensVir,iPoLagr, iDia, ipEOrb, lthEOr, mp2grad,
+     & iPoDiag, iPoVec, iPoMat, iMODens, iAODens, iPoCMO,
+     & iPoTri, iAp, iP, iWDensOcc, iWDensVir,
+     & iWDensVO,iAOTriDens,nTri,iMOTriDens,nonvar,
+     & ipInt1,ipInt2, ipInt1_2, ipInt2_2,ipScr1, mAdFro, mAdDel
+      Common /mpgrad2/ ipEOcc, ipEVir, ipCMO,
+     &                  ip_Density(8), l_Density, ip_First_Density,
+     &                  ip_WDensity(8), ip_First_WDensity,
+     &                  ip_Mp2Lagr(8), l_Mp2Lagr,ip_First_Mp2Lagr,
+     &                  ip_DiaA(8)   , l_DiaA   ,ip_First_DiaA

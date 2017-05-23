@@ -1,0 +1,23 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      Logical DiskBased
+      Parameter (Max_CI_Vectors=40)
+      Integer On_Disk, In_Memory, Null_Vector
+      Parameter (On_Disk=0, In_Memory=1, Null_Vector=2)
+      Integer dWrite, Write, Read
+      Parameter (dWrite=0, Write=1, Read=2)
+      Integer     ip_Mem(0:Max_CI_Vectors),
+     &                 n(0:Max_CI_Vectors),
+     &               ida(0:Max_CI_Vectors),
+     &            Status(0:Max_CI_Vectors)
+      Common /iDISK/ n,ip_Mem,ida,n_CI_Vectors,
+     &               iDisk_Addr_End,Lu_ip,Status
+      Common /lDISK/ DiskBased

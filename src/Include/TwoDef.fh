@@ -1,0 +1,26 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*---------------------------------------------------------------------*
+*                                                                     *
+*     Global Parameters used for the I/O                              *
+*                                                                     *
+*     lDaRec  : minimal record (in 4Byte words) transfered by         *
+*               DAFILE                                                *
+*     nSect   : integer multiple of lDaRec which consitutes the       *
+*               standard record length                                *
+*     lStRec  : standard record length                                *
+*     lTop    : each record has its own header of length lTop         *
+*                                                                     *
+*---------------------------------------------------------------------*
+      Parameter ( lDaRec  = 1024         )
+      Parameter ( nSect   = 32           )
+      Parameter ( lStRec  = nSect*lDaRec )
+      Parameter ( lTop    = 4            )

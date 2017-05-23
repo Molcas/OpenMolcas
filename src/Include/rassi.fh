@@ -1,0 +1,50 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      INTEGER     NFROT,NISHT,NASHT,NOSHT,NSSHT,NDELT,NBST,
+     &            NFRO(8),NISH(8),NASH(8),NOSH(8),NSSH(8),NDEL(8),
+     &            NBASF(8),
+     &            NFES(8),NIES(8),NAES(8),NOES(8),NSES(8),NDES(8),
+     &            NBES(8)
+      COMMON /WF/ NFROT,NISHT,NASHT,NOSHT,NSSHT,NDELT,NBST,
+     &            NFRO,NISH,NASH,NOSH,NSSH,NDEL,NBASF,
+     &            NFES,NIES,NAES,NOES,NSES,NDES,NBES
+      CHARACTER(8)    WFTYPE
+      COMMON /CWFTYP/ WFTYPE
+C NISHT  - NR OF  INACTIVE ORBITALS, TOTAL
+C NASHT  - NR OF    ACTIVE ORBITALS, TOTAL
+C NOSHT  - NR OF  OCCUPIED ORBITALS, TOTAL
+C NSSHT  - NR OF SECONDARY ORBITALS, TOTAL
+C NISH(8),...,NSSH(8), AS ABOVE, BUT BY SYMMETRY TYPE.
+C NBST, NBAS(8) - SIMILAR, NR OF BASIS FUNCTIONS.
+      REAL*8 ENUC
+      INTEGER      NBMX,NBTRI,NBSQ,NBSQPR(8),
+     &             MXCI,NCMO,NTDMAB,NTDMZZ,NTDMS,NTDMA,
+     &             NSXY,NTRA,NCXA,LNILPT,LINILPT
+      COMMON /DIVERS/ ENUC,NBMX,NBTRI,NBSQ,NBSQPR,
+     &             MXCI,NCMO,NTDMAB,NTDMZZ,NTDMS,NTDMA,
+     &             NSXY,NTRA,NCXA,LNILPT,LINILPT
+C NBMX   - MAX NR OF BASIS FUNCTIONS OF ANY SPECIFIC SYMMETRY.
+C NBTRI  - TOTAL SIZE OF TRIANGULAR SYMMETRY BLOCKS OF BASIS FNCS.
+C NBSQ   - D:O, SQUARE SYMMETRY BLOCKS.
+C NBSQPR - ACCUMULATED NR OF SQUARE SYMMETRY BLOCKS OF PREVIOUS
+C          SYMMETRY TYPES. NBSQPR(1)=0.
+C MXCI   - LARGEST NEEDED CI ARRAY FOR A STATE OF ANY SYMMETRY.
+C NCMO   - SIZE OF CMO COEFFICIENT ARRAYS, = SUM(NOSH(I)*NBAS(I)).
+C NTDMAB - SIZE OF TRANS.D. MATRIX IN BIORTHONORMAL MO BASIS.
+C NTDMZZ - SIZE OF TRANS.D. MATRIX IN AO BASIS.
+C NSXY   - SIZE OF MO OVERLAP ARRAY.
+C NTRA   - SIZE OF TRANSFORMATION COEFFICIENT ARRAY.
+C NCXA   - SIZE OF TRANSFORMATION MATRIX.
+C LNILPT - WORK(LNILPT) IS A VALID DUMMY FIELD
+C LINILPT- IWORK(LINILPT) IS A VALID DUMMY FIELD
+      Real*8 ChFracMem
+      COMMON /CHOLES/ ChFracMem
+C ChFracMem - fraction of memory for the Cholesky vectors buffer

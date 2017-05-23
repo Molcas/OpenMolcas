@@ -1,0 +1,96 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+C
+C Common blocks for Cholesky decomposition program.
+C
+      INTEGER XNPASS
+
+      LOGICAL SCDIAG, CHKONLY
+      LOGICAL CHO_INTCHK, CHO_MINCHK, CHO_USEABS, CHO_TRCNEG, CHO_REORD,
+     &        CHO_DIACHK, CHO_TSTSCREEN, CHO_1CENTER, CHO_NO2CENTER,
+     &        CHO_PRESCREEN, CHO_SIMP, CHO_FAKE_PAR
+      LOGICAL RSTDIA, RSTCHO
+      LOGICAL XSCDIAG, DID_DECDRV
+      LOGICAL HALTIT
+      LOGICAL TRACE_IDLE
+
+      INTEGER NSYM, LBUF, MINQUAL, MAXQUAL, MXSHPR,
+     &        MODRST, MAXVEC, MAXRED, IFCSEW, MODE_SCREEN
+      INTEGER XNSYM
+      INTEGER LUCHO, LUSEL, LUPRI, LUSCR, LURED, LURST, LUMAP
+      INTEGER LUTMP
+      INTEGER NSHELL, NNSHL_TOT, NNSHL
+      INTEGER XNSHELL, XNNSHL
+      INTEGER MXORSH, MX2SH,
+     &        IIBSTR, NNBSTR, NNBSTRT, MMBSTRT, NQUAL, IOFFQ
+      INTEGER NUMCHO, NUMCHT
+      INTEGER SHA, SHB, SHAB, SHC, SHD, SHCD, NCOLAB, IOFF_COL
+      INTEGER IALQUA, NALQUA
+      INTEGER NSECTION, NINTEG, NDECOM, NMISC
+      INTEGER ICHKQ, NCHKQ, NCOL_CHK
+      INTEGER INFVEC_N2
+      INTEGER IABMNZ, NNZTOT
+      INTEGER CHO_ADRVEC, CHO_IOVEC, NSYS_CALL, NDGM_CALL
+      INTEGER XCHO_ADRVEC
+      INTEGER N1_VECRD, N2_VECRD, N_SUBTR, N1_QUAL, N2_QUAL
+      INTEGER NVECRS1
+      INTEGER CHO_DECALG, CHO_NDECALG, CHO_DECALG_DEF
+      INTEGER RUN_MODE, RUN_INTERNAL, RUN_EXTERNAL
+      INTEGER BLOCKSIZE
+      PARAMETER (NCHKQ = 12)
+      PARAMETER (NALQUA = 2, NSECTION = 9, NINTEG = 2, NDECOM = 4)
+      PARAMETER (NMISC = 5)
+      PARAMETER (INFVEC_N2 = 5)
+      PARAMETER (CHO_NDECALG = 6)
+      PARAMETER (RUN_INTERNAL = 1, RUN_EXTERNAL = 2)
+
+      REAL*8 THRDEF, THRCOM, THRDIAG, DIAMAX, DIAMIN, DAMP, SPAN,
+     &       THRNEG, WARNEG, TOONEG, DIAMAXT
+      REAL*8 XTHRCOM, XTHRDIAG, XDAMP, XSPAN, XTHRNEG, XWARNEG, XTOONEG
+      REAL*8 TIMSEC, TINTEG, TDECOM, TDECDRV, TMISC, XLDIAG, DIAMNZ
+      REAL*8 FRAC_CHVBUF
+      REAL*8 TOL_DIACHK
+      REAL*8 THR_PRESCREEN
+
+      PARAMETER (THRDEF = 1.0D-4)
+
+      COMMON / CHOINF / THRCOM, THRDIAG, TOL_DIACHK,
+     &                  THRNEG, WARNEG, TOONEG,
+     &                  NSYM, LBUF, MINQUAL, MAXQUAL, IFCSEW,
+     &                  MODE_SCREEN, CHO_DECALG, CHO_DECALG_DEF,
+     &                  IALQUA, MXSHPR, MODRST, RUN_MODE,
+     &                  SCDIAG, CHKONLY, CHO_INTCHK, CHO_MINCHK,
+     &                  CHO_USEABS, CHO_TRCNEG, CHO_REORD, CHO_DIACHK,
+     &                  CHO_TSTSCREEN, CHO_1CENTER, CHO_NO2CENTER,
+     &                  CHO_PRESCREEN, CHO_SIMP, CHO_FAKE_PAR,
+     &                  RSTDIA, RSTCHO, DID_DECDRV, HALTIT, TRACE_IDLE
+      COMMON / CHOFIL / LUCHO(8), LUSEL(8), LUTMP(8), LUPRI, LUSCR,
+     &                  LURED, LURST, LUMAP
+      COMMON / CHOSHL / NSHELL, NNSHL_TOT, NNSHL, MXORSH, MX2SH,
+     &                  IIBSTR(8,3), NNBSTR(8,3), NNBSTRT(3), MMBSTRT,
+     &                  NQUAL(8), IOFFQ(8)
+      COMMON / CHODIA / DIAMAX(8), DIAMAXT(8), DIAMIN(8), DAMP(2), SPAN,
+     &                  XLDIAG, DIAMNZ, THR_PRESCREEN, IABMNZ, NNZTOT
+      COMMON / CHOLEV / NUMCHO(8), NUMCHT, MAXVEC, MAXRED, BLOCKSIZE
+      COMMON / CHOTMP / SHA, SHB, SHAB, SHC, SHD, SHCD,
+     &                  NCOLAB, IOFF_COL(8)
+      COMMON / CHORST / XTHRCOM, XTHRDIAG, XDAMP(2), XSPAN,
+     &                  XTHRNEG, XWARNEG, XTOONEG,
+     &                  XNSYM, XNSHELL, XNNSHL, XNPASS, XCHO_ADRVEC,
+     &                  XSCDIAG
+      COMMON / INTCHK / ICHKQ(4,NCHKQ+1), NCOL_CHK
+      COMMON / CHOTIM / TIMSEC(4,NSECTION), TINTEG(2,NINTEG),
+     &                  TDECOM(2,NDECOM), TDECDRV(2), TMISC(2,NMISC)
+      COMMON / RS1INF / NVECRS1(8)
+      COMMON / CHOIOV / CHO_ADRVEC, CHO_IOVEC, NSYS_CALL, NDGM_CALL,
+     &                  N1_VECRD, N2_VECRD, N_SUBTR
+      COMMON / CHOMMQ / N1_QUAL, N2_QUAL
+      COMMON / CHOMVB / FRAC_CHVBUF

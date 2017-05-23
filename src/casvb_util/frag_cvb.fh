@@ -1,0 +1,25 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+************************************************************************
+      parameter (mxfrag=10,mxMs=20,mxS=20,mxI=20)
+      common /fragi_comcvb/nfrag,
+     >  nconf_fr(mxfrag),nel_fr(mxfrag),
+     >  nvb_fr(mxfrag),nvbr_fr(mxfrag),
+     >  ndetvb_fr(mxfrag),ndetvb2_fr(mxfrag),
+     >  mnion_fr(mxfrag),mxion_fr(mxfrag),
+     >  nconfion_fr(0:mxI,mxfrag),ifsc_fr(mxfrag),
+     >  nda_fr(mxMs,mxfrag),ndb_fr(mxMs,mxfrag),
+     >  nalf_fr(mxMs,mxfrag),nbet_fr(mxMs,mxfrag),
+     >  i2s_fr(mxS,mxfrag),
+     >  iastr_fr(mxfrag),ibstr_fr(mxfrag),
+     >  nMs_fr(mxfrag),nS_fr(mxfrag)
+      common /fragr_comcvb/cvbnrm_fr(mxfrag)

@@ -1,0 +1,42 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+************************************************************************
+*                                                                      *
+* Header file for the put/get_dScalar utilities.                       *
+*                                                                      *
+************************************************************************
+*----------------------------------------------------------------------*
+*                                                                      *
+*----------------------------------------------------------------------*
+      Integer   nTocDS
+      Parameter ( nTocDS = 64 )
+*----------------------------------------------------------------------*
+*                                                                      *
+*----------------------------------------------------------------------*
+      Integer   sNotUsed
+      Integer   sRegularField
+      Integer   sSpecialField
+      Parameter ( sNotUsed      = 0 )
+      Parameter ( sRegularField = 1 )
+      Parameter ( sSpecialField = 2 )
+      integer  i_run_DS_used
+      Real*8   i_DS_inmem
+      integer  DS_init, num_DS_init
+      Character*16 iLbl_DS_inmem
+      common /run_ds_s/  i_run_DS_used(nTocDS)
+
+      common /DS_inmem/     i_DS_inmem(nTocDS),num_DS_init
+      common /DS_inmems/    DS_init(nTocDS)
+      common /DS_inmeml/    iLbl_DS_inmem(nTocDS)
+
+*----------------------------------------------------------------------*
+*                                                                      *
+*----------------------------------------------------------------------*

@@ -1,0 +1,50 @@
+/***********************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+***********************************************************************/
+ (prgm)  "$MOLCAS"/bin/loprop.exe             executable
+#include "aoints.inc"
+#include "choints.inc"
+#include "chotmpfiles.inc"
+#include "orbitals.inc"
+ (file)  SCFINP   "$WorkDir/$Project."Scf.Input   roi
+ (file)  RASSCINP "$WorkDir/$Project."Rasscf.Input     roi
+ (file)  RASSCF.INPUT   "$WorkDir/$Project."Rasscf.Input     ro
+ (file)  CASPTINP "$WorkDir/$Project."Caspt2.Input      roi
+ (file)  MPPROP   "$WorkDir/$Project."MpProp      rw
+ (file)  ONEINTP  "$WorkDir/$Project."OneIntP     ro*
+ (file)  USERDEN  "$WorkDir/$Project."UserDen     ro
+ (file)  USERDEN1  "$WorkDir/$Project."UserDen1     ro
+ (file)  USERDEN2  "$WorkDir/$Project."UserDen2     ro
+ (file)  USERDEN3  "$WorkDir/$Project."UserDen3     ro
+ (file)  USERDEN4  "$WorkDir/$Project."UserDen4     ro
+ (file)  USERDEN5  "$WorkDir/$Project."UserDen5     ro
+ (file)  USERDEN6  "$WorkDir/$Project."UserDen6     ro
+ (file)  PRDEN    "$WorkDir/$Project."PrDen       rw
+ (file)  SUBDEN   "$WorkDir/$Project."SubDen      ro
+ (file)  TOFILE   "$WorkDir/$Project."ToFile      ro
+#include "rysfiles.inc"
+#include "scffiles.inc"
+ (file)  NQGRID        "$WorkDir/$Project."NqGrid rw
+#include "moldenfiles.inc"
+ (file)  GV.off   "$WorkDir/$Project."GV.off      rw
+ (file)  GV1.off   "$WorkDir/$Project."GV1.off    rw
+ (file)  JOBOLD   "$WorkDir/$Project$Project."JobOld     ro
+ (file)  JOBIPH   "$WorkDir/$Project$Project."JobIph     rw
+ (file)  VBWFN    "$WorkDir/$Project."VbWfn      rw
+#include "rasscffiles.inc"
+ (file)  JOBMIX  "$WorkDir/$Project$Project."JobMix      ro
+ (file)  LUCIEX  "$WorkDir/"purge.tmp007        rwp
+ (file)  MOLONE  "$WorkDir/"purge.tmp009        rwp
+ (file)  LUHLF1  "$WorkDir/"purge.tmp001        rw*p
+ (file)  LUHLF2  "$WorkDir/"purge.tmp002        rw*p
+ (file)  LUHLF3  "$WorkDir/"purge.tmp003        rw*p
+ (file)  MOLINT  "$WorkDir/"purge.tmp004        rw*p
+ (file)  DIFFPR  "$WorkDir/$Project."DiffPr      rw
+

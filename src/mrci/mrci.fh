@@ -1,0 +1,76 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+C
+#include "Molcas.fh"
+C     COMMON INFORMATION FOR MRCI/ACPF PROGRAM
+C
+      PARAMETER (MXREF=1000)
+      PARAMETER (MXPROP=30)
+*PAM04      COMMON /ARCMMG/ MAXMEM
+      COMMON /ARCMMG/ MEMTOT,MEMWRK,MEMPRM
+      COMMON/REAL/SPIN,POTNUC,ETHRE,CTRSH,ETRSH,
+     &  ENP,GFAC,THRORB,CSEL(50),PROP(MXROOT,MXROOT,MXPROP),
+     &  PNUC(MXPROP),PORIG(3,MXPROP),ENGY(MXROOT,3)
+      COMMON/INTEG/NELEC,LN,NDIAG(MXORB),LSYM,
+     &  JJS(18),NVPAIR(8),IREST,NCONF,NBMN,
+     &  NCVAL,NCDOUB,NCTRIP,NCSING,IREFX(MXREF),ISMAX,NVMAX,NVSQ,
+     &  IORB(MXORB),ICH(MXORB),IROW(MXORB+1),NSYM,NFMO(8),
+     &  NFRO(8),NISH(8),NASH(8),NVAL(8),NVIR(8),NCSH(8),NDEL(8),
+     &  NDMO(8),NORB(8),NBAS(8),NFMOT,NFROT,NISHT,NASHT,NVIRT,NCSHT,
+     &  NVALT,NDELT,NDMOT,NORBT,NBAST,MUL(8,8),NSM(MXORB),IPRINT,
+     &  IFIRST,IRC(4),ISC(4),JSC(4),ITER,
+     &  NVIRP(8),MAXIT,NREF,ICPF,KBUFF1,IREFCI,
+     &  ITRANS,NRROOT,IROOT(MXROOT),NSEL,NCOMP(MXROOT),NCSPCK,NINTSY,
+     &  NIWLK,NBMAX,NCMO,NBTRI,NPROP,IPCOMP(MXPROP)
+      Common /files_mrci/ LUVEC,  LUSYMB, LUTRA,  LUONE,
+     &                    LUREST, Lu_60,  Lu_70,  Lu_80,
+     &                    LUEIG,  Lu_25,  Lu_27,  LUPROP
+#include "tratoc.fh"
+      PARAMETER (NTIBUF=nTraBuf)
+      COMMON/TRABUF/ TIBUF(NTIBUF)
+C Integral I/O buffer, for sorting etc.
+      PARAMETER(NSRTMX=nTraBuf)
+      COMMON/SORTBUF/VALSRT(NSRTMX),INDSRT(NSRTMX+2)
+C Bins for sorting:
+      COMMON/BINS/ NBITM1,NCHN1,NBSIZ1,NBITM2,NCHN2,NBSIZ2,
+     &             NBITM3,NCHN3,NBSIZ3,IPASS
+      CHARACTER*(LENIN4) NAME(MXBAS)
+      CHARACTER*4 PTYPE(MXPROP)
+      CHARACTER*8 PNAME(MXPROP)
+      CHARACTER*20 SSEL(50)
+      COMMON /CHARAC/ NAME,SSEL,PTYPE,PNAME
+C VERTEX CODES USED FOR VALENCE,DOUBLET,TRIPLET, AND SINGLET CASE:
+      PARAMETER (IVVER=0, IDVER=1, ITVER=2, ISVER=3)
+C SQUARE ROOT OF 2, AND ITS INVERSE, USED IN CSCALE:
+      PARAMETER (SQ2= 1.41421356237309505D00, SQ2INV=SQ2/2)
+      PARAMETER(MCHAIN=40000)
+      COMMON/RA/LASTAD(MCHAIN)
+C
+C SIZE OF BUFFERS WRITTEN BY GUGA PROGRAM.
+#include "cop.fh"
+      COMMON/ADDR/IAD25S,IADABCI,ITOC17(64),ITOC2(64)
+      COMMON/ALLO_MRCI/ LCSPCK,LINTSY,LINDX,LISAB,LJREFX,LCISEL,
+     *             LPERMA,LTIBUF,LFOCK,LBIN1,LBIAC1,LBICA1,
+     *             LBUFBI,LBIN2,LBACBD,LACBDS,LACBDT,
+     *             LHDIAG,LIIJJ,LIJIJ,LBIN3,
+     *             LCI,LSGM,LHREF,LAREF,LEREF,LPLEN,
+     *             LMQ,LARR,LABIJ,LAIBJ,LAJBI,
+     *             LBFIN1,LASCR1,LBSCR1,LFSCR1,LFSEC,
+     *             LFIJKL,LBFIN2,LBMN,LIBMN,LBIAC2,LBICA2,
+     *             LBFIN3,LAC1,LAC2,LBFIN4,LBFIN5,LASCR2,LBSCR2,
+     *             LFSCR2,LDBK,LDMO,LTDMO,LPRP,LICI
+      PARAMETER (MXVEC=50, NSECT=256, MXZ=4*MXROOT)
+      COMMON /DAVID/ HSMALL(MXVEC,MXVEC),SSMALL(MXVEC,MXVEC),
+     *      ESMALL(MXVEC),VSMALL(MXVEC,MXVEC),PSMALL(MXVEC,MXVEC),
+     *      HZERO(MXZ,MXZ),SZERO(MXZ,MXZ),VZERO(MXZ,MXZ),
+     *      EZERO(MXZ),ESHIFT,SQNLIM,MBUF,
+     *      NOLD,NVEC,NNEW,NSCR,INSERT(MXVEC),IDISKD,IDISKA,
+     *      IDISKC(MXVEC),IDISKS(MXVEC),IDFREE,NVTOT,NSTOT

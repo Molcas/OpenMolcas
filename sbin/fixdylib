@@ -1,0 +1,56 @@
+#!/usr/bin/env python
+#***********************************************************************
+# This file is part of OpenMolcas.                                     *
+#                                                                      *
+# OpenMolcas is free software; you can redistribute it and/or modify   *
+# it under the terms of the GNU Lesser General Public License, v. 2.1. *
+# OpenMolcas is distributed in the hope that it will be useful, but it *
+# is provided "as is" and without any express or implied warranties.   *
+# For more details see the full text of the license in the file        *
+# LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#***********************************************************************
+
+'''
+set the absolute path to a lib class for a given input file on MacOS X.
+'''
+
+import os, sys, subprocess, shlex
+
+infile     = sys.argv[1]
+xlib       = sys.argv[2]
+libpath    = sys.argv[3]
+
+#print 'input file    ', infile
+#print 'search string ', xlib
+#print 'full lib path ', libpath
+
+# exit if file does not exist
+if not os.path.isfile(infile):
+    print "Warning from fixdylib: file %s does not exist" % infile
+    sys.exit(0)
+
+# check that the absoulte path has not been set yet
+qmd  = "otool -L " + infile + " " + " | tr -d '\t' |sed s/' '.*// | grep " + xlib
+q    = subprocess.check_output(qmd,shell=True,env=os.environ.copy())
+args = shlex.split(q)
+
+# if substring exists, exit
+check = 'mkl/lib'
+for f in args:
+    if check in f:
+        sys.exit(0)
+
+# if not  reset the path to the linked libs
+cmd  = "otool -L " + infile + " " + " | tr -d '\t' |sed s/' '.*// | grep " + xlib + " | while read A ; do install_name_tool -change $A " + libpath + "/lib/$A " + infile + " ; done"
+
+try:
+    p = subprocess.Popen(cmd,shell=True,preexec_fn=os.setsid,env=os.environ.copy())
+    pgid = p.pid
+    p.wait()
+    if p.returncode != 0:
+        raise subprocess.CalledProcessError(p.returncode,cmd)
+
+except subprocess.CalledProcessError, e:
+    print "fixdylib: Command "+str(cmd)+" failed with returncode",e.returncode
+    raise
+

@@ -1,0 +1,47 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*
+*     Parameter definitions for the Davidson diagonaliztion scheme
+*
+
+*     max number of successive CI and sigma vectors that are stored
+      Integer     mxKeep
+      Parameter ( mxKeep = 6 )
+
+*     dimension of address tables and label stack
+      Integer     lAdrTbl
+      Parameter ( lAdrTbl = 1 + 2*mxKeep*mxRoot + 3*mxRoot )
+
+*     falgs indicating the storage mode used by the
+*     Davidson diagonaliztion scheme
+      Integer     in_core, on_disk, mixed_mode_1, mixed_mode_2
+      Parameter ( in_core = 0 )
+      Parameter ( on_disk = 2 )
+      Parameter ( mixed_mode_1 =3 )
+      Parameter ( mixed_mode_2 =4 )
+
+*     data type conversion factors
+#include "SysDef.fh"
+
+*     flags determining the storage handling
+      Integer save_mode
+      Logical save_in_memory
+      Common /DavCtl1/ save_mode, save_in_memory
+
+*     disk and memory address tables
+      Integer disk_address, memory_address
+      Common /DavCtl2/ disk_address(lAdrTbl),memory_address(lAdrTbl)
+
+*     stack of labels and control parameters
+      Character*16 LblStk
+      Integer mxMemStk, mxDiskStk, nMemStk, nDiskStk
+      Common /DavCtl3/ LblStk(lAdrTbl),
+     &                 mxMemStk,mxDiskStk,nMemStk,nDiskStk

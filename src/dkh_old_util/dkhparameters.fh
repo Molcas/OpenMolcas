@@ -1,0 +1,122 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2004, Alexander Wolf                                   *
+*               2004,2006, Markus Reiher                               *
+************************************************************************
+c
+c**************************************************************************
+c
+c   'dkhparameters.h' :  Global Parameter file for DKHPACK
+c   ------------------------------------------------------
+c
+c   Contains all global parameters, unit-numbers, flags, dimensions, etc
+c
+c   written by:  Alexander Wolf and Markus Reiher  (Univ. Jena)
+c
+c   version:  2.0.1
+c
+c   last modified: 08.07.2006  MR (ETH Zurich)
+c
+c   first version: 10.04.2004  (Theoretical Chemistry, Univ. Bonn)
+c
+c***********************************************************************
+c
+c------------------------------------------------------------------------------
+c     Global parameters, unit-numbers, flags, dimensions, thresholds          -
+c------------------------------------------------------------------------------
+c
+c  Max.Dimension of arrays, vectors, etc.
+c----------------------------------------
+c  maxoperators :  max. number of operators to be stored (basic level)
+c  maxuops      :  max. number of terms for unitary transformations U_i
+c  maxlength    :  max. length of any operator/term in characters
+c  maxorder     :  max. order for decoupling
+c                    = max. number of Taylor expansion coefficients for
+c                     parametrization of unitary transformations U_i
+c  maxsnumber   :  max. length of S-array for high-level substitution procedure
+c  maxunumber   :  max. length of U-array for low-level substitution procedure
+c
+c  dkhmemmax    :  max. memory (RAM) in Byte to be used by DKHPACK
+c                    = approx. max. size of interm. scratch files to be written on disc
+c
+c  nbasmax      :  max number of basis functions
+c  isizemax     :  max number of independent entries of symmetric matrix
+c  nbasmaxsq    :  max number of entries of full
+
+      integer maxoperators,maxuops,maxlength,maxorder,maxsnumber,
+     *        maxunumber,nbasmax,isizemax,nbasmaxsq
+c
+CMR      parameter (maxoperators=12000,maxuops=1300,maxlength=130,
+CMR     *           maxorder=22,maxsnumber=220,maxunumber=500,
+CMR     *           dkhmemmax=2500000)
+CMR maxoperators, maxuops as well as dkhmemmax should be set by the calling subroutine
+CMR and are therefore only defined here, but not set
+      parameter (maxlength=130,maxorder=22,maxsnumber=220,
+     *           maxunumber=500)
+      parameter (nbasmax=91,isizemax=nbasmax*(nbasmax+1)/2,
+     *           nbasmaxsq=nbasmax*nbasmax)
+      Common /ops/ maxuops, maxoperators
+c
+c
+c  Unit no. for I/O:
+c---------------------
+c  stdout       :  unit for 'standard out'
+c  dbgunit      :  unit for debugging output
+c  dkhunit1     :  unit for output of final DKH operators
+c  dkhunit2     :  unit for output of final X operators
+c  dkhunit3     :  unit for low-level output of auxiliary matrices Sxxx
+c  dkhunit4     :  unit for low-level output of auxiliary matrices Txxx
+c  dkhunit5     :  unit for low-level output of auxiliary matrices Uxxx
+c
+c  outunit1     :  unit for output of final even DKH operators E_i (pos-space)
+c                    stored as lower triangular matrices
+c  outunit2     :  unit for output of final even property operators X_i
+c                    (pos-space) stored as lower triangular matrices
+c
+c  eigunit      :  unit for output of eigenvalues (s-energies), and expectation
+c                    values of X (for Z=1,..,137 if possible)
+
+      integer stdout,dbgunit,dkhunit1,dkhunit2,dkhunit3,dkhunit4,
+     *        dkhunit5,outunit1,outunit2,eigunit
+c
+      common /outunits/ stdout,dbgunit,dkhunit1,dkhunit2,dkhunit3,
+     *                  dkhunit4,dkhunit5,outunit1,outunit2,eigunit
+CMR      parameter (stdout=6,dbgunit=32,dkhunit1=11,dkhunit2=12,
+CMR     *           dkhunit3=13,dkhunit4=14,dkhunit5=15)
+CMR      parameter (outunit1=21,outunit2=22,eigunit=29)
+c
+c
+c  Control flags:
+c----------------
+c  dbgflg       :  flag to control amount of debugging output to 'dbgout.32'
+c                    (0=none, 1=one-line-statements, 2=operators, 3=details)
+c  dynthrsh     :  flag to control dynamical thresholding (dkhzero=dkhzero(k))
+c                    dynthrsh=0 --> no dynamical thresholding
+c                    dynthrsh=1 --> activate dynamical thresholding
+      integer dbgflg,dynthrsh
+      parameter (dbgflg=0,dynthrsh=0)
+c
+c
+c  Other information:
+c--------------------
+      character*(10) lastmod
+      parameter (lastmod='29.09.2006')
+c
+c
+c  Global thresholds:
+c--------------------
+c  dkhzero      :  threshold, below real variables are treated as zero
+c
+      REAL*8 dkhzero
+      parameter (dkhzero=1.0d-14)
+c
+      Logical DKH_Verbose,Out_Of_Core
+      Common /DKH_Logical/ DKH_Verbose,Out_Of_Core

@@ -1,0 +1,18 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+* Common block with the numbers of the units on which the module writes.
+* These are initiated by src/parallel_util/start.f
+*
+      Integer                   LuRd, LuWr
+      Common /Standard_IOUnits/ LuRd, LuWr
+*
+      Logical Spool
+      Common /Spl/ Spool

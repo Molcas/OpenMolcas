@@ -1,0 +1,92 @@
+This is the readme file for pymolcas
+====================================
+
+
+What is pymolcas?
+-----------------
+
+pymolcas is the working name (it can, and maybe it should be changed) of a
+reimplementation of the main Molcas driver and EMIL interpreter. It is written
+in python (3.4 or later), initially by Ignacio Fdez. Galván.
+
+
+Why a new driver?
+-----------------
+
+1. To provide an independent (from the license manager) way to run Molcas
+   without a license file (for the Molcas@UU distribution).
+
+2. To better separate the driver from the EMIL parser, and allow an easier
+   implementation of other scripting solutions for Molcas.
+
+3. To overcome some limitations of the current driver and EMIL (e.g. nested
+   loops).
+
+4. To have fun, learn, and simply be able to tweak the driver.
+
+
+How to use pymolcas?
+--------------------
+
+It is possible to run the "pymolcas.py" file directly, but then you need to have
+all the additional *.py files in the same directory, and that's not very
+convenient. The recommended way is first running:
+
+  ./export.py
+
+This will package all the necessary files in a single self-contained script,
+called "pymolcas" (note: no extension). You can then place this file somewhere
+in your PATH (e.g. $HOME/bin), and run "pymolcas" instead of "molcas", pymolcas
+does the job of both the "molcas" script and the "molcas.exe" program.
+
+
+How is pymolcas structured?
+---------------------------
+
+pymolcas.py
+  Main script, parses command line, finds molcas installation, runs molcas.
+
+molcas_wrapper.py
+  Defines the Molcas class (main driver) and the Molcas_module class (to run a
+  program). 
+
+molcas_aux.py
+tee.py
+  Some auxiliary functions.
+
+abstract_flow.py
+  Defines some classes to run programs, including loops, conditional
+  statements, etc. This is independent of any input "language".
+
+emil_grammar.py
+  Defines the EMIL grammar, so that input files can be parsed.
+
+emil_parse.py
+  Parses an EMIL input file into the classes of "abstract_flow.py".
+
+python_parse.py
+  Wraps an input python file in a class of "abstract_flow.py".
+
+export.py
+pack.py
+compile.sh
+  Three different ways to create a single-file self-contained script. The
+  recommended one is "export.py" (see above).
+
+
+What can/cannot pymolcas do?
+----------------------------
+
+At the moment, pymolcas can run almost anything the current molcas driver can.
+It supports most EMIL commands. It doesn't support (yet) the GEO module (or
+rather the DO GEO command), and it hasn't been tested in parallel.
+
+Significantly, "pymolcas verify" runs and passes all the tests as the current
+driver does (except for GEO).
+
+
+How can I help?
+---------------
+
+Try the script, report problems, suggest improvements, fix the code, implement
+something new...

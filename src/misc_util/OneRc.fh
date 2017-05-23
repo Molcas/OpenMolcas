@@ -1,0 +1,57 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*----------------------------------------------------------------------*
+*                                                                      *
+* Return codes:                                                        *
+*   rc0000 - No error                                                  *
+*   rcOP01 - file is already opened                                    *
+*   rcOP02 - file specified as old is not existent                     *
+*   rcOP03 - invalid file identifier                                   *
+*   rcOP04 - unknown option has been specified                         *
+*   rcCL01 - file is not opened                                        *
+*   rcRD01 - file is not opened                                        *
+*   rcRD02 - illegal options                                           *
+*   rcRD03 - information not available                                 *
+*   rcRD04 - nSym not defined                                          *
+*   rcWR01 - file is not opened                                        *
+*   rcWR02 - nSym<1 or nSym>8                                          *
+*   rcWR03 - nSym note defined                                         *
+*   rcWR04 - Sum(nBas(iSym))>2*mxBas                                   *
+*   rcWR05 - Sum(nBas(iSym))<1                                         *
+*   rcWR06 - Min(nBas(iSym)<0                                          *
+*   rcWR07 - Max(nBas(iSym)>mxBas                                      *
+*   rcWR08 - nAtm<1 or nAtm>mxAtm                                      *
+*   rcWR09 - nAtm not defined                                          *
+*   rcWR10 - nBas not defined                                          *
+*   rcWR11 - to many operators                                         *
+*                                                                      *
+*----------------------------------------------------------------------*
+      Parameter (rc0000 = 0)
+      Parameter (rcOP01 = rc0000+1)
+      Parameter (rcOP02 = rcOP01+1)
+      Parameter (rcOP03 = rcOP02+1)
+      Parameter (rcOP04 = rcOP03+2)
+      Parameter (rcCL01 = rcOP04+1)
+      Parameter (rcRD01 = rcCL01+1)
+      Parameter (rcRD02 = rcRD01+1)
+      Parameter (rcRD03 = rcRD02+1)
+      Parameter (rcRD04 = rcRD03+1)
+      Parameter (rcWR01 = rcRD04+1)
+      Parameter (rcWR02 = rcWR01+1)
+      Parameter (rcWR03 = rcWR02+1)
+      Parameter (rcWR04 = rcWR03+1)
+      Parameter (rcWR05 = rcWR04+1)
+      Parameter (rcWR06 = rcWR05+1)
+      Parameter (rcWR07 = rcWR06+1)
+      Parameter (rcWR08 = rcWR07+1)
+      Parameter (rcWR09 = rcWR08+1)
+      Parameter (rcWR10 = rcWR09+1)
+      Parameter (rcWR11 = rcWR10+1)

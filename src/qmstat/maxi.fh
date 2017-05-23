@@ -1,0 +1,61 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*------------------------------------------------------
+* Define some bounds for qmstat.
+*------------------------------------------------------
+* MxCha                -        Maximal number of charges on water
+* MxPol                -        Maximal number of polarizabilities on water
+* MxAt                -        Maximal number of atoms on QM
+* MxCen         -        Maximal number of center on water
+* MxMltp        -        Highest order multipole in MME
+* MxComp        -        Maximal number of components for the multipoles
+* MxBas                -        Maximal number of bases
+* MxSym                -        Maximal number of symmetries
+* MxOrb         -       Maximal number of orbitals, used with motra.
+* MxOT                -        Maximal number of triangular orbital overlap.
+* MxOrb_C        -        Maximal number of orbitals for solvent.
+* MxPut         -       Maximal number of molecules to put in system
+* MxQCen        -        Maximal number of centers in QM-molecule
+* Mum                -        Maximal number of coordinates for the solvent
+*                        polarizabilities of one component.
+* MxBasC        -        Maximal number of basis functions for classical part.
+* MxCont        -        Maximal number of bases of any angular type that is
+*                         being contracted. 12s8p5d would need at least MxCont=12.
+* MxAngqNr        -        Maximal angular quantum number for basis functions
+*                        in QM-region. 1 is s, 2 is p etc.
+* MxPrCon        -        Maximal sum of the contracted number of bases. 12s8p5d
+*                        would need at least 12+8+5=25.
+* MxBB                -        Maximal number of bases (not basis-functions!)
+* MxParT        -        Maximal number of parallel temperature ensembles.
+* MxExtAddOn        -        Maximal number of external perturbations.
+* MxSlFactQ     -       Maximal number of Slater Prefactors for one site in
+*                       QM-system
+*--RASSI things
+* MxState        -        Maximal number of states.
+* MxStOT        -        Maximal number of unique pairs of states.
+* MxJobs        -        Maximal number of jobs.
+*-----------------------------------------------------------
+      Integer MxCha,MxPol,MxAt,MxCen
+      Integer MxMltp,MxComp,MxBas,MxSym,MxOrb,Mum
+      Integer MxPut,MxQCen,MxOT,MxBB,MxAngqNr
+      Integer MxBasC,MxPrCon,MxCont,MxState,MxStOT
+      Integer MxJobs,MxParT,MxExtAddOn
+      Parameter(MxCha=4,MxPol=3,MxAt=18,MxCen=5,MxMltp=3)
+      Parameter(MxComp=MxMltp*(MxMltp+1)/2,MxBas=350,MxSym=1)
+      Parameter(MxOrb=100,MxOT=MxOrb*(MxOrb+1)/2,MxOrb_C=10,MxPut=220)
+      Parameter(MxQCen=MxAt*(MxAt+1)/2,Mum=MxPut*MxPol,MxBasC=50)
+      Parameter(MxCont=20,MxAngqNr=7,MxPrCon=MxCont*MxAngqNr)
+      Parameter(MxBB=MxCont*MxAngqNr*MxAt,MxParT=4,MxExtAddOn=3)
+*Jose. Slater
+*     Parameter(MxSlFactQ=(MxMltp*(MxMltp**2+6*MxMltp+11)+6)/6)
+*Observe! MxState must be the same as MXSTAT in cntrl.fh in src/rassi
+      Parameter(MxState=200,MxStOT=MxState*(MxState+1)/2)
+      Parameter(MxJobs=40)

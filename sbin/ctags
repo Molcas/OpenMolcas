@@ -1,0 +1,49 @@
+#!/usr/bin/env perl
+#***********************************************************************
+# This file is part of OpenMolcas.                                     *
+#                                                                      *
+# OpenMolcas is free software; you can redistribute it and/or modify   *
+# it under the terms of the GNU Lesser General Public License, v. 2.1. *
+# OpenMolcas is distributed in the hope that it will be useful, but it *
+# is provided "as is" and without any express or implied warranties.   *
+# For more details see the full text of the license in the file        *
+# LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#                                                                      *
+# Copyright (C) 2015, Steven Vancoillie                                *
+#***********************************************************************
+#
+# ctags
+#
+# Simple wrapper to make ctags find all the source code
+# in Molcas.
+#
+# Steven Vancoillie, June 2015
+
+use File::Basename;
+
+my $MOLCAS_DRIVER;
+$MOLCAS_DRIVER = $ENV{"MOLCAS_DRIVER"} or $MOLCAS_DRIVER = "molcas";
+my $DRIVER_base = basename($MOLCAS_DRIVER);
+
+my $MOLCAS=$ENV{"MOLCAS"};
+die "MOLCAS not set, set it or use command \"$DRIVER_base ctags\"\n" unless ($MOLCAS);
+
+# check if ctags exists in our path
+my $ctags_exists = 0;
+foreach my $path (split /:/, $ENV{'PATH'}) {
+    if ( -f "$path/ctags" && -x _ ) {
+        $ctags_exists = 1;
+        last;
+    }
+}
+if ( not $ctags_exists) {
+    print "Error: ctags not available\n";
+    exit 1;
+}
+
+# run ctags command
+print "running ctags...";
+system("ctags -h .h.inc.fh --langmap=c:.c.h,fortran:.f.f90.inc.fh --fortran-kinds=+i+L -R @ARGV");
+print "done\n";
+
+exit 0;

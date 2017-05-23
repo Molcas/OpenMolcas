@@ -1,0 +1,30 @@
+/***********************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+***********************************************************************/
+ (prgm)  $MOLCAS/bin/mclr.exe             executable
+#include "aoints.inc"
+#include "choints.inc"
+ (file)  TEMPCIV       "$WorkDir/"purge.TempCiv                 rw
+ (file)  Temp_OutPut   "$WorkDir/"purge.Temp_OutPut             rw
+ (file)  MCKINT        "$WorkDir/$Project."MckInt               rw
+ (file)  RESP          "$WorkDir/$Project."Resp                 rw
+ (file)  JOBIPH        "$WorkDir/$Project$SubProject."JobIph    rw
+ (file)  TEMP0         "$WorkDir/"purge.tramo                   rw*p
+ (file)  REORD         "$WorkDir/"purge.Reord                   rw
+ (file)  UNSYM         "$WorkDir/$Project."UnSym                rws
+ (file)  CHTA          "$WorkDir/$Project".ChTA                 rw*
+ (file)  CHTI          "$WorkDir/$Project".ChTI                 rw*
+ (file)  CHIN          "$WorkDir/$Project".ChIN                 rw
+ (file)  MCLRDENS      "$WorkDir/$Project".MclrDens             rwp
+#include "orbitals.inc"
+ (file)  LUHLF         "$WorkDir/"purge.tmp00                   rw*p
+#include "moldenfiles.inc"
+#include "espffiles.inc"
+#include "rysfiles.inc"

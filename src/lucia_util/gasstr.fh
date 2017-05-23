@@ -1,0 +1,23 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      COMMON/GASSTR/MNGSOC(MXPNGAS),MXGSOC(MXPNGAS),NGPSTR(MXPNGAS),
+     &              IBGPSTR(MXPNGAS),NELFGP(MXPSTT),IGSFGP(MXPSTT),
+     &              NSTFGP(MXPSTT),MNELFGP(MXPNGAS),MXELFGP(MXPNGAS),
+     &              NELFTP(MXPSTT),NSPGPFTP(MXPSTT),IBSPGPFTP(MXPSTT),
+     &              ISPGPFTP(MXPNGAS,MXPSTT),NELFSPGP(MXPNGAS,MXPSTT),
+     &              NSTFSMSPGP(MXPNSMST,MXPSTT),
+     &              NGRP,NSTTP,MXNSTR,NTSPGP,MAX_STR_SPGP,
+     &              MAX_STR_OC_BLK,MXSMCLS,MXSMCLSE,MXSMCLSE1,
+     &              NHLFSPGP(MXPSTT),MNHL, NSTFSMGP(MXPNSMST,MXPSTT),
+     &              MINMAX_SM_GP(2,MXPSTT),ISTFSMGP(MXPNSMST,MXPSTT),
+     &              I_AM_OUT(MXPSTT),N_ELIMINATED_BATCHES,
+     &              IELIMINATED_IN_GAS(MXPNGAS),N_ELIMINATED_GAS,
+     &              I_ELIMINATE_GAS

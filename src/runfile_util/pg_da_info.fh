@@ -1,0 +1,34 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+************************************************************************
+*                                                                      *
+* Header file for the put/get_dArray utilities.                        *
+*                                                                      *
+************************************************************************
+*----------------------------------------------------------------------*
+*                                                                      *
+*----------------------------------------------------------------------*
+      Integer   nTocDA
+      Parameter ( nTocDA = 256 )
+*----------------------------------------------------------------------*
+*                                                                      *
+*----------------------------------------------------------------------*
+      Integer   sNotUsed
+      Integer   sRegularField
+      Integer   sSpecialField
+      Parameter ( sNotUsed      = 0 )
+      Parameter ( sRegularField = 1 )
+      Parameter ( sSpecialField = 2 )
+      integer  i_run_DA_used
+      common /run_da_s/ i_run_DA_used(nTocDA)
+*----------------------------------------------------------------------*
+*                                                                      *
+*----------------------------------------------------------------------*

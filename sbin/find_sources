@@ -1,0 +1,124 @@
+#!/bin/sh
+#***********************************************************************
+# This file is part of OpenMolcas.                                     *
+#                                                                      *
+# OpenMolcas is free software; you can redistribute it and/or modify   *
+# it under the terms of the GNU Lesser General Public License, v. 2.1. *
+# OpenMolcas is distributed in the hope that it will be useful, but it *
+# is provided "as is" and without any express or implied warranties.   *
+# For more details see the full text of the license in the file        *
+# LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#                                                                      *
+# Copyright (C) 2017, Ignacio Fdez. Galván                             *
+#***********************************************************************
+
+# Script to get the location of source directories from a MOLCAS path
+#
+# Outputs:
+#   OPENMOLCAS_SOURCE : location of OpenMolcas sources
+#   MOLCAS_SOURCE     : location of molcas-extra sources
+#                       (if not available, defaults to $OPENMOLCAS_SOURCE)
+#
+# Reads the source locations from CMakeCache.txt (CMake) or
+# .openmolcashome (configure). Tries to provide absolute paths.
+#
+# Options:
+#   -f : force the variables even if they already exist
+#   -c : check that the paths contain valid sources
+#        return code: +1 invalid OPENMOLCAS_SOURCE
+#                     +2 invalid MOLCAS_SOURCE
+#
+# (note that if MOLCAS_SOURCE is equal to OPENMOLCAS_SOURCE, and
+# OPENMOLCAS_SOURCE is valid, MOLCAS_SOURCE is considered as valid)
+
+if [ -z "$MOLCAS" ] ; then
+  MOLCAS=$PWD
+fi
+
+opt=$1
+while [ -n "$opt" ] ; do
+  case $opt in
+    # Force: ignore existing variables
+    -f ) opt_f=1
+         shift
+         ;;
+    # Check: fail if sources are not valid
+    -c ) opt_c=1
+         shift
+         ;;
+    *  ) shift
+         ;;
+  esac
+  opt=$1
+done
+
+cmc="$MOLCAS/CMakeCache.txt"
+omh="$MOLCAS/.openmolcashome"
+
+# Is this a CMake build?
+if [ -f "$cmc" ] ; then
+  CMAKE_SOURCE=$(grep '^Molcas_SOURCE_DIR:' "$cmc" | sed 's/Molcas_SOURCE_DIR:[[:upper:]]*=//')
+  new_MOLCAS_SOURCE=$(grep '^EXTRA:' "$cmc" | sed 's/EXTRA:[[:upper:]]*=//')
+  new_OPENMOLCAS_SOURCE=$(grep '^OPENMOLCAS_DIR:' "$cmc" | sed 's/OPENMOLCAS_DIR:[[:upper:]]*=//')
+  # No EXTRA defined? Either we are building from molcas-extra or this is a pure OpenMolcas
+  if [ -z "$new_MOLCAS_SOURCE" ] ; then
+    new_MOLCAS_SOURCE="$CMAKE_SOURCE"
+  fi
+  # No OPENMOLCAS_DIR defined? Then we must be building from OpenMolcas
+  if [ -z "$new_OPENMOLCAS_SOURCE" ] ; then
+    new_OPENMOLCAS_SOURCE="$CMAKE_SOURCE"
+  fi
+# Is this a configure build?
+elif [ -f "$omh" ] ; then
+  new_OPENMOLCAS_SOURCE=$(grep '^OPENMOLCAS=' "$omh" | sed 's/OPENMOLCAS=//')
+  new_MOLCAS_SOURCE="$MOLCAS"
+# Fallback to MOLCAS
+else
+  new_OPENMOLCAS_SOURCE="$MOLCAS"
+  new_MOLCAS_SOURCE="$MOLCAS"
+fi
+
+# Overwrite existing variables only if force flag was given
+if [ -z "$OPENMOLCAS_SOURCE" ] || [ $opt_f ] ; then
+  OPENMOLCAS_SOURCE="$new_OPENMOLCAS_SOURCE"
+fi
+if [ -z "$MOLCAS_SOURCE" ] || [ $opt_f ] ; then
+  MOLCAS_SOURCE="$new_MOLCAS_SOURCE"
+fi
+
+# Try to get absolute paths
+new_OPENMOLCAS_SOURCE=$( (cd "$OPENMOLCAS_SOURCE" && pwd ) )
+if [ -n "$new_OPENMOLCAS_SOURCE" ] ; then
+  OPENMOLCAS_SOURCE="$new_OPENMOLCAS_SOURCE"
+fi
+new_MOLCAS_SOURCE=$( (cd "$MOLCAS_SOURCE" && pwd ) )
+if [ -n "$new_MOLCAS_SOURCE" ] ; then
+  MOLCAS_SOURCE="$new_MOLCAS_SOURCE"
+fi
+
+# Check the source directories are valid
+rc=0
+if [ $opt_c ] ; then
+  rc=0
+  mh="$OPENMOLCAS_SOURCE/.molcashome"
+  if [ ! -f "$mh" ] ; then
+    rc=$((rc+1))
+  elif [ "$(cat "$mh")" != "openmolcas" ] ; then
+    rc=$((rc+1))
+  fi
+  if [ $rc -gt 0 ] || [ "$MOLCAS_SOURCE" != "$OPENMOLCAS_SOURCE" ] ; then
+    mh="$MOLCAS_SOURCE/.molcashome"
+    if [ ! -f "$mh" ] ; then
+      rc=$((rc+2))
+    elif [ "$(cat "$mh")" != "molcas-extra" ] ; then
+      rc=$((rc+2))
+    fi
+  fi
+fi
+
+export OPENMOLCAS_SOURCE
+export MOLCAS_SOURCE
+
+if [ $rc -gt 0 ] ; then
+  exit $rc
+fi

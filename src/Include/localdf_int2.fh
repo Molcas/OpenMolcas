@@ -1,0 +1,30 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+C Tmp info used for 2P integral calculations for Local DF
+      Integer SHA, SHB, SHC, SHD
+      Integer SPAB, SPCD
+      Integer ip_AB_IndxG, l_AB_IndxG_1, l_AB_IndxG_2
+      Integer ip_AB_IndxG2, l_AB_IndxG2_1, l_AB_IndxG2_2
+      Integer ip_AB_2CList, l_AB_2CList_1, l_AB_2CList_2
+      Integer ip_CD_IndxG, l_CD_IndxG_1, l_CD_IndxG_2
+      Integer ip_CD_IndxG2, l_CD_IndxG2_1, l_CD_IndxG2_2
+      Integer ip_CD_2CList, l_CD_2CList_1, l_CD_2CList_2
+      Integer nAB, nCD
+
+      Common / LDFIN2 / SHA, SHB, SHC, SHD,
+     &                  SPAB, SPCD,
+     &                  ip_AB_IndxG, l_AB_IndxG_1, l_AB_IndxG_2,
+     &                  ip_AB_IndxG2, l_AB_IndxG2_1, l_AB_IndxG2_2,
+     &                  ip_AB_2CList, l_AB_2CList_1, l_AB_2CList_2,
+     &                  ip_CD_IndxG, l_CD_IndxG_1, l_CD_IndxG_2,
+     &                  ip_CD_IndxG2, l_CD_IndxG2_1, l_CD_IndxG2_2,
+     &                  ip_CD_2CList, l_CD_2CList_1, l_CD_2CList_2,
+     &                  nAB, nCD

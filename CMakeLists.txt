@@ -1,0 +1,2741 @@
+#***********************************************************************
+# This file is part of OpenMolcas.                                     *
+#                                                                      *
+# OpenMolcas is free software; you can redistribute it and/or modify   *
+# it under the terms of the GNU Lesser General Public License, v. 2.1. *
+# OpenMolcas is distributed in the hope that it will be useful, but it *
+# is provided "as is" and without any express or implied warranties.   *
+# For more details see the full text of the license in the file        *
+# LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#                                                                      *
+# Copyright (C) 2014-2016, Steven Vancoillie                           *
+#               2014-2017, Ignacio Fdez. Galván                        *
+#               2015, Stefan Knecht                                    *
+#***********************************************************************
+# Global CMakeLists.txt file for building Molcas with CMake.
+#
+# Steven Vancoillie - Spring 2014, on a Saturday afternoon, with coffee
+# Ignacio Fdez. Galván made several improvements / additions
+# Lasse Sørensen - Mac CMP0042 fix
+
+cmake_minimum_required (VERSION 2.8.11)
+#set (CMAKE_VERBOSE_MAKEFILE true)
+if (POLICY CMP0042)
+        cmake_policy(SET CMP0042 NEW)
+endif ()
+if (POLICY CMP0045)
+        cmake_policy(SET CMP0045 NEW)
+endif ()
+
+# Prevent in-source builds
+# If an in-source build is attempted, you will still need to clean up a few files manually.
+set (CMAKE_DISABLE_SOURCE_CHANGES ON)
+set (CMAKE_DISABLE_IN_SOURCE_BUILD ON)
+get_filename_component (sourcedir "${CMAKE_SOURCE_DIR}" REALPATH)
+get_filename_component (binarydir "${CMAKE_BINARY_DIR}" REALPATH)
+if ("${sourcedir}" STREQUAL "${binarydir}")
+        message(FATAL_ERROR "In-source builds in ${CMAKE_BINARY_DIR} are not "
+                "allowed, please remove ./CMakeCache.txt and ./CMakeFiles/, create a "
+                "separate build directory and run cmake from there.")
+endif ()
+
+################################################################################
+#                                                                              #
+# Options                                                                      #
+#                                                                              #
+################################################################################
+
+# The build type, specifies the different optimization types.
+if (NOT DEFINED CMAKE_BUILD_TYPE OR "${CMAKE_BUILD_TYPE}" STREQUAL "")
+        set (CMAKE_BUILD_TYPE "Release" CACHE STRING
+                "Type of build, options are: None (CFLAGS/FFLAGS can be used) Debug Garble RelWithDebInfo Release Fast."
+                FORCE
+                )
+endif ()
+
+# The place where Molcas is installed with make install.
+if (NOT DEFINED CMAKE_INSTALL_PREFIX)
+        set (CMAKE_INSTALL_PREFIX "/opt/molcas" CACHE STRING
+                "Location where Molcas will be installed.")
+endif ()
+
+option (DEBUGPRINT "Enable excessive print statements for debugging." OFF)
+option (DEBUGTRACE "Enable tracing print statements for debugging." OFF)
+
+set (DEBUG_DEFS_DESC "Additional debugging definitions.")
+if (DEFINED DEBUG_DEFS)
+        separate_arguments(DEBUG_DEFS)
+        set (DEBUG_DEFS "${DEBUG_DEFS}" CACHE STRING "${DEBUG_DEFS_DESC}" FORCE)
+else ()
+        set (DEBUG_DEFS "" CACHE STRING "${DEBUG_DEFS_DESC}")
+endif ()
+
+option (BUILD_SHARED_LIBS "Build dynamically-linked molcas library." OFF)
+option (BUILD_STATIC_LIB "Build statically-linked molcas library too." OFF)
+if (BUILD_SHARED_LIBS)
+        mark_as_advanced (CLEAR BUILD_STATIC_LIB)
+else ()
+        mark_as_advanced (FORCE BUILD_STATIC_LIB)
+endif ()
+
+option (MPI "Enable MPI parallellization." OFF)
+option (GA "Use Global Arrays library." OFF)
+
+option (OPENMP "Enable multi-threading." OFF)
+
+option (BOUNDS "Enable bounds checking (only gfortran >= 4.8)." OFF)
+
+option (EXPERT "Show advanced CMake cache entries in GUI)." OFF)
+
+option (BIGOT "Do not allow any compiler warning (treat them as errors)." OFF)
+
+set (LINALG_OPTIONS "Choose linear algebra library, options: Internal (default), Runtime, MKL, ACML, OpenBLAS.")
+if (DEFINED LINALG)
+        set (LINALG "${LINALG}" CACHE STRING "${LINALG_OPTIONS}")
+else ()
+        set (LINALG "Internal"  CACHE STRING "${LINALG_OPTIONS}")
+endif ()
+
+option (CUBLAS "Enable CUDA BLAS library." OFF)
+option (NVBLAS "Enable NVidia BLAS library." OFF)
+
+option (FDE "Enable Frozen-density-embedding (FDE) interface." OFF)
+option (GROMACS "Compile Gromacs interface." OFF)
+option (BLOCK "Activate BLOCK-DMRG support." OFF)
+
+option (GPERFTOOLS "Activate gperftools CPU profiling." OFF)
+option (GCOV "Activate code coverage profiling (use with Debug/-O0)." OFF)
+option (HDF5 "Activate HDF5 support for wavefunction format." ON)
+
+option (TOOLS "Compile supported tools." OFF)
+
+option (CTEST "Enable CTest." OFF)
+mark_as_advanced (CTEST)
+
+# External projects
+option (MSYM       "Activate MSYM support (requires External/libmsym submodule)."                                                     OFF)
+option (DMRG       "Activate QCMaquis driver and library (requires External/qcmaquis_suite and External/qcmaquis_driver submodules)." OFF)
+option (DMRG_DEBUG "Enable DEBUG print in QCMaquis driver."                                                                           OFF)
+if (DMRG)
+        mark_as_advanced (CLEAR DMRG_DEBUG)
+else ()
+        mark_as_advanced (FORCE DMRG_DEBUG)
+endif ()
+option (GEN1INT    "Enable Gen1Int library for 1-electron integrals (requires External/gen1int-molcaslib submodule)."                 OFF)
+option (NECI       "Activate NECI support (requires External/NECI submodule)."                                                        OFF)
+option (HDF5_F2003 "Activate a F2003 interface to the HDF5 library (requires External/hdf5_f2003_interface submodule)."               OFF)
+option (WFA        "Activate extended wavefunction analysis (requires External/libwfa submodule)."                                    OFF)
+
+################################################################################
+#                                                                              #
+# Global settings                                                              #
+#                                                                              #
+################################################################################
+
+# mark that we are running CMake (for subprocesses)
+set (ENV{CMAKE_SESSION} "OpenMolcas")
+
+# project name and supported languages
+#=====================================
+
+if (DMRG)
+        project (Molcas Fortran C CXX)
+        cmake_minimum_required (VERSION 3.0.2)
+elseif (WFA)
+        project (Molcas Fortran C CXX)
+else ()
+        project (Molcas Fortran C    )
+endif ()
+
+add_definitions (-D_MOLCAS_)
+
+#set cmake module search paths
+set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH})
+
+# discover some necessary tools
+find_program (GIT "git")
+find_program (PERL "perl")
+mark_as_advanced(FORCE GIT PERL)
+
+# set function to find source directories
+#========================================
+
+# location of molcas-extra
+if (NOT DEFINED EXTRA)
+        if (DEFINED ENV{EXTRA})
+                set (EXTRA $ENV{EXTRA})
+        else ()
+                set (EXTRA "")
+        endif ()
+endif ()
+if (NOT "${EXTRA}" STREQUAL "")
+        if (NOT IS_ABSOLUTE "${EXTRA}")
+                set (EXTRA "${PROJECT_BINARY_DIR}/${EXTRA}")
+        endif ()
+        get_filename_component (EXTRA "${EXTRA}" ABSOLUTE)
+        if (NOT EXISTS "${EXTRA}")
+                message (WARNING "The Molcas-extra directory ${EXTRA} does not exist.")
+        else ()
+                FILE (STRINGS "${EXTRA}/.molcashome" DIR_TYPE)
+                if ("${DIR_TYPE}" STREQUAL "molcas-extra")
+                        set (EXTRA_DIR ${EXTRA})
+                        add_definitions (-D_HAVE_EXTRA_)
+                else ()
+                        message (FATAL_ERROR "The directory ${EXTRA} does not contain Molcas-extra.")
+                endif ()
+        endif ()
+endif ()
+set (EXTRA "${EXTRA}" CACHE PATH "Location of the Molcas-extra directory." FORCE)
+
+# possible locations for source code
+set (OPENMOLCAS_DIR ${CMAKE_CURRENT_LIST_DIR})
+if (NOT ${PROJECT_SOURCE_DIR} STREQUAL ${OPENMOLCAS_DIR})
+        set (basedirs ${PROJECT_SOURCE_DIR})
+        set (EXTRA_DIR ${PROJECT_SOURCE_DIR})
+        add_definitions (-D_HAVE_EXTRA_)
+endif ()
+list (APPEND basedirs ${OPENMOLCAS_DIR})
+if (NOT "${EXTRA}" STREQUAL "")
+        if (NOT ";${basedirs};" MATCHES ";${EXTRA};")
+                list (APPEND basedirs ${EXTRA})
+        endif ()
+endif ()
+foreach (BASE_DIR ${basedirs})
+        file (GLOB source_roots_tmp RELATIVE ${PROJECT_SOURCE_DIR} "${BASE_DIR}/src*")
+        list (SORT source_roots_tmp)
+        list (APPEND source_roots ${source_roots_tmp})
+endforeach ()
+list (REVERSE basedirs)
+
+function (find_source name)
+        foreach (src ${source_roots})
+                if (EXISTS ${PROJECT_SOURCE_DIR}/${src}/${name})
+                        file (GLOB tmplist RELATIVE ${PROJECT_SOURCE_DIR}/${src}/${name} ${PROJECT_SOURCE_DIR}/${src}/${name}/*)
+                        # ignore possible leftover files from previous configure+make
+                        list (REMOVE_ITEM tmplist Makefile 00dependencies 00sources)
+                        if (tmplist)
+                                set (found "${src}/${name}")
+                                break ()
+                        endif ()
+                endif ()
+        endforeach ()
+        if (DEFINED found)
+                set (${name}_src "${found}" PARENT_SCOPE)
+        #else ()
+        #        message (WARNING "${name} not found, expect trouble")
+        endif ()
+endfunction ()
+
+# These will be needed later, so set them now
+find_source(blas_util)
+find_source(lapack_util)
+
+# get version from git if available, otherwise look in .molcasversion
+#====================================================================
+
+message ("Detecting Molcas version info:")
+
+set (ENV{MOLCAS} ${PROJECT_BINARY_DIR})
+set (ENV{OPENMOLCAS} ${OPENMOLCAS_DIR})
+if (DEFINED EXTRA_DIR)
+        set (ENV{MOLCAS_SOURCE} ${EXTRA_DIR})
+else ()
+        set (ENV{MOLCAS_SOURCE} ${OPENMOLCAS_DIR})
+endif ()
+
+execute_process (
+        COMMAND ${GIT} "rev-parse" "--git-dir"
+        WORKING_DIRECTORY ${OPENMOLCAS_DIR}
+        OUTPUT_VARIABLE GIT_REVPARSE_OUTPUT
+        ERROR_VARIABLE GIT_REVPARSE_ERROR
+        RESULT_VARIABLE GIT_REVPARSE_RC
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+if (GIT_REVPARSE_RC)
+        set (OPENMOLCAS_GIT_REPO "${OPENMOLCAS_DIR}/.git")
+else ()
+        set (OPENMOLCAS_GIT_REPO "${GIT_REVPARSE_OUTPUT}")
+        if (NOT IS_ABSOLUTE "${OPENMOLCAS_GIT_REPO}")
+                set (OPENMOLCAS_GIT_REPO "${OPENMOLCAS_DIR}/${OPENMOLCAS_GIT_REPO}")
+        endif ()
+endif ()
+set (MOLCAS_VERSION_FILE "${PROJECT_SOURCE_DIR}/.molcasversion")
+
+if (DEFINED EXTRA_DIR)
+        execute_process (
+                COMMAND ${GIT} "rev-parse" "--git-dir"
+                WORKING_DIRECTORY ${EXTRA_DIR}
+                OUTPUT_VARIABLE GIT_REVPARSE_OUTPUT
+                ERROR_VARIABLE GIT_REVPARSE_ERROR
+                RESULT_VARIABLE GIT_REVPARSE_RC
+                OUTPUT_STRIP_TRAILING_WHITESPACE
+                )
+        if (GIT_REVPARSE_RC)
+                set (EXTRA_GIT_REPO "${EXTRA_DIR}/.git")
+        else ()
+                set (EXTRA_GIT_REPO "${GIT_REVPARSE_OUTPUT}")
+                if (NOT IS_ABSOLUTE "${EXTRA_GIT_REPO}")
+                        set (EXTRA_GIT_REPO "${EXTRA_DIR}/${EXTRA_GIT_REPO}")
+                endif ()
+        endif ()
+endif ()
+
+if (EXISTS ${GIT})
+        foreach (BASE_DIR ${basedirs})
+                if ("${BASE_DIR}" STREQUAL "${OPENMOLCAS_DIR}")
+                        if (EXISTS ${OPENMOLCAS_GIT_REPO})
+                                set (MOLCAS_GIT_REPO ${OPENMOLCAS_GIT_REPO})
+                        else ()
+                                continue ()
+                        endif ()
+                        set (label "")
+                elseif ("${BASE_DIR}" STREQUAL "${EXTRA_DIR}")
+                        if (EXISTS ${EXTRA_GIT_REPO})
+                                set (MOLCAS_GIT_REPO ${EXTRA_GIT_REPO})
+                        else ()
+                                continue ()
+                        endif ()
+                        set (label "-extra")
+                endif ()
+                # always set the HEAD as a source for configuring
+                configure_file ("${MOLCAS_GIT_REPO}/HEAD" git-head${label} COPYONLY)
+                # if it is a ref to a named branch, include the branch ref too
+                file (READ "${MOLCAS_GIT_REPO}/HEAD" HEAD_STRING)
+                string (STRIP "${HEAD_STRING}" HEAD_STRING)
+                string (REPLACE "ref: " "" HEAD_REF "${HEAD_STRING}")
+                if (EXISTS "${MOLCAS_GIT_REPO}/${HEAD_REF}")
+                        configure_file ("${MOLCAS_GIT_REPO}/${HEAD_REF}" git-head-ref${label} COPYONLY)
+                endif ()
+                # now, get the actual versions from the git describe tool
+                execute_process (
+                        COMMAND ${GIT} "describe" "--always" "--dirty" "--match" "v*"
+                        WORKING_DIRECTORY ${BASE_DIR}
+                        OUTPUT_VARIABLE MOLCAS_VERSION
+                        ERROR_VARIABLE GIT_DESCRIBE_ERROR
+                        RESULT_VARIABLE GIT_DESCRIBE_RC
+                        OUTPUT_STRIP_TRAILING_WHITESPACE
+                        )
+                if (GIT_DESCRIBE_RC)
+                        message (FATAL_ERROR "Failed to run git: ${GIT_DESCRIBE_ERROR}")
+                endif ()
+                if ("${BASE_DIR}" STREQUAL "${OPENMOLCAS_DIR}")
+                        set (OPENMOLCAS_VERSION ${MOLCAS_VERSION})
+                elseif ("${BASE_DIR}" STREQUAL "${EXTRA_DIR}")
+                        set (EXTRA_VERSION ${MOLCAS_VERSION})
+                endif ()
+        endforeach (BASE_DIR)
+
+        # used for external projects (git submodules)
+        set (DEVELOPMENT_CODE)
+        execute_process (
+                COMMAND ${GIT} rev-parse --abbrev-ref HEAD
+                WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                OUTPUT_VARIABLE GIT_BRANCH
+                ERROR_QUIET
+                )
+        if (NOT ${GIT_BRANCH} STREQUAL "")
+                string(STRIP ${GIT_BRANCH} GIT_BRANCH)
+        endif ()
+
+elseif (EXISTS ${MOLCAS_VERSION_FILE})
+        file (STRINGS ${MOLCAS_VERSION_FILE} LINES)
+        foreach (line ${LINES})
+                string (FIND "${line}" ".o" is_open)
+                string (FIND "${line}" ".x" is_extra)
+                if (is_open GREATER -1)
+                        string (STRIP ${line} OPENMOLCAS_VERSION)
+                elseif (is_extra GREATER -1)
+                        string (STRIP ${line} EXTRA_VERSION)
+                endif ()
+        endforeach ()
+else ()
+        set (OPENMOLCAS_VERSION "unknown")
+        set (GIT_BRANCH "")
+endif ()
+
+message ("-- OPENMOLCAS_VERSION: ${OPENMOLCAS_VERSION}")
+set (MOLCAS_VERSION ${OPENMOLCAS_VERSION})
+if (DEFINED EXTRA_VERSION)
+        message ("-- EXTRA_VERSION: ${EXTRA_VERSION}")
+        set (MOLCAS_VERSION "${OPENMOLCAS_VERSION} & ${EXTRA_VERSION}")
+endif ()
+configure_file (${OPENMOLCAS_DIR}/src/Include/molcasversion.h.in include/molcasversion.h)
+
+# set location of libraries and executables
+#==========================================
+
+set (LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
+set (EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+
+# global include directory
+#=========================
+
+foreach (BASE_DIR ${basedirs})
+        if (EXISTS "${BASE_DIR}/src/Include")
+                include_directories (${BASE_DIR}/src/Include)
+        endif ()
+endforeach ()
+include_directories (${PROJECT_BINARY_DIR}/include)
+include_directories (${PROJECT_BINARY_DIR}/mod)
+
+# system information
+#===================
+
+message ("Detecting system info:")
+
+# operating system
+set (OS ${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR})
+
+message ("-- OS: ${OS}")
+
+# address mode
+if (${CMAKE_SIZEOF_VOID_P} EQUAL 8)
+        set (ADRMODE 64)
+        add_definitions (-D_I8_)
+else ()
+        set (ADRMODE 32)
+endif ()
+
+message ("-- ADRMODE: ${ADRMODE}")
+
+# platform settings
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+        add_definitions (-D_LINUX_)
+        if ((${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86") OR
+            (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "i686"))
+                set (PLATFORM "LINUX")
+        elseif (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
+                set (PLATFORM "LINUX64")
+        elseif (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "ia64")
+                set (PLATFORM "LINUX64_IA")
+        elseif (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "ppc_64")
+                set (PLATFORM "PPC64")
+        endif ()
+elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+        add_definitions (-D_LINUX_ -D_DARWIN_)
+        set (CMAKE_MACOSX_RPATH 0)
+        set (PLATFORM "MacOS")
+elseif (${CMAKE_SYSTEM_NAME} STREQUAL "CYGWIN")
+        add_definitions (-D_LINUX_ -D_CYGWIN_)
+        if (ADRMODE EQUAL 32)
+                set (PLATFORM "WIN")
+        elseif (ADRMODE EQUAL 64)
+                set (PLATFORM "WIN64")
+        endif ()
+endif ()
+
+if (NOT PLATFORM)
+        message (FATAL_ERROR "unsupported platform")
+else ()
+        message ("-- PLATFORM: ${PLATFORM}")
+endif ()
+
+################################################################################
+#                                                                              #
+# Compiler-specific settings                                                   #
+#                                                                              #
+################################################################################
+
+# Set the default compiler flags to pick from
+#================================================
+# For new compilers, check for the proper compiler ID on the following web page:
+# http://www.cmake.org/cmake/help/v2.8.12/cmake.html#variable:CMAKE_LANG_COMPILER_ID
+# The regular compiler options have to be compatible with other flags (so they
+# might be added or removed depending on certain options), while the flags for
+# build targets are mutually exclusive (only one of them will be active).
+
+# Ideally, build targets should accomplish the features in the table below.
+# legend: opt = optimizations; bt = backtrace (call stack); trap = catch
+# floating point exceptions; warn = produce warnings during compilation
+#                    opt  bt   trap  warn
+#                    ===  ===  ====  ====
+# - Debug            NO   YES  NO    YES
+# - Garble           YES  YES  YES   YES
+# - RelWithDebInfo   YES  YES  NO    YES
+# - Release          YES  NO   NO    NO
+# - Fast             YES  NO   NO    NO
+
+#======================================#
+# GNU Compiler Collection (GCC)
+#======================================#
+# defines __GNUC__
+# CXX compiler
+list (APPEND SUPPORTED_CXX_COMPILERS "GNU")
+set (CXXFLAGS_GNU_BASIC "")
+set (CXXFLAGS_GNU_OPENMP "-fopenmp")
+# build targets
+set (CXXFLAGS_GNU_DEBUG "-O0 -g -Wall")
+set (CXXFLAGS_GNU_GARBLE "-O2 -g -Wall")
+set (CXXFLAGS_GNU_RELWITHDEBINFO "-O2 -g -Wall")
+set (CXXFLAGS_GNU_RELEASE "-O2")
+set (CXXFLAGS_GNU_FAST "-O2")
+# C compiler
+list (APPEND SUPPORTED_C_COMPILERS "GNU")
+set (CFLAGS_GNU_BASIC "-std=gnu99")
+set (CFLAGS_GNU_OPENMP "-fopenmp")
+# build targets
+set (CFLAGS_GNU_DEBUG "-O0 -g -Wall")
+set (CFLAGS_GNU_GARBLE "-O2 -g -Wall")
+set (CFLAGS_GNU_RELWITHDEBINFO "-O2 -g -Wall")
+set (CFLAGS_GNU_RELEASE "-O2")
+set (CFLAGS_GNU_FAST "-O2")
+# Fortran compiler
+list (APPEND SUPPORTED_Fortran_COMPILERS "GNU")
+set (FFLAGS_GNU_BASIC "-cpp")
+set (FFLAGS_GNU_OPENMP "-fopenmp")
+set (FFLAGS_GNU_ILP64 "-fdefault-integer-8")
+# build targets
+set (FFLAGS_GNU_DEBUG "-O0 -g -Wall")
+set (FFLAGS_GNU_GARBLE "-O2 -g -Wall -ffpe-trap=invalid,zero,overflow -finit-real=snan -finit-integer=730432726")
+set (FFLAGS_GNU_RELWITHDEBINFO "-O2 -g -Wall")
+set (FFLAGS_GNU_RELEASE "-O2")
+set (FFLAGS_GNU_FAST "-O3")
+
+# Fix for GNU Fortran compiler version >= 4.8 to prevent wrong optimization
+# version check for Fortran doesn't work yet, assume it is the same as the C compiler GCC version
+if (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND
+    CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND
+    (NOT CMAKE_C_COMPILER_VERSION VERSION_LESS "4.8"))
+        set (CFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
+        set (FFLAGS_GNU_BASIC "${FFLAGS_GNU_BASIC} -fno-aggressive-loop-optimizations")
+        set (FFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
+endif ()
+
+set (GNU_BIGOT "-Wall -Werror")
+
+#======================================#
+# LLVM C frontend (Clang)
+#======================================#
+# defines __clang__
+# CXX compiler
+list (APPEND SUPPORTED_CXX_COMPILERS "Clang")
+set (CXXFLAGS_Clang_BASIC "")
+set (CXXFLAGS_Clang_OPENMP "-fopenmp")
+# build targets
+set (CXXFLAGS_Clang_DEBUG "-O0 -g -Wall")
+set (CXXFLAGS_Clang_GARBLE "-O2 -g -Wall")
+set (CXXFLAGS_Clang_RELWITHDEBINFO "-O2 -g -Wall")
+set (CXXFLAGS_Clang_RELEASE "-O2")
+set (CXXFLAGS_Clang_FAST "-O2")
+# C compiler
+list (APPEND SUPPORTED_C_COMPILERS "Clang")
+set (CFLAGS_Clang_BASIC "-std=gnu99")
+set (CFLAGS_Clang_OPENMP "-fopenmp")
+# build targets
+set (CFLAGS_Clang_DEBUG "-O0 -g -Wall")
+set (CFLAGS_Clang_GARBLE "-O2 -g -Wall")
+set (CFLAGS_Clang_RELWITHDEBINFO "-O2 -g -Wall")
+set (CFLAGS_Clang_RELEASE "-O2")
+set (CFLAGS_Clang_FAST "-O2")
+
+set (Clang_BIGOT "-Wall -Werror")
+
+#======================================#
+# Intel CXX/C/Fortran Compilers
+#======================================#
+# defines __INTEL_COMPILER
+# CXX compiler
+list (APPEND SUPPORTED_CXX_COMPILERS "Intel")
+set (CXXFLAGS_Intel_BASIC "")
+set (CXXFLAGS_Intel_OPENMP "-qopenmp")
+# build targets
+set (CXXFLAGS_Intel_DEBUG "-debug -Wall")
+set (CXXFLAGS_Intel_GARBLE "-O2 -debug -Wall")
+set (CXXFLAGS_Intel_RELWITHDEBINFO "-O2 -debug -Wall")
+set (CXXFLAGS_Intel_RELEASE "-O2")
+set (CXXFLAGS_Intel_FAST "-O2")
+# C compiler
+list (APPEND SUPPORTED_C_COMPILERS "Intel")
+set (CFLAGS_Intel_BASIC "-std=gnu99")
+set (CFLAGS_Intel_OPENMP "-qopenmp")
+# build targets
+set (CFLAGS_Intel_DEBUG "-debug -Wall")
+set (CFLAGS_Intel_GARBLE "-O2 -debug -Wall")
+set (CFLAGS_Intel_RELWITHDEBINFO "-O2 -debug -Wall")
+set (CFLAGS_Intel_RELEASE "-O2")
+set (CFLAGS_Intel_FAST "-O2")
+# Fortran compiler
+list (APPEND SUPPORTED_Fortran_COMPILERS "Intel")
+set (FFLAGS_Intel_BASIC "-fpp")
+set (FFLAGS_Intel_OPENMP "-qopenmp")
+set (FFLAGS_Intel_ILP64 "-i8 -r8 -heap-arrays")
+# build targets
+set (FFLAGS_Intel_DEBUG "-debug -traceback -warn all,nointerfaces,nodeclarations")
+set (FFLAGS_Intel_GARBLE "-O2 -debug -traceback -warn all,nointerfaces,nodeclarations")
+set (FFLAGS_Intel_RELWITHDEBINFO "-O2 -debug -traceback -warn all,nointerfaces,nodeclarations")
+set (FFLAGS_Intel_RELEASE "-O2 -traceback")
+set (FFLAGS_Intel_FAST "-fast")
+
+# Intel versions prior to 15 used -openmp
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Intel" AND
+    CMAKE_CXX_COMPILER_VERSION VERSION_LESS "15.0.0.20140528")
+        set (CXXFLAGS_Intel_OPENMP "-openmp")
+endif ()
+if (CMAKE_C_COMPILER_ID STREQUAL "Intel" AND
+    CMAKE_C_COMPILER_VERSION VERSION_LESS "15.0.0.20140528")
+        set (CFLAGS_Intel_OPENMP "-openmp")
+endif ()
+if (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel" AND
+    CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "15.0.0.20140528")
+        set (FFLAGS_Intel_OPENMP "-openmp")
+endif ()
+
+#fix for MAC OS X
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+set (CFLAGS_Intel_BASIC "-headerpad_max_install_names ${CFLAGS_Intel_BASIC}")
+set (FFLAGS_Intel_BASIC "-headerpad_max_install_names ${FFLAGS_Intel_BASIC}")
+endif ()
+
+set (Intel_BIGOT "-Wall -Werror")
+
+#======================================#
+# Oracle Solaris Studio (SunStudio)
+#======================================#
+# defines __SUNPRO_F90
+# C compiler
+list (APPEND SUPPORTED_C_COMPILERS "SunPro")
+set (CFLAGS_SunPro_BASIC "-std=c99")
+set (CFLAGS_SunPro_OPENMP "-xopenmp")
+# build targets
+set (CFLAGS_SunPro_DEBUG "-g -traceback -ftrap=%none")
+set (CFLAGS_SunPro_GARBLE "-O -g -traceback -xcheck=init_local -ftrap=common")
+set (CFLAGS_SunPro_RELWITHDEBINFO "-O -g -traceback -ftrap=%none")
+set (CFLAGS_SunPro_RELEASE "-O -ftrap=%none")
+set (CFLAGS_SunPro_FAST "-O -ftrap=%none")
+# Fortran compiler
+list (APPEND SUPPORTED_Fortran_COMPILERS "SunPro")
+set (FFLAGS_SunPro_BASIC "-fpp") # 32bit: -ftrap=common,no%division,%none
+set (FFLAGS_SunPro_OPENMP "-xopenmp")
+set (FFLAGS_SunPro_ILP64 "-dalign -xtypemap=real:64,double:64,integer:64")
+# build targets
+set (FFLAGS_SunPro_DEBUG "-g -traceback -ftrap=%none")
+set (FFLAGS_SunPro_GARBLE "-O -g -traceback -xcheck=init_local -ftrap=common")
+set (FFLAGS_SunPro_RELWITHDEBINFO "-O -g -traceback -ftrap=%none")
+set (FFLAGS_SunPro_RELEASE "-O -ftrap=%none")
+set (FFLAGS_SunPro_FAST "-fast -dbl_align_all=yes -ftrap=%none")
+
+set (SunPro_BIGOT "-errwarn=%all")
+
+#======================================#
+# Portland Group (PGI) Compilers
+#======================================#
+# defines __PGI
+# C compiler
+list (APPEND SUPPORTED_C_COMPILERS "PGI")
+set (CFLAGS_PGI_BASIC "-c99 -pgf90libs")
+set (CFLAGS_PGI_OPENMP "-mp")
+# build targets
+set (CFLAGS_PGI_DEBUG "-O0 -g -Minform=warn")
+set (CFLAGS_PGI_GARBLE "-O2 -gopt -Minform=warn")
+set (CFLAGS_PGI_RELWITHDEBINFO "-O2 -gopt -Minform=warn")
+set (CFLAGS_PGI_RELEASE "-O2")
+set (CFLAGS_PGI_FAST "-O2")
+# Fortran compiler
+list (APPEND SUPPORTED_Fortran_COMPILERS "PGI")
+set (FFLAGS_PGI_BASIC "-Mpreprocess")
+set (FFLAGS_PGI_OPENMP "-mp")
+set (FFLAGS_PGI_ILP64 "-i8")
+# build targets
+set (FFLAGS_PGI_DEBUG "-O0 -g -Minform=warn")
+set (FFLAGS_PGI_GARBLE "-O2 -gopt -Minform=warn")
+set (FFLAGS_PGI_RELWITHDEBINFO "-O2 -gopt -Minform=warn")
+set (FFLAGS_PGI_RELEASE "-O2")
+set (FFLAGS_PGI_FAST "-fast")
+
+# Special flag for building LAPACK with PGI
+if (CMAKE_Fortran_COMPILER_ID STREQUAL "PGI")
+        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${lapack_util_src}/*.f)
+        set_source_files_properties (${source} PROPERTIES COMPILE_FLAGS "-Kieee")
+endif ()
+
+# The option does not exist, or I cannot find it
+#set (PGI_BIGOT "???")
+
+#======================================#
+# Numerical Algorithms Group (NAG)
+#======================================#
+# defines NAGFOR
+# Fortran compiler
+list (APPEND SUPPORTED_Fortran_COMPILERS "NAG")
+set (FFLAGS_NAG_BASIC "-fpp -dusty -dcfuns -mismatch_all -w -kind=byte")
+set (FFLAGS_NAG_OPENMP "-openmp")
+set (FFLAGS_NAG_ILP64 "-i8")
+# build targets
+set (FFLAGS_NAG_DEBUG "-O0 -g -ieee=full")
+set (FFLAGS_NAG_GARBLE "-O2 -g -ieee=stop -nan")
+set (FFLAGS_NAG_RELWITHDEBINFO "-O2 -g -ieee=full")
+set (FFLAGS_NAG_RELEASE "-O2 -ieee=full")
+set (FFLAGS_NAG_FAST "-O3 -ieee=full")
+
+# The option does not exist, or I cannot find it
+#set (NAG_BIGOT "???")
+
+# Generate the actual flags used in the build
+#============================================
+
+# Preprocessor
+if (CMAKE_BUILD_TYPE STREQUAL "Garble")
+        add_definitions (-D_GARBLE_ -D_NO_IEEECK_)
+        if (NOT LINALG STREQUAL "Internal")
+                message (WARNING
+                        "Garble is active, but an external LINALG library is used! "
+                        "The use of an external BLAS/LAPACK can result in problems as floating "
+                        "point exceptions will be trapped that might be used by the library. "
+                        "Please use -DLINALG=Internal for Garble to work correctly!")
+        endif ()
+endif ()
+
+if (DMRG OR WFA)
+        # CXX compiler required for DMRG and WFA projects
+        foreach (CXX_COMPILER ${SUPPORTED_CXX_COMPILERS})
+                if (CXX_COMPILER STREQUAL "${CMAKE_CXX_COMPILER_ID}")
+                        set (CXXCID ${CMAKE_CXX_COMPILER_ID})
+                endif ()
+        endforeach ()
+
+        if (NOT CXXCID)
+                message (FATAL_ERROR "unsupported CXX compiler: ${CMAKE_CXX_COMPILER_ID}")
+        endif ()
+endif ()
+
+# C compiler
+foreach (C_COMPILER ${SUPPORTED_C_COMPILERS})
+        if (C_COMPILER STREQUAL "${CMAKE_C_COMPILER_ID}")
+                set (CCID ${CMAKE_C_COMPILER_ID})
+        endif ()
+endforeach ()
+
+if (NOT CCID)
+        message (FATAL_ERROR "unsupported C compiler: ${CMAKE_C_COMPILER_ID}")
+endif ()
+
+# overwrite any CMake defaults (some are strange, so we set our own)
+if (NOT CMAKE_CXX_FLAGS_USER)
+        set (CMAKE_CXX_FLAGS_DEFAULT "$ENV{CXXFLAGS} ${CXXFLAGS_${CXXCID}_BASIC}"
+                CACHE STRING "C++ compiler flags." FORCE)
+        set (CMAKE_CXX_FLAGS_DEBUG ${CXXFLAGS_${CXXCID}_DEBUG}
+                CACHE STRING "C++ compiler flags used for debug builds." FORCE)
+        set (CMAKE_CXX_FLAGS_GARBLE ${CXXFLAGS_${CXXCID}_GARBLE}
+                CACHE STRING "C++ compiler flags used for garble builds." FORCE)
+        set (CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CXXFLAGS_${CXXCID}_RELWITHDEBINFO}
+                CACHE STRING "C++ compiler flags used for release builds with debug info." FORCE)
+        set (CMAKE_CXX_FLAGS_RELEASE ${CXXFLAGS_${CXXCID}_RELEASE}
+                CACHE STRING "C++ compiler flags used for release builds." FORCE)
+        set (CMAKE_CXX_FLAGS_FAST ${CXXFLAGS_${CXXCID}_FAST}
+                CACHE STRING "C++ compiler flags used for fast release builds." FORCE)
+        set (CMAKE_CXX_FLAGS_USER "TRUE"
+                CACHE INTERNAL "set to FALSE to reset to default C++ flags" FORCE)
+endif ()
+if (EXPERT)
+        mark_as_advanced(CLEAR
+                CMAKE_CXX_FLAGS_DEFAULT
+                CMAKE_CXX_FLAGS_DEBUG
+                CMAKE_CXX_FLAGS_GARBLE
+                CMAKE_CXX_FLAGS_RELWITHDEBINFO
+                CMAKE_CXX_FLAGS_RELEASE
+                CMAKE_CXX_FLAGS_FAST
+                )
+else ()
+        mark_as_advanced(FORCE
+                CMAKE_CXX_FLAGS_DEFAULT
+                CMAKE_CXX_FLAGS_DEBUG
+                CMAKE_CXX_FLAGS_GARBLE
+                CMAKE_CXX_FLAGS_RELWITHDEBINFO
+                CMAKE_CXX_FLAGS_RELEASE
+                CMAKE_CXX_FLAGS_FAST
+                )
+endif ()
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEFAULT}")
+
+# overwrite any CMake defaults (some are strange, so we set our own)
+if (NOT CMAKE_C_FLAGS_USER)
+        set (CMAKE_C_FLAGS_DEFAULT "$ENV{CFLAGS} ${CFLAGS_${CCID}_BASIC}"
+                CACHE STRING "C compiler flags." FORCE)
+        set (CMAKE_C_FLAGS_DEBUG ${CFLAGS_${CCID}_DEBUG}
+                CACHE STRING "C compiler flags used for debug builds." FORCE)
+        set (CMAKE_C_FLAGS_GARBLE ${CFLAGS_${CCID}_GARBLE}
+                CACHE STRING "C compiler flags used for garble builds." FORCE)
+        set (CMAKE_C_FLAGS_RELWITHDEBINFO ${CFLAGS_${CCID}_RELWITHDEBINFO}
+                CACHE STRING "C compiler flags used for release builds with debug info." FORCE)
+        set (CMAKE_C_FLAGS_RELEASE ${CFLAGS_${CCID}_RELEASE}
+                CACHE STRING "C compiler flags used for release builds." FORCE)
+        set (CMAKE_C_FLAGS_FAST ${CFLAGS_${CCID}_FAST}
+                CACHE STRING "C compiler flags used for fast release builds." FORCE)
+        set (CMAKE_C_FLAGS_USER "TRUE"
+                CACHE INTERNAL "set to FALSE to reset to default C flags" FORCE)
+endif ()
+if (EXPERT)
+        mark_as_advanced(CLEAR
+                CMAKE_C_FLAGS_DEFAULT
+                CMAKE_C_FLAGS_DEBUG
+                CMAKE_C_FLAGS_GARBLE
+                CMAKE_C_FLAGS_RELWITHDEBINFO
+                CMAKE_C_FLAGS_RELEASE
+                CMAKE_C_FLAGS_FAST
+                )
+else ()
+        mark_as_advanced(FORCE
+                CMAKE_C_FLAGS_DEFAULT
+                CMAKE_C_FLAGS_DEBUG
+                CMAKE_C_FLAGS_GARBLE
+                CMAKE_C_FLAGS_RELWITHDEBINFO
+                CMAKE_C_FLAGS_RELEASE
+                CMAKE_C_FLAGS_FAST
+                )
+endif ()
+set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS_DEFAULT}")
+
+# Fortran compiler
+foreach (Fortran_COMPILER ${SUPPORTED_Fortran_COMPILERS})
+        if (Fortran_COMPILER STREQUAL "${CMAKE_Fortran_COMPILER_ID}")
+                set (FCID ${CMAKE_Fortran_COMPILER_ID})
+        endif ()
+endforeach ()
+
+if (NOT FCID)
+        message (FATAL_ERROR "unsupported Fortran compiler: ${CMAKE_Fortran_COMPILER_ID}")
+endif ()
+
+# overwrite any CMake defaults (some are strange, so we set our own)
+if (NOT CMAKE_Fortran_FLAGS_USER)
+        set (CMAKE_Fortran_FLAGS_DEFAULT "$ENV{FFLAGS} ${FFLAGS_${FCID}_BASIC}"
+                CACHE STRING "Fortran compiler flags." FORCE)
+        set (CMAKE_Fortran_FLAGS_DEBUG ${FFLAGS_${FCID}_DEBUG}
+                CACHE STRING "Fortran compiler flags used for debug builds." FORCE)
+        set (CMAKE_Fortran_FLAGS_GARBLE ${FFLAGS_${FCID}_GARBLE}
+                CACHE STRING "Fortran compiler flags used for garble builds." FORCE)
+        set (CMAKE_Fortran_FLAGS_RELWITHDEBINFO ${FFLAGS_${FCID}_RELWITHDEBINFO}
+                CACHE STRING "Fortran compiler flags used for release builds with debug info." FORCE)
+        set (CMAKE_Fortran_FLAGS_RELEASE ${FFLAGS_${FCID}_RELEASE}
+                CACHE STRING "Fortran compiler flags used for release builds." FORCE)
+        set (CMAKE_Fortran_FLAGS_FAST ${FFLAGS_${FCID}_FAST}
+                CACHE STRING "Fortran compiler flags used for fast release builds." FORCE)
+        set (CMAKE_Fortran_FLAGS_USER "TRUE"
+                CACHE INTERNAL "set to FALSE to reset to default Fortran flags" FORCE)
+endif ()
+if (EXPERT)
+        mark_as_advanced(CLEAR
+                CMAKE_Fortran_FLAGS_DEFAULT
+                CMAKE_Fortran_FLAGS_DEBUG
+                CMAKE_Fortran_FLAGS_GARBLE
+                CMAKE_Fortran_FLAGS_RELWITHDEBINFO
+                CMAKE_Fortran_FLAGS_RELEASE
+                CMAKE_Fortran_FLAGS_FAST
+                )
+else ()
+        mark_as_advanced(FORCE
+                CMAKE_Fortran_FLAGS_DEFAULT
+                CMAKE_Fortran_FLAGS_DEBUG
+                CMAKE_Fortran_FLAGS_GARBLE
+                CMAKE_Fortran_FLAGS_RELWITHDEBINFO
+                CMAKE_Fortran_FLAGS_RELEASE
+                CMAKE_Fortran_FLAGS_FAST
+                )
+endif ()
+set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS_DEFAULT}")
+
+if (ADRMODE EQUAL 64)
+        set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${FFLAGS_${FCID}_ILP64}")
+endif ()
+
+if (OPENMP)
+        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXXFLAGS_${CXXCID}_OPENMP}")
+        set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CFLAGS_${CCID}_OPENMP}")
+        set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${FFLAGS_${FCID}_OPENMP}")
+endif ()
+
+if (BOUNDS)
+        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXXFLAGS_${CXXCID}_BOUNDS}")
+        set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CFLAGS_${CCID}_BOUNDS}")
+        set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${FFLAGS_${FCID}_BOUNDS}")
+        add_definitions (-D_MALLOC_INTERCEPT_)
+endif ()
+
+################################################################################
+#                                                                              #
+# Process options                                                              #
+#                                                                              #
+################################################################################
+
+# Special print statements
+#=========================
+
+if (DEBUGPRINT)
+        add_definitions (-D_DEBUG_)
+endif ()
+if (DEBUGTRACE)
+        add_definitions (-D_DEBUG_TRACE_)
+endif ()
+
+# Global Arrays settings
+#=======================
+
+# Global Arrays settings, non-portable!
+if (GA)
+        message ("Configuring with external GA library:")
+
+        if (NOT MPI)
+                message (WARNING "External GA library requested for serial build")
+        endif ()
+        find_path (GA_INCLUDE_PATH ga.h
+                PATHS ENV GAROOT
+                PATH_SUFFIXES include
+                NO_DEFAULT_PATH)
+        if (NOT GA_INCLUDE_PATH)
+                message (FATAL_ERROR "GA_INCLUDE_PATH not found, make sure GAROOT environment variable is set.")
+        endif ()
+        find_library (LIBGA ga
+                PATHS ENV GAROOT
+                PATH_SUFFIXES lib
+                NO_DEFAULT_PATH)
+        if (NOT LIBGA)
+                message (FATAL_ERROR "LIBGA not found, make sure GAROOT environment variable is set.")
+        else ()
+                list (APPEND GA_LIBRARIES ${LIBGA})
+        endif ()
+        find_library (LIBARMCI armci
+                PATHS ENV GAROOT
+                PATH_SUFFIXES lib
+                NO_DEFAULT_PATH)
+        if (NOT LIBARMCI)
+                message (FATAL_ERROR "LIBARMCI not found, make sure GAROOT environment variable is set.")
+        else ()
+                list (APPEND GA_LIBRARIES ${LIBARMCI})
+        endif ()
+        # Hackish: try to find out if ARMCI needs IBVERBS by looking for ibv_open_device
+        execute_process (
+                COMMAND "nm" "${LIBARMCI}"
+                COMMAND "grep" "-iq" "ibv_open_device"
+                RESULT_VARIABLE FAILURE
+                )
+        if (FAILURE)
+                message ("-> no libibverbs dependency found for GA.")
+        else ()
+                message ("-> detected ibverbs dependency for GA.")
+                find_library (LIBIBVERBS ibverbs)
+                if (NOT LIBARMCI)
+                        message (WARNING "LIBIBVERBS not found, but probably needed by GA.")
+                else ()
+                        list (APPEND GA_LIBRARIES ${LIBIBVERBS})
+                endif ()
+        endif ()
+
+        add_definitions (-D_GA_)
+        include_directories (${GA_INCLUDE_PATH})
+
+        message ("-- GA_INCLUDE_PATH: ${GA_INCLUDE_PATH}")
+        message ("-- GA_LIBRARIES: ${GA_LIBRARIES}")
+
+        list (APPEND EXTERNAL_LIBRARIES ${GA_LIBRARIES})
+endif ()
+
+# Parallel settings
+#==================
+
+if (MPI)
+        message ("Configuring with MPI parallellization:")
+        find_package (MPI REQUIRED)
+
+        add_definitions (-D_MOLCAS_MPP_)
+        include_directories (${MPI_Fortran_INCLUDE_PATH} ${MPI_C_INCLUDE_PATH})
+
+        message ("-- MPI_C_INCLUDE_PATH: ${MPI_C_INCLUDE_PATH}")
+        message ("-- MPI_Fortran_INCLUDE_PATH: ${MPI_Fortran_INCLUDE_PATH}")
+        message ("-- MPI_C_LIBRARIES: ${MPI_C_LIBRARIES}")
+        message ("-- MPI_Fortran_LIBRARIES: ${MPI_Fortran_LIBRARIES}")
+        message ("-- MPIEXEC: ${MPIEXEC}")
+
+        string (TOLOWER "${MPI_LIBRARIES}" MPI_LIBRARIES_LOWER)
+
+        list (APPEND EXTERNAL_LIBRARIES ${MPI_Fortran_LIBRARIES})
+endif ()
+
+# Support for HDF5 I/O library
+#=============================
+
+if (HDF5)
+        message ("Configuring HDF5 support:")
+        find_package (HDF5)
+        if (HDF5_FOUND)
+                message ("-- HDF5_INCLUDE_PATH: ${HDF5_INCLUDE_DIRS}")
+                message ("-- HDF5_C_LIBRARIES: ${HDF5_C_LIBRARIES}")
+                list (APPEND EXTERNAL_LIBRARIES ${HDF5_C_LIBRARIES})
+        else ()
+                message ("-- HDF5 not found, it will be deactivated")
+        endif ()
+endif ()
+
+# BLAS/LAPACK settings
+#=====================
+
+message ("Configuring linear algebra libraries:")
+
+# If one uses BLAS/LAPACK, you can use the CMake FindBLAS/FindLAPACK modules to
+# set everything, which is determined by setting the BLA_VENDOR environment
+# variable. Unfortunately, currently, the modules that comes with CMake doesn't
+# seem to support any ilp64 version of MKL, as it only has e.g.  Intel10_64lp
+# For now, I'm using some non-portable thing.
+
+set (MKLROOT "" CACHE PATH "MKL root directory.")
+if (LINALG STREQUAL "MKL")
+        message ("-- Using Intel Math Kernel Library (MKL)")
+
+        # quick bypass for 32bit, don't bother with it (for now?)
+        if (NOT ADRMODE EQUAL "64")
+                message (FATAL_ERROR "Use of MKL for 32bit installation not implemented")
+        endif ()
+
+        mark_as_advanced (CLEAR MKLROOT)
+        if (MKLROOT STREQUAL "")
+                set (MKLROOT $ENV{MKLROOT} CACHE PATH "MKL root directory." FORCE)
+                if (NOT MKLROOT)
+                        message (FATAL_ERROR
+                                "You must set environment variable MKLROOT, "
+                                "or specify -DMKLROOT=/path/to/mkl_root_dir "
+                                "when running cmake."
+                                )
+                endif ()
+        endif ()
+        # at this point, MKLROOT should be defined and not empty
+        message ("-- MKLROOT = ${MKLROOT}")
+
+        # here we check if MKLROOT has changed after it was last used
+        # succesfully, if so then we need to reprocess the checks here.
+        if (NOT MKLROOT STREQUAL MKLROOT_LAST)
+                # reset MKL paths
+                set (MKL_INCLUDE_PATH "${MKLROOT}/include" CACHE PATH
+                        "location of MKL include files." FORCE)
+                if (ADRMODE EQUAL "64")
+                        set (libpath "${MKLROOT}/lib/intel64")
+                elseif (ADRMODE EQUAL "32")
+                        set (libpath "${MKLROOT}/lib/ia32")
+                endif ()
+                set (MKL_LIBRARY_PATH ${libpath} CACHE PATH
+                        "location of MKL libraries." FORCE)
+                # uncache variables
+                unset (LIBMKL_CORE CACHE)
+                unset (LIBMKL_INTERFACE CACHE)
+                unset (LIBMKL_SEQUENTIAL CACHE)
+                unset (LIBMKL_THREADING CACHE)
+                unset (LIBMKL_SCALAPACK CACHE)
+                unset (LIBMKL_BLACS CACHE)
+                # cache last used MKLROOT
+                set (MKLROOT_LAST ${MKLROOT} CACHE INTERNAL "last value." FORCE)
+        endif ()
+        message ("-- MKL_INCLUDE_PATH = ${MKL_INCLUDE_PATH}")
+        message ("-- MKL_LIBRARY_PATH = ${MKL_LIBRARY_PATH}")
+
+        # core library
+        find_library (LIBMKL_CORE NAMES "mkl_core"
+                PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+        # compiler-specific library interface
+        if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+                find_library (LIBMKL_INTERFACE NAMES "mkl_gf_ilp64"
+                        PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+        elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
+                find_library (LIBMKL_INTERFACE NAMES "mkl_intel_ilp64"
+                        PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+        endif ()
+        # sequential/compiler-specific threading interface
+        find_library (LIBMKL_SEQUENTIAL NAMES "mkl_sequential"
+                PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+        if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+                set (LIBMKL_OMP_LINK_FLAGS "${FFLAGS_GNU_OPENMP}")
+                find_library (LIBMKL_THREADING NAMES "mkl_gnu_thread"
+                        PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+        elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
+                set (LIBMKL_OMP_LINK_FLAGS "${FFLAGS_Intel_OPENMP}")
+                find_library (LIBMKL_THREADING NAMES "mkl_intel_thread"
+                        PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+        endif ()
+        # find scalapack/blacs for parallel lapack support
+        find_library (LIBMKL_SCALAPACK NAMES "mkl_scalapack_ilp64"
+                PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+        if (MPI_LIBRARIES_LOWER MATCHES "openmpi")
+                list (APPEND MKL_LIB_NAMES "-lmkl_blacs_openmpi_ilp64")
+                find_library (LIBMKL_BLACS NAMES "mkl_blacs_openmpi_ilp64"
+                        PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+        elseif (MPI_LIBRARIES_LOWER MATCHES "impi")
+                find_library (LIBMKL_BLACS NAMES "mkl_blacs_intelmpi_ilp64"
+                        PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+        elseif (MPI_LIBRARIES_LOWER MATCHES "mpich")
+                find_library (LIBMKL_BLACS NAMES "mkl_blacs_ilp64"
+                        PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+        endif ()
+
+        # generate actual library list with paths
+        if (MPI)
+                add_definitions (-DSCALAPACK)
+                list (APPEND MKL_LIBRARIES ${LIBMKL_SCALAPACK})
+        endif ()
+        list (APPEND MKL_LIBRARIES ${LIBMKL_INTERFACE})
+        list (APPEND MKL_LIBRARIES ${LIBMKL_CORE})
+        if (OPENMP)
+                set (CMAKE_EXE_LINKER_FLAGS ${LIBMKL_OMP_LINK_FLAGS})
+                list (APPEND MKL_LIBRARIES ${LIBMKL_THREADING})
+        else ()
+                list (APPEND MKL_LIBRARIES ${LIBMKL_SEQUENTIAL})
+        endif ()
+        if (MPI)
+                list (APPEND MKL_LIBRARIES ${LIBMKL_BLACS})
+        endif ()
+
+        add_definitions (-D_MKL_)
+        include_directories (${MKL_INCLUDE_PATH})
+        set (LINALG_LIBRARIES ${MKL_LIBRARIES})
+else ()
+        mark_as_advanced(FORCE MKLROOT)
+endif ()
+
+# ACML settings, I don't think FindBLAS supports recent ACML either
+set (ACMLROOT "" CACHE PATH "ACML path.")
+if (LINALG STREQUAL "ACML")
+        message ("-- Using AMD Core Math Library (ACML)")
+
+        mark_as_advanced(CLEAR ACMLROOT)
+        if (ACMLROOT STREQUAL "")
+                set (ACMLROOT $ENV{ACMLROOT} CACHE PATH "ACML root directory." FORCE)
+                if (NOT ACMLROOT)
+                        message (FATAL_ERROR
+                                "You must set environment variable ACMLROOT, "
+                                "or specify -DACMLROOT=/path/to/acml_dir "
+                                "when running cmake."
+                                )
+                endif ()
+        endif ()
+
+        unset (LIBACML CACHE)
+        find_library (LIBACML
+                NAMES acml
+                PATHS ${ACMLROOT}
+                PATH_SUFFIXES lib
+                NO_DEFAULT_PATH)
+
+        if (NOT LIBACML)
+                message (FATAL_ERROR
+                        "ACML library not found, please check that "
+                        "the ACMLROOT variable is set and points to "
+                        "a valid ACML installation directory."
+                        )
+        endif ()
+
+        add_definitions (-D_ACML_)
+        set (LINALG_LIBRARIES ${LIBACML})
+else ()
+        mark_as_advanced(FORCE ACMLROOT)
+endif ()
+
+# OpenBLAS
+set (OPENBLASROOT "" CACHE PATH "OpenBLAS root directory.")
+if (LINALG STREQUAL "OpenBLAS")
+        message ("-- Using OpenBLAS LAPACK+BLAS libraries")
+
+        # find out what OPENBLASROOT is
+        mark_as_advanced(CLEAR OPENBLASROOT)
+        if (OPENBLASROOT STREQUAL "")
+                set (OPENBLASROOT $ENV{OPENBLASROOT} CACHE PATH "OpenBLAS root directory." FORCE)
+                if (NOT OPENBLASROOT)
+                        message (FATAL_ERROR
+                                "You must set environment variable OPENBLASROOT, "
+                                "or specify -DOPENBLASROOT=/path/to/openblas_dir "
+                                "when running cmake."
+                                )
+                endif ()
+        endif ()
+        # at this point, OPENBLASROOT should be defined and not empty
+        message ("-- OPENBLASROOT = ${OPENBLASROOT}")
+
+        # here we check if OPENBLASROOT has changed after it was last used
+        # succesfully, if so then we need to reprocess the checks here.
+        if (NOT OPENBLASROOT STREQUAL OPENBLASROOT_LAST)
+                # we need to redo the library search later, because OPENBLASROOT
+                # changed since the last time we defined it.
+                unset (LIBOPENBLAS CACHE)
+                # check if the configuration header is available
+                set (OPENBLAS_CONFIG "${OPENBLASROOT}/include/openblas_config.h")
+                if (NOT EXISTS ${OPENBLAS_CONFIG})
+                        message (FATAL_ERROR
+                                "Could not find OpenBLAS config header: ${OPENBLAS_CONFIG}, "
+                                "please check if the OPENBLASROOT variable points to a "
+                                "valid OpenBLAS installation directory."
+                                )
+                endif ()
+                # check if the OpenBLAS installation was configured with 64bit integer support
+                message ("-- Checking OpenBLAS for 64-bit integer interface...")
+                include(CheckSymbolExists)
+                unset (OPENBLAS_WITH_ILP64 CACHE)
+                check_symbol_exists("OPENBLAS_USE64BITINT" ${OPENBLAS_CONFIG} OPENBLAS_WITH_ILP64)
+                if (ADRMODE EQUAL "64" AND NOT OPENBLAS_WITH_ILP64)
+                        message (FATAL_ERROR
+                                "OpenBLAS was not configured for 64-bit integer interface, "
+                                "please build OpenBLAS with INTERFACE64=1 defined."
+                                )
+                endif ()
+                # save the last location to check if it changed between configurations
+                set (OPENBLASROOT_LAST ${OPENBLASROOT} CACHE INTERNAL "last value." FORCE)
+        endif ()
+
+        # search for the OpenBLAS library
+        find_library (LIBOPENBLAS
+                NAMES openblas
+                PATHS ${OPENBLASROOT}
+                PATH_SUFFIXES lib
+                NO_DEFAULT_PATH)
+
+        if (NOT LIBOPENBLAS)
+                message (FATAL_ERROR
+                        "OpenBLAS library not found, please check that "
+                        "the OPENBLASROOT variable is set and points to "
+                        "a valid OpenBLAS installation directory."
+                        )
+        endif ()
+
+        # here we check if LIBOPENBLAS has changed after it was processed
+        # succesfully, if not we do not need to rerun anything here.
+        if (NOT LIBOPENBLAS STREQUAL LIBOPENBLAS_LAST)
+                # check if the OpenBLAS library contains LAPACK functionality
+                message ("-- Checking OpenBLAS for LAPACK functionality...")
+                include(CheckFortranFunctionExists)
+                set (CMAKE_REQUIRED_LIBRARIES ${LIBOPENBLAS})
+                unset (OPENBLAS_WITH_LAPACK CACHE)
+                check_fortran_function_exists("dsyev" OPENBLAS_WITH_LAPACK)
+                if (NOT OPENBLAS_WITH_LAPACK)
+                        unset (LIBOPENBLAS CACHE)
+                        message (FATAL_ERROR
+                                "LAPACK functionality missing from OpenBLAS library, "
+                                "please build OpenBLAS with NO_LAPACK=0 defined."
+                                )
+                endif ()
+                # save the last location to check if it changed between configurations
+                set (LIBOPENBLAS_LAST ${LIBOPENBLAS} CACHE INTERNAL "last value." FORCE)
+        endif ()
+
+        add_definitions (-D_OPENBLAS_)
+        set (LINALG_LIBRARIES ${LIBOPENBLAS})
+else ()
+        mark_as_advanced(FORCE OPENBLASROOT)
+endif ()
+
+# Internal LAPACK+BLAS libraries shipped with Molcas source
+if (LINALG STREQUAL "Internal")
+        message ("-- Using Molcas' LAPACK+BLAS libraries (SLOW!)")
+        set (LINALG_LIBRARIES "lapack" "blas")
+endif ()
+
+# Runtime loading of LAPACK+BLAS libraries (experimental)
+if (LINALG STREQUAL "Runtime")
+        if (GA)
+                message (FATAL_ERROR
+                        "Runtime LAPACK+BLAS loading is not compatible with Global Arrays. "
+                        "Please select an explicit LINALG library or turn off GA."
+                        )
+        endif ()
+
+        message ("-- using Runtime LAPACK+BLAS libraries (Internal as fallback)")
+        set (LINALG_LIBRARIES "dl")
+
+        add_definitions (-D_DELAYED_)
+endif ()
+
+list (APPEND EXTERNAL_LIBRARIES ${LINALG_LIBRARIES})
+
+message ("-- LINALG_LIBRARIES: ${LINALG_LIBRARIES}")
+
+# GPU acceleration
+#=================
+
+set (CUDAROOT "" CACHE PATH "CUDA root directory.")
+if (CUBLAS OR NVBLAS)
+        message ("Configuring with CUDA BLAS library:")
+
+        mark_as_advanced (CLEAR CUDAROOT)
+        if (CUDAROOT STREQUAL "")
+                set (CUDAROOT $ENV{CUDAROOT} CACHE PATH "CUDA root directory." FORCE)
+                if (NOT CUDAROOT)
+                        message (FATAL_ERROR "CUDA requested, but environment variable CUDAROOT not set.")
+                endif ()
+        endif ()
+
+        # the CUDA library itself is installed with the driver in its own
+        # location, so we need to find it first
+        find_library (LIBCUDA NAMES "cuda")
+        list (APPEND CUDA_LIBRARIES ${LIBCUDA})
+
+        if (CUBLAS)
+                # compile Fortran wrappers as a library
+                set (CUDA_INCLUDE_PATH "${CUDAROOT}/include")
+                set (CUDA_FORTRAN_WRAPPERS "${CUDAROOT}/src/fortran_thunking.c")
+                if (NOT EXISTS ${CUDA_FORTRAN_WRAPPERS})
+                        message (FATAL_ERROR "could not find CUDA fortran wrappers: ${CUDA_FORTRAN_WRAPPERS}")
+                endif ()
+                add_library (cublas_fortran OBJECT "${CUDA_FORTRAN_WRAPPERS}")
+                if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+                        set_target_properties (cublas_fortran PROPERTIES COMPILE_DEFINITIONS "CUBLAS_GFORTRAN")
+                endif ()
+                target_include_directories (cublas_fortran PRIVATE ${CUDA_INCLUDE_PATH})
+                list (APPEND objlibs "$<TARGET_OBJECTS:cublas_fortran>")
+
+                # CUDA needs to link to the C++ standard library, so enable CXX here to
+                # be able to use it as a linker later on for the program executables
+                enable_language(CXX)
+
+                add_definitions (-D_CUDA_BLAS_)
+
+                find_library (LIBCUBLAS cublas
+                        PATHS ${CUDAROOT}
+                        PATH_SUFFIXES lib64
+                        NO_DEFAULT_PATH)
+
+                list (APPEND CUDA_LIBRARIES ${LIBCUBLAS})
+        else ()
+                if (NOT LINALG)
+                        message (FATAL_ERROR "NVBLAS needs an external linear algebra library such as MKL or ACML")
+                endif ()
+                find_library (LIBNVBLAS nvblas
+                        PATHS ${CUDAROOT}
+                        PATH_SUFFIXES lib64
+                        NO_DEFAULT_PATH)
+                find_library (LIBCUBLAS cublas
+                        PATHS ${CUDAROOT}
+                        PATH_SUFFIXES lib64
+                        NO_DEFAULT_PATH)
+
+                list (APPEND CUDA_LIBRARIES ${LIBNVBLAS} ${LIBCUBLAS})
+        endif ()
+
+        message ("-- CUDA_LIBRARIES: ${CUDA_LIBRARIES}")
+
+        list (APPEND EXTERNAL_LIBRARIES ${CUDA_LIBRARIES})
+else ()
+        mark_as_advanced(FORCE CUDAROOT)
+endif ()
+
+# Gromacs
+#========
+
+set (GROMACS_DIR "" CACHE PATH "Gromacs installation path.")
+if (GROMACS)
+        mark_as_advanced(CLEAR GROMACS_DIR)
+
+        message ("Configuring Gromacs:")
+
+        # Try to auto-detect the location of Gromacs
+        if (GROMACS_DIR STREQUAL "")
+                if (DEFINED ENV{GMXLDLIB})
+                        get_filename_component (GMX_DIR $ENV{GMXLDLIB} PATH)
+                        get_filename_component (GMX_DIR ${GMX_DIR} PATH)
+                        set (GROMACS_DIR ${GMX_DIR} CACHE PATH "Gromacs installation path." FORCE)
+                        unset (GMX_DIR)
+                else ()
+                        message (FATAL_ERROR "You must supply a path for GROMACS_DIR.")
+                endif ()
+        endif ()
+
+        # The lib directory is set by Gromacs
+        if (DEFINED ENV{GMXLDLIB})
+                set (GMX_LIBDIR $ENV{GMXLDLIB})
+        else ()
+                set (GMX_LIBDIR "${GROMACS_DIR}/lib/*")
+        endif ()
+
+        find_library (LIBGMX
+                NAMES gromacs_d gromacs
+                PATHS ${GMX_LIBDIR}
+                NO_DEFAULT_PATH)
+        if (NOT LIBGMX)
+                message (FATAL_ERROR "LIBGMX not found, make sure the GROMACS_DIR variable is set correctly.")
+        else ()
+                list (APPEND GMX_LIBRARIES ${LIBGMX})
+        endif ()
+        unset (LIBGMX CACHE)
+
+        # For the include directory we search the header file
+        find_path (INCGMX
+                NAMES gromacs/mmslave.h
+                PATHS ${GROMACS_DIR}/include
+                NO_DEFAULT_PATH)
+        if (NOT INCGMX)
+                message (FATAL_ERROR "INCGMX not found, make sure the GROMACS_DIR variable is set correctly.")
+        else ()
+                list (APPEND GMX_INCLUDE_PATH ${INCGMX})
+        endif ()
+        unset (INCGMX CACHE)
+
+        foreach (util
+                gateway_util
+                espf_util
+                )
+                list (APPEND ${util}_incs ${GMX_INCLUDE_PATH})
+                list (APPEND ${util}_defs "_GROMACS_")
+        endforeach ()
+
+        message ("-- GMX_LIBRARIES: ${GMX_LIBRARIES}")
+        message ("-- GMX_INCLUDE_PATH: ${GMX_INCLUDE_PATH}")
+
+        list (APPEND EXTERNAL_LIBRARIES ${GMX_LIBRARIES})
+else ()
+        mark_as_advanced(FORCE GROMACS_DIR)
+        message (STATUS "Gromacs interface DISABLED")
+endif ()
+
+# Chan group's DMRG (Block code) support
+#=======================================
+if (BLOCK)
+        mark_as_advanced(CLEAR BLOCK_DIR)
+
+        message ("Configuring Block-DMRG support:")
+
+        # Since CMake build is not available in current Block code,
+        # suppose Block has been installed at ${BLOCK_DIR} for the time.
+        set (BLOCK_DIR ${BLOCK_DIR} CACHE PATH "Block installation path." FORCE)
+        if ("${BLOCK_DIR}" STREQUAL "")
+                message (FATAL_ERROR "You must supply a path for BLOCK_DIR.")
+        endif ()
+
+        if (EXISTS ${BLOCK_DIR}/libqcdmrg.so)
+                add_definitions (-D_ENABLE_BLOCK_DMRG_)
+
+                link_directories (${BLOCK_DIR})
+                add_library (block_dmrg_lib_name SHARED IMPORTED)
+                set_target_properties (block_dmrg_lib_name PROPERTIES IMPORTED_LOCATION ${BLOCK_DIR}/libqcdmrg.so)
+
+                message ("-- BLOCK_DIR: ${BLOCK_DIR}")
+
+                list (APPEND utils block_dmrg_util)
+                list (APPEND EXTERNAL_LIBRARIES block_dmrg_lib_name)
+        else ()
+                message ("-- BLOCK interface ignored (no BLOCK installation found at ${BLOCK_DIR})")
+                message (STATUS "BLOCK interface DISABLED")
+        endif ()
+else ()
+        mark_as_advanced(FORCE BLOCK_DIR)
+        message (STATUS "BLOCK interface DISABLED")
+endif ()
+
+# GPerfTools: CPU profiling
+#==========================
+
+if (GPERFTOOLS)
+        message ("Configuring GPerfTools:")
+        find_library (LIBPROFILER NAMES "profiler" "libprofiler.so.0")
+        if (NOT LIBPROFILER)
+                message (FATAL_ERROR "gperftools CPU profiler library not found.")
+        endif ()
+        message ("-- LIBPROFILER: ${LIBPROFILER}")
+
+        list (APPEND EXTERNAL_LIBRARIES ${LIBPROFILER})
+endif ()
+
+# GCov: code coverage
+#====================
+
+if (GCOV)
+        message ("Configuring for code coverage:")
+        if (NOT ${CXXCID} STREQUAL "GNU" OR NOT ${CCID} STREQUAL "GNU" OR NOT ${FCID} STREQUAL "GNU")
+                message (WARNING "gcov code coverage only supported with GCC.")
+        else ()
+                set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
+                set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-arcs -ftest-coverage")
+                set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fprofile-arcs -ftest-coverage")
+        endif ()
+endif ()
+
+# FDE interface
+#==============
+
+if (FDE)
+        add_definitions (-D_FDE_)
+endif ()
+
+# HDF5 F2003 library
+#===================
+
+if (HDF5_F2003)
+        FIND_PACKAGE (HDF5 NAMES hdf5)
+        if (HDF5_FOUND)
+                INCLUDE_DIRECTORIES (${HDF5_INCLUDE_DIR})
+        else (HDF5_FOUND)
+                FIND_PACKAGE (HDF5) # Find non-cmake built HDF5
+                if (HDF5_FOUND)
+                        INCLUDE_DIRECTORIES (${HDF5_INCLUDE_DIR})
+                endif (HDF5_FOUND)
+        endif (HDF5_FOUND)
+        add_definitions (-D_HDF5_F2003_)
+endif (HDF5_F2003)
+
+################################################################################
+#                                                                              #
+# External programs/libraries: compilation does not require a Molcas library,  #
+# but needs to inherit the settings from our configuration.                    #
+#                                                                              #
+################################################################################
+
+set (extprojsdir "${OPENMOLCAS_DIR}/External")
+
+if (MSYM)
+        message ("Configuring MSYM support:")
+
+        set (proj ${extprojsdir}/libmsym)
+        set (proj_bin ${PROJECT_BINARY_DIR}/External/libmsym)
+        if (EXISTS ${proj}/CMakeLists.txt)
+                set (MSYM_FOUND ON)
+                add_subdirectory (${proj} ${proj_bin})
+                # hide from the Molcas CMake GUI
+                set (INSTALL_LIB_DIR     ${INSTALL_LIB_DIR}     CACHE INTERNAL "Installation directory for msym library." FORCE)
+                set (INSTALL_INCLUDE_DIR ${INSTALL_INCLUDE_DIR} CACHE INTERNAL "Installation directory for header files." FORCE)
+                set (INSTALL_CMAKE_DIR   ${INSTALL_CMAKE_DIR}   CACHE INTERNAL "Installation directory for CMake files."  FORCE)
+
+                set (MSYM_INCLUDE ${proj}/src)
+                set (MSYM_LIBRARIES msym)
+
+                message ("-- MSYM_INCLUDE_PATH: ${MSYM_INCLUDE}")
+                message ("-- MSYM_LIBRARIES: ${MSYM_LIBRARIES}")
+
+                list (APPEND EXTERNAL_LIBRARIES ${MSYM_LIBRARIES})
+        else ()
+                set (MSYM_FOUND OFF)
+                message ("-- MSYM interface ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
+        endif ()
+else ()
+        message (STATUS "MSYM support DISABLED")
+endif ()
+
+if (DMRG)
+        message ("Configuring DMRG support:")
+
+        set (ExternalProjectCMakeArgs
+           -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER}
+           -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+           -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+           )
+
+        # 1. QCMaquis driver
+        set (proj ${extprojsdir}/qcmaquis_driver)
+        set (proj_bin ${PROJECT_BINARY_DIR}/External/qcmaquis_driver)
+        if (EXISTS ${proj}/CMakeLists.txt)
+                add_subdirectory (${proj} ${proj_bin})
+                set (DMRG_INCLUDE ${proj_bin}/modules)
+                set (DMRG_LIBRARIES qcmaquis-driver-utils)
+
+                include_directories (${DMRG_INCLUDE})
+
+                message ("-- DMRG_INCLUDE_PATH: ${DMRG_INCLUDE}")
+                message ("-- DMRG_LIBRARIES: ${DMRG_LIBRARIES}")
+
+                list (APPEND EXTERNAL_LIBRARIES ${DMRG_LIBRARIES})
+                add_definitions (-D_DMRG_)
+                if (DMRG_DEBUG)
+                        add_definitions (-D_DMRG_DEBUG_)
+                endif ()
+        else ()
+                message ("-- DMRG interface ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
+        endif ()
+
+        # 2. interface utilities (python) and the actual binary
+        message ("-- Copying python scripts and template inputs for QCMaquis")
+        file (COPY ${proj}/pytools        DESTINATION ${PROJECT_BINARY_DIR})
+        file (COPY ${proj}/template-files DESTINATION ${PROJECT_BINARY_DIR})
+
+        set (proj ${extprojsdir}/qcmaquis_suite)
+        set (proj_bin ${PROJECT_BINARY_DIR}/External/qcmaquis_suite)
+        if (EXISTS ${proj}/CMakeLists.txt)
+                add_subdirectory (${proj} ${proj_bin})
+        else ()
+                message ("-- DMRG sources ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
+        endif ()
+else ()
+        message (STATUS "DMRG support DISABLED")
+endif ()
+
+# HDF5 F2003 support
+if (HDF5_F2003)
+        message ("Configuring HDF5 F0023 support:")
+        set (proj ${extprojsdir}/hdf5_f2003_interface)
+        set (proj_bin ${PROJECT_BINARY_DIR}/External/hdf5_f2003_interface)
+        if (EXISTS ${proj}/CMakeLists.txt)
+                add_subdirectory (${proj} ${proj_bin})
+                list (APPEND HDF5_LIBRARIES HDF5interface)
+                include_directories (${proj_bin})
+
+                set (HDF5_F2003_INCLUDE ${proj_bin})
+                set (HDF5_F2003_LIBRARIES HDF5interface)
+
+                message ("-- HDF5_F2003_INCLUDE_PATH: ${HDF5_F2003_INCLUDE}")
+                message ("-- HDF5_LIBRARIES: ${HDF5_LIBRARIES}")
+
+                list (APPEND EXTERNAL_LIBRARIES ${HDF5_LIBRARIES})
+        else ()
+                message ("-- HDF5 2003 interface ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
+        endif ()
+
+else ()
+        message (STATUS "HDF5 F2003 interface DISABLED")
+endif ()
+
+# NECI Full-CI Quantum Monte-Carlo
+if (NECI)
+        message ("Configuring NECI support:")
+        add_definitions (-D_NECI_)
+        set (proj ${extprojsdir}/NECI)
+        set (proj_bin ${PROJECT_BINARY_DIR}/External/NECI)
+        if (EXISTS ${proj}/CMakeLists.txt)
+                # set default NECI options when built from Molcas
+                # and hide them from the Molcas CMake GUI
+                set (MOLCAS ON CACHE INTERNAL "Enable Molcas interface.")
+                set (PARALLEL ${MPI} CACHE INTERNAL "Enable parallel build (MPI).")
+                set (HDF ON CACHE INTERNAL "Enable HDF5 popsfiles.")
+                set (WARNINGS OFF CACHE INTERNAL "Enable lots of compile warnings.")
+                set (SHARED_MEM ON CACHE INTERNAL "Enable shared memory.")
+
+                add_subdirectory (${proj} ${proj_bin} EXCLUDE_FROM_ALL)
+                set (NECI_LIBRARIES libdneci)
+
+                message ("-- NECI_INCLUDE_PATH: ${NECI_INCLUDE}")
+                message ("-- NECI_LIBRARIES: ${NECI_LIBRARIES}")
+
+                list (APPEND EXTERNAL_LIBRARIES ${NECI_LIBRARIES})
+        else ()
+                add_definitions (-D_EXTNECI_)
+                message ("-- internal NECI ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
+                message ("-- An exterally configured NECI can still be used")
+                message ("-- Please use ExNEci command in your molcas input")
+        endif ()
+
+else ()
+        message (STATUS "NECI interface DISABLED")
+endif ()
+
+# GEN1INT interface
+if (GEN1INT)
+        message ("Configuring GEN1INT support:")
+
+        set (ExternalProjectCMakeArgs
+           -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER}
+           -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+           -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+           )
+
+        # GEN1INT library and interface
+        set (proj ${extprojsdir}/gen1int-molcaslib)
+        set (proj_bin ${PROJECT_BINARY_DIR}/External/gen1int-molcaslib)
+        if (EXISTS ${proj}/CMakeLists.txt)
+                add_subdirectory (${proj} ${proj_bin})
+                set (GEN1INT_INCLUDE ${proj_bin}/modules ${proj}/src)
+                set (GEN1INT_LIBRARIES gen1int-molcaslib)
+
+                include_directories (${GEN1INT_INCLUDE})
+
+                message ("-- GEN1INT_INCLUDE_PATH: ${GEN1INT_INCLUDE}")
+                message ("-- GEN1INT_LIBRARIES:    ${GEN1INT_LIBRARIES}")
+
+                list (APPEND EXTERNAL_LIBRARIES ${GEN1INT_LIBRARIES})
+                add_definitions (-D_GEN1INT_)
+        else ()
+                message ("-- GEN1INT interface ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
+        endif ()
+
+else ()
+        message (STATUS "GEN1INT support DISABLED")
+endif ()
+
+# libwfa interface
+if (WFA)
+        if (NOT HDF5)
+                message (FATAL_ERROR "WFA support requires enabling HDF5 too.")
+        endif ()
+
+        message("Configuring libwfa support:")
+
+        set (proj ${extprojsdir}/libwfa)
+        set (proj_bin ${PROJECT_BINARY_DIR}/External/libwfa)
+        if (EXISTS ${proj}/CMakeLists.txt)
+                set (WFA_FOUND ON)
+                mark_as_advanced(CLEAR ARMADILLO_INC)
+                set (ARMADILLO_INC ${ARMADILLO_INC} CACHE PATH "Directory with armadillo header files")
+                set (MOLCAS_LIB ON CACHE INTERNAL "Compile Molcas support")
+
+                add_subdirectory (${proj}/libwfa)
+                target_include_directories (wfa_molcas PRIVATE ${proj} ${ARMADILLO_INC})
+                target_compile_definitions (wfa_molcas PRIVATE "ARMA_DONT_USE_WRAPPER")
+                list (APPEND wfa_libs wfa_molcas hdf5_cpp)
+
+                message ("-- wfa_libs: ${wfa_libs}")
+                message ("-- ARMADILLO_INC: ${ARMADILLO_INC}")
+
+                list (APPEND EXTERNAL_LIBRARIES ${wfa_libs})
+        else()
+                set (WFA_FOUND OFF)
+                mark_as_advanced(FORCE ARMADILLO_INC)
+                message ("-- libwfa support ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
+        endif ()
+else ()
+        mark_as_advanced(FORCE ARMADILLO_INC)
+        message(STATUS "libwfa support DISABLED")
+endif ()
+
+# Add the "bigot" flags after processing the external projects, so they are not affected
+if (BIGOT)
+        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${${CXXCID}_BIGOT}")
+        set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${${CCID}_BIGOT}")
+        set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${${FCID}_BIGOT}")
+endif ()
+
+################################################################################
+#                                                                              #
+# Configure settings for the Molcas run-time environment                       #
+#                                                                              #
+################################################################################
+
+message ("Configuring runtime environment settings:")
+
+# memory/disk default sizes
+#==========================
+
+if (${ADRMODE} EQUAL "64")
+        set (DEFMOLCASMEM "2048" CACHE STRING "Set default max memory (MB).")
+        set (DEFMOLCASDISK "20000" CACHE STRING "Set default max file size (MB).")
+else ()
+        set (DEFMOLCASMEM "1024" CACHE STRING "Set default max memory (MB).")
+        set (DEFMOLCASDISK "2047"  CACHE STRING "Set default max file size (MB).")
+endif ()
+
+message ("-- DEFMOLCASMEM:  ${DEFMOLCASMEM}")
+message ("-- DEFMOLCASDISK: ${DEFMOLCASDISK}")
+
+# launcher settings
+#==================
+
+# The runtime can be controlled by the user through two variables:
+# SER_LAUNCHER: a command used to launch a serial program
+# MPI_LAUNCHER: a command used to launch an MPI program
+# Since these are advanced options, the user would typically modify
+# them in the CMakeCache.txt. However, they can also be activated
+# by other options for internal use, which is why their presence
+# is detected instead of just caching a default string.
+
+# Scripts are tricky, we don't want to set automatic wrappers
+set (RUNSCRIPT "$program $input" CACHE STRING "Command to launch scripts.")
+
+# Specify the launch command for a serial run
+if (NOT SER_LAUNCHER)
+        set (SER_LAUNCHER ""                CACHE STRING "Command to launch serial programs.")
+else ()
+        set (SER_LAUNCHER "${SER_LAUNCHER}" CACHE STRING "Command to launch serial programs.")
+endif ()
+set (RUNBINARYSER "${SER_LAUNCHER} $program")
+
+# Specify the launch command for an MPI run
+if (MPI)
+        if (NOT MPI_LAUNCHER)
+                set (MPI_LAUNCHER "${MPIEXEC} -n $MOLCAS_NPROCS" CACHE STRING "Command to launch MPI programs.")
+        endif ()
+        set (RUNBINARY "${MPI_LAUNCHER} $program")
+else ()
+        set (RUNBINARY "${SER_LAUNCHER} $program")
+endif ()
+
+string (STRIP ${RUNSCRIPT} RUNSCRIPT)
+string (STRIP ${RUNBINARY} RUNBINARY)
+string (STRIP ${RUNBINARYSER} RUNBINARYSER)
+
+message ("-- RUNSCRIPT:    ${RUNSCRIPT}")
+message ("-- RUNBINARY:    ${RUNBINARY}")
+message ("-- RUNBINARYSER: ${RUNBINARYSER}")
+
+
+################################################################################
+#                                                                              #
+# Print summary                                                                #
+#                                                                              #
+################################################################################
+
+message ("Build type: ${CMAKE_BUILD_TYPE}")
+string (TOUPPER ${CMAKE_BUILD_TYPE} BUILD_TARGET)
+if (NOT BUILD_TARGET STREQUAL "NONE")
+        message ("-- C compiler: ${CMAKE_C_COMPILER}")
+        message ("-- C compiler flags: ${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_${BUILD_TARGET}}")
+        message ("-- Fortran compiler: ${CMAKE_Fortran_COMPILER}")
+        message ("-- Fortran compiler flags: ${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_${BUILD_TARGET}}")
+else ()
+        message ("-- C compiler: ${CMAKE_C_COMPILER}")
+        message ("-- C compiler flags: ${CMAKE_C_FLAGS}")
+        message ("-- Fortran compiler: ${CMAKE_Fortran_COMPILER}")
+        message ("-- Fortran compiler flags: ${CMAKE_Fortran_FLAGS}")
+endif ()
+get_directory_property(defs COMPILE_DEFINITIONS)
+message ("-- Definitions: ${defs}")
+message ("-- Debug definitions: ${DEBUG_DEFS}")
+
+################################################################################
+#                                                                              #
+# Utilities/Programs                                                           #
+#                                                                              #
+################################################################################
+
+# generate utility list
+#======================
+# FIXME: this should be split in several sublists, e.g. core, blas, etc.
+# Then it will be easier to construct custom utility lists.
+
+# autodiscover program and utility directories
+foreach (dir ${source_roots})
+        # find all files not starting with a dot
+        file (GLOB dir_progs RELATIVE "${PROJECT_SOURCE_DIR}/${dir}" "${dir}/[^.]*")
+        file (GLOB dir_utils RELATIVE "${PROJECT_SOURCE_DIR}/${dir}" "${dir}/[^.]*_util")
+        # programs are those that do not end in "_util"
+        if (dir_utils)
+                list (REMOVE_ITEM dir_progs ${dir_utils})
+        endif ()
+        # and consider only dirctories
+        foreach (item ${dir_progs})
+                if (NOT IS_DIRECTORY "${PROJECT_SOURCE_DIR}/${dir}/${item}")
+                        list (REMOVE_ITEM dir_progs ${item})
+                endif ()
+        endforeach ()
+        foreach (item ${dir_utils})
+                if (NOT IS_DIRECTORY "${PROJECT_SOURCE_DIR}/${dir}/${item}")
+                        list (REMOVE_ITEM dir_utils ${item})
+                endif ()
+        endforeach ()
+        list (APPEND utils ${dir_utils})
+        list (APPEND progs ${dir_progs})
+endforeach ()
+list (REMOVE_DUPLICATES utils)
+list (REMOVE_DUPLICATES progs)
+# some directories are special or managed manually, remove them from the automatic list
+list (REMOVE_ITEM utils
+        blas_util
+        block_dmrg_util
+        delayed_util
+        dga_util
+        embedding_util
+        hdf5_util
+        lapack_util
+        libmsym_util # remove when deleted
+        msym_util
+        )
+list (REMOVE_ITEM progs
+        Driver
+        Include
+        Modules
+        parnell
+        symmetrize
+        wfa
+        )
+
+# set the location of the sources for the utilities
+foreach (util ${utils})
+        find_source(${util})
+        if (NOT DEFINED ${util}_src)
+                list (REMOVE_ITEM utils ${util})
+                message (WARNING "\"${util}\" not found in source directories, skipping")
+        endif ()
+endforeach ()
+
+if (FDE)
+        set (util embedding_util)
+        find_source(${util})
+        if (DEFINED ${util}_src)
+                list (APPEND utils ${util})
+                include_directories (${${util}_src})
+        else ()
+                message (FATAL_ERROR "\"${util}\" not found in source directories")
+        endif ()
+        list (APPEND gateway_util_incs ${${util}_src})
+        list (APPEND seward_incs ${${util}_src})
+        list (APPEND scf_incs ${${util}_src})
+        list (APPEND rasscf_incs ${${util}_src})
+        list (APPEND grid_it_incs ${${util}_src})
+endif ()
+
+# If an external GA library is not present, we use the internal
+# DGA code which resides in dga_util:
+if (NOT GA)
+        set (util dga_util)
+        find_source(${util})
+        if (DEFINED ${util}_src)
+                list (APPEND utils ${util})
+                include_directories (${${util}_src})
+        endif ()
+        # workaround for OpenMPI
+        if (MPI_LIBRARIES_LOWER MATCHES "openmpi" AND OPENMP)
+                list (APPEND ${util}_defs "_OPENMPI_")
+                message (WARNING
+                        "MPI_THREAD_MULTIPLE support in OpenMPI is unreliable in "
+                        "some circumstances, using MPI_THREAD_SERIALIZED instead.")
+        endif ()
+endif ()
+
+# Add optional interface to dynamic runtime BLAS/LAPACK
+if (LINALG STREQUAL "Runtime")
+        set (util delayed_util)
+        find_source(${util})
+        if (DEFINED ${util}_src)
+                list (APPEND utils ${util})
+        else ()
+                message (FATAL_ERROR "\"${util}\" not found in source directories")
+        endif ()
+        list (APPEND ${util}_incs ${blas_util_src} ${lapack_util_src})
+endif ()
+
+# activate HDF5 wrappers for I/O
+if (HDF5 AND HDF5_FOUND)
+        set (util hdf5_util)
+        find_source(${util})
+        if (DEFINED ${util}_src)
+                list (APPEND utils ${util})
+                list (APPEND ${util}_incs ${HDF5_INCLUDE_DIRS})
+        else ()
+                message (FATAL_ERROR "\"${util}\" not found in source directories")
+        endif ()
+        # additional utilities doing internal HDF5 calls
+        foreach (util
+                guessorb_util
+                hyper_util
+                molcas_ci_util
+                msym_util
+                oneint_util
+                restart_util
+                runfile_util
+                )
+                list (APPEND ${util}_defs "_HDF5_")
+        endforeach ()
+endif ()
+
+# activate MSYM support
+if (MSYM AND MSYM_FOUND)
+        set (util msym_util)
+        find_source(${util})
+        if (DEFINED ${util}_src)
+                list (APPEND utils ${util})
+        else ()
+                message (FATAL_ERROR "\"${util}\" not found in source directories")
+        endif ()
+        list (APPEND ${util}_incs ${MSYM_INCLUDE})
+        list (APPEND progs symmetrize)
+endif ()
+
+# activate libwfa support
+if (WFA AND WFA_FOUND)
+        list (APPEND progs wfa)
+endif ()
+
+# finally, sort the list
+list (SORT utils)
+
+# set the location of the sources for the programs
+foreach (prog ${progs})
+        find_source(${prog})
+        if (NOT DEFINED ${prog}_src)
+                list (REMOVE_ITEM progs ${prog})
+                message (WARNING "\"${prog}\" not found in source directories, skipping")
+        endif ()
+endforeach ()
+
+if (MSYM AND MSYM_FOUND)
+        list (APPEND scf_defs "_MSYM_")
+endif ()
+
+if (WFA AND WFA_FOUND)
+        list (APPEND wfa_defs "_WFA_")
+endif ()
+
+# programs doing HDF5 calls
+if (HDF5 AND HDF5_FOUND)
+        foreach (prog
+                scf
+                rasscf
+                caspt2
+                rassi
+                single_aniso
+                poly_aniso
+                dynamix
+                surfacehop
+                )
+                list (APPEND ${prog}_defs "_HDF5_")
+        endforeach ()
+endif ()
+
+# finally, sort the list
+list (SORT progs)
+
+# set program dependencies of super modules
+set (casvb_deps
+        $<TARGET_OBJECTS:rasscf>
+        )
+set (espf_deps
+        $<TARGET_OBJECTS:seward>
+        $<TARGET_OBJECTS:alaska>
+        )
+set (loprop_deps
+        $<TARGET_OBJECTS:scf>
+        $<TARGET_OBJECTS:rasscf>
+        $<TARGET_OBJECTS:caspt2>
+        $<TARGET_OBJECTS:mbpt2>
+        )
+set (numerical_gradient_deps
+        $<TARGET_OBJECTS:seward>
+        $<TARGET_OBJECTS:scf>
+        $<TARGET_OBJECTS:rasscf>
+        $<TARGET_OBJECTS:caspt2>
+        $<TARGET_OBJECTS:mbpt2>
+        $<TARGET_OBJECTS:ccsdt>
+        $<TARGET_OBJECTS:motra>
+        $<TARGET_OBJECTS:chcc>
+        $<TARGET_OBJECTS:cht3>
+        $<TARGET_OBJECTS:mcpdft>
+        )
+set (last_energy_deps
+        $<TARGET_OBJECTS:seward>
+        $<TARGET_OBJECTS:scf>
+        $<TARGET_OBJECTS:rasscf>
+        $<TARGET_OBJECTS:caspt2>
+        $<TARGET_OBJECTS:mbpt2>
+        $<TARGET_OBJECTS:ccsdt>
+        $<TARGET_OBJECTS:motra>
+        $<TARGET_OBJECTS:chcc>
+        $<TARGET_OBJECTS:cht3>
+        $<TARGET_OBJECTS:mcpdft>
+        )
+
+
+################################################################################
+#                                                                              #
+# Disable some warnings that are buggy or on code we don't want to modify      #
+#                                                                              #
+################################################################################
+if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+        # gfortran (version?) does not detect functions passed as arguments
+        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${fmm_util_src}/*.f90)
+        set_source_files_properties (${source} PROPERTIES COMPILE_FLAGS "-Wno-unused-function")
+        # netlib blas/lapack has too many problems to fix (yet)
+        set (netlib_nowarn_flags "-Wno-conversion -Wno-unused-dummy-argument -Wno-maybe-uninitialized")
+        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${blas_util_src}/*.f)
+        set_source_files_properties (${source} PROPERTIES COMPILE_FLAGS ${netlib_nowarn_flags})
+        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${lapack_util_src}/*.f)
+        set_source_files_properties (${source} PROPERTIES COMPILE_FLAGS ${netlib_nowarn_flags})
+        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${delayed_util_src}/*.f)
+        set_source_files_properties (${source} PROPERTIES COMPILE_FLAGS ${netlib_nowarn_flags})
+endif ()
+
+################################################################################
+#                                                                              #
+# Blacklisted sources                                                          #
+#                                                                              #
+################################################################################
+
+if (DEFINED BLACKLIST)
+        foreach (module ${BLACKLIST})
+                file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR}
+                        ${${module}_src}/*.f
+                        ${${module}_src}/*.f90
+                        )
+                set_source_files_properties (
+                        ${source} PROPERTIES
+                        COMPILE_FLAGS "${BLACKFLAGS}"
+                        )
+        endforeach ()
+        message ("Blacklisting enables, someone doesn't like certain modules...")
+        message ("-- modules: ${BLACKLIST}")
+        message ("-- *additional* flags: ${BLACKFLAGS}")
+endif ()
+
+################################################################################
+#                                                                              #
+# Build the utilities and the Molcas library                                   #
+#                                                                              #
+################################################################################
+
+# first, build global modules separately, so other utils can add it as a
+# dependency using the "mods_obj" target.
+set (util "Modules")
+file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${OPENMOLCAS_DIR}/src/${util}/*.f ${OPENMOLCAS_DIR}/src/${util}/*.f90)
+add_library (mods_obj OBJECT ${source})
+list (APPEND ALL_SOURCES ${source})
+if (DMRG)
+        add_dependencies(mods_obj ${DMRG_LIBRARIES})
+endif ()
+if (GEN1INT)
+        add_dependencies(mods_obj ${GEN1INT_LIBRARIES})
+endif ()
+if (BUILD_SHARED_LIBS)
+        set_target_properties (mods_obj PROPERTIES
+                POSITION_INDEPENDENT_CODE "TRUE")
+endif ()
+set_target_properties (mods_obj PROPERTIES
+        Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/mod)
+target_include_directories (mods_obj PRIVATE
+        ${OPENMOLCAS_DIR}/src/${util}
+        )
+list (APPEND utils_obj mods_obj)
+list (APPEND objlibs "$<TARGET_OBJECTS:mods_obj>")
+
+# now go through utility list
+foreach (util ${utils})
+        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${${util}_src}/*.f ${${util}_src}/*.f90 ${${util}_src}/*.F90 ${${util}_src}/*.c)
+        list (APPEND ALL_SOURCES ${source})
+        # ignore empty directories
+        if (NOT "${source}" STREQUAL "")
+                add_library (${util}_obj OBJECT ${source})
+                list (APPEND ALL_SOURCES ${source})
+                if (BUILD_SHARED_LIBS)
+                        set_target_properties (${util}_obj PROPERTIES
+                                POSITION_INDEPENDENT_CODE "TRUE")
+                endif ()
+                set_target_properties (${util}_obj PROPERTIES
+                        Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/mod/${util})
+
+                # utility-specific compile definitions
+                if (DEFINED ${util}_defs)
+                        set_target_properties (${util}_obj PROPERTIES COMPILE_DEFINITIONS "${${util}_defs}")
+                endif ()
+                # utility-specific include directories
+                list (APPEND ${util}_incs ${PROJECT_SOURCE_DIR}/${${util}_src} ${PROJECT_BINARY_DIR}/mod/${util})
+                foreach (inc ${${util}_incs})
+                        target_include_directories (${util}_obj PRIVATE ${inc})
+                endforeach ()
+
+                add_dependencies (${util}_obj mods_obj)
+
+                list (APPEND utils_obj ${util}_obj)
+                list (APPEND objlibs "$<TARGET_OBJECTS:${util}_obj>")
+                #add_library (${util} $<TARGET_OBJECTS:${util}_obj>)
+
+                # if (EXISTS ${PROJECT_SOURCE_DIR}/${${util}_src}/custom.cmake)
+                #         include(${PROJECT_SOURCE_DIR}/${${util}_src}/custom.cmake)
+                # endif ()
+        endif ()
+endforeach (util)
+
+# build an actual Molcas library
+add_library (molcas ${objlibs})
+if (BUILD_SHARED_LIBS)
+        # flatten namespace on Mac OS X
+        if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+                set_target_properties (molcas PROPERTIES
+                        LINK_FLAGS "-Wl,-flat_namespace")
+        endif ()
+        # also create a static library!
+        if (BUILD_STATIC_LIB)
+                add_library (molcas_static STATIC ${objlibs})
+        endif ()
+endif ()
+
+# if necessary, build BLAS/LAPACK
+if (LINALG STREQUAL "Internal")
+        foreach (lib "lapack" "blas")
+                set (util "${lib}_util")
+                if (NOT DEFINED ${util}_src)
+                        message (FATAL_ERROR "\"${util}\" not found in source directories")
+                endif ()
+                file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${${util}_src}/*.f)
+                add_library (${lib} ${source})
+                list (APPEND ALL_SOURCES ${source})
+                if (BUILD_SHARED_LIBS)
+                        set_target_properties (${lib} PROPERTIES
+                                POSITION_INDEPENDENT_CODE "TRUE")
+                endif ()
+        endforeach ()
+endif ()
+
+################################################################################
+#                                                                              #
+# Build the program modules                                                    #
+#                                                                              #
+################################################################################
+
+foreach (prog ${progs})
+        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${${prog}_src}/*.f ${${prog}_src}/*.f90 ${${prog}_src}/*.c)
+        list (APPEND ALL_SOURCES ${source})
+        # ignore empty programs
+        if ("${source}" STREQUAL "")
+                list (REMOVE_ITEM progs ${prog})
+        else ()
+                # FIXME: the checks below remove any main.* file, which is needed in
+                # order to be able to make a library out of the program sources.  This
+                # is required for supermodules.
+                #------------------------------------------------------------------
+                foreach (lext "f" "f90" "c")
+                        if (EXISTS ${PROJECT_SOURCE_DIR}/${${prog}_src}/main.${lext})
+                                list (REMOVE_ITEM source ${${prog}_src}/main.${lext})
+                                set (${prog}_main ${${prog}_src}/main.${lext})
+                        endif ()
+                endforeach ()
+
+                if (NOT "${source}" STREQUAL "")
+                        add_library (${prog} OBJECT ${source})
+                        set_target_properties (${prog} PROPERTIES
+                                Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/mod/${prog})
+
+                        # program-specific compile definitions
+                        if (DEFINED ${prog}_defs)
+                                set_target_properties (${prog} PROPERTIES COMPILE_DEFINITIONS "${${prog}_defs}")
+                        endif ()
+                        # program-specific include directories
+                        list (APPEND ${prog}_incs ${PROJECT_SOURCE_DIR}/${${prog}_src} ${PROJECT_BINARY_DIR}/mod/${prog})
+                        foreach (inc ${${prog}_incs})
+                                target_include_directories (${prog} PRIVATE ${inc})
+                        endforeach ()
+
+                        add_dependencies (${prog} ${utils_obj})
+                endif ()
+        endif ()
+endforeach ()
+
+# set file-specific flags
+if (BOUNDS AND (${FFLAGS_GNU_BOUNDS} MATCHES "-fsanitize=address"))
+        set_source_files_properties(${rassi_src}/prprop.f PROPERTIES COMPILE_FLAGS --param=max-vartrack-size=120000000)
+endif ()
+
+# set up proper RPATH for executables, use RUNPATH if on Linux
+set (CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+foreach (prog ${progs})
+        # FIXME: Actual program target only depends on main file now, but if
+        # supermodules are gone, the dependency should be on ${source} instead.
+        #----------------------------------------------------------------------
+        if (TARGET ${prog})
+                list (APPEND ${prog}_deps $<TARGET_OBJECTS:${prog}>)
+        endif ()
+        add_executable (${prog}.exe ${${prog}_main} ${${prog}_deps})
+        list (APPEND progs_exe ${prog}.exe)
+        set_target_properties (${prog}.exe PROPERTIES
+                Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/mod/${prog})
+        foreach (inc ${${prog}_incs})
+                target_include_directories (${prog}.exe PRIVATE ${inc})
+        endforeach ()
+
+        target_link_libraries (${prog}.exe molcas)
+        target_link_libraries (${prog}.exe ${EXTERNAL_LIBRARIES})
+
+        if (CUBLAS)
+                set_target_properties (${prog}.exe PROPERTIES LINKER_LANGUAGE "CXX")
+        endif ()
+
+        list (APPEND PROGRAM_EXECUTABLES ${prog}.exe)
+endforeach (prog)
+
+# build parnell as a stand-alone executable
+set (prog parnell)
+find_source(${prog})
+if (NOT DEFINED ${prog}_src)
+        message (FATAL_ERROR "\"${prog}\" not found in source directories")
+endif ()
+file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${${prog}_src}/*.f ${${prog}_src}/*.f90 ${${prog}_src}/*.c)
+add_executable (${prog}.exe ${source})
+list (APPEND progs_exe ${prog}.exe)
+list (APPEND ALL_SOURCES ${source})
+list (APPEND PROGRAM_EXECUTABLES ${prog}.exe)
+if (MPI)
+        target_link_libraries (${prog}.exe ${MPI_C_LIBRARIES})
+endif ()
+
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+        if (${CMAKE_SYSTEM_VERSION} STREQUAL "15.0.0")
+                if (LINALG STREQUAL "MKL")
+                        foreach (prog ${PROGRAM_EXECUTABLES})
+                                if (${prog} STREQUAL "parnell.exe")
+                                        continue ()
+                                endif ()
+                                #message(STATUS "update dylib for ... ${prog}")
+                                add_custom_target(dylibpath_${prog} ALL
+                                                  DEPENDS ${prog}
+                                                  VERBATIM
+                                                 )
+                                add_dependencies(dylibpath_${prog} ${prog})
+                                add_custom_command(TARGET dylibpath_${prog}
+                                                   POST_BUILD
+                                                   DEPENDS dylibpath_${prog}
+                                                   COMMAND ${OPENMOLCAS_DIR}/sbin/fixdylib  ${EXECUTABLE_OUTPUT_PATH}/${prog} libmkl ${MKLROOT}
+                                                   COMMENT "Enforce absolute path to MKL in dynamically linked executables"
+                                                   VERBATIM
+                                                  )
+                        endforeach (prog)
+                endif ()
+        endif ()
+endif ()
+
+# Add custom debug flags per file:
+#   For each flag, tries to find every file where it is used and modify its properties
+# Limitation: it will rebuild the whole target (but not the whole molcas
+foreach (def ${DEBUG_DEFS})
+        foreach (file ${ALL_SOURCES})
+                file (READ ${file} contents)
+                string (REGEX MATCH ${def} result "${contents}")
+                if (NOT ${result} STREQUAL "")
+                        get_source_file_property(defs ${file} COMPILE_DEFINITIONS)
+                        if (${defs} STREQUAL "NOTFOUND")
+                                set (defs ${def})
+                        else ()
+                                list (APPEND defs ${def})
+                        endif ()
+                        set_source_files_properties(${file} PROPERTIES COMPILE_DEFINITIONS "${defs}")
+                endif ()
+        endforeach ()
+endforeach ()
+
+################################################################################
+#                                                                              #
+# Tools, i.e. builds are dependent on Molcas library                           #
+#                                                                              #
+################################################################################
+
+if (TOOLS)
+        message ("Configuring tools:")
+        foreach (BASE_DIR ${basedirs})
+                set (toolsdir ${BASE_DIR}/Tools)
+                file (GLOB tools RELATIVE ${toolsdir} ${toolsdir}/*)
+                list (SORT tools)
+                foreach (tool ${tools})
+                        if (IS_DIRECTORY ${toolsdir}/${tool})
+                                if (EXISTS ${toolsdir}/${tool}/CMakeLists.txt)
+                                        add_subdirectory (${toolsdir}/${tool} ${PROJECT_BINARY_DIR}/Tools/${tool})
+                                        message ("-- ${tool}: added to targets")
+                                else ()
+                                        message ("-- ${tool}: ignored (no CMake support)")
+                                endif ()
+                        endif ()
+                endforeach ()
+        endforeach ()
+endif ()
+
+################################################################################
+#                                                                              #
+# Post-build actions                                                           #
+#                                                                              #
+################################################################################
+
+# create runtime environment file
+file (WRITE ${PROJECT_BINARY_DIR}/molcas.rte
+        "# molcas runtime environment\n"
+        "OS='${OS}'\n"
+        "PARALLEL='${MPI}'\n"
+        "DEFMOLCASMEM='${DEFMOLCASMEM}'\n"
+        "DEFMOLCASDISK='${DEFMOLCASDISK}'\n"
+        "RUNSCRIPT='${RUNSCRIPT}'\n"
+        "RUNBINARY='${RUNBINARY}'\n"
+        "RUNBINARYSER='${RUNBINARYSER}'\n"
+        )
+
+# create version file
+file (WRITE ${PROJECT_BINARY_DIR}/.molcasversion
+        ${OPENMOLCAS_VERSION}
+        )
+if (DEFINED EXTRA_VERSION)
+        file (APPEND ${PROJECT_BINARY_DIR}/.molcasversion
+                "\n${EXTRA_VERSION}"
+                )
+endif ()
+file (WRITE ${PROJECT_BINARY_DIR}/.molcashome)
+
+# copy LICENSE and CONTRIBUTORS
+file (COPY "${OPENMOLCAS_DIR}/LICENSE" DESTINATION ${PROJECT_BINARY_DIR})
+file (COPY "${OPENMOLCAS_DIR}/CONTRIBUTORS" DESTINATION ${PROJECT_BINARY_DIR})
+
+# copy the necessary files from data
+file (REMOVE_RECURSE ${PROJECT_BINARY_DIR}/data)
+file (GENERATE OUTPUT ${PROJECT_BINARY_DIR}/data/rysrw        INPUT ${OPENMOLCAS_DIR}/data/rysrw.ascii )
+file (GENERATE OUTPUT ${PROJECT_BINARY_DIR}/data/abdata       INPUT ${OPENMOLCAS_DIR}/data/abdata.ascii)
+file (GENERATE OUTPUT ${PROJECT_BINARY_DIR}/data/banner.txt   INPUT ${OPENMOLCAS_DIR}/data/banner.src  )
+file (GENERATE OUTPUT ${PROJECT_BINARY_DIR}/data/modalias.txt INPUT ${OPENMOLCAS_DIR}/data/modalias.src)
+if (DEFINED EXTRA_DIR)
+        foreach (f alias.plx auto.prgm landing.txt)
+                file (COPY ${EXTRA_DIR}/data/${f} DESTINATION ${PROJECT_BINARY_DIR}/data)
+        endforeach ()
+endif ()
+# copy the necessary files from sbin
+file (REMOVE_RECURSE ${PROJECT_BINARY_DIR}/sbin)
+foreach (f verify version chkunprint.plx updatetest.plx find_sources)
+        file (COPY ${OPENMOLCAS_DIR}/sbin/${f} DESTINATION ${PROJECT_BINARY_DIR}/sbin)
+endforeach ()
+if (DEFINED EXTRA_DIR)
+        file (COPY ${EXTRA_DIR}/sbin DESTINATION ${PROJECT_BINARY_DIR})
+endif ()
+# copy basis sets
+file (REMOVE_RECURSE ${PROJECT_BINARY_DIR}/basis_library)
+foreach (BASE_DIR ${basedirs})
+        if (EXISTS ${BASE_DIR}/basis_library)
+                file (COPY ${BASE_DIR}/basis_library DESTINATION ${PROJECT_BINARY_DIR})
+        endif ()
+endforeach ()
+# configure tests
+file (REMOVE_RECURSE ${PROJECT_BINARY_DIR}/test)
+file (APPEND ${PROJECT_BINARY_DIR}/test/testdirs
+        ${OPENMOLCAS_DIR}/test\n
+        )
+if (DEFINED EXTRA_DIR)
+        file (APPEND ${PROJECT_BINARY_DIR}/test/testdirs
+                ${EXTRA_DIR}/test\n
+                )
+endif ()
+if (DMRG)
+        file (APPEND ${PROJECT_BINARY_DIR}/test/testdirs
+                ${extprojsdir}/qcmaquis_driver/test\n
+                )
+endif ()
+if (GEN1INT)
+        file (APPEND ${PROJECT_BINARY_DIR}/test/testdirs
+                ${extprojsdir}/gen1int-molcaslib/test\n
+                )
+endif ()
+
+# Find the molcas.driver script
+foreach (BASE_DIR ${basedirs})
+        if (EXISTS "${BASE_DIR}/sbin/molcas.driver")
+                set (MOLCAS_DRIVER "${BASE_DIR}/sbin/molcas.driver")
+        endif ()
+endforeach ()
+if (NOT DEFINED MOLCAS_DRIVER)
+        message (FATAL_ERROR "Molcas driver not found")
+endif ()
+execute_process (
+        COMMAND ${OPENMOLCAS_DIR}/sbin/install_driver.sh ${MOLCAS_DRIVER}
+        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+        RESULT_VARIABLE INSTALL_DRIVER_RC
+        )
+if (INSTALL_DRIVER_RC)
+        message (FATAL_ERROR "Failed to install the Molcas driver")
+endif ()
+
+get_directory_property(defs COMPILE_DEFINITIONS)
+string(STRIP ${CMAKE_C_FLAGS} CMAKE_C_FLAGS)
+string(STRIP ${CMAKE_Fortran_FLAGS} CMAKE_Fortran_FLAGS)
+if (NOT BUILD_TARGET STREQUAL "NONE")
+        file (WRITE "${PROJECT_BINARY_DIR}/data/info.txt"
+                "\nconfiguration info\n"
+                "------------------\n"
+                "C Compiler ID: ${CMAKE_C_COMPILER_ID}\n"
+                "C flags: ${CMAKE_C_FLAGS}\n"
+                "Fortran Compiler ID: ${CMAKE_Fortran_COMPILER_ID}\n"
+                "Fortran flags: ${CMAKE_Fortran_FLAGS}\n"
+                "Definitions: ${defs}\n"
+                "Parallel: ${MPI} (GA=${GA})\n"
+                )
+endif ()
+
+# install git hooks
+if (EXISTS ${GIT})
+        foreach (BASE_DIR ${basedirs})
+                execute_process (
+                        COMMAND "${OPENMOLCAS_DIR}/sbin/install_hooks.sh" "${BASE_DIR}"
+                        WORKING_DIRECTORY ${BASE_DIR}
+                        )
+        endforeach ()
+endif ()
+
+# fetch the prebuilt executables
+file (WRITE ${PROJECT_BINARY_DIR}/xbin.cfg "PLATFORM = ${PLATFORM}\n")
+
+execute_process (
+        COMMAND "${MOLCAS_DRIVER}" getemil
+        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+        ERROR_VARIABLE GETEMIL_DESCRIBE_ERROR
+        RESULT_VARIABLE GETEMIL_DESCRIBE_RC
+        )
+if (GETEMIL_DESCRIBE_RC)
+        message (FATAL_ERROR "Failed to fetch Molcas binary: ${GETEMIL_DESCRIBE_ERROR}")
+endif ()
+list (APPEND progs_exe "molcas.exe")
+
+# remove executables that should not be there
+file (GLOB exe RELATIVE ${EXECUTABLE_OUTPUT_PATH} "${EXECUTABLE_OUTPUT_PATH}/*.exe")
+foreach (f ${exe})
+        if (NOT ";${progs_exe};" MATCHES ";${f};")
+                file (REMOVE "${EXECUTABLE_OUTPUT_PATH}/${f}")
+        endif ()
+endforeach ()
+
+# generate .prgm files from source
+foreach (BASE_DIR ${basedirs})
+        list (APPEND prgmincs "-I${BASE_DIR}/src/Driver")
+endforeach (BASE_DIR)
+string(REGEX REPLACE "([^;]+)" "-D\\1" defargs "${defs}")
+message("Definitions: ${defargs}")
+foreach (BASE_DIR ${basedirs})
+        file (GLOB source RELATIVE ${BASE_DIR}/src/Driver ${BASE_DIR}/src/Driver/*.prgm.src)
+        foreach (prgmsrc ${source})
+                string (REPLACE ".prgm.src" ".prgm" prgm ${prgmsrc})
+                execute_process (
+                        COMMAND cpp -P ${defargs} ${prgmincs} ${BASE_DIR}/src/Driver/${prgmsrc} data/${prgm}
+                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+                        )
+        endforeach (prgmsrc)
+endforeach (BASE_DIR)
+
+# generate help databases from source
+set (ENV{MOLCAS} ${PROJECT_BINARY_DIR})
+file (WRITE ${PROJECT_BINARY_DIR}/.openmolcashome
+        "OPENMOLCAS=${OPENMOLCAS_DIR}"
+        )
+execute_process (
+        COMMAND ${MOLCAS_DRIVER} mkhelp
+        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+        ERROR_VARIABLE MKHELP_ERROR
+        RESULT_VARIABLE MKHELP_RESULT
+        )
+file (REMOVE ${PROJECT_BINARY_DIR}/.openmolcashome)
+if (MKHELP_RESULT)
+        message(FATAL_ERROR "Running \"mkhelp\" failed: ${MKHELP_ERROR}")
+endif ()
+
+# check XML consistency, only if the program is found
+find_program (XMLLINT "xmllint")
+mark_as_advanced(FORCE XMLLINT)
+if (XMLLINT)
+        add_custom_target (
+                check_xml
+                COMMAND ${XMLLINT} "${PROJECT_BINARY_DIR}/data/keyword.xml" "-noout"
+                COMMENT "Checking XML consistency"
+                VERBATIM
+                )
+endif ()
+
+# generate rcodes.txt file
+file (STRINGS "${OPENMOLCAS_DIR}/src/Include/warnings.h" lines)
+file (WRITE "${PROJECT_BINARY_DIR}/data/rcodes.txt")
+foreach (line ${lines})
+        string (REGEX MATCH "^#define *(_RC_[^ ]*) *([0123456789]*)" match ${line})
+        if (NOT "${match}" STREQUAL "")
+                file (APPEND "${PROJECT_BINARY_DIR}/data/rcodes.txt"
+                        "${CMAKE_MATCH_1} = ${CMAKE_MATCH_2}\n"
+                        )
+        endif ()
+endforeach ()
+
+################################################################################
+#                                                                              #
+# Testing                                                                      #
+#                                                                              #
+################################################################################
+
+if (CTEST)
+        enable_testing()
+
+        set (MODULENAMES ${PROJECT_SOURCE_DIR}/sbin/modulenames.plx)
+        file (STRINGS ${PROJECT_BINARY_DIR}/test/testdirs testdirs)
+        set (known_groups "")
+        foreach (dir ${testdirs})
+                file (GLOB groups RELATIVE ${dir} ${dir}/*)
+                foreach (group ${groups})
+                        list (FIND known_groups ${group} _index)
+                        if (_index GREATER -1)
+                                break ()
+                        else ()
+                                list (APPEND known_groups ${group})
+                        endif ()
+                        file (GLOB inputs RELATIVE ${dir}/${group} ${dir}/${group}/*)
+                        list (SORT inputs)
+                        foreach (input ${inputs})
+                                string (REGEX MATCH "^([^.]+).input$" match ${input})
+                                if (NOT ${match} STREQUAL "")
+                                        set (number ${CMAKE_MATCH_1})
+                                        execute_process (
+                                                COMMAND ${MODULENAMES} ${dir}/${group}/${input}
+                                                WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                                                OUTPUT_VARIABLE module_names
+                                                )
+                                        add_test (
+                                                NAME "${group}-${CMAKE_MATCH_1}__${module_names}"
+                                                COMMAND ${MOLCAS_DRIVER} verify -q "${group}:${number}"
+                                                )
+                                        set_property (
+                                                TEST "${group}-${CMAKE_MATCH_1}__${module_names}"
+                                                PROPERTY ENVIRONMENT MOLCAS=${PROJECT_BINARY_DIR}
+                                                )
+                                endif ()
+                        endforeach ()
+                endforeach ()
+        endforeach ()
+endif ()
+
+################################################################################
+#                                                                              #
+# Documentation                                                                #
+#                                                                              #
+################################################################################
+
+message ("Configuring documentation")
+
+find_package (LATEX)
+find_program (LATEXMK "latexmk")
+mark_as_advanced(FORCE LATEXMK)
+
+# FIXME: (temporarily) copy only selected doc directories, to avoid copying the huge doxygen tree
+set (copy_dirs "")
+foreach (dir manual latex2html)
+        add_custom_target (
+                copy_${dir}
+                COMMAND ${CMAKE_COMMAND} -E remove_directory doc/${dir}
+                )
+        foreach (BASE_DIR ${basedirs})
+                add_custom_command (
+                        TARGET copy_${dir}
+                        COMMAND ${CMAKE_COMMAND} -E copy_directory ${BASE_DIR}/doc/${dir} doc/${dir}
+                )
+        endforeach ()
+        list (APPEND copy_dirs copy_${dir})
+endforeach ()
+
+add_custom_target (
+        copy_docs
+        DEPENDS ${copy_dirs}
+        COMMAND ${CMAKE_COMMAND} -E remove_directory doc/booklet
+        COMMAND ${MOLCAS_DRIVER} mkdocs
+        COMMENT "Copying documentation source"
+        VERBATIM
+        )
+
+add_custom_target (
+        create_booklet
+        COMMAND ${MOLCAS_DRIVER} booklet
+        COMMENT "Creating booklet source"
+        VERBATIM
+        )
+add_dependencies(create_booklet copy_docs)
+
+# convert eps figures to pdf right after copying files
+if (PS2PDF_CONVERTER)
+        foreach (BASE_DIR ${basedirs})
+                file (GLOB_RECURSE eps_files_tmp RELATIVE ${BASE_DIR} ${BASE_DIR}/doc/*eps)
+                list (APPEND eps_files ${eps_files_tmp})
+        endforeach ()
+        if (DEFINED eps_files)
+                list (REMOVE_DUPLICATES eps_files)
+                list (SORT eps_files)
+        endif ()
+        foreach (eps_file ${eps_files})
+                string (REPLACE ".eps" ".pdf" pdf_file ${eps_file})
+                add_custom_command (
+                        TARGET copy_docs
+                        POST_BUILD
+                        COMMAND ${PS2PDF_CONVERTER} -dEPSCrop ${eps_file} ${pdf_file}
+                        COMMENT "Creating ${pdf_file}"
+                        )
+        endforeach ()
+endif ()
+
+# set up different latexmk arguments
+set (latexmk_arg_pdf "-pdf")
+set (latexmk_arg_ps  "-ps")
+list (APPEND DOC_FORMATS "pdf" "ps")
+
+if (LATEXMK)
+        message ("-- LaTeX compiler: ${LATEXMK}")
+        foreach (format ${DOC_FORMATS})
+                set (LATEXMK_ARGS "-quiet")
+                list (APPEND LATEXMK_ARGS ${latexmk_arg_${format}})
+                add_custom_target (
+                        manual_${format}
+                        COMMAND ${LATEXMK} ${LATEXMK_ARGS} manual.tex > _cmake_latexmk.log 2> _cmake_latexmk.err
+                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/doc/manual/
+                        COMMENT "Creating Molcas manual (${format})"
+                        VERBATIM
+                        )
+                add_custom_target (
+                        booklet_${format}
+                        COMMAND ${LATEXMK} ${LATEXMK_ARGS} booklet.tex > _cmake_latexmk.log 2> _cmake_latexmk.err
+                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/doc/booklet/
+                        COMMENT "Creating Molcas booklet (${format})"
+                        VERBATIM
+                        )
+                add_dependencies (manual_${format} copy_docs)
+                add_dependencies (booklet_${format} copy_docs create_booklet)
+                # make an overall target for all documentation
+                add_custom_target (doc_${format})
+                add_dependencies (doc_${format} manual_${format})
+                add_dependencies (doc_${format} booklet_${format})
+        endforeach ()
+
+        # make default targets
+        add_custom_target (doc)
+        add_custom_target (manual)
+        add_custom_target (booklet)
+        # link to specific format
+        if (PDFLATEX_COMPILER)
+                set (default_format "pdf")
+        else ()
+                set (default_format "ps")
+        endif ()
+        message ("-- default documentation format: ${default_format}")
+        add_dependencies (doc doc_${default_format})
+        add_dependencies (manual manual_${default_format})
+        add_dependencies (booklet booklet_${default_format})
+
+        if (LATEX2HTML_CONVERTER)
+                message ("-- LaTeX HTML converter: ${LATEX2HTML_CONVERTER}")
+                add_custom_target (
+                        doc_html
+                        COMMAND ${MOLCAS_DRIVER} mkhtml
+                        COMMENT "Creating HTML documentation"
+                        VERBATIM
+                        )
+                add_dependencies (doc_html doc)
+        else ()
+                message ("-- no latex2html support found, disabled HTML docs")
+                add_custom_target (
+                        doc_html
+                        COMMAND false
+                        COMMENT "No latex2html support found, disabled HTML docs"
+                        )
+        endif ()
+else ()
+        message ("-- LaTeX compiler: no latexmk available, documentation disabled")
+        # dummy targets to give some feedback
+        add_custom_target (
+                no_doc
+                COMMAND false
+                COMMENT "No latexmk available, documentation disabled"
+                )
+        foreach (format ${DOC_FORMATS})
+                add_custom_target (doc_${format} DEPENDS no_doc)
+                add_custom_target (manual_${format} DEPENDS no_doc)
+                add_custom_target (booklet_${format} DEPENDS no_doc)
+        endforeach ()
+        add_custom_target (doc DEPENDS no_doc)
+        add_custom_target (manual DEPENDS no_doc)
+        add_custom_target (booklet DEPENDS no_doc)
+        add_custom_target (doc_html DEPENDS no_doc)
+endif ()
+
+################################################################################
+#                                                                              #
+# Installation                                                                 #
+#                                                                              #
+################################################################################
+
+message ("Install directory: ${CMAKE_INSTALL_PREFIX}")
+
+install (FILES
+        ${PROJECT_BINARY_DIR}/.molcashome
+        ${PROJECT_BINARY_DIR}/.molcasversion
+        ${PROJECT_BINARY_DIR}/molcas.rte
+        DESTINATION ${CMAKE_INSTALL_PREFIX}
+        )
+
+install (PROGRAMS
+        ${PROJECT_BINARY_DIR}/sbin/getname.plx
+        ${PROJECT_BINARY_DIR}/sbin/moclas
+        ${PROJECT_BINARY_DIR}/sbin/molcas.driver
+        ${PROJECT_BINARY_DIR}/sbin/sew2xyz
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/sbin
+        )
+
+install (PROGRAMS
+        "${PROJECT_BINARY_DIR}/bin/molcas.exe"
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
+        )
+
+install (DIRECTORY
+        ${PROJECT_BINARY_DIR}/basis_library
+        ${PROJECT_BINARY_DIR}/data
+        DESTINATION ${CMAKE_INSTALL_PREFIX}
+        )
+
+install (TARGETS ${PROGRAM_EXECUTABLES} molcas
+        RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
+        LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+        )
+
+install (CODE "execute_process(COMMAND sh \"-c\" \"echo `pwd` > $HOME/.Molcas/molcas 2> /dev/null\")")

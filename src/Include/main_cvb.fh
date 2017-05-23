@@ -1,0 +1,169 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+c Set mxorb :
+c------------
+      parameter (mxorb=50)
+
+c What calculation? :
+c--------------------
+      common /calci_comcvb/nmcscf
+      logical variat,endvar,service
+      common /calcl_comcvb/variat,endvar,service
+
+c Addresses :
+c------------
+      common /sts_comcvb/ll(23),lv(5),lb(6),lc(8),ls(16),lp(11),lq(11),
+     >  lw(13)
+
+c Definition of CASSCF active space :
+c------------------------------------
+      parameter (mxirrep=8)
+c ... Orbital space ...
+      common /casspace1_comcvb/ityp(mxorb)
+c ... Orbital-space symmetries ...
+      common /casspace2_comcvb/
+     >  nsym,nirrep,isymv(mxirrep),isym,isympr(mxirrep)
+c ... State-averaged wavefunction ...
+      common /statavgr_comcvb/wsym(mxirrep),esym(mxirrep)
+c ... Number of determinants in each irrep ...
+      common /casspace3_comcvb/ncivb(mxirrep)
+
+c Numbers defining, or relating to, the active CI space :
+c--------------------------------------------------------
+      common/actspci_comcvb/norb,nel,nalf,nbet,noe,
+     >  ndet,nda,ndb,
+     >  nam1,nbm1,n1a,n1b
+c ... Utilize alpha<->beta symmetry in various circumstances ...
+      logical absym
+      common/actspcl_comcvb/absym(5)
+
+c Numbers relating to the definition of the VB wavefunction :
+c------------------------------------------------------------
+      common/vbwfni_comcvb/nconf,
+     >  nvb,nvbr,nvbinp,
+     >  ndetvb,ndetvb2,
+     >  mnion,mxion,
+     >  mxfns,kbasis,kbasiscvb
+      common/vbwfni2_comcvb/ndavb,ndbvb,naprodvb,nbprodvb,
+     >  nvbprod,npvb
+      logical sc,anyslater
+      common/vbwfnl_comcvb/sc,anyslater
+
+c CASVB algorithm (for evaluating g/G, etc.) :
+c---------------------------------------------
+c ... Overlap-based or energy based? ...
+      common/crit_comcvb/icrit
+c ... Projection operators ...
+      logical projsym,projcas,proj
+      common/projl_comcvb/projsym,projcas,proj
+c ... Opposite definition of orbital variables? ...
+      logical opposite
+      common/oppl_comcvb/opposite
+
+c Parameters relating to the optimization procedure :
+c----------------------------------------------------
+
+
+c Optimization handler :
+c-----------------------
+      common/opthndli_comcvb/initial,ifinish,ioptc_new
+      logical convinone
+      common/opthndll_comcvb/convinone
+
+c Orbital permutation :
+c----------------------
+      common /initi_comcvb/iorbprm(mxorb)
+
+c CI vectors :
+c-------------
+      parameter (mxciobj=20)
+      common /objr_comcvb/fileid_ci(mxciobj)
+      common /obji_comcvb/iform_ci(mxciobj),iaddr_ci(mxciobj),
+     >  icnt_ci(mxciobj)
+      common/civecsi_comcvb/nv,ndres
+
+c Symmetry information and constraints:
+c--------------------------------------
+c ... General ...
+      logical sym
+      common/symtzel_comcvb/sym
+c ... Symmetry elements ...
+      parameter (mxsyme=32)
+      character*3 tags
+      common/symtzei_comcvb/nsyme
+      common/symtzec_comcvb/tags(mxsyme)
+c ... Symmetry-constrained orbitals ...
+      parameter (mxops=32)
+      common/symtze2i_comcvb/norbrel,ndimrel,nijrel,niorth
+c ... Fixed orbitals ...
+      common/symtze3i_comcvb/nfxorb
+c ... Orthogonalized orbitals/deleted rotations ...
+      common/symtze4i_comcvb/nort,ndrot
+c ... Symmetry-constrained/fixed/deleted structures ...
+      common/symtze5i_comcvb/nfxvb,nzrvb,lfxvb,lzrvb,nconstr,
+     >  nzeta,iconstruc
+
+c Various maximum dimensions defined in input :
+c----------------------------------------------
+      common/inpmaxdim_comcvb/mxnvb,mxnfxvb,mxnzrvb
+
+c All2free/free2all variable transformation :
+c--------------------------------------------
+      common/all2freei_comcvb/npr,nprorb,nprvb,nfr,nfrorb,nfrvb
+      logical orbfr_is_unit
+      logical orbopt,strucopt
+      common/all2freel_comcvb/orbfr_is_unit,
+     >  orbopt,strucopt
+
+c Record names for 'start', 'save', or scratch :
+c-----------------------------------------------
+
+
+c Integrals (number of, core energy, etc.) :
+c-------------------------------------------
+      common/intgrli_comcvb/neread,mxaobf
+      common/intgrlr_comcvb/corenrg
+
+c Analysis :
+c-----------
+      common/analysisi_comcvb/ivbweights,iciweights,npcf,ishstruc
+      logical lcalcsvb,lcalcevb,lcalccivbs,lciweights,sij
+      common/analysisl_comcvb/lcalcsvb,lcalcevb,lcalccivbs,lciweights,
+     +  sij
+
+c Strictly localized calculations :
+c----------------------------------
+      logical ploc,plc_const
+      common /plocl_comcvb/ploc,plc_const
+
+c Various quantities calculated from VB wavefunction :
+c-----------------------------------------------------
+      common/wfinfo_comcvb/svb,evb,ovraa,cvbnrm
+
+c Usage statistics :
+c-------------------
+      common /statsi_comcvb/n_applyt,n_applyh,n_hess,n_orbhess,n_cihess,
+     +  n_2el,n_iter,ibase0,ibasemx,memused
+      common /statsr_comcvb/cpu0,cpu_prev
+
+c Save memory? :
+c---------------
+      logical memplenty,dxmove
+      common /memplentyl_comcvb/memplenty,dxmove
+
+c Print control :
+c----------------
+
+
+c Ubiquitous constants (initialised in bdata.f) :
+c------------------------------------------------
+      common/const_comcvb/zero,one,two,onem,r3by4,p8,sqp5,sq2
+      common/d2h_comcvb/md2h(mxirrep,mxirrep)

@@ -1,0 +1,134 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+#***********************************************************************
+# This file is part of OpenMolcas.                                     *
+#                                                                      *
+# OpenMolcas is free software; you can redistribute it and/or modify   *
+# it under the terms of the GNU Lesser General Public License, v. 2.1. *
+# OpenMolcas is distributed in the hope that it will be useful, but it *
+# is provided "as is" and without any express or implied warranties.   *
+# For more details see the full text of the license in the file        *
+# LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#                                                                      *
+# Copyright (C) 2017, Ignacio Fdez. Galván                             *
+#***********************************************************************
+
+'''
+This script checks that the OpenMolcas header exist and that the copyright
+has the right format.
+'''
+
+from __future__ import (unicode_literals, division, absolute_import, print_function)
+
+import sys
+import re
+import argparse
+from codecs import getwriter
+from locale import getpreferredencoding
+from io import open
+from os.path import isfile, join
+from os import walk
+from colorama import init, Fore, Back, Style
+
+# Define command-line arguments
+parser = argparse.ArgumentParser(formatter_class=lambda prog: argparse.HelpFormatter(prog))
+parser.add_argument('-p', '--print', help='print copyright information found in files', action='store_true')
+parser.add_argument('-r', '--report', help='check and report some formatting problems', action='store_true')
+parser.add_argument('-n', '--no-copyright', help='report files with no copyright information', action='store_true')
+parser.add_argument('-a', '--authors', help='list all authors with their contributed files', action='store_true')
+parser.add_argument('root', help='filename or tree to check')
+args = vars(parser.parse_args())
+if (not (args['print'] or args['report'] or args['no_copyright'] or args['authors'])):
+  parser.error('At least one of the optional arguments is required')
+
+# Use colors in terminal, not if output is redirected to file
+if sys.stdout.isatty():
+  init()
+else:
+  init(strip=True)
+
+try:
+  sys.stdout = getwriter(getpreferredencoding())(sys.stdout.detach())
+except AttributeError:
+  sys.stdout = getwriter(getpreferredencoding())(sys.stdout)
+
+files = []
+if (isfile(args['root'])):
+  files.append(args['root'])
+else:
+  for dname, dirs, fnames in walk(args['root']):
+    for fname in fnames:
+      files.append(join(dname, fname))
+
+authors = {}
+
+for filename in files:
+
+  copyright = []
+  if (isfile(filename)):
+    with open(filename, 'r', encoding='utf-8') as f:
+      header = False
+      copy = False
+      try:
+        for l in f:
+          if (l.find('This file is part of OpenMolcas') > 0):
+            header = True
+          elif (header and (l.find('Copyright (C)') >= 0)):
+            copy = True
+          elif (header and (l.find(70*'*') >= 0)):
+            break
+          if (copy):
+            match = re.match(r'^.\s*(Copyright \(C\))?\s*(([\d,-]*?),)?\s+(.*?)\s*\*$', l)
+            if (match):
+              year = match.group(3)
+              name = match.group(4)
+              if (year is None):
+                year = '(?)'
+              copyright.append([year, name])
+              aname = re.sub(r'\s*\(.*', '', name)
+              if (aname in authors):
+                authors[aname].append(filename)
+              else:
+                authors[aname] = [filename]
+            elif (args['report']):
+              print('{0}*** {1}: Format error ***{2}'.format(Back.RED, filename, Style.RESET_ALL))
+              print(l)
+        if (not header and args['report']):
+          print('{0}*** {1}: No header ***{2}'.format(Back.RED, filename, Style.RESET_ALL))
+      except UnicodeDecodeError:
+        if (args['report']):
+          print('{0}*** Problem decoding {1} ***{2}'.format(Back.RED, filename, Style.RESET_ALL))
+
+  # Write all copyrights
+  if (args['print']):
+    fmt = '© {0}{{0}}{1}, {2}{{1}}{1}'.format(Fore.RED, Style.RESET_ALL, Fore.BLUE)
+    if (len(copyright) > 0):
+      print('··· {0} ···'.format(filename))
+    for item in copyright:
+      print(fmt.format(item[0],item[1]))
+
+  # Find issues
+  if (args['no_copyright']):
+    if (len(copyright) == 0):
+      print('{0}*** {1}: No copyright ***{2}'.format(Back.RED, filename, Style.RESET_ALL))
+  if (args['report']):
+    names = set([])
+    for item in copyright:
+      if (re.search('[\d,]', item[1])):
+        print('{0}*** {1}: Name error? ***{2}'.format(Back.RED, filename, Style.RESET_ALL))
+        print(item[1])
+      if (item[1] in names):
+        print('{0}*** {1}: Duplicate name ***{2}'.format(Back.RED, filename, Style.RESET_ALL))
+        print(item[1])
+      else:
+        names.add(item[1])
+
+# Print authors and files
+if (args['authors']):
+  for k in sorted(authors.keys()):
+    print('\n==================')
+    print(k)
+    print('------------------')
+    for f in (authors[k]):
+      print(f)

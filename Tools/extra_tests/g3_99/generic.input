@@ -1,0 +1,22 @@
+ &GATEWAY &END
+coord
+temp.xyz
+basis
+YY
+group
+full
+end of input
+
+ &SEWARD &END
+TTT
+end of input
+
+ &SCF &END
+ZSPIN
+WW
+VV
+XX
+ZZ
+End of Input
+
+UU

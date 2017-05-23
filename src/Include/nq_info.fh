@@ -1,0 +1,77 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*
+*     R_Max : Maximum radius associated with the i'th center for the
+*              radial loop.
+* Integer
+*
+*     L_Quad  : Value of the angular momentum for which the grid is
+*                generated unless the quadrature is pruned.
+*     nR      : Initial number of radial points for which the grid is
+*                generated.
+*     nAtoms  : Number of atoms in the system.
+*     nMaxExp : Maximum number of exponents over all the shells.
+*     NbrMxBas: Maximum number of basis functions over all the shells.
+*     nTotGP  : Total number of grid points generated during the program.
+*     iAngMax : Maximum angulart momentum for the system.
+*
+* Pointer
+*
+*     ipcoor      : Pointer to the coordinates of the atoms.
+*     ip_ioffsh   : Pointer to the offset of the shells in the
+*                    overlap matrix.
+*
+*     nGridMax:Real size of the array Grid
+*
+      Parameter(LMax_NQ=62)
+      Integer Info_Ang(3,LMax_NQ)
+      Integer mBas(0:7),nISh(0:7), nAsh(0:7), nFro(0:7)
+#include "functional_types.fh"
+      Integer Grid_Type, Fixed_Grid, Moving_Grid
+      Parameter(Fixed_Grid=0,Moving_Grid=1)
+      Integer Angular_Prunning, On, Off, Rotational_Invariance,
+     &        Functional_Type
+      Integer Packing
+      Parameter(On=1, Off=0)
+      Common /Quad_i / iQStrt,
+     &                 ip_Fact, ndc,
+     &                 Info_Ang, nAngularGrids,
+     &                 L_Quad_save, nR_Save, Angular_Prunning,
+     &                 ipNQ,nx,ny,nz,number_of_subblocks,
+     &                 ip_nR_Eff,ip_R,ip_Grid,ipMem,nMem,
+     &                 L_Quad,nR,nAtoms,nMaxExp,
+     &                 nTotGP,nbrmxbas,iAngMax,ip_ioffsh,ipcoor,
+     &                 nGridMax,iOpt_Angular,ip_O,
+     &                 mIrrep, nISh, nAsh, mBas,Functional_type,
+     &                 Grid_Type, Rotational_Invariance,
+     &                 ipTmp,nTmp,mTmp,mRad,nAOMax,
+     &                 ipTabAOMax,NQ_Direct,Packing,
+     &                 iQEnd,ip_OrbDip(3)
+      Common /Quad_ii / nFro
+*
+      Real*8 R_Max(0:LMax_NQ)
+      Real*8 Crowding
+      Common /Quad_r /rQStrt,
+     &                Threshold_save, Crowding,
+     &                Threshold,R_Max,Energy_integrated,
+     &                Dens_I,Grad_I,Tau_I,Flop,
+     &                Dens_a1,Dens_b1,Dens_a2,Dens_b2,Dens_t1,Dens_t2,
+     &                Block_Size,x_min,x_max,y_min,y_max,z_min,z_max,
+     &                Fade,                ThrC, T_X, T_Y,
+     &                rQEnd
+*
+      Integer cQStrt, cQEnd
+      Character Quadrature*10, Pad*6, MBC*8
+*
+      Common /Quad_c /cQStrt,
+     &                Quadrature, Pad, MBC,
+     &                cQEnd
+*

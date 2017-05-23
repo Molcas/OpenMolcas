@@ -1,0 +1,28 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      Integer iE_Strt, mIrrep, nISh(0:7), nASh(0:7), mBas(0:7),
+     &        nCMo,nDSO,nPSOP,MxPam,nCred,nScr1,nScr2, iE_End
+      Common /EtWas/ iE_Strt,
+     &               mIrrep, nISh, nASh, mBas, nCMo,nDSO,nPSOP,MxPam,
+     &               nCred,nScr1,nScr2,
+     &               iE_End
+      Real*8 rE_Strt, ExFac,CoulFac, rE_End
+      Common /rEtWas/rE_Strt,
+     &               ExFac,CoulFac,
+     &               rE_End
+#ifdef MOLPRO
+      Integer iE1_Strt, mIrrep1, nISh1(0:7), nASh1(0:7), mBas1(0:7),
+     &        nCMo1,nDSO1,nPSOP1,MxPam1,nCred1,nScr11,nScr21,iE1_End
+      Common /EtWas1/ iE1_Strt,
+     &                mIrrep1,nISh1,nASh1,mBas1,nCMo1,nDSO1,nPSOP1,
+     &                MxPam1,nCred1,nScr11,nScr21,
+     &                iE1_End
+#endif

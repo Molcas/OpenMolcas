@@ -1,0 +1,48 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+/X.Rydberg.Kaufmann.8s8p8d.8s8p8d.
+Universal Gaussian-Basis Sets for an Optimum Representation of Rydberg and Continuum Wavefunctions
+K. Kaufmann, W, Baumeiter and M. Jungen, J. of Phys. B, 22:2223-2240 (1989)
+* eq. (18), for Z=1, n=2,2.5,...,5.5
+  0.0  2
+*  s-type  diffuse  functions
+8  8
+.02462393  .01125334  .00585838  .00334597  .00204842  .00132364  .00089310  .00062431
+1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+0.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0
+0.0  0.0  1.0  0.0  0.0  0.0  0.0  0.0
+0.0  0.0  0.0  1.0  0.0  0.0  0.0  0.0
+0.0  0.0  0.0  0.0  1.0  0.0  0.0  0.0
+0.0  0.0  0.0  0.0  0.0  1.0  0.0  0.0
+0.0  0.0  0.0  0.0  0.0  0.0  1.0  0.0
+0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0
+*  p-type  diffuse  functions
+8  8
+.04233528  .01925421  .00998821  .00568936  .00347568  .00224206  .00151064  .00105475
+1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+0.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0
+0.0  0.0  1.0  0.0  0.0  0.0  0.0  0.0
+0.0  0.0  0.0  1.0  0.0  0.0  0.0  0.0
+0.0  0.0  0.0  0.0  1.0  0.0  0.0  0.0
+0.0  0.0  0.0  0.0  0.0  1.0  0.0  0.0
+0.0  0.0  0.0  0.0  0.0  0.0  1.0  0.0
+0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0
+*  d-type  diffuse  functions
+8  8
+.06054020  .02744569  .01420440  .00807659  .00492719  .00317481  .00213712  .00149102
+1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0
+0.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0
+0.0  0.0  1.0  0.0  0.0  0.0  0.0  0.0
+0.0  0.0  0.0  1.0  0.0  0.0  0.0  0.0
+0.0  0.0  0.0  0.0  1.0  0.0  0.0  0.0
+0.0  0.0  0.0  0.0  0.0  1.0  0.0  0.0
+0.0  0.0  0.0  0.0  0.0  0.0  1.0  0.0
+0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0

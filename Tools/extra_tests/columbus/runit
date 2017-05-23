@@ -1,0 +1,28 @@
+
+VERSION="Revision $Revision: 7.9 $"
+echo "runit  $VERSION" | sed -e 's/\$//g' | sed -e 's/: /  /g' 
+
+if [ -z "$1" ]; then
+ echo "usage:  ./runit <Project name> "
+ exit
+fi 
+MPROJ=`echo $1| sed -e 's/\.input$//'`
+echo "Project name=" $MPROJ
+echo "creating temporary directory " `pwd` "/CTMP"
+CURRDIR=`pwd`
+CTMP=`pwd`/CTMP
+export WorkDir=$CTMP/WORK
+export ThisDir=$CTMP
+export Project=$MPROJ
+ if [ -d $CTMP ];
+  then
+  rm -rf $CTMP
+  fi 
+ mkdir $CTMP
+ cd $CTMP
+ cp ../$Project.input .
+ molcas $Project.input
+ cd $CURRDIR
+
+
+

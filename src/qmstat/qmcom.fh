@@ -1,0 +1,39 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*----------------------------------------------------------------------*
+* Common variables shared by all QmTypes.
+*----------------------------------------------------------------------*
+* INTEGER:
+* --------
+* lMax                -        How many bases in solvent region.
+* info_atom        -        Atomic number of QM atoms.
+*
+* REAL:
+* ------
+* QIm           -       Vector of charges of the imagepoints.
+* CordIm        -       Coordinates of the imagepoints.
+* QImp          -       Image charge due to dipole in cavity.
+* Dim           -       Image dipole due to dipole in cavity.
+* c_orbene        -        Solvent orbital energies.
+* ChaNuc        -        Nuclear charges.
+* qTot                -        Total charge on QM molecule.
+* xyzMyQ        -        Total dipole of QM-region.
+* xyzMyI        -        The induced dipole of QM-region.
+* xyzMyP        -        Total dipole of the explicit solvent.
+* xyzQuQ        -        Total traceless quadrupole moment of QM-region.
+* CT                -        Centre of mass for QM-molecule.
+*----------------------------------------------------------------------*
+      Common/AllQmTypesI/lmax,info_atom(MxAt)
+
+      Common/AllQmTypesR/QIm(MxCen*MxPut),CordIm(MxCen*MxPut,3)
+     &,QImp(MxCen*MxPut),Dim(MxCen*MxPut,3)
+     &,c_orbene(MxOrb_C),ChaNuc(MxAt),qTot,xyzMyQ(3),xyzMyI(3),xyzMyP(3)
+     &,Sqrs(MxPut*MxCen),CT(3),xyzQuQ(6)

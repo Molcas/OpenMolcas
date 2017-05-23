@@ -1,0 +1,17 @@
+The CIsandbox is a collection of subroutines to operate on CI spaces.  In
+second_quantization.f90, methods for creation/annihilation operators are
+implemented that use bitwise operators on integers, i.e. the determinants
+represented as bit-strings. In wavefunction.f, a derived type is used to
+represent Full-CI wavefunctions. In density.f, examples of computing the 1-el
+and 2-el density matrices are provided. The rest of the files deal with Fock
+matrices, orbitals and integrals.
+
+The code was mainly written to explore the CASPT2 UDL decomposition method for
+direct CASPT2, but the basic subroutines are general enough to use as a sandbox
+for other CI-like codes. An example Full-CI code is included as well. The
+required integrals for those calculations were obtained from Molcas.
+
+Most routines have their own documentation, so it should be fairly
+straithforward to figure out how to use them.
+
+Steven Vancoillie, December 2013, Lund

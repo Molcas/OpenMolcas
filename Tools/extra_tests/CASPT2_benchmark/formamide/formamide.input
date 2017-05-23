@@ -1,0 +1,198 @@
+&GATEWAY
+  Title = formamide Cs structure: MP2/6-31G*
+  Coord = formamide.xyz
+  Group = z
+  Basis = TZVP
+  AngMom = 0.0 0.0 0.0
+  RICD
+  SDipoles
+
+&SEWARD
+  BSShow
+  Verbose
+
+* Symmetry table: a'  b''
+*                 1   2
+
+*=================================================
+*
+* 1A'' states
+*
+*=================================================
+
+&RASSCF
+  Title =    formamide Cs ground state 1A'
+  Spin =     1
+  Symmetry = 1
+  nActEl =   6 0 0
+  Inactive = 9 0
+  Ras2 =     1 3
+  CIRoot =   1 1 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.1Ap-GS.RasOrb
+
+&CASPT2
+  Title =      formamide Cs ground state 1A'
+  Multistate = 1  1
+
+>>COPY $Project.JobMix JOB001
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    formamide Cs state 1A''
+  Spin =     1
+  Symmetry = 2
+  nActEl =   6 0 0
+  Inactive = 9 0
+  Ras2 =     1 3
+  CIRoot =   1 1 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.1App.RasOrb
+
+&CASPT2
+  Title =      formamide Cs state 1A''
+  Multistate = 1  1
+
+>>COPY $Project.JobMix JOB002
+
+*-------------------------------------------------
+
+&RASSI
+  NrOfJobIphs = 2  1 1
+    1
+    1
+  EJob
+  CIPrint
+  XVES
+  MEES
+  Properties = 15
+    'Mltpl  1' 1  'Mltpl  1' 2  'Mltpl  1' 3
+    'Mltpl  2' 1  'Mltpl  2' 2  'Mltpl  2' 3  'Mltpl  2' 4  'Mltpl  2' 5  'Mltpl  2' 6
+    'AngMom  ' 1  'AngMom  ' 2  'AngMom  ' 3
+    'Velocity' 1  'Velocity' 2  'Velocity' 3
+
+>>RM JOB001
+>>RM JOB002
+
+*=================================================
+*
+* 1A' states
+*
+*=================================================
+
+&RASSCF
+  Title =    formamide Cs states 1A'
+  Spin =     1
+  Symmetry = 1
+  nActEl =   6 0 0
+  Inactive = 9 0
+  Ras2 =     1 3
+  CIRoot =   3 3 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.1Ap.RasOrb
+
+&CASPT2
+  Title =      formamide Cs states 1A'
+  Multistate = 3  1 2 3
+
+>>COPY $Project.JobMix JOB001
+
+*-------------------------------------------------
+
+&RASSI
+  NrOfJobIphs = 1  3
+    1 2 3
+  EJob
+  CIPrint
+  XVES
+  MEES
+  Properties = 15
+    'Mltpl  1' 1  'Mltpl  1' 2  'Mltpl  1' 3
+    'Mltpl  2' 1  'Mltpl  2' 2  'Mltpl  2' 3  'Mltpl  2' 4  'Mltpl  2' 5  'Mltpl  2' 6
+    'AngMom  ' 1  'AngMom  ' 2  'AngMom  ' 3
+    'Velocity' 1  'Velocity' 2  'Velocity' 3
+
+>>RM JOB001
+
+*=================================================
+*
+* 3A' and 3A'' states
+*
+*=================================================
+
+&RASSCF
+  Title =    formamide Cs ground state 1A'
+  Spin =     1
+  Symmetry = 1
+  nActEl =   6 0 0
+  Inactive = 9 0
+  Ras2 =     1 4
+  CIRoot =   1 1 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.1Ap-GSt.RasOrb
+
+&CASPT2
+  Title =      formamide Cs ground state 1A'
+  Multistate = 1  1
+
+>>COPY $Project.JobMix JOB001
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    formamide Cs states 3A'
+  Spin =     3
+  Symmetry = 1
+  nActEl =   6 0 0
+  Inactive = 9 0
+  Ras2 =     1 4
+  CIRoot =   2 2 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.3Ap.RasOrb
+
+&CASPT2
+  Title =      formamide Cs states 3A'
+  Multistate = 2  1 2
+
+>>COPY $Project.JobMix JOB002
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    formamide Cs states 3A''
+  Spin =     3
+  Symmetry = 2
+  nActEl =   6 0 0
+  Inactive = 9 0
+  Ras2 =     1 4
+  CIRoot =   2 2 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.3App.RasOrb
+
+&CASPT2
+  Title =      formamide Cs states 3A''
+  Multistate = 2  1 2
+
+>>COPY $Project.JobMix JOB003
+
+*-------------------------------------------------
+
+&RASSI
+  NrOfJobIphs = 3  1 2 2
+    1
+    1 2
+    1 2
+  EJob
+  CIPrint
+  XVES
+  MEES
+  Properties = 15
+    'Mltpl  1' 1  'Mltpl  1' 2  'Mltpl  1' 3
+    'Mltpl  2' 1  'Mltpl  2' 2  'Mltpl  2' 3  'Mltpl  2' 4  'Mltpl  2' 5  'Mltpl  2' 6
+    'AngMom  ' 1  'AngMom  ' 2  'AngMom  ' 3
+    'Velocity' 1  'Velocity' 2  'Velocity' 3
+
+>>RM JOB001
+>>RM JOB002
+>>RM JOB003

@@ -1,0 +1,429 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*************** Variable description ***********************************
+*                                                                      *
+* Shell is the name of the group of functions which has the same       *
+* angular momentum and belong to a given basis sets specification. This*
+* shell may reside on a number of different centers.                   *
+*                                                                      *
+* Observe that this notation sometimes will refer to the list of shells*
+* of the basis set and other times to the list of shells of the unique *
+* centers.                                                             *
+*                                                                      *
+* Basis set is a group of shells which has been specified together as  *
+* having the same set of unique centers. However, there is nothing     *
+* which prevents two or more basis sets to have common centers.        *
+*                                                                      *
+*                                                                      *
+* Parameters:                                                          *
+*     Mxdbsc: Max number of different basis sets                       *
+*     MxShll: Max number of distinct basis set shell                   *
+*     Mxdc  : Max Number of distinct centra                            *
+*     MxAng : Highest angular momentum index                           *
+*     MxUnq : Max number of distinct basis functions                   *
+*     MxAO  : Max number of distinct AO type functions                 *
+*     MxEGP : Max number of distinct EGP centers                       *
+*                                                                      *
+*                                                                      *
+* Variables:                                                           *
+*                                                                      *
+* -> Integer   <-                                                      *
+*     nExp  : number of exponents of the i''th shell                   *
+*     nBasis: number of contracted functions of the i''th shell        *
+*     ipCff : pointer to the contraction coefficients of the ith shell *
+*     ipExp : pointer to the exponents of the i''th shell              *
+*     ipCntr: pointer to the coordinates of the i''th basis set        *
+*     nCntr : number of unique centers of the i''th basis set          *
+*     ipVal: the index of the first valence shell of the ith basis set *
+*     ipPrj: the index of the first projection shell of the ith basis  *
+*            set                                                       *
+*     ipSRO: the index of the first SRO shell of the i''th basis set   *
+*     ipSOC: the index of the first SOC shell of the i''th basis set   *
+*     ipM1xp: pointer to ECP M1-type exponents for i''th unq center.   *
+*     nM1   : number of ECP M1 type terms on the i''th unique center.  *
+*     ipM1cf: pointer to ECP M1 type coefficients for i''th unq cntr.  *
+*     ipM2xp: pointer to ECP M2-type exponents for i''th unq center.   *
+*     nM2   : number of ECP M2 type terms on the i''th unique center.  *
+*     ipM2cf: pointer to ECP M2 type coefficients for i''th unq cntr.  *
+*     ipBk  : pointer to ECP proj shift parameters for i''th shell.    *
+*             the number of parameters is given by nBasis              *
+*     ip_Occ: Occupation numbers for core ECP orbitals                 *
+*     ipAkl : pointer to the A matrix used for Ab Initio model poten-  *
+*             tial, size nExp**2                                       *
+*     ipFockOp: pointer to the Fock operator matrix                    *
+*     nTot_Shells: total number of shells of the i''th basis set       *
+*     nVal_Shells: number of valence shells of the i''th basis set     *
+*     nPrj_Shells: number of projection shells associated with the     *
+*                  i''th basis set.                                    *
+*     nSRO_Shells: number of spectral resolvent basis set shells of    *
+*                  the i''th basis set.                                *
+*     nSOC_Shells: number of auxilliary Spin-Orbit Core basis sets     *
+*                  shells of the i''th basis set.                      *
+*     iPrj_Shells_Start: index of the first projection basis set shell *
+*                   of the i''th basis set.                            *
+*     iSRO_Shells_Start: index of the first SRO basis set shell of     *
+*                  the i''th basis set.                                *
+*     iSOC_Shells_Start: index of the first SOC basis set shell of     *
+*                  the i''th basis set.                                *
+*     iChCnt: the symmetry character of the i''th unique center        *
+*     iChTbl: the character table for the specified point group        *
+*     jStab : the stabilizer of the i''th unique center                *
+*     nStab : the number of elements in the stabilizer of the i''th    *
+*             unique center                                            *
+*     iCoSet: the cosets of the i''th unique center                    *
+*     iSkip : flag to indicate that certain irreps are ignored         *
+*     iPhase: phase factors for the x-, y- and z-component under       *
+*             the symmetry operations.                                 *
+*     iAngMx: higest angular momentum specified in the input           *
+*     iOper : the symmetry operators                                   *
+*     nBas  : number of basis functions in each irrep                  *
+*     nBas_Aux: number of auxiliary basis functions in each irrep      *
+*     MaxPrm: max number of primitives in a shell for a given angular  *
+*             momentum                                                 *
+*     MaxBas: Dito contracted functions                                *
+*     IrrCmp: Label which indicated to which irreps a distinct basis   *
+*             function will for basis functions                        *
+*     iChBas: the symmetry character of the i''th angular function     *
+*     iSphCr: index of a cartesian angular function which will have the*
+*             same symmetry property (D2h) as the i''th spherical      *
+*             harmonic                                                 *
+*     IndS  : the distinct AO type function index for the first angular*
+*             functions of the i''th shell (unique centers)            *
+*     iSOff : the shell index of the i''th basis set and j''th unique  *
+*             center of the i''th basis set (Placed in dynamic common  *
+*             to reduce the dumping information, RL 970428)            *
+*     iAOtSO: SO index of the i''th AO function of the j''th irrep     *
+*     lOffAO: the AO index of the first function of the i''th basis set*
+*     NrInt : array for integral statistics                            *
+*     kOffAO: offset in the AO index to a given shell of the i''th     *
+*             basis set                                                *
+*     nPrm  : number of primitive functions in each irrep              *
+*     iOffSO: number of SO basis functions presiding the i''th irrep   *
+*     nXF   : number of centers in the external field                  *
+*     ipXF  : pointer to external field data                           *
+*     nData_XF: number of entries per center                           *
+*     MolWgh: integer flag to indicate the normalization of the        *
+*             symmetry transformation                                  *
+*             0: double coset represetative normalization              *
+*             1: as in MOLECULE                                        *
+*             2: as in MOLPRO                                          *
+*     iShll_RF: pointer to RF shells                                   *
+*     Mx_Shll: max number of shells defined.                           *
+*     nOrdEF: order of electric field operator                         *
+*     nFragType:  number of unique centers in a fragment (0=not a frag)*
+*     nFragCoor:  total number of centers in a fragment                *
+*     nFragEner:  number of orbital energies/occupied orbitals in a    *
+*                 given fragment                                       *
+*     nFragDens:  size of the fragments density matrix                 *
+*     ipFragType: pointer to the data of the fragment''s unique centers*
+*                 (associated basis set, size nFragType)               *
+*     ipFragCoor: pointer to the data of all fragment''s centers       *
+*                 (atom type / relative coordinates, size nFragCoor)   *
+*     ipFragEner: pointer to the fragment''s orbital''s energies       *
+*                 (size nFragEner)                                     *
+*     ipFragCoef: pointer to the fragment''s MO coefficients           *
+*                 (size nFragDens*nFragEner)                           *
+*     nBas_Frag:  number of fragment basis functions in each irrep     *
+*     iRI_Type: type of RI auxiliary basis set                         *
+*     nCtrLD: number of centers in the LDKH procedure                  *
+*     iCtrLD: ith center for the LDKH procedure                        *
+*     iSigma: rotational symmetry number                               *
+*     iPAMFI: center types for which to disable AMFI                   *
+*     nPAMFI: number of center types for which to disable AMFI         *
+*                                                                      *
+* -> Logical <-                                                        *
+*     Prjct : logical flag to indicate if the angular functions of the *
+*             i''th shell are projected on to the spherical harmonics  *
+*             excluding the contaminant.                               *
+*     Transf: logical flag to indicate if the angular functions of the *
+*             i''th shell are transformed on to the spherical harmonics*
+*     Onenly: logical flag to indicate that only the 1-electron        *
+*             integrals are computed                                   *
+*     Petite: logical flag to indicate that petite list integrals are  *
+*             generated (not fully supported any more)                 *
+*     lSOInt: logical flag to indicate that SO integrals are generated *
+*     Test  : logical flag to indicate that the input will only be     *
+*             processed                                                *
+*     Vlct  : logical flag to indicate that the velocity integrals will*
+*             be computed                                              *
+*     lOAM  : logical flag to indicate that the orbital angular        *
+*             momentum integrals will be computed                      *
+*     lOMQ  : logical flag to indicate that the orbital magnetic       *
+*             quadrupole integrals will be computed                    *
+*     lOMQS : logical flag to indicate that the symmetric part of the  *
+*             orbital magnetic quadrupole integrals will be computed   *
+*     lAMP  : logical flag to indicate that the angular momentum       *
+*             product integrals will be computed                       *
+*     PrPrt : logical flag to indicate that it is a property           *
+*             calculation                                              *
+*     Short : logical flag that the short list should be used in the   *
+*             output of the property calculation                       *
+*     lDMS  : logical flag to indicate that the diamagnetic shielding  *
+*             integrals should be computed                             *
+*     lRel  : logical flag to indicate that the 1-electron Darwin and  *
+*             mass-velocity integrals should be computed               *
+*     UnNorm: logical flag to indicate that the primitive basis        *
+*             functions should not be normalized                       *
+*     lSchw : logical flag to indicate that the Cauchy-Schwartz        *
+*             inequality should be used in the prescreening            *
+*     Dist  : logical flag to indicate that integral statistics will   *
+*             be accumulated and displayed                             *
+*     lECP  : Signifies that ECP''s are present                        *
+*     lNOpar: Signifies that no-pair operators are used                *
+*     ECP   : Signifies that the i''th unique center is of ECP-type    *
+*     lXF   : logical flag to indicate presence of an external field   *
+*     lPP   : logical flag to indicate presence of a pseudo potential  *
+*     lAMFI : logical flag for Atomic Mean Field Integrals             *
+*     force_part_c: logical flag to force partitioning on contracted   *
+*     force_part_p: logical flag to force partitioning on primitive    *
+*     GIAO: integrals for first derivative with respect to B           *
+*     Cholesky: logical flag for Cholesky decomposition.               *
+*     AuxShell: logical flag for auxiliary basis set                   *
+*     AuxCnttp: logical flag for auxiliary basis set                   *
+*     lAux: logical flag that there is an auxiliary basis              *
+*     Do_RI: logical flag for RI apporach                              *
+*     lFAIEMP: logical flag for Fragment AIEMP                         *
+*     FragShell: logical flag for fragment basis set                   *
+*     FragCnttp: logical flag for fragment basis set                   *
+*     Do_FckInt: logical flag for FckInt                               *
+*     Do_GuessOrb: logical flag for GuessOrb                           *
+*     DiagCheck : logical flag for diagonal ERI check in Cholesky/RI   *
+*     LDKroll : logical for the local Douglas-Kroll-Hess               *
+*     Do_Numerical_Gradients: force numerical gradients                *
+*     VART: Forced variant to translations                             *
+*     VARR: Forced variant to rotations                                *
+*     EMFR: Electromagnetic field radiation                            *
+*     FNMC: finite nuclear mass correction                             *
+*                                                                      *
+* -> Real*8 <-                                                         *
+*     AccMch: approximative relative accuracy of real*8 representation *
+*     ThrInt: threshold for writing intgerals to disc                  *
+*     Charge: the charge of the i''th unique center                    *
+*     ExpNuc: the nuclear radius exponent of the i''th unique center   *
+*             used for finite nuclei calculations.                     *
+*     PotNuc: the nuclear repulsion energy                             *
+*     Sum   : array used for debug purposes                            *
+*     SumSq : array used for debug purposes                            *
+*     SumAbs: array used for debug purposes                            *
+*     CutInt: threshold for ignoring the computation of integrals      *
+*     TMass : the total mass of the molecule                           *
+*     CoM   : cartesian coordinates of the center of mass              *
+*     rMI   : lower triangular form for the moment of inertia tensor   *
+*     Prin  : moment of inertia of the principle axis                  *
+*     PAx   : vector of the principle axis                             *
+*     CoC   : center of charge of the nuclear charges                  *
+*     qNuc  : total nuclear charge                                     *
+*     PkAcc : packing accuracy                                         *
+*     Thrs  : threshold of occupation number of an orbital for which   *
+*             orbital contribution to a property will be lised in a    *
+*             propert calculation                                      *
+*     Dxyz  : coordinates of the gauge origin in the calculation of the*
+*             magnetic shielding integrals                             *
+*     RadMax: the largest of a contraction coefficient and prefactor   *
+*     rChTbl: the character table for the specified point group        *
+*     CrRep : Contains the core-overlap parm for the i:th basis set    *
+* FragCharge: Mulliken charge for each expanded fragment atom          *
+*     radiLD: cutoff radius for LDKH procedure                         *
+*     KVector: the k-vector of the EMFR                                *
+*     fmass  : fermionic mass (used for electrons and muons)           *
+*                                                                      *
+* -> Character <-                                                      *
+*     BLine : blank line                                               *
+*     lIrrep: label of the i''th irrep                                 *
+*     lBsFnc: label of the basis functions of the i''th irrep          *
+*     LblCnt: label of the i''th unique center                         *
+*     Lblxxx: local array for labels                                   *
+*     SW_FileOrb: orbital file for Seward to read                      *
+*                                                                      *
+************************************************************************
+**
+*
+#include "Molcas.fh"
+      Integer Mxdbsc,MxShll,Mxdc,MxAng,MxUnq,MxAO,MxFnc
+      Parameter ( Mxdbsc=MxAtom, MxShll=iTabMx*MxAtom, Mxdc=MxAtom,
+     &            MxAng=iTabMx,  MxUnq=MaxBfn+MaxBfn_Aux,
+     &            MxAO=MaxBfn+MaxBfn_Aux,
+     &            MxFnc=(MxAng+1)*(MxAng+2)*(MxAng+3)/6)
+      Integer Point_Charge, Gaussian_type, mGaussian_Type
+      Parameter (Point_Charge=0, Gaussian_Type=1, mGaussian_Type=2)
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Definitions and common for INTEGER                               *
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Integer          iCnttp_Dummy,iLbls,      IntTot,ipAMP,
+     &          ipDMS,ipEF,ipOAM,ipOMQ,ipWel,ipXEle,ipXF,
+     &          ipXMolnr,iShll_RF,iSigma,ixStrt,ixEnd,LctInf,LenInf,
+     &          LenSph,m2Max,m2Tot,Max_Cnt,MaxDCR,mCentr,MemHid,MolWgh,
+     &          Mx_AO,Mx_mdc,Mx_Shll,Mx_Unq,n2Max,n2Tot,nCnttp,nData_XF,
+     &          nDim,nDMS,nEF,nIrrep,nMltpl,nOrdEF,nShlls,nWel,nXF,
+     &          Ind_Shell(MxShll)
+      Integer   nExp(MxShll),    nBasis(MxShll),  ipCff(MxShll),
+     &          ipCff_Cntrct(MxShll), ipCff_Prim(MxShll),
+     &          ipExp(MxShll),   ipCntr(Mxdbsc),  nCntr(Mxdbsc),
+     &          ipVal(Mxdbsc), ipPrj(Mxdbsc), ipSRO(Mxdbsc),
+     &          ipSOC(Mxdbsc),ipPP(Mxdbsc), nBasis_Cntrct(MxShll),
+     &          nTot_Shells(Mxdbsc), nVal_Shells(mxdbsc),
+     &          nPrj_Shells(Mxdbsc), nSRO_Shells(mxdbsc),
+     &          nSOC_Shells(Mxdbsc), nPP_Shells(Mxdbsc),iChCnt(Mxdc),
+     &          iChTbl(0:7,0:7), jStab(0:7,Mxdc), nStab(Mxdc),
+     &          iCoSet(0:7,0:7,Mxdc), iSkip(0:7),   iPhase(3,0:7),
+     &          iAngMx,iChCar(3),iOper(0:7),      nBas(0:7)
+      Integer   MaxPrm(0:iTabMx), MaxBas(0:iTabMx), IrrCmp(MxUnq),
+     &          IsMM(Mxdbsc),    iChBas(MxFnc),   iSphCr(MxFnc),
+     &          IndS(MxShll), nBas_Aux(0:7),         ip_Occ(Mxshll),
+     &          iAOtSO(MxAO,0:7),lOffAO(Mxdbsc), NrInt(-20:9),
+     &          kOffAO(Mxdbsc,0:iTabMx), Max_Center,  nPrm(0:7),
+     &          iOffSO(0:7), iSOInf(3,4*MxAO), jMax,   ipAkl(Mxshll),
+     &          iSquar,iPack,iWRopt,lwInt,lwSyB,lwSqN,lwIntL,NotZer,
+     &          ipM1xp(Mxdbsc),ipM1cf(Mxdbsc),nM1(Mxdbsc), nTtl,
+     &          ipM2xp(Mxdbsc),ipM2cf(Mxdbsc),nM2(Mxdbsc),ipBk(Mxshll),
+     &          nOpt(MxShll), iAtmNr(mxdbsc), ipFockOp(MxShll),
+     &          kCentr, iRelae_Info, Nuclear_Model, ipRP1,nRP
+      Integer   nFragType(Mxdbsc),nFragCoor(Mxdbsc),nFragEner(Mxdbsc),
+     &          nFragDens(Mxdbsc),ipFragType(Mxdbsc),ipFragCoor(Mxdbsc),
+     &          ipFragEner(Mxdbsc),ipFragCoef(Mxdbsc),nBas_Frag(0:7),
+     &          iOrdFm, nOrd_XF,iXPolType,nXMolnr,iRI_Type,
+     &          mdciCnttp(MxShll), nCtrLD,iCtrLD(10),iPAMFI(mxdbsc),
+     &          nPAMFI, nPSOI, IsChi
+*
+      Common /Info/
+     &              nExp,    nBasis, nBasis_Cntrct, ipCff,
+     &              ipCff_Cntrct, ipCff_Prim, ipExp,
+     &              IndS, ip_Occ, ipAkl, ipBk, nOpt, iCoSet,
+     &              iAOtSO, iSOInf, IrrCmp, ipFockOp, ixStrt,
+     &              Mx_mdc, Mx_Shll,ipCntr, nCntr, nOrd_XF,iXPolType,
+     &              iChCnt, iChTbl, jStab,   nStab, nBas_Aux, iPhase,
+     &              iAngMx, nCnttp,  nIrrep, iOper,   nBas,   n2Tot,
+     &              n2Max,   MaxDCR, MaxPrm, MaxBas,         nDim,
+     &              iChBas, iSphCr,  nOrdEF,                  kOffAO,
+     &              lOffAO,  mCentr, nPrm,   m2Max,   m2Tot,  IntTot,
+     &              NrInt,   MemHid, iOffSO, nTtl,            Max_Cnt,
+     &              nMltpl,  IsChi,                   iLbls,  ipEF,
+     &              nEF,     ipOAM,  ipOMQ,  ipAMP,  ipDMS,
+     &              nDMS,    ipWel,  nWel,   nShlls,          iPack,
+     &              iSquar,  iWRopt, iSkip,  lwInt,   lwSyB,  lwSqN,
+     &              lwIntL,  NotZer, LctInf, iRelae_info,     ipM1xp,
+     &              ipM1cf,  nM1,   ipM2xp,  ipM2cf,  nM2, jMax,
+     &              LenInf,  LenSph, MolWgh, nXF,     ipXF,   iAtmNr,
+     &              iShll_RF,ipVal,  ipPrj,  ipSRO,   ipSOC,nTot_Shells,
+     &              nVal_Shells,     nPrj_Shells,     nSRO_Shells,
+     &              nSOC_Shells, nXMolnr, ipXMolnr, ipXEle, IsMM,
+     &              iOrdFm, ipPP, nPP_Shells, iRI_Type, mdciCnttp,
+     &              nFragType,nFragCoor,nFragEner,nFragDens,ipFragType,
+     &              ipFragCoor,ipFragEner,ipFragCoef,nBas_Frag,
+     &              kCentr, Max_Center, iChCar, Mx_Unq, Mx_AO,
+     &              Nuclear_Model, ipRP1, nRP,nCtrLD,iCtrLD,iSigma,
+     &              iCnttp_Dummy, nData_XF, nPAMFI, iPAMFI, nPSOI,
+     &              Ind_Shell,
+     &              ixEnd    ! Put never ever anything after ixEnd!!!
+*
+      Integer ipPAM2xp(Mxdbsc),ipPAM2cf(Mxdbsc),nPAM2(Mxdbsc),
+     &        ipPAMexp, kCnttpPAM,iPAMPrim,iPAMcount
+      Common /InfoPAM/ ipPAM2xp,ipPAM2cf,nPAM2,ipPAMexp,
+     &          kCnttpPAM,iPAMPrim,iPAMcount
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Definitions and common for LOGICAL                               *
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Logical   Prjct(MxShll),Transf(MxShll),DirInt, Onenly, Petite,
+     &          lSOInt, Test, Vlct, lOAM, lOMQ, lOMQS, lAMP, lAux,
+     &          Prprt, Short, lDMS, lRel, Do_RI,  UnNorm, lSchw,
+     &          Dist, lAMFI, force_part_p, FockOp(Mxdbsc),
+     &          lECP, lNOpair, NoPairL(Mxdbsc), force_part_c, Expert,
+     &          ECP(Mxdbsc), pChrg(Mxdbsc), Fixed(Mxdbsc),lXF, BSS,
+     &          DKroll, LDKroll, Primitive_Pass,NEMO,lPP, GIAO,
+     &          SODK(Mxdbsc), AuxCnttp(Mxdbsc), Do_GuessOrb,
+     &          lFAIEMP,FragShell(MxShll),FragCnttp(Mxdbsc),
+     &          Cholesky, AuxShell(MxShll), Do_FckInt, Align_Only,
+     &          Force_Out_of_Core, Do_acCD_Basis, Skip_High_AC,
+     &          DoFMM, Cho_OneCenter, LDF, DiagCheck, lRP, lRP_Post,
+     &          Fake_ERIs, LocalDF, Do_nacCD_Basis, Do_Align,
+     &          Do_Numerical_Gradients, VarT, VarR, EMFR,
+     &          lUPONLY, lDOWNONLY, FNMC
+      Integer lxStrt, lxEnd
+      Common /LInfo/ Prjct, Transf, FragShell, AuxShell,
+     &               lxStrt,  ! Put never ever anything before lxStrt!!!
+     &               DirInt, DKroll, BSS, Primitive_Pass,
+     &               lAux,  NEMO,lPP, LDF,      AuxCnttp, Do_RI,
+     &               lAMFI,  Onenly, Petite, lSOInt, Do_GuessOrb,
+     &               Test, Vlct,      lOAM, lOMQ, lOMQS, lAMP, FockOp,
+     &               Prprt, Short, lDMS, lRel,        UnNorm,
+     &               lSchw, Dist,ECP, lECP, lXF,pChrg, Fixed, lNOpair,
+     &               NoPairL, force_part_c, force_part_p, Expert,
+     &               GIAO, SODK,         Do_FckInt, Cholesky,
+     &               lFAIEMP,          FragCnttp,Force_Out_of_Core,
+     &               Do_acCD_Basis, Skip_High_AC, lRP, lRP_Post,
+     &               DoFMM, Cho_OneCenter, DiagCheck, LDKroll,
+     &               Align_Only, Fake_ERIs, LocalDF, Do_nacCD_Basis,
+     &               Do_Align, Do_Numerical_Gradients, VarR, VarT,
+     &               EMFR, lUPONLY, lDOWNONLY, FNMC,
+     &               lxEnd      ! Put never ever anything after lxEnd!!!
+*
+      Logical PAM2(Mxdbsc), lPAM2
+      Logical lPSOI
+      Common /LInfoPAM/ lPAM2,PAM2
+      Common /LInfoPSO/ lPSOI
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Definitions and common for REAL*8                                *
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Real*8         AccMch,         ThrInt, Charge(mxdbsc),
+     &               PotNuc, Sum, ExpNuc(mxdbsc), Rtrnc,
+     &               SumSq,  SumAbs, CutInt, TMass,  CoM(3), rMI(6),
+     &               Prin(3),PAx(9), CoC(3), qNuc,   PkAcc,  Thrs,
+     &               Dxyz(3), RadMax , rChTbl(0:7,0:7), cdMax, EtMax,
+     &               CrRep(mxdbsc), FragCharge(mxdbsc), E1, E2,
+     &               RMax_Shll(MxShll), Thrshld_CD, RPQMin,SadStep,
+     &               Delta_RICD, CLight_Info, w_mGauss(mxdbsc),
+     &               aCD_Thr(mxdbsc),radiLD, Shake, KVector(3), ChiI2,
+     &               fmass(mxdbsc)
+      Real*8         rxStrt, rxEnd
+      Common /RInfo/ rxStrt,  ! Put never ever anything before rxStrt!!!
+     &               AccMch,         ThrInt, Charge, PotNuc, Sum,
+     &               SumSq,  SumAbs, CutInt, TMass,  CoM,    rMI,
+     &               Prin,   PAx,    CoC,    qNuc,   PkAcc,  Thrs,
+     &               Dxyz, RadMax, cdMax, EtMax, rChTbl,CrRep,
+     &               ExpNuc,FragCharge, Rtrnc, RMax_Shll,
+     &               Thrshld_CD, RPQMin, Delta_RICD, CLight_Info,
+     &               w_mGauss, aCD_Thr, E1, E2, radiLD, SadStep, Shake,
+     &               KVector, ChiI2, fmass,
+     &               rxEnd      ! Put never ever anything after rxEnd!!!
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Definitions and common for CHARACTER                             *
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Character BLine*80, lIrrep(0:7)*3, lBsFnc(0:7)*80
+      Character*(LENIN)  lblxxx(8*mxdc)
+      Character*(LENIN4) LblCnt(Mxdc)
+      Character LblCBs(MxFnc)*4, LblSBs(MxFnc)*4
+      Character Title(10)*80, Bsl(Mxdbsc)*80, Bsl_Old(Mxdbsc)*80
+      Character SW_FileOrb*512, Align_Weights*512
+      Integer cxStrt,cxEnd
+*
+      Common /CInfo/ cxStrt, !  Put never ever anything before cxStrt!!!
+     &               LblCBs, LblSBs, Title, Bsl, Bsl_Old,
+     &               BLine, lIrrep, lBsFnc, LblCnt, lblxxx,
+     &               SW_FileOrb, Align_Weights,
+     &               cxEnd    !  Put never ever anything after cxEnd!!!
+*                                                                      *
+************************************************************************

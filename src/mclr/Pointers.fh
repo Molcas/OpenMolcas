@@ -1,0 +1,25 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      Integer ipMat(8,8),ipMatLT(8,8),ipCM(8),
+     &        nDens,nDensLT,nCMO,nscrtch,
+     &        ipCMO,ipCI,ipMC(8,8),nDens2,ipf0,ipf0sqmo,
+     &        ndensc,ipmatba(8,8),ipMO(8,8,8),iADMO(8,8,8),na(8),
+     &        nb(8),nmba,nna,ipfimo,
+     &        ipfamo,ipmo1,k2int,n1dens,n2dens,nconf1,ipg2tpp,
+     &        ipg2tmm,ipHss,ip_CMO_inv
+      Common /Pointers/ ipCMO,ipCI,
+     &                  ipMat,ipMatLT,ipCM,nDens,
+     &                  nDensLT,nCMO,ipf0sqmo,
+     &                  ipf0,nScrtch,nDensC,ipMc,nDens2,ipmatba,
+     &                  ipMO,iADMO,na,nb,nmba,
+     &                  nna,ipfimo,ipfamo,ipmo1,k2int,
+     &                  n1dens,n2dens,nconf1,ipg2tpp,ipg2tmm,iphss,
+     &                  ip_CMO_inv

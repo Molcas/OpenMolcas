@@ -1,0 +1,16 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      COMMON /DM_1_2/ DM1(MAX_ORB,MAX_ORB),INDEX_DM2(MAX2_ALL),
+     :                DM1TMP(MAX_ORB*(MAX_ORB+1)/2)
+      REAL*8, pointer :: DENM1(:),DENM2(:)
+      COMMON /DENMAT/ DENM1,DENM2
+C      COMMON /DM_2/ DM2(max_orb,max_orb,max_orb,max_orb)
+C      EQUIVALENCE (VECTOR2,DM2)

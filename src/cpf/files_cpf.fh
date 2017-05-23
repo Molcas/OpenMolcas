@@ -1,0 +1,44 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 1986, Per E. M. Siegbahn                               *
+*               1986, Margareta R. A. Blomberg                         *
+************************************************************************
+C
+C     UNITS USED IN THE PROGRAM
+C     UNIT  5 , INPUT
+C     UNIT  6 , OUTPUT
+C     UNIT 10 , SYMBOLIC FORMULAS
+C      Lu_CIGuga
+C     UNIT 50 , TRANSFORMED MO 2-EL INTEGRALS
+C      Lu_TraInt
+C     UNIT 60 , SORTED AIBJ, ABIJ AND AIJK INTEGRALS
+C      Lu_TiABIJ
+C     UNIT 70 , SORTED IJKL AND ABCI INTEGRALS
+C      Lu_TiABCI
+C     UNIT 80 , SORTED ABCD INTEGRALS
+C      Lu_TiABCD
+C     UNIT 17 , ONE ELECTRON INTEGRALS
+C      Lu_TraOne
+C     UNIT 19 , (Formatted sequential!) CPF-ORBITALS OUT
+C      Lu_CPFORB
+C     UNIT 25 , FOCK MATRIX AND DIAGONAL CSF MATRIX ELEMENTS
+C      Lu_25
+C     UNIT 26 , CI VECTOR
+C      Lu_CI
+C     UNIT 27 , SCRATCH IN IIJJ
+C      Lu_27
+C     UNIT 30 ,
+C      Lu_30
+C
+      Common /files_cpf/ Lu_CIGuga,  Lu_TraInt, Lu_TraOne,
+     &                   Lu_CI,      Lu_TiABIJ, Lu_TiABCI,
+     &                   Lu_TiABCD,  Lu_25,     Lu_27,
+     &                   Lu_30,      Lu_CPFORB

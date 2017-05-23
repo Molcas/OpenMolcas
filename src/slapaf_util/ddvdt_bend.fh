@@ -1,0 +1,18 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      Real*8 A_Bend(2), rkf
+*
+*     Parameter from 1999 paper
+*     Data rkf/0.1500D+00/
+*
+C     Data rkf/0.2000D+00/
+      Data rkf/0.1000D+00/
+      Data A_Bend/0.160d0,0.250d0/

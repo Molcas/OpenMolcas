@@ -1,0 +1,34 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+c Introduced NDISK parameter to parametrize get3dm/put3dm sequential
+c unformatted I/O in DIRCCR12ROS.  PV-011115, Bratislava.
+c Comments updated by PV, 2 jan 2006.
+c
+c Record size in put3dm and get3dm is ndisk+1 (in R*8 units)
+c and must match /COMBUF/ length. (Original ndisk value was 511.)
+c
+c **BEWARE**
+c     NDISK must be (2**k1)-1.
+c     NDISK must be also a multiple of 3 to match /COMBUF/.
+c     This latter condition implies k1 to be even.
+c     Get3dm and put3dm also assume integer*4 in COMBUF.
+c
+      integer ndisk
+      parameter (ndisk=4095)
+c      parameter (ndisk=16383)
+c
+c
+c NBLOCK is used for direct-access unformatted I/O via multi.f.
+c Count a record size in real*8 words. Should be 2**k2.
+c NOTE. k1 and k2 may be different.
+      integer nblock
+      parameter (nblock=2048)
+cmp!      parameter (nblock=8192)

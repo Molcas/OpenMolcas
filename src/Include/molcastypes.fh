@@ -1,0 +1,25 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+#ifndef _MOLCAS_TYPES_FH_
+#define _MOLCAS_TYPES_FH_
+
+#ifdef _I8_
+#  ifdef _x86_I8_
+#    define MOLCAS_C_INT C_LONG_LONG
+#  else
+#    define MOLCAS_C_INT C_LONG
+#  endif
+#else
+#  define MOLCAS_C_INT C_INT
+#endif
+#define MOLCAS_C_REAL C_DOUBLE
+
+#endif

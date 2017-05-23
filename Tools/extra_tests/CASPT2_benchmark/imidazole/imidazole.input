@@ -1,0 +1,157 @@
+&GATEWAY
+  Title = imidazole Cs structure: MP2/6-31G*
+  Coord = imidazole.xyz
+  Group = x
+  Basis = TZVP
+  AngMom = 0.0 0.0 0.0
+  RICD
+  SDipoles
+
+&SEWARD
+  BSShow
+  Verbose
+
+* Symmetry table: a'  a''
+*                 1   2
+
+*=================================================
+*
+* 1A'', 3A' and 3A'' states
+*
+*=================================================
+
+&RASSCF
+  Title =    imidazole Cs ground state 1A'
+  Spin =     1
+  Symmetry = 1
+  nActEl =   8 0 0
+  Inactive = 14 0
+  Ras2 =      1 5
+  CIRoot =   1 1 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.1Ap-GS.RasOrb
+
+&CASPT2
+  Title =      imidazole Cs ground state 1A'
+  Multistate = 1  1
+
+>>COPY $Project.JobMix JOB001
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    imidazole Cs state 1A''
+  Spin =     1
+  Symmetry = 2
+  nActEl =   8 0 0
+  Inactive = 14 0
+  Ras2 =      1 5
+  CIRoot =   2 2 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.1App.RasOrb
+
+&CASPT2
+  Title =      imidazole Cs state 1A''
+  Multistate = 2  1 2
+
+>>COPY $Project.JobMix JOB002
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    imidazole Cs state 3A'
+  Spin =     3
+  Symmetry = 1
+  nActEl =   8 0 0
+  Inactive = 14 0
+  Ras2 =      1 5
+  CIRoot =   4 4 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.3Ap.RasOrb
+
+&CASPT2
+  Title =      imidazole Cs state 3A'
+  Multistate = 4  1 2 3 4
+
+>>COPY $Project.JobMix JOB003
+
+*-------------------------------------------------
+&RASSCF
+  Title =    imidazole Cs state 3A''
+  Spin =     3
+  Symmetry = 2
+  nActEl =   8 0 0
+  Inactive = 14 0
+  Ras2 =      1 5
+  CIRoot =   2 2 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.3App.RasOrb
+
+&CASPT2
+  Title =      imidazole Cs state 3A''
+  Multistate = 2  1 2
+
+>>COPY $Project.JobMix JOB004
+
+*-------------------------------------------------
+
+&RASSI
+  NrOfJobIphs = 4  1 2 4 2
+    1
+    1 2
+    1 2 3 4
+    1 2
+  EJob
+  CIPrint
+  XVES
+  MEES
+  Properties = 15
+    'Mltpl  1' 1  'Mltpl  1' 2  'Mltpl  1' 3
+    'Mltpl  2' 1  'Mltpl  2' 2  'Mltpl  2' 3  'Mltpl  2' 4  'Mltpl  2' 5  'Mltpl  2' 6
+    'AngMom  ' 1  'AngMom  ' 2  'AngMom  ' 3
+    'Velocity' 1  'Velocity' 2  'Velocity' 3
+
+>>RM JOB001
+>>RM JOB002
+>>RM JOB003
+>>RM JOB004
+
+*=================================================
+*
+* 1A' states
+*
+*=================================================
+
+&RASSCF
+  Title =    imidazole Cs states 1A'
+  Spin =     1
+  Symmetry = 1
+  nActEl =   8 0 0
+  Inactive = 14 0
+  Ras2 =      1 5
+  CIRoot =   5 5 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.1Ap.RasOrb
+
+&CASPT2
+  Title =      imidazole Cs states 1A'
+  Multistate = 5  1 2 3 4 5
+
+>>COPY $Project.JobMix JOB001
+
+*-------------------------------------------------
+
+&RASSI
+  NrOfJobIphs = 1  5
+    1 2 3 4 5
+  EJob
+  CIPrint
+  XVES
+  MEES
+  Properties = 15
+    'Mltpl  1' 1  'Mltpl  1' 2  'Mltpl  1' 3
+    'Mltpl  2' 1  'Mltpl  2' 2  'Mltpl  2' 3  'Mltpl  2' 4  'Mltpl  2' 5  'Mltpl  2' 6
+    'AngMom  ' 1  'AngMom  ' 2  'AngMom  ' 3
+    'Velocity' 1  'Velocity' 2  'Velocity' 3
+
+>>RM JOB001

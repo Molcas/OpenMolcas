@@ -1,0 +1,77 @@
+#/bin/ksh
+# $ this file belongs to the Molcas repository $
+export Project=G3
+export Home=$PWD
+#
+bas=${1:-'6-31G*'}
+#
+case $2 in
+""|'scf')
+     method=''
+     arg=''
+     mp2=''
+     ;;
+ 'dft')
+     method='KSDFT'
+     arg=${3:-'B3LYP'}
+     mp2=''
+     ;;
+ 'mp2')
+     method=''
+     arg=''
+     mp2='\&MBPT2'
+     ;;
+esac
+#
+decomp=''
+spin1='0'
+spin2='1'
+MOLCAS=`cd ../..; pwd`
+export ScratchDir=$MOLCAS/Test/tmp
+rm -f result
+list='1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73'
+if test "$mp2" = ""; then 
+list2='74 75'
+fi
+#
+for name in $list
+do
+echo Running ${name}_*.input ...
+rm -fr  $ScratchDir/$name
+mkdir $ScratchDir/$name
+cd $ScratchDir/$name
+cp $Home/${name}_*.xyz $ScratchDir/$name/temp.xyz
+cp $Home/generic.input $ScratchDir/$name/
+UHF=''
+cat generic.input | sed -e "s/YY/$bas/" | sed -e "s/XX/$method/" | sed -e "s/ZZ/$arg/" | sed -e "s/WW/$spin1/" | sed -e "s/VV/$UHF/" | sed -e "s/UU/$mp2/"  | sed -e "s/TTT/$decomp/" >>generic1.input
+export WorkDir=$PWD
+molcas generic1.input > log 2> err
+echo Result from running with ${name}_*.xyz >> $Home/result
+mkdir -p $Home/$name
+grep -i Total.*energy log >> $Home/result
+mv log $Home/$name/.
+rm -r  $ScratchDir/$name/*
+cd $Home
+rm -r $ScratchDir/$name
+done 
+#
+for name in $list2
+do
+echo Running ${name}_*.input ...
+rm -fr  $ScratchDir/$name
+mkdir $ScratchDir/$name
+cd $ScratchDir/$name
+cp $Home/${name}_*.xyz $ScratchDir/$name/temp.xyz
+cp $Home/generic.input $ScratchDir/$name/generic.input
+UHF='UHF'
+cat generic.input | sed -e "s/YY/$bas/"  | sed -e "s/XX/$method/"  | sed -e "s/ZZ/$arg/"  | sed -e "s/WW/$spin2/"  | sed -e "s/VV/$UHF/" | sed -e "s/UU/$mp2/" |sed -e "s/TTT/$decomp/" >>generic1.input
+export WorkDir=$PWD
+molcas generic1.input > log 2> err
+echo Result from running with ${name}_*.xyz >> $Home/result
+mkdir -p $Home/$name
+grep -i Total.*energy log >> $Home/result
+mv log $Home/$name/.
+rm -r  $ScratchDir/$name/*
+cd $Home
+rm -r $ScratchDir/$name
+done 

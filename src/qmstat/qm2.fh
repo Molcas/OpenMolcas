@@ -1,0 +1,41 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*----------------------------------------------------------------------*
+* Variables to include for the Rassi-stuff.                            *
+*----------------------------------------------------------------------*
+* Integer:                                                             *
+* --------                                                             *
+* nState        -        Number of contracted RASSI states.            *
+* ipRASOrb        -        Pointer to the RASSCF orbital coefficients. *
+* ipRASOcc        -        Pointer to the RASSCF orbital occupation    *
+*                       numbers.                                       *
+* nWhichFile     -        An array to keep track of from which file the*
+*                        i:th state comes from.                        *
+* iBigT                -        Pointer to ALL Gamma-matrices.         *
+* nRedMO        -        Number of reduced MOs in reduced basis.       *
+* ipAvRed        -        Pointer to optional reduced MO-basis.        *
+*                                                                      *
+* Real:                                                                *
+* -----                                                                *
+* HmatState        -        The Hamiltonian matrix.                    *
+* HmatSOld        -        The stored Hamiltonian matrix.              *
+* RasCha        -        MME-charges.                                  *
+* RasDip        -        MME-dipoles.                                  *
+* RasQua        -        MME-quadrupoles.                              *
+* outxyzRAS        -        The MME-centers for RASSI.                 *
+*----------------------------------------------------------------------*
+
+      Common/RassiQinte/nState,nStateRed,ipRASORB(MxJobs)
+     &,ipRASOcc(MxJobs),nWhichFile(MxState),iBigT,nRedMO,ipAvRed
+
+      Common/RassiQreal/HmatState(MxStOT),RasCha(MxStOT,MxQCen)
+     &,RasDip(MxStOT,3,MxQCen),RasQua(MxStOT,6,MxQCen)
+     &,outxyzRAS(MxQCen,3),HmatSOld(MxStOT)

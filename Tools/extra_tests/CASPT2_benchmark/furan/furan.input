@@ -1,0 +1,158 @@
+&GATEWAY
+  Title = furan C2v structure: MP2/6-31G*
+  Coord = furan.xyz
+  Group = xy y
+  Basis = TZVP
+  AngMom = 0.0 0.0 0.0
+  RICD
+  SDipoles
+
+&SEWARD
+  BSShow
+  Verbose
+
+* Symmetry table: a1  b1  a2  b2
+*                 1   2   3   4
+
+*=================================================
+*
+* 1B2, 3A1 and 3B2 states
+*
+*=================================================
+
+&RASSCF
+  Title =    furan C2v ground state 1A1
+  Spin =     1
+  Symmetry = 1
+  nActEl =   6 0 0
+  Inactive = 9 0 0 6
+  Ras2 =     0 3 2 0
+  CIRoot =   1 1 1
+  LevShift = 1.0
+  FileOrb =  $CurrDir/$Project.1A1-GS.RasOrb
+
+&CASPT2
+  Title =      furan C2v ground state 1A1
+  Multistate = 1  1
+
+>>COPY $Project.JobMix JOB001
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    furan C2v states 1B2
+  Spin =     1
+  Symmetry = 4
+  nActEl =   6 0 0
+  Inactive = 9 0 0 6
+  Ras2 =     0 3 2 0
+  CIRoot =   3 3 1
+  LevShift = 0.2
+  FileOrb =  $CurrDir/$Project.1B2.RasOrb
+
+&CASPT2
+  Title =      furan C2v states 1B2
+  Multistate = 3  1 2 3
+
+>>COPY $Project.JobMix JOB002
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    furan C2v state 3A1
+  Spin =     3
+  Symmetry = 1
+  nActEl =   6 0 0
+  Inactive = 9 0 0 6
+  Ras2 =     0 3 2 0
+  CIRoot =   1 1 1
+  LevShift = 0.2
+  FileOrb =  $CurrDir/$Project.3A1.RasOrb
+
+&CASPT2
+  Title =      furan C2v state 3A1
+  Multistate = 1  1
+
+>>COPY $Project.JobMix JOB003
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    furan C2v state 3B2
+  Spin =     3
+  Symmetry = 4
+  nActEl =   6 0 0
+  Inactive = 9 0 0 6
+  Ras2 =     0 3 2 0
+  CIRoot =   1 1 1
+  LevShift = 0.2
+  FileOrb =  $CurrDir/$Project.3B2.RasOrb
+
+&CASPT2
+  Title =      furan C2v state 3B2
+  Multistate = 1  1
+
+>>COPY $Project.JobMix JOB004
+
+*-------------------------------------------------
+
+&RASSI
+  NrOfJobIphs = 4  1 3 1 1
+    1
+    1 2 3
+    1
+    1
+  EJob
+  CIPrint
+  XVES
+  MEES
+  Properties = 15
+    'Mltpl  1' 1  'Mltpl  1' 2  'Mltpl  1' 3
+    'Mltpl  2' 1  'Mltpl  2' 2  'Mltpl  2' 3  'Mltpl  2' 4  'Mltpl  2' 5  'Mltpl  2' 6
+    'AngMom  ' 1  'AngMom  ' 2  'AngMom  ' 3
+    'Velocity' 1  'Velocity' 2  'Velocity' 3
+
+>>RM JOB001
+>>RM JOB002
+>>RM JOB003
+>>RM JOB004
+
+*=================================================
+*
+* 1A1 states
+*
+*=================================================
+
+&RASSCF
+  Title =    furan C2v states 1A1
+  Spin =     1
+  Symmetry = 1
+  nActEl =   6 0 0
+  Inactive = 9 0 0 6
+  Ras2 =     0 3 2 0
+  CIRoot =   4 4 1
+  LevShift = 1.0
+  FileOrb =  $CurrDir/$Project.1A1.RasOrb
+
+&CASPT2
+  Title =      furan C2v states 1A1
+  Multistate = 4  1 2 3 4
+
+>>COPY $Project.JobMix JOB001
+
+*-------------------------------------------------
+
+&RASSI
+  NrOfJobIphs = 1  4
+    1 2 3 4
+  EJob
+  CIPrint
+  XVES
+  MEES
+  Properties = 15
+    'Mltpl  1' 1  'Mltpl  1' 2  'Mltpl  1' 3
+    'Mltpl  2' 1  'Mltpl  2' 2  'Mltpl  2' 3  'Mltpl  2' 4  'Mltpl  2' 5  'Mltpl  2' 6
+    'AngMom  ' 1  'AngMom  ' 2  'AngMom  ' 3
+    'Velocity' 1  'Velocity' 2  'Velocity' 3
+
+>>RM JOB001

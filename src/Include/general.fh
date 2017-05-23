@@ -1,0 +1,63 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      REAL*8          SXDAMP
+      INTEGER         MAXALTER
+      PARAMETER       (MAXALTER=16)
+      INTEGER         NSYM,MUL(mxSym,mxSym),
+     &                NBAS(mxSym),NFRO(mxSym),NORB(mxSym),NDEL(mxSym),
+     &                NISH(mxSym),NASH(mxSym),NSSH(mxSym),
+     &                NRS1(mxSym),NRS2(mxSym),NRS3(mxSym),nSkipX(MxSym),
+     &                NTOT,NTOT1,NTOT2,NFROT,NDELT,NRS1T,NRS2T,NRS3T,
+     &                NACTEL,ISPIN,LSYM,NCONF,NHOLE1,NELEC3,NSEL,
+     &                NTOTSP,INVEC,NALTER,MALTER(MAXALTER,3)
+      COMMON/GENERAL/ SXDAMP,NSYM,MUL,
+     &                NBAS,NFRO,NORB,NDEL,
+     &                NISH,NASH,NSSH,
+     &                NRS1,NRS2,NRS3,nSkipX,
+     &                NTOT,NTOT1,NTOT2,NFROT,NDELT,NRS1T,NRS2T,NRS3T,
+     &                NACTEL,ISPIN,LSYM,NCONF,NHOLE1,NELEC3,NSEL,
+     &                NTOTSP,INVEC,NALTER,MALTER
+*
+*     common logical unit numbers
+*
+*     LUStartOrb : MO-coefficients and occupation numbers
+*                   (formatted ASCI file, input)
+*     JOBIPH : MO-coefficients and occupation numbers etc.
+*                   (binary, output)
+*     JOBOLD : MO-coefficients and occupation numbers etc.
+*                   (binary, input)
+*     LUONEL : one-electron integrals in AO basis
+*                   (binary, input)
+*     LUINTA : two-electron integrals in AO basis
+*                   (binary, input)
+*     LUINTM : two-electron integrals in MO basis
+*                   (binary, temporary)
+*     LURLX  : geometries, gradients, hessians etc.
+*                   (binary, input/output)
+*     LUCOM  : seward's info block, reaction fields etc.
+*                   (binary, input/output)
+*     LUEXT  : summary of results
+*                   (formatted ASCI file, input)
+*     LUQUNE : orbital gradients
+*                   (binary, temporary)
+*     LUDAVID: Intermediate results of the diagonalization
+*                   (binary, temporary)
+*                   Note: unit number is set as a parameter in
+*                   the file davctl.fh
+*
+      Character(128)  StartOrbFile
+      COMMON/STRINGS/ StartOrbFile
+      INTEGER         LUStartOrb,JOBIPH,JOBOLD,LUDAVID,
+     &                LUONEL,LUINTA,LUINTM,
+     &                LURLX,LUCOM,LUEXT,LUQUNE,ITERFILE
+      COMMON/UNITS/   LUStartOrb,JOBIPH,JOBOLD,LUDAVID,
+     &                LUONEL,LUINTA,LUINTM,
+     &                LURLX,LUCOM,LUEXT,LUQUNE,ITERFILE

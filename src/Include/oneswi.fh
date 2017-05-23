@@ -1,0 +1,22 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+* include file for switch in One electron integral kernel routine
+* mltint.f (to generate NDDO overlap matrix)
+* required to generate better starting vectors for direct SCF...
+* M. Schuetz
+* University of Lund, Sweden, 1996
+*
+*     NDDO : flag for semi empirical NDDO approach (to generate start
+*            orbitals...)
+*
+      Logical NDDO
+*
+      Common / ONESWI / NDDO

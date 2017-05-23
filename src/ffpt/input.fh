@@ -1,0 +1,121 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*----------------------------------------------------------------------*
+*                                                                      *
+*     Define the vocabulary (ComTab) :                                 *
+*                                                                      *
+*     Command        1st Subcom.  2nd Subcom.  Parameters              *
+*     TITL              --           --        Text (10*72 Characters) *
+*     FFPT             DIPO         COMP       X=xx,Y=yy,Z=zz          *
+*                      EFLD         COMP       X=xx,Y=yy,Z=zz          *
+*                                   ORIG       N=i,X=xx,Y=yy,Z=zz      *
+*                      QUDR         COMP       XX=xx,YY=yy,ZZ=zz       *
+*                                              XY=xy,XZ=xz,YZ=yz,RR=rr *
+*                                   ORIG       N=i,X=xx,Y=yy,Z=zz      *
+*                      OCTU         COMP       XXX=xxx,XYY=xyy,XZZ=xzz *
+*                                              XXY=xxy,YYY=yyy,YZZ=yzz *
+*                                              XXZ=xxz,YYZ=yyz,ZZZ=zzz *
+*                                              XYZ=xyz                 *
+*                                   ORIG       N=i,X=xx,Y=yy,Z=zz      *
+*                      EFGR         COMP       XX=xx,YY=yy,ZZ=zz       *
+*                                              XY=xy,XZ=xz,YZ=yz,RR=rr *
+*                                   ORIG       N=i,X=xx,Y=yy,Z=zz      *
+*                      RELA          --        W=ww                    *
+*     END               --           --        --                      *
+*                                                                      *
+*     Define also the command read control tables:                     *
+*     ComCtl : Count the number of entries for each hierarchy          *
+*              level of the vocabulary                                 *
+*     ComStk : flag for each command which has been entered            *
+*     ComVal : paramater values read in                                *
+*                                                                      *
+*----------------------------------------------------------------------*
+*
+#include "Molcas.fh"
+*
+      Parameter ( nCom    = 5      )
+      Parameter ( MxSub1  = 6      )
+      Parameter ( MxSub2  = 2      )
+      Parameter ( MxParm  = 10     )
+*
+      Character*4 ComTab ( nCom,0:MxSub1,0:MxSub2,0:MxParm )
+      Integer     ComCtl ( nCom,0:MxSub1,0:MxSub2 )
+      Logical     ComStk ( nCom,0:MxSub1,0:MxSub2,0:MxParm )
+      Real*8      ComVal ( nCom,0:MxSub1,0:MxSub2,0:MxParm )
+      Common /Cmnd1/ ComVal
+      Common /Cmnd2/ ComTab
+      Common /Cmnd3/ ComCtl
+      Common /Cmnd4/ ComStk
+*
+*----------------------------------------------------------------------*
+*                                                                      *
+*     Allocate space to store general perturbation labels, components  *
+*     and weights                                                      *
+*     gLblN : general label name                                       *
+*     gLblW : general label weight                                     *
+*     gLblC : general label component                                  *
+*                                                                      *
+*----------------------------------------------------------------------*
+*
+      Parameter ( mxLbl=20 )
+      Character*8 gLblN(mxLbl)
+      Integer     gLblC(mxLbl)
+      Real*8      gLblW(mxLbl)
+      Common /Cmnd5/ mLbl,gLblC
+      Common /Cmnd6/ gLblW
+      Common /Cmnd7/ gLblN
+*
+*----------------------------------------------------------------------*
+*                                                                      *
+*     Define the length of the recognition area for:                   *
+*     Commands, 1st level - and 2nd level subcommands                  *
+*                                                                      *
+*----------------------------------------------------------------------*
+*
+      Parameter ( lCom   = 4       )
+      Parameter ( lSub   = 4       )
+      Parameter ( lParm  = 3       )
+*
+*----------------------------------------------------------------------*
+*                                                                      *
+*     Allocate space to store the title                                *
+*                                                                      *
+*----------------------------------------------------------------------*
+*
+      Parameter ( MxTitL = 10      )
+      Character*72 Title(MxTitL)
+      Common /Tit   / mTit,Title
+*
+*----------------------------------------------------------------------*
+*                                                                      *
+*     Allocate space to store the header of the one-electron           *
+*     integral file.                                                   *
+*                                                                      *
+*----------------------------------------------------------------------*
+*
+      Parameter ( MxSets  = 100    )
+      Parameter ( MxChar  = 144    )
+*
+      Integer nSym,nBas(MxSym),nAtoms
+      Real*8 Coor(3,mxatom)
+      Character*4 Names(2,2*MxBas)
+      Character*1 Header(MxChar)
+      Common /I1Info/ Coor,nSym,nBas,nAtoms,Names,Header
+*
+*----------------------------------------------------------------------*
+*     An input vector for the SELEctive keyword.                       *
+*----------------------------------------------------------------------*
+*
+      Real*8 TranCoo(3)
+      Integer iSelection(2,MxSets),nSets
+      Logical Atoms(MxSets),Bonds(MxSets,MxSets),LCumulate
+      Common /Selective/ TranCoo,SiffBond,iSelection,nSets,Atoms,Bonds,
+     &            LCumulate

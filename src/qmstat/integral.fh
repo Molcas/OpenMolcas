@@ -1,0 +1,53 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+**********************************************************************
+* iQn           -       Array that specifies the angular momentum    *
+*                       quantum number for each basis function on    *
+*                       solvent molecules.                           *
+* iQang         -       Like iQn, but for QM-region.                 *
+* nPrimus       -       Actually a rewriting of Icon.                *
+* mPrimus       -       Like nPrim but for solvent.                  *
+* iCharOnBasQ   -       Charge on atom on which the i:th contracted  *
+*                       AO-basis is centered in QM-system.           *
+* iCharOnBasC   -       Like iCharOnBasQ, but for solvent.           *
+* iWoGehenQ     -       The (i:th,j:th) element tells which index the*
+*                       i:th QM-region base (not basis-function) of  *
+*                       the j:th m_l-quantum number is to take.      *
+*                       Needed when ordering the AO-overlaps.        *
+* iWoGehenC     -       Like iWoGehenQ but for solvent molecule.     *
+* iCon                -        About contraction, see givemeinfo.f   *
+* iCon_C        -        Like iCon, but for solvent.                 *
+* nBonA_Q        -        Number of basis functions on atoms in QM   *
+* nBonA_C        -        Like nBonA_Q but for solvent molecule.     *
+* CasOri        -       Array with coordinates for each basis        *
+*                       function for solvent molecules.              *
+* SavOri        -        Initially like CasOri, but not overwritten. *
+* BasOri        -       Like CasOri, but for QM-region.              *
+* Alfa          -       Basis exponents.                             *
+* Beta          -       Like Alfa but for solvent.                   *
+* Cont          -       Contraction coefficients for QM-region.      *
+* Dont          -       Like Cont but for solvent.                   *
+* V3                -        Original solvent MOs.                   *
+* Trans                -        Cartesian to spherical transformation*
+**********************************************************************
+      Common/IntegralsI/nBA_Q(MxAt),nBA_C(MxAt),nCBoA_Q(MxAt,MxAngqNr)
+     &,nCBoA_C(MxAt,MxAngqNr),iQang(MxBas)
+     &,nPrimus(MxBas),iCharOnBasQ(MxBas),iCharOnBasC(MxBasC)
+     &,iQn(MxBasC),mPrimus(MxBasC)
+     &,iWoGehenC(MxBB,2*MxAngqNr-1),iWoGehenQ(MxBB,2*MxAngqNr-1)
+     &,nBonA_Q(MxAt),nBonA_C(3)
+*     &,iCon(MxAt,MxPrCon),iC_iCon(MxAt,MxPrCon),nBonA_Q(MxAt),nBonA_C(3)
+
+      Common/IntegralsR/Alfa(MxBas,MxCont),Beta(MxBasC,MxCont)
+     &,Cont(MxBas,MxCont),Dont(MxBasC,MxCont),CasOri(3,MxBasC)
+     &,BasOri(3,MxBas),SavOri(3,MxBasC),V3(MxBasC,MxOrb_C)
+     &,Trans((3*MxAngqNr**2-2*MxAngqNr-10+8*MxAngqNr**3
+     &       +3*MxAngqNr**4)/12)

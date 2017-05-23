@@ -1,0 +1,30 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+#ifdef LINALG_I4
+#define SCALAPACKINT integer*4
+#else
+#define SCALAPACKINT integer*8
+#endif
+
+      SCALAPACKINT iam, nnodes,nprow,npcol, myrow, mycol, iSLctxt,
+     $    maxproc, iSLctxt2,nprow2,npcol2, myrow2, mycol2
+      logical init,init2, init3, init4
+      common /SLface/ init, init2, init3, init4,
+     $     iam, nnodes, nprow,npcol, myrow, mycol,
+     $     iSLctxt,iSLctxt2,
+     $     maxproc,nprow2,npcol2, myrow2, mycol2
+
+#ifdef LINUX_DBL_UNDERSCORE
+#define blacs_pinfo blacs_pinfo_
+#define blacs_get blacs_get_
+#define blacs_gridinit blacs_gridinit_
+#define blacs_gridinfo blacs_gridinfo_
+#endif

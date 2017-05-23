@@ -1,0 +1,53 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+C Split-Graph descriptor, sizes, addresses...
+C     iSGStruct(1) =nSym
+C     iSGStruct(2) =nLev
+C     iSGStruct(3) =lISm
+C     iSGStruct(4) =nVert
+C     iSGStruct(5) =lDRT
+C     iSGStruct(6) =lDown
+C     iSGStruct(7) =lUp
+C     iSGStruct(8) =MidLev
+C     iSGStruct(9) =MVSta
+C     iSGStruct(10)=MVEnd
+C     iSGStruct(11)=lMAW
+C     iSGStruct(12)=lLTV
+C CI structure, sizes, addresses...
+C     iCIStruct(1)=nMidV
+C     iCIStruct(2)=nIpWlk
+C     iCIStruct(3)=lNOW
+C     iCIStruct(4)=lIOW
+C     iCIStruct(5)=lNCSF
+C     iCIStruct(6)=lNOCSF
+C     iCIStruct(7)=lIOCSF
+C     iCIStruct(8)=nWalk
+C     iCIStruct(9)=lICase
+C Excitation operators, coupling coefficients,...
+C     iXStruct(1)=MxEO
+C     iXStruct(2)=lNOCP
+C     iXStruct(3)=lIOCP
+C     iXStruct(4)=nICoup
+C     iXStruct(5)=lICoup
+C     iXStruct(6)=nVTab
+C     iXStruct(7)=lVTab
+C     iXStruct(8 )=lMVL
+C     iXStruct(9 )=lMVR
+C     iXStruct(10)=NT1MX
+C     iXStruct(11)=NT2MX
+C     iXStruct(12)=NT3MX
+C     iXStruct(13)=NT4MX
+C     iXStruct(14)=NT5MX
+C Dimensions of structures.
+      INTEGER NSGSIZE,NCISIZE,NXSIZE,MXLEV
+      Parameter (nSGSize=12,nCISize=9,nXSize=14,mxlev=100)
+      INTEGER L2ACT(mxlev), LEVEL(mxlev)
+      COMMON /ORBTRA/ L2ACT,LEVEL

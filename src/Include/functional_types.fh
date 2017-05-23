@@ -1,0 +1,26 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      Integer LDA_type,
+     &        GGA_type,
+     &        meta_GGA_type1,
+     &        meta_GGA_type2,
+     &        Other_type,
+     &        PAM_type,
+     &        CS_type,
+     &        CASDFT_type
+      Parameter(LDA_Type     =0,
+     &          GGA_Type     =1,
+     &          meta_GGA_Type1=2,
+     &          meta_GGA_Type2=7,           ! With the laplacian
+     &          Other_Type   =3,
+     &          PAM_type     =4,
+     &          CS_type      =5,
+     &          CASDFT_type  =6)

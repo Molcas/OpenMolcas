@@ -1,0 +1,178 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+#include "rasdim.fh"
+*
+      Integer itociph, mxPer, mxAtm, iSCF, iCASSCF
+      parameter ( itociph = 64  )
+      Parameter ( mxPer   = 255 )
+      Parameter ( mxAtm   = MxAtom  )
+      Parameter ( iSCF    = 1   )
+      Parameter (iCASSCF  = 2   )
+*
+*     nactel-itoc
+*
+*     See RASSCF JOBIPH
+*
+      Integer nActEl  ! Number of active electrons
+      Integer ispop   ! Spin operator
+      Integer iSpin   ! Spin of state
+      Integer nSym    ! Number of symmetries
+      Integer State_Sym ! Symmetry of state
+      Integer nConf     ! Number of configurations in state sym
+      Integer nAtoms    ! Guess
+      Integer mTit
+      Integer lRoots    ! State from CASSCF
+      Integer nRoots    ! nr of states from CASSCF
+      Integer nHole1    ! nr of holes RAS1
+      Integer nElec3    ! nr of el in RAS3
+      Integer ntIsh,ntItri,ntIsqr,pntgrp
+      Integer ntAsh,ntAtri,ntAsqr
+      Integer ntBas,ntBtri,ntBsqr
+      Integer nBas(mxSym)  ! Number of basis functions
+      Integer nOrb(mxSym)  ! Number of basis functions
+      Integer nFro(mxSym)   ! Nr of frozen orb (not allowed)
+      Integer nDel(mxSym)   ! Nr of deleted orbitals (not allowed)
+      Integer nOcc(mxSym)   ! nr of occ orbitals (allowed)
+      Integer nExt(mxSym)   ! nr of virtual orbitals
+      Integer nIsh(mxSym)   ! nr of inactive orbitals
+      Integer nAsh(mxSym)   ! number of active orbitals
+      Integer nRs1(mxSym)   ! number of Rs1
+      Integer nRs2(mxSym)   ! nr     of rs2
+      Integer nRs3(mxSym)   ! nr     of rs3
+      Integer nSkip(mxSym)  ! Not active
+      Integer iRoot(mxRoot) ! nonono
+      Integer iPt2          ! CASPT2 orbitals
+      Integer iToc(itociph)
+      Integer lmode(3*mxAtm+3)  ! Which modes the response is calc for
+      Integer nmode             ! Number of modes the resp is calc for
+      Integer iMethod           ! 1=SCF 2=RASSCF  RELAX
+      Integer niter             ! Max number of iterations
+      Integer nDisp             ! Total number of perturbations
+      Integer nCSF(8)           ! Number of CSFs in diff symmetries
+      Integer kprint            ! print level
+      Integer iBreak            ! Break criteria
+      Integer LuAChoVec(8)      ! Unit for storage of half-transformed Cho vectors
+      Integer LuIChoVec(8)      ! Unit for storage of half-transformed Cho vectors
+      Integer LuChoInt(2)       ! Unit for storage of integrals (ii|ab)
+*
+*   nTPert
+*   ======
+*
+*   MCKINT or rdinp
+*
+*   Bit 1 Singlet(0)/Triplet(1) operator
+*   Bit 2 One electron contribution to perturbation (1=true)
+*   Bit 3 Two electron contribution to perturbation (1=true)
+*   Bit 4 Connection contribution to perturbation (1=true)
+*   Bit 5 Mckinley(1) Seward(0)
+*
+      Integer nTPert(mxPer)
+*
+*     Character*8 OrbLbl(mxOrb)      ! Label on orbital ONEINT
+      Character*16 Perturbation      ! The type of perturbation
+      Character*(LENIN) AtLbl(mxAtm) ! Label on Atom    ONEINT
+      Character*72 HeaderJP(2)
+      Character*72 Header1I(2)
+      Character*72 TitleJp(mxTit)
+      Character*80 Bline
+      Character*8 TitleIN(180)
+      Character*3 chirr(8)       ! Irreps
+      Character*3 cmass(mxAtm)
+*
+*     Name of perturbation to read from ONEINT
+*
+      Character*8 SewLab
+      Logical lCalc(3*mxAtm+3)  ! True: the perturbation
+c                               !   should be calculated
+      Logical ISOTOP
+      Logical debug
+      Logical CASINT            ! CASPT2 type integrals
+      Logical page
+      Logical fail              ! Calculation didnt converge
+      Logical Timedep           ! Time-dependent calculation
+      Logical McKinley          ! Input read from McKinley
+c                               !    True if MCKINT exists
+      Logical TwoPert           ! Not in use
+      Logical PT2               ! Read in RHS from CASPT2
+      Logical SPINPOL,ELECHESS,SAVE          ! Calculate
+c                                            ! spin polarization for casscf
+      Logical BasCon            ! Not in use
+      Logical double           ! Double isotope substitutions
+      Logical multi            ! Write the response for
+c                              !      diff modes to diff files
+      Logical mout             ! Run only the output module -
+c                              !      read resp from several files
+      Logical lmass            ! Program has read user
+c                              !      specified masses, umass
+      Logical newCho           ! Switch to the new Cholesky algorithm
+      Real*8  PotNuc,ERASSCF(mxroot),ESCF ! Energies
+      Real*8  Epsilon           ! The threeshold for PCG
+      Real*8  rin_ene           ! Inactive energy
+      Real*8  EpsOrb            ! Not in use
+      Real*8  Omega             ! Frequency of the
+c                               !      time-dependent perturbation
+      Real*8  Coor(3,mxAtm)
+      Real*8  Weight(mxroot)
+      Real*8  umass(mxAtm)      ! User specified masses
+c
+      Integer iEndofinput(8), imass, nfiles, nUserPT, nsRot
+c
+      Common/dInput/ ERASSCF,ESCF,PotNuc,Coor,weight,
+     &               epsilon,omega,epsorb, rin_ene, umass
+      Common/iInput/ nAtoms,nSym,
+     &               State_sym,iSpin,
+     &               nActEl,nHole1,nElec3,nConf,
+     &               nRoots,lRoots,iRoot,
+     &               mTit,nDisp,ntpert,kprint,ibreak,
+     &               nBas,norb,nOcc,nExt,ntBas,ntBtri,ntBsqr,
+     &               nIsh,ntIsh,ntItri,ntIsqr,
+     &               nAsh,ntAsh,ntAtri,ntAsqr,
+     &               nFro,nDel,nRs1,nRs2,nRs3,nSkip,
+     &               ispop,iPt2,iToc,iMethod,nIter, ncsf,
+     &               LuAChoVec,LuIChoVec,LuChoInt,
+     &               iEndofinput,lmode,nmode,nfiles, imass
+      Common/lInput/ Debug, ISOTOP, CASINT, Mckinley, Fail,
+     &               page,lcalc,TimeDep,PT2,
+     &               SpinPol,elechess,save,
+     &               TwoPert,BasCon, double, multi, mout,
+     &               lmass, newCho
+      Common/cInput/ perturbation, AtLbl, HeaderJP,Header1I,
+     &               TitleJP,SewLab,Bline,titlein, ChIrr, cmass
+*
+*     User-defined Temperatures and Pressure
+*
+      Real*8  UserP, UserT(64)
+      Common /UserInput/ UserT, UserP, nUserPT, nsRot
+*
+*     Pointers to densities oneelectron(Act),oneelectron (Act <delta|E|0>)
+*                           twoelectron(Act) , (act<delta|E|0>)
+      Integer ipg1,ipg1t,ipg2,ipg2t,ipg2sq
+*
+      Common /Densities/ipg1,ipg1t,ipg2,ipg2t,ipg2sq
+*
+*     Ask Jeppe!!!
+*     We all want a happy LUCIA
+*
+      Logical NewPre
+      Integer ipvt,iphx,iplst,nexp,nexp_max
+      common  /NPrecon/ipvt,iphx,iplst,nexp,nexp_max,NewPre
+      Logical Direct
+      Common /Inte_Dir/Direct
+      Integer NIRREP,NSMOB,NRS0SH(1,20),NRS4SH(20,10),
+     &        MXR4TP, MNRS10,MXRS30
+      COMMON/LUCINP_MCLR/PNTGRP,NIRREP,NSMOB,MXR4TP,
+     &              MNRS10,MXRS30,NRS0SH,NRS4SH
+      Logical PrCI,PrOrb
+      Real*8  CIthrs
+      Common /Flags_MCLR/ CIthrs,PrCI,PrOrb
+
+       Logical RASSI
+       Common /InputDev/ RASSI

@@ -1,0 +1,58 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+cc -------- p_loop_structure   ---------------------
+!      common/casrst/ja(max_node),jb(max_node),jm(0:max_node)
+!     :    ,jj(4,0:max_node),kk(0:max_node),no(0:max_innorb)
+!     :    ,jv,jd(8),jt(8),js(8)
+!      common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),
+!     :     jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
+!      common/sub_drtl/jpadl,jpael,ipael,ndiml,nohyl,ihyl(max_wei),
+!     :     jjl_sub(4,0:max_node),iyl(4,0:max_node),jphyl(max_node)
+      integer,pointer :: ja(:),jb(:),jm(:),jj(:,:),kk(:)
+      common/casrst/ jv,jd(8),jt(8),js(8),no(0:max_innorb),
+     *     ja,jb,jm,jj,kk
+      integer,pointer :: ihy(:),jj_sub(:,:),iy(:,:),jphy(:)
+      common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy,jj_sub,iy,jphy
+      integer,pointer :: ihyl(:),jjl_sub(:,:),iyl(:,:),jphyl(:)
+      common/sub_drtl/jpadl,jpael,ipael,ndiml,nohyl,ihyl,
+     *     jjl_sub,iyl,jphyl
+
+      integer, dimension(:), pointer :: lp_head,lpnew_head
+      integer, dimension(:,:), pointer :: lp_coe,lpnew_coe
+
+      integer, dimension(:), pointer ::lp_ltail,lp_rtail,lp_lwei,lp_rwei
+      integer, dimension(:), pointer ::lpnew_ltail,lpnew_rtail,
+     *                      lpnew_lwei,lpnew_rwei
+
+      REAL*8, dimension(:), pointer :: vplp_w0,vplp_w1
+      REAL*8, dimension(:), pointer :: vplpnew_w0,vplpnew_w1
+      logical, dimension(:), pointer :: logic_br,logic_newbr
+
+      common/lp_stc/linelp,ipaety,iml,imr,jpadlr,jml,jmr,
+     :  nlg1,nlg2,insubdrt,mtype,mhlp,nstaval(nvaltype),nvalue(nvaltype)
+      common /segdrt_vplp/lpprint,lp_head,lp_ltail,lp_rtail,
+     *              lp_lwei,lp_rwei,lpct_lwei,lpct_rwei,lp_coe
+      common /segdrtnew_vplp/lpnew_head,lpnew_ltail,lpnew_rtail,
+     *                       lpnew_lwei,lpnew_rwei,lpnew_coe
+      common /segdrt_vplp_w01/vplp_w0,vplp_w1,vplpnew_w0,vplpnew_w1
+
+      logical logic_sssttt,logic_stts_area,logic_ss_area
+      common /logic_area/logic_sssttt,logic_stts_area,logic_ss_area,
+     :       logic_br,logic_newbr
+
+c      dimension map_jplr(6,6)
+!                           v   d  t  s dd tt
+c      data map_jplr/       25,23,17,10,24,18, !v
+c     :                     26,19,13, 6,22, 0, !d
+c     :                      0,14,11, 2, 0, 0, !t
+c     :                      0, 7, 3, 1, 9, 5, !s
+c     :                      0,21, 0, 8,20,15, !dd
+c     :                      0, 0, 0, 4,16,12/ !tt

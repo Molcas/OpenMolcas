@@ -1,0 +1,36 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+C
+C Index array pointers for Cholesky decomposition.
+C
+      INTEGER CHO_NALLOC
+      PARAMETER (CHO_NALLOC = 18) ! #allocations
+
+      INTEGER ip_INFRED, ip_INFVEC, ip_INDRED, ip_INDRSH,
+     &        ip_ISCR, ip_IIBSTRSH, ip_NNBSTRSH, ip_INTMAP,
+     &        ip_NDIMRS, ip_IRS2F, ip_iSOShl, ip_iShlSO,
+     &        ip_IQUAB, ip_iBasSh, ip_nBasSh, ip_nBstSh,
+     &        ip_iAtomShl, ip_iSP2F
+      INTEGER l_INFRED, l_INFVEC, l_INDRED, l_INDRSH,
+     &        l_ISCR, l_IIBSTRSH, l_NNBSTRSH, l_INTMAP,
+     &        l_NDIMRS, l_IRS2F, l_iSOShl, l_iShlSO,
+     &        l_IQUAB, l_iBasSh, l_nBasSh, l_nBstSh,
+     &        l_iAtomShl, l_iSP2F
+      COMMON / CHMIND / ip_INFRED, ip_INFVEC, ip_INDRED, ip_INDRSH,
+     &                  ip_ISCR, ip_IIBSTRSH, ip_NNBSTRSH, ip_INTMAP,
+     &                  ip_NDIMRS, ip_IRS2F, ip_ISOSHL, ip_ISHLSO,
+     &                  ip_IQUAB, ip_iBasSh, ip_nBasSh, ip_nBstSh,
+     &                  ip_iAtomShl, ip_iSP2F,
+     &                  l_INFRED, l_INFVEC, l_INDRED, l_INDRSH,
+     &                  l_ISCR, l_IIBSTRSH, l_NNBSTRSH, l_INTMAP,
+     &                  l_NDIMRS, l_IRS2F, l_ISOSHL, l_ISHLSO,
+     &                  l_IQUAB, l_iBasSh, l_nBasSh, l_nBstSh,
+     &                  l_iAtomShl, l_iSP2F

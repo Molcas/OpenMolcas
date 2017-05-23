@@ -1,0 +1,17 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      Parameter(mxpert=100)
+      Logical PreScr,sirrep,lPert(mxpert),lGrd,lHss,Nona
+      integer nfck(0:7),icntrl, SCF, RASSCF
+      Parameter (SCF=1, RASSCF=2)
+      Common /Input_mck_l/ PreScr,sirrep,lPert,lGrd,lHss,Nona
+      Common /Input_mck_i/icntrl,nfck,nmethod
+      Common /Parallel/ nmem

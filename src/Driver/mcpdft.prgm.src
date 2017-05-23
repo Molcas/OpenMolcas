@@ -1,0 +1,36 @@
+/***********************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+***********************************************************************/
+ (prgm) "$MOLCAS"/bin/mcpdft.exe             executable
+#include "aoints.inc"
+#include "choints.inc"
+ (file)  MPPROP   "$WorkDir/$Project."MpProp      rw
+ (file)  MCPDFINP "$WorkDir/$Project."Mcpdft.Input     rwi
+#include "rysfiles.inc"
+ (file)  JOBOLD   "$WorkDir/$Project$SubProject."JobOld     ro
+ (file)  JOBIPH   "$WorkDir/$Project$SubProject."JobIph     ro
+ (file)  VBWFN    "$WorkDir/$Project."VbWfn      rw
+#include "rasscffiles.inc"
+#include "orbitals.inc"
+#include "wfnfiles.inc"
+ (file)  NQGRID   "$WorkDir/$Project."NqGrid    rw
+#include "moldenfiles.inc"
+ (file)  GV.off   "$WorkDir/$Project$SubProject."GV.off    rw
+ (file)  GV1.off   "$WorkDir/$Project$SubProject."GV1.off    rw
+$ (file)  TRAONE  "$WorkDir/$Project."TraOne       rw*st
+$ (file)  FCIDMP  "$WorkDir/$Project."FciDmp       rw*sti
+$ (file)  FCINP  "$WorkDir/$Project."FciInp       rw*sti
+$ (file) ONERDM  "$WorkDir/$Project."OneRDM rw*st
+$ (file) TWORDM1 "$WorkDir/$Project."TwoRDM_aaaa rw*st
+$ (file) TWORDM2 "$WorkDir/$Project."TwoRDM_abab rw*st
+$ (file) TWORDM3 "$WorkDir/$Project."TwoRDM_abba rw*st
+$ (file) NEWCYCLE "$CurrDir/"NEWCYCLE         rw
+#include "espffiles.inc"
+#include "geodata.inc"

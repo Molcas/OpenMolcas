@@ -1,0 +1,64 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      implicit real*8 (a-h,o-z)
+! system dependence parameters
+      parameter (max_node=36000,max_wei=108000)
+      parameter (max_root=10,max_kspace=30,max_h0=5000,max_iter=100)
+      parameter (max_actorb=60,max_innorb=60,max_extorb=200,max_orb=260)
+      parameter (max_drt_jb=6,maxpl=170000)       !!!  maxpl=170000
+      parameter (mxsym=8)
+      parameter (loputmp=10000,nvaltype=100000)   !!!  nvaltype=10000
+      parameter (nb2d=10000)
+      parameter (nb2=max_orb*(max_orb-1)/2,
+     *   id2=(max_orb-2)*(max_orb-3)/2)
+      parameter (mtmp=max_orb*(max_orb-1)/2 )
+      parameter (maxgdm=8)
+!-------------------------------------------------------------------------
+      common /molecule/n_electron,ng_sm,ns_sm,iorb_revese_order,
+     *            ja_sys,jb_sys,jc_sys,jroute_sys,max_jb,nci_dim,
+     *            maxintseg,intgen
+      common /mospin/ spin
+      common /mole_orb/norb_frz,norb_dbl,norb_act,norb_ext,nabc,
+     *               norb_dz,norb_inn,norb_all,nstart_act
+      common /com_tab/mul_tab(8,8),istep_occ(4),
+     *                               iwt_dbl(maxgdm,6),
+     *                               iwt_ext(maxgdm,4)
+      common /info_orb/lsm_inn(max_innorb),lsm(max_orb),
+     *                 nlsm_all(maxgdm),nlsm_ext(maxgdm),
+     *                 nlsm_frz(maxgdm),nlsm_dbl(maxgdm),
+     *                 nlsm_act(maxgdm),nlsm_inn(maxgdm),
+     *                 nlsm_bas(maxgdm),nlsmddel(maxgdm),
+     *                 nlsmedel(maxgdm),
+     *                 ibsm_dbl(maxgdm),iesm_dbl(maxgdm),
+     *                 ibsm_ext(maxgdm),iesm_ext(maxgdm),
+     *                 map_orb_order(max_orb)
+      logical logic_mr,logic_cas,logic_mrcas,logic_elcas,
+     *               logic_mrelcas, logic_assign_actorb
+      common /mr_cas/logic_mr,logic_cas,logic_mrcas,logic_elcas,
+     *               logic_mrelcas,logic_assign_actorb,
+     *               norb_mr,n_ref
+!      common /drt_node/jjd_node(4,max_node),jarc_node(4,max_node),
+!     *       jupwei_node(max_node),inode_orb(max_actorb)
+      common /index_tool/ngw1(max_orb),ngw2(max_orb),ngw3(max_orb),
+     *  ngw4(max_orb),jp2(max_orb),jp3(max_orb),norb_number(max_orb),
+     *    int_dd_drl,int_dd_offset(8,8)
+      common /for_diag/mroot,mcroot,msroot,mth_eigen,mjn(2*max_root),
+     *                 indx(max_kspace)
+      common /first_matrixvector_multiply/icount_iteration,
+     *               min_conf,min_innconf,min_indxconf,min_extconf,
+     *               minn_innconf,minn_indxconf,minn_extconf
+      common /convergency_criterion/vortho_criterion,
+     *       valpha_criterion,vresid_criterion,cm_cri
+      common/spacedoub/jud(max_innorb),just(max_innorb,max_innorb)
+      common/div/ mxnode,nu_ad(41),nu_ae(25),
+     :        iw_sta(41,25),jpad_upwei(41),iw_downwei(41,25),
+     :        iseg_dim(25),iseg_sta(26),iseg_upwei(25),iseg_downwei(25)
+      common/prictrl/iprint

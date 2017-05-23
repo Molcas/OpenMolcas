@@ -1,0 +1,15 @@
+CASSCF/MS-CASPT2 test set for the vertical excitation energies and
+one-electron properties of 28 medium-sized organic molecules according to
+benchmark calculations presented in
+
+[1] M. Schreiber, M.R. Silva-Junior, S.P.A. Sauer and W. Thiel
+Benchmarks for electronically excited states: CASPT2, CC2, CCSD, and CC3.
+J. Chem. Phys. 128, 134110, (2008) DOI: 10.1063/1.2889385
+
+[2] M.R. Silva-Junior, M. Schreiber, S.P.A. Sauer and W. Thiel
+Benchmarks for electronically excited states: TD-DFT and DFT/MRCI.
+J. Chem. Phys. 129, 104103, (2008). DOI: 10.1063/1.2973541
+
+See [1] for details on the calculations and an extensive survey of the
+literature and [2] for current MS-CASPT2 results which have been used to
+derive reference data for an excited-state benchmark set.

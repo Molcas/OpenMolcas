@@ -1,0 +1,20 @@
+/***********************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+***********************************************************************/
+ (prgm)  $MOLCAS/bin/mckinley.exe             executable
+ (file)  ONEINT   "$WorkDir/$Project."OneInt      rw*
+#include "rysfiles.inc"
+ (file)  MCKINT   "$WorkDir/$Project."MckInt      rw
+ (file)  SEWARINP "$WorkDir/$Project."Seward.Input    rwi
+ (file)  SCFINP   "$WorkDir/$Project."Scf.Input            rwi
+ (file)  RASSCINP "$WorkDir/$Project."Rasscf.Input         rwi
+ (file)  CASPTINP "$WorkDir/$Project."Caspt2.Input         rwi
+ (file)  CCSDTINP "$WorkDir/$Project."Ccsdt.Input          rwi
+ (file)  MBPT2INP "$WorkDir/$Project."Mbpt2.Input          rwi

@@ -1,0 +1,29 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+C Info for LDF integral prescreening
+      Integer ip_GDiag_1C, l_GDiag_1C
+      Integer ip_GDiag_1C_Mx, l_GDiag_1C_Mx
+      Integer ip_GDiag_1C_Sm, l_GDiag_1C_Sm
+      Integer ip_GDiag_2C, l_GDiag_2C
+      Integer ip_GDiag_2C_Mx, l_GDiag_2C_Mx
+      Integer ip_GDiag_2C_Sm, l_GDiag_2C_Sm
+      Integer ip_IDiag, l_IDiag
+      Integer ip_IDiag_Mx, l_IDiag_Mx
+      Integer ip_IDiag_Sm, l_IDiag_Sm
+      Common / LDFIPS / ip_GDiag_1C, l_GDiag_1C,
+     &                  ip_GDiag_1C_Mx, l_GDiag_1C_Mx,
+     &                  ip_GDiag_1C_Sm, l_GDiag_1C_Sm,
+     &                  ip_GDiag_2C, l_GDiag_2C,
+     &                  ip_GDiag_2C_Mx, l_GDiag_2C_Mx,
+     &                  ip_GDiag_2C_Sm, l_GDiag_2C_Sm,
+     &                  ip_IDiag, l_IDiag,
+     &                  ip_IDiag_Mx, l_IDiag_Mx,
+     &                  ip_IDiag_Sm, l_IDiag_Sm

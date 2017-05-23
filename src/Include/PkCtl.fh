@@ -1,0 +1,36 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*---------------------------------------------------------------------*
+*                                                                     *
+*     Entries of the packing table:                                   *
+*                                                                     *
+*     PkScal : Scaling constant                                       *
+*     PkThrs : desired accuracy of packing                            *
+*     Pack   : Flag to indicate desired mode of action                *
+*              (Pack=.true. : packing is desired )                    *
+*              (Pack=.false.: no packing desired )                    *
+*     Assm   : Flag to indicate that the byte count table             *
+*              is stored in format required by the assembler          *
+*              version of the packing routines                        *
+*              (Assm=.true. : Assembler format )                      *
+*              (Assm=.false.: Fortran format )                        *
+*     PkTab  : packing table                                          *
+*                                                                     *
+*---------------------------------------------------------------------*
+*
+      Real*8 PkScal
+      Real*8 PkThrs
+      Real*8 PkCutof
+      Logical Pack
+      Logical Assm
+      Integer PkTab
+      Common /PkCtl/ PkThrs,PkScal,Pack,Assm,PkTab(0:4095),PkCutof,
+     &  Init_do_setup_e,Init_do_setup_d,Init_do_setup_l

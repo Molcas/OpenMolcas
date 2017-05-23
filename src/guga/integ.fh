@@ -1,0 +1,24 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 1986, Per E. M. Siegbahn                               *
+************************************************************************
+      PARAMETER (MXVERT=1000, MXCASE=14000)
+      COMMON/INTEG/ICASE(MXCASE),IO,IW,N,ISPIN,LN,
+     &   IA(MXVERT),IB(MXVERT),IJ(55),ISPA,K0(4*MXVERT),
+     &   K1(4*MXVERT),K2(4*MXVERT),
+     &   K3(4*MXVERT),IAF(MXVERT),IBF(MXVERT),LNP,ILIM,
+     &   IJF(55),IX(4*MXVERT),IY(4*MXVERT,3),IWAY(55),
+     &   J1(55),J2(55),JM(55),JM1(55),ICOUP(55),ICOUP1(55),
+     &   NBUF,IOUT,NMAT,NSYM,NSH(8),MUL(8,8),NSM(55),IRC(4),
+     &   LIX,K0F(0:MXVERT),K1F(0:MXVERT),K2F(0:MXVERT),
+     &   K3F(0:MXVERT),IPO(0:MXVERT),IPRINT,JRC(4),
+     &   ICH(55),IFIRST,IV0,IV1,IV2,IV3,IVF0,IVF1,IVF2,
+     &   IVF3,NIORB

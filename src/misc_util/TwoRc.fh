@@ -1,0 +1,73 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*----------------------------------------------------------------------*
+*                                                                      *
+* Return codes:                                                        *
+*   rc0000 - No error                                                  *
+*   rcOP01 - file is already opened                                    *
+*   rcOP02 - file specified as old is not existent                     *
+*   rcOP03 - invalid file identifier                                   *
+*   rcOP05 - unknown option has been specified                         *
+*   rcCL01 - file has not been opened                                  *
+*   rcTC01 - file has not been opened                                  *
+*   rcTC03 - unknown ordering parameter                                *
+*   rcTC04 - ilegal number of symmetry operations                      *
+*   rcTC05 - ilegal number of basis functions                          *
+*   rcTC06 - ilegal highest disk adress                                *
+*   rcTC07 - ilegal disk access table entry                            *
+*   rcTC08 - ilegal packing accuracy                                   *
+*   rcTC09 - ilegal scaling constant for packing                       *
+*   rcTC10 - unknown packing flag                                      *
+*   rcTC11 - ilegal entry in packing table                             *
+*   rcTC12 - the table of skip parameters is spoiled                   *
+*   rcTC13 - unknown assembler flag                                    *
+*   rcRD01 - ilegal combination of symmetry labels                     *
+*   rcRD02 - ilegal ordering of symmetry labels                        *
+*   rcRD03 - inconsistent symmetry batch                               *
+*   rcRD04 - ilegal buffer size                                        *
+*   rcRD05 - buffer size is to small                                   *
+*   rcRD06 - unknown option                                            *
+*   rcRD07 - symmetry block is not available                           *
+*   rcRD10 - file has not been opened                                  *
+*   rcRD11 - packing table has not been loaded                         *
+*                                                                      *
+*----------------------------------------------------------------------*
+      Integer rc0000,rcOP01,rcOP02,rcOP03,rcOP05,rcCL01,rcTC01,rcTC03,
+     &        rcTC04,rcTC05,rcTC06,rcTC07,rcTC08,rcTC09,rcTC10,rcTC11,
+     &        rcTC12,rcTC13,rcRD01,rcRD02,rcRD03,rcRD04,rcRD05,rcRD06,
+     &        rcRD07,rcRD10,rcRD11
+      Parameter (rc0000 = 0)
+      Parameter (rcOP01 = rc0000+1)
+      Parameter (rcOP02 = rcOP01+1)
+      Parameter (rcOP03 = rcOP02+1)
+      Parameter (rcOP05 = rcOP03+2)
+      Parameter (rcCL01 = rcOP05+1)
+      Parameter (rcTC01 = rcCL01+1)
+      Parameter (rcTC03 = rcTC01+1)
+      Parameter (rcTC04 = rcTC03+1)
+      Parameter (rcTC05 = rcTC04+1)
+      Parameter (rcTC06 = rcTC05+1)
+      Parameter (rcTC07 = rcTC06+1)
+      Parameter (rcTC08 = rcTC07+1)
+      Parameter (rcTC09 = rcTC08+1)
+      Parameter (rcTC10 = rcTC09+1)
+      Parameter (rcTC11 = rcTC10+1)
+      Parameter (rcTC12 = rcTC11+1)
+      Parameter (rcTC13 = rcTC12+1)
+      Parameter (rcRD01 = rcTC13+1)
+      Parameter (rcRD02 = rcRD01+1)
+      Parameter (rcRD03 = rcRD02+1)
+      Parameter (rcRD04 = rcRD03+1)
+      Parameter (rcRD05 = rcRD04+1)
+      Parameter (rcRD06 = rcRD05+1)
+      Parameter (rcRD07 = rcRD06+1)
+      Parameter (rcRD10 = rcRD07+1)
+      Parameter (rcRD11 = rcRD10+1)

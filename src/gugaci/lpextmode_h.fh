@@ -1,0 +1,70 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      parameter ( max_lpext_mode=60000 )
+      common /lpext_arrays/lpext_wei(max_lpext_mode*3)
+      common /lpmode1iista_block/   iista34a,
+     *   iiend34a,iista34b,iiend34b,
+     *   iista35a,iiend35a,iista35b,iiend35b,
+     *   iista36a,iiend36a,iista36b,iiend36b
+      common /lpmode2iista_block/   lpsta34a,
+     *   lpend34a,lpsta34b,lpend34b,
+     *   lpsta35a,lpend35a,lpsta35b,lpend35b,
+     *   lpsta36a,lpend36a,lpsta36b,lpend36b,
+     *   ism_g2g4,ism_g1415,idownwei_g131415,
+     *   nvalue_space_ss,
+     *   ildownwei_segdd,irdownwei_segdd
+
+      logical logic_dh,logic_g2g4a,logic_g2g4b,
+     *   logic_g13,logic_g1415,logic_g50,logic_g49a,logic_g49b
+      logical logic_g36a,logic_g36b,logic_g35a,
+     *      logic_g35b,logic_g34a,logic_g34b
+      common /logic_block_ext/logic_dh,
+     *   logic_g2g4a,logic_g2g4b,
+     *   logic_g13,logic_g1415,              ! for SS
+     *   logic_g36a,logic_g36b,logic_g35a,
+     *   logic_g35b,logic_g34a,logic_g34b,
+     *    logic_g50,logic_g49a,logic_g49b       ! for DD
+      common /w01_ss_block/
+     *   w0_plp,w1_plp,
+     *   w0g34a,w1g34a,w0g34b,w1g34b,
+     *   w0g35a,w1g35a,w0g35b,w1g35b,
+     *   w0g36a,w1g36a,w0g36b,w1g36b,
+     *   w0g2a,w1g2a,w0g2b,w1g2b,
+     *   w0g4a,w1g4a,w0g4b,w1g4b,
+     *   w0g14a,w1g14a,w0g15a,w1g15a,w0g13a,
+     *    w0gdd, w1gdd                       ! for DD
+      common /w01_sd_block/w0_sdplp,w1_sdplp,
+     *   w0g25,w0_sdplp25,w1_sdplp25,
+     *   w0plp25,w0plp28,w0plp27,w1plp27,w0plp31,
+     *   w1plp31,w0plp32,w1plp32,
+     *   w0plp29,w0plp30,w0plp26,
+     *   w0g29,w0g30,w0g26a,w1g26a,w0g25a,w1g25a,w0g27,w1g27,
+     *   w0g28a,w1g28a,w0g31,w1g31,w0g32,w1g32,
+     *   w0g25b,w1g25b,w0g28b,w1g28b,w0g26b,w1g26b
+
+      logical logic_g26,logic_g25a,logic_g25b,logic_g28a
+      common /logic_sd_block/logic_g26,logic_g25a,logic_g25b,
+     *                  logic_g28a,logic_g28b,
+     *                  iweista_g26,nwei_g26,ivaluesta_g26,
+     *                  iweista_g25,nwei_g25,nint_g25,
+     *                  iweista_g28,nwei_g28,nint_g28
+      common /segdrt_paras/ilsegdownwei,irsegdownwei,
+     *         ilsegstawei,irsegstawei,
+     *         ip2_intbase,ip2_intspace, !ip2_intspace
+     *         ip2_intsymspace,   !ip2_intsymsapce
+     *         ip3_intbase,ip3_intspace,
+     *         ip3ad_intbase,ip3ad_intspace,
+     *         ip2oset_drlintsta,ip2oset_drlintend,
+     *         ip2oset_intsymsta,ip2oset_intsymend,
+     *         ip2_drl_intbase,ip2_drl_intspace,
+     *         ip2_drl_drl_intspace,
+     *         ip2drloset_drlintsta,ip2drloset_drlintend,
+     *         ip2drloset_intsymsta,ip2drloset_intsymend

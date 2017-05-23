@@ -1,0 +1,1561 @@
+Result for: acetamide
+CASSCF or SA-CASSCF energies:
+::    RASSCF root number  1 Total energy:   -208.07979891
+::    RASSCF root number  1 Total energy:   -207.87876049
+::    RASSCF root number  1 Total energy:   -207.84961793
+::    RASSCF root number  2 Total energy:   -207.71143071
+::    RASSCF root number  1 Total energy:   -207.87182520
+::    RASSCF root number  2 Total energy:   -207.55434075
+::    RASSCF root number  1 Total energy:   -208.05959850
+::    RASSCF root number  2 Total energy:   -207.73926628
+::    RASSCF root number  3 Total energy:   -207.62925531
+CASPT2 energies:
+::    CASPT2 Root  1     Total energy:   -208.71048523
+::    CASPT2 Root  1     Total energy:   -208.50145199
+::    CASPT2 Root  1     Total energy:   -208.50289697
+::    CASPT2 Root  2     Total energy:   -208.39554841
+::    CASPT2 Root  1     Total energy:   -208.51048906
+::    CASPT2 Root  2     Total energy:   -208.21619142
+::    CASPT2 Root  1     Total energy:   -208.71470444
+::    CASPT2 Root  2     Total energy:   -208.44627921
+::    CASPT2 Root  3     Total energy:   -208.34580870
+Reference weights:
+      Reference weight:           0.84693
+      Reference weight:           0.84613
+      Reference weight:           0.83328
+      Reference weight:           0.81735
+      Reference weight:           0.83814
+      Reference weight:           0.81333
+      Reference weight:           0.83938
+      Reference weight:           0.79258
+      Reference weight:           0.78991
+MS-CASPT2 energies:
+::    MS-CASPT2 Root  1     Total energy:   -208.50341411
+::    MS-CASPT2 Root  2     Total energy:   -208.39503127
+::    MS-CASPT2 Root  1     Total energy:   -208.51155935
+::    MS-CASPT2 Root  2     Total energy:   -208.21512113
+::    MS-CASPT2 Root  1     Total energy:   -208.71496380
+::    MS-CASPT2 Root  2     Total energy:   -208.44778458
+::    MS-CASPT2 Root  3     Total energy:   -208.34404398
+Result for: acetone
+CASSCF or SA-CASSCF energies:
+::    RASSCF root number  1 Total energy:   -192.09920604
+::    RASSCF root number  1 Total energy:   -191.92235471
+::    RASSCF root number  1 Total energy:   -191.71960860
+::    RASSCF root number  1 Total energy:   -191.85961154
+::    RASSCF root number  1 Total energy:   -191.93435677
+::    RASSCF root number  1 Total energy:   -192.07466955
+::    RASSCF root number  2 Total energy:   -191.67790045
+::    RASSCF root number  3 Total energy:   -191.58524580
+::    RASSCF root number  4 Total energy:   -191.35986420
+CASPT2 energies:
+::    CASPT2 Root  1     Total energy:   -192.65760579
+::    CASPT2 Root  1     Total energy:   -192.49452870
+::    CASPT2 Root  1     Total energy:   -192.31687549
+::    CASPT2 Root  1     Total energy:   -192.43576865
+::    CASPT2 Root  1     Total energy:   -192.50685558
+::    CASPT2 Root  1     Total energy:   -192.65596182
+::    CASPT2 Root  2     Total energy:   -192.31750005
+::    CASPT2 Root  3     Total energy:   -192.23556121
+::    CASPT2 Root  4     Total energy:   -191.99377764
+Reference weights:
+      Reference weight:           0.85747
+      Reference weight:           0.85071
+      Reference weight:           0.84171
+      Reference weight:           0.85384
+      Reference weight:           0.85105
+      Reference weight:           0.85019
+      Reference weight:           0.80958
+      Reference weight:           0.81442
+      Reference weight:           0.79061
+MS-CASPT2 energies:
+::    MS-CASPT2 Root  1     Total energy:   -192.65798461
+::    MS-CASPT2 Root  2     Total energy:   -192.31579906
+::    MS-CASPT2 Root  3     Total energy:   -192.23560206
+::    MS-CASPT2 Root  4     Total energy:   -191.99341499
+Result for: adenine
+CASSCF or SA-CASSCF energies:
+::    RASSCF root number  1 Total energy:   -464.74700833
+::    RASSCF root number  2 Total energy:   -464.55379297
+::    RASSCF root number  3 Total energy:   -464.50864514
+::    RASSCF root number  4 Total energy:   -464.48767489
+::    RASSCF root number  5 Total energy:   -464.46847322
+::    RASSCF root number  6 Total energy:   -464.45269342
+::    RASSCF root number  7 Total energy:   -464.44056194
+::    RASSCF root number  1 Total energy:   -464.75923339
+::    RASSCF root number  1 Total energy:   -464.53438755
+::    RASSCF root number  2 Total energy:   -464.51461222
+::    RASSCF root number  3 Total energy:   -464.49311001
+::    RASSCF root number  4 Total energy:   -464.47297406
+CASPT2 energies:
+::    CASPT2 Root  1     Total energy:   -466.17266869
+::    CASPT2 Root  2     Total energy:   -465.98155781
+::    CASPT2 Root  3     Total energy:   -465.98231514
+::    CASPT2 Root  4     Total energy:   -465.93058417
+::    CASPT2 Root  5     Total energy:   -465.93069578
+::    CASPT2 Root  6     Total energy:   -465.93735979
+::    CASPT2 Root  7     Total energy:   -465.89999604
+::    CASPT2 Root  1     Total energy:   -466.17018115
+::    CASPT2 Root  1     Total energy:   -465.97809550
+::    CASPT2 Root  2     Total energy:   -465.95176244
+::    CASPT2 Root  3     Total energy:   -465.93894923
+::    CASPT2 Root  4     Total energy:   -465.93643812
+Reference weights:
+      Reference weight:           0.70943
+      Reference weight:           0.70417
+      Reference weight:           0.68949
+      Reference weight:           0.68505
+      Reference weight:           0.68097
+      Reference weight:           0.67656
+      Reference weight:           0.68249
+      Reference weight:           0.71265
+      Reference weight:           0.69906
+      Reference weight:           0.70081
+      Reference weight:           0.69589
+      Reference weight:           0.62095
+MS-CASPT2 energies:
+::    MS-CASPT2 Root  1     Total energy:   -466.17543259
+::    MS-CASPT2 Root  2     Total energy:   -465.98442380
+::    MS-CASPT2 Root  3     Total energy:   -465.98105627
+::    MS-CASPT2 Root  4     Total energy:   -465.94232864
+::    MS-CASPT2 Root  5     Total energy:   -465.93128006
+::    MS-CASPT2 Root  6     Total energy:   -465.92291427
+::    MS-CASPT2 Root  7     Total energy:   -465.89774181
+::    MS-CASPT2 Root  1     Total energy:   -465.97933198
+::    MS-CASPT2 Root  2     Total energy:   -465.95121419
+::    MS-CASPT2 Root  3     Total energy:   -465.94083598
+::    MS-CASPT2 Root  4     Total energy:   -465.93386314
+Result for: benzene
+CASSCF or SA-CASSCF energies:
+::    RASSCF root number  1 Total energy:   -230.83666285
+::    RASSCF root number  2 Total energy:   -230.65986126
+::    RASSCF root number  3 Total energy:   -230.54559636
+::    RASSCF root number  4 Total energy:   -230.54218264
+::    RASSCF root number  5 Total energy:   -230.54218245
+::    RASSCF root number  6 Total energy:   -230.49602600
+::    RASSCF root number  7 Total energy:   -230.49602579
+::    RASSCF root number  1 Total energy:   -230.70137065
+::    RASSCF root number  2 Total energy:   -230.66020540
+::    RASSCF root number  3 Total energy:   -230.66020536
+::    RASSCF root number  4 Total energy:   -230.57948869
+::    RASSCF root number  5 Total energy:   -230.57948855
+::    RASSCF root number  6 Total energy:   -230.56921877
+CASPT2 energies:
+::    CASPT2 Root  1     Total energy:   -231.58961365
+::    CASPT2 Root  2     Total energy:   -231.40452478
+::    CASPT2 Root  3     Total energy:   -231.35340713
+::    CASPT2 Root  4     Total energy:   -231.28943887
+::    CASPT2 Root  5     Total energy:   -231.28850428
+::    CASPT2 Root  6     Total energy:   -231.32903444
+::    CASPT2 Root  7     Total energy:   -231.32937583
+::    CASPT2 Root  1     Total energy:   -231.43648622
+::    CASPT2 Root  2     Total energy:   -231.40950822
+::    CASPT2 Root  3     Total energy:   -231.40977869
+::    CASPT2 Root  4     Total energy:   -231.31865618
+::    CASPT2 Root  5     Total energy:   -231.31844313
+::    CASPT2 Root  6     Total energy:   -231.37764058
+Reference weights:
+      Reference weight:           0.79879
+      Reference weight:           0.79786
+      Reference weight:           0.77127
+      Reference weight:           0.78452
+      Reference weight:           0.78428
+      Reference weight:           0.74157
+      Reference weight:           0.74117
+      Reference weight:           0.80343
+      Reference weight:           0.79507
+      Reference weight:           0.79475
+      Reference weight:           0.78890
+      Reference weight:           0.79170
+      Reference weight:           0.77302
+MS-CASPT2 energies:
+::    MS-CASPT2 Root  1     Total energy:   -231.58964661
+::    MS-CASPT2 Root  2     Total energy:   -231.40452842
+::    MS-CASPT2 Root  3     Total energy:   -231.35343578
+::    MS-CASPT2 Root  4     Total energy:   -231.32941699
+::    MS-CASPT2 Root  5     Total energy:   -231.32896099
+::    MS-CASPT2 Root  6     Total energy:   -231.28969670
+::    MS-CASPT2 Root  7     Total energy:   -231.28821350
+::    MS-CASPT2 Root  1     Total energy:   -231.43650120
+::    MS-CASPT2 Root  2     Total energy:   -231.40977022
+::    MS-CASPT2 Root  3     Total energy:   -231.40950211
+::    MS-CASPT2 Root  4     Total energy:   -231.37764019
+::    MS-CASPT2 Root  5     Total energy:   -231.31865619
+::    MS-CASPT2 Root  6     Total energy:   -231.31844311
+Result for: benzoquinone
+CASSCF or SA-CASSCF energies:
+::    RASSCF root number  1 Total energy:   -379.47560017
+::    RASSCF root number  1 Total energy:   -379.34812139
+::    RASSCF root number  2 Total energy:   -379.23260415
+::    RASSCF root number  3 Total energy:   -379.16361200
+::    RASSCF root number  4 Total energy:   -379.10072291
+::    RASSCF root number  1 Total energy:   -379.34779698
+::    RASSCF root number  2 Total energy:   -379.23241800
+::    RASSCF root number  3 Total energy:   -379.16409237
+::    RASSCF root number  4 Total energy:   -379.10002309
+::    RASSCF root number  1 Total energy:   -379.23848767
+::    RASSCF root number  2 Total energy:   -379.14105239
+::    RASSCF root number  3 Total energy:   -379.09377259
+::    RASSCF root number  1 Total energy:   -379.25271349
+::    RASSCF root number  2 Total energy:   -379.16157869
+::    RASSCF root number  3 Total energy:   -379.05337590
+::    RASSCF root number  1 Total energy:   -379.18276532
+::    RASSCF root number  2 Total energy:   -379.17061048
+::    RASSCF root number  3 Total energy:   -379.08919094
+::    RASSCF root number  4 Total energy:   -378.99519035
+::    RASSCF root number  1 Total energy:   -379.19441190
+::    RASSCF root number  2 Total energy:   -379.06384050
+::    RASSCF root number  1 Total energy:   -379.23840194
+::    RASSCF root number  2 Total energy:   -379.14086803
+::    RASSCF root number  3 Total energy:   -379.09371855
+::    RASSCF root number  1 Total energy:   -379.35520572
+::    RASSCF root number  2 Total energy:   -379.23786410
+::    RASSCF root number  1 Total energy:   -379.35518156
+::    RASSCF root number  2 Total energy:   -379.23772850
+::    RASSCF root number  1 Total energy:   -379.33290994
+::    RASSCF root number  2 Total energy:   -379.16220405
+::    RASSCF root number  1 Total energy:   -379.36016204
+::    RASSCF root number  2 Total energy:   -379.26526065
+::    RASSCF root number  1 Total energy:   -379.46024660
+::    RASSCF root number  2 Total energy:   -379.28927819
+::    RASSCF root number  3 Total energy:   -379.24361013
+::    RASSCF root number  4 Total energy:   -379.16487854
+::    RASSCF root number  5 Total energy:   -379.15620833
+::    RASSCF root number  6 Total energy:   -379.10302719
+CASPT2 energies:
+::    CASPT2 Root  1     Total energy:   -380.52211313
+::    CASPT2 Root  1     Total energy:   -380.42009094
+::    CASPT2 Root  2     Total energy:   -380.29904022
+::    CASPT2 Root  3     Total energy:   -380.23325756
+::    CASPT2 Root  1     Total energy:   -380.42061299
+::    CASPT2 Root  2     Total energy:   -380.29551538
+::    CASPT2 Root  3     Total energy:   -380.23378140
+::    CASPT2 Root  1     Total energy:   -380.31455427
+::    CASPT2 Root  2     Total energy:   -380.27961716
+::    CASPT2 Root  3     Total energy:   -380.16214086
+::    CASPT2 Root  1     Total energy:   -380.35285004
+::    CASPT2 Root  2     Total energy:   -380.26794748
+::    CASPT2 Root  3     Total energy:   -380.17316235
+::    CASPT2 Root  1     Total energy:   -380.32681877
+::    CASPT2 Root  2     Total energy:   -380.24157935
+::    CASPT2 Root  3     Total energy:   -380.23138290
+::    CASPT2 Root  4     Total energy:   -380.13629301
+::    CASPT2 Root  1     Total energy:   -380.25288064
+::    CASPT2 Root  2     Total energy:   -380.14783673
+::    CASPT2 Root  1     Total energy:   -380.31480924
+::    CASPT2 Root  2     Total energy:   -380.28098751
+::    CASPT2 Root  3     Total energy:   -380.16093898
+::    CASPT2 Root  1     Total energy:   -380.42430688
+::    CASPT2 Root  2     Total energy:   -380.29926986
+::    CASPT2 Root  1     Total energy:   -380.42567627
+::    CASPT2 Root  2     Total energy:   -380.29824123
+::    CASPT2 Root  1     Total energy:   -380.39524973
+::    CASPT2 Root  2     Total energy:   -380.29003608
+::    CASPT2 Root  1     Total energy:   -380.41221178
+::    CASPT2 Root  2     Total energy:   -380.32082696
+::    CASPT2 Root  1     Total energy:   -380.52144250
+::    CASPT2 Root  2     Total energy:   -380.35712225
+::    CASPT2 Root  3     Total energy:   -380.29869131
+::    CASPT2 Root  4     Total energy:   -380.22629277
+::    CASPT2 Root  5     Total energy:   -380.22178281
+::    CASPT2 Root  6     Total energy:   -380.16373134
+Reference weights:
+      Reference weight:           0.78414
+      Reference weight:           0.77294
+      Reference weight:           0.76655
+      Reference weight:           0.76758
+      Reference weight:           0.77096
+      Reference weight:           0.77417
+      Reference weight:           0.76771
+      Reference weight:           0.76958
+      Reference weight:           0.74994
+      Reference weight:           0.76570
+      Reference weight:           0.76687
+      Reference weight:           0.76299
+      Reference weight:           0.75474
+      Reference weight:           0.75233
+      Reference weight:           0.77275
+      Reference weight:           0.75053
+      Reference weight:           0.74589
+      Reference weight:           0.77701
+      Reference weight:           0.76075
+      Reference weight:           0.76921
+      Reference weight:           0.74768
+      Reference weight:           0.76854
+      Reference weight:           0.77386
+      Reference weight:           0.77360
+      Reference weight:           0.77158
+      Reference weight:           0.77525
+      Reference weight:           0.77857
+      Reference weight:           0.75560
+      Reference weight:           0.78138
+      Reference weight:           0.77832
+      Reference weight:           0.77999
+      Reference weight:           0.77482
+      Reference weight:           0.77851
+      Reference weight:           0.77440
+      Reference weight:           0.77332
+      Reference weight:           0.77156
+MS-CASPT2 energies:
+::    MS-CASPT2 Root  1     Total energy:   -380.42015479
+::    MS-CASPT2 Root  2     Total energy:   -380.30018636
+::    MS-CASPT2 Root  3     Total energy:   -380.23204757
+::    MS-CASPT2 Root  1     Total energy:   -380.42068608
+::    MS-CASPT2 Root  2     Total energy:   -380.29672466
+::    MS-CASPT2 Root  3     Total energy:   -380.23249902
+::    MS-CASPT2 Root  1     Total energy:   -380.31457628
+::    MS-CASPT2 Root  2     Total energy:   -380.27988141
+::    MS-CASPT2 Root  3     Total energy:   -380.16185459
+::    MS-CASPT2 Root  1     Total energy:   -380.36568208
+::    MS-CASPT2 Root  2     Total energy:   -380.26629412
+::    MS-CASPT2 Root  3     Total energy:   -380.16198368
+::    MS-CASPT2 Root  1     Total energy:   -380.32821337
+::    MS-CASPT2 Root  2     Total energy:   -380.25232118
+::    MS-CASPT2 Root  3     Total energy:   -380.23122439
+::    MS-CASPT2 Root  4     Total energy:   -380.12431508
+::    MS-CASPT2 Root  1     Total energy:   -380.25304212
+::    MS-CASPT2 Root  2     Total energy:   -380.14767526
+::    MS-CASPT2 Root  1     Total energy:   -380.31482249
+::    MS-CASPT2 Root  2     Total energy:   -380.28125514
+::    MS-CASPT2 Root  3     Total energy:   -380.16065810
+::    MS-CASPT2 Root  1     Total energy:   -380.42433841
+::    MS-CASPT2 Root  2     Total energy:   -380.29923832
+::    MS-CASPT2 Root  1     Total energy:   -380.42570678
+::    MS-CASPT2 Root  2     Total energy:   -380.29821073
+::    MS-CASPT2 Root  1     Total energy:   -380.40003352
+::    MS-CASPT2 Root  2     Total energy:   -380.28525228
+::    MS-CASPT2 Root  1     Total energy:   -380.41234900
+::    MS-CASPT2 Root  2     Total energy:   -380.32068974
+::    MS-CASPT2 Root  1     Total energy:   -380.52192846
+::    MS-CASPT2 Root  2     Total energy:   -380.35712514
+::    MS-CASPT2 Root  3     Total energy:   -380.29915555
+::    MS-CASPT2 Root  4     Total energy:   -380.22629010
+::    MS-CASPT2 Root  5     Total energy:   -380.22405927
+::    MS-CASPT2 Root  6     Total energy:   -380.16050446
+Result for: butadiene
+CASSCF or SA-CASSCF energies:
+::    RASSCF root number  1 Total energy:   -155.01135457
+::    RASSCF root number  2 Total energy:   -154.77447477
+::    RASSCF root number  3 Total energy:   -154.63460390
+::    RASSCF root number  1 Total energy:   -154.71651417
+::    RASSCF root number  2 Total energy:   -154.56927044
+::    RASSCF root number  1 Total energy:   -155.02702744
+::    RASSCF root number  1 Total energy:   -154.84001357
+::    RASSCF root number  1 Total energy:   -154.90442451
+CASPT2 energies:
+::    CASPT2 Root  1     Total energy:   -155.53909654
+::    CASPT2 Root  2     Total energy:   -155.29626316
+::    CASPT2 Root  3     Total energy:   -155.24025197
+::    CASPT2 Root  1     Total energy:   -155.30189857
+::    CASPT2 Root  2     Total energy:   -155.14094707
+::    CASPT2 Root  1     Total energy:   -155.53792912
+::    CASPT2 Root  1     Total energy:   -155.34834598
+::    CASPT2 Root  1     Total energy:   -155.41513015
+Reference weights:
+      Reference weight:           0.84890
+      Reference weight:           0.84172
+      Reference weight:           0.78025
+      Reference weight:           0.81643
+      Reference weight:           0.81710
+      Reference weight:           0.85598
+      Reference weight:           0.85419
+      Reference weight:           0.85432
+MS-CASPT2 energies:
+::    MS-CASPT2 Root  1     Total energy:   -155.53967366
+::    MS-CASPT2 Root  2     Total energy:   -155.29626310
+::    MS-CASPT2 Root  3     Total energy:   -155.23967492
+::    MS-CASPT2 Root  1     Total energy:   -155.30200164
+::    MS-CASPT2 Root  2     Total energy:   -155.14084400
+Result for: cyclopentadiene
+CASSCF or SA-CASSCF energies:
+::    RASSCF root number  1 Total energy:   -192.90519795
+::    RASSCF root number  1 Total energy:   -192.62532163
+::    RASSCF root number  2 Total energy:   -192.44817885
+::    RASSCF root number  3 Total energy:   -192.38414551
+::    RASSCF root number  1 Total energy:   -192.72143513
+::    RASSCF root number  1 Total energy:   -192.78634310
+::    RASSCF root number  1 Total energy:   -192.88926763
+::    RASSCF root number  2 Total energy:   -192.65137123
+::    RASSCF root number  3 Total energy:   -192.49480539
+::    RASSCF root number  4 Total energy:   -192.48857610
+::    RASSCF root number  5 Total energy:   -192.35248794
+CASPT2 energies:
+::    CASPT2 Root  1     Total energy:   -193.54911732
+::    CASPT2 Root  1     Total energy:   -193.34616868
+::    CASPT2 Root  2     Total energy:   -193.17585509
+::    CASPT2 Root  3     Total energy:   -193.11210823
+::    CASPT2 Root  1     Total energy:   -193.36144083
+::    CASPT2 Root  1     Total energy:   -193.42845892
+::    CASPT2 Root  1     Total energy:   -193.54987896
+::    CASPT2 Root  2     Total energy:   -193.31182954
+::    CASPT2 Root  3     Total energy:   -193.24137405
+::    CASPT2 Root  4     Total energy:   -193.23665169
+::    CASPT2 Root  5     Total energy:   -193.08295099
+Reference weights:
+      Reference weight:           0.82334
+      Reference weight:           0.78667
+      Reference weight:           0.77975
+      Reference weight:           0.77383
+      Reference weight:           0.82227
+      Reference weight:           0.82268
+      Reference weight:           0.81714
+      Reference weight:           0.80561
+      Reference weight:           0.75702
+      Reference weight:           0.75056
+      Reference weight:           0.76495
+MS-CASPT2 energies:
+::    MS-CASPT2 Root  1     Total energy:   -193.34656228
+::    MS-CASPT2 Root  2     Total energy:   -193.17548955
+::    MS-CASPT2 Root  3     Total energy:   -193.11208016
+::    MS-CASPT2 Root  1     Total energy:   -193.55477623
+::    MS-CASPT2 Root  2     Total energy:   -193.32299541
+::    MS-CASPT2 Root  3     Total energy:   -193.24151653
+::    MS-CASPT2 Root  4     Total energy:   -193.22916767
+::    MS-CASPT2 Root  5     Total energy:   -193.07422940
+Result for: cyclopropene
+CASSCF or SA-CASSCF energies:
+::    RASSCF root number  1 Total energy:   -115.88851574
+::    RASSCF root number  1 Total energy:   -115.62046858
+::    RASSCF root number  1 Total energy:   -115.57184321
+::    RASSCF root number  1 Total energy:   -115.63725080
+::    RASSCF root number  1 Total energy:   -115.73402074
+CASPT2 energies:
+::    CASPT2 Root  1     Total energy:   -116.28145616
+::    CASPT2 Root  1     Total energy:   -116.03300030
+::    CASPT2 Root  1     Total energy:   -116.02183918
+::    CASPT2 Root  1     Total energy:   -116.04228786
+::    CASPT2 Root  1     Total energy:   -116.12157780
+Reference weights:
+      Reference weight:           0.88317
+      Reference weight:           0.86969
+      Reference weight:           0.84626
+      Reference weight:           0.87480
+      Reference weight:           0.88345
+MS-CASPT2 energies:
+Result for: cytosine
+CASSCF or SA-CASSCF energies:
+::    RASSCF root number  1 Total energy:   -392.79644859
+::    RASSCF root number  2 Total energy:   -392.61007944
+::    RASSCF root number  3 Total energy:   -392.56444852
+::    RASSCF root number  4 Total energy:   -392.50730312
+::    RASSCF root number  5 Total energy:   -392.50239465
+::    RASSCF root number  6 Total energy:   -392.47056879
+::    RASSCF root number  1 Total energy:   -392.81327528
+::    RASSCF root number  1 Total energy:   -392.61034294
+::    RASSCF root number  2 Total energy:   -392.59993113
+CASPT2 energies:
+::    CASPT2 Root  1     Total energy:   -393.98529420
+::    CASPT2 Root  2     Total energy:   -393.81714846
+::    CASPT2 Root  3     Total energy:   -393.78007268
+::    CASPT2 Root  4     Total energy:   -393.75106676
+::    CASPT2 Root  5     Total energy:   -393.73564471
+::    CASPT2 Root  6     Total energy:   -393.69674198
+::    CASPT2 Root  1     Total energy:   -393.97997119
+::    CASPT2 Root  1     Total energy:   -393.78880828
+::    CASPT2 Root  2     Total energy:   -393.77972028
+Reference weights:
+      Reference weight:           0.75041
+      Reference weight:           0.73900
+      Reference weight:           0.73537
+      Reference weight:           0.71772
+      Reference weight:           0.72386
+      Reference weight:           0.72123
+      Reference weight:           0.75575
+      Reference weight:           0.74646
+      Reference weight:           0.74594
+MS-CASPT2 energies:
+::    MS-CASPT2 Root  1     Total energy:   -393.98913431
+::    MS-CASPT2 Root  2     Total energy:   -393.81736774
+::    MS-CASPT2 Root  3     Total energy:   -393.78579716
+::    MS-CASPT2 Root  4     Total energy:   -393.75386248
+::    MS-CASPT2 Root  5     Total energy:   -393.73293785
+::    MS-CASPT2 Root  6     Total energy:   -393.68686924
+::    MS-CASPT2 Root  1     Total energy:   -393.79189191
+::    MS-CASPT2 Root  2     Total energy:   -393.77663666
+Result for: ethene
+CASSCF or SA-CASSCF energies:
+::    RASSCF root number  1 Total energy:    -78.08935159
+::    RASSCF root number  1 Total energy:    -77.74249625
+::    RASSCF root number  1 Total energy:    -77.93217851
+CASPT2 energies:
+::    CASPT2 Root  1     Total energy:    -78.35189619
+::    CASPT2 Root  1     Total energy:    -78.03801693
+::    CASPT2 Root  1     Total energy:    -78.18737552
+Reference weights:
+      Reference weight:           0.92228
+      Reference weight:           0.89809
+      Reference weight:           0.92424
+MS-CASPT2 energies:
+Result for: formaldehyde
+CASSCF or SA-CASSCF energies:
+::    RASSCF root number  1 Total energy:   -113.94429199
+::    RASSCF root number  1 Total energy:   -113.79855748
+::    RASSCF root number  1 Total energy:   -113.75044791
+::    RASSCF root number  1 Total energy:   -113.81146641
+::    RASSCF root number  1 Total energy:   -113.92586237
+::    RASSCF root number  2 Total energy:   -113.49144745
+::    RASSCF root number  3 Total energy:   -113.47048591
+::    RASSCF root number  4 Total energy:   -113.18855334
+::    RASSCF root number  1 Total energy:   -113.94599988
+::    RASSCF root number  1 Total energy:   -113.60650484
+CASPT2 energies:
+::    CASPT2 Root  1     Total energy:   -114.24271381
+::    CASPT2 Root  1     Total energy:   -114.09623127
+::    CASPT2 Root  1     Total energy:   -114.02818719
+::    CASPT2 Root  1     Total energy:   -114.11101153
+::    CASPT2 Root  1     Total energy:   -114.23774103
+::    CASPT2 Root  2     Total energy:   -113.87873725
+::    CASPT2 Root  3     Total energy:   -113.90013053
+::    CASPT2 Root  4     Total energy:   -113.57408300
+::    CASPT2 Root  1     Total energy:   -114.24300895
+::    CASPT2 Root  1     Total energy:   -113.90703857
+Reference weights:
+      Reference weight:           0.92522
+      Reference weight:           0.92173
+      Reference weight:           0.93176
+      Reference weight:           0.92172
+      Reference weight:           0.91897
+      Reference weight:           0.87087
+      Reference weight:           0.84018
+      Reference weight:           0.87491
+      Reference weight:           0.92578
+      Reference weight:           0.91973
+MS-CASPT2 energies:
+::    MS-CASPT2 Root  1     Total energy:   -114.24842823
+::    MS-CASPT2 Root  2     Total energy:   -113.90600781
+::    MS-CASPT2 Root  3     Total energy:   -113.86560821
+::    MS-CASPT2 Root  4     Total energy:   -113.57064757
+Result for: formamide
+CASSCF or SA-CASSCF energies:
+::    RASSCF root number  1 Total energy:   -169.02380938
+::    RASSCF root number  1 Total energy:   -168.82591007
+::    RASSCF root number  1 Total energy:   -169.00549763
+::    RASSCF root number  2 Total energy:   -168.68356288
+::    RASSCF root number  3 Total energy:   -168.57179934
+::    RASSCF root number  1 Total energy:   -169.03532098
+::    RASSCF root number  1 Total energy:   -168.81285099
+::    RASSCF root number  2 Total energy:   -168.67376615
+::    RASSCF root number  1 Total energy:   -168.83429226
+::    RASSCF root number  2 Total energy:   -168.52270942
+CASPT2 energies:
+::    CASPT2 Root  1     Total energy:   -169.50577339
+::    CASPT2 Root  1     Total energy:   -169.29875309
+::    CASPT2 Root  1     Total energy:   -169.51034329
+::    CASPT2 Root  2     Total energy:   -169.23733089
+::    CASPT2 Root  3     Total energy:   -169.12506810
+::    CASPT2 Root  1     Total energy:   -169.50585134
+::    CASPT2 Root  1     Total energy:   -169.29970013
+::    CASPT2 Root  2     Total energy:   -169.17590090
+::    CASPT2 Root  1     Total energy:   -169.30682943
+::    CASPT2 Root  2     Total energy:   -169.02094491
+Reference weights:
+      Reference weight:           0.88280
+      Reference weight:           0.88272
+      Reference weight:           0.87528
+      Reference weight:           0.82872
+      Reference weight:           0.83364
+      Reference weight:           0.88546
+      Reference weight:           0.87498
+      Reference weight:           0.86380
+      Reference weight:           0.87886
+      Reference weight:           0.85321
+MS-CASPT2 energies:
+::    MS-CASPT2 Root  1     Total energy:   -169.51060382
+::    MS-CASPT2 Root  2     Total energy:   -169.23896205
+::    MS-CASPT2 Root  3     Total energy:   -169.12317642
+::    MS-CASPT2 Root  1     Total energy:   -169.30065639
+::    MS-CASPT2 Root  2     Total energy:   -169.17494464
+::    MS-CASPT2 Root  1     Total energy:   -169.30753658
+::    MS-CASPT2 Root  2     Total energy:   -169.02023777
+Result for: furan
+CASSCF or SA-CASSCF energies:
+::    RASSCF root number  1 Total energy:   -228.75062077
+::    RASSCF root number  1 Total energy:   -228.44400603
+::    RASSCF root number  2 Total energy:   -228.35638485
+::    RASSCF root number  3 Total energy:   -228.24046578
+::    RASSCF root number  1 Total energy:   -228.55200041
+::    RASSCF root number  1 Total energy:   -228.60727083
+::    RASSCF root number  1 Total energy:   -228.74066439
+::    RASSCF root number  2 Total energy:   -228.49821241
+::    RASSCF root number  3 Total energy:   -228.36935938
+::    RASSCF root number  4 Total energy:   -228.31886044
+CASPT2 energies:
+::    CASPT2 Root  1     Total energy:   -229.44437482
+::    CASPT2 Root  1     Total energy:   -229.20623116
+::    CASPT2 Root  2     Total energy:   -229.10945567
+::    CASPT2 Root  3     Total energy:   -228.99044583
+::    CASPT2 Root  1     Total energy:   -229.24261955
+::    CASPT2 Root  1     Total energy:   -229.29093916
+::    CASPT2 Root  1     Total energy:   -229.44572702
+::    CASPT2 Root  2     Total energy:   -229.20624019
+::    CASPT2 Root  3     Total energy:   -229.13989079
+::    CASPT2 Root  4     Total energy:   -229.10106496
+Reference weights:
+      Reference weight:           0.82470
+      Reference weight:           0.78144
+      Reference weight:           0.78575
+      Reference weight:           0.64123
+      Reference weight:           0.82256
+      Reference weight:           0.82664
+      Reference weight:           0.82063
+      Reference weight:           0.80968
+      Reference weight:           0.76688
+      Reference weight:           0.74098
+MS-CASPT2 energies:
+::    MS-CASPT2 Root  1     Total energy:   -229.20947794
+::    MS-CASPT2 Root  2     Total energy:   -229.11111403
+::    MS-CASPT2 Root  3     Total energy:   -228.98554068
+::    MS-CASPT2 Root  1     Total energy:   -229.45097779
+::    MS-CASPT2 Root  2     Total energy:   -229.21201982
+::    MS-CASPT2 Root  3     Total energy:   -229.15087583
+::    MS-CASPT2 Root  4     Total energy:   -229.07904953
+Result for: hexatriene
+CASSCF or SA-CASSCF energies:
+::    RASSCF root number  1 Total energy:   -231.96515621
+::    RASSCF root number  1 Total energy:   -231.71456018
+::    RASSCF root number  2 Total energy:   -231.68983002
+::    RASSCF root number  1 Total energy:   -231.80621171
+::    RASSCF root number  1 Total energy:   -231.86296836
+::    RASSCF root number  1 Total energy:   -231.96051497
+::    RASSCF root number  2 Total energy:   -231.75764374
+CASPT2 energies:
+::    CASPT2 Root  1     Total energy:   -232.72397694
+::    CASPT2 Root  1     Total energy:   -232.48858956
+::    CASPT2 Root  2     Total energy:   -232.52750310
+::    CASPT2 Root  1     Total energy:   -232.56545186
+::    CASPT2 Root  1     Total energy:   -232.62438782
+::    CASPT2 Root  1     Total energy:   -232.72509045
+::    CASPT2 Root  2     Total energy:   -232.52597920
+Reference weights:
+      Reference weight:           0.79909
+      Reference weight:           0.76379
+      Reference weight:           0.76275
+      Reference weight:           0.79618
+      Reference weight:           0.79661
+      Reference weight:           0.79706
+      Reference weight:           0.78683
+MS-CASPT2 energies:
+::    MS-CASPT2 Root  1     Total energy:   -232.52869141
+::    MS-CASPT2 Root  2     Total energy:   -232.48740125
+::    MS-CASPT2 Root  1     Total energy:   -232.72511197
+::    MS-CASPT2 Root  2     Total energy:   -232.52595767
+Result for: imidazole
+CASSCF or SA-CASSCF energies:
+::    RASSCF root number  1 Total energy:   -224.93875482
+::    RASSCF root number  1 Total energy:   -224.68125355
+::    RASSCF root number  2 Total energy:   -224.63066249
+::    RASSCF root number  1 Total energy:   -224.76327776
+::    RASSCF root number  2 Total energy:   -224.72062782
+::    RASSCF root number  3 Total energy:   -224.67162678
+::    RASSCF root number  4 Total energy:   -224.64356940
+::    RASSCF root number  1 Total energy:   -224.70021915
+::    RASSCF root number  2 Total energy:   -224.64670535
+::    RASSCF root number  1 Total energy:   -224.92830016
+::    RASSCF root number  2 Total energy:   -224.67665851
+::    RASSCF root number  3 Total energy:   -224.63246740
+::    RASSCF root number  4 Total energy:   -224.56999642
+::    RASSCF root number  5 Total energy:   -224.54069676
+CASPT2 energies:
+::    CASPT2 Root  1     Total energy:   -225.64132489
+::    CASPT2 Root  1     Total energy:   -225.39097414
+::    CASPT2 Root  2     Total energy:   -225.35103201
+::    CASPT2 Root  1     Total energy:   -225.46966307
+::    CASPT2 Root  2     Total energy:   -225.42940254
+::    CASPT2 Root  3     Total energy:   -225.39720491
+::    CASPT2 Root  4     Total energy:   -225.37732328
+::    CASPT2 Root  1     Total energy:   -225.40761720
+::    CASPT2 Root  2     Total energy:   -225.36527830
+::    CASPT2 Root  1     Total energy:   -225.64336773
+::    CASPT2 Root  2     Total energy:   -225.40152028
+::    CASPT2 Root  3     Total energy:   -225.39663197
+::    CASPT2 Root  4     Total energy:   -225.34441113
+::    CASPT2 Root  5     Total energy:   -225.32157938
+Reference weights:
+      Reference weight:           0.82060
+      Reference weight:           0.81309
+      Reference weight:           0.80662
+      Reference weight:           0.81668
+      Reference weight:           0.81317
+      Reference weight:           0.80476
+      Reference weight:           0.79849
+      Reference weight:           0.81515
+      Reference weight:           0.80790
+      Reference weight:           0.81642
+      Reference weight:           0.79778
+      Reference weight:           0.77216
+      Reference weight:           0.74129
+      Reference weight:           0.73210
+MS-CASPT2 energies:
+::    MS-CASPT2 Root  1     Total energy:   -225.39118361
+::    MS-CASPT2 Root  2     Total energy:   -225.35082254
+::    MS-CASPT2 Root  1     Total energy:   -225.47038643
+::    MS-CASPT2 Root  2     Total energy:   -225.43052426
+::    MS-CASPT2 Root  3     Total energy:   -225.40467505
+::    MS-CASPT2 Root  4     Total energy:   -225.36800806
+::    MS-CASPT2 Root  1     Total energy:   -225.40763123
+::    MS-CASPT2 Root  2     Total energy:   -225.36526427
+::    MS-CASPT2 Root  1     Total energy:   -225.64374450
+::    MS-CASPT2 Root  2     Total energy:   -225.41635249
+::    MS-CASPT2 Root  3     Total energy:   -225.38911777
+::    MS-CASPT2 Root  4     Total energy:   -225.34398163
+::    MS-CASPT2 Root  5     Total energy:   -225.31431410
+Result for: naphthalene
+CASSCF or SA-CASSCF energies:
+::    RASSCF root number  1 Total energy:   -383.58463824
+::    RASSCF root number  1 Total energy:   -383.34484462
+::    RASSCF root number  2 Total energy:   -383.30144311
+::    RASSCF root number  3 Total energy:   -383.27081434
+::    RASSCF root number  1 Total energy:   -383.34198846
+::    RASSCF root number  2 Total energy:   -383.28387834
+::    RASSCF root number  3 Total energy:   -383.26160103
+::    RASSCF root number  4 Total energy:   -383.22330845
+::    RASSCF root number  5 Total energy:   -383.20328990
+::    RASSCF root number  1 Total energy:   -383.42745713
+::    RASSCF root number  2 Total energy:   -383.29411674
+::    RASSCF root number  3 Total energy:   -383.28252825
+::    RASSCF root number  4 Total energy:   -383.24740781
+::    RASSCF root number  1 Total energy:   -383.37723918
+::    RASSCF root number  2 Total energy:   -383.34729606
+::    RASSCF root number  3 Total energy:   -383.28266151
+::    RASSCF root number  1 Total energy:   -383.41953163
+::    RASSCF root number  2 Total energy:   -383.33893589
+::    RASSCF root number  3 Total energy:   -383.28661960
+::    RASSCF root number  1 Total energy:   -383.47209308
+::    RASSCF root number  2 Total energy:   -383.41333631
+::    RASSCF root number  1 Total energy:   -383.42441583
+::    RASSCF root number  2 Total energy:   -383.34829930
+::    RASSCF root number  1 Total energy:   -383.58062685
+::    RASSCF root number  2 Total energy:   -383.36856476
+::    RASSCF root number  3 Total energy:   -383.33136402
+CASPT2 energies:
+::    CASPT2 Root  1     Total energy:   -384.80352683
+::    CASPT2 Root  1     Total energy:   -384.58246224
+::    CASPT2 Root  2     Total energy:   -384.52728169
+::    CASPT2 Root  3     Total energy:   -384.56576333
+::    CASPT2 Root  1     Total energy:   -384.62722060
+::    CASPT2 Root  2     Total energy:   -384.56976448
+::    CASPT2 Root  3     Total energy:   -384.48985790
+::    CASPT2 Root  4     Total energy:   -384.45545348
+::    CASPT2 Root  5     Total energy:   -384.50534127
+::    CASPT2 Root  1     Total energy:   -384.64779790
+::    CASPT2 Root  2     Total energy:   -384.52031328
+::    CASPT2 Root  3     Total energy:   -384.57862599
+::    CASPT2 Root  4     Total energy:   -384.49470097
+::    CASPT2 Root  1     Total energy:   -384.60024224
+::    CASPT2 Root  2     Total energy:   -384.56826817
+::    CASPT2 Root  3     Total energy:   -384.56204149
+::    CASPT2 Root  1     Total energy:   -384.63750120
+::    CASPT2 Root  2     Total energy:   -384.55991537
+::    CASPT2 Root  3     Total energy:   -384.57507215
+::    CASPT2 Root  1     Total energy:   -384.68655904
+::    CASPT2 Root  2     Total energy:   -384.63232674
+::    CASPT2 Root  1     Total energy:   -384.64718641
+::    CASPT2 Root  2     Total energy:   -384.62095702
+::    CASPT2 Root  1     Total energy:   -384.80463092
+::    CASPT2 Root  2     Total energy:   -384.58893357
+::    CASPT2 Root  3     Total energy:   -384.55944361
+Reference weights:
+      Reference weight:           0.73961
+      Reference weight:           0.73073
+      Reference weight:           0.73328
+      Reference weight:           0.71311
+      Reference weight:           0.72061
+      Reference weight:           0.71821
+      Reference weight:           0.71240
+      Reference weight:           0.72186
+      Reference weight:           0.70736
+      Reference weight:           0.73757
+      Reference weight:           0.73077
+      Reference weight:           0.71238
+      Reference weight:           0.69101
+      Reference weight:           0.73628
+      Reference weight:           0.73559
+      Reference weight:           0.72096
+      Reference weight:           0.73896
+      Reference weight:           0.73521
+      Reference weight:           0.71564
+      Reference weight:           0.73971
+      Reference weight:           0.73812
+      Reference weight:           0.73777
+      Reference weight:           0.72581
+      Reference weight:           0.73846
+      Reference weight:           0.73111
+      Reference weight:           0.73042
+MS-CASPT2 energies:
+::    MS-CASPT2 Root  1     Total energy:   -384.58345403
+::    MS-CASPT2 Root  2     Total energy:   -384.56561436
+::    MS-CASPT2 Root  3     Total energy:   -384.52643887
+::    MS-CASPT2 Root  1     Total energy:   -384.62820916
+::    MS-CASPT2 Root  2     Total energy:   -384.57107378
+::    MS-CASPT2 Root  3     Total energy:   -384.50316310
+::    MS-CASPT2 Root  4     Total energy:   -384.49034834
+::    MS-CASPT2 Root  5     Total energy:   -384.45484334
+::    MS-CASPT2 Root  1     Total energy:   -384.64780129
+::    MS-CASPT2 Root  2     Total energy:   -384.58074448
+::    MS-CASPT2 Root  3     Total energy:   -384.51894817
+::    MS-CASPT2 Root  4     Total energy:   -384.49394420
+::    MS-CASPT2 Root  1     Total energy:   -384.60031551
+::    MS-CASPT2 Root  2     Total energy:   -384.56895199
+::    MS-CASPT2 Root  3     Total energy:   -384.56128441
+::    MS-CASPT2 Root  1     Total energy:   -384.63762927
+::    MS-CASPT2 Root  2     Total energy:   -384.57522699
+::    MS-CASPT2 Root  3     Total energy:   -384.55963247
+::    MS-CASPT2 Root  1     Total energy:   -384.68722865
+::    MS-CASPT2 Root  2     Total energy:   -384.63165713
+::    MS-CASPT2 Root  1     Total energy:   -384.64718962
+::    MS-CASPT2 Root  2     Total energy:   -384.62095380
+::    MS-CASPT2 Root  1     Total energy:   -384.80467590
+::    MS-CASPT2 Root  2     Total energy:   -384.58890320
+::    MS-CASPT2 Root  3     Total energy:   -384.55942900
+Result for: norbornadiene
+CASSCF or SA-CASSCF energies:
+::    RASSCF root number  1 Total energy:   -269.78941408
+::    RASSCF root number  1 Total energy:   -269.50848568
+::    RASSCF root number  2 Total energy:   -269.41383519
+::    RASSCF root number  1 Total energy:   -269.45289169
+::    RASSCF root number  2 Total energy:   -269.41316104
+::    RASSCF root number  1 Total energy:   -269.64859238
+::    RASSCF root number  1 Total energy:   -269.63461278
+::    RASSCF root number  1 Total energy:   -269.77405838
+::    RASSCF root number  2 Total energy:   -269.49717578
+::    RASSCF root number  3 Total energy:   -269.29146333
+CASPT2 energies:
+::    CASPT2 Root  1     Total energy:   -270.72280703
+::    CASPT2 Root  1     Total energy:   -270.52558741
+::    CASPT2 Root  2     Total energy:   -270.45027948
+::    CASPT2 Root  1     Total energy:   -270.49794149
+::    CASPT2 Root  2     Total energy:   -270.45428871
+::    CASPT2 Root  1     Total energy:   -270.58495611
+::    CASPT2 Root  1     Total energy:   -270.56772871
+::    CASPT2 Root  1     Total energy:   -270.72379414
+::    CASPT2 Root  2     Total energy:   -270.43372988
+::    CASPT2 Root  3     Total energy:   -270.34492390
+Reference weights:
+      Reference weight:           0.76067
+      Reference weight:           0.72656
+      Reference weight:           0.71628
+      Reference weight:           0.70988
+      Reference weight:           0.70898
+      Reference weight:           0.75693
+      Reference weight:           0.75826
+      Reference weight:           0.75548
+      Reference weight:           0.75029
+      Reference weight:           0.68205
+MS-CASPT2 energies:
+::    MS-CASPT2 Root  1     Total energy:   -270.52666087
+::    MS-CASPT2 Root  2     Total energy:   -270.44920601
+::    MS-CASPT2 Root  1     Total energy:   -270.49839515
+::    MS-CASPT2 Root  2     Total energy:   -270.45383505
+::    MS-CASPT2 Root  1     Total energy:   -270.73092029
+::    MS-CASPT2 Root  2     Total energy:   -270.43788475
+::    MS-CASPT2 Root  3     Total energy:   -270.33364287
+Result for: octatetraene
+CASSCF or SA-CASSCF energies:
+::    RASSCF root number  1 Total energy:   -308.90340690
+::    RASSCF root number  1 Total energy:   -308.67969661
+::    RASSCF root number  2 Total energy:   -308.64922569
+::    RASSCF root number  3 Total energy:   -308.59358129
+::    RASSCF root number  1 Total energy:   -308.76561987
+::    RASSCF root number  1 Total energy:   -308.81408350
+::    RASSCF root number  1 Total energy:   -308.89557676
+::    RASSCF root number  2 Total energy:   -308.72366881
+::    RASSCF root number  3 Total energy:   -308.65289833
+::    RASSCF root number  4 Total energy:   -308.62079562
+::    RASSCF root number  5 Total energy:   -308.56549645
+CASPT2 energies:
+::    CASPT2 Root  1     Total energy:   -309.90593370
+::    CASPT2 Root  1     Total energy:   -309.69524625
+::    CASPT2 Root  2     Total energy:   -309.73324931
+::    CASPT2 Root  3     Total energy:   -309.61069686
+::    CASPT2 Root  1     Total energy:   -309.77000338
+::    CASPT2 Root  1     Total energy:   -309.82033033
+::    CASPT2 Root  1     Total energy:   -309.90727156
+::    CASPT2 Root  2     Total energy:   -309.73674599
+::    CASPT2 Root  3     Total energy:   -309.67995537
+::    CASPT2 Root  4     Total energy:   -309.63027280
+::    CASPT2 Root  5     Total energy:   -309.66666384
+Reference weights:
+      Reference weight:           0.77627
+      Reference weight:           0.76740
+      Reference weight:           0.75097
+      Reference weight:           0.75625
+      Reference weight:           0.77478
+      Reference weight:           0.77452
+      Reference weight:           0.77379
+      Reference weight:           0.77115
+      Reference weight:           0.74647
+      Reference weight:           0.76932
+      Reference weight:           0.73956
+MS-CASPT2 energies:
+::    MS-CASPT2 Root  1     Total energy:   -309.73332366
+::    MS-CASPT2 Root  2     Total energy:   -309.69522903
+::    MS-CASPT2 Root  3     Total energy:   -309.61063974
+::    MS-CASPT2 Root  1     Total energy:   -309.90731551
+::    MS-CASPT2 Root  2     Total energy:   -309.73678755
+::    MS-CASPT2 Root  3     Total energy:   -309.67996434
+::    MS-CASPT2 Root  4     Total energy:   -309.66657616
+::    MS-CASPT2 Root  5     Total energy:   -309.63026600
+Result for: propanamide
+CASSCF or SA-CASSCF energies:
+::    RASSCF root number  1 Total energy:   -247.12644107
+::    RASSCF root number  1 Total energy:   -246.92432752
+::    RASSCF root number  1 Total energy:   -246.91726536
+::    RASSCF root number  2 Total energy:   -246.60025154
+::    RASSCF root number  1 Total energy:   -247.10569314
+::    RASSCF root number  2 Total energy:   -246.78631713
+::    RASSCF root number  3 Total energy:   -246.67793488
+::    RASSCF root number  1 Total energy:   -247.13426426
+::    RASSCF root number  1 Total energy:   -246.90470561
+::    RASSCF root number  2 Total energy:   -246.77976627
+CASPT2 energies:
+::    CASPT2 Root  1     Total energy:   -247.90776671
+::    CASPT2 Root  1     Total energy:   -247.69754046
+::    CASPT2 Root  1     Total energy:   -247.70653992
+::    CASPT2 Root  2     Total energy:   -247.41382394
+::    CASPT2 Root  1     Total energy:   -247.91192790
+::    CASPT2 Root  2     Total energy:   -247.64618971
+::    CASPT2 Root  3     Total energy:   -247.54844821
+::    CASPT2 Root  1     Total energy:   -247.90975430
+::    CASPT2 Root  1     Total energy:   -247.69675569
+::    CASPT2 Root  2     Total energy:   -247.58571270
+Reference weights:
+      Reference weight:           0.81307
+      Reference weight:           0.81227
+      Reference weight:           0.80486
+      Reference weight:           0.77243
+      Reference weight:           0.80590
+      Reference weight:           0.76037
+      Reference weight:           0.75240
+      Reference weight:           0.81373
+      Reference weight:           0.80440
+      Reference weight:           0.79436
+MS-CASPT2 energies:
+::    MS-CASPT2 Root  1     Total energy:   -247.70763847
+::    MS-CASPT2 Root  2     Total energy:   -247.41272539
+::    MS-CASPT2 Root  1     Total energy:   -247.91217501
+::    MS-CASPT2 Root  2     Total energy:   -247.64755749
+::    MS-CASPT2 Root  3     Total energy:   -247.54683332
+::    MS-CASPT2 Root  1     Total energy:   -247.69676113
+::    MS-CASPT2 Root  2     Total energy:   -247.58570726
+Result for: pyrazine
+CASSCF or SA-CASSCF energies:
+::    RASSCF root number  1 Total energy:   -262.84347323
+::    RASSCF root number  1 Total energy:   -262.61385150
+::    RASSCF root number  2 Total energy:   -262.42527634
+::    RASSCF root number  1 Total energy:   -262.57001373
+::    RASSCF root number  2 Total energy:   -262.45324435
+::    RASSCF root number  1 Total energy:   -262.63020542
+::    RASSCF root number  1 Total energy:   -262.53740689
+::    RASSCF root number  1 Total energy:   -262.52758544
+::    RASSCF root number  2 Total energy:   -262.46025366
+::    RASSCF root number  1 Total energy:   -262.65733819
+::    RASSCF root number  2 Total energy:   -262.47501680
+::    RASSCF root number  1 Total energy:   -262.66583836
+::    RASSCF root number  1 Total energy:   -262.83989828
+::    RASSCF root number  2 Total energy:   -262.53430887
+CASPT2 energies:
+::    CASPT2 Root  1     Total energy:   -263.63135779
+::    CASPT2 Root  1     Total energy:   -263.45227924
+::    CASPT2 Root  2     Total energy:   -263.26835277
+::    CASPT2 Root  1     Total energy:   -263.38787654
+::    CASPT2 Root  2     Total energy:   -263.31342537
+::    CASPT2 Root  1     Total energy:   -263.42272304
+::    CASPT2 Root  1     Total energy:   -263.32012218
+::    CASPT2 Root  1     Total energy:   -263.37794688
+::    CASPT2 Root  2     Total energy:   -263.34514609
+::    CASPT2 Root  1     Total energy:   -263.44746024
+::    CASPT2 Root  2     Total energy:   -263.35546385
+::    CASPT2 Root  1     Total energy:   -263.48001374
+::    CASPT2 Root  1     Total energy:   -263.63231980
+::    CASPT2 Root  2     Total energy:   -263.31613318
+Reference weights:
+      Reference weight:           0.80049
+      Reference weight:           0.77173
+      Reference weight:           0.76498
+      Reference weight:           0.77981
+      Reference weight:           0.74277
+      Reference weight:           0.79365
+      Reference weight:           0.74264
+      Reference weight:           0.77536
+      Reference weight:           0.74807
+      Reference weight:           0.79417
+      Reference weight:           0.73723
+      Reference weight:           0.78529
+      Reference weight:           0.79912
+      Reference weight:           0.78512
+MS-CASPT2 energies:
+::    MS-CASPT2 Root  1     Total energy:   -263.45880593
+::    MS-CASPT2 Root  2     Total energy:   -263.26182608
+::    MS-CASPT2 Root  1     Total energy:   -263.39581252
+::    MS-CASPT2 Root  2     Total energy:   -263.30548938
+::    MS-CASPT2 Root  1     Total energy:   -263.37808184
+::    MS-CASPT2 Root  2     Total energy:   -263.34501112
+::    MS-CASPT2 Root  1     Total energy:   -263.45295176
+::    MS-CASPT2 Root  2     Total energy:   -263.34997233
+::    MS-CASPT2 Root  1     Total energy:   -263.63235972
+::    MS-CASPT2 Root  2     Total energy:   -263.31609326
+Result for: pyridazine
+CASSCF or SA-CASSCF energies:
+::    RASSCF root number  1 Total energy:   -262.81117893
+::    RASSCF root number  1 Total energy:   -262.62279111
+::    RASSCF root number  2 Total energy:   -262.57712453
+::    RASSCF root number  1 Total energy:   -262.64132305
+::    RASSCF root number  2 Total energy:   -262.54386604
+::    RASSCF root number  1 Total energy:   -262.51615056
+::    RASSCF root number  2 Total energy:   -262.48678017
+::    RASSCF root number  3 Total energy:   -262.45354992
+::    RASSCF root number  4 Total energy:   -262.33276039
+::    RASSCF root number  1 Total energy:   -262.80526618
+::    RASSCF root number  2 Total energy:   -262.62330642
+::    RASSCF root number  3 Total energy:   -262.49713214
+::    RASSCF root number  4 Total energy:   -262.43798357
+CASPT2 energies:
+::    CASPT2 Root  1     Total energy:   -263.59996140
+::    CASPT2 Root  1     Total energy:   -263.43790396
+::    CASPT2 Root  2     Total energy:   -263.39151723
+::    CASPT2 Root  1     Total energy:   -263.46030364
+::    CASPT2 Root  2     Total energy:   -263.36130707
+::    CASPT2 Root  1     Total energy:   -263.32397712
+::    CASPT2 Root  2     Total energy:   -263.33008438
+::    CASPT2 Root  3     Total energy:   -263.32991465
+::    CASPT2 Root  4     Total energy:   -263.19083967
+::    CASPT2 Root  1     Total energy:   -263.60146168
+::    CASPT2 Root  2     Total energy:   -263.41136858
+::    CASPT2 Root  3     Total energy:   -263.28230075
+::    CASPT2 Root  4     Total energy:   -263.32186097
+Reference weights:
+      Reference weight:           0.81041
+      Reference weight:           0.79665
+      Reference weight:           0.79091
+      Reference weight:           0.79623
+      Reference weight:           0.79073
+      Reference weight:           0.79814
+      Reference weight:           0.78666
+      Reference weight:           0.76581
+      Reference weight:           0.77826
+      Reference weight:           0.80830
+      Reference weight:           0.80557
+      Reference weight:           0.80293
+      Reference weight:           0.76158
+MS-CASPT2 energies:
+::    MS-CASPT2 Root  1     Total energy:   -263.44148265
+::    MS-CASPT2 Root  2     Total energy:   -263.38793853
+::    MS-CASPT2 Root  1     Total energy:   -263.46109690
+::    MS-CASPT2 Root  2     Total energy:   -263.36051381
+::    MS-CASPT2 Root  1     Total energy:   -263.36801234
+::    MS-CASPT2 Root  2     Total energy:   -263.33205913
+::    MS-CASPT2 Root  3     Total energy:   -263.28575008
+::    MS-CASPT2 Root  4     Total energy:   -263.18899427
+::    MS-CASPT2 Root  1     Total energy:   -263.60322575
+::    MS-CASPT2 Root  2     Total energy:   -263.41290223
+::    MS-CASPT2 Root  3     Total energy:   -263.32327941
+::    MS-CASPT2 Root  4     Total energy:   -263.27758459
+Result for: pyridine
+CASSCF or SA-CASSCF energies:
+::    RASSCF root number  1 Total energy:   -246.84387065
+::    RASSCF root number  1 Total energy:   -246.65725936
+::    RASSCF root number  2 Total energy:   -246.53761074
+::    RASSCF root number  3 Total energy:   -246.48422204
+::    RASSCF root number  1 Total energy:   -246.69872583
+::    RASSCF root number  2 Total energy:   -246.65529562
+::    RASSCF root number  3 Total energy:   -246.57578760
+::    RASSCF root number  1 Total energy:   -246.65710790
+::    RASSCF root number  2 Total energy:   -246.57447437
+::    RASSCF root number  3 Total energy:   -246.55379789
+::    RASSCF root number  1 Total energy:   -246.83541085
+::    RASSCF root number  2 Total energy:   -246.54361025
+::    RASSCF root number  3 Total energy:   -246.52654932
+::    RASSCF root number  4 Total energy:   -246.48317088
+::    RASSCF root number  1 Total energy:   -246.84541543
+::    RASSCF root number  1 Total energy:   -246.62610187
+::    RASSCF root number  1 Total energy:   -246.65341334
+::    RASSCF root number  1 Total energy:   -246.62645757
+::    RASSCF root number  1 Total energy:   -246.67488292
+::    RASSCF root number  1 Total energy:   -246.86365846
+::    RASSCF root number  1 Total energy:   -246.67719822
+::    RASSCF root number  2 Total energy:   -246.56051530
+::    RASSCF root number  3 Total energy:   -246.53068590
+CASPT2 energies:
+::    CASPT2 Root  1     Total energy:   -247.61146991
+::    CASPT2 Root  1     Total energy:   -247.42489668
+::    CASPT2 Root  2     Total energy:   -247.29315311
+::    CASPT2 Root  3     Total energy:   -247.34378847
+::    CASPT2 Root  1     Total energy:   -247.45415094
+::    CASPT2 Root  2     Total energy:   -247.42694874
+::    CASPT2 Root  3     Total energy:   -247.33391394
+::    CASPT2 Root  1     Total energy:   -247.43199691
+::    CASPT2 Root  2     Total energy:   -247.35026712
+::    CASPT2 Root  3     Total energy:   -247.36802812
+::    CASPT2 Root  1     Total energy:   -247.61243568
+::    CASPT2 Root  2     Total energy:   -247.35133865
+::    CASPT2 Root  3     Total energy:   -247.32043758
+::    CASPT2 Root  4     Total energy:   -247.33887811
+::    CASPT2 Root  1     Total energy:   -247.61205931
+::    CASPT2 Root  1     Total energy:   -247.40940089
+::    CASPT2 Root  1     Total energy:   -247.42208752
+::    CASPT2 Root  1     Total energy:   -247.40928755
+::    CASPT2 Root  1     Total energy:   -247.44420700
+::    CASPT2 Root  1     Total energy:   -247.61053483
+::    CASPT2 Root  1     Total energy:   -247.42486527
+::    CASPT2 Root  2     Total energy:   -247.31449332
+::    CASPT2 Root  3     Total energy:   -247.32454628
+Reference weights:
+      Reference weight:           0.80080
+      Reference weight:           0.79526
+      Reference weight:           0.28182
+      Reference weight:           0.73354
+      Reference weight:           0.80291
+      Reference weight:           0.79338
+      Reference weight:           0.79024
+      Reference weight:           0.79513
+      Reference weight:           0.78864
+      Reference weight:           0.77738
+      Reference weight:           0.79770
+      Reference weight:           0.77381
+      Reference weight:           0.77773
+      Reference weight:           0.74460
+      Reference weight:           0.80113
+      Reference weight:           0.79017
+      Reference weight:           0.79713
+      Reference weight:           0.79083
+      Reference weight:           0.79760
+      Reference weight:           0.80626
+      Reference weight:           0.80290
+      Reference weight:           0.78947
+      Reference weight:           0.77201
+MS-CASPT2 energies:
+::    MS-CASPT2 Root  1     Total energy:   -247.42703251
+::    MS-CASPT2 Root  2     Total energy:   -247.34201831
+::    MS-CASPT2 Root  3     Total energy:   -247.29278745
+::    MS-CASPT2 Root  1     Total energy:   -247.45456889
+::    MS-CASPT2 Root  2     Total energy:   -247.42661668
+::    MS-CASPT2 Root  3     Total energy:   -247.33382804
+::    MS-CASPT2 Root  1     Total energy:   -247.43822067
+::    MS-CASPT2 Root  2     Total energy:   -247.38999909
+::    MS-CASPT2 Root  3     Total energy:   -247.32207238
+::    MS-CASPT2 Root  1     Total energy:   -247.61279800
+::    MS-CASPT2 Root  2     Total energy:   -247.37807990
+::    MS-CASPT2 Root  3     Total energy:   -247.33877609
+::    MS-CASPT2 Root  4     Total energy:   -247.29343604
+::    MS-CASPT2 Root  1     Total energy:   -247.42609430
+::    MS-CASPT2 Root  2     Total energy:   -247.34320708
+::    MS-CASPT2 Root  3     Total energy:   -247.29460349
+Result for: pyrimidine
+CASSCF or SA-CASSCF energies:
+::    RASSCF root number  1 Total energy:   -262.84963744
+::    RASSCF root number  1 Total energy:   -262.64438378
+::    RASSCF root number  1 Total energy:   -262.66896158
+::    RASSCF root number  1 Total energy:   -262.65419330
+::    RASSCF root number  2 Total energy:   -262.52897244
+::    RASSCF root number  3 Total energy:   -262.47294249
+::    RASSCF root number  4 Total energy:   -262.36369040
+::    RASSCF root number  1 Total energy:   -262.84109494
+::    RASSCF root number  2 Total energy:   -262.54385597
+::    RASSCF root number  3 Total energy:   -262.52340776
+::    RASSCF root number  4 Total energy:   -262.47945360
+CASPT2 energies:
+::    CASPT2 Root  1     Total energy:   -263.63811928
+::    CASPT2 Root  1     Total energy:   -263.46162750
+::    CASPT2 Root  1     Total energy:   -263.47489635
+::    CASPT2 Root  1     Total energy:   -263.44344538
+::    CASPT2 Root  2     Total energy:   -263.31793798
+::    CASPT2 Root  3     Total energy:   -263.35850707
+::    CASPT2 Root  4     Total energy:   -263.21749452
+::    CASPT2 Root  1     Total energy:   -263.63951876
+::    CASPT2 Root  2     Total energy:   -263.36824290
+::    CASPT2 Root  3     Total energy:   -263.35214564
+::    CASPT2 Root  4     Total energy:   -263.35703765
+Reference weights:
+      Reference weight:           0.81201
+      Reference weight:           0.79715
+      Reference weight:           0.80214
+      Reference weight:           0.80809
+      Reference weight:           0.80314
+      Reference weight:           0.76280
+      Reference weight:           0.78504
+      Reference weight:           0.80918
+      Reference weight:           0.79327
+      Reference weight:           0.78782
+      Reference weight:           0.76114
+MS-CASPT2 energies:
+::    MS-CASPT2 Root  1     Total energy:   -263.44560566
+::    MS-CASPT2 Root  2     Total energy:   -263.35748580
+::    MS-CASPT2 Root  3     Total energy:   -263.31722259
+::    MS-CASPT2 Root  4     Total energy:   -263.21707091
+::    MS-CASPT2 Root  1     Total energy:   -263.64087281
+::    MS-CASPT2 Root  2     Total energy:   -263.39708727
+::    MS-CASPT2 Root  3     Total energy:   -263.37579609
+::    MS-CASPT2 Root  4     Total energy:   -263.30318878
+Result for: pyrrole
+CASSCF or SA-CASSCF energies:
+::    RASSCF root number  1 Total energy:   -208.92494498
+::    RASSCF root number  1 Total energy:   -208.63017615
+::    RASSCF root number  2 Total energy:   -208.56056265
+::    RASSCF root number  3 Total energy:   -208.45029597
+::    RASSCF root number  1 Total energy:   -208.72140470
+::    RASSCF root number  1 Total energy:   -208.76990108
+::    RASSCF root number  1 Total energy:   -208.91842178
+::    RASSCF root number  2 Total energy:   -208.68143924
+::    RASSCF root number  3 Total energy:   -208.56858689
+CASPT2 energies:
+::    CASPT2 Root  1     Total energy:   -209.60458638
+::    CASPT2 Root  1     Total energy:   -209.36069135
+::    CASPT2 Root  2     Total energy:   -209.29668349
+::    CASPT2 Root  3     Total energy:   -209.18671190
+::    CASPT2 Root  1     Total energy:   -209.40156641
+::    CASPT2 Root  1     Total energy:   -209.43877897
+::    CASPT2 Root  1     Total energy:   -209.60564281
+::    CASPT2 Root  2     Total energy:   -209.37405979
+::    CASPT2 Root  3     Total energy:   -209.30953643
+Reference weights:
+      Reference weight:           0.82135
+      Reference weight:           0.78255
+      Reference weight:           0.77710
+      Reference weight:           0.27844
+      Reference weight:           0.81751
+      Reference weight:           0.82381
+      Reference weight:           0.81882
+      Reference weight:           0.80300
+      Reference weight:           0.76388
+MS-CASPT2 energies:
+::    MS-CASPT2 Root  1     Total energy:   -209.37194939
+::    MS-CASPT2 Root  2     Total energy:   -209.29158859
+::    MS-CASPT2 Root  3     Total energy:   -209.18054875
+::    MS-CASPT2 Root  1     Total energy:   -209.60712727
+::    MS-CASPT2 Root  2     Total energy:   -209.37522736
+::    MS-CASPT2 Root  3     Total energy:   -209.30688440
+Result for: tetrazine
+CASSCF or SA-CASSCF energies:
+::    RASSCF root number  1 Total energy:   -294.77614314
+::    RASSCF root number  1 Total energy:   -294.59616526
+::    RASSCF root number  2 Total energy:   -294.53965666
+::    RASSCF root number  3 Total energy:   -294.42155460
+::    RASSCF root number  1 Total energy:   -294.56963848
+::    RASSCF root number  2 Total energy:   -294.50784091
+::    RASSCF root number  3 Total energy:   -294.49103900
+::    RASSCF root number  4 Total energy:   -294.40104314
+::    RASSCF root number  1 Total energy:   -294.57518176
+::    RASSCF root number  2 Total energy:   -294.51872027
+::    RASSCF root number  3 Total energy:   -294.40190405
+::    RASSCF root number  1 Total energy:   -294.51738999
+::    RASSCF root number  2 Total energy:   -294.47770644
+::    RASSCF root number  3 Total energy:   -294.41906361
+::    RASSCF root number  1 Total energy:   -294.42881412
+::    RASSCF root number  2 Total energy:   -294.42548094
+::    RASSCF root number  3 Total energy:   -294.39404216
+::    RASSCF root number  1 Total energy:   -294.58639694
+::    RASSCF root number  2 Total energy:   -294.45059412
+::    RASSCF root number  3 Total energy:   -294.41529371
+::    RASSCF root number  4 Total energy:   -294.40257479
+::    RASSCF root number  5 Total energy:   -294.35361418
+::    RASSCF root number  1 Total energy:   -294.64809108
+::    RASSCF root number  2 Total energy:   -294.48596088
+::    RASSCF root number  3 Total energy:   -294.42327006
+::    RASSCF root number  1 Total energy:   -294.61002124
+::    RASSCF root number  2 Total energy:   -294.54973323
+::    RASSCF root number  1 Total energy:   -294.59992605
+::    RASSCF root number  2 Total energy:   -294.51573484
+::    RASSCF root number  1 Total energy:   -294.58667970
+::    RASSCF root number  2 Total energy:   -294.52494369
+::    RASSCF root number  1 Total energy:   -294.52877073
+::    RASSCF root number  1 Total energy:   -294.63651941
+::    RASSCF root number  2 Total energy:   -294.57772961
+::    RASSCF root number  1 Total energy:   -294.59520257
+::    RASSCF root number  2 Total energy:   -294.50485342
+::    RASSCF root number  3 Total energy:   -294.44548468
+::    RASSCF root number  1 Total energy:   -294.67190388
+::    RASSCF root number  2 Total energy:   -294.49906338
+::    RASSCF root number  1 Total energy:   -294.76373355
+::    RASSCF root number  2 Total energy:   -294.55605488
+::    RASSCF root number  3 Total energy:   -294.44974787
+::    RASSCF root number  4 Total energy:   -294.42503165
+::    RASSCF root number  5 Total energy:   -294.38931982
+CASPT2 energies:
+::    CASPT2 Root  1     Total energy:   -295.60728558
+::    CASPT2 Root  1     Total energy:   -295.47551389
+::    CASPT2 Root  2     Total energy:   -295.40734324
+::    CASPT2 Root  3     Total energy:   -295.26708446
+::    CASPT2 Root  1     Total energy:   -295.42601567
+::    CASPT2 Root  2     Total energy:   -295.36600940
+::    CASPT2 Root  3     Total energy:   -295.35832898
+::    CASPT2 Root  4     Total energy:   -295.31861123
+::    CASPT2 Root  1     Total energy:   -295.41536043
+::    CASPT2 Root  2     Total energy:   -295.38540402
+::    CASPT2 Root  3     Total energy:   -295.25262332
+::    CASPT2 Root  1     Total energy:   -295.38726504
+::    CASPT2 Root  2     Total energy:   -295.30089661
+::    CASPT2 Root  3     Total energy:   -295.32344903
+::    CASPT2 Root  1     Total energy:   -295.31300964
+::    CASPT2 Root  2     Total energy:   -295.34314028
+::    CASPT2 Root  3     Total energy:   -295.34276006
+::    CASPT2 Root  1     Total energy:   -295.41837917
+::    CASPT2 Root  2     Total energy:   -295.31567115
+::    CASPT2 Root  3     Total energy:   -295.26820090
+::    CASPT2 Root  4     Total energy:   -295.27791288
+::    CASPT2 Root  5     Total energy:   -295.31475893
+::    CASPT2 Root  1     Total energy:   -295.52258390
+::    CASPT2 Root  2     Total energy:   -295.35881466
+::    CASPT2 Root  3     Total energy:   -295.27653027
+::    CASPT2 Root  1     Total energy:   -295.48471350
+::    CASPT2 Root  2     Total energy:   -295.42391656
+::    CASPT2 Root  1     Total energy:   -295.45524372
+::    CASPT2 Root  2     Total energy:   -295.37327497
+::    CASPT2 Root  1     Total energy:   -295.42506589
+::    CASPT2 Root  2     Total energy:   -295.38878728
+::    CASPT2 Root  1     Total energy:   -295.40268883
+::    CASPT2 Root  1     Total energy:   -295.44676268
+::    CASPT2 Root  2     Total energy:   -295.40877603
+::    CASPT2 Root  1     Total energy:   -295.43677932
+::    CASPT2 Root  2     Total energy:   -295.37542417
+::    CASPT2 Root  3     Total energy:   -295.35642492
+::    CASPT2 Root  1     Total energy:   -295.54782948
+::    CASPT2 Root  2     Total energy:   -295.36721916
+::    CASPT2 Root  1     Total energy:   -295.60738408
+::    CASPT2 Root  2     Total energy:   -295.43560089
+::    CASPT2 Root  3     Total energy:   -295.27886272
+::    CASPT2 Root  4     Total energy:   -295.29763102
+::    CASPT2 Root  5     Total energy:   -295.27728768
+Reference weights:
+      Reference weight:           0.81761
+      Reference weight:           0.79785
+      Reference weight:           0.79827
+      Reference weight:           0.79759
+      Reference weight:           0.80687
+      Reference weight:           0.80371
+      Reference weight:           0.80059
+      Reference weight:           0.78439
+      Reference weight:           0.81132
+      Reference weight:           0.80086
+      Reference weight:           0.79011
+      Reference weight:           0.80071
+      Reference weight:           0.81624
+      Reference weight:           0.77675
+      Reference weight:           0.79689
+      Reference weight:           0.79011
+      Reference weight:           0.77038
+      Reference weight:           0.81448
+      Reference weight:           0.80025
+      Reference weight:           0.80552
+      Reference weight:           0.79815
+      Reference weight:           0.76537
+      Reference weight:           0.80138
+      Reference weight:           0.79403
+      Reference weight:           0.79886
+      Reference weight:           0.79997
+      Reference weight:           0.79917
+      Reference weight:           0.80777
+      Reference weight:           0.80540
+      Reference weight:           0.81295
+      Reference weight:           0.80316
+      Reference weight:           0.80095
+      Reference weight:           0.82288
+      Reference weight:           0.81508
+      Reference weight:           0.81357
+      Reference weight:           0.80235
+      Reference weight:           0.79199
+      Reference weight:           0.80132
+      Reference weight:           0.79977
+      Reference weight:           0.81431
+      Reference weight:           0.79942
+      Reference weight:           0.81236
+      Reference weight:           0.79792
+      Reference weight:           0.79021
+MS-CASPT2 energies:
+::    MS-CASPT2 Root  1     Total energy:   -295.47818319
+::    MS-CASPT2 Root  2     Total energy:   -295.40533324
+::    MS-CASPT2 Root  3     Total energy:   -295.26642517
+::    MS-CASPT2 Root  1     Total energy:   -295.43332760
+::    MS-CASPT2 Root  2     Total energy:   -295.37019225
+::    MS-CASPT2 Root  3     Total energy:   -295.36009468
+::    MS-CASPT2 Root  4     Total energy:   -295.30535076
+::    MS-CASPT2 Root  1     Total energy:   -295.41631231
+::    MS-CASPT2 Root  2     Total energy:   -295.38446982
+::    MS-CASPT2 Root  3     Total energy:   -295.25260564
+::    MS-CASPT2 Root  1     Total energy:   -295.39179961
+::    MS-CASPT2 Root  2     Total energy:   -295.31891518
+::    MS-CASPT2 Root  3     Total energy:   -295.30089590
+::    MS-CASPT2 Root  1     Total energy:   -295.35217226
+::    MS-CASPT2 Root  2     Total energy:   -295.33468285
+::    MS-CASPT2 Root  3     Total energy:   -295.31205487
+::    MS-CASPT2 Root  1     Total energy:   -295.42609776
+::    MS-CASPT2 Root  2     Total energy:   -295.31677914
+::    MS-CASPT2 Root  3     Total energy:   -295.30799189
+::    MS-CASPT2 Root  4     Total energy:   -295.27776055
+::    MS-CASPT2 Root  5     Total energy:   -295.26629369
+::    MS-CASPT2 Root  1     Total energy:   -295.52303174
+::    MS-CASPT2 Root  2     Total energy:   -295.35838466
+::    MS-CASPT2 Root  3     Total energy:   -295.27651242
+::    MS-CASPT2 Root  1     Total energy:   -295.48661846
+::    MS-CASPT2 Root  2     Total energy:   -295.42201161
+::    MS-CASPT2 Root  1     Total energy:   -295.45528045
+::    MS-CASPT2 Root  2     Total energy:   -295.37323824
+::    MS-CASPT2 Root  1     Total energy:   -295.42581629
+::    MS-CASPT2 Root  2     Total energy:   -295.38803689
+::    MS-CASPT2 Root  1     Total energy:   -295.44679616
+::    MS-CASPT2 Root  2     Total energy:   -295.40874256
+::    MS-CASPT2 Root  1     Total energy:   -295.44607371
+::    MS-CASPT2 Root  2     Total energy:   -295.37542175
+::    MS-CASPT2 Root  3     Total energy:   -295.34713295
+::    MS-CASPT2 Root  1     Total energy:   -295.54818891
+::    MS-CASPT2 Root  2     Total energy:   -295.36685972
+::    MS-CASPT2 Root  1     Total energy:   -295.60757717
+::    MS-CASPT2 Root  2     Total energy:   -295.43642040
+::    MS-CASPT2 Root  3     Total energy:   -295.31245046
+::    MS-CASPT2 Root  4     Total energy:   -295.27797082
+::    MS-CASPT2 Root  5     Total energy:   -295.26234753
+Result for: thymine
+CASSCF or SA-CASSCF energies:
+::    RASSCF root number  1 Total energy:   -451.70957340
+::    RASSCF root number  2 Total energy:   -451.47355563
+::    RASSCF root number  3 Total energy:   -451.44622508
+::    RASSCF root number  4 Total energy:   -451.41295201
+::    RASSCF root number  5 Total energy:   -451.37861400
+::    RASSCF root number  6 Total energy:   -451.36829479
+::    RASSCF root number  1 Total energy:   -451.73074916
+::    RASSCF root number  1 Total energy:   -451.53094856
+::    RASSCF root number  2 Total energy:   -451.47518214
+::    RASSCF root number  3 Total energy:   -451.42111155
+::    RASSCF root number  4 Total energy:   -451.41835398
+CASPT2 energies:
+::    CASPT2 Root  1     Total energy:   -453.06548375
+::    CASPT2 Root  2     Total energy:   -452.87905823
+::    CASPT2 Root  3     Total energy:   -452.83491309
+::    CASPT2 Root  4     Total energy:   -452.82662477
+::    CASPT2 Root  5     Total energy:   -452.79737763
+::    CASPT2 Root  6     Total energy:   -452.75992312
+::    CASPT2 Root  1     Total energy:   -453.05714461
+::    CASPT2 Root  1     Total energy:   -452.87465689
+::    CASPT2 Root  2     Total energy:   -452.82075336
+::    CASPT2 Root  3     Total energy:   -452.80321759
+::    CASPT2 Root  4     Total energy:   -452.78882906
+Reference weights:
+      Reference weight:           0.72779
+      Reference weight:           0.70626
+      Reference weight:           0.71128
+      Reference weight:           0.70048
+      Reference weight:           0.69483
+      Reference weight:           0.68838
+      Reference weight:           0.73411
+      Reference weight:           0.72620
+      Reference weight:           0.72473
+      Reference weight:           0.71059
+      Reference weight:           0.70328
+MS-CASPT2 energies:
+::    MS-CASPT2 Root  1     Total energy:   -453.06671396
+::    MS-CASPT2 Root  2     Total energy:   -452.88061194
+::    MS-CASPT2 Root  3     Total energy:   -452.84062026
+::    MS-CASPT2 Root  4     Total energy:   -452.82678976
+::    MS-CASPT2 Root  5     Total energy:   -452.79356361
+::    MS-CASPT2 Root  6     Total energy:   -452.75508108
+::    MS-CASPT2 Root  1     Total energy:   -452.87536570
+::    MS-CASPT2 Root  2     Total energy:   -452.82262456
+::    MS-CASPT2 Root  3     Total energy:   -452.80543867
+::    MS-CASPT2 Root  4     Total energy:   -452.78402796
+Result for: triazine
+CASSCF or SA-CASSCF energies:
+::    RASSCF root number  1 Total energy:   -278.85714235
+::    RASSCF root number  1 Total energy:   -278.66135285
+::    RASSCF root number  2 Total energy:   -278.64672010
+::    RASSCF root number  3 Total energy:   -278.64671926
+::    RASSCF root number  4 Total energy:   -278.63191489
+::    RASSCF root number  5 Total energy:   -278.54580665
+::    RASSCF root number  6 Total energy:   -278.54580624
+::    RASSCF root number  1 Total energy:   -278.84661863
+::    RASSCF root number  2 Total energy:   -278.65230934
+::    RASSCF root number  3 Total energy:   -278.52903368
+::    RASSCF root number  4 Total energy:   -278.52844052
+::    RASSCF root number  5 Total energy:   -278.52318799
+::    RASSCF root number  6 Total energy:   -278.48203537
+::    RASSCF root number  7 Total energy:   -278.46831453
+::    RASSCF root number  8 Total energy:   -278.46137022
+CASPT2 energies:
+::    CASPT2 Root  1     Total energy:   -279.66839828
+::    CASPT2 Root  1     Total energy:   -279.49648397
+::    CASPT2 Root  2     Total energy:   -279.49470910
+::    CASPT2 Root  3     Total energy:   -279.49435211
+::    CASPT2 Root  4     Total energy:   -279.49947705
+::    CASPT2 Root  5     Total energy:   -279.38618883
+::    CASPT2 Root  6     Total energy:   -279.38614041
+::    CASPT2 Root  1     Total energy:   -279.66947416
+::    CASPT2 Root  2     Total energy:   -279.46094910
+::    CASPT2 Root  3     Total energy:   -279.34409806
+::    CASPT2 Root  4     Total energy:   -279.34448571
+::    CASPT2 Root  5     Total energy:   -279.41102410
+::    CASPT2 Root  6     Total energy:   -279.34007810
+::    CASPT2 Root  7     Total energy:   -279.31383309
+::    CASPT2 Root  8     Total energy:   -279.38294646
+Reference weights:
+      Reference weight:           0.81129
+      Reference weight:           0.79527
+      Reference weight:           0.79083
+      Reference weight:           0.79102
+      Reference weight:           0.78235
+      Reference weight:           0.78329
+      Reference weight:           0.78347
+      Reference weight:           0.80793
+      Reference weight:           0.80872
+      Reference weight:           0.78946
+      Reference weight:           0.78946
+      Reference weight:           0.78027
+      Reference weight:           0.78797
+      Reference weight:           0.77969
+      Reference weight:           0.75181
+MS-CASPT2 energies:
+::    MS-CASPT2 Root  1     Total energy:   -279.49949421
+::    MS-CASPT2 Root  2     Total energy:   -279.49719119
+::    MS-CASPT2 Root  3     Total energy:   -279.49542611
+::    MS-CASPT2 Root  4     Total energy:   -279.49516384
+::    MS-CASPT2 Root  5     Total energy:   -279.38508769
+::    MS-CASPT2 Root  6     Total energy:   -279.38498843
+::    MS-CASPT2 Root  1     Total energy:   -279.67377369
+::    MS-CASPT2 Root  2     Total energy:   -279.46095289
+::    MS-CASPT2 Root  3     Total energy:   -279.40743645
+::    MS-CASPT2 Root  4     Total energy:   -279.39872234
+::    MS-CASPT2 Root  5     Total energy:   -279.34386628
+::    MS-CASPT2 Root  6     Total energy:   -279.34007758
+::    MS-CASPT2 Root  7     Total energy:   -279.32822735
+::    MS-CASPT2 Root  8     Total energy:   -279.31383220
+Result for: uracil
+CASSCF or SA-CASSCF energies:
+::    RASSCF root number  1 Total energy:   -412.65780358
+::    RASSCF root number  2 Total energy:   -412.42359478
+::    RASSCF root number  3 Total energy:   -412.39686863
+::    RASSCF root number  4 Total energy:   -412.36081609
+::    RASSCF root number  5 Total energy:   -412.33290211
+::    RASSCF root number  1 Total energy:   -412.68061251
+::    RASSCF root number  1 Total energy:   -412.48215585
+::    RASSCF root number  2 Total energy:   -412.42679956
+::    RASSCF root number  3 Total energy:   -412.37189317
+::    RASSCF root number  4 Total energy:   -412.36966133
+CASPT2 energies:
+::    CASPT2 Root  1     Total energy:   -413.86363291
+::    CASPT2 Root  2     Total energy:   -413.67132645
+::    CASPT2 Root  3     Total energy:   -413.63676771
+::    CASPT2 Root  4     Total energy:   -413.61768849
+::    CASPT2 Root  5     Total energy:   -413.59435673
+::    CASPT2 Root  1     Total energy:   -413.85466564
+::    CASPT2 Root  1     Total energy:   -413.67356520
+::    CASPT2 Root  2     Total energy:   -413.62075051
+::    CASPT2 Root  3     Total energy:   -413.58938057
+::    CASPT2 Root  4     Total energy:   -413.59966556
+Reference weights:
+      Reference weight:           0.75283
+      Reference weight:           0.73265
+      Reference weight:           0.73494
+      Reference weight:           0.72600
+      Reference weight:           0.72152
+      Reference weight:           0.75999
+      Reference weight:           0.75169
+      Reference weight:           0.74988
+      Reference weight:           0.73523
+      Reference weight:           0.73329
+MS-CASPT2 energies:
+::    MS-CASPT2 Root  1     Total energy:   -413.86450134
+::    MS-CASPT2 Root  2     Total energy:   -413.67238426
+::    MS-CASPT2 Root  3     Total energy:   -413.63837066
+::    MS-CASPT2 Root  4     Total energy:   -413.61670331
+::    MS-CASPT2 Root  5     Total energy:   -413.59181273
+::    MS-CASPT2 Root  1     Total energy:   -413.67411673
+::    MS-CASPT2 Root  2     Total energy:   -413.62403844
+::    MS-CASPT2 Root  3     Total energy:   -413.59798849
+::    MS-CASPT2 Root  4     Total energy:   -413.58721817

@@ -1,0 +1,76 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*
+*        NINOB                :        Inactive orbitals         (0)
+*        NACOB                :        Active orbiatls
+*        NDEOB                :        Deleted                        (0)
+*        NOCOB                :        Occupied
+*        NTOOB                :        Total
+*        NORB1                :        RAS1
+*        NORB2                :        RAS2
+*        NORB3                :        RAS3
+*        NORB4                :        RAS4                        (0)
+*        NOSPIR                :        ?                        (1)
+*        IOSPIR(1,is)        :        ?                        iS
+*        NINOBS                :        Inactive/symmetry        (0)
+*        NR0OBS                :        Ras0/symmetry                (0)
+*        NRSOBS                :        RASX/symmetry
+*        NR4OBS                :        RAS4/symmetry                (0)
+*        NACOBS                :        RAS/symmetry            (i)
+*        NOCOBS                :        Occ/symmetry                (i)
+*        NTOOBS                :        Orb/symmetry                (i)
+*        NDEOBS                :        Deleted/symmetry        (0)
+*        NRs4To                :         Not in use
+*         IREOTS                 :         Reordering array type     => symmetry
+*          IREOST                 :         Reordering array symmetry => type
+*          ISMFTO          :         Symmetry array for type ordered orbitals
+*        ITPFSO                :        Not in use
+*          IBSO                   :         First orb of given symmetry (symmetry ordered)
+*          NTSOB                  :         Number of active orb of give RAS type and SYM
+*          IBTSOB                 :         Offset for active orb of given RAS type and SYM
+*          ITSOB                  :        Orbitals of given RAS type and sym
+*        NOBPTS                 :         Number of orbitals per subtype and symmetry
+*          IOBPTS                 :         Off sets for orb of given subtype and symmetry
+*        ITOBS                :        "Increaser"
+*
+*
+*  ITFSO  : Type array for symmetry ordered orbitals( not activated )
+
+*
+*
+      Integer NINOB,NACOB,NDEOB,NOCOB,NTOOB,
+     &              NORB0,NORB1,NORB2,NORB3,NORB4,
+     &              NOSPIR(MXPIRR),IOSPIR(MXPOBS,MXPIRR),
+     &              NINOBS(MXPOBS),NR0OBS(1,MXPOBS),NRSOBS(MXPOBS,3),
+     &              NR4OBS(MXPOBS,MXPR4T),NACOBS(MXPOBS),NOCOBS(MXPOBS),
+     &              NTOOBS(MXPOBS),NDEOBS(MXPOBS),
+     &              NRS4TO(MXPR4T),             ! dont forget the enemy
+     &              IREOTS(MXPORB),IREOST(MXPORB),ISMFTO(MXPORB),
+     &              ITPFSO(MXPORB),  ! OK
+     &              IBSO(MXPOBS),
+     &              NTSOB(3,MXPOBS),IBTSOB(3,MXPOBS),ITSOB(MXPORB),
+     &              NOBPTS(6+MXPR4T,MXPOBS),IOBPTS(6+MXPR4T,MXPOBS),
+     &              ITOOBS(MXPOBS),ITPFTO(MXPORB),ISMFSO(MXPORB),
+     &              NOBPT(6+MXPR4T)
+
+      COMMON/ORBINP_MCLR/NINOB,NACOB,NDEOB,NOCOB,NTOOB,
+     &              NORB0,NORB1,NORB2,NORB3,NORB4,
+     &              NOSPIR,IOSPIR,
+     &              NINOBS,NR0OBS,NRSOBS,
+     &              NR4OBS,NACOBS,NOCOBS,
+     &              NTOOBS,NDEOBS,
+     &              NRS4TO,                 ! dont forget the enemy
+     &              IREOTS,IREOST,ISMFTO,
+     &              ITPFSO,  ! OK
+     &              IBSO,
+     &              NTSOB,IBTSOB,ITSOB,
+     &              NOBPTS,IOBPTS,
+     &              ITOOBS,ITPFTO,ISMFSO,NOBPT

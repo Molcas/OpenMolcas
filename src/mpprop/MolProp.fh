@@ -1,0 +1,38 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+#include "Molcas.fh"
+
+      Parameter  (mxAtomMP=500)
+      Parameter  (mxCen=mxAtomMP*(mxAtomMP+1)/2)
+
+      Character*(LENIN)    Labe(mxAtomMP)
+      Character*(LENIN*2+2)   Cen_Lab(mxCen)
+      Character*180   Title
+      Character*8   Method
+      Logical        BondMat(mxAtomMP,mxAtomMP)
+      Dimension      Cor(3,mxAtomMP,mxAtomMP)
+      Dimension      Frac(mxAtomMP,mxAtomMP)
+      Dimension      iAtPrTab(maxbfn,mxAtomMP)
+      Dimension      iAtomType(mxAtomMP)
+      Dimension      iAtomPar(mxAtomMP)
+      Dimension      nAtomPBas(mxAtomMP)
+      Dimension      CordMltpl(1:3,0:99)
+      Dimension      iBondPar(mxCen)
+      Dimension      NUB(mxAtomMP), NBI(mxAtomMP,mxAtomMP)
+
+      COMMON /MoleculeChar/ Title,Cen_Lab,Method,Labe
+
+      COMMON /MoleculeReal/ CordMltpl, Frac, EneV, Cor
+
+      COMMON /MoleculeInte/ iAtomPar, nAtomPBas, iBondPar,
+     &NUB, NBI, iAtPrTab, iAtomType
+
+      COMMON /MoleculeLogi/ BondMat

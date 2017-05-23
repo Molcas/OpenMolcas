@@ -1,0 +1,23 @@
+#/bin/ksh
+# $ this file belongs to the Molcas repository $
+export Project=Baker_TS
+export Home=$PWD
+MOLCAS=`cd ../..; pwd`
+export ScratchDir=$MOLCAS/Test/tmp/
+rm -f result
+list='1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25'
+for name in $list
+do
+echo Running ${name}_*.input ...
+rm -fr  $ScratchDir/$name
+mkdir $ScratchDir/$name
+cd $ScratchDir/$name
+cp $Home/${name}_*.input .
+export WorkDir=$PWD
+molcas *.input > log 2> err
+echo Result from running ${name}_*.input >> $Home/result
+grep -i 'geometry is converged' log >> $Home/result
+rm -r  $ScratchDir/$name/*
+cd $Home
+rm -r $ScratchDir/$name
+done 

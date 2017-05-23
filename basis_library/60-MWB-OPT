@@ -1,0 +1,58 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+/Hg.60-mwb-opt..7s6p5d.6s3p2d.
+Reference none
+HG       (7s6p5d) -> [6s3p2d]
+
+	80.000000 2
+* S-type functions
+    7 6
+        26.842049000
+        10.320909000
+        6.3656242291
+        1.3898932095
+        .63706742699
+        .16047725098
+        .56410423453E-01
+ -.26845096483E-01 0.0 0.0 0.0 0.0 0.0
+ .81771278143 0.0 0.0 0.0 0.0 0.0
+ 0.0 1.0000000000 0.0 0.0 0.0 0.0
+ 0.0 0.0 1.0000000000 0.0 0.0 0.0
+ 0.0 0.0 0.0 1.0000000000 0.0 0.0
+ 0.0 0.0 0.0 0.0 1.0000000000 0.0
+ 0.0 0.0 0.0 0.0 0.0 1.0000000000
+* P-type functions
+    6 3
+        9.7729900000
+        7.1690950000
+        1.7559567931
+        .83145670425
+        .34494917659
+        .07000000000
+ .21210940502 0.0 0.0
+ -.44026342153 0.0 0.0
+ .58406314464 0.0 0.0
+ .49359746203 0.0 0.0
+ 0.0 1.0000000000 0.0
+ 0.0 0.0 1.0000000000
+* D-type functions
+    5 2
+        4.2800000000
+        3.4800000000
+        1.2535869926
+        .50841366863
+        .18501599388
+ -.32033414305491 0.0
+ .37748470203231 0.0
+ .48342275878173 0.0
+ .43493523158359 0.0
+ 0.0 1.0000000000
+

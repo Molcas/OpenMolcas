@@ -1,0 +1,36 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+cgh - shortrange: triggers calculation of integrals for attenuated
+cgh               coulomb operator (erfc(omega*r)/r instead of 1/r)
+cgh               these integrals will be called "short range integrals"
+cgh - decay_int:  the value of omega in the formula for the attenuated
+cgh               coulomb operator (i. e. erfc(omega*r)/r)
+cgh - isr_simulate: in combination with shortrange=.true. enables
+cgh               processing of the shortrange code while producing
+cgh               the conventional full range integrals
+cgh               (e.g., to compare timings)
+cgh               =0 means no simulation, really make shortrange integr.
+cgh               =1 means the full shortrange code is run through, but
+cgh                  the conventional integrals are produced
+cgh               =2 only disables the special cases
+#ifdef MOLPRO
+      logical shortrange
+      real *8 decay_int,thratten
+      integer isr_simulate
+      common/srintl/ shortrange
+      common/srinti/ isr_simulate
+      common/srintr/ thratten,decay_int
+#else
+      Logical shortrange
+      Integer isr_simulate
+      Common /srintl/ shortrange
+      Common /srinti/ isr_simulate
+#endif

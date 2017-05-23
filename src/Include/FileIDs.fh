@@ -1,0 +1,123 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+CStart Molpro
+c;*----------------------------------------------------------------------*
+c;*     Define file identifier                                           *
+c;*----------------------------------------------------------------------*
+c;      data idone / 4honel /
+c;      data idtwo / 4hordi /
+c;      data idtr1 / 4htra1 /
+c;      data idtr2 / 4htra2 /
+c;      data idrlx / 4hrelx /
+c;      data idcom / 4hcomm /
+c;      data idext / 4hextr /
+c;*----------------------------------------------------------------------*
+c;*     Define version number                                            *
+c;*----------------------------------------------------------------------*
+c;      data vnone / 4hv1.0 /
+c;      data vntwo / 4hv2.0 /
+c;      data vntr1 / 4hv1.0 /
+c;      data vntr2 / 4hv1.0 /
+c;      data vnrlx / 4hv1.0 /
+c;      data vncom / 4hv1.0 /
+c;      data vnext / 4hv1.0 /
+CElse
+*----------------------------------------------------------------------*
+*     Define file identifier                                           *
+*----------------------------------------------------------------------*
+      Integer IDone, IDtwo, IDtr1, IDtr2, IDrlx, IDcom
+      Integer VNone, VNtwo, VNtr1, VNtr2, VNrlx, VNcom
+c #ifdef _I8_
+c #if defined(_NECSX_) || defined(NAGFOR)
+c      data IDone / 8hOnel    /
+c      data IDtwo / 8hOrdI    /
+c      data IDtr1 / 8hTra1    /
+c      data IDtr2 / 8hTra2    /
+c      data IDrlx / 8hRelx    /
+c      data IDcom / 8hComm    /
+c #else
+c      cParameter(IDone=8hOnel    )
+c      Parameter(IDtwo=8hOrdI    )
+c      Parameter(IDtr1=8hTra1    )
+c      Parameter(IDtr2=8hTra2    )
+c      Parameter(IDrlx=8hRelx    )
+c      Parameter(IDcom=8hComm    )
+c #endif
+c #else
+c #if defined(_NECSX_) || defined(NAGFOR)
+c      data IDone / 4hOnel/
+c      data IDtwo / 4hOrdI/
+c      data IDtr1 / 4hTra1/
+c      data IDtr2 / 4hTra2/
+c      data IDrlx / 4hRelx/
+c      data IDcom / 4hComm/
+c #else
+c      Parameter(IDone=4hOnel)
+c      Parameter(IDtwo=4hOrdI)
+c      Parameter(IDtr1=4hTra1)
+c      Parameter(IDtr2=4hTra2)
+c      Parameter(IDrlx=4hRelx)
+c      Parameter(IDcom=4hComm)
+c #endif
+c #endif
+*----------------------------------------------------------------------*
+*     Define version number                                            *
+*----------------------------------------------------------------------*
+c #ifdef _I8_
+c #if defined(_NECSX_) || defined(NAGFOR)
+c      data VNone /8hv4.0    /
+c      data VNtwo /8hv4.1    /
+c      data VNtr1 /8hv4.0    /
+c      data VNtr2 /8hv4.0    /
+c      data VNrlx /8hv4.0    /
+c      data VNcom /8hv4.0    /
+c #else
+c      Parameter(VNone=8hv4.0    )
+c      Parameter(VNtwo=8hv4.1    )
+c      Parameter(VNtr1=8hv4.0    )
+c      Parameter(VNtr2=8hv4.0    )
+c      Parameter(VNrlx=8hv4.0    )
+c      Parameter(VNcom=8hv4.0    )
+c #endif
+c #else
+c #if defined(_NECSX_) || defined(NAGFOR)
+c      data VNone /4hv4.0/
+c      data VNtwo /4hv4.1/
+c      data VNtr1 /4hv4.0/
+c      data VNtr2 /4hv4.0/
+c      data VNrlx /4hv4.0/
+c      data VNcom /4hv4.0/
+c #else
+c      Parameter(VNone=4hv4.0)
+c      Parameter(VNtwo=4hv4.1)
+c      Parameter(VNtr1=4hv4.0)
+c      Parameter(VNtr2=4hv4.0)
+c      Parameter(VNrlx=4hv4.0)
+c      Parameter(VNcom=4hv4.0)
+c #endif
+c #endif
+
+      Parameter(IDone=4097)
+      Parameter(IDtwo=4098)
+      Parameter(IDtr1=4099)
+      Parameter(IDtr2=4100)
+      Parameter(IDrlx=4101)
+      Parameter(IDcom=4102)
+
+      Parameter(VNone=1024)
+      Parameter(VNtwo=1024)
+      Parameter(VNtr1=1024)
+      Parameter(VNtr2=1024)
+      Parameter(VNrlx=1024)
+      Parameter(VNcom=1024)
+
+
+CEnd

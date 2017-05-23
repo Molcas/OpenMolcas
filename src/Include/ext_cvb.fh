@@ -1,0 +1,27 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+c Declaration of logical functions :
+c-----------------------------------
+      external tstfile_cvb,valid_cvb,ifcasci_cvb,ifhamil_cvb
+      external mxorth_cvb
+      external tstcnt_cvb
+      external up2date_cvb
+      external chpcmp_cvb,lchpcmp_cvb
+c ... Files/Hamiltonian available ...
+      logical tstfile_cvb,valid_cvb,ifcasci_cvb,ifhamil_cvb
+c ... Matrices (orthogonal/determinant) ...
+      logical mxorth_cvb
+c ... Content of CI vectors ...
+      logical tstcnt_cvb
+c ... Make: up to date? ...
+      logical up2date_cvb
+c ... Change of dimensioning variables ...
+      logical chpcmp_cvb,lchpcmp_cvb

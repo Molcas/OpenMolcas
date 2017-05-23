@@ -1,0 +1,74 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+#ifdef ADD_
+#define MA_alloc_get MA_alloc_get_
+#define MA_allocate_heap MA_allocate_heap_
+#define MA_chop_stack MA_chop_stack_
+#define MA_free_heap MA_free_heap_
+#define MA_free_heap_piece MA_free_heap_piece_
+#define MA_get_index MA_get_index_
+#define MA_get_next_memhandle MA_get_next_memhandle_
+#define MA_init MA_init_
+#define MA_init_memhandle_iterator MA_init_memhandle_iterator_
+#define MA_inquire_avail MA_inquire_avail_
+#define MA_inquire_heap MA_inquire_heap_
+#define MA_inquire_stack MA_inquire_stack_
+#define MA_pop_stack MA_pop_stack_
+#define MA_push_get MA_push_get_
+#define MA_push_stack MA_push_stack_
+#define MA_set_auto_verify MA_set_auto_verify_
+#define MA_set_error_print MA_set_error_print_
+#define MA_set_hard_fail MA_set_hard_fail_
+#define MA_sizeof MA_sizeof_
+#define MA_sizeof_overhead MA_sizeof_overhead_
+#define MA_verify_allocator_stuff MA_verify_allocator_stuff_
+#define MA_print_stats MA_print_stats_
+#define MA_get_anchors MA_get_anchors_
+
+#define pbeginf pbeginf_
+#define pend pend_
+#define pfcopy pfcopy_
+#define tcgtime tcgtime_
+
+#define ga_initialize ga_initialize_
+#define ga_terminate ga_terminate_
+#define ga_nodeid ga_nodeid_
+#define ga_nnodes ga_nnodes_
+#define ga_dgop ga_dgop_
+#define ga_igop ga_igop_
+#define ga_distribution ga_distribution_
+#define ga_locate ga_locate_
+#define ga_sync ga_sync_
+#define ga_create ga_create_
+#define ga_zero ga_zero_
+#define ga_create_irreg ga_create_irreg_
+#define ga_destroy ga_destroy_
+#define ga_duplicate ga_duplicate_
+#define ga_copy ga_copy_
+#define ga_copy_patch ga_copy_patch_
+#define ga_inquire_name ga_inquire_name_
+#define ga_put ga_put_
+#define ga_get ga_get_
+#define ga_acc ga_acc_
+#define ga_scatter ga_scatter_
+#define ga_gather ga_gather_
+#define ga_dfill_patch ga_dfill_patch_
+#define ga_ifill_patch ga_ifill_patch_
+#define ga_dadd ga_dadd_
+#define ga_error ga_error_
+#define ga_brdcst ga_brdcst_
+#define ga_read_inc ga_read_inc_
+#define ga_print ga_print_
+#define ga_print_patch ga_print_patch_
+#define ga_access ga_access_
+#define ga_release ga_release_
+#define ga_release_update ga_release_update_
+#endif

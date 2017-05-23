@@ -1,0 +1,91 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*----------------------------------------------------------------------*
+*     Define Common /MCKDat/                                           *
+*----------------------------------------------------------------------*
+*                                                                      *
+* Parameters:                                                          *
+*   NaN    - Not a Number = Variable undefined                         *
+*   NotNaN - A Number = Variable is defined                            *
+*   nAuxDt - extra space for origin and nuclear contribution.          *
+*   nTitle - length of title.                                          *
+*   MxOp   - Max number of operators                                   *
+*   LenOp  - Length of TOC field defining operator                     *
+*   MxSym  - Max number of symmetry representations                    *
+*   MxAtom - Max number of atoms in system                             *
+*   MxBas  - Max number of total basis functions                       *
+*   PhyRc  - physical buffer size for DAFILE                           *
+*   nBuf   - logical internal buffer size for reading/writing matrices *
+*                                                                      *
+* Pointers:                                                            *
+*   pFID   - File identifier                                           *
+*   pVersN - Version number                                            *
+*   pTitle - Titleof the problem                                       *
+*   pOp    - Operator list                                             *
+*   pSym   - Number of irred. representations                          *
+*   pSymOp - generator of irred. representation                        *
+*   pBas   - Number of basis functions per irred. representation       *
+*   pNext  - Next free record                                          *
+*                                                                      *
+* Offsets:                                                             *
+*   oLabel - Label of operator                                         *
+*   oComp  - Component number                                          *
+*   oSymLb - Symmetry label of operator                                *
+*   oAddr  - Disk address                                              *
+*                                                                      *
+*----------------------------------------------------------------------*
+      Parameter ( NaN=-1        )
+      Parameter ( NotNaN=0      )
+      Parameter ( nAuxDt=0      )
+#ifdef _I8_
+      Parameter ( nTitle=18     )
+#else
+      Parameter ( nTitle=36     )
+#endif
+
+      Parameter ( PhyRec=1024   )
+      Parameter ( nBuf=4*PhyRec )
+      Parameter ( MxOp=2048      )
+      Parameter ( LenOp=5       )
+      Parameter ( MxSym=8       )
+*
+      Parameter ( pFID   = 1                       )
+      Parameter ( pVersN = pFID   + 1              )
+      Parameter ( pTitle = pVersN + 1              )
+      Parameter ( pOp    = pTitle + nTitle + 1     )
+      Parameter ( pSym   = pOp    + MxOp*LenOp     )
+      Parameter ( pSymOp = pSym   + 1              )
+      Parameter ( pBas   = pSymOp + (3*MxSym+ItoB-1)/ItoB )
+      Parameter ( pASh   = pBas   + MxSym          )
+      Parameter ( pish   = pAsh   + MxSym          )
+      Parameter ( pChdisp = pish +  MxSym          )
+      Parameter ( pndisp = pchdisp + 5*MxOp        )
+      Parameter ( pldisp = pndisp + 1              )
+      Parameter ( pnrdisp = pldisp + MxSym         )
+      Parameter ( pdegdisp = pnrdisp   + MxOp        )
+      Parameter ( ptdisp = pdegdisp   + MxOp        )
+      Parameter ( pPert  = Ptdisp + Mxop            )
+*
+      Parameter ( pNext  = ppert + 5   )
+      Parameter ( pEnd   = pNext  + 1              )
+      Parameter ( lToc   = 1024*((pEnd+1023)/1024) )
+*
+      Parameter ( oLabel = 0          )
+      Parameter ( oComp  = oLabel + 2 )
+      Parameter ( oSymLb = oComp  + 1 )
+      Parameter ( oAddr  = oSymLb + 1 )
+*
+      Parameter ( pLu    = 1          )
+      Parameter ( pOpen  = pLu    + 1 )
+      Parameter ( lAux   = pOpen  + 1 )
+*
+      Dimension AuxMCK(lAux),TocOne(lToc)
+      Common /MCKDat/ AuxMCK,TocOne

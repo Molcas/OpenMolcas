@@ -1,0 +1,30 @@
+* $ this file belongs to the Molcas repository $
+>>>> SET MAXITER 30 <<<<
+>>>> DO WHILE <<<<<
+ &Seward &End
+
+Title
+Baker's test suite: water
+
+Basis set
+S.$Basis....
+S    0.0000000000   0.0000000000   1.6434445385
+End of Basis
+Basis set
+O.$Basis....
+O    1.5564378813   0.0000000000  -0.7841792431
+End of Basis
+Basis set
+H.$Basis....
+H1   0.7087897669  -0.9888963428  -2.0469823281
+H2  -2.2652276483   0.9888963428   1.1877170327
+End of Basis
+End of Input
+
+ &SCF &End
+$KSDFT
+End of Input
+
+ &Slapaf &End
+End of Input
+>>>>> ENDDO <<<<

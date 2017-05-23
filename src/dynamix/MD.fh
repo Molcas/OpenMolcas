@@ -1,0 +1,33 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
+C
+C THERMOstat = 0  nothing (default)
+C              1  microcanonical ensemble (Andersen Thermostat)
+C              2  canonical ensemble (Nose-Hoover Chain of Thermostats)
+C VELOcities = 0  zero start velocities (default)
+C              1  reads in the velocities (Bohr/a.u.) from 'velocity.xyz'
+C              2  reads in the mass-weighted velocities (Bohr/a.u.) from 'velocity.xyz'
+C              3  Maxwell-Boltzmann distribution at temperature T (Bohr/a.u.)
+C
+C DT      - Time step
+C Etot0   - Reference total energy for microcanonical ensemble
+C Restart - Restart time of the molecular dynamics simulation
+C iPrint  - (global) print level
+C
+      INTEGER   THERMO,VELO,iPrint
+      REAL*8    DT,RESTART,TEMP
+      LOGICAL   lH5Restart
+      CHARACTER*180  File_H5Res
+      COMMON /MDint/ THERMO,VELO,iPrint
+      COMMON /MDreal/ DT,RESTART,TEMP
+      COMMON /MDlogi/ lH5Restart
+      COMMON /MDstri/ FILE_H5RES

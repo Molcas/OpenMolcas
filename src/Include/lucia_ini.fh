@@ -1,0 +1,46 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*
+* Transfers parameters from inpctl in rasscf to lucia_ini in lucia_util
+*
+      Integer RtoI_Molcas
+
+* i = 1, 5: combinations, particle hole(sigma), count_aa, count_ab, a/p_parts
+      Integer    nSpeed, iSpeed
+      Parameter (nSpeed = 5)
+      Dimension iSpeed(nSpeed)
+
+      Integer   iRoot_Molcas, norb_Molcas,
+     &          nbas_Molcas, nish_Molcas,
+     &          ngssh_molcas, igsoccx_molcas,
+     &          IELIMINATED_IN_GAS_MOLCAS
+      Dimension iRoot_Molcas(mxRoot),norb_Molcas(mxSym)
+      Dimension nbas_Molcas(mxSym),nish_Molcas(mxSym)
+      Dimension ngssh_molcas(mxgas,mxsym),igsoccx_molcas(mxgas,2)
+      Dimension IELIMINATED_IN_GAS_MOLCAS(MXGAS)
+
+      Real*8   potnuc_Molcas,thre_Molcas
+      Integer  nsym_Molcas,nactel_Molcas, ms2_Molcas,
+     &         ispin_Molcas,lsym_Molcas,nhole1_Molcas,nelec3_Molcas,
+     &         itmax_Molcas,nroots_Molcas,ipt2_Molcas,iprci_Molcas,
+     &         ngas_molcas, INOCALC_MOLCAS,ISAVE_EXP_MOLCAS,
+     &         IEXPAND_MOLCAS,N_ELIMINATED_GAS_MOLCAS,
+     &         I_ELIMINATE_GAS_MOLCAS
+
+      Common/Molcas_Ini/potnuc_Molcas,thre_Molcas,rtoi_Molcas,
+     &   iRoot_Molcas,norb_Molcas,nbas_Molcas,nish_Molcas,nsym_Molcas,
+     &   nactel_Molcas, ms2_Molcas,ispin_Molcas,lsym_Molcas,
+     &   nhole1_Molcas,nelec3_Molcas,itmax_Molcas,
+     &   nroots_Molcas,ipt2_Molcas,iprci_Molcas,iSpeed,
+     &   ngssh_molcas,igsoccx_molcas,ngas_molcas,
+     &   INOCALC_MOLCAS,ISAVE_EXP_MOLCAS,IEXPAND_MOLCAS,
+     &   N_ELIMINATED_GAS_MOLCAS,I_ELIMINATE_GAS_MOLCAS,
+     &   IELIMINATED_IN_GAS_MOLCAS

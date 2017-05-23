@@ -1,0 +1,38 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+c
+c        include for parallel run
+c
+c1        general parameters
+c
+#include "para_info.fh"
+        integer maxproc
+        parameter (maxproc=16)
+c
+c2        parameters for sumoverab part
+c
+        integer nprocab
+        integer idab(1:maxproc)
+        real*8 ideffab(1:maxproc)
+        real*8 idtmab(1:maxproc)
+        real*8 ididle(1:maxproc)
+c
+c3        parameters for sumoverb and intmezzo part
+c
+        integer idaaaa,idbbbb,idaabb,idabba,idbaab,idbbaa
+c
+c4        parameters for finale part
+c
+        integer idfin
+c
+        common /par/
+     c               nprocab,idaaaa,idbbbb,idaabb,idabba,idbaab,idbbaa,
+     c               idfin,idab,ideffab,idtmab,ididle

@@ -1,0 +1,32 @@
+#/bin/sh
+
+MOLCAS=`cd ../..; pwd`
+export Home=$PWD
+rm -f result
+
+list="acetamide acetone adenine benzene benzoquinone butadiene cyclopentadiene cyclopropene cytosine ethene formaldehyde formamide furan hexatriene imidazole naphthalene norbornadiene octatetraene propanamide pyrazine pyridazine pyridine pyrimidine pyrrole tetrazine thymine triazine uracil"
+
+for name in $list
+do
+   cd $Home
+   echo Running $name ...
+   export HomeDir=$Home/$name
+   export Project=$name
+   cd $HomeDir   
+#  
+   rm -f LOG
+   for input in `ls -S *input`
+   do
+      molcas $input >> LOG 2>> ERR
+   done
+#
+   echo "Result for: $name"                 >> $Home/result
+   echo "CASSCF or SA-CASSCF energies:"     >> $Home/result
+   grep -i '::\s*RASSCF'                LOG >> $Home/result
+   echo "CASPT2 energies:"                  >> $Home/result
+   grep -i '::\s*CASPT2'                LOG >> $Home/result
+   echo "Reference weights:"                >> $Home/result
+   grep -i 'Reference weight:'          LOG >> $Home/result
+   echo "MS-CASPT2 energies:"               >> $Home/result
+   grep -i '::\s*MS-CASPT2'             LOG >> $Home/result
+done 

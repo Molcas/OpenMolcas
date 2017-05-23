@@ -1,0 +1,118 @@
+## GENERAL
+# binary files
+*.[oa]
+*.exe
+# dependencies files
+*.d
+# latex documents
+*.aux
+*.blg
+*.bbl
+*.idx
+*.ilg
+*.toc
+*.dvi
+*.ps
+*.pdf
+*.lof
+*.lot
+# log files
+*.log
+# fortran 90/95 modules
+*.mod
+# backup files
+*.orig
+*.bak
+*~
+#if MOLGUI source code is stored at the same place
+molgui/
+#odd compilation leftovers
+src/dmrg_util/lib
+
+src/*/CMakeLists.txt
+*.swp
+
+## SPECIFIC
+# configuration files
+.molcasversion
+.dependencies
+.stamp
+00dependencies
+00sources
+Makefile
+findsym.inp
+findsym.out
+module.lst
+molcas.rte*
+molcasrc
+cfg/Makefile.sed
+cfg/lists.cfg
+src/Include/buildinfo.fh
+setup.lst
+.setup.completed
+Symbols
+xbin.cfg
+stdsuffix
+checksum
+molden.ogl
+tags
+TAGS
+GPATH
+GRTAGS
+GTAGS
+# data
+data/prgms.cntrl
+data/*.prgm
+data/filelist
+data/sublist
+data/basis.db
+data/find.db
+data/dict.xml
+data/keyword.db
+data/keyword.xml
+data/saved.db
+data/warnings.plx
+data/src_docs.db
+# documentation
+doc/booklet/
+doc/latex2html-tmp/
+doc/latex2html/HTML/
+doc/samples/
+doc/manual/index.tex
+doc/manual/installation.guide/Linux-x86.cfg
+doc/manual/installation.guide/prgms.cntrl
+doc/manual/users.guide/programs.tex
+doc/manual/*.out
+# testing
+test/result
+test/timing*
+test/failed
+test/log/
+test/tmp/
+# package archives (external)
+packages/
+nopackages/
+PACKAGE
+# libraries
+lib/
+# license file
+license.dat
+# tinker
+tinker-*.tar
+tinker
+tinker*/
+# Test/
+test/qcmaquis
+test/qcmaquis/
+test/sonatorb/
+test/sonatorb
+# pymolcas
+Tools/pymolcas/pymolcas
+Tools/pymolcas/pymolcas.exe
+Tools/pymolcas/pymolcas.whl
+Tools/pymolcas/build
+Tools/pymolcas/*.egg-info
+# build products
+molcas-*
+make-*
+build*

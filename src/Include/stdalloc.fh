@@ -1,0 +1,175 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+* defines two generic interfaces for allocation and deallocation
+* the subroutines are defined in src/mma_util/stdalloc.f
+       interface mma_allocate
+         subroutine dmma_allo_1D(buffer,n1,label)
+           real*8, allocatable :: buffer(:)
+           integer :: n1
+           character (len=*), optional :: label
+         end subroutine
+         subroutine dmma_allo_1D_lim(buffer,l1,label)
+           real*8, allocatable :: buffer(:)
+           integer, dimension(2) :: l1
+           character (len=*), optional :: label
+         end subroutine
+         subroutine DCmma_allo_1D(buffer,n1,label)
+           complex*16, allocatable :: buffer(:)
+           integer :: n1
+           character (len=*), optional :: label
+         end subroutine
+         subroutine DCmma_allo_1D_lim(buffer,l1,label)
+           complex*16, allocatable :: buffer(:)
+           integer, dimension(2) :: l1
+           character (len=*), optional :: label
+         end subroutine
+         subroutine imma_allo_1D(buffer,n1,label)
+           integer, allocatable :: buffer(:)
+           integer :: n1
+           character (len=*), optional :: label
+         end subroutine
+         subroutine imma_allo_1D_lim(buffer,l1,label)
+           integer, allocatable :: buffer(:)
+           integer, dimension(2) :: l1
+           character (len=*), optional :: label
+         end subroutine
+         subroutine cmma_allo_1D(buffer,n1,label)
+           character(*), allocatable :: buffer(:)
+           integer :: n1
+           character (len=*), optional :: label
+         end subroutine
+         subroutine cmma_allo_1D_lim(buffer,l1,label)
+           character(*), allocatable :: buffer(:)
+           integer, dimension(2) :: l1
+           character (len=*), optional :: label
+         end subroutine
+         subroutine dmma_allo_2D(buffer,n1,n2,label)
+           real*8, allocatable :: buffer(:,:)
+           integer :: n1, n2
+           character (len=*), optional :: label
+         end subroutine
+         subroutine dmma_allo_2D_lim(buffer,l1,l2,label)
+           real*8, allocatable :: buffer(:,:)
+           integer, dimension(2) :: l1, l2
+           character (len=*), optional :: label
+         end subroutine
+         subroutine DCmma_allo_2D(buffer,n1,n2,label)
+           complex*16, allocatable :: buffer(:,:)
+           integer :: n1, n2
+           character (len=*), optional :: label
+         end subroutine
+         subroutine DCmma_allo_2D_lim(buffer,l1,l2,label)
+           complex*16, allocatable :: buffer(:,:)
+           integer, dimension(2) :: l1, l2
+           character (len=*), optional :: label
+         end subroutine
+         subroutine imma_allo_2D(buffer,n1,n2,label)
+           integer, allocatable :: buffer(:,:)
+           integer :: n1, n2
+           character (len=*), optional :: label
+         end subroutine
+         subroutine imma_allo_2D_lim(buffer,l1,l2,label)
+           integer, allocatable :: buffer(:,:)
+           integer, dimension(2) :: l1, l2
+           character (len=*), optional :: label
+         end subroutine
+         subroutine dmma_allo_3D(buffer,n1,n2,n3,label)
+           real*8, allocatable :: buffer(:,:,:)
+           integer :: n1, n2, n3
+           character (len=*), optional :: label
+         end subroutine
+         subroutine dmma_allo_3D_lim(buffer,l1,l2,l3,label)
+           real*8, allocatable :: buffer(:,:,:)
+           integer, dimension(2) :: l1, l2, l3
+           character (len=*), optional :: label
+         end subroutine
+         subroutine DCmma_allo_3D(buffer,n1,n2,n3,label)
+           complex*16, allocatable :: buffer(:,:,:)
+           integer :: n1, n2, n3
+           character (len=*), optional :: label
+         end subroutine
+         subroutine DCmma_allo_3D_lim(buffer,l1,l2,l3,label)
+           complex*16, allocatable :: buffer(:,:,:)
+           integer, dimension(2) :: l1, l2, l3
+           character (len=*), optional :: label
+         end subroutine
+         subroutine imma_allo_3D(buffer,n1,n2,n3,label)
+           integer, allocatable :: buffer(:,:,:)
+           integer :: n1, n2, n3
+           character (len=*), optional :: label
+         end subroutine
+         subroutine imma_allo_3D_lim(buffer,l1,l2,l3,label)
+           integer, allocatable :: buffer(:,:,:)
+           integer, dimension(2) :: l1, l2, l3
+           character (len=*), optional :: label
+         end subroutine
+         subroutine dmma_allo_4D(buffer,n1,n2,n3,n4,label)
+           real*8, allocatable :: buffer(:,:,:,:)
+           integer :: n1, n2, n3, n4
+           character (len=*), optional :: label
+         end subroutine
+         subroutine imma_allo_4D(buffer,n1,n2,n3,n4,label)
+           integer, allocatable :: buffer(:,:,:,:)
+           integer :: n1, n2, n3, n4
+           character (len=*), optional :: label
+         end subroutine
+         subroutine DCmma_allo_4D(buffer,n1,n2,n3,n4,label)
+           complex*16, allocatable :: buffer(:,:,:,:)
+           integer :: n1, n2, n3, n4
+           character (len=*), optional :: label
+         end subroutine
+         subroutine DCmma_allo_4D_lim(buffer,l1,l2,l3,l4,label)
+           complex*16, allocatable :: buffer(:,:,:,:)
+           integer, dimension(2) :: l1, l2, l3, l4
+           character (len=*), optional :: label
+         end subroutine
+       end interface
+       interface mma_deallocate
+         subroutine dmma_free_1D(buffer)
+           real*8, allocatable :: buffer(:)
+         end subroutine
+         subroutine DCmma_free_1D(buffer)
+           complex*16, allocatable :: buffer(:)
+         end subroutine
+         subroutine imma_free_1D(buffer)
+           integer, allocatable :: buffer(:)
+         end subroutine
+         subroutine cmma_free_1D(buffer)
+           character(*), allocatable :: buffer(:)
+         end subroutine
+         subroutine dmma_free_2D(buffer)
+           real*8, allocatable :: buffer(:,:)
+         end subroutine
+         subroutine DCmma_free_2D(buffer)
+           complex*16, allocatable :: buffer(:,:)
+         end subroutine
+         subroutine imma_free_2D(buffer)
+           integer, allocatable :: buffer(:,:)
+         end subroutine
+         subroutine dmma_free_3D(buffer)
+           real*8, allocatable :: buffer(:,:,:)
+         end subroutine
+         subroutine DCmma_free_3D(buffer)
+           complex*16, allocatable :: buffer(:,:,:)
+         end subroutine
+         subroutine imma_free_3D(buffer)
+           integer, allocatable :: buffer(:,:,:)
+         end subroutine
+         subroutine dmma_free_4D(buffer)
+           real*8, allocatable :: buffer(:,:,:,:)
+         end subroutine
+         subroutine imma_free_4D(buffer)
+           integer, allocatable :: buffer(:,:,:,:)
+         end subroutine
+         subroutine DCmma_free_4D(buffer)
+           complex*16, allocatable :: buffer(:,:,:,:)
+         end subroutine
+       end interface

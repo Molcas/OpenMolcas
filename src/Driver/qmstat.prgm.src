@@ -1,0 +1,32 @@
+/***********************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+***********************************************************************/
+ (prgm) "$MOLCAS"/bin/qmstat.exe  executable
+ (file)  ONEINT    "$WorkDir/$Project."OneInt           ro*
+ (file)  WRUNFIL   "$Molcas_SolvDir/$Molcas_Solvent."RunFile          ro
+ (file)  AVEORB    "$WorkDir/$Project."AveOrb           rw
+ (file)  SOLORB    "$Molcas_SolvDir/$Molcas_Solvent."ScfOrb           ro
+ (file)  TRAINT    "$WorkDir/$Project."TraInt           ro
+ (file)  TRAONE    "$WorkDir/$Project."TraOne           ro
+ (file)  MPPROP    "$WorkDir/$Project."MpProp           ro
+ (file)  DIFFPR    "$WorkDir/$Project."DiffPr           ro
+ (file)  RASSIM    "$WorkDir/$Project."ToFile           ro
+ (file)  EIGV      "$WorkDir/$Project."EigV             ro
+ (file)  TDMSCR    "$WorkDir/$Project."TdmScr           rw
+ (file)  ADDON1    "$WorkDir/$Project."AddOn1           ro
+ (file)  ADDON2    "$WorkDir/$Project."AddOn2           ro
+ (file)  ADDON3    "$WorkDir/$Project."AddOn3           ro
+ (file)  JOB       "$WorkDir/$Project."Job              ro*
+ (file)  GAMORB    "$WorkDir/$Project."GamO             rw
+ (file)  STFIL     "$Molcas_OldDir/"startfil                  rw*
+ (file)  SAFIL     "$Molcas_OldDir/"sampfil                   rw*
+ (file)  EXTRA     "$WorkDir/$Project."SimEx           rws*
+ (file)  AVENUC    "$WorkDir/$Project."FieldNuc             rw
+

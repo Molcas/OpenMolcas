@@ -1,0 +1,140 @@
+#======================================================================
+#
+# Makefile.in to build utility routines @module@
+# @AutoGen@
+#
+#----------------------------------------------------------------------
+#
+# Author:  Per-Olof Widmark
+#          Theoretical Chemistry
+#          Lund University, Sweden
+# Written: February 2000
+# History:
+#          Modified by Alexander Gaenko, April 2004
+#            -- modified 'clean' and 'veryclean' targets
+#            -- 'quietness' is now determined by 'QUIET' symbol
+#            -- allowed the inclusion of per-directory Makefile.add
+#               with redefinitions of variables and targets
+#          Modified by Alexander Gaenko, 19-May-2004
+#            -- call MkDep.plx instead of MkDep.sh
+#          Modified by Alexander Gaenko, 20-Jun-2004
+#            -- reset locale to "C"
+#
+#----------------------------------------------------------------------
+#
+# Copyright: Author reserves all rights
+#
+#======================================================================
+#
+# General settings
+#
+# quietness
+#
+ifeq (@QUIET@,yes)
+BE_QUIET = @
+else
+BE_QUIET =
+endif
+#
+# Paths to directories
+#
+MOLCASROOT = @MOLCASLU@
+BINDIR = ${MOLCASROOT}/bin
+SBINDIR= ${MOLCASROOT}/sbin
+LIBDIR = ${MOLCASROOT}/lib
+DATDIR = ${MOLCASROOT}/data
+INCDIR = ../Include
+GAINC  = @GAINC@
+ULIB   = ${LIBDIR}/lib@module@.a
+USHLIB = ${LIBDIR}/lib@module@.so
+#
+# UNIX commands
+#
+SHELL    = @SH@
+CP       = @CP@
+MKAR     = @MKAR@
+RM       = @RM@ -f
+CAT      = @CAT@
+GREP     = @GREP@
+RANLIB   = @RANLIB@
+#-----------------------------------------------------------------------
+#
+# Reset locale settings to "C"
+#
+OLD_LC_ALL = ${LC_ALL}
+OLD_LANG = ${LANG}
+LC_ALL = C
+LANG = C
+export OLD_LC_ALL OLD_LANG LC_ALL LANG
+#
+# Source and objects
+#
+-include 00sources
+#
+# Compilers
+#
+FC        = @F77@
+FFLAGS    = @F77FLAGS@ @F90MOD@${INCDIR}
+CC        = @CC@
+CFLAGS    = @CFLAGS@
+CPP       = @CPP@
+CPPFLAGS  = @CPPFLAGS@
+SFLAGS    = @SFLAGS@
+#
+# Internal vars (can be replaced by per-directory cfg files)
+#
+DEFAULT_TARGET = ${PLIBOBJ}
+FCOMPILER = ${FC}
+EXTRA_DEPS=
+EXTRA_OPTS=
+
+
+# DON'T REMOVE THE FOLLOWING LINE:
+#+++include_user_file+++
+#
+ifeq ($(FC)x,x)
+default:
+	@echo 'F90 is not found, package is ignored'
+	ar cr ${ULIB}
+else
+default: default2
+endif
+
+# Dependencies
+#
+default2: ${DEFAULT_TARGET}
+
+clean:
+	-${BE_QUIET}${RM} tmp.* *.tmp *_pp.f *.o *.F *.ksh .stamp *.exe lib*.a
+
+veryclean:
+	-${BE_QUIET}${RM} tmp.* *.tmp *_pp.f *.o *.F *.ksh .stamp *.exe lib*.a
+	-${BE_QUIET}${RM} Makefile
+	-${BE_QUIET}${RM} *.rc
+	-${BE_QUIET}${RM} ${LIB}
+
+distclean: veryclean
+	-${BE_QUIET}${RM} 00dependencies 00sources
+
+
+${MOLCASROOT}/.dependencies:
+	@touch ${@}
+00sources: ${MOLCASROOT}/.dependencies
+	@(if [ ! -r "00sources" ] ; then \
+	  echo "Resolving dependencies." ; ${MOLCASROOT}/sbin/MkDep.plx ;\
+	fi)
+00dependencies: ${MOLCASROOT}/.dependencies
+	@(if [ ! -r "00dependencies" ] ; then \
+	  echo "Resolving dependencies." ; ${MOLCASROOT}/sbin/MkDep.plx ;\
+	fi)
+
+Makefile:: 00sources 00dependencies
+Makefile:: ${MOLCASROOT}/src/Driver/utildefault_Makefile.in.in
+	cd ${MOLCASROOT}; ./configure -makefiles
+-include 00dependencies
+.PHONY: default lib2 clean veryclean distclean
+.PRECIOUS: Makefile
+#
+# Suffix rules
+#
+include ${DATDIR}/stdsuffix

@@ -1,0 +1,76 @@
+&GATEWAY
+  Title = benzene D6h (Cs) structure: MP2/6-31G*
+  Coord = benzene.xyz
+  Group = z
+  Basis = TZVP
+  AngMom = 0.0 0.0 0.0
+  SDipoles
+  RICD
+
+&SEWARD
+  BSShow
+  Verbose
+
+* Symmetry table: a'  b''
+*                 1   2
+
+*=================================================
+*
+* 1A' and 3A' states
+*
+*=================================================
+
+&RASSCF
+  Title =    benzene D6h (Cs) states 1A'
+  Spin =     1
+  Symmetry = 1
+  nActEl =   6 0 0
+  Inactive = 18 0
+  Ras2 =      0 6
+  CIRoot =   7 7 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.1Ap.RasOrb
+
+&CASPT2
+  Title =      benzene D6h (Cs) states 1A'
+  Multistate = 7  1 2 3 4 5 6 7
+
+>>COPY $Project.JobMix JOB001
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    benzene D6h (Cs) states 3A'
+  Spin =     3
+  Symmetry = 1
+  nActEl =   6 0 0
+  Inactive = 18 0
+  Ras2 =      0 6
+  CIRoot =   6 6 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.3Ap.RasOrb
+
+&CASPT2
+  Title =      benzene D6h (Cs) states 3A'
+  Multistate = 6  1 2 3 4 5 6
+
+>>COPY $Project.JobMix JOB002
+
+*-------------------------------------------------
+
+&RASSI
+  NrOfJobIphs = 2  7 6
+    1 2 3 4 5 6 7
+    1 2 3 4 5 6
+  EJob
+  CIPrint
+  XVES
+  MEES
+  Properties = 15
+    'Mltpl  1' 1  'Mltpl  1' 2  'Mltpl  1' 3
+    'Mltpl  2' 1  'Mltpl  2' 2  'Mltpl  2' 3  'Mltpl  2' 4  'Mltpl  2' 5  'Mltpl  2' 6
+    'AngMom  ' 1  'AngMom  ' 2  'AngMom  ' 3
+    'Velocity' 1  'Velocity' 2  'Velocity' 3
+
+>>RM JOB001
+>>RM JOB002

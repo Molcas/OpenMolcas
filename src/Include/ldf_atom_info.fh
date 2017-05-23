@@ -1,0 +1,72 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+C Atom information for LDF:
+C
+C NumberOfAtoms: number of atoms
+C Coord(i,iAtom): x,y,z (i=1,2,3) coordinates of atom iAtom
+C A_Unique(iAtom): unique atom corresponding to atom iAtom
+C A_Shells(1,iAtom): #valence shells on atom iAtom
+C A_Shells(2,iAtom): pointer to list of valence shells on atom iAtom
+C A_AuxShells(1,iAtom): #auxiliary shells on atom iAtom
+C A_AuxShells(2,iAtom): pointer to list of auxiliary shells on atom
+C                       iAtom
+C
+C Set in: LDF_SetAtomInfo
+C Unset in: LDF_UnsetAtomInfo
+C
+C To access the data, simply call the following functions:
+C  Int Func LDF_nAtom() -> returns #atoms
+C  Int Func LDF_nShell() -> returns total #shells
+C  Int Func LDF_nAuxShell() -> returns total #aux shells
+C  Int Func LDF_Coord_Atom(iAtom) -> returns pointer to coordinates
+C                                    (x,y,z) of atom iAtom
+C  Int Func LDF_UniqueAtom(iAtom) -> returns unique atom corresponding
+C                                    to atom iAtom
+C  Int Func LDF_nShell_Atom(iAtom) -> returns number of shells on atom
+C                                     iAtom
+C  Int Func LDF_nAuxShell_Atom(iAtom) -> returns number of auxiliary
+C                                        shells on atom iAtom
+C  Int Func LDF_lShell_Atom(iAtom) -> returns pointer to list of shells
+C                                     on atom iAtom
+C  Int Func LDF_lAuxShell_Atom(iAtom) -> returns pointer to list of
+C                                        auxiliary shells on atom iAtom
+C
+C In addition, the following functions are available:
+C  Logical Func LDF_AtomInfoIsSet() -> returns .True. if data is set,
+C                                      (returns .False. if not)
+C  Real*8 Func LDF_AtomicDistance(iAtom,jAtom) -> returns the distance
+C                                                 (in bohr) between
+C                                                 atoms iAtom and jAtom
+C  Int Func LDF_nBas_Atom(iAtom) -> returns number of basis functions on
+C                                   atom iAtom
+C  Int Func LDF_nBasAux_Atom(iAtom) -> returns number of auxiliary basis
+C                                      functions on atom iAtom
+C  Int Func LDF_nBasSh(iShell,iAtom) -> returns number of functions in
+C                                       shell iShell of atom iAtom
+C  Int Func LDF_nBasAuxSh(iAuxShell,iAtom) -> returns number of
+C                                             functions in aux shell
+C                                             iAuxShell of atom iAtom
+C
+      Integer LDF_AtomInfo_Set, LDF_AtomInfo_Unset
+      Parameter (LDF_AtomInfo_Set=1234321)
+      Parameter (LDF_AtomInfo_UnSet=4321234)
+
+      Integer LDF_AtomInfo_Status, NumberOfAtoms
+      Integer ip_Coord, l_Coord
+      Integer ip_A_Unique, l_A_Unique
+      Integer ip_A_Shells, l_A_Shells
+      Integer ip_A_AuxShells, l_A_AuxShells
+
+      Common / LDFAIN / LDF_AtomInfo_Status, NumberOfAtoms,
+     &                  ip_Coord, l_Coord,
+     &                  ip_A_Unique, l_A_Unique,
+     &                  ip_A_Shells, l_A_Shells,
+     &                  ip_A_AuxShells, l_A_AuxShells

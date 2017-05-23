@@ -1,0 +1,484 @@
+#!/usr/bin/perl
+#***********************************************************************
+# This file is part of OpenMolcas.                                     *
+#                                                                      *
+# OpenMolcas is free software; you can redistribute it and/or modify   *
+# it under the terms of the GNU Lesser General Public License, v. 2.1. *
+# OpenMolcas is distributed in the hope that it will be useful, but it *
+# is provided "as is" and without any express or implied warranties.   *
+# For more details see the full text of the license in the file        *
+# LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#                                                                      *
+# Copyright (C) 2016, Steven Vancoillie                                *
+#***********************************************************************
+#
+# configure-cmake
+#
+# Front-end for cmake configuration of Molcas.
+# For detailed usage documentation read the help subroutines.
+#
+# This script is intended to provide an easy-to-use wrapper
+# around cmake, accepting options more in the style of the
+# original configure script, and providing automated creation
+# of aptly named build directories.
+#
+# Note that this script is NOT intended to be a full wrapper
+# or replacement for cmake. Instead, if you want to have full
+# flexibility it is strongly recommended to use cmake directly
+# rather than adapt this script to scratch every developer's itch!
+#
+# Steven Vancoillie, beginning of 2016
+
+# perl modules
+#use warnings;
+use Getopt::Long;
+use Cwd;
+use File::Basename;
+use File::Copy;
+use File::Path;
+use File::Spec;
+use POSIX qw(strftime);
+
+# use proper locale
+use POSIX qw(locale_h);
+setlocale(LC_ALL, "C");
+
+# set hot pipes, flushes output
+$| = 1;
+
+# my name
+my $me = basename($0);
+
+# trap interrupt
+$SIG{INT} = sub { error("\nSTOP: user has terminated $me!\n") };
+
+# store environment info
+my $MACHINE=`uname -a`;
+chomp ($MACHINE);
+my @DATE = localtime;
+my $DATE = strftime("%c",@DATE);
+
+my $starting_cwd = cwd;
+
+my @SAVED_OPTIONS = @ARGV;
+
+# default options
+my %opt = ();
+GetOptions ( \%opt,
+             "h",
+             "help",
+             "quiet",
+             "default",
+             # basic configuration/build info
+             "clean",
+             "verbose",
+             "j=i",
+             "name=s",
+             # compilers
+             "compiler=s",
+             # build types
+             "opt=s",
+             # parallel
+             "mpi!",
+             "omp!",
+             # linear algebra library locations
+             "mkl=s",
+             "acml=s",
+             "openblas=s",
+             "cublas=s",
+             "nvblas=s",
+             # extra stuff
+             "gperftools!",
+             "gcov!",
+             "hdf5!",
+             "tools!",
+             "msym!",
+             "dmrg!",
+             "dmrg_debug!",
+             "hdf5_f2003!",
+             # advanced
+             "prefix=s",
+             "bounds!",
+             "ga=s",
+           ) or help(1);
+
+# do we need help?
+help(0) if ($opt{h} or $opt{help} or (scalar keys %opt < 1));
+
+my $molcasroot = cwd;
+my $molcashome = File::Spec->catfile ($molcasroot, '.molcashome');
+if (! -f $molcashome) {
+    die "you need to run this script from a Molcas root directory!"
+}
+
+# prepare source if necessary
+my $git = which('git');
+if ($git and -d '.git') {
+    if ($opt{msym} or $opt{dmrg}) {
+        msg_nl("$me: updating submodules...");
+        if ($opt{msym}) {
+            system('git', 'submodule', 'update', '--init', 'External/libmsym');
+        }
+        if ($opt{dmrg}) {
+            system('git', 'submodule', 'update', '--init', 'External/gen1int-molcaslib');
+            system('git', 'submodule', 'update', '--init', 'External/hdf5_f2003_interface');
+            system('git', 'submodule', 'update', '--init', 'External/qcmaquis_driver');
+            system('git', 'submodule', 'update', '--init', 'External/qcmaquis_sutie');
+        }
+    }
+}
+
+my $builddir = File::Spec->rel2abs('builds');
+unless (-d $builddir) {
+    mkdir $builddir or die "could not create build directory";
+}
+
+# defaults
+
+$opt{clean} = 1
+    unless defined $opt{clean};
+
+$opt{compiler} = 'gnu'
+    unless defined $opt{compiler};
+
+$opt{opt} = 'dev'
+    unless defined $opt{opt};
+
+$opt{j} = 1
+    unless defined $opt{j};
+
+unless (defined $opt{name}) {
+    my @name = ($opt{compiler}, $opt{opt});
+    push(@name, 'mpi') if $opt{mpi};
+    push(@name, 'omp') if $opt{omp};
+    push(@name, 'ga') if defined $opt{ga};
+    push(@name, 'mkl') if defined $opt{mkl};
+    push(@name, 'acml') if defined $opt{acml};
+    push(@name, 'openblas') if defined $opt{openblas};
+    push(@name, 'bounds') if defined $opt{bounds};
+    $opt{name} = join('_', @name);
+}
+my $build = File::Spec->catdir($builddir, $opt{name});
+my $maker = 'make-' . $opt{name};
+my $runner = 'molcas-' . $opt{name};
+
+# build up the cmake options
+
+my @cmake_options;
+
+if ($opt{prefix}) {
+    push @cmake_options, "-DCMAKE_INSTALL_PREFIX=$opt{prefix}";
+}
+
+# compiler
+
+if ($opt{compiler} eq 'gnu') {
+    $fc = which("gfortran");
+    $cc = which("gcc");
+    $cxx = which("g++");
+} elsif ($opt{compiler} eq 'intel') {
+    $fc = which("ifort");
+    $cc = which("icc");
+    $cxx = which("icc");
+} elsif ($opt{compiler} eq 'pgi') {
+    $fc = which("pgfortran");
+    $cc = which("pgcc");
+    $cxx = which("pgCC");
+} elsif ($opt{compiler} eq 'sun') {
+    $fc = which("sunf90");
+    $cc = which("suncc");
+    $cxx = which("sunCC");
+} else {
+    error("unknown compiler ID: $opt{compiler}");
+}
+
+checkexe($fc);
+checkexe($cc);
+checkexe($cxx);
+
+push @cmake_options, "-DCMAKE_Fortran_COMPILER=$fc";
+push @cmake_options, "-DCMAKE_C_COMPILER=$cc";
+push @cmake_options, "-DCMAKE_CXX_COMPILER=$cxx" if $opt{dmrg};
+
+# build type
+
+if ($opt{opt} eq 'normal') {
+    push @cmake_options, '-DCMAKE_BUILD_TYPE=Release';
+} elsif ($opt{opt} eq 'dev') {
+    push @cmake_options, '-DCMAKE_BUILD_TYPE=RelWithDebInfo';
+} elsif ($opt{opt} eq 'debug') {
+    push @cmake_options, '-DCMAKE_BUILD_TYPE=Debug';
+} elsif ($opt{opt} eq 'garble') {
+    push @cmake_options, '-DCMAKE_BUILD_TYPE=Garble';
+} elsif ($opt{opt} eq 'fast') {
+    push @cmake_options, '-DCMAKE_BUILD_TYPE=Fast';
+} else {
+    error("unknown optimization level: $opt{opt}");
+}
+
+# boundary checks
+
+cmake_toggle($opt{bounds}, 'BOUNDS', \@cmake_options);
+
+# parallel
+
+if ($opt{ga}) {
+    $ENV{GAROOT} = $opt{ga};
+    push @cmake_options, '-DGA=ON';
+    $opt{mpi} = 1;
+}
+cmake_toggle($opt{mpi}, 'MPI', \@cmake_options);
+
+cmake_toggle($opt{omp}, 'OPENMP', \@cmake_options);
+
+# linear algebra
+
+if ($opt{mkl}) {
+    checkdir('mkl');
+    $ENV{MKLROOT} = $opt{mkl};
+    push @cmake_options, '-DLINALG=MKL';
+} elsif ($opt{acml}) {
+    checkdir('acml');
+    $ENV{ACMLROOT} = $opt{acml};
+    push @cmake_options, '-DLINALG=ACML';
+} elsif ($opt{openblas}) {
+    checkdir('openblas');
+    $ENV{OPENBLASROOT} = $opt{openblas};
+    push @cmake_options, '-DLINALG=OpenBLAS';
+}
+
+if ($opt{nvblas}) {
+    checkdir('nvblas');
+    $ENV{CUDAROOT} = $opt{nvblas};
+    push @cmake_options, '-DNVBLAS=ON';
+} elsif ($opt{cublas}) {
+    checkdir('cublas');
+    $ENV{CUDAROOT} = $opt{cublas};
+    push @cmake_options, '-DCUBLAS=ON';
+}
+
+# extra options
+
+cmake_toggle($opt{gperftools}, 'GPERFTOOLS', \@cmake_options);
+cmake_toggle($opt{gcov}, 'GCOV', \@cmake_options);
+cmake_toggle($opt{hdf5}, 'HDF5', \@cmake_options);
+cmake_toggle($opt{tools}, 'TOOLS', \@cmake_options);
+cmake_toggle($opt{msym}, 'MSYM', \@cmake_options);
+cmake_toggle($opt{dmrg}, 'DMRG', \@cmake_options);
+cmake_toggle($opt{dmrg_debug}, 'DMRG_DEBUG', \@cmake_options);
+cmake_toggle($opt{hdf5_2003}, 'HDF5_2003', \@cmake_options);
+
+# prepare the configure and build command
+
+my @cmake_command = ('cmake');
+push @cmake_command, @cmake_options;
+push @cmake_command, $molcasroot;
+
+my @make_command = ('make', "-j$opt{j}");
+push @make_command, "VERBOSE=1" if $opt{verbose};
+
+# construct the build script
+
+open(MAKER, '>', $maker) or die "could not open file";
+print MAKER <<"EOF";
+#!/bin/sh
+# $0 @SAVED_OPTIONS
+mkdir -p builds/$opt{name}
+cd builds/$opt{name} || exit 1
+# @cmake_command
+echo running make inside the build directory...
+@make_command \$*
+EOF
+close(MAKER);
+chmod 0755, $maker;
+
+open(RUNNER, '>', $runner) or die "could not open file";
+print RUNNER <<"EOF";
+#!/bin/sh
+export MOLCAS=$build
+molcas \$*
+EOF
+close(RUNNER);
+chmod 0755, $runner;
+
+# run initial cmake configuration
+
+chdir $builddir or die "could not cd into $builddir";
+
+if ($opt{clean}) {
+    File::Path->remove_tree($opt{name});
+}
+
+if (! -d $opt{name}) {
+    mkdir $opt{name} or die "Failed to create build directory!";
+}
+
+chdir $opt{name} or die "could not cd into $opt{name}";
+msg_nl("$me: running @cmake_command");
+system(@cmake_command) == 0
+    or die "system call failed: rc = $?";
+msg("\n");
+msg("$me: Configuration finished!\n");
+msg(">>>> To compile Molcas, run: ./$maker\n");
+msg(">>>> To use Molcas, run: ./$runner\n");
+msg("\n");
+exit 0;
+
+########################################################################
+# subroutines
+########################################################################
+
+#----------------------------------------------------------
+# extended help information with explanation of all options
+#----------------------------------------------------------
+
+sub help {
+        print "$0 [options]\n";
+        print <<"EOF";
+
+options:
+
+    -h|--help           print the help (you're reading it)
+
+    --quiet             do not print any output
+
+    --default           configure with default options
+
+    --[no-]clean        toggle removal of the build directory before configuring
+                        (default: clean)
+
+    --name X            choose name X for the build
+                        By default, a suitable name is constructed from the list
+                        of supplied options. This allows you to overwrite that name.
+                        The name is used for the build directory, the make script,
+                        and the custom molcas command wrapper.
+
+    -j N                use N processes during compilation (speeds up compilation)
+
+    --verbose           print complete compilation commands during the build step
+
+    --compiler {gnu|intel|pgi|sun}
+                        choose compiler suite
+
+        gnu             use GCC (gfortran/gcc/g++) compilers (default)
+        intel           use Intel (ifort/icc) compilers
+        pgi             use PGI (pgfortran/pgcc/pgCC) compilers
+        sun             use Solaris Studio (sunf90/suncc/sunCC) compilers
+
+    --opt {normal|dev|garble|debug|fast}
+                        choose optimization level
+
+        normal          normal optimization, no debug symbols
+        dev             normal optimization with debug symbols
+        garble          normal optimization with debug symbols, and
+                        initialize with garbage and use fpe trapping
+        debug           no optimization with debug symbols
+        fast            aggressive optimization, no debug symbols
+                        WARNING: this option is known to cause problems,
+                        so use this at your own risk! (**unsupported**)
+
+    --[no-]mpi          toggle MPI parallellization
+    --[no-]omp          toggle OpenMP multithreading
+                        This option links to the multithreaded versions of the
+                        BLAS/LAPACK libraries if available.
+
+  external BLAS/LAPACK options: as PATH you to provide the root directory
+                                of the chosen BLAS/LAPACK libraries
+
+    --mkl PATH          link to Intel MKL located in PATH
+    --acml PATH         link to ACML located in PATH
+    --openblas PATH     link to OpenBLAS located in PATH
+
+  advanced:
+
+    --prefix PATH       location of the installation (default: /opt/molcas/)
+                        (only relevant if you plan to use 'make install')
+
+    --ga GAROOT         enable Global Arrays parallellization (activates MPI
+                        automatically) and specify the root location of the
+                        GA library in GAROOT
+
+  debugging aids:
+
+    --[no-]bounds       enable/disable bounds checking (only with GCC >= 4.8)
+
+Any options can be used also in a short form, as long
+as it can be uniquely identified, e.g. -h instead of
+--help or -q instead of --quiet, etc.
+
+Examples:
+
+Configure with default options:
+
+  $0 --default
+
+Configure a production version (serial), with Intel compilers and multithreaded MKL:
+
+  $0 --compiler intel --opt normal --mkl /path/to/MKL --omp
+
+Configure a developing version with bounds checking and garbage initialization,
+compile it with 4 processes and verbose output, call it "test":
+
+  $0 --compiler gnu --opt garble --bounds --verbose -j 4 --name test
+
+EOF
+        exit shift(@_);
+}
+
+# output control
+#---------------
+
+sub msg {
+        print @_ unless ($opt{quiet});
+}
+
+sub msg_nl {
+        unless ($opt{quiet}) {
+                while (my $line = shift) {
+                        print "$line\n";
+                }
+        }
+}
+
+sub error {
+        print STDERR "Error: @_" unless ($opt{quiet});
+        exit 1;
+}
+
+sub cmake_toggle {
+    my $value = shift;
+    my $name = shift;
+    my $list = shift;
+    if (defined $value) {
+        if ($value) {
+            push @$list, "-D$name=ON";
+        } else {
+            push @$list, "-D$name=OFF";
+        }
+    }
+}
+
+sub checkdir {
+    my $name = shift;
+    unless (-d $opt{$name}) {
+        error("you supplied the option --$name with a directory that does not exist: $opt{$name}\n");
+    }
+}
+
+sub checkexe {
+    my $name = shift;
+    unless (-e $name) {
+        error("the executable you supplied cannot be found: $name\n");
+    }
+    unless (-x $name) {
+        error("the file you supplied is not executable: $name\n");
+    }
+}
+
+sub which {
+    my $exename = shift;
+    my $exepath = `which $exename`
+        or die "which failed, check if $exename is installed!";
+    chomp $exepath;
+    return $exepath;
+}

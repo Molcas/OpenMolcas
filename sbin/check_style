@@ -1,0 +1,153 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+#***********************************************************************
+# This file is part of OpenMolcas.                                     *
+#                                                                      *
+# OpenMolcas is free software; you can redistribute it and/or modify   *
+# it under the terms of the GNU Lesser General Public License, v. 2.1. *
+# OpenMolcas is distributed in the hope that it will be useful, but it *
+# is provided "as is" and without any express or implied warranties.   *
+# For more details see the full text of the license in the file        *
+# LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#                                                                      *
+# Copyright (C) 2017, Ignacio Fdez. Galván                             *
+#***********************************************************************
+
+# Inspired by the "police" script of V. Veryazov
+
+'''
+This script checks some basic stylistic and formatting rules in the source code
+'''
+
+from __future__ import (unicode_literals, division, absolute_import, print_function)
+
+import sys
+from os import environ, walk
+from os.path import isdir, join, relpath
+import re
+
+# Make sure the MOLCAS environment variable is defined
+if ('MOLCAS' not in environ):
+  sys.exit('MOLCAS not defined')
+MOLCAS=environ['MOLCAS']
+if (not isdir(MOLCAS)):
+  sys.exit('{0} is not a directory'.format(MOLCAS))
+
+#====================================================
+# Each test is a function that takes two arguments:
+# the line (bytes) and the filename, and returns True
+# if there is a problem.
+#====================================================
+
+# Non-ASCII characters
+def non_ascii(line, filename):
+  try:
+    a = line.decode('ascii')
+    return False
+  except:
+    return True
+
+# Tab characters
+def test_tabs(line, filename):
+  if (not filename.endswith(('.f', '.F', '.f90', '.F90', '.c'))):
+    return False
+  return (b'\t' in line)
+
+# Trailing blanks
+blanks = re.compile(r'\s$')
+def test_blanks(line, filename):
+  return blanks.search(line.decode('ascii', 'ignore').strip('\n'))
+
+# "write" with a star as unit
+write_star = re.compile(r'^ .*write\s*\(\*', re.IGNORECASE)
+def test_write(line, filename):
+  if (not filename.endswith(('.f', '.F', '.f90', '.F90'))):
+    return False
+  return write_star.search(line.decode('ascii', 'ignore').strip('\n'))
+
+# Bare (without wrapper) LAPACK/BLAS calls
+unwrapped_sub = re.compile(r'call\s*(drot|dswap|dscal|[ds]copy|daxpy|dgemm|dspmv|dgemv|dopmtr|dspgv|dsptrd|dstevr|dgetrs|dspev|dgesvd|dgetrf|dgesv|dsyev|dsyevr|dgetri|zhpev|dsygv|dpotrf|dgels|dsytrd|dposv|dsterf|dsteqr|dlascl|dorgtr)\s*\(', re.IGNORECASE)
+unwrapped_func = re.compile(r'\b(ddot|dnrm2|dasum|idamax|dlamch|ilaenv|dlansy)\s*\(', re.IGNORECASE)
+def test_unwrapped(line, filename):
+  if (not filename.endswith(('.f', '.F', '.f90', '.F90'))):
+    return False
+  if (('lapack_' in filename) or ('blas_' in filename) or
+      ('lapack.' in filename) or ('blas.' in filename)):
+    return False
+  l = line.decode('ascii', 'ignore').strip('\n')
+  return (unwrapped_sub.search(l) or unwrapped_func.search(l))
+
+# Double precision
+double_precision = re.compile(r'^\s+(implicit\s+)?double\s*(precision|complex)', re.IGNORECASE)
+def test_dp(line, filename):
+  if (not filename.endswith(('.f', '.F', '.f90', '.F90'))):
+    return False
+  if (('lapack_util' in filename) or ('blas_util' in filename)):
+    return False
+  return double_precision.search(line.decode('ascii', 'ignore').strip('\n'))
+
+# STOP statement
+stop = re.compile(r'[\s\d]*stop(?!\s*=)', re.IGNORECASE)
+def test_stop(line, filename):
+  if (not filename.endswith(('.f', '.F', '.f90', '.F90'))):
+    return False
+  if (filename.endswith(('xerbla.f', 'xquit.f', 'xabort.f'))):
+    return False
+  return stop.match(line.decode('ascii', 'ignore').strip('\n'))
+
+# PRINT statement
+printst = re.compile(r'[\s\d]*print\s*[*"\'\d]', re.IGNORECASE)
+def test_printst(line, filename):
+  if (not filename.endswith(('.f', '.F', '.f90', '.F90'))):
+    return False
+  return printst.match(line.decode('ascii', 'ignore').strip('\n'))
+
+#====================================================
+
+#====================================================
+# Each element of "tests" has the function, the message
+# to print if the function returns True, and whether
+# in that case it is considered as an error (otherwise
+# it would be just a warning).
+#====================================================
+
+# Build the list of tests to perform
+tests = []
+tests.append({'func': test_blanks, 'print': '[{0}] Trailing blanks in {1}, line {2}', 'error': True})
+tests.append({'func': non_ascii, 'print': '[{0}] Non-ASCII characters in {1}, line {2}', 'error': True})
+tests.append({'func': test_tabs, 'print': '[{0}] Tab characters in {1}, line {2}', 'error': True})
+tests.append({'func': test_write, 'print': '[{0}] "write(*" in {1}, line {2}', 'error': True})
+tests.append({'func': test_unwrapped, 'print': '[{0}] "Unwrapped LAPACK/BLAS call in {1}, line {2}', 'error': True})
+tests.append({'func': test_dp, 'print': '[{0}] "double precision" in {1}, line {2}', 'error': True})
+tests.append({'func': test_stop, 'print': '[{0}] "STOP" statement in {1}, line {2}', 'error': True})
+tests.append({'func': test_printst, 'print': '[{0}] "PRINT" statement in {1}, line {2}', 'error': True})
+
+def run_tests(line, fname, ln):
+  j = 0
+  for test in tests:
+    j += 1
+    if (test['func'](line, fname)):
+      print(test['print'].format(j, relpath(fname, MOLCAS), ln))
+      errors[j-1] += 1
+
+# Get a list of files
+files = []
+for dname, dirs, fnames in walk(join(MOLCAS, 'src')):
+  for fname in fnames:
+    files.append(join(dname, fname))
+
+# Go through all files and apply the check for each line
+errors = [0] * len(tests)
+for fname in files:
+  with open(fname, 'rb') as f:
+    i = 0
+    for line in f:
+      i += 1
+      run_tests(line, fname, i)
+
+rc = 0
+for i in range(len(errors)):
+  if (tests[i]['error']):
+    rc += errors[i]
+sys.exit(rc)

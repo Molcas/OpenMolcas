@@ -1,0 +1,266 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+* Uncontracted muonic Gaussian primitives for H...He, Ar.
+* Exponents optimized with respect to average CI energy in RASSCF calculation.
+* FINIte nuclei is used.
+/H.muonic.Ugandi.8s4p.8s4p.
+Exponents: Uppsala University 2017.
+Coefficients: uncontracted.
+	1.	1
+* s-type functions
+	8	8
+	3131727.22060097
+	526660.30397945
+	115618.11333475
+	31500.48333670
+	10126.32858425
+	3651.55363530
+	1404.24095588
+	547.50902407
+* p-type functions
+	4	4
+	25290.40739850
+	6004.07248103
+	1920.85061094
+	696.37879819
+/He.muonic.Ugandi.8s4p.8s4p.
+Exponents: Uppsala University 2017.
+Coefficients: uncontracted.
+	2.	1
+* s-type functions
+	8	8
+	13895577.53781902
+	2376921.70741823
+	527834.15068045
+	144861.86196727
+	46775.04833209
+	16916.38911731
+	6523.24909676
+	2553.36422645
+* p-type functions
+	4	4
+	118425.38433063
+	28116.31886883
+	8995.12619686
+	3260.95601346
+/Li.muonic.Ugandi.8s4p.8s4p.
+Exponents: Uppsala University 2017.
+Coefficients: uncontracted.
+	3.	1
+* s-type functions
+	8	8
+	28815341.94063216
+	5093551.51353530
+	1157019.43588775
+	322271.96168545
+	105028.02471131
+	38214.44614671
+	14812.50563626
+	5836.42574928
+* p-type functions
+	4	4
+	272882.39355329
+	64787.91209838
+	20727.35410835
+	7514.14233640
+/Be.muonic.Ugandi.8s4p.8s4p.
+Exponents: Uppsala University 2017.
+Coefficients: uncontracted.
+	4.	1
+* s-type functions
+	8	8
+	45264032.82903284
+	8329202.39237428
+	1945284.90197244
+	551780.86326127
+	181897.88789877
+	66686.85996067
+	26018.27248117
+	10337.51636067
+* p-type functions
+	4	4
+	488563.13536517
+	115995.48527592
+	37109.98853422
+	13453.20104108
+/B.muonic.Ugandi.8s4p.8s4p.
+Exponents: Uppsala University 2017.
+Coefficients: uncontracted.
+	5.	1
+* s-type functions
+	8	8
+	61193867.27479941
+	11780876.58916154
+	2839115.76036327
+	822174.96571579
+	274638.18369549
+	101581.11495440
+	39935.60672173
+	16019.26992974
+* p-type functions
+	4	4
+	766830.81110597
+	182063.16275041
+	58246.81398454
+	21115.76988875
+/C.muonic.Ugandi.8s4p.8s4p.
+Exponents: Uppsala University 2017.
+Coefficients: uncontracted.
+	6.	1
+* s-type functions
+	8	8
+	76654840.04772636
+	15389476.79247282
+	3819253.48608163
+	1127911.66929485
+	381579.72935324
+	142357.62147205
+	56381.02857094
+	22819.89973541
+* p-type functions
+	4	4
+	1106076.49665292
+	262610.44880275
+	84016.43356404
+	30457.90025351
+/N.muonic.Ugandi.8s4p.8s4p.
+Exponents: Uppsala University 2017.
+Coefficients: uncontracted.
+	7.	1
+* s-type functions
+	8	8
+	89335318.31973852
+	18782179.02970366
+	4815198.42246038
+	1453532.15464640
+	498854.80567622
+	187957.45511219
+	75071.94172922
+	30692.00474458
+* p-type functions
+	4	4
+	1509479.26646237
+	358395.25673913
+	114661.50698812
+	41567.63474113
+/O.muonic.Ugandi.8s4p.8s4p.
+Exponents: Uppsala University 2017.
+Coefficients: uncontracted.
+	8.	1
+* s-type functions
+	8	8
+	100103275.77772866
+	22003544.00146040
+	5822175.38185561
+	1795801.56955834
+	625235.94901779
+	237943.68311145
+	95847.58594301
+	39572.82489370
+* p-type functions
+	4	4
+	1975385.51274586
+	469030.52915812
+	150059.21575485
+	54400.62831068
+/F.muonic.Ugandi.8s4p.8s4p.
+Exponents: Uppsala University 2017.
+Coefficients: uncontracted.
+	9.	1
+* s-type functions
+	8	8
+	107574228.88662432
+	24771340.43605902
+	6776533.06757343
+	2138772.97660378
+	756315.79654413
+	291008.24628129
+	118318.68825711
+	49366.18963732
+* p-type functions
+	4	4
+	2505362.28497637
+	594902.13427176
+	190334.90418751
+	69002.78740173
+/Ne.muonic.Ugandi.8s4p.8s4p.
+Exponents: Uppsala University 2017.
+Coefficients: uncontracted.
+	10.	1
+* s-type functions
+	8	8
+	116766710.95297256
+	27860582.49968973
+	7819749.98495501
+	2512646.38308164
+	899518.30257521
+	349166.89572242
+	143022.65739397
+	60163.02250087
+* p-type functions
+	4	4
+	3094379.97541661
+	734820.40285585
+	235108.78927865
+	85236.49061054
+/Ar.muonic.Ugandi.17s8p.17s8p.
+Exponents: Uppsala University 2017.
+Coefficients: uncontracted.
+	18.	1
+* s-type functions
+	17	17
+	273336910.34171939
+	150125792.26420072
+	82539894.25310183
+	45450902.83115886
+	25078963.13686232
+	13873420.25202058
+	7698087.71495502
+	4286728.34570061
+	2396797.31882878
+	1346224.04640571
+	759980.60518073
+	431424.94507311
+	246401.88142231
+	141656.74438189
+	82016.91108710
+	47847.68419144
+	28140.26898875
+* p-type functions
+	8	8
+	87825154.43086082
+	25273126.61120667
+	8658842.17181355
+	3412086.26634535
+	1493956.79890678
+	702121.80643027
+	342169.89686451
+	167041.57645592
+/Ar.muonic.Ugandi.8s4p.8s4p.
+Exponents: Uppsala University 2017.
+Coefficients: uncontracted.
+	18.	1
+* s-type functions
+	8	8
+	140747196.74097383
+	43190089.60497916
+	14622901.44300757
+	5385858.60576063
+	2127723.25418073
+	888957.46309279
+	387274.87193411
+	173459.06718031
+* p-type functions
+	4	4
+	10001420.30251381
+	2384203.40294228
+	764124.73578220
+	277310.88142249

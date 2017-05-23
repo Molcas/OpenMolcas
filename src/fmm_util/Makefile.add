@@ -1,0 +1,5 @@
+#
+# Compilers
+#
+FC        = @F90@
+FFLAGS    = @F90FLAGS@

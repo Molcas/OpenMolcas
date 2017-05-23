@@ -1,0 +1,20 @@
+/***********************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+***********************************************************************/
+ (prgm)  "$MOLCAS"/bin/slapaf.exe             executable
+ (file)  SLAPAINP      "$WorkDir/$Project."Slapaf.Input          rwi
+#include "gradfiles.inc"
+#include "espffiles.inc"
+#include "slapaffiles.inc"
+#include "moldenfiles.inc"
+ (file)  STRUCTURE     "$WorkDir/$Project$SubProject."structure  rwst
+ (file)  UNSYM         "$WorkDir/$Project."UnSym                 rw
+ (file)  RUNREAC       "$WorkDir/$Project."Reac.RunFile          rw
+ (file)  RUNPROD       "$WorkDir/$Project."Prod.RunFile          rw

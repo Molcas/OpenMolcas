@@ -1,0 +1,87 @@
+#!/bin/bash
+#***********************************************************************
+# This file is part of OpenMolcas.                                     *
+#                                                                      *
+# OpenMolcas is free software; you can redistribute it and/or modify   *
+# it under the terms of the GNU Lesser General Public License, v. 2.1. *
+# OpenMolcas is distributed in the hope that it will be useful, but it *
+# is provided "as is" and without any express or implied warranties.   *
+# For more details see the full text of the license in the file        *
+# LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#                                                                      *
+# Copyright (C) 2013,2014, Steven Vancoillie                           *
+#               2017, Ignacio Fdez. Galván                             *
+#***********************************************************************
+#
+# gives (parsed) version of the latest build,
+# based on the .molcasversion file or on the hash that is in .stamp
+
+if [ -f "$MOLCAS/sbin/find_sources" ]
+then
+    . "$MOLCAS/sbin/find_sources"
+fi
+
+if [ -f "$MOLCAS/.molcasversion" ]
+then
+    VERSION=$(cat "$MOLCAS/.molcasversion")
+elif [ -e "$MOLCAS_SOURCE/.git" ] && type git >& /dev/null
+then
+    if [ -f "$MOLCAS/.stamp" ]
+    then
+        snapshot=$(head -n 1 "$MOLCAS/.stamp")
+        VERSION=$(cd $MOLCAS_SOURCE ; git describe --always --match "v*" $snapshot)
+        if [ $(tail -n 1 "$MOLCAS/.stamp") == "dirty" ]
+        then
+            VERSION=$VERSION-dirty
+        fi
+    fi
+    if [ -f "$MOLCAS/.stamp_open" ]
+    then
+        snapshot=$(head -n 1 "$MOLCAS/.stamp_open")
+        VERSION_OPEN=$(cd $OPENMOLCAS_SOURCE ; git describe --always --match "v*" $snapshot)
+        if [ $(tail -n 1 "$MOLCAS/.stamp_open") == "dirty" ]
+        then
+            VERSION_OPEN=$VERSION_OPEN-dirty
+        fi
+        VERSION=$(echo -e "$VERSION\n$VERSION_OPEN")
+    fi
+fi
+
+VERSION_=$(echo $VERSION | sed 's/ / \& /')
+
+if [ -z "$VERSION" ]
+then
+    echo "Warning: unknown build, either you should compile"
+    echo "         Molcas first, or you're trying to use a"
+    echo "         git repository without git installed."
+    VERSION="unknown version"
+    V="unknown"
+    P="unknown"
+else
+    for l in $VERSION
+    do
+        v=$(echo $l | awk -F. '{print $1"."$2}' | tr -d v)
+        p=$(echo $l | awk -F. '{print $3}')
+        if [ -z "$V" ]
+        then
+            V=$v
+        fi
+        if [ -z "$P" ]
+        then
+            P=$p
+        else
+            P="$P & $p"
+        fi
+    done
+fi
+
+case $1 in
+    -v) echo $V;;
+    -p) echo $P;;
+    -l) echo "Molcas version $V patch level $P";;
+    -n) echo "$V.$P";;
+    -g) echo "$VERSION" > $MOLCAS/.molcasversion;;
+    *)  echo "$VERSION_";;
+esac
+
+exit 0

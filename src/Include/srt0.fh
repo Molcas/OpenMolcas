@@ -1,0 +1,29 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*---------------------------------------------------------------------*
+*                                                                     *
+*     Information pertinent to the generation of integral adresses    *
+*                                                                     *
+*     Square : flag which indicates the desired ordering scheme       *
+*     nSyOp  : number of irreducible representations                  *
+*     mxSyP  : max number of pairs of symmetry indices                *
+*     nBs    : number of atomic orbitals per irred. rep.              *
+*     nSkip  : flag to exclude symmetry combinations                  *
+*     DimSyB : dimension of a symmetry block                          *
+*     TriSyB : symmetry block number of pairs of symmetry indices     *
+*                                                                     *
+*---------------------------------------------------------------------*
+      Logical Square
+      Integer nBs(8)
+      Integer nSkip(8)
+      Integer DimSyB(8,8)
+      Integer TriSyB(8,8)
+      Common /SRT0/ Square,nSyOp,mxSyP,nBs,nSkip,DimSyB,TriSyB

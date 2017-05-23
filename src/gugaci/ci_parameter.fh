@@ -1,0 +1,36 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      parameter (max_vector= 800000000)            !!!  max_vector=169000
+      parameter (max_ext_int=800000000)             !!!  max_ext_int=9000
+      parameter (lendbl=8,lenintegral=4)
+      parameter (maxgdm=8,max_ref=128,max_node=36000,max_wei=208000)
+      parameter (max_root=20,max_kspace=40,max_h0=13000,max_iter=100)
+      parameter (max_actorb=100,max_innorb=100,
+     *                 max_extorb=300,max_orb=500)
+      parameter (max_drt_jb=6,maxpl=300000)       !!!  maxpl=170000
+      parameter (mxsym=8)
+      parameter (max_tmpvalue= 1000000)          !!!  max_tmpvalue=1000
+      parameter (loputmp=10000,nvaltype=200000)   !!!  nvaltype=10000
+      parameter (max2actorb=max_actorb*(max_actorb-1))
+      parameter (max3actorb=max_actorb*max_actorb*max_actorb)
+      parameter (nb2d=10000)
+      parameter (nb2=max_orb*(max_orb-1)/2,
+     *   id2=(max_orb-2)*(max_orb-3)/2)
+      parameter (mtmp=max_orb*(max_orb-1)/2 )
+      parameter (maxvtt=2*max_orb*mtmp,maxvff=max_ext_int)
+      parameter (maxij=12000,maxabc=1000000)     !!!! maxabc=1000000
+      parameter (ntratoc=106,ntrabuf=9600)
+!-----Parameters for MRSO---------------------------------------------
+      parameter (maxstate=10)  ! Maxium number of mrso strate
+      parameter (mxtit=10)
+!=================================================
+!     this parameter for density matrix
+      parameter (max_atom=200,max2_all=100000)

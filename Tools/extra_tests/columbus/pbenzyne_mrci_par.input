@@ -1,0 +1,86 @@
+ &SEWARD  &END
+Title
+ p-Benzyne D2h (in xz plane)
+*MOLECULE
+Symmetry
+X Y Z
+Basis set
+C.cc-pVDZ.Dunning.9s4p1d.3s2p1d.
+C1    -2.60782206    0.00000000    0.00000000
+C2    -1.30391103    0.00000000    2.25844005
+End of basis
+Basis set
+H.cc-pVDZ.Dunning.4s1p.2s1p.
+H2    -2.32719773    0.00000000    4.03082364
+End of basis
+End of input
+
+ &SCF  &END
+occupied
+6 5 1 1 4 3 1 0
+end of input
+*-------------------------------------------------------------------------------
+ &RASSCF  &END
+inactive
+5 4 0 0 4 3 0 0
+ras1
+1 1 0 0 0 0 0 0
+ras2
+0 0 2 2 0 0 1 1 
+nactel
+8 2 0
+lumorb
+Thrs
+1.0E-9 1.0E-6 1.0E-6
+Iter
+70,25
+OUTORBITALS
+ CANONICAL
+end of input
+
+ &COLUMBUS &END
+BEGIN_SECTION_GENERAL
+TITLE
+ p-Benzyne  CAS/AUX 
+NCPU
+ 4
+MEMORY
+ 1000 MB
+END_SECTION_GENERAL
+BEGIN_SECTION_MRCI
+DRT
+MULTIPLICITY
+ 1
+SYMMETRY
+ 1
+NROOT
+ 1
+ELECTRONS
+ 40 0 0 
+END_DRT
+SUBSPACEDIM
+ 5
+ITERATIONS
+ 40  1 
+ACCURACY
+ 0.001
+REFSPACE
+ ITERATIVE
+MRCISD
+GENSPACE
+EXLVL
+ 2
+FROZENCORE
+ 2 2 0 0 1 1 0 0
+REFDOCC
+ 4 3 0 0 3 2 0 0
+REFRAS
+ 0 0 0 0 0 0 0 0
+REFCAS
+ 0 0 2 2 0 0 1 1
+REFAUX
+ 0 0 0 0 0 0 0 0
+PARALLEL
+END_SECTION_MRCI
+end of input 
+

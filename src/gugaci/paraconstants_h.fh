@@ -1,0 +1,23 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+C      DATA DSQ2,VSQ2,DSQ3VSQ2
+C     :    /1.414213562373095D0,0.7071067811865D0,1.224744871392D0/
+C      DATA sq2/1.414213562373095D0/SQ3/1.732050807569D0/
+C      DATA VSQ2/0.7071067811865950D0
+C    :        /sq3vsq2/1.224744850431060D0/
+
+      REAL*8 v_onevsqtwo,v_sqtwo,v_sqthreevsqtwo,
+     *      v_sqthree
+      parameter (   v_onevsqtwo=0.7071067811865475d0,
+     *   v_sqtwo=1.414213562373095d0,
+     *   v_sqthreevsqtwo=1.224744871391589d0,
+     *   v_sqthree=1.732050807568877d0,
+     *    zero=0.d0,done=1.d0,threevtwo=1.5d0,epc=1.0E-8)

@@ -1,0 +1,30 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+C Info for one-electron evaluation in LDF
+      Character*8 OperatorLabel
+      Integer nComp, nIC
+      Integer iStabO(8), nStabO
+      Integer ip_lOper, l_lOper
+      Integer ip_kOper, l_kOper
+      Integer ip_CCoor, l_CCoor
+      Integer ip_xZeta, l_xZeta
+      Integer ip_xZI, l_xZI
+      Integer ip_xKappa, l_xKappa
+      Integer ip_xPCoor, l_xPCoor
+      Real*8  rHrmt
+
+      Common / LDONLC / OperatorLabel
+      Common / LDONLI / nComp, nIC, iStabO, nStabO,
+     &                  ip_lOper, l_lOper, ip_kOper, l_kOper,
+     &                  ip_CCoor, l_CCoor, ip_xZeta, l_xZeta,
+     &                  ip_xZI, l_xZI, ip_xKappa, l_xKappa,
+     &                  ip_xPCoor, l_xPCoor
+      Common / LDONLR / rHrmt

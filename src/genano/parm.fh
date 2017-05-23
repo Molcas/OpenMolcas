@@ -1,0 +1,46 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*----------------------------------------------------------------------*
+*                                                                      *
+* This include file contains various parameters for GenAno.            *
+* o MxLqn  - The highest l-q.n. that the program can handle.           *
+* o MxSets - The highest number of orbitals sets that can be used.     *
+* o MxBasX - The highest number of basis functions in any of the       *
+*            sets.                                                     *
+* o MxSym  - The maximum number of symmetries.                         *
+* o MxS    - The maximum number of s-primitives.                       *
+* o MxP    - The maximum number of p-primitives.                       *
+* o MxD    - The maximum number of d-primitives.                       *
+* o MxF    - The maximum number of f-primitives.                       *
+* o MxG    - The maximum number of g-primitives.                       *
+* o MxH    - The maximum number of h-primitives.                       *
+* o MxI    - The maximum number of i-primitives.                       *
+* o MxK    - The maximum number of k-primitives.                       *
+* o MxDsym - The space allocated for l-q.n. blocked density matrices.  *
+*                                                                      *
+*----------------------------------------------------------------------*
+#include "Molcas.fh"
+      Parameter ( MxBasX=500 )
+      Parameter ( MxCMO=MxbasX*MxBasX )
+c      Parameter ( MxSym=8 )
+      Parameter ( MxLqn=7, MxSets=10 )
+*--- MkS is set to 90 to circumvent a logical error in the code!
+      Parameter (MxS=90, MxP=25, MxD=20, MxF=15, MxG=12, MxH=10, MxI= 8,
+     &           MxK= 8)
+      Parameter (MxDsym=MxS*(MxS+1)/2
+     &              + 3*MxP*(MxP+1)/2
+     &              + 5*MxD*(MxD+1)/2
+     &              + 7*MxF*(MxF+1)/2
+     &              + 9*MxG*(MxG+1)/2
+     &              +11*MxH*(MxH+1)/2
+     &              +13*MxI*(MxI+1)/2
+     &              +15*MxK*(MxK+1)/2
+     &           )

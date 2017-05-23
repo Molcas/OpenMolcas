@@ -1,0 +1,53 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*----------------------------------------------------------------------*
+*     Define files ( file names and unit numbers )                     *
+*----------------------------------------------------------------------*
+*     FnOne, LuOne - logical file name and unit for one-electron       *
+*                    integral file                                     *
+*     FnOrd, LuOrd - logical file name and unit for two-electron       *
+*                    integral file                                     *
+*     FnOut, LuOut - logical file name and unit for output orbitals    *
+*                    file                                              *
+*     FnInp, LuInp - logical file name and unit for input orbitals     *
+*                    file                                              *
+*     FnDns, LuDns - logical file name and unit for input density      *
+*                    file                                              *
+*     FnDOu, LuDOu - logical file name and unit for output density     *
+*                    file                                              *
+*     FnDSt, LuDSt - logical file name and unit for file with          *
+*                    density differences                               *
+*     FnOSt, LuOSt - logical file name and unit for file with          *
+*                    dVxcdRa contributions                             *
+*     FnTSt, LuTSt - logical file name and unit for file with          *
+*                    two-electron contributions                        *
+*     FnGrd, LuGrd - logical file name and unit for file with          *
+*                    gradients used in DIIS                            *
+*     FnDGd, LuDGd - logical file name and unit for file with          *
+*                    gradient differences of subsequent SO steps       *
+*     Fnx, Lux     - logical file name and unit for file with          *
+*                    orbital rotation parameters x (for DIIS/QNR)      *
+*     FnDel, LuDel - logical file name and unit for file with          *
+*                    Delta for recursive calculation of                *
+*     Fny, Luy     - logical file name and unit for file with          *
+*                    y-vector for recursive calculation of             *
+*                    Dn=-HnGn (H:inv Hessian orb rot) 2nd order update *
+*----------------------------------------------------------------------*
+*
+      Character*8 FnOne,FnOrd,FnOut,FnInp,FnDSt,FnOSt,FnTSt,FnGrd,
+     &            FnDGd,Fnx,FnDel,Fny
+      Integer     LuOne,LuOrd,LuOut,LuInp,LuDSt,LuOSt,LuTSt,LuGrd,
+     &            LuDGd,Lux,LuDel,Luy
+*
+      Common /Files_SCF / FnOne,FnOrd,FnOut,FnInp,FnDSt,FnOSt,FnTSt,
+     &                    FnGrd,FnDGd,Fnx,FnDel,Fny,
+     &                    LuOne,LuOrd,LuOut,LuInp,LuDSt,LuOSt,LuTSt,
+     &                    LuGrd,LuDGd,Lux,LuDel,Luy

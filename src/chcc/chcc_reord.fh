@@ -1,0 +1,22 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+c
+c        include for routines evaluating o3v3 contributions
+c
+c1.1        maximal # of Groups - in chcc1.fh
+c
+c1.2        Dimensions of groups (a,b)
+        integer DimGrpaR(1:maxGrp)
+c
+        common /reord1/ DimGrpaR
+c
+c
+c

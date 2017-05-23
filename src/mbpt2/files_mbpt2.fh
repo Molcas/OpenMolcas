@@ -1,0 +1,29 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*----------------------------------------------------------------------*
+*     Unit Numbers & File Names                                        *
+*----------------------------------------------------------------------*
+*
+      Integer LuCom,LuExt
+      Character*8 FnCom,FnExt
+*
+      Common /UNITS1/ LuCom,LuExt,
+     &                FnCom,FnExt
+*
+      CHARACTER*8     FNONE,FNINTA,FNINTM,FNHLF1,FNHLF2,FNHLF3
+*
+      COMMON /UNITS2/ FNONE,FNINTA,FNINTM,FNHLF1,FNHLF2,FNHLF3,
+     &                LUONE,LUINTA,LUINTM,LUHLF1,LUHLF2,LUHLF3
+*
+      Character*8     FnGam, FnBin
+      Integer         LuGam, LuBin
+*
+      Common /UNITS3/ LuGam, LuBin, FnGam, FnBin

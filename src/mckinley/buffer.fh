@@ -1,0 +1,33 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*
+*         nFinMax:     Maximum number of AO's in buffer
+*
+*         mGr    :     Maximum number of derivatives that
+*                      should be calculated in each batch,
+*                      excluding translation invariance.
+*                      For geometrical derivatives mGr=9
+*
+*         Mem_Fock_MO: Space needed to load in Fock matrix (MO's)
+*
+*         Direct :     The integrals are not buffered, the Fock matrixes
+*                      and MO are in memory. This will will need a hell
+*                      of a lot of memory, but will result in a fast calculation.
+*                      True if it exist enough of memory.
+*
+*
+           Parameter ( nFinMax  = 3*MxAtom  )
+           Integer mGr,Mem_Fock_MO,
+     &     ipdisp2(nFinMAx),ipDisp(nFinMax),ipMO(nFinMax,2),
+     &     ipDisp3(nFInMax)
+           Logical   Int_Direct
+           Common /Buffer2/ mGr,Mem_Fock_MO,ipdisp,
+     &                      ipdisp2,Int_Direct,ipMO,ipDisp3

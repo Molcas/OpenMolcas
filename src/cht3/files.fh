@@ -1,0 +1,40 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+c
+c        This include contains Names of all used files
+c
+c1.1    Names of L0-L2 files
+        Character*6 L0Name
+        Character*6 L1Name(1:maxGrp)
+        Character*6 L2Name(1:maxGrp,1:maxGrp)
+c
+c1.2    Names of T2 files
+        Character*6 T2Name(1:maxGrp,1:maxGrp)
+c
+c1.3    Names of I0-3 files
+        Character*6 I0Name
+        Character*6 I1Name(1:maxGrp)
+        Character*6 I2Name(1:maxGrp,1:maxGrp)
+        Character*6 I3Name(1:maxGrp,1:maxGrp)
+c
+c1.4    Names of Tmp1,2 files
+        Character*6 Tmp1Name(1:maxGrp,1:maxGrp)
+        Character*6 Tmp2Name(1:maxGrp,1:maxGrp)
+c
+c1.5        Names of Tmp3 file
+        Character*6 Tmp3Name(1:maxSGrp,1:maxSGrp)
+c
+c
+        common /cht3_FilNam1/ L0Name,L1Name,L2Name,
+     c                        T2Name,
+     c                        I0Name,I1Name,I2Name,I3Name
+c
+        common /cht3_FilNam2/ Tmp1Name,Tmp2Name,Tmp3Name

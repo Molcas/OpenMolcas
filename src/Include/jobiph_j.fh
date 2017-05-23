@@ -1,0 +1,38 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      integer iadr15_j(15)
+      integer nactel_j,ispin_j,nsym_j,lsym_j,nfro_j(mxsym),
+     >  nish_j(mxsym),nash_j(mxsym),ndel_j(mxsym),
+     >  nbas_j(mxsym)
+       character*4 name_j(2,mxorb)
+      integer nconf_j
+       character*2 header_j(72)
+       character*72 title_j(18)
+      Real*8 potnuc_j
+      integer lroots_j,
+     >  nroots_j,iroot_j(mxroot),
+     >  nrs1_j(mxsym),nrs2_j(mxsym),nrs3_j(mxsym),
+     >  nhole1_j,nelec3_j,ipt2_j
+      Real*8 weight_j(mxroot)
+      common /jobiph_j_int/iadr15_j,
+     >  nactel_j,ispin_j,nsym_j,lsym_j,nfro_j,
+     >  nish_j,nash_j,ndel_j,
+     >  nbas_j,
+     >  nconf_j,
+     >  lroots_j,
+     >  nroots_j,iroot_j,
+     >  nrs1_j,nrs2_j,nrs3_j,
+     >  nhole1_j,nelec3_j,ipt2_j
+      common /jobiph_j_rel/potnuc_j,
+     >  weight_j
+      common /jobiph_j_chr/name_j,
+     >  header_j,
+     >  title_j

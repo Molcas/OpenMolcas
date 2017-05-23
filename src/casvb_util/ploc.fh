@@ -1,0 +1,24 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+************************************************************************
+      logical modgrad,variatp
+      common /ploc_complc/mgroup(maxbfn),mcenao(maxbfn),mcenmo(maxbfn),
+     +  ngroup,ncen,recuse,nloc,nloci(9),ni(9),nfli(9),ioffhes,jp(10),
+     +  nfl,norbl,modgrad
+      common /ploc2_complc/ijl2ij
+      common /ploc3_complc/recdeb,iveckp
+      common /ploc4_complc/ijarr,ijflarr,ijlarr,irmat0,igradr,iactg0
+      common /ploc5_complc/recin,recout,variatp
+      common /ploc6_complc/irr_loc(8)
+      common /ploc7_complc/iorcor_plc(8),iorclos_plc(8),ioract_plc(8)
+      character*8 cmethod
+      common /ploc8_complc/cmethod

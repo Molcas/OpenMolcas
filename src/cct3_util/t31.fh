@@ -1,0 +1,127 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+c
+c     This common contains most common arrays of whole T3 program
+c
+c1    max. number of orbitals (basis functions)
+       integer maxorb
+       parameter (maxorb=1024)
+c
+c2    characteristics from MOLCAS
+c
+c2.1  Number of active electrons
+       integer nactel
+c
+c2.2  spin state of the system
+       integer ispin
+c
+c2.3  number of irreps in the system
+       integer nsym
+c
+c2.4  symmetry state of the system
+       integer lsym
+c
+c2.5  matrix multiplication table
+       integer mmul(1:8,1:8)
+c
+c2.6  vectors containing size of the system
+       integer noa(1:8),nob(1:8),nva(1:8),nvb(1:8),norb(1:8)
+c
+c2.7  orbital energies
+       real*8 eps(1:maxorb)
+c
+c3    internal CCSD characteristics
+c
+c3.1  size characteristic Table
+       integer dimm(1:5,1:8)
+c
+c3.2  shift vector
+       integer nshf(1:maxorb)
+c
+c4    input parameters (readed from input file)
+c
+c4.1  title of the job + number ot tilte lines
+       character*72 title ! (1:10)
+       integer ntit
+c
+c4.3  type of t3 contribution
+       integer typt3
+c
+c4.4  type of denominator
+       integer typden
+c
+c4.10 spin adaptation key
+       integer keysa
+c
+c4.12 restart information file name
+       character*6 filerst
+c
+c4.13 type of machine (from point of mtx multiplication efficiency)
+c     parameter possd0 will be defined in ititfile if mchntyp=2)
+       integer mchntyp,possd0
+c
+c4.14 limiting ratio for using AT*B mtx multiplication, if mchntyp=2
+       real*8 slim
+c
+c4.15 denominator shifts
+       real*8 shifto
+       real*8 shiftv
+c
+c4.16 maximal allowed work space
+       integer maxspace
+c
+c4.17 level of printing control parameter
+       integer fullprint
+c
+c4.17 No operation key
+       integer noop
+c
+c4.18 I/O control key
+       integer iokey
+c
+c4.19 Matrix handling control key
+       integer mhkey
+c
+c4.20  Key for swithching segmentation of I,J cycle
+       integer ijsegkey
+c
+c4.21  Lower and upper limitations of I,J cycle (for ijsegkey=1)
+       integer symimin,symimax,symjmin,symjmax
+       integer imin,imax,jmin,jmax
+c
+c
+       common /cct3_cmm1/ nactel,ispin,nsym,lsym,mmul,noa,nob,
+     &  nva,nvb,norb,
+     & eps,dimm,nshf,possd0,
+     & ntit,typt3,typden,
+     & keysa,title,filerst
+c
+       common /cct3_cmm2/ slim,shifto,shiftv,mchntyp,maxspace,fullprint,
+     & noop,iokey,mhkey,ijsegkey,
+     & symimin,symimax,symjmin,symjmax,imin,imax,jmin,jmax
+c
+c     ------  special T3 part ------
+c
+c2    name for joinded T3 integral file
+       character*6 t3nam
+       parameter (t3nam='T3VVVO')
+c
+c3    array for storing possitions of (ab|ci) blocks for given i
+       integer T3IntPoss(1:maxorb)
+c
+c4    array for disk address offsets in t3nam file
+       integer T3Off(1:512,1:8)
+c
+c5    diska address file
+       integer daddr (1:8)
+c
+       common /cmmt31/ T3IntPoss,T3Off
+       common /cmmt32/ daddr

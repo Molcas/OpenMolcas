@@ -1,0 +1,66 @@
+====================================================================================================
+This contains the Molcas interface to Chan group's DMRG code (Block)
+
+Written by N. Nakatani, Hokkaido University, Japan, Oct. 2014
+====================================================================================================
+
+The latest version of Block DMRG code can be obtained from
+https://github.com/sanshar/Block.git
+
+----------------------------------------------------------------------------------------------------
+Files have been changed and/or added
+----------------------------------------------------------------------------------------------------
+
+# For DMRG-CASSCF
+
+New Files:
+src/block_dmrg_util/blockctl.f
+src/block_dmrg_util/block_densi_rasscf.f
+src/rasscf/dmrgctl.f
+
+Modified:
+src/Include/rasscf.fh
+src/rasscf/rasscf.f
+src/rasscf/input_ras.fh
+src/rasscf/inppri.f
+src/rasscf/neworb_rasscf.f
+src/rasscf/outctl.f
+src/rasscf/proc_inp.f
+src/rasscf/sxctl.f
+
+# For DMRG-CASPT2
+
+New Files:
+src/block_dmrg_util/cu4f3.f
+src/block_dmrg_util/mkxmat.f
+src/block_dmrg_util/two2onerdm.f
+src/caspt2/stini_cumulant.f
+src/caspt2/poly2dm.f
+src/caspt2/poly3dm.f
+src/caspt2/mkfg3dm.f
+src/caspt2/mkfg3cu4.f
+
+Modified:
+src/Include/caspt2.fh
+src/caspt2/caspt2.f
+src/caspt2/readin_caspt2.f
+src/caspt2/grpini.f
+src/caspt2/mkrptorb.f
+src/caspt2/poly0.f
+
+====================================================================================================
+options (rasscf) : implemented
+----------------------------------------------------------------------------------------------------
+
+DMRG : Turn on DMRG calc. for CASCI,
+       followed by an integer number specifying max number of renormalized basis to be kept.
+
+3RDM : Calculate 3-electron density matrix for cu4-CASPT2 calculation
+
+====================================================================================================
+options (caspt2) : implemented
+----------------------------------------------------------------------------------------------------
+
+CUMUlant : Turn into cu4-CASPT2 calc. using 1,2,3-body density matrices from DMRG calc.
+
+====================================================================================================

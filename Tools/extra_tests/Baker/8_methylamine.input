@@ -1,0 +1,33 @@
+* $ this file belongs to the Molcas repository $
+>>>> SET MAXITER 30 <<<<
+>>>> DO WHILE <<<<<
+ &Seward &End
+
+Title
+Baker's test suite: Methyl amine
+
+Basis set
+N.$Basis....
+N    1.5916930881   0.0000000000   0.0000000000
+End of Basis
+Basis set
+C.$Basis....
+C   -1.1078124728  -0.0307371822   0.0000000000
+End of Basis
+Basis set
+H.$Basis....
+H1   2.6143261592  -1.6302003268   0.0000000000
+H2  -1.8166631951   1.9316390571   0.0000000000
+H3   2.5780491273   1.6491159373   0.0000000000
+H4  -1.9297963534  -0.9599087477   1.6969519068
+H5  -1.9297963534  -0.9599087477  -1.6969519068
+End of Basis
+End of Input
+
+ &SCF &End
+$KSDFT
+End of Input
+
+ &Slapaf &End
+End of Input
+>>>>> ENDDO <<<<

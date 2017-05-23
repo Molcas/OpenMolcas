@@ -1,0 +1,44 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      Real*8 rAV(3,3), aAV(3,3)
+#ifdef _VDW_
+      Real*8 r_ref_vdW(3,3)
+#endif
+*
+*     Parameters for HMF, updated 2007-11-08
+*
+      Data rAv/1.3500d+00,2.1000d+00,2.5300d+00,
+     &         2.1000d+00,2.8700d+00,3.8000d+00,
+     &         2.5300d+00,3.8000d+00,4.5000d+00/
+      Data aAv/1.0000d+00,0.3949d+00,0.3949d+00,
+     &         0.3949d+00,0.2800d+00,0.1200d+00,
+     &         0.3949d+00,0.1200d+00,0.0600d+00/
+*
+*     Original parameters from the 1999 paper
+*
+C     Data rAv/1.3500d+00,2.1000d+00,2.5300d+00,
+C    &         2.1000d+00,2.8700d+00,3.4000d+00,
+C    &         2.5300d+00,3.4000d+00,3.4000d+00/
+C     Data aAv/1.0000d+00,0.3949d+00,0.3949d+00,
+C    &         0.3949d+00,0.2800d+00,0.2800d+00,
+C    &         0.3949d+00,0.2800d+00,0.2800d+00/
+#ifdef _FMIN_
+C     Data f_Const_Min/1.0D-2/
+C     Data f_Const_Min/0.0D-0/
+      Data f_Const_Min/1.0D-3/
+#endif
+#ifdef _VDW_
+*     HMF augmented by weak forces, MGS
+      Data alpha_vdW/5.0D+00/
+      Data r_ref_vdW/ 0.D+00,  3.6D+00, 3.6D+00,
+     &                3.6D+00, 5.3D+00, 5.3D+00,
+     &                3.6D+00, 5.3D+00, 5.3D+00 /
+#endif

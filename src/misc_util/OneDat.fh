@@ -1,0 +1,124 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*----------------------------------------------------------------------*
+*                                                                      *
+*     Define I/O options                                               *
+*                                                                      *
+*----------------------------------------------------------------------*
+      Parameter ( sWrite = 1          )
+      Parameter ( sRead  = 2          )
+*----------------------------------------------------------------------*
+*                                                                      *
+*     Define data conversion factors (machine dependent)               *
+*                                                                      *
+*----------------------------------------------------------------------*
+cstart Molpro
+c;#include  "Molcas.fh"
+cstart unix-i8
+c;      Parameter( ItoB = 8 , RtoB = 8 , RtoI = 1  )
+celse
+c;      Parameter( ItoB = 4 , RtoB = 8 , RtoI = 2  )
+cend
+celse
+#include "SysDef.fh"
+#include  "Molcas.fh"
+cend
+*----------------------------------------------------------------------*
+*                                                                      *
+*     Define Common /OneDat/                                           *
+*                                                                      *
+*----------------------------------------------------------------------*
+*                                                                      *
+* Parameters:                                                          *
+*   NaN    - Not a Number = Variable undefined                         *
+*   NotNaN - A Number = Variable is defined                            *
+*   nAuxDt - extra space for origin and nuclear contribution.          *
+*   nTitle - length of title.                                          *
+*   MxOp   - Max number of operators                                   *
+*   LenOp  - Length of TOC field defining operator                     *
+*   MxSym  - Max number of symmetry representations                    *
+*   MxAtom - Max number of atoms in system                             *
+*   MxBas  - Max number of total basis functions                       *
+*   PhyRc  - physical buffer size for DAFILE                           *
+*   nBuf   - logical internal buffer size for reading/writing matrices *
+*                                                                      *
+* Pointers:                                                            *
+*   pFID   - File identifier                                           *
+*   pVersN - Version number                                            *
+*   pTitle - Titleof the problem                                       *
+*   pOp    - Operator list                                             *
+*   pSym   - Number of irred. representations                          *
+*   pSymOp - generator of irred. representation                        *
+*   pBas   - Number of basis functions per irred. representation       *
+*   pAtom  - Atoms in system                                           *
+*   pCoord - Coordinates of atoms in system                            *
+*   pPot   - Nuclear-Nuclear repulsion                                 *
+*   pCoM   - Coordinates of center of mass                             *
+*   pCoC   - Coordinates of center of charge                           *
+*   pALbl  - Atom labels                                               *
+*   pType  - Basis function symmetry labels                            *
+*   pChrge - Charge of atoms in system                                 *
+*   pOption- Various options - direct, expert mode, ...                *
+*   pNext  - Next free record                                          *
+*                                                                      *
+* Offsets:                                                             *
+*   oLabel - Label of operator                                         *
+*   oComp  - Component number                                          *
+*   oSymLb - Symmetry label of operator                                *
+*   oAddr  - Disk address                                              *
+*                                                                      *
+*----------------------------------------------------------------------*
+      Parameter ( NaN=-1        )
+      Parameter ( NotNaN=0      )
+*
+      Parameter ( nAuxDt=4      )
+      Parameter ( nTitle=(72*2)/ItoB)
+*
+      Parameter ( PhyRec=1024   )
+      Parameter ( nBuf=4*PhyRec )
+      Parameter ( MxOp=16384    )
+      Parameter ( LenOp=5       )
+*
+      Parameter ( pFID   = 1                       )
+      Parameter ( pVersN = pFID   + 1              )
+      Parameter ( pTitle = pVersN + 1              )
+      Parameter ( pOp    = pTitle + nTitle + 1     )
+      Parameter ( pSym   = pOp    + MxOp*LenOp     )
+      Parameter ( pSymOp = pSym   + 1              )
+      Parameter ( pBas   = pSymOp + MxSym          )
+      Parameter ( pAtom  = pBas   + MxSym          )
+      Parameter ( pCoord = pAtom  + 1              )
+      Parameter ( pPot   = pCoord + 6*MxAtom + 1   )
+      Parameter ( pCoM   = pPot   + 2 + 1          )
+      Parameter ( pCoC   = pCoM   + 6 + 1          )
+      Parameter ( pALbl  = pCoC   + 6 + 1          )
+      Parameter ( pType  = pALbl  + MxAtom + 1     )
+      Parameter ( pChrge = pType  + 4*MxBas + 1    )
+      Parameter ( pIndex = pChrge + 2*MxAtom + 1   )
+      Parameter ( pNext  = pIndex + 2*MxAtom + 1   )
+      Parameter ( pOption= pNext  + 1              )
+      Parameter ( pEnd   = pOption+ 1              )
+      Parameter ( lToc   = 1024*((pEnd+1022)/1024) )
+*
+      Parameter ( oLabel = 0          )
+      Parameter ( oComp  = oLabel + 2 )
+      Parameter ( oSymLb = oComp  + 1 )
+      Parameter ( oAddr  = oSymLb + 1 )
+*
+      Parameter ( pLu    = 1          )
+      Parameter ( pOpen  = pLu    + 1 )
+      Parameter ( lAux   = pOpen  + 1 )
+*
+      Dimension AuxOne(lAux)
+      Dimension TocOne(lToc)
+      Common /OneDat/ AuxOne,TocOne
+      Integer nSym,nBas(8)
+      Common /One_Bas/ nBas,nSym

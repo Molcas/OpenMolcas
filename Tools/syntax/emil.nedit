@@ -1,0 +1,20 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+nedit.highlightPatterns:\
+	EMIL:1:0{\n\
+		comment:"/\\*":"\\*/"::Comment::\n\
+		line comment:"^[ \\t]*\\*.*$":::Comment::\n\
+		command:"^[ \\t]*\\>+[ \\t]*\\w+":::Identifier1::\n\
+		module:"^[ \\t]*&\\w*":::Text Key::\n\
+		numeric constant:"(?<!\\Y)(?:(?:0(?:x|X)[0-9a-fA-F]*)|(?:(?:[0-9]+\\.?[0-9]*)|(?:\\.[0-9]+))(?:(?:e|E)(?:\\+|-)?[0-9]+)?)(?:L|l|UL|ul|u|U|F|f)?(?!\\Y)":::Numeric Const::D\n\
+	}
+nedit.languageModes:\
+	EMIL:input:::::::

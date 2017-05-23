@@ -1,0 +1,35 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+
+                   The ANO-RCC basis sets
+
+The basis functions have been generated using the Douglas-Kroll Hamiltonian
+and thus include scalar relativistic effects.
+
+The basis sets have been generated using CASPT2 natural orbitals for the atom in
+different electronic states, for the positive ion, and in some cases also the
+negative ion, and for the atom in a polarized field. For the main group elements
+calculations on the diatom has instead been used to obtain the polarization
+functions. A density matrix that is averaged over all these states have been
+used to generate the final ANOs (using the program GENANO).
+
+The basis set also includes correlation of the semi-core orbitals Core
+correlating,  polarization and valence correlating functions are thus mixed
+among the ANO's and the normal counting procedure becomes more intricate.
+Rather large basis sets have to be used if these effects are to be
+included completely. If you intend to use only a limited basis set, you have to
+inspect the basis functions to see, which of them correlate the core. In Be,
+for example, the second and fourth 3d correlates the 1s, as does the second 4f.
+
+All elements of the periodic table up to Curium are included.
+It is recommended to use this basis set instead of the ANO-L basis set for all
+atoms.
+

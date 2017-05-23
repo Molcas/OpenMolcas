@@ -1,0 +1,26 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+C Tmp info used for integral calculations for Local DF
+      Integer SHA, SHB, SHC, SHD
+      Integer SPAB, SPCD
+      Integer ip_IndxG, l_IndxG_1, l_IndxG_2
+      Integer ip_IndxG2, l_IndxG2_1, l_IndxG2_2
+      Integer ip_2CList, l_2CList_1, l_2CList_2
+      Integer ip_iOff, l_iOff
+      Integer nRow_G, nRow_uvJ, iOffuv
+
+      Common / LDFTIN / SHA, SHB, SHC, SHD,
+     &                  SPAB, SPCD,
+     &                  ip_IndxG, l_IndxG_1, l_IndxG_2,
+     &                  ip_IndxG2, l_IndxG2_1, l_IndxG2_2,
+     &                  ip_2CList, l_2CList_1, l_2CList_2,
+     &                  ip_iOff, l_iOff,
+     &                  nRow_G, nRow_uvJ, iOffuv

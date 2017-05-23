@@ -1,0 +1,21 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      Integer MaxBfn, MaxBfn_Aux
+#ifndef _DEMO_
+      Parameter(MaxBfn=10000)
+#else
+      Parameter(MaxBfn=100)
+#endif
+*
+*     We normally expect the number of auxiliary functions to be
+*     in the range of 3-5 times the normal basis set.
+*
+      Parameter(MaxBfn_Aux=7*MaxBfn)

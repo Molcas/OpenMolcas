@@ -1,0 +1,93 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+* Data shared for an embedding potential on a grid
+
+*******
+      Integer nEmbGridPoints
+
+      ! The energy coming from the embedding potential
+      Real*8 Eemb
+
+!      ! The function (interfaced) to calculate the energy due to emb
+!      interface embPotEne
+!
+!       Real*8 function embPotEne1(density, length)
+!         Real*8,  Intent(in) :: density(length)
+!         Integer, Intent(in) :: length
+!       end function embPotEne1
+!
+!       Real*8 function embPotEneSCF(density, embeddingInts, length)
+!         Real*8,  Intent(in) :: density(length)
+!         Real*8,  Intent(in) :: embeddingInts(length)
+!         Integer, Intent(in) :: length
+!       end function embPotEneSCF
+!
+!       Real*8 function embPotEneMODensities(
+!     &         densityInactive, densityActive, embeddingInts,
+!     &         nBasFunc, nFrozenOrbs)
+!         Real*8,  Intent(in) :: densityInactive(*), densityActive(*)
+!         Real*8,  Intent(in) :: embeddingInts(
+!     &                           nBasFunc*(nBasFunc+1)/2 )
+!         Integer, Intent(in) :: nBasFunc, nFrozenOrbs
+!       end function embPotEneMODensities
+!
+!      end interface
+
+******* Positions in the Work array
+      ! Coordinates of the grid points, stored as x1, y1, z1, x2, y2...
+      Integer posEmbGridCoord
+
+      ! The actual value of the embedding potential at grid point i
+      Integer posEmbPotVal
+
+      ! The corresponding weighting factor of grid point i
+      Integer posEmbWeight
+
+      ! The integrals in form <a|embPot|b>
+      Integer ipEmb
+
+******* Flags
+      ! Flag whether an embedding potential is used
+      Logical embPot
+
+      ! Flag whether the potential is given in a basis representation
+      Logical embPotInBasis
+
+      ! Flag whether a path to an output grid has been specified, i.e.
+      ! whether the output grid is different from the input grid
+      Logical outGridPathGiven
+
+      ! What output is requested
+      Logical embWriteDens, embWriteEsp, embWriteGrad, embWriteHess
+
+      Logical embDebug
+
+******* File paths
+      ! The path to the file containing grid and embedding potential
+      Character*256 embPotPath
+      ! The output grid (if different from input)
+      Character*256 outGridPath
+      ! The output data, for density, electrostatic potential and
+      ! its gradient
+      Character*256 embOutDensPath
+      Character*256 embOutEspPath
+      Character*256 embOutGradPath
+      Character*256 embOutHessPath
+
+*******
+      COMMON /EmbPotData/ nEmbGridPoints, Eemb,
+     &         posEmbGridCoord, posEmbPotVal, posEmbWeight,
+     &         ipEmb,
+     &         embPot, embPotInBasis,
+     &         outGridPathGiven, embWriteDens, embWriteEsp,
+     &         embWriteGrad, embWriteHess, embDebug,
+     &         embPotPath, outGridPath, embOutDensPath,
+     &         embOutEspPath, embOutGradPath, embOutHessPath

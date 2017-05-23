@@ -1,0 +1,179 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      INTEGER MXJOB,MXSTAT,MXPROP
+      PARAMETER (MXJOB=100,MXSTAT=MxRoot,MXPROP=90000)
+      INTEGER MXDISP
+      PARAMETER (MXDISP=500)
+      REAL*8  OVLP,HAM,HEFF,REFENE,EIGVEC,ENERGY,PNUC,PORIG,CITHR
+      REAL*8  ESHFT,HDIAG,EVAC,ERFNUC,EPRTHR, ALPHZ, BETAE
+      REAL*8  TSTART,TINCRE,BSTART,BINCRE,BANGRES
+      REAL*8  OSTHR_DIPR,OSTHR_QIPR
+      INTEGER ICOMP,ISOCMP,IPUSED,JBNUM
+      INTEGER LROOT,NSTAT,ISTAT,NROOTS,NACTE,MLTPLT
+      INTEGER IRREP,NHOLE1,NELE3,NCONF,ISPACE,NJOB,NSTATE,NPROP,NSOPR
+      INTEGER NRNATO,NBINA,IBINA,IDDET1,IPCODE,LSYM1,LSYM2,NCONF1,NCONF2
+      INTEGER LCI1,LCI2,LCI3,LCMO1,LCMO2,LGAM1,LGAM2,LGAM3
+      INTEGER LTDMAB,LTDMZZ,LTDMS,LTDMA,LTRA1,LTRA2,LIPAIR
+      INTEGER LFMO,LTUVX,iTocM
+      INTEGER NTSTEP,NBSTEP
+c BP - SO Natural orbital information
+c    SONATNSTATE      Number of states to calculate
+c    LSONAT           Pointer to IWORK array of states
+c    SODIAGNSTATE     Number of states to diagonalize
+c    LSONAT           Pointer to IWORK array of states
+c    IFCURD           Do current density stuff
+c    Do_TMOS          Do Transition Moment Oscillator Strengths
+c    L_Eff            The order of the Lebedev solid angle integration
+c    Do_SK            Do single k-vector direction of the exact
+c                     Hamiltonian with a vector field.
+c    Kvector          The k-vector
+      INTEGER SONATNSTATE,LSONAT,SODIAGNSTATE,LSODIAG
+      LOGICAL IFCURD, Do_TMOS, Do_SK
+      REAL*8 TDIPMIN,SOTHR_PRT,K_vector(3)
+      INTEGER NSOTHR_PRT, ISMGRD, LDISP, NDISP, NTDISP
+      INTEGER IFJ2, IFJZ
+      INTEGER L_Eff
+      COMMON /PROPS/ OVLP(MXSTAT,MXSTAT),HAM(MXSTAT,MXSTAT),
+     &     HEFF(MXSTAT,MXSTAT),REFENE(MXSTAT),EVAC,ERFNUC,
+     &     EIGVEC(MXSTAT,MXSTAT),ENERGY(MXSTAT),PNUC(MXPROP),
+     &     PORIG(3,MXPROP),SOTHR_PRT,K_vector,
+     &     BSTART,BINCRE,TSTART,TINCRE,BANGRES,OSTHR_DIPR,OSTHR_QIPR,
+     &     NSOTHR_PRT,ICOMP(MXPROP),ISOCMP(MXPROP),
+     &     IPUSED(MXPROP),NDISP,LDISP(8),ISMGRD(MXDISP),
+     &     NTDISP(MXDISP),NTSTEP,NBSTEP,L_Eff
+      COMMON /CNTRL/ TDIPMIN,CITHR,ESHFT(MXSTAT),HDIAG(MXSTAT),EPRTHR,
+     &     ALPHZ,BETAE,
+     &     JBNUM(MXSTAT),LROOT(MXSTAT),NSTAT(MXJOB),ISTAT(MXJOB),
+     &     NROOTS(MXJOB),
+     &     NACTE(MXJOB),MLTPLT(MXJOB),IRREP(MXJOB),NHOLE1(MXJOB),
+     &     NELE3(MXJOB),NCONF(MXJOB),ISPACE(MXJOB),NJOB,NSTATE,NPROP,
+     &     NSOPR,NRNATO,NBINA,IBINA(2,MXSTAT),IDDET1(MXSTAT),
+     &     IPCODE(MXPROP),LSYM1,LSYM2,NCONF1,NCONF2,LCI1,LCI2,LCI3,
+     &     LCMO1,LCMO2,LGAM1,LGAM2,LGAM3,LTDMAB,LTDMZZ,
+     &     LTDMS,LTDMA,LTRA1,LTRA2,LIPAIR,LFMO,LTUVX,
+     &     iTocM(MXSTAT*(MXSTAT+1)/2),IFJ2,IFJZ,
+     &     SONATNSTATE,LSONAT,SODIAGNSTATE,LSODIAG,IFCURD,Do_TMOS,
+     &     Do_SK
+C CITHR  - THRESHOLD FOR PRINTING CI COEFFICIENTS.
+C ESHFT  - OPTIONAL ENERGY SHIFT OF EACH INPUT STATE.
+C LROOT  - ORDERING NUMBER, ON ITS JOBIPH FILE, OF EACH INPUT STATE.
+C NSTAT  - NR OF STATES TO BE PICKED UP FROM EACH JOBIPH.
+C IRREP  - SYMMETRY OF THE WAVE FUNCTIONS ON EACH JOBIPH.
+C NCONF  - SIZE OF CI ARRAYS ON EACH JOBIPH.
+C ISPACE - Which determinant-CI space to use with each JOBIPH
+C NJOB   - NR OF JOBIPH FILES TO BE USED.
+C NSTATE - TOTAL NUMBER OF STATES.
+C NPROP  - NR OF PROPERTIES TO COMPUTE MATRIX ELEMENTS FOR.
+C NRNATO - NR OF EIGENSTATE TO COMPUTE NATURAL ORBITALS FOR.
+C IPCODE - NUMERICAL CODE OF PROPERTY INTEGRALS TO USE.
+C         (=ENTRY NUMBER INTO TABLE OF CONTENTS OF ONEINT FILE).
+C LSYM1  - SYMMETRY OF CURRENTLY PROCESSED BRA STATE.
+C LSYM2  - SYMMETRY OF CURRENTLY PROCESSED KET STATE.
+C NCONF1, NCONF2, SIMILAR.
+C THE REST ARE POINTERS TO DYNAMICALLY ALLOCATED ARRAYS:
+C LCI1   - POINTER TO CI ARRAY OF CURRENTLY PROCESSED BRA STATE.
+C LCMO1  - SIM., POINTER TO MO COEFFICIENT ARRAY.
+C LTRA1  - SIM., TRNSFORMATION COEFFICIENT ARRAY.
+C LCI2, LCMO2, LTRA2, AS ABOVE, BUT FOR KET STATE.
+C LFMO   - POINTER TO A FOCK MATRIX IN BIORTHONORMAL ACTIVE MO BASIS.
+C LTUVX  - SIM., TWO-ELECTRON INTEGRALS.
+C LGAM1  - POINTER TO ONE-ELECTRON TRANSITION DENSITY MATRIX.
+C LGAM2  - SIM., TWO-ELECTRON MATRIX.
+C LTDMAB - POINTER TO TRANSITION DENSITY MATRIX IN BION. BASIS.
+C LTDMZZ - SIM., IN AO BASIS.
+C iToc25 - Table-of-contents for the optional file TOFILE.
+C ALPHZ - Value for alpha in DQV diabatization.
+C BETAE - Value for beta in DQV diabatization.
+      CHARACTER*8 PNAME,PTYPE,SOPRNM,SOPRTP,MINAME,RASTYP
+      CHARACTER*128 JBNAME
+      COMMON /CNTRLC/ PNAME(MXPROP),PTYPE(MXPROP),SOPRNM(MXPROP),
+     &                SOPRTP(MXPROP),JBNAME(MXJOB),MINAME(MXJOB),
+     &                RASTYP(MXJOB)
+C JBNAME - LOGICAL NAME OF EACH JOBIPH FILE.
+C PNAME  - NAME OF EACH PROPERTY FOR WHICH MATRIX ELEMENTS ARE COMPUTED
+C PTYPE  - TYPE NAME, ex. 'AntiSing' for an antihermitian, spin-singlet op.
+C SOPRNM - LIST OF PROPERTY NAMES, LIKE PNAME, FOR MATRIX ELEMENTS OVER
+C          SPIN-ORBIT STATES.
+C SOPRTP - TYPE NAME, similar to PTYPE
+C RassiT - Title of the Rassi-calculation.
+      LOGICAL PRDIPVEC,PRSXY,PRORB,PRTRA
+      LOGICAL PRCI,IFHAM,IFHEXT,IFHEFF,IFEJOB,IFHCOM
+      LOGICAL HAVE_HEFF,HAVE_DIAG
+      LOGICAL NONA,IFTRD1,IFTRD2,HOP,TRACK,ONLY_OVERLAPS
+      LOGICAL IFSHFT,IFHDIA,IFSO,IFTD2,NATO,RFpert,ToFile
+      LOGICAL BINA
+      LOGICAL PRXVR,PRXVE,PRXVS,PRMER,PRMEE,PRMES
+      LOGICAL IFGCAL,IFXCAL,IFMCAL,DQVD
+      LOGICAL DIPR,QIPR,QIALL
+
+c BP - Hyperfine tensor Flags
+c IFACAL        TRUE to calculate hyperfine tensors
+c IFACALFC      TRUE to calculate ONLY FC terms
+c IFACALSD      TRUE to calculate ONLY SD terms
+c K.Sharkas beg
+c IFACALPSO     TRUE to calculate PSO terms individually
+c IFACALFCON    TRUE to calculate FC  terms individually
+c IFACALSDON    TRUE to calculate SD  terms individually
+c IFACALFCSDON  TRUE to calculate FC +SD terms
+c IFGTCALSA     TRUE to calculate single_aniso g-tensor in RASSI
+c K.Sharkas end
+      LOGICAL IFACAL,IFACALFC,IFACALSD
+      LOGICAL IFACALFCON,IFACALSDON,IFACALPSO
+      LOGICAL IFACALFCSDON,IFVANVLECK,IFSONCINI
+      LOGICAL IFSONCIFC,IFGTCALSA,IFGTSHSA,IFATCALSA
+      INTEGER NTS,NTP,NTF,MULTIP
+      REAL*8  TMINS,TMAXS,TMINP,TMAXP
+      REAL*8  TMINF,TMAXF
+
+c BP - Testing flags
+c NOSO      Disable SO contributions in the SONATORB and SODIAG code
+      LOGICAL NOSO
+
+cnf
+      Logical IfDCpl
+cnf
+      INTEGER NONA_ISTATE,NONA_JSTATE
+      COMMON /SGFLAGS/ PRDIPVEC,PRSXY,PRORB,PRTRA,PRCI,IFHAM,IFHEXT,
+     &    IFHEFF,IFEJOB,IFSHFT,IFHDIA,IFSO,IFTD2,NATO,BINA,
+     &    IFHCOM,HAVE_HEFF,HAVE_DIAG,
+     &    RFpert,NONA,IfDCpl, NONA_ISTATE, NONA_JSTATE, ToFile,IFTRD1,
+     &    IFTRD2,HOP,
+     &    PRXVR,PRXVE,PRXVS,PRMER,PRMEE,PRMES,IFGCAL,IFXCAL,IFMCAL,
+     &    IFACAL,IFACALFC,IFACALSD,IFACALFCON,IFACALSDON,IFACALPSO,
+     &    IFACALFCSDON,IFVANVLECK,TMINS,TMAXS,NTS,IFSONCINI,TMINP,
+     &    TMAXP,NTP,IFSONCIFC,TMINF,TMAXF,NTF,IFGTCALSA,IFGTSHSA,
+     &    MULTIP,IFATCALSA,TRACK,ONLY_OVERLAPS,DQVD,DIPR,QIPR,QIALL,
+     &    NOSO
+C PRSXY  - PRINT MO OVERLAP MATRICES FOR INPUT JOBIPHS.
+C PRORB  - PRINT INPUT ORBITALS.
+C PRTRA  - PRINT TRANSFORMATION COEFFICIENTS.
+C PRCI   - PRINT CI COEFFICIENTS OF INPUT STATES.
+C IFHEXT - Spin-free Hamiltonian is taken from input.
+C IFSHFT - Energy shifts of input states will be applied.
+C IFHDIA - Diagonal H-matrix elements are taken from input.
+C IFSO   - DO SPIN-ORBIT INTERACTION CALCULATION.
+C IFTD2  - FLAG USED IN TRANS2 CALLS - CALCULATE 2-EL. TRANS.D.M.
+C NONA   - FLAG TO COMPUTE NON-ADIABATIC-COUPLINGS
+C NONA_ISTATE && NONA_JSTATE : The state respect to the numeration of the
+C                              Rassi input...
+C RFpert - This flag is used to signal a
+C          reaction field calculation (perturbation approach).
+C ToFile - Denotes if H-matrix and various one-electron matrices
+C          are to be put on a file for subsequent programs.
+C PRXVR, etc: Print expectation values for RasScf input states,
+C          for (spin-free) eigenstates, and for SO states.
+C PRMER, etc: Print matrix elements    for RasScf input states,
+C          for (spin-free) eigenstates, and for SO states.
+cnf
+C IfDCpl - Flag for approximate derivative couplings
+cnf
+CIgorS 06-05-2009
+C HOP    - Switch for Trajectory Surface Hopping Algorithm

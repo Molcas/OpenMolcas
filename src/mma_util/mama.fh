@@ -1,0 +1,14 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+* iofint,iofdbl : offsets of Work and iWork relative to MOLCAS anchor
+* iofsgl,iofchar: offsets of sWork and cWork to MOLCAS anchor
+      Integer iofint,iofdbl,iofsgl,iofchr
+      Common /MMA/ iofint,iofdbl,iofsgl,iofchr

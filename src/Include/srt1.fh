@@ -1,0 +1,31 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*---------------------------------------------------------------------*
+*                                                                     *
+*     Information pertinent to translation from symmetry block        *
+*     to bin numbers.                                                 *
+*                                                                     *
+*     Parameter definitions:                                          *
+*     mSyBlk : highest possible symmetry block number                 *
+*                                                                     *
+*     Entries to common SRT1:                                         *
+*     nBin   : total number of Bins                                   *
+*     nSln   : number of submatrices (slices) per symmetry block      *
+*     lSll   : length of each slice                                   *
+*     IstBin : offset for bin number per symmetry block               *
+*                                                                     *
+*---------------------------------------------------------------------*
+*
+      Parameter ( mSyBlk = 1296 )
+*
+      Integer nSln(mSyBlk),lSll(mSyBlk),IstBin(mSyBlk)
+*
+      Common /Srt1/ nBin,nSln,lSll,IstBin

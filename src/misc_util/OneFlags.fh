@@ -1,0 +1,30 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*----------------------------------------------------------------------*
+*                                                                      *
+* Switches for one electron integral handlers:                         *
+*   sOpSiz - Return only size of array                                 *
+*   sNoOri - Do not read origin of operator                            *
+*   sNoNuc - Do not read nuclear contribution                          *
+*   sRdFst - Read first operator                                       *
+*   sRdNxt - Read next operator                                        *
+*   sNew   - New file, create.                                         *
+*   sXXXXX -                                                           *
+*                                                                      *
+*----------------------------------------------------------------------*
+      Parameter (sOpSiz = 1)
+      Parameter (sNoOri = 2*sOpSiz)
+      Parameter (sNoNuc = 2*sNoOri)
+      Parameter (sRdFst = 2*sNoNuc)
+      Parameter (sRdNxt = 2*sRdFst)
+      Parameter (sRdCur = 2*sRdNxt)
+      Parameter (sXXXXX = 2*sRdCur)
+      Parameter (sNew   = 1)

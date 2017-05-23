@@ -1,0 +1,197 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+c
+c     common for REORG
+c
+c     note: GM - arrays moved from statical allocation to dynamical
+c                via GetMem (PN&LD 2008)
+c
+c1.   parameters for expansion of orbitals
+c
+       integer nsize,mbas
+       parameter (nsize=8192)
+       parameter (mbas=1024)
+c
+c2.   add. constant for lun for T3hf and lun for TEMP files
+       integer addt3,lunpublic
+       parameter (addt3=50)
+       parameter (lunpublic=29)
+c
+c3.   names of TEMP files and status matrix for TEMP files
+       character*7 tmpnam(1:mbas)
+       integer stattemp(1:mbas)
+       integer lrectemp(1:mbas)
+       integer nrectemp(1:mbas)
+       common /tmpnames/ tmpnam,stattemp,lrectemp,nrectemp
+c
+c4.   arrays for expanding of orbitals
+c
+       real*8 valh(1:nsize)
+cGM    real*8 valn(1:nsize,1:mbas)
+************************************************************************
+c
+c      For jh,kh,lh
+c      any type of integer >=I2 is allowed, however corresponding
+c      TEMP- files will be larger, therefore use smallest possible
+c      integer type
+c      -if it is possible, use I2 type of jh,kh,lhmjn,kn,ln it can safe
+c      some disk space
+c      -I1 type can safe even more space, but corresponding part of
+c      routine unpackk must be modified, moreover in such case number
+c      of orbitals in one symmetry is strongly limited to 256
+c
+       integer jh(1:nsize),kh(1:nsize),lh(1:nsize)
+cGM    integer jn(1:nsize,1:mbas)
+cGM    integer kn(1:nsize,1:mbas)
+cGM    integer ln(1:nsize,1:mbas)
+       integer nshow(1:mbas)
+cStary common /ccsort_expand1/ valh,valn,jh,kh,lh,jn,kn,ln,nshow
+       common /ccsort_expand1/ valh,jh,kh,lh,nshow
+c
+c5.   arrays for expanding of orbitals
+c     reflecting permutation
+c
+       integer np(1:8,1:8,1:8)
+       integer nq(1:8,1:8,1:8)
+       integer nr(1:8,1:8,1:8)
+       integer ns(1:8,1:8,1:8)
+       integer typ(1:8,1:8,1:8)
+       integer idis(1:8,1:8,1:8)
+       common /ccsort_expand2/ np,nq,nr,ns,typ,idis
+c
+c6.1  four mapd,mapi matrices and corresponding initial possitions variables
+c     for details see docc.txt
+c
+       integer poss10,poss20,poss30,poss40
+       integer mapd1(0:512,1:6)
+       integer mapi1(1:8,1:8,1:8)
+       integer mapd2(0:512,1:6)
+       integer mapi2(1:8,1:8,1:8)
+       integer mapd3(0:512,1:6)
+       integer mapi3(1:8,1:8,1:8)
+       integer mapd4(0:512,1:6)
+       integer mapi4(1:8,1:8,1:8)
+c
+       common /workcom1/ mapd1,mapd2,mapd3,mapd4,poss10,poss20,poss30,
+     & poss40,
+     & mapi1,mapi2,mapi3,mapi4
+c
+c6.2  mapd and mapi for R_i matrix, required for making T3 integrals
+c
+       integer possri0
+       integer mapdri(0:512,1:6)
+       integer mapiri(1:8,1:8,1:8)
+c
+       common /workcom2/ mapdri,mapiri,possri0
+c
+c7    lun for files, where sorted integrals are strored 21-25
+c
+c7.1  lun for INTSTA foka,fokb,
+c     <kl||ij>aaaa,<kl||ij>bbbb,<kl| ij>abab
+c     <ak||ij>aaaa,<akIIij>bbbb,<ak| ij>abab,<ka| ij>abab
+c     <ab||ij>aaaa,<ab||ij>bbbb,<ab| ij>abab
+       integer lunsta
+c
+c7.2  lun for INTA1 <ma||ef>aaaa, <ma||ef>baab
+       integer luna1
+c
+c7.3  lun for INTA2 <ma||ef>bbbb, <ma||ef>abab
+       integer luna2
+c
+c7.4  lun for INTA3 <ma||ej>aaaa, <ma||ej>baab, <ma||ej>baba
+       integer luna3
+c
+c7.5  lun for INTA4 <ma||ej>bbbb, <ma||ej>abab, <ma||ej>abba
+       integer luna4
+c
+c7.6  lun for INTAB _a_b(p,q)
+       integer lunab
+c
+c7.7  lunt3 - Lun for t3nam file
+       integer lunt3
+c
+c8    parameters for direct access file
+c
+c8.1  lun and recl (in R8 words) for direct access TEMPDA1,TEMPDA2
+c
+       integer lunda1,lunda2
+       integer recl
+       parameter (recl=100)
+c
+c9.1  abmap - help map for storing of addresses in direct acces file TEMPDA1
+cGM    integer abmap(1:mbas,1:mbas,1:8)
+c
+c9.2  abmam - help map for storing of addresses in direct acces file TEMPDA2
+cGM    integer ammap(1:mbas,1:8,1:8)
+c
+cGM    common /da/ abmap,ammap
+c
+c10   input keys
+c
+c10.1 cckey - key for doing CCSD integrals
+       integer cckey
+c
+c10.2 t3key - key for doing T3 integrals
+       integer t3key
+c
+c10.3 clopkey - closed/open key
+       integer clopkey
+c
+c10.4 nfror - forzen orbitals per symmetry in Reorg
+       integer nfror(1:8)
+c
+c10.5 ndelr - deleted orbitals per symmetry in Reorg
+       integer ndelr(1:8)
+c
+c10.6 maxspace - maximal allowed allocatable area
+       integer maxspace
+c
+c10.7 fullprint - output printing control key
+       integer fullprint
+c
+c10.8 noop - no operation key
+       integer noop
+c
+c10.9 iokey - disk handling control key
+       integer iokey
+c
+c10.10 zrkey - key for reading I values and indices simultanously
+       integer zrkey
+c
+       common /inputkeys/ cckey,t3key,clopkey,nfror,ndelr,maxspace,
+     &                    fullprint,noop,iokey,zrkey
+c
+       common /luns/ lunsta,luna1,luna2,luna3,luna4,lunab,
+     &               lunt3,lunda1,lunda2
+c
+c8    parameters for direct access file
+c
+c8.1  lun and recl (in R8 words) for direct access TEMPDA1,TEMPDA2
+c
+c
+CFUE   added to transport total energies
+       real*8 Escf
+       common /ccsort_energies/ Escf
+CFUE
+c
+c     ------  special T3 part ------
+c
+c2    name for joinded T3 integral file
+       character*6 t3nam
+       parameter (t3nam='T3VVVO')
+c
+c3    array for storing possitions of (ab|ci) blocks for given i
+       integer T3IntPoss(1:mbas)
+c
+c4    array for disk address offsets in t3nam file
+       integer T3Off(1:512,1:8)
+c
+       common /cmmt31/ T3IntPoss,T3Off

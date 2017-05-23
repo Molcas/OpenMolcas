@@ -1,0 +1,58 @@
+#!/bin/bash
+#***********************************************************************
+# This file is part of OpenMolcas.                                     *
+#                                                                      *
+# OpenMolcas is free software; you can redistribute it and/or modify   *
+# it under the terms of the GNU Lesser General Public License, v. 2.1. *
+# OpenMolcas is distributed in the hope that it will be useful, but it *
+# is provided "as is" and without any express or implied warranties.   *
+# For more details see the full text of the license in the file        *
+# LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#***********************************************************************
+
+if [ -z "$MOLCAS_DRIVER" ]; then
+    MOLCAS_DRIVER="molcas"
+fi
+
+mode=$1
+if [ "$mode" = "verify" ]; then
+    tests=$2
+fi
+
+if [ -f CMakeCache.txt ]; then
+    MOLCAS_SOURCEDIR=`grep -i molcas_source CMakeCache.txt | awk -F = '{print $2}'`
+    CONFIGURE='cmake .'
+else
+    MOLCAS_SOURCEDIR=`pwd`
+    CONFIGUE='./configure -makefiles'
+fi
+
+if branch=$(cd $MOLCAS_SOURCEDIR && git symbolic-ref --short -q HEAD); then
+    current=$branch
+else
+    current=$(cd $MOLCAS_SOURCEDIR && git rev-parse HEAD) || exit 1
+fi
+trap "(cd $MOLCAS_SOURCEDIR && git checkout $current >& /dev/null)" EXIT SIGINT
+
+if master_snapshots=$(cd $MOLCAS_SOURCEDIR && git tag --list master-* --sort=-refname); then
+    echo "starting snapshot testing procedure"
+else
+    echo "no master snapshots found at location $MOLCAS_SOURCEDIR"
+    exit 1
+fi
+
+for SHA in $master_snapshots
+do
+    echo "-> checkout snapshot ${SHA} ..."
+    (
+    cd $MOLCAS_SOURCEDIR
+    git checkout $SHA
+    ) >& /dev/null || exit 125
+    ${CONFIGURE} >& /dev/null || exit 125
+    if [ "$mode" = "make" ]; then
+        make >& /dev/null && { echo "most recent good = $SHA"; exit 0; }
+    else
+        make >& /dev/null || exit 125
+        $MOLCAS_DRIVER verify $tests && { echo "most recent good = $SHA"; exit 0; }
+    fi
+done

@@ -1,0 +1,46 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+************************************************************************
+*                                                                      *
+*     ipR  : Rho
+*     ipdRx: grad Rho x
+*     ipdRy: grad Rho y
+*     ipdRz: grad Rho z
+*     ipT  : tau (kinetic energy density)
+*     ipL  : Laplacian
+*     ipG  : gamma
+*
+*     Note that this indexation must follow that of the routine in
+*     nq_util  which computes the values of the parameters.
+*
+*                                                                      *
+************************************************************************
+      Integer ipR, ipdRx, ipdRy, ipdRz, ipT, ipL,
+     &        ipRa, ipdRxa, ipdRya, ipdRza, ipTa, ipLa,
+     &        ipRb, ipdRxb, ipdRyb, ipdRzb, ipTb, ipLb,
+     &        ipTau, ipTaua, ipTaub
+*
+*     Pointers to Rho and dF_dRho
+*
+      Parameter(ipR=1,            ipRa=1, ipRb=2)
+*
+*     Pointers to dF_dRho only
+*
+      Parameter(ipGxx=2,ipGxy=3 ,ipGaa=3, ipGab=4, ipGbb=5)
+      Parameter(ipT=4,           ipTa=6, ipTb=7)
+      Parameter(ipL=5,           ipLa=8, ipLb=9)
+*
+*     Pointers to Rho only
+*
+      Parameter(ipdRx=2, ipdRy=3, ipdRz=4,
+     &                            ipdRxa=3, ipdRya=4, ipdRza=5,
+     &                            ipdRxb=6, ipdRyb=7, ipdRzb=8)
+      Parameter(ipTau=5,          ipTaua=9, ipTaub=10)

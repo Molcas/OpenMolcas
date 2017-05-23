@@ -1,0 +1,222 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+c
+c     this common contains maps for all mediates, used in NIT3
+c
+c
+c1    maps for fixed mediates
+c1.0  maps for DP - diagonal part
+c     DP1 - dp(p)a
+c     DP2 - dp(p)b
+c
+       integer mapddp1(0:512,1:6)
+       integer mapidp1(1:8,1:8,1:8)
+       integer possdp10
+c
+       integer mapddp2(0:512,1:6)
+       integer mapidp2(1:8,1:8,1:8)
+       integer possdp20
+c
+       common /workarrayDP/ mapddp1,mapddp2,
+     & possdp10,possdp20,
+     & mapidp1,mapidp2
+c
+c
+c1.1  maps for T1
+c     T11 - t1oaa(a,i)
+c     T12 - t1obb(a,i)
+c
+       integer mapdt11(0:512,1:6)
+       integer mapit11(1:8,1:8,1:8)
+       integer posst110
+c
+       integer mapdt12(0:512,1:6)
+       integer mapit12(1:8,1:8,1:8)
+       integer posst120
+c
+       common /workarrayT1/ mapdt11,mapdt12,
+     & posst110,posst120,
+     & mapit11,mapit12
+c
+c
+c1.5  maps for FK
+c     FK1 - f(a,b)aa
+c     FK2 - f(a,b)bb
+c     FK3 - f(a,i)aa
+c     FK4 - f(a,i)bb
+c     FK5 - f(i,j)aa
+c     FK6 - f(i,j)bb
+c
+       integer mapdfk1(0:512,1:6)
+       integer mapifk1(1:8,1:8,1:8)
+       integer possfk10
+c
+       integer mapdfk2(0:512,1:6)
+       integer mapifk2(1:8,1:8,1:8)
+       integer possfk20
+c
+       integer mapdfk3(0:512,1:6)
+       integer mapifk3(1:8,1:8,1:8)
+       integer possfk30
+c
+       integer mapdfk4(0:512,1:6)
+       integer mapifk4(1:8,1:8,1:8)
+       integer possfk40
+c
+       integer mapdfk5(0:512,1:6)
+       integer mapifk5(1:8,1:8,1:8)
+       integer possfk50
+c
+       integer mapdfk6(0:512,1:6)
+       integer mapifk6(1:8,1:8,1:8)
+       integer possfk60
+c
+       common /workarrayFK/ mapdfk1,mapdfk2,mapdfk3,mapdfk4,mapdfk5,
+     & mapdfk6,
+     & possfk10,possfk20,possfk30,possfk40,possfk50,possfk60,
+     & mapifk1,mapifk2,mapifk3,mapifk4,mapifk5,mapifk6
+c
+c1.6  maps for T2
+c     T21 - t2n(ab,ij)aaaa
+c     T22 - t2n(ab,ij)bbbb
+c     T33 - t2n(a,b,i,j)abab
+c
+       integer mapdt21(0:512,1:6)
+       integer mapit21(1:8,1:8,1:8)
+       integer posst210
+c
+       integer mapdt22(0:512,1:6)
+       integer mapit22(1:8,1:8,1:8)
+       integer posst220
+c
+       integer mapdt23(0:512,1:6)
+       integer mapit23(1:8,1:8,1:8)
+       integer posst230
+c
+       common /workarrayT2/ mapdt21,mapdt22,mapdt23,
+     & posst210,posst220,posst230,
+     & mapit21,mapit22,mapit23
+c
+c
+c1.8  maps for W1
+c     W11 - <ie||mn>aaaa
+c     W12 - <ie||mn>bbbb
+c     W13 - <ie||mn>abab
+c     W14 - <ie||nm>baab
+c
+       integer mapdw11(0:512,1:6)
+       integer mapiw11(1:8,1:8,1:8)
+       integer possw110
+c
+       integer mapdw12(0:512,1:6)
+       integer mapiw12(1:8,1:8,1:8)
+       integer possw120
+c
+       integer mapdw13(0:512,1:6)
+       integer mapiw13(1:8,1:8,1:8)
+       integer possw130
+c
+       integer mapdw14(0:512,1:6)
+       integer mapiw14(1:8,1:8,1:8)
+       integer possw140
+c
+       common /workarrayW1/ mapdw11,mapdw12,mapdw13,mapdw14,
+     & possw110,possw120,possw130,possw140,
+     & mapiw11,mapiw12,mapiw13,mapiw14
+c
+c
+c1.9  maps for W2
+c     W21 - <ab||ij>aaaa
+c     W22 - <ab||ij>bbbb
+c     W23 - <a,b|i,j>abab
+c
+       integer mapdw21(0:512,1:6)
+       integer mapiw21(1:8,1:8,1:8)
+       integer possw210
+c
+       integer mapdw22(0:512,1:6)
+       integer mapiw22(1:8,1:8,1:8)
+       integer possw220
+c
+       integer mapdw23(0:512,1:6)
+       integer mapiw23(1:8,1:8,1:8)
+       integer possw230
+c
+       common /workarrayW2/ mapdw21,mapdw22,mapdw23,
+     & possw210,possw220,possw230,
+     & mapiw21,mapiw22,mapiw23
+c
+c
+c2    maps for help files
+c
+c     There are :
+c     2  W,V  files - vv2 type
+c     2    L  files - vvv(vvo) type
+c     3    R  files - vv2* type
+c     3    M  files - of vv (vo)  type
+c     3    H  files - of v (o)  type
+c     2   N,P files - of nn   type
+c
+       integer possw0,possv0
+       integer possl10,possl20
+       integer possr10,possr20,possr30
+       integer possm10,possm20,possm30
+       integer possh10,possh20,possh30
+       integer possn0,possp0
+c
+       integer mapdw(0:512,1:6)
+       integer mapiw(1:8,1:8,1:8)
+       integer mapdv(0:512,1:6)
+       integer mapiv(1:8,1:8,1:8)
+c
+       integer mapdl1(0:512,1:6)
+       integer mapil1(1:8,1:8,1:8)
+       integer mapdl2(0:512,1:6)
+       integer mapil2(1:8,1:8,1:8)
+c
+       integer mapdr1(0:512,1:6)
+       integer mapir1(1:8,1:8,1:8)
+       integer mapdr2(0:512,1:6)
+       integer mapir2(1:8,1:8,1:8)
+       integer mapdr3(0:512,1:6)
+       integer mapir3(1:8,1:8,1:8)
+c
+       integer mapdm1(0:512,1:6)
+       integer mapim1(1:8,1:8,1:8)
+       integer mapdm2(0:512,1:6)
+       integer mapim2(1:8,1:8,1:8)
+       integer mapdm3(0:512,1:6)
+       integer mapim3(1:8,1:8,1:8)
+c
+       integer mapdh1(0:512,1:6)
+       integer mapih1(1:8,1:8,1:8)
+       integer mapdh2(0:512,1:6)
+       integer mapih2(1:8,1:8,1:8)
+       integer mapdh3(0:512,1:6)
+       integer mapih3(1:8,1:8,1:8)
+c
+       integer mapdn(0:512,1:6)
+       integer mapin(1:8,1:8,1:8)
+       integer mapdp(0:512,1:6)
+       integer mapip(1:8,1:8,1:8)
+c
+       common /workarrayW/ mapdw,mapdv,possw0,possv0,
+     & mapiw,mapiv
+       common /workarrayL/ mapdl1,mapdl2,possl10,possl20,
+     & mapil1,mapil2
+       common /workarrayR/ mapdr1,mapdr2,mapdr3,possr10,possr20,possr30,
+     & mapir1,mapir2,mapir3
+       common /workarrayM/ mapdm1,mapdm2,mapdm3,possm10,possm20,possm30,
+     & mapim1,mapim2,mapim3
+       common /workarrayH/ mapdh1,mapdh2,mapdh3,possh10,possh20,possh30,
+     & mapih1,mapih2,mapih3
+       common /workarrayN/ mapdn,possn0,mapin,mapdp,possp0,mapip
+c

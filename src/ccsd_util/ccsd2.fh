@@ -1,0 +1,298 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+c
+c     this common contains maps for all mediates, used in CC
+c
+c
+c1    maps for fixed mediates
+c1.0  maps for DP - diagonal part
+c     DP1 - dp(p)a
+c     DP2 - dp(p)b
+c
+       integer mapddp1(0:512,1:6)
+       integer mapidp1(1:8,1:8,1:8)
+       integer possdp10
+c
+       integer mapddp2(0:512,1:6)
+       integer mapidp2(1:8,1:8,1:8)
+       integer possdp20
+c
+       common /ccsd_workarrayDP/ mapddp1,mapddp2,
+     & possdp10,possdp20,
+     & mapidp1,mapidp2
+c
+c
+c1.1  maps for T1
+c     T11 - t1oaa(a,i)
+c     T12 - t1obb(a,i)
+c     T13 - t1naa(a,i)
+c     T14 - t1nbb(a,i)
+c
+       integer mapdt11(0:512,1:6)
+       integer mapit11(1:8,1:8,1:8)
+       integer posst110
+c
+       integer mapdt12(0:512,1:6)
+       integer mapit12(1:8,1:8,1:8)
+       integer posst120
+c
+       integer mapdt13(0:512,1:6)
+       integer mapit13(1:8,1:8,1:8)
+       integer posst130
+c
+       integer mapdt14(0:512,1:6)
+       integer mapit14(1:8,1:8,1:8)
+       integer posst140
+c
+       common /ccsd_workarrayT1/ mapdt11,mapdt12,mapdt13,mapdt14,
+     & posst110,posst120,posst130,posst140,
+     & mapit11,mapit12,mapit13,mapit14
+c
+c1.2  maps for F1
+c     F11 - FI(a,e)aa
+c     F12 - FI(a,e)bb
+c
+       integer mapdf11(0:512,1:6)
+       integer mapif11(1:8,1:8,1:8)
+       integer possf110
+c
+       integer mapdf12(0:512,1:6)
+       integer mapif12(1:8,1:8,1:8)
+       integer possf120
+c
+       common /ccsd_workarrayF1/ mapdf11,mapdf12,
+     & possf110,possf120,
+     & mapif11,mapif12
+c
+c1.3  maps for F2
+c     F21 - FII(m,i)aa
+c     F22 - FII(m,i)bb
+c
+       integer mapdf21(0:512,1:6)
+       integer mapif21(1:8,1:8,1:8)
+       integer possf210
+c
+       integer mapdf22(0:512,1:6)
+       integer mapif22(1:8,1:8,1:8)
+       integer possf220
+c
+       common /ccsd_workarrayF2/ mapdf21,mapdf22,
+     & possf210,possf220,
+     & mapif21,mapif22
+c
+c1.4  maps for F3
+c     F31 - FIII(e,m)aa
+c     F32 - FIII(e,m)bb
+c
+       integer mapdf31(0:512,1:6)
+       integer mapif31(1:8,1:8,1:8)
+       integer possf310
+c
+       integer mapdf32(0:512,1:6)
+       integer mapif32(1:8,1:8,1:8)
+       integer possf320
+c
+       common /ccsd_workarrayF3/ mapdf31,mapdf32,
+     & possf310,possf320,
+     & mapif31,mapif32
+c
+c1.5  maps for FK
+c     FK1 - f(a,b)aa
+c     FK2 - f(a,b)bb
+c     FK3 - f(a,i)aa
+c     FK4 - f(a,i)bb
+c     FK5 - f(i,j)aa
+c     FK6 - f(i,j)bb
+c
+       integer mapdfk1(0:512,1:6)
+       integer mapifk1(1:8,1:8,1:8)
+       integer possfk10
+c
+       integer mapdfk2(0:512,1:6)
+       integer mapifk2(1:8,1:8,1:8)
+       integer possfk20
+c
+       integer mapdfk3(0:512,1:6)
+       integer mapifk3(1:8,1:8,1:8)
+       integer possfk30
+c
+       integer mapdfk4(0:512,1:6)
+       integer mapifk4(1:8,1:8,1:8)
+       integer possfk40
+c
+       integer mapdfk5(0:512,1:6)
+       integer mapifk5(1:8,1:8,1:8)
+       integer possfk50
+c
+       integer mapdfk6(0:512,1:6)
+       integer mapifk6(1:8,1:8,1:8)
+       integer possfk60
+c
+       common /ccsd_workarrayFK/ mapdfk1,mapdfk2,mapdfk3,
+     &  mapdfk4,mapdfk5,
+     & mapdfk6,
+     & possfk10,possfk20,possfk30,possfk40,possfk50,possfk60,
+     & mapifk1,mapifk2,mapifk3,mapifk4,mapifk5,mapifk6
+c
+c1.6  maps for T2
+c     T21 - t2n(ab,ij)aaaa
+c     T22 - t2n(ab,ij)bbbb
+c     T33 - t2n(a,b,i,j)abab
+c
+       integer mapdt21(0:512,1:6)
+       integer mapit21(1:8,1:8,1:8)
+       integer posst210
+c
+       integer mapdt22(0:512,1:6)
+       integer mapit22(1:8,1:8,1:8)
+       integer posst220
+c
+       integer mapdt23(0:512,1:6)
+       integer mapit23(1:8,1:8,1:8)
+       integer posst230
+c
+       common /workarrayT2/ mapdt21,mapdt22,mapdt23,
+     & posst210,posst220,posst230,
+     & mapit21,mapit22,mapit23
+c
+c1.7  maps for W0
+c     W01 - <mn||ij>aaaa
+c     W02 - <mn||ij>bbbb
+c     W03 - <mn||ij>abab
+c
+       integer mapdw01(0:512,1:6)
+       integer mapiw01(1:8,1:8,1:8)
+       integer possw010
+c
+       integer mapdw02(0:512,1:6)
+       integer mapiw02(1:8,1:8,1:8)
+       integer possw020
+c
+       integer mapdw03(0:512,1:6)
+       integer mapiw03(1:8,1:8,1:8)
+       integer possw030
+c
+       common /ccsd_workarrayW0/ mapdw01,mapdw02,mapdw03,
+     & possw010,possw020,possw030,
+     & mapiw01,mapiw02,mapiw03
+c
+c1.8  maps for W1
+c     W11 - <ie||mn>aaaa
+c     W12 - <ie||mn>bbbb
+c     W13 - <ie||mn>abab
+c     W14 - <ie||nm>baab
+c
+       integer mapdw11(0:512,1:6)
+       integer mapiw11(1:8,1:8,1:8)
+       integer possw110
+c
+       integer mapdw12(0:512,1:6)
+       integer mapiw12(1:8,1:8,1:8)
+       integer possw120
+c
+       integer mapdw13(0:512,1:6)
+       integer mapiw13(1:8,1:8,1:8)
+       integer possw130
+c
+       integer mapdw14(0:512,1:6)
+       integer mapiw14(1:8,1:8,1:8)
+       integer possw140
+c
+       common /workarrayW1/ mapdw11,mapdw12,mapdw13,mapdw14,
+     & possw110,possw120,possw130,possw140,
+     & mapiw11,mapiw12,mapiw13,mapiw14
+c
+c
+c2    maps for help files
+c
+c     There are :
+c     four V  files - of vvoo type
+c     four M  files - of vvo  type
+c     four H  files - of voo  type
+c     two N,P files - of nn   type
+c     For V1-V4, M1-M4 H1-H4 and N,P there is corresponding space on WRK at possitions
+c     possv10-possv40, possm10-possm40, possh10-possh40 and possn0, possp0 respectively,
+c     that are ALWAYS used when using corresponding help files
+c     There are also corresponding mapd and mapi matrix, that are USUALLY used
+c     when using corresponding help files
+c
+c     Moreover, there are 6 additional mapdr1-6 and mapir1-6, that can be used
+c     arbitrarily, of course with no corresponding space on WRK
+c
+c
+       integer possv10,possv20,possv30,possv40
+       integer possm10,possm20,possm30,possm40
+       integer possh10,possh20,possh30,possh40
+       integer possn0,possp0
+c
+       integer mapdv1(0:512,1:6)
+       integer mapiv1(1:8,1:8,1:8)
+       integer mapdv2(0:512,1:6)
+       integer mapiv2(1:8,1:8,1:8)
+       integer mapdv3(0:512,1:6)
+       integer mapiv3(1:8,1:8,1:8)
+       integer mapdv4(0:512,1:6)
+       integer mapiv4(1:8,1:8,1:8)
+c
+       integer mapdm1(0:512,1:6)
+       integer mapim1(1:8,1:8,1:8)
+       integer mapdm2(0:512,1:6)
+       integer mapim2(1:8,1:8,1:8)
+       integer mapdm3(0:512,1:6)
+       integer mapim3(1:8,1:8,1:8)
+       integer mapdm4(0:512,1:6)
+       integer mapim4(1:8,1:8,1:8)
+c
+       integer mapdh1(0:512,1:6)
+       integer mapih1(1:8,1:8,1:8)
+       integer mapdh2(0:512,1:6)
+       integer mapih2(1:8,1:8,1:8)
+       integer mapdh3(0:512,1:6)
+       integer mapih3(1:8,1:8,1:8)
+       integer mapdh4(0:512,1:6)
+       integer mapih4(1:8,1:8,1:8)
+c
+       integer mapdn(0:512,1:6)
+       integer mapin(1:8,1:8,1:8)
+       integer mapdp(0:512,1:6)
+       integer mapip(1:8,1:8,1:8)
+c
+       integer mapdr1(0:512,1:6)
+       integer mapir1(1:8,1:8,1:8)
+       integer mapdr2(0:512,1:6)
+       integer mapir2(1:8,1:8,1:8)
+       integer mapdr3(0:512,1:6)
+       integer mapir3(1:8,1:8,1:8)
+       integer mapdr4(0:512,1:6)
+       integer mapir4(1:8,1:8,1:8)
+       integer mapdr5(0:512,1:6)
+       integer mapir5(1:8,1:8,1:8)
+       integer mapdr6(0:512,1:6)
+       integer mapir6(1:8,1:8,1:8)
+c
+       common /ccsd_workarrayV/ mapdv1,mapdv2,mapdv3,
+     &  mapdv4,possv10,possv20,
+     & possv30,possv40,
+     & mapiv1,mapiv2,mapiv3,mapiv4
+       common /ccsd_workarrayM/ mapdm1,mapdm2,
+     & mapdm3,mapdm4,possm10,possm20,
+     & possm30,possm40,
+     & mapim1,mapim2,mapim3,mapim4
+       common /ccsd_workarrayH/ mapdh1,mapdh2,mapdh3,
+     & mapdh4,possh10,possh20,
+     & possh30,possh40,
+     & mapih1,mapih2,mapih3,mapih4
+       common /ccsd_workarrayN/ mapdn,possn0,mapin,
+     &  mapdp,possp0,mapip
+       common /mappsr/     mapdr1,mapdr2,mapdr3,
+     &  mapdr4,mapdr5,mapdr6,
+     & mapir1,mapir2,mapir3,mapir4,mapir5,mapir6
+c

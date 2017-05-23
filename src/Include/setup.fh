@@ -1,0 +1,22 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      Integer
+     &        ipAux, nAux, ipZeta, MemR, ipiZet, MemI,
+     &        mSkal, ipiSOSym,nSOs, ipPD, ipFT, nFT, ipDijs,
+     &        MxDij, ipmem_int, MemMax_int
+      Common /iSetup/
+     &                ipAux, nAux, ipZeta, MemR, ipiZet, MemI,
+     &                mSkal, ipiSOSym,nSOs, ipPD, ipFT, nFT, ipDijs,
+     &                MxDij, ipmem_int, MemMax_int
+      Logical Swapping
+      Common /lSetup/ Swapping
+      Real*8 TCP3, rnint
+      Common /rSetUp/ TCP3, rnint

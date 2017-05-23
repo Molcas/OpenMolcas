@@ -1,0 +1,18 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      parameter(max_rec=5000)
+      character*20 filename(max_rec)
+      dimension fileids(max_rec)
+      common /ior_comcvb/fileids,thresh_io
+      common /ioi_comcvb/ifilio(max_rec),nrec
+      common /ioc_comcvb/filename
+      parameter(mxunits=8)
+      common /ioi2_comcvb/iorder(mxunits)

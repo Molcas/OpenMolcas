@@ -1,0 +1,25 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+C
+C Common blocks for computing integrals from Cholesky vectors.
+C
+      PARAMETER ( ONE = 1.0D0)
+      PARAMETER ( XMONE = -1.0D0)
+      PARAMETER ( ZERO = 0.0D0)
+
+      INTEGER  pq1
+      INTEGER  nBas,nSym,NumCho
+      INTEGER  LUCVEC
+
+      COMMON / CHOFILES / LUCVEC(2)
+
+      COMMON /ChoPQ/  pq1
+      COMMON /ChoV/   nSym,nBas(8),NumCho(8)

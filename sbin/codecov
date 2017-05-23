@@ -1,0 +1,188 @@
+#!/usr/bin/env perl
+#***********************************************************************
+# This file is part of OpenMolcas.                                     *
+#                                                                      *
+# OpenMolcas is free software; you can redistribute it and/or modify   *
+# it under the terms of the GNU Lesser General Public License, v. 2.1. *
+# OpenMolcas is distributed in the hope that it will be useful, but it *
+# is provided "as is" and without any express or implied warranties.   *
+# For more details see the full text of the license in the file        *
+# LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#                                                                      *
+# Copyright (C) 2016, Steven Vancoillie                                *
+#***********************************************************************
+#
+# codecov
+#
+# Front-end for lcov/gcov code coverage of Molcas.
+# For usage documentation read the help subroutines.
+#
+# Steven Vancoillie, beginning of 2016
+
+# perl modules
+use warnings;
+use Getopt::Long;
+use Cwd;
+use File::Basename;
+use File::Copy;
+use File::Path;
+use File::Spec;
+use File::Which;
+use File::Find;
+use POSIX qw(strftime);
+
+# use proper locale
+use POSIX qw(locale_h);
+setlocale(LC_ALL, "C");
+
+# set hot pipes, flushes output
+$| = 1;
+
+# my name
+my $me = "codecov";
+
+# trap interrupt
+$SIG{INT} = sub { error("\nSTOP: user has terminated $me!\n") };
+
+# store environment info
+my $MACHINE=`uname -a`;
+chomp ($MACHINE);
+my @DATE = localtime;
+my $DATE = strftime("%c",@DATE);
+
+my $starting_cwd = cwd;
+
+my @SAVED_OPTIONS = @ARGV;
+
+# default options
+my %opt = ();
+GetOptions ( \%opt,
+             "h",
+             "help",
+             "quiet",
+             "start",
+             "prep",
+             "measure",
+             "html",
+             "summary",
+             "name=s",
+           ) or help(1);
+
+# do we need help?
+help(0) if ($opt{h} or $opt{help});
+
+#-------------------------------------------------
+# set up global Molcas settings used for each test
+#-------------------------------------------------
+my $MOLCAS_DRIVER;
+$MOLCAS_DRIVER = $ENV{"MOLCAS_DRIVER"} or $MOLCAS_DRIVER = "molcas";
+my $DRIVER_base = basename($MOLCAS_DRIVER);
+
+my $MOLCAS = $ENV{"MOLCAS"} or
+  die "MOLCAS not set, use: $DRIVER_base $me\n";
+
+# defaults
+
+$opt{name} = "test"
+    unless defined $opt{name};
+
+my $covdir = File::Spec->catdir($MOLCAS, 'code_coverage');
+my $bascov = File::Spec->catfile($covdir, 'base.cov');
+my $totcov = File::Spec->catfile($covdir, 'total.cov');
+my $netcov = File::Spec->catfile($covdir, 'net.cov');
+my $testcov = File::Spec->catfile($covdir, $opt{name} . '.cov');
+my $htmldir = File::Spec->catdir($covdir, 'html');
+
+
+if ($opt{start}) {
+    File::Path->remove_tree($covdir) if (-d $covdir);
+    mkdir $covdir;
+    mkdir $htmldir;
+    msg("$me: running lcov to establish a baseline...");
+    system("lcov --quiet --capture --initial --base-directory $MOLCAS --directory $MOLCAS -o $bascov");
+    system("lcov --quiet -a $bascov -o $totcov");
+    msg("done\n");
+}
+
+
+if ($opt{prep}) {
+    msg("$me: run lcov to reset counters...");
+    system("lcov --quiet --zerocounters --base-directory $MOLCAS --directory $MOLCAS");
+    msg("done\n");
+    exit 0;
+}
+
+if ($opt{measure}) {
+    msg("$me: running lcov to obtain code coverage...");
+    system("lcov --quiet --capture --base-directory $MOLCAS --directory $MOLCAS -o $testcov --test-name $opt{name}");
+    system("lcov --quiet -a $testcov -a $totcov -o $totcov");
+    msg("done\n");
+}
+
+if ($opt{html}) {
+    msg("$me: generating html pages for analysis...");
+    system("lcov --quiet -a $bascov -a $totcov -o $netcov --test-name molcas_verify");
+    system("genhtml --quiet --show-details -o $htmldir $netcov");
+    msg("done\n");
+    msg("point your browser to the following URL:\n$htmldir/index.html\n");
+    exit 0;
+}
+
+if ($opt{summary}) {
+    system("lcov --summary $netcov");
+}
+
+exit 0;
+
+########################################################################
+# subroutines
+########################################################################
+
+#----------------------------------------------------------
+# extended help information with explanation of all options
+#----------------------------------------------------------
+
+sub help {
+        print "./$me [options]\n";
+        print <<'EOF';
+
+options:
+
+    -h|--help           print the help (you're reading it)
+
+    --quiet             do not print any output (useful in scripts)
+
+    --reset             clear any existing code-coverage data from the Molcas installation
+
+    --name NAME         choose a custom string NAME for the output directory
+                        (default: molcas_code_coverage)
+
+Any options can be used also in a short form, as long
+as it can be uniquely identified, e.g. -h instead of
+--help or -r instead of --reset, etc.
+
+Examples:
+
+EOF
+        exit shift(@_);
+}
+
+# output control
+#---------------
+
+sub msg {
+        print @_ unless ($opt{quiet});
+}
+
+sub msg_nl {
+        unless ($opt{quiet}) {
+                while (my $line = shift) {
+                        print "$line\n";
+                }
+        }
+}
+
+sub error {
+        print STDERR "Error: @_" unless ($opt{quiet});
+        exit 1;
+}

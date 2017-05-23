@@ -1,0 +1,48 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*         KINT1        :  Core integrals
+*        KINT2        :
+*        KPINT1        :   Offsets
+*        KPINT2        :
+*        KRHO1        :        Not in use
+*        KSBEVC        :        Not in use
+*        KSBEVL         :        Not in use
+*        KSBIDT        :        Not in use
+*        KSBCNF        :        Not in use
+*        KH0        :        Not in use
+*        KH0SCR         :        Not in use
+*        KSBIA         :        Not in use
+*        KSBIB        :        Not in use
+*        KVEC3        :        Scratch space for pico?
+*
+*        Rest is for Merethe
+*
+      Integer KINT1,KINT2,KINT2A,
+     &              KPINT1,KPINT2,
+     &              KLSM1,KLSM2,
+     &              KRHO1,KSBEVC,KSBEVL,KSBIDT,KSBCNF,KH0,KH0SCR,
+     &              KSBIA,KSBIB,
+     &              KVEC3,
+     &              KISOS2(3),KISOS1(3),KISOP2(3),
+     &              KISOP1(3),KSOIN1(3),KSOIN2(3),
+     &              KINH1,
+     &              KSOIA(3)
+
+      COMMON/GLBBAS_MCLR/KINT1,KINT2,KINT2A,
+     &              KPINT1,KPINT2,
+     &              KLSM1,KLSM2,
+     &              KRHO1,KSBEVC,KSBEVL,KSBIDT,KSBCNF,KH0,KH0SCR,
+     &              KSBIA,KSBIB,
+     &              KVEC3,
+     &              KISOS2,KISOS1,KISOP2,
+     &              KISOP1,KSOIN1,KSOIN2,
+     &              KINH1,
+     &              KSOIA

@@ -1,0 +1,19 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+c Various record names. 'start', 'save', or scratch :
+c----------------------------------------------------
+      common/records_comcvb/strtci,strtvb,strtmo,strtint,
+     >  savvb,savvbci,
+     >  recinp,recinp_old
+      common/recdef_comcvb/recn_jobold,recn_jobiph,recn_oneint,
+     >  recn_vbwfn,
+     >  recn_tmp01,recn_tmp02,recn_tmp03,recn_tmp04,recn_tmp05,
+     >  recn_tmp06,recn_tmp07,recn_tmp08,recn_tmp09

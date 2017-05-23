@@ -1,0 +1,24 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+#ifdef _SCHLEGEL_
+      Real*8 A_Str, A_StrH(2), B_Str(6)
+#endif
+      Real*8 rkr_vdW, rkr
+*
+#ifdef _SCHLEGEL_
+      Data A_Str/1.734d0/
+      Data B_Str/-.244d0,0.352d0,1.085d0,0.660d0,1.522d0,2.068d0/
+      Data A_StrH/0.3601d0,1.944d0/
+#endif
+*
+*     Parameter from 1999 paper
+      Data rkr/0.4500D+00/
+      Data rkr_vdW/0.5D-01/

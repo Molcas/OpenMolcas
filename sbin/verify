@@ -1,0 +1,987 @@
+#!/usr/bin/env perl
+#***********************************************************************
+# This file is part of OpenMolcas.                                     *
+#                                                                      *
+# OpenMolcas is free software; you can redistribute it and/or modify   *
+# it under the terms of the GNU Lesser General Public License, v. 2.1. *
+# OpenMolcas is distributed in the hope that it will be useful, but it *
+# is provided "as is" and without any express or implied warranties.   *
+# For more details see the full text of the license in the file        *
+# LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#                                                                      *
+# Copyright (C) 2000-2012, Valera Veryazov                             *
+#               2015, Steven Vancoillie                                *
+#               2017, Ignacio Fdez. Galván                             *
+#***********************************************************************
+#
+# verify
+#
+# Automated test verification for Molcas.
+# For usage documentation read the help subroutines.
+#
+# Author:  Valera Veryazov                                                    
+#          Dept. of Theoretical Chemistry                                     
+#          Lund, Sweden                                                       
+# Written: 2000-2012                                                          
+#
+# Re-written:
+# Steven Vancoillie, summer 2015
+#
+# Support for two test directories
+# Ignacio Fdez. Galván, February-March 2017
+#
+
+# perl modules
+use warnings;
+use Getopt::Long;
+use Cwd;
+use File::Basename;
+use File::Copy;
+use File::Path;
+use File::Spec;
+use POSIX qw(strftime);
+
+# use proper locale
+use POSIX qw(locale_h);
+setlocale(LC_ALL, "C");
+
+# set hot pipes, flushes output
+$| = 1;
+
+# trap interrupt
+my $active_pid;
+$SIG{INT} = sub { kill 'TERM', -$active_pid; print "killed $active_pid"; die("\nSTOP: user has terminated verify!\n") };
+
+my $starting_cwd = cwd;
+
+# default options
+my %opt = ();
+GetOptions ( \%opt,
+             "h",
+             "help",
+             "clean",
+             "cover",
+             "cycles=i",
+             "debug",
+             "existing",
+             "failed",
+             "flatlist",
+             "generate",
+             "keep",
+             "list",
+             "module=s",
+             "parallel=i",
+             "pass",
+             "path=s",
+             "tmp=s",
+             "quiet",
+             "rawlist",
+             "reset",
+             "trap",
+             "word=s",
+             "fuzzy",
+           ) or short_help(1);
+
+my @tasklist = @ARGV;
+
+@tasklist = ('.default') unless (@tasklist);
+
+my $MOLCAS_DRIVER;
+$MOLCAS_DRIVER = $ENV{"MOLCAS_DRIVER"} or $MOLCAS_DRIVER = "molcas";
+my $DRIVER_base = basename($MOLCAS_DRIVER);
+
+# do we need help?
+short_help(0) if ($opt{h});
+help(0) if ($opt{help});
+
+# early parsing of options
+$opt{keep} = 1 if ($opt{debug});
+
+# are we running interactively?
+my $interactive = 0;
+if (-t select and not $opt{debug}) {
+        $interactive = 1;
+}
+
+# store environment info
+my $MOLCAS = $ENV{"MOLCAS"} or
+  die "MOLCAS not set, use $DRIVER_base verify\n";
+my $MOLCAS_ID=`cd $MOLCAS ; $MOLCAS_DRIVER version -l`;
+chomp ($MOLCAS_ID);
+my $MACHINE=`uname -a`;
+chomp ($MACHINE);
+my @DATE = localtime;
+my $DATE = strftime("%c",@DATE);
+
+my $header = <<EOF;
+$MOLCAS_ID
+== verification run ==
+machine: $MACHINE
+date: $DATE
+
+EOF
+
+#-------------------------------------------------
+# set up global Molcas settings used for each test
+#-------------------------------------------------
+
+# Get list of test directories, adding OPENMOLCAS at the beginning
+# and MOLCAS at the end, and removing duplicates
+my @TESTDIRS;
+if (-e File::Spec->catdir ($MOLCAS, 'test', 'testdirs')) {
+        open FILE, '<', File::Spec->catdir ($MOLCAS, 'test', 'testdirs');
+        chomp (@TESTDIRS = <FILE>);
+        close FILE;
+}
+if (-e File::Spec->catdir ($MOLCAS, 'sbin', 'find_sources')) {
+        my $OPENMOLCAS = `. \$MOLCAS/sbin/find_sources ; echo \$OPENMOLCAS_SOURCE`;
+        chomp ($OPENMOLCAS);
+        unshift @TESTDIRS, File::Spec->catdir ($OPENMOLCAS, 'test');
+}
+push @TESTDIRS, File::Spec->catdir ($MOLCAS, 'test');
+my %known;
+@TESTDIRS = grep {!$known{$_}++} @TESTDIRS;
+
+my $testdir;
+if ($opt{path}) {
+        $testdir = File::Spec->rel2abs($opt{path});
+} else {
+        $testdir = File::Spec->catdir ($MOLCAS, 'test');
+}
+my $tmpdir;
+if ($opt{tmp}) {
+        $tmpdir = File::Spec->rel2abs($opt{tmp});
+} else {
+        $tmpdir = File::Spec->catdir($testdir, 'tmp');
+}
+
+my $result = File::Spec->catfile ($testdir, 'result');
+my $timing = File::Spec->catfile ($testdir, 'timing.data');
+my $logroot= File::Spec->catdir  ($testdir, 'log');
+my $logdir = File::Spec->catdir  ($logroot, strftime("%F_at_%T",@DATE));
+my $failed = File::Spec->catfile ($testdir, 'failed');
+
+# reset only cleans up and then quits
+if ($opt{reset}) {
+        unlink $result if (-l $result);
+        unlink $timing if (-l $timing);
+        File::Path->rmtree($tmpdir) if (-d $tmpdir);
+        File::Path->rmtree($logroot) if (-d $logroot);
+        unlink $failed if (-l $failed);
+        exit 0;
+}
+
+$ENV{'MOLCAS_OUTPUT'} = 'WORKDIR';
+$ENV{'MOLCAS_TIME'} = 'YES';
+$ENV{'MOLCAS_GRID'} = 'NO';
+# set test type: generating or checking?
+if ($opt{generate}) {
+        $ENV{'MOLCAS_INFO'}= "$MOLCAS_ID!$MACHINE!$DATE!";
+        $ENV{'MOLCAS_TEST'} = 'GENE';
+        $ENV{'MOLCAS_NPROCS'} = '1';
+} else {
+        $ENV{'MOLCAS_TEST'} = 'CHECK';
+}
+# enable old behavior (do not fail with extra labels)
+if ($opt{fuzzy}) {
+        $ENV{'MOLCAS_CHECK_FUZZY'} = 'YES';
+}
+# to ignore failures, choose negative threshold
+if ($opt{pass}) {
+        $ENV{'MOLCAS_THR'} = '-1';
+}
+
+#-------------------------------------------
+# generate a list of files from the tasklist
+#-------------------------------------------
+
+my @filelist;
+my %group;
+my $location;
+
+# First convert the tasks to actual included/skipped tests.
+# These are kept in two hashes to allow different tasks to
+# influence each other, e.g.:
+#   $ molcas verify .all standard:x
+# would run all the tests from virtual group '.all', but
+# at the same time exclude all tests from standard.
+my %included; # keeps a dictionary of included test names (group:name)
+my %excluded; # keeps a dictionary of excluded test names (group:name)
+foreach my $task (@tasklist) {
+        if (-f $task) {
+                # the task is a file name, add immediately to the file list
+                my $file = File::Spec->rel2abs ($task);
+                push @filelist, $file;
+                $group{$file} = 'external';
+        } else {
+                # A single task is composed of:
+                # - an optional group name (if omitted, defaults to 'standard')
+                # - an optional, comma-separated lists of the following items:
+                #   * 3 digits: a test number to be included
+                #   * a minus sign and 3 digits: a test number to be excluded
+                #   * two groups of 3 digits separated by a dash:
+                #     a range of test numbers to be included
+                #   * a minus sign and two groups of 3 digits separated by a dash:
+                #     a range of test numbers to be excluded
+                #   * empty: includes all possible test numbers
+                #   * a minus sign: excludes all possible test numbers
+                # All of the above is condensed into a single regex:
+                my ($vgroup,$task_string) = ($task =~ /^([^\d:][^:]*)?:?([^:]*)$/);
+                $vgroup = '.default' unless ($vgroup);
+                my @subtasks = split /,/, $task_string;
+                # if no subtasks, set empty string as only element (this means all tests)
+                push @subtasks, '' x 1 if (not @subtasks);
+                # translate virtual group to list of real group names
+                my @group_list = vgroup_to_groups($vgroup);
+                foreach my $group (@group_list) {
+                    foreach my $subtask (@subtasks) {
+                        # decide on exclusion
+                        my $exclude_flag = 0;
+                        if ($subtask =~ /^-/) {
+                            $subtask =~ s/^-//;
+                            $exclude_flag = 1;
+                        }
+                        # create a list of file basenames
+                        my @basenames;
+                        if (not $subtask) {
+                            # empty task, match every possible input file
+                            @basenames = find_all_names_from_group($group);
+                        } else {
+                            my ($number_string) = ($subtask =~ /^(\d{3}(?:-\d{3})?)$/);
+                            if ($number_string) {
+                                # extract name from number(range)
+                                @basenames = flatten_numbers ($number_string);
+                            } else {
+                                # no number, assume subtask is a basename
+                                push @basenames, $subtask;
+                            }
+                        }
+                        # add basenames to proper hash
+                        if ($exclude_flag) {
+                            add_names_from_group_to_hash ($group, \@basenames, \%excluded);
+                        } else {
+                            add_names_from_group_to_hash ($group, \@basenames, \%included);
+                        }
+                    }
+                }
+        }
+}
+
+# add generated test names to file list
+foreach my $key (sort by_standard_first keys %included) {
+        next if $excluded{$key};
+        my ($group, $number) = split(':',$key);
+        my $file = File::Spec->catfile($location{$group}, $number . '.input');
+        if( $opt{generate} && -f $file) { system ("cp $file $file.bak");}
+        push @filelist, $file if (-f $file);
+        $group{$file} = $group;
+}
+
+#-------------------------------------------------------------------------
+# now that we have the filelist, we can apply filters to the file contents
+#-------------------------------------------------------------------------
+
+# build up the regex pattern to use for filtering
+# this is a very simple filter: match _any_ pattern
+if ($opt{module} or $opt{word}) {
+        my @pattern_list;
+        if ($opt{module}) {
+                foreach my $mod (split(',', $opt{module})) {
+                        push @pattern_list, "&$mod";
+                }
+        }
+        if ($opt{word}) {
+                foreach my $key (split(',', $opt{word})) {
+                        push @pattern_list, "$key";
+                }
+        }
+        my $filter_pattern = '^ *(' . join ('|', @pattern_list) . ')';
+        my @filtered_filelist;
+        for my $file (@filelist) {
+                open (FILE, '<', $file);
+                while (<FILE>) {
+                        if (/$filter_pattern/i) {
+                                push @filtered_filelist, $file;
+                                last;
+                        }
+                }
+        }
+        @filelist = @filtered_filelist;
+}
+
+#--------------------------------------------------------------
+# if we only rerun failed tests, then filter the filenames here
+#--------------------------------------------------------------
+
+if ($opt{failed}) {
+        my %failed_previously;
+        my $failed_list = File::Spec->catfile ($failed, "list");
+        if (-f $failed_list) {
+                open (FAILED_LIST, "<", $failed_list)
+                  or error ("cannot open file $failed_list\n");
+                while (<FAILED_LIST>) {
+                        chomp;
+                        $failed_previously{$_} = 1;
+                }
+                close (FAILED_LIST);
+        }
+        my @filtered_filelist;
+        for my $file (@filelist) {
+                push @filtered_filelist, $file if $failed_previously{$file};
+        }
+        @filelist = @filtered_filelist;
+}
+
+#------------------------------------------------------
+# print the final, filtered list if requested, and exit
+#------------------------------------------------------
+
+if      ($opt{rawlist}) {
+        msg_nl (@filelist);
+        exit 0;
+} elsif ($opt{flatlist}) {
+        my @test_list;
+        foreach my $file (@filelist) {
+                my $name = basename($file, '.input');
+                push @test_list, "$group{$file}:$name";
+        }
+        msg_nl (@test_list);
+        exit 0;
+} elsif ($opt{list}) {
+        msg ("matching tests:\n");
+        my %test_list;
+        foreach my $file (@filelist) {
+                my $name = basename($file, '.input');
+                push @{$test_list{$group{$file}}}, " $name";
+        }
+        for my $key (sort by_standard_first keys %test_list) {
+                my $prefix = "  $key:";
+                msg_list ($prefix, sort @{$test_list{$key}});
+        }
+        exit 0;
+}
+
+# final check: if empty filelist, just quit nicely
+unless (@filelist) {
+        msg ("no tests requested, bye!\n");
+        exit 0;
+}
+
+#--------------------------
+# set up the infrastructure
+#--------------------------
+
+# the base directory for running tests
+if (! -d $testdir) {
+        mkdir $testdir
+          or error ("could not create $testdir\n");
+}
+if (! -w $testdir) {
+        error ("cannot write to $testdir\n");
+}
+File::Path->rmtree($tmpdir) if (-d $tmpdir);
+if ($opt{clean}) {
+        File::Path->rmtree($logroot) if (-d $logroot);
+}
+mkdir $tmpdir if (! -d $tmpdir);
+mkdir $logroot if (! -d $logroot);
+# remove log directories not ending in .bak and older than a day
+opendir (DIR, $logroot)
+  or error ("cannot open directory $logroot\n");
+my @subdir_names = readdir (DIR);
+closedir (DIR);
+foreach my $subdir_name (@subdir_names) {
+        next if $subdir_name =~ /^\.+$/;
+        my $subdir = File::Spec->catdir($logroot, $subdir_name);
+        next if $subdir =~ /\.bak$/;
+        next unless -d $subdir;
+        File::Path->rmtree($subdir) if (-M $subdir > 1);
+}
+# finally, create the new log directory we are about to use
+if (-d $logdir) {
+        error ("existing log: $logdir\n");
+} else {
+        mkdir $logdir;
+}
+
+chdir $tmpdir
+  or error ("could not switch to $tmpdir\n");
+
+# Re-generate the version information from the build that will
+# actually be used to run the tests
+$MOLCAS_ID=`$MOLCAS_DRIVER version -l`;
+chomp ($MOLCAS_ID);
+if ($opt{generate}) {
+        # refuse to generate check files with a dirty tree
+        if ($MOLCAS_ID =~ /dirty/) {
+                my $msg = <<"EOF";
+******************************************************
+Dirty Molcas installation, cannot generate check files
+******************************************************
+  The compiled version of molcas does not correspond
+to a clean source tree (does not match a git commit).
+For reproducibility's sake generation of check files
+is disabled.
+  Please stash your changes and recompile.
+EOF
+                error ($msg);
+        } else {
+                $ENV{'MOLCAS_INFO'}= "$MOLCAS_ID!$MACHINE!$DATE!";
+        }
+}
+
+my $log_result = File::Spec->catfile ($logdir, 'result');
+my $log_timing = File::Spec->catfile ($logdir, 'result.timing');
+my $log_failed = File::Spec->catdir ($logdir, 'failed');
+my $log_failed_list = File::Spec->catfile ($log_failed, 'list');
+
+mkdir $log_failed
+  or error ("could not create $log_failed\n");
+
+# set up links to the actual result files
+unlink $result if (-l $result);
+unlink $timing if (-l $timing);
+unlink $failed if (-l $failed);
+symlink File::Spec->abs2rel ($log_result, $testdir), $result;
+symlink File::Spec->abs2rel ($log_timing, $testdir), $timing;
+symlink File::Spec->abs2rel ($log_failed, $testdir), $failed;
+
+# open the information files
+open (RESULT, ">", $log_result);
+open (TIMING, ">", $log_timing);
+open (FAILED_LIST, ">", $log_failed_list)
+  or error ("cannot open file $log_failed_list\n");
+
+# start by printing headers
+print RESULT $header;
+print TIMING $header;
+
+#-------------------------------------
+# loop over tests and run verification
+#-------------------------------------
+
+# groups belonging to critical
+my %critical;
+my @critical_list = vgroup_to_groups('.critical');
+foreach my $group (@critical_list) {
+        $critical{$group} = 1;
+}
+# counters
+my $failed_tests = 0;
+my $failed_critical_tests = 0;
+my $skipped_tests = 0;
+# message string during interactive
+my $prompt;
+
+my $n_tests = @filelist;
+my $index = 0;
+
+if ($opt{cover}) {
+    msg_nl("WARNING: you are running tests with code coverage,");
+    msg_nl("         this can add up to 1 min of time per test");
+    msg("running code coverage startup...");
+    system("$MOLCAS_DRIVER codecov -q --start");
+    msg_nl("done");
+};
+
+my $prev_group = '.none';
+FILELOOP:
+foreach my $file (@filelist) {
+        my $group = $group{$file};
+        my $name = basename($file,'.input');
+        my $project = $group . '__' . $name;
+        my $workdir = File::Spec->catdir($tmpdir, $project);
+        my $input = File::Spec->catfile ($workdir, $project . '.input');
+        my $out = File::Spec->catfile ($tmpdir, $project . '.out');
+        my $err = File::Spec->catfile ($tmpdir, $project . '.err');
+        my $status = File::Spec->catfile ($tmpdir, $project . '.status');
+        my $pc = int((++$index) / $n_tests * 100);
+        #----------------------------
+        # set up the work environment
+        #----------------------------
+        $ENV{Project} = $project;
+        $ENV{WorkDir} = $workdir;
+        if ($group eq 'performance' or $group eq 'benchmark') {
+                delete $ENV{MOLCAS_TIMELIM};
+        } else {
+                $ENV{MOLCAS_TIMELIM}=600 if(! defined($ENV{MOLCAS_TIMELIM}));
+        }
+        system("$MOLCAS_DRIVER codecov -q --prep") if $opt{cover};
+        # start repeated cycles (e.g. when tests fail randomly)
+        my $cycles = $opt{cycles} ? $opt{cycles} : 1;
+        $cycles = 2 * $cycles if ($opt{parallel});
+        print RESULT "----------\ngroup $group from: $location{$group}\n" if ($group ne $prev_group && $group ne 'external');
+        while ($cycles-- > 0) {
+                if ($opt{parallel}) {
+                        if ($cycles % 2 == 1) {
+                                $ENV{MOLCAS_NPROCS} = 1;
+                        } else {
+                                $ENV{MOLCAS_NPROCS} = $opt{parallel};
+                        }
+                }
+                # if the work directory exists, remove it unless existing mode is used
+                if (-d $workdir) {
+                        if ($opt{existing}) {
+                                # we only need to delete the check counter, leave the rest
+                                my $check_counter = File::Spec->catfile ($workdir, 'molcas_check_count');
+                                unlink $check_counter;
+                        } else {
+                                File::Path->rmtree($workdir);
+                        }
+                }
+                mkdir $workdir unless (-d $workdir);
+                copy ($file, $input);
+                if ($interactive) {
+                        $prompt = "Running test $group: $name ... ($pc%)";
+                        msg ($prompt);
+                }
+                # run molcas and capture the return code. The reason
+                # for the fork+exec is that when I just use a system
+                # call, I can't send an interrupt signal to the verify
+                # script to terminate verify itself.
+                my $rc;
+                my $child_pid = fork;
+                if ($child_pid == 0) {
+                                #child
+                        if ($opt{debug}) {
+                                exec("$MOLCAS_DRIVER -ign $input");
+                        } else {
+                                exec("$MOLCAS_DRIVER -ign $input -o $out -e $err");
+                        }
+                }
+                $active_pid = $child_pid;
+                if (waitpid($child_pid, 0)) {
+                        $rc = $? >> 8;
+                } else {
+                        error ("euhm, molcas process vanished into thin air 0_o\n");
+                }
+                my $special;
+                if (not $opt{debug}) {
+                        # check for special cases where the return code might be 0
+                        # but we should still cause a failure (segfault, garbage)
+                        $rc = 30 if ($special = special_failure ($out));
+                }
+                if ($rc) {
+                        $cycles = 0;
+                        if (not $opt{debug}) {
+                                copy ($out, File::Spec->catfile ($log_failed, $project . '.out'));
+                                copy ($err, File::Spec->catfile ($log_failed, $project . '.err'));
+                        }
+                        if ($rc == 36) {
+                                # print results
+                                print RESULT "$group:$name Skipped!\n";
+                                msg_overwrite ("$group:$name Skipped!\n", $prompt) if ($interactive);
+                                # update counters
+                                $skipped_tests++;
+                                # pretend to be find for the remainder of this test
+                                $rc = 0;
+                        } else {
+                                # gather extra info
+                                my $mod = '';
+                                $mod = failed_module($out) if (not $opt{debug});
+                                $mod = "$mod, $special" if ($special);
+                                # print results
+                                print RESULT "$group:$name Failed! ($mod)\n";
+                                msg_overwrite ("$group:$name Failed! ($mod)\n", $prompt) if ($interactive);
+                                # update counters
+                                $failed_tests++;
+                                if ($critical{$group}) {
+                                        $failed_critical_tests++;
+                                }
+                                # update list of failed input files
+                                print FAILED_LIST "$file\n";
+                        }
+                } else {
+                        print RESULT "$group:$name OK\n";
+                        msg_overwrite ('', $prompt) if ($interactive);
+                        if ($opt{generate}) {
+                                my $rc=system("$MOLCAS_DRIVER", "updatetest.plx", $file, File::Spec->catfile ($workdir, 'checkfile'));
+                                print "rc=",$rc,"\n" if ($rc!=0);
+                        }
+                }
+                # save timing info
+                if (not $opt{debug}) {
+                        print TIMING "--- Run: $project\n";
+                        open ERR, "<", $err or error ("could not open $err\n");
+                        while (<ERR>) {
+                                print TIMING;
+                        }
+                        close ERR;
+                }
+                # clean up
+                unless ($rc or $opt{keep}) {
+                        unlink $input, $out, $err, $status;
+                        File::Path->rmtree($workdir);
+                }
+                last FILELOOP if ($rc and $opt{trap});
+        }
+        if ($opt{cover}) {
+            if ($interactive) {
+                    $prompt = "Capturing coverage data for test $group: $name ... ($pc%)";
+                    msg ($prompt);
+            }
+            system("$MOLCAS_DRIVER codecov -q --measure --name $project");
+            msg_overwrite ('', $prompt) if ($interactive);
+        }
+        $prev_group = $group;
+}
+
+system("$MOLCAS_DRIVER codecov --html") if ($opt{cover});
+
+close (RESULT);
+close (TIMING);
+close (FAILED_LIST);
+
+if ($failed_tests) {
+        # report directory with failed out/err relative to directory where verify was run
+        my $log_rel = File::Spec->abs2rel ($failed, $starting_cwd);
+        my $tmp_rel = File::Spec->abs2rel ($tmpdir, $starting_cwd);
+        my $info = <<"EOF";
+************************************************************************
+A total of $failed_tests test(s) has failed, with $failed_critical_tests critical failures.
+************************************************************************
+Please check the directory:
+  $log_rel
+for the .out/.err files of the failed tests,
+and check the submit directory:
+  $tmp_rel
+for the working directories of the last run.
+EOF
+        if ($failed_critical_tests) {
+                error ($info);
+        } else {
+                msg ($info);
+        }
+}
+
+if ($opt{generate}) {
+        msg ("Generation of check files has been completed\n");
+} else {
+        msg ("Verification has been completed\n");
+}
+
+END {
+        chdir $starting_cwd;
+}
+
+exit 0;
+
+
+
+
+########################################################################
+# subroutines
+########################################################################
+
+#-----------------------------------------------------------------------
+# brief help information which is also displayed by "molcas help verify"
+#-----------------------------------------------------------------------
+
+sub short_help {
+        # %help
+        print <<"EOF";
+
+$DRIVER_base verify [--keep|-k] [--debug|-d] [--list|-l] [--generate|-g] [task]
+
+where: task is a group name (standard, performance, benchmark,
+purgatory, failed) followed by colon and then a comma-separated
+list of numbers and/or ranges, e.g.: standard:000,005-121,-014
+
+use the long option --help for a complete description!
+
+EOF
+        exit shift(@_);
+}
+
+#----------------------------------------------------------
+# extended help information with explanation of all options
+#----------------------------------------------------------
+
+sub help {
+        print <<"EOF";
+
+$DRIVER_base verify [options] [task [task ...]]
+
+options:
+  --h              print short help
+  --help           print long help (you're reading it)
+  --parallel N     double cycles: one with 1 process, and one with N processes
+  --clean          clean up log directory before run
+  --cover          generate code coverage report (WARNING: can take a long time!)
+  --cycles N       cycle each test N times
+  --debug          print molcas output to terminal
+  --existing       use existing scratch if available
+  --failed         rerun tests that failed the last time
+  --flatlist       only list matching tests (as a flat list of tasks)
+  --generate       generate checkfile and append to input
+  --keep           keep the work directory after running a test
+  --list           only list matching tests
+  --module MODULE  filter test files containing MODULE
+  --pass           ignore checkfile failures
+  --path PATH      run with PATH as temporary directory
+  --tmp TMP        run with TMP as parent scratch directory
+  --quiet          do not print any messages to the screen
+  --rawlist        only list matching tests (as a list of input files)
+  --reset          clean up any results and tmp/log directories and exit
+  --trap           stop immediately after a failed test
+  --word WORD      filter test files containing WORD
+  --fuzzy          do not fail if a label is not in the reference (old behavior)
+
+Any options can be used also in a short form, as long
+as it can be uniquely identified, e.g. -d instead of
+--debug or -l instead of --list, etc.
+
+task:
+  Tests are divided into different groups: e.g.
+  standard, performance, benchmark, grayzone, ...
+  These groups are subdirectories of the test/
+  directory. If the group name begins with a dot,
+  it is a virtual group which consists of all
+  subdirectories which have a file of that name.
+
+  To specify which tests to run, you need to specify
+  a group, optionally followed by a colon with a list
+  or range of test numbers. Numbers or ranges preceded
+  by a '-' sign are excluded. When no numbers or ranges
+  are give, all tests from the group are included. When
+  only a '-' is give, all tests are excluded. When no
+  group is specified, a default group is selected
+  (i.e. the 'standard' group). When nothing is specified,
+  the virtual group '.default' (which consists of
+  'standard', 'extra', and 'grayzone') is selected.
+
+  empty: run all tests from group '.default'
+  a list of tests (group:nr1[,nr2,...]):
+    000 (same as standard:000)
+  a range of tests (two numbers separated by dash):
+    005-134
+  a combination of the above:
+    003,005-009,054
+  an additional exclude list:
+    001-010,-004 (tests 1 to 10 except 4)
+  a group (subdirectory), specified by name:
+    standard
+    extra
+    performance
+    benchmark
+    grayzone
+  a group (virtual), specified by name:
+    .default
+    .critical
+    .all
+  a group followed by a colon and then any of the above
+  lists of numbers/ranges:
+    performance:000-100,-005-009,-043
+  a file:
+    path/to/file1.input
+
+individual tasks can be combined in any way as long as they
+are separated by a space (you can mix e.g. number tasks and
+files)
+
+Examples:
+  $DRIVER_base verify                - run default tests (standard, extra, grayzone)
+  $DRIVER_base verify .all           - run all tests (but not performance, benchmark)
+  $DRIVER_base verify .everything    - run _all_ tests (yes, ALL tests)
+  $DRIVER_base verify standard       - run all standard tests
+  $DRIVER_base verify performance    - run performance tests (ca 30 min)
+  $DRIVER_base verify benchmark      - run benchmark tests (several hours)
+  $DRIVER_base verify -m caspt2      - run standard tests that contain &caspt2 module
+  $DRIVER_base verify -w ksdft       - run all tests with 'ksdft' word
+  $DRIVER_base verify 001-005,-003   - run standard tests 001 to 005 but not 003
+  $DRIVER_base verify extra:200-220  - run extra tests from 200 to 220
+  $DRIVER_base verify .all extra:-   - run all tests except those from extra
+  $DRIVER_base verify --failed       - run (default) tests that failed the last time
+  $DRIVER_base verify -d 000         - run standard test 000 with output on the screen
+
+EOF
+        exit shift(@_);
+}
+
+# output control
+#---------------
+
+sub msg {
+        print @_ unless ($opt{quiet});
+}
+
+sub msg_nl {
+        unless ($opt{quiet}) {
+                while (my $line = shift) {
+                        print "$line\n";
+                }
+        }
+}
+
+sub msg_list {
+        my $prefix = shift;
+        my $max_items = 10;
+        my $counter = 0;
+        my $padding = ' ' x 4;
+        msg_nl ($prefix);
+        foreach my $item (@_) {
+                msg ($padding) if ($counter == 0);
+                msg ($item);
+                $counter++;
+                if ($counter == $max_items) {
+                        msg ("\n");
+                        $counter = 0;
+                }
+        }
+        msg ("\n") if ($counter);
+}
+
+sub msg_overwrite {
+        my $msg = shift;
+        my $erase = shift;
+        my $l = length($erase);
+        my $backup = "\b" x $l;
+        my $spaces = " " x $l;
+        msg ($backup, $spaces, $backup, $msg);
+}
+
+sub warning {
+        print STDERR @_ unless ($opt{quiet});
+}
+
+sub error {
+        print STDERR @_ unless ($opt{quiet});
+        exit 1;
+}
+
+#---------------------------------------------------------
+# helper subroutines to deal with the group subdirectories
+#---------------------------------------------------------
+
+sub vgroup_to_groups {
+        # convert virtual group name from task to array of real group names:
+        #   standard  -> (standard)
+        #   .critical -> (standard, extra)
+        my $vgroup = shift;
+        my @groups;
+        if ($vgroup =~ /^\./) {
+                foreach $TESTDIR (@TESTDIRS) {
+                        if (opendir (DIR, $TESTDIR)) {
+                                my @subdir_names = readdir (DIR);
+                                closedir (DIR);
+                                foreach my $subdir_name (@subdir_names) {
+                                        next if $subdir_name =~ /^\.+$/;
+                                        my $subdir = File::Spec->catdir($TESTDIR, $subdir_name);
+                                        next unless -d $subdir;
+                                        next if ((exists $location{$subdir_name}) and ($location{$subdir_name} ne $subdir));
+                                        if (-f File::Spec->catfile($subdir, $vgroup)) {
+                                                push @groups, $subdir_name;
+                                                $location{$subdir_name} = $subdir;
+                                        }
+                                }
+                        }
+                }
+        } else {
+                foreach $TESTDIR (@TESTDIRS) {
+                        if (-d File::Spec->catdir($TESTDIR, $vgroup)) {
+                                push @groups, $vgroup;
+                                $location{$vgroup} = File::Spec->catdir($TESTDIR, $vgroup);
+                                last;
+                        }
+                }
+                if (not $location{$vgroup}) {
+                        warning ("non-existing group: $vgroup\n")
+                }
+        }
+        return @groups;
+}
+
+sub add_names_from_group_to_hash {
+        my $group = shift;
+        my $name_list = shift;
+        my $hash = shift;
+        foreach my $name (@$name_list) {
+                $hash->{"$group:$name"} = 1;
+        }
+}
+
+sub flatten_numbers {
+        # convert task list to flat list of numbers:
+        #   002-004 -> (002, 003, 004)
+        my $numbers = shift;
+        my @flattened;
+        my ($start, $end) = ($numbers =~ /^(\d{3})(?:-(\d{3}))?$/);
+        if ($end) {
+                push @flattened, $start .. $end;
+        } else {
+                push @flattened, $start;
+        }
+        return @flattened;
+}
+
+sub find_all_names_from_group {
+        # convert a group name into a list of all test names in that group:
+        #   standard -> (000, 001, ..., 099) + any input file basenames
+        my $group = shift;
+        my $dir = $location{$group};
+        opendir (DIR, $dir)
+          or error ("cannot open directory $dir for group $group\n");
+        my @inputs = grep (/\.input$/, readdir (DIR));
+        closedir (DIR);
+        my @names;
+        foreach my $input (@inputs) {
+                my $name = basename ($input, '.input');
+                push @names, $name;
+        }
+        return @names;
+}
+
+sub special_failure {
+        my $file = shift;
+        system ("$MOLCAS_DRIVER chkunprint.plx < $file");
+        my $rc = $?;
+        if ($rc == -1) {
+                error ("failed to execute: $!\n");
+        } elsif ($rc & 127) {
+                $rc = $rc & 127;
+                error ("chkunprint died with signal $rc\n");
+        } else {
+                $rc = $rc >> 8;
+        }
+        my $failure = '';
+        if ($rc == 1) {
+                $failure = 'garbage';
+        } elsif ($rc == 2) {
+                $failure = 'segfault';
+        }
+        return $failure;
+}
+
+sub failed_module {
+        my $file = shift;
+        my $mod = '';
+        open (FILE, "<", $file);
+        while (<FILE>) {
+                next unless /(Start|Stop) Module/;
+                next if /check|auto/;
+                ($mod) = /(?:Start|Stop) Module: +([^ ]+)/;
+        }
+        $mod = '[none]' unless (defined $mod);
+        close (FILE);
+        return $mod;
+}
+
+sub by_standard_first {
+    # routine to sort keys starting with "standard",
+    # probably very inefficient.
+    my $rc;
+    if ($a =~ /^standard/) {
+        if ($b =~ /^standard/) {
+            $rc = $a cmp $b;
+        } else {
+            $rc = -1;
+        }
+    } else {
+        if ($b =~ /^standard/) {
+            $rc = 1;
+        } else {
+            $rc = $a cmp $b;
+        }
+    }
+    return $rc;
+}

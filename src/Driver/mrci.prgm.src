@@ -1,0 +1,21 @@
+/***********************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+***********************************************************************/
+ (prgm) "$MOLCAS"/bin/mrci.exe             executable
+ (file)  TRAINT   "$WorkDir/$Project."TraInt   ro*
+ (file)  TRAONE   "$WorkDir/$Project."TraOne   ro
+ (file)  ONEINT   "$WorkDir/$Project."OneInt   ro*
+ (file)  CIGUGA   "$WorkDir/$Project."CiGuga   ro
+ (file)  MRCIVECT "$WorkDir/$Project."MrciVect rw
+ (file)  CIORB01  "$WorkDir/$Project."CiOrb    rw
+ (file)  TIABIJ   "$WorkDir/"purge.TIabij     rw*
+ (file)  TIABCI   "$WorkDir/"purge.TIabci     rw*
+ (file)  TIABCD   "$WorkDir/"purge.TIabcd     rw*
+ (file)  FT       "$WorkDir/"purge.ft         rw*p

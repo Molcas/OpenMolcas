@@ -1,0 +1,126 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+c
+c0        Basic constants for CCSD procedure
+c
+c0      maximal # of Groups, SubGroups
+        integer maxGrp,maxSGrp
+        parameter (maxGrp=32)
+        parameter (maxSGrp=64)
+c
+c
+c1        Basic parameters for CCSD procedure
+c
+c        no - # of occupied orbitals
+c        nv - # of virtual orbitals
+c        nc - # of Choleski vectors
+c        nfr- # if frozen orbitals
+c
+c        mhkey - FTN/BLAS switch
+c        maxiter - Maximal nuber of iterations
+c        restkey - key for restart [1/0]
+c        generkey - key for generation of integrals from L vectors [1/0]
+c        intkey - key for generation of (vv|vv) and (vv|vo) integrals [1/0]
+c        W34DistKey - 1 - only required W34 files are stored on each node
+c                     0 - all W34 files are stored on each node
+c        JoinLkey   - key to control the cummulation of L L(ml)->L(m)
+c                     0 - no cummulation of L files are needed
+c                     1 - cummulation immidiately afret L(ml) are produced
+c                        (before I, -> I and W are generated using full L)
+c                     2 - cummulation after I
+c                        (I are generated per partes using L(ml) + gadgop
+c                         and W are generated using full L)
+c                     3 - cummulation after W
+c                        (also W34 are generated per partes using L(ml) +g)
+c
+c       printkey     1  - Only basic info is printed (default)
+c                    2  - 1 + timings
+c                    10 - debug info
+c
+        integer no,nv,nc,nfr
+        integer mhkey
+        integer maxiter
+        integer restkey
+        integer generkey
+        integer intkey
+        integer W34DistKey
+        integer JoinLkey
+        integer printkey
+        real*8 conv
+c
+        common /ccsd1/ conv,
+     c                no,nv,nc,nfr,mhkey,maxiter,restkey,generkey,
+     c                intkey,
+     c                       W34DistKey,JoinLkey,
+     c                printkey
+c
+c
+c2        Possition of Permanent arrays
+c
+c        Fock matrix             - PossFoo,PossFvv,PossFvo
+c        Orbital energies        - PossOE
+c        T1 amplitudes, old, new - PossT1o,PossT1n
+c        N2 Intermediates for T1 - PossHoo,PossHvv,PossHvo
+c        N2 Intermediates for T2 - PossGoo,PossGvv
+c        O2OO Intermediate A     - PossA - @@ na zamyslenie, ci nie cez worky
+c        O2OO Intermediate Aex   - PossAex - @@ na zamyslenie, ci nie cez worky
+c        Possition of Free space - PossFree
+c
+        integer PossFoo,PossFvv,PossFvo,PossOE,PossT1o,PossT1n
+        integer PossHoo,PossHvv,PossHvo,PossGoo,PossGvv
+        integer PossA,PossAex
+        integer PossFree
+c
+        common /ccsd2/ PossFoo,PossFvv,PossFvo,PossOE,PossT1o,
+     c                 PossT1n,PossHoo,PossHvv,PossHvo,PossGoo,PossGvv,
+     c                       PossA,PossAex,
+     c                 PossFree
+c
+c
+c        Checkeroo part
+c
+         integer not,nvt
+         parameter (not=4)
+         ! IFG: nvt and nct arbitrarily reduced. If larger sizes
+         ! are needed, these arrays should be dynamically allocated
+         ! or there will be trouble
+         !parameter (nvt=64)
+         parameter (nvt=10)
+         integer nct
+         !parameter (nct=508)
+         parameter (nct=10)
+c
+        real*8 T1c(1:nvt,1:not),T2c(1:nvt,1:nvt,1:not,1:not)
+        real*8 OEo(1:not),OEv(1:nvt)
+         real*8 Q0(1:not,1:not,1:not,1:not)
+         real*8 Q1(1:nvt,1:not,1:not,1:not)
+         real*8 Q21(1:nvt,1:not,1:nvt,1:not)
+         real*8 Q22(1:nvt,1:nvt,1:not,1:not)
+         real*8 Q3(1:nvt,1:nvt,1:nvt,1:not)
+         real*8 Q4(1:nvt,1:nvt,1:nvt,1:nvt)
+         real*8 L0k(1:nct,1:not,1:not)
+         real*8 L1k(1:nct,1:not,1:nvt)
+         real*8 L2k(1:nct,1:nvt,1:nvt)
+c
+         real*8 Jc(1:nvt,1:not,1:not,1:nvt)
+         real*8 Kc(1:not,1:nvt,1:not,1:nvt)
+         real*8 Ac(1:not,1:not,1:not,1:not)
+         real*8 Bc(1:nvt,1:nvt,1:nvt,1:nvt)
+         real*8 Hooc(1:not,1:not)
+         real*8 Hvvc(1:nvt,1:nvt)
+         real*8 Hvoc(1:nvt,1:not)
+         real*8 Gooc(1:not,1:not)
+         real*8 Gvvc(1:nvt,1:nvt)
+c
+         common /checkeroo1/ T1c,T2c,OEo,OEv,Q0,Q1,Q21,Q22,Q3,Q4
+     c                      ,L0k,L1k,L2k
+         common /checkeroo2/ Jc,Kc,Ac,Bc,Hooc,Hvvc,Hvoc,Gooc,Gvvc
+c

@@ -1,0 +1,27 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      INTEGER LADVEC
+      PARAMETER (LADVEC=2024)
+      INTEGER MXVEC,MXBLK
+      PARAMETER (MXVEC=6,MXBLK=40*256*256)
+      INTEGER IF_SOLVER,I40DUMMY,IDSMAT,IDBMAT,IDTMAT,IDSTMAT,
+     &        MODVEC,NLIST,LLIST,NLSTOT,LLISTS,MXSCT,LIDSCT,
+     &        I41DUMMY,IL_SOLVER
+      COMMON /SOLVER/ IF_SOLVER,I40DUMMY,
+     &    IDSMAT(8,MXCASE),IDBMAT(8,MXCASE),IDTMAT(8,MXCASE),
+     &    IDSTMAT(8,MXCASE),MODVEC(8,MXCASE),NLIST(8,8,17),
+     &    LLIST(8,8,17),NLSTOT,LLISTS,MXSCT,LIDSCT,
+     &    I41DUMMY,IL_SOLVER
+      INTEGER IF_VECNUM,I42DUMMY,I43DUMMY,IL_VECNUM,
+     &        IRHS,IVECX,IVECR,IVECC,IVECC2,IVECW
+      COMMON /VECNUM/ IF_VECNUM,I42DUMMY,
+     &    IRHS,IVECX,IVECR,IVECC,IVECC2,IVECW,
+     &    I43DUMMY,IL_VECNUM

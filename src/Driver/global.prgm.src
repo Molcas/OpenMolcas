@@ -1,0 +1,19 @@
+/***********************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+***********************************************************************/
+ (file) molcas_info "$WorkDir/"molcas_info             rw
+ (file) molcas.env  "$WorkDir/"molcas.env              rw
+ (file) xmldump     "$WorkDir/"xmldump                 rws
+ (file) RUNFILE     "$WorkDir/$Project$SubProject."RunFile       rw
+ (file) RUNTMP      "$WorkDir/$Project."RunFileTmp     rwp
+ (file) RUNOLD      "$WorkDir/$Project$SubProject."RunOld        rw
+ (file) RUNBACK     "$WorkDir/$Project$SubProject."RunBack       rw
+ (file) RUNBCK2     "$WorkDir/$Project$SubProject."RunBack2      rw
+ (file) status      "$CurrDir/$Project."status         rw

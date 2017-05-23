@@ -1,0 +1,26 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+C TEMPORARY DATA FROM JOBIPHS
+      REAL*8 POTNU1
+      INTEGER NACTE1,MPLET1,NSYM1,
+     *        NFRO1,NISH1,NASH1,
+     *        NDEL1,NBAS1,NRS11,NRS21,
+     *        NRS31,LROT1,NROOT1,IROOT1,
+     *        NHOL11,NELE31
+      COMMON /MISC/ POTNU1,NACTE1,MPLET1,NSYM1,
+     *        NFRO1(8),NISH1(8),NASH1(8),
+     *        NDEL1(8),NBAS1(8),NRS11(8),NRS21(8),
+     *        NRS31(8),LROT1,NROOT1,IROOT1(mxRoot),
+     *        NHOL11,NELE31
+      CHARACTER*4 NAME(2,mxOrb)
+      CHARACTER*2 HEAD1(72)
+      CHARACTER*4 TITLE1(18,mxTit)
+      COMMON /MISCC/ NAME,HEAD1,TITLE1

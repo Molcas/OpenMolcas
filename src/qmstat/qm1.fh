@@ -1,0 +1,43 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*--------------------------------------------------------------------*
+* Common variables, unique for SCF.                                  *
+*--------------------------------------------------------------------*
+* INTEGER:                                                           *
+* --------                                                           *
+* iSupM                -        Pointer to the supermatrix.          *
+* iV1               -        Pointer to MO-coefficients for QM-region*
+*                                                                    *
+* REAL:                                                              *
+* -----                                                              *
+* HHMat                -        The one-electron contribution to the *
+*                        Hamiltonian.                                *
+* outxyz        -        Coordinates of the MME-sites in the QM-mol. *
+* Cha                -        The charges in the MME expansion.      *
+* DipMy                -        The dipoles in the MME expansion.    *
+* Quad                -        The quadrupoles in the MME expansion. *
+* PotNuc        -        Nuclear repulsion.                          *
+* DenCorrD        -        Density difference between HF and MP2.    *
+* Trace_MP2        -        Trace to MP2-HF difference density.      *
+*                                                                    *
+* CHARACTER:                                                         *
+* ----------                                                         *
+*                                                                    *
+* LOGICAL:                                                           *
+* --------                                                           *
+*                                                                    *
+*--------------------------------------------------------------------*
+
+      Common/ScfQMinte/iSupM,iV1
+
+      Common/ScfQmreal/HHMat(MxOT),outxyz(MxQCen,3),Cha(MxOT,MxQCen)
+     &,DipMy(MxOT,3,MxQCen),Quad(MxOt,6,MxQCen),PotNuc,FockM(MxOT)
+     &,DenCorrD(MxOT),Trace_MP2

@@ -1,0 +1,67 @@
+#
+# Source code
+#
+SRC1     = testrf.f
+SRC2     = rf2asc.f
+SRC3     = asc2rf.f
+INCDIR  = ../../src_LGPL/runfile_util
+LIBDIR  = ../../lib
+MODDIR  = .
+GAINC   = @GAINC@
+GALIB   = @GALIB@
+XLIB    = @XLIB@
+
+OBJ1     = testrf.o
+OBJ2     = rf2asc.o
+OBJ3     = asc2rf.o
+
+EXE1     = testrf.exe
+EXE2     = rf2asc.exe
+EXE3     = asc2rf.exe
+
+UTILS    = @UTIL_LIST@
+MYUTILS  = $(filter ${UTILS},runfile_util io_util shared_util leftbehind_util system_util xml_util peekpoke_util integral_util essl2_util blas_util ga_util mma_util dga_util)
+LIBS     = $(addprefix -l, ${MYUTILS})
+ARCHIVES = $(addsuffix .a, $(addprefix ${LIBDIR}/lib, ${MYUTILS}))
+# tweak grouping for linker
+LIB_GR = ${LIBS} ${GALIB} ${XLIB} 
+LIBGROUP = -Wl,--start-group ${LIB_GR} -Wl,--end-group
+ifeq (@PLATFORM@,$(filter AIX MacOS,@PLATFORM@))
+LIBGROUP = ${LIB_GR}
+endif
+ifeq (@COMPILER@,NAG)
+comma = ,
+empty = 
+space = $(empty) $(empty)
+LIBGROUP = -Wl,-Wl,,--start-group,$(subst $(space),$(comma),$(strip ${LIB_GR})),-Wl,,--end-group
+endif
+
+#
+# Fortran compiler
+#
+FC      = @F77@
+FFLAGS  = @F77FLAGS@
+LDFLAGS = @LDFLAGS@
+
+#
+# targets
+#
+
+default: ${EXE1} ${EXE2} ${EXE3}
+
+${OBJ1}: ${SRC1}
+	${FC} -c ${FFLAGS} ${SRC1}
+${OBJ2}: ${SRC2}
+	${FC} -c ${FFLAGS} ${SRC2}
+${OBJ3}: ${SRC3}
+	${FC} -c ${FFLAGS} ${SRC3}
+${EXE1}: ${OBJ1} ${ARCHIVES}
+	${FC} -o ${EXE1} ${OBJ1} ${LDFLAGS} -L${LIBDIR} ${LIBGROUP}
+${EXE2}: ${OBJ2} ${ARCHIVES}
+	${FC} -o ${EXE2} ${OBJ2} ${LDFLAGS} -L${LIBDIR} ${LIBGROUP}
+${EXE3}: ${OBJ3} ${ARCHIVES}
+	${FC} -o ${EXE3} ${OBJ3} ${LDFLAGS} -L${LIBDIR} ${LIBGROUP}
+all:
+	make clean ${OBJ1} ${EXE1} ${OBJ2} ${EXE2} ${OBJ3} ${EXE3}
+clean:
+	rm -fr *.o *.s *.exe

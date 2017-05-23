@@ -1,0 +1,24 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      Integer         iGATim, iGAStat, nFld_tim, nFld_stat
+      Common /TIMTRA/ iGATim, iGAStat, nFld_tim, nFld_stat
+c-------------------------------------------------------------
+c      Parameter (nFldmax = 11)
+cVV:  nFldmax must be 11, but because of the bug in GCC/G77 3.0.4 it temporary equal 16
+c
+c-------------------------------------------------------------
+      Integer    nFldmax
+      Parameter (nFldmax = 16)
+*
+      Real*8 TimAcc(nFldmax)
+      Character*45 NamFld(nFldmax),NamStat(nFldmax)
+      Common /TIMTRAR/ TimAcc
+      Common /TIMTRAC/ NamFld,NamStat

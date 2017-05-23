@@ -1,0 +1,109 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*---------------------------------------------------------------------*
+*                                                                     *
+*     Entry points to auxiliary information on 2el. file:             *
+*                                                                     *
+*     lAuxTw  : no. of auxiliray informations used on 2el file        *
+*     isUnit  : logical unit number of 2el. integral file             *
+*     isStat  : Status identifier ( =0:closed, =1,opened)             *
+*     isDada  : Disks adress of last access                           *
+*     isUpk8  : pointer to next integral to unpack                    *
+*     islBf1  : number of left integrals in TWOBUF                    *
+*     isNpq   : Number of pq pairs per symmetry batch which has       *
+*               not been read currently                               *
+*     isNext  : first free location for supplementary information     *
+*                                                                     *
+*     Entry points to table of contents for ordered 2el. integrals:   *
+*                                                                     *
+*     lTocTw  : length of table of content                            *
+*     isId    : location of file identifier                           *
+*     isVer   : location of version number                            *
+*     isOrd   : location of ordering key                              *
+*     isForm  : format of data on disk                                *
+*     isSym   : location of number of irred. representations          *
+*     isBas   : first location of basis function counters             *
+*     isSkip  : first location of the skip flags                      *
+*     isDAdr  : first location of disk adresses for each sym. batch   *
+*     isMxDa  : highest disk adress written                           *
+*     isPkTh  : location of threshold for packing                     *
+*     isPkCt  : location of cutof for packing                         *
+*     isPkSc  : location of scaling constant for packing              *
+*     isPkPa  : location of packing key                               *
+*     isPkAs  : location of assmbler key                              *
+*     isPkTb  : first location of packing table                       *
+*     isPMod  : first location of packing mode table                  *
+*     isFree  : first free location for suplementary information      *
+*                                                                     *
+*     Parameters for the symmetry block number to batch number        *
+*     translation table                                               *
+*                                                                     *
+*     lBatch  : length of the translation table                       *
+*                                                                     *
+*     Dummy number used to initialize AuxTwo and TocTwo               *
+*                                                                     *
+*     iNoNum  : dummy constant = -1                                   *
+*                                                                     *
+*---------------------------------------------------------------------*
+*
+      Parameter ( isUnit  = 1            )
+      Parameter ( isStat  = isUnit+1     )
+      Parameter ( isDaDa  = isStat+1     )
+      Parameter ( isUpk8  = isDaDa+1     )
+      Parameter ( islBf1  = isUpk8+1     )
+      Parameter ( isNpq   = islBf1+1     )
+      Parameter ( isNext  = isNpq+1      )
+      Parameter ( lAuxTwo = isNext+10    )
+*
+      Parameter ( isId    = 1            )
+      Parameter ( isVer   = isId+1       )
+      Parameter ( isOrd   = isVer+1      )
+      Parameter ( isForm  = isOrd+1      )
+      Parameter ( isSym   = isForm+1     )
+      Parameter ( isBas   = isSym+1      )
+      Parameter ( isSkip  = isBas+8      )
+      Parameter ( isDAdr  = isSkip+8     )
+      Parameter ( isMxDa  = isDadr+176   )
+      Parameter ( isPkTh  = isMxDa+1     )
+      Parameter ( isPkCt  = isPkTh+2     )
+      Parameter ( isPkSc  = isPkCt+2     )
+      Parameter ( isPkPa  = isPkSc+2     )
+      Parameter ( isPkAs  = isPkPa+1     )
+      Parameter ( isPkTb  = isPkAs+1     )
+      Parameter ( isFree  = isPkTb+4096  )
+      Parameter ( lTocTwo = isFree+10    )
+*
+      Parameter ( lBatch  = 1296         )
+*
+      Parameter ( iNoNum  = -1           )
+*
+      Integer AuxTwo(lAuxTwo)
+      Integer TocTwo(lTocTwo)
+      Integer nBatch(lBatch)
+      Common /TwoDat/ AuxTwo,TocTwo,nBatch
+*
+*---------------------------------------------------------------------*
+*                                                                     *
+*     save control structures needed if the two-electron integrals    *
+*     if random access memory (RAM) is used as disk to keep them.     *
+*                                                                     *
+*---------------------------------------------------------------------*
+*
+      Logical RAMD
+      Integer RAMD_anchor, ip_RAMD
+      Integer RAMD_size
+      Integer RAMD_adr(176)
+      Real*8  RAMD_ints(8)
+      Integer RAMD_next
+      Common/rRAMdisk/RAMD_ints
+      Common/lRAMdisk/RAMD
+      Common/iRAMdisk/RAMD_adr,RAMD_size,RAMD_anchor,
+     &               RAMD_next,ip_RAMD

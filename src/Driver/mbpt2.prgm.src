@@ -1,0 +1,27 @@
+/***********************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+***********************************************************************/
+ (prgm) "$MOLCAS"/bin/mbpt2.exe             executable
+#include "aoints.inc"
+#include "choints.inc"
+#include "mp2_RI_dens.inc"
+ (file)  MPPROP   "$WorkDir/$Project."MpProp      rw
+ (file)  MBPT2INP "$WorkDir/$Project."Mbpt2.Input         rwi
+ (file)  LUHLF   "$WorkDir/"purge.tmp00          rw*p
+ (file)  MOLINT  "$WorkDir/"purge.tmp004         rw*p
+ (file)  TMPINT  "$WorkDir/"purge.tmp888         rwp
+ (file)  LTRA          "$WorkDir/$Project".LTra        rw*p
+ (file)  LUGAM         "$WorkDir/$Project".LuGam       rw
+ (file)  TMPBIN        "$WorkDir/$Project".TmpBin      rw*p
+#include "orbitals.inc"
+#include "moldenfiles.inc"
+ (file)  TMPV          "$WorkDir/$Project".TmpV        rw*p
+ (file)  REMEZ         "$WorkDir/$Project".Remez.txt   rwt
+#include "geodata.inc"

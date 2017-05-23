@@ -1,0 +1,36 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      Logical lPSO,lsa, Case_3C, Case_2C, Case_mp2
+      Integer l2ndStrt,l2ndEnd
+      Common /l2nd/ l2ndStrt,
+     &              lPSO,lsa,Case_3C,Case_2C,Case_mp2,
+     &              l2ndEnd
+      Integer nnP(0:7), iOff_ij2K(8),npos(0:7,3),ipAOrb(0:7,2)
+      Integer i2ndStrt,ipD0,ipDVar,ipDS,ipDSVar,nDens,iD0Lbl,ipG2,nG2,
+     &        ipCMO,MCMO,ipG1,nG1,ipCMOa,ipCMOb,ip_V_K,ip_U_K,nV_K,
+     &        ip_Z_p_k,nZ_p_k,ip_Txy,n_Txy,ip_Thpkl,ip_ij2K,n_ij2K,
+     &        ipDMdiag,nSOs1,i2ndEnd
+      Common /i2nd/ i2ndStrt,
+     &              ipD0,ipDVar,ipDS,ipDSVar,nDens,iD0Lbl,
+     &              ipG2,nG2,ipCMO,mCMO,ipG1,nG1,
+     &              ipCMOa,ipCMOb,ip_V_K,ip_U_K,nV_K,
+     &              ip_Z_p_k,nZ_p_k,ip_Txy,n_Txy,ip_Thpkl,
+     &              ip_ij2K,n_ij2K,ipDMdiag,
+     &              nnP,nSOs1,iOff_ij2K,npos,ipAOrb,
+     &              i2ndEnd
+#ifdef MOLPRO
+      Integer i2nd1Strt,ipD01,nDens1,iD0Lbl1,ipG21,nG21,ipCMO1,mCMO1,
+     &        ipG11,nG11,i2nd1End
+      Common /i2nd1/ i2nd1Strt,
+     &               ipD01,nDens1,iD0Lbl1,
+     &               ipG21,nG21, ipCMO1, mCMO1, ipG11,nG11,
+     &               i2nd1End
+#endif

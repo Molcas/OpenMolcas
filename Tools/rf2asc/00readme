@@ -1,0 +1,7 @@
+This directory contains two programs for converting runfiles.
+
+rf2asc - converts a runfile from binary to ascii format
+asc2rf - converts a runfile from ascii to binary format
+
+Edit the makefile and change LIBS, INC, FC and FFLAGS to reflect your
+installation of molcas.

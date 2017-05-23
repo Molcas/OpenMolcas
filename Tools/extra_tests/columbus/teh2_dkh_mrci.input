@@ -1,0 +1,79 @@
+*$ this file belongs to the Molcas repository $
+*-------------------------------------------------------------------------------
+* Molecule: CH2
+* Basis: cc-pvtz 
+* Symmetry: C2v
+*-------------------------------------------------------------------------------
+ &SEWARD   &END
+symmetry
+x y
+basis set
+Te.ano-rcc.Roos.22s19p13d5f3g.6s5p3d1f.
+Te 0.000000 0.000000 0.0000000 
+end of basis
+basis set
+H.ano-rcc.Widmark.8s4p3d1f.3s2p1d.
+H 0.00000000 2.257800000 2.257800000
+end of basis
+end of input
+*-------------------------------------------------------------------------------
+ &SCF  &END
+occupied
+13 6 6 2
+end of input
+*-------------------------------------------------------------------------------
+ &RASSCF  &END
+inactive
+11 5 5 2
+ras2
+3 1 2 0
+nactel
+8 0 0
+lumorb
+Thrs
+1.0E-9 1.0E-6 1.0E-6
+Iter
+70,25
+OUTORBITALS
+ CANONICAL
+end of input
+
+ &COLUMBUS &END
+BEGIN_SECTION_GENERAL
+TITLE
+ TeH2: DKH
+END_SECTION_GENERAL
+BEGIN_SECTION_MRCI
+DRT
+MULTIPLICITY
+ 1
+SYMMETRY
+ 1
+NROOT
+ 1
+ELECTRONS
+ 54
+END_DRT
+SUBSPACEDIM
+ 5
+ITERATIONS
+ 40  1 
+ACCURACY
+ 0.001
+REFSPACE
+ FULL
+MRCISD
+GENSPACE
+EXLVL
+ 2
+FROZENCORE
+ 11 5 5 2 
+REFDOCC
+ 0 0 0 0
+REFRAS
+ 0 0 0 0
+REFCAS
+ 3 1 2 0
+END_SECTION_MRCI
+end of input 
+

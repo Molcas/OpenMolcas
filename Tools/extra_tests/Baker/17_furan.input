@@ -1,0 +1,35 @@
+* $ this file belongs to the Molcas repository $
+>>>> SET MAXITER 30 <<<<
+>>>> DO WHILE <<<<<
+ &Seward &End
+
+Title
+Baker's test suite: furan
+
+Basis set
+O.$Basis....
+O    0.0000000000  -2.7115570299   0.0000000000
+End of Basis
+Basis set
+C.$Basis....
+C1   1.3040964455   1.3560027694   0.0000000000
+C2  -1.3040964455   1.3560027694   0.0000000000
+C3   2.0768090816  -1.1487031091   0.0000000000
+C4  -2.0768090816  -1.1487031091   0.0000000000
+End of Basis
+Basis set
+H.$Basis....
+H1   2.5163904951   2.9978275455   0.0000000000
+H2  -2.5163904951   2.9978275455   0.0000000000
+H3   3.9939987516  -1.8493486908   0.0000000000
+H4  -3.9939987516  -1.8493486908   0.0000000000
+End of Basis
+End of Input
+
+ &SCF &End
+$KSDFT
+End of Input
+
+ &Slapaf &End
+End of Input
+>>>>> ENDDO <<<<

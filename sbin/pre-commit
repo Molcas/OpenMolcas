@@ -1,0 +1,101 @@
+#!/bin/bash
+#***********************************************************************
+# This file is part of OpenMolcas.                                     *
+#                                                                      *
+# OpenMolcas is free software; you can redistribute it and/or modify   *
+# it under the terms of the GNU Lesser General Public License, v. 2.1. *
+# OpenMolcas is distributed in the hope that it will be useful, but it *
+# is provided "as is" and without any express or implied warranties.   *
+# For more details see the full text of the license in the file        *
+# LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#***********************************************************************
+#
+# git hook that prevents accidental commits to protected branches
+# or protected directories, and runs some style checks
+
+RC=0
+SBIN=0
+
+TMPDIR=$(mktemp -d)
+trap 'rm -rf "$TMPDIR"' EXIT
+
+# check changes to sbin/
+for FILE in $(git diff-index --cached --name-only HEAD)
+do
+    if [[ "$FILE" == sbin\/* ]]
+    then
+        SBIN=1
+    fi
+    git checkout-index --prefix=$TMPDIR/ $FILE
+done
+DIR=$PWD
+(cd $TMPDIR ; "$DIR"/sbin/copyright -r .)
+
+# temporarily set MOLCAS to $TMPDIR to run style checks
+export MOLCAS=$TMPDIR
+if [ -x sbin/check_style]
+then
+    if ! sbin/check_style
+    then
+        RC=1
+    fi
+fi
+
+if (( $RC ))
+then
+    exit $RC
+fi
+
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+case "$BRANCH" in
+  # protected branches: disallow
+  master|daily-snapshot)
+    echo "    ==========================================================="
+    echo "    You tried to commit to one of the protected branches"
+    echo "    (master, daily-snapshot)."
+    echo "    This is not recommended, even in your local machine."
+    echo ""
+    echo "    If you really want to commit to one of these branches,"
+    echo "    use the \"--no-verify\" flag with \"git commit\"".
+    echo ""
+    echo "    Maybe you wanted to commit to your own \"nickname\" branch,"
+    echo "    in that case you should \"git checkout\" your branch first."
+    echo ""
+    echo "    You can always create a new local branch to commit to:"
+    echo "    \"git branch <new-branch-name>\""
+    echo "    ==========================================================="
+    RC=3
+    ;;
+  # any other branch: continue
+  *)
+    ;;
+esac
+
+if (( $RC ))
+then
+    exit $RC
+fi
+
+# check changes to sbin/
+# (if this is a merge commit, bypass the check)
+if [ -z "$(git rev-parse -q --verify MERGE_HEAD)" ]
+then
+    if (( $SBIN ))
+    then
+        echo "    ==========================================================="
+        echo "    You tried to commit changes to the sbin/ directory."
+        echo "    This is restricted and only allowed for administrators."
+        echo ""
+        echo "    If you wish to apply the changes, please send the modified"
+        echo "    files to one of the administrators."
+        echo ""
+        echo "    If you are working on a local or special branch that is"
+        echo "    not meant to be merged, you can disable this check by using"
+        echo "    the \"--no-verify\" flag with \"git commit\"".
+        echo "    ==========================================================="
+        RC=2
+    fi
+fi
+
+exit $RC

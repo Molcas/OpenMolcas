@@ -1,0 +1,99 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+#ifdef MOLPRO
+#define _GA_
+#endif
+*----------------------------------------------------------------------*
+*     General definitions                                              *
+*----------------------------------------------------------------------*
+      Integer ON,OFF
+c #ifdef _I8_
+c #if defined(_NECSX_) || defined(NAGFOR)
+c       Data ON/8hON      /,OFF/8hOFF     /
+c #else
+c       Parameter(ON =8hON      )
+c       Parameter(OFF=8hOFF     )
+c #endif
+c #else
+c #if defined(_NECSX_) || defined(NAGFOR)
+c       Data ON/4hON      /,OFF/4hOFF     /
+c #else
+c       Parameter(ON =4hON  )
+c       Parameter(OFF=4hOFF )
+c #endif
+c #endif
+       Parameter(ON =1   )
+       Parameter(OFF=0   )
+*
+      Parameter ( ipStat   = 1          )
+      Parameter ( ipTrace  = ipStat+1   )
+      Parameter ( ipQuery  = ipTrace+1  )
+      Parameter ( ipSysOut = ipQuery+1  )
+*----------------------------------------------------------------------*
+*     Definitions specific to the subroutines SetMem and GetMem        *
+*     and IniMem                                                       *
+*----------------------------------------------------------------------*
+#ifdef _GA_
+      Parameter ( mxFld    = 8192       )
+#endif
+*
+      Parameter ( ipClear  = ipSysOut+1 )
+      Parameter ( ipCheck  = ipClear+1  )
+#ifdef _GA_
+      Parameter ( ipFldCnt = ipCheck+1  )
+      Parameter ( ipFldDat = ipFldCnt+1 )
+      Parameter ( lMemCtl  = ipFldDat+4*mxFld)
+*
+      Integer MemCtl(lMemCtl)
+      Character*(8) MemCtlT(ipFldDat+mxFld)
+      Common / MOLCAS_GetMem / MemCtl,MemCtlT
+#else
+      Integer MemCtl(ipCheck)
+      Common / MOLCAS_GetMem / MemCtl
+#endif
+*----------------------------------------------------------------------*
+      Parameter ( ipAtrI   = ipSysOut+1 )
+      Parameter ( ipAtrW   = ipAtrI+1   )
+      Parameter ( ipAtrE   = ipAtrW+1   )
+      Parameter ( ipAtrS   = ipAtrE+1   )
+      Parameter ( lErrCtl  = ipAtrS+1   )
+*
+      Integer ErrCtl(lErrCtl)
+      Common / MOLCAS_ErrHnd / ErrCtl
+*----------------------------------------------------------------------*
+*     Definitions specific to the subroutines qEnter, qExit, qStat,    *
+*     IniQue and SetQue                                                *
+*----------------------------------------------------------------------*
+      Parameter ( mxQTbl   = 256        )
+      Parameter ( mxQStk   = 128        )
+*
+      Parameter ( iplTbl   = ipSysOut+1 )
+      Parameter ( ipTbl    = iplTbl  +1 )
+      Parameter ( iplStk   = ipTbl   + 4*mxQTbl )
+      Parameter ( ipStk    = iplStk  +1 )
+      Parameter ( lQueCtl  = ipStk   + 3*mxQStk )
+*
+      Integer QueCtl(lQueCtl)
+      Common / MOLCAS_Query  / QueCtl
+*----------------------------------------------------------------------*
+*     Definitions system buffer which is referenced by the subroutines *
+*     Remark, StkI, StkR, StkA and DmpMsg                              *
+*----------------------------------------------------------------------*
+      Parameter ( iZone1 = 1 )
+      Parameter ( iZone2 = 2048 )
+*
+      Parameter ( lSysBuf = 128*128  )
+      Parameter ( lHeuer  = 8        )
+*
+      Real*8 Heuer(lHeuer)
+      Integer StkIni, ClkInc
+      Character*1 SysBuf(lSysBuf)
+      Common / MOLCAS_SysBuf / Heuer,ClkInc,StkIni,SysBuf

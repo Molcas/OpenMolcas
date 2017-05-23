@@ -1,0 +1,2 @@
+INCDIR = ${MOLCASROOT}/src/gugaci_util
+FC        = @F90@

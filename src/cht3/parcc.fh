@@ -1,0 +1,82 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+c
+c        ChCC include for parallel computing
+c
+c        integer nProcs
+c
+        integer MaxNod
+        parameter (maxNod=512)
+c
+c
+c1        BetaID(myRank,beGrp) - idicate, if contributions, that need to be
+c        realized only once per each beta' will be realized on this node (myRank)
+c        =1, contributions will be realized on this node
+c        =0, not to be realized on this node
+c
+        integer BetaID(0:(maxNod-1),1:maxGrp)
+c
+c
+c2.1        BeAID(myRank,beGrp,bGrp) - idicate, which be' a' combinations
+c        are to be evaluated on this node (myRank)
+c        =1, this be' a' combination is to be realized on this node
+c        =0, not to be realized on this node
+c
+        integer BeAID(0:(maxNod-1),1:maxGrp,1:maxGrp)
+c
+c2.2        ABID(myRank,aGrp,bGrp) - idicate, which a'b' values are to be evaluated
+c        on this node (myRank)
+c        =1, this a'b' combination is to be realized on this node
+c        =0, not to be realized on this node
+c
+        integer ABID(0:(maxNod-1),1:maxGrp,1:maxGrp)
+c
+c
+c3        Xyes(p,q) - idicate, if in Tmp2(p,q) is a record of X from
+c       o3v3chol part on this node
+c        =1, there is a record from o3v3chol part on this node
+c         =0, file is leaving empty from o3v3chol  on this node
+c
+        integer Xyes(1:maxGrp,1:maxGrp)
+c
+c
+c4        XYyes(p,q) - idicate, if in Tmp2(p,q) is a record of XY from
+c       o3v3t2 part on this node
+c        =1, there is a record from o3v3t2 part on this node
+c         =0, there is no record from o3v3t2  on this node
+c           (but there still can be record from o3v3chol on this node)
+c
+        integer XYyes(1:maxGrp,1:maxGrp)
+c
+c
+c5        T2o2v4yes(p,q) - idicate, if in Tmp3(p,q) is a record of T2n from
+c       o2v4 part on this node
+c        =1, there is a record from o2v4 part on this node
+c         =0, there is no record from o2v4  on this node
+c
+        integer T2o2v4yes(1:maxSGrp,1:maxSGrp)
+c
+c
+c6        Local number of Choleski vectors on each node
+        integer NChLoc(0:(maxnod-1))
+c
+c
+c7        Files, containing information which W3 and W4 files are
+c        used on this node
+         logical InqW3 (1:maxSGrp*(maxSGrp+1)/2,1:maxSGrp)
+         logical InqW4 (1:maxSGrp*(maxSGrp+1)/2,1:maxSGrp*(maxSGrp+1)/2)
+c
+        common /cht3_par1/ BetaID,BeAID,ABID,
+     c                     Xyes,XYyes,T2o2v4yes
+c
+        common /cht3_par2/ NChLoc
+c
+        common /cht3_par3/ InqW3,InqW4

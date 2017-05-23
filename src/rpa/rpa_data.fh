@@ -1,0 +1,33 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+C RPA data
+      Integer mTitle
+      Parameter (mTitle=10)
+      Character*80 Title(mTitle)
+
+      Integer nTitle, nSym
+      Integer nFreeze(2)
+      Integer nBas(8), nOrb(8)
+      Integer nFro(8,2), nOcc(8,2), nVir(8,2), nDel(8,2)
+      Integer ip_CMO(2), l_CMO(2)
+      Integer ip_EMO(2), l_EMO(2)
+      Integer ip_OccEn(2), l_OccEn(2)
+      Integer ip_VirEn(2), l_VirEn(2)
+
+      Real*8 NuclearRepulsionEnergy(1)
+
+      Common / RPADTC / Title
+      Common / RPADTI / nTitle, nSym,
+     *                  nFreeze,
+     *                  nBas, nOrb, nFro, nDel, nOcc, nVir,
+     *                  ip_CMO, l_CMO, ip_EMO, l_EMO,
+     *                  ip_OccEn, l_OccEn, ip_VirEn, l_VirEn
+      Common / RPADTR / NuclearRepulsionEnergy

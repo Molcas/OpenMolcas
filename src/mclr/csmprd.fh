@@ -1,0 +1,25 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*
+*          ADASX        : symmetry operator         initialized in syminf
+*         ASXAD        :                         initialized in syminf
+*        ADSXA        :                        initialized in syminf
+*        SXSXDX        :                        initialized in syminf
+*        SXDXSX        :                        initialized in syminf
+*
+      integer ADASX(MXPOBS,MXPOBS),ASXAD(MXPOBS,2*MXPOBS),
+     &              ADSXA(MXPOBS,2*MXPOBS),
+     &              SXSXDX(2*MXPOBS,2*MXPOBS),SXDXSX(2*MXPOBS,4*MXPOBS)
+
+
+      COMMON/CSMPRD/ADASX,ASXAD,
+     &              ADSXA,
+     &              SXSXDX,SXDXSX

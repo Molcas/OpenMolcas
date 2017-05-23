@@ -1,0 +1,48 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2001-2005, Valera Veryazov                             *
+************************************************************************
+       Character*32 BasTypeCon
+       Character*20 BasTypeAll
+       Character*52 BasTypeRel
+       Character*20 BasTypeNuc
+       Data BasTypeCon/'SEG:ANO:RAF:CCC:UNK:UNC:ARC:GEN:'/
+       Data BasTypeAll/'AE_:NAE:YES:NO_:UNK:'/
+       Data BasTypeRel
+     &        /'NRH:RH_:RCP:DKH:UNK:DK2:DK3:DK4:DK5:DK6:DK7:DK8:RYD:'/
+       Data BasTypeNuc/'PN_:GN_:MGN:UNK:'/
+c
+c  'strange' order is due to back compatibility issues
+c
+
+c 1: contraction
+c  - SEG: Segmented
+c  - ANO: ANO
+c  - RAF: Raffenetti
+c  - CCC: CC contraction
+c  - UNC: Uncontracted
+c  - ARC: automatic raffenetti
+c  - GEN: general contraction
+c 2: All electron
+c  - AE:  All electron
+c  - NAE: Not all electron
+c  - YES: same as AE_
+c  - NO_: same as NAE
+c 3: Relativity
+c  - RH:  Relativistic hamiltonian
+c  - NRH: Non relativistic hamiltonian
+c  - RCP: Relativistic core potential
+c  - DKH: DKH
+c  - RYD: Rydberg
+c 4: Nucleus
+c  - PN_: point nucleus
+c  - GN_: gaussian nucleus
+c  - MNG: modified gaussian

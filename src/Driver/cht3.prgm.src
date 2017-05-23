@@ -1,0 +1,33 @@
+/***********************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+***********************************************************************/
+ (prgm) "$MOLCAS"/bin/cht3.exe             executable
+#include "choints.inc"
+ (file) CHT3INP     "$WorkDir/$Project.Cht3.Input"               rwi
+ (file) L0vctr      "$WorkDir/$Project.L0vctr"                   rw*
+ (file) L1vc        "$WorkDir/$Project.L1vc"                     rw*
+ (file) L20         "$WorkDir/$Project.L20"                      rw*
+ (file) CD1TMP      "$WorkDir/$Project.CD1TMP"                   rw*
+ (file) I0intg      "$WorkDir/$Project.I0intg"                   rw*
+ (file) I1in        "$WorkDir/$Project.I1in"                     rw*
+ (file) I20         "$WorkDir/$Project.I20"                      rw*
+ (file) I30         "$WorkDir/$Project.I30"                      rw*
+ (file) T20         "$WorkDir/$Project.T20"                      rw*
+ (file) W30         "$WorkDir/$Project.W30"                      rw*
+ (file) W40         "$WorkDir/$Project.W40"                      rw*
+ (file) X10         "$WorkDir/$Project.X10"                      rw*
+ (file) X20         "$WorkDir/$Project.X20"                      rw*
+ (file) X30         "$WorkDir/$Project.X30"                      rw*
+ (file) RstFil      "$WorkDir/$Project.RstFil"                   rw
+ (file) KMATAA      "$WorkDir/$Project.KMATAA"                   rw*
+ (file) KMATBA      "$WorkDir/$Project.KMATBA"                   rw*
+ (file) LMATAA      "$WorkDir/$Project.LMATAA"                   rw*
+ (file) LMATBA      "$WorkDir/$Project.LMATBA"                   rw*
+#include "geodata.inc"

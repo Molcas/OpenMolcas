@@ -1,0 +1,339 @@
+&GATEWAY
+  Title = p-benzoquinone D2h structure: MP2/6-31G*
+  Coord = benzoquinone.xyz
+  Group = xy xz xyz
+  Basis = TZVP
+  AngMom = 0.0 0.0 0.0
+  RICD
+  SDipoles
+
+&SEWARD
+  BSShow
+  Verbose
+
+* Symmetry table: ag  b2g b1g b3g au  b2u b1u b3u
+*                 1   2   3   4   5   6   7   8
+
+*=================================================
+*
+* 1Au, 1B1g, 1B2g, 1B3g, 1B1u, 1B2u, 1B3u, 3Au, 3B1g, 3B3g and 3B1u states
+*
+*=================================================
+
+&RASSCF
+  Title =    p-benzoquinone D2h ground state 1Ag
+  Spin =     1
+  Symmetry = 1
+  nActEl =   12 0 0
+  Inactive = 8 0 0 3 0 4 7 0
+  Ras2 =     0 3 1 1 1 1 0 3
+  CIRoot =   1 1 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.1Ag-GS.RasOrb
+
+&CASPT2
+  Title =      p-benzoquinone D2h ground state 1Ag
+  Multistate = 1  1
+  Shift =      0.2
+
+>>COPY $Project.JobMix JOB001
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    p-benzoquinone D2h states 1Au
+  Spin =     1
+  Symmetry = 5
+  nActEl =   12 0 0
+  Inactive = 8 0 0 3 0 4 7 0
+  Ras2 =     0 3 1 1 1 1 0 3
+  CIRoot =   4 4 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.1Au.RasOrb
+
+&CASPT2
+  Title =      p-benzoquinone D2h states 1Au
+  Multistate = 3  1 2 3
+  Shift =      0.2
+
+>>COPY $Project.JobMix JOB002
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    p-benzoquinone D2h states 1B1g
+  Spin =     1
+  Symmetry = 3
+  nActEl =   12 0 0
+  Inactive = 8 0 0 3 0 4 7 0
+  Ras2 =     0 3 1 1 1 1 0 3
+  CIRoot =   4 4 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.1B1g.RasOrb
+
+&CASPT2
+  Title =      p-benzoquinone D2h states 1B1g
+  Multistate = 3  1 2 3
+  Shift =      0.2
+
+>>COPY $Project.JobMix JOB003
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    p-benzoquinone D2h states 1B2g
+  Spin =     1
+  Symmetry = 2
+  nActEl =   12 0 0
+  Inactive = 8 0 0 3 0 4 7 0
+  Ras2 =     0 3 1 1 1 1 0 3
+  CIRoot =   3 3 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.1B2g.RasOrb
+
+&CASPT2
+  Title =      p-benzoquinone D2h states 1B2g
+  Multistate = 3  1 2 3
+  Shift =      0.2
+
+>>COPY $Project.JobMix JOB004
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    p-benzoquinone D2h states 1B3g
+  Spin =     1
+  Symmetry = 4
+  nActEl =   12 0 0
+  Inactive = 8 0 0 3 0 4 7 0
+  Ras2 =     0 3 1 1 1 1 0 3
+  CIRoot =   3 3 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.1B3g.RasOrb
+
+&CASPT2
+  Title =      p-benzoquinone D2h states 1B3g
+  Multistate = 3  1 2 3
+  Shift =      0.2
+
+>>COPY $Project.JobMix JOB005
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    p-benzoquinone D2h states 1B1u
+  Spin =     1
+  Symmetry = 7
+  nActEl =   12 0 0
+  Inactive = 8 0 0 3 0 4 7 0
+  Ras2 =     0 3 1 1 1 1 0 3
+  CIRoot =   4 4 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.1B1u.RasOrb
+
+&CASPT2
+  Title =      p-benzoquinone D2h states 1B1u
+  Multistate = 4  1 2 3 4
+  Shift =      0.2
+
+>>COPY $Project.JobMix JOB006
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    p-benzoquinone D2h states 1B2u
+  Spin =     1
+  Symmetry = 6
+  nActEl =   12 0 0
+  Inactive = 8 0 0 3 0 4 7 0
+  Ras2 =     0 3 1 1 1 1 0 3
+  CIRoot =   2 2 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.1B2u.RasOrb
+
+&CASPT2
+  Title =      p-benzoquinone D2h states 1B2u
+  Multistate = 2  1 2
+  Shift =      0.2
+
+>>COPY $Project.JobMix JOB007
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    p-benzoquinone D2h states 1B3u
+  Spin =     1
+  Symmetry = 8
+  nActEl =   12 0 0
+  Inactive = 8 0 0 3 0 4 7 0
+  Ras2 =     0 3 1 1 1 1 0 3
+  CIRoot =   3 3 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.1B3u.RasOrb
+
+&CASPT2
+  Title =      p-benzoquinone D2h states 1B3u
+  Multistate = 3  1 2 3
+  Shift =      0.2
+
+>>COPY $Project.JobMix JOB008
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    p-benzoquinone D2h states 3Au
+  Spin =     3
+  Symmetry = 5
+  nActEl =   12 0 0
+  Inactive = 8 0 0 3 0 4 7 0
+  Ras2 =     0 3 1 1 1 1 0 3
+  CIRoot =   2 2 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.3Au.RasOrb
+
+&CASPT2
+  Title =      p-benzoquinone D2h states 3Au
+  Multistate = 2  1 2
+  Shift =      0.2
+
+>>COPY $Project.JobMix JOB009
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    p-benzoquinone D2h states 3B1g
+  Spin =     3
+  Symmetry = 3
+  nActEl =   12 0 0
+  Inactive = 8 0 0 3 0 4 7 0
+  Ras2 =     0 3 1 1 1 1 0 3
+  CIRoot =   2 2 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.3B1g.RasOrb
+
+&CASPT2
+  Title =      p-benzoquinone D2h states 3B1g
+  Multistate = 2  1 2
+  Shift =      0.2
+
+>>COPY $Project.JobMix JOB010
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    p-benzoquinone D2h states 3B3g
+  Spin =     3
+  Symmetry = 4
+  nActEl =   12 0 0
+  Inactive = 8 0 0 3 0 4 7 0
+  Ras2 =     0 3 1 1 1 1 0 3
+  CIRoot =   2 2 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.3B3g.RasOrb
+
+&CASPT2
+  Title =      p-benzoquinone D2h states 3B3g
+  Multistate = 2  1 2
+  Shift =      0.2
+
+>>COPY $Project.JobMix JOB011
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    p-benzoquinone D2h states 3B1u
+  Spin =     3
+  Symmetry = 7
+  nActEl =   12 0 0
+  Inactive = 8 0 0 3 0 4 7 0
+  Ras2 =     0 3 1 1 1 1 0 3
+  CIRoot =   2 2 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.3B1u.RasOrb
+
+&CASPT2
+  Title =      p-benzoquinone D2h states 3B1u
+  Multistate = 2  1 2
+  Shift =      0.2
+
+>>COPY $Project.JobMix JOB012
+
+*-------------------------------------------------
+
+&RASSI
+  NrOfJobIphs = 12  1 3 3 3 3 4 2 3 2 2 2 2
+    1
+    1 2 3
+    1 2 3
+    1 2 3
+    1 2 3
+    1 2 3 4
+    1 2
+    1 2 3
+    1 2
+    1 2
+    1 2
+    1 2
+  EJob
+  CIPrint
+  XVES
+  MEES
+  Properties = 15
+    'Mltpl  1' 1  'Mltpl  1' 2  'Mltpl  1' 3
+    'Mltpl  2' 1  'Mltpl  2' 2  'Mltpl  2' 3  'Mltpl  2' 4  'Mltpl  2' 5  'Mltpl  2' 6
+    'AngMom  ' 1  'AngMom  ' 2  'AngMom  ' 3
+    'Velocity' 1  'Velocity' 2  'Velocity' 3
+
+>>RM JOB001
+>>RM JOB002
+>>RM JOB003
+>>RM JOB004
+>>RM JOB005
+>>RM JOB006
+>>RM JOB007
+>>RM JOB008
+>>RM JOB009
+>>RM JOB010
+>>RM JOB011
+>>RM JOB012
+
+*=================================================
+*
+* 1Ag states
+*
+*=================================================
+
+&RASSCF
+  Title =    p-benzoquinone D2h states 1Ag
+  Spin =     1
+  Symmetry = 1
+  nActEl =   12 0 0
+  Inactive = 8 0 0 3 0 4 7 0
+  Ras2 =     0 3 1 1 1 1 0 3
+  CIRoot =   6 6 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.1Ag.RasOrb
+
+&CASPT2
+  Title =      p-benzoquinone D2h states 1Ag
+  Multistate = 6  1 2 3 4 5 6
+  Shift =      0.2
+
+>>COPY $Project.JobMix JOB001
+
+*-------------------------------------------------
+
+&RASSI
+  NrOfJobIphs = 1  6
+    1 2 3 4 5 6
+  EJob
+  CIPrint
+  XVES
+  MEES
+  Properties = 15
+    'Mltpl  1' 1  'Mltpl  1' 2  'Mltpl  1' 3
+    'Mltpl  2' 1  'Mltpl  2' 2  'Mltpl  2' 3  'Mltpl  2' 4  'Mltpl  2' 5  'Mltpl  2' 6
+    'AngMom  ' 1  'AngMom  ' 2  'AngMom  ' 3
+    'Velocity' 1  'Velocity' 2  'Velocity' 3
+
+>>RM JOB001

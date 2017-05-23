@@ -1,0 +1,22 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+C Basis and shell info for local DF
+      Integer nBas_Valence, nBas_Auxiliary
+      Integer nShell_Valence, nShell_Auxiliary
+      Integer ip_iSOShl, l_iSOShl
+      Integer ip_iShlSO, l_iShlSO
+      Integer ip_nBasSh, l_nBasSh
+
+      Common / LDFBSI / nBas_Valence, nBas_Auxiliary,
+     &                  nShell_Valence, nShell_Auxiliary,
+     &                  ip_iSOShl, l_iSOShl,
+     &                  ip_iShlSO, l_iShlSO,
+     &                  ip_nBasSh, l_nBasSh

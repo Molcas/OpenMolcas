@@ -1,0 +1,37 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+! file used in gugaci
+*     one- and two-electron integrals in MO basis
+      Character*8   FnOneMO,FnTwoMO
+      Integer       LuOneMO,LuTwoMO
+      Common /Motra_Files/
+     &  FnOneMO,FnTwoMO,LuOneMO,LuTwoMO
+
+      Character*8   FnDrt,FnLoop
+      Integer       LuDrt,LuLoop
+      Common /Drt_files/
+     &  FnDrt,FnLoop,LuDrt,LuLoop
+
+*     sorted MO integrals
+      character*8  FnCiInt
+      Integer LuCiInt
+      Common /Sort_MOInt/
+     & FnCiInt, LuCiInt
+
+      Character*8 FnCiDia, FnCiVec, FnCiTv1, FnCiTv2,
+     &            FnCiDen, FnCiMO,  Fncisubdrt
+      Integer LuCiDia, LuCiVec, LuCiTv1, LuCiTv2,
+     &        LuCiDen, LuCiMO, Lucisubdrt
+      Common /Diag_File/
+     & FnCiDia, FnCiVec, FnCiTv1, FnCiTv2, FnCiDen, FnCiMO,
+     & Fncisubdrt,
+     & LuCiDia, LuCiVec, LuCiTv1, LuCiTv2, LuCiDen, LuCiMO,
+     % Lucisubdrt

@@ -1,0 +1,34 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+C Local Density Fitting configuration parameters
+C These parameters are set in seward input
+      Integer LDF_Set
+      Parameter (LDF_Set=1357642)
+
+      Integer LDF_RUN_INTERNAL, LDF_RUN_EXTERNAL
+      Parameter (LDF_RUN_INTERNAL=567980, LDF_RUN_EXTERNAL=980567)
+
+      Integer LDF_MXCONSTRAINT
+      Parameter (LDF_MXCONSTRAINT=0)
+
+      Real*8 TooNegative
+      Parameter (TooNegative=-1.0d-8)
+
+      Logical LDF2, VerifyFit, CheckPairIntegrals, CheckOverlapIntegrals
+      Logical WriteUnconstrainedC, UseUniqueAtomPairs
+      Real*8  Thr_Prescreen, Thr_Accuracy
+      Integer LDF_Run_Mode, LDF_Constraint
+
+      Common / LDFCFL / LDF2, VerifyFit, CheckPairIntegrals,
+     &                  CheckOverlapIntegrals, WriteUnconstrainedC,
+     &                  UseUniqueAtomPairs
+      Common / LDFCFR / Thr_Prescreen, Thr_Accuracy
+      Common / LDFCFI / LDF_Run_Mode, LDF_Constraint

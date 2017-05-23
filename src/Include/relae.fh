@@ -1,0 +1,32 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+c
+c     IRELAE = 0  .... DKH
+c            = 1  .... DK1
+c            = 2  .... DK2
+c            = 3  .... DK3
+c            = 4  .... DK3full
+c            = 11 .... RESC
+c            = 21 .... ZORA
+c            = 22 .... ZORA(FP)
+c            = 23 .... IORA
+c            = 101.... X2C
+c            = 102.... BSS
+c
+c     NB: The IRELAE flag has been extended to account for
+c         arbitrary-order DKH with different parametrizations!
+c         IMPORTANT: new arbitrary-order DKH routines are only
+c                    called for IRELAE values LARGER than 1000.
+c         IRFLAG1 = 0 Using the new polynomial cost arbitrary
+c                     order DKH routine (default)
+c         IRFLAG1 = 1 Using the old exponential cost routine
+c
+      Common /RELAE/ IRELAE, IRFLAG1

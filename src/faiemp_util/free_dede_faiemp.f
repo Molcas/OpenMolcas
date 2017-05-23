@@ -1,0 +1,56 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      Subroutine Free_DeDe_FAIEMP(Dens,TwoHam,nDens,ipDq,ipFq)
+      use k2_arrays
+      Implicit None
+#include "real.fh"
+#include "itmax.fh"
+#include "info.fh"
+#include "WrkSpc.fh"
+#include "stdalloc.fh"
+#include "k2.fh"
+#include "setup.fh"
+*
+      Integer nDens,ipDq,ipFq
+      Real*8  Dens(nDens), TwoHam(nDens)
+* local variables
+      Integer nc, mDens, ijq, jiq, ij, i, j
+      Real*8  Factor
+
+      Factor=Half
+*
+      If (nIrrep.eq.1) Then
+* symmetrize fock matrix
+*.... Fix the diagonal elements of D and F
+         Call DScal_(nDens,Two,Dens,1)
+         nc=nbas(0)
+         mDens=nBas(0)**2
+         ijq=ipFq-1
+         jiq=ipFq-nc
+         ij=0
+         do i=1,nc
+           do j=1,i
+             ij=ij+1
+             TwoHam(ij) = Factor*(Work(ijq+j) + Work(jiq+j*nc))
+           end do
+           Dens(ij)  =Half*Dens(ij)
+           jiq = jiq + 1
+           ijq = ijq + nc
+         end do
+         Call GetMem('FMAQ','Free','Real',ipFq,mDens)
+         Call GetMem('DENQ','Free','Real',ipDq,mDens)
+      End If
+*
+      Call mma_deallocate(ipOffD)
+      Call GetMem('DeDe2','Free','Real',ipDeDe,nDeDe)
+*
+      Return
+      End

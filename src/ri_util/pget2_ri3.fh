@@ -1,0 +1,47 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      mijkl=0
+      Do lAOl = 0, lBas-1
+         lSOl = lSO + lAOl
+*
+         Do kAOk = 0, kBas-1
+            kSOk = kSO + kAOk
+*
+            Do jAOj = 0, jBas-1
+               jSOj = jSO + jAOj - nBas(j2)
+               mijkl = mijkl + 1
+*
+               temp=0.0d0
+#ifdef _COULOMB_
+               Indk=Max(kSOk,lSOl)
+               Indl=kSOk+lSOl-Indk
+               iPntkl=iPntSO(j3,j4,lOper,nbas)
+               Indkl=iPntkl+(Indk-1)*Indk/2+Indl
+*
+               temp=temp+V_k(jSOj,1)*DSO(Indkl,1)*Coulfac
+#endif
+*
+#ifdef _EXCHANGE_
+               jp_BklK=ip_BklK + mijkl - 1
+               tempK=Work(jp_BklK)
+               temp = temp - tempK*ExFac*Half
+#endif
+*
+#ifdef _ACTIVE_
+               temp=temp+Thpkl(mijkl)
+#endif
+*
+               PMax=Max(PMax,Abs(Temp))
+               PSO(mijkl,MemSO2) =  Fac * temp
+*
+            End Do
+         End Do
+      End Do

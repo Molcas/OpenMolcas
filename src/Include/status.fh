@@ -1,0 +1,33 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      Integer Active, Inactive, Produced
+      Parameter (  Active=34343434,
+     &           Inactive=43344334,
+     &           Produced=54334555)
+      Integer GT_Status
+      Integer k2_Status
+      Integer PP_Status
+      Integer RctFld_Status
+      Integer T_Status
+      Integer Info_Status
+      Integer ERI_Status
+      Integer DoFock_Status
+      Integer Indexation_Status
+      Integer Ind0_Status
+      Integer XMem_Status
+      Integer NQ_Status
+      Integer Seward_Status
+      Common /Status_Fields/ k2_Status, RctFld_Status, GT_Status,
+     &                       PP_Status, T_Status,
+     &                       Info_Status,
+     &                       ERI_Status, DoFock_Status,
+     &                       Indexation_Status,Ind0_Status,
+     &                       XMem_Status, NQ_Status, Seward_Status

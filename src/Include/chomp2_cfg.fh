@@ -1,0 +1,60 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+C
+C Cholesky MP2 configuration stuff:
+C
+      Logical SOS_mp2
+      Real*8  OED_Thr, EOSMP2, C_os, EMP2_dens
+      Logical set_cd_thr
+      Logical DecoMP2, ChkDecoMP2, ForceBatch, Verbose
+      Logical DoFNO
+      Logical DoDens, DoDens2, NoGamma, DoGrdt
+      Real*8  ThrMP2, SpanMP2
+c      Character*4 NamAct(50)
+      Integer nActa
+      Real*8  ThrLov, vkept, XEMP2, Wref
+      Logical LovMP2, all_Vir, DoMP2, FNOMP2, Laplace
+      Integer ChoAlg, MxQualMP2, ip_Dab, l_Dab, ip_Dii, l_Dii
+      Integer Laplace_nGridPoints, Laplace_BlockSize
+
+      Common / ChMP21 / DecoMP2, ChkDecoMP2, ForceBatch,
+     &                  Verbose
+      Common / ChMP22 / ThrMP2, SpanMP2
+      Common / ChMP23 / ChoAlg, MxQualMP2
+      Common / ChMP24 / XEMP2, Wref
+
+      Common / LAPLCL / Laplace
+      Common / LAPLCI / Laplace_nGridPoints, Laplace_BlockSize
+
+      Common / ChSOS1 / SOS_mp2, set_cd_thr
+      Common / ChSOS2 / OED_Thr, EOSMP2, C_os
+
+      Common / FNMP2 / vkept, FNOMP2
+      Common / ChFNO / DoFNO, ip_Dab, l_Dab, ip_Dii, l_Dii
+c      Common / ChLov / ThrLov, LovMP2, DoMP2, all_Vir, NamAct, nActa
+      Common / ChLov / ThrLov, LovMP2, DoMP2, all_Vir, nActa
+      Logical DoT1amp
+      Integer jT1amp, l_T1, iOffT1(8)
+      Common / ChT1AMP / DoT1amp, jT1amp, l_T1, iOffT1
+
+      Common / Mpg2  / EMP2_dens, DoDens, DoDens2, NoGamma, DoGrdt
+
+      Integer MxQual_Def
+      Real*8  Span_Def
+      Logical Decom_Def
+      Parameter (MxQual_Def = 200)
+      Parameter (Span_Def = 1.0D-2)
+      Parameter (Decom_Def = .false.)
+
+      Integer Laplace_mGridPoints
+      Integer Laplace_BlockSize_Def
+      Parameter (Laplace_mGridPoints=20) ! mx implemented in minimax opt
+      Parameter (Laplace_BlockSize_Def=500)

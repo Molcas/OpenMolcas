@@ -1,0 +1,52 @@
+* $ this file belongs to the Molcas repository $
+>>>> SET MAXITER 200 <<<<
+>>>> DOWHILE <<<<
+
+ &Seward &End
+Basis set
+O.3-21G....
+ O1    1.385059     0.000000     1.942384 Angstrom
+ O2    1.694585     0.623486    -0.151624 Angstrom
+End of Basis
+
+Basis set
+C.3-21G....
+ C1    0.000000     0.000000     0.000000 Angstrom
+ C2    0.000000     0.000000     1.487000 Angstrom
+ C3    2.250680     0.190043     0.904208 Angstrom
+End of Basis
+
+Basis set
+H.3-21G....
+ H1   -0.523112     0.805522    -0.525845 Angstrom
+ H2    0.067441    -0.964456    -0.516229 Angstrom
+ H3   -0.471937     0.916220     1.922864 Angstrom
+ H4   -0.439409    -0.926357     1.937758 Angstrom
+ H5    3.266797    -0.190300     1.044500 Angstrom
+End of Basis
+End of Input
+
+ &SCF &End
+UHF
+Occupation
+20
+19
+End of Input
+
+ &Alaska &End
+End of Input
+
+ &Slapaf &End
+Constraint
+r1 = Bond O2 C1
+r2 = Bond O1 C3
+value
+1.0 r1 + -1.0 r2= 0.40 Angstrom
+End of Constraint
+FindTS
+$Option 
+$Option2
+Iteration
+50
+End of Input
+>>>> ENDDO <<<<

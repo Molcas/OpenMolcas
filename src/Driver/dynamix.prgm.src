@@ -1,0 +1,25 @@
+/***********************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+***********************************************************************/
+ (prgm)  "$MOLCAS"/bin/dynamix.exe             executable
+ (file)  comqum.dat     "$WorkDir/$Project."comqum.dat     rw
+ (file)  velocity.xyz   "$WorkDir/$Project."velocity.xyz   rw
+ (file)  fixforce.dmx   "$WorkDir/$Project."fixforce.dmx   rw
+ (file)  fixenergy.out  "$WorkDir/$Project."fixenergy.out  rw
+ (file)  prmcrd2        "$WorkDir/$Project."prmcrd2        rw
+ (file)  md.xyz         "$WorkDir/$Project."md.xyz         rws
+ (file)  md.prmcrd      "$WorkDir/$Project."md.prmcrd      rws
+ (file)  vmd.mdcrd      "$WorkDir/$Project."vmd.mdcrd      rws
+ (file)  md.energies    "$WorkDir/$Project."md.energies    rws
+ (file)  MOL2GROM       "$WorkDir/$Project."mol2grom       rw
+ (file)  DYN            "$WorkDir/$Project."dyn.h5         rws
+#include "espffiles.inc"
+#include "gradfiles.inc"
+#include "wfnfiles.inc"

@@ -1,0 +1,32 @@
+* $ this file belongs to the Molcas repository $
+>>>> SET MAXITER 30 <<<<
+>>>> DO WHILE <<<<<
+ &Seward &End
+
+Title
+Baker's test suite: allene
+
+Basis set
+C.$Basis....
+C1   0.0000000000   0.0000000000   0.0000000000
+C2   0.0000000000   2.4941929550   0.0000000000
+C3   0.0000000000  -2.4941929550   0.0000000000
+End of Basis
+Basis set
+H.$Basis....
+H1   1.7677201632  -3.5150316644   0.0000000000
+H2  -1.7677201632  -3.5150316644   0.0000000000
+H3   0.0000000000   3.5150316644   1.7677201632 
+H4   0.0000000000   3.5150316644  -1.7677201632 
+End of Basis
+End of Input
+
+ &SCF &End
+$KSDFT
+End of Input
+
+ &Slapaf &End
+Iterations
+10
+End of Input
+>>>>> ENDDO <<<<

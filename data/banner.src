@@ -1,0 +1,59 @@
+#***********************************************************************
+# This file is part of OpenMolcas.                                     *
+#                                                                      *
+# Copyright (C) 2013,2014,2017, Valera Veryazov                        *
+#               2014, Steven Vancoillie                                *
+#               2014,2017, Ignacio Fdez. Galván                        *
+#***********************************************************************
+#
+# Variables:
+# $V$  (Open)Molcas version
+# $P$  Patch level (openmolcas)
+# $Px$ Patch level (molcas-extra)
+# export MOLCAS_BANNER=* to print the banner with * (default: OPENMOLCAS)
+#
+# &: always printed
+# *: printed if molcas-extra is available
+# +: printed if molcas-extra is not available
+                                                                       
+                             &&&                                       
+                             &&&          ++++  +++++  ++++++ +   ++   
+                 &&&        &&&&&        ++  ++ ++  ++ ++     ++  ++   
+                &&&&&       && &&        ++  ++ ++  ++ ++     +++ ++   
+                && &&      &&   &&       ++  ++ +++++  ++++   ++++++   
+                &&  &&     &&   &&       ++  ++ ++     ++     ++ +++   
+               &&   &  &&&&  &  &&       ++  ++ ++     ++     ++  ++   
+               &&  &   &&&   && &&        ++++  ++     ++++++ ++   +   
+               &  &&&   &&  &&&  &&                                    
+            &&&   &&&   &   &&&    &&                                  
+        &&&&&&&  &&&&&     &&&&&   &&&&&&                              
+     &&&&&&&&&   &&&&&&&&&&&&&&&   &&&&&&&&&                           
+    &&&&&&&&&&   &&           &&   &&&    &&&                          
+    &&&&&&&&&&       &&**&&&        &     &&&                          
+    &&&&&&&&&&    &&&&**&&&&&&&     &  &  &&&                          
+    &&&&&&&&&&   **&&***********    &  &  &&&                          
+    &&&&&&&&&   &&***********&&&&   &  &  &&&    &&&&    &&    &&&&    
+    &&&&&&&&&   &&&***********&&&   &  &  &&&   &&  &&  &&&&  &&   &   
+    &&&&&&&&&   &&&&***********&&      &  &&&   &      &&  && &&       
+    &&&&&&&&     ***********&&**       &  &&&   &      &&  &&  &&&&    
+    &&&&&&        &&&&&&&**&&&&        &  &&&   &      &&&&&&     &&   
+    &&&     &&&      &&&**&&     &     &   &&   &&  && &&  && &   &&   
+          &&&&&&&&&            &&&&   &&&        &&&&  &    &  &&&&    
+     &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&                           
+        &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&                              
+            &&&&&&&&&&&&&&&&&&&&&&&&&                                  
+               &&&&&&&&&&&&&&&&&&&        version $V$                  
+                   &&&&&&&&&&&                                         
+                       &&&                tag $P$                      
+                                              $Px$                     
+                                                                       
+ OpenMolcas is free software; you can redistribute it and/or modify it 
+ under the terms of the GNU Lesser General Public License version 2.1. 
+ OpenMolcas is distributed in the hope that it will be useful, but it  
+ is provided "as is" and without any express or implied warranties.    
+ For more details see the full text of the license in the file         
+ LICENSE or in <http://www.gnu.org/licenses/>.                         
+                                                                       
+                 Copyright (C) The OpenMolcas Authors                  
+           For the author list and the recommended citation,           
+                    consult the file CONTRIBUTORS.                     

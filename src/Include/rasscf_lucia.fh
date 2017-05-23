@@ -1,0 +1,20 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      INTEGER KSIGMA_POINTER, KCI_POINTER, C_POINTER,
+     &        kint1_pointer, kh0_pointer, Lucia_base, Lucia_length,
+     &        kvec3_length, kint1o_pointer, ksdreo_pointer,
+     &        KDTOC_POINTER, iSigma_on_disk,ini_h0, Memory_Needed_Lucia
+      COMMON/RASSCF_LUCIA/KSIGMA_POINTER, KCI_POINTER, C_POINTER,
+     &        kint1_pointer, kh0_pointer, Lucia_base, Lucia_length,
+     &        kvec3_length, kint1o_pointer, ksdreo_pointer,
+     &        KDTOC_POINTER, iSigma_on_disk,ini_h0, Memory_Needed_Lucia
+      INTEGER LW6,LW7,LW8,LW9
+      COMMON/DENSI_POINTERS/LW6,LW7,LW8,LW9

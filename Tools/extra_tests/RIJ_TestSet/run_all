@@ -1,0 +1,41 @@
+#/bin/sh
+# $ this file belongs to the Molcas repository $
+export Project=Weigend_RIJ_TestSet
+export Home=$PWD
+#
+export Basis='ANO-RCC-MB'
+export Seward_Options=' '
+export SCF_Options='KSDFT
+                    B3LYP'
+#
+rm -f result
+echo 'Options:' >> result
+echo 'Basis='$Basis >> result
+echo 'Seward_Options='$Seward_Options >> result
+echo 'SCF_Options='$SCF_Options >> result
+echo ' ' >> result
+#
+MOLCAS=`cd ../..; pwd`
+export ScratchDir=$MOLCAS/Test/tmp
+echo ' '
+echo 'ScratchDir='$ScratchDir
+cd input
+list=`ls`
+cd ..
+for name in $list
+do
+name_root=${name%.input}
+echo Running $name_root
+rm -fr  $ScratchDir/$name_root
+mkdir $ScratchDir/$name_root
+cd $ScratchDir/$name_root
+cp $Home/input/$name .
+export WorkDir=$PWD
+molcas $name > log 2> err
+echo Result from running $name >> $Home/result
+grep -i 'Total .* energy' log >> $Home/result
+mv log $Home/log/$name_root.log
+rm -rf  $ScratchDir/$name_root/*
+cd $Home
+rm -r $ScratchDir/$name_root
+done 

@@ -1,0 +1,27 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+/N.TOULBAS.TOUL.1s2p.1s2p..
+Ref1 ????????
+Ref2 ????????
+*
+* Basis set to use only together with the nh3 EGP.
+*
+    2.00000  1
+*s functions
+  1  1
+  1.7605965
+  1.
+*p functions
+  2   2
+  1.3760213   0.1346355
+  1.0  0.0
+  0.0  1.0
+********************************************************

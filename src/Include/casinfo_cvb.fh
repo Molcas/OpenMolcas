@@ -1,0 +1,35 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      parameter (mxstsy_ci=8,mxstt_ci=20,mxirrep_ci=8)
+c  _c quantities are based on latest CASSCF
+c  _d quantities are those actually used
+c     (= _c if not changed in input) :
+      common /casinfo_ci_comcvb/
+     > iorcore_c(mxirrep_ci),iorclos_c(mxirrep_ci),iorocc_c(mxirrep_ci),
+     > nstsym_c,
+     > nstats_c(mxstsy_ci),istnel_c(mxstsy_ci),
+     > istsy_c(mxstsy_ci),istms2_c(mxstsy_ci)
+      common /casinfo_cr_comcvb/
+     >  weight_c(mxstt_ci,mxstsy_ci),strtint_c,strtci_c,strtmo_c
+      common /casinfo_di_comcvb/
+     > iorcore_d(mxirrep_ci),iorclos_d(mxirrep_ci),iorocc_d(mxirrep_ci),
+     > nstsym_d,
+     > nstats_d(mxstsy_ci),istnel_d(mxstsy_ci),
+     > istsy_d(mxstsy_ci),istms2_d(mxstsy_ci)
+      common /casinfo_dr_comcvb/
+     >  weight_d(mxstt_ci,mxstsy_ci),strtint_d,strtci_d,strtmo_d
+c  Derived quantities ...
+      common /casinfo2_ci_comcvb/
+     >  nel_c,norb_c,i2s_c,isym_c,mcore_c,neltot_c
+      common /casinfo2_di_comcvb/
+     >  nel_d,norb_d,i2s_d,isym_d,mcore_d,neltot_d
+c  Various ...
+      common /casinfo3_r_comcvb/strtcas

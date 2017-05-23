@@ -1,0 +1,92 @@
+#!/usr/bin/env perl
+#***********************************************************************
+# This file is part of OpenMolcas.                                     *
+#                                                                      *
+# OpenMolcas is free software; you can redistribute it and/or modify   *
+# it under the terms of the GNU Lesser General Public License, v. 2.1. *
+# OpenMolcas is distributed in the hope that it will be useful, but it *
+# is provided "as is" and without any express or implied warranties.   *
+# For more details see the full text of the license in the file        *
+# LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#                                                                      *
+# Copyright (C) 2013, Steven Vancoillie                                *
+#***********************************************************************
+#
+# setmtime
+#
+# Program that sets the last access/modification times
+# of all files in a directory (default is the git work
+# tree) to the time of the last commit before a certain
+# commit (default is HEAD).
+#
+# By design, git does not keep track of metadata such as
+# last modification time (for several reasons), so one
+# has to extract this from the history of the git repo.
+#
+# Used with Molcas to set modification times of all files
+# in an exported snapshot, e.g. executing the following
+# command inside a Molcas git repository:
+#   $ sbin/setmtime /tmp/snapshot daily-snapshot
+# would set the times of all files under /tmp/snapshot to
+# the latest commit date since daily-snapshot.
+#
+# Steven Vancoillie, July 2013
+
+use File::Basename;
+
+my $MOLCAS_DRIVER;
+$MOLCAS_DRIVER = $ENV{"MOLCAS_DRIVER"} or $MOLCAS_DRIVER = "molcas";
+my $DRIVER_base = basename($MOLCAS_DRIVER);
+
+my $MOLCAS=$ENV{"MOLCAS"};
+die "MOLCAS not set, use $DRIVER_base setmtime\n" unless ($MOLCAS);
+
+# if this is a git repo, sanity check if git exists,
+# otherwise print a warning.
+my $git_exists = 0;
+foreach my $path (split /:/, $ENV{'PATH'}) {
+    if ( -f "$path/git" && -x _ ) {
+        $git_exists = 1;
+        last;
+    }
+}
+if ( not -e "$MOLCAS/.git" or not $git_exists) {
+    print "Error: git not available or not a git repo\n";
+    exit 1;
+}
+
+# parse options
+
+my $snapshot;
+my $directory;
+
+my $n_args = @ARGV;
+if ($n_args == 1) {
+        $directory = $ARGV[0];
+        $snapshot = 'HEAD';
+} elsif ($n_args == 2) {
+        $directory = $ARGV[0];
+        $snapshot = $ARGV[1];
+} else {
+    print "Error: invalid number of arguments to setmtime\n";
+    exit 1;
+}
+
+# git a list of access times and files
+my @logbook = `git whatchanged --pretty=%at $snapshot`;
+
+my %seen;
+my $timestamp;
+my $filename;
+foreach (@logbook) {
+    next if /^$/; # skip emtpy lines
+    if (/^:/) {
+        chomp ($filename = (split /\t/)[1]);
+        next if $seen{$filename};
+        my $dst = "$directory/$filename";
+        utime $timestamp, $timestamp, $dst if -f $dst;
+        $seen{$filename} = 1;
+    } else {
+        chomp ($timestamp = $_);
+    }
+}

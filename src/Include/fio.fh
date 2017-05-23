@@ -1,0 +1,66 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 1991, Per-Olof Widmark                                 *
+*               1993,1996,1997, Markus P. Fuelscher                    *
+*               1996, Luis Serrano-Andres                              *
+*               2012, Victor P. Vysotskiy                              *
+************************************************************************
+*                                                                      *
+*     This file defines the common blocks /FIO1/ - /FIO4/              *
+*     including all entries required for fast I/O system.              *
+*                                                                      *
+*     Following the list of entries and their usage:                   *
+*     LuName    : Name of the file                                     *
+*     isOpen    : open/close flag                                      *
+*     FSCB      : file descriptors (C language)                        *
+*     Addr      : pointer to the current position                      *
+*     MxAddr    : largest address written                              *
+*     Count     : counters for the I/O statistics                      *
+*                 (# of I/O startups, amount of data transferred)      *
+*     Trace     : enable/disable debugging output                      *
+*     Query     : enable/disable the traceback facilities              *
+*     FirstCall : enable/disable multifile partitiong                  *
+*     RefBuf    : anchor of the gather/scatter process                 *
+*                                                                      *
+*----------------------------------------------------------------------*
+*                                                                      *
+*     written by:                                                      *
+*     P.O. Widmark, IBM Sweden, 1991                                   *
+*     M.P. Fuelscher, University of Lund, Sweden, 1993, 1996, 1997     *
+*     L. Serrano-Andres, University of Lund, Sweden, 1996              *
+*                                                                      *
+* History:                                                             *
+*     New I/O Stat, V.P. Vysotskiy, University of Lund, Sweden, 2012   *
+*     OpenMP,       V.P. Vysotskiy, University of Lund, Sweden, 2012   *
+************************************************************************
+      Integer MaxSplitFile
+      Parameter (MaxSplitFile=20)
+#include "MxFile.fh"
+      Integer isOpen,FSCB,Addr,MaxFileSize,MPUnit,MBL
+      Common /FIO1/ isOpen(MxFile),
+     &              FSCB(MxFile),
+     &              Addr(MxFile),
+     &              MPUnit(0:MaxSplitFile-1,MxFile),
+     &              MBL(MxFile),
+     &              MaxFileSize
+
+      Logical     Trace,Query,FirstCall,Multi_File
+      Common /FIO2/ Trace,
+     &              Query,
+     &              FirstCall,
+     &              Multi_File(MxFile)
+
+      Character*8 LuName
+      Common /FIO3/ LuName(MxFile)
+      Integer LuMark(MxFile)
+      Common /FIO4/ LuMark
+      Integer isFiM(MxFile)
+      Common /FIO6/ isFiM

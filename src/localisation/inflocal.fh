@@ -1,0 +1,90 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+c
+c ipCMO   : pointer to the MO coefficients
+c nCMO    : size of Work(ipCMO)
+c ipOcc   : pointer to occupancy vector
+c lOcc    : size of accupancy vector
+c ipEor   : pointer to orbital energy vector
+c lEor    : size of orbital energy vector
+c ipInd   : pointer to orbital type info vector
+c lInd    : size of orbital type info vector
+c nSym    : number of Irrep
+c nBas    : number of basis function per Irrep
+c nOrb    : number of occ orb per irrep
+c LuSpool : Unit number of the input
+c nOrb2Loc: Number of orbital to localise
+c
+c Atom    : name of atom
+c Type    : type of basis function
+c Name    : Atom = Name(1:LENIN); Type = Name(LENIN1:LENIN4)
+c
+c LC_FileOrb: orbital file for Seward to read
+c
+      Integer LocOrb,Occupied,Virtual,All
+      Parameter (Occupied=0,Virtual=1,All=2)
+      Integer nBas(MxSym),nOrb(MxSym)
+      Integer nSym,ipCMO,nCMO,ipOcc,lOcc,ipEor,lEor
+      Integer ipMOrig,ipInd,lInd
+      Integer LuSpool,nOrb2Loc(MxSym),nFro(MxSym),nAtoms,nMxIter
+      Integer nOccInp(MxSym), nVirInp(MxSym)
+      Integer nLocModel,LocModel
+      Real*8 Thrs, ThrRot, ThrGrad
+      Real*8 ThrDomain(2), ThrPairDomain(3)
+      Character*(LENIN4) Name(MxBas)
+      Character*(LENIN) Atom(MxBas)
+      Character*4 Type(MxBas)
+      Character*3 AnaNrm
+      Character*(LENIN) NamAct(mxAtom)
+      Integer nActa
+      Logical LocNatOrb, LocCanOrb
+      Logical Wave
+      Integer iWave
+      Logical DoCNOs
+      Integer MxConstr, nConstr(8)
+      Real*8  ThrSel
+      Logical nOrb2Loc_UsrDef,nFro_UsrDef, Maximisation, ChoStart,
+     &        Silent, Test_Localisation, Analysis, PrintMOs,
+     &        Timing, AnaAtom, EvalER, Order,         LocPAO, AnaPAO,
+*    &        Timing, AnaAtom, EvalER, Order, LocVir, LocPAO, AnaPAO,
+     &        AnaPAO_Save
+      Logical DoDomain, AnaDomain
+      Logical Skip
+      Character*512 LC_FileOrb
+c
+      Parameter (nLocModel = 4)
+c
+      Common /INFLocal_I    / nBas,nOrb,nSym,
+     &                        LocModel,
+     &                        LocOrb,
+     &                        ipCMO,nCMO,ipOcc,lOcc,ipEor,lEor,
+     &                        nOrb2Loc,nFro,nAtoms,nMxIter,
+     &                        ipMOrig,nOccInp,nVirInp,
+     &                        ipInd,lInd
+      Common /INFLocal_I2   / nActa
+      Common /INFLocal_I3   / iWave
+      Common /INFLocal_I4   / MxConstr, nConstr
+      Common /INFLocal_R    / Thrs,ThrRot,ThrGrad, ThrDomain,
+     &                        ThrPairDomain
+      Common /INFLocal_R2   / ThrSel
+      Common /INFLocal_L    / nOrb2Loc_UsrDef,nFro_UsrDef,Maximisation,
+     &                        ChoStart,Silent,Test_Localisation,
+     &                        Analysis, PrintMOs, Timing,
+     &                        AnaAtom, EvalER, Order,         LocPAO,
+*    &                        AnaAtom, EvalER, Order, LocVir, LocPAO,
+     &                        AnaPAO, AnaPAO_Save, DoDomain, AnaDomain,
+     &                        Skip
+      Common /INFLocal_L2   / LocNatOrb, LocCanOrb
+      Common /INFLocal_L3   / Wave
+      Common /INFLocal_L4   / DoCNOs
+      Common /INFLocal_file / LuSpool,LC_FileOrb
+      Common /INFLocal_char / Name,Atom,Type,AnaNrm
+      Common /INFLocal_char2/ NamAct

@@ -1,0 +1,24 @@
+/***********************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+***********************************************************************/
+ (prgm) "$MOLCAS/bin/gugaci.exe"  executable
+ (file) DRTINPUT "$WorkDir/$Project."gugaci.input roi
+ (file) CIDRT  "$WorkDir/$Project."CiDrt  ro
+ (file) TRAONE "$WorkDir/$Project."TraOne ro
+ (file) TRAINT "$WorkDir/$Project."TraInt ro
+ (file) ONEINT "$WorkDir/$Project."OneInt   ro*
+ (file) CIINT  "$WorkDir/$Project."FT14F01  rwp
+ (file) CILOOP "$WorkDir/$Project."FT15F01  rwp
+ (file) CIDIA  "$WorkDir/$Project."FT16F01  rwp
+ (file) CIVEC  "$WorkDir/$Project."CiVec    rw
+ (file) CIDEN  "$WorkDir/$Project."FT21F01  rw
+ (file) CITV1  "$WorkDir/$Project."FT25F01  rw*p
+ (file) CITV2  "$WorkDir/$Project."FT26F01  rw*p
+ (file) CIMO   "$WorkDir/$Project."CiMO     rw

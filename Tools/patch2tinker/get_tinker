@@ -1,0 +1,172 @@
+#!/bin/sh
+#***********************************************************************
+# This file is part of OpenMolcas.                                     *
+#                                                                      *
+# OpenMolcas is free software; you can redistribute it and/or modify   *
+# it under the terms of the GNU Lesser General Public License, v. 2.1. *
+# OpenMolcas is distributed in the hope that it will be useful, but it *
+# is provided "as is" and without any express or implied warranties.   *
+# For more details see the full text of the license in the file        *
+# LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#***********************************************************************
+# Tinker version to which the QM/MM patch can be applied
+TINKERVERSION='tinker-6.3.3'
+PATCH=patch_$TINKERVERSION.diff
+
+usage() {
+ echo "Usage:" get_tinker [OPTIONS]
+ echo "Download, patch and compile $TINKERVERSION for QM/MM calculations"
+ echo "Available options:"
+ echo "  -h      this help"
+ echo "  -d      download tinker and exit"
+}
+
+do_skip=0
+#manif [ $# -eq 0 ]; then usage; exit 2; fi
+while getopts ":hd" opt ; do
+  case $opt in
+    d)
+      do_skip=1
+      ;;
+    h)
+      usage
+      exit 0
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG"
+      exit 2
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument."
+      exit 2
+      ;;
+  esac
+done
+
+# Check the MOLCAS env
+if [ -f .molcashome ] ; then
+MOLCAS=`pwd`
+elif [ -f ../.molcashome ] ; then
+MOLCAS=`cd ..; pwd`
+elif [ -f ../../.molcashome ] ; then
+MOLCAS=`cd ../..; pwd`
+elif [ -f ../../../.molcashome ] ; then
+MOLCAS=`cd ../../..; pwd`
+fi
+if [ -z "$MOLCAS" ]; then
+  echo "MOLCAS is not set."
+  exit 2
+fi
+echo "Tinker will be downloaded to $MOLCAS"
+echo "Is this OK? [Y/n]"
+while true; do
+  read answer
+  case "${answer}_" in
+    [Yy]*|_ )
+      break ;;
+    [Nn]* )
+      exit 0
+      break ;;
+    * ) echo "Please answer yes or no"
+  esac
+done
+
+DIR=`( cd \`dirname -- "$0"\` ; pwd )`
+cd $MOLCAS
+
+# Download Tinker
+if [ -d $TINKERVERSION ]; then
+  echo "Original $TINKERVERSION already installed."
+else
+  if [ -h tinker ]; then 
+    rm -f tinker
+  elif [ -d tinker ]; then
+    echo "Existing tinker directory."
+    echo "Please rename it before running get_tinker again."
+    exit 2
+  elif [ -e tinker ]; then
+    echo "Existing tinker."
+    echo "Cannot determine what kind of file it is."
+    echo "Please correct it manually before running get_tinker again."
+    exit 2
+  else
+    echo "Downloading $TINKERVERSION"
+  fi
+  wget http://dasher.wustl.edu/tinker/downloads/$TINKERVERSION.tar.gz
+  gzip -d $TINKERVERSION.tar.gz
+  tar -xf $TINKERVERSION.tar
+  if [ $? != 0 ]; then
+    echo "Unpacking Tinker failed."
+    exit 2
+  fi
+  mv -f tinker $TINKERVERSION
+  ln -fs $TINKERVERSION tinker
+  echo "The tinker symbolic link has been set to $TINKERVERSION"
+fi
+
+# Exit here if the QM/MM patch does not interest you
+if [ $do_skip -eq 1 ]; then
+  echo "Tinker has not been patched for QM/MM."
+  echo "Please finish the install."
+  exit 0
+fi
+
+# Test if tinker has been already patched. If so, revert the patch.
+cd $MOLCAS/tinker/source
+if [ -f QMMM_patched ]; then
+  echo "$TINKERVERSION already patched. Version:"
+  cat QMMM_patched
+  echo "Reverting this old patch."
+  if [ -f $PATCH ]; then
+    mv Makefile.orig Makefile
+    patch -R <$PATCH
+  else
+    echo "Cannot revert. Please proceed with a fresh install."
+    exit 2
+  fi
+fi
+
+# Apply the last available patch, found in Tools/patch2tinker.
+if [ -f "$DIR/$PATCH" ]; then
+  cp -f "$DIR/$PATCH" .
+  patch <$PATCH
+  if [ $? != 0 ]; then
+    echo "Patching failed. Check that you have patch installed."
+    exit 2
+  else
+    date "+%D" > $MOLCAS/tinker/source/QMMM_patched
+  fi
+else
+  echo "$DIR/$PATCH not found."
+  exit 2
+fi
+
+# Adaptation of the Makefile is required
+echo "Modifying Tinker Makefile."
+perl <<EDIT
+open(IN,"<Makefile");
+open(UT,">Makefile.new");
+\$this=0;
+ while(\$line=<IN>)
+  {
+   \$line="TINKERDIR=$MOLCAS/tinker\n" if(\$line=~/^TINKERDIR/);
+#   if(\$line=~/^F77 =/) {\$this=-1};
+#   if(\$line=~/#F77 = \/usr\/bin\/gfortran/) {\$this=1;}
+#   if(\$line=~/##/) {\$this=0;}
+#   if(\$this==1) { \$line=~s/^#//;}
+#   if(\$this==-1) { \$line='#'.\$line;}
+   print UT \$line;
+  }
+EDIT
+mv Makefile Makefile.orig
+mv Makefile.new Makefile
+if [ ! -d ../bin ]; then
+   mkdir  ../bin
+fi
+
+# Tinker compilation
+echo "Now relax during the compilation."
+make clean
+make all
+make rename
+echo "Tinker compilation completed."

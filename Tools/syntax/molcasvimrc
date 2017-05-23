@@ -1,0 +1,67 @@
+"***********************************************************************
+" This file is part of OpenMolcas.                                     *
+"                                                                      *
+" OpenMolcas is free software; you can redistribute it and/or modify   *
+" it under the terms of the GNU Lesser General Public License, v. 2.1. *
+" OpenMolcas is distributed in the hope that it will be useful, but it *
+" is provided "as is" and without any express or implied warranties.   *
+" For more details see the full text of the license in the file        *
+" LICENSE or in <http://www.gnu.org/licenses/>.                        *
+"***********************************************************************
+" Molcas
+function! MolcasHelp()
+        "allow letters, numbers, &, -, _
+        let l:oldiskeyword=&l:iskeyword
+        setlocal iskeyword=@,48-57,38,45,95
+        "set a mark to come back
+        normal! ma
+        "get the first word in the line
+        normal! ^viwy`a
+        let l:keyword = @"
+        "no & anymore
+        setlocal iskeyword-=38
+        "if line starts with > this is emil keyword
+        if l:keyword[0] == ">"
+                normal! ^wviwy`a
+                let l:keyword = @"
+                let l:args = "emil " . l:keyword
+        "if line starts with & this is a module name
+        elseif l:keyword[0] == "&"
+                normal! ^wviwy`a
+                let l:keyword = @"
+                let l:args = l:keyword
+        "if line starts with * this is a comment, try to be smart
+        elseif l:keyword[0] == "*"
+                normal! bhyl`a
+                let l:keyword = @"
+                if l:keyword[0] == "&"
+                        normal! viwy`a
+                        let l:keyword = @"
+                        let l:args = l:keyword
+                else
+                        normal! viwy`a
+                        let l:keyword = @"
+                        execute "normal! ?&\<CR>lyw`a"
+                        let l:args = @" . " " . l:keyword[:3]
+                endif
+        "otherwise this is a keyword, search the module name backwards
+        else
+                execute "normal! ?\\(^\\s*\\)\\@<=&\<CR>lyw`a"
+                let l:args = @" . " " . l:keyword[:3]
+        endif
+        "restore the original value and show help
+        let &l:iskeyword=l:oldiskeyword
+        if match(l:keyword,'^[a-z,A-Z,0-9,_]')+1
+                silent execute "split | enew | setlocal buftype=nowrite | r !molcas help -b \"" . l:args . "\""
+                normal! ggdd
+        endif
+endfunction
+
+augroup molcas_setup
+        autocmd!
+        " syntax coloring
+        autocmd BufNewFile,BufRead *.input setlocal syntax=emil
+        autocmd BufNewFile,BufRead *.log setlocal syntax=molcasoutput
+        " molcas help
+        autocmd BufNewFile,BufRead *.input noremap <buffer> K :call MolcasHelp()<CR>
+augroup END

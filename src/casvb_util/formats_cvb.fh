@@ -1,0 +1,26 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+************************************************************************
+c Format statements depending on iprec :
+c---------------------------------------
+      character*20
+     >  formMXP1,formMXP1b,formMXP2,formMXP3,formMXP4,formMXP5,formMXP6,
+     >  formE,formSymW,formVBWnorm,
+     >  formChk1,formChk2,formChk3,
+     >  formcvp,formAD,formAF,form2AD,form2AF,
+     >  formroot
+      common /format_comcvb/
+     >  formMXP1,formMXP1b,formMXP2,formMXP3,formMXP4,formMXP5,formMXP6,
+     >  formE,formSymW,formVBWnorm,
+     >  formChk1,formChk2,formChk3,
+     >  formcvp,formAD,formAF,form2AD,form2AF,
+     >  formroot

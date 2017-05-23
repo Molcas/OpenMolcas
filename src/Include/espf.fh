@@ -1,0 +1,23 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+#include "itmax.fh"
+#include "info.fh"
+#include "constants2.fh"
+#include "qmmm.fh"
+#include "WrkSpc.fh"
+#include "real.fh"
+      Real*8 ToHartree,Angstrom2,Angstrom3,Dum
+      Integer MxExtPotComp
+      Parameter (ToHartree = CONV_CAL_TO_J_ / CONV_AU_TO_KJ_PER_MOLE_)
+      Parameter (Angstrom2 = Angstrom * Angstrom)
+      Parameter (Angstrom3 = Angstrom * Angstrom * Angstrom)
+      Parameter (Dum = Zero)
+      Parameter (MxExtPotComp = 10)

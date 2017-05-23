@@ -1,0 +1,42 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+* contains all PARAMETERS defining LUCIA
+      INTEGER MXPIRR,MXPOBS,MXPR4T,MXINKA,MXPORB,MXPXOT,MXPXST,MXPSHL,
+     &        MXPL,MXPXT,MXPICI,MXPSTT,MXPCSM,MXPCTP,MXCNSM,MXPWRD,
+     &        MXNMS,MTYP,MXPNGAS,MXPNSMST,MXPPTSPC
+*
+      PARAMETER (MXPIRR = 20)
+      PARAMETER (MXPOBS = 20 )
+      PARAMETER (MXPR4T = 10 )
+      PARAMETER (MXINKA = 200 )  ! Resolution of identity
+      PARAMETER (MXPORB = 500)   ! Maximum number of orbitals
+      PARAMETER (MXPXOT = 9)
+      PARAMETER (MXPXST = 100 )
+      PARAMETER (MXPSHL = 100)
+      PARAMETER (MXPL = 20 )
+      PARAMETER (MXPXT = 25)
+      PARAMETER (MXPICI = 30)
+      PARAMETER (MXPSTT = 2500)
+      PARAMETER (MXPCSM = 20)
+      PARAMETER (MXPCTP = 30)
+      PARAMETER (MXCNSM = 8)
+*
+
+      PARAMETER (MXPWRD = 2 000 000)
+      PARAMETER (MXNMS = 5)
+      PARAMETER (MTYP = 30)
+
+*. Note : MXPNGAS = MXPR4T+6 !!
+*. Required in order to handle GAS and RAS within /LUCINP/
+      PARAMETER (MXPNGAS = 3)
+      PARAMETER(MXPNSMST = 8)
+*. Largest allowed division of space for perturbation operator
+      PARAMETER (MXPPTSPC=20)

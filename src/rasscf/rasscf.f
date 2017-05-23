@@ -1,0 +1,1971 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 1989, Per Ake Malmqvist                                *
+*               1989, Bjorn O. Roos                                    *
+*               1991,1993, Markus P. Fuelscher                         *
+*               1991,1993, Jeppe Olsen                                 *
+*               1998, Roland Lindh                                     *
+************************************************************************
+      SUBROUTINE RASSCF(IRETURN)
+************************************************************************
+*                                                                      *
+*           ######     #     #####   #####   #####  #######            *
+*           #     #   # #   #     # #     # #     # #                  *
+*           #     #  #   #  #       #       #       #                  *
+*           ######  #     #  #####   #####  #       #####              *
+*           #   #   #######       #       # #       #                  *
+*           #    #  #     # #     # #     # #     # #                  *
+*           #     # #     #  #####   #####   #####  #                  *
+*                                                                      *
+*                                                                      *
+*                   A program for complete (CAS) and                   *
+*                   restricted (RAS)SCF calculations                   *
+*                                                                      *
+*                                                                      *
+*----------------------------------------------------------------------*
+*                                                                      *
+*     written by:                                                      *
+*     M.P. Fuelscher and J. Olsen, P.Aa. Malmqvist and B.O. Roos       *
+*     University of Lund, Sweden                                       *
+*                                                                      *
+*----------------------------------------------------------------------*
+*                                                                      *
+*     history:                                                         *
+*     MOLCAS version 1 by P.Aa. Malmqvist and B.O. Roos, 1989          *
+*     MOLCAS version 2 by M.P. Fuelscher and J. Olsen  , 1991          *
+*     MOLCAS version 3 by M.P. Fuelscher and J. Olsen  , 1993          *
+*                                                                      *
+*     Modified to process only unique symmetry blocks, R. Lindh,       *
+*     March 1998.                                                      *
+*                                                                      *
+************************************************************************
+
+#ifdef _DMRG_
+!     module dependencies
+      use qcmaquis_interface_cfg
+      use qcmaquis_interface_version
+      use qcmaquis_interface_environment, only:
+     &    finalize_dmrg, dump_dmrg_info
+#endif
+
+      Implicit Real*8 (A-H,O-Z)
+
+#include "WrkSpc.fh"
+#include "wadr.fh"
+#include "rasdim.fh"
+#include "warnings.fh"
+#include "input_ras.fh"
+#include "rasscf.fh"
+#include "rasrc.fh"
+#include "general.fh"
+#include "gas.fh"
+#include "splitcas.fh"
+#include "bk_approx.fh"
+#include "output_ras.fh"
+      Parameter (ROUTINE='RASSCF  ')
+#include "rctfld.fh"
+#include "timers.fh"
+#include "casvb.fh"
+#include "rasscf_lucia.fh"
+#include "lucia_ini.fh"
+#include "csfbas.fh"
+#include "gugx.fh"
+#include "pamint.fh"
+#include "davctl.fh"
+#include "qnctl.fh"
+#include "orthonormalize.fh"
+#include "ciinfo.fh"
+#include "fciqmc.fh"
+#ifdef _FDE_
+#include "embpotdata.fh"
+#endif
+#include "raswfn.fh"
+      Logical DSCF
+      Logical lTemp, lOPTO
+      Character*8 label
+      Character*80 Line
+      Character*1 CTHRE, CTHRSX, CTHRTE
+      Logical DoQmat,DoActive
+      Logical IfOpened
+
+* --------- Cholesky stuff:
+      Integer ALGO
+      Logical DoCholesky
+      Logical timings,DoLock,Deco
+      Integer Nscreen
+      COMMON /CHOTODO /DoActive,DoQmat,ipQmat
+      COMMON /CHLCAS /DoCholesky,ALGO
+      COMMON /CHOPAR/ ChFracMem
+      COMMON /CHOTIME / timings
+      Common /CHOLK / DoLocK,Deco,dmpk,Nscreen
+* --------- End Cholesky stuff
+      Logical Do_OFemb, KEonly, OFE_first
+      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
+      COMMON  / OFembed_I / ipFMaux, ip_NDSD, l_NDSD
+      Character*8 EMILOOP
+* --------- End Orbital-Free Embedding stuff
+
+      Common /IDSXCI/ IDXCI(mxAct),IDXSX(mxAct)
+
+      External Get_ProgName
+      Character*100 ProgName, Get_ProgName
+      Character*15 STLNE2
+      External QEnter, QExit
+      External RasScf_Init
+      External Scan_Inp
+      External Proc_Inp
+#ifndef _DMRG_
+      logical :: doDMRG = .false.
+#endif
+
+* Start the traceback utilities
+*
+      Call QENTER(ROUTINE)
+
+* Set status line for monitor:
+      Call StatusLine('RASSCF:',' Just started.')
+* Set the return code(s)
+      ITERM  = 0
+      IRETURN=_RC_ALL_IS_WELL_
+
+* Set some Cholesky stuff
+      DoActive=.true.
+      DoQmat=.false.
+      lOPTO=.False.
+
+* Set variable IfVB to check if this is a VB job.
+      ProgName=Get_ProgName()
+      IfVB=0
+      If (ProgName(1:5).eq.'casvb') IfVB=2
+* Default option switches and values, and initial data.
+      EAV1=0.0d0
+      Call RasScf_Init()
+      Call Seward_Init()
+* Open the one-olectron integral file:
+       LuOne=77
+       LuOne=isFreeUnit(LuOne)
+       iRC=-1
+       iOpt=0
+       Call OpnOne(iRC,iOpt,'ONEINT',LuOne)
+       If (iRC.ne.0) Then
+        Write (6,*) 'Error when trying to open the one-electron'
+        Write (6,*) 'integral file.'
+        Call Quit(_RC_INTERNAL_ERROR_)
+       End If
+      If (IfVB.eq.2) go to 10
+
+*
+* Make a copy, upper-cased, left-adjusted, of the input between and including
+* the '&RASSCF' and the 'End of input' markers, skipping all lines beginning
+* with '*' or '!' or ' '  when left-adjusted, and replacing any rightmost
+* substring beginning with '!' with blanks.
+* That copy will be in file 'CleanInput', and its unit number is returned
+* as LUInput in common (included file input_ras.fh) by the following call:
+      Call cpinp(LUInput,iRc)
+* If something wrong with input file:
+      If (iRc.ne._RC_ALL_IS_WELL_) Then
+       Call WarningMessage(2,'Input file is unusable.')
+       Write(6,*)' RASSCF Error: Could not make a clean copy of'
+       Write(6,*)' the input file. This is an unexpected bug.'
+       IRETURN=_RC_INTERNAL_ERROR_
+       GOTO 9990
+      End If
+
+* Scan the input file for keywords:
+      Call Scan_Inp(iRc)
+* If something wrong with input file:
+      If (iRc.ne._RC_ALL_IS_WELL_) Then
+       If (IPRLOC(1).GE.TERSE) Then
+        Call WarningMessage(2,'Scanning input file failed.')
+* Calling again, now with iRc indicating an error, will echo the keywords:
+        Call Scan_Inp(iRc)
+       End If
+       IRETURN=_RC_INPUT_ERROR_
+       GOTO 9990
+      End If
+
+* Local print level in this routine:
+      IPRLEV=IPRLOC(1)
+*
+10    CONTINUE
+* Open files
+      Call OpnFls_RASSCF(DSCF,DoCholesky)
+
+* Some preliminary input data:
+      Call Rd1Int
+      If ( .not.DSCF ) Call Rd2Int_RASSCF
+
+* Printed program header:
+
+* Process the input:
+      Call Proc_Inp(DSCF,Info,lOPTO,iRc)
+* If something goes wrong in proc_inp:
+      If (iRc.ne._RC_ALL_IS_WELL_) Then
+       If (IPRLEV.ge.TERSE) Then
+        Call WarningMessage(2,'Input processing failed.')
+        Write(6,*)' RASSCF Error: Proc_Inp failed unexpectedly.'
+        Write(6,*)' Check the output file for any previous messages'
+        Write(6,*)' that can help explain the failure.'
+        Write(6,*)' Here is a printing of the input file that'
+        Write(6,*)' was processed:'
+        Rewind(LUInput)
+  15    Continue
+        Read(LuInput,'(A80)',End=16,Err=16) Line
+        Write(6,*) Line
+        Go To 15
+  16    Continue
+       End If
+       IRETURN=iRc
+       GOTO 9990
+      End If
+
+* Local print level may have changed:
+      IPRLEV=IPRLOC(1)
+
+      Call InpPri(lOpto)
+
+*
+* If this is not CASDFT make sure the DFT flag is unset
+*
+      If (KSDFT(1:3).eq.'SCF') Then
+        Call Get_iScalar('System BitSwitch',iFlags)
+        iFlags=iAnd(iFlags,Not(2**6))
+        Call Put_iScalar('System BitSwitch',iFlags)
+      End If
+
+* If the ORBONLY option was chosen, then Proc_Inp just generated
+*  orbitals from the JOBIPH file. Nothing more to do:
+      IF(KeyORBO) GOTO 9990
+
+*--------------------------------------------------------
+*
+* Allocate various matrices
+*
+      Call GetMem('FI','Allo','Real',LFI,NTOT1)
+      Call GetMem('FA','Allo','Real',LFA,NTOT1)
+      Call GetMem('D1I','Allo','Real',LD1I,NTOT2)
+      Call GetMem('D1A','Allo','Real',LD1A,NTOT2)
+      Call GetMem('D1tot','Allo','Real',LD1tot,NTOT1)
+      Call GetMem('OCCN','Allo','Real',LOCCN,NTOT)
+      Call GetMem('LCMO','Allo','Real',LCMO,NTOT2)
+      Call GetMem('DIAF','Allo','Real',LDIAF,NTOT)
+      Call FZero(Work(LFA),NTOT1)
+      Call FZero(Work(LDIAF),NTOT)
+*
+      LTUVX=1
+      LDMAT=1
+      LDSPN=1
+      LPMAT=1
+      LPA  =1
+
+      If (iCIRST.eq.1.and.iDumpOnly) then
+        write(6,*) 'ICIRST and DumpOnly flags are not compatible!'
+        write(6,*) 'Choose only one.'
+        Call QTrace
+        Call Abend
+      end if
+
+      If(iDumpOnly) then
+        write(6,*) 'Dumping integrals for a FCIQMC job.'
+        write(6,*) 'Nothing else will be done'
+      end if
+
+        If ( NAC.GT.0 ) then
+         Call GetMem('TUVX','Allo','Real',LTUVX,NACPR2)
+         Call FZero(Work(LTUVX),NACPR2)
+         ltuvx_cvb=ltuvx
+         if(.not.iDumpOnly) then
+           Call GetMem('DMAT','Allo','Real',LDMAT,NACPAR)
+           Call GetMem('DSPN','Allo','Real',LDSPN,NACPAR)
+           Call GetMem('PMAT','Allo','Real',LPMAT,NACPR2)
+           Call GetMem('P2AS','Allo','Real',LPA,NACPR2)
+           call dcopy_(NACPAR,0.0d0,0,Work(LDMAT),1)
+           call dcopy_(NACPAR,0.0d0,0,Work(LDSPN),1)
+         end if
+        Else
+         LTUVX = ip_Dummy
+         ltuvx_cvb=ltuvx
+         LDMAT = ip_Dummy
+         LDSPN = ip_Dummy
+         LPMAT = ip_Dummy
+         LPA   = ip_Dummy
+        End If
+#ifdef _FDE_
+      ! Embedding
+      iDummyEmb=0
+      Call Get_iScalar('embpot', iDummyEmb)
+      if (iDummyEmb.eq.1) embPot=.true.
+      if (embPot) then
+       Call EmbPotRdRun
+      end if
+      if (embpot) then
+       ! I have no idea why i need memory for x+4 entries
+       ! and not just x...
+       Call GetMem('Emb','ALLO','REAL',ipEmb,NTOT1+4)
+       if (embPotInBasis) then
+        ! If the potential is given in basis set representation it
+        ! has not been calculated with a OneEl call and is just read
+        ! from file here.
+        iunit = isFreeUnit(1)
+        call molcas_open(iunit, embPotPath)
+        do iEmb=1, NTOT1
+         read(iunit,*) Work(ipEmb+iEmb-1)
+        end do
+       else
+        ! Read in the embedding potential one-electron integrals
+        Label='embpot  '
+        iRC=-1
+        iOpt=0
+        Call RdOne(iRC,iOpt,Label,1,Work(ipEmb),iSyLbl)
+        If (iRC.ne.0) then
+         Call WarningMessage(2,
+     &                'Drv1El: Error reading ONEINT;'
+     &              //'Label='//Label)
+         Call Quit(_RC_IO_ERROR_READ_)
+        End If
+       end if
+      end if
+#endif
+
+*
+* Get start orbitals
+
+* Initialize OCCN array, to prevent false alarms later from
+* automated detection of using uninitialized variables:
+      call dcopy_(NTot,0.0D0,0,Work(lOCCN),1)
+
+* PAM03: Note that removal of linear dependence may change the nr
+* of secondary/deleted orbitals, affecting some of the global
+* variables: NSSH(),NDEL(),NORB(),NTOT3, etc etc
+      Call ReadVc(Work(LCMO),Work(lOCCN),
+     &             WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA))
+* Only now are such variables finally known.
+
+*
+* Allocate core space for dynamic storage of data
+*
+      CALL ALLOC
+*
+* Create job interphase on unit JOBIPH (FT15)
+*
+      if(ifvb.ne.2) then
+        CALL CREIPH
+        call cre_raswfn
+      end if
+      if(ifvb.eq.1)call casinfo2_cvb()
+
+      Call Timing(Swatch,Swatch,Ebel_1,Swatch)
+
+CGG03 Aug 03
+      If(NAlter.gt.0) Call Alter_MO(Work(LCMO))
+
+c At this point all is ready to potentially dump MO integrals... just do it if required.
+      If(iDumpOnly) goto 20
+*
+* Wave function section
+*
+      if(ifvb.eq.2)goto 20
+
+      if(dofcidump)then
+        Write(LF,*)
+        Write(LF,'(26X,A)')
+     &  'Dumping integrals on file FCIDUMP - nothing else to be done'
+        goto 20
+      end if
+
+
+      Call StatusLine('RASSCF:',' Compute wave function.')
+      If ( IPRLEV.GE.2 .AND..NOT.lOPTO) then
+       Write(LF,*)
+       Write(LF,'(6X,120A1)') ('*',i=1,120)
+       Write(LF,'(6X,A,118X,A)') '*','*'
+       Write(LF,'(6X,A,44X,A,45X,A)')
+     &      '*','Wave function control section','*'
+       Write(LF,'(6X,A,118X,A)') '*','*'
+       Write(LF,'(6X,120A1)') ('*',i=1,120)
+       Write(LF,*)
+      End If
+
+      If ( IPRLEV.GE.2 .AND..NOT.lOPTO) then
+       IF (ICIONLY.eq.0) THEN
+        Write(LF,*)
+        if(doDMRG)then
+          Write(LF,'(41X,A)')
+     &         'DMRGSCF iterations: Energy and convergence statistics'
+          Write(LF,'(41X,A)')
+     &         '-----------------------------------------------------'
+        else
+          Write(LF,'(41X,A)')
+     &         'RASSCF iterations: Energy and convergence statistics'
+          Write(LF,'(41X,A)')
+     &         '----------------------------------------------------'
+        end if
+        Write(LF,*)
+       ELSE
+        Write(LF,*)
+        if(doDMRG)then
+          Write(LF,'(41X,A)')
+     &        'DMRGCI only, no orbital optimization will be done.'
+          Write(LF,'(41X,A)')
+     &        '--------------------------------------------------'
+        else
+          Write(LF,'(41X,A)')
+     &        'CASCI only, no orbital optimization will be done.'
+          Write(LF,'(41X,A)')
+     &        '-------------------------------------------------'
+        end if
+        Write(LF,*)
+       END IF
+#ifdef _DMRG_
+       if(doDMRG)then
+          Write(LF,'(45x,a//,36x,a/,36x,a/,36x,a//,45x,a//,36x,a/,'//
+     &               '36x,a/,36x,a//,36x,a/,36x,a,a/,36x,a//)')
+     &        'Please cite for the QCMaquis-Molcas driver:',
+     &        'Y. Ma, S. Keller, C. Stein, S. Knecht, R. Lindh,'//
+     &        ' and M. Reiher,',
+     &        'in preparation (2015).',
+     &        '------------------------------------------------'//
+     &        '---------------',
+     &        'Please cite for the QCMaquis DMRG software:',
+     &        'S. Keller, M. Dolfi, M. Troyer, M. Reiher,',
+     &        'arXiv:1510.02026 [physics.comp-ph].',
+     &        '------------------------------------------------'//
+     &        '---------------',
+     &        trim(qcmaquis_interface_v),
+     &        'git reference SHA        : ',
+     &        trim(qcmaquis_interface_g(1:12)),
+     &        '------------------------------------------------'//
+     &        '---------------'
+       end if
+#endif
+       IF(INOCALC.EQ.1) THEN
+         WRITE(LF,*)
+         WRITE(LF,'(26X,A)')
+     &      ' No calculation will be performed. Stopping in LUCIA'
+       END IF
+       IF(ISAVE_EXP.EQ.1) THEN
+         WRITE(LF,*)
+         WRITE(LF,'(26X,A)')
+     &      ' Information on the CI-vector will be written to ???.'
+       END IF
+       IF(IEXPAND.EQ.1) THEN
+         WRITE(LF,*)
+         WRITE(LF,'(26X,A)')
+     &      ' A shorter vector will be expanded in a longer'
+       END IF
+       If ( IPRLEV.LE.3) then
+        If(DoSplitCAS) then
+         Write(LF,'(6X,A)')
+     &         'Iter CI   SX   CI       SplitCAS       Energy    '//
+     &         'max ROT     max BLB   max BLB  Level Ln srch  Step '//
+     &         '  QN   Walltime'
+         Write(LF,'(6X,A)')
+     &         '    iter iter root      energy       change    '//
+     &         ' param      element    value   shift minimum  type '//
+     &         'update hh:mm:ss'
+        else if (DoBKAP) then
+         Write(LF,'(6X,A)')
+     &         'Iter CI   SX   CI   RASSCF      CI    Energy    '//
+     &         'max ROT     max BLB   max BLB  Level Ln srch  Step '//
+     &         '  QN   Walltime'
+         Write(LF,'(6X,A)')
+     &         '    iter iter root  energy    energy  change    '//
+     &         ' param      element    value   shift minimum  type '//
+     &         'update hh:mm:ss'
+        else if (DoDMRG .and. ICIONLY == 0)then
+         Write(LF,'(6X,A)')
+     &         'Iter CI   SX   DMRG    DMRGSCF       Energy    '//
+     &         'max ROT   max BLB   max BLB  Level Ln srch  Step   '//
+     &         '  QN   CPU Time'
+         Write(LF,'(6X,A)')
+     &         '    iter iter root      energy       change    '//
+     &         ' param    element    value    shift minimum  type '//
+     &         'update hh:mm:ss'
+        else if (DoDMRG .and. ICIONLY /= 0)then
+        else if(KSDFT(1:5).eq.'TLSDA'.or.KSDFT(1:5).eq.'TBLYP'.or.
+     &   KSDFT(1:4).eq.'TPBE'.or.KSDFT(1:4).eq.'TSSB') then
+        else
+         Write(LF,'(6X,A)')
+     &         'Iter CI   SX   CI       RASSCF       Energy    '//
+     &         'max ROT     max BLB   max BLB  Level Ln srch  Step '//
+     &         '  QN   Walltime'
+         Write(LF,'(6X,A)')
+     &         '    iter iter root      energy       change    '//
+     &         ' param      element    value   shift minimum  type '//
+     &         'update hh:mm:ss'
+        end if
+       End If
+      End If
+20    continue
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Start iterations
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Rc_CI  = 0
+      Rc_SX  = 0
+      ECAS   = 0.0d0
+      ROTMAX = 0.0d0
+      ITER   = 0
+      IFINAL = 0
+      TMXTOT = 0.0D0
+      Call GetMem('FOcc','ALLO','REAL',ipFocc,nTot1)
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Entry point for second and successive iterations
+*                                                                      *
+************************************************************************
+*                                                                      *
+ 1000 CONTINUE
+
+      if(KSDFT(1:5).eq.'TLSDA'.or. !GLM
+     &   KSDFT(1:5).eq.'TBLYP'.or.
+     &   KSDFT(1:4).eq.'TSSB'.or.
+     &   KSDFT(1:4).eq.'TPBE' ) then
+      KSDFT_TEMP=KSDFT
+        KSDFT='SCF'
+        ExFac=1.0D0
+      else
+         KSDFT_TEMP=KSDFT
+      end if
+
+      ITER=ITER+1
+      Write(STLNE2,'(A12,I3)')' Iteration ',ITER
+      Call StatusLine('RASSCF:',STLNE2)
+      Call Timing(Swatch,Swatch,Certina_1,Swatch)
+      If ( ITER.EQ.1 ) THEN
+************************************************************************
+*     ^   First iteration
+************************************************************************
+*
+* Print header to file containing informations on CI iterations.
+*
+        Write(IterFile,'(20A4)') ('****',i=1,20)
+        Write(IterFile,'(15X,A)') 'RASSCF iteration: 1A'
+*
+        Start_Vectors=.True.
+        lTemp = lRf
+        IF(KSDFT_TEMP(1:5).ne.'TLSDA'.and. !GLM
+     &     KSDFT_TEMP(1:5).ne.'TBLYP'.and.
+     &     KSDFT_TEMP(1:4).ne.'TSSB'.and.
+     &     KSDFT_TEMP(1:4).ne.'TPBE') then
+          KSDFT_TEMP=KSDFT
+          ExFac=Get_ExFac(KSDFT)
+        end IF
+*
+* Transform two-electron integrals and compute at the same time
+* the Fock matrices FI and FA
+*
+        Call Timing(Swatch,Swatch,Fortis_1,Swatch)
+
+        If (.not.DoCholesky .or. ALGO.eq.1) Then
+           Call GetMem('PUVX','Allo','Real',LPUVX,NFINT)
+           Call FZero(Work(LPUVX),NFINT)
+        EndIf
+
+        Call Get_D1I_RASSCF(Work(LCMO),Work(lD1I))
+        If ( IPRLEV.ge.DEBUG ) then
+          Write(LF,*)
+          Write(LF,*) ' D1I in AO basis in RASSCF'
+          Write(LF,*) ' ---------------------'
+          Write(LF,*)
+          iOff=1
+          Do iSym = 1,nSym
+            iBas = nBas(iSym)
+*            Call TriPrt(' ','(5G17.11)',Work(lD1I+ioff-1),iBas)
+             call wrtmat(Work(lD1I+ioff-1),iBas,iBas, iBas, iBas)
+            iOff = iOff + iBas*iBas
+          End Do
+        End If
+        If (iCIRST.eq.1) Then
+*
+*
+           Call GetMem('TmpDMAT','Allo','Real',ipTmpDMAT,NACPAR)
+           call dcopy_(NACPAR,Work(LDMAT),1,Work(ipTmpDMAT),1)
+           If (NASH(1).ne.NAC) Call DBLOCK(Work(ipTmpDMAT))
+           Call Get_D1A_RASSCF(Work(LCMO),Work(ipTmpDMAT),WORK(LD1A))
+           Call GetMem('TmpDMAT','Free','Real',ipTmpDMAT,NACPAR)
+*
+           DoActive = .true.
+*
+
+        Else
+
+           lRf = .false.
+           IF(KSDFT_TEMP(1:5).ne.'TLSDA'.and. !GLM
+     &        KSDFT_TEMP(1:5).ne.'TBLYP'.and.
+     &        KSDFT_TEMP(1:4).ne.'TSSB'.and.
+     &        KSDFT_TEMP(1:4).ne.'TPBE')  then
+            KSDFT='SCF'
+            ExFac=1.0D0
+           end IF
+           Call dcopy_(NTOT2,0.0D0,0,WORK(LD1A),1)
+
+           DoActive = .false.
+
+        End If
+
+        DoQmat=.false.
+
+        IPR=0
+        IF(IPRLOC(2).EQ.4) IPR=5
+        IF(IPRLOC(2).EQ.5) IPR=10
+
+        If ( IPRLEV.ge.DEBUG ) then
+         Write(LF,*)
+         Write(LF,*) ' PUVX in rasscf bf first TRACTL2'
+         Write(LF,*) ' ---------------------'
+         Write(LF,*)
+         call wrtmat(Work(LPUVX),1,nFint, 1, nFint)
+
+         Write(LF,*)
+         Write(LF,*) ' ---------------------'
+
+         Write(LF,*)
+         Write(LF,*) ' D1A in AO basis in RASSCF bf TRACTL2 1'
+         Write(LF,*) ' ---------------------'
+         Write(LF,*)
+         iOff=1
+         Do iSym = 1,nSym
+          iBas = nBas(iSym)
+          call wrtmat(Work(lD1A+ioff-1),iBas,iBas, iBas, iBas)
+          iOff = iOff + iBas*iBas
+         End Do
+        end if
+
+* FI and FA are output from TRACTL2...
+        CALL TRACTL2(WORK(LCMO),WORK(LPUVX),WORK(LTUVX),WORK(LD1I),
+     &               WORK(LFI),WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
+
+c         Write(6,*) ' TUVX after TRACTL2'
+c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
+
+        If ( IPRLEV.ge.DEBUG ) then
+         Write(LF,*)
+         Write(LF,*) ' D1A in AO basis in RASSCF af TRACTL2 1'
+         Write(LF,*) ' ---------------------'
+         Write(LF,*)
+         iOff=1
+         Do iSym = 1,nSym
+          iBas = nBas(iSym)
+          call wrtmat(Work(lD1A+ioff-1),iBas,iBas, iBas, iBas)
+          iOff = iOff + iBas*iBas
+         End Do
+
+         Write(LF,*)
+         Write(LF,*) ' PUVX in rasscf af first TRACTL2'
+         Write(LF,*) ' ---------------------'
+         Write(LF,*)
+         call wrtmat(Work(LPUVX),1,nFint, 1, nFint)
+
+         Write(LF,*)
+         Write(LF,*) ' ---------------------'
+        end if
+
+        If (.not.DoCholesky .or. ALGO.eq.1) Then
+           Call GetMem('PUVX','Free','Real',LPUVX,NFINT)
+        EndIf
+
+        Call Timing(Swatch,Swatch,Fortis_2,Swatch)
+        Fortis_2 = Fortis_2 - Fortis_1
+        Fortis_3 = Fortis_3 + Fortis_2
+
+        If ( IPRLEV.ge.DEBUG ) then
+         Write(LF,*)
+         Write(LF,*) ' CMO in RASSCF bf firt call to CICTL'
+         Write(LF,*) ' ---------------------'
+         Write(LF,*)
+         ioff=1
+         Do iSym = 1,nSym
+          iBas = nBas(iSym)
+          if(iBas.ne.0) then
+            write(6,*) 'Sym =', iSym
+            do i= 1,iBas
+              write(6,*) (Work(LCMO+ioff-1+iBas*(i-1)+j),j=0,iBas-1)
+            end do
+            iOff = iOff + (iBas*iBas)
+          end if
+         End Do
+        End If
+*
+* Compute initial CI vectors and density matrices
+*
+        Call Timing(Swatch,Swatch,Zenith_1,Swatch)
+
+#ifdef _ENABLE_BLOCK_DMRG_
+            If(DoBlockDMRG) Then
+              CALL DMRGCTL(WORK(LCMO),
+     &                 WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
+     &                 WORK(LFI),WORK(LD1I),WORK(LD1A),
+     &                 WORK(LTUVX),IFINAL,0)
+            Else
+#endif
+#ifdef _NECI_
+        If(iDoNECI) then
+          call FCIQMC_ctl(WORK(LCMO),WORK(LDIAF),
+     &             WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
+     &             WORK(LFI),WORK(LD1I),WORK(LD1A),
+     &             WORK(LTUVX),IFINAL)
+
+         if(iDumpOnly)then
+          write(6,*) " FCIDUMP file generated. Here for serving you!"
+          goto 9990
+         end if
+
+         If ( IPRLEV.ge.DEBUG ) then
+         Write(LF,*)
+         Write(LF,*) ' D1A in AO basis in RASSCF after FCIQMC_ctl 1'
+         Write(LF,*) ' ---------------------'
+         Write(LF,*)
+         iOff=1
+         Do iSym = 1,nSym
+          iBas = nBas(iSym)
+          call wrtmat(Work(lD1A+ioff-1),iBas,iBas, iBas, iBas)
+          iOff = iOff + iBas*iBas
+         End Do
+         End if
+        else
+* ------^ End first NECI run
+#endif
+
+              CALL CICTL(WORK(LCMO),
+     &                 WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
+     &                 WORK(LFI),WORK(LD1I),WORK(LD1A),
+     &                 WORK(LTUVX),IFINAL)
+
+              if(dofcidump)then
+               write(LF,*) " FCIDUMP file generated. This is the end..."
+               goto 9990
+              end if
+#ifdef _FDE_
+          !Thomas Dresselhaus
+              if (embpot) then
+              !Eemb=DDot_(NACPAR,Work(ipEmb),1,Work(LDMAT),1)
+!             Eemb=embPotEne(Work(LD1I), Work(LD1A), Work(ipEmb),
+!    &                       Work(LCMO), nBasFunc, nFrozenOrbs, .true.)
+          Eemb=embPotEneMODensities(Work(LD1I), Work(LD1A), Work(ipEmb),
+     &                    Work(LCMO), nBasFunc, nFrozenOrbs, .true.)
+                Write(LF,*) "Energy from embedding potential with the"
+                Write(LF,*) "initial CI vectors: ", Eemb
+              end if
+        !!!!!!!!!!!!!!!!!!!
+#endif
+* PAM 2015: Additional output line.
+          If ( IPRLEV.ge.USUAL .and. .not. doDMRG) Then
+             write(6,'(a,i4)')' Nr of preliminary CI iterations:',ITERCI
+          End If
+
+#ifdef _NECI_
+        end if
+#endif
+
+#ifdef _ENABLE_BLOCK_DMRG_
+            End If
+#endif
+        If ( IPRLEV.ge.DEBUG ) then
+         Write(LF,*)
+         Write(LF,*) ' PUVX in rasscf af FCIQMC_ctl'
+         Write(LF,*) ' ---------------------'
+         Write(LF,*)
+         call wrtmat(Work(LPUVX),1,nFint, 1, nFint)
+
+         Write(LF,*)
+         Write(LF,*) ' ---------------------'
+        end if
+
+c       CALL TRIPRT('One-body dmat, D, in RASSCF aft first CICTL',
+c     &             ' ',Work(LDMAT),NAC)
+
+c.. dongxia testing jobiph
+c.. upt to here, jobiph are all zeros at iadr15(2)
+* If CASVB job, go directly to return.
+        invec_cvb=invec
+        If (DSCF) NewFock=1
+        If (IfVB.eq.2) GoTo 9990
+
+        EAV=0.0d0
+        If(DoSplitCAS) then
+          EAV = ENER(lRootSplit,ITER)
+        Else
+         DO KROOT=1,NROOTS
+           EAV=EAV+ENER(IROOT(KROOT),ITER)*WEIGHT(KROOT)
+         END DO
+        End If
+
+        Call Get_D1A_RASSCF(WORK(LCMO),WORK(LDMAT),WORK(LD1A))
+
+        If ( IPRLEV.ge.DEBUG ) then
+         Write(LF,*)
+         Write(LF,*) ' D1A in AO basis in RASSCF af Get_D1A_RASSCF'
+         Write(LF,*) ' ---------------------'
+         Write(LF,*)
+         iOff=1
+         Do iSym = 1,nSym
+          iBas = nBas(iSym)
+          call wrtmat(Work(lD1A+ioff-1),iBas,iBas, iBas, iBas)
+          iOff = iOff + iBas*iBas
+         End Do
+        end if
+
+        Call Timing(Swatch,Swatch,Zenith_2,Swatch)
+        Zenith_2 = Zenith_2 - Zenith_1
+        Zenith_3 = Zenith_3 + Zenith_2
+        lRf = lTemp
+        IF(KSDFT_TEMP(1:5).ne.'TLSDA'.and. !GLM
+     &     KSDFT_TEMP(1:5).ne.'TBLYP'.and.
+     &     KSDFT_TEMP(1:4).ne.'TSSB'.and.
+     &     KSDFT_TEMP(1:4).ne.'TPBE') then
+         KSDFT=KSDFT_TEMP
+         ExFac=Get_ExFac(KSDFT)
+        end IF
+
+*     v GLM for MC-PDFT
+      If(KSDFT.ne.'SCF'.and.KSDFT.ne.'PAM'.or.
+     &   (KSDFT_TEMP(1:5).eq.'TLSDA'.or.
+     &    KSDFT_TEMP(1:5).eq.'TBLYP'.or.
+     &    KSDFT_TEMP(1:4).eq.'TSSB'.or.
+     &    KSDFT_TEMP(1:4).eq.'TPBE')) Then
+
+        If ( IPRLEV.ge.DEBUG ) then
+         Write(LF,*)
+         Write(LF,*) ' CMO in RASSCF bf call NATORB_RASSCF'
+         Write(LF,*) ' ---------------------'
+         Write(LF,*)
+         ioff=1
+         Do iSym = 1,nSym
+          iBas = nBas(iSym)
+          if(iBas.ne.0) then
+            write(6,*) 'Sym =', iSym
+            do i= 1,iBas
+              write(6,*) (Work(LCMO+ioff-1+iBas*(i-1)+j),j=0,iBas-1)
+            end do
+            iOff = iOff + (iBas*iBas)
+          end if
+         End Do
+        End If
+
+        Call GetMem('CMON','Allo','Real',LCMON,NTOT2)
+        Call GetMem('OCCX','Allo','Real',LOCCX,NTOT)
+        noscr1=max(nacpar,no2m)
+        Call GetMem('NOscr1','Allo','Real',lNOscr1,noscr1)
+        Call GetMem('NOscr2','Allo','Real',lNOscr2,NO2M)
+        Call GetMem('SMAT','Allo','Real',LSMAT,NTOT1)
+        CALL NATORB_RASSCF(Work(LCMO),
+     &            Work(lNOscr1),Work(lNOscr2),Work(LSMAT),
+     &            Work(LCMON),Work(LOCCX))
+        Call dCopy_(NTOT2,WORK(LCMON),1,WORK(LCMO),1)
+        Call Put_CMO(WORK(LCMO),ntot2)
+        Call GetMem('NOscr1','Free','Real',lNOscr1,NOscr1)
+        Call GetMem('NOscr2','Free','Real',lNOscr2,NO2M)
+        Call GetMem('SMAT','Free','Real',LSMAT,NTOT1)
+        Call GetMem('OCCX','Free','Real',LOCCX,NTOT)
+        Call GetMem('CMON','Free','Real',LCMON,NTOT2)
+        If ( IPRLEV.ge.DEBUG ) then
+         Write(LF,*)
+         Write(LF,*) ' CMO in RASSCF af call NATORB_RASSCF & bf 2 CICTL'
+         Write(LF,*) ' ---------------------'
+         Write(LF,*)
+         ioff=1
+         Do iSym = 1,nSym
+          iBas = nBas(iSym)
+          if(iBas.ne.0) then
+            write(6,*) 'Sym =', iSym
+            do i= 1,iBas
+              write(6,*) (Work(LCMO+ioff-1+iBas*(i-1)+j),j=0,iBas-1)
+            end do
+            iOff = iOff + (iBas*iBas)
+          end if
+         End Do
+        End If
+      End If
+*     ^ GLM End If for MC-PDFT
+
+        EAV=0.0d0
+        DO KROOT=1,NROOTS
+         EAV=EAV+ENER(IROOT(KROOT),ITER)*WEIGHT(KROOT)
+        END DO
+        If ( IPRLEV.ge.DEBUG ) then
+         IF(KSDFT_TEMP(1:5).eq.'TLSDA'.or. !GLM
+     &     KSDFT_TEMP(1:5).eq.'TBLYP'.or.
+     &     KSDFT_TEMP(1:4).eq.'TSSB'.or.
+     &     KSDFT_TEMP(1:4).eq.'TPBE') then
+          write(6,*) 'EAV value in RASSCF after first call to CICTL:'
+          write(6,*) EAV
+         END if
+        End if
+          END IF
+************************************************************************
+*         ^ End First iteration
+************************************************************************
+*
+* Print header to file containing informations on CI iterations.
+*
+      Write(IterFile,*)
+      Write(IterFile,'(20A4)') ('****',i=1,20)
+      IF (Iter .Eq. 1) Then
+         Write(IterFile,'(15X,A)') 'RASSCF iteration: 1B'
+      Else
+         Write(IterFile,'(15X,A,I3)') 'RASSCF iteration: ',Iter
+      End If
+*
+      If ( IPRLEV.ge.DEBUG ) then
+        IF(KSDFT_TEMP(1:5).eq.'TLSDA'.or. !GLM
+     &     KSDFT_TEMP(1:5).eq.'TBLYP'.or.
+     &     KSDFT_TEMP(1:4).eq.'TSSB'.or.
+     &     KSDFT_TEMP(1:4).eq.'TPBE') then
+        write(6,*) ('*',i=1,70)
+        write(6,*) 'we are done withe first standard CAS-CI iteration  '
+        write(6,*) 'CI coeffs are known and mantained fix in next stage'
+        write(6,*) 'We are now going to remove exchange from FI and FA '
+        write(6,*) 'in TRACTL2 --> TRA_CTL2 --> TRADRV --> FTWO        '
+        write(6,*) 'the ExFac is going to be set to 0.0d0 as DT asked! '
+        write(6,*) 'FI and FA are going to change... '
+        write(6,*) 'Check with previous printout to see differences.\  '
+        write(6,*) ('*',i=1,70)
+        End If
+      End if
+
+        IF(KSDFT_TEMP(1:5).eq.'TLSDA'.or. !GLM
+     &     KSDFT_TEMP(1:5).eq.'TBLYP'.or.
+     &     KSDFT_TEMP(1:4).eq.'TSSB'.or.
+     &     KSDFT_TEMP(1:4).eq.'TPBE') then
+            KSDFT=KSDFT_TEMP
+            ExFac=0.0d0
+*        ExFac=Get_ExFac(KSDFT)
+        end IF
+      IF(ICIONLY.NE.0) IFINAL=1
+*
+* Transform two-electron integrals and compute at the same time
+* the Fock matrices FI and FA
+*
+      Call Timing(Swatch,Swatch,Fortis_1,Swatch)
+      If (.not.DoCholesky .or. ALGO.eq.1) Then
+         Call GetMem('PUVX','Allo','Real',LPUVX,NFINT)
+         Call FZero(Work(LPUVX),NFINT)
+      EndIf
+      Call Get_D1I_RASSCF(Work(LCMO),Work(lD1I))
+
+      DoActive = .true.
+c      if(iDoNECI) then
+c        write(6,*) 'for FCIQMC-CASSCF DoActive is set to .false.'
+c        write(6,*) 'This should avoid decomposition of the active 1RDM'
+c        DoActive = .false.
+c      end if
+      If (DoCholesky.and.ALGO.eq.2) Then
+         DoQmat=.true. ! to be used in the subsequent SX-section
+         NTav=0
+         do iSym=1,nSym
+            NTav = NTav + nBas(iSym)*nAsh(iSym)
+         end do
+         Call GetMem('Q-mat','Allo','Real',ipQmat,NTav)
+         Call Fzero(Work(ipQmat),NTav)
+      EndIf
+
+       IPR=0
+       IF(IPRLOC(2).EQ.4) IPR=5
+       IF(IPRLOC(2).EQ.5) IPR=10
+       If ( IPRLEV.ge.DEBUG ) then
+         Write(LF,*)
+         Write(LF,*) ' D1A in AO basis in RASSCF bf TRACTL2 2'
+         Write(LF,*) ' ---------------------'
+         Write(LF,*)
+         iOff=1
+         Do iSym = 1,nSym
+          iBas = nBas(iSym)
+          call wrtmat(Work(lD1A+ioff-1),iBas,iBas, iBas, iBas)
+          iOff = iOff + iBas*iBas
+         End Do
+       end if
+       CALL TRACTL2(WORK(LCMO),WORK(LPUVX),WORK(LTUVX),WORK(LD1I),
+     &              WORK(LFI),WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
+
+      If ( IPRLEV.ge.DEBUG ) then
+         Write(LF,*)
+         Write(LF,*) ' D1A in AO basis in RASSCF af TRACTL2 2'
+         Write(LF,*) ' ---------------------'
+         Write(LF,*)
+         iOff=1
+         Do iSym = 1,nSym
+          iBas = nBas(iSym)
+          call wrtmat(Work(lD1A+ioff-1),iBas,iBas, iBas, iBas)
+          iOff = iOff + iBas*iBas
+         End Do
+      end if
+
+      If (.not.DoCholesky .or. ALGO.eq.1) Then
+         Call GetMem('PUVX','Free','Real',LPUVX,NFINT)
+      EndIf
+
+      Call Timing(Swatch,Swatch,Fortis_2,Swatch)
+      Fortis_2 = Fortis_2 - Fortis_1
+      Fortis_3 = Fortis_3 + Fortis_2
+
+*
+* Compute the CI vectors and density matrices
+*
+      IF(KSDFT(1:5).ne.'TLSDA'.and.
+     &   KSDFT(1:5).ne.'TBLYP'.and.
+     &   KSDFT(1:4).ne.'TSSB'.and.
+     &   KSDFT(1:4).ne.'TPBE') THEN !the following is skipped in CASDFT-GLM
+
+         If(KSDFT.ne.'SCF'.and.KSDFT.ne.'PAM') Then
+           Call Put_CMO(WORK(LCMO),ntot2)
+         End If
+
+        Call Timing(Swatch,Swatch,Zenith_1,Swatch)
+#ifdef _ENABLE_BLOCK_DMRG_
+      If(DoBlockDMRG) Then
+        CALL DMRGCTL(WORK(LCMO),
+     &           WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
+     &           WORK(LFI),WORK(LD1I),WORK(LD1A),
+     &           WORK(LTUVX),IFINAL,1)
+      Else
+#endif
+#ifdef _NECI_
+      if(iDoNECI) then
+        call FCIQMC_ctl(WORK(LCMO),WORK(LDIAF),
+     &             work(ldmat),work(ldspn),work(lpmat),work(lpa),
+     &             work(lfi),work(ld1i),work(ld1a),
+     &             work(ltuvx),ifinal)
+
+        If ( IPRLEV.ge.DEBUG ) then
+         Write(LF,*)
+         Write(LF,*) ' D1A in AO basis in RASSCF af FCIQMC_ctl 2'
+         Write(LF,*) ' ---------------------'
+         Write(LF,*)
+         iOff=1
+         Do iSym = 1,nSym
+          iBas = nBas(iSym)
+          call wrtmat(Work(lD1A+ioff-1),iBas,iBas, iBas, iBas)
+          iOff = iOff + iBas*iBas
+         End Do
+        end if
+      else
+#endif
+        CALL CICTL(WORK(LCMO),
+     &           WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
+     &           WORK(LFI),WORK(LD1I),WORK(LD1A),
+     &           WORK(LTUVX),IFINAL)
+#ifdef _NECI_
+      end if
+#endif
+#ifdef _ENABLE_BLOCK_DMRG_
+      End If
+#endif
+c      call triprt('twxy',' ',WORK(LTUVX),nAc*(nAc+1)/2)
+c      call triprt('P-mat 2',' ',WORK(LPMAT),nAc*(nAc+1)/2)
+
+      EAV=0.0d0
+      If(DoSplitCAS) Then
+        EAV = ENER(lRootSplit,ITER)
+      Else
+       DO KROOT=1,NROOTS
+         EAV=EAV+ENER(IROOT(KROOT),ITER)*WEIGHT(KROOT)
+       END DO
+      End If
+
+       IF(IPRLEV.ge.DEBUG) THEN
+        write(6,*) 'EAV value in RASSCF after second call to CICTL:'
+        write(6,*) EAV
+
+         write(6,*) 'Printing matrices in RASSCF'
+         Write(LF,*)
+         Write(LF,*) ' CMO in RASSCF'
+         Write(LF,*) ' ---------------------'
+         Write(LF,*)
+         ioff=1
+         Do iSym = 1,nSym
+          iBas = nBas(iSym)
+          if(iBas.ne.0) then
+            write(6,*) 'Sym =', iSym
+            do i= 1,iBas
+              write(6,*) (Work(LCMO+ioff-1+iBas*(i-1)+j),j=0,iBas-1)
+            end do
+            iOff = iOff + (iBas*iBas)
+          end if
+         End Do
+
+        Write(LF,*)
+        Write(LF,*) ' D1I in AO basis in RASSCF'
+        Write(LF,*) ' ---------------------'
+        Write(LF,*)
+        iOff=1
+        Do iSym = 1,nSym
+         iBas = nBas(iSym)
+         call wrtmat(Work(lD1I+ioff-1),iBas,iBas, iBas, iBas)
+         iOff = iOff + iBas*iBas
+        End Do
+        write(6,*)
+        write(6,*) 'Total Charge :', Tot_Charge
+
+         Call GetMem('Fcore','Allo','Real',iTmp1,nTot1)
+         iComp  =  1
+         iSyLbl =  1
+         iRc    = -1
+         iOpt   =  6
+         Call RdOne(iRc,iOpt,'OneHam',iComp,Work(iTmp1),iSyLbl)
+         If ( iRc.ne.0 ) then
+          Write(LF,*) 'SGFCIN: iRc from Call RdOne not 0'
+          Write(LF,*) 'Label = ',Label
+          Write(LF,*) 'iRc = ',iRc
+          Call QTrace
+          Call Abend
+         Endif
+
+         Write(LF,*)
+         Write(LF,*) ' OneHam in AO basis in RASSCF'
+         Write(LF,*) ' ---------------------'
+         Write(LF,*)
+         iOff=0
+         Do iSym = 1,nSym
+          iBas = nBas(iSym)
+          Call TriPrt(' ','(5G17.11)',Work(iTmp1+iOff),iBas)
+          iOff = iOff + (iBas*iBas+iBas)/2
+         End Do
+
+         Call GetMem('Fcore','Free','Real',iTmp1,nTot1)
+         Call Get_dScalar('PotNuc',potNuc)
+
+         write(6,*)
+         write(6,*) 'PotNuc :', PotNuc
+
+         Write(LF,*)
+         Write(LF,*) ' D1A in AO basis in RASSCF'
+         Write(LF,*) ' ---------------------'
+         Write(LF,*)
+         iOff=1
+         Do iSym = 1,nSym
+          iBas = nBas(iSym)
+          call wrtmat(Work(lD1A+ioff-1),iBas,iBas, iBas, iBas)
+          iOff = iOff + iBas*iBas
+         End Do
+       End if
+      END IF
+
+      IF(KSDFT_TEMP(1:5).eq.'TLSDA'.or. !GLM
+     &   KSDFT_TEMP(1:5).eq.'TBLYP'.or.
+     &   KSDFT_TEMP(1:4).eq.'TSSB'.or.
+     &   KSDFT_TEMP(1:4).eq.'TPBE') THEN
+
+        CALL GETMEM('CASDFT_Fock','ALLO','REAL',LFOCK,NACPAR)
+* To fix the DS bug... I forgot to transform it to the AO basis... Agrrrrhhh!
+        if(iSpin.eq.1) then
+          If ( IPRLEV.ge.DEBUG )
+     &        write(6,*) 'running a singlet. LDSPN set to zero!'
+          Call dcopy_(NACPAR,0.0d0,0,Work(LDSPN),1)
+        end if
+        CALL GETMEM('TmpDS_DFT' ,'Allo','REAL',ipTmpDS_DFT ,NACPAR)
+        CALL GETMEM('TmpD1S_DFT','Allo','REAL',ipTmpD1S_DFT,NTOT2)
+        Call dcopy_(NACPAR,Work(LDSPN),1,Work(ipTmpDS_DFT),1)
+        IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(ipTmpDS_DFT))
+        Call Get_D1A_RASSCF(Work(LCMO),Work(ipTmpDS_DFT),
+     &                      Work(ipTmpD1S_DFT))
+        CALL GETMEM('TmpDS_DFT' ,'Free','REAL',ipTmpDS_DFT ,NACPAR)
+        call CASDFT_terms(WORK(LCMO),WORK(LFOCK),WORK(LFI),WORK(LD1I),
+     &                    WORK(LD1A),Work(ipTmpD1S_DFT))
+        CALL GETMEM('TmpD1S_DFT','Free','REAL',ipTmpD1S_DFT,NTOT2)
+        CALL GETMEM('CASDFT_Fock','FREE','REAL',LFOCK,NACPAR)
+* to fix complains from garble option on borr machines... initialize THMAX to zero.
+        THMAX = 0.0d0
+      END IF
+
+c        CALL TRIPRT('Averaged one-body density matrix, D, in RASSCF',
+c     &              ' ',Work(LDMAT),NAC)
+c        CALL TRIPRT('Averaged one-body spin density matrix DS, RASSCF',
+c     &              ' ',Work(LDSPN),NAC)
+c        CALL TRIPRT('Averaged two-body density matrix, P',
+c     &              ' ',WORK(LPMAT),NACPAR)
+c        CALL TRIPRT('Averaged antisym 2-body density matrix PA RASSCF',
+c     &              ' ',WORK(LPA),NACPAR)
+
+      Call Get_D1A_RASSCF(WORK(LCMO),WORK(LDMAT),WORK(LD1A))
+       If ( IPRLEV.ge.DEBUG ) then
+        Write(LF,*)
+        Write(LF,*) ' D1A in AO basis in RASSCF bf SXCTL'
+        Write(LF,*) ' ---------------------'
+        Write(LF,*)
+        iOff=1
+        Do iSym = 1,nSym
+         iBas = nBas(iSym)
+         call wrtmat(Work(LD1A+ioff-1),iBas,iBas, iBas, iBas)
+         iOff = iOff + iBas*iBas
+        End Do
+       End If
+      Call Timing(Swatch,Swatch,Zenith_2,Swatch)
+      Zenith_2 = Zenith_2 - Zenith_1
+      Zenith_3 = Zenith_3 + Zenith_2
+
+*
+c      Call rasscf_xml(Iter)
+      Call rasscf_mcontrol(Iter)
+*
+* SX-section
+*
+      Call Timing(Swatch,Swatch,Gucci_1,Swatch)
+
+       If ( IPRLEV.ge.DEBUG ) then
+        Write(LF,*) ' In RASSCF bf SXCTL'
+        CALL TRIPRT('Averaged one-body density matrix, D, in RASSCF',
+     &              ' ',Work(LDMAT),NAC)
+        CALL TRIPRT('Averaged two-body density matrix, P',
+     &              ' ',WORK(LPMAT),NACPAR)
+        CALL TRIPRT('Averaged antisym 2-body density matrix PA RASSCF',
+     &              ' ',WORK(LPA),NACPAR)
+       end if
+      CALL SXCTL(WORK(LCMO),WORK(LOCCN),
+     &           WORK(LDMAT),WORK(LPMAT),WORK(LPA),
+     &           WORK(LFI),WORK(LFA),WORK(LD1A),THMAX,IFINAL)
+      If ( IPRLEV.ge.DEBUG ) then
+       Write(LF,*)
+       Write(LF,*) ' FI+FA in RASSCF after SXCTL'
+       Write(LF,*) ' ---------------------'
+       Write(LF,*)
+       iOff=0
+       Do iSym = 1,nSym
+        iBas = nBas(iSym)
+        Call TriPrt(' ',' ',Work(LFA+iOff),iBas)
+        iOff = iOff + (iBas*iBas+iBas)/2
+       End Do
+      End If
+        IF (iDoNECI) THEN
+          write(6,*)'RASSCF: For NECI orbital energies are approximated'
+          write(6,*)'to the diagonal value of the Fock matrix properly'
+          write(6,*)'transformed accordingly to e(X) rotation matrix'
+c This is of course not true other than for special cases ... but some might find it beneficial!
+          iOff  = 0
+          iOff2 = 0
+          Do iSym = 1,nSym
+            iBas = nBas(iSym)
+            if(iBas.gt.0) then
+             do iDiag = 1,iBas
+               WORK(LDIAF+iDiag-1+iOff)=
+     &            WORK(LFA+(iDiag*(iDiag+1)/2)+iOff2-1)
+             end do
+             write(6,*) 'OrbEn in line for sym = ',iSym
+             write(6,*) (Work(LDIAF+i+ioff), i = 0,iBas-1)
+             iOff  = iOff + iBas
+             iOff2 = iOff2 + (iBas*iBas+iBas)/2
+            end if
+          End Do
+        END IF
+cGLM   write(6,*) 'ECAS in RASSCF after call to SXCTL', ECAS
+      If (DoCholesky.and.ALGO.eq.2) Then
+         Call GetMem('Q-mat','Free','Real',ipQmat,NTav)
+      EndIf
+
+      If ( IPRLEV.ge.DEBUG ) then
+        Write(LF,*)
+        Write(LF,*) ' D1A in AO basis in RASSCF af SXCTL'
+        Write(LF,*) ' ---------------------'
+        Write(LF,*)
+        iOff=1
+        Do iSym = 1,nSym
+         iBas = nBas(iSym)
+         call wrtmat(Work(LD1A+ioff-1),iBas,iBas, iBas, iBas)
+         iOff = iOff + iBas*iBas
+        End Do
+      end if
+      Call Get_D1A_RASSCF(WORK(LCMO),WORK(LDMAT),WORK(LD1A))
+      CASDFT_Funct=0.0d0
+      If (KSDFT.ne.'SCF'.and.KSDFT.ne.'PAM') then
+        Call Get_dScalar('CASDFT energy',CASDFT_Funct)
+cGLM        write(6,*) 'CASDFT energy :', CASDFT_Funct
+      end IF
+      DE=(ECAS+CASDFT_Funct)-ECAS1
+      ECAS1=ECAS+CASDFT_Funct
+
+      IF(NAC.EQ.0)   EAV=ECAS
+
+      If (KSDFT(1:3).ne.'SCF'.and.KSDFT(1:3).ne.'PAM') Then
+        IF (nConf.EQ.1) Then
+          EAV = ECAS
+        Else
+          EAV = EAV - VIA_DFT - HALFQ
+        End If
+      End IF
+
+      IF (ITER.EQ.1) DE=0.0d0
+      Call Timing(Swatch,Swatch,Gucci_2,Swatch)
+      Gucci_2 = Gucci_2 - Gucci_1
+      Gucci_3 = Gucci_3 + Gucci_2
+      TMXTOT=MAX(TMXTOT,THMAX)
+*
+* Save energies and convergence parameters
+*
+      CONV(1,ITER)=ECAS
+      CONV(2,ITER)=ESX
+      CONV(3,ITER)=CMAX
+      CONV(4,ITER)=DE
+      CONV(5,ITER)=CBLBM
+      CONV(6,ITER)=ROTMAX
+      IAD15 = IADR15(6)
+      CALL DDAFILE(JOBIPH,1,ENER,mxRoot*mxIter,IAD15)
+      CALL DDAFILE(JOBIPH,1,CONV,6*mxIter,IAD15)
+#ifdef _HDF5_
+      call mh5_put_attr (wfn_iter, Iter)
+      call mh5_put_dset_array_real(wfn_energy, ENER(1,Iter))
+#endif
+*
+* Print output of energies and convergence parameters
+*
+      Call Timing(Swatch,Swatch,Certina_2,Swatch)
+      Certina_3 = Certina_2 - Certina_1
+* Character indicating unconvergence/convergence criterion fulfilled:
+      CTHRE=' '
+      CTHRSX=' '
+      CTHRTE=' '
+      IF(ABS(DE).GT.THRE) CTHRE='*'
+      IF(ABS(CBLBM).GT.THRSX) CTHRSX='*'
+      IF(ABS(ROTMAX).GT.THRTE) CTHRTE='*'
+      IROT=0
+      IF(NROOTS.EQ.1) IROT=IROOT(1)
+      IF ( IPRLEV.GE.2 .and. IPRLEV.LE.3 .AND..NOT.lOPTO) THEN
+*----------------------------------
+* Shift total energies (BOR 070411)
+        if(iter.eq.1 .and. ICIONLY == 0)then
+         kau=int(ECAS/1000.d0)
+         EVAC=1000.d0*DBLE(kau)
+         if(kau.ne.0) THEN
+          write(6,'(6x,A,f23.2,A)')
+     &       'Total energies have been shifted. Add ', EVAC,' au'
+         end if
+        endif
+*----------------------------------
+        ihh=int(Certina_3/3600)
+        imm=int(Certina_3-ihh*3600)/60
+        iss=int(Certina_3-ihh*3600-imm*60)
+        if (DoSplitCAS) then
+         Write(LF,'(6X,I3,I4,I5,I5,F15.8,E12.2,A1,E10.2,A1,2I4,I2,'//
+     &            'E10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I5,A1,I2.2,A1,I2.2)')
+     &        ITER,iterSplit,
+     &        ITERSX,IROT,EAV,
+     &        DE,CTHRE,ROTMAX,CTHRTE,IBLBM,JBLBM,ISYMBB,CBLBM,CTHRSX,
+     &        SXSHFT,TMIN,QNSTEP,QNUPDT,ihh,':',imm,':',iss
+        else if(DoBKAP) then
+      Write(LF,'(3X,I3,I4,I2,I2,F15.8,F15.8,E12.2,A1,E10.2,A1,2I4,I2,'//
+     &            'E10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I5,A1,I2.2,A1,I2.2)')
+     &        ITER,ITERCI,
+     &        ITERSX,IROT,ECAS-EVAC+CASDFT_Funct,EAV,DE,CTHRE,
+     &        ROTMAX,CTHRTE,IBLBM,JBLBM,ISYMBB,CBLBM,CTHRSX,
+     &        SXSHFT,TMIN,QNSTEP,QNUPDT,ihh,':',imm,':',iss
+
+        else
+          if(doDMRG.and.KeyCION)then ! If DMRG only -- yma
+            Write(LF,'(/6X,a,F19.10)')
+     &      'DMRGCI energy              :',EAV+CASDFT_Funct
+            Write(LF,'(6X,a,I5,A1,I2.2,A1,I2.2/)')
+     &      'Total time spent (hh:mm:ss):        ',ihh,':',imm,':',iss
+          else
+         Write(LF,'(6X,I3,I4,I5,I5,F15.8,E12.2,A1,E10.2,A1,2I4,I2,'//
+     &            'E10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I5,A1,I2.2,A1,I2.2)')
+     &        ITER,ITERCI,
+     &        ITERSX,IROT,ECAS-EVAC+CASDFT_Funct,DE,CTHRE,
+     &        ROTMAX,CTHRTE,IBLBM,JBLBM,ISYMBB,CBLBM,CTHRSX,
+     &        SXSHFT,TMIN,QNSTEP,QNUPDT,ihh,':',imm,':',iss
+          end if
+        end if
+      ELSE IF ( IPRLEV.GE.4) THEN
+        Write(LF,'(6X,A,I4)') 'Energy statistics and convergence'//
+     &                                          ' in iteration',ITER
+        Write(LF,'(6X,A,10X,F26.6)') 'Average of CI energies',EAV-EVAC
+        Write(LF,'(6X,A,F26.6)') 'Complete active space SCF energy',
+     &                                                       ECAS-EVAC
+        Write(LF,'(6X,A,17X,F26.6)') 'Super-CI energy',ESX
+        Write(LF,'(6X,A,12X,F26.6,3X,A1)') 'RASSCF energy change',
+     &                                                        DE,CTHRE
+        Write(LF,'(6X,A,I1,A1,2I3,F19.6)') 'Maximum BLB matrix'
+     &                  //' element(sym=',ISYMBB,')',IBLBM,JBLBM,CBLBM
+        Write(LF,'(6X,A,10X,F26.6,3X,A1)') 'Max rotation parameter',
+     &                                               ROTMAX,CTHRSX
+        Write(LF,'(6X,A,14X,F26.6,3X,A1)') 'Max rotation angle',
+     &                                               THMAX,CTHRTE
+        Write(LF,'(6X,A,3X,F26.6)') 'Max change in MO coefficients',CMAX
+      END IF
+#ifdef _FDE_
+      ! Embedding
+      if (embpot) then
+       Eemb=embPotEneMODensities(Work(LD1I), Work(LD1A), Work(ipEmb),
+     &                nBas, nTot2, nFrozenOrbs, nSym)
+       Write(LF,*)"E from embedding potential (<Psi|v_emb|Psi>): ",Eemb
+      end if
+#endif
+      Call XFlush(6)
+cGLM some additional printout for MC-PDFT
+
+      If(KSDFT(1:5).eq.'TLSDA'.or.KSDFT(1:5).eq.'TBLYP'.or.
+     &   KSDFT(1:4).eq.'TPBE'.or.KSDFT(1:4).eq.'TSSB' ) then
+             CASDFT_E = ECAS-EVAC+CASDFT_Funct
+             call print_mcpdft(CASDFT_E)
+      end if
+*
+* Compare RASSCF energy and average CI energy
+*
+        DIFFE = ABS((ECAS-EAV)/ECAS)
+      if(.not.DoSplitCAS) then
+        if(DoBKAP) then
+         if(iter.eq.1) then
+          IF (DIFFE.GT.1.D-10 .AND. NROOTS.EQ.1) THEN
+            Write(LF,'(6X,120A1)') ('=',i=1,120)
+            Call WarningMessage(2,'Rasscf and CI energies will differ.')
+            Write(LF,*)'This is the price you pay by the diagonal '
+     &   //'approximation over the BB block in the SplitCAS method.'
+            Write(LF,*)'The RASSCF energy might also diverge!'
+            Write(LF,'(80A1)') ('#',i=1,80)
+          END IF
+         end if
+        else if(KSDFT(1:5).eq.'TLSDA'.or. !GLM
+     &          KSDFT(1:5).eq.'TBLYP'.or.
+     &          KSDFT(1:4).eq.'TSSB'.or.
+     &          KSDFT(1:4).eq.'TPBE' ) then
+          Write(LF,'(6X,80A)') ('=',i=1,80)
+          Write(LF,'(10X,A)') 'This is a POST-SCF correction using a '
+     & //'modified  Hamiltonian.'
+          write(LF,'(10X,A)') 'The RASSCF energy has been corrected and'
+     & //' it will differ from'
+          write(LF,'(10X,A)') 'the preceding CI energy.'
+          Write(LF,'(6X,80A)') ('=',i=1,80)
+        else
+          IF(doDMRG)then
+
+#ifdef _DMRG_DEBUG_
+            write(lf,*) "DMRG-SCF energy    ",ECAS
+            write(lf,*) "DMRG sweeped energy",EAV
+#endif
+
+            if(KeyCION)then
+            else
+              IF (DIFFE.GT.1.D-6 .AND. NROOTS.EQ.1) THEN
+                Write(LF,'(6X,120A1)') ('=',i=1,120)
+              Call WarningMessage(2,'DMRGSCF and DMRG energies differ.')
+                Write(LF,'(6X,A,I11)')    'iteration           ',ITER
+                Write(LF,'(6X,A,F22.10)') 'DMRGSCF energy      ',ECAS
+                Write(LF,'(6X,A,F22.10)') 'DMRG energy         ',EAV
+                Write(LF,'(6X,A,F22.10)') 'relative difference ',DIFFE
+                Write(LF,*)'About this difference:'
+                Write(LF,*)'1) If possible, consider a larger M value'
+               Write(LF,*)'2) Severe convergence problems. Maybe active'
+                Write(LF,*)'   space is unsuitable for this system?'
+                Write(LF,'(6X,120A1)') ('=',i=1,120)
+                IF (DIFFE.GT.5.D-04 .AND. NROOTS.EQ.1) THEN
+                  Write(LF,*)
+                  Write(LF,*)"Warning : "
+                  Write(LF,*)" Relative difference is near unacceptable"
+                  Write(LF,*)" If possible, consider a larger M value"
+                  Write(LF,*)
+                end if
+              end if
+            end if
+          else
+            IF (DIFFE.GT.1.D-10 .AND. NROOTS.EQ.1) THEN
+              Write(LF,'(6X,120A1)') ('=',i=1,120)
+              Call WarningMessage(2,'Rasscf and CI energies differ.')
+              Write(LF,'(6X,A,I11)')    'iteration           ',ITER
+              Write(LF,'(6X,A,F22.10)') 'RASSCF energy       ',ECAS
+              Write(LF,'(6X,A,F22.10)') 'CI energy           ',EAV
+              Write(LF,'(6X,A,F22.10)') 'relative difference ',DIFFE
+              Write(LF,*)'Severe convergence problems. Maybe the active'
+              Write(LF,*)'   space is unsuitable for this system?'
+              Write(LF,'(6X,120A1)') ('=',i=1,120)
+              IF (DIFFE.GT.1.D-04 .AND.NROOTS.EQ.1.AND.
+     & (KSDFT(1:5).ne.'TLSDA'.and.KSDFT(1:5).ne.'TBLYP'.and. !GLM
+     &  KSDFT(1:4).ne.'TPBE'.and.KSDFT(1:4).ne.'TSSB'))THEN
+              Write(LF,*)
+              Write(LF,'(6X,A)') 'The program has to stop !!!'
+              Write(LF,*)
+              Write(LF,'(6X,120A1)') ('=',i=1,120)
+              Write(LF,*)
+              ITERM=99
+              GOTO 2000
+              END IF
+            end if
+          END IF
+        end if
+      else
+*          Write(LF,'(6X,A,F22.10)') 'Split-RASSCF energy    ',ECAS
+        IF (DIFFE.GT.5.0D-03) THEN
+          Write(LF,'(6X,120A1)') ('*',i=1,120)
+          Write(LF,'(6X,A)') 'The Split-RASSCF and Split-CI '//
+     &                       'energies differ !!!'
+*          Write(LF,'(6X,A,I11)')    'iteration           ',ITER
+          Write(LF,'(6X,A,F22.10)') 'Split-RASSCF energy    ',ECAS
+          Write(LF,'(6X,A,F22.10)') 'Split-CI energy        ',EAV
+          Write(LF,'(6X,A,F22.10)') 'Relative difference    ', DIFFE
+          Write(LF,*)'     Smaller is the difference more realiable is',
+     &               ' the result.'
+          Write(LF,*)'     To make the difference smaller try',
+     &               ' to select a bigger AA block or use firstOrder ',
+     &               ' keyword.'
+          Write(LF,'(6X,120A1)') ('*',i=1,120)
+        END IF
+      end if
+
+*
+* Convergence check:
+* check is done on largest BLB matrix
+* element (CBLBM), on difference in
+* average energy, DE and on maximum value of non-
+* diagonal rotation matrix element.
+*
+*************************************************************************
+*************************************************************************
+* IF CIONLY calculation the convergence is skipped and goes to line 2000
+*************************************************************************
+*************************************************************************
+      IF (IFINAL.EQ.1) GOTO 2000
+      IF (DE.GT.1.0D0) THEN
+        Call StatusLine('RASSCF:','No convergence.')
+        Write(LF,*)
+        Write(LF,'(6X,120A1)') ('=',i=1,120)
+        Call WarningMessage(2,'Rasscf energy diverges.')
+        Write(LF,'(6X,A,I11)')    'iteration           ',ITER
+        Write(LF,'(6X,A,F22.10)') 'RASSCF energy       ',ECAS
+        Write(LF,'(6X,A,F22.10)') 'energy difference   ',DE
+        Write(LF,'(6X,120A1)') ('=',i=1,120)
+        Write(LF,*)
+        Write(LF,'(6X,A)') '!!! The program was forced to stop !!!'
+        Write(LF,*)
+        Write(LF,'(6X,120A1)') ('=',i=1,120)
+        Write(LF,*)
+        ITERM=99
+        GOTO 2000
+      ENDIF
+      IF(ITER.LT.MAXIT) THEN
+        Write(STLNE2,'(A12,I3)')' Iteration ',ITER
+        Call StatusLine('RASSCF converged:',STLNE2)
+        IF(ABS(DE).GT.THRE) GO TO 1000
+        IF(ABS(CBLBM).GT.THRSX) GO TO 1000
+        IF(ABS(ROTMAX).GT.THRTE) GO TO 1000
+        IF(ITER.LE.3.AND.ICIONLY.EQ.0) GO TO 1000   ! 3->0 checking
+        IF(IPRLEV.ge.TERSE) Write(LF,'(6X,A,I3,A)')
+     &        'Convergence after',ITER,' iterations'
+        If ( IPRLEV.ge.DEBUG ) then
+         Write(LF,*)
+         Write(LF,*) ' CMO in RASSCF after convergence printout'
+         Write(LF,*) ' ---------------------'
+         Write(LF,*)
+         ioff=1
+         Do iSym = 1,nSym
+          iBas = nBas(iSym)
+          if(iBas.ne.0) then
+            write(6,*) 'Sym =', iSym
+            do i= 1,iBas
+              write(6,*) (Work(LCMO+ioff-1+iBas*(i-1)+j),j=0,iBas-1)
+            end do
+            iOff = iOff + (iBas*iBas)
+          end if
+         End Do
+        End If
+        IFINAL=1
+        Call Add_Info('RASSCF_ITER',DBLE(ITER),1,8)
+*    Call Add_Info('RASSCF_THMX',TMXTOT,1,5)
+        GOTO 1000
+      ELSE
+        IF(IPRLEV.ge.TERSE) Write(LF,'(6X,A,I3,A)')
+     &        'No convergence after',ITER,' iterations'
+        Write(STLNE2,'(A12,I3)')' Iteration ',ITER
+        Call StatusLine('RASSCF max iter:',STLNE2)
+        IFINAL=1
+        ITERM=16
+        GOTO 1000
+      ENDIF
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Compute Final CI vectors
+*                                                                      *
+************************************************************************
+*                                                                      *
+ 2000 IFINAL=2
+      ICICH=0
+*****************************************************************************************
+***************************           Closing up MC-PDFT      ***************************
+*****************************************************************************************
+c Clean-close as much as you can the CASDFT stuff...
+      if(KSDFT(1:5).eq.'TLSDA'.or. !GLM
+     &   KSDFT(1:5).eq.'TBLYP'.or.
+     &   KSDFT(1:4).eq.'TSSB'.or.
+     &   KSDFT(1:4).eq.'TPBE') goto 2010
+
+** IPT2 = 1 for OUTO, CANOnical keyword...
+      IF(IPT2.EQ.1) THEN
+        IAD=IADR15(9)
+        CALL DDAFILE(JOBIPH,2,WORK(LCMO),NTOT2,IAD)
+      ELSE
+        IAD=IADR15(2)
+        CALL DDAFILE(JOBIPH,2,WORK(LCMO),NTOT2,IAD)
+      ENDIF
+        If ( IPRLEV.ge.DEBUG ) then
+         Write(LF,*)
+         Write(LF,*) ' CMO in RASSCF after DDAFILE'
+         Write(LF,*) ' ---------------------'
+         Write(LF,*)
+         ioff=1
+         Do iSym = 1,nSym
+          iBas = nBas(iSym)
+          if(iBas.ne.0) then
+            write(6,*) 'Sym =', iSym
+            do i= 1,iBas
+              write(6,*) (Work(LCMO+ioff-1+iBas*(i-1)+j),j=0,iBas-1)
+            end do
+            iOff = iOff + (iBas*iBas)
+          end if
+         End Do
+        End If
+      IF (NROOTS.GT.1) THEN
+       Call StatusLine('RASSCF:','Compute final CI vectors')
+      ELSE
+       Call StatusLine('RASSCF:','Compute final CI vector')
+      END IF
+*
+* Transform two-electron integrals
+*
+      Call Timing(Swatch,Swatch,Fortis_1,Swatch)
+      If (.not.DoCholesky .or. ALGO.eq.1) Then
+         Call GetMem('PVX1','Allo','Real',LPUVX,NFINT)
+         Call FZero(Work(LPUVX),NFINT)
+      EndIf
+
+      Call Get_D1I_RASSCF(Work(LCMO),Work(lD1I))
+
+       DoQmat=.false.
+
+       IPR=0
+       IF(IPRLOC(2).EQ.4) IPR=5
+       IF(IPRLOC(2).EQ.5) IPR=10
+       CALL TRACTL2(WORK(LCMO),WORK(LPUVX),WORK(LTUVX),WORK(LD1I),
+     &              WORK(LFI),WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
+*
+       If (.not.DoCholesky .or. ALGO.eq.1) Then
+          Call GetMem('PVX1','Free','Real',LPUVX,NFINT)
+       EndIf
+
+      Call Timing(Swatch,Swatch,Fortis_2,Swatch)
+      Fortis_2 = Fortis_2 - Fortis_1
+      Fortis_3 = Fortis_3 + Fortis_2
+*
+* CI-section (to obtain final wave function)
+* 1st and 2nd order density matrix in MO basis
+* for the gradients.
+*
+*
+* Print header to file containing informations on CI iterations.
+*
+       Write(IterFile,*)
+       Write(IterFile,'(20A4)') ('****',i=1,20)
+       Write(IterFile,'(15X,A)') 'RASSCF iteration: Final'
+*
+      Call Timing(Swatch,Swatch,Zenith_1,Swatch)
+
+#ifdef _ENABLE_BLOCK_DMRG_
+      If(DoBlockDMRG) Then
+        CALL DMRGCTL(WORK(LCMO),
+     &           WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
+     &           WORK(LFI),WORK(LD1I),WORK(LD1A),
+     &           WORK(LTUVX),IFINAL,1)
+      Else
+#endif
+#ifdef _NECI_
+      if(iDoNECI) then
+        call FCIQMC_ctl(WORK(LCMO),WORK(LDIAF),
+     &             work(ldmat),work(ldspn),work(lpmat),work(lpa),
+     &             work(lfi),work(ld1i),work(ld1a),
+     &             work(ltuvx),ifinal)
+        Call GetMem('DetOrb','Free','Inte',ipDet,nActel)
+c allocated in proc_inp.f used throughout the iterations.. here or after here can be safely deallocated.
+      else
+#endif
+        CALL CICTL(WORK(LCMO),
+     &           WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
+     &           WORK(LFI),WORK(LD1I),WORK(LD1A),
+     &           WORK(LTUVX),IFINAL)
+#ifdef _NECI_
+      end if
+#endif
+#ifdef _ENABLE_BLOCK_DMRG_
+      End If
+#endif
+! Now disable it at least for DMRG
+!      end if !doDMRG in general (Zurich interface)
+
+      EAV=0.0d0
+      If(DoSplitCAS) then
+        EAV = ENER(lRootSplit,ITER)
+      else
+       DO KROOT=1,NROOTS
+         EAV=EAV+ENER(IROOT(KROOT),ITER)*WEIGHT(KROOT)
+       END DO
+      end if
+      IF(NAC.EQ.0) EAV=ECAS
+      IF(NACPR2.GT.0) THEN
+         Call GetMem('TUVX','Free','Real',LTUVX,NACPR2)
+         Call GetMem('P2AS','Free','Real',LPA,NACPR2)
+      END IF
+      Call Timing(Swatch,Swatch,Zenith_2,Swatch)
+      Zenith_2 = Zenith_2 - Zenith_1
+      Zenith_3 = Zenith_3 + Zenith_2
+      Call Timing(Swatch,Swatch,Ebel_2,Swatch)
+*
+* Calculation of natural orbitals. These orbitals are stored on
+* JOBIPH in IADR15(12), followed by the occupation numbers.
+* Usage: Only for one-electron properties
+* Note: in an average calculation natural orbitals are obtained
+* for all roots. Stored sequentially at IADR15(12) on JOBPIH.
+*PAM2009 This is done in NATORB. Note that it places the resulting
+* natural orbitals and occ nos into JOBIPH. Thus the arguments nr
+* 5 and 6 are simply those for the last root that NATORB processed,
+* and they should not be reused for anything after return from NATORB.
+* NATORB args: Arg1 is current CMO coeffs, used in CI;
+*  all the rest should be regarded as scratch.
+*
+      Call StatusLine('RASSCF:','Compute natural orbitals')
+      IPR=0
+      IF(IPRLOC(6).EQ.4) IPR=5
+      IF(IPRLOC(6).EQ.5) IPR=10
+      Call GetMem('CMON','Allo','Real',LCMON,NTOT2)
+      Call GetMem('OCCX','Allo','Real',LOCCX,NTOT)
+      Call GetMem('NOscr1','Allo','Real',lNOscr1,MAX(NACPAR,NO2M))
+      Call GetMem('NOscr2','Allo','Real',lNOscr2,NO2M)
+      Call GetMem('SMAT','Allo','Real',LSMAT,NTOT1)
+*PAM2009 NATORB args: Arg1 is current CMO coeffs, used in CI;
+*  all the rest should be regarded as scratch.
+      CALL NATORB_RASSCF(Work(LCMO),
+     &            Work(lNOscr1),Work(lNOscr2),Work(LSMAT),
+     &            Work(LCMON),Work(LOCCX))
+      Call GetMem('NOscr1','Free','Real',lNOscr1,MAX(NACPAR,NO2M))
+      Call GetMem('NOscr2','Free','Real',lNOscr2,NO2M)
+*PAM2009 Deallocate CMON, OCCX.
+      Call GetMem('CMON','Free','Real',LCMON,NTOT2)
+      Call GetMem('OCCX','Free','Real',LOCCX,NTOT)
+
+*
+*
+*****************************************************************
+* Export all information relevant to geometry optimizations.
+* Save also the reaction field operator.
+      Call Timing(Swatch,Swatch,Oris_1,Swatch)
+      If (iRlxRoot.eq.0) iRlxRoot=iRoot(1)
+*
+* Replace average occ Fock with occ Fock for state iRlxRoot
+* and densities with the densities for state iRLXRoot
+c      write(6,*) 'I am in RASSCF before call to PutRlx!'
+      If ( ITERM.ne.99 ) Then
+         Call GetMem('Dens','ALLO','REAL',ipDens,nTot1)
+         Call PutRlx(Work(LDMAT),Work(LDSPN),WORK(LPMAT),
+     &            Work(ipDens),Work(LCMO))
+         Call Export1(IFINAL,WORK(LCMO),WORK(LDMAT),WORK(LPMAT),
+     &             Work(ipDens),Work(ipFocc))
+         Call GetMem('Dens','FREE','REAL',ipDens,nTot1)
+      End If
+      Call Timing(Swatch,Swatch,Oris_2,Swatch)
+      Oris_2 = Oris_2 - Oris_1
+*****************************************************************
+
+      IF(NACPAR.GT.0 ) THEN
+         Call GetMem('PMAT','Free','Real',LPMAT,NACPR2)
+         Call GetMem('DMAT','Free','Real',LDMAT,NACPAR)
+         Call GetMem('DSPN','Free','Real',LDSPN,NACPAR)
+      END IF
+*
+      EMY=EMY+CASDFT_Funct
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Output section
+*                                                                      *
+************************************************************************
+*                                                                      *
+
+      Call StatusLine('RASSCF:','Printing results')
+      IF (IPRLEV.GE.USUAL .AND..NOT.lOPTO) THEN
+        Write(LF,*)
+        Write(LF,'(6X,120A1)') ('*',i=1,120)
+        Write(LF,'(6X,A,118X,A)') '*','*'
+        Write(LF,'(6X,A,52X,A,53X,A)')
+     &        '*','Final results','*'
+        Write(LF,'(6X,A,118X,A)') '*','*'
+        Write(LF,'(6X,120A1)') ('*',i=1,120)
+        Write(LF,*)
+      END IF
+#ifdef _FDE_
+      ! Embedding
+      if (embpot) then
+       Eemb=embPotEneMODensities(Work(LD1I), Work(LD1A), Work(ipEmb),
+     &                nBas, nTot2, nFrozenOrbs, nSym)
+       Write(LF,*) "Final energy from embedding potential: ", Eemb
+       ! Write out ESP on grid if requested
+       if (embWriteEsp) then
+        Call Get_iScalar('Unique atoms',nNuc)
+        Call embPotOutputMODensities(nNuc,nSym,LD1I,LD1A,nBas,nTot2)
+       end if
+      end if
+#endif
+
+      If ( ITERM.ne.99 ) THEN
+       If (.not.DoSplitCAS) then
+        CALL OUTCTL(WORK(LCMO),WORK(LOCCN),WORK(LSMAT),lOPTO)
+       else
+        CALL OUTCTLSplit(WORK(LCMO),WORK(LOCCN),WORK(LSMAT),lOPTO)
+       end if
+      End If
+
+      Call GetMem('SMAT','Free','Real',LSMAT,NTOT1)
+
+*
+* Write information for MOLDEN
+*
+c  i_root=0 gives state- and spin-averaged natural orbitals
+c  i_root>0 gives natural spin orbitals for that root
+      mroots=nroots
+      if ((iSpin.eq.1).and.(nroots.eq.1)) mroots=0
+      Do i_root=0,mroots
+        Call Interf(i_root,FDIAG,1,0)
+      End Do
+*****************************************************************************************
+***************************           Closing up RASSCF       ***************************
+*****************************************************************************************
+*
+c      Call rasscf_xml(0)
+*
+
+2010   continue
+*^follow closing up MC-PDFT
+*
+* release SEWARD
+*
+      Call ClsSew
+* ClsSew is needed for releasing memory used by integral_util, rys... which is allocated when MC-PDFT run is performed.
+
+*---  Finalize Cholesky information if initialized
+      if (DoCholesky)then
+         Call Cho_X_Final(irc)
+         if (irc.ne.0) then
+            Write(LF,*)'RASSCF: Cho_X_Final fails with return code ',irc
+            Write(LF,*)' Try to recover. Calculation continues.'
+         endif
+         If (Do_OFemb) Then
+            Call GetMem('FMaux','Free','Real',ipFMaux,nTot1)
+            Call OFE_print(EAV)
+         EndIf
+      endif
+
+!      do i=1,NTOT2
+!        write(*,*) "A,I",work(LD1A+i-1),work(LD1I+i-1)
+!      end do
+
+*  Release  some memory allocations
+      Call GetMem('DIAF','Free','Real',LDIAF,NTOT)
+      Call GetMem('FOCC','FREE','REAL',ipFocc,idum)
+      Call GetMem('FI','Free','Real',LFI,NTOT1)
+      Call GetMem('FA','Free','Real',LFA,NTOT1)
+      Call GetMem('D1I','Free','Real',LD1I,NTOT2)
+      Call GetMem('D1A','Free','Real',LD1A,NTOT2)
+      Call GetMem('D1tot','Free','Real',lD1tot,NTOT1)
+      Call GetMem('OCCN','Free','Real',LOCCN,NTOT)
+      Call GetMem('LCMO','Free','Real',LCMO,NTOT2)
+      If (iClean.eq.1) Call Free_iWork(ipCleanMask)
+
+*
+* Create output orbital files:
+      Call OrbFiles(JOBIPH,IPRLEV)
+*
+* Skip Lucia stuff if NECI or BLOCK-DMRG is on
+      If(.not.(iDoNECI.or.doDMRG.or.doBlockDMRG)) then
+          Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
+       end if
+       if(iDoNECI) then
+         CALL GETMEM('INT1  ','FREE','REAL',kint1_pointer,NAC**2)
+       end if
+* We better deallocate before it is too late...
+c       if(iDoNECI) then
+c         CALL GETMEM('INT1  ','FREE','REAL',kint1_pointer,NAC**2)
+c       end if
+*
+* DMRG: Save results for other use
+! ==========================================================
+      if(doDMRG)then
+#ifdef _DMRG_
+        call dump_dmrg_info()
+        call finalize_dmrg()
+#endif
+      end if
+! ==========================================================
+* Exit
+*
+
+      Call StatusLine('RASSCF:','Finished.')
+      If (IPRLEV.GE.2) Write(LF,*)
+      if(ifvb.eq.1) call make_close_rvb
+cvv call to grid is moved up, in order to call clssew safely..
+c      If (iCIonly.eq.0) Then
+c        Call Grid_driver(-1,'RASSCF','RASORB',iR)
+c      End If
+
+      Call Timing(Swatch,Swatch,Ebel_3,Swatch)
+      IF (IPRLEV.GE.3) THEN
+       Call PrtTim
+       Call FastIO('STATUS')
+      END IF
+      Call ClsFls_RASSCF()
+
+*
+      Rc_RAS = ITERM
+      Rc_RAS = Max(RC_RAS,Rc_CI)
+      Rc_RAS = Max(RC_RAS,Rc_SX)
+      If (Rc_Ras.eq.0) then
+         ireturn=_RC_ALL_IS_WELL_
+      Else If (Rc_Ras.eq.16) then
+         ireturn=_RC_NOT_CONVERGED_
+      Else
+         Call WarningMessage(2,'Something is wrong: Did CI fail?')
+         ireturn=_RC_GENERAL_ERROR_
+      End If
+*
+      If (Do_OFemb) Then
+         Call GetEnvF('EMIL_InLoop',EMILOOP)
+         If (EMILOOP.eq.' ') EMILOOP='0'
+         If (EMILOOP(1:1).ne.'0') Then
+            If (iReturn.ne._RC_ALL_IS_WELL_) Then
+               Call WarningMessage(1,'RASSCF: non-zero return code.')
+            EndIf
+            iReturn=_RC_CONTINUE_LOOP_
+            Call Check_FThaw(iReturn)
+         EndIf
+      EndIf
+
+      if(.not.(iDoGas.or.doDMRG.or.doBlockDMRG.or.iDoNeci)) then
+        Call MKGUGA_FREE
+      end if
+
+ 9990 Continue
+C Close the one-electron integral file:
+      iRC=-1
+      iOpt=0
+      Call ClsOne(iRC,iOpt)
+      If (iRC.ne.0) Then
+         Write (6,*) 'Error when trying to close the one-electron'
+         Write (6,*) 'integral file.'
+         Call Quit(_RC_INTERNAL_ERROR_)
+      End If
+
+      If (IfVB.ne.2) Then
+        DO I=10,99
+          INQUIRE(UNIT=I,OPENED=IfOpened)
+          IF (IfOpened.and.I.ne.19) CLOSE (I)
+        END DO
+        Close(LUInput)
+      End If
+      Call qExit(ROUTINE)
+
+      return
+      End

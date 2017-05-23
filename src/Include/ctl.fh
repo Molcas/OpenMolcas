@@ -1,0 +1,23 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*----------------------------------------------------------------------*
+* Control blocks for AIX I/O routines.                                 *
+*----------------------------------------------------------------------*
+#include "MxFile.fh"
+      Integer, Parameter :: pHeadOffset = 0
+      Parameter (pHndle =  1)
+      Parameter (pWhere =  pHndle + 1)
+      Parameter (pDesc  =  pWhere + 1)
+      Parameter (pStat  =  pDesc  + 1)
+      Parameter (pEnd   =  pStat)
+      Dimension CtlBlk(pEnd,MxFile)
+      Character*80 FCtlBlk(MxFile)
+      Common /AixCmn/ CtlBlk,FCtlBlk

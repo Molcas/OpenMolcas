@@ -1,0 +1,40 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      Logical        lDStrt,
+     &               TRSymm, lEq, Direct(Mxdc*3), l2DI, HF_Force,
+     &               lDEnd
+      Common /lDisp/ lDStrt,
+     &               TRSymm, lEq, Direct,         l2DI, HF_Force,
+     &               lDEnd
+
+      Character*(LENIN6) ChDisp(Mxdc*3)
+      Integer cDStrt, cDEnd
+      Common /CDisp/ cDStrt,
+     &               ChDisp,
+     &               cDEnd
+
+      Integer        iDStrt,
+     &               IndDsp(mxdc,0:7), iSkal(MxBas), InxDsp(mxdc,3),
+     &               lDisp(0:7), IndxEq(mxdc*3), ipAM, nTR,
+     &               mult_Disp(mxdc*3),
+     &               iDEnd
+      Common /iDisp/ iDStrt,
+     &               IndDsp,           iSkal,        InxDsp,
+     &               lDisp,      IndxEq,         ipAM, nTR,
+     &               mult_Disp,
+     &               iDEnd
+
+      Real*8         rDStrt,
+     &               CutGrd, Disp_Fac(3,0:7,mxdc),
+     &               rDEnd
+      Common /rDisp/ rDStrt,
+     &               CutGrd, Disp_Fac,
+     &               rDEnd

@@ -1,0 +1,76 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+C Atom pair information for LDF:
+C
+C NumberOfAtomPairs: number of significant atom pairs
+C
+C AP_Atoms(1,iAtomPair): atom 1 of atom pair iAtomPair
+C AP_Atoms(2,iAtomPair): atom 2 of atom pair iAtomPair
+C
+C AP_Unique(iAtomPair): unique atom pair corresponding to "real" atom
+C                       pair iAtomPair
+C
+C AP_Diag(iAtomPair): pointer to diagonal integrals for atom pair
+C                     iAtomPair.
+C
+C AP_DiagBak(iAtomPair): pointer to original (not updated) diagonal
+C                        integrals for atom pair iAtomPair.
+C
+C AP_1CLinDep(1,iAtomPair): number of linearly dependent one-center
+C                           functions removed for atom pair iAtomPair
+C AP_1CLinDep(2,iAtomPair): pointer to list of linearly dependent one-
+C                           center functions removed for atom pair
+C                           iAtomPair
+C The list has the following format:
+C    AP_1CLinDep_List(1,i1CLinDep): atom of function
+C    AP_1CLinDep_List(2,i1CLinDep): shell of function
+C    AP_1CLinDep_List(3,i1CLinDep): index in shell of function
+C
+C AP_2CFunctions(1,iAtomPair): number of two-center functions included
+C                              in auxiliary basis for atom pair
+C                              iAtomPair
+C AP_2CFunctions(2,iAtomPair): pointer to list of two-center functions
+C                              included in auxiliary basis for atom pair
+C                              iAtomPair
+C The list has the following format:
+C    AP_2CFuncion_List(1,i2CFun): shell of function A
+C    AP_2CFuncion_List(2,i2CFun): index in shell of function A
+C    AP_2CFuncion_List(3,i2CFun): shell of function B
+C    AP_2CFuncion_List(4,i2CFun): index in shell of function B
+C
+C AP_DiskC(iAtomPair): disk address for reading fitting
+C                      coefficients for atom pair iAtomPair
+C
+C Set in: LDF_SetAtomPairInfo
+C Unset in: LDF_UnsetAtomPairInfo
+C
+      Integer LDF_AtomPairInfo_Set, LDF_AtomPairInfo_Unset
+      Parameter (LDF_AtomPairInfo_Set=5678765)
+      Parameter (LDF_AtomPairInfo_UnSet=8765678)
+
+      Integer LDF_AtomPairInfo_Status
+      Integer NumberOfAtomPairs
+      Integer ip_AP_Atoms, l_AP_Atoms
+      Integer ip_AP_Unique, l_AP_Unique
+      Integer ip_AP_Diag, l_AP_Diag
+      Integer ip_AP_DiagBak, l_AP_DiagBak
+      Integer ip_AP_1CLinDep, l_AP_1CLinDep
+      Integer ip_AP_2CFunctions, l_AP_2CFunctions
+      Integer ip_AP_DiskC, l_AP_DiskC
+
+      Common / LDFAPI / LDF_AtomPairInfo_Status, NumberOfAtomPairs,
+     &                  ip_AP_Atoms, l_AP_Atoms,
+     &                  ip_AP_Unique, l_AP_Unique,
+     &                  ip_AP_Diag, l_AP_Diag,
+     &                  ip_AP_DiagBak, l_AP_DiagBak,
+     &                  ip_AP_1CLinDep, l_AP_1CLinDep,
+     &                  ip_AP_2CFunctions, l_AP_2CFunctions,
+     &                  ip_AP_DiskC, l_AP_DiskC

@@ -1,0 +1,34 @@
+#***********************************************************************
+# This file is part of OpenMolcas.                                     *
+#                                                                      *
+# OpenMolcas is free software; you can redistribute it and/or modify   *
+# it under the terms of the GNU Lesser General Public License, v. 2.1. *
+# OpenMolcas is distributed in the hope that it will be useful, but it *
+# is provided "as is" and without any express or implied warranties.   *
+# For more details see the full text of the license in the file        *
+# LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#***********************************************************************
+#                 1     2     3     4
+# ------------   ---   ---   ---   ---
+DEF-SV_P_        SEG   AE_   NRH
+DEF-SVP          SEG   AE_   NRH
+SVP              SEG   AE_   NRH
+SV               SEG   AE_   NRH
+DZP              SEG   AE_   NRH
+TZP              SEG   AE_   NRH
+TZVP             SEG   AE_   NRH
+# *************************************
+# 1: Contraction type
+#  - SEG: Segmented
+#  - ANO: ANO
+#  - RAF: Raffenetti
+#  - CCC: CC contraction
+# 2: All electron
+#  - AE:  All electron
+#  - NAE: Not all electron
+# 3: Relativity
+#  - RH:  Relativistic hamiltonian
+#  - NRH: Non relativistic hamiltonian
+#  - RCP: Relativistic core potential
+# 4: Reserved
+

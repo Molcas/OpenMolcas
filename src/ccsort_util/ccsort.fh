@@ -1,0 +1,70 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+CFUE  start modification
+cPN  modification (add noa,nob,nva,nvb)
+#include "rasdim.fh"
+C
+C     When changing the parameters make shure they match the definitions
+C     in the file rasdim.fh which defines the dimensions the JOBIPH
+C
+       PARAMETER (MXEXT=MXBAS)
+CFUE  end modification
+       PARAMETER (MXTU=MXACT**2,MXTUV=MXACT*MXTU,
+     & MXTGEU=(MXTU+MXACT)/2,MXTGTU=MXTU-MXTGEU,
+     & MXIGEJ=(MXINA*(MXINA+1))/2,MXIGTJ=(MXINA*(MXINA-1))/2,
+     & MXAGEB=(MXEXT*(MXEXT+1))/2,MXAGTB=(MXEXT*(MXEXT-1))/2)
+       Logical RFpert
+       INTEGER
+     & MAXIT,NTIT,IFJAC,NACTEL,ISPIN,NSYM,LSYM,NCONF,
+     & NFRO,NFROT,NISH,NIES,NISHT,NRAS1,NRAS1T,
+     & NRAS2,NRAS2T,NRAS3,NRAS3T,NASH,NAES,NASHT,
+     & NOSH,NOSHT,NSSH,NSES,NSSHT,NORB,NORBT,
+     & NDEL,NDELT,NBAS,NBAST,MUL,ISCF,IISYM,
+     & IASYM,IESYM,
+     & IINAIS,IACTIS,IEXTIS,
+     & LIST,LROOT,NROOTS,IROOT,IADR15,NBAS2,
+     & NORB1,IAD1M,NELE3,NHOLE1,
+     & noa,nob,nva,nvb
+       REAL*8 CONV,THRSHN,THRSHS,THRSHF,THRENE,THROCC,
+     & POTNUC,ECORE,EREF
+
+       COMMON/INPUT1/ CONV,THRSHN,THRSHS,THRSHF,THRENE,THROCC,
+     & POTNUC,ECORE,EREF
+       COMMON/INPUT2/ MAXIT,NTIT,IFJAC,NACTEL,ISPIN,NSYM,LSYM,NCONF,
+     & NFRO(8),NFROT,NISH(8),NIES(8),NISHT,NRAS1(8),NRAS1T,
+     & NRAS2(8),NRAS2T,NRAS3(8),NRAS3T,NASH(8),NAES(8),NASHT,
+     & NOSH(8),NOSHT,NSSH(8),NSES(8),NSSHT,NORB(8),NORBT,
+     & NDEL(8),NDELT,NBAS(8),NBAST,MUL(8,8),ISCF,IISYM(MXINA),
+     & IASYM(MXACT),IESYM(MXEXT),
+     & IINAIS(MXINA),IACTIS(MXACT),IEXTIS(MXEXT),
+     & LIST(52),LROOT,NROOTS,IROOT(MXROOT),IADR15(64),NBAS2,
+     & NORB1,IAD1M(64),NELE3,NHOLE1,RFpert,IPT2,
+     & noa(8),nob(8),nva(8),nvb(8)
+c@    COMMON/VARIA/ EPS(MXORB),EPSI(MXINA),EPSA(MXACT),EPSE(MXEXT),
+c@    &    EDEA(MXACT),EDIP(MXACT),EOCORR(MXACT,0:2),
+c@    &    POCC(MXACT,0:2),EASUM,DENORM
+       COMMON/ALLO/  NCMO,LCMO,NFIMO,LFIMO,NFAMO,LFAMO,NFIFA,LFIFA,
+     & NHONE,LHONE,NDREF,LDREF,NPREF,LPREF
+       COMMON/CCSORT_UNITS/ LUINTA,LUONEA,JOBIPH,LUMORB,LUONEM,
+     & LUHLF1,LUHLF2,LUHLF3,LUINTM,LUDMAT,LUVECT,LUEXT
+C Excitation operators, sizes and offsets
+       PARAMETER (NCASES=13)
+       COMMON/CCSORT_STRUCT/ NASUP(8,NCASES),NISUP(8,NCASES),
+     & NINDEP(8,NCASES),
+     & NEXC(8,NCASES),NEXCES(8,NCASES),NREDCO(8,NCASES)
+       CHARACTER*8 HZERO,FOCKTYPE,ORBIT,ORBIN,ORBNAM,IINAM,IANAM,
+     & ISNAM,CASES
+       CHARACTER*4 NAME,TITLE,METHOD
+       CHARACTER*2 HEADER
+       CHARACTER*72 TITLE2
+       COMMON/CCSD_STRING/ NAME(2*MXORB),HEADER(72),TITLE2(10),
+     & TITLE(MXTIT,18),CASES(13),HZERO,FOCKTYPE,ORBIT,ORBIN,
+     & ORBNAM(MXORB),IINAM(MXINA),IANAM(MXACT),ISNAM(MXEXT),METHOD

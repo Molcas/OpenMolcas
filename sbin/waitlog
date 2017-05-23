@@ -1,0 +1,54 @@
+#!/usr/bin/env perl
+#***********************************************************************
+# This file is part of OpenMolcas.                                     *
+#                                                                      *
+# OpenMolcas is free software; you can redistribute it and/or modify   *
+# it under the terms of the GNU Lesser General Public License, v. 2.1. *
+# OpenMolcas is distributed in the hope that it will be useful, but it *
+# is provided "as is" and without any express or implied warranties.   *
+# For more details see the full text of the license in the file        *
+# LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#                                                                      *
+# Copyright (C) 2013, Steven Vancoillie                                *
+#***********************************************************************
+#
+# waitlog
+#
+# Program that gives an overview of the changes introduced in
+# someone's branch but not applied yet to the master branch.
+#
+# Used with Molcas to give a list of all commits that are still
+# waiting to pass verification.
+#
+# Steven Vancoillie, October 2013
+
+use File::Basename;
+
+my $MOLCAS_DRIVER;
+$MOLCAS_DRIVER = $ENV{"MOLCAS_DRIVER"} or $MOLCAS_DRIVER = "molcas";
+my $DRIVER_base = basename($MOLCAS_DRIVER);
+
+my $MOLCAS=$ENV{"MOLCAS"};
+die "MOLCAS not set, use $DRIVER_base waitlog\n" unless ($MOLCAS);
+
+# if this is a git repo, sanity check if git exists,
+# otherwise print a warning.
+my $git_exists = 0;
+foreach my $path (split /:/, $ENV{'PATH'}) {
+    if ( -f "$path/git" && -x _ ) {
+        $git_exists = 1;
+        last;
+    }
+}
+if ( not -e "$MOLCAS/.git" or not $git_exists) {
+    print "Error: git not available or not a git repo\n";
+    exit 1;
+}
+
+# check for option -n, where n is the number of changelogs
+# to show, and store that number in $limit
+my $branch = shift @ARGV;
+
+print `git log --oneline --decorate --date-order origin/master..$branch`;
+
+exit 0;

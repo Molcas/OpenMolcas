@@ -1,0 +1,44 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+* stuff  for direct MP2 (MGS, Oct. 1995)
+*     nDisc   : # AOI/SOI to be stored on disk in semidirect appraoch...
+*     iTst    : 'only test' flag
+*     nTstP   : 'only test' with nTstP (virtual) processors in order to
+*               check out use of memory...
+*     nFiddl  : Threshold for massaging (fiddling) of basis set:
+*               shells with nCmp*nBasis*ndeg > nFiddl are decontracted,
+*               nCmp   -> # components,
+*               nBasis -> # contracted functions,
+*               ndeg   -> n-fold degeneracy of symm. unique center
+*     iSegQ1  : flag for segmented Q1 step (useful in high-symmetry
+*               cases to reduce size of SO block...)
+*     iRdQ3T  : flag for reduced Q3 temp. block (OVI instead of OVIS)
+*     iRest   : restart flag
+*     iSave   : save flag (for Molpro)
+*     nPass   : max. # of integral passes to run (for restart)
+*     MOSkip(0:7) : # MOs in 1st index to be skipped, for each irrep
+*               (for restart)
+*     Thize   : threshold for writing integral to disk in semidirect
+*               approach...
+*     SIntTh  : threshold for ignoring computation of AO (SO) integral
+*     TfThre  : threshold for ignoring integral in Q1 transformation...
+*
+      Real*8 Thize, SIntTh, TfThre
+      Integer nDisc, iTst, nTstP, nFiddl, iSegQ1, iRdQ3T,
+     &        iRest, nPass, MOSkip(0:7)
+*
+      Common /DTFAUX  / dAStrt,
+     &                  Thize,SIntTh,TfThre,
+     &                  dAEnd
+      Common /ITFAUX  / iAStrt,
+     &                  nDisc,iTst,nTstP,nFiddl,iSegQ1,iRdQ3T,
+     &                  iRest,iSave,nPass,MOSkip,
+     &                  iAEnd

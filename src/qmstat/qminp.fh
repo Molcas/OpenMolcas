@@ -1,0 +1,56 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*----------------------------------------------------------------------*
+* Common variables for qm-part.                                        *
+*----------------------------------------------------------------------*
+*
+      Common/QMinte/iOrb(3),iOcc1,nPart,nAtom,nCent
+     &,nPol,nCha,iExtra,Inter,iPrint,iRead,iSta,itMax
+     &,iNrIn,iNrUt,NrStarti,NrStartu,nDel,NrFiles
+     &,NrStates(MxState),nEqState,iSeed,nMacro,nMicro,nAdd,iNrExtr
+     &,nExtAddOns,nTemp,nStFilT(MxParT),iCompExt(MxExtAddOn)
+     &,nLvlShift,iLvlShift(MxState),nCIRef,iCIInd(MxState)
+     &,iExtr_Eig,iExtr_Atm(MxAt)
+     &,nSlSiteC,lMltSlC,nMlt      !Jose. Penetration using Slater
+                                  !determinants. nMlt=order of QM
+                                  !Mutipoles+1
+
+      Common/QMreal/rStart,Diel,Qsta(MxCha),Pol(MxPol)
+     &,SexRep(MxAt,MxAt),SexRe1(MxAt,MxAt),SexRe2(MxAt,MxAt)
+     &,Disp(MxPol,MxPol),Cordst(MxCen*MxPut,3)
+     &,OldGeo(MxCen*MxPut,3)
+     &,Udisp(MxAt,MxCen),Exrep2,Exrep4,Exrep6,Exrep10
+     &,CharDi(MxCen),QuaDi(3,MxCen)
+     &,CharDiQ(MxAt),QuadiQ(3,MxAt)
+     &,CAFieldG,CBFieldG,DelX,DelFi,DelR,Forcek,dLJrep,Temp,Pres,Surf
+     &,CFexp,Pollim,Enelim,Exdtal,Exdt1,Cut_Ex1,Cut_Ex2,AlphaD
+     &,RasEne(MxState),ScalExt(MxExtAddOn),ParaTemps(MxParT),ThrsRedOcc
+     &,ThrsCont,dLvlShift(MxState),dCIRef(MxState)
+* Jose. Penetration using Slater functions. Classical system is up to dipole,
+* so there is 4 Factors and 2 exponents.
+     &,SlFactC(4,MxCen),SlExpC(2,MxCen),SlPC(MxCen),Cut_Elc,DifSlExp
+     $,SlExpQ(MxMltp+1,MxQCen)
+*  JoseMEP. The new arrays AvElcPot and PertNElcInt are included
+     &,AvElcPot(MxQCen,10),PertNElcInt(MxBas*(MxBas+1)/2)
+
+      Character JobLab*100,QmType*20,ExtLabel*8,cDumpForm*10
+      Common/QMchar/JobLab,QmType,ExtLabel(MxExtAddOn),cDumpForm
+
+      Logical Smeq,Qmeq,Fielddamp,Dispdamp,SmProd,QmProd
+     &,EdSt,ChargedQM,DelOrAdd(12),ATitle
+     &,Anal,AddExt,SingPoint,ParallelT,Mp2DensCorr
+*  JoseMEP. The dimension was increased from 8 to 12 also in DelOrAdd
+     &,MoAveRed,ContrStateB,lCiSelect,lExtr(12),lAnal(12)
+     &,lSlater,lQuad          ! Jose. Penetration using Slater.
+      Common/QMlogi/Smeq,Qmeq,Fielddamp,Dispdamp,SmProd,QmProd
+     &,EdSt,ChargedQM,DelOrAdd,ATitle
+     &,Anal,AddExt,SingPoint,ParallelT,Mp2DensCorr
+     &,MoAveRed,ContrStateB,lCiSelect,lExtr,lAnal,lSlater,lQuad

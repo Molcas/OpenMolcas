@@ -1,0 +1,35 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+* contains all PARAMETERS defining LUCIA
+      PARAMETER (MXPIRR = 20)
+      PARAMETER (MXPOBS = 20 )
+      PARAMETER (MXPR4T = 10 )
+      PARAMETER (MXPORB = 500)
+      PARAMETER (MXPICI = 30)
+      PARAMETER (MXPSTT = 2500)
+      PARAMETER (MXPCSM = 100)
+*. Note : MXPNGAS = MXPR4T+6 !!
+*. Required in order to handle GAS and RAS within /LUCINP/
+      PARAMETER (MXPNGAS = 16)
+      PARAMETER(MXPNSMST = 8)
+*. Largest allowed division of space for perturbation operator
+      PARAMETER (MXPPTSPC=20)
+*
+!     PARAMETER(MXPTSOB = 100) ! introduced by Kamal Sharkas in commit 91722faa6
+!                              ! probably for some large-scale cases
+!                              ! changed back to default - stknecht/dec 2015
+      PARAMETER(MXPTSOB =  35)
+*. Maximum number of words in work array. For compilation within the
+*. Molcas package please comment this line out and uncomment the common
+*. block.
+C      PARAMETER (MXPWRD =2 000 000)
+      COMMON/worksize/mxpwrd
+*

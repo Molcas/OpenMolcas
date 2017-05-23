@@ -1,0 +1,69 @@
+ &SEWARD   &END
+symmetry
+x y
+basis set
+**C.cc-pVTZ.Dunning.10s5p2d1f.4s3p2d1f.
+C.cc-pVDZ.Dunning.9s4p1d.3s2p1d.
+C1 0.00000000000000      0.00000000000000      1.51842851242725 
+C2 0.00000000000000      1.31489376311986     -0.75904855606817  
+end of basis
+basis set
+**Cl.cc-pVTZ.Dunning.15s9p2d1f.5s4p2d1f.
+**Cl.cc-pVDZ.Dunning.12s8p1d.4s3p1d.
+Cl.ECP.Huzinaga.7s7p1d.1s2p1d.7e-NR-AIMP
+Cl1  0.00000000000000      0.00000000000000      4.64104776947457
+Cl2  0.00000000000000      4.01907440515200     -2.32068958488276 
+end of basis
+end of input
+
+
+&SCF  &END
+occupied
+9 3 6 1
+end of input
+*-------------------------------------------------------------------------------
+ &RASSCF  &END
+inactive
+9 0 6 0
+ras2
+0 4 0 2
+nactel
+8 0 0
+lumorb
+Thrs
+1.0E-9 1.0E-6 1.0E-6
+Iter
+70,25
+OUTORBITALS
+ CANONICAL
+end of input
+
+
+ &COLUMBUS &END
+BEGIN_SECTION_GENERAL
+TITLE
+ chlorcyclopropenyl cation seward-scf-rasscf-mcscf 
+END_SECTION_GENERAL
+BEGIN_SECTION_MCSCF
+DRT
+MULTIPLICITY
+ 1
+SYMMETRY
+ 1
+NROOT
+ 1
+ELECTRONS
+ 38 0 0 
+END_DRT
+DOCC
+ 9 0 6 0
+CAS
+ 0 4 0 2
+ITERATIONS
+ 30 100 100 
+END_SECTION_MCSCF
+end of input
+
+
+
+

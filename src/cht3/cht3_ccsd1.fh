@@ -1,0 +1,66 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+c
+c0        Basic constants for CCSD procedure
+c
+c0      maximal # of Groups, SubGroups
+        integer maxGrp,maxSGrp
+        parameter (maxGrp=32)
+        parameter (maxSGrp=64)
+c
+c
+c1        Basic parameters for CCSD procedure
+c
+c        no - # of occupied orbitals
+c        nv - # of virtual orbitals
+c        nc - # of Choleski vectors
+c        nfr- # if frozen orbitals
+c
+c        mhkey - FTN/BLAS switch
+c        maxiter - Maximal nuber of iterations
+c        restkey - key for restart [1/0]
+c        generkey - key for generation of integrals from L vectors [1/0]
+c
+        integer no,nv,nc,nfr
+        integer mhkey
+        integer maxiter
+        integer restkey
+        integer generkey
+        real*8 conv
+c
+        logical gen_files,run_triples
+        integer t3_starta,t3_stopa,t3_startb,t3_stopb
+
+        integer printkey
+c
+        common /cht3_ccsd1/ no,nv,nc,nfr,mhkey,maxiter,restkey,generkey,
+     & conv,gen_files,run_triples,
+     & t3_starta,t3_stopa,t3_startb,t3_stopb,
+     & printkey
+c
+c
+c2        Possition of Permanent arrays
+c
+c        Fock matrix             - PossFoo,PossFvv,PossFvo
+c        Orbital energies        - PossOE
+c        T1 amplitudes, old, new - PossT1o,PossT1n
+c        N2 Intermediates for T1 - PossHoo,PossHvv,PossHvo
+c        N2 Intermediates for T2 - PossGoo,PossGvv
+c        O2OO Intermediate A     - PossA - @@ na zamyslenie, ci nie cez worky
+c        Possition of Free space - PossFree
+c
+        integer PossFoo,PossFvv,PossFvo,PossOE,PossT1o,PossT1n
+        integer PossHoo,PossHvv,PossHvo,PossGoo,PossGvv,PossA,PossFree
+c
+        common /cht3_ccsd2/ PossFoo,PossFvv,PossFvo,PossOE,PossT1o,
+     c                 PossT1n,PossHoo,PossHvv,PossHvo,PossGoo,PossGvv,
+     c                       PossA,PossFree
+c

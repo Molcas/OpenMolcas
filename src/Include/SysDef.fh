@@ -1,0 +1,29 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*----------------------------------------------------------------------*
+* Define data type conversion constants                                *
+* ItoB : integer --> byte                                              *
+* RtoB : real*8  --> byte                                              *
+* RtoI : real*8  --> integer                                           *
+* CtoR : complex*16 --> real*8                                         *
+* (units=Bytes)                                                        *
+*----------------------------------------------------------------------*
+      Integer    ItoB,      RtoB,      RtoI,      CtoR
+*     Character Arch_Type*13
+#ifdef _I8_
+      Parameter( ItoB = 8 , RtoB = 8 , RtoI = 1 , CtoR = 2 )
+#else
+      Parameter( ItoB = 4 , RtoB = 8 , RtoI = 2 , CtoR = 2 )
+#endif
+#ifdef MOLPRO
+      integer mxact
+      parameter(mxact=1)
+#endif

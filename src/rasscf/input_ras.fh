@@ -1,0 +1,99 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*------------------------------------------------------
+* Logical unit number for reading input:
+      Integer LuInput
+* Used for input processing
+      Integer NKeys
+      Parameter (NKeys=103)
+*------------------------------------------------------
+* Logical flags, to check whether a keyword has been used
+* in the input:
+      Logical KeyFlags(0:NKeys+1)
+      Logical KeyAAAA,
+     &     KeyALTE, KeyATOM, KeyAVER, KeyCHAR, KeyCHOI,
+     &     KeyCHOL, KeyCIMX, KeyCION, KeyCIRE, KeyCIRO,
+     &     KeyCISE, KeyCLEA, KeyCORE, KeyDELE, KeyEND,
+     &     KeyFILE, KeyFROZ, KeyHOME, KeyINAC, KeyINPO,
+     &     KeyIPHN, KeyITER, KeyJOBI, KeyKSDF, KeyLEVS,
+     &     KeyLINE, KeyLOWD, KeyLOWM, KeyLUMO, KeyMAXO,
+     &     KeyNACT, KeyNEWI, KeyNONE, KeyNOQU, KeyOPTO,
+     &     KeyORBA, KeyORBL, KeyORBO, KeyORDE, KeyOUTO,
+     &     KeyOUTP, KeyPRIN, KeyPROR, KeyPRSP, KeyPRWF,
+     &     KeyQUNE, KeyRAS1, KeyRAS2, KeyRAS3, KeyGASS,
+     &     KeyRFPE, KeyCIRF, KeyRFRO, KeyRLXR, KeyRASS,
+     &     KeySDAV, KeySPIN, KeySUPS, KeySXDA, KeySYMM,
+     &     KeyTHRS, KeyTIGH, KeyTITL, KeyTYPE, KeyVB  ,
+     &     KeyEXPE, KeySPLI, KeyNUSP, keyENSP, keyPESP,
+     &     keyFOSP, KeyMDRL, keyOFEM, keyFTHA, keyDFMD,
+     &     keyBKAP, KeyALPH, keyFARO, keyDMRG, key3RDM,
+     &     keyNECI, keyNWAL, keyTIME, keyCYCL, keyRDMS,
+     &     keyRDMP, keyRSPC, keyDEFD, keyDISH, keyEXNE,
+     &     keyBLOK, keySOCC, keyRGIN, keyPRSD, KeyFCID,
+     &     KeyNOCA, KeySAVE, KeyEXPA, KeyH5OR, KeyH5CI,
+     &     KeyHEXS, KeyHEUR, KeyDMPO, KeyZZZZ
+
+      Common /InputFlags/ KeyAAAA,
+     &     KeyALTE, KeyATOM, KeyAVER, KeyCHAR, KeyCHOI,
+     &     KeyCHOL, KeyCIMX, KeyCION, KeyCIRE, KeyCIRO,
+     &     KeyCISE, KeyCLEA, KeyCORE, KeyDELE, KeyEND,
+     &     KeyFILE, KeyFROZ, KeyHOME, KeyINAC, KeyINPO,
+     &     KeyIPHN, KeyITER, KeyJOBI, KeyKSDF, KeyLEVS,
+     &     KeyLINE, KeyLOWD, KeyLOWM, KeyLUMO, KeyMAXO,
+     &     KeyNACT, KeyNEWI, KeyNONE, KeyNOQU, KeyOPTO,
+     &     KeyORBA, KeyORBL, KeyORBO, KeyORDE, KeyOUTO,
+     &     KeyOUTP, KeyPRIN, KeyPROR, KeyPRSP, KeyPRWF,
+     &     KeyQUNE, KeyRAS1, KeyRAS2, KeyRAS3, KeyGASS,
+     &     KeyRFPE, KeyCIRF, KeyRFRO, KeyRLXR, KeyRASS,
+     &     KeySDAV, KeySPIN, KeySUPS, KeySXDA, KeySYMM,
+     &     KeyTHRS, KeyTIGH, KeyTITL, KeyTYPE, KeyVB  ,
+     &     KeyEXPE, KeySPLI, KeyNUSP, keyENSP, keyPESP,
+     &     keyFOSP, KeyMDRL, keyOFEM, keyFTHA, keyDFMD,
+     &     keyBKAP, KeyALPH, keyFARO, keyDMRG, key3RDM,
+     &     keyNECI, keyNWAL, keyTIME, keyCYCL, keyRDMS,
+     &     keyRDMP, keyRSPC, keyDEFD, keyDISH, keyEXNE,
+     &     keyBLOK, keySOCC, keyRGIN, keyPRSD, KeyFCID,
+     &     KeyNOCA, KeySAVE, KeyEXPA, KeyH5OR, KeyH5CI,
+     &     KeyHEXS, KeyHEUR, KeyDMPO, KeyZZZZ
+
+      Equivalence(KeyAAAA,KeyFlags(0))
+*------------------------------------------------------
+* Actual keywords, note: Order matters!
+      Character*4 CMD(nKeys)
+      DATA CMD / 'ALTE','ATOM','AVER','CHAR','CHOI',
+     &           'CHOL','CIMX','CION','CIRE','CIRO',
+     &           'CISE','CLEA','CORE','DELE','END ',
+     &           'FILE','FROZ','HOME','INAC','INPO',
+     &           'IPHN','ITER','JOBI','KSDF','LEVS',
+     &           'LINE','LOWD','LOWM','LUMO','MAXO',
+     &           'NACT','NEWI','NONE','NOQU','OPTO',
+     &           'ORBA','ORBL','ORBO','ORDE','OUTO',
+     &           'OUTP','PRIN','PROR','PRSP','PRWF',
+     &           'QUNE','RAS1','RAS2','RAS3','GASS',
+     &           'RFPE','CIRF','RFRO','RLXR','RASS',
+     &           'SDAV','SPIN','SUPS','SXDA','SYMM',
+     &           'THRS','TIGH','TITL','TYPE','VB  ',
+     &           'EXPE','SPLI','NUSP','ENSP','PESP',
+     &           'FOSP','MDRL','OFEM','FTHA','DFMD',
+     &           'BKAP','ALPH','FARO','DMRG','3RDM',
+     &           'NECI','NWAL','TIME','CYCL','RDMS',
+     &           'RDMP','RSPC','DEFD','DISH','EXNE',
+     &           'BLOK','SOCC','RGIN','PRSD','FCID',
+     &           'NOCA','SAVE','EXPA','H5OR','H5CI',
+     &           'HEXS','HEUR','DMPO'/
+*------------------------------------------------------
+* Input data sets:
+      Common /InputInt/ LuInput,iCI_I(mxRoot,mxRef),IROOT_I(mxRoot),
+     &           NFRO_I(8),NISH_I(8),NRS1_I(8),NRS2_I(8),
+     &           NRS3_I(8),NDEL_I(8),ISPIN_I,LSYM_I,
+     &           NACTEL_I,NHOLE_I,NELEC_I,NChrg_I,NROOTS_I,
+     &           LROOTS_I,IRLXROOT_I
+      Common /InputReal/ cCI_I(mxRoot,mxRef),WEIGHT_I(mxRoot)

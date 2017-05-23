@@ -1,0 +1,46 @@
+* $ this file belongs to the Molcas repository $
+>>>> SET MAXITER 200 <<<<
+>>>> DOWHILE <<<<
+
+ &Seward &End
+Basis set
+O.3-21G....
+ O    -0.000000     0.000000     0.000000 Angstrom
+End of Basis
+
+Basis set
+C.3-21G....
+ C     0.000000     0.000000     1.423000 Angstrom
+End of Basis
+
+Basis set
+H.3-21G....
+ H1    1.006389     0.000000     0.332387 Angstrom
+ H2   -0.272228     0.924952     1.924921 Angstrom
+ H3   -0.272228    -0.924952     1.924921 Angstrom
+End of Basis
+End of Input
+
+ &SCF &End
+UHF
+Occupation
+9
+8
+End of Input
+
+ &Alaska &End
+End of Input
+
+ &Slapaf &End
+Constraint
+a = angle  C O H1
+value
+a = 50.0 degree
+End of Constraint
+FindTS
+$Option
+$Option2
+Iteration
+50
+End of Input
+>>>> ENDDO <<<<

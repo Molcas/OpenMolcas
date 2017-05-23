@@ -1,0 +1,158 @@
+&GATEWAY
+  Title = all-E-hexatriene C2h structure: MP2/6-31G*
+  Coord = hexatriene.xyz
+  Group = xy xyz
+  Basis = TZVP
+  AngMom = 0.0 0.0 0.0
+  RICD
+  SDipoles
+
+&SEWARD
+  BSShow
+  Verbose
+
+* Symmetry table: ag  bg  au  bu
+*                 1   2   3   4
+
+*=================================================
+*
+* 1Bu, 3Ag and 3Bu states
+*
+*=================================================
+
+&RASSCF
+  Title =    all-E-hexatriene C2h ground state 1Ag
+  Spin =     1
+  Symmetry = 1
+  nActEl =   6 0 0
+  Inactive = 10 0 0 9
+  Ras2 =      0 3 3 0
+  CIRoot =   1 1 1
+  LevShift = 1.0
+  FileOrb =  $CurrDir/$Project.1Ag-GS.RasOrb
+
+&CASPT2
+  Title =      all-E-hexatriene C2h ground state 1Ag
+  Multistate = 1  1
+
+>>COPY $Project.JobMix JOB001
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    all-E-hexatriene C2h states 1Bu
+  Spin =     1
+  Symmetry = 4
+  nActEl =   6 0 0
+  Inactive = 10 0 0 9
+  Ras2 =      0 3 3 0
+  CIRoot =   2 2 1
+  LevShift = 1.0
+  FileOrb =  $CurrDir/$Project.1Bu.RasOrb
+
+&CASPT2
+  Title =      all-E-hexatriene C2h states 1Bu
+  Multistate = 2  1 2
+
+>>COPY $Project.JobMix JOB002
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    all-E-hexatriene C2h state 3Ag
+  Spin =     3
+  Symmetry = 1
+  nActEl =   6 0 0
+  Inactive = 10 0 0 9
+  Ras2 =      0 3 3 0
+  CIRoot =   1 1 1
+  LevShift = 1.0
+  FileOrb =  $CurrDir/$Project.3Ag.RasOrb
+
+&CASPT2
+  Title =      all-E-hexatriene C2h state 3Ag
+  Multistate = 1  1
+
+>>COPY $Project.JobMix JOB003
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    all-E-hexatriene C2h state 3Bu
+  Spin =     3
+  Symmetry = 4
+  nActEl =   6 0 0
+  Inactive = 10 0 0 9
+  Ras2 =      0 3 3 0
+  CIRoot =   1 1 1
+  LevShift = 1.0
+  FileOrb =  $CurrDir/$Project.3Bu.RasOrb
+
+&CASPT2
+  Title =      all-E-hexatriene C2h state 3Bu
+  Multistate = 1  1
+
+>>COPY $Project.JobMix JOB004
+
+*-------------------------------------------------
+
+&RASSI
+  NrOfJobIphs = 4  1 2 1 1
+    1
+    1 2
+    1
+    1
+  EJob
+  CIPrint
+  XVES
+  MEES
+  Properties = 15
+    'Mltpl  1' 1  'Mltpl  1' 2  'Mltpl  1' 3
+    'Mltpl  2' 1  'Mltpl  2' 2  'Mltpl  2' 3  'Mltpl  2' 4  'Mltpl  2' 5  'Mltpl  2' 6
+    'AngMom  ' 1  'AngMom  ' 2  'AngMom  ' 3
+    'Velocity' 1  'Velocity' 2  'Velocity' 3
+
+>>RM JOB001
+>>RM JOB002
+>>RM JOB003
+>>RM JOB004
+
+*=================================================
+*
+* 1Ag states
+*
+*=================================================
+
+&RASSCF
+  Title =    all-E-hexatriene C2h states 1Ag
+  Spin =     1
+  Symmetry = 1
+  nActEl =   6 0 0
+  Inactive = 10 0 0 9
+  Ras2 =      0 3 3 0
+  CIRoot =   2 2 1
+  LevShift = 1.0
+  FileOrb =  $CurrDir/$Project.1Ag.RasOrb
+
+&CASPT2
+  Title =      all-E-hexatriene C2h states 1Ag
+  Multistate = 2  1 2
+
+>>COPY $Project.JobMix JOB001
+
+*-------------------------------------------------
+
+&RASSI
+  NrOfJobIphs = 1  2
+    1 2
+  EJob
+  CIPrint
+  XVES
+  MEES
+  Properties = 15
+    'Mltpl  1' 1  'Mltpl  1' 2  'Mltpl  1' 3
+    'Mltpl  2' 1  'Mltpl  2' 2  'Mltpl  2' 3  'Mltpl  2' 4  'Mltpl  2' 5  'Mltpl  2' 6
+    'AngMom  ' 1  'AngMom  ' 2  'AngMom  ' 3
+    'Velocity' 1  'Velocity' 2  'Velocity' 3
+
+>>RM JOB001

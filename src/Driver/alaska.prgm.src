@@ -1,0 +1,34 @@
+/***********************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+***********************************************************************/
+ (prgm)  "$MOLCAS"/bin/alaska.exe             executable
+ (file)  ALASKINP       "$WorkDir/$Project."Alaska.Input         rwi
+ (file)  ONEINT         "$WorkDir/$Project."OneInt               rw*
+#include "choints.inc"
+#include "chofiles.inc"
+#include "mp2_RI_dens.inc"
+#include "rysfiles.inc"
+ (file)  GAMMAS         "$WorkDir/$Project."Gammas               rw*
+ (file)  NQGRID         "$WorkDir/$Project."NqGrid               rw
+ (file)  GV.off         "$WorkDir/$Project."GV.off               rw
+ (file)  GV1.off        "$WorkDir/$Project."GV1.off              rw
+#include "gradfiles.inc"
+#include "espffiles.inc"
+ (file)  CVEC         "$WorkDir/$Project".CfVec                 rw*p
+ (file)  CHTV          "$WorkDir/$Project".ChTV                  rw*
+ (file)  LUGAM        "$WorkDir/$Project".LuGam                rw
+ (file)  CHTA         "$WorkDir/$Project".ChTA                 rw*
+ (file)  CHTB         "$WorkDir/$Project".ChTB                 rw*
+ (file)  CHTC         "$WorkDir/$Project".ChTC                 rw*
+ (file)  CVEA         "$WorkDir/$Project".CfVeA                rw*p
+ (file)  CVEB         "$WorkDir/$Project".CfVeB                rw*p
+ (file)  CVED         "$WorkDir/$Project".CfVeD                rw*p
+ (file)  AMP2V         "$WorkDir/$Project".AMP2V     rw*
+ (file)  BMP2V         "$WorkDir/$Project".BMP2V     rw*

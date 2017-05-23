@@ -1,0 +1,33 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+C Information for printing during decomposition:
+      INTEGER IPRINT       ! print level (from input)
+      INTEGER INF_TIMING   ! timing info (cho_prtim)
+      INTEGER INF_INIT     ! initialization info
+      INTEGER INF_DIAG     ! initial diagonal screening info
+      INTEGER INF_VECBUF   ! vector buffer info
+      INTEGER INF_PASS     ! pass info
+      INTEGER INF_IN2      ! col. info (summary)
+      INTEGER INF_INT      ! shell quadr. info
+      INTEGER INF_PROGRESS ! decom. tables for each pass
+      INTEGER INF_SUBTR1   ! timing info in cho_subtr1 (debug)
+
+      PARAMETER (INF_TIMING   = 2,
+     &           INF_INIT     = 3,
+     &           INF_DIAG     = 6,
+     &           INF_PASS     = 3,
+     &           INF_VECBUF   = 3,
+     &           INF_IN2      = 5,
+     &           INF_INT      = 6,
+     &           INF_PROGRESS = 4,
+     &           INF_SUBTR1   = 6)
+
+      COMMON / CHOPRT / IPRINT

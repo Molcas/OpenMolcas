@@ -1,0 +1,82 @@
+ &SEWARD   &END
+symmetry
+x y
+basis set
+C.cc-pVDZ.Dunning.9s4p1d.3s2p1d.
+C1 2.07569713438866      0.00000000000000     -1.09096195658541 
+C2 1.36025367031838      0.00000000000000      1.40829741933368 
+end of basis
+basis set
+O.cc-pVDZ.Dunning.9s4p1d.3s2p1d.
+O1 0.00000000000000      0.00000000000000     -2.62222340632217
+end of basis
+basis set
+H.cc-pVDZ.Dunning.4s1p.2s1p.
+H1  2.61859940891225      0.00000000000000      3.05678038225054 
+H2  3.90513434048509      0.00000000000000     -2.06300002903017
+end of basis
+end of input
+*-------------------------------------------------------------------------------
+ &SCF  &END
+occupied
+9 6 2 1
+end of input
+*-------------------------------------------------------------------------------
+ &RASSCF  &END
+inactive
+9 6 0 0
+ras2
+0 0 3 2
+nactel
+6 0 0
+lumorb
+Thrs
+1.0E-9 1.0E-6 1.0E-6
+Iter
+70,25
+OUTORBITALS
+ CANONICAL
+end of input
+
+ &COLUMBUS &END
+BEGIN_SECTION_GENERAL
+TITLE
+ FURAN pi space CAS 
+NCPU
+ 4
+END_SECTION_GENERAL
+BEGIN_SECTION_MRCI
+DRT
+MULTIPLICITY
+ 1
+SYMMETRY
+ 1
+NROOT
+ 1
+ELECTRONS
+ 36
+END_DRT
+SUBSPACEDIM
+ 5
+ITERATIONS
+ 40  1 
+ACCURACY
+ 0.001
+REFSPACE
+ FULL
+MRCISD
+GENSPACE
+EXLVL
+ 2
+FROZENCORE
+ 3 2 0 0
+REFDOCC
+ 6 4 0 0
+REFRAS
+ 0 0 0 0
+REFCAS
+ 0 0 3 2
+PARALLEL
+END_SECTION_MRCI
+end of input 
+

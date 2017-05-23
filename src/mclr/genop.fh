@@ -1,0 +1,25 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*. Type of operator in action
+*        KOPER        :         Not in use
+*        IOPSM        :        Not in use
+*        IRI        :         Not in use
+*        I12        :         2:Both on and two electron integrals
+*        IST        :
+*        IOPNUM        :        Type of opertor
+*       Square  :       Integrals square/triangular
+*        FACTOR
+*        IACOP(3):        Hubba
+      Logical square
+      Real*8 Factor
+      Integer KOPER,IOPSM,IRI,I12,IST,IOPNUM,IACOP(3)
+      COMMON/GENOP/KOPER,IOPSM,IRI,I12,IST,IOPNUM,FACTOR,IACOP,
+     &             square

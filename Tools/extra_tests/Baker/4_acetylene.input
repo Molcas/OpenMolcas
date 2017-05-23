@@ -1,0 +1,28 @@
+* $ this file belongs to the Molcas repository $
+>>>> SET MAXITER 30 <<<<
+>>>> DO WHILE <<<<<
+ &Seward &End
+
+Title
+Baker's test suite: acetylene
+
+Basis set
+C.$Basis....
+C1 0.0000000000 0.0000000000 1.1338359981 
+C2 0.0000000000 0.0000000000 -1.1338359981 
+End of Basis
+
+Basis set
+H.$Basis....
+H1 0.0000000000 0.0000000000 3.0235626616 
+H2 0.0000000000 0.0000000000 -3.0235626616
+End of Basis
+End of Input
+
+ &SCF &End
+$KSDFT
+End of Input
+ 
+ &Slapaf &End
+End of Input
+>>>>> ENDDO <<<<

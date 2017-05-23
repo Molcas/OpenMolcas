@@ -1,0 +1,21 @@
+[submodule "External/libmsym"]
+	path = External/libmsym
+	url = https://github.com/mcodev31/libmsym.git
+[submodule "External/qcmaquis_driver"]
+	path = External/qcmaquis_driver
+	url = git@tc-gitlab.ethz.ch:molcas-dev/dmrg-interface-utils.git
+[submodule "External/hdf5_f2003_interface"]
+	path = External/hdf5_f2003_interface
+	url = git@tc-gitlab.ethz.ch:molcas-dev/hdf5-utils.git
+[submodule "External/qcmaquis_suite"]
+	path = External/qcmaquis_suite
+	url = git@tc-gitlab.ethz.ch:qcmaquis/qcmaquis-public.git
+[submodule "External/gen1int-molcaslib"]
+	path = External/gen1int-molcaslib
+	url = git@tc-gitlab.ethz.ch:molcas-dev/gen1int-molcaslib.git
+[submodule "External/NECI"]
+	path = External/NECI
+	url = git@bitbucket.org:limanni/neci_dev_4molcas.git
+[submodule "External/libwfa"]
+	path = External/libwfa
+	url = https://github.com/libwfa/libwfa.git

@@ -1,0 +1,44 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*        INITITIALIZED IN STRTYP
+*        NSTTYP        :        Number of string typesi *
+*        MNRS1        :        Min ras1 *
+*        MXRS1        :        Max ras1 *
+*        MNRS3        :        Min ras3 *
+*        MXRS3        :        Max ras3 *
+*        NELEC        :        Number of electrons *
+*        IZORR        :        Zero orde y/n         *
+*        IAZTP        :              Pointer to alpha types*
+*        IBZTP        :        Pointer to beta types*
+*
+*not in use (just zero order space)
+*        IARTP        :          Give type nr to certain exc
+*        IBRTP        :       Give type nr to certain exc
+*
+*        NZSTTP        :        Not in use
+*        NRSTTP        :        Not in use
+*
+*        ISTTP        :        Space (0=zero order)
+*        iuniqmp        :        Unique types (not necessary here just 0order space)
+      Integer       NSTTYP,MNRS1(MXPSTT),MXRS1(MXPSTT),
+     &              MNRS3(MXPSTT),MXRS3(MXPSTT),NELEC(MXPSTT),
+     &              IZORR(MXPSTT),IAZTP,IBZTP,IARTP(3,10),IBRTP(3,10),
+     &              NZSTTP,NRSTTP,ISTTP(MXPSTT),iuniqmp(MXPSTT),
+     &              iuniqtp(MXPSTT),
+     &             IATPM1,IATPM2,IBTPM1,IBTPM2
+
+
+      COMMON/STRINP_MCLR/NSTTYP,MNRS1,MXRS1,
+     &              MNRS3,MXRS3,NELEC,
+     &              IZORR,IAZTP,IBZTP,IARTP,IBRTP,
+     &              NZSTTP,NRSTTP,ISTTP,iuniqmp,
+     &              iuniqtp,
+     &             IATPM1,IATPM2,IBTPM1,IBTPM2

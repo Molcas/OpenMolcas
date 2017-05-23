@@ -1,0 +1,69 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+C
+C Stuff for Cholesky MP2 program:
+C
+      Integer nMP2Vec
+      Integer nBatch, nOccT, nVirT, nFroT,nDelT
+      Integer nBatOrbT
+      Integer nOrb, nOcc, nFro, nDel, nVir
+      Integer iOcc, iVir, iFro,iDel, nT1am, iT1am
+      Integer iBatOrb, nPQ_Prod, iPQ_Prod
+      Integer nPQ_prodij, nPQ_prodia, nPQ_prodab
+      Integer nT1AOT, iT1AOT, nAOVir, iAOVir
+      Integer nMatab, iMatab
+      Integer lUnit_F
+      Integer ip_First, ip_NumOcc, ip_LnOcc, ip_LnT1am, ip_LiT1am,
+     &        ip_LnMatij, ip_LiMatij,
+     &        ip_lUnit, ip_FirstS,
+     &        ip_First_Density, ip_Density,
+     &        ip_First_WDensity, ip_WDensity,
+     &        ip_First_Mp2Lagr,ip_Mp2Lagr,
+     &        ip_First_DiaA, ip_DiaA,ip_tmpL, lTmpLvec
+      Integer ip_NumBatOrb, ip_LnBatOrb, ip_LnPQprod,ip_LiPQprod
+      Integer l_NumBatOrb, l_LnBatOrb, l_LnPQprod,l_LiPQprod
+      Integer l_First, l_NumOcc, l_LnOcc, l_LnT1am, l_LiT1am,
+     &        l_LnMatij, l_LiMatij,
+     &        l_lUnit, l_FirstS,
+     &        l_Mp2Lagr, l_DiaA, l_Density,
+     &        ip_EFroz,ip_EOccu,ip_EVirt,ip_EDele
+
+      Integer nTypF
+      Parameter (nTypF = 2)
+
+      Character*7 RootNm
+      Parameter (RootNm = 'ChoMP2_')
+
+      Common / ChMP2i / nMP2Vec(8),
+     &                  nBatch, nOccT,nVirT,
+     &                  nOrb(8), nFro(8), nOcc(8), nDel(8), nVir(8),
+     &                  iOcc(8), iVir(8),iFro(8), iDel(8), nT1am(8),
+     &                  iT1am(8,8),
+     &                  nT1AOT(8), iT1AOT(8,8), nAOVir(8), iAOVir(8,8),
+     &                  nMatab(8), iMatab(8,8),
+     &                  lUnit_F(8,nTypF)
+      Common / ChMP2p / ip_First, ip_FirstS, ip_NumOcc, ip_LnOcc,
+     &                  ip_LnT1am, ip_LiT1am, ip_LnMatij, ip_LiMatij,
+     &                  ip_lUnit,
+     &                  l_First, l_FirstS, l_NumOcc, l_LnOcc,
+     &                  l_LnT1am, l_LiT1am, l_LnMatij, l_LiMatij,
+     &                  l_lUnit
+      Common / ChMP2g / ip_Density(8), l_Density, ip_First_Density,
+     &                  ip_WDensity(8), ip_First_WDensity,
+     &                  ip_Mp2Lagr(8), l_Mp2Lagr,ip_First_Mp2Lagr,
+     &                  ip_DiaA(8)   , l_DiaA   ,ip_First_DiaA,
+     &                  ip_NumBatOrb, ip_LnBatOrb,
+     &                  ip_LnPQprod,ip_LiPQprod,
+     &                  l_NumBatOrb, l_LnBatOrb, l_LnPQprod,l_LiPQprod,
+     &                  nBatOrbT,iBatOrb(8),nPQ_Prod(8), iPQ_Prod(8,8),
+     &                  ip_EFroz,ip_EOccu, ip_EVirt,ip_EDele,
+     &                  nFroT,nDelT, ip_tmpL, lTmpLvec,
+     &                  nPQ_prodij(8), nPQ_prodia(8), nPQ_prodab(8)

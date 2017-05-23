@@ -1,0 +1,50 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      REAL*8, pointer :: vtint(:)
+      COMMON/FINT/VTINT
+      COMMON/BFT/NBLOCK,IBLKTB(5,106),
+     *           MBF(max_orb),NPBF(max_orb),NCIBL(max_orb)
+      integer, pointer :: intind_iaqq(:),intind_abkk(:),
+     *                    intind_iabc(:),intind_ijka(:),
+     *                    intind_ijcc(:),intind_ijab(:)
+      integer, pointer :: intspace_iaqq(:),intspace_abkk(:),
+     *                    intspace_iabc(:),intspace_ijka(:),
+     *                    intspace_ijcc(:),intspace_ijab(:)
+      common /int_ind_array/intind_iaqq,
+     *                      intind_abkk,
+     *                      intind_iabc,
+     *                      intind_ijka,
+     *                      intind_ijcc,
+     *                      intind_ijab
+      common /nint_ind_array/intspace_iaqq,
+     *                       intspace_abkk,
+     *                       intspace_iabc,
+     *                       intspace_ijka,
+     *                       intspace_ijcc,
+     *                       intspace_ijab
+      common /integral_ext_index_array/
+     *        ip4_abcd_ext_base(180),
+     *      ip3_abd_ext_base,np3_abd_ext,
+     *        ip2_aa_ext_base,ip2_dd_ext_base
+      common /integral_inn_2index_array/
+     *        ip2_ab_inn_base(8),
+     *      int2ind_space_extsmab(8),
+     *      int2ind_numijkl_extsmab(8)
+      common /integral_inn_1index_array/
+     *      ip1_a_dbl_base(8),
+     *      intnum_of_innext_isma(8),
+     *      intoset_of_ext_jpsmabc(180),
+     *      intoset_of_aad_isma(8)
+      integer, pointer :: loij(:),loijk(:)
+      integer, pointer :: loij_all(:),loijk_all(:)
+      common /int_inn_index_array/ loij,loijk,loij_all,loijk_all
+      common /int_inn_index/ ipwt(max_innorb),ipws(max_innorb),
+     *                       ncibl_all(max_orb)

@@ -1,0 +1,43 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 1986, Per E. M. Siegbahn                               *
+*               1986, Margareta R. A. Blomberg                         *
+************************************************************************
+C     COMMON INFORMATION FOR MCPF PROGRAM
+#include "Molcas.fh"
+
+      COMMON/REAL/POTNUC,EMY,ETHRE,CTRSH,ETOT,WLEV,DETOT
+
+      COMMON/MISC/ N,LN,NDIAG(MXORB),LSYM,LIC,KBUF,JJS(18),LW(99),
+     &             NNS(8),IDENS,IREST,NCONF,ICH(MXORB),
+     &             JBUF,IROW(MXORB+1),NSYM,MUL(8,8),
+     &             IPASS,NSM(MXORB),IPRINT,IFIRST,IRC(4),
+     &             ISC(4),JSC(4),LBUF,ITER,IV0,IV1,IV2,IV3,
+     &             NSYS(9),MAXIT,NFREF,ICPF,ISDCI,ITPUL,
+     &             ICONV,IREF0,IDIIS,MAXITP,KBUFF1,INCPF,NREF
+      COMMON/ORB/ NPFRO(8),NFRO(8),NISH(8),NASH(8),NVAL(8),NVIR(8),
+     &            NDEL(8),NPDEL(8),NORB(8),NBAS(8),
+     &            NPFROT,NFROT,NISHT,NASHT,NVALT,NVIRT,NDELT,
+     &            NPDELT,NORBT,NBAST
+      CHARACTER*4 NAME(2,MXBAS)
+      COMMON /CHARAC/ NAME
+
+      COMMON/DATA_CPF/D0,D1,D2,SQ2
+C
+      Parameter(mAdr=20 000)
+      COMMON/RA/LASTAD(mAdr)
+C
+C Buffer for reading transformed integrals:
+#include "tratoc.fh"
+      PARAMETER(NTIBUF=nTraBuf)
+C GUGA file
+#include "cop.fh"
+      COMMON/ADDR/IAD25S,IADDP(79),IADC(79),IADABCI,ITOC17(64)

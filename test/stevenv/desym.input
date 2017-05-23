@@ -1,0 +1,26 @@
+*$ this file belongs to the Molcas repository $
+*-------------------------------------------------------------------------------
+* Molecule: Benzene C6H6
+* Basis: ANO
+* Symmetry: D2h
+* Features tested: CASSCF,RASSCF/RASPT2
+* Responsible person: S. Vancoillie
+*-------------------------------------------------------------------------------
+ &GATEWAY
+Title
+Benzene, STO-3g Basis set
+Coord
+5
+
+Co  1.0  0.0  0.0
+H   0.0  1.0  0.0
+F   0.0  0.0  1.0
+Co -1.0  0.0  0.0
+H   0.0 -1.0  0.0
+Basis = ANO-S-VDZ
+NoCD
+
+ &SEWARD
+
+ &SCF
+Charge = -1

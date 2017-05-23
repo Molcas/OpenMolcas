@@ -1,0 +1,405 @@
+&GATEWAY
+  Title = s-tetrazine D2h structure: MP2/6-31G*
+  Coord = tetrazine.xyz
+  Group = xy xz xyz
+  Basis = TZVP
+  AngMom = 0.0 0.0 0.0
+  RICD
+  SDipoles
+
+&SEWARD
+  BSShow
+  Verbose
+
+* Symmetry table: ag  b2g b1g b3g au  b2u b1u b3u
+*                 1   2   3   4   5   6   7   8
+
+*=================================================
+*
+* 1Au, 1B1g, 1B2g, 1B3g, 1B1u, 1B2u, 1B3u, 3Au, 3B1g, 3B2g, 3B3g, 3B1u, 3B2u and 3B3u states
+*
+*=================================================
+
+&RASSCF
+  Title =    s-tetrazine D2h ground state 1Ag
+  Spin =     1
+  Symmetry = 1
+  nActEl =   14 0 0
+  Inactive = 5 0 0 2 0 3 4 0
+  Ras2 =     1 2 1 1 1 1 1 2
+  CIRoot =   1 1 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.1Ag-GS.RasOrb
+
+&CASPT2
+  Title =      s-tetrazine D2h ground state 1Ag
+  Multistate = 1  1
+  Shift =      0.2
+
+>>COPY $Project.JobMix JOB001
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    s-tetrazine D2h states 1Au
+  Spin =     1
+  Symmetry = 5
+  nActEl =   14 0 0
+  Inactive = 5 0 0 2 0 3 4 0
+  Ras2 =     1 2 1 1 1 1 1 2
+  CIRoot =   3 3 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.1Au.RasOrb
+
+&CASPT2
+  Title =      s-tetrazine D2h states 1Au
+  Multistate = 3  1 2 3
+  Shift =      0.2
+
+>>COPY $Project.JobMix JOB002
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    s-tetrazine D2h states 1B1g
+  Spin =     1
+  Symmetry = 3
+  nActEl =   14 0 0
+  Inactive = 5 0 0 2 0 3 4 0
+  Ras2 =     1 2 1 1 1 1 1 2
+  CIRoot =   4 4 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.1B1g.RasOrb
+
+&CASPT2
+  Title =      s-tetrazine D2h states 1B1g
+  Multistate = 4  1 2 3 4
+  Shift =      0.2
+
+>>COPY $Project.JobMix JOB003
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    s-tetrazine D2h states 1B2g
+  Spin =     1
+  Symmetry = 2
+  nActEl =   14 0 0
+  Inactive = 5 0 0 2 0 3 4 0
+  Ras2 =     1 2 1 1 1 1 1 2
+  CIRoot =   3 3 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.1B2g.RasOrb
+
+&CASPT2
+  Title =      s-tetrazine D2h states 1B2g
+  Multistate = 3  1 2 3
+  Shift =      0.2
+
+>>COPY $Project.JobMix JOB004
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    s-tetrazine D2h states 1B3g
+  Spin =     1
+  Symmetry = 4
+  nActEl =   14 0 0
+  Inactive = 5 0 0 2 0 3 4 0
+  Ras2 =     1 2 1 1 1 1 1 2
+  CIRoot =   3 3 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.1B3g.RasOrb
+
+&CASPT2
+  Title =      s-tetrazine D2h states 1B3g
+  Multistate = 3  1 2 3
+  Shift =      0.2
+
+>>COPY $Project.JobMix JOB005
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    s-tetrazine D2h states 1B1u
+  Spin =     1
+  Symmetry = 7
+  nActEl =   14 0 0
+  Inactive = 5 0 0 2 0 3 4 0
+  Ras2 =     1 2 1 1 1 1 1 2
+  CIRoot =   3 3 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.1B1u.RasOrb
+
+&CASPT2
+  Title =      s-tetrazine D2h states 1B1u
+  Multistate = 3  1 2 3
+  Shift =      0.2
+
+>>COPY $Project.JobMix JOB006
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    s-tetrazine D2h states 1B2u
+  Spin =     1
+  Symmetry = 6
+  nActEl =   14 0 0
+  Inactive = 5 0 0 2 0 3 4 0
+  Ras2 =     1 2 1 1 1 1 1 2
+  CIRoot =   5 5 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.1B2u.RasOrb
+
+&CASPT2
+  Title =      s-tetrazine D2h states 1B2u
+  Multistate = 5  1 2 3 4 5
+  Shift =      0.2
+
+>>COPY $Project.JobMix JOB007
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    s-tetrazine D2h states 1B3u
+  Spin =     1
+  Symmetry = 8
+  nActEl =   14 0 0
+  Inactive = 5 0 0 2 0 3 4 0
+  Ras2 =     1 2 1 1 1 1 1 2
+  CIRoot =   3 3 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.1B3u.RasOrb
+
+&CASPT2
+  Title =      s-tetrazine D2h states 1B3u
+  Multistate = 3  1 2 3
+  Shift =      0.2
+
+>>COPY $Project.JobMix JOB008
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    s-tetrazine D2h states 3Au
+  Spin =     3
+  Symmetry = 5
+  nActEl =   14 0 0
+  Inactive = 5 0 0 2 0 3 4 0
+  Ras2 =     1 2 1 1 1 1 1 2
+  CIRoot =   2 2 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.3Au.RasOrb
+
+&CASPT2
+  Title =      s-tetrazine D2h states 3Au
+  Multistate = 2  1 2
+  Shift =      0.2
+
+>>COPY $Project.JobMix JOB009
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    s-tetrazine D2h states 3B1g
+  Spin =     3
+  Symmetry = 3
+  nActEl =   14 0 0
+  Inactive = 5 0 0 2 0 3 4 0
+  Ras2 =     1 2 1 1 1 1 1 2
+  CIRoot =   2 2 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.3B1g.RasOrb
+
+&CASPT2
+  Title =      s-tetrazine D2h states 3B1g
+  Multistate = 2  1 2
+  Shift =      0.2
+
+>>COPY $Project.JobMix JOB010
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    s-tetrazine D2h states 3B2g
+  Spin =     3
+  Symmetry = 2
+  nActEl =   14 0 0
+  Inactive = 5 0 0 2 0 3 4 0
+  Ras2 =     1 2 1 1 1 1 1 2
+  CIRoot =   2 2 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.3B2g.RasOrb
+
+&CASPT2
+  Title =      s-tetrazine D2h states 3B2g
+  Multistate = 2  1 2
+  Shift =      0.2
+
+>>COPY $Project.JobMix JOB011
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    s-tetrazine D2h state 3B3g
+  Spin =     3
+  Symmetry = 4
+  nActEl =   14 0 0
+  Inactive = 5 0 0 2 0 3 4 0
+  Ras2 =     1 2 1 1 1 1 1 2
+  CIRoot =   1 1 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.3B3g.RasOrb
+
+&CASPT2
+  Title =      s-tetrazine D2h state 3B3g
+  Multistate = 1  1
+  Shift =      0.2
+
+>>COPY $Project.JobMix JOB012
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    s-tetrazine D2h states 3B1u
+  Spin =     3
+  Symmetry = 7
+  nActEl =   14 0 0
+  Inactive = 5 0 0 2 0 3 4 0
+  Ras2 =     1 2 1 1 1 1 1 2
+  CIRoot =   2 2 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.3B1u.RasOrb
+
+&CASPT2
+  Title =      s-tetrazine D2h states 3B1u
+  Multistate = 2  1 2
+  Shift =      0.2
+
+>>COPY $Project.JobMix JOB013
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    s-tetrazine D2h states 3B2u
+  Spin =     3
+  Symmetry = 6
+  nActEl =   14 0 0
+  Inactive = 5 0 0 2 0 3 4 0
+  Ras2 =     1 2 1 1 1 1 1 2
+  CIRoot =   3 3 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.3B2u.RasOrb
+
+&CASPT2
+  Title =      s-tetrazine D2h states 3B2u
+  Multistate = 3  1 2 3
+  Shift =      0.2
+
+>>COPY $Project.JobMix JOB014
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    s-tetrazine D2h states 3B3u
+  Spin =     3
+  Symmetry = 8
+  nActEl =   14 0 0
+  Inactive = 5 0 0 2 0 3 4 0
+  Ras2 =     1 2 1 1 1 1 1 2
+  CIRoot =   2 2 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.3B3u.RasOrb
+
+&CASPT2
+  Title =      s-tetrazine D2h states 3B3u
+  Multistate = 2  1 2
+  Shift =      0.2
+
+>>COPY $Project.JobMix JOB015
+
+*-------------------------------------------------
+
+&RASSI
+  NrOfJobIphs = 15  1 3 4 3 3 3 5 3 2 2 2 1 2 3 2
+    1
+    1 2 3
+    1 2 3 4
+    1 2 3
+    1 2 3
+    1 2 3
+    1 2 3 4 5
+    1 2 3
+    1 2
+    1 2
+    1 2
+    1
+    1 2
+    1 2 3
+    1 2
+  EJob
+  CIPrint
+  XVES
+  MEES
+  Properties = 15
+    'Mltpl  1' 1  'Mltpl  1' 2  'Mltpl  1' 3
+    'Mltpl  2' 1  'Mltpl  2' 2  'Mltpl  2' 3  'Mltpl  2' 4  'Mltpl  2' 5  'Mltpl  2' 6
+    'AngMom  ' 1  'AngMom  ' 2  'AngMom  ' 3
+    'Velocity' 1  'Velocity' 2  'Velocity' 3
+
+>>RM JOB001
+>>RM JOB002
+>>RM JOB003
+>>RM JOB004
+>>RM JOB005
+>>RM JOB006
+>>RM JOB007
+>>RM JOB008
+>>RM JOB009
+>>RM JOB010
+>>RM JOB011
+>>RM JOB012
+>>RM JOB013
+>>RM JOB014
+>>RM JOB015
+
+*=================================================
+*
+* 1Ag states
+*
+*=================================================
+
+&RASSCF
+  Title =    s-tetrazine D2h states 1Ag
+  Spin =     1
+  Symmetry = 1
+  nActEl =   14 0 0
+  Inactive = 5 0 0 2 0 3 4 0
+  Ras2 =     1 2 1 1 1 1 1 2
+  CIRoot =   5 5 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.1Ag.RasOrb
+
+&CASPT2
+  Title =      s-tetrazine D2h states 1Ag
+  Multistate = 5  1 2 3 4 5
+  Shift =      0.2
+
+>>COPY $Project.JobMix JOB001
+
+*-------------------------------------------------
+
+&RASSI
+  NrOfJobIphs = 1  5
+    1 2 3 4 5
+  EJob
+  CIPrint
+  XVES
+  MEES
+  Properties = 15
+    'Mltpl  1' 1  'Mltpl  1' 2  'Mltpl  1' 3
+    'Mltpl  2' 1  'Mltpl  2' 2  'Mltpl  2' 3  'Mltpl  2' 4  'Mltpl  2' 5  'Mltpl  2' 6
+    'AngMom  ' 1  'AngMom  ' 2  'AngMom  ' 3
+    'Velocity' 1  'Velocity' 2  'Velocity' 3
+
+>>RM JOB001

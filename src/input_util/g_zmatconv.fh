@@ -1,0 +1,22 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      Parameter (MaxAtoms=256)
+#include "periodic_table.fh"
+      Character*48 Base(Num_Elem)    ! Base: Basis Set string
+      Logical BasAva(Num_Elem)       ! Atom with available Basis Set
+      Logical BasReq(Num_Elem)       ! Atom requiring Basis Set
+      Character*5  Symbols(MaxAtoms) ! A. Symbol with index. (C12 or Hn)
+      Dimension NAT(MaxAtoms)        ! Atomic number
+      Dimension iZmat(MaxAtoms,3)    ! Z-Mat Indexes
+      Dimension Zmat(MaxAtoms,3)     ! Z-Mat Coordinates
+      Dimension Coords(MaxAtoms,3)   ! Atomic coordinates
+      Common / DataAtoms / Base, BasAva, BasReq
+      Common / DataMatrix / Symbols, NAT, iZmat, Zmat, Coords

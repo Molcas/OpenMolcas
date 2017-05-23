@@ -1,0 +1,42 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 1993, Markus P. Fuelscher                              *
+************************************************************************
+************************************************************************
+*                                                                      *
+*     save the control parameters used for the quasi Newton update     *
+*                                                                      *
+*----------------------------------------------------------------------*
+*                                                                      *
+*     written by:                                                      *
+*     M.P. Fuelscher, University of Lund, Sweden, 1993                 *
+*                                                                      *
+*----------------------------------------------------------------------*
+*                                                                      *
+*     history: none                                                    *
+*                                                                      *
+************************************************************************
+
+      Integer  LuQnUpd
+      Integer  mxQnVec
+      Integer  nQnVec
+      Integer  nQnItr
+      Real*8   QnAlpha
+      Real*8   QnBeta
+      Real*8   E1,E2,GpX1,GpX2
+      Integer  iXold,iGold
+
+      Parameter ( LuQnUpd = 4  )
+      Parameter ( mxQnVec = 50 )
+
+      Common /QnCtl1/ nQnVec,nQnItr
+      Common /QnCtl2/ QnAlpha(mxQnVec),QnBeta(mxQnVec)
+      Common /QnCtl3/ E1,E2,GpX1,GpX2,iXold,iGold

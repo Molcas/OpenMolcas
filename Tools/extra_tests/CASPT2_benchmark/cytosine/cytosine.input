@@ -1,0 +1,119 @@
+&GATEWAY
+  Title = cytosine Cs structure: MP2/6-31G*
+  Coord = cytosine.xyz
+  Group = z
+  Basis = TZVP
+  AngMom = 0.0 0.0 0.0
+  RICD
+  SDipoles
+
+&SEWARD
+  BSShow
+  Verbose
+
+* Symmetry table: a'  a''
+*                 1   2
+
+*=================================================
+*
+* 1A' states
+*
+*=================================================
+
+&RASSCF
+  Title =    cytosine Cs states 1A'
+  Spin =     1
+  Symmetry = 1
+  nActEl =   10 0 0
+  Inactive = 24 0
+  Ras2 =      0 8
+  CIRoot =   6 6 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.1Ap.RasOrb
+
+&CASPT2
+  Title =      adenine Cs states 1A'
+  Multistate = 6  1 2 3 4 5 6
+  Shift =      0.1
+
+>>COPY $Project.JobMix JOB001
+
+*-------------------------------------------------
+
+&RASSI
+  NrOfJobIphs = 1  6
+    1 2 3 4 5 6
+  EJob
+  CIPrint
+  XVES
+  MEES
+  Properties = 15
+    'Mltpl  1' 1  'Mltpl  1' 2  'Mltpl  1' 3
+    'Mltpl  2' 1  'Mltpl  2' 2  'Mltpl  2' 3  'Mltpl  2' 4  'Mltpl  2' 5  'Mltpl  2' 6
+    'AngMom  ' 1  'AngMom  ' 2  'AngMom  ' 3
+    'Velocity' 1  'Velocity' 2  'Velocity' 3
+
+>>RM JOB001
+
+*=================================================
+*
+* 1A'' states
+*
+*=================================================
+
+&RASSCF
+  Title =    cytosine Cs ground state 1A'
+  Spin =     1
+  Symmetry = 1
+  nActEl =   14 0 0
+  Inactive = 22 0
+  Ras2 =      2 8
+  CIRoot =   1 1 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.1Ap-GS.RasOrb
+
+&CASPT2
+  Title =      adenine Cs ground state 1A'
+  Multistate = 1  1
+  Shift =      0.1
+
+>>COPY $Project.JobMix JOB001
+
+*-------------------------------------------------
+
+&RASSCF
+  Title =    cytosine Cs states 1A''
+  Spin =     1
+  Symmetry = 2
+  nActEl =   14 0 0
+  Inactive = 22 0
+  Ras2 =      2 8
+  CIRoot =   2 2 1
+  LevShift = 0.5
+  FileOrb =  $CurrDir/$Project.1App.RasOrb
+
+&CASPT2
+  Title =      adenine Cs states 1A''
+  Multistate = 2  1 2
+  Shift =      0.1
+
+>>COPY $Project.JobMix JOB002
+
+*-------------------------------------------------
+
+&RASSI
+  NrOfJobIphs = 2  1 2
+    1
+    1 2
+  EJob
+  CIPrint
+  XVES
+  MEES
+  Properties = 15
+    'Mltpl  1' 1  'Mltpl  1' 2  'Mltpl  1' 3
+    'Mltpl  2' 1  'Mltpl  2' 2  'Mltpl  2' 3  'Mltpl  2' 4  'Mltpl  2' 5  'Mltpl  2' 6
+    'AngMom  ' 1  'AngMom  ' 2  'AngMom  ' 3
+    'Velocity' 1  'Velocity' 2  'Velocity' 3
+
+>>RM JOB001
+>>RM JOB002

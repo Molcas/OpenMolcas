@@ -1,0 +1,36 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+
+      Integer nChOrb(0:7,4), ipChM(4)
+      Integer nIJ1(8,8,2),nIJR(8,8,2)
+      Integer ip_CMOi(5),lCMOi(5),iOff_CMOi(8,5)
+      Integer iAdrCVec(8,8,2),LuCVector(8,2)
+      Logical DoCholExch, Timings_default
+      Integer iChOrbT(8,2),iChOrbR(8,8,2)
+      Real*8 tbvec(2), tavec(2)
+      Integer NumAuxVec(8)
+      Common /ExTe1/ nChOrb, ipChM,
+     &               nIJ1,nIJR,
+     &               ip_CMOi,lCMOi,iOff_CMOi,
+     &               LuCVector, MxChVInShl,
+     &               ip_CijK, iAdrCVec, lijlist, ipijList,
+     &               ipijListTri,iChOrbT,iChOrbR,ljkvec,
+     &               ljVec,ip_VJ, nScreen, ip_CilK, ip_BklK,
+     &               NumAuxVec, ip_A
+
+      Common /ExTe2/ DoCholExch, Timings_default
+
+      Common /ExTe3/ dmpK, tbvec,tavec
+
+      Integer nDM, ipDMLT(5)
+      Integer nJdens, nKdens, nKvec, nAdens, nAvec
+      Common /DensMat/ nDM, ipDMLT,
+     &               nJdens, nKdens, nKvec, nAdens, nAvec
