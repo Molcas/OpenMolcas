@@ -137,6 +137,8 @@ cvv      Character*(*) Data(nData)
          RecLab( 18)='LastEnergyMethod'
          RecLab( 19)='MMO Labels      '
          RecLab( 20)='MCLR Root       '
+         RecLab( 21)='Frag_Type       ' ! EFP fragment labels
+         RecLab( 22)='ABC             ' ! EFP atom labels
 *                     1234567890123456
          Call cWrRun('cArray labels',RecLab,16*nTocCA)
          Call iWrRun('cArray indices',RecIdx,nTocCA)

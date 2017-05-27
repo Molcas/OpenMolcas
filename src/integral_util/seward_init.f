@@ -19,6 +19,7 @@
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose      *
 *             January '90                                              *
 ************************************************************************
+      use EFP_Module
       implicit real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -381,6 +382,11 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
 *
       isNAC = .False.
       isCSF = .False.
+*
+*     EFP stuff
+*
+      EFP=.False.
+      nEFP_fragments=0
 *
       Return
       End

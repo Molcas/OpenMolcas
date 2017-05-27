@@ -75,7 +75,7 @@
      &       dW_dR(nGrad_Eff,mGrid),dF_dP2ontop(ndF_dP2ontop,mGrid)
       Real*8 TmpPUVX(nTmpPUVX)
       Logical Do_Grad,Do_Mo,Do_TwoEl,Unpack
-      Logical l_Xhol, l_tanhr
+      Logical l_Xhol, l_tanhr,l_casdft
       Character*4 DFTFOCK
       Integer dindex
       Real*8 dTot_d,ratio_d,Zeta_d
@@ -99,7 +99,22 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _TIME_
+*                                                                      *
+************************************************************************
+*        Initializing MCPDFT global variable                           *
+************************************************************************
+*                                                                      *
+      l_casdft = KSDFA(1:5).eq.'TLSDA'   .or.
+     &           KSDFA(1:6).eq.'TLSDA5'  .or.
+     &           KSDFA(1:5).eq.'TBLYP'   .or.
+     &           KSDFA(1:4).eq.'TSSB'    .or.
+     &           KSDFA(1:4).eq.'TPBE'    .or.
+     &           KSDFA(1:5).eq.'FTPBE'   .or.
+     &           KSDFA(1:7).eq.'TREVPBE' .or.
+     &           KSDFA(1:8).eq.'FTREVPBE'.or.
+     &           KSDFA(1:6).eq.'FTLSDA'  .or.
+     &           KSDFA(1:6).eq.'FTBLYP'
+************************************************************************
 #ifdef _TIME_
       Call qEnter('Do_Batch ')
 #endif
@@ -131,15 +146,7 @@
          mRho = nP2_ontop
       Else If(DFTFOCK.eq.'DIFF'.and.nD.eq.2) Then
          mRho = nRho/nD
-      Else If(KSDFA(1:5).eq.'TLSDA'.or. !GLM
-     &        KSDFA(1:4).eq.'TSSB'.or. !GLM
-     &        KSDFA(1:6).eq.'FTLSDA'.or.
-     &        KSDFA(1:6).eq.'FTBLYP'.or.
-     &        KSDFA(1:5).eq.'FTPBE'.or.
-     &        KSDFA(1:7).eq.'TREVPBE'.or.
-     &        KSDFA(1:8).eq.'FTREVPBE'.or.
-     &        KSDFA(1:5).eq.'TBLYP'.or. !GLM
-     &        KSDFA(1:4).eq.'TPBE') then !GLM
+      Else If(l_casdft) then !GLM
       mRho = nP2_ontop
       End If
 *
@@ -446,11 +453,11 @@ cGLM            kAO   = iCmp*iBas_Eff*mGrid
      &                       list_bas,Index,nIndex)
 
 **************************************************************************
-* TLSDA                                                                  *
+* TLSDA,TLSDA5                                                           *
 **************************************************************************
 
 
-       If(KSDFA(1:5).eq.'TLSDA') then !GLM
+       If(KSDFA(1:5).eq.'TLSDA'.or.KSDFA(1:6).eq.'TLSDA5') then !GLM
         if(Debug) write(6,*) 'in do_batch.f for TLSDA option'
 
 **************************************************************************
@@ -1090,15 +1097,7 @@ C    &                       list_bas,Index,nIndex)
 *
 *     Integrate out the number of electrons
 *
-      if(KSDFA(1:5).eq.'TLSDA'.or. !GLM
-     &   KSDFA(1:6).eq.'FTLSDA'.or.
-     &   KSDFA(1:6).eq.'FTBLYP'.or.
-     &   KSDFA(1:5).eq.'FTPBE'.or.
-     &   KSDFA(1:5).eq.'TBLYP'.or.
-     &   KSDFA(1:4).eq.'TSSB'.or.
-     &   KSDFA(1:7).eq.'TREVPBE'.or.
-     &   KSDFA(1:8).eq.'FTREVPBE'.or.
-     &   KSDFA(1:4).eq.'TPBE') then
+      if(l_casdft) then
         T_Rho=T_X*1.0D-4
         Dens_t2=Dens_t2+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,0)
         Dens_a2=Dens_a2+Comp_d(Weights,mGrid,Rho,nRho,nD,T_Rho,1)

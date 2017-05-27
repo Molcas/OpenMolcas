@@ -327,7 +327,8 @@ c mess started here :)
          RecLab(145)='Isotopes        '
          RecLab(146)='P2AO            '
          RecLab(147)='State Overlaps  '
-         RecLab(148)='DIP1_SINGLE     '
+         RecLab(148)='EFP_Coors       ' ! EFP fragment coordinates
+         RecLab(149)='DIP1_SINGLE     '
 *                     1234567890123456
 *
 *        If you go beyond 256: update pg_da_info.fh and this line!

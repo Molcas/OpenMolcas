@@ -5,6 +5,7 @@
 **************************************************
 
 > export MOLCAS_MOLDEN=OFF
+> export MOLCAS_TIMELIM=1200
 
 &SEWARD  &END
 cholesky

@@ -46,7 +46,7 @@
 #endif
 #include "para_info.fh"
 *
-      Logical Do_OFemb,KEonly,OFE_first
+      Logical Do_OFemb,KEonly,OFE_first,l_casdft
       COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
       Character*16  OFE_KSDFT
       COMMON  / OFembed_C / OFE_KSDFT
@@ -733,16 +733,18 @@ C   No changing about read in orbital information from INPORB yet.
        Read(LUInput,*,End=9910,Err=9920) Line
        KSDFT=Line(1:16)
        Call UpCase(KSDFT)
-       If (IPRLOC(1).GE.DEBUG) Then
-         If(KSDFT(1:5).eq.'TLSDA')  !GLM
-     &     write(6,*) ' TLSDA functional aka LSDA for MCPDFT'
-         If(KSDFT(1:5).eq.'TBLYP')
-     &     write(6,*) ' TBLYP functional aka BLYP for MCPDFT'
-         If(KSDFT(1:4).eq.'TPBE')
-     &     write(6,*) ' TPBE functional aka PBE for MCPDFT'
-         If(KSDFT(1:4).eq.'TSSB')
-     &     write(6,*) ' TSSB functional aka SSB for MCPDFT'
-       End if
+       l_casdft = KSDFT(1:5).eq.'TLSDA'   .or.
+     &            KSDFT(1:6).eq.'TLSDA5'  .or.
+     &            KSDFT(1:5).eq.'TBLYP'   .or.
+     &            KSDFT(1:4).eq.'TSSB'    .or.
+     &            KSDFT(1:4).eq.'TPBE'    .or.
+     &            KSDFT(1:5).eq.'FTPBE'   .or.
+     &            KSDFT(1:7).eq.'TREVPBE' .or.
+     &            KSDFT(1:8).eq.'FTREVPBE'.or.
+     &            KSDFT(1:6).eq.'FTLSDA'  .or.
+     &            KSDFT(1:6).eq.'FTBLYP'
+       If (IPRLOC(1).GE.DEBUG.and.l_casdft)
+     &     write(6,*) ' MCPDFT with functional:', KSDFT
 CGG Calibration of A, B, C, and D coefficients in SG's NewFunctional 1
        If ( KSDFT(1:4).eq.'NEWF') Then
          ReadStatus=' Failure reading data following KSDF=NEWF.'

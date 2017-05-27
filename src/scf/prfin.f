@@ -45,6 +45,7 @@
 *                                                                      *
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
+      External EFP_ON
 *
       Real*8 Dens(nDT),TwoHam(nDT),OneHam(nDT),Ovlp(nDT),
      &       EOrb(nEO),OccNo(nEO),CMO(nCMO),MssVlc(nDT),Darwin(nDT)
@@ -67,7 +68,7 @@
       External Reduce_Prt
       Real*8, Dimension(:), Allocatable:: RFfld, Scr2, Scr3
 cnf
-      Logical Do_ESPF
+      Logical Do_ESPF, EFP_On
 cnf
 *     Save ipScr1
       Character AlphaLabel*30
@@ -167,9 +168,9 @@ cnf
 *
 cnf
       Call DecideOnESPF(Do_ESPF)
-      If ( (Do_ESPF .or. lRF .or. KSDFT.ne.'SCF') .and.  .Not.NDDO .and.
+      If ( (Do_ESPF .or. lRF .or. KSDFT.ne.'SCF' .or. EFP_On()) .and.
+     &      .Not.NDDO .and. iCase.eq.0) Then
 cnf      If ( (lRF .or. KSDFT.ne.'SCF') .and.  .Not.NDDO .and.
-     &    iCase.eq.0) Then
          iCharge=Int(Tot_Charge)
          NonEq=.False.
 *        Call Get_PotNuc(PotNuc)

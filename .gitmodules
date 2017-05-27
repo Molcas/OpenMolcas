@@ -19,3 +19,6 @@
 [submodule "External/libwfa"]
 	path = External/libwfa
 	url = https://github.com/libwfa/libwfa.git
+[submodule "External/efp"]
+	path = External/efp
+	url = https://github.com/ilyak/libefp.git

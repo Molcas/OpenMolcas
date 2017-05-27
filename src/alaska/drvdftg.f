@@ -38,7 +38,7 @@
 #include "nq_info.fh"
       Character Label*80, KSDFT*16
       Real*8 Grad(nGrad), Temp(nGrad)
-      Logical First, Dff, Do_Grad, King
+      Logical First, Dff, Do_Grad, King, l_casdft
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -65,14 +65,18 @@
 *     Call Get_iOption(iDFT)
 
       Call Get_cArray('DFT functional',KSDFT,16)
-      If(KSDFT(1:5).eq.'TLSDA'.or. !GLM
-     &        KSDFT(1:6).eq.'FTLSDA'.or.
-     &        KSDFT(1:6).eq.'FTBLYP'.or.
-     &        KSDFT(1:5).eq.'FTPBE'.or.
-     &        KSDFT(1:7).eq.'TREVPBE'.or.
-     &        KSDFT(1:8).eq.'FTREVPBE'.or.
-     &        KSDFT(1:5).eq.'TBLYP'.or.
-     &        KSDFT(1:4).eq.'TPBE') then
+      l_casdft = KSDFT(1:5).eq.'TLSDA'   .or.
+     &           KSDFT(1:6).eq.'TLSDA5'  .or.
+     &           KSDFT(1:5).eq.'TBLYP'   .or.
+     &           KSDFT(1:4).eq.'TSSB'    .or.
+     &           KSDFT(1:4).eq.'TPBE'    .or.
+     &           KSDFT(1:5).eq.'FTPBE'   .or.
+     &           KSDFT(1:7).eq.'TREVPBE' .or.
+     &           KSDFT(1:8).eq.'FTREVPBE'.or.
+     &           KSDFT(1:6).eq.'FTLSDA'  .or.
+     &           KSDFT(1:6).eq.'FTBLYP'
+
+      If( l_casdft ) then
         iOpt=iOr(iOpt,2**6)
         Call Put_iScalar('System BitSwitch',iOpt)
       End IF

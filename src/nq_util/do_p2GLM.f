@@ -227,9 +227,16 @@ C            Write(6,'(A,1f28.20)') 'P2(4)   =',P2_ontop(4,iGrid)
                            ij=iTri(i_ + iOff_Ash(iIrrep) ,
      &                             j_ + iOff_Ash(  jIrrep))
                            ijkl  = iTri(ij,kl)
+c incorrect piece of code ....
+c                             Fact=0.5d0
+c                             if(iIrrep.eq.jIrrep) Then
+c                                If(k.eq.l) Fact=1.0d0
+c                             End If
+c correct piece of code ....
                              Fact=0.5d0
                              if((ij.ge.kl).and.(k.eq.l)) Fact=1.0d0
                              if((kl.ge.ij).and.(i.eq.j)) Fact=1.0d0
+c*****************************************************************************
 c        write(6,'(4I2,F4.1,F8.5)')  i,j,k,l,Fact,P2mo(ijkl)
                            Do iGrid = 1, mGrid
 c       write(6,'(I3,F5.2,4I2,5E15.8)') iGrid,Fact,i,j,k,l,

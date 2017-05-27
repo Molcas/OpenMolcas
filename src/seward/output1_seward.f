@@ -26,6 +26,7 @@
 ************************************************************************
       use Period
       use GeoList
+      use EFP_Module
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -287,6 +288,18 @@
      &     '   Integral environment set up for FMM option'
          Write (LuWr,'(15X,A,F10.5)')
      &     '    - RPQMin: ',RPQMin
+      End If
+      If (EFP) Then
+#ifdef _EFP_
+         Write (LuWr,'(15X,A)')
+     &     '   Effective Fragment potentials added       '
+         Write (LuWr,'(15X,A,I4)')
+     &     '    - # of fragments: ',nEFP_fragments
+#else
+         Write (LuWr,'(15X,A)')
+     &     '   EFP input specified but code not enabled for the option'
+         Call Abend()
+#endif
       End If
       If (.Not.Onenly) Then
          If (Cholesky) Then

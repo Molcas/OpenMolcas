@@ -193,6 +193,10 @@ c         RecLab( 58)='GEO_nConnect    '
          RecLab( 66)='Seed            '
          RecLab( 67)='Track Done      '
          RecLab( 68)='MaxHopsTully    '
+         RecLab( 69)='EFP             ' ! Flag Effective fragment potentials
+         RecLab( 70)='nEFP_fragments  '
+         RecLab( 71)='Coor_Type       ' ! EFP fragment coordinate format
+         RecLab( 72)='nEFP_Coor       ' ! Associated number of coordinates per fragment
 *                     1234567890123456
 *
 *        Note, when the counter here exceeds 128 update this line

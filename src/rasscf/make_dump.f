@@ -170,7 +170,7 @@ c ----- I need to work this out.... GLM
 *---- Check on existence of 2-electron integrals in AO basis           *
 *----------------------------------------------------------------------*
       call f_Inquire('ORDINT',int2check)
-      If (.not.int2check) then
+      If (.not.(int2check.or.DoCholesky)) then
        write(6,*)' Two-electron integrals file not found!'
        write(6,*)' IF Choleski is used than keep going... else stop!'
       End If

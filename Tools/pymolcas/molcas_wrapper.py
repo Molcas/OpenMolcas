@@ -49,9 +49,9 @@ hcbanner = '''#
         patch level $P$
                     $Px$
  \n
-                    Copyright (C) Molcas Developers
+                 Copyright (C) The OpenMolcas Authors
            For the author list and the recommended citation,
-              consult http://www.molcas.org/citations.html
+                    consult the file CONTRIBUTORS.
 '''
 #===============================================================================
 

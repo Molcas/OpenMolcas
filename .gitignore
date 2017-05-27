@@ -28,7 +28,6 @@
 molgui/
 #odd compilation leftovers
 src/dmrg_util/lib
-
 src/*/CMakeLists.txt
 *.swp
 

@@ -39,9 +39,8 @@
 #include "ksdft.fh"
       Real*8 FckInt(nFckInt,nFckDim),Density(nFckInt,nD), Grad(nGrad)
       Logical Do_Grad, Do_MO,Do_TwoEl,PMode
-      Logical l_XHol
+      Logical l_XHol, l_casdft
       Character*4 DFTFOCK
-      Character*16 KSDFT
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -143,6 +142,7 @@ C     Call QEnter('DrvNQ')
 *                                                                      *
 *     CASDFT stuff:
 *
+      l_casdft=.false.
       nP2=1
       nCmo=1
       nD1mo=1
@@ -167,6 +167,7 @@ C     Call QEnter('DrvNQ')
       LuGridFile=IsFreeUnit(LuGridFile)
       Call Molcas_Open(LuGridFile,'GRIDFILE')
 ************************************************************************
+*
 ************************************************************************
 *                                                                      *
 *     Definition of resources needed for the functionals.              *
@@ -398,19 +399,25 @@ cGLM      Call GetMem('F_xcb','Allo','Real',ip_F_xcb,nGridMax)
       Call GetMem('list_p','Allo','Inte',iplist_p,nNQ)
       Call GetMem('R2_trail','Allo','Real',ipR2_trail,nNQ)
 c      Call GetMem('tmpB','Allo','Real',ip_tmpB,nGridMax)
-*
+*                                                                      *
+************************************************************************
+* Global variable for MCPDFT functionals                               *
+      l_casdft = KSDFA(1:5).eq.'TLSDA'   .or.
+     &           KSDFA(1:6).eq.'TLSDA5'  .or.
+     &           KSDFA(1:5).eq.'TBLYP'   .or.
+     &           KSDFA(1:4).eq.'TSSB'    .or.
+     &           KSDFA(1:4).eq.'TPBE'    .or.
+     &           KSDFA(1:5).eq.'FTPBE'   .or.
+     &           KSDFA(1:7).eq.'TREVPBE' .or.
+     &           KSDFA(1:8).eq.'FTREVPBE'.or.
+     &           KSDFA(1:6).eq.'FTLSDA'  .or.
+     &           KSDFA(1:6).eq.'FTBLYP'
+      if(Debug) write(6,*) 'l_casdft value at drvnq.f:',l_casdft
+      if(Debug.and.l_casdft) write(6,*) 'MCPDFT with functional:', KSDFA
+************************************************************************
       If (Do_MO) Then
          If (NQNAC.ne.0) Then
-           KSDFT = KSDFA
-           If(KSDFT(1:5).ne.'TLSDA'.and.
-     &        KSDFT(1:5).ne.'TBLYP'.and.
-     &        KSDFT(1:4).ne.'TSSB'.and.
-     &        KSDFT(1:5).ne.'FTPBE'.and.
-     &        KSDFT(1:7).ne.'TREVPBE'.and.
-     &        KSDFT(1:8).ne.'FTREVPBE'.and.
-     &        KSDFT(1:6).ne.'FTLSDA'.and.
-     &        KSDFT(1:6).ne.'FTBLYP'.and.
-     &        KSDFT(1:4).ne.'TPBE') Then
+           If(.not.l_casdft) Then
              Call Get_D1MO(ipD1mo,nd1mo)
              Call Get_P2mo(ipP2mo,nP2)
            End If
@@ -500,17 +507,9 @@ c      Call GetMem('tmpB','Allo','Real',ip_tmpB,nGridMax)
 ************************************************************************
 *                                                                      *
       Thr=Threshold
-      KSDFT = KSDFA
-cGLM      write(6,*) 'KSDFT value in DRVNQ :', KSDFT
-      If(KSDFT(1:5).eq.'TLSDA'.or. !GLM
-     &   KSDFT(1:5).eq.'TBLYP'.or.
-     &   KSDFT(1:4).eq.'TSSB'.or.
-     &   KSDFT(1:5).eq.'FTPBE'.or.
-     &   KSDFT(1:7).eq.'TREVPBE'.or.
-     &   KSDFT(1:8).eq.'FTREVPBE'.or.
-     &   KSDFT(1:6).eq.'FTLSDA'.or.
-     &   KSDFT(1:6).eq.'FTBLYP'.or.
-     &   KSDFT(1:4).eq.'TPBE') then
+      if(Debug) write(6,*) 'l_casdft value at drvnq.f:',l_casdft
+      if(Debug.and.l_casdft) write(6,*) 'MCPDFT with functional:', KSDFA
+      If(l_casdft) then
         NQNAC=0
         Call Get_iArray('nAsh',nAsh,mIrrep)
         Do iIrrep = 0, mIrrep - 1
@@ -530,7 +529,6 @@ cGLM          write(6,*) (Work(ipP2mo+i), i=0,NQNACPR2-1)
      &               nP2_ontop*nGridMax)
          Call GetMem('dF_dP2ontop','Allo','Real',ipdF_dP2ontop,
      &               ndF_dP2ontop*nGridMax)
-
       end if
 
       Call DrvNQ_(Kernel,Func,
@@ -590,16 +588,9 @@ cGLM      Call GetMem('F_xcb','Free','Real',ip_F_xcb,nGridMax)
       Call GetMem('Grid','Free','Real',ip_Grid,nGridMax*3)
 c      Call GetMem('tmpB','Free','Real',ip_tmpB,nGridMax)
 
-      If (Functional_type.eq.CASDFT_Type.or.
-     &    KSDFA(1:5).eq.'TLSDA'.or. !GLM
-     &    KSDFA(1:5).eq.'TBLYP'.or.
-     &    KSDFA(1:4).eq.'TSSB'.or.
-     &    KSDFT(1:5).eq.'FTPBE'.or.
-     &    KSDFT(1:7).eq.'TREVPBE'.or.
-     &    KSDFT(1:8).eq.'FTREVPBE'.or.
-     &    KSDFT(1:6).eq.'FTLSDA'.or.
-     &    KSDFT(1:6).eq.'FTBLYP'.or.
-     &    KSDFA(1:4).eq.'TPBE') Then
+      if(Debug) write(6,*) 'l_casdft value at drvnq.f:',l_casdft
+      if(Debug.and.l_casdft) write(6,*) 'MCPDFT with functional:', KSDFA
+      If (Functional_type.eq.CASDFT_Type.or.l_casdft) Then
          Call GetMem('P2_ontop','Free','Real',ipP2_ontop,
      &               nP2_ontop*nGridMax)
          Call GetMem('dF_dP2ontop','Free','Real',ipdF_dP2ontop,

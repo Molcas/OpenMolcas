@@ -36,6 +36,7 @@
 *                                                                      *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
+      External EFP_On
 #include "itmax.fh"
 #include "info.fh"
 #include "print.fh"
@@ -48,14 +49,15 @@
       COMMON  / ADDcorr_L   / Do_Addc
 *
 *
-      Logical DSCF, RF_On, Langevin_On, PCM_On
+      Logical DSCF, RF_On, Langevin_On, PCM_On, EFP_On
       Character*(*) KSDFT
       Real*8 EThr,DThr,FThr,DltNTh
 *
       If (DSCF.or.RF_On().or.Langevin_On().or.KSDFT.ne.'SCF'
      &                                    .or.Do_Addc
      &                                    .or.Do_Tw
-     &                                    .or.Do_OFemb) Then
+     &                                    .or.Do_OFemb
+     &                                    .or.EFP_On()) Then
          nDiff=0
          If (Langevin_On().and.iAngMx.eq.0) nDiff=1
          Call IniSew(Info,DSCF.or.Langevin_On().or.PCM_On(),nDiff)

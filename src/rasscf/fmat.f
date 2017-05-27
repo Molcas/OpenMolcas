@@ -65,7 +65,7 @@
 #include "WrkSpc.fh"
 
       Dimension CMO(*) , PUVX(*) , D(*) , D1A(*) , FI(*) , FA(*)
-
+      logical l_casdft
       Call qEnter (ROUTINE)
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
@@ -139,8 +139,18 @@ C Local print level (if any)
        End If
 
 *************************************************************
-* Here we should start the real work!
+* Initialize global variable for mcpdft functionals
 *************************************************************
+       l_casdft = KSDFT(1:5).eq.'TLSDA'   .or.
+     &            KSDFT(1:6).eq.'TLSDA5'  .or.
+     &            KSDFT(1:5).eq.'TBLYP'   .or.
+     &            KSDFT(1:4).eq.'TSSB'    .or.
+     &            KSDFT(1:4).eq.'TPBE'    .or.
+     &            KSDFT(1:5).eq.'FTPBE'   .or.
+     &            KSDFT(1:7).eq.'TREVPBE' .or.
+     &            KSDFT(1:8).eq.'FTREVPBE'.or.
+     &            KSDFT(1:6).eq.'FTLSDA'  .or.
+     &            KSDFT(1:6).eq.'FTBLYP'
 *     create FA in AO basis
       Call GetMem('Scr1','Allo','Real',iTmp1,nTot1)
       Call Fold(nSym,nBas,D1A,Work(iTmp1))
@@ -254,10 +264,7 @@ c**************************************************************************
 c              Add DFT part to Fock matrix:                               *
 c**************************************************************************
       If(KSDFT(1:3).ne.'SCF'.and.KSDFT(1:3).ne.'PAM'.and.
-     & (KSDFT(1:5).ne.'TLSDA'.and. !GLM
-     &  KSDFT(1:5).ne.'TBLYP'.and.
-     &  KSDFT(1:4).ne.'TSSB'.and.
-     &  KSDFT(1:4).ne.'TPBE')) Then
+     &      .not. l_casdft ) Then
         ipTmpFckI=-99999
         ipTmpFckA=-99999
         Call Get_dExcdRa(ipTmpFck,nTmpFck)

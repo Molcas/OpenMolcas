@@ -25,6 +25,7 @@
 ************************************************************************
       use Her_RW
       use Real_Spherical
+      use EFP_module
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -53,6 +54,13 @@
       Call Free_iSD()
       Call Freek2()
       Call CloseR()
+*
+      If (EFP) Then
+         Deallocate(FRAG_TYPE)
+         Deallocate(ABC)
+         Deallocate(EFP_COORS)
+         EFP=.FALSE.
+      End If
 *
       Seward_Status=InActive
       Return

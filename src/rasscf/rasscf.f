@@ -93,7 +93,7 @@
       Character*8 label
       Character*80 Line
       Character*1 CTHRE, CTHRSX, CTHRTE
-      Logical DoQmat,DoActive
+      Logical DoQmat,DoActive, l_casdft
       Logical IfOpened
 
 * --------- Cholesky stuff:
@@ -245,7 +245,20 @@
 *  orbitals from the JOBIPH file. Nothing more to do:
       IF(KeyORBO) GOTO 9990
 
-*--------------------------------------------------------
+*                                                                 *
+*******************************************************************
+* Initialize global variable for mcpdft method                    *
+       l_casdft = KSDFT(1:5).eq.'TLSDA'   .or.
+     &            KSDFT(1:6).eq.'TLSDA5'  .or.
+     &            KSDFT(1:5).eq.'TBLYP'   .or.
+     &            KSDFT(1:4).eq.'TSSB'    .or.
+     &            KSDFT(1:4).eq.'TPBE'    .or.
+     &            KSDFT(1:5).eq.'FTPBE'   .or.
+     &            KSDFT(1:7).eq.'TREVPBE' .or.
+     &            KSDFT(1:8).eq.'FTREVPBE'.or.
+     &            KSDFT(1:6).eq.'FTLSDA'  .or.
+     &            KSDFT(1:6).eq.'FTBLYP'
+*******************************************************************
 *
 * Allocate various matrices
 *
@@ -490,8 +503,9 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
      &         ' param    element    value    shift minimum  type '//
      &         'update hh:mm:ss'
         else if (DoDMRG .and. ICIONLY /= 0)then
-        else if(KSDFT(1:5).eq.'TLSDA'.or.KSDFT(1:5).eq.'TBLYP'.or.
-     &   KSDFT(1:4).eq.'TPBE'.or.KSDFT(1:4).eq.'TSSB') then
+
+        else if( l_casdft ) then
+
         else
          Write(LF,'(6X,A)')
      &         'Iter CI   SX   CI       RASSCF       Energy    '//
@@ -529,11 +543,8 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
 *                                                                      *
  1000 CONTINUE
 
-      if(KSDFT(1:5).eq.'TLSDA'.or. !GLM
-     &   KSDFT(1:5).eq.'TBLYP'.or.
-     &   KSDFT(1:4).eq.'TSSB'.or.
-     &   KSDFT(1:4).eq.'TPBE' ) then
-      KSDFT_TEMP=KSDFT
+      if( l_casdft ) then
+        KSDFT_TEMP=KSDFT
         KSDFT='SCF'
         ExFac=1.0D0
       else
@@ -556,10 +567,7 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
 *
         Start_Vectors=.True.
         lTemp = lRf
-        IF(KSDFT_TEMP(1:5).ne.'TLSDA'.and. !GLM
-     &     KSDFT_TEMP(1:5).ne.'TBLYP'.and.
-     &     KSDFT_TEMP(1:4).ne.'TSSB'.and.
-     &     KSDFT_TEMP(1:4).ne.'TPBE') then
+        IF(.not.l_casdft) then
           KSDFT_TEMP=KSDFT
           ExFac=Get_ExFac(KSDFT)
         end IF
@@ -603,12 +611,9 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
         Else
 
            lRf = .false.
-           IF(KSDFT_TEMP(1:5).ne.'TLSDA'.and. !GLM
-     &        KSDFT_TEMP(1:5).ne.'TBLYP'.and.
-     &        KSDFT_TEMP(1:4).ne.'TSSB'.and.
-     &        KSDFT_TEMP(1:4).ne.'TPBE')  then
-            KSDFT='SCF'
-            ExFac=1.0D0
+           IF( .not.l_casdft )  then
+             KSDFT='SCF'
+             ExFac=1.0D0
            end IF
            Call dcopy_(NTOT2,0.0D0,0,WORK(LD1A),1)
 
@@ -720,7 +725,7 @@ c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
 
          if(iDumpOnly)then
           write(6,*) " FCIDUMP file generated. Here for serving you!"
-          goto 9990
+          goto 2010
          end if
 
          If ( IPRLEV.ge.DEBUG ) then
@@ -822,21 +827,13 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
         Zenith_2 = Zenith_2 - Zenith_1
         Zenith_3 = Zenith_3 + Zenith_2
         lRf = lTemp
-        IF(KSDFT_TEMP(1:5).ne.'TLSDA'.and. !GLM
-     &     KSDFT_TEMP(1:5).ne.'TBLYP'.and.
-     &     KSDFT_TEMP(1:4).ne.'TSSB'.and.
-     &     KSDFT_TEMP(1:4).ne.'TPBE') then
-         KSDFT=KSDFT_TEMP
-         ExFac=Get_ExFac(KSDFT)
+        IF( .not.l_casdft ) then
+          KSDFT=KSDFT_TEMP
+          ExFac=Get_ExFac(KSDFT)
         end IF
 
 *     v GLM for MC-PDFT
-      If(KSDFT.ne.'SCF'.and.KSDFT.ne.'PAM'.or.
-     &   (KSDFT_TEMP(1:5).eq.'TLSDA'.or.
-     &    KSDFT_TEMP(1:5).eq.'TBLYP'.or.
-     &    KSDFT_TEMP(1:4).eq.'TSSB'.or.
-     &    KSDFT_TEMP(1:4).eq.'TPBE')) Then
-
+      If(KSDFT.ne.'SCF'.and.KSDFT.ne.'PAM'.or.l_casdft) Then
         If ( IPRLEV.ge.DEBUG ) then
          Write(LF,*)
          Write(LF,*) ' CMO in RASSCF bf call NATORB_RASSCF'
@@ -896,10 +893,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
          EAV=EAV+ENER(IROOT(KROOT),ITER)*WEIGHT(KROOT)
         END DO
         If ( IPRLEV.ge.DEBUG ) then
-         IF(KSDFT_TEMP(1:5).eq.'TLSDA'.or. !GLM
-     &     KSDFT_TEMP(1:5).eq.'TBLYP'.or.
-     &     KSDFT_TEMP(1:4).eq.'TSSB'.or.
-     &     KSDFT_TEMP(1:4).eq.'TPBE') then
+         IF( l_casdft ) then
           write(6,*) 'EAV value in RASSCF after first call to CICTL:'
           write(6,*) EAV
          END if
@@ -919,11 +913,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
          Write(IterFile,'(15X,A,I3)') 'RASSCF iteration: ',Iter
       End If
 *
-      If ( IPRLEV.ge.DEBUG ) then
-        IF(KSDFT_TEMP(1:5).eq.'TLSDA'.or. !GLM
-     &     KSDFT_TEMP(1:5).eq.'TBLYP'.or.
-     &     KSDFT_TEMP(1:4).eq.'TSSB'.or.
-     &     KSDFT_TEMP(1:4).eq.'TPBE') then
+      If ( IPRLEV.ge.DEBUG .and. l_casdft) then
         write(6,*) ('*',i=1,70)
         write(6,*) 'we are done withe first standard CAS-CI iteration  '
         write(6,*) 'CI coeffs are known and mantained fix in next stage'
@@ -933,16 +923,11 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
         write(6,*) 'FI and FA are going to change... '
         write(6,*) 'Check with previous printout to see differences.\  '
         write(6,*) ('*',i=1,70)
-        End If
       End if
 
-        IF(KSDFT_TEMP(1:5).eq.'TLSDA'.or. !GLM
-     &     KSDFT_TEMP(1:5).eq.'TBLYP'.or.
-     &     KSDFT_TEMP(1:4).eq.'TSSB'.or.
-     &     KSDFT_TEMP(1:4).eq.'TPBE') then
-            KSDFT=KSDFT_TEMP
-            ExFac=0.0d0
-*        ExFac=Get_ExFac(KSDFT)
+        IF( l_casdft ) then
+          KSDFT=KSDFT_TEMP
+          ExFac=0.0d0
         end IF
       IF(ICIONLY.NE.0) IFINAL=1
 *
@@ -1014,10 +999,7 @@ c      end if
 *
 * Compute the CI vectors and density matrices
 *
-      IF(KSDFT(1:5).ne.'TLSDA'.and.
-     &   KSDFT(1:5).ne.'TBLYP'.and.
-     &   KSDFT(1:4).ne.'TSSB'.and.
-     &   KSDFT(1:4).ne.'TPBE') THEN !the following is skipped in CASDFT-GLM
+      IF(.not.l_casdft ) THEN !the following is skipped in CASDFT-GLM
 
          If(KSDFT.ne.'SCF'.and.KSDFT.ne.'PAM') Then
            Call Put_CMO(WORK(LCMO),ntot2)
@@ -1025,33 +1007,33 @@ c      end if
 
         Call Timing(Swatch,Swatch,Zenith_1,Swatch)
 #ifdef _ENABLE_BLOCK_DMRG_
-      If(DoBlockDMRG) Then
-        CALL DMRGCTL(WORK(LCMO),
+        If(DoBlockDMRG) Then
+          CALL DMRGCTL(WORK(LCMO),
      &           WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
      &           WORK(LFI),WORK(LD1I),WORK(LD1A),
      &           WORK(LTUVX),IFINAL,1)
-      Else
+        Else
 #endif
 #ifdef _NECI_
-      if(iDoNECI) then
-        call FCIQMC_ctl(WORK(LCMO),WORK(LDIAF),
+        if(iDoNECI) then
+          call FCIQMC_ctl(WORK(LCMO),WORK(LDIAF),
      &             work(ldmat),work(ldspn),work(lpmat),work(lpa),
      &             work(lfi),work(ld1i),work(ld1a),
      &             work(ltuvx),ifinal)
 
-        If ( IPRLEV.ge.DEBUG ) then
-         Write(LF,*)
-         Write(LF,*) ' D1A in AO basis in RASSCF af FCIQMC_ctl 2'
-         Write(LF,*) ' ---------------------'
-         Write(LF,*)
-         iOff=1
-         Do iSym = 1,nSym
-          iBas = nBas(iSym)
-          call wrtmat(Work(lD1A+ioff-1),iBas,iBas, iBas, iBas)
-          iOff = iOff + iBas*iBas
-         End Do
-        end if
-      else
+          If ( IPRLEV.ge.DEBUG ) then
+           Write(LF,*)
+           Write(LF,*) ' D1A in AO basis in RASSCF af FCIQMC_ctl 2'
+           Write(LF,*) ' ---------------------'
+           Write(LF,*)
+           iOff=1
+           Do iSym = 1,nSym
+            iBas = nBas(iSym)
+            call wrtmat(Work(lD1A+ioff-1),iBas,iBas, iBas, iBas)
+            iOff = iOff + iBas*iBas
+           End Do
+          end if
+        else
 #endif
         CALL CICTL(WORK(LCMO),
      &           WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
@@ -1153,11 +1135,7 @@ c      call triprt('P-mat 2',' ',WORK(LPMAT),nAc*(nAc+1)/2)
        End if
       END IF
 
-      IF(KSDFT_TEMP(1:5).eq.'TLSDA'.or. !GLM
-     &   KSDFT_TEMP(1:5).eq.'TBLYP'.or.
-     &   KSDFT_TEMP(1:4).eq.'TSSB'.or.
-     &   KSDFT_TEMP(1:4).eq.'TPBE') THEN
-
+      IF( l_casdft ) THEN
         CALL GETMEM('CASDFT_Fock','ALLO','REAL',LFOCK,NACPAR)
 * To fix the DS bug... I forgot to transform it to the AO basis... Agrrrrhhh!
         if(iSpin.eq.1) then
@@ -1403,8 +1381,7 @@ cGLM        write(6,*) 'CASDFT energy :', CASDFT_Funct
       Call XFlush(6)
 cGLM some additional printout for MC-PDFT
 
-      If(KSDFT(1:5).eq.'TLSDA'.or.KSDFT(1:5).eq.'TBLYP'.or.
-     &   KSDFT(1:4).eq.'TPBE'.or.KSDFT(1:4).eq.'TSSB' ) then
+      If( l_casdft ) then
              CASDFT_E = ECAS-EVAC+CASDFT_Funct
              call print_mcpdft(CASDFT_E)
       end if
@@ -1424,10 +1401,7 @@ cGLM some additional printout for MC-PDFT
             Write(LF,'(80A1)') ('#',i=1,80)
           END IF
          end if
-        else if(KSDFT(1:5).eq.'TLSDA'.or. !GLM
-     &          KSDFT(1:5).eq.'TBLYP'.or.
-     &          KSDFT(1:4).eq.'TSSB'.or.
-     &          KSDFT(1:4).eq.'TPBE' ) then
+        else if( l_casdft ) then
           Write(LF,'(6X,80A)') ('=',i=1,80)
           Write(LF,'(10X,A)') 'This is a POST-SCF correction using a '
      & //'modified  Hamiltonian.'
@@ -1477,16 +1451,14 @@ cGLM some additional printout for MC-PDFT
               Write(LF,*)'Severe convergence problems. Maybe the active'
               Write(LF,*)'   space is unsuitable for this system?'
               Write(LF,'(6X,120A1)') ('=',i=1,120)
-              IF (DIFFE.GT.1.D-04 .AND.NROOTS.EQ.1.AND.
-     & (KSDFT(1:5).ne.'TLSDA'.and.KSDFT(1:5).ne.'TBLYP'.and. !GLM
-     &  KSDFT(1:4).ne.'TPBE'.and.KSDFT(1:4).ne.'TSSB'))THEN
-              Write(LF,*)
-              Write(LF,'(6X,A)') 'The program has to stop !!!'
-              Write(LF,*)
-              Write(LF,'(6X,120A1)') ('=',i=1,120)
-              Write(LF,*)
-              ITERM=99
-              GOTO 2000
+              IF(DIFFE.GT.1.D-04.AND.NROOTS.EQ.1.AND. .not.l_casdft)THEN
+                Write(LF,*)
+                Write(LF,'(6X,A)') 'The program has to stop !!!'
+                Write(LF,*)
+                Write(LF,'(6X,120A1)') ('=',i=1,120)
+                Write(LF,*)
+                ITERM=99
+                GOTO 2000
               END IF
             end if
           END IF
@@ -1592,10 +1564,7 @@ cGLM some additional printout for MC-PDFT
 ***************************           Closing up MC-PDFT      ***************************
 *****************************************************************************************
 c Clean-close as much as you can the CASDFT stuff...
-      if(KSDFT(1:5).eq.'TLSDA'.or. !GLM
-     &   KSDFT(1:5).eq.'TBLYP'.or.
-     &   KSDFT(1:4).eq.'TSSB'.or.
-     &   KSDFT(1:4).eq.'TPBE') goto 2010
+      if( l_casdft ) goto 2010
 
 ** IPT2 = 1 for OUTO, CANOnical keyword...
       IF(IPT2.EQ.1) THEN
@@ -1681,8 +1650,6 @@ c Clean-close as much as you can the CASDFT stuff...
      &             work(ldmat),work(ldspn),work(lpmat),work(lpa),
      &             work(lfi),work(ld1i),work(ld1a),
      &             work(ltuvx),ifinal)
-        Call GetMem('DetOrb','Free','Inte',ipDet,nActel)
-c allocated in proc_inp.f used throughout the iterations.. here or after here can be safely deallocated.
       else
 #endif
         CALL CICTL(WORK(LCMO),
@@ -1707,10 +1674,6 @@ c allocated in proc_inp.f used throughout the iterations.. here or after here ca
        END DO
       end if
       IF(NAC.EQ.0) EAV=ECAS
-      IF(NACPR2.GT.0) THEN
-         Call GetMem('TUVX','Free','Real',LTUVX,NACPR2)
-         Call GetMem('P2AS','Free','Real',LPA,NACPR2)
-      END IF
       Call Timing(Swatch,Swatch,Zenith_2,Swatch)
       Zenith_2 = Zenith_2 - Zenith_1
       Zenith_3 = Zenith_3 + Zenith_2
@@ -1831,18 +1794,25 @@ c  i_root>0 gives natural spin orbitals for that root
       Do i_root=0,mroots
         Call Interf(i_root,FDIAG,1,0)
       End Do
+
+* Create output orbital files:
+      Call OrbFiles(JOBIPH,IPRLEV)
+*
 *****************************************************************************************
 ***************************           Closing up RASSCF       ***************************
 *****************************************************************************************
-*
-c      Call rasscf_xml(0)
-*
-
 2010   continue
-*^follow closing up MC-PDFT
+
+c deallocating TUVX memory...
+      IF(NACPR2.GT.0) THEN
+         Call GetMem('TUVX','Free','Real',LTUVX,NACPR2)
+         Call GetMem('P2AS','Free','Real',LPA,NACPR2)
+      END IF
+*
+c deallocating detorb... allocated in proc_inp.f used throughout the iterations
+        If(iDoNECI) Call GetMem('DetOrb','Free','Inte',ipDet,nActel)
 *
 * release SEWARD
-*
       Call ClsSew
 * ClsSew is needed for releasing memory used by integral_util, rys... which is allocated when MC-PDFT run is performed.
 
@@ -1875,9 +1845,6 @@ c      Call rasscf_xml(0)
       Call GetMem('LCMO','Free','Real',LCMO,NTOT2)
       If (iClean.eq.1) Call Free_iWork(ipCleanMask)
 
-*
-* Create output orbital files:
-      Call OrbFiles(JOBIPH,IPRLEV)
 *
 * Skip Lucia stuff if NECI or BLOCK-DMRG is on
       If(.not.(iDoNECI.or.doDMRG.or.doBlockDMRG)) then

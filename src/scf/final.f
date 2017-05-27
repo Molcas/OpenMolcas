@@ -17,6 +17,9 @@
       SubRoutine Final()
       use SCF_Arrays
       Implicit Real*8 (a-h,o-z)
+#ifdef _EFP_
+      External EFP_On
+#endif
 #include "mxdm.fh"
 #include "infscf.fh"
 *
@@ -52,6 +55,10 @@
 *     history: UHF - V.Veryazov, 2003                                  *
 *                                                                      *
 ************************************************************************
+#ifdef _EFP_
+      use EFP_Module
+      use EFP
+#endif
       Implicit Real*8 (a-h,o-z)
 *
 #include "real.fh"
@@ -80,6 +87,9 @@
       COMMON  / ADDcorr_L   / Do_Addc
       Logical Do_Tw
       COMMON  / Tw_corr_L   / Do_Tw
+#ifdef _EFP_
+      Logical EFP_On
+#endif
 *
 *---- Define local variables
       Logical FstItr
@@ -514,6 +524,9 @@ c make a fix for energies for deleted orbitals
      &     Do_OFemb         .or.
      &     Do_Tw            .or.
      &     Do_Addc          .or.
+#ifdef _EFP_
+     &     EFP_On()         .or.
+#endif
      &     KSDFT.ne.'SCF'        ) Call ClsSew
 *
       If (Do_OFemb) Then
@@ -524,6 +537,11 @@ c make a fix for energies for deleted orbitals
       If (MxConstr.gt.0) Then
          If (Do_SpinAV) Call GetMem('DSc','Free','Real',ip_DSc,nBB)
       EndIf
+#ifdef _EFP_
+      If (EFP_On()) Then
+         Call EFP_ShutDown(EFP_Instance)
+      End If
+#endif
 #ifdef _DEBUG_
       Call qExit('Final')
 #endif

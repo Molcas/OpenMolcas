@@ -9,6 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Print_OpInfo(DInf,nDInf)
+#ifdef _EFP_
+      Use EFP_Module
+      Use EFP
+#endif
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -46,7 +50,9 @@
       Else
          nOper=0
       End If
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
       PrintOperators=.False.
       PrintOperators=PrintOperators.or.(nEF.ne.0)
       PrintOperators=PrintOperators.or.(nDMS.ne.0)
@@ -59,6 +65,9 @@
         Write (LuWr,'(3X,A)') '   --------------'
         Write (LuWr,*)
       End If
+*                                                                      *
+************************************************************************
+*                                                                      *
       If (nEF.ne.0) Then
         If (nOrdEF.eq.0) Then
           Write(LuWr,'(2X,A,1X,I8)')
@@ -77,12 +86,18 @@
           j=j+3
         End Do
       End If
+*                                                                      *
+************************************************************************
+*                                                                      *
       If (nDMS.ne.0) Then
          Call RecPrt(' Gauge Origin for diamagnetic shielding',' ',
      &               Dxyz,1,3)
          Call RecPrt(' Centers for diamagnetic shielding',
      &               ' ',DInf(ipDMS),3,nDMS)
       End If
+*                                                                      *
+************************************************************************
+*                                                                      *
       If (nWel.ne.0) Then
          Write (LuWr,*)
          Write (LuWr,*) ' Spherical well specification in au'
@@ -95,6 +110,9 @@
          End Do
          Write (LuWr,*)
       End If
+*                                                                      *
+************************************************************************
+*                                                                      *
       If (lXF) Then
          If (nPrint(2).lt.6) Go To 666
          If (iXPolType.gt.0) Then
@@ -154,6 +172,9 @@
          Write (LuWr,*)
          Write (LuWr,*) ' Net charge from external field: ',XnetCharg
       End If
+*                                                                      *
+************************************************************************
+*                                                                      *
       If (RMat_On) Then
          Write (LuWr,*)
      &          ' Parameters for radial integration (R-matrix option)'
@@ -169,6 +190,43 @@
          Write (LuWr,'(A,G12.5)') '   epsq      :', epsq
          Write (LuWr,'(A,G12.5)') '   bparm     :', bParm
       End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+#ifdef _EFP_
+      If (nEFP_fragments.ne.0) Then
+         Call FLUSH(LuWr)
+         Call EFP_PRINT_BANNER()
+         Call FLUSH(LuWr)
+         Write (LuWr,*)
+         Write (LuWr,*)
+     &          ' Specification of Effective Fragment Potentials'
+         Write (LuWr,*)
+         If     (Coor_Type.eq.XYZABC_type) Then
+            Write (LuWr,*) 'In XYZABC format'
+         ElseIf (Coor_Type.eq.POINTS_type) Then
+            Write (LuWr,*) 'In Points format'
+         ElseIf (Coor_Type.eq.ROTMAT_type) Then
+            Write (LuWr,*) 'In RotMat format'
+         Else
+            Write (LuWr,*) 'Illegal Coor_type:',Coor_Type
+            Call Abend()
+         End If
+         Do i = 1, nEFP_Fragments
+            Write (LuWr,*)
+            Write (LuWr,*) 'Fragment:',FRAG_TYPE(i)
+            If     (Coor_Type.eq.XYZABC_type) Then
+            ElseIf (Coor_Type.eq.POINTS_type) Then
+               Do j = 1, 3
+                  Write (LuWr,'(A10,3F20.10)')
+     &               ABC(j,i)(1:10),
+     &               (EFP_Coors((j-1)*3+k,i),k=1,3)
+               End Do
+            ElseIf (Coor_Type.eq.ROTMAT_type) Then
+            End If
+         End Do
+      End If
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *

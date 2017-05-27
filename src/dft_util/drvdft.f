@@ -196,6 +196,7 @@ c          write(6,*) 'Func in drvdft :', Func
 *                                                                      *
        Else If (KSDFT.eq.'LSDA5' .or.
      &          KSDFT.eq.'LDA5'  .or.
+     &          KSDFT.eq.'TLSDA5 '.or.
      &          KSDFT.eq.'SVWN5') Then
          ExFac=Get_ExFac(KSDFT)
          Functional_type=LDA_type

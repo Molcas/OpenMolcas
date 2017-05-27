@@ -63,7 +63,7 @@
      &       dF_dP2ontop(ndF_dp2ontop,mGrid)
       Real*8 TmpPUVX(nTmpPUVX)
       Logical Check, Do_Grad, Rsv_Tsk
-      Logical Do_Mo,Do_TwoEl,l_Xhol
+      Logical Do_Mo,Do_TwoEl,l_Xhol,l_casdft
       Character*4 DFTFOCK
 *                                                                      *
 ************************************************************************
@@ -76,15 +76,24 @@
 ************************************************************************
 *                                                                      *
 ************************************************************************
+* Initializations for MC-PDFT                                          *
+************************************************************************
+      l_casdft = .false.
+      l_casdft = KSDFA(1:5).eq.'TLSDA'   .or.
+     &           KSDFA(1:6).eq.'TLSDA5'  .or.
+     &           KSDFA(1:5).eq.'TBLYP'   .or.
+     &           KSDFA(1:4).eq.'TSSB'    .or.
+     &           KSDFA(1:4).eq.'TPBE'    .or.
+     &           KSDFA(1:5).eq.'FTPBE'   .or.
+     &           KSDFA(1:7).eq.'TREVPBE' .or.
+     &           KSDFA(1:8).eq.'FTREVPBE'.or.
+     &           KSDFA(1:6).eq.'FTLSDA'  .or.
+     &           KSDFA(1:6).eq.'FTBLYP'
+************************************************************************
 * Open file for MC-PDFT to store density, pair density and ratio:      *
 *                   ratio = 4pi/rho^2                                  *
 ************************************************************************
-c      write(6,*) 'KSDFA value at drvnq_ =', KSDFA
-      IF(KSDFA(1:5).eq.'TBLYP'.or.KSDFA(1:4).eq.'TPBE'.or.
-     &   KSDFA(1:4).eq.'TSSB'.or.
-     &   KSDFA(1:5).eq.'TLSDA'.or.KSDFA(1:5).eq.'FTPBE'.or.
-     &   KSDFA(1:6).eq.'FTLSDA'.or.KSDFA(1:6).eq.'FTBLYP'.or.
-     &   KSDFA(1:7).eq.'TREVPBE'.or.KSDFA(1:8).eq.'FTREVPBE') then
+      IF(l_casdft) then
         LuMC=37
         LuMT=37
         call OpnFl('MCPDFT',LuMC,Exist)
@@ -318,11 +327,7 @@ C     End Do ! number_of_subblocks
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      if(debug) then
-      IF(KSDFA(1:5).eq.'TBLYP'.or.KSDFA(1:4).eq.'TPBE'.or.KSDFA(1:5)
-     &  .eq.'TLSDA'.or.KSDFA(1:5).eq.'FTPBE'.or.KSDFA(1:4).eq.'TSSB'.or.
-     &   KSDFA(1:6).eq.'FTLSDA'.or.KSDFA(1:6).eq.'FTBLYP'.or.
-     &   KSDFA(1:7).eq.'TREVPBE'.or.KSDFA(1:8).eq.'FTREVPBE') then
+      IF(debug. and. l_casdft) THEN
         write(6,*) 'Dens_I in drvnq_ :', Dens_I
         write(6,*) 'Dens_a1 in drvnq_ :', Dens_a1
         write(6,*) 'Dens_b1 in drvnq_ :', Dens_b1
@@ -335,16 +340,12 @@ C     End Do ! number_of_subblocks
         write(6,*) 'Funcbb in drvnq_ :', Funcbb
         write(6,*) 'Funccc in drvnq_ :', Funccc
       END IF
-      end if
 *
-* AMS - Close this file
-      If(KSDFA(1:5).eq.'TBLYP'.or.KSDFA(1:4).eq.'TPBE'.or.
-     &   KSDFA(1:4).eq.'TSSB'.or.
-     &   KSDFA(1:5).eq.'TLSDA'.or.KSDFA(1:5).eq.'FTPBE'.or.
-     &   KSDFA(1:6).eq.'FTLSDA'.or.KSDFA(1:6).eq.'FTBLYP'.or.
-     &   KSDFA(1:7).eq.'TREVPBE'.or.KSDFA(1:8).eq.'FTREVPBE') then
+* Close these files...
+      If(l_casdft) then
         Close(LuMC)
         Close(LuMT)
       End if
+
       Return
       End

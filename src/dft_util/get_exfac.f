@@ -19,6 +19,7 @@
       Real*8 Get_ExFac
       Character*(*) KSDFT
       Character*16  cTmp
+      logical l_casdft
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -33,6 +34,20 @@ c      Get_ExFac=HFLDA
       End If
 *                                                                      *
 ************************************************************************
+* Global variable for MCPDFT                                           *
+
+       l_casdft = KSDFT(1:5).eq.'TLSDA'   .or.
+     &            KSDFT(1:6).eq.'TLSDA5'  .or.
+     &            KSDFT(1:5).eq.'TBLYP'   .or.
+     &            KSDFT(1:4).eq.'TSSB'    .or.
+     &            KSDFT(1:4).eq.'TPBE'    .or.
+     &            KSDFT(1:5).eq.'FTPBE'   .or.
+     &            KSDFT(1:7).eq.'TREVPBE' .or.
+     &            KSDFT(1:8).eq.'FTREVPBE'.or.
+     &            KSDFT(1:6).eq.'FTLSDA'  .or.
+     &            KSDFT(1:6).eq.'FTBLYP'
+*                                                                      *
+************************************************************************
 *                                                                      *
 *      LSDA LDA SVWN                                                   *
 *                                                                      *
@@ -45,15 +60,7 @@ c      Get_ExFac=HFLDA
 *                                                                      *
 *      MC-PDFT                                                         *
 *                                                                      *
-       Else If (KSDFT(1:5).eq.'TLSDA'.or. !GLM
-     &          KSDFT(1:5).eq.'TBLYP'.or.
-     &          KSDFT(1:4).eq.'TSSB'.or.
-     &          KSDFT(1:6).eq.'FTLSDA'.or.
-     &          KSDFT(1:6).eq.'FTBLYP'.or.
-     &          KSDFT(1:5).eq.'FTPBE'.or.
-     &          KSDFT(1:8).eq.'FTREVPBE'.or.
-     &          KSDFT(1:7).eq.'TREVPBE'.or.
-     &          KSDFT(1:4).eq.'TPBE') Then
+       Else If ( l_casdft ) Then
          Get_ExFac=Zero
 *                                                                      *
 ************************************************************************

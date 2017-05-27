@@ -44,6 +44,7 @@
 *                                                                      *
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
+      External EFP_On
 #include "real.fh"
 #include "mxdm.fh"
 #include "infscf.fh"
@@ -63,7 +64,7 @@
       Real*8  dmpk,dFKmat
       Common /CHOSCF / REORD,DECO,dmpk,dFKmat,ALGO,NSCREEN
 *
-      Logical Do_OFemb, KEonly, OFE_first, Found
+      Logical Do_OFemb, KEonly, OFE_first, Found, EFP_On
       COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
 *
 *---- Define local variables
@@ -110,7 +111,8 @@
 ************************************************************************
 *                                                                      *
       Call DecideOnESPF(Do_ESPF)
-      If ( Do_ESPF .or. lRF .or. KSDFT.ne.'SCF' .or. Do_OFemb) Then
+      If ( Do_ESPF .or. lRF .or. KSDFT.ne.'SCF' .or. Do_OFemb .or.
+     &     EFP_On()) Then
 *
 *------- Observe that this call always has to be prior to the calls
 *        to Drv2El_dScf and/or FTwoa. This since DrvXV will redefine

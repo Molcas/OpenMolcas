@@ -77,7 +77,7 @@
       Integer IndType(56)
       Character*80 VecTyp
       Save nCall
-      Logical DoActive,DoQmat,DoCholesky,TraOnly
+      Logical DoActive,DoQmat,DoCholesky,TraOnly,l_casdft
       Integer ALGO
 
       COMMON /CHOTODO /DoActive,DoQmat,ipQmat
@@ -217,10 +217,17 @@ C --------------------------------------
 * reorder the two-body density matrix P
 ************************************************************************
       LP=1
-      IF(KSDFT(1:5).ne.'TLSDA'.and. !GLM
-     &   KSDFT(1:5).ne.'TBLYP'.and.
-     &   KSDFT(1:4).ne.'TSSB'.and.
-     &   KSDFT(1:4).ne.'TPBE') then
+      l_casdft = KSDFT(1:5).eq.'TLSDA'   .or.
+     &           KSDFT(1:6).eq.'TLSDA5'  .or.
+     &           KSDFT(1:5).eq.'TBLYP'   .or.
+     &           KSDFT(1:4).eq.'TSSB'    .or.
+     &           KSDFT(1:4).eq.'TPBE'    .or.
+     &           KSDFT(1:5).eq.'FTPBE'   .or.
+     &           KSDFT(1:7).eq.'TREVPBE' .or.
+     &           KSDFT(1:8).eq.'FTREVPBE'.or.
+     &           KSDFT(1:6).eq.'FTLSDA'  .or.
+     &           KSDFT(1:6).eq.'FTBLYP'
+      IF(.not.l_casdft) then
 * ISTORP(NSYM+1) represents the size of the 2-body density matrix,d(vwxy), with vwxy all active.
 * the size is computed as NAP*NAQ*NRS (sum over all symmetries). If Sym_R = Sym_S then triangular
 * form over NRS... with R.ge.S, rectanguar otherwise.
@@ -248,8 +255,8 @@ C --------------------------------------
             CALL GETMEM('P2_reo','FREE','REAL',
      &                               ipP2reo,ISTORP(NSYM+1))
          End If
-      END IF
-      else ! GLM-CASDFT
+       END IF
+      ELSE ! GLM-CASDFT
 * ISTORP(NSYM+1) here represents the size of the Dvw*Dxy array (product of one-body
 * density matrix,d(vwxy), with vwxy all active. The size is computed as NAP*NAQ*NRS
 * (sum over all symmetries). If Sym_R = Sym_S then triangular form over NRS...

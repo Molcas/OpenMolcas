@@ -125,6 +125,7 @@ option (GEN1INT    "Enable Gen1Int library for 1-electron integrals (requires Ex
 option (NECI       "Activate NECI support (requires External/NECI submodule)."                                                        OFF)
 option (HDF5_F2003 "Activate a F2003 interface to the HDF5 library (requires External/hdf5_f2003_interface submodule)."               OFF)
 option (WFA        "Activate extended wavefunction analysis (requires External/libwfa submodule)."                                    OFF)
+option (EFPLIB     "Enable EFPLib library for effective fragment potentials (requires External/efp submodule)."                       OFF)
 
 ################################################################################
 #                                                                              #
@@ -1604,6 +1605,38 @@ if (NECI)
 else ()
         message (STATUS "NECI interface DISABLED")
 endif ()
+
+# EFP support (effective fragment support)
+#=========================================
+if (EFPLIB)
+
+        message ("Configuring EFP support:")
+
+        set (proj ${extprojsdir}/efp)
+        set (proj_bin ${PROJECT_BINARY_DIR}/External/efp)
+        if (EXISTS ${proj}/CMakeLists.txt)
+           add_subdirectory (${proj} ${proj_bin} EXCLUDE_FROM_ALL)
+           set (EFP_LIBRARIES efp)
+
+           message ("-- EFP_LIBRARIES: ${EFP_LIBRARIES}")
+
+           list (APPEND EXTERNAL_LIBRARIES ${EFP_LIBRARIES})
+
+           foreach (util
+                   gateway_util
+                   integral_util
+                   )
+                   list (APPEND ${util}_defs "_EFP_")
+           endforeach ()
+           add_definitions (-D_EFP_)
+        else()
+           message ("-- EFP interface ignored (source not available, run git submodule update --init ${proj}\")")
+        endif ()
+
+else ()
+        message (STATUS "EFP interface DISABLED")
+endif ()
+
 
 # GEN1INT interface
 if (GEN1INT)

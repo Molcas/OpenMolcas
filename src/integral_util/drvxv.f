@@ -11,6 +11,9 @@
       Subroutine DrvXV(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq,
      &                 lRF,KSDFT,ExFac,iCharge,iSpin,
      &                 D1I,D1A,nD1,DFTFOCK,Do_DFT)
+#ifdef _EFP_
+      use EFP_Module
+#endif
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -26,6 +29,9 @@
       COMMON  / OFembed_C / OFE_KSDFT
 *
       Logical Do_ESPF
+#ifdef _EFP_
+      Logical EFP_On
+#endif
       Character*(*) KSDFT
       Character*4 DFTFOCK
       Character*8 Label
@@ -82,7 +88,7 @@ cnf
 *                                                                      *
       If (lRF) Call DrvRF(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq,
      &                    iCharge)
-*                                                                      *
+*
 ************************************************************************
 *                                                                      *
 *                         DFT section                                  *
@@ -95,7 +101,7 @@ cnf
       If (KSDFT.ne.'SCF'.and.Do_DFT)
      &   Call DrvDFT(h1,TwoHam,D,RepNuc,nh1,First,Dff,lRF,KSDFT,ExFac,
      &               Do_Grad,Grad,nGrad,iSpin,D1I,D1A,nD1,DFTFOCK)
-*                                                                      *
+*
 ************************************************************************
 *                                                                      *
 *                         Orbital-Free Embedding section               *
@@ -108,6 +114,12 @@ cnf
 *                                                                      *
 ************************************************************************
 *                                                                      *
-
+#ifdef _EFP_
+      If (EFP_On())
+     &   Call DrvEFP(First)
+#endif
+*                                                                      *
+************************************************************************
+*                                                                      *
       Return
       End

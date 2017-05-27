@@ -48,7 +48,7 @@
       Character*120  Line,BlLine,StLine
       Character*3 lIrrep(8)
       Logical DoCholesky
-      Logical DoLocK,Deco, lOPTO
+      Logical DoLocK,Deco, lOPTO, l_casdft
       Real*8  dmpK
       Integer nScreen
       COMMON /CHOLK / DoLocK,Deco,dmpk,Nscreen
@@ -79,6 +79,19 @@
       Write(Fmt1,'(A,I3.3,A)') '(',left,'X,A)'
       Write(Fmt2,'(A,I3.3,A)') '(',left,'X,'
       IF (IPRLEV.EQ.SILENT) GOTO 900
+*----------------------------------------------------------------------*
+*     Initialize l_casdft global variable for mcpdft                   *
+*----------------------------------------------------------------------*
+      l_casdft = KSDFT(1:5).eq.'TLSDA'   .or.
+     &           KSDFT(1:6).eq.'TLSDA5'  .or.
+     &           KSDFT(1:5).eq.'TBLYP'   .or.
+     &           KSDFT(1:4).eq.'TSSB'    .or.
+     &           KSDFT(1:4).eq.'TPBE'    .or.
+     &           KSDFT(1:5).eq.'FTPBE'   .or.
+     &           KSDFT(1:7).eq.'TREVPBE' .or.
+     &           KSDFT(1:8).eq.'FTREVPBE'.or.
+     &           KSDFT(1:6).eq.'FTLSDA'  .or.
+     &           KSDFT(1:6).eq.'FTBLYP'
 *----------------------------------------------------------------------*
 *     Print the project title                                          *
 *----------------------------------------------------------------------*
@@ -451,11 +464,15 @@ C.. for GAS
        Else
         Write(LF,Fmt2//'A,T45,I6)')'RASSCF algorithm: Conventional'
        EndIf
-       IF(KSDFT.eq.'TBLYP'.or.KSDFT.eq.'TPBE'.or.
-     &    KSDFT.eq.'TLSDA'.or.KSDFT.eq.'TSSB') then
-        Write(LF,Fmt2//'A)') 'This is a MC-PDFT calculation '//
-     &   'with functional: '//KSDFT
+************************************************************************
+* Some printout for mcpdft method
+************************************************************************
+       IF(l_casdft) then
+          Write(LF,Fmt2//'A)') 'This is a MC-PDFT calculation '//
+     &                         'with functional: '//KSDFT
        end if
+************************************************************************
+
        Write(LF,Fmt2//'A,T45,I6)')'Maximum number of macro iterations',
      &                           MAXIT
        Write(LF,Fmt2//'A,T45,I6)')'Maximum number of SX iterations',

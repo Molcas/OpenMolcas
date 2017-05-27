@@ -66,7 +66,7 @@
 
       Dimension CMO(*),D(*),DS(*),P(*),PA(*),FI(*),D1I(*),D1A(*),
      &          TUVX(*)
-      Logical Exist,Do_ESPF
+      Logical Exist,Do_ESPF,l_casdft
 
 #include "rasdim.fh"
 #include "rasscf.fh"
@@ -143,6 +143,22 @@ C Local print level (if any)
         Write(LF,*) ' SGFCIN ',LW1
       END IF
       Call DecideOnESPF(Do_ESPF)
+*                                                                      *
+************************************************************************
+* Global variable for MCPDFT functionals                               *
+      l_casdft = KSDFT(1:5).eq.'TLSDA'   .or.
+     &           KSDFT(1:6).eq.'TLSDA5'  .or.
+     &           KSDFT(1:5).eq.'TBLYP'   .or.
+     &           KSDFT(1:4).eq.'TSSB'    .or.
+     &           KSDFT(1:4).eq.'TPBE'    .or.
+     &           KSDFT(1:5).eq.'FTPBE'   .or.
+     &           KSDFT(1:7).eq.'TREVPBE' .or.
+     &           KSDFT(1:8).eq.'FTREVPBE'.or.
+     &           KSDFT(1:6).eq.'FTLSDA'  .or.
+     &           KSDFT(1:6).eq.'FTBLYP'
+*                                                                      *
+************************************************************************
+*                                                                      *
 
       If ( lRf .or. KSDFT.ne.'SCF' .or. Do_ESPF) THEN
 *
@@ -284,11 +300,7 @@ c          n_unpaired_elec=(iSpin-1)
 c          n_paired_elec=nActEl-n_unpaired_elec
 c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
 *                  write(6,*) 'n_Det =', n_Det
-           If (ExFac.ne.1.0D0.AND.
-     &     (KSDFT(1:5).ne.'TLSDA'.or. !GLM
-     &      KSDFT(1:5).ne.'TBLYP'.or.
-     &      KSDFT(1:4).ne.'TSSB'.or.
-     &      KSDFT(1:4).ne.'TPBE'))
+           If (ExFac.ne.1.0D0.AND.(.not.l_casdft))
      &    Call Mod_P2(Work(LW8),NACPR2,
      &                                   Work(LW6),NACPAR,
      &                                   Work(LW7),ExFac,n_Det)
@@ -563,11 +575,7 @@ c
 
 *          write(6,*) 'second call to Mod_P2'
 
-           If (ExFac.ne.1.0D0.AND.
-     &     (KSDFT(1:5).ne.'TLSDA'.or. !GLM
-     &      KSDFT(1:5).ne.'TBLYP'.or.
-     &      KSDFT(1:4).ne.'TSSB'.or.
-     &      KSDFT(1:4).ne.'TPBE'))
+           If (ExFac.ne.1.0D0.AND.(.not.l_casdft))
      &                     Call Mod_P2(Work(LW8),NACPR2,
      &                                 Work(LW6),NACPAR,
      &                                 Work(LW7),ExFac,n_Det)
@@ -623,11 +631,7 @@ C and for now don't bother with 2-electron active density matrices
         EndIf
         IF (IDoGAS.or.ifcas.gt.2) CALL CISX(IDXSX,Work(LW6),Work(LW7),
      &              Work(LW8),Work(LW9),Work(LW10))
-           If (ExFac.ne.1.0D0.AND.
-     &     (KSDFT(1:5).ne.'TLSDA'.or. !GLM
-     &      KSDFT(1:5).ne.'TBLYP'.or.
-     &      KSDFT(1:4).ne.'TSSB'.or.
-     &      KSDFT(1:4).ne.'TPBE'))
+           If (ExFac.ne.1.0D0.AND.(.not.l_casdft))
      &                      Call Mod_P2(Work(LW8),NACPR2,
      &                                Work(LW6),NACPAR,
      &                                Work(LW7),ExFac,n_Det)
@@ -819,7 +823,7 @@ C.. printout of the wave function
         Call GetMem('CIVtmp','Free','Real',LW11,nConf)
       ENDIF
       CALL GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
-      CALL GETMEM('CICTL','FREE','REAL',LW1,NACPAR)
+      CALL GETMEM('CICTL1','FREE','REAL',LW1,NACPAR)
 
  9000 Continue
 *

@@ -12,6 +12,7 @@
       use Her_RW
       use Period
       use MpmC
+      use EFP_Module
       Implicit Real*8 (a-h,o-z)
       External iMostAbundantIsotope, NucExp
 #include "para_info.fh"
@@ -410,6 +411,7 @@ cperiod
       If (KWord(1:4).eq.'DSHD') Go To 996
       If (KWord(1:4).eq.'ECPS') Go To 912
       If (KWord(1:4).eq.'EFLD') Go To 993
+      If (KWord(1:4).eq.'EFP ') Go To 9088
 #ifdef _FDE_
       If (KWord(1:4).eq.'EMBE') Go To 666
 #endif
@@ -3624,6 +3626,56 @@ c
 *                                                                      *
  9086 GWinput = .True.
       FNMC=.True.
+      Go To 998
+*                                                                      *
+****** EFP  ************************************************************
+*                                                                      *
+ 9088 GWinput = .True.
+      Kword = Get_Ln(LuRd)
+      Call Get_I(1,nEFP_fragments,1)
+      Allocate(FRAG_TYPE(nEFP_fragments))
+      Allocate(ABC(3,nEFP_fragments))
+      Kword = Get_Ln(LuRd)
+      Call Upcase(kWord)
+      If (KWord.eq.'XYZABC') Then
+         Coor_Type=XYZABC_type
+         nEFP_Coor=6
+         Allocate(EFP_COORS(nEFP_Coor,nEFP_fragments))
+         Write (LuWr,*) 'XYZABC option to be implemented'
+         Call Abend()
+      Else If (KWord.eq.'POINTS') Then
+         Coor_Type=POINTS_type
+         nEFP_Coor=9
+         Allocate(EFP_COORS(nEFP_Coor,nEFP_fragments))
+         Do iFrag = 1, nEFP_fragments
+            KWord = Get_Ln(LuRd)
+            FRAG_Type(iFrag)=KWord
+            Do i = 1, 3
+               KWord = Get_Ln(LuRd)
+               iend=Index(KWord,' ')
+               If (iEnd.gt.LENIN+1) Then
+                  Write (LuWr,*) 'Warning: the label ', KWord(1:iEnd),
+     &                        ' will be truncated to ',LENIN,
+     &                        ' characters!'
+               End If
+               ABC(i,iFrag) = KWord(1:Min(LENIN,iend-1))
+               Call Get_F(2,EFP_COORS((i-1)*3+1,iFrag),3)
+            End Do
+         End Do
+      Else If (KWord.eq.'ROTMAT') Then
+         Coor_Type=ROTMAT_type
+         nEFP_Coor=12
+         Allocate(EFP_COORS(nEFP_Coor,nEFP_fragments))
+         Write (LuWr,*) 'ROTMAT option to be implemented'
+         Call Abend()
+      Else
+         Write (LuWr,*) 'Illegal EFP format :',KWord
+         Write (LuWr,*)
+         Write (LuWr,*) 'Allowed format: XYZABC,'
+         Write (LuWr,*) '                POINTS, and'
+         Write (LuWr,*) '                ROTMAT'
+      End If
+      EFP=.True.
       Go To 998
 *                                                                      *
 ************************************************************************
