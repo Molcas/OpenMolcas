@@ -95,11 +95,11 @@ PACKAGE
 # libraries
 lib/
 # license file
-license.dat
+/license.dat
 # tinker
-tinker-*.tar
-tinker
-tinker*/
+/tinker-*.tar
+/tinker
+/tinker*/
 # Test/
 test/qcmaquis
 test/qcmaquis/
@@ -112,6 +112,6 @@ Tools/pymolcas/pymolcas.whl
 Tools/pymolcas/build
 Tools/pymolcas/*.egg-info
 # build products
-molcas-*
-make-*
-build*
+/molcas-*
+/make-*
+/build*
