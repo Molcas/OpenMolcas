@@ -48,6 +48,8 @@
         EMYN = 0.0d0
       END IF
 
+      call Add_Info('Fock-elements',Fock,nacpar,8)
+
       do k = 1, nacpar
 * We are going to compute i and j from k=ij....
         iorb = ceiling(-0.5d0+sqrt(2.0d0*k))
@@ -80,6 +82,7 @@ c read orbital energies from INPORB file
           Call QTrace()
           Call Abend()
          End If
+
 c write orbital energies into FCIDUMP file
          ioff   = 0
          icount = 0
@@ -123,6 +126,9 @@ c write core energy into FCIDMP file
 
 *     write the core energy to dump file ....
       write(LuFCI,'(1X,G20.11,4I5)') EMY,0,0,0,0
+
+      call Add_Info('core energy',EMY,1,8)
+
       if(Dbg)then
         write(6,*) 'Core energy...'
         write(6,'(1X,G20.11,4I5)') EMY,0,0,0,0
