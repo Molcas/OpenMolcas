@@ -160,6 +160,7 @@
         Write (6,*) 'integral file.'
         Call Quit(_RC_INTERNAL_ERROR_)
        End If
+       Call StatusLine('RASSCF:',' Read-in ONEINT')
       If (IfVB.eq.2) go to 10
 
 *
@@ -206,6 +207,7 @@
 * Printed program header:
 
 * Process the input:
+      Call StatusLine('RASSCF:',' Processing input')
       Call Proc_Inp(DSCF,Info,lOPTO,iRc)
 * If something goes wrong in proc_inp:
       If (iRc.ne._RC_ALL_IS_WELL_) Then
