@@ -2943,6 +2943,7 @@ C Test read failed. JOBOLD cannot be used.
 *
       if(.not.KeyDMRG .and. .not.IDoNECI)then ! switch on/off determinants
 * Initialize LUCIA and determinant control
+        Call StatusLine('RASSCF:','Initializing Lucia...')
         CALL Lucia_Util('Ini',iDummy,iDummy,Dummy)
 * to get number of CSFs for GAS
         nconf=0
