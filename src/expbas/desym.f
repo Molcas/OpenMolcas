@@ -735,7 +735,7 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
      &            Work(iPOccC1),Work(mAdOcc_ab),
      &            Work(ipAux),Work(ipAux_ab),
      &            iWork(mInd),VTitle,iWFtype)
-       call Add_Info('desym CMO',Work(ipOrdC1),nTot**2,8)
+       call Add_Info('desym CMO',Work(ipOrdC1),999,8)
 *                                                                      *
 ************************************************************************
 *                                                                      *
