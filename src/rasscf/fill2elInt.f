@@ -57,7 +57,7 @@ c     &                                      iorb,jorb,korb,lorb
         endif
       enddo
 
-      call Add_Info('Two-electron Integrals',TUVX,nacpr2,8)
+      call Add_Info('Two-electron Integrals',TUVX,999,8)
 
 *     Set time at end of 2-electron integrals entries process ....
       CALL TIMING(CPT,CPE,TIOT,TIOE)
