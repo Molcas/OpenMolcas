@@ -349,21 +349,26 @@
        end if
       end if
 #endif
-
 *
 * Get start orbitals
 
 * Initialize OCCN array, to prevent false alarms later from
 * automated detection of using uninitialized variables:
       call dcopy_(NTot,0.0D0,0,Work(lOCCN),1)
-
 * PAM03: Note that removal of linear dependence may change the nr
 * of secondary/deleted orbitals, affecting some of the global
 * variables: NSSH(),NDEL(),NORB(),NTOT3, etc etc
       Call ReadVc(Work(LCMO),Work(lOCCN),
      &             WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA))
 * Only now are such variables finally known.
-
+c        CALL TRIPRT('Averaged one-body density matrix, D, in RASSCF',
+c     &              ' ',Work(LDMAT),NAC)
+c        CALL TRIPRT('Averaged one-body spin density matrix DS, RASSCF',
+c     &              ' ',Work(LDSPN),NAC)
+c        CALL TRIPRT('Averaged two-body density matrix, P',
+c     &              ' ',WORK(LPMAT),NACPAR)
+c        CALL TRIPRT('Averaged antisym 2-body density matrix PA RASSCF',
+c     &              ' ',WORK(LPA),NACPAR)
 *
 * Allocate core space for dynamic storage of data
 *
@@ -379,14 +384,10 @@
 
       Call Timing(Swatch,Swatch,Ebel_1,Swatch)
 
-CGG03 Aug 03
       If(NAlter.gt.0) Call Alter_MO(Work(LCMO))
 
 c At this point all is ready to potentially dump MO integrals... just do it if required.
       If(iDumpOnly) goto 20
-*
-* Wave function section
-*
       if(ifvb.eq.2)goto 20
 
       if(dofcidump)then
@@ -396,6 +397,11 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
         goto 20
       end if
 
+*******************************************************************************************************************************
+*
+* Wave function section
+*
+*******************************************************************************************************************************
 
       Call StatusLine('RASSCF:',' Compute wave function.')
       If ( IPRLEV.GE.2 .AND..NOT.lOPTO) then
