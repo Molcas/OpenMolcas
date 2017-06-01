@@ -37,9 +37,9 @@ c#include "mpif.h"
       Real*8    fac, RDMval, fcSp, facval
       Real*8 DMAT(*),DSPN(*),PSMAT(*),PAMAT(*)
 *      Real*8 DTST(*)
+      Parameter (routine = 'neci2molcas_dens')
 
-
-      Call qEnter('neci2molcas')
+      Call qEnter(routine)
 
       IPRLEV=IPRLOC(1)
       IF(IPRLEV.ge.DEBUG) THEN

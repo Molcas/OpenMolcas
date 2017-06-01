@@ -77,9 +77,11 @@
 #include "mafdecls.fh"
       INTEGER*4 ierror
 #endif
+      Parameter (ROUTINE='FCIQMC_clt')
       Common /IDSXCI/ IDXCI(mxAct),IDXSX(mxAct)
 
-c      Call qEnter('FCIQMC_CTL')
+
+      Call qEnter(routine)
 
 C Local print level (if any)
        IPRLEV=IPRLOC(1)

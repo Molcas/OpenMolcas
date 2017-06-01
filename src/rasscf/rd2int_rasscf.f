@@ -36,7 +36,7 @@
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
-      Call qEnter('Rd2Int')
+      Call qEnter(ROUTINE)
       iRc=-1
       Call GetOrd(iRc,lSquare,nSymX,nBasX,nSkipX)
       If (iRc.ne.0) Then
