@@ -28,6 +28,9 @@ copy_hook() {
 }
 
 gitdir=$(cd $MOLCAS ; (cd $(git rev-parse --git-dir) ; pwd))
+if [ -d "$gitdir" ] ; then
+  mkdir -p "$gitdir/hooks"
+fi
 for hook in "pre-commit" ; do
   src="$MOLCAS/sbin/$hook"
   dest="$gitdir/hooks/$hook"

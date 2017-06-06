@@ -262,7 +262,7 @@ test_configfile () {
     fi
 
     VERSION=$(git describe --always --dirty --match "v*")
-    P=$(echo $VERSION | awk -F. '{print $3}')
+    P=$(echo $VERSION | awk -F. '{print $NF}')
 
     cd ../$REPO.$BRANCH || return
 
@@ -284,7 +284,7 @@ test_configfile () {
     # we do this here first in case configure/make fail
     VERSION=$(git describe --always --dirty --match "v*")
     V=$(echo $VERSION | awk -F. '{print $1"."$2}' | tr -d v)
-    P="$P & "$(echo $VERSION | awk -F. '{print $3}')
+    P="$P & "$(echo $VERSION | awk -F. '{print $NF}')
 
     # if the directories had been cloned (and presumably tested) before,
     # test the branches only if they differ from the master (no mail sent)

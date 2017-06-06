@@ -12,7 +12,8 @@
 CSVC: this routine tries to print a backtrace
       implicit none
 C     use backtrace intrinsic (introduced since gfortran 4.8)
-#if   defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8))
+#include "compiler_features.h"
+#if   defined(__GNUC__) && (GCC_VERSION >= 40800)
       call backtrace
 C     use tracebackqq intrinsic for ifort
 #elif defined(__INTEL_COMPILER)

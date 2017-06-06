@@ -22,7 +22,6 @@ MODULE fmm_scale_T_buffer
 
    INTEGER(INTK), PARAMETER :: BUFFER_SIZE = 500000
    ! module wide variables
-   INTEGER(INTK),      SAVE :: ndim_max
    TYPE(T_pair_batch), SAVE :: T_pair_buffer
 
 CONTAINS

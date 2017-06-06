@@ -165,8 +165,8 @@ my $failed = File::Spec->catfile ($testdir, 'failed');
 if ($opt{reset}) {
         unlink $result if (-l $result);
         unlink $timing if (-l $timing);
-        File::Path->rmtree($tmpdir) if (-d $tmpdir);
-        File::Path->rmtree($logroot) if (-d $logroot);
+        File::Path->rmtree($tmpdir,{}) if (-d $tmpdir);
+        File::Path->rmtree($logroot,{}) if (-d $logroot);
         unlink $failed if (-l $failed);
         exit 0;
 }
@@ -379,9 +379,9 @@ if (! -d $testdir) {
 if (! -w $testdir) {
         error ("cannot write to $testdir\n");
 }
-File::Path->rmtree($tmpdir) if (-d $tmpdir);
+File::Path->rmtree($tmpdir,{}) if (-d $tmpdir);
 if ($opt{clean}) {
-        File::Path->rmtree($logroot) if (-d $logroot);
+        File::Path->rmtree($logroot,{}) if (-d $logroot);
 }
 mkdir $tmpdir if (! -d $tmpdir);
 mkdir $logroot if (! -d $logroot);
@@ -395,7 +395,7 @@ foreach my $subdir_name (@subdir_names) {
         my $subdir = File::Spec->catdir($logroot, $subdir_name);
         next if $subdir =~ /\.bak$/;
         next unless -d $subdir;
-        File::Path->rmtree($subdir) if (-M $subdir > 1);
+        File::Path->rmtree($subdir,{}) if (-M $subdir > 1);
 }
 # finally, create the new log directory we are about to use
 if (-d $logdir) {
@@ -510,7 +510,8 @@ foreach my $file (@filelist) {
         # start repeated cycles (e.g. when tests fail randomly)
         my $cycles = $opt{cycles} ? $opt{cycles} : 1;
         $cycles = 2 * $cycles if ($opt{parallel});
-        print RESULT "----------\ngroup $group from: $location{$group}\n" if ($group ne $prev_group && $group ne 'external');
+        my $g = $critical{$group} ? 'critical group' : 'group';
+        print RESULT "----------\n$g $group from: $location{$group}\n" if ($group ne $prev_group && $group ne 'external');
         while ($cycles-- > 0) {
                 if ($opt{parallel}) {
                         if ($cycles % 2 == 1) {
@@ -526,7 +527,7 @@ foreach my $file (@filelist) {
                                 my $check_counter = File::Spec->catfile ($workdir, 'molcas_check_count');
                                 unlink $check_counter;
                         } else {
-                                File::Path->rmtree($workdir);
+                                File::Path->rmtree($workdir,{});
                         }
                 }
                 mkdir $workdir unless (-d $workdir);
@@ -611,7 +612,7 @@ foreach my $file (@filelist) {
                 # clean up
                 unless ($rc or $opt{keep}) {
                         unlink $input, $out, $err, $status;
-                        File::Path->rmtree($workdir);
+                        File::Path->rmtree($workdir,{});
                 }
                 last FILELOOP if ($rc and $opt{trap});
         }
@@ -625,6 +626,7 @@ foreach my $file (@filelist) {
         }
         $prev_group = $group;
 }
+print RESULT "----------\n" if ($prev_group ne '.none');
 
 system("$MOLCAS_DRIVER codecov --html") if ($opt{cover});
 

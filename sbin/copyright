@@ -29,7 +29,21 @@ from locale import getpreferredencoding
 from io import open
 from os.path import isfile, join
 from os import walk
-from colorama import init, Fore, Back, Style
+
+try:
+  from colorama import init, Fore, Back, Style
+except ImportError:
+  def init(*args, **kwargs):
+    pass
+  class Dummy(object):
+    pass
+  Fore = Dummy()
+  Fore.RED = ''
+  Fore.BLUE = ''
+  Back = Dummy()
+  Back.RED = ''
+  Style = Dummy()
+  Style.RESET_ALL = ''
 
 # Define command-line arguments
 parser = argparse.ArgumentParser(formatter_class=lambda prog: argparse.HelpFormatter(prog))
@@ -63,7 +77,7 @@ else:
 
 authors = {}
 
-for filename in files:
+for filename in sorted(files):
 
   copyright = []
   if (isfile(filename)):

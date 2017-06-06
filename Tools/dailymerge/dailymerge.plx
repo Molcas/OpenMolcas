@@ -807,7 +807,7 @@ if ($status == 0) {
     } else {
 
         # first, check if certain tags exist that shouldn't
-        my $tag_daily  = "v8.1.x$date";
+        my $tag_daily  = "v8.3.x$date";
         die "Error: tag $tag_daily already exists\n" if `git tag -l $tag_daily`;
 
         &git("tag", "-a", $tag_daily, "-m", "daily snapshot for testing");
@@ -1121,7 +1121,7 @@ if ($status == 0) {
     } else {
 
         # first, check if certain tags exist that shouldn't
-        my $tag_daily  = "v8.1.o$date";
+        my $tag_daily  = "v8.3.o$date";
         die "Error: tag $tag_daily already exists\n" if `git tag -l $tag_daily`;
 
         &git("tag", "-a", $tag_daily, "-m", "daily snapshot for testing");

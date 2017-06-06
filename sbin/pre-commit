@@ -33,7 +33,7 @@ DIR=$PWD
 
 # temporarily set MOLCAS to $TMPDIR to run style checks
 export MOLCAS=$TMPDIR
-if [ -x sbin/check_style]
+if [ -x sbin/check_style ]
 then
     if ! sbin/check_style
     then

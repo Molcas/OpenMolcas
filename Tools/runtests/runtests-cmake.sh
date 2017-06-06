@@ -258,7 +258,7 @@ test_configfile () {
     fi
 
     VERSION=$(git describe --always --dirty --match "v*")
-    P=$(echo $VERSION | awk -F. '{print $3}')
+    P=$(echo $VERSION | awk -F. '{print $NF}')
 
     cd ../$REPO.$BRANCH || return
 
@@ -280,7 +280,7 @@ test_configfile () {
     # we do this here first in case configure/make fail
     VERSION=$(git describe --always --dirty --match "v*")
     V=$(echo $VERSION | awk -F. '{print $1"."$2}' | tr -d v)
-    P="$P & "$(echo $VERSION | awk -F. '{print $3}')
+    P="$P & "$(echo $VERSION | awk -F. '{print $NF}')
 
     # if the directories had been cloned (and presumably tested) before,
     # test the branches only if they differ from the master (no mail sent)
@@ -384,7 +384,9 @@ test_configfile () {
                 continue
             fi
             (cd ../$REPO.$BRANCH && git checkout $commit)
-            if cmake $MY_FLAGS . >/dev/null 2>&1 && $MAKE_cmd >/dev/null 2>&1
+            rm -f CMakeCache.txt 2> /dev/null
+            rm -f CMakeFiles/$CACHEDIR/* 2> /dev/null
+            if cmake $MY_FLAGS ../$REPO.$BRANCH > /dev/null 2>&1 && $MAKE_cmd > /dev/null 2>&1
             then
                 echo ":: good $commit" >> auto.log
             else
@@ -400,7 +402,9 @@ test_configfile () {
                 continue
             fi
             (cd ../$REPO_OPEN.$BRANCH && git checkout $commit)
-            if cmake $MY_FLAGS . >/dev/null 2>&1 && $MAKE_cmd >/dev/null 2>&1
+            rm -f CMakeCache.txt 2> /dev/null
+            rm -f CMakeFiles/$CACHEDIR/* 2> /dev/null
+            if cmake $MY_FLAGS ../$REPO.$BRANCH > /dev/null 2>&1 && $MAKE_cmd > /dev/null 2>&1
             then
                 echo ":: good (open) $commit" >> auto.log
             else
@@ -413,7 +417,9 @@ test_configfile () {
         # remake the original branch to save trouble for manual inspection later
         (cd ../$REPO.$BRANCH && git checkout $BRANCH)
         (cd ../$REPO_OPEN.$BRANCH && git checkout $BRANCH)
-        cmake $MY_FLAGS . >/dev/null 2>&1 && $MAKE_cmd >/dev/null 2>&1
+        rm -f CMakeCache.txt 2> /dev/null
+        rm -f CMakeFiles/$CACHEDIR/* 2> /dev/null
+        cmake $MY_FLAGS ../$REPO.$BRANCH > /dev/null 2>&1 && $MAKE_cmd > /dev/null 2>&1
 
         # end logfiles with the date
         date >> make.log
@@ -480,7 +486,9 @@ test_configfile () {
                 continue
             fi
             (cd ../$REPO.$BRANCH && git checkout $commit)
-            if cmake $MY_FLAGS . >/dev/null 2>&1 && $MAKE_cmd >/dev/null 2>&1 && $DRIVER verify --trap $failed_tests
+            rm -f CMakeCache.txt 2> /dev/null
+            rm -f CMakeFiles/$CACHEDIR/* 2> /dev/null
+            if cmake $MY_FLAGS ../$REPO.$BRANCH > /dev/null 2>&1 && $MAKE_cmd > /dev/null 2>&1 && $DRIVER verify --trap $failed_tests
             then
                 echo ":: good $commit" >> auto.log
             else
@@ -496,7 +504,9 @@ test_configfile () {
                 continue
             fi
             (cd ../$REPO_OPEN.$BRANCH && git checkout $commit)
-            if cmake $MY_FLAGS . >/dev/null 2>&1 && $MAKE_cmd >/dev/null 2>&1 && $DRIVER verify --trap $failed_tests
+            rm -f CMakeCache.txt 2> /dev/null
+            rm -f CMakeFiles/$CACHEDIR/* 2> /dev/null
+            if cmake $MY_FLAGS ../$REPO.$BRANCH > /dev/null 2>&1 && $MAKE_cmd > /dev/null 2>&1 && $DRIVER verify --trap $failed_tests
             then
                 echo ":: good (open) $commit" >> auto.log
             else
@@ -509,7 +519,9 @@ test_configfile () {
         # remake the original branch to save trouble for manual inspection later
         (cd ../$REPO.$BRANCH && git checkout $BRANCH)
         (cd ../$REPO_OPEN.$BRANCH && git checkout $BRANCH)
-        cmake $MY_FLAGS . >/dev/null 2>&1 && $MAKE_cmd >/dev/null 2>&1
+        rm -f CMakeCache.txt 2> /dev/null
+        rm -f CMakeFiles/$CACHEDIR/* 2> /dev/null
+        cmake $MY_FLAGS ../$REPO.$BRANCH > /dev/null 2>&1 && $MAKE_cmd > /dev/null 2>&1
 
     fi
 

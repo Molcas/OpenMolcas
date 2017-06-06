@@ -391,13 +391,13 @@ message ("-- OS: ${OS}")
 
 # address mode
 if (${CMAKE_SIZEOF_VOID_P} EQUAL 8)
-        set (ADRMODE 64)
+        set (ADDRMODE 64)
         add_definitions (-D_I8_)
 else ()
-        set (ADRMODE 32)
+        set (ADDRMODE 32)
 endif ()
 
-message ("-- ADRMODE: ${ADRMODE}")
+message ("-- ADDRMODE: ${ADDRMODE}")
 
 # platform settings
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
@@ -418,9 +418,9 @@ elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
         set (PLATFORM "MacOS")
 elseif (${CMAKE_SYSTEM_NAME} STREQUAL "CYGWIN")
         add_definitions (-D_LINUX_ -D_CYGWIN_)
-        if (ADRMODE EQUAL 32)
+        if (ADDRMODE EQUAL 32)
                 set (PLATFORM "WIN")
-        elseif (ADRMODE EQUAL 64)
+        elseif (ADDRMODE EQUAL 64)
                 set (PLATFORM "WIN64")
         endif ()
 endif ()
@@ -835,7 +835,7 @@ else ()
 endif ()
 set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS_DEFAULT}")
 
-if (ADRMODE EQUAL 64)
+if (ADDRMODE EQUAL 64)
         set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${FFLAGS_${FCID}_ILP64}")
 endif ()
 
@@ -982,7 +982,7 @@ if (LINALG STREQUAL "MKL")
         message ("-- Using Intel Math Kernel Library (MKL)")
 
         # quick bypass for 32bit, don't bother with it (for now?)
-        if (NOT ADRMODE EQUAL "64")
+        if (NOT ADDRMODE EQUAL 64)
                 message (FATAL_ERROR "Use of MKL for 32bit installation not implemented")
         endif ()
 
@@ -1006,9 +1006,9 @@ if (LINALG STREQUAL "MKL")
                 # reset MKL paths
                 set (MKL_INCLUDE_PATH "${MKLROOT}/include" CACHE PATH
                         "location of MKL include files." FORCE)
-                if (ADRMODE EQUAL "64")
+                if (ADDRMODE EQUAL 64)
                         set (libpath "${MKLROOT}/lib/intel64")
-                elseif (ADRMODE EQUAL "32")
+                elseif (ADDRMODE EQUAL 32)
                         set (libpath "${MKLROOT}/lib/ia32")
                 endif ()
                 set (MKL_LIBRARY_PATH ${libpath} CACHE PATH
@@ -1166,7 +1166,7 @@ if (LINALG STREQUAL "OpenBLAS")
                 include(CheckSymbolExists)
                 unset (OPENBLAS_WITH_ILP64 CACHE)
                 check_symbol_exists("OPENBLAS_USE64BITINT" ${OPENBLAS_CONFIG} OPENBLAS_WITH_ILP64)
-                if (ADRMODE EQUAL "64" AND NOT OPENBLAS_WITH_ILP64)
+                if (ADDRMODE EQUAL 64 AND NOT OPENBLAS_WITH_ILP64)
                         message (FATAL_ERROR
                                 "OpenBLAS was not configured for 64-bit integer interface, "
                                 "please build OpenBLAS with INTERFACE64=1 defined."
@@ -1576,7 +1576,7 @@ endif ()
 # NECI Full-CI Quantum Monte-Carlo
 if (NECI)
         message ("Configuring NECI support:")
-        add_definitions (-D_NECI_)
+        list (APPEND rasscf_defs "_NECI_")
         set (proj ${extprojsdir}/NECI)
         set (proj_bin ${PROJECT_BINARY_DIR}/External/NECI)
         if (EXISTS ${proj}/CMakeLists.txt)
@@ -1596,9 +1596,9 @@ if (NECI)
 
                 list (APPEND EXTERNAL_LIBRARIES ${NECI_LIBRARIES})
         else ()
-                add_definitions (-D_EXTNECI_)
+                list (APPEND rasscf_defs "_EXTNECI_")
                 message ("-- internal NECI ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
-                message ("-- An exterally configured NECI can still be used")
+                message ("-- An externally configured NECI can still be used")
                 message ("-- Please use ExNEci command in your molcas input")
         endif ()
 
@@ -1607,32 +1607,24 @@ else ()
 endif ()
 
 # EFP support (effective fragment support)
-#=========================================
 if (EFPLIB)
-
         message ("Configuring EFP support:")
-
         set (proj ${extprojsdir}/efp)
         set (proj_bin ${PROJECT_BINARY_DIR}/External/efp)
         if (EXISTS ${proj}/CMakeLists.txt)
-           add_subdirectory (${proj} ${proj_bin} EXCLUDE_FROM_ALL)
-           set (EFP_LIBRARIES efp)
+                add_subdirectory (${proj} ${proj_bin} EXCLUDE_FROM_ALL)
+                if (ADDRMODE EQUAL 64)
+                        target_compile_definitions(efp PRIVATE "LIBEFP_FORTRAN_INT64")
+                endif ()
+                set (EFP_LIBRARIES efp)
 
-           message ("-- EFP_LIBRARIES: ${EFP_LIBRARIES}")
+                message ("-- EFP_LIBRARIES: ${EFP_LIBRARIES}")
 
-           list (APPEND EXTERNAL_LIBRARIES ${EFP_LIBRARIES})
-
-           foreach (util
-                   gateway_util
-                   integral_util
-                   )
-                   list (APPEND ${util}_defs "_EFP_")
-           endforeach ()
-           add_definitions (-D_EFP_)
+                list (APPEND EXTERNAL_LIBRARIES ${EFP_LIBRARIES})
+                add_definitions (-D_EFP_)
         else()
-           message ("-- EFP interface ignored (source not available, run git submodule update --init ${proj}\")")
+                message ("-- EFP interface ignored (source not available, run git submodule update --init ${proj}\")")
         endif ()
-
 else ()
         message (STATUS "EFP interface DISABLED")
 endif ()
@@ -1724,7 +1716,7 @@ message ("Configuring runtime environment settings:")
 # memory/disk default sizes
 #==========================
 
-if (${ADRMODE} EQUAL "64")
+if (ADDRMODE EQUAL 64)
         set (DEFMOLCASMEM "2048" CACHE STRING "Set default max memory (MB).")
         set (DEFMOLCASDISK "20000" CACHE STRING "Set default max file size (MB).")
 else ()

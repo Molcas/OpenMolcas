@@ -85,8 +85,8 @@
       integer function trailz_(c)
       implicit none
       integer, intent(in) :: c
-#if ( __GNUC__ >= 4 && __GNUC_MINOR__ >= 4 ) || \
-    ( __INTEL_COMPILER >= 1300 )
+#include "compiler_features.h"
+#ifdef TRAILING_ZEROS
       trailz_ = trailz(c)
 #else
       ! simple trailing zero computation, only used when the trailz

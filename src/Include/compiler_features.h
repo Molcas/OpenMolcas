@@ -45,3 +45,21 @@ incomplete.
 #else
 #define POINTER_REMAP
 #endif
+
+/* Parity of the binary representation (poppar) */
+#if ((__GNUC__ && GCC_VERSION < 40600 ) || \
+     ( __INTEL_COMPILER && __INTEL_COMPILER < 1300 ))
+#undef BINARY_PARITY
+#else
+#define BINARY_PARITY
+#endif
+
+/* Trailing zeros in the binary representation (trailz) */
+#if ((__GNUC__ && GCC_VERSION < 40600 ) || \
+     ( __INTEL_COMPILER && __INTEL_COMPILER < 1300 ) || \
+     ( __PGI ))
+#undef TRAILING_ZEROS
+#else
+#define TRAILING_ZEROS
+#endif
+

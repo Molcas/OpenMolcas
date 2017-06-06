@@ -534,6 +534,7 @@
       ! 000101, 1101, 101 (dsa) and as 100111, 010101 (ab)
       ! as usual counting orbitals from the right with bits (lower-most bit)
 
+#include "compiler_features.h"
       use second_quantization
       use faroald
       implicit none
@@ -580,8 +581,7 @@
         if (iand(ishft(detb,-pos),1).eq.1) switch = .not.switch
         pos = pos + 1
       end do
-#if ( __GNUC__ >= 4 && __GNUC_MINOR__ >= 6 ) || \
-    ( __INTEL_COMPILER >= 1300 )
+#ifdef BINARY_PARITY
       phase = 1 - 2 * poppar(iand(deta,mask))
 #else
       ! poppar is an intrinsic to determine the bit parity, but it's only
