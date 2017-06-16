@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Naoki Nakatani                                         *
 ************************************************************************
-#ifdef _ENABLE_BLOCK_DMRG_
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
       Subroutine DMRGCtl(CMO,D,DS,P,PA,FI,D1I,D1A,TUVX,IFINAL,IRst)
 * ***********************************************************
 *
@@ -64,6 +64,7 @@ c     Logical Exist
 #include "casvb.fh"
 #include "wadr.fh"
 #include "rasscf_lucia.fh"
+#include "gas.fh"
 #include "pamint.fh"
       Common /IDSXCI/ IDXCI(mxAct),IDXSX(mxAct)
 *PAM05      SymProd(i,j)=1+iEor(i-1,j-1)
@@ -180,8 +181,14 @@ C Local print level (if any)
                  NACT4=NAC**4
                  Call GetMem('PAtmp','ALLO','REAL',LW9,NACPR2)
                  CALL GETMEM('PTscr','ALLO','REAL',LW10,NACT4)
+#ifdef _ENABLE_BLOCK_DMRG_
                  CALL block_densi_rasscf(IPCMRoot,Work(LW6),Work(LW7),
      &                                   Work(LW8),Work(LW9),Work(LW10))
+#elif _ENABLE_CHEMPS2_DMRG_
+                 CALL chemps2_densi_rasscf(IPCMRoot,Work(LW6),Work(LW7),
+     &                                 Work(LW8),Work(LW9),Work(LW10))
+#endif
+
 * NN.14 NOTE: IFCAS must be 0 for DMRG-CASSCF
 c                If (IFCAS.GT.2) Call CISX(IDXSX,Work(LW6),
 c    &                                     Work(LW7),Work(LW8),
@@ -264,13 +271,20 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
           Call Get_dArray('DFT_TwoEl',Work(ipTmpPUVX),nTmpPUVX)
           Call Get_TUVX(Work(ipTmpPUVX),Work(ipTmpTUVX))
           Call DaXpY_(NACPR2,1.0d0,TUVX,1,Work(ipTmpTUVX),1)
-
+#ifdef _ENABLE_BLOCK_DMRG_
           Call BlockCtl(Work(LW1),Work(ipTmpTUVX),IFINAL,IRst)
+#elif _ENABLE_CHEMPS2_DMRG_
+          Call Chemps2Ctl(Work(LW1),Work(ipTmpTUVX),IFINAL,IRst)
+#endif
 
           Call GetMem('TmpTUVX','Free','Real',ipTmpTUVX,NACPR2)
           Call GetMem('TmpPUVX','Free','Real',ipTmpPUVX,nTmpPUVX)
         Else
+#ifdef _ENABLE_BLOCK_DMRG_
           Call BlockCtl(Work(LW1),TUVX,IFINAL,IRst)
+#elif _ENABLE_CHEMPS2_DMRG_
+          Call Chemps2Ctl(Work(LW1),TUVX,IFINAL,IRst)
+#endif
         End If
       endif
 
@@ -307,8 +321,13 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
         If ( NAC.ge.1 ) Then
           NACT4=NAC**4
           CALL GETMEM('PTscr','ALLO','REAL',LW10,NACT4)
+#ifdef _ENABLE_BLOCK_DMRG_
           CALL block_densi_rasscf(jRoot,Work(LW6),Work(LW7),
      &                            Work(LW8),Work(LW9),Work(LW10))
+#elif _ENABLE_CHEMPS2_DMRG_
+          CALL chemps2_densi_rasscf(jRoot,Work(LW6),Work(LW7),
+     &                              Work(LW8),Work(LW9),Work(LW10))
+#endif
           CALL GETMEM('PTscr','FREE','REAL',LW10,NACT4)
         EndIf
 * Modify the symmetric 2-particle density if only partial

@@ -123,6 +123,17 @@ C   No changing about read in orbital information from INPORB yet.
 
 * NN.14 Block DMRG flag
       DoBlockDMRG = .false.
+#ifdef _ENABLE_CHEMPS2_DMRG_
+! Quan.16: CheMPS2 default flags
+      chemps2_restart=.false.
+      chemps2_lrestart=0
+      davidson_tol = 1.0d-7
+      chemps2_blb = 0.5d-2
+      max_sweep = 8
+      chemps2_noise = 0.05
+      max_canonical = max_sweep*5
+#endif
+
 
 * Orbital-free embedding
       Do_OFemb=.false.
@@ -2441,7 +2452,7 @@ c       write(6,*)          '  --------------------------------------'
        Call SetPos(LUInput,'FCID',Line,iRc)
        Call ChkIfKey()
       End If
-#ifndef _ENABLE_BLOCK_DMRG_
+#if !defined _ENABLE_BLOCK_DMRG_ && !defined _ENABLE_CHEMPS2_DMRG_ 
 *
 * ======================================================================
 *          start of QCMaquis DMRG input section
@@ -2565,7 +2576,7 @@ c       write(6,*)          '  --------------------------------------'
       End If
 *
 *---  Process DMRG command --------------------------------------------*
-#ifdef _ENABLE_BLOCK_DMRG_
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
       If (KeyDMRG) Then
 * NN.14 FIXME: When DMRG option is disabled at compilation,
 *       this should give an error, but just ignored for the time.
@@ -2587,9 +2598,83 @@ c       write(6,*)          '  --------------------------------------'
          Write(6,*) ' 3RDM (Compute 3RDM for DMRG-Cu4-CASPT2)'
        End If
        Do3RDM=.True.
+#ifdef _ENABLE_CHEMPS2_DMRG_
+       iOrbTyp = 2
+       IPT2 = 1
+       Write(6,*)
+     & 'CHEMPS2> 3-RDM and F4-RDM require PseudoCanonical orbitals'
+       Write(6,*) 'CHEMPS2> Automatically set: OUTOrbitals = CANOnical'
+#endif
        Call SetPos(LUInput,'3RDM',Line,iRc)
        Call ChkIfKey()
       End If
+
+#ifdef _ENABLE_CHEMPS2_DMRG_
+*---  Process DAVT command --------------------------------------------*
+      If (KeyDAVT) Then
+       Call SetPos(LUInput,'DAVT',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading data after DAVT keyword.'
+       Read(LUInput,*,End=9910,Err=9920) davidson_tol
+       ReadStatus=' O.K. after reading data after DAVT keyword.'
+       Call ChkIfKey()
+      End If
+*---  Process CHRE command --------------------------------------------*
+      If (KeyCHRE) Then
+       If (DBG) Then
+         Write(6,*) ' Restart in CheMPS2'
+       End If
+       chemps2_restart=.True.
+       Call SetPos(LUInput,'CHRE',Line,iRc)
+       Call ChkIfKey()
+      End If
+*---  Process CHBL command --------------------------------------------*
+      If (KeyCHBL) Then
+       Call SetPos(LUInput,'CHBL',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading data after CHBL keyword.'
+       Read(LUInput,*,End=9910,Err=9920) chemps2_blb
+       ReadStatus=' O.K. after reading data after CHBL keyword.'
+       Call ChkIfKey()
+      End If
+*---  Process MXSW command --------------------------------------------*
+      If (KeyMXSW) Then
+       Call SetPos(LUInput,'MXSW',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading data after MXSW keyword.'
+       Read(LUInput,*,End=9910,Err=9920) max_sweep
+       ReadStatus=' O.K. after reading data after MXSW keyword.'
+       Call ChkIfKey()
+      End If
+*---  Process NOIS command --------------------------------------------*
+      If (KeyNOIS) Then
+       Call SetPos(LUInput,'NOIS',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading data after NOIS keyword.'
+       Read(LUInput,*,End=9910,Err=9920) chemps2_noise
+       ReadStatus=' O.K. after reading data after NOIS keyword.'
+       Call ChkIfKey()
+      End If
+*---  Process DMRE command --------------------------------------------*
+      If (KeyDMRE) Then
+       Call SetPos(LUInput,'DMRE',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading data after DMRE keyword.'
+       Read(LUInput,*,End=9910,Err=9920) chemps2_lrestart
+       ReadStatus=' O.K. after reading data after DMRE keyword.'
+       Call ChkIfKey()
+      End If
+*---  Process MXCA command --------------------------------------------*
+      If (KeyMXCA) Then
+       Call SetPos(LUInput,'MXCA',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading data after MXCA keyword.'
+       Read(LUInput,*,End=9910,Err=9920) max_canonical
+       ReadStatus=' O.K. after reading data after MXCA keyword.'
+       Call ChkIfKey()
+      End If
+#endif
+
 #endif
 *---  All keywords have been processed ------------------------------*
 

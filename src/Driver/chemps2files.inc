@@ -1,4 +1,4 @@
-************************************************************************
+/***********************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -7,20 +7,13 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Real*8 Function OrbPhase(A,nA)
-      Implicit None
-      Integer nA, i
-      Real*8 A(nA)
-*
-      OrbPhase=0.0D0
-      Do i = 1, nA
-         OrbPhase = OrbPhase + A(i)*DBLE(i)
-      End Do
-      If (OrbPhase.lt.0.0D0) Then
-         Call DScal_(nA,-1.0D0,A,1)
-         OrbPhase = -OrbPhase
-      End If
-*
-      Return
-      End
+***********************************************************************/
+#ifndef _CHEMPS2FILES_
+ (file) CHEMLOGT   "$WorkDir/"chemps2.log.total         rwst
+ (file) CHEMNATFIE "$WorkDir/"molcas_natorb_fiedler.txt rwst
+ (file) CHEMCANFIE "$WorkDir/"molcas_canorb_fiedler.txt rwst
+ (file) CHEMFIE     "$WorkDir/"molcas_fiedler.txt       rwpt
+ (file) CHEMNATMPS0 "$WorkDir/"CheMPS2_natorb_MPS0.h5   rws
+ (file) CHEMCANMPS0 "$WorkDir/"CheMPS2_canorb_MPS0.h5   rws
+#define _CHEMPS2FILES_
+#endif

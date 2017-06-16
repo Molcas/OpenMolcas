@@ -32,5 +32,6 @@
  (file) TWORDM2 "$WorkDir/$Project."TwoRDM_abab rw*st
  (file) TWORDM3 "$WorkDir/$Project."TwoRDM_abba rw*st
  (file) NEWCYCLE "$CurrDir/"NEWCYCLE         rw
+#include "chemps2files.inc"
 #include "espffiles.inc"
 #include "geodata.inc"

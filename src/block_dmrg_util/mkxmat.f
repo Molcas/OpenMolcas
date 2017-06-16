@@ -20,7 +20,6 @@
 #include "WrkSpc.fh"
 #include "SysDef.fh"
       DIMENSION TORB(NTORB), XMAT(NASHT,NASHT)
-      DIMENSION UMAT(NASHT,NASHT)
 
       IF(NASHT.GT.0) THEN
         ITOEND=0

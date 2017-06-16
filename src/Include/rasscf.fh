@@ -35,11 +35,17 @@
      &                THREN,THFACT,TMIN,PRETHR,PROTHR,
      &                Tot_Charge,Tot_Nuc_Charge,Tot_El_Charge,
      &                ExFac,VIA_DFT,HALFQ,VIA,HALFQ1,E2act
+#ifdef _ENABLE_CHEMPS2_DMRG_
+     &                ,davidson_tol,chemps2_blb,chemps2_noise
+#endif
       COMMON/RELAUX/  ENER,CONV,FDIAG,THRE,THRTE,THRSX,ROTMAX,
      &                ECAS,CMAX,WEIGHT,DE,CBLBM,
      &                THREN,THFACT,TMIN,PRETHR,PROTHR,
      &                Tot_Charge,Tot_Nuc_Charge,Tot_El_Charge,
      &                ExFac,VIA_DFT,HALFQ,VIA,HALFQ1,E2act
+#ifdef _ENABLE_CHEMPS2_DMRG_
+     &                ,davidson_tol,chemps2_blb,chemps2_noise
+#endif
 *
       INTEGER         LROOTS,ICICH,IDIAG,ICIRST,KAVER,KSYM(4),MAXJT,
      &                IXSYM(mxOrb),IPRSEC(7),MAXORBOUT,
@@ -51,6 +57,9 @@
      &                ISUPSM,IORDEM,IFORDE,IPCMROOT,ICIRFROOT,
      &                iRlxRoot,n_Det,iAlphaBeta,
      &                MxDMRG,INOCALC,ISAVE_EXP,IEXPAND
+#ifdef _ENABLE_CHEMPS2_DMRG_
+     &                ,max_sweep,chemps2_lrestart,max_canonical
+#endif
       COMMON/INTINP/  LROOTS,ICICH,IDIAG,ICIRST,KAVER,KSYM,MAXJT,
      &                IXSYM,IPRSEC,MAXORBOUT,
      &                ICI,JCJ,
@@ -61,16 +70,25 @@
      &                ISUPSM,IORDEM,IFORDE,IPCMROOT,ICIRFROOT,
      &                iRlxRoot,n_Det,iAlphaBeta,
      &                MxDMRG,INOCALC,ISAVE_EXP,IEXPAND
+#ifdef _ENABLE_CHEMPS2_DMRG_
+     &                ,max_sweep,chemps2_lrestart,max_canonical
+#endif
 *
       Logical         RFpert,lSquare, Start_Vectors, NonEq, DoFaro
      &                ,DOFCIDUMP,DoBlockDMRG
-#ifdef _ENABLE_BLOCK_DMRG_
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
      &                , Do3RDM
+#endif
+#ifdef _ENABLE_CHEMPS2_DMRG_
+     &                , chemps2_restart 
 #endif
       COMMON/LOGINP/  RFpert,lSquare, Start_Vectors, NonEq, DoFaro
      &                ,DOFCIDUMP,DoBlockDMRG
-#ifdef _ENABLE_BLOCK_DMRG_
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
      &                , Do3RDM
+#endif
+#ifdef _ENABLE_CHEMPS2_DMRG_
+     &                , chemps2_restart 
 #endif
 *
       REAL*8          PRWTHR,POTNUC,CCI,

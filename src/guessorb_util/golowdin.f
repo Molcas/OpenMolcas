@@ -51,7 +51,7 @@
       Integer npSmat
       Integer irc
       Integer iSymlb
-      Real*8 Temp
+      Real*8 Temp, OrbPhase
       Real*8, Dimension(:), Allocatable :: Ovl, SMat, Vec, Eig
       Real*8, Dimension(:,:), Allocatable :: Tmp
 *----------------------------------------------------------------------*
@@ -99,19 +99,24 @@
             Write(6,*) '*** lowdin: symmetry',iSym
             Write(6,*) '***'
             Write(6,*)
-            Call TriPrt('Overlap matrix','(12f12.6)',
+            Call TriPrt('Overlap matrix','(12f18.12)',
      &                  Ovl(ipOvl(iSym)),nBas(iSym))
          End If
          Call FZero(Vec,nBas(iSym)**2)
          Call DCopy_(nBas(iSym),1.0D0,0,Vec,nBas(iSym)+1)
-         Call NIdiag(Ovl(ipOvl(iSym)),Vec,nBas(iSym),nbas(iSym),0)
+         Call NIdiag_New(Ovl(ipOvl(iSym)),Vec,nBas(iSym),nbas(iSym),0)
+*
+         Do iBas = 1, nBas(iSym)
+            temp=OrbPhase(Vec((iBas-1)*nBas(iSym)+1),nBas(iSym))
+         End Do
+*
          If(Debug) Then
-            Call RecPrt('Transformation','(12f12.6)',
+            Call RecPrt('Transformation','(12f18.12)',
      &                  Vec,nBas(iSym),nBas(iSym))
          End If
          Call goPickUp(Ovl(ipOvl(iSym)),Eig,nBas(iSym))
          If(Debug) Then
-            Call RecPrt('Overlap eigenvalues before sort','(12f12.6)',
+            Call RecPrt('Overlap eigenvalues before sort','(12f18.12)',
      &         Eig,1,nBas(iSym))
          End If
          Do iBas=1,nBas(iSym)
@@ -122,7 +127,7 @@
             Eig(iBas)=-Eig(iBas)
          End Do
          If(Debug) Then
-            Call RecPrt('Overlap eigenvalues after sort','(12f12.6)',
+            Call RecPrt('Overlap eigenvalues after sort','(12f18.12)',
      &         Eig,1,nBas(iSym))
          End If
          nDel(iSym)=0
@@ -155,7 +160,7 @@
             End Do
          End If
          If(Debug) Then
-            Call RecPrt('Symmetric orbitals','(12f12.6)',
+            Call RecPrt('Symmetric orbitals','(12f18.12)',
      &                  CMO(ipCMO),nBas(iSym),nBas(iSym))
          End If
          If(Debug) Then
@@ -172,7 +177,7 @@
                   Tmp(iBas,jBas)=Temp
                End Do
             End Do
-            Call RecPrt('Inverted overlap matrix','(12f12.6)',
+            Call RecPrt('Inverted overlap matrix','(12f18.12)',
      &                  Tmp,nBas(iSym),nBas(iSym))
             Call mma_deallocate(Tmp)
          End If

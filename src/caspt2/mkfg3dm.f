@@ -31,7 +31,7 @@ C However, because this introduces instability of CASPT2 calculation
 C (lots of negative denominators appear), relatively large IPEA and imaginary shifts
 C are required to converge CASPT2 iteration.
 C
-#ifdef _ENABLE_BLOCK_DMRG_
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
       SUBROUTINE MKFG3DM(IFF,G1,F1,G2,F2,G3,F3,idxG3)
       IMPLICIT NONE
 #include "rasdim.fh"
@@ -74,7 +74,9 @@ C
 *     INTEGER L1,LTO,LFROM
       INTEGER MEMMAX, MEMMAX_SAFE
       INTEGER NLEV2
+#ifdef _ENABLE_BLOCK_DMRG_
       INTEGER NLEV4,LG3TMP
+#endif
       INTEGER LDUM,NDUM
       INTEGER NCI
 *     INTEGER ICSF
@@ -527,6 +529,7 @@ C  only for the G1 and G2 replicate arrays
       CALL GADSUM(F1,NG1)
       CALL GADSUM(F2,NG2)
 
+#ifdef _ENABLE_BLOCK_DMRG_
       NLEV4=NLEV2**2
 C
 C allocate work space to store 3RDM
@@ -540,6 +543,11 @@ C MKFG3CU4 is located under block_dmrg_util/
       Call MKFG3CU4(IFF,G1,F1,G2,F2,G3,F3,idxG3,Work(LG3TMP))
 C
       Call GETMEM('G3TMP','FREE','REAL',LG3TMP,NLEV4)
+#endif
+
+#ifdef _ENABLE_CHEMPS2_DMRG_
+      Call mkfg3chemps2(IFF,G1,F1,G2,F2,G3,F3,idxG3)
+#endif
 
       IF(iPrGlb.GE.DEBUG) THEN
 CSVC: if running parallel, G3/F3 are spread over processes,

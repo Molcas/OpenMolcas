@@ -93,7 +93,7 @@
 * Then we still need the "CI array": It is used in subroutine calls
          WORK(LCI)=1.0D0
         ELSE IF(DoCumulant) THEN
-          write(6,*) 'BAD'
+*          write(6,*) 'Cumulant approximated 4RDM'
          WORK(LCI)=0.0D0
         ELSE
 * Get the CI array:

@@ -2457,34 +2457,6 @@ c       write(6,*)          '  --------------------------------------'
        Call SetPos_m(LUInput,'EXPA',Line,iRc)
        Call ChkIfKey_m()
       End If
-*
-*---  Process DMRG command --------------------------------------------*
-#ifdef _ENABLE_BLOCK_DMRG_
-      If (KeyDMRG) Then
-* NN.14 FIXME: When DMRG option is disabled at compilation,
-*       this should give an error, but just ignored for the time.
-       If (DBG) Then
-         Write(6,*) ' DMRG (Use DMRG algorithm instead of FCI)'
-       End If
-       Call SetPos_m(LUInput,'DMRG',Line,iRc)
-       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-       ReadStatus=' Failure reading data after DMRG keyword.'
-       Read(LUInput,*,End=9910,Err=9920) MxDMRG
-       ReadStatus=' O.K. after reading data after DMRG keyword.'
-       If (DBG) Write(6,*) ' Nr. of states=',MxDMRG
-       DoDMRG=.True.
-       Call ChkIfKey_m()
-      End If
-*---  Process 3RDM command --------------------------------------------*
-      If (Key3RDM) Then
-       If (DBG) Then
-         Write(6,*) ' 3RDM (Compute 3RDM for DMRG-Cu4-CASPT2)'
-       End If
-       Do3RDM=.True.
-       Call SetPos_m(LUInput,'3RDM',Line,iRc)
-       Call ChkIfKey_m()
-      End If
-#endif
 *---  All keywords have been processed ------------------------------*
 
 ************************************************************************

@@ -708,7 +708,7 @@ c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
 *
         Call Timing(Swatch,Swatch,Zenith_1,Swatch)
 
-#ifdef _ENABLE_BLOCK_DMRG_
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
             If(DoBlockDMRG) Then
               CALL DMRGCTL(WORK(LCMO),
      &                 WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
@@ -775,7 +775,7 @@ c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
         end if
 #endif
 
-#ifdef _ENABLE_BLOCK_DMRG_
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
             End If
 #endif
         If ( IPRLEV.ge.DEBUG ) then
@@ -1006,7 +1006,7 @@ c      end if
          End If
 
         Call Timing(Swatch,Swatch,Zenith_1,Swatch)
-#ifdef _ENABLE_BLOCK_DMRG_
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
         If(DoBlockDMRG) Then
           CALL DMRGCTL(WORK(LCMO),
      &           WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
@@ -1042,7 +1042,7 @@ c      end if
 #ifdef _NECI_
       end if
 #endif
-#ifdef _ENABLE_BLOCK_DMRG_
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
       End If
 #endif
 c      call triprt('twxy',' ',WORK(LTUVX),nAc*(nAc+1)/2)
@@ -1636,7 +1636,7 @@ c Clean-close as much as you can the CASDFT stuff...
 *
       Call Timing(Swatch,Swatch,Zenith_1,Swatch)
 
-#ifdef _ENABLE_BLOCK_DMRG_
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
       If(DoBlockDMRG) Then
         CALL DMRGCTL(WORK(LCMO),
      &           WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
@@ -1659,7 +1659,7 @@ c Clean-close as much as you can the CASDFT stuff...
 #ifdef _NECI_
       end if
 #endif
-#ifdef _ENABLE_BLOCK_DMRG_
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
       End If
 #endif
 ! Now disable it at least for DMRG

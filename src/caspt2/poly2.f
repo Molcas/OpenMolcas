@@ -33,7 +33,12 @@ C DENSITY MATRICES FOR A CASSCF WAVE FUNCTION.
       INTEGER LSGM1,LSGM2,LG1TMP,LG2TMP
 
       INTEGER I
+      REAL*8, EXTERNAL :: DDOT_,DNRM2_
 
+
+#ifdef _ENABLE_CHEMPS2_DMRG_
+      INTEGER NAC4
+#endif
       CALL QENTER('POLY2')
 
       IF(NLEV.GT.0) THEN
@@ -42,7 +47,7 @@ C DENSITY MATRICES FOR A CASSCF WAVE FUNCTION.
         CALL GETMEM('LSGM2','ALLO','REAL',LSGM2 ,MXCI)
         CALL GETMEM('LG1TMP','ALLO','REAL',LG1TMP,NG1)
         CALL GETMEM('LG2TMP','ALLO','REAL',LG2TMP,NG2)
-#ifdef _ENABLE_BLOCK_DMRG_
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
         IF(.Not.DoCumulant) THEN
 #endif
           CALL DENS2_RPT2(CI,WORK(LSGM1),WORK(LSGM2),
@@ -55,6 +60,20 @@ C DENSITY MATRICES FOR A CASSCF WAVE FUNCTION.
 * this is located under block_dmrg_util/
 * compute 1PDM from 2PDM
           CALL TWO2ONERDM(NASHT,NACTEL,WORK(LG2TMP),WORK(LG1TMP))
+        END IF
+#elif _ENABLE_CHEMPS2_DMRG_
+        ELSE
+          NAC4 = NLEV * NLEV * NLEV * NLEV
+          CALL chemps2_load2pdm( NASHT, WORK( LG2TMP ), MSTATE(JSTATE) )
+          CALL TWO2ONERDM_BIS(NASHT,NACTEL,WORK(LG2TMP),WORK(LG1TMP))
+          IF(iPrGlb.GE.DEBUG) THEN
+            WRITE(6,'("DEBUG> ",A)')
+     &        "CHEMPS2: norms of the density matrices:"
+            WRITE(6,'("DEBUG> ",A,1X,ES21.14)') "G1:"
+     &          , DNRM2_(NG1,WORK(LG1TMP),1)
+            WRITE(6,'("DEBUG> ",A,1X,ES21.14)') "G2:"
+     &          , DNRM2_(NG2,WORK(LG2TMP),1)
+          ENDIF
         END IF
 #endif
       END IF

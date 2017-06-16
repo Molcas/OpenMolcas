@@ -7,20 +7,24 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2014, Naoki Nakatani                                   *
 ************************************************************************
-      Real*8 Function OrbPhase(A,nA)
-      Implicit None
-      Integer nA, i
-      Real*8 A(nA)
-*
-      OrbPhase=0.0D0
-      Do i = 1, nA
-         OrbPhase = OrbPhase + A(i)*DBLE(i)
+      SUBROUTINE TWO2ONERDM_BIS(NA,NE,G2,G1)
+      IMPLICIT REAL*8 (A-H,O-Z)
+* Compute 1-RDM from 2-RDM
+* Written by N. Nakatani, Oct. 2014
+      DIMENSION G2(NA,NA,NA,NA), G1(NA,NA)
+
+      Do I=1,NA
+        Do J=1,NA
+          G1TMP=0.0D0
+          Do K=1,NA
+            G1TMP=G1TMP+G2(K,K,J,I)
+          End Do
+          G1(J,I)=G1TMP/(NE-1)
+        End Do
       End Do
-      If (OrbPhase.lt.0.0D0) Then
-         Call DScal_(nA,-1.0D0,A,1)
-         OrbPhase = -OrbPhase
-      End If
-*
-      Return
-      End
+
+      RETURN
+      END

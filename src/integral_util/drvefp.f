@@ -21,7 +21,7 @@
       Type(c_ptr) :: cptr1
       integer(c_int) :: irc
       Character(kind=c_char):: Name*180, PATH*180
-      Integer(c_int) :: Molcas_ELECTRON_DENSITY_FIELD_FN 
+      Integer(c_int) :: Molcas_ELECTRON_DENSITY_FIELD_FN
       Integer(c_size_t) :: frag_idx
       Integer(c_size_t), Target :: n_atoms
 #define _DEBUG_
@@ -87,7 +87,7 @@
             Path=Path(1:iLast-1)//Name
             iLast= Index(Path,' ')
             Path=Path(1:iLast-1)//'.efp'//CHAR(0)
-*           
+*
             irc = EFP_ADD_POTENTIAL(EFP_Instance,Path)
             If (irc.ne.0) Then
                Write (6,*) 'EFP potential file error.'
@@ -163,7 +163,7 @@
 *        Pick up the fragment coordinates and charges
 *
 *         irc=EFP_GET_FRAG_ATOMS(EFP_Instance,...
-* 
+*
       End Do
 #else
 *     Dummy routine

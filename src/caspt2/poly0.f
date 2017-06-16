@@ -28,7 +28,9 @@
 #include "SysDef.fh"
 
       INTEGER I,IT,ITABS,ILEV,ISYM
-
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
+      INTEGER IQ
+#endif
       CALL QENTER('POLY0')
 
       NLEV=NASHT
@@ -39,6 +41,15 @@ C first by RAS type, then by symmetry.
       DO ISYM=1,NSYM
         DO IT=1,NASH(ISYM)
           ITABS=ITABS+1
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
+! Quan: Bug in LEVEL(ITABS) and L2ACT
+          if (DoCumulant) then
+             do iq=1,NLEV
+               LEVEL(iq)=iq
+               L2ACT(iq)=iq
+             enddo
+          endif
+#endif
           ILEV=LEVEL(ITABS)
           ISM(ILEV)=ISYM
         END DO

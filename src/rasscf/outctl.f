@@ -165,7 +165,7 @@ C Local print level (if any)
       Call CollapseOutput(0,'Orbital specifications:')
       Write(LF,*)
 
-#ifdef _ENABLE_BLOCK_DMRG_
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
       If(.Not.DoBlockDMRG) GoTo 113
 
       Line=''
@@ -177,6 +177,27 @@ C Local print level (if any)
      &                           MxDMRG
       Write(LF,Fmt2//'A,T45,I6)')'Number of root(s) required',
      &                           NROOTS
+#ifdef _ENABLE_CHEMPS2_DMRG_
+      Write(LF,Fmt2//'A,T45,I6)')'Maximum number of sweeps',
+     &                           max_sweep
+      Write(LF,Fmt2//'A,T45,I6)')'Maximum number of sweeps in RDM',
+     &                           max_canonical
+      Write(LF,Fmt2//'A,T45,E10.3)')'Threshold for restarting',
+     &                           chemps2_blb
+      Write(LF,Fmt2//'A,T45,E10.3)')'Minimum Davidson tolerance',
+     &                           davidson_tol
+      Write(LF,Fmt2//'A,T45,E10.3)')'DMRG convergence threshold',
+     &                           THRE/2.0
+      Write(LF,Fmt2//'A,T45,E10.3)')'Noise prefactor',
+     &                           chemps2_noise
+      Write(LF,Fmt2//'A,T45,L6)')'Restart from previous calculation',
+     &                           chemps2_restart
+      Write(LF,Fmt2//'A,T45,L6)')'Calculate 3-RDM and F.4-RDM',
+     &                           Do3RDM
+      Write(LF,Fmt2//'A,T45,I6)')'Restart scheme in 3-RDM and F.4-RDM',
+     &                           chemps2_lrestart
+#endif
+
 * NN.14 FIXME: haven't yet checked whether geometry opt. works correctly with DMRG
       Write(LF,Fmt2//'A,T45,I6)')'Root chosen for geometry opt.',
      &                           IRLXROOT
@@ -296,7 +317,7 @@ C Local print level (if any)
       If (KSDFT.ne.'SCF'.and.KSDFT.ne.'PAM') Call Print_NQ_Info(iSpin)
       Call CollapseOutput(0,'CI expansion specifications:')
 
-#ifdef _ENABLE_BLOCK_DMRG_
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
  114  Continue
 #endif
 

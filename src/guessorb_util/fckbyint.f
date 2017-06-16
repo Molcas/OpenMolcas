@@ -93,6 +93,7 @@
       iReturncode=0
       Call getenvf('MOLCAS_TEST',Line)
       Verify = LINE(1:5).EQ.'CHECK' .or. LINE(1:4).EQ.'GENE'
+      Verify = .True.
 *----------------------------------------------------------------------*
 * Do some counting                                                     *
 *----------------------------------------------------------------------*
@@ -126,7 +127,9 @@
       If(Debug) Then
          ij=1
          Do iSym=1,nSym
-            Call TriPrt('FckInt','(12f12.6)',Fck(ij),nBas(iSym))
+*           Call TriPrt('FckInt','(12f12.6)',Fck(ij),nBas(iSym))
+            Call NrmClc(Fck(ij),nBas(iSym)*(nBas(iSym)+1)/2,'FckbyInt',
+     &                  'Fck(ij)')
             ij=ij+nBas(iSym)*(nBas(iSym)+1)/2
          End Do
       End If
@@ -140,7 +143,8 @@
          ij=1
          Do iSym=1,nSym
             nB=nBas(iSym)
-            Call RecPrt('CMO','(12f12.6)',CMO(ij),nB,nB)
+*           Call RecPrt('CMO','(12f12.6)',CMO(ij),nB,nB)
+            Call NrmClC(CMO(ij),nB**2,'FckbyInt','CMO(ij)')
             ij=ij+nB*nB
          End Do
       End If
@@ -154,7 +158,9 @@
       If(Debug) Then
          ipT1=1
          Do iSym=1,nSym
-            Call TriPrt('Ovlp','(12f12.6)',Ovl(ipT1),nBas(iSym))
+*           Call TriPrt('Ovlp','(12f12.6)',Ovl(ipT1),nBas(iSym))
+            Call NrmClc(Ovl(ipT1),nBas(iSym)*(nBas(iSym)+1)/2,
+     &                  'FckbyInt','Ovl(ipT1)')
             ipT1=ipT1+nBas(iSym)*(nBas(iSym)+1)/2
          End Do
       End If
@@ -184,8 +190,9 @@
      &                T3,1,nB,
      &                Fck(ijT), nB,nB)
             If(Debug) Then
-               Call TriPrt('Fock matrix with metric','(12f12.6)',
-     &                     Fck(ijT),nB)
+*              Call TriPrt('Fock matrix with metric','(12f12.6)',
+*    &                     Fck(ijT),nB)
+               Call NrmClc(Fck(ijT),nB*(nB+1)/2,'FckbyInt','Fck(ijT)')
             End If
          End If
          ijT=ijT+nB*(nB+1)/2
@@ -223,7 +230,8 @@
      &                T2,1,nB,
      &                T3, nS,nB)
             If(Debug) Then
-               Call TriPrt('Transformed Fock matrix','(12f12.6)',T3,nB)
+*              Call TriPrt('Transformed Fock matrix','(12f12.6)',T3,nB)
+               Call NrmClc(T3,nB*(nB+1)/2,'FckbyInt','Transformed Fck')
             End If
             Call NIdiag(T3,CMO(ijS),nS,nB,0)
             Call goPickup(T3,Eps(ijL),nS)
@@ -237,6 +245,15 @@
          ijS=ijS+nB*nB
          ijL=ijL+nB
       End Do
+      If (Debug) Then
+         ij=1
+         Do iSym=1,nSym
+            nB=nBas(iSym)
+*           Call RecPrt('CMO','(12f12.6)',CMO(ij),nB,nB)
+            Call NrmClC(CMO(ij),nB**2,'FckbyInt','CMO(ij)')
+            ij=ij+nB*nB
+         End Do
+      End If
       Call mma_deallocate(T3)
       Call mma_deallocate(T2)
       Call mma_deallocate(T1)

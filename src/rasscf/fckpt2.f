@@ -33,10 +33,16 @@
 
       IMPLICIT REAL*8 (A-H,O-Z)
 
+#ifdef _ENABLE_CHEMPS2_DMRG_
+      Integer iChMolpro(8)
+#endif
+
+
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
+#include "WrkSpc.fh"
       Parameter (ROUTINE='FCKPT2  ')
 
       DIMENSION CMOO(*),CMON(*),FI(*),FP(*),FTR(*),VEC(*),
@@ -53,6 +59,42 @@
       ISTMO1=1
       ISTFCK=0
       ID=0
+
+#ifdef _ENABLE_CHEMPS2_DMRG_
+      ifock=1
+      norbtot = 0
+      do iiash=1,nsym
+        norbtot = norbtot + nAsh(iiash)
+      enddo
+
+* Get character table to convert MOLPRO symmetry format
+      Call MOLPRO_ChTab_BIS(nSym,Label,iChMolpro)
+
+* Convert orbital symmetry into MOLPRO format
+      Call Getmem('OrbSym','Allo','Inte',lOrbSym,NAC)
+      iOrb=1
+      Do iSym=1,nSym
+        Do jOrb=1,NASH(iSym)
+          iWork(lOrbSym+iOrb-1)=iChMolpro(iSym)
+          iOrb=iOrb+1
+        End Do
+      End Do
+      lSymMolpro=iChMolpro(lSym)
+
+      LuFCK=isFreeUnit(27)
+*      open ( unit = LuFCK, file = "FOCK_CHEMPS2",
+*     &        action="write", status="replace" )
+      call molcas_open(LuFCK,'FOCK_CHEMPS2')
+      write(LuFCK,'(1X,A12,I2,A1)') '&FOCK NACT= ', norbtot,','
+      write(LuFCK,'(2X,A7)',ADVANCE = "NO") 'ORBSYM='
+      do iOrb=1,norbtot
+        write(LuFCK,'(I1,A1)',ADVANCE = "NO") iWork(lOrbSym+iOrb-1),','
+      enddo
+      write(LuFCK,*)
+      write(LuFCK,*) '/'
+      Call Getmem('OrbSym','Free','Inte',lOrbSym,NAC)
+#endif
+
       DO ISYM=1,NSYM
        NBF=NBAS(ISYM)
        NFO=NFRO(ISYM)
@@ -188,6 +230,15 @@
         ENDIF
         CALL DGEADD(CMOX(1+NOT*NIO+NIO),NOT,'N',
      *              VEC,NAO,'N',CMOX(1+NOT*NIO+NIO),NOT,NAO,NAO)
+
+#ifdef _ENABLE_CHEMPS2_DMRG_
+        II=0
+        NO1=IB+NFO+NIO
+        DO NT=1,NAO
+          write(LuFCK,'(1X,E23.16E2,I4,I4)') FDIAG(NO1+NT), ifock, ifock
+          ifock = ifock + 1
+        END DO
+#endif
        ENDIF
 *
 ************************************************************************
@@ -325,6 +376,10 @@
        ID=ID+(NAO**2+NAO)/2
       END DO
 *
+#ifdef _ENABLE_CHEMPS2_DMRG_
+*      close(27)
+      close(LuFCK)
+#endif
       IF(IPRLEV.GE.VERBOSE) THEN
        Write(LF,*)' Diagonal elements of the Fock matrix in FCKPT2:'
        Write(LF,'(1X,10F11.6)') (FDIAG(I),I=1,NTOT)

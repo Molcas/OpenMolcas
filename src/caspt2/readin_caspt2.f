@@ -206,6 +206,10 @@ C is nSym, as some input lines assume knowledge of the number of irreps.
       Integer :: iSplit, iError
 
       logical, external :: next_non_comment
+#ifdef _ENABLE_CHEMPS2_DMRG_
+      logical :: dochemps2 = .false.
+#endif
+
 
       CALL QENTER('READIN')
 *
@@ -548,8 +552,20 @@ C as if the values were read directly from the file.
       Case('RHSD')
       Input % RHSD = .True.
 
+#ifdef _ENABLE_BLOCK_DMRG_
       Case('CUMU')
       Input % DoCumulant = .True.
+#elif _ENABLE_CHEMPS2_DMRG_
+      Case('CHEM')
+!Quan: Using the same variable DoCumulant in Block
+      Input % DoCumulant = .True.
+      dochemps2 = .True.
+!      if (nStates.GT.1) then
+!       write(6,*) 'CHEMPS2> Only State Specific calculation supported'
+!Quan: FIXME: nStates not defined
+!       Call Quit_OnUserError
+!      endif
+#endif
 
       Case('EFFE')
       Input % JMS = .True.
@@ -613,6 +629,14 @@ C as if the values were read directly from the file.
 
 9000  CONTINUE
       CALL QEXIT('Readin_CASPT2')
+
+#ifdef _ENABLE_CHEMPS2_DMRG_
+! Check if nState>1
+      if ((dochemps2.EQV..True.) .and. (nStates.GT.1)) then
+        write(6,*) 'CHEMPS2> Only State Specific calculation supported'
+        Call Quit_OnUserError()
+      endif
+#endif
 
 *---  Normal exit
       Return

@@ -102,6 +102,7 @@ option (NVBLAS "Enable NVidia BLAS library." OFF)
 option (FDE "Enable Frozen-density-embedding (FDE) interface." OFF)
 option (GROMACS "Compile Gromacs interface." OFF)
 option (BLOCK "Activate BLOCK-DMRG support." OFF)
+option (CHEMPS2 "Activate CheMPS2-DMRG support." OFF)
 
 option (GPERFTOOLS "Activate gperftools CPU profiling." OFF)
 option (GCOV "Activate code coverage profiling (use with Debug/-O0)." OFF)
@@ -1381,6 +1382,7 @@ endif ()
 
 # Chan group's DMRG (Block code) support
 #=======================================
+
 if (BLOCK)
         mark_as_advanced(CLEAR BLOCK_DIR)
 
@@ -1394,7 +1396,12 @@ if (BLOCK)
         endif ()
 
         if (EXISTS ${BLOCK_DIR}/libqcdmrg.so)
-                add_definitions (-D_ENABLE_BLOCK_DMRG_)
+                foreach (prog
+                        caspt2
+                        rasscf
+                        )
+                        list (APPEND ${prog}_defs "_ENABLE_BLOCK_DMRG_")
+                endforeach ()
 
                 link_directories (${BLOCK_DIR})
                 add_library (block_dmrg_lib_name SHARED IMPORTED)
@@ -1402,15 +1409,62 @@ if (BLOCK)
 
                 message ("-- BLOCK_DIR: ${BLOCK_DIR}")
 
-                list (APPEND utils block_dmrg_util)
                 list (APPEND EXTERNAL_LIBRARIES block_dmrg_lib_name)
         else ()
+                set (BLOCK OFF)
                 message ("-- BLOCK interface ignored (no BLOCK installation found at ${BLOCK_DIR})")
                 message (STATUS "BLOCK interface DISABLED")
         endif ()
 else ()
         mark_as_advanced(FORCE BLOCK_DIR)
         message (STATUS "BLOCK interface DISABLED")
+endif ()
+
+# S.Wouters' DMRG (CheMPS2 code) support
+#=======================================
+
+if (CHEMPS2)
+        mark_as_advanced(CLEAR CHEMPS2_DIR)
+
+        message ("Configuring CheMPS2-DMRG support:")
+
+        # suppose CheMPS2 has been installed at ${CHEMPS2_DIR} for the time.
+        set (CHEMPS2_DIR ${CHEMPS2_DIR} CACHE PATH "CheMPS2 installation path." FORCE)
+        if ("${CHEMPS2_DIR}" STREQUAL "")
+                message (FATAL_ERROR "You must supply a path for CHEMPS2_DIR.")
+        endif ()
+        
+        if (NOT HDF5)
+                message (FATAL_ERROR "CheMPS2 interface requires enabling HDF5 with --enable-fortran2003.")
+        endif ()
+                    
+        find_library(HDF5_Fortran_LIBRARIES hdf5_fortran)
+        if (HDF5_Fortran_LIBRARIES)
+                message ("-- HDF5_Fortran_LIBRARIES: ${HDF5_Fortran_LIBRARIES}")
+                list (APPEND EXTERNAL_LIBRARIES ${HDF5_Fortran_LIBRARIES})
+        else ()
+                message (FATAL_ERROR "CheMPS2 interface require HDF5 with fortran 2003 support")
+        endif ()
+
+        if (EXISTS ${CHEMPS2_DIR}/chemps2)
+                foreach (prog
+                        caspt2
+                        rasscf
+                        )
+                        list (APPEND ${prog}_defs "_ENABLE_CHEMPS2_DMRG_")
+                endforeach ()
+                message ("-- CHEMPS2_DIR: ${CHEMPS2_DIR}")
+        else ()
+                message (FATAL ERROR "No CheMPS2 installation found at ${CheMPS2_DIR}")
+        endif ()
+
+else ()
+        mark_as_advanced(FORCE CHEMPS2_DIR)
+        message (STATUS "CHEMPS2 interface DISABLED")
+endif ()
+
+if (BLOCK AND CHEMPS2)
+        message (FATAL_ERROR "BLOCK and CHEMPS2 options are not compatible.")
 endif ()
 
 # GPerfTools: CPU profiling
@@ -1629,7 +1683,6 @@ else ()
         message (STATUS "EFP interface DISABLED")
 endif ()
 
-
 # GEN1INT interface
 if (GEN1INT)
         message ("Configuring GEN1INT support:")
@@ -1831,6 +1884,7 @@ list (REMOVE_DUPLICATES progs)
 list (REMOVE_ITEM utils
         blas_util
         block_dmrg_util
+        chemps2_util
         delayed_util
         dga_util
         embedding_util
@@ -1938,6 +1992,30 @@ if (MSYM AND MSYM_FOUND)
         endif ()
         list (APPEND ${util}_incs ${MSYM_INCLUDE})
         list (APPEND progs symmetrize)
+endif ()
+
+if (BLOCK)
+        message(">>> Enabling BLOCK")
+        set (util block_dmrg_util)
+        find_source(${util})
+        if (DEFINED ${util}_src)
+                list (APPEND utils ${util})
+                list (APPEND ${util}_defs "_ENABLE_BLOCK_DMRG_")
+        else ()
+                message (FATAL_ERROR "\"${util}\" not found in source directories")
+        endif ()
+endif ()
+
+if (CHEMPS2)
+        set (util chemps2_util)
+        find_source(${util})
+        if (DEFINED ${util}_src)
+                list (APPEND utils ${util})
+                list (APPEND ${util}_incs ${HDF5_INCLUDE_DIRS})
+                list (APPEND ${util}_defs "_ENABLE_CHEMPS2_DMRG_")
+        else ()
+                message (FATAL_ERROR "\"${util}\" not found in source directories")
+        endif ()
 endif ()
 
 # activate libwfa support
@@ -2364,6 +2442,7 @@ file (GENERATE OUTPUT ${PROJECT_BINARY_DIR}/data/rysrw        INPUT ${OPENMOLCAS
 file (GENERATE OUTPUT ${PROJECT_BINARY_DIR}/data/abdata       INPUT ${OPENMOLCAS_DIR}/data/abdata.ascii)
 file (GENERATE OUTPUT ${PROJECT_BINARY_DIR}/data/banner.txt   INPUT ${OPENMOLCAS_DIR}/data/banner.src  )
 file (GENERATE OUTPUT ${PROJECT_BINARY_DIR}/data/modalias.txt INPUT ${OPENMOLCAS_DIR}/data/modalias.src)
+file (COPY ${OPENMOLCAS_DIR}/data/inputs.tpl DESTINATION ${PROJECT_BINARY_DIR}/data)
 if (DEFINED EXTRA_DIR)
         foreach (f alias.plx auto.prgm landing.txt)
                 file (COPY ${EXTRA_DIR}/data/${f} DESTINATION ${PROJECT_BINARY_DIR}/data)

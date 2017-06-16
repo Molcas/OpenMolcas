@@ -225,7 +225,7 @@ C     #orbitals per symmetry
 
 C Finally, loop again over symmetries, transforming the CI:
       IF(ISCF.EQ.0) THEN
-#ifdef _ENABLE_BLOCK_DMRG_
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
         IF(.NOT.DoCumulant) THEN
 #endif
           CALL GETMEM('LCI3','ALLO','REAL',LCI,NCONF)
@@ -285,6 +285,11 @@ C Finally, loop again over symmetries, transforming the CI:
           CALL block_tran3pdm(NASHT,WORK(LXMAT),JSTATE,JSTATE)
 
           CALL GETMEM('XMAT','FREE','REAL',LXMAT,NXMAT)
+        END IF
+#elif _ENABLE_CHEMPS2_DMRG_
+        ELSE
+          write(6,*) 'CHEMPS2> MKRPTORB assumes
+     & PSEUDOCANONICAL orbitals!'
         END IF
 #endif
       END IF
