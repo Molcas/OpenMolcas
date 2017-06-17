@@ -67,6 +67,7 @@ GetOptions ( \%opt,
              "failed",
              "flatlist",
              "generate",
+             "grouplist",
              "keep",
              "list",
              "module=s",
@@ -347,6 +348,9 @@ if      ($opt{rawlist}) {
         }
         msg_nl (@test_list);
         exit 0;
+} elsif ($opt{grouplist}) {
+        list_groups ();
+        exit 0;
 } elsif ($opt{list}) {
         msg ("matching tests:\n");
         my %test_list;
@@ -460,11 +464,23 @@ print TIMING $header;
 # loop over tests and run verification
 #-------------------------------------
 
+# groups belonging to basic
+my %basic;
+my @basic_list = vgroup_to_groups('.basic');
+foreach my $group (@basic_list) {
+        $basic{$group} = 1;
+}
 # groups belonging to critical
 my %critical;
 my @critical_list = vgroup_to_groups('.critical');
 foreach my $group (@critical_list) {
         $critical{$group} = 1;
+}
+# groups belonging to default
+my %default;
+my @default_list = vgroup_to_groups('.default');
+foreach my $group (@default_list) {
+        $default{$group} = 1;
 }
 # counters
 my $failed_tests = 0;
@@ -496,6 +512,10 @@ foreach my $file (@filelist) {
         my $err = File::Spec->catfile ($tmpdir, $project . '.err');
         my $status = File::Spec->catfile ($tmpdir, $project . '.status');
         my $pc = int((++$index) / $n_tests * 100);
+        my $mark = ' ';
+        $mark = '-' if $default{$group};
+        $mark = '+' if $critical{$group};
+        $mark = '*' if $basic{$group};
         #----------------------------
         # set up the work environment
         #----------------------------
@@ -593,7 +613,7 @@ foreach my $file (@filelist) {
                                 print FAILED_LIST "$file\n";
                         }
                 } else {
-                        print RESULT "$group:$name OK\n";
+                        print RESULT "$mark$group:$name OK\n";
                         msg_overwrite ('', $prompt) if ($interactive);
                         if ($opt{generate}) {
                                 my $rc=system("$MOLCAS_DRIVER", "updatetest.plx", $file, File::Spec->catfile ($workdir, 'checkfile'));
@@ -683,7 +703,7 @@ sub short_help {
         # %help
         print <<"EOF";
 
-$DRIVER_base verify [--keep|-k] [--debug|-d] [--list|-l] [--generate|-g] [task]
+$DRIVER_base verify [--keep|-k] [--debug|-d] [--list|-l] [--generate] [task]
 
 where: task is a group name (standard, performance, benchmark,
 purgatory, failed) followed by colon and then a comma-separated
@@ -716,6 +736,7 @@ options:
   --failed         rerun tests that failed the last time
   --flatlist       only list matching tests (as a flat list of tasks)
   --generate       generate checkfile and append to input
+  --grouplist      list the groups (see below)
   --keep           keep the work directory after running a test
   --list           only list matching tests
   --module MODULE  filter test files containing MODULE
@@ -768,6 +789,7 @@ task:
     benchmark
     grayzone
   a group (virtual), specified by name:
+    .basic
     .default
     .critical
     .all
@@ -855,6 +877,47 @@ sub error {
 # helper subroutines to deal with the group subdirectories
 #---------------------------------------------------------
 
+sub list_groups {
+        my %groups;
+        my %vgroups;
+        foreach my $TESTDIR (@TESTDIRS) {
+                if (opendir (DIR, $TESTDIR)) {
+                        my @subdir_names = grep {-d "$TESTDIR/$_" && ! /^\./ && ! /^(log|failed|tmp)$/} readdir (DIR);
+                        closedir (DIR);
+                        foreach my $dir (@subdir_names) {
+                                if ($groups{$dir}) {
+                                        warning ("duplicate directory \"$dir\" at $TESTDIR will be ignored\n");
+                                        next;
+                                }
+                                $groups{$dir} = "$TESTDIR/$dir";
+                                if (opendir (DIR, "$TESTDIR/$dir")) {
+                                        my @dotfiles = grep {-f "$TESTDIR/$dir/$_" && /^\./} readdir (DIR);
+                                        closedir (DIR);
+                                        $vgroups{$_} = 1 foreach @dotfiles;
+                                }
+                        }
+                }
+        }
+        my $maxlength = 0;
+        $vgroups{'.everything'} = 1;
+        for (keys %groups) {
+                $maxlength = length if (length > $maxlength);
+        }
+        for (keys %vgroups) {
+                $maxlength = length if (length > $maxlength);
+        }
+        print "\nPhysical groups (directories)\n\n";
+        foreach my $key (sort by_standard_first keys %groups) {
+                my @group = vgroup_to_groups($key);
+                printf ("  %-${maxlength}s = %s\n", $key, $location{$key});
+        }
+        print "\nVirtual groups\n\n";
+        foreach my $key (sort keys %vgroups) {
+                my @group = vgroup_to_groups($key);
+                printf ("  %-${maxlength}s = %s\n", $key, "@group");
+        }
+}
+
 sub vgroup_to_groups {
         # convert virtual group name from task to array of real group names:
         #   standard  -> (standard)
@@ -862,7 +925,7 @@ sub vgroup_to_groups {
         my $vgroup = shift;
         my @groups;
         if ($vgroup =~ /^\./) {
-                foreach $TESTDIR (@TESTDIRS) {
+                foreach my $TESTDIR (@TESTDIRS) {
                         if (opendir (DIR, $TESTDIR)) {
                                 my @subdir_names = readdir (DIR);
                                 closedir (DIR);
@@ -871,7 +934,7 @@ sub vgroup_to_groups {
                                         my $subdir = File::Spec->catdir($TESTDIR, $subdir_name);
                                         next unless -d $subdir;
                                         next if ((exists $location{$subdir_name}) and ($location{$subdir_name} ne $subdir));
-                                        if (-f File::Spec->catfile($subdir, $vgroup)) {
+                                        if (-f File::Spec->catfile($subdir, $vgroup) || $vgroup eq ".everything") {
                                                 push @groups, $subdir_name;
                                                 $location{$subdir_name} = $subdir;
                                         }
@@ -879,7 +942,7 @@ sub vgroup_to_groups {
                         }
                 }
         } else {
-                foreach $TESTDIR (@TESTDIRS) {
+                foreach my $TESTDIR (@TESTDIRS) {
                         if (-d File::Spec->catdir($TESTDIR, $vgroup)) {
                                 push @groups, $vgroup;
                                 $location{$vgroup} = File::Spec->catdir($TESTDIR, $vgroup);

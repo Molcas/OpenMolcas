@@ -327,7 +327,7 @@ unless (($master eq $daily) and ($master_open eq $daily_open)) {
                 $critical = 0 if /^---/;
                 $critical = 1 if /^critical group/;
                 $failed_verification++ if /^make.*failed/i;
-                $failed_verification++ if ($critical and /^\w*:.*Failed!/);
+                $failed_verification++ if ($critical and /^.\w*:.*Failed!/);
             }
 
             # print tails of the job outputs
