@@ -468,11 +468,11 @@ Cbjp
       END DO
 
 !Quan: Fix bug, skip Lucia stuff with DMRG
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ 
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
       if (.not.(doBlockDMRG)) then
 #endif
         CALL CP_ONE_INT(WORK(LX0),ITU)
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ 
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
       endif
 #endif
       CALL GETMEM('XXX1','FREE','REAL',LX1,NTOT1)

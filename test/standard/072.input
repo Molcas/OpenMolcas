@@ -21,6 +21,14 @@
 > SHELL echo "parameters $TINKER/../params/amber99.prm" > $Project.key
 > SHELL cat start.key >> $Project.key
 
+* another trick to set maximum memory
+* (tinker requires quite a bit and crashes if memory is low)
+> EXPORT MEMLIM=1024
+> SHELL sh checkmem
+> IF ( -FILE reduce_mem )
+>   EXPORT MOLCAS_MEM=$MEMLIM
+> ENDIF
+
  &Gateway
 Tinker
 Basis = STO-3G
@@ -83,6 +91,12 @@ charge -2  0.0
 charge -11 0.0
 QMMM-MICROITERATION OFF
 Verbose
+>> EOF
+
+>> FILE checkmem
+if [ $MOLCAS_MEM -gt $MEMLIM ] ; then
+  touch reduce_mem
+fi
 >> EOF
 
 

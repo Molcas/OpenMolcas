@@ -319,13 +319,15 @@ unless (($master eq $daily) and ($master_open eq $daily_open)) {
 
             # print lines of failed tests
             my $failed_verification = 0;
+            my $critical = 0;
             while (<TESTPAGE>) {
                 last if /^\*+$/;
                 print DIGEST if /Failed!/;
                 print BADTESTS if /Failed!/;
+                $critical = 0 if /^---/;
+                $critical = 1 if /^critical group/;
                 $failed_verification++ if /^make.*failed/i;
-                $failed_verification++ if /^standard.*failed/i;
-                $failed_verification++ if /^extra.*failed/i;
+                $failed_verification++ if ($critical and /^\w*:.*Failed!/);
             }
 
             # print tails of the job outputs
@@ -453,15 +455,22 @@ unless ($master eq $daily) {
             }
         }
 
-        # reset daily-snapshot
-        &git("checkout", "daily-snapshot");
-        &git("reset", "--hard", "master");
-        &git("checkout", "master");
+        if (%failed_parents) {
+            # reset daily-snapshot
+            &git("checkout", "daily-snapshot");
+            &git("reset", "--hard", "master");
+            &git("checkout", "master");
 
-        # push changes to remote origin
-        print qq(Pushing tags and resetting daily-snapshot on remote (extra):\n);
-        &git("push", "--tags");
-        &git("push", "-f", "origin", "daily-snapshot:daily-snapshot");
+            # push changes to remote origin
+            print qq(Pushing tags and resetting daily-snapshot on remote (extra):\n);
+            &git("push", "--tags");
+            &git("push", "-f", "origin", "daily-snapshot:daily-snapshot");
+        } else {
+            # if no failed parents (including the merge)
+            &git("checkout", "master");
+            print qq(Pushing tags on remote (extra):\n);
+            &git("push", "--tags");
+        }
 
         # If we need to make a snapshot from verified branches (-g option), then
         # set the list of merge heads here by getting the parents of the failed
@@ -531,15 +540,22 @@ unless ($master_open eq $daily_open) {
             }
         }
 
-        # reset daily-snapshot
-        &git("checkout", "daily-snapshot");
-        &git("reset", "--hard", "master");
-        &git("checkout", "master");
+        if (%failed_parents_open) {
+            # reset daily-snapshot
+            &git("checkout", "daily-snapshot");
+            &git("reset", "--hard", "master");
+            &git("checkout", "master");
 
-        # push changes to remote origin
-        print qq(Pushing tags and resetting daily-snapshot on remote (open):\n);
-        &git("push", "--tags");
-        &git("push", "-f", "origin", "daily-snapshot:daily-snapshot");
+            # push changes to remote origin
+            print qq(Pushing tags and resetting daily-snapshot on remote (open):\n);
+            &git("push", "--tags");
+            &git("push", "-f", "origin", "daily-snapshot:daily-snapshot");
+        } else {
+            # if no failed parents (including the merge)
+            &git("checkout", "master");
+            print qq(Pushing tags on remote (open):\n);
+            &git("push", "--tags");
+        }
 
         # If we need to make a snapshot from verified branches (-g option), then
         # set the list of merge heads here by getting the parents of the failed
@@ -574,6 +590,9 @@ exit 0 if $update_only;
 # because verification was OK, or daily-snapshot was reset to master because
 # verification failed. Either way, they must have the same SHA1 hash.
 
+my $skip_extra = 0;
+my $skip_open = 0;
+
 ### molcas-extra ###
 
 chdir $localrepo or die 'Error: cannot change to repo (extra) directory';
@@ -592,7 +611,7 @@ print "daily-snapshot  = $daily\n";
 if ($master ne $daily) {
     print 'Error: master and daily-snapshot do not match';
 
-    exit 1;
+    $skip_extra = 1;
 }
 
 ### openmolcas ###
@@ -613,10 +632,19 @@ print "daily-snapshot  = $daily_open\n";
 if ($master_open ne $daily_open) {
     print 'Error: master and daily-snapshot (open) do not match';
 
+    $skip_open = 1;
+}
+
+if ($skip_extra and $skip_open) {
+    exit 1;
+}
+if (not $goodriddens and ($skip_extra or $skip_open)) {
     exit 1;
 }
 
 ### molcas-extra ###
+
+goto MERGE_DONE if $skip_extra;
 
 chdir $localrepo or die 'Error: cannot change to repo (extra) directory';
 
@@ -798,7 +826,7 @@ if ($status == 0) {
 
     # if a version tag already exist here, we don't create a new one
     my @tags = `git tag --points-at $merged`;
-    chomp(my $tag_match = first { $_ =~ m/^v8\.1\.x/ } @tags) if @tags;
+    chomp(my $tag_match = first { $_ =~ m/^v8\.3\.x/ } @tags) if @tags;
     if ($tag_match) {
 
         # link old snapshot
@@ -932,6 +960,8 @@ if ($status == 0) {
 MERGE_DONE:
 
 ### openmolcas ###
+
+goto MERGE_DONE_open if $skip_open;
 
 chdir $localrepo_open or die 'Error: cannot change to repo (open) directory';
 
@@ -1112,7 +1142,7 @@ if ($status == 0) {
 
     # if a version tag already exist here, we don't create a new one
     my @tags = `git tag --points-at $merged`;
-    chomp(my $tag_match = first { $_ =~ m/^v8\.1\.o/ } @tags) if @tags;
+    chomp(my $tag_match = first { $_ =~ m/^v8\.3\.o/ } @tags) if @tags;
     if ($tag_match) {
 
         # link old snapshot

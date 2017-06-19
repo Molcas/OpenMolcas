@@ -80,7 +80,7 @@
      &                , Do3RDM
 #endif
 #ifdef _ENABLE_CHEMPS2_DMRG_
-     &                , chemps2_restart 
+     &                , chemps2_restart
 #endif
       COMMON/LOGINP/  RFpert,lSquare, Start_Vectors, NonEq, DoFaro
      &                ,DOFCIDUMP,DoBlockDMRG
@@ -88,7 +88,7 @@
      &                , Do3RDM
 #endif
 #ifdef _ENABLE_CHEMPS2_DMRG_
-     &                , chemps2_restart 
+     &                , chemps2_restart
 #endif
 *
       REAL*8          PRWTHR,POTNUC,CCI,

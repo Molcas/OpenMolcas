@@ -87,11 +87,11 @@ if [ -z "$MOLCAS_SOURCE" ] || [ $opt_f ] ; then
 fi
 
 # Try to get absolute paths
-new_OPENMOLCAS_SOURCE=$( (cd "$OPENMOLCAS_SOURCE" && pwd ) )
+new_OPENMOLCAS_SOURCE=$( (cd "$OPENMOLCAS_SOURCE" 2> /dev/null && pwd ) )
 if [ -n "$new_OPENMOLCAS_SOURCE" ] ; then
   OPENMOLCAS_SOURCE="$new_OPENMOLCAS_SOURCE"
 fi
-new_MOLCAS_SOURCE=$( (cd "$MOLCAS_SOURCE" && pwd ) )
+new_MOLCAS_SOURCE=$( (cd "$MOLCAS_SOURCE" 2> /dev/null && pwd ) )
 if [ -n "$new_MOLCAS_SOURCE" ] ; then
   MOLCAS_SOURCE="$new_MOLCAS_SOURCE"
 fi

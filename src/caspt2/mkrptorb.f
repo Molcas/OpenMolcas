@@ -288,8 +288,8 @@ C Finally, loop again over symmetries, transforming the CI:
         END IF
 #elif _ENABLE_CHEMPS2_DMRG_
         ELSE
-          write(6,*) 'CHEMPS2> MKRPTORB assumes
-     & PSEUDOCANONICAL orbitals!'
+          write(6,*) 'CHEMPS2> MKRPTORB assumes '//
+     & 'PSEUDOCANONICAL orbitals!'
         END IF
 #endif
       END IF

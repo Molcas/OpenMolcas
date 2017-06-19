@@ -60,9 +60,11 @@ def test_blanks(line, filename):
   return blanks.search(line.decode('ascii', 'ignore').strip('\n'))
 
 # "write" with a star as unit
-write_star = re.compile(r'^ .*write\s*\(\*', re.IGNORECASE)
+write_star = re.compile(r'^ .*write\s*\(\s*\*', re.IGNORECASE)
 def test_write(line, filename):
   if (not filename.endswith(('.f', '.F', '.f90', '.F90'))):
+    return False
+  if ('blas_util' in filename):
     return False
   return write_star.search(line.decode('ascii', 'ignore').strip('\n'))
 

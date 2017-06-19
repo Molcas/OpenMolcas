@@ -555,8 +555,8 @@
 
 !Quan: a very dirty way to extract the total energy
        call systemf(
-     & 'grep "***  2-RDM" -B 5 chemps2.log | grep "all instructions"
-     & | cut -c 61- > chemps2_totale_4d', iErr)
+     & 'grep "***  2-RDM" -B 5 chemps2.log | grep "all instructions" '//
+     & '| cut -c 61- > chemps2_totale_4d', iErr)
 !       write(6,*) 'CHEMPS2> DB: 549', iErr
 
 !Quan: fix bug E(FCI) != E(CASSCF)
