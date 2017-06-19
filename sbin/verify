@@ -476,11 +476,11 @@ my @critical_list = vgroup_to_groups('.critical');
 foreach my $group (@critical_list) {
         $critical{$group} = 1;
 }
-# groups belonging to default
-my %default;
-my @default_list = vgroup_to_groups('.default');
-foreach my $group (@default_list) {
-        $default{$group} = 1;
+# groups belonging to official
+my %official;
+my @official_list = vgroup_to_groups('.official');
+foreach my $group (@official_list) {
+        $official{$group} = 1;
 }
 # counters
 my $failed_tests = 0;
@@ -512,10 +512,10 @@ foreach my $file (@filelist) {
         my $err = File::Spec->catfile ($tmpdir, $project . '.err');
         my $status = File::Spec->catfile ($tmpdir, $project . '.status');
         my $pc = int((++$index) / $n_tests * 100);
-        my $mark = ' ';
-        $mark = '-' if $default{$group};
-        $mark = '+' if $critical{$group};
-        $mark = '*' if $basic{$group};
+        my $mark = '4';
+        $mark = '3' if $official{$group};
+        $mark = '2' if $critical{$group};
+        $mark = '1' if $basic{$group} and $critical{$group};
         #----------------------------
         # set up the work environment
         #----------------------------
@@ -613,7 +613,7 @@ foreach my $file (@filelist) {
                                 print FAILED_LIST "$file\n";
                         }
                 } else {
-                        print RESULT "$mark$group:$name OK\n";
+                        print RESULT "$mark:$group:$name OK\n";
                         msg_overwrite ('', $prompt) if ($interactive);
                         if ($opt{generate}) {
                                 my $rc=system("$MOLCAS_DRIVER", "updatetest.plx", $file, File::Spec->catfile ($workdir, 'checkfile'));
