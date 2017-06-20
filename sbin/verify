@@ -590,7 +590,7 @@ foreach my $file (@filelist) {
                         }
                         if ($rc == 36) {
                                 # print results
-                                print RESULT "$group:$name Skipped!\n";
+                                print RESULT "$mark:$group:$name Skipped!\n";
                                 msg_overwrite ("$group:$name Skipped!\n", $prompt) if ($interactive);
                                 # update counters
                                 $skipped_tests++;
@@ -602,7 +602,7 @@ foreach my $file (@filelist) {
                                 $mod = failed_module($out) if (not $opt{debug});
                                 $mod = "$mod, $special" if ($special);
                                 # print results
-                                print RESULT "$group:$name Failed! ($mod)\n";
+                                print RESULT "$mark:$group:$name Failed! ($mod)\n";
                                 msg_overwrite ("$group:$name Failed! ($mod)\n", $prompt) if ($interactive);
                                 # update counters
                                 $failed_tests++;
