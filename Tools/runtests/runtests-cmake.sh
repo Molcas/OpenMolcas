@@ -53,7 +53,8 @@
 # - OPTIONAL directories '<my-config>' which are molcas git clones (these are
 #   created for each *.cmake file if the directory does not exist, so you
 #   normally do not have to create these directories).
-if [ -z "$TESTHOME" ] ; then
+if [ -z "$TESTHOME" ]
+then
     TESTHOME="/tmp"
 fi
 
@@ -63,18 +64,21 @@ fi
 # test setup is to run daily tests on this branch. You can also test "master"
 # itself, or if there are stable versions, they will have branches "rel-8.0" and
 # "rel-8.0-testing" respectively (names to be determined).
-if [ -z "$BRANCH" ] ; then
+if [ -z "$BRANCH" ]
+then
     BRANCH="daily-snapshot"
 fi
 
 # mail program, if mail not available you can try perlmail
-if [ -z "$MAIL_cmd" ] ; then
+if [ -z "$MAIL_cmd" ]
+then
     #MAIL_cmd='perlmail'
     MAIL_cmd="mail"
 fi
 
 # Contact information (YOUR name and email address)
-if [ -z "$CONTACT" ] ; then
+if [ -z "$CONTACT" ]
+then
     CONTACT='Firstname Lastname youremail@domain'
 fi
 
@@ -82,7 +86,8 @@ fi
 #PATH=''
 
 # If you want to get notification by mail - add it into RECIPIENT
-if [ -z "$RECIPIENT" ] ; then
+if [ -z "$RECIPIENT" ]
+then
     RECIPIENT=''
 fi
 
@@ -93,9 +98,12 @@ fi
 # location of testpage and molcas repository
 TESTPAGE='test@signe.teokem.lu.se'
 GITSERVER='git@git.teokem.lu.se'
-REPO='molcas-extra'
-SERVER_OPEN='git@git.teokem.lu.se'
-REPO_OPEN='openmolcas'
+FULL_REPO='molcas-extra'
+SERVER_OPEN='git@gitlab.com'
+FULL_REPO_OPEN='Molcas/OpenMolcas'
+
+REPO=`basename $FULL_REPO`
+REPO_OPEN=`basename $FULL_REPO_OPEN`
 
 RECIPIENT="$RECIPIENT $TESTPAGE"
 
@@ -105,14 +113,24 @@ PARTEST=0
 ## some commands (could be different on your platform)
 #GUNZIP='gzip -d'
 #UNTAR='tar -xf'
-if [ -z "$MAKE_cmd" ] ; then
+if [ -z "$FOLD" ]
+then
+    FOLD='fold -w 70'
+fi
+if [ -z "$CMAKE" ]
+then
+    CMAKE='cmake'
+fi
+if [ -z "$MAKE_cmd" ]
+then
     MAKE_cmd='make'
     ## change the make command to build alternative targets or use different options
     #MAKE_cmd='make -j 4'
     #MAKE_cmd='make all doc'
     #MAKE_cmd='make all doc_html'
 fi
-if [ -z "$DRIVER" ] ; then
+if [ -z "$DRIVER" ]
+then
     DRIVER='molcas'
 fi
 HNAME=`hostname -s`
@@ -125,6 +143,10 @@ LANG=C
 # you can specify tests to run on the command
 # line or change it here
 TESTS="$*"
+if [ -z "$TESTS" ]
+then
+    TESTS=".all"
+fi
 
 # sanity check on the test directory
 if [ ! -d $TESTHOME ]
@@ -136,7 +158,7 @@ fi
 LOGDIR="$TESTHOME/checklog/"
 if [ ! -d $LOGDIR ]
 then
-        mkdir $LOGDIR || exit 1
+    mkdir $LOGDIR || exit 1
 fi
 logfile="$LOGDIR/$DATE"
 exec > "$logfile" 2>&1
@@ -226,12 +248,12 @@ test_configfile () {
     if [ ! -d $REPO.$BRANCH ]
     then
         ISOLD="0"
-        git clone -b $BRANCH $GITSERVER:$REPO $REPO.$BRANCH || return
+        git clone -b $BRANCH $GITSERVER:$FULL_REPO $REPO.$BRANCH || return
     fi
     if [ ! -d $REPO_OPEN.$BRANCH ]
     then
         ISOLD="0"
-        git clone -b $BRANCH $SERVER_OPEN:$REPO_OPEN $REPO_OPEN.$BRANCH || return
+        git clone -b $BRANCH $SERVER_OPEN:$FULL_REPO_OPEN $REPO_OPEN.$BRANCH || return
     fi
 
     for R in $REPO_OPEN $REPO
@@ -359,7 +381,7 @@ test_configfile () {
     #sed -i 's|/opt/local/bin/perl|/usr/bin/perl|' sbin/*
     # run cmake configuration, build Molcas (if you want serial output, remove
     # any "-j n" options from MAKE_cmd in the header...)
-    if cmake $MY_FLAGS ../$REPO.$BRANCH >> make.log 2>&1 && $MAKE_cmd >> make.log 2>&1
+    if $CMAKE $MY_FLAGS ../$REPO.$BRANCH >> make.log 2>&1 && $MAKE_cmd >> make.log 2>&1
     then
         date >> make.log
         echo "Make - OK!" >> auto.log
@@ -386,7 +408,7 @@ test_configfile () {
             (cd ../$REPO.$BRANCH && git checkout $commit)
             rm -f CMakeCache.txt 2> /dev/null
             rm -f CMakeFiles/$CACHEDIR/* 2> /dev/null
-            if cmake $MY_FLAGS ../$REPO.$BRANCH > /dev/null 2>&1 && $MAKE_cmd > /dev/null 2>&1
+            if $CMAKE $MY_FLAGS ../$REPO.$BRANCH > /dev/null 2>&1 && $MAKE_cmd > /dev/null 2>&1
             then
                 echo ":: good $commit" >> auto.log
             else
@@ -404,7 +426,7 @@ test_configfile () {
             (cd ../$REPO_OPEN.$BRANCH && git checkout $commit)
             rm -f CMakeCache.txt 2> /dev/null
             rm -f CMakeFiles/$CACHEDIR/* 2> /dev/null
-            if cmake $MY_FLAGS ../$REPO.$BRANCH > /dev/null 2>&1 && $MAKE_cmd > /dev/null 2>&1
+            if $CMAKE $MY_FLAGS ../$REPO.$BRANCH > /dev/null 2>&1 && $MAKE_cmd > /dev/null 2>&1
             then
                 echo ":: good (open) $commit" >> auto.log
             else
@@ -419,7 +441,7 @@ test_configfile () {
         (cd ../$REPO_OPEN.$BRANCH && git checkout $BRANCH)
         rm -f CMakeCache.txt 2> /dev/null
         rm -f CMakeFiles/$CACHEDIR/* 2> /dev/null
-        cmake $MY_FLAGS ../$REPO.$BRANCH > /dev/null 2>&1 && $MAKE_cmd > /dev/null 2>&1
+        $CMAKE $MY_FLAGS ../$REPO.$BRANCH > /dev/null 2>&1 && $MAKE_cmd > /dev/null 2>&1
 
         # end logfiles with the date
         date >> make.log
@@ -435,7 +457,7 @@ test_configfile () {
             for MESSAGE in make.log auto.log
             do
                 echo "sending mail"
-                fold -w 70 -s $MESSAGE | $MAIL_cmd -s $DATE $RCPT
+                $FOLD -s $MESSAGE | $MAIL_cmd -s $DATE $RCPT
             done
         done
 
@@ -488,7 +510,7 @@ test_configfile () {
             (cd ../$REPO.$BRANCH && git checkout $commit)
             rm -f CMakeCache.txt 2> /dev/null
             rm -f CMakeFiles/$CACHEDIR/* 2> /dev/null
-            if cmake $MY_FLAGS ../$REPO.$BRANCH > /dev/null 2>&1 && $MAKE_cmd > /dev/null 2>&1 && $DRIVER verify --trap $failed_tests
+            if $CMAKE $MY_FLAGS ../$REPO.$BRANCH > /dev/null 2>&1 && $MAKE_cmd > /dev/null 2>&1 && $DRIVER verify --trap $failed_tests
             then
                 echo ":: good $commit" >> auto.log
             else
@@ -506,7 +528,7 @@ test_configfile () {
             (cd ../$REPO_OPEN.$BRANCH && git checkout $commit)
             rm -f CMakeCache.txt 2> /dev/null
             rm -f CMakeFiles/$CACHEDIR/* 2> /dev/null
-            if cmake $MY_FLAGS ../$REPO.$BRANCH > /dev/null 2>&1 && $MAKE_cmd > /dev/null 2>&1 && $DRIVER verify --trap $failed_tests
+            if $CMAKE $MY_FLAGS ../$REPO.$BRANCH > /dev/null 2>&1 && $MAKE_cmd > /dev/null 2>&1 && $DRIVER verify --trap $failed_tests
             then
                 echo ":: good (open) $commit" >> auto.log
             else
@@ -521,7 +543,7 @@ test_configfile () {
         (cd ../$REPO_OPEN.$BRANCH && git checkout $BRANCH)
         rm -f CMakeCache.txt 2> /dev/null
         rm -f CMakeFiles/$CACHEDIR/* 2> /dev/null
-        cmake $MY_FLAGS ../$REPO.$BRANCH > /dev/null 2>&1 && $MAKE_cmd > /dev/null 2>&1
+        $CMAKE $MY_FLAGS ../$REPO.$BRANCH > /dev/null 2>&1 && $MAKE_cmd > /dev/null 2>&1
 
     fi
 
@@ -546,7 +568,7 @@ test_configfile () {
             fi
             # send mail to testpage
             echo "sending mail"
-            fold -w 70 -s $MESSAGE | $MAIL_cmd -s $DATE $RCPT
+            $FOLD -s $MESSAGE | $MAIL_cmd -s $DATE $RCPT
         done
     done
 
