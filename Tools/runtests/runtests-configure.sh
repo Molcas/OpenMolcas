@@ -98,13 +98,10 @@ fi
 
 # location of testpage and molcas repository
 TESTPAGE='test@signe.teokem.lu.se'
-GITSERVER='git@git.teokem.lu.se'
-FULL_REPO='molcas-extra'
-SERVER_OPEN='git@gitlab.com'
-FULL_REPO_OPEN='Molcas/OpenMolcas'
-
-REPO=`basename $FULL_REPO`
-REPO_OPEN=`basename $FULL_REPO_OPEN`
+GITSERVER='git@git.teokem.lu.se:'
+REPO='molcas-extra'
+SERVER_OPEN="https://${GITLABAUTH}gitlab.com/Molcas/"
+REPO_OPEN='OpenMolcas'
 
 RECIPIENT="$RECIPIENT $TESTPAGE"
 
@@ -248,12 +245,12 @@ test_configfile () {
     if [ ! -d $REPO.$BRANCH ]
     then
         ISOLD="0"
-        git clone -b $BRANCH $GITSERVER:$FULL_REPO $REPO.$BRANCH || return
+        git clone -b $BRANCH $GITSERVER$REPO $REPO.$BRANCH || return
     fi
     if [ ! -d $REPO_OPEN.$BRANCH ]
     then
         ISOLD="0"
-        git clone -b $BRANCH $SERVER_OPEN:$FULL_REPO_OPEN $REPO_OPEN.$BRANCH || return
+        git clone -b $BRANCH $SERVER_OPEN$REPO_OPEN $REPO_OPEN.$BRANCH || return
     fi
 
     for R in $REPO_OPEN $REPO
