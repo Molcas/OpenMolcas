@@ -371,6 +371,7 @@ class Molcas_wrapper(object):
       with utf8_open(join(self.molcas, '.molcashome')) as homefile:
         if (homefile.read().rstrip() not in ['openmolcas', '']):
           patch_x = 'x'
+    date = datetime.now()
     # Remove comments and empty lines (not if there are spaces)
     banner = sub(r'#.*$', '', banner, flags=MULTILINE)
     banner = sub(r'^\n', '', banner, flags=MULTILINE)
@@ -386,14 +387,14 @@ class Molcas_wrapper(object):
     banner = sub(r'\$P\$', patch, banner)
     banner = sub(r'\$Px\$', patch_x, banner)
     # Christmas tree between Dec. 18th and Jan. 8th
-    date = datetime.now()
-    if ((date.month == 12 and date.day > 17) or
-        (date.month == 1 and date.day < 9)):
-      banner = banner.replace('@', '^')
-      banner = banner.replace('!', 'o')
-    else:
-      banner = banner.replace('@', ' ')
-      banner = banner.replace('!', ' ')
+    # (disabled)
+    #if ((date.month == 12 and date.day > 17) or
+    #    (date.month == 1 and date.day < 9)):
+    #  banner = banner.replace('@', '^')
+    #  banner = banner.replace('!', 'o')
+    #else:
+    #  banner = banner.replace('@', ' ')
+    #  banner = banner.replace('!', ' ')
     # Do the main character substitution
     rep = get_utf8('MOLCAS_BANNER')
     if (patch_x == ''):
