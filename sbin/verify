@@ -30,6 +30,9 @@
 # Support for two test directories
 # Ignacio Fdez. Galván, February-March 2017
 #
+# Further updates for better interaction with dailymerge
+# Ignacio Fdez. Galván, June 2017
+#
 
 # perl modules
 use warnings;
@@ -199,6 +202,7 @@ if ($opt{pass}) {
 my @filelist;
 my %group;
 my $location;
+my $none = 0;
 
 # First convert the tasks to actual included/skipped tests.
 # These are kept in two hashes to allow different tasks to
@@ -209,7 +213,11 @@ my $location;
 my %included; # keeps a dictionary of included test names (group:name)
 my %excluded; # keeps a dictionary of excluded test names (group:name)
 foreach my $task (@tasklist) {
-        if (-f $task) {
+        if ($task eq '.none') {
+                # the special task .none will generate a result file
+                # even if there are no tests to run
+                $none = 1;
+        } elsif (-f $task) {
                 # the task is a file name, add immediately to the file list
                 my $file = File::Spec->rel2abs ($task);
                 push @filelist, $file;
@@ -366,7 +374,7 @@ if      ($opt{rawlist}) {
 }
 
 # final check: if empty filelist, just quit nicely
-unless (@filelist) {
+unless (@filelist or $none) {
         msg ("no tests requested, bye!\n");
         exit 0;
 }
