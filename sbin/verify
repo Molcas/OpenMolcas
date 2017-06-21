@@ -530,8 +530,7 @@ foreach my $file (@filelist) {
         # start repeated cycles (e.g. when tests fail randomly)
         my $cycles = $opt{cycles} ? $opt{cycles} : 1;
         $cycles = 2 * $cycles if ($opt{parallel});
-        my $g = $critical{$group} ? 'critical group' : 'group';
-        print RESULT "----------\n$g $group from: $location{$group}\n" if ($group ne $prev_group && $group ne 'external');
+        print RESULT "----------\ngroup $group from: $location{$group}\n" if ($group ne $prev_group && $group ne 'external');
         while ($cycles-- > 0) {
                 if ($opt{parallel}) {
                         if ($cycles % 2 == 1) {
@@ -647,6 +646,7 @@ foreach my $file (@filelist) {
         $prev_group = $group;
 }
 print RESULT "----------\n" if ($prev_group ne '.none');
+print RESULT "\n*Failed critical tests* $failed_critical_tests\n";
 
 system("$MOLCAS_DRIVER codecov --html") if ($opt{cover});
 

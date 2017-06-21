@@ -118,7 +118,7 @@ my $testpage='http://molcas.org/dev/test';
 
 # location of the local repository in which the commits will be applied
 my $localrepo = q(/home/gitupdater/molcas-extra);
-my $localrepo_open = q(/home/gitupdater/openmolcas);
+my $localrepo_open = q(/home/gitupdater/OpenMolcas);
 
 # location of the directory containing the source code snapshots
 my $snapshots = q(/home/gitupdater/snapshots);
@@ -133,7 +133,7 @@ my $usermail = q(**********@**********);
 my @admin_devs = qw(
                        valera
                        stevenv
-                       ignacio
+                       ignacio dev/Jellby
                   );
 
 ################################################################################
@@ -144,6 +144,8 @@ my @admin_devs = qw(
 
 # set date
 chomp(my $date = `date +%y%m%d-%H%M`);
+chomp(my $rel = `date +%y.0`);
+$relx = '8.3';
 my $current_time = time;
 my @now = localtime;
 
@@ -318,16 +320,14 @@ unless (($master eq $daily) and ($master_open eq $daily_open)) {
             print BADTESTS "Summary of failures:\n\n";
 
             # print lines of failed tests
-            my $failed_verification = 0;
-            my $critical = 0;
+            my $failed_verification = 1;
             while (<TESTPAGE>) {
                 last if /^\*+$/;
                 print DIGEST if /Failed!/;
                 print BADTESTS if /Failed!/;
-                $critical = 0 if /^---/;
-                $critical = 1 if /^critical group/;
-                $failed_verification++ if /^make.*failed/i;
-                $failed_verification++ if ($critical and /^.\w*:.*Failed!/);
+                # verification failed unless this line was printed
+                # otherwise there were critical failures or it failed in some other way
+                $failed_verification = 0 if (/^\*Failed critical tests\* 0$/);
             }
 
             # print tails of the job outputs
@@ -835,7 +835,7 @@ if ($status == 0) {
     } else {
 
         # first, check if certain tags exist that shouldn't
-        my $tag_daily  = "v8.3.x$date";
+        my $tag_daily  = "v$relx.x$date";
         die "Error: tag $tag_daily already exists\n" if `git tag -l $tag_daily`;
 
         &git("tag", "-a", $tag_daily, "-m", "daily snapshot for testing");
@@ -988,6 +988,9 @@ unless ($goodriddens) {
     my %exclude_tip;
     foreach my $branch (@remote_branches) {
         (my $branchname = $branch) =~ s!^origin/!!;
+
+        # skip non-dev branches
+        next if $branchname !~ m/^dev\//;
 
         # record branches to be excluded
         (my $nickname = $branchname) =~ s/-.*$//;
@@ -1151,7 +1154,7 @@ if ($status == 0) {
     } else {
 
         # first, check if certain tags exist that shouldn't
-        my $tag_daily  = "v8.3.o$date";
+        my $tag_daily  = "v$rel.o$date";
         die "Error: tag $tag_daily already exists\n" if `git tag -l $tag_daily`;
 
         &git("tag", "-a", $tag_daily, "-m", "daily snapshot for testing");
