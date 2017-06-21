@@ -85,6 +85,18 @@ else
   INTERACTIVE=1
 fi
 
+# function to read with timeout in POSIX sh
+read_timeout() {
+  trap : ALRM
+  trap 'kill "$pid" 2> /dev/null' EXIT
+  (sleep "$1" && kill -ALRM "$$") & pid=$!
+  read "$2"
+  ret=$?
+  kill "$pid" 2> /dev/null
+  trap - EXIT
+  return "$ret"
+}
+
 # create a default molcas driver
 if [ $dir_found = 0 ] ; then
   echo "*** Warning! Could not find a proper directory to install the molcas driver"
@@ -98,13 +110,13 @@ if [ $dir_found = 0 ] ; then
   fi
 else
   echo "molcas driver will be installed in $MOLCASDRIVER"
-  echo "Is this OK? [Y/n]"
+  echo "Is this OK? [Y/n] (will assume \"Yes\" in 60 seconds)"
   while true; do
     if [ "$INTERACTIVE" = "0" ] ; then
       echo "Running in non-interactive mode, assuming \"Yes\""
       answer="Yes"
     else
-      read answer
+      read_timeout 60 answer
     fi
     case "${answer}_" in
       [Yy]*|_ )

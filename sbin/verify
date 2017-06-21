@@ -460,6 +460,14 @@ open (FAILED_LIST, ">", $log_failed_list)
 print RESULT $header;
 print TIMING $header;
 
+print RESULT <<"EOF";
+1: Basic tests that must pass
+2: Additional tests that must pass
+3: Other tests that may fail, but should be fixed
+4: Personal development tests that may fail or not
+
+EOF
+
 #-------------------------------------
 # loop over tests and run verification
 #-------------------------------------

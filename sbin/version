@@ -16,6 +16,9 @@
 # gives (parsed) version of the latest build,
 # based on the .molcasversion file or on the hash that is in .stamp
 
+# can't use $1 after because find_sources overwrites it
+arg=$1
+
 if [ -f "$MOLCAS/sbin/find_sources" ]
 then
     . "$MOLCAS/sbin/find_sources"
@@ -75,7 +78,7 @@ else
     done
 fi
 
-case $1 in
+case $arg in
     -v) echo $V;;
     -p) echo $P;;
     -l) echo "Molcas version $V patch level $P";;

@@ -145,7 +145,7 @@ my @admin_devs = qw(
 # set date
 chomp(my $date = `date +%y%m%d-%H%M`);
 chomp(my $rel = `date +%y.0`);
-$relx = '8.3';
+my $relx = '8.3';
 my $current_time = time;
 my @now = localtime;
 
