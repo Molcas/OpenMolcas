@@ -107,6 +107,16 @@ sub git {
     }
 }
 
+# subroutine to protect/unprotect a branch in GitLab
+# (required because protected branches cannot be force-pushed, and this is needed if the snapshot failed)
+my $gitlabtoken='********************';
+sub protect {
+    system "curl", "--request", "PUT", "--header", "PRIVATE-TOKEN: $gitlabtoken", "https://gitlab.com/api/v4/projects/Molcas%2FOpenMolcas/repository/branches/$_[0]/protect?developers_can_push=false&developers_can_merge=false"
+}
+sub unprotect {
+    system "curl", "--request", "PUT", "--header", "PRIVATE-TOKEN: $gitlabtoken", "https://gitlab.com/api/v4/projects/Molcas%2FOpenMolcas/repository/branches/$_[0]/unprotect"
+}
+
 ################################################################################
 ####                             CONFIGURATION                              ####
 ################################################################################
@@ -549,7 +559,9 @@ unless ($master_open eq $daily_open) {
             # push changes to remote origin
             print qq(Pushing tags and resetting daily-snapshot on remote (open):\n);
             &git("push", "--tags");
+            &unprotect("daily-snapshot");
             &git("push", "-f", "origin", "daily-snapshot:daily-snapshot");
+            &protect("daily-snapshot");
         } else {
             # if no failed parents (including the merge)
             &git("checkout", "master");
