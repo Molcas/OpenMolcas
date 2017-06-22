@@ -69,6 +69,7 @@ GetOptions ( \%opt,
              "existing",
              "failed",
              "flatlist",
+             "fuzzy",
              "generate",
              "grouplist",
              "keep",
@@ -81,9 +82,9 @@ GetOptions ( \%opt,
              "quiet",
              "rawlist",
              "reset",
+             "status",
              "trap",
              "word=s",
-             "fuzzy",
            ) or short_help(1);
 
 my @tasklist = @ARGV;
@@ -567,8 +568,9 @@ foreach my $file (@filelist) {
                 }
                 mkdir $workdir unless (-d $workdir);
                 copy ($file, $input);
-                if ($interactive) {
+                if ($interactive or $opt{status}) {
                         $prompt = "Running test $group: $name ... ($pc%)";
+                        $prompt .= "\n" if ($opt{status});
                         msg ($prompt);
                 }
                 # run molcas and capture the return code. The reason
@@ -751,6 +753,7 @@ options:
   --existing       use existing scratch if available
   --failed         rerun tests that failed the last time
   --flatlist       only list matching tests (as a flat list of tasks)
+  --fuzzy          do not fail if a label is not in the reference (old behavior)
   --generate       generate checkfile and append to input
   --grouplist      list the groups (see below)
   --keep           keep the work directory after running a test
@@ -762,9 +765,9 @@ options:
   --quiet          do not print any messages to the screen
   --rawlist        only list matching tests (as a list of input files)
   --reset          clean up any results and tmp/log directories and exit
+  --status         print status of the verification (useful for redirecting the output)
   --trap           stop immediately after a failed test
   --word WORD      filter test files containing WORD
-  --fuzzy          do not fail if a label is not in the reference (old behavior)
 
 Any options can be used also in a short form, as long
 as it can be uniquely identified, e.g. -d instead of
