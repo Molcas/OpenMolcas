@@ -918,6 +918,8 @@ sub list_groups {
                 }
         }
         my $maxlength = 0;
+        # special groups
+        $vgroups{'.none'} = 1;
         $vgroups{'.everything'} = 1;
         for (keys %groups) {
                 $maxlength = length if (length > $maxlength);
@@ -929,6 +931,12 @@ sub list_groups {
         foreach my $key (sort by_standard_first keys %groups) {
                 my @group = vgroup_to_groups($key);
                 printf ("  %-${maxlength}s = %s\n", $key, $location{$key});
+        }
+        print "\nSpecial groups\n\n";
+        foreach my $key (".none", ".everything") {
+                my @group = vgroup_to_groups($key);
+                printf ("  %-${maxlength}s = %s\n", $key, "@group");
+                delete $vgroups{$key};
         }
         print "\nVirtual groups\n\n";
         foreach my $key (sort keys %vgroups) {
@@ -953,6 +961,8 @@ sub vgroup_to_groups {
                                         my $subdir = File::Spec->catdir($TESTDIR, $subdir_name);
                                         next unless -d $subdir;
                                         next if ((exists $location{$subdir_name}) and ($location{$subdir_name} ne $subdir));
+                                        # special groups ".none" and ".everything" don't rely on dot files
+                                        next if ($vgroup eq ".none");
                                         if (-f File::Spec->catfile($subdir, $vgroup) || $vgroup eq ".everything") {
                                                 push @groups, $subdir_name;
                                                 $location{$subdir_name} = $subdir;
