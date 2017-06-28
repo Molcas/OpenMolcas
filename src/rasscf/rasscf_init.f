@@ -58,6 +58,9 @@
       Common /CHOLK / DoLocK,Deco,dmpk,Nscreen
       COMMON /CHOSCREEN/ Estimate,Update
       COMMON /CHOPAR/ ChFracMem
+
+      Call qEnter(ROUTINE)
+
 *----------------------------------------------------------------------*
       ProgName=Get_SuperName()
 *----------------------------------------------------------------------*

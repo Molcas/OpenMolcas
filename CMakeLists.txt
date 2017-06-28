@@ -123,7 +123,7 @@ else ()
         mark_as_advanced (FORCE DMRG_DEBUG)
 endif ()
 option (GEN1INT    "Enable Gen1Int library for 1-electron integrals (requires External/gen1int-molcaslib submodule)."                 OFF)
-option (NECI       "Activate NECI support (requires External/NECI submodule)."                                                        OFF)
+option (NECI       "Activate NECI support (requires External/NECI submodule)."                                                        ON)
 option (HDF5_F2003 "Activate a F2003 interface to the HDF5 library (requires External/hdf5_f2003_interface submodule)."               OFF)
 option (WFA        "Activate extended wavefunction analysis (requires External/libwfa submodule)."                                    OFF)
 option (EFPLIB     "Enable EFPLib library for effective fragment potentials (requires External/efp submodule)."                       OFF)
@@ -139,7 +139,7 @@ set (ENV{CMAKE_SESSION} "OpenMolcas")
 
 # project name and supported languages
 #=====================================
-
+message ("Configuring compilers:")
 if (DMRG)
         project (Molcas Fortran C CXX)
         cmake_minimum_required (VERSION 3.0.2)
@@ -1377,12 +1377,11 @@ if (GROMACS)
         list (APPEND EXTERNAL_LIBRARIES ${GMX_LIBRARIES})
 else ()
         mark_as_advanced(FORCE GROMACS_DIR)
-        message (STATUS "Gromacs interface DISABLED")
+        message ("Gromacs interface DISABLED")
 endif ()
 
 # Chan group's DMRG (Block code) support
 #=======================================
-
 if (BLOCK)
         mark_as_advanced(CLEAR BLOCK_DIR)
 
@@ -1413,11 +1412,11 @@ if (BLOCK)
         else ()
                 set (BLOCK OFF)
                 message ("-- BLOCK interface ignored (no BLOCK installation found at ${BLOCK_DIR})")
-                message (STATUS "BLOCK interface DISABLED")
+                message ("BLOCK interface DISABLED")
         endif ()
 else ()
         mark_as_advanced(FORCE BLOCK_DIR)
-        message (STATUS "BLOCK interface DISABLED")
+        message ("BLOCK interface DISABLED")
 endif ()
 
 # S.Wouters' DMRG (CheMPS2 code) support
@@ -1460,7 +1459,7 @@ if (CHEMPS2)
 
 else ()
         mark_as_advanced(FORCE CHEMPS2_DIR)
-        message (STATUS "CHEMPS2 interface DISABLED")
+        message ("CHEMPS2 interface DISABLED")
 endif ()
 
 if (BLOCK AND CHEMPS2)
@@ -1552,7 +1551,7 @@ if (MSYM)
                 message ("-- MSYM interface ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
         endif ()
 else ()
-        message (STATUS "MSYM support DISABLED")
+        message ("MSYM support DISABLED")
 endif ()
 
 if (DMRG)
@@ -1599,7 +1598,7 @@ if (DMRG)
                 message ("-- DMRG sources ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
         endif ()
 else ()
-        message (STATUS "DMRG support DISABLED")
+        message ("DMRG support DISABLED")
 endif ()
 
 # HDF5 F2003 support
@@ -1624,7 +1623,7 @@ if (HDF5_F2003)
         endif ()
 
 else ()
-        message (STATUS "HDF5 F2003 interface DISABLED")
+        message ("HDF5 F2003 interface DISABLED")
 endif ()
 
 # NECI Full-CI Quantum Monte-Carlo
@@ -1657,7 +1656,7 @@ if (NECI)
         endif ()
 
 else ()
-        message (STATUS "NECI interface DISABLED")
+        message ("NECI interface DISABLED")
 endif ()
 
 # EFP support (effective fragment support)
@@ -1680,7 +1679,7 @@ if (EFPLIB)
                 message ("-- EFP interface ignored (source not available, run git submodule update --init ${proj}\")")
         endif ()
 else ()
-        message (STATUS "EFP interface DISABLED")
+        message ("EFP interface DISABLED")
 endif ()
 
 # GEN1INT interface
@@ -1713,7 +1712,7 @@ if (GEN1INT)
         endif ()
 
 else ()
-        message (STATUS "GEN1INT support DISABLED")
+        message ("GEN1INT support DISABLED")
 endif ()
 
 # libwfa interface
@@ -1748,7 +1747,7 @@ if (WFA)
         endif ()
 else ()
         mark_as_advanced(FORCE ARMADILLO_INC)
-        message(STATUS "libwfa support DISABLED")
+        message("libwfa support DISABLED")
 endif ()
 
 # Add the "bigot" flags after processing the external projects, so they are not affected
@@ -2344,7 +2343,6 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
                                 if (${prog} STREQUAL "parnell.exe")
                                         continue ()
                                 endif ()
-                                #message(STATUS "update dylib for ... ${prog}")
                                 add_custom_target(dylibpath_${prog} ALL
                                                   DEPENDS ${prog}
                                                   VERBATIM

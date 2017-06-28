@@ -57,6 +57,8 @@ c     &                                      iorb,jorb,korb,lorb
         endif
       enddo
 
+      call Add_Info('Two-electron Integrals',TUVX,999,8)
+
 *     Set time at end of 2-electron integrals entries process ....
       CALL TIMING(CPT,CPE,TIOT,TIOE)
       If (iPrint.GE.5) WRITE(6,2200) CPT,TIOT

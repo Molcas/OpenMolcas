@@ -656,14 +656,6 @@ C and for now don't bother with 2-electron active density matrices
       CALL GETMEM('DStmp','FREE','REAL',LW7,NACPR2)
       CALL GETMEM('Dtmp ','FREE','REAL',LW6,NACPR2)
 *
-* C
-* PREPARE DENSITY MATRICES AS USED BY THE SUPER CI SECTION
-* C
-*
-!        CALL TRIPRT('Averaged one-body density matrix, D',
-!     &              ' ',D,NAC)
-!        CALL TRIPRT('Averaged two-body density matrix, P',
-!     &              ' ',P,NACPAR)
 * print matrices
       IF ( IPRLEV.GE.INSANE  ) THEN
         CALL TRIPRT('Averaged one-body density matrix, D',
