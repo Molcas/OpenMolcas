@@ -361,14 +361,16 @@
       Call ReadVc(Work(LCMO),Work(lOCCN),
      &             WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA))
 * Only now are such variables finally known.
-c        CALL TRIPRT('Averaged one-body density matrix, D, in RASSCF',
-c     &              ' ',Work(LDMAT),NAC)
-c        CALL TRIPRT('Averaged one-body spin density matrix DS, RASSCF',
-c     &              ' ',Work(LDSPN),NAC)
-c        CALL TRIPRT('Averaged two-body density matrix, P',
-c     &              ' ',WORK(LPMAT),NACPAR)
-c        CALL TRIPRT('Averaged antisym 2-body density matrix PA RASSCF',
-c     &              ' ',WORK(LPA),NACPAR)
+      If ( IPRLEV.ge.DEBUG ) then
+        CALL TRIPRT('Averaged one-body density matrix, D, in RASSCF',
+     &              ' ',Work(LDMAT),NAC)
+        CALL TRIPRT('Averaged one-body spin density matrix DS, RASSCF',
+     &              ' ',Work(LDSPN),NAC)
+        CALL TRIPRT('Averaged two-body density matrix, P',
+     &              ' ',WORK(LPMAT),NACPAR)
+        CALL TRIPRT('Averaged antisym 2-body density matrix PA RASSCF',
+     &              ' ',WORK(LPA),NACPAR)
+      END IF
 *
 * Allocate core space for dynamic storage of data
 *
@@ -557,6 +559,7 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
         ExFac=1.0D0
       else
          KSDFT_TEMP=KSDFT
+         ExFac=Get_ExFac(KSDFT)
       end if
 
       ITER=ITER+1
@@ -568,28 +571,14 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
 *     ^   First iteration
 ************************************************************************
 *
-* Print header to file containing informations on CI iterations.
-*
+* Print header to CI_Iteration file.
         Write(IterFile,'(20A4)') ('****',i=1,20)
         Write(IterFile,'(15X,A)') 'RASSCF iteration: 1A'
-*
+
         Start_Vectors=.True.
         lTemp = lRf
-        IF(.not.l_casdft) then
-          KSDFT_TEMP=KSDFT
-          ExFac=Get_ExFac(KSDFT)
-        end IF
-*
-* Transform two-electron integrals and compute at the same time
-* the Fock matrices FI and FA
-*
-        Call Timing(Swatch,Swatch,Fortis_1,Swatch)
 
-        If (.not.DoCholesky .or. ALGO.eq.1) Then
-           Call GetMem('PUVX','Allo','Real',LPUVX,NFINT)
-           Call FZero(Work(LPUVX),NFINT)
-        EndIf
-
+* Compute D1I from CMO coefficients
         Call Get_D1I_RASSCF(Work(LCMO),Work(lD1I))
         If ( IPRLEV.ge.DEBUG ) then
           Write(LF,*)
@@ -599,52 +588,25 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
           iOff=1
           Do iSym = 1,nSym
             iBas = nBas(iSym)
-*            Call TriPrt(' ','(5G17.11)',Work(lD1I+ioff-1),iBas)
              call wrtmat(Work(lD1I+ioff-1),iBas,iBas, iBas, iBas)
             iOff = iOff + iBas*iBas
           End Do
         End If
+
+* Compute D1A from CMO coefficients and, if CIREstart, old DMAT.
         If (iCIRST.eq.1) Then
-*
-*
            Call GetMem('TmpDMAT','Allo','Real',ipTmpDMAT,NACPAR)
            call dcopy_(NACPAR,Work(LDMAT),1,Work(ipTmpDMAT),1)
            If (NASH(1).ne.NAC) Call DBLOCK(Work(ipTmpDMAT))
            Call Get_D1A_RASSCF(Work(LCMO),Work(ipTmpDMAT),WORK(LD1A))
            Call GetMem('TmpDMAT','Free','Real',ipTmpDMAT,NACPAR)
-*
            DoActive = .true.
-*
-
         Else
-
            lRf = .false.
-           IF( .not.l_casdft )  then
-             KSDFT='SCF'
-             ExFac=1.0D0
-           end IF
            Call dcopy_(NTOT2,0.0D0,0,WORK(LD1A),1)
-
            DoActive = .false.
-
         End If
-
-        DoQmat=.false.
-
-        IPR=0
-        IF(IPRLOC(2).EQ.4) IPR=5
-        IF(IPRLOC(2).EQ.5) IPR=10
-
         If ( IPRLEV.ge.DEBUG ) then
-         Write(LF,*)
-         Write(LF,*) ' PUVX in rasscf bf first TRACTL2'
-         Write(LF,*) ' ---------------------'
-         Write(LF,*)
-         call wrtmat(Work(LPUVX),1,nFint, 1, nFint)
-
-         Write(LF,*)
-         Write(LF,*) ' ---------------------'
-
          Write(LF,*)
          Write(LF,*) ' D1A in AO basis in RASSCF bf TRACTL2 1'
          Write(LF,*) ' ---------------------'
@@ -657,12 +619,33 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
          End Do
         end if
 
+*       if(.not.l_casdft) then ! GLM2017Jun02
+
+        Call Timing(Swatch,Swatch,Fortis_1,Swatch)
+* Allocate memory for PUVX integrals and initialize to zero
+        If (.not.DoCholesky .or. ALGO.eq.1) Then
+           Call GetMem('PUVX','Allo','Real',LPUVX,NFINT)
+           Call FZero(Work(LPUVX),NFINT)
+        EndIf
+        If ( IPRLEV.ge.DEBUG ) then
+         Write(LF,*)
+         Write(LF,*) ' PUVX in rasscf bf first TRACTL2'
+         Write(LF,*) ' ---------------------'
+         Write(LF,*)
+         call wrtmat(Work(LPUVX),1,nFint, 1, nFint)
+         Write(LF,*)
+         Write(LF,*) ' ---------------------'
+        end if
+
+        DoQmat=.false.
+        IPR=0
+        IF(IPRLOC(2).EQ.4) IPR=5
+        IF(IPRLOC(2).EQ.5) IPR=10
+*
+* Transform two-electron integrals and compute the Fock matrices FI and FA
 * FI and FA are output from TRACTL2...
         CALL TRACTL2(WORK(LCMO),WORK(LPUVX),WORK(LTUVX),WORK(LD1I),
      &               WORK(LFI),WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
-
-c         Write(6,*) ' TUVX after TRACTL2'
-c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
 
         If ( IPRLEV.ge.DEBUG ) then
          Write(LF,*)
@@ -675,13 +658,19 @@ c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
           call wrtmat(Work(lD1A+ioff-1),iBas,iBas, iBas, iBas)
           iOff = iOff + iBas*iBas
          End Do
+         Write(LF,*)
+         Write(LF,*) ' ---------------------'
 
          Write(LF,*)
          Write(LF,*) ' PUVX in rasscf af first TRACTL2'
          Write(LF,*) ' ---------------------'
          Write(LF,*)
          call wrtmat(Work(LPUVX),1,nFint, 1, nFint)
+         Write(LF,*)
+         Write(LF,*) ' ---------------------'
 
+         Write(6,*) ' TUVX after TRACTL2'
+         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
          Write(LF,*)
          Write(LF,*) ' ---------------------'
         end if
@@ -689,10 +678,6 @@ c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
         If (.not.DoCholesky .or. ALGO.eq.1) Then
            Call GetMem('PUVX','Free','Real',LPUVX,NFINT)
         EndIf
-
-        Call Timing(Swatch,Swatch,Fortis_2,Swatch)
-        Fortis_2 = Fortis_2 - Fortis_1
-        Fortis_3 = Fortis_3 + Fortis_2
 
         If ( IPRLEV.ge.DEBUG ) then
          Write(LF,*)
@@ -711,6 +696,11 @@ c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
           end if
          End Do
         End If
+
+        Call Timing(Swatch,Swatch,Fortis_2,Swatch)
+        Fortis_2 = Fortis_2 - Fortis_1
+        Fortis_3 = Fortis_3 + Fortis_2
+
 *
 * Compute initial CI vectors and density matrices
 *
@@ -729,7 +719,7 @@ c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
           call FCIQMC_ctl(WORK(LCMO),WORK(LDIAF),
      &             WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
      &             WORK(LFI),WORK(LD1I),WORK(LD1A),
-     &             WORK(LTUVX),IFINAL)
+     &             WORK(LTUVX))
 
          if(iDumpOnly)then
           write(6,*) " FCIDUMP file generated. Here for serving you!"
@@ -835,10 +825,6 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
         Zenith_2 = Zenith_2 - Zenith_1
         Zenith_3 = Zenith_3 + Zenith_2
         lRf = lTemp
-        IF( .not.l_casdft ) then
-          KSDFT=KSDFT_TEMP
-          ExFac=Get_ExFac(KSDFT)
-        end IF
 
 *     v GLM for MC-PDFT
       If(KSDFT.ne.'SCF'.and.KSDFT.ne.'PAM'.or.l_casdft) Then
@@ -906,6 +892,9 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
           write(6,*) EAV
          END if
         End if
+
+*       End If ! for (.not.l_casdft) case 2017June02
+
           END IF
 ************************************************************************
 *         ^ End First iteration
@@ -950,11 +939,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
       Call Get_D1I_RASSCF(Work(LCMO),Work(lD1I))
 
       DoActive = .true.
-c      if(iDoNECI) then
-c        write(6,*) 'for FCIQMC-CASSCF DoActive is set to .false.'
-c        write(6,*) 'This should avoid decomposition of the active 1RDM'
-c        DoActive = .false.
-c      end if
+
       If (DoCholesky.and.ALGO.eq.2) Then
          DoQmat=.true. ! to be used in the subsequent SX-section
          NTav=0
@@ -1027,7 +1012,7 @@ c      end if
           call FCIQMC_ctl(WORK(LCMO),WORK(LDIAF),
      &             work(ldmat),work(ldspn),work(lpmat),work(lpa),
      &             work(lfi),work(ld1i),work(ld1a),
-     &             work(ltuvx),ifinal)
+     &             work(ltuvx))
 
           If ( IPRLEV.ge.DEBUG ) then
            Write(LF,*)
@@ -1142,6 +1127,8 @@ c      call triprt('P-mat 2',' ',WORK(LPMAT),nAc*(nAc+1)/2)
          End Do
        End if
       END IF
+c     ^ End IF (.not.l_casdft ) This long if is skipped for MCPDFT
+************************************************************************************************
 
       IF( l_casdft ) THEN
         CALL GETMEM('CASDFT_Fock','ALLO','REAL',LFOCK,NACPAR)
@@ -1657,7 +1644,7 @@ c Clean-close as much as you can the CASDFT stuff...
         call FCIQMC_ctl(WORK(LCMO),WORK(LDIAF),
      &             work(ldmat),work(ldspn),work(lpmat),work(lpa),
      &             work(lfi),work(ld1i),work(ld1a),
-     &             work(ltuvx),ifinal)
+     &             work(ltuvx))
       else
 #endif
         CALL CICTL(WORK(LCMO),

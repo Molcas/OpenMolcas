@@ -10,7 +10,7 @@
 ************************************************************************
 #ifdef _NECI_
       Subroutine FCIQMC_Ctl(CMO,DIAF,DMAT,DSPN,PSMAT,PAMAT,F_IN,D1I,D1A,
-     &                      TUVX,IFINAL)
+     &                      TUVX)
 * ***********************************************************
 *
 *      <Arguments>
@@ -24,17 +24,12 @@
 *        \Argument{D1I}{Inactive 1-dens matrix}{Real*8 array (NTOT2)}................{inout}
 *        \Argument{D1A}{Active 1-dens matrix}{Real*8 array (NTOT2)}..................{inout}
 *        \Argument{TUVX}{Active 2-el integrals}{Real*8 array (NACPR2)}...............{in}
-*        \Argument{IFINAL}{Calculation status switch}{Integer: 0,1 or 2}.............{in}
 *      </Arguments>
 *
 *      <Purpose> FCIQMC Control </Purpose>
 *      <Description>
 *
-*        Depends on IFINAL, which is set in RASSCF. If IFINAL=0, repeated
-*        calculations with orbital optimation before each call. If IFINAL=1,
-*        there has been no orbital optimization, or the calculation is
-*        converged. IFINAL=2 means this is a final CI calculation, using the
-*        final orbitals. For meaning of global variables NTOT1, NTOT2, NACPAR
+*        For meaning of global variables NTOT1, NTOT2, NACPAR
 *        and NACPR2, see src/Include/general.inc and src/Include/rasscf.inc.
 *
 *        This routine will replace CICTL in FCIQMC regime.
@@ -49,10 +44,9 @@
       Implicit Real* 8 (A-H,O-Z)
       Real*8 CMO(*),DMAT(*),DSPN(*),PSMAT(*),PAMAT(*),F_In(*),D1I(*),
      &       DIAF(*),D1A(*),TUVX(*)
-      Logical Exist,Do_ESPF, WaitForNECI
+      Logical Do_ESPF, WaitForNECI
       Real*8 NECIen
-      character answer*1
-      Integer LuNewC, ios
+      Integer LuNewC
 
 #include "rasdim.fh"
 #include "rasscf.fh"
@@ -191,7 +185,9 @@ c       write(6,*)'ntot1,ntot2,nacpar,nacpr2',ntot1,ntot2,nacpar,nacpr2
             write(6,*)'(2) cp TwoRDM_aaaa.1 into $Project.TwoRDM_aaaa'
             write(6,*)'(3) cp TwoRDM_abab.1 into $Project.TwoRDM_abab'
             write(6,*)'(4) cp TwoRDM_abba.1 into $Project.TwoRDM_abba'
-            write(6,*)'(5) cp OneRDM ../$Project.OneRDM'
+            write(6,*)'(2) cp TwoRDM_bbbb.1 into $Project.TwoRDM_bbbb'
+            write(6,*)'(3) cp TwoRDM_baba.1 into $Project.TwoRDM_baba'
+            write(6,*)'(4) cp TwoRDM_baab.1 into $Project.TwoRDM_baab'
             write(6,*)'   where $Project is the root of your input file'
             write(6,*)'(6) Type: echo ''your_RDM_Energy'' > NEWCYCLE'
             call xflush(6)
@@ -202,25 +198,10 @@ c       write(6,*)'ntot1,ntot2,nacpar,nacpr2',ntot1,ntot2,nacpar,nacpr2
             write(6, *) 'NEWCYCLE file found. Proceding with SuperCI'
             LuNewC = 12
             call molcas_open(LuNewC,'NEWCYCLE')
-c            open(LuNewC, file='NEWCYCLE', status='old',iostat=ios)
-c            if (ios.ne.0) then
-c              write (6, *) 'Problem opening NEWCYCLE file.'
-c              write (6, *) 'Did you forget to create it?'
-c              Call QTrace()
-c              Call Abend()
-c            endif
             read(LuNewC,*) NECIen
             write(6,*) 'I read the following energy:'
             write(6,*) NECIen
             close (LuNewC, status='delete')
-
-c            answer = 'u'
-c            do while(answer.eq.'u')
-c              write(6,*) 'To continue with SX enter ''y'''
-c              write(6,*) 'Otherwise type '' n'' to quit!'
-c              read(6,*) answer
-c              if (answer.eq.'n') stop 'Job aborted!'
-c            end do
           else
 #ifndef _EXTNECI_
             write(6,*) 'NECI called automatically within Molcas!'
@@ -238,10 +219,9 @@ c         write(6,*) Iter, ENER(1,ITER)
 **************************************************************************************
 *****************        Generate density matrices for Molcas       ******************
 **************************************************************************************
-* Neci density matrices are stored in Files OneRDM (spin-orbital basis) and
-* TwoRDM_**** (in spacial orbital basis). I will be reading them from those
-* formatted files for the time being. Next it will be nice if NECI prints them
-* out already in Molcas format.
+* Neci density matrices are stored in Files TwoRDM_**** (in spacial orbital basis).
+* I will be reading them from those formatted files for the time being.
+* Next it will be nice if NECI prints them out already in Molcas format.
           Zero = 0.0d0
           Call dCopy_(NACPAR,Zero,0,DMAT,1)
           Call dCopy_(NACPAR,Zero,0,DSPN,1)
@@ -266,7 +246,8 @@ c         write(6,*) Iter, ENER(1,ITER)
           END IF
 #endif
           call neci2molcas_dens(Work(LW6),Work(LW7),
-     &                          Work(LW8),Work(LW9),NACPAR,nactel)
+     &                          Work(LW8),Work(LW9),
+     &                          NACPAR,NACPR2,nactel)
 #ifdef _MOLCAS_MPP_
           IF (Is_Real_Par()) THEN
             call MPI_Barrier(MPI_COMM_WORLD,ierror)
