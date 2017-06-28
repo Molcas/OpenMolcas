@@ -1412,7 +1412,7 @@ if (BLOCK)
         else ()
                 set (BLOCK OFF)
                 message ("-- BLOCK interface ignored (no BLOCK installation found at ${BLOCK_DIR})")
-                message (STATUS "BLOCK interface DISABLED")
+                message ("BLOCK interface DISABLED")
         endif ()
 else ()
         mark_as_advanced(FORCE BLOCK_DIR)
@@ -1459,7 +1459,7 @@ if (CHEMPS2)
 
 else ()
         mark_as_advanced(FORCE CHEMPS2_DIR)
-        message (STATUS "CHEMPS2 interface DISABLED")
+        message ("CHEMPS2 interface DISABLED")
 endif ()
 
 if (BLOCK AND CHEMPS2)
@@ -2340,7 +2340,6 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
                                 if (${prog} STREQUAL "parnell.exe")
                                         continue ()
                                 endif ()
-                                #message(STATUS "update dylib for ... ${prog}")
                                 add_custom_target(dylibpath_${prog} ALL
                                                   DEPENDS ${prog}
                                                   VERBATIM
