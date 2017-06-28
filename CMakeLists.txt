@@ -2484,22 +2484,27 @@ if (GEN1INT)
                 )
 endif ()
 
-# Find the molcas.driver script
-foreach (BASE_DIR ${basedirs})
-        if (EXISTS "${BASE_DIR}/sbin/molcas.driver")
-                set (MOLCAS_DRIVER "${BASE_DIR}/sbin/molcas.driver")
+# find the molcas.driver script or use a dummy driver
+if (DEFINED EXTRA_DIR)
+        set (MOLCAS_DRIVER "${EXTRA_DIR}/sbin/molcas.driver")
+        execute_process (
+                COMMAND ${OPENMOLCAS_DIR}/sbin/install_driver.sh ${MOLCAS_DRIVER}
+                WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+                RESULT_VARIABLE INSTALL_DRIVER_RC
+                )
+        if (INSTALL_DRIVER_RC)
+                message (FATAL_ERROR "Failed to install the Molcas driver")
         endif ()
-endforeach ()
-if (NOT DEFINED MOLCAS_DRIVER)
-        message (FATAL_ERROR "Molcas driver not found")
-endif ()
-execute_process (
-        COMMAND ${OPENMOLCAS_DIR}/sbin/install_driver.sh ${MOLCAS_DRIVER}
-        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-        RESULT_VARIABLE INSTALL_DRIVER_RC
-        )
-if (INSTALL_DRIVER_RC)
-        message (FATAL_ERROR "Failed to install the Molcas driver")
+else ()
+        set (MOLCAS_DRIVER "${OPENMOLCAS_DIR}/sbin/dummy.driver")
+        # if molcas-extra is not available, enforce building pymolcas
+        if (NOT TOOLS)
+                set (BASE_DIR "${OPENMOLCAS_DIR}")
+                set (toolsdir "${OPENMOLCAS_DIR}/Tools")
+                set (tool "pymolcas")
+                add_subdirectory (${toolsdir}/${tool} ${PROJECT_BINARY_DIR}/Tools/${tool})
+                message ("-- ${tool}: added to targets")
+        endif ()
 endif ()
 
 get_directory_property(defs COMPILE_DEFINITIONS)
@@ -2528,19 +2533,21 @@ if (EXISTS ${GIT})
         endforeach ()
 endif ()
 
-# fetch the prebuilt executables
-file (WRITE ${PROJECT_BINARY_DIR}/xbin.cfg "PLATFORM = ${PLATFORM}\n")
+# fetch the prebuilt executable (if using molcas-extra)
+if (DEFINED EXTRA_DIR)
+        file (WRITE ${PROJECT_BINARY_DIR}/xbin.cfg "PLATFORM = ${PLATFORM}\n")
 
-execute_process (
-        COMMAND "${MOLCAS_DRIVER}" getemil
-        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-        ERROR_VARIABLE GETEMIL_DESCRIBE_ERROR
-        RESULT_VARIABLE GETEMIL_DESCRIBE_RC
-        )
-if (GETEMIL_DESCRIBE_RC)
-        message (FATAL_ERROR "Failed to fetch Molcas binary: ${GETEMIL_DESCRIBE_ERROR}")
+        execute_process (
+                COMMAND "${MOLCAS_DRIVER}" getemil
+                WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+                ERROR_VARIABLE GETEMIL_DESCRIBE_ERROR
+                RESULT_VARIABLE GETEMIL_DESCRIBE_RC
+                )
+        if (GETEMIL_DESCRIBE_RC)
+                message (FATAL_ERROR "Failed to fetch Molcas binary: ${GETEMIL_DESCRIBE_ERROR}")
+        endif ()
+        list (APPEND progs_exe "molcas.exe")
 endif ()
-list (APPEND progs_exe "molcas.exe")
 
 # remove executables that should not be there
 file (GLOB exe RELATIVE ${EXECUTABLE_OUTPUT_PATH} "${EXECUTABLE_OUTPUT_PATH}/*.exe")
@@ -2567,32 +2574,34 @@ foreach (BASE_DIR ${basedirs})
         endforeach (prgmsrc)
 endforeach (BASE_DIR)
 
-# generate help databases from source
-set (ENV{MOLCAS} ${PROJECT_BINARY_DIR})
-file (WRITE ${PROJECT_BINARY_DIR}/.openmolcashome
-        "OPENMOLCAS=${OPENMOLCAS_DIR}"
-        )
-execute_process (
-        COMMAND ${MOLCAS_DRIVER} mkhelp
-        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-        ERROR_VARIABLE MKHELP_ERROR
-        RESULT_VARIABLE MKHELP_RESULT
-        )
-file (REMOVE ${PROJECT_BINARY_DIR}/.openmolcashome)
-if (MKHELP_RESULT)
-        message(FATAL_ERROR "Running \"mkhelp\" failed: ${MKHELP_ERROR}")
-endif ()
-
-# check XML consistency, only if the program is found
-find_program (XMLLINT "xmllint")
-mark_as_advanced(FORCE XMLLINT)
-if (XMLLINT)
-        add_custom_target (
-                check_xml
-                COMMAND ${XMLLINT} "${PROJECT_BINARY_DIR}/data/keyword.xml" "-noout"
-                COMMENT "Checking XML consistency"
-                VERBATIM
+# generate help databases from source (if using molcas-extra)
+if (DEFINED EXTRA_DIR)
+        set (ENV{MOLCAS} ${PROJECT_BINARY_DIR})
+        file (WRITE ${PROJECT_BINARY_DIR}/.openmolcashome
+                "OPENMOLCAS=${OPENMOLCAS_DIR}"
                 )
+        execute_process (
+                COMMAND ${MOLCAS_DRIVER} mkhelp
+                WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+                ERROR_VARIABLE MKHELP_ERROR
+                RESULT_VARIABLE MKHELP_RESULT
+                )
+        file (REMOVE ${PROJECT_BINARY_DIR}/.openmolcashome)
+        if (MKHELP_RESULT)
+                message(FATAL_ERROR "Running \"mkhelp\" failed: ${MKHELP_ERROR}")
+        endif ()
+
+        # check XML consistency, only if the program is found
+        find_program (XMLLINT "xmllint")
+        mark_as_advanced(FORCE XMLLINT)
+        if (XMLLINT)
+                add_custom_target (
+                        check_xml
+                        COMMAND ${XMLLINT} "${PROJECT_BINARY_DIR}/data/keyword.xml" "-noout"
+                        COMMENT "Checking XML consistency"
+                        VERBATIM
+                        )
+        endif ()
 endif ()
 
 # generate rcodes.txt file
