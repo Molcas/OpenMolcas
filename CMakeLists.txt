@@ -1901,6 +1901,9 @@ list (REMOVE_ITEM progs
         symmetrize
         wfa
         )
+if (DEFINED EXTRA_DIR)
+        list (REMOVE_ITEM utils dummy_util)
+endif ()
 
 # set the location of the sources for the utilities
 foreach (util ${utils})
