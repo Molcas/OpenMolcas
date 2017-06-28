@@ -1810,7 +1810,7 @@ c deallocating TUVX memory...
       END IF
 *
 c deallocating detorb... allocated in proc_inp.f used throughout the iterations
-        If(iDoNECI.and.definedet) 
+        If(iDoNECI.and.definedet)
      &            Call GetMem('DetOrb','Free','Inte',ipDet,nActel)
 *
 * release SEWARD
