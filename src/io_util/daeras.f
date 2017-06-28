@@ -54,32 +54,28 @@
 
       If ( isOpen(Lu).eq.0 )
      * Call SysFileMsg(TheName,'MSG: used', Lu,' ')
-#ifdef _GA_
-      iRc = AixCls(FSCB(Lu))
-#else
+#if defined (_HAVE_EXTRA_) && ! defined (_GA_)
       If(isFiM(Lu).eq.0) then
+#endif
         iRc = AixCls(FSCB(Lu))
+#if defined (_HAVE_EXTRA_) && ! defined (_GA_)
       Else
         iRc=FimCls(FSCB(Lu))
       End If
 #endif
       If ( iRc.ne.0 ) then
         iRc = AixErr(Text)
-      Call SysFileMsg(TheName,'MSG: close', Lu,Text)
+        Call SysFileMsg(TheName,'MSG: close', Lu,Text)
       End If
-#ifdef _GA_
-      iRc = AixRm(LuName(Lu))
-      If ( iRc.ne.0 ) then
-        iRc = AixErr(Text)
-      Call SysFileMsg(TheName,'MSG: delete', Lu,Text)
-      End If
-#else
+#if defined (_HAVE_EXTRA_) && ! defined (_GA_)
       If(isFiM(Lu).eq.0) then
+#endif
         iRc = AixRm(LuName(Lu))
-      If ( iRc.ne.0 ) then
-        iRc = AixErr(Text)
-      Call SysFileMsg(TheName,'MSG: delete', Lu,Text)
-      End If
+        If ( iRc.ne.0 ) then
+          iRc = AixErr(Text)
+        Call SysFileMsg(TheName,'MSG: delete', Lu,Text)
+        End If
+#if defined (_HAVE_EXTRA_) && ! defined (_GA_)
       End If
 #endif
       isOpen(Lu) = 0
