@@ -233,6 +233,7 @@ endfunction ()
 # These will be needed later, so set them now
 find_source(blas_util)
 find_source(lapack_util)
+set (internal_linalg ${blas_util_src} ${lapack_util_src})
 
 # get version from git if available, otherwise look in .molcasversion
 #====================================================================
@@ -1961,7 +1962,7 @@ if (LINALG STREQUAL "Runtime")
         else ()
                 message (FATAL_ERROR "\"${util}\" not found in source directories")
         endif ()
-        list (APPEND ${util}_incs ${blas_util_src} ${lapack_util_src})
+        list (APPEND ${util}_incs ${internal_linalg})
 endif ()
 
 # activate HDF5 wrappers for I/O
@@ -2119,7 +2120,7 @@ if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
         file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${fmm_util_src}/*.f90)
         set_source_files_properties (${source} PROPERTIES COMPILE_FLAGS "-Wno-unused-function")
         # netlib blas/lapack has too many problems to fix (yet)
-        set (netlib_nowarn_flags "-Wno-conversion -Wno-unused-dummy-argument -Wno-maybe-uninitialized")
+        set (netlib_nowarn_flags "-w")
         file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${blas_util_src}/*.f)
         set_source_files_properties (${source} PROPERTIES COMPILE_FLAGS ${netlib_nowarn_flags})
         file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${lapack_util_src}/*.f)
@@ -2233,14 +2234,18 @@ endif ()
 
 # if necessary, build BLAS/LAPACK
 if (LINALG STREQUAL "Internal")
-        foreach (lib "lapack" "blas")
+        foreach (lib ${LINALG_LIBRARIES})
                 set (util "${lib}_util")
                 if (NOT DEFINED ${util}_src)
                         message (FATAL_ERROR "\"${util}\" not found in source directories")
                 endif ()
-                file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${${util}_src}/*.f)
+                set (source ${${util}_src}/${lib}.f)
                 add_library (${lib} ${source})
                 list (APPEND ALL_SOURCES ${source})
+                list (APPEND ${util}_incs ${internal_linalg})
+                foreach (inc ${${util}_incs})
+                        target_include_directories (${lib} PRIVATE ${inc})
+                endforeach ()
                 if (BUILD_SHARED_LIBS)
                         set_target_properties (${lib} PROPERTIES
                                 POSITION_INDEPENDENT_CODE "TRUE")

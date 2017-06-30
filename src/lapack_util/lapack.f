@@ -8,10 +8,5 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      module BLAS_MOD
 
-      contains
-
-#include "blas.fh"
-
-      end module BLAS_MOD
+#include "lapack.fh"
