@@ -31,11 +31,6 @@
 *                                                                      *
 *             Modified to complement GetInf, January '92.              *
 *                                                                      *
-* Copyright 1991 R. Lindh, Dept. of Theor. Chem. Univ. of Lund, Sweden *
-* Copyright 1992 R. Lindh, Dept. of Theor. Chem. Univ. of Lund, Sweden *
-*                                                                      *
-* Patch 1999, Valera Veryazov                                          *
-*                                                                      *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
