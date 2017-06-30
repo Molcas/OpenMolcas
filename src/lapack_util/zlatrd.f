@@ -140,7 +140,7 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
 *> \ingroup complex16OTHERauxiliary
 *
@@ -199,17 +199,17 @@
 *  =====================================================================
       SUBROUTINE ZLATRD( UPLO, N, NB, A, LDA, E, TAU, W, LDW )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          UPLO
       INTEGER            LDA, LDW, N, NB
 *     ..
 *     .. Array Arguments ..
-      REAL*8             E( * )
+      DOUBLE PRECISION   E( * )
       COMPLEX*16         A( LDA, * ), TAU( * ), W( LDW, * )
 *     ..
 *
@@ -355,4 +355,4 @@
 *
 *     End of ZLATRD
 *
-      END SUBROUTINE
+      END

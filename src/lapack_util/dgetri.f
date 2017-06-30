@@ -25,7 +25,7 @@
 *       ..
 *       .. Array Arguments ..
 *       INTEGER            IPIV( * )
-*       REAL*8             A( LDA, * ), WORK( * )
+*       DOUBLE PRECISION   A( LDA, * ), WORK( * )
 *       ..
 *
 *
@@ -52,7 +52,7 @@
 *>
 *> \param[in,out] A
 *> \verbatim
-*>          A is REAL*8           array, dimension (LDA,N)
+*>          A is DOUBLE PRECISION array, dimension (LDA,N)
 *>          On entry, the factors L and U from the factorization
 *>          A = P*L*U as computed by DGETRF.
 *>          On exit, if INFO = 0, the inverse of the original matrix A.
@@ -73,7 +73,7 @@
 *>
 *> \param[out] WORK
 *> \verbatim
-*>          WORK is REAL*8           array, dimension (MAX(1,LWORK))
+*>          WORK is DOUBLE PRECISION array, dimension (MAX(1,LWORK))
 *>          On exit, if INFO=0, then WORK(1) returns the optimal LWORK.
 *> \endverbatim
 *>
@@ -107,30 +107,30 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date November 2011
+*> \date December 2016
 *
 *> \ingroup doubleGEcomputational
 *
 *  =====================================================================
       SUBROUTINE DGETRI( N, A, LDA, IPIV, WORK, LWORK, INFO )
 *
-*  -- LAPACK computational routine (version 3.4.0) --
+*  -- LAPACK computational routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     November 2011
+*     December 2016
 *
 *     .. Scalar Arguments ..
       INTEGER            INFO, LDA, LWORK, N
 *     ..
 *     .. Array Arguments ..
       INTEGER            IPIV( * )
-      REAL*8             A( LDA, * ), WORK( * )
+      DOUBLE PRECISION   A( LDA, * ), WORK( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ZERO, ONE
+      DOUBLE PRECISION   ZERO, ONE
       PARAMETER          ( ZERO = 0.0D+0, ONE = 1.0D+0 )
 *     ..
 *     .. Local Scalars ..
@@ -258,4 +258,4 @@
 *
 *     End of DGETRI
 *
-      END SUBROUTINE
+      END

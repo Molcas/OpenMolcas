@@ -122,7 +122,7 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
 *> \ingroup complex16HEcomputational
 *
@@ -175,17 +175,17 @@
 *  =====================================================================
       SUBROUTINE ZHETD2( UPLO, N, A, LDA, D, E, TAU, INFO )
 *
-*  -- LAPACK computational routine (version 3.4.2) --
+*  -- LAPACK computational routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          UPLO
       INTEGER            INFO, LDA, N
 *     ..
 *     .. Array Arguments ..
-      REAL*8             D( * ), E( * )
+      DOUBLE PRECISION   D( * ), E( * )
       COMPLEX*16         A( LDA, * ), TAU( * )
 *     ..
 *
@@ -331,4 +331,4 @@
 *
 *     End of ZHETD2
 *
-      END SUBROUTINE
+      END

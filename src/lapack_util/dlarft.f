@@ -25,7 +25,7 @@
 *       INTEGER            K, LDT, LDV, N
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             T( LDT, * ), TAU( * ), V( LDV, * )
+*       DOUBLE PRECISION   T( LDT, * ), TAU( * ), V( LDV, * )
 *       ..
 *
 *
@@ -88,7 +88,7 @@
 *>
 *> \param[in] V
 *> \verbatim
-*>          V is REAL*8           array, dimension
+*>          V is DOUBLE PRECISION array, dimension
 *>                               (LDV,K) if STOREV = 'C'
 *>                               (LDV,N) if STOREV = 'R'
 *>          The matrix V. See further details.
@@ -103,14 +103,14 @@
 *>
 *> \param[in] TAU
 *> \verbatim
-*>          TAU is REAL*8           array, dimension (K)
+*>          TAU is DOUBLE PRECISION array, dimension (K)
 *>          TAU(i) must contain the scalar factor of the elementary
 *>          reflector H(i).
 *> \endverbatim
 *>
 *> \param[out] T
 *> \verbatim
-*>          T is REAL*8           array, dimension (LDT,K)
+*>          T is DOUBLE PRECISION array, dimension (LDT,K)
 *>          The k by k triangular factor T of the block reflector.
 *>          If DIRECT = 'F', T is upper triangular; if DIRECT = 'B', T is
 *>          lower triangular. The rest of the array is not used.
@@ -130,7 +130,7 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
 *> \ingroup doubleOTHERauxiliary
 *
@@ -163,23 +163,23 @@
 *  =====================================================================
       SUBROUTINE DLARFT( DIRECT, STOREV, N, K, V, LDV, TAU, T, LDT )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          DIRECT, STOREV
       INTEGER            K, LDT, LDV, N
 *     ..
 *     .. Array Arguments ..
-      REAL*8             T( LDT, * ), TAU( * ), V( LDV, * )
+      DOUBLE PRECISION   T( LDT, * ), TAU( * ), V( LDV, * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ONE, ZERO
+      DOUBLE PRECISION   ONE, ZERO
       PARAMETER          ( ONE = 1.0D+0, ZERO = 0.0D+0 )
 *     ..
 *     .. Local Scalars ..
@@ -323,4 +323,4 @@
 *
 *     End of DLARFT
 *
-      END SUBROUTINE
+      END

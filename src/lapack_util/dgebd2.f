@@ -24,7 +24,7 @@
 *       INTEGER            INFO, LDA, M, N
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             A( LDA, * ), D( * ), E( * ), TAUP( * ),
+*       DOUBLE PRECISION   A( LDA, * ), D( * ), E( * ), TAUP( * ),
 *      $                   TAUQ( * ), WORK( * )
 *       ..
 *
@@ -57,7 +57,7 @@
 *>
 *> \param[in,out] A
 *> \verbatim
-*>          A is REAL*8           array, dimension (LDA,N)
+*>          A is DOUBLE PRECISION array, dimension (LDA,N)
 *>          On entry, the m by n general matrix to be reduced.
 *>          On exit,
 *>          if m >= n, the diagonal and the first superdiagonal are
@@ -85,14 +85,14 @@
 *>
 *> \param[out] D
 *> \verbatim
-*>          D is REAL*8           array, dimension (min(M,N))
+*>          D is DOUBLE PRECISION array, dimension (min(M,N))
 *>          The diagonal elements of the bidiagonal matrix B:
 *>          D(i) = A(i,i).
 *> \endverbatim
 *>
 *> \param[out] E
 *> \verbatim
-*>          E is REAL*8           array, dimension (min(M,N)-1)
+*>          E is DOUBLE PRECISION array, dimension (min(M,N)-1)
 *>          The off-diagonal elements of the bidiagonal matrix B:
 *>          if m >= n, E(i) = A(i,i+1) for i = 1,2,...,n-1;
 *>          if m < n, E(i) = A(i+1,i) for i = 1,2,...,m-1.
@@ -100,21 +100,21 @@
 *>
 *> \param[out] TAUQ
 *> \verbatim
-*>          TAUQ is REAL*8           array dimension (min(M,N))
+*>          TAUQ is DOUBLE PRECISION array, dimension (min(M,N))
 *>          The scalar factors of the elementary reflectors which
 *>          represent the orthogonal matrix Q. See Further Details.
 *> \endverbatim
 *>
 *> \param[out] TAUP
 *> \verbatim
-*>          TAUP is REAL*8           array, dimension (min(M,N))
+*>          TAUP is DOUBLE PRECISION array, dimension (min(M,N))
 *>          The scalar factors of the elementary reflectors which
 *>          represent the orthogonal matrix P. See Further Details.
 *> \endverbatim
 *>
 *> \param[out] WORK
 *> \verbatim
-*>          WORK is REAL*8           array, dimension (max(M,N))
+*>          WORK is DOUBLE PRECISION array, dimension (max(M,N))
 *> \endverbatim
 *>
 *> \param[out] INFO
@@ -132,7 +132,7 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date June 2017
 *
 *> \ingroup doubleGEcomputational
 *
@@ -189,23 +189,23 @@
 *  =====================================================================
       SUBROUTINE DGEBD2( M, N, A, LDA, D, E, TAUQ, TAUP, WORK, INFO )
 *
-*  -- LAPACK computational routine (version 3.4.2) --
+*  -- LAPACK computational routine (version 3.7.1) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     June 2017
 *
 *     .. Scalar Arguments ..
       INTEGER            INFO, LDA, M, N
 *     ..
 *     .. Array Arguments ..
-      REAL*8             A( LDA, * ), D( * ), E( * ), TAUP( * ),
+      DOUBLE PRECISION   A( LDA, * ), D( * ), E( * ), TAUP( * ),
      $                   TAUQ( * ), WORK( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ZERO, ONE
+      DOUBLE PRECISION   ZERO, ONE
       PARAMETER          ( ZERO = 0.0D+0, ONE = 1.0D+0 )
 *     ..
 *     .. Local Scalars ..
@@ -317,4 +317,4 @@
 *
 *     End of DGEBD2
 *
-      END SUBROUTINE
+      END

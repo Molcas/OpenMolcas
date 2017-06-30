@@ -23,10 +23,10 @@
 *
 *       .. Scalar Arguments ..
 *       INTEGER            I0, N0, PP
-*       REAL*8             DMIN, DMIN1, DMIN2, DN, DNM1, DNM2
+*       DOUBLE PRECISION   DMIN, DMIN1, DMIN2, DN, DNM1, DNM2
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             Z( * )
+*       DOUBLE PRECISION   Z( * )
 *       ..
 *
 *
@@ -56,7 +56,7 @@
 *>
 *> \param[in] Z
 *> \verbatim
-*>          Z is REAL*8           array, dimension ( 4*N )
+*>          Z is DOUBLE PRECISION array, dimension ( 4*N )
 *>        Z holds the qd array. EMIN is stored in Z(4*N0) to avoid
 *>        an extra argument.
 *> \endverbatim
@@ -69,37 +69,37 @@
 *>
 *> \param[out] DMIN
 *> \verbatim
-*>          DMIN is REAL*8
+*>          DMIN is DOUBLE PRECISION
 *>        Minimum value of d.
 *> \endverbatim
 *>
 *> \param[out] DMIN1
 *> \verbatim
-*>          DMIN1 is REAL*8
+*>          DMIN1 is DOUBLE PRECISION
 *>        Minimum value of d, excluding D( N0 ).
 *> \endverbatim
 *>
 *> \param[out] DMIN2
 *> \verbatim
-*>          DMIN2 is REAL*8
+*>          DMIN2 is DOUBLE PRECISION
 *>        Minimum value of d, excluding D( N0 ) and D( N0-1 ).
 *> \endverbatim
 *>
 *> \param[out] DN
 *> \verbatim
-*>          DN is REAL*8
+*>          DN is DOUBLE PRECISION
 *>        d(N0), the last value of d.
 *> \endverbatim
 *>
 *> \param[out] DNM1
 *> \verbatim
-*>          DNM1 is REAL*8
+*>          DNM1 is DOUBLE PRECISION
 *>        d(N0-1).
 *> \endverbatim
 *>
 *> \param[out] DNM2
 *> \verbatim
-*>          DNM2 is REAL*8
+*>          DNM2 is DOUBLE PRECISION
 *>        d(N0-2).
 *> \endverbatim
 *
@@ -111,7 +111,7 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
 *> \ingroup auxOTHERcomputational
 *
@@ -119,31 +119,31 @@
       SUBROUTINE DLASQ6( I0, N0, Z, PP, DMIN, DMIN1, DMIN2, DN,
      $                   DNM1, DNM2 )
 *
-*  -- LAPACK computational routine (version 3.4.2) --
+*  -- LAPACK computational routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
       INTEGER            I0, N0, PP
-      REAL*8             DMIN, DMIN1, DMIN2, DN, DNM1, DNM2
+      DOUBLE PRECISION   DMIN, DMIN1, DMIN2, DN, DNM1, DNM2
 *     ..
 *     .. Array Arguments ..
-      REAL*8             Z( * )
+      DOUBLE PRECISION   Z( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameter ..
-      REAL*8             ZERO
+      DOUBLE PRECISION   ZERO
       PARAMETER          ( ZERO = 0.0D0 )
 *     ..
 *     .. Local Scalars ..
       INTEGER            J4, J4P2
-      REAL*8             D, EMIN, SAFMIN, TEMP
+      DOUBLE PRECISION   D, EMIN, SAFMIN, TEMP
 *     ..
 *     .. External Function ..
-      REAL*8             DLAMCH
+      DOUBLE PRECISION   DLAMCH
       EXTERNAL           DLAMCH
 *     ..
 *     .. Intrinsic Functions ..
@@ -251,4 +251,4 @@
 *
 *     End of DLASQ6
 *
-      END SUBROUTINE
+      END

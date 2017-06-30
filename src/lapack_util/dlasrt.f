@@ -25,7 +25,7 @@
 *       INTEGER            INFO, N
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             D( * )
+*       DOUBLE PRECISION   D( * )
 *       ..
 *
 *
@@ -59,7 +59,7 @@
 *>
 *> \param[in,out] D
 *> \verbatim
-*>          D is REAL*8           array, dimension (N)
+*>          D is DOUBLE PRECISION array, dimension (N)
 *>          On entry, the array to be sorted.
 *>          On exit, D has been sorted into increasing order
 *>          (D(1) <= ... <= D(N) ) or into decreasing order
@@ -81,24 +81,24 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date June 2016
 *
 *> \ingroup auxOTHERcomputational
 *
 *  =====================================================================
       SUBROUTINE DLASRT( ID, N, D, INFO )
 *
-*  -- LAPACK computational routine (version 3.4.2) --
+*  -- LAPACK computational routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     June 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          ID
       INTEGER            INFO, N
 *     ..
 *     .. Array Arguments ..
-      REAL*8             D( * )
+      DOUBLE PRECISION   D( * )
 *     ..
 *
 *  =====================================================================
@@ -109,7 +109,7 @@
 *     ..
 *     .. Local Scalars ..
       INTEGER            DIR, ENDD, I, J, START, STKPNT
-      REAL*8             D1, D2, D3, DMNMX, TMP
+      DOUBLE PRECISION   D1, D2, D3, DMNMX, TMP
 *     ..
 *     .. Local Arrays ..
       INTEGER            STACK( 2, 32 )
@@ -123,7 +123,7 @@
 *     ..
 *     .. Executable Statements ..
 *
-*     Test the input paramters.
+*     Test the input parameters.
 *
       INFO = 0
       DIR = -1
@@ -300,4 +300,4 @@
 *
 *     End of DLASRT
 *
-      END SUBROUTINE
+      END

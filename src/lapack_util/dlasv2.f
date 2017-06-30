@@ -21,7 +21,7 @@
 *       SUBROUTINE DLASV2( F, G, H, SSMIN, SSMAX, SNR, CSR, SNL, CSL )
 *
 *       .. Scalar Arguments ..
-*       REAL*8             CSL, CSR, F, G, H, SNL, SNR, SSMAX, SSMIN
+*       DOUBLE PRECISION   CSL, CSR, F, G, H, SNL, SNR, SSMAX, SSMIN
 *       ..
 *
 *
@@ -47,54 +47,54 @@
 *
 *> \param[in] F
 *> \verbatim
-*>          F is REAL*8
+*>          F is DOUBLE PRECISION
 *>          The (1,1) element of the 2-by-2 matrix.
 *> \endverbatim
 *>
 *> \param[in] G
 *> \verbatim
-*>          G is REAL*8
+*>          G is DOUBLE PRECISION
 *>          The (1,2) element of the 2-by-2 matrix.
 *> \endverbatim
 *>
 *> \param[in] H
 *> \verbatim
-*>          H is REAL*8
+*>          H is DOUBLE PRECISION
 *>          The (2,2) element of the 2-by-2 matrix.
 *> \endverbatim
 *>
 *> \param[out] SSMIN
 *> \verbatim
-*>          SSMIN is REAL*8
+*>          SSMIN is DOUBLE PRECISION
 *>          abs(SSMIN) is the smaller singular value.
 *> \endverbatim
 *>
 *> \param[out] SSMAX
 *> \verbatim
-*>          SSMAX is REAL*8
+*>          SSMAX is DOUBLE PRECISION
 *>          abs(SSMAX) is the larger singular value.
 *> \endverbatim
 *>
 *> \param[out] SNL
 *> \verbatim
-*>          SNL is REAL*8
+*>          SNL is DOUBLE PRECISION
 *> \endverbatim
 *>
 *> \param[out] CSL
 *> \verbatim
-*>          CSL is REAL*8
+*>          CSL is DOUBLE PRECISION
 *>          The vector (CSL, SNL) is a unit left singular vector for the
 *>          singular value abs(SSMAX).
 *> \endverbatim
 *>
 *> \param[out] SNR
 *> \verbatim
-*>          SNR is REAL*8
+*>          SNR is DOUBLE PRECISION
 *> \endverbatim
 *>
 *> \param[out] CSR
 *> \verbatim
-*>          CSR is REAL*8
+*>          CSR is DOUBLE PRECISION
 *>          The vector (CSR, SNR) is a unit right singular vector for the
 *>          singular value abs(SSMAX).
 *> \endverbatim
@@ -107,9 +107,9 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
-*> \ingroup auxOTHERauxiliary
+*> \ingroup OTHERauxiliary
 *
 *> \par Further Details:
 *  =====================
@@ -138,40 +138,40 @@
 *  =====================================================================
       SUBROUTINE DLASV2( F, G, H, SSMIN, SSMAX, SNR, CSR, SNL, CSL )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
-      REAL*8             CSL, CSR, F, G, H, SNL, SNR, SSMAX, SSMIN
+      DOUBLE PRECISION   CSL, CSR, F, G, H, SNL, SNR, SSMAX, SSMIN
 *     ..
 *
 * =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ZERO
+      DOUBLE PRECISION   ZERO
       PARAMETER          ( ZERO = 0.0D0 )
-      REAL*8             HALF
+      DOUBLE PRECISION   HALF
       PARAMETER          ( HALF = 0.5D0 )
-      REAL*8             ONE
+      DOUBLE PRECISION   ONE
       PARAMETER          ( ONE = 1.0D0 )
-      REAL*8             TWO
+      DOUBLE PRECISION   TWO
       PARAMETER          ( TWO = 2.0D0 )
-      REAL*8             FOUR
+      DOUBLE PRECISION   FOUR
       PARAMETER          ( FOUR = 4.0D0 )
 *     ..
 *     .. Local Scalars ..
       LOGICAL            GASMAL, SWAP
       INTEGER            PMAX
-      REAL*8             A, CLT, CRT, D, FA, FT, GA, GT, HA, HT, L, M,
+      DOUBLE PRECISION   A, CLT, CRT, D, FA, FT, GA, GT, HA, HT, L, M,
      $                   MM, R, S, SLT, SRT, T, TEMP, TSIGN, TT
 *     ..
 *     .. Intrinsic Functions ..
       INTRINSIC          ABS, SIGN, SQRT
 *     ..
 *     .. External Functions ..
-      REAL*8             DLAMCH
+      DOUBLE PRECISION   DLAMCH
       EXTERNAL           DLAMCH
 *     ..
 *     .. Executable Statements ..
@@ -322,4 +322,4 @@
 *
 *     End of DLASV2
 *
-      END SUBROUTINE
+      END

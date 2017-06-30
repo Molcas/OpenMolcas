@@ -27,7 +27,7 @@
 *       .. Array Arguments ..
 *       INTEGER            IBLOCK( * ), IFAIL( * ), ISPLIT( * ),
 *      $                   IWORK( * )
-*       REAL*8             D( * ), E( * ), W( * ), WORK( * ), Z( LDZ, * )
+*       DOUBLE PRECISION   D( * ), E( * ), W( * ), WORK( * ), Z( LDZ, * )
 *       ..
 *
 *
@@ -55,13 +55,13 @@
 *>
 *> \param[in] D
 *> \verbatim
-*>          D is REAL*8           array, dimension (N)
+*>          D is DOUBLE PRECISION array, dimension (N)
 *>          The n diagonal elements of the tridiagonal matrix T.
 *> \endverbatim
 *>
 *> \param[in] E
 *> \verbatim
-*>          E is REAL*8           array, dimension (N-1)
+*>          E is DOUBLE PRECISION array, dimension (N-1)
 *>          The (n-1) subdiagonal elements of the tridiagonal matrix
 *>          T, in elements 1 to N-1.
 *> \endverbatim
@@ -74,7 +74,7 @@
 *>
 *> \param[in] W
 *> \verbatim
-*>          W is REAL*8           array, dimension (N)
+*>          W is DOUBLE PRECISION array, dimension (N)
 *>          The first M elements of W contain the eigenvalues for
 *>          which eigenvectors are to be computed.  The eigenvalues
 *>          should be grouped by split-off block and ordered from
@@ -104,7 +104,7 @@
 *>
 *> \param[out] Z
 *> \verbatim
-*>          Z is REAL*8           array, dimension (LDZ, M)
+*>          Z is DOUBLE PRECISION array, dimension (LDZ, M)
 *>          The computed eigenvectors.  The eigenvector associated
 *>          with the eigenvalue W(i) is stored in the i-th column of
 *>          Z.  Any vector which fails to converge is set to its current
@@ -119,7 +119,7 @@
 *>
 *> \param[out] WORK
 *> \verbatim
-*>          WORK is REAL*8           array, dimension (5*N)
+*>          WORK is DOUBLE PRECISION array, dimension (5*N)
 *> \endverbatim
 *>
 *> \param[out] IWORK
@@ -166,7 +166,7 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date November 2011
+*> \date December 2016
 *
 *> \ingroup doubleOTHERcomputational
 *
@@ -174,10 +174,10 @@
       SUBROUTINE DSTEIN( N, D, E, M, W, IBLOCK, ISPLIT, Z, LDZ, WORK,
      $                   IWORK, IFAIL, INFO )
 *
-*  -- LAPACK computational routine (version 3.4.0) --
+*  -- LAPACK computational routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     November 2011
+*     December 2016
 *
 *     .. Scalar Arguments ..
       INTEGER            INFO, LDZ, M, N
@@ -185,13 +185,13 @@
 *     .. Array Arguments ..
       INTEGER            IBLOCK( * ), IFAIL( * ), ISPLIT( * ),
      $                   IWORK( * )
-      REAL*8             D( * ), E( * ), W( * ), WORK( * ), Z( LDZ, * )
+      DOUBLE PRECISION   D( * ), E( * ), W( * ), WORK( * ), Z( LDZ, * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ZERO, ONE, TEN, ODM3, ODM1
+      DOUBLE PRECISION   ZERO, ONE, TEN, ODM3, ODM1
       PARAMETER          ( ZERO = 0.0D+0, ONE = 1.0D+0, TEN = 1.0D+1,
      $                   ODM3 = 1.0D-3, ODM1 = 1.0D-1 )
       INTEGER            MAXITS, EXTRA
@@ -201,7 +201,7 @@
       INTEGER            B1, BLKSIZ, BN, GPIND, I, IINFO, INDRV1,
      $                   INDRV2, INDRV3, INDRV4, INDRV5, ITS, J, J1,
      $                   JBLK, JMAX, NBLK, NRMCHK
-      REAL*8             DTPCRT, EPS, EPS1, NRM, ONENRM, ORTOL, PERTOL,
+      DOUBLE PRECISION   DTPCRT, EPS, EPS1, NRM, ONENRM, ORTOL, PERTOL,
      $                   SCL, SEP, TOL, XJ, XJM, ZTR
 *     ..
 *     .. Local Arrays ..
@@ -209,8 +209,8 @@
 *     ..
 *     .. External Functions ..
       INTEGER            IDAMAX
-      REAL*8             DASUM, DDOT, DLAMCH, DNRM2
-      EXTERNAL           IDAMAX, DASUM, DDOT, DLAMCH, DNRM2
+      DOUBLE PRECISION   DDOT, DLAMCH, DNRM2
+      EXTERNAL           IDAMAX, DDOT, DLAMCH, DNRM2
 *     ..
 *     .. External Subroutines ..
       EXTERNAL           DAXPY, DCOPY, DLAGTF, DLAGTS, DLARNV, DSCAL,
@@ -297,7 +297,7 @@
          BLKSIZ = BN - B1 + 1
          IF( BLKSIZ.EQ.1 )
      $      GO TO 60
-         GPIND = B1
+         GPIND = J1
 *
 *        Compute reorthogonalization criterion and stopping criterion.
 *
@@ -370,9 +370,10 @@
 *
 *           Normalize and scale the righthand side vector Pb.
 *
+            JMAX = IDAMAX( BLKSIZ, WORK( INDRV1+1 ), 1 )
             SCL = BLKSIZ*ONENRM*MAX( EPS,
      $            ABS( WORK( INDRV4+BLKSIZ ) ) ) /
-     $            DASUM( BLKSIZ, WORK( INDRV1+1 ), 1 )
+     $            ABS( WORK( INDRV1+JMAX ) )
             CALL DSCAL( BLKSIZ, SCL, WORK( INDRV1+1 ), 1 )
 *
 *           Solve the system LU = Pb.
@@ -449,4 +450,4 @@
 *
 *     End of DSTEIN
 *
-      END SUBROUTINE
+      END

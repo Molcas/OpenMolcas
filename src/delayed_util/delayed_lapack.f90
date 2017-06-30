@@ -93,15 +93,6 @@ subroutine dgesv( n, nrhs, a, lda, ipiv, b, ldb, info )
   call lb_dgesv( n, nrhs, a, lda, ipiv, b, ldb, info )
 end subroutine dgesv
 
-subroutine dgetf2( m, n, a, lda, ipiv, info )
-  use link_blas
-  implicit none
-  integer :: info, lda, m, n
-  integer :: ipiv( * )
-  real*8 :: a( lda, * )
-  call lb_dgetf2( m, n, a, lda, ipiv, info )
-end subroutine dgetf2
-
 subroutine dgetrf( m, n, a, lda, ipiv, info )
   use link_blas
   implicit none
@@ -110,6 +101,15 @@ subroutine dgetrf( m, n, a, lda, ipiv, info )
   real*8 :: a( lda, * )
   call lb_dgetrf( m, n, a, lda, ipiv, info )
 end subroutine dgetrf
+
+recursive subroutine dgetrf2( m, n, a, lda, ipiv, info )
+  use link_blas
+  implicit none
+  integer :: info, lda, m, n
+  integer :: ipiv( * )
+  real*8 :: a( lda, * )
+  call lb_dgetrf2( m, n, a, lda, ipiv, info )
+end subroutine dgetrf2
 
 subroutine dgetri( n, a, lda, ipiv, work, lwork, info )
   use link_blas
@@ -169,6 +169,21 @@ subroutine dladiv( a, b, c, d, p, q )
   call lb_dladiv( a, b, c, d, p, q )
 end subroutine dladiv
 
+function dladiv2( a, b, c, d, r, t )
+  use link_blas
+  implicit none
+  real*8 :: a, b, c, d, r, t
+  real*8 :: dladiv2
+  dladiv2=lb_dladiv2( a, b, c, d, r, t )
+end function dladiv2
+
+subroutine dladiv1( a, b, c, d, p, q )
+  use link_blas
+  implicit none
+  real*8 :: a, b, c, d, p, q
+  call lb_dladiv1( a, b, c, d, p, q )
+end subroutine dladiv1
+
 subroutine dlae2( a, b, c, rt1, rt2 )
   use link_blas
   implicit none
@@ -220,48 +235,6 @@ function dlaisnan( din1, din2 )
   logical :: dlaisnan
   dlaisnan=lb_dlaisnan( din1, din2 )
 end function dlaisnan
-
-subroutine dlamc1( beta, t, rnd, ieee1 )
-  use link_blas
-  implicit none
-  logical :: ieee1, rnd
-  integer :: beta, T
-  call lb_dlamc1( beta, t, rnd, ieee1 )
-end subroutine dlamc1
-
-subroutine dlamc2( beta, t, rnd, eps, emin, rmin, emax, rmax )
-  use link_blas
-  implicit none
-  logical :: rnd
-  integer :: beta, emax, emin, t
-  real*8 :: eps, rmax, rmin
-  call lb_dlamc2( beta, t, rnd, eps, emin, rmin, emax, rmax )
-end subroutine dlamc2
-
-function dlamc3( a, b )
-  use link_blas
-  implicit none
-  real*8 :: a, b
-  real*8 :: dlamc3
-  dlamc3=lb_dlamc3( a, b )
-end function dlamc3
-
-subroutine dlamc4( emin, start, base )
-  use link_blas
-  implicit none
-  integer :: base, emin
-  real*8 :: start
-  call lb_dlamc4( emin, start, base )
-end subroutine dlamc4
-
-subroutine dlamc5( beta, p, emin, ieee, emax, rmax )
-  use link_blas
-  implicit none
-  logical :: ieee
-  integer :: beta, emax, emin, p
-  real*8 :: rmax
-  call lb_dlamc5( beta, p, emin, ieee, emax, rmax )
-end subroutine dlamc5
 
 function dlamch( cmach )
   use link_blas
@@ -825,15 +798,6 @@ subroutine dposv( uplo, n, nrhs, a, lda, b, ldb, info )
   call lb_dposv( uplo, n, nrhs, a, lda, b, ldb, info )
 end subroutine dposv
 
-subroutine dpotf2( uplo, n, a, lda, info )
-  use link_blas
-  implicit none
-  character :: uplo
-  integer :: info, lda, n
-  real*8 :: a( lda, * )
-  call lb_dpotf2( uplo, n, a, lda, info )
-end subroutine dpotf2
-
 subroutine dpotrf( uplo, n, a, lda, info )
   use link_blas
   implicit none
@@ -842,6 +806,15 @@ subroutine dpotrf( uplo, n, a, lda, info )
   real*8 :: a( lda, * )
   call lb_dpotrf( uplo, n, a, lda, info )
 end subroutine dpotrf
+
+recursive subroutine dpotrf2( uplo, n, a, lda, info )
+  use link_blas
+  implicit none
+  character :: uplo
+  integer :: info, lda, n
+  real*8 :: a( lda, * )
+  call lb_dpotrf2( uplo, n, a, lda, info )
+end subroutine dpotrf2
 
 subroutine dpotrs( uplo, n, nrhs, a, lda, b, ldb, info )
   use link_blas
@@ -1103,6 +1076,15 @@ function iparmq( ispec, name, opts, n, ilo, ihi, lwork )
   integer :: iparmq
   iparmq=lb_iparmq( ispec, name, opts, n, ilo, ihi, lwork )
 end function iparmq
+
+function iparam2stage( ispec, name, opts, ni, nbi, ibi, nxi )
+  use link_blas
+  implicit none
+  character*( * ) :: name, opts
+  integer :: ispec, ni, nbi, ibi, nxi
+  integer :: iparam2stage
+  iparam2stage=lb_iparam2stage( ispec, name, opts, ni, nbi, ibi, nxi )
+end function iparam2stage
 
 subroutine zheev( jobz, uplo, n, a, lda, w, work, lwork, rwork, info )
   use link_blas

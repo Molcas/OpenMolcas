@@ -25,7 +25,7 @@
 *       INTEGER            LDA, M, N
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             A( LDA, * ), C( * ), S( * )
+*       DOUBLE PRECISION   A( LDA, * ), C( * ), S( * )
 *       ..
 *
 *
@@ -154,7 +154,7 @@
 *>
 *> \param[in] C
 *> \verbatim
-*>          C is REAL*8           array, dimension
+*>          C is DOUBLE PRECISION array, dimension
 *>                  (M-1) if SIDE = 'L'
 *>                  (N-1) if SIDE = 'R'
 *>          The cosines c(k) of the plane rotations.
@@ -162,7 +162,7 @@
 *>
 *> \param[in] S
 *> \verbatim
-*>          S is REAL*8           array, dimension
+*>          S is DOUBLE PRECISION array, dimension
 *>                  (M-1) if SIDE = 'L'
 *>                  (N-1) if SIDE = 'R'
 *>          The sines s(k) of the plane rotations.  The 2-by-2 plane
@@ -173,7 +173,7 @@
 *>
 *> \param[in,out] A
 *> \verbatim
-*>          A is REAL*8           array, dimension (LDA,N)
+*>          A is DOUBLE PRECISION array, dimension (LDA,N)
 *>          The M-by-N matrix A.  On exit, A is overwritten by P*A if
 *>          SIDE = 'R' or by A*P**T if SIDE = 'L'.
 *> \endverbatim
@@ -192,35 +192,35 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
-*> \ingroup auxOTHERauxiliary
+*> \ingroup OTHERauxiliary
 *
 *  =====================================================================
       SUBROUTINE DLASR( SIDE, PIVOT, DIRECT, M, N, C, S, A, LDA )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          DIRECT, PIVOT, SIDE
       INTEGER            LDA, M, N
 *     ..
 *     .. Array Arguments ..
-      REAL*8             A( LDA, * ), C( * ), S( * )
+      DOUBLE PRECISION   A( LDA, * ), C( * ), S( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ONE, ZERO
+      DOUBLE PRECISION   ONE, ZERO
       PARAMETER          ( ONE = 1.0D+0, ZERO = 0.0D+0 )
 *     ..
 *     .. Local Scalars ..
       INTEGER            I, INFO, J
-      REAL*8             CTEMP, STEMP, TEMP
+      DOUBLE PRECISION   CTEMP, STEMP, TEMP
 *     ..
 *     .. External Functions ..
       LOGICAL            LSAME
@@ -433,4 +433,4 @@
 *
 *     End of DLASR
 *
-      END SUBROUTINE
+      END

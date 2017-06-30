@@ -25,7 +25,7 @@
 *       INTEGER            INFO, ITYPE, LDA, LDB, N
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             A( LDA, * ), B( LDB, * )
+*       DOUBLE PRECISION   A( LDA, * ), B( LDB, * )
 *       ..
 *
 *
@@ -73,7 +73,7 @@
 *>
 *> \param[in,out] A
 *> \verbatim
-*>          A is REAL*8           array, dimension (LDA,N)
+*>          A is DOUBLE PRECISION array, dimension (LDA,N)
 *>          On entry, the symmetric matrix A.  If UPLO = 'U', the leading
 *>          n by n upper triangular part of A contains the upper
 *>          triangular part of the matrix A, and the strictly lower
@@ -94,7 +94,7 @@
 *>
 *> \param[in] B
 *> \verbatim
-*>          B is REAL*8           array, dimension (LDB,N)
+*>          B is DOUBLE PRECISION array, dimension (LDB,N)
 *>          The triangular factor from the Cholesky factorization of B,
 *>          as returned by DPOTRF.
 *> \endverbatim
@@ -120,36 +120,36 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
 *> \ingroup doubleSYcomputational
 *
 *  =====================================================================
       SUBROUTINE DSYGS2( ITYPE, UPLO, N, A, LDA, B, LDB, INFO )
 *
-*  -- LAPACK computational routine (version 3.4.2) --
+*  -- LAPACK computational routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          UPLO
       INTEGER            INFO, ITYPE, LDA, LDB, N
 *     ..
 *     .. Array Arguments ..
-      REAL*8             A( LDA, * ), B( LDB, * )
+      DOUBLE PRECISION   A( LDA, * ), B( LDB, * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ONE, HALF
+      DOUBLE PRECISION   ONE, HALF
       PARAMETER          ( ONE = 1.0D0, HALF = 0.5D0 )
 *     ..
 *     .. Local Scalars ..
       LOGICAL            UPPER
       INTEGER            K
-      REAL*8             AKK, BKK, CT
+      DOUBLE PRECISION   AKK, BKK, CT
 *     ..
 *     .. External Subroutines ..
       EXTERNAL           DAXPY, DSCAL, DSYR2, DTRMV, DTRSV, XERBLA
@@ -280,4 +280,4 @@
 *
 *     End of DSYGS2
 *
-      END SUBROUTINE
+      END

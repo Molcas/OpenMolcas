@@ -1,4 +1,4 @@
-*> \brief \b DLAR1V computes the (scaled) r-th column of the inverse of the submatrix in rows b1 through bn of the tridiagonal matrix LDLT - lambda*I.
+*> \brief \b DLAR1V computes the (scaled) r-th column of the inverse of the submatrix in rows b1 through bn of the tridiagonal matrix LDLT - λI.
 *
 *  =========== DOCUMENTATION ===========
 *
@@ -25,14 +25,14 @@
 *       .. Scalar Arguments ..
 *       LOGICAL            WANTNC
 *       INTEGER   B1, BN, N, NEGCNT, R
-*       REAL*8             GAPTOL, LAMBDA, MINGMA, NRMINV, PIVMIN, RESID,
+*       DOUBLE PRECISION   GAPTOL, LAMBDA, MINGMA, NRMINV, PIVMIN, RESID,
 *      $                   RQCORR, ZTZ
 *       ..
 *       .. Array Arguments ..
 *       INTEGER            ISUPPZ( * )
-*       REAL*8             D( * ), L( * ), LD( * ), LLD( * ),
+*       DOUBLE PRECISION   D( * ), L( * ), LD( * ), LLD( * ),
 *      $                  WORK( * )
-*       REAL*8           Z( * )
+*       DOUBLE PRECISION Z( * )
 *       ..
 *
 *
@@ -81,7 +81,7 @@
 *>
 *> \param[in] LAMBDA
 *> \verbatim
-*>          LAMBDA is REAL*8
+*>          LAMBDA is DOUBLE PRECISION
 *>           The shift. In order to compute an accurate eigenvector,
 *>           LAMBDA should be a good approximation to an eigenvalue
 *>           of L D L**T.
@@ -89,45 +89,45 @@
 *>
 *> \param[in] L
 *> \verbatim
-*>          L is REAL*8           array, dimension (N-1)
+*>          L is DOUBLE PRECISION array, dimension (N-1)
 *>           The (n-1) subdiagonal elements of the unit bidiagonal matrix
 *>           L, in elements 1 to N-1.
 *> \endverbatim
 *>
 *> \param[in] D
 *> \verbatim
-*>          D is REAL*8           array, dimension (N)
+*>          D is DOUBLE PRECISION array, dimension (N)
 *>           The n diagonal elements of the diagonal matrix D.
 *> \endverbatim
 *>
 *> \param[in] LD
 *> \verbatim
-*>          LD is REAL*8           array, dimension (N-1)
+*>          LD is DOUBLE PRECISION array, dimension (N-1)
 *>           The n-1 elements L(i)*D(i).
 *> \endverbatim
 *>
 *> \param[in] LLD
 *> \verbatim
-*>          LLD is REAL*8           array, dimension (N-1)
+*>          LLD is DOUBLE PRECISION array, dimension (N-1)
 *>           The n-1 elements L(i)*L(i)*D(i).
 *> \endverbatim
 *>
 *> \param[in] PIVMIN
 *> \verbatim
-*>          PIVMIN is REAL*8
+*>          PIVMIN is DOUBLE PRECISION
 *>           The minimum pivot in the Sturm sequence.
 *> \endverbatim
 *>
 *> \param[in] GAPTOL
 *> \verbatim
-*>          GAPTOL is REAL*8
+*>          GAPTOL is DOUBLE PRECISION
 *>           Tolerance that indicates when eigenvector entries are negligible
 *>           w.r.t. their contribution to the residual.
 *> \endverbatim
 *>
 *> \param[in,out] Z
 *> \verbatim
-*>          Z is REAL*8           array, dimension (N)
+*>          Z is DOUBLE PRECISION array, dimension (N)
 *>           On input, all entries of Z must be set to 0.
 *>           On output, Z contains the (scaled) r-th column of the
 *>           inverse. The scaling is such that Z(R) equals 1.
@@ -148,13 +148,13 @@
 *>
 *> \param[out] ZTZ
 *> \verbatim
-*>          ZTZ is REAL*8
+*>          ZTZ is DOUBLE PRECISION
 *>           The square of the 2-norm of Z.
 *> \endverbatim
 *>
 *> \param[out] MINGMA
 *> \verbatim
-*>          MINGMA is REAL*8
+*>          MINGMA is DOUBLE PRECISION
 *>           The reciprocal of the largest (in magnitude) diagonal
 *>           element of the inverse of L D L**T - sigma I.
 *> \endverbatim
@@ -181,27 +181,27 @@
 *>
 *> \param[out] NRMINV
 *> \verbatim
-*>          NRMINV is REAL*8
+*>          NRMINV is DOUBLE PRECISION
 *>           NRMINV = 1/SQRT( ZTZ )
 *> \endverbatim
 *>
 *> \param[out] RESID
 *> \verbatim
-*>          RESID is REAL*8
+*>          RESID is DOUBLE PRECISION
 *>           The residual of the FP vector.
 *>           RESID = ABS( MINGMA )/SQRT( ZTZ )
 *> \endverbatim
 *>
 *> \param[out] RQCORR
 *> \verbatim
-*>          RQCORR is REAL*8
+*>          RQCORR is DOUBLE PRECISION
 *>           The Rayleigh Quotient correction to LAMBDA.
 *>           RQCORR = MINGMA*TMP
 *> \endverbatim
 *>
 *> \param[out] WORK
 *> \verbatim
-*>          WORK is REAL*8           array, dimension (4*N)
+*>          WORK is DOUBLE PRECISION array, dimension (4*N)
 *> \endverbatim
 *
 *  Authors:
@@ -212,7 +212,7 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
 *> \ingroup doubleOTHERauxiliary
 *
@@ -230,28 +230,28 @@
      $           PIVMIN, GAPTOL, Z, WANTNC, NEGCNT, ZTZ, MINGMA,
      $           R, ISUPPZ, NRMINV, RESID, RQCORR, WORK )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
       LOGICAL            WANTNC
       INTEGER   B1, BN, N, NEGCNT, R
-      REAL*8             GAPTOL, LAMBDA, MINGMA, NRMINV, PIVMIN, RESID,
+      DOUBLE PRECISION   GAPTOL, LAMBDA, MINGMA, NRMINV, PIVMIN, RESID,
      $                   RQCORR, ZTZ
 *     ..
 *     .. Array Arguments ..
       INTEGER            ISUPPZ( * )
-      REAL*8             D( * ), L( * ), LD( * ), LLD( * ),
+      DOUBLE PRECISION   D( * ), L( * ), LD( * ), LLD( * ),
      $                  WORK( * )
-      REAL*8           Z( * )
+      DOUBLE PRECISION Z( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ZERO, ONE
+      DOUBLE PRECISION   ZERO, ONE
       PARAMETER          ( ZERO = 0.0D0, ONE = 1.0D0 )
 
 *     ..
@@ -259,11 +259,11 @@
       LOGICAL            SAWNAN1, SAWNAN2
       INTEGER            I, INDLPL, INDP, INDS, INDUMN, NEG1, NEG2, R1,
      $                   R2
-      REAL*8             DMINUS, DPLUS, EPS, S, TMP
+      DOUBLE PRECISION   DMINUS, DPLUS, EPS, S, TMP
 *     ..
 *     .. External Functions ..
       LOGICAL DISNAN
-      REAL*8             DLAMCH
+      DOUBLE PRECISION   DLAMCH
       EXTERNAL           DISNAN, DLAMCH
 *     ..
 *     .. Intrinsic Functions ..
@@ -483,4 +483,4 @@
 *
 *     End of DLAR1V
 *
-      END SUBROUTINE
+      END

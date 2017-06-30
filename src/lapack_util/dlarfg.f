@@ -22,10 +22,10 @@
 *
 *       .. Scalar Arguments ..
 *       INTEGER            INCX, N
-*       REAL*8             ALPHA, TAU
+*       DOUBLE PRECISION   ALPHA, TAU
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             X( * )
+*       DOUBLE PRECISION   X( * )
 *       ..
 *
 *
@@ -66,14 +66,14 @@
 *>
 *> \param[in,out] ALPHA
 *> \verbatim
-*>          ALPHA is REAL*8
+*>          ALPHA is DOUBLE PRECISION
 *>          On entry, the value alpha.
 *>          On exit, it is overwritten with the value beta.
 *> \endverbatim
 *>
 *> \param[in,out] X
 *> \verbatim
-*>          X is REAL*8           array, dimension
+*>          X is DOUBLE PRECISION array, dimension
 *>                         (1+(N-2)*abs(INCX))
 *>          On entry, the vector x.
 *>          On exit, it is overwritten with the vector v.
@@ -87,7 +87,7 @@
 *>
 *> \param[out] TAU
 *> \verbatim
-*>          TAU is REAL*8
+*>          TAU is DOUBLE PRECISION
 *>          The value tau.
 *> \endverbatim
 *
@@ -99,38 +99,38 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
 *> \ingroup doubleOTHERauxiliary
 *
 *  =====================================================================
       SUBROUTINE DLARFG( N, ALPHA, X, INCX, TAU )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
       INTEGER            INCX, N
-      REAL*8             ALPHA, TAU
+      DOUBLE PRECISION   ALPHA, TAU
 *     ..
 *     .. Array Arguments ..
-      REAL*8             X( * )
+      DOUBLE PRECISION   X( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ONE, ZERO
+      DOUBLE PRECISION   ONE, ZERO
       PARAMETER          ( ONE = 1.0D+0, ZERO = 0.0D+0 )
 *     ..
 *     .. Local Scalars ..
       INTEGER            J, KNT
-      REAL*8             BETA, RSAFMN, SAFMIN, XNORM
+      DOUBLE PRECISION   BETA, RSAFMN, SAFMIN, XNORM
 *     ..
 *     .. External Functions ..
-      REAL*8             DLAMCH, DLAPY2, DNRM2
+      DOUBLE PRECISION   DLAMCH, DLAPY2, DNRM2
       EXTERNAL           DLAMCH, DLAPY2, DNRM2
 *     ..
 *     .. Intrinsic Functions ..
@@ -193,4 +193,4 @@
 *
 *     End of DLARFG
 *
-      END SUBROUTINE
+      END

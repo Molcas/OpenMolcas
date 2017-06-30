@@ -26,7 +26,7 @@
 *       ..
 *       .. Array Arguments ..
 *       INTEGER            IPIV( * )
-*       REAL*8             A( LDA, * ), B( LDB, * )
+*       DOUBLE PRECISION   A( LDA, * ), B( LDB, * )
 *       ..
 *
 *
@@ -68,7 +68,7 @@
 *>
 *> \param[in] A
 *> \verbatim
-*>          A is REAL*8           array, dimension (LDA,N)
+*>          A is DOUBLE PRECISION array, dimension (LDA,N)
 *>          The factors L and U from the factorization A = P*L*U
 *>          as computed by DGETRF.
 *> \endverbatim
@@ -88,7 +88,7 @@
 *>
 *> \param[in,out] B
 *> \verbatim
-*>          B is REAL*8           array, dimension (LDB,NRHS)
+*>          B is DOUBLE PRECISION array, dimension (LDB,NRHS)
 *>          On entry, the right hand side matrix B.
 *>          On exit, the solution matrix X.
 *> \endverbatim
@@ -114,17 +114,17 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date November 2011
+*> \date December 2016
 *
 *> \ingroup doubleGEcomputational
 *
 *  =====================================================================
       SUBROUTINE DGETRS( TRANS, N, NRHS, A, LDA, IPIV, B, LDB, INFO )
 *
-*  -- LAPACK computational routine (version 3.4.0) --
+*  -- LAPACK computational routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     November 2011
+*     December 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          TRANS
@@ -132,13 +132,13 @@
 *     ..
 *     .. Array Arguments ..
       INTEGER            IPIV( * )
-      REAL*8             A( LDA, * ), B( LDB, * )
+      DOUBLE PRECISION   A( LDA, * ), B( LDB, * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ONE
+      DOUBLE PRECISION   ONE
       PARAMETER          ( ONE = 1.0D+0 )
 *     ..
 *     .. Local Scalars ..
@@ -222,4 +222,4 @@
 *
 *     End of DGETRS
 *
-      END SUBROUTINE
+      END

@@ -24,7 +24,7 @@
 *       INTEGER            INFO, N
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             Z( * )
+*       DOUBLE PRECISION   Z( * )
 *       ..
 *
 *
@@ -61,7 +61,7 @@
 *>
 *> \param[in,out] Z
 *> \verbatim
-*>          Z is REAL*8           array, dimension ( 4*N )
+*>          Z is DOUBLE PRECISION array, dimension ( 4*N )
 *>        On entry Z holds the qd array. On exit, entries 1 to N hold
 *>        the eigenvalues in decreasing order, Z( 2*N+1 ) holds the
 *>        trace, and Z( 2*N+2 ) holds the sum of the eigenvalues. If
@@ -95,7 +95,7 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
 *> \ingroup auxOTHERcomputational
 *
@@ -112,24 +112,24 @@
 *  =====================================================================
       SUBROUTINE DLASQ2( N, Z, INFO )
 *
-*  -- LAPACK computational routine (version 3.4.2) --
+*  -- LAPACK computational routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
       INTEGER            INFO, N
 *     ..
 *     .. Array Arguments ..
-      REAL*8             Z( * )
+      DOUBLE PRECISION   Z( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             CBIAS
+      DOUBLE PRECISION   CBIAS
       PARAMETER          ( CBIAS = 1.50D0 )
-      REAL*8             ZERO, HALF, ONE, TWO, FOUR, HUNDRD
+      DOUBLE PRECISION   ZERO, HALF, ONE, TWO, FOUR, HUNDRD
       PARAMETER          ( ZERO = 0.0D0, HALF = 0.5D0, ONE = 1.0D0,
      $                     TWO = 2.0D0, FOUR = 4.0D0, HUNDRD = 100.0D0 )
 *     ..
@@ -138,7 +138,7 @@
       INTEGER            I0, I1, I4, IINFO, IPN4, ITER, IWHILA, IWHILB,
      $                   K, KMIN, N0, N1, NBIG, NDIV, NFAIL, PP, SPLT,
      $                   TTYPE
-      REAL*8             D, DEE, DEEMIN, DESIG, DMIN, DMIN1, DMIN2, DN,
+      DOUBLE PRECISION   D, DEE, DEEMIN, DESIG, DMIN, DMIN1, DMIN2, DN,
      $                   DN1, DN2, E, EMAX, EMIN, EPS, G, OLDEMN, QMAX,
      $                   QMIN, S, SAFMIN, SIGMA, T, TAU, TEMP, TOL,
      $                   TOL2, TRACE, ZMAX, TEMPE, TEMPQ
@@ -148,7 +148,7 @@
 *     ..
 *     .. External Functions ..
       INTEGER            ILAENV
-      REAL*8             DLAMCH
+      DOUBLE PRECISION   DLAMCH
       EXTERNAL           DLAMCH, ILAENV
 *     ..
 *     .. Intrinsic Functions ..
@@ -579,4 +579,4 @@
 *
 *     End of DLASQ2
 *
-      END SUBROUTINE
+      END

@@ -25,7 +25,7 @@
 *       INTEGER            INFO, LDA, LWORK, N
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             A( LDA, * ), D( * ), E( * ), TAU( * ),
+*       DOUBLE PRECISION   A( LDA, * ), D( * ), E( * ), TAU( * ),
 *      $                   WORK( * )
 *       ..
 *
@@ -58,7 +58,7 @@
 *>
 *> \param[in,out] A
 *> \verbatim
-*>          A is REAL*8           array, dimension (LDA,N)
+*>          A is DOUBLE PRECISION array, dimension (LDA,N)
 *>          On entry, the symmetric matrix A.  If UPLO = 'U', the leading
 *>          N-by-N upper triangular part of A contains the upper
 *>          triangular part of the matrix A, and the strictly lower
@@ -86,28 +86,28 @@
 *>
 *> \param[out] D
 *> \verbatim
-*>          D is REAL*8           array, dimension (N)
+*>          D is DOUBLE PRECISION array, dimension (N)
 *>          The diagonal elements of the tridiagonal matrix T:
 *>          D(i) = A(i,i).
 *> \endverbatim
 *>
 *> \param[out] E
 *> \verbatim
-*>          E is REAL*8           array, dimension (N-1)
+*>          E is DOUBLE PRECISION array, dimension (N-1)
 *>          The off-diagonal elements of the tridiagonal matrix T:
 *>          E(i) = A(i,i+1) if UPLO = 'U', E(i) = A(i+1,i) if UPLO = 'L'.
 *> \endverbatim
 *>
 *> \param[out] TAU
 *> \verbatim
-*>          TAU is REAL*8           array, dimension (N-1)
+*>          TAU is DOUBLE PRECISION array, dimension (N-1)
 *>          The scalar factors of the elementary reflectors (see Further
 *>          Details).
 *> \endverbatim
 *>
 *> \param[out] WORK
 *> \verbatim
-*>          WORK is REAL*8           array, dimension (MAX(1,LWORK))
+*>          WORK is DOUBLE PRECISION array, dimension (MAX(1,LWORK))
 *>          On exit, if INFO = 0, WORK(1) returns the optimal LWORK.
 *> \endverbatim
 *>
@@ -139,7 +139,7 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date November 2011
+*> \date December 2016
 *
 *> \ingroup doubleSYcomputational
 *
@@ -192,24 +192,24 @@
 *  =====================================================================
       SUBROUTINE DSYTRD( UPLO, N, A, LDA, D, E, TAU, WORK, LWORK, INFO )
 *
-*  -- LAPACK computational routine (version 3.4.0) --
+*  -- LAPACK computational routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     November 2011
+*     December 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          UPLO
       INTEGER            INFO, LDA, LWORK, N
 *     ..
 *     .. Array Arguments ..
-      REAL*8             A( LDA, * ), D( * ), E( * ), TAU( * ),
+      DOUBLE PRECISION   A( LDA, * ), D( * ), E( * ), TAU( * ),
      $                   WORK( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ONE
+      DOUBLE PRECISION   ONE
       PARAMETER          ( ONE = 1.0D+0 )
 *     ..
 *     .. Local Scalars ..
@@ -373,4 +373,4 @@
 *
 *     End of DSYTRD
 *
-      END SUBROUTINE
+      END

@@ -26,7 +26,7 @@
 *       INTEGER            INFO, LDC, M, N
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             AP( * ), C( LDC, * ), TAU( * ), WORK( * )
+*       DOUBLE PRECISION   AP( * ), C( LDC, * ), TAU( * ), WORK( * )
 *       ..
 *
 *
@@ -91,7 +91,7 @@
 *>
 *> \param[in] AP
 *> \verbatim
-*>          AP is REAL*8           array, dimension
+*>          AP is DOUBLE PRECISION array, dimension
 *>                               (M*(M+1)/2) if SIDE = 'L'
 *>                               (N*(N+1)/2) if SIDE = 'R'
 *>          The vectors which define the elementary reflectors, as
@@ -101,7 +101,7 @@
 *>
 *> \param[in] TAU
 *> \verbatim
-*>          TAU is REAL*8           array, dimension (M-1) if SIDE = 'L'
+*>          TAU is DOUBLE PRECISION array, dimension (M-1) if SIDE = 'L'
 *>                                     or (N-1) if SIDE = 'R'
 *>          TAU(i) must contain the scalar factor of the elementary
 *>          reflector H(i), as returned by DSPTRD.
@@ -109,7 +109,7 @@
 *>
 *> \param[in,out] C
 *> \verbatim
-*>          C is REAL*8           array, dimension (LDC,N)
+*>          C is DOUBLE PRECISION array, dimension (LDC,N)
 *>          On entry, the M-by-N matrix C.
 *>          On exit, C is overwritten by Q*C or Q**T*C or C*Q**T or C*Q.
 *> \endverbatim
@@ -122,7 +122,7 @@
 *>
 *> \param[out] WORK
 *> \verbatim
-*>          WORK is REAL*8           array, dimension
+*>          WORK is DOUBLE PRECISION array, dimension
 *>                                   (N) if SIDE = 'L'
 *>                                   (M) if SIDE = 'R'
 *> \endverbatim
@@ -142,7 +142,7 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date November 2011
+*> \date December 2016
 *
 *> \ingroup doubleOTHERcomputational
 *
@@ -150,29 +150,29 @@
       SUBROUTINE DOPMTR( SIDE, UPLO, TRANS, M, N, AP, TAU, C, LDC, WORK,
      $                   INFO )
 *
-*  -- LAPACK computational routine (version 3.4.0) --
+*  -- LAPACK computational routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     November 2011
+*     December 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          SIDE, TRANS, UPLO
       INTEGER            INFO, LDC, M, N
 *     ..
 *     .. Array Arguments ..
-      REAL*8             AP( * ), C( LDC, * ), TAU( * ), WORK( * )
+      DOUBLE PRECISION   AP( * ), C( LDC, * ), TAU( * ), WORK( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ONE
+      DOUBLE PRECISION   ONE
       PARAMETER          ( ONE = 1.0D+0 )
 *     ..
 *     .. Local Scalars ..
       LOGICAL            FORWRD, LEFT, NOTRAN, UPPER
       INTEGER            I, I1, I2, I3, IC, II, JC, MI, NI, NQ
-      REAL*8             AII
+      DOUBLE PRECISION   AII
 *     ..
 *     .. External Functions ..
       LOGICAL            LSAME
@@ -336,4 +336,4 @@
 *
 *     End of DOPMTR
 *
-      END SUBROUTINE
+      END

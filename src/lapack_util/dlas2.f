@@ -21,7 +21,7 @@
 *       SUBROUTINE DLAS2( F, G, H, SSMIN, SSMAX )
 *
 *       .. Scalar Arguments ..
-*       REAL*8             F, G, H, SSMAX, SSMIN
+*       DOUBLE PRECISION   F, G, H, SSMAX, SSMIN
 *       ..
 *
 *
@@ -42,31 +42,31 @@
 *
 *> \param[in] F
 *> \verbatim
-*>          F is REAL*8
+*>          F is DOUBLE PRECISION
 *>          The (1,1) element of the 2-by-2 matrix.
 *> \endverbatim
 *>
 *> \param[in] G
 *> \verbatim
-*>          G is REAL*8
+*>          G is DOUBLE PRECISION
 *>          The (1,2) element of the 2-by-2 matrix.
 *> \endverbatim
 *>
 *> \param[in] H
 *> \verbatim
-*>          H is REAL*8
+*>          H is DOUBLE PRECISION
 *>          The (2,2) element of the 2-by-2 matrix.
 *> \endverbatim
 *>
 *> \param[out] SSMIN
 *> \verbatim
-*>          SSMIN is REAL*8
+*>          SSMIN is DOUBLE PRECISION
 *>          The smaller singular value.
 *> \endverbatim
 *>
 *> \param[out] SSMAX
 *> \verbatim
-*>          SSMAX is REAL*8
+*>          SSMAX is DOUBLE PRECISION
 *>          The larger singular value.
 *> \endverbatim
 *
@@ -78,9 +78,9 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
-*> \ingroup auxOTHERauxiliary
+*> \ingroup OTHERauxiliary
 *
 *> \par Further Details:
 *  =====================
@@ -107,27 +107,27 @@
 *  =====================================================================
       SUBROUTINE DLAS2( F, G, H, SSMIN, SSMAX )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
-      REAL*8             F, G, H, SSMAX, SSMIN
+      DOUBLE PRECISION   F, G, H, SSMAX, SSMIN
 *     ..
 *
 *  ====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ZERO
+      DOUBLE PRECISION   ZERO
       PARAMETER          ( ZERO = 0.0D0 )
-      REAL*8             ONE
+      DOUBLE PRECISION   ONE
       PARAMETER          ( ONE = 1.0D0 )
-      REAL*8             TWO
+      DOUBLE PRECISION   TWO
       PARAMETER          ( TWO = 2.0D0 )
 *     ..
 *     .. Local Scalars ..
-      REAL*8             AS, AT, AU, C, FA, FHMN, FHMX, GA, HA
+      DOUBLE PRECISION   AS, AT, AU, C, FA, FHMN, FHMX, GA, HA
 *     ..
 *     .. Intrinsic Functions ..
       INTRINSIC          ABS, MAX, MIN, SQRT
@@ -180,4 +180,4 @@
 *
 *     End of DLAS2
 *
-      END SUBROUTINE
+      END

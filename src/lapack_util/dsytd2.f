@@ -25,7 +25,7 @@
 *       INTEGER            INFO, LDA, N
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             A( LDA, * ), D( * ), E( * ), TAU( * )
+*       DOUBLE PRECISION   A( LDA, * ), D( * ), E( * ), TAU( * )
 *       ..
 *
 *
@@ -58,7 +58,7 @@
 *>
 *> \param[in,out] A
 *> \verbatim
-*>          A is REAL*8           array, dimension (LDA,N)
+*>          A is DOUBLE PRECISION array, dimension (LDA,N)
 *>          On entry, the symmetric matrix A.  If UPLO = 'U', the leading
 *>          n-by-n upper triangular part of A contains the upper
 *>          triangular part of the matrix A, and the strictly lower
@@ -86,21 +86,21 @@
 *>
 *> \param[out] D
 *> \verbatim
-*>          D is REAL*8           array, dimension (N)
+*>          D is DOUBLE PRECISION array, dimension (N)
 *>          The diagonal elements of the tridiagonal matrix T:
 *>          D(i) = A(i,i).
 *> \endverbatim
 *>
 *> \param[out] E
 *> \verbatim
-*>          E is REAL*8           array, dimension (N-1)
+*>          E is DOUBLE PRECISION array, dimension (N-1)
 *>          The off-diagonal elements of the tridiagonal matrix T:
 *>          E(i) = A(i,i+1) if UPLO = 'U', E(i) = A(i+1,i) if UPLO = 'L'.
 *> \endverbatim
 *>
 *> \param[out] TAU
 *> \verbatim
-*>          TAU is REAL*8           array, dimension (N-1)
+*>          TAU is DOUBLE PRECISION array, dimension (N-1)
 *>          The scalar factors of the elementary reflectors (see Further
 *>          Details).
 *> \endverbatim
@@ -120,7 +120,7 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
 *> \ingroup doubleSYcomputational
 *
@@ -173,37 +173,37 @@
 *  =====================================================================
       SUBROUTINE DSYTD2( UPLO, N, A, LDA, D, E, TAU, INFO )
 *
-*  -- LAPACK computational routine (version 3.4.2) --
+*  -- LAPACK computational routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          UPLO
       INTEGER            INFO, LDA, N
 *     ..
 *     .. Array Arguments ..
-      REAL*8             A( LDA, * ), D( * ), E( * ), TAU( * )
+      DOUBLE PRECISION   A( LDA, * ), D( * ), E( * ), TAU( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ONE, ZERO, HALF
+      DOUBLE PRECISION   ONE, ZERO, HALF
       PARAMETER          ( ONE = 1.0D0, ZERO = 0.0D0,
      $                   HALF = 1.0D0 / 2.0D0 )
 *     ..
 *     .. Local Scalars ..
       LOGICAL            UPPER
       INTEGER            I
-      REAL*8             ALPHA, TAUI
+      DOUBLE PRECISION   ALPHA, TAUI
 *     ..
 *     .. External Subroutines ..
       EXTERNAL           DAXPY, DLARFG, DSYMV, DSYR2, XERBLA
 *     ..
 *     .. External Functions ..
       LOGICAL            LSAME
-      REAL*8             DDOT
+      DOUBLE PRECISION   DDOT
       EXTERNAL           LSAME, DDOT
 *     ..
 *     .. Intrinsic Functions ..
@@ -320,4 +320,4 @@
 *
 *     End of DSYTD2
 *
-      END SUBROUTINE
+      END

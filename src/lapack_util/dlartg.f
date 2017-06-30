@@ -21,7 +21,7 @@
 *       SUBROUTINE DLARTG( F, G, CS, SN, R )
 *
 *       .. Scalar Arguments ..
-*       REAL*8             CS, F, G, R, SN
+*       DOUBLE PRECISION   CS, F, G, R, SN
 *       ..
 *
 *
@@ -51,31 +51,31 @@
 *
 *> \param[in] F
 *> \verbatim
-*>          F is REAL*8
+*>          F is DOUBLE PRECISION
 *>          The first component of vector to be rotated.
 *> \endverbatim
 *>
 *> \param[in] G
 *> \verbatim
-*>          G is REAL*8
+*>          G is DOUBLE PRECISION
 *>          The second component of vector to be rotated.
 *> \endverbatim
 *>
 *> \param[out] CS
 *> \verbatim
-*>          CS is REAL*8
+*>          CS is DOUBLE PRECISION
 *>          The cosine of the rotation.
 *> \endverbatim
 *>
 *> \param[out] SN
 *> \verbatim
-*>          SN is REAL*8
+*>          SN is DOUBLE PRECISION
 *>          The sine of the rotation.
 *> \endverbatim
 *>
 *> \param[out] R
 *> \verbatim
-*>          R is REAL*8
+*>          R is DOUBLE PRECISION
 *>          The nonzero component of the rotated vector.
 *>
 *>  This version has a few statements commented out for thread safety
@@ -90,39 +90,39 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
-*> \ingroup auxOTHERauxiliary
+*> \ingroup OTHERauxiliary
 *
 *  =====================================================================
       SUBROUTINE DLARTG( F, G, CS, SN, R )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
-      REAL*8             CS, F, G, R, SN
+      DOUBLE PRECISION   CS, F, G, R, SN
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ZERO
+      DOUBLE PRECISION   ZERO
       PARAMETER          ( ZERO = 0.0D0 )
-      REAL*8             ONE
+      DOUBLE PRECISION   ONE
       PARAMETER          ( ONE = 1.0D0 )
-      REAL*8             TWO
+      DOUBLE PRECISION   TWO
       PARAMETER          ( TWO = 2.0D0 )
 *     ..
 *     .. Local Scalars ..
 *     LOGICAL            FIRST
       INTEGER            COUNT, I
-      REAL*8             EPS, F1, G1, SAFMIN, SAFMN2, SAFMX2, SCALE
+      DOUBLE PRECISION   EPS, F1, G1, SAFMIN, SAFMN2, SAFMX2, SCALE
 *     ..
 *     .. External Functions ..
-      REAL*8             DLAMCH
+      DOUBLE PRECISION   DLAMCH
       EXTERNAL           DLAMCH
 *     ..
 *     .. Intrinsic Functions ..
@@ -201,4 +201,4 @@
 *
 *     End of DLARTG
 *
-      END SUBROUTINE
+      END

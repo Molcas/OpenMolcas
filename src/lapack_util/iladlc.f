@@ -24,7 +24,7 @@
 *       INTEGER            M, N, LDA
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             A( LDA, * )
+*       DOUBLE PRECISION   A( LDA, * )
 *       ..
 *
 *
@@ -53,7 +53,7 @@
 *>
 *> \param[in] A
 *> \verbatim
-*>          A is REAL*8           array, dimension (LDA,N)
+*>          A is DOUBLE PRECISION array, dimension (LDA,N)
 *>          The m by n matrix A.
 *> \endverbatim
 *>
@@ -71,29 +71,29 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
-*> \ingroup auxOTHERauxiliary
+*> \ingroup OTHERauxiliary
 *
 *  =====================================================================
       INTEGER FUNCTION ILADLC( M, N, A, LDA )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
       INTEGER            M, N, LDA
 *     ..
 *     .. Array Arguments ..
-      REAL*8             A( LDA, * )
+      DOUBLE PRECISION   A( LDA, * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8           ZERO
+      DOUBLE PRECISION ZERO
       PARAMETER ( ZERO = 0.0D+0 )
 *     ..
 *     .. Local Scalars ..
@@ -115,4 +115,4 @@
          END DO
       END IF
       RETURN
-      END FUNCTION
+      END

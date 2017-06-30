@@ -24,7 +24,7 @@
 *       INTEGER            INFO, N
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             D( * ), E( * ), WORK( * )
+*       DOUBLE PRECISION   D( * ), E( * ), WORK( * )
 *       ..
 *
 *
@@ -58,7 +58,7 @@
 *>
 *> \param[in,out] D
 *> \verbatim
-*>          D is REAL*8           array, dimension (N)
+*>          D is DOUBLE PRECISION array, dimension (N)
 *>        On entry, D contains the diagonal elements of the
 *>        bidiagonal matrix whose SVD is desired. On normal exit,
 *>        D contains the singular values in decreasing order.
@@ -66,7 +66,7 @@
 *>
 *> \param[in,out] E
 *> \verbatim
-*>          E is REAL*8           array, dimension (N)
+*>          E is DOUBLE PRECISION array, dimension (N)
 *>        On entry, elements E(1:N-1) contain the off-diagonal elements
 *>        of the bidiagonal matrix whose SVD is desired.
 *>        On exit, E is overwritten.
@@ -74,7 +74,7 @@
 *>
 *> \param[out] WORK
 *> \verbatim
-*>          WORK is REAL*8           array, dimension (4*N)
+*>          WORK is DOUBLE PRECISION array, dimension (4*N)
 *> \endverbatim
 *>
 *> \param[out] INFO
@@ -101,40 +101,40 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
 *> \ingroup auxOTHERcomputational
 *
 *  =====================================================================
       SUBROUTINE DLASQ1( N, D, E, WORK, INFO )
 *
-*  -- LAPACK computational routine (version 3.4.2) --
+*  -- LAPACK computational routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
       INTEGER            INFO, N
 *     ..
 *     .. Array Arguments ..
-      REAL*8             D( * ), E( * ), WORK( * )
+      DOUBLE PRECISION   D( * ), E( * ), WORK( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ZERO
+      DOUBLE PRECISION   ZERO
       PARAMETER          ( ZERO = 0.0D0 )
 *     ..
 *     .. Local Scalars ..
       INTEGER            I, IINFO
-      REAL*8             EPS, SCALE, SAFMIN, SIGMN, SIGMX
+      DOUBLE PRECISION   EPS, SCALE, SAFMIN, SIGMN, SIGMX
 *     ..
 *     .. External Subroutines ..
       EXTERNAL           DCOPY, DLAS2, DLASCL, DLASQ2, DLASRT, XERBLA
 *     ..
 *     .. External Functions ..
-      REAL*8             DLAMCH
+      DOUBLE PRECISION   DLAMCH
       EXTERNAL           DLAMCH
 *     ..
 *     .. Intrinsic Functions ..
@@ -144,7 +144,7 @@
 *
       INFO = 0
       IF( N.LT.0 ) THEN
-         INFO = -2
+         INFO = -1
          CALL XERBLA( 'DLASQ1', -INFO )
          RETURN
       ELSE IF( N.EQ.0 ) THEN
@@ -221,4 +221,4 @@
 *
 *     End of DLASQ1
 *
-      END SUBROUTINE
+      END

@@ -23,10 +23,10 @@
 *       .. Scalar Arguments ..
 *       CHARACTER          SIDE
 *       INTEGER            INCV, LDC, M, N
-*       REAL*8             TAU
+*       DOUBLE PRECISION   TAU
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             C( LDC, * ), V( * ), WORK( * )
+*       DOUBLE PRECISION   C( LDC, * ), V( * ), WORK( * )
 *       ..
 *
 *
@@ -69,7 +69,7 @@
 *>
 *> \param[in] V
 *> \verbatim
-*>          V is REAL*8           array, dimension
+*>          V is DOUBLE PRECISION array, dimension
 *>                     (1 + (M-1)*abs(INCV)) if SIDE = 'L'
 *>                  or (1 + (N-1)*abs(INCV)) if SIDE = 'R'
 *>          The vector v in the representation of H. V is not used if
@@ -84,13 +84,13 @@
 *>
 *> \param[in] TAU
 *> \verbatim
-*>          TAU is REAL*8
+*>          TAU is DOUBLE PRECISION
 *>          The value tau in the representation of H.
 *> \endverbatim
 *>
 *> \param[in,out] C
 *> \verbatim
-*>          C is REAL*8           array, dimension (LDC,N)
+*>          C is DOUBLE PRECISION array, dimension (LDC,N)
 *>          On entry, the m by n matrix C.
 *>          On exit, C is overwritten by the matrix H * C if SIDE = 'L',
 *>          or C * H if SIDE = 'R'.
@@ -104,7 +104,7 @@
 *>
 *> \param[out] WORK
 *> \verbatim
-*>          WORK is REAL*8           array, dimension
+*>          WORK is DOUBLE PRECISION array, dimension
 *>                         (N) if SIDE = 'L'
 *>                      or (M) if SIDE = 'R'
 *> \endverbatim
@@ -117,31 +117,31 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
 *> \ingroup doubleOTHERauxiliary
 *
 *  =====================================================================
       SUBROUTINE DLARF( SIDE, M, N, V, INCV, TAU, C, LDC, WORK )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          SIDE
       INTEGER            INCV, LDC, M, N
-      REAL*8             TAU
+      DOUBLE PRECISION   TAU
 *     ..
 *     .. Array Arguments ..
-      REAL*8             C( LDC, * ), V( * ), WORK( * )
+      DOUBLE PRECISION   C( LDC, * ), V( * ), WORK( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ONE, ZERO
+      DOUBLE PRECISION   ONE, ZERO
       PARAMETER          ( ONE = 1.0D+0, ZERO = 0.0D+0 )
 *     ..
 *     .. Local Scalars ..
@@ -224,4 +224,4 @@
 *
 *     End of DLARF
 *
-      END SUBROUTINE
+      END

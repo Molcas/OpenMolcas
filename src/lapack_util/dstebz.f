@@ -25,11 +25,11 @@
 *       .. Scalar Arguments ..
 *       CHARACTER          ORDER, RANGE
 *       INTEGER            IL, INFO, IU, M, N, NSPLIT
-*       REAL*8             ABSTOL, VL, VU
+*       DOUBLE PRECISION   ABSTOL, VL, VU
 *       ..
 *       .. Array Arguments ..
 *       INTEGER            IBLOCK( * ), ISPLIT( * ), IWORK( * )
-*       REAL*8             D( * ), E( * ), W( * ), WORK( * )
+*       DOUBLE PRECISION   D( * ), E( * ), W( * ), WORK( * )
 *       ..
 *
 *
@@ -86,14 +86,19 @@
 *>
 *> \param[in] VL
 *> \verbatim
-*>          VL is REAL*8
+*>          VL is DOUBLE PRECISION
+*>
+*>          If RANGE='V', the lower bound of the interval to
+*>          be searched for eigenvalues.  Eigenvalues less than or equal
+*>          to VL, or greater than VU, will not be returned.  VL < VU.
+*>          Not referenced if RANGE = 'A' or 'I'.
 *> \endverbatim
 *>
 *> \param[in] VU
 *> \verbatim
-*>          VU is REAL*8
+*>          VU is DOUBLE PRECISION
 *>
-*>          If RANGE='V', the lower and upper bounds of the interval to
+*>          If RANGE='V', the upper bound of the interval to
 *>          be searched for eigenvalues.  Eigenvalues less than or equal
 *>          to VL, or greater than VU, will not be returned.  VL < VU.
 *>          Not referenced if RANGE = 'A' or 'I'.
@@ -102,21 +107,26 @@
 *> \param[in] IL
 *> \verbatim
 *>          IL is INTEGER
+*>
+*>          If RANGE='I', the index of the
+*>          smallest eigenvalue to be returned.
+*>          1 <= IL <= IU <= N, if N > 0; IL = 1 and IU = 0 if N = 0.
+*>          Not referenced if RANGE = 'A' or 'V'.
 *> \endverbatim
 *>
 *> \param[in] IU
 *> \verbatim
 *>          IU is INTEGER
 *>
-*>          If RANGE='I', the indices (in ascending order) of the
-*>          smallest and largest eigenvalues to be returned.
+*>          If RANGE='I', the index of the
+*>          largest eigenvalue to be returned.
 *>          1 <= IL <= IU <= N, if N > 0; IL = 1 and IU = 0 if N = 0.
 *>          Not referenced if RANGE = 'A' or 'V'.
 *> \endverbatim
 *>
 *> \param[in] ABSTOL
 *> \verbatim
-*>          ABSTOL is REAL*8
+*>          ABSTOL is DOUBLE PRECISION
 *>          The absolute tolerance for the eigenvalues.  An eigenvalue
 *>          (or cluster) is considered to be located if it has been
 *>          determined to lie in an interval whose width is ABSTOL or
@@ -129,13 +139,13 @@
 *>
 *> \param[in] D
 *> \verbatim
-*>          D is REAL*8           array, dimension (N)
+*>          D is DOUBLE PRECISION array, dimension (N)
 *>          The n diagonal elements of the tridiagonal matrix T.
 *> \endverbatim
 *>
 *> \param[in] E
 *> \verbatim
-*>          E is REAL*8           array, dimension (N-1)
+*>          E is DOUBLE PRECISION array, dimension (N-1)
 *>          The (n-1) off-diagonal elements of the tridiagonal matrix T.
 *> \endverbatim
 *>
@@ -155,7 +165,7 @@
 *>
 *> \param[out] W
 *> \verbatim
-*>          W is REAL*8           array, dimension (N)
+*>          W is DOUBLE PRECISION array, dimension (N)
 *>          On exit, the first M elements of W will contain the
 *>          eigenvalues.  (DSTEBZ may use the remaining N-M elements as
 *>          workspace.)
@@ -187,7 +197,7 @@
 *>
 *> \param[out] WORK
 *> \verbatim
-*>          WORK is REAL*8           array, dimension (4*N)
+*>          WORK is DOUBLE PRECISION array, dimension (4*N)
 *> \endverbatim
 *>
 *> \param[out] IWORK
@@ -231,13 +241,13 @@
 *  =========================
 *>
 *> \verbatim
-*>  RELFAC  REAL*8          , default = 2.0e0
+*>  RELFAC  DOUBLE PRECISION, default = 2.0e0
 *>          The relative tolerance.  An interval (a,b] lies within
 *>          "relative tolerance" if  b-a < RELFAC*ulp*max(|a|,|b|),
 *>          where "ulp" is the machine precision (distance from 1 to
 *>          the next larger floating point number.)
 *>
-*>  FUDGE   REAL*8          , default = 2
+*>  FUDGE   DOUBLE PRECISION, default = 2
 *>          A "fudge factor" to widen the Gershgorin intervals.  Ideally,
 *>          a value of 1 should work, but on machines with sloppy
 *>          arithmetic, this needs to be larger.  The default for
@@ -254,7 +264,7 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date November 2011
+*> \date June 2016
 *
 *> \ingroup auxOTHERcomputational
 *
@@ -263,28 +273,28 @@
      $                   M, NSPLIT, W, IBLOCK, ISPLIT, WORK, IWORK,
      $                   INFO )
 *
-*  -- LAPACK computational routine (version 3.4.0) --
+*  -- LAPACK computational routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     November 2011
+*     June 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          ORDER, RANGE
       INTEGER            IL, INFO, IU, M, N, NSPLIT
-      REAL*8             ABSTOL, VL, VU
+      DOUBLE PRECISION   ABSTOL, VL, VU
 *     ..
 *     .. Array Arguments ..
       INTEGER            IBLOCK( * ), ISPLIT( * ), IWORK( * )
-      REAL*8             D( * ), E( * ), W( * ), WORK( * )
+      DOUBLE PRECISION   D( * ), E( * ), W( * ), WORK( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ZERO, ONE, TWO, HALF
+      DOUBLE PRECISION   ZERO, ONE, TWO, HALF
       PARAMETER          ( ZERO = 0.0D0, ONE = 1.0D0, TWO = 2.0D0,
      $                   HALF = 1.0D0 / TWO )
-      REAL*8             FUDGE, RELFAC
+      DOUBLE PRECISION   FUDGE, RELFAC
       PARAMETER          ( FUDGE = 2.1D0, RELFAC = 2.0D0 )
 *     ..
 *     .. Local Scalars ..
@@ -293,7 +303,7 @@
      $                   IM, IN, IOFF, IORDER, IOUT, IRANGE, ITMAX,
      $                   ITMP1, IW, IWOFF, J, JB, JDISC, JE, NB, NWL,
      $                   NWU
-      REAL*8             ATOLI, BNORM, GL, GU, PIVMIN, RTOLI, SAFEMN,
+      DOUBLE PRECISION   ATOLI, BNORM, GL, GU, PIVMIN, RTOLI, SAFEMN,
      $                   TMP1, TMP2, TNORM, ULP, WKILL, WL, WLU, WU, WUL
 *     ..
 *     .. Local Arrays ..
@@ -302,7 +312,7 @@
 *     .. External Functions ..
       LOGICAL            LSAME
       INTEGER            ILAENV
-      REAL*8             DLAMCH
+      DOUBLE PRECISION   DLAMCH
       EXTERNAL           LSAME, ILAENV, DLAMCH
 *     ..
 *     .. External Subroutines ..
@@ -758,4 +768,4 @@
 *
 *     End of DSTEBZ
 *
-      END SUBROUTINE
+      END

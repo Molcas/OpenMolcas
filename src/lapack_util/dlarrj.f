@@ -24,11 +24,11 @@
 *
 *       .. Scalar Arguments ..
 *       INTEGER            IFIRST, ILAST, INFO, N, OFFSET
-*       REAL*8             PIVMIN, RTOL, SPDIAM
+*       DOUBLE PRECISION   PIVMIN, RTOL, SPDIAM
 *       ..
 *       .. Array Arguments ..
 *       INTEGER            IWORK( * )
-*       REAL*8             D( * ), E2( * ), W( * ),
+*       DOUBLE PRECISION   D( * ), E2( * ), W( * ),
 *      $                   WERR( * ), WORK( * )
 *       ..
 *
@@ -58,13 +58,13 @@
 *>
 *> \param[in] D
 *> \verbatim
-*>          D is REAL*8           array, dimension (N)
+*>          D is DOUBLE PRECISION array, dimension (N)
 *>          The N diagonal elements of T.
 *> \endverbatim
 *>
 *> \param[in] E2
 *> \verbatim
-*>          E2 is REAL*8           array, dimension (N-1)
+*>          E2 is DOUBLE PRECISION array, dimension (N-1)
 *>          The Squares of the (N-1) subdiagonal elements of T.
 *> \endverbatim
 *>
@@ -82,7 +82,7 @@
 *>
 *> \param[in] RTOL
 *> \verbatim
-*>          RTOL is REAL*8
+*>          RTOL is DOUBLE PRECISION
 *>          Tolerance for the convergence of the bisection intervals.
 *>          An interval [LEFT,RIGHT] has converged if
 *>          RIGHT-LEFT.LT.RTOL*MAX(|LEFT|,|RIGHT|).
@@ -97,7 +97,7 @@
 *>
 *> \param[in,out] W
 *> \verbatim
-*>          W is REAL*8           array, dimension (N)
+*>          W is DOUBLE PRECISION array, dimension (N)
 *>          On input, W( IFIRST-OFFSET ) through W( ILAST-OFFSET ) are
 *>          estimates of the eigenvalues of L D L^T indexed IFIRST through
 *>          ILAST.
@@ -106,7 +106,7 @@
 *>
 *> \param[in,out] WERR
 *> \verbatim
-*>          WERR is REAL*8           array, dimension (N)
+*>          WERR is DOUBLE PRECISION array, dimension (N)
 *>          On input, WERR( IFIRST-OFFSET ) through WERR( ILAST-OFFSET ) are
 *>          the errors in the estimates of the corresponding elements in W.
 *>          On output, these errors are refined.
@@ -114,7 +114,7 @@
 *>
 *> \param[out] WORK
 *> \verbatim
-*>          WORK is REAL*8           array, dimension (2*N)
+*>          WORK is DOUBLE PRECISION array, dimension (2*N)
 *>          Workspace.
 *> \endverbatim
 *>
@@ -126,13 +126,13 @@
 *>
 *> \param[in] PIVMIN
 *> \verbatim
-*>          PIVMIN is REAL*8
+*>          PIVMIN is DOUBLE PRECISION
 *>          The minimum pivot in the Sturm sequence for T.
 *> \endverbatim
 *>
 *> \param[in] SPDIAM
 *> \verbatim
-*>          SPDIAM is REAL*8
+*>          SPDIAM is DOUBLE PRECISION
 *>          The spectral diameter of T.
 *> \endverbatim
 *>
@@ -150,9 +150,9 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date June 2017
 *
-*> \ingroup auxOTHERauxiliary
+*> \ingroup OTHERauxiliary
 *
 *> \par Contributors:
 *  ==================
@@ -168,25 +168,25 @@
      $                   RTOL, OFFSET, W, WERR, WORK, IWORK,
      $                   PIVMIN, SPDIAM, INFO )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.1) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     June 2017
 *
 *     .. Scalar Arguments ..
       INTEGER            IFIRST, ILAST, INFO, N, OFFSET
-      REAL*8             PIVMIN, RTOL, SPDIAM
+      DOUBLE PRECISION   PIVMIN, RTOL, SPDIAM
 *     ..
 *     .. Array Arguments ..
       INTEGER            IWORK( * )
-      REAL*8             D( * ), E2( * ), W( * ),
+      DOUBLE PRECISION   D( * ), E2( * ), W( * ),
      $                   WERR( * ), WORK( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ZERO, ONE, TWO, HALF
+      DOUBLE PRECISION   ZERO, ONE, TWO, HALF
       PARAMETER        ( ZERO = 0.0D0, ONE = 1.0D0, TWO = 2.0D0,
      $                   HALF = 0.5D0 )
       INTEGER   MAXITR
@@ -194,7 +194,7 @@
 *     .. Local Scalars ..
       INTEGER            CNT, I, I1, I2, II, ITER, J, K, NEXT, NINT,
      $                   OLNINT, P, PREV, SAVI1
-      REAL*8             DPLUS, FAC, LEFT, MID, RIGHT, S, TMP, WIDTH
+      DOUBLE PRECISION   DPLUS, FAC, LEFT, MID, RIGHT, S, TMP, WIDTH
 *
 *     ..
 *     .. Intrinsic Functions ..
@@ -203,6 +203,12 @@
 *     .. Executable Statements ..
 *
       INFO = 0
+*
+*     Quick return if possible
+*
+      IF( N.LE.0 ) THEN
+         RETURN
+      END IF
 *
       MAXITR = INT( ( LOG( SPDIAM+PIVMIN )-LOG( PIVMIN ) ) /
      $           LOG( TWO ) ) + 2
@@ -370,4 +376,4 @@
 *
 *     End of DLARRJ
 *
-      END SUBROUTINE
+      END

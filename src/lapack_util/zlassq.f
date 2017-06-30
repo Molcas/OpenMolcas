@@ -22,7 +22,7 @@
 *
 *       .. Scalar Arguments ..
 *       INTEGER            INCX, N
-*       REAL*8             SCALE, SUMSQ
+*       DOUBLE PRECISION   SCALE, SUMSQ
 *       ..
 *       .. Array Arguments ..
 *       COMPLEX*16         X( * )
@@ -79,14 +79,14 @@
 *>
 *> \param[in,out] SCALE
 *> \verbatim
-*>          SCALE is REAL*8
+*>          SCALE is DOUBLE PRECISION
 *>          On entry, the value  scale  in the equation above.
 *>          On exit, SCALE is overwritten with the value  scl .
 *> \endverbatim
 *>
 *> \param[in,out] SUMSQ
 *> \verbatim
-*>          SUMSQ is REAL*8
+*>          SUMSQ is DOUBLE PRECISION
 *>          On entry, the value  sumsq  in the equation above.
 *>          On exit, SUMSQ is overwritten with the value  ssq .
 *> \endverbatim
@@ -99,21 +99,21 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
 *> \ingroup complex16OTHERauxiliary
 *
 *  =====================================================================
       SUBROUTINE ZLASSQ( N, X, INCX, SCALE, SUMSQ )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
       INTEGER            INCX, N
-      REAL*8             SCALE, SUMSQ
+      DOUBLE PRECISION   SCALE, SUMSQ
 *     ..
 *     .. Array Arguments ..
       COMPLEX*16         X( * )
@@ -122,12 +122,12 @@
 * =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ZERO
+      DOUBLE PRECISION   ZERO
       PARAMETER          ( ZERO = 0.0D+0 )
 *     ..
 *     .. Local Scalars ..
       INTEGER            IX
-      REAL*8             TEMP1
+      DOUBLE PRECISION   TEMP1
 *     ..
 *     .. External Functions ..
       LOGICAL            DISNAN
@@ -165,4 +165,4 @@
 *
 *     End of ZLASSQ
 *
-      END SUBROUTINE
+      END

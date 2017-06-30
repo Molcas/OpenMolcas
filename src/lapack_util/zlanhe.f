@@ -117,36 +117,36 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
 *> \ingroup complex16HEauxiliary
 *
 *  =====================================================================
-      REAL*8 FUNCTION ZLANHE( NORM, UPLO, N, A, LDA, WORK )
+      DOUBLE PRECISION FUNCTION ZLANHE( NORM, UPLO, N, A, LDA, WORK )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          NORM, UPLO
       INTEGER            LDA, N
 *     ..
 *     .. Array Arguments ..
-      REAL*8             WORK( * )
+      DOUBLE PRECISION   WORK( * )
       COMPLEX*16         A( LDA, * )
 *     ..
 *
 * =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ONE, ZERO
+      DOUBLE PRECISION   ONE, ZERO
       PARAMETER          ( ONE = 1.0D+0, ZERO = 0.0D+0 )
 *     ..
 *     .. Local Scalars ..
       INTEGER            I, J
-      REAL*8             ABSA, SCALE, SUM, VALUE
+      DOUBLE PRECISION   ABSA, SCALE, SUM, VALUE
 *     ..
 *     .. External Functions ..
       LOGICAL            LSAME, DISNAN
@@ -255,4 +255,4 @@
 *
 *     End of ZLANHE
 *
-      END FUNCTION
+      END

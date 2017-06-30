@@ -18,14 +18,14 @@
 *  Definition:
 *  ===========
 *
-*       REAL*8           FUNCTION DLANGE( NORM, M, N, A, LDA, WORK )
+*       DOUBLE PRECISION FUNCTION DLANGE( NORM, M, N, A, LDA, WORK )
 *
 *       .. Scalar Arguments ..
 *       CHARACTER          NORM
 *       INTEGER            LDA, M, N
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             A( LDA, * ), WORK( * )
+*       DOUBLE PRECISION   A( LDA, * ), WORK( * )
 *       ..
 *
 *
@@ -82,7 +82,7 @@
 *>
 *> \param[in] A
 *> \verbatim
-*>          A is REAL*8           array, dimension (LDA,N)
+*>          A is DOUBLE PRECISION array, dimension (LDA,N)
 *>          The m by n matrix A.
 *> \endverbatim
 *>
@@ -94,7 +94,7 @@
 *>
 *> \param[out] WORK
 *> \verbatim
-*>          WORK is REAL*8           array, dimension (MAX(1,LWORK)),
+*>          WORK is DOUBLE PRECISION array, dimension (MAX(1,LWORK)),
 *>          where LWORK >= M when NORM = 'I'; otherwise, WORK is not
 *>          referenced.
 *> \endverbatim
@@ -107,35 +107,35 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
 *> \ingroup doubleGEauxiliary
 *
 *  =====================================================================
-      REAL*8           FUNCTION DLANGE( NORM, M, N, A, LDA, WORK )
+      DOUBLE PRECISION FUNCTION DLANGE( NORM, M, N, A, LDA, WORK )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          NORM
       INTEGER            LDA, M, N
 *     ..
 *     .. Array Arguments ..
-      REAL*8             A( LDA, * ), WORK( * )
+      DOUBLE PRECISION   A( LDA, * ), WORK( * )
 *     ..
 *
 * =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ONE, ZERO
+      DOUBLE PRECISION   ONE, ZERO
       PARAMETER          ( ONE = 1.0D+0, ZERO = 0.0D+0 )
 *     ..
 *     .. Local Scalars ..
       INTEGER            I, J
-      REAL*8             SCALE, SUM, VALUE, TEMP
+      DOUBLE PRECISION   SCALE, SUM, VALUE, TEMP
 *     ..
 *     .. External Subroutines ..
       EXTERNAL           DLASSQ
@@ -208,4 +208,4 @@
 *
 *     End of DLANGE
 *
-      END FUNCTION
+      END

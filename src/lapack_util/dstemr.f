@@ -26,12 +26,12 @@
 *       CHARACTER          JOBZ, RANGE
 *       LOGICAL            TRYRAC
 *       INTEGER            IL, INFO, IU, LDZ, NZC, LIWORK, LWORK, M, N
-*       REAL*8           VL, VU
+*       DOUBLE PRECISION VL, VU
 *       ..
 *       .. Array Arguments ..
 *       INTEGER            ISUPPZ( * ), IWORK( * )
-*       REAL*8             D( * ), E( * ), W( * ), WORK( * )
-*       REAL*8             Z( LDZ, * )
+*       DOUBLE PRECISION   D( * ), E( * ), W( * ), WORK( * )
+*       DOUBLE PRECISION   Z( LDZ, * )
 *       ..
 *
 *
@@ -119,14 +119,14 @@
 *>
 *> \param[in,out] D
 *> \verbatim
-*>          D is REAL*8           array, dimension (N)
+*>          D is DOUBLE PRECISION array, dimension (N)
 *>          On entry, the N diagonal elements of the tridiagonal matrix
 *>          T. On exit, D is overwritten.
 *> \endverbatim
 *>
 *> \param[in,out] E
 *> \verbatim
-*>          E is REAL*8           array, dimension (N)
+*>          E is DOUBLE PRECISION array, dimension (N)
 *>          On entry, the (N-1) subdiagonal elements of the tridiagonal
 *>          matrix T in elements 1 to N-1 of E. E(N) need not be set on
 *>          input, but is used internally as workspace.
@@ -135,14 +135,18 @@
 *>
 *> \param[in] VL
 *> \verbatim
-*>          VL is REAL*8
+*>          VL is DOUBLE PRECISION
+*>
+*>          If RANGE='V', the lower bound of the interval to
+*>          be searched for eigenvalues. VL < VU.
+*>          Not referenced if RANGE = 'A' or 'I'.
 *> \endverbatim
 *>
 *> \param[in] VU
 *> \verbatim
-*>          VU is REAL*8
+*>          VU is DOUBLE PRECISION
 *>
-*>          If RANGE='V', the lower and upper bounds of the interval to
+*>          If RANGE='V', the upper bound of the interval to
 *>          be searched for eigenvalues. VL < VU.
 *>          Not referenced if RANGE = 'A' or 'I'.
 *> \endverbatim
@@ -150,14 +154,19 @@
 *> \param[in] IL
 *> \verbatim
 *>          IL is INTEGER
+*>
+*>          If RANGE='I', the index of the
+*>          smallest eigenvalue to be returned.
+*>          1 <= IL <= IU <= N, if N > 0.
+*>          Not referenced if RANGE = 'A' or 'V'.
 *> \endverbatim
 *>
 *> \param[in] IU
 *> \verbatim
 *>          IU is INTEGER
 *>
-*>          If RANGE='I', the indices (in ascending order) of the
-*>          smallest and largest eigenvalues to be returned.
+*>          If RANGE='I', the index of the
+*>          largest eigenvalue to be returned.
 *>          1 <= IL <= IU <= N, if N > 0.
 *>          Not referenced if RANGE = 'A' or 'V'.
 *> \endverbatim
@@ -171,14 +180,14 @@
 *>
 *> \param[out] W
 *> \verbatim
-*>          W is REAL*8           array, dimension (N)
+*>          W is DOUBLE PRECISION array, dimension (N)
 *>          The first M elements contain the selected eigenvalues in
 *>          ascending order.
 *> \endverbatim
 *>
 *> \param[out] Z
 *> \verbatim
-*>          Z is REAL*8           array, dimension (LDZ, max(1,M) )
+*>          Z is DOUBLE PRECISION array, dimension (LDZ, max(1,M) )
 *>          If JOBZ = 'V', and if INFO = 0, then the first M columns of Z
 *>          contain the orthonormal eigenvectors of the matrix T
 *>          corresponding to the selected eigenvalues, with the i-th
@@ -213,7 +222,7 @@
 *>
 *> \param[out] ISUPPZ
 *> \verbatim
-*>          ISUPPZ is INTEGER ARRAY, dimension ( 2*max(1,M) )
+*>          ISUPPZ is INTEGER array, dimension ( 2*max(1,M) )
 *>          The support of the eigenvectors in Z, i.e., the indices
 *>          indicating the nonzero elements in Z. The i-th computed eigenvector
 *>          is nonzero only in elements ISUPPZ( 2*i-1 ) through
@@ -239,7 +248,7 @@
 *>
 *> \param[out] WORK
 *> \verbatim
-*>          WORK is REAL*8           array, dimension (LWORK)
+*>          WORK is DOUBLE PRECISION array, dimension (LWORK)
 *>          On exit, if INFO = 0, WORK(1) returns the optimal
 *>          (and minimal) LWORK.
 *> \endverbatim
@@ -294,7 +303,7 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date June 2016
 *
 *> \ingroup doubleOTHERcomputational
 *
@@ -312,27 +321,27 @@
      $                   M, W, Z, LDZ, NZC, ISUPPZ, TRYRAC, WORK, LWORK,
      $                   IWORK, LIWORK, INFO )
 *
-*  -- LAPACK computational routine (version 3.4.2) --
+*  -- LAPACK computational routine (version 3.7.1) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     June 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          JOBZ, RANGE
       LOGICAL            TRYRAC
       INTEGER            IL, INFO, IU, LDZ, NZC, LIWORK, LWORK, M, N
-      REAL*8           VL, VU
+      DOUBLE PRECISION VL, VU
 *     ..
 *     .. Array Arguments ..
       INTEGER            ISUPPZ( * ), IWORK( * )
-      REAL*8             D( * ), E( * ), W( * ), WORK( * )
-      REAL*8             Z( LDZ, * )
+      DOUBLE PRECISION   D( * ), E( * ), W( * ), WORK( * )
+      DOUBLE PRECISION   Z( LDZ, * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ZERO, ONE, FOUR, MINRGP
+      DOUBLE PRECISION   ZERO, ONE, FOUR, MINRGP
       PARAMETER          ( ZERO = 0.0D0, ONE = 1.0D0,
      $                     FOUR = 4.0D0,
      $                     MINRGP = 1.0D-3 )
@@ -344,14 +353,14 @@
      $                   INDE2, INDERR, INDGP, INDGRS, INDWRK, ITMP,
      $                   ITMP2, J, JBLK, JJ, LIWMIN, LWMIN, NSPLIT,
      $                   NZCMIN, OFFSET, WBEGIN, WEND
-      REAL*8             BIGNUM, CS, EPS, PIVMIN, R1, R2, RMAX, RMIN,
+      DOUBLE PRECISION   BIGNUM, CS, EPS, PIVMIN, R1, R2, RMAX, RMIN,
      $                   RTOL1, RTOL2, SAFMIN, SCALE, SMLNUM, SN,
      $                   THRESH, TMP, TNRM, WL, WU
 *     ..
 *     ..
 *     .. External Functions ..
       LOGICAL            LSAME
-      REAL*8             DLAMCH, DLANST
+      DOUBLE PRECISION   DLAMCH, DLANST
       EXTERNAL           LSAME, DLAMCH, DLANST
 *     ..
 *     .. External Subroutines ..
@@ -391,6 +400,7 @@
       WU = ZERO
       IIL = 0
       IIU = 0
+      NSPLIT = 0
 
       IF( VALEIG ) THEN
 *        We do not reference VL, VU in the cases RANGE = 'I','A'
@@ -764,4 +774,4 @@
 *
 *     End of DSTEMR
 *
-      END SUBROUTINE
+      END

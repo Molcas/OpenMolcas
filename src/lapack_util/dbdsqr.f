@@ -26,7 +26,7 @@
 *       INTEGER            INFO, LDC, LDU, LDVT, N, NCC, NCVT, NRU
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             C( LDC, * ), D( * ), E( * ), U( LDU, * ),
+*       DOUBLE PRECISION   C( LDC, * ), D( * ), E( * ), U( LDU, * ),
 *      $                   VT( LDVT, * ), WORK( * )
 *       ..
 *
@@ -103,7 +103,7 @@
 *>
 *> \param[in,out] D
 *> \verbatim
-*>          D is REAL*8           array, dimension (N)
+*>          D is DOUBLE PRECISION array, dimension (N)
 *>          On entry, the n diagonal elements of the bidiagonal matrix B.
 *>          On exit, if INFO=0, the singular values of B in decreasing
 *>          order.
@@ -111,7 +111,7 @@
 *>
 *> \param[in,out] E
 *> \verbatim
-*>          E is REAL*8           array, dimension (N-1)
+*>          E is DOUBLE PRECISION array, dimension (N-1)
 *>          On entry, the N-1 offdiagonal elements of the bidiagonal
 *>          matrix B.
 *>          On exit, if INFO = 0, E is destroyed; if INFO > 0, D and E
@@ -122,7 +122,7 @@
 *>
 *> \param[in,out] VT
 *> \verbatim
-*>          VT is REAL*8           array, dimension (LDVT, NCVT)
+*>          VT is DOUBLE PRECISION array, dimension (LDVT, NCVT)
 *>          On entry, an N-by-NCVT matrix VT.
 *>          On exit, VT is overwritten by P**T * VT.
 *>          Not referenced if NCVT = 0.
@@ -137,7 +137,7 @@
 *>
 *> \param[in,out] U
 *> \verbatim
-*>          U is REAL*8           array, dimension (LDU, N)
+*>          U is DOUBLE PRECISION array, dimension (LDU, N)
 *>          On entry, an NRU-by-N matrix U.
 *>          On exit, U is overwritten by U * Q.
 *>          Not referenced if NRU = 0.
@@ -151,7 +151,7 @@
 *>
 *> \param[in,out] C
 *> \verbatim
-*>          C is REAL*8           array, dimension (LDC, NCC)
+*>          C is DOUBLE PRECISION array, dimension (LDC, NCC)
 *>          On entry, an N-by-NCC matrix C.
 *>          On exit, C is overwritten by Q**T * C.
 *>          Not referenced if NCC = 0.
@@ -166,7 +166,7 @@
 *>
 *> \param[out] WORK
 *> \verbatim
-*>          WORK is REAL*8           array, dimension (4*N)
+*>          WORK is DOUBLE PRECISION array, dimension (4*N)
 *> \endverbatim
 *>
 *> \param[out] INFO
@@ -192,7 +192,7 @@
 *  =========================
 *>
 *> \verbatim
-*>  TOLMUL  REAL*8          , default = max(10,min(100,EPS**(-1/8)))
+*>  TOLMUL  DOUBLE PRECISION, default = max(10,min(100,EPS**(-1/8)))
 *>          TOLMUL controls the convergence criterion of the QR loop.
 *>          If it is positive, TOLMUL*EPS is the desired relative
 *>             precision in the computed singular values.
@@ -212,6 +212,17 @@
 *>          algorithm through its inner loop. The algorithms stops
 *>          (and so fails to converge) if the number of passes
 *>          through the inner loop exceeds MAXITR*N**2.
+*>
+*> \endverbatim
+*
+*> \par Note:
+*  ===========
+*>
+*> \verbatim
+*>  Bug report from Cezary Dendek.
+*>  On March 23rd 2017, the INTEGER variable MAXIT = MAXITR*N**2 is
+*>  removed since it can overflow pretty easily (for N larger or equal
+*>  than 18,919). We instead use MAXITDIVN = MAXITR*N.
 *> \endverbatim
 *
 *  Authors:
@@ -222,7 +233,7 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date November 2011
+*> \date June 2017
 *
 *> \ingroup auxOTHERcomputational
 *
@@ -230,52 +241,52 @@
       SUBROUTINE DBDSQR( UPLO, N, NCVT, NRU, NCC, D, E, VT, LDVT, U,
      $                   LDU, C, LDC, WORK, INFO )
 *
-*  -- LAPACK computational routine (version 3.4.0) --
+*  -- LAPACK computational routine (version 3.7.1) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     November 2011
+*     June 2017
 *
 *     .. Scalar Arguments ..
       CHARACTER          UPLO
       INTEGER            INFO, LDC, LDU, LDVT, N, NCC, NCVT, NRU
 *     ..
 *     .. Array Arguments ..
-      REAL*8             C( LDC, * ), D( * ), E( * ), U( LDU, * ),
+      DOUBLE PRECISION   C( LDC, * ), D( * ), E( * ), U( LDU, * ),
      $                   VT( LDVT, * ), WORK( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ZERO
+      DOUBLE PRECISION   ZERO
       PARAMETER          ( ZERO = 0.0D0 )
-      REAL*8             ONE
+      DOUBLE PRECISION   ONE
       PARAMETER          ( ONE = 1.0D0 )
-      REAL*8             NEGONE
+      DOUBLE PRECISION   NEGONE
       PARAMETER          ( NEGONE = -1.0D0 )
-      REAL*8             HNDRTH
+      DOUBLE PRECISION   HNDRTH
       PARAMETER          ( HNDRTH = 0.01D0 )
-      REAL*8             TEN
+      DOUBLE PRECISION   TEN
       PARAMETER          ( TEN = 10.0D0 )
-      REAL*8             HNDRD
+      DOUBLE PRECISION   HNDRD
       PARAMETER          ( HNDRD = 100.0D0 )
-      REAL*8             MEIGTH
+      DOUBLE PRECISION   MEIGTH
       PARAMETER          ( MEIGTH = -0.125D0 )
       INTEGER            MAXITR
       PARAMETER          ( MAXITR = 6 )
 *     ..
 *     .. Local Scalars ..
       LOGICAL            LOWER, ROTATE
-      INTEGER            I, IDIR, ISUB, ITER, J, LL, LLL, M, MAXIT, NM1,
-     $                   NM12, NM13, OLDLL, OLDM
-      REAL*8             ABSE, ABSS, COSL, COSR, CS, EPS, F, G, H, MU,
+      INTEGER            I, IDIR, ISUB, ITER, ITERDIVN, J, LL, LLL, M,
+     $                   MAXITDIVN, NM1, NM12, NM13, OLDLL, OLDM
+      DOUBLE PRECISION   ABSE, ABSS, COSL, COSR, CS, EPS, F, G, H, MU,
      $                   OLDCS, OLDSN, R, SHIFT, SIGMN, SIGMX, SINL,
      $                   SINR, SLL, SMAX, SMIN, SMINL, SMINOA,
      $                   SN, THRESH, TOL, TOLMUL, UNFL
 *     ..
 *     .. External Functions ..
       LOGICAL            LSAME
-      REAL*8             DLAMCH
+      DOUBLE PRECISION   DLAMCH
       EXTERNAL           LSAME, DLAMCH
 *     ..
 *     .. External Subroutines ..
@@ -400,20 +411,21 @@
    40    CONTINUE
    50    CONTINUE
          SMINOA = SMINOA / SQRT( DBLE( N ) )
-         THRESH = MAX( TOL*SMINOA, MAXITR*N*N*UNFL )
+         THRESH = MAX( TOL*SMINOA, MAXITR*(N*(N*UNFL)) )
       ELSE
 *
 *        Absolute accuracy desired
 *
-         THRESH = MAX( ABS( TOL )*SMAX, MAXITR*N*N*UNFL )
+         THRESH = MAX( ABS( TOL )*SMAX, MAXITR*(N*(N*UNFL)) )
       END IF
 *
 *     Prepare for main iteration loop for the singular values
 *     (MAXIT is the maximum number of passes through the inner
 *     loop permitted before nonconvergence signalled.)
 *
-      MAXIT = MAXITR*N*N
-      ITER = 0
+      MAXITDIVN = MAXITR*N
+      ITERDIVN = 0
+      ITER = -1
       OLDLL = -1
       OLDM = -1
 *
@@ -429,8 +441,13 @@
 *
       IF( M.LE.1 )
      $   GO TO 160
-      IF( ITER.GT.MAXIT )
-     $   GO TO 200
+*
+      IF( ITER.GE.N ) THEN
+         ITER = ITER - N
+         ITERDIVN = ITERDIVN + 1
+         IF( ITERDIVN.GE.MAXITDIVN )
+     $      GO TO 200
+      END IF
 *
 *     Find diagonal block of matrix to work on
 *
@@ -847,4 +864,4 @@
 *
 *     End of DBDSQR
 *
-      END SUBROUTINE
+      END

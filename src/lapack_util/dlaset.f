@@ -23,10 +23,10 @@
 *       .. Scalar Arguments ..
 *       CHARACTER          UPLO
 *       INTEGER            LDA, M, N
-*       REAL*8             ALPHA, BETA
+*       DOUBLE PRECISION   ALPHA, BETA
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             A( LDA, * )
+*       DOUBLE PRECISION   A( LDA, * )
 *       ..
 *
 *
@@ -67,19 +67,19 @@
 *>
 *> \param[in] ALPHA
 *> \verbatim
-*>          ALPHA is REAL*8
+*>          ALPHA is DOUBLE PRECISION
 *>          The constant to which the offdiagonal elements are to be set.
 *> \endverbatim
 *>
 *> \param[in] BETA
 *> \verbatim
-*>          BETA is REAL*8
+*>          BETA is DOUBLE PRECISION
 *>          The constant to which the diagonal elements are to be set.
 *> \endverbatim
 *>
-*> \param[in,out] A
+*> \param[out] A
 *> \verbatim
-*>          A is REAL*8           array, dimension (LDA,N)
+*>          A is DOUBLE PRECISION array, dimension (LDA,N)
 *>          On exit, the leading m-by-n submatrix of A is set as follows:
 *>
 *>          if UPLO = 'U', A(i,j) = ALPHA, 1<=i<=j-1, 1<=j<=n,
@@ -103,25 +103,25 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
-*> \ingroup auxOTHERauxiliary
+*> \ingroup OTHERauxiliary
 *
 *  =====================================================================
       SUBROUTINE DLASET( UPLO, M, N, ALPHA, BETA, A, LDA )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          UPLO
       INTEGER            LDA, M, N
-      REAL*8             ALPHA, BETA
+      DOUBLE PRECISION   ALPHA, BETA
 *     ..
 *     .. Array Arguments ..
-      REAL*8             A( LDA, * )
+      DOUBLE PRECISION   A( LDA, * )
 *     ..
 *
 * =====================================================================
@@ -181,4 +181,4 @@
 *
 *     End of DLASET
 *
-      END SUBROUTINE
+      END

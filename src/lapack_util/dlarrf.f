@@ -25,10 +25,10 @@
 *
 *       .. Scalar Arguments ..
 *       INTEGER            CLSTRT, CLEND, INFO, N
-*       REAL*8             CLGAPL, CLGAPR, PIVMIN, SIGMA, SPDIAM
+*       DOUBLE PRECISION   CLGAPL, CLGAPR, PIVMIN, SIGMA, SPDIAM
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             D( * ), DPLUS( * ), L( * ), LD( * ),
+*       DOUBLE PRECISION   D( * ), DPLUS( * ), L( * ), LD( * ),
 *      $          LPLUS( * ), W( * ), WGAP( * ), WERR( * ), WORK( * )
 *       ..
 *
@@ -51,25 +51,25 @@
 *> \param[in] N
 *> \verbatim
 *>          N is INTEGER
-*>          The order of the matrix (subblock, if the matrix splitted).
+*>          The order of the matrix (subblock, if the matrix split).
 *> \endverbatim
 *>
 *> \param[in] D
 *> \verbatim
-*>          D is REAL*8           array, dimension (N)
+*>          D is DOUBLE PRECISION array, dimension (N)
 *>          The N diagonal elements of the diagonal matrix D.
 *> \endverbatim
 *>
 *> \param[in] L
 *> \verbatim
-*>          L is REAL*8           array, dimension (N-1)
+*>          L is DOUBLE PRECISION array, dimension (N-1)
 *>          The (N-1) subdiagonal elements of the unit bidiagonal
 *>          matrix L.
 *> \endverbatim
 *>
 *> \param[in] LD
 *> \verbatim
-*>          LD is REAL*8           array, dimension (N-1)
+*>          LD is DOUBLE PRECISION array, dimension (N-1)
 *>          The (N-1) elements L(i)*D(i).
 *> \endverbatim
 *>
@@ -87,7 +87,7 @@
 *>
 *> \param[in] W
 *> \verbatim
-*>          W is REAL*8           array, dimension
+*>          W is DOUBLE PRECISION array, dimension
 *>          dimension is >=  (CLEND-CLSTRT+1)
 *>          The eigenvalue APPROXIMATIONS of L D L^T in ascending order.
 *>          W( CLSTRT ) through W( CLEND ) form the cluster of relatively
@@ -96,14 +96,14 @@
 *>
 *> \param[in,out] WGAP
 *> \verbatim
-*>          WGAP is REAL*8           array, dimension
+*>          WGAP is DOUBLE PRECISION array, dimension
 *>          dimension is >=  (CLEND-CLSTRT+1)
 *>          The separation from the right neighbor eigenvalue in W.
 *> \endverbatim
 *>
 *> \param[in] WERR
 *> \verbatim
-*>          WERR is REAL*8           array, dimension
+*>          WERR is DOUBLE PRECISION array, dimension
 *>          dimension is  >=  (CLEND-CLSTRT+1)
 *>          WERR contain the semiwidth of the uncertainty
 *>          interval of the corresponding eigenvalue APPROXIMATION in W
@@ -111,19 +111,19 @@
 *>
 *> \param[in] SPDIAM
 *> \verbatim
-*>          SPDIAM is REAL*8
+*>          SPDIAM is DOUBLE PRECISION
 *>          estimate of the spectral diameter obtained from the
 *>          Gerschgorin intervals
 *> \endverbatim
 *>
 *> \param[in] CLGAPL
 *> \verbatim
-*>          CLGAPL is REAL*8
+*>          CLGAPL is DOUBLE PRECISION
 *> \endverbatim
 *>
 *> \param[in] CLGAPR
 *> \verbatim
-*>          CLGAPR is REAL*8
+*>          CLGAPR is DOUBLE PRECISION
 *>          absolute gap on each end of the cluster.
 *>          Set by the calling routine to protect against shifts too close
 *>          to eigenvalues outside the cluster.
@@ -131,32 +131,32 @@
 *>
 *> \param[in] PIVMIN
 *> \verbatim
-*>          PIVMIN is REAL*8
+*>          PIVMIN is DOUBLE PRECISION
 *>          The minimum pivot allowed in the Sturm sequence.
 *> \endverbatim
 *>
 *> \param[out] SIGMA
 *> \verbatim
-*>          SIGMA is REAL*8
+*>          SIGMA is DOUBLE PRECISION
 *>          The shift used to form L(+) D(+) L(+)^T.
 *> \endverbatim
 *>
 *> \param[out] DPLUS
 *> \verbatim
-*>          DPLUS is REAL*8           array, dimension (N)
+*>          DPLUS is DOUBLE PRECISION array, dimension (N)
 *>          The N diagonal elements of the diagonal matrix D(+).
 *> \endverbatim
 *>
 *> \param[out] LPLUS
 *> \verbatim
-*>          LPLUS is REAL*8           array, dimension (N-1)
+*>          LPLUS is DOUBLE PRECISION array, dimension (N-1)
 *>          The first (N-1) elements of LPLUS contain the subdiagonal
 *>          elements of the unit bidiagonal matrix L(+).
 *> \endverbatim
 *>
 *> \param[out] WORK
 *> \verbatim
-*>          WORK is REAL*8           array, dimension (2*N)
+*>          WORK is DOUBLE PRECISION array, dimension (2*N)
 *>          Workspace.
 *> \endverbatim
 *>
@@ -174,9 +174,9 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date June 2016
 *
-*> \ingroup auxOTHERauxiliary
+*> \ingroup OTHERauxiliary
 *
 *> \par Contributors:
 *  ==================
@@ -193,24 +193,24 @@
      $                   SPDIAM, CLGAPL, CLGAPR, PIVMIN, SIGMA,
      $                   DPLUS, LPLUS, WORK, INFO )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.1) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     June 2016
 *
 *     .. Scalar Arguments ..
       INTEGER            CLSTRT, CLEND, INFO, N
-      REAL*8             CLGAPL, CLGAPR, PIVMIN, SIGMA, SPDIAM
+      DOUBLE PRECISION   CLGAPL, CLGAPR, PIVMIN, SIGMA, SPDIAM
 *     ..
 *     .. Array Arguments ..
-      REAL*8             D( * ), DPLUS( * ), L( * ), LD( * ),
+      DOUBLE PRECISION   D( * ), DPLUS( * ), L( * ), LD( * ),
      $          LPLUS( * ), W( * ), WGAP( * ), WERR( * ), WORK( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             FOUR, MAXGROWTH1, MAXGROWTH2, ONE, QUART, TWO
+      DOUBLE PRECISION   FOUR, MAXGROWTH1, MAXGROWTH2, ONE, QUART, TWO
       PARAMETER          ( ONE = 1.0D0, TWO = 2.0D0, FOUR = 4.0D0,
      $                     QUART = 0.25D0,
      $                     MAXGROWTH1 = 8.D0,
@@ -220,14 +220,14 @@
       LOGICAL   DORRR1, FORCER, NOFAIL, SAWNAN1, SAWNAN2, TRYRRR1
       INTEGER            I, INDX, KTRY, KTRYMAX, SLEFT, SRIGHT, SHIFT
       PARAMETER          ( KTRYMAX = 1, SLEFT = 1, SRIGHT = 2 )
-      REAL*8             AVGAP, BESTSHIFT, CLWDTH, EPS, FACT, FAIL,
+      DOUBLE PRECISION   AVGAP, BESTSHIFT, CLWDTH, EPS, FACT, FAIL,
      $                   FAIL2, GROWTHBOUND, LDELTA, LDMAX, LSIGMA,
      $                   MAX1, MAX2, MINGAP, OLDP, PROD, RDELTA, RDMAX,
      $                   RRR1, RRR2, RSIGMA, S, SMLGROWTH, TMP, ZNM2
 *     ..
 *     .. External Functions ..
       LOGICAL DISNAN
-      REAL*8             DLAMCH
+      DOUBLE PRECISION   DLAMCH
       EXTERNAL           DISNAN, DLAMCH
 *     ..
 *     .. External Subroutines ..
@@ -239,6 +239,13 @@
 *     .. Executable Statements ..
 *
       INFO = 0
+*
+*     Quick return if possible
+*
+      IF( N.LE.0 ) THEN
+         RETURN
+      END IF
+*
       FACT = DBLE(2**KTRYMAX)
       EPS = DLAMCH( 'Precision' )
       SHIFT = 0
@@ -257,7 +264,8 @@
 
 *     Decide whether the code should accept the best among all
 *     representations despite large element growth or signal INFO=1
-      NOFAIL = .TRUE.
+*     Setting NOFAIL to .FALSE. for quick fix for bug 113
+      NOFAIL = .FALSE.
 *
 
 *     Compute the average gap length of the cluster
@@ -484,4 +492,4 @@
 *
 *     End of DLARRF
 *
-      END SUBROUTINE
+      END

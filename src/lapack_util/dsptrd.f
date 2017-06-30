@@ -25,7 +25,7 @@
 *       INTEGER            INFO, N
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             AP( * ), D( * ), E( * ), TAU( * )
+*       DOUBLE PRECISION   AP( * ), D( * ), E( * ), TAU( * )
 *       ..
 *
 *
@@ -57,7 +57,7 @@
 *>
 *> \param[in,out] AP
 *> \verbatim
-*>          AP is REAL*8           array, dimension (N*(N+1)/2)
+*>          AP is DOUBLE PRECISION array, dimension (N*(N+1)/2)
 *>          On entry, the upper or lower triangle of the symmetric matrix
 *>          A, packed columnwise in a linear array.  The j-th column of A
 *>          is stored in the array AP as follows:
@@ -77,21 +77,21 @@
 *>
 *> \param[out] D
 *> \verbatim
-*>          D is REAL*8           array, dimension (N)
+*>          D is DOUBLE PRECISION array, dimension (N)
 *>          The diagonal elements of the tridiagonal matrix T:
 *>          D(i) = A(i,i).
 *> \endverbatim
 *>
 *> \param[out] E
 *> \verbatim
-*>          E is REAL*8           array, dimension (N-1)
+*>          E is DOUBLE PRECISION array, dimension (N-1)
 *>          The off-diagonal elements of the tridiagonal matrix T:
 *>          E(i) = A(i,i+1) if UPLO = 'U', E(i) = A(i+1,i) if UPLO = 'L'.
 *> \endverbatim
 *>
 *> \param[out] TAU
 *> \verbatim
-*>          TAU is REAL*8           array, dimension (N-1)
+*>          TAU is DOUBLE PRECISION array, dimension (N-1)
 *>          The scalar factors of the elementary reflectors (see Further
 *>          Details).
 *> \endverbatim
@@ -111,7 +111,7 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date November 2011
+*> \date December 2016
 *
 *> \ingroup doubleOTHERcomputational
 *
@@ -150,37 +150,37 @@
 *  =====================================================================
       SUBROUTINE DSPTRD( UPLO, N, AP, D, E, TAU, INFO )
 *
-*  -- LAPACK computational routine (version 3.4.0) --
+*  -- LAPACK computational routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     November 2011
+*     December 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          UPLO
       INTEGER            INFO, N
 *     ..
 *     .. Array Arguments ..
-      REAL*8             AP( * ), D( * ), E( * ), TAU( * )
+      DOUBLE PRECISION   AP( * ), D( * ), E( * ), TAU( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ONE, ZERO, HALF
+      DOUBLE PRECISION   ONE, ZERO, HALF
       PARAMETER          ( ONE = 1.0D0, ZERO = 0.0D0,
      $                   HALF = 1.0D0 / 2.0D0 )
 *     ..
 *     .. Local Scalars ..
       LOGICAL            UPPER
       INTEGER            I, I1, I1I1, II
-      REAL*8             ALPHA, TAUI
+      DOUBLE PRECISION   ALPHA, TAUI
 *     ..
 *     .. External Subroutines ..
       EXTERNAL           DAXPY, DLARFG, DSPMV, DSPR2, XERBLA
 *     ..
 *     .. External Functions ..
       LOGICAL            LSAME
-      REAL*8             DDOT
+      DOUBLE PRECISION   DDOT
       EXTERNAL           LSAME, DDOT
 *     ..
 *     .. Executable Statements ..
@@ -297,4 +297,4 @@
 *
 *     End of DSPTRD
 *
-      END SUBROUTINE
+      END

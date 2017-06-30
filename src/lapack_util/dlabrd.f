@@ -25,7 +25,7 @@
 *       INTEGER            LDA, LDX, LDY, M, N, NB
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             A( LDA, * ), D( * ), E( * ), TAUP( * ),
+*       DOUBLE PRECISION   A( LDA, * ), D( * ), E( * ), TAUP( * ),
 *      $                   TAUQ( * ), X( LDX, * ), Y( LDY, * )
 *       ..
 *
@@ -69,7 +69,7 @@
 *>
 *> \param[in,out] A
 *> \verbatim
-*>          A is REAL*8           array, dimension (LDA,N)
+*>          A is DOUBLE PRECISION array, dimension (LDA,N)
 *>          On entry, the m by n general matrix to be reduced.
 *>          On exit, the first NB rows and columns of the matrix are
 *>          overwritten; the rest of the array is unchanged.
@@ -96,35 +96,35 @@
 *>
 *> \param[out] D
 *> \verbatim
-*>          D is REAL*8           array, dimension (NB)
+*>          D is DOUBLE PRECISION array, dimension (NB)
 *>          The diagonal elements of the first NB rows and columns of
 *>          the reduced matrix.  D(i) = A(i,i).
 *> \endverbatim
 *>
 *> \param[out] E
 *> \verbatim
-*>          E is REAL*8           array, dimension (NB)
+*>          E is DOUBLE PRECISION array, dimension (NB)
 *>          The off-diagonal elements of the first NB rows and columns of
 *>          the reduced matrix.
 *> \endverbatim
 *>
 *> \param[out] TAUQ
 *> \verbatim
-*>          TAUQ is REAL*8           array dimension (NB)
+*>          TAUQ is DOUBLE PRECISION array, dimension (NB)
 *>          The scalar factors of the elementary reflectors which
 *>          represent the orthogonal matrix Q. See Further Details.
 *> \endverbatim
 *>
 *> \param[out] TAUP
 *> \verbatim
-*>          TAUP is REAL*8           array, dimension (NB)
+*>          TAUP is DOUBLE PRECISION array, dimension (NB)
 *>          The scalar factors of the elementary reflectors which
 *>          represent the orthogonal matrix P. See Further Details.
 *> \endverbatim
 *>
 *> \param[out] X
 *> \verbatim
-*>          X is REAL*8           array, dimension (LDX,NB)
+*>          X is DOUBLE PRECISION array, dimension (LDX,NB)
 *>          The m-by-nb matrix X required to update the unreduced part
 *>          of A.
 *> \endverbatim
@@ -137,7 +137,7 @@
 *>
 *> \param[out] Y
 *> \verbatim
-*>          Y is REAL*8           array, dimension (LDY,NB)
+*>          Y is DOUBLE PRECISION array, dimension (LDY,NB)
 *>          The n-by-nb matrix Y required to update the unreduced part
 *>          of A.
 *> \endverbatim
@@ -156,7 +156,7 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date June 2017
 *
 *> \ingroup doubleOTHERauxiliary
 *
@@ -210,23 +210,23 @@
       SUBROUTINE DLABRD( M, N, NB, A, LDA, D, E, TAUQ, TAUP, X, LDX, Y,
      $                   LDY )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.1) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     June 2017
 *
 *     .. Scalar Arguments ..
       INTEGER            LDA, LDX, LDY, M, N, NB
 *     ..
 *     .. Array Arguments ..
-      REAL*8             A( LDA, * ), D( * ), E( * ), TAUP( * ),
+      DOUBLE PRECISION   A( LDA, * ), D( * ), E( * ), TAUP( * ),
      $                   TAUQ( * ), X( LDX, * ), Y( LDY, * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ZERO, ONE
+      DOUBLE PRECISION   ZERO, ONE
       PARAMETER          ( ZERO = 0.0D0, ONE = 1.0D0 )
 *     ..
 *     .. Local Scalars ..
@@ -378,4 +378,4 @@
 *
 *     End of DLABRD
 *
-      END SUBROUTINE
+      END

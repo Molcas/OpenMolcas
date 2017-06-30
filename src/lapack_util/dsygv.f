@@ -1,4 +1,4 @@
-*> \brief \b DSYGST
+*> \brief \b DSYGV
 *
 *  =========== DOCUMENTATION ===========
 *
@@ -26,7 +26,7 @@
 *       INTEGER            INFO, ITYPE, LDA, LDB, LWORK, N
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             A( LDA, * ), B( LDB, * ), W( * ), WORK( * )
+*       DOUBLE PRECISION   A( LDA, * ), B( LDB, * ), W( * ), WORK( * )
 *       ..
 *
 *
@@ -76,7 +76,7 @@
 *>
 *> \param[in,out] A
 *> \verbatim
-*>          A is REAL*8           array, dimension (LDA, N)
+*>          A is DOUBLE PRECISION array, dimension (LDA, N)
 *>          On entry, the symmetric matrix A.  If UPLO = 'U', the
 *>          leading N-by-N upper triangular part of A contains the
 *>          upper triangular part of the matrix A.  If UPLO = 'L',
@@ -101,7 +101,7 @@
 *>
 *> \param[in,out] B
 *> \verbatim
-*>          B is REAL*8           array, dimension (LDB, N)
+*>          B is DOUBLE PRECISION array, dimension (LDB, N)
 *>          On entry, the symmetric positive definite matrix B.
 *>          If UPLO = 'U', the leading N-by-N upper triangular part of B
 *>          contains the upper triangular part of the matrix B.
@@ -121,13 +121,13 @@
 *>
 *> \param[out] W
 *> \verbatim
-*>          W is REAL*8           array, dimension (N)
+*>          W is DOUBLE PRECISION array, dimension (N)
 *>          If INFO = 0, the eigenvalues in ascending order.
 *> \endverbatim
 *>
 *> \param[out] WORK
 *> \verbatim
-*>          WORK is REAL*8           array, dimension (MAX(1,LWORK))
+*>          WORK is DOUBLE PRECISION array, dimension (MAX(1,LWORK))
 *>          On exit, if INFO = 0, WORK(1) returns the optimal LWORK.
 *> \endverbatim
 *>
@@ -167,7 +167,7 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date November 2011
+*> \date December 2016
 *
 *> \ingroup doubleSYeigen
 *
@@ -175,23 +175,23 @@
       SUBROUTINE DSYGV( ITYPE, JOBZ, UPLO, N, A, LDA, B, LDB, W, WORK,
      $                  LWORK, INFO )
 *
-*  -- LAPACK driver routine (version 3.4.0) --
+*  -- LAPACK driver routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     November 2011
+*     December 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          JOBZ, UPLO
       INTEGER            INFO, ITYPE, LDA, LDB, LWORK, N
 *     ..
 *     .. Array Arguments ..
-      REAL*8             A( LDA, * ), B( LDB, * ), W( * ), WORK( * )
+      DOUBLE PRECISION   A( LDA, * ), B( LDB, * ), W( * ), WORK( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ONE
+      DOUBLE PRECISION   ONE
       PARAMETER          ( ONE = 1.0D+0 )
 *     ..
 *     .. Local Scalars ..
@@ -311,4 +311,4 @@
 *
 *     End of DSYGV
 *
-      END SUBROUTINE
+      END

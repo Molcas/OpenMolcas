@@ -22,10 +22,10 @@
 *
 *       .. Scalar Arguments ..
 *       INTEGER            N, R
-*       REAL*8             PIVMIN, SIGMA
+*       DOUBLE PRECISION   PIVMIN, SIGMA
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             D( * ), LLD( * )
+*       DOUBLE PRECISION   D( * ), LLD( * )
 *       ..
 *
 *
@@ -65,25 +65,25 @@
 *>
 *> \param[in] D
 *> \verbatim
-*>          D is REAL*8           array, dimension (N)
+*>          D is DOUBLE PRECISION array, dimension (N)
 *>          The N diagonal elements of the diagonal matrix D.
 *> \endverbatim
 *>
 *> \param[in] LLD
 *> \verbatim
-*>          LLD is REAL*8           array, dimension (N-1)
+*>          LLD is DOUBLE PRECISION array, dimension (N-1)
 *>          The (N-1) elements L(i)*L(i)*D(i).
 *> \endverbatim
 *>
 *> \param[in] SIGMA
 *> \verbatim
-*>          SIGMA is REAL*8
+*>          SIGMA is DOUBLE PRECISION
 *>          Shift amount in T - sigma I = L D L^T.
 *> \endverbatim
 *>
 *> \param[in] PIVMIN
 *> \verbatim
-*>          PIVMIN is REAL*8
+*>          PIVMIN is DOUBLE PRECISION
 *>          The minimum pivot in the Sturm sequence.  May be used
 *>          when zero pivots are encountered on non-IEEE-754
 *>          architectures.
@@ -104,9 +104,9 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
-*> \ingroup auxOTHERauxiliary
+*> \ingroup OTHERauxiliary
 *
 *> \par Contributors:
 *  ==================
@@ -118,23 +118,23 @@
 *  =====================================================================
       INTEGER FUNCTION DLANEG( N, D, LLD, SIGMA, PIVMIN, R )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
       INTEGER            N, R
-      REAL*8             PIVMIN, SIGMA
+      DOUBLE PRECISION   PIVMIN, SIGMA
 *     ..
 *     .. Array Arguments ..
-      REAL*8             D( * ), LLD( * )
+      DOUBLE PRECISION   D( * ), LLD( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ZERO, ONE
+      DOUBLE PRECISION   ZERO, ONE
       PARAMETER        ( ZERO = 0.0D0, ONE = 1.0D0 )
 *     Some architectures propagate Infinities and NaNs very slowly, so
 *     the code computes counts in BLKLEN chunks.  Then a NaN can
@@ -146,7 +146,7 @@
 *     ..
 *     .. Local Scalars ..
       INTEGER            BJ, J, NEG1, NEG2, NEGCNT
-      REAL*8             BSAV, DMINUS, DPLUS, GAMMA, P, T, TMP
+      DOUBLE PRECISION   BSAV, DMINUS, DPLUS, GAMMA, P, T, TMP
       LOGICAL SAWNAN
 *     ..
 *     .. Intrinsic Functions ..
@@ -224,4 +224,4 @@
       IF( GAMMA.LT.ZERO ) NEGCNT = NEGCNT+1
 
       DLANEG = NEGCNT
-      END FUNCTION
+      END

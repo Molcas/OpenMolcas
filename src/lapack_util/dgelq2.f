@@ -24,7 +24,7 @@
 *       INTEGER            INFO, LDA, M, N
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             A( LDA, * ), TAU( * ), WORK( * )
+*       DOUBLE PRECISION   A( LDA, * ), TAU( * ), WORK( * )
 *       ..
 *
 *
@@ -54,7 +54,7 @@
 *>
 *> \param[in,out] A
 *> \verbatim
-*>          A is REAL*8           array, dimension (LDA,N)
+*>          A is DOUBLE PRECISION array, dimension (LDA,N)
 *>          On entry, the m by n matrix A.
 *>          On exit, the elements on and below the diagonal of the array
 *>          contain the m by min(m,n) lower trapezoidal matrix L (L is
@@ -71,14 +71,14 @@
 *>
 *> \param[out] TAU
 *> \verbatim
-*>          TAU is REAL*8           array, dimension (min(M,N))
+*>          TAU is DOUBLE PRECISION array, dimension (min(M,N))
 *>          The scalar factors of the elementary reflectors (see Further
 *>          Details).
 *> \endverbatim
 *>
 *> \param[out] WORK
 *> \verbatim
-*>          WORK is REAL*8           array, dimension (M)
+*>          WORK is DOUBLE PRECISION array, dimension (M)
 *> \endverbatim
 *>
 *> \param[out] INFO
@@ -96,7 +96,7 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
 *> \ingroup doubleGEcomputational
 *
@@ -121,27 +121,27 @@
 *  =====================================================================
       SUBROUTINE DGELQ2( M, N, A, LDA, TAU, WORK, INFO )
 *
-*  -- LAPACK computational routine (version 3.4.2) --
+*  -- LAPACK computational routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
       INTEGER            INFO, LDA, M, N
 *     ..
 *     .. Array Arguments ..
-      REAL*8             A( LDA, * ), TAU( * ), WORK( * )
+      DOUBLE PRECISION   A( LDA, * ), TAU( * ), WORK( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ONE
+      DOUBLE PRECISION   ONE
       PARAMETER          ( ONE = 1.0D+0 )
 *     ..
 *     .. Local Scalars ..
       INTEGER            I, K
-      REAL*8             AII
+      DOUBLE PRECISION   AII
 *     ..
 *     .. External Subroutines ..
       EXTERNAL           DLARF, DLARFG, XERBLA
@@ -189,4 +189,4 @@
 *
 *     End of DGELQ2
 *
-      END SUBROUTINE
+      END

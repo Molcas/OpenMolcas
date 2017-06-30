@@ -1,4 +1,4 @@
-*> \brief \b DSPGST
+*> \brief \b DSPGV
 *
 *  =========== DOCUMENTATION ===========
 *
@@ -26,7 +26,7 @@
 *       INTEGER            INFO, ITYPE, LDZ, N
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             AP( * ), BP( * ), W( * ), WORK( * ),
+*       DOUBLE PRECISION   AP( * ), BP( * ), W( * ), WORK( * ),
 *      $                   Z( LDZ, * )
 *       ..
 *
@@ -77,8 +77,7 @@
 *>
 *> \param[in,out] AP
 *> \verbatim
-*>          AP is REAL*8           array, dimension
-*>                            (N*(N+1)/2)
+*>          AP is DOUBLE PRECISION array, dimension (N*(N+1)/2)
 *>          On entry, the upper or lower triangle of the symmetric matrix
 *>          A, packed columnwise in a linear array.  The j-th column of A
 *>          is stored in the array AP as follows:
@@ -90,7 +89,7 @@
 *>
 *> \param[in,out] BP
 *> \verbatim
-*>          BP is REAL*8           array, dimension (N*(N+1)/2)
+*>          BP is DOUBLE PRECISION array, dimension (N*(N+1)/2)
 *>          On entry, the upper or lower triangle of the symmetric matrix
 *>          B, packed columnwise in a linear array.  The j-th column of B
 *>          is stored in the array BP as follows:
@@ -104,13 +103,13 @@
 *>
 *> \param[out] W
 *> \verbatim
-*>          W is REAL*8           array, dimension (N)
+*>          W is DOUBLE PRECISION array, dimension (N)
 *>          If INFO = 0, the eigenvalues in ascending order.
 *> \endverbatim
 *>
 *> \param[out] Z
 *> \verbatim
-*>          Z is REAL*8           array, dimension (LDZ, N)
+*>          Z is DOUBLE PRECISION array, dimension (LDZ, N)
 *>          If JOBZ = 'V', then if INFO = 0, Z contains the matrix Z of
 *>          eigenvectors.  The eigenvectors are normalized as follows:
 *>          if ITYPE = 1 or 2, Z**T*B*Z = I;
@@ -127,7 +126,7 @@
 *>
 *> \param[out] WORK
 *> \verbatim
-*>          WORK is REAL*8           array, dimension (3*N)
+*>          WORK is DOUBLE PRECISION array, dimension (3*N)
 *> \endverbatim
 *>
 *> \param[out] INFO
@@ -153,7 +152,7 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date November 2011
+*> \date June 2017
 *
 *> \ingroup doubleOTHEReigen
 *
@@ -161,17 +160,17 @@
       SUBROUTINE DSPGV( ITYPE, JOBZ, UPLO, N, AP, BP, W, Z, LDZ, WORK,
      $                  INFO )
 *
-*  -- LAPACK driver routine (version 3.4.0) --
+*  -- LAPACK driver routine (version 3.7.1) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     November 2011
+*     June 2017
 *
 *     .. Scalar Arguments ..
       CHARACTER          JOBZ, UPLO
       INTEGER            INFO, ITYPE, LDZ, N
 *     ..
 *     .. Array Arguments ..
-      REAL*8             AP( * ), BP( * ), W( * ), WORK( * ),
+      DOUBLE PRECISION   AP( * ), BP( * ), W( * ), WORK( * ),
      $                   Z( LDZ, * )
 *     ..
 *
@@ -275,4 +274,4 @@
 *
 *     End of DSPGV
 *
-      END SUBROUTINE
+      END

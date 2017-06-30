@@ -25,7 +25,7 @@
 *       INTEGER            INFO, LDZ, N
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             D( * ), E( * ), WORK( * )
+*       DOUBLE PRECISION   D( * ), E( * ), WORK( * )
 *       COMPLEX*16         Z( LDZ, * )
 *       ..
 *
@@ -66,14 +66,14 @@
 *>
 *> \param[in,out] D
 *> \verbatim
-*>          D is REAL*8           array, dimension (N)
+*>          D is DOUBLE PRECISION array, dimension (N)
 *>          On entry, the diagonal elements of the tridiagonal matrix.
 *>          On exit, if INFO = 0, the eigenvalues in ascending order.
 *> \endverbatim
 *>
 *> \param[in,out] E
 *> \verbatim
-*>          E is REAL*8           array, dimension (N-1)
+*>          E is DOUBLE PRECISION array, dimension (N-1)
 *>          On entry, the (n-1) subdiagonal elements of the tridiagonal
 *>          matrix.
 *>          On exit, E has been destroyed.
@@ -100,7 +100,7 @@
 *>
 *> \param[out] WORK
 *> \verbatim
-*>          WORK is REAL*8           array, dimension (max(1,2*N-2))
+*>          WORK is DOUBLE PRECISION array, dimension (max(1,2*N-2))
 *>          If COMPZ = 'N', then WORK is not referenced.
 *> \endverbatim
 *>
@@ -125,31 +125,31 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date November 2011
+*> \date December 2016
 *
 *> \ingroup complex16OTHERcomputational
 *
 *  =====================================================================
       SUBROUTINE ZSTEQR( COMPZ, N, D, E, Z, LDZ, WORK, INFO )
 *
-*  -- LAPACK computational routine (version 3.4.0) --
+*  -- LAPACK computational routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     November 2011
+*     December 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          COMPZ
       INTEGER            INFO, LDZ, N
 *     ..
 *     .. Array Arguments ..
-      REAL*8             D( * ), E( * ), WORK( * )
+      DOUBLE PRECISION   D( * ), E( * ), WORK( * )
       COMPLEX*16         Z( LDZ, * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ZERO, ONE, TWO, THREE
+      DOUBLE PRECISION   ZERO, ONE, TWO, THREE
       PARAMETER          ( ZERO = 0.0D0, ONE = 1.0D0, TWO = 2.0D0,
      $                   THREE = 3.0D0 )
       COMPLEX*16         CZERO, CONE
@@ -162,12 +162,12 @@
       INTEGER            I, ICOMPZ, II, ISCALE, J, JTOT, K, L, L1, LEND,
      $                   LENDM1, LENDP1, LENDSV, LM1, LSV, M, MM, MM1,
      $                   NM1, NMAXIT
-      REAL*8             ANORM, B, C, EPS, EPS2, F, G, P, R, RT1, RT2,
+      DOUBLE PRECISION   ANORM, B, C, EPS, EPS2, F, G, P, R, RT1, RT2,
      $                   S, SAFMAX, SAFMIN, SSFMAX, SSFMIN, TST
 *     ..
 *     .. External Functions ..
       LOGICAL            LSAME
-      REAL*8             DLAMCH, DLANST, DLAPY2
+      DOUBLE PRECISION   DLAMCH, DLANST, DLAPY2
       EXTERNAL           LSAME, DLAMCH, DLANST, DLAPY2
 *     ..
 *     .. External Subroutines ..
@@ -573,4 +573,4 @@
 *
 *     End of ZSTEQR
 *
-      END SUBROUTINE
+      END

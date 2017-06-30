@@ -1,4 +1,4 @@
-*> \brief \b DLAGTS solves the system of equations (T-lambda*I)x = y or (T-lambda*I)Tx = y,where T is a general tridiagonal matrix and lambda a scalar, using the LU factorization computed by slagtf.
+*> \brief \b DLAGTS solves the system of equations (T-λI)x = y or (T-λI)Tx = y,where T is a general tridiagonal matrix and λ a scalar, using the LU factorization computed by slagtf.
 *
 *  =========== DOCUMENTATION ===========
 *
@@ -22,11 +22,11 @@
 *
 *       .. Scalar Arguments ..
 *       INTEGER            INFO, JOB, N
-*       REAL*8             TOL
+*       DOUBLE PRECISION   TOL
 *       ..
 *       .. Array Arguments ..
 *       INTEGER            IN( * )
-*       REAL*8             A( * ), B( * ), C( * ), D( * ), Y( * )
+*       DOUBLE PRECISION   A( * ), B( * ), C( * ), D( * ), Y( * )
 *       ..
 *
 *
@@ -79,28 +79,28 @@
 *>
 *> \param[in] A
 *> \verbatim
-*>          A is REAL*8           array, dimension (N)
+*>          A is DOUBLE PRECISION array, dimension (N)
 *>          On entry, A must contain the diagonal elements of U as
 *>          returned from DLAGTF.
 *> \endverbatim
 *>
 *> \param[in] B
 *> \verbatim
-*>          B is REAL*8           array, dimension (N-1)
+*>          B is DOUBLE PRECISION array, dimension (N-1)
 *>          On entry, B must contain the first super-diagonal elements of
 *>          U as returned from DLAGTF.
 *> \endverbatim
 *>
 *> \param[in] C
 *> \verbatim
-*>          C is REAL*8           array, dimension (N-1)
+*>          C is DOUBLE PRECISION array, dimension (N-1)
 *>          On entry, C must contain the sub-diagonal elements of L as
 *>          returned from DLAGTF.
 *> \endverbatim
 *>
 *> \param[in] D
 *> \verbatim
-*>          D is REAL*8           array, dimension (N-2)
+*>          D is DOUBLE PRECISION array, dimension (N-2)
 *>          On entry, D must contain the second super-diagonal elements
 *>          of U as returned from DLAGTF.
 *> \endverbatim
@@ -114,14 +114,14 @@
 *>
 *> \param[in,out] Y
 *> \verbatim
-*>          Y is REAL*8           array, dimension (N)
+*>          Y is DOUBLE PRECISION array, dimension (N)
 *>          On entry, the right hand side vector y.
 *>          On exit, Y is overwritten by the solution vector x.
 *> \endverbatim
 *>
 *> \param[in,out] TOL
 *> \verbatim
-*>          TOL is REAL*8
+*>          TOL is DOUBLE PRECISION
 *>          On entry, with  JOB .lt. 0, TOL should be the minimum
 *>          perturbation to be made to very small diagonal elements of U.
 *>          TOL should normally be chosen as about eps*norm(U), where eps
@@ -154,42 +154,42 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
-*> \ingroup auxOTHERauxiliary
+*> \ingroup OTHERauxiliary
 *
 *  =====================================================================
       SUBROUTINE DLAGTS( JOB, N, A, B, C, D, IN, Y, TOL, INFO )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
       INTEGER            INFO, JOB, N
-      REAL*8             TOL
+      DOUBLE PRECISION   TOL
 *     ..
 *     .. Array Arguments ..
       INTEGER            IN( * )
-      REAL*8             A( * ), B( * ), C( * ), D( * ), Y( * )
+      DOUBLE PRECISION   A( * ), B( * ), C( * ), D( * ), Y( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ONE, ZERO
+      DOUBLE PRECISION   ONE, ZERO
       PARAMETER          ( ONE = 1.0D+0, ZERO = 0.0D+0 )
 *     ..
 *     .. Local Scalars ..
       INTEGER            K
-      REAL*8             ABSAK, AK, BIGNUM, EPS, PERT, SFMIN, TEMP
+      DOUBLE PRECISION   ABSAK, AK, BIGNUM, EPS, PERT, SFMIN, TEMP
 *     ..
 *     .. Intrinsic Functions ..
       INTRINSIC          ABS, MAX, SIGN
 *     ..
 *     .. External Functions ..
-      REAL*8             DLAMCH
+      DOUBLE PRECISION   DLAMCH
       EXTERNAL           DLAMCH
 *     ..
 *     .. External Subroutines ..
@@ -380,4 +380,4 @@
 *
 *     End of DLAGTS
 *
-      END SUBROUTINE
+      END

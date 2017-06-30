@@ -21,7 +21,7 @@
 *       SUBROUTINE DLAEV2( A, B, C, RT1, RT2, CS1, SN1 )
 *
 *       .. Scalar Arguments ..
-*       REAL*8             A, B, C, CS1, RT1, RT2, SN1
+*       DOUBLE PRECISION   A, B, C, CS1, RT1, RT2, SN1
 *       ..
 *
 *
@@ -46,43 +46,43 @@
 *
 *> \param[in] A
 *> \verbatim
-*>          A is REAL*8
+*>          A is DOUBLE PRECISION
 *>          The (1,1) element of the 2-by-2 matrix.
 *> \endverbatim
 *>
 *> \param[in] B
 *> \verbatim
-*>          B is REAL*8
+*>          B is DOUBLE PRECISION
 *>          The (1,2) element and the conjugate of the (2,1) element of
 *>          the 2-by-2 matrix.
 *> \endverbatim
 *>
 *> \param[in] C
 *> \verbatim
-*>          C is REAL*8
+*>          C is DOUBLE PRECISION
 *>          The (2,2) element of the 2-by-2 matrix.
 *> \endverbatim
 *>
 *> \param[out] RT1
 *> \verbatim
-*>          RT1 is REAL*8
+*>          RT1 is DOUBLE PRECISION
 *>          The eigenvalue of larger absolute value.
 *> \endverbatim
 *>
 *> \param[out] RT2
 *> \verbatim
-*>          RT2 is REAL*8
+*>          RT2 is DOUBLE PRECISION
 *>          The eigenvalue of smaller absolute value.
 *> \endverbatim
 *>
 *> \param[out] CS1
 *> \verbatim
-*>          CS1 is REAL*8
+*>          CS1 is DOUBLE PRECISION
 *> \endverbatim
 *>
 *> \param[out] SN1
 *> \verbatim
-*>          SN1 is REAL*8
+*>          SN1 is DOUBLE PRECISION
 *>          The vector (CS1, SN1) is a unit right eigenvector for RT1.
 *> \endverbatim
 *
@@ -94,9 +94,9 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
-*> \ingroup auxOTHERauxiliary
+*> \ingroup OTHERauxiliary
 *
 *> \par Further Details:
 *  =====================
@@ -120,30 +120,30 @@
 *  =====================================================================
       SUBROUTINE DLAEV2( A, B, C, RT1, RT2, CS1, SN1 )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
-      REAL*8             A, B, C, CS1, RT1, RT2, SN1
+      DOUBLE PRECISION   A, B, C, CS1, RT1, RT2, SN1
 *     ..
 *
 * =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ONE
+      DOUBLE PRECISION   ONE
       PARAMETER          ( ONE = 1.0D0 )
-      REAL*8             TWO
+      DOUBLE PRECISION   TWO
       PARAMETER          ( TWO = 2.0D0 )
-      REAL*8             ZERO
+      DOUBLE PRECISION   ZERO
       PARAMETER          ( ZERO = 0.0D0 )
-      REAL*8             HALF
+      DOUBLE PRECISION   HALF
       PARAMETER          ( HALF = 0.5D0 )
 *     ..
 *     .. Local Scalars ..
       INTEGER            SGN1, SGN2
-      REAL*8             AB, ACMN, ACMX, ACS, ADF, CS, CT, DF, RT, SM,
+      DOUBLE PRECISION   AB, ACMN, ACMX, ACS, ADF, CS, CT, DF, RT, SM,
      $                   TB, TN
 *     ..
 *     .. Intrinsic Functions ..
@@ -235,4 +235,4 @@
 *
 *     End of DLAEV2
 *
-      END SUBROUTINE
+      END

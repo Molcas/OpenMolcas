@@ -1,31 +1,21 @@
-*> \brief \b DPOTRF
+*> \brief \b DPOTRF2
 *
 *  =========== DOCUMENTATION ===========
 *
 * Online html documentation available at
 *            http://www.netlib.org/lapack/explore-html/
 *
-*> \htmlonly
-*> Download DPOTRF + dependencies
-*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.tgz?format=tgz&filename=/lapack/lapack_routine/dpotrf.f">
-*> [TGZ]</a>
-*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.zip?format=zip&filename=/lapack/lapack_routine/dpotrf.f">
-*> [ZIP]</a>
-*> <a href="http://www.netlib.org/cgi-bin/netlibfiles.txt?format=txt&filename=/lapack/lapack_routine/dpotrf.f">
-*> [TXT]</a>
-*> \endhtmlonly
-*
 *  Definition:
 *  ===========
 *
-*       SUBROUTINE DPOTRF( UPLO, N, A, LDA, INFO )
+*       RECURSIVE SUBROUTINE DPOTRF2( UPLO, N, A, LDA, INFO )
 *
 *       .. Scalar Arguments ..
 *       CHARACTER          UPLO
 *       INTEGER            INFO, LDA, N
 *       ..
 *       .. Array Arguments ..
-*       DOUBLE PRECISION   A( LDA, * )
+*       REAL               A( LDA, * )
 *       ..
 *
 *
@@ -34,15 +24,24 @@
 *>
 *> \verbatim
 *>
-*> DPOTRF computes the Cholesky factorization of a real symmetric
-*> positive definite matrix A.
+*> DPOTRF2 computes the Cholesky factorization of a real symmetric
+*> positive definite matrix A using the recursive algorithm.
 *>
 *> The factorization has the form
 *>    A = U**T * U,  if UPLO = 'U', or
 *>    A = L  * L**T,  if UPLO = 'L',
 *> where U is an upper triangular matrix and L is lower triangular.
 *>
-*> This is the block version of the algorithm, calling Level 3 BLAS.
+*> This is the recursive version of the algorithm. It divides
+*> the matrix into four submatrices:
+*>
+*>        [  A11 | A12  ]  where A11 is n1 by n1 and A22 is n2 by n2
+*>    A = [ -----|----- ]  with n1 = n/2
+*>        [  A21 | A22  ]       n2 = n-n1
+*>
+*> The subroutine calls itself to factor A11. Update and scale A21
+*> or A12, update A22 then calls itself to factor A22.
+*>
 *> \endverbatim
 *
 *  Arguments:
@@ -105,7 +104,7 @@
 *> \ingroup doublePOcomputational
 *
 *  =====================================================================
-      SUBROUTINE DPOTRF( UPLO, N, A, LDA, INFO )
+      RECURSIVE SUBROUTINE DPOTRF2( UPLO, N, A, LDA, INFO )
 *
 *  -- LAPACK computational routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
@@ -123,27 +122,26 @@
 *  =====================================================================
 *
 *     .. Parameters ..
-      DOUBLE PRECISION   ONE
-      PARAMETER          ( ONE = 1.0D+0 )
+      DOUBLE PRECISION   ONE, ZERO
+      PARAMETER          ( ONE = 1.0D+0, ZERO = 0.0D+0 )
 *     ..
 *     .. Local Scalars ..
       LOGICAL            UPPER
-      INTEGER            J, JB, NB
+      INTEGER            N1, N2, IINFO
 *     ..
 *     .. External Functions ..
-      LOGICAL            LSAME
-      INTEGER            ILAENV
-      EXTERNAL           LSAME, ILAENV
+      LOGICAL            LSAME, DISNAN
+      EXTERNAL           LSAME, DISNAN
 *     ..
 *     .. External Subroutines ..
-      EXTERNAL           DGEMM, DPOTRF2, DSYRK, DTRSM, XERBLA
+      EXTERNAL           DSYRK, DTRSM, XERBLA
 *     ..
 *     .. Intrinsic Functions ..
-      INTRINSIC          MAX, MIN
+      INTRINSIC          MAX, SQRT
 *     ..
 *     .. Executable Statements ..
 *
-*     Test the input parameters.
+*     Test the input parameters
 *
       INFO = 0
       UPPER = LSAME( UPLO, 'U' )
@@ -155,7 +153,7 @@
          INFO = -4
       END IF
       IF( INFO.NE.0 ) THEN
-         CALL XERBLA( 'DPOTRF', -INFO )
+         CALL XERBLA( 'DPOTRF2', -INFO )
          RETURN
       END IF
 *
@@ -164,83 +162,76 @@
       IF( N.EQ.0 )
      $   RETURN
 *
-*     Determine the block size for this environment.
+*     N=1 case
 *
-      NB = ILAENV( 1, 'DPOTRF', UPLO, N, -1, -1, -1 )
-      IF( NB.LE.1 .OR. NB.GE.N ) THEN
+      IF( N.EQ.1 ) THEN
 *
-*        Use unblocked code.
+*        Test for non-positive-definiteness
 *
-         CALL DPOTRF2( UPLO, N, A, LDA, INFO )
+         IF( A( 1, 1 ).LE.ZERO.OR.DISNAN( A( 1, 1 ) ) ) THEN
+            INFO = 1
+            RETURN
+         END IF
+*
+*        Factor
+*
+         A( 1, 1 ) = SQRT( A( 1, 1 ) )
+*
+*     Use recursive code
+*
       ELSE
+         N1 = N/2
+         N2 = N-N1
 *
-*        Use blocked code.
+*        Factor A11
+*
+         CALL DPOTRF2( UPLO, N1, A( 1, 1 ), LDA, IINFO )
+         IF ( IINFO.NE.0 ) THEN
+            INFO = IINFO
+            RETURN
+         END IF
+*
+*        Compute the Cholesky factorization A = U**T*U
 *
          IF( UPPER ) THEN
 *
-*           Compute the Cholesky factorization A = U**T*U.
+*           Update and scale A12
 *
-            DO 10 J = 1, N, NB
+            CALL DTRSM( 'L', 'U', 'T', 'N', N1, N2, ONE,
+     $                  A( 1, 1 ), LDA, A( 1, N1+1 ), LDA )
 *
-*              Update and factorize the current diagonal block and test
-*              for non-positive-definiteness.
+*           Update and factor A22
 *
-               JB = MIN( NB, N-J+1 )
-               CALL DSYRK( 'Upper', 'Transpose', JB, J-1, -ONE,
-     $                     A( 1, J ), LDA, ONE, A( J, J ), LDA )
-               CALL DPOTRF2( 'Upper', JB, A( J, J ), LDA, INFO )
-               IF( INFO.NE.0 )
-     $            GO TO 30
-               IF( J+JB.LE.N ) THEN
+            CALL DSYRK( UPLO, 'T', N2, N1, -ONE, A( 1, N1+1 ), LDA,
+     $                  ONE, A( N1+1, N1+1 ), LDA )
+            CALL DPOTRF2( UPLO, N2, A( N1+1, N1+1 ), LDA, IINFO )
+            IF ( IINFO.NE.0 ) THEN
+               INFO = IINFO + N1
+               RETURN
+            END IF
 *
-*                 Compute the current block row.
-*
-                  CALL DGEMM( 'Transpose', 'No transpose', JB, N-J-JB+1,
-     $                        J-1, -ONE, A( 1, J ), LDA, A( 1, J+JB ),
-     $                        LDA, ONE, A( J, J+JB ), LDA )
-                  CALL DTRSM( 'Left', 'Upper', 'Transpose', 'Non-unit',
-     $                        JB, N-J-JB+1, ONE, A( J, J ), LDA,
-     $                        A( J, J+JB ), LDA )
-               END IF
-   10       CONTINUE
+*        Compute the Cholesky factorization A = L*L**T
 *
          ELSE
 *
-*           Compute the Cholesky factorization A = L*L**T.
+*           Update and scale A21
 *
-            DO 20 J = 1, N, NB
+            CALL DTRSM( 'R', 'L', 'T', 'N', N2, N1, ONE,
+     $                  A( 1, 1 ), LDA, A( N1+1, 1 ), LDA )
 *
-*              Update and factorize the current diagonal block and test
-*              for non-positive-definiteness.
+*           Update and factor A22
 *
-               JB = MIN( NB, N-J+1 )
-               CALL DSYRK( 'Lower', 'No transpose', JB, J-1, -ONE,
-     $                     A( J, 1 ), LDA, ONE, A( J, J ), LDA )
-               CALL DPOTRF2( 'Lower', JB, A( J, J ), LDA, INFO )
-               IF( INFO.NE.0 )
-     $            GO TO 30
-               IF( J+JB.LE.N ) THEN
-*
-*                 Compute the current block column.
-*
-                  CALL DGEMM( 'No transpose', 'Transpose', N-J-JB+1, JB,
-     $                        J-1, -ONE, A( J+JB, 1 ), LDA, A( J, 1 ),
-     $                        LDA, ONE, A( J+JB, J ), LDA )
-                  CALL DTRSM( 'Right', 'Lower', 'Transpose', 'Non-unit',
-     $                        N-J-JB+1, JB, ONE, A( J, J ), LDA,
-     $                        A( J+JB, J ), LDA )
-               END IF
-   20       CONTINUE
+            CALL DSYRK( UPLO, 'N', N2, N1, -ONE, A( N1+1, 1 ), LDA,
+     $                  ONE, A( N1+1, N1+1 ), LDA )
+            CALL DPOTRF2( UPLO, N2, A( N1+1, N1+1 ), LDA, IINFO )
+            IF ( IINFO.NE.0 ) THEN
+               INFO = IINFO + N1
+               RETURN
+            END IF
          END IF
       END IF
-      GO TO 40
-*
-   30 CONTINUE
-      INFO = INFO + J - 1
-*
-   40 CONTINUE
       RETURN
 *
-*     End of DPOTRF
+*     End of DPOTRF2
 *
       END

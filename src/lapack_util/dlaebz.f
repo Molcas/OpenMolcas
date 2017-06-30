@@ -24,11 +24,11 @@
 *
 *       .. Scalar Arguments ..
 *       INTEGER            IJOB, INFO, MINP, MMAX, MOUT, N, NBMIN, NITMAX
-*       REAL*8             ABSTOL, PIVMIN, RELTOL
+*       DOUBLE PRECISION   ABSTOL, PIVMIN, RELTOL
 *       ..
 *       .. Array Arguments ..
 *       INTEGER            IWORK( * ), NAB( MMAX, * ), NVAL( * )
-*       REAL*8             AB( MMAX, * ), C( * ), D( * ), E( * ), E2( * ),
+*       DOUBLE PRECISION   AB( MMAX, * ), C( * ), D( * ), E( * ), E2( * ),
 *      $                   WORK( * )
 *       ..
 *
@@ -133,7 +133,7 @@
 *>
 *> \param[in] ABSTOL
 *> \verbatim
-*>          ABSTOL is REAL*8
+*>          ABSTOL is DOUBLE PRECISION
 *>          The minimum (absolute) width of an interval.  When an
 *>          interval is narrower than ABSTOL, or than RELTOL times the
 *>          larger (in magnitude) endpoint, then it is considered to be
@@ -143,7 +143,7 @@
 *>
 *> \param[in] RELTOL
 *> \verbatim
-*>          RELTOL is REAL*8
+*>          RELTOL is DOUBLE PRECISION
 *>          The minimum relative width of an interval.  When an interval
 *>          is narrower than ABSTOL, or than RELTOL times the larger (in
 *>          magnitude) endpoint, then it is considered to be
@@ -153,7 +153,7 @@
 *>
 *> \param[in] PIVMIN
 *> \verbatim
-*>          PIVMIN is REAL*8
+*>          PIVMIN is DOUBLE PRECISION
 *>          The minimum absolute value of a "pivot" in the Sturm
 *>          sequence loop.
 *>          This must be at least  max |e(j)**2|*safe_min  and at
@@ -163,20 +163,20 @@
 *>
 *> \param[in] D
 *> \verbatim
-*>          D is REAL*8           array, dimension (N)
+*>          D is DOUBLE PRECISION array, dimension (N)
 *>          The diagonal elements of the tridiagonal matrix T.
 *> \endverbatim
 *>
 *> \param[in] E
 *> \verbatim
-*>          E is REAL*8           array, dimension (N)
+*>          E is DOUBLE PRECISION array, dimension (N)
 *>          The offdiagonal elements of the tridiagonal matrix T in
 *>          positions 1 through N-1.  E(N) is arbitrary.
 *> \endverbatim
 *>
 *> \param[in] E2
 *> \verbatim
-*>          E2 is REAL*8           array, dimension (N)
+*>          E2 is DOUBLE PRECISION array, dimension (N)
 *>          The squares of the offdiagonal elements of the tridiagonal
 *>          matrix T.  E2(N) is ignored.
 *> \endverbatim
@@ -194,7 +194,7 @@
 *>
 *> \param[in,out] AB
 *> \verbatim
-*>          AB is REAL*8           array, dimension (MMAX,2)
+*>          AB is DOUBLE PRECISION array, dimension (MMAX,2)
 *>          The endpoints of the intervals.  AB(j,1) is  a(j), the left
 *>          endpoint of the j-th interval, and AB(j,2) is b(j), the
 *>          right endpoint of the j-th interval.  The input intervals
@@ -204,7 +204,7 @@
 *>
 *> \param[in,out] C
 *> \verbatim
-*>          C is REAL*8           array, dimension (MMAX)
+*>          C is DOUBLE PRECISION array, dimension (MMAX)
 *>          If IJOB=1, ignored.
 *>          If IJOB=2, workspace.
 *>          If IJOB=3, then on input C(j) should be initialized to the
@@ -247,7 +247,7 @@
 *>
 *> \param[out] WORK
 *> \verbatim
-*>          WORK is REAL*8           array, dimension (MMAX)
+*>          WORK is DOUBLE PRECISION array, dimension (MMAX)
 *>          Workspace.
 *> \endverbatim
 *>
@@ -273,9 +273,9 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
-*> \ingroup auxOTHERauxiliary
+*> \ingroup OTHERauxiliary
 *
 *> \par Further Details:
 *  =====================
@@ -319,32 +319,32 @@
      $                   RELTOL, PIVMIN, D, E, E2, NVAL, AB, C, MOUT,
      $                   NAB, WORK, IWORK, INFO )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
       INTEGER            IJOB, INFO, MINP, MMAX, MOUT, N, NBMIN, NITMAX
-      REAL*8             ABSTOL, PIVMIN, RELTOL
+      DOUBLE PRECISION   ABSTOL, PIVMIN, RELTOL
 *     ..
 *     .. Array Arguments ..
       INTEGER            IWORK( * ), NAB( MMAX, * ), NVAL( * )
-      REAL*8             AB( MMAX, * ), C( * ), D( * ), E( * ), E2( * ),
+      DOUBLE PRECISION   AB( MMAX, * ), C( * ), D( * ), E( * ), E2( * ),
      $                   WORK( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ZERO, TWO, HALF
+      DOUBLE PRECISION   ZERO, TWO, HALF
       PARAMETER          ( ZERO = 0.0D0, TWO = 2.0D0,
      $                   HALF = 1.0D0 / TWO )
 *     ..
 *     .. Local Scalars ..
       INTEGER            ITMP1, ITMP2, J, JI, JIT, JP, KF, KFNEW, KL,
      $                   KLNEW
-      REAL*8             TMP1, TMP2
+      DOUBLE PRECISION   TMP1, TMP2
 *     ..
 *     .. Intrinsic Functions ..
       INTRINSIC          ABS, MAX, MIN
@@ -646,4 +646,4 @@
 *
 *     End of DLAEBZ
 *
-      END SUBROUTINE
+      END

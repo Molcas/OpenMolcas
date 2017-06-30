@@ -24,7 +24,7 @@
 *       INTEGER            INFO, K, LDA, M, N
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             A( LDA, * ), TAU( * ), WORK( * )
+*       DOUBLE PRECISION   A( LDA, * ), TAU( * ), WORK( * )
 *       ..
 *
 *
@@ -66,7 +66,7 @@
 *>
 *> \param[in,out] A
 *> \verbatim
-*>          A is REAL*8           array, dimension (LDA,N)
+*>          A is DOUBLE PRECISION array, dimension (LDA,N)
 *>          On entry, the i-th column must contain the vector which
 *>          defines the elementary reflector H(i), for i = 1,2,...,k, as
 *>          returned by DGEQRF in the first k columns of its array
@@ -82,14 +82,14 @@
 *>
 *> \param[in] TAU
 *> \verbatim
-*>          TAU is REAL*8           array, dimension (K)
+*>          TAU is DOUBLE PRECISION array, dimension (K)
 *>          TAU(i) must contain the scalar factor of the elementary
 *>          reflector H(i), as returned by DGEQRF.
 *> \endverbatim
 *>
 *> \param[out] WORK
 *> \verbatim
-*>          WORK is REAL*8           array, dimension (N)
+*>          WORK is DOUBLE PRECISION array, dimension (N)
 *> \endverbatim
 *>
 *> \param[out] INFO
@@ -107,29 +107,29 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
 *> \ingroup doubleOTHERcomputational
 *
 *  =====================================================================
       SUBROUTINE DORG2R( M, N, K, A, LDA, TAU, WORK, INFO )
 *
-*  -- LAPACK computational routine (version 3.4.2) --
+*  -- LAPACK computational routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
       INTEGER            INFO, K, LDA, M, N
 *     ..
 *     .. Array Arguments ..
-      REAL*8             A( LDA, * ), TAU( * ), WORK( * )
+      DOUBLE PRECISION   A( LDA, * ), TAU( * ), WORK( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ONE, ZERO
+      DOUBLE PRECISION   ONE, ZERO
       PARAMETER          ( ONE = 1.0D+0, ZERO = 0.0D+0 )
 *     ..
 *     .. Local Scalars ..
@@ -197,4 +197,4 @@
 *
 *     End of DORG2R
 *
-      END SUBROUTINE
+      END

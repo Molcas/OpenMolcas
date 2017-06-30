@@ -24,7 +24,7 @@
 *       INTEGER            N, INFO
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             D( * ), E( * )
+*       DOUBLE PRECISION   D( * ), E( * )
 *       ..
 *
 *
@@ -50,13 +50,13 @@
 *>
 *> \param[in] D
 *> \verbatim
-*>          D is REAL*8           array, dimension (N)
+*>          D is DOUBLE PRECISION array, dimension (N)
 *>          The N diagonal elements of the tridiagonal matrix T.
 *> \endverbatim
 *>
 *> \param[in,out] E
 *> \verbatim
-*>          E is REAL*8           array, dimension (N)
+*>          E is DOUBLE PRECISION array, dimension (N)
 *>          On entry, the first (N-1) entries contain the subdiagonal
 *>          elements of the tridiagonal matrix T; E(N) is set to ZERO.
 *> \endverbatim
@@ -78,9 +78,9 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date June 2017
 *
-*> \ingroup auxOTHERauxiliary
+*> \ingroup OTHERauxiliary
 *
 *> \par Contributors:
 *  ==================
@@ -94,41 +94,48 @@
 *  =====================================================================
       SUBROUTINE DLARRR( N, D, E, INFO )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.1) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     June 2017
 *
 *     .. Scalar Arguments ..
       INTEGER            N, INFO
 *     ..
 *     .. Array Arguments ..
-      REAL*8             D( * ), E( * )
+      DOUBLE PRECISION   D( * ), E( * )
 *     ..
 *
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ZERO, RELCOND
+      DOUBLE PRECISION   ZERO, RELCOND
       PARAMETER          ( ZERO = 0.0D0,
      $                     RELCOND = 0.999D0 )
 *     ..
 *     .. Local Scalars ..
       INTEGER            I
       LOGICAL            YESREL
-      REAL*8             EPS, SAFMIN, SMLNUM, RMIN, TMP, TMP2,
+      DOUBLE PRECISION   EPS, SAFMIN, SMLNUM, RMIN, TMP, TMP2,
      $          OFFDIG, OFFDIG2
 
 *     ..
 *     .. External Functions ..
-      REAL*8             DLAMCH
+      DOUBLE PRECISION   DLAMCH
       EXTERNAL           DLAMCH
 *     ..
 *     .. Intrinsic Functions ..
       INTRINSIC          ABS
 *     ..
 *     .. Executable Statements ..
+*
+*     Quick return if possible
+*
+      IF( N.LE.0 ) THEN
+         INFO = 0
+         RETURN
+      END IF
 *
 *     As a default, do NOT go for relative-accuracy preserving computations.
       INFO = 1
@@ -201,4 +208,4 @@
 *
 *     END OF DLARRR
 *
-      END SUBROUTINE
+      END

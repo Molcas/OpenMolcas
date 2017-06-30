@@ -18,14 +18,14 @@
 *  Definition:
 *  ===========
 *
-*       REAL*8           FUNCTION DLANSP( NORM, UPLO, N, AP, WORK )
+*       DOUBLE PRECISION FUNCTION DLANSP( NORM, UPLO, N, AP, WORK )
 *
 *       .. Scalar Arguments ..
 *       CHARACTER          NORM, UPLO
 *       INTEGER            N
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             AP( * ), WORK( * )
+*       DOUBLE PRECISION   AP( * ), WORK( * )
 *       ..
 *
 *
@@ -84,7 +84,7 @@
 *>
 *> \param[in] AP
 *> \verbatim
-*>          AP is REAL*8           array, dimension (N*(N+1)/2)
+*>          AP is DOUBLE PRECISION array, dimension (N*(N+1)/2)
 *>          The upper or lower triangle of the symmetric matrix A, packed
 *>          columnwise in a linear array.  The j-th column of A is stored
 *>          in the array AP as follows:
@@ -94,7 +94,7 @@
 *>
 *> \param[out] WORK
 *> \verbatim
-*>          WORK is REAL*8           array, dimension (MAX(1,LWORK)),
+*>          WORK is DOUBLE PRECISION array, dimension (MAX(1,LWORK)),
 *>          where LWORK >= N when NORM = 'I' or '1' or 'O'; otherwise,
 *>          WORK is not referenced.
 *> \endverbatim
@@ -107,35 +107,35 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
 *> \ingroup doubleOTHERauxiliary
 *
 *  =====================================================================
-      REAL*8           FUNCTION DLANSP( NORM, UPLO, N, AP, WORK )
+      DOUBLE PRECISION FUNCTION DLANSP( NORM, UPLO, N, AP, WORK )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          NORM, UPLO
       INTEGER            N
 *     ..
 *     .. Array Arguments ..
-      REAL*8             AP( * ), WORK( * )
+      DOUBLE PRECISION   AP( * ), WORK( * )
 *     ..
 *
 * =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ONE, ZERO
+      DOUBLE PRECISION   ONE, ZERO
       PARAMETER          ( ONE = 1.0D+0, ZERO = 0.0D+0 )
 *     ..
 *     .. Local Scalars ..
       INTEGER            I, J, K
-      REAL*8             ABSA, SCALE, SUM, VALUE
+      DOUBLE PRECISION   ABSA, SCALE, SUM, VALUE
 *     ..
 *     .. External Subroutines ..
       EXTERNAL           DLASSQ
@@ -258,4 +258,4 @@
 *
 *     End of DLANSP
 *
-      END FUNCTION
+      END

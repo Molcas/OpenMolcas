@@ -23,11 +23,11 @@
 *
 *       .. Scalar Arguments ..
 *       INTEGER            INFO, N, NSPLIT
-*       REAL*8              SPLTOL, TNRM
+*       DOUBLE PRECISION    SPLTOL, TNRM
 *       ..
 *       .. Array Arguments ..
 *       INTEGER            ISPLIT( * )
-*       REAL*8             D( * ), E( * ), E2( * )
+*       DOUBLE PRECISION   D( * ), E( * ), E2( * )
 *       ..
 *
 *
@@ -51,14 +51,14 @@
 *>
 *> \param[in] D
 *> \verbatim
-*>          D is REAL*8           array, dimension (N)
+*>          D is DOUBLE PRECISION array, dimension (N)
 *>          On entry, the N diagonal elements of the tridiagonal
 *>          matrix T.
 *> \endverbatim
 *>
 *> \param[in,out] E
 *> \verbatim
-*>          E is REAL*8           array, dimension (N)
+*>          E is DOUBLE PRECISION array, dimension (N)
 *>          On entry, the first (N-1) entries contain the subdiagonal
 *>          elements of the tridiagonal matrix T; E(N) need not be set.
 *>          On exit, the entries E( ISPLIT( I ) ), 1 <= I <= NSPLIT,
@@ -67,7 +67,7 @@
 *>
 *> \param[in,out] E2
 *> \verbatim
-*>          E2 is REAL*8           array, dimension (N)
+*>          E2 is DOUBLE PRECISION array, dimension (N)
 *>          On entry, the first (N-1) entries contain the SQUARES of the
 *>          subdiagonal elements of the tridiagonal matrix T;
 *>          E2(N) need not be set.
@@ -77,7 +77,7 @@
 *>
 *> \param[in] SPLTOL
 *> \verbatim
-*>          SPLTOL is REAL*8
+*>          SPLTOL is DOUBLE PRECISION
 *>          The threshold for splitting. Two criteria can be used:
 *>          SPLTOL<0 : criterion based on absolute off-diagonal value
 *>          SPLTOL>0 : criterion that preserves relative accuracy
@@ -85,7 +85,7 @@
 *>
 *> \param[in] TNRM
 *> \verbatim
-*>          TNRM is REAL*8
+*>          TNRM is DOUBLE PRECISION
 *>          The norm of the matrix.
 *> \endverbatim
 *>
@@ -119,9 +119,9 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date June 2017
 *
-*> \ingroup auxOTHERauxiliary
+*> \ingroup OTHERauxiliary
 *
 *> \par Contributors:
 *  ==================
@@ -136,29 +136,29 @@
       SUBROUTINE DLARRA( N, D, E, E2, SPLTOL, TNRM,
      $                    NSPLIT, ISPLIT, INFO )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.1) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     June 2017
 *
 *     .. Scalar Arguments ..
       INTEGER            INFO, N, NSPLIT
-      REAL*8              SPLTOL, TNRM
+      DOUBLE PRECISION    SPLTOL, TNRM
 *     ..
 *     .. Array Arguments ..
       INTEGER            ISPLIT( * )
-      REAL*8             D( * ), E( * ), E2( * )
+      DOUBLE PRECISION   D( * ), E( * ), E2( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ZERO
+      DOUBLE PRECISION   ZERO
       PARAMETER          ( ZERO = 0.0D0 )
 *     ..
 *     .. Local Scalars ..
       INTEGER            I
-      REAL*8             EABS, TMP1
+      DOUBLE PRECISION   EABS, TMP1
 
 *     ..
 *     .. Intrinsic Functions ..
@@ -167,7 +167,13 @@
 *     .. Executable Statements ..
 *
       INFO = 0
-
+*
+*     Quick return if possible
+*
+      IF( N.LE.0 ) THEN
+         RETURN
+      END IF
+*
 *     Compute splitting points
       NSPLIT = 1
       IF(SPLTOL.LT.ZERO) THEN
@@ -201,4 +207,4 @@
 *
 *     End of DLARRA
 *
-      END SUBROUTINE
+      END

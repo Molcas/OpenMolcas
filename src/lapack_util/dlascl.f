@@ -23,10 +23,10 @@
 *       .. Scalar Arguments ..
 *       CHARACTER          TYPE
 *       INTEGER            INFO, KL, KU, LDA, M, N
-*       REAL*8             CFROM, CTO
+*       DOUBLE PRECISION   CFROM, CTO
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             A( LDA, * )
+*       DOUBLE PRECISION   A( LDA, * )
 *       ..
 *
 *
@@ -79,12 +79,12 @@
 *>
 *> \param[in] CFROM
 *> \verbatim
-*>          CFROM is REAL*8
+*>          CFROM is DOUBLE PRECISION
 *> \endverbatim
 *>
 *> \param[in] CTO
 *> \verbatim
-*>          CTO is REAL*8
+*>          CTO is DOUBLE PRECISION
 *>
 *>          The matrix A is multiplied by CTO/CFROM. A(I,J) is computed
 *>          without over/underflow if the final result CTO*A(I,J)/CFROM
@@ -106,7 +106,7 @@
 *>
 *> \param[in,out] A
 *> \verbatim
-*>          A is REAL*8           array, dimension (LDA,N)
+*>          A is DOUBLE PRECISION array, dimension (LDA,N)
 *>          The matrix to be multiplied by CTO/CFROM.  See TYPE for the
 *>          storage type.
 *> \endverbatim
@@ -114,7 +114,11 @@
 *> \param[in] LDA
 *> \verbatim
 *>          LDA is INTEGER
-*>          The leading dimension of the array A.  LDA >= max(1,M).
+*>          The leading dimension of the array A.
+*>          If TYPE = 'G', 'L', 'U', 'H', LDA >= max(1,M);
+*>             TYPE = 'B', LDA >= KL+1;
+*>             TYPE = 'Q', LDA >= KU+1;
+*>             TYPE = 'Z', LDA >= 2*KL+KU+1.
 *> \endverbatim
 *>
 *> \param[out] INFO
@@ -132,41 +136,41 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date June 2016
 *
-*> \ingroup auxOTHERauxiliary
+*> \ingroup OTHERauxiliary
 *
 *  =====================================================================
       SUBROUTINE DLASCL( TYPE, KL, KU, CFROM, CTO, M, N, A, LDA, INFO )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     June 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          TYPE
       INTEGER            INFO, KL, KU, LDA, M, N
-      REAL*8             CFROM, CTO
+      DOUBLE PRECISION   CFROM, CTO
 *     ..
 *     .. Array Arguments ..
-      REAL*8             A( LDA, * )
+      DOUBLE PRECISION   A( LDA, * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ZERO, ONE
+      DOUBLE PRECISION   ZERO, ONE
       PARAMETER          ( ZERO = 0.0D0, ONE = 1.0D0 )
 *     ..
 *     .. Local Scalars ..
       LOGICAL            DONE
       INTEGER            I, ITYPE, J, K1, K2, K3, K4
-      REAL*8             BIGNUM, CFROM1, CFROMC, CTO1, CTOC, MUL, SMLNUM
+      DOUBLE PRECISION   BIGNUM, CFROM1, CFROMC, CTO1, CTOC, MUL, SMLNUM
 *     ..
 *     .. External Functions ..
       LOGICAL            LSAME, DISNAN
-      REAL*8             DLAMCH
+      DOUBLE PRECISION   DLAMCH
       EXTERNAL           LSAME, DLAMCH, DISNAN
 *     ..
 *     .. Intrinsic Functions ..
@@ -361,4 +365,4 @@
 *
 *     End of DLASCL
 *
-      END SUBROUTINE
+      END

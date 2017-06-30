@@ -25,7 +25,7 @@
 *       INTEGER            LDA, LDW, N, NB
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             A( LDA, * ), E( * ), TAU( * ), W( LDW, * )
+*       DOUBLE PRECISION   A( LDA, * ), E( * ), TAU( * ), W( LDW, * )
 *       ..
 *
 *
@@ -73,7 +73,7 @@
 *>
 *> \param[in,out] A
 *> \verbatim
-*>          A is REAL*8           array, dimension (LDA,N)
+*>          A is DOUBLE PRECISION array, dimension (LDA,N)
 *>          On entry, the symmetric matrix A.  If UPLO = 'U', the leading
 *>          n-by-n upper triangular part of A contains the upper
 *>          triangular part of the matrix A, and the strictly lower
@@ -103,7 +103,7 @@
 *>
 *> \param[out] E
 *> \verbatim
-*>          E is REAL*8           array, dimension (N-1)
+*>          E is DOUBLE PRECISION array, dimension (N-1)
 *>          If UPLO = 'U', E(n-nb:n-1) contains the superdiagonal
 *>          elements of the last NB columns of the reduced matrix;
 *>          if UPLO = 'L', E(1:nb) contains the subdiagonal elements of
@@ -112,7 +112,7 @@
 *>
 *> \param[out] TAU
 *> \verbatim
-*>          TAU is REAL*8           array, dimension (N-1)
+*>          TAU is DOUBLE PRECISION array, dimension (N-1)
 *>          The scalar factors of the elementary reflectors, stored in
 *>          TAU(n-nb:n-1) if UPLO = 'U', and in TAU(1:nb) if UPLO = 'L'.
 *>          See Further Details.
@@ -120,7 +120,7 @@
 *>
 *> \param[out] W
 *> \verbatim
-*>          W is REAL*8           array, dimension (LDW,NB)
+*>          W is DOUBLE PRECISION array, dimension (LDW,NB)
 *>          The n-by-nb matrix W required to update the unreduced part
 *>          of A.
 *> \endverbatim
@@ -139,7 +139,7 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
 *> \ingroup doubleOTHERauxiliary
 *
@@ -198,35 +198,35 @@
 *  =====================================================================
       SUBROUTINE DLATRD( UPLO, N, NB, A, LDA, E, TAU, W, LDW )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          UPLO
       INTEGER            LDA, LDW, N, NB
 *     ..
 *     .. Array Arguments ..
-      REAL*8             A( LDA, * ), E( * ), TAU( * ), W( LDW, * )
+      DOUBLE PRECISION   A( LDA, * ), E( * ), TAU( * ), W( LDW, * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ZERO, ONE, HALF
+      DOUBLE PRECISION   ZERO, ONE, HALF
       PARAMETER          ( ZERO = 0.0D+0, ONE = 1.0D+0, HALF = 0.5D+0 )
 *     ..
 *     .. Local Scalars ..
       INTEGER            I, IW
-      REAL*8             ALPHA
+      DOUBLE PRECISION   ALPHA
 *     ..
 *     .. External Subroutines ..
       EXTERNAL           DAXPY, DGEMV, DLARFG, DSCAL, DSYMV
 *     ..
 *     .. External Functions ..
       LOGICAL            LSAME
-      REAL*8             DDOT
+      DOUBLE PRECISION   DDOT
       EXTERNAL           LSAME, DDOT
 *     ..
 *     .. Intrinsic Functions ..
@@ -333,4 +333,4 @@
 *
 *     End of DLATRD
 *
-      END SUBROUTINE
+      END

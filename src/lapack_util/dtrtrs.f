@@ -26,7 +26,7 @@
 *       INTEGER            INFO, LDA, LDB, N, NRHS
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             A( LDA, * ), B( LDB, * )
+*       DOUBLE PRECISION   A( LDA, * ), B( LDB, * )
 *       ..
 *
 *
@@ -84,7 +84,7 @@
 *>
 *> \param[in] A
 *> \verbatim
-*>          A is REAL*8           array, dimension (LDA,N)
+*>          A is DOUBLE PRECISION array, dimension (LDA,N)
 *>          The triangular matrix A.  If UPLO = 'U', the leading N-by-N
 *>          upper triangular part of the array A contains the upper
 *>          triangular matrix, and the strictly lower triangular part of
@@ -103,7 +103,7 @@
 *>
 *> \param[in,out] B
 *> \verbatim
-*>          B is REAL*8           array, dimension (LDB,NRHS)
+*>          B is DOUBLE PRECISION array, dimension (LDB,NRHS)
 *>          On entry, the right hand side matrix B.
 *>          On exit, if INFO = 0, the solution matrix X.
 *> \endverbatim
@@ -132,7 +132,7 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date November 2011
+*> \date December 2016
 *
 *> \ingroup doubleOTHERcomputational
 *
@@ -140,23 +140,23 @@
       SUBROUTINE DTRTRS( UPLO, TRANS, DIAG, N, NRHS, A, LDA, B, LDB,
      $                   INFO )
 *
-*  -- LAPACK computational routine (version 3.4.0) --
+*  -- LAPACK computational routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     November 2011
+*     December 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          DIAG, TRANS, UPLO
       INTEGER            INFO, LDA, LDB, N, NRHS
 *     ..
 *     .. Array Arguments ..
-      REAL*8             A( LDA, * ), B( LDB, * )
+      DOUBLE PRECISION   A( LDA, * ), B( LDB, * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ZERO, ONE
+      DOUBLE PRECISION   ZERO, ONE
       PARAMETER          ( ZERO = 0.0D+0, ONE = 1.0D+0 )
 *     ..
 *     .. Local Scalars ..
@@ -223,4 +223,4 @@
 *
 *     End of DTRTRS
 *
-      END SUBROUTINE
+      END

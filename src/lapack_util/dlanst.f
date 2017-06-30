@@ -18,14 +18,14 @@
 *  Definition:
 *  ===========
 *
-*       REAL*8           FUNCTION DLANST( NORM, N, D, E )
+*       DOUBLE PRECISION FUNCTION DLANST( NORM, N, D, E )
 *
 *       .. Scalar Arguments ..
 *       CHARACTER          NORM
 *       INTEGER            N
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             D( * ), E( * )
+*       DOUBLE PRECISION   D( * ), E( * )
 *       ..
 *
 *
@@ -75,13 +75,13 @@
 *>
 *> \param[in] D
 *> \verbatim
-*>          D is REAL*8           array, dimension (N)
+*>          D is DOUBLE PRECISION array, dimension (N)
 *>          The diagonal elements of A.
 *> \endverbatim
 *>
 *> \param[in] E
 *> \verbatim
-*>          E is REAL*8           array, dimension (N-1)
+*>          E is DOUBLE PRECISION array, dimension (N-1)
 *>          The (n-1) sub-diagonal or super-diagonal elements of A.
 *> \endverbatim
 *
@@ -93,35 +93,35 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
-*> \ingroup auxOTHERauxiliary
+*> \ingroup OTHERauxiliary
 *
 *  =====================================================================
-      REAL*8           FUNCTION DLANST( NORM, N, D, E )
+      DOUBLE PRECISION FUNCTION DLANST( NORM, N, D, E )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          NORM
       INTEGER            N
 *     ..
 *     .. Array Arguments ..
-      REAL*8             D( * ), E( * )
+      DOUBLE PRECISION   D( * ), E( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ONE, ZERO
+      DOUBLE PRECISION   ONE, ZERO
       PARAMETER          ( ONE = 1.0D+0, ZERO = 0.0D+0 )
 *     ..
 *     .. Local Scalars ..
       INTEGER            I
-      REAL*8             ANORM, SCALE, SUM
+      DOUBLE PRECISION   ANORM, SCALE, SUM
 *     ..
 *     .. External Functions ..
       LOGICAL            LSAME, DISNAN
@@ -183,4 +183,4 @@
 *
 *     End of DLANST
 *
-      END FUNCTION
+      END

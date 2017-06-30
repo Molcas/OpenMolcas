@@ -25,7 +25,7 @@
 *       ..
 *       .. Array Arguments ..
 *       INTEGER            IPIV( * )
-*       REAL*8             A( LDA, * )
+*       DOUBLE PRECISION   A( LDA, * )
 *       ..
 *
 *
@@ -49,7 +49,7 @@
 *>
 *> \param[in,out] A
 *> \verbatim
-*>          A is REAL*8           array, dimension (LDA,N)
+*>          A is DOUBLE PRECISION array, dimension (LDA,N)
 *>          On entry, the matrix of column dimension N to which the row
 *>          interchanges will be applied.
 *>          On exit, the permuted matrix.
@@ -71,22 +71,23 @@
 *> \param[in] K2
 *> \verbatim
 *>          K2 is INTEGER
-*>          The last element of IPIV for which a row interchange will
-*>          be done.
+*>          (K2-K1+1) is the number of elements of IPIV for which a row
+*>          interchange will be done.
 *> \endverbatim
 *>
 *> \param[in] IPIV
 *> \verbatim
-*>          IPIV is INTEGER array, dimension (K2*abs(INCX))
-*>          The vector of pivot indices.  Only the elements in positions
-*>          K1 through K2 of IPIV are accessed.
-*>          IPIV(K) = L implies rows K and L are to be interchanged.
+*>          IPIV is INTEGER array, dimension (K1+(K2-K1)*abs(INCX))
+*>          The vector of pivot indices. Only the elements in positions
+*>          K1 through K1+(K2-K1)*abs(INCX) of IPIV are accessed.
+*>          IPIV(K1+(K-K1)*abs(INCX)) = L implies rows K and L are to be
+*>          interchanged.
 *> \endverbatim
 *>
 *> \param[in] INCX
 *> \verbatim
 *>          INCX is INTEGER
-*>          The increment between successive values of IPIV.  If IPIV
+*>          The increment between successive values of IPIV. If INCX
 *>          is negative, the pivots are applied in reverse order.
 *> \endverbatim
 *
@@ -98,7 +99,7 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date June 2017
 *
 *> \ingroup doubleOTHERauxiliary
 *
@@ -114,28 +115,29 @@
 *  =====================================================================
       SUBROUTINE DLASWP( N, A, LDA, K1, K2, IPIV, INCX )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.1) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     June 2017
 *
 *     .. Scalar Arguments ..
       INTEGER            INCX, K1, K2, LDA, N
 *     ..
 *     .. Array Arguments ..
       INTEGER            IPIV( * )
-      REAL*8             A( LDA, * )
+      DOUBLE PRECISION   A( LDA, * )
 *     ..
 *
 * =====================================================================
 *
 *     .. Local Scalars ..
       INTEGER            I, I1, I2, INC, IP, IX, IX0, J, K, N32
-      REAL*8             TEMP
+      DOUBLE PRECISION   TEMP
 *     ..
 *     .. Executable Statements ..
 *
-*     Interchange row I with row IPIV(I) for each of rows K1 through K2.
+*     Interchange row I with row IPIV(K1+(I-K1)*abs(INCX)) for each of rows
+*     K1 through K2.
 *
       IF( INCX.GT.0 ) THEN
          IX0 = K1
@@ -143,7 +145,7 @@
          I2 = K2
          INC = 1
       ELSE IF( INCX.LT.0 ) THEN
-         IX0 = 1 + ( 1-K2 )*INCX
+         IX0 = K1 + ( K1-K2 )*INCX
          I1 = K2
          I2 = K1
          INC = -1
@@ -188,4 +190,4 @@
 *
 *     End of DLASWP
 *
-      END SUBROUTINE
+      END

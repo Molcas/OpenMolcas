@@ -23,10 +23,10 @@
 *
 *       .. Scalar Arguments ..
 *       INTEGER   INFO, IW, N
-*       REAL*8              PIVMIN, RELTOL, GL, GU, W, WERR
+*       DOUBLE PRECISION    PIVMIN, RELTOL, GL, GU, W, WERR
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             D( * ), E2( * )
+*       DOUBLE PRECISION   D( * ), E2( * )
 *       ..
 *
 *
@@ -65,36 +65,36 @@
 *>
 *> \param[in] GL
 *> \verbatim
-*>          GL is REAL*8
+*>          GL is DOUBLE PRECISION
 *> \endverbatim
 *>
 *> \param[in] GU
 *> \verbatim
-*>          GU is REAL*8
+*>          GU is DOUBLE PRECISION
 *>          An upper and a lower bound on the eigenvalue.
 *> \endverbatim
 *>
 *> \param[in] D
 *> \verbatim
-*>          D is REAL*8           array, dimension (N)
+*>          D is DOUBLE PRECISION array, dimension (N)
 *>          The n diagonal elements of the tridiagonal matrix T.
 *> \endverbatim
 *>
 *> \param[in] E2
 *> \verbatim
-*>          E2 is REAL*8           array, dimension (N-1)
+*>          E2 is DOUBLE PRECISION array, dimension (N-1)
 *>          The (n-1) squared off-diagonal elements of the tridiagonal matrix T.
 *> \endverbatim
 *>
 *> \param[in] PIVMIN
 *> \verbatim
-*>          PIVMIN is REAL*8
+*>          PIVMIN is DOUBLE PRECISION
 *>          The minimum pivot allowed in the Sturm sequence for T.
 *> \endverbatim
 *>
 *> \param[in] RELTOL
 *> \verbatim
-*>          RELTOL is REAL*8
+*>          RELTOL is DOUBLE PRECISION
 *>          The minimum relative width of an interval.  When an interval
 *>          is narrower than RELTOL times the larger (in
 *>          magnitude) endpoint, then it is considered to be
@@ -104,12 +104,12 @@
 *>
 *> \param[out] W
 *> \verbatim
-*>          W is REAL*8
+*>          W is DOUBLE PRECISION
 *> \endverbatim
 *>
 *> \param[out] WERR
 *> \verbatim
-*>          WERR is REAL*8
+*>          WERR is DOUBLE PRECISION
 *>          The error bound on the corresponding eigenvalue approximation
 *>          in W.
 *> \endverbatim
@@ -125,7 +125,7 @@
 *  =========================
 *>
 *> \verbatim
-*>  FUDGE   REAL*8          , default = 2
+*>  FUDGE   DOUBLE PRECISION, default = 2
 *>          A "fudge factor" to widen the Gershgorin intervals.
 *> \endverbatim
 *
@@ -137,47 +137,54 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date June 2017
 *
-*> \ingroup auxOTHERauxiliary
+*> \ingroup OTHERauxiliary
 *
 *  =====================================================================
       SUBROUTINE DLARRK( N, IW, GL, GU,
      $                    D, E2, PIVMIN, RELTOL, W, WERR, INFO)
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.1) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     June 2017
 *
 *     .. Scalar Arguments ..
       INTEGER   INFO, IW, N
-      REAL*8              PIVMIN, RELTOL, GL, GU, W, WERR
+      DOUBLE PRECISION    PIVMIN, RELTOL, GL, GU, W, WERR
 *     ..
 *     .. Array Arguments ..
-      REAL*8             D( * ), E2( * )
+      DOUBLE PRECISION   D( * ), E2( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             FUDGE, HALF, TWO, ZERO
+      DOUBLE PRECISION   FUDGE, HALF, TWO, ZERO
       PARAMETER          ( HALF = 0.5D0, TWO = 2.0D0,
      $                     FUDGE = TWO, ZERO = 0.0D0 )
 *     ..
 *     .. Local Scalars ..
       INTEGER   I, IT, ITMAX, NEGCNT
-      REAL*8             ATOLI, EPS, LEFT, MID, RIGHT, RTOLI, TMP1,
+      DOUBLE PRECISION   ATOLI, EPS, LEFT, MID, RIGHT, RTOLI, TMP1,
      $                   TMP2, TNORM
 *     ..
 *     .. External Functions ..
-      REAL*8             DLAMCH
+      DOUBLE PRECISION   DLAMCH
       EXTERNAL   DLAMCH
 *     ..
 *     .. Intrinsic Functions ..
       INTRINSIC          ABS, INT, LOG, MAX
 *     ..
 *     .. Executable Statements ..
+*
+*     Quick return if possible
+*
+      IF( N.LE.0 ) THEN
+         INFO = 0
+         RETURN
+      END IF
 *
 *     Get machine constants
       EPS = DLAMCH( 'P' )
@@ -246,4 +253,4 @@
 *
 *     End of DLARRK
 *
-      END SUBROUTINE
+      END

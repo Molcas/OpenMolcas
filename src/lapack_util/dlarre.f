@@ -26,12 +26,12 @@
 *       .. Scalar Arguments ..
 *       CHARACTER          RANGE
 *       INTEGER            IL, INFO, IU, M, N, NSPLIT
-*       REAL*8            PIVMIN, RTOL1, RTOL2, SPLTOL, VL, VU
+*       DOUBLE PRECISION  PIVMIN, RTOL1, RTOL2, SPLTOL, VL, VU
 *       ..
 *       .. Array Arguments ..
 *       INTEGER            IBLOCK( * ), ISPLIT( * ), IWORK( * ),
 *      $                   INDEXW( * )
-*       REAL*8             D( * ), E( * ), E2( * ), GERS( * ),
+*       DOUBLE PRECISION   D( * ), E( * ), E2( * ), GERS( * ),
 *      $                   W( * ),WERR( * ), WGAP( * ), WORK( * )
 *       ..
 *
@@ -77,13 +77,18 @@
 *>
 *> \param[in,out] VL
 *> \verbatim
-*>          VL is REAL*8
+*>          VL is DOUBLE PRECISION
+*>          If RANGE='V', the lower bound for the eigenvalues.
+*>          Eigenvalues less than or equal to VL, or greater than VU,
+*>          will not be returned.  VL < VU.
+*>          If RANGE='I' or ='A', DLARRE computes bounds on the desired
+*>          part of the spectrum.
 *> \endverbatim
 *>
 *> \param[in,out] VU
 *> \verbatim
-*>          VU is REAL*8
-*>          If RANGE='V', the lower and upper bounds for the eigenvalues.
+*>          VU is DOUBLE PRECISION
+*>          If RANGE='V', the upper bound for the eigenvalues.
 *>          Eigenvalues less than or equal to VL, or greater than VU,
 *>          will not be returned.  VL < VU.
 *>          If RANGE='I' or ='A', DLARRE computes bounds on the desired
@@ -93,19 +98,22 @@
 *> \param[in] IL
 *> \verbatim
 *>          IL is INTEGER
+*>          If RANGE='I', the index of the
+*>          smallest eigenvalue to be returned.
+*>          1 <= IL <= IU <= N.
 *> \endverbatim
 *>
 *> \param[in] IU
 *> \verbatim
 *>          IU is INTEGER
-*>          If RANGE='I', the indices (in ascending order) of the
-*>          smallest and largest eigenvalues to be returned.
+*>          If RANGE='I', the index of the
+*>          largest eigenvalue to be returned.
 *>          1 <= IL <= IU <= N.
 *> \endverbatim
 *>
 *> \param[in,out] D
 *> \verbatim
-*>          D is REAL*8           array, dimension (N)
+*>          D is DOUBLE PRECISION array, dimension (N)
 *>          On entry, the N diagonal elements of the tridiagonal
 *>          matrix T.
 *>          On exit, the N diagonal elements of the diagonal
@@ -114,7 +122,7 @@
 *>
 *> \param[in,out] E
 *> \verbatim
-*>          E is REAL*8           array, dimension (N)
+*>          E is DOUBLE PRECISION array, dimension (N)
 *>          On entry, the first (N-1) entries contain the subdiagonal
 *>          elements of the tridiagonal matrix T; E(N) need not be set.
 *>          On exit, E contains the subdiagonal elements of the unit
@@ -124,7 +132,7 @@
 *>
 *> \param[in,out] E2
 *> \verbatim
-*>          E2 is REAL*8           array, dimension (N)
+*>          E2 is DOUBLE PRECISION array, dimension (N)
 *>          On entry, the first (N-1) entries contain the SQUARES of the
 *>          subdiagonal elements of the tridiagonal matrix T;
 *>          E2(N) need not be set.
@@ -134,12 +142,12 @@
 *>
 *> \param[in] RTOL1
 *> \verbatim
-*>          RTOL1 is REAL*8
+*>          RTOL1 is DOUBLE PRECISION
 *> \endverbatim
 *>
 *> \param[in] RTOL2
 *> \verbatim
-*>          RTOL2 is REAL*8
+*>          RTOL2 is DOUBLE PRECISION
 *>           Parameters for bisection.
 *>           An interval [LEFT,RIGHT] has converged if
 *>           RIGHT-LEFT.LT.MAX( RTOL1*GAP, RTOL2*MAX(|LEFT|,|RIGHT|) )
@@ -147,7 +155,7 @@
 *>
 *> \param[in] SPLTOL
 *> \verbatim
-*>          SPLTOL is REAL*8
+*>          SPLTOL is DOUBLE PRECISION
 *>          The threshold for splitting.
 *> \endverbatim
 *>
@@ -176,7 +184,7 @@
 *>
 *> \param[out] W
 *> \verbatim
-*>          W is REAL*8           array, dimension (N)
+*>          W is DOUBLE PRECISION array, dimension (N)
 *>          The first M elements contain the eigenvalues. The
 *>          eigenvalues of each of the blocks, L_i D_i L_i^T, are
 *>          sorted in ascending order ( DLARRE may use the
@@ -185,13 +193,13 @@
 *>
 *> \param[out] WERR
 *> \verbatim
-*>          WERR is REAL*8           array, dimension (N)
+*>          WERR is DOUBLE PRECISION array, dimension (N)
 *>          The error bound on the corresponding eigenvalue in W.
 *> \endverbatim
 *>
 *> \param[out] WGAP
 *> \verbatim
-*>          WGAP is REAL*8           array, dimension (N)
+*>          WGAP is DOUBLE PRECISION array, dimension (N)
 *>          The separation from the right neighbor eigenvalue in W.
 *>          The gap is only with respect to the eigenvalues of the same block
 *>          as each block has its own representation tree.
@@ -217,20 +225,20 @@
 *>
 *> \param[out] GERS
 *> \verbatim
-*>          GERS is REAL*8           array, dimension (2*N)
+*>          GERS is DOUBLE PRECISION array, dimension (2*N)
 *>          The N Gerschgorin intervals (the i-th Gerschgorin interval
 *>          is (GERS(2*i-1), GERS(2*i)).
 *> \endverbatim
 *>
 *> \param[out] PIVMIN
 *> \verbatim
-*>          PIVMIN is REAL*8
+*>          PIVMIN is DOUBLE PRECISION
 *>          The minimum pivot in the Sturm sequence for T.
 *> \endverbatim
 *>
 *> \param[out] WORK
 *> \verbatim
-*>          WORK is REAL*8           array, dimension (6*N)
+*>          WORK is DOUBLE PRECISION array, dimension (6*N)
 *>          Workspace.
 *> \endverbatim
 *>
@@ -244,7 +252,7 @@
 *> \verbatim
 *>          INFO is INTEGER
 *>          = 0:  successful exit
-*>          > 0:  A problem occured in DLARRE.
+*>          > 0:  A problem occurred in DLARRE.
 *>          < 0:  One of the called subroutines signaled an internal problem.
 *>                Needs inspection of the corresponding parameter IINFO
 *>                for further information.
@@ -268,9 +276,9 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date June 2016
 *
-*> \ingroup auxOTHERauxiliary
+*> \ingroup OTHERauxiliary
 *
 *> \par Further Details:
 *  =====================
@@ -297,27 +305,27 @@
      $                    W, WERR, WGAP, IBLOCK, INDEXW, GERS, PIVMIN,
      $                    WORK, IWORK, INFO )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.1) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     June 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          RANGE
       INTEGER            IL, INFO, IU, M, N, NSPLIT
-      REAL*8            PIVMIN, RTOL1, RTOL2, SPLTOL, VL, VU
+      DOUBLE PRECISION  PIVMIN, RTOL1, RTOL2, SPLTOL, VL, VU
 *     ..
 *     .. Array Arguments ..
       INTEGER            IBLOCK( * ), ISPLIT( * ), IWORK( * ),
      $                   INDEXW( * )
-      REAL*8             D( * ), E( * ), E2( * ), GERS( * ),
+      DOUBLE PRECISION   D( * ), E( * ), E2( * ), GERS( * ),
      $                   W( * ),WERR( * ), WGAP( * ), WORK( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             FAC, FOUR, FOURTH, FUDGE, HALF, HNDRD,
+      DOUBLE PRECISION   FAC, FOUR, FOURTH, FUDGE, HALF, HNDRD,
      $                   MAXGROWTH, ONE, PERT, TWO, ZERO
       PARAMETER          ( ZERO = 0.0D0, ONE = 1.0D0,
      $                     TWO = 2.0D0, FOUR=4.0D0,
@@ -334,7 +342,7 @@
       INTEGER            CNT, CNT1, CNT2, I, IBEGIN, IDUM, IEND, IINFO,
      $                   IN, INDL, INDU, IRANGE, J, JBLK, MB, MM,
      $                   WBEGIN, WEND
-      REAL*8             AVGAP, BSRTOL, CLWDTH, DMAX, DPIVOT, EABS,
+      DOUBLE PRECISION   AVGAP, BSRTOL, CLWDTH, DMAX, DPIVOT, EABS,
      $                   EMAX, EOLD, EPS, GL, GU, ISLEFT, ISRGHT, RTL,
      $                   RTOL, S1, S2, SAFMIN, SGNDEF, SIGMA, SPDIAM,
      $                   TAU, TMP, TMP1
@@ -346,7 +354,7 @@
 *     ..
 *     .. External Functions ..
       LOGICAL            LSAME
-      REAL*8                      DLAMCH
+      DOUBLE PRECISION            DLAMCH
       EXTERNAL           DLAMCH, LSAME
 
 *     ..
@@ -362,7 +370,12 @@
 *
 
       INFO = 0
-
+*
+*     Quick return if possible
+*
+      IF( N.LE.0 ) THEN
+         RETURN
+      END IF
 *
 *     Decode RANGE
 *
@@ -888,4 +901,4 @@
 *
 *     end of DLARRE
 *
-      END SUBROUTINE
+      END

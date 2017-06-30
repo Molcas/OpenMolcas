@@ -24,10 +24,10 @@
 *       .. Scalar Arguments ..
 *       CHARACTER          JOBT
 *       INTEGER            EIGCNT, INFO, LCNT, N, RCNT
-*       REAL*8             PIVMIN, VL, VU
+*       DOUBLE PRECISION   PIVMIN, VL, VU
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             D( * ), E( * )
+*       DOUBLE PRECISION   D( * ), E( * )
 *       ..
 *
 *
@@ -59,32 +59,33 @@
 *>
 *> \param[in] VL
 *> \verbatim
-*>          VL is REAL*8
+*>          VL is DOUBLE PRECISION
+*>          The lower bound for the eigenvalues.
 *> \endverbatim
 *>
 *> \param[in] VU
 *> \verbatim
-*>          VU is REAL*8
-*>          The lower and upper bounds for the eigenvalues.
+*>          VU is DOUBLE PRECISION
+*>          The upper bound for the eigenvalues.
 *> \endverbatim
 *>
 *> \param[in] D
 *> \verbatim
-*>          D is REAL*8           array, dimension (N)
+*>          D is DOUBLE PRECISION array, dimension (N)
 *>          JOBT = 'T': The N diagonal elements of the tridiagonal matrix T.
 *>          JOBT = 'L': The N diagonal elements of the diagonal matrix D.
 *> \endverbatim
 *>
 *> \param[in] E
 *> \verbatim
-*>          E is REAL*8           array, dimension (N)
+*>          E is DOUBLE PRECISION array, dimension (N)
 *>          JOBT = 'T': The N-1 offdiagonal elements of the matrix T.
 *>          JOBT = 'L': The N-1 offdiagonal elements of the matrix L.
 *> \endverbatim
 *>
 *> \param[in] PIVMIN
 *> \verbatim
-*>          PIVMIN is REAL*8
+*>          PIVMIN is DOUBLE PRECISION
 *>          The minimum pivot in the Sturm sequence for T.
 *> \endverbatim
 *>
@@ -119,9 +120,9 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date June 2016
 *
-*> \ingroup auxOTHERauxiliary
+*> \ingroup OTHERauxiliary
 *
 *> \par Contributors:
 *  ==================
@@ -136,30 +137,30 @@
       SUBROUTINE DLARRC( JOBT, N, VL, VU, D, E, PIVMIN,
      $                            EIGCNT, LCNT, RCNT, INFO )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.1) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     June 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          JOBT
       INTEGER            EIGCNT, INFO, LCNT, N, RCNT
-      REAL*8             PIVMIN, VL, VU
+      DOUBLE PRECISION   PIVMIN, VL, VU
 *     ..
 *     .. Array Arguments ..
-      REAL*8             D( * ), E( * )
+      DOUBLE PRECISION   D( * ), E( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ZERO
+      DOUBLE PRECISION   ZERO
       PARAMETER          ( ZERO = 0.0D0 )
 *     ..
 *     .. Local Scalars ..
       INTEGER            I
       LOGICAL            MATT
-      REAL*8             LPIVOT, RPIVOT, SL, SU, TMP, TMP2
+      DOUBLE PRECISION   LPIVOT, RPIVOT, SL, SU, TMP, TMP2
 
 *     ..
 *     .. External Functions ..
@@ -169,6 +170,13 @@
 *     .. Executable Statements ..
 *
       INFO = 0
+*
+*     Quick return if possible
+*
+      IF( N.LE.0 ) THEN
+         RETURN
+      END IF
+*
       LCNT = 0
       RCNT = 0
       EIGCNT = 0
@@ -240,4 +248,4 @@
 *
 *     end of DLARRC
 *
-      END SUBROUTINE
+      END

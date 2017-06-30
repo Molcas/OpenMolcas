@@ -25,11 +25,11 @@
 *       .. Scalar Arguments ..
 *       LOGICAL            IEEE
 *       INTEGER            I0, ITER, N0, NDIV, NFAIL, PP
-*       REAL*8             DESIG, DMIN, DMIN1, DMIN2, DN, DN1, DN2, G,
+*       DOUBLE PRECISION   DESIG, DMIN, DMIN1, DMIN2, DN, DN1, DN2, G,
 *      $                   QMAX, SIGMA, TAU
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             Z( * )
+*       DOUBLE PRECISION   Z( * )
 *       ..
 *
 *
@@ -58,9 +58,9 @@
 *>         Last index.
 *> \endverbatim
 *>
-*> \param[in] Z
+*> \param[in,out] Z
 *> \verbatim
-*>          Z is REAL*8           array, dimension ( 4*N )
+*>          Z is DOUBLE PRECISION array, dimension ( 4*N0 )
 *>         Z holds the qd array.
 *> \endverbatim
 *>
@@ -75,44 +75,44 @@
 *>
 *> \param[out] DMIN
 *> \verbatim
-*>          DMIN is REAL*8
+*>          DMIN is DOUBLE PRECISION
 *>         Minimum value of d.
 *> \endverbatim
 *>
 *> \param[out] SIGMA
 *> \verbatim
-*>          SIGMA is REAL*8
+*>          SIGMA is DOUBLE PRECISION
 *>         Sum of shifts used in current segment.
 *> \endverbatim
 *>
 *> \param[in,out] DESIG
 *> \verbatim
-*>          DESIG is REAL*8
+*>          DESIG is DOUBLE PRECISION
 *>         Lower order part of SIGMA
 *> \endverbatim
 *>
 *> \param[in] QMAX
 *> \verbatim
-*>          QMAX is REAL*8
+*>          QMAX is DOUBLE PRECISION
 *>         Maximum value of q.
 *> \endverbatim
 *>
-*> \param[out] NFAIL
+*> \param[in,out] NFAIL
 *> \verbatim
 *>          NFAIL is INTEGER
-*>         Number of times shift was too big.
+*>         Increment NFAIL by 1 each time the shift was too big.
 *> \endverbatim
 *>
-*> \param[out] ITER
+*> \param[in,out] ITER
 *> \verbatim
 *>          ITER is INTEGER
-*>         Number of iterations.
+*>         Increment ITER by 1 for each iteration.
 *> \endverbatim
 *>
-*> \param[out] NDIV
+*> \param[in,out] NDIV
 *> \verbatim
 *>          NDIV is INTEGER
-*>         Number of divisions.
+*>         Increment NDIV by 1 for each division.
 *> \endverbatim
 *>
 *> \param[in] IEEE
@@ -129,37 +129,37 @@
 *>
 *> \param[in,out] DMIN1
 *> \verbatim
-*>          DMIN1 is REAL*8
+*>          DMIN1 is DOUBLE PRECISION
 *> \endverbatim
 *>
 *> \param[in,out] DMIN2
 *> \verbatim
-*>          DMIN2 is REAL*8
+*>          DMIN2 is DOUBLE PRECISION
 *> \endverbatim
 *>
 *> \param[in,out] DN
 *> \verbatim
-*>          DN is REAL*8
+*>          DN is DOUBLE PRECISION
 *> \endverbatim
 *>
 *> \param[in,out] DN1
 *> \verbatim
-*>          DN1 is REAL*8
+*>          DN1 is DOUBLE PRECISION
 *> \endverbatim
 *>
 *> \param[in,out] DN2
 *> \verbatim
-*>          DN2 is REAL*8
+*>          DN2 is DOUBLE PRECISION
 *> \endverbatim
 *>
 *> \param[in,out] G
 *> \verbatim
-*>          G is REAL*8
+*>          G is DOUBLE PRECISION
 *> \endverbatim
 *>
 *> \param[in,out] TAU
 *> \verbatim
-*>          TAU is REAL*8
+*>          TAU is DOUBLE PRECISION
 *>
 *>         These are passed as arguments in order to save their values
 *>         between calls to DLASQ3.
@@ -173,7 +173,7 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date June 2016
 *
 *> \ingroup auxOTHERcomputational
 *
@@ -182,39 +182,39 @@
      $                   ITER, NDIV, IEEE, TTYPE, DMIN1, DMIN2, DN, DN1,
      $                   DN2, G, TAU )
 *
-*  -- LAPACK computational routine (version 3.4.2) --
+*  -- LAPACK computational routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     June 2016
 *
 *     .. Scalar Arguments ..
       LOGICAL            IEEE
       INTEGER            I0, ITER, N0, NDIV, NFAIL, PP
-      REAL*8             DESIG, DMIN, DMIN1, DMIN2, DN, DN1, DN2, G,
+      DOUBLE PRECISION   DESIG, DMIN, DMIN1, DMIN2, DN, DN1, DN2, G,
      $                   QMAX, SIGMA, TAU
 *     ..
 *     .. Array Arguments ..
-      REAL*8             Z( * )
+      DOUBLE PRECISION   Z( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             CBIAS
+      DOUBLE PRECISION   CBIAS
       PARAMETER          ( CBIAS = 1.50D0 )
-      REAL*8             ZERO, QURTR, HALF, ONE, TWO, HUNDRD
+      DOUBLE PRECISION   ZERO, QURTR, HALF, ONE, TWO, HUNDRD
       PARAMETER          ( ZERO = 0.0D0, QURTR = 0.250D0, HALF = 0.5D0,
      $                     ONE = 1.0D0, TWO = 2.0D0, HUNDRD = 100.0D0 )
 *     ..
 *     .. Local Scalars ..
       INTEGER            IPN4, J4, N0IN, NN, TTYPE
-      REAL*8             EPS, S, T, TEMP, TOL, TOL2
+      DOUBLE PRECISION   EPS, S, T, TEMP, TOL, TOL2
 *     ..
 *     .. External Subroutines ..
       EXTERNAL           DLASQ4, DLASQ5, DLASQ6
 *     ..
 *     .. External Function ..
-      REAL*8             DLAMCH
+      DOUBLE PRECISION   DLAMCH
       LOGICAL            DISNAN
       EXTERNAL           DISNAN, DLAMCH
 *     ..
@@ -418,4 +418,4 @@
 *
 *     End of DLASQ3
 *
-      END SUBROUTINE
+      END

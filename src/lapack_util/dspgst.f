@@ -25,7 +25,7 @@
 *       INTEGER            INFO, ITYPE, N
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             AP( * ), BP( * )
+*       DOUBLE PRECISION   AP( * ), BP( * )
 *       ..
 *
 *
@@ -73,7 +73,7 @@
 *>
 *> \param[in,out] AP
 *> \verbatim
-*>          AP is REAL*8           array, dimension (N*(N+1)/2)
+*>          AP is DOUBLE PRECISION array, dimension (N*(N+1)/2)
 *>          On entry, the upper or lower triangle of the symmetric matrix
 *>          A, packed columnwise in a linear array.  The j-th column of A
 *>          is stored in the array AP as follows:
@@ -86,7 +86,7 @@
 *>
 *> \param[in] BP
 *> \verbatim
-*>          BP is REAL*8           array, dimension (N*(N+1)/2)
+*>          BP is DOUBLE PRECISION array, dimension (N*(N+1)/2)
 *>          The triangular factor from the Cholesky factorization of B,
 *>          stored in the same format as A, as returned by DPPTRF.
 *> \endverbatim
@@ -106,36 +106,36 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date November 2011
+*> \date December 2016
 *
 *> \ingroup doubleOTHERcomputational
 *
 *  =====================================================================
       SUBROUTINE DSPGST( ITYPE, UPLO, N, AP, BP, INFO )
 *
-*  -- LAPACK computational routine (version 3.4.0) --
+*  -- LAPACK computational routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     November 2011
+*     December 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          UPLO
       INTEGER            INFO, ITYPE, N
 *     ..
 *     .. Array Arguments ..
-      REAL*8             AP( * ), BP( * )
+      DOUBLE PRECISION   AP( * ), BP( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ONE, HALF
+      DOUBLE PRECISION   ONE, HALF
       PARAMETER          ( ONE = 1.0D0, HALF = 0.5D0 )
 *     ..
 *     .. Local Scalars ..
       LOGICAL            UPPER
       INTEGER            J, J1, J1J1, JJ, K, K1, K1K1, KK
-      REAL*8             AJJ, AKK, BJJ, BKK, CT
+      DOUBLE PRECISION   AJJ, AKK, BJJ, BKK, CT
 *     ..
 *     .. External Subroutines ..
       EXTERNAL           DAXPY, DSCAL, DSPMV, DSPR2, DTPMV, DTPSV,
@@ -143,7 +143,7 @@
 *     ..
 *     .. External Functions ..
       LOGICAL            LSAME
-      REAL*8             DDOT
+      DOUBLE PRECISION   DDOT
       EXTERNAL           LSAME, DDOT
 *     ..
 *     .. Executable Statements ..
@@ -271,4 +271,4 @@
 *
 *     End of DSPGST
 *
-      END SUBROUTINE
+      END

@@ -25,7 +25,7 @@
 *       INTEGER            INFO, K, LDA, LWORK, M, N
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             A( LDA, * ), TAU( * ), WORK( * )
+*       DOUBLE PRECISION   A( LDA, * ), TAU( * ), WORK( * )
 *       ..
 *
 *
@@ -94,7 +94,7 @@
 *>
 *> \param[in,out] A
 *> \verbatim
-*>          A is REAL*8           array, dimension (LDA,N)
+*>          A is DOUBLE PRECISION array, dimension (LDA,N)
 *>          On entry, the vectors which define the elementary reflectors,
 *>          as returned by DGEBRD.
 *>          On exit, the M-by-N matrix Q or P**T.
@@ -108,7 +108,7 @@
 *>
 *> \param[in] TAU
 *> \verbatim
-*>          TAU is REAL*8           array, dimension
+*>          TAU is DOUBLE PRECISION array, dimension
 *>                                (min(M,K)) if VECT = 'Q'
 *>                                (min(N,K)) if VECT = 'P'
 *>          TAU(i) must contain the scalar factor of the elementary
@@ -118,7 +118,7 @@
 *>
 *> \param[out] WORK
 *> \verbatim
-*>          WORK is REAL*8           array, dimension (MAX(1,LWORK))
+*>          WORK is DOUBLE PRECISION array, dimension (MAX(1,LWORK))
 *>          On exit, if INFO = 0, WORK(1) returns the optimal LWORK.
 *> \endverbatim
 *>
@@ -157,7 +157,7 @@
 *  =====================================================================
       SUBROUTINE DORGBR( VECT, M, N, K, A, LDA, TAU, WORK, LWORK, INFO )
 *
-*  -- LAPACK computational routine (version 3.4.1) --
+*  -- LAPACK computational routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
 *     April 2012
@@ -167,13 +167,13 @@
       INTEGER            INFO, K, LDA, LWORK, M, N
 *     ..
 *     .. Array Arguments ..
-      REAL*8             A( LDA, * ), TAU( * ), WORK( * )
+      DOUBLE PRECISION   A( LDA, * ), TAU( * ), WORK( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ZERO, ONE
+      DOUBLE PRECISION   ZERO, ONE
       PARAMETER          ( ZERO = 0.0D+0, ONE = 1.0D+0 )
 *     ..
 *     .. Local Scalars ..
@@ -182,8 +182,7 @@
 *     ..
 *     .. External Functions ..
       LOGICAL            LSAME
-      INTEGER            ILAENV
-      EXTERNAL           LSAME, ILAENV
+      EXTERNAL           LSAME
 *     ..
 *     .. External Subroutines ..
       EXTERNAL           DORGLQ, DORGQR, XERBLA
@@ -335,4 +334,4 @@
 *
 *     End of DORGBR
 *
-      END SUBROUTINE
+      END

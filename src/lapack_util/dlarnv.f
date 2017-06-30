@@ -25,7 +25,7 @@
 *       ..
 *       .. Array Arguments ..
 *       INTEGER            ISEED( 4 )
-*       REAL*8             X( * )
+*       DOUBLE PRECISION   X( * )
 *       ..
 *
 *
@@ -67,7 +67,7 @@
 *>
 *> \param[out] X
 *> \verbatim
-*>          X is REAL*8           array, dimension (N)
+*>          X is DOUBLE PRECISION array, dimension (N)
 *>          The generated random numbers.
 *> \endverbatim
 *
@@ -79,9 +79,9 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
-*> \ingroup auxOTHERauxiliary
+*> \ingroup OTHERauxiliary
 *
 *> \par Further Details:
 *  =====================
@@ -97,34 +97,34 @@
 *  =====================================================================
       SUBROUTINE DLARNV( IDIST, ISEED, N, X )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
       INTEGER            IDIST, N
 *     ..
 *     .. Array Arguments ..
       INTEGER            ISEED( 4 )
-      REAL*8             X( * )
+      DOUBLE PRECISION   X( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ONE, TWO
+      DOUBLE PRECISION   ONE, TWO
       PARAMETER          ( ONE = 1.0D+0, TWO = 2.0D+0 )
       INTEGER            LV
       PARAMETER          ( LV = 128 )
-      REAL*8             TWOPI
+      DOUBLE PRECISION   TWOPI
       PARAMETER          ( TWOPI = 6.2831853071795864769252867663D+0 )
 *     ..
 *     .. Local Scalars ..
       INTEGER            I, IL, IL2, IV
 *     ..
 *     .. Local Arrays ..
-      REAL*8             U( LV )
+      DOUBLE PRECISION   U( LV )
 *     ..
 *     .. Intrinsic Functions ..
       INTRINSIC          COS, LOG, MIN, SQRT
@@ -175,4 +175,4 @@
 *
 *     End of DLARNV
 *
-      END SUBROUTINE
+      END

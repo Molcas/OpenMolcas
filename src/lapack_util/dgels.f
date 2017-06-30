@@ -26,7 +26,7 @@
 *       INTEGER            INFO, LDA, LDB, LWORK, M, N, NRHS
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             A( LDA, * ), B( LDB, * ), WORK( * )
+*       DOUBLE PRECISION   A( LDA, * ), B( LDB, * ), WORK( * )
 *       ..
 *
 *
@@ -49,7 +49,7 @@
 *>    an underdetermined system A * X = B.
 *>
 *> 3. If TRANS = 'T' and m >= n:  find the minimum norm solution of
-*>    an undetermined system A**T * X = B.
+*>    an underdetermined system A**T * X = B.
 *>
 *> 4. If TRANS = 'T' and m < n:  find the least squares solution of
 *>    an overdetermined system, i.e., solve the least squares problem
@@ -92,7 +92,7 @@
 *>
 *> \param[in,out] A
 *> \verbatim
-*>          A is REAL*8           array, dimension (LDA,N)
+*>          A is DOUBLE PRECISION array, dimension (LDA,N)
 *>          On entry, the M-by-N matrix A.
 *>          On exit,
 *>            if M >= N, A is overwritten by details of its QR
@@ -109,7 +109,7 @@
 *>
 *> \param[in,out] B
 *> \verbatim
-*>          B is REAL*8           array, dimension (LDB,NRHS)
+*>          B is DOUBLE PRECISION array, dimension (LDB,NRHS)
 *>          On entry, the matrix B of right hand side vectors, stored
 *>          columnwise; B is M-by-NRHS if TRANS = 'N', or N-by-NRHS
 *>          if TRANS = 'T'.
@@ -137,7 +137,7 @@
 *>
 *> \param[out] WORK
 *> \verbatim
-*>          WORK is REAL*8           array, dimension (MAX(1,LWORK))
+*>          WORK is DOUBLE PRECISION array, dimension (MAX(1,LWORK))
 *>          On exit, if INFO = 0, WORK(1) returns the optimal LWORK.
 *> \endverbatim
 *>
@@ -175,7 +175,7 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date November 2011
+*> \date December 2016
 *
 *> \ingroup doubleGEsolve
 *
@@ -183,37 +183,37 @@
       SUBROUTINE DGELS( TRANS, M, N, NRHS, A, LDA, B, LDB, WORK, LWORK,
      $                  INFO )
 *
-*  -- LAPACK driver routine (version 3.4.0) --
+*  -- LAPACK driver routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     November 2011
+*     December 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          TRANS
       INTEGER            INFO, LDA, LDB, LWORK, M, N, NRHS
 *     ..
 *     .. Array Arguments ..
-      REAL*8             A( LDA, * ), B( LDB, * ), WORK( * )
+      DOUBLE PRECISION   A( LDA, * ), B( LDB, * ), WORK( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ZERO, ONE
+      DOUBLE PRECISION   ZERO, ONE
       PARAMETER          ( ZERO = 0.0D0, ONE = 1.0D0 )
 *     ..
 *     .. Local Scalars ..
       LOGICAL            LQUERY, TPSD
       INTEGER            BROW, I, IASCL, IBSCL, J, MN, NB, SCLLEN, WSIZE
-      REAL*8             ANRM, BIGNUM, BNRM, SMLNUM
+      DOUBLE PRECISION   ANRM, BIGNUM, BNRM, SMLNUM
 *     ..
 *     .. Local Arrays ..
-      REAL*8             RWORK( 1 )
+      DOUBLE PRECISION   RWORK( 1 )
 *     ..
 *     .. External Functions ..
       LOGICAL            LSAME
       INTEGER            ILAENV
-      REAL*8             DLAMCH, DLANGE
+      DOUBLE PRECISION   DLAMCH, DLANGE
       EXTERNAL           LSAME, ILAENV, DLABAD, DLAMCH, DLANGE
 *     ..
 *     .. External Subroutines ..
@@ -379,7 +379,7 @@
 *
          ELSE
 *
-*           Overdetermined system of equations A**T * X = B
+*           Underdetermined system of equations A**T * X = B
 *
 *           B(1:N,1:NRHS) := inv(R**T) * B(1:N,1:NRHS)
 *
@@ -501,4 +501,4 @@
 *
 *     End of DGELS
 *
-      END SUBROUTINE
+      END

@@ -25,7 +25,7 @@
 *       INTEGER            LDA, LDB, M, N
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             A( LDA, * ), B( LDB, * )
+*       DOUBLE PRECISION   A( LDA, * ), B( LDB, * )
 *       ..
 *
 *
@@ -64,7 +64,7 @@
 *>
 *> \param[in] A
 *> \verbatim
-*>          A is REAL*8           array, dimension (LDA,N)
+*>          A is DOUBLE PRECISION array, dimension (LDA,N)
 *>          The m by n matrix A.  If UPLO = 'U', only the upper triangle
 *>          or trapezoid is accessed; if UPLO = 'L', only the lower
 *>          triangle or trapezoid is accessed.
@@ -78,7 +78,7 @@
 *>
 *> \param[out] B
 *> \verbatim
-*>          B is REAL*8           array, dimension (LDB,N)
+*>          B is DOUBLE PRECISION array, dimension (LDB,N)
 *>          On exit, B = A in the locations specified by UPLO.
 *> \endverbatim
 *>
@@ -96,24 +96,24 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
-*> \ingroup auxOTHERauxiliary
+*> \ingroup OTHERauxiliary
 *
 *  =====================================================================
       SUBROUTINE DLACPY( UPLO, M, N, A, LDA, B, LDB )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          UPLO
       INTEGER            LDA, LDB, M, N
 *     ..
 *     .. Array Arguments ..
-      REAL*8             A( LDA, * ), B( LDB, * )
+      DOUBLE PRECISION   A( LDA, * ), B( LDB, * )
 *     ..
 *
 *  =====================================================================
@@ -153,4 +153,4 @@
 *
 *     End of DLACPY
 *
-      END SUBROUTINE
+      END

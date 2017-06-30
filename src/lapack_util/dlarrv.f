@@ -26,14 +26,14 @@
 *
 *       .. Scalar Arguments ..
 *       INTEGER            DOL, DOU, INFO, LDZ, M, N
-*       REAL*8             MINRGP, PIVMIN, RTOL1, RTOL2, VL, VU
+*       DOUBLE PRECISION   MINRGP, PIVMIN, RTOL1, RTOL2, VL, VU
 *       ..
 *       .. Array Arguments ..
 *       INTEGER            IBLOCK( * ), INDEXW( * ), ISPLIT( * ),
 *      $                   ISUPPZ( * ), IWORK( * )
-*       REAL*8             D( * ), GERS( * ), L( * ), W( * ), WERR( * ),
+*       DOUBLE PRECISION   D( * ), GERS( * ), L( * ), W( * ), WERR( * ),
 *      $                   WGAP( * ), WORK( * )
-*       REAL*8            Z( LDZ, * )
+*       DOUBLE PRECISION  Z( LDZ, * )
 *       ..
 *
 *
@@ -58,37 +58,46 @@
 *>
 *> \param[in] VL
 *> \verbatim
-*>          VL is REAL*8
-*> \endverbatim
-*>
-*> \param[in] VU
-*> \verbatim
-*>          VU is REAL*8
-*>          Lower and upper bounds of the interval that contains the desired
+*>          VL is DOUBLE PRECISION
+*>          Lower bound of the interval that contains the desired
 *>          eigenvalues. VL < VU. Needed to compute gaps on the left or right
 *>          end of the extremal eigenvalues in the desired RANGE.
 *> \endverbatim
 *>
+*> \param[in] VU
+*> \verbatim
+*>          VU is DOUBLE PRECISION
+*>          Upper bound of the interval that contains the desired
+*>          eigenvalues. VL < VU. 
+*>          Note: VU is currently not used by this implmentation of DLARRV, VU is
+*>          passed to DLARRV because it could be used compute gaps on the right end
+*>          of the extremal eigenvalues. However, with not much initial accuracy in
+*>          LAMBDA and VU, the formula can lead to an overestimation of the right gap
+*>          and thus to inadequately early RQI 'convergence'. This is currently
+*>          prevented this by forcing a small right gap. And so it turns out that VU
+*>          is currently not used by this implementation of DLARRV.
+*> \endverbatim
+*>
 *> \param[in,out] D
 *> \verbatim
-*>          D is REAL*8           array, dimension (N)
+*>          D is DOUBLE PRECISION array, dimension (N)
 *>          On entry, the N diagonal elements of the diagonal matrix D.
 *>          On exit, D may be overwritten.
 *> \endverbatim
 *>
 *> \param[in,out] L
 *> \verbatim
-*>          L is REAL*8           array, dimension (N)
+*>          L is DOUBLE PRECISION array, dimension (N)
 *>          On entry, the (N-1) subdiagonal elements of the unit
 *>          bidiagonal matrix L are in elements 1 to N-1 of L
-*>          (if the matrix is not splitted.) At the end of each block
+*>          (if the matrix is not split.) At the end of each block
 *>          is stored the corresponding shift as given by DLARRE.
 *>          On exit, L is overwritten.
 *> \endverbatim
 *>
 *> \param[in] PIVMIN
 *> \verbatim
-*>          PIVMIN is REAL*8
+*>          PIVMIN is DOUBLE PRECISION
 *>          The minimum pivot allowed in the Sturm sequence.
 *> \endverbatim
 *>
@@ -127,17 +136,17 @@
 *>
 *> \param[in] MINRGP
 *> \verbatim
-*>          MINRGP is REAL*8
+*>          MINRGP is DOUBLE PRECISION
 *> \endverbatim
 *>
 *> \param[in] RTOL1
 *> \verbatim
-*>          RTOL1 is REAL*8
+*>          RTOL1 is DOUBLE PRECISION
 *> \endverbatim
 *>
 *> \param[in] RTOL2
 *> \verbatim
-*>          RTOL2 is REAL*8
+*>          RTOL2 is DOUBLE PRECISION
 *>           Parameters for bisection.
 *>           An interval [LEFT,RIGHT] has converged if
 *>           RIGHT-LEFT.LT.MAX( RTOL1*GAP, RTOL2*MAX(|LEFT|,|RIGHT|) )
@@ -145,7 +154,7 @@
 *>
 *> \param[in,out] W
 *> \verbatim
-*>          W is REAL*8           array, dimension (N)
+*>          W is DOUBLE PRECISION array, dimension (N)
 *>          The first M elements of W contain the APPROXIMATE eigenvalues for
 *>          which eigenvectors are to be computed.  The eigenvalues
 *>          should be grouped by split-off block and ordered from
@@ -158,14 +167,14 @@
 *>
 *> \param[in,out] WERR
 *> \verbatim
-*>          WERR is REAL*8           array, dimension (N)
+*>          WERR is DOUBLE PRECISION array, dimension (N)
 *>          The first M elements contain the semiwidth of the uncertainty
 *>          interval of the corresponding eigenvalue in W
 *> \endverbatim
 *>
 *> \param[in,out] WGAP
 *> \verbatim
-*>          WGAP is REAL*8           array, dimension (N)
+*>          WGAP is DOUBLE PRECISION array, dimension (N)
 *>          The separation from the right neighbor eigenvalue in W.
 *> \endverbatim
 *>
@@ -188,7 +197,7 @@
 *>
 *> \param[in] GERS
 *> \verbatim
-*>          GERS is REAL*8           array, dimension (2*N)
+*>          GERS is DOUBLE PRECISION array, dimension (2*N)
 *>          The N Gerschgorin intervals (the i-th Gerschgorin interval
 *>          is (GERS(2*i-1), GERS(2*i)). The Gerschgorin intervals should
 *>          be computed from the original UNshifted matrix.
@@ -196,7 +205,7 @@
 *>
 *> \param[out] Z
 *> \verbatim
-*>          Z is REAL*8           array, dimension (LDZ, max(1,M) )
+*>          Z is DOUBLE PRECISION array, dimension (LDZ, max(1,M) )
 *>          If INFO = 0, the first M columns of Z contain the
 *>          orthonormal eigenvectors of the matrix T
 *>          corresponding to the input eigenvalues, with the i-th
@@ -223,7 +232,7 @@
 *>
 *> \param[out] WORK
 *> \verbatim
-*>          WORK is REAL*8           array, dimension (12*N)
+*>          WORK is DOUBLE PRECISION array, dimension (12*N)
 *> \endverbatim
 *>
 *> \param[out] IWORK
@@ -236,7 +245,7 @@
 *>          INFO is INTEGER
 *>          = 0:  successful exit
 *>
-*>          > 0:  A problem occured in DLARRV.
+*>          > 0:  A problem occurred in DLARRV.
 *>          < 0:  One of the called subroutines signaled an internal problem.
 *>                Needs inspection of the corresponding parameter IINFO
 *>                for further information.
@@ -263,7 +272,7 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date June 2016
 *
 *> \ingroup doubleOTHERauxiliary
 *
@@ -283,21 +292,21 @@
      $                   IBLOCK, INDEXW, GERS, Z, LDZ, ISUPPZ,
      $                   WORK, IWORK, INFO )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.1) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     June 2016
 *
 *     .. Scalar Arguments ..
       INTEGER            DOL, DOU, INFO, LDZ, M, N
-      REAL*8             MINRGP, PIVMIN, RTOL1, RTOL2, VL, VU
+      DOUBLE PRECISION   MINRGP, PIVMIN, RTOL1, RTOL2, VL, VU
 *     ..
 *     .. Array Arguments ..
       INTEGER            IBLOCK( * ), INDEXW( * ), ISPLIT( * ),
      $                   ISUPPZ( * ), IWORK( * )
-      REAL*8             D( * ), GERS( * ), L( * ), W( * ), WERR( * ),
+      DOUBLE PRECISION   D( * ), GERS( * ), L( * ), W( * ), WERR( * ),
      $                   WGAP( * ), WORK( * )
-      REAL*8            Z( LDZ, * )
+      DOUBLE PRECISION  Z( LDZ, * )
 *     ..
 *
 *  =====================================================================
@@ -305,7 +314,7 @@
 *     .. Parameters ..
       INTEGER            MAXITR
       PARAMETER          ( MAXITR = 10 )
-      REAL*8             ZERO, ONE, TWO, THREE, FOUR, HALF
+      DOUBLE PRECISION   ZERO, ONE, TWO, THREE, FOUR, HALF
       PARAMETER          ( ZERO = 0.0D0, ONE = 1.0D0,
      $                     TWO = 2.0D0, THREE = 3.0D0,
      $                     FOUR = 4.0D0, HALF = 0.5D0)
@@ -321,13 +330,13 @@
      $                   OLDNCL, P, PARITY, Q, WBEGIN, WEND, WINDEX,
      $                   WINDMN, WINDPL, ZFROM, ZTO, ZUSEDL, ZUSEDU,
      $                   ZUSEDW
-      REAL*8             BSTRES, BSTW, EPS, FUDGE, GAP, GAPTOL, GL, GU,
+      DOUBLE PRECISION   BSTRES, BSTW, EPS, FUDGE, GAP, GAPTOL, GL, GU,
      $                   LAMBDA, LEFT, LGAP, MINGMA, NRMINV, RESID,
      $                   RGAP, RIGHT, RQCORR, RQTOL, SAVGAP, SGNDEF,
      $                   SIGMA, SPDIAM, SSIGMA, TAU, TMP, TOL, ZTZ
 *     ..
 *     .. External Functions ..
-      REAL*8             DLAMCH
+      DOUBLE PRECISION   DLAMCH
       EXTERNAL           DLAMCH
 *     ..
 *     .. External Subroutines ..
@@ -340,6 +349,14 @@
 *     .. Executable Statements ..
 *     ..
 
+      INFO = 0
+*
+*     Quick return if possible
+*
+      IF( N.LE.0 ) THEN
+         RETURN
+      END IF
+*
 *     The first N entries of WORK are reserved for the eigenvalues
       INDLD = N+1
       INDLLD= 2*N+1
@@ -1025,4 +1042,4 @@
 *
 *     End of DLARRV
 *
-      END SUBROUTINE
+      END

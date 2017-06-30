@@ -21,7 +21,7 @@
 *       SUBROUTINE DLABAD( SMALL, LARGE )
 *
 *       .. Scalar Arguments ..
-*       REAL*8             LARGE, SMALL
+*       DOUBLE PRECISION   LARGE, SMALL
 *       ..
 *
 *
@@ -45,7 +45,7 @@
 *
 *> \param[in,out] SMALL
 *> \verbatim
-*>          SMALL is REAL*8
+*>          SMALL is DOUBLE PRECISION
 *>          On entry, the underflow threshold as computed by DLAMCH.
 *>          On exit, if LOG10(LARGE) is sufficiently large, the square
 *>          root of SMALL, otherwise unchanged.
@@ -53,7 +53,7 @@
 *>
 *> \param[in,out] LARGE
 *> \verbatim
-*>          LARGE is REAL*8
+*>          LARGE is DOUBLE PRECISION
 *>          On entry, the overflow threshold as computed by DLAMCH.
 *>          On exit, if LOG10(LARGE) is sufficiently large, the square
 *>          root of LARGE, otherwise unchanged.
@@ -67,20 +67,20 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date November 2011
+*> \date December 2016
 *
-*> \ingroup auxOTHERauxiliary
+*> \ingroup OTHERauxiliary
 *
 *  =====================================================================
       SUBROUTINE DLABAD( SMALL, LARGE )
 *
-*  -- LAPACK auxiliary routine (version 3.4.0) --
+*  -- LAPACK auxiliary routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     November 2011
+*     December 2016
 *
 *     .. Scalar Arguments ..
-      REAL*8             LARGE, SMALL
+      DOUBLE PRECISION   LARGE, SMALL
 *     ..
 *
 *  =====================================================================
@@ -102,4 +102,4 @@
 *
 *     End of DLABAD
 *
-      END SUBROUTINE
+      END

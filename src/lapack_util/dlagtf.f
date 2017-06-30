@@ -1,4 +1,4 @@
-*> \brief \b DLAGTF computes an LU factorization of a matrix T-lambda*I, where T is a general tridiagonal matrix, and lambda a scalar, using partial pivoting with row interchanges.
+*> \brief \b DLAGTF computes an LU factorization of a matrix T-λI, where T is a general tridiagonal matrix, and λ a scalar, using partial pivoting with row interchanges.
 *
 *  =========== DOCUMENTATION ===========
 *
@@ -22,11 +22,11 @@
 *
 *       .. Scalar Arguments ..
 *       INTEGER            INFO, N
-*       REAL*8             LAMBDA, TOL
+*       DOUBLE PRECISION   LAMBDA, TOL
 *       ..
 *       .. Array Arguments ..
 *       INTEGER            IN( * )
-*       REAL*8             A( * ), B( * ), C( * ), D( * )
+*       DOUBLE PRECISION   A( * ), B( * ), C( * ), D( * )
 *       ..
 *
 *
@@ -64,7 +64,7 @@
 *>
 *> \param[in,out] A
 *> \verbatim
-*>          A is REAL*8           array, dimension (N)
+*>          A is DOUBLE PRECISION array, dimension (N)
 *>          On entry, A must contain the diagonal elements of T.
 *>
 *>          On exit, A is overwritten by the n diagonal elements of the
@@ -73,13 +73,13 @@
 *>
 *> \param[in] LAMBDA
 *> \verbatim
-*>          LAMBDA is REAL*8
+*>          LAMBDA is DOUBLE PRECISION
 *>          On entry, the scalar lambda.
 *> \endverbatim
 *>
 *> \param[in,out] B
 *> \verbatim
-*>          B is REAL*8           array, dimension (N-1)
+*>          B is DOUBLE PRECISION array, dimension (N-1)
 *>          On entry, B must contain the (n-1) super-diagonal elements of
 *>          T.
 *>
@@ -89,7 +89,7 @@
 *>
 *> \param[in,out] C
 *> \verbatim
-*>          C is REAL*8           array, dimension (N-1)
+*>          C is DOUBLE PRECISION array, dimension (N-1)
 *>          On entry, C must contain the (n-1) sub-diagonal elements of
 *>          T.
 *>
@@ -99,7 +99,7 @@
 *>
 *> \param[in] TOL
 *> \verbatim
-*>          TOL is REAL*8
+*>          TOL is DOUBLE PRECISION
 *>          On entry, a relative tolerance used to indicate whether or
 *>          not the matrix (T - lambda*I) is nearly singular. TOL should
 *>          normally be chose as approximately the largest relative error
@@ -112,7 +112,7 @@
 *>
 *> \param[out] D
 *> \verbatim
-*>          D is REAL*8           array, dimension (N-2)
+*>          D is DOUBLE PRECISION array, dimension (N-2)
 *>          On exit, D is overwritten by the (n-2) second super-diagonal
 *>          elements of the matrix U of the factorization of T.
 *> \endverbatim
@@ -149,42 +149,42 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
 *> \ingroup auxOTHERcomputational
 *
 *  =====================================================================
       SUBROUTINE DLAGTF( N, A, LAMBDA, B, C, TOL, D, IN, INFO )
 *
-*  -- LAPACK computational routine (version 3.4.2) --
+*  -- LAPACK computational routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
       INTEGER            INFO, N
-      REAL*8             LAMBDA, TOL
+      DOUBLE PRECISION   LAMBDA, TOL
 *     ..
 *     .. Array Arguments ..
       INTEGER            IN( * )
-      REAL*8             A( * ), B( * ), C( * ), D( * )
+      DOUBLE PRECISION   A( * ), B( * ), C( * ), D( * )
 *     ..
 *
 * =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ZERO
+      DOUBLE PRECISION   ZERO
       PARAMETER          ( ZERO = 0.0D+0 )
 *     ..
 *     .. Local Scalars ..
       INTEGER            K
-      REAL*8             EPS, MULT, PIV1, PIV2, SCALE1, SCALE2, TEMP, TL
+      DOUBLE PRECISION   EPS, MULT, PIV1, PIV2, SCALE1, SCALE2, TEMP, TL
 *     ..
 *     .. Intrinsic Functions ..
       INTRINSIC          ABS, MAX
 *     ..
 *     .. External Functions ..
-      REAL*8             DLAMCH
+      DOUBLE PRECISION   DLAMCH
       EXTERNAL           DLAMCH
 *     ..
 *     .. External Subroutines ..
@@ -263,4 +263,4 @@
 *
 *     End of DLAGTF
 *
-      END SUBROUTINE
+      END

@@ -25,7 +25,7 @@
 *       ..
 *       .. Array Arguments ..
 *       INTEGER            ISEED( 4 )
-*       REAL*8             X( N )
+*       DOUBLE PRECISION   X( N )
 *       ..
 *
 *
@@ -60,7 +60,7 @@
 *>
 *> \param[out] X
 *> \verbatim
-*>          X is REAL*8           array, dimension (N)
+*>          X is DOUBLE PRECISION array, dimension (N)
 *>          The generated random numbers.
 *> \endverbatim
 *
@@ -72,9 +72,9 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
-*> \ingroup auxOTHERauxiliary
+*> \ingroup OTHERauxiliary
 *
 *> \par Further Details:
 *  =====================
@@ -95,26 +95,26 @@
 *  =====================================================================
       SUBROUTINE DLARUV( ISEED, N, X )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
       INTEGER            N
 *     ..
 *     .. Array Arguments ..
       INTEGER            ISEED( 4 )
-      REAL*8             X( N )
+      DOUBLE PRECISION   X( N )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ONE
+      DOUBLE PRECISION   ONE
       PARAMETER          ( ONE = 1.0D0 )
       INTEGER            LV, IPW2
-      REAL*8             R
+      DOUBLE PRECISION   R
       PARAMETER          ( LV = 128, IPW2 = 4096, R = ONE / IPW2 )
 *     ..
 *     .. Local Scalars ..
@@ -443,4 +443,4 @@
 *
 *     End of DLARUV
 *
-      END SUBROUTINE
+      END

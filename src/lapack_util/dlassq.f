@@ -22,10 +22,10 @@
 *
 *       .. Scalar Arguments ..
 *       INTEGER            INCX, N
-*       REAL*8             SCALE, SUMSQ
+*       DOUBLE PRECISION   SCALE, SUMSQ
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             X( * )
+*       DOUBLE PRECISION   X( * )
 *       ..
 *
 *
@@ -60,7 +60,7 @@
 *>
 *> \param[in] X
 *> \verbatim
-*>          X is REAL*8           array, dimension (N)
+*>          X is DOUBLE PRECISION array, dimension (N)
 *>          The vector for which a scaled sum of squares is computed.
 *>             x( i )  = X( 1 + ( i - 1 )*INCX ), 1 <= i <= n.
 *> \endverbatim
@@ -74,7 +74,7 @@
 *>
 *> \param[in,out] SCALE
 *> \verbatim
-*>          SCALE is REAL*8
+*>          SCALE is DOUBLE PRECISION
 *>          On entry, the value  scale  in the equation above.
 *>          On exit, SCALE is overwritten with  scl , the scaling factor
 *>          for the sum of squares.
@@ -82,7 +82,7 @@
 *>
 *> \param[in,out] SUMSQ
 *> \verbatim
-*>          SUMSQ is REAL*8
+*>          SUMSQ is DOUBLE PRECISION
 *>          On entry, the value  sumsq  in the equation above.
 *>          On exit, SUMSQ is overwritten with  smsq , the basic sum of
 *>          squares from which  scl  has been factored out.
@@ -96,35 +96,35 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
-*> \ingroup auxOTHERauxiliary
+*> \ingroup OTHERauxiliary
 *
 *  =====================================================================
       SUBROUTINE DLASSQ( N, X, INCX, SCALE, SUMSQ )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
       INTEGER            INCX, N
-      REAL*8             SCALE, SUMSQ
+      DOUBLE PRECISION   SCALE, SUMSQ
 *     ..
 *     .. Array Arguments ..
-      REAL*8             X( * )
+      DOUBLE PRECISION   X( * )
 *     ..
 *
 * =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ZERO
+      DOUBLE PRECISION   ZERO
       PARAMETER          ( ZERO = 0.0D+0 )
 *     ..
 *     .. Local Scalars ..
       INTEGER            IX
-      REAL*8             ABSXI
+      DOUBLE PRECISION   ABSXI
 *     ..
 *     .. External Functions ..
       LOGICAL            DISNAN
@@ -152,4 +152,4 @@
 *
 *     End of DLASSQ
 *
-      END SUBROUTINE
+      END

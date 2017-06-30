@@ -21,7 +21,7 @@
 *       LOGICAL FUNCTION DISNAN( DIN )
 *
 *       .. Scalar Arguments ..
-*       REAL*8             DIN
+*       DOUBLE PRECISION, INTENT(IN) :: DIN
 *       ..
 *
 *
@@ -40,7 +40,7 @@
 *
 *> \param[in] DIN
 *> \verbatim
-*>          DIN is REAL*8
+*>          DIN is DOUBLE PRECISION
 *>          Input to test for NaN.
 *> \endverbatim
 *
@@ -52,20 +52,20 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date June 2017
 *
-*> \ingroup auxOTHERauxiliary
+*> \ingroup OTHERauxiliary
 *
 *  =====================================================================
       LOGICAL FUNCTION DISNAN( DIN )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.1) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     June 2017
 *
 *     .. Scalar Arguments ..
-      REAL*8             DIN
+      DOUBLE PRECISION, INTENT(IN) :: DIN
 *     ..
 *
 *  =====================================================================
@@ -77,4 +77,4 @@
 *  .. Executable Statements ..
       DISNAN = DLAISNAN(DIN,DIN)
       RETURN
-      END FUNCTION
+      END

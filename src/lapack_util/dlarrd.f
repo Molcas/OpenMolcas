@@ -26,12 +26,12 @@
 *       .. Scalar Arguments ..
 *       CHARACTER          ORDER, RANGE
 *       INTEGER            IL, INFO, IU, M, N, NSPLIT
-*       REAL*8              PIVMIN, RELTOL, VL, VU, WL, WU
+*       DOUBLE PRECISION    PIVMIN, RELTOL, VL, VU, WL, WU
 *       ..
 *       .. Array Arguments ..
 *       INTEGER            IBLOCK( * ), INDEXW( * ),
 *      $                   ISPLIT( * ), IWORK( * )
-*       REAL*8             D( * ), E( * ), E2( * ),
+*       DOUBLE PRECISION   D( * ), E( * ), E2( * ),
 *      $                   GERS( * ), W( * ), WERR( * ), WORK( * )
 *       ..
 *
@@ -91,13 +91,17 @@
 *>
 *> \param[in] VL
 *> \verbatim
-*>          VL is REAL*8
+*>          VL is DOUBLE PRECISION
+*>          If RANGE='V', the lower bound of the interval to
+*>          be searched for eigenvalues.  Eigenvalues less than or equal
+*>          to VL, or greater than VU, will not be returned.  VL < VU.
+*>          Not referenced if RANGE = 'A' or 'I'.
 *> \endverbatim
 *>
 *> \param[in] VU
 *> \verbatim
-*>          VU is REAL*8
-*>          If RANGE='V', the lower and upper bounds of the interval to
+*>          VU is DOUBLE PRECISION
+*>          If RANGE='V', the upper bound of the interval to
 *>          be searched for eigenvalues.  Eigenvalues less than or equal
 *>          to VL, or greater than VU, will not be returned.  VL < VU.
 *>          Not referenced if RANGE = 'A' or 'I'.
@@ -106,27 +110,31 @@
 *> \param[in] IL
 *> \verbatim
 *>          IL is INTEGER
+*>          If RANGE='I', the index of the
+*>          smallest eigenvalue to be returned.
+*>          1 <= IL <= IU <= N, if N > 0; IL = 1 and IU = 0 if N = 0.
+*>          Not referenced if RANGE = 'A' or 'V'.
 *> \endverbatim
 *>
 *> \param[in] IU
 *> \verbatim
 *>          IU is INTEGER
-*>          If RANGE='I', the indices (in ascending order) of the
-*>          smallest and largest eigenvalues to be returned.
+*>          If RANGE='I', the index of the
+*>          largest eigenvalue to be returned.
 *>          1 <= IL <= IU <= N, if N > 0; IL = 1 and IU = 0 if N = 0.
 *>          Not referenced if RANGE = 'A' or 'V'.
 *> \endverbatim
 *>
 *> \param[in] GERS
 *> \verbatim
-*>          GERS is REAL*8           array, dimension (2*N)
+*>          GERS is DOUBLE PRECISION array, dimension (2*N)
 *>          The N Gerschgorin intervals (the i-th Gerschgorin interval
 *>          is (GERS(2*i-1), GERS(2*i)).
 *> \endverbatim
 *>
 *> \param[in] RELTOL
 *> \verbatim
-*>          RELTOL is REAL*8
+*>          RELTOL is DOUBLE PRECISION
 *>          The minimum relative width of an interval.  When an interval
 *>          is narrower than RELTOL times the larger (in
 *>          magnitude) endpoint, then it is considered to be
@@ -136,25 +144,25 @@
 *>
 *> \param[in] D
 *> \verbatim
-*>          D is REAL*8           array, dimension (N)
+*>          D is DOUBLE PRECISION array, dimension (N)
 *>          The n diagonal elements of the tridiagonal matrix T.
 *> \endverbatim
 *>
 *> \param[in] E
 *> \verbatim
-*>          E is REAL*8           array, dimension (N-1)
+*>          E is DOUBLE PRECISION array, dimension (N-1)
 *>          The (n-1) off-diagonal elements of the tridiagonal matrix T.
 *> \endverbatim
 *>
 *> \param[in] E2
 *> \verbatim
-*>          E2 is REAL*8           array, dimension (N-1)
+*>          E2 is DOUBLE PRECISION array, dimension (N-1)
 *>          The (n-1) squared off-diagonal elements of the tridiagonal matrix T.
 *> \endverbatim
 *>
 *> \param[in] PIVMIN
 *> \verbatim
-*>          PIVMIN is REAL*8
+*>          PIVMIN is DOUBLE PRECISION
 *>          The minimum pivot allowed in the Sturm sequence for T.
 *> \endverbatim
 *>
@@ -187,7 +195,7 @@
 *>
 *> \param[out] W
 *> \verbatim
-*>          W is REAL*8           array, dimension (N)
+*>          W is DOUBLE PRECISION array, dimension (N)
 *>          On exit, the first M elements of W will contain the
 *>          eigenvalue approximations. DLARRD computes an interval
 *>          I_j = (a_j, b_j] that includes eigenvalue j. The eigenvalue
@@ -198,19 +206,19 @@
 *>
 *> \param[out] WERR
 *> \verbatim
-*>          WERR is REAL*8           array, dimension (N)
+*>          WERR is DOUBLE PRECISION array, dimension (N)
 *>          The error bound on the corresponding eigenvalue approximation
 *>          in W.
 *> \endverbatim
 *>
 *> \param[out] WL
 *> \verbatim
-*>          WL is REAL*8
+*>          WL is DOUBLE PRECISION
 *> \endverbatim
 *>
 *> \param[out] WU
 *> \verbatim
-*>          WU is REAL*8
+*>          WU is DOUBLE PRECISION
 *>          The interval (WL, WU] contains all the wanted eigenvalues.
 *>          If RANGE='V', then WL=VL and WU=VU.
 *>          If RANGE='A', then WL and WU are the global Gerschgorin bounds
@@ -240,7 +248,7 @@
 *>
 *> \param[out] WORK
 *> \verbatim
-*>          WORK is REAL*8           array, dimension (4*N)
+*>          WORK is DOUBLE PRECISION array, dimension (4*N)
 *> \endverbatim
 *>
 *> \param[out] IWORK
@@ -284,7 +292,7 @@
 *  =========================
 *>
 *> \verbatim
-*>  FUDGE   REAL*8          , default = 2
+*>  FUDGE   DOUBLE PRECISION, default = 2
 *>          A "fudge factor" to widen the Gershgorin intervals.  Ideally,
 *>          a value of 1 should work, but on machines with sloppy
 *>          arithmetic, this needs to be larger.  The default for
@@ -311,9 +319,9 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date June 2016
 *
-*> \ingroup auxOTHERauxiliary
+*> \ingroup OTHERauxiliary
 *
 *  =====================================================================
       SUBROUTINE DLARRD( RANGE, ORDER, N, VL, VU, IL, IU, GERS,
@@ -321,27 +329,27 @@
      $                    M, W, WERR, WL, WU, IBLOCK, INDEXW,
      $                    WORK, IWORK, INFO )
 *
-*  -- LAPACK auxiliary routine (version 3.4.2) --
+*  -- LAPACK auxiliary routine (version 3.7.1) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     June 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          ORDER, RANGE
       INTEGER            IL, INFO, IU, M, N, NSPLIT
-      REAL*8              PIVMIN, RELTOL, VL, VU, WL, WU
+      DOUBLE PRECISION    PIVMIN, RELTOL, VL, VU, WL, WU
 *     ..
 *     .. Array Arguments ..
       INTEGER            IBLOCK( * ), INDEXW( * ),
      $                   ISPLIT( * ), IWORK( * )
-      REAL*8             D( * ), E( * ), E2( * ),
+      DOUBLE PRECISION   D( * ), E( * ), E2( * ),
      $                   GERS( * ), W( * ), WERR( * ), WORK( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ZERO, ONE, TWO, HALF, FUDGE
+      DOUBLE PRECISION   ZERO, ONE, TWO, HALF, FUDGE
       PARAMETER          ( ZERO = 0.0D0, ONE = 1.0D0,
      $                     TWO = 2.0D0, HALF = ONE/TWO,
      $                     FUDGE = TWO )
@@ -354,7 +362,7 @@
      $                   IM, IN, IOFF, IOUT, IRANGE, ITMAX, ITMP1,
      $                   ITMP2, IW, IWOFF, J, JBLK, JDISC, JE, JEE, NB,
      $                   NWL, NWU
-      REAL*8             ATOLI, EPS, GL, GU, RTOLI, TMP1, TMP2,
+      DOUBLE PRECISION   ATOLI, EPS, GL, GU, RTOLI, TMP1, TMP2,
      $                   TNORM, UFLOW, WKILL, WLU, WUL
 
 *     ..
@@ -364,7 +372,7 @@
 *     .. External Functions ..
       LOGICAL            LSAME
       INTEGER            ILAENV
-      REAL*8             DLAMCH
+      DOUBLE PRECISION   DLAMCH
       EXTERNAL           LSAME, ILAENV, DLAMCH
 *     ..
 *     .. External Subroutines ..
@@ -376,6 +384,12 @@
 *     .. Executable Statements ..
 *
       INFO = 0
+*
+*     Quick return if possible
+*
+      IF( N.LE.0 ) THEN
+         RETURN
+      END IF
 *
 *     Decode RANGE
 *
@@ -852,4 +866,4 @@
 *
 *     End of DLARRD
 *
-      END SUBROUTINE
+      END

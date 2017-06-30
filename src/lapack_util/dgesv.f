@@ -25,7 +25,7 @@
 *       ..
 *       .. Array Arguments ..
 *       INTEGER            IPIV( * )
-*       REAL*8             A( LDA, * ), B( LDB, * )
+*       DOUBLE PRECISION   A( LDA, * ), B( LDB, * )
 *       ..
 *
 *
@@ -65,7 +65,7 @@
 *>
 *> \param[in,out] A
 *> \verbatim
-*>          A is REAL*8           array, dimension (LDA,N)
+*>          A is DOUBLE PRECISION array, dimension (LDA,N)
 *>          On entry, the N-by-N coefficient matrix A.
 *>          On exit, the factors L and U from the factorization
 *>          A = P*L*U; the unit diagonal elements of L are not stored.
@@ -86,7 +86,7 @@
 *>
 *> \param[in,out] B
 *> \verbatim
-*>          B is REAL*8           array, dimension (LDB,NRHS)
+*>          B is DOUBLE PRECISION array, dimension (LDB,NRHS)
 *>          On entry, the N-by-NRHS matrix of right hand side matrix B.
 *>          On exit, if INFO = 0, the N-by-NRHS solution matrix X.
 *> \endverbatim
@@ -115,24 +115,24 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date November 2011
+*> \date December 2016
 *
 *> \ingroup doubleGEsolve
 *
 *  =====================================================================
       SUBROUTINE DGESV( N, NRHS, A, LDA, IPIV, B, LDB, INFO )
 *
-*  -- LAPACK driver routine (version 3.4.0) --
+*  -- LAPACK driver routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     November 2011
+*     December 2016
 *
 *     .. Scalar Arguments ..
       INTEGER            INFO, LDA, LDB, N, NRHS
 *     ..
 *     .. Array Arguments ..
       INTEGER            IPIV( * )
-      REAL*8             A( LDA, * ), B( LDB, * )
+      DOUBLE PRECISION   A( LDA, * ), B( LDB, * )
 *     ..
 *
 *  =====================================================================
@@ -176,4 +176,4 @@
 *
 *     End of DGESV
 *
-      END SUBROUTINE
+      END

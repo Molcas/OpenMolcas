@@ -25,7 +25,7 @@
 *       INTEGER            INFO, N
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             AP( * )
+*       DOUBLE PRECISION   AP( * )
 *       ..
 *
 *
@@ -61,7 +61,7 @@
 *>
 *> \param[in,out] AP
 *> \verbatim
-*>          AP is REAL*8           array, dimension (N*(N+1)/2)
+*>          AP is DOUBLE PRECISION array, dimension (N*(N+1)/2)
 *>          On entry, the upper or lower triangle of the symmetric matrix
 *>          A, packed columnwise in a linear array.  The j-th column of A
 *>          is stored in the array AP as follows:
@@ -92,7 +92,7 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date November 2011
+*> \date December 2016
 *
 *> \ingroup doubleOTHERcomputational
 *
@@ -119,33 +119,33 @@
 *  =====================================================================
       SUBROUTINE DPPTRF( UPLO, N, AP, INFO )
 *
-*  -- LAPACK computational routine (version 3.4.0) --
+*  -- LAPACK computational routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     November 2011
+*     December 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          UPLO
       INTEGER            INFO, N
 *     ..
 *     .. Array Arguments ..
-      REAL*8             AP( * )
+      DOUBLE PRECISION   AP( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ONE, ZERO
+      DOUBLE PRECISION   ONE, ZERO
       PARAMETER          ( ONE = 1.0D+0, ZERO = 0.0D+0 )
 *     ..
 *     .. Local Scalars ..
       LOGICAL            UPPER
       INTEGER            J, JC, JJ
-      REAL*8             AJJ
+      DOUBLE PRECISION   AJJ
 *     ..
 *     .. External Functions ..
       LOGICAL            LSAME
-      REAL*8             DDOT
+      DOUBLE PRECISION   DDOT
       EXTERNAL           LSAME, DDOT
 *     ..
 *     .. External Subroutines ..
@@ -237,4 +237,4 @@
 *
 *     End of DPPTRF
 *
-      END SUBROUTINE
+      END

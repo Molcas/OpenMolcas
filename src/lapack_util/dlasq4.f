@@ -23,10 +23,10 @@
 *
 *       .. Scalar Arguments ..
 *       INTEGER            I0, N0, N0IN, PP, TTYPE
-*       REAL*8             DMIN, DMIN1, DMIN2, DN, DN1, DN2, G, TAU
+*       DOUBLE PRECISION   DMIN, DMIN1, DMIN2, DN, DN1, DN2, G, TAU
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             Z( * )
+*       DOUBLE PRECISION   Z( * )
 *       ..
 *
 *
@@ -56,7 +56,7 @@
 *>
 *> \param[in] Z
 *> \verbatim
-*>          Z is REAL*8           array, dimension ( 4*N )
+*>          Z is DOUBLE PRECISION array, dimension ( 4*N0 )
 *>        Z holds the qd array.
 *> \endverbatim
 *>
@@ -74,43 +74,43 @@
 *>
 *> \param[in] DMIN
 *> \verbatim
-*>          DMIN is REAL*8
+*>          DMIN is DOUBLE PRECISION
 *>        Minimum value of d.
 *> \endverbatim
 *>
 *> \param[in] DMIN1
 *> \verbatim
-*>          DMIN1 is REAL*8
+*>          DMIN1 is DOUBLE PRECISION
 *>        Minimum value of d, excluding D( N0 ).
 *> \endverbatim
 *>
 *> \param[in] DMIN2
 *> \verbatim
-*>          DMIN2 is REAL*8
+*>          DMIN2 is DOUBLE PRECISION
 *>        Minimum value of d, excluding D( N0 ) and D( N0-1 ).
 *> \endverbatim
 *>
 *> \param[in] DN
 *> \verbatim
-*>          DN is REAL*8
+*>          DN is DOUBLE PRECISION
 *>        d(N)
 *> \endverbatim
 *>
 *> \param[in] DN1
 *> \verbatim
-*>          DN1 is REAL*8
+*>          DN1 is DOUBLE PRECISION
 *>        d(N-1)
 *> \endverbatim
 *>
 *> \param[in] DN2
 *> \verbatim
-*>          DN2 is REAL*8
+*>          DN2 is DOUBLE PRECISION
 *>        d(N-2)
 *> \endverbatim
 *>
 *> \param[out] TAU
 *> \verbatim
-*>          TAU is REAL*8
+*>          TAU is DOUBLE PRECISION
 *>        This is the shift.
 *> \endverbatim
 *>
@@ -122,7 +122,7 @@
 *>
 *> \param[in,out] G
 *> \verbatim
-*>          G is REAL
+*>          G is DOUBLE PRECISION
 *>        G is passed as an argument in order to save its value between
 *>        calls to DLASQ4.
 *> \endverbatim
@@ -135,7 +135,7 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date June 2016
 *
 *> \ingroup auxOTHERcomputational
 *
@@ -151,33 +151,33 @@
       SUBROUTINE DLASQ4( I0, N0, Z, PP, N0IN, DMIN, DMIN1, DMIN2, DN,
      $                   DN1, DN2, TAU, TTYPE, G )
 *
-*  -- LAPACK computational routine (version 3.4.2) --
+*  -- LAPACK computational routine (version 3.7.1) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     June 2016
 *
 *     .. Scalar Arguments ..
       INTEGER            I0, N0, N0IN, PP, TTYPE
-      REAL*8             DMIN, DMIN1, DMIN2, DN, DN1, DN2, G, TAU
+      DOUBLE PRECISION   DMIN, DMIN1, DMIN2, DN, DN1, DN2, G, TAU
 *     ..
 *     .. Array Arguments ..
-      REAL*8             Z( * )
+      DOUBLE PRECISION   Z( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             CNST1, CNST2, CNST3
+      DOUBLE PRECISION   CNST1, CNST2, CNST3
       PARAMETER          ( CNST1 = 0.5630D0, CNST2 = 1.010D0,
      $                   CNST3 = 1.050D0 )
-      REAL*8             QURTR, THIRD, HALF, ZERO, ONE, TWO, HUNDRD
+      DOUBLE PRECISION   QURTR, THIRD, HALF, ZERO, ONE, TWO, HUNDRD
       PARAMETER          ( QURTR = 0.250D0, THIRD = 0.3330D0,
      $                   HALF = 0.50D0, ZERO = 0.0D0, ONE = 1.0D0,
      $                   TWO = 2.0D0, HUNDRD = 100.0D0 )
 *     ..
 *     .. Local Scalars ..
       INTEGER            I4, NN, NP
-      REAL*8             A2, B1, B2, GAM, GAP1, GAP2, S
+      DOUBLE PRECISION   A2, B1, B2, GAM, GAP1, GAP2, S
 *     ..
 *     .. Intrinsic Functions ..
       INTRINSIC          MAX, MIN, SQRT
@@ -240,7 +240,6 @@
                   NP = NN - 9
                ELSE
                   NP = NN - 2*PP
-                  B2 = Z( NP-2 )
                   GAM = DN1
                   IF( Z( NP-4 ) .GT. Z( NP-2 ) )
      $               RETURN
@@ -422,4 +421,4 @@
 *
 *     End of DLASQ4
 *
-      END SUBROUTINE
+      END

@@ -26,7 +26,7 @@
 *       INTEGER            INFO, K, LDA, LDC, M, N
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             A( LDA, * ), C( LDC, * ), TAU( * ), WORK( * )
+*       DOUBLE PRECISION   A( LDA, * ), C( LDC, * ), TAU( * ), WORK( * )
 *       ..
 *
 *
@@ -94,7 +94,7 @@
 *>
 *> \param[in] A
 *> \verbatim
-*>          A is REAL*8           array, dimension (LDA,K)
+*>          A is DOUBLE PRECISION array, dimension (LDA,K)
 *>          The i-th column must contain the vector which defines the
 *>          elementary reflector H(i), for i = 1,2,...,k, as returned by
 *>          DGEQRF in the first k columns of its array argument A.
@@ -111,14 +111,14 @@
 *>
 *> \param[in] TAU
 *> \verbatim
-*>          TAU is REAL*8           array, dimension (K)
+*>          TAU is DOUBLE PRECISION array, dimension (K)
 *>          TAU(i) must contain the scalar factor of the elementary
 *>          reflector H(i), as returned by DGEQRF.
 *> \endverbatim
 *>
 *> \param[in,out] C
 *> \verbatim
-*>          C is REAL*8           array, dimension (LDC,N)
+*>          C is DOUBLE PRECISION array, dimension (LDC,N)
 *>          On entry, the m by n matrix C.
 *>          On exit, C is overwritten by Q*C or Q**T*C or C*Q**T or C*Q.
 *> \endverbatim
@@ -131,7 +131,7 @@
 *>
 *> \param[out] WORK
 *> \verbatim
-*>          WORK is REAL*8           array, dimension
+*>          WORK is DOUBLE PRECISION array, dimension
 *>                                   (N) if SIDE = 'L',
 *>                                   (M) if SIDE = 'R'
 *> \endverbatim
@@ -151,7 +151,7 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date September 2012
+*> \date December 2016
 *
 *> \ingroup doubleOTHERcomputational
 *
@@ -159,29 +159,29 @@
       SUBROUTINE DORM2R( SIDE, TRANS, M, N, K, A, LDA, TAU, C, LDC,
      $                   WORK, INFO )
 *
-*  -- LAPACK computational routine (version 3.4.2) --
+*  -- LAPACK computational routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     September 2012
+*     December 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          SIDE, TRANS
       INTEGER            INFO, K, LDA, LDC, M, N
 *     ..
 *     .. Array Arguments ..
-      REAL*8             A( LDA, * ), C( LDC, * ), TAU( * ), WORK( * )
+      DOUBLE PRECISION   A( LDA, * ), C( LDC, * ), TAU( * ), WORK( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ONE
+      DOUBLE PRECISION   ONE
       PARAMETER          ( ONE = 1.0D+0 )
 *     ..
 *     .. Local Scalars ..
       LOGICAL            LEFT, NOTRAN
       INTEGER            I, I1, I2, I3, IC, JC, MI, NI, NQ
-      REAL*8             AII
+      DOUBLE PRECISION   AII
 *     ..
 *     .. External Functions ..
       LOGICAL            LSAME
@@ -279,4 +279,4 @@
 *
 *     End of DORM2R
 *
-      END SUBROUTINE
+      END

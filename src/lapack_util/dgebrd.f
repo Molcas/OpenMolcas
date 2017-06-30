@@ -25,7 +25,7 @@
 *       INTEGER            INFO, LDA, LWORK, M, N
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             A( LDA, * ), D( * ), E( * ), TAUP( * ),
+*       DOUBLE PRECISION   A( LDA, * ), D( * ), E( * ), TAUP( * ),
 *      $                   TAUQ( * ), WORK( * )
 *       ..
 *
@@ -58,7 +58,7 @@
 *>
 *> \param[in,out] A
 *> \verbatim
-*>          A is REAL*8           array, dimension (LDA,N)
+*>          A is DOUBLE PRECISION array, dimension (LDA,N)
 *>          On entry, the M-by-N general matrix to be reduced.
 *>          On exit,
 *>          if m >= n, the diagonal and the first superdiagonal are
@@ -86,14 +86,14 @@
 *>
 *> \param[out] D
 *> \verbatim
-*>          D is REAL*8           array, dimension (min(M,N))
+*>          D is DOUBLE PRECISION array, dimension (min(M,N))
 *>          The diagonal elements of the bidiagonal matrix B:
 *>          D(i) = A(i,i).
 *> \endverbatim
 *>
 *> \param[out] E
 *> \verbatim
-*>          E is REAL*8           array, dimension (min(M,N)-1)
+*>          E is DOUBLE PRECISION array, dimension (min(M,N)-1)
 *>          The off-diagonal elements of the bidiagonal matrix B:
 *>          if m >= n, E(i) = A(i,i+1) for i = 1,2,...,n-1;
 *>          if m < n, E(i) = A(i+1,i) for i = 1,2,...,m-1.
@@ -101,21 +101,21 @@
 *>
 *> \param[out] TAUQ
 *> \verbatim
-*>          TAUQ is REAL*8           array dimension (min(M,N))
+*>          TAUQ is DOUBLE PRECISION array, dimension (min(M,N))
 *>          The scalar factors of the elementary reflectors which
 *>          represent the orthogonal matrix Q. See Further Details.
 *> \endverbatim
 *>
 *> \param[out] TAUP
 *> \verbatim
-*>          TAUP is REAL*8           array, dimension (min(M,N))
+*>          TAUP is DOUBLE PRECISION array, dimension (min(M,N))
 *>          The scalar factors of the elementary reflectors which
 *>          represent the orthogonal matrix P. See Further Details.
 *> \endverbatim
 *>
 *> \param[out] WORK
 *> \verbatim
-*>          WORK is REAL*8           array, dimension (MAX(1,LWORK))
+*>          WORK is DOUBLE PRECISION array, dimension (MAX(1,LWORK))
 *>          On exit, if INFO = 0, WORK(1) returns the optimal LWORK.
 *> \endverbatim
 *>
@@ -147,7 +147,7 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date November 2011
+*> \date June 2017
 *
 *> \ingroup doubleGEcomputational
 *
@@ -205,30 +205,30 @@
       SUBROUTINE DGEBRD( M, N, A, LDA, D, E, TAUQ, TAUP, WORK, LWORK,
      $                   INFO )
 *
-*  -- LAPACK computational routine (version 3.4.0) --
+*  -- LAPACK computational routine (version 3.7.1) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     November 2011
+*     June 2017
 *
 *     .. Scalar Arguments ..
       INTEGER            INFO, LDA, LWORK, M, N
 *     ..
 *     .. Array Arguments ..
-      REAL*8             A( LDA, * ), D( * ), E( * ), TAUP( * ),
+      DOUBLE PRECISION   A( LDA, * ), D( * ), E( * ), TAUP( * ),
      $                   TAUQ( * ), WORK( * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ONE
+      DOUBLE PRECISION   ONE
       PARAMETER          ( ONE = 1.0D+0 )
 *     ..
 *     .. Local Scalars ..
       LOGICAL            LQUERY
       INTEGER            I, IINFO, J, LDWRKX, LDWRKY, LWKOPT, MINMN, NB,
      $                   NBMIN, NX
-      REAL*8             WS
+      DOUBLE PRECISION   WS
 *     ..
 *     .. External Subroutines ..
       EXTERNAL           DGEBD2, DGEMM, DLABRD, XERBLA
@@ -350,4 +350,4 @@
 *
 *     End of DGEBRD
 *
-      END SUBROUTINE
+      END

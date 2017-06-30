@@ -25,7 +25,7 @@
 *       INTEGER            INFO, LDZ, N
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             AP( * ), W( * ), WORK( * ), Z( LDZ, * )
+*       DOUBLE PRECISION   AP( * ), W( * ), WORK( * ), Z( LDZ, * )
 *       ..
 *
 *
@@ -63,7 +63,7 @@
 *>
 *> \param[in,out] AP
 *> \verbatim
-*>          AP is REAL*8           array, dimension (N*(N+1)/2)
+*>          AP is DOUBLE PRECISION array, dimension (N*(N+1)/2)
 *>          On entry, the upper or lower triangle of the symmetric matrix
 *>          A, packed columnwise in a linear array.  The j-th column of A
 *>          is stored in the array AP as follows:
@@ -80,13 +80,13 @@
 *>
 *> \param[out] W
 *> \verbatim
-*>          W is REAL*8           array, dimension (N)
+*>          W is DOUBLE PRECISION array, dimension (N)
 *>          If INFO = 0, the eigenvalues in ascending order.
 *> \endverbatim
 *>
 *> \param[out] Z
 *> \verbatim
-*>          Z is REAL*8           array, dimension (LDZ, N)
+*>          Z is DOUBLE PRECISION array, dimension (LDZ, N)
 *>          If JOBZ = 'V', then if INFO = 0, Z contains the orthonormal
 *>          eigenvectors of the matrix A, with the i-th column of Z
 *>          holding the eigenvector associated with W(i).
@@ -102,7 +102,7 @@
 *>
 *> \param[out] WORK
 *> \verbatim
-*>          WORK is REAL*8           array, dimension (3*N)
+*>          WORK is DOUBLE PRECISION array, dimension (3*N)
 *> \endverbatim
 *>
 *> \param[out] INFO
@@ -123,41 +123,41 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date November 2011
+*> \date December 2016
 *
 *> \ingroup doubleOTHEReigen
 *
 *  =====================================================================
       SUBROUTINE DSPEV( JOBZ, UPLO, N, AP, W, Z, LDZ, WORK, INFO )
 *
-*  -- LAPACK driver routine (version 3.4.0) --
+*  -- LAPACK driver routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     November 2011
+*     December 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          JOBZ, UPLO
       INTEGER            INFO, LDZ, N
 *     ..
 *     .. Array Arguments ..
-      REAL*8             AP( * ), W( * ), WORK( * ), Z( LDZ, * )
+      DOUBLE PRECISION   AP( * ), W( * ), WORK( * ), Z( LDZ, * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ZERO, ONE
+      DOUBLE PRECISION   ZERO, ONE
       PARAMETER          ( ZERO = 0.0D0, ONE = 1.0D0 )
 *     ..
 *     .. Local Scalars ..
       LOGICAL            WANTZ
       INTEGER            IINFO, IMAX, INDE, INDTAU, INDWRK, ISCALE
-      REAL*8             ANRM, BIGNUM, EPS, RMAX, RMIN, SAFMIN, SIGMA,
+      DOUBLE PRECISION   ANRM, BIGNUM, EPS, RMAX, RMIN, SAFMIN, SIGMA,
      $                   SMLNUM
 *     ..
 *     .. External Functions ..
       LOGICAL            LSAME
-      REAL*8             DLAMCH, DLANSP
+      DOUBLE PRECISION   DLAMCH, DLANSP
       EXTERNAL           LSAME, DLAMCH, DLANSP
 *     ..
 *     .. External Subroutines ..
@@ -259,4 +259,4 @@
 *
 *     End of DSPEV
 *
-      END SUBROUTINE
+      END

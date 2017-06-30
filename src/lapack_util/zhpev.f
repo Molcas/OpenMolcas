@@ -26,7 +26,7 @@
 *       INTEGER            INFO, LDZ, N
 *       ..
 *       .. Array Arguments ..
-*       REAL*8             RWORK( * ), W( * )
+*       DOUBLE PRECISION   RWORK( * ), W( * )
 *       COMPLEX*16         AP( * ), WORK( * ), Z( LDZ, * )
 *       ..
 *
@@ -82,7 +82,7 @@
 *>
 *> \param[out] W
 *> \verbatim
-*>          W is REAL*8           array, dimension (N)
+*>          W is DOUBLE PRECISION array, dimension (N)
 *>          If INFO = 0, the eigenvalues in ascending order.
 *> \endverbatim
 *>
@@ -109,7 +109,7 @@
 *>
 *> \param[out] RWORK
 *> \verbatim
-*>          RWORK is REAL*8           array, dimension (max(1, 3*N-2))
+*>          RWORK is DOUBLE PRECISION array, dimension (max(1, 3*N-2))
 *> \endverbatim
 *>
 *> \param[out] INFO
@@ -130,7 +130,7 @@
 *> \author Univ. of Colorado Denver
 *> \author NAG Ltd.
 *
-*> \date November 2011
+*> \date December 2016
 *
 *> \ingroup complex16OTHEReigen
 *
@@ -138,36 +138,36 @@
       SUBROUTINE ZHPEV( JOBZ, UPLO, N, AP, W, Z, LDZ, WORK, RWORK,
      $                  INFO )
 *
-*  -- LAPACK driver routine (version 3.4.0) --
+*  -- LAPACK driver routine (version 3.7.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     November 2011
+*     December 2016
 *
 *     .. Scalar Arguments ..
       CHARACTER          JOBZ, UPLO
       INTEGER            INFO, LDZ, N
 *     ..
 *     .. Array Arguments ..
-      REAL*8             RWORK( * ), W( * )
+      DOUBLE PRECISION   RWORK( * ), W( * )
       COMPLEX*16         AP( * ), WORK( * ), Z( LDZ, * )
 *     ..
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REAL*8             ZERO, ONE
+      DOUBLE PRECISION   ZERO, ONE
       PARAMETER          ( ZERO = 0.0D0, ONE = 1.0D0 )
 *     ..
 *     .. Local Scalars ..
       LOGICAL            WANTZ
       INTEGER            IINFO, IMAX, INDE, INDRWK, INDTAU, INDWRK,
      $                   ISCALE
-      REAL*8             ANRM, BIGNUM, EPS, RMAX, RMIN, SAFMIN, SIGMA,
+      DOUBLE PRECISION   ANRM, BIGNUM, EPS, RMAX, RMIN, SAFMIN, SIGMA,
      $                   SMLNUM
 *     ..
 *     .. External Functions ..
       LOGICAL            LSAME
-      REAL*8             DLAMCH, ZLANHP
+      DOUBLE PRECISION   DLAMCH, ZLANHP
       EXTERNAL           LSAME, DLAMCH, ZLANHP
 *     ..
 *     .. External Subroutines ..
@@ -273,4 +273,4 @@
 *
 *     End of ZHPEV
 *
-      END SUBROUTINE
+      END
