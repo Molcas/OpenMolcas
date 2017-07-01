@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2017 Giovanni Li Manni                                 *
+* Copyright (C) 2017, Giovanni Li Manni                                *
 ************************************************************************
 #ifdef _NECI_
       SUBROUTINE neci2molcas_dens(DMAT,DSPN,PSMAT,PAMAT,

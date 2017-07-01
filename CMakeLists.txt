@@ -1238,7 +1238,7 @@ if (LINALG STREQUAL "Runtime")
                         )
         endif ()
 
-        message ("-- using Runtime LAPACK+BLAS libraries (Internal as fallback)")
+        message ("-- Using Runtime LAPACK+BLAS libraries (Internal as fallback)")
         set (LINALG_LIBRARIES "dl")
 
         add_definitions (-D_DELAYED_)
@@ -1655,9 +1655,9 @@ if (NECI)
                 list (APPEND EXTERNAL_LIBRARIES ${NECI_LIBRARIES})
         else ()
                 list (APPEND rasscf_defs "_EXTNECI_")
-                message ("-- internal NECI ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
-                message ("-- An externally configured NECI can still be used")
-                message ("-- Please use ExNEci command in your molcas input")
+                message ("-- Internal NECI ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
+                message ("   An externally configured NECI can still be used")
+                message ("   Please use ExNEci command in your molcas input")
         endif ()
 
 else ()
@@ -1935,6 +1935,8 @@ list (REMOVE_ITEM progs
         )
 if (DEFINED EXTRA_DIR)
         list (REMOVE_ITEM utils dummy_util)
+else ()
+        list (REMOVE_ITEM utils grid_r_util)
 endif ()
 
 # set the location of the sources for the utilities
@@ -2805,7 +2807,7 @@ if (LATEXMK)
         else ()
                 set (default_format "ps")
         endif ()
-        message ("-- default documentation format: ${default_format}")
+        message ("-- Default documentation format: ${default_format}")
         add_dependencies (doc doc_${default_format})
         add_dependencies (manual manual_${default_format})
         add_dependencies (booklet booklet_${default_format})
@@ -2820,7 +2822,7 @@ if (LATEXMK)
                         )
                 add_dependencies (doc_html doc)
         else ()
-                message ("-- no latex2html support found, disabled HTML docs")
+                message ("-- No latex2html support found, disabled HTML docs")
                 add_custom_target (
                         doc_html
                         COMMAND false
