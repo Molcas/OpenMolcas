@@ -111,10 +111,10 @@ sub git {
 # (required because protected branches cannot be force-pushed, and this is needed if the snapshot failed)
 my $gitlabtoken='********************';
 sub protect {
-    system "curl", "--request", "PUT", "--header", "PRIVATE-TOKEN: $gitlabtoken", "https://gitlab.com/api/v4/projects/Molcas%2FOpenMolcas/repository/branches/$_[0]/protect?developers_can_push=false&developers_can_merge=false"
+    system 'curl', '-s', '--request', 'PUT', '--header', "PRIVATE-TOKEN: $gitlabtoken", "https://gitlab.com/api/v4/projects/Molcas%2FOpenMolcas/repository/branches/$_[0]/protect?developers_can_push=false&developers_can_merge=false"
 }
 sub unprotect {
-    system "curl", "--request", "PUT", "--header", "PRIVATE-TOKEN: $gitlabtoken", "https://gitlab.com/api/v4/projects/Molcas%2FOpenMolcas/repository/branches/$_[0]/unprotect"
+    system 'curl', '-s', '--request', 'PUT', '--header', "PRIVATE-TOKEN: $gitlabtoken", "https://gitlab.com/api/v4/projects/Molcas%2FOpenMolcas/repository/branches/$_[0]/unprotect"
 }
 
 ################################################################################
