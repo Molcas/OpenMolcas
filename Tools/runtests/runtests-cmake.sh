@@ -36,6 +36,7 @@
 # Modified by Ignacio Fdez. Galván and Steven Vancoillie, including various
 # improvements, parallel runs of different builds, and a cmake adaptation.
 # November 2016 - March 2017: Support for several repositories.
+# June 2017: Support for submodules
 
 ################################################################################
 ####                             CONFIGURATION                              ####
@@ -76,7 +77,7 @@ then
     MAIL_cmd="mail"
 fi
 
-# Contact information (YOUR name and email address)
+# contact information (YOUR name and email address)
 if [ -z "$CONTACT" ]
 then
     CONTACT='Firstname Lastname youremail@domain'
@@ -85,10 +86,20 @@ fi
 # you can set a global PATH here (e.g. if run through cron)
 #PATH=''
 
-# If you want to get notification by mail - add it into RECIPIENT
+# if you want to get notification by mail - add it into RECIPIENT
 if [ -z "$RECIPIENT" ]
 then
     RECIPIENT=''
+fi
+
+# submodules to be updated by default (space-sparated list)
+if [ -z "$SUBMODULES" ]
+then
+    SUBMODULES=''
+fi
+if [ -z "$SUBMODULES_OPEN" ]
+then
+    SUBMODULES_OPEN=''
 fi
 
 ################################################################################
@@ -204,6 +215,12 @@ checkout_clean () {
     cd ..
 }
 
+update_submodules () {
+    for sub in `git submodule foreach -q 'echo $path'` ; do
+        git submodule update --init --force $sub || return 1
+    done
+}
+
 test_configfile () {
     if [ ! -r "$configfile" ]
     then
@@ -216,6 +233,11 @@ test_configfile () {
     if [ ! -d $testconfig ]
     then
         mkdir $testconfig
+    fi
+
+    if [ -r $testconfig.env ]
+    then
+        . $testconfig.env
     fi
 
     header=$(i=1 ; while [ $i -le $((${#testconfig}+10)) ]; do printf "%s" "#"; i=$(($i+1)); done)
@@ -265,6 +287,12 @@ test_configfile () {
 
     export OPENMOLCAS_DIR=`readlink -f $REPO_OPEN.$BRANCH`
     cd $REPO_OPEN.$BRANCH || return
+    for sub in `git submodule foreach -q 'echo $path'` ; do
+        git submodule deinit --force $sub || return 1
+    done
+    for sub in $SUBMODULES_OPEN ; do
+        git submodule update --init --force $sub || return 1
+    done
 
     SHA1_OPEN=`git rev-parse $BRANCH`
     MASTER_OPEN=`git rev-parse origin/master`
@@ -280,6 +308,12 @@ test_configfile () {
     P=$(echo $VERSION | awk -F. '{print $NF}')
 
     cd ../$REPO.$BRANCH || return
+    for sub in `git submodule foreach -q 'echo $path'` ; do
+        git submodule deinit --force $sub || return 1
+    done
+    for sub in $SUBMODULES ; do
+        git submodule update --init --force $sub || return 1
+    done
 
     SHA1=`git rev-parse $BRANCH`
     MASTER=`git rev-parse origin/master`
@@ -363,10 +397,6 @@ test_configfile () {
         echo "#### END ####"            >> $outfile
     done
 
-    if [ -r ../../$testconfig.env ]
-    then
-        . ../../$testconfig.env
-    fi
     # if something goes wrong it is useful to have more verbose log files
     # (change it here to allow configuring in .env files)
     MAKE_cmd="$MAKE_cmd VERBOSE=1"
@@ -395,14 +425,14 @@ test_configfile () {
 
         echo '************************************' >> auto.log
         echo '----------- parent details ---------' >> auto.log
-        (cd ../$REPO_OPEN.$BRANCH && git checkout origin/master)
+        (cd ../$REPO_OPEN.$BRANCH && git checkout origin/master && update_submodules)
         for commit in $SHA1 $parents
         do
             if [ "$commit" = "$MASTER" ]
             then
                 continue
             fi
-            (cd ../$REPO.$BRANCH && git checkout $commit)
+            (cd ../$REPO.$BRANCH && git checkout $commit && update_submodules)
             rm -f CMakeCache.txt 2> /dev/null
             rm -f CMakeFiles/$CACHEDIR/* 2> /dev/null
             if $CMAKE $MY_FLAGS ../$REPO.$BRANCH > /dev/null 2>&1 && $MAKE_cmd > /dev/null 2>&1
@@ -413,14 +443,14 @@ test_configfile () {
                 (cd ../$REPO.$BRANCH && git log -1 --pretty=tformat:"developer: %ce" $commit) >> auto.log
             fi
         done
-        (cd ../$REPO.$BRANCH && git checkout origin/master)
+        (cd ../$REPO.$BRANCH && git checkout origin/master && update_submodules)
         for commit in $SHA1_OPEN $parents_open
         do
             if [ "$commit" = "$MASTER_OPEN" ]
             then
                 continue
             fi
-            (cd ../$REPO_OPEN.$BRANCH && git checkout $commit)
+            (cd ../$REPO_OPEN.$BRANCH && git checkout $commit && update_submodules)
             rm -f CMakeCache.txt 2> /dev/null
             rm -f CMakeFiles/$CACHEDIR/* 2> /dev/null
             if $CMAKE $MY_FLAGS ../$REPO.$BRANCH > /dev/null 2>&1 && $MAKE_cmd > /dev/null 2>&1
@@ -434,8 +464,8 @@ test_configfile () {
         echo '************************************' >> auto.log
 
         # remake the original branch to save trouble for manual inspection later
-        (cd ../$REPO.$BRANCH && git checkout $BRANCH)
-        (cd ../$REPO_OPEN.$BRANCH && git checkout $BRANCH)
+        (cd ../$REPO.$BRANCH && git checkout $BRANCH && update_submodules)
+        (cd ../$REPO_OPEN.$BRANCH && git checkout $BRANCH && update_submodules)
         rm -f CMakeCache.txt 2> /dev/null
         rm -f CMakeFiles/$CACHEDIR/* 2> /dev/null
         $CMAKE $MY_FLAGS ../$REPO.$BRANCH > /dev/null 2>&1 && $MAKE_cmd > /dev/null 2>&1
@@ -497,14 +527,14 @@ test_configfile () {
 
         echo '************************************' >> auto.log
         echo '----------- parent details ---------' >> auto.log
-        (cd ../$REPO_OPEN.$BRANCH && git checkout origin/master)
+        (cd ../$REPO_OPEN.$BRANCH && git checkout origin/master && update_submodules)
         for commit in $SHA1 $parents
         do
             if [ "$commit" = "$MASTER" ]
             then
                 continue
             fi
-            (cd ../$REPO.$BRANCH && git checkout $commit)
+            (cd ../$REPO.$BRANCH && git checkout $commit && update_submodules)
             rm -f CMakeCache.txt 2> /dev/null
             rm -f CMakeFiles/$CACHEDIR/* 2> /dev/null
             if $CMAKE $MY_FLAGS ../$REPO.$BRANCH > /dev/null 2>&1 && $MAKE_cmd > /dev/null 2>&1 && $DRIVER verify --trap $failed_tests
@@ -515,14 +545,14 @@ test_configfile () {
                 (cd ../$REPO.$BRANCH && git log -1 --pretty=tformat:"developer: %ce" $commit) >> auto.log
             fi
         done
-        (cd ../$REPO.$BRANCH && git checkout origin/master)
+        (cd ../$REPO.$BRANCH && git checkout origin/master && update_submodules)
         for commit in $SHA1_OPEN $parents_open
         do
             if [ "$commit" = "$MASTER_OPEN" ]
             then
                 continue
             fi
-            (cd ../$REPO_OPEN.$BRANCH && git checkout $commit)
+            (cd ../$REPO_OPEN.$BRANCH && git checkout $commit && update_submodules)
             rm -f CMakeCache.txt 2> /dev/null
             rm -f CMakeFiles/$CACHEDIR/* 2> /dev/null
             if $CMAKE $MY_FLAGS ../$REPO.$BRANCH > /dev/null 2>&1 && $MAKE_cmd > /dev/null 2>&1 && $DRIVER verify --trap $failed_tests
@@ -536,8 +566,8 @@ test_configfile () {
         echo '************************************' >> auto.log
 
         # remake the original branch to save trouble for manual inspection later
-        (cd ../$REPO.$BRANCH && git checkout $BRANCH)
-        (cd ../$REPO_OPEN.$BRANCH && git checkout $BRANCH)
+        (cd ../$REPO.$BRANCH && git checkout $BRANCH && update_submodules)
+        (cd ../$REPO_OPEN.$BRANCH && git checkout $BRANCH && update_submodules)
         rm -f CMakeCache.txt 2> /dev/null
         rm -f CMakeFiles/$CACHEDIR/* 2> /dev/null
         $CMAKE $MY_FLAGS ../$REPO.$BRANCH > /dev/null 2>&1 && $MAKE_cmd > /dev/null 2>&1
