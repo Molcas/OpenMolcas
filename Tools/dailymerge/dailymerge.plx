@@ -309,8 +309,12 @@ unless (($master eq $daily) and ($master_open eq $daily_open)) {
                 print MSG "- A previous unfinished verification left a .LOCK file\n";
                 print MSG "- A problem occurred sending the results by mail\n";
                 close MSG;
-                system("mail -s \"[molcas-git] certified machine did not finish\" $contact < $msg");
-                print "Mail sent to $contact\n";
+                if ($contact) {
+                    system("mail -s \"[molcas-git] certified machine did not finish\" $contact < $msg");
+                    print "Mail sent to $contact\n";
+                } else {
+                    print "Malformed contact address\n";
+                }
             }
             last;
         }
