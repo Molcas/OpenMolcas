@@ -30,7 +30,7 @@
       External Get_LN
       logical qcmaquis_input
 *
-      Call qEnter('Scan_Inp')
+      Call qEnter(ROUTINE)
 
       qcmaquis_input = .false.
 

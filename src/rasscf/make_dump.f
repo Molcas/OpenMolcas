@@ -53,7 +53,6 @@
 *     to collect information about:                                    *
 *     Overlap, core Hamiltonian, kinetic integrals                     *
 *----------------------------------------------------------------------*
-c ----- I need to work this out.... GLM
 
         Call Get_iScalar('nSym',nSym)
         Call Get_iArray('nBas',nBas,nSym)
@@ -185,7 +184,6 @@ c      IF(myRank.eq.0) then
 *----  Initialize LuFCI for NECI interface
 *----------------------------------------------------------------------*
        LuFCI= isFreeUnit(38)
-c      call OpnFl('FCIDMP',LuFCI,Exist)
        call molcas_open(LuFCI,'FCIDMP')
 c
        write(LuFCI,'(1X,A11,I3,A7,I3,A5,I3,A)') ' &FCI NORB=',norbt,
@@ -200,21 +198,14 @@ c
 *----------------------------------------------------------------------*
 *      Transform the two-electron integrals                            *
 *----------------------------------------------------------------------*
-c       Call Tr2Ctl_rasscf(LCMO)
        Call Fill2elInt(TUVX,nacpr2)
 *----------------------------------------------------------------------*
 *      Transform the one-electron integrals                            *
 *----------------------------------------------------------------------*
-c       Call Tr1Ctl_rasscf(Work(ipOvlp),Work(ipHOne),Work(ipKine),LCMO
-c     &,DIAF,ITER)
        Call Fill1elInt(Work(LW1),nacpar,EMY,DIAF,ITER)
 *----------------------------------------------------------------------*
 *      Restore Old value of nOrb and nFro                              *
 *----------------------------------------------------------------------*
-c      END IF
-c      IF(myRank.ne.0) then
-c        call bcast_2RDM("FCIDMP")
-c      END IF
 
         Do iSym=1,nSym
           nFro(iSym)=nFro2(iSym)

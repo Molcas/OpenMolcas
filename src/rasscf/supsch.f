@@ -32,7 +32,7 @@ C
 #include "WrkSpc.fh"
       Real*8 CMOO(*),CMON(*),SMAT(*)
 *
-      Call qEnter('SUPSCH')
+      Call qEnter(ROUTINE)
 *
       nOrbMX=0
       nOrb_tot=0

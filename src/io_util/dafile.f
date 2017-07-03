@@ -87,11 +87,11 @@ C****************** REAL I/O IS HERE **************
       If ( (iOpt.eq.1) .or. (iOpt.eq.6) ) then
         HeadErr='Premature abort while writing buffer to disk'
 *lock
-#ifdef _GA_
-        iRc = MOLCASWRITE(FSCB(Lu),Buf,lBuf,lDisk)
-#else
+#if defined (_HAVE_EXTRA_) && ! defined (_GA_)
         If(isFiM(Lu).eq.0) then
+#endif
           iRc = MOLCASWRITE(FSCB(Lu),Buf,lBuf,lDisk)
+#if defined (_HAVE_EXTRA_) && ! defined (_GA_)
         Else
           iRc = FimWr(FSCB(Lu),Buf,lBuf,lDisk)
           If(iRc.eq.-10)Then
@@ -105,17 +105,9 @@ C****************** REAL I/O IS HERE **************
       Else If ( (iOpt.eq.2) .or. (iOpt.eq.7) .or. (iOpt.eq.99)) then
         HeadErr='Premature abort while reading buffer from disk'
 C10    Continue
-#ifdef _GA_
-        if(iOpt.ne.99) then
-           iRc = MOLCASREAD(FSCB(Lu),Buf,lBuf,lDisk,0)
-        else
-           iRc = MOLCASREAD(FSCB(Lu),Buf,lBuf,lDisk,1)
-           Buf(1)=0
-           if(iRc.eq.0) Buf(1)=1
-           return
-        endif
-#else
+#if defined (_HAVE_EXTRA_) && ! defined (_GA_)
         If (isFiM(Lu).eq.0) then
+#endif
            if(iOpt.ne.99) then
              iRc = MOLCASREAD(FSCB(Lu),Buf,lBuf,lDisk,0)
            else
@@ -124,6 +116,7 @@ C10    Continue
              if(iRc.eq.0) Buf(1)=1
              return
            endif
+#if defined (_HAVE_EXTRA_) && ! defined (_GA_)
         Else
            iRc = FimRd(FSCB(Lu),Buf,lBuf,lDisk)
         End If
