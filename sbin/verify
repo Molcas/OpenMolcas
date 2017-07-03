@@ -678,7 +678,7 @@ if ($failed_tests) {
         my $tmp_rel = File::Spec->abs2rel ($tmpdir, $starting_cwd);
         my $info = <<"EOF";
 ************************************************************************
-A total of $failed_tests test(s) has failed, with $failed_critical_tests critical failures.
+A total of $failed_tests test(s) failed, with $failed_critical_tests critical failure(s).
 ************************************************************************
 Please check the directory:
   $log_rel

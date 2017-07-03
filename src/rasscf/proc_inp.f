@@ -1794,7 +1794,7 @@ C orbitals accordingly
        nmCyc=50000 ! Default value for total NECI cycles
        IterFillRDM= 10000 ! Default value for NECI starting to fill RDMs
        IterSampleRDM=1000 ! Default value for NECI sampling RDMs
-       realspawncutoff=0.1 ! Default value for NECI RealSpawnCutOff
+       realspawncutoff=0.3 ! Default value for NECI RealSpawnCutOff
        diagshift=0.00 ! Default value for NECI diagonal shift value
 *--- The code will stop and wait for RDMs generated from Externally run NECI job -------------------
 *--- This is necessary when FCIQMC cannot converge by standard ways! --------------------
@@ -2943,6 +2943,7 @@ C Test read failed. JOBOLD cannot be used.
 *
       if(.not.KeyDMRG .and. .not.IDoNECI)then ! switch on/off determinants
 * Initialize LUCIA and determinant control
+        Call StatusLine('RASSCF:','Initializing Lucia...')
         CALL Lucia_Util('Ini',iDummy,iDummy,Dummy)
 * to get number of CSFs for GAS
         nconf=0

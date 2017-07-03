@@ -42,8 +42,6 @@ c     Logical is_error
       Logical Found
 *--- Some variables for Geo environment //Jonas 2011
       Integer iGeoInfo(2)
-      Character*8 write0
-      Character*8 DispNr
       Character*15 Energy_File
       Character*13 GeoDataF
       Integer iGeoData,iuGeoData
@@ -133,8 +131,7 @@ c666   Continue
          Call get_iArray('GeoInfo',iGeoInfo,2)
          If((nArray.eq.1) .and. (iGeoInfo(1) .eq. 1) .and.
      &      Label(1:2) .eq. 'E_') Then
-            DispNr = write0(iGeoInfo(2),4)
-            Energy_file = 'disp.energy'//DispNr(1:4)
+            Write(Energy_File,'(A,I4.4)') 'disp.energy',iGeoInfo(2)
             LuDispEn = 1
             LuDispEn = isfreeunit(LuDispEn)
             Call Molcas_Open(LuDispEn,Energy_File)
