@@ -3705,10 +3705,15 @@ c      endif
      &                   isXfield)
 
          if(writeZmat) then
+#ifdef _HAVE_EXTRA_
             stepFactor = stepFac1/(hypParam(1)*hypParam(1))
             Call Geo_Setup_Drv(ishold,oldZMat,zConstraints,
      &                         geoInput,hypParam,nFragment,iOptimType,
      &                         stepFactor,gradLim)
+#else
+            Call WarningMessage(2,'molcas-extra not installed')
+            Call Quit_OnUserError()
+#endif
          end if
          DoneCoord=.true.
       if(isXfield.eq.1) then

@@ -115,16 +115,7 @@ c        print *,'in=',tmp1
 c        print *,'len=',ltmp
 c        print *,'res=',tmp
       tmp(ltmp+1:ltmp+1)=Char(0)
-#ifdef _GA_
-      rc=c_open(tmp)
-      If(rc.lt.0) Then
-         rc=AixErr(ErrTxt)
-        Call SysWarnFileMsg('AixOpn',name,
-     *            'MSG: open',ErrTxt)
-      call SysPutsEnd()
-      Call Abend()
-      End If
-#else
+#if defined (_HAVE_EXTRA_) && ! defined (_GA_)
       If(handle.eq.0) Then
          rc=c_open(tmp)
       Else
@@ -135,6 +126,9 @@ c        print *,'res=',tmp
          End If
       End If
       If(handle.eq.0) Then
+#else
+      rc=c_open(tmp)
+#endif
       If(rc.lt.0) Then
          rc=AixErr(ErrTxt)
         Call SysWarnFileMsg('AixOpn',name,
@@ -142,6 +136,7 @@ c        print *,'res=',tmp
       call SysPutsEnd()
       Call Abend()
       End If
+#if defined (_HAVE_EXTRA_) && ! defined (_GA_)
       End If
 #endif
       desc=rc

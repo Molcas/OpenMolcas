@@ -20,6 +20,7 @@
       Intrinsic MAX
       External GETENVF
 
+      Call QENTER(ROUTINE)
 * The local print levels are the maximum of the requested global and
 * local ones, except that if any of IPRGLB or IPRLOC(I) is zero
 *  (meaning silence), then IPRLOC(I) is set to zero.
