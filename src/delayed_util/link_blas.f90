@@ -207,6 +207,9 @@ module link_blas
       int_zungqr=>zungqr, &
       int_zungtr=>zungtr, &
       int_zupgtr=>zupgtr
+  use legacy_mod, &
+      int_dgetf2=>dgetf2, &
+      int_dpotf2=>dpotf2
 
   implicit none
 
@@ -412,6 +415,9 @@ module link_blas
   procedure(int_zungqr), pointer :: lb_zungqr
   procedure(int_zungtr), pointer :: lb_zungtr
   procedure(int_zupgtr), pointer :: lb_zupgtr
+! Legacy procedures
+  procedure(int_dgetf2), pointer :: lb_dgetf2
+  procedure(int_dpotf2), pointer :: lb_dpotf2
 
 contains
 
@@ -1425,6 +1431,18 @@ contains
         call c_f_procpointer(funptr, lb_zupgtr)
       end if
 !
+!     Legacy procedures
+!
+      funptr=link_func('dgetf2')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dgetf2)
+      end if
+!
+      funptr=link_func('dpotf2')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dpotf2)
+      end if
+!
 !****************************************
 !   Or use the fallback internal routines
 !****************************************
@@ -1627,6 +1645,10 @@ contains
       lb_zungqr=>int_zungqr
       lb_zungtr=>int_zungtr
       lb_zupgtr=>int_zupgtr
+      !
+      ! Legacy
+      lb_dgetf2=>int_dgetf2
+      lb_dpotf2=>int_dpotf2
     end if
 
     if (prlev > 0) then
@@ -2589,6 +2611,19 @@ contains
         write(6,*) 'zupgtr from: ',c_f_string(info%dli_fname)
       else
         write(6,*) 'no zupgtr found!'
+      end if
+
+      ! Legacy
+      !
+      if (DLAddr(c_funloc(lb_dgetf2),c_loc(info)) /= 0) then
+        write(6,*) 'dgetf2 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dgetf2 found!'
+      end if
+      if (DLAddr(c_funloc(lb_dpotf2),c_loc(info)) /= 0) then
+        write(6,*) 'dpotf2 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dpotf2 found!'
       end if
     end if
 
