@@ -59,11 +59,11 @@
             LuP=i
          End If
       End Do
-#ifdef _GA_
-      FlsSize(LuP)=AixFsz(FSCB(Lu))
-#else
+#if defined (_HAVE_EXTRA_) && ! defined (_GA_)
       If(isFiM(Lu).eq.0) then
+#endif
          FlsSize(LuP)=AixFsz(FSCB(Lu))
+#if defined (_HAVE_EXTRA_) && ! defined (_GA_)
       Else
          FlsSize(LuP)=FimFsz(FSCB(Lu))
       End If
@@ -74,11 +74,11 @@
      * Call SysFileMsg(TheName,'MSG: unit', Lu,' ')
       If ( isOpen(Lu).eq.0 )
      * Call SysFileMsg(TheName,'MSG: notopened', Lu,' ')
-#ifdef _GA_
-       iRc = AixCls(FSCB(Lu))
-#else
+#if defined (_HAVE_EXTRA_) && ! defined (_GA_)
       If(isFiM(Lu).eq.0) then
+#endif
        iRc = AixCls(FSCB(Lu))
+#if defined (_HAVE_EXTRA_) && ! defined (_GA_)
       Else
         iRc=FimCls(FSCB(Lu))
         isFiM(Lu)=0

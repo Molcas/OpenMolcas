@@ -306,7 +306,16 @@
       Call ReadVc_m(Work(LCMO),Work(lOCCN),
      &             WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA))
 * Only now are such variables finally known.
-
+       If (IPRLOC(1).GE.DEBUG) Then
+        CALL TRIPRT('Averaged one-body density matrix, D, in RASSCF',
+     &              ' ',Work(LDMAT),NAC)
+        CALL TRIPRT('Averaged one-body spin density matrix DS, RASSCF',
+     &              ' ',Work(LDSPN),NAC)
+        CALL TRIPRT('Averaged two-body density matrix, P',
+     &              ' ',WORK(LPMAT),NACPAR)
+        CALL TRIPRT('Averaged antisym 2-body density matrix PA RASSCF',
+     &              ' ',WORK(LPA),NACPAR)
+       END IF
 *
 * Allocate core space for dynamic storage of data
 *

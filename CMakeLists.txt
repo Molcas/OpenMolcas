@@ -123,7 +123,7 @@ else ()
         mark_as_advanced (FORCE DMRG_DEBUG)
 endif ()
 option (GEN1INT    "Enable Gen1Int library for 1-electron integrals (requires External/gen1int-molcaslib submodule)."                 OFF)
-option (NECI       "Activate NECI support (requires External/NECI submodule)."                                                        OFF)
+option (NECI       "Activate NECI support (requires External/NECI submodule)."                                                        ON)
 option (HDF5_F2003 "Activate a F2003 interface to the HDF5 library (requires External/hdf5_f2003_interface submodule)."               OFF)
 option (WFA        "Activate extended wavefunction analysis (requires External/libwfa submodule)."                                    OFF)
 option (EFPLIB     "Enable EFPLib library for effective fragment potentials (requires External/efp submodule)."                       OFF)
@@ -139,14 +139,16 @@ set (ENV{CMAKE_SESSION} "OpenMolcas")
 
 # project name and supported languages
 #=====================================
-
+message ("Configuring compilers:")
 if (DMRG)
         project (Molcas Fortran C CXX)
-        cmake_minimum_required (VERSION 3.0.2)
 elseif (WFA)
         project (Molcas Fortran C CXX)
 else ()
         project (Molcas Fortran C    )
+endif ()
+if (DMRG)
+        cmake_minimum_required (VERSION 3.0.2)
 endif ()
 
 add_definitions (-D_MOLCAS_)
@@ -1233,7 +1235,7 @@ if (LINALG STREQUAL "Runtime")
                         )
         endif ()
 
-        message ("-- using Runtime LAPACK+BLAS libraries (Internal as fallback)")
+        message ("-- Using Runtime LAPACK+BLAS libraries (Internal as fallback)")
         set (LINALG_LIBRARIES "dl")
 
         add_definitions (-D_DELAYED_)
@@ -1377,12 +1379,11 @@ if (GROMACS)
         list (APPEND EXTERNAL_LIBRARIES ${GMX_LIBRARIES})
 else ()
         mark_as_advanced(FORCE GROMACS_DIR)
-        message (STATUS "Gromacs interface DISABLED")
+        message ("Gromacs interface DISABLED")
 endif ()
 
 # Chan group's DMRG (Block code) support
 #=======================================
-
 if (BLOCK)
         mark_as_advanced(CLEAR BLOCK_DIR)
 
@@ -1413,11 +1414,11 @@ if (BLOCK)
         else ()
                 set (BLOCK OFF)
                 message ("-- BLOCK interface ignored (no BLOCK installation found at ${BLOCK_DIR})")
-                message (STATUS "BLOCK interface DISABLED")
+                message ("BLOCK interface DISABLED")
         endif ()
 else ()
         mark_as_advanced(FORCE BLOCK_DIR)
-        message (STATUS "BLOCK interface DISABLED")
+        message ("BLOCK interface DISABLED")
 endif ()
 
 # S.Wouters' DMRG (CheMPS2 code) support
@@ -1460,7 +1461,7 @@ if (CHEMPS2)
 
 else ()
         mark_as_advanced(FORCE CHEMPS2_DIR)
-        message (STATUS "CHEMPS2 interface DISABLED")
+        message ("CHEMPS2 interface DISABLED")
 endif ()
 
 if (BLOCK AND CHEMPS2)
@@ -1552,7 +1553,7 @@ if (MSYM)
                 message ("-- MSYM interface ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
         endif ()
 else ()
-        message (STATUS "MSYM support DISABLED")
+        message ("MSYM support DISABLED")
 endif ()
 
 if (DMRG)
@@ -1599,7 +1600,7 @@ if (DMRG)
                 message ("-- DMRG sources ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
         endif ()
 else ()
-        message (STATUS "DMRG support DISABLED")
+        message ("DMRG support DISABLED")
 endif ()
 
 # HDF5 F2003 support
@@ -1624,7 +1625,7 @@ if (HDF5_F2003)
         endif ()
 
 else ()
-        message (STATUS "HDF5 F2003 interface DISABLED")
+        message ("HDF5 F2003 interface DISABLED")
 endif ()
 
 # NECI Full-CI Quantum Monte-Carlo
@@ -1651,13 +1652,13 @@ if (NECI)
                 list (APPEND EXTERNAL_LIBRARIES ${NECI_LIBRARIES})
         else ()
                 list (APPEND rasscf_defs "_EXTNECI_")
-                message ("-- internal NECI ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
-                message ("-- An externally configured NECI can still be used")
-                message ("-- Please use ExNEci command in your molcas input")
+                message ("-- Internal NECI ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
+                message ("   An externally configured NECI can still be used")
+                message ("   Please use ExNEci command in your molcas input")
         endif ()
 
 else ()
-        message (STATUS "NECI interface DISABLED")
+        message ("NECI interface DISABLED")
 endif ()
 
 # EFP support (effective fragment support)
@@ -1670,6 +1671,7 @@ if (EFPLIB)
                 if (ADDRMODE EQUAL 64)
                         target_compile_definitions(efp PRIVATE "LIBEFP_FORTRAN_INT64")
                 endif ()
+
                 set (EFP_LIBRARIES efp)
 
                 message ("-- EFP_LIBRARIES: ${EFP_LIBRARIES}")
@@ -1680,7 +1682,7 @@ if (EFPLIB)
                 message ("-- EFP interface ignored (source not available, run git submodule update --init ${proj}\")")
         endif ()
 else ()
-        message (STATUS "EFP interface DISABLED")
+        message ("EFP interface DISABLED")
 endif ()
 
 # GEN1INT interface
@@ -1713,7 +1715,7 @@ if (GEN1INT)
         endif ()
 
 else ()
-        message (STATUS "GEN1INT support DISABLED")
+        message ("GEN1INT support DISABLED")
 endif ()
 
 # libwfa interface
@@ -1748,7 +1750,7 @@ if (WFA)
         endif ()
 else ()
         mark_as_advanced(FORCE ARMADILLO_INC)
-        message(STATUS "libwfa support DISABLED")
+        message("libwfa support DISABLED")
 endif ()
 
 # Add the "bigot" flags after processing the external projects, so they are not affected
@@ -1901,6 +1903,11 @@ list (REMOVE_ITEM progs
         symmetrize
         wfa
         )
+if (DEFINED EXTRA_DIR)
+        list (REMOVE_ITEM utils dummy_util)
+else ()
+        list (REMOVE_ITEM utils grid_r_util)
+endif ()
 
 # set the location of the sources for the utilities
 foreach (util ${utils})
@@ -2341,7 +2348,6 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
                                 if (${prog} STREQUAL "parnell.exe")
                                         continue ()
                                 endif ()
-                                #message(STATUS "update dylib for ... ${prog}")
                                 add_custom_target(dylibpath_${prog} ALL
                                                   DEPENDS ${prog}
                                                   VERBATIM
@@ -2484,22 +2490,27 @@ if (GEN1INT)
                 )
 endif ()
 
-# Find the molcas.driver script
-foreach (BASE_DIR ${basedirs})
-        if (EXISTS "${BASE_DIR}/sbin/molcas.driver")
-                set (MOLCAS_DRIVER "${BASE_DIR}/sbin/molcas.driver")
+# find the molcas.driver script or use a dummy driver
+if (DEFINED EXTRA_DIR)
+        set (MOLCAS_DRIVER "${EXTRA_DIR}/sbin/molcas.driver")
+        execute_process (
+                COMMAND ${OPENMOLCAS_DIR}/sbin/install_driver.sh ${MOLCAS_DRIVER}
+                WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+                RESULT_VARIABLE INSTALL_DRIVER_RC
+                )
+        if (INSTALL_DRIVER_RC)
+                message (FATAL_ERROR "Failed to install the Molcas driver")
         endif ()
-endforeach ()
-if (NOT DEFINED MOLCAS_DRIVER)
-        message (FATAL_ERROR "Molcas driver not found")
-endif ()
-execute_process (
-        COMMAND ${OPENMOLCAS_DIR}/sbin/install_driver.sh ${MOLCAS_DRIVER}
-        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-        RESULT_VARIABLE INSTALL_DRIVER_RC
-        )
-if (INSTALL_DRIVER_RC)
-        message (FATAL_ERROR "Failed to install the Molcas driver")
+else ()
+        set (MOLCAS_DRIVER "${OPENMOLCAS_DIR}/sbin/dummy.driver")
+        # if molcas-extra is not available, enforce building pymolcas
+        if (NOT TOOLS)
+                set (BASE_DIR "${OPENMOLCAS_DIR}")
+                set (toolsdir "${OPENMOLCAS_DIR}/Tools")
+                set (tool "pymolcas")
+                add_subdirectory (${toolsdir}/${tool} ${PROJECT_BINARY_DIR}/Tools/${tool})
+                message ("-- ${tool}: added to targets")
+        endif ()
 endif ()
 
 get_directory_property(defs COMPILE_DEFINITIONS)
@@ -2528,19 +2539,21 @@ if (EXISTS ${GIT})
         endforeach ()
 endif ()
 
-# fetch the prebuilt executables
-file (WRITE ${PROJECT_BINARY_DIR}/xbin.cfg "PLATFORM = ${PLATFORM}\n")
+# fetch the prebuilt executable (if using molcas-extra)
+if (DEFINED EXTRA_DIR)
+        file (WRITE ${PROJECT_BINARY_DIR}/xbin.cfg "PLATFORM = ${PLATFORM}\n")
 
-execute_process (
-        COMMAND "${MOLCAS_DRIVER}" getemil
-        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-        ERROR_VARIABLE GETEMIL_DESCRIBE_ERROR
-        RESULT_VARIABLE GETEMIL_DESCRIBE_RC
-        )
-if (GETEMIL_DESCRIBE_RC)
-        message (FATAL_ERROR "Failed to fetch Molcas binary: ${GETEMIL_DESCRIBE_ERROR}")
+        execute_process (
+                COMMAND "${MOLCAS_DRIVER}" getemil
+                WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+                ERROR_VARIABLE GETEMIL_DESCRIBE_ERROR
+                RESULT_VARIABLE GETEMIL_DESCRIBE_RC
+                )
+        if (GETEMIL_DESCRIBE_RC)
+                message (FATAL_ERROR "Failed to fetch Molcas binary: ${GETEMIL_DESCRIBE_ERROR}")
+        endif ()
+        list (APPEND progs_exe "molcas.exe")
 endif ()
-list (APPEND progs_exe "molcas.exe")
 
 # remove executables that should not be there
 file (GLOB exe RELATIVE ${EXECUTABLE_OUTPUT_PATH} "${EXECUTABLE_OUTPUT_PATH}/*.exe")
@@ -2567,32 +2580,34 @@ foreach (BASE_DIR ${basedirs})
         endforeach (prgmsrc)
 endforeach (BASE_DIR)
 
-# generate help databases from source
-set (ENV{MOLCAS} ${PROJECT_BINARY_DIR})
-file (WRITE ${PROJECT_BINARY_DIR}/.openmolcashome
-        "OPENMOLCAS=${OPENMOLCAS_DIR}"
-        )
-execute_process (
-        COMMAND ${MOLCAS_DRIVER} mkhelp
-        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-        ERROR_VARIABLE MKHELP_ERROR
-        RESULT_VARIABLE MKHELP_RESULT
-        )
-file (REMOVE ${PROJECT_BINARY_DIR}/.openmolcashome)
-if (MKHELP_RESULT)
-        message(FATAL_ERROR "Running \"mkhelp\" failed: ${MKHELP_ERROR}")
-endif ()
-
-# check XML consistency, only if the program is found
-find_program (XMLLINT "xmllint")
-mark_as_advanced(FORCE XMLLINT)
-if (XMLLINT)
-        add_custom_target (
-                check_xml
-                COMMAND ${XMLLINT} "${PROJECT_BINARY_DIR}/data/keyword.xml" "-noout"
-                COMMENT "Checking XML consistency"
-                VERBATIM
+# generate help databases from source (if using molcas-extra)
+if (DEFINED EXTRA_DIR)
+        set (ENV{MOLCAS} ${PROJECT_BINARY_DIR})
+        file (WRITE ${PROJECT_BINARY_DIR}/.openmolcashome
+                "OPENMOLCAS=${OPENMOLCAS_DIR}"
                 )
+        execute_process (
+                COMMAND ${MOLCAS_DRIVER} mkhelp
+                WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+                ERROR_VARIABLE MKHELP_ERROR
+                RESULT_VARIABLE MKHELP_RESULT
+                )
+        file (REMOVE ${PROJECT_BINARY_DIR}/.openmolcashome)
+        if (MKHELP_RESULT)
+                message(FATAL_ERROR "Running \"mkhelp\" failed: ${MKHELP_ERROR}")
+        endif ()
+
+        # check XML consistency, only if the program is found
+        find_program (XMLLINT "xmllint")
+        mark_as_advanced(FORCE XMLLINT)
+        if (XMLLINT)
+                add_custom_target (
+                        check_xml
+                        COMMAND ${XMLLINT} "${PROJECT_BINARY_DIR}/data/keyword.xml" "-noout"
+                        COMMENT "Checking XML consistency"
+                        VERBATIM
+                        )
+        endif ()
 endif ()
 
 # generate rcodes.txt file
@@ -2761,7 +2776,7 @@ if (LATEXMK)
         else ()
                 set (default_format "ps")
         endif ()
-        message ("-- default documentation format: ${default_format}")
+        message ("-- Default documentation format: ${default_format}")
         add_dependencies (doc doc_${default_format})
         add_dependencies (manual manual_${default_format})
         add_dependencies (booklet booklet_${default_format})
@@ -2776,7 +2791,7 @@ if (LATEXMK)
                         )
                 add_dependencies (doc_html doc)
         else ()
-                message ("-- no latex2html support found, disabled HTML docs")
+                message ("-- No latex2html support found, disabled HTML docs")
                 add_custom_target (
                         doc_html
                         COMMAND false

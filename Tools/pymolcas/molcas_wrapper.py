@@ -33,6 +33,7 @@ from tee import teed_call
 from emil_parse import EMIL_Parse, EMILException
 from python_parse import Python_Parse
 from molcas_aux import *
+from check_test import *
 
 hcbanner = '''#
       &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -729,14 +730,23 @@ class Molcas_wrapper(object):
     return self.rc
 
   def _run_check(self):
+    '''
+    Run the check command for verification.
+    Give preference to the compiled "CHECK" program, but use a python method if not available.
+    '''
     check = get_utf8('MOLCAS_TEST', default='').lower()
     if ((check == 'check') or (check=='gene')):
       set_utf8('MOLCAS_CURRENT_PROGRAM', 'check')
       self._check_count += 1
       self.write_environment()
       check_input = 'check {0}'.format(self._check_count)
-      self._current_module = Molcas_module(self, 'check', check_input)
-      rc = self._current_module.run()
+      try:
+        self._current_module = Molcas_module(self, 'check', check_input)
+        rc = self._current_module.run()
+        if (rc == '_RC_NOT_AVAILABLE_'):
+          raise Exception
+      except:
+        rc = check_test(join(self.scratch, 'molcas_info'), join(self.scratch, 'checkfile'), self._check_count)
       if (self.rc_to_name(rc) != '_RC_ALL_IS_WELL_'):
         self.rc = rc
     info_file = join(self.scratch, 'molcas_info')

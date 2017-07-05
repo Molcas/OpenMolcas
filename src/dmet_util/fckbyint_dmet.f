@@ -76,7 +76,7 @@
       Integer nIsh(8)
       Integer nAsh(8)
       Integer nDel(MxSym)
-      Logical PrintPop, PrintMOs
+*      Logical PrintPop, PrintMOs
 *----------------------------------------------------------------------*
 * Do some counting                                                     *
 *----------------------------------------------------------------------*

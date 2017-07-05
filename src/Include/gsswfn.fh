@@ -8,14 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Function Frctl(n)
-      Implicit real*8 (a-h,o-z)
-#include "real.fh"
-      Real*8 Frctl
-*
-      Frctl=One
-      Do 10 i = 1, n
-         Frctl = Frctl * DBLE(i)
- 10   Continue
-      Return
-      End
+#ifdef _HDF5_
+#  include "mh5.fh"
+#endif
+
+      integer                 wfn_fileid,
+     $        wfn_energy, wfn_mocoef, wfn_occnum, wfn_orbene
+
+      common /gsswfn_handles/ wfn_fileid,
+     $        wfn_energy, wfn_mocoef, wfn_occnum, wfn_orbene

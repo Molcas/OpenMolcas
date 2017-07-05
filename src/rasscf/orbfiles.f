@@ -31,7 +31,7 @@ c***********************************************************************
       logical :: doDMRG = .false.
 #endif
 
-      Call qEnter('ORBFILES')
+      Call qEnter(routine)
 * This routine is used at normal end of a RASSCF optimization, or
 * when using the OrbOnly keyword to create orbital files.
 *-------------------------------------------------------------------
