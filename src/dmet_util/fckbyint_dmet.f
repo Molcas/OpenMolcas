@@ -23,7 +23,7 @@
 * Written: Oct 2004                                                    *
 *                                                                      *
 ************************************************************************
-      Subroutine FckByInt_DMET(iReturn,DMET_f,nbas)
+      Subroutine FckByInt_DMET(iReturn,DMET_f,nBfn)
       Implicit Real*8 (a-h,o-z)
 #include "stdalloc.fh"
 #include "Molcas.fh"
@@ -46,8 +46,8 @@
 *----------------------------------------------------------------------*
       Integer IndType(7,8)
       Integer nTmp(8)
-      Integer nBasTot
-      Integer nBasMax
+      Integer nBfnTot
+      Integer nBfnMax
       Integer nTriTot
       Integer nSqrTot
       Integer iSym
@@ -80,15 +80,15 @@
 *----------------------------------------------------------------------*
 * Do some counting                                                     *
 *----------------------------------------------------------------------*
-      nBasTot=0
-      nBasMax=0
+      nBfnTot=0
+      nBfnMax=0
       nTriTot=0
       nSqrTot=0
       Do iSym=1,nSym
-         nBasTot=nBasTot+nbas(iSym)
-         nBasMax=Max(nbasmax,nBas(iSym))
-         nTriTot=nTriTot+nBas(iSym)*(nBas(iSym)+1)/2
-         nSqrTot=nSqrTot+nBas(iSym)*nBas(iSym)
+         nBfnTot=nBfnTot+nBfn(iSym)
+         nBfnMax=Max(nBfnmax,nBfn(iSym))
+         nTriTot=nTriTot+nBfn(iSym)*(nBfn(iSym)+1)/2
+         nSqrTot=nSqrTot+nBfn(iSym)*nBfn(iSym)
       End Do
 *----------------------------------------------------------------------*
 * Get model Fock matrix.                                               *
@@ -114,11 +114,11 @@
       If(Debug) Then
          ij=1
          Do iSym=1,nSym
-           Call TriPrt('FckInt','(12f12.6)',DMET_f(ij),nBas(iSym))
-           Call NrmClc(DMET_f(ij),nBas(iSym)*(nBas(iSym)+1)/2,
+           Call TriPrt('FckInt','(12f12.6)',DMET_f(ij),nBfn(iSym))
+           Call NrmClc(DMET_f(ij),nBfn(iSym)*(nBfn(iSym)+1)/2,
      &                  'FckbyInt',
      &                  'Fck(ij)')
-            ij=ij+nBas(iSym)*(nBas(iSym)+1)/2
+            ij=ij+nBfn(iSym)*(nBfn(iSym)+1)/2
          End Do
       End If
 *----------------------------------------------------------------------*
@@ -131,7 +131,7 @@
       If (Debug) Then
          ij=1
          Do iSym=1,nSym
-            nB=nBas(iSym)
+            nB=nBfn(iSym)
 *           Call RecPrt('CMO_DMET','(12f12.6)',CMO_DMET(ij),nB,nB)
             Call NrmClC(CMO_DMET(ij),nB**2,'FckbyInt_DMET',
      &                  'CMO_DMET(ij)')
@@ -148,18 +148,18 @@
       If(Debug) Then
          ipT1=1
          Do iSym=1,nSym
-*           Call TriPrt('Ovl_DMETp','(12f12.6)',Ovl_DMET(ipT1),nBas(iSym))
-            Call NrmClc(Ovl_DMET(ipT1),nBas(iSym)*(nBas(iSym)+1)/2,
+*           Call TriPrt('Ovl_DMETp','(12f12.6)',Ovl_DMET(ipT1),nBfn(iSym))
+            Call NrmClc(Ovl_DMET(ipT1),nBfn(iSym)*(nBfn(iSym)+1)/2,
      &                  'FckbyInt','Ovl_DMET(ipT1)')
-            ipT1=ipT1+nBas(iSym)*(nBas(iSym)+1)/2
+            ipT1=ipT1+nBfn(iSym)*(nBfn(iSym)+1)/2
          End Do
       End If
 *----------------------------------------------------------------------*
 * Transform: F = S Eps_DMET S                                               *
 *----------------------------------------------------------------------*
-      inT1=nBasMax*nBasMax
-      inT2=nBasMax*nBasMax
-      inT3=nBasMax*nBasMax
+      inT1=nBfnMax*nBfnMax
+      inT2=nBfnMax*nBfnMax
+      inT3=nBfnMax*nBfnMax
       Call mma_allocate(T1,inT1)
       Call mma_allocate(T2,inT2)
       Call mma_allocate(T3,inT3)
@@ -167,7 +167,7 @@
       ijS=1
       ijL=1
       Do iSym=1,nSym
-         nB=nBas(iSym)
+         nB=nBfn(iSym)
          If(nB.gt.0) Then
             Call Square(DMET_f(ijT),T1,1,nB,nB)
             Call Square(Ovl_DMET(ijT),T2,1,nB,nB)
@@ -196,11 +196,11 @@
 *----------------------------------------------------------------------*
 * Diagonalize the model Fock matrix                                    *
 *----------------------------------------------------------------------*
-      inEps_DMET=nBasTot
+      inEps_DMET=nBfnTot
       Call mma_allocate(Eps_DMET,inEps_DMET)
-      inT1=nBasMax*nBasMax
-      inT2=nBasMax*nBasMax
-      inT3=nBasMax*nBasMax
+      inT1=nBfnMax*nBfnMax
+      inT2=nBfnMax*nBfnMax
+      inT3=nBfnMax*nBfnMax
       Call mma_allocate(T1,inT1)
       Call mma_allocate(T2,inT2)
       Call mma_allocate(T3,inT3)
@@ -208,8 +208,8 @@
       ijS=1
       ijL=1
       Do iSym=1,nSym
-         nB=nBas(iSym)
-         nS=nBas(iSym)-nDel(iSym)
+         nB=nBfn(iSym)
+         nS=nBfn(iSym)-nDel(iSym)
          If(nB.gt.0) Then
             Call Square(DMET_f(ijT),T1,1,nB,nB)
             Call DGEMM_('N','N',
@@ -240,7 +240,7 @@
       If (Debug) Then
          ij=1
          Do iSym=1,nSym
-            nB=nBas(iSym)
+            nB=nBfn(iSym)
 *           Call RecPrt('CMO_DMET','(12f12.6)',CMO_DMET(ij),nB,nB)
             Call NrmClC(CMO_DMET(ij),nB**2,'FckbyInt','CMO_DMET(ij)')
             ij=ij+nB*nB
@@ -257,9 +257,9 @@
       iSymlb=1
       Call RdOne(irc,6,'Kinetic ',1,DMET_f,iSymlb)
       If (iRc.ne.0) Goto 900
-      inT1=nBasMax*nBasMax
-      inT2=nBasMax*nBasMax
-      inT3=nBasMax*nBasMax
+      inT1=nBfnMax*nBfnMax
+      inT2=nBfnMax*nBfnMax
+      inT3=nBfnMax*nBfnMax
       Call mma_allocate(T1,inT1)
       Call mma_allocate(T2,inT2)
       Call mma_allocate(T3,inT3)
@@ -267,7 +267,7 @@
       ijS=1
       ijL=1
       Do iSym=1,nSym
-         nB=nBas(iSym)
+         nB=nBfn(iSym)
          nD=nDel(iSym)
          nC=0
          Do iBas=1,nB-nD
@@ -377,14 +377,14 @@
 * Present data.                                                        *
 *----------------------------------------------------------------------*
 900   Continue
-      inT1=nBasTot
-      inT2=nBasTot
+      inT1=nBfnTot
+      inT2=nBfnTot
       Call mma_allocate(T1,inT1)
       Call mma_allocate(T2,inT2)
-      Do iBas=1,nBasTot
+      Do iBas=1,nBfnTot
          T1(iBas)=0.0d0
       End Do
-      Call GoPop(Eps_DMET,T1,T2,nBasTot,PrintEor,PrThr,GapThr)
+      Call GoPop(Eps_DMET,T1,T2,nBfnTot,PrintEor,PrThr,GapThr)
       iBas=0
       dActEl=0.0d0
       Do iSym=1,nSym
@@ -393,9 +393,9 @@
          IndType(3,iSym)=0
          IndType(4,iSym)=0
          IndType(5,iSym)=0
-         IndType(6,iSym)=nBas(iSym)-nDel(iSym)
+         IndType(6,iSym)=nBfn(iSym)-nDel(iSym)
          IndType(7,iSym)=nDel(iSym)
-         Do kBas=1,nBas(iSym)-nDel(iSym)
+         Do kBas=1,nBfn(iSym)-nDel(iSym)
             iBas=iBas+1
             If(T1(iBas).gt.1.99d0) Then
                IndType(2,iSym)=IndType(2,iSym)+1
@@ -411,18 +411,18 @@
       If(PrintMOs) then
          Call PriMO('Start orbitals (virtuals shifted)',
      &              .true.,.true.,0.0d0,PrThr,
-     &              nSym,nBas,nBas,Label,Eps_DMET,T1,
+     &              nSym,nBfn,nBfn,Label,Eps_DMET,T1,
      &              CMO_DMET,iPrFmt)
          Call xflush(6)
       End If
       If(PrintPop) Then
-         Call Charge(nSym,nBas,Label,CMO_DMET,T1,
+         Call Charge(nSym,nBfn,Label,CMO_DMET,T1,
      &               Ovl_DMET,2,.true.,.true.)
       End If
       Call put_darray('Guessorb',CMO_DMET,nSqrTot)
-      Call put_darray('Guessorb energies',Eps_DMET,nBasTot)
+      Call put_darray('Guessorb energies',Eps_DMET,nBfnTot)
       Do iSym=1,nSym
-         nOrb(iSym)=nBas(iSym)-nDel(iSym)
+         nOrb(iSym)=nBfn(iSym)-nDel(iSym)
       End Do
       Call Put_iArray('nOrb',nOrb,nSym)
       Call Put_iArray('nDel_go',nDel,nSym)
@@ -449,8 +449,8 @@
             ipOk=ipOk0+i
             Enr_go=Enr_go+T1(ipOk)*Eps_DMET(ipEE)
          End Do
-         ipEE0=ipEE0+nBas(iSym)
-         ipOk0=ipOk0+nBas(iSym)
+         ipEE0=ipEE0+nBfn(iSym)
+         ipOk0=ipOk0+nBfn(iSym)
       End Do
       Call Put_dScalar('Last energy',Enr_go)
 #ifdef _HDF5_
@@ -458,7 +458,7 @@
 #endif
       Lu=20
       Title='Guess orbitals'
-      Call WrVec('GSSORB',Lu,'COEI',nSym,nBas,nBas,CMO_DMET,
+      Call WrVec('GSSORB',Lu,'COEI',nSym,nBfn,nBfn,CMO_DMET,
      &           T1,Eps_DMET,IndType,Title)
 #ifdef _HDF5_
       call mh5_put_dset(wfn_mocoef,CMO_DMET)
@@ -476,18 +476,18 @@
          ipCOk=jOff
          Do k=0,nOkk-1
             xocc=sqrt(T1(k+ipOkk))
-            call dscal_(nBas(iSym),xocc,CMO_DMET(ipCOk),1)
-            ipCOk=ipCOk+nBas(iSym)
+            call dscal_(nBfn(iSym),xocc,CMO_DMET(ipCOk),1)
+            ipCOk=ipCOk+nBfn(iSym)
          End Do
-         Call DGEMM_Tri('N','T',nBas(iSym),nBas(iSym),nOkk,
-     &                    1.0d0,CMO_DMET(jOff),Max(1,nBas(iSym)),
-     &                          CMO_DMET(jOff),Max(1,nBas(iSym)),
-     &                    0.0d0,Ovl_DMET(kOff),Max(1,nBas(iSym)))
-         iOff=iOff+nBas(iSym)
-         jOff=jOff+nBas(iSym)**2
-         kOff=kOff+nBas(iSym)*(nBas(iSym)+1)/2
+         Call DGEMM_Tri('N','T',nBfn(iSym),nBfn(iSym),nOkk,
+     &                    1.0d0,CMO_DMET(jOff),Max(1,nBfn(iSym)),
+     &                          CMO_DMET(jOff),Max(1,nBfn(iSym)),
+     &                    0.0d0,Ovl_DMET(kOff),Max(1,nBfn(iSym)))
+         iOff=iOff+nBfn(iSym)
+         jOff=jOff+nBfn(iSym)**2
+         kOff=kOff+nBfn(iSym)*(nBfn(iSym)+1)/2
       End Do
-      Call Fold_tMat(nSym,nBas,Ovl_DMET,Ovl_DMET)
+      Call Fold_tMat(nSym,nBfn,Ovl_DMET,Ovl_DMET)
       Call Put_D1ao(Ovl_DMET,nTriTot)
 *
       Call mma_deallocate(T2)
