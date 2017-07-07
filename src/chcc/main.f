@@ -10,8 +10,14 @@
 ************************************************************************
         program main
 c
+#ifdef _FPE_TRAP_
+        Use, Intrinsic :: IEEE_Exceptions
+#endif
         implicit none
         integer ireturn
+#ifdef _FPE_TRAP_
+        Call IEEE_Set_Halting_Mode(IEEE_Usual,.True._4)
+#endif
 c
         Call Start('chcc')
         Call chcc(ireturn)

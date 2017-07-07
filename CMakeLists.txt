@@ -499,7 +499,7 @@ set (FFLAGS_GNU_OPENMP "-fopenmp")
 set (FFLAGS_GNU_ILP64 "-fdefault-integer-8")
 # build targets
 set (FFLAGS_GNU_DEBUG "-O0 -g -Wall")
-set (FFLAGS_GNU_GARBLE "-O2 -g -Wall -finit-real=snan -finit-integer=730432726")
+set (FFLAGS_GNU_GARBLE "-O2 -g -Wall -finit-real=snan -finit-integer=730432726 -fno-unsafe-math-optimizations -frounding-math -fsignaling-nans")
 set (FFLAGS_GNU_RELWITHDEBINFO "-O2 -g -Wall")
 set (FFLAGS_GNU_RELEASE "-O2")
 set (FFLAGS_GNU_FAST "-O3")
@@ -694,7 +694,25 @@ set(NAG_TRAP "-ieee=stop")
 
 # Preprocessor
 if (CMAKE_BUILD_TYPE STREQUAL "Garble")
-        add_definitions (-D_GARBLE_ -D_NO_IEEECK_)
+        add_definitions (-D_GARBLE_ -D_NO_IEEECK_ -D_FPE_TRAP_)
+        # Disable FPE traps for compiler that do not support IEEE Fortran modules
+        # version check for Fortran doesn't work yet, assume it is the same as the C compiler GCC version
+        if (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND
+            CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND
+            CMAKE_C_COMPILER_VERSION VERSION_LESS "5.0")
+                remove_definitions (-D_FPE_TRAP_)
+        elseif (NOT LINALG STREQUAL "Internal")
+                message (WARNING
+                        "Garble is active, but an external LINALG library is used! "
+                        "The use of an external BLAS/LAPACK can result in floating point "
+                        "exceptions handled by the library being trapped instead. "
+                        "Please use -DLINALG=Internal for better chances for Garble to work correctly!")
+        else ()
+                message (WARNING
+                        "Garble and floating point exception trapping are active! "
+                        "It is possible that intended exceptions within BLAS/LAPACK crash the program. "
+                        "Be warned!")
+        endif ()
 endif ()
 
 if (DMRG OR WFA)
