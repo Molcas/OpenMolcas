@@ -55,7 +55,7 @@
       Integer jBas
       Integer kBas
 *----------------------------------------------------------------------*
-      Integer inDMET_f
+      Integer  inDMET_f
       Integer inCMO_DMET
       Integer inOvl_DMET
       Integer inEps_DMET
@@ -75,7 +75,7 @@
       Real*8  dActEl
       Integer nIsh(8)
       Integer nAsh(8)
-      Integer nDel(MxSym)
+      Integer nDel(MxSym), nBfn
 *      Logical PrintPop, PrintMOs
 *----------------------------------------------------------------------*
 * Do some counting                                                     *
@@ -93,9 +93,10 @@
 *----------------------------------------------------------------------*
 * Get model Fock matrix.                                               *
 *----------------------------------------------------------------------*
-      inFck=nTriTot+6
+*      inDMET_f=nTriTot+6
+      inDMET_f=nSqrTot+6
       Write(6,*) 'allocate'
-      Call mma_allocate(DMET_f,inDMET_f)
+      Call mma_allocate(DMET_f,nSqrTot)
       iRc=-1
       iSymlb=1
       Write(6,*) 'wrone'
