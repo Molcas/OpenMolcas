@@ -51,6 +51,10 @@
   call IEEE_Set_Halting_Mode(IEEE_Usual,.false._4)
 #  define _FPE_TRAP_end_ \
   call IEEE_Set_Status(IEEE_Status)
+#else
+#  define _FPE_TRAP_use_ !
+#  define _FPE_TRAP_init_ !
+#  define _FPE_TRAP_end_ !
 #endif
 
 ! Set the appropriate integer size of the library interface and specify
