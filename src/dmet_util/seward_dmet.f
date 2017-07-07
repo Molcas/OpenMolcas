@@ -477,7 +477,7 @@ C-SVC: identify runfile with a fingerprint
          lBuf=iiLoc(nUt)-idLoc(Buf)
          lBuf=(lBuf+nByte)/nByte
 *
-         Call Drv2El(Integral_WrOut,Zero)
+         Call Drv2El_DMET(Integral_WrOut,Zero)
 *
          ip_Buf=ip_of_iWork(Buf)
          Call iDafile(Lu_28,1,iWork(ip_Buf),lBuf,iDisk)
