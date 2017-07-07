@@ -287,46 +287,50 @@ endif ()
 
 if (EXISTS ${GIT})
         foreach (BASE_DIR ${basedirs})
+                # workaround because "continue()" is not supported in CMake 2.8.11
+                set (do ON)
                 if ("${BASE_DIR}" STREQUAL "${OPENMOLCAS_DIR}")
                         if (EXISTS ${OPENMOLCAS_GIT_REPO})
                                 set (MOLCAS_GIT_REPO ${OPENMOLCAS_GIT_REPO})
                         else ()
-                                continue ()
+                                set (do OFF)
                         endif ()
                         set (label "")
                 elseif ("${BASE_DIR}" STREQUAL "${EXTRA_DIR}")
                         if (EXISTS ${EXTRA_GIT_REPO})
                                 set (MOLCAS_GIT_REPO ${EXTRA_GIT_REPO})
                         else ()
-                                continue ()
+                                set (do OFF)
                         endif ()
                         set (label "-extra")
                 endif ()
-                # always set the HEAD as a source for configuring
-                configure_file ("${MOLCAS_GIT_REPO}/HEAD" git-head${label} COPYONLY)
-                # if it is a ref to a named branch, include the branch ref too
-                file (READ "${MOLCAS_GIT_REPO}/HEAD" HEAD_STRING)
-                string (STRIP "${HEAD_STRING}" HEAD_STRING)
-                string (REPLACE "ref: " "" HEAD_REF "${HEAD_STRING}")
-                if (EXISTS "${MOLCAS_GIT_REPO}/${HEAD_REF}")
-                        configure_file ("${MOLCAS_GIT_REPO}/${HEAD_REF}" git-head-ref${label} COPYONLY)
-                endif ()
-                # now, get the actual versions from the git describe tool
-                execute_process (
-                        COMMAND ${GIT} "describe" "--always" "--dirty" "--match" "v*"
-                        WORKING_DIRECTORY ${BASE_DIR}
-                        OUTPUT_VARIABLE MOLCAS_VERSION
-                        ERROR_VARIABLE GIT_DESCRIBE_ERROR
-                        RESULT_VARIABLE GIT_DESCRIBE_RC
-                        OUTPUT_STRIP_TRAILING_WHITESPACE
-                        )
-                if (GIT_DESCRIBE_RC)
-                        message (FATAL_ERROR "Failed to run git: ${GIT_DESCRIBE_ERROR}")
-                endif ()
-                if ("${BASE_DIR}" STREQUAL "${OPENMOLCAS_DIR}")
-                        set (OPENMOLCAS_VERSION ${MOLCAS_VERSION})
-                elseif ("${BASE_DIR}" STREQUAL "${EXTRA_DIR}")
-                        set (EXTRA_VERSION ${MOLCAS_VERSION})
+                if (do)
+                        # always set the HEAD as a source for configuring
+                        configure_file ("${MOLCAS_GIT_REPO}/HEAD" git-head${label} COPYONLY)
+                        # if it is a ref to a named branch, include the branch ref too
+                        file (READ "${MOLCAS_GIT_REPO}/HEAD" HEAD_STRING)
+                        string (STRIP "${HEAD_STRING}" HEAD_STRING)
+                        string (REPLACE "ref: " "" HEAD_REF "${HEAD_STRING}")
+                        if (EXISTS "${MOLCAS_GIT_REPO}/${HEAD_REF}")
+                                configure_file ("${MOLCAS_GIT_REPO}/${HEAD_REF}" git-head-ref${label} COPYONLY)
+                        endif ()
+                        # now, get the actual versions from the git describe tool
+                        execute_process (
+                                COMMAND ${GIT} "describe" "--always" "--dirty" "--match" "v*"
+                                WORKING_DIRECTORY ${BASE_DIR}
+                                OUTPUT_VARIABLE MOLCAS_VERSION
+                                ERROR_VARIABLE GIT_DESCRIBE_ERROR
+                                RESULT_VARIABLE GIT_DESCRIBE_RC
+                                OUTPUT_STRIP_TRAILING_WHITESPACE
+                                )
+                        if (GIT_DESCRIBE_RC)
+                                message (FATAL_ERROR "Failed to run git: ${GIT_DESCRIBE_ERROR}")
+                        endif ()
+                        if ("${BASE_DIR}" STREQUAL "${OPENMOLCAS_DIR}")
+                                set (OPENMOLCAS_VERSION ${MOLCAS_VERSION})
+                        elseif ("${BASE_DIR}" STREQUAL "${EXTRA_DIR}")
+                                set (EXTRA_VERSION ${MOLCAS_VERSION})
+                        endif ()
                 endif ()
         endforeach (BASE_DIR)
 
@@ -459,6 +463,10 @@ endif ()
 # - RelWithDebInfo   YES  YES  NO    YES
 # - Release          YES  NO   NO    NO
 # - Fast             YES  NO   NO    NO
+#
+# Note: trapping floating point exceptions is not compatible with LAPACK
+# (which produces and handles the exceptions), so a better alternative
+# has to be found
 
 #======================================#
 # GNU Compiler Collection (GCC)
@@ -491,7 +499,7 @@ set (FFLAGS_GNU_OPENMP "-fopenmp")
 set (FFLAGS_GNU_ILP64 "-fdefault-integer-8")
 # build targets
 set (FFLAGS_GNU_DEBUG "-O0 -g -Wall")
-set (FFLAGS_GNU_GARBLE "-O2 -g -Wall -ffpe-trap=invalid,zero,overflow -finit-real=snan -finit-integer=730432726")
+set (FFLAGS_GNU_GARBLE "-O2 -g -Wall -finit-real=snan -finit-integer=730432726")
 set (FFLAGS_GNU_RELWITHDEBINFO "-O2 -g -Wall")
 set (FFLAGS_GNU_RELEASE "-O2")
 set (FFLAGS_GNU_FAST "-O3")
@@ -507,6 +515,7 @@ if (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND
 endif ()
 
 set (GNU_BIGOT "-Wall -Werror")
+set (GNU_TRAP "-ffpe-trap=invalid,zero,overflow")
 
 #======================================#
 # LLVM C frontend (Clang)
@@ -534,6 +543,7 @@ set (CFLAGS_Clang_RELEASE "-O2")
 set (CFLAGS_Clang_FAST "-O2")
 
 set (Clang_BIGOT "-Wall -Werror")
+#set (Clang_TRAP "???")
 
 #======================================#
 # Intel CXX/C/Fortran Compilers
@@ -592,6 +602,7 @@ set (FFLAGS_Intel_BASIC "-headerpad_max_install_names ${FFLAGS_Intel_BASIC}")
 endif ()
 
 set (Intel_BIGOT "-Wall -Werror")
+set (Intel_TRAP "-fpe0")
 
 #======================================#
 # Oracle Solaris Studio (SunStudio)
@@ -603,7 +614,7 @@ set (CFLAGS_SunPro_BASIC "-std=c99")
 set (CFLAGS_SunPro_OPENMP "-xopenmp")
 # build targets
 set (CFLAGS_SunPro_DEBUG "-g -traceback -ftrap=%none")
-set (CFLAGS_SunPro_GARBLE "-O -g -traceback -xcheck=init_local -ftrap=common")
+set (CFLAGS_SunPro_GARBLE "-O -g -traceback -ftrap=%none -xcheck=init_local")
 set (CFLAGS_SunPro_RELWITHDEBINFO "-O -g -traceback -ftrap=%none")
 set (CFLAGS_SunPro_RELEASE "-O -ftrap=%none")
 set (CFLAGS_SunPro_FAST "-O -ftrap=%none")
@@ -614,12 +625,13 @@ set (FFLAGS_SunPro_OPENMP "-xopenmp")
 set (FFLAGS_SunPro_ILP64 "-dalign -xtypemap=real:64,double:64,integer:64")
 # build targets
 set (FFLAGS_SunPro_DEBUG "-g -traceback -ftrap=%none")
-set (FFLAGS_SunPro_GARBLE "-O -g -traceback -xcheck=init_local -ftrap=common")
+set (FFLAGS_SunPro_GARBLE "-O -g -traceback ftrap=%none -xcheck=init_local")
 set (FFLAGS_SunPro_RELWITHDEBINFO "-O -g -traceback -ftrap=%none")
 set (FFLAGS_SunPro_RELEASE "-O -ftrap=%none")
 set (FFLAGS_SunPro_FAST "-fast -dbl_align_all=yes -ftrap=%none")
 
 set (SunPro_BIGOT "-errwarn=%all")
+set (SunPro_TRAP "-ftrap=common")
 
 #======================================#
 # Portland Group (PGI) Compilers
@@ -655,6 +667,7 @@ endif ()
 
 # The option does not exist, or I cannot find it
 #set (PGI_BIGOT "???")
+#set (PGI_TRAP "???")
 
 #======================================#
 # Numerical Algorithms Group (NAG)
@@ -667,13 +680,14 @@ set (FFLAGS_NAG_OPENMP "-openmp")
 set (FFLAGS_NAG_ILP64 "-i8")
 # build targets
 set (FFLAGS_NAG_DEBUG "-O0 -g -ieee=full")
-set (FFLAGS_NAG_GARBLE "-O2 -g -ieee=stop -nan")
+set (FFLAGS_NAG_GARBLE "-O2 -g -ieee=full -nan")
 set (FFLAGS_NAG_RELWITHDEBINFO "-O2 -g -ieee=full")
 set (FFLAGS_NAG_RELEASE "-O2 -ieee=full")
 set (FFLAGS_NAG_FAST "-O3 -ieee=full")
 
 # The option does not exist, or I cannot find it
 #set (NAG_BIGOT "???")
+set(NAG_TRAP "-ieee=stop")
 
 # Generate the actual flags used in the build
 #============================================
@@ -681,13 +695,6 @@ set (FFLAGS_NAG_FAST "-O3 -ieee=full")
 # Preprocessor
 if (CMAKE_BUILD_TYPE STREQUAL "Garble")
         add_definitions (-D_GARBLE_ -D_NO_IEEECK_)
-        if (NOT LINALG STREQUAL "Internal")
-                message (WARNING
-                        "Garble is active, but an external LINALG library is used! "
-                        "The use of an external BLAS/LAPACK can result in problems as floating "
-                        "point exceptions will be trapped that might be used by the library. "
-                        "Please use -DLINALG=Internal for Garble to work correctly!")
-        endif ()
 endif ()
 
 if (DMRG OR WFA)
@@ -2350,44 +2357,46 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
         if (${CMAKE_SYSTEM_VERSION} STREQUAL "15.0.0")
                 if (LINALG STREQUAL "MKL")
                         foreach (prog ${PROGRAM_EXECUTABLES})
-                                if (${prog} STREQUAL "parnell.exe")
-                                        continue ()
+                                # workaround because "continue()" is not supported in CMake 2.8.11
+                                if (NOT ${prog} STREQUAL "parnell.exe")
+                                        add_custom_target(dylibpath_${prog} ALL
+                                                          DEPENDS ${prog}
+                                                          VERBATIM
+                                                         )
+                                        add_dependencies(dylibpath_${prog} ${prog})
+                                        add_custom_command(TARGET dylibpath_${prog}
+                                                           POST_BUILD
+                                                           DEPENDS dylibpath_${prog}
+                                                           COMMAND ${OPENMOLCAS_DIR}/sbin/fixdylib  ${EXECUTABLE_OUTPUT_PATH}/${prog} libmkl ${MKLROOT}
+                                                           COMMENT "Enforce absolute path to MKL in dynamically linked executables"
+                                                           VERBATIM
+                                                          )
                                 endif ()
-                                add_custom_target(dylibpath_${prog} ALL
-                                                  DEPENDS ${prog}
-                                                  VERBATIM
-                                                 )
-                                add_dependencies(dylibpath_${prog} ${prog})
-                                add_custom_command(TARGET dylibpath_${prog}
-                                                   POST_BUILD
-                                                   DEPENDS dylibpath_${prog}
-                                                   COMMAND ${OPENMOLCAS_DIR}/sbin/fixdylib  ${EXECUTABLE_OUTPUT_PATH}/${prog} libmkl ${MKLROOT}
-                                                   COMMENT "Enforce absolute path to MKL in dynamically linked executables"
-                                                   VERBATIM
-                                                  )
                         endforeach (prog)
                 endif ()
         endif ()
 endif ()
 
 # Add custom debug flags per file:
-#   For each flag, tries to find every file where it is used and modify its properties
-# Limitation: it will rebuild the whole target (but not the whole molcas
-foreach (def ${DEBUG_DEFS})
+#   For each file, tries to find out if each definition is used and modify the file's properties
+# Limitation: it will rebuild the whole target (but not the whole molcas)
+if (DEBUG_DEFS)
         foreach (file ${ALL_SOURCES})
+                get_source_file_property(defs ${file} COMPILE_DEFINITIONS)
                 file (READ ${file} contents)
-                string (REGEX MATCH ${def} result "${contents}")
-                if (NOT ${result} STREQUAL "")
-                        get_source_file_property(defs ${file} COMPILE_DEFINITIONS)
-                        if (${defs} STREQUAL "NOTFOUND")
-                                set (defs ${def})
-                        else ()
-                                list (APPEND defs ${def})
+                foreach (def ${DEBUG_DEFS})
+                        string (REGEX MATCH ${def} result "${contents}")
+                        if (NOT ${result} STREQUAL "")
+                                if (${defs} STREQUAL "NOTFOUND")
+                                        set (defs ${def})
+                                else ()
+                                        list (APPEND defs ${def})
+                                endif ()
+                                set_source_files_properties(${file} PROPERTIES COMPILE_DEFINITIONS "${defs}")
                         endif ()
-                        set_source_files_properties(${file} PROPERTIES COMPILE_DEFINITIONS "${defs}")
-                endif ()
+                endforeach ()
         endforeach ()
-endforeach ()
+endif ()
 
 ################################################################################
 #                                                                              #
