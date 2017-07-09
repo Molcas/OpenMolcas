@@ -205,6 +205,26 @@ my %group;
 my $location;
 my $none = 0;
 
+# (these must be done early in order to use it for sorting)
+# groups belonging to basic
+my %basic;
+my @basic_list = vgroup_to_groups('.basic');
+foreach my $group (@basic_list) {
+        $basic{$group} = 1;
+}
+# groups belonging to critical
+my %critical;
+my @critical_list = vgroup_to_groups('.critical');
+foreach my $group (@critical_list) {
+        $critical{$group} = 1;
+}
+# groups belonging to official
+my %official;
+my @official_list = vgroup_to_groups('.official');
+foreach my $group (@official_list) {
+        $official{$group} = 1;
+}
+
 # First convert the tasks to actual included/skipped tests.
 # These are kept in two hashes to allow different tasks to
 # influence each other, e.g.:
@@ -278,7 +298,7 @@ foreach my $task (@tasklist) {
 }
 
 # add generated test names to file list
-foreach my $key (sort by_standard_first keys %included) {
+foreach my $key (sort by_type_first keys %included) {
         next if $excluded{$key};
         my ($group, $number) = split(':',$key);
         my $file = File::Spec->catfile($location{$group}, $number . '.input');
@@ -367,7 +387,7 @@ if      ($opt{rawlist}) {
                 my $name = basename($file, '.input');
                 push @{$test_list{$group{$file}}}, " $name";
         }
-        for my $key (sort by_standard_first keys %test_list) {
+        for my $key (sort by_type_first keys %test_list) {
                 my $prefix = "  $key:";
                 msg_list ($prefix, sort @{$test_list{$key}});
         }
@@ -481,24 +501,6 @@ EOF
 # loop over tests and run verification
 #-------------------------------------
 
-# groups belonging to basic
-my %basic;
-my @basic_list = vgroup_to_groups('.basic');
-foreach my $group (@basic_list) {
-        $basic{$group} = 1;
-}
-# groups belonging to critical
-my %critical;
-my @critical_list = vgroup_to_groups('.critical');
-foreach my $group (@critical_list) {
-        $critical{$group} = 1;
-}
-# groups belonging to official
-my %official;
-my @official_list = vgroup_to_groups('.official');
-foreach my $group (@official_list) {
-        $official{$group} = 1;
-}
 # counters
 my $failed_tests = 0;
 my $failed_critical_tests = 0;
@@ -928,7 +930,7 @@ sub list_groups {
                 $maxlength = length if (length > $maxlength);
         }
         print "\nPhysical groups (directories)\n\n";
-        foreach my $key (sort by_standard_first keys %groups) {
+        foreach my $key (sort by_type_first keys %groups) {
                 my @group = vgroup_to_groups($key);
                 printf ("  %-${maxlength}s = %s\n", $key, $location{$key});
         }
@@ -1077,5 +1079,33 @@ sub by_standard_first {
             $rc = $a cmp $b;
         }
     }
+    return $rc;
+}
+
+sub by_type_first {
+    # routine to sort keys according to the groups,
+    # probably even more inefficient.
+    my $rc;
+    my $ga = $a =~ s/:.*//sr;
+    if ($basic{$ga}) {
+        $ga = 1
+    } elsif ($critical{$ga}) {
+        $ga = 2
+    } elsif ($official{$ga}) {
+        $ga = 3
+    } else {
+        $ga = 4
+    }
+    my $gb = $b =~ s/:.*//sr;
+    if ($basic{$gb}) {
+        $gb = 1
+    } elsif ($critical{$gb}) {
+        $gb = 2
+    } elsif ($official{$gb}) {
+        $gb = 3
+    } else {
+        $gb = 4
+    }
+    $rc = "$ga:$a" cmp "$gb:$b";
     return $rc;
 }
