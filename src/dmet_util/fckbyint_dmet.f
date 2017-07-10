@@ -23,14 +23,16 @@
 * Written: Oct 2004                                                    *
 *                                                                      *
 ************************************************************************
-      Subroutine FckByInt_DMET(iReturn,DMET_f,nBfn)
+      Subroutine FckByInt_DMET(iReturn,DMET_f,nBfn,StandAlone)
       Implicit Real*8 (a-h,o-z)
 #include "stdalloc.fh"
 #include "Molcas.fh"
 #include "commgo.fh"
 #include "gsswfn.fh"
-      Real*8, Dimension(:), Allocatable :: DMET_f, CMO_DMET, Ovl_DMET,
-     &                                     T1, T2, T3, Eps_DMET
+      Real*8, Dimension(:), Allocatable ::  CMO_DMET, Ovl_DMET,
+     &                                      T1, T2, T3, Eps_DMET,
+     &                                      Array
+      Real*8 Dmet_f(*)
 *----------------------------------------------------------------------*
 * Dummy arguments                                                      *
 *----------------------------------------------------------------------*
@@ -42,7 +44,7 @@
       Logical Debug
       Logical Trace
       Character*80 Title
-      Logical Verify
+      Logical Verify, StandAlone
 *----------------------------------------------------------------------*
       Integer IndType(7,8)
       Integer nTmp(8)
@@ -54,6 +56,7 @@
       Integer iBas
       Integer jBas
       Integer kBas
+      Integer iBfn, jBfn, ijBfn
 *----------------------------------------------------------------------*
       Integer  inDMET_f
       Integer inCMO_DMET
@@ -78,6 +81,24 @@
       Integer nDel(MxSym), nBfn
 *      Logical PrintPop, PrintMOs
 *----------------------------------------------------------------------*
+*  Some setup
+*----------------------------------------------------------------------*
+       If(StandAlone) Then
+           Debug=.false.
+           Trace=.false.
+       Else
+           Debug=.false.
+           Trace=.false.
+       End If
+       If(Trace) Then
+         Write(6,*) '>>> Entering fckbyint'
+         Call xflush(6)
+       End If
+      iReturn=0
+      Call getenvf('MOLCAS_TEST',Line)
+      Verify = LINE(1:5).EQ.'CHECK' .or. LINE(1:4).EQ.'GENE'
+      Verify = .True.
+*----------------------------------------------------------------------*
 * Do some counting                                                     *
 *----------------------------------------------------------------------*
       nBfnTot=0
@@ -94,18 +115,33 @@
 * Get model Fock matrix.                                               *
 *----------------------------------------------------------------------*
 *      inDMET_f=nTriTot+6
-      inDMET_f=nSqrTot+6
-      Write(6,*) 'allocate'
-      Call mma_allocate(DMET_f,nSqrTot)
+      inDMET_f=nTriTpt+6
+*      call mma_allocate(Varinia, inDMET_f)
+*      Write(6,*) 'allocate after VB'
+*      Call mma_allocate(DMET_f,inDMET_f)
       iRc=-1
       iSymlb=1
-      Write(6,*) 'wrone'
       Call WrOne(iRC,6,'FckInt  ',1,DMET_f,iSmLbl)
-      Write(6,*) 'rdone'
       Call RdOne(irc,6,'FckInt  ',1,DMET_f,iSymlb)
+      Write(6,*) 'rdone'
+*      Call TriPrt('FckInt','(12f12.6)',DMET_f(ij),nBfn(iSym))
+
+************************************************************************
+*     Compute all SO integrals for all components of the operator.
+************************************************************************
+*      Do iBfn = 1, nBfn
+*         Do jBfn = 1, iBfn
+*            ijBfn = iBfn*(iBfn-1)/2 + jBfn - 1 + ip(1)
+*            Array(ijBfn)=DMET_h(iBfn,jBfn)
+*         End Do
+*      End Do
+*************************************************************************
+*
+*      Call PrMtrx(Label,lOper,nComp,ip,Array)
+
       If (iRc.ne.0) Then
          iReturn=1
-         Call mma_deallocate(DMET_f)
+*         Call mma_deallocate(DMET_f)
          Write(6,*) '***'
          Write(6,*) '*** WARNING:'
          Write(6,*) '*** Guessorb did not produce start orbitals!!!'
@@ -121,6 +157,7 @@
      &                  'Fck(ij)')
             ij=ij+nBfn(iSym)*(nBfn(iSym)+1)/2
          End Do
+*       Call PrMtrx("DMET_f",lOper,nComp,ip,DMET_f(ij))
       End If
 *----------------------------------------------------------------------*
 * Make symmetric orthonormal orbital basis.                            *
@@ -128,7 +165,9 @@
       inCMO_DMET=nSqrTot
       Write(6,*) 'CMO'
       Call mma_allocate(CMO_DMET,inCMO_DMET)
+      Write(6,*) 'CMO allocate'
       Call goLowdin(CMO_DMET)
+      Write(6,*) 'go lowdin'
       If (Debug) Then
          ij=1
          Do iSym=1,nSym
@@ -499,7 +538,7 @@
       Call mma_deallocate(Eps_DMET)
       Call mma_deallocate(Ovl_DMET)
       Call mma_deallocate(CMO_DMET)
-      Call mma_deallocate(DMET_f)
+*      Call mma_deallocate(DMET_f)
       If(Trace) Then
          Write(6,*) '<<< Exiting fckbyint_DMET'
          Call xflush(6)
