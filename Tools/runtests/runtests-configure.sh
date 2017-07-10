@@ -394,15 +394,6 @@ test_configfile () {
     else
         echo "Make Failed! See logs." >> auto.log
         echo '************************************' >> auto.log
-        # make might have failed because of test000
-        first_fail="test/failed/standard__000.out"
-        if [ -f "$first_fail" ]
-        then
-            echo '--- Firstrun failed!' >> auto.log
-            tail -100 "$first_fail" >> auto.log
-        fi
-
-        echo '************************************' >> auto.log
         echo '----------- parent details ---------' >> auto.log
         (cd ../$REPO_OPEN.$BRANCH && git checkout origin/master && update_submodules)
         for commit in $SHA1 $parents
