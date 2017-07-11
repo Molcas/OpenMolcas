@@ -7,6 +7,8 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* COPYRIGHT (C): 2017, Roland Lindh                                    *
 ************************************************************************
 * Version of Oct 21
 
@@ -65,7 +67,10 @@
 *
 C          TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM)
       CALL TRIPAK(A,SCR(KLASYM),1,NDIM,NDIM)
-      CALL EIGEN(SCR(KLASYM),SCR(KLAVEC),NDIM,0,1)
+      Call DCopy_(NDIM**2,0.0D0,0,SCR(KLAVEC),1)
+      Call DCopy_(NDIM,1.0D0,0,SCR(KLAVEC),1+NDIM)
+      Call NIDiag(SCR(KLASYM),SCR(KLAVEC),NDIM,NDIM,0)
+      Call JACORD(SCR(KLASYM),SCR(KLAVEC),NDIM,NDIM)
       CALL COPDIA(SCR(KLASYM),SCR(KLAVAL),NDIM,1)
       IF( NTEST .GE. 1 ) THEN
         WRITE(6,*) ' Eigenvalues of matrix : '
@@ -73,6 +78,7 @@ C          TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM)
       END IF
 *. Check for negative eigenvalues
       DO I = 1, NDIM
+       IF(Abs(SCR(KLAVAL-1+I)).LT.1.0D-14) SCR(KLAVAL)=0.0D0
        IF(SCR(KLAVAL-1+I).LT.0.0D0) THEN
 *         WRITE(6,*) ' SQRTMT : Negative eigenvalue ', SCR(KLAVAL-1+I)
 *         WRITE(6,*) ' SQRTMT : I will STOP '

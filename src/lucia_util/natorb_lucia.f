@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 1994,1998, Jeppe Olsen                                 *
+*               2017, Roland Lindh                                     *
 ************************************************************************
       SUBROUTINE NATORB_LUCIA(   RHO1,  NSMOB, NTOPSM, NACPSM, NINPSM,
      &                          ISTOB,   XNAT, RHO1SM, OCCNUM,  NACOB,
@@ -73,7 +74,10 @@ C      TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM)
         ONEM = -1.0D0
 *. scale with -1 to get highest occupation numbers as first eigenvectors
         CALL SCALVE(SCR,ONEM,LOB*(LOB+1)/2)
-        CALL EIGEN(SCR,XNAT(IMTOFF),LOB,0,1)
+        Call DCopy_(LOB**2,0.0D0,0,R,1)
+        Call DCopy_(LOB,1.0D0,0,R,1+LOB)
+        Call NIDiag(SCR,XNAT(IMTOFF),LOB,LOB,0)
+        Call JACORD(SCR,XNAT(IMTOFF),LOB,LOB)
 *
         DO  I = 1, LOB
           OCCNUM(IOBOFF-1+I) = - SCR(I*(I+1)/2)
