@@ -26,6 +26,9 @@
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             Valera Veryazov, Dept. Theoretical Chemistry             *
 *                                                                      *
+*     The ag comments hits on that Alexander Gaenko has modified the   *
+*     code too.                                                        *
+*                                                                      *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
