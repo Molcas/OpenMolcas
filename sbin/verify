@@ -1086,7 +1086,7 @@ sub by_type_first {
     # routine to sort keys according to the groups,
     # probably even more inefficient.
     my $rc;
-    my $ga = $a =~ s/:.*//sr;
+    (my $ga = $a) =~ s/:.*//s;
     if ($basic{$ga}) {
         $ga = 1
     } elsif ($critical{$ga}) {
@@ -1096,7 +1096,7 @@ sub by_type_first {
     } else {
         $ga = 4
     }
-    my $gb = $b =~ s/:.*//sr;
+    (my $gb = $b) =~ s/:.*//s;
     if ($basic{$gb}) {
         $gb = 1
     } elsif ($critical{$gb}) {
