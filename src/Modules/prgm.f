@@ -126,6 +126,8 @@
       Integer :: IsInMem
       ! since FiM is not in OpenMolcas, always return 0
       IsInMem = 0
+      ! Avoid unused argument warnings
+      If (.False.) Call Unused_character(Filename)
       End Function IsInMem
 #endif
 
@@ -218,6 +220,9 @@
 #ifdef _DEBUG_
       Call ReportPrgm()
 #endif
+      Return
+      ! Avoid unused argument warnings
+      If (.False.) Call ReportPrgm()
       End Subroutine ReadPrgmFile
 
 ! Subroutine to print the contents of FileTable
