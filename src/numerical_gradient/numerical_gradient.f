@@ -9,6 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Numerical_Gradient(ireturn)
+#ifndef _HAVE_EXTRA_
+      Use Prgm
+#endif
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "standard_iounits.fh"
