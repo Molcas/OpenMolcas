@@ -2348,7 +2348,9 @@ foreach (prog ${progs})
 
         target_link_libraries (${prog}.exe molcas)
         target_link_libraries (${prog}.exe ${EXTERNAL_LIBRARIES})
-        add_dependencies      (${prog}.exe ${EXTERNAL_PROJECTS})
+        if (EXTERNAL_PROJECTS)
+           add_dependencies (${prog}.exe ${EXTERNAL_PROJECTS})
+        endif () 
 
         if (CUBLAS)
                 set_target_properties (${prog}.exe PROPERTIES LINKER_LANGUAGE "CXX")
