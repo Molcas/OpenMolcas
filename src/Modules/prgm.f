@@ -50,6 +50,11 @@
 
       Subroutine PrgmFree()
       If (Allocated(FileTable)) Deallocate(FileTable)
+      WorkDir=''
+      FastDir=''
+      Project='Noname'
+      SlaveDir=''
+      SubDir=''
       End Subroutine PrgmFree
 
       Subroutine PrgmTranslateC(InStr,l1,OutStr,l2,Par)
@@ -61,7 +66,10 @@
       Character (Len=MAXSTR) :: WD, Ext
       Character (Len=16) :: Attr
       Integer :: Num, Loc
-      Logical :: Found, Lustre=.False.
+      Logical :: Found, Lustre
+#ifdef MOLCAS_LUSTRE
+      Lustre = .False.
+#endif
       Input = Strip(InStr, Char(0))
 #ifdef _DEBUG_
       Write(6,*) 'Translating ', Trim(Input)
@@ -194,9 +202,10 @@
         ! Count new unique entries
         j = 0
         Do i=1,Num
-          If (FindFile(TempTable(i)%Shortname, FileTable) .gt. 0) Cycle
-          If (FindFile(TempTable(i)%Shortname, TempTable(1:i-1)) .gt. 0)
-     &       Cycle
+          If (FindFile(TempTable(i)%Shortname,
+     &                 FileTable, Exact=.True.) .gt. 0) Cycle
+          If (FindFile(TempTable(i)%Shortname,
+     &                 TempTable(1:i-1), Exact=.True.) .gt. 0) Cycle
           j = j+1
         End Do
         Num = j
@@ -207,7 +216,8 @@
         Do i=1,Size(TempTable)
           If (TempTable(i)%Shortname .eq. '') Exit
           Num = k+1
-          j = FindFile(TempTable(i)%Shortname, NewTable(1:k))
+          j = FindFile(TempTable(i)%Shortname,
+     &                 NewTable(1:k), Exact=.True.)
           If (j .gt. 0) Num=j
           NewTable(Num) = TempTable(i)
           k = Max(k, Num)
@@ -263,20 +273,34 @@
 
 ! Function to find a file, given its Shortname, in a file table
 ! Returns the index in the table (or 0 if not found)
-      Function FindFile(Short, Table)
+      Function FindFile(Short, Table, Exact)
       Character (Len=*), Intent(In) :: Short
       Type(FileEntry), Dimension(:), Intent(In) :: Table
+      Logical, Optional, Intent(In) :: Exact
+      Logical :: FindExact
       Integer :: FindFile, i
       FindFile=0
+      If (Present(Exact)) Then
+        FindExact = Exact
+      Else
+        FindExact = .False.
+      End If
       Do i=1,Size(Table)
         ! an entry matches not only if it's equal, also if
         ! the beginning matches and it is a "multi" file
-        If (Index(Short, Trim(Table(i)%Shortname)) .eq. 1) Then
-          If ((Trim(Short) .eq. Trim(Table(i)%Shortname)) .or.
-     &        (Index(Table(i)%Attributes, '*') .gt. 0) .or.
-     &        (Index(Table(i)%Attributes, '.') .gt. 0)) Then
+        If (FindExact) Then
+          If (Trim(Short) .eq. Trim(Table(i)%Shortname)) Then
             FindFile=i
             Exit
+          End If
+        Else
+          If (Index(Short, Trim(Table(i)%Shortname)) .eq. 1) Then
+            If ((Trim(Short) .eq. Trim(Table(i)%Shortname)) .or.
+     &          (Index(Table(i)%Attributes, '*') .gt. 0) .or.
+     &          (Index(Table(i)%Attributes, '.') .gt. 0)) Then
+              FindFile=i
+              Exit
+            End If
           End If
         End If
       End Do

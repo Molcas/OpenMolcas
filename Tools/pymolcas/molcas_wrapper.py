@@ -1001,6 +1001,7 @@ class Molcas_module(object):
 
   def _copy_or_move(self, action, dest, filelist):
     #TODO: use parnell
+    #TODO: support the '.' attribute
     files = []
     for name, path in filelist:
       if '*' in self._files[name][1]:
