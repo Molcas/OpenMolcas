@@ -67,9 +67,7 @@
       Character (Len=16) :: Attr
       Integer :: Num, Loc
       Logical :: Found, Lustre
-#ifdef MOLCAS_LUSTRE
       Lustre = .False.
-#endif
       Input = Strip(InStr, Char(0))
 #ifdef _DEBUG_
       Write(6,*) 'Translating ', Trim(Input)
