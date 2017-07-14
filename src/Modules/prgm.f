@@ -50,11 +50,6 @@
 
       Subroutine PrgmFree()
       If (Allocated(FileTable)) Deallocate(FileTable)
-      WorkDir=''
-      FastDir=''
-      Project='Noname'
-      SlaveDir=''
-      SubDir=''
       End Subroutine PrgmFree
 
       Subroutine PrgmTranslateC(InStr,l1,OutStr,l2,Par)
