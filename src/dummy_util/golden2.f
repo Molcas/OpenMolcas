@@ -34,10 +34,8 @@ c External function f and its arguments
         x2 = RM*bx + Ratio*ax
         x3 = bx
       End If
-      f2 = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,
-     &       x2,Absolute)
-      f3 = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,
-     &       x3,Absolute)
+      f2 = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,x2,Absolute)
+      f3 = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,x3,Absolute)
       Do While ((Abs(x4-x1) .gt. tol_x*(Abs(x1)+Abs(x2))) .and.
      &          (Abs(f3-f2) .gt. tol_f*(Abs(f2)+Abs(f3))))
         If (f2 .lt. f3) Then
@@ -45,15 +43,13 @@ c External function f and its arguments
           x3 = x2
           f3 = f2
           x2 = RM*x3 + Ratio*x1
-          f2 = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,
-     &           x2,Absolute)
+          f2 = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,x2,Absolute)
         Else
           x1 = x2
           x2 = x3
           f2 = f3
           x3 = RM*x2 + Ratio*x4
-          f3 = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,
-     &           x3,Absolute)
+          f3 = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,x3,Absolute)
         End If
       End Do
       If (f2 .lt. f3) Then
