@@ -109,6 +109,7 @@ fi
 
 # location of testpage and molcas repository
 TESTPAGE='test@signe.teokem.lu.se'
+UPLOADPAGE='https://molcas.altervista.org/tests/upload.php'
 GITSERVER='git@git.teokem.lu.se:'
 REPO='molcas-extra'
 SERVER_OPEN="https://${GITLABAUTH}gitlab.com/Molcas/"
@@ -450,6 +451,7 @@ test_configfile () {
         do
             for MESSAGE in make.log auto.log
             do
+                curl --form "file=@$MESSAGE" $UPLOADPAGE
                 echo "sending mail"
                 $FOLD -s $MESSAGE | $MAIL_cmd -s $DATE $RCPT
             done
@@ -555,6 +557,7 @@ test_configfile () {
     do
         for MESSAGE in make.log auto.log
         do
+            curl --form "file=@$MESSAGE" $UPLOADPAGE
             # remove garbage from any output
             if ! ../$REPO_OPEN.$BRANCH/sbin/chkunprint.plx < $MESSAGE
             then
