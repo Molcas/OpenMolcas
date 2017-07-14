@@ -15,6 +15,8 @@ module link_blas
   use iso_c_utilities
   use dlfcn
   use blas_mod, &
+      int_caxpy=>caxpy, &
+      int_cgemm=>cgemm, &
       int_dasum=>dasum, &
       int_daxpy=>daxpy, &
       int_dcabs1=>dcabs1, &
@@ -44,7 +46,10 @@ module link_blas
       int_dznrm2=>dznrm2, &
       int_idamax=>idamax, &
       int_lsame=>lsame, &
+      int_saxpy=>saxpy, &
+      int_scabs1=>scabs1, &
       int_scopy=>scopy, &
+      int_sgemm=>sgemm, &
       int_xerbla=>xerbla, &
       int_zaxpy=>zaxpy, &
       int_zcopy=>zcopy, &
@@ -216,13 +221,15 @@ module link_blas
   type(c_ptr), dimension(:), allocatable, private :: handles
 !
 ! Initializing procedure pointers is a F2008 feature, not supported by all compilers.
-! When it is implemented, thhe pointers below should look like:
+! When it is implemented, the pointers below should look like:
 !
 !   procedure(int_dasum), pointer :: lb_dasum=>int_dasum
 !
 ! and then the exact placement of the initialization call (in start.f) is not critical
 !
 ! BLAS procedures
+  procedure(int_caxpy), pointer :: lb_caxpy
+  procedure(int_cgemm), pointer :: lb_cgemm
   procedure(int_dasum), pointer :: lb_dasum
   procedure(int_daxpy), pointer :: lb_daxpy
   procedure(int_dcabs1), pointer :: lb_dcabs1
@@ -252,7 +259,10 @@ module link_blas
   procedure(int_dznrm2), pointer :: lb_dznrm2
   procedure(int_idamax), pointer :: lb_idamax
   procedure(int_lsame), pointer :: lb_lsame
+  procedure(int_saxpy), pointer :: lb_saxpy
+  procedure(int_scabs1), pointer :: lb_scabs1
   procedure(int_scopy), pointer :: lb_scopy
+  procedure(int_sgemm), pointer :: lb_sgemm
   procedure(int_xerbla), pointer :: lb_xerbla
   procedure(int_zaxpy), pointer :: lb_zaxpy
   procedure(int_zcopy), pointer :: lb_zcopy
@@ -474,6 +484,16 @@ contains
 !
 !     BLAS procedures
 !
+      funptr=link_func('caxpy')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_caxpy)
+      end if
+!
+      funptr=link_func('cgemm')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_cgemm)
+      end if
+!
       funptr=link_func('dasum')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dasum)
@@ -619,9 +639,24 @@ contains
         call c_f_procpointer(funptr, lb_lsame)
       end if
 !
+      funptr=link_func('saxpy')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_saxpy)
+      end if
+!
+      funptr=link_func('scabs1')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_scabs1)
+      end if
+!
       funptr=link_func('scopy')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_scopy)
+      end if
+!
+      funptr=link_func('sgemm')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_sgemm)
       end if
 !
       funptr=link_func('xerbla')
@@ -1452,6 +1487,8 @@ contains
       end if
       !
       ! BLAS
+      lb_caxpy=>int_caxpy
+      lb_cgemm=>int_cgemm
       lb_dasum=>int_dasum
       lb_daxpy=>int_daxpy
       lb_dcabs1=>int_dcabs1
@@ -1482,7 +1519,10 @@ contains
       lb_idamax=>int_idamax
       lb_lsame=>int_lsame
       lb_xerbla=>int_xerbla
+      lb_saxpy=>int_saxpy
+      lb_scabs1=>int_scabs1
       lb_scopy=>int_scopy
+      lb_sgemm=>int_sgemm
       lb_zaxpy=>int_zaxpy
       lb_zcopy=>int_zcopy
       lb_zdotc=>int_zdotc
@@ -1654,6 +1694,16 @@ contains
     if (prlev > 0) then
       ! BLAS
       !
+      if (DLAddr(c_funloc(lb_caxpy),c_loc(info)) /= 0) then
+        write(6,*) 'caxpy from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no caxpy found!'
+      end if
+      if (DLAddr(c_funloc(lb_cgemm),c_loc(info)) /= 0) then
+        write(6,*) 'cgemm from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no cgemm found!'
+      end if
       if (DLAddr(c_funloc(lb_dasum),c_loc(info)) /= 0) then
         write(6,*) 'dasum from: ',c_f_string(info%dli_fname)
       else
@@ -1799,10 +1849,25 @@ contains
       else
         write(6,*) 'no lsame found!'
       end if
+      if (DLAddr(c_funloc(lb_saxpy),c_loc(info)) /= 0) then
+        write(6,*) 'saxpy from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no saxpy found!'
+      end if
+      if (DLAddr(c_funloc(lb_scabs1),c_loc(info)) /= 0) then
+        write(6,*) 'scabs1 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no scabs1 found!'
+      end if
       if (DLAddr(c_funloc(lb_scopy),c_loc(info)) /= 0) then
         write(6,*) 'scopy from: ',c_f_string(info%dli_fname)
       else
         write(6,*) 'no scopy found!'
+      end if
+      if (DLAddr(c_funloc(lb_sgemm),c_loc(info)) /= 0) then
+        write(6,*) 'sgemm from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no sgemm found!'
       end if
       if (DLAddr(c_funloc(lb_xerbla),c_loc(info)) /= 0) then
         write(6,*) 'xerbla from: ',c_f_string(info%dli_fname)

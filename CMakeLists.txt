@@ -1944,6 +1944,8 @@ foreach (util ${utils})
         endif ()
 endforeach ()
 
+list (APPEND dummy_util_incs ${ga_util_src})
+
 if (FDE)
         set (util embedding_util)
         find_source(${util})
@@ -1968,6 +1970,9 @@ if (NOT GA)
         if (DEFINED ${util}_src)
                 list (APPEND utils ${util})
                 include_directories (${${util}_src})
+        else ()
+                message (FATAL_ERROR "\"${util}\" not found in source directories. "
+                        "Enable Global Arrays (-DGA=ON) or disable MPI (-DMPI=OFF).")
         endif ()
         # workaround for OpenMPI
         if (MPI_LIBRARIES_LOWER MATCHES "openmpi" AND OPENMP)

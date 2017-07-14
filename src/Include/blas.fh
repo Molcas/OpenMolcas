@@ -11,8 +11,12 @@
 
 * This file contains the necessary files for an internal BLAS
 
+* [cs]axpy, [cs]gemm, scabs1 are used by GA
+
 #ifndef _BLAS_FH_
 
+#include "caxpy.f"
+#include "cgemm.f"
 #include "dasum.f"
 #include "daxpy.f"
 #include "dcabs1.f"
@@ -42,7 +46,10 @@
 #include "dznrm2.f"
 #include "idamax.f"
 #include "lsame.f"
+#include "saxpy.f"
+#include "scabs1.f"
 #include "scopy.f"
+#include "sgemm.f"
 #include "xerbla.f"
 #include "zaxpy.f"
 #include "zcopy.f"

@@ -16,6 +16,9 @@
 * Broadcast a file from the master to the slaves
 
       Subroutine PFGet_ASCII(FName)
+#ifdef _MOLCAS_MPP_
+      Use MPI
+#endif
       Implicit None
       Character (Len=*), Intent(In) :: FName
 #ifdef _MOLCAS_MPP_
