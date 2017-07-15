@@ -95,6 +95,6 @@
       If (.False.) Call Unused_Character(FName)
 #endif
 
-#endif
-
       End Subroutine PFGet_ASCII
+
+#endif
