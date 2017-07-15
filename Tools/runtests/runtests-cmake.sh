@@ -475,7 +475,7 @@ test_configfile () {
         do
             for MESSAGE in make.log auto.log
             do
-                curl --form "file=@$MESSAGE" $UPLOADPAGE
+                curl --form "file=@$MESSAGE" $UPLOADPAGE || curl --ciphers ecdhe_ecdsa_aes_256_sha --form "file=@$MESSAGE" $UPLOADPAGE
                 echo "sending mail"
                 $FOLD -s $MESSAGE | $MAIL_cmd -s $DATE $RCPT
             done
@@ -580,7 +580,7 @@ test_configfile () {
     do
         for MESSAGE in make.log auto.log
         do
-            curl --form "file=@$MESSAGE" $UPLOADPAGE
+            curl --form "file=@$MESSAGE" $UPLOADPAGE || curl --ciphers ecdhe_ecdsa_aes_256_sha --form "file=@$MESSAGE" $UPLOADPAGE
             # remove garbage from any output
             if ! ../$REPO_OPEN.$BRANCH/sbin/chkunprint.plx < $MESSAGE
             then
