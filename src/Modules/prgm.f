@@ -250,9 +250,14 @@
 
 ! Function to strip all the characters in Chars from String (in any position)
       Function Strip(String, Chars)
+#include "compiler_features.h"
       Character (Len=*), Intent(In) :: String
       Character (Len=*), Intent(In) :: Chars
+#ifdef ALLOC_ASSIGN
       Character (Len=:), Allocatable :: Strip
+#else
+      Character (Len=Len(String)) :: Strip
+#endif
       Character (Len=Len(String)) :: Tmp
       Integer :: i, j
       j=0
@@ -302,8 +307,15 @@
 ! Function to replace environment variables in a string
 ! A variable starts with '$' and ends with [ $/.] or the end of the string
       Function ExpandVars(String, WD)
+#include "compiler_features.h"
       Character (Len=*), Intent(In) :: String, WD
+#ifdef ALLOC_ASSIGN
       Character (Len=:), Allocatable :: ExpandVars
+#define LE Len(ExpandVars)
+#else
+      Character (Len=MAXSTR) :: ExpandVars
+#define LE Len_Trim(ExpandVars)
+#endif
       Character (Len=MAXSTR) :: Var, Val
       Integer :: i, j, Ini, Fin
       ! start with a copy of the string, this copy will be modified on the fly
@@ -314,13 +326,13 @@
       ! will change as replacements are done
       Do
         i = i+1
-        If (i .gt. Len(ExpandVars)) Exit
+        If (i .gt. LE) Exit
         ! the $ marks the start of the variable, find the end
         ! (by default the end of the string)
         If (ExpandVars(i:i) .eq. '$') Then
           Ini = i
-          Fin = Len(ExpandVars)
-          Do j = i+1, Len(ExpandVars)
+          Fin = LE
+          Do j = i+1, LE
             If (Index(' $/.', ExpandVars(j:j)) .ne. 0) Then
               Fin = j-1
               Exit
@@ -348,9 +360,14 @@
 
 ! Function to replace a substring (between the Ini and Fin positions) with Repl
       Function ReplaceSubstr(String,Ini,Fin,Repl)
+#include "compiler_features.h"
       Character (Len=*), Intent(In) :: String, Repl
       Integer, Intent(In) :: Ini,Fin
+#ifdef ALLOC_ASSIGN
       Character (Len=:), Allocatable :: ReplaceSubstr
+#else
+      Character (Len=MAXSTR), Allocatable :: ReplaceSubstr
+#endif
       Integer :: i,j
       ! make sure the indices are within limits
       i = Min(Max(1,Ini),Len(String))
