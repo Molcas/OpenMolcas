@@ -1554,6 +1554,15 @@ endif (HDF5_F2003)
 
 set (extprojsdir "${OPENMOLCAS_DIR}/External")
 
+if (LINALG STREQUAL "Internal" OR LINALG STREQUAL "Runtime")
+        set (proj ${extprojsdir}/lapack)
+        if (EXISTS ${proj}/BLAS/SRC/ddot.f)
+                list (APPEND internal_linalg ${proj}/SRC ${proj}/INSTALL ${proj}/BLAS/SRC)
+        else ()
+                message (FATAL_ERROR "LAPACK+BLAS sources not available, run \"${GIT} submodule update --init ${proj}\"")
+        endif ()
+endif ()
+
 if (MSYM)
         message ("Configuring MSYM support:")
 
