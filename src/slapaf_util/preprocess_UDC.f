@@ -10,35 +10,27 @@
 *                                                                      *
 * Copyright (C) 2014,2015, Ignacio Fdez. Galvan                        *
 ************************************************************************
-*-----------------------------------------------------------------------
-* <DOC>
-*   <NAME>Preprocess\_UDC</NAME>
-*   <SYNTAX>Call Preprocess\_UDC(Lu,iPrint)</Syntax>
-*   <ARGUMENTS>
-*     \Argument{Lu}{Unit number of the file with the constraints}{Integer}{in}
-*     \Argument{iPrint}{Print level}{Integer}{in}
-*   </ARGUMENTS>
-*   <PURPOSE>Quickly read the constraints to take some decisions</PURPOSE>
-*   <DEPENDENCIES></DEPENDENCIES>
-*   <AUTHOR>I. Fdez. Galvan</AUTHOR>
-*   <MODIFIED_BY></MODIFIED_BY>
-*   <SIDE_EFFECTS></SIDE_EFFECTS>
-*   <DESCRIPTION>
-*     Process the constraints in the Lu file, but just to find out
-*     whether some constraints are present and their values.
-*     This is used for:
-*     \begin{itemize}
-*       \item Detecting if the "EDIFF" constraint is present and with a zero
-*       value, in which case a conical intersection algorithm could be activated
-*       (depending on the spin and symmetry in the runfile).
-*       \item Detecting if any constraint is explicitly declared as "soft",
-*       this is recommended for some TS search with numerical differentiation.
-*       \item Detecting whether an explicit MEP/IRC constraint has been
-*       included, this will probably give problems
-*     \end{itemize}
-*   </DESCRIPTION>
-* </DOC>
-*-----------------------------------------------------------------------
+*  Preprocess_UDC
+*
+*> @brief
+*>   Quickly read the constraints to take some decisions
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> Process the constraints in the \p Lu file, but just to find out whether
+*> some constraints are present and their values.
+*> This is used for:
+*>   - Detecting if the "EDIFF" constraint is present and with a zero value,
+*>     in which case a conical intersection algorithm could be activated
+*>     (depending on the symmetry and spin in the runfile).
+*>   - Detecting if any constraint is explicitly declared as "soft",
+*>     this is recommended for some TS searches with numerical differentiation.
+*>   - Detecting whether an explicit MEP/IRC constraint has been included,
+*>     this will probably give problems.
+*>
+*> @param[in]  Lu     Unit number of the file with the constraints
+*> @param[in]  iPrint Print level
+************************************************************************
       SUBROUTINE Preprocess_UDC(Lu,iPrint)
       IMPLICIT NONE
       INTEGER :: Lu,iPrint,iPos,Error,nLines,i,j

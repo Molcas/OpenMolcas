@@ -8,26 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-************************************************************
+*  IniMem
 *
-*   <DOC>
-*     <Name>IniMem</Name>
-*     <Syntax>Call IniMem()</Syntax>
-*     <Arguments>
-*     </Arguments>
-*     <Purpose>
-* To initialize memory for the Molcas.
-*     </Purpose>
-*     <Dependencies></Dependencies>
-*     <Author></Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-* To initialize memory for the Molcas.
-*     </Description>
-*    </DOC>
-*
-************************************************************
+*> @brief
+*>   Initialize memory for Molcas
+*>
+*> @details
+*> Initialize memory for Molcas.
+************************************************************************
       Subroutine IniMem
       Implicit Real*8 (A-H,O-Z)
 *

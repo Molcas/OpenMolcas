@@ -22,23 +22,16 @@
 * Written: May 2008                                                    *
 *                                                                      *
 ************************************************************************
+*  Init_ppu
 *
-* <DOC>
-*   <Name>Init\_ppu(Force)</Name>
-*   <Syntax>Call Init\_ppu</Syntax>
-*   <Arguments>
-*     \Argument{Force}{Force initialization}{Logical}{in}
-*   </Arguments>
-*   <Purpose>To initialize the peek/poke utility.</Purpose>
-*   <Dependencies></Dependencies>
-*   <Author>Per-Olof Widmark</Author>
-*   <Modified_by></Modified_by>
-*   <Side_Effects></Side_Effects>
-*   <Description>
-*     This routine is used to initialize the peek/poke utility.
-*   </Description>
-* </DOC>
-*
+*> @brief
+*>   Initialize the peek/poke utility
+*> @author Per-Olof Widmark
+*>
+*> @details
+*> This routine is used to initialize the peek/poke utility.
+*>
+*> @param[in] Force Force initialization
 ************************************************************************
       Subroutine Init_ppu(Force)
       Implicit None

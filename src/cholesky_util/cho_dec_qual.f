@@ -10,60 +10,36 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
+*  Cho_Dec_Qual
+*
+*> @author F. Aquilante
+*>
+*> @details
+*> The symmetric positive (semi-)definite matrix
+*>
+*> \f[ Q_{ab,cd} = Q_{ab,cd} - \sum_J L_{ab,J} L_{cd,J} \f]
+*>
+*> is evaluated and the diagonal elements are returned in \p QDiag.
+*> Subsequently, \p Q is Cholesky decomposed to yield \p NumV vectors
+*> \f$ K_{ab,I} \f$ as
+*>
+*> \f[ Q_{ab,cd} = \sum_I K_{ab,I} K_{cd,I} \f]
+*>
+*> @note
+*> \p Q is destroyed and can not be used after this routine.
+*>
+*> @param[in]     Diag  Array of diagonal integrals stored as in the first reduced set
+*> @param[in]     Lab   Array of Cholesky vectors (symmetry blocked) for the qualified shell pairs
+*> @param[in,out] Q     Array (symmetry blocked) containing the matrix of the qualified integrals
+*> @param[out]    Kab   Array symmetry blocked of Cholesky vectors resulting from the decomposition
+*>                      of the qualified integral matrix
+*> @param[out]    iD    Index array. On exit \p iD(k,jSym) contains the index of the qualified diagonals
+*>                      from which the \p k -th vector of \p jSym was generated
+*> @param[out]    NumV  Array of the number of vectors in each symmetry from the decomposition of the
+*>                      qualified integral matrix
+*> @param[out]    QDiag Array (symmetry blocked) containing the updated qualified diagonals
+************************************************************************
       SUBROUTINE Cho_Dec_Qual(Diag,Lab,Q,Kab,iD,NumV,QDiag)
-************************************************************
-*
-*   <DOC>
-*     <Name>Cho\_Dec\_Qual</Name>
-*     <Syntax>Call Cho\_Dec\_Qual(Diag,Lab,Q,Kab,iD,NumV,QDiag)
-*     </Syntax>
-*     <Arguments>
-*       \Argument{Diag}{Array of diagonal integrals stored as in the
-*                      first reduced set}{Real*8}{in}
-*       \Argument{Lab}{Array of Cholesky vectors (symmetry blocked)
-*                      for the qualified shell pairs}{Real*8}{in}
-*       \Argument{Q}{Array (symmetry blocked) containing the matrix
-*                    of the qualified integrals}{Real*8}{inout}
-*       \Argument{Kab}{Array symmetry blocked
-*                      of Cholesky vectors resulting from the
-*                      decomposition of the qualified integral matrix}
-*                      {Real*8}{out}
-*       \Argument{iD}{Index array. On exit
-*                     iD(k,jSym) contains the index of the qualified
-*                     diagonals from which the k-th vector of jSym
-*                     was generated}
-*                     {Integer}{out}
-*       \Argument{NumV}{Array of the number of vectors in each symmetry
-*                       from the decomposition of the qualified
-*                       integral matrix}
-*                      {Integer}{out}
-*       \Argument{QDiag}{Array (symmetry blocked) containing the updated
-*                        qualified diagonals}{Real*8}{out}
-*     </Arguments>
-*     <Purpose></Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>F. Aquilante</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*          The symmetric positive (semi)definite matrix
-*
-*            Q({ab},{cd}) = Q({ab},{cd}) - sum\_J L({ab},J) * L({cd},J)
-*
-*          is evaluated and the diagonal elements are returned in QDiag.
-*          Subsequently, Q is Cholesky decomposed to yield NumV vectors
-*          K({ab},I) as
-*
-*                 Q({ab},{cd}) = sum\_I K({ab},I) * K({cd},I)
-*
-*          Note that Q is destroyed and can not be used after this
-*          routine.
-*
-*     </Description>
-*    </DOC>
-*
-************************************************************
-
       Implicit Real*8 (a-h,o-z)
 
       Real*8   Diag(*),Lab(*),Q(*), QDiag(*)

@@ -10,27 +10,19 @@
 *                                                                      *
 * Copyright (C) Roland Lindh                                           *
 ************************************************************************
+*  Get_Coord_All
+*
+*> @brief
+*>   Get coordinates from RUNFILE
+*> @author R. Lindh
+*>
+*> @details
+*> Place Cartesian coordinates (in a.u.) into array \p Coord_All(3,*).
+*>
+*> @param[out] Coord_All  Array of coordinates
+*> @param[in]  nAtoms_All Number of atoms
+************************************************************************
       Subroutine Get_Coord_All(Coord_All,nAtoms_All)
-************************************************************
-*
-*   <DOC>
-*     <Name>Get\_Coord\_All</Name>
-*     <Syntax>Call Get\_Coord\_All(Coord\_All,nAtoms\_All)</Syntax>
-*     <Arguments>
-*       \Argument{Coord\_All}{Array of coordinates}{Real*8 (3,nAtoms\_All)}{out}
-*       \Argument{nAtoms\_All}{Number of atoms}{Integer}{in}
-*     </Arguments>
-*     <Purpose>Get Coordinates from RUNFILE</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>R. Lindh</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*       Place cartesian coordinates (in a.u. into array Coord\_All(3,*)
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"

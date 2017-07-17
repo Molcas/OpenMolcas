@@ -11,51 +11,34 @@
 * Copyright (C) Francesco Aquilante                                    *
 *               2002, Thomas Bondo Pedersen                            *
 ************************************************************************
-      SUBROUTINE CHO_GET_ORD_bj(nOV,MaxNVec,thr,W,ID_bj,nVec,Dmax)
+*  CHO_GET_ORD_bj
+*
+*> @brief
+*>   Computes the decomposition pattern of the 2nd-rank orbital energy denominators according to Eq. (6) of \cite Koc2000-JCP-113-508
+*> @author F. Aquilante
+*> @modified_by Thomas Bondo Pedersen, December 2012: code restructured, fix of minor bug
+*>
+*> @details
+*> Computes the decomposition pattern of the 2nd-rank orbital energy denominators
+*> according to Eq. (6) of \cite Koc2000-JCP-113-508
+*>
+*> The decomposition is considered converged when
+*> either of the two criteria (\p MaxNVec or \p thr) is fulfilled.
+*> Therefore these two arguments should have appropriate
+*> values depending on what the user expects:
+*>
+*> - \p MaxNVec = \p nOV if the user specifies a meaningful \p thr
+*> - \p thr = ``0.0d0``  if the user requires a given number of vectors (or percentage of \p nOV)
+*>
+*> @param[in]  nOV     Number of (occ,vir) pairs matching a given compound symmetry
+*> @param[in]  MaxNVec Max number of Cholesky vectors
+*> @param[in]  thr     Threshold for the Cholesky decomposition
+*> @param[in]  W       Array (\p nOV) of the orbital energy differences \p W(bj) = ``e(b)-e(j)``
+*> @param[out] ID_bj   Index array (\p MaxNVec) of the decomposition pattern
+*> @param[out] nVec    Number of resulting Cholesky vectors
+*> @param[out] Dmax    Max value of the remainder after the decomposition
 ************************************************************************
-*
-*   <DOC>
-*     <Name>CHO\_GET\_ORD\_bj</Name>
-*     <Syntax>Call CHO\_GET\_ORD\_bj(nOV,MaxNVec,thr,W,ID\_bj,nVec,Dmax)</Syntax>
-*     <Arguments>
-*       \Argument{nOV}{Number of (occ,vir) pairs matching a given
-*                      compound symmetry}{Integer}{in}
-*       \Argument{MaxNVec}{Max number of Cholesky vectors}{Integer}{in}
-*       \Argument{thr}{Threshold for the Cholesky decomposition}{Real*8}{in}
-*       \Argument{W}{Array (nOV) of the orbital energy
-*                    differences W(bj) = e(b)-e(j)}{Array Real*8}{in}
-*       \Argument{ID\_bj}{Index array (MaxNVec) of the decomposition pattern}{Array Integer}{out}
-*       \Argument{nVec}{Number of resulting Cholesky vectors}{Integer}{out}
-*       \Argument{Dmax}{Max value of the remainder after the
-*                       decomposition}{Real*8}{out}
-*     </Arguments>
-*     <Purpose>
-*        Computes the decomposition pattern of the 2nd-rank orbital energy
-*        denominators according to Eq. (6) of H. Koch, A. M. Sanchez,
-*        JCP 113, 508 (2000).
-*     </Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>F. Aquilante</Author>
-*     <Modified_by>
-*     Thomas Bondo Pedersen, December 2012: code restructured, fix of
-*     minor bug.
-*     </Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*            The decomposition is considered converged when
-*            either of the two criteria (MaxNVec or thr) is fulfilled.
-*            Therefore these two arguments should have appropriate
-*            values depending on what the user expects:
-*
-*            ex.    MaxNVec := nOV  if the user specifies
-*                                      a meaningful thr
-*                   thr := zero  if the user requires a given number
-*                                of vectors (or percentage of nOV)
-*     </Description>
-*    </DOC>
-*
-************************************************************
-
+      SUBROUTINE CHO_GET_ORD_bj(nOV,MaxNVec,thr,W,ID_bj,nVec,Dmax)
       Implicit Real*8 (a-h,o-z)
 
       Integer nOV, MaxNVec, ID_bj(*), NVec

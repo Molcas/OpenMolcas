@@ -10,27 +10,19 @@
 *                                                                      *
 * Copyright (C) Thomas Bondo Pedersen                                  *
 ************************************************************************
+*  Cho_X_Final
+*
+*> @brief
+*>   Finalize Cholesky utilities
+*> @author Thomas Bondo Pedersen
+*>
+*> @details
+*> Deallocates memory, closes files, etc., as initialized
+*> by ::Cho_X_Init. On exit, \p irc = ``0`` signals successful finalization.
+*>
+*> @param[out] irc Return code
+************************************************************************
       Subroutine Cho_X_Final(irc)
-************************************************************************
-*
-*   <DOC>
-*     <Name>Cho\_X\_Final</Name>
-*     <Syntax>Call Cho\_X\_Final(irc)</Syntax>
-*     <Arguments>
-*        \Argument{irc}{Return code}{Integer}{out}
-*     </Arguments>
-*     <Purpose>Finalize Cholesky utilities</Purpose>
-*     <Dependencies>Call Cho\_X\_Init(irc)</Dependencies>
-*     <Author>Thomas Bondo Pedersen</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*        Deallocates memory, closes files, etc., as initialized
-*        by Cho\_X\_Init. On exit, irc=0 signals successful finalization.
-*     </Description>
-*    </DOC>
-*
-************************************************************************
       Implicit None
       Integer irc
 #include "choini.fh"

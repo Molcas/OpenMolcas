@@ -10,33 +10,24 @@
 *                                                                      *
 * Copyright (C) Yannick Carissan                                       *
 ************************************************************************
+*  SetVectTrans
+*
+*> @brief
+*>   Computes the translation vector from geometry 2 to geometry 1
+*> @author Y. Carissan
+*>
+*> @details
+*> Computes the translation vector from geometry 2 to geometry 1.
+*>
+*> @param[in]  nat1  Number of atoms in \p geom1
+*> @param[in]  Geom1 First Geometry to be considered, xyz coordinates
+*> @param[in]  XYZ1  atom index array in the first geometry
+*> @param[in]  nat2  Number of atoms in \p geom2
+*> @param[in]  Geom2 Second Geometry to be considered, xyz coordinates
+*> @param[in]  XYZ2  atom index array in the second geometry
+*> @param[out] V     Output vector
+************************************************************************
       subroutine SetVectTrans(nat1,Geom1, XYZ1, nat2,Geom2, XYZ2,V)
-************************************************************
-*
-*   <DOC>
-*     <Name>SetVectTrans</Name>
-*     <Syntax>Call SetVectTrans(XYZ1,XYZ2,V)</Syntax>
-*     <Arguments>
-*       \Argument{nat1}{Number of atoms in geom1}{Integer}{in}
-*       \Argument{Geom1}{First Geometry to be considered, xyz coordinates, Dimension(nat1,3}{Real*8}{in}
-*       \Argument{XYZ1}{atom index array in the first geometry, Dimension(3)}{Integer}{in}
-*       \Argument{nat2}{Number of atoms in geom2}{Integer}{in}
-*       \Argument{Geom2}{Second Geometry to be considered, xyz coordinates, Dimension(nat2,3}{Real*8}{in}
-*       \Argument{XYZ2}{atom index array in the second geometry, Dimension(3)}{Integer}{in}
-*       \Argument{V}{Output vector, Dimension(3)}{Real*8}{out}
-*     </Arguments>
-*     <Purpose>Computes the translation vector from geometry 2 to geometry 1</Purpose>
-*     <Dependencies>blas</Dependencies>
-*     <Author>Y. Carissan</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects>none</Side_Effects>
-*     <Description>
-*        Computes the translation vector from geometry 2 to geometry 1
-*     </Description>
-*    </DOC>
-*
-************************************************************
-
       implicit none
 #include "debug.fh"
 #include "real.fh"

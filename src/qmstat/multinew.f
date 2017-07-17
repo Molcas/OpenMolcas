@@ -10,44 +10,34 @@
 *                                                                      *
 * Copyright (C) Anders Ohrn                                            *
 ************************************************************************
-*----------------------------------------------------------------------*
+*  MultiNew
+*
+*> @brief
+*>   Perform the MME in contracted AO-basis
+*> @author A. Ohrn
+*>
+*> @details
+*> (i) Read in the multipole integrals from Seward. (ii) Construct
+*> some data to simplify accessing the computed data. (iii) Make
+*> the actual MME.
+*>
+*> @note
+*> Requires numbers taken from ::qfread. We also need some integrals
+*> that supposedly have been computed by Seward.
+*>
+*> @param[in]  nAt      Number of atoms in QM-molecule
+*> @param[in]  nBas     Number of contracted basis functions
+*> @param[in]  nOcc     Number of basis functions of the \f$ i \f$ -th atom-type
+*> @param[in]  natyp    Number of atoms of the \f$ i \f$ -th atom-type
+*> @param[in]  nntyp    Number of atom-types
+*> @param[out] iMME     Pointer to the multicenter multipole expanded densities of unique pairs of contracted basis functions
+*> @param[out] iCenTri  Set of indices that tells to which center the \f$ i \f$ -th unique pair of basis functions in a lower triangulary stored matrix belongs
+*> @param[out] iCenTriT Just like \p iCenTri, but in square shape
+*> @param[out] nMlt     Highest multipole in MME
+*> @param[out] outxyz   Expansion centers in molecule
+************************************************************************
       Subroutine MultiNew(nAt,nBas,nOcc,natyp,nntyp,iMME,iCenTri
      &,iCenTriT,nMlt,outxyz,SlExpQ,lSlater)
-************************************************************
-*
-*   <DOC>
-*     <Name>MultiNew</Name>
-*     <Syntax>Call MultiNew(nAt,nBas,nOcc,natyp,nntyp,iMME,iCenTri,iCenTriT,nMlt,outxyz)</Syntax>
-*     <Arguments>
-*       \Argument{nAt}{Number of atoms in QM-molecule}{}{in}
-*       \Argument{nBas}{Number of contracted basis functions}{}{in}
-*       \Argument{nOcc}{Number of basis functions of the i:th atom-type}{}{in}
-*       \Argument{natyp}{Number of atoms of the i:th atom-type}{}{in}
-*       \Argument{nntyp}{Number of atom-types}{}{in}
-*       \Argument{iMME}{Pointer to the multicenter multipole expanded densities of unique pairs of contracted basis functions}{}{out}
-*       \Argument{iCenTri}{Set of indeces that tells to which center the i:th unique pair of basis functions in a lower triangulary stored matrix belongs}{}{out}
-*       \Argument{iCenTriT}{Just like iCenTri, but in square shape}{}{out}
-*       \Argument{nMlt}{Highest multipole in MME}{}{out}
-*       \Argument{outxyz}{Expansion centers in molecule}{}{out}
-*     </Arguments>
-*     <Purpose>
-*    To perform the MME in contracted AO-basis.
-*     </Purpose>
-*     <Dependencies>
-*    Require numbers taken from qfread. We also need some integrals
-*    that supposedly have been computed by Seward.
-*     </Dependencies>
-*     <Author>A.Ohrn</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*    (i) Read in the multipole integrals from Seward. (ii) Construct
-*    some data to simplify accessing the computed data. (iii) Make
-*    the actual MME.
-*     </Description>
-*    </DOC>
-*
-
       Implicit Real*8 (a-h,o-z)
 
 #include "maxi.fh"

@@ -22,26 +22,21 @@
 * Written: May 2008                                                    *
 *                                                                      *
 ************************************************************************
+*  Peek_iScalar
 *
-* <DOC>
-*   <Name>Peek\_iScalar</Name>
-*   <Syntax>Call Peek\_iScalar(Label,Data)</Syntax>
-*   <Arguments>
-*     \Argument{Label}{Name of field}{Character*(*)}{in}
-*     \Argument{Data}{Data to put on runfile}{Real*8}{in}
-*   </Arguments>
-*   <Purpose>To put scalar data in peek/poke buffer.</Purpose>
-*   <Dependencies></Dependencies>
-*   <Author>Per-Olof Widmark</Author>
-*   <Modified_by></Modified_by>
-*   <Side_Effects></Side_Effects>
-*   <Description>
-*     This routine is used to put scalar data of type Real*8
-*     in the peek/poke buffer. The data items are identified
-*     by a text label.
-*   </Description>
-* </DOC>
-*
+*> @brief
+*>   Get scalar integer data from the peek/poke buffer
+*> @author Per-Olof Widmark
+*>
+*> @details
+*> This routine is used to get scalar data of type ``Integer``
+*> from the peek/poke buffer. The data items are identified
+*> by a text label.
+*>
+*> @param[in]  Label Name of field
+*> @param[out] Data  Data to get from runfile
+*>
+*> @copyright All rights reserved by Lund University
 ************************************************************************
       Subroutine Peek_iScalar(Label,Data)
       Implicit None

@@ -10,28 +10,20 @@
 *                                                                      *
 * Copyright (C) Luca De Vico                                           *
 ************************************************************************
+*  Get_Nuc_Charge_All
+*
+*> @brief
+*>   Get nuclear charges from RUNFILE
+*> @author L. De Vico
+*>
+*> @details
+*> Place nuclear charges (in a.u.) into array \p Charges_All(*).
+*> Based on ::Get_Coord_All
+*>
+*> @param[out] Charges_All Array of charges
+*> @param[in]  nAtoms_All  Number of atoms
+************************************************************************
       Subroutine Get_Nuc_Charge_All(Charges_All,nAtoms_All)
-************************************************************
-*
-*   <DOC>
-*     <Name>Get\_Nuc\_Charge\_All</Name>
-*     <Syntax>Call Get\_Nuc\_Charge\_All(Charges\_All,nAtoms\_All)</Syntax>
-*     <Arguments>
-*       \Argument{Charges\_All}{Array of charges}{Real*8 (nAtoms\_All)}{out}
-*       \Argument{nAtoms\_All}{Number of atoms}{Integer}{in}
-*     </Arguments>
-*     <Purpose>Get Nuclear charges from RUNFILE</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>L. De Vico</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*       Place nuclear charges (in a.u.) into array Charges\_All(*)
-*       Based on Get\_Coord\_All
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"

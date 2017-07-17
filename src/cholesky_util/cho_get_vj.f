@@ -10,38 +10,28 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
+*  CHO_get_VJ
+*
+*> @author F. Aquilante
+*>
+*> @details
+*> Computes the Coulomb intermediate obtained
+*> contracting the Cholesky vectors with the AO density matrix:
+*>
+*> \f[ \mathit{VJ}_k = \sum_{ab} L_{ab,k} D_{ab} \f]
+*>
+*> Reduced sets storage is used throughout the calculation.
+*>
+*> @note
+*> Requires initialization of the Cholesky information.
+*>
+*> @param[out] irc     Return code
+*> @param[in]  ipDLT   Pointer to density matrix, stored as packed LT, consecutive symmetry blocks
+*> @param[out] VJ      Coulomb intermediate
+*> @param[in]  Mvec    Number of Cholesky vectors (min. length of \p VJ)
+*> @param[in]  timings Switch on/off timings printout
+************************************************************************
       SUBROUTINE CHO_get_VJ(irc,ipDLT,VJ,Mvec,timings)
-************************************************************
-*
-*   <DOC>
-*     <Name>CHO\_get\_VJ</Name>
-*     <Syntax>Call CHO\_get\_VJ(irc,ipDLT,VJ,timings)</Syntax>
-*     <Arguments>
-*       \Argument{irc}{return code}{Integer}{out}
-*       \Argument{ipDLT}{Pointer to Density matrix, stored as packed LT, consecutive symmetry blocks}{Intger}{in}
-*       \Argument{VJ}{Coulomb intermediate}{Array Real*8}{out}
-*       \Argument{Mvec}{Number of Cholesky vectors (min. length of VJ)}{Integer}{in}
-*       \Argument{timings}{switch on/off timings printout}{Logical}{in}
-*     </Arguments>
-*     <Purpose></Purpose>
-*     <Dependencies>Requires initialization of the Cholesky information</Dependencies>
-*     <Author>F. Aquilante</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*
-*         Computes the Coulomb intermediate obtained
-*         contracting the Cholesky vectors with the AO density matrix:
-*
-*              VJ[k] = sum(ab) L[ab,k] * D[ab]
-*
-*         Reduced sets storage is used throughout the calculation.
-*
-*     </Description>
-*    </DOC>
-*
-************************************************************
-
       Implicit Real*8 (a-h,o-z)
       Logical timings
       Integer ipDLT, Mvec

@@ -10,57 +10,47 @@
 *                                                                      *
 * Copyright (C) Valera Veryazov                                        *
 ************************************************************************
+*  RDVEC
+*
+*> @brief
+*>   A routine to read MO coefficients, occupation numbers, one-electron energies and type index information from ``INPORB`` file
+*> @author V. Veryazov
+*>
+*> @details
+*> New version of ::rdvec routine.
+*> ::RDVEC is a wrapper to ::RDVEC_, which read UHF
+*> information from ``INPORB`` file.
+*>
+*> \p Label defines the type of information to read from ``INPORB`` file
+*> Valid targets are: ``C``---CMO, ``O``---OCC, ``E``---EORB, ``I``---INDT
+*> ``A``---alpha values, ``B``---beta values
+*>
+*> ::RdVec checks that \p NBAS / \p NORB information is consistent,
+*> and reacts according to \p iWarn. ``0``: No checks for \p NBAS / \p NORB;
+*> ``1``: Print error message; ``2``: ::Abend.
+*>
+*> Example: Get CMO coeff. and OCC for RHF:
+*>
+*> \code
+*> Call RdVec('INPORB',Lu,'CO',NSYM,NBAS,NBAS,CMO,OCC,Dummy,iDummy,Title,0,iErr)
+*> \endcode
+*>
+*> @param[in]  Name  File name
+*> @param[in]  LU_   Unit number
+*> @param[in]  LABEL Task
+*> @param[in]  NSYM  N symmetries
+*> @param[in]  NBAS  N basis functions
+*> @param[in]  NORB  N orbitals
+*> @param[out] CMO   MO coefficients
+*> @param[out] OCC   Occupations
+*> @param[out] EORB  One electron energies
+*> @param[out] INDT  Type Index information
+*> @param[out] TITLE Title of orbitals
+*> @param[in]  IWARN Warning level
+*> @param[out] IERR  Return code
+************************************************************************
       SUBROUTINE RDVEC(Name,LU_,LABEL,NSYM,NBAS,NORB,
      &   CMO, OCC, EORB, INDT,TITLE,iWarn,iErr)
-************************************************************
-*
-*   <DOC>
-*     <Name>RDVEC</Name>
-*     <Syntax>Call RDVEC(Name,LU\_,LABEL,NSYM,NBAS,NORB,CMO,OCC,EORB,INDT,TITLE,iWarn,iErr)</Syntax>
-*     <Arguments>
-*       \Argument{Name}{File name}{Character}{in}
-*       \Argument{LU\_}{Unit number}{Integer}{in}
-*       \Argument{LABEL}{Task}{Character}{in}
-*       \Argument{NSYM}{N symmetries}{Integer}{in}
-*       \Argument{NBAS}{N basis functions}{Integer(NSYM)}{in}
-*       \Argument{NORB}{N orbitals}{Integer(NSYM)}{in}
-*       \Argument{CMO}{MO coefficients}{Real(*)}{out}
-*       \Argument{OCC}{Occupations}{Real(*)}{out}
-*       \Argument{EORB}{One electron energies}{Real(*)}{out}
-*       \Argument{INDT}{Type Index information}{Integer(*)}{out}
-*       \Argument{TITLE}{Title of orbitals}{Character}{out}
-*       \Argument{IWARN}{Warning level}{Integer}{in}
-*       \Argument{IERR}{Return code}{Integer}{out}
-*     </Arguments>
-*     <Purpose>A routine to read MO coefficients, Occupation numbers,
-*      One-electron energies and
-*      type index information from INPORB file </Purpose>
-*     <Dependencies>RDVEC\_</Dependencies>
-*     <Author>V.Veryazov</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*       New version of rdvec routine.
-*       RDVEC is a wrapper to RDVEC\_, which read UHF
-*       information from INPORB file
-*
-*       Label defines the type of information to read from INPORB file
-*       Valid targets are: C-CMO, O-OCC, E-EORB, I-INDT
-*                          A-alpha values, B-beta values
-*
-*       RdVec checks that NBAS/NORB information is consistent,
-*       and react according to iWarn. 0 - no checks for NBAS/NORB;
-*       1 - Print error message; 2 - Abend
-*
-*       Example: Get CMO coeff. and OCC for RHF
-*
-*       Call RdVec('INPORB',Lu,'CO',NSYM,NBAS,NBAS,CMO,OCC,Dummy,iDummy,Title,0,iErr)
-*
-*     </Description>
-*    </DOC>
-*
-************************************************************
-
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION NBAS(NSYM),NORB(NSYM),CMO(*),OCC(*), INDT(*), EORB(*)
       CHARACTER*(*) TITLE, Name, Label

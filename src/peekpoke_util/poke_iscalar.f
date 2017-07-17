@@ -22,26 +22,21 @@
 * Written: May 2008                                                    *
 *                                                                      *
 ************************************************************************
+*  Poke_iScalar
 *
-* <DOC>
-*   <Name>Poke\_iScalar</Name>
-*   <Syntax>Call Poke\_iScalar(Label,Data)</Syntax>
-*   <Arguments>
-*     \Argument{Label}{Name of field}{Character*(*)}{in}
-*     \Argument{Data}{Data to put on runfile}{Integer}{in}
-*   </Arguments>
-*   <Purpose>To put scalar data in peek/poke buffer.</Purpose>
-*   <Dependencies></Dependencies>
-*   <Author>Per-Olof Widmark</Author>
-*   <Modified_by></Modified_by>
-*   <Side_Effects></Side_Effects>
-*   <Description>
-*     This routine is used to put scalar data of type Integer
-*     in the peek/poke buffer. The data items are identified
-*     by a text label.
-*   </Description>
-* </DOC>
-*
+*> @brief
+*>   Put scalar integer data to the peek/poke buffer
+*> @author Per-Olof Widmark
+*>
+*> @details
+*> This routine is used to put scalar data of type ``Integer``
+*> in the peek/poke buffer. The data items are identified
+*> by a text label.
+*>
+*> @param[in] Label Name of field
+*> @param[in] Data  Data to put on runfile
+*>
+*> @copyright All rights reserved by Lund University
 ************************************************************************
       Subroutine Poke_iScalar(Label,Data)
       Implicit None

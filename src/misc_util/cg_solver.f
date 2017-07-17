@@ -10,37 +10,31 @@
 *                                                                      *
 * Copyright (C) 2014, Ignacio Fdez. Galvan                             *
 ************************************************************************
-*-----------------------------------------------------------------------
-* <DOC>
-*   <NAME>CG\_Solver</NAME>
-*   <SYNTAX>Call CG\_Solver(n,nij,A,ija,b,x,info)</Syntax>
-*   <ARGUMENTS>
-*     \Argument{n}{Size of the system}{Integer}{in}
-*     \Argument{nij}{Size of A and ija}{Integer}{in}
-*     \Argument{A}{Input matrix in dense or sparse format}{Real*8 (nij)}{in}
-*     \Argument{ija}{Index vector of matrix A}{Integer (*)}{in}
-*     \Argument{b}{Vector of independent terms}{Real*8 (n)}{in}
-*     \Argument{x}{Solution vector}{Real*8 (n)}{inout}
-*     \Argument{info}{Status info}{Real*8}{inout}
-*   </ARGUMENTS>
-*   <PURPOSE>Solve a system of linear equations with a preconditioned conjugate gradients method</PURPOSE>
-*   <DEPENDENCIES>Sp\_MV,Sp\_ICD,Sp\_Transpose,Sp\_TriSolve,dcopy,dscal,daxpy,dsymv,dpotrf,dpotrf</DEPENDENCIES>
-*   <AUTHOR>I. Fdez. Galvan</AUTHOR>
-*   <MODIFIED_BY></MODIFIED_BY>
-*   <SIDE_EFFECTS></SIDE_EFFECTS>
-*   <DESCRIPTION>
-*     Given a system of linear equations $A x = b$, this routine attempts to solve
-*     it with a preconditioned conjugate gradients method.
-*     The matrix A should be symmetric positive definite.
-*     The method is useful with a sparse matrix, where A*x can be computed efficiently.
-*     The preconditioner is an incomplete Cholesky decomposition, which becomes complete
-*     with a dense matrix, and then it should converge at the first iteration.
-*     If a dense matrix is used, the ija(1) value must be 0.
-*     On output, info contains the number of iterations needed for convergence,
-*     or -1 if it did not converge.
-*   </DESCRIPTION>
-* </DOC>
-*-----------------------------------------------------------------------
+*  CG_Solver
+*
+*> @brief
+*>   Solve a system of linear equations with a preconditioned conjugate gradients method
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> Given a system of linear equations \f$ A x = b \f$, this routine attempts to solve
+*> it with a preconditioned conjugate gradients method.
+*> The matrix \p A should be symmetric positive definite.
+*> The method is useful with a sparse matrix, where \f$ A x \f$ can be computed efficiently.
+*> The preconditioner is an incomplete Cholesky decomposition, which becomes complete
+*> with a dense matrix, and then it should converge at the first iteration.
+*> If a dense matrix is used, the \p ija(1) value must be `0`.
+*> On output, \p info contains the number of iterations needed for convergence,
+*> or `-1` if it did not converge.
+*>
+*> @param[in]     n    Size of the system
+*> @param[in]     nij  Size of \p A and \p ija
+*> @param[in]     A    Input matrix in dense or sparse format
+*> @param[in]     ija  Index vector of matrix \p A
+*> @param[in]     b    Vector of independent terms
+*> @param[in,out] x    Solution vector
+*> @param[in,out] info Status info
+************************************************************************
       SUBROUTINE CG_Solver(n,nij,A,ija,b,x,info)
       IMPLICIT NONE
       INTEGER n, ija(*), nij, maxk, recomp, k, info

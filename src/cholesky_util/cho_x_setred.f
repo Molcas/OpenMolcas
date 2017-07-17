@@ -10,48 +10,36 @@
 *                                                                      *
 * Copyright (C) Thomas Bondo Pedersen                                  *
 ************************************************************************
+*  Cho_X_SetRed
+*
+*> @brief
+*>   Read and set index arrays for reduced set \p iRed at location \p iLoc
+*> @author Thomas Bondo Pedersen
+*>
+*> @details
+*> Reads information for reduced set \p iRed (= ``1``, ``2``, ..., \c MaxRed)
+*> and sets up the index arrays
+*>
+*> - \p nnBstRT(iLoc)      &rarr; stored in cholesky.fh
+*> - \p nnBstR(:,iLoc)     &rarr; stored in cholesky.fh
+*> - \p iiBstR(:,iLoc)     &rarr; stored in cholesky.fh
+*> - \p nnBstRSh(:,:,iLoc) &rarr; accesible via \c ip_nnBstRSh in choptr.fh
+*> - \p iiBstRSh(:,:,iLoc) &rarr; accesible via \c ip_iiBstRSh in choptr.fh
+*> - \p IndRed(:,iLoc)     &rarr; accesible via \c ip_IndRed in choptr.fh
+*>
+*> On succesful completion, \p irc = ``0`` is returned.
+*> Note that the only allowed \p iLoc values are ``2`` and ``3``; any other
+*> value gives rise to error code \p irc = ``1`` and nothing is done!
+*> If \p iRed is out of bounds, \p irc = ``2`` is returned and nothing is done!
+*>
+*> @note
+*> The Cholesky procedure must have been successfully initialized (by ::Cho_X_Init).
+*>
+*> @param[out] irc  return code
+*> @param[in]  iLoc location in index arrays
+*> @param[in]  iRed reduced set on disk
+************************************************************************
       Subroutine Cho_X_SetRed(irc,iLoc,iRed)
-************************************************************************
-*
-*   <DOC>
-*     <Name>Cho\_X\_SetRed</Name>
-*     <Syntax>Call Cho\_X\_SetRed(irc,iLoc,iRed)</Syntax>
-*     <Arguments>
-*        \Argument{irc}{return code}{Integer}{out}
-*        \Argument{iLoc}{location in index arrays}{Integer}{in}
-*        \Argument{iRed}{reduced set on disk}{Integer}{in}
-*     </Arguments>
-*     <Purpose>
-*        Read and set index arrays for reduced set iRed at location
-*        iLoc
-*     </Purpose>
-*     <Dependencies>Call Cho\_X\_Init</Dependencies>
-*     <Author>Thomas Bondo Pedersen</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*        Reads information for reduced set iRed (=1,2,...,MaxRed)
-*        and sets up the index arrays
-*        \begin{itemize}
-*          \item nnBstRT(iLoc)      $\rightarrow$ stored in cholesky.fh
-*          \item nnBstR(:,iLoc)     $\rightarrow$ stored in cholesky.fh
-*          \item iiBstR(:,iLoc)     $\rightarrow$ stored in cholesky.fh
-*          \item nnBstRSh(:,:,iLoc) $\rightarrow$ accesible via
-*                                   ip\_nnBstRSh in choptr.fh
-*          \item iiBstRSh(:,:,iLoc) $\rightarrow$ accesible via
-*                                   ip\_iiBstRSh in choptr.fh
-*          \item IndRed(:,iLoc)     $\rightarrow$ accesible via
-*                                   ip\_IndRed in choptr.fh
-*        \end{itemize}
-*        On succesful completion, irc=0 is returned.
-*        Note that the only allowed iLoc values are 2 and 3; any other
-*        value gives rise to error code irc=1 and nothing is done!
-*        If iRed is out of bounds, irc=2 is returned and nothing is
-*        done!
-*     </Description>
-*    </DOC>
-*
-************************************************************************
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choptr.fh"

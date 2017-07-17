@@ -10,30 +10,23 @@
 *                                                                      *
 * Copyright (C) Valera Veryazov                                        *
 ************************************************************************
+*  CollapseOutput
+*
+*> @brief
+*>   Place markers for collapsed parts in output
+*> @author V. Veryazov
+*>
+*> @details
+*> If \p iSw = ``1``, print Message preceded by a marker to
+*> start collapsed part in the output.
+*>
+*> If \p iSw = ``0``, place a marker to terminate collapsed part.
+*> \p STR is not used, but recommended.
+*>
+*> @param[in] iSw Begin/End switch
+*> @param[in] STR Message
+************************************************************************
       Subroutine CollapseOutput(iSw, STR)
-************************************************************
-*
-*   <DOC>
-*     <Name>CollapseOutput</Name>
-*     <Syntax>Call CollapseOutput(iSw,STR)</Syntax>
-*     <Arguments>
-*       \Argument{iSw}{Begin/End switch}{Integer}{in}
-*       \Argument{STR}{Message}{Character*(*)}{in}
-*     </Arguments>
-*     <Purpose>Place markers for collapsed parts in output</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>V. Veryazov</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*         if iSw = 1, print Message preceded by a marker to
-*          start collapsed part in the output.
-*         if iSw = 0, place a marker to terminate collapsed part.
-*          STR is not used, but recommended.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       character*(*) STR
       Integer iSw
       Common /icolorize/icolorize

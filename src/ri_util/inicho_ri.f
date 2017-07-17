@@ -10,37 +10,27 @@
 *                                                                      *
 * Copyright (C) Thomas Bondo Pedersen                                  *
 ************************************************************************
+*  IniCho_RI
+*
+*> @brief
+*>   Initialize Cholesky environment for RI calculations
+*> @author Thomas Bondo Pedersen
+*>
+*> @details
+*> Initialize Cholesky environment for RI calculations.
+*>
+*> @note
+*> Needs a call to ::SetUp_Ints with indexation turned on (or get
+*> the indexation in shinf.fh by some other means).
+*>
+*> @param[in] nSkal    The number of shells (excl. aux. basis)
+*> @param[in] nVec_Aux Number of aux. basis vectors per irrep
+*> @param[in] nIrrep   Number of irreps
+*> @param[in] iTOffs   Offset vector
+*> @param[in] iShij    Index vector of shell pairs
+*> @param[in] nShij    Number of shell pairs
+************************************************************************
       SubRoutine IniCho_RI(nSkal,nVec_Aux,nIrrep,iTOffs,iShij,nShij)
-************************************************************
-*
-*   <DOC>
-*     <Name>IniCho\_RI</Name>
-*     <Syntax>Call IniCho\_RI(nSkal,nBas\_Aux,nIrrep,iToffs,iShij,nShij)
-*     </Syntax>
-*     <Arguments>
-*       \Argument{nSkal}{The number of shells (excl. aux. basis)}
-*                {Integer}{in}
-*       \Argument{nVec\_Aux}{Number of aux. basis vectors per irrep}
-*                {Integer}{in}
-*       \Argument{nIrrep}{Number of irreps}{Integer}{in}
-*       \Argument{iTOffs}{Offset vector}{Integer}{in}
-*       \Argument{iShij}{Index vector of shell pairs}{Integer}{in}
-*       \Argument{nShij}{Number of shell pairs}{Integer}{in}
-*     </Arguments>
-*     <Purpose>Initialize Cholesky environment for RI calculations
-*     </Purpose>
-*     <Dependencies>Call SetUp\_Ints with indexation turned on (or
-*                   get the indexation in shinf.fh by some other
-*                   means).
-*     </Dependencies>
-*     <Author>Thomas Bondo Pedersen</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*     </Description>
-*    </DOC>
-*
-************************************************************
 
       Implicit None
       Integer nSkal, nIrrep, nShij

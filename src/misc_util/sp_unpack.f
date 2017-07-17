@@ -10,26 +10,21 @@
 *                                                                      *
 * Copyright (C) 2014, Ignacio Fdez. Galvan                             *
 ************************************************************************
-*-----------------------------------------------------------------------
-* <DOC>
-*   <NAME>Sp\_Unpack</NAME>
-*   <SYNTAX>Call Sp\_Unpack(n,Sp,ij\_Sp,A)</Syntax>
-*   <ARGUMENTS>
-*     \Argument{n}{Size of the matrix}{Integer}{in}
-*     \Argument{Sp}{Input matrix, in sparse format}{Real*8 (*)}{in}
-*     \Argument{ij\_Sp}{Index vector of matrix Sp}{Integer (*)}{in}
-*     \Argument{A}{Output matrix, in dense (conventional) format}{Real*8 (n,n)}{out}
-*   </ARGUMENTS>
-*   <PURPOSE>Converts a sparse matrix to a dense (conventional) one</PURPOSE>
-*   <DEPENDENCIES></DEPENDENCIES>
-*   <AUTHOR>I. Fdez. Galvan</AUTHOR>
-*   <MODIFIED_BY></MODIFIED_BY>
-*   <SIDE_EFFECTS></SIDE_EFFECTS>
-*   <DESCRIPTION>
-*     Unpacks the sparse matrix Sp into a conventional dense matrix A.
-*   </DESCRIPTION>
-* </DOC>
-*-----------------------------------------------------------------------
+*  Sp_Unpack
+*
+*> @ingroup Sparse
+*> @brief
+*>   Converts a sparse matrix to a dense (conventional) one
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> Unpacks the sparse matrix \p Sp into a conventional dense matrix \p A.
+*>
+*> @param[in]  n     Size of the matrix
+*> @param[in]  Sp    Input matrix, in sparse format
+*> @param[in]  ij_Sp Index vector of matrix \p Sp
+*> @param[out] A     Output matrix, in dense (conventional) format
+************************************************************************
       SUBROUTINE Sp_Unpack(n,Sp,ij_Sp,A)
       IMPLICIT NONE
       INTEGER n, ij_Sp(*), i, j, k

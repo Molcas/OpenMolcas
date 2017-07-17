@@ -10,51 +10,39 @@
 *                                                                      *
 * Copyright (C) Anders Ohrn                                            *
 ************************************************************************
-*----------------------------------------------------------------------*
+*  Polink
+*
+*> @brief
+*>   Add the field from the QM-region onto the solvent. Include the field from the
+*>   polarizabilities in the solvent onto the QM-region.
+*>   (The effect of the static field is taken care of in hel.f)
+*> @author A. Ohrn
+*>
+*> @details
+*> To begin with we obtain the charge distribution of the QM-region
+*> as it exists due to the pressent density matrix (recall that it
+*> is the changes in the density matrix that causes the QM-region to
+*> be polarized). The field from these new multipoles are added on to
+*> solvent. We also include the reaction field from the QM-region.
+*> Then, with the new field from the QM-region included, we compute
+*> the field from the polarizabiolities in the solvent onto the QM-region,
+*> which is done just like in hel.f.
+*>
+*> @param[out]    Energy  The energy of the electrostatic interaction
+*> @param[in,out] iCall   An integer that tells if this is the first call in the iteration. Necessary for the copy of the one-particle Hamiltonian
+*> @param[in]     iAtom2  Number of particles in the solvent, times number of polarizabilities per solvent molecule
+*> @param[in]     iCi     Number of centers in QM-molecule
+*> @param[in]     iFil    Pointer to the static field from the solvent
+*> @param[out]    VpolMat The matrix due to polarization
+*> @param[in,out] fil     The field from the induced dipoles in the solvent
+*> @param[in]     polfac  A factor for the computation of the image
+*> @param[out]    poli    The solvent polarized field on QM-region
+*> @param[in]     iCstart Number to keep track of solvent molecules
+*> @param[in]     iTri    ``iOrb(1)*(iOrb(1)+1)/2``
+************************************************************************
       Subroutine Polink(Energy,iCall,iAtom2,iCi,iFil,VpolMat,fil,polfac
      &,poli,iCstart,iTri,iQ_Atoms,qTot,ChaNuc,xyzMyQ,xyzMyI,xyzMyP
      &,RoMat,xyzQuQ,CT)
-************************************************************
-*
-*   <DOC>
-*     <Name>Polink</Name>
-*     <Syntax>Call Polink(Energy,iCall,iAtom2,iCi,iFil,VpolMat,fil,polfac,poli,iCstart,iTri,iAtom)</Syntax>
-*     <Arguments>
-*       \Argument{Energy}{The energy of the electrostatic interaction}{}{out}
-*       \Argument{iCall}{An integer that tells if this is the first call in the iteration. Necessary for the copy of the one-particle hamiltonian}{}{inout}
-*       \Argument{iAtom2}{Number of particles in the solvent, times number of polarizabilities per solvent molecule}{}{in}
-*       \Argument{iCi}{Number of centers in QM-molecule}{}{in}
-*       \Argument{iFil}{Pointer to the static field from the solvent}{}{in}
-*       \Argument{VpolMat}{The matrix due to polarization}{}{out}
-*       \Argument{fil}{The field from the induced dipoles in the solvent}{}{inout}
-*       \Argument{polfac}{A factor for the computation of the image}{}{in}
-*       \Argument{poli}{The solvent polarized field on QM-region}{}{out}
-*       \Argument{iCstart}{Number to keep track of solvent molecules}{}{in}
-*       \Argument{iTri}{iOrb(1)*(iOrb(1)+1)/2}{}{in}
-*       \Argument{iAtom}{Number of atoms in QM-molecule}{}{in}
-*     </Arguments>
-*     <Purpose>
-*    Add the field from the QM-region onto the solvent. Include the
-*    field from the polarizabilities in the solvent onto the QM-region.
-*    (The effect of the static field is taken care of in hel.f.)
-*     </Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>A.Ohrn</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*    To begin with we obtain the charge distribution of the QM-region
-*    as it exists due to the pressent density matrix (recall that it
-*    is the changes in the density matrix that causes the QM-region to
-*    be polarized). The field from these new multipoles are added on to
-*    solvent. We also include the reaction field from the QM-region.
-*    Then, with the new field from the QM-region included, we compute
-*    the field from the polarizabiolities in the solvent onto the QM-region,
-*    which is done just like in hel.f.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8 (a-h,o-z)
 
 #include "maxi.fh"

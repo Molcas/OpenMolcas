@@ -114,7 +114,7 @@
 *    | (ij|kL)  |  (ij|kL)  | (ij|kL) |  /
 *    |          |           |         | /
 *    ----------------------------------/
-*/
+* */
       i1=nAS*(nAP*nBQ*nBR+nAQ*nBP*nBR)
       If (ISP.eq.ISQ) i1=nAS*nAP*nBQ*nBR
       i2=nAR*(nAP*nBQ*nBS+nAQ*nBP*nBS)

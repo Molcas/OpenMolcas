@@ -8,30 +8,17 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-************************************************************
+*  Init_a_Chunk
 *
-*   <DOC>
-*     <Name>Init\_a\_Chunk</Name>
-*     <Syntax>Call Init\_a\_Chunk(ip,n)</Syntax>
-*     <Arguments>
-*       \Argument{ip}{The base index for a memory block}{Integer}{in}
-*       \Argument{n}{The number of elements for a given block}{Integer}{in}
-*     </Arguments>
-*     <Purpose>
-* To initialize a common chunk.
-*     </Purpose>
-*     <Dependencies></Dependencies>
-*     <Author></Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects>
-*     </Side_Effects>
-*     <Description>
-* To initialize a common chunk.
-*     </Description>
-*    </DOC>
-*
-************************************************************
-
+*> @brief
+*>   Initialize a common chunk
+*>
+*> @details
+*> Initialize a common chunk.
+*>
+*> @param[in] ip The base index for a memory block
+*> @param[in] n  The number of elements for a given block
+************************************************************************
       Subroutine Init_a_Chunk(ip,n)
       Implicit Real*8 (a-h,o-z)
       Common /chunk/ ip_base,n_tot
@@ -42,39 +29,25 @@
       Return
       End
 
-
-
-************************************************************
+************************************************************************
+*  Get_a_Chunk
 *
-*   <DOC>
-*     <Name>Get\_a\_Chunk</Name>
-*     <Syntax>Call Get\_a\_Chunk(Label,Type\_,ip,n)</Syntax>
-*     <Arguments>
-*       \Argument{Label}{A string without meaning}{Character*(*)}{in}
-*       \Argument{Type\_}{REAL $|$ INTE}{Character*(*)}{in}
-*       \Argument{ip}{The index for a memory block}{Integer}{out}
-*       \Argument{n}{The number of elements for a given data type}{Integer}{in}
-*     </Arguments>
-*     <Purpose>
-* To calculate the index, ip, for a given data type, Type\_, according to
-* the base index stored at common /chunk/.
-*     </Purpose>
-*     <Dependencies>
-*     The Get\_a\_Chunk subroutine depends from the informations
-*     stored on the common chunk.
-*     </Dependencies>
-*     <Author></Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects>
-*     </Side_Effects>
-*     <Description>
-* The Type\_ is a string of any size. It is not case sensitive, and only the four first letters matter.
-* The n is the number of elements for a given data type.
-*     </Description>
-*    </DOC>
-*
-************************************************************
-
+*> @brief
+*>   Calculate the index, \p ip, for a given data type, \p Type_, according to the base index stored at common ``/chunk/``
+*>
+*> @details
+*> The \p Type_ is a string of any size. It is not case sensitive, and only the four first letters matter.
+*> The \p n is the number of elements for a given data type.
+*>
+*> @note
+*> The ::Get_a_Chunk subroutine depends from the informations
+*> stored on the common chunk.
+*>
+*> @param[in]  Label A string without meaning
+*> @param[in]  Type_ ``REAL`` / ``INTE``
+*> @param[out] ip    The index for a memory block
+*> @param[in]  n     The number of elements for a given data type
+************************************************************************
       Subroutine Get_a_Chunk(Label,Type_,ip,n)
       Implicit Real*8 (a-h,o-z)
 #include "SysDef.fh"
@@ -104,29 +77,17 @@ c Avoid unused argument warnings
       If (.False.) Call Unused_character(Label)
       End
 
-************************************************************
+************************************************************************
+*  nChunk
 *
-*   <DOC>
-*     <Name>nChunk</Name>
-*     <Syntax>Call nChunk(n)</Syntax>
-*     <Arguments>
-*       \Argument{n}{A number of elements for a given bloc}{Integer}{out}
-*     </Arguments>
-*     <Purpose>
-* To return the number of elements stored on the common chunk.
-*     </Purpose>
-*     <Dependencies></Dependencies>
-*     <Author></Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects>
-*     </Side_Effects>
-*     <Description>
-* nChunk returns the number of elements stored on the common chunk.
-*     </Description>
-*    </DOC>
-*
-************************************************************
-
+*> @brief
+*>   Return the number of elements stored on the common chunk
+*>
+*> @details
+*> ::nChunk returns the number of elements stored on the common chunk.
+*>
+*> @param[out] n A number of elements for a given block
+************************************************************************
       Subroutine nChunk(n)
       Implicit Real*8 (a-h,o-z)
       Common /chunk/ ip_base,n_tot

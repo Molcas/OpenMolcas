@@ -10,39 +10,31 @@
 *                                                                      *
 * Copyright (C) Thomas Bondo Pedersen                                  *
 ************************************************************************
+*  CD_Tester
+*
+*> @brief
+*>   Test the decomposition modules
+*> @author Thomas Bondo Pedersen
+*>
+*> @details
+*> Runs and tests the output from the general Cholesky decomposers
+*> ::ChoDec (out-of-core) and ::CD_InCore (in-core). The positive
+*> definite matrix to which \p ip_PDM points should be stored as a
+*> lower triangle.
+*>
+*> Error codes:
+*> - \p irc = ``-1``: \p n non-positive (&rarr; nothing done)
+*> - \p irc =  ``0``: all OK
+*> - \p irc =  ``1``: error in ::ChoDec
+*> - \p irc =  ``2``: error in ::CD_InCore
+*> - \p irc =  ``3``: error in both
+*>
+*> @param[out] irc     Return code
+*> @param[in]  ip_PDM  Pointer to matrix in \p Work
+*> @param[in]  n       Dimension of matrix (\p n &times; \p n)
+*> @param[in]  Verbose Print flag
+************************************************************************
       SubRoutine CD_Tester(irc,ip_PDM,n,Verbose)
-************************************************************
-*
-*   <DOC>
-*     <Name>CD\_Tester</Name>
-*     <Syntax>Call CD\_Tester(irc,ip\_PDM,n)</Syntax>
-*     <Arguments>
-*       \Argument{irc}{Return code}{Integer}{in}
-*       \Argument{ip\_PDM}{Pointer to matrix in Work}{Integer}{in}
-*       \Argument{n}{Dimension of matrix (n-by-n)}{Integer}{in}
-*       \Argument{Verbose}{Print flag}{Logical}{in}
-*     </Arguments>
-*     <Purpose>Test the decomposition modules</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>Thomas Bondo Pedersen</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*        Runs and tests the output from the general Cholesky decomposers
-*        ChoDec (out-of-core) and CD\_InCore (in-core). The positive
-*        definite matrix to which ip\_PDM points should be stored as a
-*        lower triangle.
-*        Error codes:
-*           irc = -1: n non-positive (=> nothing done)
-*           irc =  0: all OK
-*           irc =  1: error in ChoDec
-*           irc =  2: error in CD\_InCore
-*           irc =  3: error in both
-*     </Description>
-*    </DOC>
-*
-************************************************************
-
       Implicit Real*8 (a-h,o-z)
 
       External CD_Tester_Col

@@ -11,6 +11,18 @@
 * Copyright (C) 1994, Per Ake Malmqvist                                *
 *               2004,2005, Giovanni Ghigo                              *
 ************************************************************************
+*  Mem_Est
+*
+*> @brief
+*>   The routine makes an estimation of the optimal memory allocation and defines the
+*>   maximum number of Cholesky vectors to transform both for the main (\p nVec) and
+*>   the inner (\p nFVec) batch procedures
+*> @author Giovanni Ghigo
+*>
+*> @param[in]  iSymL Symmetry of the Cholesky vector
+*> @param[out] nVec  Number of Cholesky vectors to transform in the batch procedure
+*> @param[out] nFVec Number of Cholesky vectors to transform in the inner batch procedure
+************************************************************************
       Subroutine Mem_Est(iSymL,nVec,nFVec)
 ************************************************************************
 * Author :  Giovanni Ghigo                                             *
@@ -21,38 +33,6 @@
 * of Cholesky Vectors transformable.                                   *
 * The routine also define (calling Def_TCVx) which TCVx create.        *
 ************************************************************************
-*
-*   <DOC>
-*     <Name>Mem\_Est</Name>
-*     <Syntax>Call Mem\_Est(iSymL,nVec,nFVec)
-*     </Syntax>
-*     <Arguments>
-*      \Argument{iSymL}{Symmetry of the Cholesky vector}{Integer}{in}
-*      \Argument{nVec}{Number of Cholesky vectors to transform in the
-*      batch procedure}{Integer}{out}
-*      \Argument{nFVec}{Number of Cholesky vectors to transform in the
-*      inner batch procedure}{Integer}{out}
-*     </Arguments>
-*     <Purpose>
-*      The routine makes an estimation of the optimal memory allocation
-*      and defines the maximum number of Cholesky vectors to transfor
-*      both for the main (nVec) and the inner (nFVec) batch
-*      procedures.\\
-*      Called by Cho\_TraCtl.
-*     </Purpose>
-*     <Dependencies>
-*       Routine called: Def\_TCVx.
-*     </Dependencies>
-*     <Author>
-*      G. Ghigo
-*     </Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*     </Description>
-*    </DOC>
-*
-******************************************************************
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
 #include "rasdim.fh"
@@ -298,6 +278,26 @@
 
       Return
       End
+************************************************************************
+*  Def_TCVx
+*
+*> @brief
+*>   The routine defines which Transformed Cholesky (TCVx) to generate
+*>   setting ``.True.`` the logical matrix \c TCVXist(iType,iSym,jSym)
+*> @author Giovanni Ghigo
+*>
+*> @details
+*> - \c iType = ``1``: TCVA
+*> - \c iType = ``2``: TCVB
+*> - \c iType = ``3``: TCVC
+*> - \c iType = ``4``: TCVD
+*> - \c iType = ``5``: TCVE
+*> - \c iType = ``6``: TCVF
+*> - \c iType = ``7``: TCVG
+*>
+*> @param[in] iSym Symmetry(``i``) of the Cholesky Full Vector
+*> @param[in] jSym Symmetry(``j``) of the Cholesky Full Vector
+************************************************************************
       Subroutine Def_TCVx(iSym,jSym)
 ************************************************************************
 * Author  :  Giovanni Ghigo                                            *
@@ -309,36 +309,6 @@
 * TCVXist(iType,iSym,jSym) is .True. if the TCVx must be generated.    *
 * iType(x):  1=A, 2=B, 3=C, 4=D, 5=E, 6=F, 7=G                         *
 ************************************************************************
-*
-*   <DOC>
-*     <Name>Def\_TCVx</Name>
-*     <Syntax>Call Def\_TCVx(iSym,jSym)
-*     </Syntax>
-*     <Arguments>
-*      \Argument{iSym}{Symmetry(i) of the Cholesky full vector}{Integer}
-*      {in}
-*      \Argument{jSym}{Symmetry(j) of the Cholesky full vector}{Integer}
-*      {in}
-*     </Arguments>
-*     <Purpose>
-*      The routine defines which Transformed Cholesky (TCVx) to generate
-*      setting .True. the logical
-*      matrix TCVXist(iType,iSym,jSym) iType: 1=TCVA, 2=TCVB, 3=TCVC,
-*      4=TCVD, 5=TCVE, 6=TCVF, 7=TCVG.\\
-*      Called by Mem\_Est.
-*     </Purpose>
-*     <Dependencies>
-*     </Dependencies>
-*     <Author>
-*      G. Ghigo
-*     </Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*     </Description>
-*    </DOC>
-*
-******************************************************************
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
 #include "cho_tra.fh"

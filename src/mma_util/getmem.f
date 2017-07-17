@@ -10,58 +10,50 @@
 *                                                                      *
 * Copyright (C) 2012, Victor P. Vysotskiy                              *
 ************************************************************************
-c
-      Subroutine GetMem (NameIn,KeyIn,TypeIn,iPos,Length)
-************************************************************
+
+*  GetMem
 *
-*   <DOC>
-*     <Name>GetMem</Name>
-*     <Syntax>Call GetMem(NameIn,KeyIn,TypeIn,iPos,Length)</Syntax>
-*     <Arguments>
-*       \Argument{NameIn}{Arbitrary label}{Char*(*)}{in}
-*       \Argument{KeyIn}{Allo $|$ Free $|$ Check $|$ List $|$ Max}{Char*(*)}{in}
-*       \Argument{TypeIn}{Real $|$ Inte $|$ Char $|$ Sngl}{Char*(*)}{in}
-*       \Argument{iPos}{Position}{Integer}{inout}
-*       \Argument{Length}{Nr of items}{Integer}{inout}
-*     </Arguments>
-*     <Purpose>
-* A simple work space manager, used by all programs in MOLCAS.
-*     </Purpose>
-*     <Dependencies>
-* An include file, WrkSpc.fh, declares a commons /WrkSpc/, and
-* /cWrkSpc/. The first common contains three arrays,
-*  WORK(), SWORK() and IWORK(*), which  are equivalenced. The vector, CWORK,
-* belongs to the second commons.
-* GETMEM uses calls to the Molcas's memory allocator routines.
-*     </Dependencies>
-*     <Author></Author> Victor P. Vysotskiy
-*     <Modified_by></Modified_by>
-*     <Side_Effects>
-*     </Side_Effects>
-*     <Description>
-* NameIn, KeyIn, and TypeIn are strings of any size. They are
-* not case sensitive, and only the four first letters matter.
-* If KeyIn is 'allo' (or 'ALLO' or ...) then GETMEM will return the
-* position of a previously unused piece of workspace, capable of holding
-* at least LENGTH items, and register that piece as being in use.
-* If TypeIn is 'Real', the items will be accessible in
-* WORK(IPOS)..WORK(IPOS-1+LENGTH).
-* If TypeIn is 'Inte', the items will be accessible in
-* IWORK(IPOS)..IWORK(IPOS-1+LENGTH).
-* If TypeIn is 'Sngl', the items will be accessible in
-* SWORK(IPOS)..SWORK(IPOS-1+LENGTH).
-* If KeyIn is 'Free', the piece will be returned to the free pool.
-* If KeyIn is 'Chec', the boundaries of all allocated pieces will be
-* checked to see if the contents of guardian words, surrounding each
-* piece, are intact or not.
-* If KeyIn is 'List', the allocated fields will be tabulated.
-* If KeyIn is 'Max', there will be no allocation made, but the length
-* of the largest allocatable field is returned.
-* NameIn has no function, except that the user provides a label to the
-* field, which is used in error prints or listings.
-*     </Description>
-*    </DOC>
-*----------------------------------------------------------------------*
+*> @brief
+*>   A simple work space manager, used by all programs in MOLCAS
+*> @author Victor P. Vysotskiy
+*>
+*> @details
+*> \p NameIn, \p KeyIn, and \p TypeIn are strings of any size. They are
+*> not case sensitive, and only the four first letters matter.
+*> If KeyIn is '``allo``' (or '``ALLO``' or ...) then ::GETMEM will return the
+*> position of a previously unused piece of workspace, capable of holding
+*> at least \p LENGTH items, and register that piece as being in use.
+*> If \p TypeIn is '``Real``', the items will be accessible in
+*> \c WORK(IPOS) ... ``WORK(IPOS-1+LENGTH)``.
+*> If \p TypeIn is '``Inte``', the items will be accessible in
+*> \c IWORK(IPOS) ... ``IWORK(IPOS-1+LENGTH)``.
+*> If \p TypeIn is '``Sngl``', the items will be accessible in
+*> \c SWORK(IPOS) ... ``SWORK(IPOS-1+LENGTH)``.
+*> If \p KeyIn is '``Free``', the piece will be returned to the free pool.
+*> If \p KeyIn is '``Chec``', the boundaries of all allocated pieces will be
+*> checked to see if the contents of guardian words, surrounding each
+*> piece, are intact or not.
+*> If \p KeyIn is '``List``', the allocated fields will be tabulated.
+*> If \p KeyIn is '``Max``', there will be no allocation made, but the length
+*> of the largest allocatable field is returned.
+*> \p NameIn has no function, except that the user provides a label to the
+*> field, which is used in error prints or listings.
+*>
+*> @note
+*> An include file, WrkSpc.fh, declares commons ``/WrkSpc/`` and
+*> ``/cWrkSpc/``. The first common contains three arrays,
+*> \c WORK, \c SWORK and \c IWORK, which  are equivalenced. The vector, \c CWORK,
+*> belongs to the second common.
+*> ::GETMEM uses calls to the Molcas's MA memory allocator routines.
+*>
+*> @param[in]     NameIn Arbitrary label
+*> @param[in]     KeyIn  ``Allo`` / ``Free`` / ``Check`` / ``List`` / ``Max``
+*> @param[in]     TypeIn ``Real`` / ``Inte`` / ``Char`` / ``Sngl``
+*> @param[in,out] iPos   Position
+*> @param[in,out] Length Nr of items
+************************************************************************
+      Subroutine GetMem (NameIn,KeyIn,TypeIn,iPos,Length)
+************************************************************************
 *                                                                      *
 * History: Victor P. Vysotskiy                                         *
 *    2012: Native Molcas's Memory Allocator; Thread safety             *

@@ -12,7 +12,7 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-* This routine put scalar double data to the runfile.                  *
+* This routine put scalar integer data to the runfile.                 *
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -22,66 +22,46 @@
 * Written: August 2003                                                 *
 *                                                                      *
 ************************************************************************
+*  Put_iScalar
 *
-* <DOC>
-*   <Name>Put\_iScalar</Name>
-*   <Syntax>Call Put\_iScalar(Label,Data)</Syntax>
-*   <Arguments>
-*     \Argument{Label}{Name of field}{Character*(*)}{in}
-*     \Argument{Data}{Data to put on runfile}{Integer}{in}
-*   </Arguments>
-*   <Purpose>To add/update scalar data in runfile.</Purpose>
-*   <Dependencies></Dependencies>
-*   <Author>Per-Olof Widmark</Author>
-*   <Modified_by></Modified_by>
-*   <Side_Effects></Side_Effects>
-*   <Description>
-*     This routine is used to put scalar data of type
-*     Integer into the runfile. The data items are
-*     identified by the label. Below is a list of the
-*     data items that are recognized. The labels are
-*     case insensitive and significant to 16 characters.
-*
-*     For development purposes you can use an unsupported
-*     label. Whenever such a field is accessed a warning
-*     message is printed in the output, to remind the
-*     developer to update this routine.
-*
-*     List of known labels:
-*     \begin{itemize}
-*     \item `Multiplicity' is the spin multiplicity of
-*           the last SCf or RASSCF calculation.
-*     \item `nMEP' Number of points on the minimum energy path.
-*     \item `No of Internal coordinates' The number of internal
-*                coordinates for the molecule that is allowed
-*                within the given point group.
-*     \item `nSym' is the number of irreducible representations
-*           of the molecule.
-*     \item `PCM info length' Length of the block containing
-*                 misc. info for the PCM model.
-*     \item `Relax CASSCF root' signals which root to perform
-*           geometry optimization for in a state average CASSCF
-*           geometry optimization.
-*     \item `SA ready' signals that SA wavefunction is ready for
-*           gradient calculations.
-*     \item `System BitSwitch' is a bit switch controlling
-*           various functions. Will be replaced!
-*     \item `Unique atoms'
-*     \item `nActel` is the number of active electrons in CASSCF
-*           calculation
-*     \item `MkNemo.nMole' is the number of molecules as specified
-*           in the mknemo module.
-*     \item `nLambda' is the number of constraints in the PCO
-*     \item `DNG' force numerical gradients
-*     \item `HessIter' Last iteration where the analytical Hessian
-*           was computed
-*     \item `CHCCLarge` segmentation of VOs in CHCC
-*     \item `Seed` is the seed number for random number generator
-*           used in surface hoping.
-*     \end{itemize}
-*   </Description>
-* </DOC>
-*
+*> @brief
+*>   Add/update scalar data in runfile
+*> @author Per-Olof Widmark
+*>
+*> @details
+*> This routine is used to put scalar data of type
+*> ``Integer`` into the runfile. The data items are
+*> identified by the \p label. Below is a list of the
+*> data items that are recognized. The labels are
+*> case insensitive and significant to 16 characters.
+*>
+*> For development purposes you can use an unsupported
+*> label. Whenever such a field is accessed a warning
+*> message is printed in the output, to remind the
+*> developer to update this routine.
+*>
+*> List of known labels:
+*>
+*> - '``Multiplicity``'               The spin multiplicity of the last SCF or RASSCF calculation.
+*> - '``nMEP``'                       Number of points on the minimum energy path.
+*> - '``No of Internal coordinates``' The number of internal coordinates for the molecule that is allowed within the given point group.
+*> - '``nSym``'                       The number of irreducible representations of the molecule.
+*> - '``PCM info length``'            Length of the block containing misc. info for the PCM model.
+*> - '``Relax CASSCF root``'          Signals which root to perform geometry optimization for in a state average CASSCF geometry optimization.
+*> - '``SA ready``'                   Signals that SA wavefunction is ready for gradient calculations.
+*> - '``System BitSwitch``'           A bit switch controlling various functions. Will be replaced!
+*> - '``Unique atoms``'
+*> - '``nActel``'                     The number of active electrons in CASSCF calculation.
+*> - '``MkNemo.nMole``'               The number of molecules as specified in the mknemo module.
+*> - '``nLambda``'                    The number of constraints in the PCO.
+*> - '``DNG``'                        Force numerical gradients.
+*> - '``HessIter``'                   Last iteration where the analytical Hessian was computed.
+*> - '``TS Search``'                  Flag to mark if a TS search has been activated.
+*> - '``CHCCLarge``'                  Segmentation of VOs in CHCC.
+*> - '``Seed``'                       The seed number for random number generator used in surface hoping.
+*>
+*> @param[in] Label Name of field
+*> @param[in] Data  Data to put on runfile
 ************************************************************************
       Subroutine Put_iScalar(Label,Data)
       Implicit None

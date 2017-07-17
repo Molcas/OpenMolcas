@@ -10,31 +10,26 @@
 *                                                                      *
 * Copyright (C) 2014, Ignacio Fdez. Galvan                             *
 ************************************************************************
-*-----------------------------------------------------------------------
-* <DOC>
-*   <NAME>Sp\_TriSolve</NAME>
-*   <SYNTAX>Call Sp\_TriSolve(n,side,A,ija,b,x)</Syntax>
-*   <ARGUMENTS>
-*     \Argument{n}{Size of the system}{Integer}{in}
-*     \Argument{side}{Type of system}{Character}{in}
-*     \Argument{A}{Matrix in sparse format}{Real*8 (*)}{in}
-*     \Argument{ija}{Index vector of matrix A}{Integer (*)}{in}
-*     \Argument{b}{Vector of independent terms}{Real*8 (n)}{in}
-*     \Argument{x}{Solution vector}{Real*8 (n)}{out}
-*   </ARGUMENTS>
-*   <PURPOSE>Solves a triangular linear system, with a sparse matrix</PURPOSE>
-*   <DEPENDENCIES></DEPENDENCIES>
-*   <AUTHOR>I. Fdez. Galvan</AUTHOR>
-*   <MODIFIED_BY></MODIFIED_BY>
-*   <SIDE_EFFECTS></SIDE_EFFECTS>
-*   <DESCRIPTION>
-*     Solves the linear system $A x = b$, where A is a sparse triangular matrix.
-*     The side argument can be either `L' if A is lower triangular or `U' if
-*     it is upper triangular.
-*     On output the vector x contains the solution.
-*   </DESCRIPTION>
-* </DOC>
-*-----------------------------------------------------------------------
+*  Sp_TriSolve
+*
+*> @ingroup Sparse
+*> @brief
+*>   Solves a triangular linear system, with a sparse matrix
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> Solves the linear system \f$ A x = b \f$, where \p A is a sparse triangular matrix.
+*> The side argument can be either ``'L'`` if \p A is lower triangular or ``'U'`` if
+*> it is upper triangular.
+*> On output the vector \p x contains the solution.
+*>
+*> @param[in]  n    Size of the system
+*> @param[in]  side Type of system
+*> @param[in]  A    Matrix in sparse format
+*> @param[in]  ija  Index vector of matrix \p A
+*> @param[in]  b    Vector of independent terms
+*> @param[out] x    Solution vector
+************************************************************************
       SUBROUTINE Sp_TriSolve(n,side,A,ija,b,x)
       IMPLICIT NONE
       INTEGER n, ija(*), i, j, k
