@@ -99,7 +99,7 @@ then
 fi
 if [ -z "$SUBMODULES_OPEN" ]
 then
-    SUBMODULES_OPEN=''
+    SUBMODULES_OPEN='External/lapack'
 fi
 
 ################################################################################
