@@ -1972,7 +1972,7 @@ endif ()
 
 # If an external GA library is not present, we use the internal
 # DGA code which resides in dga_util:
-if (NOT GA)
+if (MPI AND NOT GA)
         set (util dga_util)
         find_source(${util})
         if (DEFINED ${util}_src)
