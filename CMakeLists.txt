@@ -233,7 +233,6 @@ endfunction ()
 # These will be needed later, so set them now
 find_source(blas_util)
 find_source(lapack_util)
-set (internal_linalg ${blas_util_src} ${lapack_util_src})
 
 # get version from git if available, otherwise look in .molcasversion
 #====================================================================
@@ -1559,7 +1558,7 @@ if (LINALG STREQUAL "Internal" OR LINALG STREQUAL "Runtime")
         if (EXISTS ${proj}/BLAS/SRC/ddot.f)
                 list (APPEND internal_linalg ${proj}/SRC ${proj}/INSTALL ${proj}/BLAS/SRC)
         else ()
-                #message (FATAL_ERROR "LAPACK+BLAS sources not available, run \"${GIT} submodule update --init ${proj}\"")
+                message (FATAL_ERROR "LAPACK+BLAS sources not available, run \"${GIT} submodule update --init ${proj}\"")
         endif ()
 endif ()
 
