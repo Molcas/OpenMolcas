@@ -137,7 +137,7 @@ def check_test(infofile, checkfile, count):
             rc = '_RC_CHECK_ERROR_'
         else:
           tag = ''
-        print(fmt_num.format(refs[i]['lab'], refs[i]['val'], vals[j]['val'], dif, tol, tag))
+        print(fmt_num.format(refs[i]['lab'], vals[j]['val'], refs[i]['val'], dif, tol, tag))
     # Additional values at the end
     j += 1
     while (j < len(vals)):
