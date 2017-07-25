@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2017 Varinia Bernales and Roland Lindh                 *
 ************************************************************************
-      Subroutine Seward_DMET(ireturn,DMET_h,DMET_g,nBfn)
+      Subroutine Seward_DMET(ireturn,DMET_f,DMET_h,DMET_g,nBfn)
 c.... please do not move this line further down (required for fortsplit)
 ************************************************************************
 *                                                                      *
@@ -78,7 +78,7 @@ c.... please do not move this line further down (required for fortsplit)
       use GeoList
       use MpmC
       Implicit Real*8 (A-H,O-Z)
-      Real*8 DMET_h(nBfn,nBfn), DMET_g(nBfn**4)
+      real*8 DMET_f(nBfn,nBfn), DMET_h(nBfn,nBfn), DMET_g(nBfn**4)
       External Integral_WrOut, Integral_WrOut2, Integral_RI_3
       Real*8, Dimension(:), Allocatable :: MemHide
 #include "real.fh"
@@ -339,7 +339,7 @@ C-SVC: identify runfile with a fingerprint
       If (Do_OneEl.and.
      &    (.Not.Primitive_Pass .or.
      &    (Primitive_Pass.and.(DKroll.or.NEMO)) ) )
-     &   Call Drv1El_DMET(DMET_h,nBfn)
+     &   Call Drv1El_DMET(DMET_f,DMET_h,nBfn)
 *
       iOpt = 0
       iRC = -1

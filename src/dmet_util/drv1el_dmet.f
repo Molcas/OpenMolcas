@@ -11,7 +11,7 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 *               1996, Per Ake Malmqvist                                *
 ************************************************************************
-      SubRoutine Drv1El_DMET(DMET_h,nBfn)
+      SubRoutine Drv1El_DMET(DMET_f,DMET_h,nBfn)
 ************************************************************************
 *                                                                      *
 * Object: driver for computation of one-electron matrices.             *
@@ -42,7 +42,7 @@
       Integer, Dimension(:), Allocatable :: ipList, OperI, OperC
       Real*8, Dimension(:), Allocatable :: CoorO, Nuc
       logical lECPnp,lPAM2np
-      Real*8 DMET_h(nBfn,nBfn)
+      Real*8 DMET_f(nBfn,nBfn), DMET_h(nBfn,nBfn)
 #include "itmax.fh"
 #include "info.fh"
 #include "print.fh"
@@ -129,9 +129,42 @@
      &              CoorO,nOrdOp,Zero,rHrmt,OperC,
      &              DMET_h,nBfn)
 *
+         write(6,*) 'One_el Integrals Done'
          Call Deallocate_Auxiliary()
       End If
 *                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
+* 21) Atomic Fock matrix
+* *
+*                                                                      *
+************************************************************************
+************************************************************************
+       Call Gen_RelPointers(-(Info-1))
+       PLabel=' '
+       rHrmt=One
+       nComp=1
+       nOrdOp = 0
+       write(6,*) 'before fock'
+       If (.Not.Prprt.and..Not.Primitive_Pass.and.Do_FckInt) Then
+           write(6,*) 'after if fock'
+       Call Allocate_Auxiliary()
+       Call dcopy_(3,Zero,0,CoorO,1)
+           write(6,*) 'copy coord fock'
+       OperI(1) = 1
+       OperC(1) = iChBas(1)
+*
+       Label='FckInt  '
+           write(6,*) 'before drv_fck'
+       Call Drv_Fck_DMET(Label,ipList,OperI,nComp,
+     &                   CoorO,nOrdOp,Zero,rHrmt,OperC,
+     &                   DMET_f,nBfn)
+*
+           write(6,*) 'after drv_fck'
+       Call Deallocate_Auxiliary()
+       End If
+       Call Gen_RelPointers(Info-1)
 ************************************************************************
 *                                                                      *
       Call Free_iSD()

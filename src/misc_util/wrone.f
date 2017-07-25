@@ -59,11 +59,14 @@
       Dimension LabTmp(2)
 *     Equivalence (TmpLab,LabTmp)
       Logical debug, Close
+*      integer ip(comp), icomp
 *----------------------------------------------------------------------*
 *     Start procedure:                                                 *
 *     Define inline function (symmetry multiplication)                 *
 *----------------------------------------------------------------------*
       MulTab(i,j)=iEor(i-1,j-1)+1
+*VB
+      Call PrMtrx("ONEINT inside Wrone",1,Comp,1,Data)
 *----------------------------------------------------------------------*
 *     Pick up the file definitions                                     *
 *----------------------------------------------------------------------*
@@ -82,7 +85,7 @@
          LuOne=77
          LuOne=isFreeUnit(LuOne)
          Label='ONEINT  '
-*        Write(*,*) 'WrOne: opening OneInt'
+*         Write(6,*) 'WrOne: opening OneInt'
          iRC=-1
          iOpt=0
          Call OpnOne(iRC,iOpt,Label,LuOne)
@@ -99,6 +102,8 @@
       Call UpCase(Label)
       TmpLab=Label
       Call ByteCopy(TmpLab,LabTmp,8)
+*VB
+*         Write(6,*) 'WrOne: opening OneInt'
 *----------------------------------------------------------------------*
 *     Print debugging information                                      *
 *----------------------------------------------------------------------*
@@ -174,6 +179,15 @@
 *----------------------------------------------------------------------*
       iDisk=0
       Call iDaFile(LuOne,1,TocOne,lToc,iDisk)
+
+*#define _DMET_
+#ifdef _DMET_
+      icomp=0
+      Do icomp = 1, comp
+        ip=ip(icomp)
+        write(6,*) "rdone", Data(ip)
+      Enddo
+#endif
 *
       If (Close) Then
          iRC=-1
@@ -184,6 +198,12 @@
             Call Abend
          End If
       End If
+*#define _DMET_
+#ifdef _DMET_
+       Write (6,*) 'DMET_wrone'
+       write(6,*) "rdone", Data(1), Data(2), Data(3), Data(4)
+      Call PrMtrx("ONEINT inside Wrone",1,Comp,1,Data)
+#endif
 *----------------------------------------------------------------------*
 *     Terminate procedure                                              *
 *----------------------------------------------------------------------*

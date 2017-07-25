@@ -23,7 +23,7 @@
 * Written: Oct 2004                                                    *
 *                                                                      *
 ************************************************************************
-      Subroutine FckByInt_DMET(iReturn,DMET_f,nBfn,StandAlone)
+      Subroutine FckByInt_DMET(iReturn,DMET_h,DMET_f,nBfn,StandAlone)
       Implicit Real*8 (a-h,o-z)
 #include "stdalloc.fh"
 #include "Molcas.fh"
@@ -32,11 +32,12 @@
       Real*8, Dimension(:), Allocatable ::  CMO_DMET, Ovl_DMET,
      &                                      T1, T2, T3, Eps_DMET,
      &                                      Array
-      Real*8 Dmet_f(*)
+      Real*8, Dimension(:,:), Allocatable ::  DMET_h
+      Real*8  DMET_f(*)
 *----------------------------------------------------------------------*
 * Dummy arguments                                                      *
 *----------------------------------------------------------------------*
-      Integer iReturn, nOrb(8)
+      Integer iReturn, nOrb(8), ip(1)
 *----------------------------------------------------------------------*
 * Local variables                                                      *
 *----------------------------------------------------------------------*
@@ -52,7 +53,7 @@
       Integer nBfnMax
       Integer nTriTot
       Integer nSqrTot
-      Integer iSym
+      Integer iSym,tSym
       Integer iBas
       Integer jBas
       Integer kBas
@@ -105,11 +106,19 @@
       nBfnMax=0
       nTriTot=0
       nSqrTot=0
-      Do iSym=1,nSym
+      tSym = nSym
+      Do iSym=1,tSym
          nBfnTot=nBfnTot+nBfn(iSym)
          nBfnMax=Max(nBfnmax,nBfn(iSym))
          nTriTot=nTriTot+nBfn(iSym)*(nBfn(iSym)+1)/2
          nSqrTot=nSqrTot+nBfn(iSym)*nBfn(iSym)
+         Write(6,*) '**HERE0**'
+         Do iBas = 1, 2
+            Do jBas = 1, 2
+                Write(6,*) '**HERE i j**', iBas,jBas
+                Write(6,*) '**HERE**', DMET_h(iBas,jBas)
+            End do
+         End do
       End Do
 *----------------------------------------------------------------------*
 * Get model Fock matrix.                                               *
@@ -124,20 +133,24 @@
       Call WrOne(iRC,6,'FckInt  ',1,DMET_f,iSmLbl)
       Call RdOne(irc,6,'FckInt  ',1,DMET_f,iSymlb)
       Write(6,*) 'rdone'
-*      Call TriPrt('FckInt','(12f12.6)',DMET_f(ij),nBfn(iSym))
+*      Call TriPrt('FckInt','(12f12.6)',DMET_f,nBfn(iSym))
 
+*************************************************************************
+**     Compute all SO integrals for all components of the operator.
 ************************************************************************
-*     Compute all SO integrals for all components of the operator.
-************************************************************************
-*      Do iBfn = 1, nBfn
+*      Do iSym=1,2
+*       Do iBfn = 1, nBfn(iSym)
 *         Do jBfn = 1, iBfn
 *            ijBfn = iBfn*(iBfn-1)/2 + jBfn - 1 + ip(1)
+*             Write(6,*) DMET_h(iBfn,jBfn)
+*             Write(6,*) '**HERE**'
 *            Array(ijBfn)=DMET_h(iBfn,jBfn)
 *         End Do
+*       End Do
 *      End Do
-*************************************************************************
-*
-*      Call PrMtrx(Label,lOper,nComp,ip,Array)
+************************************************************************
+
+      Call PrMtrx("DMET_h",lOper,1,1,DMET_h)
 
       If (iRc.ne.0) Then
          iReturn=1
@@ -148,6 +161,14 @@
          Write(6,*) '***'
          Return
       End If
+
+      ij=1
+      Do iSym=1,nSym
+        Call TriPrt('DMET_f','(12f12.6)',DMET_f(ij),nBfn(iSym))
+        Call TriPrt('DMET_h','(12f12.6)',DMET_h,nBfn(iSym))
+        ij=ij+nBfn(iSym)*(nBfn(iSym)+1)/2
+      Enddo
+
       If(Debug) Then
          ij=1
          Do iSym=1,nSym
