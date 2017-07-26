@@ -113,13 +113,11 @@
 *
          iOpt = 0
          iRC = -1
-         write(6,*) "before if"
          If (Label(1:3).eq.'PAM')
      &      Write(Label,'(A5,I3.3)') 'PAM  ',iPAMcount
-         Write(6,*) ' oneel *',Label,'*'
+*         Write(6,*) ' oneel *',Label,'*'
 
          Call WrOne(iRC,iOpt,Label,iComp,Array(ip(iComp)),iSmLbl)
-         write(6,*) 'after wrone'
 
          If (Label(1:3).eq.'PAM')
      &      Call WrOne(iRC,iOpt,Label,1,Array(ip(iComp)),iSmLbl)

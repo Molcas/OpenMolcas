@@ -11,7 +11,7 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 *               1996, Per Ake Malmqvist                                *
 ************************************************************************
-      SubRoutine Drv1El_DMET(DMET_f,DMET_h,nBfn)
+      SubRoutine Drv1El_DMET(DMET_s,DMET_f,DMET_h,nBfn)
 ************************************************************************
 *                                                                      *
 * Object: driver for computation of one-electron matrices.             *
@@ -42,7 +42,8 @@
       Integer, Dimension(:), Allocatable :: ipList, OperI, OperC
       Real*8, Dimension(:), Allocatable :: CoorO, Nuc
       logical lECPnp,lPAM2np
-      Real*8 DMET_f(nBfn,nBfn), DMET_h(nBfn,nBfn)
+      Real*8 DMET_s(nBfn,nBfn),DMET_f(nBfn,nBfn), DMET_h(nBfn,nBfn)
+      Real*8 Ccoor(3)
 #include "itmax.fh"
 #include "info.fh"
 #include "print.fh"
@@ -146,25 +147,95 @@
        rHrmt=One
        nComp=1
        nOrdOp = 0
-       write(6,*) 'before fock'
        If (.Not.Prprt.and..Not.Primitive_Pass.and.Do_FckInt) Then
-           write(6,*) 'after if fock'
        Call Allocate_Auxiliary()
        Call dcopy_(3,Zero,0,CoorO,1)
-           write(6,*) 'copy coord fock'
        OperI(1) = 1
        OperC(1) = iChBas(1)
 *
        Label='FckInt  '
-           write(6,*) 'before drv_fck'
        Call Drv_Fck_DMET(Label,ipList,OperI,nComp,
      &                   CoorO,nOrdOp,Zero,rHrmt,OperC,
      &                   DMET_f,nBfn)
 *
-           write(6,*) 'after drv_fck'
        Call Deallocate_Auxiliary()
        End If
        Call Gen_RelPointers(Info-1)
+
+************************************************************************
+************************************************************************
+*
+*   Multipole Moments starting with the overlap. If SEWARD is run in
+*         the property mode we will skip the overlap integrals.
+*
+************************************************************************
+************************************************************************
+       PLabel=' '
+       rHrmt=One
+       iLow = 0
+       mMltpl=nMltpl
+       If (Prprt) iLow = 1
+*     If not Douglas-Kroll and primitive pass do no property integrals
+       If (Primitive_Pass) Then
+           iLow=0
+           If (.Not. DKroll) mMltpl=-1
+       End If
+
+       Do 10 iMltpl = iLow, nMltpl
+          Write (Label,'(A,I2)') 'Mltpl ', iMltpl
+          nComp = (iMltpl+1)*(iMltpl+2)/2
+          Call DCopy_(3,Coor_MPM(1,iMltpl+1),1,Ccoor,1)
+          Call Allocate_Auxiliary()
+          iComp=0
+          Do 11 ix = iMltpl, 0, -1
+              If (Mod(ix,2).eq.0) Then
+                  iSymX=1
+              Else
+                  ixyz=1
+                  iSymX=2**IrrFnc(ixyz)
+                  If (Ccoor(1).ne.Zero) iSymX = iOr(iSymX,1)
+              End If
+              Do 12 iy = iMltpl-ix, 0, -1
+                 If (Mod(iy,2).eq.0) Then
+                     iSymY=1
+                 Else
+                     ixyz=2
+                     iSymY=2**IrrFnc(ixyz)
+                     If (Ccoor(2).ne.Zero) iSymY = iOr(iSymY,1)
+                 End If
+                 iz = iMltpl-ix-iy
+                 If (Mod(iz,2).eq.0) Then
+                     iSymZ=1
+                 Else
+                     ixyz=4
+                     iSymZ=2**IrrFnc(ixyz)
+                     If (Ccoor(3).ne.Zero) iSymZ = iOr(iSymZ,1)
+                 End If
+                 iChO = Mod(ix,2)*iChBas(2)
+     &              + Mod(iy,2)*iChBas(3)
+     &              + Mod(iz,2)*iChBas(4)
+                 OperI(1+iComp) = MltLbl(iSymX,MltLbl(iSymY,iSymZ,
+     &                            nIrrep),nIrrep)
+                 OperC(1+iComp) = iChO
+                 Call DCopy_(3,Coor_MPM(1,iMltpl+1),1,
+     &                    CoorO(1+iComp*3),1)
+                 iComp = iComp + 1
+ 12         Continue
+ 11      Continue
+
+         If(iMltpl.eq.0) Then
+             Call Put_dScalar('Total Nuclear Charge',Nuc)
+         End If
+
+*         nOrdOp=iMltpl
+*         Call OneEl(MltInt,MltMem,Label,ipList,OperI,nComp,
+*     &              CoorO,nOrdOp,Nuc,rHrmt,OperC,
+*     &              DMET_s,nBfn)
+*
+         Call Deallocate_Auxiliary()
+
+ 10   Continue
+
 ************************************************************************
 *                                                                      *
       Call Free_iSD()

@@ -136,7 +136,6 @@
             iRC = -1
             L_Temp='OneHam  '
             iComp_=iComp
-            write(6,*) "wrone 1"
             Call WrOne(iRC,iOpt,L_Temp,iComp_,Array(ip(iComp)),iSmLbl)
 
             If (iRC.ne.0) then
