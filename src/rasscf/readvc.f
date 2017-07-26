@@ -199,6 +199,7 @@ C Local print level (if any)
        IF(IPRLEV.ge.TERSE) THEN
         Write(LF,'(6X,A)')
      &         'The MO-coefficients are taken from the file:'
+*VB: Here I need to continue
         Write(LF,'(6X,A)') StartOrbFile
         Write(LF,'(6X,A,A)') 'Title:', VecTit(2:80)
        END IF
@@ -245,6 +246,7 @@ C Local print level (if any)
         lll = MAX(lll,RtoI*mxRoot)
         CALL GETMEM('JOBOLD','ALLO','INTEGER',lJobH,lll)
         iAd19=iAdr19(1)
+        write(6,*) 'WR_RASSCF_Info'
         CALL WR_RASSCF_Info(JobOld,2,iAd19,
      &                      iWork(lJobH),iWork(lJobH),iWork(lJobH),
      &                      iWork(lJobH),iWork(lJobH),iWork(lJobH),
@@ -257,6 +259,7 @@ C Local print level (if any)
      &                      iWork(lJobH),iWork(lJobH),iWork(lJobH),
      &                      iWork(lJobH),iWork(lJobH),iWork(lJobH),
      &                      iWork(lJobH))
+        write(6,*) 'WR_RASSCF_Info 1'
         IF(IPRLEV.ge.TERSE) THEN
          If (iJOB.eq.1) Then
             Write(LF,'(6X,A)')
@@ -287,6 +290,7 @@ C Local print level (if any)
      &        ' and weighted together.'
            End If
          End If
+         write(6,*) 'WR_RASSCF_Info 2'
          Call GetMem('Scr','Allo','Real',lscr,NACPR2)
          iDisk = IADR19(3)
          Do jRoot = 1,lRoots
@@ -341,6 +345,7 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
 *     guess MO-coefficients
 
       Else If (InVec.eq.5) then
+        write(6,*) 'WR_RASSCF_Info 3'
          IF(IPRLEV.ge.VERBOSE) Write(LF,'(6x,a)')
      &                               'Detected guessorb orbitals'
          Call Qpg_dArray('Guessorb',Found,nData)
@@ -461,10 +466,13 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
 *     orthogonalize the molecular orbitals
 * New orthonormalization routine, with additional deletion of
 * linear dependence.
+*VB: goes until here
       CALL GETMEM('CMOO','ALLO','REAL',LCMOO,NTOT2)
       CALL DCOPY_(NTOT2,CMO,1,WORK(LCMOO),1)
       CALL ONCMO(WORK(LCMOO),CMO)
+      write(6,*) 'WR_RASSCF_Info 7'
       CALL GETMEM('CMOO','FREE','REAL',LCMOO,NTOT2)
+      write(6,*) 'WR_RASSCF_Info 8'
 
 *     save start orbitals
 

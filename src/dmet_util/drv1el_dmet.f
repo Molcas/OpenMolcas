@@ -223,15 +223,26 @@
  12         Continue
  11      Continue
 
-         If(iMltpl.eq.0) Then
-             Call Put_dScalar('Total Nuclear Charge',Nuc)
-         End If
+*         If(iMltpl.eq.0) Then
+*             Call Put_dScalar('Total Nuclear Charge',Nuc)
+*         End If
+        write(6,*) "MltInt", MltInt
+        write(6,*) "MltMem", Mltmem
+        write(6,*) "label", label
+        write(6,*) "iplist", iplist
+        write(6,*) "OperI", OperI
+        write(6,*) "nComp",nComp
+        write(6,*) "CoorO",CoorO
+        write(6,*) "nOrdOp",nOrdOp
+        write(6,*) "Nuc",  Nuc
+        write(6,*) "OperC",OperC
 
-*         nOrdOp=iMltpl
-*         Call OneEl(MltInt,MltMem,Label,ipList,OperI,nComp,
-*     &              CoorO,nOrdOp,Nuc,rHrmt,OperC,
-*     &              DMET_s,nBfn)
-*
+
+         nOrdOp=iMltpl
+         Call OneEl_DMET_s(MltInt,MltMem,Label,ipList,OperI,nComp,
+     &              CoorO,nOrdOp,Nuc,rHrmt,OperC,
+     &              DMET_s,nBfn)
+
          Call Deallocate_Auxiliary()
 
  10   Continue

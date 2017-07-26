@@ -1,5 +1,5 @@
 * guessorb $ this file belongs to the Molcas repository $
-      subroutine guessorb(iReturn,StandAlone)
+      subroutine guessorb_dmet(iReturn,StandAlone)
 ************************************************************************
 *                                                                      *
 * This program computes start orbitals for use in SCF/RASSCF etc.      *
@@ -35,9 +35,9 @@
 **----------------------------------------------------------------------*
 ** Prologue                                                             *
 **----------------------------------------------------------------------*
-*      iReturn=0
-*      Call qEnter('guessorb')
-*      Call InitGO(StandAlone)
+      iReturn=0
+      Call qEnter('guessorb_dmet')
+      Call InitGO(StandAlone)
 *      If(StandAlone) Call InpCtl_GuessOrb
 **----------------------------------------------------------------------*
 ** Select method to be used.                                            *
@@ -53,14 +53,6 @@
 **VB*  End If
 *999   Continue
 *      Call cls_gsswfn
-**----------------------------------------------------------------------*
-** Produce MOLDEN input                                                 *
-**----------------------------------------------------------------------*
-*      iUHF=0
-*      If (iRC.eq.0) then
-*        Call Molden_Interface(iUHF,'GSSORB','MD_GSS',.False.)
-*c        call grid_driver(-1,'SEWARD','GSSORB',iRc)
-*      End If
 *----------------------------------------------------------------------*
 * Epilogue                                                             *
 *----------------------------------------------------------------------*
