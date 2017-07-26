@@ -10,28 +10,20 @@
 *                                                                      *
 * Copyright (C) 2015, Ignacio Fdez. Galvan                             *
 ************************************************************************
+*  Get_Grad_Full
+*
+*> @brief
+*>   Get gradient from RUNFILE
+*> @author I. Fdez. Galv&aacute;n
+*>
+*> @details
+*> Place Cartesian gradient (in a.u.) into array \p Grad_Full(3,*).
+*> Includes MM atoms otherwise invisible to gateway/slapaf.
+*>
+*> @param[out] Grad_Full  Array of gradient
+*> @param[in]  nAtoms_All Number of atoms
+************************************************************************
       Subroutine Get_Grad_Full(Grad_Full,nAtoms_Full)
-************************************************************
-*
-*   <DOC>
-*     <Name>Get\_Grad\_Full</Name>
-*     <Syntax>Call Get\_Grad\_Full(Grad\_Full,nAtoms\_Full)</Syntax>
-*     <Arguments>
-*       \Argument{Grad\_Full}{Array of gradient}{Real*8 (3,nAtoms\_All)}{out}
-*       \Argument{nAtoms\_Full}{Number of atoms}{Integer}{in}
-*     </Arguments>
-*     <Purpose>Get gradient from RUNFILE</Purpose>
-*     <Dependencies>Get\_nAtoms\_Full, Get\_nAtoms\_All</Dependencies>
-*     <Author>I. Fdez. Galvan</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*       Place cartesian gradient (in a.u. into array Grad\_Full(3,*).
-*       Includes MM atoms otherwise invisible to gateway/slapaf.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit None
       Integer nAtoms_Full, nAtoms_Fullx, nAtoms_All, nGrad, nGradMM
       Real*8 Grad_Full(3,nAtoms_Full)

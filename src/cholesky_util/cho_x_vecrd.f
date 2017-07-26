@@ -10,48 +10,37 @@
 *                                                                      *
 * Copyright (C) Thomas Bondo Pedersen                                  *
 ************************************************************************
+*  Cho_X_VecRd
+*
+*> @brief
+*>   Read as many Cholesky vectors as possible in the range \p jVec1, \p jVec1+1, \p jVec1+2, ..., \p jVec2.
+*> @author Thomas Bondo Pedersen
+*>
+*> @details
+*> The vectors are returned in their native storage (reduced set).
+*> Starting with vector \p jVec1, this routine will read as many
+*> vectors as possible, although at most (\p jVec2-\p jVec1+1) vectors
+*> are read.
+*>
+*> On entry as well as exit, \p iRedC identifies the
+*> reduced set stored at location ``3`` (``-1`` if none or unknown).
+*> On exit, \p jNum is the number
+*> of vectors actually read and \p mUsed is the memory
+*> (in ``real*8`` words) actually used.
+*>
+*> @note
+*> cholesky.fh and choptr.fh must be initialized.
+*>
+*> @param[out]    Scr   contains the vectors on exit
+*> @param[in]     lScr  dimension of \p Scr
+*> @param[in]     jVec1 first vector to read
+*> @param[in]     jVec2 last vector allowed to read
+*> @param[in]     iSym  vector symmetry
+*> @param[out]    jNum  number of vectors actually read
+*> @param[in,out] iRedC reduced set stored at location ``3`` on entry as well as exit
+*> @param[out]    mUsed amount of memory actually used (in ``real*8`` words)
+************************************************************************
       Subroutine Cho_X_VecRd(Scr,lScr,jVec1,jVec2,iSym,jNum,iRedC,mUsed)
-************************************************************************
-*
-*   <DOC>
-*     <Name>Cho\_X\_VecRd</Name>
-*     <Syntax>Call Cho\_X\_VecRd(Scr,lScr,jVec1,jVec2,iSym,jNum,iRedC,
-*                                mUsed)
-*     </Syntax>
-*     <Arguments>
-*       \Argument{Scr}{contains the vectors on exit}{Real*8}{out}
-*       \Argument{lScr}{dimension of Scr}{Integer}{in}
-*       \Argument{jVec1}{first vector to read}{Integer}{in}
-*       \Argument{jVec2}{last vector allowed to read}{Integer}{in}
-*       \Argument{iSym}{vector symmetry}{Integer}{in}
-*       \Argument{jNum}{number of vectors actually read}{Integer}{out}
-*       \Argument{iRedC}{reduced set stored at location 3 on entry as
-*                        well as exit}{Integer}{inout}
-*       \Argument{mUsed}{amount of memory actually used
-*                       (in real*8 words)}{Integer}{out}
-*     </Arguments>
-*     <Purpose>Read as many Cholesky vectors as possible in the range
-*              jVec1,jVec1+1,jVec1+2,...,jVec2.
-*     </Purpose>
-*     <Dependencies>cholesky.fh and choptr.fh must be initialized
-*     </Dependencies>
-*     <Author>Thomas Bondo Pedersen</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*        The vectors are returned in their native storage (reduced set).
-*        Starting with vector jVec1, this routine will read as many
-*        vectors as possible, although at most (jVec2-jVec1+1) vectors
-*        are read.
-*        On entry as well as exit, iRedC identifies the
-*        reduced set stored at "location 3" (-1 if none or unknown).
-*        On exit, jNum is the number
-*        of vectors actually read and mUsed is the memory
-*        (in real*8 words) actually used.
-*     </Description>
-*    </DOC>
-*
-************************************************************************
       Implicit None
       Integer lScr, jVec1, jVec2, iSym, jNum, iRedC, mUsed
       Real*8  Scr(lScr)

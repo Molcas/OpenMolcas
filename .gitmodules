@@ -22,3 +22,7 @@
 [submodule "External/efp"]
 	path = External/efp
 	url = https://github.com/ilyak/libefp.git
+[submodule "External/lapack"]
+	path = External/lapack
+	url = https://github.com/Reference-LAPACK/lapack-release.git
+	branch = lapack-3.7.1

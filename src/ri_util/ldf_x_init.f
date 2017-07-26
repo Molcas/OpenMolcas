@@ -10,49 +10,42 @@
 *                                                                      *
 * Copyright (C) Thomas Bondo Pedersen                                  *
 ************************************************************************
+*  LDF_X_Init
+*
+*> @brief
+*>   Initialize LDF (Local Density Fitting) environments
+*> @author Thomas Bondo Pedersen
+*>
+*> @details
+*> Initialization of LDF environment. If \p Ini_Sew,
+*> Seward is initialized as part of the LDF setup (if not, Seward
+*> must be initialized before calling this routine). \p nDiff is only
+*> used if Seward is to be initialized.
+*>
+*> \p BufFrac specifies the fraction of available memory (after all
+*> other LDF data has been allocated) that can at most be used as
+*> buffer for fitting coefficients. This buffer serves to minimize
+*> the amount of I/O done in iterative procedures such as SCF.
+*> A non-zero return code means that the initialization failed:
+*>
+*> Return codes:
+*>
+*> - \p irc = ``-2``: not LDF (according to Runfile)
+*> - \p irc = ``-1``: illegal \p nDiff input parameter
+*> - \p irc =  ``0``: initialization success
+*> - \p irc =  ``1``: error in setup routine
+*>
+*> @note
+*> Seward must have generated the LDF fitting coefficients.
+*>
+*> @param[in]  Ini_Sew Do initialization of Seward environment
+*> @param[in]  nDiff   Initialize Seward to compute derivatives of order \p nDiff
+*> @param[in]  BufFrac Memory fraction used for fitting coefficient buffer}
+*> @param[out] irc     Return code
+*>
+*> @see ::LDF_X_Final
+************************************************************************
       Subroutine LDF_X_Init(Ini_Sew,nDiff,BufFrac,irc)
-************************************************************************
-*
-*   <DOC>
-*     <Name>LDF\_X\_Init</Name>
-*     <Syntax>Call LDF\_X\_Init(Ini\_Sew,nDiff,irc)</Syntax>
-*     <Arguments>
-*       \Argument{Ini\_Sew}{Do initialization of Seward environment}
-*       {Logical}{in}
-*       \Argument{nDiff}{Initialize Seward to compute derivatives of
-*       order nDiff}{Integer}{in}
-*       \Argument{BufFrac}{Memory fraction used for fitting coefficient
-*       buffer}{Real*8}{in}
-*       \Argument{irc}{Return code}{Integer}{out}
-*     </Arguments>
-*     <Purpose>Initialize LDF (Local Density Fitting) environments.
-*     </Purpose>
-*     <Dependencies>Seward must have generated the LDF fitting
-*     coefficients.
-*     </Dependencies>
-*     <Author>Thomas Bondo Pedersen</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>Initialization of LDF environment. If (Ini\_Sew),
-*     Seward is initialized as part of the LDF setup (if not, Seward
-*     must be initialized before calling this routine). nDiff is only
-*     used if Seward is to be initialized.
-*     BufFrac specifies the fraction of available memory (after all
-*     other LDF data has been allocated) that can at most be used as
-*     buffer for fitting coefficients. This buffer serves to minimize
-*     the amount of I/O done in iterative procedures such as SCF.
-*     A non-zero return code means that the initialization failed:
-*     Return codes:
-*     \begin{itemize}
-*          \item irc = -2: not LDF (according to Runfile)
-*          \item irc = -1: illegal nDiff input parameter
-*          \item irc =  0: initialization success
-*          \item irc =  1: error in setup routine
-*        \end{itemize}
-*     </Description>
-*    </DOC>
-*
-************************************************************************
       Implicit None
       Logical Ini_Sew
       Integer nDiff

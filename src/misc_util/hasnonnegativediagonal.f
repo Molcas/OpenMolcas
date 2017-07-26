@@ -10,28 +10,22 @@
 *                                                                      *
 * Copyright (C) Thomas Bondo Pedersen                                  *
 ************************************************************************
+*  hasNonnegativeDiagonal
+*
+*> @brief
+*>   Return ``.True.`` if all diagonal elements of \p M are non-negative
+*> @author Thomas Bondo Pedersen
+*>
+*> @details
+*> Test if all diagonal elements of matrix \p M are non-negative.
+*> If \f$ \forall i \; M_{ii} \ge 0 \f$ return ``.True.``.
+*>
+*> @param[in] M \p n &times; \p n square matrix
+*> @param[in] n Dimension of \p M
+*>
+*> @return ``.True.`` if all diagonal elements of \p M are non-negative.
+************************************************************************
       Logical Function hasNonnegativeDiagonal(M,n)
-************************************************************
-*
-*   <DOC>
-*     <Name>hasNonnegativeDiagonal</Name>
-*     <Syntax>hasNonnegativeDiagonal(M,n)</Syntax>
-*     <Arguments>
-*       \Argument{M}{n-by-n quadratic matrix}{Real*8 array}{in}
-*       \Argument{n}{Dimension of M}{Integer}{in}
-*     </Arguments>
-*     <Purpose>Return .True. if all diagonal elements of M
-*     are non-negative.
-*     </Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>Thomas Bondo Pedersen</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>Returns .True. if for all i, M(i,i) .ge. 0.0d0
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit None
       Integer n
       Real*8  M(n,n)

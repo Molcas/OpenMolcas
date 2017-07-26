@@ -10,57 +10,51 @@
 *                                                                      *
 * Copyright (C) 2012, Victor P. Vysotskiy                              *
 ************************************************************************
-c
-      Subroutine GetShMem (NameIn,KeyIn,TypeIn,iPos,Length,Path,ShmId)
-************************************************************
+
+*  GetShMem
 *
-*   <DOC>
-*     <Name>GetMem</Name>
-*     <Syntax>Call GetShMem(NameIn,KeyIn,TypeIn,iPos,Length)</Syntax>
-*     <Arguments>
-*       \Argument{NameIn}{Arbitrary label}{Char*(*)}{in}
-*       \Argument{KeyIn}{Allo $|$ Free }{Char*(*)}{in}
-*       \Argument{TypeIn}{Real $|$ Inte $|$ Char $|$ Sngl}{Char*(*)}{in}
-*       \Argument{iPos}{Position}{Integer}{inout}
-*       \Argument{Length}{Nr of items}{Integer}{inout}
-*       \Argument{Path}{an arbitrary path or empty }{Char*(*)}{in}
-*       \Argument{ShmId}{An unique shared memory id}{Integer}{inout}
-*     </Arguments>
-*     <Purpose>
-* A simple work space manager, used by all programs in MOLCAS.
-*     </Purpose>
-*     <Dependencies>
-* An include file, WrkSpc.fh, declares a commons /WrkSpc/,
-* /cWrkSpc/. The first common contains three arrays,
-*  WORK(), SWORK(*) and IWORK(*), which  are equivalenced. The vector, CWORK,
-* belongs to the second commons.
-* GETMEM uses calls to the Molcas's MA memory allocator routine.
-*     </Dependencies>
-*     <Author></Author> Victor P. Vysotskiy
-*     <Modified_by></Modified_by>
-*     <Description>
-* NameIn, KeyIn, and TypeIn are strings of any size. They are
-* not case sensitive, and only the four first letters matter.
-* If KeyIn is 'allo' (or 'ALLO' or ...) then GETMEM will return the
-* position of a previously unused piece of shared memory workspace,
-* capable of holding  at least LENGTH items, and register that piece as being in use.
-* If TypeIn is 'Real', the items will be accessible in
-* WORK(IPOS)..WORK(IPOS-1+LENGTH).
-* If TypeIn is 'Inte', the items will be accessible in
-* IWORK(IPOS)..IWORK(IPOS-1+LENGTH).
-* If TypeIn is 'Sngl', the items will be accessible in
-* SWORK(IPOS)..SWORK(IPOS-1+LENGTH).
-* If KeyIn is 'Free', the piece will be returned to the free pool.
-* NameIn has no function, except that the user provides a label to the
-* field, which is used in error prints or listings.
-* Path is functional only in conjuction with the 'Files In Memory' I/O
-* layer. Otherwise, just simple use an empty string.
-* ShmId on enter must be an non-zero integer value which is being replaced on output
-* by an unique integer ID. This ID must be used for any further manipulation
-* on shared memory segment with the 'iPos' offset.
-*     </Description>
-*    </DOC>
-*----------------------------------------------------------------------*
+*> @brief
+*>   A simple work space manager, used by all programs in MOLCAS
+*> @author  Victor P. Vysotskiy
+*>
+*> @details
+*> \p NameIn, \p KeyIn, and \p TypeIn are strings of any size. They are
+*> not case sensitive, and only the four first letters matter.
+*> If \p KeyIn is '``allo``' (or '``ALLO``' or ...) then ::GETMEM will return the
+*> position of a previously unused piece of shared memory workspace,
+*> capable of holding at least \p LENGTH items, and register that piece as being in use.
+*> If \p TypeIn is '``Real``', the items will be accessible in
+*> \c WORK(IPOS) ... ``WORK(IPOS-1+LENGTH)``.
+*> If \p TypeIn is '``Inte``', the items will be accessible in
+*> \c IWORK(IPOS) ... ``IWORK(IPOS-1+LENGTH)``.
+*> If \p TypeIn is '``Sngl``', the items will be accessible in
+*> \c SWORK(IPOS) ... ``SWORK(IPOS-1+LENGTH)``.
+*> If \p KeyIn is '``Free``', the piece will be returned to the free pool.
+*> \p NameIn has no function, except that the user provides a label to the
+*> field, which is used in error prints or listings.
+*> \p Path is functional only in conjuction with the 'Files In Memory' I/O
+*> layer. Otherwise, just simple use an empty string.
+*> \p ShmId on enter must be a non-zero integer value which is being replaced on output
+*> by an unique integer ID. This ID must be used for any further manipulation
+*> on shared memory segment with the \p iPos offset.
+*>
+*> @note
+*> An include file, WrkSpc.fh, declares commons ``/WrkSpc/`` and
+*> ``/cWrkSpc/``. The first common contains three arrays,
+*> \c WORK, \c SWORK and \c IWORK, which  are equivalenced. The vector, \c CWORK,
+*> belongs to the second common.
+*> ::GETMEM uses calls to the Molcas's MA memory allocator routines.
+*>
+*> @param[in]     NameIn Arbitrary label
+*> @param[in]     KeyIn Allo $|$ Free
+*> @param[in]     TypeIn Real $|$ Inte $|$ Char $|$ Sngl
+*> @param[in,out] iPos   Position
+*> @param[in,out] Length Nr of items
+*> @param[in]     Path   An arbitrary path or empty
+*> @param[in,out] ShmId  An unique shared memory id
+************************************************************************
+      Subroutine GetShMem (NameIn,KeyIn,TypeIn,iPos,Length,Path,ShmId)
+************************************************************************
 *                                                                      *
 * History: Victor P. Vysotskiy                                         *
 *    2012: Native Molcas's Memory Allocator; Thread safety             *

@@ -10,26 +10,19 @@
 *                                                                      *
 * Copyright (C) Roland Lindh                                           *
 ************************************************************************
+*  Put_CMO
+*
+*> @brief
+*>   Write the symmetry blocked MO coefficients on the runfile
+*> @author R. Lindh
+*>
+*> @details
+*> The utility will write the symmetry blocked MO coefficients on the runfile.
+*>
+*> @param[in] CMO  Array of symmetry blocked MO coefficients
+*> @param[in] nCMO Number of elements in \p CMO
+************************************************************************
       Subroutine Put_CMO(CMO,nCMO)
-************************************************************
-*
-*   <DOC>
-*     <Name>Put\_CMO</Name>
-*     <Syntax>Call Put\_CMO(CMO,nCMO)</Syntax>
-*     <Arguments>
-*       \Argument{CMO}{Array of symmetry blocked MO coefficients}{Real*8 (nCMO)}{in}
-*       \Argument{nCMO}{Number of elements in CMO}{Integer}{in}
-*     </Arguments>
-*     <Purpose>To write the symmetry blocked MO coefficients on the run file.</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>R. Lindh</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>The utility will write the symmetry blocked MO coefficients on the run file.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"

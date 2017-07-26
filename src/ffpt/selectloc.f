@@ -10,31 +10,23 @@
 *                                                                      *
 * Copyright (C) Anders Ohrn                                            *
 ************************************************************************
+*  SelectLoc
+*
+*> @brief
+*>   Localize the perturbation LoProp-style. This way a perturbation can be applied selectively on parts of a molecule
+*> @author A. Ohrn
+*>
+*> @details
+*> Collect \p H0 as it is, clean the vacuum part so only perturbation
+*> is there. Collect LoProp transformation and transform. Put zeros
+*> according to user specification and transform back. The localized
+*> perturbation is added to the one-electron Hamiltonian and \p H0 is
+*> returned.
+*>
+*> @param[in,out] H0    The one-electron Hamiltonain with perturbations so far. On output the localized perturbed one-electron Hamiltonian
+*> @param[in]     nSize Size of the triangular \p H0 with the additional origo and nuclear contribution
+************************************************************************
       Subroutine SelectLoc(H0,nSize)
-************************************************************
-*
-*   <DOC>
-*     <Name>SelectLoc</Name>
-*     <Syntax>Call SelectLoc(H0,nSize)</Syntax>
-*     <Arguments>
-*       \Argument{H0}{The one-electron hamiltonain with perturbations so far. On output the localaized perturbed one-electron hamiltonian.}{}{inout}
-*       \Argument{nSize}{Size of the triangular H0 with the additional origo and nuclear contribution.}{}{in}
-*     </Arguments>
-*     <Purpose>To localize the perturbation LoProp-style. This way a perturbation can be applied selectively on parts of a molecule.</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>A.Ohrn</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*      Collect H0 as it is, clean the vacuum part so only perturbation
-*      is there. Collect LoProp transformation and transform. Put zeros
-*      according to user specification and transform back. The localized
-*      perturbation is added to the one-electron hamiltonian and H0 is
-*      returned.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8 (a-h,o-z)
 
 #include "input.fh"

@@ -10,47 +10,38 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
+*  CHO_get_Rij
+*
+*> @author F. Aquilante
+*>
+*> @details
+*> Computes the \f$ R \f$ matrix used for the
+*> maximization of Edmiston--Ruedenberg functional
+*>
+*> \f[ \mathit{ER} = \sum_i (ii|ii) = \mathrm{Tr}(R) \f]
+*>
+*> for a given set of MOs.
+*>
+*> \f$ R \f$ is defined from the two-electron integrals
+*> computed from the MO-transformed Cholesky vectors
+*>
+*> \f[ R_{ij} = (ij|jj) = \sum_K L_{ij,K} L_{jj,K} \f]
+*>
+*> and the condition for the maximization of the ER-functional
+*> is given by
+*>
+*> \f[ \mathrm{grad}(\mathit{ER})_{ij} = 4(R_{ij} - R_{ji}) = 0 \quad (\forall i,j) \f]
+*>
+*> @note
+*> Requires initialization of the Cholesky information.
+*>
+*> @param[out]    irc     Return code
+*> @param[in]     ipMO    Pointers to each symmetry block of the MO matrix, stored as \p C(k,a)
+*> @param[in]     nOcc    Number of orbitals to be localized in each symmetry
+*> @param[in,out] Rij     \p nOcc &times; \p nOcc symmetry blocked matrix \f$  R_{ij} = (ij|jj) \f$
+*> @param[in]     timings Switch on/off timings printout
+************************************************************************
       SUBROUTINE CHO_get_Rij(irc,ipMO,nOcc,Rij,timings)
-************************************************************
-*
-*   <DOC>
-*     <Name>CHO\_get\_Rij</Name>
-*     <Syntax>Call CHO\_get\_Rij(irc,ipMO,nOcc,Rij,timings)</Syntax>
-*     <Arguments>
-*       \Argument{irc}{return code}{Integer}{out}
-*       \Argument{ipMO}{pointers to each symmetry block of the MO matrix, stored as C(k,a)}{Array Real*8}{in}
-*       \Argument{nOcc}{number of orbitals to be localized in each symmetry}{Array Integer}{in}
-*       \Argument{Rij}{nOcc x nOcc symmetry blocked matrix R(i,j)=(ij|jj)}{Array Real*8}{in|out}
-*       \Argument{timings}{switch on/off timings printout}{Logical}{in}
-*     </Arguments>
-*     <Purpose></Purpose>
-*     <Dependencies>Requires initialization of the Cholesky information</Dependencies>
-*     <Author>F. Aquilante</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*
-*         Computes the R(i,j) matrix used for the
-*         maximization of Edmiston-Ruedenberg functional
-*
-*                ER = sum\_i (ii|ii) = Tr(R)
-*
-*         for a given set of MOs.
-*
-*         R(i,j) is defined from the two-electron integrals
-*                computed from the MO-transformed Cholesky vectors
-*
-*                R(i,j) = (ij|jj) = sum\_K L(ij,K) L(jj,K)
-*
-*         and the condition for the maximization of the ER-functional
-*         is given by
-*
-*             grad(ER)ij = 4(Rij - Rji) = 0  (for all ij)
-*
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8 (a-h,o-z)
       Logical timings,DoRead
       Integer nOcc(*),iOcc(8),iOcs(8),ipLib(8),iSkip(8),ipMO(*)

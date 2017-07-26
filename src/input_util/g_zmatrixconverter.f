@@ -10,6 +10,26 @@
 *                                                                      *
 * Copyright (C) 2006, Giovanni Ghigo                                   *
 ************************************************************************
+*  ZMatrixConverter
+*
+*> @brief
+*>   Routine for reading seward input in Z-Matrix format
+*> @author Giovanni Ghigo
+*>
+*> @details
+*> The input for seward is read and a string vector is generate (\p STDINP).
+*> This vector contains a standard seward input and it will be read later as usual
+*> by a modified copy of the section ``BASI`` code already present in ::RdCtl_Seward.
+*> This new code is in the ::StdSewInput routine.
+*> Only the standard basis present in the ``$MOLCAS/basis_library`` are allowed.
+*>
+*> @param[in]    LuRd    Input file unit number
+*> @param[in]    LuWr    Output file unit number
+*> @param[in]    mxAtom  Parameter
+*> @param[out]   STDINP  String vector of seward standard input
+*> @param[out]   lSTDINP Length of String vector \p STDINP
+*> @param[out]   iErr    Error flag
+************************************************************************
        Subroutine ZMatrixConverter(LuRd,LuWr,mxAtom,STDINP,lSTDINP,
      & iglobal,nxbas,xb_label,xb_bas,iErr)
 ************************************************************************
@@ -23,37 +43,6 @@
 * vector is a standard seward input and it will be read later as usual *
 * by a copy on the code already present in RdCtl_Seward.               *
 ************************************************************************
-*   <DOC>
-*     <Name>ZMatrixConverter</Name>
-*     <Syntax>ZMatrixConverter(LuRd,LuWr,mxAtom,STDINP,iErr)</Syntax>
-*     <Arguments>
-*      \Argument{LuRd}{Input file unit number}{Integers}{in}
-*      \Argument{LuWr}{Output file unit number}{Integers}{in}
-*      \Argument{mxAtom}{Parameter}{Integers}{in}
-*      \Argument{STDINP}{String vector of seward standard input}{String array}{out}
-*      \Argument{lSTDINP}{Length of String vector STDINP}{Integer}{out}
-*      \Argument{iErr}{Error flag}{Integer}{out}
-*     </Arguments>
-*     <Purpose>
-*      Routine for reading seward input in Z-Matrix format.\\
-*      Called by RdCtl\_Seward
-*     </Purpose>
-*     <Dependencies>
-*     </Dependencies>
-*     <Author>
-*      G. Ghigo
-*     </Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*       The input for seward is read and a string vector is generate (STDINP).
-*       This vector contains a standard seward input and it will be read later as usual
-*       by a modified copy of the section BASI code already present in RdCtl\_Seward.
-*       This new code is in the StdSewInput routine.
-*       Only the standard basis present in the \$MOLCAS/basis\_library are allowed.
-*     </Description>
-*    </DOC>
-
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
       Character*180 STDINP(mxAtom*2)

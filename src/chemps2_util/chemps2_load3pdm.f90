@@ -18,6 +18,9 @@ subroutine chemps2_load3pdm( NAC, idxG3, NG3, storage, doG3, EPSA, F2, chemroot 
 
   USE HDF5
   USE ISO_C_BINDING
+#ifdef _MOLCAS_MPP_
+  USE MPI
+#endif
 
   IMPLICIT NONE
   INTEGER, INTENT(IN)   :: NAC, NG3, chemroot
@@ -45,10 +48,6 @@ subroutine chemps2_load3pdm( NAC, idxG3, NG3, storage, doG3, EPSA, F2, chemroot 
   INTEGER :: ip1, ip2, ip3, iq1, iq2, iq3, idx, iG3
 
   REAL*8, DIMENSION( 1 : NAC * NAC * NAC * NAC * NAC * NAC ), TARGET :: buffer
-
-#ifdef _MOLCAS_MPP_
-#include "mpif.h"
-#endif
 
   write(rootindex,"(I2)") chemroot-1
   file_3rdm="molcas_3rdm.h5.r"//trim(adjustl(rootindex))

@@ -10,57 +10,34 @@
 *                                                                      *
 * Copyright (C) 2012, Thomas Bondo Pedersen                            *
 ************************************************************************
+*  Cho_X_Bookmark
+*
+*> @brief
+*>   Get number of Cholesky vectors needed to achieve a given integral target accuracy \p Thr
+*> @author Thomas Bondo Pedersen, August 2012
+*>
+*> @details
+*> Return number of Cholesky vectors in each symmetry block needed to
+*> achieve an integral accuracy of \p Thr (&le; decomposition threshold).
+*> The actual integral accuracy in each symmetry block is returned in
+*> array \p delta (for 1C-CD, the accuracy is judged by 1-center
+*> diagonal elements only!). Note that \p mSym may be smaller than \p nSym
+*> (so that one may find a bookmark in irrep 1 only, for example).
+*> Available for full CD and 1C-CD, but *not RI*.
+*>
+*> On exit, return codes signify:
+*>
+*> - \p irc = ``-1``: bookmarks not available
+*> - \p irc =  ``0``: all OK
+*> - \p irc =  ``1``: illegal input
+*>
+*> @param[in]  Thr   Target integral accuracy
+*> @param[in]  mSym  Number of irreps
+*> @param[out] nVec  Number of Cholesky vectors
+*> @param[out] delta Actual integral accuracy
+*> @param[out] irc   Return code
+************************************************************************
       Subroutine Cho_X_Bookmark(Thr,mSym,nVec,delta,irc)
-************************************************************
-*
-*   <DOC>
-*     <Name>Cho\_X\_Bookmark</Name>
-*     <Syntax>Call Cho\_X\_Bookmark(Thr,mSym,nVec,delta,irc)</Syntax>
-*     <Arguments>
-*       \Argument{Thr}{Target integral accuracy}{Real*8}{in}
-*       \Argument{mSym}{Number of irreps}{Integer}{in}
-*       \Argument{nVec}{Number of Cholesky vectors}{Integer array}{out}
-*       \Argument{delta}{Actual integral accuracy}{Real*8 array}{out}
-*       \Argument{irc}{Return code}{Integer}{out}
-*     </Arguments>
-*     <Purpose>Get number of Cholesky vectors needed to achieve a
-*              given integral target accuracy Thr</Purpose>
-*     <Dependencies>Cho_X_Init() must have been called</Dependencies>
-*     <Author>Thomas Bondo Pedersen</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*     Return number of Cholesky vectors in each symmetry block needed to
-*     achieve an integral accuracy of Thr (<= decomposition threshold).
-*     The actual integral accuracy in each symmetry block is returned in
-*     array delta (for 1C-CD, the accuracy is judged by 1-center
-*     diagonal elements only!). Note that mSym may be smaller than nSym
-*     (so that one may find a bookmark in irrep 1 only, for example).
-*     Available for full CD and 1C-CD, but NOT RI.
-*
-*     On exit, return codes signify:
-*        irc=-1  bookmarks not available
-*        irc=0   all OK
-*        irc=1   illegal input
-*     </Description>
-*    </DOC>
-*
-************************************************************
-C
-C     Thomas Bondo Pedersen, August 2012.
-C
-C     Return number of Cholesky vectors in each symmetry block needed to
-C     achieve an integral accuracy of Thr (<= decomposition threshold).
-C     The actual integral accuracy in each symmetry block is returned in
-C     array delta (for 1C-CD, the accuracy is judged by 1-center
-C     diagonal elements only!). Note that mSym may be smaller than nSym
-C     (so that one may find a bookmark in irrep 1 only, for example).
-C
-C     On exit, return codes signify:
-C        irc=-1  bookmarks not available
-C        irc=0   all OK
-C        irc=1   illegal input
-C
       Implicit None
       Real*8  Thr
       Integer mSym

@@ -22,55 +22,40 @@
 * Written: August 2003                                                 *
 *                                                                      *
 ************************************************************************
+*  Put_cArray
 *
-* <DOC>
-*   <Name>Put\_cArray</Name>
-*   <Syntax>Call Put\_cArray(Label,Data,nData)</Syntax>
-*   <Arguments>
-*     \Argument{Label}{Name of field}{Character*(*)}{in}
-*     \Argument{Data}{Data to put on runfile}{Character*(*)}{in}
-*     \Argument{nData}{Length of array}{Integer}{in}
-*   </Arguments>
-*   <Purpose>To add/update array data in runfile.</Purpose>
-*   <Dependencies></Dependencies>
-*   <Author>Per-Olof Widmark</Author>
-*   <Modified_by></Modified_by>
-*   <Side_Effects></Side_Effects>
-*   <Description>
-*     This routine is used to put array data of type
-*     Real*8 into the runfile. The data items are
-*     identified by the label. Below is a list of the
-*     data items that are recognized. The labels are
-*     case insensitive and significant to 16 characters.
-*
-*     For development purposes you can use an unsupported
-*     label. Whenever such a field is accessed a warning
-*     message is printed in the output, to remind the
-*     developer to update this routine.
-*
-*     List of known labels:
-*     \begin{itemize}
-*     \item `DFT functional' Name of the functional used for the KS-DFT
-*                            calculation.
-*     \item `Irreps'         Names of the irreducible representations.
-*     \item `Relax Method'   Name of the method used for geometry
-*                            optimizations.
-*     \item `Seward Title'   The title of the calculation as specified
-*                            in module SEWARD.
-*     \item `Slapaf Info 3'  Misc. information for module SLAPAF.
-*     \item `Unique Atom Names' List of the names of the symmetry unique
-*                               atoms.
-*     \item `Unique Basis Names' List of the basis function names.
-*     \item `MkNemo.lMole'   The labels of molecules as specified
-*                            in mknemo module.
-*     \item `MkNemo.lCluster'   The labels of clusters as specified
-*                            in mknemo module.
-*     \item `MkNemo.lEnergy'   The labels of energies as specified
-*                            in mknemo module.
-*     \end{itemize}
-*   </Description>
-* </DOC>
-*
+*> @brief
+*>   Add/update array data in runfile
+*> @author Per-Olof Widmark
+*>
+*> @details
+*> This routine is used to put array data of type
+*> ``Character`` into the runfile. The data items are
+*> identified by the \p label. Below is a list of the
+*> data items that are recognized. The labels are
+*> case insensitive and significant to 16 characters.
+*>
+*> For development purposes you can use an unsupported
+*> label. Whenever such a field is accessed a warning
+*> message is printed in the output, to remind the
+*> developer to update this routine.
+*>
+*> List of known labels:
+*>
+*> '``DFT functional``'     Name of the functional used for the KS-DFT calculation.
+*> '``Irreps``'             Names of the irreducible representations.
+*> '``Relax Method``'       Name of the method used for geometry optimizations.
+*> '``Seward Title``'       The title of the calculation as specified in module SEWARD.
+*> '``Slapaf Info 3``'      Misc. information for module SLAPAF.
+*> '``Unique Atom Names``'  List of the names of the symmetry unique atoms.
+*> '``Unique Basis Names``' List of the basis function names.
+*> '``MkNemo.lMole``'       The labels of molecules as specified in mknemo module.
+*> '``MkNemo.lCluster``'    The labels of clusters as specified in mknemo module.
+*> '``MkNemo.lEnergy``'     The labels of energies as specified in mknemo module.
+*>
+*> @param[in] Label Name of field
+*> @param[in] Data  Data to put on runfile
+*> @param[in] nData Length of array
 ************************************************************************
       Subroutine Put_cArray(Label,Data,nData)
       Implicit None

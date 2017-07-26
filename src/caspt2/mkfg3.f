@@ -16,38 +16,42 @@ C>  Procedure for computing 1-body, 2-body, and 3-body
 C>  density elements with active indices only,
 C>  and related matrices obtained from contractions with
 C>  the diagonal one-electron Hamiltonian.
-C> @author Per-Ake Malmqvist
+C> @author Per &Aring;ke Malmqvist
 C> @modified_by Steven Vancoillie
 C>
 C> @details
 C> Computation of the 1-, 2-, and 3-body density matrices defined as
-C> G1(t,u)         = <0|E_tu|0>
-C> G2(t,u,v,x)     = <0|E_tuvx|0>
-C> G3(t,u,v,x,y,z) = <0|E_tuvxyz|0>
+C> \f{align}{
+C> G1(t,u)         &= \langle 0 \lvert E_{tu} \rvert 0 \rangle \\
+C> G2(t,u,v,x)     &= \langle 0 \lvert E_{tuvx} \rvert 0 \rangle \\
+C> G3(t,u,v,x,y,z) &= \langle 0 \lvert E_{tuvxyz} \rvert 0 \rangle \\
+C> \f}
 C> and the contractions with the diagonal 1-el Hamiltonian
-C> F1(t,u)         = Sum_w <0|E_tuww|0> e_w
-C> F2(t,u,v,x)     = Sum_w <0|E_tuvxww|0> e_w
-C> F3(t,u,v,x,y,z) = Sum_w <0|E_tuvxyzww|0> e_w
-C> Storage: G1 and G2 are simple two- and four-index arrays, and
+C> \f{align}{
+C> F1(t,u)         &= \sum_w \langle 0 \lvert E_{tuww} \rvert 0 \rangle e_w \\
+C> F2(t,u,v,x)     &= \sum_w \langle 0 \lvert E_{tuvxww} \rvert 0 \rangle e_w \\
+C> F3(t,u,v,x,y,z) &= \sum_w \langle 0 \lvert E_{tuvxyzww} \rvert 0 \rangle e_w \\
+C> \f}
+C> Storage: \p G1 and \p G2 are simple two- and four-index arrays, and
 C> includes also such zeroes that are implied by symmetry.
-C> But G3 is quite large, and while it is stored with zeroes, it
+C> But \p G3 is quite large, and while it is stored with zeroes, it
 C> is made more compact by calculating only the minimum amount of
-C> unique values and storing the active indices in the array idxG3.
+C> unique values and storing the active indices in the array \p idxG3.
 C> Later, the full matrix can be restored on the fly by using the
 C> full permutational symmetry (see ::mksmat and ::mkbmat). The
-C> same storage applies to the F matrices.
+C> same storage applies to the \f$ F \f$ matrices.
 C>
-C> @param[in]  IFF   switch to activate computation of F matrices
-C> @param[in]  CI    wave function CI coefficients, with symmetry LSYM
+C> @param[in]  IFF   switch to activate computation of \f$ F \f$ matrices
+C> @param[in]  CI    wave function CI coefficients, with symmetry \c LSYM
 C> @param[out] G1    1-body active density matrix
 C> @param[out] G2    2-body active density matrix
 C> @param[out] G3    process-local part of 3-body active density matrix
 C> @param[out] F1    1-body active density matrix contracted with
-C>                   diagonal 1-el hamiltonian
+C>                   diagonal 1-el Hamiltonian
 C> @param[out] F2    2-body active density matrix contracted with
-C>                   diagonal 1-el hamiltonian
+C>                   diagonal 1-el Hamiltonian
 C> @param[out] F3    process-local part of 3-body active density matrix
-C>                   contracted with diagonal 1-el hamiltonian
+C>                   contracted with diagonal 1-el Hamiltonian
 C> @param[out] idxG3 table to translate from process-local array index
 C>                   to active indices
 

@@ -9,6 +9,25 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !**********************************************************************
 
+subroutine caxpy(n,ca,cx,incx,cy,incy)
+  use link_blas
+  implicit none
+  complex :: ca
+  integer :: incx,incy,n
+  complex :: cx(*),cy(*)
+  call lb_caxpy(n,ca,cx,incx,cy,incy)
+end subroutine caxpy
+
+subroutine cgemm(transa,transb,m,n,k,alpha,a,lda,b,ldb,beta,c,ldc)
+  use link_blas
+  implicit none
+  complex :: alpha,beta
+  integer :: k,lda,ldb,ldc,m,n
+  character :: transa,transb
+  complex :: a(lda,*),b(ldb,*),c(ldc,*)
+  call lb_cgemm(transa,transb,m,n,k,alpha,a,lda,b,ldb,beta,c,ldc)
+end subroutine cgemm
+
 function dasum(n,dx,incx)
   use link_blas
   implicit none
@@ -278,6 +297,23 @@ function lsame(ca,cb)
   lsame=lb_lsame(ca,cb)
 end function lsame
 
+subroutine saxpy(n,sa,sx,incx,sy,incy)
+  use link_blas
+  implicit none
+  real :: sa
+  integer :: incx,incy,n
+  real :: sx(*),sy(*)
+  call lb_saxpy(n,sa,sx,incx,sy,incy)
+end subroutine saxpy
+
+function scabs1(z)
+  use link_blas
+  implicit none
+  complex :: z
+  real :: scabs1
+  scabs1=lb_scabs1(z)
+end function scabs1
+
 subroutine scopy(n,sx,incx,sy,incy)
   use link_blas
   implicit none
@@ -285,6 +321,16 @@ subroutine scopy(n,sx,incx,sy,incy)
   real :: sx(*),sy(*)
   call lb_scopy(n,sx,incx,sy,incy)
 end subroutine scopy
+
+subroutine sgemm(transa,transb,m,n,k,alpha,a,lda,b,ldb,beta,c,ldc)
+  use link_blas
+  implicit none
+  real :: alpha,beta
+  integer :: k,lda,ldb,ldc,m,n
+  character :: transa,transb
+  real :: a(lda,*),b(ldb,*),c(ldc,*)
+  call lb_sgemm(transa,transb,m,n,k,alpha,a,lda,b,ldb,beta,c,ldc)
+end subroutine sgemm
 
 subroutine xerbla(srname,info)
   use link_blas

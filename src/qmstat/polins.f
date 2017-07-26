@@ -10,53 +10,42 @@
 *                                                                      *
 * Copyright (C) Anders Ohrn                                            *
 ************************************************************************
-*----------------------------------------------------------------------*
+*  Polins
+*
+*> @brief
+*>   Add the field from the QM-region onto the solvent.
+*>   Include the field from the polarizabilities in the solvent onto the QM-region.
+*>   (The effect of the static field is taken care of in helstate.f)
+*> @author A. Ohrn
+*>
+*> @details
+*> First we compute the field from the QM-region onto the solvent. The
+*> central quantity is the density matrix, which gives us how the
+*> QM-region polarizes. The reaction field due to the QM-region is also
+*> accounted for. Then we allow the polarized field from the solvent
+*> to interact with the QM-region. The static field from the solvent,
+*> in other word that from the charges, is already coupled in
+*> ::helstate.
+*>
+*> @param[out]    Energy  The energy of the electrostatic interaction
+*> @param[in,out] iCall   An integer that tells if this is the first call in the iteration.
+*>                        Necessary for the copy of the one-particle Hamiltonian
+*> @param[in]     iAtom2  Number of particles in the solvent, times number of polarizabilities per solvent molecule
+*> @param[in]     iCi     Number of centers in QM-molecule
+*> @param[in]     iFil    Pointer to the static field from the solvent
+*> @param[out]    VpolMat The polarization matrix
+*> @param[in,out] fil     The field from the induced dipoles in the solvent
+*> @param[in]     polfac  A factor for the computation of the image
+*> @param[out]    poli    The solvent polarized field on QM
+*> @param[in]     xyzmyq  Total dipole of QM-region
+*> @param[in]     xyzmyi  Total induced dipole of solvent
+*> @param[in]     xyzmyp  Total permanent dipole of solvent
+*> @param[in]     qtot    Total charge of QM-region
+*> @param[in]     iCstart Number to keep track of solvent molecules
+************************************************************************
       Subroutine Polins(Energy,iCall,iAtom2,iCi,iFil,VpolMat,fil,polfac
      &     ,poli,xyzmyq,xyzmyi,xyzmyp,iCstart,iQ_Atoms,qtot,ChaNuc
      &     ,RoMatSt,xyzQuQ,CT)
-************************************************************
-*
-*   <DOC>
-*     <Name>Polins</Name>
-*     <Syntax>Call Polins(Energy,iCall,iAtom2,iCi,iFil,VpolMat,fil,polfac,poli,xyzmyq,xyzmyi,xyzmyp,qtot,iCstart,iAtom)</Syntax>
-*     <Arguments>
-*       \Argument{Energy}{The energy of the electrostatic interaction}{}{out}
-*       \Argument{iCall}{An integer that tells if this is the first call in the iteration. Necessary for the copy of the one-particle hamiltonian}{}{inout}
-*       \Argument{iAtom2}{Number of particles in the solvent, times number of polarizabilities per solvent molecule}{}{in}
-*       \Argument{iCi}{Number of centers in QM-molecule}{}{in}
-*       \Argument{iFil}{Pointer to the static field from the solvent}{}{in}
-*       \Argument{VpolMat}{The polarization matrix}{}{out}
-*       \Argument{fil}{The field from the induced dipoles in the solvent}{}{inout}
-*       \Argument{polfac}{A factor for the computation of the image}{}{in}
-*       \Argument{poli}{The solvent polarized field on QM}{}{out}
-*       \Argument{xyzmyq}{Total dipole of QM-region}{}{in}
-*       \Argument{xyzmyi}{Total induced dipole of solvent}{}{in}
-*       \Argument{xyzmyp}{Total permanent dipole of solvent}{}{in}
-*       \Argument{qtot}{Total charge of QM-region}{}{in}
-*       \Argument{iCstart}{Number to keep track of solvent molecules}{}{in}
-*       \Argument{iAtom}{Number of atoms in QM-molecule}{}{in}
-*     </Arguments>
-*     <Purpose>
-*    Add the field from the QM-region onto the solvent. Include the
-*    field from the polarizabilities in the solvent onto the QM-region.
-*    (The effect of the static field is taken care of in helstate.f.)
-*     </Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>A.Ohrn</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*    First we compute the field from the QM-region onto the solvent. The
-*    central quantity is the density matrix, which gives us how the
-*    QM-region polarizes. The reaction field due to the QM-region is also
-*    accounted for. Then we allow the polarized field from the solvent
-*    to interact with the QM-region. The static field from the solvent,
-*    in other word that from the charges, is already coupled in
-*    helstate.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8 (a-h,o-z)
 
 #include "maxi.fh"

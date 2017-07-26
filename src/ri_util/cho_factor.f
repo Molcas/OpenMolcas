@@ -11,100 +11,53 @@
 * Copyright (C) 2007, Francesco Aquilante                              *
 *               2014, Thomas Bondo Pedersen                            *
 ************************************************************************
+*  CHO_FACTOR
+*
+*> @brief
+*>   Evaluation of the Cholesky factor (\f$ Z \f$) of a SPD matrix (\f$ A \f$)
+*> @author F. Aquilante (Jan. 2007)
+*> @modified_by T.B. Pedersen (2014) Changed criterion for too negative diagonal
+*>
+*> @details
+*> Evaluation of the Cholesky factor (\f$ Z \f$) of a SPD matrix (\f$ A \f$)
+*>
+*> \code
+*>   For k=1,dim(A)
+*>     Z(k,k) = sqrt( A(k,k) - sum_j  Z(k,j)^2 )
+*>     Z(i,k) = ( A(i,k) - sum_j  Z(i,j)*Z(k,j) ) / Z(k,k)
+*> \endcode
+*>
+*> The result is such that \f$ A \f$ is Cholesky decomposed as
+*>
+*> \f[  A = Z Z^\text{T} \f]
+*>
+*> The Cholesky factor is in general *NOT UNIQUE!!*
+*> Therefore, and for stability reason, pivoting of the
+*> initial matrix \f$ A \f$ would be advisable.
+*>
+*> @side_effects
+*> \p A_k in output contains the \p kCol -th Cholesky vector.
+*> In case of detected linear dependence, the \p A_k array
+*> is returned as zeros!
+*>
+*> @note
+*> Rectangular storage must be used for the \f$ Z \f$-matrix!
+*>
+*> @param[in,out] Diag   Updated diagonal elements of \f$ A \f$ (subtraction done by this routine)
+*> @param[in,out] A_k    currently treated column of \f$ A \f$. In output contains the \p kCol -th Cholesky vector
+*> @param[in]     iD_A   indices of the columns of \f$ A \f$
+*> @param[in]     kCol   index of the Cholesky vector
+*> @param[in]     nRow   number of rows of \f$ A \f$
+*> @param[in]     Zm     in-core matrix whose columns are the Cholesky vectors
+*> @param[in]     nMem   max number of columns of \p Zm kept in core
+*> @param[in]     lu_Z   file unit where the \f$ Z \f$-matrix is stored
+*> @param[in]     Scr    scratch space used for reading out-of-core columns of \p Zm
+*> @param[in]     lScr   size of the scratch space (&ge; \p nRow or ``0`` iff in-core)
+*> @param[in]     thr    threshold for linear dependence
+*> @param[out]    lindep integer indicating detected linear dependence (= ``1`` iff found lin dep, else = ``0``)
+***********************************************************************
       SUBROUTINE CHO_FACTOR(Diag,A_k,iD_A,kCol,nRow,Zm,nMem,lu_Z,Scr,
      &                      lScr,thr,lindep)
-************************************************************************
-*
-*   <DOC>
-*     <Name>CHO\_FACTOR</Name>
-*     <Syntax>Call CHO\_FACTOR(A\_k,iD\_A,kCol,nRow,Zm,nMem,lu\_Z,Scr,lScr,thr,lindep)</Syntax>
-*     <Arguments>
-*       \Argument{Diag}{Updated diagonal elements of A}{array Real*8}{inout}
-*       \Argument{A\_k}{currently treated column of A. In output contains the k-th
-*       Cholesky vector}{array Real*8}{inout}
-*       \Argument{iD\_A}{indices of the columns of A}{array Integer}{in}
-*       \Argument{kCol}{index of the Cholesky vector}{Integer}{in}
-*       \Argument{nRow}{number of rows of A}{Integer}{in}
-*       \Argument{Zm}{in-core matrix whose columns are the Cholesky
-*       vectors}{array Real*8}{in}
-*       \Argument{nMem}{max number of columns of Zm kept in core}{Integer}{in}
-*       \Argument{lu\_Z}{file unit where the Z-matrix is stored}{Integer}{in}
-*       \Argument{Scr}{scratch space used for reading out-of-core
-*       columns of Zm}{array Real*8}{in}
-*       \Argument{lScr}{size of the scratch space (.ge. nRow or 0 iff
-*       in-core)}{Integer}{in}
-*       \Argument{thr}{threshold for linear dependence}{Real*8}{in}
-*       \Argument{lindep}{integer indicating detected linear dependence
-*                ( = 1  iff found lin dep, else = 0 )}{Integer}{out}
-*     </Arguments>
-*     <Purpose>
-*               Evaluation of the Cholesky factor (Z) of a SPD matrix (A)
-*     </Purpose>
-*     <Dependencies></Dependencies>
-*     <Author> F. Aquilante (2007)</Author>
-*     <Modified_by>T.B. Pedersen (2014)
-*                  Changed criterion for too negative diagonal
-*     </Modified_by>
-*     <Side_Effects>
-*
-*            A\_k in output contains the k-th Cholesky vector
-*
-*       In case of detected linear dependence, the A\_k array
-*       is returned as zeros!
-*
-*     </Side_Effects>
-*     <Description></Description>
-*    </DOC>
-*
-***********************************************************************
-C
-C     Author:  F. Aquilante  (Jan. 2007)
-C
-C     Evaluation of the Cholesky factor (Z) of a SPD matrix (A)
-C
-C     For k=1,dim(A)
-C
-C       Z(k,k) = sqrt( A(k,k) - sum_j  Z(k,j)^2 )
-C
-C       Z(i,k) = ( A(i,k) - sum_j  Z(i,j)*Z(k,j) ) / Z(k,k)
-C
-C     The result is such that A is Cholesky decomposed as
-C
-C       A = Z * Z^T
-C
-C     The Cholesky factor is in general NOT UNIQUE !!
-C     Therefore, and for stability reason, pivoting of the
-C     initial matrix A would be advisable.
-C
-C
-C     Input/Output
-C
-C       Diag : updated diagonals (subtraction done by this routine)
-C
-C       A_k  : currently treated column of A
-C            : in output Z_k, the k-th Cholesky vector, is returned
-C
-C     In input:
-C
-C       iD_A : indices of the columns of A
-C       kCol : index of the Cholesky vector
-C       nRow : number of rows of A
-C       Zm : in-core matrix whose columns are the Cholesky vectors
-C       nMem : max # of columns of Zm kept in core
-C       lu_Z : file unit where the Z-matrix is stored
-C       Scr : scratch space used for reading out-of-core columns of Zm
-C       lScr : size of the scratch space (.ge. nRow or 0 iff in-core)
-C       thr : threshold for linear dependence
-C
-C     In output:
-C
-C       lindep : integer indicating detected linear dependence
-C                ( = 1  iff found lin dep, else = 0 )
-C                In case of detected linear dependence, the A_k array
-C                is returned as zeros!
-C
-C     Note:  rectangular storage must be used for the Z-matrix !
-***********************************************************************
 
       Implicit Real*8 (a-h,o-z)
       Integer iD_A(*), kCol, nRow, nMem, lu_Z, lScr, lindep

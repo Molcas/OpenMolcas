@@ -10,101 +10,53 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
+*  Cho_X_getVfull
+*
+*> @brief
+*>   Reorder Cholesky vectors from reduced to full storage
+*> @author F. Aquilante
+*>
+*> @details
+*> This routine reorders Cholesky vectors from reduced to
+*> full storage. For \p DoRead = ``.true.`` the vectors are read from
+*> disk using array \p RedVec as scratch space, whereas for
+*> \p DoRead = ``.false.`` the reduced vectors must be supplied in
+*> array \p RedVec.
+*>
+*> Given a set of pointers (\p ipChoV) to target
+*> arrays, the routine reorders \p NUMV Cholesky
+*> vectors of compound symmetry \p ISYM starting with
+*> vector \p JVEC1 and returns them in the target arrays.
+*> Each pointer should thereby point to a
+*> location where the corresponding Cholesky
+*> vector of a given unique symmetry pair
+*> of indices has to be stored.
+*>
+*> - \p iSwap = ``0``: \f$ L(a,b,J) \f$ is returned (in LT-storage if \f$ \mathrm{sym}(a)=\mathrm{sym}(b) \f$)
+*> - \p iSwap = ``1``: \f$ L(a,J,b) \f$ is returned
+*> - \p iSwap = ``2``: \f$ L(a,J,b) \f$ is returned (in SQ-storage if \f$ \mathrm{sym}(a)=\mathrm{sym}(b) \f$)
+*>
+*> - \p iSkip(syma) = ``0``: skip the symmetry block \f$ a \f$. Any vector \f$ L_{ab} \f$ or \f$ L_{ba} \f$
+*>                           with \c syma &times; \c symb = \p ISYM won't be returned in the target array
+*>
+*> - \p IREDC: reduced set in core at the moment of the call to the routine.
+*>             Can be set to ``-1`` (= unknown or undefined) by the calling routine.
+*>
+*> @param[out] irc     return code
+*> @param[in]  RedVec  vectors stored in reduced set(s) [\p DoRead option off]
+*>                     or scratch space for reading reduced vectors [\p DoRead option on]
+*> @param[in]  lRedVec size of the \p RedVec
+*> @param[in]  IVEC1   first vector to read
+*> @param[in]  NUMV    number of vectors to read starting from \p IVEC1
+*> @param[in]  ISYM    compound symmetry of the Cholesky vectors
+*> @param[in]  iSwap   type of the full storage for the returned Cholesky vectors
+*> @param[in]  IREDC   current reduced set in core (location ``3``)
+*> @param[in]  ipChoV  pointers to the target arrays
+*> @param[in]  iSkip   skipping parameters for each symmetry block \f$ (ab) \f$ of compound symmetry \p ISYM
+*> @param[in]  DoRead  flag for reading reduced vectors from disk
+************************************************************************
       Subroutine Cho_X_getVfull(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,
      &                          iSwap,IREDC,ipChoV,iSkip,DoRead)
-************************************************************
-*
-*   <DOC>
-*     <Name>Cho\_X\_getVfull</Name>
-*     <Syntax>Call Cho\_X\_getVfull(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,iSwap,IREDC,ipChoV,iSkip,DoRead)</Syntax>
-*     <Arguments>
-*       \Argument{irc}{return code}{Integer}{out}
-*       \Argument{RedVec}{Vectors stored in reduced set(s) [DoRead option off] or scratch space for reading reduced vectors [DoRead option on]}{Real*8}{in}
-*       \Argument{lRedVec}{size of the RedVec}{Integer}{in}
-*       \Argument{IVEC1}{first vector to read}{Integer}{in}
-*       \Argument{NUMV}{number of vectors to read starting from IVEC1}{Integer}{in}
-*       \Argument{ISYM}{compund symmetry of the Cholesky vectors}{Integer}{in}
-*       \Argument{iSwap}{type of the full storage for the returned Cholesky vectors}{Integer}{in}
-*       \Argument{IREDC}{current reduced set in core (location 3)}{Integer}{in}
-*       \Argument{ipChoV}{pointers to the target arrays}{Integer}{in}
-*       \Argument{iSkip}{skipping parameters for each symmetry block
-*       (ab) of compound symmety ISYM.}{Integer}{in}
-*       \Argument{DoRead}{flag for reading reduced vectors from disk}{Logical}{in}
-*     </Arguments>
-*     <Purpose>
-*             This routine reorders Cholesky vectors from reduced to
-*             full storage. For DoRead=.true. the vectors are read from
-*             disk using array RedVec as scratch space, whereas for
-*             DoRead=.false. the reduced vectors must be supplied in
-*             array RedVec.
-*             Given a set of pointers (ipChoV) to target
-*             arrays, the routine reorders NUMV Cholesky
-*             vectors of compound symmetry ISYM starting with
-*             vector JVEC1 and returns them in the target arrays.
-*             Each pointer should thereby point to a
-*             location where the corresponding Cholesky
-*             vector of a given unique symmetry pair
-*             of indices has to be stored
-*         </Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>F. Aquilante</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*
-*       iSwap :   = 0   L(a,b,J) is returned
-*                       (in LT-storage if sym(a)=sym(b))
-*                 = 1   L(a,J,b) is returned
-*                 = 2   L(a,J,b) is returned
-*                       (in SQ-storage if sym(a)=sym(b))
-*
-*
-*       iSkip(syma)=0 : skip the symmetry block a.
-*                    Any vector L(ab) or L(ba) with syma x symb=ISYM
-*                    won't be returned in the target array
-
-*
-*       IREDC :  reduced set in core at the moment of
-*                the call to the routine.
-*                Can be set to -1 (= unknown or undefined)
-*                by the calling routine.
-*     </Description>
-*    </DOC>
-*
-************************************************************
-
-********************************************************
-*   Author: F. Aquilante
-*
-*   Purpose:  This routine reorders Cholesky vectors from reduced to
-*             full storage. For DoRead=.true. the vectors are read from
-*             disk using array RedVec as scratch space, whereas for
-*             DoRead=.false. the reduced vectors must be supplied in
-*             array RedVec.
-*             Given a set of pointers (ipChoV) to target
-*             arrays, the routine reorders NUMV Cholesky
-*             vectors of compound symmetry ISYM starting with
-*             vector JVEC1 and returns them in the target arrays.
-*
-*   Input:
-*       Ivec1 =  first vector to be reordered
-*       NumV  =  # of vectors to be reordered
-*
-*       iSwap :   = 0   L(a,b,J) is returned
-*                       (in LT-storage if sym(a)=sym(b))
-*                 = 1   L(a,J,b) is returned
-*                 = 2   L(a,J,b) is returned
-*                       (in SQ-storage if sym(a)=sym(b))
-*
-*       iSkip(syma)=0 : skip the symmetry block a.
-*                    Any vector L(ab) or L(ba) with syma x symb=ISYM
-*                    won't be returned in the target array
-*
-*       IREDC :  reduced set in core at the moment of
-*                the call to the routine.
-*                Can be set to -1 by the calling routine
-*
-********************************************************
       Implicit Real*8 (a-h,o-z)
       Dimension RedVec(lRedVec)
       Integer   ipVec(8),nnBSF(8,8),n2BSF(8,8)

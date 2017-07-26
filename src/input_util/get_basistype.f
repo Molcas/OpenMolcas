@@ -10,32 +10,26 @@
 *                                                                      *
 * Copyright (C) Valera Veryazov                                        *
 ************************************************************************
+*  get_BasisType
+*
+*> @brief
+*>   Logical function to check basis set
+*> @author V. Veryazov
+*>
+*> @details
+*> Function returns ``.true.`` if the basis set in the current
+*> calculation has specific type.
+*> Only 3 first characters are used, so
+*> ``get_BasisType('segmented')`` is the same as ``get_BasisType('SEG')``.
+*>
+*> The list of available basis set types is available at
+*> src/Include/basistype.fh and basis_library/basistype.tbl.
+*>
+*> @param[in] BasisType Basis set type
+*>
+*> @return ``.true.`` if the basis set in the current calculation has specific type
+************************************************************************
         Logical function get_BasisType(BasisType)
-************************************************************
-*
-*   <DOC>
-*     <Name>get\_BasisType</Name>
-*     <Syntax>get\_BasisType(BasisType)</Syntax>
-*     <Arguments>
-*       \Argument{BasisType}{Basis set type}{character}{in}
-*     </Arguments>
-*     <Purpose>Logical function to check basis set</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>V. Veryazov</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*       Function returns .true. if the basis set in the current
-*       calculation has specific type.
-*       Only 3 first characters are used, so
-*        get\_BasisType('segmented') is the same as get\_BasisType('SEG').
-*
-*       The list of available basis set types is available at
-*       src/Include/basistype.fh and basis\_library/basistype.tbl
-*     </Description>
-*    </DOC>
-*
-************************************************************
         character*(*) BasisType
         Character*3 temp, TypeCon, TypeAll,TypeRel
 #include "basistype.fh"

@@ -10,49 +10,35 @@
 *                                                                      *
 * Copyright (C) Anders Ohrn                                            *
 ************************************************************************
-*----------------------------------------------------------------------*
+*  OverLq
+*
+*> @brief
+*>   Compute overlap between primitve bases, which for bases of other type than s,
+*>   will mean that several overlaps between basis-functions are computed. One
+*>   function is on the solvent, the other in the QM-region. Observe that we do not
+*>   care about overlaps within the QM-region or among the solvent molecules.
+*> @author A. Ohrn
+*>
+*> @details
+*> Uses the formulas in \cite Tak1966-JPSJ-21-2313. It is hard to give any
+*> easy explanation, so if you want to understand exactly what is
+*> going on below, see the article, especially equations (2.4) and
+*> (2.12); then the source-code comments will provide you with
+*> sufficient information.
+*>
+*> @param[in]  Bori   Center for the QM-region contracted basis-function
+*> @param[in]  Cori   Like Bori, but for the solvent basis-function
+*> @param[in]  Alfa   Exponents for the primitive basis-functions that build this contracted function
+*> @param[in]  Beta   Like \p alfa, but for solvent
+*> @param[in]  iQ1    = ``1`` if s-type, = ``2`` if p-type, etc. for the function in the QM-region
+*> @param[in]  iQ2    Like \p iQ1, but for solvent function
+*> @param[in]  nExp1  How many primitives there are in this contracted function
+*> @param[in]  nExp2  Like \p nExp1, but for (surprise) the solvent
+*> @param[out] iPSint Pointer to the matrix of overlaps
+*> @param[in]  Trans  Transition matrix between Cartesian and spherical basis functions
+************************************************************************
       Subroutine OverLq(Bori,Cori,Alfa,Beta,iQ1,iQ2,nExp1,nExp2,iPSint
      &                 ,Trans)
-************************************************************
-*
-*   <DOC>
-*     <Name>OverLq</Name>
-*     <Syntax>Call OverLq(Bori,Cori,Alfa,Beta,iQ1,iQ2,nExp1,nExp2,iPSint,Trans)</Syntax>
-*     <Arguments>
-*       \Argument{Bori}{Center for the QM-region contracted basis-function}{}{in}
-*       \Argument{Cori}{Like Bori, but for the solvent basis-function}{}{in}
-*       \Argument{Alfa}{Exponents for the primitive basis-functions that build this contracted function}{}{in}
-*       \Argument{Beta}{Like alfa, but for solvent}{}{in}
-*       \Argument{iQ1}{=1 if s-type,=2 if p-type, u.z.w. for the function in the QM-region}{}{in}
-*       \Argument{iQ2}{Like iQ1, but for solvent function.}{}{in}
-*       \Argument{nExp1}{How many primitives there are in this contracted function.}{}{in}
-*       \Argument{nExp2}{Like nExp1, but for (surprise) the solvent}{}{in}
-*       \Argument{iPSint}{Pointer to the matrix of overlaps}{}{out}
-*       \Argument{Trans}{Transition matrix between cartesian and spherical basis functions}{}{in}
-*     </Arguments>
-*     <Purpose>
-*    To compute overlap between primitve bases, which for bases
-*    of other type than s, will mean that several overlaps between basis-
-*    functions are computed. One function is on the solvent, the other
-*    in the QM-region. Observe that we do not care about overlaps
-*    within the QM-region or among the solvent molecules.
-*     </Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>A.Ohrn</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*    Uses the formulas in "Gaussian-Expansion Methods for Molecular
-*    Integrals" by H.Taketa, S.Hunzinaga, K.O-Ohata, Journal of the
-*    Physical Society Japan, vol.21,No.11,1966. It is hard to give any
-*    easy explanation, so if you want to understand exactly what is
-*    going on below, see the article, especially equations (2.4) and
-*    (2.12); then the source-code comments will provide you with
-*    suffiecient information.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8 (a-h,o-z)
 
 #include "maxi.fh"

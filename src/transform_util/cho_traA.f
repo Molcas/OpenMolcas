@@ -10,6 +10,47 @@
 *                                                                      *
 * Copyright (C) 2004,2005, Giovanni Ghigo                              *
 ************************************************************************
+*  Cho_TraA
+*
+*> @brief
+*>   Routine for the transformation of the Cholesky vectors in MO-based TCVx for case \c Sym(i) &ne; \c Sym(j)
+*> @author Giovanni Ghigo
+*>
+*> @details
+*> In the inner batch the Cholesky Full Vectors are transformed and
+*> stored in memory. Adresses (``1``) and length (``2``) are stored in the
+*> integer matrix <tt>iMemTCVX(iType, Sym(i), Sym(j), 1/2)</tt>.
+*>
+*> - \c iType = ``1``: TCVA
+*> - \c iType = ``2``: TCVB
+*> - \c iType = ``3``: TCVC
+*> - \c iType = ``4``: TCVD
+*> - \c iType = ``5``: TCVE
+*> - \c iType = ``6``: TCVF
+*> - \c iType = ``7``: TCVG
+*>
+*> Types ``1``, ``2`` and ``4``--``7`` are generated only if \c DoTCVA = ``.True.``
+*> TCVC is always generated.
+*>
+*> In the first half-transformation the vectors are contracted
+*> only with the occupied (inactive and active) MO coefficients
+*> for \c Sym(j). In the second half-transformation the vectors are
+*> contracted with all MO coefficients.
+*>
+*> @note
+*> The logical matrix \c TCVXist must be defined.
+*>
+*> @param[in]     iSymL       Symmetry of the Cholesky vector
+*> @param[in]     iSym        Symmetry(``i``) of the Cholesky Full Vector
+*> @param[in]     jSym        Symmetry(``j``) of the Cholesky Full Vector
+*> @param[in]     NumV        Number of Cholesky vectors to transform in the current batch
+*> @param[in]     CMO         MO coefficients
+*> @param[in]     NCMO        Total number of MO coefficients
+*> @param[in]     lUCHFV      Unit number of the Cholesky Full Vector to transform (``CHFV``)
+*> @param[in,out] iStrtVec_AB Current initial disk pointer of the Cholesky Full Vector to transform (``CHFV``)
+*> @param[in]     nFVec       Number of Cholesky vectors to transform in the inner batch procedure (\p nFBatch)
+*> @param[in]     nFBatch     Number of cycles in the inner batch procedure
+************************************************************************
       Subroutine Cho_TraA(iSymL, iSym,jSym, NumV, CMO,NCMO,
      &                               lUCHFV, iStrtVec_AB, nFVec,nFBatch)
 ************************************************************************
@@ -34,59 +75,6 @@
 *  Written :  October 2004                                             *
 *  Modified:  July 2005                                                *
 ************************************************************************
-*
-*   <DOC>
-*     <Name>Cho\_TraA</Name>
-*     <Syntax>Call Cho\_TraA(iSymL,iSym,jSym,NumV,CMO,NCMO,lUCHFV,
-*      iStrtVec\_AB,  nFVec,nFBatch)
-*     </Syntax>
-*     <Arguments>
-*      \Argument{iSymL}{Symmetry of the Cholesky vector}{Integer}{in}
-*      \Argument{iSym}{Symmetry(i) of the Cholesky full vector}{Integer}
-*      {in}
-*      \Argument{jSym}{Symmetry(j) of the Cholesky full vector}{Integer}
-*      {in}
-*      \Argument{NumV}{Number of Cholesky vectors to transform in the
-*      current batch}{Integer}{in}
-*      \Argument{CMO}{MO coefficients}{Array Real*8}{in}
-*      \Argument{NCMO}{Total number of MO coefficients}{Integer}{in}
-*      \Argument{lUCHFV}{Unit number of the Cholesky full vector to
-*      transform (CHFV}{Integer}{in}
-*      \Argument{iStrtVec\_AB}{Current initial disk pointer of the
-*      Cholesky full vector to transform (CHFV}{Integer}{in/out}
-*      \Argument{nFVec}{Number of Cholesky vectors to transform in the
-*      inner batch procedure (nFBatch)}{Integer}{in}
-*      \Argument{nFBatch}{Number of cycles in the inner batch procedure}
-*      {Integer}{in}
-*     </Arguments>
-*     <Purpose>
-*      Routine for the transformation of the Cholesky vectors in
-*      MO-based TCVx for case Sym(i).NE.Sym(j).\\
-*      Called by Cho\_TraCtl.
-*     </Purpose>
-*     <Dependencies>
-*      The logical matrix TCVXist must be defined.
-*     </Dependencies>
-*     <Author>
-*      G. Ghigo
-*     </Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*      In the inner batch the Cholesky full vectors are transformed and
-*      stored in memory. Adresses (1) and length (2) are stored in the
-*      integer matrix iMemTCVX(iType, Sym(i),  Sym(j),1/2).
-*      iType: 1=TCVA, 2=TCVB, 3=TCVC, 4=TCVD, 5=TCVE, 6=TCVF, 7=TCVG.
-*      Types 1, 2 and 4-7 are generated only if DoTCVA=.True.
-*      TCVC is always generated.\\
-*      In the first half-transformation the vectors are contracted
-*      only with the occupied (inactive and active) MO coefficients
-*      for Sym(j). In the second half-transformation the vectors are
-*      contracted with all MO coefficients.
-*     </Description>
-*    </DOC>
-*
-******************************************************************
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
 

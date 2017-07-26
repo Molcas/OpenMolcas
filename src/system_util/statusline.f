@@ -10,29 +10,24 @@
 *                                                                      *
 * Copyright (C) Valera Veryazov                                        *
 ************************************************************************
+*  StatusLine
+*
+*> @brief
+*>   Update status file
+*> @author V. Veryazov
+*>
+*> @details
+*> Print parameters into status file. There is no
+*> difference between params.
+*>
+*> \code
+*> Call StatusLine(ModuleName,': just started')
+*> \endcode
+*>
+*> @param[in] STR  Status
+*> @param[in] STR1 Status
+************************************************************************
       Subroutine StatusLine(STR,STR1)
-************************************************************
-*
-*   <DOC>
-*     <Name>StatusLine</Name>
-*     <Syntax>Call StatusLine(STR,STR1)</Syntax>
-*     <Arguments>
-*       \Argument{STR}{Status}{Character*(*)}{in}
-*       \Argument{STR1}{Status}{Character*(*)}{in}
-*     </Arguments>
-*     <Purpose>Update status file</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>V. Veryazov</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*      Print parameters into status file. There is no
-*      difference between params.
-*      Call StatusLine(ModuleName,': just started')
-*     </Description>
-*    </DOC>
-*
-************************************************************
       character*(*) STR, STR1
       Integer Lu
 #ifdef _MOLCAS_MPP_

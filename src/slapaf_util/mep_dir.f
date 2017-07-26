@@ -10,30 +10,28 @@
 *                                                                      *
 * Copyright (C) 2013-2015, Ignacio Fdez. Galvan                        *
 ************************************************************************
-* <DOC>
-*   <NAME>MEP\_Dir</NAME>
-*   <SYNTAX>Call MEP\_Dir(Cx,Gx,nAtom,iMEP,iOff_iter,iPrint)</Syntax>
-*   <ARGUMENTS>
-*     \Argument{Cx}{Cartesian coordinates in all iterations}{Real*8 (3*nAtom,iter+1)}{inout}
-*     \Argument{Gx}{Cartesian gradient in all iterations}{Real*8 (3*nAtom,iter+1)}{in}
-*     \Argument{nAtom}{Number of symmetry-unique atoms}{Integer}{in}
-*     \Argument{iMEP}{Number of this MEP point}{Integer}{in}
-*     \Argument{iOff_iter}{Iteration of the previous MEP point}{Integer}{in}
-*     \Argument{iPrint}{Print level}{Integer}{in}
-*   </ARGUMENTS>
-*   <PURPOSE>Compute the new reference structure and initial coordinates for the next MEP point</PURPOSE>
-*   <DEPENDENCIES>dcopy, daxpy, dscal, etc.</DEPENDENCIES>
-*   <AUTHOR>I. Fdez. Galvan</AUTHOR>
-*   <MODIFIED_BY></MODIFIED_BY>
-*   <SIDE_EFFECTS></SIDE_EFFECTS>
-*   <DESCRIPTION>
-*     Compute the new reference structure (and direction) and initial geometry
-*     for the next MEP point optimization (using the Gonzalez-Schlegel or Mueller-Brown method).
-*     Calculate some properties of the path (length and curvature) between the previous
-*     and current MEP points.
-*     All calculations are done in weighted coordinates (mass-weighted by default).
-*   </DESCRIPTION>
-* </DOC>
+*  MEP_Dir
+*
+*> @brief
+*>   Compute the new reference structure and initial coordinates for the next MEP point
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> Compute the new reference structure (and direction) and initial geometry
+*> for the next MEP point optimization (using the Gonz&aacute;lez--Schlegel or
+*> M&uacute;ller--Brown method).
+*> Calculate some properties of the path (length and curvature) between the previous
+*> and current MEP points.
+*> All calculations are done in weighted coordinates (mass-weighted by default).
+*>
+*> @param[in,out] Cx         Cartesian coordinates in all iterations
+*> @param[in]     Gx         Cartesian gradient in all iterations
+*> @param[in]     nAtom      Number of symmetry-unique atoms
+*> @param[in]     iMEP       Number of this MEP point
+*> @param[in]     iOff_iter  Iteration of the previous MEP point
+*> @param[in]     iPrint     Print level
+*> @param[in]     IRCRestart Flag to mark the start of a backward IRC search
+************************************************************************
       Subroutine MEP_Dir(Cx,Gx,nAtom,iMEP,iOff_iter,iPrint,IRCRestart)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"

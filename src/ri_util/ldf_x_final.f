@@ -10,30 +10,24 @@
 *                                                                      *
 * Copyright (C) Thomas Bondo Pedersen                                  *
 ************************************************************************
+*  LDF_X_Final
+*
+*> @brief
+*>   Finalize LDF enviroment
+*> @author Thomas Bondo Pedersen
+*>
+*> @details
+*> Finalization of the LDF environment, including
+*> proper deallocations of memory. If \p Term_Sew, terminate the
+*> Seward environment as well. On exit, \p irc = ``0`` signals successful
+*> finalization.
+*>
+*> @param[in]  Term_Sew Do termination of Seward environment
+*> @param[out] irc      Return code
+*>
+*> @see ::LDF_X_Init
+************************************************************************
       Subroutine LDF_X_Final(Term_Sew,irc)
-************************************************************************
-*
-*   <DOC>
-*     <Name>LDF\_X\_Final</Name>
-*     <Syntax>Call LDF\_X\_Final(Term\_Sew,irc)</Syntax>
-*     <Arguments>
-*       \Argument{Term\_Sew}{Do termination of Seward environment}
-*       {Logical}{in}
-*       \Argument{irc}{Return code}{Integer}{out}
-*     </Arguments>
-*     <Purpose>Finalize LDF enviroment</Purpose>
-*     <Dependencies>Call LDF\_X\_Init</Dependencies>
-*     <Author>Thomas Bondo Pedersen</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description> Finalization of the LDF environment, including
-*     proper deallocations of memory. If (Term\_Sew), terminate the
-*     Seward environment as well. On exit, irc=0 signals successful
-*     finalization.
-*     </Description>
-*    </DOC>
-*
-************************************************************************
       Implicit None
       Logical Term_Sew
       Integer irc

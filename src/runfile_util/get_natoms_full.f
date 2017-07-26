@@ -10,27 +10,17 @@
 *                                                                      *
 * Copyright (C) 2015, Ignacio Fdez. Galvan                             *
 ************************************************************************
+*  Get_nAtoms_Full
+*
+*> @author I. Fdez. Galv&aacute;n
+*>
+*> @details
+*> Get number of all atoms (not only symmetry unique) from RUNFILE,
+*> including MM atoms otherwise invisible to gateway/slapaf.
+*>
+*> @param[out] nAtoms_Full Number of all atoms in the system
+************************************************************************
       Subroutine Get_nAtoms_Full(nAtoms_Full)
-************************************************************
-*
-*   <DOC>
-*     <Name>Get\_nAtoms\_Full</Name>
-*     <Syntax>Call Get\_nAtoms\_Full(nAtoms\_Full)</Syntax>
-*     <Arguments>
-*       \Argument{nAtoms\_Full}{Number of all atoms in the system}{Integer}{out}
-*     </Arguments>
-*     <Purpose></Purpose>
-*     <Dependencies>Get\_nAtoms\_All</Dependencies>
-*     <Author>I. Fdez. Galvan</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*       Get number of all atoms (not only symmetry unique) from RUNFILE,
-*       including MM atoms otherwise invisible to gateway/slapaf.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit None
       Integer nAtoms_Full,nAtom,nAtMM
       Logical Found

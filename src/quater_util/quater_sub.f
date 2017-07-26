@@ -11,25 +11,6 @@
 * Copyright (C) Yannick Carissan                                       *
 ************************************************************************
       subroutine quater_sub(nAtoms,G1,G2,ireturn)
-************************************************************
-*
-*   <DOC>
-*     <Name>quater</Name>
-*     <Syntax>quater(ireturn)</Syntax>
-*     <Arguments>
-*       \Argument{ireturn}{return code}{Integer}{out}
-*     </Arguments>
-*     <Purpose>Driver for quater</Purpose>
-*     <Dependencies>quater util and util</Dependencies>
-*     <Author>Y. Carissan</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects>none</Side_Effects>
-*     <Description>
-*        Driver for quater
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit none
 #include "WrkSpc.fh"
 #include "debug.fh"

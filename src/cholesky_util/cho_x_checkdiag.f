@@ -11,42 +11,40 @@
 * Copyright (C) Thomas Bondo Pedersen                                  *
 *               Francesco Aquilante                                    *
 ************************************************************************
+*  Cho_X_CheckDiag
+*
+*> @brief
+*>   Check diagonal
+*> @author Thomas Bondo Pedersen
+*> @modified_by F. Aquilante (add ::OneCenter_ChkDiag)
+*> @modified_by T.B. Pedersen (If ``(Cho_1Center)``: \p Err only contains 1-center errors on exit)
+*>
+*> @details
+*> This routine reads and analyzes (histogram and statistics)
+*> the exact integral diagonal, computes and analyzes the
+*> diagonal from Cholesky vectors,
+*> and the difference between the two (exact minus Cholesky).
+*>
+*> The statistics printed are: minimum value, maximum
+*> value, mean value, mean absolute value, variance (wrt mean
+*> value), and standard deviation (wrt mean value).
+*>
+*> On exit:
+*>
+*> - \p Err(1) = min error
+*> - \p Err(2) = max error
+*> - \p Err(3) = average error
+*> - \p Err(4) = RMS error
+*>
+*> Return code is ``0`` if successful execution. If \p irc is non-zero,
+*> the contents or \p Err are ill-defined.
+*> Results will only be printed to output if \c iPrint is ``-5`` or
+*> greater (\c iPrint stored in choprint.inc).
+*>
+*> @param[out] irc Return code
+*> @param[out] Err min, max, average, and RMS error
+************************************************************************
       SubRoutine Cho_X_CheckDiag(irc,Err)
-************************************************************
-*
-*   <DOC>
-*     <Name>Cho\_X\_CheckDiag</Name>
-*     <Syntax>Call Cho\_X\_CheckDiag(irc,S)</Syntax>
-*     <Arguments>
-*       \Argument{irc}{Return code}{Integer}{out}
-*       \Argument{Err}{min, max, average, and RMS error}{Real*8}{out}
-*     </Arguments>
-*     <Purpose>Check diagonal</Purpose>
-*     <Dependencies>Cho\_X\_Init must have been called</Dependencies>
-*     <Author>Thomas Bondo Pedersen</Author>
-*     <Modified_by>F. Aquilante (add OneCenter\_ChkDiag),
-*                  T.B. Pedersen (If (Cho\_1Center): Err only contains
-*                  1-center errors on exit)
-*     </Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*        This routine reads and analyzes (histogram and statistics)
-*        the exact integral diagonal, computes and analyzes the
-*        diagonal from Cholesky vectors,
-*        and the difference between the two (exact minus Cholesky).
-*        The statistics printed are: minimum value, maximum
-*        value, mean value, mean absolute value, variance (wrt mean
-*        value), and standard deviation (wrt mean value).
-*        On exit, Err(1)=min error, Err(2)=max error, Err(3)=average
-*        error, Err(4)=RMS error.
-*        Return code is 0 if successful execution. If irc is non-zero,
-*        the contents or Err are ill-defined.
-*        Results will only be printed to output of iPrint is -5 or
-*        greater (iPrint stored in choprint.fh).
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit None
       Integer irc
       Real*8  Err(4)

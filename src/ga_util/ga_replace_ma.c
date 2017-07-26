@@ -23,7 +23,7 @@
 #  endif
 
 void* replace_malloc (size_t bytes, int align, char* name) {
-        return allomblck("GA", &bytes);
+        return allomblck("GA", (INT*)&bytes);
 }
 
 void replace_free (void* ptr) {

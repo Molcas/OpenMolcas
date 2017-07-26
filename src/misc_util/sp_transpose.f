@@ -10,28 +10,23 @@
 *                                                                      *
 * Copyright (C) 2014, Ignacio Fdez. Galvan                             *
 ************************************************************************
-*-----------------------------------------------------------------------
-* <DOC>
-*   <NAME>Sp\_Transpose</NAME>
-*   <SYNTAX>Call Sp\_Transpose(n,A,ija,B,ijb,nij)</Syntax>
-*   <ARGUMENTS>
-*     \Argument{n}{Size of the matrices}{Integer}{in}
-*     \Argument{A}{Input matrix, in sparse format}{Real*8 (*)}{in}
-*     \Argument{ija}{Index vector of matrix A}{Integer (*)}{in}
-*     \Argument{B}{Output matrix, in sparse format}{Real*8 (*)}{out}
-*     \Argument{ijb}{Index vector of matrix B}{Integer (*)}{out}
-*     \Argument{nij}{Length of the vectors}{Integer}{in}
-*   </ARGUMENTS>
-*   <PURPOSE>Transposes a matrix in sparse format</PURPOSE>
-*   <DEPENDENCIES></DEPENDENCIES>
-*   <AUTHOR>I. Fdez. Galvan</AUTHOR>
-*   <MODIFIED_BY></MODIFIED_BY>
-*   <SIDE_EFFECTS></SIDE_EFFECTS>
-*   <DESCRIPTION>
-*     Saves in B the transpose of the input matrix A, both in sparse format.
-*   </DESCRIPTION>
-* </DOC>
-*-----------------------------------------------------------------------
+*  Sp_Transpose
+*
+*> @ingroup Sparse
+*> @brief
+*>   Transpose a matrix in sparse format
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> Saves in \p B the transpose of the input matrix \p A, both in sparse format.
+*>
+*> @param[in] n   Size of the matrices
+*> @param[in] A   Input matrix, in sparse format
+*> @param[in] ija Index vector of matrix \p A
+*> @param[in] B   Output matrix, in sparse format
+*> @param[in] ijb Index vector of matrix \p B
+*> @param[in] nij Length of the vectors
+************************************************************************
       SUBROUTINE Sp_Transpose(n,A,ija,B,ijb,nij)
       IMPLICIT NONE
       INTEGER n, ija(*), ijb(*), nij, i, j, k, kk

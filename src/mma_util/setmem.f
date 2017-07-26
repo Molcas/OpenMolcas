@@ -8,35 +8,26 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-************************************************************
+*  SetMem
 *
-*   <DOC>
-*     <Name>SetMem</Name>
-*     <Syntax>Call SetMem(String)</Syntax>
-*     <Arguments>
-*       \Argument{String}{TRACE=ON $|$ TRACE=OFF $|$ SYSOUT=ON $|$ SYSOUT=OFF $|$ CLEAR=ON $|$ CLEAR=OFF $|$ QUERY=ON $|$ QUERY=OFF $|$ CHECK=ON $|$ CHECK=OFF}{Char*(*)}{in}
-*     </Arguments>
-*     <Purpose>
-* To initialize and change status for memory control (common / MOLCAS\_GetMem / MemCtl).
-*     </Purpose>
-*     <Dependencies></Dependencies>
-*     <Author></Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-* String is a string of any size and is not case sensitive. The string contains keyword and the status of keyword in a form: KEYWORD=STATUS. The STATUS of the keyword can be ON or OFF. The SetMem subroutine can recognize only keywords:
-* \begin{itemize}
-* \item[TRACE] traces memory
-* \item[SYSOUT] unit of file which will be used as output for all kind of prints connected with the memory control.
-* \item[CLEAR] sets memory block for extra checking for memory allocation. A  \_GARBLE\_ preprocessor option can be defined during compilation process to add an additional checking.
-* \item[QUERY] prints status of the Molcas\_query
-* \item[CHECK]check the internal state of the MA
-* \end{itemize}
-*     </Description>
-*    </DOC>
-*
-************************************************************
-
+*> @brief
+*>   Initialize and change status for memory control (common / MOLCAS_GetMem / MemCtl)
+*>
+*> @details
+*> String is a string of any size and is not case sensitive.
+*> The string contains keyword and the status of keyword in a form:
+*> ``KEYWORD=STATUS``. The ``STATUS`` of the keyword can be ``ON`` or ``OFF``.
+*> The ::SetMem subroutine can recognize only keywords:
+*>
+*> - ``TRACE``:  traces memory.
+*> - ``SYSOUT``: unit of file which will be used as output for all kind of prints connected with the memory control.
+*> - ``CLEAR``:  sets memory block for extra checking for memory allocation.
+*>               A  ``_GARBLE_`` preprocessor option can be defined during compilation process to add an additional checking.
+*> - ``QUERY``:  prints status of the Molcas_query.
+*> - ``CHECK``:  check the internal state of the MA.
+*>
+*> @param[in] String ``TRACE=ON`` / ``TRACE=OFF`` / ``SYSOUT=ON`` / ``SYSOUT=OFF`` / ``CLEAR=ON`` / ``CLEAR=OFF`` / ``QUERY=ON`` / ``QUERY=OFF`` / ``CHECK=ON`` / ``CHECK=OFF``
+************************************************************************
       Subroutine SetMem (String)
 *
 

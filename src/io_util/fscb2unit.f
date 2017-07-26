@@ -10,27 +10,18 @@
 *                                                                      *
 * Copyright (C) Victor P. Vysotskiy                                    *
 ************************************************************************
+*  FSCB2UNIT
+*
+*> @brief
+*>   Translate system (C)file descriptor into internal Molcas's one
+*> @author V. Vysotskiy
+*>
+*> @details
+*> Translate system (C)file descriptor into internal Molcas's one
+*>
+*> @param[in,out] cunit System (C)file descriptor
+************************************************************************
        Subroutine FSCB2UNIT(cunit,LuP)
-
-************************************************************
-*
-*   <DOC>
-*     <Name>FSCB2UNIT</Name>
-*     <Syntax>FSCB2UNIT(cunit)</Syntax>
-*     <Arguments>
-*       \Argument{cinit}{System (C)file descriptor}{integer}{inout}
-*     </Arguments>
-*     <Purpose>Translate system (C)file descriptor into internal Molcas's one </Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>V. Vysotskiy</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*       Translate system (C)file descriptor into internal Molcas's one
-*     </Description>
-*    </DOC>
-*
-************************************************************
 #include "fio.fh"
 #include "pfio.fh"
 

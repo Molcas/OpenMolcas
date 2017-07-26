@@ -10,26 +10,19 @@
 *                                                                      *
 * Copyright (C) Roland Lindh                                           *
 ************************************************************************
+*  Put_AnalHess
+*
+*> @brief
+*>   Write the symmetry blocked nuclear Hessian in Cartesian coordinates on the runfile
+*> @author R. Lindh
+*>
+*> @details
+*> The utility will write the symmetry blocked nuclear Hessian in Cartesian coordinates on the runfile.
+*>
+*> @param[in] AnalHess  Array with the symmetry blocked nuclear Hessian in Cartesian coordinates
+*> @param[in] nAnalHess Size of the array \p AnalHess
+************************************************************************
       Subroutine Put_AnalHess(AnalHess,nAnalHess)
-************************************************************
-*
-*   <DOC>
-*     <Name>Put\_AnalHess</Name>
-*     <Syntax>Call Put\_AnalHess(AnalHess,nAnalHess)</Syntax>
-*     <Arguments>
-*       \Argument{AnalHess}{Array with the symmetry blocked nuclear Hessian in cartesian coordinates.}{Real*8 (nAnalHess)}{in}
-*       \Argument{nAnalHess}{Size of the array AnalHess}{Integer}{in}
-*     </Arguments>
-*     <Purpose>To write the symmetry blocked nuclear Hessian in cartesian coordinates on the run file.</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>R. Lindh</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>The utility will write the symmetry blocked nuclear Hessian in cartesian coordinates on the run file.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8 (a-h,o-z)
       Real*8 AnalHess(nAnalHess)
       Character Label*80
