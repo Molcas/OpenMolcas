@@ -388,7 +388,7 @@ test_configfile () {
     #sed -i 's|/opt/local/bin/perl|/usr/bin/perl|' sbin/*
     echo "OPENMOLCAS=$OPENMOLCAS_DIR" > .openmolcashome
     # run configure and make
-    if ./configure $MY_FLAGS >> make.log 2>&1 && $MAKE_cmd >> make.log 2>&1
+    if touch fetch.log && ./configure $MY_FLAGS >> make.log 2>&1 && $MAKE_cmd >> make.log 2>&1
     then
         date >> make.log
         echo "Make - OK!" >> auto.log
@@ -405,7 +405,7 @@ test_configfile () {
             fi
             git checkout $commit && update_submodules
             make distclean >/dev/null 2>&1
-            if ./configure $MY_FLAGS >/dev/null 2>&1 && $MAKE_cmd >/dev/null 2>&1
+            if touch fetch.log && ./configure $MY_FLAGS >/dev/null 2>&1 && $MAKE_cmd >/dev/null 2>&1
             then
                 echo ":: good $commit" >> auto.log
             else
@@ -422,7 +422,7 @@ test_configfile () {
             fi
             (cd ../$REPO_OPEN.$BRANCH && git checkout $commit && update_submodules)
             make distclean >/dev/null 2>&1
-            if ./configure $MY_FLAGS >/dev/null 2>&1 && $MAKE_cmd >/dev/null 2>&1
+            if touch fetch.log && ./configure $MY_FLAGS >/dev/null 2>&1 && $MAKE_cmd >/dev/null 2>&1
             then
                 echo ":: good (open) $commit" >> auto.log
             else
@@ -436,7 +436,7 @@ test_configfile () {
         git checkout $BRANCH && update_submodules
         (cd ../$REPO_OPEN.$BRANCH && git checkout $BRANCH && update_submodules)
         make distclean >/dev/null 2>&1
-        ./configure $MY_FLAGS >/dev/null 2>&1 && $MAKE_cmd >/dev/null 2>&1
+        touch fetch.log && ./configure $MY_FLAGS >/dev/null 2>&1 && $MAKE_cmd >/dev/null 2>&1
 
         # end logfiles with the date
         date >> make.log
@@ -510,7 +510,7 @@ test_configfile () {
             fi
             git checkout $commit && update_submodules
             make distclean >/dev/null 2>&1
-            if ./configure $MY_FLAGS >/dev/null 2>&1 && $MAKE_cmd >/dev/null 2>&1 && $DRIVER verify --trap $failed_tests
+            if touch fetch.log && ./configure $MY_FLAGS >/dev/null 2>&1 && $MAKE_cmd >/dev/null 2>&1 && $DRIVER verify --trap $failed_tests
             then
                 echo ":: good $commit" >> auto.log
             else
@@ -527,7 +527,7 @@ test_configfile () {
             fi
             (cd ../$REPO_OPEN.$BRANCH && git checkout $commit && update_submodules)
             make distclean >/dev/null 2>&1
-            if ./configure $MY_FLAGS >/dev/null 2>&1 && $MAKE_cmd >/dev/null 2>&1 && $DRIVER verify --trap $failed_tests
+            if touch fetch.log && ./configure $MY_FLAGS >/dev/null 2>&1 && $MAKE_cmd >/dev/null 2>&1 && $DRIVER verify --trap $failed_tests
             then
                 echo ":: good (open) $commit" >> auto.log
             else
@@ -541,7 +541,7 @@ test_configfile () {
         git checkout $BRANCH && update_submodules
         (cd ../$REPO_OPEN.$BRANCH && git checkout $BRANCH && update_submodules)
         make distclean >/dev/null 2>&1
-        ./configure $MY_FLAGS >/dev/null 2>&1 && $MAKE_cmd >/dev/null 2>&1
+        touch fetch.log && ./configure $MY_FLAGS >/dev/null 2>&1 && $MAKE_cmd >/dev/null 2>&1
     fi
 
     # end logfiles with the date
