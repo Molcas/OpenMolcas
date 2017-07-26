@@ -10,42 +10,31 @@
 *                                                                      *
 * Copyright (C) Yannick Carissan                                       *
 ************************************************************************
+*  quatersolve
+*
+*> @brief
+*>   Computes the quaternion which corresponds to the best rotation that transforms \p U1 in \p U2 and \p V1 in \p V2
+*> @author Y. Carissan
+*>
+*> @details
+*> Input vectors will be normalized and \p V2 changed.
+*> Computes the quaternion which corresponds to the
+*> rotation that transforms \p U1 in \p U2 and \p V1 in \p V2.
+*> If such a rotation does not exists, i.e. if
+*> \f[ U_1 \cdot V_1 \ne U_2 \cdot V_2 \f]
+*> the quaternion contains the rotation
+*> which transforms \p U1 into \p U2 and \p V1 into \p V2' such that
+*> \f[ U_1 \cdot V_1 = U_2 \cdot V_2' \f]
+*> and
+*> \f[ U_1 \times V_1 = b (U_2 \times V_2') \f] with \f$ b \f$ real.
+*>
+*> @param[in,out] U1 vector \f$ U_1 \f$
+*> @param[in,out] U2 vector \f$ U_2 \f$
+*> @param[in,out] V1 vector \f$ V_1 \f$
+*> @param[in,out] V2 vector \f$ V_2 \f$
+*> @param[out]    Q  quaternion \f$ Q \f$
+************************************************************************
       subroutine quatersolve(U1,U2,V1,V2,Q)
-************************************************************
-*
-*   <DOC>
-*     <Name>quatersolve</Name>
-*     <Syntax>quatersolve(U1,U2,V1,V2,Q)</Syntax>
-*     <Arguments>
-*       \Argument{U1}{vector U1, Dimension(3)}{Real*8}{in-out}
-*       \Argument{U2}{vector U2, Dimension(3)}{Real*8}{in-out}
-*       \Argument{V1}{vector V1, Dimension(3)}{Real*8}{in-out}
-*       \Argument{V2}{vector V2, Dimension(3)}{Real*8}{in-out}
-*       \Argument{Q}{quaternion Q, Dimension(4)}{Real*8}{out}
-*     </Arguments>
-*     <Purpose>Computes the quaternion which corresponds to the
-*          best rotation that transforms U1 in U2 and V1 in V2.
-*          </Purpose>
-*     <Dependencies>quater util blas and util</Dependencies>
-*     <Author>Y. Carissan</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects>none</Side_Effects>
-*     <Description>
-*        Input vectors will be normalized and V2 changed.
-*        Computes the quaternion which corresponds to the
-*          rotation that transforms U1 in U2 and V1 in V2.
-*          If such a rotation does not exists i.e. if
-*          U1.V1 .NE. U2.V2
-*          the quaternion contains the rotation
-*          which transforms U1 into U2 and V1 into V2' such that
-*             U1.V1 == U2.V2'
-*          and
-*             U1xV1=b * (U2xV2') with b real
-*     </Description>
-*    </DOC>
-*
-************************************************************
-
       Implicit none
 #include "WrkSpc.fh"
 #include "debug.fh"

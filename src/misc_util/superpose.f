@@ -10,43 +10,34 @@
 *                                                                      *
 * Copyright (C) 2013,2014, Ignacio Fdez. Galvan                        *
 ************************************************************************
-*-------------------------------------------------------------------------------
-*    SUBROUTINES FOR SUPERPOSITION OF MOLECULES
+*> @file
+*> @brief
+*>   Subroutines for superposition of molecules.
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> Subroutines for superposition of molecules.
+*> \cite The2005-ACSA-61-478
+*> \cite Liu2010-JCC-31-1561
+************************************************************************
+*  Get_RMSD_w
 *
-*    I. Fdez. Galvan, Uppsala 2013
-*
-* Get_RMSD_w  - Find minimum possible RMSD, no change in structures
-* Get_RMSD    - Ditto, with equal weights
-* Superpose_w - Superpose structures, first structure modified
-* Superpose   - Ditto, with equal weights
-*
-*--- Based on:
-*    Acta Chrystallogr. Sec. A 61 (2005), 478
-*    J. Comput. Chem. 31 (2010), 1561
-*-------------------------------------------------------------------------------
-*
-*-------------------------------------------------------------------------------
-* <DOC>
-*   <NAME>Get\_RMSD\_w</NAME>
-*   <SYNTAX>Call Get\_RMSD\_w(x,y,w,nAt,RMSD)</Syntax>
-*   <ARGUMENTS>
-*     \Argument{x}{Cartesian coordinates of the first structure}{Real*8 (3,nAt)}{in}
-*     \Argument{y}{Cartesian coordinates of the second structure}{Real*8 (3,nAt)}{in}
-*     \Argument{w}{Weights for each atom}{Real*8 (nAt)}{in}
-*     \Argument{nAt}{Number of atoms in the structures}{Integer}{in}
-*     \Argument{RMSD}{Minimum weighted RMSD between the two structures}{Real*8}{out}
-*   </ARGUMENTS>
-*   <PURPOSE>Compute the optimal weighted RMSD between two structures</PURPOSE>
-*   <DEPENDENCIES>get\_rotation</DEPENDENCIES>
-*   <AUTHOR>I. Fdez. Galvan</AUTHOR>
-*   <MODIFIED_BY></MODIFIED_BY>
-*   <SIDE_EFFECTS></SIDE_EFFECTS>
-*   <DESCRIPTION>
-*     Compute the optimal RMSD between two structures, with weights.
-*     Coordinates are not changed, but the RMSD corresponds to the aligned structures.
-*   </DESCRIPTION>
-* </DOC>
-*-------------------------------------------------------------------------------
+*> @brief
+*>   Compute the optimal weighted RMSD between two structures.
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> Compute the optimal RMSD between two structures, with weights.
+*> Coordinates are not changed, but the RMSD corresponds to the aligned structures.
+*>
+*> @param[in]  x    Cartesian coordinates of the first structure
+*> @param[in]  y    Cartesian coordinates of the second structure
+*> @param[in]  w    Weights for each atom
+*> @param[in]  nAt  Number of atoms in the structures
+*> @param[out] RMSD Minimum weighted RMSD between the two structures
+*>
+*> @see ::Get_RMSD
+************************************************************************
       SUBROUTINE Get_RMSD_w(x,y,w,nAt,RMSD)
       IMPLICIT NONE
       INTEGER nAt
@@ -54,27 +45,24 @@
       CALL get_rotation(x,y,w,nAt,RMSD,.FALSE.)
       END
 *
-*-------------------------------------------------------------------------------
-* <DOC>
-*   <NAME>Get\_RMSD</NAME>
-*   <SYNTAX>Call Get\_RMSD(x,y,nAt,RMSD)</Syntax>
-*   <ARGUMENTS>
-*     \Argument{x}{Cartesian coordinates of the first structure}{Real*8 (3,nAt)}{in}
-*     \Argument{y}{Cartesian coordinates of the second structure}{Real*8 (3,nAt)}{in}
-*     \Argument{nAt}{Number of atoms in the structures}{Integer}{in}
-*     \Argument{RMSD}{Minimum RMSD between the two structures}{Real*8}{out}
-*   </ARGUMENTS>
-*   <PURPOSE>Compute the optimal RMSD between two structures</PURPOSE>
-*   <DEPENDENCIES>Get\_RMSD\_w</DEPENDENCIES>
-*   <AUTHOR>I. Fdez. Galvan</AUTHOR>
-*   <MODIFIED_BY></MODIFIED_BY>
-*   <SIDE_EFFECTS></SIDE_EFFECTS>
-*   <DESCRIPTION>
-*     Compute the optimal RMSD between two structures, with equal weights.
-*     Coordinates are not changed, but the RMSD corresponds to the aligned structures.
-*   </DESCRIPTION>
-* </DOC>
-*-------------------------------------------------------------------------------
+************************************************************************
+*  Get_RMSD
+*
+*> @brief
+*>   Compute the optimal RMSD between two structures.
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> Compute the optimal RMSD between two structures, with equal weights.
+*> Coordinates are not changed, but the RMSD corresponds to the aligned structures.
+*>
+*> @param[in]  x    Cartesian coordinates of the first structure
+*> @param[in]  y    Cartesian coordinates of the second structure
+*> @param[in]  nAt  Number of atoms in the structures
+*> @param[out] RMSD Minimum RMSD between the two structures
+*>
+*> @see ::Get_RMSD_w
+************************************************************************
       SUBROUTINE Get_RMSD(x,y,nAt,RMSD)
       IMPLICIT NONE
 #include "real.fh"
@@ -90,29 +78,26 @@
       CALL mma_deallocate(w)
       END
 *
-*-------------------------------------------------------------------------------
-* <DOC>
-*   <NAME>Superpose\_w</NAME>
-*   <SYNTAX>Call Superpose\_w(x,y,w,nAt,RMSD,RMax)</Syntax>
-*   <ARGUMENTS>
-*     \Argument{x}{Cartesian coordinates of the first structure}{Real*8 (3,nAt)}{inout}
-*     \Argument{y}{Cartesian coordinates of the second structure}{Real*8 (3,nAt)}{in}
-*     \Argument{w}{Weights for each atom}{Real*8 (nAt)}{in}
-*     \Argument{nAt}{Number of atoms in the structures}{Integer}{in}
-*     \Argument{RMSD}{Weighted RMSD between the two final structures}{Real*8}{out}
-*     \Argument{RMax}{Maximum atom-wise (weighted) distance between the two structures}{Real*8}{out}
-*   </ARGUMENTS>
-*   <PURPOSE>Superpose two structures</PURPOSE>
-*   <DEPENDENCIES>get\_rotation</DEPENDENCIES>
-*   <AUTHOR>I. Fdez. Galvan</AUTHOR>
-*   <MODIFIED_BY></MODIFIED_BY>
-*   <SIDE_EFFECTS></SIDE_EFFECTS>
-*   <DESCRIPTION>
-*     Superpose two structures, with weights.
-*     The coordinates of the first structure are modified.
-*   </DESCRIPTION>
-* </DOC>
-*-------------------------------------------------------------------------------
+************************************************************************
+*  Superpose_w
+*
+*> @brief
+*>   Superpose two structures.
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> Superpose two structures, with weights.
+*> The coordinates of the first structure are modified.
+*>
+*> @param[in,out]  x    Cartesian coordinates of the first structure
+*> @param[in]      y    Cartesian coordinates of the second structure
+*> @param[in]      w    Weights for each atom
+*> @param[in]      nAt  Number of atoms in the structures
+*> @param[out]     RMSD Weighted RMSD between the two final structures
+*> @param[out]     RMax Maximum atom-wise (weighted) distance between the two structures
+*>
+*> @see ::Superpose
+************************************************************************
       SUBROUTINE Superpose_w(x,y,w,nAt,RMSD,RMax)
       IMPLICIT NONE
 #include "real.fh"
@@ -131,28 +116,25 @@
       RMax=SQRT(RMax)
       END
 *
-*-------------------------------------------------------------------------------
-* <DOC>
-*   <NAME>Superpose</NAME>
-*   <SYNTAX>Call Superpose(x,y,nAt,RMSD,RMax)</Syntax>
-*   <ARGUMENTS>
-*     \Argument{x}{Cartesian coordinates of the first structure}{Real*8 (3,nAt)}{inout}
-*     \Argument{y}{Cartesian coordinates of the second structure}{Real*8 (3,nAt)}{in}
-*     \Argument{nAt}{Number of atoms in the structures}{Integer}{in}
-*     \Argument{RMSD}{RMSD between the two final structures}{Real*8}{out}
-*     \Argument{RMax}{Maximum atom-wise distance between the two structures}{Real*8}{out}
-*   </ARGUMENTS>
-*   <PURPOSE>Superpose two structures</PURPOSE>
-*   <DEPENDENCIES>Superpose\_w</DEPENDENCIES>
-*   <AUTHOR>I. Fdez. Galvan</AUTHOR>
-*   <MODIFIED_BY></MODIFIED_BY>
-*   <SIDE_EFFECTS></SIDE_EFFECTS>
-*   <DESCRIPTION>
-*     Superpose two structures, with equal weights.
-*     The coordinates of the first structure are modified.
-*   </DESCRIPTION>
-* </DOC>
-*-------------------------------------------------------------------------------
+************************************************************************
+*  Superpose_w
+*
+*> @brief
+*>   Superpose two structures.
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> Superpose two structures, with equal weights.
+*> The coordinates of the first structure are modified.
+*>
+*> @param[in,out]  x    Cartesian coordinates of the first structure
+*> @param[in]      y    Cartesian coordinates of the second structure
+*> @param[in]      nAt  Number of atoms in the structures
+*> @param[out]     RMSD RMSD between the two final structures
+*> @param[out]     RMax Maximum atom-wise distance between the two structures
+*>
+*> @see ::Superpose_w
+************************************************************************
       SUBROUTINE Superpose(x,y,nAt,RMSD,RMax)
       IMPLICIT NONE
 #include "real.fh"
@@ -168,29 +150,29 @@
       CALL mma_deallocate(w)
       END
 *
-*-------------------------------------------------------------------------------
-* <DOC>
-*   <NAME>get\_rotation</NAME>
-*   <SYNTAX>Call get\_rotation(x,y,w,nAt,RMSD,rotate)</Syntax>
-*   <ARGUMENTS>
-*     \Argument{x}{Cartesian coordinates of the first structure}{Real*8 (3,nAt)}{inout}
-*     \Argument{y}{Cartesian coordinates of the second structure}{Real*8 (3,nAt)}{in}
-*     \Argument{w}{Weights for each atom}{Real*8 (nAt)}{in}
-*     \Argument{nAt}{Number of atoms in the structures}{Integer}{in}
-*     \Argument{RMSD}{Minimum weighted RMSD between the two final structures}{Real*8}{out}
-*     \Argument{rotate}{Flag for changing the coordinates or not}{Logical}{in}
-*   </ARGUMENTS>
-*   <PURPOSE>Compute the RMSD and superpose two structures</PURPOSE>
-*   <DEPENDENCIES>center\_mol, inner\_prod, inner\_mat, build\_polynomial, find\_lambda, build\_K\_matrix, get\_eigenvalue, apply\_rotation, DScal, DCopy</DEPENDENCIES>
-*   <AUTHOR>I. Fdez. Galvan</AUTHOR>
-*   <MODIFIED_BY></MODIFIED_BY>
-*   <SIDE_EFFECTS></SIDE_EFFECTS>
-*   <DESCRIPTION>
-*     Calculate the minimum weighted RMSD between two structures and, optionally,
-*     rotate and translate the first one to be superposed onto the other
-*   </DESCRIPTION>
-* </DOC>
-*-------------------------------------------------------------------------------
+************************************************************************
+*> @name Internal
+*>
+*> These procedures are probably not very useful outside the file.
+*> @{
+************************************************************************
+*  get_rotation
+*
+*> @brief
+*>   Compute the RMSD and superpose two structures.
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> Calculate the minimum weighted RMSD between two structures and, optionally,
+*> rotate and translate the first one to be superposed onto the other.
+*>
+*> @param[in,out] x      Cartesian coordinates of the first structure
+*> @param[in]     y      Cartesian coordinates of the second structure
+*> @param[in]     w      Weights for each atom
+*> @param[in]     nAt    Number of atoms in the structures
+*> @param[out]    RMSD   Minimum weighted RMSD between the two final structures
+*> @param[in]     rotate Flag for changing the coordinates or not
+************************************************************************
       SUBROUTINE get_rotation(x,y,w,nAt,RMSD,rotate)
       IMPLICIT NONE
 #include "real.fh"
@@ -258,27 +240,22 @@
       CALL mma_deallocate(yCen)
       END
 *
-*-------------------------------------------------------------------------------
-* <DOC>
-*   <NAME>center\_mol</NAME>
-*   <SYNTAX>Call center\_mol(x,w,nAt,c,xCen)</Syntax>
-*   <ARGUMENTS>
-*     \Argument{x}{Cartesian coordinates of the structure}{Real*8 (3,nAt)}{in}
-*     \Argument{w}{Weights for each atom}{Real*8 (nAt)}{in}
-*     \Argument{nAt}{Number of atoms in the structures}{Integer}{in}
-*     \Argument{c}{Weighted center}{Real*8 (3)}{out}
-*     \Argument{xCen}{Centered Cartesian coordinates}{Real*8 (3,nAt)}{out}
-*   </ARGUMENTS>
-*   <PURPOSE>Center a structure on its weighted geometric center</PURPOSE>
-*   <DEPENDENCIES></DEPENDENCIES>
-*   <AUTHOR>I. Fdez. Galvan</AUTHOR>
-*   <MODIFIED_BY></MODIFIED_BY>
-*   <SIDE_EFFECTS></SIDE_EFFECTS>
-*   <DESCRIPTION>
-*     Center a structure on its weighted geometric center.
-*   </DESCRIPTION>
-* </DOC>
-*-------------------------------------------------------------------------------
+************************************************************************
+*  center_mol
+*
+*> @brief
+*>   Center a structure on its weighted geometric center.
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> Center a structure on its weighted geometric center.
+*>
+*> @param[in]  x    Cartesian coordinates of the structure
+*> @param[in]  w    Weights for each atom
+*> @param[in]  nAt  Number of atoms in the structures
+*> @param[out] c    Weighted center
+*> @param[out] xCen Centered Cartesian coordinates
+************************************************************************
       SUBROUTINE center_mol(x,w,nAt,c,xCen)
       IMPLICIT NONE
 #include "real.fh"
@@ -303,26 +280,23 @@
       END DO
       END
 *
-*-------------------------------------------------------------------------------
-* <DOC>
-*   <NAME>inner\_prod</NAME>
-*   <SYNTAX>inner\_prod(x,w,nAt)</Syntax>
-*   <ARGUMENTS>
-*     \Argument{x}{Cartesian coordinates of the structure}{Real*8 (3,nAt)}{in}
-*     \Argument{w}{Weights for each atom}{Real*8 (nAt)}{in}
-*     \Argument{nAt}{Number of atoms in the structures}{Integer}{in}
-*   </ARGUMENTS>
-*   <PURPOSE>Calculate the inner product of a single structure</PURPOSE>
-*   <DEPENDENCIES></DEPENDENCIES>
-*   <AUTHOR>I. Fdez. Galvan</AUTHOR>
-*   <MODIFIED_BY></MODIFIED_BY>
-*   <SIDE_EFFECTS></SIDE_EFFECTS>
-*   <DESCRIPTION>
-*     Real*8 function that returns the inner product of the weighted coordinates of a single structure.
-*     $\mbox{inner\_prod} = \sum_{i=1,N} w_i ( x_i^2 + y_i^2 + z_i^2 )$.
-*   </DESCRIPTION>
-* </DOC>
-*-------------------------------------------------------------------------------
+************************************************************************
+*  inner_prod
+*
+*> @brief
+*>   Calculate the inner product of a single structure.
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> Returns the inner product of the weighted coordinates of a single structure:
+*>  \f[P = \sum_{i=1,N} w_i ( x_i^2 + y_i^2 + z_i^2 ) \f]
+*>
+*> @param[in] x   Cartesian coordinates of the structure
+*> @param[in] w   Weights for each atom
+*> @param[in] nAt Number of atoms in the structures
+*>
+*> @return The inner product \f$ P \f$
+************************************************************************
       FUNCTION inner_prod(x,w,nAt)
       IMPLICIT NONE
 #include "real.fh"
@@ -335,28 +309,24 @@
       inner_prod=r
       END
 *
-*-------------------------------------------------------------------------------
-* <DOC>
-*   <NAME>inner\_mat</NAME>
-*   <SYNTAX>Call inner\_mat(x,y,w,nAt,M)</Syntax>
-*   <ARGUMENTS>
-*     \Argument{x}{Cartesian coordinates of the first structure}{Real*8 (3,nAt)}{in}
-*     \Argument{x}{Cartesian coordinates of the second structure}{Real*8 (3,nAt)}{in}
-*     \Argument{w}{Weights for each atom}{Real*8 (nAt)}{in}
-*     \Argument{nAt}{Number of atoms in the structures}{Integer}{in}
-*     \Argument{M}{Inner product matrix}{Real*8 (3,3)}{out}
-*   </ARGUMENTS>
-*   <PURPOSE>Calculate the inner product matrix of two structures structure</PURPOSE>
-*   <DEPENDENCIES></DEPENDENCIES>
-*   <AUTHOR>I. Fdez. Galvan</AUTHOR>
-*   <MODIFIED_BY></MODIFIED_BY>
-*   <SIDE_EFFECTS></SIDE_EFFECTS>
-*   <DESCRIPTION>
-*     Calculate the inner product matrix of the weighted coordinates of two structures.
-*     $M_{ij} = \sum_{k=1,N} w_i (A_i)_k (B_j)_k$, where $a,b = \{x, y, z\}$.
-*   </DESCRIPTION>
-* </DOC>
-*-------------------------------------------------------------------------------
+************************************************************************
+*  inner_mat
+*
+*> @brief
+*>   Calculate the inner product matrix of two structures.
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> Calculate the inner product matrix of the weighted coordinates of two structures,
+*> \f$ A, B \f$:
+*>   \f[ M_{ij} = \sum_{k=1,N} w_i (A_i)_k (B_j)_k \quad i,j \in \{x, y, z\} \f]
+*>
+*> @param[in]  x   Cartesian coordinates of the first structure
+*> @param[in]  y   Cartesian coordinates of the second structure
+*> @param[in]  w   Weights for each atom
+*> @param[in]  nAt Number of atoms in the structures
+*> @param[out] M   Inner product matrix
+************************************************************************
       SUBROUTINE inner_mat(x,y,w,nAt,M)
       IMPLICIT NONE
 #include "real.fh"
@@ -372,24 +342,19 @@
       END DO
       END
 *
-*-------------------------------------------------------------------------------
-* <DOC>
-*   <NAME>build\_K\_matrix</NAME>
-*   <SYNTAX>Call build\_K\_matrix(M,K)</Syntax>
-*   <ARGUMENTS>
-*     \Argument{M}{Inner product matrix}{Real*8 (3,3)}{in}
-*     \Argument{K}{Key matrix K}{Real*8 (4,4)}{out}
-*   </ARGUMENTS>
-*   <PURPOSE>Build the key matrix K from the M matrix</PURPOSE>
-*   <DEPENDENCIES></DEPENDENCIES>
-*   <AUTHOR>I. Fdez. Galvan</AUTHOR>
-*   <MODIFIED_BY></MODIFIED_BY>
-*   <SIDE_EFFECTS></SIDE_EFFECTS>
-*   <DESCRIPTION>
-*     Build the key matrix K from the inner product matrix M.
-*   </DESCRIPTION>
-* </DOC>
-*-------------------------------------------------------------------------------
+************************************************************************
+*  build_K_matrix
+*
+*> @brief
+*>   Build the key matrix \f$ K \f$ from the \f$ M \f$ matrix.
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> Build the key matrix \f$ K \f$ from the inner product matrix \f$ M \f$ matrix.
+*>
+*> @param[in]  M Inner product matrix
+*> @param[out] K Key matrix \f$ K \f$
+************************************************************************
       SUBROUTINE build_K_matrix(M,K)
       IMPLICIT NONE
       INTEGER i, j
@@ -413,25 +378,20 @@
       END DO
       END
 *
-*-------------------------------------------------------------------------------
-* <DOC>
-*   <NAME>build\_polynomial</NAME>
-*   <SYNTAX>Call build\_polynomial(M,P)</Syntax>
-*   <ARGUMENTS>
-*     \Argument{M}{Inner product matrix}{Real*8 (3,3)}{in}
-*     \Argument{P}{The polynomial coefficients}{Real*8 (5)}{out}
-*   </ARGUMENTS>
-*   <PURPOSE>Calculate the coefficients for the characteristic polynomial</PURPOSE>
-*   <DEPENDENCIES>determinant3, DDot</DEPENDENCIES>
-*   <AUTHOR>I. Fdez. Galvan</AUTHOR>
-*   <MODIFIED_BY></MODIFIED_BY>
-*   <SIDE_EFFECTS></SIDE_EFFECTS>
-*   <DESCRIPTION>
-*     Calculate the coefficients for the characteristic polynomial of the K matrix
-*     directly from the elements of the M matrix.
-*   </DESCRIPTION>
-* </DOC>
-*-------------------------------------------------------------------------------
+************************************************************************
+* build_polynomial
+*
+*> @brief
+*>   Calculate the coefficients for the characteristic polynomial.
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> Calculate the coefficients for the characteristic polynomial of the \f$ K \f$
+*> matrix directly from the elements of the \f$ M \f$ matrix.
+*>
+*> @param[in]  M Inner product matrix
+*> @param[out] P The polynomial coefficients
+************************************************************************
       SUBROUTINE build_polynomial(M,P)
       IMPLICIT NONE
 #include "real.fh"
@@ -468,25 +428,20 @@
       P(1)=a1+a2+a3+a4+a5+a6
       END
 *
-*-------------------------------------------------------------------------------
-* <DOC>
-*   <NAME>find\_lambda</NAME>
-*   <SYNTAX>Call find\_lambda(P,r)</Syntax>
-*   <ARGUMENTS>
-*     \Argument{P}{The polynomial coefficients}{Real*8 (5)}{in}
-*     \Argument{r}{The found root}{Real*8)}{inout}
-*   </ARGUMENTS>
-*   <PURPOSE>Find one root of a 4th degree polynomial</PURPOSE>
-*   <DEPENDENCIES></DEPENDENCIES>
-*   <AUTHOR>I. Fdez. Galvan</AUTHOR>
-*   <MODIFIED_BY></MODIFIED_BY>
-*   <SIDE_EFFECTS></SIDE_EFFECTS>
-*   <DESCRIPTION>
-*     Find one real root of a 4th degree polynomial using the Newton-Raphson method.
-*     On input, the variable r contains the initial guess for the root.
-*   </DESCRIPTION>
-* </DOC>
-*-------------------------------------------------------------------------------
+************************************************************************
+*  find_lambda
+*
+*> @brief
+*>   Find one root of a 4th degree polynomial.
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> Find one real root of a 4th degree polynomial using the Newton--Raphson method.
+*> On input, the variable \p r contains the initial guess for the root.
+*>
+*> @param[in]     P The polynomial coefficients
+*> @param[in,out] r The found root (initial guess on input)
+************************************************************************
       SUBROUTINE find_lambda(P,r)
       IMPLICIT NONE
 #include "real.fh"
@@ -526,25 +481,22 @@
       END DO
       END
 *
-*-------------------------------------------------------------------------------
-* <DOC>
-*   <NAME>get\_eigenvector</NAME>
-*   <SYNTAX>Call get\_eigenvector(K,r,V)</Syntax>
-*   <ARGUMENTS>
-*     \Argument{K}{The K matrix}{Real*8 (4,4)}{in}
-*     \Argument{r}{The eigenvalue}{Real*8)}{in}
-*     \Argument{V}{The eigenvector}{Real*8 (4)}{out}
-*   </ARGUMENTS>
-*   <PURPOSE>Find an eigenvector of the K matrix, given its eigenvalue</PURPOSE>
-*   <DEPENDENCIES>cofactor, DDot</DEPENDENCIES>
-*   <AUTHOR>I. Fdez. Galvan</AUTHOR>
-*   <MODIFIED_BY></MODIFIED_BY>
-*   <SIDE_EFFECTS>The matrix K is destroyed on output</SIDE_EFFECTS>
-*   <DESCRIPTION>
-*     Compute the eigenvector of the K matrix corresponding to one eigenvalue.
-*   </DESCRIPTION>
-* </DOC>
-*-------------------------------------------------------------------------------
+************************************************************************
+*  get_eigenvector
+*
+*> @brief
+*>   Find an eigenvector of the \f$ K \f$ matrix, given its eigenvalue.
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> Compute the eigenvector of the \f$ K \f$ matrix corresponding to one eigenvalue.
+*> @side_effects
+*> The matrix \p K is destroyed on output.
+*>
+*> @param[in]  K The \f$ K \f$ matrix
+*> @param[in]  r The eigenvalue
+*> @param[out] V The eigenvector
+************************************************************************
       SUBROUTINE get_eigenvector(K,r,V)
       IMPLICIT NONE
 #include "real.fh"
@@ -577,26 +529,22 @@
       END IF
       END
 *
-*-------------------------------------------------------------------------------
-* <DOC>
-*   <NAME>cofactor</NAME>
-*   <SYNTAX>cofactor(M,i,j)</Syntax>
-*   <ARGUMENTS>
-*     \Argument{M}{The matrix}{Real*8 (4,4)}{in}
-*     \Argument{i}{The row of the cofactor}{Integer}{in}
-*     \Argument{j}{The column of the cofactor}{Integer}{in}
-*   </ARGUMENTS>
-*   <PURPOSE>Return a cofactor from a 4x4 matrix</PURPOSE>
-*   <DEPENDENCIES>determinant3</DEPENDENCIES>
-*   <AUTHOR>I. Fdez. Galvan</AUTHOR>
-*   <MODIFIED_BY></MODIFIED_BY>
-*   <SIDE_EFFECTS></SIDE_EFFECTS>
-*   <DESCRIPTION>
-*     Real*8 function that returns a cofactor (determinant of a submatrix) from
-*     a 4x4 matrix.
-*   </DESCRIPTION>
-* </DOC>
-*-------------------------------------------------------------------------------
+************************************************************************
+*  cofactor
+*
+*> @brief
+*>   Return a cofactor from a 4&times;4 matrix.
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> Returns a cofactor (determinant of a submatrix) from a 4&times;4 matrix.
+*>
+*> @param[in] M The matrix
+*> @param[in] i The row of the cofactor
+*> @param[in] j The column of the cofactor
+*>
+*> @return The \f$ C_{ij} \f$ cofactor of the matrix \p M
+************************************************************************
       FUNCTION cofactor(M,i,j)
       IMPLICIT NONE
 #include "real.fh"
@@ -629,23 +577,20 @@
       cofactor=f*determinant3(A)
       END
 *
-*-------------------------------------------------------------------------------
-* <DOC>
-*   <NAME>determinant3</NAME>
-*   <SYNTAX>determinant3(M)</Syntax>
-*   <ARGUMENTS>
-*     \Argument{M}{The matrix}{Real*8 (3,3)}{in}
-*   </ARGUMENTS>
-*   <PURPOSE>Return the determinant of a 3x3 matrix</PURPOSE>
-*   <DEPENDENCIES></DEPENDENCIES>
-*   <AUTHOR>I. Fdez. Galvan</AUTHOR>
-*   <MODIFIED_BY></MODIFIED_BY>
-*   <SIDE_EFFECTS></SIDE_EFFECTS>
-*   <DESCRIPTION>
-*     Real*8 function that returns the determinant of a 3x3 matrix.
-*   </DESCRIPTION>
-* </DOC>
-*-------------------------------------------------------------------------------
+************************************************************************
+*  determinant3
+*
+*> @brief
+*>   Return the determinant of a 3&times;3 matrix.
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> Returns the determinant of a 3&times;3 matrix.
+*>
+*> @param[in] M The matrix
+*>
+*> @return The determinant of \p M
+************************************************************************
       FUNCTION determinant3(M)
       IMPLICIT NONE
       REAL*8 determinant3, M(3,3)
@@ -657,25 +602,20 @@
      &              M(1,3)*M(2,2)*M(3,1))
       END
 *
-*-------------------------------------------------------------------------------
-* <DOC>
-*   <NAME>apply\_rotation</NAME>
-*   <SYNTAX>Call apply\_rotation(x,nAt,q)</Syntax>
-*   <ARGUMENTS>
-*     \Argument{x}{Cartesian coordinates of the structure}{Real*8 (3,nAt)}{inout}
-*     \Argument{nAt}{Number of atoms in the structure}{Integer}{in}
-*     \Argument{q}{A unit quaternion representing a rotation}{Real*8 (4)}{in}
-*   </ARGUMENTS>
-*   <PURPOSE>Rotate a structure with a quaternion</PURPOSE>
-*   <DEPENDENCIES>DDot, DCopy</DEPENDENCIES>
-*   <AUTHOR>I. Fdez. Galvan</AUTHOR>
-*   <MODIFIED_BY></MODIFIED_BY>
-*   <SIDE_EFFECTS></SIDE_EFFECTS>
-*   <DESCRIPTION>
-*     Apply a rotation, given by a unit quaternion, to all atoms in a structure.
-*   </DESCRIPTION>
-* </DOC>
-*-------------------------------------------------------------------------------
+************************************************************************
+*  apply_rotation
+*
+*> @brief
+*>   Rotate a structure with a quaternion.
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> Apply a rotation, given by a unit quaternion, to all atoms in a structure.
+*>
+*> @param[in, out] x   Cartesian coordinates of the structure
+*> @param[in]      nAt Number of atoms in the structure
+*> @param[in]      q   A unit quaternion representing a rotation
+************************************************************************
       SUBROUTINE apply_rotation(x,nAt,q)
       IMPLICIT NONE
 #include "real.fh"
@@ -701,3 +641,6 @@
         call dcopy_(3,v,1,x(1,iAt),1)
       END DO
       END
+************************************************************************
+*> @}
+************************************************************************

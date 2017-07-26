@@ -10,32 +10,22 @@
 *                                                                      *
 * Copyright (C) Yannick Carissan                                       *
 ************************************************************************
+*  rotategeom
+*
+*> @brief
+*>   Performs the rotation of \p Geom1 with the \p Q quaternion and stores the result in \p Geom2
+*> @author Y. Carissan
+*>
+*> @details
+*> Performs the rotation of \p Geom1 with the \p Q quaternion
+*> and stores the result in \p Geom2.
+*>
+*> @param[in]  Q     Input Quaternion
+*> @param[in]  nat   Number of atoms
+*> @param[in]  Geom1 Geometry to be rotated, xyz coordinates
+*> @param[out] Geom2 Output geometry, xyz coordinates
+************************************************************************
       subroutine rotategeom(Q, nat, Geom1, Geom2)
-************************************************************
-*
-*   <DOC>
-*     <Name>rotategeom</Name>
-*     <Syntax>Call rotategeom(Q, nat, Geom1, Geom2)</Syntax>
-*     <Arguments>
-*       \Argument{Q}{Input Quaternion, Dimension(4)}{Real*8}{in}
-*       \Argument{nat}{Number of atoms}{Integer}{in}
-*       \Argument{Geom1}{Geometry to be rotated, xyz coordinates, Dimension(nat,3)}{Real*8}{in}
-*       \Argument{Geom2}{Output geometry, xyz coordinates, Dimension(nat,3)}{Real*8}{out}
-*     </Arguments>
-*     <Purpose>Performs the rotation of Geom1 with the Q quaternion
-*       and stores the result in Geom2</Purpose>
-*     <Dependencies>quater util and blas</Dependencies>
-*     <Author>Y. Carissan</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects>none</Side_Effects>
-*     <Description>
-*     Performs the rotation of Geom1 with the Q quaternion
-*       and stores the result in Geom2
-*     </Description>
-*    </DOC>
-*
-************************************************************
-
       implicit none
       Integer iat,nat
       Real*8 Q(0:4)

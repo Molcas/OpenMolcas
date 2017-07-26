@@ -20,55 +20,40 @@
 *     V.Veryazov University of Lund, 2001                              *
 *                                                                      *
 ************************************************************************
+*  SysHalt
+*
+*> @brief
+*>   Quit calculation
+*> @author V. Veryazov
+*>
+*> @details
+*> A routine to stop calculation because of internal error or
+*> inconsistency in the code.
+*>
+*> @param[in] Location routine name
+************************************************************************
       Subroutine SysHalt(Location)
-************************************************************
-*
-*   <DOC>
-*     <Name>SysHalt</Name>
-*     <Syntax>Call SysHalt(Location)</Syntax>
-*     <Arguments>
-*       \Argument{Location}{routine name}{Char*(*)}{in}
-*     </Arguments>
-*     <Purpose>Quit calculation</Purpose>
-*     <Dependencies>SysAbendMsg</Dependencies>
-*     <Author>V.Veryazov</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*     A routine to stop calculation because of internal error or
-* inconsistency in the code
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Character *(*) Location
        Call SysAbendMsg(Location,'Internal error',' ')
       return
       end
+************************************************************************
+*  SysWarnMsg
+*
+*> @brief
+*>   Print nice formatted warning message
+*> @author V. Veryazov
+*>
+*> @details
+*> Print formatted message.
+*> For a set of standard messages (started from ``MSG:``) the aliases
+*> (defined in ::SysExpand) will be used.
+*>
+*> @param[in] Location routine name
+*> @param[in] Text1    message text
+*> @param[in] Text2    message text
+************************************************************************
       Subroutine SysWarnMsg(Location,Text1,Text2)
-************************************************************
-*
-*   <DOC>
-*     <Name>SysWarnMsg</Name>
-*     <Syntax>Call SysWarnMsg(Location,Text1,Text2)</Syntax>
-*     <Arguments>
-*       \Argument{Location}{routine name}{Char*(*)}{in}
-*       \Argument{Text1}{message text}{Char*(*)}{in}
-*       \Argument{Text2}{message text}{Char*(*)}{in}
-*     </Arguments>
-*     <Purpose>Print nice formatted warning message</Purpose>
-*     <Dependencies>SysMessage routines</Dependencies>
-*     <Author>V.Veryazov</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*     Print formatted message.
-*     For a set of standard messages (started from MSG:) the aliases
-*     (defined in SysExpand) will be used.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Character*(*) Location,Text1, Text2
       Character Str*256
       common /WarnMess/ MaxWarnMess
@@ -106,28 +91,20 @@ c for these messages assume that Level is 1
       Return
       End
 ************************************************************************
+*  SysAbendMsg
+*
+*> @brief
+*>   Stop calculation
+*> @author V. Veryazov
+*>
+*> @details
+*> Print formatted message and stop the calculation.
+*>
+*> @param[in] Location routine name
+*> @param[in] Text1    message text
+*> @param[in] Text2    message text
+************************************************************************
       Subroutine SysAbendMsg(Location,Text1,Text2)
-************************************************************
-*
-*   <DOC>
-*     <Name>SysAbendMsg</Name>
-*     <Syntax>Call SysAbendMsg(Location,Text1,Text2)</Syntax>
-*     <Arguments>
-*       \Argument{Location}{routine name}{Char *(*)}{in}
-*       \Argument{Text1}{message text}{Char *(*)}{in}
-*       \Argument{Text2}{message text}{Char *(*)}{in}
-*     </Arguments>
-*     <Purpose>Stop calculation</Purpose>
-*     <Dependencies>SysMessage routines</Dependencies>
-*     <Author>V.Veryazov</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*     Print formatted message and stop the calculation
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Character*(*) Location,Text1, Text2
       call SysWarnMsg(Location,Text1,Text2)
       Call Abend()

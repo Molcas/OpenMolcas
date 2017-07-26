@@ -10,29 +10,20 @@
 *                                                                      *
 * Copyright (C) Roland Lindh                                           *
 ************************************************************************
+*  Allocate_Work
+*
+*> @brief
+*>   Allocate real memory of length \p n and return the corresponding pointer \p ip
+*> @author R. Lindh
+*>
+*> @details
+*> Short parameter list wrapper to ::GETMEM for allocation of
+*> memory of type ``REAL*8``. Label defaulted to '``AW``'.
+*>
+*> @param[out] ip pointer to \c Work
+*> @param[in]  n  length
+************************************************************************
       Subroutine Allocate_Work(ip,n)
-************************************************************
-*
-*   <DOC>
-*     <Name>Allocate\_Work</Name>
-*     <Syntax>Call Allocate\_Work(ip,n)</Syntax>
-*     <Arguments>
-*       \Argument{ip}{pointer to Work}{integer}{out}
-*       \Argument{n}{length}{integer}{in}
-*     </Arguments>
-*     <Purpose>To allocate real memory of length n and
-*              to return the corresponding pointer ip.</Purpose>
-*     <Dependencies>GETMEM</Dependencies>
-*     <Author>R. Lindh</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*     Short parameter list wrapper to GETMEM for allocation of
-*     memory of type REAL. Label defaulted to "AW".
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8 (a-h,o-z)
 #include "WrkSpc.fh"
 *

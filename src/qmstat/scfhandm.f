@@ -10,44 +10,31 @@
 *                                                                      *
 * Copyright (C) Anders Ohrn                                            *
 ************************************************************************
-*----------------------------------------------------------------------*
+*  ScfHandM
+*
+*> @brief
+*>   (i) construct the multicenter multipole expansion for the MO-Hamiltonian,
+*>   (ii) read in the one-electron part of the Hamiltonian and
+*>   (iii) construct the super-matrix. The last two are MO-transformed
+*> @author A. Ohrn
+*>
+*> @details
+*> First call on the MME-routine. It returns things in AO-basis
+*> which we need to put into MO-form. Observe that the quadrupoles
+*> in Qmstat are ordered differently compared to Molcas. Qmstat:
+*> \f$ xx \f$ \f$ xy \f$ \f$ yy \f$ \f$ xz \f$ \f$ yz \f$ \f$ zz \f$; Molcas:
+*> \f$ xx \f$ \f$ xy \f$ \f$ xz \f$ \f$ yy \f$ \f$ yz \f$ \f$ zz \f$. Then we
+*> read in parts of the unperturbed Hamiltonian and construct the
+*> super-matrix.
+*>
+*> @param[in] Cmo   Orbital coeff.
+*> @param[in] nBas  Number of contracted basis functions
+*> @param[in] nOcc  Number of contracted basis functions of a certain atom-type
+*> @param[in] natyp Number of atoms of a certain atom-type (for water, hydrogen is 2)
+*> @param[in] nntyp Number of atom-types in molecule
+*> @param[in] Occu  Orbital occupation numbers
+************************************************************************
       Subroutine ScfHandM(Cmo,nBas,iQ_Atoms,nOcc,natyp,nntyp,Occu)
-************************************************************
-*
-*   <DOC>
-*     <Name>ScfHandM</Name>
-*     <Syntax>Call ScfHandM(Cmo,nBas,nAtoms,nOcc,natyp,nntyp,Occu,nOrbMFirst)</Syntax>
-*     <Arguments>
-*       \Argument{Cmo}{Orbital coeff.}{}{in}
-*       \Argument{nBas}{Number of contracted basis functions}{}{in}
-*       \Argument{nAtoms}{Number of atoms in QM-region}{}{in}
-*       \Argument{nOcc}{Number of contracted basis functions of a certain atom-type.}{}{in}
-*       \Argument{natyp}{Number of atoms of a cetrain atom-type (for water, hydrogen is 2)}{}{in}
-*       \Argument{nntyp}{Number of atom-types in molecule.}{}{in}
-*       \Argument{Occu}{Orbital occupation numbers}{}{in}
-*       \Argument{nOrbMFirst}{The number of orbitals used to transform the integrals by Motra (needed for deallocation in equil2.f)}{}{out}
-*     </Arguments>
-*     <Purpose>
-*    To (i) construct the multicenter multipole expansion for the
-*    MO-Hamiltonianm, (ii) read in the one-electron part of the
-*    Hamiltonian and (iii) construct the super-matrix. The last
-*    two are MO-transformed.
-*     </Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>A.Ohrn</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*   First call on the MME-routine. It returns things in AO-basis
-*    which we need to put into MO-form. Observe that the quadrupoles
-*    in Qmstat are ordered differently compared to Molcas. Qmstat: xx
-*    xy yy xz yz zz; Molcas: xx xy xz yy yz zz. Then we
-*    read in parts of the unperturbed Hamiltonian and construct the
-*    super-matrix.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8 (a-h,o-z)
 
 #include "maxi.fh"

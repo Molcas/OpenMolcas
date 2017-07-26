@@ -11,30 +11,23 @@
 * Copyright (C) Per Ake Malmqvist                                      *
 *               Jesper Wisborg Krogh                                   *
 ************************************************************************
+*  Chk4NAN
+*
+*> @brief
+*>   Check whether an array contains NANs
+*> @author Per &Aring;ke Malmqvist
+*> @modified_by Jesper Wisborg Krogh
+*>
+*> @details
+*> The routine checks the elements of the input array for NANs. If any are found,
+*> up to 100 of these will be listed. Upon return \p iErr contains the number of
+*> NANs found.
+*>
+*> @param[in]  nDim  Total dimension of array
+*> @param[in]  Array Array to be checked
+*> @param[out] Ierr  Return code
+************************************************************************
       Subroutine Chk4NAN(nDim, Array, Ierr)
-************************************************************
-*
-*   <DOC>
-*     <Name>Chk4NAN</Name>
-*     <Syntax>Call Chk4NAN(nDim,Array,Ierr)</Syntax>
-*     <Arguments>
-*       \Argument{nDim}{Total dimension of array}{Integer}{in}
-*       \Argument{Array}{Array to be checked}{Real*8}{in}
-*       \Argument{Ierr}{Return code}{Integer}{out}
-*     </Arguments>
-*     <Purpose>Check whether an array contains NANs.</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>Per \AA ke Malmqvist</Author>
-*     <Modified_by>Jesper Wisborg Krogh</Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*         The routine checks the elements of the input array for NANs. If any are found,
-*         up to 100 of these will be listed. Upon return iErr contains the number of
-*         NANs found.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit None
       Real*8 Array, CheckSum
       Character*16 str16

@@ -130,7 +130,7 @@ def check_test(infofile, checkfile, count):
         if (dif > tol):
           if ((refs[i]['lab'] == 'POTNUC') and (dif < tol*10)):
             tag = 'Skipped'
-          if (refs[i]['lab'].endswith('ITER') and (dif < tol+5)):
+          elif (refs[i]['lab'].endswith('ITER') and (dif < tol+5)):
             tag = 'Skipped'
           else:
             tag = 'Failed'

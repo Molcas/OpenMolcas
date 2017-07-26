@@ -10,30 +10,23 @@
 *                                                                      *
 * Copyright (C) Thomas Bondo Pedersen                                  *
 ************************************************************************
+*  isSymmetric
+*
+*> @brief
+*>   Return ``.True.`` if \p M is symmetric within tolerance \p Tol
+*> @author Thomas Bondo Pedersen
+*>
+*> @details
+*> Test if matrix \p M is symmetric. If \f$ \forall i,j \; |M_{ij}-M_{ji}| \le \text{Tol} \f$
+*> return ``.True.``
+*>
+*> @param[in] M   \p n &times; \p n square matrix to test
+*> @param[in] n   Dimension of \p M
+*> @param[in] Tol Tolerance
+*>
+*> @return ``.True.`` if \p M is symmetric within tolerance \p Tol
+************************************************************************
       Logical Function isSymmetric(M,n,Tol)
-************************************************************
-*
-*   <DOC>
-*     <Name>isSymmetric</Name>
-*     <Syntax>isSymmetric(M,n,Tol)</Syntax>
-*     <Arguments>
-*       \Argument{M}{n-by-n quadratic matrix to test}{Real*8 array}{in}
-*       \Argument{n}{Dimension of M}{Integer}{in}
-*       \Argument{Tol}{Tolerance}{Real*8 scalar}{in}
-*     </Arguments>
-*     <Purpose>Return .True. if M is symmetric within tolerance Tol
-*     </Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>Thomas Bondo Pedersen</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description> Test if matrix M is symmetric. If for all i,j,
-*     abs(M(i,j)-M(j,i)) .le. Tol
-*     return .True.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit None
       Integer n
       Real*8  M(n,n)

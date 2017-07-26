@@ -10,26 +10,18 @@
 *                                                                      *
 * Copyright (C) Roland Lindh                                           *
 ************************************************************************
+*  Free_iWork
+*
+*> @brief
+*>   Deallocate memory in \c iWork associated with pointer \p ip
+*> @author Roland Lindh
+*>
+*> @details
+*> The array associated to pointer/identifier \p ip in \c iWork is deallocated.
+*>
+*> @param[in,out] ip pointer to memory in \c iWork
+************************************************************************
       Subroutine Free_iWork(ip)
-************************************************************
-*
-*   <DOC>
-*     <Name>Free\_iWork</Name>
-*     <Syntax>Call Free\_iWork(ip)</Syntax>
-*     <Arguments>
-*       \Argument{ip}{pointer to memory in iWork}i{integer}{inout}
-*     </Arguments>
-*     <Purpose>To deallocate memory in iWork associated with pointer ip.</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>Roland Lindh</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*     The array associated to pointer/identified ip in iWork is deallocted.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8 (a-h,o-z)
 #include "WrkSpc.fh"
 *

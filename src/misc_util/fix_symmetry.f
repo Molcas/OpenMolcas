@@ -10,26 +10,20 @@
 *                                                                      *
 * Copyright (C) 2013, Ignacio Fdez. Galvan                             *
 ************************************************************************
-*-------------------------------------------------------------------------------
-* <DOC>
-*   <NAME>Fix\_Symmetry</NAME>
-*   <SYNTAX>Call Fix\_Symmetry(Coord,nAt,Stab)</Syntax>
-*   <ARGUMENTS>
-*     \Argument{Coord}{Cartesian coordinates of the structure to fix (unique atoms)}{Real*8 (3,nAt)}{inout}
-*     \Argument{nAt}{Number of atoms in the structure}{Integer}{in}
-*     \Argument{Stab}{Stabilizers for each atom}{Integer (nAt)}{in}
-*   </ARGUMENTS>
-*   <PURPOSE>Fix the symmetry of a structure by removing off-zero values</PURPOSE>
-*   <DEPENDENCIES>Get\_iScalar</DEPENDENCIES>
-*   <AUTHOR>I. Fdez. Galvan</AUTHOR>
-*   <MODIFIED_BY></MODIFIED_BY>
-*   <SIDE_EFFECTS></SIDE_EFFECTS>
-*   <DESCRIPTION>
-*     Fix the symmetry of a structure, by making sure that the coordinates that
-*     should be zero remain there, removing numerical inaccuracies.
-*   </DESCRIPTION>
-* </DOC>
-*-------------------------------------------------------------------------------
+*  Fix_Symmetry
+*
+*> @brief
+*>   Fix the symmetry of a structure by removing off-zero values
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> Fix the symmetry of a structure, by making sure that the coordinates that
+*> should be zero remain there, removing numerical inaccuracies.
+*>
+*> @param[in,out] Coord Cartesian coordinates of the structure to fix (unique atoms)
+*> @param[in]     nAt   Number of atoms in the structure
+*> @param[in]     Stab  Stabilizers for each atom
+************************************************************************
       SUBROUTINE Fix_Symmetry(Coord,nAt,Stab)
       IMPLICIT REAL*8 (A-H,O-Z)
       INTEGER nAt,Stab(nAt)

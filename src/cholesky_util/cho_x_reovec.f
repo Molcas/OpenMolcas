@@ -10,38 +10,33 @@
 *                                                                      *
 * Copyright (C) Thomas Bondo Pedersen                                  *
 ************************************************************************
+*  Cho_X_ReoVec
+*
+*> @brief
+*>   Reorder Cholesky vectors on disk
+*> @author Thomas Bondo Pedersen
+*>
+*> @details
+*> @note
+*> You should consider using on-the-fly read/reorder routine ::Cho_X_getVFull instead!!
+*>
+*> This routine makes it possible to reorder Cholesky vectors
+*> from reduced storage to full storage in exactly the same
+*> manner as when specifying the keywork ``REORder`` in the
+*> Cholesky input section (in Seward). If the vectors have
+*> already been reordered (checked through runfile), the routine
+*> returns immediately.
+*> The reordered vectors
+*> are stored in the files ``CHFVnm`` where ``n`` is the symmetry of
+*> the first AO index, ``m`` that of the second. The resulting files
+*> are split (if needed).
+*>
+*> @note
+*> The Cholesky procedure must have been successfully initialized (by ::Cho_X_Init).
+*>
+*> @param[out] irc return code
+************************************************************************
       SubRoutine Cho_X_ReoVec(irc)
-************************************************************
-*
-*   <DOC>
-*     <Name>Cho\_X\_ReoVec</Name>
-*     <Syntax>Call Cho\_X\_ReoVec(irc)</Syntax>
-*     <Arguments>
-*       \Argument{irc}{return code}{Integer}{out}
-*     </Arguments>
-*     <Purpose>Reorder Cholesky vectors on disk</Purpose>
-*     <Dependencies>Call Cho\_X\_Init(rc)</Dependencies>
-*     <Author>Thomas Bondo Pedersen</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*      NOTE: you should consider using on-the-fly read/reorder
-*      routine Cho\_X\_getVFull instead!!
-*      This routine makes it possible to reorder Cholesky vectors
-*      from reduced storage to full storage in exactly the same
-*      manner as when specifying the keywork ``REORder'' in the
-*      Cholesky input section (in Seward). If the vectors have
-*      already been reordered (checked through runfile), the routine
-*      returns immediately.
-*      The reordered vectors
-*      are stored in the files CHFVnm where n is the symmetry of
-*      the first AO index, m that of the second. The resulting files
-*      are split (if needed).
-*     </Description>
-*    </DOC>
-*
-************************************************************
-
       Implicit None
       Integer irc
 #include "cholesky.fh"

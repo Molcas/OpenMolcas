@@ -10,39 +10,35 @@
 *                                                                      *
 * Copyright (C) 2010, Thomas Bondo Pedersen                            *
 ************************************************************************
+*  Cho_X_GetTol
+*
+*> @brief
+*>   Set tolerance integer for use with ::Add_Info (for verification).
+*> @author Thomas Bondo Pedersen
+*> @modified_by Thomas Bondo Pedersen, October 2010: LDF support.
+*>
+*> @details
+*> The tolerance in verification might depend on the
+*> threshold of the Cholesky decomposition. The integer
+*> used to specify tolerance in ::Add_Info is computed
+*> here according to the formula:
+*>
+*> \f[ \text{iTol} = -\log(\text{Thr}) \f]
+*>
+*> where \p Thr is the threshold and \f$ \log \f$ is the logarithm
+*> (base 10).
+*>
+*> If LDF (local DF) is used, \p Thr is the LDF target
+*> accuracy.
+*> If the integrals have not been Cholesky decomposed
+*> (or represented with DF or LDF), this function simply
+*> returns \p iTolDef.
+*>
+*> @param[in] iTolDef Default tolerance
+*>
+*> @return Tolerance integer for use with ::Add_Info
+************************************************************************
       Integer Function Cho_X_GetTol(iTolDef)
-************************************************************
-*
-*   <DOC>
-*     <Name>Cho\_X\_GetTol</Name>
-*     <Syntax>Cho\_X\_GetTol(iTolDef)</Syntax>
-*     <Arguments>
-*       \Argument{iTolDef}{Default tolerance}{Integer}{in}
-*     </Arguments>
-*     <Purpose>Set tolerance integer for use with Add\_Info (for
-*              verification).
-*     </Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>Thomas Bondo Pedersen</Author>
-*     <Modified_by>Thomas Bondo Pedersen, October 2010: LDF support.
-*     </Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>The tolerance in verification might depend on the
-*                  threshold of the Cholesky decomposition. The integer
-*                  used to specify tolerance in Add\_Info is computed
-*                  here according to the formula:
-*                     iTol = -log(Thr)
-*                  where Thr is the threshold and "log" is the logarithm
-*                  (base 10).
-*                  If LDF (local DF) is used, Thr is the LDF target
-*                  accuracy.
-*                  If the integrals have not been Cholesky decomposed
-*                  (or represented with DF or LDF), this function simply
-*                  returns iTolDef.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit None
       Integer iTolDef
 #include "cholesky.fh"

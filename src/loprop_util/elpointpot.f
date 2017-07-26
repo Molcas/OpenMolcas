@@ -10,32 +10,22 @@
 *                                                                      *
 * Copyright (C) Anders Ohrn                                            *
 ************************************************************************
+*  ElPointPot
+*
+*> @brief
+*>   Evaluate the electric potential from point multipoles in a given point
+*> @author A. Ohrn
+*>
+*> @param[in] rinv Inverse distance between multipole and point where the electric potential is to be computed
+*> @param[in] x    \f$ x \f$-coordinate for vector between the two relevant points
+*> @param[in] y    \f$ y \f$-coordinate of the same vector
+*> @param[in] z    \f$ z \f$-coordinate of the same vector
+*> @param[in] L    Angular momentum of the multipole, \p L = ``0`` charge, \p L = ``1`` dipole, etc.
+*> @param[in] D    The components of the multipole, ordered in the usual Molcas fashion. Should not be in Buckingham form, rather as pure moments
+*>
+*> @return The electric potential
+************************************************************************
       REAL*8 Function ElPointPot(rinv,x,y,z,L,D)
-************************************************************
-*
-*   <Dummy DOC>
-*     <Name>ElPointPot</Name>
-*     <Syntax>ElPointPot(rinv,x,y,z,L,D)</Syntax>
-*     <Arguments>
-*       \Argument{rinv}{Inverse distance between multipole and point where the electric potential is to be computed.}{}{in}
-*       \Argument{x}{X-coordinate for vector between the two relevant points.}{}{in}
-*       \Argument{y}{Y-coordinate of the same vector.}{}{in}
-*       \Argument{z}{Z-coordinate of the same vector.}{}{in}
-*       \Argument{L}{Angular momentum of the multipole, L=0 charge, L=1 dipole uzw.}{}{in}
-*       \Argument{D}{The components of the multipole, ordered in the usual Molcas fashion. Should not be in Buckingham form, rather as pure moments.}{}{in}
-*     </Arguments>
-*     <Purpose>
-*      Evaluate the electric potential from point multipoles in a given point.
-*     </Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>A.Ohrn</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit REAL*8 (a-h,o-z)
 
       Dimension D((L+1)*(L+2)/2)

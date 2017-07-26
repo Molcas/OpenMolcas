@@ -10,30 +10,22 @@
 *                                                                      *
 * Copyright (C) Yannick Carissan                                       *
 ************************************************************************
+*  PrintGeom
+*
+*> @brief
+*>   Print the geometry
+*> @author Y. Carissan
+*>
+*> @details
+*> Print the geometry.
+*>
+*> @param[in] iLU   Logic unit number
+*> @param[in] Nat   number of atoms
+*> @param[in] title title to be printed
+*> @param[in] Geom  XYZ coordinates
+*> @param[in] lbl   Atom labels
+************************************************************************
       subroutine PrintGeom(iLU,Nat,title,Geom,lbl)
-************************************************************
-*
-*   <DOC>
-*     <Name>PrintGeom</Name>
-*     <Syntax>PrintGeom(Nat,title,Geom,lbl)</Syntax>
-*     <Arguments>
-*       \Argument{iLU}{Logic unit number}{Integer}{in}
-*       \Argument{Nat}{number of atoms}{Integer}{in}
-*       \Argument{title}{title to be printed}{Character*20}{in}
-*       \Argument{Geom}{XYZ coordinates, Dimension(3,nat)}{Real*8}{in}
-*       \Argument{lbl}{Atom labels, Dimension(nat)}{Character*20}{in}
-*     </Arguments>
-*     <Purpose>Print the geometry</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>Y. Carissan</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects>none</Side_Effects>
-*     <Description>
-*        Print the geometry.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       implicit none
 #include "debug.fh"
       integer nat,iat,icomp,iLU

@@ -22,50 +22,42 @@
 * Written: August 2003                                                 *
 *                                                                      *
 ************************************************************************
+*  Put_dScalar
 *
-* <DOC>
-*   <Name>Put\_dScalar</Name>
-*   <Syntax>Call Put\_dScalar(Label,Data)</Syntax>
-*   <Arguments>
-*     \Argument{Label}{Name of field}{Character*(*)}{in}
-*     \Argument{Data}{Data to put on runfile}{Real*8}{in}
-*   </Arguments>
-*   <Purpose>To add/update scalar data in runfile.</Purpose>
-*   <Dependencies></Dependencies>
-*   <Author>Per-Olof Widmark</Author>
-*   <Modified_by></Modified_by>
-*   <Side_Effects></Side_Effects>
-*   <Description>
-*     This routine is used to put scalar data of type
-*     Real*8 into the runfile. The data items are
-*     identified by the label. Below is a list of the
-*     data items that are recognized. The labels are
-*     case insensitive and significant to 16 characters.
-*
-*     For development purposes you can use an unsupported
-*     label. Whenever such a field is accessed a warning
-*     message is printed in the output, to remind the
-*     developer to update this routine.
-*
-*     List of known labels:
-*     \begin{itemize}
-*     \item `CASDFT energy' Energy for the last CASDFT calculation.
-*     \item `CASPT2 energy' Energy for the last CASPT2 calculation.
-*     \item `CASSCF energy' Energy for the last CASSCF calculation.
-*     %\item `Ener_ab'
-*     \item `KSDFT energy' Energy for the last KS-DFT calculation.
-*     \item `Last energy' Last energy computed.
-*     \item `PC Self Energy' Self energy for point charges.
-*     \item `PotNuc' Nuclear repusion energy.
-*     \item `RF Self Energy' Self energy in the Kirkwood model.
-*     \item `SCF energy' Energy for the last SCF calculation.
-*     \item `EThr' Energy convergence threshold.
-*     %\item `Thrs'
-*     %\item `UHF energy'
-*     \end{itemize}
-*   </Description>
-* </DOC>
-*
+*> @brief
+*>   To add/update scalar data in runfile
+*> @author Per-Olof Widmark
+*>
+*> @details
+*> This routine is used to put scalar data of type
+*> ``Real*8`` into the runfile. The data items are
+*> identified by the \p label. Below is a list of the
+*> data items that are recognized. The labels are
+*> case insensitive and significant to 16 characters.
+*>
+*> For development purposes you can use an unsupported
+*> label. Whenever such a field is accessed a warning
+*> message is printed in the output, to remind the
+*> developer to update this routine.
+*>
+*> List of known labels:
+*>
+*> - '``CASDFT energy``'  Energy for the last CASDFT calculation.
+*> - '``CASPT2 energy``'  Energy for the last CASPT2 calculation.
+*> - '``CASSCF energy``'  Energy for the last CASSCF calculation.
+*> - '``Ener_ab``'
+*> - '``KSDFT energy``'   Energy for the last KS-DFT calculation.
+*> - '``Last energy``'    Last energy computed.
+*> - '``PC Self Energy``' Self energy for point charges.
+*> - '``PotNuc``'         Nuclear repusion energy.
+*> - '``RF Self Energy``' Self energy in the Kirkwood model.
+*> - '``SCF energy``'     Energy for the last SCF calculation.
+*> - '``EThr``'           Energy convergence threshold.
+*> - '``Thrs``'
+*> - '``UHF energy``'
+*>
+*> @param[in] Label Name of field
+*> @param[in] Data  Data to put on runfile
 ************************************************************************
       Subroutine Put_dScalar(Label,Data)
       Implicit None

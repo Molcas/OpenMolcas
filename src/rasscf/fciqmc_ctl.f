@@ -41,6 +41,9 @@
 *
 *      </Description>
 *
+#ifdef _MOLCAS_MPP_
+      Use MPI
+#endif
       Implicit Real* 8 (A-H,O-Z)
       Real*8 CMO(*),DMAT(*),DSPN(*),PSMAT(*),PAMAT(*),F_In(*),D1I(*),
      &       DIAF(*),D1A(*),TUVX(*)
@@ -66,7 +69,6 @@
 #include "fciqmc.fh"
 #include "para_info.fh"
 #ifdef _MOLCAS_MPP_
-      Include 'mpif.h'
 #include "global.fh"
 #include "mafdecls.fh"
       INTEGER*4 ierror

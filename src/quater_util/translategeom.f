@@ -10,28 +10,17 @@
 *                                                                      *
 * Copyright (C) Yannick Carissan                                       *
 ************************************************************************
+*  translategeom
+*
+*> @brief
+*>   Performs the translation of geometry 2 to geometry 1
+*> @author Y. Carissan
+*>
+*> @details
+*> Performs the translation of geometry 2 to
+*> geometry 1 and stores the result in geometry 3.
+************************************************************************
       subroutine translategeom(Vtrans, nat, Geom1, Geom2)
-************************************************************
-*
-*   <DOC>
-*     <Name>translategeom</Name>
-*     <Syntax>Call translategeom()</Syntax>
-*     <Arguments>
-*     </Arguments>
-*     <Purpose>Perfroms the translation of geometry 2 to
-*             geometry 1
-*     </Purpose>
-*     <Dependencies>blas</Dependencies>
-*     <Author>Y. Carissan</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects>none</Side_Effects>
-*     <Description> Perfroms the translation of geometry 2 to
-*             geometry 1 and stores the result in geometry 3
-*     </Description>
-*    </DOC>
-*
-************************************************************
-
       implicit none
 #include "real.fh"
       Integer nat,iat

@@ -10,32 +10,23 @@
 *                                                                      *
 * Copyright (C) Chad E. Hoyer                                          *
 ************************************************************************
+*  DQVDiabat
+*
+*> @brief
+*>   Compute diabats with DQV
+*> @author C. E. Hoyer
+*>
+*> @details
+*> This subroutine takes in properties that have been
+*> computed by RASSI and uses them to compute diabatic
+*> states and thus diabatic energies and couplings.
+*> Currently, the user must compute x, y, z, xx,
+*> yy, zz, and 1/r, and they must be computed in that
+*> order.
+*>
+*> @param[in] PROP Properties computed in RASSI
+************************************************************************
       SUBROUTINE DQVDiabat(PROP)
-************************************************************
-*
-*   <DOC>
-*     <Name>DQVDiabat</Name>
-*     <Syntax>Call DQVDiabat(PROP)</Syntax>
-*     <Arguments>
-*       \Argument{PROP}{Properties computed in RASSI}
-*          {Real*8 array}{in}
-*     </Arguments>
-*     <Purpose> Compute diabats with DQV</Purpose>
-*     <Dependencies>RASSI</Dependencies>
-*     <Author>C. E. Hoyer (CEH)</Author>
-*     <Modified_by>C.E. Hoyer</Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*        This subroutine takes in properties that have been
-*       computed by RASSI and uses them to compute diabatic
-*       states and thus diabatic energies and couplings.
-*       Currently, the user must compute x, y, z, xx,
-*       yy, zz, and 1/r, and they must be computed in that
-*       order.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE

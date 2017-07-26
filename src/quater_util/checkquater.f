@@ -10,26 +10,18 @@
 *                                                                      *
 * Copyright (C) Yannick Carissan                                       *
 ************************************************************************
+*  CheckQuater
+*
+*> @brief
+*>   Check whether the quaternion represents a rotation
+*> @author Y. Carissan
+*>
+*> @details
+*> Check whether the quaternion represents a rotation.
+*>
+*> @param[in] Q The quaternion to be checked
+************************************************************************
       Subroutine CheckQuater(Q)
-************************************************************
-*
-*   <DOC>
-*     <Name>CheckQuater</Name>
-*     <Syntax>Call CheckQuater(Q)</Syntax>
-*     <Arguments>
-*       \Argument{Q}{The quaternion to be checked, Dimension(4)}{Real*8}{in}
-*     </Arguments>
-*     <Purpose>Check whether the quaternion represents a rotation</Purpose>
-*     <Dependencies>blas and Call SysAbendMsg</Dependencies>
-*     <Author>Y. Carissan</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects>none</Side_Effects>
-*     <Description>
-*        Check whether the quaternion represents a rotation
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit none
 #include "WrkSpc.fh"
 #include "debug.fh"

@@ -34,7 +34,7 @@ are significant enough.
 
 If you copy a file, copy the header too, and then do as above if you modify it.
 Do not remove any name unless you are absolutely sure that all contributions by
-that person have been removed. from the file.
+that person have been removed from the file.
 
 You can include more detailed information about yourself, the origin of any
 external code, the nature of the modifications, etc. below the header.

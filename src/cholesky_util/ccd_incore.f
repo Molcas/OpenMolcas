@@ -10,35 +10,25 @@
 *                                                                      *
 * Copyright (C) Thomas Bondo Pedersen                                  *
 ************************************************************************
+*  CCD_InCore
+*
+*> @brief
+*>   Complete Cholesky decomposition of the symmetric positive definite matrix \p X
+*> @author Thomas Bondo Pedersen
+*>
+*> @details
+*> The \p n &times; \p n matrix \p X is Cholesky decomposed and the resulting
+*> Cholesky vectors are returned in the lower triangle of \p X.
+*> A non-zero return code signals
+*> that an error has occured (\p X might e.g. be non-positive
+*> definite) and the output is ill-defined.
+*>
+*> @param[in,out] X   Matrix to be Cholesky decomposed;
+*>                    on exit, lower triangle contains the vectors
+*> @param[in]     n   Linear dimension of \p X
+*> @param[out]    irc Return code
+************************************************************************
       Subroutine CCD_InCore(X,n,irc)
-************************************************************
-*
-*   <DOC>
-*     <Name>CCD\_InCore</Name>
-*     <Syntax>Call CCD\_InCore(X,n,irc)</Syntax>
-*     <Arguments>
-*       \Argument{X}{Matrix to be Cholesky decomposed, dimension
-*                    X(n,n); on exit, lower triangle contains
-*                    the vectors}{Real*8}{inout}
-*       \Argument{n}{Linear dimension of X}{Integer}{in}
-*       \Argument{irc}{Return code}{Integer}{out}
-*     </Arguments>
-*     <Purpose>Complete Cholesky decomposition of the symmetric positive
-*              definite matrix X</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>Thomas Bondo Pedersen</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*        The n-by-n matrix X is Cholesky decomposed and the resulting
-*        Cholesky vectors are returned in the lower triangle of X.
-*        A non-zero return code signals
-*        that an error has occured (X might f.ex. be non-positive
-*        definite) and the output is ill-defined.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit None
       Integer n
       Real*8  X(n,n)

@@ -12,9 +12,15 @@
 ************************************************************************
 
       Program main
+#ifdef _FPE_TRAP_
+      Use, Intrinsic :: IEEE_Exceptions
+#endif
       Implicit None
       Integer ireturn
       Character(20), Parameter :: module_name = 'wfa'
+#ifdef _FPE_TRAP_
+      Call IEEE_Set_Halting_Mode(IEEE_Usual,.True._4)
+#endif
 
       Call start(module_name)
       Call wfa(ireturn)

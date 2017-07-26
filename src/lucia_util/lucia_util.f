@@ -10,30 +10,22 @@
 *                                                                      *
 * Copyright (C) Jesper Wisborg Krogh                                   *
 ************************************************************************
+*  Lucia_Util
+*
+*> @brief
+*>   Wrapper for using LUCIA utils in MOLCAS.
+*> @author Jesper Wisborg Krogh
+*>
+*> @details
+*> By using the LUCIA utils through this wrapper it is guaranteed
+*> that all common blocks used have a common parent routine.
+*>
+*> @param[in] Module Identifier
+*> @param[in] Int1   Argument to LUCIA
+*> @param[in] Int2   Argument to LUCIA
+*> @param[in] Array1 Argument to LUCIA
+************************************************************************
       Subroutine Lucia_Util(Module,Int1,Int2,Array1)
-************************************************************
-*
-*   <DOC>
-*     <Name>Lucia\_Util</Name>
-*     <Syntax>Call Lucia\_Util(Module)</Syntax>
-*     <Arguments>
-*       \Argument{Module}{Identifier}{Character*(*)}{in}
-*       \Argument{Int1}{Argument to LUCIA}{Integer}{in}
-*       \Argument{Int2}{Argument to LUCIA}{Integer}{in}
-*       \Argument{Array1}{Argument to LUCIA}{Real*8 Array}{in}
-*     </Arguments>
-*     <Purpose>Wrapper for using LUCIA utils in MOLCAS.</Purpose>
-*     <Dependencies>Whatever parts of LUCIA is needed.</Dependencies>
-*     <Author>Jesper Wisborg Krogh</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects>None</Side_Effects>
-*     <Description>
-*       By using the LUCIA utils through this wrapper it is guarenteed
-*       that all common blocks used have a common parent routine.
-*     </Description>
-*    </DOC>
-*
-************************************************************
 #include "implicit.fh"
       Parameter(MxpLnc = 72)
       Character*(*) Module

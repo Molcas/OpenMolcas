@@ -10,33 +10,24 @@
 *                                                                      *
 * Copyright (C) Yannick Carissan                                       *
 ************************************************************************
+*  setvect
+*
+*> @brief
+*>   Computes the vectors \f$ V_1 = \mathit{XYZ}(2)-\mathit{XYZ}(1) \f$ and
+*>   \f$ V_2 = \mathit{XYZ}(3)-\mathit{XYZ}(1) \f$ using the geometry \p geom
+*> @author Y. Carissan
+*>
+*> @details
+*> Computes the vectors \f$ V_1 = \mathit{XYZ}(2)-\mathit{XYZ}(1) \f$ and
+*> \f$ V_2 = \mathit{XYZ}(3)-\mathit{XYZ}(1) \f$ using the geometry \p geom.
+*>
+*> @param[in]  natoms Number of atoms
+*> @param[in]  Geom   Geometry to be considered, xyz coordinates
+*> @param[in]  XYZ    atom index array
+*> @param[out] V1     output vector
+*> @param[out] V2     output vector
+************************************************************************
       subroutine setvect(natoms,Geom,XYZ,V1,V2)
-************************************************************
-*
-*   <DOC>
-*     <Name>setvect</Name>
-*     <Syntax>Call (natoms,Geom,XYZ,V1,V2)</Syntax>
-*     <Arguments>
-*       \Argument{natoms}{Number of atoms}{Integer}{in}
-*       \Argument{Geom}{Geometry to be considered, xyz coordinates, Dimension(3,nat}{Real*8}{in}
-*       \Argument{XYZ}{atom index array, Dimension(3)}{Integer}{in}
-*       \Argument{V1}{output vector, Dimension(3)}{Real*8}{out}
-*       \Argument{V2}{output vector, Dimension(3)}{Real*8}{out}
-*     </Arguments>
-*     <Purpose>Computes the vectors V1=XYZ(2)-XYZ(1) and V2=XYZ(3)-XYZ(1)
-*       using the geometry geom</Purpose>
-*     <Dependencies>blas</Dependencies>
-*     <Author>Y. Carissan</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects>none</Side_Effects>
-*     <Description>
-*       Computes the vectors V1=XYZ(2)-XYZ(1) and V2=XYZ(3)-XYZ(1)
-*       using the geometry geom
-*     </Description>
-*    </DOC>
-*
-************************************************************
-
       implicit none
 #include "real.fh"
       Real*8 V1(3),V2(3)

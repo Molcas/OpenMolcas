@@ -40,6 +40,23 @@
 ! dlascl_
 ! dorgtr_
 
+! For procedures known to raise floating point exceptions in the test suite,
+! disable exception trapping locally: three pieces of code are needed
+#ifdef _FPE_TRAP_
+#  define _FPE_TRAP_use_ \
+  use, intrinsic :: IEEE_Exceptions
+#  define _FPE_TRAP_init_ \
+  type(IEEE_Status_Type) :: IEEE_Status ;\
+  call IEEE_Get_Status(IEEE_Status) ;\
+  call IEEE_Set_Halting_Mode(IEEE_Usual,.false._4)
+#  define _FPE_TRAP_end_ \
+  call IEEE_Set_Status(IEEE_Status)
+#else
+#  define _FPE_TRAP_use_ !
+#  define _FPE_TRAP_init_ !
+#  define _FPE_TRAP_end_ !
+#endif
+
 ! Set the appropriate integer size of the library interface and specify
 ! if integer conversion will be needed.
 #ifdef LINALG_I4
@@ -103,6 +120,7 @@ end subroutine
 subroutine dstevr_(jobz,range,n_,d,e,vl,vu,il_,iu_,abstol, &
       &            m_,w,z,ldz_,isuppz_,work,lwork_,iwork_, &
       &            liwork_, info_ )
+  _FPE_TRAP_use_
   implicit none
   character          jobz, range
   integer            il_, info_, iu_, ldz_, liwork_, lwork_, m_, n_
@@ -113,6 +131,7 @@ subroutine dstevr_(jobz,range,n_,d,e,vl,vu,il_,iu_,abstol, &
   LAPACKINT          il, info, iu, ldz, liwork, lwork, m, n
   LAPACKINT, allocatable :: isuppz(:), iwork(:)
   integer :: i
+  _FPE_TRAP_init_
   n=n_
   il=il_
   iu=iu_
@@ -131,10 +150,12 @@ subroutine dstevr_(jobz,range,n_,d,e,vl,vu,il_,iu_,abstol, &
   deallocate(isuppz)
   info_=info
 #else
+  _FPE_TRAP_init_
   call dstevr( jobz, range, n_, d, e, vl, vu, il_, iu_, abstol, &
       &        m_, w, z, ldz_, isuppz_, work, lwork_, iwork_, &
       &        liwork_, info_ )
 #endif
+  _FPE_TRAP_end_
 end subroutine
 
 subroutine dgetrs_(trans,n_,nrhs_,a,lda_,ipiv_,b,ldb_,info_)

@@ -1,0 +1,70 @@
+/*!
+@defgroup Sparse Sparse utilities
+
+@brief
+  Utilities for handling sparse matrices
+
+@warning
+Work in progress
+
+Utilities for handling sparse matrices
+======================================
+
+Sparse matrices are stored in a Modified Compressed Sparse Row format. A matrix
+\p A (\f$ n \times n \f$) is stored in two one-dimensional vectors of length
+\f$ m \f$: \p V and \p IJ. The vector \p V contains the non-zero elements of \p
+A, the vector \p IJ contains some indices (integers). Such that:
+
+- The first \f$ n \f$ elements of \p V are the diagonal elements of \p A, even
+  if they are zeros.
+
+- The element \f$ n+1 \f$ of \p V is undefined (see below).
+
+- The elements from \f$ n+2 \f$ to \f$ m \f$ of \p V are the non-zero
+  off-diagonal elements of \p A, in row order: first for row 1, then row 2,
+  etc., and sorted by column.
+
+- The first \f$ n \f$ elements of \p IJ contain the indices for finding where
+  in \p V are stored the elements for each row of \p A. Element \f$ i \f$ of \p
+  IJ is the index of \p V where the first element of row \f$ i \f$ of \p A is
+  found. If there are no elements of \p A for this row, element \f$ i \f$
+  of \p IJ is the same as element \f$ i+1 \f$. Element \f$ 1 \f$ of \p IJ is
+  always \f$ n+2 \f$, element \f$ n+1 \f$ of \p IJ is always \f$ m+1 \f$.
+
+- Elements from \f$ n+2 \f$ to \f$ m \f$ of \p IJ are the colums to which the
+  corresponding element of \p V belongs (in \p A).
+
+- Optionally, for symmetric \p A, only the lower triangle is stored, and then
+  element \f$ n+1 \f$ of \p V is set to `1.0`. Otherwise (non-symmetric
+  storage), it is set to `0.0`.
+
+Thus, \f$ m=n+k+1 \f$, where \f$ k \f$ is the number of non-zero off-diagonal
+elements of \p A.
+
+
+_Example:_
+
+(\f$ n=6 \f$, \f$ k=9 \f$, \f$ m=16 \f$)
+
+      i    1  2  3  4  5  6     j
+
+    A = [ 11 12 13 14  0  0 ]   1
+        [  0 22 23  0  0  0 ]   2
+        [  0  0 33 34 35 36 ]   3
+        [  0  0  0 44 45  0 ]   4
+        [  0  0 53  0  0  0 ]   5
+        [  0  0  0  0  0 66 ]   6
+
+
+       i    1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16
+
+     V = [ 11 22 33 44  0 66  * 12 13 14 23 34 35 36 45 53 ]
+    IJ = [  8 11 12 15 16 17 17  2  3  4  3  4  5  6  5  3 ]
+
+(element `*` will have to be `0.0`, because the matrix is not symmetric)
+
+Storing the matrix per rows makes it easy to compute the product with a vector
+on the right, but it's trickier to compute the transpose. Matrix products are
+more difficult because the result does not have the same sparsity pattern.
+
+*/

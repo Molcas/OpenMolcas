@@ -13,39 +13,34 @@
 *               1991, Jeppe Olsen                                      *
 *               1991,1996, Markus P. Fuelscher                         *
 ************************************************************************
+*  CICtl
+*
+*> @brief
+*>   CI Control
+*> @author B. O. Roos
+*> @author P. &Aring;. Malmqvist
+*> @modified_by P. &Aring;. Malmqvist
+*>
+*> @details
+*> Depends on \p IFINAL, which is set in ::RASSCF. If \p IFINAL = ``0``, repeated
+*> calculations with orbital optimization before each call. If \p IFINAL = ``1``,
+*> there has been no orbital optimization, or the calculation is
+*> converged. \p IFINAL = ``2`` means this is a final CI calculation, using the
+*> final orbitals. For meaning of global variables \c NTOT1, \c NTOT2, \c NACPAR
+*> and \c NACPR2, see src/Include/general.fh and src/Include/rasscf.fh.
+*>
+*> @param[in]     CMO    MO coefficients
+*> @param[out]    D      Average 1-dens matrix
+*> @param[out]    DS     Average spin 1-dens matrix
+*> @param[out]    P      Average symm. 2-dens matrix
+*> @param[out]    PA     Average antisymm. 2-dens matrix
+*> @param[out]    FI     Fock matrix from inactive density
+*> @param[in,out] D1I    Inactive 1-dens matrix
+*> @param[in,out] D1A    Active 1-dens matrix
+*> @param[in]     TUVX   Active 2-el integrals
+*> @param[in]     IFINAL Calculation status switch
+************************************************************************
       Subroutine CICtl(CMO,D,DS,P,PA,FI,D1I,D1A,TUVX,IFINAL)
-* ***********************************************************
-*
-*    <DOC>
-*      <Name>CICtl</Name>
-*      <Syntax>Call CICtl(CMO,D,DS,P,PA,FI,D1I,D1A,TUVX,IFINAL)</Syntax>
-*      <Arguments>
-*        \Argument{CMO}{MO coefficients}{Real*8 array (NTOT2)}{in}
-*        \Argument{D}{Average 1-dens matrix}{Real*8 array (NACPAR)}{out}
-*        \Argument{DS}{Average spin 1-dens matrix}{Real*8 array (NACPAR)}{out}
-*        \Argument{P}{Average symm. 2-dens matrix}{Real*8 array (NACPR2)}{out}
-*        \Argument{PA}{Average antisymm. 2-dens matrix}{Real*8 array (NACPR2)}{out}
-*        \Argument{FI}{Fock matrix from inactive density}{Real*8 array (NTOT1)}{out}
-*        \Argument{D1I}{Inactive 1-dens matrix}{Real*8 array (NTOT2)}{inout}
-*        \Argument{D1A}{Active 1-dens matrix}{Real*8 array (NTOT2)}{inout}
-*        \Argument{TUVX}{Active 2-el integrals}{Real*8 array (NACPR2)}{in}
-*        \Argument{IFINAL}{Calculation status switch}{Integer: 0,1 or 2}{in}
-*      </Arguments>
-*      <Purpose> CI Control </Purpose>
-*      <Dependencies> Many... </Dependencies>
-*      <Author> B. O. Roos, P. {\AA}. Malmqvist </Author>
-*      <Modified_by> P. {\AA}. Malmqvist </Modified_by>
-*      <Side_Effects> Not known </Side_Effects>
-*      <Description>
-*        Depends on IFINAL, which is set in RASSCF. If IFINAL=0, repeated
-*        calculations with orbital optimization before each call. If IFINAL=1,
-*        there has been no orbital optimization, or the calculation is
-*        converged. IFINAL=2 means this is a final CI calculation, using the
-*        final orbitals. For meaning of global variables NTOT1, NTOT2, NACPAR
-*        and NACPR2, see src/Include/general.fh and src/Include/rasscf.fh.
-*      </Description>
-*    </DOC>
-*
 * ****************************************************************
 * history:                                                       *
 * updated to use determinant based CI-procedures                 *

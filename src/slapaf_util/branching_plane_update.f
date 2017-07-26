@@ -8,11 +8,39 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+*  Branching_Plane_Update
+*
+*> @brief
+*>   Apply the Branching plane update method of Maeda et al.
+*> @author Roland Lindh
+*> @modified_by Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> The branching plane of conical intersection is defined by two vectors,
+*> the gradient difference vector (GDV) and the coupling derivative vector
+*> (CDV). Equivalently, it can be defined with two orthonormal vectors
+*> \f$ x \f$ and \f$ y \f$, such that \f$ x \f$ has the same direction as
+*> GDV and \f$ \{x,y\} \f$ spans the same space as GDV and CDV.
+*>
+*> This routine obtains an approximate \f$ y \f$ vector, by assuming that
+*> the branching plane defined by \f$ \{x,y\} \f$ changes the least from
+*> iteration to iteration \cite Mae2010-JCTC-6-1538. Thus:
+*>
+*> \f[ y_k = \beta y_{k-1} - \alpha x_{k-1} \\
+*>     \alpha = \frac{y_{k-1}\cdot x_k}{w} \\
+*>     \beta  = \frac{x_{k-1}\cdot x_k}{w} \\
+*>     w      = \sqrt{(y_{k-1}\cdot x_k)^2+(x_{k-1}\cdot x_k)^2} \f]
+*>
+*> As an initial guess for the CDV, the average gradient vector (AGV) at
+*> the first iteration is used.
+*>
+*> @param[in]     AGV   Average gradient vector(s)
+*> @param[in]     DGV   Difference gradient vector(s)
+*> @param[in,out] CDV   Approximate coupling derivative vector, \f$ y \f$
+*> @param[in]     n     Size of the vectors
+*> @param[in]     nIter Iteration number
+************************************************************************
       Subroutine Branching_Plane_Update(AGV,DGV,CDV,n,nIter)
-************************************************************************
-*     Apply the Braching plane update method of S. Maeda, K. Ohno and  *
-*     K. Morokuma, JCTC, 6 (2010), 1538, DOI:10.1021/ct1000268         *
-************************************************************************
       Implicit Real*8 (a-h,o-z)
 #include "print.fh"
 #include "real.fh"

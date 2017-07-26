@@ -16,7 +16,7 @@ C     this routine aborts the process(es) with rc
       implicit none
       integer :: rc
 #ifdef _MOLCAS_MPP_
-#  include "para_info.fh"
+#include "para_info.fh"
       integer*4 :: rc4, ierr4
 #endif
 

@@ -10,26 +10,19 @@
 *                                                                      *
 * Copyright (C) Roland Lindh                                           *
 ************************************************************************
+*  Get_Coord_New
+*
+*> @brief
+*>   Get the updated/new symmetry unique Cartesian coordinates of the basis set centers
+*> @author R. Lindh
+*>
+*> @details
+*> The utility will read the updated/new symmetry unique Cartesian coordinates of the basis set centers from the runfile.
+*>
+*> @param[out] ipCoord Pointer to \c Work of the array of the symmetry unique Cartesian coordinates of the basis set centers
+*> @param[in]  nAtoms  Number of symmetry unique Cartesian coordinates of the basis set centers
+************************************************************************
       Subroutine Get_Coord_New(CN,nAtoms)
-************************************************************
-*
-*   <DOC>
-*     <Name>Get\_Coord\_New</Name>
-*     <Syntax>Call Get\_Coord\_New(ipCoord,nAtoms)</Syntax>
-*     <Arguments>
-*       \Argument{ipCoord}{Pointer to Work of the array of the symmetry unique cartesian coordinates of the basis set centers.}{Integer}{out}
-*       \Argument{nAtoms}{Number of symmetry unique cartesian coordinates of the basis set centers.}{Integer}{in}
-*     </Arguments>
-*     <Purpose>To get the updated/new symmetry unique cartesian coordinates of the basis set centers.</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>R. Lindh</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>The utility will read the updated/new symmetry unique cartesian coordinates of the basis set centers from the run file.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8 (a-h,o-z)
       Real*8, Dimension(:,:), Allocatable :: CN
 #include "stdalloc.fh"
