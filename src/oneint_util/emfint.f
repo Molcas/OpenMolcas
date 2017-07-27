@@ -43,8 +43,10 @@
      &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),
      &       Array(nZeta*nArr), CCoor(3)
       Logical ABeq(3)
-      Integer lOper(nComp), iStabM(0:nStabM-1),
-     &          iChO(nComp)
+      Integer lOper(nComp), iStabM(0:nStabM-1), iChO(nComp),
+     &        iStabO(0:7), iDCRT(0:7)
+*
+
 *
 *     Statement function for Cartesian index
 *
@@ -70,10 +72,14 @@
          nip = nip + nZeta
          ipB = nip
          nip = nip + nZeta
+         ipRes = nip
+         nip = nip + nZeta*nElem(la)*nElem(lb)*nComp
       Else
          ipVxyz = nip
          ipA = nip
          ipB = nip
+         ipRes = nip
+         nip = nip + nZeta*nElem(la)*nElem(lb)*nComp
       End If
       If (nip-1.gt.nArr*nZeta) Then
          Call WarningMessage(2,'EMFInt: nip-1.gt.nArr*nZeta')
@@ -131,12 +137,30 @@
 *     Combine the cartesian components to the full one electron
 *     integral.
 *
-         Call CCmbnVe(Array(ipQxyz),nZeta,la,lb,Zeta,rKappa,Final,
-     &                nComp,Array(ipVxyz),CCoor)
+         Call CCmbnVe(Array(ipQxyz),nZeta,la,lb,Zeta,rKappa,
+     &                Array(ipRes),nComp,Array(ipVxyz),CCoor)
       Else
          Call CCmbnMP(Array(ipQxyz),nZeta,la,lb,nOrdOp,Zeta,
-     &                rKappa,Final,nComp)
+     &                rKappa,Array(ipRes),nComp)
       End If
+*
+      llOper=lOper(1)
+      Do iComp = 2, nComp
+         llOper = iOr(llOper,lOper(iComp))
+      End Do
+      Call SOS(iStabO,nStabO,llOper)
+      Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
+     &         iDCRT,nDCRT)
+*
+      Do lDCRT = 0, nDCRT-1
+*
+*--------Accumulate contributions
+*
+         nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+         Call SymAdO(Array(ipRes),nZeta,la,lb,nComp,Final,nIC,
+     &               nOp         ,lOper,iChO,One)
+*
+      End Do
 *
       Return
 c Avoid unused argument warnings
