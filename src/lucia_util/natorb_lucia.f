@@ -74,8 +74,8 @@ C      TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM)
         ONEM = -1.0D0
 *. scale with -1 to get highest occupation numbers as first eigenvectors
         CALL SCALVE(SCR,ONEM,LOB*(LOB+1)/2)
-        Call DCopy_(LOB**2,0.0D0,0,R,1)
-        Call DCopy_(LOB,1.0D0,0,R,1+LOB)
+        Call DCopy_(LOB**2,0.0D0,0,XNAT(IMTOFF),1)
+        Call DCopy_(LOB,1.0D0,0,XNAT(IMTOFF),1+LOB)
         Call NIDiag(SCR,XNAT(IMTOFF),LOB,LOB,0)
         Call JACORD(SCR,XNAT(IMTOFF),LOB,LOB)
 *
