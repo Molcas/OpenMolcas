@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2017, Ignacio Fdez. Galvan                             *
+* Copyright (C) 2016, Morgane Vacher                                   *
+*               2017, Ignacio Fdez. Galvan                             *
 ************************************************************************
 
 * Module to handle the COORD keyword in gateway/seward
@@ -57,24 +58,45 @@
       Real*8 :: Factor
 #include "real.fh"
 #include "constants2.fh"
+#ifdef _HDF5_
+#  include "mh5.fh"
+#  include "Molcas.fh"
+      Logical :: isH5
+      Integer :: Coord_id, Attr_id, nSym, j, c
+      Character (Len=LenIn), Dimension(:), Allocatable :: Labels
+      Character (Len=LenIn4), Dimension(:), Allocatable :: Labels4
+      Real*8, Dimension(:,:), Allocatable :: Coords
+      isH5 = .False.
+#endif
 
+      Factor = One
       Read(Lu,'(A)') Line
 
       ! Try to read a number, if it fails, try to open a file
+      ! Note that the slash means end-of-line in list-directed input
       Read(Line,*,IOStat=Error) NumAt
+      If (Index(Line, '/') .gt. 0) Error = -1
       Lxyz = Lu
       If (Error .ne. 0) Then
-        Read(Line,*) FName
+        Read(Line,'(A)') FName
         Call F_Inquire(FName, Found)
         If (Found) Then
-          Lxyz = IsFreeUnit(Lxyz)
-          Call Molcas_Open(Lxyz, FName)
-          Read(Lxyz,'(A)') Line
-          Read(Line,*,IOStat=Error) NumAt
-          If (Error .ne. 0) Then
-            Write(6,*) 'Error reading file ',Trim(FName)
-            Call Quit_OnUserError()
+#ifdef _HDF5_
+          If (mh5_is_hdf5(Trim(FName))) Then
+            isH5 = .True.
+          Else
+#endif
+            Lxyz = IsFreeUnit(Lxyz)
+            Call Molcas_Open(Lxyz, FName)
+            Read(Lxyz,'(A)') Line
+            Read(Line,*,IOStat=Error) NumAt
+            If (Error .ne. 0) Then
+              Write(6,*) 'Error reading file ',Trim(FName)
+              Call Quit_OnUserError()
+            End If
+#ifdef _HDF5_
           End If
+#endif
         Else
           Write(6,*) 'File ',Trim(FName),' not found!'
           Call Quit_OnUserError()
@@ -84,29 +106,93 @@
       ! file it belongs to
       FileNum = FileNum+1
 
-      Allocate(ThisGeom(NumAt))
-      Read(Lxyz,'(A)',IOStat=Error) Line
-      If (Error .ne. 0) Then
-        Write(6,*) 'Error reading geometry'
-        Call Quit_OnUserError()
-      End If
-      Call UpCase(Line)
-      ! Units of the coordinates (default angstrom)
-      If (Max(Index(Line,'BOHR'),Index(Line,'A.U.')) .gt. 0) Then
-        Factor = One
+#ifdef _HDF5_
+************************************************************************
+* For HDF5 formatted file
+************************************************************************
+      If (isH5) Then
+        Write(6,*) 'Reading xyz coordinates from h5 file '//Trim(FName)
+        Coord_id = mh5_open_file_r(Trim(FName))
+        ! check if symmetry was used
+        Call mh5_fetch_attr(Coord_id,'NSYM',nSym)
+        ! read numbers of atoms
+        If (nSym .gt. 1) Then
+          Attr_id = mh5_open_attr(Coord_id,'NATOMS_ALL')
+        Else
+          Attr_id = mh5_open_attr(Coord_id,'NATOMS_UNIQUE')
+        End If
+        Call mh5_get_attr_scalar_int(Attr_id,NumAt)
+        Allocate(ThisGeom(NumAt))
+        Allocate(Labels(NumAt),Coords(3,NumAt))
+        ! read atom labels
+        If (nSym .gt. 1) then
+          Allocate(Labels4(NumAt))
+          Call mh5_fetch_dset_array_str(Coord_id,'DESYM_CENTER_LABELS',
+     &                                   Labels4)
+          Do i=1,NumAt
+            Labels(i) = Labels4(i)(1:LenIn)
+          End Do
+          Deallocate(Labels4)
+        Else
+          Call mh5_fetch_dset_array_str(Coord_id,'CENTER_LABELS',
+     &                                   Labels)
+        End If
+        ! remove numbers from labels
+        ! (otherwise there will be problems when symmetric structures
+        ! are used without symmetry)
+        Do i=1,NumAt
+          Do j=1,LenIn
+            c = IChar(Labels(i)(j:j))
+            If ((c .ge. IChar('0')) .and. (c .le. IChar('9'))) Then
+              Labels(i)(j:j) = ' '
+            End If
+          End Do
+        End Do
+        ! read atom coordinates
+        If (nSym .gt. 1) then
+          Call mh5_fetch_dset_array_real(Coord_id,
+     &         'DESYM_CENTER_COORDINATES',Coords)
+        Else
+          Call mh5_fetch_dset_array_real(Coord_id,
+     &         'CENTER_COORDINATES',Coords)
+        End If
+        Call mh5_close_file(Coord_id)
+        ! store data
+        Do i=1,NumAt
+          ThisGeom(i)%Lab = Labels(i)
+          ThisGeom(i)%Coord(:) = Coords(:,i)
+          ThisGeom(i)%FileNum = FileNum
+        End Do
+        Deallocate(Labels,Coords)
       Else
-        Factor = One/Angstrom
-      End If
-      Do i=1,NumAt
-        Read(Lxyz,*,IOStat=Error) ThisGeom(i)%Lab,ThisGeom(i)%Coord(:)
+#endif
+************************************************************************
+* For .xyz format file
+************************************************************************
+        Allocate(ThisGeom(NumAt))
+        Read(Lxyz,'(A)',IOStat=Error) Line
         If (Error .ne. 0) Then
           Write(6,*) 'Error reading geometry'
           Call Quit_OnUserError()
         End If
-        ThisGeom(i)%Coord(:) = ThisGeom(i)%Coord(:)*Factor
-        ThisGeom(i)%FileNum = FileNum
-      End Do
-      If (Lxyz .ne. Lu) Close(Lxyz)
+        Call UpCase(Line)
+        ! Units of the coordinates (default angstrom)
+        If (Max(Index(Line,'BOHR'),Index(Line,'A.U.')) .le. 0) Then
+          Factor = One/Angstrom
+        End If
+        Do i=1,NumAt
+          Read(Lxyz,*,IOStat=Error) ThisGeom(i)%Lab,ThisGeom(i)%Coord(:)
+          If (Error .ne. 0) Then
+            Write(6,*) 'Error reading geometry'
+            Call Quit_OnUserError()
+          End If
+          ThisGeom(i)%Coord(:) = ThisGeom(i)%Coord(:)*Factor
+          ThisGeom(i)%FileNum = FileNum
+        End Do
+        If (Lxyz .ne. Lu) Close(Lxyz)
+#ifdef _HDF5_
+      End If
+#endif
 
       ! Obtain/read transformation matrix and transform the geometry in this file
       Mat = Reshape([One, One,  One,
@@ -379,7 +465,10 @@
               If (Op(iXYZ)) Symmetry = 'xyz'
           End Select
       End Select
+      Symmetry = AdjustL(Symmetry)
+      If (Symmetry .ne. '') Write(6,10) Trim(Symmetry)
       Call UpCase(Symmetry)
+10    Format(6X,'Found SYMMETRY generators: ',A)
       End Subroutine DetectSym
 
 ! Function to check if a symmetry operation conserves the geometry
@@ -430,8 +519,10 @@
       Real*8 :: Dist
       Integer :: Op, nOp, Num, i, j
       Character (Len=MAXLEN) :: SymA, SymB, Lab, Bas
-      Logical :: Found
+      Logical :: Found, Moved
 #include "constants2.fh"
+#include "real.fh"
+      Moved = .False.
       ! Count the non-trivial operations
       nOp = Count(Oper .ne. 0)+1
       ! For each atom, find all symmetric images to average
@@ -453,6 +544,7 @@
               Found = .True.
               Aver = Aver+New
               If (j .ne. i) Geom(j)%FileNum = 0
+              If (Dist .gt. Zero) Moved = .True.
               Exit
             End If
           End Do
@@ -463,6 +555,11 @@
         End Do
         Geom(i)%Coord = Aver/Dble(nOp)
       End Do
+      If (Moved)
+     &  Call WarningMessage(0,
+     &   'Warning! XYZ coordinates will be modified to match '//
+     &   'the specified/detected symmetry. Use SYMT = 0.0 if '//
+     &   'this is not desired.')
       End Subroutine AdaptSym
 
 ! Function to apply a symmetry operation to a 3D-point
