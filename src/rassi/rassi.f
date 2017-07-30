@@ -159,13 +159,17 @@ C In this third section, if spin-orbit coupling parameters were
 C computed by the previous sections, then additionally the
 C spin-orbit eigenfunctions and levels are computed.
 
-C Nr of spin states:
+C Nr of spin states and division of loops:
       NSS=0
+      LOOPDIVIDE_TEMP = 0
       DO ISTATE=1,NSTATE
        JOB=JBNUM(ISTATE)
        MPLET=MLTPLT(JOB)
        NSS=NSS+MPLET
+       IF(ISTATE.GT.LOOPDIVIDE) CYCLE
+       LOOPDIVIDE_TEMP = LOOPDIVIDE_TEMP + MPLET
       END DO
+      LOOPDIVIDE = LOOPDIVIDE_TEMP
 
       CALL GETMEM('UTOTR','ALLO','REAL',LUTOTR,NSS**2)
       CALL GETMEM('UTOTI','ALLO','REAL',LUTOTI,NSS**2)

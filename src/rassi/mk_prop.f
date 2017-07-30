@@ -49,7 +49,7 @@
 *    &                     DDOT_(NDENS,1.0D0,0,DENS(1,3),1)
 *     Write (*,*) 'DENS4=',DDOT_(NDENS,DENS(1,4),1,DENS(1,4),1),
 *    &                     DDOT_(NDENS,1.0D0,0,DENS(1,4),1)
-      If (LABEL(1:5).eq.'TMOS0') Then
+      If (LABEL(1:4).eq.'TMOS') Then
          IC=1
       Else
          IC=ICOMP(IPROP)
@@ -62,7 +62,7 @@
 *     Write (*,*) 'NBUFF,NSIZ=',NBUFF,NSIZ
 *     Write (*,*) 'Int=',DDOT_(NSIZ,BUFF,1,BUFF,1),
 *    &                   DDOT_(NSIZ,1.0D0,0,BUFF,1)
-      IF ( IRC.NE.0.AND.LABEL(1:5).NE.'TMOS0' ) THEN
+      IF ( IRC.NE.0.AND.LABEL(1:4).NE.'TMOS' ) THEN
          WRITE(6,*)
          WRITE(6,'(6X,A)')'*** ERROR IN SUBROUTINE MK_PROP ***'
          WRITE(6,'(6X,A)')'  FAILED IN READING FROM  ONEINT'
