@@ -2207,9 +2207,16 @@ endif ()
 if (GEN1INT)
         add_dependencies(mods_obj ${GEN1INT_LIBRARIES})
 endif ()
+if (HDF5 AND HDF5_FOUND)
+        set_target_properties (mods_obj PROPERTIES
+                COMPILE_DEFINITIONS "_HDF5_"
+        )
+endif ()
+
 if (BUILD_SHARED_LIBS)
         set_target_properties (mods_obj PROPERTIES
-                POSITION_INDEPENDENT_CODE "TRUE")
+                POSITION_INDEPENDENT_CODE "TRUE"
+        )
 endif ()
 set_target_properties (mods_obj PROPERTIES
         Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/mod)
