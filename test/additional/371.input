@@ -3,7 +3,7 @@
 Coord = 3
 QM/MM water cluster: 1 QM molecule surrounded by 26 TIP3P molecules
   O1   -0.540685    0.240498     1.261817
-  H1   -1.386031   -0.061117	 0.929168
+  H1   -1.386031   -0.061117     0.929168
   H2   -0.574908    0.061632     2.201533
 Basis = 6-31G*
 Group = NoSym
@@ -116,7 +116,7 @@ NoCD
 Coord = 3
 QM/MM water cluster: 1 QM molecule surrounded by 26 TIP3P molecules
   O1   -0.540685    0.240498     1.261817
-  H1   -1.386031   -0.061117	 0.929168
+  H1   -1.386031   -0.061117     0.929168
   H2   -0.574908    0.061632     2.201533
 Basis = 6-31G*
 Group = NoSym

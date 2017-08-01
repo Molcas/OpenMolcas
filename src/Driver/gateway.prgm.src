@@ -21,10 +21,8 @@
  (file)  HYPINP        "$GeoDir/$Project.stdin"          rw
  (file)  JOBLST        "$WorkDir/joblist.txt"            rw
  (file)  NQGRID        "$WorkDir/$Project."NqGrid        rw
- (file)  FS.tmp        "$WorkDir"/findsym.tmp             rwp
- (file)  FS.inp        "$WorkDir"/findsym.inp             rw
- (file)  FS.out        "$WorkDir"/findsym.out             rw
- (file)  FS.std        "$WorkDir"/findsym.std             rw
+ (file)  COORD         "$WorkDir"/coord.inp              rwt
+#include "findsym.inc"
  (file)  constraints   "$GeoDir/$Project".cns          rw
  (file)  UDC.Gateway   "$WorkDir/$Project."Udc.gateway   rw
  (file)  UDC.NG        "$WorkDir/$Project."Udc.NG        rw

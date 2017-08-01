@@ -8,22 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
- (prgm)  "$MOLCAS"/bin/seward.exe             executable
- (file)  SEWARINP      "$WorkDir/$Project."Seward.Input    rwi
-#include "aoints.inc"
-#define _LDF_
-#include "choints.inc"
-#include "sewints.inc"
-#include "rysfiles.inc"
-#include "moldenfiles.inc"
-#include "wfnfiles.inc"
-#include "orbitals.inc"
-#include "chofiles.inc"
-#include "chotmpfiles.inc"
-#include "dkhfiles.inc"
- (file)  NQGRID        "$WorkDir/$Project."NqGrid          rw
-#include "findsym.inc"
- (file)  UDC.Saddle    "$WorkDir/$Project."Udc.saddle    rw
- (file)  RUNREAC       "$WorkDir/$Project."Reac.RunFile          rw
- (file)  RUNPROD       "$WorkDir/$Project."Prod.RunFile          rw
- (file)  TMPPRP        "$WorkDir/"purge.TmpPrp           rwp
+#ifdef _HAVE_EXTRA_
+#ifndef _FINDSYM_
+ (file)  FS.tmp        "$WorkDir/findsym.tmp"               rwp
+ (file)  FS.inp        "$WorkDir/findsym.inp"               rw
+ (file)  FS.out        "$WorkDir/findsym.out"               rw
+ (file)  FS.std        "$WorkDir/findsym.std"               rw
+#define _FINDSYM_
+#endif
+#endif

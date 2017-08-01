@@ -2237,9 +2237,16 @@ endif ()
 if (GEN1INT)
         add_dependencies(mods_obj ${GEN1INT_LIBRARIES})
 endif ()
+if (HDF5 AND HDF5_FOUND)
+        set_target_properties (mods_obj PROPERTIES
+                COMPILE_DEFINITIONS "_HDF5_"
+        )
+endif ()
+
 if (BUILD_SHARED_LIBS)
         set_target_properties (mods_obj PROPERTIES
-                POSITION_INDEPENDENT_CODE "TRUE")
+                POSITION_INDEPENDENT_CODE "TRUE"
+        )
 endif ()
 set_target_properties (mods_obj PROPERTIES
         Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/mod)
@@ -2644,6 +2651,8 @@ endforeach ()
 # generate .prgm files from source
 foreach (BASE_DIR ${basedirs})
         list (APPEND prgmincs "-I${BASE_DIR}/src/Driver")
+        file (GLOB incs ${BASE_DIR}/src/Driver/*.inc)
+        list (APPEND prgmincfiles ${incs})
 endforeach (BASE_DIR)
 string(REGEX REPLACE "([^;]+)" "-D\\1" defargs "${defs}")
 message("Definitions: ${defargs}")
@@ -2651,12 +2660,19 @@ foreach (BASE_DIR ${basedirs})
         file (GLOB source RELATIVE ${BASE_DIR}/src/Driver ${BASE_DIR}/src/Driver/*.prgm.src)
         foreach (prgmsrc ${source})
                 string (REPLACE ".prgm.src" ".prgm" prgm ${prgmsrc})
-                execute_process (
+                add_custom_command (
+                        OUTPUT data/${prgm}
+                        DEPENDS ${BASE_DIR}/src/Driver/${prgmsrc} ${prgmincfiles}
                         COMMAND cpp -P ${defargs} ${prgmincs} ${BASE_DIR}/src/Driver/${prgmsrc} data/${prgm}
                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
                         )
+                list (APPEND prgmtargets data/${prgm})
         endforeach (prgmsrc)
 endforeach (BASE_DIR)
+add_custom_target(prgms ALL
+        DEPENDS ${prgmtargets}
+        )
+add_dependencies(mods_obj prgms)
 
 # generate help databases from source (if using molcas-extra)
 if (DEFINED EXTRA_DIR)
