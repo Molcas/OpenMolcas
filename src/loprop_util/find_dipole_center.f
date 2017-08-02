@@ -13,7 +13,7 @@
       Implicit Real*8 (A-H,O-Z)
       Dimension EC_A(3),EC_B(3),EC_AB(3)
       Real*8 Multipole_Expansion
-      External Multipole_Expansion
+      External Multipole_Expansion,n_Golden2
       Logical Absolute
       Parameter (Absolute = .False.)
       Parameter (E_Threshold = 1.0D-12, R_Threshold = 1.0D-12)
@@ -54,10 +54,10 @@
       ax = (R_A+R_B)*.5 + Delta
       bx = (R_A+R_B)*.5 - Delta
 * First make an initial bracketing of the minima
-      Call mnBrak2(ax,bx,cx,fa,fb,fc,multipole_expansion,q_a,q_b,
+      Call n_mnBrak2(ax,bx,cx,fa,fb,fc,multipole_expansion,q_a,q_b,
      &             dipole_a,dipole_b,r_a,r_b)
 * Use Golden to find the minima
-      golden = golden2(ax,bx,cx,multipole_expansion,r_threshold,
+      golden = n_golden2(ax,bx,cx,multipole_expansion,r_threshold,
      &             e_threshold,r_best,q_a,q_b,
      &             dipole_a,dipole_b,r_a,r_b)
       t = (r_best-half*R)/R
@@ -72,10 +72,10 @@
 C      ax = -0.245
 C      bx = -0.263
 * First make an initial bracketing of the minima
-      Call mnBrak2(ax,bx,cx,fa,fb,fc,multipole_expansion,qn_a,qn_b,
+      Call n_mnBrak2(ax,bx,cx,fa,fb,fc,multipole_expansion,qn_a,qn_b,
      &             zero,zero,r_a,r_b)
 * Use Golden to find the minima
-      golden = golden2(ax,bx,cx,multipole_expansion,r_threshold,
+      golden = n_golden2(ax,bx,cx,multipole_expansion,r_threshold,
      &             e_threshold,r_best2,qn_a,qn_b,
      &             zero,zero,r_a,r_b)
       t = (r_best2-half*R)/R
@@ -96,10 +96,10 @@ C??      bx = (R_A+R_B)*.5 - Delta
 C??C      ax = -0.245
 C??C      bx = -0.263
 C??* First make an initial bracketing of the minima
-C??      Call mnBrak2(ax,bx,cx,fa,fb,fc,multipole_expansion,q_a+qn_a,
+C??      Call n_mnBrak2(ax,bx,cx,fa,fb,fc,multipole_expansion,q_a+qn_a,
 C??     &             q_b+qn_b,dipole_a,dipole_b,r_a,r_b)
 C??* Use Golden to find the minima
-C??      golden = golden2(ax,bx,cx,multipole_expansion,r_threshold,
+C??      golden = n_golden2(ax,bx,cx,multipole_expansion,r_threshold,
 C??     &             e_threshold,r_best,q_a+qn_a,q_b+qn_b,
 C??     &             dipole_a,dipole_b,r_a,r_b)
 C??      t = (r_best-half*R)/R
