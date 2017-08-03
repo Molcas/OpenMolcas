@@ -20,7 +20,7 @@
       Dimension Scratch_Org(nij*(2+lMax+1)),Scratch_New(nij*(2+lMax+1))
       Dimension iWarnings(nij)
       Parameter (Error_Threshold = 1.0D-12, Delta_Threshold = 1.0D-12)
-      External Error_for_t,n_Golden
+      External Error_for_t,x_Golden
 *
       iDim = nij*nElem
       ij = iAtom*(iAtom-1)/2+jAtom
@@ -106,7 +106,7 @@
          Num_Warnings = Num_Warnings + 1
          t_final = Zero
       Else
-         Error = n_Golden(ax,bx,cx,Error_for_t,Delta_Threshold,
+         Error = x_Golden(ax,bx,cx,Error_for_t,Delta_Threshold,
      &           Error_Threshold,t_final,rMP,xrMP,xxrMP,
      &           xnrMP,EC,A,R_ij,C_o_C,ij,l,nij,lMax,nElem,nAtoms,nPert,
      &           Scratch_New,Scratch_Org,iPrint_Errors)

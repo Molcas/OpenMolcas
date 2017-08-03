@@ -22,10 +22,11 @@
       Real*8, Parameter :: Thr = 1.0D-20, Lim = 100.0D0
 c External function f and its arguments
       Real*8, External :: f
+      Integer :: nij,lMax,nElem
       Real*8 :: rMP(nij,0:nElem),xrMP(nij,nElem),xxrMP(nij,nElem),
      &          xnrMP(nij,nElem),EC(3,nij),AC(3,nij),R_ij(3),C_o_C(3),
      &          Scratch_New(nij*(2+lMax+1)),Scratch_Org(nij*(2+lMax+1))
-      Integer :: ij,l,nij,lMax,nElem,nAtoms,nPert,iPrint_Errors
+      Integer :: ij,l,nAtoms,nPert,iPrint_Errors
 
 #include "real.fh"
       fa = f(ax,
