@@ -33,7 +33,8 @@ C ic=iCntDf(iDf), Which center is being differentiated
 C The arrays are dynamic, and created here. Pointers and other data
 C is kept in common /DIFF/, see file 'diff.fh'.
 
-      Call IniSew(Info,.false.,0)
+      nDiff=0
+      Call IniSew(Info,.false.,nDiff)
 
 C Sizes:
       nUqCnt=0

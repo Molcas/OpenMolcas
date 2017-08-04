@@ -150,6 +150,9 @@ endif ()
 if (DMRG)
         cmake_minimum_required (VERSION 3.0.2)
 endif ()
+if (EFPLIB)
+        cmake_minimum_required (VERSION 3.0.2)
+endif ()
 
 add_definitions (-D_MOLCAS_)
 
@@ -1699,12 +1702,39 @@ endif ()
 if (EFPLIB)
         message ("Configuring EFP support:")
         set (proj ${extprojsdir}/efp)
-        set (proj_bin ${PROJECT_BINARY_DIR}/External/efp)
+        set (projname efplib)
         if (EXISTS ${proj}/CMakeLists.txt)
-                add_subdirectory (${proj} ${proj_bin} EXCLUDE_FROM_ALL)
                 if (ADDRMODE EQUAL 64)
-                        target_compile_definitions(efp PRIVATE "LIBEFP_FORTRAN_INT64")
+                        set(LIBEFP_FORTRAN_INT64 1)
+                else ()
+                        set(LIBEFP_FORTRAN_INT64 0)
                 endif ()
+
+                include(ExternalProject)
+                # Enabling source changes to keep ExternalProject happy
+                set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
+                ExternalProject_Add (${projname}
+                                     PREFIX ${PROJECT_BINARY_DIR}/External
+                                     SOURCE_DIR ${proj}
+                                     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${PROJECT_BINARY_DIR}
+                                                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+                                                -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+                                                -DCMAKE_INSTALL_LIBDIR=lib
+                                                -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+                                                -DENABLE_OPENMP=OFF  # OMP already in CMAKE_C_FLAGS
+                                                -DFRAGLIB_UNDERSCORE_L=ON
+                                                -DFRAGLIB_DEEP=ON
+                                                -DLAPACK_LIBRARIES=${LINALG_LIBRARIES}
+                                     CMAKE_CACHE_ARGS -DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS}
+                                                      -DLIBEFP_FORTRAN_INT64:BOOL=${LIBEFP_FORTRAN_INT64}
+                                     INSTALL_COMMAND ""
+                )
+                set (CMAKE_DISABLE_SOURCE_CHANGES ON)
+
+                ExternalProject_Get_Property (efplib BINARY_DIR)
+                set (proj_bin ${BINARY_DIR})
+                link_directories(${proj_bin})
+                list (APPEND EXTERNAL_PROJECTS ${projname})
 
                 set (EFP_LIBRARIES efp)
 
@@ -2368,6 +2398,9 @@ foreach (prog ${progs})
 
         target_link_libraries (${prog}.exe molcas)
         target_link_libraries (${prog}.exe ${EXTERNAL_LIBRARIES})
+        if (EXTERNAL_PROJECTS)
+           add_dependencies (${prog}.exe ${EXTERNAL_PROJECTS})
+        endif () 
 
         if (CUBLAS)
                 set_target_properties (${prog}.exe PROPERTIES LINKER_LANGUAGE "CXX")
