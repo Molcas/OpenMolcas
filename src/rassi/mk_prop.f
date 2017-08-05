@@ -49,7 +49,8 @@
 *    &                     DDOT_(NDENS,1.0D0,0,DENS(1,3),1)
 *     Write (*,*) 'DENS4=',DDOT_(NDENS,DENS(1,4),1,DENS(1,4),1),
 *    &                     DDOT_(NDENS,1.0D0,0,DENS(1,4),1)
-      If (LABEL(1:4).eq.'TMOS') Then
+      If (LABEL(1:5).eq.'TMOS0' .OR.
+     &    LABEL(1:5).eq.'TMOS2') Then
          IC=1
       Else
          IC=ICOMP(IPROP)
@@ -105,7 +106,7 @@ C PICK UP THE NUCLEAR CONTRIBUTION FROM INTEGRAL BUFFER
             IINT=IINT+NB12
 210      CONTINUE
 220   CONTINUE
-*     Write (*,*) 'PSUM=',PSUM
+C     Write (*,*) 'PSUM=',PSUM,LABEL,IC
 C IN THE CASE OF MULTIPOLES, CHANGE SIGN TO ACCOUNT FOR THE NEGATIVE
 C ELECTRONIC CHARGE AS COMPARED TO THE NUCLEAR CONTRIBUTION.
       IF(LABEL(1:5).EQ.'MLTPL') PSUM=-PSUM

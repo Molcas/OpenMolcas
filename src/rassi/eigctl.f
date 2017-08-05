@@ -494,15 +494,15 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
       END IF
 !
 !     Initialize arrays for indentifying problematic transitions
-!     These stores all dipole oscillator strengths in 
+!     These stores all dipole oscillator strengths in
 !     length and velocity gauge for a later comparison.
 !
       CALL GETMEM('DL   ','ALLO','REAL',LDL,NSTATE**2)
       CALL GETMEM('DV   ','ALLO','REAL',LDV,NSTATE**2)
       CALL DCOPY_(NSTATE**2,0.0D0,0,WORK(LDL),1)
       CALL DCOPY_(NSTATE**2,0.0D0,0,WORK(LDV),1)
-      I_HAVE_DL = 0                                               
-      I_HAVE_DV = 0                                               
+      I_HAVE_DL = 0
+      I_HAVE_DV = 0
 !
       IF(IPGLOB.ge.TERSE) THEN
 
@@ -796,8 +796,8 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
 !
          WRITE(6,*) "--------------------------------------------------"
          WRITE(6,*)
-         WRITE(6,*) "A comparison between the dipole oscillator "// 
-     &              "strengths in " 
+         WRITE(6,*) "A comparison between the dipole oscillator "//
+     &              "strengths in "
          WRITE(6,*) "length and velocity gauge "//
      &              "will be performed"
          WRITE(6,*)
@@ -830,7 +830,7 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
                    WRITE(6,*) " From  To  Percent difference "//
      &                        " Osc. strength (lenght) "//
      &                        " Osc. strength (velocity) "
-                   WRITE(6,*) 
+                   WRITE(6,*)
                    WRITE(6,*) " ---------------------------------------"
                    WRITE(6,*)
                  END IF
@@ -1864,7 +1864,8 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
 *
 *     Initiate the Seward environment
 *
-      Call IniSew(Info,.FALSE.,0)
+      nDiff=0
+      Call IniSew(Info,.FALSE.,nDiff)
 *
 *     Generate the quadrature points.
 *
@@ -1882,7 +1883,7 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
 *
       IF(DO_KVEC) THEN
 *
-*     Specific directions specified by user 
+*     Specific directions specified by user
 *     The arrays from the Lebedev procedure is still used
 *
         NQUAD = NKVEC
@@ -2332,7 +2333,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
      &          WORK(LWEIGH+(IQUAD-1)+1*NQUAD)/ (4.0D0*PI),
      &          WORK(LWEIGH+(IQUAD-1)+2*NQUAD)            ,
      &          WORK(LWEIGH+(IQUAD-1)+3*NQUAD)            ,
-     &          WORK(LWEIGH+(IQUAD-1)+4*NQUAD)            
+     &          WORK(LWEIGH+(IQUAD-1)+4*NQUAD)
               END DO
               WRITE(6,*)
               WRITE(6,*)

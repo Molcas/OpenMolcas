@@ -424,7 +424,7 @@ C printing threshold
       END IF
 !
 !     Initialize arrays for indentifying problematic transitions
-!     These stores all dipole oscillator strengths in 
+!     These stores all dipole oscillator strengths in
 !     length and velocity gauge for a later comparison.
 !
       CALL GETMEM('DL   ','ALLO','REAL',LDL,NSS**2)
@@ -1918,7 +1918,8 @@ C printing threshold
 *
 *     Initiate the Seward environment
 *
-      Call IniSew(Info,.FALSE.,0)
+      nDiff=0
+      Call IniSew(Info,.FALSE.,nDiff)
 *
 *     Generate the quadrature points.
 *
@@ -1936,7 +1937,7 @@ C printing threshold
 *
       IF(DO_KVEC) THEN
 *
-*     Specific directions specified by user 
+*     Specific directions specified by user
 *     The arrays from the Lebedev procedure is still used
 *
         NQUAD = NKVEC

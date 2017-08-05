@@ -10,6 +10,8 @@
 ************************************************************************
       Subroutine EMFMem(nHer,MemVe,la,lb,lr)
 *
+      nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+*
       nHer=(la+lb+lr+2)/2
       MemVe = 3*nHer*(la+1+lr) * 2
      &      + 3*nHer*(lb+1+lr) * 2
@@ -17,6 +19,10 @@
       If (lr.eq.1) Then
          MemVe = MemVe
      &         + 6*(la+1)*(lb+1) * 2 + 2
+     &         + nElem(la)*nElem(lb)*nElem(lr)*12
+      Else
+         MemVe = MemVe
+     &         + nElem(la)*nElem(lb)*nElem(lr)*2
       End If
 *
       Return
