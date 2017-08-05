@@ -13,12 +13,6 @@
 ************************************************************************
       Subroutine xS12gh(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
      &                Coeff,iSpin,F_xc,T_X,gh_switch)
-
-!      Subroutine xS12g(mGrid,Rho,nRho,P2_ontop,
-!     &                nP2_ontop,iSpin,F_xc,
-!     &                dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,
-!     &                T_X)
-
 ************************************************************************
 *                                                                      *
 * Object S12g from Marcel Swart
@@ -36,18 +30,9 @@
 #include "nq_index.fh"
       Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
       integer gh_switch
-!#include "real.fh"
-!#include "nq_index.fh"
-!#include "WrkSpc.fh"
-!#include "print.fh"
-!      Real*8 Rho(nRho,mGrid), dF_dRho(ndF_dRho,mGrid),
-!     &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
-!     &       dF_dP2ontop(ndF_dP2ontop,mGrid)
-
 
 * IDORD=Order of derivatives to request from XPBE:
       idord=1
-*
       Rho_Min=T_X*1.0D-2
 *
       if (ispin.eq.1) then
@@ -127,6 +112,7 @@
 C      parameter(bcoef=0.0042d0)
 C     parameter(xldacff=0.930525736349100025D0)
       integer gh_switch
+      real*8 gamma,rho,gdenom, hdenom
 
       parameter(b=1.0d0/137.0d0)
 
@@ -135,8 +121,7 @@ C     parameter(xldacff=0.930525736349100025D0)
 * GGA non-hybrid parameter set
         rA = 1.03842032d0
         rK = 0.757d0
-        rB = 1d0 + rK - rA
-        rA = rA
+        rB = 1.0d0 + rK - rA
         rC = 0.00403198d0
         rD = 0.00104596d0
         rE = 0.00594635d0
@@ -144,22 +129,21 @@ C     parameter(xldacff=0.930525736349100025D0)
 * GGA hybrid parameter set
         rA = 1.02543951d0
         rK = 0.757d0
-        rB = 1d0 + rK - rA
-        rA = rA - 0.25d0
+        rB = 1.0d0 + rK - rA
         rC = 0.00761554d0
         rD = 0.00211063d0
         rE = 0.00604672d0
       endif
 
-
-      C = -(1.5d0)*(0.75d0/acos(-1d0))**(1d0/3d0)
+      C = -(1.5d0)*(0.75d0/acos(-1.0d0))**(third)
+*     C = -0.9305257277176876
 
 
 C      rho = min(rho_s , 1.0D-16 )
          rho=rho_s
 C      gamma = min(gamma_s, 1.0D-16 )
       gamma=gamma_s
-      rho13 = rho**(1.d0/3.d0)
+      rho13 = rho**third
       rho43 = rho**four3
       rhoinv=1.0d0/rho
 * lda part:
@@ -169,27 +153,24 @@ C     xlda=-xldacff*rho43
       x2 = x*x
       dxdr = -4.d0/3.d0*x/rho
 
+*      hgi = 0.50d0/gamma
 
-      hgi = 0.50d0 / gamma
-
-      gdenom = 1d0 + rC*x2 + rD*x2*x2
-      hdenom = 1d0 + rE*x2
-      ums = 1d0 - 1d0 / gdenom
-      vms = 1d0 - 1d0 / hdenom
-      g = C*rB*ums*vms
+      gdenom = 1.0d0 + rC*x2 + rD*x2*x2
+      hdenom = 1.0d0 + rE*x2
+      ums = 1.0d0-(1.0d0/gdenom)
+      vms = 1.0d0-(1.0d0/hdenom)
+      g = rB*ums*vms
 c
-      dudx = (2d0*rC*x + 4d0*rD*x2*x)/(gdenom**2)
-      dvdx = 2d0*rE*x/(hdenom**2)
+      dudx = (2.0d0*rC*x + 4.0d0*rD*x2*x)/(gdenom**2.0d0)
+      dvdx = 2.0d0*rE*x/(hdenom**2.0d0)
       dg = C*rB*(dudx*vms + ums*dvdx)
 
 
-
-      B88 =  rA*rho43*C
-      B88 =  B88 + rho43*g
+      B88 =  C*rho43*(rA + g)
 
       if(idord.lt.1) goto 99
 
-      dB88Dr = rA*(4d0/3d0)*rho13*C + (4d0/3d0)*rho13*(g-x*dg)
+      dB88Dr = rA*(4d0/3d0)*rho13*C + (4d0/3d0)*rho13*(C*g-x*dg)
 
       t = dg / dsqrt(gamma)
       dB88Dg = t * 0.5d0

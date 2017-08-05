@@ -57,8 +57,7 @@ C     &            dF_dRho,ndF_dRho,Coeff,T_X)
 *
 *---- S12h has its LDA part included!
 *
-      Coeff=1.0d0
-
+      Coeff=0.75d0
       gh_switch = 2
       Call xS12gh(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
      &          Coeff,iSpin,F_xc,T_X,gh_switch)
