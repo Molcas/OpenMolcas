@@ -188,6 +188,11 @@ c
 
 
   99  continue
-
       return
+c Avoid unused argument warnings
+      If (.False.) Then
+         Call Unused_real_array(d2B88dr2)
+         Call Unused_real_array(d2B88drdg)
+         Call Unused_real_array(d2B88dg2)
+      End If
       end
