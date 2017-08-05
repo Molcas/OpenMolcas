@@ -137,11 +137,7 @@
             Write (Lu,'(A)') '  Optimization method: C2-DIIS.'
 
          Else If (iAnd(iOptC,8).eq.8) Then
-            If (iAnd(iOptC,2**14).eq.2**14) Then
-               Write (Lu,'(A)') '  Optimization method: IMLS.'
-            Else
-               Write (Lu,'(A)') '  Optimization method: RS-RFO.'
-            End If
+            Write (Lu,'(A)') '  Optimization method: RS-RFO.'
          Else
             Call WarningMessage(2,' WrInp: Wrong iOptC setting!')
             Write (Lu,*) ' iOptC=',iOptC

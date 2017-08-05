@@ -1759,7 +1759,8 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
 *
 *     Initiate the Seward environment
 *
-      Call IniSew(Info,.FALSE.,0)
+      nDiff=0
+      Call IniSew(Info,.FALSE.,nDiff)
 *
 *     Generate the quadrature points.
 *

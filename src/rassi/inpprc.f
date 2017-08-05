@@ -326,6 +326,7 @@ C Add some property names by defaults, if no input:
 C If no input at all, use this selection:
             DO IPRP=1,NPRPLST
                IF (PRPLST(IPRP).eq.'MLTPL  1' .or.
+     &             PRPLST(IPRP).eq.'MLTPL  2'.or.
      &             PRPLST(IPRP)(1:4).eq.'TMOS'.or.
      &             PRPLST(IPRP).eq.'VELOCITY' .or.
      &             PRPLST(IPRP)(1:4).eq.'EMFR') THEN
