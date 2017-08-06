@@ -10,6 +10,7 @@
 *                                                                      *
 * Copyright (C) 2001, Roland Lindh                                     *
 *               2010, Grigory A. Shamov                                *
+*               2017, G. Li Manni & A. Cohen                           *
 ************************************************************************
       Subroutine SSBSW(mGrid,Rho,nRho,P2_ontop,
      &                nP2_ontop,iSpin,F_xc,
@@ -27,9 +28,8 @@
 *              GetMem                                                  *
 *              QExit                                                   *
 *                                                                      *
-*      Author:Roland Lindh, Department of Chemical Physics, University *
-*             of Lund, SWEDEN. March 2001                              *
-*             Grigory A Shamov, U of Mantoba, 2010                     *
+*      Author: G. Li Manni & A. Cohen, Max Planck Institute Stuttgart  *
+*              Summer 2017, edited in Cambridge (UK) & Palermo (Sicily)*
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -46,22 +46,12 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*---- Dirac Exchange
-*
-C      Coeff=1.079966d0
-C
-C      Call Diracx(mGrid,Rho,nRho,iSpin,F_xc,
-C     &            dF_dRho,ndF_dRho,Coeff,T_X)
-*
 *---- SSBSW Exchange -- unlike OPTX, SSBSW has its LDA part included !
-*
       Coeff=1.0d0
-
       Call xSSBSW(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
      &          Coeff,iSpin,F_xc,T_X)
 *
 *---- PBE Correlation
-*
       Coeff=1.0d0
       Call CPBE(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
      &         Coeff,iSpin,F_xc,T_X)

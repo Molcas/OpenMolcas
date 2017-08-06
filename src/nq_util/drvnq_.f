@@ -83,6 +83,7 @@
      &           KSDFA(1:6).eq.'TLSDA5'  .or.
      &           KSDFA(1:5).eq.'TBLYP'   .or.
      &           KSDFA(1:6).eq.'TSSBSW'  .or.
+     &           KSDFA(1:5).eq.'TSSBD'   .or.
      &           KSDFA(1:4).eq.'TPBE'    .or.
      &           KSDFA(1:5).eq.'FTPBE'   .or.
      &           KSDFA(1:7).eq.'TREVPBE' .or.

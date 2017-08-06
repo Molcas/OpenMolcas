@@ -16,7 +16,7 @@
      &         XAlpha, LSDA5, B3LYP5, B2PLYP, TLYP, NLYP,
      &         NucAtt, NEWF, NEWF1, OLYP, O3LYP, OPBE,
      &         PBE, PBE0, PBEsol, M06L, M06, M062X, HFO,
-     &         M06HF, Checker, SSBSW, HFG, GLYP, GPBE,
+     &         M06HF, Checker, SSBSW, SSBD, HFG, GLYP, GPBE,
      &         HFB86, B86LYP, B86PBE, BWIG, KT3,
      &         O2PLYP,  KT2,  RGE2, REVPBE,
      &         PTCA,S12G, S12H
@@ -695,6 +695,24 @@ c         write(6,*) 'Func in drvdft :', Func
      &              Do_Grad,
      &              Grad,nGrad,
      &              Do_MO,Do_TwoEl,DFTFOCK)
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     SSBD                                                             *
+*                                                                      *
+      Else If (KSDFT.eq.'SSBD'
+     &     .or.KSDFT.eq.'TSSBD') Then !GLM
+         ExFac=Get_ExFac(KSDFT)
+         Functional_type=GGA_type
+         nFckDim = nD
+         Call Allocate_Work(ipF_DFT,nh1*nFckDim)
+         Call FZero(Work(ipF_DFT),nh1*nFckDim)
+         Call DrvNQ(SSBD ,Work(ipF_DFT),nFckDim,Func,
+     &              Work(ip_D_DS),nh1,nD,
+     &              Do_Grad,
+     &              Grad,nGrad,
+     &              Do_MO,Do_TwoEl,DFTFOCK)
+*                                                                      *
 *                                                                      *
 ************************************************************************
 *                                                                      *
