@@ -11,7 +11,7 @@
 * Copyright (C) 2006, Per Ake Malmqvist                                *
 *               2010, Grigory A. Shamov                                *
 ************************************************************************
-      Subroutine xSSB(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Subroutine xSSBSW(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
      &                Coeff,iSpin,F_xc,T_X)
 ************************************************************************
 *                                                                      *
@@ -52,7 +52,7 @@
          grdrhoa_z=rho(ipdRz,iGrid)
          sigmaaa=grdrhoa_x**2+grdrhoa_y**2+grdrhoa_z**2
 
-         call xSSB_(idord,rhoa,sigmaaa,Fa,dFdrhoa,dFdgammaaa,
+         call xSSBSW_(idord,rhoa,sigmaaa,Fa,dFdrhoa,dFdgammaaa,
      &          d2Fdra2,d2Fdradgaa,d2Fdgaa2)
          F_xc(iGrid)=F_xc(iGrid)+Coeff*(2.0D0*Fa)
          dF_dRho(ipR,iGrid)=dF_dRho(ipR,iGrid)+Coeff*dFdrhoa
@@ -74,14 +74,14 @@
          grdrhoa_y=rho(ipdRya,iGrid)
          grdrhoa_z=rho(ipdRza,iGrid)
          sigmaaa=grdrhoa_x**2+grdrhoa_y**2+grdrhoa_z**2
-         call xSSB_(idord,rhoa,sigmaaa,Fa,dFdrhoa,dFdgammaaa,
+         call xSSBSW_(idord,rhoa,sigmaaa,Fa,dFdrhoa,dFdgammaaa,
      &          d2Fdra2,d2Fdradgaa,d2Fdgaa2)
 
          grdrhob_x=rho(ipdRxb,iGrid)
          grdrhob_y=rho(ipdRyb,iGrid)
          grdrhob_z=rho(ipdRzb,iGrid)
          sigmabb=grdrhob_x**2+grdrhob_y**2+grdrhob_z**2
-         call xSSB_(idord,rhob,sigmabb,Fb,dFdrhob,dFdgammabb,
+         call xSSBSW_(idord,rhob,sigmabb,Fb,dFdrhob,dFdgammabb,
      &          d2Fdrb2,d2Fdrbdgbb,d2Fdgbb2)
 
          F_xc(iGrid)=F_xc(iGrid)+Coeff*(Fa+Fb)
@@ -99,7 +99,7 @@
       Return
       End
 
-      subroutine XSSB_(idord,rho_s,gamma_s,F,dFdr,dFdg,
+      subroutine XSSBSW_(idord,rho_s,gamma_s,F,dFdr,dFdg,
      & d2Fdr2,  d2Fdrdg, d2Fdg2)
       implicit none
 

@@ -107,7 +107,7 @@
       l_casdft = KSDFA(1:5).eq.'TLSDA'   .or.
      &           KSDFA(1:6).eq.'TLSDA5'  .or.
      &           KSDFA(1:5).eq.'TBLYP'   .or.
-     &           KSDFA(1:4).eq.'TSSB'    .or.
+     &           KSDFA(1:6).eq.'TSSBSW'  .or.
      &           KSDFA(1:4).eq.'TPBE'    .or.
      &           KSDFA(1:5).eq.'FTPBE'   .or.
      &           KSDFA(1:7).eq.'TREVPBE' .or.
@@ -696,12 +696,12 @@ C    &                         list_bas,Index,nIndex)
      &                       list_bas,Index,nIndex)
 
 ************************************************************************
-* TBLYP,TPBE,TREVPBE,TSSB                                              *
+* TBLYP,TPBE,TREVPBE,TSSBSW                                            *
 ************************************************************************
 
       if(KSDFA(1:5).eq.'TBLYP'.or. !GLM
      &   KSDFA(1:4).eq.'TPBE'.or.
-     &   KSDFA(1:4).eq.'TSSB'.or.
+     &   KSDFA(1:6).eq.'TSSBSW'.or.
      &   KSDFA(1:7).eq.'TREVPBE') then
 *  iSwitch = 0  total density
 *  iSwitch = 1  alpha density

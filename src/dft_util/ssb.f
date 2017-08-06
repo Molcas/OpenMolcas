@@ -11,7 +11,7 @@
 * Copyright (C) 2001, Roland Lindh                                     *
 *               2010, Grigory A. Shamov                                *
 ************************************************************************
-      Subroutine SSB(mGrid,Rho,nRho,P2_ontop,
+      Subroutine SSBSW(mGrid,Rho,nRho,P2_ontop,
      &                nP2_ontop,iSpin,F_xc,
      &                dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,
      &                T_X)
@@ -42,7 +42,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QEnter('SSB')
+      Call QEnter('SSBSW')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -53,11 +53,11 @@ C
 C      Call Diracx(mGrid,Rho,nRho,iSpin,F_xc,
 C     &            dF_dRho,ndF_dRho,Coeff,T_X)
 *
-*---- SSB Exchange -- unlike OPTX, SSB has its LDA part included !
+*---- SSBSW Exchange -- unlike OPTX, SSBSW has its LDA part included !
 *
       Coeff=1.0d0
 
-      Call xSSB(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Call xSSBSW(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
      &          Coeff,iSpin,F_xc,T_X)
 *
 *---- PBE Correlation
@@ -68,7 +68,7 @@ C     &            dF_dRho,ndF_dRho,Coeff,T_X)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('SSB')
+      Call QExit('SSBSW')
       Return
 c Avoid unused argument warnings
       If (.False.) Then
