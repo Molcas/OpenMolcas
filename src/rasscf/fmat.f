@@ -146,6 +146,7 @@ C Local print level (if any)
      &            KSDFT(1:5).eq.'TBLYP'   .or.
      &            KSDFT(1:6).eq.'TSSBSW'  .or.
      &            KSDFT(1:5).eq.'TSSBD'   .or.
+     &            KSDFT(1:5).eq.'TS12G'   .or.
      &            KSDFT(1:4).eq.'TPBE'    .or.
      &            KSDFT(1:5).eq.'FTPBE'   .or.
      &            KSDFT(1:7).eq.'TREVPBE' .or.

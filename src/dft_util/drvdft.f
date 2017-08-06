@@ -734,7 +734,8 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     S12G                                                             *
 *                                                                      *
-      Else If (KSDFT.eq.'S12G') Then
+      Else If (KSDFT.eq.'S12G'
+     &     .or.KSDFT.eq.'TS12G') Then !GLM
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          nFckDim = nD
