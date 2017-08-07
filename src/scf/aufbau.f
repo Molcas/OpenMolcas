@@ -65,10 +65,12 @@
 *
       Call mma_allocate(Map,nEOr,nD,Label='Map')
       Call mma_allocate(Irp,nEOr,nD,Label='Irp')
+               write(6,*) 'scf aufbau 1'
 *----------------------------------------------------------------------*
 * Initialize convergence detection                                     *
 *----------------------------------------------------------------------*
       If(kOccAuf.eq.-1) Then
+               write(6,*) 'scf aufbau 2'
          Do i=1,MxSym
             nOccAuf(i,1,1)=-1
             nOccAuf(i,2,1)=-1
@@ -83,8 +85,13 @@ c for RHF we will not use nOccAuf_ab
 *
       iOrbAS=1
       Do iSym = 1, nSym
+         write(6,*) 'iSym', iSym
+         write(6,*) 'nOrb(iSym)',nOrb(iSym)
+         write(6,*) 'nFro(iSym)',nFro(iSym)
          Do iOrb = 1, nOrb(iSym)-nFro(iSym)
             Do iD = 1, nD
+               write(6,*) 'iSym', iSym
+               write(6,*) 'iOrbAS', iOrbAS
                Irp(iOrbAS,iD)=iSym
                Map(iOrbAS,iD)=iOrbAS
             End Do
@@ -92,10 +99,12 @@ c for RHF we will not use nOccAuf_ab
          End Do
       End Do
       nOrbAS=iOrbAS-1
+      write(6,*) 'nOrbAS', nOrbAS
 *
 *---- Now sort map with respect to orbital energies (bubblesort)
 *
       Do iOrbAS = 1, nOrbAS-1
+               write(6,*) 'scf aufbau 3'
          Do jOrbAS = nOrbAS-1, iOrbAS, -1
             Do iD = 1, nD
                If (EOr(Map(  jOrbAS,iD),iD).gt.
@@ -104,20 +113,31 @@ c for RHF we will not use nOccAuf_ab
      &                            Map(1+jOrbAS,iD))
             End Do
          End Do
+               write(6,*) 'scf aufbau 4'
       End Do
 *
 *---- and fill up the orbitals...
 *
       Call ICopy(nSym,0,0,nOcc,1)
+               write(6,*) 'scf aufbau 5'
       call dcopy_(nOccup*nD,Zero,0,Occup,1)
+               write(6,*) 'scf aufbau 6'
 *
       If (Teee) then
 *
+               write(6,*) 'scf aufbau 7'
          UHF_occ=3.0d0-UHF_Size
          mD = 2/nD
+               write(6,*) 'mD', mD
+               nAuf(1) = 1
+               nAuf(2) = 0
          Do iD = 1, nD
+               write(6,*) 'scf aufbau 8, nOrbAS', nOrbAS
+               write(6,*) 'mD', mD
+               write(6,*) 'nAuf(iD)', nAuf(iD)
             eferm=FermiPop(EOr(1,iD),Occup(1,iD),nOrbAS,RTemp,
      &                     nAuf(iD)*mD,UHF_occ)
+#define _DEBUG_
 #ifdef _DEBUG_
             Write (6,'(A,G20.10)')'         E(Fermi)=',eferm
 #endif
@@ -233,6 +253,7 @@ c for RHF we will not use nOccAuf_ab
 * Initialize                                                           *
 *----------------------------------------------------------------------*
       ef=0.0d0
+      write(6,*) 'T =', T
       If (T.le.0.0d0) Then
          beta=1.0D99
       Else
@@ -241,7 +262,7 @@ c for RHF we will not use nOccAuf_ab
 *----------------------------------------------------------------------*
 * Scan for Fermi level                                                 *
 *----------------------------------------------------------------------*
-*define _DEBUG_
+#define _DEBUG_
 #ifdef _DEBUG_
       Write(6,'(a)') 'Scan for Fermi energy level'
       Write(6,'(a)') '       ef             y       '
@@ -249,12 +270,18 @@ c for RHF we will not use nOccAuf_ab
 #endif
 
       f=-nEle
+      write(6,*) 'nele =', nele
+      write(6,*) 'beta =', beta
+      write(6,*) 'uhf_occ =', uhf_occ
       f_old=f
+      write(6,*) 'n', n
       Do i=1,n
-*        Write (6,'(A,G20.10)') 'e(i)=',e(i)
+         Write (6,'(A,G20.10)') 'e(i)=',e(i)
+         write(6,*) 'beta =', beta
          z=beta*(e(i)-ef)
          z=Min(z,30.d0)
          f=f+UHF_occ/(1.0d0+exp(z))
+         write(6,*) 'f=f+UHF_occ/(1.0d0+exp(z)) =', f
       End Do
       If(f.gt.0.0d0) Then
          Step=-1.0d0
@@ -272,16 +299,17 @@ c         f=-nEle
 cvv overoptimization with Intel compiler
          i=1
 300      continue
-c         Do i=1,n
+c        Do i=1,n
+            Write(6,'(2G20.10)') 'n',n
             z=beta*(e(i)-ef)
             z=Min(z,30.d0)
             ff=ff+1/(1.0d0+exp(z))
             i=i+1
             if(i.le.n) goto 300
-c         End Do
+c        End Do
          f=-nEle+ff*UHF_occ
 #ifdef _DEBUG_
-         Write(6,'(2G20.10)') ef,f
+         Write(6,'(2G20.10)') "ef, e", ef,f
 #endif
          If(f*f_old.gt.0.0d0) GoTo 100
 101   Continue
