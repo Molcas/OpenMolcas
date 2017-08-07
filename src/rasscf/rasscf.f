@@ -125,6 +125,7 @@
 #ifndef _DMRG_
       logical :: doDMRG = .false.
 #endif
+      logical doDMET
 
 * Start the traceback utilities
 *
@@ -447,6 +448,12 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
         end if
         Write(LF,*)
        END IF
+       If(doDMET) then
+           Write(LF,'(45x,a//,36x,a/,36x,a/,36x,a//,45x,a//,36x,a/,'//
+     &               '36x,a/,36x,a//,36x,a/,36x,a,a/,36x,a//)')
+     &        'Welcome DMET'
+      Endif
+
 #ifdef _DMRG_
        if(doDMRG)then
           Write(LF,'(45x,a//,36x,a/,36x,a/,36x,a//,45x,a//,36x,a/,'//
@@ -543,6 +550,7 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
       ITER   = 0
       IFINAL = 0
       TMXTOT = 0.0D0
+      write(6,*) 'RASSCF_VB'
       Call GetMem('FOcc','ALLO','REAL',ipFocc,nTot1)
 *                                                                      *
 ************************************************************************
@@ -564,7 +572,9 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
 
       ITER=ITER+1
       Write(STLNE2,'(A12,I3)')' Iteration ',ITER
+      write(6,*) 'RASSCF_VB 1'
       Call StatusLine('RASSCF:',STLNE2)
+      write(6,*) 'RASSCF_VB 2'
       Call Timing(Swatch,Swatch,Certina_1,Swatch)
       If ( ITER.EQ.1 ) THEN
 ************************************************************************
@@ -572,6 +582,7 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
 ************************************************************************
 *
 * Print header to CI_Iteration file.
+      write(6,*) 'RASSCF_VB 3'
         Write(IterFile,'(20A4)') ('****',i=1,20)
         Write(IterFile,'(15X,A)') 'RASSCF iteration: 1A'
 
@@ -579,7 +590,9 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
         lTemp = lRf
 
 * Compute D1I from CMO coefficients
+      write(6,*) 'RASSCF_VB 4'
         Call Get_D1I_RASSCF(Work(LCMO),Work(lD1I))
+      write(6,*) 'RASSCF_VB 5'
         If ( IPRLEV.ge.DEBUG ) then
           Write(LF,*)
           Write(LF,*) ' D1I in AO basis in RASSCF'
@@ -587,8 +600,10 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
           Write(LF,*)
           iOff=1
           Do iSym = 1,nSym
+      write(6,*) 'RASSCF_VB 6'
             iBas = nBas(iSym)
              call wrtmat(Work(lD1I+ioff-1),iBas,iBas, iBas, iBas)
+      write(6,*) 'RASSCF_VB 7'
             iOff = iOff + iBas*iBas
           End Do
         End If

@@ -49,20 +49,26 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
+#define _DEBUG_
 #ifdef _DEBUG_
       Call qEnter('Sort')
 #endif
 *
+      write(6,*) 'Sort 0'
       Do 100 i = 1,n - 1
+      write(6,*) 'Sort 1'
          k = i
          Do 110 j = i + 1, n
             If (EVal(j).lt.EVal(k)) k = j
+            write(6,*) 'Sort 2'
 110      Continue
          If (k.ne.i) Then
+            write(6,*) 'Sort 3'
             Swap    = EVal(k)
             EVal(k) = EVal(i)
             EVal(i) = Swap
             Do 120 l = 1, nB
+            write(6,*) 'Sort 4'
                Swap      =   EVec(l,k)
                EVec(L,K) = - EVec(l,i)
                EVec(L,I) =   Swap
