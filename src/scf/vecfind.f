@@ -187,8 +187,9 @@
 *----------------------------------------------------------------------*
 * What are the defaults for the different cases?                       *
 *----------------------------------------------------------------------*
-      Call Get_dScalar('Total Nuclear Charge',Tot_Nuc_Charge)
-      Tot_El_Charge=Tot_Charge-Tot_Nuc_Charge
+*      Call Get_dScalar('Total Nuclear Charge',Tot_Nuc_Charge)
+*      Tot_El_Charge=Tot_Charge-Tot_Nuc_Charge
+      Tot_Nuc_Charge = 1.000d0
       If(InVec.eq.0) Then
 *
 * We will use core diagonalization

@@ -264,8 +264,7 @@
 #define _DMET_
 #ifdef _DMET_
 *      Call Get_dScalar('Total Nuclear Charge',Tot_Nuc_Charge)
-      write(6,*) "Tot_Nuc_Charge"
-      Tot_Nuc_Charge=1.000d0
+      Tot_Nuc_Charge = 1.000d0
 #endif
       Tot_El_Charge=Zero
       Tot_Ml_Charge=Zero
