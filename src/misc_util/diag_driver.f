@@ -136,13 +136,31 @@ CC AOM 04.08        Also added liErr for the same reason
          Call Jacob(Aux,EigVec,nDim,lDimVec)
          Call vEig(nDim,Aux,EigVal)
       End If
+         Call Triprt('EigVec',
+     &                    '(20F10.4)',EigVec,nDim)
+         Call Triprt('EigVal',
+     &                    '(20F10.4)',EigVal,nDim)
+
 *
 * Sort the eigenvalues and eigenvectors?
 *
+*define _DMET_
+#ifdef _DMET_
+         isort = 1
+#endif
       If (iSort .eq. 1) Then
-         Call JacOrd2(EigVal, EigVec, nDim, lDimVec)
+          write(6,*) 'sort in diag_driver 0'
+         Call JacOrd2(EigVal,EigVec,nDim,lDimVec)
       Else If (iSort .eq. -1) Then
-         Call Sort(EigVal, EigVec, nDim, lDimVec)
+          write(6,*) 'sort in diag_driver 1'
+         Call JacOrd2(EigVal,EigVec,nDim,lDimVec)
+                write(6,*) 'afterjacob 3.4'
+                Call Triprt('EigVec',
+     &                    '(20F10.4)',EigVec,nDim)
+                Call Triprt('EigVal',
+     &                    '(20F10.4)',EigVal,nDim)
+*        Call Sort(EigVal,EigVec,nDim,lDimVec)
+          write(6,*) 'sort in diag_driver 2'
       End If
       Return
       End
