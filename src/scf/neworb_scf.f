@@ -84,15 +84,11 @@
 #endif
 *
       nSdg=1
-      write(6,*) 'neworb 0'
       If (Do_SpinAV) nSdg=2
-      write(6,*) 'neworb 1'
       If (MxConstr.gt.0) Call mma_allocate(eConstr,nSdg*MxConstr,
      &                                     Label='eConstr')
-      write(6,*) 'neworb 2'
 *
       If(.not.AllowFlip) Then
-      write(6,*) 'neworb 3'
          If(.not.DoHLgap) Then
             DoHLgap=.true.
             HLgap=FlipThr
@@ -100,29 +96,20 @@
       End If
 *---- Allocate memory for orbital homeing
       If (.Not.FckAuf) Then
-        write(6,*) 'neworb 4'
          Call mma_allocate(Scratch,MaxBas**2,Label='Scratch')
-        write(6,*) 'neworb 5'
          Call mma_allocate(Temp,MaxBas**2,Label='TempX')
-        write(6,*) 'neworb 6'
       End If
 *---- Allocate memory for modified Fock matrix
       Call mma_allocate(FckM,nBT,Label='FckM')
-        write(6,*) 'neworb 7'
 *---- Allocate memory for squared Fock matrix
       Call mma_allocate(FckS,MaxBas**2,Label='FckSX')
-        write(6,*) 'neworb 8'
 *---- Allocate memory for half-transformed Fock matrix
       Call mma_allocate(HlfF,MaxBOF,Label='HlfF')
-        write(6,*) 'neworb 9'
 *---- Allocate memory for transformed Fock matrix (triangular)
       Call mma_allocate(TraF,MaxOrF*(MaxOrF + 1)/2,Label='TraF')
-        write(6,*) 'neworb 10'
 *---- Allocate memory for fermi index array
       Call mma_allocate(iFerm,nBB,Label='iFerm')
-        write(6,*) 'neworb 11'
       Call Get_iArray('Fermion IDs',iFerm,nnB)
-        write(6,*) 'neworb 12'
       iChk=0
       Do iiB = 1, nnB
          iChk=iChk+iFerm(iiB)
@@ -135,10 +122,8 @@
 *
 *---- Modify Fock matrix
       call dcopy_(nBT,Fock(1,iD),1,FckM,1)
-        write(6,*) 'neworb 13'
       If (nnFr.gt.0)
      &   Call ModFck(FckM,Ovlp,nBT,CMO(1,iD),nBO,nOcc(1,iD))
-        write(6,*) 'neworb 14'
 *---- Prediagonalize Fock matrix
       iAddGap = 0
       GapAdd  = 0.0d0
@@ -156,9 +141,7 @@
            iCMO = iCMO + nBas(iSym)*nFro(iSym)
            jEOr = jEOr + nFro(iSym)
            Call Square(FckM(ij),FckS,1,nBas(iSym),nBas(iSym))
-            write(6,*) 'neworb 15'
            If (nOccmF.gt.0) Then
-            write(6,*) 'neworb 16'
               Call DGEMM_('N','N',
      &                    nBas(iSym),nOccmF,nBas(iSym),
      &                    1.0d0,FckS,nBas(iSym),
@@ -168,7 +151,6 @@
      &                  HlfF,1,nBas(iSym),
      &                  TraF,
      &                  nOccmF,nBas(iSym))
-            write(6,*) 'neworb 17'
 #ifdef _DEBUG_
 *             Call Triprt('Occupied Fock matrix in MO basis',
 *    &                    '(20F10.4)',TraF,nOccmF)
@@ -194,26 +176,23 @@
               jEOr = jEOr + nConstr(iSym)
            EndIf
            If(nVrt.gt.0) Then
-            write(6,*) 'neworb 18'
               Call DGEMM_('N','N',
      &                    nBas(iSym),nVrt,nBas(iSym),
      &                    1.0d0,FckS,nBas(iSym),
      &                    CMO(iCMO,iD),nBas(iSym),
      &                    0.0d0,HlfF,nBas(iSym))
-            write(6,*) 'neworb 19'
               Call MxMt(CMO(iCMO,iD),   nBas(iSym),1,
      &                  HlfF,1,nBas(iSym),
      &                  TraF,
      &                  nVrt,nBas(iSym))
-#define _DEBUG_
 #ifdef _DEBUG_
-              Call Triprt('Virtual Fock matrix in MO basis',
-     &                    '(20F10.4)',TraF,nVrt)
+*             Call Triprt('Virtual Fock matrix in MO basis',
+*    &                    '(20F10.4)',TraF,nVrt)
 #endif
               Call NIdiag(TraF,CMO(iCMO,iD),nVrt,nBas(iSym),0)
 #ifdef _DEBUG_
-              Call Triprt('Virtual Fock matrix in MO basis',
-     &                    '(20F10.4)',TraF,nVrt)
+*             Call Triprt('Virtual Fock matrix in MO basis',
+*    &                    '(20F10.4)',TraF,nVrt)
 #endif
               Do iBas = 1,nVrt
                  ind=iBas*(iBas+1)/2
@@ -253,35 +232,27 @@ C           Write(6,'(a,F12.6)') 'E(add)    ',GapAdd
         iCMO = iCMO + nBas(iSym)*nFro(iSym)
         jEOr = jEOr + nFro(iSym)
         If (nOrbmF.gt.0) Then
-            write(6,*) 'neworb 20'
            Call Square(FckM(ij),FckS,1,nBas(iSym),nBas(iSym))
-            write(6,*) 'neworb 21'
 *--------- Transform Fock matrix to the basis from previous iteration
            Call DGEMM_('N','N',
      &                 nBas(iSym),nOrbmF,nBas(iSym),
      &                 1.0d0,FckS,nBas(iSym),
      &                 CMO(iCMO,iD),nBas(iSym),
      &                 0.0d0,HlfF,nBas(iSym))
-            write(6,*) 'neworb 22'
            Call MxMt(CMO(iCMO,iD),   nBas(iSym),1,
      &               HlfF,1,nBas(iSym),
      &               TraF,
      &               nOrbmF,nBas(iSym))
-            write(6,*) 'neworb 23'
-            Call Triprt('Case3 Fock matrix in MO basis',
-     &                    '(20F10.4)',TraF,nOrbmF)
-
-            write(6,*) 'neworb 24'
+c             Call Triprt('Case3 Fock matrix in MO basis',
+c    &                    '(20F10.4)',TraF,nOrbmF)
+*
 *--------- Constrained SCF section begins --------------
            kConstr=1
-            write(6,*) 'neworb 25, nconstr', nConstr(iSym)
            Do iConstr=nConstr(iSym),1,-1
-            write(6,*) 'neworb 26'
               nj=nOccmF-iConstr
               ifc=1+nj*(nj+1)/2
               eConstr(kConstr)=TraF(ifc+nj)
               Call FZero(TraF(ifc),nj)
-            write(6,*) 'neworb 27'
               Do j=nj+1,nOrbmF-1
                  jj=1+j*(j+1)/2+nj
                  Traf(jj)=0.0d0
@@ -289,11 +260,8 @@ C           Write(6,'(a,F12.6)') 'E(add)    ',GapAdd
               Traf(ifc+nj)=-0.666d6*dble(iConstr) ! for sorting
               kConstr=kConstr+1
            End Do
-            write(6,*) 'neworb 28'
            If (Do_SpinAV) Then
-            write(6,*) 'neworb 29'
               Do iConstr=0,nConstr(iSym)-1
-              write(6,*) 'neworb 30'
                  nj=nOccmF+iConstr
                  ifc=1+nj*(nj+1)/2
                  eConstr(kConstr)=TraF(ifc+nj)
@@ -306,7 +274,6 @@ C           Write(6,'(a,F12.6)') 'E(add)    ',GapAdd
                  kConstr=kConstr+1
               End Do
            EndIf
-            write(6,*) 'neworb 31'
 *--------- Constrained SCF section ends ----------------
 *
 *
@@ -320,7 +287,6 @@ c400       Continue
 *          get max element of occ/virt Block of Fock matrix
 *
            If (Teee) Then
-            write(6,*) 'neworb 32'
               Do iBas = 2, nOrbmF
                  Do jBas = 1, iBas-1
                     ijBas = iBas*(iBas-1)/2 + jBas
@@ -328,26 +294,21 @@ c400       Continue
                  End Do
               End Do
            Else If ((nOccmF.gt.0).AND.(nVrt.gt.0)) Then
-            write(6,*) 'neworb 34'
               iptr=1+nOccmF*(nOccmF+1)/2
               Do ia=1,nVrt
-                write(6,*) 'neworb 35'
                  Fia=abs(TraF(iptr+IDAMAX_(nOccmF,TraF(iptr),1)-1))
                  FOVMax=Max(Fia,FOVMax)
                  iptr=iptr+nOccmF+ia
               End Do
            End If
-            write(6,*) 'neworb 36'
 *
 *--------- Modify Fock matrix to enhance convergence
-           Call Triprt('Fock matrix in MO basis before modification',
-     &                 '(20F10.4)',TraF,nOrbmF)
+c          Call Triprt('Fock matrix in MO basis before modification',
+c    &                 '(20F10.4)',TraF,nOrbmF)
 *
 *--- Add to homo lumo gap
 *
-            write(6,*) 'neworb 37'
            If(iAddGap.eq.1) Then
-            write(6,*) 'neworb 38'
               Do iOrb=nOccmF+1,nOrbmF
                  ind=iOrb*(iOrb+1)/2
                  TraF(ind)=TraF(ind)+GapAdd
@@ -357,16 +318,12 @@ c400       Continue
            Do iOrb=1,nOrbmF
               Do jOrb=1,iOrb
 *--- Scale OV elements of fock matrix
-            write(6,*) 'neworb 39'
                  If(iOrb.gt.nOcc(iSym,iD) .and.
      &              jOrb.le.nOcc(iSym,iD)) Then
                     TraF(ind)=RotFac*TraF(ind)
-                    write(6,*) 'neworb 40'
                  End If
 *--- Levelshift virtual diagonal matrix elements
-            write(6,*) 'neworb 41'
                  If(iOrb.gt.nOcc(iSym,iD) .and. iOrb.eq.jOrb) Then
-                    write(6,*) 'neworb 42'
                     TraF(ind)=TraF(ind)+RotLev
                  End If
                  ind=ind+1
@@ -374,13 +331,10 @@ c400       Continue
            End Do
 *--- Add scrambling
            If(Scram) Then
-                    write(6,*) 'neworb 43'
               ind=1
               Do iOrb=1,nOrbmF
                  Do jOrb=1,iOrb
-                    write(6,*) 'neworb 44'
                     If(iOrb.ne.jOrb) Then
-                        write(6,*) 'neworb 45'
                        q=ScrFac*(2.0d0*Random_Molcas(iSeed)-1.0d0)
                        TraF(ind)=TraF(ind)+q
                     End If
@@ -397,12 +351,10 @@ c400       Continue
               Do jOrb=1,iOrb
                  If(iOrb.gt.nOcc(iSym,iD) .and.
      &              jOrb.le.nOcc(iSym,iD)) Then
-                        write(6,*) 'neworb 46'
                     tmp1=Max(Abs(TraF(indii)-TraF(indjj)),1.0d-3)
                     tmp2=Abs(TraF(indij)/tmp1)
                     If(tmp2.gt.RotMax .and.
      &                 Abs(TraF(indij)).gt.0.001d0) Then
-                        write(6,*) 'neworb 47'
                        TraF(indij)=TraF(indij)*RotMax/tmp2
                     End If
                  End If
@@ -415,7 +367,6 @@ c400       Continue
 *--------- Constrained SCF section begins --------------
            kConstr=1
            Do iConstr=nConstr(iSym),1,-1
-                        write(6,*) 'neworb 48'
               nj=nOccmF-iConstr
               ifc=1+nj*(nj+1)/2
               Call FZero(TraF(ifc),nj)
@@ -427,7 +378,6 @@ c400       Continue
               kConstr=kConstr+1
            End Do
            If (Do_SpinAV) Then
-                        write(6,*) 'neworb 49'
               Do iConstr=0,nConstr(iSym)-1
                  nj=nOccmF+iConstr
                  ifc=1+nj*(nj+1)/2
@@ -444,8 +394,8 @@ c400       Continue
 *
 *
 #ifdef _DEBUG_
-           Call Triprt('Fock matrix in MO basis after modification',
-     &                 '(10F10.4)',TraF,nOrbmF)
+*          Call Triprt('Fock matrix in MO basis after modification',
+*    &                 '(10F10.4)',TraF,nOrbmF)
 #endif
 
 *
@@ -457,22 +407,19 @@ c400       Continue
 *           Store the original CMOs for root following.
 *
             Call DCopy_(nBas(iSym)**2,CMO(iCMO,iD),1,FckS,1)
-                        write(6,*) 'neworb 50'
 *
             Call Diag_Driver('V','A','L',nOrbmF,TraF,
      &                       TraF,nOrbmF,Dummy,Dummy,iDum,
      &                       iDum,EOrb(jEOr,iD),CMO(iCMO,iD),
      &                       nBas(iSym),0,-1,
      &                       'J',nFound,iErr)
-                        write(6,*) 'neworb 51'
 *
 *           Fix standard phase pf the orbitals
 *
             Do i = 1, nBas(iSym)
                tmp = OrbPhase(CMO(iCMO+(i-1)*nBas(iSym),iD),nBas(iSym))
-                        write(6,*) 'neworb 52'
             End Do
-#define _DEBUG_
+*define _DEBUG_
 #ifdef _DEBUG_
             Call NrmClc(Fcks,nbas(iSym)*nOrb(iSym),'NewOrb','Old CMOs')
             Call NrmClc(CMO(iCMO,iD),nbas(iSym)*nOrb(iSym),
@@ -551,15 +498,12 @@ c400       Continue
 *           do not populate according to the aufbau principle.
 *
             If (FckAuf) Go To 120
-                        write(6,*) 'neworb 53'
 *           Write (6,*) 'Follow the orbitals'
 *
 *           Form  C^+ S  C for the old orbitals
 *
             Call FZero(Scratch,nOrb(iSym)*nBas(iSym))
-                        write(6,*) 'neworb 54'
             Call Square(Ovlp(iOvlpOff),Temp,1,nBas(iSym),nBas(iSym))
-                        write(6,*) 'neworb 55'
             Call DGEMM_('T','N',
      &                 nOrb(iSym),nBas(iSym),nBas(iSym),
      &                 1.0D0,FckS,nBas(iSym),
@@ -605,7 +549,6 @@ c400       Continue
                   EOrb(ii,iD)=EOrb(kk,iD)
                   EOrb(kk,iD)=tmp
                   kOff = (kOrb-1)*nBas(iSym) + iCMO
-                        write(6,*) 'neworb 56'
                   Call DSwap_(nBas(iSym),CMO(iOff,iD),1,
      &                                   CMO(kOff,iD),1)
                End If
@@ -661,13 +604,11 @@ c400       Continue
       End Do
 *
 *---- Check orthogonality
-                        write(6,*) 'neworb 57'
       Call ChkOrt(CMO(1,iD),nBO,Ovlp,nBT,Whatever)
 *
       End Do
 *
 *---- Deallocate memory
-                        write(6,*) 'neworb 58'
       Call mma_deallocate(iFerm)
       Call mma_deallocate(TraF)
       Call mma_deallocate(HlfF)

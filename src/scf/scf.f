@@ -14,7 +14,7 @@
 *               2003-2005, Valera Veryazov                             *
 *               2017, Roland Lindh                                     *
 ************************************************************************
-      subroutine SCF_DMET(ireturn)
+      subroutine SCF(ireturn)
 ************************************************************************
 *                                                                      *
 *     purpose: perform RHF calculations                                *
@@ -102,7 +102,6 @@
       FstItr=.True.
 
       If(.not.OnlyProp) Then
-          write(6,*) "NAelec=nAuf", NAelec, nAufb
          Call WfCtl_SCF(iTerm,KSDFT,FstItr,SIntTh)
       End If
 
