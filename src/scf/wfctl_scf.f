@@ -244,6 +244,7 @@
             Reset=.True.
             Call Modify_NQ_Grid()
             Call PrBeg(Meth)
+            write(6,*) 'scf wfclt'
          End If
 *
       End If
@@ -300,19 +301,26 @@
          WarnCfg=.false.
 *
          If(.not.Aufb.and.iter.gt.MaxFlip) AllowFlip=.false.
+            write(6,*) 'scf wfclt 0'
 
          TCP1=seconds()
 
          iDMin = iDMin + 1
          If(iDMin.gt.MinDMx) iDMin = MinDMx
+            write(6,*) 'scf wfclt 1'
 
 #ifdef _MSYM_
          If (MSYMON) Then
             Do iD = 1, nD
+            write(6,*) 'scf wfclt 2'
                Call fmsym_symmetrize_orbitals(msym_ctx,CMO(1,iD))
+            write(6,*) 'scf wfclt 3'
                Call ChkOrt(CMO(1,iD),nBO,Ovrlp,nBT,Whatever)
+            write(6,*) 'scf wfclt 4'
                Call Ortho(CMO(1,iD),nBO,Ovrlp,nBT)
+            write(6,*) 'scf wfclt 5'
                Call ChkOrt(CMO(1,iD),nBO,Ovrlp,nBT,Whatever)
+            write(6,*) 'scf wfclt 6'
             End Do
          End If
 #endif
@@ -321,7 +329,8 @@
 *                                                                      *
 *        Do Aufbau procedure, if active...
 *
-         If (Aufb) Call Aufbau(EOrb,mmB,nAufb,OccNo,mmb,iAufOK,nD)
+         If (Aufb) Call Aufbau(EOrb,mmB,nAuf,OccNo,mmb,iAufOK,nD)
+            write(6,*) 'scf wfclt 7'
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -348,12 +357,14 @@
 *
          If ((DMOMax.lt.DiisTh .AND. IterX.gt.Iter_no_Diis
      &             .AND. ABS(EDiff).lt.1.0D-1)) Then
+            write(6,*) 'scf wfclt 8'
 *
 *           Reset kOptim such that the extraploation scheme is not
 *           corrupted by iterations with too high energies. Those can
 *           not be used in the scheme.
 *
             If (iOpt.eq.0) kOptim=2
+            write(6,*) 'scf wfclt 9'
             iOpt=1
             Iter_DIIS = Iter_DIIS + 1
          End If
@@ -370,6 +381,7 @@
          If (iOpt.ge.2 .OR.
      &      (iOpt.eq.1 .AND. DMOMax.lt.QNRTh .AND.  Iter_DIIS.ge.2))
      &      Then
+            write(6,*) 'scf wfclt 9'
 *define _TEST_OF_RS_RFO_
 #ifdef  _TEST_OF_RS_RFO_
             iOpt=3
@@ -381,6 +393,7 @@
 *
 *---           compute initial inverse Hessian H (diag)
 *
+               write(6,*) 'scf wfclt 10'
                Call SOIniH(EOrb,nnO,HDiag,nOV,nD)
 *
             End If
@@ -402,14 +415,18 @@
 *                                                                      *
 *           Interpolation DIIS
 *
+               write(6,*) 'scf wfclt 18post'
             Call SCF_Energy(FstItr,E1V,E2V,EneV)
+               write(6,*) 'scf wfclt 11'
 *
 *           Compute traces: TrDh, TrDP and TrDD.
 *
             Call TraClc_i(OneHam,Dens,TwoHam,Vxc,nBT,nDens,iter,
      &                    TrDh,TrDP,TrDD,MxIter,nD)
+               write(6,*) 'scf wfclt 12'
 *
             If (kOptim.eq.1) Then
+               write(6,*) 'scf wfclt 13'
 *
 *              If we only have one density, then nothing much to intra-
 *              polate over.
@@ -417,6 +434,7 @@
                AccCon = 'None     '
 *
             Else
+               write(6,*) 'scf wfclt 14'
 *
 *              DIIS interpolation optimization: EDIIS, ADIIS, LDIIS
 *
@@ -435,22 +453,28 @@
 *
 *---        Update Fock Matrix from OneHam and extrapolated TwoHam & Vxc
 *
+               write(6,*) 'scf wfclt 15'
             Call UpdFck(OneHam,TwoHam,Vxc,nBT,nDens,Fock,nIter(nIterP),
      &                  nD)
+               write(6,*) 'scf wfclt 16'
 *---        Diagonalize Fock matrix and obtain new orbitals
 *
             ScramNeworb=Scrmbl.and.iter.eq.1
             Call NewOrb_SCF(Fock,nBT,CMO,nBO,FMOMax,EOrb,nnO,Ovrlp,nFO,
      &                  AllowFlip,ScramNeworb,nD)
+               write(6,*) 'scf wfclt 17'
 *
 *---        Transform density matrix to MO basis
 *
             Call MODens(Dens,Ovrlp,nBT,nDens,CMO,nBB,nD)
+               write(6,*) 'scf wfclt 18'
+               write(6,*) 'iopt', iOpt
 *                                                                      *
 ************************************************************************
 ************************************************************************
 *                                                                      *
          Else If ( iOpt.eq.1 ) Then
+               write(6,*) 'scf wfclt 19'
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -466,6 +490,7 @@
 *           Fock matrix.
 *
             Call SCF_Energy(FstItr,E1V,E2V,EneV)
+               write(6,*) 'scf wfclt 20'
 *
             Call TraClc_x(kOptim,iOpt.eq.2,FrstDs,.FALSE.,CInter,nCI,nD,
      &                    nOV,Lux,iter,memRsv,LLx)

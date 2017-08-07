@@ -114,7 +114,7 @@ C      SubRoutine Sort(EVal,EVec,n,nB)
       Return
       End
       SUBROUTINE JACORD3(EVal,EVec,n,nB)
-C      SubRoutine Sort(EVal,EVec,n,nB)
+*      SubRoutine Sort(EVal,EVec,n,nB)
 ************************************************************************
 *                                                                      *
 *     purpose: Sort the set of eigenvalues and eigenvectors, in        *
@@ -156,21 +156,28 @@ C      SubRoutine Sort(EVal,EVec,n,nB)
       Call qEnter('Sort')
 #endif
 *
+      write(6,*) 'jacob 3.0'
       Do 100 i = 1,n - 1
+         write(6,*) 'jacob 3.1'
          k = i
          Do 110 j = i + 1, n
+            write(6,*) 'jacob 3.2'
             If (EVal(j).gt.EVal(k)) k = j
 110      Continue
          If (k.ne.i) Then
+            write(6,*) 'jacob 3.3'
             Swap    = EVal(k)
             EVal(k) = EVal(i)
             EVal(i) = Swap
             Do 120 l = 1, nB
+                write(6,*) 'jacob 3.4'
                Swap      =   EVec(l,k)
                EVec(L,K) =   EVec(l,i)
                EVec(L,I) =   Swap
 120         Continue
+                write(6,*) 'jacob 3.5'
          End If
+                write(6,*) 'jacob 3.6'
 100   Continue
 *
 #ifdef _DEBUG_
