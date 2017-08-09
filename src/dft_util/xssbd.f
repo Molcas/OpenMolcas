@@ -154,5 +154,11 @@ c
  99   continue
 
       return
+c Avoid unused argument warnings
+      If (.False.) Then
+         Call Unused_real_array(d2Fdr2)
+         Call Unused_real_array(d2Fdrdg)
+         Call Unused_real_array(d2Fdg2)
+      End If
       end
 
