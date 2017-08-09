@@ -11,9 +11,7 @@
 * Copyright (C) 2017, Ignacio Fdez. Galvan                             *
 ************************************************************************
 
-#ifndef _HAVE_EXTRA_
-
-      Real*8 Function Golden(ax,bx,cx,f,tol_x,tol_f,xmin,
+      Real*8 Function x_Golden(ax,bx,cx,f,tol_x,tol_f,xmin,
      &                 rMP,xrMP,xxrMP,xnrMP,EC,AC,R_ij,C_o_C,ij,l,nij,
      &                 lMax,nElem,nAtoms,nPert,Scratch_New,Scratch_Org,
      &                 iPrint_Errors)
@@ -24,10 +22,11 @@
       Real*8 :: x1, x2, x3, x4, f2, f3
 c External function f and its arguments
       Real*8, External :: f
+      Integer :: nij,lMax,nElem
       Real*8 :: rMP(nij,0:nElem),xrMP(nij,nElem),xxrMP(nij,nElem),
      &          xnrMP(nij,nElem),EC(3,nij),AC(3,nij),R_ij(3),C_o_C(3),
      &          Scratch_New(nij*(2+lMax+1)),Scratch_Org(nij*(2+lMax+1))
-      Integer :: ij,l,nij,lMax,nElem,nAtoms,nPert,iPrint_Errors
+      Integer :: ij,l,nAtoms,nPert,iPrint_Errors
 
       x1 = ax
       x4 = cx
@@ -66,12 +65,10 @@ c External function f and its arguments
       End Do
       If (f2 .lt. f3) Then
         xmin = x2
-        Golden = f2
+        x_Golden = f2
       Else
         xmin = x3
-        Golden = f3
+        x_Golden = f3
       End If
 
-      End Function Golden
-
-#endif
+      End Function x_Golden

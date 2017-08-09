@@ -97,4 +97,8 @@
 
       End Subroutine PFGet_ASCII
 
+#elif defined (NAGFOR)
+c Some compilers do not like empty files
+      Subroutine Empty_PFGet_ASCII
+      End Subroutine Empty_PFGet_ASCII
 #endif
