@@ -44,13 +44,18 @@
 *----------------------------------------------------------------------*
       iReturn=0
       Call qEnter('guessorb')
+      write(6,*) "guessorb1"
       Call InitGO(StandAlone)
+      write(6,*) "guessorb2"
       If(StandAlone) Call InpCtl_GuessOrb
+      write(6,*) "guessorb3"
 *----------------------------------------------------------------------*
 * Select method to be used.                                            *
 *----------------------------------------------------------------------*
       Call cre_gsswfn
+      write(6,*) "guessorb4"
       Call FckByInt(iRC,StandAlone)
+      write(6,*) "guessorb5"
 *     If(iRC.eq.0) GoTo 999
       If(.true.) GoTo 999
       If(nSym.eq.1) Then
@@ -65,6 +70,7 @@
 *----------------------------------------------------------------------*
       iUHF=0
       If (iRC.eq.0) then
+        write(6,*) "guessorb8"
         Call Molden_Interface(iUHF,'GSSORB','MD_GSS',.False.)
 c        call grid_driver(-1,'SEWARD','GSSORB',iRc)
       End If

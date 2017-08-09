@@ -82,7 +82,7 @@
       CALL DCOPY_(NORBTT,0.0D0,0,WORK(LWFMO),1)
       CALL DCOPY_(2*N2MAX,0.0D0,0,WORK(LWTMP),1)
       CALL TRAONE_MOTRA(WORK(LWFLT),WORK(LWFMO),WORK(LWTMP),CMO)
-*VB      IF ( IPRINT.GE.5 .OR. DEBUG.NE.0 ) THEN
+      IF ( IPRINT.GE.5 .OR. DEBUG.NE.0 ) THEN
         WRITE(6,'(6X,A)') 'Fock matrix in MO basis'
         ISTLT=0
         DO ISYM=1,NSYM
@@ -92,7 +92,7 @@
             ISTLT=ISTLT+NORB(ISYM)*(NORB(ISYM)+1)/2
           END IF
         END DO
-*VB      END IF
+      END IF
 
       if(iDoNECI) then
 c write one-electron integrals into FCIDMP file
@@ -190,7 +190,7 @@ c write core energy into FCIDMP file
       CALL DCOPY_(2*N2MAX,0.0D0,0,WORK(LWTMP),1)
       CALL DCOPY_(NTOT1,KINE,1,WORK(LWKAO),1)
       CALL TRAONE_MOTRA(WORK(LWKAO),WORK(LWKMO),WORK(LWTMP),CMO)
-*VB      IF ( IPRINT.GE.5 .OR. DEBUG.NE.0 ) THEN
+      IF ( IPRINT.GE.5 .OR. DEBUG.NE.0 ) THEN
         WRITE(6,'(6X,A)') 'Kinetic integrals in MO basis'
         ISTLT=0
         DO ISYM=1,NSYM
@@ -200,7 +200,7 @@ c write core energy into FCIDMP file
             ISTLT=ISTLT+NORB(ISYM)*(NORB(ISYM)+1)/2
           END IF
         END DO
-*VB      END IF
+      END IF
       TCONEMO(3)=IDISK
       CALL dDAFILE(LUONEMO,1,WORK(LWKMO),NORBTT,IDISK)
       CALL GETMEM('TMP','FREE','REAL',LWTMP,2*N2MAX)

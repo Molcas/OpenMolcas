@@ -8,16 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE TR1CTL(Ovlp,HOne,Kine,CMO)
+      SUBROUTINE TR1CTL_DMET(Ovlp,HOne,Kine,CMO)
 *
 *     Objective: Control section for transformation of one-electron
 *                integrals (effective one electron Hamiltonian and
 *                kinetic energy )
 *
       !> module dependencies
-#ifdef _HDF5_F2003_
-      use hdf5_utils
-#endif
 
       IMPLICIT REAL*8 (A-H,O-Z)
 *
@@ -27,9 +24,6 @@
 #include "files_motra.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-#ifdef _HDF5_F2003_
-      real*8,  allocatable :: writebuf(:,:)
-#endif
 *
       Real*8 Ovlp(*), HOne(*), Kine(*), CMO(*)
       logical okay
@@ -38,56 +32,106 @@
 *
 *     Initialize LUONEMO
 *
+      FnInpOrb='INPORB'
+      FnJobIph='JOBIPH'
+      FnOneAO='ONEINT'
+      FnTwoAO='ORDINT'
+      FnOneMO='TRAONE'
+      FnTwoMO='TRAINT'
+      FnHalf='TEMP1'
+      FnExt='EXTRACT'
+      FnCom='COMFILE'
+      Debug=0
+      iPrint=0
+      iOneOnly=0
+      iVecTyp=2
+      iAutoCut=0
+      iRFpert=0
+      LuInpOrb=10
+      LuJobIph=15
+      LuOneAO=20
+      LuTwoAO=40
+      LuOneMO=30
+      LuTwoMO=50
+      LuHalf=60
+      LuExt=18
+      LuCom=22
+
+      write(6,*) "TR1CTL_DMET 0"
       CALL DANAME(LUONEMO,FNONEMO)
+      write(6,*) "TR1CTL_DMET 1"
       IDISK=0
 * Provisionally initialize ECOR to prevent false alarms from
 * automatic detection of uninitialized variables.
       ECOR=0.0D0
+      write(6,*) "TR1CTL_DMET 2"
       CALL WR_MOTRA_Info(LUONEMO,1,iDisk,
      &                   TCONEMO,64,ECOR,NSYM,
      &                   NBAS,NORB,NFRO,NDEL,8,BSLBL,2*4*mxOrb)
+      write(6,*) "TR1CTL_DMET 3"
 *
 *     Write Mo coefficients to disc
 *
+      write(6,*) "TR1CTL_DMET4"
       TCONEMO(1)=IDISK
       CALL dDAFILE(LUONEMO,1,CMO,NTOT2,IDISK)
+      write(6,*) "TR1CTL_DMET5"
 *
 *     Generate Fock-matrix for inactive orbitals
 *     and compute the total core energy
 *
       CALL GETMEM('FLT','ALLO','REAL',LWFLT,NTOT1)
+      write(6,*) "TR1CTL_DMET6"
       CALL GETMEM('DLT','ALLO','REAL',LWDLT,NTOT1)
+      write(6,*) "TR1CTL_DMET7"
       CALL GETMEM('FSQ','ALLO','REAL',LWFSQ,NTOT2)
+      write(6,*) "TR1CTL_DMET8"
       CALL GETMEM('DSQ','ALLO','REAL',LWDSQ,NTOT2)
+      write(6,*) "TR1CTL_DMET9"
       CALL DCOPY_(NTOT1,HONE,1,WORK(LWFLT),1)
+      write(6,*) "TR1CTL_DMET10"
       CALL DCOPY_(NTOT2,0.0D0,0,WORK(LWFSQ),1)
+      write(6,*) "TR1CTL_DMET11"
       CALL DCOPY_(NTOT1,0.0D0,0,WORK(LWDLT),1)
+      write(6,*) "TR1CTL_DMET12"
       CALL DCOPY_(NTOT2,0.0D0,0,WORK(LWDSQ),1)
+      write(6,*) "TR1CTL_DMET13"
       ECOR=0.0D0
       CALL FCIN(WORK(LWFLT),NTOT1,WORK(LWDLT),
      &          WORK(LWFSQ),WORK(LWDSQ),ECOR,CMO)
+      write(6,*) "TR1CTL_DMET14"
       CALL GETMEM('DSQ','FREE','REAL',LWDSQ,NTOT2)
+      write(6,*) "TR1CTL_DMET15"
       CALL GETMEM('FSQ','FREE','REAL',LWFSQ,NTOT2)
+      write(6,*) "TR1CTL_DMET16"
       CALL GETMEM('DLT','FREE','REAL',LWDLT,NTOT1)
+      write(6,*) "TR1CTL_DMET17"
 *
       ECOR=POTNUC+ECOR
-      IF ( IPRINT.GE.5 .OR. DEBUG.NE.0 ) THEN
+*VB      IF ( IPRINT.GE.5 .OR. DEBUG.NE.0 ) THEN
          WRITE(6,'(6X,A,E20.10)') 'TOTAL CORE ENERGY:',ECOR
-      ENDIF
+*VB      ENDIF
 *
 *     Transform one-electron Fock matrix
 *
       CALL GETMEM('FMO','ALLO','REAL',LWFMO,NORBTT)
+      write(6,*) "TR1CTL_DMET18"
       CALL GETMEM('TMP','ALLO','REAL',LWTMP,2*N2MAX)
+      write(6,*) "TR1CTL_DMET19"
       CALL DCOPY_(NORBTT,0.0D0,0,WORK(LWFMO),1)
+      write(6,*) "TR1CTL_DMET20"
       CALL DCOPY_(2*N2MAX,0.0D0,0,WORK(LWTMP),1)
+      write(6,*) "TR1CTL_DMET21"
       CALL TRAONE_MOTRA(WORK(LWFLT),WORK(LWFMO),WORK(LWTMP),CMO)
+      write(6,*) "TR1CTL_DMET22"
 *VB      IF ( IPRINT.GE.5 .OR. DEBUG.NE.0 ) THEN
+            write(6,*) "TR1CTL_DMET23"
         WRITE(6,'(6X,A)') 'Fock matrix in MO basis'
         ISTLT=0
         DO ISYM=1,NSYM
           IF ( NORB(ISYM).GT.0 ) THEN
             WRITE(6,'(6X,A,I2)')' symmetry species:',ISYM
+            write(6,*) "TR1CTL_DMET24"
             CALL TRIPRT(' ',' ',WORK(LWFMO+ISTLT),NORB(ISYM))
             ISTLT=ISTLT+NORB(ISYM)*(NORB(ISYM)+1)/2
           END IF
@@ -116,7 +160,9 @@ c              if(abs(WORK(LWFMO+ioff)).ge.1.0d-10)
           iorboff = iorb - 1
         end do
 c read orbital energies from INPORB file
+            write(6,*) "TR1CTL_DMET25"
         call f_Inquire (FnInpOrb,okay)
+            write(6,*) "TR1CTL_DMET26"
         If ( okay ) Then
           itotnbas = 0
           do i = 1, nsym
@@ -149,31 +195,6 @@ c write core energy into FCIDMP file
         write(LuFCI,'(1X,G20.12,4I5)') ECOR, 0, 0, 0, 0
       end if
 
-#ifdef _HDF5_F2003_
-      if(ihdf5 == 1)then
-        msym = nsym
-        !> put data to file
-        datadim(1)    = 1; datadim_bound = 1
-        call hdf5_put_data(file_id(1),"ecore ",datadim,ecor)
-        call hdf5_put_data(file_id(1),"norbtt",datadim,norbtt)
-        call hdf5_put_data(file_id(1),"nsym  ",datadim,msym)
-        datadim(1)   = nsym
-        allocate(writebuf(nsym,3)); writebuf = -1
-        do i = 1, nsym
-          writebuf(i,1) = norb(i)
-          writebuf(i,2) = nfro(i)
-          writebuf(i,3) = ndel(i)
-        end do
-        call hdf5_put_data(file_id(1),"norb  ",datadim,writebuf(1,1))
-        call hdf5_put_data(file_id(1),"nfro  ",datadim,writebuf(1,2))
-        call hdf5_put_data(file_id(1),"ndel  ",datadim,writebuf(1,3))
-        deallocate(writebuf)
-        datadim(1)   = norbtt
-        call hdf5_put_data(file_id(1),"FockMO",datadim,
-     &                     work(lwfmo:lwfmo+norbtt-1))
-      end if
-#endif
-
       TCONEMO(2)=IDISK
       CALL dDAFILE(LUONEMO,1,WORK(LWFMO),NORBTT,IDISK)
       CALL GETMEM('TMP','FREE','REAL',LWTMP,2*N2MAX)
@@ -190,7 +211,7 @@ c write core energy into FCIDMP file
       CALL DCOPY_(2*N2MAX,0.0D0,0,WORK(LWTMP),1)
       CALL DCOPY_(NTOT1,KINE,1,WORK(LWKAO),1)
       CALL TRAONE_MOTRA(WORK(LWKAO),WORK(LWKMO),WORK(LWTMP),CMO)
-*VB      IF ( IPRINT.GE.5 .OR. DEBUG.NE.0 ) THEN
+      IF ( IPRINT.GE.5 .OR. DEBUG.NE.0 ) THEN
         WRITE(6,'(6X,A)') 'Kinetic integrals in MO basis'
         ISTLT=0
         DO ISYM=1,NSYM
@@ -200,7 +221,7 @@ c write core energy into FCIDMP file
             ISTLT=ISTLT+NORB(ISYM)*(NORB(ISYM)+1)/2
           END IF
         END DO
-*VB      END IF
+      END IF
       TCONEMO(3)=IDISK
       CALL dDAFILE(LUONEMO,1,WORK(LWKMO),NORBTT,IDISK)
       CALL GETMEM('TMP','FREE','REAL',LWTMP,2*N2MAX)

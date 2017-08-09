@@ -91,9 +91,13 @@
          Call xflush(6)
       End If
       iReturncode=0
+      write(6,*) "FckByInt 0 yes"
       Call getenvf('MOLCAS_TEST',Line)
+      write(6,*) "FckByInt 1 yes"
       Verify = LINE(1:5).EQ.'CHECK' .or. LINE(1:4).EQ.'GENE'
+       write(6,*) "FckByInt 1 yes Verify", Verify
       Verify = .True.
+       write(6,*) "FckByInt 1 yes Verify", Verify
 *----------------------------------------------------------------------*
 * Do some counting                                                     *
 *----------------------------------------------------------------------*
@@ -111,10 +115,14 @@
 * Get model Fock matrix.                                               *
 *----------------------------------------------------------------------*
       inFck=nTriTot+6
+      write(6,*) "FckByInt 2 yes"
       Call mma_allocate(Fck,inFck)
+      write(6,*) "FckByInt 3 yes"
       iRc=-1
       iSymlb=1
+      write(6,*) "FckByInt 4 yes"
       Call RdOne(irc,6,'FckInt  ',1,Fck,iSymlb)
+      write(6,*) "FckByInt 5 yes"
       If (iRc.ne.0) Then
          iReturncode=1
          Call mma_deallocate(Fck)
@@ -124,41 +132,57 @@
          Write(6,*) '***'
          Return
       End If
-      If(Debug) Then
+*VB      If(Debug) Then
+            write(6,*) "FckByInt 6"
          ij=1
          Do iSym=1,nSym
-*           Call TriPrt('FckInt','(12f12.6)',Fck(ij),nBas(iSym))
+            Call TriPrt('FckInt','(12f12.6)',Fck(ij),nBas(iSym))
+            write(6,*) "FckByInt 7"
             Call NrmClc(Fck(ij),nBas(iSym)*(nBas(iSym)+1)/2,'FckbyInt',
      &                  'Fck(ij)')
             ij=ij+nBas(iSym)*(nBas(iSym)+1)/2
+            write(6,*) "FckByInt 8"
          End Do
-      End If
+*VB      End If
 *----------------------------------------------------------------------*
 * Make symmetric orthonormal orbital basis.                            *
 *----------------------------------------------------------------------*
       inCMO=nSqrTot
+            write(6,*) "FckByInt 9 yes"
       Call mma_allocate(CMO,inCMO)
+            write(6,*) "FckByInt 10 yes"
       Call goLowdin(CMO)
+            write(6,*) "FckByInt 11 yes"
       If (Debug) Then
+            write(6,*) "FckByInt 12"
          ij=1
          Do iSym=1,nSym
             nB=nBas(iSym)
 *           Call RecPrt('CMO','(12f12.6)',CMO(ij),nB,nB)
+            write(6,*) "FckByInt 13"
             Call NrmClC(CMO(ij),nB**2,'FckbyInt','CMO(ij)')
             ij=ij+nB*nB
+            write(6,*) "FckByInt 14"
          End Do
       End If
 *----------------------------------------------------------------------*
 * Get overlap matrix                                                   *
 *----------------------------------------------------------------------*
       inOvl=nTriTot+6
+            write(6,*) "FckByInt 15"
       Call mma_allocate(Ovl,inOvl)
+            write(6,*) "FckByInt 16"
       iSymlb=1
+            write(6,*) "FckByInt 17"
       Call RdOne(irc,6,'Mltpl  0',1,Ovl,iSymlb)
+            write(6,*) "FckByInt 18"
       If(Debug) Then
+            write(6,*) "FckByInt 19"
          ipT1=1
          Do iSym=1,nSym
+            write(6,*) "FckByInt 20"
 *           Call TriPrt('Ovlp','(12f12.6)',Ovl(ipT1),nBas(iSym))
+            write(6,*) "FckByInt 21"
             Call NrmClc(Ovl(ipT1),nBas(iSym)*(nBas(iSym)+1)/2,
      &                  'FckbyInt','Ovl(ipT1)')
             ipT1=ipT1+nBas(iSym)*(nBas(iSym)+1)/2
@@ -179,20 +203,26 @@
       Do iSym=1,nSym
          nB=nBas(iSym)
          If(nB.gt.0) Then
+            write(6,*) "FckByInt 22"
             Call Square(Fck(ijT),T1,1,nB,nB)
+            write(6,*) "FckByInt 23"
             Call Square(Ovl(ijT),T2,1,nB,nB)
+            write(6,*) "FckByInt 24"
             Call DGEMM_('N','N',
      &                  nB,nB,nB,
      &                  1.0d0,T1,nB,
      &                        T2,nB,
      &                  0.0d0,T3,nB)
+            write(6,*) "FckByInt 25"
             Call MxMt(T2,nB,1,
      &                T3,1,nB,
      &                Fck(ijT), nB,nB)
             If(Debug) Then
+            write(6,*) "FckByInt 26"
 *              Call TriPrt('Fock matrix with metric','(12f12.6)',
 *    &                     Fck(ijT),nB)
                Call NrmClc(Fck(ijT),nB*(nB+1)/2,'FckbyInt','Fck(ijT)')
+            write(6,*) "FckByInt 27"
             End If
          End If
          ijT=ijT+nB*(nB+1)/2
@@ -220,12 +250,15 @@
          nB=nBas(iSym)
          nS=nBas(iSym)-nDel(iSym)
          If(nB.gt.0) Then
+            write(6,*) "FckByInt 28"
             Call Square(Fck(ijT),T1,1,nB,nB)
+            write(6,*) "FckByInt 29"
             Call DGEMM_('N','N',
      &                  nB,nS,nB,
      &                  1.0d0,T1,nB,
      &                        CMO(ijS),nB,
      &                  0.0d0,T2,nB)
+            write(6,*) "FckByInt 30"
             Call MxMt(CMO(ijS),nB,1,
      &                T2,1,nB,
      &                T3, nS,nB)
@@ -233,8 +266,11 @@
 *              Call TriPrt('Transformed Fock matrix','(12f12.6)',T3,nB)
                Call NrmClc(T3,nB*(nB+1)/2,'FckbyInt','Transformed Fck')
             End If
+            write(6,*) "FckByInt 31"
             Call NIdiag(T3,CMO(ijS),nS,nB,0)
+            write(6,*) "FckByInt 32"
             Call goPickup(T3,Eps(ijL),nS)
+            write(6,*) "FckByInt 33"
             Call goSort(Eps(ijL),CMO(ijS),nS,nB)
 *
             Do i = 1, nS
@@ -249,9 +285,11 @@
          ij=1
          Do iSym=1,nSym
             nB=nBas(iSym)
+            write(6,*) "FckByInt 34"
 *           Call RecPrt('CMO','(12f12.6)',CMO(ij),nB,nB)
             Call NrmClC(CMO(ij),nB**2,'FckbyInt','CMO(ij)')
             ij=ij+nB*nB
+            write(6,*) "FckByInt 35"
          End Do
       End If
       Call mma_deallocate(T3)
@@ -295,24 +333,35 @@
             If (Verify)
      &      Call Virt_Space(CMO(ijS),CMO(ijS+nB*nC),Ovl(ijT),nB,nC,nS)
 *
+                write(6,*) "FckByInt 37"
             Call Square(Fck(ijT),T1,1,nB,nB)
+                write(6,*) "FckByInt 38"
             Call DGEMM_('N','N',
      &                  nB,nS,nB,
      &                  1.0d0,T1,nB,
      &                        CMO(ijS+nB*nC),nB,
      &                  0.0d0,T2,nB)
 
+            write(6,*) "FckByInt 39"
             Call MxMt(CMO(ijS+nB*nC),nB,1,
      &                T2,1,nB,
      &                T3, nS,nB)
             If(Debug) Then
+                write(6,*) "FckByInt 40"
                Call TriPrt('Virtual space','(12f12.6)',T3,nS)
+                write(6,*) "FckByInt 41"
             End If
+                write(6,*) "FckByInt 42"
             Call NIdiag(T3,CMO(ijS+nB*nC),nS,nB,0)
+                write(6,*) "FckByInt 43"
             Call goPickup(T3,Eps(ijL+nC),nS)
+                write(6,*) "FckByInt 44"
             Call goSort(Eps(ijL+nC),CMO(ijS+nB*nC),nS,nB)
+                write(6,*) "FckByInt 45"
             If(Debug) Then
+                write(6,*) "FckByInt 46"
                Call RecPrt('Eps',' ',Eps(ijL+nC),nS,1)
+                write(6,*) "FckByInt 47"
                Call RecPrt('Virtual Orbitals',' ',
      &                     CMO(ijS+nB*nC),nB,nS)
             End If
@@ -358,7 +407,9 @@
             End Do
 *
             If(Debug) Then
+                write(6,*) "FckByInt 48"
                Call RecPrt('Eps',' ',Eps(ijL+nC),nS,1)
+                write(6,*) "FckByInt 49"
                Call RecPrt('Virtual Orbitals',' ',
      &                     CMO(ijS+nB*nC),nB,nS)
             End If
@@ -406,7 +457,9 @@
       Do iBas=1,nBasTot
          T1(iBas)=0.0d0
       End Do
+                write(6,*) "FckByInt 50"
       Call GoPop(Eps,T1,T2,nBasTot,PrintEor,PrThr,GapThr)
+                write(6,*) "FckByInt 51"
       iBas=0
       dActEl=0.0d0
       Do iSym=1,nSym
@@ -431,37 +484,54 @@
       End Do
       nActEl=Int(dActEl+0.5d0)
       If(PrintMOs) then
+                write(6,*) "FckByInt 52"
          Call PriMO('Start orbitals (virtuals shifted)',
      &              .true.,.true.,0.0d0,PrThr,
      &              nSym,nBas,nBas,Label,Eps,T1,
      &              CMO,iPrFmt)
+                write(6,*) "FckByInt 53"
          Call xflush(6)
       End If
       If(PrintPop) Then
+                write(6,*) "FckByInt 54"
          Call Charge(nSym,nBas,Label,CMO,T1,
      &               Ovl,2,.true.,.true.)
       End If
+                write(6,*) "FckByInt 55"
       Call put_darray('Guessorb',CMO,nSqrTot)
+                write(6,*) "FckByInt 56"
       Call put_darray('Guessorb energies',Eps,nBasTot)
+                write(6,*) "FckByInt 57"
       Do iSym=1,nSym
          nOrb(iSym)=nBas(iSym)-nDel(iSym)
       End Do
+                write(6,*) "FckByInt 58"
       Call Put_iArray('nOrb',nOrb,nSym)
+                write(6,*) "FckByInt 59"
       Call Put_iArray('nDel_go',nDel,nSym)
+                write(6,*) "FckByInt 60"
       Call Put_iArray('nDel',nDel,nSym)
+                write(6,*) "FckByInt 61"
       Do iSym=1,nSym
          nTmp(iSym)=IndType(2,iSym)
          nIsh(iSym)=nTmp(iSym)
       End Do
+                write(6,*) "FckByInt 62"
       Call Put_iArray('nIsh',nTmp,nSym)
+                write(6,*) "FckByInt 63"
       Do iSym=1,nSym
          nTmp(iSym)=IndType(4,iSym)
          nAsh(iSym)=nTmp(iSym)
       End Do
+                write(6,*) "FckByInt 64"
       Call Put_iArray('nAsh',nTmp,nSym)
+                write(6,*) "FckByInt 65"
       Call Put_iScalar('nActel',nActEl)
+                write(6,*) "FckByInt 66"
       kSpin=1 ! always same alpha and beta orbs
+                write(6,*) "FckByInt 67"
       Call Put_iScalar('Multiplicity',kSpin)
+                write(6,*) "FckByInt 68"
       Enr_go=0.0d0
       ipEE0=1
       ipOk0=1
@@ -474,14 +544,18 @@
          ipEE0=ipEE0+nBas(iSym)
          ipOk0=ipOk0+nBas(iSym)
       End Do
+                write(6,*) "FckByInt 69"
       Call Put_dScalar('Last energy',Enr_go)
+                write(6,*) "FckByInt 70"
 #ifdef _HDF5_
       call mh5_put_dset(wfn_energy,Enr_go)
 #endif
       Lu=20
       Title='Guess orbitals'
+                write(6,*) "FckByInt 71"
       Call WrVec('GSSORB',Lu,'COEI',nSym,nBas,nBas,CMO,
      &           T1,Eps,IndType,Title)
+                write(6,*) "FckByInt 72"
 #ifdef _HDF5_
       call mh5_put_dset(wfn_mocoef,CMO)
       call mh5_put_dset(wfn_occnum,T1)
@@ -498,19 +572,26 @@
          ipCOk=jOff
          Do k=0,nOkk-1
             xocc=sqrt(T1(k+ipOkk))
+                write(6,*) "FckByInt 73"
             call dscal_(nBas(iSym),xocc,CMO(ipCOk),1)
+                write(6,*) "FckByInt 74"
             ipCOk=ipCOk+nBas(iSym)
          End Do
+                write(6,*) "FckByInt 75"
          Call DGEMM_Tri('N','T',nBas(iSym),nBas(iSym),nOkk,
      &                    1.0d0,CMO(jOff),Max(1,nBas(iSym)),
      &                          CMO(jOff),Max(1,nBas(iSym)),
      &                    0.0d0,Ovl(kOff),Max(1,nBas(iSym)))
+                write(6,*) "FckByInt 76"
          iOff=iOff+nBas(iSym)
          jOff=jOff+nBas(iSym)**2
          kOff=kOff+nBas(iSym)*(nBas(iSym)+1)/2
       End Do
+                write(6,*) "FckByInt 77"
       Call Fold_tMat(nSym,nBas,Ovl,Ovl)
+                write(6,*) "FckByInt 78"
       Call Put_D1ao(Ovl,nTriTot)
+                write(6,*) "FckByInt 79"
 *
       Call mma_deallocate(T2)
       Call mma_deallocate(T1)

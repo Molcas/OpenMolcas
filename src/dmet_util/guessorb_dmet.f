@@ -56,7 +56,7 @@
 *----------------------------------------------------------------------*
 * Epilogue                                                             *
 *----------------------------------------------------------------------*
-      Call qExit('guessorb')
+      Call qExit('guessorb_dmet')
       If(StandAlone) Then
          Call qStat(' ')
          Call FastIO('STATUS')

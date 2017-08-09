@@ -39,7 +39,7 @@
       ipSOC(nCnttp) = -1
 *
       Bsl(nCnttp)='.....DMET'
-      Charge(nCnttp)=Zero
+      Charge(nCnttp)=2.000d0
       iAtmNr(nCnttp)=1
       AuxCnttp(nCnttp)=.False.
       aCD_Thr(nCnttp)=One
@@ -53,6 +53,7 @@
       nSOC_Shells(nCnttp) = 0
 *
       nPrim=1
+*VB      nCntrc=1
       nCntrc=nBfn
       nTot_Shells(nCnttp) = 1
       nVal_Shells(nCnttp) = 1

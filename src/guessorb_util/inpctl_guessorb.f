@@ -55,12 +55,16 @@
 *----------------------------------------------------------------------*
       LuSpool=17
       LuSpool=isFreeUnit(LuSpool)
+      write(6,*) "InpCtl_GuessOrb 1"
       Call SpoolInp(LuSpool)
+      write(6,*) "InpCtl_GuessOrb 2"
       Call RdNLst(LuSpool,'GuessOrb')
+      write(6,*) "InpCtl_GuessOrb 3"
 
   999 Continue
       Key=Get_Ln(LuSpool)
       Line=Key
+      write(6,*) "InpCtl_GuessOrb 4"
       Call UpCase(Line)
       If (Line(1:4).eq.'NOMO') Go To  1000
       If (Line(1:4).eq.'PRMO') Go To  1100
@@ -71,7 +75,9 @@
       If (Line(1:4).eq.'END ') Go To 99999
       Write(6,*) myName,': unidentified key word  : ',Key
       Write(6,*) myName,': internal representation: ',Line(1:4)
+      write(6,*) "InpCtl_GuessOrb 5"
       Call FindErrorLine
+      write(6,*) "InpCtl_GuessOrb 6"
       Call Quit_OnUserError()
 *----------------------------------------------------------------------*
 * NOMOs: skip printing of MOs, obsolete                                *
@@ -91,9 +97,13 @@
  1100 Continue
       Line=Get_Ln(LuSpool)
       Line(178:180)='5.0'
+      write(6,*) "InpCtl_GuessOrb 7"
       Call Put_Ln(Line)
+      write(6,*) "InpCtl_GuessOrb 8"
       Call Get_I(1,itmp,1)
+      write(6,*) "InpCtl_GuessOrb 9"
       Call Get_F(2,PrThr,1)
+      write(6,*) "InpCtl_GuessOrb 10"
       If(itmp.ge.4) Then
          PrintMOs=.true.
          PrintEor=.true.
@@ -126,6 +136,7 @@
 *----------------------------------------------------------------------*
  1300 Continue
       Line=Get_Ln(LuSpool)
+      write(6,*) "InpCtl_GuessOrb 11"
       Call Get_F(1,SThr,1)
       Go To 999
 *----------------------------------------------------------------------*
@@ -134,6 +145,7 @@
  1400 Continue
       Line=Get_Ln(LuSpool)
       Call Get_F(1,TThr,1)
+      write(6,*) "InpCtl_GuessOrb 12"
       Go To 999
 *----------------------------------------------------------------------*
 * GapThr: threshold for homo-lumo gap.                                 *
@@ -141,6 +153,7 @@
  1500 Continue
       Line=Get_Ln(LuSpool)
       Call Get_F(1,GapThr,1)
+      write(6,*) "InpCtl_GuessOrb 13"
       Go To 999
 *----------------------------------------------------------------------*
 *                                                                      *
