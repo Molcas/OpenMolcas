@@ -94,7 +94,8 @@
             Dens(i)=Dens(i)+Dens_ab(i)
          end do
       End if
-      EKin = DDot_(nBT,KntE,1,Dens,1)
+*     EKin = DDot_(nBT,KntE,1,Dens,1)
+      EKin = 0
 *
 *---- Print out header to final results
       Lines(1) = 'SCF/KS-DFT Program, Final results'

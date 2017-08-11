@@ -55,7 +55,7 @@
          Call mma_deallocate(Darwin)
          Call mma_deallocate(MssVlc)
       End If
-      Call mma_deallocate(KntE)
+*      Call mma_deallocate(KntE)
       Call mma_deallocate(EDFT)
       Call mma_deallocate(TwoHam)
       Call mma_deallocate(Vxc)

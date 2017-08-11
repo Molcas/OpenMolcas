@@ -35,10 +35,12 @@
       Logical Shijij,IJeqKL,FckNoClmb,FckNoExch
 *
       If (Petite) Then
+          write(6,*) "wroteout 1"
         Call PLF2(AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
      &           iShell,iAO,iAOst,Shijij.and.IJeqKL,
      &           iBas,jBas,kBas,lBas,kOp)
       Else
+          write(6,*) "wroteout 2"
         Call IndSft2(iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,
      &               iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs)
       End If

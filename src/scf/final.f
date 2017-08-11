@@ -25,11 +25,13 @@
 *
 *
 *---- Read remaining one-electron integrals
-      Call R1IntB
+*VB      Call R1IntB
 
       nD = iUHF + 1
+        write(6,*) "final 0"
       Call Final_(Dens,OneHam,Ovrlp,TwoHam,CMO,EOrb,
      &            Fock,OccNo,nBT,nDens,nD,nBB,nnB,KntE,MssVlc,Darwin)
+        write(6,*) "final 1"
 *
       Return
       End
@@ -116,17 +118,21 @@
 #ifdef _DEBUG_
       Call qEnter('Final')
 #endif
+        write(6,*) "final 3"
 *
       Call SorbCMOs(CMO,mBB,nD,EOrb,OccNo,mmB,nBas,nOrb,nSym)
 *
+        write(6,*) "final 4"
       Call Put_darray('SCF orbitals',CMO(1,1),mBB)
       If (nD.eq.2) Then
          Call Put_darray('SCF orbitals_ab',CMO(1,2),mBB)
       End If
+        write(6,*) "final 5"
 *
       If (nIter(nIterP).le.0) Then
 *
          FstItr=.TRUE.
+      write(6,*) "final 6"
          Call SCF_Energy(FstItr,E1V,E2V,EneV)
          call dcopy_(nBT*nD,Dens(1,1,1),1,Dens(1,1,nDens),1)
          call dcopy_(nBT*nD,TwoHam(1,1,1),1,TwoHam(1,1,nDens),1)
@@ -141,6 +147,7 @@
             Do iD = 1, nD
                Call IvoGen(OneHam,nBT,CMO(1,iD),nBO,
      &                     EOrb(1,iD),nnO,nOcc(1,iD))
+      write(6,*) "final 7"
             End Do
          End If
 *
@@ -155,7 +162,9 @@
 *     four elements for some auxiliary information!
 *
       Call mma_allocate(Temp,nBT+4,Label='Temp')
+      write(6,*) "final 8"
       Call FZero(Temp,nBT+4)
+      write(6,*) "final 9"
 *
       Do iD = 1, nD
          Call DCopy_(nBT,Fock(1,iD),1,Temp,1)
@@ -186,6 +195,7 @@
          Do iSym = 1, nSym
             If (nOrb(iSym).le.0) Cycle
 *
+      write(6,*) "final 10"
             Do iD = 1, nD
                Call Square(Fock(jFock,iD),Scrt1(1,iD),
      &                     1,nBas(iSym),nBas(iSym))
@@ -249,12 +259,14 @@
 
          If (kIvo.ne.0) Method='IVO-SCF '
          If (KSDFT.ne.'SCF') Method='KS-DFT  '
+      write(6,*) "final 11"
          Call Put_cArray('Relax Method',Method,8)
 *        Call Put_Energy(EneV)
          Call Store_Energies(1,EneV,1)
          Call Put_dScalar('SCF energy',EneV)
 c         If (iUHF.eq.1) Call Put_dScalar('Ener_ab',EneV_ab)
          Call Put_iArray('nIsh',nOcc(1,1),nSym)
+      write(6,*) "final 12"
          If (iUHF.eq.1) Call Put_iArray('nIsh_ab',nOcc(1,2),nSym)
          Call Put_iArray('nOrb',nOrb,nSym)
          Call Put_iArray('nDel',nDel,nSym)
@@ -262,6 +274,7 @@ c         If (iUHF.eq.1) Call Put_dScalar('Ener_ab',EneV_ab)
          Call Put_iArray('nDelPT',nDel,nSym)    !
 *
 *...  Add MO-coefficients
+      write(6,*) "final 13"
          Call Put_CMO(CMO(1,1),nBB)
          If (iUHF.eq.1) Call Put_dArray('CMO_ab',CMO(1,2),nBB)
 *

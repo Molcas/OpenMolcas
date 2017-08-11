@@ -104,31 +104,47 @@
       If(.not.OnlyProp) Then
           write(6,*) "NAelec=nAuf", NAelec, nAufb
          Call WfCtl_SCF(iTerm,KSDFT,FstItr,SIntTh)
+            write(6,*) "scf after WfCtl_SCF_0"
       End If
 
 *     so that iPsLst is right in case of nIter==0
+            write(6,*) "scf after WfCtl_SCF_1"
       If (nIter(nIterP).eq.0) iter0=-1
+            write(6,*) "scf after WfCtl_SCF_2"
       Call Final()
+            write(6,*) "scf after WfCtl_SCF_3"
       If (DSCF) Call Free_TLists
+            write(6,*) "scf after WfCtl_SCF_4"
 *
       Call CWTime(TCPU2,TWall2)
+            write(6,*) "scf after WfCtl_SCF_5"
       Call SavTim(4,TCPU2-TCPU1,TWall2-TWall1)
+            write(6,*) "scf after WfCtl_SCF_6"
 *
       Call GMFree()
+            write(6,*) "scf after WfCtl_SCF_7"
       Call ClsFls_SCF
+            write(6,*) "scf after WfCtl_SCF_8"
       If (Semi_Direct) Call xRlsMem_Ints
+            write(6,*) "scf after WfCtl_SCF_9"
 *
 *     Call MolDen Interface
 *
       If(iUHF.eq.0) Then
+            write(6,*) "scf after WfCtl_SCF_10"
          Call Molden_Interface(iUHF,'SCFORB','MD_SCF',AddFragments)
 c         Call grid_driver(-1,'SCF','SCFORB',iRc)
       Else
+            write(6,*) "scf after WfCtl_SCF_11"
          Call Molden_Interface(iUHF,'UHFORB','MD_SCF',AddFragments)
 c         Call grid_driver(-1,'SCF','UNAORB',iRc)
+            write(6,*) "scf after WfCtl_SCF_12"
       End If
+            write(6,*) "scf after WfCtl_SCF_13"
       Call qExit('SCF')
+            write(6,*) "scf after WfCtl_SCF_14"
       if(iStatPRN.gt.0) then
+            write(6,*) "scf after WfCtl_SCF_15"
        Call qStat(' ')
        Call FastIO('STATUS')
       endif

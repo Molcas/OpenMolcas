@@ -65,6 +65,7 @@
 #endif
 *
       Call RdOne(iRc,iOpt,Label,iComp,KntE,iSyLbl)
+      If (iRc.ne.0) Go To 777
       Write (6,*) "r1intb1"
       If (iRc.ne.0) Then
         Write (6,*) "r1intb2"

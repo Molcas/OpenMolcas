@@ -43,6 +43,7 @@
      &                Ovrlp,Fock,TrDh,TrDP,TrDD,CMO,CInter,EOrb,OccNo,
      &                HDiag,Vxc,TrM,nBT,nDens,nD,nTr,nBB,nCI,nnB,nOV)
 *                                                                      *
+            write(6,*) "wfctl after WfCtl_SCF_0"
 ************************************************************************
 *                                                                      *
       Call mma_deallocate(CInter)
@@ -1116,24 +1117,31 @@
 *                      S   T   O   P                      *
 ***********************************************************
 *
+      write(6,*) "wfctl after scf 0"
   101 Continue
       If (jPrint.ge.2) Then
          Call CollapseOutput(0,'Convergence information')
          Write(6,*)
+            write(6,*) "wfctl after scf 1"
       End If
 *---  Compute total spin (if UHF)
       If(iUHF.eq.0) Then
+        write(6,*) "wfctl after scf 2"
          s2uhf=0.0d0
       Else
+        write(6,*) "wfctl after scf 3"
          Call s2calc(CMO(1,1),CMO(1,2),Ovrlp,
      &               nOcc(1,1),nOcc(1,2),nBas,nOrb, nSym,
      &               s2uhf)
       End If
+        write(6,*) "wfctl after scf 4"
 *---
       Call Add_Info('SCF_ITER',DBLE(Iter),1,8)
+        write(6,*) "wfctl after scf 5"
 c     Call Scf_XML(0)
 *
       Call KiLLs
+        write(6,*) "wfctl after scf 6"
 *
 *     If the orbitals are generated with orbital rotations in
 *     RotMOs we need to generate the canonical orbitals.
@@ -1143,25 +1151,34 @@ c     Call Scf_XML(0)
 *---    Generate canonical orbitals
 *
          Call TraFck(Fock,nBT,CMO,nBO,.TRUE.,FMOMax,EOrb,nnO,
-     &               Ovrlp,nD)
+     &         Ovrlp,nD)
+        write(6,*) "wfctl after scf 7"
 *
 *        Transform density matrix to MO basis
 *
          Call MODens(Dens,Ovrlp,nBT,nDens,CMO,nBB,nD)
+        write(6,*) "wfctl after scf 8"
 *
       End If
 *
 *---- Compute correct orbital energies
+        write(6,*) "wfctl after scf 9"
 *
       Call MkEorb(Fock,nBT,CMO,nBB,EOrb,nnB,nSym,nBas,nOrb,nD)
+        write(6,*) "wfctl after scf 10"
 *
 *     Put orbital coefficients and energies on the runfile.
 *
+        write(6,*) "wfctl after scf 11"
       Call Put_darray('SCF orbitals',   CMO(1,1),nBB)
+        write(6,*) "wfctl after scf 12"
       Call Put_darray('OrbE',   Eorb(1,1),nnB)
+        write(6,*) "wfctl after scf 13"
       If (nD.eq.2) Then
+        write(6,*) "wfctl after scf 14"
          Call Put_darray('SCF orbitals_ab',   CMO(1,2),nBB)
          Call Put_darray('OrbE_ab',   Eorb(1,2),nnB)
+        write(6,*) "wfctl after scf 15"
       End If
 *                                                                      *
 *----------------------------------------------------------------------*
@@ -1170,6 +1187,7 @@ c     Call Scf_XML(0)
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
+        write(6,*) "wfctl after scf 16"
       If (DoCholesky) Then
          If (DoLDF) Then
             Call LDF_UnsetIntegralPrescreeningInfo()
@@ -1179,7 +1197,9 @@ c     Call Scf_XML(0)
      &                   'WfCtl: non-zero return code from LDF_X_Final')
                Call LDF_Quit(1)
             End If
+            write(6,*) "wfctl after scf 17"
          Else
+            write(6,*) "wfctl after scf 18"
             Call Cho_X_Final(irc)
             If (irc.ne.0) Then
                Call WarningMessage(2,
@@ -1188,13 +1208,16 @@ c     Call Scf_XML(0)
             End If
          End If
       End If
+            write(6,*) "wfctl after scf 19"
 *                                                                      *
 *----------------------------------------------------------------------*
 *     Exit                                                             *
 *----------------------------------------------------------------------*
 *                                                                      *
       Call CWTime(TCpu2,TWall2)
+            write(6,*) "wfctl after scf 20"
       Call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
+            write(6,*) "wfctl after scf 21"
       TimFld( 2) = TimFld( 2) + (TCpu2 - TCpu1)
 
       Return
