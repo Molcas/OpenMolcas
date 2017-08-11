@@ -128,7 +128,7 @@ c               iseed = 13
                Do i = 1, nOF
                   Do j = 1, i - 1
                      OHTr(ind) =
-     &               OHTr(ind) + 0.050d+00*Random_Molcas(iseed)
+     &               OHTr(ind) + 0.050d+00*fRandom_Molcas(iseed)
                      ind = ind + 1
                   End Do
                   ind = ind + 1
