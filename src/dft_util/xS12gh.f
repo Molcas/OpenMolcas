@@ -116,6 +116,13 @@ C     parameter(xldacff=0.930525736349100025D0)
 
       parameter(b=1.0d0/137.0d0)
 
+c initialized to Zero to avoid nasty complains from compilers
+        rA = 0.0d0
+        rK = 0.0d0
+        rB = 0.0d0
+        rC = 0.0d0
+        rD = 0.0d0
+        rE = 0.0d0
 
       if(gh_switch.eq.1) then
 * GGA non-hybrid parameter set
