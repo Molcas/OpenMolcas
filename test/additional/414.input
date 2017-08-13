@@ -9,7 +9,7 @@
 *-------------------------------------------------------------------------------
 &GATEWAY
 Title = CuH4(-2)
-coord = 5 
+coord = 5
 CuH4
  Cu                 0.00000000    0.00000000    0.00000000
  H                 -2.25050000    0.00000000    0.00000000
@@ -35,9 +35,9 @@ charge = -2
 spin = 2
 LUMORB
 symmetry = 1
-inactive 
+inactive
  6 2 2 0 2 1 1 0
-nactel 
+nactel
 7 0 0
 ras1
 0 0 0 0 0 0 0 0
@@ -55,7 +55,7 @@ LUMORB
 symmetry = 1
 ALTER
 1
-1 1 6 
+1 1 6
 SUPSYM
 1 ; 1 1
 0
@@ -84,7 +84,7 @@ THRS
 End of input
 
 
->>> LINK $Project.JobIph JOB001
+>>> COPY $Project.JobIph JOB001
 
 &RASSI  &END
 DIPR
