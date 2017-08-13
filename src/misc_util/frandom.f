@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1993, P.O. Widmark                                     *
+* Copyright (C) 1993, Per-Olof Widmark                                 *
 *               2010, John Burkardt                                    *
 *               2017, Morgane Vacher                                   *
 ************************************************************************

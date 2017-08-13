@@ -10,7 +10,8 @@
 *                                                                      *
 * Copyright (C) 2001, Roland Lindh                                     *
 *               2010, Grigory A. Shamov                                *
-*               2017, G. Li Manni & A. Cohen                           *
+*               2017, Giovanni Li Manni                                *
+*               2017, Aron Cohen                                       *
 ************************************************************************
       Subroutine SSBD(mGrid,Rho,nRho,P2_ontop,
      &                nP2_ontop,iSpin,F_xc,

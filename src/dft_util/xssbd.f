@@ -10,7 +10,8 @@
 *                                                                      *
 * Copyright (C) 2006, Per Ake Malmqvist                                *
 *               2010, Grigory A. Shamov                                *
-*               2017, G. Li Manni & A. Cohen                           *
+*               2017, Giovanni Li Manni                                *
+*               2017, Aron Cohen                                       *
 ************************************************************************
       Subroutine xSSBD(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
      &                Coeff,iSpin,F_xc,T_X)

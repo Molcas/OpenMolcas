@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 2017, Giovanni Li Manni                                *
-*                     Aron Cohen                                       *
+*               2017, Aron Cohen                                       *
 ************************************************************************
       Subroutine S12g(mGrid,Rho,nRho,P2_ontop,
      &                nP2_ontop,iSpin,F_xc,

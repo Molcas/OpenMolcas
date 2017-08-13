@@ -52,9 +52,11 @@ Margareta R. A. Blomberg
 Piotr Borowski  
 Jonas Boström  
 Per Boussard  
+John Burkardt 
 Yannick Carissan  
 Liviu Chibotaru  
 Christophe Chipot  
+Aron Cohen 
 David L. Cooper  
 Maurizio Cossi  
 Oleh Danyliv  
@@ -92,7 +94,6 @@ Johan Lorentzon
 Dongxia Ma  
 Yingjin Ma  
 Per Åke Malmqvist  
-Koni Marti  
 Neil Martinsen-Burrell  
 Andy May  
 Manuela Merchán  

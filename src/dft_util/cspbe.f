@@ -9,7 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 2005, Per Ake Malmqvist                                *
-* Copyright (C) 2017, G. Li Manni & A. Cohen                           *
+*               2017, Giovanni Li Manni                                *
+*               2017, Aron Cohen                                       *
 ************************************************************************
       Subroutine CSPBE(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
      &                Coeff,iSpin,F_xc,T_X)
