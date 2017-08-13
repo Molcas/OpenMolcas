@@ -14,7 +14,7 @@
 *               2003-2005, Valera Veryazov                             *
 *               2017, Roland Lindh                                     *
 ************************************************************************
-      subroutine SCF(ireturn)
+      subroutine SCF_DMET(ireturn,return)
 ************************************************************************
 *                                                                      *
 *     purpose: perform RHF calculations                                *
@@ -50,6 +50,8 @@
       Character*8 EMILOOP
       Logical FstItr, Semi_Direct
       Real*8 SIntTh
+*     Integer nBfn
+*     Real*8 CorPA(nBfn**2)
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -102,32 +104,49 @@
       FstItr=.True.
 
       If(.not.OnlyProp) Then
-         Call WfCtl_SCF(iTerm,KSDFT,FstItr,SIntTh)
+          write(6,*) "NAelec=nAuf", NAelec, nAufb
+         Call WfCtl_SCF_DMET(iTerm,KSDFT,FstItr,SIntTh)
+            write(6,*) "scf after WfCtl_SCF_0"
       End If
 
 *     so that iPsLst is right in case of nIter==0
+            write(6,*) "scf after WfCtl_SCF_1"
       If (nIter(nIterP).eq.0) iter0=-1
-      Call Final()
-      If (DSCF) Call Free_TLists
+            write(6,*) "scf after WfCtl_SCF_2"
+      Call Final_DMET()
+            write(6,*) "scf after WfCtl_SCF_3"
+      If (DSCF) Call Free_TLists_DMET
+            write(6,*) "scf after WfCtl_SCF_4"
 *
       Call CWTime(TCPU2,TWall2)
+            write(6,*) "scf after WfCtl_SCF_5"
       Call SavTim(4,TCPU2-TCPU1,TWall2-TWall1)
+            write(6,*) "scf after WfCtl_SCF_6"
 *
-      Call GMFree()
+      Call GMFree_DMET()
+            write(6,*) "scf after WfCtl_SCF_7"
       Call ClsFls_SCF
+            write(6,*) "scf after WfCtl_SCF_8"
       If (Semi_Direct) Call xRlsMem_Ints
+            write(6,*) "scf after WfCtl_SCF_9"
 *
 *     Call MolDen Interface
 *
       If(iUHF.eq.0) Then
+            write(6,*) "scf after WfCtl_SCF_10"
          Call Molden_Interface(iUHF,'SCFORB','MD_SCF',AddFragments)
 c         Call grid_driver(-1,'SCF','SCFORB',iRc)
       Else
+            write(6,*) "scf after WfCtl_SCF_11"
          Call Molden_Interface(iUHF,'UHFORB','MD_SCF',AddFragments)
 c         Call grid_driver(-1,'SCF','UNAORB',iRc)
+            write(6,*) "scf after WfCtl_SCF_12"
       End If
+            write(6,*) "scf after WfCtl_SCF_13"
       Call qExit('SCF')
+            write(6,*) "scf after WfCtl_SCF_14"
       if(iStatPRN.gt.0) then
+            write(6,*) "scf after WfCtl_SCF_15"
        Call qStat(' ')
        Call FastIO('STATUS')
       endif
@@ -155,7 +174,7 @@ c         Call grid_driver(-1,'SCF','UNAORB',iRc)
 *
       End
 ************************************************************************
-      SubRoutine IniLLs
+      SubRoutine IniLLs_DMET
 *     initialize the diverse linked lists
       Implicit Real*8 (a-h,o-z)
 
@@ -186,43 +205,43 @@ c     MemRsv=6*nBT
       Return
       End
 *----------------------------------------------------------------------*
-#ifdef _NOTUSED_
-      Subroutine StatLLS()
-      Implicit Real*8 (a-h,o-z)
-#include "llists.fh"
-      If (Init_LLs.eq.1) Then
-         Call StlLst(LLGrad)
-         Call StlLst(LLDgrd)
-         Call StlLst(LLDelt)
-         Call StlLst(LLy)
-         Call StlLst(LLx)
-      Else
-         Write (6,*) '****** W A R N I N G ! ******'
-         Write (6,*) ' Linked lists are not there!'
-      End If
-      Return
-      End
-#endif
+*#ifdef _NOTUSED_
+*      Subroutine StatLLS()
+*      Implicit Real*8 (a-h,o-z)
+*#include "llists.fh"
+*      If (Init_LLs.eq.1) Then
+*         Call StlLst_DMET(LLGrad)
+*         Call StlLst_DMET(LLDgrd)
+*         Call StlLst_DMET(LLDelt)
+*         Call StlLst_DMET(LLy)
+*         Call StlLst_DMET(LLx)
+*      Else
+*         Write (6,*) '****** W A R N I N G ! ******'
+*         Write (6,*) ' Linked lists are not there!'
+*      End If
+*      Return
+*      End
+*#endif
 *----------------------------------------------------------------------*
-      SubRoutine KiLLs
-*     dispose the diverse linked lists
-      Implicit Real*8 (a-h,o-z)
-#include "llists.fh"
-      If (Init_LLs.eq.1) Then
-         Call KilLst(LLGrad)
-         Call KilLst(LLDgrd)
-         Call KilLst(LLDelt)
-         Call KilLst(LLy)
-         Call KilLst(LLx)
-         Init_LLs=-1
-      Else
-         Write (6,*) '****** W A R N I N G ! ******'
-         Write (6,*) ' Linked list already killed!'
-      End If
-      Return
-      End
-*----------------------------------------------------------------------*
-      Subroutine RclLLs(iDskPt)
+*      SubRoutine KiLLs_DMET
+**     dispose the diverse linked lists
+*      Implicit Real*8 (a-h,o-z)
+*#include "llists.fh"
+*      If (Init_LLs.eq.1) Then
+*         Call KilLst_DMET(LLGrad)
+*         Call KilLst_DMET(LLDgrd)
+*         Call KilLst_DMET(LLDelt)
+*         Call KilLst_DMET(LLy)
+*         Call KilLst_DMET(LLx)
+*         Init_LLs=-1
+*      Else
+*         Write (6,*) '****** W A R N I N G ! ******'
+*         Write (6,*) ' Linked list already killed!'
+*      End If
+*      Return
+*      End
+**----------------------------------------------------------------------*
+      Subroutine RclLLs_DMET(iDskPt)
       Implicit Real*8 (a-h,o-z)
 #include "infso.fh"
 #include "file.fh"
@@ -238,7 +257,7 @@ c     MemRsv=6*nBT
       Return
       End
 *----------------------------------------------------------------------*
-      Subroutine DmpLLs(iDskPt)
+      Subroutine DmpLLs_DMET(iDskPt)
       Implicit Real*8 (a-h,o-z)
 #include "file.fh"
 #include "llists.fh"
@@ -257,7 +276,7 @@ c     MemRsv=6*nBT
       Return
       End
 *----------------------------------------------------------------------*
-      Subroutine StlLst(LLink)
+      Subroutine StlLst_DMET(LLink)
       Implicit Real*8 (a-h,o-z)
 #include "WrkSpc.fh"
       return
@@ -313,7 +332,7 @@ c     MemRsv=6*nBT
       End
 #endif
 *----------------------------------------------------------------------*
-      Subroutine Free_TLists
+      Subroutine Free_TLists_DMET
       Implicit Real*8 (a-h,o-z)
 
 #include "mxdm.fh"
@@ -367,7 +386,7 @@ c 110 Continue
       End
 #endif
 *debug routine
-      Subroutine Reduce_Thresholds(EThr_,SIntTh)
+      Subroutine Reduce_Thresholds_DMET(EThr_,SIntTh)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 *
@@ -402,27 +421,6 @@ c 110 Continue
       DltNTh=100.0D0*EThr
       FThr=FThr*Relax
       Call xSet_ThrInt(ThrInt_Old*Relax)
-*
-      Return
-      End
-      Subroutine Reset_Thresholds
-      Implicit Real*8 (a-h,o-z)
-*
-#include "mxdm.fh"
-#include "infscf.fh"
-#include "infso.fh"
-      Common /Save/ SIntTh_old, EThr_old, DThr_old, DltNTh_old,
-     &              FThr_old, ThrInt_Old
-*
-      Write (6,*)
-      Write (6,*) 'Restore thresholds...'
-      Write (6,*)
-      SIntTh=SIntTh_old
-      EThr=EThr_old
-      DThr=DThr_old
-      DltNTh=DltNTh_old
-      FThr=FThr_old
-      Call xSet_ThrInt(ThrInt_Old)
 *
       Return
       End

@@ -58,17 +58,8 @@
       iComp=1
       iSyLbl=1
       Label='Kinetic '
-      Write (6,*) "r1intb0"
-#define _DMET_
-#ifdef _DMET_
-      Call PrMtrx(label,1,Comp,1,KntE)
-#endif
-*
       Call RdOne(iRc,iOpt,Label,iComp,KntE,iSyLbl)
-      If (iRc.ne.0) Go To 777
-      Write (6,*) "r1intb1"
       If (iRc.ne.0) Then
-        Write (6,*) "r1intb2"
          Write (6,*) 'R1Intb: Error readin ONEINT'
          Write (6,'(A,A)') 'Label=',Label
          Call QTrace

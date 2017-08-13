@@ -11,7 +11,7 @@
 * Copyright (C) Per-Olof Widmark                                       *
 *               2017, Roland Lindh                                     *
 ************************************************************************
-      Subroutine VecFind(OccSet,FermSet,CharSet,SpinSet)
+      Subroutine VecFind_DMET(OccSet,FermSet,CharSet,SpinSet)
 ************************************************************************
 *                                                                      *
 * This routine figure out which set of starting orbitals are used.     *
@@ -187,7 +187,9 @@
 *----------------------------------------------------------------------*
 * What are the defaults for the different cases?                       *
 *----------------------------------------------------------------------*
-      Call Get_dScalar('Total Nuclear Charge',Tot_Nuc_Charge)
+      write(6,*) "here"
+*      Call Get_dScalar('Total Nuclear Charge',Tot_Nuc_Charge)
+      Tot_Nuc_Charge=0.000d0
       Tot_El_Charge=Tot_Charge-Tot_Nuc_Charge
       If(InVec.eq.0) Then
 *

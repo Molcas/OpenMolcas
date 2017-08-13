@@ -57,13 +57,13 @@
 *                                                                      *
 *     read one electron integral file header
 *
-      Call R1IBas()
+      Call R1IBas_DMET()
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     read input
 *
-      Call RdInp_SCF()
+      Call RdInp_SCF_DMET()
 *                                                                      *
 ************************************************************************
 *                                                                      *

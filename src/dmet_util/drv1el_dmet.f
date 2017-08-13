@@ -11,7 +11,7 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 *               1996, Per Ake Malmqvist                                *
 ************************************************************************
-      SubRoutine Drv1El_DMET(DMET_s,DMET_f,DMET_h,nBfn)
+      SubRoutine Drv1El_DMET(NAele,DMET_s,DMET_f,DMET_h,nBfn)
 ************************************************************************
 *                                                                      *
 * Object: driver for computation of one-electron matrices.             *
@@ -57,7 +57,7 @@
 #include "warnings.fh"
       Character*8 Label
       Character*512 FName
-      Integer nComp
+      Integer nComp, NAele
 *
       iRout = 131
       iPrint = nPrint(iRout)
@@ -224,23 +224,24 @@
  11      Continue
 
 *         If(iMltpl.eq.0) Then
-*             Call Put_dScalar('Total Nuclear Charge',Nuc)
+             Nuc = NAele
+             Call Put_dScalar('Total Nuclear Charge',Nuc)
 *         End If
-        write(6,*) "MltInt", MltInt
-        write(6,*) "MltMem", Mltmem
-        write(6,*) "label", label
-        write(6,*) "iplist", iplist
-        write(6,*) "OperI", OperI
-        write(6,*) "nComp",nComp
-        write(6,*) "CoorO",CoorO
-        write(6,*) "nOrdOp",nOrdOp
-        write(6,*) "Nuc",  Nuc
-        write(6,*) "OperC",OperC
+*        write(6,*) "MltInt", MltInt
+*        write(6,*) "MltMem", Mltmem
+*        write(6,*) "label", label
+*        write(6,*) "iplist", iplist
+*        write(6,*) "OperI", OperI
+*        write(6,*) "nComp",nComp
+*        write(6,*) "CoorO",CoorO
+*        write(6,*) "nOrdOp",nOrdOp
+*        write(6,*) "Nuc",  Nuc
+*        write(6,*) "OperC",OperC
 
 
          nOrdOp=iMltpl
          Call OneEl_DMET_s(MltInt,MltMem,Label,ipList,OperI,nComp,
-     &              CoorO,nOrdOp,Nuc,rHrmt,OperC,
+     &              CoorO,nOrdOp,Zero,rHrmt,OperC,
      &              DMET_s,nBfn)
 
          Call Deallocate_Auxiliary()

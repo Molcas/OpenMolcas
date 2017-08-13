@@ -14,7 +14,7 @@
 *               1996, Martin Schuetz                                   *
 *               2017, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine TraClc_i(OneHam,Dens,TwoHam,Vxc,nDT,NumDT,iterLw,
+      SubRoutine TraClc_i_DMET(OneHam,Dens,TwoHam,Vxc,nDT,NumDT,iterLw,
      &                    TrDh,TrDP,TrDD,nTr,nD)
 ************************************************************************
 *                                                                      *
@@ -124,11 +124,16 @@
 *----------------------------------------------------------------------*
 *                                                                      *
 *
+*define _DEBUG_
 #ifdef _DEBUG_
       Do iD = 1, nD
          Write(6,'(a)') 'traclc: TrDh'
          Write(6,'(6f16.8)') (TrDh(ii,ii,iD),ii=1,iter_d)
       End Do
+#endif
+*define _DMET_
+#ifdef _DMET_
+       Call PrMtrx("Oneham traclc",1,1,1,OneHam)
 #endif
       If (Allocated(Aux1)) Call mma_deallocate(Aux1)
 *                                                                      *

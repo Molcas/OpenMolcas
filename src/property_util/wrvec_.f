@@ -138,6 +138,7 @@ c#endif
 *
 *  Write INFO header
 *
+      WRITE(6,*) "writing INPORP"
       WRITE(LU,'(A)') Magic(iVer)
       Write(Lu,'(A)') '#INFO'
 
@@ -155,6 +156,7 @@ c#endif
         Call Get_cArray('BirthCertificate',cDNA(:nDNA),nDNA)
         WRITE(LU,'(A)') '*BC:'//cDNA(:mylen(cDNA))
       ENDIF
+      WRITE(6,*) "writing INPORP"
 
 * Extras section
       If (iTwoE.eq.1 ) iExtras=1  ! so far only case
@@ -199,6 +201,7 @@ c#endif
       Endif  ! UHF
       Endif  ! iCMO
 * OCC section
+      WRITE(6,*) "writing INPORP"
 
       if(iOcc.eq.1) then
       NDIV=nDivOcc(iVer)
@@ -309,8 +312,10 @@ c            WRITE(*,FMT) Buff
          End Do
        iShift=iShift+7
       End Do
+      WRITE(6,*) "writing INPORP"
 
       Endif  ! iInd
+      WRITE(6,*) "writing INPORP"
 
       Close(Lu)
       RETURN

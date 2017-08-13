@@ -15,7 +15,7 @@
 *               2003, Valera Veryazov                                  *
 *               2016,2017, Roland Lindh                                *
 ************************************************************************
-      SubRoutine WfCtl_SCF(iTerm,Meth,FstItr,SIntTh)
+      SubRoutine WfCtl_SCF_DMET(iTerm,Meth,FstItr,SIntTh)
       use SCF_Arrays
       Implicit Real*8 (a-h,o-z)
 #include "mxdm.fh"
@@ -39,10 +39,11 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call WfCtl_SCF_(iTerm,Meth,FstItr,SIntTh,OneHam,TwoHam,Dens,
+      Call WfCtl_SCF_DMET_(iTerm,Meth,FstItr,SIntTh,OneHam,TwoHam,Dens,
      &                Ovrlp,Fock,TrDh,TrDP,TrDD,CMO,CInter,EOrb,OccNo,
      &                HDiag,Vxc,TrM,nBT,nDens,nD,nTr,nBB,nCI,nnB,nOV)
 *                                                                      *
+            write(6,*) "wfctl after WfCtl_SCF_0"
 ************************************************************************
 *                                                                      *
       Call mma_deallocate(CInter)
@@ -54,7 +55,7 @@
 *                                                                      *
       Return
       End
-      SubRoutine WfCtl_SCF_(iTerm,Meth,FstItr,SIntTh,
+      SubRoutine WfCtl_SCF_DMET_(iTerm,Meth,FstItr,SIntTh,
      &                      OneHam,TwoHam,Dens,Ovrlp,Fock,
      &                      TrDh,TrDP,TrDD,CMO,CInter,EOrb,OccNo,HDiag,
      &                      Vxc,TrM,mBT,mDens,nD,nTr,mBB,nCI,mmB,mOV)
@@ -237,13 +238,14 @@
          If(DSCF.and.KSDFT.eq.'SCF'.and.Two_Thresholds) Then
             Reset=.True.
             Reset_Thresh=.True.
-            Call Reduce_Thresholds(EThr_New,SIntTh)
+            Call Reduce_Thresholds_DMET(EThr_New,SIntTh)
          End If
 *
          If(KSDFT.ne.'SCF'.and..Not.One_Grid) Then
             Reset=.True.
             Call Modify_NQ_Grid()
             Call PrBeg(Meth)
+            write(6,*) 'scf wfclt'
          End If
 *
       End If
@@ -300,19 +302,26 @@
          WarnCfg=.false.
 *
          If(.not.Aufb.and.iter.gt.MaxFlip) AllowFlip=.false.
+            write(6,*) 'scf wfclt 0'
 
          TCP1=seconds()
 
          iDMin = iDMin + 1
          If(iDMin.gt.MinDMx) iDMin = MinDMx
+            write(6,*) 'scf wfclt 1'
 
 #ifdef _MSYM_
          If (MSYMON) Then
             Do iD = 1, nD
+            write(6,*) 'scf wfclt 2'
                Call fmsym_symmetrize_orbitals(msym_ctx,CMO(1,iD))
+            write(6,*) 'scf wfclt 3'
                Call ChkOrt(CMO(1,iD),nBO,Ovrlp,nBT,Whatever)
+            write(6,*) 'scf wfclt 4'
                Call Ortho(CMO(1,iD),nBO,Ovrlp,nBT)
+            write(6,*) 'scf wfclt 5'
                Call ChkOrt(CMO(1,iD),nBO,Ovrlp,nBT,Whatever)
+            write(6,*) 'scf wfclt 6'
             End Do
          End If
 #endif
@@ -321,7 +330,8 @@
 *                                                                      *
 *        Do Aufbau procedure, if active...
 *
-         If (Aufb) Call Aufbau(EOrb,mmB,nAufb,OccNo,mmb,iAufOK,nD)
+         If (Aufb) Call Aufbau_DMET(EOrb,mmB,nAuf,OccNo,mmb,iAufOK,nD)
+            write(6,*) 'scf wfclt 7'
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -348,12 +358,14 @@
 *
          If ((DMOMax.lt.DiisTh .AND. IterX.gt.Iter_no_Diis
      &             .AND. ABS(EDiff).lt.1.0D-1)) Then
+            write(6,*) 'scf wfclt 8'
 *
 *           Reset kOptim such that the extraploation scheme is not
 *           corrupted by iterations with too high energies. Those can
 *           not be used in the scheme.
 *
             If (iOpt.eq.0) kOptim=2
+            write(6,*) 'scf wfclt 9'
             iOpt=1
             Iter_DIIS = Iter_DIIS + 1
          End If
@@ -370,6 +382,7 @@
          If (iOpt.ge.2 .OR.
      &      (iOpt.eq.1 .AND. DMOMax.lt.QNRTh .AND.  Iter_DIIS.ge.2))
      &      Then
+            write(6,*) 'scf wfclt 9'
 *define _TEST_OF_RS_RFO_
 #ifdef  _TEST_OF_RS_RFO_
             iOpt=3
@@ -381,6 +394,7 @@
 *
 *---           compute initial inverse Hessian H (diag)
 *
+               write(6,*) 'scf wfclt 10'
                Call SOIniH(EOrb,nnO,HDiag,nOV,nD)
 *
             End If
@@ -402,14 +416,18 @@
 *                                                                      *
 *           Interpolation DIIS
 *
-            Call SCF_Energy(FstItr,E1V,E2V,EneV)
+               write(6,*) 'scf wfclt 18post'
+            Call SCF_Energy_DMET(FstItr,E1V,E2V,EneV)
+               write(6,*) 'scf wfclt 11'
 *
 *           Compute traces: TrDh, TrDP and TrDD.
 *
-            Call TraClc_i(OneHam,Dens,TwoHam,Vxc,nBT,nDens,iter,
+            Call TraClc_i_DMET(OneHam,Dens,TwoHam,Vxc,nBT,nDens,iter,
      &                    TrDh,TrDP,TrDD,MxIter,nD)
+               write(6,*) 'scf wfclt 12'
 *
             If (kOptim.eq.1) Then
+               write(6,*) 'scf wfclt 13'
 *
 *              If we only have one density, then nothing much to intra-
 *              polate over.
@@ -417,6 +435,7 @@
                AccCon = 'None     '
 *
             Else
+               write(6,*) 'scf wfclt 14'
 *
 *              DIIS interpolation optimization: EDIIS, ADIIS, LDIIS
 *
@@ -435,22 +454,28 @@
 *
 *---        Update Fock Matrix from OneHam and extrapolated TwoHam & Vxc
 *
+               write(6,*) 'scf wfclt 15'
             Call UpdFck(OneHam,TwoHam,Vxc,nBT,nDens,Fock,nIter(nIterP),
      &                  nD)
+               write(6,*) 'scf wfclt 16'
 *---        Diagonalize Fock matrix and obtain new orbitals
 *
             ScramNeworb=Scrmbl.and.iter.eq.1
             Call NewOrb_SCF(Fock,nBT,CMO,nBO,FMOMax,EOrb,nnO,Ovrlp,nFO,
      &                  AllowFlip,ScramNeworb,nD)
+               write(6,*) 'scf wfclt 17'
 *
 *---        Transform density matrix to MO basis
 *
             Call MODens(Dens,Ovrlp,nBT,nDens,CMO,nBB,nD)
+               write(6,*) 'scf wfclt 18'
+               write(6,*) 'iopt', iOpt
 *                                                                      *
 ************************************************************************
 ************************************************************************
 *                                                                      *
          Else If ( iOpt.eq.1 ) Then
+               write(6,*) 'scf wfclt 19'
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -465,7 +490,8 @@
 *           canonical CMOs are generated by the diagonalization of the
 *           Fock matrix.
 *
-            Call SCF_Energy(FstItr,E1V,E2V,EneV)
+            Call SCF_Energy_DMET(FstItr,E1V,E2V,EneV)
+               write(6,*) 'scf wfclt 20'
 *
             Call TraClc_x(kOptim,iOpt.eq.2,FrstDs,.FALSE.,CInter,nCI,nD,
      &                    nOV,Lux,iter,memRsv,LLx)
@@ -511,14 +537,14 @@
 *
 *           Note also, that since we work directly with the X matrix we
 *           also rotate the orbitals with this matrix (note the call to
-*           RotMOs right before the call to SCF_Energy in the line
+*           RotMOs right before the call to SCF_Energy_DMET in the line
 *           search routine, linser). Thus, the orbitals here are not
 *           canonical and would require at the termination of the
 *           optimization that these are computed.
 *
 *           Initiate if the first QNR step
 *
-            Call SCF_Energy(FstItr,E1V,E2V,EneV)
+            Call SCF_Energy_DMET(FstItr,E1V,E2V,EneV)
 *
             Call TraClc_x(kOptim,iOpt.eq.2,FrstDs,QNR1st,CInter,nCI,
      &                    nD,nOV,Lux,iter,memRsv,LLx)
@@ -611,14 +637,14 @@
 *
 *           Note also, that since we work directly with the X matrix we
 *           also rotate the orbitals with this matrix (note the call to
-*           RotMOs right before the call to SCF_Energy in the line
+*           RotMOs right before the call to SCF_Energy_DMET in the line
 *           search routine, linser). Thus, the orbitals here are not
 *           canonical and would require at the termination of the
 *           optimization that these are computed.
 *
 *           Initiate if the first QNR step
 *
-            Call SCF_Energy(FstItr,E1V,E2V,EneV)
+            Call SCF_Energy_DMET(FstItr,E1V,E2V,EneV)
 *
             Call TraClc_x(kOptim,iOpt.ge.2,FrstDs,QNR1st,CInter,nCI,
      &                    nD,nOV,Lux,iter,memRsv,LLx)
@@ -1091,24 +1117,31 @@
 *                      S   T   O   P                      *
 ***********************************************************
 *
+      write(6,*) "wfctl after scf 0"
   101 Continue
       If (jPrint.ge.2) Then
          Call CollapseOutput(0,'Convergence information')
          Write(6,*)
+            write(6,*) "wfctl after scf 1"
       End If
 *---  Compute total spin (if UHF)
       If(iUHF.eq.0) Then
+        write(6,*) "wfctl after scf 2"
          s2uhf=0.0d0
       Else
+        write(6,*) "wfctl after scf 3"
          Call s2calc(CMO(1,1),CMO(1,2),Ovrlp,
      &               nOcc(1,1),nOcc(1,2),nBas,nOrb, nSym,
      &               s2uhf)
       End If
+        write(6,*) "wfctl after scf 4"
 *---
       Call Add_Info('SCF_ITER',DBLE(Iter),1,8)
+        write(6,*) "wfctl after scf 5"
 c     Call Scf_XML(0)
 *
       Call KiLLs
+        write(6,*) "wfctl after scf 6"
 *
 *     If the orbitals are generated with orbital rotations in
 *     RotMOs we need to generate the canonical orbitals.
@@ -1118,25 +1151,34 @@ c     Call Scf_XML(0)
 *---    Generate canonical orbitals
 *
          Call TraFck(Fock,nBT,CMO,nBO,.TRUE.,FMOMax,EOrb,nnO,
-     &               Ovrlp,nD)
+     &         Ovrlp,nD)
+        write(6,*) "wfctl after scf 7"
 *
 *        Transform density matrix to MO basis
 *
          Call MODens(Dens,Ovrlp,nBT,nDens,CMO,nBB,nD)
+        write(6,*) "wfctl after scf 8"
 *
       End If
 *
 *---- Compute correct orbital energies
+        write(6,*) "wfctl after scf 9"
 *
       Call MkEorb(Fock,nBT,CMO,nBB,EOrb,nnB,nSym,nBas,nOrb,nD)
+        write(6,*) "wfctl after scf 10"
 *
 *     Put orbital coefficients and energies on the runfile.
 *
+        write(6,*) "wfctl after scf 11"
       Call Put_darray('SCF orbitals',   CMO(1,1),nBB)
+        write(6,*) "wfctl after scf 12"
       Call Put_darray('OrbE',   Eorb(1,1),nnB)
+        write(6,*) "wfctl after scf 13"
       If (nD.eq.2) Then
+        write(6,*) "wfctl after scf 14"
          Call Put_darray('SCF orbitals_ab',   CMO(1,2),nBB)
          Call Put_darray('OrbE_ab',   Eorb(1,2),nnB)
+        write(6,*) "wfctl after scf 15"
       End If
 *                                                                      *
 *----------------------------------------------------------------------*
@@ -1145,6 +1187,7 @@ c     Call Scf_XML(0)
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
+        write(6,*) "wfctl after scf 16"
       If (DoCholesky) Then
          If (DoLDF) Then
             Call LDF_UnsetIntegralPrescreeningInfo()
@@ -1154,7 +1197,9 @@ c     Call Scf_XML(0)
      &                   'WfCtl: non-zero return code from LDF_X_Final')
                Call LDF_Quit(1)
             End If
+            write(6,*) "wfctl after scf 17"
          Else
+            write(6,*) "wfctl after scf 18"
             Call Cho_X_Final(irc)
             If (irc.ne.0) Then
                Call WarningMessage(2,
@@ -1163,13 +1208,16 @@ c     Call Scf_XML(0)
             End If
          End If
       End If
+            write(6,*) "wfctl after scf 19"
 *                                                                      *
 *----------------------------------------------------------------------*
 *     Exit                                                             *
 *----------------------------------------------------------------------*
 *                                                                      *
       Call CWTime(TCpu2,TWall2)
+            write(6,*) "wfctl after scf 20"
       Call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
+            write(6,*) "wfctl after scf 21"
       TimFld( 2) = TimFld( 2) + (TCpu2 - TCpu1)
 
       Return

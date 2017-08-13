@@ -11,15 +11,13 @@
 * Copyright (C) 1992, Per-Olof Widmark                                 *
 *               1992, Markus P. Fuelscher                              *
 *               1992, Piotr Borowski                                   *
-*               2016,2017, Roland Lindh                                *
 ************************************************************************
-      SubRoutine GMFree()
+      Subroutine R1IBas_DMET
 ************************************************************************
 *                                                                      *
-*     purpose: Deallocate work space at the end of calculation to check*
-*              possible errors                                         *
+*     purpose: Read basis set informations.                            *
 *                                                                      *
-*     called from: SCF                                                 *
+*     called from: ReadIn                                              *
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -32,52 +30,52 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      use SCF_Arrays
-      use Orb_Type
+*
       Implicit Real*8 (a-h,o-z)
 *
+
 #include "mxdm.fh"
 #include "infscf.fh"
-#include "stdalloc.fh"
-#ifdef _FDE_
-      ! Thomas Dresselhaus
-#include "embpotdata.fh"
-#endif
+
+#include "WrkSpc.fh"
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-      nD = iUHF + 1
+      Call qEnter('R1IBas')
 *
-*---- Deallocate memory
-      If (Allocated(Darwin)) Then
-         Call mma_deallocate(Darwin)
-         Call mma_deallocate(MssVlc)
-      End If
-      Call mma_deallocate(KntE)
-      Call mma_deallocate(EDFT)
-      Call mma_deallocate(TwoHam)
-      Call mma_deallocate(Vxc)
-      Call mma_deallocate(Dens)
-      Call mma_deallocate(OrbType)
-      Call mma_deallocate(EOrb)
-      Call mma_deallocate(OccNo)
-      Call mma_deallocate(Fock)
-      Call mma_deallocate(CMO)
-      Call mma_deallocate(TrM)
+*---- read file header
+      Call Get_cArray('Seward Title',Header,144)
+*---- read number of symm. species
+      Call Get_iScalar('nSym',nSym)
+*---- read number of basis functions per symmetry species
+      Call Get_iArray('nBas',nBas,nSym)
+*---- read basis function labels
+      nBas_tot=0
+      Do iSym = 1, nSym
+         nBas_tot=nBas_tot+nBas(iSym)
+      End Do
+      Call Get_cArray('Unique Basis Names',Name,(LENIN4)*nBas_tot)
+*---- read number of atoms
+*      Call Get_iScalar('Unique atoms',nAtoms)
+*---- read nuclear potential
+*      Call get_dScalar('PotNuc',PotNuc)
+*      Call Peek_dScalar('PotNuc',PotNuc)
 *
-      Call mma_deallocate(Lowdin)
-      Call mma_deallocate(Ovrlp)
-      Call mma_deallocate(OneHam)
-      Call mma_deallocate(HDiag)
-#ifdef _FDE_
-      If (Allocated(Emb)) Call mma_deallocate(Emb)
-#endif
+*---- Compute lengths of matrices
+      lthBas = 0
+      Do iSym = 1, nSym
+         lthBas = lthBas + nBas(iSym)
+         write(6,*) "lthBas =", lthBas
+      End Do
 *
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
+*---- Define atom and type
+*      Do i = 1, lthBas
+*         Atom(i) = Name(i)(1:LENIN)
+*         Type(i) = Name(i)(LENIN1:LENIN4)
+*      End Do
 *
+      Call qExit('R1IBas')
       Return
       End

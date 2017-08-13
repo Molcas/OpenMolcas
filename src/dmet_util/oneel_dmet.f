@@ -105,8 +105,8 @@
             Array(ijBfn)=DMET_h(iBfn,jBfn)
          End Do
       End Do
-      Call Tr1Ctl_DMET(Array(ijBfn),Array(ijBfn),
-     &          Array(ijBfn),Array(ijBfn))
+*     Call Tr1Ctl_DMET(Array(ijBfn),Array(ijBfn),
+*    &          Array(ijBfn),Array(ijBfn))
 *                                                                      *
 ************************************************************************
 *                                                                      *

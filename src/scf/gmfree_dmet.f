@@ -13,7 +13,7 @@
 *               1992, Piotr Borowski                                   *
 *               2016,2017, Roland Lindh                                *
 ************************************************************************
-      SubRoutine GMFree()
+      SubRoutine GMFree_DMET()
 ************************************************************************
 *                                                                      *
 *     purpose: Deallocate work space at the end of calculation to check*
@@ -55,7 +55,7 @@
          Call mma_deallocate(Darwin)
          Call mma_deallocate(MssVlc)
       End If
-      Call mma_deallocate(KntE)
+*      Call mma_deallocate(KntE)
       Call mma_deallocate(EDFT)
       Call mma_deallocate(TwoHam)
       Call mma_deallocate(Vxc)

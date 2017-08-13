@@ -19,7 +19,7 @@
       Real*8, Dimension(:), Allocatable:: Emb
 #endif
       Real*8, Dimension(:), Allocatable:: Ovrlp, OneHam, EDFT, KntE,
-     &                                    Darwin, MssVlc
+     &                                    Darwin, MssVlc,CorPA
       Real*8, Dimension(:,:,:), Allocatable:: TwoHam, Vxc, Dens
       Real*8, Dimension(:,:), Allocatable:: CMO, TrM, Fock, Lowdin,
      &                                      OccNo, EOrb, HDiag

@@ -10,7 +10,8 @@
 *                                                                      *
 * Copyright (C) 2017 Varinia Bernales and Roland Lindh                 *
 ************************************************************************
-      Subroutine Seward_DMET(ireturn,DMET_s,DMET_f,DMET_h,DMET_g,nBfn)
+      Subroutine Seward_DMET(ireturn,NAele,DMET_s,
+     &                      DMET_f,DMET_h,DMET_g,nBfn)
 c.... please do not move this line further down (required for fortsplit)
 ************************************************************************
 *                                                                      *
@@ -82,6 +83,7 @@ c.... please do not move this line further down (required for fortsplit)
       real*8 DMET_h(nBfn,nBfn), DMET_g(nBfn**4)
       External Integral_WrOut, Integral_WrOut2, Integral_RI_3
       Real*8, Dimension(:), Allocatable :: MemHide
+      Real*8 NAele
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
@@ -341,7 +343,7 @@ C-SVC: identify runfile with a fingerprint
       If (Do_OneEl.and.
      &    (.Not.Primitive_Pass .or.
      &    (Primitive_Pass.and.(DKroll.or.NEMO)) ) )
-     &   Call Drv1El_DMET(DMET_s,DMET_f,DMET_h,nBfn)
+     &   Call Drv1El_DMET(NAele,DMET_s,DMET_f,DMET_h,nBfn)
 *
       iOpt = 0
       iRC = -1

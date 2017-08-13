@@ -14,7 +14,7 @@
 *               2003, Valera Veryazov                                  *
 *               2017, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine RdInp_scf()
+      SubRoutine RdInp_scf_DMET()
 ************************************************************************
 *                                                                      *
 *     purpose: Read input options                                      *
@@ -261,7 +261,11 @@
       TStop  = 0.010d0
       nAufb(1) = -1
       nAufb(2) = -1
-      Call Get_dScalar('Total Nuclear Charge',Tot_Nuc_Charge)
+#define _DMET_
+#ifdef _DMET_
+*      Call Get_dScalar('Total Nuclear Charge',Tot_Nuc_Charge)
+      Tot_Nuc_Charge = 1.000d0
+#endif
       Tot_El_Charge=Zero
       Tot_Ml_Charge=Zero
       Tot_Charge=Zero
@@ -1520,7 +1524,7 @@ c        Call FindErrorLine()
 *
       If(.not.OccSet .and. .not.FermSet) Then
 *        Write(6,*) 'rdinp: Checking OCCU/FERM'
-         Call VecFind(OccSet,FermSet,CharSet,SpinSet)
+         Call VecFind_DMET(OccSet,FermSet,CharSet,SpinSet)
          If(OccSet .and. .not.FermSet) Then
 *           Write(6,*) 'Using OCCU'
             Aufb=.false.

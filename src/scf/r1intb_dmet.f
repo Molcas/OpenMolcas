@@ -13,13 +13,13 @@
 *               1992, Piotr Borowski                                   *
 *               2016,2017, Roland Lindh                                *
 ************************************************************************
-      SubRoutine GMFree()
+      Subroutine R1IntB_DMET
 ************************************************************************
 *                                                                      *
-*     purpose: Deallocate work space at the end of calculation to check*
-*              possible errors                                         *
+*     purpose: Read basis set informations and one electron integrals  *
+*              were not needed so far.                                 *
 *                                                                      *
-*     called from: SCF                                                 *
+*     called from: PrFin                                               *
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -32,48 +32,75 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      use SCF_Arrays
-      use Orb_Type
+      Use SCF_Arrays
       Implicit Real*8 (a-h,o-z)
-*
 #include "mxdm.fh"
 #include "infscf.fh"
 #include "stdalloc.fh"
-#ifdef _FDE_
-      ! Thomas Dresselhaus
-#include "embpotdata.fh"
-#endif
+*
+*---- Define local variables
+      Character*8 Label
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-      nD = iUHF + 1
+*---- Allocate memory for kinetic energy, mass velocity and darvin
+*     integrals
 *
-*---- Deallocate memory
-      If (Allocated(Darwin)) Then
-         Call mma_deallocate(Darwin)
-         Call mma_deallocate(MssVlc)
-      End If
-      Call mma_deallocate(KntE)
-      Call mma_deallocate(EDFT)
-      Call mma_deallocate(TwoHam)
-      Call mma_deallocate(Vxc)
-      Call mma_deallocate(Dens)
-      Call mma_deallocate(OrbType)
-      Call mma_deallocate(EOrb)
-      Call mma_deallocate(OccNo)
-      Call mma_deallocate(Fock)
-      Call mma_deallocate(CMO)
-      Call mma_deallocate(TrM)
+      Call mma_allocate(KntE,nBT+4,Label='KntE')
+      Call mma_allocate(MssVlc,nBT+4,Label='MssVlc')
+      Call mma_allocate(Darwin,nBT+4,Label='Darwin')
 *
-      Call mma_deallocate(Lowdin)
-      Call mma_deallocate(Ovrlp)
-      Call mma_deallocate(OneHam)
-      Call mma_deallocate(HDiag)
-#ifdef _FDE_
-      If (Allocated(Emb)) Call mma_deallocate(Emb)
+*---- Read kinetic energy integrals
+      iRc=-1
+      iOpt=6
+      iComp=1
+      iSyLbl=1
+      Label='Kinetic '
+      Write (6,*) "r1intb0"
+#define _DMET_
+#ifdef _DMET_
+      write(6,*) "comp",comp
+      Call PrMtrx(label,1,1,1,KntE)
 #endif
+*
+      Call RdOne(iRc,iOpt,Label,iComp,KntE,iSyLbl)
+      If (iRc.ne.0) Go To 777
+      Write (6,*) "r1intb1"
+      If (iRc.ne.0) Then
+        Write (6,*) "r1intb2"
+         Write (6,*) 'R1Intb: Error readin ONEINT'
+         Write (6,'(A,A)') 'Label=',Label
+         Call QTrace
+         Call Abend()
+      End If
+*
+*---- Read mass velocity integrals
+      lRel=.False.
+      iRc=-1
+      iOpt=6
+      iComp=1
+      iSyLbl=1
+      Label='MassVel '
+      Call RdOne(iRc,iOpt,Label,iComp,MssVlc,iSyLbl)
+      If (iRc.ne.0) Go To 777
+*
+*---- Read Darvin integrals
+      iRc=-1
+      iOpt=6
+      iComp=1
+      iSyLbl=1
+      Label='Darwin  '
+      Call RdOne(iRc,iOpt,Label,iComp,Darwin,iSyLbl)
+      If ( iRc.ne.0 ) Go To 777
+      lRel=.True.
+*
+ 777  Continue
+      If (.Not.lRel) Then
+         Call mma_deallocate(MssVlc)
+         Call mma_deallocate(Darwin)
+      End If
 *
 *----------------------------------------------------------------------*
 *     Exit                                                             *

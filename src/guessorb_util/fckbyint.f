@@ -153,18 +153,18 @@
             write(6,*) "FckByInt 10 yes"
       Call goLowdin(CMO)
             write(6,*) "FckByInt 11 yes"
-      If (Debug) Then
+*     If (Debug) Then
             write(6,*) "FckByInt 12"
          ij=1
          Do iSym=1,nSym
             nB=nBas(iSym)
-*           Call RecPrt('CMO','(12f12.6)',CMO(ij),nB,nB)
+            Call RecPrt('CMO','(12f12.6)',CMO(ij),nB,nB)
             write(6,*) "FckByInt 13"
             Call NrmClC(CMO(ij),nB**2,'FckbyInt','CMO(ij)')
             ij=ij+nB*nB
             write(6,*) "FckByInt 14"
          End Do
-      End If
+*     End If
 *----------------------------------------------------------------------*
 * Get overlap matrix                                                   *
 *----------------------------------------------------------------------*
@@ -176,18 +176,18 @@
             write(6,*) "FckByInt 17"
       Call RdOne(irc,6,'Mltpl  0',1,Ovl,iSymlb)
             write(6,*) "FckByInt 18"
-      If(Debug) Then
+*     If(Debug) Then
             write(6,*) "FckByInt 19"
          ipT1=1
          Do iSym=1,nSym
             write(6,*) "FckByInt 20"
-*           Call TriPrt('Ovlp','(12f12.6)',Ovl(ipT1),nBas(iSym))
+            Call TriPrt('Ovlp','(12f12.6)',Ovl(ipT1),nBas(iSym))
             write(6,*) "FckByInt 21"
             Call NrmClc(Ovl(ipT1),nBas(iSym)*(nBas(iSym)+1)/2,
      &                  'FckbyInt','Ovl(ipT1)')
             ipT1=ipT1+nBas(iSym)*(nBas(iSym)+1)/2
          End Do
-      End If
+*     End If
 *----------------------------------------------------------------------*
 * Transform: F = S eps S                                               *
 *----------------------------------------------------------------------*
@@ -217,13 +217,13 @@
             Call MxMt(T2,nB,1,
      &                T3,1,nB,
      &                Fck(ijT), nB,nB)
-            If(Debug) Then
+*           If(Debug) Then
             write(6,*) "FckByInt 26"
-*              Call TriPrt('Fock matrix with metric','(12f12.6)',
-*    &                     Fck(ijT),nB)
+               Call TriPrt('Fock matrix with metric','(12f12.6)',
+     &                     Fck(ijT),nB)
                Call NrmClc(Fck(ijT),nB*(nB+1)/2,'FckbyInt','Fck(ijT)')
             write(6,*) "FckByInt 27"
-            End If
+*           End If
          End If
          ijT=ijT+nB*(nB+1)/2
          ijS=ijS+nB*nB
@@ -262,10 +262,12 @@
             Call MxMt(CMO(ijS),nB,1,
      &                T2,1,nB,
      &                T3, nS,nB)
-            If(Debug) Then
-*              Call TriPrt('Transformed Fock matrix','(12f12.6)',T3,nB)
+*           If(Debug) Then
+               Call TriPrt('T1','(12f12.6)',T1,nB)
+               Call TriPrt('T2','(12f12.6)',T1,nB)
+               Call TriPrt('Transformed Fock matrix','(12f12.6)',T3,nB)
                Call NrmClc(T3,nB*(nB+1)/2,'FckbyInt','Transformed Fck')
-            End If
+*           End If
             write(6,*) "FckByInt 31"
             Call NIdiag(T3,CMO(ijS),nS,nB,0)
             write(6,*) "FckByInt 32"
@@ -281,17 +283,17 @@
          ijS=ijS+nB*nB
          ijL=ijL+nB
       End Do
-      If (Debug) Then
+*     If (Debug) Then
          ij=1
          Do iSym=1,nSym
             nB=nBas(iSym)
             write(6,*) "FckByInt 34"
-*           Call RecPrt('CMO','(12f12.6)',CMO(ij),nB,nB)
+            Call RecPrt('CMO','(12f12.6)',CMO(ij),nB,nB)
             Call NrmClC(CMO(ij),nB**2,'FckbyInt','CMO(ij)')
             ij=ij+nB*nB
             write(6,*) "FckByInt 35"
          End Do
-      End If
+*     End If
       Call mma_deallocate(T3)
       Call mma_deallocate(T2)
       Call mma_deallocate(T1)
@@ -346,11 +348,11 @@
             Call MxMt(CMO(ijS+nB*nC),nB,1,
      &                T2,1,nB,
      &                T3, nS,nB)
-            If(Debug) Then
+*           If(Debug) Then
                 write(6,*) "FckByInt 40"
                Call TriPrt('Virtual space','(12f12.6)',T3,nS)
                 write(6,*) "FckByInt 41"
-            End If
+*           End If
                 write(6,*) "FckByInt 42"
             Call NIdiag(T3,CMO(ijS+nB*nC),nS,nB,0)
                 write(6,*) "FckByInt 43"
@@ -358,13 +360,13 @@
                 write(6,*) "FckByInt 44"
             Call goSort(Eps(ijL+nC),CMO(ijS+nB*nC),nS,nB)
                 write(6,*) "FckByInt 45"
-            If(Debug) Then
+*           If(Debug) Then
                 write(6,*) "FckByInt 46"
                Call RecPrt('Eps',' ',Eps(ijL+nC),nS,1)
                 write(6,*) "FckByInt 47"
                Call RecPrt('Virtual Orbitals',' ',
      &                     CMO(ijS+nB*nC),nB,nS)
-            End If
+*           End If
 *
 *           Now order degenerate orbitals. This is only important for
 *           verification runs.
@@ -406,13 +408,13 @@
                tmp = OrbPhase(CMO(ijS+(iBas-1)*nB),nB)
             End Do
 *
-            If(Debug) Then
+*           If(Debug) Then
                 write(6,*) "FckByInt 48"
                Call RecPrt('Eps',' ',Eps(ijL+nC),nS,1)
                 write(6,*) "FckByInt 49"
                Call RecPrt('Virtual Orbitals',' ',
      &                     CMO(ijS+nB*nC),nB,nS)
-            End If
+*           End If
             Do iBas=nC+1,nB-nD
                Eps(ijL+iBas-1)=Eps(ijL+iBas-1)+3.0d0
             End Do
@@ -483,7 +485,7 @@
          End Do
       End Do
       nActEl=Int(dActEl+0.5d0)
-      If(PrintMOs) then
+*vb   If(PrintMOs) then
                 write(6,*) "FckByInt 52"
          Call PriMO('Start orbitals (virtuals shifted)',
      &              .true.,.true.,0.0d0,PrThr,
@@ -491,12 +493,12 @@
      &              CMO,iPrFmt)
                 write(6,*) "FckByInt 53"
          Call xflush(6)
-      End If
-      If(PrintPop) Then
+*     End If
+*vb   If(PrintPop) Then
                 write(6,*) "FckByInt 54"
          Call Charge(nSym,nBas,Label,CMO,T1,
      &               Ovl,2,.true.,.true.)
-      End If
+*     End If
                 write(6,*) "FckByInt 55"
       Call put_darray('Guessorb',CMO,nSqrTot)
                 write(6,*) "FckByInt 56"
@@ -587,11 +589,13 @@
          jOff=jOff+nBas(iSym)**2
          kOff=kOff+nBas(iSym)*(nBas(iSym)+1)/2
       End Do
+      Call TriPrt('Put_D1ao','(12f12.6)',Ovl,4)
                 write(6,*) "FckByInt 77"
       Call Fold_tMat(nSym,nBas,Ovl,Ovl)
                 write(6,*) "FckByInt 78"
       Call Put_D1ao(Ovl,nTriTot)
                 write(6,*) "FckByInt 79"
+      Call TriPrt('Put_D1ao','(12f12.6)',Ovl,4)
 *
       Call mma_deallocate(T2)
       Call mma_deallocate(T1)

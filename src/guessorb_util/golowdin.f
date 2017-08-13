@@ -93,7 +93,7 @@
       Do iSym=1,nSym
          nTri=nBas(iSym)*(nBas(iSym)+1)/2
          Call dCopy_(nTri,Ovl(ipOvl(iSym)),1,Smat,1)
-         If(Debug) Then
+*        If(Debug) Then
             Write(6,*)
             Write(6,*) '***'
             Write(6,*) '*** lowdin: symmetry',iSym
@@ -101,7 +101,7 @@
             Write(6,*)
             Call TriPrt('Overlap matrix','(12f18.12)',
      &                  Ovl(ipOvl(iSym)),nBas(iSym))
-         End If
+*        End If
          Call FZero(Vec,nBas(iSym)**2)
          Call DCopy_(nBas(iSym),1.0D0,0,Vec,nBas(iSym)+1)
          Call NIdiag_New(Ovl(ipOvl(iSym)),Vec,nBas(iSym),nbas(iSym),0)
@@ -110,15 +110,15 @@
             temp=OrbPhase(Vec((iBas-1)*nBas(iSym)+1),nBas(iSym))
          End Do
 *
-         If(Debug) Then
+*        If(Debug) Then
             Call RecPrt('Transformation','(12f18.12)',
      &                  Vec,nBas(iSym),nBas(iSym))
-         End If
+*        End If
          Call goPickUp(Ovl(ipOvl(iSym)),Eig,nBas(iSym))
-         If(Debug) Then
+*        If(Debug) Then
             Call RecPrt('Overlap eigenvalues before sort','(12f18.12)',
      &         Eig,1,nBas(iSym))
-         End If
+*        End If
          Do iBas=1,nBas(iSym)
             Eig(iBas)=-Eig(iBas)
          End Do
@@ -126,10 +126,10 @@
          Do iBas=1,nBas(iSym)
             Eig(iBas)=-Eig(iBas)
          End Do
-         If(Debug) Then
+*        If(Debug) Then
             Call RecPrt('Overlap eigenvalues after sort','(12f18.12)',
      &         Eig,1,nBas(iSym))
-         End If
+*        End If
          nDel(iSym)=0
          Do iBas=1,nBas(iSym)
             If(Eig(iBas).lt.SThr) nDel(iSym)=nDel(iSym)+1
@@ -159,11 +159,11 @@
                End Do
             End Do
          End If
-         If(Debug) Then
+*        If(Debug) Then
             Call RecPrt('Symmetric orbitals','(12f18.12)',
      &                  CMO(ipCMO),nBas(iSym),nBas(iSym))
-         End If
-         If(Debug) Then
+*        End If
+*        If(Debug) Then
             Call mma_allocate(Tmp,nBas(iSym),nBas(iSym))
             iSymlb=1
             Call RdOne(irc,2,'Mltpl  0',1,Ovl(ipOvl(1)),iSymlb)
@@ -180,7 +180,7 @@
             Call RecPrt('Inverted overlap matrix','(12f18.12)',
      &                  Tmp,nBas(iSym),nBas(iSym))
             Call mma_deallocate(Tmp)
-         End If
+*        End If
          ipCMO=ipCMO+nBas(iSym)*nBas(iSym)
       End Do
 
