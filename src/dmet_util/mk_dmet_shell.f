@@ -11,7 +11,7 @@
 * Copyright (C) 2008, Roland Lindh                                     *
 *               2017, Varinia Bernales, Roland Lindh                   *
 ************************************************************************
-      Subroutine Mk_DMET_Shell(Info,nInfo,nBfn)
+      Subroutine Mk_DMET_Shell(Info,nInfo,NAele,nBfn)
       Implicit Real*8 (A-H,O-Z)
       External Integral_RICD, Integral_RI_2
 #include "itmax.fh"
@@ -39,7 +39,7 @@
       ipSOC(nCnttp) = -1
 *
       Bsl(nCnttp)='.....DMET'
-      Charge(nCnttp)=2.000d0
+      Charge(nCnttp)=NAele
       iAtmNr(nCnttp)=1
       AuxCnttp(nCnttp)=.False.
       aCD_Thr(nCnttp)=One

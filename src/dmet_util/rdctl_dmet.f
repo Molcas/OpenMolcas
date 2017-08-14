@@ -11,7 +11,7 @@
 * Copyright (C) 2017, Varinia Bernales, Roland Lindh                   *
 ************************************************************************
       Subroutine RdCtl_DMET(Info,nInfo,LuRd,lOPTO,Do_OneEl,DInf,nDInf,
-     &                      nBfn)
+     &                      NAele,nBfn)
       use Her_RW
       use Period
       use MpmC
@@ -3695,7 +3695,7 @@ c
 *                                                                      *
 *
  997  Continue
-      Call Mk_DMET_Shell(Info,nInfo,nBfn)
+      Call Mk_DMET_Shell(Info,nInfo,NAele,nBfn)
       Do_GuessOrb=.False.
       mdc = mdc + Mx_mdc
 c     Postprocessing for COORD

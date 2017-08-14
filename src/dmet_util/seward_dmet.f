@@ -237,7 +237,7 @@ C-SVC: identify runfile with a fingerprint
 *     Read the input from input file
 *
       Call RdCtl_DMET(Info,nInfo,LuSpool,lOPTO,Do_OneEl,
-     &                  Work(Info),nDInf,nBfn)
+     &                  Work(Info),nDInf,NAele,nBfn)
       Call GvMode(IsGvMode)
       if(IsGvMode.gt.0) Onenly=.true.
 *
