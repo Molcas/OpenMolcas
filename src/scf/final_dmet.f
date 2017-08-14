@@ -16,8 +16,6 @@
 ************************************************************************
       SubRoutine Final_DMET()
       use SCF_Arrays
-*     Integer nBfn
-*     Real*8 CorPA(nBfn**2)
       Implicit Real*8 (a-h,o-z)
 #ifdef _EFP_
       External EFP_On
@@ -34,16 +32,6 @@
       Call Final_DMET_(Dens,OneHam,Ovrlp,TwoHam,CMO,EOrb,
      &            Fock,OccNo,nBT,nDens,nD,nBB,nnB,KntE,MssVlc,Darwin)
 *
-      write(6,*) "final final"
-      write(6,*) "final final corpa"
-      Call FZero(CorPA,nOrb**2)
-      Call AintoB_DMET(CMO,CorPA,nOrb)
-      Call PrMtrx("corpa",1,1,1,CorPA)
-
-      Return
-
-*      call AintoB_DMET(CMO,CorPA,nBB)
-
       Return
       End
       SubRoutine Final_DMET_(Dens,OneHam,Ovrlp,TwoHam,CMO,EOrb,Fock,
@@ -140,7 +128,7 @@
       If (nIter(nIterP).le.0) Then
 *
          FstItr=.TRUE.
-         Call SCF_Energy_DMET(FstItr,E1V,E2V,EneV)
+         Call SCF_Energy(FstItr,E1V,E2V,EneV)
          call dcopy_(nBT*nD,Dens(1,1,1),1,Dens(1,1,nDens),1)
          call dcopy_(nBT*nD,TwoHam(1,1,1),1,TwoHam(1,1,nDens),1)
 *
@@ -522,15 +510,6 @@ c make a fix for energies for deleted orbitals
          Call WrVec_(OrbName,LuOut,'COEI',0,nSym,nBas,nBas,
      &               CMOn,Dummy,Etan,Dummy,Epsn,
      &               Dummy,IndType, Note,iWFtype)
-
-
-      write(6,*) "final final"
-      write(6,*) "final final corpa2"
-      Call FZero(CorPA,nOrb**2)
-      Call AintoB_DMET(CMO,CorPA,nOrb)
-      Call PrMtrx("corpa",1,1,1,CorPA)
-
-      Return
          Call mma_deallocate(Epsn)
          Call mma_deallocate(Etan)
          Call mma_deallocate(CMOn)
@@ -604,8 +583,6 @@ c make a fix for energies for deleted orbitals
       Call CollapseOutput(0,'Statistics and timing')
       Write(6,*)
       endif
-
-      Return
 *
 *----------------------------------------------------------------------*
 *     Exit                                                             *
@@ -614,23 +591,3 @@ c make a fix for energies for deleted orbitals
       Return
       End
 ************************************************************************
-************************************************************************
-      subroutine  AintoB_DMET(A,B,N)
-
-      Implicit None
-
-      Real*8  B(N**2)
-      Real*8  A(N,N)
-      Integer N,i,j,ij
-
-        do i=1,N
-            do j=1,N
-*               B(ij) = A(i,j)
-                write(6,*) "B", B(ij)
-                write(6,*) "A(i,j)", A(i,j)
-            end do
-        end do
-
-      Return
-      End
-

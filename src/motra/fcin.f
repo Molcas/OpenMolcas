@@ -34,9 +34,9 @@
          EONE=EONE+DLT(NPQ)*FLT(NPQ)
 105   CONTINUE
       EMY=EONE
-*VB      IF ( IPRINT.GE.5 .OR. DEBUG.NE.0 ) THEN
+      IF ( IPRINT.GE.5 .OR. DEBUG.NE.0 ) THEN
          WRITE(6,'(6X,A,E20.10)') 'ONE-ELECTRON CORE ENERGY:',EONE
-*VB      ENDIF
+      ENDIF
 *
 *     Quit here if there are no frozen orbitals
 *
@@ -64,7 +64,7 @@
 *
 *     Print the Fock-matrix
 *
-*VB         IF( IPRINT.GE.5 .OR. DEBUG.NE.0 ) THEN
+         IF( IPRINT.GE.5 .OR. DEBUG.NE.0 ) THEN
            WRITE(6,'(6X,A)')'Fock matrix in AO basis'
            ISTLTT=ipTemp
            DO ISYM=1,NSYM
@@ -75,7 +75,7 @@
                  ISTLTT=ISTLTT+NB*(NB+1)/2
               END IF
            END DO
-*VB         END IF
+         END IF
 
          GoTo 99  ! jump over the conventional ERIs calculation
 
@@ -102,9 +102,9 @@
          ETWO=ETWO+DLT(NPQ)*FLT(NPQ)
 110   CONTINUE
       EMY=EONE+0.5D0*ETWO
-*VB      IF ( IPRINT.GE.5 .OR. DEBUG.NE.0 ) THEN
+      IF ( IPRINT.GE.5 .OR. DEBUG.NE.0 ) THEN
          WRITE(6,'(6X,A,E20.10)') 'TWO-ELECTRON CORE ENERGY:',ETWO
-*VB      ENDIF
+      ENDIF
 *
 *     Exit
 *

@@ -94,6 +94,7 @@
             Dens(i)=Dens(i)+Dens_ab(i)
          end do
       End if
+*Change made for DMET
 *     EKin = DDot_(nBT,KntE,1,Dens,1)
       EKin = 0
 *

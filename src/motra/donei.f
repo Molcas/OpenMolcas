@@ -44,7 +44,7 @@
         ISTLT=ISTLT+NB*(NB+1)/2
 100   CONTINUE
 *
-*VB      IF( IPRINT.GE.5 .OR. DEBUG.NE.0 ) THEN
+      IF( IPRINT.GE.5 .OR. DEBUG.NE.0 ) THEN
         WRITE(6,'(6X,A)')'Frozen one-body density matrix in AO basis'
         ISTLT=1
         DO ISYM=1,NSYM
@@ -55,7 +55,7 @@
             ISTLT=ISTLT+NB*(NB+1)/2
           END IF
         END DO
-*VB      END IF
+      END IF
 *
       Call qExit('Donei')
 *

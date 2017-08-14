@@ -1,0 +1,567 @@
+[33mcommit 140c70bc449a628658892c9248a27abed669c9c6[m
+Author: Varinia Bernales <variniabernales@gmail.com>
+Date:   Sat Aug 12 23:09:05 2017 -0500
+
+    Working on SCF(5)
+
+[33mcommit 00fb7a96d6cd6dca97423b50b3fa2cb043edd37c[m
+Author: Varinia Bernales <variniabernales@gmail.com>
+Date:   Fri Aug 11 14:38:28 2017 -0500
+
+    Working on SCF(4)
+
+[33mcommit 78e90c9e21627f445de1caef8dc0facebfb0ead2[m
+Author: Varinia Bernales <variniabernales@gmail.com>
+Date:   Wed Aug 9 09:35:18 2017 -0500
+
+    Working on SCF(3)
+
+[33mcommit f3aeed564c030113d25b3efb75d863faa72939ed[m
+Author: Varinia Bernales <variniabernales@gmail.com>
+Date:   Mon Aug 7 18:07:40 2017 -0500
+
+    Working on SCF(2)
+
+[33mcommit 7d93f98f2d0ae6a6b2a50ff922f7c3bcc5d5fb36[m
+Author: Varinia Bernales <variniabernales@gmail.com>
+Date:   Mon Aug 7 17:53:48 2017 -0500
+
+    Working on SCF(1)
+
+[33mcommit 617ac56dee21b946de263a2488707bc8c024367f[m
+Author: Varinia Bernales <variniabernales@gmail.com>
+Date:   Mon Aug 7 17:14:38 2017 -0500
+
+    Working on SCF(0)
+
+[33mcommit 9f15237e247b787eb93535bf76511e31c20e32cb[m
+Author: Varinia Bernales <variniabernales@gmail.com>
+Date:   Mon Aug 7 17:09:40 2017 -0500
+
+    Working on SCF
+
+[33mcommit 4b794d5e166e02e6d6755d687e80aae31f65a90a[m
+Merge: 1f26b7c b5225b9
+Author: Varinia Bernales <variniabernales@gmail.com>
+Date:   Mon Aug 7 17:08:20 2017 -0500
+
+    Merge branch 'dev/vbernales' of gitlab.com:Molcas/OpenMolcas into dev/vbernales
+
+[33mcommit 1f26b7ce37d59c4626bee03938ed0aacaac9f2b6[m
+Author: Varinia Bernales <variniabernales@gmail.com>
+Date:   Mon Aug 7 17:08:15 2017 -0500
+
+    Working on SCF
+
+[33mcommit b5225b9c911c54a982b9191371c7e6b9fccfccda[m
+Author: Varinia Bernales <variniabernales@gmail.com>
+Date:   Mon Aug 7 14:11:04 2017 -0500
+
+    Working on SCF
+
+[33mcommit 884555e9192dcdc5edecfcec93f6b859c7f2287d[m
+Author: Varinia Bernales <variniabernales@gmail.com>
+Date:   Wed Jul 26 15:43:25 2017 -0500
+
+    After orthogonalization
+
+[33mcommit eeec5f9a1ac49f0236dbee8af5471548cff69c77[m
+Author: Varinia Bernales <variniabernales@gmail.com>
+Date:   Wed Jul 26 11:35:58 2017 -0500
+
+    Passing Overlap from DMET to MOLCAS
+
+[33mcommit b58154bc840f4f86984139a7e6d62d4399fa9c43[m
+Author: Varinia Bernales <variniabernales@gmail.com>
+Date:   Tue Jul 25 11:39:36 2017 -0500
+
+    Fock Matrix Done
+
+[33mcommit b8f71a3bd34c34a89037fe72192598e770578dab[m
+Author: Varinia Bernales <variniabernales@gmail.com>
+Date:   Sun Jul 9 22:28:33 2017 -0500
+
+    Working on DMET_f. version 0
+
+[33mcommit b8639b6f7fa8f0158e79255fd6d1bdc29b380eb9[m
+Author: Varinia Bernales <variniabernales@gmail.com>
+Date:   Fri Jul 7 16:39:22 2017 -0500
+
+    Working on DMET_f. version 0
+
+[33mcommit f0ed74dcd8fe8b98463fca694038086c2dc916b6[m
+Author: Varinia Bernales <variniabernales@gmail.com>
+Date:   Fri Jul 7 14:52:13 2017 -0500
+
+    Working on DMET_f. version 0
+
+[33mcommit f440706e539b4d29af669793723fb1370b9a69a2[m
+Merge: a3dc6b0 6ca074b
+Author: Varinia Bernales <variniabernales@gmail.com>
+Date:   Wed Jul 5 18:08:44 2017 -0500
+
+    Merge branch 'dev/vbernales' of gitlab.com:Molcas/OpenMolcas into dev/vbernales
+
+[33mcommit a3dc6b06450777d1e7d36273cc3faa65e38b228a[m
+Author: Varinia Bernales <variniabernales@gmail.com>
+Date:   Wed Jul 5 18:08:35 2017 -0500
+
+     DMET_h and DMET_g, Done. Working on DMET_f. version 0
+
+[33mcommit 6ca074b57ea34c5946dc14807e2435e956a9d9f4[m
+Merge: 1d79798 88133de
+Author: Varinia Bernales <variniabernales@gmail.com>
+Date:   Mon Jul 3 20:37:25 2017 -0500
+
+    dmet-molcas. DMET_f.v2
+
+[33mcommit 1d79798e7c39d4fd7b6c833ab23e261c320fbd6f[m
+Author: Varinia Bernales <variniabernales@gmail.com>
+Date:   Mon Jul 3 20:22:30 2017 -0500
+
+    dmet-molcas. DMET_f
+
+[33mcommit 88133de477b7670dbec94d408e31e51e73de90da[m
+Author: Varinia Bernales <variniabernales@gmail.com>
+Date:   Mon Jul 3 19:32:48 2017 -0500
+
+    dmet-molcas
+
+[33mcommit 5f896bf8d15cbd0324aa9de654b438c3841b4854[m
+Merge: 3741fb6 27922df
+Author: Varinia Bernales <variniabernales@gmail.com>
+Date:   Mon Jul 3 14:23:21 2017 -0500
+
+    Merge remote-tracking branch 'origin/master' into dev/vbernales
+
+[33mcommit 27922df20a525b6a4bee15ac50e142097df58a99[m
+Author: Ignacio Fdez. Galván <Ignacio.Fernandez@kemi.uu.se>
+Date:   Thu Jun 29 16:51:41 2017 +0200
+
+    Remove grid_r_util if molcas-extra is not available
+    
+    These routines are not called outside GRID_IT, which is
+    in molcas-extra, and depend on some code in molcas-extra,
+    so it's better to skip them altogether.
+
+[33mcommit a3c5041e7af19dc1122877a546504c8dd99c986d[m
+Author: Ignacio Fdez. Galván <Ignacio.Fernandez@kemi.uu.se>
+Date:   Thu Jun 29 16:37:34 2017 +0200
+
+    Add contribution guide
+
+[33mcommit f439efa2d391f65502580d7d0af2c49ba56e770f[m
+Author: Ignacio Fdez. Galván <Ignacio.Fernandez@kemi.uu.se>
+Date:   Thu Jun 29 11:40:28 2017 +0200
+
+    Cosmetic fixes
+    
+    Copyright format, and try not to have too long comment lines in
+    source code.
+
+[33mcommit 3741fb64bc235d67f3c085d2180b34ea529a6e98[m
+Author: Varinia Bernales <variniabernales@gmail.com>
+Date:   Wed Jun 28 12:34:54 2017 -0500
+
+    DMET_h and DMET_g, Done. Working on DMET_f
+
+[33mcommit 9b6798476ff92c9388ae22bb55059387d882e598[m
+Author: Varinia Bernales <variniabernales@gmail.com>
+Date:   Wed Jun 28 12:12:31 2017 -0500
+
+    DMET_h and DMET_g, Done. Working on DMET_f
+
+[33mcommit 43fcb5c00292a1b8aed78f65e419432a95d4d2ec[m
+Merge: 687e6ae 5ec9e77
+Author: Git Updater <gitupdater@signe.teokem.lu.se>
+Date:   Wed Jun 28 18:00:04 2017 +0200
+
+    Merge developer branches into daily-snapshot
+    
+    * origin/dev/Jellby:
+      Add dummy_util with files to be replaced.
+      CMake: Do not require EXTRA
+      pymolcas: Replacement for CHECK
+      Disable some code if molcas-extra is not available
+    
+    * origin/dev/limanni: (21 commits)
+      Some changes to (1) RDMs code for reading spin-resolved density matrices from fciqmc, (2) better flow of the casdft, (3) general clean up ... and trailing blanks
+      start new cleaning of rasscf
+      fix qEnter call
+      some qEnter(routine) added to avoid warnings for certain compiler setup
+      adding the .all file into limannig folder
+      rigenerate test 000_dump
+      check up to 999 for integrals
+      change reference for reference 001_desym
+      limiting Add_Info to 999 elements
+      update status file as lucia gets initialized
+      more info into the status file
+      test for DESYM flag added
+      remove left over STATUS instruction
+      remove STATUS command
+      trailing whitespaces
+      adding test for dump file
+      add_Info for dump file
+      some clean up
+      remove trailing whitespace
+      bug fix for memory release
+      ...
+
+[33mcommit 3e63f770b329ec0d17fad41d2d3e79cd83fe1b48[m
+Author: Varinia Bernales <variniabernales@gmail.com>
+Date:   Wed Jun 28 10:53:51 2017 -0500
+
+    DMET_h and DMET_g Done.
+
+[33mcommit 687e6ae6f932cd4639b5946ceff2d41b9c1d85e0[m
+Author: Ignacio Fdez. Galván <Ignacio.Fernandez@kemi.uu.se>
+Date:   Wed Jun 28 15:40:35 2017 +0200
+
+    Add dummy_util with files to be replaced.
+    
+    OpenMolcas works (with default options) if these files are copied
+    from molcas-extra. These are, however, just dummy placeholders with
+    only the interface, so the code can at least be compiled. Files with
+    "Empty file" are only needed because they are referenced by some
+    of the other files.
+
+[33mcommit 568c8eaf743561db2b7e1b40eb0ec64df401d2e2[m
+Author: Ignacio Fdez. Galván <Ignacio.Fernandez@kemi.uu.se>
+Date:   Wed Jun 28 14:29:28 2017 +0200
+
+    CMake: Do not require EXTRA
+    
+    If molcas-extra is not available:
+    - Use a dummy driver script (if necessary)
+    - Enable building pymolcas
+    - Do not try to download molcas.exe (no license required)
+    - Skip mkhelp
+
+[33mcommit cd31bffadbbe389d86a6f2a7dcbb09a37177ac58[m
+Author: Ignacio Fdez. Galván <Ignacio.Fernandez@kemi.uu.se>
+Date:   Wed Jun 28 14:17:32 2017 +0200
+
+    pymolcas: Replacement for CHECK
+
+[33mcommit 5ec9e77520c43e45229cfb61ffdcfcb6428df2ff[m
+Merge: 0193a62 522c5a0
+Author: Giovanni Li Manni <G.LiManni@fkf.mpg.de>
+Date:   Wed Jun 28 14:39:47 2017 +0200
+
+    Merge remote-tracking branch 'origin/master' into dev/limanni
+
+[33mcommit 0193a62c0a2f51b2aeb6b1affb65395e647958f2[m
+Author: Giovanni Li Manni <G.LiManni@fkf.mpg.de>
+Date:   Wed Jun 28 14:38:29 2017 +0200
+
+    Some changes to (1) RDMs code for reading spin-resolved density matrices from fciqmc, (2) better flow of the casdft, (3) general clean up ... and trailing blanks
+
+[33mcommit 117374b6d8613075e842aa5d89439140118d8b3f[m
+Author: Giovanni Li Manni <G.LiManni@fkf.mpg.de>
+Date:   Thu Jun 1 12:09:33 2017 +0200
+
+    start new cleaning of rasscf
+
+[33mcommit 48a3b0d5a7af2b37a80a97a60d1580b8a6120154[m
+Author: Giovanni Li Manni <G.LiManni@fkf.mpg.de>
+Date:   Thu Jun 1 10:38:53 2017 +0200
+
+    fix qEnter call
+
+[33mcommit e4610fcad8651a46fd5f307b9c158efdd2035789[m
+Author: Giovanni Li Manni <G.LiManni@fkf.mpg.de>
+Date:   Thu Jun 1 10:10:15 2017 +0200
+
+    some qEnter(routine) added to avoid warnings for certain compiler setup
+
+[33mcommit 19eec6453bf1bff1ab5e679a70e89970ff44578f[m
+Author: Giovanni Li Manni <G.LiManni@fkf.mpg.de>
+Date:   Wed May 31 11:03:28 2017 +0200
+
+    adding the .all file into limannig folder
+
+[33mcommit 56c691a258c54e1cc5d9accec3f528b7310c2f67[m
+Author: Giovanni Li Manni <G.LiManni@fkf.mpg.de>
+Date:   Wed May 31 10:55:47 2017 +0200
+
+    rigenerate test 000_dump
+
+[33mcommit 868caa29075ce2ad8bf3fb8d38312e75ce628988[m
+Author: Giovanni Li Manni <G.LiManni@fkf.mpg.de>
+Date:   Wed May 31 10:50:35 2017 +0200
+
+    check up to 999 for integrals
+
+[33mcommit 649d8ecb324724bd8779d501b8697a9e34959597[m
+Author: Giovanni Li Manni <G.LiManni@fkf.mpg.de>
+Date:   Wed May 31 10:46:04 2017 +0200
+
+    change reference for reference 001_desym
+
+[33mcommit c22889325b49e3e58ad236e7ba241419879a3af8[m
+Author: Giovanni Li Manni <G.LiManni@fkf.mpg.de>
+Date:   Wed May 31 10:42:05 2017 +0200
+
+    limiting Add_Info to 999 elements
+
+[33mcommit 21903cd35291c9e994fe38448ac00d50c671292c[m
+Author: Giovanni Li Manni <G.LiManni@fkf.mpg.de>
+Date:   Tue May 30 16:15:47 2017 +0200
+
+    update status file as lucia gets initialized
+
+[33mcommit 1170cd29b9ef06783b5c19046baa88831e4434aa[m
+Author: Giovanni Li Manni <G.LiManni@fkf.mpg.de>
+Date:   Tue May 30 15:13:27 2017 +0200
+
+    more info into the status file
+
+[33mcommit 69db933c3d4584a44618ed733951d5b0a2df8e43[m
+Author: Giovanni Li Manni <G.LiManni@fkf.mpg.de>
+Date:   Tue May 30 14:22:24 2017 +0200
+
+    test for DESYM flag added
+
+[33mcommit 9cc30fbcede6ef55eb7ceb2b78a1cf68185fa085[m
+Author: Giovanni Li Manni <G.LiManni@fkf.mpg.de>
+Date:   Wed Jun 28 14:13:45 2017 +0200
+
+    remove left over STATUS instruction
+
+[33mcommit ec33733576968d026b45d3845edfb8cba2ff150c[m
+Author: Giovanni Li Manni <G.LiManni@fkf.mpg.de>
+Date:   Wed Jun 28 14:12:14 2017 +0200
+
+    remove STATUS command
+
+[33mcommit e9139fa4de3aefbc7ecec088dff10990b75544b8[m
+Author: Giovanni Li Manni <G.LiManni@fkf.mpg.de>
+Date:   Wed Jun 28 13:57:21 2017 +0200
+
+    trailing whitespaces
+
+[33mcommit 0eaffafb47f5d1a663ffecff58fdb3327d6efb53[m
+Author: Giovanni Li Manni <G.LiManni@fkf.mpg.de>
+Date:   Mon May 29 14:17:33 2017 +0200
+
+    adding test for dump file
+
+[33mcommit 51e9ac126e7e6f914461eea4814c1b39f71d1d34[m
+Author: Giovanni Li Manni <G.LiManni@fkf.mpg.de>
+Date:   Mon May 29 13:32:14 2017 +0200
+
+    add_Info for dump file
+
+[33mcommit c4ba4bc5975a0aeecbcd8e3f7f4c856859fe9fba[m
+Author: Giovanni Li Manni <G.LiManni@fkf.mpg.de>
+Date:   Mon May 29 12:08:00 2017 +0200
+
+    some clean up
+
+[33mcommit e101f41a37c66ebecd42f23290a3aa75bbfd51b3[m
+Author: Giovanni Li Manni <G.LiManni@fkf.mpg.de>
+Date:   Wed Jun 28 13:52:58 2017 +0200
+
+    remove trailing whitespace
+
+[33mcommit a98aeaae2bec08ed5c80ff6a1ef87188340e0b2b[m
+Author: Giovanni Li Manni <G.LiManni@fkf.mpg.de>
+Date:   Mon May 29 11:09:23 2017 +0200
+
+    bug fix for memory release
+
+[33mcommit cab37828b017f587103b6ba996b15e0e3ec32ba0[m
+Author: Giovanni Li Manni <G.LiManni@fkf.mpg.de>
+Date:   Mon May 29 09:25:29 2017 +0200
+
+    set NECI on as default
+
+[33mcommit 3edc33608381745cca6adbc515e4da0d9f18de82[m
+Author: Ignacio Fdez. Galván <Ignacio.Fernandez@kemi.uu.se>
+Date:   Wed Jun 28 11:22:13 2017 +0200
+
+    Disable some code if molcas-extra is not available
+
+[33mcommit 522c5a00e5f51cb8bd2568a950f25a662130c753[m
+Author: Ignacio Fdez. Galván <Ignacio.Fernandez@kemi.uu.se>
+Date:   Mon Jun 26 18:06:09 2017 +0200
+
+    verify: Cosmetic change in output
+
+[33mcommit 53fab87dbda61137c75989503519523516caecd4[m
+Author: Ignacio Fdez. Galván <Ignacio.Fernandez@kemi.uu.se>
+Date:   Mon Jun 26 18:04:16 2017 +0200
+
+    Add back submodules
+    
+    The .gitmodules file was there, but not the index information,
+    which had to be adde with:
+    
+    git update-index --add --cacheinfo 160000 <hash> <path>
+
+[33mcommit d69f76b016c3328503b556438fdaa32dba121d44[m
+Author: Ignacio Fdez. Galván <Ignacio.Fernandez@kemi.uu.se>
+Date:   Fri Jun 23 15:28:18 2017 +0200
+
+    verify: Make .none a special group too
+
+[33mcommit 1fda721083cde33cecc32233c10d2f64ab912e57[m
+Author: Ignacio Fdez. Galván <Ignacio.Fernandez@kemi.uu.se>
+Date:   Thu Jun 22 17:39:47 2017 +0200
+
+    verify: Add "status" keyword
+    
+    When redirecting the output of verify to a file, it is "non interactive"
+    and normally doesn't print anything, with --status it prints its progress.
+
+[33mcommit 7905b6d21f3ef651392aa3126c66b71422342e8c[m
+Author: Ignacio Fdez. Galván <Ignacio.Fernandez@kemi.uu.se>
+Date:   Wed Jun 21 16:34:18 2017 +0200
+
+    dailymerge: Protect/unprotect daily-snapshot
+    
+    Currently in GitLab protected branches cannot be force-pushed by
+    anyone. Since this is needed when the snapshot fails and we still
+    want to protect daily-snapshot, we have to unprotect it before
+    force-pushing and protect it after.
+
+[33mcommit 9952ffcb491b8694fda89f1ef6203fdb40cae596[m
+Author: Ignacio Fdez. Galván <Ignacio.Fernandez@kemi.uu.se>
+Date:   Wed Jun 21 15:42:57 2017 +0200
+
+    verify: Generate result file with .none
+
+[33mcommit cd50cc0fedfd474aacd85dd93af643d49d5d9973[m
+Author: Ignacio Fdez. Galván <Ignacio.Fernandez@kemi.uu.se>
+Date:   Wed Jun 21 13:37:00 2017 +0200
+
+    Update to scripts
+    
+    The installation scripts need some timeout in case they are not
+    run interactively (the current check is not that good). verify
+    prints a legend and dailymerge and version are fixed.
+
+[33mcommit f455c8bc89916cf32e7fbbc32ecbba87eef64cb7[m
+Author: Ignacio Fdez. Galván <Ignacio.Fernandez@kemi.uu.se>
+Date:   Wed Jun 21 11:14:55 2017 +0200
+
+    Updates to verify and dailymerge
+    
+    verify prints explicitly if any critical test failed, so dailymerge
+    does not need to guess based on the group names.
+    Tag names for OpenMolcas changed.
+
+[33mcommit 7cbaa59db5960e2408f781ae07ff3dd7201b1558[m
+Author: Ignacio Fdez. Galván <Ignacio.Fernandez@kemi.uu.se>
+Date:   Wed Jun 21 09:49:17 2017 +0200
+
+    Update banner
+
+[33mcommit bca1e66dcec2c3f49fe89891bd477de452aec2bc[m
+Author: Ignacio Fdez. Galván <Ignacio.Fernandez@kemi.uu.se>
+Date:   Tue Jun 20 13:52:54 2017 +0200
+
+    Changed name of CONTRIBUTORS
+
+[33mcommit 25c433d71f75877f1e8c9877ecb72c98b747a6cd[m
+Author: Ignacio Fdez. Galván <Ignacio.Fernandez@kemi.uu.se>
+Date:   Tue Jun 20 13:28:34 2017 +0200
+
+    Cosmetic
+
+[33mcommit 03530aea84013fd8da8f16dacfe98a039de42ee6[m
+Author: Ignacio Fdez. Galván <Ignacio.Fernandez@kemi.uu.se>
+Date:   Tue Jun 20 11:55:45 2017 +0200
+
+    Add README and convert CONTRIBUTORS to MarkDown
+    
+    (Note the two spaces at the end of each name, which signal a linebreak.)
+
+[33mcommit a6c875bb0fe59fdbf5b1e627218edbe5a0f36859[m
+Author: Ignacio Fdez. Galván <Ignacio.Fernandez@kemi.uu.se>
+Date:   Tue Jun 20 11:16:34 2017 +0200
+
+    runtests: Use HTTPS for OpenMolcas
+
+[33mcommit a533f7b9abbd26db6ebf67f82e8e1f283e7ca068[m
+Author: Ignacio Fdez. Galván <Ignacio.Fernandez@kemi.uu.se>
+Date:   Tue Jun 20 10:19:41 2017 +0200
+
+    runtests: Use GitLab and make cmake and fold configurable
+
+[33mcommit 6bca87103367d391f1d16bc3a8f02c657c7edf4d[m
+Author: Ignacio Fdez. Galván <Ignacio.Fernandez@kemi.uu.se>
+Date:   Tue Jun 20 09:54:14 2017 +0200
+
+    verify: Print mark with failed tests too
+
+[33mcommit 6d17e551fa9d312fd4768742326391242a22e0d0[m
+Author: Ignacio Fdez. Galván <Ignacio.Fernandez@kemi.uu.se>
+Date:   Mon Jun 19 17:41:14 2017 +0200
+
+    verify: Marks with numbers
+
+[33mcommit 46bf5eb8387d068db85828f42c5d4127734892fb[m
+Author: Ignacio Fdez. Galván <Ignacio.Fernandez@kemi.uu.se>
+Date:   Sat Jun 17 12:21:31 2017 +0200
+
+    verify: grouplist option, marks and fix .everything
+    
+    The --grouplist option now lists all known groups. Marks are added
+    to each test in the final log, signaling whether it is a "standard",
+    "extra" or "grayzone" test (names can vary). The .everything group
+    now is really everything, it does not require dot files.
+
+[33mcommit fe141d4804a501caf38b1eed077cde563ee66bad[m
+Author: Ignacio Fdez. Galván <Ignacio.Fernandez@kemi.uu.se>
+Date:   Sat Jun 17 10:45:22 2017 +0200
+
+    Re-generate changed test
+
+[33mcommit 87a9b953d5d237994691cbcf37eb785d33c4332b[m
+Author: Ignacio Fdez. Galván <Ignacio.Fernandez@kemi.uu.se>
+Date:   Sat Jun 17 10:39:55 2017 +0200
+
+    Small tests cleanup
+    
+    Add ".basic" group (= standard) and set ".everything" to the official
+    (not personal) tests.
+    
+    Move tests that include molcas-extra programs to molcas-extra (grid_it,
+    embq, mula, falcon, mknemo, nemo, geo)
+
+[33mcommit 6411144afeba89713dece1c7b0faf87b1d40e289[m
+Author: Molcas Manager <molcas@kemi.uu.se>
+Date:   Mon Jun 19 14:53:42 2017 +0200
+
+    Update to 1327481eec6a576135b3cd4b0451e24ba8ce9f32
+
+[33mcommit caae7a2f0f131bc2eb8179553a1f0d9f3577556d[m
+Author: Molcas Manager <molcas@kemi.uu.se>
+Date:   Fri Jun 16 12:52:54 2017 +0200
+
+    Update to 90b59825fb88512b72de98beb721ea765bb555c8
+
+[33mcommit 2ad5aedbca588cb50ef7de0343336f53f165f49b[m
+Author: Molcas Manager <molcas@kemi.uu.se>
+Date:   Tue Jun 6 09:09:38 2017 +0200
+
+    Update to 88af25544b15509a16ecc49117c33642bdfcfdaf
+
+[33mcommit f5870064dd5da53ce9bac5c4a104cac527d92c06[m
+Author: Molcas Manager <molcas@kemi.uu.se>
+Date:   Sat May 27 11:01:32 2017 +0200
+
+    Restore missing build* files
+
+[33mcommit 42ded12beef8767762f98baa26dd20423c8ca53e[m
+Author: Molcas Manager <molcas@kemi.uu.se>
+Date:   Sat May 27 08:39:35 2017 +0200
+
+    Update to 98db7eb3b287e662ca9c351e8f9597f595be06b2
+
+[33mcommit 5633031aceea05495968303022d8dbbecbadc068[m
+Author: Molcas Manager <molcas@kemi.uu.se>
+Date:   Tue May 23 17:39:37 2017 +0200
+
+    Initial commit from aa120fd90b4fd3ae39033fc192a0d42ba8858625

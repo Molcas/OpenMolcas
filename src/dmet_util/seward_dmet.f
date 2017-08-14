@@ -572,7 +572,7 @@ C-SVC: identify runfile with a fingerprint
 *                                                                      *
 *     Automatic run of GuessOrb
 *
-*     If (Do_GuessOrb.and.Do_FckInt) Call GuessOrb(iReturn,.FALSE.)
+      If (Do_GuessOrb.and.Do_FckInt) Call GuessOrb(iReturn,.FALSE.)
 *     If(IsGvMode.gt.0) then
 *       Call DoGvMode(IsGvMode)
 *     EndIf

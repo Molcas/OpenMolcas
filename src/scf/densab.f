@@ -21,8 +21,6 @@
       Real*8 Dens(nBT,nD,nDens)
       Real*8, Dimension(:), Allocatable:: Dtemp
 *
-      write(6,*) "nBT,nDens,nD,Dens", nBT,nDens,nD,Dens
-
       If (nD.eq.1) Then
          Call Put_dArray('D1ao',Dens(1,1,nDens),nBT)
       Else

@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine SCF_Energy_DMET(FstItr,E1_,E2_,EV)
+      Subroutine SCF_Energy(FstItr,E1_,E2_,EV)
       use SCF_Arrays
       Implicit Real*8 (a-h,o-z)
 #include "mxdm.fh"

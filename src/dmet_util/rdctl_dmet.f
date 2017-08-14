@@ -1138,6 +1138,7 @@ c Group command found - good reason to give up
 *
       Do_FckInt = Do_FckInt .and. FockOp(nCnttp) .and.
      &            iAtmNr(nCnttp).le.96
+      Do_GuessOrb = .True.
 #ifdef _DEMO_
       Do_GuessOrb = .False.
 #else

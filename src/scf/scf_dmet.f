@@ -14,7 +14,7 @@
 *               2003-2005, Valera Veryazov                             *
 *               2017, Roland Lindh                                     *
 ************************************************************************
-      subroutine SCF_DMET(ireturn,return)
+      subroutine SCF_DMET(ireturn)
 ************************************************************************
 *                                                                      *
 *     purpose: perform RHF calculations                                *
@@ -50,21 +50,25 @@
       Character*8 EMILOOP
       Logical FstItr, Semi_Direct
       Real*8 SIntTh
-*     Integer nBfn
-*     Real*8 CorPA(nBfn**2)
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
+      write(6,*) "scf 0"
       Call CWTime(TCPU1,TWall1)
+      write(6,*) "scf 1"
       Call qEnter('SCF')
+      write(6,*) "scf 2"
       HFLDA=0.0
       Call SCF_Init()
+      write(6,*) "scf 3"
       iTerm=0
 *
       Call OpnFls_SCF
+      write(6,*) "scf 4"
       Call ReadIn_SCF(SIntTh)
+      write(6,*) "scf 5"
       LuOrb=LuInp
 *
       Semi_Direct = DSCF .and. (nDisc.ne.0 .or. (nCore.ne.0
@@ -77,6 +81,7 @@
       End If
 *
       Call Init_SCF()
+      write(6,*) "scf 6"
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -85,7 +90,9 @@
       LuOrb=LuInp
       nD = iUHF + 1
       Call SOrb(LuOrb,SIntTh,iTerm)
+      write(6,*) "scf 7"
       Call OccDef(OccNo,nnB,nD,CMO,nBB)
+      write(6,*) "scf 8"
 *
       Call mma_deallocate(HDiag)
       If (Aufb) Then
@@ -98,13 +105,14 @@
 ************************************************************************
 *                                                                      *
       Call WrInp_SCF(SIntTh)
+      write(6,*) "scf 9"
 
       Call Cre_SCFWfn
+      write(6,*) "scf 10"
 
       FstItr=.True.
 
       If(.not.OnlyProp) Then
-          write(6,*) "NAelec=nAuf", NAelec, nAufb
          Call WfCtl_SCF_DMET(iTerm,KSDFT,FstItr,SIntTh)
             write(6,*) "scf after WfCtl_SCF_0"
       End If
@@ -115,7 +123,7 @@
             write(6,*) "scf after WfCtl_SCF_2"
       Call Final_DMET()
             write(6,*) "scf after WfCtl_SCF_3"
-      If (DSCF) Call Free_TLists_DMET
+      If (DSCF) Call Free_TLists
             write(6,*) "scf after WfCtl_SCF_4"
 *
       Call CWTime(TCPU2,TWall2)
@@ -174,253 +182,3 @@ c         Call grid_driver(-1,'SCF','UNAORB',iRc)
 *
       End
 ************************************************************************
-      SubRoutine IniLLs_DMET
-*     initialize the diverse linked lists
-      Implicit Real*8 (a-h,o-z)
-
-#include "mxdm.fh"
-#include "infscf.fh"
-#include "infso.fh"
-#include "llists.fh"
-#include "lnklst.fh"
-*
-#ifdef _DEBUG_
-      Call QEnter('IniLLs')
-#endif
-*
-*     MemRsv set tentatively to the size of six density matrices
-c     MemRsv=6*nBT
-      LLlist=0
-      LLGrad=0
-      Call IniLst(LLGrad,20)
-      Call IniLst(LLDgrd,20)
-      Call IniLst(LLDelt,20)
-      Call IniLst(LLy,20)
-      Call IniLst(LLx,MxOptm)
-      Init_LLs=1
-*
-#ifdef _DEBUG_
-      Call QExit('IniLLs')
-#endif
-      Return
-      End
-*----------------------------------------------------------------------*
-*#ifdef _NOTUSED_
-*      Subroutine StatLLS()
-*      Implicit Real*8 (a-h,o-z)
-*#include "llists.fh"
-*      If (Init_LLs.eq.1) Then
-*         Call StlLst_DMET(LLGrad)
-*         Call StlLst_DMET(LLDgrd)
-*         Call StlLst_DMET(LLDelt)
-*         Call StlLst_DMET(LLy)
-*         Call StlLst_DMET(LLx)
-*      Else
-*         Write (6,*) '****** W A R N I N G ! ******'
-*         Write (6,*) ' Linked lists are not there!'
-*      End If
-*      Return
-*      End
-*#endif
-*----------------------------------------------------------------------*
-*      SubRoutine KiLLs_DMET
-**     dispose the diverse linked lists
-*      Implicit Real*8 (a-h,o-z)
-*#include "llists.fh"
-*      If (Init_LLs.eq.1) Then
-*         Call KilLst_DMET(LLGrad)
-*         Call KilLst_DMET(LLDgrd)
-*         Call KilLst_DMET(LLDelt)
-*         Call KilLst_DMET(LLy)
-*         Call KilLst_DMET(LLx)
-*         Init_LLs=-1
-*      Else
-*         Write (6,*) '****** W A R N I N G ! ******'
-*         Write (6,*) ' Linked list already killed!'
-*      End If
-*      Return
-*      End
-**----------------------------------------------------------------------*
-      Subroutine RclLLs_DMET(iDskPt)
-      Implicit Real*8 (a-h,o-z)
-#include "infso.fh"
-#include "file.fh"
-#include "llists.fh"
-      Integer iDskPt(5)
-      Call RclLst(LLGrad,LuGrd,iDskPt(1),MemRsv)
-      Call RclLst(LLDgrd,LuDGd,iDskPt(2),MemRsv)
-      Call RclLst(LLDelt,LuDel,iDskPt(3),MemRsv)
-      Call RclLst(LLy   ,Lux  ,iDskPt(4),MemRsv)
-      Call RclLst(LLx   ,Luy  ,iDskPt(5),MemRsv)
-      Init_LLs=1
-*     Call StatLLs
-      Return
-      End
-*----------------------------------------------------------------------*
-      Subroutine DmpLLs_DMET(iDskPt)
-      Implicit Real*8 (a-h,o-z)
-#include "file.fh"
-#include "llists.fh"
-      Integer iDskPt(5)
-      If (Init_LLs.eq.1) Then
-*        Call StatLLs
-         Call DmpLst(LLGrad,LuGrd,iDskPt(1))
-         Call DmpLst(LLDgrd,LuDGd,iDskPt(2))
-         Call DmpLst(LLDelt,LuDel,iDskPt(3))
-         Call DmpLst(LLy   ,Lux  ,iDskPt(4))
-         Call DmpLst(LLx   ,Luy  ,iDskPt(5))
-      Else
-         Write (6,*) '****** W A R N I N G ! ******'
-         Write (6,*) ' Linked list already killed!'
-      End If
-      Return
-      End
-*----------------------------------------------------------------------*
-      Subroutine StlLst_DMET(LLink)
-      Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
-      return
-       Write (6,*)
-       Write (6,*) '*********** Status of Linked List *************'
-       Write (6,*)
-       Write (6,*) ' LLink:',LLink
-       Write (6,*)
-       Write (6,*) ' CNOD data'
-       Write (6,*) 'Error code:                       ',iWork(LLink  )
-       Write (6,*) 'Pointer to first NODE in the list:',iWork(LLink+1)
-       Write (6,*) 'Actual length of list:            ',iWork(LLink+2)
-       Write (6,*) '# of vectors in core:             ',iWork(LLink+3)
-       Write (6,*)
-       iRoot=iWork(LLink+1)
-       Do while (iRoot.ne.0)
-          Write (6,*) ' NODE data'
-          Write (6,*) 'NODE @:                         ',iRoot
-          Write (6,*) 'Pointer to next NODE:           ',iWork(iRoot  )
-          Write (6,*) 'Pointer to stored vector:       ',iWork(iRoot+1)
-          If (iWork(iRoot+5).ge.1) Then
-             Write (6,*) 'Vector status:                  in Core'
-          Else
-             Write (6,*) 'Vector status:                  on Disk'
-          End If
-          Write (6,*) 'Next free position:             ',iWork(iRoot+2)
-          Write (6,*) 'Length of vector:               ',iWork(iRoot+3)
-          Write (6,*) 'Iteration number:               ',iWork(iRoot+4)
-          Write (6,*)
-          iRoot=iWork(iRoot)
-       End Do
-       Write (6,*) '************ End of Status Report *************'
-       Write (6,*)
-      Return
-      End
-#ifdef _NOTUSED_
-*----------------------------------------------------------------------*
-      Subroutine Init_TLists
-      Implicit Real*8 (a-h,o-z)
-*     Include 'mxdm.fh'
-#include <mxdm.fh>
-
-      Logical Triangular
-*
-      If (DSCF) Then
-         Triangular=.True.
-         Call Init_TList(Triangular)
-         Call Init_PPList
-         Call Init_GTList
-      End If
-*
-      Return
-      End
-#endif
-*----------------------------------------------------------------------*
-      Subroutine Free_TLists_DMET
-      Implicit Real*8 (a-h,o-z)
-
-#include "mxdm.fh"
-#include "infscf.fh"
-*
-      If (DSCF) Then
-         Call Free_TList
-         Call Free_PPList
-         Call Free_GTList
-      End If
-*
-      Return
-      End
-*----------------------------------------------------------------------*
-#ifdef _NOTUSED_
-*debug routine
-      SubRoutine DumDum
-*     dummy routine with endless loop for parallel debugging
-      use Real_Spherical
-      Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
-      Integer iflag
-      Integer   idbx1(MxShll),idbx2(Mxshll)
-      Real*8 rdbx1,rdbx2(mxdbsc)
-*
-      iflag=0
-      Write (6,*) 'nexp:'
-      Write (6,*) (nExp(i),i=1,10)
-c 100 If (iflag.eq.1) Go To 110
-c     Go To 100
-c 110 Continue
-      Do i=1,Mxshll
-        idbx1(i)=nExp(i)
-        idbx2(i)=ipBk(i)
-      End Do
-      rdbx1=TMass
-      Do i=1,mxdbsc
-        rdbx2(i)=Charge(i)
-      End Do
-      Do i=1,4
-        rdbx1=Work(ipCff(i))
-        rdbx1=Work(ipExp(i))
-      End Do
-      Do iAng = 0, iAngMx-1
-        idbx0=ipSph(iAng+1)
-        rdbx1=RSph(ipSph(iAng+1))
-      End Do
-      Return
-      End
-#endif
-*debug routine
-      Subroutine Reduce_Thresholds_DMET(EThr_,SIntTh)
-      Implicit Real*8 (a-h,o-z)
-#include "real.fh"
-*
-#include "mxdm.fh"
-#include "infscf.fh"
-#include "infso.fh"
-      Common /Save/ SIntTh_old, EThr_old, DThr_old, DltNTh_old,
-     &              FThr_old, ThrInt_Old
-*
-      Write (6,*)
-      Write (6,*) 'Temporary increase of thresholds...'
-      Write (6,*)
-      SIntTh_old=SIntTh
-      EThr_old=EThr
-      DThr_old=DThr
-      DltNTh_old=DltNTh
-      FThr_old=FThr
-*
-*---- Get threshold used in connection of products of integrals and
-*     densities
-*
-      ThrInt_Old=Get_ThrInt()
-*
-      EThr=EThr_
-      If (EThr_old.eq.Zero) Then
-         Relax=One
-      Else
-         Relax=EThr/EThr_old
-      End If
-      SIntTh=SIntTh*Relax
-      DThr=DThr*Relax
-      DltNTh=100.0D0*EThr
-      FThr=FThr*Relax
-      Call xSet_ThrInt(ThrInt_Old*Relax)
-*
-      Return
-      End

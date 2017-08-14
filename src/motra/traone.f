@@ -28,7 +28,6 @@
       DIMENSION PAO(*),PMO(*),TEMP(*)
 *
       Call qEnter('TraOne')
-         write(6,*) " TRAONE_MOTRA 00"
 *
       ICMO=1
       IAO =1
@@ -36,9 +35,7 @@
       DO 100 ISYM=1,NSYM
          ICMO=ICMO+NBAS(ISYM)*NFRO(ISYM)
          IOFF=1+NBAS(ISYM)*NBAS(ISYM)
-         write(6,*) " TRAONE_MOTRA 0"
          CALL SQUARE(PAO(IAO),TEMP(1),1,NBAS(ISYM),NBAS(ISYM))
-         write(6,*) " TRAONE_MOTRA 1"
 C         CALL MXMA(CMO(ICMO),     NBAS(ISYM),1,
 C     *             TEMP,          1,NBAS(ISYM),
 C     *             TEMP(IOFF),    1,NORB(ISYM),
@@ -47,7 +44,6 @@ C     *             NORB(ISYM),NBAS(ISYM),NBAS(ISYM))
      *                NBAS(ISYM),1.0d0,CMO(ICMO),
      *                 NBAS(ISYM),TEMP,NBAS(ISYM),
      *                 0.0d0,TEMP(IOFF),NORB(ISYM))
-         write(6,*) " TRAONE_MOTRA 2"
          CALL MXMT(TEMP(IOFF),    1,NORB(ISYM),
      *             CMO(ICMO),     1,NBAS(ISYM),
      *             PMO(IMO),
@@ -55,7 +51,6 @@ C     *             NORB(ISYM),NBAS(ISYM),NBAS(ISYM))
          ICMO=ICMO+NBAS(ISYM)*(NORB(ISYM)+NDEL(ISYM))
          IAO =IAO +NBAS(ISYM)*(NBAS(ISYM)+1)/2
          IMO =IMO +NORB(ISYM)*(NORB(ISYM)+1)/2
-         write(6,*) " TRAONE_MOTRA 3"
 100   CONTINUE
 *
       Call qExit('TraOne')
