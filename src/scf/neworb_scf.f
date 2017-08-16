@@ -335,7 +335,7 @@ c    &                 '(20F10.4)',TraF,nOrbmF)
               Do iOrb=1,nOrbmF
                  Do jOrb=1,iOrb
                     If(iOrb.ne.jOrb) Then
-                       q=ScrFac*(2.0d0*Random_Molcas(iSeed)-1.0d0)
+                       q=ScrFac*(2.0d0*fRandom_Molcas(iSeed)-1.0d0)
                        TraF(ind)=TraF(ind)+q
                     End If
                     ind=ind+1

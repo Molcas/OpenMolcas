@@ -29,8 +29,8 @@ C (Lambert Meertens)
 C (corrected version; bug discovered by Mike Miller, fixed by LM)
       IF (nFlag.eq.0) THEN
 
-          alpha = abs(Random_Molcas(iseed))
-          beta  = abs(Random_Molcas(iseed))
+          alpha = abs(fRandom_Molcas(iseed))
+          beta  = abs(fRandom_Molcas(iseed))
 
           PI=4.D0*ATAN(1.D0)
           X2pi = alpha * (2.d0*Pi)

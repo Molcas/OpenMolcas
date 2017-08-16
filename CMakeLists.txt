@@ -1462,11 +1462,11 @@ if (CHEMPS2)
         if ("${CHEMPS2_DIR}" STREQUAL "")
                 message (FATAL_ERROR "You must supply a path for CHEMPS2_DIR.")
         endif ()
-        
+
         if (NOT HDF5)
                 message (FATAL_ERROR "CheMPS2 interface requires enabling HDF5 with --enable-fortran2003.")
         endif ()
-                    
+
         find_library(HDF5_Fortran_LIBRARIES hdf5_fortran)
         if (HDF5_Fortran_LIBRARIES)
                 message ("-- HDF5_Fortran_LIBRARIES: ${HDF5_Fortran_LIBRARIES}")
@@ -2399,8 +2399,8 @@ foreach (prog ${progs})
         target_link_libraries (${prog}.exe molcas)
         target_link_libraries (${prog}.exe ${EXTERNAL_LIBRARIES})
         if (EXTERNAL_PROJECTS)
-           add_dependencies (${prog}.exe ${EXTERNAL_PROJECTS})
-        endif () 
+                add_dependencies (${prog}.exe ${EXTERNAL_PROJECTS})
+        endif ()
 
         if (CUBLAS)
                 set_target_properties (${prog}.exe PROPERTIES LINKER_LANGUAGE "CXX")

@@ -11,10 +11,8 @@
 * Copyright (C) 2017, Ignacio Fdez. Galvan                             *
 ************************************************************************
 
-      Subroutine n_MnBrak(ax,bx,cx,fa,fb,fc,f,
-     &                 rMP,xrMP,xxrMP,xnrMP,EC,AC,R_ij,C_o_C,ij,l,nij,
-     &                 lMax,nElem,nAtoms,nPert,Scratch_New,Scratch_Org,
-     &                 iPrint_Errors)
+      Subroutine MnBrak2(ax,bx,cx,fa,fb,fc,f,
+     &                 q_a,q_b,dipole_a,dipole_b,r_a,r_b)
       Implicit None
       Real*8 :: ax, bx, cx, fa, fb, fc, vx, fv, coefA, coefB
       Logical :: Def
@@ -22,19 +20,12 @@
       Real*8, Parameter :: Thr = 1.0D-20, Lim = 100.0D0
 c External function f and its arguments
       Real*8, External :: f
-      Integer :: nij,lMax,nElem
-      Real*8 :: rMP(nij,0:nElem),xrMP(nij,nElem),xxrMP(nij,nElem),
-     &          xnrMP(nij,nElem),EC(3,nij),AC(3,nij),R_ij(3),C_o_C(3),
-     &          Scratch_New(nij*(2+lMax+1)),Scratch_Org(nij*(2+lMax+1))
-      Integer :: ij,l,nAtoms,nPert,iPrint_Errors
+      Real*8 :: q_a,q_b,dipole_a,dipole_b,r_a,r_b
+      Logical, Parameter :: Absolute=.True.
 
 #include "real.fh"
-      fa = f(ax,
-     &       rMP,xrMP,xxrMP,xnrMP,EC,AC,R_ij,C_o_C,ij,l,nij,lMax,nElem,
-     &       nAtoms,nPert,Scratch_New,Scratch_Org,iPrint_Errors)
-      fb = f(bx,
-     &       rMP,xrMP,xxrMP,xnrMP,EC,AC,R_ij,C_o_C,ij,l,nij,lMax,nElem,
-     &       nAtoms,nPert,Scratch_New,Scratch_Org,iPrint_Errors)
+      fa = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,ax,Absolute)
+      fb = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,bx,Absolute)
       If (fa .lt. fb) Then
         cx = ax
         ax = bx
@@ -46,9 +37,7 @@ c External function f and its arguments
       ! three points such that b is between a and c,
       ! and f(a) > f(b) > f(c), stop when f(c) > f(b)
       cx = bx + Ratio*(bx-ax)
-      fc = f(cx,
-     &       rMP,xrMP,xxrMP,xnrMP,EC,AC,R_ij,C_o_C,ij,l,nij,lMax,nElem,
-     &       nAtoms,nPert,Scratch_New,Scratch_Org,iPrint_Errors)
+      fc = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,cx,Absolute)
       Do While (fc .le. fb)
         write(6,*) ax,bx,cx
         Def = .True.
@@ -61,9 +50,7 @@ c External function f and its arguments
           vx = -Half*coefB/coefA
           ! v is between b and c
           If ((cx-vx)*(vx-bx) .gt. Zero) Then
-            fv = f(vx,
-     &       rMP,xrMP,xxrMP,xnrMP,EC,AC,R_ij,C_o_C,ij,l,nij,lMax,nElem,
-     &       nAtoms,nPert,Scratch_New,Scratch_Org,iPrint_Errors)
+            fv = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,vx,Absolute)
             ! minimum between b and c
             If (fv .lt. fc) Then
               ax = bx
@@ -79,9 +66,7 @@ c External function f and its arguments
             End If
           ! v is beyond c, but within limits
           Else If ((bx+Lim*(cx-bx)-vx)*(vx-cx) .gt. Zero) Then
-            fv = f(vx,
-     &       rMP,xrMP,xxrMP,xnrMP,EC,AC,R_ij,C_o_C,ij,l,nij,lMax,nElem,
-     &       nAtoms,nPert,Scratch_New,Scratch_Org,iPrint_Errors)
+            fv = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,vx,Absolute)
             ! whatever happens, replace c,v -> b,c
             bx = cx
             cx = vx
@@ -102,9 +87,7 @@ c External function f and its arguments
         ! unless the fit went beyond limits, use default step
         If (Def) Then
           vx = cx + Ratio*(cx-bx)
-          fv = f(vx,
-     &       rMP,xrMP,xxrMP,xnrMP,EC,AC,R_ij,C_o_C,ij,l,nij,lMax,nElem,
-     &       nAtoms,nPert,Scratch_New,Scratch_Org,iPrint_Errors)
+          fv = f(q_a,q_b,dipole_a,dipole_b,r_a,r_b,vx,Absolute)
         End If
         ax = bx
         bx = cx
@@ -114,4 +97,4 @@ c External function f and its arguments
         fc = fv
       End Do
 
-      End Subroutine n_MnBrak
+      End Subroutine MnBrak2
