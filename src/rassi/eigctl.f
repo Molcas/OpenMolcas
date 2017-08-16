@@ -450,10 +450,9 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
      &             0.0D0,PROP(1,1,IP),NSTATE)
       END DO
       CALL GETMEM('SCR','FREE','REAL',LSCR,NSTATE**2)
-      IF(IPGLOB.le.SILENT) GOTO 900
-
-* CALCULATION OF THE DIPOLE TRANSITION STRENGTHS
-
+*
+* Initial setup for both dipole, quadrupole etc. and exact operator
+*
 !
 ! There are debug statements thoughout - look for ZVAL
 ! If you want to debug in length gauge then comment out velocity dipole
@@ -492,6 +491,10 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
         IEND = NSTATE
         JSTART = 1
       END IF
+*
+      IF(IPGLOB.le.SILENT) GOTO 900
+!
+* CALCULATION OF THE DIPOLE TRANSITION STRENGTHS
 !
 !     Initialize arrays for indentifying problematic transitions
 !     These stores all dipole oscillator strengths in

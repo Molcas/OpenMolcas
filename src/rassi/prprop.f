@@ -392,8 +392,8 @@ CIFG  should print the origin, but where is it stored (for SO properties)?
 C Compute transition strengths for spin-orbit states:
       IF(.not.IFSO) GOTO 500
 *
-      IF (IPGLOB.GE.TERSE) THEN
-
+* Initial setup for both dipole, quadrupole etc. and exact operator
+*
 C printing threshold
 !     IF(IPGLOB.eq.USUAL) OSTHR=1.0D-8 ! first order
 !     IF(IPGLOB.eq.USUAL) OSTHR2=1.0D-12 ! second order (weaker)
@@ -422,6 +422,8 @@ C printing threshold
         IEND = NSS
         JSTART = 1
       END IF
+!
+      IF (IPGLOB.GE.TERSE) THEN
 !
 !     Initialize arrays for indentifying problematic transitions
 !     These stores all dipole oscillator strengths in
