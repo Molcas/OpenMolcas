@@ -503,6 +503,7 @@ C Local print level (if any)
       Call Store_Energies(lRoots,Work(ipEneTmp),irlxroot)
       Call Put_iScalar('NumGradRoot',irlxroot)
       Call Put_dScalar('Average energy',EAV)
+      Call Put_dScalar('Last energy',ECAS)
       Call Free_Work(ipEneTmp)
 
       iTol = Cho_X_GetTol(8)
