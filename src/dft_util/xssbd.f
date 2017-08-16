@@ -10,24 +10,17 @@
 *                                                                      *
 * Copyright (C) 2006, Per Ake Malmqvist                                *
 *               2010, Grigory A. Shamov                                *
+*               2017, Giovanni Li Manni                                *
+*               2017, Aron Cohen                                       *
 ************************************************************************
-      Subroutine xSSB(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
+      Subroutine xSSBD(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
      &                Coeff,iSpin,F_xc,T_X)
 ************************************************************************
 *                                                                      *
-* Object:  SSB-sw exchange functional by Swart, Sola and Bickelhaupt   *
-*           this is the first one, "switching between OPTX and PBE"    *
-*          derived with Maxima                                         *
+* Object:  SSB-D exchange functional by Swart                          *
 *                                                                      *
-*                                                                      *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    :                                                         *
-*                                                                      *
-*      Author: template by Per Ake Malmqvist,                          *
-*             University of Lund, SWEDEN. June 2006                    *
-*             Grigory A Shamov, 2010                                   *
+*      Author: G. Li Manni, A. Cohen, Max Planck Institute Stuttgart   *
+*              Summer 2017, edited in Cambridge (UK) & Palermo (Sicily)*
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -52,7 +45,7 @@
          grdrhoa_z=rho(ipdRz,iGrid)
          sigmaaa=grdrhoa_x**2+grdrhoa_y**2+grdrhoa_z**2
 
-         call xSSB_(idord,rhoa,sigmaaa,Fa,dFdrhoa,dFdgammaaa,
+         call xSSBD_(idord,rhoa,sigmaaa,Fa,dFdrhoa,dFdgammaaa,
      &          d2Fdra2,d2Fdradgaa,d2Fdgaa2)
          F_xc(iGrid)=F_xc(iGrid)+Coeff*(2.0D0*Fa)
          dF_dRho(ipR,iGrid)=dF_dRho(ipR,iGrid)+Coeff*dFdrhoa
@@ -74,14 +67,14 @@
          grdrhoa_y=rho(ipdRya,iGrid)
          grdrhoa_z=rho(ipdRza,iGrid)
          sigmaaa=grdrhoa_x**2+grdrhoa_y**2+grdrhoa_z**2
-         call xSSB_(idord,rhoa,sigmaaa,Fa,dFdrhoa,dFdgammaaa,
+         call xSSBD_(idord,rhoa,sigmaaa,Fa,dFdrhoa,dFdgammaaa,
      &          d2Fdra2,d2Fdradgaa,d2Fdgaa2)
 
          grdrhob_x=rho(ipdRxb,iGrid)
          grdrhob_y=rho(ipdRyb,iGrid)
          grdrhob_z=rho(ipdRzb,iGrid)
          sigmabb=grdrhob_x**2+grdrhob_y**2+grdrhob_z**2
-         call xSSB_(idord,rhob,sigmabb,Fb,dFdrhob,dFdgammabb,
+         call xSSBD_(idord,rhob,sigmabb,Fb,dFdrhob,dFdgammabb,
      &          d2Fdrb2,d2Fdrbdgbb,d2Fdgbb2)
 
          F_xc(iGrid)=F_xc(iGrid)+Coeff*(Fa+Fb)
@@ -99,7 +92,7 @@
       Return
       End
 
-      subroutine XSSB_(idord,rho_s,gamma_s,F,dFdr,dFdg,
+      subroutine XSSBD_(idord,rho_s,gamma_s,F,dFdr,dFdg,
      & d2Fdr2,  d2Fdrdg, d2Fdg2)
       implicit none
 
@@ -108,78 +101,65 @@
       real*8  d2Fdr2,  d2Fdrdg, d2Fdg2
       real*8 rho, gamma, pi
       parameter(pi=3.14159265358979d0)
-
-      real*8 T1, T2, T3, T4, T5, T6, T7,  T8,  T9,  T10
-      real*8 T11, T12, T13, T14, T15, T16,  T17, T18
-      real*8 T19, T20, T21, T22, T23
+      real*8 rho43,rrho,rho13,gam12,s,d1s1,d1s2
+      real*8 g,gp,d1g1,d1g2
+      real*8 rA, rB, rC, rD, rE, rU, RF, fac
+      real*8 C, Cs, Cx
+      parameter (rA=1.079966d0, rB=0.197465d0, rC=0.272729d0)
+      parameter (rE=5.873645d0, rU=-0.749940d0)
+      parameter (rD=rB*(1.0d0-rU), rF=0.949488d0)
 
       rho=rho_s+1.0D-16
       gamma=gamma_s+1.0D-16
+      C = -3d0/(4d0*pi)*(3d0*pi*pi)**(1.d0/3.d0)
+      Cs = 0.5d0/(3d0*pi*pi)**(1.d0/3.d0)
+      Cs = Cs * C               ! account for including C in rho43
 
+      rho43 = C*(2d0*rho)**(4.d0/3.d0)
+      rrho = 0.5d0/rho
+      rho13 = 4.d0/3.d0*rho43*rrho
+      gam12 = 2d0*dsqrt(gamma)
+      s = Cs*gam12/rho43
+      d1s1 = -4.d0/3.d0*s*rrho
+      d1s2 = 0.5d0*s/gamma
+c
+c     Evaluate the GC part of F(s), i.e. g(s) = F(s) - 1
+c
 
-      T1=rho**(4.d+0/3.d+0)
-      T2=1/rho**(8.d+0/3.d+0)
-      T3=4.1867733411865504d-3*T2*gamma+1.d+0
-      T4=1/T3
-      T5=1/rho**(1.6d+1/3.d+0)
-      T6=gamma**2
-      T7=1.0930391066596375d-3*T5*T6+1.d+0
-      T8=1/T7
-      T9=-2.973605770238684d-3*T2*gamma*T8+3.150500329583
-     5   405d-3*T2*gamma*T4+1.05151d+0
-      T10=1/rho**(1.9d+1/3.d+0)
-      T11=1/T3**2
-      T12=1/rho**(1.1000000000000001d+1/3.d+0)
-      T13=1/rho**9
-      T14= gamma**3
-      T15=1/T7**2
-      T16=7.929615387303156d-3*T12*gamma*T8-1.73
-     8   347594381847d-5*T13*T14*T15-8.401334212222413d-3*T12*gamma*T4+3
-     9   .5174482110131294d-5*T10*T6*T11
-      T17=rho**(1.d+0/3.d+0)
-      T18=1/rho**8
-      T19=-2.973605770238684d-3*T2*T8+6.500534789319262d-6*T18*T
-     ;   6*T15+3.150500329583405d-3*T2*T4-1.3190430791299237d-5*T5*gamma
-     <   *T11
-      T20=1/rho**10
-      T21=1/T3**3
-      T22=1/rho**(1.3999999999999999d+ 1/3.d+0)
-      T23=1/T7**3
+      g= rB*s*s/(1d0+rC*s*s)
+     +               - rD*s*s/(1d0+rE*s**4)
+      gp= 2d0*rB*s/(1d0+rC*s*s)**2 +
+     +         (2d0*rD*rE*s**5 - 2d0*rD*s)/(1d0+rE*s**4)**2
 
-      F = -9.305257363491001d-1*T1*T9
-
-C dont forget to take sqrt of gamma
+!            g=gssb0(s)
+!            gp=gssb1(s)
+c
+      Cx = 3.d0/4.d0*(3.d0/pi)**(1.d0/3.d0)*2.d0**(1.d0/3.d0)
+      fac = rU*rF*Cx*rB/(2*(3*pi**2)**(1.d0/3.d0))**2/2**(2/3.d0)
+      d1g1 = gp*d1s1
+      d1g2 = gp*d1s2
+      F = rho43*g*0.5d0+rho43*rA*0.5d0
+     & +fac*gamma/((rho)**(4.d0/3.d0)+0.1d0)
 
       if(idord.lt.1) goto 99
-
-      dFdr = -1
-     >   .2407009817988002d+0*T17*T9-9.305257363491001d-1*T1*T16
-
-      dFdg =
-     ?   -9.305257363491001d-1*T1*T19
+            dFdr = (rho13*g+rho43*d1g1)+rho13*rA
+     &  - fac*gamma/(rho**(4.d0/3.d0)+0.1d0)**2*4.d0/3.d0*rho**(1/3.d0)
+            dFdg =  0.5d0*rho43*d1g2
+     &  + fac/((rho)**(4.d0/3.d0)+0.1d0)
 
       if(idord.lt.2) goto 99
 
-      d2Fdr2 = -4.135669939329333d-1*T9/
-     @   rho**(2.d+0/3.d+0)-2.4814019635976003d+0*T17*T16-9.305257363491
-     1   001d-1*T1*(-2.907525642011157d-2*T22*gamma*T8+2.022388601121548
-     2   3d-4*T20*T14*T15-2.0210741301837976d-7*gamma**5*T23/rho**(4.599
-     3   9999999999996d+1/3.d+0)+3.080489211148218d-2*T22*gamma*T4-3.165
-     4   7033899118164d-4*T6*T11/rho**(2.2000000000000003d+1/3.d+0)+7.85
-     5   4271146066177d-7*T20*T14*T21)
-
-      d2Fdrdg = -1.2407009817988002d+0*
-     6   T17*T19-9.305257363491001d-1*T1*(7.929615387303156d-3*T12*T8-6.
-     7   93390377527388d-5*T13*T6*T15+7.579027988189241d-8*gamma**4*T23/
-     8   rho**(4.3d+1/3.d+0)-8.401334212222413d-3*T12*T4+1.0552344633039
-     9   39d-4*T10*gamma*T11-2.9453516797748164d-7*T13*T6*T21)
-
-      d2Fdg2 =
-     =   -9.305257363491001d-1*T1*(1.9501604367957787d-5*T18*gamma*T15-2
-     ;   .842135495570965d-8*T14*T23/rho**(4.d+1/3.d+0)-2.63808615825984
-     <   75d-5*T5*T11+1.1045068799155562d-7*T18*gamma*T21)
+      write(6,*) '2nd derivatives not programmed ssb1'
+      Call Abend()
 
  99   continue
 
       return
+c Avoid unused argument warnings
+      If (.False.) Then
+         Call Unused_real_array(d2Fdr2)
+         Call Unused_real_array(d2Fdrdg)
+         Call Unused_real_array(d2Fdg2)
+      End If
       end
+

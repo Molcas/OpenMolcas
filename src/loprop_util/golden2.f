@@ -11,7 +11,7 @@
 * Copyright (C) 2017, Ignacio Fdez. Galvan                             *
 ************************************************************************
 
-      Real*8 Function x_Golden2(ax,bx,cx,f,tol_x,tol_f,xmin,
+      Real*8 Function Golden2(ax,bx,cx,f,tol_x,tol_f,xmin,
      &                 q_a,q_b,dipole_a,dipole_b,r_a,r_b)
       Implicit None
       Real*8 :: ax, bx, cx, tol_x, tol_f, xmin
@@ -52,10 +52,10 @@ c External function f and its arguments
       End Do
       If (f2 .lt. f3) Then
         xmin = x2
-        x_Golden2 = f2
+        Golden2 = f2
       Else
         xmin = x3
-        x_Golden2 = f3
+        Golden2 = f3
       End If
 
-      End Function x_Golden2
+      End Function Golden2

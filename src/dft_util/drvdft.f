@@ -16,10 +16,10 @@
      &         XAlpha, LSDA5, B3LYP5, B2PLYP, TLYP, NLYP,
      &         NucAtt, NEWF, NEWF1, OLYP, O3LYP, OPBE,
      &         PBE, PBE0, PBEsol, M06L, M06, M062X, HFO,
-     &         M06HF, Checker, SSB, HFG, GLYP, GPBE,
+     &         M06HF, Checker, SSBSW, SSBD, HFG, GLYP, GPBE,
      &         HFB86, B86LYP, B86PBE, BWIG, KT3,
      &         O2PLYP,  KT2,  RGE2, REVPBE,
-     &         PTCA
+     &         PTCA,S12G, S12H
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "nq_info.fh"
@@ -681,16 +681,67 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     SSB                                                              *
+*     SSBSW                                                              *
 *                                                                      *
-      Else If (KSDFT.eq.'SSB'
-     &     .or.KSDFT.eq.'TSSB') Then !GLM
+      Else If (KSDFT.eq.'SSBSW'
+     &     .or.KSDFT.eq.'TSSBSW') Then !GLM
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          nFckDim = nD
          Call Allocate_Work(ipF_DFT,nh1*nFckDim)
          Call FZero(Work(ipF_DFT),nh1*nFckDim)
-         Call DrvNQ(SSB   ,Work(ipF_DFT),nFckDim,Func,
+         Call DrvNQ(SSBSW   ,Work(ipF_DFT),nFckDim,Func,
+     &              Work(ip_D_DS),nh1,nD,
+     &              Do_Grad,
+     &              Grad,nGrad,
+     &              Do_MO,Do_TwoEl,DFTFOCK)
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     SSBD                                                             *
+*                                                                      *
+      Else If (KSDFT.eq.'SSBD'
+     &     .or.KSDFT.eq.'TSSBD') Then !GLM
+         ExFac=Get_ExFac(KSDFT)
+         Functional_type=GGA_type
+         nFckDim = nD
+         Call Allocate_Work(ipF_DFT,nh1*nFckDim)
+         Call FZero(Work(ipF_DFT),nh1*nFckDim)
+         Call DrvNQ(SSBD ,Work(ipF_DFT),nFckDim,Func,
+     &              Work(ip_D_DS),nh1,nD,
+     &              Do_Grad,
+     &              Grad,nGrad,
+     &              Do_MO,Do_TwoEl,DFTFOCK)
+*                                                                      *
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     S12H                                                             *
+*                                                                      *
+      Else If (KSDFT.eq.'S12H') Then
+         ExFac=Get_ExFac(KSDFT)
+         Functional_type=GGA_type
+         nFckDim = nD
+         Call Allocate_Work(ipF_DFT,nh1*nFckDim)
+         Call FZero(Work(ipF_DFT),nh1*nFckDim)
+         Call DrvNQ(S12H  ,Work(ipF_DFT),nFckDim,Func,
+     &              Work(ip_D_DS),nh1,nD,
+     &              Do_Grad,
+     &              Grad,nGrad,
+     &              Do_MO,Do_TwoEl,DFTFOCK)
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     S12G                                                             *
+*                                                                      *
+      Else If (KSDFT.eq.'S12G'
+     &     .or.KSDFT.eq.'TS12G') Then !GLM
+         ExFac=Get_ExFac(KSDFT)
+         Functional_type=GGA_type
+         nFckDim = nD
+         Call Allocate_Work(ipF_DFT,nh1*nFckDim)
+         Call FZero(Work(ipF_DFT),nh1*nFckDim)
+         Call DrvNQ(S12G  ,Work(ipF_DFT),nFckDim,Func,
      &              Work(ip_D_DS),nh1,nD,
      &              Do_Grad,
      &              Grad,nGrad,
