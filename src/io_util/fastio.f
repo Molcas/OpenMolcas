@@ -98,6 +98,7 @@
              tot_Rec_out = tot_Rec_out + Rec_out
              tot_MB_in   = tot_MB_in   + MB_in
              tot_MB_out  = tot_MB_out  + MB_out
+*            min_Block_length was undefined long ago...
              file_size   = (DBLE(MxAddr(i))*DBLE(min_Block_length))
      &                   / (1024.0d0)**2
              Write(6,'(2X,I2,3X,A8,1X,5F11.2)')
@@ -143,7 +144,7 @@ CPart I: general I/O information
            tot_MB_out  =tot_MB_out  + PRofData(5,i)
            tot_Time_in =tot_Time_in + PRofData(3,i)
            tot_Time_out=tot_Time_out+ PRofData(6,i)
-           file_size  =file_size   + FlsSize(i)
+           file_size   =file_size   + FlsSize(i)
 
            Fmt='(2X,I2,2X,A8,3X,F11.2,A2,I8,A1,I8,A2,F9.1,A1,F9.1,'//
      &         'A2,I8,A1,I8)'
