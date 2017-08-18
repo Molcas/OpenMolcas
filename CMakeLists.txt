@@ -1967,9 +1967,7 @@ list (REMOVE_ITEM progs
         symmetrize
         wfa
         )
-if (DEFINED EXTRA_DIR)
-        list (REMOVE_ITEM utils dummy_util)
-else ()
+if (NOT DEFINED EXTRA_DIR)
         list (REMOVE_ITEM utils grid_r_util)
 endif ()
 
@@ -1981,8 +1979,6 @@ foreach (util ${utils})
                 message (WARNING "\"${util}\" not found in source directories, skipping")
         endif ()
 endforeach ()
-
-list (APPEND dummy_util_incs ${ga_util_src})
 
 if (FDE)
         set (util embedding_util)

@@ -17,7 +17,7 @@
 ************************************************************************
 *                                                                      *
 *  Object: driver for two-electron integrals. The four outermost loops *
-*          will controll the type of the two-electron integral, eg.    *
+*          will control the type of the two-electron integral, e.g.    *
 *          (ss|ss), (sd|pp), etc. The next four loops will generate    *
 *          list of symmetry distinct centers that do have basis func-  *
 *          tions of the requested type.                                *
@@ -368,7 +368,7 @@ CMAW end
 *     Write (6,*) 'Ondisk=',Ondisk
 *     Write (6,*) 'lBuf=',lBuf
 *
-*---- Initiate asyncroneous double buffer I/O.
+*---- Initiate asynchronous double buffer I/O.
 *
       IODone = .False.
       Disk = 0.0D0
@@ -383,7 +383,7 @@ CMAW end
          control(4)=cutint
 *        write(6,*) 'control written:',control
 C        Write (6,*) ' Initiate write @', Disk,'iBuf=',iBuf
-         If(OnDisk) Call EAFAwrite(LuTmp,control,4*RtoI,Disk,id)
+         If(OnDisk) Call new_EAFAwrite(LuTmp,control,4*RtoI,Disk,id)
       Else
          iStatIO = Mode_Read
 *        write(6,*) 'read istatio=',istatio
@@ -394,7 +394,7 @@ C        Write (6,*) ' Initiate write @', Disk,'iBuf=',iBuf
 *        Call GetMem('ISemi','List','Real',iDum,iDum)
          If (OnDisk) then
 C           Write (6,*) ' Initiate read @', Disk,'iBuf=',iBuf
-            Call EAFread(LuTmp,control,4*RtoI,Disk)
+            Call new_EAFread(LuTmp,control,4*RtoI,Disk)
             Disk_2 = Disk
             Disk_1 = Disk
 *           write(6,*) 'control read:',control
@@ -427,7 +427,7 @@ C           Write (6,*) ' Initiate read @', Disk,'iBuf=',iBuf
             end if
 c           Write (6,*) ' Initiate read @', Disk,'iBuf=',iBuf
 *           If(OnDisk) Write (6,*) ' Initial EAFARead'
-            Call EAFARead(LuTmp,Work((iBuf-1)*lBuf+ipBuf),
+            Call new_EAFARead(LuTmp,Work((iBuf-1)*lBuf+ipBuf),
      &                               lBuf*RtoI,Disk,id)
          End If
       End If
