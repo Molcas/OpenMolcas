@@ -10,26 +10,22 @@
 *                                                                      *
 * Copyright (C) 2013, Ignacio Fdez. Galvan                             *
 ************************************************************************
-* <DOC>
-*   <NAME>Align</NAME>
-*   <SYNTAX>Call Align(Coord,Ref,nAtom,mAtom)</Syntax>
-*   <ARGUMENTS>
-*     \Argument{Coord}{Cartesian coordinates to align}{Real*8 (3*nAtom)}{inout}
-*     \Argument{Ref}{Cartesian coordinates of the reference structure}{Real*8 (3*nAtom)}{in}
-*     \Argument{nAtom}{Number of symmetry-unique atoms}{Integer}{in}
-*   </ARGUMENTS>
-*   <PURPOSE>Align two structures</PURPOSE>
-*   <DEPENDENCIES>Expand\_Coor,Superpose\_w,Fix\_Symmetry</DEPENDENCIES>
-*   <AUTHOR>I. Fdez. Galvan</AUTHOR>
-*   <MODIFIED_BY></MODIFIED_BY>
-*   <SIDE_EFFECTS></SIDE_EFFECTS>
-*   <DESCRIPTION>
-*     Align a molecular structure with the reference, using the stored weights
-*     (masses by default). This is sometimes needed to ensure that an optimal
-*     structure is found when there are constraints expressed in weighted space
-*     (e.g. sphere or transverse)
-*   </DESCRIPTION>
-* </DOC>
+*  Align
+*
+*> @brief
+*>   Align two structures.
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> Align a molecular structure with the reference, using the stored weights
+*> (masses by default). This is sometimes needed to ensure that an optimal
+*> structure is found when there are constraints expressed in weighted space
+*> (e.g. `sphere` or `transverse`).
+*>
+*> @param[in,out] Coord Cartesian coordinates to align
+*> @param[in]     Ref   Cartesian coordinates of the reference structure
+*> @param[in]     nAtom Number of symmetry-unique atoms
+************************************************************************
       Subroutine Align(Coord,Ref,nAtom)
 
       Implicit Real*8 (a-h,o-z)

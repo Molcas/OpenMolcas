@@ -15,6 +15,8 @@ module link_blas
   use iso_c_utilities
   use dlfcn
   use blas_mod, &
+      int_caxpy=>caxpy, &
+      int_cgemm=>cgemm, &
       int_dasum=>dasum, &
       int_daxpy=>daxpy, &
       int_dcabs1=>dcabs1, &
@@ -44,7 +46,10 @@ module link_blas
       int_dznrm2=>dznrm2, &
       int_idamax=>idamax, &
       int_lsame=>lsame, &
+      int_saxpy=>saxpy, &
+      int_scabs1=>scabs1, &
       int_scopy=>scopy, &
+      int_sgemm=>sgemm, &
       int_xerbla=>xerbla, &
       int_zaxpy=>zaxpy, &
       int_zcopy=>zcopy, &
@@ -73,8 +78,8 @@ module link_blas
       int_dgeqrf=>dgeqrf, &
       int_dgesvd=>dgesvd, &
       int_dgesv=>dgesv, &
-      int_dgetf2=>dgetf2, &
       int_dgetrf=>dgetrf, &
+      int_dgetrf2=>dgetrf2, &
       int_dgetri=>dgetri, &
       int_dgetrs=>dgetrs, &
       int_disnan=>disnan, &
@@ -82,17 +87,14 @@ module link_blas
       int_dlabrd=>dlabrd, &
       int_dlacpy=>dlacpy, &
       int_dladiv=>dladiv, &
+      int_dladiv1=>dladiv1, &
+      int_dladiv2=>dladiv2, &
       int_dlae2=>dlae2, &
       int_dlaebz=>dlaebz, &
       int_dlaev2=>dlaev2, &
       int_dlagtf=>dlagtf, &
       int_dlagts=>dlagts, &
       int_dlaisnan=>dlaisnan, &
-      int_dlamc1=>dlamc1, &
-      int_dlamc2=>dlamc2, &
-      int_dlamc3=>dlamc3, &
-      int_dlamc4=>dlamc4, &
-      int_dlamc5=>dlamc5, &
       int_dlamch=>dlamch, &
       int_dlaneg=>dlaneg, &
       int_dlange=>dlange, &
@@ -153,8 +155,8 @@ module link_blas
       int_dormqr=>dormqr, &
       int_dormtr=>dormtr, &
       int_dposv=>dposv, &
-      int_dpotf2=>dpotf2, &
       int_dpotrf=>dpotrf, &
+      int_dpotrf2=>dpotrf2, &
       int_dpotrs=>dpotrs, &
       int_dpptrf=>dpptrf, &
       int_dspev=>dspev, &
@@ -184,6 +186,7 @@ module link_blas
       int_ilazlc=>ilazlc, &
       int_ilazlr=>ilazlr, &
       int_iparmq=>iparmq, &
+      int_iparam2stage=>iparam2stage, &
       int_zheev=>zheev, &
       int_zhetd2=>zhetd2, &
       int_zhetrd=>zhetrd, &
@@ -209,19 +212,24 @@ module link_blas
       int_zungqr=>zungqr, &
       int_zungtr=>zungtr, &
       int_zupgtr=>zupgtr
+  use legacy_mod, &
+      int_dgetf2=>dgetf2, &
+      int_dpotf2=>dpotf2
 
   implicit none
 
   type(c_ptr), dimension(:), allocatable, private :: handles
 !
 ! Initializing procedure pointers is a F2008 feature, not supported by all compilers.
-! When it is implemented, thhe pointers below should look like:
+! When it is implemented, the pointers below should look like:
 !
 !   procedure(int_dasum), pointer :: lb_dasum=>int_dasum
 !
 ! and then the exact placement of the initialization call (in start.f) is not critical
 !
 ! BLAS procedures
+  procedure(int_caxpy), pointer :: lb_caxpy
+  procedure(int_cgemm), pointer :: lb_cgemm
   procedure(int_dasum), pointer :: lb_dasum
   procedure(int_daxpy), pointer :: lb_daxpy
   procedure(int_dcabs1), pointer :: lb_dcabs1
@@ -251,7 +259,10 @@ module link_blas
   procedure(int_dznrm2), pointer :: lb_dznrm2
   procedure(int_idamax), pointer :: lb_idamax
   procedure(int_lsame), pointer :: lb_lsame
+  procedure(int_saxpy), pointer :: lb_saxpy
+  procedure(int_scabs1), pointer :: lb_scabs1
   procedure(int_scopy), pointer :: lb_scopy
+  procedure(int_sgemm), pointer :: lb_sgemm
   procedure(int_xerbla), pointer :: lb_xerbla
   procedure(int_zaxpy), pointer :: lb_zaxpy
   procedure(int_zcopy), pointer :: lb_zcopy
@@ -280,8 +291,8 @@ module link_blas
   procedure(int_dgeqrf), pointer :: lb_dgeqrf
   procedure(int_dgesvd), pointer :: lb_dgesvd
   procedure(int_dgesv), pointer :: lb_dgesv
-  procedure(int_dgetf2), pointer :: lb_dgetf2
   procedure(int_dgetrf), pointer :: lb_dgetrf
+  procedure(int_dgetrf2), pointer :: lb_dgetrf2
   procedure(int_dgetri), pointer :: lb_dgetri
   procedure(int_dgetrs), pointer :: lb_dgetrs
   procedure(int_disnan), pointer :: lb_disnan
@@ -289,17 +300,14 @@ module link_blas
   procedure(int_dlabrd), pointer :: lb_dlabrd
   procedure(int_dlacpy), pointer :: lb_dlacpy
   procedure(int_dladiv), pointer :: lb_dladiv
+  procedure(int_dladiv1), pointer :: lb_dladiv1
+  procedure(int_dladiv2), pointer :: lb_dladiv2
   procedure(int_dlae2), pointer :: lb_dlae2
   procedure(int_dlaebz), pointer :: lb_dlaebz
   procedure(int_dlaev2), pointer :: lb_dlaev2
   procedure(int_dlagtf), pointer :: lb_dlagtf
   procedure(int_dlagts), pointer :: lb_dlagts
   procedure(int_dlaisnan), pointer :: lb_dlaisnan
-  procedure(int_dlamc1), pointer :: lb_dlamc1
-  procedure(int_dlamc2), pointer :: lb_dlamc2
-  procedure(int_dlamc3), pointer :: lb_dlamc3
-  procedure(int_dlamc4), pointer :: lb_dlamc4
-  procedure(int_dlamc5), pointer :: lb_dlamc5
   procedure(int_dlamch), pointer :: lb_dlamch
   procedure(int_dlaneg), pointer :: lb_dlaneg
   procedure(int_dlange), pointer :: lb_dlange
@@ -360,8 +368,8 @@ module link_blas
   procedure(int_dormqr), pointer :: lb_dormqr
   procedure(int_dormtr), pointer :: lb_dormtr
   procedure(int_dposv), pointer :: lb_dposv
-  procedure(int_dpotf2), pointer :: lb_dpotf2
   procedure(int_dpotrf), pointer :: lb_dpotrf
+  procedure(int_dpotrf2), pointer :: lb_dpotrf2
   procedure(int_dpotrs), pointer :: lb_dpotrs
   procedure(int_dpptrf), pointer :: lb_dpptrf
   procedure(int_dspev), pointer :: lb_dspev
@@ -391,6 +399,7 @@ module link_blas
   procedure(int_ilazlc), pointer :: lb_ilazlc
   procedure(int_ilazlr), pointer :: lb_ilazlr
   procedure(int_iparmq), pointer :: lb_iparmq
+  procedure(int_iparam2stage), pointer :: lb_iparam2stage
   procedure(int_zheev), pointer :: lb_zheev
   procedure(int_zhetd2), pointer :: lb_zhetd2
   procedure(int_zhetrd), pointer :: lb_zhetrd
@@ -416,6 +425,9 @@ module link_blas
   procedure(int_zungqr), pointer :: lb_zungqr
   procedure(int_zungtr), pointer :: lb_zungtr
   procedure(int_zupgtr), pointer :: lb_zupgtr
+! Legacy procedures
+  procedure(int_dgetf2), pointer :: lb_dgetf2
+  procedure(int_dpotf2), pointer :: lb_dpotf2
 
 contains
 
@@ -471,6 +483,16 @@ contains
     if (loaded) then
 !
 !     BLAS procedures
+!
+      funptr=link_func('caxpy')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_caxpy)
+      end if
+!
+      funptr=link_func('cgemm')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_cgemm)
+      end if
 !
       funptr=link_func('dasum')
       if (c_associated(funptr)) then
@@ -617,9 +639,24 @@ contains
         call c_f_procpointer(funptr, lb_lsame)
       end if
 !
+      funptr=link_func('saxpy')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_saxpy)
+      end if
+!
+      funptr=link_func('scabs1')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_scabs1)
+      end if
+!
       funptr=link_func('scopy')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_scopy)
+      end if
+!
+      funptr=link_func('sgemm')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_sgemm)
       end if
 !
       funptr=link_func('xerbla')
@@ -759,14 +796,14 @@ contains
         call c_f_procpointer(funptr, lb_dgesv)
       end if
 !
-      funptr=link_func('dgetf2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dgetf2)
-      end if
-!
       funptr=link_func('dgetrf')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dgetrf)
+      end if
+!
+      funptr=link_func('dgetrf2')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dgetrf2)
       end if
 !
       funptr=link_func('dgetri')
@@ -804,6 +841,16 @@ contains
         call c_f_procpointer(funptr, lb_dladiv)
       end if
 !
+      funptr=link_func('dladiv1')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dladiv1)
+      end if
+!
+      funptr=link_func('dladiv2')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dladiv2)
+      end if
+!
       funptr=link_func('dlae2')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dlae2)
@@ -832,31 +879,6 @@ contains
       funptr=link_func('dlaisnan')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dlaisnan)
-      end if
-!
-      funptr=link_func('dlamc1')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlamc1)
-      end if
-!
-      funptr=link_func('dlamc2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlamc2)
-      end if
-!
-      funptr=link_func('dlamc3')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlamc3)
-      end if
-!
-      funptr=link_func('dlamc4')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlamc4)
-      end if
-!
-      funptr=link_func('dlamc5')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlamc5)
       end if
 !
       funptr=link_func('dlamch')
@@ -1159,14 +1181,14 @@ contains
         call c_f_procpointer(funptr, lb_dposv)
       end if
 !
-      funptr=link_func('dpotf2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dpotf2)
-      end if
-!
       funptr=link_func('dpotrf')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dpotrf)
+      end if
+!
+      funptr=link_func('dpotrf2')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dpotrf2)
       end if
 !
       funptr=link_func('dpotrs')
@@ -1314,6 +1336,11 @@ contains
         call c_f_procpointer(funptr, lb_iparmq)
       end if
 !
+      funptr=link_func('iparam2stage')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_iparam2stage)
+      end if
+!
       funptr=link_func('zheev')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_zheev)
@@ -1439,6 +1466,18 @@ contains
         call c_f_procpointer(funptr, lb_zupgtr)
       end if
 !
+!     Legacy procedures
+!
+      funptr=link_func('dgetf2')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dgetf2)
+      end if
+!
+      funptr=link_func('dpotf2')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dpotf2)
+      end if
+!
 !****************************************
 !   Or use the fallback internal routines
 !****************************************
@@ -1448,6 +1487,8 @@ contains
       end if
       !
       ! BLAS
+      lb_caxpy=>int_caxpy
+      lb_cgemm=>int_cgemm
       lb_dasum=>int_dasum
       lb_daxpy=>int_daxpy
       lb_dcabs1=>int_dcabs1
@@ -1478,7 +1519,10 @@ contains
       lb_idamax=>int_idamax
       lb_lsame=>int_lsame
       lb_xerbla=>int_xerbla
+      lb_saxpy=>int_saxpy
+      lb_scabs1=>int_scabs1
       lb_scopy=>int_scopy
+      lb_sgemm=>int_sgemm
       lb_zaxpy=>int_zaxpy
       lb_zcopy=>int_zcopy
       lb_zdotc=>int_zdotc
@@ -1507,8 +1551,8 @@ contains
       lb_dgeqrf=>int_dgeqrf
       lb_dgesvd=>int_dgesvd
       lb_dgesv=>int_dgesv
-      lb_dgetf2=>int_dgetf2
       lb_dgetrf=>int_dgetrf
+      lb_dgetrf2=>int_dgetrf2
       lb_dgetri=>int_dgetri
       lb_dgetrs=>int_dgetrs
       lb_disnan=>int_disnan
@@ -1516,17 +1560,14 @@ contains
       lb_dlabrd=>int_dlabrd
       lb_dlacpy=>int_dlacpy
       lb_dladiv=>int_dladiv
+      lb_dladiv1=>int_dladiv1
+      lb_dladiv2=>int_dladiv2
       lb_dlae2=>int_dlae2
       lb_dlaebz=>int_dlaebz
       lb_dlaev2=>int_dlaev2
       lb_dlagtf=>int_dlagtf
       lb_dlagts=>int_dlagts
       lb_dlaisnan=>int_dlaisnan
-      lb_dlamc1=>int_dlamc1
-      lb_dlamc2=>int_dlamc2
-      lb_dlamc3=>int_dlamc3
-      lb_dlamc4=>int_dlamc4
-      lb_dlamc5=>int_dlamc5
       lb_dlamch=>int_dlamch
       lb_dlaneg=>int_dlaneg
       lb_dlange=>int_dlange
@@ -1587,8 +1628,8 @@ contains
       lb_dormqr=>int_dormqr
       lb_dormtr=>int_dormtr
       lb_dposv=>int_dposv
-      lb_dpotf2=>int_dpotf2
       lb_dpotrf=>int_dpotrf
+      lb_dpotrf2=>int_dpotrf2
       lb_dpotrs=>int_dpotrs
       lb_dpptrf=>int_dpptrf
       lb_dspev=>int_dspev
@@ -1618,6 +1659,7 @@ contains
       lb_ilazlc=>int_ilazlc
       lb_ilazlr=>int_ilazlr
       lb_iparmq=>int_iparmq
+      lb_iparam2stage=>int_iparam2stage
       lb_zheev=>int_zheev
       lb_zhetd2=>int_zhetd2
       lb_zhetrd=>int_zhetrd
@@ -1643,11 +1685,25 @@ contains
       lb_zungqr=>int_zungqr
       lb_zungtr=>int_zungtr
       lb_zupgtr=>int_zupgtr
+      !
+      ! Legacy
+      lb_dgetf2=>int_dgetf2
+      lb_dpotf2=>int_dpotf2
     end if
 
     if (prlev > 0) then
       ! BLAS
       !
+      if (DLAddr(c_funloc(lb_caxpy),c_loc(info)) /= 0) then
+        write(6,*) 'caxpy from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no caxpy found!'
+      end if
+      if (DLAddr(c_funloc(lb_cgemm),c_loc(info)) /= 0) then
+        write(6,*) 'cgemm from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no cgemm found!'
+      end if
       if (DLAddr(c_funloc(lb_dasum),c_loc(info)) /= 0) then
         write(6,*) 'dasum from: ',c_f_string(info%dli_fname)
       else
@@ -1793,10 +1849,25 @@ contains
       else
         write(6,*) 'no lsame found!'
       end if
+      if (DLAddr(c_funloc(lb_saxpy),c_loc(info)) /= 0) then
+        write(6,*) 'saxpy from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no saxpy found!'
+      end if
+      if (DLAddr(c_funloc(lb_scabs1),c_loc(info)) /= 0) then
+        write(6,*) 'scabs1 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no scabs1 found!'
+      end if
       if (DLAddr(c_funloc(lb_scopy),c_loc(info)) /= 0) then
         write(6,*) 'scopy from: ',c_f_string(info%dli_fname)
       else
         write(6,*) 'no scopy found!'
+      end if
+      if (DLAddr(c_funloc(lb_sgemm),c_loc(info)) /= 0) then
+        write(6,*) 'sgemm from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no sgemm found!'
       end if
       if (DLAddr(c_funloc(lb_xerbla),c_loc(info)) /= 0) then
         write(6,*) 'xerbla from: ',c_f_string(info%dli_fname)
@@ -1936,15 +2007,15 @@ contains
       else
         write(6,*) 'no dgesv found!'
       end if
-      if (DLAddr(c_funloc(lb_dgetf2),c_loc(info)) /= 0) then
-        write(6,*) 'dgetf2 from: ',c_f_string(info%dli_fname)
-      else
-        write(6,*) 'no dgetf2 found!'
-      end if
       if (DLAddr(c_funloc(lb_dgetrf),c_loc(info)) /= 0) then
         write(6,*) 'dgetrf from: ',c_f_string(info%dli_fname)
       else
         write(6,*) 'no dgetrf found!'
+      end if
+      if (DLAddr(c_funloc(lb_dgetrf2),c_loc(info)) /= 0) then
+        write(6,*) 'dgetrf2 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dgetrf2 found!'
       end if
       if (DLAddr(c_funloc(lb_dgetri),c_loc(info)) /= 0) then
         write(6,*) 'dgetri from: ',c_f_string(info%dli_fname)
@@ -1981,6 +2052,16 @@ contains
       else
         write(6,*) 'no dladiv found!'
       end if
+      if (DLAddr(c_funloc(lb_dladiv1),c_loc(info)) /= 0) then
+        write(6,*) 'dladiv1 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dladiv1 found!'
+      end if
+      if (DLAddr(c_funloc(lb_dladiv2),c_loc(info)) /= 0) then
+        write(6,*) 'dladiv2 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dladiv2 found!'
+      end if
       if (DLAddr(c_funloc(lb_dlae2),c_loc(info)) /= 0) then
         write(6,*) 'dlae2 from: ',c_f_string(info%dli_fname)
       else
@@ -2010,31 +2091,6 @@ contains
         write(6,*) 'dlaisnan from: ',c_f_string(info%dli_fname)
       else
         write(6,*) 'no dlaisnan found!'
-      end if
-      if (DLAddr(c_funloc(lb_dlamc1),c_loc(info)) /= 0) then
-        write(6,*) 'dlamc1 from: ',c_f_string(info%dli_fname)
-      else
-        write(6,*) 'no dlamc1 found!'
-      end if
-      if (DLAddr(c_funloc(lb_dlamc2),c_loc(info)) /= 0) then
-        write(6,*) 'dlamc2 from: ',c_f_string(info%dli_fname)
-      else
-        write(6,*) 'no dlamc2 found!'
-      end if
-      if (DLAddr(c_funloc(lb_dlamc3),c_loc(info)) /= 0) then
-        write(6,*) 'dlamc3 from: ',c_f_string(info%dli_fname)
-      else
-        write(6,*) 'no dlamc3 found!'
-      end if
-      if (DLAddr(c_funloc(lb_dlamc4),c_loc(info)) /= 0) then
-        write(6,*) 'dlamc4 from: ',c_f_string(info%dli_fname)
-      else
-        write(6,*) 'no dlamc4 found!'
-      end if
-      if (DLAddr(c_funloc(lb_dlamc5),c_loc(info)) /= 0) then
-        write(6,*) 'dlamc5 from: ',c_f_string(info%dli_fname)
-      else
-        write(6,*) 'no dlamc5 found!'
       end if
       if (DLAddr(c_funloc(lb_dlamch),c_loc(info)) /= 0) then
         write(6,*) 'dlamch from: ',c_f_string(info%dli_fname)
@@ -2336,15 +2392,15 @@ contains
       else
         write(6,*) 'no dposv found!'
       end if
-      if (DLAddr(c_funloc(lb_dpotf2),c_loc(info)) /= 0) then
-        write(6,*) 'dpotf2 from: ',c_f_string(info%dli_fname)
-      else
-        write(6,*) 'no dpotf2 found!'
-      end if
       if (DLAddr(c_funloc(lb_dpotrf),c_loc(info)) /= 0) then
         write(6,*) 'dpotrf from: ',c_f_string(info%dli_fname)
       else
         write(6,*) 'no dpotrf found!'
+      end if
+      if (DLAddr(c_funloc(lb_dpotrf2),c_loc(info)) /= 0) then
+        write(6,*) 'dpotrf2 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dpotrf2 found!'
       end if
       if (DLAddr(c_funloc(lb_dpotrs),c_loc(info)) /= 0) then
         write(6,*) 'dpotrs from: ',c_f_string(info%dli_fname)
@@ -2491,6 +2547,11 @@ contains
       else
         write(6,*) 'no iparmq found!'
       end if
+      if (DLAddr(c_funloc(lb_iparam2stage),c_loc(info)) /= 0) then
+        write(6,*) 'iparam2stage from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no iparam2stage found!'
+      end if
       if (DLAddr(c_funloc(lb_zheev),c_loc(info)) /= 0) then
         write(6,*) 'zheev from: ',c_f_string(info%dli_fname)
       else
@@ -2615,6 +2676,19 @@ contains
         write(6,*) 'zupgtr from: ',c_f_string(info%dli_fname)
       else
         write(6,*) 'no zupgtr found!'
+      end if
+
+      ! Legacy
+      !
+      if (DLAddr(c_funloc(lb_dgetf2),c_loc(info)) /= 0) then
+        write(6,*) 'dgetf2 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dgetf2 found!'
+      end if
+      if (DLAddr(c_funloc(lb_dpotf2),c_loc(info)) /= 0) then
+        write(6,*) 'dpotf2 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dpotf2 found!'
       end if
     end if
 

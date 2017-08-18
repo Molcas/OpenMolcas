@@ -10,48 +10,40 @@
 *                                                                      *
 * Copyright (C) Valera Veryazov                                        *
 ************************************************************************
+*  WRVEC
+*
+*> @brief
+*>   A routine to write MO coefficients, occupation numbers, one-electron energies and type index information to ``INPORB`` file
+*> @author V. Veryazov
+*>
+*> @details
+*> New version of ::wrvec routine.
+*> ::WRVEC is a wrapper to ::WRVEC_, which writes UHF
+*> information to ``INPORB`` file.
+*>
+*> \p Label defines the type of information to write to ``INPORB`` file.
+*> Valid targets are: ``C``---CMO, ``O``---OCC, ``E``---EORB, ``I``---INDT, ``A``---Append Index
+*>
+*> Example: Write CMO coeff. for RHF:
+*>
+*> \code
+*> Call WrVec('INPORB',Lu,'C',NSYM,NBAS,NBAS,CMO,Dummy,Dummy,iDummy,Title)
+*> \endcode
+*>
+*> @param[in] Name  File name
+*> @param[in] LU_   Unit number
+*> @param[in] LABEL Task
+*> @param[in] NSYM  N symmetries
+*> @param[in] NBAS  N basis functions
+*> @param[in] NORB  N orbitals
+*> @param[in] CMO   MO coefficients
+*> @param[in] OCC   Occupations
+*> @param[in] EORB  One electron energies
+*> @param[in] INDT  Type Index information
+*> @param[in] TITLE Title of orbitals
+************************************************************************
       SUBROUTINE WRVEC(Name,LU_,LABEL,NSYM,NBAS,NORB,CMO,
      & OCC, EORB, INDT,TITLE)
-************************************************************
-*
-*   <DOC>
-*     <Name>WRVEC</Name>
-*     <Syntax>Call WRVEC(Name,LU\_,LABEL,NSYM,NBAS,NORB,CMO,OCC,EORB,INDT,TITLE)</Syntax>
-*     <Arguments>
-*       \Argument{Name}{File name}{Character}{in}
-*       \Argument{LU\_}{Unit number}{Integer}{in}
-*       \Argument{LABEL}{Task}{Character}{in}
-*       \Argument{NSYM}{N symmetries}{Integer}{in}
-*       \Argument{NBAS}{N basis functions}{Integer(NSYM)}{in}
-*       \Argument{NORB}{N orbitals}{Integer(NSYM)}{in}
-*       \Argument{CMO}{MO coefficients}{Real(*)}{in}
-*       \Argument{OCC}{Occupations}{Real(*)}{in}
-*       \Argument{EORB}{One electron energies}{Real(*)}{in}
-*       \Argument{INDT}{Type Index information}{Integer(*)}{in}
-*       \Argument{TITLE}{Title of orbitals}{Character}{in}
-*     </Arguments>
-*     <Purpose>A routine to write MO coefficients, Occupation numbers,
-*      One-electron energies and
-*      type index information to INPORB file </Purpose>
-*     <Dependencies>WRVEC\_</Dependencies>
-*     <Author>V.Veryazov</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*       New version of wrvec routine.
-*       WRVEC is a wrapper to WRVEC\_, which write UHF
-*       information from INPORB file
-*
-*       Label defines the type of information to read from INPORB file
-*       Valid targets are: C-CMO, O-OCC, E-EORB, I-INDT, A-Append Index
-*
-*       Example: Write CMO coeff. for RHF
-*       Call WrVec('INPORB',Lu,'C',NSYM,NBAS,NBAS,CMO,Dummy,Dummy,iDummy,Title)
-*     </Description>
-*    </DOC>
-*
-************************************************************
-
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION NBAS(NSYM),NORB(NSYM),CMO(*),OCC(*),EORB(*),INDT(7,8)
       CHARACTER*(*) TITLE, Name,LABEL

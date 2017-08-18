@@ -11,134 +11,72 @@
 * Copyright (C) 2006, Francesco Aquilante                              *
 *               2014, Thomas Bondo Pedersen                            *
 ************************************************************************
+*  INV_CHO_FACTOR
+*
+*> @brief
+*>   Evaluation of the inverse Cholesky factor (\f$ Q \f$) of a SPD matrix (\f$ A \f$)
+*>   by using a modified Gram--Schmidt orthonormalization of a set
+*>   of unit vectors
+*> @author F. Aquilante (Nov. 2006)
+*> @modified_by T.B. Pedersen (2014) Change criterion for too negative norm
+*>
+*> @details
+*> Evaluation of the inverse Cholesky factor (\f$ Q \f$) of a SPD matrix (\f$ A \f$)
+*> by using a modified Gram--Schmidt orthonormalization of a set of unit vectors \f$ V: V(i,k)=\delta_{ik} \f$):
+*>
+*> \code
+*>   For k=1,dim(A)
+*>     Qu_k = V_k - sum_j=1^k-1 (Q_j^T * A * V_k) * Q_j
+*>          = V_k - sum_j=1^k-1 (Q_j^T * A_k) * Q_j
+*>     Q_k = Qu_k / sqrt(Qu_k^T * A_k * Qu_k)
+*> \endcode
+*>
+*> The result is such that the inverse of A is Cholesky decomposed as
+*>
+*> \f[ A^{-1} = Q Q^\text{T} \f]
+*> (\f$ Q \f$ is a full-rank upper triangular matrix)
+*>
+*> or in general (also for rank deficient \f$ A \f$) such that
+*>
+*> \f[ Q^\text{T} A Q = I \f]
+*>
+*> The inverse Cholesky factor is in general *NOT UNIQUE!!*
+*> Therefore, and for stability reason, a full pivoting of the
+*> initial matrix \f$ A \f$ would be advisable.
+*>
+*> Worth of mention is the fact that the lower triangular
+*> matrix L such that
+*>
+*> \f[ A = L L^\text{T} \f]
+*> (Cholesky decomposition of \f$ A \f$)
+*>
+*> can be computed as: \f$ L = A Q \f$
+*>
+*> @side_effects
+*> In output \p A_k is returned in a PACKED form (i.e. off-diagonal elements are
+*> scaled by two); the latter is the form in which it should be stored as column of \p Am.
+*> In case of detected linear dependence, the \p Q_k array is returned as zeros!
+*>
+*> @note
+*> Triangular storage must be used for the \f$ Q \f$-matrix!
+*>
+*> @param[in,out] A_k    \p kCol -th column of \f$ A \f$ (min. size \p kCol)
+*> @param[in]     kCol   index of the column/vector
+*> @param[in]     Am     in-core part of the matrix \f$ A \f$ (triangular storage)
+*> @param[in]     Qm     in-core matrix whose columns are the orthonormal vectors (triangular storage)
+*> @param[in]     nMem   max number of columns of \p Qm (and also of \p Am) kept in core
+*> @param[in]     lu_A   file unit where the \f$ A \f$-matrix is stored
+*> @param[in]     lu_Q   file unit where the \f$ Q \f$-matrix is stored
+*> @param[in]     Scr    scratch space used for reading out-of-core columns of \p Qm and \p Am
+*> @param[in]     lScr   size of the scratch space (&ge; \p kCol-1 or ``0`` iff in-core)
+*> @param[in]     Z      auxiliary array of min. size \p kCol (always needed)
+*> @param[in]     X      auxiliary array of min. size \p kCol-1 (needed only for the out-of-core case)
+*> @param[in]     thr    threshold for linear dependence
+*> @param[out]    Q_k    the \p kCol -th column of \p Qm (min. size \p kCol)
+*> @param[out]    lindep integer indicating detected linear dependence (= ``1`` iff found lin dep, else = ``0``)
+************************************************************************
       SUBROUTINE INV_CHO_FACTOR(A_k,kCol,Am,Qm,nMem,lu_A,lu_Q,Scr,lScr,
      &                          Z,X,thr,Q_k,lindep)
-************************************************************
-*
-*   <DOC>
-*     <Name>INV\_CHO\_FACTOR</Name>
-*     <Syntax>Call INV\_CHO\_FACTOR(A\_k,kCol,Am,Qm,nMem,lu\_A,lu\_Q,Scr,lScr,Z,X,thr,Q\_k,lindep)</Syntax>
-*     <Arguments>
-*       \Argument{A\_k}{k-th column of A (min. size kCol)}{array Real*8}{inout}
-*       \Argument{kCol}{index of the column}{Integer}{in}
-*       \Argument{Am}{in-core part of the matrix A (triangular storage)}{array Real*8}{in}
-*       \Argument{Qm}{in-core matrix whose columns are the orthonormal
-*       vectors (triangular storage)}{array Real*8}{in}
-*       \Argument{nMem}{max number of columns of Qm (and also of Am) kept in
-*       core}{Integer}{in}
-*       \Argument{lu\_A}{file unit where the A-matrix is stored}{Integer}{in}
-*       \Argument{lu\_Q}{file unit where the Q-matrix is stored}{Integer}{in}
-*       \Argument{Scr}{scratch space used for reading out-of-core
-*       columns of Qm and Am}{array Real*8}{in}
-*       \Argument{lScr}{size of the scratch space (.ge. kCol-1 or 0 iff
-*       in-core)}{Integer}{in}
-*       \Argument{Z}{auxiliary array of min. size kCol    (always
-*       needed)}{array Real*8}{in}
-*       \Argument{X}{auxiliary array of min. size kCol-1  (needed only
-*       for the out-of-core case)}{array Real*8}{in}
-*       \Argument{thr}{threshold for linear dependence}{Real*8}{in}
-*       \Argument{Q\_k}{the k-th column of Qm (min. size kCol)}{array Real*8}{out}
-*       \Argument{lindep}{integer indicating detected linear dependence
-*                ( = 1  iff found lin dep, else = 0 )}{Integer}{out}
-*     </Arguments>
-*     <Purpose>
-*     Evaluation of the inverse Cholesky factor (Q) of a SPD matrix (A)
-*     by using a modified Gram-Schmidt orthonormalization of a set
-*     of unit vectors
-*     </Purpose>
-*     <Dependencies></Dependencies>
-*     <Author> F. Aquilante (2006)</Author>
-*     <Modified_by> T.B. Pedersen (2014)
-*                   Change criterion for too negative norm
-*     </Modified_by>
-*     <Side_Effects>
-*       A\_k : in output is returned in a PACKED form (i.e. off-diagonal
-*                                  elements are scaled by two); the
-*                                  latter is the form in which it should
-*                                  be stored as column of Am
-*       In case of detected linear dependence, the Q\_k array
-*       is returned as zeros!
-*     </Side_Effects>
-*     <Description>
-*     </Description>
-*    </DOC>
-*
-***********************************************************************
-C
-C     Author:  F. Aquilante  (Nov. 2006)
-C
-C     Evaluation of the inverse Cholesky factor (Q) of a SPD matrix (A)
-C     by using a modified Gram-Schmidt orthonormalization of a set
-C     of unit vectors V ( => V(i,k)=delta_ik ) :
-C
-C     For k=1,dim(A)
-C
-C       Qu_k = V_k - sum_j=1^k-1 (Q_j^T * A * V_k) * Q_j
-C            = V_k - sum_j=1^k-1 (Q_j^T * A_k) * Q_j
-C
-C       Q_k = Qu_k / sqrt(Qu_k^T * A_k * Qu_k)
-C
-C     The result is such that the inverse of A is Cholesky decomposed
-C     as
-C
-C       A^-1 = Q * Q^T    ( Q is a full-rank upper triangular matrix )
-C
-C     or in general (also for rank deficient A) such that
-C
-C       Q^T * A * Q = I
-C
-C
-C     The inverse Cholesky factor is in general NOT UNIQUE !!
-C     Therefore, and for stability reason, a full pivoting of the
-C     initial matrix A would be advisable.
-C
-C     Worth of mention is the fact that the lower triangular
-C     matrix L such that
-C
-C                A = L * L^T      (Cholesky decomposition of A)
-C
-C     can be computed as :   L = A * Q
-C
-C
-C
-C     Input/Output
-C
-C       A_k  : k-th column of A    (array of min. size kCol)
-C            : in output is returned in a PACKED form (i.e. off-diagonal
-C                                  elements are scaled by two); the
-C                                  latter is the form in which it should
-C                                  be stored as column of Am (see below)
-C
-C     In input:
-C
-C       kCol : index of the column/vector
-C       Am : in-core part of the matrix A (triangular storage)
-C       Qm : in-core matrix whose columns are the orthonormal vectors
-C       nMem : max # of columns of Qm (and also of Am) kept in core
-C       lu_A : file unit where the A-matrix is stored
-C       lu_Q : file unit where the Q-matrix is stored
-C       Scr : scratch space used for reading out-of-core columns of Qm
-C             and Am
-C       lScr : size of the scratch space (.ge. kCol-1 or 0 iff in-core)
-C
-C       Z : auxiliary array of min. size kCol    (always needed)
-C
-C       X : auxiliary array of min. size kCol-1  (needed only for
-C                                                 out-of-core case)
-C       thr: threshold for linear dependence
-C
-C     In output:
-C
-C       Q_k : the k-th column of Qm (array of min. size kCol)
-C
-C       lindep : integer indicating detected linear dependence
-C                ( = 1  iff found lin dep, else = 0 )
-C                In case of detected linear dependence, the Q_k array
-C                is returned as zeros!
-C
-C
-C     Note:  triangular storage must be used for the Q-matrix !
-***********************************************************************
 
       Implicit Real*8 (a-h,o-z)
       Integer kCol, nMem, lu_A, lu_Q, lScr, lindep

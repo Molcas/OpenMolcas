@@ -10,39 +10,26 @@
 *                                                                      *
 * Copyright (C) Anders Ohrn                                            *
 ************************************************************************
-*------------------------------------------------------------------------*
+*  Hel
+*
+*> @brief
+*>   Couple the electrostatic part of the solvent with the QM-region.
+*>   Only include the static part, no polarization at this moment
+*> @author A. Ohrn
+*>
+*> @details
+*> (2) The electrostatics.
+*>
+*> @param[in]  Eint   The static field from the solvent on the QM molecule centers
+*> @param[in]  itri   Number of elements in triangular \f$ H \f$-matrix
+*> @param[in]  ici    Number of MME-centers
+*> @param[in]  ql     MME-charges, obtained from the MME
+*> @param[in]  dil    MME-dipoles
+*> @param[in]  qqxxyy MME-quadrupoles.
+*> @param[out] vmat   The electrostatic part of the solute-solvent interaction matrix
+*> @param[in]  iprint Print parameter
+************************************************************************
       Subroutine Hel(Eint,itri,ici,ql,dil,qqxxyy,vmat,iprint)
-************************************************************
-*
-*   <DOC>
-*     <Name>Hel</Name>
-*     <Syntax>Call Hel(Eint,itri,ici,ql,dil,qqxxyy,vmat,iprint)</Syntax>
-*     <Arguments>
-*       \Argument{Eint}{The static field from the solvent on the QM molecule centers}{}{in}
-*       \Argument{itri}{Number of elements in triangular H-matrix}{}{in}
-*       \Argument{ici}{Number of MME-centers}{}{in}
-*       \Argument{ql}{MME-charges, obtained from the MME}{}{in}
-*       \Argument{dil}{MME-dipoles}{}{in}
-*       \Argument{qqxxyy}{MME-quadrupoles.}{}{in}
-*       \Argument{vmat}{The electrostatic part of the solute-solvent interaction matrix}{}{out}
-*       \Argument{iprint}{Print parameter}{}{in}
-*     </Arguments>
-*     <Purpose>
-*    To couple the electrostatic part of the solvent with the
-*    Qm-region. Only include the static part, no polarization at
-*    this moment.
-*     </Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>A.Ohrn</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects>
-*     </Side_Effects>
-*     <Description>
-*    (2) The electrostatics.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8 (a-h,o-z)
 
 #include "maxi.fh"

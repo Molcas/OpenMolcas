@@ -10,41 +10,29 @@
 *                                                                      *
 * Copyright (C) Thomas Bondo Pedersen                                  *
 ************************************************************************
+*  RdChoVec
+*
+*> @brief
+*>   Read dense Cholesky vectors in SO basis
+*> @author T. B. Pedersen
+*>
+*> @details
+*> Read dense SO Cholesky vectors \f$ L^J_{pq} \f$ where
+*> \f$ J \f$ = \p iVec1, \p iVec1+1, ..., \p iVec1+nVec-1 and indices
+*> \f$ p \ge q \f$.
+*>
+*> @note
+*> Cholesky vectors must have been sorted into the
+*> dense representation (by the Cholesky utility)
+*> and the storage file must be open.
+*>
+*> @param[out] Vec   Array containing the vectors
+*> @param[in]  nDim  Vector dimension
+*> @param[in]  nVec  Number of vectors
+*> @param[in]  iVec1 Index of first vector
+*> @param[in]  Lunit Logical unit number
+************************************************************************
       SubRoutine RdChoVec(Vec,nDim,nVec,iVec1,Lunit)
-************************************************************
-*
-*   <DOC>
-*     <Name>RdChoVec</Name>
-*     <Syntax>Call RdChoVec(Vec,nDim,nVec,iVec1,Lunit)</Syntax>
-*     <Arguments>
-*       \Argument{Vec}{Array containing the vectors}{Real*8}
-*                {out}
-*       \Argument{nDim}{Vector dimension}{Integer}{in}
-*       \Argument{nVec}{Number of vectors}{Integer}{in}
-*       \Argument{iVec1}{Index of first vector}{Integer}{in}
-*       \Argument{Lunit}{Logical unit number}{Integer}{in}
-*     </Arguments>
-*     <Purpose>
-*        Read dense Cholesky vectors in SO basis
-*     </Purpose>
-*     <Dependencies>
-*        Cholesky vectors must have been sorted into the
-*        dense representation (by the Cholesky utility)
-*        and the storage file must be open
-*     </Dependencies>
-*     <Author>
-*        T. B. Pedersen
-*     </Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*        Read dense SO Cholesky vectors L$^J_{pq}$ where
-*        J=iVec1,iVec1+1,...,iVec1+nVec-1 and indices
-*        p >= q.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit None
       Real*8 Vec(*)
       Integer nDim, nVec, iVec1, Lunit

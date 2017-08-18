@@ -10,35 +10,29 @@
 *                                                                      *
 * Copyright (C) Thomas Bondo Pedersen                                  *
 ************************************************************************
+*  Cho_X_CalculateGMat
+*
+*> @brief
+*>   Calculate Cholesky \f$ G \f$ matrix (metric matrix)
+*> @author Thomas Bondo Pedersen
+*>
+*> @details
+*> Calculate the metric matrix from Cholesky vectors (i.e. exact).
+*>
+*> \f[ G_{IJ} = \sum_{K=1}^{\min(I,J)} L_{IK} L_{JK} \f]
+*>
+*> The matrix is symmetric and stored on disk (file ``AVECXX``) in
+*> triangular storage. The file is opened and closed in this
+*> routine using routines ::DAName_MF_WA and ::DAClos, respectively
+*> (i.e. \c FileName is opened as a word addressable multifile).
+*> The calculation failed if \p irc is different from zero on exit.
+*>
+*> @note
+*> This routine should *not* be used with DF.
+*>
+*> @param[out] irc Return code
+************************************************************************
       SubRoutine Cho_X_CalculateGMat(irc)
-************************************************************
-*
-*   <DOC>
-*     <Name>Cho\_X\_CalculateGMat</Name>
-*     <Syntax>Call Cho\_X\_CalculateGMat(irc)</Syntax>
-*     <Arguments>
-*       \Argument{irc}{Return code}{Integer}{out}
-*     </Arguments>
-*     <Purpose>Calculate Cholesky G matrix (metric matrix)</Purpose>
-*     <Dependencies>Cholesky information must be initialized.
-*                   DO NOT USE THIS ROUTINE WITH DF!!
-*     </Dependencies>
-*     <Author>Thomas Bondo Pedersen</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*        Calculate the metric matrix from Cholesky vectors (i.e. exact).
-*          G(IJ) = sum(K=1,min(I,J)) L(IK)*L(JK)
-*        The matrix is symmetric and stored on disk (file AVECXX) in
-*        triangular storage.  The file is opened and closed in this
-*        routine using routines DAName\_MF\_WA and DAClos, respectively
-*        (i.e. FileName is opened as a word addressable multifile).
-*        The calculation failed if irc is different from zero on exit.
-*        NOTICE: this routine should NOT be used with DF.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8 (A-H,O-Z)
       Character*(6) FileName
 

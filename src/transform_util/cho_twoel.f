@@ -10,6 +10,27 @@
 *                                                                      *
 * Copyright (C) 2004, Giovanni Ghigo                                   *
 ************************************************************************
+*  Cho_TwoEl
+*
+*> @brief
+*>   Driver for the generation of the two-electrons integrals file (``MOLINT``) from the Transformed Cholesky vectors TCVx
+*> @author Giovanni Ghigo
+*>
+*> @details
+*> Within the symmetry \p iSymL, the routine generates the symmetry
+*> block \p iSymI, \p iSymJ, \p iSymA, \p iSymB of two-electrons integrals. The
+*> number of integrals to generate for each  \p iSymI, \p iSymJ couple is
+*> defined by \c LenInt. The exch-1 and exch-2 integrals are then
+*> generated for the occupied MO calling ::Cho_GenE.
+*>
+*> @param[in]     iBatch                  Main batch current number
+*> @param[in]     nBatch                  Main batch total number
+*> @param[in]     NumV                    Number of Cholesky vectors to transform in the current batch
+*> @param[in]     LUINTM                  Unit number of two-electrons integrals file (``MOLINT``)
+*> @param[in,out] iAddrIAD2M              Current disk address in ``MOLINT``
+*> @param[in]     iSymI,iSymJ,iSymA,iSymB Symmetry block of the two-electrons integrals
+*> @param[in]     iSymL                   Symmetry of the Cholesky vector
+************************************************************************
       Subroutine Cho_TwoEl(iBatch,nBatch,numV, LUINTM,iAddrIAD2M,
      &                                   iSymI,iSymJ,iSymA,iSymB, iSymL)
 ************************************************************************
@@ -35,48 +56,6 @@
 *   THE LAST ADRESS IS ZERO IF iSymI = iSymJ                           *
 *                                                                      *
 ************************************************************************
-*
-*   <DOC>
-*     <Name>Cho\_TwoEl</Name>
-*     <Syntax>Call Cho\_TwoEl(iBatch,nBatch,numV, LUINTM,iAddrIAD2M,
-*      iSymI,iSymJ,  iSymA,iSymB,iSymL)
-*     </Syntax>
-*     <Arguments>
-*      \Argument{iBatch}{Main batch current number}{Integer}{in}
-*      \Argument{nBatch}{Main batch total number}{Integer}{in}
-*      \Argument{NumV}{Number of Cholesky vectors to transform in the
-*      current batch}{Integer}{in}
-*      \Argument{LUINTM}{Unit number of Two-electrons integrals file
-*      (MOLINT)}{Integer}{in}
-*      \Argument{iAddrIAD2M}{Current disk address in MOLINT}{Integer}
-*      {in/out}
-*      \Argument{iSymI,iSymJ,iSymA,iSymB}{Symmetry block of the
-*      Two-electrons integrals}{Integers}{in}
-*      \Argument{iSymL}{Symmetry of the Cholesky vector}{Integer}{in}
-*     </Arguments>
-*     <Purpose>
-*      Driver for the generation of the Two-electrons integrals file
-*      (MOLINT) from the Transformed Cholesky vectors TCVx.\\
-*      Called by Cho\_TraCtl.
-*     </Purpose>
-*     <Dependencies>
-*      Routines called: LenInt, Cho\_GenE
-*     </Dependencies>
-*     <Author>
-*      G. Ghigo
-*     </Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*      Within the symmetry iSymL, the routine generates the simmetry
-*      block iSymI,iSymJ,iSymA,iSymB of two-electrons integrals. The
-*      number of integrals to generate for each iSymI,iSymJ couple is
-*      defined by LenInt. The exch-1 and exch-2 integrals are then
-*      generated for the occupied MO calling Cho\_GenE.
-*     </Description>
-*    </DOC>
-*
-******************************************************************
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
 #include "rasdim.fh"

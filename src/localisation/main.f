@@ -10,9 +10,15 @@
 ************************************************************************
       Program main
 c
+#ifdef _FPE_TRAP_
+      Use, Intrinsic :: IEEE_Exceptions
+#endif
       Implicit Real*8(a-h,o-z)
       Character*20 Module_Name
       Parameter (Module_Name = 'localisation')
+#ifdef _FPE_TRAP_
+      Call IEEE_Set_Halting_Mode(IEEE_Usual,.True._4)
+#endif
 c
       Call Start(Module_Name)
       Call Localisation(ireturn)

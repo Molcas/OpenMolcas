@@ -1,0 +1,53 @@
+/* Remove named fonts in default stylesheet */
+
+body, table, div, p, dl {
+  font-family: sans-serif;
+}
+
+.title {
+  font-family: sans-serif;
+}
+
+.params .paramdir {
+  font-family: monospace,fixed;
+}
+
+.navpath li.navelem a {
+  font-family: sans-serif;
+}
+
+#projectname {
+  font-family: sans-serif;
+}
+
+#projectbrief {
+  font-family: sans-serif;
+}
+
+#projectnumber {
+  font-family: sans-serif;
+}
+
+div.toc li {
+  font-family: sans-serif;
+}
+
+div.toc h3 {
+  font-family: sans-serif;
+}
+
+#powerTip div {
+  font-family: sans-serif;
+}
+
+/* Hide "More..." links in tables */
+
+table.memberdecls a[href^='#'] {
+  display: none;
+}
+
+/* Make <code> stand out a bit */
+
+code {
+  background-color: #EEE;
+}

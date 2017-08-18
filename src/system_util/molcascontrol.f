@@ -10,49 +10,43 @@
 *                                                                      *
 * Copyright (C) 2000-2016, Valera Veryazov                             *
 ************************************************************************
-******************************************************************************
-*                                                                            *
-* Author:   Valera Veryazov 2000-2016                                        *
-*           Theoretical Chemistry                                            *
-*           Lund University                                                  *
-*           Sweden                                                           *
-*                                                                            *
-******************************************************************************
-
+************************************************************************
+*                                                                      *
+* Author:   Valera Veryazov 2000-2016                                  *
+*           Theoretical Chemistry                                      *
+*           Lund University                                            *
+*           Sweden                                                     *
+*                                                                      *
+************************************************************************
+*  MolcasControl
+*
+*> @brief
+*>   Query a string from the control file
+*> @author V. Veryazov
+*>
+*> @details
+*> Only lines started from ``!`` are in use.
+*>
+*> If user modified molcas.control file
+*> (by placing ``!`` instead of ``#``)
+*> return a value of the field (as a string)
+*> and mark the label as a comment,
+*> else return blank value.
+*>
+*> Usage:
+*>
+*> \code
+*> Call MolcasControl('SHUTDOWN',Value)
+*> if(Value.eq.'YES') Call abend
+*> \endcode
+*>
+*> @side_effects
+*> file molcas.control
+*>
+*> @param[in]  Label Query string
+*> @param[out] Value Returned value
+************************************************************************
       Subroutine MolcasControl(Label,Value)
-************************************************************
-*
-*   <DOC>
-*     <Name>MolcasControl</Name>
-*     <Syntax>Call MolcasControl(Label,Value)</Syntax>
-*     <Arguments>
-*       \Argument{Label}{Query string}{Character}{in}
-*       \Argument{Value}{Returned value}{Character}{out}
-*     </Arguments>
-*     <Purpose>Query a string from the control file</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>V.Veryazov</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects>file molcas.control</Side_Effects>
-*     <Description>
-*
-*      Only lines started from ! are in use.
-*
-*       if user modified molcas.control file
-*       (by placing $!$ instead of $\#$)
-*       return a value of the field (as a string)
-*       and mark the label as a comment
-*       else - return blank value
-*
-*
-*       Usage:
-*            Call MolcasControl('SHUTDOWN',Value)
-*            if(Value.eq.'YES') Call abend
-*
-*     </Description>
-*    </DOC>
-*
-************************************************************
       parameter(nLines=20)
       character filename*16
       character*80 Line(nLines)
@@ -104,30 +98,27 @@ c
       Return
       End
 c
+************************************************************************
+*  MolcasControlInit
+*
+*> @brief
+*>   Initiate molcas.control file
+*> @author V.Veryazov
+*>
+*> @details
+*> Create a dummy file molcas.control.
+*> Not more than 20 entries are permitted
+*> Initial value (as well as ``=`` sign) can be omitted
+*>
+*> Usage:
+*>
+*> \code
+*> Call MolcasControlInit('SHUTDOWN=YES,ITER')
+*> \endcode
+*>
+*> @param[in] label Coma separated list of fields
+************************************************************************
       Subroutine MolcasControlInit(label)
-************************************************************
-*
-*   <DOC>
-*     <Name>MolcasControlInit</Name>
-*     <Syntax>Call MolcasControlInit(label)</Syntax>
-*     <Arguments>
-*       \Argument{label}{Coma separated list of fields}{Character}{in}
-*     </Arguments>
-*     <Purpose>Initiate molcas.control file</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>V.Veryazov</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*        Create a dummy file molcas.control
-*        Not more than 20 entries are permitted
-*        Initial value (as well as = sign) can bi omitted
-*        Usage:
-*            Call MolcasControlInit('SHUTDOWN=YES,ITER')
-*     </Description>
-*    </DOC>
-*
-************************************************************
       parameter(nLines=20)
       character*(*) Label
       character*512 tmp

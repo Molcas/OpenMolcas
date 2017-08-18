@@ -42,6 +42,9 @@
 *                                                                      *
 ************************************************************************
 
+#ifndef _HAVE_EXTRA_
+      Use Prgm
+#endif
       Implicit Integer (A-Z)
 
 #include "fio.fh"

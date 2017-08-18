@@ -18,6 +18,10 @@
 
       Subroutine Chemps2Ctl( LW1, TUVX, IFINAL, IRST )
 
+#ifdef _MOLCAS_MPP_
+      Use MPI
+#endif
+
       Implicit Real*8 (A-H,O-Z)
 
       Dimension LW1(*), TUVX(*)
@@ -49,9 +53,6 @@
 #include "WrkSpc.fh"
 #include "output_ras.fh"
       Parameter (ROUTINE='CHEMPS2CTL')
-#ifdef _MOLCAS_MPP_
-#include "mpif.h"
-#endif
       Call qEnter(ROUTINE)
 
 ! Quan: FIXME: Do we need this?

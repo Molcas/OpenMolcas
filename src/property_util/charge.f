@@ -11,66 +11,41 @@
 * Copyright (C) Valera Veryazov                                        *
 *               Luca De Vico                                           *
 ************************************************************************
+*  CHARGE
+*
+*> @brief
+*>   Compute and print Mulliken populations
+*> @modified_by V. Veryazov
+*> @modified_by L. De Vico
+*>
+*> @details
+*> For a given set of natural orbitals compute the
+*> Mulliken population analysis. The final print out
+*> reports the populations per center and basis
+*> function type as well as the gross atomic charges.
+*>
+*> - \p iCase = ``2`` used for spin independent case (RHF or RASSCF)
+*> - \p iCase = ``3`` same as ``2`` but suitable for rasscf *spin* populations.
+*> - \p iCase = ``0`` or ``1`` to calculate alpha and beta populations
+*>                    (\p iCase = ``0`` only computes alpha contributions, and
+*>                    \p iCase = ``1`` calculates beta, and makes a final print out)
+*>
+*> The Mulliken population is also used to compute the bond
+*> order as \f$ \mathit{BO}_{AB} = \sum_{a\in A} \sum_{b\in B} \mathit{DS}_{ab} \mathit{DS}_{ba} \f$.
+*>
+*> @param[in] NSYM    Number of irreducible representations
+*> @param[in] NBAS    Number of basis functions per irred. rep.
+*> @param[in] NAME    Center and function type label per basis function
+*> @param[in] CMO     Orbital coefficients
+*> @param[in] OCCN    Orbital occupations
+*> @param[in] SMAT    Overlap matrix
+*> @param[in] iCase   Type of run
+*> @param[in] FullMlk Boolean for the type of print
+*> @param[in] lSave   Boolean for saving on the Runfile
+************************************************************************
       SUBROUTINE CHARGE(NSYM,NBAS,NAME,CMO,OCCN,SMAT,iCase,FullMlk,
      &           lSave)
-************************************************************
-*
-*   <DOC>
-*     <Name>CHARGE</Name>
-*     <Syntax>Call CHARGE(NSYM,NBAS,NAME,CMO,OCCN,SMAT,iCase,FullMlk,lSave)</Syntax>
-*     <Arguments>
-*       \Argument{NSYM}{N symmetries}{Integer}{in}
-*       \Argument{NBAS}{N basis functions}{Integer(NSYM)}{in}
-*       \Argument{NAME}{Center and function type label}{Character*4(2,*)}{in}
-*       \Argument{CMO}{Orbital coefficients}{Real(*)}{in}
-*       \Argument{OCCN}{Orbital occupations}{Real(*)}{in}
-*       \Argument{SMAT}{Overlap matrix}{Real(*)}{in}
-*       \Argument{iCase}{Type of run}{Integer}{in}
-*       \Argument{FullMlk}{Boolean for the type of print}{Logical}{in}
-*       \Argument{lSave}{Boolean for saving on the Runfile}{Boolean}{in}
-*     </Arguments>
-*     <Purpose>Compute and print Mulliken populations</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author></Author>
-*     <Modified_by>V.Veryazov, L. De Vico</Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*     For a given set of natural orbitals compute the
-*     Mulliken population anlysis. The final print out
-*     reports the populations per center and basis
-*     function type as well as the gross atomic charges.
-*
-*     iCase = 2  used for spin independent case (RHF or RASSCF)
-*     iCase = 3  same as 2 but suitable for rasscf *spin* populations.
-*
-*     iCase = 0 or 1 to calculate alpha and beta populations
-*     (iCase=0 only computes alpha contributions, and
-*     iCase=1 calculates beta, and makes a final print out)
-*     The Mulliken population is also used to compute the bond
-*     order as BO\_AB = SUM\_aeA SUM\_beB (DS)\_ab * (DS)\_ba.
-*     </Description>
-*    </DOC>
-*
-************************************************************
-*
 c a temporary clone for CHARGE util
-************************************************************************
-*                                                                      *
-*     Purpose: For a given set of natural orbitals compute the         *
-*              Mulliken population anlysis. The final print out        *
-*              reports the populations per center and basis            *
-*              function type as well as the gross atomic charges.      *
-*              Mulliken type bond order is also computed and printed.  *
-*                                                                      *
-*     Calling parameters:                                              *
-*     nSym   : number of irreducible representations                   *
-*     nBas   : Number of basis functions per irred. rep.               *
-*     Name   : Center and function type label per basis function       *
-*     CMO    : Orbital coefficients                                    *
-*     OccN   : Orbital occupations                                     *
-*     SMat   : Overlap matrix                                          *
-*                                                                      *
-************************************************************************
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"

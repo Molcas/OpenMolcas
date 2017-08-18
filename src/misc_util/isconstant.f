@@ -10,32 +10,24 @@
 *                                                                      *
 * Copyright (C) Thomas Bondo Pedersen                                  *
 ************************************************************************
+*  isConstant
+*
+*> @brief
+*>   Return ``.True.`` if all elements of \p M are identical to \p Const within tolerance \p Tol
+*> @author Thomas Bondo Pedersen
+*>
+*> @details
+*> Test if array \p M is constant. If \f$ \forall i \; |M_i - \text{Const}| \le \text{Tol} \f$
+*> return ``.True.``.
+*>
+*> @param[in] M     Array to test
+*> @param[in] n     Dimension of \p M
+*> @param[in] Const Constant
+*> @param[in] Tol   Tolerance
+*>
+*> @return ``.True.`` if all elements of \p M are identical to \p Const within tolerance \p Tol
+************************************************************************
       Logical Function isConstant(M,n,Const,Tol)
-************************************************************
-*
-*   <DOC>
-*     <Name>isConstant</Name>
-*     <Syntax>isConstant(M,n,Const,Tol)</Syntax>
-*     <Arguments>
-*       \Argument{M}{Array to test}{Real*8 array}{in}
-*       \Argument{n}{Dimension of M}{Integer}{in}
-*       \Argument{Const}{Constant}{Real*8 scalar}{in}
-*       \Argument{Tol}{Tolerance}{Real*8 scalar}{in}
-*     </Arguments>
-*     <Purpose>Return .True. if all elements of M are identical to Const
-*              within tolerance Tol.
-*     </Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>Thomas Bondo Pedersen</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description> Test if array M is constant. If for all i
-*     abs(M(i)-Const) .le. Tol
-*     return .True.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit None
       Integer n
       Real*8  M(n)

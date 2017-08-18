@@ -22,24 +22,19 @@
 * Written: August 2003                                                 *
 *                                                                      *
 ************************************************************************
+*  Qpg_dScalar
 *
-* <DOC>
-*   <Name>Qpg\_dScalar</Name>
-*   <Syntax>Call Qpg\_dScalar(Label,Found)</Syntax>
-*   <Arguments>
-*     \Argument{Label}{Name of field}{Character*(*)}{in}
-*     \Argument{Found}{Was the field found}{Logical}{out}
-*   </Arguments>
-*   <Purpose>Check if a field is available on runfile</Purpose>
-*   <Dependencies></Dependencies>
-*   <Author>Per-Olof Widmark</Author>
-*   <Modified_by></Modified_by>
-*   <Side_Effects></Side_Effects>
-*   <Description>
-*     See section \ref{routine:Put_dScalar} on page \pageref{routine:Put_dScalar}
-*   </Description>
-* </DOC>
-*
+*> @brief
+*>   Check if a field is available on runfile
+*> @author Per-Olof Widmark
+*>
+*> @details
+*> This routine queries the existence of scalar data on runfile.
+*>
+*> @param[in]  Label Name of field
+*> @param[out] Found Was the field found
+*>
+*> @see ::Put_dScalar
 ************************************************************************
       Subroutine Qpg_dScalar(Label,Found)
       Implicit None

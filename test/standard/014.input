@@ -14,9 +14,9 @@ PkThrs
 1.0d-9
 Basis set
 H.ANO-S...2s1p.
-H1      0.940000     0.000000	  0.360000   /Angstrom
-H2     -0.470000     0.814064	  0.360000   /Angstrom
-H3     -0.470000    -0.814064	  0.360000   /Angstrom
+H1      0.940000     0.000000     0.360000   /Angstrom
+H2     -0.470000     0.814064     0.360000   /Angstrom
+H3     -0.470000    -0.814064     0.360000   /Angstrom
 End of basis
 
 Basis set

@@ -10,54 +10,44 @@
 *                                                                      *
 * Copyright (C) Thomas Bondo Pedersen                                  *
 ************************************************************************
+*  LinEqSolv
+*
+*> @brief
+*>   Solve linear equations \f$ Ax=B \f$ or \f$ A^\text{T}x=B \f$ where
+*>   \f$ A \f$ is a general nonsingular matrix
+*> @author Thomas Bondo Pedersen
+*>
+*> @details
+*> For \p TransA(1:1) = ``'N'`` or ``'n'``,
+*> this routine solves the equations \f$ Ax = B \f$ for any number of
+*> righthand sides stored as columns of the matrix \f$ B \f$. For
+*> \p TransA(1:1) = ``'T'`` or ``'t'``, the equations \f$ A^\text{T}x = B \f$ are
+*> solved.
+*>
+*> The solution vectors are stored as columns of \p B on exit. Note
+*> that array \p A will be destroyed during the solution (the matrix
+*> is replaced by its factors obtained by Gaussian elimination).
+*>
+*> Return codes are:
+*>
+*> - \p irc = ``-1``: input error(s) detected and nothing has been done.
+*> - \p irc =  ``0``: successful completion.
+*> - \p irc =  ``1``: \p A is estimated to be singular and no solution vectors have been computed.
+*>
+*> @note
+*> \p nDim real*8 and \p nDim integer words of memory must be available
+*> o entry. Makes use of ::DGECO and ::DGESL.
+*>
+*> @param[out]    irc    Return code
+*> @param[in]     TransA Transposition of \p A
+*> @param[in,out] A      Array containing the nonsingular matrix \p A on entry and the factorized matrix (Gaussian elimination) on exit
+*> @param[in]     ldA    Leading dimension of \p A
+*> @param[in,out] B      Array containing righthand sides of equations on entry and solution vectors on exit
+*> @param[in]     ldB    Leading dimension of \p B
+*> @param[in]     nDim   Column dimension of \p A
+*> @param[in]     nEq    Number of equations, i.e. column dimension of \p B
+************************************************************************
       SubRoutine LinEqSolv(irc,TransA,A,ldA,B,ldB,nDim,nEq)
-************************************************************
-*
-*   <DOC>
-*     <Name>LinEqSolv</Name>
-*     <Syntax>Call LinEqSolv(irc,TransA,A,ldA,B,ldB,nDim,nEq)</Syntax>
-*     <Arguments>
-*       \Argument{irc}{Return code}{Integer}{out}
-*       \Argument{TransA}{Transposition of A}{Character*(*)}{in}
-*       \Argument{A}{Array containing the nonsingular matrix A on entry
-*                    and the factorized matrix (Gaussian elimination) on
-*                    exit}{Real*8(ldA,nDim)}{inout}
-*       \Argument{ldA}{Leading dimension of A}{Integer}{in}
-*       \Argument{B}{Array containing righthand sides of equations on
-*                    entry and solution vectors on exit}
-*                {Real*8(ldB,nEq)}{inout}
-*       \Argument{ldB}{Leading dimension of B}{Integer}{in}
-*       \Argument{nDim}{Column dimension of A}{Integer}{in}
-*       \Argument{nEq}{Number of equations, i.e. column dimension of B}
-*                {Integer}{in}
-*     </Arguments>
-*     <Purpose>Solve linear equations Ax=B or A(T)x=B where A is a
-*              general nonsingular matrix
-*     </Purpose>
-*     <Dependencies>nDim real*8 and nDim integer words of memory must be
-*     available on entry. Makes use of routines DGECO and DGESL.
-*     </Dependencies>
-*     <Author>Thomas Bondo Pedersen</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*        For TransA(1:1)='N' or 'n',
-*        this routine solves the equations Ax = B for any number of
-*        righthand sides stored as columns of the matrix B. For
-*        TransA(1:1)='T' or 't', the equations A(Transposed)x = B are
-*        solved.
-*        The solution vectors are stored as columns of B on exit. Note
-*        that array A will be destroyed during the solution (the matrix
-*        is replaced by its factors obtained by Gaussian elimination).
-*        Return codes are:
-*           irc=-1: input error(s) detected and nothing has been done,
-*           irc=0: successful completion,
-*           irc=1: A is estimated to be singular and no solution vectors
-*                  have been computed.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit None
       Character*(*) TransA
       Integer irc, ldA, ldB, nDim, nEq

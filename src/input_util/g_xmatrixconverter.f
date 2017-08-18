@@ -76,7 +76,7 @@ C Coords(_,i): X, Y, Z, coordinates (in Angstrom) for atom -i-.
       If (IfTest) then
         Write(LuWr,*)
         Write(LuWr,*) '------------------------------------------------'
-        Write(LuWr,*) 'ZMatrixConverter - From BasisReader :'
+        Write(LuWr,*) 'XMatrixConverter - From BasisReader :'
         Write(LuWr,*) '                   nBase=',nBase
         Do i = 1, Num_Elem
           If (BasAva(i)) Write(LuWr,'(I23,3X,A)') i, Base(i)

@@ -10,63 +10,56 @@
 *                                                                      *
 * Copyright (C) Thomas Bondo Pedersen                                  *
 ************************************************************************
+*  DefinePairDomain
+*
+*> @brief
+*>   Define pair domains
+*> @author Thomas Bondo Pedersen
+*>
+*> @details
+*> Pair domains are defined by the union of individual orbital
+*> domains, \p iDomain(0:nAtom,nOcc), see SubRoutine ::DefineDomain.
+*>
+*> On exit, the contents of \p iPairDomain array are:
+*>
+*> - \p iPairDomain(0,ij): number of atoms in pair domain \c ij.
+*> - \p iPairDomain(n,ij): id of atom \c n (\c n = ``1``, ``2``, ..., \p iPairDomain(0,ij)) in pair domain \c ij.
+*>
+*> The contents of \p Rmin array are:
+*>
+*> - \p Rmin(ij): minimum distance between atoms in pair \p ij.
+*>
+*> The contents of \p iClass array are (for \c i = ``1``, ``2`` , ``3``, ..., \p nRThr):
+*>
+*> - \p iClass(ij) = \c i-1 implies \p Rmin(ij) &le; \p RThr(i) and
+*> - \p iClass(ij) = \p nRThr implies \p Rmin(ij) > \p RThr(nRThr)
+*>
+*> Note that if classification is not wanted, simply specify
+*> \p nRThr = ``0`` (in which case arrays \p iClass and \p RThr are not referenced,
+*> may be dummy arguments in the call to this routine).
+*> The \p iDomain array should be set by SubRoutine ::DefineDomain
+*> before calling this routine.
+*>
+*> Return codes:
+*>
+*> - \p irc = ``0``: all OK.
+*>
+*> (at the moment, this is the only possible return code, but that
+*> might change.)
+*>
+*> @param[out] irc         Return code
+*> @param[out] iPairDomain Pair domain definition
+*> @param[out] iClass      Classification
+*> @param[out] Rmin        Minimum interatomic distance in each pair
+*> @param[in]  iDomain     Orbital domain definition
+*> @param[in]  RThr        Thresholds for classification
+*> @param[in]  Coord       Nuclear coordinates
+*> @param[in]  nAtom       Number of atoms
+*> @param[in]  nOcc        Number of orbitals for which domains are defined
+*> @param[in]  nRThr       Number of thresholds for classification
+************************************************************************
       SubRoutine DefinePairDomain(irc,iPairDomain,iClass,Rmin,iDomain,
      &                            RThr,Coord,nAtom,nOcc,nRThr)
-************************************************************
-*
-*   <DOC>
-*     <Name>DefinePairDomain</Name>
-*     <Syntax>Call DefinePairDomain(irc,iPairDomain,iClass,Rmin,iDomain,
-*                                  RThr,Coord,nAtom,nOcc,nRThr)</Syntax>
-*     <Arguments>
-*       \Argument{irc}{Return code}{Integer}{out}
-*       \Argument{iPairDomain}{Pair domain definition}
-*                {Integer(0:nAtom,nOcc*(nOcc+1)/2)}{out}
-*       \Argument{iClass}{Classification}{Integer(nOcc*(nOcc+1)/2)}{out}
-*       \Argument{Rmin}{Minimum interatomic distance in each pair}
-*                      {Real*8(nOcc*(nOcc+1)/2)}{out}
-*       \Argument{iDomain}{Orbital domain definition}
-*                         {Integer(0:nAtom,nOcc)}{in}
-*       \Argument{RThr}{Thresholds for classification}{Real*8(nRThr)}
-*                      {in}
-*       \Argument{Coord}{Nuclear coordinates}{Real*8(3,nAtom)}{in}
-*       \Argument{nAtom}{Number of atoms}{Integer}{in}
-*       \Argument{nOcc}
-*                {Number of orbitals for which domains are defined}
-*                {Integer}{in}
-*       \Argument{nRThr}{Number of thresholds for classification}
-*                       {Integer}{in}
-*     </Arguments>
-*     <Purpose>Define pair domains</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>Thomas Bondo Pedersen</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*        Pair domains are defined by the union of individual orbital
-*        domains, iDomain(0:nAtom,nOcc), see SubRoutine DefineDomain.
-*        On exit, the contents of iPairDomain array are:
-*        iPairDomain(0,ij): number of atoms in pair domain ij.
-*        iPairDomain(n,ij): id of atom n (=1,2,...,iPairDomain(0,ij))
-*                           in pair domain ij.
-*        The contents of Rmin array are:
-*        Rmin(ij): minimum distance between atoms in pair ij.
-*        The contents of iClass array are (for i=1,2,3,...,nRThr):
-*        iClass(ij)=i-1 implies Rmin(ij) <= RThr(i) and
-*        iClass(ij)=nRThr implies Rmin(ij) > RThr(nRThr)
-*        Note that if classification is not wanted, simply specify
-*        nRThr=0 (in which case arrays iClass and RThr are not referenced
-*        may be dummy arguments in the call to this routine).
-*        The iDomain array should be set by SubRoutine DefineDomain
-*        before calling this routine.
-*        Return codes:
-*        irc=0: all OK.
-*        (at the moment, this is the only possible return code, but that
-*        might change.)
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8 (a-h,o-z)
       Integer iPairDomain(0:nAtom,*), iClass(*)
       Real*8  Rmin(*)

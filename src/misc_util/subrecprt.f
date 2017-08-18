@@ -11,34 +11,29 @@
 * Copyright (C) 1992, Markus P. Fuelscher                              *
 *               2014, Ignacio Fdez. Galvan (modified from RecPrt)      *
 ************************************************************************
+* SubRecPrt
+*
+*> @brief
+*>   Write out part of a matrix on standard output
+*> @author M. P. F&uuml;lscher, Lund, 1992
+*> @modified_by Ignacio Fdez. Galv&aacute;n, Uppsala, Feb. 2014 (modified from ::RecPrt)
+*>
+*> @details
+*> The first \p nRowSub rows of a matrix \p A of dimension \p nRow &times; \p nCol are printed
+*> in output preceded by the character line \p Title. Format of the numerical
+*> output is given by \p FmtIn. If \p FmtIn = ``''`` the utility will decide on format
+*> for optimal output.
+*>
+*> @param[in] Title   Title card
+*> @param[in] FmtIn   Format statement
+*> @param[in] A       A matrix
+*> @param[in] nRow    number of rows of \p A
+*> @param[in] nCol    number of columns of \p A
+*> @param[in] nRowSub number of rows of \p A to print
+*>
+*> @see ::RecPrt
+************************************************************************
       Subroutine SubRecPrt(Title,FmtIn,A,nRow,nCol,nRowSub)
-************************************************************
-*
-*   <DOC>
-*     <Name>SubRecPrt</Name>
-*     <Syntax>Call SubRecPrt(Title,FmtIn,A,nRow,nCol,nRowSub)</Syntax>
-*     <Arguments>
-*       \Argument{Title}{Title card}{Character*(*)}{in}
-*       \Argument{FmtIn}{Format statement}{Character*(*)}{in}
-*       \Argument{A}{A matrix}{Real*8}{in}
-*       \Argument{nRow}{number of rows of A}{Integer}{in}
-*       \Argument{nCol}{number of columns of A}{Integer}{in}
-*       \Argument{nRowSub}{number of rows of A to print}{Integer}{in}
-*     </Arguments>
-*     <Purpose>To write out part of a matrix on standard out.</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>M. P. Fuelscher</Author>
-*     <Modified_by>I. Fdez. Galvan</Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*     The first nRowSub rows of a matrix A of dimension nRow x nCol are printed
-*     in output preceded by the character line Title. Format of the numerical
-*     output is given by FmtIn. If FmtIn='' the utility will decide on format
-*     for optimal output.
-*     </Description>
-*    </DOC>
-*
-************************************************************
 ************************************************************************
 *                                                                      *
 *     purpose:                                                         *

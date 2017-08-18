@@ -10,67 +10,49 @@
 *                                                                      *
 * Copyright (C) Thomas Bondo Pedersen                                  *
 ************************************************************************
+*  Cho_X_Init
+*
+*> @brief
+*>   Initialize Cholesky vector information for external use.
+*> @author Thomas Bondo Pedersen
+*>
+*> @details
+*> This routine reads and processes the information
+*> stored on the runfile/restart files by the Cholesky
+*> decomposition utility.
+*> This routine is also used for setting up the environment in
+*> density fitting (DF or RI) runs.
+*> Index arrays are allocated and initialized.
+*> All information is stored in the include files
+*> cholesky.fh, choorb.fh, and choptr.fh.
+*>
+*> \p BufFrac is the fraction of total available memory that will be
+*> allocated as Cholesky vector buffer. For example, \p BufFrac = ``0.35``
+*> implies that 35% of the total available memory (after the
+*> allocations of this routine) will be allocated for Cholesky
+*> vectors. The vectors will be read into the buffer as part of
+*> the initialization. The reading routines can then be used as
+*> usual; the buffer is automatically taken care of by the reading
+*> routines. If \p BufFrac is less than or equal to zero, no buffer
+*> will be used.
+*>
+*> Return codes:
+*>
+*> - \p irc = ``-2``: Local DF not implemented here
+*> - \p irc = ``-1``: Cholesky flag not found on runfile
+*> - \p irc =  ``0``: initialization success
+*> - \p irc =  ``1``: runfile info corrupted
+*> - \p irc =  ``2``: restart file info corrupted
+*> - \p irc =  ``3``: inconsistent include file(s) detected (typically an internal error/bug)
+*> - \p irc =  ``4``: error in parallel setup
+*>
+*> @note
+*> The two-electron repulsion integrals must have been decomposed by Seward.
+*>
+*> @param[out] irc     Return code
+*> @param[in]  BufFrac Fraction of memory to be used as buffer
+************************************************************************
       Subroutine Cho_X_Init(irc,BufFrac)
-************************************************************************
-*
-*   <DOC>
-*     <Name>
-*        Cho\_X\_Init
-*     </Name>
-*     <Syntax>
-*        Call Cho\_X\_Init(irc,BufFrac)
-*     </Syntax>
-*     <Arguments>
-*        \Argument{irc}{Return code}{Integer}{out}
-*        \Argument{BufFrac}{Fraction of memory to be used as buffer}
-*                 {Real*8}{in}
-*     </Arguments>
-*     <Purpose>
-*        Initialize Cholesky vector information for
-*        external use.
-*     </Purpose>
-*     <Dependencies>
-*        The two-electron repulsion integrals must have been
-*        decomposed by Seward.
-*     </Dependencies>
-*     <Author>Thomas Bondo Pedersen</Author>
-*     <Modified_by>
-*     </Modified_by>
-*     <Side_Effects>
-*     </Side_Effects>
-*     <Description>
-*        This routine reads and processes the information
-*        stored on the runfile/restart files by the Cholesky
-*        decomposition utility.
-*        This routine is also used for setting up the environment in
-*        density fitting (DF or RI) runs.
-*        Index arrays are allocated and initialized.
-*        All information is stored in the include files
-*        cholesky.fh, choorb.fh, and choptr.fh.
-*        BufFrac is the fraction of total available memory that will be
-*        allocated as Cholesky vector buffer. F.ex., BufFrac=0.35
-*        implies that 35\% of the total available memory (after the
-*        allocations of this routine) will be allocated for Cholesky
-*        vectors. The vectors will be read into the buffer as part of
-*        the initialization. The reading routines can then be used as
-*        usual; the buffer is automatically taken care of by the reading
-*        routines. If BufFrac is less than or equal to zero, no buffer
-*        will be used.
-*        Return codes:
-*        \begin{itemize}
-*          \item irc = -2: Local DF not implemented here
-*          \item irc = -1: Cholesky flag not found on runfile
-*          \item irc =  0: initialization success
-*          \item irc =  1: runfile info corrupted
-*          \item irc =  2: restart file info corrupted
-*          \item irc =  3: inconsistent include file(s) detected
-*                          (typically an internal error/bug)
-*          \item irc =  4: error in parallel setup
-*        \end{itemize}
-*     </Description>
-*    </DOC>
-*
-************************************************************************
 #include "implicit.fh"
 #include "choorb.fh"
 #include "cholesky.fh"

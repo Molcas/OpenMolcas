@@ -10,63 +10,57 @@
 *                                                                      *
 * Copyright (C) Thomas Bondo Pedersen                                  *
 ************************************************************************
+*  PAOLoc
+*
+*> @brief
+*>   Compute projected atomic orbitals (PAOs)
+*> @author Thomas Bondo Pedersen
+*>
+*> @details
+*> A set of linearly independent nonorthonormal
+*> Projected Atomic Orbitals (PAOs) are computed by projecting
+*> the AOs onto the virtual space. Subsequently, the linear
+*> dependence may be removed through Cholesky decomposition of a
+*> density-type matrix constructed from the linearly dependent
+*> PAOs according to \f$ D_{a,b} = \sum_c \mathit{PAO}_{a,c} \mathit{PAO}_{b,c} \f$. Finally,
+*> orthonormal linearly independent PAOs may be obtained by
+*> multiplying with the inverse square root of the PAO overlap
+*> matrix.
+*>
+*> The Mode input string controls which set is returned in array
+*> PAO:
+*>
+*> - \p Mode = ``'RAW'``: return linearly dependent nonorthonormal PAOs. In this case, array PAO
+*>                        should be dimensioned as \p nBas &timens \p nBas (in symmetry blocks).
+*> - \p Mode = ``'CHO'``: return linearly independent nonorthonormal PAOs obtained by Cholesky
+*>                        decomposition of the density-type matrix. In this case, array PAO should
+*>                        be dimensioned as \p nBas &times; \p nVir (in symmetry blocks).
+*> - \p Mode = ``'ORT'``: return linearly independent orthonormal PAOs. In this case, array PAO
+*>                        should be dimensioned as \p nBas &times; \p nVir (in symmetry blocks).
+*>
+*> If Mode is anything else, \p Mode = ``'ORT'`` is assumed.
+*> Note that if \p nOcc+nVir < \p nBas the remaining \p nBas-nOcc-nVir
+*> orbitals are considered part of the orthogonal complement of
+*> the virtual space (and are projected out of the AOs when
+*> obtaining the raw PAOs). Thus, one may obtain PAOs for any
+*> subset of orbitals by specifying \p nOcc and \p nVir arrays
+*> appropriately.
+*>
+*> @note
+*> Needs the AO overlap matrix on disk.
+*>
+*> @param[out] irc  return code
+*> @param[in]  CMO  MO coefficients
+*> @param[out] PAO  PAOs
+*> @param[in]  Thr  Cholesky decomposition threshold
+*> @param[in]  nBas Number of basis functions/irrep
+*> @param[in]  nOrb Number of orbitals/irrep
+*> @param[in]  nOcc Number of occupied orbs/irrep
+*> @param[in]  nVir Number of virtual orbs/irrep
+*> @param[in]  nSym Number of irreps
+*> @param[in]  Mode Mode of calculation
+************************************************************************
       SubRoutine PAOLoc(irc,CMO,PAO,Thr,nBas,nOrb,nOcc,nVir,nSym,Mode)
-************************************************************
-*
-*   <DOC>
-*     <Name>PAOLoc</Name>
-*     <Syntax>Call PAOLoc(irc,CMO,PAO,Thr,nBas,nOrb,nOcc,nVir,nSym,Mode)
-*     </Syntax>
-*     <Arguments>
-*       \Argument{irc}{return code}{Integer}{out}
-*       \Argument{CMO}{MO coefficients}{Real*8}{in}
-*       \Argument{PAO}{PAOs}{Real*8}{out}
-*       \Argument{Thr}{Cholesky decomposition threshold}{Real*8}{in}
-*       \Argument{nBas}{Number of basis functions/irrep}{Integer}{in}
-*       \Argument{nOrb}{Number of orbitals/irrep}{Integer}{in}
-*       \Argument{nOcc}{Number of occupied orbs/irrep}{Integer}{in}
-*       \Argument{nVir}{Number of virtual orbs/irrep}{Integer}{in}
-*       \Argument{nSym}{Number of irreps}{Integer}{in}
-*       \Argument{Mode}{Mode of calculation}{Character*(*)}{in}
-*     </Arguments>
-*     <Purpose>Compute projected atomic orbitals (PAOs)</Purpose>
-*     <Dependencies>The AO overlap matrix on disk</Dependencies>
-*     <Author>Thomas Bondo Pedersen</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*        A set of linearly independent nonorthonormal
-*        Projected Atomic Orbitals (PAOs) are computed by projecting
-*        the AOs onto the virtual space. Subsequently, the linear
-*        dependence may be removed through Cholesky decomposition of a
-*        density-type matrix constructed from the linearly dependent
-*        PAOs according to D(a,b) = sum(c) PAO(a,c) * PAO(b,c). Finally,
-*        orthonormal linearly independent PAOs may be obtained by
-*        multiplying with the inverse square root of the PAO overlap
-*        matrix.
-*        The Mode input string controls which set is returned in array
-*        PAO:
-*        Mode='RAW': return linearly dependent nonorthonormal PAOs.
-*        In this case, array PAO should be dimensioned as nBas*nBas (in
-*        symmetry blocks).
-*        Mode='CHO': return linearly independent nonorthonormal PAOs
-*        obtained by Cholesky decomposition of the density-type matrix.
-*        In this case, array PAO should be dimensioned as nBas*nVir (in
-*        symmetry blocks).
-*        Mode='ORT': return linearly independent orthonormal PAOs.
-*        In this case, array PAO should be dimensioned as nBas*nVir (in
-*        symmetry blocks).
-*        If Mode is anything else, Mode='ORT' is assumed.
-*        Note that if nOcc+nVir<nBas the remaining nBas-nOcc-nVir
-*        orbitals are considered part of the orthogonal complement of
-*        the virtual space (and are projected out of the AOs when
-*        obtaining the raw PAOs). Thus, one may obtain PAOs for any
-*        subset of orbitals by specifying nOcc and nVir arrays
-*        appropriately.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8 (a-h,o-z)
       Real*8  CMO(*), PAO(*)
       Integer nBas(nSym), nOrb(nSym), nOcc(nSym), nVir(nSym)

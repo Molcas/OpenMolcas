@@ -141,16 +141,29 @@ c        write(6,"(10(f12.6,1x))") a(i,1:10)
 c      enddo
 c      stop 888
 
-      y(1:np,1:np)=zero
-      do i=1,n
-        y(i,i)=1.0
-      enddo
-      call ludcmp(a,n,np,indx,d)
-      do i=1,n
-        call lubksb(a,n,np,indx,y(1,i))
-      enddo
+      ! temporay desiable next five line because these code is not used now
+c      info = 0
+c subroutine dgetrf in lapack is used
+c      call dgetrf_lapack( n, n, a, n, indx, info )
+c      info = 0
+c      lwork = n*n
+c subroutine dgetri in lapack is used
+c      call dgetri_lapack( n, a, n, indx, y, lwork, info )
+
+c      !y(1:np,1:np)=zero
+c      !do i=1,n
+c      !  y(i,i)=1.0
+c      !enddo
+c      !call ludcmp(a,n,np,indx,d)
+c      !do i=1,n
+c      !   call lubksb(a,n,np,indx,y(1,i))
+c      !enddo
 
       return
+      if (.false.) then
+        call Unused_integer_array(indx)
+        call Unused_real_array(y)
+      endif
       end
 
       subroutine savelowtra(varry,a,ndimt,maxdimlu,neh0)

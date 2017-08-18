@@ -10,6 +10,23 @@
 *                                                                      *
 * Copyright (C) 2005, Giovanni Ghigo                                   *
 ************************************************************************
+*  Cho_GenE
+*
+*> @brief
+*>   Routine for the generation of the ``A,B`` block of exchange integrals (in symmetries \p iSymA, \p iSymB)
+*>   for occupied MO \p iI, \p iJ in symmetries \p iSymI, \p iSymJ
+*> @author Giovanni Ghigo
+*>
+*> @details
+*> The routine generates the ``A,B`` block of integrals gathering 9
+*> sub-blocks. These are combination of inactive, active, and
+*> secondary ``A,B`` MO.
+*>
+*> @param[in] iSymI,iSymJ,iSymA,iSymB Symmetry block of the two-electrons integrals
+*> @param[in] NumV                    Number of Cholesky vectors to transform in the current batch
+*> @param[in] iAddEx                  Memory pointer of the ``A,B`` integrals block
+*> @param[in] LenEx                   Length of the ``A,B`` integrals block
+************************************************************************
       Subroutine Cho_GenE(iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV,
      &                      iAddEx,LenEx)
 ************************************************************************
@@ -19,46 +36,10 @@
 *----------------------------------------------------------------------*
 * This is the routine that really generates the A,B block of exchange  *
 * integrals (in symmetries iSymA,iSymB) for occupied MO iI,iJ in       *
-* symmetries iSymI,iSymJ. The 3 x 3 A,B block is built gatering 9      *
+* symmetries iSymI,iSymJ. The 3 x 3 A,B block is built gathering 9     *
 * sub-blocks. These are combination of inactive, active, and secondary *
 * A,B MO                                                               *
 ************************************************************************
-*
-*   <DOC>
-*     <Name>Cho\_GenE</Name>
-*     <Syntax>Call Cho\_GenE(iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV,
-*     iAddEx,LenEx)
-*     </Syntax>
-*     <Arguments>
-*      \Argument{iSymI,iSymJ,iSymA,iSymB}{Symmetry block of the
-*      Two-electrons integrals}{Integers}{in}
-*      \Argument{NumV}{Number of Cholesky vectors to transform in the
-*      current batch}{Integer}{in}
-*      \Argument{iAddEx}{Memory pointer of the A,B integrals block}
-*      {Integer}{in}
-*      \Argument{LenEx}{Length of the A,B integrals block}{Integer}{in}
-*     </Arguments>
-*     <Purpose>
-*      Routine for the generation of the A,B block of exchange integrals
-*      (in symmetries iSymA,iSymB) for occupied MO iI,iJ in symmetries
-*      iSymI,iSymJ.\\
-*      Called by Cho\_TwoEl
-*     </Purpose>
-*     <Dependencies>
-*     </Dependencies>
-*     <Author>
-*      G. Ghigo
-*     </Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*      The routine generates the A,B block of integrals gatering 9
-*      sub-blocks. These are combination of inactive, active, and
-*      secondary A,B MO.
-*     </Description>
-*    </DOC>
-*
-******************************************************************
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
 #include "rasdim.fh"

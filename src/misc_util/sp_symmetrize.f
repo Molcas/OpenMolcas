@@ -10,28 +10,22 @@
 *                                                                      *
 * Copyright (C) 2014, Ignacio Fdez. Galvan                             *
 ************************************************************************
-*-----------------------------------------------------------------------
-* <DOC>
-*   <NAME>Sp\_Symmetrize</NAME>
-*   <SYNTAX>Call Sp\_Symmetrize(n,A,ija,B,ijb)</Syntax>
-*   <ARGUMENTS>
-*     \Argument{n}{Size of the matrix}{Integer}{in}
-*     \Argument{A}{Input matrix, in sparse format}{Real*8 (*)}{in}
-*     \Argument{ija}{Index vector of matrix A}{Integer (*)}{in}
-*     \Argument{B}{Output matrix, in sparse format}{Real*8 (*)}{out}
-*     \Argument{ijb}{Index vector of matrix B}{Integer (*)}{out}
-*   </ARGUMENTS>
-*   <PURPOSE>Converts a sparse matrix to symmetric format</PURPOSE>
-*   <DEPENDENCIES></DEPENDENCIES>
-*   <AUTHOR>I. Fdez. Galvan</AUTHOR>
-*   <MODIFIED_BY></MODIFIED_BY>
-*   <SIDE_EFFECTS></SIDE_EFFECTS>
-*   <DESCRIPTION>
-*     Converts a matrix A to a matrix B, stored in symmetric mode.
-*     Only the lower triangle of A is stored.
-*   </DESCRIPTION>
-* </DOC>
-*-----------------------------------------------------------------------
+*  Sp_Symmetrize
+*
+*> @ingroup Sparse
+*> @brief Converts a sparse matrix to symmetric format
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> Converts a matrix \p A to a matrix \p B, stored in symmetric mode.
+*> Only the lower triangle of \p A is stored.
+*>
+*> @param[in]  n   Size of the matrix
+*> @param[in]  A   Input matrix, in sparse format
+*> @param[in]  ija Index vector of matrix \p A
+*> @param[out] B   Output matrix, in sparse format
+*> @param[out] ijb Index vector of matrix \p B
+************************************************************************
       SUBROUTINE Sp_Symmetrize(n,A,ija,B,ijb)
       IMPLICIT NONE
       INTEGER n, nijb, ija(*), ijb(*), i, j, k

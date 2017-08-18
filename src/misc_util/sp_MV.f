@@ -10,30 +10,25 @@
 *                                                                      *
 * Copyright (C) 2014, Ignacio Fdez. Galvan                             *
 ************************************************************************
-*-----------------------------------------------------------------------
-* <DOC>
-*   <NAME>Sp\_MV</NAME>
-*   <SYNTAX>Call Sp\_MV(n,alpha,A,ija,x,beta,y)</Syntax>
-*   <ARGUMENTS>
-*     \Argument{n}{Size of the system}{Integer}{in}
-*     \Argument{alpha}{Factor for the multiplication}{Real*8}{in}
-*     \Argument{A}{Input matrix in sparse format}{Real*8 (*)}{in}
-*     \Argument{ija}{Index vector of matrix A}{Integer (*)}{in}
-*     \Argument{x}{Vector to multiply}{Real*8 (n)}{in}
-*     \Argument{beta}{Factor for the initial vector}{Real*8}{in}
-*     \Argument{y}{Result vector}{Real*8 (n)}{inout}
-*   </ARGUMENTS>
-*   <PURPOSE>Compute a matrix-vector product y = alpha*A*x + beta*y, with a sparse matrix</PURPOSE>
-*   <DEPENDENCIES></DEPENDENCIES>
-*   <AUTHOR>I. Fdez. Galvan</AUTHOR>
-*   <MODIFIED_BY></MODIFIED_BY>
-*   <SIDE_EFFECTS></SIDE_EFFECTS>
-*   <DESCRIPTION>
-*     Equivalent to dgemv or dsymv, with a sparse matrix A.
-*       $y = \alpha A x + \beta y$
-*   </DESCRIPTION>
-* </DOC>
-*-----------------------------------------------------------------------
+*  Sp_MV
+*
+*> @ingroup Sparse
+*> @brief
+*>   Compute a matrix-vector product \f$ y \leftarrow \alpha A x + \beta y \f$, with a sparse matrix
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> Equivalent to ::DGeMV or ::DSyMV, with a sparse matrix \p A.
+*>   \f[ y \leftarrow \alpha A x + \beta y \f]
+*>
+*> @param[in]     n     Size of the system
+*> @param[in]     alpha Factor for the multiplication
+*> @param[in]     A     Input matrix in sparse format
+*> @param[in]     ija   Index vector of matrix \p A
+*> @param[in]     x     Vector to multiply
+*> @param[in]     beta  Factor for the initial vector
+*> @param[in,out] y     Result vector
+************************************************************************
       SUBROUTINE Sp_MV(n,alpha,A,ija,x,beta,y)
       IMPLICIT NONE
       INTEGER n, ija(*), i, j, k

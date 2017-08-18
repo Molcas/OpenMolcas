@@ -10,34 +10,33 @@
 *                                                                      *
 * Copyright (C) Valera Veryazov                                        *
 ************************************************************************
+*  iPrintLevel
+*
+*> @brief
+*>   Check or set global print level
+*> @author V. Veryazov
+*>
+*> @details
+*> If Level is a number &ge; ``0``, set print level,
+*> else return current print level.
+*>
+*> In a first call of the routine environment variable
+*> ``MOLCAS_PRINT`` is used to set the initial print level.
+*>
+*> Allowed values are:
+*>
+*> - ``SILENT`` (``0``)
+*> - ``TERSE`` (``1``)
+*> - ``NORMAL`` (``2``)
+*> - ``VERBOSE`` (``3``)
+*> - ``DEBUG`` (``4``)
+*> - ``INSANE`` (``5``)
+*>
+*> @param[in] Level Print Level
+*>
+*> @return Print level
+************************************************************************
       Integer function iPrintLevel(Level)
-************************************************************
-*
-*   <DOC>
-*     <Name>iPrintLevel</Name>
-*     <Syntax>iPrintLevel(Level)</Syntax>
-*     <Arguments>
-*       \Argument{Level}{Print Level}{Integer}{in}
-*     </Arguments>
-*     <Purpose>Check or set global print level</Purpose>
-*     <Dependencies>getenvf</Dependencies>
-*     <Author>V. Veryazov</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*       If Level is a number >= 0 - set print Level
-*       else return current print level
-*
-*       In a first call of the routine environment variable
-*          MOLCAS\_PRINT is used to set the initial print level.
-*
-*       Allowed values are: SILENT (0), TERSE (1), NORMAL (2),
-*          VERBOSE (3), DEBUG (4) and INSANE (5)
-*
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Data isFirst/0/
       Save isFirst
       common /nPrintLevel/ nPrintLevel

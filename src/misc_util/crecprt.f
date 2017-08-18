@@ -11,53 +11,24 @@
 * Copyright (C) 1992, Markus P. Fuelscher                              *
 ************************************************************************
       Subroutine CRecPrt(Title,FmtIn,A,nRow,nCol,Type)
-************************************************************
-*
-*   <DOC>
-*     <Name>RecPrt</Name>
-*     <Syntax>Call RecPrt(Title,FmtIn,A,nRow,nCol)</Syntax>
-*     <Arguments>
-*       \Argument{Title}{Title card}{Character*(*)}{in}
-*       \Argument{FmtIn}{Format statement}{Character*(*)}{in}
-*       \Argument{A}{A matrix}{Real*8}{in}
-*       \Argument{nRow}{number of rows of A}{Integer}{in}
-*       \Argument{nCol}{number of columns of A}{Integer}{in}
-*     </Arguments>
-*     <Purpose>To write out a matrix on standard out.</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>M. P. Fuelscher</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*     The matrix A of dimension nRow x nCol is printed in output preceded
-*     by the character line Title. Format of the numerical output is given by
-*     FmtIn. If FmtIn='' the utility will decide on format for optimal output.
-*     </Description>
-*    </DOC>
-*
-************************************************************
 ************************************************************************
-*                                                                      *
-*     purpose:                                                         *
-*     Print a rectangular matrix                                       *
-*                                                                      *
-*     calling arguments                                                *
-*     Title  : character string containing a title                     *
-*              If the string is empty no title will be printed         *
-*     A      : rectangular matrix of double precision reals            *
-*     nRow   : row dimension of matrix A                               *
-*     nCol   : column dimension of matrix A                            *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M. P. Fuelscher                                                  *
-*     University of Lund, Sweden, 1992                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
+* CRecPrt
+*
+*> @brief
+*>   Write out a matrix on standard output
+*> @author M. P. F&uuml;lscher, Lund, 1992
+*>
+*> @details
+*> The matrix \p A of dimension \p nRow &times; \p nCol is printed
+*> in output preceded by the character line \p Title. Format of the numerical
+*> output is given by \p FmtIn. If \p FmtIn = ``''`` the utility will decide on format
+*> for optimal output.
+*>
+*> @param[in] Title   Title card
+*> @param[in] FmtIn   Format statement
+*> @param[in] A       A matrix
+*> @param[in] nRow    number of rows of \p A
+*> @param[in] nCol    number of columns of \p A
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "standard_iounits.fh"
