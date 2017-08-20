@@ -215,6 +215,16 @@ update_submodules () {
     done
 }
 
+cut_log () {
+    if [ `wc -l < "$1"` -gt 30000 ] ; then
+        head -n 15000 "$1" > "$1.cut"
+        echo "~~~ file too long, lines removed ~~~" >> "$1.cut"
+        tail -n 15000 "$1" >> "$1.cut"
+        mv "$1" "$1.long"
+        mv "$1.cut" "$1"
+    fi
+}
+
 test_configfile () {
     if [ ! -r "$configfile" ]
     then
@@ -451,9 +461,11 @@ test_configfile () {
         do
             for MESSAGE in make.log auto.log
             do
+                cut_log $MESSAGE
                 curl --form "file=@$MESSAGE" $UPLOADPAGE || curl --ciphers ecdhe_ecdsa_aes_256_sha --form "file=@$MESSAGE" $UPLOADPAGE
                 echo "sending mail"
                 $FOLD -s $MESSAGE | $MAIL_cmd -s $DATE $RCPT
+                mv $MESSAGE.long $MESSAGE 2> /dev/null
             done
         done
 
@@ -557,6 +569,7 @@ test_configfile () {
     do
         for MESSAGE in make.log auto.log
         do
+            cut_log $MESSAGE
             curl --form "file=@$MESSAGE" $UPLOADPAGE || curl --ciphers ecdhe_ecdsa_aes_256_sha --form "file=@$MESSAGE" $UPLOADPAGE
             # remove garbage from any output
             if ! ../$REPO_OPEN.$BRANCH/sbin/chkunprint.plx < $MESSAGE
@@ -567,6 +580,7 @@ test_configfile () {
             # send mail to testpage
             echo "sending mail"
             $FOLD -s $MESSAGE | $MAIL_cmd -s $DATE $RCPT
+            mv $MESSAGE.long $MESSAGE 2> /dev/null
         done
     done
 
