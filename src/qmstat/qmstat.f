@@ -39,7 +39,7 @@
       Write(6,*)
       Write(6,*)' QMStat does not run in parallel!'
       Write(6,*)
-      Call Quit(_RC_EXIT_)
+      Call Quit(_RC_NOT_AVAILABLE_)
 #endif
 
 *
