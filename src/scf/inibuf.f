@@ -13,7 +13,7 @@
       SubRoutine IniBuf(nDisc,nCore)
 ************************************************************************
 *                                                                      *
-*  Object: Initiate I/O buffer fro semi-direct SCF                     *
+*  Object: Initiate I/O buffer for semi-direct SCF                     *
 *                                                                      *
 * Called from:                                                         *
 *                                                                      *
