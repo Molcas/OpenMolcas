@@ -12,8 +12,8 @@
 C     returns the absolute id of the process,
 C     regardless of the parallel environment
       Implicit None
+#include "mpp_info.fh"
 #ifdef _MOLCAS_MPP_
-#  include "mpp_info.fh"
       mpp_id=mpp_procid
 #else
       mpp_id=mpp_rootid
