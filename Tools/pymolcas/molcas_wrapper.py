@@ -16,7 +16,7 @@
 from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 from os import environ, access, W_OK, X_OK, listdir, remove, getpid, getcwd, makedirs, symlink, devnull
-from os.path import isfile, isdir, isabs, join, basename, splitext, getmtime, abspath, exists
+from os.path import isfile, isdir, isabs, join, basename, splitext, getmtime, abspath, exists, relpath
 from datetime import datetime
 from shutil import copy2, move, rmtree
 from subprocess import call, check_output, STDOUT
@@ -611,7 +611,7 @@ class Molcas_wrapper(object):
   def startup(self):
     if (self._ready):
       self.write_environment()
-      print('   This copy of MOLCAS is not supported')
+      print('   This run of MOLCAS is using the pymolcas driver')
       self.print_banner()
       print('\n')
       if (hasattr(self, 'warning') and self.warning):
@@ -754,8 +754,12 @@ class Molcas_wrapper(object):
         self.rc = rc
     info_file = join(self.scratch, 'molcas_info')
     if (exists(info_file)):
-      remove(info_file)
+      if (self.is_serial):
+        remove(info_file)
+      else:
+        self.parallel_task(['x', relpath(info_file, self.scratch)])
 
+  #TODO: buffer parnell calls
   def parallel_task(self, task):
     output = BytesIO()
     error = BytesIO()
@@ -969,6 +973,8 @@ class Molcas_module(object):
     input_file = self.name.upper()[:5] + 'INP'
     if (input_file in self._files):
       copy2(stdin, self._files[input_file][0])
+      if (not self.parent.is_serial):
+        self.parent.parallel_task(['c', '1', self._files[input_file][0], self.parent.scratch])
     if (not self.parent.is_serial):
       self.parent.parallel_task(['c', '1', 'stdin', self.parent.scratch])
 
@@ -984,7 +990,10 @@ class Molcas_module(object):
     prgm_file = join(self.parent.scratch, 'extra.prgm')
     if (exists(prgm_file)):
       self._files.update(parse_prgm(prgm_file)[1])
-      remove(prgm_file)
+      if (self.parent.is_serial):
+        remove(prgm_file)
+      else:
+        self.parent.parallel_task(['x', relpath(prgm_file, self.parent.scratch)])
 
   def _copy_files(self):
     self._read_extra_prgm();
@@ -1039,17 +1048,25 @@ class Molcas_module(object):
     return files
 
   def _delete_files(self):
-    #TODO: use parnell
     files_to_delete = [(k,v[0]) for (k,v) in self._files.items() if 'p' in v[1]]
+    rmlist = []
     for name, path in files_to_delete:
       if '*' in self._files[name][1]:
         path += '*'
       for i in glob(path):
-        remove(i)
+        rmlist.append(i)
     for i in glob(join(self.parent.scratch, 'purge*')):
-      remove(i)
+      rmlist.append(i)
     for i in self._links:
-      remove(i)
+      rmlist.append(i)
+    rmlist = set(rmlist)
+    if (len(rmlist) > 0):
+      if (self.parent.is_serial):
+        for i in rmlist:
+          if (isfile(i)):
+            remove(i)
+      else:
+        self.parent.parallel_task(['x', ':'.join([relpath(i, self.parent.scratch) for i in rmlist])])
 
   def _make_links(self):
     if (self.name == 'check'):
@@ -1070,6 +1087,8 @@ class Molcas_module(object):
       for orbfile in orblist:
         if (exists(orbfile)):
           symlink(orbfile, inporb)
+          if (not self.parent.is_serial):
+            self.parent.parallel_task(['c', '1', 'INPORB', join(self.parent.scratch, 'INPORB')])
           self._links.append(inporb)
           print('*** symbolic link created: INPORB -> {0}'.format(basename(orbfile)))
           break
@@ -1085,9 +1104,13 @@ class Molcas_module(object):
       runfiles = [join(self.parent.scratch, 'RUNFILE')]
       if ('RUNFILE' in self._files):
         runfiles.append(self._files['RUNFILE'][0])
-      for i in runfiles:
-        if (isfile(i)):
-          remove(i)
+      if (len(runfiles) > 0):
+        if (self.parent.is_serial):
+          for i in runfiles:
+            if (isfile(i)):
+              remove(i)
+        else:
+          self.parent.parallel_task(['x', ':'.join([relpath(i, self.parent.scratch) for i in runfiles])])
     elif (self.name == 'loop'):
       set_utf8('MOLCAS_REDUCE_PRT', 'NO')
 
