@@ -32,32 +32,44 @@
       Integer, Parameter :: LBuf=4096
       Character (Len=LBuf) :: Buf
       Integer :: LU, Err, FLen, Pos, Num
-      Logical :: Failed
+      Logical :: Found, Failed
+      Integer, External :: IsFreeUnit
 
-      ! Open the file for reading or writing
       ! Note that each process opens only one file, so there is a single
       ! unit number LU
+      LU=10
+      LU=IsFreeUnit(LU)
+      ! Check file existence and read size on the master
       If (King()) Then
-        Call Molcas_Open_Ext2(LU, FName, "stream", "unformatted", Err,
-     &                        .False., 0, "old", Failed)
-        If (Failed .or. (Err .ne. 0)) Then
-          Write(6,*) "Failed to open file ", Trim(FName)
-          Call AbEnd()
+        Call f_Inquire(FName, Found)
+        If (Found) Then
+          Call Molcas_Open_Ext2(LU, FName, "stream", "unformatted", Err,
+     &                          .False., 0, "old", Failed)
+          If (Failed .or. (Err .ne. 0)) Then
+            Write(6,*) "Failed to open file ", Trim(FName)
+            Call AbEnd()
+          End If
+          Inquire(LU, Size=FLen)
+        Else
+          FLen=0
         End If
-        Inquire(LU, Size=FLen)
-      Else
+      End If
+      ! Broadcast the file size
+      Err=0
+      Call MPI_BCAST(FLen, 1, iType, 0, MPI_COMM_WORLD, Err)
+      If (Err .ne. 0) Then
+        Write(6,*) "Failed to broadcast file size: ", FLen, Err
+        Call AbEnd()
+      End If
+      If (FLen .le. 0) Return
+      ! Open file for writing in the slaves
+      If (.not.King()) Then
         Call Molcas_Open_Ext2(LU, FName, "stream", "unformatted", Err,
      &                        .False., 0, "replace", Failed)
         If (Failed .or. (Err .ne. 0)) Then
           Write(6,*) "Failed to open file ", Trim(FName)
           Call AbEnd()
         End If
-      End If
-      ! Broadcast the file size
-      Call MPI_BCAST(FLen, 1, iType, 0, MPI_COMM_WORLD, Err)
-      If (Err .ne. 0) Then
-        Write(6,*) "Failed to broadcast file size: ", FLen
-        Call AbEnd()
       End If
       ! Pass the file content in chunks
       Pos=0

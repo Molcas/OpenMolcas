@@ -3208,8 +3208,8 @@ CDP      If (nCtrLD.eq.0) radiLD=0.0d0
          Call Quit_OnUserError()
       End If
       DoTinker = .True.
+      ITkQMMM = 1
       If (MyRank.eq.0) Then
-        ITkQMMM = 1
         ITkQMMM = IsFreeUnit(ITkQMMM)
         Call Molcas_Open (ITkQMMM,'QMMM')
         Write(ITkQMMM,'(A)') 'Molcas -1 0'
@@ -3251,6 +3251,7 @@ c
 #endif
       iCoord=iCoord+1
       CoordSet=.True.
+      ITkQMMM = IsFreeUnit(ITkQMMM)
       Call Molcas_Open (ITkQMMM,'QMMM')
 #ifdef _HAVE_EXTRA_
       Call XYZread(ITkQMMM,ForceZMAT,nCoord,iErr)
