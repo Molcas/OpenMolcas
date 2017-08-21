@@ -54,6 +54,7 @@
       Real*8       fRandom_molcas
       External     fRandom_molcas
 
+      Call Init_LinAlg
       Call NameRun('RUNFILE')
       UseOld=.false.
       If(UseOld) GoTo 500

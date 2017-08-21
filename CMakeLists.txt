@@ -1256,13 +1256,6 @@ endif ()
 
 # Runtime loading of LAPACK+BLAS libraries (experimental)
 if (LINALG STREQUAL "Runtime")
-        if (GA)
-                message (FATAL_ERROR
-                        "Runtime LAPACK+BLAS loading is not compatible with Global Arrays. "
-                        "Please select an explicit LINALG library or turn off GA."
-                        )
-        endif ()
-
         message ("-- Using Runtime LAPACK+BLAS libraries (Internal as fallback)")
         set (LINALG_LIBRARIES "dl")
 
