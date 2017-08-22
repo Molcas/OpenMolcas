@@ -150,6 +150,7 @@ option (NECI       "Activate NECI support (requires External/NECI submodule)."  
 option (HDF5_F2003 "Activate a F2003 interface to the HDF5 library (requires External/hdf5_f2003_interface submodule)."               OFF)
 option (WFA        "Activate extended wavefunction analysis (requires External/libwfa submodule)."                                    OFF)
 option (EFPLIB     "Enable EFPLib library for effective fragment potentials (requires External/efp submodule)."                       OFF)
+option (GRID_IT    "Enable public GRID_IT code (requires External/grid_it submodule)."                                                OFF)
 
 ################################################################################
 #                                                                              #
@@ -249,10 +250,15 @@ function (find_source name)
                         endif ()
                 endif ()
         endforeach ()
-        if (DEFINED found)
-                set (${name}_src "${found}" PARENT_SCOPE)
-        #else ()
-        #        message (WARNING "${name} not found, expect trouble")
+        # do not overwrite existing definitions
+        if (DEFINED ${name}_src)
+                set (${name}_src "${${name}_src}" PARENT_SCOPE)
+        else ()
+                if (DEFINED found)
+                        set (${name}_src "${found}" PARENT_SCOPE)
+                #else ()
+                #        message (WARNING "${name} not found, expect trouble")
+                endif ()
         endif ()
 endfunction ()
 
@@ -1842,6 +1848,21 @@ else ()
         message("libwfa support DISABLED")
 endif ()
 
+# external GRID_IT
+if (GRID_IT)
+        message("Configuring external GRID_IT:")
+        set (proj ${extprojsdir}/grid_it)
+        if (EXISTS ${proj}/main.f)
+                set (prog "grid_it")
+                list (APPEND progs ${prog})
+                file (RELATIVE_PATH ${prog}_src ${PROJECT_SOURCE_DIR} ${proj})
+        else()
+                message ("-- External GRID_IT ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
+        endif ()
+else ()
+        message("External GRID_IT DISABLED")
+endif ()
+
 # Add the "bigot" flags after processing the external projects, so they are not affected
 if (BIGOT)
         set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXXFLAGS_${CXXCID}_BIGOT}")
@@ -1995,9 +2016,6 @@ list (REMOVE_ITEM progs
         symmetrize
         wfa
         )
-if (NOT DEFINED EXTRA_DIR)
-        list (REMOVE_ITEM utils grid_r_util)
-endif ()
 
 # set the location of the sources for the utilities
 foreach (util ${utils})
@@ -2684,13 +2702,15 @@ foreach (BASE_DIR ${basedirs})
         file (GLOB source RELATIVE ${BASE_DIR}/src/Driver ${BASE_DIR}/src/Driver/*.prgm.src)
         foreach (prgmsrc ${source})
                 string (REPLACE ".prgm.src" ".prgm" prgm ${prgmsrc})
-                add_custom_command (
-                        OUTPUT data/${prgm}
-                        DEPENDS ${BASE_DIR}/src/Driver/${prgmsrc} ${prgmincfiles}
-                        COMMAND cpp -P ${defargs} ${prgmincs} ${BASE_DIR}/src/Driver/${prgmsrc} data/${prgm}
-                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-                        )
-                list (APPEND prgmtargets data/${prgm})
+                if (NOT ";${prgmtargets};" MATCHES ";data/${prgm};")
+                        add_custom_command (
+                                OUTPUT data/${prgm}
+                                DEPENDS ${BASE_DIR}/src/Driver/${prgmsrc} ${prgmincfiles}
+                                COMMAND cpp -P ${defargs} ${prgmincs} ${BASE_DIR}/src/Driver/${prgmsrc} data/${prgm}
+                                WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+                                )
+                        list (APPEND prgmtargets data/${prgm})
+                endif ()
         endforeach (prgmsrc)
 endforeach (BASE_DIR)
 add_custom_target(prgms ALL
