@@ -234,8 +234,7 @@ function (find_source name)
 endfunction ()
 
 # These will be needed later, so set them now
-find_source(blas_util)
-find_source(lapack_util)
+find_source(LinAlg_internal)
 
 # get version from git if available, otherwise look in .molcasversion
 #====================================================================
@@ -663,7 +662,7 @@ set (FFLAGS_PGI_FAST "-fast")
 
 # Special flag for building LAPACK with PGI
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "PGI")
-        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${lapack_util_src}/*.f)
+        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${LinAlg_internal_src}/lapack.f)
         set_source_files_properties (${source} PROPERTIES COMPILE_FLAGS "-Kieee")
 endif ()
 
@@ -1955,6 +1954,7 @@ list (REMOVE_ITEM utils
 list (REMOVE_ITEM progs
         Driver
         Include
+        LinAlg_internal
         Modules
         parnell
         symmetrize
@@ -2178,9 +2178,7 @@ if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
         set_source_files_properties (${source} PROPERTIES COMPILE_FLAGS "-Wno-unused-function")
         # netlib blas/lapack has too many problems to fix (yet)
         set (netlib_nowarn_flags "-w")
-        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${blas_util_src}/*.f)
-        set_source_files_properties (${source} PROPERTIES COMPILE_FLAGS ${netlib_nowarn_flags})
-        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${lapack_util_src}/*.f)
+        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${LinAlg_internal_src}/*.f)
         set_source_files_properties (${source} PROPERTIES COMPILE_FLAGS ${netlib_nowarn_flags})
         file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${delayed_util_src}/*.f)
         set_source_files_properties (${source} PROPERTIES COMPILE_FLAGS ${netlib_nowarn_flags})
@@ -2298,11 +2296,11 @@ endif ()
 
 # if necessary, build BLAS/LAPACK
 if (LINALG STREQUAL "Internal")
-        foreach (lib ${LINALG_LIBRARIES})
-                set (util "${lib}_util")
-                if (NOT DEFINED ${util}_src)
-                        message (FATAL_ERROR "\"${util}\" not found in source directories")
-                endif ()
+        set (util "LinAlg_internal")
+        if (NOT DEFINED ${util}_src)
+                message (FATAL_ERROR "\"${util}\" not found in source directories")
+        endif ()
+        foreach (lib "lapack" "blas")
                 set (source ${${util}_src}/${lib}.f)
                 add_library (${lib} ${source})
                 list (APPEND ALL_SOURCES ${source})
