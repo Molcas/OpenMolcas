@@ -8,13 +8,24 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Invert(rmat,n)
-      Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
-      Real*8 rmat(*),rdet(2),rcond
-      Integer n,iptmp
-      Call Getmem('Tmp','ALLO','REAL',iptmp,200*n)
-      Call DGEICD(rmat,n,n,0,rcond,rdet,work(iptmp),200*n)
-      Call Getmem('Tmp','FREE','REAL',iptmp,200*n)
+C
+C     Inverts a square matrix
+C
+      Subroutine MatInvert(A,n)
+      Implicit None
+#include "stdalloc.fh"
+      Real*8 :: A(*)
+      Integer :: n,err,nw
+      Integer, Dimension(:), Allocatable :: ipiv
+      Real*8, Dimension(:), Allocatable :: wrk
+      Real*8 :: dum
+      Call mma_allocate(ipiv,n)
+      Call dGeTRF_(n,n,A,n,ipiv,       err)
+      Call dGeTRI_(n,  A,n,ipiv,dum,-1,err)
+      nw=Int(dum)
+      Call mma_allocate(wrk,nw)
+      Call dGeTRI_(n,  A,n,ipiv,wrk,nw,err)
+      Call mma_deallocate(ipiv)
+      Call mma_deallocate(wrk)
       Return
-      end
+      End
