@@ -102,12 +102,12 @@ c            Call System_clock(iSeed,j,k)
 
       Do iAv=1,nAv
          If(LGridAverage) Then
-            cordsi(1,1)=fRandom_Molcas(iSeed)
-            cordsi(2,1)=fRandom_Molcas(iSeed)
-            cordsi(3,1)=fRandom_Molcas(iSeed)
-            rotAlpha=fRandom_Molcas(iSeed)*180.0D0
-            rotBeta=fRandom_Molcas(iSeed)*180.0D0
-            rotGamma=fRandom_Molcas(iSeed)*180.0D0
+            cordsi(1,1)=Random_Molcas(iSeed)
+            cordsi(2,1)=Random_Molcas(iSeed)
+            cordsi(3,1)=Random_Molcas(iSeed)
+            rotAlpha=Random_Molcas(iSeed)*180.0D0
+            rotBeta=Random_Molcas(iSeed)*180.0D0
+            rotGamma=Random_Molcas(iSeed)*180.0D0
             write(6,'(a,i4,a,6f10.4)')'GRID NR',iAv,': ',cordsi(1,1),
      &           cordsi(2,1),cordsi(3,1),rotAlpha,rotBeta,rotGamma
             Done_Lattice=.False.

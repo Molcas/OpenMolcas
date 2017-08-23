@@ -51,8 +51,8 @@
       Character*1  DataE(MxData)
       Character*1  DataF(MxData)
 
-      Real*8       fRandom_molcas
-      External     fRandom_molcas
+      Real*8       Random_molcas
+      External     Random_molcas
 
       Call Init_LinAlg
       Call NameRun('RUNFILE')
@@ -79,36 +79,36 @@
       iRc=0
       iOpt=0
       Do Loop=1,16
-         If(fRandom_molcas(iSeed).gt.0.75d0) Then
-            nDataA=Int((MxData-4)*fRandom_molcas(iSeed)+4)
+         If(Random_molcas(iSeed).gt.0.75d0) Then
+            nDataA=Int((MxData-4)*Random_molcas(iSeed)+4)
             Write(*,*) 'Adding A',nDataA
             Call dWrRun('Amat',DataA,nDataA)
          End If
-         If(fRandom_molcas(iSeed).gt.0.75d0) Then
-            nDataB=Int((MxData-4)*fRandom_molcas(iSeed)+4)
+         If(Random_molcas(iSeed).gt.0.75d0) Then
+            nDataB=Int((MxData-4)*Random_molcas(iSeed)+4)
             Write(*,*) 'Adding B',nDataB
             Call dWrRun('Bmat',DataB,nDataB)
          End If
-         If(fRandom_molcas(iSeed).gt.0.75d0) Then
-            nDataC=Int((MxData-4)*fRandom_molcas(iSeed)+4)
+         If(Random_molcas(iSeed).gt.0.75d0) Then
+            nDataC=Int((MxData-4)*Random_molcas(iSeed)+4)
             Write(*,*) 'Adding C',nDataC
             Call iWrRun('Cmat',DataC,nDataC)
          End If
-         If(fRandom_molcas(iSeed).gt.0.75d0) Then
-            nDataD=Int((MxData-4)*fRandom_molcas(iSeed)+4)
+         If(Random_molcas(iSeed).gt.0.75d0) Then
+            nDataD=Int((MxData-4)*Random_molcas(iSeed)+4)
             Write(*,*) 'Adding D',nDataD
             Call iWrRun('Dmat',DataD,nDataD)
          End If
-         If(fRandom_molcas(iSeed).gt.0.75d0) Then
+         If(Random_molcas(iSeed).gt.0.75d0) Then
             Call NameRun('RUNXXX')
-            i=Int((MxData-4)*fRandom_molcas(iSeed)/4)
+            i=Int((MxData-4)*Random_molcas(iSeed)/4)
             nDataE=4*i+4
             Write(*,*) 'Adding E',nDataE
             Call cWrRun('Emat',DataE,nDataE)
             Call NameRun('RUNFILE')
          End If
-         If(fRandom_molcas(iSeed).gt.0.75d0) Then
-            i=Int((MxData-4)*fRandom_molcas(iSeed)/4)
+         If(Random_molcas(iSeed).gt.0.75d0) Then
+            i=Int((MxData-4)*Random_molcas(iSeed)/4)
             nDataF=4*i+4
             Write(*,*) 'Adding F',nDataF
             Call cWrRun('Fmat',DataF,nDataF)

@@ -35,8 +35,8 @@
 *----------------------------------------------------------------------*
 * External references                                                  *
 *----------------------------------------------------------------------*
-      Real*8 fRandom_Molcas
-      External fRandom_Molcas
+      Real*8 Random_Molcas
+      External Random_Molcas
 *----------------------------------------------------------------------*
 * Local variables                                                      *
 *----------------------------------------------------------------------*
@@ -62,7 +62,7 @@
 *        Write(6,*) 'Scrambling irrep',iSym
          Do iOrb=1,nOrb(iSym)-1
             jOrb=iOrb+1
-            q=ScrFac*(2.0d0*fRandom_Molcas(iSeed)-1.0d0)
+            q=ScrFac*(2.0d0*Random_Molcas(iSeed)-1.0d0)
             p=Sqrt(1.0d0-q*q)
 *           Write(6,*) 'q=',q
             Do iBas=1,nBas(iSym)
