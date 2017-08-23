@@ -224,7 +224,10 @@ class Molcas_wrapper(object):
     set_utf8('EMIL_RC2', '0')
     set_utf8('EMIL_InLoop', '0')
     set_utf8('MOLCAS_STRUCTURE', '0')
-    set_utf8('MOLCAS_STAMP', '5')
+    if (self.check_license() == 0):
+      set_utf8('MOLCAS_STAMP', '5')
+    else:
+      set_utf8('MOLCAS_STAMP', 'UNKNOWN_VARIABLE')
     # Get current directory
     self.currdir = getcwd()
     set_utf8('CurrDir', self.currdir)
