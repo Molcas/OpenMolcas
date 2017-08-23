@@ -1945,14 +1945,20 @@ foreach (dir ${source_roots})
         if (dir_utils)
                 list (REMOVE_ITEM dir_progs ${dir_utils})
         endif ()
-        # and consider only dirctories
+        # and consider only directories not beginning with uppercase
         foreach (item ${dir_progs})
                 if (NOT IS_DIRECTORY "${PROJECT_SOURCE_DIR}/${dir}/${item}")
+                        list (REMOVE_ITEM dir_progs ${item})
+                endif ()
+                if (item MATCHES "^[A-Z]")
                         list (REMOVE_ITEM dir_progs ${item})
                 endif ()
         endforeach ()
         foreach (item ${dir_utils})
                 if (NOT IS_DIRECTORY "${PROJECT_SOURCE_DIR}/${dir}/${item}")
+                        list (REMOVE_ITEM dir_utils ${item})
+                endif ()
+                if (item MATCHES "^[A-Z]")
                         list (REMOVE_ITEM dir_utils ${item})
                 endif ()
         endforeach ()
@@ -1975,10 +1981,6 @@ list (REMOVE_ITEM utils
         msym_util
         )
 list (REMOVE_ITEM progs
-        Driver
-        Include
-        LinAlg_internal
-        Modules
         parnell
         symmetrize
         wfa
