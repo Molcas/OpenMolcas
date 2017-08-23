@@ -39,6 +39,29 @@ if ("${sourcedir}" STREQUAL "${binarydir}")
                 "separate build directory and run cmake from there.")
 endif ()
 
+# workaround for CMake bug 14874
+# (i.e., fix for files with same name in different directories)
+if (${CMAKE_VERSION} VERSION_LESS 3.1)
+        if (NOT DEFINED CMAKE_Fortran_ARCHIVE_CREATE)
+                set(CMAKE_Fortran_ARCHIVE_CREATE "<CMAKE_AR> cq <TARGET> <LINK_FLAGS> <OBJECTS>")
+        endif ()
+        if (NOT DEFINED CMAKE_Fortran_ARCHIVE_APPEND)
+                set(CMAKE_Fortran_ARCHIVE_APPEND "<CMAKE_AR> q  <TARGET> <LINK_FLAGS> <OBJECTS>")
+        endif ()
+        if (NOT DEFINED CMAKE_C_ARCHIVE_CREATE)
+                set(CMAKE_C_ARCHIVE_CREATE "<CMAKE_AR> cq <TARGET> <LINK_FLAGS> <OBJECTS>")
+        endif ()
+        if (NOT DEFINED CMAKE_C_ARCHIVE_APPEND)
+                set(CMAKE_C_ARCHIVE_APPEND "<CMAKE_AR> q  <TARGET> <LINK_FLAGS> <OBJECTS>")
+        endif ()
+        if (NOT DEFINED CMAKE_CXX_ARCHIVE_CREATE)
+                set(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> cq <TARGET> <LINK_FLAGS> <OBJECTS>")
+        endif ()
+        if (NOT DEFINED CMAKE_CXX_ARCHIVE_APPEND)
+                set(CMAKE_CXX_ARCHIVE_APPEND "<CMAKE_AR> q  <TARGET> <LINK_FLAGS> <OBJECTS>")
+        endif ()
+endif ()
+
 ################################################################################
 #                                                                              #
 # Options                                                                      #
