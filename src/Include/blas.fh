@@ -10,6 +10,9 @@
 ************************************************************************
 
 * This file contains the necessary files for an internal BLAS
+*
+* If you modify this, the files delayed_blas.f90 and f[1-5].fh in
+* delayed_util should be updated too, use delayed.py for the latter
 
 * [cs]axpy, [cs]gemm, scabs1 are used by GA
 

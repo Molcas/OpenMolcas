@@ -10,6 +10,9 @@
 ************************************************************************
 
 * This file contains the necessary files for an internal LAPACK
+*
+* If you modify this, the files delayed_lapack.f90 and f[1-5].fh in
+* delayed_util should be updated too, use delayed.py for the latter
 
 #ifndef _LAPACK_FH_
 

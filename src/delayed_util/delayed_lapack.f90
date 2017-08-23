@@ -22,8 +22,8 @@ subroutine dgebak( job, side, n, ilo, ihi, scale, m, v, ldv, info )
   use link_blas
   implicit none
   character :: job, side
-  integer   :: ihi, ilo, info, ldv, m, n
-  real*8 ::   scale( * ), v( ldv, * )
+  integer :: ihi, ilo, info, ldv, m, n
+  real*8 :: scale( * ), v( ldv, * )
   call lb_dgebak( job, side, n, ilo, ihi, scale, m, v, ldv, info )
 end subroutine dgebak
 
@@ -32,7 +32,7 @@ subroutine dgebal( job, n, a, lda, ilo, ihi, scale, info )
   implicit none
   character :: job
   integer :: ihi, ilo, info, lda, n
-  real*8 ::  a( lda, * ), scale( * )
+  real*8 :: a( lda, * ), scale( * )
   call lb_dgebal( job, n, a, lda, ilo, ihi, scale, info )
 end subroutine dgebal
 
@@ -57,7 +57,7 @@ subroutine dgeev( jobvl, jobvr, n, a, lda, wr, wi, vl, ldvl, vr, ldvr, work, lwo
   implicit none
   character :: jobvl, jobvr
   integer :: info, lda, ldvl, ldvr, lwork, n
-  real*8 :: a( lda, * ), vl( ldvl, * ), vr( ldvr, * ),  wi( * ), work( * ), wr( * )
+  real*8 :: a( lda, * ), vl( ldvl, * ), vr( ldvr, * ), wi( * ), work( * ), wr( * )
   call lb_dgeev( jobvl, jobvr, n, a, lda, wr, wi, vl, ldvl, vr, ldvr, work, lwork, info )
 end subroutine dgeev
 
@@ -423,26 +423,26 @@ subroutine dlaqr1( n, h, ldh, sr1, si1, sr2, si2, v )
   call lb_dlaqr1( n, h, ldh, sr1, si1, sr2, si2, v )
 end subroutine dlaqr1
 
-subroutine dlaqr2( wantt, wantz, n, ktop, kbot, nw, h, ldh, iloz, ihiz, z, ldz, ns, nd, sr, si, v, ldv, &
-                   nh, t, ldt, nv, wv, ldwv, work, lwork )
+subroutine dlaqr2( wantt, wantz, n, ktop, kbot, nw, h, ldh, iloz, ihiz, z, ldz, ns, nd, sr, si, v, ldv, nh, t, ldt, nv, wv, ldwv, &
+                   work, lwork )
   use link_blas
   implicit none
   integer :: ihiz, iloz, kbot, ktop, ldh, ldt, ldv, ldwv, ldz, lwork, n, nd, nh, ns, nv, nw
   logical :: wantt, wantz
   real*8 :: h( ldh, * ), si( * ), sr( * ), t( ldt, * ), v( ldv, * ), work( * ), wv( ldwv, * ), z( ldz, * )
-  call lb_dlaqr2( wantt, wantz, n, ktop, kbot, nw, h, ldh, iloz, ihiz, z, ldz, ns, nd, sr, si, v, ldv, &
-                   nh, t, ldt, nv, wv, ldwv, work, lwork )
+  call lb_dlaqr2( wantt, wantz, n, ktop, kbot, nw, h, ldh, iloz, ihiz, z, ldz, ns, nd, sr, si, v, ldv, nh, t, ldt, nv, wv, ldwv, &
+                  work, lwork )
 end subroutine dlaqr2
 
-subroutine dlaqr3( wantt, wantz, n, ktop, kbot, nw, h, ldh, iloz, ihiz, z, ldz, ns, nd, sr, si, v, ldv, nh, t, &
-                   ldt, nv, wv, ldwv, work, lwork )
+subroutine dlaqr3( wantt, wantz, n, ktop, kbot, nw, h, ldh, iloz, ihiz, z, ldz, ns, nd, sr, si, v, ldv, nh, t, ldt, nv, wv, ldwv, &
+                   work, lwork )
   use link_blas
   implicit none
   integer :: ihiz, iloz, kbot, ktop, ldh, ldt, ldv, ldwv, ldz, lwork, n, nd, nh, ns, nv, nw
   logical :: wantt, wantz
   real*8 :: h( ldh, * ), si( * ), sr( * ), t( ldt, * ), v( ldv, * ), work( * ), wv( ldwv, * ), z( ldz, * )
-  call lb_dlaqr3( wantt, wantz, n, ktop, kbot, nw, h, ldh, iloz, ihiz, z, ldz, ns, nd, sr, si, v, ldv, nh, t, &
-                   ldt, nv, wv, ldwv, work, lwork )
+  call lb_dlaqr3( wantt, wantz, n, ktop, kbot, nw, h, ldh, iloz, ihiz, z, ldz, ns, nd, sr, si, v, ldv, nh, t, ldt, nv, wv, ldwv, &
+                  work, lwork )
 end subroutine dlaqr3
 
 subroutine dlaqr4( wantt, wantz, n, ilo, ihi, h, ldh, wr, wi, iloz, ihiz, z, ldz, work, lwork, info )
@@ -454,15 +454,15 @@ subroutine dlaqr4( wantt, wantz, n, ilo, ihi, h, ldh, wr, wi, iloz, ihiz, z, ldz
   call lb_dlaqr4( wantt, wantz, n, ilo, ihi, h, ldh, wr, wi, iloz, ihiz, z, ldz, work, lwork, info )
 end subroutine dlaqr4
 
-subroutine dlaqr5( wantt, wantz, kacc22, n, ktop, kbot, nshfts, sr, si, h, ldh, iloz, ihiz, z, ldz, v, ldv, u,  &
-                   ldu, nv, wv, ldwv, nh, wh, ldwh )
+subroutine dlaqr5( wantt, wantz, kacc22, n, ktop, kbot, nshfts, sr, si, h, ldh, iloz, ihiz, z, ldz, v, ldv, u, ldu, nv, wv, ldwv, &
+                   nh, wh, ldwh )
   use link_blas
   implicit none
   integer :: ihiz, iloz, kacc22, kbot, ktop, ldh, ldu, ldv, ldwh, ldwv, ldz, n, nh, nshfts, nv
   logical :: wantt, wantz
   real*8 :: h( ldh, * ), si( * ), sr( * ), u( ldu, * ), v( ldv, * ), wh( ldwh, * ), wv( ldwv, * ), z( ldz, * )
-  call lb_dlaqr5( wantt, wantz, kacc22, n, ktop, kbot, nshfts, sr, si, h, ldh, iloz, ihiz, z, ldz, v, ldv, u,  &
-                   ldu, nv, wv, ldwv, nh, wh, ldwh )
+  call lb_dlaqr5( wantt, wantz, kacc22, n, ktop, kbot, nshfts, sr, si, h, ldh, iloz, ihiz, z, ldz, v, ldv, u, ldu, nv, wv, ldwv, &
+                  nh, wh, ldwh )
 end subroutine dlaqr5
 
 subroutine dlar1v( n, b1, bn, lambda, d, l, ld, lld, pivmin, gaptol, z, wantnc, negcnt, ztz, mingma, r, isuppz, nrminv, resid, &
