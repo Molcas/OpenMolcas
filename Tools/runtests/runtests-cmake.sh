@@ -360,21 +360,27 @@ test_configfile () {
     #### retry script ####
     ######################
 
+    cd ../
+
     retry="retry.sh"
-    echo "!/bin/sh"                                        >  $retry
-    echo "mkdir $testconfig || exit"                       >> $retry
-    echo "cd $testconfig"                                  >> $retry
-    cat ../$testconfig.env                                 >> $retry
-    echo "export OPENMOLCAS_DIR=$OPENMOLCAS_DIR"           >> $retry
-    echo "cat << EOF > $testconfig.cmake"                  >> $retry
-    cat ../$testconfig.cmake                               >> $retry
-    echo "EOF"                                             >> $retry
-    echo "cp -r $loc/$REPO_OPEN.$BRANCH ."                 >> $retry
-    echo "(cd $REPO_OPEN.$BRANCH ; git clean -f -d -x -q)" >> $retry
-    echo "cp -r $loc/$REPO.$BRANCH ."                      >> $retry
-    echo "(cd $REPO.$BRANCH ; git clean -f -d -x -q)"      >> $retry
-    echo "mkdir $REPO.$BRANCH-build"                       >> $retry
-    echo "cd $REPO.$BRANCH-build"                          >> $retry
+    echo "#!/bin/sh"                             >  $retry
+    echo "mkdir $testconfig || exit"             >> $retry
+    echo "cd $testconfig"                        >> $retry
+    cat ../$testconfig.env                       >> $retry
+    echo "export OPENMOLCAS_DIR=$OPENMOLCAS_DIR" >> $retry
+    echo "cat << EOF > $testconfig.cmake"        >> $retry
+    cat ../$testconfig.cmake                     >> $retry
+    echo "EOF"                                   >> $retry
+    echo "cp -r $loc/$REPO_OPEN.$BRANCH ."       >> $retry
+    echo "(cd $REPO_OPEN.$BRANCH"                >> $retry
+    echo "    git checkout $SHA1_OPEN"           >> $retry
+    echo "    git clean -f -d -x -q)"            >> $retry
+    echo "cp -r $loc/$REPO.$BRANCH ."            >> $retry
+    echo "(cd $REPO.$BRANCH"                     >> $retry
+    echo "    git checkout $SHA1"                >> $retry
+    echo "    git clean -f -d -x -q)"            >> $retry
+    echo "mkdir $REPO.$BRANCH-build"             >> $retry
+    echo "cd $REPO.$BRANCH-build"                >> $retry
     echo "cmake -C ../$testconfig.cmake ../$REPO.$BRANCH > make.log 2>&1 && $MAKE_cmd VERBOSE=1 >> make.log 2>&1" >> $retry
     chmod +x $retry
 
@@ -384,8 +390,6 @@ test_configfile () {
     # in case of error, bark and continue with the other tests #
 
     echo "-- building --"
-
-    cd ../
 
     # To ensure proper operation, delete any cache entries for an
     # existing build directory.
