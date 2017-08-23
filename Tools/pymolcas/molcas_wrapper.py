@@ -762,8 +762,14 @@ class Molcas_wrapper(object):
     if (self.is_serial):
       # copy files: should also work if the destination is a dir
       if (task_type == 'c'):
+        orig = task[2]
+        if (not isabs(orig)):
+          orig = join(self.scratch, orig)
+        dest = task[3]
+        if (not isabs(dest)):
+          dest = join(self.scratch, dest)
         try:
-          copy2(task[2], task[3])
+          copy2(orig, dest)
         except SameFileError:
           pass
         return 0
