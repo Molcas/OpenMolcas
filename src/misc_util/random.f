@@ -12,7 +12,7 @@
 *               2010, John Burkardt                                    *
 *               2017, Morgane Vacher                                   *
 ************************************************************************
-      Function fRandom_Molcas(iSeed)
+      Function Random_Molcas(iSeed)
 ************************************************************************
 *                                                                      *
 *     Generate a random number z, where 0<z<0.5d0**31                  *
@@ -43,7 +43,7 @@
       real*8 , save :: r23, r46, t23, t46
       real*8  t1, t2, t3, t4, x, x1, x2, z
       integer  iseed
-      Real*8 fRandom_Molcas
+      Real*8 Random_Molcas
       Character*8 rand_info
       Call GetEnvf('MOLCAS_RANDOM',rand_info)
       Call UpCase(rand_info)
@@ -52,7 +52,7 @@
         IX1 = MOD(IA1*IX0+IC1,IM1)
         IX2 = MOD(IA2*IX1+IC2,IM2)
         IX3 = MOD(IA3*IX2+IC3,IM3)
-        fRandom_Molcas = (DBLE(IX1)+DBLE(IX2)/DBLE(IM2))/DBLE(IM1)
+        Random_Molcas = (DBLE(IX1)+DBLE(IX2)/DBLE(IM2))/DBLE(IM1)
         iSeed = IX3
       else
 ************************************************************************
@@ -128,7 +128,7 @@
       t3 = t23 * z + a2 * x2
       t4 = real ( int ( r46 * t3 ), kind = 8 )
       x = t3 - t46 * t4
-      fRandom_Molcas = r46 * x
+      Random_Molcas = r46 * x
       iseed = int(x,kind(iseed))
       endif
 *----------------------------------------------------------------------*

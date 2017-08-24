@@ -316,7 +316,7 @@ C not a Cholesky calculation, keep old memory requirements
          WRITE(6,*)
          WRITE(6,*)' Program execution stops -- sorry!'
          WRITE(6,*)
-         CALL Quit(_RC_EXIT_EXPECTED_)
+         CALL Quit(_RC_MEMORY_ERROR_)
         ELSE
 C This is a Cholesky calculation, only give recommended amount
          IF (MAX(NPOLY,NSIGMA).LE.MXLEFT) THEN
@@ -344,7 +344,7 @@ C This is a Cholesky calculation, only give recommended amount
      &            MAX(NPOLY,INT(0.55D0*NMKRHS),NSIGMA)/119000,' MB'
           WRITE(6,*)' (Maybe more, this aint rocket science)'
           WRITE(6,*)
-          CALL Quit(_RC_EXIT_EXPECTED_)
+          CALL Quit(_RC_MEMORY_ERROR_)
          END IF
         END IF
        END IF

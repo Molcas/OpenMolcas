@@ -23,7 +23,7 @@
 
 " Header (license, logo, version...)
 syn region molcasHeader
-      \ start="^\s*This copy of MOLCAS"
+      \ start="^\s*This \(copy\|run\) of MOLCAS"
       \ end="^\n\n"
       \ fold
 

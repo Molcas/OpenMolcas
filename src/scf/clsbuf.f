@@ -26,7 +26,7 @@
 #include "WrkSpc.fh"
 #include "IOBuf.fh"
 *
-      If (OnDisk) Call EAFClose(LuTmp)
+      If (OnDisk) Call new_EAFClose(LuTmp)
       If (nCore.ne.0) Call GetMem('IOBuf','Free','Real',ipBuf,lBuf*nBuf)
 *
       Return

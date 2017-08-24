@@ -139,7 +139,7 @@ C           -----------------
                LWRK2  = LWRK   - KEND2 + 1
 
                IF (LWRK2 .LT. 0) THEN
-                  CALL CHO_QUIT('Batch error in '//SECNAM,4)
+                  CALL CHO_QUIT('Batch error in '//SECNAM,104)
                END IF
 
 C              Read vectors.
