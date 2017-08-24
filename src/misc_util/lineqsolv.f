@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) Thomas Bondo Pedersen                                  *
+*               2017, Ignacio Fdez. Galvan                             *
 ************************************************************************
 *  LinEqSolv
 *
@@ -16,6 +17,7 @@
 *>   Solve linear equations \f$ Ax=B \f$ or \f$ A^\text{T}x=B \f$ where
 *>   \f$ A \f$ is a general nonsingular matrix
 *> @author Thomas Bondo Pedersen
+*> @modified_by Ignacio Fdez. Galv&aacute;n
 *>
 *> @details
 *> For \p TransA(1:1) = ``'N'`` or ``'n'``,
@@ -35,8 +37,8 @@
 *> - \p irc =  ``1``: \p A is estimated to be singular and no solution vectors have been computed.
 *>
 *> @note
-*> \p nDim real*8 and \p nDim integer words of memory must be available
-*> o entry. Makes use of ::DGECO and ::DGESL.
+*> 4 * \p nDim real*8 and 2 * \p nDim integer words of memory must be available
+*> on entry.
 *>
 *> @param[out]    irc    Return code
 *> @param[in]     TransA Transposition of \p A
@@ -56,9 +58,12 @@
 
       Integer ip_iPivot, l_iPivot
       Integer ip_Scr, l_Scr
-      Integer iColB, Job, lTransA
-      Real*8  RC
+      Integer ip_iScr, l_iScr
+      Integer iErr, lTransA
+      Real*8  RC,AN
       Character*1 myTransA
+      Real*8  DLANGE
+      External DLANGE
 
 C     Test input.
 C     -----------
@@ -81,30 +86,31 @@ C     ----------------------------------------------------
          Return
       End If
 
-      If (myTransA.eq.'N' .or. myTransA.eq.'n') Then
-         Job = 0
-      Else If (myTransA.eq.'T' .or. myTransA.eq.'t') Then
-         Job = 1
-      Else
+      If (myTransA.ne.'N' .and. myTransA.ne.'n' .and.
+     &    myTransA.ne.'T' .and. myTransA.ne.'t') Then
          irc = -1 ! TransA error
          Return
       End If
 
-C     Allocate pivot array and scratch space for dGeco.
-C     -------------------------------------------------
+C     Allocate pivot array and scratch space
+C     --------------------------------------
 
       l_iPivot = nDim
-      l_Scr = nDim
+      l_Scr = 4*nDim
+      l_iScr = nDim
       Call GetMem('LES_Pivot','Allo','Inte',ip_iPivot,l_iPivot)
       Call GetMem('LES_Scr','Allo','Real',ip_Scr,l_Scr)
+      Call GetMem('LES_iScr','Allo','Inte',ip_iScr,l_iScr)
 
 C     Factor A by Gaussian elimination and estimate reciprocal condition
 C     number (RC). Check for singularity.
 C     ------------------------------------------------------------------
 
       RC = 0.0d0
-      Call DGECO(A,ldA,nDim,iWork(ip_iPivot),RC,Work(ip_Scr))
-      If ((1.0d0+RC) .eq. 1.0d0) Then
+      AN = DLANGE('1',nDim,nDim,A,ldA,Work(ip_Scr))
+      Call DGETRF_(nDim,nDim,A,ldA,iWork(ip_iPivot),iErr)
+      Call DGECON('1',nDim,A,ldA,AN,RC,Work(ip_Scr),iWork(ip_iScr),iErr)
+      If (((1.0d0+RC) .eq. 1.0d0) .or. (iErr .gt. 0)) Then
          irc = 1 ! error: A is (probably) singular
          Go To 1 ! exit after deallocations
       End If
@@ -112,14 +118,17 @@ C     ------------------------------------------------------------------
 C     Solve equations.
 C     ----------------
 
-      Do iColB = 1,nEq
-         Call DGESL(A,ldA,nDim,iWork(ip_iPivot),B(1,iColB),Job)
-      End Do
+      Call DGETRS_(myTransA,nDim,nEq,A,ldA,iWork(ip_iPivot),B,ldB,iErr)
+      If (iErr .gt. 0) Then
+         irc = 1 ! error: A is (probably) singular
+         Go To 1 ! exit after deallocations
+      End If
 
 C     Deallocations.
 C     --------------
 
     1 Call GetMem('LES_Pivot','Free','Inte',ip_iPivot,l_iPivot)
       Call GetMem('LES_Scr','Free','Real',ip_Scr,l_Scr)
+      Call GetMem('LES_iScr','Free','Inte',ip_iScr,l_iScr)
 
       End

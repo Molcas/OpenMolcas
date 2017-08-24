@@ -59,6 +59,7 @@
   procedure(int_dgebal), pointer :: lb_dgebal
   procedure(int_dgebd2), pointer :: lb_dgebd2
   procedure(int_dgebrd), pointer :: lb_dgebrd
+  procedure(int_dgecon), pointer :: lb_dgecon
   procedure(int_dgeev), pointer :: lb_dgeev
   procedure(int_dgehd2), pointer :: lb_dgehd2
   procedure(int_dgehrd), pointer :: lb_dgehrd
@@ -77,6 +78,7 @@
   procedure(int_disnan), pointer :: lb_disnan
   procedure(int_dlabad), pointer :: lb_dlabad
   procedure(int_dlabrd), pointer :: lb_dlabrd
+  procedure(int_dlacn2), pointer :: lb_dlacn2
   procedure(int_dlacpy), pointer :: lb_dlacpy
   procedure(int_dladiv), pointer :: lb_dladiv
   procedure(int_dladiv1), pointer :: lb_dladiv1
@@ -141,6 +143,7 @@
   procedure(int_dlaswp), pointer :: lb_dlaswp
   procedure(int_dlasy2), pointer :: lb_dlasy2
   procedure(int_dlatrd), pointer :: lb_dlatrd
+  procedure(int_dlatrs), pointer :: lb_dlatrs
   procedure(int_dopgtr), pointer :: lb_dopgtr
   procedure(int_dopmtr), pointer :: lb_dopmtr
   procedure(int_dorg2l), pointer :: lb_dorg2l
@@ -166,6 +169,7 @@
   procedure(int_dpotrf2), pointer :: lb_dpotrf2
   procedure(int_dpotrs), pointer :: lb_dpotrs
   procedure(int_dpptrf), pointer :: lb_dpptrf
+  procedure(int_drscl), pointer :: lb_drscl
   procedure(int_dspev), pointer :: lb_dspev
   procedure(int_dspgst), pointer :: lb_dspgst
   procedure(int_dspgv), pointer :: lb_dspgv

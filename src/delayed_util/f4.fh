@@ -61,6 +61,7 @@
       lb_dgebal=>int_dgebal
       lb_dgebd2=>int_dgebd2
       lb_dgebrd=>int_dgebrd
+      lb_dgecon=>int_dgecon
       lb_dgeev=>int_dgeev
       lb_dgehd2=>int_dgehd2
       lb_dgehrd=>int_dgehrd
@@ -79,6 +80,7 @@
       lb_disnan=>int_disnan
       lb_dlabad=>int_dlabad
       lb_dlabrd=>int_dlabrd
+      lb_dlacn2=>int_dlacn2
       lb_dlacpy=>int_dlacpy
       lb_dladiv=>int_dladiv
       lb_dladiv1=>int_dladiv1
@@ -143,6 +145,7 @@
       lb_dlaswp=>int_dlaswp
       lb_dlasy2=>int_dlasy2
       lb_dlatrd=>int_dlatrd
+      lb_dlatrs=>int_dlatrs
       lb_dopgtr=>int_dopgtr
       lb_dopmtr=>int_dopmtr
       lb_dorg2l=>int_dorg2l
@@ -168,6 +171,7 @@
       lb_dpotrf2=>int_dpotrf2
       lb_dpotrs=>int_dpotrs
       lb_dpptrf=>int_dpptrf
+      lb_drscl=>int_drscl
       lb_dspev=>int_dspev
       lb_dspgst=>int_dspgst
       lb_dspgv=>int_dspgv

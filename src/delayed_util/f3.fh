@@ -290,6 +290,11 @@
         call c_f_procpointer(funptr, lb_dgebrd)
       end if
 !
+      funptr=link_func('dgecon')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dgecon)
+      end if
+!
       funptr=link_func('dgeev')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dgeev)
@@ -378,6 +383,11 @@
       funptr=link_func('dlabrd')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dlabrd)
+      end if
+!
+      funptr=link_func('dlacn2')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlacn2)
       end if
 !
       funptr=link_func('dlacpy')
@@ -700,6 +710,11 @@
         call c_f_procpointer(funptr, lb_dlatrd)
       end if
 !
+      funptr=link_func('dlatrs')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlatrs)
+      end if
+!
       funptr=link_func('dopgtr')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dopgtr)
@@ -823,6 +838,11 @@
       funptr=link_func('dpptrf')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dpptrf)
+      end if
+!
+      funptr=link_func('drscl')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_drscl)
       end if
 !
       funptr=link_func('dspev')

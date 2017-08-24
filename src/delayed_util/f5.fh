@@ -290,6 +290,11 @@
       else
         write(6,*) 'no dgebrd found!'
       end if
+      if (DLAddr(c_funloc(lb_dgecon),c_loc(info)) /= 0) then
+        write(6,*) 'dgecon from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dgecon found!'
+      end if
       if (DLAddr(c_funloc(lb_dgeev),c_loc(info)) /= 0) then
         write(6,*) 'dgeev from: ',c_f_string(info%dli_fname)
       else
@@ -379,6 +384,11 @@
         write(6,*) 'dlabrd from: ',c_f_string(info%dli_fname)
       else
         write(6,*) 'no dlabrd found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlacn2),c_loc(info)) /= 0) then
+        write(6,*) 'dlacn2 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlacn2 found!'
       end if
       if (DLAddr(c_funloc(lb_dlacpy),c_loc(info)) /= 0) then
         write(6,*) 'dlacpy from: ',c_f_string(info%dli_fname)
@@ -700,6 +710,11 @@
       else
         write(6,*) 'no dlatrd found!'
       end if
+      if (DLAddr(c_funloc(lb_dlatrs),c_loc(info)) /= 0) then
+        write(6,*) 'dlatrs from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlatrs found!'
+      end if
       if (DLAddr(c_funloc(lb_dopgtr),c_loc(info)) /= 0) then
         write(6,*) 'dopgtr from: ',c_f_string(info%dli_fname)
       else
@@ -824,6 +839,11 @@
         write(6,*) 'dpptrf from: ',c_f_string(info%dli_fname)
       else
         write(6,*) 'no dpptrf found!'
+      end if
+      if (DLAddr(c_funloc(lb_drscl),c_loc(info)) /= 0) then
+        write(6,*) 'drscl from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no drscl found!'
       end if
       if (DLAddr(c_funloc(lb_dspev),c_loc(info)) /= 0) then
         write(6,*) 'dspev from: ',c_f_string(info%dli_fname)

@@ -59,6 +59,7 @@
       int_dgebal=>dgebal, &
       int_dgebd2=>dgebd2, &
       int_dgebrd=>dgebrd, &
+      int_dgecon=>dgecon, &
       int_dgeev=>dgeev, &
       int_dgehd2=>dgehd2, &
       int_dgehrd=>dgehrd, &
@@ -77,6 +78,7 @@
       int_disnan=>disnan, &
       int_dlabad=>dlabad, &
       int_dlabrd=>dlabrd, &
+      int_dlacn2=>dlacn2, &
       int_dlacpy=>dlacpy, &
       int_dladiv=>dladiv, &
       int_dladiv1=>dladiv1, &
@@ -141,6 +143,7 @@
       int_dlaswp=>dlaswp, &
       int_dlasy2=>dlasy2, &
       int_dlatrd=>dlatrd, &
+      int_dlatrs=>dlatrs, &
       int_dopgtr=>dopgtr, &
       int_dopmtr=>dopmtr, &
       int_dorg2l=>dorg2l, &
@@ -166,6 +169,7 @@
       int_dpotrf2=>dpotrf2, &
       int_dpotrs=>dpotrs, &
       int_dpptrf=>dpptrf, &
+      int_drscl=>drscl, &
       int_dspev=>dspev, &
       int_dspgst=>dspgst, &
       int_dspgv=>dspgv, &

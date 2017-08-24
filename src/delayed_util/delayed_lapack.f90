@@ -52,6 +52,17 @@ subroutine dgebrd( m, n, a, lda, d, e, tauq, taup, work, lwork, info )
   call lb_dgebrd( m, n, a, lda, d, e, tauq, taup, work, lwork, info )
 end subroutine dgebrd
 
+subroutine dgecon( norm, n, a, lda, anorm, rcond, work, iwork, info )
+  use link_blas
+  implicit none
+  character :: norm
+  integer :: info, lda, n
+  real*8 :: anorm, rcond
+  integer :: iwork( * )
+  real*8 :: a( lda, * ), work( * )
+  call lb_dgecon( norm, n, a, lda, anorm, rcond, work, iwork, info )
+end subroutine dgecon
+
 subroutine dgeev( jobvl, jobvr, n, a, lda, wr, wi, vl, ldvl, vr, ldvr, work, lwork, info )
   use link_blas
   implicit none
@@ -204,6 +215,16 @@ subroutine dlabrd( m, n, nb, a, lda, d, e, tauq, taup, x, ldx, y, ldy )
   real*8 :: a( lda, * ), d( * ), e( * ), taup( * ), tauq( * ), x( ldx, * ), y( ldy, * )
   call lb_dlabrd( m, n, nb, a, lda, d, e, tauq, taup, x, ldx, y, ldy )
 end subroutine dlabrd
+
+subroutine dlacn2( n, v, x, isgn, est, kase, isave )
+  use link_blas
+  implicit none
+  integer :: kase, n
+  real*8 :: est
+  integer :: isgn( * ), isave( 3 )
+  real*8 :: v( * ), x( * )
+  call lb_dlacn2( n, v, x, isgn, est, kase, isave )
+end subroutine dlacn2
 
 subroutine dlacpy( uplo, m, n, a, lda, b, ldb )
   use link_blas
@@ -799,6 +820,16 @@ subroutine dlatrd( uplo, n, nb, a, lda, e, tau, w, ldw )
   call lb_dlatrd( uplo, n, nb, a, lda, e, tau, w, ldw )
 end subroutine dlatrd
 
+subroutine dlatrs( uplo, trans, diag, normin, n, a, lda, x, scale, cnorm, info )
+  use link_blas
+  implicit none
+  character :: diag, normin, trans, uplo
+  integer :: info, lda, n
+  real*8 :: scale
+  real*8 :: a( lda, * ), cnorm( * ), x( * )
+  call lb_dlatrs( uplo, trans, diag, normin, n, a, lda, x, scale, cnorm, info )
+end subroutine dlatrs
+
 subroutine dopgtr( uplo, n, ap, tau, q, ldq, work, info )
   use link_blas
   implicit none
@@ -1025,6 +1056,15 @@ subroutine dpptrf( uplo, n, ap, info )
   real*8 :: ap( * )
   call lb_dpptrf( uplo, n, ap, info )
 end subroutine dpptrf
+
+subroutine drscl( n, sa, sx, incx )
+  use link_blas
+  implicit none
+  integer :: incx, n
+  real*8 :: sa
+  real*8 :: sx( * )
+  call lb_drscl( n, sa, sx, incx )
+end subroutine drscl
 
 subroutine dspgst( itype, uplo, n, ap, bp, info )
   use link_blas
