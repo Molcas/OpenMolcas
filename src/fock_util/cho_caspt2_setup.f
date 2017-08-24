@@ -12,7 +12,7 @@
       Implicit Real*8 (a-h,o-z)
       Integer nSm,nIs(8),nAs(8),nSs(8)
       Integer NumC(8)
-      External frandom_molcas
+      External random_molcas
 
 * Just getting test runs of the cho_caspt2_setup routine:
       write(6,*)
@@ -23,13 +23,13 @@
        write(6,*)
        write(6,*)
        write(6,*)' Exercise run nr',iTimes
-       nSm=2**(nint(4.0d0*frandom_molcas(iseed)-0.5d0))
+       nSm=2**(nint(4.0d0*random_molcas(iseed)-0.5d0))
        do iSm=1,nSm
-        nIs(iSm)=nint(8.0d0*frandom_molcas(iseed)-0.5d0)
+        nIs(iSm)=nint(8.0d0*random_molcas(iseed)-0.5d0)
         x=16.0D0/nSm
-        nAs(iSm)=nint(x*frandom_molcas(iseed)-0.5d0)
-        nSs(iSm)=nint(15.0d0*frandom_molcas(iseed)-0.5d0)
-        NumC(iSm)=nint(15.0d0*frandom_molcas(iseed)-0.5d0)
+        nAs(iSm)=nint(x*random_molcas(iseed)-0.5d0)
+        nSs(iSm)=nint(15.0d0*random_molcas(iseed)-0.5d0)
+        NumC(iSm)=nint(15.0d0*random_molcas(iseed)-0.5d0)
        end do
        call cho_caspt2_setup(nSm,nIs,nAs,nSs,NumC,'Allo')
        call cho_caspt2_setup(nSm,nIs,nAs,nSs,NumC,'Free')
