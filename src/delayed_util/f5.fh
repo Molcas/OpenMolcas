@@ -265,6 +265,11 @@
 
       ! LAPACK
       !
+      if (DLAddr(c_funloc(lb_dbdsdc),c_loc(info)) /= 0) then
+        write(6,*) 'dbdsdc from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dbdsdc found!'
+      end if
       if (DLAddr(c_funloc(lb_dbdsqr),c_loc(info)) /= 0) then
         write(6,*) 'dbdsqr from: ',c_f_string(info%dli_fname)
       else
@@ -334,6 +339,11 @@
         write(6,*) 'dgeqrf from: ',c_f_string(info%dli_fname)
       else
         write(6,*) 'no dgeqrf found!'
+      end if
+      if (DLAddr(c_funloc(lb_dgesdd),c_loc(info)) /= 0) then
+        write(6,*) 'dgesdd from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dgesdd found!'
       end if
       if (DLAddr(c_funloc(lb_dgesv),c_loc(info)) /= 0) then
         write(6,*) 'dgesv from: ',c_f_string(info%dli_fname)
@@ -420,6 +430,61 @@
       else
         write(6,*) 'no dlaebz found!'
       end if
+      if (DLAddr(c_funloc(lb_dlaed0),c_loc(info)) /= 0) then
+        write(6,*) 'dlaed0 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlaed0 found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlaed1),c_loc(info)) /= 0) then
+        write(6,*) 'dlaed1 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlaed1 found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlaed2),c_loc(info)) /= 0) then
+        write(6,*) 'dlaed2 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlaed2 found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlaed3),c_loc(info)) /= 0) then
+        write(6,*) 'dlaed3 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlaed3 found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlaed4),c_loc(info)) /= 0) then
+        write(6,*) 'dlaed4 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlaed4 found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlaed5),c_loc(info)) /= 0) then
+        write(6,*) 'dlaed5 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlaed5 found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlaed6),c_loc(info)) /= 0) then
+        write(6,*) 'dlaed6 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlaed6 found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlaed7),c_loc(info)) /= 0) then
+        write(6,*) 'dlaed7 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlaed7 found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlaed8),c_loc(info)) /= 0) then
+        write(6,*) 'dlaed8 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlaed8 found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlaed9),c_loc(info)) /= 0) then
+        write(6,*) 'dlaed9 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlaed9 found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlaeda),c_loc(info)) /= 0) then
+        write(6,*) 'dlaeda from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlaeda found!'
+      end if
       if (DLAddr(c_funloc(lb_dlaev2),c_loc(info)) /= 0) then
         write(6,*) 'dlaev2 from: ',c_f_string(info%dli_fname)
       else
@@ -460,10 +525,20 @@
       else
         write(6,*) 'no dlaln2 found!'
       end if
+      if (DLAddr(c_funloc(lb_dlamc3),c_loc(info)) /= 0) then
+        write(6,*) 'dlamc3 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlamc3 found!'
+      end if
       if (DLAddr(c_funloc(lb_dlamch),c_loc(info)) /= 0) then
         write(6,*) 'dlamch from: ',c_f_string(info%dli_fname)
       else
         write(6,*) 'no dlamch found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlamrg),c_loc(info)) /= 0) then
+        write(6,*) 'dlamrg from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlamrg found!'
       end if
       if (DLAddr(c_funloc(lb_dlaneg),c_loc(info)) /= 0) then
         write(6,*) 'dlaneg from: ',c_f_string(info%dli_fname)
@@ -639,6 +714,66 @@
         write(6,*) 'dlascl from: ',c_f_string(info%dli_fname)
       else
         write(6,*) 'no dlascl found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlasd0),c_loc(info)) /= 0) then
+        write(6,*) 'dlasd0 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlasd0 found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlasd1),c_loc(info)) /= 0) then
+        write(6,*) 'dlasd1 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlasd1 found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlasd2),c_loc(info)) /= 0) then
+        write(6,*) 'dlasd2 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlasd2 found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlasd3),c_loc(info)) /= 0) then
+        write(6,*) 'dlasd3 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlasd3 found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlasd4),c_loc(info)) /= 0) then
+        write(6,*) 'dlasd4 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlasd4 found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlasd5),c_loc(info)) /= 0) then
+        write(6,*) 'dlasd5 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlasd5 found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlasd6),c_loc(info)) /= 0) then
+        write(6,*) 'dlasd6 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlasd6 found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlasd7),c_loc(info)) /= 0) then
+        write(6,*) 'dlasd7 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlasd7 found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlasd8),c_loc(info)) /= 0) then
+        write(6,*) 'dlasd8 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlasd8 found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlasda),c_loc(info)) /= 0) then
+        write(6,*) 'dlasda from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlasda found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlasdq),c_loc(info)) /= 0) then
+        write(6,*) 'dlasdq from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlasdq found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlasdt),c_loc(info)) /= 0) then
+        write(6,*) 'dlasdt from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlasdt found!'
       end if
       if (DLAddr(c_funloc(lb_dlaset),c_loc(info)) /= 0) then
         write(6,*) 'dlaset from: ',c_f_string(info%dli_fname)
@@ -870,6 +1005,11 @@
       else
         write(6,*) 'no dstebz found!'
       end if
+      if (DLAddr(c_funloc(lb_dstedc),c_loc(info)) /= 0) then
+        write(6,*) 'dstedc from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dstedc found!'
+      end if
       if (DLAddr(c_funloc(lb_dstein),c_loc(info)) /= 0) then
         write(6,*) 'dstein from: ',c_f_string(info%dli_fname)
       else
@@ -899,6 +1039,11 @@
         write(6,*) 'dsyev from: ',c_f_string(info%dli_fname)
       else
         write(6,*) 'no dsyev found!'
+      end if
+      if (DLAddr(c_funloc(lb_dsyevd),c_loc(info)) /= 0) then
+        write(6,*) 'dsyevd from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dsyevd found!'
       end if
       if (DLAddr(c_funloc(lb_dsyevr),c_loc(info)) /= 0) then
         write(6,*) 'dsyevr from: ',c_f_string(info%dli_fname)

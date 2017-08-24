@@ -265,6 +265,11 @@
 !
 !     LAPACK procedures
 !
+      funptr=link_func('dbdsdc')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dbdsdc)
+      end if
+!
       funptr=link_func('dbdsqr')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dbdsqr)
@@ -333,6 +338,11 @@
       funptr=link_func('dgeqrf')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dgeqrf)
+      end if
+!
+      funptr=link_func('dgesdd')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dgesdd)
       end if
 !
       funptr=link_func('dgesv')
@@ -420,6 +430,61 @@
         call c_f_procpointer(funptr, lb_dlaebz)
       end if
 !
+      funptr=link_func('dlaed0')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlaed0)
+      end if
+!
+      funptr=link_func('dlaed1')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlaed1)
+      end if
+!
+      funptr=link_func('dlaed2')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlaed2)
+      end if
+!
+      funptr=link_func('dlaed3')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlaed3)
+      end if
+!
+      funptr=link_func('dlaed4')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlaed4)
+      end if
+!
+      funptr=link_func('dlaed5')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlaed5)
+      end if
+!
+      funptr=link_func('dlaed6')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlaed6)
+      end if
+!
+      funptr=link_func('dlaed7')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlaed7)
+      end if
+!
+      funptr=link_func('dlaed8')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlaed8)
+      end if
+!
+      funptr=link_func('dlaed9')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlaed9)
+      end if
+!
+      funptr=link_func('dlaeda')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlaeda)
+      end if
+!
       funptr=link_func('dlaev2')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dlaev2)
@@ -460,9 +525,19 @@
         call c_f_procpointer(funptr, lb_dlaln2)
       end if
 !
+      funptr=link_func('dlamc3')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlamc3)
+      end if
+!
       funptr=link_func('dlamch')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dlamch)
+      end if
+!
+      funptr=link_func('dlamrg')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlamrg)
       end if
 !
       funptr=link_func('dlaneg')
@@ -638,6 +713,66 @@
       funptr=link_func('dlascl')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dlascl)
+      end if
+!
+      funptr=link_func('dlasd0')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlasd0)
+      end if
+!
+      funptr=link_func('dlasd1')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlasd1)
+      end if
+!
+      funptr=link_func('dlasd2')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlasd2)
+      end if
+!
+      funptr=link_func('dlasd3')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlasd3)
+      end if
+!
+      funptr=link_func('dlasd4')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlasd4)
+      end if
+!
+      funptr=link_func('dlasd5')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlasd5)
+      end if
+!
+      funptr=link_func('dlasd6')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlasd6)
+      end if
+!
+      funptr=link_func('dlasd7')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlasd7)
+      end if
+!
+      funptr=link_func('dlasd8')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlasd8)
+      end if
+!
+      funptr=link_func('dlasda')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlasda)
+      end if
+!
+      funptr=link_func('dlasdq')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlasdq)
+      end if
+!
+      funptr=link_func('dlasdt')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlasdt)
       end if
 !
       funptr=link_func('dlaset')
@@ -870,6 +1005,11 @@
         call c_f_procpointer(funptr, lb_dstebz)
       end if
 !
+      funptr=link_func('dstedc')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dstedc)
+      end if
+!
       funptr=link_func('dstein')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dstein)
@@ -898,6 +1038,11 @@
       funptr=link_func('dsyev')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dsyev)
+      end if
+!
+      funptr=link_func('dsyevd')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dsyevd)
       end if
 !
       funptr=link_func('dsyevr')

@@ -54,6 +54,7 @@
       int_ztrmm=>ztrmm, &
       int_ztrmv=>ztrmv
   use lapack_mod, &
+      int_dbdsdc=>dbdsdc, &
       int_dbdsqr=>dbdsqr, &
       int_dgebak=>dgebak, &
       int_dgebal=>dgebal, &
@@ -68,6 +69,7 @@
       int_dgels=>dgels, &
       int_dgeqr2=>dgeqr2, &
       int_dgeqrf=>dgeqrf, &
+      int_dgesdd=>dgesdd, &
       int_dgesv=>dgesv, &
       int_dgesvd=>dgesvd, &
       int_dgetrf=>dgetrf, &
@@ -85,6 +87,17 @@
       int_dladiv2=>dladiv2, &
       int_dlae2=>dlae2, &
       int_dlaebz=>dlaebz, &
+      int_dlaed0=>dlaed0, &
+      int_dlaed1=>dlaed1, &
+      int_dlaed2=>dlaed2, &
+      int_dlaed3=>dlaed3, &
+      int_dlaed4=>dlaed4, &
+      int_dlaed5=>dlaed5, &
+      int_dlaed6=>dlaed6, &
+      int_dlaed7=>dlaed7, &
+      int_dlaed8=>dlaed8, &
+      int_dlaed9=>dlaed9, &
+      int_dlaeda=>dlaeda, &
       int_dlaev2=>dlaev2, &
       int_dlaexc=>dlaexc, &
       int_dlagtf=>dlagtf, &
@@ -93,7 +106,9 @@
       int_dlahr2=>dlahr2, &
       int_dlaisnan=>dlaisnan, &
       int_dlaln2=>dlaln2, &
+      int_dlamc3=>dlamc3, &
       int_dlamch=>dlamch, &
+      int_dlamrg=>dlamrg, &
       int_dlaneg=>dlaneg, &
       int_dlange=>dlange, &
       int_dlansp=>dlansp, &
@@ -129,6 +144,18 @@
       int_dlaruv=>dlaruv, &
       int_dlas2=>dlas2, &
       int_dlascl=>dlascl, &
+      int_dlasd0=>dlasd0, &
+      int_dlasd1=>dlasd1, &
+      int_dlasd2=>dlasd2, &
+      int_dlasd3=>dlasd3, &
+      int_dlasd4=>dlasd4, &
+      int_dlasd5=>dlasd5, &
+      int_dlasd6=>dlasd6, &
+      int_dlasd7=>dlasd7, &
+      int_dlasd8=>dlasd8, &
+      int_dlasda=>dlasda, &
+      int_dlasdq=>dlasdq, &
+      int_dlasdt=>dlasdt, &
       int_dlaset=>dlaset, &
       int_dlasq1=>dlasq1, &
       int_dlasq2=>dlasq2, &
@@ -175,12 +202,14 @@
       int_dspgv=>dspgv, &
       int_dsptrd=>dsptrd, &
       int_dstebz=>dstebz, &
+      int_dstedc=>dstedc, &
       int_dstein=>dstein, &
       int_dstemr=>dstemr, &
       int_dsteqr=>dsteqr, &
       int_dsterf=>dsterf, &
       int_dstevr=>dstevr, &
       int_dsyev=>dsyev, &
+      int_dsyevd=>dsyevd, &
       int_dsyevr=>dsyevr, &
       int_dsygs2=>dsygs2, &
       int_dsygst=>dsygst, &

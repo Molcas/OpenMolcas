@@ -56,6 +56,7 @@
       lb_ztrmv=>int_ztrmv
       !
       ! LAPACK
+      lb_dbdsdc=>int_dbdsdc
       lb_dbdsqr=>int_dbdsqr
       lb_dgebak=>int_dgebak
       lb_dgebal=>int_dgebal
@@ -70,6 +71,7 @@
       lb_dgels=>int_dgels
       lb_dgeqr2=>int_dgeqr2
       lb_dgeqrf=>int_dgeqrf
+      lb_dgesdd=>int_dgesdd
       lb_dgesv=>int_dgesv
       lb_dgesvd=>int_dgesvd
       lb_dgetrf=>int_dgetrf
@@ -87,6 +89,17 @@
       lb_dladiv2=>int_dladiv2
       lb_dlae2=>int_dlae2
       lb_dlaebz=>int_dlaebz
+      lb_dlaed0=>int_dlaed0
+      lb_dlaed1=>int_dlaed1
+      lb_dlaed2=>int_dlaed2
+      lb_dlaed3=>int_dlaed3
+      lb_dlaed4=>int_dlaed4
+      lb_dlaed5=>int_dlaed5
+      lb_dlaed6=>int_dlaed6
+      lb_dlaed7=>int_dlaed7
+      lb_dlaed8=>int_dlaed8
+      lb_dlaed9=>int_dlaed9
+      lb_dlaeda=>int_dlaeda
       lb_dlaev2=>int_dlaev2
       lb_dlaexc=>int_dlaexc
       lb_dlagtf=>int_dlagtf
@@ -95,7 +108,9 @@
       lb_dlahr2=>int_dlahr2
       lb_dlaisnan=>int_dlaisnan
       lb_dlaln2=>int_dlaln2
+      lb_dlamc3=>int_dlamc3
       lb_dlamch=>int_dlamch
+      lb_dlamrg=>int_dlamrg
       lb_dlaneg=>int_dlaneg
       lb_dlange=>int_dlange
       lb_dlansp=>int_dlansp
@@ -131,6 +146,18 @@
       lb_dlaruv=>int_dlaruv
       lb_dlas2=>int_dlas2
       lb_dlascl=>int_dlascl
+      lb_dlasd0=>int_dlasd0
+      lb_dlasd1=>int_dlasd1
+      lb_dlasd2=>int_dlasd2
+      lb_dlasd3=>int_dlasd3
+      lb_dlasd4=>int_dlasd4
+      lb_dlasd5=>int_dlasd5
+      lb_dlasd6=>int_dlasd6
+      lb_dlasd7=>int_dlasd7
+      lb_dlasd8=>int_dlasd8
+      lb_dlasda=>int_dlasda
+      lb_dlasdq=>int_dlasdq
+      lb_dlasdt=>int_dlasdt
       lb_dlaset=>int_dlaset
       lb_dlasq1=>int_dlasq1
       lb_dlasq2=>int_dlasq2
@@ -177,12 +204,14 @@
       lb_dspgv=>int_dspgv
       lb_dsptrd=>int_dsptrd
       lb_dstebz=>int_dstebz
+      lb_dstedc=>int_dstedc
       lb_dstein=>int_dstein
       lb_dstemr=>int_dstemr
       lb_dsteqr=>int_dsteqr
       lb_dsterf=>int_dsterf
       lb_dstevr=>int_dstevr
       lb_dsyev=>int_dsyev
+      lb_dsyevd=>int_dsyevd
       lb_dsyevr=>int_dsyevr
       lb_dsygs2=>int_dsygs2
       lb_dsygst=>int_dsygst

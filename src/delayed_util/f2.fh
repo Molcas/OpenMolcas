@@ -54,6 +54,7 @@
   procedure(int_ztrmm), pointer :: lb_ztrmm
   procedure(int_ztrmv), pointer :: lb_ztrmv
 ! LAPACK procedures
+  procedure(int_dbdsdc), pointer :: lb_dbdsdc
   procedure(int_dbdsqr), pointer :: lb_dbdsqr
   procedure(int_dgebak), pointer :: lb_dgebak
   procedure(int_dgebal), pointer :: lb_dgebal
@@ -68,6 +69,7 @@
   procedure(int_dgels), pointer :: lb_dgels
   procedure(int_dgeqr2), pointer :: lb_dgeqr2
   procedure(int_dgeqrf), pointer :: lb_dgeqrf
+  procedure(int_dgesdd), pointer :: lb_dgesdd
   procedure(int_dgesv), pointer :: lb_dgesv
   procedure(int_dgesvd), pointer :: lb_dgesvd
   procedure(int_dgetrf), pointer :: lb_dgetrf
@@ -85,6 +87,17 @@
   procedure(int_dladiv2), pointer :: lb_dladiv2
   procedure(int_dlae2), pointer :: lb_dlae2
   procedure(int_dlaebz), pointer :: lb_dlaebz
+  procedure(int_dlaed0), pointer :: lb_dlaed0
+  procedure(int_dlaed1), pointer :: lb_dlaed1
+  procedure(int_dlaed2), pointer :: lb_dlaed2
+  procedure(int_dlaed3), pointer :: lb_dlaed3
+  procedure(int_dlaed4), pointer :: lb_dlaed4
+  procedure(int_dlaed5), pointer :: lb_dlaed5
+  procedure(int_dlaed6), pointer :: lb_dlaed6
+  procedure(int_dlaed7), pointer :: lb_dlaed7
+  procedure(int_dlaed8), pointer :: lb_dlaed8
+  procedure(int_dlaed9), pointer :: lb_dlaed9
+  procedure(int_dlaeda), pointer :: lb_dlaeda
   procedure(int_dlaev2), pointer :: lb_dlaev2
   procedure(int_dlaexc), pointer :: lb_dlaexc
   procedure(int_dlagtf), pointer :: lb_dlagtf
@@ -93,7 +106,9 @@
   procedure(int_dlahr2), pointer :: lb_dlahr2
   procedure(int_dlaisnan), pointer :: lb_dlaisnan
   procedure(int_dlaln2), pointer :: lb_dlaln2
+  procedure(int_dlamc3), pointer :: lb_dlamc3
   procedure(int_dlamch), pointer :: lb_dlamch
+  procedure(int_dlamrg), pointer :: lb_dlamrg
   procedure(int_dlaneg), pointer :: lb_dlaneg
   procedure(int_dlange), pointer :: lb_dlange
   procedure(int_dlansp), pointer :: lb_dlansp
@@ -129,6 +144,18 @@
   procedure(int_dlaruv), pointer :: lb_dlaruv
   procedure(int_dlas2), pointer :: lb_dlas2
   procedure(int_dlascl), pointer :: lb_dlascl
+  procedure(int_dlasd0), pointer :: lb_dlasd0
+  procedure(int_dlasd1), pointer :: lb_dlasd1
+  procedure(int_dlasd2), pointer :: lb_dlasd2
+  procedure(int_dlasd3), pointer :: lb_dlasd3
+  procedure(int_dlasd4), pointer :: lb_dlasd4
+  procedure(int_dlasd5), pointer :: lb_dlasd5
+  procedure(int_dlasd6), pointer :: lb_dlasd6
+  procedure(int_dlasd7), pointer :: lb_dlasd7
+  procedure(int_dlasd8), pointer :: lb_dlasd8
+  procedure(int_dlasda), pointer :: lb_dlasda
+  procedure(int_dlasdq), pointer :: lb_dlasdq
+  procedure(int_dlasdt), pointer :: lb_dlasdt
   procedure(int_dlaset), pointer :: lb_dlaset
   procedure(int_dlasq1), pointer :: lb_dlasq1
   procedure(int_dlasq2), pointer :: lb_dlasq2
@@ -175,12 +202,14 @@
   procedure(int_dspgv), pointer :: lb_dspgv
   procedure(int_dsptrd), pointer :: lb_dsptrd
   procedure(int_dstebz), pointer :: lb_dstebz
+  procedure(int_dstedc), pointer :: lb_dstedc
   procedure(int_dstein), pointer :: lb_dstein
   procedure(int_dstemr), pointer :: lb_dstemr
   procedure(int_dsteqr), pointer :: lb_dsteqr
   procedure(int_dsterf), pointer :: lb_dsterf
   procedure(int_dstevr), pointer :: lb_dstevr
   procedure(int_dsyev), pointer :: lb_dsyev
+  procedure(int_dsyevd), pointer :: lb_dsyevd
   procedure(int_dsyevr), pointer :: lb_dsyevr
   procedure(int_dsygs2), pointer :: lb_dsygs2
   procedure(int_dsygst), pointer :: lb_dsygst
