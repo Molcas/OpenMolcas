@@ -143,6 +143,7 @@ then
     DRIVER='molcas'
 fi
 HNAME=`hostname -s`
+FHNAME=`hostname -A`
 UNAME=`uname -a`
 DATE=`date +%F_%T`
 LANG=C
@@ -418,7 +419,7 @@ test_configfile () {
         date >> $outfile
         echo "SHA1        = $SHA1"      >> $outfile
         echo "SHA1 (open) = $SHA1_OPEN" >> $outfile
-        echo "hostname    = $HNAME"     >> $outfile
+        echo "hostname    = $FHNAME"    >> $outfile
         echo "uname       = $UNAME"     >> $outfile
         echo "tests       = $TESTS"     >> $outfile
         echo "Contact     = $CONTACT"   >> $outfile
