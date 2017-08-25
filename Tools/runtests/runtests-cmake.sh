@@ -371,11 +371,11 @@ test_configfile () {
     echo "cat << EOF > $testconfig.cmake"        >> $retry
     cat ../$testconfig.cmake                     >> $retry
     echo "EOF"                                   >> $retry
-    echo "cp -r $loc/$REPO_OPEN.$BRANCH ."       >> $retry
+    echo "cp -r $PWD/$REPO_OPEN.$BRANCH ."       >> $retry
     echo "(cd $REPO_OPEN.$BRANCH"                >> $retry
     echo "    git checkout $SHA1_OPEN"           >> $retry
     echo "    git clean -f -d -x -q)"            >> $retry
-    echo "cp -r $loc/$REPO.$BRANCH ."            >> $retry
+    echo "cp -r $PWD/$REPO.$BRANCH ."            >> $retry
     echo "(cd $REPO.$BRANCH"                     >> $retry
     echo "    git checkout $SHA1"                >> $retry
     echo "    git clean -f -d -x -q)"            >> $retry
