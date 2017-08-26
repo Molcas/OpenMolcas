@@ -75,6 +75,7 @@ for x in $E_PATH ; do
     break
   fi
 done
+IFS=$orig_IFS
 
 # are we in interactive mode?
 if [ "$CMAKE_SESSION" = "OpenMolcas" ] ; then
@@ -87,14 +88,10 @@ fi
 
 # function to read with timeout in POSIX sh
 read_timeout() {
-  trap : ALRM
-  trap 'kill "$pid" 2> /dev/null' EXIT
-  (sleep "$1" && kill -ALRM "$$") & pid=$!
-  read "$2"
-  ret=$?
-  kill "$pid" 2> /dev/null
-  trap - EXIT
-  return "$ret"
+  old=$(stty -g)
+  stty -icanon min 0 time 255
+  read $1
+  stty $old
 }
 
 # create a default molcas driver
@@ -110,13 +107,13 @@ if [ $dir_found = 0 ] ; then
   fi
 else
   echo "molcas driver will be installed in $MOLCASDRIVER"
-  echo "Is this OK? [Y/n] (will assume \"Yes\" in 60 seconds)"
+  echo "Is this OK? [Y/n] (will assume \"Yes\" in 25 seconds)"
   while true; do
     if [ "$INTERACTIVE" = "0" ] ; then
       echo "Running in non-interactive mode, assuming \"Yes\""
       answer="Yes"
     else
-      read_timeout 60 answer
+      read_timeout answer
     fi
     case "${answer}_" in
       [Yy]*|_ )
