@@ -33,7 +33,7 @@ chjw  Do While (mArray.ge.1)
 *
             If (OnDisk) Then
 *              Write (6,*) 'In drbuf.'
-               Call new_EAFWait(LuTmp,id)
+               Call EAFWait(LuTmp,id)
             End If
 *
 *---------- Get the next buffer, make sure that request is not beyond
@@ -52,7 +52,7 @@ chjw  Do While (mArray.ge.1)
 c              Write (6,*) 'RBuf aread on disk @',Disk,'jBuf=',jBuf
                If (OnDisk) Then
 *                 Write (6,*) 'In drbuf.'
-                  Call new_EAFARead(LuTmp,Work(jpBuf(1,jBuf)),
+                  Call EAFARead(LuTmp,Work(jpBuf(1,jBuf)),
      &                                   lBuf*RtoI,Disk,id)
                End If
             End If
