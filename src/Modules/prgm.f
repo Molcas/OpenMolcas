@@ -105,6 +105,7 @@
 #ifdef _DEBUG_
           Write(6,*) 'Assuming $WorkDir/'//Trim(Input)
 #endif
+          If ((Par .eq. 1)) WD = Trim(WD)//SlaveDir
           OutStr = ExpandVars('$WorkDir/'//Input, Trim(WD)//SubDir)
         End If
       End If
@@ -376,12 +377,12 @@
 
 ! Save some often used variables as module variables, for faster access
       Subroutine PrgmCache
-#include "para_info.fh"
+      Integer, External :: mpp_id
       Call GetEnvF('WorkDir', WorkDir)
       Call GetEnvF('FastDir', FastDir)
       Call GetEnvF('Project', Project)
       If (Trim(Project) .eq. '') Project = 'Noname'
-      If (MyRank .gt. 0) Write(SlaveDir,'(A,I0)') '/tmp_', MyRank
+      If (mpp_id() .gt. 0) Write(SlaveDir,'(A,I0)') '/tmp_', mpp_id()
       End Subroutine
 
       End Module prgm

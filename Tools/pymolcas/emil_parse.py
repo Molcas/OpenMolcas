@@ -92,7 +92,7 @@ def EMIL_Parse(input_file):
 
     elif (item[0] == '>'):
 
-      # TODO: varint/option for binary files?
+      # TODO: variant/option for binary files?
       # >>> FILE
       # this is not added to the token list, but returned as a separate dict
       # so the wrapper can create the files before running the tokens

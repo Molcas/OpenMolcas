@@ -36,6 +36,7 @@
       Character, Allocatable, Dimension(:) :: cBuf
       Integer   iRc
       Integer   iOpt
+      Call Init_LinAlg
 *----------------------------------------------------------------------*
 * Open runfile and check that file is ok.                              *
 *----------------------------------------------------------------------*

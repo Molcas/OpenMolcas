@@ -1,4 +1,4 @@
-/***********************************************************************
+************************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -7,13 +7,15 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
-***********************************************************************/
-#ifndef _GRIDFILES_
- (file)  M2MSI     "$WorkDir/$Project."grid       rwsg
- (file)  AM2MSI    "$WorkDir/$Project".a.grid     rwsg
- (file)  BM2MSI    "$WorkDir/$Project".b.grid     rwsg
- (file)  LUSCUS    "$WorkDir/$Project".lus        rwsg
- (file) CHARGEFILE "$WorkDir/$Project."Charge      rw
- (file) GRIDFILE "$WorkDir/$Project."GridFile      rw
-#define _GRIDFILES_
+************************************************************************
+      Integer Function mpp_id()
+C     returns the absolute id of the process,
+C     regardless of the parallel environment
+      Implicit None
+#include "mpp_info.fh"
+#ifdef _MOLCAS_MPP_
+      mpp_id=mpp_procid
+#else
+      mpp_id=mpp_rootid
 #endif
+      End

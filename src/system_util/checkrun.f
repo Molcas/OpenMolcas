@@ -38,9 +38,11 @@
       if (Molcas(1:1) .eq. 'A') then
       Return
       endif
+#ifdef _HAVE_EXTRA_
       if (Molcas(1:1) .ne. '5') then
         write (6,*) 'Usage: molcas module_name input'
         Call Abend()
       endif
+#endif
       Return
       End

@@ -18,7 +18,7 @@
 *
       If (iStatIO.eq.Mode_Read) Then
 *        Write (6,*) 'In WLbuf'
-         If (OnDisk) Call EAFWait(LuTmp,id)
+         If (OnDisk) Call new_EAFWait(LuTmp,id)
          Return
       End If
 c     Disk_Save=Disk
@@ -33,7 +33,7 @@ c     Disk_Save=Disk
 *
       If (OnDisk) Then
 *        Write (6,*) 'In WLbuf'
-         Call EAFWait(LuTmp,id)
+         Call new_EAFWait(LuTmp,id)
       End If
       If (iPos.ne.1) Then
          temp=Disk+DBLE(lBuf*RtoB)
@@ -43,7 +43,7 @@ c     Disk_Save=Disk
             Disk_1 = Disk
 *           If (OnDisk) Write (*,*) 'Disk=',Disk,' lBuf*RtoI=',lBuf*RtoI
 c           Write (6,*) 'WLBuf write on disk @',Disk,'iBuf=',iBuf
-            If (OnDisk) Call EAFWrite(LuTmp,Work(jpBuf(1,iBuf)),
+            If (OnDisk) Call new_EAFWrite(LuTmp,Work(jpBuf(1,iBuf)),
      &                                lBuf*RtoI,Disk)
 *---------- Put a dummy record at the end
             temp=Disk+DBLE(lBuf*RtoB)
@@ -52,7 +52,8 @@ c           Write (6,*) 'WLBuf write on disk @',Disk,'iBuf=',iBuf
 c              Write (6,*) 'WLBuf write on disk @',Disk,'iBuf=',iBuf
                iZero=0
                Call ICopy(lBuf*RtoI,iZero,0,Work(jpBuf(1,iBuf)),1)
-               Call EAFWrite(LuTmp,Work(jpBuf(1,iBuf)),lBuf*RtoI,Disk)
+               Call
+     &new_EAFWrite(LuTmp,Work(jpBuf(1,iBuf)),lBuf*RtoI,Disk)
             End If
          Else
             Call WarningMessage(2,'WLBuf: Disc is full!')

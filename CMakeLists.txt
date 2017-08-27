@@ -39,6 +39,29 @@ if ("${sourcedir}" STREQUAL "${binarydir}")
                 "separate build directory and run cmake from there.")
 endif ()
 
+# workaround for CMake bug 14874
+# (i.e., fix for files with same name in different directories)
+if (${CMAKE_VERSION} VERSION_LESS 3.1)
+        if (NOT DEFINED CMAKE_Fortran_ARCHIVE_CREATE)
+                set(CMAKE_Fortran_ARCHIVE_CREATE "<CMAKE_AR> cq <TARGET> <LINK_FLAGS> <OBJECTS>")
+        endif ()
+        if (NOT DEFINED CMAKE_Fortran_ARCHIVE_APPEND)
+                set(CMAKE_Fortran_ARCHIVE_APPEND "<CMAKE_AR> q  <TARGET> <LINK_FLAGS> <OBJECTS>")
+        endif ()
+        if (NOT DEFINED CMAKE_C_ARCHIVE_CREATE)
+                set(CMAKE_C_ARCHIVE_CREATE "<CMAKE_AR> cq <TARGET> <LINK_FLAGS> <OBJECTS>")
+        endif ()
+        if (NOT DEFINED CMAKE_C_ARCHIVE_APPEND)
+                set(CMAKE_C_ARCHIVE_APPEND "<CMAKE_AR> q  <TARGET> <LINK_FLAGS> <OBJECTS>")
+        endif ()
+        if (NOT DEFINED CMAKE_CXX_ARCHIVE_CREATE)
+                set(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> cq <TARGET> <LINK_FLAGS> <OBJECTS>")
+        endif ()
+        if (NOT DEFINED CMAKE_CXX_ARCHIVE_APPEND)
+                set(CMAKE_CXX_ARCHIVE_APPEND "<CMAKE_AR> q  <TARGET> <LINK_FLAGS> <OBJECTS>")
+        endif ()
+endif ()
+
 ################################################################################
 #                                                                              #
 # Options                                                                      #
@@ -234,8 +257,7 @@ function (find_source name)
 endfunction ()
 
 # These will be needed later, so set them now
-find_source(blas_util)
-find_source(lapack_util)
+find_source(LinAlg_internal)
 
 # get version from git if available, otherwise look in .molcasversion
 #====================================================================
@@ -663,7 +685,7 @@ set (FFLAGS_PGI_FAST "-fast")
 
 # Special flag for building LAPACK with PGI
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "PGI")
-        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${lapack_util_src}/*.f)
+        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${LinAlg_internal_src}/lapack.f)
         set_source_files_properties (${source} PROPERTIES COMPILE_FLAGS "-Kieee")
 endif ()
 
@@ -1256,13 +1278,6 @@ endif ()
 
 # Runtime loading of LAPACK+BLAS libraries (experimental)
 if (LINALG STREQUAL "Runtime")
-        if (GA)
-                message (FATAL_ERROR
-                        "Runtime LAPACK+BLAS loading is not compatible with Global Arrays. "
-                        "Please select an explicit LINALG library or turn off GA."
-                        )
-        endif ()
-
         message ("-- Using Runtime LAPACK+BLAS libraries (Internal as fallback)")
         set (LINALG_LIBRARIES "dl")
 
@@ -1930,14 +1945,20 @@ foreach (dir ${source_roots})
         if (dir_utils)
                 list (REMOVE_ITEM dir_progs ${dir_utils})
         endif ()
-        # and consider only dirctories
+        # and consider only directories not beginning with uppercase
         foreach (item ${dir_progs})
                 if (NOT IS_DIRECTORY "${PROJECT_SOURCE_DIR}/${dir}/${item}")
+                        list (REMOVE_ITEM dir_progs ${item})
+                endif ()
+                if (item MATCHES "^[A-Z]")
                         list (REMOVE_ITEM dir_progs ${item})
                 endif ()
         endforeach ()
         foreach (item ${dir_utils})
                 if (NOT IS_DIRECTORY "${PROJECT_SOURCE_DIR}/${dir}/${item}")
+                        list (REMOVE_ITEM dir_utils ${item})
+                endif ()
+                if (item MATCHES "^[A-Z]")
                         list (REMOVE_ITEM dir_utils ${item})
                 endif ()
         endforeach ()
@@ -1960,16 +1981,11 @@ list (REMOVE_ITEM utils
         msym_util
         )
 list (REMOVE_ITEM progs
-        Driver
-        Include
-        Modules
         parnell
         symmetrize
         wfa
         )
-if (DEFINED EXTRA_DIR)
-        list (REMOVE_ITEM utils dummy_util)
-else ()
+if (NOT DEFINED EXTRA_DIR)
         list (REMOVE_ITEM utils grid_r_util)
 endif ()
 
@@ -1981,8 +1997,6 @@ foreach (util ${utils})
                 message (WARNING "\"${util}\" not found in source directories, skipping")
         endif ()
 endforeach ()
-
-list (APPEND dummy_util_incs ${ga_util_src})
 
 if (FDE)
         set (util embedding_util)
@@ -2189,9 +2203,7 @@ if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
         set_source_files_properties (${source} PROPERTIES COMPILE_FLAGS "-Wno-unused-function")
         # netlib blas/lapack has too many problems to fix (yet)
         set (netlib_nowarn_flags "-w")
-        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${blas_util_src}/*.f)
-        set_source_files_properties (${source} PROPERTIES COMPILE_FLAGS ${netlib_nowarn_flags})
-        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${lapack_util_src}/*.f)
+        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${LinAlg_internal_src}/*.f)
         set_source_files_properties (${source} PROPERTIES COMPILE_FLAGS ${netlib_nowarn_flags})
         file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${delayed_util_src}/*.f)
         set_source_files_properties (${source} PROPERTIES COMPILE_FLAGS ${netlib_nowarn_flags})
@@ -2309,11 +2321,11 @@ endif ()
 
 # if necessary, build BLAS/LAPACK
 if (LINALG STREQUAL "Internal")
-        foreach (lib ${LINALG_LIBRARIES})
-                set (util "${lib}_util")
-                if (NOT DEFINED ${util}_src)
-                        message (FATAL_ERROR "\"${util}\" not found in source directories")
-                endif ()
+        set (util "LinAlg_internal")
+        if (NOT DEFINED ${util}_src)
+                message (FATAL_ERROR "\"${util}\" not found in source directories")
+        endif ()
+        foreach (lib "lapack" "blas")
                 set (source ${${util}_src}/${lib}.f)
                 add_library (${lib} ${source})
                 list (APPEND ALL_SOURCES ${source})

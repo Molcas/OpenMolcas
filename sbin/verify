@@ -607,13 +607,14 @@ foreach my $file (@filelist) {
                                 copy ($out, File::Spec->catfile ($log_failed, $project . '.out'));
                                 copy ($err, File::Spec->catfile ($log_failed, $project . '.err'));
                         }
+                        # skip the test if a program is not available (RC_NOT_AVAILABLE)
                         if ($rc == 36) {
                                 # print results
                                 print RESULT "$mark:$group:$name Skipped!\n";
                                 msg_overwrite ("$group:$name Skipped!\n", $prompt) if ($interactive);
                                 # update counters
                                 $skipped_tests++;
-                                # pretend to be find for the remainder of this test
+                                # pretend to be fine for the remainder of this test
                                 $rc = 0;
                         } else {
                                 # gather extra info
