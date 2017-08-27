@@ -80,13 +80,13 @@
          t=t+Coef(2)*(A-Z)
          t=t-Coef(3)*A
          t=t+Coef(4)*A**(2.0d0/3.0d0)
-         t=t+Coef(5)*Z*(Z-1)/A**(1.0d0/3.0d0)
-         t=t+Coef(6)*(Z-0.5d0*A)**2/A
+         t=t+Coef(5)*Z*(Z-1)/Dble(A)**(1.0d0/3.0d0)
+         t=t+Coef(6)*(Z-0.5d0*A)**2/Dble(A)
          If( mod(Z,2).eq.0 .and. mod(A,2).eq.0 ) Then
-            t=t-Coef(7)/A**(0.75)
+            t=t-Coef(7)/Dble(A)**(0.75)
          End If
          If( mod(Z+1,2).eq.0 .and. mod(A,2).eq.0 ) Then
-            t=t+Coef(7)/A**(0.75)
+            t=t+Coef(7)/Dble(A)**(0.75)
          End If
          dxNuclearMass=uToau*t
       End If

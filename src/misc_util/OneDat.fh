@@ -106,7 +106,7 @@ cend
       Parameter ( pNext  = pIndex + 2*MxAtom + 1   )
       Parameter ( pOption= pNext  + 1              )
       Parameter ( pEnd   = pOption+ 1              )
-      Parameter ( lToc   = 1024*((pEnd+1022)/1024) )
+      Parameter ( lToc   = 1024*int(dble(pEnd+1023)/1024) )
 *
       Parameter ( oLabel = 0          )
       Parameter ( oComp  = oLabel + 2 )

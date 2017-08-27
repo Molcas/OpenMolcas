@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Module Her_RW
-      Parameter(nPrpMx=20)
+      Integer, Parameter :: nPrpMx=20
       Integer MaxHer, nPrp
       Integer, Dimension(:), Allocatable :: iHerR, iHerW
       Real*8, Dimension (:), Allocatable :: HerR, HerW

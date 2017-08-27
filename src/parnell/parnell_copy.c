@@ -43,7 +43,8 @@ parnell_copy (int argc, char **argv)
         /* read the arguments and get the proper relative file names */
         if (argc != 3) {
                 fprintf (stderr, "parnell_copy: expecting 3 arguments (mode source dest):\n");
-                for (int i=0; i<argc; i++) fprintf(stderr, " %s", argv[i]); fprintf(stderr, "\n");
+                for (int i=0; i<argc; i++) fprintf(stderr, " %s", argv[i]);
+                fprintf(stderr, "\n");
                 status = PARNELL_ERROR;
         } else {
                 mode = argv[0][0];

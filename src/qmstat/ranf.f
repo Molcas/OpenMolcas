@@ -11,9 +11,10 @@
       function ranf(idum)
       integer idum,IM1,IM2,IMM1,IA1,IA2,IQ1,IQ2,IR1,IR2,NTAB,NDIV
       real*8 ranf,AM,EPS,RNMX
-      parameter(IM1=2147483563,IM2=2147483399,AM=1./IM1,IMM1=IM1-1,
-     *IA1=40014,IA2=40692,IQ1=53668,IQ2=52774,IR1=12211,
-     *IR2=3791,NTAB=32,NDIV=1+IMM1/NTAB,EPS=1.2e-7,RNMX=1.-EPS)
+      parameter(IM1=2147483563,IM2=2147483399,AM=1./dble(IM1),
+     *IMM1=IM1-1,IA1=40014,IA2=40692,IQ1=53668,IQ2=52774,IR1=12211,
+     *IR2=3791,NTAB=32,NDIV=1+int(dble(IMM1)/NTAB),EPS=1.2e-7,
+     *RNMX=1.-EPS)
       integer idum2,j,k,iv(NTAB),iy
       save iv,iy,idum2
       data idum2/123456789/, iv/NTAB*0/, iy/0/
