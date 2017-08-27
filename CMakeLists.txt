@@ -538,7 +538,9 @@ if (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND
         set (FFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
 endif ()
 
-set (GNU_BIGOT "-Wall -Werror")
+set (CXXFLAGS_GNU_BIGOT "-Wall -Werror")
+set (CFLAGS_GNU_BIGOT "-Wall -Werror")
+set (FFLAGS_GNU_BIGOT "-Wall -Werror")
 set (GNU_TRAP "-ffpe-trap=invalid,zero,overflow")
 
 #======================================#
@@ -566,7 +568,8 @@ set (CFLAGS_Clang_RELWITHDEBINFO "-O2 -g -Wall")
 set (CFLAGS_Clang_RELEASE "-O2")
 set (CFLAGS_Clang_FAST "-O2")
 
-set (Clang_BIGOT "-Wall -Werror")
+set (CXXFLAGS_Clang_BIGOT "-Wall -Werror")
+set (CFLAGS_Clang_BIGOT "-Wall -Werror")
 #set (Clang_TRAP "???")
 
 #======================================#
@@ -621,11 +624,14 @@ endif ()
 
 #fix for MAC OS X
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+set (CXXFLAGS_Intel_BASIC "-headerpad_max_install_names ${CXXFLAGS_Intel_BASIC}")
 set (CFLAGS_Intel_BASIC "-headerpad_max_install_names ${CFLAGS_Intel_BASIC}")
 set (FFLAGS_Intel_BASIC "-headerpad_max_install_names ${FFLAGS_Intel_BASIC}")
 endif ()
 
-set (Intel_BIGOT "-Wall -Werror")
+set (CXXFLAGS_Intel_BIGOT "-Wall -Werror")
+set (CFLAGS_Intel_BIGOT "-Wall -Werror")
+set (FFLAGS_Intel_BIGOT "-warn all -warn errors")
 set (Intel_TRAP "-fpe0")
 
 #======================================#
@@ -654,7 +660,8 @@ set (FFLAGS_SunPro_RELWITHDEBINFO "-O -g -traceback -ftrap=%none")
 set (FFLAGS_SunPro_RELEASE "-O -ftrap=%none")
 set (FFLAGS_SunPro_FAST "-fast -dbl_align_all=yes -ftrap=%none")
 
-set (SunPro_BIGOT "-errwarn=%all")
+set (CFLAGS_SunPro_BIGOT "-errwarn=%all")
+set (FFLAGS_SunPro_BIGOT "-errwarn=%all")
 set (SunPro_TRAP "-ftrap=common")
 
 #======================================#
@@ -690,7 +697,8 @@ if (CMAKE_Fortran_COMPILER_ID STREQUAL "PGI")
 endif ()
 
 # The option does not exist, or I cannot find it
-#set (PGI_BIGOT "???")
+#set (CFLAGS_PGI_BIGOT "???")
+#set (FFLAGS_PGI_BIGOT "???")
 #set (PGI_TRAP "???")
 
 #======================================#
@@ -710,7 +718,7 @@ set (FFLAGS_NAG_RELEASE "-O2 -ieee=full")
 set (FFLAGS_NAG_FAST "-O3 -ieee=full")
 
 # The option does not exist, or I cannot find it
-#set (NAG_BIGOT "???")
+#set (FFLAGS_NAG_BIGOT "???")
 set(NAG_TRAP "-ieee=stop")
 
 # Generate the actual flags used in the build
@@ -1834,9 +1842,9 @@ endif ()
 
 # Add the "bigot" flags after processing the external projects, so they are not affected
 if (BIGOT)
-        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${${CXXCID}_BIGOT}")
-        set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${${CCID}_BIGOT}")
-        set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${${FCID}_BIGOT}")
+        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXXFLAGS_${CXXCID}_BIGOT}")
+        set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CFLAGS_${CCID}_BIGOT}")
+        set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${FFLAGS_${FCID}_BIGOT}")
 endif ()
 
 ################################################################################
