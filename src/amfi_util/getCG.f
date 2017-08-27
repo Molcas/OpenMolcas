@@ -15,7 +15,7 @@
      *m1,     ! integer  2*m1
      *m2,     ! integer  2*m2
      *m3)     ! integer  2*m2
-cbs this routine calculates the Clebsch-Gordon-coefficients
+cbs this routine calculates the Clebsch-Gordan-coefficients
 cbs by actually calculating the 3j-symbol
 cbs  ---                 ---
 cbs  |  j1   j2    |   j3   |         j1+m1+j2-m2
