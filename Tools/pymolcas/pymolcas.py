@@ -101,16 +101,16 @@ def main(my_name):
     sys.exit(subprocess.call(command))
 
   # If this is not calling a program in sbin, pass the extra options to the main program
-  if (args['filename'] and args['extra']):
-    filetest = os.path.join(os.environ['MOLCAS'], 'sbin', args['filename'])
-    if (os.path.isfile(filetest) and os.access(filetest, os.X_OK)):
-      # Specifically, verify should work with the default environment
-      if (args['filename'] == 'verify'):
-        args['ignore_environment'] = True
-    else:
-      for k,v in vars(parser.parse_args(args['extra'])).items():
-        if (v):
-          args[k] = v
+  if (args['filename']):
+    # Specifically, verify should work with the default environment
+    if (args['filename'] == 'verify'):
+      args['ignore_environment'] = True
+    if (args['extra']):
+      filetest = os.path.join(os.environ['MOLCAS'], 'sbin', args['filename'])
+      if (not (os.path.isfile(filetest) and os.access(filetest, os.X_OK))):
+        for k,v in vars(parser.parse_args(args['extra'])).items():
+          if (v):
+            args[k] = v
 
   if args['outputerror']:
     args['output'] = args['outputerror']
