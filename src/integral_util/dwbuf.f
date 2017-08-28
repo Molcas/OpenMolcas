@@ -39,7 +39,7 @@
 *
             If (Disk.ne.32.0D0.and.OnDisk) Then
 *              Write (6,*) 'In dwbuf'
-               Call new_EAFWait(LuTmp,id)
+               Call EAFWait(LuTmp,id)
             End If
 *
 *---------- Put current buffer on disk and change buffer.
@@ -52,7 +52,7 @@
 c              Write (6,*) 'WBuf write on disk @',Disk,'iBuf=',iBuf
                If (OnDisk) Then
 *                 Write (6,*) 'In dwbuf'
-                  Call new_EAFAWrite(LuTmp,Work(jpBuf(1,iBuf)),
+                  Call EAFAWrite(LuTmp,Work(jpBuf(1,iBuf)),
      &                                    lBuf*RtoI,Disk,id)
                End If
                If (iBuf.eq.1) Then

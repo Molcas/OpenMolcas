@@ -22,18 +22,18 @@
 ************************************************************************
 
 #ifdef ADD_
-#define new_eaf_open new_eaf_open_
-#define new_eaf_close new_eaf_close_
-#define new_eaf_awrite new_eaf_awrite_
-#define new_eaf_aread new_eaf_aread_
-#define new_eaf_write new_eaf_write_
-#define new_eaf_read new_eaf_read_
-#define new_eaf_wait new_eaf_wait_
+#define eaf_open eaf_open_
+#define eaf_close eaf_close_
+#define eaf_awrite eaf_awrite_
+#define eaf_aread eaf_aread_
+#define eaf_write eaf_write_
+#define eaf_read eaf_read_
+#define eaf_wait eaf_wait_
 #endif
 
 ************************************************************************
 *                                                                      *
-      Subroutine new_EAFOpen(Lu,FName)
+      Subroutine EAFOpen(Lu,FName)
       Implicit None
       Character*(*) FName
       Integer Lu
@@ -82,7 +82,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Subroutine new_EAFClose(Lu)
+      Subroutine EAFClose(Lu)
       Implicit None
       Integer Lu
 #ifdef _MOLCAS_MPP_
@@ -116,7 +116,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Subroutine new_EAFAWrite(Lu,Buf,nBuf,Disk,id)
+      Subroutine EAFAWrite(Lu,Buf,nBuf,Disk,id)
       Implicit None
       Integer Lu, nBuf, Buf(nBuf), id
       Real*8 Disk
@@ -144,7 +144,7 @@
       Else
 #endif
       id=0
-      Call new_EAFWrite(Lu,Buf,nBuf,Disk)
+      Call EAFWrite(Lu,Buf,nBuf,Disk)
 #ifdef _MOLCAS_MPP_
       End If
 #endif
@@ -154,7 +154,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Subroutine new_EAFARead(Lu,Buf,nBuf,Disk,id)
+      Subroutine EAFARead(Lu,Buf,nBuf,Disk,id)
       Implicit None
       Integer Lu, nBuf, Buf(nBuf), id
       Real*8 Disk
@@ -182,7 +182,7 @@
       Else
 #endif
       id=0
-      Call new_EAFRead(Lu,Buf,nBuf,Disk)
+      Call EAFRead(Lu,Buf,nBuf,Disk)
 #ifdef _MOLCAS_MPP_
       End If
 #endif
@@ -192,7 +192,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Subroutine new_EAFWrite(Lu,Buf,nBuf,Disk)
+      Subroutine EAFWrite(Lu,Buf,nBuf,Disk)
       Implicit None
       Integer Lu, nBuf, Buf(nBuf)
       Real*8 Disk
@@ -232,7 +232,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Subroutine new_EAFRead(Lu,Buf,nBuf,Disk)
+      Subroutine EAFRead(Lu,Buf,nBuf,Disk)
       Implicit None
       Integer Lu, nBuf, Buf(nBuf)
       Real*8 Disk
@@ -272,7 +272,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Subroutine new_EAFWait(Lu,id)
+      Subroutine EAFWait(Lu,id)
       Implicit None
       Integer Lu, id
 #ifdef _MOLCAS_MPP_

@@ -224,7 +224,10 @@ class Molcas_wrapper(object):
     set_utf8('EMIL_RC2', '0')
     set_utf8('EMIL_InLoop', '0')
     set_utf8('MOLCAS_STRUCTURE', '0')
-    set_utf8('MOLCAS_STAMP', '5')
+    if (self.check_license() == 0):
+      set_utf8('MOLCAS_STAMP', '5')
+    else:
+      set_utf8('MOLCAS_STAMP', 'UNKNOWN_VARIABLE')
     # Get current directory
     self.currdir = getcwd()
     set_utf8('CurrDir', self.currdir)
@@ -762,8 +765,14 @@ class Molcas_wrapper(object):
     if (self.is_serial):
       # copy files: should also work if the destination is a dir
       if (task_type == 'c'):
+        orig = task[2]
+        if (not isabs(orig)):
+          orig = join(self.scratch, orig)
+        dest = task[3]
+        if (not isabs(dest)):
+          dest = join(self.scratch, dest)
         try:
-          copy2(task[2], task[3])
+          copy2(orig, dest)
         except SameFileError:
           pass
         return 0

@@ -383,7 +383,7 @@ CMAW end
          control(4)=cutint
 *        write(6,*) 'control written:',control
 C        Write (6,*) ' Initiate write @', Disk,'iBuf=',iBuf
-         If(OnDisk) Call new_EAFAwrite(LuTmp,control,4*RtoI,Disk,id)
+         If(OnDisk) Call EAFAwrite(LuTmp,control,4*RtoI,Disk,id)
       Else
          iStatIO = Mode_Read
 *        write(6,*) 'read istatio=',istatio
@@ -394,7 +394,7 @@ C        Write (6,*) ' Initiate write @', Disk,'iBuf=',iBuf
 *        Call GetMem('ISemi','List','Real',iDum,iDum)
          If (OnDisk) then
 C           Write (6,*) ' Initiate read @', Disk,'iBuf=',iBuf
-            Call new_EAFread(LuTmp,control,4*RtoI,Disk)
+            Call EAFread(LuTmp,control,4*RtoI,Disk)
             Disk_2 = Disk
             Disk_1 = Disk
 *           write(6,*) 'control read:',control
@@ -427,7 +427,7 @@ C           Write (6,*) ' Initiate read @', Disk,'iBuf=',iBuf
             end if
 c           Write (6,*) ' Initiate read @', Disk,'iBuf=',iBuf
 *           If(OnDisk) Write (6,*) ' Initial EAFARead'
-            Call new_EAFARead(LuTmp,Work((iBuf-1)*lBuf+ipBuf),
+            Call EAFARead(LuTmp,Work((iBuf-1)*lBuf+ipBuf),
      &                               lBuf*RtoI,Disk,id)
          End If
       End If

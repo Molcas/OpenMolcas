@@ -16,6 +16,11 @@ along with OpenMolcas. If not, see <http://www.gnu.org/licenses/>.
 Copyright (C) 1989-2017, The OpenMolcas Authors
 
 
+NOTE: Some of the files distributed with OpenMolcas may be subject to a more
+permissive or otherwise compatible license. Some of the files from external
+sources may be subject to a more restrictive or otherwise incompatible license.
+
+
 General citations
 =================
 
