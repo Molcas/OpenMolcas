@@ -10,32 +10,26 @@
 *                                                                      *
 * Copyright (C) 2014, Ignacio Fdez. Galvan                             *
 ************************************************************************
-*-----------------------------------------------------------------------
-* <DOC>
-*   <NAME>Sp\_ICD</NAME>
-*   <SYNTAX>Call Sp\_ICD(n,A,ija,B,ijb)</Syntax>
-*   <ARGUMENTS>
-*     \Argument{n}{Size of the square matrices}{Integer}{in}
-*     \Argument{A}{Input matrix in sparse format}{Real*8 (*)}{in}
-*     \Argument{ija}{Index vector of matrix A}{Integer (*)}{in}
-*     \Argument{B}{Output matrix in sparse format}{Real*8 (*)}{out}
-*     \Argument{ijb}{Index vector of matrix B}{Integer (*)}{out}
-*   </ARGUMENTS>
-*   <PURPOSE>Perform an incomplete Cholesky decomposition of sparse matrix A</PURPOSE>
-*   <DEPENDENCIES></DEPENDENCIES>
-*   <AUTHOR>I. Fdez. Galvan</AUTHOR>
-*   <MODIFIED_BY></MODIFIED_BY>
-*   <SIDE_EFFECTS></SIDE_EFFECTS>
-*   <DESCRIPTION>
-*     Perform an incomplete Cholesky decomposition of a symmetric matrix A, in sparse format.
-*     On output, matrix B contains a lower triangular matrix such that:
-*       $ A \simeq B B^T$
-*     ``Incomplete'' means that only non-zero elements in A will be computed in B.
-*     This is useful as a preconditioner.
-*     The decomposition can be done in place, if B=A, but only if A is stored as symmetric.
-*   </DESCRIPTION>
-* </DOC>
-*-----------------------------------------------------------------------
+*  Sp_ICD
+*
+*> @ingroup Sparse
+*> @brief
+*>   Perform an incomplete Cholesky decomposition of sparse matrix \p A
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> Perform an incomplete Cholesky decomposition of a symmetric matrix \p A, in sparse format.
+*> On output, matrix \p B contains a lower triangular matrix such that:
+*> \f$ A \simeq B B^\text{T} \f$
+*> "Incomplete" means that only non-zero elements in \p A will be computed in \p B.
+*> This is useful as a preconditioner.
+*>
+*> @param[in]  n   Size of the square matrices
+*> @param[in]  A   Input matrix in sparse format
+*> @param[in]  ija Index vector of matrix \p A
+*> @param[out] B   Output matrix in sparse format
+*> @param[out] ijb Index vector of matrix \p B
+************************************************************************
       SUBROUTINE Sp_ICD(n,A,ija,B,ijb)
       IMPLICIT NONE
       INTEGER n, ija(*), ijb(*), nijb, i, j, k, kk, kkb, l

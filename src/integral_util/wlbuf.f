@@ -10,8 +10,6 @@
 ************************************************************************
       Subroutine WLBuf
       Implicit Real*8 (a-h,o-z)
-      External Disk2Byte
-      Real*8 Disk2Byte
 #include "IOBuf.fh"
 #include "SysDef.fh"
 #include "WrkSpc.fh"
@@ -38,7 +36,7 @@ c     Disk_Save=Disk
          Call EAFWait(LuTmp,id)
       End If
       If (iPos.ne.1) Then
-         temp=Disk2Byte(Disk)+DBLE(lBuf*RtoB)
+         temp=Disk+DBLE(lBuf*RtoB)
 *        Write (6,*) 'temp,DiskMx_Byte=',temp,DiskMx_Byte
          If (temp.le.DiskMx_Byte) Then
             Disk_2 = Disk_1
@@ -48,7 +46,7 @@ c           Write (6,*) 'WLBuf write on disk @',Disk,'iBuf=',iBuf
             If (OnDisk) Call EAFWrite(LuTmp,Work(jpBuf(1,iBuf)),
      &                                lBuf*RtoI,Disk)
 *---------- Put a dummy record at the end
-            temp=Disk2Byte(Disk)+DBLE(lBuf*RtoB)
+            temp=Disk+DBLE(lBuf*RtoB)
 *           Write (6,*) 'temp,DiskMx_Byte=',temp,DiskMx_Byte
             If (temp.le.DiskMx_Byte.and.OnDisk) Then
 c              Write (6,*) 'WLBuf write on disk @',Disk,'iBuf=',iBuf
@@ -60,7 +58,6 @@ c              Write (6,*) 'WLBuf write on disk @',Disk,'iBuf=',iBuf
             Call WarningMessage(2,'WLBuf: Disc is full!')
             Write (6,*) 'temp           =',temp
             Write (6,*) 'DiskMx_Byte    =',DiskMx_Byte
-            Write (6,*) 'Disk2Byte(Disk)=',Disk2Byte(Disk)
             Call FastIO('STATUS')
             Call Abend()
          End If

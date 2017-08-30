@@ -10,39 +10,30 @@
 *                                                                      *
 * Copyright (C) Thomas Bondo Pedersen                                  *
 ************************************************************************
+*  Cho_X_nVecRS
+*
+*> @brief
+*>   Find first vector and number of vectors in reduced set \p iRed, sym. block \p iSym
+*> @author Thomas Bondo Pedersen
+*>
+*> @details
+*> This routine finds the first vector and number of
+*> vectors in reduced set \p iRed, sym. block \p iSym.
+*> Note that \p iVec=\p nVec = ``0`` may be returned---this is
+*> perfectly acceptable: a given reduced set may be
+*> empty. However, if negative numbers are returned
+*> (\p iVec < ``0`` and \p nVec < ``0``), an error has ocurred. This
+*> should be tested by the caller!!
+*>
+*> @note
+*> The Cholesky procedure must have been successfully initialized (by ::Cho_X_Init).
+*>
+*> @param[in]  iRed Reduced set
+*> @param[in]  iSym Symmetry block (1-8)
+*> @param[out] iVec First vector in red. set \p iRed, sym. \p iSym
+*> @param[out] nVec Number of vectors in red. set \p iRed, sym. \p iSym
+************************************************************************
       SubRoutine Cho_X_nVecRS(iRed,iSym,iVec,nVec)
-************************************************************
-*
-*   <DOC>
-*     <Name>Cho\_X\_nVecRS</Name>
-*     <Syntax>Call Cho\_X\_nVecRS(iRed,iSym,iVec,nVec)</Syntax>
-*     <Arguments>
-*       \Argument{iRed}{Reduced set}{Integer}{in}
-*       \Argument{iSym}{Symmetry block (1-8)}{Integer}{in}
-*       \Argument{iVec}{First vector in red. set iRed, sym. iSym}
-*                {Integer}{out}
-*       \Argument{nVec}{Number of vectors in red. set iRed, sym. iSym}
-*                {Integer}{out}
-*     </Arguments>
-*     <Purpose>Find first vector and number of vectors in
-*              reduced set iRed, sym. block iSym
-*     </Purpose>
-*     <Dependencies>Call Cho\_X\_Init(rc)</Dependencies>
-*     <Author>Thomas Bondo Pedersen</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>This routine finds the first vector and number of
-*                  vectors in reduced set iRed, sym. block iSym.
-*                  Note that iVec=nVec=0 may be returned - this is
-*                  perfectly acceptable: a given reduced set may be
-*                  empty. However, if negative numbers are returned
-*                  (iVec<0 and nVec<0), an error has ocurred. This
-*                  should be tested by the caller!!
-*     </Description>
-*    </DOC>
-*
-************************************************************
-
       Implicit None
       Integer iRed, iSym, iVec, nVec
 #include "cholesky.fh"

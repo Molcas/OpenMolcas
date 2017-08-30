@@ -12,5 +12,6 @@
       Parameter(kMax=iTabMx+6)
       common/islask/ipot3(0:kmax+1)
       common/dslask/binom(-1:kmax,-1:kmax),
-     &              fiint(0:kmax,0:kmax),tetint(0:kmax,0:kmax/2+1),
-     &              anorm(0:kmax,0:kmax/2+1,0:kmax/4+1),fac(0:kmax)
+     &            fiint(0:kmax,0:kmax),tetint(0:kmax,0:int(kmax/2.0)+1),
+     &            anorm(0:kmax,0:int(kmax/2.0)+1,0:int(kmax/4.0)+1),
+     &            fac(0:kmax)

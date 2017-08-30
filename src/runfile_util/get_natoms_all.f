@@ -10,26 +10,16 @@
 *                                                                      *
 * Copyright (C) Roland Lindh                                           *
 ************************************************************************
+*  Get_nAtoms_All
+*
+*> @author R. Lindh
+*>
+*> @details
+*> Get number of all atoms (not only symmetry unique) from RUNFILE.
+*>
+*> @param[out] nAtoms_All Number of all atoms in the molecule
+************************************************************************
       Subroutine Get_nAtoms_All(nAtoms_All)
-************************************************************
-*
-*   <DOC>
-*     <Name>Get\_nAtoms\_All</Name>
-*     <Syntax>Call Get\_nAtoms\_All(nAtoms\_All)</Syntax>
-*     <Arguments>
-*       \Argument{nAtoms\_All}{Number of all atoms in the molecule}{Integer}{out}
-*     </Arguments>
-*     <Purpose></Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>R. Lindh</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*       Get number of all atoms (not only symmetry unique) from RUNFILE
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"

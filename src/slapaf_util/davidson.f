@@ -10,32 +10,26 @@
 *                                                                      *
 * Copyright (C) 2014, Ignacio Fdez. Galvan                             *
 ************************************************************************
-*-----------------------------------------------------------------------
-* <DOC>
-*   <NAME>Davidson</NAME>
-*   <SYNTAX>Call Davidson(A,n,k,Eig,Vec,iRC)</SYNTAX>
-*   <ARGUMENTS>
-*     \Argument{A}{Symmetric matrix, in upper triangular packed format}{Real*8 (n*(n+1)/2)}{in}
-*     \Argument{n}{Size of the matrix}{Integer}{in}
-*     \Argument{k}{Number of lowest eigenvalues to compute}{Integer}{inout}
-*     \Argument{Eig}{Lowest eigenvalues}{Real*8 (k)}{out}
-*     \Argument{Vec}{Lowest eigenvectors}{Real*8 (n,k)}{inout}
-*     \Argument{iRC}{Return code (0 if converged)}{Integer}{out}
-*   </ARGUMENTS>
-*   <PURPOSE>Compute the lowest k eigenvalues of a symmetric matrix</PURPOSE>
-*   <DEPENDENCIES>Add\_Vector</DEPENDENCIES>
-*   <AUTHOR>I. Fdez. Galvan</AUTHOR>
-*   <MODIFIED_BY></MODIFIED_BY>
-*   <SIDE_EFFECTS></SIDE_EFFECTS>
-*   <DESCRIPTION>
-*     Simple application of the Davidson procedure to obtain the lowest k eigenvalues
-*     and corresponding eigenvectors of a symmetric matrix.
-*     On input, Vec can contain an initial guess for the eigenvectors (from a previous
-*     run with smaller k, for example), only the non-zero vectors are used.
-*     If k $>$ n on input, it will be set to n on output.
-*   </DESCRIPTION>
-* </DOC>
-*-----------------------------------------------------------------------
+*  Davidson
+*
+*> @brief
+*>   Compute the lowest \p k eigenvalues of a symmetric matrix.
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> Simple application of the Davidson procedure to obtain the lowest \p k eigenvalues
+*> and corresponding eigenvectors of a symmetric matrix.
+*> On input, \p Vec can contain an initial guess for the eigenvectors (from a previous
+*> run with smaller \p k, for example), only the non-zero vectors are used.
+*> If \p k > \p n on input, it will be set to \p n on output.
+*>
+*> @param[in]     A   Symmetric matrix, in upper triangular packed format
+*> @param[in]     n   Size of the matrix
+*> @param[in,out] k   Number of lowest eigenvalues to compute
+*> @param[out]    Eig Lowest eigenvalues
+*> @param[in,out] Vec Lowest eigenvectors
+*> @param[out]    iRC Return code (0 if converged)
+************************************************************************
       SUBROUTINE Davidson(A,n,k,Eig,Vec,iRC)
       IMPLICIT NONE
       INTEGER n,k,iRC
@@ -535,32 +529,27 @@
 
       END
 
-*-----------------------------------------------------------------------
-* <DOC>
-*   <NAME>Add\_Vector</NAME>
-*   <SYNTAX>Call Add\_Vector(n,m,Sub,Vec,Thr)</SYNTAX>
-*   <ARGUMENTS>
-*     \Argument{n}{Size of the vectors}{Integer}{in}
-*     \Argument{m}{Number of vectors in the subspace}{Integer}{inout}
-*     \Argument{Sub}{Subspace of vectors}{Real*8 (n,m+1)}{inout}
-*     \Argument{Vec}{Vector to be added}{Real*8 (n)}{inout}
-*     \Argument{Thr}{Threshold for linear dependence check}{Real*8}{in}
-*   </ARGUMENTS>
-*   <PURPOSE>Add (or not) a vector to an orthonormal set</PURPOSE>
-*   <DEPENDENCIES></DEPENDENCIES>
-*   <AUTHOR>I. Fdez. Galvan</AUTHOR>
-*   <MODIFIED_BY></MODIFIED_BY>
-*   <SIDE_EFFECTS></SIDE_EFFECTS>
-*   <DESCRIPTION>
-*     Adds a given vector to an existing set of orthonormal vectors.
-*     The vector is orthogonalized against the existing set and, if the remainder
-*     is large enough, it will be normalized and added to the set.
-*     The input matrix with the initial set must have size at least n*(m+1).
-*     On output, m will be increased by 1 if the vector was added, and unchanged
-*     otherwise.
-*   </DESCRIPTION>
-* </DOC>
-*-----------------------------------------------------------------------
+************************************************************************
+*  Add_Vector
+*
+*> @brief
+*>   Add (or not) a vector to an orthonormal set
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> Adds a given vector to an existing set of orthonormal vectors.
+*> The vector is orthogonalized against the existing set and, if the remainder
+*> is large enough, it will be normalized and added to the set.
+*> The input matrix with the initial set must have size at least \p n (\p m+1).
+*> On output, \p m will be increased by 1 if the vector was added, and unchanged
+*> otherwise.
+*>
+*> @param[in]     n   Size of the vectors
+*> @param[in,out] m   Number of vectors in the subspace
+*> @param[in,out] Sub Subspace of vectors
+*> @param[in,out] Vec Vector to be added
+*> @param[in]     Thr Threshold for linear dependence check
+************************************************************************
       SUBROUTINE Add_Vector(n,m,Sub,Vec,Thr)
       IMPLICIT NONE
       INTEGER n,m,i

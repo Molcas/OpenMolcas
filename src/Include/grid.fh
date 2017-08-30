@@ -50,7 +50,9 @@
       Common /mullprt/ isMULL, isLONGPRT
 
       Integer isXFIELD
-      Common /DFTDENS/ isXFIELD
+      Real*8  XFminCh
+      Common /IDFTDENS/ isXFIELD
+      Common /RDFTDENS/ XFminCh
 *
 *     iGridNpt - 3 integer to set GRID
 *                in Natural way i.e. '10' means at 0.0 0.1 0.2 etc.

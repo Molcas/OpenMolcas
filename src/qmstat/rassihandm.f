@@ -10,45 +10,35 @@
 *                                                                      *
 * Copyright (C) Anders Ohrn                                            *
 ************************************************************************
-*----------------------------------------------------------------------*
+*  RassiHandM
+*
+*> @brief
+*>   Make a multicenter multipole expansion of the various densities in the RASSI-state Hamiltonian to be.
+*>   We also construct the gas-phase RASSI-state Hamiltonian
+*> @author A. Ohrn
+*>
+*> @details
+*> First construct the unperturbed RASSI-state Hamiltonian. The \c RasEne
+*> are given in input (could be changed later). Then we obtain the
+*> MME of the densities of each unique pair of AO-basis functions,
+*> which we with the transition density matrices transform to their
+*> RASSI-state counterparts---a process that requires some knowledge
+*> about that matrix. For example, it should be noted that the matrix
+*> is triangularily stored *with* corrections made for the difference
+*> between diagonal and non-diagonal elements; therefore we do not
+*> need to treat them differently, like we have to in the subroutine
+*> ::scfhandm. If requested, we compute total charges and dipoles of
+*> every state and print.
+*>
+*> @note
+*> Requires Qfread and of course a RASSI-computation and also MPPROP.
+*>
+*> @param[in] nBas  Number of contracted AO-basis functions
+*> @param[in] nOcc  Number of basis functions on the \f$ i \f$ th atom-type.
+*> @param[in] natyp Number of atoms of the \f$ i \f$ th atom-type
+*> @param[in] nntyp Number of atom-types
+************************************************************************
       Subroutine RassiHandM(nBas,iQ_Atoms,nOcc,natyp,nntyp)
-************************************************************
-*
-*   <DOC>
-*     <Name>RassiHandM</Name>
-*     <Syntax>Call RassiHandM(nBas,nAt,nOcc,natyp,nntyp)</Syntax>
-*     <Arguments>
-*       \Argument{nBas}{Number of contracted AO-basis functions}{}{in}
-*       \Argument{nAt}{Number of atoms}{}{in}
-*       \Argument{nOcc}{Number of basis functions on the i:th atom-type.}{}{in}
-*       \Argument{natyp}{Number of atoms of the i:th atom-type}{}{in}
-*       \Argument{nntyp}{Number of atom-types}{}{in}
-*     </Arguments>
-*     <Purpose>
-*    Make a multicenter multipole expansion of the various densities
-*    in the RASSI-state Hamiltonian to be. We also construct the
-*    gas-phase RASSI-state Hamiltonian.
-*     </Purpose>
-*     <Dependencies>Qfread and of course a RASSI-computation and also MPPROP.</Dependencies>
-*     <Author>A.Ohrn</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*    First construct the unperturbed RASSI-state Hamiltonian. The RasEne
-*    are given in input (could be changed later). Then we obtain the
-*    MME of the densities of each unique pair of AO-basis functions,
-*    which we with the transition density matrices transform to their
-*    RASSI-state counterparts -- a process that require some knowledge
-*    about that matrix. For example, it should be noted that the matrix
-*    is triangularily stored WITH corrections made for the difference
-*    between diagonal and non-diagonal elements; therefore we do not
-*    need to treat them differently, like we have to in the subroutine
-*    scfhandm. If requested, we compute total charges and dipoles of
-*    every state and print.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8 (a-h,o-z)
 
 #include "maxi.fh"

@@ -15,6 +15,9 @@ CSVC: routine that terminates Molcas properly
 #include "warnings.fh"
       character(128) :: msg
       logical, external :: bomb_on_error
+#ifdef _MOLCAS_MPP_
+      logical, external :: King
+#endif
 
       call xflush(6)
 
@@ -37,6 +40,14 @@ CSVC: write return code to file
 CSVC: critical errors result in backtrace + immediate abort, while
 C     regular errors only do this if MOLCAS_BOMB has been set too.
       if (        (rc .ge. _RC_GROUP_CRITICAL_)
+#if _MOLCAS_MPP_
+CIFG: in a parallel (real or fake) run, we have to be more strict
+C     with errors, or a deadlock may occur when some slave process
+C     quits (e.g., a glitch or bug causes a missing file). Of course,
+C     it could be argued that the error raised for those cases should
+C     be critical... but it's often an "INPUT ERROR"
+     &        .or.(rc .ge. _RC_GROUP_USER_ERROR_ .and. (.not.King()))
+#endif
      &        .or.(rc .ge. _RC_GROUP_ERROR_ .and. bomb_on_error())) then
         call xabort(rc)
       end if

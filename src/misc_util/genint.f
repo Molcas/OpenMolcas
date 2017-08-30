@@ -10,31 +10,31 @@
 *                                                                      *
 * Copyright (C) 2004, Francesco Aquilante                              *
 ************************************************************************
+*  GEN_INT
+*
+*> @brief
+*>   Generates integrals from Cholesky vectors
+*> @author F. Aquilante, May 2004
+*> @modified_by F. Aquilante, Sep. 2004
+*>
+*> @note
+*> The transposition ``L(ab,J)`` &rarr; ``L(ba,J)`` of the vectors
+*> ``(syma.ne.symb)`` is necessary because the calling routine
+*> requires the integrals in the order \f$ (sr|qp) \f$ which
+*> is reversed compared to the order of the symmetries
+*> given as input arguments.
+*>
+*> @param[out] rc
+*> @param[in]  iSymp
+*> @param[in]  iSymq
+*> @param[in]  iSymr
+*> @param[in]  iSyms
+*> @param[in]  ipq1
+*> @param[in]  numpq
+*> @param[out] Xint
+************************************************************************
       SUBROUTINE GEN_INT(rc,iSymp,iSymq,iSymr,iSyms,ipq1,numpq,Xint)
-*********************************************************************************
-*
-*   <Dummy DOC>
-*     <Name>GEN\_INT</Name>
-*     <Syntax>Call GEN\_INT(rc,iSymp,iSymq,iSymr,iSyms,pq1,numpq,Xint)</Syntax>
-*     <Arguments>
-*       \Argument{rc}{}{}{out}
-*       \Argument{iSymp}{}{}{in}
-*       \Argument{iSymq}{}{}{in}
-*       \Argument{iSymr}{}{}{in}
-*       \Argument{iSyms}{}{}{in}
-*       \Argument{pq1}{}{}{in}
-*       \Argument{numpq}{}{}{in}
-*       \Argument{Xint}{}{}{out}
-*     </Arguments>
-*     <Purpose>Generates integrals from Cholesky vectors</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>F. Aquilante, May 2004</Author>
-*     <Modified_by>F.A. Sept 2004</Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*     </Description>
-*    </DOC>
-*
+************************************************************************
 *
 *   Modified  September 2004
 *   Reason:
@@ -44,7 +44,7 @@
 *   is reversed compared to the order of the symmetries
 *   given as input arguments
 *
-*********************************************************************************
+************************************************************************
 
       Implicit Real*8 (a-h,o-z)
       INTEGER   rc

@@ -130,14 +130,14 @@ def check_test(infofile, checkfile, count):
         if (dif > tol):
           if ((refs[i]['lab'] == 'POTNUC') and (dif < tol*10)):
             tag = 'Skipped'
-          if (refs[i]['lab'].endswith('ITER') and (dif < tol+5)):
+          elif (refs[i]['lab'].endswith('ITER') and (dif < tol+5)):
             tag = 'Skipped'
           else:
             tag = 'Failed'
             rc = '_RC_CHECK_ERROR_'
         else:
           tag = ''
-        print(fmt_num.format(refs[i]['lab'], refs[i]['val'], vals[j]['val'], dif, tol, tag))
+        print(fmt_num.format(refs[i]['lab'], vals[j]['val'], refs[i]['val'], dif, tol, tag))
     # Additional values at the end
     j += 1
     while (j < len(vals)):

@@ -22,25 +22,20 @@
 * Written: August 2003                                                 *
 *                                                                      *
 ************************************************************************
+*  Qpg_iArray
 *
-* <DOC>
-*   <Name>Qpg\_iArray</Name>
-*   <Syntax>Call Qpg\_iArray(Label,Found,nData)</Syntax>
-*   <Arguments>
-*     \Argument{Label}{Name of field}{Character*(*)}{in}
-*     \Argument{Found}{Was the field found}{Logical}{out}
-*     \Argument{nData}{length of field}{Integer}{out}
-*   </Arguments>
-*   <Purpose>To check if a field exist on the runfile</Purpose>
-*   <Dependencies></Dependencies>
-*   <Author>Per-Olof Widmark</Author>
-*   <Modified_by></Modified_by>
-*   <Side_Effects></Side_Effects>
-*   <Description>
-*     See section \ref{routine:Put_iArray} on page \pageref{routine:Put_iArray}
-*   </Description>
-* </DOC>
-*
+*> @brief
+*>   Check if a field exist on the runfile
+*> @author Per-Olof Widmark
+*>
+*> @details
+*> This routine queries the existence of array data on runfile.
+*>
+*> @param[in]  Label Name of field
+*> @param[out] Found Was the field found
+*> @param[out] nData Length of field
+*>
+*> @see ::Put_iArray
 ************************************************************************
       Subroutine Qpg_iArray(Label,Found,nData)
       Implicit None

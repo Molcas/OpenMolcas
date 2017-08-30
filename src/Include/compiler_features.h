@@ -32,6 +32,14 @@ incomplete.
 #define ALLOC_CHAR
 #endif
 
+/* Allocate on assignment */
+#if ((!defined(ALLOC_CHAR)) || \
+     ( __SUNPRO_F90 ))
+#undef ALLOC_ASSIGN
+#else
+#define ALLOC_ASSIGN
+#endif
+
 /* Allocatable scalars */
 #if (__GNUC__ && GCC_VERSION < 40500 )
 #undef ALLOC_SCAL

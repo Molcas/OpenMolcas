@@ -10,26 +10,19 @@
 *                                                                      *
 * Copyright (C) Roland Lindh                                           *
 ************************************************************************
+*  Get_Cmo
+*
+*> @brief
+*>   Return a pointer in \c Work of the location of the symmetry blocked MO coefficients as read from the runfile
+*> @author R. Lindh
+*>
+*> @details
+*> The utility will read the symmetry blocked MO coefficients from the runfile.
+*>
+*> @param[out] ipCMO Pointer to array of symmetry blocked MO coefficients
+*> @param[out] nCMO  Number of elements in the array of symmetry blocked MO coefficients
+************************************************************************
       Subroutine Get_Cmo(ipCMO,nCMO)
-************************************************************
-*
-*   <DOC>
-*     <Name>Get\_Cmo</Name>
-*     <Syntax>Call Get\_Cmo(ipCMO,nCMO)</Syntax>
-*     <Arguments>
-*       \Argument{ipCMO}{pointer to array of symmetry blocked MO coefficients.}{Integer}{out}
-*       \Argument{nCMO}{Number of elements in the array of symmetry blocked MO coefficients.}{Integer}{out}
-*     </Arguments>
-*     <Purpose>To return a pointer in Work of the location of the symmetry blocked MO coefficients as read from the run file.</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>R. Lindh</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>The utility will read the symmetry blocked MO coefficients from the run file.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"

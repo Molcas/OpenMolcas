@@ -10,38 +10,27 @@
 *                                                                      *
 * Copyright (C) Anders Ohrn                                            *
 ************************************************************************
-*-------------------------------------------------------------------------*
+*  Geogen
+*
+*> @brief
+*>   Generate the new configuration in typical random manner
+*> @author A. Ohrn
+*>
+*> @details
+*> The creator of random geometries in typical Monte-Carlo fashion.
+*> The changes made are:
+*>
+*> 1. The dielectric radius is modified
+*> 2. Each coordinate *except* the \c iSta-1 -th molecule is changed
+*> 3. All molecules (with the above exception) are rotated around the oxygen (which approximately equals the CM)
+*> 4. Every molecule except the fixed ones are rotated slightly around one of the global \f$ x \f$-, \f$ y \f$- or \f$ z \f$-axes;
+*>    the purpose of this is to emulate a rotation of the central molecule and therefore make the system more dynamic.
+*>
+*> @param[in,out] Ract  The dielectric radius on input and the slightly perturbed radius on output
+*> @param[out]    Rold  Stores the input dielectric radius
+*> @param[in]     iCNum How many solvent places that are taken up by the QM-molecule
+************************************************************************
       Subroutine Geogen(Ract,Rold,iCNum,iQ_Atoms)
-************************************************************
-*
-*   <DOC>
-*     <Name>Geogen</Name>
-*     <Syntax>Call Geogen(Ract,Rold,Sqrs,iCNum)</Syntax>
-*     <Arguments>
-*       \Argument{Ract}{The dielectric radius on input and the slightly perturbed radius on output}{}{inout}
-*       \Argument{Rold}{Stores the input dielectric radius}{}{out}
-*       \Argument{Sqrs}{An array of (a/s)$^2$ for each center, where a is the radius of the dielectric cavity and s the distance from the particular center to the origo. Used in equil2.f}{}{out}
-*       \Argument{iCNum}{How many solvent places that are taken up by the QM-molecule}{}{in}
-*     </Arguments>
-*     <Purpose>To generate the new configuration in typical random manner.</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>A.Ohrn</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*    The creator of random geometries in typical Monte-Carlo fashion.
-*    The changes made are: (1) the dielectric radie is modified, (2)
-*    each coordinate EXCEPT the (iSta-1):th molecule
-*    is changed, (3) all molecules (with the above
-*    exception) are rotated around the oxygen (which approximately
-*    equals the CM), (4) every molecule except the fixed ones are
-*    rotated sligtly around one of the global x-, y- or z-axes; the
-*    purpose of this is to emulate a rotation of the central molecule
-*    and therefore make the system more dynamic.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8 (a-h,o-z)
 
 #include "maxi.fh"

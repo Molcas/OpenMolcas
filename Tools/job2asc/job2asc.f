@@ -20,6 +20,8 @@ C with some additional explanation.
 #include "WrkSpc.fh"
 #include "general.fh"
 
+      CALL INIT_LINALG
+
       JOBIPH=15
       JOBIPH=isFreeUnit(JOBIPH)
       CALL DANAME(JOBIPH,'JOBIPH')

@@ -10,45 +10,31 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
+*  CD_InCore_p
+*
+*> @brief
+*>   Cholesky decompose the symmetric positive (semi-)definite matrix \p X
+*> @author Francesco Aquilante
+*>
+*> @details
+*> The \p n &times; \p n matrix \p X is Cholesky decomposed and the resulting
+*> \p NumCho Cholesky vectors are returned in array \p Vec. Note that \p X
+*> is modified in this routine! The array \p iD(k) on exit contains
+*> the index of the diagonal from which the \p k -th Cholesky
+*> vector was generated. A non-zero return code signals
+*> that an error has occured (\p X might e.g. be non-positive
+*> (semi-)definite) and the output is ill-defined.
+*>
+*> @param[in,out] X      Matrix to be Cholesky decomposed
+*> @param[in]     n      Linear dimension of \p X
+*> @param[out]    Vec    Storage array for Cholesky vectors
+*> @param[in]     MxVec  Max. number of vectors allowed
+*> @param[in,out] iD     Index array for parent diagonals
+*> @param[out]    NumCho Number of Cholesky vectors
+*> @param[in]     Thr    Decomposition threshold (precision)
+*> @param[out]    irc    Return code
+************************************************************************
       SubRoutine CD_InCore_p(X,n,Vec,MxVec,iD,NumCho,Thr,irc)
-*************************************************************
-*
-*   <DOC>
-*     <Name>CD\_InCore\_p</Name>
-*     <Syntax>Call CD\_InCore\_p(X,n,Vec,MxVec,iD,NumCho,Thr,irc)</Syntax>
-*     <Arguments>
-*       \Argument{X}{Matrix to be Cholesky decomposed, dimension
-*                    X(n,n)}{Real*8}{inout}
-*       \Argument{n}{Linear dimension of X}{Integer}{in}
-*       \Argument{Vec}{Storage array for Cholesky vectors, dimension
-*                      Vec(n,MxVec)}{Real*8}{out}
-*       \Argument{MxVec}{Max. number of vectors allowed}{Integer}{in}
-*       \Argument{iD}{Index array for parent diagonals, dimension
-*                     iD(MxVec)}{Integer}{inout}
-*       \Argument{NumCho}{Number of Cholesky vectors}{Integer}{out}
-*       \Argument{Thr}{Decomposition threshold (precision)}
-*                {Real*8}{in}
-*       \Argument{irc}{Return code}{Integer}{out}
-*     </Arguments>
-*     <Purpose>Cholesky decompose the symmetric positive (semi-)
-*              definite matrix X</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>Francesco Aquilante</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*        The n-by-n matrix X is Cholesky decomposed and the resulting
-*        NumCho Cholesky vectors are returned in array Vec. Note that X
-*        is modified in this routine! The array iD(k) on exit contains
-*        the index of the diagonal from which the k-th Cholesky
-*        vector was generated. A non-zero return code signals
-*        that an error has occured (X might f.ex. be non-positive
-*        (semi-) definite) and the output is ill-defined.
-*     </Description>
-*    </DOC>
-*
-*************************************************************
-
       Implicit None
       Integer n, MxVec, NumCho, irc
       Real*8  X(n,n)

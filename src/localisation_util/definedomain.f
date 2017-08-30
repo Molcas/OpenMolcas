@@ -10,68 +10,52 @@
 *                                                                      *
 * Copyright (C) 2006, Thomas Bondo Pedersen                            *
 ************************************************************************
+*  DefineDomain
+*
+*> @brief
+*>   Define orbital domains
+*> @author Thomas Bondo Pedersen
+*>
+*> @details
+*> Orbital domains are defined by summing up gross atomic Mulliken
+*> charges for each orbital. Once the sum is greater than or equal
+*> to the threshold \p ThrDomain(1), the domain is defined. The
+*> second threshold \p ThrDomain(2) is then used to check
+*> completeness (Pulay-style) of the definition and if needed,
+*> more atoms are added to the domain. To avoid the second step
+*> (i.e. the completeness check), simply put \p ThrDomain(2) > ``1.0d0`` in
+*> which case array \p f is undefined on exit.
+*>
+*> On exit, the contents of iDomain array are:
+*>
+*> - \p iDomain(0,i): number of atoms in domain \c i.
+*> - \p iDomain(n,i): id of atom \c n (\c n = ``1``, ``2``, ..., \p iDomain(0,i)) in domain \c i.
+*>
+*> Return codes:
+*>
+*> - \p irc = ``-1``: input error(s) detected.
+*> - \p irc =  ``0``: all OK.
+*> - \p irc =  ``1``: this indicates a bug in the charge setup.
+*> - \p irc =  ``2``: can only be set if debug is turned on; in that case, this code means
+*>                    that the computed charges do not sum up to the number of occupied orbitals, \p nOcc.
+*> - \p irc =  ``3``: can only be set if debug is turned on; in that case, this code means
+*>                    that at least one domain is defined as empty or having at least one atom index out of bounds.
+*>
+*> @param[out] irc           Return code
+*> @param[out] iDomain       Domain definition
+*> @param[out] QD            Final total charges for each domain
+*> @param[out] f             Function values from completeness check
+*> @param[in]  C             MO coefficients
+*> @param[in]  ThrDomain     Thresholds for domain definition
+*> @param[in]  nBas_per_Atom Number of basis functions on each atom
+*> @param[in]  nBas_Start    Start index for basis functions on each atom
+*> @param[in]  nAtom         Number of atoms
+*> @param[in]  nBas          Number of basis functions
+*> @param[in]  nOcc          Number of occupied orbitals
+************************************************************************
       SubRoutine DefineDomain(irc,iDomain,QD,f,C,ThrDomain,
      &                        nBas_per_Atom,nBas_Start,
      &                        nAtom,nBas,nOcc)
-************************************************************
-*
-*   <DOC>
-*     <Name>DefineDomain</Name>
-*     <Syntax>Call DefineDomain(irc,iDomain,QD,f,C,ThrDomain
-*                               nBas\_per\_Atom,nBas\_Start,
-*                               nAtom,nBas,nOcc)
-*     </Syntax>
-*     <Arguments>
-*       \Argument{irc}{Return code}{Integer}{out}
-*       \Argument{iDomain}{Domain definition}{Integer(0:nAtom,nOcc)}
-*                {out}
-*       \Argument{QD}{Final total charges for each domain}
-*                {Real*8(nOcc)}{out}
-*       \Argument{f}{Function values from completeness check}
-*                {Real*8(nOcc)}{out}
-*       \Argument{C}{MO coefficients}{Real*8(nBas,nOcc)}{in}
-*       \Argument{ThrDomain}{Thresholds for domain definition}
-*                {Real*8(2)}{in}
-*       \Argument{nBas\_per\_Atom}{Number of basis functions on each
-*                 atom}{Integer(nAtom)}{in}
-*       \Argument{nBas\_Start}{Start index for basis functions on each
-*                 atom}{Integer(nAtom)}{in}
-*       \Argument{nAtom}{Number of atoms}{Integer}{in}
-*       \Argument{nBas}{Number of basis functions}{Integer}{in}
-*       \Argument{nOcc}{Number of occupied orbitals}{Integer}{in}
-*     </Arguments>
-*     <Purpose>Define orbital domains</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>Thomas Bondo Pedersen</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*        Orbital domains are defined by summing up gross atomic Mulliken
-*        charges for each orbital. Once the sum is greater than or equal
-*        to the threshold ThrDomain(1), the domain is defined. The
-*        second threshold ThrDomain(2) is then used to check
-*        completeness (Pulay-style) of the definition and if needed,
-*        more atoms are added to the domain. To avoid the second step
-*        (i.e. the completeness check), simply put ThrDomain(2)>1.0d0 in
-*        which case array f is undefined on exit.
-*        On exit, the contents of iDomain array are:
-*        iDomain(0,i): number of atoms in domain i.
-*        iDomain(n,i): id of atom n (n=1,2,...,iDomain(0,i)) in domain
-*                      i.
-*        Return codes:
-*        irc=-1: input error(s) detected.
-*        irc=0: all OK.
-*        irc=1: this indicates a bug in the charge setup.
-*        irc=2: can only be set if debug is turned on; in that case,
-*               this code means that the computed charges do not sum up
-*               to the number of occupied orbitals, nOcc.
-*        irc=3: can only be set if debug is turned on; in that case,
-*               this code means that at least one domain is defined as
-*               empty or having at least one atom index out of bounds.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8 (a-h,o-z)
       Integer iDomain(0:nAtom,nOcc)
       Integer nBas_per_Atom(nAtom), nBas_Start(nAtom)

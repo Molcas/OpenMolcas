@@ -1817,7 +1817,8 @@ C printing threshold
 *
 *     Initiate the Seward environment
 *
-      Call IniSew(Info,.FALSE.,0)
+      nDiff=0
+      Call IniSew(Info,.FALSE.,nDiff)
 *
 *     Generate the quadrature points.
 *
@@ -6528,9 +6529,9 @@ C backtransformation in two steps, -phi and -theta
       write(6,'(10A)') (('############'),J=1,10)
 
       do l=1,3
-      if(l.eq.1.)  angm='X'
-      if(l.eq.2.)  angm='Y'
-      if(l.eq.3.)  angm='Z'
+      if(l.eq.1)  angm='X'
+      if(l.eq.2)  angm='Y'
+      if(l.eq.3)  angm='Z'
       write(6,'(/)')
       write(6,'(4X,A12,A2)') 'PROJECTION: ', angm
       write(6,'(/)')
@@ -6639,9 +6640,9 @@ C backtransformation in two steps, -phi and -theta
       write(6,'(10A)') (('############'),J=1,10)
       write(6,'(/)')
       do l=1,3
-      if(l.eq.1.)  angm='X'
-      if(l.eq.2.)  angm='Y'
-      if(l.eq.3.)  angm='Z'
+      if(l.eq.1)  angm='X'
+      if(l.eq.2)  angm='Y'
+      if(l.eq.3)  angm='Z'
       write(6,'(/)')
       write(6,'(4X,A,A)') 'PROJECTION: ', angm
       write(6,'(/)')

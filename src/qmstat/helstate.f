@@ -10,40 +10,31 @@
 *                                                                      *
 * Copyright (C) Anders Ohrn                                            *
 ************************************************************************
-*------------------------------------------------------------------------*
+*  HelState
+*
+*> @brief
+*>   Couple the electrostatic part of the solvent with the QM-region.
+*>   Only include the static part, no polarization at this moment
+*> @author A. Ohrn
+*>
+*> @note
+*> The quadrupoles are put in 'Buckingham-style'.
+*>
+*> @details
+*> Rather easy to follow. This subroutine is a slightly modified
+*> copy of hel.f. The interesting quantities are collected in
+*> \p Vmat and are later to be added to the 'RASSI-matrix'.
+*>
+*> @param[in]  Eint    Field from static part of solvent on the Qm-molecule centers
+*> @param[in]  nrstate Number of states in RASSI
+*> @param[in]  ici     Number of MME-centers
+*> @param[in]  Cha     Charges
+*> @param[in]  Dip     Dipoles
+*> @param[in]  Qua     Quadrupoles
+*> @param[out] Vmat    The electrostatic part of the solute-solvent interaction matrix
+*> @param[in]  iPrint  Print-level
+************************************************************************
       Subroutine HelState(Eint,nrstate,ici,Cha,Dip,Qua,Vmat,iPrint)
-************************************************************
-*
-*   <DOC>
-*     <Name>HelState</Name>
-*     <Syntax>Call HelState(Eint,nrstate,ici,Cha,Dip,Qua,Vmat,iPrint)</Syntax>
-*     <Arguments>
-*       \Argument{Eint}{Field from static part of solvent on the Qm-molecule centers}{}{in}
-*       \Argument{nrstate}{Number of states in RASSI}{}{in}
-*       \Argument{ici}{Number of MME-centers.}{}{in}
-*       \Argument{Cha}{charges}{}{in}
-*       \Argument{Dip}{dipoles}{}{in}
-*       \Argument{Qua}{quadrupoles}{}{in}
-*       \Argument{Vmat}{The electrostatic part of the solute-solvent interaction matrix}{}{out}
-*       \Argument{iPrint}{Print-level}{}{in}
-*     </Arguments>
-*     <Purpose>
-*    To couple the electrostatic part of the solvent with the
-*    Qm-region. Only include the static part, no polarization at
-*    this moment.
-*     </Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>A.Ohrn</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects>The quadrupoles are put in 'Buckingham-style'.</Side_Effects>
-*     <Description>
-*    Rather easy to follow. This subroutine is a slightly modified
-*    copy of hel.f. The interesting quantities are collected in
-*    Vmat and are later to be added to the 'RASSI-matrix'.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8 (a-h,o-z)
 
 #include "maxi.fh"

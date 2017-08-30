@@ -10,28 +10,20 @@
 *                                                                      *
 * Copyright (C) Yannick Carissan                                       *
 ************************************************************************
+*  readgeo
+*
+*> @brief
+*>   Reads a geometry and stores it into memory
+*> @author Y. Carissan
+*>
+*> @details
+*> Reads a geometry in the XYZ format and stores it
+*> in memory at address \c Work(ipgeo(ig)).
+*>
+*> @param[in] iLU logic unit number
+*> @param[in] ig  geometry index
+************************************************************************
       subroutine readgeo(iLU,ig)
-************************************************************
-*
-*   <DOC>
-*     <Name>readgeo</Name>
-*     <Syntax>readgeo(iLU,ig)</Syntax>
-*     <Arguments>
-*       \Argument{iLU}{logic unit number}{Integer}{in}
-*       \Argument{ig}{geometry index}{Integer}{in}
-*     </Arguments>
-*     <Purpose>Read a geometry and stores it into memory</Purpose>
-*     <Dependencies>Get Ln and utilities</Dependencies>
-*     <Author>Y. Carissan</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects>none</Side_Effects>
-*     <Description>
-*        Raed a geometry in the XYZ format and stores it
-*        in memory at address Work(ipgeo(ig)).
-*     </Description>
-*    </DOC>
-*
-************************************************************
       implicit none
 #include "WrkSpc.fh"
 #include "debug.fh"

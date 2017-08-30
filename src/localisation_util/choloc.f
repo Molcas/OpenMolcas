@@ -10,42 +10,33 @@
 *                                                                      *
 * Copyright (C) Thomas Bondo Pedersen                                  *
 ************************************************************************
+*  ChoLoc
+*
+*> @brief
+*>   Cholesky decompose density to obtain Cholesky localized orbitals
+*> @author T. B. Pedersen
+*>
+*> @details
+*> Localize orbitals by Cholesky decomposition of the density
+*> matrix. The threshold should be set such that the
+*> decomposition is essentially exact (e.g. ``1.0d-12``). If not, you
+*> might risk that the localization fails (non-zero return code),
+*> since the number of Cholesky vectors will be less than the
+*> number of occupied (\p nOcc) molecular orbitals. On sucessful
+*> completion, \p irc = ``0`` is returned.
+*>
+*> @note
+*> The density matrix is destroyed during the localization!
+*>
+*> @param[out]    irc  Return code
+*> @param[in,out] Dens Density matrix
+*> @param[out]    CMO  Cholesky MO coefficients
+*> @param[in]     Thrs Threshold for decomposition
+*> @param[out]    xNrm Total norm of Cholesky vectors
+*> @param[in]     nBas Number of basis functions
+*> @param[in]     nOcc Number of occupied orbitals
+************************************************************************
       SubRoutine ChoLoc(irc,Dens,CMO,Thrs,xNrm,nBas,nOcc)
-************************************************************
-*
-*   <DOC>
-*     <Name>ChoLoc</Name>
-*     <Syntax>Call ChoLoc(irc,Dens,CMO,Thrs,xNrm,nBas,nOcc)</Syntax>
-*     <Arguments>
-*       \Argument{irc}{Return code}{Integer}{out}
-*       \Argument{Dens}{Density matrix}{Real*8}{inout}
-*       \Argument{CMO}{Cholesky MO coefficients}{Real*8}{out}
-*       \Argument{Thrs}{Threshold for decomposition}{Real*8}{in}
-*       \Argument{xNrm}{Total norm of Cholesky vectors}{Real*8}{out}
-*       \Argument{nBas}{Number of basis functions}{Integer}{in}
-*       \Argument{nOcc}{Number of occupied orbitals}{Integer}{in}
-*     </Arguments>
-*     <Purpose>Cholesky decompose density to obtain Cholesky localized
-*              orbitals
-*     </Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>T.B. Pedersen</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*         Localize orbitals by Cholesky decomposition of the density
-*         matrix. The threshold should be set such that the
-*         decomposition is essentially exact (e.g. 1.0d-12). If not, you
-*         might risk that the localization fails (non-zero return code),
-*         since the number of Cholesky vectors will be less than the
-*         number of occupied (nOcc) molecular orbitals. On sucessful
-*         completion, irc=0 is returned. NOTE: the density matrix is
-*         destroyed during the localization!
-*     </Description>
-*    </DOC>
-*
-************************************************************
-
       Implicit None
       Integer irc, nBas, nOcc
       Real*8  Thrs, xNrm

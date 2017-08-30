@@ -10,28 +10,20 @@
 *                                                                      *
 * Copyright (C) Yannick Carissan                                       *
 ************************************************************************
+*  Cross
+*
+*> @brief
+*>   Performs the cross product \p A &times; \p B and puts the result in \p C
+*> @author Y. Carissan
+*>
+*> @details
+*> Performs the cross product \p A &times; \p B and puts the result in \p C.
+*>
+*> @param[in]  A First (left) input vector
+*> @param[in]  B Second (right) input vector
+*> @param[out] C Output vector
+************************************************************************
       Subroutine Cross(A,B,C)
-************************************************************
-*
-*   <DOC>
-*     <Name>Cross</Name>
-*     <Syntax>Call Cross(A,B,C)</Syntax>
-*     <Arguments>
-*       \Argument{A}{First (left) input vector, Dimension(3)}{Real*8}{in}
-*       \Argument{B}{Second (right) input vector, Dimension(3)}{Real*8}{in}
-*       \Argument{C}{Output vector, Dimension(3)}{Real*8}{out}
-*     </Arguments>
-*     <Purpose>Perfroms the cross product AxB and puts the result in C</Purpose>
-*     <Dependencies>none</Dependencies>
-*     <Author>Y. Carissan</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects>none</Side_Effects>
-*     <Description>
-*        Perfroms the cross product AxB and puts the result in C
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8(a-h,o-z)
 #include "WrkSpc.fh"
 #include "debug.fh"

@@ -11,26 +11,20 @@
 * Copyright (C) 2013, Ignacio Fdez. Galvan                             *
 *               2016, Roland Lindh                                     *
 ************************************************************************
-*-------------------------------------------------------------------------------
-* <DOC>
-*   <NAME>Process\_Weights</NAME>
-*   <SYNTAX>Call Process\_Weights(iPrint)</Syntax>
-*   <ARGUMENTS>
-*     \Argument{iPrint}{Print level}{Integer}{in}
-*   </ARGUMENTS>
-*   <PURPOSE>Process and store the weights used for alignment</PURPOSE>
-*   <DEPENDENCIES>rMass</DEPENDENCIES>
-*   <AUTHOR>I. Fdez. Galvan</AUTHOR>
-*   <MODIFIED_BY></MODIFIED_BY>
-*   <SIDE_EFFECTS></SIDE_EFFECTS>
-*   <DESCRIPTION>
-*     Process the weights according to the WEIG option is GATEWAY.
-*     These weights are used in alignment and in the ``sphere'' constraint.
-*     The list of weights is stored in the runfile, first the symmetry-unique
-*     atoms and then the symmetric images, in the manner of Expand\_Coor.
-*   </DESCRIPTION>
-* </DOC>
-*-------------------------------------------------------------------------------
+*  Process_Weights
+*
+*> @brief
+*>   Process and store the weights used for alignment
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> Process the weights according to the `WEIG` option in `GATEWAY`.
+*> These weights are used in alignment and in the "sphere" constraint.
+*> The list of weights is stored in the runfile, first the symmetry-unique
+*> atoms and then the symmetric images, in the manner of ::Expand_Coor.
+*>
+*> @param[in] iPrint Print level
+************************************************************************
       SUBROUTINE Process_Weights(iPrint)
       IMPLICIT REAL*8 (a-h,o-z)
 #include "itmax.fh"

@@ -104,6 +104,7 @@ sub git {
           chomp ($doit = <STDIN>);
         }
         system "git", @_ if ( lc $doit eq 'y' );
+        return $?;
     }
 }
 
@@ -111,10 +112,10 @@ sub git {
 # (required because protected branches cannot be force-pushed, and this is needed if the snapshot failed)
 my $gitlabtoken='********************';
 sub protect {
-    system "curl", "--request", "PUT", "--header", "PRIVATE-TOKEN: $gitlabtoken", "https://gitlab.com/api/v4/projects/Molcas%2FOpenMolcas/repository/branches/$_[0]/protect?developers_can_push=false&developers_can_merge=false"
+    system 'curl', '-s', '--request', 'PUT', '--header', "PRIVATE-TOKEN: $gitlabtoken", "https://gitlab.com/api/v4/projects/Molcas%2FOpenMolcas/repository/branches/$_[0]/protect?developers_can_push=false&developers_can_merge=false", '-o', '/dev/null'
 }
 sub unprotect {
-    system "curl", "--request", "PUT", "--header", "PRIVATE-TOKEN: $gitlabtoken", "https://gitlab.com/api/v4/projects/Molcas%2FOpenMolcas/repository/branches/$_[0]/unprotect"
+    system 'curl', '-s', '--request', 'PUT', '--header', "PRIVATE-TOKEN: $gitlabtoken", "https://gitlab.com/api/v4/projects/Molcas%2FOpenMolcas/repository/branches/$_[0]/unprotect", '-o', '/dev/null'
 }
 
 ################################################################################
@@ -167,7 +168,7 @@ chdir $localrepo_open or die 'Error: cannot change to repo (open) directory';
 print "DAILY MERGE\n";
 print "===========\n";
 print "Fetch latest updates from origin (open):\n";
-&git("fetch", "-p");
+&git("fetch", "-p")==0 or die 'Error: failed to fetch';
 
 # get current hashes for master and daily-snapshot
 chomp(my $master_open = `git rev-parse origin/master`);
@@ -187,7 +188,7 @@ my $number_of_parents_open = @parents_open;
 chdir $localrepo or die 'Error: cannot change to repo (extra)directory';
 
 print "Fetch latest updates from origin (extra):\n";
-&git("fetch", "-p");
+&git("fetch", "-p")==0 or die 'Error: failed to fetch';
 
 # get current hashes for master and daily-snapshot
 chomp(my $master = `git rev-parse origin/master`);
@@ -214,8 +215,8 @@ print "----------------------\n";
 
 foreach ($localrepo, $localrepo_open) {
     chdir $_ or die "Error: cannot change to directory $_";
-    &git("checkout", "master", "-q");
-    &git("merge", "--ff-only", "origin/master", "-q");
+    &git("checkout", "master", "-q")==0 or die 'Error: failed to checkout';
+    &git("merge", "--ff-only", "origin/master", "-q")==0 or die 'Error: failed to merge';
 }
 
 # global variable to hold the merge heads, in order to allow these to be set
@@ -309,8 +310,12 @@ unless (($master eq $daily) and ($master_open eq $daily_open)) {
                 print MSG "- A previous unfinished verification left a .LOCK file\n";
                 print MSG "- A problem occurred sending the results by mail\n";
                 close MSG;
-                system("mail -s \"[molcas-git] certified machine did not finish\" $contact < $msg");
-                print "Mail sent to $contact\n";
+                if ($contact) {
+                    system("mail -s \"[molcas-git] certified machine did not finish\" $contact < $msg");
+                    print "Mail sent to $contact\n";
+                } else {
+                    print "Malformed contact address\n";
+                }
             }
             last;
         }
@@ -437,13 +442,13 @@ unless ($master eq $daily) {
 
     unless (%failed_configs) {
         # forward master to daily snapshot
-        &git ("merge", "--ff-only", "origin/daily-snapshot");
-        &git ("tag", "-a", $tag_master, "-m", "verified snapshot");
+        &git ("merge", "--ff-only", "origin/daily-snapshot")==0 or die 'Error: failed to merge';
+        &git ("tag", "-a", $tag_master, "-m", "verified snapshot")==0 or die 'Error: failed to tag';
 
         # push changes to remote origin
         print qq(Pushing tags and updating master on remote (extra):\n);
-        &git("push", "--tags");
-        &git("push", "origin", "master:master");
+        &git("push", "--tags")==0 or die 'Error: failed to push';
+        &git("push", "origin", "master:master")==0 or die 'Error: failed to push';
 
         # update link to stable snapshot
         chomp (my $version = `git tag -l --points-at master v*`);
@@ -453,33 +458,33 @@ unless ($master eq $daily) {
         # go through SHA1 of failed commits and tag them as such
         my $i = 0;
         # the merge commit is listed as a "parent"
-        #&git("tag", "FAILED-x$date.".$i++, $daily);
+        #&git("tag", "FAILED-x$date.".$i++, $daily)==0 or die 'Error: failed to tag';
         foreach (keys %failed_parents) {
             if ($_ eq $daily) {
                 die "Error: tag FAILED-x$date already exists\n" if `git tag -l FAILED-x$date`;
-                &git("tag", "FAILED-x$date", $_);
+                &git("tag", "FAILED-x$date", $_)==0 or die 'Error: failed to tag';
             } else {
                 $i++;
                 die "Error: tag FAILED-x$date.$i already exists\n" if `git tag -l FAILED-x$date.$i`;
-                &git("tag", "FAILED-x$date.$i", $_);
+                &git("tag", "FAILED-x$date.$i", $_)==0 or die 'Error: failed to tag';
             }
         }
 
         if (%failed_parents) {
             # reset daily-snapshot
-            &git("checkout", "daily-snapshot");
-            &git("reset", "--hard", "master");
-            &git("checkout", "master");
+            &git("checkout", "daily-snapshot")==0 or die 'Error: failed to checkout';
+            &git("reset", "--hard", "master")==0 or die 'Error: failed to reset';
+            &git("checkout", "master")==0 or die 'Error: failed to checkout';
 
             # push changes to remote origin
             print qq(Pushing tags and resetting daily-snapshot on remote (extra):\n);
-            &git("push", "--tags");
-            &git("push", "-f", "origin", "daily-snapshot:daily-snapshot");
+            &git("push", "--tags")==0 or die 'Error: failed to push';
+            &git("push", "-f", "origin", "daily-snapshot:daily-snapshot")==0 or die 'Error: failed to push';
         } else {
             # if no failed parents (including the merge)
-            &git("checkout", "master");
+            &git("checkout", "master")==0 or die 'Error: failed to checkout';
             print qq(Pushing tags on remote (extra):\n);
-            &git("push", "--tags");
+            &git("push", "--tags")==0 or die 'Error: failed to push';
         }
 
         # If we need to make a snapshot from verified branches (-g option), then
@@ -522,13 +527,13 @@ unless ($master_open eq $daily_open) {
 
     unless (%failed_configs) {
         # forward master to daily snapshot
-        &git ("merge", "--ff-only", "origin/daily-snapshot");
-        &git ("tag", "-a", $tag_master, "-m", "verified snapshot");
+        &git ("merge", "--ff-only", "origin/daily-snapshot")==0 or die 'Error: failed to merge';
+        &git ("tag", "-a", $tag_master, "-m", "verified snapshot")==0 or die 'Error: failed to tag';
 
         # push changes to remote origin
         print qq(Pushing tags and updating master on remote (open):\n);
-        &git("push", "--tags");
-        &git("push", "origin", "master:master");
+        &git("push", "--tags")==0 or die 'Error: failed to push';
+        &git("push", "origin", "master:master")==0 or die 'Error: failed to push';
 
         # update link to stable snapshot
         chomp (my $version = `git tag -l --points-at master v*`);
@@ -538,35 +543,35 @@ unless ($master_open eq $daily_open) {
         # go through SHA1 of failed commits and tag them as such
         my $i = 0;
         # the merge commit is listed as a "parent"
-        #&git("tag", "FAILED-o$date.".$i++, $daily_open);
+        #&git("tag", "FAILED-o$date.".$i++, $daily_open)==0 or die 'Error: failed to tag';
         foreach (keys %failed_parents_open) {
             if ($_ eq $daily_open) {
                 die "Error: tag FAILED-o$date already exists\n" if `git tag -l FAILED-o$date`;
-                &git("tag", "FAILED-o$date", $_);
+                &git("tag", "FAILED-o$date", $_)==0 or die 'Error: failed to tag';
             } else {
                 $i++;
                 die "Error: tag FAILED-o$date.$i already exists\n" if `git tag -l FAILED-o$date.$i`;
-                &git("tag", "FAILED-o$date.$i", $_);
+                &git("tag", "FAILED-o$date.$i", $_)==0 or die 'Error: failed to tag';
             }
         }
 
         if (%failed_parents_open) {
             # reset daily-snapshot
-            &git("checkout", "daily-snapshot");
-            &git("reset", "--hard", "master");
-            &git("checkout", "master");
+            &git("checkout", "daily-snapshot")==0 or die 'Error: failed to checkout';
+            &git("reset", "--hard", "master")==0 or die 'Error: failed to reset';
+            &git("checkout", "master")==0 or die 'Error: failed to checkout';
 
             # push changes to remote origin
             print qq(Pushing tags and resetting daily-snapshot on remote (open):\n);
-            &git("push", "--tags");
+            &git("push", "--tags")==0 or die 'Error: failed to push';
             &unprotect("daily-snapshot");
-            &git("push", "-f", "origin", "daily-snapshot:daily-snapshot");
-            &protect("daily-snapshot");
+            &git("push", "-f", "origin", "daily-snapshot:daily-snapshot")==0 or die 'Error: failed to push';
+            &protect("daily-snapshot")==0 or die 'Error: failed to push';
         } else {
             # if no failed parents (including the merge)
-            &git("checkout", "master");
+            &git("checkout", "master")==0 or die 'Error failed to checkout';
             print qq(Pushing tags on remote (open):\n);
-            &git("push", "--tags");
+            &git("push", "--tags")==0 or die 'Error failed to push';
         }
 
         # If we need to make a snapshot from verified branches (-g option), then
@@ -613,7 +618,7 @@ print "\n";
 print "Checkout daily-snapshot branch (extra)\n";
 print "--------------------------------------\n";
 
-&git("checkout", "daily-snapshot");
+&git("checkout", "daily-snapshot")==0 or die 'Error: failed to checkout';
 
 chomp($master = `git rev-parse master`);
 chomp($daily  = `git rev-parse daily-snapshot`);
@@ -634,7 +639,7 @@ print "\n";
 print "Checkout daily-snapshot branch (open)\n";
 print "-------------------------------------\n";
 
-&git("checkout", "daily-snapshot");
+&git("checkout", "daily-snapshot")==0 or die 'Error: failed to checkout';
 
 chomp($master_open = `git rev-parse master`);
 chomp($daily_open  = `git rev-parse daily-snapshot`);
@@ -850,7 +855,7 @@ if ($status == 0) {
         my $tag_daily  = "v$relx.x$date";
         die "Error: tag $tag_daily already exists\n" if `git tag -l $tag_daily`;
 
-        &git("tag", "-a", $tag_daily, "-m", "daily snapshot for testing");
+        &git("tag", "-a", $tag_daily, "-m", "daily snapshot for testing")==0 or die 'Error: failed to tag';
 
         # prepare snapshot
         system ("(cd $localrepo_open ; MOLCAS_SOURCE=$localrepo molcas export && mv $localrepo/molcas-$tag_daily.tar.gz $snapshots/molcas-extra-$tag_daily.tar.gz)");
@@ -860,8 +865,8 @@ if ($status == 0) {
 
     # apply the local changes now to the remote
     print "Pushing tags and daily-snapshot to remote origin (extra):\n";
-    &git("push", "--tags");
-    &git("push", "origin", "daily-snapshot:daily-snapshot");
+    &git("push", "--tags")==0 or die 'Error: failed to push';
+    &git("push", "origin", "daily-snapshot:daily-snapshot")==0 or die 'Error: failed to push';
 
 } else {
     # there was a problem with merging
@@ -947,7 +952,7 @@ if ($status == 0) {
     }
 
   RESET:
-    &git("reset", "--hard");
+    &git("reset", "--hard")==0 or die 'Error: failed to reset';
 
     # finally, remove the bad branches from the merge heads and then
     # jump back to the merge procedure, unless we have already tried
@@ -1169,7 +1174,7 @@ if ($status == 0) {
         my $tag_daily  = "v$rel.o$date";
         die "Error: tag $tag_daily already exists\n" if `git tag -l $tag_daily`;
 
-        &git("tag", "-a", $tag_daily, "-m", "daily snapshot for testing");
+        &git("tag", "-a", $tag_daily, "-m", "daily snapshot for testing")==0 or die 'Error: failed to tag';
 
         # prepare snapshot
         system ("(cd $localrepo_open ; MOLCAS_SOURCE=$localrepo_open molcas export && mv $localrepo_open/molcas-$tag_daily.tar.gz $snapshots/openmolcas-$tag_daily.tar.gz)");
@@ -1179,8 +1184,8 @@ if ($status == 0) {
 
     # apply the local changes now to the remote
     print "Pushing tags and daily-snapshot to remote origin (open):\n";
-    &git("push", "--tags");
-    &git("push", "origin", "daily-snapshot:daily-snapshot");
+    &git("push", "--tags")==0 or die 'Error: failed to push';
+    &git("push", "origin", "daily-snapshot:daily-snapshot")==0 or die 'Error: failed to push';
 
 } else {
     # there was a problem with merging
@@ -1266,7 +1271,7 @@ if ($status == 0) {
     }
 
   RESET_open:
-    &git("reset", "--hard");
+    &git("reset", "--hard")==0 or die 'Error: failed to reset';
 
     # finally, remove the bad branches from the merge heads and then
     # jump back to the merge procedure, unless we have already tried

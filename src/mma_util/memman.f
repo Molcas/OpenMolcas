@@ -8,32 +8,18 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+*  MemMan
+*
+*> @brief
+*>   Handle calls for memory from LUCIA, by passing the either to ::GETMEM or to the MEMMAN_LUCIA routine
+*>
+*> @param[out]    ipOut Position
+*> @param[in]     Ln_   Length
+*> @param[in]     Oper  ``MARK`` / ``ADDL`` / ``ADDS`` / ``FLUSM`` / ``FREE``
+*> @param[in]     ir    ``1`` / ``2``
+*> @param[in,out] Label Arbitrary
+************************************************************************
       Subroutine MemMan(ipOut,Ln_,Oper,ir,Label)
-************************************************************
-*
-*   <DOC>
-*     <Name>MemMan</Name>
-*     <Syntax>Call MemMan(ipOut,Ln\_,Oper,ir,Label)</Syntax>
-*     <Arguments>
-*       \Argument{ipOut}{Position}{Integer}{out}
-*       \Argument{Ln\_}{Length}{Integer}{in}
-*       \Argument{Oper}{MARK $|$ ADDL $|$ ADDS $|$ FLUSM $|$ FREE}{Char*(5)}{in}
-*       \Argument{ir}{1 $|$ 2}{Integer}{in}
-*       \Argument{Label}{Arbitrary}{Char*(6)}{inout}
-*     </Arguments>
-*     <Purpose>
-* Handle calls for memory from LUCIA, by passing the either to
-* GETMEM or to the MEMMAN\_LUCIA routine.
-*     </Purpose>
-*     <Dependencies></Dependencies>
-*     <Author></Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8 (a-h,o-z)
       Character*(*) Oper
       Character*5 OP2

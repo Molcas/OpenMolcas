@@ -10,78 +10,44 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
+*  CHO_get_ER
+*
+*> @brief
+*>   Compute the Edmiston--Ruedenberg functional for a given set of occupied MOs
+*> @author F. Aquilante
+*>
+*> @details
+*> Computes the Edmiston--Ruedenberg functional
+*>
+*> \f[ W = \sum_i \mathit{ER}[i] = \sum_i (ii|ii) \f]
+*>
+*> for a given set of occupied MOs.
+*>
+*> The functional orbital components \p ER(i) are
+*> computed by using the Cholesky representation \f$ L_{ab,J} \f$
+*> of the AO two-electron integrals, namely
+*>
+*> \f[ \mathit{ER}[i] = \sum_J V[i]_J V[i]_J \f]
+*>
+*> where
+*>
+*> \f[ V[i]_J = \sum_{ab} D[i]_{ab} L_{ab,J} \f]
+*>
+*> and
+*>
+*> \f[ D[i]_{a,b} = C[i]_a C[i]_b \f]
+*>
+*> @note
+*> Requires initialization of the Cholesky information.
+*>
+*> @param[out]    irc     return code
+*> @param[in]     CMO     MOs matrix, stored as \p C(a,k)
+*> @param[in]     nOcc    number of occupied orbitals in each symmetry
+*> @param[in,out] ER      orbital components of the ER functional}
+*> @param[in,out] W       value of the Edmiston--Ruedenberg functional
+*> @param[in]     timings switch on/off timings printout
+************************************************************************
       SUBROUTINE CHO_get_ER(irc,CMO,nOcc,ER,W,timings)
-************************************************************
-*
-*   <DOC>
-*     <Name>CHO\_get\_ER</Name>
-*     <Syntax>Call CHO\_get\_ER(irc,CMO,nOcc,ER,W,timings)</Syntax>
-*     <Arguments>
-*       \Argument{irc}{return code}{Integer}{out}
-*       \Argument{CMO}{MOs matrix, stored as C(a,k)}{Array Real*8}{in}
-*       \Argument{nOcc}{number of occupied orbitals in each symmetry}{Array Integer}{in}
-*       \Argument{ER}{orbital components of the ER functional}{Array Real*8}{in|out}
-*       \Argument{W}{value of the Edmiston-Ruedenberg functional}{Real*8}{inout}
-*       \Argument{timings}{switch on/off timings printout}{Logical}{in}
-*     </Arguments>
-*     <Purpose></Purpose>
-*     <Dependencies>Requires initialization of the Cholesky information</Dependencies>
-*     <Author>F. Aquilante</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*
-*         Computes the Edmiston-Ruedenberg functional
-*
-*              W = sum\_i ER[i] = sum\_i (ii|ii)
-*
-*         for a given set of occupied MOs.
-*
-*         The functional orbital components ER(i) are
-*         computed by using the Cholesky representation L(ab,J)
-*         of the AO two-electron integrals, namely
-*
-*             ER[i] = sum\_J  V[i](J) V[i](J)
-*
-*         where
-*
-*             V[i](J) = sum\_ab D[i](ab) L(ab,J)
-*
-*         and
-*
-*             D[i](a,b) = C[i](a) C[i](b)
-*
-*     </Description>
-*    </DOC>
-*
-************************************************************
-
-C********************************************************
-C
-C Author:  F. Aquilante
-C
-C Purpose:
-C         To compute the Edmiston-Ruedenberg functional
-C
-C              W = sum_i ER[i] = sum_i (ii|ii)
-C
-C         for a given set of occupied MOs.
-C
-C         The functional orbital components ER(i) are
-C         computed by using the Cholesky representation
-C         of the AO two-electron integrals, namely
-C
-C             ER[i] = sum_J  V[i](J)^2
-C
-C         where
-C
-C             V[i](J) = sum_ab D[i](ab)*L(ab,J)
-C
-C         and
-C
-C             D[i](a,b) = C[i](a)*C[i](b)
-C
-C********************************************************
       Implicit Real*8 (a-h,o-z)
       Logical timings
       Integer nOcc(*),iOcc(8),isMO(8)

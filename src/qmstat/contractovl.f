@@ -10,53 +10,36 @@
 *                                                                      *
 * Copyright (C) Anders Ohrn                                            *
 ************************************************************************
+*  ContractOvl
+*
+*> @brief
+*>   Compute the overlaps between solvent and solute in contracted basis-functions
+*> @author A. Ohrn
+*>
+*> @details
+*> Here the overlap between the QM-region contracted AO-basis
+*> functions and the present solvent molecule contracted AO-basis
+*> functions are computed. In order to use the fact that we use
+*> contracted functions to the maximum, we compute the overlaps with
+*> primitive functions only once, then we transform this matrix to
+*> all relevant contracted overlaps. After that, the old primitive
+*> integrals are discarded and a new set of primitive are computed.
+*> This is very nice since ::OverLq is rather slow. The problems we
+*> get are that we must use rather elaborate schemes to get right
+*> digit in right place.
+*>
+*> @param[out] Sint     The contracted basis function overlaps
+*> @param[out] SintPar  The contracted basis function overlaps with extra atom--atom weights *if* this has been requested by user, otherwise unchanged
+*> @param[in]  nBaseQ   Number of AO-basis functions in QM-region
+*> @param[in]  nBaseC   Like \p nBaseQ but for solvent
+*> @param[in]  N        Which solvent molecule this is
+*> @param[in]  nCent    How many centers the solvent molecule has
+*> @param[in]  iEl      Number of elements in QM-region
+*> @param[in]  nAtomsCC How many solvent atoms
+*> @param[in]  iPrint   Print level
+************************************************************************
       Subroutine ContractOvl(Sint,SintPar,nBaseQ,nBaseC
      &,N,nCent,iEl,iQ_Atoms,nAtomsCC,iPrint,Inside)
-************************************************************
-*
-*   <DOC>
-*     <Name>ContractOvl</Name>
-*     <Syntax>Call ContractOvl(Sint,SintPar,nBaseQ,nBaseC,WeightEx,Sfqh,Sfqo,iCqa,N,nCent,iEl,nAtoms,nAtomsCC,iPrint)</Syntax>
-*     <Arguments>
-*       \Argument{Sint}{The contracted basis function overlaps}{}{out}
-*       \Argument{SintPar}{The contracted basis function overlaps with extra atom-atom weights IF this has been requested by user, otherwise unchanged}{}{out}
-*       \Argument{nBaseQ}{Number of AO-basis functions in QM-region}{}{in}
-*       \Argument{nBaseC}{Like nBaseQ but for solvent}{}{in}
-*       \Argument{WeightEx}{Logical variable that tells if user has requested atom-atom weights}{}{in}
-*       \Argument{Sfqh}{The atom-atom weight.}{}{in}
-*       \Argument{Sfqo}{-"-}{}{in}
-*       \Argument{iCqa}{Atom number where atom-atom weights should be applied}{}{in}
-*       \Argument{N}{Which solvent molecule this is}{}{in}
-*       \Argument{nCent}{How many centers the solvent molecule has}{}{in}
-*       \Argument{iEl}{Number of elements in QM-region}{}{in}
-*       \Argument{nAtoms}{Hom many atoms in QM-region}{}{in}
-*       \Argument{nAtomsCC}{How many solvent atoms}{}{in}
-*       \Argument{iPrint}{print level}{}{in}
-*     </Arguments>
-*     <Purpose>
-*      Compute the overlaps between solvent and solute in contracted
-*      basis-functions.
-*     </Purpose>
-*     <Dependencies>All things from seward that qfread collects
-*     </Dependencies>
-*     <Author>A.Ohrn</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects>None</Side_Effects>
-*     <Description>
-*    Here the overlap between the QM-region contracted AO-basis
-*    functions and the present solvent molecule contracted AO-basis
-*    functions are computed. In order to use the fact that we use
-*    contracted functions to the maximum, we compute the overlaps with
-*    primitive functions only once, then we transform this matrix to
-*    all relevant contracted overlaps. After that, the old primitive
-*    integrals are discarded and a new set of primitive are computed.
-*    This is very nice since OverLq is rather slow. The problems we
-*    get are that we must use rather elaborate schemes to get right
-*    digit in right place.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8 (a-h,o-z)
 
 #include "maxi.fh"

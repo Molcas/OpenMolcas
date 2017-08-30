@@ -10,31 +10,26 @@
 *                                                                      *
 * Copyright (C) Thomas Bondo Pedersen                                  *
 ************************************************************************
+*  Sq2Tri
+*
+*> @brief
+*>   Convert from square to lower triangular storage
+*> @author Thomas Bondo Pedersen
+*>
+*> @param[in]  Sq  Square storage array
+*> @param[out] Tri Lower triangular storage array
+*> @param[in]  n   Dimension
+*>
+*> @details
+*> Perform the extraction
+*>
+*> \code
+*> Tri(i*(i-1)/2+j) = Sq(i,j)
+*> \endcode
+*>
+*> where \c i &ge; \c j.
+************************************************************************
       SubRoutine Sq2Tri(Sq,Tri,n)
-************************************************************
-*
-*   <DOC>
-*     <Name>Sq2Tri</Name>
-*     <Syntax>Call Sq2Tri(Sq,Tri,n)</Syntax>
-*     <Arguments>
-*       \Argument{Sq}{Square storage array, dim. Sq(n,n)}{Real*8}{in}
-*       \Argument{Tri}{Lower triangular storage array, dim.
-*                      Tri(n*(n+1)/2}{Real*8}{out}
-*       \Argument{n}{Dimension}{Integer}{in}
-*     </Arguments>
-*     <Purpose>Convert from square to lower triangular storage</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>Thomas Bondo Pedersen</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*        Perform the extraction
-*           Tri(i*(i-1)/2+j) = Sq(i,j)
-*        where i >= j.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit None
       Integer n
       Real*8  Sq(n,n), Tri(n*(n+1)/2)

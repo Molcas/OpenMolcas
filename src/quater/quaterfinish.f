@@ -10,26 +10,16 @@
 *                                                                      *
 * Copyright (C) Yannick Carissan                                       *
 ************************************************************************
+*  quaterFinish
+*
+*> @brief
+*>   Clean the quater environment
+*> @author Y. Carissan
+*>
+*> @details
+*> Release the memory used by the quater program.
+************************************************************************
       subroutine quaterFinish()
-************************************************************
-*
-*   <DOC>
-*     <Name>quaterFinish</Name>
-*     <Syntax>quaterFinish()</Syntax>
-*     <Arguments>
-*     </Arguments>
-*     <Purpose>Clean the quater environment</Purpose>
-*     <Dependencies>memory util</Dependencies>
-*     <Author>Y. Carissan</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects>none</Side_Effects>
-*     <Description>
-*        Release the memory used by the quater program
-*     </Description>
-*    </DOC>
-*
-************************************************************
-
       implicit none
 #include "WrkSpc.fh"
 #include "geoms.fh"

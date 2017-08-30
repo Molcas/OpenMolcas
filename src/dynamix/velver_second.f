@@ -220,7 +220,9 @@ C
 C     Check if the total energy is conserved and scale the velocities
 C     if necessary.
 C
-         tolerance=natom*4.750223014E-06
+C        1.0K * k_B
+         tolerance=1.0D-3*CONST_BOLTZMANN_/CONV_AU_TO_KJ_
+         tolerance=1.5D0*natom*tolerance
          IF (ABS(Etot0-Etot).gt.tolerance) THEN
             Ekin_target=Etot0-Epot
             scalfac = sqrt(Ekin_target / Ekin)
