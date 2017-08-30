@@ -2206,9 +2206,6 @@ set (last_energy_deps
 #                                                                              #
 ################################################################################
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-        # gfortran (version?) does not detect functions passed as arguments
-        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${fmm_util_src}/*.f90)
-        set_source_files_properties (${source} PROPERTIES COMPILE_FLAGS "-Wno-unused-function")
         # netlib blas/lapack has too many problems to fix (yet)
         set (netlib_nowarn_flags "-w")
         file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${LinAlg_internal_src}/*.f)
