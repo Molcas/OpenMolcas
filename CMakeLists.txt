@@ -496,7 +496,7 @@ endif ()
 # GNU Compiler Collection (GCC)
 #======================================#
 # defines __GNUC__
-# CXX compiler
+# C++ compiler
 list (APPEND SUPPORTED_CXX_COMPILERS "GNU")
 set (CXXFLAGS_GNU_BASIC "")
 set (CXXFLAGS_GNU_OPENMP "-fopenmp")
@@ -547,7 +547,7 @@ set (GNU_TRAP "-ffpe-trap=invalid,zero,overflow")
 # LLVM C frontend (Clang)
 #======================================#
 # defines __clang__
-# CXX compiler
+# C++ compiler
 list (APPEND SUPPORTED_CXX_COMPILERS "Clang")
 set (CXXFLAGS_Clang_BASIC "")
 set (CXXFLAGS_Clang_OPENMP "-fopenmp")
@@ -573,10 +573,10 @@ set (CFLAGS_Clang_BIGOT "-Wall -Werror")
 #set (Clang_TRAP "???")
 
 #======================================#
-# Intel CXX/C/Fortran Compilers
+# Intel C++/C/Fortran Compilers
 #======================================#
 # defines __INTEL_COMPILER
-# CXX compiler
+# C++ compiler
 list (APPEND SUPPORTED_CXX_COMPILERS "Intel")
 set (CXXFLAGS_Intel_BASIC "")
 set (CXXFLAGS_Intel_OPENMP "-qopenmp")
@@ -668,6 +668,16 @@ set (SunPro_TRAP "-ftrap=common")
 # Portland Group (PGI) Compilers
 #======================================#
 # defines __PGI
+# C++ compiler
+list (APPEND SUPPORTED_CXX_COMPILERS "PGI")
+set (CXXFLAGS_PGI_BASIC "-c99 -pgf90libs")
+set (CXXFLAGS_PGI_OPENMP "-mp")
+# build targets
+set (CXXFLAGS_PGI_DEBUG "-O0 -g -Minform=warn")
+set (CXXFLAGS_PGI_GARBLE "-O2 -gopt -Minform=warn")
+set (CXXFLAGS_PGI_RELWITHDEBINFO "-O2 -gopt -Minform=warn")
+set (CXXFLAGS_PGI_RELEASE "-O2")
+set (CXXFLAGS_PGI_FAST "-O2")
 # C compiler
 list (APPEND SUPPORTED_C_COMPILERS "PGI")
 set (CFLAGS_PGI_BASIC "-c99 -pgf90libs")
@@ -697,6 +707,7 @@ if (CMAKE_Fortran_COMPILER_ID STREQUAL "PGI")
 endif ()
 
 # The option does not exist, or I cannot find it
+#set (CXXFLAGS_PGI_BIGOT "???")
 #set (CFLAGS_PGI_BIGOT "???")
 #set (FFLAGS_PGI_BIGOT "???")
 #set (PGI_TRAP "???")
@@ -748,7 +759,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Garble")
 endif ()
 
 if (DMRG OR WFA)
-        # CXX compiler required for DMRG and WFA projects
+        # C++ compiler required for DMRG and WFA projects
         foreach (CXX_COMPILER ${SUPPORTED_CXX_COMPILERS})
                 if (CXX_COMPILER STREQUAL "${CMAKE_CXX_COMPILER_ID}")
                         set (CXXCID ${CMAKE_CXX_COMPILER_ID})
@@ -2205,9 +2216,19 @@ set (last_energy_deps
 # Disable some warnings that are buggy or on code we don't want to modify      #
 #                                                                              #
 ################################################################################
+# netlib blas/lapack produces warnings
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-        # netlib blas/lapack has too many problems to fix (yet)
         set (netlib_nowarn_flags "-w")
+elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
+        set (netlib_nowarn_flags "-w")
+elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "SunPro")
+        set (netlib_nowarn_flags "-erroff=%all")
+elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "PGI")
+        set (netlib_nowarn_flags "-w")
+elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "NAG")
+        set (netlib_nowarn_flags "-w")
+endif ()
+if (netlib_nowarn_flags)
         file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${LinAlg_internal_src}/*.f)
         set_source_files_properties (${source} PROPERTIES COMPILE_FLAGS ${netlib_nowarn_flags})
         file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${delayed_util_src}/*.f)
