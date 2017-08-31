@@ -12,7 +12,7 @@
 c----------------------------------------------------------------------
       implicit real*8 (a-h,o-z)
 #include "dkhparameters.fh"
-      parameter(maxscr=(maxlength-1)/4+1)
+      parameter(maxscr=int(dble(maxlength-1)/4+1))
       dimension iarray1(*),iarray2(*)
       dimension iscr(maxscr)
       lwop=8/intrea()

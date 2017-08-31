@@ -50,8 +50,8 @@
 * algorithm though, so if higher is needed, change this number.
       Parameter(MaxAr=MxAngqNr*(MxAngqNr+1)/2)
       Dimension Bori(3),Cori(3),Alfa(MxCont),Beta(MxCont)
-      Dimension Trans((3*MxAngqNr**2-2*MxAngqNr-10+8*MxAngqNr**3
-     &                +3*MxAngqNr**4)/12)
+      Dimension Trans(int(dble(3*MxAngqNr**2-2*MxAngqNr-10+8*MxAngqNr**3
+     &                +3*MxAngqNr**4)/12))
       Dimension PAxyz(3),PBxyz(3),TheCent(3)
       Dimension FactorX(2*MxAngqNr+1),FactorY(2*MxAngqNr+1)
       Dimension FactorZ(2*MxAngqNr+1)

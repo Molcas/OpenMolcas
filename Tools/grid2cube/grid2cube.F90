@@ -8,14 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2013,2015, Ignacio Fdez. Galvan                        *
+! Copyright (C) 2013,2015,2017, Ignacio Fdez. Galvan                   *
 !***********************************************************************
 !===============================================================================
 ! Fortran 2003 program for converting Molcas "grid" files into
 !                                     Gaussian "cube" format
 !
-! Last modified: 2015 June 18
-!            by: Ignacio Fdez. Galván
+! Last modified: 2017 August 26
+!            by: Ignacio Fdez. Galvan
 !===============================================================================
 
 #define STRLEN 256
@@ -24,34 +24,38 @@ PROGRAM Grid2Cube
 IMPLICIT NONE
 CHARACTER(LEN=STRLEN), DIMENSION(:), ALLOCATABLE :: Args
 INTEGER :: FileIn, FileOut, Natom, Block_Size, N_of_Grids, Grid, NP
-LOGICAL :: Binary
+LOGICAL :: Binary, Luscus
 INTEGER, DIMENSION(3) :: Net, NPt
 REAL(KIND=8), DIMENSION(3) :: Origin, Axis_1, Axis_2, Axis_3
 REAL(KIND=8), DIMENSION(:,:), ALLOCATABLE :: Coor
 REAL(KIND=8), DIMENSION(:), ALLOCATABLE :: PtData
 CHARACTER(6), DIMENSION(:), ALLOCATABLE :: Label
 CHARACTER(LEN=STRLEN), DIMENSION(:), ALLOCATABLE :: GridName
-CHARACTER(LEN=2), DIMENSION(0:112) :: Symbol
+CHARACTER(LEN=2), DIMENSION(0:118) :: Symbol
 
 ! Define the atomic symbols for getting the atomic numbers
-Symbol(:) = (/                                          "X ", &
-  "H ", "HE", "LI", "BE", "B ", "C ", "N ", "O ", "F ", "NE", &
-  "NA", "MG", "AL", "SI", "P ", "S ", "CL", "AR", "K ", "CA", &
-  "SC", "TI", "V ", "CR", "MN", "FE", "CO", "NI", "CU", "ZN", &
-  "GA", "GE", "AS", "SE", "BR", "KR", "RB", "SR", "Y ", "ZR", &
-  "NB", "MO", "TC", "RU", "RH", "PD", "AG", "CD", "IN", "SN", &
-  "SB", "TE", "I ", "XE", "CS", "BA", "LA", "CE", "PR", "ND", &
-  "PM", "SM", "EU", "GD", "TB", "DY", "HO", "ER", "TM", "YB", &
-  "LU", "HF", "TA", "W ", "RE", "OS", "IR", "PT", "AU", "HG", &
-  "TL", "PB", "BI", "PO", "AT", "RN", "FR", "RA", "AC", "TH", &
-  "PA", "U ", "NP", "PU", "AM", "CM", "BK", "CF", "ES", "FM", &
-  "MD", "NO", "LR", "RF", "DB", "SG", "BH", "HS", "MT", "DS", &
-  "RG", "CN"                                                  /)
+Symbol(:) = (/                                          'X ', &
+  'H ', 'HE', 'LI', 'BE', 'B ', 'C ', 'N ', 'O ', 'F ', 'NE', &
+  'NA', 'MG', 'AL', 'SI', 'P ', 'S ', 'CL', 'AR', 'K ', 'CA', &
+  'SC', 'TI', 'V ', 'CR', 'MN', 'FE', 'CO', 'NI', 'CU', 'ZN', &
+  'GA', 'GE', 'AS', 'SE', 'BR', 'KR', 'RB', 'SR', 'Y ', 'ZR', &
+  'NB', 'MO', 'TC', 'RU', 'RH', 'PD', 'AG', 'CD', 'IN', 'SN', &
+  'SB', 'TE', 'I ', 'XE', 'CS', 'BA', 'LA', 'CE', 'PR', 'ND', &
+  'PM', 'SM', 'EU', 'GD', 'TB', 'DY', 'HO', 'ER', 'TM', 'YB', &
+  'LU', 'HF', 'TA', 'W ', 'RE', 'OS', 'IR', 'PT', 'AU', 'HG', &
+  'TL', 'PB', 'BI', 'PO', 'AT', 'RN', 'FR', 'RA', 'AC', 'TH', &
+  'PA', 'U ', 'NP', 'PU', 'AM', 'CM', 'BK', 'CF', 'ES', 'FM', &
+  'MD', 'NO', 'LR', 'RF', 'DB', 'SG', 'BH', 'HS', 'MT', 'DS', &
+  'RG', 'CN', 'NH', 'FL', 'MC', 'LV', 'TS', 'OG'              /)
 
 ! Read the filenames, grid header, and let the user select
 ! the desired grid
 CALL Process_Arguments()
-CALL Read_Header()
+IF (Luscus) THEN
+  CALL Read_Header_Luscus()
+ELSE
+  CALL Read_Header()
+END IF
 CALL Select_Grid(Grid)
 
 ! Total number of points
@@ -59,7 +63,11 @@ NP = PRODUCT(NPt(:))
 ALLOCATE(PtData(NP))
 
 ! Read grid data
-CALL Read_Data(Grid)
+IF (Luscus) THEN
+  CALL Read_Data_Luscus(Grid)
+ELSE
+  CALL Read_Data(Grid)
+END IF
 CLOSE(FileIn)
 
 ! Write output file
@@ -152,13 +160,26 @@ REAL(KIND=8) :: TestFloat
 ! Try to read as ASCII, the first line should be 0
 OPEN(U,FILE=FileName,STATUS='OLD',ACTION='READ',IOSTAT=Error,FORM='FORMATTED')
 IF (Error /= 0) RETURN
-READ(U,*,IOSTAT=Error) Test
-IF (Error == 0 .AND. Test == 0) THEN
+READ(U,'(A)',IOSTAT=Error) TestChar
+IF (Error == 0 .AND. TestChar == '0') THEN
 #ifdef _DEBUG_
   WRITE(6,1) 'Input format: ASCII'
 #endif
   Binary = .FALSE.
+  Luscus = .FALSE.
   RETURN
+ELSE IF (Error == 0 .AND. TestChar == ' ') THEN
+  REWIND(U)
+  READ(U,*,IOSTAT=Error) Test
+  IF (Error == 0) THEN
+#ifdef _DEBUG_
+    WRITE(6,1) 'Input format: Luscus'
+#endif
+    REWIND(U)
+    Binary = .FALSE.
+    Luscus = .TRUE.
+    RETURN
+  END IF
 END IF
 CLOSE(U)
 
@@ -172,6 +193,7 @@ IF (Error == 0 .AND. TestChar == 'a' .AND. TestFloat == 1999.0) THEN
   WRITE(6,1) 'Input format: binary'
 #endif
   Binary = .TRUE.
+  Luscus = .FALSE.
   RETURN
 END IF
 CLOSE(U)
@@ -180,6 +202,7 @@ CLOSE(U)
 WRITE(6,1) 'Unknown input format'
 #endif
 Binary = .FALSE.
+Luscus = .FALSE.
 Error=1
 
 #ifdef _DEBUG_
@@ -246,7 +269,7 @@ DO
   READ(Line,*) Word
   SELECT CASE (TRIM(Word))
 
-   CASE("Natom=")
+   CASE('Natom=')
     READ(Line,*) Word,Natom
     ALLOCATE(Coor(Natom,3),Label(Natom))
     DO i=1,Natom
@@ -254,34 +277,34 @@ DO
       READ(Line,*) Label(i),Coor(i,:)
     END DO
 
-   CASE("N_of_Grids=")
+   CASE('N_of_Grids=')
     READ(Line,*) Word,N_of_Grids
     ALLOCATE(GridName(N_of_Grids))
 
-   CASE("Block_Size=")
+   CASE('Block_Size=')
     READ(Line,*) Word,Block_Size
 
-   CASE("Net=")
+   CASE('Net=')
     READ(Line,*) Word,Net(:)
     NPt = Net(:)+1
 
-   CASE("Origin=")
+   CASE('Origin=')
     READ(Line,*) Word,Origin(:)
 
-   CASE("Axis_1=")
+   CASE('Axis_1=')
     READ(Line,*) Word,Axis_1(:)
 
-   CASE("Axis_2=")
+   CASE('Axis_2=')
     READ(Line,*) Word,Axis_2(:)
 
-   CASE("Axis_3=")
+   CASE('Axis_3=')
     READ(Line,*) Word,Axis_3(:)
 
-   CASE("GridName=")
+   CASE('GridName=')
     ngrid = ngrid+1
     GridName(ngrid) = ADJUSTL(Line(11:))
 
-   CASE("Title=")
+   CASE('Title=')
     EXIT
 
   END SELECT
@@ -317,6 +340,70 @@ END IF
 1 FORMAT (A)
 
 END SUBROUTINE Read_Header
+
+!-------------------------------------------------------------------------------
+! Read the header of the input file (Luscus format)
+
+SUBROUTINE Read_Header_Luscus()
+CHARACTER(LEN=STRLEN) :: Line, Word
+INTEGER :: i
+! Hard-coded value for Luscus format
+REAL(Kind=8), PARAMETER :: Angstrom=0.52917721067D0
+
+READ(FileIn,*) Natom
+READ(FileIn,*)
+ALLOCATE(Coor(Natom,3),Label(Natom))
+DO i=1,Natom
+  READ(FileIn,*) Label(i),Coor(i,:)
+END DO
+Coor(:,:) = Coor(:,:)/Angstrom
+READ(FileIn,1) Line
+IF (Line /= '<GRID>') STOP '** Error in Luscus format'
+READ(FileIn,1) Line
+READ(Line,*) Word,Word,Word,N_of_Grids,Word,Word,Word,Block_Size
+ALLOCATE(GridName(N_of_Grids))
+READ(FileIn,*)
+READ(FileIn,*) Word,NPt(:)
+Net = NPt(:)-1
+READ(FileIn,*) Word,Origin(:)
+READ(FileIn,*) Word,Axis_1(:)
+READ(FileIn,*) Word,Axis_2(:)
+READ(FileIn,*) Word,Axis_3(:)
+READ(FileIn,*)
+DO i=1,N_of_Grids
+  READ(FileIn,1) Line
+  GridName(i) = ADJUSTL(Line(12:))
+END DO
+
+#ifdef _DEBUG_
+WRITE(6,2) 'Natom=     ',Natom
+DO i=1,Natom
+  WRITE(6,4) Label(i),Coor(i,:)
+END DO
+WRITE(6,2) 'Block_Size=',Block_Size
+WRITE(6,2) 'Net=       ',Net
+WRITE(6,3) 'Origin=    ',Origin(:)
+WRITE(6,3) 'Axis_1=    ',Axis_1(:)
+WRITE(6,3) 'Axis_2=    ',Axis_2(:)
+WRITE(6,3) 'Axis_3=    ',Axis_3(:)
+WRITE(6,2) 'N_of_Grids=',N_of_Grids
+DO i=1,N_of_Grids
+  WRITE(6,5) i,TRIM(GridName(i))
+END DO
+2 FORMAT (A,3(1X,I6))
+3 FORMAT (A,3(1X,F11.3))
+4 FORMAT (2X,A,3(1X,F10.5))
+5 FORMAT (2X,I3,' -- ',A)
+#endif
+
+IF (N_of_Grids < 1) THEN
+  WRITE(6,1) '** No grids found in input file'
+  STOP
+END IF
+
+1 FORMAT (A)
+
+END SUBROUTINE Read_Header_Luscus
 
 !-------------------------------------------------------------------------------
 ! Print the grid names found in the file, and ask the user to choose one
@@ -395,6 +482,46 @@ DO WHILE (Data_Read < NP)
 END DO
 
 END SUBROUTINE Read_Data
+
+!-------------------------------------------------------------------------------
+! Read the data corresponding to the desired grid (Luscus format)
+
+SUBROUTINE Read_Data_Luscus(ngrid)
+INTEGER, INTENT(IN) :: ngrid
+CHARACTER(LEN=STRLEN) :: Line, FileName
+INTEGER :: N, Pos, Data_Read, Data_in_Block
+
+! Re-open the file as a binary stream
+READ(FileIn,1) Line
+IF (Line /= ' <DENSITY>') STOP '** Error in Luscus format'
+INQUIRE(FileIn,NAME=FileName)
+CLOSE(FileIn)
+OPEN(FileIn,FILE=FileName,STATUS='OLD',ACTION='READ',ACCESS='STREAM',FORM='UNFORMATTED')
+! Find the location where whe data start
+Pos=1
+DO
+  READ(FileIn,POS=Pos) Line
+  N = INDEX(Line, ' <DENSITY>')
+  IF (N > 0) THEN
+    Pos = Pos+N+10
+    EXIT
+  END IF
+  Pos = Pos+LEN(Line)-10
+END DO
+! Read the data in blocks, skipping previous and following grids
+Data_Read = 0
+N = STORAGE_SIZE(PtData(1))/8
+DO WHILE (Data_Read < NP)
+  Data_in_Block = MIN(NP-Data_Read,Block_Size)
+  Pos = Pos+(ngrid-1)*Data_in_Block*N
+  READ(FileIn,POS=Pos) PtData(Data_Read+1:Data_Read+Data_in_Block)
+  Data_Read = Data_Read+Data_in_Block
+  Pos = Pos+(N_of_Grids-ngrid+1)*Data_in_Block*N
+END DO
+
+1 FORMAT (A)
+
+END SUBROUTINE Read_Data_Luscus
 
 !-------------------------------------------------------------------------------
 ! Write the grid data in (formatted) cube format

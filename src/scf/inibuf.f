@@ -50,7 +50,7 @@
          OnDisk=.True.
          Incore=.False.
          LuTMp = 32
-         Call new_EAFOpen(LuTmp,'SMDINT  ')
+         Call EAFOpen(LuTmp,'SMDINT  ')
          nBuf=2
       Else
          OnDisk=.False.
