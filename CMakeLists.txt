@@ -256,9 +256,6 @@ function (find_source name)
         endif ()
 endfunction ()
 
-# These will be needed later, so set them now
-find_source(LinAlg_internal)
-
 # get version from git if available, otherwise look in .molcasversion
 #====================================================================
 
@@ -699,12 +696,6 @@ set (FFLAGS_PGI_GARBLE "-O2 -gopt -Minform=warn")
 set (FFLAGS_PGI_RELWITHDEBINFO "-O2 -gopt -Minform=warn")
 set (FFLAGS_PGI_RELEASE "-O2")
 set (FFLAGS_PGI_FAST "-fast")
-
-# Special flag for building LAPACK with PGI
-if (CMAKE_Fortran_COMPILER_ID STREQUAL "PGI")
-        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${LinAlg_internal_src}/lapack.f)
-        set_source_files_properties (${source} PROPERTIES COMPILE_FLAGS "-Kieee")
-endif ()
 
 # The option does not exist, or I cannot find it
 #set (CXXFLAGS_PGI_BIGOT "???")
@@ -2213,26 +2204,25 @@ set (last_energy_deps
 
 ################################################################################
 #                                                                              #
-# Disable some warnings that are buggy or on code we don't want to modify      #
+# Disable some warnings or use other flags on code we don't want to modify     #
 #                                                                              #
 ################################################################################
 # netlib blas/lapack produces warnings
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-        set (netlib_nowarn_flags "-w")
+        set (netlib_nowarn_flags " -w")
 elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
-        set (netlib_nowarn_flags "-w")
+        set (netlib_nowarn_flags " -w")
 elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "SunPro")
-        set (netlib_nowarn_flags "-erroff=%all")
+        set (netlib_nowarn_flags " -erroff=%all")
 elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "PGI")
-        set (netlib_nowarn_flags "-w")
+        set (netlib_nowarn_flags " -Kieee -w")
 elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "NAG")
-        set (netlib_nowarn_flags "-w")
+        set (netlib_nowarn_flags " -w")
 endif ()
+find_source(LinAlg_internal)
 if (netlib_nowarn_flags)
-        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${LinAlg_internal_src}/*.f)
-        set_source_files_properties (${source} PROPERTIES COMPILE_FLAGS ${netlib_nowarn_flags})
-        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${delayed_util_src}/*.f)
-        set_source_files_properties (${source} PROPERTIES COMPILE_FLAGS ${netlib_nowarn_flags})
+        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${LinAlg_internal_src}/*.f ${delayed_util_src}/*.f)
+        set_property (SOURCE ${source} APPEND_STRING PROPERTY COMPILE_FLAGS ${netlib_nowarn_flags})
 endif ()
 
 ################################################################################
@@ -2247,9 +2237,11 @@ if (DEFINED BLACKLIST)
                         ${${module}_src}/*.f
                         ${${module}_src}/*.f90
                         )
-                set_source_files_properties (
-                        ${source} PROPERTIES
-                        COMPILE_FLAGS "${BLACKFLAGS}"
+                set_property (
+                        SOURCE ${source}
+                        APPEND_STRING
+                        PROPERTY
+                        COMPILE_FLAGS " ${BLACKFLAGS}"
                         )
         endforeach ()
         message ("Blacklisting enables, someone doesn't like certain modules...")
@@ -2412,7 +2404,7 @@ endforeach ()
 
 # set file-specific flags
 if (BOUNDS AND (${FFLAGS_GNU_BOUNDS} MATCHES "-fsanitize=address"))
-        set_source_files_properties(${rassi_src}/prprop.f PROPERTIES COMPILE_FLAGS --param=max-vartrack-size=120000000)
+        set_property(SOURCE ${rassi_src}/prprop.f APPEND_STRING PROPERTY COMPILE_FLAGS " --param=max-vartrack-size=120000000")
 endif ()
 
 # set up proper RPATH for executables, use RUNPATH if on Linux
@@ -2491,17 +2483,11 @@ endif ()
 # Limitation: it will rebuild the whole target (but not the whole molcas)
 if (DEBUG_DEFS)
         foreach (file ${ALL_SOURCES})
-                get_source_file_property(defs ${file} COMPILE_DEFINITIONS)
                 file (READ ${file} contents)
                 foreach (def ${DEBUG_DEFS})
                         string (REGEX MATCH ${def} result "${contents}")
                         if (NOT ${result} STREQUAL "")
-                                if ("${defs}" STREQUAL "NOTFOUND")
-                                        set (defs ${def})
-                                else ()
-                                        list (APPEND defs ${def})
-                                endif ()
-                                set_source_files_properties(${file} PROPERTIES COMPILE_DEFINITIONS "${defs}")
+                                set_property (SOURCE ${file} APPEND PROPERTY COMPILE_DEFINITIONS ${def})
                         endif ()
                 endforeach ()
         endforeach ()
