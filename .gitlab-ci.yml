@@ -73,6 +73,8 @@
   only:
     - branches
     - web
+  except:
+    - master
   # allow failures so that the next stages are not blocked
   # (but test jobs that depend on this will fail later)
   allow_failure: true
