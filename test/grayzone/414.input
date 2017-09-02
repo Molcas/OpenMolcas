@@ -48,7 +48,6 @@ ras3
 End of input
 
 
->>> EXPORT MOLCAS_THR=1
 &RASSCF
 charge = -2
 spin = 2
@@ -83,7 +82,6 @@ CIROOT
 THRS
 1.0e-12, 1.0e-07, 1.0e-07
 End of input
->>> EXPORT MOLCAS_THR=0
 
 
 >>> COPY $Project.JobIph JOB001

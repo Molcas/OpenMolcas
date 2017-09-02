@@ -251,6 +251,8 @@ tinker:
   only:
     - branches
     - web
+  except:
+    - master
   allow_failure: false
 
 # Define the actual jobs, each job has a "build" and a "test" stage,

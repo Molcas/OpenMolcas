@@ -1979,14 +1979,14 @@ list (REMOVE_DUPLICATES utils)
 list (REMOVE_DUPLICATES progs)
 # some directories are special or managed manually, remove them from the automatic list
 list (REMOVE_ITEM utils
-        blas_util
+        blas_m_util
         block_dmrg_util
         chemps2_util
         delayed_util
         dga_util
         embedding_util
         hdf5_util
-        lapack_util
+        lapack_m_util
         libmsym_util # remove when deleted
         msym_util
         )
