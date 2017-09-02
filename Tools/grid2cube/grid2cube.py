@@ -20,7 +20,7 @@
 # For reading binary grid files, it uses part of the FortranFile library
 # (see below)
 #
-# Last modified: 2017 August 25
+# Last modified: 2017 September 1
 #            by: Ignacio Fdez. Galván
 # ==============================================================================
 
@@ -29,8 +29,8 @@ import sys, re, os
 def usage():
   print ""
   print "Convert a Molcas grid file into a Gaussian cube file."
-  print "The input file can be ASCII or binary (non-packed),"
-  print "the generated output file will be ASCII."
+  print "The input file can be ASCII, binary (non-packed), or in"
+  print "Luscus format, the generated output file will be ASCII."
   print ""
   print "USAGE:"
   print "  {0} input_file output_file".format( os.path.basename(__file__) )
