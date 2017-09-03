@@ -255,6 +255,25 @@ tinker:
     - master
   allow_failure: false
 
+# Another special job for building doxygen documentation
+# This is done in a different project, so here simply run a trigger
+# whenever the master changes
+
+trigger_doc:
+  image: ${CI_REGISTRY}/molcas/dockerfiles/ubuntu-14.04:latest
+  stage: build
+  script:
+    - export PROJECT_URL=${CI_PROJECT_URL#https://}
+    - >
+      curl --request POST
+      --form "token=$CI_JOB_TOKEN"
+      --form "ref=master"
+      --form "variables[SOURCE_URL]=${PROJECT_URL}"
+      --form "variables[SOURCE_COMMIT]=${CI_COMMIT_SHA}"
+      https://gitlab.com/api/v4/projects/Molcas%2Fdoc/trigger/pipeline
+  only:
+    - master
+
 # Define the actual jobs, each job has a "build" and a "test" stage,
 # the latter depends on the former, variables can be overriden.
 
