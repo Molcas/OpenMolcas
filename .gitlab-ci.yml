@@ -119,8 +119,6 @@
   only:
     - daily-snapshot
     - web
-  # allow failures for now
-  allow_failure: true
 
 # Define some configuration groups (variables, tags, etc.) to be used in jobs
 # - plain: default configuration
