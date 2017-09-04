@@ -95,7 +95,9 @@
         Found = .False.
         If (Index(Line, '/') .eq. 0) Then
           Call GetEnvF('CurrDir', CurrDir)
-          Call F_Inquire(Trim(CurrDir)//'/'//FName, Found)
+          CurrDir = Trim(CurrDir)//'/'//FName
+          Call F_Inquire(CurrDir, Found)
+          If (Found) FName = CurrDir
         End If
         If (.Not. Found) Call F_Inquire(FName, Found)
         If (Found) Then
