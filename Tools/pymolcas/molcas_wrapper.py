@@ -775,15 +775,21 @@ class Molcas_wrapper(object):
           copy2(orig, dest)
         except SameFileError:
           pass
+        except FileNotFoundError:
+          print('Error: file "{0}" not found'.format(orig))
+          return -1
         return 0
       # remove files: the list is colon-separated, and based on the scratch dir
       if (task_type == 'x'):
+        rc = 0
         for i in task[1].split(':'):
           try:
-            remove(join(self.scratch, i))
+            orig = join(self.scratch, i)
+            remove(orig)
           except FileNotFoundError:
-            pass
-        return 0
+            print('Error: file "{0}" not found'.format(orig))
+            rc -= 1
+        return rc
     output = BytesIO()
     error = BytesIO()
     if (task_type == 'b'):

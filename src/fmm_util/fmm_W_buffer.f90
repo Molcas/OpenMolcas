@@ -39,39 +39,6 @@ CONTAINS
 
 !-------------------------------------------------------------------------------
 
-   SUBROUTINE fmm_open_W_buffer(scheme)
-
-      USE fmm_W_contractors, ONLY: fmm_lock_W_con
-      USE fmm_tree_buffer,   ONLY: fmm_tree_buffer_init,      &
-                                   fmm_tree_buffer_add
-
-      IMPLICIT NONE
-      TYPE(scheme_paras), INTENT(IN) :: scheme
-      EXTERNAL fmm_store_w_buffer
-
-      IF (W_buffer_stat == 'OPEN') CALL fmm_quit('cannot reopen W_buffer')
-
-      SELECT CASE (scheme%W_con%W_buffer)
-         CASE (SKIP_W_BUFFER)
-            ! all W-contractions will be skipped by this choice of buffer
-            CALL fmm_store_w_buffer(fmm_skip_W_buffer)
-         CASE (NULL_W_BUFFER)
-            CALL fmm_store_w_buffer(fmm_null_W_buffer)
-         CASE (TREE_W_BUFFER)
-             ! use tree-based sorting/evaluating module
-            CALL fmm_store_w_buffer(fmm_tree_buffer_add)
-            CALL fmm_tree_buffer_init(TREE_LENGTH,scheme%W_con%sort_para)
-         CASE DEFAULT
-         CALL fmm_quit ('cannot reconcile list type in fmm_open_W_buffer')
-      END SELECT
-
-      W_buffer_stat = 'OPEN'
-      fmm_lock_W_con = .TRUE.
-
-   END SUBROUTINE fmm_open_W_buffer
-
-!-------------------------------------------------------------------------------
-
    SUBROUTINE fmm_close_W_buffer(scheme)
 
       USE fmm_W_contractors, ONLY: fmm_lock_W_con
@@ -126,6 +93,39 @@ CONTAINS
          CALL Unused_real(W_pair) ! not really real, but well...
       END IF
    END SUBROUTINE fmm_skip_W_buffer
+
+!-------------------------------------------------------------------------------
+
+   SUBROUTINE fmm_open_W_buffer(scheme)
+
+      USE fmm_W_contractors, ONLY: fmm_lock_W_con
+      USE fmm_tree_buffer,   ONLY: fmm_tree_buffer_init,      &
+                                   fmm_tree_buffer_add
+
+      IMPLICIT NONE
+      TYPE(scheme_paras), INTENT(IN) :: scheme
+      EXTERNAL fmm_store_w_buffer
+
+      IF (W_buffer_stat == 'OPEN') CALL fmm_quit('cannot reopen W_buffer')
+
+      SELECT CASE (scheme%W_con%W_buffer)
+         CASE (SKIP_W_BUFFER)
+            ! all W-contractions will be skipped by this choice of buffer
+            CALL fmm_store_w_buffer(fmm_skip_W_buffer)
+         CASE (NULL_W_BUFFER)
+            CALL fmm_store_w_buffer(fmm_null_W_buffer)
+         CASE (TREE_W_BUFFER)
+             ! use tree-based sorting/evaluating module
+            CALL fmm_store_w_buffer(fmm_tree_buffer_add)
+            CALL fmm_tree_buffer_init(TREE_LENGTH,scheme%W_con%sort_para)
+         CASE DEFAULT
+         CALL fmm_quit ('cannot reconcile list type in fmm_open_W_buffer')
+      END SELECT
+
+      W_buffer_stat = 'OPEN'
+      fmm_lock_W_con = .TRUE.
+
+   END SUBROUTINE fmm_open_W_buffer
 
 !-------------------------------------------------------------------------------
 

@@ -189,9 +189,9 @@ fi
 
 checkout_clean () {
     # remove all changes to tracked files
-    git reset --hard
+    git reset --hard || return -1
     # quietly remove all non-tracked files
-    git clean -f -x -d -q
+    git clean -f -x -d -q || return -1
 
     # over-write local branch with remote
     # first make a maintenance branch 'tmp'
@@ -199,17 +199,17 @@ checkout_clean () {
     # and check it out, then remove 'tmp'
     if git branch | grep -q "tmp"
     then
-        git checkout tmp
+        git checkout tmp || return -1
     else
-        git checkout -b tmp
+        git checkout -b tmp || return -1
     fi
 
-    git fetch
+    git fetch || return -1
     if git branch -r | grep -q "origin/$BRANCH"
     then
-        git fetch --force origin $BRANCH:$BRANCH
-        git checkout $BRANCH
-        git branch -D tmp
+        git fetch --force origin $BRANCH:$BRANCH || return -1
+        git checkout $BRANCH || return -1
+        git branch -D tmp || return -1
     else
         return 1
     fi
@@ -290,7 +290,13 @@ test_configfile () {
     for R in $REPO_OPEN $REPO
     do
         cd $R.$BRANCH || return
-        if ! checkout_clean $R
+        checkout_clean $R
+        rc = $?
+        if [ $rc -lt 0 ]
+        then
+            echo "error checking out $BRANCH from $R, skipping testing..."
+            cd ../; rm -f $REPO.$BRANCH.LOCK; return
+        elif [ $rc -gt 0 ]
         then
             echo "no branch $BRANCH available on origin ($R), skipping testing..."
             cd ../; rm -f $REPO.$BRANCH.LOCK; return
