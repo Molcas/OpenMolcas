@@ -33,6 +33,7 @@
 *
       Call GetMem('EVec','Allo','Real',ipEVec,2*mInter**2)
       Call GetMem('EVal','Allo','Real',ipEVal,2*mInter)
+      Call GetMem('RedMas','Allo','Real',ipRedMas,mInter)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -43,7 +44,8 @@
 *
       iDo_dDipM=1
       Call GF(nX,mInter,nInter,Work(ipTmp1),Work(ipTmp2),Work(ipEVec),
-     &        Work(ipEVal),iNeg,iDo_dDipM,dDipM,mTR,Smmtrc,nAtom,DipM)
+     &        Work(ipEVal),Work(ipRedMas),iNeg,iDo_dDipM,dDipM,mTR,
+     &        Smmtrc,nAtom,DipM)
 *
       Call GetMem('tmp2','Free','Real',iptmp2,(3*nAtom)**2)
       Call GetMem('tmp1','Free','Real',iptmp1,(3*nAtom)**2)
@@ -80,7 +82,7 @@
 *
       Write(Lu_10,'(A,I1)') '*NORMAL MODES SYMMETRY: ',isym
       Call GF_Print(Work(ipEVal),Work(ipEVec),Work(ipTemp),iEl,
-     &              mInter,nInter,iCtl,IRInt,Lu_10,iOff)
+     &              mInter,nInter,iCtl,IRInt,Work(ipRedMas),Lu_10,iOff)
 *
       Close(Lu_10)
       Call Free_Work(ipTemp)
@@ -133,6 +135,7 @@
       Call GetMem('NMod','Free','Real',ipNMod,nDisp**2)
       Call GetMem('EVal','Free','Real',ipEVal,2*nInter)
       Call GetMem('EVec','Free','Real',ipEVec,2*nInter**2)
+      Call GetMem('RedMas','Free','Real',ipRedMas,mInter)
 *                                                                      *
 ************************************************************************
 *                                                                      *

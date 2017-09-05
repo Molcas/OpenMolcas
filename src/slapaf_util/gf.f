@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine GF(nX,mInter,nInter,Tmp1,Tmp2,EVec,EVal,
+      Subroutine GF(nX,mInter,nInter,Tmp1,Tmp2,EVec,EVal,RedM,
      &              iNeg,iDo_dDipM,dDipM,mTR,Smmtrc,nAtom,DipM)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -16,7 +16,7 @@
 #include "WrkSpc.fh"
       Logical Smmtrc(3,nAtom)
       Real*8 dDipM(3,nInter+mTR), DipM(3), Tmp1(nX**2), Tmp2(nX**2),
-     &       EVec(2*mInter,mInter), EVal(2*mInter)
+     &       EVec(2*mInter,mInter), EVal(2*mInter), RedM(mInter)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -58,7 +58,7 @@
 *     Cartesians.
 *
       Call GF_Harmonic_Frequencies(Work(ipG),Work(ipGInv),Tmp1,Tmp2,
-     &                             EVec,EVal,iNeg,nX,mInter)
+     &                             EVec,EVal,RedM,iNeg,nX,mInter)
 *
       Call Free_Work(ipG)
       Call Free_Work(ipGInv)
