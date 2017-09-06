@@ -81,7 +81,7 @@ class MolcasException(Exception):
 
 class Molcas_wrapper(object):
 
-  version = 'py1.01'
+  version = 'py1.02'
   rc = 0
 
   def __init__(self, **kwargs):
@@ -91,6 +91,11 @@ class Molcas_wrapper(object):
       raise MolcasException('"MOLCAS" is not defined')
     if (not isfile(join(self.molcas, '.molcashome'))):
       raise MolcasException('"{0}" is not a valid MOLCAS installation'.format(self.molcas))
+    # Get location of sources (other than MOLCAS)
+    self.sources = []
+    self.sources.append(abspath(get_utf8('OPENMOLCAS_SOURCE', default='')))
+    self.sources.append(abspath(get_utf8('MOLCAS_SOURCE', default='')))
+    self.sources = [i for i in self.sources if (i != '' and i != self.molcas)]
     # Some settings
     self.allow_shell = True
     self.echo = True
@@ -823,11 +828,11 @@ class Molcas_wrapper(object):
 
   def in_sbin(self, prog):
     '''Return the path of a program in sbin if it exists'''
-    filename = join(self.molcas, 'sbin', prog)
-    if (isfile(filename) and access(filename, X_OK)):
-      return filename
-    else:
-      return False
+    for path in [self.molcas] + self.sources:
+      filename = join(path, 'sbin', prog)
+      if (isfile(filename) and access(filename, X_OK)):
+        return filename
+    return False
 
   def run_sbin(self, command):
     '''Run a program from the sbin directory if it exists'''
