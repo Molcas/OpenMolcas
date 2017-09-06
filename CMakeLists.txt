@@ -1043,7 +1043,7 @@ message ("Configuring linear algebra libraries:")
 # If one uses BLAS/LAPACK, you can use the CMake FindBLAS/FindLAPACK modules to
 # set everything, which is determined by setting the BLA_VENDOR environment
 # variable. Unfortunately, currently, the modules that comes with CMake doesn't
-# seem to support any ilp64 version of MKL, as it only has e.g.  Intel10_64lp
+# seem to support any ilp64 version of MKL, as it only has e.g. Intel10_64lp
 # For now, I'm using some non-portable thing.
 
 set (MKLROOT "" CACHE PATH "MKL root directory.")
@@ -1856,6 +1856,10 @@ if (GRID_IT)
                 set (prog "grid_it")
                 list (APPEND progs ${prog})
                 file (RELATIVE_PATH ${prog}_src ${PROJECT_SOURCE_DIR} ${proj})
+                # some routines in the external code are referenced by libmolcas,
+                # so they must compiled with the molcas library and not with the "program" library
+                list (APPEND objlibs "$<TARGET_OBJECTS:${prog}>")
+                list (APPEND proglib ${prog})
         else()
                 message ("-- External GRID_IT ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
         endif ()
@@ -2177,6 +2181,11 @@ if (HDF5 AND HDF5_FOUND)
         endforeach ()
 endif ()
 
+# activate grid_it
+if (DEFINED grid_it_src)
+        list (APPEND grid_util_defs "_HAVE_GRID_IT_")
+endif ()
+
 # finally, sort the list
 list (SORT progs)
 
@@ -2390,7 +2399,7 @@ foreach (prog ${progs})
                 list (REMOVE_ITEM progs ${prog})
         else ()
                 # FIXME: the checks below remove any main.* file, which is needed in
-                # order to be able to make a library out of the program sources.  This
+                # order to be able to make a library out of the program sources. This
                 # is required for supermodules.
                 #------------------------------------------------------------------
                 foreach (lext "f" "f90" "c")
@@ -2404,6 +2413,11 @@ foreach (prog ${progs})
                         add_library (${prog} OBJECT ${source})
                         set_target_properties (${prog} PROPERTIES
                                 Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/mod/${prog})
+                        # programs in "proglib" have their libraries compiled as utils
+                        if (BUILD_SHARED_LIBS AND ";${proglib};" MATCHES ";${prog};")
+                                set_target_properties (${prog} PROPERTIES
+                                        POSITION_INDEPENDENT_CODE "TRUE")
+                        endif ()
 
                         # program-specific compile definitions
                         if (DEFINED ${prog}_defs)
@@ -2433,7 +2447,8 @@ foreach (prog ${progs})
         # FIXME: Actual program target only depends on main file now, but if
         # supermodules are gone, the dependency should be on ${source} instead.
         #----------------------------------------------------------------------
-        if (TARGET ${prog})
+        # programs in "proglib" have their library included in libmolcas
+        if (TARGET ${prog} AND NOT ";${proglib};" MATCHES ";${prog};")
                 list (APPEND ${prog}_deps $<TARGET_OBJECTS:${prog}>)
         endif ()
         add_executable (${prog}.exe ${${prog}_main} ${${prog}_deps})
