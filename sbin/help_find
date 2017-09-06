@@ -41,7 +41,7 @@ except ImportError:
 
 helptext = '''
 {1}################################################################################
-#                       Searching the Molcas source code                       #
+#                     Searching the OpenMolcas source code                     #
 ################################################################################{0}
 
 Use with a command-line argument to search for a procedure (subroutine/function)
@@ -52,8 +52,8 @@ to be put inside quotes to prevent its expansion by the shell.
 
   {2}pget?{0}       find all procedures whose name is "pget" plus one character
 
-  {2}"sr*"{0}       find all procedures with a name starting with "sr"
-              (without the quotes, the shell will probably expand it to "src")
+  {2}"bi*"{0}       find all procedures with a name starting with "bi"
+              (without the quotes, the shell will probably expand it to "bin")
 '''.format(Style.RESET_ALL, Fore.BLUE, Fore.GREEN)
 
 # Main regex to identify Fortran procedures
@@ -94,7 +94,7 @@ except IndexError:
   sys.exit(0)
 
 try:
-  MOLCAS = environ['MOLCAS_SOURCE']
+  MOLCAS = environ['OPENMOLCAS_SOURCE']
 except KeyError:
   try:
     MOLCAS = environ['MOLCAS']
