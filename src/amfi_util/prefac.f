@@ -20,7 +20,7 @@ c     write(6,*) 'begin of prefac'
       preroots(1,L)=sqrt(DBLE(L))*fact
       preroots(2,L)=sqrt(DBLE(L+1))*fact
       enddo
-cbs   there are Clebsch-Gordon-Coefficients
+cbs   there are Clebsch-Gordan-Coefficients
 cbs   which always appear:
 cbs
 cbs   -----                       ------

@@ -143,6 +143,7 @@ then
     DRIVER='molcas'
 fi
 HNAME=`hostname -s`
+FHNAME=`hostname -A`
 UNAME=`uname -a`
 DATE=`date +%F_%T`
 LANG=C
@@ -188,9 +189,9 @@ fi
 
 checkout_clean () {
     # remove all changes to tracked files
-    git reset --hard
+    git reset --hard || return -1
     # quietly remove all non-tracked files
-    git clean -f -x -d -q
+    git clean -f -x -d -q || return -1
 
     # over-write local branch with remote
     # first make a maintenance branch 'tmp'
@@ -198,17 +199,17 @@ checkout_clean () {
     # and check it out, then remove 'tmp'
     if git branch | grep -q "tmp"
     then
-        git checkout tmp
+        git checkout tmp || return -1
     else
-        git checkout -b tmp
+        git checkout -b tmp || return -1
     fi
 
-    git fetch
+    git fetch || return -1
     if git branch -r | grep -q "origin/$BRANCH"
     then
-        git fetch --force origin $BRANCH:$BRANCH
-        git checkout $BRANCH
-        git branch -D tmp
+        git fetch --force origin $BRANCH:$BRANCH || return -1
+        git checkout $BRANCH || return -1
+        git branch -D tmp || return -1
     else
         return 1
     fi
@@ -220,6 +221,16 @@ update_submodules () {
     for sub in `git submodule foreach -q 'echo $path'` ; do
         git submodule update --init --force $sub || return 1
     done
+}
+
+cut_log () {
+    if [ `wc -l < "$1"` -gt 30000 ] ; then
+        head -n 15000 "$1" > "$1.cut"
+        echo "~~~ file too long, lines removed ~~~" >> "$1.cut"
+        tail -n 15000 "$1" >> "$1.cut"
+        mv "$1" "$1.long"
+        mv "$1.cut" "$1"
+    fi
 }
 
 test_configfile () {
@@ -279,7 +290,13 @@ test_configfile () {
     for R in $REPO_OPEN $REPO
     do
         cd $R.$BRANCH || return
-        if ! checkout_clean $R
+        checkout_clean $R
+        rc = $?
+        if [ $rc -lt 0 ]
+        then
+            echo "error checking out $BRANCH from $R, skipping testing..."
+            cd ../; rm -f $REPO.$BRANCH.LOCK; return
+        elif [ $rc -gt 0 ]
         then
             echo "no branch $BRANCH available on origin ($R), skipping testing..."
             cd ../; rm -f $REPO.$BRANCH.LOCK; return
@@ -347,14 +364,39 @@ test_configfile () {
         fi
     fi
 
+    #### retry script ####
+    ######################
+
+    cd ../
+
+    retry="retry.sh"
+    echo "#!/bin/sh"                             >  $retry
+    echo "mkdir $testconfig || exit"             >> $retry
+    echo "cd $testconfig"                        >> $retry
+    cat ../$testconfig.env                       >> $retry
+    echo "export OPENMOLCAS_DIR=$OPENMOLCAS_DIR" >> $retry
+    echo "cat << EOF > $testconfig.cmake"        >> $retry
+    cat ../$testconfig.cmake                     >> $retry
+    echo "EOF"                                   >> $retry
+    echo "cp -r $PWD/$REPO_OPEN.$BRANCH ."       >> $retry
+    echo "(cd $REPO_OPEN.$BRANCH"                >> $retry
+    echo "    git checkout $SHA1_OPEN"           >> $retry
+    echo "    git clean -f -d -x -q)"            >> $retry
+    echo "cp -r $PWD/$REPO.$BRANCH ."            >> $retry
+    echo "(cd $REPO.$BRANCH"                     >> $retry
+    echo "    git checkout $SHA1"                >> $retry
+    echo "    git clean -f -d -x -q)"            >> $retry
+    echo "mkdir $REPO.$BRANCH-build"             >> $retry
+    echo "cd $REPO.$BRANCH-build"                >> $retry
+    echo "cmake -C ../$testconfig.cmake ../$REPO.$BRANCH > make.log 2>&1 && $MAKE_cmd VERBOSE=1 >> make.log 2>&1" >> $retry
+    chmod +x $retry
+
     #### building ####
     ##################
 
     # in case of error, bark and continue with the other tests #
 
     echo "-- building --"
-
-    cd ../
 
     # To ensure proper operation, delete any cache entries for an
     # existing build directory.
@@ -383,7 +425,7 @@ test_configfile () {
         date >> $outfile
         echo "SHA1        = $SHA1"      >> $outfile
         echo "SHA1 (open) = $SHA1_OPEN" >> $outfile
-        echo "hostname    = $HNAME"     >> $outfile
+        echo "hostname    = $FHNAME"    >> $outfile
         echo "uname       = $UNAME"     >> $outfile
         echo "tests       = $TESTS"     >> $outfile
         echo "Contact     = $CONTACT"   >> $outfile
@@ -475,9 +517,11 @@ test_configfile () {
         do
             for MESSAGE in make.log auto.log
             do
+                cut_log $MESSAGE
                 curl --form "file=@$MESSAGE" $UPLOADPAGE || curl --ciphers ecdhe_ecdsa_aes_256_sha --form "file=@$MESSAGE" $UPLOADPAGE
                 echo "sending mail"
                 $FOLD -s $MESSAGE | $MAIL_cmd -s $DATE $RCPT
+                mv $MESSAGE.long $MESSAGE 2> /dev/null
             done
         done
 
@@ -580,6 +624,7 @@ test_configfile () {
     do
         for MESSAGE in make.log auto.log
         do
+            cut_log $MESSAGE
             curl --form "file=@$MESSAGE" $UPLOADPAGE || curl --ciphers ecdhe_ecdsa_aes_256_sha --form "file=@$MESSAGE" $UPLOADPAGE
             # remove garbage from any output
             if ! ../$REPO_OPEN.$BRANCH/sbin/chkunprint.plx < $MESSAGE
@@ -590,6 +635,7 @@ test_configfile () {
             # send mail to testpage
             echo "sending mail"
             $FOLD -s $MESSAGE | $MAIL_cmd -s $DATE $RCPT
+            mv $MESSAGE.long $MESSAGE 2> /dev/null
         done
     done
 

@@ -39,6 +39,29 @@ if ("${sourcedir}" STREQUAL "${binarydir}")
                 "separate build directory and run cmake from there.")
 endif ()
 
+# workaround for CMake bug 14874
+# (i.e., fix for files with same name in different directories)
+if (${CMAKE_VERSION} VERSION_LESS 3.1)
+        if (NOT DEFINED CMAKE_Fortran_ARCHIVE_CREATE)
+                set(CMAKE_Fortran_ARCHIVE_CREATE "<CMAKE_AR> cq <TARGET> <LINK_FLAGS> <OBJECTS>")
+        endif ()
+        if (NOT DEFINED CMAKE_Fortran_ARCHIVE_APPEND)
+                set(CMAKE_Fortran_ARCHIVE_APPEND "<CMAKE_AR> q  <TARGET> <LINK_FLAGS> <OBJECTS>")
+        endif ()
+        if (NOT DEFINED CMAKE_C_ARCHIVE_CREATE)
+                set(CMAKE_C_ARCHIVE_CREATE "<CMAKE_AR> cq <TARGET> <LINK_FLAGS> <OBJECTS>")
+        endif ()
+        if (NOT DEFINED CMAKE_C_ARCHIVE_APPEND)
+                set(CMAKE_C_ARCHIVE_APPEND "<CMAKE_AR> q  <TARGET> <LINK_FLAGS> <OBJECTS>")
+        endif ()
+        if (NOT DEFINED CMAKE_CXX_ARCHIVE_CREATE)
+                set(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> cq <TARGET> <LINK_FLAGS> <OBJECTS>")
+        endif ()
+        if (NOT DEFINED CMAKE_CXX_ARCHIVE_APPEND)
+                set(CMAKE_CXX_ARCHIVE_APPEND "<CMAKE_AR> q  <TARGET> <LINK_FLAGS> <OBJECTS>")
+        endif ()
+endif ()
+
 ################################################################################
 #                                                                              #
 # Options                                                                      #
@@ -232,10 +255,6 @@ function (find_source name)
         #        message (WARNING "${name} not found, expect trouble")
         endif ()
 endfunction ()
-
-# These will be needed later, so set them now
-find_source(blas_util)
-find_source(lapack_util)
 
 # get version from git if available, otherwise look in .molcasversion
 #====================================================================
@@ -474,7 +493,7 @@ endif ()
 # GNU Compiler Collection (GCC)
 #======================================#
 # defines __GNUC__
-# CXX compiler
+# C++ compiler
 list (APPEND SUPPORTED_CXX_COMPILERS "GNU")
 set (CXXFLAGS_GNU_BASIC "")
 set (CXXFLAGS_GNU_OPENMP "-fopenmp")
@@ -516,14 +535,16 @@ if (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND
         set (FFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
 endif ()
 
-set (GNU_BIGOT "-Wall -Werror")
+set (CXXFLAGS_GNU_BIGOT "-Wall -Werror")
+set (CFLAGS_GNU_BIGOT "-Wall -Werror")
+set (FFLAGS_GNU_BIGOT "-Wall -Werror")
 set (GNU_TRAP "-ffpe-trap=invalid,zero,overflow")
 
 #======================================#
 # LLVM C frontend (Clang)
 #======================================#
 # defines __clang__
-# CXX compiler
+# C++ compiler
 list (APPEND SUPPORTED_CXX_COMPILERS "Clang")
 set (CXXFLAGS_Clang_BASIC "")
 set (CXXFLAGS_Clang_OPENMP "-fopenmp")
@@ -544,14 +565,15 @@ set (CFLAGS_Clang_RELWITHDEBINFO "-O2 -g -Wall")
 set (CFLAGS_Clang_RELEASE "-O2")
 set (CFLAGS_Clang_FAST "-O2")
 
-set (Clang_BIGOT "-Wall -Werror")
+set (CXXFLAGS_Clang_BIGOT "-Wall -Werror")
+set (CFLAGS_Clang_BIGOT "-Wall -Werror")
 #set (Clang_TRAP "???")
 
 #======================================#
-# Intel CXX/C/Fortran Compilers
+# Intel C++/C/Fortran Compilers
 #======================================#
 # defines __INTEL_COMPILER
-# CXX compiler
+# C++ compiler
 list (APPEND SUPPORTED_CXX_COMPILERS "Intel")
 set (CXXFLAGS_Intel_BASIC "")
 set (CXXFLAGS_Intel_OPENMP "-qopenmp")
@@ -599,11 +621,14 @@ endif ()
 
 #fix for MAC OS X
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+set (CXXFLAGS_Intel_BASIC "-headerpad_max_install_names ${CXXFLAGS_Intel_BASIC}")
 set (CFLAGS_Intel_BASIC "-headerpad_max_install_names ${CFLAGS_Intel_BASIC}")
 set (FFLAGS_Intel_BASIC "-headerpad_max_install_names ${FFLAGS_Intel_BASIC}")
 endif ()
 
-set (Intel_BIGOT "-Wall -Werror")
+set (CXXFLAGS_Intel_BIGOT "-Wall -Werror")
+set (CFLAGS_Intel_BIGOT "-Wall -Werror")
+set (FFLAGS_Intel_BIGOT "-warn all -warn errors")
 set (Intel_TRAP "-fpe0")
 
 #======================================#
@@ -632,13 +657,24 @@ set (FFLAGS_SunPro_RELWITHDEBINFO "-O -g -traceback -ftrap=%none")
 set (FFLAGS_SunPro_RELEASE "-O -ftrap=%none")
 set (FFLAGS_SunPro_FAST "-fast -dbl_align_all=yes -ftrap=%none")
 
-set (SunPro_BIGOT "-errwarn=%all")
+set (CFLAGS_SunPro_BIGOT "-errwarn=%all")
+set (FFLAGS_SunPro_BIGOT "-errwarn=%all")
 set (SunPro_TRAP "-ftrap=common")
 
 #======================================#
 # Portland Group (PGI) Compilers
 #======================================#
 # defines __PGI
+# C++ compiler
+list (APPEND SUPPORTED_CXX_COMPILERS "PGI")
+set (CXXFLAGS_PGI_BASIC "-c99 -pgf90libs")
+set (CXXFLAGS_PGI_OPENMP "-mp")
+# build targets
+set (CXXFLAGS_PGI_DEBUG "-O0 -g -Minform=warn")
+set (CXXFLAGS_PGI_GARBLE "-O2 -gopt -Minform=warn")
+set (CXXFLAGS_PGI_RELWITHDEBINFO "-O2 -gopt -Minform=warn")
+set (CXXFLAGS_PGI_RELEASE "-O2")
+set (CXXFLAGS_PGI_FAST "-O2")
 # C compiler
 list (APPEND SUPPORTED_C_COMPILERS "PGI")
 set (CFLAGS_PGI_BASIC "-c99 -pgf90libs")
@@ -661,14 +697,10 @@ set (FFLAGS_PGI_RELWITHDEBINFO "-O2 -gopt -Minform=warn")
 set (FFLAGS_PGI_RELEASE "-O2")
 set (FFLAGS_PGI_FAST "-fast")
 
-# Special flag for building LAPACK with PGI
-if (CMAKE_Fortran_COMPILER_ID STREQUAL "PGI")
-        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${lapack_util_src}/*.f)
-        set_source_files_properties (${source} PROPERTIES COMPILE_FLAGS "-Kieee")
-endif ()
-
 # The option does not exist, or I cannot find it
-#set (PGI_BIGOT "???")
+#set (CXXFLAGS_PGI_BIGOT "???")
+#set (CFLAGS_PGI_BIGOT "???")
+#set (FFLAGS_PGI_BIGOT "???")
 #set (PGI_TRAP "???")
 
 #======================================#
@@ -688,7 +720,7 @@ set (FFLAGS_NAG_RELEASE "-O2 -ieee=full")
 set (FFLAGS_NAG_FAST "-O3 -ieee=full")
 
 # The option does not exist, or I cannot find it
-#set (NAG_BIGOT "???")
+#set (FFLAGS_NAG_BIGOT "???")
 set(NAG_TRAP "-ieee=stop")
 
 # Generate the actual flags used in the build
@@ -718,7 +750,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Garble")
 endif ()
 
 if (DMRG OR WFA)
-        # CXX compiler required for DMRG and WFA projects
+        # C++ compiler required for DMRG and WFA projects
         foreach (CXX_COMPILER ${SUPPORTED_CXX_COMPILERS})
                 if (CXX_COMPILER STREQUAL "${CMAKE_CXX_COMPILER_ID}")
                         set (CXXCID ${CMAKE_CXX_COMPILER_ID})
@@ -1256,13 +1288,6 @@ endif ()
 
 # Runtime loading of LAPACK+BLAS libraries (experimental)
 if (LINALG STREQUAL "Runtime")
-        if (GA)
-                message (FATAL_ERROR
-                        "Runtime LAPACK+BLAS loading is not compatible with Global Arrays. "
-                        "Please select an explicit LINALG library or turn off GA."
-                        )
-        endif ()
-
         message ("-- Using Runtime LAPACK+BLAS libraries (Internal as fallback)")
         set (LINALG_LIBRARIES "dl")
 
@@ -1819,9 +1844,9 @@ endif ()
 
 # Add the "bigot" flags after processing the external projects, so they are not affected
 if (BIGOT)
-        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${${CXXCID}_BIGOT}")
-        set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${${CCID}_BIGOT}")
-        set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${${FCID}_BIGOT}")
+        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXXFLAGS_${CXXCID}_BIGOT}")
+        set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CFLAGS_${CCID}_BIGOT}")
+        set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${FFLAGS_${FCID}_BIGOT}")
 endif ()
 
 ################################################################################
@@ -1930,14 +1955,20 @@ foreach (dir ${source_roots})
         if (dir_utils)
                 list (REMOVE_ITEM dir_progs ${dir_utils})
         endif ()
-        # and consider only dirctories
+        # and consider only directories not beginning with uppercase
         foreach (item ${dir_progs})
                 if (NOT IS_DIRECTORY "${PROJECT_SOURCE_DIR}/${dir}/${item}")
+                        list (REMOVE_ITEM dir_progs ${item})
+                endif ()
+                if (item MATCHES "^[A-Z]")
                         list (REMOVE_ITEM dir_progs ${item})
                 endif ()
         endforeach ()
         foreach (item ${dir_utils})
                 if (NOT IS_DIRECTORY "${PROJECT_SOURCE_DIR}/${dir}/${item}")
+                        list (REMOVE_ITEM dir_utils ${item})
+                endif ()
+                if (item MATCHES "^[A-Z]")
                         list (REMOVE_ITEM dir_utils ${item})
                 endif ()
         endforeach ()
@@ -1948,28 +1979,23 @@ list (REMOVE_DUPLICATES utils)
 list (REMOVE_DUPLICATES progs)
 # some directories are special or managed manually, remove them from the automatic list
 list (REMOVE_ITEM utils
-        blas_util
+        blas_m_util
         block_dmrg_util
         chemps2_util
         delayed_util
         dga_util
         embedding_util
         hdf5_util
-        lapack_util
+        lapack_m_util
         libmsym_util # remove when deleted
         msym_util
         )
 list (REMOVE_ITEM progs
-        Driver
-        Include
-        Modules
         parnell
         symmetrize
         wfa
         )
-if (DEFINED EXTRA_DIR)
-        list (REMOVE_ITEM utils dummy_util)
-else ()
+if (NOT DEFINED EXTRA_DIR)
         list (REMOVE_ITEM utils grid_r_util)
 endif ()
 
@@ -1981,8 +2007,6 @@ foreach (util ${utils})
                 message (WARNING "\"${util}\" not found in source directories, skipping")
         endif ()
 endforeach ()
-
-list (APPEND dummy_util_incs ${ga_util_src})
 
 if (FDE)
         set (util embedding_util)
@@ -2180,21 +2204,25 @@ set (last_energy_deps
 
 ################################################################################
 #                                                                              #
-# Disable some warnings that are buggy or on code we don't want to modify      #
+# Disable some warnings or use other flags on code we don't want to modify     #
 #                                                                              #
 ################################################################################
+# netlib blas/lapack produces warnings
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-        # gfortran (version?) does not detect functions passed as arguments
-        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${fmm_util_src}/*.f90)
-        set_source_files_properties (${source} PROPERTIES COMPILE_FLAGS "-Wno-unused-function")
-        # netlib blas/lapack has too many problems to fix (yet)
-        set (netlib_nowarn_flags "-w")
-        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${blas_util_src}/*.f)
-        set_source_files_properties (${source} PROPERTIES COMPILE_FLAGS ${netlib_nowarn_flags})
-        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${lapack_util_src}/*.f)
-        set_source_files_properties (${source} PROPERTIES COMPILE_FLAGS ${netlib_nowarn_flags})
-        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${delayed_util_src}/*.f)
-        set_source_files_properties (${source} PROPERTIES COMPILE_FLAGS ${netlib_nowarn_flags})
+        set (netlib_nowarn_flags " -w")
+elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
+        set (netlib_nowarn_flags " -w")
+elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "SunPro")
+        set (netlib_nowarn_flags " -erroff=%all")
+elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "PGI")
+        set (netlib_nowarn_flags " -Kieee -w")
+elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "NAG")
+        set (netlib_nowarn_flags " -w")
+endif ()
+find_source(LinAlg_internal)
+if (netlib_nowarn_flags)
+        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${LinAlg_internal_src}/*.f ${delayed_util_src}/*.f)
+        set_property (SOURCE ${source} APPEND_STRING PROPERTY COMPILE_FLAGS ${netlib_nowarn_flags})
 endif ()
 
 ################################################################################
@@ -2209,9 +2237,11 @@ if (DEFINED BLACKLIST)
                         ${${module}_src}/*.f
                         ${${module}_src}/*.f90
                         )
-                set_source_files_properties (
-                        ${source} PROPERTIES
-                        COMPILE_FLAGS "${BLACKFLAGS}"
+                set_property (
+                        SOURCE ${source}
+                        APPEND_STRING
+                        PROPERTY
+                        COMPILE_FLAGS " ${BLACKFLAGS}"
                         )
         endforeach ()
         message ("Blacklisting enables, someone doesn't like certain modules...")
@@ -2309,11 +2339,11 @@ endif ()
 
 # if necessary, build BLAS/LAPACK
 if (LINALG STREQUAL "Internal")
-        foreach (lib ${LINALG_LIBRARIES})
-                set (util "${lib}_util")
-                if (NOT DEFINED ${util}_src)
-                        message (FATAL_ERROR "\"${util}\" not found in source directories")
-                endif ()
+        set (util "LinAlg_internal")
+        if (NOT DEFINED ${util}_src)
+                message (FATAL_ERROR "\"${util}\" not found in source directories")
+        endif ()
+        foreach (lib "lapack" "blas")
                 set (source ${${util}_src}/${lib}.f)
                 add_library (${lib} ${source})
                 list (APPEND ALL_SOURCES ${source})
@@ -2374,7 +2404,7 @@ endforeach ()
 
 # set file-specific flags
 if (BOUNDS AND (${FFLAGS_GNU_BOUNDS} MATCHES "-fsanitize=address"))
-        set_source_files_properties(${rassi_src}/prprop.f PROPERTIES COMPILE_FLAGS --param=max-vartrack-size=120000000)
+        set_property(SOURCE ${rassi_src}/prprop.f APPEND_STRING PROPERTY COMPILE_FLAGS " --param=max-vartrack-size=120000000")
 endif ()
 
 # set up proper RPATH for executables, use RUNPATH if on Linux
@@ -2453,17 +2483,11 @@ endif ()
 # Limitation: it will rebuild the whole target (but not the whole molcas)
 if (DEBUG_DEFS)
         foreach (file ${ALL_SOURCES})
-                get_source_file_property(defs ${file} COMPILE_DEFINITIONS)
                 file (READ ${file} contents)
                 foreach (def ${DEBUG_DEFS})
                         string (REGEX MATCH ${def} result "${contents}")
                         if (NOT ${result} STREQUAL "")
-                                if (${defs} STREQUAL "NOTFOUND")
-                                        set (defs ${def})
-                                else ()
-                                        list (APPEND defs ${def})
-                                endif ()
-                                set_source_files_properties(${file} PROPERTIES COMPILE_DEFINITIONS "${defs}")
+                                set_property (SOURCE ${file} APPEND PROPERTY COMPILE_DEFINITIONS ${def})
                         endif ()
                 endforeach ()
         endforeach ()

@@ -13,6 +13,7 @@
 
 * Module replacing the code in prgminit.c in molcas-extra
 
+#include "compiler_features.h"
 ! from getenvc.c
 #define MAXSTR 256
 
@@ -104,6 +105,7 @@
 #ifdef _DEBUG_
           Write(6,*) 'Assuming $WorkDir/'//Trim(Input)
 #endif
+          If ((Par .eq. 1)) WD = Trim(WD)//SlaveDir
           OutStr = ExpandVars('$WorkDir/'//Input, Trim(WD)//SubDir)
         End If
       End If
@@ -250,7 +252,6 @@
 
 ! Function to strip all the characters in Chars from String (in any position)
       Function Strip(String, Chars)
-#include "compiler_features.h"
       Character (Len=*), Intent(In) :: String
       Character (Len=*), Intent(In) :: Chars
 #ifdef ALLOC_ASSIGN
@@ -307,7 +308,6 @@
 ! Function to replace environment variables in a string
 ! A variable starts with '$' and ends with [ $/.] or the end of the string
       Function ExpandVars(String, WD)
-#include "compiler_features.h"
       Character (Len=*), Intent(In) :: String, WD
 #ifdef ALLOC_ASSIGN
       Character (Len=:), Allocatable :: ExpandVars
@@ -360,13 +360,12 @@
 
 ! Function to replace a substring (between the Ini and Fin positions) with Repl
       Function ReplaceSubstr(String,Ini,Fin,Repl)
-#include "compiler_features.h"
       Character (Len=*), Intent(In) :: String, Repl
       Integer, Intent(In) :: Ini,Fin
 #ifdef ALLOC_ASSIGN
       Character (Len=:), Allocatable :: ReplaceSubstr
 #else
-      Character (Len=MAXSTR), Allocatable :: ReplaceSubstr
+      Character (Len=MAXSTR) :: ReplaceSubstr
 #endif
       Integer :: i,j
       ! make sure the indices are within limits
@@ -378,12 +377,12 @@
 
 ! Save some often used variables as module variables, for faster access
       Subroutine PrgmCache
-#include "para_info.fh"
+      Integer, External :: mpp_id
       Call GetEnvF('WorkDir', WorkDir)
       Call GetEnvF('FastDir', FastDir)
       Call GetEnvF('Project', Project)
       If (Trim(Project) .eq. '') Project = 'Noname'
-      If (MyRank .gt. 0) Write(SlaveDir,'(A,I0)') '/tmp_', MyRank
+      If (mpp_id() .gt. 0) Write(SlaveDir,'(A,I0)') '/tmp_', mpp_id()
       End Subroutine
 
       End Module prgm

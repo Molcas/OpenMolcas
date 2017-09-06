@@ -25,7 +25,7 @@
 
       If (MOD(m+3,2).eq.0) Then
          Gamma=One
-         Do i = 2, m+3/2, 1
+         Do i = 2, (m+3)/2, 1
             Gamma = Gamma * DBLE(i-1)
          End Do
       Else

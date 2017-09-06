@@ -104,7 +104,7 @@ $opt{keep} = 1 if ($opt{debug});
 
 # are we running interactively?
 my $interactive = 0;
-if (-t select and not $opt{debug}) {
+if (-t select and not $opt{debug} and not $opt{status}) {
         $interactive = 1;
 }
 
@@ -572,7 +572,6 @@ foreach my $file (@filelist) {
                 copy ($file, $input);
                 if ($interactive or $opt{status}) {
                         $prompt = "Running test $group: $name ... ($pc%)";
-                        $prompt .= "\n" if ($opt{status});
                         msg ($prompt);
                 }
                 # run molcas and capture the return code. The reason
@@ -607,13 +606,15 @@ foreach my $file (@filelist) {
                                 copy ($out, File::Spec->catfile ($log_failed, $project . '.out'));
                                 copy ($err, File::Spec->catfile ($log_failed, $project . '.err'));
                         }
+                        # skip the test if a program is not available (RC_NOT_AVAILABLE)
                         if ($rc == 36) {
                                 # print results
                                 print RESULT "$mark:$group:$name Skipped!\n";
                                 msg_overwrite ("$group:$name Skipped!\n", $prompt) if ($interactive);
+                                msg (" Skipped!\n") if ($opt{status});
                                 # update counters
                                 $skipped_tests++;
-                                # pretend to be find for the remainder of this test
+                                # pretend to be fine for the remainder of this test
                                 $rc = 0;
                         } else {
                                 # gather extra info
@@ -623,6 +624,7 @@ foreach my $file (@filelist) {
                                 # print results
                                 print RESULT "$mark:$group:$name Failed! ($mod)\n";
                                 msg_overwrite ("$group:$name Failed! ($mod)\n", $prompt) if ($interactive);
+                                msg (" Failed! ($mod)\n") if ($opt{status});
                                 # update counters
                                 $failed_tests++;
                                 if ($critical{$group}) {
@@ -634,6 +636,7 @@ foreach my $file (@filelist) {
                 } else {
                         print RESULT "$mark:$group:$name OK\n";
                         msg_overwrite ('', $prompt) if ($interactive);
+                        msg (" OK\n") if ($opt{status});
                         if ($opt{generate}) {
                                 my $rc=system("$MOLCAS_DRIVER", "updatetest.plx", $file, File::Spec->catfile ($workdir, 'checkfile'));
                                 print "rc=",$rc,"\n" if ($rc!=0);

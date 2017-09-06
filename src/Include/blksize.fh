@@ -12,7 +12,5 @@
 * Define minimal block size handeled by the IO system                  *
 * (units=Bytes)                                                        *
 *----------------------------------------------------------------------*
-       Integer min_Block_Length
-       Common /m_B_L/ min_Block_Length
-C      Parameter ( min_Block_Length = 8 )
+       Integer MBl_wa, MBl_nwa
        Parameter (MBl_wa=8, MBl_nwa=512)

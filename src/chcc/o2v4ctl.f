@@ -439,6 +439,11 @@ c           L24 (m,b',ga')
             PsAcL22=L2Status(pL22,3)
             PsAcL23=L2Status(pL23,3)
             PsAcL24=L2Status(pL24,3)
+            else
+            PsAcL21=0
+            PsAcL22=0
+            PsAcL23=0
+            PsAcL24=0
             end if
 c
 cxx         cycle over all subgroups of (be>=ga)'

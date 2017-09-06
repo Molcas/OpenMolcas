@@ -8,9 +8,16 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Module Her_RW
-      Integer, Parameter :: nPrpMx=20
-      Integer MaxHer, nPrp
-      Integer, Dimension(:), Allocatable :: iHerR, iHerW
-      Real*8, Dimension (:), Allocatable :: HerR, HerW
-      End Module Her_RW
+
+#ifdef _HAVE_EXTRA_
+      Integer, External :: molcas_eaf_open,
+     &                     molcas_eaf_close,
+     &                     molcas_eaf_awrite,
+     &                     molcas_eaf_aread,
+     &                     molcas_eaf_write,
+     &                     molcas_eaf_read,
+     &                     molcas_eaf_wait
+#else
+* Include file from GlobalArrays
+#include "eaf.fh"
+#endif

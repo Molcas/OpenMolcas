@@ -11,7 +11,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2013, Ignacio Fdez. Galvan                             *
+# Copyright (C) 2013,2017, Ignacio Fdez. Galvan                        *
 #               2008,2009, Neil Martinsen-Burrell (FortranFile)        *
 #***********************************************************************
 # ==============================================================================
@@ -20,7 +20,7 @@
 # For reading binary grid files, it uses part of the FortranFile library
 # (see below)
 #
-# Last modified: 2013 August 23
+# Last modified: 2017 September 1
 #            by: Ignacio Fdez. Galván
 # ==============================================================================
 
@@ -29,8 +29,8 @@ import sys, re, os
 def usage():
   print ""
   print "Convert a Molcas grid file into a Gaussian cube file."
-  print "The input file can be ASCII or binary (non-packed),"
-  print "the generated output file will be ASCII."
+  print "The input file can be ASCII, binary (non-packed), or in"
+  print "Luscus format, the generated output file will be ASCII."
   print ""
   print "USAGE:"
   print "  {0} input_file output_file".format( os.path.basename(__file__) )
@@ -52,7 +52,7 @@ symbol = [                                              "X",\
   "TL", "PB", "BI", "PO", "AT", "RN", "FR", "RA", "AC", "TH",
   "PA", "U",  "NP", "PU", "AM", "CM", "BK", "CF", "ES", "FM",
   "MD", "NO", "LR", "RF", "DB", "SG", "BH", "HS", "MT", "DS",
-  "RG", "CN", "UUT", "FL", "UUP", "LV", "UUS", "UUO"
+  "RG", "CN", "NH", "FL", "MC", "LV", "TS", "OG"
 ]
 
 # First argument is a grid input file
@@ -167,71 +167,144 @@ class FortranFile(file):
 # READ INPUT FILE
 #===============================================================================
 
-# Detect ASCII or binary file
+# Detect LUSCUS, ASCII or binary file
 binary = False
-file_grid = open(grid_input, "r")
-if (file_grid.next()[0] != "0"):
-  file_grid.close()
-  file_grid = FortranFile(grid_input)
-  binary = True
-
-# Read only the header (until the first "Title=" is found)
-grid = []
-while True:
-  # Get next line/record in binary or ASCII mode
-  if (binary):
-    line = file_grid.readRecord()
+luscus = False
+file_grid = open(grid_input, "rb")
+tell = file_grid.readline()[0]
+if (tell != "0"):
+  if (tell == " "):
+    file_grid.seek(0)
+    luscus = True
   else:
-    line = file_grid.next()
+    file_grid.close()
+    file_grid = FortranFile(grid_input)
+    binary = True
 
+grid = []
+if (luscus):
+  # Hard-coded conversion factor
+  angstrom = 0.52917721067
   # Number of atoms, the geometry follows
-  match = re.match("Natom=\s*(\d+)", line)
-  if (match):
-    natoms = int(match.group(1))
-    atom = []
-    for i in range(natoms):
-      if (binary):
-        tmp = file_grid.readRecord().split()
-      else:
-        tmp = file_grid.next().split()
-      atom.append( { "name": tmp[0], "x": float(tmp[1]), "y": float(tmp[2]), "z": float(tmp[3]) } )
+  line = file_grid.readline()
+  natoms = int(line)
+  line = file_grid.readline()
+  atom = []
+  for i in range(natoms):
+    tmp = file_grid.readline().split()
+    atom.append( { "name": tmp[0], "x": float(tmp[1])/angstrom, "y": float(tmp[2])/angstrom, "z": float(tmp[3])/angstrom } )
+  line = file_grid.readline()
+  if (line.strip() != '<GRID>'):
+    sys.exit("** Error in Luscus format")
   # Number of data per block (per grid)
-  match = re.match("Block_Size=(.*)", line)
-  if (match):
-    block_size = int(match.group(1))
+  line = file_grid.readline()
+  match = re.match("\s*N_of_MO=\s*(\d+)\s*N_of_Grids=\s*(\d+)\s*N_of_Points=\s*(\d+)\s*Block_Size=\s*(\d+)\s*N_Blocks=\s*(\d+)\s*Is_cutoff=\s*(\d+)\s*CutOff=\s*(\d+\.\d+)\s*N_P=\s*(\d+)\s*", line)
+  if (not match):
+    sys.exit("** Error in Luscus format")
+  block_size = int(match.group(4))
+  # Number of grids
+  n_grid = int(match.group(2))
   # Number of grid divisions per dimension
-  match = re.match("Net=(.*)", line)
-  if (match):
-    tmp = match.group(1).split()
-    net = map(int, tmp)
-    # Number of points is one more in each dimension
-    npt = map(lambda x: x+1, net)
+  line = file_grid.readline()
+  line = file_grid.readline()
+  match = re.match("\s*Net=(.*)", line)
+  if (not match):
+    sys.exit("** Error in Luscus format")
+  tmp = match.group(1).split()
+  npt = map(int, tmp)
+  # Number of net points is one less in each dimension
+  net = map(lambda x: x-1, npt)
   # Origin of the grid (smallest corner)
-  match = re.match("Origin=(.*)", line)
-  if (match):
-    tmp = match.group(1).split()
-    origin = map(float, tmp)
+  line = file_grid.readline()
+  match = re.match("\s*Origin=(.*)", line)
+  if (not match):
+    sys.exit("** Error in Luscus format")
+  tmp = match.group(1).split()
+  origin = map(float, tmp)
   # The three edges
-  match = re.match("Axis_1=(.*)", line)
-  if (match):
-    tmp = match.group(1).split()
-    axis_1 = map(float, tmp)
-  match = re.match("Axis_2=(.*)", line)
-  if (match):
-    tmp = match.group(1).split()
-    axis_2 = map(float, tmp)
-  match = re.match("Axis_3=(.*)", line)
-  if (match):
-    tmp = match.group(1).split()
-    axis_3 = map(float, tmp)
+  line = file_grid.readline()
+  match = re.match("\s*Axis_1=(.*)", line)
+  if (not match):
+    sys.exit("** Error in Luscus format")
+  tmp = match.group(1).split()
+  axis_1 = map(float, tmp)
+  line = file_grid.readline()
+  match = re.match("\s*Axis_2=(.*)", line)
+  if (not match):
+    sys.exit("** Error in Luscus format")
+  tmp = match.group(1).split()
+  axis_2 = map(float, tmp)
+  line = file_grid.readline()
+  match = re.match("\s*Axis_3=(.*)", line)
+  if (not match):
+    sys.exit("** Error in Luscus format")
+  tmp = match.group(1).split()
+  axis_3 = map(float, tmp)
   # Name of all grids present in the file
-  match = re.match("GridName=(.*)", line)
-  if (match):
+  line = file_grid.readline()
+  for i in range(n_grid):
+    line = file_grid.readline()
+    match = re.match("\s*GridName=(.*)", line)
+    if (not match):
+      sys.exit("** Error in Luscus format")
     grid.append(match.group(1).strip())
-  # The first grid data starts, stop reading header
-  match = re.match("Title=(.*)", line)
-  if (match):
-    break
+else:
+  # Read only the header (until the first "Title=" is found)
+  while True:
+    # Get next line/record in binary or ASCII mode
+    if (binary):
+      line = file_grid.readRecord()
+    else:
+      line = file_grid.readline()
+
+    # Number of atoms, the geometry follows
+    match = re.match("Natom=\s*(\d+)", line)
+    if (match):
+      natoms = int(match.group(1))
+      atom = []
+      for i in range(natoms):
+        if (binary):
+          tmp = file_grid.readRecord().split()
+        else:
+          tmp = file_grid.readline().split()
+        atom.append( { "name": tmp[0], "x": float(tmp[1]), "y": float(tmp[2]), "z": float(tmp[3]) } )
+    # Number of data per block (per grid)
+    match = re.match("Block_Size=(.*)", line)
+    if (match):
+      block_size = int(match.group(1))
+    # Number of grid divisions per dimension
+    match = re.match("Net=(.*)", line)
+    if (match):
+      tmp = match.group(1).split()
+      net = map(int, tmp)
+      # Number of points is one more in each dimension
+      npt = map(lambda x: x+1, net)
+    # Origin of the grid (smallest corner)
+    match = re.match("Origin=(.*)", line)
+    if (match):
+      tmp = match.group(1).split()
+      origin = map(float, tmp)
+    # The three edges
+    match = re.match("Axis_1=(.*)", line)
+    if (match):
+      tmp = match.group(1).split()
+      axis_1 = map(float, tmp)
+    match = re.match("Axis_2=(.*)", line)
+    if (match):
+      tmp = match.group(1).split()
+      axis_2 = map(float, tmp)
+    match = re.match("Axis_3=(.*)", line)
+    if (match):
+      tmp = match.group(1).split()
+      axis_3 = map(float, tmp)
+    # Name of all grids present in the file
+    match = re.match("GridName=(.*)", line)
+    if (match):
+      grid.append(match.group(1).strip())
+    # The first grid data starts, stop reading header
+    match = re.match("Title=(.*)", line)
+    if (match):
+      break
 
 #---------------------------------------
 # Select a grid from the input file
@@ -258,37 +331,61 @@ if (len(grid) > 1):
 np = npt[0]*npt[1]*npt[2]
 data = []
 
-# The data for each grid is written across several blocks separated by "Title="
-i = 0
-j = 0
-file_grid.seek(0)
-if (binary):
-  line = file_grid.readRecord()
+if (luscus):
+  loc = 0
+  while True:
+    line = file_grid.readline()
+    if (re.match("\s*<DENSITY>", line)):
+      loc = file_grid.tell()
+      break
+  if (loc == 0):
+    sys.exit("** Error in Luscus format")
+  l = struct.calcsize('d')
+  # number of points read
+  npr = 0
+  # read the points by blocks
+  while (npr < np):
+    # number of points in the block
+    npb = min(np-npr, block_size)
+    # skip previous grids
+    file_grid.seek((ng-1)*npb*l, 1)
+    # read the block for this grid
+    data.extend( list(struct.unpack(npb*'d', file_grid.read(npb*l))) )
+    npr += npb
+    # skip following grids
+    file_grid.seek((n_grid-ng)*npb*l, 1)
 else:
-  line = file_grid.next()
-while True:
-  # When a new block starts, step the grid count by 1
-  # (and start again when the last grid is reached)
-  match = re.match("Title=(.*)", line)
-  if (match):
-    i = (i % len(grid))+1 
-  # Only read the data if this is the grid we want
-  if (i == ng):
-    if (binary):
-      # Assume we are reading double precision
-      line = file_grid.readReals(prec='d')
-      data.extend(line)
-      j += len(line)
-    else:
-      # Each block is at most of block_size length (the last one is shorter)
-      for k in range(min(np-j, block_size)): 
-        data.append( float(file_grid.next().split()[0]) )
-      j += k+1
-  if (j >= np): break
+  # The data for each grid is written across several blocks separated by "Title="
+  i = 0
+  j = 0
+  file_grid.seek(0)
   if (binary):
     line = file_grid.readRecord()
   else:
-    line = file_grid.next()
+    line = file_grid.readline()
+  while True:
+    # When a new block starts, step the grid count by 1
+    # (and start again when the last grid is reached)
+    match = re.match("Title=(.*)", line)
+    if (match):
+      i = (i % len(grid))+1
+    # Only read the data if this is the grid we want
+    if (i == ng):
+      if (binary):
+        # Assume we are reading double precision
+        line = file_grid.readReals(prec='d')
+        data.extend(line)
+        j += len(line)
+      else:
+        # Each block is at most of block_size length (the last one is shorter)
+        for k in range(min(np-j, block_size)):
+          data.append( float(file_grid.readline().split()[0]) )
+        j += k+1
+    if (j >= np): break
+    if (binary):
+      line = file_grid.readRecord()
+    else:
+      line = file_grid.readline()
 
 file_grid.close()
 
@@ -333,7 +430,7 @@ for i in range(npt[0]):
       # next element to print is k+end
       k += end
       # final element of this line is either kk or k+nd
-      end = min(kk-k, nd) 
+      end = min(kk-k, nd)
       # write elements from k to k+end
       file_cube.write("".join([ "{0:13.5E}".format(num) for num in data[k:k+end] ] )+"\n")
     # update for the final line of the block

@@ -22,7 +22,7 @@ C     this routine aborts the process(es) with rc
 
 #ifdef _MOLCAS_MPP_
       if (is_real_par()) then
-C     unline abort, mpi_abort does not print a backtrace,
+C     unlike abort, mpi_abort does not print a backtrace,
 C     so we do it manually here
         call xbacktrace
         rc4 = int(rc,kind(rc4))

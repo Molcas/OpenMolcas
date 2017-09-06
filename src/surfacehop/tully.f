@@ -16,8 +16,8 @@
       character*8  date
       character*10 time
       character*5  zone
-      real*8       fRandom_Molcas
-      EXTERNAL     fRandom_Molcas
+      real*8       Random_Molcas
+      EXTERNAL     Random_Molcas
       logical    HOPPED, normalTully, found, lmaxHop, lnhop
       integer    NSTATE, NCI, maxhop, nhop
       real*8     DT, LO, EKIN, TAU(NSTATE)
@@ -336,7 +336,7 @@ C       or generate a new random seed number
 C         Just milliseconds multiplied by seconds
           iseed = ((values(7)+1)*values(8)+1)
         endif
-        LO = fRandom_Molcas(iseed)
+        LO = Random_Molcas(iseed)
         call put_iscalar('Seed',iseed)
         if (LO.lt.RandThreshold) then
             LO=RandThreshold
@@ -363,7 +363,7 @@ C                                                                      C
       if (fixedrandL) then
          continue
       else
-        LO = fRandom_Molcas(iseed)
+        LO = Random_Molcas(iseed)
         call put_iscalar('Seed',iseed)
         if (LO.lt.RandThreshold) then
            LO=RandThreshold

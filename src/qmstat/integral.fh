@@ -49,5 +49,5 @@
       Common/IntegralsR/Alfa(MxBas,MxCont),Beta(MxBasC,MxCont)
      &,Cont(MxBas,MxCont),Dont(MxBasC,MxCont),CasOri(3,MxBasC)
      &,BasOri(3,MxBas),SavOri(3,MxBasC),V3(MxBasC,MxOrb_C)
-     &,Trans((3*MxAngqNr**2-2*MxAngqNr-10+8*MxAngqNr**3
-     &       +3*MxAngqNr**4)/12)
+     &,Trans(int(dble(3*MxAngqNr**2-2*MxAngqNr-10+8*MxAngqNr**3
+     &       +3*MxAngqNr**4)/12))
