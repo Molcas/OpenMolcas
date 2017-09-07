@@ -10,7 +10,7 @@ CASPT2.
 OpenMolcas is not a fork or reimplementation of
 [Molcas](http://www.molcas.org), it *is* a large part of the Molcas codebase
 that has been released as free and open-source software (FOSS) under the Lesser
-GNU Public License (LGPL). Some parts of Molcas remain under a different
+General Public License (LGPL). Some parts of Molcas remain under a different
 license by decision of their authors (or impossibility to reach them), and are
 therefore not included in OpenMolcas.
 

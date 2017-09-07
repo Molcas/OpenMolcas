@@ -173,12 +173,14 @@
   image: ${CI_REGISTRY}/molcas/dockerfiles/ubuntu-14.04:latest
   variables: &intel_vars
     cache_file: |
-      set (DEFMOLCASMEM "1024" CACHE STRING "reduce memomy")
+      set (DEFMOLCASMEM "1024" CACHE STRING "reduce memory")
     # script to install the Intel compilers
     intel_path: ${CI_PROJECT_DIR}/intel
     pre_compile_script: |
       apt-get install -y --no-install-recommends cpio man-db
-      wget -q -O /dev/stdout 'https://raw.githubusercontent.com/nemequ/icc-travis/master/install-icc.sh' | sed 's/realpath/readlink -m/' | /bin/sh -s -- --components icc,ifort --dest ${intel_path}
+      for i in {1..5} ; do
+        wget -q -O /dev/stdout 'https://raw.githubusercontent.com/nemequ/icc-travis/master/install-icc.sh' | sed 's/realpath/readlink -m/' | /bin/sh -s -- --components icc,ifort --dest ${intel_path} && break
+      done
       cp ~/.bashrc ${intel_path}/compilervars.sh
       . ${intel_path}/compilervars.sh
     post_compile_script: |
