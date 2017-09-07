@@ -75,6 +75,7 @@
     - web
   except:
     - master
+    - master-*
   # allow failures so that the next stages are not blocked
   # (but test jobs that depend on this will fail later)
   allow_failure: true
@@ -119,6 +120,8 @@
   only:
     - daily-snapshot
     - web
+  except:
+    - master-*
 
 # Define some configuration groups (variables, tags, etc.) to be used in jobs
 # - plain: default configuration
@@ -253,6 +256,7 @@ tinker:
     - web
   except:
     - master
+    - master-*
   allow_failure: false
 
 # Another special job for building doxygen documentation
