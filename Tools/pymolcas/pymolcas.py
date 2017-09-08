@@ -79,7 +79,7 @@ def main(my_name):
   parser.usage = '{0} [options] [input_file | script ...]'.format(parser.prog)
   args = vars(parser.parse_args())
 
-  from molcas_aux import find_molcas, attach_streams
+  from molcas_aux import find_molcas, find_sources, attach_streams
   from molcas_wrapper import Molcas_wrapper, MolcasException
 
   # Checking for version right at the beginning, in case MOLCAS cannot be found
@@ -90,6 +90,7 @@ def main(my_name):
 
   xbin_list={}
   find_molcas(xbin_list, here=(not args['not_here']))
+  find_sources()
 
   # If this a program defined in xbin, call it
   import subprocess
@@ -101,13 +102,18 @@ def main(my_name):
     sys.exit(subprocess.call(command))
 
   # If this is not calling a program in sbin, pass the extra options to the main program
+  # Unfortunately we cannot use Molcas.in_sbin yet, because Molcas is not initialized
   if (args['filename']):
     # Specifically, verify should work with the default environment
     if (args['filename'] == 'verify'):
       args['ignore_environment'] = True
     if (args['extra']):
-      filetest = os.path.join(os.environ['MOLCAS'], 'sbin', args['filename'])
-      if (not (os.path.isfile(filetest) and os.access(filetest, os.X_OK))):
+      in_sbin = False
+      for path in ['MOLCAS', 'OPENMOLCAS_SOURCE', 'MOLCAS_SOURCE']:
+        filetest = os.path.join(os.environ[path], 'sbin', args['filename'])
+        if (os.path.isfile(filetest) and os.access(filetest, os.X_OK)):
+          in_sbin = True
+      if (not in_sbin):
         for k,v in vars(parser.parse_args(args['extra'])).items():
           if (v):
             args[k] = v

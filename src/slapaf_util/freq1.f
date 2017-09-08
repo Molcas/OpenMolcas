@@ -33,7 +33,7 @@
 *
       If (iPrint.ge.99) Then
          Write(6,*)' [Freq1] nInter, nIter, Delta =',nInter,nIter,Delta
-         Call RecPrt('Curret H:','(10F9.6)',H,nInter,nInter)
+         Call RecPrt('Current H:','(10F9.6)',H,nInter,nInter)
          Call RecPrt('Initial dq:','(10F9.6)',dq,nInter,nIter)
          Call RecPrt('Initial  q:','(10F9.6)', q,nInter,nIter+1)
       EndIf
