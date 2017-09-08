@@ -75,15 +75,16 @@ def filter_procs(query):
 # Color the part of a line that matches the query
 # - If the line matches the Fortran regex, we can identify the portion
 # - Otherwise just match whatever fits
-def color_match(line, query):
+def color_match(line, query_text):
   try:
     match = find_regex.match(line)
     name = Fore.RED + match.group(3) + Style.RESET_ALL
     return find_regex.sub(r'\1{0}'.format(name), line)
   except:
-    match = query.search(line)
+    q = re.compile(translate(query_text).replace('\Z', ''), flags=re.IGNORECASE)
+    match = q.search(line)
     name = Fore.RED + match.group() + Style.RESET_ALL
-    return query.sub(name, line)
+    return q.sub(name, line)
 
 # First get the query from the command line,
 # so we can spare reading the source
@@ -208,7 +209,7 @@ if (len(result) > 0):
   print(fmt.format("file","line","definition"))
   print('='*(maxlen+80))
   for proc in result:
-    print(fmt.format(relpath(join(src_dir, proc[1])), proc[2], color_match(proc[3], query)))
+    print(fmt.format(relpath(join(src_dir, proc[1])), proc[2], color_match(proc[3], query_text)))
 else:
   print(Fore.BLUE + 'No procedures matching ' + Fore.GREEN + query_text + Style.RESET_ALL)
 print('')
