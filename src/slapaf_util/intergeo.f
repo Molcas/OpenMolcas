@@ -56,7 +56,7 @@
 *
       Lu_Molden=19
       Call molcas_open(Lu_Molden,FileName)
-      Write (Lu_Molden,*) '[MOLDEN FORMAT]'
+      Write (Lu_Molden,*) '[Molden Format]'
       Write (Lu_Molden,*) '[N_GEO]'
       Write (Lu_Molden,*) nIter
       Write (Lu_Molden,*) '[GEOCONV]'
