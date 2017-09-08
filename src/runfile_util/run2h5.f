@@ -83,7 +83,7 @@
 *     atom labels
       dsetid = mh5_create_dset_str(fileid,
      $        'CENTER_LABELS', 1, [nAtoms], LENIN)
-        call mh5_init_attr(dsetid, 'description',
+      call mh5_init_attr(dsetid, 'description',
      $          'Unique center labels '//
      $          'arranged as one [NATOMS_UNIQUE] block')
       call mma_allocate(atomlbl,nAtoms)
