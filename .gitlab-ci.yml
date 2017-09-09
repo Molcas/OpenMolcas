@@ -149,13 +149,14 @@
       set (BUILD_STATIC_LIB "ON" CACHE STRING "build static libmolcas too")
       set (LINALG "Runtime" CACHE STRING "runtime blas/lapack linking")
       set (FDE "ON" CACHE STRING "enable frozen-density-embedding (FDE) interface")
+      set (GRID_IT "ON" CACHE STRING "enable public GRID_IT code")
       set (TOOLS "ON" CACHE STRING "compile Tools")
       #set (MSYM "ON" CACHE STRING "enable libmsym (needs submodule)")
       #set (WFA "ON" CACHE STRING "enable libwfa (needs submodule)")
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
-    submodules: "External/lapack External/libmsym External/libwfa"
+    submodules: "External/lapack External/grid_it External/libmsym External/libwfa"
     MOLCAS_LINALG: "/opt/OpenBLAS/lib/libopenblas.so"
     MOLCAS_LINALG_INFO: "YES"
   tags:

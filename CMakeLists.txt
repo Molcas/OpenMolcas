@@ -1857,7 +1857,7 @@ if (GRID_IT)
                 list (APPEND progs ${prog})
                 file (RELATIVE_PATH ${prog}_src ${PROJECT_SOURCE_DIR} ${proj})
                 # some routines in the external code are referenced by libmolcas,
-                # so they must compiled with the molcas library and not with the "program" library
+                # so they must be compiled with the molcas library and not with the "program" library
                 list (APPEND objlibs "$<TARGET_OBJECTS:${prog}>")
                 list (APPEND proglib ${prog})
         else()
