@@ -2994,7 +2994,7 @@ install (PROGRAMS
         )
 
 install (PROGRAMS
-        "${PROJECT_BINARY_DIR}/bin/molcas.exe"
+        ${PROJECT_BINARY_DIR}/bin/molcas.exe
         DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
         )
 

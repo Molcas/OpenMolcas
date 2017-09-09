@@ -120,7 +120,7 @@ c         Call Upcase(CmpLab2)
 * Read data from runfile.                                              *
 *----------------------------------------------------------------------*
       iDisk=DataAdr
-      Call GzRWRun(Lu,icRd,Data,nData,iDisk,RecTyp)
+      Call gzRWRun(Lu,icRd,Data,nData,iDisk,RecTyp)
 *----------------------------------------------------------------------*
 *                                                                      *
 *----------------------------------------------------------------------*

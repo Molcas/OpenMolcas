@@ -80,8 +80,8 @@ the [Issues](/../issues) page or the [Molcas
 forum](https://cobalt.itc.univie.ac.at/molcasforum/index.php), and hopefully
 some other user or developer will be able to help you.
 
-If you need technical support, you can acquire a Molcas license
-(www.molcas.org)
+If you need technical support, you can acquire a [Molcas
+license](http://www.molcas.org/order.html).
 
 Contributing
 ------------
