@@ -941,12 +941,9 @@ endif ()
 #=======================
 
 # Global Arrays settings, non-portable!
-if (GA)
+if (GA AND MPI)
         message ("Configuring with external GA library:")
 
-        if (NOT MPI)
-                message (WARNING "External GA library requested for serial build")
-        endif ()
         find_path (GA_INCLUDE_PATH ga.h
                 PATHS ENV GAROOT
                 PATH_SUFFIXES include
@@ -1015,7 +1012,21 @@ if (MPI)
         message ("-- MPI_Fortran_LIBRARIES: ${MPI_Fortran_LIBRARIES}")
         message ("-- MPIEXEC: ${MPIEXEC}")
 
-        string (TOLOWER "${MPI_LIBRARIES}" MPI_LIBRARIES_LOWER)
+        execute_process (
+                COMMAND ${MPIEXEC} "--version"
+                OUTPUT_VARIABLE MPIEXEC_VERSION
+                ERROR_VARIABLE MPIEXEC_VERSION
+                )
+        if (MPIEXEC_VERSION MATCHES "OpenRTE")
+                set (MPI_IMPLEMENTATION "openmpi")
+        elseif (MPIEXEC_VERSION MATCHES "Intel(R) MPI")
+                set (MPI_IMPLEMENTATION "impi")
+        elseif (MPIEXEC_VERSION MATCHES "HYDRA")
+                set (MPI_IMPLEMENTATION "mpich")
+        else ()
+                message (FATAL_ERROR "Unknown or unsupported MPI implementation:\n${MPIEXEC_VERSION}")
+        endif ()
+        message ("-- MPI_IMPLEMENTATION: ${MPI_IMPLEMENTATION}")
 
         list (APPEND EXTERNAL_LIBRARIES ${MPI_Fortran_LIBRARIES})
 endif ()
@@ -1121,14 +1132,14 @@ if (LINALG STREQUAL "MKL")
         # find scalapack/blacs for parallel lapack support
         find_library (LIBMKL_SCALAPACK NAMES "mkl_scalapack_ilp64"
                 PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
-        if (MPI_LIBRARIES_LOWER MATCHES "openmpi")
+        if (MPI_IMPLEMENTATION STREQUAL "openmpi")
                 list (APPEND MKL_LIB_NAMES "-lmkl_blacs_openmpi_ilp64")
                 find_library (LIBMKL_BLACS NAMES "mkl_blacs_openmpi_ilp64"
                         PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
-        elseif (MPI_LIBRARIES_LOWER MATCHES "impi")
+        elseif (MPI_IMPLEMENTATION STREQUAL "impi")
                 find_library (LIBMKL_BLACS NAMES "mkl_blacs_intelmpi_ilp64"
                         PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
-        elseif (MPI_LIBRARIES_LOWER MATCHES "mpich")
+        elseif (MPI_IMPLEMENTATION STREQUAL "mpich")
                 find_library (LIBMKL_BLACS NAMES "mkl_blacs_ilp64"
                         PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
         endif ()
@@ -1860,6 +1871,7 @@ if (GRID_IT)
                 # so they must be compiled with the molcas library and not with the "program" library
                 list (APPEND objlibs "$<TARGET_OBJECTS:${prog}>")
                 list (APPEND proglib ${prog})
+                message ("-- Source found, external GRID_IT enabled")
         else()
                 message ("-- External GRID_IT ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
         endif ()
@@ -2059,7 +2071,7 @@ if (MPI AND NOT GA)
                         "Enable Global Arrays (-DGA=ON) or disable MPI (-DMPI=OFF).")
         endif ()
         # workaround for OpenMPI
-        if (MPI_LIBRARIES_LOWER MATCHES "openmpi" AND OPENMP)
+        if (MPI_IMPLEMENTATION STREQUAL "openmpi" AND OPENMP)
                 list (APPEND ${util}_defs "_OPENMPI_")
                 message (WARNING
                         "MPI_THREAD_MULTIPLE support in OpenMPI is unreliable in "
