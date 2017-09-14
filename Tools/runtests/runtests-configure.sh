@@ -292,7 +292,7 @@ test_configfile () {
     do
         cd $R.$BRANCH || return
         checkout_clean $R
-        rc = $?
+        rc=$?
         if [ $rc -lt 0 ]
         then
             echo "error checking out $BRANCH from $R, skipping testing..."
