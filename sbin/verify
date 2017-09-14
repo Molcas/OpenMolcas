@@ -57,6 +57,10 @@ $SIG{INT} = sub { kill 'TERM', -$active_pid; print "killed $active_pid"; die("\n
 
 my $starting_cwd = cwd;
 
+my $MOLCAS_DRIVER;
+$MOLCAS_DRIVER = $ENV{"MOLCAS_DRIVER"} or $MOLCAS_DRIVER = "molcas";
+my $DRIVER_base = basename($MOLCAS_DRIVER);
+
 # default options
 my %opt = ();
 GetOptions ( \%opt,
@@ -90,10 +94,6 @@ GetOptions ( \%opt,
 my @tasklist = @ARGV;
 
 @tasklist = ('.default') unless (@tasklist);
-
-my $MOLCAS_DRIVER;
-$MOLCAS_DRIVER = $ENV{"MOLCAS_DRIVER"} or $MOLCAS_DRIVER = "molcas";
-my $DRIVER_base = basename($MOLCAS_DRIVER);
 
 # do we need help?
 short_help(0) if ($opt{h});

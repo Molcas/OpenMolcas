@@ -150,6 +150,7 @@ option (NECI       "Activate NECI support (requires External/NECI submodule)."  
 option (HDF5_F2003 "Activate a F2003 interface to the HDF5 library (requires External/hdf5_f2003_interface submodule)."               OFF)
 option (WFA        "Activate extended wavefunction analysis (requires External/libwfa submodule)."                                    OFF)
 option (EFPLIB     "Enable EFPLib library for effective fragment potentials (requires External/efp submodule)."                       OFF)
+option (GRID_IT    "Enable public GRID_IT code (requires External/grid_it submodule)."                                                OFF)
 
 ################################################################################
 #                                                                              #
@@ -249,10 +250,15 @@ function (find_source name)
                         endif ()
                 endif ()
         endforeach ()
-        if (DEFINED found)
-                set (${name}_src "${found}" PARENT_SCOPE)
-        #else ()
-        #        message (WARNING "${name} not found, expect trouble")
+        # do not overwrite existing definitions
+        if (DEFINED ${name}_src)
+                set (${name}_src "${${name}_src}" PARENT_SCOPE)
+        else ()
+                if (DEFINED found)
+                        set (${name}_src "${found}" PARENT_SCOPE)
+                #else ()
+                #        message (WARNING "${name} not found, expect trouble")
+                endif ()
         endif ()
 endfunction ()
 
@@ -935,12 +941,9 @@ endif ()
 #=======================
 
 # Global Arrays settings, non-portable!
-if (GA)
+if (GA AND MPI)
         message ("Configuring with external GA library:")
 
-        if (NOT MPI)
-                message (WARNING "External GA library requested for serial build")
-        endif ()
         find_path (GA_INCLUDE_PATH ga.h
                 PATHS ENV GAROOT
                 PATH_SUFFIXES include
@@ -1009,7 +1012,21 @@ if (MPI)
         message ("-- MPI_Fortran_LIBRARIES: ${MPI_Fortran_LIBRARIES}")
         message ("-- MPIEXEC: ${MPIEXEC}")
 
-        string (TOLOWER "${MPI_LIBRARIES}" MPI_LIBRARIES_LOWER)
+        execute_process (
+                COMMAND ${MPIEXEC} "--version"
+                OUTPUT_VARIABLE MPIEXEC_VERSION
+                ERROR_VARIABLE MPIEXEC_VERSION
+                )
+        if (MPIEXEC_VERSION MATCHES "OpenRTE")
+                set (MPI_IMPLEMENTATION "openmpi")
+        elseif (MPIEXEC_VERSION MATCHES "Intel(R) MPI")
+                set (MPI_IMPLEMENTATION "impi")
+        elseif (MPIEXEC_VERSION MATCHES "HYDRA")
+                set (MPI_IMPLEMENTATION "mpich")
+        else ()
+                message (FATAL_ERROR "Unknown or unsupported MPI implementation:\n${MPIEXEC_VERSION}")
+        endif ()
+        message ("-- MPI_IMPLEMENTATION: ${MPI_IMPLEMENTATION}")
 
         list (APPEND EXTERNAL_LIBRARIES ${MPI_Fortran_LIBRARIES})
 endif ()
@@ -1037,7 +1054,7 @@ message ("Configuring linear algebra libraries:")
 # If one uses BLAS/LAPACK, you can use the CMake FindBLAS/FindLAPACK modules to
 # set everything, which is determined by setting the BLA_VENDOR environment
 # variable. Unfortunately, currently, the modules that comes with CMake doesn't
-# seem to support any ilp64 version of MKL, as it only has e.g.  Intel10_64lp
+# seem to support any ilp64 version of MKL, as it only has e.g. Intel10_64lp
 # For now, I'm using some non-portable thing.
 
 set (MKLROOT "" CACHE PATH "MKL root directory.")
@@ -1115,14 +1132,14 @@ if (LINALG STREQUAL "MKL")
         # find scalapack/blacs for parallel lapack support
         find_library (LIBMKL_SCALAPACK NAMES "mkl_scalapack_ilp64"
                 PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
-        if (MPI_LIBRARIES_LOWER MATCHES "openmpi")
+        if (MPI_IMPLEMENTATION STREQUAL "openmpi")
                 list (APPEND MKL_LIB_NAMES "-lmkl_blacs_openmpi_ilp64")
                 find_library (LIBMKL_BLACS NAMES "mkl_blacs_openmpi_ilp64"
                         PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
-        elseif (MPI_LIBRARIES_LOWER MATCHES "impi")
+        elseif (MPI_IMPLEMENTATION STREQUAL "impi")
                 find_library (LIBMKL_BLACS NAMES "mkl_blacs_intelmpi_ilp64"
                         PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
-        elseif (MPI_LIBRARIES_LOWER MATCHES "mpich")
+        elseif (MPI_IMPLEMENTATION STREQUAL "mpich")
                 find_library (LIBMKL_BLACS NAMES "mkl_blacs_ilp64"
                         PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
         endif ()
@@ -1842,6 +1859,26 @@ else ()
         message("libwfa support DISABLED")
 endif ()
 
+# external GRID_IT
+if (GRID_IT)
+        message("Configuring external GRID_IT:")
+        set (proj ${extprojsdir}/grid_it)
+        if (EXISTS ${proj}/main.f)
+                set (prog "grid_it")
+                list (APPEND progs ${prog})
+                file (RELATIVE_PATH ${prog}_src ${PROJECT_SOURCE_DIR} ${proj})
+                # some routines in the external code are referenced by libmolcas,
+                # so they must be compiled with the molcas library and not with the "program" library
+                list (APPEND objlibs "$<TARGET_OBJECTS:${prog}>")
+                list (APPEND proglib ${prog})
+                message ("-- Source found, external GRID_IT enabled")
+        else()
+                message ("-- External GRID_IT ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
+        endif ()
+else ()
+        message("External GRID_IT DISABLED")
+endif ()
+
 # Add the "bigot" flags after processing the external projects, so they are not affected
 if (BIGOT)
         set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXXFLAGS_${CXXCID}_BIGOT}")
@@ -1995,9 +2032,6 @@ list (REMOVE_ITEM progs
         symmetrize
         wfa
         )
-if (NOT DEFINED EXTRA_DIR)
-        list (REMOVE_ITEM utils grid_r_util)
-endif ()
 
 # set the location of the sources for the utilities
 foreach (util ${utils})
@@ -2037,7 +2071,7 @@ if (MPI AND NOT GA)
                         "Enable Global Arrays (-DGA=ON) or disable MPI (-DMPI=OFF).")
         endif ()
         # workaround for OpenMPI
-        if (MPI_LIBRARIES_LOWER MATCHES "openmpi" AND OPENMP)
+        if (MPI_IMPLEMENTATION STREQUAL "openmpi" AND OPENMP)
                 list (APPEND ${util}_defs "_OPENMPI_")
                 message (WARNING
                         "MPI_THREAD_MULTIPLE support in OpenMPI is unreliable in "
@@ -2157,6 +2191,11 @@ if (HDF5 AND HDF5_FOUND)
                 )
                 list (APPEND ${prog}_defs "_HDF5_")
         endforeach ()
+endif ()
+
+# activate grid_it
+if (DEFINED grid_it_src)
+        list (APPEND grid_util_defs "_HAVE_GRID_IT_")
 endif ()
 
 # finally, sort the list
@@ -2372,7 +2411,7 @@ foreach (prog ${progs})
                 list (REMOVE_ITEM progs ${prog})
         else ()
                 # FIXME: the checks below remove any main.* file, which is needed in
-                # order to be able to make a library out of the program sources.  This
+                # order to be able to make a library out of the program sources. This
                 # is required for supermodules.
                 #------------------------------------------------------------------
                 foreach (lext "f" "f90" "c")
@@ -2386,6 +2425,11 @@ foreach (prog ${progs})
                         add_library (${prog} OBJECT ${source})
                         set_target_properties (${prog} PROPERTIES
                                 Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/mod/${prog})
+                        # programs in "proglib" have their libraries compiled as utils
+                        if (BUILD_SHARED_LIBS AND ";${proglib};" MATCHES ";${prog};")
+                                set_target_properties (${prog} PROPERTIES
+                                        POSITION_INDEPENDENT_CODE "TRUE")
+                        endif ()
 
                         # program-specific compile definitions
                         if (DEFINED ${prog}_defs)
@@ -2415,7 +2459,8 @@ foreach (prog ${progs})
         # FIXME: Actual program target only depends on main file now, but if
         # supermodules are gone, the dependency should be on ${source} instead.
         #----------------------------------------------------------------------
-        if (TARGET ${prog})
+        # programs in "proglib" have their library included in libmolcas
+        if (TARGET ${prog} AND NOT ";${proglib};" MATCHES ";${prog};")
                 list (APPEND ${prog}_deps $<TARGET_OBJECTS:${prog}>)
         endif ()
         add_executable (${prog}.exe ${${prog}_main} ${${prog}_deps})
@@ -2684,13 +2729,15 @@ foreach (BASE_DIR ${basedirs})
         file (GLOB source RELATIVE ${BASE_DIR}/src/Driver ${BASE_DIR}/src/Driver/*.prgm.src)
         foreach (prgmsrc ${source})
                 string (REPLACE ".prgm.src" ".prgm" prgm ${prgmsrc})
-                add_custom_command (
-                        OUTPUT data/${prgm}
-                        DEPENDS ${BASE_DIR}/src/Driver/${prgmsrc} ${prgmincfiles}
-                        COMMAND cpp -P ${defargs} ${prgmincs} ${BASE_DIR}/src/Driver/${prgmsrc} data/${prgm}
-                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-                        )
-                list (APPEND prgmtargets data/${prgm})
+                if (NOT ";${prgmtargets};" MATCHES ";data/${prgm};")
+                        add_custom_command (
+                                OUTPUT data/${prgm}
+                                DEPENDS ${BASE_DIR}/src/Driver/${prgmsrc} ${prgmincfiles}
+                                COMMAND cpp -P ${defargs} ${prgmincs} ${BASE_DIR}/src/Driver/${prgmsrc} data/${prgm}
+                                WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+                                )
+                        list (APPEND prgmtargets data/${prgm})
+                endif ()
         endforeach (prgmsrc)
 endforeach (BASE_DIR)
 add_custom_target(prgms ALL
@@ -2959,7 +3006,7 @@ install (PROGRAMS
         )
 
 install (PROGRAMS
-        "${PROJECT_BINARY_DIR}/bin/molcas.exe"
+        ${PROJECT_BINARY_DIR}/bin/molcas.exe
         DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
         )
 

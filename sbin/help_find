@@ -41,7 +41,7 @@ except ImportError:
 
 helptext = '''
 {1}################################################################################
-#                       Searching the Molcas source code                       #
+#                     Searching the OpenMolcas source code                     #
 ################################################################################{0}
 
 Use with a command-line argument to search for a procedure (subroutine/function)
@@ -52,8 +52,8 @@ to be put inside quotes to prevent its expansion by the shell.
 
   {2}pget?{0}       find all procedures whose name is "pget" plus one character
 
-  {2}"sr*"{0}       find all procedures with a name starting with "sr"
-              (without the quotes, the shell will probably expand it to "src")
+  {2}"bi*"{0}       find all procedures with a name starting with "bi"
+              (without the quotes, the shell will probably expand it to "bin")
 '''.format(Style.RESET_ALL, Fore.BLUE, Fore.GREEN)
 
 # Main regex to identify Fortran procedures
@@ -75,15 +75,16 @@ def filter_procs(query):
 # Color the part of a line that matches the query
 # - If the line matches the Fortran regex, we can identify the portion
 # - Otherwise just match whatever fits
-def color_match(line, query):
+def color_match(line, query_text):
   try:
     match = find_regex.match(line)
     name = Fore.RED + match.group(3) + Style.RESET_ALL
     return find_regex.sub(r'\1{0}'.format(name), line)
   except:
-    match = query.search(line)
+    q = re.compile(translate(query_text).replace('\Z', ''), flags=re.IGNORECASE)
+    match = q.search(line)
     name = Fore.RED + match.group() + Style.RESET_ALL
-    return query.sub(name, line)
+    return q.sub(name, line)
 
 # First get the query from the command line,
 # so we can spare reading the source
@@ -94,7 +95,7 @@ except IndexError:
   sys.exit(0)
 
 try:
-  MOLCAS = environ['MOLCAS_SOURCE']
+  MOLCAS = environ['OPENMOLCAS_SOURCE']
 except KeyError:
   try:
     MOLCAS = environ['MOLCAS']
@@ -208,7 +209,7 @@ if (len(result) > 0):
   print(fmt.format("file","line","definition"))
   print('='*(maxlen+80))
   for proc in result:
-    print(fmt.format(relpath(join(src_dir, proc[1])), proc[2], color_match(proc[3], query)))
+    print(fmt.format(relpath(join(src_dir, proc[1])), proc[2], color_match(proc[3], query_text)))
 else:
   print(Fore.BLUE + 'No procedures matching ' + Fore.GREEN + query_text + Style.RESET_ALL)
 print('')

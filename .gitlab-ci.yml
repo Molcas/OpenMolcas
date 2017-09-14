@@ -53,7 +53,14 @@
         echo 'set (EXTRA "$ENV{extra}" CACHE PATH "location of molcas-extra")' >> flags.cmake
       fi
     - cmake -C flags.cmake ..
-    - make #VERBOSE=1
+    - |
+      if [ -n "${tries}" ] && [ "${tries}" -gt 1 ] ; then
+        for i in {1..${tries}} ; do
+          make && break
+        done
+      else
+        make #VERBOSE=1
+      fi
     - pymolcas verify 000 -k
     # some clean up to reduce artifact size
     - >
@@ -146,13 +153,14 @@
       set (BUILD_STATIC_LIB "ON" CACHE STRING "build static libmolcas too")
       set (LINALG "Runtime" CACHE STRING "runtime blas/lapack linking")
       set (FDE "ON" CACHE STRING "enable frozen-density-embedding (FDE) interface")
+      set (GRID_IT "ON" CACHE STRING "enable public GRID_IT code")
       set (TOOLS "ON" CACHE STRING "compile Tools")
       #set (MSYM "ON" CACHE STRING "enable libmsym (needs submodule)")
       #set (WFA "ON" CACHE STRING "enable libwfa (needs submodule)")
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
-    submodules: "External/lapack External/libmsym External/libwfa"
+    submodules: "External/lapack External/grid_it External/libmsym External/libwfa"
     MOLCAS_LINALG: "/opt/OpenBLAS/lib/libopenblas.so"
     MOLCAS_LINALG_INFO: "YES"
   tags:
@@ -173,12 +181,15 @@
   image: ${CI_REGISTRY}/molcas/dockerfiles/ubuntu-14.04:latest
   variables: &intel_vars
     cache_file: |
-      set (DEFMOLCASMEM "1024" CACHE STRING "reduce memomy")
+      set (DEFMOLCASMEM "1024" CACHE STRING "reduce memory")
     # script to install the Intel compilers
     intel_path: ${CI_PROJECT_DIR}/intel
+    tries: 5
     pre_compile_script: |
       apt-get install -y --no-install-recommends cpio man-db
-      wget -q -O /dev/stdout 'https://raw.githubusercontent.com/nemequ/icc-travis/master/install-icc.sh' | sed 's/realpath/readlink -m/' | /bin/sh -s -- --components icc,ifort --dest ${intel_path}
+      for i in {1..5} ; do
+        wget -q -O /dev/stdout 'https://raw.githubusercontent.com/nemequ/icc-travis/master/install-icc.sh' | sed 's/realpath/readlink -m/' | /bin/sh -s -- --components icc,ifort --dest ${intel_path} && break
+      done
       cp ~/.bashrc ${intel_path}/compilervars.sh
       . ${intel_path}/compilervars.sh
     post_compile_script: |
@@ -197,7 +208,6 @@
     cache_file: |
       set (CMAKE_BUILD_TYPE "Debug" CACHE STRING "no opt, debug info")
       set (BUILD_SHARED_LIBS "OFF" CACHE STRING "do not use shared libmolcas")
-      set (HDF5 "OFF" CACHE STRING "disable HDF5 support")
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
     CC: "gcc"
     CXX: "g++"

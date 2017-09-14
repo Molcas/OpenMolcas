@@ -32,9 +32,6 @@ c         print *,l
          return
          end
          subroutine prgmtranslate(in,out,lout)
-#ifndef _HAVE_EXTRA_
-         Use Prgm
-#endif
          character*(*) in, out
 #ifdef _DEBUG_IO_
          character LL*128
@@ -74,9 +71,6 @@ c         print *, 'Translate: >', in(1:lin),'< to >',out(1:lout),'<'
          return
          end
          subroutine prgmtranslate_master(in,out,lout)
-#ifndef _HAVE_EXTRA_
-         Use Prgm
-#endif
          character*(*) in, out
          Integer Strnln
          External Strnln

@@ -12,6 +12,7 @@
 *               1990, IBM                                              *
 *               2000-2015, Valera Veryazov                             *
 ************************************************************************
+#ifdef _HAVE_GRID_IT_
       subroutine Grid_it(iRun,INPORB,ireturn)
 c  iRun =1 normal run, 0=trancated from scf
 ************************************************************************
@@ -129,3 +130,8 @@ c      ireturn=0
       Call qExit('GRID')
       return
       End
+#elif defined (NAGFOR)
+c Some compilers do not like empty files
+      Subroutine empty_grid_it
+      End
+#endif
