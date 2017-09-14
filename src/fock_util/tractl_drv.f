@@ -20,43 +20,33 @@
 * Written:  August-September 2004                                      *
 * Modified for Cholesky-MP2 May 2005                                   *
 ************************************************************************
+*  TraCtl
+*
+*> @brief
+*>   Driver that calls the Cholesky or the Conventional routine for the
+*>   generation of the two-electrons integrals file in MO basis.
+*> @author Giovanni Ghigo
+*> @modified_by F. Aquilante
+*>
+*> @details
+*> All programs that need the generation of the two-electrons
+*> integrals file in MO basis must tell to the Cholesky routine
+*> who they are through \p iType:
+*>
+*> - ``1``: MBPT2
+*> - ``2``: CASPT2
+*> - ``3``: MCLR
+*> - ``4``: CC
+*>
+*> Programs must also tell to the Cholesky routine whether they need
+*> exchange-2 integrals through logical variable \p DoExch2. Both
+*> values are not used by the Conventional routine.
+*>
+*> @param[in] iType   Caller program
+*> @param[in] DoExch2 Flag for the generation of Exch-2 integrals
+*> @param[in] iPart   Partitioning of temp files
+************************************************************************
       SUBROUTINE TraCtl_Drv(iType,DoExch2,iPart)
-************************************************************
-*
-*   <DOC>
-*     <Name>TraCtl\_Drv</Name>
-*     <Syntax>Call TraCtl\_Drv(iType,DoExch2,iPart)</Syntax>
-*     <Arguments>
-*       \Argument{iType}{Caller program}{integer}{in}
-*       \Argument{DoExch2}{Flag for the generation of Exch-2 integrals}
-*       {logical}{in}
-*       \Argument{iPart}{Partitioning of temp files}{integer}{in}
-*     </Arguments>
-*     <Purpose>
-*      Driver that calls the Cholesky or the Conventional routine for the
-*      generation of the Two-electrons integrals file in MO basis.
-*     </Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>G. Ghigo</Author>
-*     <Modified_by>F. Aquilante</Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*      All programs that need the generation of the Two-electrons
-*      integrals file in MO basis must tell to the Cholesky routine
-*      who they are through iType:
-*        \begin{itemize}
-*          \item 1 MBPT2
-*          \item 2 CASPT2
-*          \item 3 MCLR
-*          \item 4 CC
-*        \end{itemize}
-*      Programs must also tell to the Cholesky routine whether they need
-*      exchange-2 integrals throught logical variable DoExch2. Both
-*      values are not used by the Conventional routine.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8 (a-h,o-z)
       Integer iType
 #include "rasdim.fh"

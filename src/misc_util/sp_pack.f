@@ -10,33 +10,28 @@
 *                                                                      *
 * Copyright (C) 2014, Ignacio Fdez. Galvan                             *
 ************************************************************************
-*-----------------------------------------------------------------------
-* <DOC>
-*   <NAME>Sp\_Pack</NAME>
-*   <SYNTAX>Call Sp\_Pack(n,A,nmax,Sp,ij\_Sp,Sym,Thr)</Syntax>
-*   <ARGUMENTS>
-*     \Argument{n}{Size of the matrix}{Integer}{in}
-*     \Argument{A}{Input matrix, in dense (conventional) format}{Real*8 (n,n)}{in}
-*     \Argument{nmax}{Maximum size of the stored vectors}{Integer}{in}
-*     \Argument{Sp}{Output matrix in sparse format}{Real*8 (*)}{out}
-*     \Argument{ij\_Sp}{Index vector for the sparse output matrix}{Integer (*)}{out}
-*     \Argument{Sym}{Flag specifying whether to use the symmetric format}{Logical}{in}
-*     \Argument{Thr}{Threshold to discard small elements}{Real*8}{in}
-*   </ARGUMENTS>
-*   <PURPOSE>Store a matrix in sparse format</PURPOSE>
-*   <DEPENDENCIES></DEPENDENCIES>
-*   <AUTHOR>I. Fdez. Galvan</AUTHOR>
-*   <MODIFIED_BY></MODIFIED_BY>
-*   <SIDE_EFFECTS></SIDE_EFFECTS>
-*   <DESCRIPTION>
-*     An input matrix A will be stored in a sparse format, as two vectors Sp and ij\_Sp.
-*     Only elements with an absolute value larger than Thr will be kept.
-*     An error is raised if the number of stored elements is larger than nmax.
-*     The sizes of Sp and ij\_Sp must be at least n+k+1, where k is the number of
-*     non_zero off-diagonal elements of A.
-*   </DESCRIPTION>
-* </DOC>
-*-----------------------------------------------------------------------
+*  Sp_Pack
+*
+*> @ingroup Sparse
+*> @brief
+*>   Store a matrix in sparse format
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> An input matrix \p A will be stored in a sparse format, as two vectors \p Sp and \p ij_Sp.
+*> Only elements with an absolute value larger than \p Thr will be kept.
+*> An error is raised if the number of stored elements is larger than \p nmax.
+*> The sizes of \p Sp and \p ij_Sp must be at least \f$ n + k + 1 \f$, where \f$ k \f$ is the number of
+*> non_zero off-diagonal elements of \p A.
+*>
+*> @param[in]  n     Size of the matrix
+*> @param[in]  A     Input matrix, in dense (conventional) format
+*> @param[in]  nmax  Maximum size of the stored vectors
+*> @param[out] Sp    Output matrix in sparse format
+*> @param[out] ij_Sp Index vector for the sparse output matrix
+*> @param[in]  Sym   Flag specifying whether to use the symmetric format
+*> @param[in]  Thr   Threshold to discard small elements
+************************************************************************
       SUBROUTINE Sp_Pack(n,A,nmax,Sp,ij_Sp,Sym,Thr)
       IMPLICIT NONE
       INTEGER n, nmax, ij_Sp(*), i, j, nij

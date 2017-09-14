@@ -10,54 +10,40 @@
 *                                                                      *
 * Copyright (C) Anders Ohrn                                            *
 ************************************************************************
-*----------------------------------------------------------------------*
+*  Qfread
+*
+*> @brief
+*>   Read in all data that comes from external Molcas routines and prepare various quantities, such as MME
+*> @author A. Ohrn
+*>
+*> @details
+*> This subroutine handles the interaction with the rest of Molcas.
+*> Here orbitals and various matrices are stored and to some extent
+*> modified to our purpose. We call on this subroutine even when
+*> we are running classical stuff. The reason for this is that we
+*> wish to collect some numbers, but really, we could easily have
+*> constructed thing differently so that this subroutine only would
+*> be called when quantum-classical stuff is running. For RASSI
+*> implementation, we also read in and transform the transition density
+*> matrix. At the end, we also call the routines that make the
+*> multicenter multipole expansion.
+*>
+*> @note
+*> Seward is mandatory for both SCF and RASSI. For SCF also,
+*> Motra, Averd; for RASSI also, RASSCF and RASSI.
+*>
+*> @param[out] nAtomsCC Atoms in solvent
+*> @param[out] Coord    Unique coordinates of the atoms in the molecule in the QM-region
+*> @param[out] nBas     Number of basis functions in QM-region
+*> @param[out] nBasCC   Like nBas but for a solvent molecule
+*> @param[out] nCnC_C   Like nCnC, but for solvent
+*> @param[out] nntyp    Number of basis-function types.
+*> @param[out] nOcc     The total number of basis functions that belong to a certain basis-function type.
+*> @param[out] natyp    Number of atoms of the i:th basis-function type
+************************************************************************
 *******JoseMEP the last three variables are included to the MEP calculation
       Subroutine Qfread(iQ_Atoms,nAtomsCC,Coord,nBas,nBasCC,nCnC_C
      &,nOcc,natyp,nntyp)
-************************************************************
-*
-*   <DOC>
-*     <Name>Qfread</Name>
-*     <Syntax>Call Qfread(nAtoms,nAtomsCC,Coord,nBas,nBasCC,nCnC,nCnC\_C,nntyp,nOcc,natyp,nOrbM)</Syntax>
-*     <Arguments>
-*       \Argument{nAtoms}{Number of atoms in QM-region}{}{out}
-*       \Argument{nAtomsCC}{Atoms in solvent}{}{out}
-*       \Argument{Coord}{Unique coordinates of the atoms in the molecule in the QM-region}{}{out}
-*       \Argument{nBas}{Number of basis functions in QM-region}{}{out}
-*       \Argument{nBasCC}{Like nBas but for a solvent molecule}{}{out}
-*       \Argument{nCnC}{Vector with information regarding the basis set contraction.}{}{out}
-*       \Argument{nCnC\_C}{Like nCnC, but for solvent}{}{out}
-*       \Argument{nntyp}{Number of basis-function types.}{}{out}
-*       \Argument{nOcc}{The total number of basis functions that belong to a certain basis-function type.}{}{out}
-*       \Argument{natyp}{Number of atoms of the i:th basis-function type}{}{out}
-*       \Argument{nOrbM}{Number of orbitals used by Motra for transformation (needed for deallocations.)}{}{out}
-*     </Arguments>
-*     <Purpose>
-*     To read in all data that comes from external Molcas routines
-*     and prepare various quantities, such as MME.
-*     </Purpose>
-*     <Dependencies>
-*     Seward is mandatory for both SCF and RASSI. For SCF also,
-*     Motra, Averd; for RASSI also, RASSCF and RASSI.
-*     </Dependencies>
-*     <Author>A.Ohrn</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*     This subroutine handles the interaction with the rest of Molcas.
-*     Here orbitals and various matrices are stored and to some extent
-*     modified to our purpose. We call on this subroutine even when
-*     we are running classical stuff. The reason for this is that we
-*     wish to collect some numbers, but really, we could easily have
-*     constructed thing differently so that this subroutine only would
-*     be called when quantum-classical stuff is running. For RASSI
-*     implementation, we also read in and transform the transition density
-*     matrix. At the end, we also call the routines that make the
-*     multicenter multipole expansion.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8 (a-h,o-z)
 
 *-----------------------------------------------------------------------*

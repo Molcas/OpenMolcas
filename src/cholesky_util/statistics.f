@@ -10,51 +10,34 @@
 *                                                                      *
 * Copyright (C) Thomas Bondo Pedersen                                  *
 ************************************************************************
+*  Statistics
+*
+*> @author Thomas Bondo Pedersen
+*>
+*> @details
+*> Computes the following statistics for a data set \p X(i), \p i = ``1``, ``2``, ..., ``n``:
+*>
+*> - \p Stat(ip_Mean):      mean value
+*> - \p Stat(ip_MeanAbs):   mean absolute value
+*> - \p Stat(ip_Min):       minimum value
+*> - \p Stat(ip_Max):       maximum value
+*> - \p Stat(ip_MaxAbs):    maximum absolute value
+*> - \p Stat(ip_Variance):  biased variance (i.e. RMS w.r.t. mean value)
+*> - \p Stat(ip_VarianceU): unbiased variance
+*>
+*> @param[in]  X            Data array
+*> @param[in]  n            Dimension of \p X
+*> @param[out] Stat         Statistics
+*> @param[in]  ip_Mean      Pointer to mean value in \p Stat
+*> @param[in]  ip_MeanAbs   Pointer to mean abs. value in \p Stat
+*> @param[in]  ip_Min       Pointer to min. value in \p Stat
+*> @param[in]  ip_Max       Pointer to max. value in \p Stat
+*> @param[in]  ip_MaxAbs    Pointer to max. abs. value in \p Stat
+*> @param[in]  ip_Variance  Pointer to biased variance in \p Stat
+*> @param[in]  ip_VarianceU Pointer to unbiased variance in \p Stat
+************************************************************************
       SubRoutine Statistics(X,n,Stat,ip_Mean,ip_MeanAbs,ip_Min,ip_Max,
      &                      ip_MaxAbs,ip_Variance,ip_VarianceU)
-************************************************************
-*
-*   <DOC>
-*     <Name>Statistics</Name>
-*     <Syntax>Call Statistics(X,n,Stat,ip\_Mean,ip\_MeanAbs,
-*                             ip\_Min,ip\_Max,
-*                             ip\_MaxAbs,ip\_Variance,ip\_VarianceU)
-*     </Syntax>
-*     <Arguments>
-*     \Argument{X}{Data array}{Real*8}{in}
-*     \Argument{n}{Dimension of X}{Integer}{in}
-*     \Argument{Stat}{Statistics}{Real*8}{out}
-*     \Argument{ip\_Mean}{Pointer to mean value in Stat}{Integer}{in}
-*     \Argument{ip\_MeanAbs}{Pointer to mean abs. value in Stat}
-*              {Integer}{in}
-*     \Argument{ip\_Min}{Pointer to min. value in Stat}{Integer}{in}
-*     \Argument{ip\_Max}{Pointer to max. value in Stat}{Integer}{in}
-*     \Argument{ip\_MaxAbs}{Pointer to max. abs. value in Stat}
-*              {Integer}{in}
-*     \Argument{ip\_Variance}{Pointer to biased variance in Stat}
-*              {Integer}{in}
-*     \Argument{ip\_VarianceU}{Pointer to unbiased variance in Stat}
-*              {Integer}{in}
-*     </Arguments>
-*     <Purpose></Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>Thomas Bondo Pedersen</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*     Computes the following statistics for a data set X(i),i=1,2,..,n:
-*     Stat(ip\_Mean)     : mean value
-*     Stat(ip\_MeanAbs)  : mean absolute value
-*     Stat(ip\_Min)      : minimum value
-*     Stat(ip\_Max)      : maximum value
-*     Stat(ip\_MaxAbs)   : maximum absolute value
-*     Stat(ip\_Variance) : biased variance (i.e. RMS w.r.t. mean value)
-*     Stat(ip\_VarianceU): unbiased variance
-*     </Description>
-*    </DOC>
-*
-************************************************************
-
       Implicit None
       Integer n
       Real*8  X(n), Stat(*)

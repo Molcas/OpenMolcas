@@ -10,31 +10,27 @@
 *                                                                      *
 * Copyright (C) Valera Veryazov                                        *
 ************************************************************************
+*  WarningMessage
+*
+*> @brief
+*>   Print warning message
+*> @author V. Veryazov
+*>
+*> @details
+*> Print message in uniform format.
+*>
+*> @note
+*> Routine updates \c MaxWarnMess.
+*>
+*> Recommended levels:
+*> - ``0``: for message without recording that it was an error
+*> - ``1``: for warnings
+*> - ``2``: for errors
+*>
+*> @param[in] Level Warning level
+*> @param[in] STR   Message
+************************************************************************
       Subroutine WarningMessage(Level,STR)
-************************************************************
-*
-*   <DOC>
-*     <Name>WarningMessage</Name>
-*     <Syntax>Call WarningMessage(Level,STR)</Syntax>
-*     <Arguments>
-*       \Argument{Level}{Warning level}{Integer}{in}
-*       \Argument{STR}{Message}{Character*(*)}{in}
-*     </Arguments>
-*     <Purpose>Print warning message</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>V. Veryazov</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects>Routine updates MaxWarnMess</Side_Effects>
-*     <Description>
-*       Print message in uniform format.
-*       Recommended levels:
-*       0 - for message without recording that it was an error
-*       1 - for warnings
-*       2 - for errors
-*     </Description>
-*    </DOC>
-*
-************************************************************
       character*(*) STR
       Integer Level
       common /WarnMess/ MaxWarnMess

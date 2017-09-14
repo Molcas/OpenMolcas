@@ -9,9 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 2014-2016, Steven Vancoillie                           *
-*               2015, Ignacio Fdez. Galvan (label and _lim)            *
-*               2015,2017, Liviu Ungur (complex*16)                    *
-*               2015, Yingjin Ma (4D)                                  *
+*               2015, Ignacio Fdez. Galvan                             *
+*               2015,2017, Liviu Ungur                                 *
+*               2015, Yingjin Ma                                       *
 ************************************************************************
 * stdalloc: wraps the standard allocate/deallocate fortran intrinsics.
 *

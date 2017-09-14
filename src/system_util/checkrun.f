@@ -10,34 +10,25 @@
 *                                                                      *
 * Copyright (C) 2000,2016, Valera Veryazov                             *
 ************************************************************************
-******************************************************************************
-*                                                                            *
-* Author:   Valera Veryazov 2000-2016                                        *
-*           Theoretical Chemistry                                            *
-*           Lund University                                                  *
-*           Sweden                                                           *
-*                                                                            *
-******************************************************************************
+************************************************************************
+*                                                                      *
+* Author:   Valera Veryazov 2000-2016                                  *
+*           Theoretical Chemistry                                      *
+*           Lund University                                            *
+*           Sweden                                                     *
+*                                                                      *
+************************************************************************
+*  CheckRun
+*
+*> @brief
+*>   Check that the program was started via molcas shell script
+*> @author V. Veryazov
+*>
+*> @details
+*> The routine checks ``MOLCAS_STAMP`` and quits if this variable
+*> has wrong value (to prevent the creation of dummy files)
+************************************************************************
       Subroutine CheckRun()
-************************************************************
-*
-*   <DOC>
-*     <Name>CheckRun</Name>
-*     <Syntax>Call CheckRun()</Syntax>
-*     <Arguments>
-*     </Arguments>
-*     <Purpose>Check that the program was started via molcas shell script</Purpose>
-*     <Dependencies>Getenvf</Dependencies>
-*     <Author>V. Veryazov</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*       The routine check MOLCAS\_STAMP and quit if this variable
-*       has wrong value (to prevent the creation of dummy files)
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Character Molcas*256
       Character Env*40
       Env='MOLCAS_STAMP'

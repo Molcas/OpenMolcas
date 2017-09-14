@@ -15,7 +15,7 @@
 ************************************************************************
 *                                                                      *
 *     Convert the first word of the incoming string, NameIn, to        *
-*     standard format (no leading balnks, all upper case letters).     *
+*     standard format (no leading blanks, all upper case letters).     *
 *                                                                      *
 *     calling arguments                                                *
 *     NameIn  : Type character string, input                           *

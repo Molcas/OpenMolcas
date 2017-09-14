@@ -10,27 +10,20 @@
 *                                                                      *
 * Copyright (C) Valera Veryazov                                        *
 ************************************************************************
+*  isFreeUnit
+*
+*> @brief
+*>   Find free unit number
+*> @author V. Veryazov
+*>
+*> @details
+*> Find unused unit number, starting from initial value.
+*>
+*> @param[in] iseed guess for unit number
+*>
+*> @return Free unit number
+************************************************************************
        Function isFreeUnit(iseed)
-
-************************************************************
-*
-*   <DOC>
-*     <Name>isFreeUnit</Name>
-*     <Syntax>isFreeUnit(init)</Syntax>
-*     <Arguments>
-*       \Argument{init}{guess for unit number}{integer}{inout}
-*     </Arguments>
-*     <Purpose>Find free unit number</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>V. Veryazov</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*       Find unused unit number, starting from initial value
-*     </Description>
-*    </DOC>
-*
-************************************************************
 #include "fio.fh"
 c      check free chanal, starting from init
        Logical Opened

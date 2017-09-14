@@ -10,44 +10,28 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
+*  CHO_GET_OED_cd
+*
+*> @brief
+*>   Computes the Cholesky vectors of the 2nd-rank orbital energy denominators according to Eq. (7) of \cite Koc2000-JCP-113-508
+*> @author F. Aquilante
+*>
+*> @details
+*> Computes the Cholesky vectors of the 2nd-rank orbital energy denominators
+*> according to Eq. (7) of \cite Koc2000-JCP-113-508
+*>
+*> @param[in]     incore Boolean for in or out of core decomposition
+*> @param[in]     nOV    Number of (occ,vir) pairs matching a given compound symmetry
+*> @param[in]     W      Array (\p nOV) of the orbital energy differences \p W(bj) = ``e(b)-e(j)``
+*> @param[in]     NVec   Number of Cholesky vectors requested
+*> @param[in]     ID_bj  Index array (\p NVec) of the decomposition pattern
+*> @param[in]     JVec   Starting Cholesky vector
+*> @param[in,out] Y      Matrix (\p nOV,\p NVec) of the Cholesky vectors for the decomposition of the orbital energy denominators
+*> @param[in,out] R      Matrix (\p nOV) of the previous products, to be used for out of core decomposition.
+*>                       Note: in case of out of core, in the first call this array *must* be initialized to ``1.0d0``.
+*>                       For the in core case, it *must* also coincide with the first column of \p Y and *must* still be initialized in input.
+************************************************************************
       SUBROUTINE CHO_GET_OED_cd(incore,nOV,W,NVec,ID_bj,JVec,Y,R)
-***********************************************************************
-*
-*   <DOC>
-*     <Name>CHO\_GET\_OED\_cd</Name>
-*     <Syntax>Call CHO\_GET\_ORD\_bj(incore,nOV,W,ID\_bj,NVec,JVec,Y,R)</Syntax>
-*     <Arguments>
-*       \Argument{incore}{Boolean for in or out of core decomposition}{Logical}{in}
-*       \Argument{nOV}{Number of (occ,vir) pairs matching a given
-*                      compound symmetry}{Integer}{in}
-*       \Argument{W}{Array (nOV) of the orbital energy
-*                    differences W(bj) = e(b)-e(j)}{Array Real*8}{in}
-*       \Argument{NVec}{Number of Cholesky vectors requested}{Integer}{in}
-*       \Argument{ID\_bj}{Index array (NVec) of the decomposition pattern}{Array Integer}{in}
-*       \Argument{JVec}{Starting Cholesky vector}{Integer}{in}
-*       \Argument{Y}{Matrix (nOV,NVec) of the Cholesky vectors
-*          for the decomposition of the orbital energy denominators.}{Array Real*8}{inout}
-*       \Argument{R}{Matrix (nOV) of the previous products, to be
-*          used for out of core decomposition. Note: in case of out of
-*          core, in the first call this array MUST be initialized to 1.0d0. For the in core
-*          case, it MUST also coincide with the first column of Y and MUST
-*          still be initialized in input.}{Array Real*8}{inout}
-*     </Arguments>
-*     <Purpose>
-*        Computes the Cholesky vectors of the 2nd-rank orbital energy
-*        denominators according to Eq. (7) of H. Koch, A. M. Sanchez,
-*        JCP 113, 508 (2000).
-*     </Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>F. Aquilante</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*     </Description>
-*    </DOC>
-*
-************************************************************
-
       Implicit Real*8 (a-h,o-z)
 
       Logical incore

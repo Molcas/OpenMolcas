@@ -10,26 +10,18 @@
 *                                                                      *
 * Copyright (C) Yannick Carissan                                       *
 ************************************************************************
+*  getMatrix
+*
+*> @brief
+*>   Utility routine for quaternion resolution
+*> @author Y. Carissan
+*>
+*> @details
+*> Fills the output matrix with the rotation matrix.
+*>
+*> @param[out] M Rotation matrix at output
+************************************************************************
       subroutine getMatrix(M)
-************************************************************
-*
-*   <DOC>
-*     <Name>getMatrix(M)</Name>
-*     <Syntax>getMatrix(M)</Syntax>
-*     <Arguments>
-*       \Argument{M}{Rotation matrix at output, Dimension(3,3)}{Real*8}{out}
-*     </Arguments>
-*     <Purpose>Utility routine for quaternion resolution</Purpose>
-*     <Dependencies>blas setmatrix must have been called</Dependencies>
-*     <Author>Y. Carissan</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects>none</Side_Effects>
-*     <Description>
-*        Fills the output matrix with the rotation matrix.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit none
 #include "WrkSpc.fh"
 #include "rotation.fh"

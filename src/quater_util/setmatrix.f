@@ -10,27 +10,18 @@
 *                                                                      *
 * Copyright (C) Yannick Carissan                                       *
 ************************************************************************
+*  setMatrix
+*
+*> @brief
+*>   Computes the rotation matrix of the rotation stored in the input quaternion
+*> @author Y. Carissan
+*>
+*> @details
+*> Computes the rotation matrix of the rotation stored in the input quaternion.
+*>
+*> @param[in] Q Input Quaternion
+************************************************************************
       subroutine setMatrix(Q)
-************************************************************
-*
-*   <DOC>
-*     <Name>setMatrix</Name>
-*     <Syntax>Call setMatrix(Q)</Syntax>
-*     <Arguments>
-*       \Argument{Q}{Input Quaternion, Dimension(4)}{Real*8}{in}
-*     </Arguments>
-*     <Purpose>Computes the rotation matrix of the rotation stored in the input quaternion
-*       </Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>Y. Carissan</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects>none</Side_Effects>
-*     <Description>
-*              Computes the rotation matrix of the rotation stored in the input quaternion
-*     </Description>
-*    </DOC>
-*
-************************************************************
       implicit real*8 (a-h,o-z)
 #include "WrkSpc.fh"
 #include "rotation.fh"

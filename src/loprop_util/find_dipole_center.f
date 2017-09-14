@@ -13,7 +13,7 @@
       Implicit Real*8 (A-H,O-Z)
       Dimension EC_A(3),EC_B(3),EC_AB(3)
       Real*8 Multipole_Expansion
-      External Multipole_Expansion
+      External Multipole_Expansion,Golden2
       Logical Absolute
       Parameter (Absolute = .False.)
       Parameter (E_Threshold = 1.0D-12, R_Threshold = 1.0D-12)

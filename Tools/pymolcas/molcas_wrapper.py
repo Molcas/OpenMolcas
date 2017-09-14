@@ -386,7 +386,10 @@ class Molcas_wrapper(object):
         banner = patch_re.sub(s, banner)
     banner = sub(r'\$V\$', version, banner)
     banner = sub(r'\$P\$', patch, banner)
-    banner = sub(r'\$Px\$', patch_x, banner)
+    if (patch_x):
+      banner = sub(r'\$Px\$', patch_x, banner)
+    else:
+      banner = sub(r'.*\$Px\$.*\n', patch_x, banner)
     # Christmas tree between Dec. 18th and Jan. 8th
     # (disabled)
     #if ((date.month == 12 and date.day > 17) or
@@ -1001,6 +1004,7 @@ class Molcas_module(object):
 
   def _copy_or_move(self, action, dest, filelist):
     #TODO: use parnell
+    #TODO: support the '.' attribute
     files = []
     for name, path in filelist:
       if '*' in self._files[name][1]:

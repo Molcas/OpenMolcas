@@ -10,31 +10,23 @@
 *                                                                      *
 * Copyright (C) Jesper Wisborg Krogh                                   *
 ************************************************************************
+*  Set_Do_Parallel
+*
+*> @brief
+*>   Set the variable \c Do_Real_Par (in the \c do_sync common block) to the value of \p Status
+*> @author Jesper Wisborg Krogh
+*>
+*> @details
+*> Set the variable \c Do_Real_Par (in the \c do_sync common block) to the value of \p Status.
+*> Setting this variable to ``.False.`` will ensure that the code afterwards will be run
+*> in serial mode even if the job is started with ``$MOLCAS_NPROCS > 1``, i.e. all tasks are done
+*> on each node, and no synchronization. Setting \c Do_Real_Par to ``.True.`` will cause the
+*> code to run in parallel again. The variable is initially set in the subroutine
+*> ::start, where the value is ``.True.``.
+*>
+*> @param[in] Status Variable with the new value for \c Do_Real_Par
+************************************************************************
       Subroutine Set_Do_Parallel(Status)
-************************************************************
-*
-*   <DOC>
-*     <Name>Set\_Do\_Parallel</Name>
-*     <Syntax>Call Set\_Do\_Parallel(Status)</Syntax>
-*     <Arguments>
-*       \Argument{Status}{Variable with the new value for Do\_Real\_Par}{Logical}{in}
-*     </Arguments>
-*     <Purpose>Set the variable Do\_Real\_Par (in the do\_sync common block) to the value of Status.
-*     </Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>Jesper Wisborg Krogh</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects>Sets the value of Do\_Real\_Par.</Side_Effects>
-*     <Description>
-*              Setting this variable to .False. will ensure that the code afterwards will be run
-*              in serial mode even if the job is started with \$MOLCAS_NPROCS > 1, i.e. all tasks are done
-*              on each node, and no synchronization. Setting Do\_Real\_Par to .True. will cause the
-*              code to run in parallel again. The variable is initially set in the subroutine
-*              start, where the value is .True.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit None
       Logical Status
 #include "para_info.fh"

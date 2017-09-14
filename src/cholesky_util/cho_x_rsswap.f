@@ -10,33 +10,28 @@
 *                                                                      *
 * Copyright (C) Thomas Bondo Pedersen                                  *
 ************************************************************************
+*  Cho_X_RSSwap
+*
+*> @brief
+*>   Swap reduced set index arrays
+*> @author Thomas Bondo Pedersen
+*>
+*> @details
+*> Swap index arrays at locations \p iRS (``1``,``2``,``3``) and \p jRS (``1``,``2``,``3``).
+*> If \p iRS and/or \p jRS are out of bounds, \p irc = ``1`` on exit and nothing
+*> has been done!
+*>
+*> @warning
+*> No special action is taken to redefine the \c IndRed array for first reduced set.
+*>
+*> @note
+*> cholesky.fh must have been initialized.
+*>
+*> @param[out] irc return code
+*> @param[in]  iRS location of reduced set
+*> @param[in]  jRS location of reduced set
+************************************************************************
       Subroutine Cho_X_RSSwap(irc,iRS,jRS)
-************************************************************************
-*
-*   <DOC>
-*     <Name>Cho\_X\_RSSwap</Name>
-*     <Syntax>Call Cho\_X\_RSSwap(irc,iRS,jRS)</Syntax>
-*     <Arguments>
-*       \Argument{irc}{return code}{Integer}{out}
-*       \Argument{iRS}{location of reduced set}{Integer}{in}
-*       \Argument{jRS}{location of reduced set}{Integer}{in}
-*     </Arguments>
-*     <Purpose>Swap reduced set index arrays</Purpose>
-*     <Dependencies>cholesky.fh initialized</Dependencies>
-*     <Author>Thomas Bondo Pedersen</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*        Swap index arrays at locations iRS (1,2,3) and jRS (1,2,3).
-*        If iRS and/or jRS are out of bounds, irc=1 on exit and nothing
-*        has been done!
-*        Warning: no special action is taken to redefine the IndRed
-*        array for first reduced set.
-*     </Description>
-*    </DOC>
-*
-************************************************************************
-
       Implicit None
       Integer irc, iRS, jRS
 #include "cholesky.fh"

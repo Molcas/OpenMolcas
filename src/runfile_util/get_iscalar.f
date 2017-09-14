@@ -12,7 +12,7 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-* This routine get scalar double data from the runfile.                *
+* This routine get scalar integer data from the runfile.               *
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -22,24 +22,19 @@
 * Written: August 2003                                                 *
 *                                                                      *
 ************************************************************************
+*  Get_iScalar
 *
-* <DOC>
-*   <Name>Get\_iScalar</Name>
-*   <Syntax>Call Get\_iScalar(Label,Data)</Syntax>
-*   <Arguments>
-*     \Argument{Label}{Name of field}{Character*(*)}{in}
-*     \Argument{Data}{Data to get from runfile}{Integer}{out}
-*   </Arguments>
-*   <Purpose>To get scalar data from runfile</Purpose>
-*   <Dependencies></Dependencies>
-*   <Author>Per-Olof Widmark</Author>
-*   <Modified_by></Modified_by>
-*   <Side_Effects></Side_Effects>
-*   <Description>
-*      See section \ref{routine:Put_iScalar} on page \pageref{routine:Put_iScalar}.
-*   </Description>
-*  </DOC>
-*
+*> @brief
+*>   Get scalar data from runfile
+*> @author Per-Olof Widmark
+*>
+*> @details
+*> This routine gets scalar integer data from the runfile.
+*>
+*> @param[in]  Label Name of field
+*> @param[out] Data  Data to get from runfile
+*>
+*> @see ::Put_iScalar
 ************************************************************************
       Subroutine Get_iScalar(Label,Data)
 #include "pg_is_info.fh"

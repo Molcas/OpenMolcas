@@ -10,26 +10,19 @@
 *                                                                      *
 * Copyright (C) 1993, Markus P. Fuelscher                              *
 ************************************************************************
+*  Center
+*
+*> @brief
+*>   Center a string for printing purpose
+*> @author M. P. F&uuml;lscher
+*> @author P. O. Widmark
+*>
+*> @details
+*> Add spaces to the beginning and the end of a string
+*>
+*> @param[in,out] String a string
+************************************************************************
       Subroutine Center(String)
-************************************************************
-*
-*   <DOC>
-*     <Name>Center</Name>
-*     <Syntax>Call Center(String)</Syntax>
-*     <Arguments>
-*       \Argument{String}{a string}{Character *(*)}{inout}
-*     </Arguments>
-*     <Purpose>Center a string for printing purpose</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>M.P. Fuelscher and P.O. Widmark</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*        Add spaces to the beginning and the end of a string
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Character*(*) String
 *----------------------------------------------------------------------*
 *     get the length of the line                                       *

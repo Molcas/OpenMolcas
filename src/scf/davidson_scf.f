@@ -11,38 +11,33 @@
 * Copyright (C) 2014, Ignacio Fdez. Galvan                             *
 *               2017, Roland Lindh                                     *
 ************************************************************************
-*-----------------------------------------------------------------------
-* <DOC>
-*   <NAME>Davidson</NAME>
-*   <SYNTAX>Call Davidson_SCF(HDiag,g,m,k,Fact,Eig,Vec,MemRsv,iRC)</SYNTAX>
-*   <ARGUMENTS>
-*     \Argument{HDiag}{Diagonal of the Hessian matrix}{Real*8 m}{in}
-*     \Argument{g}{Gradient vector}{Real*8 m}{in}
-*     \Argument{m}{Size of diagonal Hessian and gradient}{Integer}{in}
-*     \Argument{k}{Number of lowest eigenvalues to compute}{Integer}{inout}
-*     \Argument{Fact}{Scaling factor}{Real*8 }{in}
-*     \Argument{Eig}{Lowest eigenvalues}{Real*8 (k)}{out}
-*     \Argument{Vec}{Lowest eigenvectors}{Real*8 (m+1,k)}{inout}
-*     \Argument{MemRsv}{Amount of reserved memory}{Integer}{in}
-*     \Argument{iRC}{Return code (0 if converged)}{Integer}{out}
-*   </ARGUMENTS>
-*   <PURPOSE>Compute the lowest k eigenvalues of a symmetric matrix</PURPOSE>
-*   <DEPENDENCIES>Add\_Vector</DEPENDENCIES>
-*   <AUTHOR>I. Fdez. Galvan</AUTHOR>
-*   <MODIFIED_BY>Roland Lindh</MODIFIED_BY>
-*   <SIDE_EFFECTS></SIDE_EFFECTS>
-*   <DESCRIPTION>
-*     Simple application of the Davidson procedure to obtain the lowest k eigenvalues
-*     and corresponding eigenvectors of a symmetric matrix.
-*     On input, Vec can contain an initial guess for the eigenvectors (from a previous
-*     run with smaller k, for example), only the non-zero vectors are used.
-*     If k $>$ n on input, it will be set to n on output.
-*     This routine is adapted to an augmented Hessian, which is not explicitly expressed
-*     rather the original Hessian is implicitly there, via a diagonal and an on-the-fly
-*     update when multiplied by a vector, and the gradient is explicit there.
-*   </DESCRIPTION>
-* </DOC>
-*-----------------------------------------------------------------------
+*  Davidson_SCF
+*
+*> @brief
+*>   Compute the lowest \p k eigenvalues of a symmetric matrix.
+*> @author Ignacio Fdez. Galv&aacute;n
+*> @modified_by Roland Lindh
+*>
+*> @details
+*> Simple application of the Davidson procedure to obtain the lowest \p k eigenvalues
+*> and corresponding eigenvectors of a symmetric matrix.
+*> On input, \p Vec can contain an initial guess for the eigenvectors (from a previous
+*> run with smaller \p k, for example), only the non-zero vectors are used.
+*> If \p k > \p n on input, it will be set to \p n on output.
+*> This routine is adapted to an augmented Hessian, which is not explicitly expressed,
+*> rather the original Hessian is implicitly there, via a diagonal and an on-the-fly
+*> update when multiplied by a vector, and the gradient is explicit there.
+*>
+*> @param[in]     HDiag  Diagonal of the Hessian matrix
+*> @param[in]     g      Gradient vector
+*> @param[in]     m      Size of diagonal Hessian and gradient
+*> @param[in,out] k      Number of lowest eigenvalues to compute
+*> @param[in]     Fact   Scaling factor
+*> @param[out]    Eig    Lowest eigenvalues
+*> @param[in,out] Vec    Lowest eigenvectors
+*> @param[in]     MemRsv Amount of reserved memory
+*> @param[out]    iRC    Return code (0 if converged)
+************************************************************************
 *define _DEBUG_SORUPV_
 #ifdef _DEBUG_SORUPV_
       SUBROUTINE Davidson_SCF(HDiag,g,m,k,Fact,Eig,Vec,MemRsv,iRC,

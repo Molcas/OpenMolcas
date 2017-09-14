@@ -10,34 +10,22 @@
 *                                                                      *
 * Copyright (C) Thomas Bondo Pedersen                                  *
 ************************************************************************
+*  Cho_Word2Byte
+*
+*> @brief
+*>   Convert integer number of \p n -byte words to byte with a reasonable prefix (``-``, ``k``, ``M``, ``G``, or ``T``)
+*> @author Thomas Bondo Pedersen
+*>
+*> @details
+*> Convert integer number of \p n -byte words to byte, kilobyte,
+*> megabyte, gigabyte, or terabyte.
+*>
+*> @param[in]  iWord Number of \p n -byte words
+*> @param[in]  n     Number of byte per word
+*> @param[out] Byte  \p iWord in bytes/kb/Mb/Gb/Tb
+*> @param[out] Unt   Unit of Byte ['``b ``', '``kb``', '``Mb``', '``Gb``', or '``Tb``']
+************************************************************************
       SubRoutine Cho_Word2Byte(iWord,n,Byte,Unt)
-************************************************************
-*
-*   <DOC>
-*     <Name>Cho\_Word2Byte</Name>
-*     <Syntax>Call Cho\_Word2Byte(iWord,n,Byte,Unt)</Syntax>
-*     <Arguments>
-*       \Argument{iWord}{Number of n-byte words}{Integer}{in}
-*       \Argument{n}{Number of byte per word}{Integer}{in}
-*       \Argument{Byte}{iWord in bytes/kb/Mb/Gb/Tb}{Real*8}{out}
-*       \Argument{Unt}{Unit of Byte ['b ','kb','Mb','Gb', or 'Tb'}
-*                     {Character*2}{out}
-*     </Arguments>
-*     <Purpose>
-*        Convert integer number of n-byte words to byte with a
-*        reasonable prefix (-,k,M,G, or T).
-*     </Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>Thomas Bondo Pedersen</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*         Convert integer number of n-byte words to byte, kilobyte,
-*         Megabyte, Gigabyte, or Terabyte.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit None
       Integer     iWord, n
       Real*8      Byte

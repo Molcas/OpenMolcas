@@ -77,8 +77,7 @@
 *
       iAllo=0
 c      idp=rtoi
-      min_block_length=MBl_wa
-      nrec=min_block_length/rtob
+      nrec=MBl_wa/rtob
 *
       Call DecideOnCholesky(DoCholesky)
       Call get_iScalar('nSym',nSymX)

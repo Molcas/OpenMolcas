@@ -10,56 +10,43 @@
 *                                                                      *
 * Copyright (C) Thomas Bondo Pedersen                                  *
 ************************************************************************
+*  PMLoc
+*
+*> @brief
+*>   Pipek--Mezey localization of occupied orbitals
+*> @author Thomas Bondo Pedersen
+*>
+*> @details
+*> Performs iterative (Jacobi sweeps) Pipek--Mezey localization of
+*> molecular orbitals. CMO is assumed to be the full set of
+*> orbitals, but only the first \p nOcc will be localized. On exit,
+*> the localized MOs are returned in CMO.
+*> Note that symmetry is not allowed.
+*>
+*> If successful, \p irc = ``0`` is returned. If \p irc = ``-1``
+*> is returned, an error was found in the input and nothing has
+*> been done. If \p irc = ``1`` is returned, the iterative procedure did
+*> not converge to within the threshold (\p Thr, \p ThrGrad) in the
+*> requested max. number of iterations (\p MxIter). If the user
+*> specifies negative thresholds, \p Thr = ``1.0d-6`` and \p ThrGrad = ``1.0d-3``
+*> will be used.
+*> If the user specifies a negative screening threshold,
+*> \p ThrRot = ``1.0d-10`` is used.
+*>
+*> @param[out]    irc     Return code
+*> @param[in,out] CMO     Molecular orbital coefficients
+*> @param[in]     Thr     Threshold for functional
+*> @param[in]     ThrGrad Threshold for gradient
+*> @param[in]     ThrRot  Screening threshold
+*> @param[in]     MxIter  Max. number of iterations
+*> @param[in]     nBas    Number of basis functions per irrep
+*> @param[in]     nOcc    Number of occupied orbitals to localize
+*> @param[in]     nFro    Number of frozen occupied orbitals
+*> @param[in]     nSym    Number of irreps
+*> @param[in]     Silent  Flag to avoid printing
+************************************************************************
       SubRoutine PMLoc(irc,CMO,Thr,ThrGrad,ThrRot,MxIter,nBas,nOcc,nFro,
      &                 nSym,Silent)
-************************************************************
-*
-*   <DOC>
-*     <Name>PMLoc</Name>
-*     <Syntax>Call PMLoc(irc,CMO,Thr,ThrGrad,ThrRot,MxIter,nBas,nOcc,
-*                        nFro,nSym,Silent)
-*     </Syntax>
-*     <Arguments>
-*       \Argument{irc}{Return code}{Integer}{out}
-*       \Argument{CMO}{Molecular orbital coefficients}{Real*8}{inout}
-*       \Argument{Thr}{Threshold for functional}{Real*8}{in}
-*       \Argument{ThrGrad}{Threshold for gradient}{Real*8}{in}
-*       \Argument{ThrRot}{Screening threshold}{Real*8}{in}
-*       \Argument{MxIter}{Max. number of iterations}{Integer}{in}
-*       \Argument{nBas}{Number of basis functions per irrep}{Integer}
-*                {in}
-*       \Argument{nOcc}{Number of occupied orbitals to localize}
-*                {Integer}{in}
-*       \Argument{nFro}{Number of frozen occupied orbitals}
-*                {Integer}{in}
-*       \Argument{nSym}{Number of irreps}{Integer}{in}
-*       \Argument{Silent}{Flag to avoid printing}{Logical}{in}
-*     </Arguments>
-*     <Purpose>Pipek-Mezey localization of occupied orbitals</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>Thomas Bondo Pedersen</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*        Performs iterative (Jacobi sweeps) Pipek-Mezey localization of
-*        molecular orbitals. CMO is assumed to be the full set of
-*        orbitals, but only the first nOcc() will be localized. On exit,
-*        the localized MOs are returned in CMO.
-*        Note that symmetry is not allowed.
-*        If successful, irc=0 is returned. If irc=-1
-*        is returned, an error was found in the input and nothing has
-*        been done. If irc=1 is returned, the iterative procedure did
-*        not converge to within the threshold (Thr,ThrGrad) in the
-*        requested max. number of iterations (MxIter). If the user
-*        specifies negative thresholds, Thr=1.0d-6 and ThrGrad=1.0d-3
-*        will be used.
-*        If the user specifies a negative screening threshold,
-*        ThrRot=1.0d-10 is used.
-*     </Description>
-*    </DOC>
-*
-************************************************************
-
       Implicit Real*8 (a-h,o-z)
       Real*8  CMO(*)
       Integer nBas(nSym), nOcc(nSym), nFro(nSym)

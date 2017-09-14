@@ -19,7 +19,5 @@
  (file)  SODELTA  "$WorkDir/$Project."SODELTA     rw
  (file)  SODGRAD  "$WorkDir/$Project."SODGRAD     rw
  (file)  SMDINT   "$WorkDir/"purge.SmdInt         rw*p
- (file)  SODELTA  "$WorkDir/$Project."SODELTA     rw
- (file)  SODGRAD  "$WorkDir/$Project."SODGRAD     rw
 #define _SCFFILES_
 #endif

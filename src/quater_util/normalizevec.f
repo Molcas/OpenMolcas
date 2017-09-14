@@ -10,27 +10,18 @@
 *                                                                      *
 * Copyright (C) Yannick Carissan                                       *
 ************************************************************************
+*  NormalizeVec
+*
+*> @brief
+*>   Normalize the vector \p V
+*> @author Y. Carissan
+*>
+*> @details
+*> Normalize the vector \p V.
+*>
+*> @param[in,out] V Vector to be normalized
+************************************************************************
       subroutine normalizeVec(V)
-************************************************************
-*
-*   <DOC>
-*     <Name>NormalizeVec</Name>
-*     <Syntax>Call NormalizeVec(V)</Syntax>
-*     <Arguments>
-*       \Argument{V}{Vector to be normalized}{Real*8}{in-out}
-*     </Arguments>
-*     <Purpose>Normalize the vector V</Purpose>
-*     <Dependencies>blas</Dependencies>
-*     <Author>Y. Carissan</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects>none</Side_Effects>
-*     <Description>
-*        Normalize the vector V
-*     </Description>
-*    </DOC>
-*
-************************************************************
-
       Implicit none
 #include "WrkSpc.fh"
 #include "debug.fh"

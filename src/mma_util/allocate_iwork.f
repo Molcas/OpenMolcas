@@ -10,29 +10,20 @@
 *                                                                      *
 * Copyright (C) Roland Lindh                                           *
 ************************************************************************
+*  Allocate_iWork
+*
+*> @brief
+*>   Allocate integer memory of length \p n and return the corresponding pointer \p ip
+*> @author R. Lindh
+*>
+*> @details
+*> Short parameter list wrapper to ::GETMEM for allocation of
+*> memory of type ``INTEGER``. Label defaulted to '``AiW``'.
+*>
+*> @param[out] ip pointer to \c iWork
+*> @param[in]  n  length
+************************************************************************
       Subroutine Allocate_iWork(ip,n)
-************************************************************
-*
-*   <DOC>
-*     <Name>Allocate\_iWork</Name>
-*     <Syntax>Call Allocate\_iWork(ip,n)</Syntax>
-*     <Arguments>
-*       \Argument{ip}{pointer to iWork}{integer}{out}
-*       \Argument{n}{length}{integer}{in}
-*     </Arguments>
-*     <Purpose>To allocate integer memory of length n and
-*              to return the corresponding pointer ip.</Purpose>
-*     <Dependencies>GETMEM/Dependencies>
-*     <Author>R. Lindh</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*     Short parameter list wrapper to GETMEM for allocation of
-*     memory of type INTEGER. Label defaulted to "AiW".
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8 (a-h,o-z)
 #include "WrkSpc.fh"
 *

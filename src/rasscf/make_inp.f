@@ -31,9 +31,9 @@
 *---- Check that RunTime variables are passed correctly
 *---- This is checked by Molcas verify
 *----------------------------------------------------------------------*
-      call add_info('Default number of total walkers',real(nTWlk),1,6)
-      call add_info('Default number of cycles ',real(nmcyc),1,6)
-      call add_info('Default value for iTime  ',real(iTime),1,6)
+      call add_info('Default number of total walkers',dble(nTWlk),1,6)
+      call add_info('Default number of cycles ',dble(nmcyc),1,6)
+      call add_info('Default value for iTime  ',dble(iTime),1,6)
 *----------------------------------------------------------------------*
 *---- Start program and say Hello                                      *
 *----------------------------------------------------------------------*

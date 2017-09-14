@@ -10,28 +10,20 @@
 *                                                                      *
 * Copyright (C) Yannick Carissan                                       *
 ************************************************************************
+*  quaterRotation
+*
+*> @brief
+*>   Performs the rotation of \p U in \p V via the quaternion \p Q
+*> @author Y. Carissan
+*>
+*> @details
+*> Performs the rotation of \p U in \p V via the quaternion \p Q.
+*>
+*> @param[in]  Q Quaternion used for the rotation
+*> @param[in]  U Vector to be rotated
+*> @param[out] V Vector rotated
+************************************************************************
       subroutine quaterRotation(Q,U,V)
-************************************************************
-*
-*   <DOC>
-*     <Name>quaterRotation</Name>
-*     <Syntax>quaterRotation(Q,U,V)</Syntax>
-*     <Arguments>
-*       \Argument{Q}{Quaternion used for the rotation, Dimension(4)}{Real*8}{in}
-*       \Argument{U}{Vector to be rotated, Dimension(3)}{Real*8}{in}
-*       \Argument{V}{Vector rotated, Dimension(3)}{Real*8}{out}
-*     </Arguments>
-*     <Purpose>Performs the rotation of U in V via the quaternion Q</Purpose>
-*     <Dependencies>quater util, blas and util</Dependencies>
-*     <Author>Y. Carissan</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects>none</Side_Effects>
-*     <Description>
-*        Performs the rotation of U in V via the quaternion Q
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit none
 #include "WrkSpc.fh"
 #include "debug.fh"

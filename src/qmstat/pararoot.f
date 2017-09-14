@@ -10,34 +10,26 @@
 *                                                                      *
 * Copyright (C) Anders Ohrn                                            *
 ************************************************************************
+*  ParaRoot
+*
+*> @brief
+*>   Manage the parallel tempering routine
+*> @author A. Ohrn
+*>
+*> @details
+*> If our system is difficult and has small transition elements
+*> in the Markov chain, we can use the parallel tempering to
+*> boost sampling. This routine is the root for this; it
+*> mainly handles the various configurations for the different
+*> temperature ensembles; also, manages the ensemble switch.
+*>
+*> @param[in]     Ract
+*> @param[in]     BetaBol
+*> @param[in]     Etot
+*> @param[in,out] CalledBefore
+*> @param[out]    SampleThis
+************************************************************************
       Subroutine ParaRoot(Ract,BetaBol,Etot,CalledBefore,SampleThis)
-************************************************************
-*
-*   <DOC>
-*     <Name>ParaRoot</Name>
-*     <Syntax>Call ParaRoot(Ract,BetaBol,Etot,CalledBefore,SampleThis)</Syntax>
-*     <Arguments>
-*       \Argument{Ract}{}{}{in}
-*       \Argument{BetaBol}{}{}{in}
-*       \Argument{Etot}{}{}{in}
-*       \Argument{CalledBefore}{}{}{inout}
-*       \Argument{SampleThis}{}{}{out}
-*     </Arguments>
-*     <Purpose>Manage the parallel tempering routine</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>A.Ohrn</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*      If our system is difficult and has small transition elements
-*      in the Markov chain, we can use the parallel tempering to
-*      boost sampling. This routine is the root for this; it
-*      mainly handles the various configurations for the different
-*      temperature ensembles; also, manages the ensemble switch.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8 (a-h,o-z)
       External Ranf
 #include "maxi.fh"

@@ -10,27 +10,19 @@
 *                                                                      *
 * Copyright (C) Roland Lindh                                           *
 ************************************************************************
+*  Put_Coord_New
+*
+*> @brief
+*>   Write the updated/new symmetry unique Cartesian coordinates of the basis set centers on the runfile
+*> @author R. Lindh
+*>
+*> @details
+*> The utility will write updated/new symmetry unique Cartesian coordinates of the basis set centers on the runfile.
+*>
+*> @param[in] Coord  Array of the updated/new symmetry unique Cartesian coordinates of the basis set centers
+*> @param[in] nAtoms Number of symmetry unique basis set centers
+************************************************************************
       Subroutine Put_Coord_New(Coord,nAtoms)
-************************************************************
-*
-*   <DOC>
-*     <Name>Put\_Coord\_New</Name>
-*     <Syntax>Call Put\_Coord\_New(Coord,nAtoms)</Syntax>
-*     <Arguments>
-*       \Argument{Coord}{Array of the updated/new symmetry unique cartesian coordinates of the basis set centers.}
-*                       {Real*8 (3,nAtoms)}{in}
-*       \Argument{nAtoms}{Number of symmetry unique basis set centers.}{Integer}{in}
-*     </Arguments>
-*     <Purpose>To write the  updated/new symmetry unique cartesian coordinates of the basis set centers on the run file.</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>R. Lindh</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>The utility will write  updated/new symmetry unique cartesian coordinates of the basis set centers on the run file.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 

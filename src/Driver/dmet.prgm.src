@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
- (prgm)  "$DMET_DIR"/DMET               executable
+ (prgm)  "$DMET_DIR"/DMET               script
  (file)  SEWARINP      "$WorkDir/$Project."Seward.Input    rwi
 #include "aoints.inc"
 #define _LDF_
