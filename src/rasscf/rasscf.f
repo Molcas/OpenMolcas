@@ -1429,7 +1429,8 @@ cGLM some additional printout for MC-PDFT
 
             if(KeyCION)then
             else
-              IF (DIFFE.GT.1.D-6 .AND. NROOTS.EQ.1) THEN
+*#ifdef _DMET_
+                IF (DIFFE.GT.1.D-6 .AND. NROOTS.EQ.1) THEN
                 Write(LF,'(6X,120A1)') ('=',i=1,120)
               Call WarningMessage(2,'DMRGSCF and DMRG energies differ.')
                 Write(LF,'(6X,A,I11)')    'iteration           ',ITER
@@ -1449,7 +1450,9 @@ cGLM some additional printout for MC-PDFT
                   Write(LF,*)
                 end if
               end if
+*#endif _DMET_
             end if
+*#if _DMET_
           else
             IF (DIFFE.GT.1.D-10 .AND. NROOTS.EQ.1) THEN
               Write(LF,'(6X,120A1)') ('=',i=1,120)
@@ -1471,6 +1474,7 @@ cGLM some additional printout for MC-PDFT
                 GOTO 2000
               END IF
             end if
+*#endif _DMET_
           END IF
         end if
       else

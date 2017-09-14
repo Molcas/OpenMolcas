@@ -20,6 +20,12 @@
          Call SysAbendmsg('get_p2mo','Did not find:',label)
       End If
       Call get_dArray(Label,ipP2MO,nDens)
-
       Return
       End
+
+*     program test
+*     real*8  g(4),pdm2(2,2,2,2)
+
+*         call unpack_PDM2(6,2,g,pdm2)
+*      return
+*     end

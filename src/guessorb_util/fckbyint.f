@@ -589,13 +589,13 @@
          jOff=jOff+nBas(iSym)**2
          kOff=kOff+nBas(iSym)*(nBas(iSym)+1)/2
       End Do
-      Call TriPrt('Put_D1ao','(12f12.6)',Ovl,4)
+      Call TriPrt('Put_D1ao','(12f12.6)',Ovl,nTriTot)
                 write(6,*) "FckByInt 77"
       Call Fold_tMat(nSym,nBas,Ovl,Ovl)
                 write(6,*) "FckByInt 78"
       Call Put_D1ao(Ovl,nTriTot)
                 write(6,*) "FckByInt 79"
-      Call TriPrt('Put_D1ao','(12f12.6)',Ovl,4)
+      Call TriPrt('Put_D1ao','(12f12.6)',Ovl,nTriTot)
 *
       Call mma_deallocate(T2)
       Call mma_deallocate(T1)
