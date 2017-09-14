@@ -927,6 +927,13 @@ endif ()
 #                                                                              #
 ################################################################################
 
+# Install directory
+#==================
+if (NOT IS_ABSOLUTE "${CMAKE_INSTALL_PREFIX}")
+        set (CMAKE_INSTALL_PREFIX "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_PREFIX}")
+endif ()
+get_filename_component (CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" ABSOLUTE)
+
 # Special print statements
 #=========================
 
@@ -1614,7 +1621,7 @@ if (MSYM)
         set (proj_bin ${PROJECT_BINARY_DIR}/External/libmsym)
         if (EXISTS ${proj}/CMakeLists.txt)
                 set (MSYM_FOUND ON)
-                add_subdirectory (${proj} ${proj_bin})
+                add_subdirectory (${proj} ${proj_bin} EXCLUDE_FROM_ALL)
                 # hide from the Molcas CMake GUI
                 set (INSTALL_LIB_DIR     ${INSTALL_LIB_DIR}     CACHE INTERNAL "Installation directory for msym library." FORCE)
                 set (INSTALL_INCLUDE_DIR ${INSTALL_INCLUDE_DIR} CACHE INTERNAL "Installation directory for header files." FORCE)
@@ -2997,19 +3004,6 @@ install (FILES
         DESTINATION ${CMAKE_INSTALL_PREFIX}
         )
 
-install (PROGRAMS
-        ${PROJECT_BINARY_DIR}/sbin/getname.plx
-        ${PROJECT_BINARY_DIR}/sbin/moclas
-        ${PROJECT_BINARY_DIR}/sbin/molcas.driver
-        ${PROJECT_BINARY_DIR}/sbin/sew2xyz
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/sbin
-        )
-
-install (PROGRAMS
-        ${PROJECT_BINARY_DIR}/bin/molcas.exe
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
-        )
-
 install (DIRECTORY
         ${PROJECT_BINARY_DIR}/basis_library
         ${PROJECT_BINARY_DIR}/data
@@ -3022,4 +3016,31 @@ install (TARGETS ${PROGRAM_EXECUTABLES} molcas
         ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
         )
 
-install (CODE "execute_process(COMMAND sh \"-c\" \"echo `pwd` > $HOME/.Molcas/molcas 2> /dev/null\")")
+if (DEFINED PYMOLCAS_TARGET)
+        install (PROGRAMS
+                ${PYMOLCAS_TARGET}
+                DESTINATION ${CMAKE_INSTALL_PREFIX}/sbin
+                RENAME pymolcas
+                )
+
+        install (CODE "execute_process(COMMAND ${OPENMOLCAS_DIR}/sbin/install_pymolcas.sh ${PYMOLCAS_TARGET})")
+endif ()
+
+if (DEFINED EXTRA_DIR)
+        install (PROGRAMS
+                ${PROJECT_BINARY_DIR}/sbin/getname.plx
+                ${PROJECT_BINARY_DIR}/sbin/moclas
+                ${PROJECT_BINARY_DIR}/sbin/molcas.driver
+                ${PROJECT_BINARY_DIR}/sbin/sew2xyz
+                DESTINATION ${CMAKE_INSTALL_PREFIX}/sbin
+                )
+
+        install (PROGRAMS
+                ${PROJECT_BINARY_DIR}/bin/molcas.exe
+                DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
+                )
+
+        install (CODE "execute_process(COMMAND ${OPENMOLCAS_DIR}/sbin/install_driver.sh ${MOLCAS_DRIVER})")
+endif ()
+
+install (CODE "execute_process(COMMAND sh \"-c\" \"cd ${CMAKE_INSTALL_PREFIX}; echo `pwd` > $HOME/.Molcas/molcas 2> /dev/null\")")
