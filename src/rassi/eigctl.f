@@ -822,7 +822,7 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
                IJ=I+NSTATE*(J-1)
                EDIFF=ENERGY(J)-ENERGY(I)
                IF(EDIFF.LT.0.0D0.OR.I.GE.J) CYCLE
-             IF(WORK(LDL-1+IJ).GE.OSTHR.OR.WORK(LDV-1+IJ).GE.OSTHR) THEN
+           IF(WORK(LDL-1+IJ).GE.OSTHR.AND.WORK(LDV-1+IJ).GE.OSTHR) THEN
                COMPARE = ABS(1-WORK(LDL-1+IJ)/WORK(LDV-1+IJ))
                IF(COMPARE.GE.TOLERANCE) THEN
                  I_PRINT_HEADER = I_PRINT_HEADER + 1
@@ -840,7 +840,13 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
                  WRITE(6,33) I,J,COMPARE*100D0,
      &                      WORK(LDL-1+IJ),WORK(LDV-1+IJ)
               END IF
-            END IF
+             ELSE IF(WORK(LDL-1+IJ).GE.OSTHR) THEN
+               WRITE(6,*) " Velocity gauge below threshold. "//
+     &                    " Lenght gauge value = ",WORK(LDL-1+IJ)
+             ELSE IF(WORK(LDV-1+IJ).GE.OSTHR) THEN
+               WRITE(6,*) " Length gauge below threshold. "//
+     &                    " Velocity gauge value = ",WORK(LDV-1+IJ)
+             END IF
             END DO
           END DO
           IF(I_PRINT_HEADER.EQ.0) THEN
