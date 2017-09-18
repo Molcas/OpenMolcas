@@ -57,6 +57,7 @@
       if [ -n "${tries}" ] && [ "${tries}" -gt 1 ] ; then
         for i in {1..${tries}} ; do
           make && break
+          sleep 10
         done
       else
         make #VERBOSE=1
@@ -131,6 +132,7 @@
 # - plain: default configuration
 # - options: enable several options
 # - pgi: use PGI compilers
+# - sun: use Oracle compilers
 # - intel: use Intel compilers (must install them every time and it's a bit shaky)
 # - nowarn: no warnings allowed
 
@@ -177,6 +179,17 @@
   tags:
     - docker
 
+.template: &sun
+  image: ${CI_REGISTRY}/molcas/dockerfiles/oracle:latest
+  variables: &sun_vars
+    cache_file: |
+      set (DEFMOLCASMEM "1024" CACHE STRING "reduce memory")
+    CC: "suncc -I/usr/include/x86_64-linux-gnu"
+    CXX: "sunCC -I/usr/include/x86_64-linux-gnu"
+    FC: "sunf90 -I/usr/include/x86_64-linux-gnu"
+  tags:
+    - docker
+
 .template: &intel
   image: ${CI_REGISTRY}/molcas/dockerfiles/ubuntu-14.04:latest
   variables: &intel_vars
@@ -184,7 +197,7 @@
       set (DEFMOLCASMEM "1024" CACHE STRING "reduce memory")
     # script to install the Intel compilers
     intel_path: ${CI_PROJECT_DIR}/intel
-    tries: 5
+    tries: 10
     pre_compile_script: |
       apt-get install -y --no-install-recommends cpio man-db
       for i in {1..5} ; do
@@ -319,6 +332,18 @@ test:pgi:
     - build:pgi
     - tinker
   <<: *pgi
+  <<: *run-tests
+
+build:sun:
+  stage: build
+  <<: *sun
+  <<: *compile
+test:sun:
+  stage: test
+  dependencies:
+    - build:sun
+    - tinker
+  <<: *sun
   <<: *run-tests
 
 build:intel:
