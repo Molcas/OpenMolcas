@@ -54,10 +54,11 @@
       fi
     - cmake -C flags.cmake ..
     - |
+      echo "${tries}"
       if [ -n "${tries}" ] && [ "${tries}" -gt 1 ] ; then
         for i in {1..${tries}} ; do
+          echo $i
           make && break
-          sleep 10
         done
       else
         make #VERBOSE=1
@@ -197,11 +198,12 @@
       set (DEFMOLCASMEM "1024" CACHE STRING "reduce memory")
     # script to install the Intel compilers
     intel_path: ${CI_PROJECT_DIR}/intel
-    tries: 10
+    tries: 5
     pre_compile_script: |
       apt-get install -y --no-install-recommends cpio man-db
-      for i in {1..5} ; do
+      for i in {1..10} ; do
         wget -q -O /dev/stdout 'https://raw.githubusercontent.com/nemequ/icc-travis/master/install-icc.sh' | sed 's/realpath/readlink -m/' | /bin/sh -s -- --components icc,ifort --dest ${intel_path} && break
+        sleep 10
       done
       cp ~/.bashrc ${intel_path}/compilervars.sh
       . ${intel_path}/compilervars.sh

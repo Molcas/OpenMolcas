@@ -663,6 +663,12 @@ set (FFLAGS_SunPro_RELWITHDEBINFO "-O -g -traceback -ftrap=%none")
 set (FFLAGS_SunPro_RELEASE "-O -ftrap=%none")
 set (FFLAGS_SunPro_FAST "-fast -dbl_align_all=yes -ftrap=%none")
 
+# older versions do not suport gnu99
+if (CMAKE_C_COMPILER_ID STREQUAL "SunPro" AND
+    CMAKE_C_COMPILER_VERSION VERSION_LESS "5.15.0")
+        set (CFLAGS_SunPro_BASIC "-std=c99")
+endif ()
+
 set (CFLAGS_SunPro_BIGOT "-errwarn=%all")
 set (FFLAGS_SunPro_BIGOT "-errwarn=%all")
 set (SunPro_TRAP "-ftrap=common")
