@@ -501,7 +501,7 @@ endif ()
 # defines __GNUC__
 # C++ compiler
 list (APPEND SUPPORTED_CXX_COMPILERS "GNU")
-set (CXXFLAGS_GNU_BASIC "")
+set (CXXFLAGS_GNU_BASIC "-std=gnu99")
 set (CXXFLAGS_GNU_OPENMP "-fopenmp")
 # build targets
 set (CXXFLAGS_GNU_DEBUG "-O0 -g -Wall")
@@ -552,7 +552,7 @@ set (GNU_TRAP "-ffpe-trap=invalid,zero,overflow")
 # defines __clang__
 # C++ compiler
 list (APPEND SUPPORTED_CXX_COMPILERS "Clang")
-set (CXXFLAGS_Clang_BASIC "")
+set (CXXFLAGS_Clang_BASIC "-std=gnu99")
 set (CXXFLAGS_Clang_OPENMP "-fopenmp")
 # build targets
 set (CXXFLAGS_Clang_DEBUG "-O0 -g -Wall")
@@ -638,12 +638,12 @@ set (FFLAGS_Intel_BIGOT "-warn all -warn errors")
 set (Intel_TRAP "-fpe0")
 
 #======================================#
-# Oracle Solaris Studio (SunStudio)
+# Oracle Developer Studio (Sun Studio)
 #======================================#
 # defines __SUNPRO_F90
 # C compiler
 list (APPEND SUPPORTED_C_COMPILERS "SunPro")
-set (CFLAGS_SunPro_BASIC "-std=c99")
+set (CFLAGS_SunPro_BASIC "-std=gnu99")
 set (CFLAGS_SunPro_OPENMP "-xopenmp")
 # build targets
 set (CFLAGS_SunPro_DEBUG "-g -traceback -ftrap=%none")
@@ -662,6 +662,12 @@ set (FFLAGS_SunPro_GARBLE "-O -g -traceback ftrap=%none -xcheck=init_local")
 set (FFLAGS_SunPro_RELWITHDEBINFO "-O -g -traceback -ftrap=%none")
 set (FFLAGS_SunPro_RELEASE "-O -ftrap=%none")
 set (FFLAGS_SunPro_FAST "-fast -dbl_align_all=yes -ftrap=%none")
+
+# older versions do not suport gnu99
+if (CMAKE_C_COMPILER_ID STREQUAL "SunPro" AND
+    CMAKE_C_COMPILER_VERSION VERSION_LESS "5.15.0")
+        set (CFLAGS_SunPro_BASIC "-std=c99")
+endif ()
 
 set (CFLAGS_SunPro_BIGOT "-errwarn=%all")
 set (FFLAGS_SunPro_BIGOT "-errwarn=%all")
