@@ -41,6 +41,11 @@
 #include "stdalloc.fh"
 #include "dmrginfo_mclr.fh"
 *
+#include "para_info.fh"
+#ifdef _MOLCAS_MPP_
+#  include "global.fh"
+#  include "mafdecls.fh"
+#endif
       Logical Orb,CI,Response
       Parameter (iTimeCC = 1 )
       Parameter (iTimeKK = 2 )
@@ -134,11 +139,34 @@
       End If
 *
       Call Init_Tsk(id,nDisp)
+#ifdef _MOLCAS_MPP_
+*     iglfail is global "array", a flag used to communicate to all processes
+*     if any of them failed, the communication need not be synchronous,
+      If (Is_Real_Par()) Then
+         If (.Not.GA_Create(MT_DBL,1,1,'GlFail',0,0,iglfail)) Then
+           Call SysAbendMsg ('wfctl_hess',
+     &                       'failed to create global failed flag',' ')
+
+         End If
+         Call GA_Zero(iglfail)
+         dfail=0.0d0
+      End If
+#endif
 *
       ipdia=0
       ipPre2=0
       iSym_Old=0
  888  If (.Not.Rsv_Tsk(id,iDisp)) Go To 999
+#ifdef _MOLCAS_MPP_
+*       Check if some other process failed
+        If (Is_Real_Par()) Then
+           Call GA_Get(iglfail,1,1,1,1,dfail,1)
+           If (dfail.gt.0.0d0) Then
+              fail=.true.
+              Go To 999
+           End If
+        End If
+#endif
         iSym =iWork(ipList+(iDisp-1)*2  )
         jDisp=iWork(ipList+(iDisp-1)*2+1)
 *
@@ -793,6 +821,13 @@ C         iDisp=iDisp+1
      &                      idisp,'. Increase Iter.'
           converged(isym)=.false.
           fail=.true.
+#ifdef _MOLCAS_MPP_
+*         Set the global flag to signal a process failed
+          If (Is_Real_Par()) Then
+             dfail=1.0d0
+             Call GA_Acc(iglfail,1,1,1,1,dfail,1,1.0d0)
+          End If
+#endif
 *
 C         Goto 310
           Go To 999
@@ -920,6 +955,13 @@ C     End Do ! iSym
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*     Final synchronization of the fail flag
+#ifdef _MOLCAS_MPP_
+      If (Is_Real_Par()) Then
+         Call GAdGOp_Scal(dfail,'max')
+         Fail=Fail.or.(dfail.gt.0.0d0)
+      End If
+#endif
       If (Fail) Call Quit_OnConvError()
 *                                                                      *
 ************************************************************************

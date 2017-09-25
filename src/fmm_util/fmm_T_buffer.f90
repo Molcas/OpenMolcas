@@ -43,61 +43,6 @@ CONTAINS
 
 !-------------------------------------------------------------------------------
 
-   SUBROUTINE fmm_open_T_buffer(scheme)
-
-      USE fmm_T_contractors,  ONLY: fmm_lock_T_con
-      USE fmm_tree_buffer,    ONLY: fmm_tree_buffer_init,        &
-                                    fmm_tree_buffer_add
-      USE fmm_multi_T_buffer, ONLY: fmm_init_multi_T_buffer,     &
-                                    fmm_multi_T_buffer_add
-      USE fmm_scale_T_buffer, ONLY: fmm_init_scale_T_buffer,     &
-                                    fmm_scale_T_buffer_add
-
-      IMPLICIT NONE
-      TYPE(scheme_paras), INTENT(IN) :: scheme
-      INTEGER(INTK) :: sort_para
-      EXTERNAL fmm_store_t_buffer
-
-      CALL fmm_init_buffer_stats('T')
-      IF (T_buffer_stat == 'OPEN') CALL fmm_quit('cannot reopen T_buffer')
-
-      IF (scheme%phase == NEAR_FIELD) THEN
-         buffer = scheme%T_con%NF_T_buffer
-         sort_para = scheme%T_con%NF_sort_para
-      ELSE
-         buffer = scheme%T_con%FF_T_buffer
-         sort_para = scheme%T_con%FF_sort_para
-      END IF
-
-      SELECT CASE (buffer)
-         CASE (SKIP_T_BUFFER)
-            ! all T-contractions will be skipped by this choice of buffer
-            CALL fmm_store_t_buffer(fmm_skip_T_buffer)
-         CASE (NULL_T_BUFFER)
-            CALL fmm_store_t_buffer(fmm_null_T_buffer)
-         CASE (TREE_T_BUFFER)
-             ! use tree-based sorting/evaluating module
-            CALL fmm_store_t_buffer(fmm_tree_buffer_add)
-            CALL fmm_tree_buffer_init(TREE_LENGTH,sort_para)
-         CASE (SCALE_T_BUFFER)
-             ! use tree-based sorting/evaluating module
-            CALL fmm_store_t_buffer(fmm_scale_T_buffer_add)
-            CALL fmm_init_scale_T_buffer
-         CASE (MULTI_T_BUFFER)
-             ! use buffer to drive multiple T matrix simultaneous build
-            CALL fmm_store_t_buffer(fmm_multi_T_buffer_add)
-            CALL fmm_init_multi_T_buffer(TMATM_DF)
-         CASE DEFAULT
-            CALL fmm_quit ('cannot reconcile list type in fmm_open_T_buffer')
-      END SELECT
-
-      T_buffer_stat = 'OPEN'
-      fmm_lock_T_con = .TRUE.
-
-   END SUBROUTINE fmm_open_T_buffer
-
-!-------------------------------------------------------------------------------
-
    SUBROUTINE fmm_close_T_buffer(scheme)
 
       USE fmm_T_contractors,  ONLY: fmm_lock_T_con
@@ -164,6 +109,61 @@ CONTAINS
          CALL Unused_real(T_pair) ! not really real, but well...
       END IF
    END SUBROUTINE fmm_skip_T_buffer
+
+!-------------------------------------------------------------------------------
+
+   SUBROUTINE fmm_open_T_buffer(scheme)
+
+      USE fmm_T_contractors,  ONLY: fmm_lock_T_con
+      USE fmm_tree_buffer,    ONLY: fmm_tree_buffer_init,        &
+                                    fmm_tree_buffer_add
+      USE fmm_multi_T_buffer, ONLY: fmm_init_multi_T_buffer,     &
+                                    fmm_multi_T_buffer_add
+      USE fmm_scale_T_buffer, ONLY: fmm_init_scale_T_buffer,     &
+                                    fmm_scale_T_buffer_add
+
+      IMPLICIT NONE
+      TYPE(scheme_paras), INTENT(IN) :: scheme
+      INTEGER(INTK) :: sort_para
+      EXTERNAL fmm_store_t_buffer
+
+      CALL fmm_init_buffer_stats('T')
+      IF (T_buffer_stat == 'OPEN') CALL fmm_quit('cannot reopen T_buffer')
+
+      IF (scheme%phase == NEAR_FIELD) THEN
+         buffer = scheme%T_con%NF_T_buffer
+         sort_para = scheme%T_con%NF_sort_para
+      ELSE
+         buffer = scheme%T_con%FF_T_buffer
+         sort_para = scheme%T_con%FF_sort_para
+      END IF
+
+      SELECT CASE (buffer)
+         CASE (SKIP_T_BUFFER)
+            ! all T-contractions will be skipped by this choice of buffer
+            CALL fmm_store_t_buffer(fmm_skip_T_buffer)
+         CASE (NULL_T_BUFFER)
+            CALL fmm_store_t_buffer(fmm_null_T_buffer)
+         CASE (TREE_T_BUFFER)
+             ! use tree-based sorting/evaluating module
+            CALL fmm_store_t_buffer(fmm_tree_buffer_add)
+            CALL fmm_tree_buffer_init(TREE_LENGTH,sort_para)
+         CASE (SCALE_T_BUFFER)
+             ! use tree-based sorting/evaluating module
+            CALL fmm_store_t_buffer(fmm_scale_T_buffer_add)
+            CALL fmm_init_scale_T_buffer
+         CASE (MULTI_T_BUFFER)
+             ! use buffer to drive multiple T matrix simultaneous build
+            CALL fmm_store_t_buffer(fmm_multi_T_buffer_add)
+            CALL fmm_init_multi_T_buffer(TMATM_DF)
+         CASE DEFAULT
+            CALL fmm_quit ('cannot reconcile list type in fmm_open_T_buffer')
+      END SELECT
+
+      T_buffer_stat = 'OPEN'
+      fmm_lock_T_con = .TRUE.
+
+   END SUBROUTINE fmm_open_T_buffer
 
 !-------------------------------------------------------------------------------
 

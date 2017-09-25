@@ -1926,7 +1926,7 @@ C orbitals accordingly
        Call ChkIfKey()
       End If
 *
-* --- Process EXCI command
+* --- Process HEXS command
 *
       IF (KEYHEXS) THEN
         IF(DBG) WRITE(6,*) ' HEXS (Highly excited states)'//
@@ -1944,8 +1944,28 @@ C orbitals accordingly
          ReadStatus=' O.K. after reading data following HEXS keyword.'
       END IF
 *
+* --- Process DEXS command
+* At the moment same array as HEXS is being used 
+* If HEXS and DEXS should be used together rename one these arrays
+*
+      IF (KEYDEXS) THEN
+        IF(DBG) WRITE(6,*) ' DEXS (Doubly excited states)'//
+     &                       ' keyword was given. '
+       Call SetPos(LUInput,'DEXS',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       Call GetMem('Temp1','Allo','Inte',ipTemp1,mxgas)
+       I_ELIMINATE_GAS_MOLCAS = 2
+       ReadStatus=' Failure reading data following HEXS keyword.'
+       Read(LUInput,*,End=9910,Err=9920) N_ELIMINATED_GAS_MOLCAS
+       ReadStatus=' O.K. after reading data following HEXS keyword.'
+         ReadStatus=' Failure reading data following HEXS keyword.'
+         Read(LUInput,*,End=9910,Err=9920)
+     &   (IELIMINATED_IN_GAS_MOLCAS(I),I=1,N_ELIMINATED_GAS_MOLCAS)
+         ReadStatus=' O.K. after reading data following HEXS keyword.'
+      END IF
 *
 *---  Process CLEA command ---
+*
       Continue
       If (KeyCLEA) Then
        If (DBG) Write(6,*) ' CLEAN (Orbital Cleaning) keyword.'

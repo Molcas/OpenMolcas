@@ -427,7 +427,7 @@ class ParTask(Statement):
       f_out = expandvars(self.args[1], default='UNKNOWN_VARIABLE')
       env_print(env, '\n>>> COLLECT {0}{1} {2}'.format(f, f_in, f_out))
       task = ['c', '2', f_in, f_out]
-    rc = env.parallel_task(task)
+    rc = env.parallel_task(task, force=self.force)
     if (rc is not None):
       self.rc = rc
     if (self.force):

@@ -22,19 +22,22 @@ list (REMOVE_ITEM py_sources "${CMAKE_CURRENT_LIST_DIR}/pack.py")
 FIND_PACKAGE(PythonInterp 3.0)
 if (PYTHONINTERP_FOUND)
 
-        add_custom_command (OUTPUT ${OUTPUT_PATH}/pymolcas_
-                COMMAND ./export.py ${OUTPUT_PATH}/pymolcas_
+        set (PYMOLCAS_TARGET "${OUTPUT_PATH}/pymolcas_")
+        set (PYMOLCAS_TARGET "${PYMOLCAS_TARGET}" PARENT_SCOPE)
+
+        add_custom_command (OUTPUT ${PYMOLCAS_TARGET}
+                COMMAND ./export.py ${PYMOLCAS_TARGET}
                 WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
                 DEPENDS ${py_sources}
                 )
 
         add_custom_target (pymolcas ALL
-                DEPENDS ${OUTPUT_PATH}/pymolcas_
+                DEPENDS ${PYMOLCAS_TARGET}
                 )
 
         add_custom_command (TARGET pymolcas
                 POST_BUILD
-                COMMAND ${OPENMOLCAS_DIR}/sbin/install_pymolcas.sh ${OUTPUT_PATH}/pymolcas_
+                COMMAND ${OPENMOLCAS_DIR}/sbin/install_pymolcas.sh ${PYMOLCAS_TARGET}
                 )
 
 else ()

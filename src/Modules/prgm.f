@@ -31,7 +31,7 @@
       Character (Len=MAXSTR) :: WorkDir='', FastDir='', Project='Noname'
       Character (Len=16) :: SlaveDir='', SubDir=''
 
-      Public :: PrgmInitC, PrgmFree, PrgmTranslateC, SetSubDir
+      Public :: PrgmInitC, PrgmFree, PrgmTranslate_Mod, SetSubDir
 #ifndef _GA_
       Public :: IsInMem
 #endif
@@ -53,7 +53,7 @@
       If (Allocated(FileTable)) Deallocate(FileTable)
       End Subroutine PrgmFree
 
-      Subroutine PrgmTranslateC(InStr,l1,OutStr,l2,Par)
+      Subroutine PrgmTranslate_Mod(InStr,l1,OutStr,l2,Par)
       Character (Len=*), Intent(In) :: InStr
       Character (Len=*), Intent(Out) :: OutStr
       Integer, Intent(In) :: Par, l1
@@ -64,7 +64,9 @@
       Integer :: Num, Loc
       Logical :: Found, Lustre
       Lustre = .False.
-      Input = Strip(InStr, Char(0))
+      Input = InStr
+      Loc = Index(Input, Char(0))
+      If (Loc .gt. 0) Input(Loc:) = ''
 #ifdef _DEBUG_
       Write(6,*) 'Translating ', Trim(Input)
 #endif
@@ -116,7 +118,7 @@
       Return
       ! Avoid unused argument warnings
       If (.False.) Call Unused_integer(l1)
-      End Subroutine PrgmTranslateC
+      End Subroutine PrgmTranslate_Mod
 
       Subroutine SetSubDir(Dir)
       Character (Len=*), Intent(In) :: Dir

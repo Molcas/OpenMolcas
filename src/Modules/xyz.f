@@ -49,7 +49,7 @@
       Integer, Intent(In) :: Lu
       Real*8, Dimension(:,:,:), Allocatable, Intent(In) :: Rot
       Real*8, Dimension(:,:), Allocatable, Intent(In) :: Trans
-      Character (Len=MAXLEN) :: Line, FName, Dum
+      Character (Len=MAXLEN) :: Line, FName, CurrDir, Dum
       Integer :: Error, NumAt, i, Lxyz, Idx
       Logical :: Found
       Integer, External :: IsFreeUnit
@@ -92,7 +92,14 @@
       Lxyz = Lu
       If (Error .ne. 0) Then
         Read(Line,'(A)') FName
-        Call F_Inquire(FName, Found)
+        Found = .False.
+        If (Index(Line, '/') .eq. 0) Then
+          Call GetEnvF('CurrDir', CurrDir)
+          CurrDir = Trim(CurrDir)//'/'//FName
+          Call F_Inquire(CurrDir, Found)
+          If (Found) FName = CurrDir
+        End If
+        If (.Not. Found) Call F_Inquire(FName, Found)
         If (Found) Then
 #ifdef _HDF5_
           If (mh5_is_hdf5(Trim(FName))) Then

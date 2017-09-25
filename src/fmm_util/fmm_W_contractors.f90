@@ -71,35 +71,6 @@ CONTAINS
 
 !-------------------------------------------------------------------------------
 
-   SUBROUTINE fmm_select_W_con(W_con_ID)
-
-      IMPLICIT NONE
-      INTEGER(INTK), INTENT(IN) :: W_con_ID
-      EXTERNAL fmm_store_w_contractor
-
-      IF (.NOT.ALLOCATED(W_matrix)) CALL fmm_quit('W_matrix not allocated!')
-
-      SELECT CASE (W_con_ID)
-      CASE (W_CONTRACTOR_DIRECT)
-         CALL fmm_store_w_contractor(fmm_W_con_DIRECT)
-      CASE (W_CONTRACTOR_X)
-         CALL fmm_store_w_contractor(fmm_W_con_X)
-      CASE (W_CONTRACTOR_FAST)
-         CALL fmm_store_w_contractor(fmm_W_con_FAST)
-      CASE (W_CONTRACTOR_BOUNDARY)
-         CALL fmm_store_w_contractor(fmm_W_con_BOUNDARY)
-      CASE DEFAULT
-         CALL fmm_quit ('invalid W_contractor requested!')
-      END SELECT
-      ! initialise diagnostics
-      W_con_stat = 'initialised'
-      W_con_stat = 'initialised'
-      fmm_lock_W_con = .FALSE.
-
-   END SUBROUTINE fmm_select_W_con
-
-!-------------------------------------------------------------------------------
-
    SUBROUTINE fmm_set_W_con_ptrs(old,new)
 
       IMPLICIT NONE
@@ -329,6 +300,35 @@ CONTAINS
       END DO
 
    END SUBROUTINE fmm_W_con_BOUNDARY
+
+!-------------------------------------------------------------------------------
+
+   SUBROUTINE fmm_select_W_con(W_con_ID)
+
+      IMPLICIT NONE
+      INTEGER(INTK), INTENT(IN) :: W_con_ID
+      EXTERNAL fmm_store_w_contractor
+
+      IF (.NOT.ALLOCATED(W_matrix)) CALL fmm_quit('W_matrix not allocated!')
+
+      SELECT CASE (W_con_ID)
+      CASE (W_CONTRACTOR_DIRECT)
+         CALL fmm_store_w_contractor(fmm_W_con_DIRECT)
+      CASE (W_CONTRACTOR_X)
+         CALL fmm_store_w_contractor(fmm_W_con_X)
+      CASE (W_CONTRACTOR_FAST)
+         CALL fmm_store_w_contractor(fmm_W_con_FAST)
+      CASE (W_CONTRACTOR_BOUNDARY)
+         CALL fmm_store_w_contractor(fmm_W_con_BOUNDARY)
+      CASE DEFAULT
+         CALL fmm_quit ('invalid W_contractor requested!')
+      END SELECT
+      ! initialise diagnostics
+      W_con_stat = 'initialised'
+      W_con_stat = 'initialised'
+      fmm_lock_W_con = .FALSE.
+
+   END SUBROUTINE fmm_select_W_con
 
 !-------------------------------------------------------------------------------
 

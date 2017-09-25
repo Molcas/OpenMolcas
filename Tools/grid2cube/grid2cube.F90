@@ -14,21 +14,22 @@
 ! Fortran 2003 program for converting Molcas "grid" files into
 !                                     Gaussian "cube" format
 !
-! Last modified: 2017 August 26
+! Last modified: 2017 September 1
 !            by: Ignacio Fdez. Galvan
 !===============================================================================
 
 #define STRLEN 256
 
 PROGRAM Grid2Cube
+USE ISO_FORTRAN_ENV, ONLY: REAL64
 IMPLICIT NONE
 CHARACTER(LEN=STRLEN), DIMENSION(:), ALLOCATABLE :: Args
 INTEGER :: FileIn, FileOut, Natom, Block_Size, N_of_Grids, Grid, NP
 LOGICAL :: Binary, Luscus
 INTEGER, DIMENSION(3) :: Net, NPt
-REAL(KIND=8), DIMENSION(3) :: Origin, Axis_1, Axis_2, Axis_3
-REAL(KIND=8), DIMENSION(:,:), ALLOCATABLE :: Coor
-REAL(KIND=8), DIMENSION(:), ALLOCATABLE :: PtData
+REAL(KIND=REAL64), DIMENSION(3) :: Origin, Axis_1, Axis_2, Axis_3
+REAL(KIND=REAL64), DIMENSION(:,:), ALLOCATABLE :: Coor
+REAL(KIND=REAL64), DIMENSION(:), ALLOCATABLE :: PtData
 CHARACTER(6), DIMENSION(:), ALLOCATABLE :: Label
 CHARACTER(LEN=STRLEN), DIMENSION(:), ALLOCATABLE :: GridName
 CHARACTER(LEN=2), DIMENSION(0:118) :: Symbol
@@ -132,8 +133,8 @@ SUBROUTINE Write_Usage()
 
 WRITE(6,1)
 WRITE(6,1) 'Convert a Molcas grid file into a Gaussian cube file.'
-WRITE(6,1) 'The input file can be ASCII or binary (non-packed),'
-WRITE(6,1) 'the generated output file will be ASCII.'
+WRITE(6,1) 'The input file can be ASCII, binary (non-packed), or in'
+WRITE(6,1) 'Luscus format, the generated output file will be ASCII.'
 WRITE(6,1)
 WRITE(6,1) 'USAGE:'
 WRITE(6,1) '  grid2cube input_file output_file'
@@ -155,7 +156,7 @@ CHARACTER(LEN=*), INTENT(IN) :: FileName
 INTEGER, INTENT(OUT) :: Error
 INTEGER :: Test
 CHARACTER :: TestChar
-REAL(KIND=8) :: TestFloat
+REAL(KIND=REAL64) :: TestFloat
 
 ! Try to read as ASCII, the first line should be 0
 OPEN(U,FILE=FileName,STATUS='OLD',ACTION='READ',IOSTAT=Error,FORM='FORMATTED')
@@ -348,7 +349,7 @@ SUBROUTINE Read_Header_Luscus()
 CHARACTER(LEN=STRLEN) :: Line, Word
 INTEGER :: i
 ! Hard-coded value for Luscus format
-REAL(Kind=8), PARAMETER :: Angstrom=0.52917721067D0
+REAL(KIND=REAL64), PARAMETER :: Angstrom=0.52917721067D0
 
 READ(FileIn,*) Natom
 READ(FileIn,*)
@@ -510,7 +511,7 @@ DO
 END DO
 ! Read the data in blocks, skipping previous and following grids
 Data_Read = 0
-N = STORAGE_SIZE(PtData(1))/8
+N = 8 ! Reals declared as KIND=REAL64, so they must take 8 bytes
 DO WHILE (Data_Read < NP)
   Data_in_Block = MIN(NP-Data_Read,Block_Size)
   Pos = Pos+(ngrid-1)*Data_in_Block*N
@@ -528,7 +529,7 @@ END SUBROUTINE Read_Data_Luscus
 
 SUBROUTINE Write_Data(Title)
 CHARACTER(LEN=*), INTENT(IN) :: Title
-REAL(KIND=8), DIMENSION(3) :: dx, dy, dz
+REAL(KIND=REAL64), DIMENSION(3) :: dx, dy, dz
 INTEGER, DIMENSION(Natom) :: Atom_Number
 INTEGER :: i, j
 CHARACTER(LEN=2) :: Lab

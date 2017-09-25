@@ -8,14 +8,15 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine GF_Print(EVal,EVec,dDipM,iel,nX,nDim,ictl,IRInt,Lu_10,
-     &                    iOff)
+      Subroutine GF_Print(EVal,EVec,dDipM,iel,nX,nDim,ictl,IRInt,RedM,
+     &                    Lu_10,iOff)
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "constants2.fh"
 #include "WrkSpc.fh"
-      Real*8 EVal(nDim), EVec(2,nX,nDim),dDipM(ndim,iel),IRInt(nDim)
+      Real*8 EVal(nDim), EVec(2,nX,nDim),dDipM(ndim,iel),IRInt(nDim),
+     &       RedM(nDim)
       Parameter(Inc=6)
       Real*8 Tmp(Inc)
       Character*80 Format, Line*120
@@ -49,7 +50,7 @@
 *
          If (ictl.ne.0) Then
             Label='Intensity:'
-            Write(Format,'(A,I3,A)') '(5X,A,1x,',Jnc,'E10.3)'
+            Write(Format,'(A,I3,A)') '(5X,A,1x,',Jnc,'ES10.3)'
             call dcopy_(Jnc,0.0d0,0,Tmp,1)
             Do k=1,Jnc
               Do l=1,iel
@@ -57,11 +58,14 @@
               End Do
             End Do
             Write (6,Format) Label,(RF*tmp(i),i=1,Jnc)
-            write(6,*)
             Do i=1,Jnc
                iIRInt=iIRInt+1
                IRInt(iIRInt)=RF*tmp(i)
             enddo
+            Label='Red. mass:'
+            Write(Format,'(A,I3,A)') '(5X,A,1x,',Jnc,'F10.5)'
+            Write (6,Format) Label,(RedM(i),i=iHarm,iHarm+Jnc-1)
+            write(6,*)
          Else
             Do i=1,Jnc
                iIRInt=iIRInt+1

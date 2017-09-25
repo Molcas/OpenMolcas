@@ -88,6 +88,9 @@ def EMIL_Parse(input_file):
   for item in items:
 
     if (item[0] == '&'):
+      # Remove final empty lines (empty lines in the middle could be significant)
+      while (item[-1] == ''):
+        del item[-1]
       blocks[level].append(Program(item))
 
     elif (item[0] == '>'):

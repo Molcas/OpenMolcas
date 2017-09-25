@@ -81,7 +81,7 @@ class MolcasException(Exception):
 
 class Molcas_wrapper(object):
 
-  version = 'py1.0'
+  version = 'py1.03'
   rc = 0
 
   def __init__(self, **kwargs):
@@ -91,6 +91,11 @@ class Molcas_wrapper(object):
       raise MolcasException('"MOLCAS" is not defined')
     if (not isfile(join(self.molcas, '.molcashome'))):
       raise MolcasException('"{0}" is not a valid MOLCAS installation'.format(self.molcas))
+    # Get location of sources (other than MOLCAS)
+    self.sources = []
+    self.sources.append(abspath(get_utf8('OPENMOLCAS_SOURCE', default='')))
+    self.sources.append(abspath(get_utf8('MOLCAS_SOURCE', default='')))
+    self.sources = [i for i in self.sources if (i != '' and i != self.molcas)]
     # Some settings
     self.allow_shell = True
     self.echo = True
@@ -633,7 +638,7 @@ class Molcas_wrapper(object):
             if match:
               print(match.group(1))
       except:
-        pass
+        print('')
       if (self.rc_num == -1):
         print('\nAborting...')
     if (self._resources != (0,0,0)):
@@ -755,10 +760,10 @@ class Molcas_wrapper(object):
         rc = check_test(join(self.scratch, 'molcas_info'), join(self.scratch, 'checkfile'), self._check_count)
       if (self.rc_to_name(rc) != '_RC_ALL_IS_WELL_'):
         self.rc = rc
-    self.parallel_task(['x', 'molcas_info'])
+    self.parallel_task(['x', 'molcas_info'], force=True)
 
   #TODO: buffer parnell calls
-  def parallel_task(self, task):
+  def parallel_task(self, task, force=False):
     task_type = task[0][0]
     # same replacements for parnell calls in the serial case,
     # if no replacement is available, parnell will be used
@@ -775,15 +780,23 @@ class Molcas_wrapper(object):
           copy2(orig, dest)
         except SameFileError:
           pass
+        except FileNotFoundError:
+          if (not force):
+            print('Error: file "{0}" not found'.format(orig))
+          return -1
         return 0
       # remove files: the list is colon-separated, and based on the scratch dir
       if (task_type == 'x'):
+        rc = 0
         for i in task[1].split(':'):
           try:
-            remove(join(self.scratch, i))
+            orig = join(self.scratch, i)
+            remove(orig)
           except FileNotFoundError:
-            pass
-        return 0
+            if (not force):
+              print('Error: file "{0}" not found'.format(orig))
+            rc -= 1
+        return rc
     output = BytesIO()
     error = BytesIO()
     if (task_type == 'b'):
@@ -815,11 +828,11 @@ class Molcas_wrapper(object):
 
   def in_sbin(self, prog):
     '''Return the path of a program in sbin if it exists'''
-    filename = join(self.molcas, 'sbin', prog)
-    if (isfile(filename) and access(filename, X_OK)):
-      return filename
-    else:
-      return False
+    for path in [self.molcas] + self.sources:
+      filename = join(path, 'sbin', prog)
+      if (isfile(filename) and access(filename, X_OK)):
+        return filename
+    return False
 
   def run_sbin(self, command):
     '''Run a program from the sbin directory if it exists'''
@@ -995,14 +1008,14 @@ class Molcas_module(object):
       print('End of input', file=i_f)
     input_file = self.name.upper()[:5] + 'INP'
     if (input_file in self._files):
-      self.parent.parallel_task(['c', '1', stdin, self._files[input_file][0]])
-    self.parent.parallel_task(['c', '1', stdin, self.parent.scratch])
+      self.parent.parallel_task(['c', '1', stdin, self._files[input_file][0]], force=True)
+    self.parent.parallel_task(['c', '1', stdin, self.parent.scratch], force=True)
 
   # Private method to read the return code from the $WorkDir
   def _read_rc(self):
     rc_local = join(self.parent.scratch, 'rc.local')
     rc_global = join(self.parent.scratch, 'rc.global')
-    self.parent.parallel_task(['c', '4', rc_local, rc_global])
+    self.parent.parallel_task(['c', '4', rc_local, rc_global], force=True)
     with utf8_open(rc_global, 'r') as rc_f:
       self.rc = int(rc_f.read())
 
@@ -1076,7 +1089,7 @@ class Molcas_module(object):
     for i in self._links:
       rmlist.append(relpath(i, self.parent.scratch))
     if (len(rmlist) > 0):
-      self.parent.parallel_task(['x', ':'.join(rmlist)])
+      self.parent.parallel_task(['x', ':'.join(rmlist)], force=True)
 
   def _make_links(self):
     if (self.name == 'check'):
@@ -1097,7 +1110,7 @@ class Molcas_module(object):
       for orbfile in orblist:
         if (exists(orbfile)):
           symlink(orbfile, inporb)
-          self.parent.parallel_task(['c', '1', inporb, self.parent.scratch])
+          self.parent.parallel_task(['c', '1', inporb, self.parent.scratch], force=True)
           self._links.append(inporb)
           print('*** symbolic link created: INPORB -> {0}'.format(basename(orbfile)))
           break
@@ -1113,7 +1126,7 @@ class Molcas_module(object):
       runfiles = ['RUNFILE']
       if ('RUNFILE' in self._files):
         runfiles.append(relpath(self._files['RUNFILE'][0], self.parent.scratch))
-      self.parent.parallel_task(['x', ':'.join(runfiles)])
+      self.parent.parallel_task(['x', ':'.join(runfiles)], force=True)
     elif (self.name == 'loop'):
       set_utf8('MOLCAS_REDUCE_PRT', 'NO')
 

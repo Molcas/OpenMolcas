@@ -12,7 +12,7 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-* This routine read a record from the runfile.                         *
+* This routine reads or writes a record from/to the runfile.           *
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -21,7 +21,7 @@
 * Written: December 2009                                               *
 *                                                                      *
 ************************************************************************
-      Subroutine gzRdRun(Lu, icXX, Data, nData, iDisk, RecTyp)
+      Subroutine gzRWRun(Lu,icXX,Data,nData,iDisk,RecTyp)
 #include "runinfo.fh"
 #include "runtypes.fh"
 *----------------------------------------------------------------------*
@@ -34,7 +34,7 @@
       Integer       iDisk
       Integer       RecTyp
 *----------------------------------------------------------------------*
-* Write data to runfile and update header.                             *
+* Read/write data from/to runfile.                                     *
 *----------------------------------------------------------------------*
       If(RecTyp.eq.TypInt) Then
          Call iDaFile(Lu,icXX,Data,nData,iDisk)
@@ -43,11 +43,11 @@
       Else If(RecTyp.eq.TypStr) Then
          Call cDaFile(Lu,icXX,Data,nData,iDisk)
       Else If(RecTyp.eq.TypLgl) Then
-         Call SysAbendMsg('gzRdRun',
+         Call SysAbendMsg('gzRWRun',
      &                    'Records of logical type not implemented',
      &                    'Aborting')
       Else
-         Call SysAbendMsg('gzRdRun',
+         Call SysAbendMsg('gzRWRun',
      &                    'Argument RecTyp is of wrong type',
      &                    'Aborting')
       End If

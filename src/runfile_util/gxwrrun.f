@@ -12,7 +12,7 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-* This routine write a record into the runfile.                        *
+* This routine writes a record into the runfile.                       *
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -159,7 +159,7 @@ c            call Abend
       TocTyp(item)=RecTyp
 
       iDisk=DataAdr
-      Call gzWrRun(Lu,icWr,Data,nData,iDisk,RecTyp)
+      Call gzRWRun(Lu,icWr,Data,nData,iDisk,RecTyp)
 
       if(iDisk.gt.RunHdr(ipNext)) RunHdr(ipNext)=iDisk
       iDisk=0
