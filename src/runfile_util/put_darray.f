@@ -108,6 +108,7 @@
 *> - '``MEP-Lengths``'              Lengths of the MEP steps.
 *> - '``MEP-Curvatures``'           Curvatures of the MEP steps.
 *> - '``D1ao-``'                    Antisymmetric transition density matrix, in AO
+*> - '``P2MOT``'                    "Fake" two-body density needed for MC-PDFT gradient calculations
 *>
 *> @param[in] Label Name of field
 *> @param[in] Data  Data to put on runfile
@@ -305,6 +306,14 @@ c mess started here :)
          RecLab(147)='State Overlaps  '
          RecLab(148)='EFP_Coors       ' ! EFP fragment coordinates
          RecLab(149)='DIP1_SINGLE     '
+         RecLab(150)='P2MOT           '
+         RecLab(151)='ONTOPO          '
+         RecLab(152)='ONTOPT          '
+         RecLab(153)='OE_OT           '
+         RecLab(154)='TEG_OT          '
+         RecLab(155)='FI_V            '
+         RecLab(156)='FA_V            '
+         RecLab(157)='FOCK_PDFT       '
 *                     1234567890123456
 *
 *        If you go beyond 256: update pg_da_info.fh and this line!

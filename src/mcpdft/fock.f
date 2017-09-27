@@ -343,3 +343,288 @@ C
 C
       RETURN
       END
+
+      SUBROUTINE FOCK_update(F,BM,FI,FP,D,P,Q,FINT,IFINAL,CMO)
+!This subroutine is supposed to add the dft portions of the mcpdft fock
+!matrix to the Fock matrix pieces that have already been built for the
+!CASSCF portion.
+
+C
+C     RASSCF program version IBM-3090: SX section
+c
+c     Calculation of the MCSCF fock matrix F(eq.(7) in I.J.Q.C.S14,175)
+c     FP is the matrix FI+FA (FP is FA at entrance)
+c     F is stored as a symmetry blocked square matrix, by columns.
+c     Note that F contains all elements, also the zero elements
+c     occurring when the first index is secondary.
+c     F is used to construct the Brillouin elements and the first row
+c     of the super-CI Hamiltonian, while FP is used as the effective
+c     one-electron operator in the construction of the super-CI
+c     interaction matrix.
+c
+C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
+C
+      IMPLICIT REAL*8 (A-H,O-Z)
+      DIMENSION FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
+      integer ISTSQ(8),ISTAV(8),iTF
+      real*8 ECAS0
+
+#include "rasdim.fh"
+#include "rasscf.fh"
+#include "general.fh"
+#include "output_ras.fh"
+      Parameter (ROUTINE='FOCK    ')
+#include "WrkSpc.fh"
+      Logical DoActive,DoQmat,DoCholesky
+      Integer ALGO
+      real(8) ExFac_tmp
+
+      COMMON /CHOTODO /DoActive,DoQmat,ipQmat
+      COMMON /CHLCAS  /DoCholesky,ALGO
+C
+      IPRLEV=IPRLOC(4)
+      IF(IPRLEV.ge.DEBUG) THEN
+        WRITE(LF,*)' Entering ',ROUTINE
+      END IF
+
+      Call GetMem('fockt','ALLO','REAL',iTF,NTOT4)
+      Call dcopy_(ntot4,0d0,0,Work(iTF),1)
+C
+C *** Cholesky section ********************
+c      Call DecideOnCholesky(DoCholesky)
+
+      ISTSQ(1)=0
+      ISTAV(1)=0
+      DO iSym=2,nSym
+         ISTSQ(iSym) = ISTSQ(iSym-1) + nBas(iSym-1)**2
+         ISTAV(iSym) = ISTAV(iSym-1) + nBas(iSym-1)*nAsh(iSym-1)
+      End Do
+C *****************************************
+
+!      Call GetMem('ONTOPT','ALLO','Real',iTEOTP,NFINT)
+!      Call GetMem('ONTOPO','ALLO','Real',iOEOTP,NTOT1)
+      !Read in the one- and two- electron potentials.
+!      Call Get_dArray('ONTOPT',work(iTEOTP),NFINT)
+!      Call Get_dArray('ONTOPO',work(iOEOTP),NTOT1)
+
+
+!I think the best way forward is to construct FI, FA (MO basis) using
+!the potentials (v_pqrs and V_pq) instead of the integrals.  I think we
+!want to use the full 2-body density matrix and ExFac = 1.  If we have
+!FI, FA, and Q, then we can use the prescription from fock.f to
+!construct the Focc term (the part of the fock matrix that we want).
+
+
+
+!******************************************************************
+!
+! Build the FA terms using the potentials v.
+!
+!******************************************************************
+
+!      ExFac_tmp = 1.0d0
+!      Call Upd_FA_m(Work(iTEOTP),FP,D,ExFac_tmp)
+!Check - does this regenerate FA if the regular integrals are passed?
+!FP should contain the Fock matrix contribution that we want.
+
+
+!******************************************************************
+!
+! Build the FI terms using the potentials v and V.
+!
+!******************************************************************
+
+
+!      iOff1 = 0
+!      Do ISYM=1,NSYM
+!        Do iOrb=1,norb(iSym)
+!          do jOrb=1,iOrb
+!should we follow the guide of ftwo.f?
+!for starters, I don't seem to have all the necessary 2-body potentials,
+!right?
+
+!          end do
+!        end do
+!      end do
+
+
+c     add FI to FA to obtain FP
+      CALL DAXPY_(NTOT3,1.0D0,FI,1,FP,1)
+C     LOOP OVER ALL SYMMETRY BLOCKS
+
+      ISTFCK=0
+      ISTFP=0
+      ISTD=0
+      ISTBM=0
+      IX1=0
+      ISTZ=0
+      ioffQmat=0
+      E2act=0.0d0
+C
+* A long loop over symmetry
+      DO ISYM=1,NSYM
+       IX=IX1+NFRO(ISYM)
+       NIO=NISH(ISYM)
+       NAO=NASH(ISYM)
+       NEO=NSSH(ISYM)
+       NIA=NIO+NAO
+       NO=NORB(ISYM)
+       NO2=(NO**2+NO)/2
+       CSX=0.0D0
+       N1=0
+       N2=0
+       IF(NO.EQ.0) GO TO 90
+       CALL VCLR(Work(iTF-1+ISTFCK+1),1,NO**2)
+
+!    First index in F is inactive
+
+       IF(NIO.NE.0) THEN
+        DO NP=1,NO
+         DO NI=1,NIO
+          N1=MAX(NP,NI)
+          N2=MIN(NP,NI)
+          Work(iTF-1+ISTFCK+NO*(NP-1)+NI)=2*FP(ISTFP+(N1**2-N1)/2+N2)
+         END DO
+        END DO
+       ENDIF
+c
+c      first index in F active
+c
+       IF(NAO.NE.0) THEN
+
+        ISTP=ISTORP(ISYM)+1
+        JSTF=ISTORD(ISYM)+1
+        NUVX=(ISTORP(ISYM+1)-ISTORP(ISYM))/NAO
+
+        If (.not.DoCholesky .or. ALGO.eq.1) Then
+c
+c          first compute the Q-matrix (equation (19))
+c
+c          Q(m,v) = sum_wxy  (m|wxy) * P(wxy,v)
+c
+c          P is packed in xy and pre-multiplied by 2
+c                            and reordered
+c
+c          write(6,*) 'PUVX integrals in FOCK'
+c         call wrtmat(FINT(JSTF),1,nFInt,1,nFInt)
+c         write(6,*) 'two-elec density mat OR DMAT*DMAT in FOCK'
+c         call wrtmat(P(ISTP),1,nFint,1,nFint)
+           CALL DGEMM_('N','N',
+     &                 NO,NAO,NUVX,
+     &                 1.0d0,FINT(JSTF),NO,
+     &                 P(ISTP),NUVX,
+     &                 0.0d0,Q,NO)
+
+
+!Now Q should contain the additional 2-electron part of the fock matrix
+!for mcpdft, for the active region, at least.
+
+!We should also have contributions from terms like FI and FA, too.
+!FA takes care of the 1-RDM/2e- integral terms?
+!FI takes care of the one-body hamiltonian and the occ/occ and occ/act
+!contributions.
+
+!        write(*,*) 'q-matrix'
+!        do i=1,nO*nAO
+!          write(*,*) Q(i)
+!        end do
+
+        Else
+
+          Write(LF,*)'FOCK: illegal Cholesky parameter ALGO= ',ALGO
+          call qtrace()
+          call abend()
+
+        EndIf
+
+        E2eP=0d0
+        DO NT=1,NAO
+         NTT=(NT-1)*NO+NIO+NT
+         E2eP=E2eP+0.5D0*Q(NTT)
+         !ECAS=ECAS+Q(NTT)
+        END DO
+c
+c       Fock matrix
+c
+        NTM=0
+        DO NT=1,NAO
+         DO NM=1,NO
+          NTM=NTM+1
+          QNTM=Q(NTM)
+          DO NV=1,NAO
+           NVI=NV+NIO
+           NTV=ITRI(MAX(NT,NV))+MIN(NT,NV)+ISTD
+           NVM=ITRI(MAX(NVI,NM))+MIN(NVI,NM)+ISTFP
+           QNTM=QNTM+D(NTV)*FI(NVM)
+          END DO
+          Work(iTF-1+ISTFCK+NO*(NM-1)+NT+NIO)=QNTM
+         END DO
+        END DO
+       ENDIF
+
+CGLM        call recprt('Q-mat',' ',Q(1),NO,NAO)
+
+c
+c       active-active interaction term in the RASSCF energy
+c
+c
+* End of long loop over symmetry
+90     CONTINUE
+       ISTFCK=ISTFCK+NO**2
+       ISTFP=ISTFP+NO2
+       ISTD=ISTD+(NAO**2+NAO)/2
+       ISTBM=ISTBM+(NIO+NAO)*(NAO+NEO)
+       IX1=IX1+NBAS(ISYM)
+       ISTZ=ISTZ+(NAO**2-NAO)/2
+       CBLB(ISYM)=CSX
+       IBLB(ISYM)=N1
+       JBLB(ISYM)=N2
+      END DO
+
+
+!Now, add all components to the original Fock matrix
+!      Call DAXPY_()
+!      Call DAXPY_()
+c
+C
+c     Calculate Fock matrix for occupied orbitals.
+C
+
+      If ( iPrLev.ge.DEBUG ) then
+      write(6,*) 'old fock terms:'
+      do i=1,Ntot4
+        write(6,*) F(i)
+      end do
+      write(6,*) 'new fock terms to add:'
+      do i=1,Ntot4
+        write(6,*) Work(itF-1+i)
+      end do
+      call xflush(6)
+      end if
+      Call DAXPY_(NTOT4,1.0d0,Work(iTF),1,F,1)
+!      write(*,*) 'added new fock terms to old fock matrix'
+!I am going to add the Fock matrix temporarily to the Runfile.  I don't
+!want to construct it again in MCLR in the case of gradients.
+      If ( iPrLev.ge.DEBUG ) then
+        Write(LF,'(A)')' MCSCF Fock-matrix in MO-basis'
+        ipFMCSCF=1
+        Do iSym=1,nSym
+           nOr=nOrb(iSym)
+           Call RecPrt(' ',' ',F(ipFMCSCF),nOr,nOr)
+           ipFMCSCF=ipFMCSCF+nOr*nOr
+        End Do
+      End If
+
+!What happens if we divide by two?
+!      Call Dscal_(ntot4,0.5d0,F,1)
+
+!For MCLR
+      Call put_dArray('Fock_PDFT',F,ntot4)
+
+      call xflush(6)
+      CALL FOCKOC_m(Q,F,CMO)
+C
+      Call GetMem('fockt','Free','REAL',iTF,NTOT4)
+C
+      RETURN
+      END

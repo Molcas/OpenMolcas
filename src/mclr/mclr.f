@@ -196,6 +196,10 @@ c      idp=rtoi
 *        Call WfCtl_PCG(iWork(ifpK),iWork(ifpS),iWork(ifpCI),
 *                       iWork(ifpSC),iWork(ifpRHS),iWork(ifpRHSCI))
 *        Call Abend()
+      Else if(iMCPD) Then!pdft
+         Call WfCtl_PDFT(iWork(ifpK),iWork(ifpS),iWork(ifpCI),
+     &                 iWork(ifpSC),iWork(ifpRHS),
+     &                 converged,iPL)
       Else if (SA) Then
          Call WfCtl_SA(iWork(ifpK),iWork(ifpS),iWork(ifpCI),
      &                 iWork(ifpSC),iWork(ifpRHS),
@@ -216,7 +220,7 @@ c      idp=rtoi
 *                                                                      *
 *     Contract response to hessian etc
 *
-      If (PT2.or.SA) Then
+      If (PT2.or.SA.or.iMCPD) Then
          Call Out_PT2(iWork(ifpK),iWork(ifpCI))
       Else If (TimeDep) Then
          Call Output_td(iWork(ifpK),iWork(ifpS),

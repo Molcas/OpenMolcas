@@ -37,6 +37,7 @@ c -------------------------------------------------------------------
       Real*8 DSO(nDSO,*), PSOPam(nPSOPam), G1(nG1,*), G2(nG2,*),
      &       Cred(*), Scr1(nS1), Scr2(nS2), Cmo(ncmo,*),
      &       ScrP(nsP)
+!      logical do_pdft
 
 #include "real.fh"
 #include "print.fh"
@@ -464,6 +465,8 @@ C   FOR RAMAN SPECTRA
      &        +DSO(ioDq+ipq,2)*DSO(ioDs+irs,1)
      &        +DSO(ioDq+ipq,3)*DSO(ioDs+irs,4)
      &        +DSO(ioDq+ipq,4)*DSO(ioDs+irs,3)
+     &        +DSO(ioDq+ipq,1)*DSO(ioDs+irs,5)
+     &        +DSO(ioDq+ipq,5)*DSO(ioDs+irs,1)
           end if
 C    IT STOPS HERE
  310     continue
