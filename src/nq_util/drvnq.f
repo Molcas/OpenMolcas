@@ -41,7 +41,6 @@
       Logical Do_Grad, Do_MO,Do_TwoEl,PMode
       Logical l_XHol, l_casdft
       Character*4 DFTFOCK
-      Character*16 KSDFT
 *                                                                      *
 ************************************************************************
 *                                                                      *
