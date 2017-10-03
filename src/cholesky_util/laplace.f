@@ -364,6 +364,7 @@ C
 !     Dbg = .TRUE.
       Dbg = .FALSE.
       SkpRem = .FALSE.
+      Change = .FALSE.
       IMes = -1
 C
       Verbose=Vrbse.or.Dbg
