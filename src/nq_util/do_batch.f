@@ -80,7 +80,7 @@
       Character*4 DFTFOCK
       Integer dindex
       Real*8 dTot_d,ratio_d,Zeta_d
-      Integer q,nAOs
+      Integer nAOs
       Real*8 P2_ontop_d(nP2_ontop,nGrad_Eff,mGrid)
       Integer LOE_DB,LTEG_DB,ntot1
 *define _DEBUG_

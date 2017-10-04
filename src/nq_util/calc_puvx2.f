@@ -198,10 +198,9 @@
       Integer nIrrep
       Real*8 D1MO(nD1MO)
       Integer count_tmp
-      Integer p,q,vx,pu
       Real*8 DVX
       real*8 Fact
-      Integer Delta,case
+      Integer case
       iTrii(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
       iTri(i)=(i*i-i)/2
 *
@@ -210,6 +209,9 @@
       thrspi=1.0d-30
 *
       lsym_tmp=lsym
+
+      Call Unused_real_array(RhoI)
+      Call Unused_real_array(RhoA)
 
       iStack  = 0
       iStack1 = 0
@@ -1110,15 +1112,13 @@
 #include "general.fh"
 #include "WrkSpc.fh"
       Integer off_Ash(mxSym), off_BasAsh(mxSym),
-     &        off_PUVX(mxSym),off_Bas(mxSym),off_Ish(mxSym)!,off_Fmat(mxSym),
+     &        off_Bas(mxSym)!,off_Ish(mxSym)!,off_Fmat(mxSym),
 !     &        off_Dmat(mxSym)
       Integer off_basIsh(mxSym),off_Fmat(mxSym)
       Dimension TabMO(mAO,nCoor,nTabMOs),
      &       Weights(nCoor),P2_ontop(nP2_ontop,nCoor),
      &       dF_dRho(ndF_dRho,nCoor),Rho(nRho,nCoor),
      &       RhoI(mRho,nCoor),RhoA(mRho,nCoor)
-      Integer p,q,ipq,ioep
-      Integer count_tmp
       Integer VX,ix,jx,iv,jv
       Integer nIrrep
 *
@@ -1127,6 +1127,9 @@
       thrsrho=1.0d-15
       thrsrho2=1.0d-15
 *
+      Call Unused_real_array(RhoI)
+      Call Unused_real_array(RhoA)
+
       lsym_tmp=lsym
       iStack  = 0
       iStack1 = 0
@@ -1199,15 +1202,14 @@
 #include "general.fh"
 #include "WrkSpc.fh"
       Integer off_Ash(mxSym), off_BasAsh(mxSym),
-     &        off_PUVX(mxSym),off_Bas(mxSym),off_Ish(mxSym)!,off_Fmat(mxSym),
+     &        off_Bas(mxSym)
 !     &        off_Dmat(mxSym)
       Integer off_basIsh(mxSym),off_Fmat(mxSym)
       Dimension TabMO(mAO,nCoor,nTabMOs),
      &       Weights(nCoor),P2_ontop(nP2_ontop,nCoor),
      &       dF_dRho(ndF_dRho,nCoor),Rho(nRho,nCoor),
      &       RhoI(mRho,nCoor),RhoA(mRho,nCoor)
-      Integer p,q,ipq,ioep
-      Integer count_tmp
+!      Integer count_tmp
       Integer VX,ix,jx,iv,jv
       Integer nIrrep
 *
@@ -1221,6 +1223,9 @@
       Bb1=-3.794733192d+2
       Cb1=-8.538149682d+1
 *
+      Call Unused_real_array(RhoI)
+      Call Unused_real_array(RhoA)
+
       lsym_tmp=lsym
       iStack  = 0
       iStack1 = 0
@@ -1333,10 +1338,10 @@
      &       RhoI(mRho,nCoor),RhoA(mRho,nCoor)
       Real*8 D1MO(nD1MO)
               Integer count_tmp
-      Integer p,q,vx,pu
+      Integer p,q
       Real*8 DVX
       real*8 Fact
-      Integer Delta,case
+      Integer case
       iTrii(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
       iTri(i)=(i*i-i)/2
 *
@@ -1348,6 +1353,8 @@
       Bb1=-3.794733192d+2
       Cb1=-8.538149682d+1
 *
+      Call Unused_real_array(RhoI)
+      Call Unused_real_array(RhoA)
       lsym_tmp=lsym
 
       iStack  = 0
@@ -2331,11 +2338,9 @@
      &       RhoI(mRho,nCoor),RhoA(mRho,nCoor)
       Integer nIrrep
       Real*8 D1MO(nD1MO)
-      Integer count_tmp
-      Integer p,q,vx,pu
       Real*8 DVX
       real*8 Fact
-      Integer Delta,case
+      Integer case
       iTrii(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
       iTri(i)=(i*i-i)/2
 *
@@ -2349,6 +2354,8 @@
       Bb1=-3.794733192d+2
       Cb1=-8.538149682d+1
 *
+      Call Unused_real_array(RhoI)
+      Call Unused_real_array(RhoA)
       lsym_tmp=lsym
 
       iStack  = 0
@@ -3728,6 +3735,8 @@
       Bb1=-3.794733192d+2
       Cb1=-8.538149682d+1
 *
+      Call Unused_real_array(RhoI)
+      Call Unused_real_array(RhoA)
       lsym_tmp=lsym
       iStack  = 0
       iStack1 = 0
@@ -3860,7 +3869,7 @@
 #include "general.fh"
 #include "WrkSpc.fh"
       Integer off_Ash(mxSym), off_BasAsh(mxSym),
-     &        off_PUVX(mxSym),off_Bas(mxSym),off_Ish(mxSym)!,off_Fmat(mxSym),
+     &        off_Bas(mxSym)!,off_Fmat(mxSym),
 !     &        off_Dmat(mxSym)
       Integer off_basIsh(mxSym),off_Fmat(mxSym)
       Dimension TabMO(mAO,nCoor,nTabMOs),
@@ -3868,8 +3877,6 @@
      &       dF_dRho(ndF_dRho,nCoor),Rho(nRho,nCoor),
      &       RhoI(mRho,nCoor),RhoA(mRho,nCoor)
       Integer nIrrep
-      Integer p,q,ipq,ioep
-      Integer count_tmp
       Integer VX,ix,jx,iv,jv
       real*8 zeta,zeta_in
 *
@@ -3885,6 +3892,8 @@
       Bb1=-3.794733192d+2
       Cb1=-8.538149682d+1
 *
+      Call Unused_real_array(RhoI)
+      Call Unused_real_array(RhoA)
       lsym_tmp=lsym
       iStack  = 0
       iStack1 = 0
@@ -3992,10 +4001,9 @@
      &       RhoI(mRho,nCoor),RhoA(mRho,nCoor)
       Real*8 D1MO(nD1MO)
       Integer count_tmp
-      Integer p,q,vx,pu
       Real*8 DVX
       real*8 Fact
-      Integer Delta,case
+      Integer case
       iTrii(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
       iTri(i)=(i*i-i)/2
 *
@@ -4004,6 +4012,9 @@
       thrspi=1.0d-30
 *
       lsym_tmp=lsym
+
+      Call Unused_real_array(RhoI)
+      Call Unused_real_array(RhoA)
 
       iStack  = 0
       iStack1 = 0
@@ -5552,10 +5563,9 @@
       Real*8 D1MO(nD1MO)
       real*8 V_puvx
       Integer count_tmp
-      Integer p,q,vx,pu
       Real*8 DVX
       real*8 Fact
-      Integer Delta,case
+      Integer case
       iTrii(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
       iTri(i)=(i*i-i)/2
 *
@@ -5570,6 +5580,9 @@
       Cb1=-8.538149682d+1
 *
       lsym_tmp=lsym
+
+      Call Unused_real_array(RhoI)
+      Call Unused_real_array(RhoA)
 
       iStack  = 0
       iStack1 = 0
@@ -10359,15 +10372,13 @@
 #include "WrkSpc.fh"
       Integer nIrrep
       Integer off_Ash(mxSym), off_BasAsh(mxSym),
-     &        off_PUVX(mxSym),off_Bas(mxSym),off_Ish(mxSym)!,off_Fmat(mxSym),
+     &        off_Bas(mxSym)!,off_Fmat(mxSym),
 !     &        off_Dmat(mxSym)
       Integer off_basIsh(mxSym),off_Fmat(mxSym)
       Dimension TabMO(mAO,nCoor,nTabMOs),
      &       Weights(nCoor),P2_ontop(nP2_ontop,nCoor),
      &       dF_dRho(ndF_dRho,nCoor),Rho(nRho,nCoor),
      &       RhoI(mRho,nCoor),RhoA(mRho,nCoor)
-      Integer p,q,ipq,ioep
-      Integer count_tmp
       Integer VX,ix,jx,iv,jv
 *
       !iTri(i) = (i*i-i)/2
@@ -10394,6 +10405,8 @@
         iStack = iStack + (iOrb*iOrb + iOrb)/2
       end do
 *
+      Call Unused_real_array(RhoI)
+      Call Unused_real_array(RhoA)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !OE pieces - both orbs must be in the same irrep, eh?
@@ -10518,15 +10531,13 @@
 #include "WrkSpc.fh"
       Integer nIrrep
       Integer off_Ash(mxSym), off_BasAsh(mxSym),
-     &        off_PUVX(mxSym),off_Bas(mxSym),off_Ish(mxSym)!,off_Fmat(mxSym),
+     &        off_Bas(mxSym)!,off_Fmat(mxSym),
 !     &        off_Dmat(mxSym)
       Integer off_basIsh(mxSym),off_Fmat(mxSym)
       Dimension TabMO(mAO,nCoor,nTabMOs),
      &       Weights(nCoor),P2_ontop(nP2_ontop,nCoor),
      &       dF_dRho(ndF_dRho,nCoor),Rho(nRho,nCoor),
      &       RhoI(mRho,nCoor),RhoA(mRho,nCoor)
-      Integer p,q,ipq,ioep
-      Integer count_tmp
       Integer VX,ix,jx,iv,jv
 *
       !iTri(i) = (i*i-i)/2
@@ -10550,6 +10561,9 @@
         iStack1 = iStack1 + nBas(iSym)
         iStack  = iStack  + nAsh(iSym)
       End Do
+
+      Call Unused_real_array(RhoI)
+      Call Unused_real_array(RhoA)
 
       iStack = 0
       do iSym=1,nSym

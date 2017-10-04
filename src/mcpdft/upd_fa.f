@@ -395,14 +395,14 @@
 #include "general.fh"
 #include "WrkSpc.fh"
 
-      Integer case, state_symmetry
-      Integer   off_PUVX, off_Dmat, off_Fmat
-      Dimension off_PUVX(mxSym), off_Dmat(mxSym), off_Fmat(mxSym)
+      Integer  state_symmetry
+      Integer   off_Fmat
+      Dimension  off_Fmat(mxSym)
       Integer off_Bas(mxSym),off_ish(mxSym)
       Integer off_BasAsh(mxSym),off_BasIsh(mxSym)
       Integer p,q,ipq
       Integer iStack1,iStack2,iStack
-      Integer iIsh,count_tmp
+      Integer count_tmp
 
       iTri(i)=(i*i-i)/2
 
@@ -412,6 +412,9 @@
 *     generate offsets
 
 ************************************************************************
+      Call unused_real_array(D)
+      Call unused_real_array(PUVX)
+      Call unused_real(ExFac)
 
       istack = 0
       iStack1 = 0
@@ -521,6 +524,7 @@
       End
 
       Subroutine Upd_FA_CI(PUVX,F,ExFac)
+
 ************************************************************************
 *                                                                      *
 *     (c) Copyright. All rights reserved                               *
@@ -564,6 +568,7 @@
 
       iTri(i)=(i*i-i)/2
 
+      Call unused_real(ExFac)
 *     nasty, but necessary
       state_symmetry=lSym
 

@@ -359,26 +359,27 @@ C            Write(6,'(A,1f28.20)') 'P2(4)   =',P2_ontop(4,iGrid)
      &     P2_ontop_d(np2_ontop,nGrad_Eff,mGrid),CMO(nCMO)
 !      Real*8 P2AO(np2AO)
       logical ft
-      Real*8, allocatable, dimension(:,:,:) :: AO_vals
+!      Real*8, allocatable, dimension(:,:,:) :: AO_vals
       Real*8, allocatable, dimension(:,:,:,:) :: dTabMO
-      Real*8, allocatable,dimension(:,:) :: CMO_u
+!      Real*8, allocatable,dimension(:,:) :: CMO_u
 !      Integer np2AO
       Real*8 RhoI(mRho,mGrid)
       Real*8 RhoA(mRho,mGrid)
       Real*8,dimension(1:mRho,1:mGrid,1:nGrad_Eff) :: dRhoI,dRhoA
 !      Real*8 dRhoA(mRho,mGrid,nGrad_Eff)
-      Real*8 gf1(1:3)
+!     Real*8 gf1(1:3)
       Logical Do_Grad
-      integer iCB,g_eff,iGrid,CMO_OFF,nAO_Ir,nMO_Ir
+      integer g_eff,iGrid,CMO_OFF
       integer mo_i,ao_j
       Real*8 TabSO(mAO,mGrid,nMOs)
-
-
 ************************************************************************
 *                                                                      *
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 *                                                                      *
 ************************************************************************
+      Call unused_logical(do_grad)
+      Call unused_integer(naos)
+
 !      write(*,*) 'CMO print'
 !      do i=1,nMOs
 !       write(*,*) 'MO number: ',i
@@ -1007,7 +1008,7 @@ C            Write(6,'(A,1f28.20)') 'P2(4)   =',P2_ontop(4,iGrid)
          end if !GGA
 
       end do!loop over nGrad_eff
-  299 Continue
+!  299 Continue
 *
                            End Do ! iGrid
                         End Do ! j_

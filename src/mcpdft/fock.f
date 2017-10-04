@@ -367,7 +367,6 @@ C
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
       integer ISTSQ(8),ISTAV(8),iTF
-      real*8 ECAS0
 
 #include "rasdim.fh"
 #include "rasscf.fh"
@@ -377,7 +376,6 @@ C
 #include "WrkSpc.fh"
       Logical DoActive,DoQmat,DoCholesky
       Integer ALGO
-      real(8) ExFac_tmp
 
       COMMON /CHOTODO /DoActive,DoQmat,ipQmat
       COMMON /CHLCAS  /DoCholesky,ALGO
@@ -387,6 +385,8 @@ C
         WRITE(LF,*)' Entering ',ROUTINE
       END IF
 
+      Call Unused_real_array(BM)
+      Call Unused_integer(ifinal)
       Call GetMem('fockt','ALLO','REAL',iTF,NTOT4)
       Call dcopy_(ntot4,0d0,0,Work(iTF),1)
 C

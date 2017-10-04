@@ -49,8 +49,7 @@
 #include "rasscf_lucia.fh"
 #include "raswfn.fh"
 #include "ksdft.fh"
-      Character*4 Word
-      Logical DoActive,DoQmat,DoCholesky,TraOnly
+      Logical DoActive,DoQmat,DoCholesky
 !      Logical TraOnly
       Integer ALGO
 
@@ -68,26 +67,17 @@
       integer ifocki,ifocka
       integer IADR19(1:15)
       integer LP,NQ,LQ,LPUVX
-      integer  LOEOTP,LTEOTP,NACP,NACP2
-      real*8 Dum
+      integer  LOEOTP,NACP,NACP2
       integer vdisk,jroot
       real*8,dimension(1:nroots) :: Energies
-      integer w,x,y,z,wx,yz,wxyz
-      integer ipd1
-      logical logi
-      Dimension off_Fmat(mxSym),off_Dmat(mxSym)
       integer count_tmp1,count_tmp2
-      integer itempz,itTUVX
       integer  i_off1,i_off2,ifone
-      real*8 coeff1,coeff2,coeff1s,coeff2s
-      integer isym,iorb,iash,iish,jsym,kash,ijsym
-      integer iv,jv,jx,ix,ju,iu,jp,ip
-      real*8 int_corr
+      integer isym,iorb,iash,iish,jsym
       iTrii(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 
 
       Call qEnter('MSCTL')
-
+      Call unused_real_array(F)
 ***********************************************************
 C Local print level (if any)
 ***********************************************************
@@ -166,7 +156,7 @@ C Local print level (if any)
       iSyLbl =  1
       iRc    = -1
       iOpt   =  6
-      Label  = 'Kinetic  '
+      Label  = 'Kinetic '
       Call RdOne(iRc,iOpt,Label,iComp,Work(iTmpk),iSyLbl)
       If ( iRc.ne.0 ) then
          Write(LF,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
@@ -180,7 +170,7 @@ C Local print level (if any)
       iSyLbl =  1
       iRc    = -1
       iOpt   =  6
-      Label  = 'Attract  '
+      Label  = 'Attract '
       Call RdOne(iRc,iOpt,Label,iComp,Work(iTmpn),iSyLbl)
       If ( iRc.ne.0 ) then
          Write(LF,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
@@ -303,7 +293,7 @@ C Local print level (if any)
          Call DDaFile(JOBOLD,2,Work(iP2d),NACPR2,dmDisk)
          Call Put_P2MO(Work(iP2d),NACPR2)
 
-         Call DDaFile(JOBOLD,0,Work(iCrap),NACPR2,dmDisk)
+         Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,dmDisk)
       IF(IPRLEV.ge.DEBUG) THEN
         write(6,*) 'D2'
         do i=1,NACPR2

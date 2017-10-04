@@ -53,7 +53,6 @@
       Real*8 rchc(mxroot)
 
       Integer ipFT99,iptemp5
-      Integer ipfotmp
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *
       Call QEnter('WfCtl_SA')
