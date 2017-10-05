@@ -116,16 +116,14 @@
       integer iRef_E,IAD19
       integer IADR19(1:15)
 !
-
       real*8, allocatable :: PLWO(:)
-!      integer PLWO
 * Start the traceback utilities
 *
       Call QENTER(ROUTINE)
 * Set status line for monitor:
       Call StatusLine('MCPDFT:',' Just started.')
 * Set the return code(s)
-
+      CASDFT_E = 0d0
       ITERM  = 0
       IRETURN=_RC_ALL_IS_WELL_
 
