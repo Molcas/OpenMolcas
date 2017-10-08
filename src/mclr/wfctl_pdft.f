@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) Andrew Sand                                            *
+* Copyright (C) 2017, Andrew M. Sand                                   *
 *                                                                      *
 ************************************************************************
       SubRoutine WfCtl_pdft(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,
