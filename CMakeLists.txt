@@ -3007,6 +3007,8 @@ install (FILES
         ${PROJECT_BINARY_DIR}/.molcashome
         ${PROJECT_BINARY_DIR}/.molcasversion
         ${PROJECT_BINARY_DIR}/molcas.rte
+        ${PROJECT_BINARY_DIR}/LICENSE
+        ${PROJECT_BINARY_DIR}/CONTRIBUTORS.md
         DESTINATION ${CMAKE_INSTALL_PREFIX}
         )
 
