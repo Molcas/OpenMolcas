@@ -81,7 +81,7 @@ class MolcasException(Exception):
 
 class Molcas_wrapper(object):
 
-  version = 'py1.03'
+  version = 'py1.04'
   rc = 0
 
   def __init__(self, **kwargs):
@@ -634,6 +634,13 @@ class Molcas_wrapper(object):
 
   def end(self):
     if (hasattr(self, 'rc')):
+      # In case of error in parallel, collect the "stdout" files from the slaves,
+      # since they may have important information (create an empty "stdout" file
+      # to avoid further errors)
+      if ((self.rc_to_name(self.rc) == '_RC_INTERNAL_ERROR_') and not self.is_serial):
+        f = 'stdout'
+        open(join(self.scratch, f), 'a').close()
+        self.parallel_task(['c', '2', f, self.currdir], force=True)
       rc_form = re_compile('rc={0}(\s.*)'.format(self.rc_num))
       try:
         with utf8_open(join(self.molcas, 'data', 'landing.txt'), 'r') as l:
