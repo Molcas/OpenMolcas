@@ -168,6 +168,8 @@ def main(my_name):
       print('The license is expired, missing or not valid')
     else:
       print('The license is valid')
+      if (Molcas.licensee):
+        print('Licensed to {0}'.format(Molcas.licensee))
     sys.exit(0)
 
   if (not args['filename']):

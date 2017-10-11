@@ -25,3 +25,21 @@
 
       Return
       End
+
+      Subroutine Get_P2MOt(ipP2MO,nDens)
+      Implicit Real*8 (A-H,O-Z)
+#include "WrkSpc.fh"
+
+      Character*24 Label
+      Logical      Found
+
+      Label='P2MOT'
+      Call qpg_dArray(Label,Found,nDens)
+      If(.not.Found .or. nDens.eq.0) Then
+         Call SysAbendmsg('get_p2mot','Did not find:',label)
+      End If
+      Call GetMem('Dens','Allo','Real',ipP2MO,nDens)
+      Call get_dArray(Label,Work(ipP2MO),nDens)
+
+      Return
+      End

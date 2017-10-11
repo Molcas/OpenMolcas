@@ -134,7 +134,7 @@ c#endif
       Write(Lu,'(A)') '#INFO'
 
       KCMO  = 0
-      IF(TITLE(1:1).NE.'*') TITLE='*'//TITLE
+      IF(TITLE(1:1).NE.'*') TITLE='*'//TITLE(:LEN(TITLE)-1)
       WRITE(LU,'(A)') TITLE(:mylen(TITLE))
       Write(LU,'(3i8)') IUHF, NSYM, iWFtype
       WRITE(LU,'(8i8)') (NBAS(I),I=1,NSYM)

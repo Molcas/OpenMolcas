@@ -29,6 +29,7 @@
 #include "debug.fh"
 #include "Molcas.fh"
 #include "itmax.fh"
+#include "ksdft.fh"
       Parameter (Mxdc=MxAtom)
 #include "disp.fh"
 #include "nq_index.fh"
@@ -535,7 +536,18 @@
 *
 *           Compute < nabla_r f * r^x > as Tr (O^x V)
 *
+      If(KSDFA(1:5).eq.'TLSDA'.or. !GLM
+     &        KSDFA(1:6).eq.'FTLSDA'.or.
+     &        KSDFA(1:6).eq.'FTBLYP'.or.
+     &        KSDFA(1:5).eq.'FTPBE'.or.
+     &        KSDFA(1:7).eq.'TREVPBE'.or.
+     &        KSDFA(1:8).eq.'FTREVPBE'.or.
+     &        KSDFA(1:5).eq.'TBLYP'.or.
+     &        KSDFA(1:4).eq.'TPBE') then
+            Tmp = DDot_(9,Work(ip_dOdx(jNQ,iCar)),1,V,1)*0.5
+      else
             Tmp = DDot_(9,Work(ip_dOdx(jNQ,iCar)),1,V,1)
+      end if
 #ifdef _DEBUG_
             If (Debug) Then
                Write (6,*)
@@ -547,7 +559,7 @@
             Temp(i_Eff) = Temp(i_Eff) - Tmp
          End Do
 *
-      End If
+      End If !moving grid
 #ifdef _DEBUG_
       If (Debug) Call RecPrt('Gradient contribution from this block',
      &                       ' ',Temp,1,nGrad_Eff)

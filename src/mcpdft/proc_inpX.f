@@ -113,8 +113,8 @@ C   No changing about read in orbital information from INPORB yet.
 
       Call StatusLine('MCPDFT:','Processing Input')
 
-      DBG = .TRUE.
-!      DBG = .FALSE.
+!      DBG = .TRUE.
+      DBG = .FALSE.
       DoFaro = .FALSE.
 
 * NN.14 Block DMRG flag
@@ -258,7 +258,7 @@ C   No changing about read in orbital information from INPORB yet.
 * Local print level in this routine:
 !AMS
       IPRLEV=IPRLOC(1)
-      IPRLEV=INSANE
+!      IPRLEV=INSANE
 * Short, for use with IF-statements at debugging print level:
       DBG=DBG .or. (IPRLEV.GE.DEBUG)
 
@@ -1818,7 +1818,7 @@ C orbitals accordingly
 * in runfile (e.g., UHF, or previous calculation)
        ELSE IF(KeyCIRE) Then
         If (DBG) Write(6,*) ' SPIN is taken from JOBOLD (CIRestart=T)'
-        Write(6,*)' ISPIN=',ISPIN
+!        Write(6,*)' ISPIN=',ISPIN
 
        ELSE
         If (DBG) Write(6,*) ' No SPIN command was given.'
@@ -2457,6 +2457,43 @@ c       write(6,*)          '  --------------------------------------'
        Call SetPos_m(LUInput,'EXPA',Line,iRc)
        Call ChkIfKey_m()
       End If
+*
+*---  Process GRAD command --------------------------------------------*
+      If (DBG) Write(6,*) ' Check if GRADient case.'
+      If (KeyGRAD) Then
+       If (DBG) Write(6,*) ' GRADient keyword was used.'
+       DoGradPDFT=.true.
+       Call SetPos_m(LUInput,'GRAD',Line,iRc)
+       Call ChkIfKey_m()
+      End If
+*
+*---  Process DMRG command --------------------------------------------*
+#ifdef _ENABLE_BLOCK_DMRG_
+      If (KeyDMRG) Then
+* NN.14 FIXME: When DMRG option is disabled at compilation,
+*       this should give an error, but just ignored for the time.
+       If (DBG) Then
+         Write(6,*) ' DMRG (Use DMRG algorithm instead of FCI)'
+       End If
+       Call SetPos_m(LUInput,'DMRG',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading data after DMRG keyword.'
+       Read(LUInput,*,End=9910,Err=9920) MxDMRG
+       ReadStatus=' O.K. after reading data after DMRG keyword.'
+       If (DBG) Write(6,*) ' Nr. of states=',MxDMRG
+       DoDMRG=.True.
+       Call ChkIfKey_m()
+      End If
+*---  Process 3RDM command --------------------------------------------*
+      If (Key3RDM) Then
+       If (DBG) Then
+         Write(6,*) ' 3RDM (Compute 3RDM for DMRG-Cu4-CASPT2)'
+       End If
+       Do3RDM=.True.
+       Call SetPos_m(LUInput,'3RDM',Line,iRc)
+       Call ChkIfKey_m()
+      End If
+#endif
 *---  All keywords have been processed ------------------------------*
 
 ************************************************************************
@@ -2631,6 +2668,7 @@ C Test read failed. JOBOLD cannot be used.
 *     In DMRG-CASSCF, skip GUGA and LUCIA settings
 *
       NCONF=1
+      GoTo 9000
       If(DoDMRG) GoTo 9000
 * ===============================================================
 *

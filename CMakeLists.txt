@@ -3007,6 +3007,8 @@ install (FILES
         ${PROJECT_BINARY_DIR}/.molcashome
         ${PROJECT_BINARY_DIR}/.molcasversion
         ${PROJECT_BINARY_DIR}/molcas.rte
+        ${PROJECT_BINARY_DIR}/LICENSE
+        ${PROJECT_BINARY_DIR}/CONTRIBUTORS.md
         DESTINATION ${CMAKE_INSTALL_PREFIX}
         )
 
@@ -3049,4 +3051,6 @@ if (DEFINED EXTRA_DIR)
         install (CODE "execute_process(COMMAND ${OPENMOLCAS_DIR}/sbin/install_driver.sh ${MOLCAS_DRIVER})")
 endif ()
 
-install (CODE "execute_process(COMMAND sh \"-c\" \"cd ${CMAKE_INSTALL_PREFIX}; echo `pwd` > $HOME/.Molcas/molcas 2> /dev/null\")")
+if (IS_DIRECTORY "$ENV{HOME}/.Molcas")
+        install (CODE "execute_process(COMMAND sh \"-c\" \"cd ${CMAKE_INSTALL_PREFIX}; echo `pwd` > $HOME/.Molcas/molcas 2> /dev/null\")")
+endif ()

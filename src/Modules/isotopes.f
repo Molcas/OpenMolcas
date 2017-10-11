@@ -20,7 +20,7 @@
 * Each item in the the array ElementList contains data for an element:
 *  - %Symbol: symbol
 *  - %Nat: number of natural ocurring isotopes
-*  - %Isotopes: array with the all the isotopes for the element, sorted
+*  - %Isotopes: array with all the isotopes for the element, sorted
 *               by order of abundance (most to least, artificial
 *               sorted by increasing mass number); elements with no
 *               natural isotopes have the most stable first. Each item

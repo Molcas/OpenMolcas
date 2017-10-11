@@ -48,6 +48,8 @@
      &                    ' is not implemented yet.'
          Call Abend()
       End If
+
+      If (Method(1:6).eq.'MCPDFT') Do_ESPF=.false.
 *
 *                                                                      *
 ************************************************************************
