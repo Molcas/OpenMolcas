@@ -43,6 +43,7 @@
 #include "general.fh"
 #include "output_ras.fh"
 #include "WrkSpc.fh"
+#include "raswfn.fh"
       Parameter (ROUTINE='FCKPT2  ')
 
       DIMENSION CMOO(*),CMON(*),FI(*),FP(*),FTR(*),VEC(*),
@@ -393,7 +394,7 @@
       CALL ORTHO_RASSCF(WO,CMOX,CMON,SQ)
 *
 ************************************************************************
-* Write new orbitals to JOBIPH.
+* Write new orbitals to JOBIPH/rasscf.h5
 ************************************************************************
 *
         If ( IPRLEV.ge.DEBUG ) then
@@ -416,6 +417,9 @@
 
       IAD15=IADR15(9)
       CALL DDAFILE(JOBIPH,1,CMON,NTOT2,IAD15)
+#ifdef _HDF5_
+        call mh5_put_dset(wfn_mocoef,CMON)
+#endif
 *
 * Write FI, FP and FDIAG to JOBIPH
 * First remove frozen and deleted part of FDIAG
