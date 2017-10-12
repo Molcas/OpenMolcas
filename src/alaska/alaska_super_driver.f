@@ -306,6 +306,148 @@
 *
            End If
 
+************************************************************************
+*                                                                      *
+      Else If (Method.eq.'MCPDFT') Then
+*                                                                      *
+************************************************************************
+*                                                                      *
+*        MC-PDFT calculation
+*
+         Do_ESPF = .False.
+         Call Get_iScalar('SA ready',iGo)
+         Call Get_iScalar('Relax CASSCF root',iRlxRoot)
+
+         !Andrew - I need to identify the root and make sure it is not a
+         !state averaged calculation.  iGo=1 means do MCLR
+
+         !iGo=99 means the potentials were not calculated during the
+         !MCPDFT step, which is required for analytic gradients.
+         If(iGO.eq.99) then
+            Call WarningMessage(2,'Error in Alaska_Super_Driver')
+            Write (6,*) 'MC-PDFT was run without the GRADient'//
+     &                  ' keyword.  Analytic gradients require'//
+     &                  ' this keyword.  Please use the GRADient'//
+     &                  ' keyword in the preceeding MC-PDFT step.'
+            Call Abend()
+         End if
+
+         If (iRlxRoot.eq.0) iRlxRoot=1
+!         If (isNAC) Then
+!            Write(mstate1,'(1X,I7,",",I7)') NACStates(1),NACStates(2)
+!         Else
+            Write(mstate1,'(I16)') iRlxRoot
+!         End If
+
+*        iGo=-1 non-equivalent multi state SA-CASSCF
+*        iGo=0  equivalent multi state SA-CASSCF
+*        iGo=2  single root SA-CASSCF
+         if(iGo.ne.2)then
+           Call Get_cArray('MCLR Root',mstate2,16)
+         end if
+
+* If an explicit root was requested in MCLR and none in ALASKA,
+* go for it
+         If (DefRoot) Then
+            If (mstate2(1:1).eq.'+') Then
+               mstate1=mstate2
+               If (Index(mstate2,',').ne.0) Then
+                  Read(mstate2,'(1X,I7,1X,I7)')
+     &               NACStates(1),NACStates(2)
+                  ForceNAC=.true.
+               Else
+                  Read(mstate2,'(1X,I15)') iRlxRoot
+               End If
+            End If
+         End If
+         mstate1(1:1)=mstate2(1:1)
+         MCLR_Ready=(iGO.eq.1).and.(mstate1.eq.mstate2)
+
+         If (MCLR_Ready.or.(iGO.gt.1)) Then
+            Call Alaska(LuSpool,iRC)
+*
+*        Add ESPF contribution
+*
+!            If (Do_ESPF) Then
+!               StandAlone=.False.
+!               Call ESPF(iReturn,StandAlone)
+!               If (iReturn.ne.0) Then
+!                  Call WarningMessage(2,'Error in Alaska_Super_Driver')
+!                  Write (6,*) 'Alaska: ESPF finish with non-zero return'
+!     &                      //' code!'
+!                  Call Abend()
+!               End If
+!            End If
+*           Reset iGO to 0 to allow for new MCLR/ALASKA calculations
+            If (iGo.eq.1) iGo=0
+            Call Put_iScalar('SA ready',iGo)
+         Else If (iGO.eq.-1) Then
+            Call WarningMessage(2,'Error in Alaska_Super_Driver')
+            Write (6,*) 'Gradients not implemented for SA-CASSCF'//
+     &                  ' with non-equivalent weights!'
+            Call Abend()
+         Else
+            If (iPL.ge.3) Then
+               Write (6,*)
+               Write (6,*)
+     &           ' Alaska requests MCLR to be run before it starts'
+     &           //' again!'
+               Write (6,*)
+            End If
+*
+            LuInput=11
+            LuInput=IsFreeUnit(LuInput)
+            Call StdIn_Name(StdIn)
+            Call Molcas_open(LuInput,StdIn)
+*
+            Write (LuInput,'(A)') '>ECHO OFF'
+            Write (LuInput,'(A)') '>export AL_OLD_TRAP=$MOLCAS_TRAP'
+            Write (LuInput,'(A)') '>export MOLCAS_TRAP=ON'
+*
+            Write (LuInput,'(A)') ' &MCLR &End'
+            Write (LuInput,'(A)') ' PRINT = 100'
+!            If (isNAC) Then
+!              Write (LuInput,'(A)') 'NAC'
+!              Write (LuInput,'(I5,1X,I5)') NACstates(1),NACstates(2)
+!            EndIf
+            Write (LuInput,'(A)') 'End of Input'
+            Write (LuInput,'(A)') ' '
+*
+            FileName='ALASKINP'
+            Call f_inquire(Filename,Exist)
+*
+            If (Exist) Then
+               LuSpool2 = 77
+               LuSpool2 = IsFreeUnit(LuSpool2)
+               Call Molcas_Open(LuSpool2, Filename)
+*
+ 105           Continue
+               Read (LuSpool2,'(A)',End=905) Line
+               Write(LuInput,'(A)') Line
+               Go To 105
+ 905           Continue
+*
+               Close(LuSpool2)
+*
+            Else
+*
+               Write (LuInput,'(A)') ' &Alaska &End'
+*              Write (LuInput,'(A)') 'Show'
+               Write (LuInput,'(A)') 'CutOff'
+               Write (LuInput,'(A)') '1.0D-7'
+               Write (LuInput,'(A)') 'End of Input'
+*
+            End If
+*
+            Write (LuInput,'(A)') '>RM -FORCE $Project.MckInt'
+            Write (LuInput,'(A)') '>export MOLCAS_TRAP=$AL_OLD_TRAP'
+            Write (LuInput,'(A)') '>ECHO ON'
+            Close(LuInput)
+            Call Finish(_RC_INVOKED_OTHER_MODULE_)
+*
+           End If
+
+
 ************ columbus interface ****************************************
 
        Else If (method.eq.'MR-CISD ' .and. Columbus.eq.1) Then

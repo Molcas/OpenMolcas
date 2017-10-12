@@ -54,10 +54,8 @@
       fi
     - cmake -C flags.cmake ..
     - |
-      echo "${tries}"
       if [ -n "${tries}" ] && [ "${tries}" -gt 1 ] ; then
-        for i in {1..${tries}} ; do
-          echo $i
+        for i in `seq 1 ${tries}` ; do
           make && break
         done
       else

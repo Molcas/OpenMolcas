@@ -222,6 +222,7 @@ c       close (lgtoc)
      &         Write (6,'(2A)') ' Functional type:   ',KSDFT
             Write (6,*)
          End If
+         If (method.eq.'MCPDFT  ') lSA=.true.
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -264,7 +265,10 @@ c       close (lgtoc)
 *...  density matrix in AO/SO basis
          nsa=1
          If (lsa) nsa=4
-         Call GetMem('D0   ','Allo','Real',ipD0,nDens*nsa)
+         If ( Method.eq.'MCPDFT  ') nsa=4
+!AMS modification: add a fifth density slot
+         Call GetMem('D0   ','Allo','Real',ipD0,nDens*nsa+nDens)
+         call dcopy_(nDens*nsa+nDens,0.0d0,0,Work(ipD0),1)
          Call GetMem('DVar ','Allo','Real',ipDVar,nDens*nsa)
          if (.not.gamma_mrcisd) then
          Call Get_D1ao(ipD1ao,length)
@@ -411,7 +415,12 @@ c       close (lgtoc)
          nsa=1
          if (lsa) nsa=2
          Call GetMem(' G2 ','Allo','Real',ipG2,nG2*nsa)
-         Call Get_P2MO(ipTemp,nTemp)
+!       write(*,*) 'got the 2rdm, Ithink.'
+         if(Method.eq.'MCPDFT  ') then
+           Call Get_P2MOt(ipTemp,nTemp)!PDFT-modified 2-RDM
+         else
+           Call Get_P2MO(ipTemp,nTemp)
+         end if
          call dcopy_(nTemp,Work(ipTemp),1,Work(ipG2),1)
          Call Free_Work(ipTemp)
          If (iPrint.ge.99) Call TriPrt(' G2',' ',Work(ipG2),nG1)
@@ -491,14 +500,25 @@ c       close (lgtoc)
 *       G1 = <i|e_ab|i>
 *       G2 = sum i <i|e_ab|i>
 *
+!************************
+         RlxLbl='D1AO    '
+!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipD0,Work)
+
+
            Call Getmem('TMP','ALLO','REAL',ipT,2*ndens)
            Call Get_D1I(Work(ipCMO),Work(ipD0+0*ndens),Work(ipT),
      &                  nish,nbas,nIrrep)
            Call Getmem('TMP','FREE','REAL',ipT,2*ndens)
+
+!************************
+         RlxLbl='D1AO    '
+!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipD0,Work)
 *
            Call dcopy_(ndens,Work(ipDVar),1,Work(ipD0+1*ndens),1)
            If (.not.isNAC) call daxpy_(ndens,-Half,Work(ipD0+0*ndens),1,
      &                                             Work(ipD0+1*ndens),1)
+!         RlxLbl='D1COMBO  '
+!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipD0+1*ndens,Work)
 *
 *   This is necessary for the kap-lag
 *
@@ -517,10 +537,43 @@ c       close (lgtoc)
            Call Get_D1A(Work(ipCMO),Work(ipD1AV),Work(ipD0+2*ndens),
      &                 nIrrep,nbas,nish,nash,ndens)
            Call Free_Work(ipD1AV)
+!************************
+         RlxLbl='D1AOA   '
+!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipD0+2*ndens,Work)
 *
            Call Get_DLAO(ipDLAO,Length)
            call dcopy_(Length,Work(ipDLAO),1,Work(ipD0+3*ndens),1)
+
+!ANDREW - modify D2: should contain only the correction pieces
+
+         If ( Method.eq.'MCPDFT  ') then
+          call daxpy_(ndens,-Half,Work(ipD0+0*ndens),1,
+     &                                             Work(ipD0+1*ndens),1)
+          call daxpy_(ndens,-1.0d0,Work(ipD0+2*ndens),1,
+     &                                             Work(ipD0+1*ndens),1)
+!ANDREW - Generate new D5 piece:
+          call dcopy_(ndens,0.0d0,0,
+     &                                             Work(ipD0+4*ndens),1)
+          call daxpy_(ndens,0.5d0,Work(ipD0+0*ndens),1,
+     &                                             Work(ipD0+4*ndens),1)
+          call daxpy_(ndens,1.0d0,Work(ipD0+2*ndens),1,
+     &                                             Work(ipD0+4*ndens),1)
+          end if
+
+
+!          call dcopy_(ndens*5,0.0d0,0,
+!     &                                             Work(ipD0),1)
+!          call dcopy_(nG2,0.0d0,0,
+!     &                                             Work(ipG2),1)
+
+
            Call Free_Work(ipDLAO)
+!************************
+           !Call dscal_(Length,0.5d0,Work(ipD0+3*ndens),1)
+           !Call dscal_(Length,0.0d0,Work(ipD0+3*ndens),1)
+
+         RlxLbl='DLAO    '
+!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipD0+3*ndens,Work)
 ! DMRG with the reduced AS
            if(doDMRG)then
              length=ndim1  !yma

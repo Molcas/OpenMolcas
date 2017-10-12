@@ -616,6 +616,7 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
       If (Functional_type.eq.LDA_type) Then
          nFOrd=1
          mAO=(nFOrd*(nFOrd+1)*(nFOrd+2))/6
+         if(do_grad) mAO=4!AMS - GRADIENTS?
          If (.Not.Do_Grad) Then
             mTmp=1
             mRad=nFOrd
@@ -629,6 +630,7 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
       Else If (Functional_type.eq.GGA_type) Then
          nFOrd=2
          mAO=(nFOrd*(nFOrd+1)*(nFOrd+2))/6
+         if(do_grad) mAO=10
          If (.Not.Do_Grad) Then
             mTmp=7
             mRad=nFOrd

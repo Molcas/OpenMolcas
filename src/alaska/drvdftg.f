@@ -39,6 +39,7 @@
       Character Label*80, KSDFT*16
       Real*8 Grad(nGrad), Temp(nGrad)
       Logical First, Dff, Do_Grad, King, l_casdft
+      Character*4 DFTFOCK
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -47,6 +48,7 @@
 ************************************************************************
 *                                                                      *
 *...  Prologue
+      DFTFOCK='SCF '
       iRout = 131
       iPrint = nPrint(iRout)
       Call qEnter('DrvDFTg')
@@ -79,6 +81,7 @@
      &           KSDFT(1:6).eq.'FTBLYP'
 
       If( l_casdft ) then
+        DFTFOCK='ROKS'
         iOpt=iOr(iOpt,2**6)
         Call Put_iScalar('System BitSwitch',iOpt)
       End IF
@@ -99,7 +102,7 @@
          iDumm=1
          Call DrvDFT(Dummy1,Dummy2,Dummy3,Dummy4,nDens,First,Dff,
      &               lRF,KSDFT,ExFac,Do_Grad,Temp,nGrad,iSpin,
-     &               Dumm0,Dumm1,iDumm,'SCF ')
+     &               Dumm0,Dumm1,iDumm,DFTFOCK)
 *
          iEnd=1
  99      Continue

@@ -19,8 +19,8 @@ from os import environ, access, W_OK, X_OK, listdir, remove, getpid, getcwd, mak
 from os.path import isfile, isdir, isabs, join, basename, splitext, getmtime, abspath, exists, relpath
 from datetime import datetime
 from shutil import copy2, move, rmtree, SameFileError
-from subprocess import call, check_output, STDOUT
-from re import compile as re_compile, match, search, sub, MULTILINE, IGNORECASE
+from subprocess import check_output, STDOUT, CalledProcessError
+from re import compile as re_compile, search, sub, MULTILINE, IGNORECASE
 from io import BytesIO
 from resource import getrusage, RUSAGE_CHILDREN
 from glob import glob
@@ -81,7 +81,7 @@ class MolcasException(Exception):
 
 class Molcas_wrapper(object):
 
-  version = 'py1.03'
+  version = 'py1.04'
   rc = 0
 
   def __init__(self, **kwargs):
@@ -110,6 +110,7 @@ class Molcas_wrapper(object):
       self.warning = kwargs['warning']
     if ('stamp' in kwargs):
       self.stamp = kwargs['stamp']
+    self.licensee = None
     self.rc = None
     self._ready = False
     self._goto = False
@@ -365,16 +366,17 @@ class Molcas_wrapper(object):
     if ((tag_x != '') and (tag == '(unknown)')):
       tag = tag_x
       tag_x = ''
-    v_match = match('v(\d+\.\d+)\.(.*)', tag)
-    if (v_match):
-      version = v_match.group(1)
-      patch = v_match.group(2)
+    v_match = re_compile('v(\d+\.\d+)\.(.*)')
+    match = v_match.match(tag)
+    if (match):
+      version = match.group(1)
+      patch = match.group(2)
     else:
       version = tag
       patch = ''
-    v_match = match('v(\d+\.\d+)\.(.*)', tag_x)
-    if (v_match):
-      patch_x = v_match.group(2)
+    match = v_match.match(tag_x)
+    if (match):
+      patch_x = match.group(2)
     else:
       patch_x = ''
       with utf8_open(join(self.molcas, '.molcashome')) as homefile:
@@ -620,6 +622,8 @@ class Molcas_wrapper(object):
     if (self._ready):
       self.write_environment()
       print('   This run of MOLCAS is using the pymolcas driver')
+      if (self.licensee):
+        print('   Licensed to: {0}'.format(self.licensee))
       self.print_banner()
       print('\n')
       if (hasattr(self, 'warning') and self.warning):
@@ -630,6 +634,13 @@ class Molcas_wrapper(object):
 
   def end(self):
     if (hasattr(self, 'rc')):
+      # In case of error in parallel, collect the "stdout" files from the slaves,
+      # since they may have important information (create an empty "stdout" file
+      # to avoid further errors)
+      if ((self.rc_to_name(self.rc) == '_RC_INTERNAL_ERROR_') and not self.is_serial):
+        f = 'stdout'
+        open(join(self.scratch, f), 'a').close()
+        self.parallel_task(['c', '2', f, self.currdir], force=True)
       rc_form = re_compile('rc={0}(\s.*)'.format(self.rc_num))
       try:
         with utf8_open(join(self.molcas, 'data', 'landing.txt'), 'r') as l:
@@ -864,9 +875,17 @@ class Molcas_wrapper(object):
     '''Use molcas.exe to check the license'''
     filename = join(self.molcas, 'bin', 'molcas.exe')
     if (isfile(filename) and access(filename, X_OK)):
-      with utf8_open(devnull, 'w') as f:
-        rc = call(filename, stdout=f, stderr=STDOUT)
-      return rc-1
+      try:
+        out = check_output(filename, stderr=STDOUT).decode('utf8')
+        rc = 0
+      except CalledProcessError as e:
+        out = e.output.decode('utf8')
+        rc = e.returncode-1
+      # Capture the licensee
+      match = search(r'This copy of MOLCAS is licensed to\s*(.*)\n', out)
+      if (match):
+        self.licensee = match.group(1)
+      return rc
     else:
       return None
 

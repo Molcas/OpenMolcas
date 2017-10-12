@@ -21,6 +21,7 @@
 #include "stdalloc.fh"
 *define _DEBUG_
 #ifdef _DEBUG_
+      Integer i,j
       Integer ij, iTri
 #endif
       Integer nOcc,nVirt,nBas

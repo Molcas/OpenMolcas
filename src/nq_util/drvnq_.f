@@ -99,6 +99,7 @@
         LuMC=37
         LuMT=37
         call OpnFl('MCPDFT',LuMC,Exist)
+        Call append_file(LuMC)
         call OpnFl('MCTRUD',LuMT,Exist)
         write(LuMC,'(A)') ' Here densities are MCPDFT modified ones'
         write(LuMC,'(A)') '       X         Y        Z'//
