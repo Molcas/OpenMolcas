@@ -1032,7 +1032,7 @@ if (MPI)
                 )
         if (MPIEXEC_VERSION MATCHES "OpenRTE")
                 set (MPI_IMPLEMENTATION "openmpi")
-        elseif (MPIEXEC_VERSION MATCHES "Intel(R) MPI")
+        elseif (MPIEXEC_VERSION MATCHES "Intel\\(R\\) MPI")
                 set (MPI_IMPLEMENTATION "impi")
         elseif (MPIEXEC_VERSION MATCHES "HYDRA")
                 set (MPI_IMPLEMENTATION "mpich")
@@ -2493,6 +2493,9 @@ foreach (prog ${progs})
         if (CUBLAS)
                 set_target_properties (${prog}.exe PROPERTIES LINKER_LANGUAGE "CXX")
         endif ()
+#       Force linking with fortran compiler, needed when inlcuding
+#       the (c++) library libwfa
+        set_target_properties (${prog}.exe PROPERTIES LINKER_LANGUAGE "Fortran")
 
         list (APPEND PROGRAM_EXECUTABLES ${prog}.exe)
 endforeach (prog)
@@ -2994,6 +2997,7 @@ else ()
         add_custom_target (booklet DEPENDS no_doc)
         add_custom_target (doc_html DEPENDS no_doc)
 endif ()
+
 
 ################################################################################
 #                                                                              #
