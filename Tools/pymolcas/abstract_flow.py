@@ -162,6 +162,7 @@ class Group(object):
           item = itercontents[i]
           item.group = itercontents
           rc = item.run(env)
+          # Transparent return: only update return code if not None
           if (rc is not None):
             self.rc = rc
             rc_name = env.rc_to_name(self.rc)
@@ -196,12 +197,12 @@ class Group(object):
         if ((rc_name not in ['_RC_NOT_CONVERGED_']) or (self.grouptype != 'do')):
           no_break = True
           rc_name = '_RC_ALL_IS_WELL_'
-      if (not no_break):
-        break
       if (self.grouptype == 'do'):
         env_print(env, '\n>>> END DO')
       elif (self.grouptype == 'foreach'):
         env_print(env, '\n>>> END FOREACH')
+      if (not no_break):
+        break
       self.thisiter += 1
     if (self.grouptype == 'do'):
       if (not env._goto):
@@ -211,6 +212,10 @@ class Group(object):
       env.exit_loop()
     if (self.grouptype == 'foreach'):
       env.exit_loop()
+    # A block should not be "transparent",
+    # if all items have returned None, here we return success
+    if (self.rc is None):
+      self.rc = 0
     return self.rc
 
 class Assignment(Statement):
@@ -333,13 +338,14 @@ class System(Statement):
     if (env.allow_shell):
       if (self.parallel):
         task = ['!'] + self.expanded_commandline.split()
-        rc = env.parallel_task(task)
+        self.rc = env.parallel_task(task)
       else:
-        rc = teed_call(self.expanded_commandline, shell=True, cwd=env.scratch, stdout=output, stderr=error)
-        if (rc is not None):
-          self.rc = rc
+        self.rc = teed_call(self.expanded_commandline, shell=True, cwd=env.scratch, stdout=output, stderr=error)
     else:
       env_print(env, '(Shell commands disabled)')
+    # Successful return is transparent: it inherits the previous return code
+    if (self.rc == 0):
+      self.rc = None
     return self.rc
 
 class Setting(Statement):
@@ -436,12 +442,13 @@ class ParTask(Statement):
       f_out = expandvars(self.args[1], default='UNKNOWN_VARIABLE')
       env_print(env, '\n>>> COLLECT {0}{1} {2}'.format(f, f_in, f_out))
       task = ['c', '2', f_in, f_out]
-    rc = env.parallel_task(task, force=self.force)
-    if (rc is not None):
-      self.rc = rc
+    self.rc = env.parallel_task(task, force=self.force)
     if (self.force):
       self.rc = 0
-    if (self.rc != 0):
+    # Successful return is transparent: it inherits the previous return code
+    if (self.rc == 0):
+      self.rc = None
+    else:
       self.rc = '_RC_INPUT_EMIL_ERROR_'
     return self.rc
 
