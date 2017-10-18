@@ -98,7 +98,9 @@ c      Call GetInf(Info,nInfo,DoRys,nDiff,idum)
       if (iReturn.eq._RC_INVOKED_OTHER_MODULE_) then
 c* take care to close files and release the potential memory...
 c       close(unit=LuOrb)
+#ifdef _HAVE_EXTRA_
         call close_grids()
+#endif
 c        close(unit=LuVal)
 c        if(isUHF.eq.1) close(unit=LuVal_ab)
       goto 999
@@ -136,8 +138,3 @@ c Some compilers do not like empty files
       Subroutine empty_grid_it
       End
 #endif  
-#ifndef _HAVE_EXTRA_
-      Subroutine Close_grids
-      return
-      end
-#endif
