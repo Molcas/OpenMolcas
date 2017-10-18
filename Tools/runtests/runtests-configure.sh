@@ -383,10 +383,13 @@ test_configfile () {
     echo "(cd $REPO.$BRANCH"               >> $retry
     echo "    git checkout $SHA1"          >> $retry
     echo "    git clean -f -d -x -q)"      >> $retry
-    echo "git clean -f -d -x -q"           >> $retry
-    echo "echo \"OPENMOLCAS=$OPENMOLCAS_DIR\" > .openmolcashome" >> $retry
+    echo "OPENMOLCAS_DIR=\`readlink -f $REPO_OPEN.$BRANCH\`       >> $retry
+    echo "cd $REPO.$BRANCH"                                       >> $retry
+    echo "echo \"OPENMOLCAS=\$OPENMOLCAS_DIR\" > .openmolcashome" >> $retry
     echo "./configure $MY_FLAGS > make.log 2>&1 && $MAKE_cmd >> make.log 2>&1" >> $retry
     chmod +x $retry
+
+    export OPENMOLCAS_DIR=`readlink -f $REPO_OPEN.$BRANCH`
 
     #### building ####
     ##################
