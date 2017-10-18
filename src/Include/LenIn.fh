@@ -1,0 +1,2 @@
+       Integer LenIn
+       parameter (LenIn=6)
