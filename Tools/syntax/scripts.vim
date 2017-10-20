@@ -11,6 +11,9 @@
 if did_filetype() " filetype already set...
   finish          " ...don't do these checks
 endif
-if (search('^\s*This \(copy\|run\) of MOLCAS', '', 10))
-  setfiletype molcasoutput
-endif
+for l in getline(1,10)
+  if (l =~ '^\s*This \(copy\|run\) of MOLCAS')
+    setfiletype molcasoutput
+    break
+  endif
+endfor
