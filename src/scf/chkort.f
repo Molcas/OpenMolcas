@@ -141,10 +141,10 @@ C            Write(6,*) 'WARNING: reorthonormalizing MOs...',OffMx,DgNo1
                    End Do
                  End Do
   100            Continue
-                 call WarningMessage(0, 'Orthogonality violated')
-c                 Write(6,*)' iSym =',iSym
-c                Write(6,*)' largest off diag element:',
-c     &                     ' [',iOffMx,',',jOffMx,']',' = ',OffMx
+c                 call WarningMessage(0, 'Orthogonality violated')
+                 Write(6,*)' iSym =',iSym
+                Write(6,*)' largest off diag element:',
+     &                     ' [',iOffMx,',',jOffMx,']',' = ',OffMx
                End If
                If (DgNo1.gt.OrtThr) Then
 *                diag element too different from One
@@ -159,12 +159,12 @@ c     &                     ' [',iOffMx,',',jOffMx,']',' = ',OffMx
                    End If
                  End Do
   110            Continue
-                 call WarningMessage(0, 'Orthogonality violated')
-c                 Write(6,*)
-c                 Write(6,*)' ***** Orthogonality violated *****'
-c                 Write(6,*)' iSym =',iSym
-c                 Write(6,*)' diag element most different from 1.0:',
-c     &                     ' [',iDgNo1,',',iDgNo1,']',' = ',DgNo1
+c                 call WarningMessage(0, 'Orthogonality violated')
+                 Write(6,*)
+                 Write(6,*)' ***** Orthogonality violated *****'
+                 Write(6,*)' iSym =',iSym
+                 Write(6,*)' diag element most different from 1.0:',
+     &                     ' [',iDgNo1,',',iDgNo1,']',' = ',DgNo1
                End If
              End If
            End If
@@ -175,7 +175,11 @@ c     &                     ' [',iDgNo1,',',iDgNo1,']',' = ',DgNo1
 *
       Call mma_deallocate(Aux)
       Call mma_deallocate(OvlS)
-      If (termin) Call Abend
+      If (termin) then 
+         Call Abend
+         call WarningMessage(0, 'Orthogonality can not be '//
+     *   'recovered\n Basis set problem???')
+      endif
 *
       Return
       End
