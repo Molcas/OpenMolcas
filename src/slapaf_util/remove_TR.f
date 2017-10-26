@@ -44,16 +44,11 @@
         Do iTR=1,nTR
           TR(iK)=TR(iK)+dDot_(nX,VecInt,1,TRvec(1,iTR),1)**2
         End Do
-        write(6,*) 'vibration',iK,TR(iK)
-        Do i=1,nX,3
-          write(6,*) VecInt(i:i+2)
-        End Do
       End Do
 *
 *     Put the nK-nQQ vectors with largest overlap at the end
       Do iK=nK,nQQ+1,-1
         iV=MaxLoc(TR(1:iK),1)
-        write(6,*) 'IFG ',iK,iV
         If (iV.ne.iK) Call dSwap_(nQ,KMat(1,iK),1,KMat(1,iV),1)
       End Do
 
