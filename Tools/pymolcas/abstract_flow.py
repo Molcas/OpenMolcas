@@ -18,10 +18,27 @@ from __future__ import (unicode_literals, division, absolute_import, print_funct
 from os.path import isfile
 from re import match
 from io import BytesIO
-from ast import literal_eval
 
 from molcas_aux import *
 from tee import teed_call
+from simpleeval import simple_eval, SimpleEval
+
+#===============================================================================
+# Patch SimpleEval to use the "decimal" module for better precision handling
+
+import ast
+import decimal
+
+def _pymolcas_eval(self, expr):
+  self.expr = expr
+  return str(self._eval(ast.parse(expr.strip()).body[0].value))
+
+@staticmethod
+def _pymolcas_eval_num(node):
+  return decimal.Decimal(str(node.n))
+
+SimpleEval.eval = _pymolcas_eval
+SimpleEval._eval_num = _pymolcas_eval_num
 
 #===============================================================================
 
@@ -239,7 +256,7 @@ class Assignment(Statement):
     else:
       val = expandvars(self.val, default='0')
       try:
-        eval_val = str(literal_eval(val))
+        eval_val = simple_eval(val)
       except:
         eval_val = ''
       env_print(env, '\n>>> EVAL {0} = {1} = {2}'.format(self.var, val, eval_val))

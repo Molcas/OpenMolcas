@@ -51,6 +51,7 @@ molcas_wrapper.py
   program). 
 
 molcas_aux.py
+simpleeval.py
 tee.py
   Some auxiliary functions.
 
