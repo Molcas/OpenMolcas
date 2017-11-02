@@ -61,11 +61,11 @@
      &                     'convergence statistics'
         Write(6,*)
         Write(6,'(A,A,A)')'Iter     Tot. ',Label,' One-elec.   '//
-     &          '    Two-elec.    Energy       Max Dij or  Max Fij '//
+     &          '    Two-elec.     Energy      Max Dij or  Max Fij '//
      &          '     DNorm      TNorm      AccCon     Time'
-        Write(6,*)'         Energy          Energy          Energy'//
-     &            '       Change      Delta Norm                     '//
-     &            '                            in Sec.'
+        Write(6,'(A)')'         Energy          Energy          '//
+     &          'Energy        Change      Delta Norm           '//
+     &          '                                     in Sec.'
       Else
          iDummy_run=1
          Write(6,'(45x,A)')'No optimization is performed'
