@@ -9,10 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Build_Mp2Dens(ip_TriDens,ip_Density,CMO,
-     &                          nSym,nOrbAll,nOccAll,Diagonalize)
+     &                          mSym,nOrbAll,nOccAll,Diagonalize)
 
       Implicit Real*8 (a-h,o-z)
 #include "WrkSpc.fh"
+#include "corbinf.fh"
 *
       Integer   ip_AOTriBlock
       Real*8    CMO(*)
@@ -28,7 +29,7 @@
       nOrbAllTot = nOrbAll(1)
       nOrbAllMax = nOrbAll(1)
       lRecTot = nOrbAll(1)*nOrbAll(1)
-      Do iSym = 2, nSym
+      Do iSym = 2, mSym
          nOrbAllTot = nOrbAllTot + nOrbAll(iSym)
          nOrbAllMax = Max(nOrbAllMax, nOrbAll(iSym))
          lRecTot = lRecTot + nOrbAll(iSym)*nOrbAll(iSym)
@@ -55,7 +56,7 @@
          Call GetMem('EigenValues','Allo','Real',ip_EigenValTot,
      &               nOrbAllTot)
          Call GetMem('Energies','Allo','Real',ip_Energies,nOrbAllTot)
-*         Call GetMem('IndT','Allo','Inte',ip_IndT, nOrbAllTot)
+         Call GetMem('IndT','Allo','Inte',ip_IndT,7*mSym)
          Call FZero(Work(ip_Energies),nOrbAllTot)
       End If
 
@@ -80,7 +81,7 @@
      &                  + (nOrbAll(iSym-1))
       End Do
 *
-      Do iSym = 1, nSym
+      Do iSym = 1, mSym
 
          If(nOrbAll(iSym).ne.0) Then
 *
@@ -162,31 +163,33 @@
 
             End If
 
-*     Put the MP2 canonical orbitals we just produced on disk to the file
-*     MP2ORB.
-
 *
          End If
       End Do
 
-*       iWork(ip_IndT)
+*     Put the MP2 natural orbitals we just produced on disk to the file
+*     MP2ORB.
+
       If(Diagonalize) Then
          LuMP2=50
          LuMP2=IsFreeUnit(LuMP2)
-         LuSCF=51
-         LuSCF=IsFreeUnit(LuSCF)
-*        Pickup type index from the ScfOrb
-*         Call RdVec('SCFORB',LuSCF,'I',nSym,nOrbAll,nOrbAll,Dummy,
-*     &              Dummy,Dummy,iWork(ip_IndT),note_scf,0,ierr)
-*         If(iErr.ne.0) Then
-*            MP2Orb_opt = 'COE '
-*            Write(6,*) 'Har ar det'
-*         End If
-         Note='*  Canonical MP2 orbitals'
-         Call WrVec('MP2ORB',LuMP2,'COE',nSym,nOrbAll,nOrbAll,
+*        Build the TypeIndex array
+         iOff=ip_IndT
+         Do iSym=1,mSym
+            iWork(iOff+0)=nFro(iSym)
+            iWork(iOff+1)=nOcc(iSym)
+            iWork(iOff+2)=0
+            iWork(iOff+3)=0
+            iWork(iOff+4)=0
+            iWork(iOff+5)=nOrb(iSym)-nFro(iSym)-nOcc(iSym)-nDel(iSym)
+            iWork(iOff+6)=nDel(iSym)
+            iOff=iOff+7
+         End Do
+         Note='*  Natural MP2 orbitals'
+         Call WrVec('MP2ORB',LuMP2,'COEI',mSym,nOrbAll,nOrbAll,
      &              Work(ip_EigenVecTot),Work(ip_EigenValTot),
-     &              Work(ip_Energies),iDummy,Note)
-*     Create a molden-file
+     &              Work(ip_Energies),iWork(ip_IndT),Note)
+*        Create a molden-file
          AddFragments = .True.
          iUHF = 0
          Call Molden_Interface(iUHF,'MP2ORB','MD_MP2',AddFragments)
@@ -214,7 +217,7 @@
          Call GetMem('EigenValues','Free','Real',ip_EigenValTot,
      &               nOrbAllTot)
          Call GetMem('Energies','Free','Real',ip_Energies,nOrbAllTot)
-*         Call GetMem('IndT','Free','Inte',ip_IndT, nOrbAllTot)
+         Call GetMem('IndT','Free','Inte',ip_IndT,7*mSym)
       End If
 
       Return

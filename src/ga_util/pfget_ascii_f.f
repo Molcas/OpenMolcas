@@ -16,19 +16,13 @@
 * Broadcast a file from the master to the slaves
 
       Subroutine PFGet_ASCII(FName)
-#ifdef _MOLCAS_MPP_
-      Use MPI
-#endif
       Implicit None
       Character (Len=*), Intent(In) :: FName
 #ifdef _MOLCAS_MPP_
 #include "para_info.fh"
 #include "mpp_info.fh"
-#ifdef _I8_
-      Integer*4, Parameter :: iType=MPI_INTEGER8
-#else
-      Integer*4, Parameter :: iType=MPI_INTEGER4
-#endif
+#include "SysDef.fh"
+#include "mafdecls.fh"
       Integer, Parameter :: LBuf=4096
       Character (Len=LBuf) :: Buf
       Integer :: LU, Err, FLen, Pos, Num
@@ -56,11 +50,7 @@
       End If
       ! Broadcast the file size
       Err=0
-      Call MPI_BCAST(FLen, 1, iType, 0, MPI_COMM_WORLD, Err)
-      If (Err .ne. 0) Then
-        Write(6,*) "Failed to broadcast file size: ", FLen, Err
-        Call AbEnd()
-      End If
+      Call GA_Brdcst(MT_INT, FLen, 1*ItoB, mpp_rootid)
       If (FLen .le. 0) Return
       ! Open file for writing in the slaves
       If (.not.King()) Then
@@ -84,12 +74,7 @@
             Call AbEnd()
           End If
         End If
-        Call MPI_BCast(Buf(1:Num), Num, MPI_CHARACTER, mpp_rootid,
-     &                 MPI_COMM_WORLD, Err)
-        If (Err .ne. 0) Then
-          Write(6,*) "Failed to broadcast message of length: ", Num
-          Call AbEnd()
-        End If
+        Call GA_Brdcst(MT_BYTE, Buf(1:Num), Num, mpp_rootid)
         ! The slaves write the file
         If (.not. King()) Then
           Write(LU, IOStat=Err) Buf(1:Num)
