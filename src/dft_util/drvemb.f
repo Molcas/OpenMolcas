@@ -74,7 +74,9 @@
 ************************************************************************
 *                                                                      *
 *     --- Section to calculate Nonelectr. V_emb with current density
-      If (.not.OFE_first) then
+*     Temporarily turned off (clean output)
+*      If (.not.OFE_first) then
+      If (.False.) then
           Call Get_D1ao(ipD1ao_y,nDens)
           Call Get_NameRun(NamRfil) ! save the old RUNFILE name
           Call NameRun('AUXRFIL')   ! switch RUNFILE name
@@ -300,28 +302,31 @@
       EndIf
 *---AZECH 10/2015
 *   kinetic part of E_xct, Subsys A+B
-      Func_AB_TF = 0.0d0
-      Call wrap_DrvNQ('TF_only',Work(ipF_DFT),nFckDim,Func_AB_TF,
+*   temporarily turned off to clean output
+      If (.False.) Then
+       Func_AB_TF = 0.0d0
+       Call wrap_DrvNQ('TF_only',Work(ipF_DFT),nFckDim,Func_AB_TF,
      &                Work(ip_D_DS),nh1,nFckDim,
      &                Do_Grad,
      &                Grad,nGrad,DFTFOCK)
-      TF_NAD = Func_AB_TF - Func_A_TF - Func_B_TF
-      Write(6,*) 'kinetic part of E_xc,T (Thomas-Fermi ONLY)'
-      Write(6,'(A,F19.10)') 'Ts(A+B): ', Func_AB_TF
-      Write(6,'(A,F19.10)') 'Ts(A):   ', Func_A_TF
-      Write(6,'(A,F19.10)') 'Ts(B):   ', Func_B_TF
-      Write(6,'(A,F19.10)') '-------------------'
-      Write(6,'(A,F19.10)') 'Ts_NAD:  ', TF_NAD
+       TF_NAD = Func_AB_TF - Func_A_TF - Func_B_TF
+       Write(6,*) 'kinetic part of E_xc,T (Thomas-Fermi ONLY)'
+       Write(6,'(A,F19.10)') 'Ts(A+B): ', Func_AB_TF
+       Write(6,'(A,F19.10)') 'Ts(A):   ', Func_A_TF
+       Write(6,'(A,F19.10)') 'Ts(B):   ', Func_B_TF
+       Write(6,'(A,F19.10)') '-------------------'
+       Write(6,'(A,F19.10)') 'Ts_NAD:  ', TF_NAD
 *   calculate v_T, Subsys A+B
-      Xint_Ts_AB=dDot_(nh1,Work(ipF_DFT),1,Work(ipA_D_DS),1)
-      Xint_Ts_NAD = Xint_Ts_AB - Xint_Ts_A
+       Xint_Ts_AB=dDot_(nh1,Work(ipF_DFT),1,Work(ipA_D_DS),1)
+       Xint_Ts_NAD = Xint_Ts_AB - Xint_Ts_A
 *     scale by 2 because wrapper only handles spin-densities
-      Xint_Ts_NAD = Two*Xint_Ts_NAD
-      Write(6,*) 'integrated v_Ts_NAD (Thomas-Fermi) with rhoA current'
-      Write(6,'(A,F19.10)') 'Ts(A+B)_integral: ', Xint_Ts_AB
-      Write(6,'(A,F19.10)') 'Ts(A)_integral:   ', Xint_Ts_A
-      Write(6,'(A,F19.10)') '-------------------'
-      Write(6,'(A,F19.10)') 'Ts_NAD_integral:  ', Xint_Ts_NAD
+       Xint_Ts_NAD = Two*Xint_Ts_NAD
+       Write(6,*) 'integrated v_Ts_NAD (Thomas-Fermi) with rhoA current'
+       Write(6,'(A,F19.10)') 'Ts(A+B)_integral: ', Xint_Ts_AB
+       Write(6,'(A,F19.10)') 'Ts(A)_integral:   ', Xint_Ts_A
+       Write(6,'(A,F19.10)') '-------------------'
+       Write(6,'(A,F19.10)') 'Ts_NAD_integral:  ', Xint_Ts_NAD
+      EndIf
 *---
       Call wrap_DrvNQ(KSDFT,Work(ipF_DFT),nFckDim,Func_AB,
      &                Work(ip_D_DS),nh1,nFckDim,
@@ -332,9 +337,10 @@
 *
 *---AZECH 10/2015
 *   exchange-correlation part of E_xct, Subsys A+B
-      Write(6,*) 'E_xc_NAD (determined with Thomas-Fermi)'
-      Func_xc_NAD = Energy_NAD - TF_NAD
-      Write(6,'(A,F19.10)') 'E_xc_NAD: ', Func_xc_NAD
+*   temporarily turned off to clean output
+c      Write(6,*) 'E_xc_NAD (determined with Thomas-Fermi)'
+c      Func_xc_NAD = Energy_NAD - TF_NAD
+c      Write(6,'(A,F19.10)') 'E_xc_NAD: ', Func_xc_NAD
 *---
       If (dFMD.gt.0.0d0) Then
          Call Get_electrons(xElAB)
