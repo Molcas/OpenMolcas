@@ -398,7 +398,7 @@ C as if the values were read directly from the file.
 
       Case('OFEM')
       Input % OFEmbedding = .True.
-      call Quit_OnInstError
+c      call Quit_OnInstError
 
       ! print controls
 
