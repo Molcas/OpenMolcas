@@ -63,7 +63,9 @@
       Logical is_rhoA_on_file
       Real*8 Xlambda
       External Xlambda
+*
       Debug=.False.
+      is_rhoA_on_file = .False.
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -109,6 +111,7 @@
           Call NameRun(NamRfil)     ! switch back to RUNFILE
       End If
 *     --- Section End
+      Call f_Inquire('PRERFIL',is_rhoA_on_file) ! rho_A from file
       If (is_rhoA_on_file .and. .not.OFE_first) Return ! Vemb on disk
 
 
@@ -830,7 +833,6 @@ c Avoid unused argument warnings
 #include "rasscf.fh"
 #include "general.fh"
 #include "gas.fh"
-#include "output_ras.fh"
 #include "ciinfo.fh"
 #include "rctfld.fh"
 #include "WrkSpc.fh"
@@ -838,6 +840,9 @@ c Avoid unused argument warnings
 
 
       IAD12=IADR15(12)
+* Define dummy pointer and length
+      nDummy = 0
+      ipDummy = 42
 
       DO KROOT=1,LROOTS
         Call GetMem('xxCMOv','ALLO','REAL',ipxxCMO,NTOT2)
