@@ -1856,7 +1856,12 @@ if (WFA)
                 add_subdirectory (${proj}/libwfa)
                 target_include_directories (wfa_molcas PRIVATE ${proj} ${ARMADILLO_INC})
                 target_compile_definitions (wfa_molcas PRIVATE "ARMA_DONT_USE_WRAPPER")
-                list (APPEND wfa_libs wfa_molcas hdf5_cpp)
+                list (APPEND wfa_libs wfa_molcas)
+
+                find_library(HDF5_CPP_LIBRARIES hdf5_cpp)
+                if (HDF5_CPP_LIBRARIES)
+                  list (APPEND wfa_libs ${HDF5_CPP_LIBRARIES})
+                endif ()
 
                 message ("-- wfa_libs: ${wfa_libs}")
                 message ("-- ARMADILLO_INC: ${ARMADILLO_INC}")
