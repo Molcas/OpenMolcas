@@ -16,7 +16,7 @@
 from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 from os import environ, access, W_OK, X_OK, listdir, remove, getpid, getcwd, makedirs, symlink, devnull
-from os.path import isfile, isdir, isabs, join, basename, splitext, getmtime, abspath, exists, relpath
+from os.path import isfile, isdir, isabs, join, basename, splitext, getmtime, abspath, exists, relpath, realpath
 from datetime import datetime
 from shutil import copy2, move, rmtree, SameFileError
 from subprocess import check_output, STDOUT, CalledProcessError
@@ -81,7 +81,7 @@ class MolcasException(Exception):
 
 class Molcas_wrapper(object):
 
-  version = 'py1.05'
+  version = 'py1.08'
   rc = 0
 
   def __init__(self, **kwargs):
@@ -822,17 +822,20 @@ class Molcas_wrapper(object):
   def delete_scratch(self, force=False):
     #TODO: use parnell
     if (self._ready or force):
-      # WorkDir may be a link and not a real directory, so remove its contents
-      try:
-        filelist = listdir(self.scratch)
-      except:
-        filelist = []
-      for i in [join(self.scratch, x) for x in filelist]:
-        if (isdir(i)):
-          rmtree(i)
-        else:
-          remove(i)
-      line = '*** WorkDir at {0} cleaned ***'.format(self.scratch)
+      if (realpath(self.scratch) == realpath(self.currdir)):
+        line = '*** WorkDir and CurrDir are the same, not cleaned! ***'
+      else:
+        # WorkDir may be a link and not a real directory, so remove its contents
+        try:
+          filelist = listdir(self.scratch)
+        except:
+          filelist = []
+        for i in [join(self.scratch, x) for x in filelist]:
+          if (isdir(i)):
+            rmtree(i)
+          else:
+            remove(i)
+        line = '*** WorkDir at {0} cleaned ***'.format(self.scratch)
       print('*'*len(line))
       print(line)
       print('*'*len(line))

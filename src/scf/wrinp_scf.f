@@ -394,7 +394,7 @@ c           Call Abend()
 *
 *---- Print out number of iterations
       Write(6,FmtI) 'Maximum number of NDDO SCF iterations',nIter(0)
-      Write(6,FmtI) 'Maximum number of HF  SCF iterations',nIter(1)
+      Write(6,FmtI) 'Maximum number of HF SCF iterations',nIter(1)
 *
 *---- Print out thresholds for SCF
       Write(6,FmtR) 'Threshold for SCF energy change',EThr
@@ -468,7 +468,6 @@ c           Call Abend()
       End If
       If (Scrmbl) Write(6,Fmt) 'Start orbitals are scrambled in order '
      &      //'to introduce symmetry breaking'
-      Write(6,*)
       Write(6,*)
 *
       End If

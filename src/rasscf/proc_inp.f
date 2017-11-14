@@ -1218,7 +1218,7 @@ CIgorS End
          Write(6,*)' But some information does not match.'
          IF(IERR.eq.1) Then
           Write(6,*)' In the file, nr of symmetries is =',NSYM_L
-          Write(6,*)' but accurding to runfile, it is=',NSYM
+          Write(6,*)' but according to the runfile, it is=',NSYM
          ELSE IF(IERR.eq.2) Then
           Write(6,*)' In the file, nr of basis functions/symm is'
           Write(6,'(1x,8I5)')(NBAS_L(I),I=1,NSYM)
@@ -1945,7 +1945,7 @@ C orbitals accordingly
       END IF
 *
 * --- Process DEXS command
-* At the moment same array as HEXS is being used 
+* At the moment same array as HEXS is being used
 * If HEXS and DEXS should be used together rename one these arrays
 *
       IF (KEYDEXS) THEN

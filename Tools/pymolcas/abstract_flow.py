@@ -18,10 +18,27 @@ from __future__ import (unicode_literals, division, absolute_import, print_funct
 from os.path import isfile
 from re import match
 from io import BytesIO
-from ast import literal_eval
 
 from molcas_aux import *
 from tee import teed_call
+from simpleeval import simple_eval, SimpleEval
+
+#===============================================================================
+# Patch SimpleEval to use the "decimal" module for better precision handling
+
+import ast
+import decimal
+
+def _pymolcas_eval(self, expr):
+  self.expr = expr
+  return str(self._eval(ast.parse(expr.strip()).body[0].value))
+
+@staticmethod
+def _pymolcas_eval_num(node):
+  return decimal.Decimal(str(node.n))
+
+SimpleEval.eval = _pymolcas_eval
+SimpleEval._eval_num = _pymolcas_eval_num
 
 #===============================================================================
 
@@ -162,6 +179,7 @@ class Group(object):
           item = itercontents[i]
           item.group = itercontents
           rc = item.run(env)
+          # Transparent return: only update return code if not None
           if (rc is not None):
             self.rc = rc
             rc_name = env.rc_to_name(self.rc)
@@ -196,12 +214,12 @@ class Group(object):
         if ((rc_name not in ['_RC_NOT_CONVERGED_']) or (self.grouptype != 'do')):
           no_break = True
           rc_name = '_RC_ALL_IS_WELL_'
-      if (not no_break):
-        break
       if (self.grouptype == 'do'):
         env_print(env, '\n>>> END DO')
       elif (self.grouptype == 'foreach'):
         env_print(env, '\n>>> END FOREACH')
+      if (not no_break):
+        break
       self.thisiter += 1
     if (self.grouptype == 'do'):
       if (not env._goto):
@@ -211,6 +229,10 @@ class Group(object):
       env.exit_loop()
     if (self.grouptype == 'foreach'):
       env.exit_loop()
+    # A block should not be "transparent",
+    # if all items have returned None, here we return success
+    if (self.rc is None):
+      self.rc = 0
     return self.rc
 
 class Assignment(Statement):
@@ -234,7 +256,7 @@ class Assignment(Statement):
     else:
       val = expandvars(self.val, default='0')
       try:
-        eval_val = str(literal_eval(val))
+        eval_val = simple_eval(val)
       except:
         eval_val = ''
       env_print(env, '\n>>> EVAL {0} = {1} = {2}'.format(self.var, val, eval_val))
@@ -333,13 +355,14 @@ class System(Statement):
     if (env.allow_shell):
       if (self.parallel):
         task = ['!'] + self.expanded_commandline.split()
-        rc = env.parallel_task(task)
+        self.rc = env.parallel_task(task)
       else:
-        rc = teed_call(self.expanded_commandline, shell=True, cwd=env.scratch, stdout=output, stderr=error)
-        if (rc is not None):
-          self.rc = rc
+        self.rc = teed_call(self.expanded_commandline, shell=True, cwd=env.scratch, stdout=output, stderr=error)
     else:
       env_print(env, '(Shell commands disabled)')
+    # Successful return is transparent: it inherits the previous return code
+    if (self.rc == 0):
+      self.rc = None
     return self.rc
 
 class Setting(Statement):
@@ -436,12 +459,13 @@ class ParTask(Statement):
       f_out = expandvars(self.args[1], default='UNKNOWN_VARIABLE')
       env_print(env, '\n>>> COLLECT {0}{1} {2}'.format(f, f_in, f_out))
       task = ['c', '2', f_in, f_out]
-    rc = env.parallel_task(task, force=self.force)
-    if (rc is not None):
-      self.rc = rc
+    self.rc = env.parallel_task(task, force=self.force)
     if (self.force):
       self.rc = 0
-    if (self.rc != 0):
+    # Successful return is transparent: it inherits the previous return code
+    if (self.rc == 0):
+      self.rc = None
+    else:
       self.rc = '_RC_INPUT_EMIL_ERROR_'
     return self.rc
 

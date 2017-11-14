@@ -627,11 +627,11 @@ C ------------------------------------------
           ANORM = WORK(PKVEC+ILINE-1)**2 +
      &            WORK(PKVEC+ILINE-1+NKVEC)**2 +
      &            WORK(PKVEC+ILINE-1+2*NKVEC)**2
-          WORK(PKVEC+ILINE-1) = 
+          WORK(PKVEC+ILINE-1) =
      &    WORK(PKVEC+ILINE-1)/DSQRT(ANORM)
-          WORK(PKVEC+ILINE-1+NKVEC) = 
+          WORK(PKVEC+ILINE-1+NKVEC) =
      &    WORK(PKVEC+ILINE-1+NKVEC)/DSQRT(ANORM)
-          WORK(PKVEC+ILINE-1+2*NKVEC) = 
+          WORK(PKVEC+ILINE-1+2*NKVEC) =
      &    WORK(PKVEC+ILINE-1+2*NKVEC)/DSQRT(ANORM)
         END DO
         GOTO 100

@@ -70,6 +70,7 @@ Ajitha Devarajan
 Luca De Vico  
 Michael Diedenhofen  
 Thomas Dresselhaus  
+Daniel Fairhead  
 Ignacio Fdez. Galván  
 Nicolas Ferré  
 Timo Fleig  
