@@ -4,7 +4,7 @@
 * Basis: cc-pVDZ
 * Symmetry: none
 * SCF: conventional
-* Features tested: Localisation, Grid_it
+* Features tested: Localisation
 * Comments:
 *-------------------------------------------------------------------------------
 &GATEWAY
@@ -31,11 +31,6 @@
     O C
   FileOrb = SCFORB
 
-&GRID_IT
-  FileOrb = LOCORB
-  Name = 1
-  All
-  NOLUSCUS
 * Default localisation occupied/virtual orbitals
 &LOCALISATION
   Occupied
@@ -45,11 +40,6 @@
   Virtual
   FileOrb = LOCORB
 
-&GRID_IT
-  FileOrb = LOCORB
-  Name = 2
-  All
-  NOLUSCUS
 * Other localisation methods
 &LOCALISATION
   Boys
@@ -100,19 +90,15 @@
 #>>   4
 #> PIPEKFUNCTIONAL="5.807908481158"/4
 #>>   5
-#> GRIDIT_NORM="23.633898806427"/6
-#>>   6
 #> PIPEKFUNCTIONAL="5.807908481158"/4
-#>>   7
+#>>   6
 #> PIPEKFUNCTIONAL="23.932267566019"/4
-#>>   8
-#> GRIDIT_NORM="23.633898806427"/6
-#>>   9
+#>>   7
 #> BOYSFUNCTIONAL_="15.246787462178"/4
-#>>  10
+#>>   8
 #> CHOLESKY_PAO___="4.833095650300"/4
-#>>  11
+#>>   9
 #> ERFUNCTIONAL___="12.307146634791"/4
-#>>  12
+#>>  10
 #> CHOLESKY_NORM__="2.244679830708"/4
 >>EOF

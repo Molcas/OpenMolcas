@@ -56,7 +56,7 @@ c  iRun =1 normal run, 0=trancated from scf
 c      Character*120 Lines(17)
       Character INPORB*(*)
       Logical OldTst, DoRys
-#include "grid.fh"
+C#include "grid.fh"
 #include "warnings.fh"
 *
 *     Prologue
@@ -98,8 +98,11 @@ c      Call GetInf(Info,nInfo,DoRys,nDiff,idum)
       if (iReturn.eq._RC_INVOKED_OTHER_MODULE_) then
 c* take care to close files and release the potential memory...
 c       close(unit=LuOrb)
-        close(unit=LuVal)
-        if(isUHF.eq.1) close(unit=LuVal_ab)
+#ifdef _HAVE_EXTRA_
+        call close_grids()
+#endif
+c        close(unit=LuVal)
+c        if(isUHF.eq.1) close(unit=LuVal_ab)
       goto 999
       endif
 *
@@ -134,4 +137,4 @@ c      ireturn=0
 c Some compilers do not like empty files
       Subroutine empty_grid_it
       End
-#endif
+#endif  

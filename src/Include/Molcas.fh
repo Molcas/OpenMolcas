@@ -39,9 +39,10 @@
        Parameter (mxOrb = maxbfn)
        Parameter (mxSym = 8)
        Parameter (mxGAS = 16)
-       Integer LENIN, LENIN1,LENIN2,LENIN3
+#include "LenIn.fh"
+       Integer  LENIN1,LENIN2,LENIN3
        Integer LENIN4,LENIN5,LENIN6,LENIN8
-       Parameter (LENIN=6)
+c       Parameter (LENIN=6)
        Parameter (LENIN1=LENIN+1)
        Parameter (LENIN2=LENIN+2)
        Parameter (LENIN3=LENIN+3)
