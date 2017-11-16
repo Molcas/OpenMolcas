@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 #***********************************************************************
@@ -18,8 +18,6 @@
 This script checks that the OpenMolcas header exist and that the copyright
 has the right format.
 '''
-
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 import sys
 import re
