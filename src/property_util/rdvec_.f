@@ -238,8 +238,8 @@
 * OCC section                                                          *
 *----------------------------------------------------------------------*
       If(iOcc.eq.1) Then
-        nDiv = nDivOcc(iVer)
-        FMT = FmtOcc(iVer)
+        nDiv = nDivOccMR(iVer)
+        FMT = FmtOccMR(iVer)
         Rewind(LU)
 53      READ(LU,'(A256)',END=999,ERR=999) Line
         If(Line(1:4).ne.'#OCC') goto 53
