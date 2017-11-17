@@ -42,7 +42,6 @@
 #include "LenIn.fh"
        Integer  LENIN1,LENIN2,LENIN3
        Integer LENIN4,LENIN5,LENIN6,LENIN8
-c       Parameter (LENIN=6)
        Parameter (LENIN1=LENIN+1)
        Parameter (LENIN2=LENIN+2)
        Parameter (LENIN3=LENIN+3)
@@ -50,10 +49,3 @@ c       Parameter (LENIN=6)
        Parameter (LENIN5=LENIN+5)
        Parameter (LENIN6=LENIN+6)
        Parameter (LENIN8=LENIN+8)
-
-c       Parameter (LENIN=4)
-c       Parameter (LENIN2=6)
-c       Parameter (LENIN1=5)
-c       Parameter (LENIN4=8)
-c       Parameter (LENIN5=9)
-c       Parameter (LENIN6=10)

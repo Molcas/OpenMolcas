@@ -143,7 +143,7 @@ C            Write(6,*) 'WARNING: reorthonormalizing MOs...',OffMx,DgNo1
   100            Continue
 c                 call WarningMessage(0, 'Orthogonality violated')
                  Write(6,*)' iSym =',iSym
-                Write(6,*)' largest off diag element:',
+                 Write(6,*)' largest off diag element:',
      &                     ' [',iOffMx,',',jOffMx,']',' = ',OffMx
                End If
                If (DgNo1.gt.OrtThr) Then
@@ -175,9 +175,9 @@ c                 call WarningMessage(0, 'Orthogonality violated')
 *
       Call mma_deallocate(Aux)
       Call mma_deallocate(OvlS)
-      If (termin) then 
+      If (termin) then
          Call Abend
-         call WarningMessage(0, 'Orthogonality can not be '//
+         call WarningMessage(0, 'Orthogonality cannot be '//
      *   'recovered\n Basis set problem???')
       endif
 *

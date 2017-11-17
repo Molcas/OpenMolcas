@@ -3,9 +3,9 @@
 * Molecule: H2O
 * Basis: CC-PVTZ
 * Symmetry: C1
-* Features tested: SEW,SCF,GRID_IT,LOPROP
+* Features tested: SEW,SCF,LOPROP
 * Responsible person: P.-O. Widmark 041227
-* Comments: Test of GRID_IT and LOPROP
+* Comments: Test of LOPROP
 *-------------------------------------------------------------------------------
  &SEWARD &END
 Basis set

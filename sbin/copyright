@@ -60,10 +60,10 @@ if sys.stdout.isatty():
 else:
   init(strip=True)
 
-try:
-  sys.stdout = getwriter(getpreferredencoding())(sys.stdout.detach())
-except AttributeError:
-  sys.stdout = getwriter(getpreferredencoding())(sys.stdout)
+#try:
+#  sys.stdout = getwriter(getpreferredencoding())(sys.stdout.detach())
+#except AttributeError:
+#  sys.stdout = getwriter(getpreferredencoding())(sys.stdout)
 
 files = []
 if (isfile(args['root'])):

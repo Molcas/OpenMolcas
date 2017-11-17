@@ -218,8 +218,8 @@ c#endif
          KOCC=KOCC+NORB(ISYM)
       EndDo
       Endif  ! UHF
-      
-      
+
+
       NDIV=nDivOcc(iVer)
       FMT=FmtOcc(iVer)
       Write(Lu,'(A)') '#OCHR'
