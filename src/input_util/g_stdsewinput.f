@@ -20,7 +20,6 @@
 #include "itmax.fh"
 #include "info.fh"
 #include "SysDef.fh"
-#include "notab.fh"
 #include "rctfld.fh"
 #include "real.fh"
 #include "print.fh"

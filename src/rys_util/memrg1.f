@@ -22,17 +22,16 @@
 *     This routine will compute the memory requirement of Rysg1
 *     Memory requirement is per primitive!
 *
-#include "print.fh"
+c#include "print.fh"
 #include "itmax.fh"
-#include "notab.fh"
       Integer iAnga(4)
 *
 *     Statement function
 *
       nElem(i) = (i+1)*(i+2)/2
 *
-      iRout = 13
-      iPrint = nPrint(iRout)
+c     iRout = 13
+c     iPrint = nPrint(iRout)
       la = iAnga(1)
       lb = iAnga(2)
       lc = iAnga(3)
