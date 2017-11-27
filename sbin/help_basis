@@ -48,6 +48,8 @@ Use with a command-line argument that is a basis label in Molcas format:
 
 trailing dots can be omitted.
 
+Examples:
+
 In the simplest form, just write an element symbol to get a list of basis sets
 for that element:
   {3}Fe{0}               lists all basis sets for iron

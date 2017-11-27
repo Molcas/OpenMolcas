@@ -2659,7 +2659,7 @@ if (DEFINED EXTRA_DIR)
 endif ()
 # copy the necessary files from sbin
 file (REMOVE_RECURSE ${PROJECT_BINARY_DIR}/sbin)
-foreach (f verify version chkunprint.plx updatetest.plx find_sources)
+foreach (f verify version chkunprint.plx updatetest.plx find_sources help_basis help_doc)
         file (COPY ${OPENMOLCAS_DIR}/sbin/${f} DESTINATION ${PROJECT_BINARY_DIR}/sbin)
 endforeach ()
 if (DEFINED EXTRA_DIR)
@@ -3067,6 +3067,12 @@ install (TARGETS ${PROGRAM_EXECUTABLES} molcas
         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
         LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
         ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+        )
+
+install (PROGRAMS
+        ${PROJECT_BINARY_DIR}/sbin/help_basis
+        ${PROJECT_BINARY_DIR}/sbin/help_doc
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/sbin
         )
 
 if (DEFINED PYMOLCAS_TARGET)

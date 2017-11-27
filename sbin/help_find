@@ -46,6 +46,8 @@ Use with a command-line argument to search for a procedure (subroutine/function)
 in the Molcas source code. Wildcards are supported, but the argument may need
 to be put inside quotes to prevent its expansion by the shell.
 
+Examples:
+
   {2}abend{0}       find the definition of the Abend subroutine
 
   {2}pget?{0}       find all procedures whose name is "pget" plus one character
