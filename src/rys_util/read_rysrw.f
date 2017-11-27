@@ -55,6 +55,13 @@ c      implicit none
       Do While (io .ne. 0)
         Read (lu_rysrw,*,IOStat=io) mRys,nOrder,Acc
       End Do
+      If (mRys.gt.MaxRys) Then
+         Call WarningMessage(2,
+     &      ' Database requires new code!'//
+     &      ' Database and code are at incompatible levels!')
+         Call Abend()
+      End If
+      nMxRys=mRys
 #ifdef _DEBUG_
       Write (6,*)
       Write (6,*) ' Reading tables for roots and weights of Rys poly.'
