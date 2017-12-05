@@ -450,9 +450,9 @@ cgh - (additional memory has been declared in MemRys)
          Write (6,*) ' ip-1  =',ip-1
          Call Abend()
       End If
-#else
-      Call RysRtsWgh(Array(ipTv),nT,Array(ipU2),Array(ipWgh),nRys)
 #endif
+      Call RysRtsWgh(Array(ipTv),nT,Array(ipU2),Array(ipWgh),nRys)
+#else
       If (nRys.gt.nMxRys .or. NoTab) Then
 #ifdef _CHECK_
          If (ip-1.gt.nArray) Then
