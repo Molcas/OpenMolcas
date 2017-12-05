@@ -10,6 +10,7 @@
 *                                                                      *
 * Copyright (C) 1990,1991,1994, Roland Lindh                           *
 *               1990, IBM                                              *
+*               2017, Ignacio Fdez. Galvan                             *
 ************************************************************************
       SubRoutine Rys(iAnga,nT,Zeta,ZInv,nZeta,
      &               Eta,EInv,nEta,
@@ -435,11 +436,23 @@ cgh - (additional memory has been declared in MemRys)
 *     Compute roots and weights. Make sure that the weights ends up in
 *     the array where the z component of the 2D integrals will be.
 *     Call vRysRW if roots and weights are tabulated in various Taylor
-*     expansions. If not tabulated call RtsWgh.
+*     expansions. If not tabulated call RtsWgh. If from scratch
+*     (no table at all), call RysRtsWgh
 *
 *     Pointer to z-component of 2D-integrals where the weights will be
 *     put directly. This corresponds to xyz2D(1,1,3,0,0).
       ipWgh = ipxyz + 2*nT*nRys
+#ifdef _RYS_SCRATCH_
+#ifdef _CHECK_
+      If (ip-1.gt.nArray) Then
+         Call WarningMessage(2,'Rys: ip-1 =/= nArray (pos.2)')
+         Write (6,*) ' nArray=',nArray
+         Write (6,*) ' ip-1  =',ip-1
+         Call Abend()
+      End If
+#else
+      Call RysRtsWgh(Array(ipTv),nT,Array(ipU2),Array(ipWgh),nRys)
+#endif
       If (nRys.gt.nMxRys .or. NoTab) Then
 #ifdef _CHECK_
          If (ip-1.gt.nArray) Then
@@ -462,6 +475,7 @@ cgh - (additional memory has been declared in MemRys)
          Call vRysRW(la,lb,lc,ld,Array(ipTv),Array(ipU2),Array(ipWgh),
      &               nT,nRys)
       End If
+#endif
 *     Let go of arguments
       ip = ip - nT
 *
