@@ -45,7 +45,6 @@ C     Transfer arguments to the common blocks used by MOLCAS.
       If (NSEL .GT. NCSASM(LSYM)) NSEL=NCSASM(LSYM)
 * For small calculations - Lasse/MGD
       nCSF_HEXS=nCSF_HEXS_LUCIA
-      write(6,*) 'MGD lucia2',nCSF_HEXS
       IF(N_ELIMINATED_GAS_MOLCAS.gt.0.AND.NSEL.GT.nCSF_HEXS) THEN
         NSEL =nCSF_HEXS
       END IF
