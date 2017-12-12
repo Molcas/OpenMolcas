@@ -83,6 +83,7 @@ C     operations later to combine blocks before writing.
 * the batch had a mix of maximum and non-maximum occupation
 * and thus survived this test
 *
+        I_AM_NOT_WANTED = 0
         DO ISBLK = I1BATS(JBATS),I1BATS(JBATS)+ LBATS(JBATS)-1
           I_AM_NOT_WANTED = 0
           DO I = 1, N_ELIMINATED_BATCHES
