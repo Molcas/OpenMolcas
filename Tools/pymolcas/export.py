@@ -59,7 +59,7 @@ def minify(string):
   return string
 
 if (compress_and_b64):
-  code = 'import zlib,base64;exec(zlib.decompress(base64.b64decode(m[1])),module.__dict__);del zlib,base64'
+  code = 'import zlib,base64;exec(zlib.decompress(base64.b64decode(bytes(m[1],\\\'ascii\\\'))),module.__dict__);del zlib,base64'
 else:
   code = 'exec(m[1],module.__dict__)'
 
