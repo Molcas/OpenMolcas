@@ -200,7 +200,6 @@
        Do  k=1,M
         ovl=DDOT_(N,Temp,1,C(1,k),1)
         if (abs(ovl).gt.1.0d-4) isfail=1
-        if (abs(ovl).gt.1.0d-4) write(6,*) 'failed for', M,k,ovl
        End Do
        If (isfail.eq.0) M=M+1
 
