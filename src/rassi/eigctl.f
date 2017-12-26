@@ -797,6 +797,7 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
 !
 ! I guess that I have to explain it when I print a warning
 !
+         WRITE(6,*)
          WRITE(6,*) "--------------------------------------------------"
          WRITE(6,*)
          WRITE(6,*) "A comparison between the dipole oscillator "//
@@ -830,10 +831,8 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
                    WRITE(6,*)
                    WRITE(6,*) " Problematic transitions have been found"
                    WRITE(6,*)
-                   WRITE(6,*) " From  To  Percent difference "//
-     &                        " Osc. strength (lenght) "//
-     &                        " Osc. strength (velocity) "
-                   WRITE(6,*)
+                   WRITE(6,*) "      From   To   Percent difference"//
+     &                        "  Osc. st. (len.) Osc. st. (vel.)"
                    WRITE(6,*) " ---------------------------------------"
                    WRITE(6,*)
                  END IF
@@ -842,7 +841,7 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
               END IF
              ELSE IF(WORK(LDL-1+IJ).GE.OSTHR) THEN
                WRITE(6,*) " Velocity gauge below threshold. "//
-     &                    " Lenght gauge value = ",WORK(LDL-1+IJ)
+     &                    " Length gauge value = ",WORK(LDL-1+IJ)
              ELSE IF(WORK(LDV-1+IJ).GE.OSTHR) THEN
                WRITE(6,*) " Length gauge below threshold. "//
      &                    " Velocity gauge value = ",WORK(LDV-1+IJ)

@@ -115,7 +115,7 @@ def match_field(field, basis, template):
     funcs_template = []
     # Catch wrong angular momentum labels (e.g. "j")
     if (any(i not in angs for i in re.sub(r'\d', '', template[field]))):
-      print('The [primitives] field ({0}) contains an invalid label.'.format(Fore.RED + template[field] + Style.RESET_ALL))
+      print('The [contraction] field ({0}) contains an invalid label.'.format(Fore.RED + template[field] + Style.RESET_ALL))
       print('Valid labels are: {0}'.format(Fore.BLUE + ', '.join(angs) + Style.RESET_ALL))
       print()
       sys.exit(1)
