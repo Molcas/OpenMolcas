@@ -40,6 +40,8 @@ CSVC: the basis ids are tuples (c,n,l,m) with c the center index,
 C     n the shell index, l the angmom value, and m the angmom component.
 C     the angmom components of p are mapped (x,y,z) -> (1,-1,0)
 C     examples: 3d1+ on atom 1: (1,3,2,1); 2py on atom 5: (5,2,1,-1)
+CIFG: for Cartesian shells, l -> -l, m -> T(ly+lz)-(lx+ly), where T(n)=n*(n+1)/2
+      integer :: llab,mlab
       integer, allocatable :: basis_ids(:,:), desym_basis_ids(:,:)
       integer, allocatable :: fermion_type(:)
       Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
@@ -81,6 +83,7 @@ cvv LP_NAMES was used later without initialization.
 ************************************************************************
 *                                                                      *
 *     initialize LVAL and MVAL
+*     (note: this is wrong for Cartesian shells)
 *
       k=0
       do i=0,MxAng
@@ -383,6 +386,7 @@ C     Show=Show.and..Not.Primitive_Pass
                            End If
 *
                         End If
+                        Call Name_to_lm(ChTemp,llab,mlab)
 *
                         If(output)
      &                  Write (6,'(I4,3X,A8,5X,A4,4X,8(I3,4X,I2,4X))')
@@ -466,8 +470,8 @@ C     Show=Show.and..Not.Primitive_Pass
      &                                    //ChOper(iOper(iR))
                             desym_basis_ids(1,ixxx) = iyy
                             desym_basis_ids(2,ixxx) = iCntrc
-                            desym_basis_ids(3,ixxx) = lval(lculf)
-                            desym_basis_ids(4,ixxx) = mval(lculf)
+                            desym_basis_ids(3,ixxx) = llab
+                            desym_basis_ids(4,ixxx) = mlab
                         End Do
 *                                                                      *
 ************************************************************************
@@ -475,11 +479,11 @@ C     Show=Show.and..Not.Primitive_Pass
                         Mamn(iSO)=LblCnt(mdc)(1:LENIN)//ChTemp(1:4)
                         basis_ids(1,iSO) = mdc
                         basis_ids(2,iSO) = iCntrc
-                        basis_ids(3,iSO) = lval(lculf)
-                        basis_ids(4,iSO) = mval(lculf)
+                        basis_ids(3,iSO) = llab
+                        basis_ids(4,iSO) = mlab
                         fermion_type(iSO)=0
                         If (fMass(iCnttp).ne.1.0D0) fermion_type(iSO)=1
-                        if(.Not.Primitive_Pass) then
+                        if (.Not.Primitive_Pass) then
                            kIrrep=kIrrep+1
                            icent(kIrrep)=mdc
                            lnang(kIrrep)=lval(lculf)
@@ -489,8 +493,7 @@ C     Show=Show.and..Not.Primitive_Pass
  205                 Continue
 *
  204              Continue
- 2033             continue
-                  kComp = kComp + (iAng+1)*(iAng+2)/2
+ 2033             kComp = kComp + (iAng+1)*(iAng+2)/2
                   kculf=kculf+ 2*iAng+1
  203           Continue
                mc = mc + nIrrep/nStab(mdc)
@@ -721,6 +724,8 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                               Write (ChTemp(1:1),'(A1)') '*'
                            End If
                         End If
+                        Call Name_to_lm(ChTemp,llab,mlab)
+*
                         if(output) Write (6,'(I4,3X,A8,5X,A4,4X,I3)')
      &                        iSO_,LblCnt(mdc),ChTemp,mc+imc
 *
@@ -765,8 +770,8 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                         Mamn(iSO)=LblCnt(mdc)(1:LENIN)//ChTemp(1:4)
                         basis_ids(1,iSO) = mdc
                         basis_ids(2,iSO) = iCntrc
-                        basis_ids(3,iSO) = lval(lculf)
-                        basis_ids(4,iSO) = mval(lculf)
+                        basis_ids(3,iSO) = llab
+                        basis_ids(4,iSO) = mlab
                         fermion_type(iSO)=0
                         If (fMass(iCnttp).ne.1.0D0) fermion_type(iSO)=1
                         If (.Not.Primitive_Pass) Then
