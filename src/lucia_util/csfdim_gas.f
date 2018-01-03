@@ -132,6 +132,11 @@ C
           maxingas(i)=max(IOCCLS(iGAS,JOCCLS),maxingas(i))
         End Do
       End Do
+      Do i=1,maxop+1
+        HEXS_CNF(i)=0
+        NCONF_PER_OPEN(i,ISYM)=0
+      End Do
+
 *
       DO JOCCLS = 1, NOCCLS
         IF(JOCCLS.EQ.1) THEN
@@ -146,6 +151,9 @@ C
         ELSE
           NCONF_ALL_SYM_PREV = NCONF_ALL_SYM
         END IF
+        Do i=1,maxop+1
+          TMP_CNF(i)=0
+        End Do
         CALL GEN_CONF_FOR_OCCLS(IOCCLS(1,JOCCLS),
      &                             IDUM,
      &                          INITIALIZE_CONF_COUNTERS,
@@ -163,7 +171,7 @@ C
      &                          idum_arr,
      &                          nconf_tot)
          Do i=1,maxop+1
-           NCONF_PER_OPEN(i,ISYM)=TMP_CNF(i)
+           NCONF_PER_OPEN(i,ISYM)=NCONF_PER_OPEN(i,ISYM)+TMP_CNF(i)
          End Do
 *MGD add to hexs_cnf only if the configuration does not have max occupation
 * in the selected GAS space
@@ -175,7 +183,7 @@ C
            End Do
            If (ielim.eq.0) Then
              Do i=1,maxop+1
-               HEXS_CNF(i)=TMP_CNF(i)
+               HEXS_CNF(i)=HEXS_CNF(i)+TMP_CNF(i)
              End Do
            EndIf
          EndIf

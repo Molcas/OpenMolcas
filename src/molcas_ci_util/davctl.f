@@ -57,6 +57,7 @@
 #include "ciinfo.fh"
 #include "WrkSpc.fh"
 #include "output_ras.fh"
+#include "lucia_ini.fh"
       Parameter(ROUTINE='DAVCTL  ')
       Call qEnter('DAVCTL')
 C
@@ -99,6 +100,15 @@ C
      &        WRITE(6,1100) 'CSTART',LW4,lSel,lExplE,lExplV
       Call CStart_CI_Util(WORK(LW4),LW1,TUVX,
      &     iWork(lSel),Work(lExplE),Work(lExplV),IFINAL)
+
+*MGD if nsel=nCSF_HEXS, save CI vectors
+        If (N_ELIMINATED_GAS_MOLCAS.gt.0.and.
+     &      nSel.ne.nConf.and.nSel.eq.nCSF_HEXS) then
+          Do i = 1,lRoots
+            Call Load_CI_vec(1,i,lRoots,nConf,WORK(LW4),LuDavid)
+            Call Save_tmp_CI_vec(i,lRoots,nConf,WORK(LW4),LuDavid)
+          End Do
+        EndIf
       CALL GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
 C
 C -------------------------------------------------------------------- C
@@ -133,7 +143,8 @@ C     LW5: CONVERGENCE PARAMETERS
       If ( NAC.eq.0 ) then
         ENER(1,ITER)=EMY
       Else
-        If ( nSel.eq.nConf ) then
+        If (( nSel.eq.nConf ).or.
+     &     (N_ELIMINATED_GAS_MOLCAS.gt.0.and.nSel.eq.nCSF_HEXS)) then
           Do jRoot = 1,lRoots
             ENER(jRoot,ITER) = Work(lExplE+jRoot-1)
           End Do
