@@ -1562,7 +1562,7 @@ if (CHEMPS2)
                 endforeach ()
                 message ("-- CHEMPS2_DIR: ${CHEMPS2_DIR}")
         else ()
-                message (FATAL ERROR "No CheMPS2 installation found at ${CheMPS2_DIR}")
+                message (FATAL_ERROR "No CheMPS2 installation found at ${CheMPS2_DIR}")
         endif ()
 
 else ()
