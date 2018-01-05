@@ -1562,7 +1562,7 @@ if (CHEMPS2)
                 endforeach ()
                 message ("-- CHEMPS2_DIR: ${CHEMPS2_DIR}")
         else ()
-                message (FATAL ERROR "No CheMPS2 installation found at ${CheMPS2_DIR}")
+                message (FATAL_ERROR "No CheMPS2 installation found at ${CheMPS2_DIR}")
         endif ()
 
 else ()
@@ -2647,10 +2647,10 @@ file (COPY "${OPENMOLCAS_DIR}/CONTRIBUTORS.md" DESTINATION ${PROJECT_BINARY_DIR}
 
 # copy the necessary files from data
 file (REMOVE_RECURSE ${PROJECT_BINARY_DIR}/data)
-file (GENERATE OUTPUT ${PROJECT_BINARY_DIR}/data/rysrw        INPUT ${OPENMOLCAS_DIR}/data/rysrw.ascii )
-file (GENERATE OUTPUT ${PROJECT_BINARY_DIR}/data/abdata       INPUT ${OPENMOLCAS_DIR}/data/abdata.ascii)
-file (GENERATE OUTPUT ${PROJECT_BINARY_DIR}/data/banner.txt   INPUT ${OPENMOLCAS_DIR}/data/banner.src  )
-file (GENERATE OUTPUT ${PROJECT_BINARY_DIR}/data/modalias.txt INPUT ${OPENMOLCAS_DIR}/data/modalias.src)
+configure_file (${OPENMOLCAS_DIR}/data/rysrw.ascii  data/rysrw        COPYONLY)
+configure_file (${OPENMOLCAS_DIR}/data/abdata.ascii data/abdata       COPYONLY)
+configure_file (${OPENMOLCAS_DIR}/data/banner.src   data/banner.txt   COPYONLY)
+configure_file (${OPENMOLCAS_DIR}/data/modalias.src data/modalias.txt COPYONLY)
 file (COPY ${OPENMOLCAS_DIR}/data/inputs.tpl DESTINATION ${PROJECT_BINARY_DIR}/data)
 if (DEFINED EXTRA_DIR)
         foreach (f alias.plx auto.prgm landing.txt)

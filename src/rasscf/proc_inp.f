@@ -2638,6 +2638,10 @@ c       write(6,*)          '  --------------------------------------'
        Write(6,*)
      & 'CHEMPS2> 3-RDM and F4-RDM require PseudoCanonical orbitals'
        Write(6,*) 'CHEMPS2> Automatically set: OUTOrbitals = CANOnical'
+       if (KeySUPS) then
+         write(6,*) 'CHEMPS2> Bug in using SYPSym and 3RDM, disable SUPSYm!'
+         Call Abend()
+       endif
 #endif
        Call SetPos(LUInput,'3RDM',Line,iRc)
        Call ChkIfKey()
