@@ -123,6 +123,7 @@ C Trying to avoid writing out of bound in CSDTVC :::: JESPER :::: CHEAT
 *===================================================================
 * start long loop over iterations
       nconverged=0
+      iskipconv=0
       Do iterci=1,mxItr
 *MGD Dynamically evaluate the size of nkeep (useful for large lroots
 *when we don't want too large hamiltonians with strong linear dependencies)
@@ -422,7 +423,9 @@ C Timings on generation of the sigma vector
          End If
          ThrRes = Max(0.2d-6,SQRT(ThrEne))
          iConv = 0
-         Do jRoot=1,lRoots
+         nconverged=0
+*Do not check for convergence of hidden roots
+         Do jRoot=1,lRoots-hroots
             If ( iterci.gt.1 ) then
                dE = CI_conv(1,jroot,iterci-1) - CI_conv(1,jroot,iterci)
             Else
@@ -435,7 +438,16 @@ C Timings on generation of the sigma vector
                If (jRoot.eq.nconverged+1) nconverged=nconverged+1
             EndIf
          End Do
-         If ( iConv.ge.lRoots ) Goto 100
+*check also if nconv was not 0 to start with
+*Do one more unconstrained optimization
+*         if ((iconv.ge.lRoots-hRoots).and.(iskipconv.eq.1)) then
+*           iskipconv=0
+*           iconv=0
+*         EndIf
+         if (iskipconv.eq.0) nconverged=0
+         if ((mod(iterci-1,12).eq.0)) nconverged=0
+*         write(6,*) 'nconverged=',nconverged,'iskipconv=',iskipconv
+         If ( iConv.ge.lRoots-hroots ) Goto 100
 *-------------------------------------------------------------------
 * compute correction vectors q1 = r/(E0-H) and q2 = c/(E0-H)
 
@@ -584,19 +596,18 @@ C Timings on generation of the sigma vector
             Call Save_CI_vec(iterci,mRoot,lRoots,nConf,Work(iVec3),
      &                    LuDavid)
          End Do
-*MGD Just to make sure the vectors exist, displace all the previous ones
+*MGD Just to make sure the vectors exist, displace the previous ones
          if (iterci.gt.1) then
+           jter=max(1,iterci-mxkeep+2)
            Do mRoot=1,nconverged
-             Do jter=iterci-1,Max(1,iterci-mxKeep+1),-1
                Call Load_CI_vec(jter,mRoot,lRoots,nConf,Work(iVec1),
      &                   LuDavid)
-               Call Save_CI_vec(jter+1,mRoot,lRoots,nConf,Work(iVec1),
+               Call Save_CI_vec(iterci,mRoot,lRoots,nConf,Work(iVec1),
      &                   LuDavid)
                Call Load_sig_vec(jter,mRoot,lRoots,nConf,Work(iVec1),
      &                   LuDavid)
-               Call Save_sig_vec(jter+1,mRoot,lRoots,nConf,Work(iVec1),
+               Call Save_sig_vec(iterci,mRoot,lRoots,nConf,Work(iVec1),
      &                   LuDavid)
-             End Do
            End Do
          EndIf
 *-------------------------------------------------------------------

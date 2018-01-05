@@ -226,6 +226,8 @@ C        ICIRST=1 ! to be activated!
 * make no use of supersymmetry
       I_ELIMINATE_GAS_MOLCAS = 0
 * Highly excited states are not default
+      hRoots=0
+* No hidden roots by default
       IORDEM=0
 * (SVC) do not force any ordering options
       IFORDE=1

@@ -1964,6 +1964,18 @@ C orbitals accordingly
          ReadStatus=' O.K. after reading data following HEXS keyword.'
       END IF
 *
+*---  Process HROO command ---
+*
+      IF (KEYHROO) THEN
+        IF(DBG) WRITE(6,*) ' HROO (Hidden roots)'//
+     &                       ' keyword was given. '
+       Call SetPos(LUInput,'HROO',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading data following HROO keyword.'
+       Read(LUInput,*,End=9910,Err=9920) hRoots
+       ReadStatus=' O.K. after reading data following HROO keyword.'
+      END IF
+*
 *---  Process CLEA command ---
 *
       Continue

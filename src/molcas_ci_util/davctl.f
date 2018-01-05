@@ -65,6 +65,7 @@ C -------------------------------------------------------------------- C
 C -- INITIALIZE THE DAVIDSON DIAGONALIZATION
 C -------------------------------------------------------------------- C
 C
+      lRoots=lRoots+hroots
       Call Ini_David(lRoots,nConf,nDet,nSel,nAc,LuDavid)
 
       IPRLEV=IPRLOC(3)
@@ -145,7 +146,7 @@ C     LW5: CONVERGENCE PARAMETERS
       Else
         If (( nSel.eq.nConf ).or.
      &     (N_ELIMINATED_GAS_MOLCAS.gt.0.and.nSel.eq.nCSF_HEXS)) then
-          Do jRoot = 1,lRoots
+          Do jRoot = 1,lRoots-hRoots
             ENER(jRoot,ITER) = Work(lExplE+jRoot-1)
           End Do
         Else
@@ -168,7 +169,7 @@ C     LW5: CONVERGENCE PARAMETERS
      &                 iWork(lSel),Work(lExplE),Work(lExplV),
      &                 LW1,TUVX)
 
-          Do jRoot = 1,lRoots
+          Do jRoot = 1,lRoots-hRoots
             ENER(jRoot,ITER) = Work(LW5+2*(jRoot-1)+
      &        2*(ITERCI-1)*lRoots)
           End Do
@@ -181,6 +182,8 @@ C     LW5: CONVERGENCE PARAMETERS
          Call GetMem('iSel','Free','Integer',lSel,mSel)
       ENDIF
       nSel = mSel
+      lRoots=lRoots-hroots
+*
 C
 C -------------------------------------------------------------------- C
 C -- CLEANUP AFTER THE DAVIDSON DIAGONALIZATION
@@ -191,8 +194,8 @@ C
       CALL GETMEM('CIVEC','ALLO','REAL',LW4,NCONF)
       IF (IPRLEV.GE.20) WRITE(6,1100) 'TERM_DAVID',LW4
       iDisk = IADR15(4)
-      Call Term_David(ICICH,ITERCI,lRoots,nConf,Work(LW4),JOBIPH,
-     &                LuDavid,iDisk)
+      Call Term_David(ICICH,ITERCI,lRoots,hRoots,nConf,Work(LW4),
+     &                JOBIPH,LuDavid,iDisk)
       CALL GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
 
       Call qExit('DAVCTL')
@@ -439,8 +442,8 @@ CFUE  End If
 
       Return
       End
-      Subroutine Term_David(ICICH,iter,nRoots,nConf,Vector,JOBIPH,
-     &                      LuDavid,iDisk)
+      Subroutine Term_David(ICICH,iter,nRoots,hRoots,nConf,Vector,
+     &                      JOBIPH,LuDavid,iDisk)
 ************************************************************************
 *                                                                      *
 *     purpose:                                                         *
@@ -480,7 +483,6 @@ CFUE  End If
 
 
 #include "rasdim.fh"
-
 #include "davctl.fh"
 #include "WrkSpc.fh"
 
@@ -528,7 +530,7 @@ CFUE  End If
         Call dCopy_(nRoots*nRoots,0.0d0, 0,Work(lOvlp2),(1))
       End If
       Do iRoot = 1,nRoots
-        Call Load_tmp_CI_vec(iRoot,nRoots,nConf,Vector,LuDavid)
+        Call Load_tmp_CI_vec(iRoot,nRoots+hRoots,nConf,Vector,LuDavid)
         Call DDaFile(JOBIPH,1,Vector,nConf,iDisk)
         If ( ICICH.eq.1 ) then
           Call CIovlp(iRoot,Work(lOvlp1),Work(lOvlp2),Vector)
