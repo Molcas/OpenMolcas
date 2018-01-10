@@ -7,6 +7,8 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2018, Ignacio Fdez. Galvan                             *
 ************************************************************************
       Subroutine Proc_Inp(DSCF,Info,lOPTO,iRc)
 
@@ -1043,6 +1045,24 @@ CIgorS End
        Call ChkIfKey()
       End If
 *
+*
+*---  Process ALPH command --------------------------------------------*
+      If (KeyALPH) Then
+       If (DBG) Write(6,*)' The ALPH keyword was used.'
+       Call SetPos(LUInput,'ALPH',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading data after ALPH keyword.'
+       Read(LUInput,*,End=9910,Err=9920) iAlphaBeta
+       ReadStatus=' O.K. after reading data after ALPH keyword.'
+       If (iAlphaBeta.lt.0) iAlphaBeta=-1
+       If (iAlphaBeta.gt.0) iAlphaBeta=1
+       If (DBG) Then
+        If (iAlphaBeta.eq.1) Write(6,*)' Read alpha orbitals from UHF'
+        If (iAlphaBeta.eq.-1) Write(6,*)' Read beta orbitals from UHF'
+       End If
+       Call ChkIfKey()
+      End If
+*
 * =========   Input source for orbitals: =============================*
 * INVEC=0 is used to indicate if any source of orbitals has been
 * identified.
@@ -1131,14 +1151,30 @@ CIgorS End
           call Quit(_RC_INPUT_ERROR_)
         end if
 *     orbitals available?
-        if (mh5_exists_dset(mh5id, 'MO_VECTORS')) then
+        select case (iAlphaBeta)
+          case (1)
+            Line='MO_ALPHA_VECTORS'
+          case (-1)
+            Line='MO_BETA_VECTORS'
+          case default
+            Line='MO_VECTORS'
+        end select
+        if (mh5_exists_dset(mh5id, trim(Line))) then
           inVec=4
         end if
 *     typeindex data available?
-        if (mh5_exists_dset(mh5id, 'TYPEINDEX')) then
+        select case (iAlphaBeta)
+          case (1)
+            Line='MO_ALPHA_TYPEINDICES'
+          case (-1)
+            Line='MO_BETA_TYPEINDICES'
+          case default
+            Line='MO_TYPEINDICES'
+        end select
+        if (mh5_exists_dset(mh5id, trim(Line))) then
           iOrbData=3
           call mma_allocate(typestring, sum(nbas(1:nsym)))
-          call mh5_fetch_dset(mh5id, 'TYPEINDEX', typestring)
+          call mh5_fetch_dset(mh5id, trim(Line), typestring)
           call tpstr2orb(nsym_l,nbas_l,typestring,
      $            nfro_l,nish_l, nrs1_l,nrs2_l,nrs3_l, nssh_l,ndel_l)
           call mma_deallocate(typestring)
@@ -2456,24 +2492,6 @@ c       write(6,*)          '  --------------------------------------'
        Call SetPos(LUInput,'PRSD',Line,iRc)
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
        If (DBG) Write(6,*)' Print determinant expansions of CSFs'
-       Call ChkIfKey()
-      End If
-*
-*
-*---  Process ALPH command --------------------------------------------*
-      If (KeyALPH) Then
-       If (DBG) Write(6,*)' The ALPH keyword was used.'
-       Call SetPos(LUInput,'ALPH',Line,iRc)
-       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-       ReadStatus=' Failure reading data after ALPH keyword.'
-       Read(LUInput,*,End=9910,Err=9920) iAlphaBeta
-       ReadStatus=' O.K. after reading data after ALPH keyword.'
-       If (iAlphaBeta.lt.0) iAlphaBeta=-1
-       If (iAlphaBeta.gt.0) iAlphaBeta=1
-       If (DBG) Then
-        If (iAlphaBeta.eq.1) Write(6,*)' Read alpha orbitals from UHF'
-        If (iAlphaBeta.eq.-1) Write(6,*)' Read beta orbitals from UHF'
-       End If
        Call ChkIfKey()
       End If
 
