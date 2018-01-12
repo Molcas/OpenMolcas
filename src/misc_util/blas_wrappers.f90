@@ -28,6 +28,7 @@
 ! dgemm_
 ! dspmv_
 ! dgemv_
+! dznrm2_
 
 ! Set the appropriate integer size of the library interface:
 #ifdef LINALG_I4
@@ -174,6 +175,24 @@ real*8 function dnrm2_(n_,x,incx_)
   dnrm2_ = dnrm2(n_,x,incx_)
 #endif
 end function
+
+
+real*8 function dznrm2_(n_,x,incx_)
+  implicit none
+  integer n_, incx_
+  complex*16 x(*)
+  real*8, external :: dznrm2
+#ifdef MOLCAS_TO_BLAS_INT
+  BLASINT n,  incx
+  n=n_
+  incx=incx_
+  dznrm2_ = dznrm2(n,x,incx)
+#else
+  dznrm2_ = dznrm2(n_,x,incx_)
+#endif
+end function
+
+
 
 real*8 function dasum_(n_,dx,incx_)
   implicit none
