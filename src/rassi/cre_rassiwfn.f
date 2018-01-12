@@ -60,6 +60,7 @@
       do istate=1,nstate
         state_mult(istate) = MLTPLT(JBNUM(ISTATE))
       end do
+      print *,'RASSI: STATE_SPINMULT',state_mult(:)
       call mh5_init_attr (wfn_fileid,
      $        'STATE_SPINMULT', 1, [NSTATE], state_mult)
       call mma_deallocate(state_mult)
@@ -77,12 +78,25 @@
       call mh5_init_attr(wfn_sfs_energy, 'description',
      $        'Energy for each spin-free state, '//
      $        'arranged as array of [NSTATE]')
+
 *     energies of the spin orbit states (SOS)
       wfn_sos_energy = mh5_create_dset_real (wfn_fileid,
      $        'SOS_ENERGIES', 1, [NSS])
       call mh5_init_attr(wfn_sos_energy, 'description',
      $        'Energy for each spin-orbit state, '//
      $        'arranged as array of [NSS]')
+
+*     SO complex hamiltonian
+      wfn_sos_hsor = mh5_create_dset_real(wfn_fileid,
+     $        'HSO_MATRIX_REAL', 2, [NSS,NSS])
+      call mh5_init_attr(wfn_sos_hsor, 'description',
+     $        'The spin-orbit hamiltonian, '//
+     $        '2D-array, real part as [NSS,NSS]')
+      wfn_sos_hsoi = mh5_create_dset_real(wfn_fileid,
+     $        'HSO_MATRIX_IMAG', 2, [NSS,NSS])
+      call mh5_init_attr(wfn_sos_hsoi, 'description',
+     $        'The spin-orbit hamiltonian, '//
+     $        '2D-array, imaginary part as [NSS,NSS]')
 
 *     SOS coefficients
       wfn_sos_coefr = mh5_create_dset_real(wfn_fileid,
@@ -104,6 +118,21 @@
       call mh5_init_attr(wfn_sfs_angmom, 'description',
      $        'Angular momentum components between the spin-free '//
      $        'states stored as <SFS1|iL(x,y,z)|SFS2> in'//
+     $        ' [NSTATE,NSTATE,3]')
+
+      wfn_sfs_edipmom = mh5_create_dset_real(wfn_fileid,
+     $        'SFS_EDIPMOM', 3, [NSTATE,NSTATE,3])
+      call mh5_init_attr(wfn_sfs_edipmom, 'description',
+     $        'Electric dipole momentum components between the '//
+     $        'spin-free states stored as <SFS1|ED(x,y,z)|SFS2> in'//
+     $        ' [NSTATE,NSTATE,3]')
+
+      wfn_sfs_amfi = mh5_create_dset_real(wfn_fileid,
+     $        'SFS_AMFIINT', 3, [NSTATE,NSTATE,3])
+      call mh5_init_attr(wfn_sfs_amfi, 'description',
+     $        'Components of the spin-orbit integrals between the '//
+     $        'spin-free states stored as '//
+     $        '<SFS1|spin-orbit-operator|SFS2> in'//
      $        ' [NSTATE,NSTATE,3]')
 
 *     SOS properties
