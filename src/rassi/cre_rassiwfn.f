@@ -60,7 +60,6 @@
       do istate=1,nstate
         state_mult(istate) = MLTPLT(JBNUM(ISTATE))
       end do
-      print *,'RASSI: STATE_SPINMULT',state_mult(:)
       call mh5_init_attr (wfn_fileid,
      $        'STATE_SPINMULT', 1, [NSTATE], state_mult)
       call mma_deallocate(state_mult)
