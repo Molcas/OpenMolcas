@@ -513,9 +513,9 @@ C divided over processors.
 C-SVC20100902: global arrays header files
 #include "global.fh"
 #include "mafdecls.fh"
-
+#ifndef SCALAPACK
       DIMENSION WGRONK(2)
-
+#endif
       LOGICAL bSTAT
       CHARACTER(2) cSYM,cCASE
       LOGICAL KING
