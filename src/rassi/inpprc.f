@@ -13,6 +13,7 @@
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='INPPRC')
+#include "WrkSpc.fh"
 #include "rasdim.fh"
 #include "rasdef.fh"
 #include "symmul.fh"
@@ -726,7 +727,10 @@ C Write out various input data:
         if (have_heff) then
           DO J=1,NSTATE
             DO I=1,NSTATE
-              HAM(I,J)=0.5D0*(HEFF(I,J)+HEFF(J,I))
+              iadr=(j-1)*nstate+i-1
+              iadr2=(i-1)*nstate+j-1
+              Work(LHAM+iadr)=0.5D0*(Work(L_HEFF+iadr)+
+     &                               Work(L_HEFF+iadr2))
             END DO
           END DO
           if (jobmatch) then
@@ -739,12 +743,12 @@ C Write out various input data:
         end if
       else if (ifejob) then
         if (have_diag) then
-          DO I=1,NSTATE
-            HAM(I,I)=REFENE(I)
+          DO I=0,NSTATE-1
+            Work(LHAM+i*nstate+i)=Work(LREFENE+i)
           END DO
         else if (have_heff) then
-          DO I=1,NSTATE
-            HAM(I,I)=HEFF(I,I)
+          DO I=0,NSTATE-1
+            Work(LHAM+i*nstate+i)=Work(L_HEFF+i*nstate+i)
           END DO
         else
           call WarningMessage(2,'EJOB used but no energies available!')
@@ -756,13 +760,16 @@ C Write out various input data:
           ifheff=.true.
           DO J=1,NSTATE
             DO I=1,NSTATE
-              HAM(I,J)=0.5D0*(HEFF(I,J)+HEFF(J,I))
+              iadr=(j-1)*nstate+i-1
+              iadr2=(i-1)*nstate+j-1
+              Work(LHAM+iadr)=0.5D0*(Work(L_HEFF+iadr)+
+     &                               Work(L_HEFF+iadr2))
             END DO
           END DO
         else if (have_diag) then
           ifhdia=.true.
           DO I=1,NSTATE
-            HDIAG(I)=REFENE(I)
+            HDIAG(I)=Work(LREFENE+i-1)
           END DO
         end if
       end if

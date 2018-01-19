@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE EIGCTL(PROP)
+      SUBROUTINE EIGCTL(PROP,OVLP,HAM,EIGVEC,ENERGY)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -26,7 +26,8 @@
 #include "rassiwfn.fh"
 
       character*100 line
-      REAL*8 PROP(NSTATE,NSTATE,NPROP)
+      REAL*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
+     &       HAM(NSTATE,NSTATE),EIGVEC(NSTATE,NSTATE),ENERGY(NSTATE)
       REAL*8, ALLOCATABLE :: ESFS(:)
 * Short array, just for putting transition dipole values
 * into Add_Info, for generating check numbers:
@@ -423,7 +424,7 @@ c
 *     &             WORK(LSCR),1,NSTATE,
 *     &             NSTATE,NSTATE,NSTATE)
          CALL DGEMM_('T','N',NSTATE,NSTATE,NSTATE,1.0D0,
-     &             EIGVEC,MXSTAT,OVLP,MXSTAT,
+     &             EIGVEC,NSTATE,OVLP,NSTATE,
      &             0.0D0,WORK(LSCR),NSTATE)
          WRITE(6,'(A,I5)')' INPUT STATE NR.:',I
          WRITE(6,*)' OVERLAP WITH THE EIGENSTATES:'
@@ -439,14 +440,14 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
 *     *            WORK(LSCR),  1,NSTATE,
 *     *            NSTATE,NSTATE,NSTATE)
         CALL DGEMM_('N','N',NSTATE,NSTATE,NSTATE,1.0D0,
-     &             PROP(1,1,IP),NSTATE,EIGVEC,MXSTAT,
+     &             PROP(1,1,IP),NSTATE,EIGVEC,NSTATE,
      &             0.0D0,WORK(LSCR),NSTATE)
 *        CALL MXMA(EIGVEC,      MXSTAT,1,
 *     *            WORK(LSCR),  1,NSTATE,
 *     *            PROP(1,1,IP),1,NSTATE,
 *     *            NSTATE,NSTATE,NSTATE)
         CALL DGEMM_('T','N',NSTATE,NSTATE,NSTATE,1.0D0,
-     &             EIGVEC,MXSTAT,WORK(LSCR),NSTATE,
+     &             EIGVEC,NSTATE,WORK(LSCR),NSTATE,
      &             0.0D0,PROP(1,1,IP),NSTATE)
       END DO
       CALL GETMEM('SCR','FREE','REAL',LSCR,NSTATE**2)

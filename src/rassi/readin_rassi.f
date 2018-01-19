@@ -276,11 +276,14 @@ C ------------------------------------------
       IF(LINE(1:4).EQ.'HEXT') THEN
         IFHEXT=.TRUE.
         IFHAM =.TRUE.
-        Read(LuIn,*,ERR=997)((HAM(ISTATE,JSTATE),JSTATE=1,ISTATE),
-     &                                           ISTATE=1,NSTATE)
-        DO ISTATE=1,NSTATE-1
-         DO JSTATE=ISTATE+1,NSTATE
-          HAM(ISTATE,JSTATE)=HAM(JSTATE,ISTATE)
+        Call GetMem('HAM','Allo','Real',LHAM,NSTATE**2)
+        Read(LuIn,*,ERR=997)((WORK(LHAM+ISTATE*NSTATE+JSTATE),
+     &                                           JSTATE=0,ISTATE),
+     &                                           ISTATE=0,NSTATE-1)
+        DO ISTATE=0,NSTATE-2
+         DO JSTATE=ISTATE,NSTATE-1
+           WORK(LHAM+JSTATE*NSTATE+ISTATE)=
+     &     WORK(LHAM+ISTATE*NSTATE+JSTATE)
          END DO
         END DO
         LINENR=LINENR+NSTATE

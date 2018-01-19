@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE RDJOB(JOB,READ_STATES)
+      SUBROUTINE RDJOB(JOB)
       IMPLICIT NONE
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -45,11 +45,10 @@
       Integer IAD, IAD15, IDISK, IERR
       Integer IPT2
       Integer ISY, IT
-      Integer I, J, ISTATE, JSTATE, ISNUM, JSNUM
+      Integer I, J, ISTATE, JSTATE, ISNUM, JSNUM, iAdr
       Integer LEJOB, LHEFF, NEJOB, NHEFF, NIS, NIS1, NTIT1, NMAYBE
 
       INTEGER JOB
-      LOGICAL READ_STATES
 
       CALL QENTER(ROUTINE)
 
@@ -104,18 +103,6 @@
       call mh5_fetch_attr (refwfn_id,'L2ACT', L2ACT)
       call mh5_fetch_attr (refwfn_id,'A2LEV', LEVEL)
 
-      if (read_states) then
-* update the state offset, number of states, and total number of states
-        ISTAT(JOB)=NSTATE+1
-        NSTAT(JOB)=ref_nstates
-        NSTATE=NSTATE+ref_nstates
-* store the root IDs of each state
-        DO I=1,NSTAT(JOB)
-          LROOT(ISTAT(JOB)-1+I)=ref_rootid(I)
-          JBNUM(ISTAT(JOB)-1+I)=JOB
-        END DO
-      end if
-
 * read the ms-caspt2 effective hamiltonian if it is available
       If (mh5_exists_dset(refwfn_id, 'H_EFF')) Then
         HAVE_HEFF=.TRUE.
@@ -125,7 +112,8 @@
           ISTATE=ISTAT(JOB)-1+I
           DO J=1,NSTAT(JOB)
             JSTATE=ISTAT(JOB)-1+J
-            HEFF(ISTATE,JSTATE)=ref_Heff(I,J)
+            iadr=(istate-1)*nstate+jstate-1
+            Work(l_heff+iadr)=ref_Heff(I,J)
           END DO
         END DO
         call mma_deallocate(ref_Heff)
@@ -137,7 +125,7 @@
      &         'STATE_PT2_ENERGIES',ref_energies)
         DO I=1,NSTAT(JOB)
           ISTATE=ISTAT(JOB)-1+I
-          REFENE(ISTATE)=ref_energies(I)
+          Work(LREFENE+istate-1)=ref_energies(I)
         END DO
         call mma_deallocate(ref_energies)
 * read rasscf energies
@@ -148,7 +136,7 @@
      &         'ROOT_ENERGIES',ref_energies)
         DO I=1,NSTAT(JOB)
           ISTATE=ISTAT(JOB)-1+I
-          REFENE(ISTATE)=ref_energies(ref_rootid(I))
+          Work(LREFENE+istate-1)=ref_energies(ref_rootid(I))
         END DO
         call mma_deallocate(ref_energies)
       End If
@@ -253,19 +241,6 @@ C SCATTER-READ VARIOUS DATA:
 C Response field contribution to zero-electron energies
 C is added in GETH1.
 
-      IF (READ_STATES) THEN
-* update the state offset, number of states, and total number of states
-        ISTAT(JOB)=NSTATE+1
-        NSTAT(JOB)=NROOT1
-        NSTATE=NSTATE+NROOT1
-* store the root IDs of each state
-        DO I=1,NSTAT(JOB)
-          LROOT(ISTAT(JOB)-1+I)=IROOT1(I)
-          JBNUM(ISTAT(JOB)-1+I)=JOB
-        END DO
-      END IF
-
-      write(6,*)' IFEJOB=',IFEJOB
 C Using energy data from JobIph?
       IF(IFEJOB) THEN
         NEJOB=MXROOT*MXITER
@@ -298,7 +273,7 @@ C Put these energies into diagonal of Hamiltonian:
         DO I=1,NSTAT(JOB)
           ISTATE=ISTAT(JOB)-1+I
           E=WORK(LEJOB-1+LROOT(ISTATE)+MXROOT*(NMAYBE-1))
-          REFENE(ISTATE)=E
+          Work(LREFENE+istate-1)=E
         END DO
         CALL GETMEM('EJOB','FREE','REAL',LEJOB,NEJOB)
       END IF
@@ -325,7 +300,8 @@ C Using effective Hamiltonian from JobIph file?
             JSTATE=ISTAT(JOB)-1+J
             JSNUM=LROOT(JSTATE)
             HIJ=WORK(LHEFF-1+ISNUM+LROT1*(JSNUM-1))
-            HEFF(ISTATE,JSTATE)=HIJ
+            iadr=(istate-1)*nstate+jstate-1
+            Work(l_heff+iadr)=HIJ
           END DO
         END DO
         CALL GETMEM('HEFF','FREE','REAL',LHEFF,NHEFF)
@@ -487,3 +463,75 @@ C Where is the CMO data set stored?
       CALL ABEND()
 
       END
+
+************************************************************************
+*                                                                      *
+*     Only read the number of states                                   *
+*                                                                      *
+*                                                                      *
+************************************************************************
+      Subroutine rdjob_nstates(JOB)
+      IMPLICIT NONE
+#include "rasdim.fh"
+#include "cntrl.fh"
+#include "Files.fh"
+#include "jobin.fh"
+#ifdef _HDF5_
+#  include "mh5.fh"
+      integer :: refwfn_id
+      integer :: ref_nstates
+      integer, allocatable :: ref_rootid(:)
+#endif
+      Real*8 Weight(MxRoot), ENUCDUMMY
+      Integer job,i,iad,ipt2
+************************************************************************
+*
+* For HDF5 formatted job files
+*
+************************************************************************
+#ifdef _HDF5_
+      If (mh5_is_hdf5(jbname(job))) Then
+        refwfn_id = mh5_open_file_r(jbname(job))
+        call mh5_fetch_attr (refwfn_id,'NSTATES', ref_nstates)
+        call mma_allocate(ref_rootid,ref_nstates)
+        call mh5_fetch_attr (refwfn_id,'STATE_ROOTID', ref_rootid)
+* update the state offset, number of states, and total number of states
+        ISTAT(JOB)=NSTATE+1
+        NSTAT(JOB)=ref_nstates
+        NSTATE=NSTATE+ref_nstates
+* store the root IDs of each state
+        DO I=1,NSTAT(JOB)
+          LROOT(ISTAT(JOB)-1+I)=ref_rootid(I)
+          JBNUM(ISTAT(JOB)-1+I)=JOB
+        END DO
+        call mh5_close_file(refwfn_id)
+      Else
+#endif
+      CALL DANAME(LUIPH,JBNAME(JOB))
+C READ TABLE OF CONTENTS ON THIS JOBIPH FILE:
+      IAD=0
+      CALL IDAFILE(LUIPH,2,ITOC15,30,IAD)
+C SCATTER-READ VARIOUS DATA:
+      IAD=ITOC15(1)
+      Call WR_RASSCF_Info(LUIPH,2,IAD,
+     &                    NACTE1,MPLET1,NSYM1,LSYM1,
+     &                    NFRO1,NISH1,NASH1,NDEL1,NBAS1,mxSym,
+     &                    NAME,4*2*mxOrb,NCONF1,HEAD1,2*72,
+     &                    TITLE1,4*mxTit*18,
+     &                    ENUCDUMMY,LROT1,NROOT1,
+     &                    IROOT1,mxRoot,NRS11,NRS21,NRS31,
+     &                    NHOL11,NELE31,IPT2,Weight)
+* update the state offset, number of states, and total number of states
+      ISTAT(JOB)=NSTATE+1
+      NSTAT(JOB)=NROOT1
+      NSTATE=NSTATE+NROOT1
+* store the root IDs of each state
+      DO I=1,NSTAT(JOB)
+        LROOT(ISTAT(JOB)-1+I)=IROOT1(I)
+        JBNUM(ISTAT(JOB)-1+I)=JOB
+      END DO
+      CALL DACLOS(LUIPH)
+#ifdef _HDF5_
+      EndIf
+#endif
+      end

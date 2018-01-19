@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE TSHinit()
+      SUBROUTINE TSHinit(Energy)
 C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
@@ -25,7 +25,7 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 #include "tshcntrl.fh"
       DIMENSION ISGSTR1(NSGSIZE), ISGSTR2(NSGSIZE)
       DIMENSION ICISTR1(NCISIZE), ICISTR2(NCISIZE)
-      DIMENSION IXSTR1(NXSIZE), IXSTR2(NXSIZE)
+      DIMENSION IXSTR1(NXSIZE), IXSTR2(NXSIZE),ENERGY(NSTATE)
       INTEGER      I,JOB1,JOB2,iRlxRoot
       CHARACTER*8  WFTYP1,WFTYP2
       LOGICAL   LOWROOT, UPROOT

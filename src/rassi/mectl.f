@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE MECTL(PROP)
+      SUBROUTINE MECTL(PROP,OVLP,HAM)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -20,7 +20,8 @@
 #include "WrkSpc.fh"
 #include "Files.fh"
 #include "SysDef.fh"
-      REAL*8 PROP(NSTATE,NSTATE,NPROP)
+      REAL*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
+     &       HAM(NSTATE,NSTATE)
 *
 
 
@@ -255,7 +256,7 @@ cnf
          nST = nState*(nState+1)/2
          Call Allocate_Work(iDerCpl,3*natom*nST)
          Call AppDerCpl(natom,nST,Work(iNucChg),Prop,
-     &                  Work(iDerCpl))
+     &                  Work(iDerCpl),HAM)
          Call Free_Work(iDerCpl,3*natom*nST)
          Call Free_Work(iNucChg,natom)
       End If

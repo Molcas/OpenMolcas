@@ -58,7 +58,7 @@ c This was taken from smmat.f and modified slightly
 
           IF (MPLET1.EQ.MPLET2 .AND. MSPROJ1.EQ.MSPROJ2) THEN
            IJ=(JSS-1)*NSS+ISS
-           WORK(LVMAT-1+IJ)=EIGVEC(ISTATE,JSTATE)
+           WORK(LVMAT-1+IJ)=WORK(LEIGVEC+(ISTATE-1)*NSTATE+JSTATE-1)
           END IF ! IF (MPLET1.EQ.MPLET2 .AND. MSPROJ1.EQ.MSPROJ2)
          END DO ! DO MSPROJ2=-MPLET2+1,MPLET2-1,2
         END DO ! end DO JSTATE=1,NSTATE

@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE PRPROP(PROP,USOR,USOI,ENSOR,NSS)
+      SUBROUTINE PRPROP(PROP,USOR,USOI,ENSOR,NSS,OVLP,ENERGY)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
 #include "prgm.fh"
@@ -23,7 +23,8 @@
 #include "Files.fh"
 #include "WrkSpc.fh"
 #include "constants.fh"
-      DIMENSION PROP(NSTATE,NSTATE,NPROP)
+      DIMENSION PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
+     &          ENERGY(NSTATE)
 #include "SysDef.fh"
 #include "rassiwfn.fh"
       Character*1 xyzchr(3)

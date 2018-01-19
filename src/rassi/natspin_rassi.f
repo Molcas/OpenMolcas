@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE NATSPIN_RASSI(DMAT,TDMZZ,VNAT,OCC)
+      SUBROUTINE NATSPIN_RASSI(DMAT,TDMZZ,VNAT,OCC,EIGVEC)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "Molcas.fh"
@@ -20,6 +20,7 @@
       DIMENSION DMAT(NBSQ),TDMZZ(NTDMZZ),VNAT(NBSQ),OCC(NBST)
       CHARACTER*8 FNAME
       CHARACTER*2 KNUM
+      REAL*8 EIGVEC(NSTATE,NSTATE)
 
       Call qEnter('NATSPIN')
 C ALLOCATE WORKSPACE AREAS.
