@@ -722,15 +722,15 @@ set (CFLAGS_PGI_RELEASE "-O2")
 set (CFLAGS_PGI_FAST "-O2")
 # Fortran compiler
 list (APPEND SUPPORTED_Fortran_COMPILERS "PGI")
-set (FFLAGS_PGI_BASIC "-Mpreprocess")
+set (FFLAGS_PGI_BASIC "-Mpreprocess -Mbackslash")
 set (FFLAGS_PGI_OPENMP "-mp")
 set (FFLAGS_PGI_ILP64 "-i8")
 # build targets
-set (FFLAGS_PGI_DEBUG "-O0 -g -Minform=warn")
-set (FFLAGS_PGI_GARBLE "-O2 -gopt -Minform=warn")
-set (FFLAGS_PGI_RELWITHDEBINFO "-O2 -gopt -Minform=warn")
-set (FFLAGS_PGI_RELEASE "-O2")
-set (FFLAGS_PGI_FAST "-fast")
+set (FFLAGS_PGI_DEBUG "-O0 -g -Minform=warn -Mbackslash")
+set (FFLAGS_PGI_GARBLE "-O2 -gopt -Minform=warn -Mbackslash")
+set (FFLAGS_PGI_RELWITHDEBINFO "-O2 -gopt -Minform=warn -Mbackslash")
+set (FFLAGS_PGI_RELEASE "-O2 -Mbackslash")
+set (FFLAGS_PGI_FAST "-fast -Mbackslash")
 
 # The option does not exist, or I cannot find it
 #set (CXXFLAGS_PGI_BIGOT "???")

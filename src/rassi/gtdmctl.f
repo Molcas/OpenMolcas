@@ -43,7 +43,7 @@
       CHARACTER*6 STLNE1
       CHARACTER*3 NUM1,NUM2
       CHARACTER*12 FNM
-      CHARACTER*44 STLNE2
+      CHARACTER*48 STLNE2
 * PAM 2011 Nov 3, added write buffer WBUF:
       DIMENSION WBUF(5)
 #include "SysDef.fh"
@@ -597,7 +597,7 @@ C Loop over the states of JOBIPH nr JOB1
         IF(ISTATE.LT.JSTATE) GOTO 100
 C Entry into monitor: Status line
         WRITE(STLNE1,'(A6)') 'RASSI:'
-        WRITE(STLNE2,'(A33,I3,A5,I3)')
+        WRITE(STLNE2,'(A33,I5,A5,I5)')
      &      'Trans. dens. matrices for states ',ISTATE,' and ',JSTATE
         Call StatusLine(STLNE1,STLNE2)
 
