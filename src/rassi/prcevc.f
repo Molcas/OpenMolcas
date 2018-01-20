@@ -49,7 +49,7 @@ C foursome of states.
        WRITE(6,*)
        WRITE(6,'(1X,A16,F16.8,3(2X,F16.8))')
      &            '    Energy (au) ',(SOENE(JSS),JSS=JSTA,JEND)
-       WRITE(6,'(1X,A16,7X,I3,3(15X,I3))')
+       WRITE(6,'(1X,A16,6X,I4,3(14X,I4))')
      &            ' SFS  S     Ms  ',(JSS,JSS=JSTA,JEND)
 * Scan coefficients to pick out the largest:
        WGTMAX=0.0D0
