@@ -25,7 +25,7 @@
 #  include "mh5.fh"
 #endif
 
-      INTEGER JOB
+      INTEGER JOB,i
 
       CALL QENTER(ROUTINE)
 
@@ -46,7 +46,17 @@ C Read (and do some checking) the standard input.
         DO JOB=1,NJOB
           call rdjob_nstates(JOB)
         END DO
+* store the root IDs of each state
+        Call GetMem('JBNUM','Allo','Inte',LJBNUM,NSTATE)
+        Call GetMem('LROOT','Allo','Inte',LLROOT,NSTATE)
+        call izero(iWork(LLROOT),NSTATE)
+        Do JOB=1,NJOB
+          DO I=0,NSTAT(JOB)-1
+            iWork(lJBNUM+ISTAT(JOB)-1+I)=JOB
+          End Do
+        End Do
       END IF
+
 * Allocate a bunch of stuff
       Call GetMem('REFENE','Allo','Real',LREFENE,NSTATE)
       L_HEFF=ip_Dummy
@@ -58,6 +68,12 @@ C Read (and do some checking) the standard input.
         Call GetMem('HAM','Allo','Real',LHAM,NSTATE**2)
         call dzero(Work(LHAM),NSTATE**2)
       EndIf
+      If (.not.IFSHFT) Then
+        Call GetMem('ESHFT','Allo','Real',LESHFT,NSTATE)
+        call dzero(Work(LESHFT),NSTATE)
+      EndIf
+      If (.not.IFHDIA) Call GetMem('HDIAG','Allo','Real',LHDIAG,NSTATE)
+
 C Read information on the job files and check for consistency
       DO JOB=1,NJOB
         CALL RDJOB(JOB)

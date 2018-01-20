@@ -99,7 +99,7 @@ C Mapping from spin states to spin-free state and to spin:
       CALL GETMEM('MAPMS','ALLO','INTE',LMAPMS,NSS)
       ISS=0
       DO ISTATE=1,NSTATE
-       JOB=JBNUM(ISTATE)
+       JOB=iWork(lJBNUM+ISTATE-1)
        MPLET=MLTPLT(JOB)
        DO MSPROJ=-MPLET+1,MPLET-1,2
         ISS=ISS+1

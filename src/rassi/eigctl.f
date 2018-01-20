@@ -80,13 +80,13 @@ C Make a list of interacting sets of states:
         IF(IWORK(LLIST-1+I).GT.0) GOTO 20
         ISET=ISET+1
         IWORK(LLIST-1+I)=ISET
-        JOB1=JBNUM(I)
+        JOB1=iWork(lJBNUM+I-1)
         NACTE1=NACTE(JOB1)
         MPLET1=MLTPLT(JOB1)
         LSYM1=IRREP(JOB1)
         DO J=I+1,NSTATE
           IF(IWORK(LLIST-1+J).GT.0) GOTO 10
-          JOB2=JBNUM(J)
+          JOB2=iWork(lJBNUM+J-1)
           NACTE2=NACTE(JOB2)
           IF(NACTE2.NE.NACTE1) GOTO 10
           MPLET2=MLTPLT(JOB2)
@@ -1665,9 +1665,9 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
       G_Elec=CONST_ELECTRON_G_FACTOR_
       iPrint=0
       DO I=1, NSTATE
-         MPLET_I=MLTPLT(JBNUM(I))
+         MPLET_I=MLTPLT(iWork(lJBNUM+I-1))
          DO J=1, NSTATE
-            MPLET_J=MLTPLT(JBNUM(J))
+            MPLET_J=MLTPLT(iWork(lJBNUM+J-1))
 *
             EDIFF=ENERGY(J)-ENERGY(I)
             IF (EDIFF.LE.0.0D0) CYCLE
@@ -1902,7 +1902,7 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
 *
       Call DaName(LuToM,FnToM)
       iDisk=0
-      Call iDaFile(LuToM,2,iTocM,MxStat*(MxStat+1)/2,iDisk)
+      Call iDaFile(LuToM,2,iWork(liTocM),nState*(nState+1)/2,iDisk)
 *
       NIP=4+(NBST*(NBST+1))/2
       CALL GETMEM('IP    ','ALLO','REAL',LIP,NIP)
@@ -1943,9 +1943,9 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
       iPrint=0
       IJSO=0
       DO I=1, IEND
-         MPLET_I=MLTPLT(JBNUM(I))
+         MPLET_I=MLTPLT(iWork(lJBNUM+I-1))
          DO J=JSTART, NSTATE
-            MPLET_J=MLTPLT(JBNUM(J))
+            MPLET_J=MLTPLT(iWork(lJBNUM+J-1))
 *
             EDIFF=ENERGY(J)-ENERGY(I)
             If (ABS(EDIFF).le.1.0D-8) CYCLE
@@ -1960,8 +1960,8 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
 *           rkNorm=1.0D-31
 *
 C COMBINED SYMMETRY OF STATES:
-            JOB1=JBNUM(I)
-            JOB2=JBNUM(J)
+            JOB1=iWork(lJBNUM+I-1)
+            JOB2=iWork(lJBNUM+J-1)
             LSYM1=IRREP(JOB1)
             LSYM2=IRREP(JOB2)
             ISY12=MUL(LSYM1,LSYM2)
@@ -1991,7 +1991,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
             ISTATE=MAX(i,j)
             JSTATE=MIN(i,j)
             ij=ISTATE*(ISTATE-1)/2+JSTATE
-            iDisk=iTocM(ij)
+            iDisk=iWork(liTocM+ij-1)
             Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
 *
 *           Iterate over the quadrature points.

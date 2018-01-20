@@ -81,6 +81,7 @@ C Needed matrix elements are computed by PROPER.
       Call GetMem('OVLP','Allo','Real',LOVLP,NSTATE2)
       Call GetMem('EIGVEC','Allo','Real',LEIGVEC,NSTATE2)
       Call GetMem('ENERGY','Allo','Real',LENERGY,NSTATE)
+      Call GetMem('ITOCM','Allo','Inte',liTocM,NSTATE*(NSTATE+1)/2)
 
       NPROPSZ=NSTATE*NSTATE*NPROP
       CALL GETMEM('Prop','Allo','Real',LPROP,NPROPSZ)
@@ -121,7 +122,7 @@ C       Print the overlap matrix here, since MECTL is skipped
 
 C Property matrix elements:
       Call StatusLine('RASSI:','Computing matrix elements.')
-      CALL MECTL(WORK(LPROP),WORK(LOVLP),WORK(LHAM))
+      CALL MECTL(WORK(LPROP),WORK(LOVLP),WORK(LHAM),WORK(LESHFT))
 
 C--------  SI wave function section --------------------------
 C In a second section, if Hamiltonian elements were requested,
@@ -170,7 +171,7 @@ C Nr of spin states and division of loops:
       NSS=0
       LOOPDIVIDE_TEMP = 0
       DO ISTATE=1,NSTATE
-       JOB=JBNUM(ISTATE)
+       JOB=iWork(lJBNUM+ISTATE-1)
        MPLET=MLTPLT(JOB)
        NSS=NSS+MPLET
        IF(ISTATE.GT.LOOPDIVIDE) CYCLE
@@ -193,7 +194,8 @@ C Nr of spin states and division of loops:
       END IF
 
       CALL PRPROP(WORK(LPROP),WORK(LUTOTR),WORK(LUTOTI),
-     &            WORK(LSOENE),NSS,WORK(LOVLP),WORK(LENERGY))
+     &            WORK(LSOENE),NSS,WORK(LOVLP),WORK(LENERGY),
+     &            iWork(lJBNUM))
 
 
 C Plot SO-Natural Orbitals if requested
@@ -241,6 +243,12 @@ CIgorS End------------------------------------------------------------C
       Call GetMem('HAM','Free','Real',LHAM,NSTATE2)
       Call GetMem('EIGVEC','Free','Real',LEIGVEC,NSTATE2)
       Call GetMem('ENERGY','Free','Real',LENERGY,NSTATE)
+      Call GetMem('ESHFT','Free','Real',LESHFT,NSTATE)
+      Call GetMem('HDIAG','Free','Real',LHDIAG,NSTATE)
+      Call GetMem('IDTDM','Free','Inte',lIDTDM,NSTATE2)
+      Call GetMem('JBNUM','Free','Inte',LJBNUM,NSTATE)
+      Call GetMem('LROOT','Free','Inte',LLROOT,NSTATE)
+      Call GetMem('ITOCM','Free','Inte',liTocM,NSTATE*(NSTATE+1)/2)
       CALL GETMEM('Prop','Free','Real',LPROP,NPROPSZ)
       CALL GETMEM('NilPt','FREE','REAL',LNILPT,1)
       CALL GETMEM('INilPt','FREE','INTE',LINILPT,1)

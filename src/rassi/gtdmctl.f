@@ -679,7 +679,7 @@ C Then, WE-reduced TDM''s of triplet type:
 ! jochen 02/15: sonatorb needs these files
 !        we'll make the I/O conditional upon the keyword
           IF(SONATNSTATE.GT.0) THEN
-            IDISK=IDTDM(ISTATE,JSTATE)
+            IDISK=iWork(lIDTDM+(ISTATE-1)*NSTATE+JSTATE)
             CALL DDAFILE(LUTDM,1,WORK(LTDMZZ),NTDMZZ,IDISK)
             CALL DDAFILE(LUTDM,1,WORK(LTSDMZZ),NTDMZZ,IDISK)
             CALL DDAFILE(LUTDM,1,WORK(LWDMZZ),NTDMZZ,IDISK)
@@ -921,9 +921,9 @@ C End of loops over states.
 #ifdef _DMRG_
       IF(IPGLOB.GE.DEBUG) THEN
          write(6,*) 'full SF-HAMILTONIAN '
-         write(6,*) 'dimension: ',mxstat**2
-         call pretty_print_util(HAM,1,mxstat,1,mxstat,
-     &                          mxstat,mxstat,1,6)
+         write(6,*) 'dimension: ',nstate**2
+         call pretty_print_util(HAM,1,nstate,1,nstate,
+     &                          nstate,nstate,1,6)
       END IF
 #endif
 

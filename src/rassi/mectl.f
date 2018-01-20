@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE MECTL(PROP,OVLP,HAM)
+      SUBROUTINE MECTL(PROP,OVLP,HAM,ESHFT)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -21,7 +21,7 @@
 #include "Files.fh"
 #include "SysDef.fh"
       REAL*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
-     &       HAM(NSTATE,NSTATE)
+     &       HAM(NSTATE,NSTATE),ESHFT(NSTATE)
 *
 
 
@@ -183,7 +183,7 @@ C Print results:
         DO ISTATE=1,NSTATE
           IF(.NOT.IFSHFT) ESHFT(ISTATE)=0.0D0
           IF(IFHDIA) ESHFT(ISTATE)=ESHFT(ISTATE)+
-     &              (HDIAG(ISTATE)-HAM(ISTATE,ISTATE))
+     &              (Work(LHDIAG+ISTATE-1)-HAM(ISTATE,ISTATE))
         END DO
         DO ISTATE=1,NSTATE
          DO JSTATE=1,NSTATE

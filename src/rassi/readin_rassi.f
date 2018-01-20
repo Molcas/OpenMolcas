@@ -230,23 +230,23 @@ C ------------------------------------------
         ELSE
           BACKSPACE(LuIn)
           Read(LuIn,*,ERR=997) NJOB,(NSTAT(I),I=1,NJOB)
+          DO IJOB=1,NJOB
+            NSTATE=NSTATE+NSTAT(IJOB)
+          END DO
+          Call GetMem('JBNUM','Allo','Inte',LJBNUM,NSTATE)
+          Call GetMem('LROOT','Allo','Inte',LLROOT,NSTATE)
           LINENR=LINENR+1
+          NSTATE=0
           DO IJOB=1,NJOB
             ISTAT(IJOB)=NSTATE+1
-            Read(LuIn,*,ERR=997) (LROOT(NSTATE+J),J=1,NSTAT(IJOB))
+            Read(LuIn,*,ERR=997) (iWork(lLROOT+NSTATE+J),
+     &                                 J=0,NSTAT(IJOB)-1)
             LINENR=LINENR+1
             DO ISTATE=NSTATE+1,NSTATE+NSTAT(IJOB)
-              JBNUM(ISTATE)=IJOB
+              iWork(lJBNUM+ISTATE-1)=IJOB
             END DO
             NSTATE=NSTATE+NSTAT(IJOB)
           END DO
-        END IF
-        IF(NSTATE.GT.MXSTAT) THEN
-          Call WarningMessage(2,'Too many states.')
-          WRITE(6,*)' Max nr of (spin-free) states is MXSTAT=',MXSTAT
-          WRITE(6,*)' with value taken from parameter MXROOT in'
-          WRITE(6,*)' ''Molcas.fh''. Increase and recompile.'
-          CALL ABEND()
         END IF
         GOTO 100
       END IF
@@ -311,14 +311,16 @@ C ------------------------------------------
 C ------------------------------------------
       IF(LINE(1:4).EQ.'HDIA') THEN
         IFHDIA=.TRUE.
-        Read(LuIn,*,ERR=997)(HDIAG(ISTATE),ISTATE=1,NSTATE)
+        Call GetMem('HDIAG','ALLO','REAL',LHDIAG,NSTATE)
+        Read(LuIn,*,ERR=997)(Work(LHDIAG+ISTATE),ISTATE=0,NSTATE-1)
         LINENR=LINENR+1
         GOTO 100
       END IF
 C ------------------------------------------
       IF(LINE(1:4).EQ.'SHIF') THEN
         IFSHFT=.TRUE.
-        Read(LuIn,*,ERR=997)(ESHFT(ISTATE),ISTATE=1,NSTATE)
+        Call GetMem('ESHFT','Allo','Real',LESHFT,NSTATE)
+        Read(LuIn,*,ERR=997)(Work(LESHFT+ISTATE),ISTATE=0,NSTATE-1)
         LINENR=LINENR+1
         GOTO 100
       END IF

@@ -45,7 +45,7 @@
 
       NSS=0
       DO ISTATE=1,NSTATE
-        NSS=NSS+MLTPLT(JBNUM(ISTATE))
+        NSS=NSS+MLTPLT(iWork(lJBNUM+ISTATE-1))
       END DO
 
 *     irrep per state
@@ -58,7 +58,7 @@
 *     multiplicity per state
       call mma_allocate(state_mult, NSTATE)
       do istate=1,nstate
-        state_mult(istate) = MLTPLT(JBNUM(ISTATE))
+        state_mult(istate) = MLTPLT(iWork(lJBNUM+ISTATE-1))
       end do
       call mh5_init_attr (wfn_fileid,
      $        'STATE_SPINMULT', 1, [NSTATE], state_mult)

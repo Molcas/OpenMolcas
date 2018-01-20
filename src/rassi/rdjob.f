@@ -80,6 +80,12 @@
 
       call mma_allocate(ref_rootid,ref_nstates)
       call mh5_fetch_attr (refwfn_id,'STATE_ROOTID', ref_rootid)
+*If unset yet, set now
+      If (iWork(lLROOT+ISTAT(JOB)-1).eq.0) Then
+        DO I=0,NSTAT(JOB)-1
+          iWork(lLROOT+ISTAT(JOB)-1+I)=ref_rootid(I+1)
+        End DO
+      EndIf
 
       call mma_allocate (typestring, sum(ref_nbas(1:ref_nsym)))
       call mh5_fetch_dset (refwfn_id, 'MO_TYPEINDICES', typestring)
@@ -240,6 +246,12 @@ C SCATTER-READ VARIOUS DATA:
      &                    NHOL11,NELE31,IPT2,Weight)
 C Response field contribution to zero-electron energies
 C is added in GETH1.
+*If unset yet, set now
+      If (iWork(lLROOT+ISTAT(JOB)-1).eq.0) Then
+        DO I=0,NSTAT(JOB)-1
+          iWork(lLROOT+ISTAT(JOB)-1+I)=IROOT1(I+1)
+        End DO
+      EndIf
 
 C Using energy data from JobIph?
       IF(IFEJOB) THEN
@@ -272,7 +284,7 @@ C table of energies/iteration is the last one with not all zeroes.
 C Put these energies into diagonal of Hamiltonian:
         DO I=1,NSTAT(JOB)
           ISTATE=ISTAT(JOB)-1+I
-          E=WORK(LEJOB-1+LROOT(ISTATE)+MXROOT*(NMAYBE-1))
+          E=WORK(LEJOB-1+iWork(lLROOT+ISTATE-1)+MXROOT*(NMAYBE-1))
           Work(LREFENE+istate-1)=E
         END DO
         CALL GETMEM('EJOB','FREE','REAL',LEJOB,NEJOB)
@@ -295,10 +307,10 @@ C Using effective Hamiltonian from JobIph file?
         CALL DDAFILE(LUIPH,2,WORK(LHEFF),NHEFF,IAD15)
         DO I=1,NSTAT(JOB)
           ISTATE=ISTAT(JOB)-1+I
-          ISNUM=LROOT(ISTATE)
+          ISNUM=iWork(lLROOT+ISTATE-1)
           DO J=1,NSTAT(JOB)
             JSTATE=ISTAT(JOB)-1+J
-            JSNUM=LROOT(JSTATE)
+            JSNUM=iWork(lLROOT+JSTATE-1)
             HIJ=WORK(LHEFF-1+ISNUM+LROT1*(JSNUM-1))
             iadr=(istate-1)*nstate+jstate-1
             Work(l_heff+iadr)=HIJ
@@ -476,6 +488,7 @@ C Where is the CMO data set stored?
 #include "cntrl.fh"
 #include "Files.fh"
 #include "jobin.fh"
+#include "WrkSpc.fh"
 #ifdef _HDF5_
 #  include "mh5.fh"
       integer :: refwfn_id
@@ -483,7 +496,7 @@ C Where is the CMO data set stored?
       integer, allocatable :: ref_rootid(:)
 #endif
       Real*8 Weight(MxRoot), ENUCDUMMY
-      Integer job,i,iad,ipt2
+      Integer job,iad,ipt2
 ************************************************************************
 *
 * For HDF5 formatted job files
@@ -499,11 +512,6 @@ C Where is the CMO data set stored?
         ISTAT(JOB)=NSTATE+1
         NSTAT(JOB)=ref_nstates
         NSTATE=NSTATE+ref_nstates
-* store the root IDs of each state
-        DO I=1,NSTAT(JOB)
-          LROOT(ISTAT(JOB)-1+I)=ref_rootid(I)
-          JBNUM(ISTAT(JOB)-1+I)=JOB
-        END DO
         call mh5_close_file(refwfn_id)
       Else
 #endif
@@ -525,11 +533,6 @@ C SCATTER-READ VARIOUS DATA:
       ISTAT(JOB)=NSTATE+1
       NSTAT(JOB)=NROOT1
       NSTATE=NSTATE+NROOT1
-* store the root IDs of each state
-      DO I=1,NSTAT(JOB)
-        LROOT(ISTAT(JOB)-1+I)=IROOT1(I)
-        JBNUM(ISTAT(JOB)-1+I)=JOB
-      END DO
       CALL DACLOS(LUIPH)
 #ifdef _HDF5_
       EndIf

@@ -16,6 +16,7 @@
 #include "rasdim.fh"
 #include "cntrl.fh"
 #include "Files.fh"
+#include "WrkSpc.fh"
 #include "rassi.fh"
 #include "jobin.fh"
 #include "Struct.fh"
@@ -40,8 +41,8 @@
         WRITE(6,*)' ISTATE, NSTATE:',ISTATE,NSTATE
         CALL ABEND()
       END IF
-      JOB=JBNUM(ISTATE)
-      LROOT1=LROOT(ISTATE)
+      JOB=iWork(lJBNUM+ISTATE-1)
+      LROOT1=iWork(lLROOT+ISTATE-1)
 
 #ifdef _HDF5_
 ************************************************************************
@@ -89,7 +90,7 @@
         WRITE(6,*)' READCI called for state ',ISTATE
         WRITE(6,*)' This is on JobIph nr.',JOB
         WRITE(6,*)' JobIph file name:',JBNAME(JOB)
-        WRITE(6,*)' It is root nr.',LROOT(ISTATE)
+        WRITE(6,*)' It is root nr.',iWork(lLROOT+ISTATE-1)
         WRITE(6,*)' Its length NCI=',NCI
         WRITE(6,*)' Its symmetry  =',IRREP(JOB)
         WRITE(6,*)' Spin multiplic=',MLTPLT(JOB)
