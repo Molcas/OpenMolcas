@@ -71,7 +71,7 @@ C foursome of states.
         END DO
         IF(TST.GE.CFFLIM**2) THEN
          WRITE(6,
-     &        '(1X,I3,1X,F4.1,1X,F5.1,3X,4(A1,F7.4,A1,F7.4,A1,1x))')
+     &        '(I4,1X,F4.1,1X,F5.1,3X,4(A1,F7.4,A1,F7.4,A1,1x))')
      &         ISTATE,S,SZ,('(',UMATR(ISS,JSS),','
      &                            ,UMATI(ISS,JSS),')',JSS=JSTA,JEND)
         END IF
