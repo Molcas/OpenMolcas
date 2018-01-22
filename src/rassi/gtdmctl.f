@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE GTDMCTL(PROP,JOB1,JOB2,OVLP,HAM)
+      SUBROUTINE GTDMCTL(PROP,JOB1,JOB2,OVLP,HAM,IDDET1)
 
       !> module dependencies
 #ifdef _DMRG_
@@ -38,6 +38,7 @@
       DIMENSION NGASORB(100),NGASLIM(2,10)
       DIMENSION NASHES(8)
       DIMENSION OVLP(NSTATE,NSTATE),HAM(NSTATE,NSTATE)
+      DIMENSION IDDET1(NSTATE)
       LOGICAL IF00, IF10,IF01,IF20,IF11,IF02,IF21,IF12,IF22
       LOGICAL IFTWO,TRORB
       CHARACTER*8 WFTP1,WFTP2

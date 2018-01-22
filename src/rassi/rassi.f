@@ -82,6 +82,7 @@ C Needed matrix elements are computed by PROPER.
       Call GetMem('EIGVEC','Allo','Real',LEIGVEC,NSTATE2)
       Call GetMem('ENERGY','Allo','Real',LENERGY,NSTATE)
       Call GetMem('ITOCM','Allo','Inte',liTocM,NSTATE*(NSTATE+1)/2)
+      Call GetMem('IDDET1','Allo','Inte',lIDDET1,NSTATE)
 
       NPROPSZ=NSTATE*NSTATE*NPROP
       CALL GETMEM('Prop','Allo','Real',LPROP,NPROPSZ)
@@ -93,9 +94,11 @@ C Loop over jobiphs JOB1:
         Fake_CMO2 = JOB1.eq.JOB2  ! MOs1 = MOs2  ==> Fake_CMO2=.true.
 
 C Compute generalized transition density matrices, as needed:
-          CALL GTDMCTL(WORK(LPROP),JOB1,JOB2,WORK(LOVLP),Work(LHAM))
+          CALL GTDMCTL(WORK(LPROP),JOB1,JOB2,WORK(LOVLP),Work(LHAM),
+     &                iWork(lIDDET1))
         END DO
       END DO
+      Call GetMem('IDDET1','Free','Inte',lIDDET1,NSTATE)
 
 #ifdef _HDF5_
       CALL mh5_put_dset_array_real(wfn_overlap,

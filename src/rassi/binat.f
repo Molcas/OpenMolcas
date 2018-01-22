@@ -154,7 +154,7 @@ C The BRA and KET binatural orbitals:
 
 C A long loop over eigenstate pairs:
       DO IJPAIR=1,NBINA
-C Requested state pairs for computation:
+C Requested state pairs for computation: (OBSOLETE)
        KEIG_BRA=IBINA(1,IJPAIR)
        KEIG_KET=IBINA(2,IJPAIR)
 C Get symmetries, via jobiph number for the states:

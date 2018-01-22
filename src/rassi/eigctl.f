@@ -419,8 +419,8 @@ c
         WRITE(6,*)' THE INPUT RASSCF STATES REEXPRESSED IN EIGENSTATES:'
         WRITE(6,*)
         DO I=1,NSTATE
-*        CALL MXMA (EIGVEC,MXSTAT,1,
-*     &             OVLP,  1,MXSTAT,
+*        CALL MXMA (EIGVEC,NSTATE,1,
+*     &             OVLP,  1,NSTATE,
 *     &             WORK(LSCR),1,NSTATE,
 *     &             NSTATE,NSTATE,NSTATE)
          CALL DGEMM_('T','N',NSTATE,NSTATE,NSTATE,1.0D0,
@@ -436,13 +436,13 @@ c
 C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
       DO IP=1,NPROP
 *        CALL MXMA(PROP(1,1,IP),1,NSTATE,
-*     *            EIGVEC,      1,MXSTAT,
+*     *            EIGVEC,      1,NSTATE,
 *     *            WORK(LSCR),  1,NSTATE,
 *     *            NSTATE,NSTATE,NSTATE)
         CALL DGEMM_('N','N',NSTATE,NSTATE,NSTATE,1.0D0,
      &             PROP(1,1,IP),NSTATE,EIGVEC,NSTATE,
      &             0.0D0,WORK(LSCR),NSTATE)
-*        CALL MXMA(EIGVEC,      MXSTAT,1,
+*        CALL MXMA(EIGVEC,      NSTATE,1,
 *     *            WORK(LSCR),  1,NSTATE,
 *     *            PROP(1,1,IP),1,NSTATE,
 *     *            NSTATE,NSTATE,NSTATE)

@@ -36,10 +36,10 @@
       iSkutt=0
       iDisk=0
       Call DaName(LuIn,RassiM)
-      Call iDaFile(LuIn,2,iTocBig,MxStOT,iDisk)
+      nTriSP=nStatePrim*(nStatePrim+1)/2
+      Call iDaFile(LuIn,2,iTocBig,nTriSP,iDisk)
       nSize=nB*(nB+1)/2
       nTriS=nState*(nState+1)/2
-      nTriSP=nStatePrim*(nStatePrim+1)/2
       nSizeBig=nSize*nTriS
       nSizeBigPrim=nSize*nTriSP
       Call GetMem('HOWMUCH','Max','Real',ipMAX,MEMMAX)
