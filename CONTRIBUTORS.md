@@ -79,8 +79,10 @@ Luis Manuel Frutos
 Markus P. Fülscher  
 Alexander Gaenko  
 Laura Gagliardi  
+Walter Gautschi  
 Giovanni Ghigo  
 Coen de Graaf  
+Gene H. Golub  
 Sergey Gusarov  
 Daniel Hagberg  
 Jun-ya Hasegawa  

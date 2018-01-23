@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 #***********************************************************************
@@ -13,8 +13,6 @@
 #                                                                      *
 # Copyright (C) 2017, Ignacio Fdez. Galván                             *
 #***********************************************************************
-
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 import sys
 from glob import glob
@@ -49,6 +47,8 @@ Use with a command-line argument that is a basis label in Molcas format:
           (1)     (2)     (3)        (4)           (5)          (6){0}
 
 trailing dots can be omitted.
+
+Examples:
 
 In the simplest form, just write an element symbol to get a list of basis sets
 for that element:
@@ -115,7 +115,7 @@ def match_field(field, basis, template):
     funcs_template = []
     # Catch wrong angular momentum labels (e.g. "j")
     if (any(i not in angs for i in re.sub(r'\d', '', template[field]))):
-      print('The [primitives] field ({0}) contains an invalid label.'.format(Fore.RED + template[field] + Style.RESET_ALL))
+      print('The [contraction] field ({0}) contains an invalid label.'.format(Fore.RED + template[field] + Style.RESET_ALL))
       print('Valid labels are: {0}'.format(Fore.BLUE + ', '.join(angs) + Style.RESET_ALL))
       print()
       sys.exit(1)

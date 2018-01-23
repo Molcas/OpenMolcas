@@ -44,6 +44,7 @@
 #include "WrkSpc.fh"
 #include "splitcas.fh"
 #include "fciqmc.fh"
+#include "lucia_ini.fh"
       Character*8   Fmt1,Fmt2,Label
       Character*120  Line,BlLine,StLine
       Character*3 lIrrep(8)
@@ -303,6 +304,10 @@ C.. for GAS
       else
         Write(LF,Fmt2//'A,T40,I11)')'Number of CSFs',
      &                           NCSASM(LSYM)
+        if (N_ELIMINATED_GAS_MOLCAS.gt.0) Then
+          Write(LF,Fmt2//'A,T40,I11)')'Number of highly excited CSFs',
+     &                           nCSF_HEXS
+        EndIf
         Write(LF,Fmt2//'A,T40,I11)')'Number of determinants',
      &                           NDTASM(LSYM)
       end if

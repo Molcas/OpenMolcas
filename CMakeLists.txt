@@ -372,7 +372,29 @@ if (EXISTS ${GIT})
         if (NOT ${GIT_BRANCH} STREQUAL "")
                 string(STRIP ${GIT_BRANCH} GIT_BRANCH)
         endif ()
+endif ()
 
+if (DEFINED OPENMOLCAS_VERSION)
+# Read the version from the .tags file, which should be populated when the code
+# has been obtained from "git archive". Since there's no way to know if the
+# code has been modified, add a question mark
+elseif (EXISTS ${OPENMOLCAS_DIR}/.tags)
+        file (STRINGS ${OPENMOLCAS_DIR}/.tags LINES)
+        foreach (line ${LINES})
+                string (FIND "${line}" "(" has_paren)
+                string (FIND "${line}" "%" has_percent)
+                string (REGEX MATCH "tag: (v[^,]*)," match ${line})
+                # Parse the tag if present
+                if (has_paren GREATER -1)
+                        if (NOT ${match} STREQUAL "")
+                                set (OPENMOLCAS_VERSION "${CMAKE_MATCH_1} ?")
+                        endif ()
+                # Or just use the commit sha, making sure this is not the raw file
+                elseif (has_percent EQUAL -1)
+                        string (SUBSTRING ${line} 0 14 OPENMOLCAS_VERSION)
+                        set (OPENMOLCAS_VERSION "o${OPENMOLCAS_VERSION} ?")
+                endif ()
+        endforeach ()
 elseif (EXISTS ${MOLCAS_VERSION_FILE})
         file (STRINGS ${MOLCAS_VERSION_FILE} LINES)
         foreach (line ${LINES})
@@ -444,7 +466,8 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
                 set (PLATFORM "LINUX64")
         elseif (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "ia64")
                 set (PLATFORM "LINUX64_IA")
-        elseif (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "ppc_64")
+        elseif ((${CMAKE_SYSTEM_PROCESSOR} STREQUAL "ppc_64") OR
+                (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "ppc64le"))
                 set (PLATFORM "PPC64")
         endif ()
 elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
@@ -699,15 +722,15 @@ set (CFLAGS_PGI_RELEASE "-O2")
 set (CFLAGS_PGI_FAST "-O2")
 # Fortran compiler
 list (APPEND SUPPORTED_Fortran_COMPILERS "PGI")
-set (FFLAGS_PGI_BASIC "-Mpreprocess")
+set (FFLAGS_PGI_BASIC "-Mpreprocess -Mbackslash")
 set (FFLAGS_PGI_OPENMP "-mp")
 set (FFLAGS_PGI_ILP64 "-i8")
 # build targets
-set (FFLAGS_PGI_DEBUG "-O0 -g -Minform=warn")
-set (FFLAGS_PGI_GARBLE "-O2 -gopt -Minform=warn")
-set (FFLAGS_PGI_RELWITHDEBINFO "-O2 -gopt -Minform=warn")
-set (FFLAGS_PGI_RELEASE "-O2")
-set (FFLAGS_PGI_FAST "-fast")
+set (FFLAGS_PGI_DEBUG "-O0 -g -Minform=warn -Mbackslash")
+set (FFLAGS_PGI_GARBLE "-O2 -gopt -Minform=warn -Mbackslash")
+set (FFLAGS_PGI_RELWITHDEBINFO "-O2 -gopt -Minform=warn -Mbackslash")
+set (FFLAGS_PGI_RELEASE "-O2 -Mbackslash")
+set (FFLAGS_PGI_FAST "-fast -Mbackslash")
 
 # The option does not exist, or I cannot find it
 #set (CXXFLAGS_PGI_BIGOT "???")
@@ -1049,11 +1072,11 @@ endif ()
 
 if (HDF5)
         message ("Configuring HDF5 support:")
-        find_package (HDF5)
+        find_package (HDF5 COMPONENTS C OPTIONAL_COMPONENTS CXX)
         if (HDF5_FOUND)
                 message ("-- HDF5_INCLUDE_PATH: ${HDF5_INCLUDE_DIRS}")
-                message ("-- HDF5_C_LIBRARIES: ${HDF5_C_LIBRARIES}")
-                list (APPEND EXTERNAL_LIBRARIES ${HDF5_C_LIBRARIES})
+                message ("-- HDF5_LIBRARIES: ${HDF5_LIBRARIES}")
+                list (APPEND EXTERNAL_LIBRARIES ${HDF5_LIBRARIES})
         else ()
                 message ("-- HDF5 not found, it will be deactivated")
         endif ()
@@ -1539,7 +1562,7 @@ if (CHEMPS2)
                 endforeach ()
                 message ("-- CHEMPS2_DIR: ${CHEMPS2_DIR}")
         else ()
-                message (FATAL ERROR "No CheMPS2 installation found at ${CheMPS2_DIR}")
+                message (FATAL_ERROR "No CheMPS2 installation found at ${CheMPS2_DIR}")
         endif ()
 
 else ()
@@ -1854,19 +1877,14 @@ if (WFA)
                 set (MOLCAS_LIB ON CACHE INTERNAL "Compile Molcas support")
 
                 add_subdirectory (${proj}/libwfa)
-                target_include_directories (wfa_molcas PRIVATE ${proj} ${ARMADILLO_INC})
+                target_include_directories (wfa_molcas PRIVATE ${proj} ${ARMADILLO_INC} ${HDF5_INCLUDE_DIRS})
                 target_compile_definitions (wfa_molcas PRIVATE "ARMA_DONT_USE_WRAPPER")
                 list (APPEND wfa_libs wfa_molcas)
-
-                find_library(HDF5_CPP_LIBRARIES hdf5_cpp)
-                if (HDF5_CPP_LIBRARIES)
-                  list (APPEND wfa_libs ${HDF5_CPP_LIBRARIES})
-                endif ()
 
                 message ("-- wfa_libs: ${wfa_libs}")
                 message ("-- ARMADILLO_INC: ${ARMADILLO_INC}")
 
-                list (APPEND EXTERNAL_LIBRARIES ${wfa_libs})
+                list (INSERT EXTERNAL_LIBRARIES 0 ${wfa_libs})
         else()
                 set (WFA_FOUND OFF)
                 mark_as_advanced(FORCE ARMADILLO_INC)
@@ -1882,6 +1900,7 @@ if (GRID_IT)
         message("Configuring external GRID_IT:")
         set (proj ${extprojsdir}/grid_it)
         if (EXISTS ${proj}/main.f)
+                set (GRID_IT_FOUND ON)
                 set (prog "grid_it")
                 list (APPEND progs ${prog})
                 file (RELATIVE_PATH ${prog}_src ${PROJECT_SOURCE_DIR} ${proj})
@@ -1891,6 +1910,7 @@ if (GRID_IT)
                 list (APPEND proglib ${prog})
                 message ("-- Source found, external GRID_IT enabled")
         else()
+                set (GRID_IT_FOUND OFF)
                 message ("-- External GRID_IT ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
         endif ()
 else ()
@@ -2212,6 +2232,15 @@ if (HDF5 AND HDF5_FOUND)
 endif ()
 
 # activate grid_it
+if (GRID_IT AND GRID_IT_FOUND)
+        # Some additional files and configuration needed if using external grid_it
+        configure_file (${grid_util_src}/grid.fh.in include/grid.fh)
+        list (APPEND external_prgm "${grid_util_src}/grid_it.prgm.src")
+        list (APPEND grid_util_defs "_EXTERNAL_GRID_IT_")
+else ()
+        file (REMOVE include/grid.fh)
+endif ()
+# grid_it could be external or from molcas_extra
 if (DEFINED grid_it_src)
         list (APPEND grid_util_defs "_HAVE_GRID_IT_")
 endif ()
@@ -2497,10 +2526,9 @@ foreach (prog ${progs})
 
         if (CUBLAS)
                 set_target_properties (${prog}.exe PROPERTIES LINKER_LANGUAGE "CXX")
+        else ()
+                set_target_properties (${prog}.exe PROPERTIES LINKER_LANGUAGE "Fortran")
         endif ()
-#       Force linking with fortran compiler, needed when inlcuding
-#       the (c++) library libwfa
-        set_target_properties (${prog}.exe PROPERTIES LINKER_LANGUAGE "Fortran")
 
         list (APPEND PROGRAM_EXECUTABLES ${prog}.exe)
 endforeach (prog)
@@ -2619,10 +2647,10 @@ file (COPY "${OPENMOLCAS_DIR}/CONTRIBUTORS.md" DESTINATION ${PROJECT_BINARY_DIR}
 
 # copy the necessary files from data
 file (REMOVE_RECURSE ${PROJECT_BINARY_DIR}/data)
-file (GENERATE OUTPUT ${PROJECT_BINARY_DIR}/data/rysrw        INPUT ${OPENMOLCAS_DIR}/data/rysrw.ascii )
-file (GENERATE OUTPUT ${PROJECT_BINARY_DIR}/data/abdata       INPUT ${OPENMOLCAS_DIR}/data/abdata.ascii)
-file (GENERATE OUTPUT ${PROJECT_BINARY_DIR}/data/banner.txt   INPUT ${OPENMOLCAS_DIR}/data/banner.src  )
-file (GENERATE OUTPUT ${PROJECT_BINARY_DIR}/data/modalias.txt INPUT ${OPENMOLCAS_DIR}/data/modalias.src)
+configure_file (${OPENMOLCAS_DIR}/data/rysrw.ascii  data/rysrw        COPYONLY)
+configure_file (${OPENMOLCAS_DIR}/data/abdata.ascii data/abdata       COPYONLY)
+configure_file (${OPENMOLCAS_DIR}/data/banner.src   data/banner.txt   COPYONLY)
+configure_file (${OPENMOLCAS_DIR}/data/modalias.src data/modalias.txt COPYONLY)
 file (COPY ${OPENMOLCAS_DIR}/data/inputs.tpl DESTINATION ${PROJECT_BINARY_DIR}/data)
 if (DEFINED EXTRA_DIR)
         foreach (f alias.plx auto.prgm landing.txt)
@@ -2631,7 +2659,7 @@ if (DEFINED EXTRA_DIR)
 endif ()
 # copy the necessary files from sbin
 file (REMOVE_RECURSE ${PROJECT_BINARY_DIR}/sbin)
-foreach (f verify version chkunprint.plx updatetest.plx find_sources)
+foreach (f verify version chkunprint.plx updatetest.plx find_sources help_basis help_doc)
         file (COPY ${OPENMOLCAS_DIR}/sbin/${f} DESTINATION ${PROJECT_BINARY_DIR}/sbin)
 endforeach ()
 if (DEFINED EXTRA_DIR)
@@ -2748,8 +2776,16 @@ string(REGEX REPLACE "([^;]+)" "-D\\1" defargs "${defs}")
 message("Definitions: ${defargs}")
 foreach (BASE_DIR ${basedirs})
         file (GLOB source RELATIVE ${BASE_DIR}/src/Driver ${BASE_DIR}/src/Driver/*.prgm.src)
+        if (DEFINED external_prgm)
+                list (REVERSE external_prgm)
+        endif ()
+        foreach (prgmsrc ${external_prgm})
+                file (GLOB ext_source RELATIVE ${BASE_DIR}/src/Driver ${prgmsrc})
+                list (INSERT source 0 ${ext_source})
+        endforeach ()
         foreach (prgmsrc ${source})
                 string (REPLACE ".prgm.src" ".prgm" prgm ${prgmsrc})
+                get_filename_component(prgm ${prgm} NAME)
                 if (NOT ";${prgmtargets};" MATCHES ";data/${prgm};")
                         add_custom_command (
                                 OUTPUT data/${prgm}
@@ -3031,6 +3067,12 @@ install (TARGETS ${PROGRAM_EXECUTABLES} molcas
         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
         LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
         ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+        )
+
+install (PROGRAMS
+        ${PROJECT_BINARY_DIR}/sbin/help_basis
+        ${PROJECT_BINARY_DIR}/sbin/help_doc
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/sbin
         )
 
 if (DEFINED PYMOLCAS_TARGET)

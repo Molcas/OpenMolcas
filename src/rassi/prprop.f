@@ -43,7 +43,9 @@
       COMPLEX*16 DIPSOfcsd(3,NSS,NSS),DIPSOfpso(3,NSS,NSS)
        !REAL*8  DIMSOIJ(3,3,NSS)
       REAL*8 GTOTAL(9),ANGMOME(3,NSTATE,NSTATE),ESO(NSS)
-      REAL*8 EDIP1MOM(3,NSTATE,NSTATE)
+      REAL*8 EDIP1MOM(3,NSTATE,NSTATE),AMFIINT(3,NSTATE,NSTATE)
+      REAL*8 TMPL(NSTATE,NSTATE,3),TMPE(NSTATE,NSTATE,3)
+      REAL*8 TMPA(NSTATE,NSTATE,3)
       Dimension TMPm(NTS),TMPf(NTP)
 *     Dimension TMPm(NTS),TMPf(NTP),TMFC(NTF)
       Dimension c_1(3,3),c_2(3,3)!,Zstat1m(NTS),Zstat1f(NTP)
@@ -57,7 +59,7 @@
 *     Dimension NMRFT(NTF,3,3),NMRFP(NTF,3,3),NMRFC(NTF,3,3)
 *     Dimension NMRFD(NTF,3,3)
       REAL*8 DLTTA,DLTT,Zstat,p_Boltz,Boltz_k,coeff_chi
-      LOGICAL ISGS(NSS),IFANGM,IFDIP1
+      LOGICAL ISGS(NSS),IFANGM,IFDIP1,IFAMFI
       Dimension IMR(3),IMI(3),RMAGM(3),Chi(3)
       INTEGER IFUNCT
       REAL*8 J2CM
@@ -216,6 +218,7 @@ C Addition of ANGMOM to Runfile.
 
       IFANGM=.FALSE.
       IFDIP1=.FALSE.
+      IFAMFI=.FALSE.
       DO IPROP=1,NPROP
          IF(PNAME(IPROP)(1:6).EQ.'ANGMOM') THEN
             IFANGM=.TRUE.
@@ -223,35 +226,74 @@ C Addition of ANGMOM to Runfile.
                DO J=1,NSTATE
                   ANGMOME(ICOMP(IPROP),I,J)=0.0D0
                   ANGMOME(ICOMP(IPROP),I,J)=PROP(I,J,IPROP)
+                  TMPL(I,J,ICOMP(IPROP))=0.0D0
+                  TMPL(I,J,ICOMP(IPROP))=PROP(I,J,IPROP)
                ENDDO
             ENDDO
-#ifdef _HDF5_
-            call mh5_put_dset_array_real(wfn_sfs_angmom,
-     $      PROP(:,:,ICOMP(IPROP)),
-     $      [NSTATE,NSTATE,1], [0,0,ICOMP(IPROP)-1])
-#endif
+c#ifdef _HDF5_
+c            call mh5_put_dset_array_real(wfn_sfs_angmom,
+c     $      PROP(1:NSTATE,1:NSTATE,ICOMP(IPROP)),
+c     $      [NSTATE,NSTATE,1], [0,0,ICOMP(IPROP)-1])
+c#endif
          ENDIF
 c add dipole moment integrals:
-         IF(PNAME(IPROP)(1:6).EQ.'MLTPL1') THEN
+         IF(PNAME(IPROP)(1:8).EQ.'MLTPL  1') THEN
             IFDIP1=.TRUE.
             DO I=1,NSTATE
                DO J=1,NSTATE
                   EDIP1MOM(ICOMP(IPROP),I,J)=0.0D0
                   EDIP1MOM(ICOMP(IPROP),I,J)=PROP(I,J,IPROP)
+                  TMPE(I,J,ICOMP(IPROP))=0.0D0
+                  TMPE(I,J,ICOMP(IPROP))=PROP(I,J,IPROP)
                ENDDO
             ENDDO
 c#ifdef _HDF5_
-c            call mh5_put_dset_array_real(wfn_sfs_angmom,
-c     $      PROP(:,:,ICOMP(IPROP)),
+c            call mh5_put_dset_array_real(wfn_sfs_edipmom,
+c     $      PROP(1:NSTATE,1:NSTATE,ICOMP(IPROP)),
+c     $      [NSTATE,NSTATE,1], [0,0,ICOMP(IPROP)-1])
+c#endif
+         ENDIF
+c add spin-orbit AMFI integrals:
+         IF(PNAME(IPROP)(1:8).EQ.'AMFI    ') THEN
+            IFAMFI=.TRUE.
+            DO I=1,NSTATE
+               DO J=1,NSTATE
+                  AMFIINT(ICOMP(IPROP),I,J)=0.0D0
+                  AMFIINT(ICOMP(IPROP),I,J)=PROP(I,J,IPROP)
+                  TMPA(I,J,ICOMP(IPROP))=0.0D0
+                  TMPA(I,J,ICOMP(IPROP))=PROP(I,J,IPROP)
+               ENDDO
+            ENDDO
+c#ifdef _HDF5_
+c            call mh5_put_dset_array_real(wfn_sfs_amfi,
+c     $      PROP(1:NSTATE,1:NSTATE,ICOMP(IPROP)),
 c     $      [NSTATE,NSTATE,1], [0,0,ICOMP(IPROP)-1])
 c#endif
          ENDIF
       ENDDO
       IF(IFANGM.EQV..TRUE.) THEN
        CALL Put_dArray('ANGM_SINGLE',ANGMOME,3*NSTATE*NSTATE)
+#ifdef _HDF5_
+            call mh5_put_dset_array_real(wfn_sfs_angmom,
+     $      TMPL(:,:,:),
+     $      [NSTATE,NSTATE,3], [0,0,0])
+#endif
       ENDIF
       IF(IFDIP1.EQV..TRUE.) THEN
        CALL Put_dArray('DIP1_SINGLE',EDIP1MOM,3*NSTATE*NSTATE)
+#ifdef _HDF5_
+            call mh5_put_dset_array_real(wfn_sfs_edipmom,
+     $      TMPE(:,:,:),
+     $      [NSTATE,NSTATE,3], [0,0,0])
+#endif
+      ENDIF
+      IF(IFAMFI.EQV..TRUE.) THEN
+       CALL Put_dArray('AMFI_SINGLE',AMFIINT,3*NSTATE*NSTATE)
+#ifdef _HDF5_
+            call mh5_put_dset_array_real(wfn_sfs_amfi,
+     $      TMPA(:,:,:),
+     $      [NSTATE,NSTATE,3], [0,0,0])
+#endif
       ENDIF
 
 * removed call to natorb_rassi (this is done in eigctl.f)
@@ -699,6 +741,7 @@ C printing threshold
 !
 ! I guess that I have to explain it when I print a warning
 !
+         WRITE(6,*)
          WRITE(6,*) "--------------------------------------------------"
          WRITE(6,*)
          WRITE(6,*) "A comparison between the dipole oscillator "//
@@ -732,19 +775,17 @@ C printing threshold
                    WRITE(6,*)
                    WRITE(6,*) " Problematic transitions have been found"
                    WRITE(6,*)
-                   WRITE(6,*) " From  To  Percent difference "//
-     &                        " Osc. strength (lenght) "//
-     &                        " Osc. strength (velocity) "
-                   WRITE(6,*)
+                   WRITE(6,*) "      From   To   Percent difference"//
+     &                        "  Osc. st. (len.) Osc. st. (vel.)"
                    WRITE(6,*) " ---------------------------------------"
                    WRITE(6,*)
                  END IF
-                 WRITE(6,'(5X,2I5,5X,5G16.8)') I,J,COMPARE*100D0,
+                 WRITE(6,'(5X,2I5,5X,5ES16.8)') I,J,COMPARE*100D0,
      &                      WORK(LDL-1+IJ),WORK(LDV-1+IJ)
               END IF
              ELSE IF(WORK(LDL-1+IJ).GE.OSTHR) THEN
                WRITE(6,*) " Velocity gauge below threshold. "//
-     &                    " Lenght gauge value = ",WORK(LDL-1+IJ)
+     &                    " Length gauge value = ",WORK(LDL-1+IJ)
              ELSE IF(WORK(LDV-1+IJ).GE.OSTHR) THEN
                WRITE(6,*) " Length gauge below threshold. "//
      &                    " Velocity gauge value = ",WORK(LDV-1+IJ)

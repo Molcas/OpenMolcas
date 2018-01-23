@@ -230,7 +230,7 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
      &            ' CI-vectors of the previous RASSCF iteration'
         End If
         iDisk = IADR15(4)
-        Do i = 1,lRoots
+        Do i = 1,lRoots-hRoots
           Call DDafile(JOBIPH,2,C,nConf,iDisk)
           Call Save_CI_vec((1),i,lRoots,nConf,C,LuDavid)
           If ( IPRLEV.gt.10 ) then
@@ -239,6 +239,16 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
             l = Min(nSel,nConf)
             Call dVcPrt(String,' ',C,l)
           End If
+        End Do
+*MGD simple guess for missing ones : explV
+*dangerous if linear dependence with converged states
+        Do i= lRoots-hRoots+1,lRoots
+           Call dCopy_(nConf,0.0d0,0,C,1)
+           Do j = 1,nSel
+             k = iSel(j)
+             C(k) = ExplV(j+(i-1)*nSel)
+           End Do
+          Call Save_CI_vec((1),i,lRoots,nConf,C,LuDavid)
         End Do
 
       End If

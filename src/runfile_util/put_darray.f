@@ -314,6 +314,9 @@ c mess started here :)
          RecLab(155)='FI_V            '
          RecLab(156)='FA_V            '
          RecLab(157)='FOCK_PDFT       '
+         RecLab(158)='AMFI_SINGLE     '
+         RecLab(159)='HAMSOR_SINGLE   '
+         RecLab(160)='HAMSOI_SINGLE   '
 *                     1234567890123456
 *
 *        If you go beyond 256: update pg_da_info.fh and this line!

@@ -177,7 +177,9 @@
             END IF
             IF(IMATCH_BETA.EQ.1.AND.IMATCH_ALPHA.EQ.1) THEN
               N_ELIMINATED_BATCHES = N_ELIMINATED_BATCHES + 1
-              I_AM_OUT(N_ELIMINATED_BATCHES) = JBATCH
+*              I_AM_OUT(N_ELIMINATED_BATCHES) = JBATCH
+*MGD actually, we will eliminate blocks and not batches
+              I_AM_OUT(N_ELIMINATED_BATCHES) = iblock
             END IF
           END DO
         END DO

@@ -27,7 +27,6 @@
 *
 c#include "print.fh"
 #include "itmax.fh"
-#include "notab.fh"
       Integer iAnga(4)
 *
 *     Statement function
