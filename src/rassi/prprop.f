@@ -764,7 +764,7 @@ C printing threshold
           DO I=1,IEND
             DO J=JSTART,NSS
                IJ=I+NSS*(J-1)
-               EDIFF=ENERGY(J)-ENERGY(I)
+               EDIFF=ENSOR(J)-ENSOR(I)
                IF(EDIFF.LT.0.0D0) CYCLE
            IF(WORK(LDL-1+IJ).GE.OSTHR.AND.WORK(LDV-1+IJ).GE.OSTHR) THEN
                COMPARE = ABS(1-WORK(LDL-1+IJ)/WORK(LDV-1+IJ))
