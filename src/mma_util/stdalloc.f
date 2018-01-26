@@ -863,7 +863,7 @@
           call mma_oom(bufsize,mma_avail)
         else
           allocate(buffer( l1(1):l1(2), l2(1):l2(2), l3(1):l3(2),
-                           l4(1):l4(2) ))
+     &                     l4(1):l4(2) ))
           if (n1*n2*n3*n4.gt.0) then
             loffset = cptr2loff(buffer(l1(1),l2(1),l3(1),l4(1)))
             if (present(label)) then
@@ -931,7 +931,7 @@
           call mma_oom(bufsize,mma_avail)
         else
           allocate(buffer( l1(1):l1(2), l2(1):l2(2), l3(1):l3(2),
-                           l4(1):l4(2) ))
+     &                     l4(1):l4(2) ))
           if (n1*n2*n3*n4.gt.0) then
             loffset = cptr2loff(buffer(l1(1),l2(1),l3(1),l4(1)))
             if (present(label)) then
@@ -1002,7 +1002,7 @@
           call mma_oom(bufsize,mma_avail)
         else
           allocate(buffer( l1(1):l1(2), l2(1):l2(2), l3(1):l3(2),
-                           l4(1):l4(2), l5(1):l5(2) ))
+     &                     l4(1):l4(2), l5(1):l5(2) ))
           if (n1*n2*n3*n4*n5.gt.0) then
             loffset = cptr2loff(buffer(l1(1),l2(1),l3(1),l4(1),l5(1)))
             if (present(label)) then
@@ -1071,7 +1071,7 @@
           call mma_oom(bufsize,mma_avail)
         else
           allocate(buffer( l1(1):l1(2), l2(1):l2(2), l3(1):l3(2),
-                           l4(1):l4(2), l5(1):l5(2) ))
+     &                     l4(1):l4(2), l5(1):l5(2) ))
           if (n1*n2*n3*n4*n5.gt.0) then
             loffset = cptr2loff(buffer(l1(1),l2(1),l3(1),l4(1),l5(1)))
             if (present(label)) then
@@ -1140,8 +1140,8 @@
         if (bufsize .gt. mma_avail) then
           call mma_oom(bufsize,mma_avail)
         else
-          allocate(buffer( l1(1):l1(2), l2(1):l2(2), l3(1):l3(2)
-                           l4(1):l4(2), l5(1):l5(2) ))
+          allocate(buffer( l1(1):l1(2), l2(1):l2(2), l3(1):l3(2),
+     &                     l4(1):l4(2), l5(1):l5(2) ))
           if (n1*n2*n3*n4*n5.gt.0) then
             loffset = cptr2loff(buffer(l1(1),l2(1),l3(1),l4(1),l5(1)))
             if (present(label)) then
