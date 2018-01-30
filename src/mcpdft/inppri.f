@@ -342,7 +342,8 @@ C.. for GAS
 * NN.14 FIXME: in DMRG-CASSCF, skip this check for the time
 *              since Block DMRG code will check this internally
 *     If (NROOTS .GT. NCSASM(LSYM)) Then
-      If (.NOT.DoDMRG .AND. NROOTS .GT. NCSASM(LSYM)) Then
+      If (.false.) Then
+!      If (.NOT.DoDMRG .AND. NROOTS .GT. NCSASM(LSYM)) Then
          Write(LF,*) '************ ERROR ***********'
          Write(LF,*) ' You can''t ask for more roots'
          Write(LF,*) ' than there are configurations '
@@ -406,6 +407,9 @@ C.. for GAS
      &  .or.KSDFT.eq.'FTREVPBE') then
         Write(LF,Fmt2//'A)') 'This is a MC-PDFT calculation '//
      &   'with functional: '//KSDFT
+       end if
+       If (dogradPDFT) then
+        Write(LF,Fmt1) 'Potentials are computed for gradients'
        end if
        Write(LF,Fmt2//'A,T45,I6)')'Maximum number of macro iterations',
      &                           MAXIT

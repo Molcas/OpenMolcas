@@ -20,3 +20,16 @@
 
       Return
       End
+
+      Subroutine Put_P2MOt(P2MO,nP2MO)
+      Implicit Real*8 (A-H,O-Z)
+#include "SysDef.fh"
+
+      Real*8 P2MO(nP2MO)
+      Character*24 Label
+
+      Label='P2MOT'
+      Call Put_dArray(Label,P2MO,nP2MO)
+
+      Return
+      End

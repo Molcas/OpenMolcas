@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 1998, Markus P. Fuelscher                              *
+*               2018, Ignacio Fdez. Galvan                             *
 ************************************************************************
       Subroutine ReadVC(CMO,OCC,D,DS,P,PA)
 ************************************************************************
@@ -330,7 +331,14 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
         END IF
 
         mh5id = mh5_open_file_r(StartOrbFile)
-        call mh5_fetch_dset(mh5id, 'MO_VECTORS', CMO)
+        select case (iAlphaBeta)
+          case (1)
+            call mh5_fetch_dset(mh5id, 'MO_ALPHA_VECTORS', CMO)
+          case (-1)
+            call mh5_fetch_dset(mh5id, 'MO_BETA_VECTORS', CMO)
+          case default
+            call mh5_fetch_dset(mh5id, 'MO_VECTORS', CMO)
+        end select
         call mh5_close_file(mh5id)
 #else
         write (6,*) 'Orbitals requested from HDF5, but this'

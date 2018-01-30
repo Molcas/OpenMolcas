@@ -312,8 +312,8 @@ c          End Do
                 End Do
                 If (tmp.gt.1.0D3) Then
                    Write (6,*)
-                   Write (6,'(10X,A)') 'Some orbital energies has '//
-     &                   'scaled by powers of 10, the power is '//
+                   Write (6,'(10X,A)') 'Some orbital energies have '//
+     &                   'been scaled by powers of 10, the power is '//
      &                   'written right after the orbital index'
                    Write (6,*)
                    Do IO=ISO,IEO

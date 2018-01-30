@@ -11,3 +11,5 @@
       Character*16 KSDFA
       Common /KSDFT_GLM / KSDFA,funcaa,funcbb,funccc,
      &                        ip_F_xca,ip_F_xcb,ip_tmpB,LuMC,LuMT
+      Logical           do_pdftpot
+      Common/KSDFT_AMS/ do_pdftpot

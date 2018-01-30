@@ -23,6 +23,7 @@
       Call GetMem('EIGVEC','ALLO','REAL',ipevec,2*nDisp**2)
       Call GetMem('EIGVAL','ALLO','REAL',ipeval,nDisp*2)
       Call GetMem('INTENS','ALLO','REAL',ipintens,nDisp*2)
+      Call GetMem('REDMAS','ALLO','REAL',ipredmas,nDisp)
       ipNx=ipNMod
       nModes=0
       lModes=0
@@ -71,7 +72,8 @@
                Call GetMem('Tmp3','ALLO','REAL',ip3,nX**2)
                Call FREQ(nX,H(i3),nDeg(i1),nrvec(i1),
      &                   Work(ip2),Work(ip3),
-     &                   Work(ipEVec),Work(ipEVal+i1-1),iNeg)
+     &                   Work(ipEVec),Work(ipEVal+i1-1),Work(ipRedMas),
+     &                   iNeg)
                Call GetMem('Tmp3','FREE','REAL',ip3,nX**2)
                Call GetMem('Tmp2','FREE','REAL',ip2,naux)
 *
@@ -129,8 +131,8 @@
                nModes=nModes+nX
                call dcopy_(nX**2,Work(jpNx),1,Work(ipEVec),2)
                Call GF_Print(Work(ipEVal+i1-1),Work(ipEVec),elout(kk),
-     &                       ll,nX,nX,iCtl,Work(ipIntens+i1-1),Lu_10,
-     &                       i1-1)
+     &                       ll,nX,nX,iCtl,Work(ipIntens+i1-1),
+     &                       Work(ipRedMas),Lu_10,i1-1)
             Else
                Write(6,*)
                Write (6,*)'     NOT CONVERGED'
@@ -201,10 +203,11 @@
      &   Call Freq_Molden(Work(ipEVal),nModes,Work(ipNMod),lModes,nSym,
      &                    Work(ipIntens),lDisp)
 *
-      Call GetMem('EIGVAL','FREE','REAL',ipeval,nDisp*2)
-      Call GetMem('EIGVEC','FREE','REAL',ipevec,2*nDisp**2)
       Call GetMem('NMod','Free','Real',ipNMod,nDisp**2)
+      Call GetMem('EIGVEC','FREE','REAL',ipevec,2*nDisp**2)
+      Call GetMem('EIGVAL','FREE','REAL',ipeval,nDisp*2)
       Call GetMem('INTENS','FREE','REAL',ipintens,nDisp*2)
+      Call GetMem('REDMAS','FREE','REAL',ipredmas,nDisp)
 *
       Return
       End

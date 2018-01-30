@@ -17,7 +17,7 @@
  *       Author:       Steven Vancoillie
  *       Date:         Spring 2010
  *
- *       parnell_remove - delete files specified in a colon-separated list from
+ *       parnell_remove - delete files specified in as an argument list from
  *                       the main work directory and all subdirectories
  *
  */

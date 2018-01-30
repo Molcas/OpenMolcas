@@ -14,7 +14,7 @@
 #include "warnings.fh"
 
       If (iErr .eq. 3) Then ! special code used in parallel
-         MolcasCode = _RC_EXIT_
+         MolcasCode = _RC_NOT_AVAILABLE_
       Else If (iErr .eq. 100) Then
          MolcasCode = _RC_CHO_DUM_
       Else If (iErr .eq. 101) Then

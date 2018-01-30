@@ -31,7 +31,7 @@ C  check this:
 
 cmp
       tmp = 1
-      if(maxnu.ge.100)tmp = int((2*nprocs)**(1./3.))
+      if(maxnu.ge.100)tmp = int((2*nprocs)**(1.0d0/3.0d0))
 
       do while ((tmp*(tmp*(tmp+1))/2).lt.nprocs)
          tmp = tmp + 1

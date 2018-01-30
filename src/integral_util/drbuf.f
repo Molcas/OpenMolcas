@@ -10,8 +10,6 @@
 ************************************************************************
       Subroutine dRBuf(Array,nArray,Copy)
       Implicit Real*8 (a-h,o-z)
-      External Disk2Byte
-      Real*8 Disk2Byte
       Logical Copy
 #include "IOBuf.fh"
 #include "SysDef.fh"
@@ -39,9 +37,9 @@ chjw  Do While (mArray.ge.1)
             End If
 *
 *---------- Get the next buffer, make sure that request is not beyond
-*           the disc limitatation.
+*           the disc limitation.
 *
-            temp=Disk2Byte(Disk)+DBLE(lBuf*RtoB)
+            temp=Disk+DBLE(lBuf*RtoB)
 *           Write (6,*) 'temp=',temp
             If (temp.le.DiskMx_Byte) Then
                If (iBuf.eq.1) Then

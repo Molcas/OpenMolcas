@@ -117,10 +117,10 @@ c         Call Upcase(CmpLab2)
       End If
       DataAdr=TocPtr(item)
 *----------------------------------------------------------------------*
-* Write data to runfile and update header.                             *
+* Read data from runfile.                                              *
 *----------------------------------------------------------------------*
       iDisk=DataAdr
-      Call GzRdRun(Lu,icRd,Data,nData,iDisk,RecTyp)
+      Call gzRWRun(Lu,icRd,Data,nData,iDisk,RecTyp)
 *----------------------------------------------------------------------*
 *                                                                      *
 *----------------------------------------------------------------------*

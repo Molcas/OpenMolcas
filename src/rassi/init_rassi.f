@@ -178,11 +178,22 @@ C DEFAULT FLAGS:
       HOP=.FALSE.
       TRACK=.FALSE.
       ONLY_OVERLAPS=.FALSE.
+* Intesities
       DIPR=.FALSE.
       OSTHR_DIPR = 0.0D0
       QIPR=.FALSE.
       OSTHR_QIPR = 0.0D0
       QIALL=.FALSE.
+* Exact operator
+      Do_TMOS=.FALSE.
+      DO_KVEC=.FALSE.
+      NKVEC=0
+      PRRAW=.FALSE.
+      PRWEIGHT=.FALSE.
+      NEW_TOLERANCE=.FALSE.
+      TOLERANCE=0.1D0
+      REDUCELOOP=.FALSE.
+      LOOPDIVIDE=0
 cnf
       IfDCpl = .False.
 cnf
@@ -203,6 +214,7 @@ c BP - Hyperfine tensor and SONATORB initialization
       SODIAGNSTATE=0
 
       IFCURD=.FALSE.
+
       Do_TMOS=.FALSE.
       Do_SK  =.FALSE.
       L_Eff=5

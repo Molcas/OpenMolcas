@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* COPYRIGHT (C): 2017, Roland Lindh                                    *
+* Copyright (C) 2017, Roland Lindh                                     *
 ************************************************************************
 * Version of Oct 21
 

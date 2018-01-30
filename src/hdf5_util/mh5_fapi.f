@@ -24,14 +24,14 @@
         implicit none
         integer(MOLCAS_C_INT) :: lu
         character(C_CHAR) :: filename(*)
-        end
+        end function
       end interface
       integer :: lrealname
       character(len=4096) :: realname
       call prgmtranslate(filename, realname, lrealname)
       realname(lrealname+1:lrealname+1)=C_NULL_CHAR
       lu = mh5c_create_file(realname)
-      end
+      end function
 
       function mh5_open_file_rw (filename) result (lu)
       use iso_c_binding
@@ -45,14 +45,14 @@
         implicit none
         integer(MOLCAS_C_INT) :: lu
         character(C_CHAR) :: filename(*)
-        end
+        end function
       end interface
       integer :: lrealname
       character(len=4096) :: realname
       call prgmtranslate(filename, realname, lrealname)
       realname(lrealname+1:lrealname+1)=C_NULL_CHAR
       lu = mh5c_open_rw(realname)
-      end
+      end function
 
       function mh5_open_file_r (filename) result (lu)
       use iso_c_binding
@@ -66,14 +66,14 @@
         implicit none
         integer(MOLCAS_C_INT) :: lu
         character(C_CHAR) :: filename(*)
-        end
+        end function
       end interface
       integer :: lrealname
       character(len=4096) :: realname
       call prgmtranslate(filename, realname, lrealname)
       realname(lrealname+1:lrealname+1)=C_NULL_CHAR
       lu = mh5c_open_r(realname)
-      end
+      end function
 
       subroutine mh5_close_file (lu)
       use iso_c_binding
@@ -86,11 +86,11 @@
         implicit none
         integer(MOLCAS_C_INT), VALUE :: lu
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
       integer :: ierr
       ierr = mh5c_close_file(lu)
-      end
+      end subroutine
 
 *     check if a file is in the HDF5 format
       logical function mh5_is_hdf5 (filename)
@@ -104,7 +104,7 @@
         implicit none
         character(c_char) :: filename(*)
         integer(MOLCAS_C_INT) :: rc
-        end
+        end function
       end interface
       integer :: rc
       integer :: lrealname
@@ -126,7 +126,7 @@
         mh5_is_hdf5 = .false.
         call abend
       end if
-      end
+      end function
 
 *     check for existence of dataset/attribute by id,
 *     where id could be a file or dataset id.
@@ -144,7 +144,7 @@
         integer(MOLCAS_C_INT), VALUE :: id
         character(c_char) :: name(*)
         integer(MOLCAS_C_INT) :: rc
-        end
+        end function
       end interface
       integer :: rc
       call f2c_upcase(name,mh5_lbl)
@@ -157,7 +157,7 @@
         mh5_exists_dset = .false.
         call abend
       end if
-      end
+      end function
 
       logical function mh5_exists_attr (id, name)
       use iso_c_binding
@@ -173,7 +173,7 @@
         integer(MOLCAS_C_INT), VALUE :: id
         character(c_char) :: name(*)
         integer(MOLCAS_C_INT) :: rc
-        end
+        end function
       end interface
       integer :: rc
       call f2c_upcase(name,mh5_lbl)
@@ -186,7 +186,7 @@
         mh5_exists_attr = .false.
         call abend
       end if
-      end
+      end function
 *     open/close dataset
 
       function mh5_open_dset (lu, dsetname) result(dsetid)
@@ -204,12 +204,12 @@
         integer(MOLCAS_C_INT) :: dsetid
         integer(MOLCAS_C_INT), VALUE :: lu
         character(c_char) :: dsetname(*)
-        end
+        end function
       end interface
 
       call f2c_upcase(dsetname,mh5_lbl)
       dsetid = mh5c_open_dset(lu,mh5_lbl)
-      end
+      end function
 
       subroutine mh5_close_dset (dsetid)
       use iso_c_binding
@@ -222,11 +222,11 @@
         implicit none
         integer(MOLCAS_C_INT), VALUE :: dsetid
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
 
       if (mh5c_close_dset(dsetid) < 0) call abend
-      end
+      end subroutine
 
       function mh5_open_attr (lu, attrname) result(attrid)
       use iso_c_binding
@@ -243,12 +243,12 @@
         integer(MOLCAS_C_INT) :: attrid
         integer(MOLCAS_C_INT), VALUE :: lu
         character(c_char) :: attrname(*)
-        end
+        end function
       end interface
 
       call f2c_upcase(attrname,mh5_lbl)
       attrid = mh5c_open_attr(lu,mh5_lbl)
-      end
+      end function
 
       subroutine mh5_close_attr (attrid)
       use iso_c_binding
@@ -261,11 +261,11 @@
         implicit none
         integer(MOLCAS_C_INT), VALUE :: attrid
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
 
       if (mh5c_close_attr(attrid) < 0) call abend
-      end
+      end subroutine
 
 *======================
 *     ATTRIBUTES
@@ -286,12 +286,12 @@
         integer(MOLCAS_C_INT), VALUE :: lu
         character(c_char) :: name(*)
         integer(MOLCAS_C_INT) :: dset_id
-        end
+        end function
       end interface
 
       call f2c_upcase(name,mh5_lbl)
       dset_id = mh5c_create_attr_scalar_int(lu, mh5_lbl)
-      end
+      end function
 
       function mh5_create_attr_scalar_real (lu, name) result (dset_id)
       use iso_c_binding
@@ -308,12 +308,12 @@
         integer(MOLCAS_C_INT), VALUE :: lu
         character(c_char) :: name(*)
         integer(MOLCAS_C_INT) :: dset_id
-        end
+        end function
       end interface
 
       call f2c_upcase(name,mh5_lbl)
       dset_id = mh5c_create_attr_scalar_real(lu, mh5_lbl)
-      end
+      end function
 
       function mh5_create_attr_scalar_str (lu, name, size)
      $        result (dset_id)
@@ -334,12 +334,12 @@
         character(c_char) :: name(*)
         integer(MOLCAS_C_INT), VALUE :: size
         integer(MOLCAS_C_INT) :: dset_id
-        end
+        end function
       end interface
 
       call f2c_upcase(name,mh5_lbl)
       dset_id = mh5c_create_attr_scalar_str(lu, mh5_lbl, size)
-      end
+      end function
 
       subroutine mh5_put_attr_scalar_int (dset_id, value)
       use iso_c_binding
@@ -355,11 +355,11 @@
         integer(MOLCAS_C_INT), VALUE :: dset_id
         integer(MOLCAS_C_INT) :: value
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
 
       ierr = mh5c_put_attr_scalar_int(dset_id, value)
-      end
+      end subroutine
 
       subroutine mh5_put_attr_scalar_real (dset_id, value)
       use iso_c_binding
@@ -375,11 +375,11 @@
         integer(MOLCAS_C_INT), VALUE :: dset_id
         real(MOLCAS_C_REAL) :: value
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
 
       ierr = mh5c_put_attr_scalar_real(dset_id, value)
-      end
+      end subroutine
 
       subroutine mh5_put_attr_scalar_str (dset_id, value)
       use iso_c_binding
@@ -395,11 +395,11 @@
         integer(MOLCAS_C_INT), VALUE :: dset_id
         character(c_char) :: value(*)
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
 
       ierr = mh5c_put_attr_scalar_str(dset_id, value)
-      end
+      end subroutine
 
 
       subroutine mh5_get_attr_scalar_int (dset_id, value)
@@ -416,11 +416,11 @@
         integer(MOLCAS_C_INT), VALUE :: dset_id
         integer(MOLCAS_C_INT) :: value
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
 
       ierr = mh5c_get_attr_scalar_int(dset_id, value)
-      end
+      end subroutine
 
       subroutine mh5_get_attr_scalar_real (dset_id, value)
       use iso_c_binding
@@ -436,11 +436,11 @@
         integer(MOLCAS_C_INT), VALUE :: dset_id
         real(MOLCAS_C_REAL) :: value
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
 
       ierr = mh5c_get_attr_scalar_real(dset_id, value)
-      end
+      end subroutine
 
       subroutine mh5_get_attr_scalar_str (dset_id, value)
       use iso_c_binding
@@ -456,11 +456,11 @@
         integer(MOLCAS_C_INT), VALUE :: dset_id
         character(c_char) :: value(*)
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
 
       ierr = mh5c_get_attr_scalar_str(dset_id, value)
-      end
+      end subroutine
 
       function mh5_create_attr_array_int (lu, name, rank, dims)
      $        result(attr_id)
@@ -481,13 +481,13 @@
         integer(MOLCAS_C_INT), VALUE :: rank
         integer(MOLCAS_C_INT) :: dims(*)
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
       character(MH5_MAX_LBL_LEN) :: mh5_lbl
 
       call f2c_upcase(name,mh5_lbl)
       attr_id = mh5c_create_attr_array_int(lu, mh5_lbl, rank, dims)
-      end
+      end function
 
       function mh5_create_attr_array_real (lu, name, rank, dims)
      $        result(attr_id)
@@ -508,13 +508,13 @@
         integer(MOLCAS_C_INT), VALUE :: rank
         integer(MOLCAS_C_INT) :: dims(*)
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
       character(MH5_MAX_LBL_LEN) :: mh5_lbl
 
       call f2c_upcase(name,mh5_lbl)
       attr_id = mh5c_create_attr_array_real(lu, mh5_lbl, rank, dims)
-      end
+      end function
 
       function mh5_create_attr_array_str (lu, name, rank, dims, size)
      $        result(attr_id)
@@ -537,14 +537,14 @@
         integer(MOLCAS_C_INT) :: dims(*)
         integer(MOLCAS_C_INT), VALUE :: size
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
       character(MH5_MAX_LBL_LEN) :: mh5_lbl
 
       call f2c_upcase(name,mh5_lbl)
       attr_id = mh5c_create_attr_array_str(
      $        lu, mh5_lbl, rank, dims, size)
-      end
+      end function
 
 
       subroutine mh5_put_attr_array_int (attr_id, buffer)
@@ -561,12 +561,12 @@
         integer(MOLCAS_C_INT), VALUE :: id
         integer(MOLCAS_C_INT) :: buffer(*)
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
 
       ierr = mh5c_put_attr_array_int(attr_id, buffer)
       if (ierr < 0) call abend
-      end
+      end subroutine
 
       subroutine mh5_put_attr_array_real (attr_id, buffer)
       use iso_c_binding
@@ -582,12 +582,12 @@
         integer(MOLCAS_C_INT), VALUE :: id
         real(MOLCAS_C_REAL) :: buffer(*)
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
 
       ierr = mh5c_put_attr_array_real(attr_id, buffer)
       if (ierr < 0) call abend
-      end
+      end subroutine
 
       subroutine mh5_put_attr_array_str (attr_id, buffer)
       use iso_c_binding
@@ -603,12 +603,12 @@
         integer(MOLCAS_C_INT), VALUE :: id
         character(c_char) :: buffer(*)
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
 
       ierr = mh5c_put_attr_array_str(attr_id, buffer)
       if (ierr < 0) call abend
-      end
+      end subroutine
 
 
       subroutine mh5_get_attr_array_int (attr_id, buffer)
@@ -625,12 +625,12 @@
         integer(MOLCAS_C_INT), VALUE :: id
         integer(MOLCAS_C_INT) :: buffer(*)
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
 
       ierr = mh5c_get_attr_array_int(attr_id, buffer)
       if (ierr < 0) call abend
-      end
+      end subroutine
 
       subroutine mh5_get_attr_array_real (attr_id, buffer)
       use iso_c_binding
@@ -646,12 +646,12 @@
         integer(MOLCAS_C_INT), VALUE :: id
         real(MOLCAS_C_REAL) :: buffer(*)
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
 
       ierr = mh5c_get_attr_array_real(attr_id, buffer)
       if (ierr < 0) call abend
-      end
+      end subroutine
 
       subroutine mh5_get_attr_array_str (attr_id, buffer)
       use iso_c_binding
@@ -667,12 +667,12 @@
         integer(MOLCAS_C_INT), VALUE :: id
         character(c_char) :: buffer(*)
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
 
       ierr = mh5c_get_attr_array_str(attr_id, buffer)
       if (ierr < 0) call abend
-      end
+      end subroutine
 
 * Convenience wrappers: 'init' and 'fetch'
 
@@ -687,7 +687,7 @@
       attr_id = mh5_create_attr_scalar_int(lu, name)
       call mh5_put_attr_scalar_int(attr_id, value)
       call mh5_close_attr(attr_id)
-      end
+      end subroutine
 
       subroutine mh5_init_attr_scalar_real (lu, name, value)
       implicit none
@@ -699,7 +699,7 @@
       attr_id = mh5_create_attr_scalar_real(lu, name)
       call mh5_put_attr_scalar_real(attr_id, value)
       call mh5_close_attr(attr_id)
-      end
+      end subroutine
 
       subroutine mh5_init_attr_scalar_str (lu, name, value)
       implicit none
@@ -711,7 +711,7 @@
       attr_id = mh5_create_attr_scalar_str(lu, name, len(value))
       call mh5_put_attr_scalar_str(attr_id, value)
       call mh5_close_attr(attr_id)
-      end
+      end subroutine
 
       subroutine mh5_init_attr_array_int (lu, name, rank, dims, buffer)
       implicit none
@@ -725,7 +725,7 @@
       attr_id = mh5_create_attr_array_int(lu, name, rank, dims)
       call mh5_put_attr_array_int(attr_id, buffer)
       call mh5_close_attr(attr_id)
-      end
+      end subroutine
 
       subroutine mh5_init_attr_array_real(lu, name, rank, dims, buffer)
       implicit none
@@ -739,7 +739,7 @@
       attr_id = mh5_create_attr_array_real(lu, name, rank, dims)
       call mh5_put_attr_array_real(attr_id, buffer)
       call mh5_close_attr(attr_id)
-      end
+      end subroutine
 
       subroutine mh5_init_attr_array_str (
      $        lu, name, rank, dims, buffer, size)
@@ -755,7 +755,7 @@
       attr_id = mh5_create_attr_array_str(lu, name, rank, dims, size)
       call mh5_put_attr_array_str(attr_id, buffer)
       call mh5_close_attr(attr_id)
-      end
+      end subroutine
 
 * fetch: open, get, close
       subroutine mh5_fetch_attr_scalar_int (lu, name, value)
@@ -768,7 +768,7 @@
       attr_id = mh5_open_attr(lu, name)
       call mh5_get_attr_scalar_int(attr_id, value)
       call mh5_close_attr(attr_id)
-      end
+      end subroutine
 
       subroutine mh5_fetch_attr_scalar_real (lu, name, value)
       implicit none
@@ -780,7 +780,7 @@
       attr_id = mh5_open_attr(lu, name)
       call mh5_get_attr_scalar_real(attr_id, value)
       call mh5_close_attr(attr_id)
-      end
+      end subroutine
 
       subroutine mh5_fetch_attr_scalar_str (lu, name, value)
       implicit none
@@ -792,7 +792,7 @@
       attr_id = mh5_open_attr(lu, name)
       call mh5_get_attr_scalar_str(attr_id, value)
       call mh5_close_attr(attr_id)
-      end
+      end subroutine
 
       subroutine mh5_fetch_attr_array_int (lu, name, buffer)
       implicit none
@@ -804,7 +804,7 @@
       attr_id = mh5_open_attr(lu, name)
       call mh5_get_attr_array_int(attr_id, buffer)
       call mh5_close_attr(attr_id)
-      end
+      end subroutine
 
       subroutine mh5_fetch_attr_array_real(lu, name, buffer)
       implicit none
@@ -816,7 +816,7 @@
       attr_id = mh5_open_attr(lu, name)
       call mh5_get_attr_array_real(attr_id, buffer)
       call mh5_close_attr(attr_id)
-      end
+      end subroutine
 
       subroutine mh5_fetch_attr_array_str (lu, name, buffer)
       implicit none
@@ -828,7 +828,7 @@
       attr_id = mh5_open_attr(lu, name)
       call mh5_get_attr_array_str(attr_id, buffer)
       call mh5_close_attr(attr_id)
-      end
+      end subroutine
 
 *====================
 *     DATASETS
@@ -849,12 +849,12 @@
         integer(MOLCAS_C_INT), VALUE :: lu
         character(c_char) :: name(*)
         integer(MOLCAS_C_INT) :: dset_id
-        end
+        end function
       end interface
 
       call f2c_upcase(name,mh5_lbl)
       dset_id = mh5c_create_dset_scalar_int(lu, mh5_lbl)
-      end
+      end function
 
       function mh5_create_dset_scalar_real (lu, name) result (dset_id)
       use iso_c_binding
@@ -871,12 +871,12 @@
         integer(MOLCAS_C_INT), VALUE :: lu
         character(c_char) :: name(*)
         integer(MOLCAS_C_INT) :: dset_id
-        end
+        end function
       end interface
 
       call f2c_upcase(name,mh5_lbl)
       dset_id = mh5c_create_dset_scalar_real(lu, mh5_lbl)
-      end
+      end function
 
       function mh5_create_dset_scalar_str (lu, name, size)
      $        result (dset_id)
@@ -897,12 +897,12 @@
         character(c_char) :: name(*)
         integer(MOLCAS_C_INT), VALUE :: size
         integer(MOLCAS_C_INT) :: dset_id
-        end
+        end function
       end interface
 
       call f2c_upcase(name,mh5_lbl)
       dset_id = mh5c_create_dset_scalar_str(lu, mh5_lbl, size)
-      end
+      end function
 
       subroutine mh5_put_dset_scalar_int (dset_id, value)
       use iso_c_binding
@@ -918,11 +918,11 @@
         integer(MOLCAS_C_INT), VALUE :: dset_id
         integer(MOLCAS_C_INT) :: value
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
 
       ierr = mh5c_put_dset_scalar_int(dset_id, value)
-      end
+      end subroutine
 
       subroutine mh5_put_dset_scalar_real (dset_id, value)
       use iso_c_binding
@@ -938,11 +938,11 @@
         integer(MOLCAS_C_INT), VALUE :: dset_id
         real(MOLCAS_C_REAL) :: value
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
 
       ierr = mh5c_put_dset_scalar_real(dset_id, value)
-      end
+      end subroutine
 
       subroutine mh5_put_dset_scalar_str (dset_id, value)
       use iso_c_binding
@@ -958,11 +958,11 @@
         integer(MOLCAS_C_INT), VALUE :: dset_id
         character(c_char) :: value(*)
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
 
       ierr = mh5c_put_dset_scalar_str(dset_id, value)
-      end
+      end subroutine
 
 
       subroutine mh5_get_dset_scalar_int (dset_id, value)
@@ -979,11 +979,11 @@
         integer(MOLCAS_C_INT), VALUE :: dset_id
         integer(MOLCAS_C_INT) :: value
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
 
       ierr = mh5c_get_dset_scalar_int(dset_id, value)
-      end
+      end subroutine
 
       subroutine mh5_get_dset_scalar_real (dset_id, value)
       use iso_c_binding
@@ -999,11 +999,11 @@
         integer(MOLCAS_C_INT), VALUE :: dset_id
         real(MOLCAS_C_REAL) :: value
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
 
       ierr = mh5c_get_dset_scalar_real(dset_id, value)
-      end
+      end subroutine
 
       subroutine mh5_get_dset_scalar_str (dset_id, value)
       use iso_c_binding
@@ -1019,11 +1019,11 @@
         integer(MOLCAS_C_INT), VALUE :: dset_id
         character(c_char) :: value(*)
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
 
       ierr = mh5c_get_dset_scalar_str(dset_id, value)
-      end
+      end subroutine
 
       function mh5_create_dset_array_int (lu, name, rank, dims)
      $        result(dset_id)
@@ -1044,13 +1044,13 @@
         integer(MOLCAS_C_INT), VALUE :: rank
         integer(MOLCAS_C_INT) :: dims(*)
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
       character(len=MH5_MAX_LBL_LEN) :: mh5_lbl
 
       call f2c_upcase(name,mh5_lbl)
       dset_id = mh5c_create_dset_array_int(lu, mh5_lbl, rank, dims)
-      end
+      end function
 
       function mh5_create_dset_array_real (lu, name, rank, dims)
      $        result(dset_id)
@@ -1071,13 +1071,13 @@
         integer(MOLCAS_C_INT), VALUE :: rank
         integer(MOLCAS_C_INT) :: dims(*)
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
       character(MH5_MAX_LBL_LEN) :: mh5_lbl
 
       call f2c_upcase(name,mh5_lbl)
       dset_id = mh5c_create_dset_array_real(lu, mh5_lbl, rank, dims)
-      end
+      end function
 
       function mh5_create_dset_array_str (lu, name, rank, dims, size)
      $        result(dset_id)
@@ -1100,14 +1100,14 @@
         integer(MOLCAS_C_INT) :: dims(*)
         integer(MOLCAS_C_INT), VALUE :: size
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
       character(MH5_MAX_LBL_LEN) :: mh5_lbl
 
       call f2c_upcase(name,mh5_lbl)
       dset_id = mh5c_create_dset_array_str(
      $        lu, mh5_lbl, rank, dims, size)
-      end
+      end function
 
       subroutine mh5_put_dset_array_int (dset_id, buffer, exts, offs)
       use iso_c_binding
@@ -1125,7 +1125,7 @@
         integer(MOLCAS_C_INT) :: exts(*), offs(*)
         integer(MOLCAS_C_INT) :: buffer(*)
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
         function mh5c_put_dset_array_int_full(id, buffer)
      &   result(ierr) bind(C, name='mh5c_put_dset_array_int_full')
         use iso_c_binding
@@ -1133,7 +1133,7 @@
         integer(MOLCAS_C_INT), VALUE :: id
         integer(MOLCAS_C_INT) :: buffer(*)
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
 
       if (present(exts).and.present(offs)) then
@@ -1144,7 +1144,7 @@
       else
         ierr = mh5c_put_dset_array_int_full(dset_id, buffer)
       end if
-      end
+      end subroutine
 
       subroutine mh5_put_dset_array_real (dset_id, buffer, exts, offs)
       use iso_c_binding
@@ -1162,7 +1162,7 @@
         integer(MOLCAS_C_INT) :: exts(*), offs(*)
         real(MOLCAS_C_REAL) :: buffer(*)
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
         function mh5c_put_dset_array_real_full(id, buffer)
      &   result(ierr) bind(C, name='mh5c_put_dset_array_real_full')
         use iso_c_binding
@@ -1170,7 +1170,7 @@
         integer(MOLCAS_C_INT), VALUE :: id
         real(MOLCAS_C_REAL) :: buffer(*)
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
 
       if (present(exts).and.present(offs)) then
@@ -1181,7 +1181,7 @@
       else
         ierr = mh5c_put_dset_array_real_full(dset_id, buffer)
       end if
-      end
+      end subroutine
 
       subroutine mh5_put_dset_array_str (dset_id, buffer, exts, offs)
       use iso_c_binding
@@ -1199,7 +1199,7 @@
         integer(MOLCAS_C_INT) :: exts(*), offs(*)
         character(c_char) :: buffer(*)
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
         function mh5c_put_dset_array_str_full(id, buffer)
      &   result(ierr) bind(C, name='mh5c_put_dset_array_str_full')
         use iso_c_binding
@@ -1207,7 +1207,7 @@
         integer(MOLCAS_C_INT), VALUE :: id
         character(c_char) :: buffer(*)
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
 
       if (present(exts).and.present(offs)) then
@@ -1218,7 +1218,7 @@
       else
         ierr = mh5c_put_dset_array_str_full(dset_id, buffer)
       end if
-      end
+      end subroutine
 
 
       subroutine mh5_get_dset_array_int (dset_id, buffer, exts, offs)
@@ -1237,7 +1237,7 @@
         integer(MOLCAS_C_INT) :: exts(*), offs(*)
         integer(MOLCAS_C_INT) :: buffer(*)
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
         function mh5c_get_dset_array_int_full(id, buffer)
      &   result(ierr) bind(C, name='mh5c_get_dset_array_int_full')
         use iso_c_binding
@@ -1245,7 +1245,7 @@
         integer(MOLCAS_C_INT), VALUE :: id
         integer(MOLCAS_C_INT) :: buffer(*)
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
 
       if (present(exts).and.present(offs)) then
@@ -1256,7 +1256,7 @@
       else
         ierr = mh5c_get_dset_array_int_full(dset_id, buffer)
       end if
-      end
+      end subroutine
 
       subroutine mh5_get_dset_array_real (dset_id, buffer, exts, offs)
       use iso_c_binding
@@ -1274,7 +1274,7 @@
         integer(MOLCAS_C_INT) :: exts(*), offs(*)
         real(MOLCAS_C_REAL) :: buffer(*)
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
         function mh5c_get_dset_array_real_full(id, buffer)
      &   result(ierr) bind(C, name='mh5c_get_dset_array_real_full')
         use iso_c_binding
@@ -1282,7 +1282,7 @@
         integer(MOLCAS_C_INT), VALUE :: id
         real(MOLCAS_C_REAL) :: buffer(*)
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
 
       if (present(exts).and.present(offs)) then
@@ -1293,7 +1293,7 @@
       else
         ierr = mh5c_get_dset_array_real_full(dset_id, buffer)
       end if
-      end
+      end subroutine
 
       subroutine mh5_get_dset_array_str (dset_id, buffer, exts, offs)
       use iso_c_binding
@@ -1311,7 +1311,7 @@
         integer(MOLCAS_C_INT) :: exts(*), offs(*)
         character(c_char) :: buffer(*)
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
         function mh5c_get_dset_array_str_full(id, buffer)
      &   result(ierr) bind(C, name='mh5c_get_dset_array_str_full')
         use iso_c_binding
@@ -1319,7 +1319,7 @@
         integer(MOLCAS_C_INT), VALUE :: id
         character(c_char) :: buffer(*)
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
 
       if (present(exts).and.present(offs)) then
@@ -1330,7 +1330,7 @@
       else
         ierr = mh5c_get_dset_array_str_full(dset_id, buffer)
       end if
-      end
+      end subroutine
 
 * Convenience wrappers: 'init' and 'fetch'
 
@@ -1345,7 +1345,7 @@
       dset_id = mh5_create_dset_scalar_int(lu, name)
       call mh5_put_dset_scalar_int(dset_id, value)
       call mh5_close_dset(dset_id)
-      end
+      end subroutine
 
       subroutine mh5_init_dset_scalar_real (lu, name, value)
       implicit none
@@ -1357,7 +1357,7 @@
       dset_id = mh5_create_dset_scalar_real(lu, name)
       call mh5_put_dset_scalar_real(dset_id, value)
       call mh5_close_dset(dset_id)
-      end
+      end subroutine
 
       subroutine mh5_init_dset_scalar_str (lu, name, value)
       implicit none
@@ -1369,7 +1369,7 @@
       dset_id = mh5_create_dset_scalar_str(lu, name, len(value))
       call mh5_put_dset_scalar_str(dset_id, value)
       call mh5_close_dset(dset_id)
-      end
+      end subroutine
 
       subroutine mh5_init_dset_array_int (lu, name, rank, dims, buffer)
       implicit none
@@ -1389,12 +1389,12 @@
         integer(MOLCAS_C_INT), VALUE :: id
         integer(MOLCAS_C_INT) :: buffer(*)
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
       dset_id = mh5_create_dset_array_int(lu, name, rank, dims)
       ierr = mh5c_put_dset_array_int_full(dset_id, buffer)
       call mh5_close_dset(dset_id)
-      end
+      end subroutine
 
       subroutine mh5_init_dset_array_real(lu, name, rank, dims, buffer)
       implicit none
@@ -1414,12 +1414,12 @@
         integer(MOLCAS_C_INT), VALUE :: id
         real(MOLCAS_C_REAL) :: buffer(*)
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
       dset_id = mh5_create_dset_array_real(lu, name, rank, dims)
       ierr = mh5c_put_dset_array_real_full(dset_id, buffer)
       call mh5_close_dset(dset_id)
-      end
+      end subroutine
 
       subroutine mh5_init_dset_array_str(
      $        lu, name, rank, dims, buffer, size)
@@ -1441,12 +1441,12 @@
         integer(MOLCAS_C_INT), VALUE :: id
         character(c_char) :: buffer(*)
         integer(MOLCAS_C_INT) :: ierr
-        end
+        end function
       end interface
       dset_id = mh5_create_dset_array_str(lu, name, rank, dims, size)
       ierr = mh5c_put_dset_array_str_full(dset_id, buffer)
       call mh5_close_dset(dset_id)
-      end
+      end subroutine
 
 * fetch: open, get, close
       subroutine mh5_fetch_dset_scalar_int (lu, name, value)
@@ -1459,7 +1459,7 @@
       dset_id = mh5_open_dset(lu, name)
       call mh5_get_dset_scalar_int(dset_id, value)
       call mh5_close_dset(dset_id)
-      end
+      end subroutine
 
       subroutine mh5_fetch_dset_scalar_real (lu, name, value)
       implicit none
@@ -1471,7 +1471,7 @@
       dset_id = mh5_open_dset(lu, name)
       call mh5_get_dset_scalar_real(dset_id, value)
       call mh5_close_dset(dset_id)
-      end
+      end subroutine
 
       subroutine mh5_fetch_dset_scalar_str (lu, name, value)
       implicit none
@@ -1483,7 +1483,7 @@
       dset_id = mh5_open_dset(lu, name)
       call mh5_get_dset_scalar_str(dset_id, value)
       call mh5_close_dset(dset_id)
-      end
+      end subroutine
 
       subroutine mh5_fetch_dset_array_int (lu, name, buffer, exts, offs)
       implicit none
@@ -1499,12 +1499,12 @@
         integer :: dset_id
         integer :: buffer(*)
         integer, optional :: exts(*), offs(*)
-        end
+        end subroutine
       end interface
       dset_id = mh5_open_dset(lu, name)
       call mh5_get_dset_array_int(dset_id, buffer, exts, offs)
       call mh5_close_dset(dset_id)
-      end
+      end subroutine
 
       subroutine mh5_fetch_dset_array_real(lu, name, buffer, exts, offs)
       implicit none
@@ -1520,12 +1520,12 @@
         integer :: dset_id
         real*8 :: buffer(*)
         integer, optional :: exts(*), offs(*)
-        end
+        end subroutine
       end interface
       dset_id = mh5_open_dset(lu, name)
       call mh5_get_dset_array_real(dset_id, buffer, exts, offs)
       call mh5_close_dset(dset_id)
-      end
+      end subroutine
 
       subroutine mh5_fetch_dset_array_str(lu, name, buffer, exts, offs)
       implicit none
@@ -1541,12 +1541,12 @@
         integer :: dset_id
         character :: buffer(*)
         integer, optional :: exts(*), offs(*)
-        end
+        end subroutine
       end interface
       dset_id = mh5_open_dset(lu, name)
       call mh5_get_dset_array_str(dset_id, buffer, exts, offs)
       call mh5_close_dset(dset_id)
-      end
+      end subroutine
 
 * convert Fortran string to uppercased, null-terminated C string
       subroutine f2c_upcase(name, lbl)
@@ -1558,4 +1558,4 @@
       end if
       lbl = TRIM(name)//C_NULL_CHAR
       call upcase(lbl)
-      end
+      end subroutine

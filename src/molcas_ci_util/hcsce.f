@@ -172,7 +172,7 @@
       M=0
       do i=1,N
        X=S(i,i)
-       If(X.lt.1.0D-8) Goto 90
+       If(X.lt.1.0D-6) Goto 90
        Y=1.0D0/sqrt(X)
        call dcopy_(N,0.0D0,0,C(1,M+1),1)
        C(i,M+1)=Y
@@ -189,13 +189,19 @@
        Call dGeMV_('N',N,N,1.0D0,S,N,C(1,M+1),1,0.0D0,Temp,1)
        xn2=DDOT_(N,Temp,1,C(1,M+1),1)
 
-       If(xn2.lt.1.0D-8) Goto 90
+       If(xn2.lt.1.0D-6) Goto 90
 
        Y=1.0D0/sqrt(xn2)
        Call DSCAL_(N,Y,C(1,M+1),1)
-       Call DSCAL_(N,Y,Temp,1)
+       Call dGeMV_('N',N,N,1.0D0,S,N,C(1,M+1),1,0.0D0,Temp,1)
        If(Loop.eq.1 .and. Y.gt.100.0D0) Goto 10
-       M=M+1
+*MGD issues with many states : to be very safe, test the result
+       isfail=0
+       Do  k=1,M
+        ovl=DDOT_(N,Temp,1,C(1,k),1)
+        if (abs(ovl).gt.1.0d-4) isfail=1
+       End Do
+       If (isfail.eq.0) M=M+1
 
   90   Continue
       End do

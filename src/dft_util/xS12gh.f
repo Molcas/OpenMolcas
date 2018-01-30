@@ -15,7 +15,7 @@
      &                Coeff,iSpin,F_xc,T_X,gh_switch)
 ************************************************************************
 *                                                                      *
-* Object S12g from Marcel Swart
+* Object S12g from Marcel Swart                                        *
 *                                                                      *
 * Called from:                                                         *
 *                                                                      *

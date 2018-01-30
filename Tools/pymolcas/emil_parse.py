@@ -10,7 +10,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2015,2016, Ignacio Fdez. Galván                        *
+# Copyright (C) 2015-2017, Ignacio Fdez. Galván                        *
 #***********************************************************************
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
@@ -35,7 +35,7 @@ re_dogeo = re_compile(r'do\s*geo\s*$', flags=IGNORECASE)
 re_if = re_compile(r'if\s*\(\s*(.*?)\s*(=+|!=|ne|-file)\s*(\S.*?)\s*\)\s*$', flags=IGNORECASE)
 re_ifgoto = re_compile(r'if\s*\(\s*(.*?)\s*(=+|!=|ne|-file)\s*(\S.*?)\s*\)\s*go\s*to\s+(\S+)\s*$', flags=IGNORECASE)
 re_endif = re_compile(r'end\s*if\s*$', flags=IGNORECASE)
-re_echo = re_compile(r'echo\s+(on|off)\s*$', flags=IGNORECASE)
+re_echo = re_compile(r'echo\s+(\S.*?)\s*$', flags=IGNORECASE)
 re_file = re_compile(r'file\s+(\S.*?)\s*$', flags=IGNORECASE)
 re_rm = re_compile(r'rm\s+(-?force\s+)?(\S.*?)\s*$', flags=IGNORECASE)
 re_copy = re_compile(r'(copy|save|clone|collect)\s+(-?force\s+)?(\S*)\s+(\S*)\s*$', flags=IGNORECASE)
@@ -88,11 +88,14 @@ def EMIL_Parse(input_file):
   for item in items:
 
     if (item[0] == '&'):
+      # Remove final empty lines (empty lines in the middle could be significant)
+      while (item[-1] == ''):
+        del item[-1]
       blocks[level].append(Program(item))
 
     elif (item[0] == '>'):
 
-      # TODO: varint/option for binary files?
+      # TODO: variant/option for binary files?
       # >>> FILE
       # this is not added to the token list, but returned as a separate dict
       # so the wrapper can create the files before running the tokens

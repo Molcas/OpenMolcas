@@ -32,6 +32,7 @@
       Integer I, J, ISTATE, JSTATE, IJOB, ILINE, LINENR
       Integer LuIn
       Integer NFLS
+      REAL*8 ANORM
 
       CALL QENTER(ROUTINE)
 
@@ -301,6 +302,7 @@ C ------------------------------------------
       IF(LINE(1:4).EQ.'EJOB') THEN
         IFEJOB=.TRUE.
         IFHAM=.TRUE.
+        LINENR=LINENR+1
         GOTO 100
       END IF
 C ------------------------------------------
@@ -597,6 +599,7 @@ C ------------------------------------------
       END IF
 C ------------------------------------------
       If(Line(1:4).eq.'TMOS') then
+! Calculate exact isotropically averaged semi-classical intensities
 ! Activate integration of transition moment oscillator strengths
 ! based on the exact non-relativistic Hamiltonian in the weak field
 ! approximation.
@@ -605,7 +608,66 @@ C ------------------------------------------
         Linenr=Linenr+1
         GoTo 100
       Endif
+C ------------------------------------------
+      IF(LINE(1:4).EQ.'KVEC')THEN
+! Calculate exact semi-classical intensities in given directions
+        DO_KVEC=.TRUE.
+        PRRAW=.TRUE.
+        Do_TMOS=.TRUE.
+        ToFile=.TRUE.
+        Read(LuIn,*,ERR=997) NKVEC
+        CALL GETMEM('KVEC  ','ALLO','REAL',PKVEC,3*NKVEC)
+        Linenr=Linenr+1
+        DO ILINE=1,NKVEC
+          Read(LuIn,*,ERR=997) (WORK(PKVEC+ILINE-1+(I-1)*NKVEC),I=1,3)
+          Linenr=Linenr+1
+        END DO
+! Ensure that the wavectors are normalized
+        DO ILINE=1,NKVEC
+          ANORM = WORK(PKVEC+ILINE-1)**2 +
+     &            WORK(PKVEC+ILINE-1+NKVEC)**2 +
+     &            WORK(PKVEC+ILINE-1+2*NKVEC)**2
+          WORK(PKVEC+ILINE-1) =
+     &    WORK(PKVEC+ILINE-1)/DSQRT(ANORM)
+          WORK(PKVEC+ILINE-1+NKVEC) =
+     &    WORK(PKVEC+ILINE-1+NKVEC)/DSQRT(ANORM)
+          WORK(PKVEC+ILINE-1+2*NKVEC) =
+     &    WORK(PKVEC+ILINE-1+2*NKVEC)/DSQRT(ANORM)
+        END DO
+        GOTO 100
+      END IF
 C--------------------------------------------
+      IF(LINE(1:4).EQ.'PRRA')THEN
+! Print the raw directions for exact semi-classical intensities
+        PRRAW=.TRUE.
+        LINENR=LINENR+1
+        GOTO 100
+      END IF
+C ------------------------------------------
+      IF(LINE(1:4).EQ.'PRWE')THEN
+! Print the weighted directions for exact semi-classical intensities
+        PRWEIGHT=.TRUE.
+        LINENR=LINENR+1
+        GOTO 100
+      END IF
+C ------------------------------------------
+      IF(LINE(1:4).EQ.'TOLE')THEN
+! Set tolerance for different gauges - currently 10 percent (0.1D0)
+! Defined as Tolerance = ABS(1-O_r/O_p)
+        NEW_TOLERANCE=.TRUE.
+        Read(LuIn,*,ERR=997) TOLERANCE
+        LINENR=LINENR+1
+        GOTO 100
+      END IF
+C ------------------------------------------
+      IF(LINE(1:4).EQ.'REDL')THEN
+! Reduce looping in intensities. Set limit for the inner and outer loop
+        REDUCELOOP=.TRUE.
+        Read(LuIn,*,ERR=997) LOOPDIVIDE
+        LINENR=LINENR+1
+        GOTO 100
+      END IF
+C ------------------------------------------
       If(Line(1:4).eq.'L-EF') then
 ! Set the order of the Lebedev polynomials used for the numerical
 ! integration over solid angles. Current default 5.

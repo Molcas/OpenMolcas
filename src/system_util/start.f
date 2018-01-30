@@ -12,11 +12,6 @@
 * Initialization procedure for a program module.
       Implicit None
       Character*(*) ModuleName
-#ifdef _DELAYED_
-      Integer iPr
-      Character*8  linalg_info
-      Character*1024 linalg_lib
-#endif
 #include "para_info.fh"
 #ifdef _MOLCAS_MPP_
       Logical parallelized
@@ -35,22 +30,10 @@
 *
 * Initialize delayed BLAS+LAPACK
 *
-#ifdef _DELAYED_
-      linalg_lib='Internal'
-      Call GetEnvf('MOLCAS_LINALG',linalg_lib)
-      Call GetEnvf('MOLCAS_LINALG_INFO',linalg_info)
-      iPr = 0
-      Call UpCase(linalg_info)
-      linalg_info=AdjustL(linalg_info)
-      If ((linalg_info(1:1) .ne. ' ') .and.
-     &    (linalg_info(1:3) .ne. 'NO ') .and.
-     &    (linalg_info(1:4) .ne. 'OFF ') .and.
-     &    (linalg_info(1:1) .ne. '0')) iPr = 1
-      Call Initialize_BLAS(linalg_lib,iPr)
+      Call Init_LinAlg
 #  ifdef _DEBUG_
       Write (6,*) ' BLAS+LAPACK initialized '
 #  endif
-#endif
 *
 *  Initialize Timing
 *

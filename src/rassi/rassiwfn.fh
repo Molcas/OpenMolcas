@@ -18,7 +18,9 @@
      $       wfn_sfs_angmom, wfn_sos_angmomr,
      &       wfn_sos_angmomi, wfn_sfs_tdm,
      &       wfn_sfs_tsdm, wfn_overlap,
-     &       wfn_sfs_tm, wfn_sos_tm
+     &       wfn_sfs_tm, wfn_sos_tm,
+     &       wfn_sfs_edipmom, wfn_sfs_amfi,
+     &       wfn_sos_hsor, wfn_sos_hsoi
 
       common /rassiwfn_handles/ wfn_fileid,
      $       wfn_sfs_energy, wfn_sos_energy,
@@ -26,4 +28,6 @@
      $       wfn_sfs_angmom, wfn_sos_angmomr,
      &       wfn_sos_angmomi, wfn_sfs_tdm,
      &       wfn_sfs_tsdm, wfn_overlap,
-     &       wfn_sfs_tm, wfn_sos_tm
+     &       wfn_sfs_tm, wfn_sos_tm,
+     &       wfn_sfs_edipmom, wfn_sfs_amfi,
+     &       wfn_sos_hsor, wfn_sos_hsoi

@@ -9,12 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine GF_Harmonic_Frequencies(G,GInv,Tmp1,Tmp2,
-     &                                   EVec,EVal,iNeg,nX,mInter)
+     &                                   EVec,EVal,RedM,iNeg,nX,mInter)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "constants2.fh"
       Real*8 G(nX**2),GInv(nX**2), Tmp1(mInter,mInter), Tmp2(nX**2),
-     &       EVec(2*mInter,mInter),  EVal(2*mInter)
+     &       EVec(2*mInter,mInter),  EVal(2*mInter), RedM(mInter)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -86,6 +86,7 @@
      &               Tmp1,mInter,
      &               0.0d0,Tmp2,mInter)
          r2=DDot_(mInter,Tmp1,1,Tmp2,1)
+         RedM(iHarm)=r2
          r2=One/Sqrt(r2)
          Call DScal_(mInter,r2,EVec(1,iHarm),2)
       End Do
@@ -108,12 +109,16 @@
                rlow=EVal(iHarm)
                EVal(iHarm)=EVal(jHarm)
                EVal(jHarm)=rLow
+               rlow=RedM(iHarm)
+               RedM(iHarm)=RedM(jHarm)
+               RedM(jHarm)=rLow
                Call DSwap_(mInter,EVec(1,iHarm),2,EVec(1,jHarm),2)
             End If
          End Do
       End Do
 #ifdef _DEBUG_
       Call RecPrt('Frequencies (cm-1)',' ',EVal,1,mInter)
+      Call RecPrt('Reduced masses (u)',' ',RedM,1,mInter)
       Call RecPrt('Normal Coordinates',' ',EVec,mInter*2,mInter)
 #endif
 *                                                                      *

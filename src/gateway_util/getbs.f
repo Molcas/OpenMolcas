@@ -480,7 +480,7 @@ culf
          iOff = nPrim*nPrim
          Call DCopy_(nPrim*nPrim, DInf(ipCff_p),1,DInf(ipCff_p+iOff),1)
 *
-*        The normalization coeffifients are assumed to be for
+*        The normalization coefficients are assumed to be for
 *        normalized Gaussians. In Nrmlz the contraction coefficients are
 *        multiplied with the normalization coefficient of each primitive
 *        Gaussian. The contracted Gaussian are then normalized with respect
@@ -559,7 +559,7 @@ culf
  10   Continue
       If (mVal.eq.0) nVal=0
 ***************************************************************************
-*-----If PAM basis set read the potencials and coefficient!
+*-----If PAM basis set read the potentials and coefficient!
 *
       If (inLn2.and. .Not.inLn1) Then
          If (IfTest) Write (6,*) ' Close library and start to read from'

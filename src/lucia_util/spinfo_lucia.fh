@@ -18,4 +18,4 @@ C NCONF_TOT added april 29
      &             IB_SD_FOR_OPEN(MXPORB+1),
      &             NCSF_PER_SYM(MXPCSM), NSD_PER_SYM(MXPCSM),
      &             NCONF_ALL_SYM, NCONF_ALL_SYM_FOR_OCCLS(MXPCSM),
-     &             IBCONF_ALL_SYM_FOR_OCCLS(MXPCSM),nconf_tot
+     &             IBCONF_ALL_SYM_FOR_OCCLS(MXPCSM),nconf_tot,nCSF_HEXS

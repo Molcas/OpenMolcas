@@ -31,10 +31,10 @@
       Write(6,*)
       Call Quit_OnUserError()
       end if
-      rcg21=clebsch_gordon(Two,rone,spin,rms-rone,spin,rms)
-      rcg11=clebsch_gordon(rOne,rOne,spin,rms-rone,spin,rms)
-      rcg20=clebsch_gordon(Two,Zero,spin,rms,spin,rms)
-      rcg10=clebsch_gordon(rOne,Zero,spin,rms,spin,rms)
+      rcg21=clebsch_gordan(Two,rone,spin,rms-rone,spin,rms)
+      rcg11=clebsch_gordan(rOne,rOne,spin,rms-rone,spin,rms)
+      rcg20=clebsch_gordan(Two,Zero,spin,rms,spin,rms)
+      rcg10=clebsch_gordan(rOne,Zero,spin,rms,spin,rms)
       rgamma=sqrt(spin*(spin+1.0D0)-rms*(rms-1.0D0))
 *
       ralpha=rMS**2

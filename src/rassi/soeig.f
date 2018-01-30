@@ -51,7 +51,8 @@
       REAL*8 S1,S2,SM1,SM2
       REAL*8 SOTHR_MIN
       REAL*8 X,X_THR,XJEFF
-      REAL*8, ALLOCATABLE :: ESO(:)
+      REAL*8, ALLOCATABLE :: ESO(:), HAMSOR(:,:), HAMSOI(:,:)
+
 
       REAL*8, EXTERNAL :: DCLEBS
 
@@ -238,6 +239,7 @@ C SPIN-ORBIT HAMILTONIAN MATRIX ELEMENTS:
         WORK(LHTOTR-1+IJSS)=HSOR+ENERGY(ISTATE)
       END DO
 
+
       IF(IPGLOB.GE.VERBOSE) THEN
        WRITE(6,*)
        WRITE(6,*)
@@ -254,10 +256,20 @@ C Array of eigenvalues:
       DO ISS=1,NSS
        ENSOR(ISS)=WORK(LHTOTR-1+ISS+NSS*(ISS-1))
       END DO
+      call mma_allocate(HAMSOR,NSS,NSS,'HAMSOR')
+      call mma_allocate(HAMSOI,NSS,NSS,'HAMSOI')
+      call dcopy_(NSS*NSS,0.d0,0,HAMSOR,1)
+      call dcopy_(NSS*NSS,0.d0,0,HAMSOI,1)
+      call dcopy_(NSS*NSS,WORK(LHTOTR),1,HAMSOR,1)
+      call dcopy_(NSS*NSS,WORK(LHTOTI),1,HAMSOI,1)
+      call put_darray('HAMSOR_SINGLE',HAMSOR,NSS*NSS)
+      call put_darray('HAMSOI_SINGLE',HAMSOI,NSS*NSS)
 #ifdef _HDF5_
       call mh5_put_dset(wfn_sos_energy, ENSOR)
       call mh5_put_dset_array_real(wfn_sos_coefr,USOR)
       call mh5_put_dset_array_real(wfn_sos_coefi,USOI)
+      call mh5_put_dset_array_real(wfn_sos_hsor,HAMSOR)
+      call mh5_put_dset_array_real(wfn_sos_hsoi,HAMSOI)
 #endif
 
 C
@@ -519,6 +531,8 @@ C Put energy onto info file for automatic verification runs:
       CALL GETMEM('HTOTR','FREE','REAL',LHTOTR,NSS**2)
       CALL GETMEM('HTOTI','FREE','REAL',LHTOTI,NSS**2)
 
+      call mma_deallocate(HAMSOR)
+      call mma_deallocate(HAMSOI)
       Call qExit(ROUTINE)
       RETURN
       END

@@ -60,7 +60,8 @@ void tcl_r8(double in[], INT *n_in, INT out[], double *thr, INT *Init_do_setup_l
    if(do_setup) {
       do_setup=0;
       one_ulp(&ulp);
-      for(k=0; k<65536; k++) tab[k]=8; tab[0]=2;
+      for(k=0; k<65536; k++) tab[k]=8;
+      tab[0]=2;
       for(k=0; k<65536; k++) {
 /* ifdef _FP_IEEE_ */
          if(k<16)               continue;

@@ -49,7 +49,7 @@
       Integer, Intent(In) :: Lu
       Real*8, Dimension(:,:,:), Allocatable, Intent(In) :: Rot
       Real*8, Dimension(:,:), Allocatable, Intent(In) :: Trans
-      Character (Len=MAXLEN) :: Line, FName, Dum
+      Character (Len=MAXLEN) :: Line, FName, CurrDir, Dum
       Integer :: Error, NumAt, i, Lxyz, Idx
       Logical :: Found
       Integer, External :: IsFreeUnit
@@ -71,15 +71,35 @@
 
       Factor = One
       Read(Lu,'(A)') Line
+      Line = AdjustL(Line)
 
       ! Try to read a number, if it fails, try to open a file
       ! Note that the slash means end-of-line in list-directed input
+      NumAt = -1
       Read(Line,*,IOStat=Error) NumAt
+      ! And make sure there's nothing but numbers in the first word
+      ! (the above is not 100% reliable in some compilers)
+      Do i=1,Len(Line)
+        If (Line(i:i) .eq. ' ') Exit
+        Idx = IChar(Line(i:i))
+        If ((Idx .lt. IChar('0')) .or. (Idx .gt. IChar('9'))) Then
+          Error = -1
+          Exit
+        End If
+      End Do
+      If (NumAt .lt. 1) Error = -1
       If (Index(Line, '/') .gt. 0) Error = -1
       Lxyz = Lu
       If (Error .ne. 0) Then
         Read(Line,'(A)') FName
-        Call F_Inquire(FName, Found)
+        Found = .False.
+        If (Index(Line, '/') .eq. 0) Then
+          Call GetEnvF('CurrDir', CurrDir)
+          CurrDir = Trim(CurrDir)//'/'//FName
+          Call F_Inquire(CurrDir, Found)
+          If (Found) FName = CurrDir
+        End If
+        If (.Not. Found) Call F_Inquire(FName, Found)
         If (Found) Then
 #ifdef _HDF5_
           If (mh5_is_hdf5(Trim(FName))) Then
