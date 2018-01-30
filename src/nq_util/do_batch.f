@@ -487,9 +487,15 @@ cGLM            kAO   = iCmp*iBas_Eff*mGrid
           dTot=Rho(1,iGrid+1)+Rho(2,iGrid+1)
           ratio = 0.0d0
 !          if(dTot.ge.thrsrho) then
-            write(LuMT,'(3F12.6,3E12.4)')
-     &           (Grid(i,iGrid+1),i=1,3),Rho(1,iGrid+1),
-     &           Rho(2,iGrid+1),dTot
+            write(LuMT,'(3(F10.6,A),5(F17.10,A))')
+     &       Grid(1,iGrid+1),',',
+     &       Grid(2,iGrid+1),',',
+     &       Grid(3,iGrid+1),',',
+     &       Rho(1,iGrid+1)*Weights(iGrid+1),',',
+     &       Rho(2,iGrid+1)*Weights(iGrid+1),',',
+     &       dTot*Weights(iGrid+1),',',
+     &       Weights(iGrid+1),',',
+     &       dTot
           if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
             ratio = 4.0d0*P2_ontop(1,iGrid+1)/(dTot**2.0d0)
             if(l_tanhr) ratio = tanh(ratio)

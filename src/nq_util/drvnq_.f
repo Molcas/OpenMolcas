@@ -104,8 +104,10 @@
         write(LuMC,'(A)') '       X         Y        Z'//
      &   '            d_alpha     d_beta       dTot         P2'//
      &   '         ratio'
-        write(LuMT,'(A)') '       X         Y        Z'//
-     &   '            d_alpha     d_beta       dTot'
+        write(LuMT,'(A)') '     X    ,     Y    ,     Z    ,'//
+     &                    '       d_a*W     ,       d_b*W     ,'//
+     &                    '       dTot*W    ,       Weights   ,'//
+     &                    '       dTot '
       END IF
 ************************************************************************
 *
