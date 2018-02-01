@@ -77,6 +77,13 @@ C elements required for the input RASSCF state pairs.
 C Needed generalized transition density matrices are computed by
 C GTDMCTL. They are written on unit LUTDM.
 C Needed matrix elements are computed by PROPER.
+      NSTATE2=NSTATE*NSTATE
+      Call GetMem('OVLP','Allo','Real',LOVLP,NSTATE2)
+      Call GetMem('EIGVEC','Allo','Real',LEIGVEC,NSTATE2)
+      Call GetMem('ENERGY','Allo','Real',LENERGY,NSTATE)
+      Call GetMem('ITOCM','Allo','Inte',liTocM,NSTATE*(NSTATE+1)/2)
+      Call GetMem('IDDET1','Allo','Inte',lIDDET1,NSTATE)
+
       NPROPSZ=NSTATE*NSTATE*NPROP
       CALL GETMEM('Prop','Allo','Real',LPROP,NPROPSZ)
       CALL DCOPY_(NPROPSZ,0.0D0,0,WORK(LPROP),1)
@@ -87,18 +94,20 @@ C Loop over jobiphs JOB1:
         Fake_CMO2 = JOB1.eq.JOB2  ! MOs1 = MOs2  ==> Fake_CMO2=.true.
 
 C Compute generalized transition density matrices, as needed:
-          CALL GTDMCTL(WORK(LPROP),JOB1,JOB2)
+          CALL GTDMCTL(WORK(LPROP),JOB1,JOB2,WORK(LOVLP),Work(LHAM),
+     &                iWork(lIDDET1))
         END DO
       END DO
+      Call GetMem('IDDET1','Free','Inte',lIDDET1,NSTATE)
 
 #ifdef _HDF5_
       CALL mh5_put_dset_array_real(wfn_overlap,
-     &     OVLP(1:NSTATE,1:NSTATE),[NSTATE,NSTATE],[0,0])
+     &     WORK(LOVLP),[NSTATE,NSTATE],[0,0])
 #endif
-      Call Put_dArray('State Overlaps',OVLP(1:NSTATE,1:NSTATE),
+      Call Put_dArray('State Overlaps',Work(LOVLP),
      &                NSTATE*NSTATE)
 
-      IF(TRACK) CALL TRACK_STATE()
+      IF(TRACK) CALL TRACK_STATE(Work(LOVLP))
       IF(TRACK.OR.ONLY_OVERLAPS) THEN
 
 C       Print the overlap matrix here, since MECTL is skipped
@@ -106,8 +115,9 @@ C       Print the overlap matrix here, since MECTL is skipped
           WRITE(6,*)
           WRITE(6,*)'     OVERLAP MATRIX FOR THE ORIGINAL STATES:'
           WRITE(6,*)
-          DO ISTATE=1,NSTATE
-            WRITE(6,'(5(1X,F15.8))')(OVLP(ISTATE,J),J=1,ISTATE)
+          DO ISTATE=0,NSTATE-1
+            iadr=LOVLP+istate*nstate
+            WRITE(6,'(5(1X,F15.8))')(Work(iadr+j),j=0,istate)
           END DO
         END IF
         GOTO 100
@@ -115,7 +125,7 @@ C       Print the overlap matrix here, since MECTL is skipped
 
 C Property matrix elements:
       Call StatusLine('RASSI:','Computing matrix elements.')
-      CALL MECTL(WORK(LPROP))
+      CALL MECTL(WORK(LPROP),WORK(LOVLP),WORK(LHAM),WORK(LESHFT))
 
 C--------  SI wave function section --------------------------
 C In a second section, if Hamiltonian elements were requested,
@@ -129,7 +139,8 @@ C and perhaps GTDM's.
 C Hamiltonian matrix elements, eigenvectors:
       IF(IFHAM) THEN
         Call StatusLine('RASSI:','Computing Hamiltonian.')
-        CALL EIGCTL(WORK(LPROP))
+        CALL EIGCTL(WORK(LPROP),WORK(LOVLP),Work(LHAM),Work(LEIGVEC),
+     &              WORK(LENERGY))
       END IF
 
 C Natural orbitals, if requested:
@@ -140,9 +151,9 @@ C CALCULATE AND WRITE OUT NATURAL ORBITALS.
         CALL GETMEM('VNAT  ','ALLO','REAL',LVNAT,NBSQ)
         CALL GETMEM('OCC   ','ALLO','REAL',LOCC,NBST)
         CALL NATORB_RASSI(WORK(LDMAT),WORK(LTDMZZ),WORK(LVNAT),
-     &                    WORK(LOCC))
+     &                    WORK(LOCC),WORK(LEIGVEC))
         CALL NATSPIN_RASSI(WORK(LDMAT),WORK(LTDMZZ),WORK(LVNAT),
-     &                    WORK(LOCC))
+     &                    WORK(LOCC),WORK(LEIGVEC))
         CALL GETMEM('DMAT  ','FREE','REAL',LDMAT,NBSQ)
         CALL GETMEM('TDMZZ ','FREE','REAL',LTDMZZ,NTDMZZ)
         CALL GETMEM('VNAT  ','FREE','REAL',LVNAT,NBSQ)
@@ -163,7 +174,7 @@ C Nr of spin states and division of loops:
       NSS=0
       LOOPDIVIDE_TEMP = 0
       DO ISTATE=1,NSTATE
-       JOB=JBNUM(ISTATE)
+       JOB=iWork(lJBNUM+ISTATE-1)
        MPLET=MLTPLT(JOB)
        NSS=NSS+MPLET
        IF(ISTATE.GT.LOOPDIVIDE) CYCLE
@@ -182,11 +193,12 @@ C Nr of spin states and division of loops:
       IF(IFSO) THEN
         Call StatusLine('RASSI:','Computing SO Hamiltonian.')
         CALL SOEIG(WORK(LPROP),WORK(LUTOTR),WORK(LUTOTI),
-     &             WORK(LSOENE),NSS)
+     &             WORK(LSOENE),NSS,WORK(LENERGY))
       END IF
 
       CALL PRPROP(WORK(LPROP),WORK(LUTOTR),WORK(LUTOTI),
-     &            WORK(LSOENE),NSS)
+     &            WORK(LSOENE),NSS,WORK(LOVLP),WORK(LENERGY),
+     &            iWork(lJBNUM))
 
 
 C Plot SO-Natural Orbitals if requested
@@ -207,7 +219,7 @@ C   Turns on the procedure if the Keyword HOP was specified.          C
 C                                                                     C
       IF (HOP) then
         Call StatusLine('RASSI:','Trajectory Surface Hopping')
-        CALL TSHinit()
+        CALL TSHinit(WORK(LENERGY))
       END IF
 C                                                                     C
 CIgorS End------------------------------------------------------------C
@@ -223,13 +235,23 @@ CIgorS End------------------------------------------------------------C
 
       IF (DQVD) then
         Call StatusLine('RASSI:', 'DQV Diabatization')
-        CALL DQVDiabat(WORK(LPROP))
+        CALL DQVDiabat(WORK(LPROP),WORK(LHAM))
       END IF
 *                                                                      *
 ************************************************************************
 *
 
  100  CONTINUE
+      Call GetMem('OVLP','Free','Real',LOVLP,NSTATE2)
+      Call GetMem('HAM','Free','Real',LHAM,NSTATE2)
+      Call GetMem('EIGVEC','Free','Real',LEIGVEC,NSTATE2)
+      Call GetMem('ENERGY','Free','Real',LENERGY,NSTATE)
+      Call GetMem('ESHFT','Free','Real',LESHFT,NSTATE)
+      Call GetMem('HDIAG','Free','Real',LHDIAG,NSTATE)
+      Call GetMem('IDTDM','Free','Inte',lIDTDM,NSTATE2)
+      Call GetMem('JBNUM','Free','Inte',LJBNUM,NSTATE)
+      Call GetMem('LROOT','Free','Inte',LLROOT,NSTATE)
+      Call GetMem('ITOCM','Free','Inte',liTocM,NSTATE*(NSTATE+1)/2)
       CALL GETMEM('Prop','Free','Real',LPROP,NPROPSZ)
       CALL GETMEM('NilPt','FREE','REAL',LNILPT,1)
       CALL GETMEM('INilPt','FREE','INTE',LINILPT,1)

@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE SOEIG(PROP,USOR,USOI,ENSOR,NSS)
+      SUBROUTINE SOEIG(PROP,USOR,USOI,ENSOR,NSS,ENERGY)
       IMPLICIT NONE
 #include "prgm.fh"
 #include "SysDef.fh"
@@ -27,7 +27,7 @@
 
       INTEGER NSS
       REAL*8 USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
-      REAL*8 PROP(NSTATE,NSTATE,NPROP)
+      REAL*8 PROP(NSTATE,NSTATE,NPROP),ENERGY(NSTATE)
 
       INTEGER I,N
       INTEGER ITOL
@@ -99,7 +99,7 @@ C Mapping from spin states to spin-free state and to spin:
       CALL GETMEM('MAPMS','ALLO','INTE',LMAPMS,NSS)
       ISS=0
       DO ISTATE=1,NSTATE
-       JOB=JBNUM(ISTATE)
+       JOB=iWork(lJBNUM+ISTATE-1)
        MPLET=MLTPLT(JOB)
        DO MSPROJ=-MPLET+1,MPLET-1,2
         ISS=ISS+1

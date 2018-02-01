@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE EIGCTL(PROP)
+      SUBROUTINE EIGCTL(PROP,OVLP,HAM,EIGVEC,ENERGY)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -26,7 +26,8 @@
 #include "rassiwfn.fh"
 
       character*100 line
-      REAL*8 PROP(NSTATE,NSTATE,NPROP)
+      REAL*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
+     &       HAM(NSTATE,NSTATE),EIGVEC(NSTATE,NSTATE),ENERGY(NSTATE)
       REAL*8, ALLOCATABLE :: ESFS(:)
 * Short array, just for putting transition dipole values
 * into Add_Info, for generating check numbers:
@@ -79,13 +80,13 @@ C Make a list of interacting sets of states:
         IF(IWORK(LLIST-1+I).GT.0) GOTO 20
         ISET=ISET+1
         IWORK(LLIST-1+I)=ISET
-        JOB1=JBNUM(I)
+        JOB1=iWork(lJBNUM+I-1)
         NACTE1=NACTE(JOB1)
         MPLET1=MLTPLT(JOB1)
         LSYM1=IRREP(JOB1)
         DO J=I+1,NSTATE
           IF(IWORK(LLIST-1+J).GT.0) GOTO 10
-          JOB2=JBNUM(J)
+          JOB2=iWork(lJBNUM+J-1)
           NACTE2=NACTE(JOB2)
           IF(NACTE2.NE.NACTE1) GOTO 10
           MPLET2=MLTPLT(JOB2)
@@ -418,12 +419,12 @@ c
         WRITE(6,*)' THE INPUT RASSCF STATES REEXPRESSED IN EIGENSTATES:'
         WRITE(6,*)
         DO I=1,NSTATE
-*        CALL MXMA (EIGVEC,MXSTAT,1,
-*     &             OVLP,  1,MXSTAT,
+*        CALL MXMA (EIGVEC,NSTATE,1,
+*     &             OVLP,  1,NSTATE,
 *     &             WORK(LSCR),1,NSTATE,
 *     &             NSTATE,NSTATE,NSTATE)
          CALL DGEMM_('T','N',NSTATE,NSTATE,NSTATE,1.0D0,
-     &             EIGVEC,MXSTAT,OVLP,MXSTAT,
+     &             EIGVEC,NSTATE,OVLP,NSTATE,
      &             0.0D0,WORK(LSCR),NSTATE)
          WRITE(6,'(A,I5)')' INPUT STATE NR.:',I
          WRITE(6,*)' OVERLAP WITH THE EIGENSTATES:'
@@ -435,18 +436,18 @@ c
 C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
       DO IP=1,NPROP
 *        CALL MXMA(PROP(1,1,IP),1,NSTATE,
-*     *            EIGVEC,      1,MXSTAT,
+*     *            EIGVEC,      1,NSTATE,
 *     *            WORK(LSCR),  1,NSTATE,
 *     *            NSTATE,NSTATE,NSTATE)
         CALL DGEMM_('N','N',NSTATE,NSTATE,NSTATE,1.0D0,
-     &             PROP(1,1,IP),NSTATE,EIGVEC,MXSTAT,
+     &             PROP(1,1,IP),NSTATE,EIGVEC,NSTATE,
      &             0.0D0,WORK(LSCR),NSTATE)
-*        CALL MXMA(EIGVEC,      MXSTAT,1,
+*        CALL MXMA(EIGVEC,      NSTATE,1,
 *     *            WORK(LSCR),  1,NSTATE,
 *     *            PROP(1,1,IP),1,NSTATE,
 *     *            NSTATE,NSTATE,NSTATE)
         CALL DGEMM_('T','N',NSTATE,NSTATE,NSTATE,1.0D0,
-     &             EIGVEC,MXSTAT,WORK(LSCR),NSTATE,
+     &             EIGVEC,NSTATE,WORK(LSCR),NSTATE,
      &             0.0D0,PROP(1,1,IP),NSTATE)
       END DO
       CALL GETMEM('SCR','FREE','REAL',LSCR,NSTATE**2)
@@ -1664,9 +1665,9 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
       G_Elec=CONST_ELECTRON_G_FACTOR_
       iPrint=0
       DO I=1, NSTATE
-         MPLET_I=MLTPLT(JBNUM(I))
+         MPLET_I=MLTPLT(iWork(lJBNUM+I-1))
          DO J=1, NSTATE
-            MPLET_J=MLTPLT(JBNUM(J))
+            MPLET_J=MLTPLT(iWork(lJBNUM+J-1))
 *
             EDIFF=ENERGY(J)-ENERGY(I)
             IF (EDIFF.LE.0.0D0) CYCLE
@@ -1901,7 +1902,7 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
 *
       Call DaName(LuToM,FnToM)
       iDisk=0
-      Call iDaFile(LuToM,2,iTocM,MxStat*(MxStat+1)/2,iDisk)
+      Call iDaFile(LuToM,2,iWork(liTocM),nState*(nState+1)/2,iDisk)
 *
       NIP=4+(NBST*(NBST+1))/2
       CALL GETMEM('IP    ','ALLO','REAL',LIP,NIP)
@@ -1942,9 +1943,9 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
       iPrint=0
       IJSO=0
       DO I=1, IEND
-         MPLET_I=MLTPLT(JBNUM(I))
+         MPLET_I=MLTPLT(iWork(lJBNUM+I-1))
          DO J=JSTART, NSTATE
-            MPLET_J=MLTPLT(JBNUM(J))
+            MPLET_J=MLTPLT(iWork(lJBNUM+J-1))
 *
             EDIFF=ENERGY(J)-ENERGY(I)
             If (ABS(EDIFF).le.1.0D-8) CYCLE
@@ -1959,8 +1960,8 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
 *           rkNorm=1.0D-31
 *
 C COMBINED SYMMETRY OF STATES:
-            JOB1=JBNUM(I)
-            JOB2=JBNUM(J)
+            JOB1=iWork(lJBNUM+I-1)
+            JOB2=iWork(lJBNUM+J-1)
             LSYM1=IRREP(JOB1)
             LSYM2=IRREP(JOB2)
             ISY12=MUL(LSYM1,LSYM2)
@@ -1990,7 +1991,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
             ISTATE=MAX(i,j)
             JSTATE=MIN(i,j)
             ij=ISTATE*(ISTATE-1)/2+JSTATE
-            iDisk=iTocM(ij)
+            iDisk=iWork(liTocM+ij-1)
             Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
 *
 *           Iterate over the quadrature points.

@@ -43,7 +43,7 @@ C 2 = spin dependent property
 C Mapping from spin states to spin-free state and to spin:
       ISS=0
       DO ISTATE=1,NSTATE
-       JOB1=JBNUM(ISTATE)
+       JOB1=iWork(lJBNUM+ISTATE-1)
        MPLET1=MLTPLT(JOB1)
        S1=0.5D0*DBLE(MPLET1-1)
 
@@ -53,7 +53,7 @@ C Mapping from spin states to spin-free state and to spin:
         JSS=0
 
         DO JSTATE=1,NSTATE
-         JOB2=JBNUM(JSTATE)
+         JOB2=iWork(lJBNUM+JSTATE-1)
          MPLET2=MLTPLT(JOB2)
          S2=0.5D0*DBLE(MPLET2-1)
 

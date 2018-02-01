@@ -13,6 +13,7 @@
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='INPCTL')
+#include "WrkSpc.fh"
 #include "rassi.fh"
 #include "symmul.fh"
 #include "itmax.fh"
@@ -24,8 +25,7 @@
 #  include "mh5.fh"
 #endif
 
-      LOGICAL READ_STATES
-      INTEGER JOB
+      INTEGER JOB,i
 
       CALL QENTER(ROUTINE)
 
@@ -41,18 +41,43 @@ C Read data from the ONEINT file:
 C Read (and do some checking) the standard input.
       CALL READIN_RASSI
 * if there have been no states selected at this point, we need to read
-* the states later from the job files.
+* the states from the job files.
       IF(NSTATE.EQ.0) THEN
-        READ_STATES=.TRUE.
-      ELSE
-        READ_STATES=.FALSE.
+        DO JOB=1,NJOB
+          call rdjob_nstates(JOB)
+        END DO
+* store the root IDs of each state
+        Call GetMem('JBNUM','Allo','Inte',LJBNUM,NSTATE)
+        Call GetMem('LROOT','Allo','Inte',LLROOT,NSTATE)
+        call izero(iWork(LLROOT),NSTATE)
+        Do JOB=1,NJOB
+          DO I=0,NSTAT(JOB)-1
+            iWork(lJBNUM+ISTAT(JOB)-1+I)=JOB
+          End Do
+        End Do
       END IF
+
+* Allocate a bunch of stuff
+      Call GetMem('REFENE','Allo','Real',LREFENE,NSTATE)
+      L_HEFF=ip_Dummy
+      If (ifheff) Then
+         Call GetMem('HEFF','Allo','Real',L_HEFF,NSTATE**2)
+         Call dzero(Work(L_HEFF),NSTATE**2)
+      EndIf
+      If (.not.IFHEXT) Then
+        Call GetMem('HAM','Allo','Real',LHAM,NSTATE**2)
+        call dzero(Work(LHAM),NSTATE**2)
+      EndIf
+      If (.not.IFSHFT) Then
+        Call GetMem('ESHFT','Allo','Real',LESHFT,NSTATE)
+        call dzero(Work(LESHFT),NSTATE)
+      EndIf
+      If (.not.IFHDIA) Call GetMem('HDIAG','Allo','Real',LHDIAG,NSTATE)
 
 C Read information on the job files and check for consistency
       DO JOB=1,NJOB
-        CALL RDJOB(JOB,READ_STATES)
+        CALL RDJOB(JOB)
       END DO
-
 * set orbital partitioning data
       CALL WFNSIZES
 
@@ -75,6 +100,9 @@ C Set up tables of coordinates and differentiated nuclei:
 
 C Additional input processing. Start writing report.
       CALL INPPRC
+*
+      Call GetMem('REFENE','Free','Real',LREFENE,NSTATE)
+      If (ifheff) Call GetMem('HEFF','Free','Real',L_HEFF,NSTATE**2)
 C
       CALL QEXIT(ROUTINE)
       RETURN

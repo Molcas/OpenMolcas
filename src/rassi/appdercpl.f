@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine AppDerCpl(natom,nST,ChgNuc,Prop,DerCpl)
+      Subroutine AppDerCpl(natom,nST,ChgNuc,Prop,DerCpl,HAM)
       Implicit Real*8(A-H,O-Z)
 *
 *     Approximate derivative couplings:         <\Psi_I|\nabla H|\Psi_J>
@@ -25,7 +25,7 @@
 #include "cntrl.fh"
 #include "real.fh"
       Dimension ChgNuc(natom),Prop(nState,nState,NProp),
-     &          DerCpl(nST,3,natom)
+     &          DerCpl(nST,3,natom),Ham(Nstate,Nstate)
       Character*3 Label
       Save Label
       Data Label/'EF1'/

@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2014-2016, Steven Vancoillie                           *
 *               2015, Ignacio Fdez. Galvan                             *
-*               2015,2017, Liviu Ungur                                 *
+*               2015,2017,2018 Liviu Ungur                             *
 *               2015, Yingjin Ma                                       *
 ************************************************************************
 * stdalloc: wraps the standard allocate/deallocate fortran intrinsics.
@@ -29,6 +29,7 @@
 * Ignacio Fdez. Galvan, April 2015 (added label optional arg. and _lim variants)
 * Liviu Ungur, May 2015 (added support for  COMPLEX*16, 1D-3D)
 * Liviu Ungur, May 2017 (added support for  COMPLEX*16, 4D)
+* Liviu Ungur, Jan 2018 (added support for 5D arrays)
 
 * out-of-memory handling
       subroutine mma_oom(bufsize,mma_avail)
@@ -836,6 +837,45 @@
           end if
         end if
       end subroutine
+
+      subroutine dmma_allo_4D_lim(buffer,l1,l2,l3,l4,label)
+        implicit none
+        real*8, allocatable :: buffer(:,:,:,:)
+        integer, dimension(2) :: l1, l2, l3, l4
+        character (len=*), optional :: label
+#include "SysDef.fh"
+#include "molcastypes.fh"
+#include "cptr2loff.fh"
+        integer :: n1, n2, n3, n4
+        integer :: bufsize
+        integer :: loffset
+        integer :: mma_avail
+        if (allocated(buffer)) then
+          call mma_double_allo
+        end if
+        call mma_maxbytes(mma_avail)
+        n1 = l1(2)-l1(1)+1
+        n2 = l2(2)-l2(1)+1
+        n3 = l3(2)-l3(1)+1
+        n4 = l4(2)-l4(1)+1
+        bufsize = rtob * n1 * n2 * n3 * n4
+        if (bufsize .gt. mma_avail) then
+          call mma_oom(bufsize,mma_avail)
+        else
+          allocate(buffer( l1(1):l1(2), l2(1):l2(2), l3(1):l3(2),
+     &                     l4(1):l4(2) ))
+          if (n1*n2*n3*n4.gt.0) then
+            loffset = cptr2loff(buffer(l1(1),l2(1),l3(1),l4(1)))
+            if (present(label)) then
+              call getmem(label,'RGST','REAL',loffset,n1*n2*n3*n4)
+            else
+              call getmem('dmma_4D','RGST','REAL',loffset,n1*n2*n3*n4)
+            end if
+          end if
+        end if
+      end subroutine
+
+
       subroutine imma_allo_4D(buffer,n1,n2,n3,n4,label)
         implicit none
         integer, allocatable :: buffer(:,:,:,:)
@@ -862,6 +902,254 @@
               call getmem(label,'RGST','INTE',loffset,n1*n2*n3*n4)
             else
               call getmem('imma_4D','RGST','INTE',loffset,n1*n2*n3*n4)
+            end if
+          end if
+        end if
+      end subroutine
+      subroutine imma_allo_4D_lim(buffer,l1,l2,l3,l4,label)
+        implicit none
+        integer, allocatable :: buffer(:,:,:,:)
+        integer, dimension(2) :: l1, l2, l3, l4
+        character (len=*), optional :: label
+#include "SysDef.fh"
+#include "molcastypes.fh"
+#include "cptr2loff.fh"
+        integer :: n1, n2, n3, n4
+        integer :: bufsize
+        integer :: loffset
+        integer :: mma_avail
+        if (allocated(buffer)) then
+          call mma_double_allo
+        end if
+        call mma_maxbytes(mma_avail)
+        n1 = l1(2)-l1(1)+1
+        n2 = l2(2)-l2(1)+1
+        n3 = l3(2)-l3(1)+1
+        n4 = l4(2)-l4(1)+1
+        bufsize = itob * n1 * n2 * n3 * n4
+        if (bufsize .gt. mma_avail) then
+          call mma_oom(bufsize,mma_avail)
+        else
+          allocate(buffer( l1(1):l1(2), l2(1):l2(2), l3(1):l3(2),
+     &                     l4(1):l4(2) ))
+          if (n1*n2*n3*n4.gt.0) then
+            loffset = cptr2loff(buffer(l1(1),l2(1),l3(1),l4(1)))
+            if (present(label)) then
+              call getmem(label,'RGST','INTE',loffset,n1*n2*n3*n4)
+            else
+              call getmem('imma_4D','RGST','INTE',loffset,n1*n2*n3*n4)
+            end if
+          end if
+        end if
+      end subroutine
+
+
+
+      subroutine imma_allo_5D(buffer,n1,n2,n3,n4,n5,label)
+        implicit none
+        integer, allocatable :: buffer(:,:,:,:,:)
+        integer :: n1, n2, n3, n4, n5
+        character (len=*), optional :: label
+#include "SysDef.fh"
+#include "molcastypes.fh"
+#include "cptr2loff.fh"
+        integer :: bufsize
+        integer :: loffset
+        integer :: mma_avail
+        if (allocated(buffer)) then
+          call mma_double_allo
+        end if
+        call mma_maxbytes(mma_avail)
+        bufsize = itob * n1 * n2 * n3 * n4 * n5
+        if (bufsize .gt. mma_avail) then
+          call mma_oom(bufsize,mma_avail)
+        else
+          allocate(buffer(n1,n2,n3,n4,n5))
+          if (n1*n2*n3*n4*n5.gt.0) then
+            loffset = cptr2loff(buffer(1,1,1,1,1))
+            if (present(label)) then
+              call getmem(label,'RGST','INTE',loffset,n1*n2*n3*n4*n5)
+            else
+              call getmem('imma_5D','RGST','INTE',
+     &                                        loffset,n1*n2*n3*n4*n5)
+            end if
+          end if
+        end if
+      end subroutine
+      subroutine imma_allo_5D_lim(buffer,l1,l2,l3,l4,l5,label)
+        implicit none
+        integer, allocatable :: buffer(:,:,:,:,:)
+        integer, dimension(2) :: l1, l2, l3, l4, l5
+        character (len=*), optional :: label
+#include "SysDef.fh"
+#include "molcastypes.fh"
+#include "cptr2loff.fh"
+        integer :: n1, n2, n3, n4, n5
+        integer :: bufsize
+        integer :: loffset
+        integer :: mma_avail
+        if (allocated(buffer)) then
+          call mma_double_allo
+        end if
+        call mma_maxbytes(mma_avail)
+        n1 = l1(2)-l1(1)+1
+        n2 = l2(2)-l2(1)+1
+        n3 = l3(2)-l3(1)+1
+        n4 = l4(2)-l4(1)+1
+        n5 = l5(2)-l5(1)+1
+        bufsize = itob * n1 * n2 * n3 * n4 * n5
+        if (bufsize .gt. mma_avail) then
+          call mma_oom(bufsize,mma_avail)
+        else
+          allocate(buffer( l1(1):l1(2), l2(1):l2(2), l3(1):l3(2),
+     &                     l4(1):l4(2), l5(1):l5(2) ))
+          if (n1*n2*n3*n4*n5.gt.0) then
+            loffset = cptr2loff(buffer(l1(1),l2(1),l3(1),l4(1),l5(1)))
+            if (present(label)) then
+              call getmem(label,'RGST','INTE',loffset,n1*n2*n3*n4*n5)
+            else
+              call getmem('imma_5D','RGST','INTE',
+     &                                        loffset,n1*n2*n3*n4*n5)
+            end if
+          end if
+        end if
+      end subroutine
+      subroutine dmma_allo_5D(buffer,n1,n2,n3,n4,n5,label)
+        implicit none
+        real*8, allocatable :: buffer(:,:,:,:,:)
+        integer :: n1, n2, n3, n4, n5
+        character (len=*), optional :: label
+#include "SysDef.fh"
+#include "molcastypes.fh"
+#include "cptr2loff.fh"
+        integer :: bufsize
+        integer :: loffset
+        integer :: mma_avail
+        if (allocated(buffer)) then
+          call mma_double_allo
+        end if
+        call mma_maxbytes(mma_avail)
+        bufsize = rtob * n1 * n2 * n3 * n4 * n5
+        if (bufsize .gt. mma_avail) then
+          call mma_oom(bufsize,mma_avail)
+        else
+          allocate(buffer(n1,n2,n3,n4,n5))
+          if (n1*n2*n3*n4*n5.gt.0) then
+            loffset = cptr2loff(buffer(1,1,1,1,1))
+            if (present(label)) then
+              call getmem(label,'RGST','REAL',loffset,n1*n2*n3*n4*n5)
+            else
+              call getmem('dmma_5D','RGST','REAL',
+     &                                        loffset,n1*n2*n3*n4*n5)
+            end if
+          end if
+        end if
+      end subroutine
+      subroutine dmma_allo_5D_lim(buffer,l1,l2,l3,l4,l5,label)
+        implicit none
+        real*8, allocatable :: buffer(:,:,:,:,:)
+        integer, dimension(2) :: l1, l2, l3, l4, l5
+        character (len=*), optional :: label
+#include "SysDef.fh"
+#include "molcastypes.fh"
+#include "cptr2loff.fh"
+        integer :: n1, n2, n3, n4, n5
+        integer :: bufsize
+        integer :: loffset
+        integer :: mma_avail
+        if (allocated(buffer)) then
+          call mma_double_allo
+        end if
+        call mma_maxbytes(mma_avail)
+        n1 = l1(2)-l1(1)+1
+        n2 = l2(2)-l2(1)+1
+        n3 = l3(2)-l3(1)+1
+        n4 = l4(2)-l4(1)+1
+        n5 = l5(2)-l5(1)+1
+        bufsize = rtob * n1 * n2 * n3 * n4 * n5
+        if (bufsize .gt. mma_avail) then
+          call mma_oom(bufsize,mma_avail)
+        else
+          allocate(buffer( l1(1):l1(2), l2(1):l2(2), l3(1):l3(2),
+     &                     l4(1):l4(2), l5(1):l5(2) ))
+          if (n1*n2*n3*n4*n5.gt.0) then
+            loffset = cptr2loff(buffer(l1(1),l2(1),l3(1),l4(1),l5(1)))
+            if (present(label)) then
+              call getmem(label,'RGST','REAL',loffset,n1*n2*n3*n4*n5)
+            else
+              call getmem('dmma_5D','RGST','REAL',
+     &                                        loffset,n1*n2*n3*n4*n5)
+            end if
+          end if
+        end if
+      end subroutine
+      subroutine DCmma_allo_5D(buffer,n1,n2,n3,n4,n5,label)
+        implicit none
+        complex*16, allocatable :: buffer(:,:,:,:,:)
+        integer :: n1, n2, n3, n4, n5
+        character (len=*), optional :: label
+#include "SysDef.fh"
+#include "molcastypes.fh"
+#include "cptr2loff.fh"
+        integer :: bufsize
+        integer :: loffset
+        integer :: mma_avail
+        if (allocated(buffer)) then
+          call mma_double_allo
+        end if
+        call mma_maxbytes(mma_avail)
+        bufsize = CtoR * rtob * n1 * n2 * n3 * n4 * n5
+        if (bufsize .gt. mma_avail) then
+          call mma_oom(bufsize,mma_avail)
+        else
+          allocate(buffer(n1,n2,n3,n4,n5))
+          if (n1*n2*n3*n4*n5.gt.0) then
+            loffset = cptr2loff(buffer(1,1,1,1,1))
+            if (present(label)) then
+              call getmem(label,'RGST','REAL',loffset,
+     &                                        CtoR*n1*n2*n3*n4*n5)
+            else
+              call getmem('DCmma_5D','RGST','REAL',loffset,
+     &                                        CtoR*n1*n2*n3*n4*n5)
+            end if
+          end if
+        end if
+      end subroutine
+      subroutine DCmma_allo_5D_lim(buffer,l1,l2,l3,l4,l5,label)
+        implicit none
+        complex*16, allocatable :: buffer(:,:,:,:,:)
+        integer, dimension(2) :: l1, l2, l3, l4, l5
+        character (len=*), optional :: label
+#include "SysDef.fh"
+#include "molcastypes.fh"
+#include "cptr2loff.fh"
+        integer :: n1, n2, n3, n4, n5
+        integer :: bufsize
+        integer :: loffset
+        integer :: mma_avail
+        if (allocated(buffer)) then
+          call mma_double_allo
+        end if
+        call mma_maxbytes(mma_avail)
+        n1 = l1(2)-l1(1)+1
+        n2 = l2(2)-l2(1)+1
+        n3 = l3(2)-l3(1)+1
+        n4 = l4(2)-l4(1)+1
+        n5 = l5(2)-l5(1)+1
+        bufsize = CtoR * rtob * n1 * n2 * n3 * n4 * n5
+        if (bufsize .gt. mma_avail) then
+          call mma_oom(bufsize,mma_avail)
+        else
+          allocate(buffer( l1(1):l1(2), l2(1):l2(2), l3(1):l3(2),
+     &                     l4(1):l4(2), l5(1):l5(2) ))
+          if (n1*n2*n3*n4*n5.gt.0) then
+            loffset = cptr2loff(buffer(l1(1),l2(1),l3(1),l4(1),l5(1)))
+            if (present(label)) then
+              call getmem(label,'RGST','REAL',loffset,
+     &                                        CtoR*n1*n2*n3*n4*n5)
+            else
+              call getmem('DCmma_5D','RGST','REAL',loffset,
+     &                                        CtoR*n1*n2*n3*n4*n5)
             end if
           end if
         end if
@@ -1080,59 +1368,8 @@
           call mma_double_free
         end if
       end subroutine
-      subroutine DCmma_free_4D(buffer)
-        implicit none
-        complex*16, allocatable :: buffer(:,:,:,:)
-#include "SysDef.fh"
-#include "molcastypes.fh"
-#include "cptr2loff.fh"
-        integer :: n1, n2, n3, n4
-        integer :: loffset
-        n1 = size(buffer,1)
-        n2 = size(buffer,2)
-        n3 = size(buffer,3)
-        n4 = size(buffer,4)
-        if (allocated(buffer)) then
-          if (n1*n2*n3*n4.gt.0) then
-            loffset = cptr2loff(buffer(lbound(buffer,1),
-     &                                 lbound(buffer,2),
-     &                                 lbound(buffer,3),
-     &                                 lbound(buffer,4) ))
-            call getmem('DCmma_3D','EXCL','REAL',loffset,
-     &                                         CtoR*n1*n2*n3*n4)
-          end if
-          deallocate(buffer)
-        else
-          call mma_double_free
-        end if
-      end subroutine
 * Please notice that the 4D part is not really used in current version -
 *  need check the correctness -- Yingjin 2/2
-      subroutine dmma_free_4D(buffer)
-        implicit none
-        real*8, allocatable :: buffer(:,:,:,:)
-#include "SysDef.fh"
-#include "molcastypes.fh"
-#include "cptr2loff.fh"
-        integer :: n1, n2, n3, n4
-        integer :: loffset
-        n1 = size(buffer,1)
-        n2 = size(buffer,2)
-        n3 = size(buffer,3)
-        n4 = size(buffer,4)
-        if (allocated(buffer)) then
-          if (n1*n2*n3*n4.gt.0) then
-            loffset = cptr2loff(buffer(lbound(buffer,1),
-     &                                 lbound(buffer,2),
-     &                                 lbound(buffer,3),
-     &                                 lbound(buffer,4)))
-            call getmem('dmma_4D','EXCL','REAL',loffset,n1*n2*n3*n4)
-          end if
-          deallocate(buffer)
-        else
-          call mma_double_free
-        end if
-      end subroutine
       subroutine imma_free_4D(buffer)
         implicit none
         integer, allocatable :: buffer(:,:,:,:)
@@ -1158,3 +1395,138 @@
           call mma_double_free
         end if
       end subroutine
+      subroutine dmma_free_4D(buffer)
+        implicit none
+        real*8, allocatable :: buffer(:,:,:,:)
+#include "SysDef.fh"
+#include "molcastypes.fh"
+#include "cptr2loff.fh"
+        integer :: n1, n2, n3, n4
+        integer :: loffset
+        n1 = size(buffer,1)
+        n2 = size(buffer,2)
+        n3 = size(buffer,3)
+        n4 = size(buffer,4)
+        if (allocated(buffer)) then
+          if (n1*n2*n3*n4.gt.0) then
+            loffset = cptr2loff(buffer(lbound(buffer,1),
+     &                                 lbound(buffer,2),
+     &                                 lbound(buffer,3),
+     &                                 lbound(buffer,4)))
+            call getmem('dmma_4D','EXCL','REAL',loffset,n1*n2*n3*n4)
+          end if
+          deallocate(buffer)
+        else
+          call mma_double_free
+        end if
+      end subroutine
+      subroutine DCmma_free_4D(buffer)
+        implicit none
+        complex*16, allocatable :: buffer(:,:,:,:)
+#include "SysDef.fh"
+#include "molcastypes.fh"
+#include "cptr2loff.fh"
+        integer :: n1, n2, n3, n4
+        integer :: loffset
+        n1 = size(buffer,1)
+        n2 = size(buffer,2)
+        n3 = size(buffer,3)
+        n4 = size(buffer,4)
+        if (allocated(buffer)) then
+          if (n1*n2*n3*n4.gt.0) then
+            loffset = cptr2loff(buffer(lbound(buffer,1),
+     &                                 lbound(buffer,2),
+     &                                 lbound(buffer,3),
+     &                                 lbound(buffer,4) ))
+            call getmem('DCmma_4D','EXCL','REAL',loffset,
+     &                                         CtoR*n1*n2*n3*n4)
+          end if
+          deallocate(buffer)
+        else
+          call mma_double_free
+        end if
+      end subroutine
+      subroutine imma_free_5D(buffer)
+        implicit none
+        integer, allocatable :: buffer(:,:,:,:,:)
+#include "SysDef.fh"
+#include "molcastypes.fh"
+#include "cptr2loff.fh"
+        integer :: n1, n2, n3, n4, n5
+        integer :: loffset
+        n1 = size(buffer,1)
+        n2 = size(buffer,2)
+        n3 = size(buffer,3)
+        n4 = size(buffer,4)
+        n5 = size(buffer,5)
+        if (allocated(buffer)) then
+          if (n1*n2*n3*n4*n5.gt.0) then
+            loffset = cptr2loff(buffer(lbound(buffer,1),
+     &                                 lbound(buffer,2),
+     &                                 lbound(buffer,3),
+     &                                 lbound(buffer,4),
+     &                                 lbound(buffer,5)))
+            call getmem('imma_5D','EXCL','INTE',loffset,n1*n2*n3*n4*n5)
+          end if
+          deallocate(buffer)
+        else
+          call mma_double_free
+        end if
+      end subroutine
+      subroutine dmma_free_5D(buffer)
+        implicit none
+        real*8, allocatable :: buffer(:,:,:,:,:)
+#include "SysDef.fh"
+#include "molcastypes.fh"
+#include "cptr2loff.fh"
+        integer :: n1, n2, n3, n4, n5
+        integer :: loffset
+        n1 = size(buffer,1)
+        n2 = size(buffer,2)
+        n3 = size(buffer,3)
+        n4 = size(buffer,4)
+        n5 = size(buffer,5)
+        if (allocated(buffer)) then
+          if (n1*n2*n3*n4*n5.gt.0) then
+            loffset = cptr2loff(buffer(lbound(buffer,1),
+     &                                 lbound(buffer,2),
+     &                                 lbound(buffer,3),
+     &                                 lbound(buffer,4),
+     &                                 lbound(buffer,5)))
+            call getmem('dmma_5D','EXCL','REAL',loffset,n1*n2*n3*n4*n5)
+          end if
+          deallocate(buffer)
+        else
+          call mma_double_free
+        end if
+      end subroutine
+      subroutine DCmma_free_5D(buffer)
+        implicit none
+        complex*16, allocatable :: buffer(:,:,:,:,:)
+#include "SysDef.fh"
+#include "molcastypes.fh"
+#include "cptr2loff.fh"
+        integer :: n1, n2, n3, n4, n5
+        integer :: loffset
+        n1 = size(buffer,1)
+        n2 = size(buffer,2)
+        n3 = size(buffer,3)
+        n4 = size(buffer,4)
+        n5 = size(buffer,5)
+        if (allocated(buffer)) then
+          if (n1*n2*n3*n4*n5.gt.0) then
+            loffset = cptr2loff(buffer(lbound(buffer,1),
+     &                                 lbound(buffer,2),
+     &                                 lbound(buffer,3),
+     &                                 lbound(buffer,4),
+     &                                 lbound(buffer,5)))
+            call getmem('DCmma_5D','EXCL','REAL',loffset,
+     &                                         CtoR*n1*n2*n3*n4*n5)
+          end if
+          deallocate(buffer)
+        else
+          call mma_double_free
+        end if
+      end subroutine
+
+

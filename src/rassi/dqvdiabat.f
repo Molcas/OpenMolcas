@@ -26,7 +26,7 @@
 *>
 *> @param[in] PROP Properties computed in RASSI
 ************************************************************************
-      SUBROUTINE DQVDiabat(PROP)
+      SUBROUTINE DQVDiabat(PROP,HAM)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -48,6 +48,7 @@
       REAL*8 HDIA(NSTATE,NSTATE)
       REAL*8 HDIAI(NSTATE,NSTATE)
       REAL*8 HAMT(NSTATE,NSTATE)
+      REAL*8 HAM(NSTATE,NSTATE)
 
 *  These are the blocks of parameters
       INTEGER, PARAMETER :: MAX=50
