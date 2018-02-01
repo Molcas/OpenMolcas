@@ -2657,7 +2657,7 @@ c       write(6,*)          '  --------------------------------------'
      & 'CHEMPS2> 3-RDM and F4-RDM require PseudoCanonical orbitals'
        Write(6,*) 'CHEMPS2> Automatically set: OUTOrbitals = CANOnical'
        if (KeySUPS) then
-         write(6,*) 'CHEMPS2> Bug in using SYPSym and 3RDM, disable SUPSYm!'
+         write(6,*) 'CHEMPS2> Bug using SYPSym and 3RDM, disable SUPSym'
          Call Abend()
        endif
 #endif
