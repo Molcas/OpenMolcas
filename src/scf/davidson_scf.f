@@ -131,7 +131,7 @@
       DO i=1,n
          ii=Index_D(i)
          If (ii.eq.n) Then
-            Aux=0.0D0
+            Aux=Zero
          Else
             Aux=HDiag(ii)
          End If
@@ -139,7 +139,7 @@
          DO j=i,n
             jj=Index_D(j)
             If (jj.eq.n) Then
-               Tmp=0.0D0
+               Tmp=Zero
             Else
                Tmp=HDiag(jj)
             End If
@@ -178,11 +178,16 @@
          ii=ii+1
          jj=Index_D(ii)
 *
-*        A large value indicated a forbidden rotation.
+*        A large value indicates a forbidden rotation.
 *        A negative value indicates large rotation to another
 *        global minimum. Avoid these!!!
 *
-         If (HDiag(jj).lt.1.0D20.and.HDiag(jj).gt.-0.10D0) Then
+         If (jj.eq.n) Then
+           Aux=Zero
+         Else
+           Aux=HDiag(jj)
+         End If
+         If (Aux.lt.1.0D10.and.Aux.gt.-0.10D0) Then
             Work(ipTmp+jj-1)=One
             CALL Add_Vector(n,nTmp,Sub,Work(ipTmp),Thr3)
             Work(ipTmp+jj-1)=Zero
@@ -227,7 +232,7 @@
 *       Note that the A-matrix is the augmented Hessian of a rs-rfo
 *       approach. The A matrix is not explicitly stored but rather only
 *       the associated gradient is. The original Hessian is implicitly
-*       there and a vector corresponding the contraction of the updated
+*       there and a vector corresponding to the contraction of the updated
 *       Hessian and a trial vector can be computed on-the-fly.
 *
         Do j=old_mk,mk-1
@@ -238,7 +243,6 @@
 #endif
 *
 *define _DEBUG_SAVE_ _DEBUG_
-#undef _DEBUG_
 #ifdef _DEBUG_SORUPV_
            If (iter.eq.1.and.j.eq.old_mk) Then
 *
@@ -262,9 +266,10 @@
               Do i = 1, m
                  Call FZero(Hessian(1,i),m)
                  Call FZero(Vector,m)
-                 Vector(i)=1.0D0
-*                Call SOrUpV(MemRsv,Vector,HDiag,m,Hessian(1,i),'GRAD')
-                 Call SOrUpV2(MemRsv,Vector,HDiag,m,Hessian(1,i),'GRAD')
+                 Vector(i)=One
+                 Call SOrUpV(MemRsv,Vector,HDiag,m,Hessian(1,i),'GRAD',
+     &                                                          'BFGS')
+*                Call SOrUpV2(MemRsv,Vector,HDiag,m,Hessian(1,i),'GRAD')
               End Do
               Call NrmClc(Hessian,m**2,'Davidson_SCF','Hessian')
               Call RecPrt('Hessian',' ',Hessian,m,m)
@@ -329,23 +334,24 @@
 *
            Call DGEMM_('N','N',
      &                 m,1,m,
-     &                 1.0D0,Hss,m,
-     &                       Sub(1,j+1),m,
-     &                 0.0D0,Ab(1,j+1),m)
+     &                 One,Hss,m,
+     &                     Sub(1,j+1),m,
+     &                 Zero,Ab(1,j+1),m)
 #else
 *
 *          Pick up the contribution for the updated Hessian (BFGS update)
 *
-*          Call SOrUpV(MemRsv,Sub(1,j+1),HDiag,m,Ab(1,j+1),'GRAD')
-           Call SOrUpV2(MemRsv,Sub(1,j+1),HDiag,m,Ab(1,j+1),'GRAD')
+           Call SOrUpV(MemRsv,Sub(1,j+1),HDiag,m,Ab(1,j+1),'GRAD',
+     &                                                     'BFGS')
+*          Call SOrUpV2(MemRsv,Sub(1,j+1),HDiag,m,Ab(1,j+1),'GRAD')
 #endif
 *define _DEBUG_ _DEBUG_SAVE_
-           Call DScal_(m,1.0D0/Fact,Ab(1,j+1),1)
+           Call DScal_(m,One/Fact,Ab(1,j+1),1)
 *
 *          Add contribution from the gradient
 *
            tmp=Sub(n,j+1)
-           Call DaXpY_(m,1.0D0/Sqrt(Fact),g,1,Ab(1,j+1),1)
+           Call DaXpY_(m,One/Sqrt(Fact),g,1,Ab(1,j+1),1)
 *
            Ab(n,j+1) = DDot_(m,g,1,Sub(1,j+1),1)
 #ifdef _DEBUG_
@@ -499,7 +505,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-        ELSE IF ((MIN(mk+k,n) .GT. maxk) .OR. (iRC .EQ. 2)) THEN
+        ELSE IF (mk .GT. mink .AND.
+     &    (MIN(mk+k,n) .GT. maxk) .OR. (iRC .EQ. 2)) THEN
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -586,10 +593,14 @@
                 Else
                    Aux=HDiag(j+1)-Eval(1+i)
                 End If
-                If (HDiag(j+1).lt.1.0D20) Then
+                If (j.eq.n-1) Then
                    Work(ipDiag+j)=One/SIGN(MAX(ABS(Aux),Thr2),Aux)
                 Else
-                   Work(ipDiag+j)=1.0D20
+                   If (HDiag(j+1).lt.1.0D20) Then
+                      Work(ipDiag+j)=One/SIGN(MAX(ABS(Aux),Thr2),Aux)
+                   Else
+                      Work(ipDiag+j)=1.0D20
+                   End If
                 End If
              END DO
 *
@@ -598,7 +609,7 @@
                 If (Work(ipDiag+j).lt.1.0D02) Then
                    Work(ipTmp+j)=Work(ipTRes+j)*Work(ipDiag+j)
                 Else
-                   Work(ipTmp+j)=0.0D0
+                   Work(ipTmp+j)=Zero
                 End If
              END DO
 *
@@ -614,7 +625,7 @@
                 If (Work(ipDiag+j).lt.1.0D02) Then
                    Work(ipTVec+j)=Work(ipTVec+j)*Work(ipDiag+j)
                 Else
-                   Work(ipTVec+j)=0.0D0
+                   Work(ipTVec+j)=Zero
                 End If
              END DO
              call daxpy_(n,-Alpha,Work(ipTVec),1,Work(ipTmp),1)
@@ -666,12 +677,16 @@
                      ig=MOD(ig,n)+1
                      ii=Index_D(ig)
 *
-*                    Avoid excplicitly rotations between fermions of
+*                    Avoid explicitly rotations between fermions of
 *                    different types. Avoid rotations which will be
 *                    large,
 *
-                     If (HDiag(ii).lt.1.0D20  .and.
-     &                   HDiag(ii).gt.-0.10D0) Then
+                     If (ii.eq.n) Then
+                       Aux=Zero
+                     Else
+                       Aux=HDiag(ii)
+                     End If
+                     If (Aux.lt.1.0D20  .and. Aux.gt.-0.10D0) Then
                         Work(ipTmp+ii-1)=One
                         jj=mk+jj
                         CALL Add_Vector(n,jj,Sub,Work(ipTmp),Thr3)
@@ -761,7 +776,6 @@
       Call RecPrt('BFGS: HdX(n-1)',' ',HdX,1,m)
       Write (6,*) 'BFGS: a,b,e=',alpha,beta,epsilon
 #endif
-#undef _DEBUG_
 *
       Do i = 1, m
          Do j = 1, m

@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 1994,2004,2014,2017, Roland Lindh                      *
-*               2014, Ignacio Fdez. Galvan                             *
+*               2014,2018, Ignacio Fdez. Galvan                        *
 ************************************************************************
 *define _DEBUG_SORUPV_
 #ifdef _DEBUG_SORUPV_
@@ -47,7 +47,7 @@
 #endif
 *     Local variables
       Real*8, Dimension(:), Allocatable:: Tmp, Val, Vec
-      Logical Iterate
+      Logical Iterate, Restart
       Real*8 Lambda
 *
 #ifdef _DEBUG_SORUPV_
@@ -76,6 +76,7 @@
       IterMx=25
       Iter=0
       Iterate=.False.
+      Restart=.False.
       Thr=1.0D-3
       NumVal=1
       Call mma_allocate(Vec,(nInter+1)*NumVal,Label='Vec')
@@ -104,8 +105,8 @@
 *        augmented Hessian to be explicitly expressed by rather will
 *        handle the gradient and Hessian part separated. The gradient
 *        will be explicit, while the Hessian part will use an approach
-*        which computes Hc, where c is a trial vector, from the use
-*        an Hessian based on a diagonal approximation and a BFGS update.
+*        which computes Hc, where c is a trial vector, from an initial
+*        Hessian based on a diagonal approximation and a BFGS update.
 *
 *        UNDER DEVELOPMENT
 *
@@ -171,7 +172,7 @@
 *                                                                      *
 *------- Initialize data for iterative scheme (only at first iteration)
 *
-         If (.Not.Iterate) Then
+         If (.Not.Iterate.Or.Restart) Then
             A_RFO_long=A_RFO
             dqdq_long=Sqrt(dqdq)
             A_RFO_short=Zero
@@ -183,7 +184,8 @@
 *------- RF with constraints. Start iteration scheme if computed step
 *        is too long.
 *
-         If (Iter.eq.1.and.dqdq.gt.StepMax**2) Iterate=.True.
+         If ((Iter.eq.1.or.Restart).and.dqdq.gt.StepMax**2)
+     &      Iterate=.True.
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -195,15 +197,19 @@
             Call Find_RFO_Root(A_RFO_long,dqdq_long,
      &                         A_RFO_short,dqdq_short,
      &                         A_RFO,Sqrt(dqdq),StepMax)
+            If (A_RFO.eq.-One) Then
+              A_RFO=One
+              Restart=.True.
+              Iterate=.False.
+            End If
             If (Iter.gt.IterMx) Then
                Write (Lu,*) ' Too many iterations in RF'
-               Call Abend()
-*              Go To 997
+               Go To 997
             End If
             Go To 998
          End If
 *
-*997  Continue
+ 997  Continue
       Call mma_deallocate(Tmp)
       dqHdq=dqHdq+EigVal*Half
 #ifdef _DEBUG_

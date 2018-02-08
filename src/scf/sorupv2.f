@@ -105,7 +105,7 @@
          Lu2=LuDel
          LL2=LLDelt
          Lu3=LudGd
-         LL3=LLDgrd
+         LL3=LLdGrd
          Lu4=LuX
          LL4=LLX
 *
@@ -241,7 +241,7 @@
 *
       Do it=iter-iterso+1,iter-2
 *
-*       fetch delta(i), and Dgrd(i) corresponding LLists
+*       fetch delta(i), and dGrd(i) from corresponding LLists
 *
         Call GetNod(it,LL2,inode)
         If (inode.eq.0) GoTo 555
@@ -307,7 +307,7 @@
 *
       End Do
 *
-*     (5): reload delta(n-1) & DGrd(n-1) from linked list.
+*     (5): reload delta(n-1) & dGrd(n-1) from linked list.
 *     these all are memory hits, of course
 *
       ipdel =LstPtr(Lu2,iter-1,LL2)

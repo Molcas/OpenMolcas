@@ -10,119 +10,6 @@
 *                                                                      *
 * Copyright (C) 1995, Martin Schuetz                                   *
 ************************************************************************
-      SubRoutine LinSer()
-************************************************************************
-*                                                                      *
-*     purpose: Line Search for QNR steps                               *
-*              between dE and dE(1st order)                            *
-*                                                                      *
-*     input:                                                           *
-*       Ovrlp   : overlap integrals                                    *
-*       mBT     : size of overlap integrals, triangular storage        *
-*       CMO     : Molecular Orbital coefficients                       *
-*       mBB     : size of the CMO array                                *
-*                                                                      *
-*     output:                                                          *
-*       Enew    : new actual SCF energy after Line Search              *
-*       En1V    : variational 1el energy after Line Search             *
-*       En2V    : variational 2el energy after Line Search             *
-*       FstItr  : used for semidirect Fock matrix construction in      *
-*                 Drv2El_dscf ...                                      *
-*     In this Subroutine, the CMOs, Densities and TwoHam Matrices are  *
-*     altered in the Micro Iteractions, hopefully towards lower SCF    *
-*     energy values...                                                 *
-*                                                                      *
-*     called from: WfCtl                                               *
-*                                                                      *
-*     calls to: RotMOs,DMat,PMat,GrdClc                                *
-*               uses SubRoutines and Functions from Module lnklst.f    *
-*               -linked list implementation to store series of vectors *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M. Schuetz                                                       *
-*     University of Lund, Sweden, 1995                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: corresponds to large extends to Jeppe s LinSe2          *
-*                                                                      *
-************************************************************************
-      Implicit Real*8 (a-h,o-z)
-#include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
-#include "stdalloc.fh"
-#include "WrkSpc.fh"
-#include "file.fh"
-#include "llists.fh"
-#include "print.fh"
-*
-*---- declaration of local variables
-*
-      Integer jpgrd
-      Real*8, Dimension(:,:), Allocatable:: Scr
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-*     declarations of functions
-*
-      Integer LstPtr
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     initialization stuff
-*
-      nD = iUHF + 1
-      Call mma_allocate(Scr,nOV,nD,Label='Scr')
-*                                                                      *
-*     compute gradient of actual point g(x(n))
-*
-*     Call GrdClc('Lst',.true.)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     get Pointer to the gradient back from LList (only address)
-      jpgrd=LstPtr(LuGrd,iter,LLGrad)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Compute
-*
-*             dg(n-1)= g(n) - g(n-1) : g(n)=Work(jpgrd)
-*
-*     and update the data on files and in memory.
-*
-*     (5) get g(n-1)
-*
-      Call GetNod(iter-1,LLGrad,inode)
-      If (inode.eq.0) Then
-         Write (6,*) 'inode.eq.0'
-         Call Abend()
-      End If
-      Call iVPtr(LuGrd,Scr,nOV*nD,inode)
-*
-*     (6) compute dg(n-1)=g(n)-g(n-1)
-*
-      Call DaXpY_(nOV*nD,-One,Work(jpgrd),1,Scr,1)
-      Call DScal_(nOV*nD,-One,Scr,1)
-*
-*     (7) put dg(n-1) on its LList. Will be used later for DIIS or RS-RFO
-*
-      Call PutVec(Scr,nOV*nD,LudGd,iter-1,MemRsv,'NOOP',LLdGrd)
-*
-*     and free temp. allocated memory
-*
-      Call mma_deallocate(Scr)
-*
-      Return
-      End
 *define _DEBUG_X_
 #ifdef _DEBUG_X_
       SubRoutine LinSer(FstItr,nD,Ovrlp,mBT,CMO,mBB)
@@ -337,7 +224,7 @@
 *     initialization stuff
 *
       Call mma_allocate(Scr,nOV,nD,Label='Scr')
-*                                                                      *
+*
 *     compute gradient of actual point g(x(n))
 *
 *     Call GrdClc('Lst',.true.)
@@ -377,6 +264,120 @@
 *
       Call mma_deallocate(Scr)
 #endif
+*
+      Return
+      End
+#else
+      SubRoutine LinSer()
+************************************************************************
+*                                                                      *
+*     purpose: Line Search for QNR steps                               *
+*              between dE and dE(1st order)                            *
+*                                                                      *
+*     input:                                                           *
+*       Ovrlp   : overlap integrals                                    *
+*       mBT     : size of overlap integrals, triangular storage        *
+*       CMO     : Molecular Orbital coefficients                       *
+*       mBB     : size of the CMO array                                *
+*                                                                      *
+*     output:                                                          *
+*       Enew    : new actual SCF energy after Line Search              *
+*       En1V    : variational 1el energy after Line Search             *
+*       En2V    : variational 2el energy after Line Search             *
+*       FstItr  : used for semidirect Fock matrix construction in      *
+*                 Drv2El_dscf ...                                      *
+*     In this Subroutine, the CMOs, Densities and TwoHam Matrices are  *
+*     altered in the Micro Iteractions, hopefully towards lower SCF    *
+*     energy values...                                                 *
+*                                                                      *
+*     called from: WfCtl                                               *
+*                                                                      *
+*     calls to: RotMOs,DMat,PMat,GrdClc                                *
+*               uses SubRoutines and Functions from Module lnklst.f    *
+*               -linked list implementation to store series of vectors *
+*                                                                      *
+*----------------------------------------------------------------------*
+*                                                                      *
+*     written by:                                                      *
+*     M. Schuetz                                                       *
+*     University of Lund, Sweden, 1995                                 *
+*                                                                      *
+*----------------------------------------------------------------------*
+*                                                                      *
+*     history: corresponds to large extends to Jeppe s LinSe2          *
+*                                                                      *
+************************************************************************
+      Implicit Real*8 (a-h,o-z)
+#include "real.fh"
+#include "mxdm.fh"
+#include "infscf.fh"
+#include "stdalloc.fh"
+#include "WrkSpc.fh"
+#include "file.fh"
+#include "llists.fh"
+#include "print.fh"
+*
+*---- declaration of local variables
+*
+      Integer jpgrd
+      Real*8, Dimension(:,:), Allocatable:: Scr
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
+*     declarations of functions
+*
+      Integer LstPtr
+*                                                                      *
+************************************************************************
+*                                                                      *
+*
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     initialization stuff
+*
+      nD = iUHF + 1
+      Call mma_allocate(Scr,nOV,nD,Label='Scr')
+*
+*     compute gradient of actual point g(x(n))
+*
+*     Call GrdClc('Lst',.true.)
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     get Pointer to the gradient back from LList (only address)
+      jpgrd=LstPtr(LuGrd,iter,LLGrad)
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Compute
+*
+*             dg(n-1)= g(n) - g(n-1) : g(n)=Work(jpgrd)
+*
+*     and update the data on files and in memory.
+*
+*     (5) get g(n-1)
+*
+      Call GetNod(iter-1,LLGrad,inode)
+      If (inode.eq.0) Then
+         Write (6,*) 'inode.eq.0'
+         Call Abend()
+      End If
+      Call iVPtr(LuGrd,Scr,nOV*nD,inode)
+*
+*     (6) compute dg(n-1)=g(n)-g(n-1)
+*
+      Call DaXpY_(nOV*nD,-One,Work(jpgrd),1,Scr,1)
+      Call DScal_(nOV*nD,-One,Scr,1)
+*
+*     (7) put dg(n-1) on its LList. Will be used later for DIIS or RS-RFO
+*
+      Call PutVec(Scr,nOV*nD,LudGd,iter-1,MemRsv,'NOOP',LLdGrd)
+*
+*     and free temp. allocated memory
+*
+      Call mma_deallocate(Scr)
 *
       Return
       End
