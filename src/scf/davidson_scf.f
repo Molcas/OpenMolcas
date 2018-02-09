@@ -38,30 +38,13 @@
 *> @param[in]     MemRsv Amount of reserved memory
 *> @param[out]    iRC    Return code (0 if converged)
 ************************************************************************
-*define _DEBUG_SORUPV_
-#ifdef _DEBUG_SORUPV_
-      SUBROUTINE Davidson_SCF(HDiag,g,m,k,Fact,Eig,Vec,MemRsv,iRC,
-     &                        iter_SCF,Update_H)
-#else
       SUBROUTINE Davidson_SCF(HDiag,g,m,k,Fact,Eig,Vec,MemRsv,iRC)
-#endif
       IMPLICIT NONE
       INTEGER m,n,k,iRC, MemRsv
       REAL*8  HDiag(m),g(m),Eig(k),Vec(m+1,k), Fact
       REAL*8, DIMENSION(:,:), ALLOCATABLE :: Sub, Ab
       REAL*8, DIMENSION(:), ALLOCATABLE :: Eig_old, EVec, Proj, EVal
       INTEGER, DIMENSION(:), ALLOCATABLE :: Index_D
-#ifdef _DEBUG_SORUPV_
-      Real*8, Allocatable:: Hessian(:,:), Vector(:)
-      Logical :: Active=.False.
-      Save Active
-      Real*8, Allocatable:: Hss(:,:), Gamma(:), Delta(:)
-      Save Hss
-      Integer iter_scf, inode
-      Logical Update_H
-#include "file.fh"
-#include "llists.fh"
-#endif
       REAL*8 Aux,Thr,Thr2,Thr3,Conv,Alpha,tmp
       real*8 ddot_
       INTEGER mk,old_mk,mink,maxk,ig,info,nTmp,iter,maxiter
@@ -242,110 +225,10 @@
            Call RecPrt('Sub',' ',Sub(1,j+1),1,n)
 #endif
 *
-*define _DEBUG_SAVE_ _DEBUG_
-#ifdef _DEBUG_SORUPV_
-           If (iter.eq.1.and.j.eq.old_mk) Then
-*
-*             The code below is to debug the on-the-fly update plus
-*             contraction-with-a-trial-vector code. Here we will
-*             keep the explicit Hessian in memory and update it step
-*             by step and then compare the result. Did I say that this
-*             is memeory demanding. Speaking about this, the procedure
-*             fail in deallocating the memory of Hss - how cares.
-*
-              Call mma_allocate(Vector,m,Label='Vector')
-              Call mma_allocate(Hessian,m,m,Label='Hessian')
-#ifdef _DEBUG_
-*
-*             Tweak the code to spit out the updated Hessian from
-*             SorUpV
-*
-              Write (6,*)
-              Write (6,*) '*************************************'
-              Write (6,*) '*************************************'
-              Do i = 1, m
-                 Call FZero(Hessian(1,i),m)
-                 Call FZero(Vector,m)
-                 Vector(i)=One
-                 Call SOrUpV(MemRsv,Vector,HDiag,m,Hessian(1,i),'GRAD',
-     &                                                          'BFGS')
-*                Call SOrUpV2(MemRsv,Vector,HDiag,m,Hessian(1,i),'GRAD')
-              End Do
-              Call NrmClc(Hessian,m**2,'Davidson_SCF','Hessian')
-              Call RecPrt('Hessian',' ',Hessian,m,m)
-*             Call RecPrt('HDiag',' ',HDiag,1,m)
-#endif
-              Call mma_deallocate(Hessian)
-*
-              If (.NOT.Active) Then
-                 Active=.True.
-                 Call mma_allocate(Hss,m,m,Label='Hss')
-                 Call FZero(Hss,m**2)
-                 Call DCopy_(m,HDiag,1,Hss,m+1)
-              Else If (Update_H) Then
-                 Update_H=.False.
-*
-*                Do the DFP update
-*
-                 Call mma_allocate(Gamma,m,Label='Gamma')
-                 Call mma_allocate(Delta,m,Label='Delta')
-                 Call FZero(Vector,m)
-*
-                 Call GetNod(iter_SCF-1,LLdGrd,inode)
-                 If (inode.eq.0) Then
-                    Write (6,*) 'Gamma: inode.eq.0'
-                    Call Abend()
-                 End If
-                 Call iVPtr(LudGd,Gamma,m,inode)
-*
-                 Call GetNod(iter_SCF-1,LLDelt,inode)
-                 If (inode.eq.0) Then
-                    Write (6,*) 'Gamma: inode.eq.0'
-                    Call Abend()
-                 End If
-                 Call iVPtr(LuDel,Delta,m,inode)
-*
-#ifdef _DEBUG_
-                 Write (6,*) 'n-1=',iter_SCF-1
-                 Call NrmClc(Delta,m,'Davison_SCF','dX(n-1)')
-                 Call NrmClc(Gamma,m,'Davison_SCF','dg(n-1)')
-#endif
-*
-*                Do the actual update.
-*
-*                Call BFGS_HInv(Hss,m,Vector,Delta,Gamma)
-                 Call DFP(Hss,m,Vector,Delta,Gamma)
-*
-                 Call mma_deallocate(Gamma)
-                 Call mma_deallocate(Delta)
-*
-              End If
-              Call mma_deallocate(Vector)
-#ifdef _DEBUG_
-              Write (6,*) '*************************************'
-              Write (6,*) '*************************************'
-              Write (6,*)
-#endif
-           End If
-#ifdef _DEBUG_
-           Call NrmClc(Hss    ,m**2,'Davidson_SCF','Hss    ')
-           Call RecPrt('Davidsion_SCF: Hss',' ',Hss,m,m)
-#endif
-*
-           Call DGEMM_('N','N',
-     &                 m,1,m,
-     &                 One,Hss,m,
-     &                     Sub(1,j+1),m,
-     &                 Zero,Ab(1,j+1),m)
-#else
-*
 *          Pick up the contribution for the updated Hessian (BFGS update)
 *
            Call SOrUpV(MemRsv,Sub(1,j+1),HDiag,m,Ab(1,j+1),'GRAD',
      &                                                     'BFGS')
-*          Call SOrUpV2(MemRsv,Sub(1,j+1),HDiag,m,Ab(1,j+1),'GRAD')
-#endif
-*define _DEBUG_ _DEBUG_SAVE_
            Call DScal_(m,One/Fact,Ab(1,j+1),1)
 *
 *          Add contribution from the gradient
@@ -752,43 +635,3 @@
       CALL mma_deallocate(Eig_old)
 
       END
-#ifdef _DEBUG_SORUPV_
-      Subroutine BFGS_HInv(Hss,m,HdX,dX,dg)
-      Implicit Real*8 (a-h,o-z)
-      Real*8 Hss(m,m), HdX(m), dX(m), dg(m)
-*
-#ifdef _DEBUG_
-      Call RecPrt('BFGS: H(n-1)',' ',Hss,m,m)
-      Call RecPrt('BFGS: dX(n-1)',' ',dX,1,m)
-      Call RecPrt('BFGS: dg(n-1)',' ',dg,1,m)
-#endif
-      Call FZero(HdX,m)
-      Call DGEMM_('N','N',
-     &            m,1,m,
-     &            1.0D0,Hss,m,
-     &                  dX,m,
-     &            0.0D0,HdX,m)
-      alpha=1.0D0/DDot_(m,dX,1,dg,1)
-      beta =DDot_(m,HdX,1,dX,1)
-      epsilon=(1.0D0 + alpha*beta)*alpha
-*define _DEBUG_
-#ifdef _DEBUG_
-      Call RecPrt('BFGS: HdX(n-1)',' ',HdX,1,m)
-      Write (6,*) 'BFGS: a,b,e=',alpha,beta,epsilon
-#endif
-*
-      Do i = 1, m
-         Do j = 1, m
-            Hss(i,j) = Hss(i,j)
-     &               + epsilon * dg(i) * dg(j)
-     &               - alpha   * (dg(i)*HdX(j)
-     &                           +HdX(i)*dg(j))
-         End Do
-      End Do
-#ifdef _DEBUG_
-      Call RecPrt('BFGS: H(n)',' ',Hss,m,m)
-#endif
-*
-      Return
-      End
-#endif

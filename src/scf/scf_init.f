@@ -154,6 +154,7 @@ C     FThr   =  0.5d-6
       MiniDn = .True.
       WrOutD = .False.
       c1Diis = .False.
+      RSRFO  = .False.
       Scrmbl = .False.
       RFpert = .False.
       PmTime = .False.

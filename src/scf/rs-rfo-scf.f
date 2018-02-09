@@ -11,14 +11,8 @@
 * Copyright (C) 1994,2004,2014,2017, Roland Lindh                      *
 *               2014,2018, Ignacio Fdez. Galvan                        *
 ************************************************************************
-*define _DEBUG_SORUPV_
-#ifdef _DEBUG_SORUPV_
-      Subroutine RS_RFO_SCF(HDiag,g,nInter,dq,UpMeth,dqdq,dqHdq,StepMax,
-     &                      Step_Trunc,MemRsv,iter_SCF)
-#else
       Subroutine RS_RFO_SCF(HDiag,g,nInter,dq,UpMeth,dqdq,dqHdq,StepMax,
      &                      Step_Trunc,MemRsv)
-#endif
 ************************************************************************
 *                                                                      *
 *     Object: Automatic restricted-step rational functional            *
@@ -42,17 +36,11 @@
       Real*8 HDiag(nInter), g(nInter), dq(nInter)
       Character UpMeth*6, Step_Trunc*1
       Real*8 dqdq, dqHdq, StepMax
-#ifdef _DEBUG_SORUPV_
-      Logical Update_H
-#endif
 *     Local variables
       Real*8, Dimension(:), Allocatable:: Tmp, Val, Vec
       Logical Iterate, Restart
       Real*8 Lambda
 *
-#ifdef _DEBUG_SORUPV_
-      Update_H = .True.
-#endif
       UpMeth='RS-RFO'
       Step_Trunc=' '
       Lu=6
@@ -108,18 +96,8 @@
 *        which computes Hc, where c is a trial vector, from an initial
 *        Hessian based on a diagonal approximation and a BFGS update.
 *
-*        UNDER DEVELOPMENT
-*
-#ifdef _DEBUG_SORUPV_
-         Call Davidson_SCF(HDiag,g,nInter,NumVal,A_RFO,Val,Vec,MemRsv,
-     &                     iStatus,iter_SCF,Update_H)
-#else
          Call Davidson_SCF(HDiag,g,nInter,NumVal,A_RFO,Val,Vec,MemRsv,
      &                     iStatus)
-#endif
-*
-*        END DEVELOPMENT
-*
          If (iStatus.gt.0) Then
             Call SysWarnMsg('RS_RFO',
      &       'Davidson procedure did not converge','')

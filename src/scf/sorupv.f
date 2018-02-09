@@ -194,19 +194,6 @@
       Call GetNod(iter-1,LL2,inode)
       If (inode.eq.0) GoTo 555
       Call iVPtr(Lu2,SOGrd,lvec,inode)
-*define _DEBUG_SORUPV_
-#ifdef _DEBUG_SORUPV_
-#ifdef _DEBUG_
-      Write (6,*) 'n-1=',iter-1
-      If (Mode.eq.'DISP') Then
-         Call RecPrt('SORUPV: dg(n-1)',' ',SOGrd,1,lVec)
-*        Call NrmClc(SOGrd,lVec,'SORUPV','dg(n-1)')
-      Else
-         Call RecPrt('SORUPV: dX(n-1)',' ',SOGrd,1,lVec)
-*        Call NrmClc(SOGrd,lVec,'SORUPV','dX(n-1)')
-      End If
-#endif
-#endif
 *
 *     (3b): initialize y(n-1)=HDiag*dGrd(n-1) ...
 *
@@ -223,11 +210,6 @@
       End Do
 #ifdef _DEBUG_
       Call RecPrt('Init y(n-1)',' ',SOScr,1,lVec)
-#endif
-#ifdef _DEBUG_SORUPV_
-#ifdef _DEBUG_
-      Call RecPrt('SORUV: HdX(n-1)',' ',SOScr,1,lVec)
-#endif
 #endif
 *
 *     and store it on appropriate linked list
@@ -356,17 +338,6 @@
          Call RecPrt('dX(n-1)',' ',Work(ipdgd),1,lVec)
       End If
 #endif
-#ifdef _DEBUG_SORUPV_
-#ifdef _DEBUG_
-      If (Mode.eq.'DISP') Then
-         Call NrmClc(Work(ipdel),lVec,'SORUPV','dX(n-1)')
-         Call NrmClc(Work(ipdgd),lVec,'SORUPV','dg(n-1)')
-      Else
-         Call NrmClc(Work(ipdgd),lVec,'SORUPV','dX(n-1)')
-         Call NrmClc(Work(ipdel),lVec,'SORUPV','dg(n-1)')
-      End If
-#endif
-#endif
 *
 *     calculate diverse dot products...
 *
@@ -380,15 +351,6 @@
       S(2)=ddot_(lvec,Work(ipdgd),1,Work(ipynm1),1)
       S(3)=ddot_(lvec,Work(ipdel),1,V,1)
       S(4)=ddot_(lvec,Work(ipynm1),1,V,1)
-#ifdef _DEBUG_SORUPV_
-#ifdef _DEBUG_
-      alpha=S(1)
-      beta=S(2)
-      epsilon=(One+alpha*beta)*alpha
-      Write (6,*) 'SORUPV: a,b,e=',alpha,beta,epsilon
-      Call RecPrt('SORUPV: HdX(n-1)',' ',Work(ipynm1),1,lVec)
-#endif
-#endif
 #ifdef _DEBUG_
       Write (6,*) '(S(i),i=1,4)=',(S(i),i=1,4)
 #endif

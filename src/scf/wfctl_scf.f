@@ -370,13 +370,12 @@
          If (iOpt.ge.2 .OR.
      &      (iOpt.eq.1 .AND. DMOMax.lt.QNRTh .AND.  Iter_DIIS.ge.2))
      &      Then
-*define _TEST_OF_RS_RFO_
-#ifdef  _TEST_OF_RS_RFO_
-            iOpt=3
-            kOptim=2
-#else
-            iOpt=2
-#endif
+            If (RSRFO) Then
+               iOpt=3
+               kOptim=2
+            Else
+               iOpt=2
+            End If
             If (QNR1st) Then
                kOptim=2
 *
@@ -650,8 +649,6 @@
 *           get last gradient grad(n) from LList
 *
             Call GetVec(LuGrd,iter,LLGrad,inode,Grd1,nOV*nD)
-            Call Abend()
-*...code is missing...
 #ifdef _DEBUG_
             Call RecPrt('Wfctl: g(n)',' ',Grd1,1,nOV*nD)
 #endif
@@ -659,19 +656,9 @@
 *           Call restricted-step rational function optimization procedure
 *           to compute dX(n)=Xn+1 - Xn
 *
-*           DEVELOPMENT IN PROGRESS
-*
             StepMax=0.3D0
-*define _DEBUG_SORUPV_
-#ifdef _DEBUG_SORUPV_
-            Call rs_rfo_scf(HDiag,Grd1,nOV*nD,Disp,AccCon(1:6),dqdq,
-     &                      dqHdq,StepMax,AccCon(9:9),MemRsv,iter)
-#else
             Call rs_rfo_scf(HDiag,Grd1,nOV*nD,Disp,AccCon(1:6),dqdq,
      &                      dqHdq,StepMax,AccCon(9:9),MemRsv)
-#endif
-*
-*           END OF DEVELOPMENT
 *
 *           store dX(n) vector from Disp to LList
 *
