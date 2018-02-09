@@ -125,8 +125,8 @@ c#endif
       endif
 
 
-* Use version 2.1!
-      iVer=iVer21
+* Use version 2.2!
+      iVer=iVer22
 *
 *  Write INFO header
 *
@@ -190,11 +190,11 @@ c#endif
       EndDo
       Endif  ! UHF
       Endif  ! iCMO
-* OCC section
 
+* OCC section
       if(iOcc.eq.1) then
-      NDIV=nDivOccMR(iVer)
-      FMT=FmtOccMR(iVer)
+      NDIV=nDivOcc(iVer)
+      FMT=FmtOcc(iVer)
       Write(Lu,'(A)') '#OCC'
       WRITE(LU,'(A)') '* OCCUPATION NUMBERS'
       KOCC=0
@@ -219,32 +219,33 @@ c#endif
       EndDo
       Endif  ! UHF
 
-
-      NDIV=nDivOcc(iVer)
-      FMT=FmtOcc(iVer)
-      Write(Lu,'(A)') '#OCHR'
-      WRITE(LU,'(A)') '* OCCUPATION NUMBERS'
-      KOCC=0
-      DO ISYM=1,NSYM
-         DO IORB=1,NORB(ISYM),NDIV
-           IORBEND=MIN(IORB+NDIV-1,NORB(ISYM))
-            WRITE(LU,FMT) (OCC(I+KOCC),I=IORB,IORBEND)
+      NDIV=nDivOccHR(iVer)
+      If (NDIV.gt.0) Then
+         FMT=FmtOccHR(iVer)
+         Write(Lu,'(A)') '#OCHR'
+         WRITE(LU,'(A)') '* OCCUPATION NUMBERS (HUMAN-READABLE)'
+         KOCC=0
+         DO ISYM=1,NSYM
+            DO IORB=1,NORB(ISYM),NDIV
+              IORBEND=MIN(IORB+NDIV-1,NORB(ISYM))
+               WRITE(LU,FMT) (OCC(I+KOCC),I=IORB,IORBEND)
+            EndDo
+            KOCC=KOCC+NORB(ISYM)
          EndDo
-         KOCC=KOCC+NORB(ISYM)
-      EndDo
 
-      if(iUHF.eq.1) then
-      Write(Lu,'(A)') '#UOCHR'
-      WRITE(LU,'(A)') '* Beta OCCUPATION NUMBERS'
-      KOCC=0
-      DO ISYM=1,NSYM
-         DO IORB=1,NORB(ISYM),NDIV
-           IORBEND=MIN(IORB+NDIV-1,NORB(ISYM))
-         WRITE(LU,FMT) (OCC_ab(I+KOCC),I=IORB,IORBEND)
+         if(iUHF.eq.1) then
+         Write(Lu,'(A)') '#UOCHR'
+         WRITE(LU,'(A)') '* Beta OCCUPATION NUMBERS (HUMAN-READABLE)'
+         KOCC=0
+         DO ISYM=1,NSYM
+            DO IORB=1,NORB(ISYM),NDIV
+              IORBEND=MIN(IORB+NDIV-1,NORB(ISYM))
+            WRITE(LU,FMT) (OCC_ab(I+KOCC),I=IORB,IORBEND)
+            EndDo
+            KOCC=KOCC+NORB(ISYM)
          EndDo
-         KOCC=KOCC+NORB(ISYM)
-      EndDo
-      Endif  ! UHF
+         Endif  ! UHF
+      End If
       Endif  ! iOcc
 
 * ONE section
