@@ -2419,6 +2419,7 @@ endforeach (util)
 
 # build an actual Molcas library
 add_library (molcas ${objlibs})
+set (MOLCAS_LIBRARIES "molcas")
 if (BUILD_SHARED_LIBS)
         # flatten namespace on Mac OS X
         if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -2428,6 +2429,7 @@ if (BUILD_SHARED_LIBS)
         # also create a static library!
         if (BUILD_STATIC_LIB)
                 add_library (molcas_static STATIC ${objlibs})
+                list (APPEND MOLCAS_LIBRARIES "molcas_static")
         endif ()
 endif ()
 
@@ -3071,7 +3073,7 @@ install (DIRECTORY
         DESTINATION ${CMAKE_INSTALL_PREFIX}
         )
 
-install (TARGETS ${PROGRAM_EXECUTABLES} molcas
+install (TARGETS ${PROGRAM_EXECUTABLES} ${MOLCAS_LIBRARIES}
         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
         LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
         ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
