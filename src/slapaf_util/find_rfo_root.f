@@ -101,10 +101,10 @@
           xx1=x3
           yy1=y3
         END IF
-*       If the middle point is shorter than the "sort" step, something went
+*       If the middle point is shorter than the "short" step, something went
 *       wrong, start again from 1 (signal with -1),
 *       maybe now we will get a better eigenvalue to start with
-        IF (y3 .LT. y2) THEN
+        IF ((y3 .LT. y2) .AND. (y3 .GT. Val)) THEN
           x3 = -One
           RETURN
         END IF

@@ -162,8 +162,10 @@
 *------- RF with constraints. Start iteration scheme if computed step
 *        is too long.
 *
-         If ((Iter.eq.1.or.Restart).and.dqdq.gt.StepMax**2)
-     &      Iterate=.True.
+         If ((Iter.eq.1.or.Restart).and.dqdq.gt.StepMax**2) Then
+            Iterate=.True.
+            Restart=.False.
+         End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -172,13 +174,19 @@
          If (Iterate.and.Abs(StepMax-Sqrt(dqdq)).gt.Thr) Then
             Step_Trunc='*'
 *           Write (Lu,*) 'StepMax-Sqrt(dqdq)=',StepMax-Sqrt(dqdq)
+*
+*           Converge if small interval
+*
+            If ((dqdq.lt.StepMax**2).and.
+     &          (Abs(A_RFO_long-A_RFO_short).lt.Thr)) Go To 997
             Call Find_RFO_Root(A_RFO_long,dqdq_long,
      &                         A_RFO_short,dqdq_short,
      &                         A_RFO,Sqrt(dqdq),StepMax)
             If (A_RFO.eq.-One) Then
-              A_RFO=One
-              Restart=.True.
-              Iterate=.False.
+               A_RFO=One
+               Step_Trunc=' '
+               Restart=.True.
+               Iterate=.False.
             End If
             If (Iter.gt.IterMx) Then
                Write (Lu,*) ' Too many iterations in RF'
