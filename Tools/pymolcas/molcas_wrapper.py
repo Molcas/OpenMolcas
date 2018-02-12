@@ -81,7 +81,7 @@ class MolcasException(Exception):
 
 class Molcas_wrapper(object):
 
-  version = 'py1.08'
+  version = 'py1.09'
   rc = 0
 
   def __init__(self, **kwargs):
@@ -842,10 +842,11 @@ class Molcas_wrapper(object):
 
   def in_sbin(self, prog):
     '''Return the path of a program in sbin if it exists'''
-    for path in [self.molcas] + self.sources:
-      filename = join(path, 'sbin', prog)
-      if (isfile(filename) and access(filename, X_OK)):
-        return filename
+    if (prog == basename(prog)):
+      for path in [self.molcas] + self.sources:
+        filename = join(path, 'sbin', prog)
+        if (isfile(filename) and access(filename, X_OK)):
+          return filename
     return False
 
   def run_sbin(self, command):

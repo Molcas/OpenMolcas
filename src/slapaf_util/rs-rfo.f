@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 1994,2004,2014,2017, Roland Lindh                      *
-*               2014, Ignacio Fdez. Galvan                             *
+*               2014,2018, Ignacio Fdez. Galvan                        *
 ************************************************************************
       Subroutine RS_RFO(H,g,nInter,dq,UpMeth,dqHdq,StepMax,Step_Trunc)
 ************************************************************************
@@ -37,7 +37,7 @@
 *
 *     Local variables
       Real*8, Dimension(:), Allocatable:: Tmp, Val, Vec, Matrix
-      Logical Iterate
+      Logical Iterate, Restart
       Real*8 Lambda
 *
       UpMeth='RS-RFO'
@@ -57,6 +57,7 @@
       IterMx=25
       Iter=0
       Iterate=.False.
+      Restart=.False.
       Thr=1.0D-7
       NumVal=1
       Call mma_allocate(Vec,(nInter+1)*NumVal,Label='Vec')
@@ -152,7 +153,8 @@
 *                                                                      *
 *------- Initialize data for iterative scheme (only at first iteration)
 *
-         If (.Not.Iterate) Then
+         If (.Not.Iterate.Or.Restart) Then
+            Restart=.False.
             A_RFO_long=A_RFO
             dqdq_long=Sqrt(dqdq)
             A_RFO_short=Zero
@@ -164,7 +166,8 @@
 *------- RF with constraints. Start iteration scheme if computed step
 *        is too long.
 *
-         If (Iter.eq.1.and.dqdq.gt.StepMax**2) Iterate=.True.
+         If ((Iter.eq.1.or.Restart).and.dqdq.gt.StepMax**2)
+     &      Iterate=.True.
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -176,6 +179,11 @@
             Call Find_RFO_Root(A_RFO_long,dqdq_long,
      &                         A_RFO_short,dqdq_short,
      &                         A_RFO,Sqrt(dqdq),StepMax)
+            If (A_RFO.eq.-One) Then
+               A_RFO=One
+               Restart=.True.
+               Iterate=.False.
+            End If
             If (Iter.gt.IterMx) Then
                Write (Lu,*) ' Too many iterations in RF'
                Go To 997
