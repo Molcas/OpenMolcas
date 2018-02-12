@@ -27,6 +27,11 @@
 *
 *     M.P. Fuelscher, Lund, July 1990
 *
+#ifdef _DMRG_
+!     module dependencies
+      use qcmaquis_interface_cfg
+#endif
+
       Implicit Real*8 (A-H,O-Z)
 *
 #include "rasdim.fh"
@@ -55,7 +60,7 @@
 *
       Parameter ( Zero=0.0d0 , One=1.0d0 )
 
-      Call qEnter('SGFCIN')
+      Call qEnter(ROUTINE)
 C Local print level (if any)
       IPRLEV=IPRLOC(3)
       IPRLEV=0000
@@ -470,9 +475,11 @@ Cbjp
 !Quan: Fix bug, skip Lucia stuff with DMRG
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
       if (.not.(doBlockDMRG)) then
+#elif defined _DMRG_
+      if(.not.doDMRG)then
 #endif
         CALL CP_ONE_INT(WORK(LX0),ITU)
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
       endif
 #endif
       CALL GETMEM('XXX1','FREE','REAL',LX1,NTOT1)

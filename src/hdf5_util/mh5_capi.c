@@ -33,9 +33,11 @@
 #endif
 #define H5T_STORAGE_REAL H5T_IEEE_F64LE
 
-/* enable compression by default */
+/* 12/12/2016 Leon: Compression can be enabled only if underlying HDF5 library
+ * supports compression! This will lead to strange effects otherwise!
+ * TODO: Check this in CMAKE and set the flag accordingly! */
 
-#define _HDF5_COMPRESSION_
+/* #define _HDF5_COMPRESSION_ */
 
 /* limits */
 #define MAX_RANK 7

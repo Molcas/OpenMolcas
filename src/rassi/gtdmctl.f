@@ -16,7 +16,9 @@
       use qcmaquis_interface_wrapper
       use qcmaquis_interface_utility_routines, only:
      &    pretty_print_util
+      use qcmaquis_info
 #endif
+      use mspt2_eigenvectors
 
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
@@ -31,6 +33,7 @@
 #include "Files.fh"
 #include "Struct.fh"
 #include "rassiwfn.fh"
+#include "stdalloc.fh"
       DIMENSION ISGSTR1(NSGSIZE), ISGSTR2(NSGSIZE)
       DIMENSION ICISTR1(NCISIZE), ICISTR2(NCISIZE)
       DIMENSION IXSTR1(NXSIZE), IXSTR2(NXSIZE)
@@ -48,6 +51,27 @@
       CHARACTER*48 STLNE2
 * PAM 2011 Nov 3, added write buffer WBUF:
       DIMENSION WBUF(5)
+
+      type mixed_1pdensities
+        real*8              :: overlap
+        real*8, allocatable :: rtdm(:)
+        real*8, allocatable :: stdm(:)
+        real*8, allocatable :: wtdm(:)
+      end type
+
+      type(mixed_1pdensities), allocatable :: mstate_1pdens(:,:)
+
+      logical               :: mstate_dens
+      real*8                :: fac1, fac2
+
+#ifdef _DMRG_
+      ! strings for conversion of the qcmaquis h5 checkpoint names from 2u1 to su2u1
+      character(len=3) :: mplet1s, msproj1s
+      ! new checkpoint names
+      character(len=2300) :: checkpoint1_2u1,checkpoint2_2u1
+#else
+      logical             :: doDMRG = .false.
+#endif
 #include "SysDef.fh"
 
       CALL QENTER(ROUTINE)
@@ -75,44 +99,51 @@ C WF parameters for ISTATE and JSTATE
         WRITE(6,'(1X,A,I3,A,I3)')' NPROP:', NPROP
       END IF
 
-C Logical variables, controlling which GTDM''s to compute:
+      if(doDMRG .and. (nacte1 /= nacte2 ))then
+        call WarningMessage(2,'Problem in gtdmctl for MPS-SI: no '//
+     &   ' match for #e- in bra/ket')
+        call abend()
+      end if
 
-C First, see which type of GTDM''s that could be non-zero:
-C Overlap:
-      IF00 = NACTE1.EQ.NACTE2 .AND.  MPLET1.EQ.MPLET2
-      IF00 = IF00 .AND.  LSYM1.EQ. LSYM2
-C Dyson amplitudes:
+      !> Logical variables, controlling which GTDM''s to compute
+
+      !>  Overlap
+      IF00 = NACTE1.EQ.NACTE2.AND. MPLET1.EQ.MPLET2
+      IF00 = IF00.AND.LSYM1.EQ.LSYM2
+
+      !> Dyson amplitudes
       IF10 = (NACTE1-NACTE2).EQ. 1
-      IF10 = IF10 .AND. ( ABS(MPLET1-MPLET2).EQ.1 )
+      IF10 = IF10.AND.( ABS(MPLET1-MPLET2).EQ.1)
       IF01 = (NACTE1-NACTE2).EQ.-1
-      IF01 = IF01 .AND. ( ABS(MPLET1-MPLET2).EQ.1 )
-C Pair amplitudes:
+      IF01 = IF01.AND.( ABS(MPLET1-MPLET2).EQ.1)
+
+      !> Pair amplitudes:
       IF20 = (NACTE1-NACTE2).EQ. 2
       IF02 = (NACTE1-NACTE2).EQ.-2
-C Density 1-matrices:
-      IF11 = ( NACTE1.EQ.NACTE2 .AND. NACTE1.GE.1 )
-      IF11 = IF11 .AND. ( ABS(MPLET1-MPLET2).LE.2 )
-C 2h1p and 1h2p amplitudes:
-      IF21 = IF10 .AND. NACTE2.GE.1
-      IF21 = IF21 .AND. ( ABS(MPLET1-MPLET2).LE.3 )
-      IF12 = IF01 .AND. NACTE1.GE.1
-      IF12 = IF12 .AND. ( ABS(MPLET1-MPLET2).LE.3 )
-C Two-electron transition density and transition spin density
-      IF22 = ( NACTE1.EQ.NACTE2 .AND. NACTE1.GE.2 )
-      IF22 = IF22 .AND. ( ABS(MPLET1-MPLET2).LE.4 )
 
-C Then, check if they are needed at all:
-C It may be that the Hamiltonian matrix should be used in
-C diagonalization (IFHAM is .TRUE.), but it does not have
-C to be computed (because IFHEXT or IFHEFF or IFEJOB are true).
-      IFTWO = IFHAM .AND.
-     &            .NOT.(IFHEXT.OR.IFHEFF.OR.IFEJOB)
+      !> 1-TDMs and transition spin densities
+      IF11 = ( NACTE1.EQ.NACTE2.AND.NACTE1.GE.1)
+      IF11 = IF11.AND.( ABS(MPLET1-MPLET2).LE.2)
 
-C For the moment, we have no use for the two-electron density
-C except when used for the scalar two-body Hamiltonian matrix:
-      IF22 = IF22 .AND. IFTWO .AND. (MPLET1.EQ.MPLET2) .AND.
-     &        (LSYM1.EQ.LSYM2)
+      !> 2h1p and 1h2p amplitudes:
+      IF21 = IF10.AND.NACTE2.GE.1
+      IF21 = IF21.AND.( ABS(MPLET1-MPLET2).LE.3)
+      IF12 = IF01.AND.NACTE1.GE.1
+      IF12 = IF12.AND.( ABS(MPLET1-MPLET2).LE.3)
 
+      !> 2-TDMs and transition spin densities
+      IF22 = (NACTE1.EQ.NACTE2.AND.NACTE1.GE.2)
+      IF22 = IF22.AND.(ABS(MPLET1-MPLET2).LE.4)
+
+      !> check if they are needed at all:
+        !> It may be that the Hamiltonian matrix should be used in
+        !> diagonalization (IFHAM is .TRUE.), but it does not have
+        !> to be computed (because IFHEXT or IFHEFF or IFEJOB are true).
+      IFTWO = IFHAM .AND..NOT.(IFHEXT.OR.IFHEFF.OR.IFEJOB)
+
+      !> For the moment, we have no use for the two-electron density
+      !> except when used for the scalar two-body Hamiltonian matrix:
+      IF22 = IF22.AND.IFTWO.AND.(MPLET1.EQ.MPLET2).AND.(LSYM1.EQ.LSYM2)
 
       IF(IPGLOB.GE.DEBUG) THEN
         IF(IF00) WRITE(6,*)' Overlap will be computed.'
@@ -182,7 +213,38 @@ C Transform to biorthonormal orbital system
         CALL GETMEM('GTDMTRA1','ALLO','REAL',LTRA1,NTRA)
         CALL GETMEM('GTDMTRA2','ALLO','REAL',LTRA2,NTRA)
         CALL FINDT(WORK(LCMO1),WORK(LCMO2),WORK(LTRA1),WORK(LTRA2))
-      END IF
+        TRORB = .true.
+      else
+        TRORB = .false.
+      end if
+
+      !> check whether we do RASSI with an effective multi-state PT2 Hamiltonian
+      !> whose eigenvectors are stored in Heff_evc
+      !> i.e., we do not use mixed CI coefficients / MPS wave functions but rather mix the TDMs
+
+      mstate_dens = job1.eq.job2.and.
+     &              (allocated(Heff_evc(job1)%pc).or.
+     &               allocated(Heff_evc(job1)%sc))
+      mstate_dens = mstate_dens.and.if11
+      mstate_dens = mstate_dens.and.qdpt2ev
+
+      if(mstate_dens)then
+        allocate(mstate_1pdens(nstat(job1),nstat(job1)))
+        do i = 1, nstat(job1)
+          do j = 1, nstat(job1)
+            call mma_allocate(mstate_1pdens(i,j)%rtdm, NTDMZZ)
+            call mma_allocate(mstate_1pdens(i,j)%stdm, NTDMZZ)
+            call mma_allocate(mstate_1pdens(i,j)%wtdm,NTDMZZ)
+            mstate_1pdens(i,j)%rtdm = 0; mstate_1pdens(i,j)%stdm    = 0
+            mstate_1pdens(i,j)%wtdm = 0; mstate_1pdens(i,j)%overlap = 0
+          end do
+        end do
+      end if
+
+#ifdef _DMRG_
+      dmrg_external%MPSrotated = trorb
+#endif
+
 C OBTAIN CORE ENERGY, FOCK MATRIX, AND TWO-ELECTRON INTEGRALS
 C IN THE MIXED ACTIVE MO BASIS:
       ECORE=0.0D0
@@ -217,6 +279,14 @@ C else we will use Ms quantum numbers that differ by 1/2:
           MSPROJ2=MSPROJ1+1
         END IF
       END IF
+
+#ifdef _DMRG_
+      !> set spin-up/spin-down # of electrons for target state(s)
+      if(doDMRG)then
+        dmrg_external%nalpha = (nacte1 + msproj1) / 2
+        dmrg_external%nbeta  = (nacte1 - msproj1) / 2
+      end if
+#endif
 
 C---------------  For all wave functions: ---------------------
 C Define structures ('tables') pertinent all jobs.
@@ -285,28 +355,24 @@ C the SGUGA space of JOB1. General RAS:
         NRASEL(2)=NACTE1-NELE31
         NRASEL(3)=NACTE1
 
-#ifdef _DMRG_
-        IF(.not.doDMRG)then
-#endif
-        CALL SGINIT(NSYM,NACTE1,MPLET1,NRSPRT,NRAS,NRASEL,ISGSTR1)
-        IF(IPGLOB.GT.DEBUG) THEN
-          WRITE(6,*)'Split-graph structure for JOB1=',JOB1
-          CALL SGPRINT(ISGSTR1)
-        END IF
-        CALL SGSVAL(ISGSTR1,NSYM,NASHT,LISM,NVERT,LDRT,
-     &              LDOWN,LUP,MIDLEV,MVSTA,MVEND,LMAW,LLTV)
-        CALL CXINIT(ISGSTR1,ICISTR1,IXSTR1)
-        CALL CXSVAL(ICISTR1,IXSTR1,NMIDV,NIPWLK,LNOW,LIOW,LNCSF,
-     &                 LNOCSF,LIOCSF,NWALK,LICASE,
-     &                 MXEO,LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,
-     &           LVTAB,LMVL,LMVR,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX)
+        if(.not.doDMRG)then
+          CALL SGINIT(NSYM,NACTE1,MPLET1,NRSPRT,NRAS,NRASEL,ISGSTR1)
+          IF(IPGLOB.GT.DEBUG) THEN
+            WRITE(6,*)'Split-graph structure for JOB1=',JOB1
+            CALL SGPRINT(ISGSTR1)
+          END IF
+          CALL SGSVAL(ISGSTR1,NSYM,NASHT,LISM,NVERT,LDRT,
+     &                LDOWN,LUP,MIDLEV,MVSTA,MVEND,LMAW,LLTV)
+          CALL CXINIT(ISGSTR1,ICISTR1,IXSTR1)
+          CALL CXSVAL(ICISTR1,IXSTR1,NMIDV,NIPWLK,LNOW,LIOW,LNCSF,
+     &                LNOCSF,LIOCSF,NWALK,LICASE,
+     &                MXEO,LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,
+     &                LVTAB,LMVL,LMVR,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX)
 C CI sizes, as function of symmetry, are now known.
-        NCONF1=IWORK(LNCSF-1+LSYM1)
-#ifdef _DMRG_
+          NCONF1=IWORK(LNCSF-1+LSYM1)
         else
           NCONF1=1
         end if
-#endif
       ELSE
 C Presently, the only other cases are HISPIN, CLOSED or EMPTY.
 * Note: the HISPIN case may be buggy and is not used presently.
@@ -378,30 +444,31 @@ C IWORK(LSPNTAB1)
       NGASLIM(1,3)=NGL13
       NGASLIM(2,3)=NGL23
 
-      IFORM=1
-      MINOP=0
-      LREST1=NEWGASTAB(NSYM,NGAS,NGASORB,NGASLIM)
-      IF(IPGLOB.GE.DEBUG) CALL PRGASTAB(LREST1)
+      if(.not.doDMRG)then
+        IFORM=1
+        MINOP=0
+        LREST1=NEWGASTAB(NSYM,NGAS,NGASORB,NGASLIM)
+        IF(IPGLOB.GE.DEBUG) CALL PRGASTAB(LREST1)
 
 C At present, we will only annihilate, at most 2 electrons will
 C be removed. This limits the possible MAXOP:
-      MAXOP=MIN(MAXOP+1,NACTE1,NASHT)
-      LCNFTAB1=NEWCNFTAB(NACTE1,NASHT,MINOP,MAXOP,LSYM1,NGAS,
-     &                           NGASORB,NGASLIM,IFORM)
-      IF(IPGLOB.GE.DEBUG) CALL PRCNFTAB(LCNFTAB1,100)
+        MAXOP=MIN(MAXOP+1,NACTE1,NASHT)
+        LCNFTAB1=NEWCNFTAB(NACTE1,NASHT,MINOP,MAXOP,LSYM1,NGAS,
+     &                     NGASORB,NGASLIM,IFORM)
+        IF(IPGLOB.GE.DEBUG) CALL PRCNFTAB(LCNFTAB1,100)
 
-      LFSBTAB1=NEWFSBTAB(NACTE1,MSPROJ1,LSYM1,LREST1,LSSTAB)
-      IF(IPGLOB.GE.DEBUG) CALL PRFSBTAB(IWORK(LFSBTAB1))
-      NDET1=IWORK(LFSBTAB1+4)
-#ifdef _DMRG_
-      if(doDMRG) NDET1 = 1 ! minimum to avoid runtime error
-#endif
-      LSPNTAB1=NEWSCTAB(MINOP,MAXOP,MPLET1,MSPROJ1)
-      IF (IPGLOB.GT.DEBUG) THEN
+        LFSBTAB1=NEWFSBTAB(NACTE1,MSPROJ1,LSYM1,LREST1,LSSTAB)
+        IF(IPGLOB.GE.DEBUG) CALL PRFSBTAB(IWORK(LFSBTAB1))
+        NDET1=IWORK(LFSBTAB1+4)
+        LSPNTAB1=NEWSCTAB(MINOP,MAXOP,MPLET1,MSPROJ1)
+        IF (IPGLOB.GT.DEBUG) THEN
 *PAM2009: Put in impossible call to PRSCTAB, just so code analyzers
 * do not get their knickers into a twist.
-        CALL PRSCTAB(LSPNTAB1)
-      END IF
+          CALL PRSCTAB(LSPNTAB1)
+        END IF
+      else
+        NDET1 = 1 ! minimum to avoid runtime error
+      end if
 C---------------    JOB2 wave functions: ---------------------
 C Initialize SGUGA tables for JOB2 functions.
 C These are structures stored in arrays:
@@ -420,28 +487,24 @@ C the SGUGA space of JOB1. General RAS:
         NRASEL(2)=NACTE2-NELE32
         NRASEL(3)=NACTE2
 
-#ifdef _DMRG_
         IF(.not.doDMRG)then
-#endif
-        CALL SGINIT(NSYM,NACTE2,MPLET2,NRSPRT,NRAS,NRASEL,ISGSTR2)
-        IF(IPGLOB.GT.DEBUG) THEN
-          WRITE(6,*)'Split-graph structure for JOB2=',JOB2
-          CALL SGPRINT(ISGSTR2)
-        END IF
-        CALL SGSVAL(ISGSTR2,NSYM,NASHT,LISM,NVERT,LDRT,
-     &              LDOWN,LUP,MIDLEV,MVSTA,MVEND,LMAW,LLTV)
-        CALL CXINIT(ISGSTR2,ICISTR2,IXSTR2)
-        CALL CXSVAL(ICISTR2,IXSTR2,NMIDV,NIPWLK,LNOW,LIOW,LNCSF,
-     &                 LNOCSF,LIOCSF,NWALK,LICASE,
-     &                 MXEO,LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,
-     &           LVTAB,LMVL,LMVR,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX)
+          CALL SGINIT(NSYM,NACTE2,MPLET2,NRSPRT,NRAS,NRASEL,ISGSTR2)
+          IF(IPGLOB.GT.DEBUG) THEN
+            WRITE(6,*)'Split-graph structure for JOB2=',JOB2
+            CALL SGPRINT(ISGSTR2)
+          END IF
+          CALL SGSVAL(ISGSTR2,NSYM,NASHT,LISM,NVERT,LDRT,
+     &                LDOWN,LUP,MIDLEV,MVSTA,MVEND,LMAW,LLTV)
+          CALL CXINIT(ISGSTR2,ICISTR2,IXSTR2)
+          CALL CXSVAL(ICISTR2,IXSTR2,NMIDV,NIPWLK,LNOW,LIOW,LNCSF,
+     &                LNOCSF,LIOCSF,NWALK,LICASE,
+     &                MXEO,LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,
+     &                LVTAB,LMVL,LMVR,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX)
 C CI sizes, as function of symmetry, are now known.
-        NCONF2=IWORK(LNCSF-1+LSYM2)
-#ifdef _DMRG_
+          NCONF2=IWORK(LNCSF-1+LSYM2)
         else
           NCONF2=1
         end if
-#endif
       ELSE
 C Presently, the only other cases are HISPIN, CLOSED or EMPTY.
 * Note: the HISPIN case may be buggy and is not used presently.
@@ -505,98 +568,127 @@ C Presently, the only other cases are HISPIN, CLOSED or EMPTY.
       NGASLIM(1,3)=NGL13
       NGASLIM(2,3)=NGL23
 
-      LREST2=NEWGASTAB(NSYM,NGAS,NGASORB,NGASLIM)
-      IF(IPGLOB.GE.DEBUG) CALL PRGASTAB(LREST2)
+      if(.not.dodmrg)then
+        LREST2=NEWGASTAB(NSYM,NGAS,NGASORB,NGASLIM)
+        IF(IPGLOB.GE.DEBUG) CALL PRGASTAB(LREST2)
 
-      IFORM=1
-      MINOP=0
+        IFORM=1
+        MINOP=0
 C At present, we will only annihilate. This limits the possible MAXOP:
-      MAXOP=MIN(MAXOP+1,NACTE2,NASHT)
-      LCNFTAB2=NEWCNFTAB(NACTE2,NASHT,MINOP,MAXOP,LSYM2,NGAS,
-     &                           NGASORB,NGASLIM,IFORM)
-      IF(IPGLOB.GE.DEBUG) CALL PRCNFTAB(LCNFTAB2,100)
+        MAXOP=MIN(MAXOP+1,NACTE2,NASHT)
+        LCNFTAB2=NEWCNFTAB(NACTE2,NASHT,MINOP,MAXOP,LSYM2,NGAS,
+     &                     NGASORB,NGASLIM,IFORM)
+        IF(IPGLOB.GE.DEBUG) CALL PRCNFTAB(LCNFTAB2,100)
 
-      LFSBTAB2=NEWFSBTAB(NACTE2,MSPROJ2,LSYM2,LREST2,LSSTAB)
-      IF(IPGLOB.GE.DEBUG) CALL PRFSBTAB(IWORK(LFSBTAB2))
-      NDET2=IWORK(LFSBTAB2+4)
-#ifdef _DMRG_
-      if(doDMRG) NDET2 = 1 ! minimum to avoid runtime error
-#endif
-      LSPNTAB2=NEWSCTAB(MINOP,MAXOP,MPLET2,MSPROJ2)
-      IF (IPGLOB.GT.DEBUG) THEN
+        LFSBTAB2=NEWFSBTAB(NACTE2,MSPROJ2,LSYM2,LREST2,LSSTAB)
+        IF(IPGLOB.GE.DEBUG) CALL PRFSBTAB(IWORK(LFSBTAB2))
+        NDET2=IWORK(LFSBTAB2+4)
+        LSPNTAB2=NEWSCTAB(MINOP,MAXOP,MPLET2,MSPROJ2)
+        IF (IPGLOB.GT.DEBUG) THEN
 *PAM2009: Put in impossible call to PRSCTAB, just so code analyzers
 * do not get their knickers into a twist.
-        CALL PRSCTAB(LSPNTAB2)
-      END IF
+          CALL PRSCTAB(LSPNTAB2)
+        END IF
+      else
+        NDET2 = 1 ! minimum to avoid runtime error
+      end if
 C-------------------------------------------------------------
       CALL GETMEM('GTDMDET1','ALLO','REAL',LDET1,NDET1)
       CALL GETMEM('GTDMDET2','ALLO','REAL',LDET2,NDET2)
 
-#ifdef _DMRG_
-      if(.not.doDMRG)then
-#endif
 C Loop over the states of JOBIPH nr JOB1
 C Disk address for writing to scratch file is IDWSCR.
       IDWSCR=0
       DO IST=1,NSTAT(JOB1)
         ISTATE=ISTAT(JOB1)-1+IST
 
+        if(.not.doDMRG)then
 C Read ISTATE wave function
-        IF(WFTP1.EQ.'GENERAL ') THEN
-          CALL READCI(ISTATE,ISGSTR1,ICISTR1,NCONF1,WORK(LCI1))
-        ELSE
-          WORK(LCI1)=1.0D0
-        END IF
-        TRORB=(JOB1.NE.JOB2)
-        CALL DCOPY_(NDET1,0.0D0,0,WORK(LDET1),1)
-        CALL PREPSD(WFTP1,TRORB,ISGSTR1,ICISTR1,IXSTR1,LSYM1,
-     &              WORK(LTRA1),IWORK(LCNFTAB1),IWORK(LSPNTAB1),
-     &              IWORK(LSSTAB),IWORK(LFSBTAB1),NCONF1,WORK(LCI1),
-     &              WORK(LDET1))
+          IF(WFTP1.EQ.'GENERAL ') THEN
+            CALL READCI(ISTATE,ISGSTR1,ICISTR1,NCONF1,WORK(LCI1))
+          ELSE
+            WORK(LCI1)=1.0D0
+          END IF
+          CALL DCOPY_(NDET1,0.0D0,0,WORK(LDET1),1)
+          CALL PREPSD(WFTP1,TRORB,ISGSTR1,ICISTR1,IXSTR1,LSYM1,
+     &                WORK(LTRA1),IWORK(LCNFTAB1),IWORK(LSPNTAB1),
+     &                IWORK(LSSTAB),IWORK(LFSBTAB1),NCONF1,WORK(LCI1),
+     &                WORK(LDET1))
 
 C Write out the determinant expansion to disk.
-        IDDET1(ISTATE)=IDWSCR
-        CALL  DDAFILE(LUSCR,1,WORK(LDET1),NDET1,IDWSCR)
-
-      END DO
-
+          IDDET1(ISTATE)=IDWSCR
+          CALL  DDAFILE(LUSCR,1,WORK(LDET1),NDET1,IDWSCR)
+        else
 #ifdef _DMRG_
-      end if
+          call prepMPS(
+     &                 TRORB,
+     &                 iWork(lLROOT+ISTATE-1),
+     &                 LSYM1,
+     &                 MPLET1,
+     &                 MSPROJ1,
+     &                 NACTE1,
+     &                 WORK(LTRA1),
+     &                 NTRA,
+     &                 NISH,
+     &                 NASH,
+     &                 NOSH,
+     &                 NSYM,
+     &                 6,
+     &                 ISTATE,
+     &                 job1,
+     &                 ist
+     &                )
 #endif
-
+        end if
+      END DO
 
 C-------------------------------------------------------------
 
 C Loop over the states of JOBIPH nr JOB2
-      DO JST=1,NSTAT(JOB2)
+      job2_loop: DO JST=1,NSTAT(JOB2)
+
         JSTATE=ISTAT(JOB2)-1+JST
 
+        if(.not.doDMRG)then
 C Read JSTATE wave function
-#ifdef _DMRG_
-        if(doDMRG)then
-!         write(6,*) 'skip determinant-based wave functions for JOB2'
-        else
-#endif
-        IF(WFTP2.EQ.'GENERAL ') THEN
-          CALL READCI(JSTATE,ISGSTR2,ICISTR2,NCONF2,WORK(LCI2))
-        ELSE
-          WORK(LCI2)=1.0D0
-        END IF
-        TRORB=(JOB1.NE.JOB2)
-        CALL DCOPY_(NDET2,0.0D0,0,WORK(LDET2),1)
-        CALL PREPSD(WFTP2,TRORB,ISGSTR2,ICISTR2,IXSTR2,LSYM2,
-     &              WORK(LTRA2),IWORK(LCNFTAB2),IWORK(LSPNTAB2),
-     &          IWORK(LSSTAB),IWORK(LFSBTAB2),NCONF2,WORK(LCI2),
-     &          WORK(LDET2))
+          IF(WFTP2.EQ.'GENERAL ') THEN
+            CALL READCI(JSTATE,ISGSTR2,ICISTR2,NCONF2,WORK(LCI2))
+          ELSE
+            WORK(LCI2)=1.0D0
+          END IF
+          CALL DCOPY_(NDET2,0.0D0,0,WORK(LDET2),1)
+          CALL PREPSD(WFTP2,TRORB,ISGSTR2,ICISTR2,IXSTR2,LSYM2,
+     &                WORK(LTRA2),IWORK(LCNFTAB2),IWORK(LSPNTAB2),
+     &                IWORK(LSSTAB),IWORK(LFSBTAB2),NCONF2,WORK(LCI2),
+     &                WORK(LDET2))
 
+        else
 #ifdef _DMRG_
-        end if
+          call prepMPS(
+     &                 TRORB,
+     &                 iWork(llroot+JSTATE-1),
+     &                 LSYM2,
+     &                 MPLET2,
+     &                 MSPROJ2,
+     &                 NACTE2,
+     &                 WORK(LTRA2),
+     &                 NTRA,
+     &                 NISH,
+     &                 NASH,
+     &                 NOSH,
+     &                 NSYM,
+     &                 6,
+     &                 JSTATE,
+     &                 job2,
+     &                 jst
+     &                )
 #endif
+        end if
 
 C Loop over the states of JOBIPH nr JOB1
-      DO IST=1,NSTAT(JOB1)
-        ISTATE=ISTAT(JOB1)-1+IST
-        IF(ISTATE.LT.JSTATE) GOTO 100
+        job1_loop: DO IST=1,NSTAT(JOB1)
+          ISTATE=ISTAT(JOB1)-1+IST
+        IF(ISTATE.LT.JSTATE) cycle
 C Entry into monitor: Status line
         WRITE(STLNE1,'(A6)') 'RASSI:'
         WRITE(STLNE2,'(A33,I5,A5,I5)')
@@ -626,298 +718,315 @@ C General 1-particle transition density matrix:
      &            LSYM2,MPLET2,MSPROJ2,IWORK(LFSBTAB2),IWORK(LSSTAB),
      &            IWORK(LOMAP),WORK(LDET1),WORK(LDET2),SIJ,NASHT,
      &            WORK(LTRAD),WORK(LTRASD),WORK(LWERD),ISTATE,
-     &            JSTATE)
+     &            JSTATE,lLROOT,job1,job2,ist,jst)
 
         IF(IFTWO.AND.(MPLET1.EQ.MPLET2)) THEN
 C Compute 1-electron contribution to Hamiltonian matrix element:
         HONE=DDOT_(NTRAD,WORK(LTRAD),1,WORK(LFMO),1)
         END IF
 
-C Write density 1-matrices in AO basis to disk.
-        IF(NATO.OR.(NPROP.GT.0)) THEN
-C First, conventional 'spin-scalar' TDM''s
-          CALL MKTDAB(SIJ,WORK(LTRAD),WORK(LTDMAB))
-          CALL MKTDZZ(WORK(LCMO1),WORK(LCMO2),WORK(LTDMAB),
-     *                        WORK(LTDMZZ) )
+C             Write density 1-matrices in AO basis to disk.
+            IF(NATO.OR.(NPROP.GT.0))THEN
 
-#ifdef _DMRG_
-          !> debug print
-          if(doDMRG)then
-          write(6,*) ' blubb: 1-TDM in AO basis'
-          call pretty_print_util(WORK(LTDMZZ),1,1,1,ntdmzz,
-     &                       1,ntdmzz,1,6)
-          end if
-#endif
+              !> regular-TDM
+              CALL MKTDAB(SIJ,WORK(LTRAD),WORK(LTDMAB))
+              !> transform to AO basis
+              CALL MKTDZZ(WORK(LCMO1),WORK(LCMO2),WORK(LTDMAB),
+     &                    WORK(LTDMZZ))
 
-          CALL MKTDAB(SIJ,WORK(LTRASD),WORK(LTSDMAB))
-          CALL MKTDZZ(WORK(LCMO1),WORK(LCMO2),WORK(LTSDMAB),
-     *                        WORK(LTSDMZZ) )
+              !> spin-TDM
+              CALL MKTDAB(SIJ,WORK(LTRASD),WORK(LTSDMAB))
+              !> transform to AO basis
+              CALL MKTDZZ(WORK(LCMO1),WORK(LCMO2),WORK(LTSDMAB),
+     &                    WORK(LTSDMZZ) )
 
-#ifdef _DMRG_
-          !> debug print
-          if(doDMRG)then
-            write(6,*) ' blubb: 1-SDM in AO basis'
-            call pretty_print_util(WORK(LTSDMZZ),1,1,1,ntdmzz,
-     &                             1,ntdmzz,1,6)
-          end if
-#endif
+              !> WE-reduced TDM''s of triplet type:
+              CALL MKTDAB(0.0D0,WORK(LWERD),WORK(LWDMAB))
+              !> transform to AO basis
+              CALL MKTDZZ(WORK(LCMO1),WORK(LCMO2),WORK(LWDMAB),
+     &                    WORK(LWDMZZ))
 
-          ISY12=MUL(LSYM1,LSYM2)
-C Then, WE-reduced TDM''s of triplet type:
-          CALL MKTDAB(0.0D0,WORK(LWERD),WORK(LWDMAB))
-          CALL MKTDZZ(WORK(LCMO1),WORK(LCMO2),WORK(LWDMAB),WORK(LWDMZZ))
+              if(.not.mstate_dens)then
 
-#ifdef _DMRG_
-          !> debug print
-          if(doDMRG)then
-          write(6,*) ' blubb: WE-reduced-TDM in AO basis'
-          call pretty_print_util(WORK(LWDMZZ),1,1,1,ntdmzz,
-     &                       1,ntdmzz,1,6)
-          end if
-#endif
+                IF(SONATNSTATE.GT.0)
+     &          call dens2file(WORK(LTDMZZ),WORK(LTSDMZZ),WORK(LWDMZZ),
+     &                         NTDMZZ,lutdm,
+     &                         iWork(lIDTDM+(ISTATE-1)*NSTATE+JSTATE))
 
-
-! jochen 02/15: sonatorb needs these files
-!        we'll make the I/O conditional upon the keyword
-          IF(SONATNSTATE.GT.0) THEN
-            IDISK=iWork(lIDTDM+(ISTATE-1)*NSTATE+JSTATE)
-            CALL DDAFILE(LUTDM,1,WORK(LTDMZZ),NTDMZZ,IDISK)
-            CALL DDAFILE(LUTDM,1,WORK(LTSDMZZ),NTDMZZ,IDISK)
-            CALL DDAFILE(LUTDM,1,WORK(LWDMZZ),NTDMZZ,IDISK)
-          END IF
+                !> calculate property matrix elements
 *C Transition density matrices, TDMZZ, in AO basis.
 *C WDMZZ similar, but WE-reduced 'triplet' densities.
-          CALL PROPER (PROP,ISTATE,JSTATE,WORK(LTDMZZ),WORK(LWDMZZ))
-        END IF
-      ELSE
-C Overlap:
-        IF (IF00) THEN
+
+                CALL PROPER(PROP,ISTATE,JSTATE,
+     &                      WORK(LTDMZZ),WORK(LWDMZZ))
+              else
+
+                !> scale rdm elements with eigenvector coefficients of Heff of a multi-state (PT2) Hamiltonian
+                !> accumulate data first and run PROPER and other utility routines later
+                do i = 1, nstat(job1)
+                  do j = 1, nstat(job2)
+
+                    if(i < j) cycle
+
+                    if(qdpt2sc)then
+                      fac1 = Heff_evc(job1)%sc(ist,i)
+                      fac2 = Heff_evc(job2)%sc(jst,j)
+                    else
+                      fac1 = Heff_evc(job1)%pc(ist,i)
+                      fac2 = Heff_evc(job2)%pc(jst,j)
+                    end if
+
+                    !> regular-TDM
+                    call daxpy_(ntdmzz,
+     &                          fac1*fac2,
+     &                          work(ltdmzz),1,
+     &                          mstate_1pdens(i,j)%rtdm,1
+     &                         )
+                    !> spin-TDM
+                    call daxpy_(ntdmzz,
+     &                          fac1*fac2,
+     &                          work(ltsdmzz),1,
+     &                          mstate_1pdens(i,j)%stdm,1
+     &                         )
+                    !> WE-reduced TDM''s of triplet type:
+                    call daxpy_(ntdmzz,
+     &                          fac1*fac2,
+     &                          work(lwdmzz),1,
+     &                          mstate_1pdens(i,j)%wtdm,1
+     &                         )
+                    !> overlap
+                    call daxpy_(1,
+     &                          fac1*fac2,
+     &                          sij,0,
+     &                          mstate_1pdens(i,j)%overlap,0
+     &                         )
+                  end do
+                end do
+              end if
+            END IF
+
+          ELSE ! IF11
+
+            !> overlap
+            IF (IF00) THEN
 #ifdef _DMRG_
-          if(.not.doDMRG)then
+              if(.not.doDMRG)then
 #endif
-          SIJ=OVERLAP_RASSI(IWORK(LFSBTAB1),IWORK(LFSBTAB2),WORK(LDET1),
-     &                WORK(LDET2))
+                SIJ=OVERLAP_RASSI(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
+     &                            WORK(LDET1),WORK(LDET2))
 #ifdef _DMRG_
-          else
-            call dmrg_interface_ctl(
-     &                              task   = 'overlap ',
-     &                              energy = sij,
-     &                              state  = istate,
-     &                              stateL = jstate
-     &                             )
+              else
+                if (doMPSSICheckpoints) then
 
-          write(6,*)"SIJ in RASSI, dmrg  gtdmctl",SIJ
+                  if (dmrg_external%MPSrotated) then
+                    write(mplet1s,'(I3)')  MPLET1-1
+                    write(msproj1s,'(I3)')  MSPROJ1
 
+                    checkpoint1_2u1 = qcm_group_names(job1)%states(ist)
+     &(1:len_trim(qcm_group_names(job1)%states(ist))-3)
+     &//"."//trim(adjustl(mplet1s))//"."//trim(adjustl(msproj1s))//".h5"
+                    checkpoint2_2u1 = qcm_group_names(job2)%states(jst)
+     &(1:len_trim(qcm_group_names(job2)%states(jst))-3)
+     &//"."//trim(adjustl(mplet1s))//"."//trim(adjustl(msproj1s))//".h5"
+
+                    call dmrg_interface_ctl(
+     &                                      task       = 'overlapU',
+     &                                      energy     = sij,
+     &                                      checkpoint1=checkpoint1_2u1,
+     &                                      checkpoint2=checkpoint2_2u1
+     &                                     )
+                  else
+                    call dmrg_interface_ctl(
+     &                                      task        = 'overlap ',
+     &                                      energy      = sij,
+     &                                      checkpoint1 =
+     &                               qcm_group_names(job1)%states(ist),
+     &                                      checkpoint2 =
+     &                               qcm_group_names(job2)%states(jst)
+     &                                     )
+                  end if
+                else
+                  !> Leon: TODO: Add possibility to calculate overlap of rotated MPS without using checkpoint names
+                  call dmrg_interface_ctl(
+     &                               task   = 'overlap ',
+     &                               energy = sij,
+     &                               state  = iWork(lLROOT+istate-1),
+     &                               stateL = iWork(lLROOT+jstate-1)
+     &                              )
+                end if
+              end if !doDMRG
+#endif
+            END IF ! IF00
+          END IF ! IF11
+
+          if(.not.mstate_dens)then
+            OVLP(ISTATE,JSTATE)=SIJ
+            OVLP(JSTATE,ISTATE)=SIJ
           end if
-#endif
-        END IF
-      END IF
 
-      OVLP(ISTATE,JSTATE)=SIJ
-      OVLP(JSTATE,ISTATE)=SIJ
+          !> General 2-particle transition density matrix:
+          IF (IF22) THEN
+            CALL MKTDM2(LSYM1,MPLET1,MSPROJ1,IWORK(LFSBTAB1),
+     &                  LSYM2,MPLET2,MSPROJ2,IWORK(LFSBTAB2),
+     &                  IWORK(LSSTAB),IWORK(LOMAP),
+     &                  WORK(LDET1),WORK(LDET2),NTDM2,WORK(LTDM2),
+     &                  ISTATE,JSTATE,lLROOT,job1,job2,ist,jst)
 
-C General 2-particle transition density matrix:
-      IF (IF22) THEN
-#ifdef _DMRG_
-        if(.not.doDMRG)then
-#endif
-          CALL MKTDM2(LSYM1,MSPROJ1,IWORK(LFSBTAB1),LSYM2,MSPROJ2,
-     &                IWORK(LFSBTAB2),IWORK(LSSTAB),IWORK(LOMAP),
-     &                WORK(LDET1),WORK(LDET2),NTDM2,WORK(LTDM2))
-#ifdef _DMRG_
-        else
-          write(6,*) ' DMRG-RASSI: skipped 2e-TDMs for now...      '
-          write(6,*) ' contact stknecht(at)ethz.ch for help!       '
-        end if
-#endif
+            !> Compute 2-electron contribution to Hamiltonian matrix element:
+            IF(IFTWO.AND.(MPLET1.EQ.MPLET2))
+     &      HTWO=DDOT_(NTDM2,WORK(LTDM2),1,WORK(LTUVX),1)
 
-C F. Plasser: I moved this block up to allow for proper printing
-C    of the HDF5 files
-        IF(IFTWO.AND.(MPLET1.EQ.MPLET2)) THEN
-C Compute 2-electron contribution to Hamiltonian matrix element:
-          HTWO=DDOT_(NTDM2,WORK(LTDM2),1,WORK(LTUVX),1)
-        END IF
+          END IF ! IF22
 
-C End of IF22 case
-      END IF
-* PAM 2011 Nov 3, writing transition matrices if requested
-* The following *long* section should later be moved to its own
-* subroutine...
-        IF (IFTRD1.or.IFTRD2) THEN
-          LU=50
-          LU=IsFreeUnit(LU)
-          WRITE(NUM1,'(I3.3)') ISTATE
-          WRITE(NUM2,'(I3.3)') JSTATE
-          FNM='TRD2_'//NUM1//'_'//NUM2
-          CALL Molcas_Open(LU,FNM)
-          WRITE(LU,*)'#Transition density file from RASSI.'
-          WRITE(LU,*)'#  States:'
-          WRITE(LU,*) ISTATE, JSTATE
-          WRITE(LU,*)'#  Nr of irreps:'
-          WRITE(LU,*) NSYM
-          WRITE(LU,*)'#  Basis functions:'
-          WRITE(LU,'(8I5)') (NBASF(ISYM),ISYM=1,NSYM)
-          WRITE(LU,*)'#  Frozen orbitals:'
-          WRITE(LU,'(8I5)') (NFRO(ISYM),ISYM=1,NSYM)
-          WRITE(LU,*)'#  Inactive orbitals:'
-          WRITE(LU,'(8I5)') (NISH(ISYM),ISYM=1,NSYM)
-          WRITE(LU,*)'#  Active orbitals:'
-          WRITE(LU,'(8I5)') (NASH(ISYM),ISYM=1,NSYM)
-          WRITE(LU,*)'#  State ',ISTATE,'    CMO coefficients:'
-          LPOS=LCMO1
-          DO ISYM=1,NSYM
-           NO=NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
-           NB=NBASF(ISYM)
-           DO IO=1,NO
-            WRITE(LU,*)'#  Symm ',ISYM,'   Orbital ',IO
-            WRITE(LU,'(5D18.12)')(WORK(LPOS+NB*(IO-1)+i),i=0,NB-1)
-           END DO
-           LPOS=LPOS+NB**2
-          END DO
-          WRITE(LU,*)'#  State ',JSTATE,'    CMO coefficients:'
-          LPOS=LCMO2
-          DO ISYM=1,NSYM
-           NO=NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
-           NB=NBASF(ISYM)
-           DO IO=1,NO
-            WRITE(LU,*)'#  Symm ',ISYM,'   Orbital ',IO
-            WRITE(LU,'(5D18.12)')(WORK(LPOS+NB*(IO-1)+i),i=0,NB-1)
-           END DO
-           LPOS=LPOS+NB**2
-          END DO
-          WRITE(LU,*)'#  States ',ISTATE,JSTATE,' Overlap:'
-          WRITE(LU,'(5D18.12)') SIJ
-          WRITE(LU,*)'#  States ',ISTATE,JSTATE,' Active TRD1:'
-          LSYM12=MUL(LSYM1,LSYM2)
-          LPOS=LTDMAB
-          DO ISYM1=1,NSYM
-            NO1=NOSH(ISYM1)
-            ISYM2=MUL(ISYM1,LSYM12)
-            NO2=NOSH(ISYM2)
-            IF (NO1*NO2 .gt. 0) THEN
-             NA1=NASH(ISYM1)
-             NA2=NASH(ISYM2)
-             IF (NA1*NA2 .gt. 0) THEN
-              NI1=NISH(ISYM1)
-              NI2=NISH(ISYM2)
-              WRITE(LU,*)'#  Symmetries ',ISYM1,ISYM2
-              WRITE(LU,'(5D18.12)')((WORK(LPOS-1+II+NO1*(JJ-1)),
+          !> PAM 2011 Nov 3, writing transition matrices if requested
+          !> The following *long* section should later be moved to its own
+          !> subroutine...
+          IF ((IFTRD1.or.IFTRD2).and..not.mstate_dens) THEN
+            LU=50
+            LU=IsFreeUnit(LU)
+            WRITE(NUM1,'(I3.3)') ISTATE
+            WRITE(NUM2,'(I3.3)') JSTATE
+            FNM='TRD2_'//NUM1//'_'//NUM2
+            CALL Molcas_Open(LU,FNM)
+            WRITE(LU,*)'#Transition density file from RASSI.'
+            WRITE(LU,*)'#  States:'
+            WRITE(LU,*) ISTATE, JSTATE
+            WRITE(LU,*)'#  Nr of irreps:'
+            WRITE(LU,*) NSYM
+            WRITE(LU,*)'#  Basis functions:'
+            WRITE(LU,'(8I5)') (NBASF(ISYM),ISYM=1,NSYM)
+            WRITE(LU,*)'#  Frozen orbitals:'
+            WRITE(LU,'(8I5)') (NFRO(ISYM),ISYM=1,NSYM)
+            WRITE(LU,*)'#  Inactive orbitals:'
+            WRITE(LU,'(8I5)') (NISH(ISYM),ISYM=1,NSYM)
+            WRITE(LU,*)'#  Active orbitals:'
+            WRITE(LU,'(8I5)') (NASH(ISYM),ISYM=1,NSYM)
+            WRITE(LU,*)'#  State ',ISTATE,'    CMO coefficients:'
+            LPOS=LCMO1
+            DO ISYM=1,NSYM
+              NO=NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
+              NB=NBASF(ISYM)
+              DO IO=1,NO
+                WRITE(LU,*)'#  Symm ',ISYM,'   Orbital ',IO
+                WRITE(LU,'(5D18.12)')(WORK(LPOS+NB*(IO-1)+i),i=0,NB-1)
+              END DO
+              LPOS=LPOS+NB**2
+            END DO
+            WRITE(LU,*)'#  State ',JSTATE,'    CMO coefficients:'
+            LPOS=LCMO2
+            DO ISYM=1,NSYM
+              NO=NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
+              NB=NBASF(ISYM)
+              DO IO=1,NO
+                WRITE(LU,*)'#  Symm ',ISYM,'   Orbital ',IO
+                WRITE(LU,'(5D18.12)')(WORK(LPOS+NB*(IO-1)+i),i=0,NB-1)
+              END DO
+              LPOS=LPOS+NB**2
+            END DO
+            WRITE(LU,*)'#  States ',ISTATE,JSTATE,' Overlap:'
+            WRITE(LU,'(5D18.12)') SIJ
+            WRITE(LU,*)'#  States ',ISTATE,JSTATE,' Active TRD1:'
+            LSYM12=MUL(LSYM1,LSYM2)
+            LPOS=LTDMAB
+            DO ISYM1=1,NSYM
+              NO1=NOSH(ISYM1)
+              ISYM2=MUL(ISYM1,LSYM12)
+              NO2=NOSH(ISYM2)
+              IF (NO1*NO2 .gt. 0) THEN
+                NA1=NASH(ISYM1)
+                NA2=NASH(ISYM2)
+                IF (NA1*NA2 .gt. 0) THEN
+                  NI1=NISH(ISYM1)
+                  NI2=NISH(ISYM2)
+                  WRITE(LU,*)'#  Symmetries ',ISYM1,ISYM2
+                  WRITE(LU,'(5D18.12)')((WORK(LPOS-1+II+NO1*(JJ-1)),
      &                                  JJ=NI2+1,NO2),II=NI1+1,NO1)
-             END IF
-             LPOS=LPOS+NO1*NO2
-            END IF
-          END DO
-          IF (IFTRD2.AND.IF22) THEN
-            WRITE(LU,*)'#  States ',ISTATE,JSTATE,' Active TRD2:'
-            DO ISYT=1,NSYM
-             DO ISYU=1,NSYM
-              ISYTU=ISYT+NSYM*(ISYU-1)
-              DO ISYV=1,ISYT
-               LIMX=ISYV
-               IF(ISYV.EQ.ISYT) LIMX=ISYU
-               DO ISYX=1,LIMX
-                ISYVX=ISYV+NSYM*(ISYX-1)
-* Write out one symmetry block (4 indices!) of two-electron
-* transition density matrix elements.
-* Write a full 'rectangular' array, even if it could be made
-* smaller by permutation symmetry.
-            WRITE(LU,*)'#  Orbital symm:',ISYT,ISYU,ISYV,ISYX
-            IWBUF=0
-            DO IT=1,NASH(ISYT)
-             ITABS=NAES(ISYT)+IT
-             DO IU=1,NASH(ISYU)
-              IUABS=NAES(ISYU)+IU
-              ITU=ITABS+NASHT*(IUABS-1)
-              DO IV=1,NASH(ISYV)
-               IVABS=NAES(ISYV)+IV
-               DO IX=1,NASH(ISYX)
-                IXABS=NAES(ISYX)+IX
-                IVX=IVABS+NASHT*(IXABS-1)
-                IF(ITU.GE.IVX) THEN
-                 ITUVX=(ITU*(ITU-1))/2+IVX
-                ELSE
-                 ITUVX=(IVX*(IVX-1))/2+ITU
                 END IF
-                IWBUF=IWBUF+1
-                WBUF(IWBUF)=WORK(LTDM2-1+ITUVX)
-                IF(IWBUF.EQ.5) THEN
-                 WRITE(LU,'(5D18.12)')(WBUF(I),I=1,IWBUF)
-                 IWBUF=0
-                END IF
-               END DO
-              END DO
-             END DO
+                LPOS=LPOS+NO1*NO2
+              END IF
             END DO
-            IF (IWBUF.GT.0) THEN
-             WRITE(LU,'(5D18.12)')(WBUF(I),I=1,IWBUF)
-             IWBUF=0
-            END IF
+
+            IF (IFTRD2.AND.IF22) THEN
+              WRITE(LU,*)'#  States ',ISTATE,JSTATE,' Active TRD2:'
+              DO ISYT=1,NSYM
+                DO ISYU=1,NSYM
+                  ISYTU=ISYT+NSYM*(ISYU-1)
+                  DO ISYV=1,ISYT
+                    LIMX=ISYV
+                    IF(ISYV.EQ.ISYT) LIMX=ISYU
+                    DO ISYX=1,LIMX
+                      ISYVX=ISYV+NSYM*(ISYX-1)
+                      !> Write out one symmetry block (4 indices!) of two-electron
+                      !> transition density matrix elements.
+                      !> Write a full 'rectangular' array, even if it could be made
+                      !> smaller by permutation symmetry.
+                      WRITE(LU,*)'#  Orbital symm:',ISYT,ISYU,ISYV,ISYX
+                      IWBUF=0
+                      DO IT=1,NASH(ISYT)
+                        ITABS=NAES(ISYT)+IT
+                        DO IU=1,NASH(ISYU)
+                          IUABS=NAES(ISYU)+IU
+                          ITU=ITABS+NASHT*(IUABS-1)
+                          DO IV=1,NASH(ISYV)
+                            IVABS=NAES(ISYV)+IV
+                            DO IX=1,NASH(ISYX)
+                              IXABS=NAES(ISYX)+IX
+                              IVX=IVABS+NASHT*(IXABS-1)
+                              IF(ITU.GE.IVX) THEN
+                                ITUVX=(ITU*(ITU-1))/2+IVX
+                              ELSE
+                                ITUVX=(IVX*(IVX-1))/2+ITU
+                              END IF
+                              IWBUF=IWBUF+1
+                              WBUF(IWBUF)=WORK(LTDM2-1+ITUVX)
+                              IF(IWBUF.EQ.5) THEN
+                                WRITE(LU,'(5D18.12)')(WBUF(I),I=1,IWBUF)
+                                IWBUF=0
+                              END IF
+                            END DO
+                          END DO
+                        END DO
+                      END DO
+                      IF(IWBUF.GT.0) THEN
+                        WRITE(LU,'(5D18.12)')(WBUF(I),I=1,IWBUF)
+                        IWBUF=0
+                      END IF
 * End of writing a symmetry block.
-               END DO
+                    END DO
+                  END DO
+                END DO
               END DO
-             END DO
-            END DO
-          END IF
-          CLOSE (LU)
-* PAM 2011 Nov 3: End of added section.
+            END IF
+            CLOSE (LU)
+          END IF ! TRD1/2
 
 #ifdef _HDF5_
-c         write(6,*) 'NTDMZZ=',NTDMZZ
-c         write(6,*) 'ISTATE,JSTATE=',ISTATE,JSTATE
-c         write(6,*)(WORK(LTDMZZ+i-1),i=1,10)
-          IF(IF11.AND.(LSYM1.EQ.LSYM2))THEN
-          call mh5_put_dset_array_real(wfn_sfs_tdm,
-     $      WORK(LTDMZZ),[NTDMZZ,1,1], [0,ISTATE-1,JSTATE-1])
-            call mh5_put_dset_array_real(wfn_sfs_tsdm,
-     $      WORK(LTSDMZZ),[NTDMZZ,1,1], [0,ISTATE-1,JSTATE-1])
-        END IF
+          if(.not.mstate_dens)then
+            IF(IF11.AND.(LSYM1.EQ.LSYM2))THEN
+              call mh5_put_dset_array_real(wfn_sfs_tdm,
+     $        WORK(LTDMZZ),[NTDMZZ,1,1], [0,ISTATE-1,JSTATE-1])
+              call mh5_put_dset_array_real(wfn_sfs_tsdm,
+     $        WORK(LTSDMZZ),[NTDMZZ,1,1], [0,ISTATE-1,JSTATE-1])
+            END IF
+          end if
 #endif
+          IF(IFHAM.AND..NOT.(IFHEXT.or.IFHEFF.or.IFEJOB))THEN
+            HZERO              = ECORE*SIJ
+            HIJ                = HZERO+HONE+HTWO
+            HAM(ISTATE,JSTATE) = HIJ
+            HAM(JSTATE,ISTATE) = HIJ
+            IF(IPGLOB.GE.DEBUG) THEN
+              WRITE(6,'(1x,a,2I5)')' ISTATE, JSTATE:',ISTATE,JSTATE
+              WRITE(6,'(1x,a,f16.8)')' HZERO=',HZERO
+              WRITE(6,'(1x,a,f16.8)')' HONE =',HONE
+              WRITE(6,'(1x,a,f16.8)')' HTWO =',HTWO
+              WRITE(6,'(1x,a,f16.8)')' HIJ  =',HIJ
+            END IF
+          END IF
 
-C End of TRD1/2 case
-      END IF
+        END DO job1_loop
 
-      IF (IFHAM .AND.
-     &      .NOT.(IFHEXT.or.IFHEFF.or.IFEJOB)) THEN
-        HZERO=ECORE*SIJ
-        HIJ = HZERO+HONE+HTWO
-#ifdef _DMRG_
-!       !> temporary fix for DMRG-RASSI until we also compute the 2-TDMs by default
-!          anyways, the states ought to be orthogonal...
-        if(doDMRG)then
-          write(6,*) ' ecore is ... ',ecore
-          write(6,*) ' state energy is ...  ',istate,
-     &    dmrg_external%dmrg_state_specific(istate)
-          write(6,*) ' state energy is ...  ',jstate,
-     &    dmrg_external%dmrg_state_specific(jstate)
-
-          hij = dmrg_external%dmrg_state_specific(istate)
-
-          if(istate /= jstate) hij = 0.0d0
-
-          HAM(ISTATE,JSTATE) = HIJ
-          HAM(JSTATE,ISTATE) = HIJ
-        else
-#endif
-!         if(istate /= jstate) hij = 0.0d0 ! debug test
-
-          HAM(ISTATE,JSTATE) = HIJ
-          HAM(JSTATE,ISTATE) = HIJ
-#ifdef _DMRG_
-        end if
-#endif
-        IF(IPGLOB.GE.DEBUG) THEN
-          WRITE(6,'(1x,a,2I5)')' ISTATE, JSTATE:',ISTATE,JSTATE
-          WRITE(6,'(1x,a,f16.8)')' HZERO=',HZERO
-          WRITE(6,'(1x,a,f16.8)')' HONE =',HONE
-          WRITE(6,'(1x,a,f16.8)')' HTWO =',HTWO
-          WRITE(6,'(1x,a,f16.8)')' HIJ  =',HIJ
-        END IF
-      END IF
-C End of loops over states.
-
- 100  CONTINUE
-      END DO
-      END DO
+      END DO job2_loop
 
 #ifdef _DMRG_
       IF(IPGLOB.GE.DEBUG) THEN
@@ -928,25 +1037,47 @@ C End of loops over states.
       END IF
 #endif
 
+      !> create actual property data and put everything to file (if requested) in case of using eigenvectors of a multi-state (PT2) Hamiltonian
+      if(mstate_dens)then
+        DO JST=1,NSTAT(JOB2)
+          JSTATE=ISTAT(JOB2)-1+JST
+          DO IST=1,NSTAT(JOB1)
+            ISTATE=ISTAT(JOB1)-1+IST
+            if(istate < jstate) cycle
+
+            ovlp(istate,jstate) = mstate_1pdens(ist,jst)%overlap
+            ovlp(jstate,istate) = mstate_1pdens(ist,jst)%overlap
+
+            call prpdata_mspt2_eigenvectors(
+     &                                      mstate_1pdens(ist,jst)%rtdm,
+     &                                      mstate_1pdens(ist,jst)%stdm,
+     &                                      mstate_1pdens(ist,jst)%wtdm,
+     &                                      prop,
+     &                                      nprop,
+     &                                      nstate,
+     &                                      istate,
+     &                                      jstate,
+     &                                      ntdmzz,
+     &                           iWork(lIDTDM+(ISTATE-1)*NSTATE+JSTATE),
+     &                                      lutdm,
+     &                                      (sonatnstate.gt.0),
+     &                                      if11.and.(lsym1.eq.lsym2)
+     &                                     )
+          end do
+        end do
+      end if
+
       IF(WFTP1.EQ.'GENERAL ') THEN
-#ifdef _DMRG_
-        if(.not.dodmrg)then
-#endif
-           CALL CXCLOSE(ISGSTR1,ICISTR1,IXSTR1)
-           CALL SGCLOSE(ISGSTR1)
-#ifdef _DMRG_
+        if(.not.doDMRG)then
+          CALL CXCLOSE(ISGSTR1,ICISTR1,IXSTR1)
+          CALL SGCLOSE(ISGSTR1)
         end if
-#endif
       END IF
       IF(WFTP2.EQ.'GENERAL ') THEN
-#ifdef _DMRG_
-        if(.not.dodmrg)then
-#endif
+        if(.not.doDMRG)then
           CALL CXCLOSE(ISGSTR2,ICISTR2,IXSTR2)
           CALL SGCLOSE(ISGSTR2)
-#ifdef _DMRG_
         end if
-#endif
       END IF
 
       IF(JOB1.NE.JOB2) THEN
@@ -957,9 +1088,10 @@ C End of loops over states.
       CALL GETMEM('GTDMDET2','FREE','REAL',LDET2,NDET2)
       CALL GETMEM('GTDMCI2','FREE','REAL',LCI2,NCONF2)
       IF (.NOT.NONA) CALL GETMEM('GTDMCI1','FREE','REAL',LCI1,NCONF1)
-      CALL KILLSCTAB(LSPNTAB1)
-      CALL KILLSCTAB(LSPNTAB2)
-
+      if(.not.doDMRG)then
+        CALL KILLSCTAB(LSPNTAB1)
+        CALL KILLSCTAB(LSPNTAB2)
+      end if
       IF (IF11) THEN
         CALL GETMEM('SPD1','Free','Real',LSPD1,NSPD1)
         CALL GETMEM('TRAD','Free','Real',LTRAD,NTRAD)
@@ -989,13 +1121,30 @@ C End of loops over states.
       CALL KILLOBJ(LPART)
       CALL KILLOBJ(LORBTAB)
       CALL KILLOBJ(LSSTAB)
-      CALL KILLOBJ(LREST1)
-      CALL KILLOBJ(LREST2)
-      CALL KILLOBJ(LCNFTAB1)
-      CALL KILLOBJ(LCNFTAB2)
-      CALL KILLOBJ(LFSBTAB1)
-      CALL KILLOBJ(LFSBTAB2)
+      if(.not.doDMRG)then
+        CALL KILLOBJ(LREST1)
+        CALL KILLOBJ(LREST2)
+        CALL KILLOBJ(LCNFTAB1)
+        CALL KILLOBJ(LCNFTAB2)
+        CALL KILLOBJ(LFSBTAB1)
+        CALL KILLOBJ(LFSBTAB2)
+      end if
       CALL GETMEM('OrbMap','Free','Inte',LOMAP,NASORB)
+
+      !> release memory
+      if(mstate_dens)then
+        do i = 1, nstat(job1)
+          do j = 1, nstat(job1)
+            if(allocated(mstate_1pdens(i,j)%rtdm))
+     &      call mma_deallocate(mstate_1pdens(i,j)%rtdm)
+            if(allocated(mstate_1pdens(i,j)%stdm))
+     &      call mma_deallocate(mstate_1pdens(i,j)%stdm)
+            if(allocated(mstate_1pdens(i,j)%wtdm))
+     &      call mma_deallocate(mstate_1pdens(i,j)%wtdm)
+          end do
+        end do
+        if(allocated(mstate_1pdens)) deallocate(mstate_1pdens)
+      end if
 
       CALL QEXIT(ROUTINE)
       RETURN

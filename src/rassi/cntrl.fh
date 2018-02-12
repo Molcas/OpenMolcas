@@ -115,6 +115,7 @@ C RassiT - Title of the Rassi-calculation.
       LOGICAL PRXVR,PRXVE,PRXVS,PRMER,PRMEE,PRMES
       LOGICAL IFGCAL,IFXCAL,IFMCAL,DQVD
       LOGICAL DIPR,QIPR,QIALL
+      LOGICAL QDPT2SC, QDPT2EV
       LOGICAL DO_KVEC,PRRAW,PRWEIGHT
       LOGICAL NEW_TOLERANCE,REDUCELOOP
 
@@ -155,7 +156,9 @@ cnf
      &    IFACALFCSDON,IFVANVLECK,TMINS,TMAXS,NTS,IFSONCINI,TMINP,
      &    TMAXP,NTP,IFSONCIFC,TMINF,TMAXF,NTF,IFGTCALSA,IFGTSHSA,
      &    MULTIP,IFATCALSA,TRACK,ONLY_OVERLAPS,DQVD,DIPR,QIPR,QIALL,
-     &    NOSO,DO_KVEC,PRRAW,PRWEIGHT,NEW_TOLERANCE,REDUCELOOP
+     &    NOSO,
+     &    QDPT2SC, QDPT2EV,
+     &    DO_KVEC,PRRAW,PRWEIGHT,NEW_TOLERANCE,REDUCELOOP
 C PRSXY  - PRINT MO OVERLAP MATRICES FOR INPUT JOBIPHS.
 C PRORB  - PRINT INPUT ORBITALS.
 C PRTRA  - PRINT TRANSFORMATION COEFFICIENTS.
@@ -181,3 +184,7 @@ C IfDCpl - Flag for approximate derivative couplings
 cnf
 CIgorS 06-05-2009
 C HOP    - Switch for Trajectory Surface Hopping Algorithm
+! stknecht
+! QDPT2SC - use SC effective Hamiltonian (rather than the PC one) from QD-NEVPT2
+! QDPT2EV - use eigenvectors of effective Hamiltonian from QD-NEVPT2 to mix TDMs (in MPS-SI we do not use 'mixed MPS'
+!           instead we mix the TDMs)

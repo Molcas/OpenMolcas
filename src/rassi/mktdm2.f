@@ -8,9 +8,19 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE MKTDM2(LSYM1,MSPROJ1,IFSBTAB1,
-     &                  LSYM2,MSPROJ2,IFSBTAB2,ISSTAB,
-     &                  MAPORB,DET1,DET2,NTDM2,TDM2)
+      SUBROUTINE MKTDM2(LSYM1,MPLET1,MSPROJ1,IFSBTAB1,
+     &                  LSYM2,MPLET2,MSPROJ2,IFSBTAB2,ISSTAB,
+     &                  MAPORB,DET1,DET2,NTDM2,TDM2,
+     &                  ISTATE,JSTATE,lLROOT,job1,job2,ist,jst)
+
+      !> module dependencies
+#ifdef _DMRG_
+      use qcmaquis_interface_cfg
+      use qcmaquis_interface_wrapper
+      use qcmaquis_interface_utility_routines, only:
+     &    pretty_print_util
+      use qcmaquis_info
+#endif
       IMPLICIT NONE
       INTEGER IFSBTAB1(*),IFSBTAB2(*),ISSTAB(*),MAPORB(*),NTDM2
       REAL*8 DET1(*),DET2(*)
@@ -19,12 +29,15 @@
       INTEGER NASHT,NASORB
       REAL*8 SGNJL,SGNIK
       REAL*8 GVAL,GAAAA,GABBA,GBAAB,GBBBB,GABAB,GBABA
-      INTEGER LSYM1,MSPROJ1,LSYM2,MSPROJ2,ISYOP,MS2OP
+      INTEGER LSYM1,MSPROJ1,LSYM2,MSPROJ2,ISYOP,MS2OP,lLROOT
+      INTEGER MPLET1,MPLET2, MPLETD
       INTEGER IAAAA,IABAB,IABBA,IAKA,IAKB,IBAAB,IBABA,IBBBB,IBIA
       INTEGER IBKA,IBKB,IJ,IJIJ,IORBA,IORBB,ITU,ITUVX
       INTEGER IVABS,IVX,IXABS,JALA,JALB,JBJA,JBLA,JBLB
       INTEGER JORBA,JORBB,KORB,KORBA,KORBB,LORB,LORBA,LORBB
-      INTEGER LSPD2,NASGEM,NSPD2
+      INTEGER LSPD2,NASGEM,NSPD2,ISTATE,JSTATE
+      INTEGER job1,job2,ist,jst
+      LOGICAL :: debug_dmrg_rassi_code = .false.
 #include "symmul.fh"
 #include "WrkSpc.fh"
 
@@ -40,11 +53,75 @@ C Pick out nr of active orbitals from orbital table:
       NSPD2=NASGEM**2
       CALL GETMEM('SPD2','Allo','Real',LSPD2,NSPD2)
       CALL DCOPY_(NSPD2,0.0D0,0,WORK(LSPD2),1)
-      ISYOP=MUL(LSYM1,LSYM2)
-      MS2OP=MSPROJ1-MSPROJ2
-      CALL SPIND2(ISYOP,MS2OP,IWORK(LORBTB),ISSTAB,
-     &            IFSBTAB1,IFSBTAB2,
-     &            DET1,DET2,WORK(LSPD2))
+      ISYOP   = MUL(LSYM1,LSYM2)
+      MS2OP   = MSPROJ1-MSPROJ2
+      MPLETD =  MPLET1 - MPLET2
+#ifdef _DMRG_
+      if(.not.doDMRG)then
+#endif
+        CALL SPIND2(ISYOP,MS2OP,IWORK(LORBTB),ISSTAB,
+     &              IFSBTAB1,IFSBTAB2,
+     &              DET1,DET2,WORK(LSPD2))
+#ifdef _DMRG_
+      else
+
+!#define BLUBB
+        if (doMPSSICheckpoints) then
+          call dmrg_interface_ctl(
+     &                          task       = 'imp rdmY',
+#ifndef BLUBB
+     &                          x2         = work(lspd2),
+     &                          mdim       = nasgem,
+#else
+     &                          x2         = tdm2,
+     &                          mdim       = ntdm2,
+#endif
+     &                          checkpoint1=
+     &                          qcm_group_names(job1)%states(ist),
+     &                          checkpoint2=
+     &                          qcm_group_names(job2)%states(jst),
+     &                          msproj     = msproj1,
+     &                          msprojL    = msproj2,
+     &                          multiplet  = MPLET1-1, ! (we need 2*S)
+     &                          multipletL = MPLET2-1, ! (we need 2*S)
+     &                          rdm1       = .false.,
+     &                          rdm2       = .true.
+     &                          )
+        else
+          call dmrg_interface_ctl(
+     &                          task       = 'imp rdmY',
+#ifndef BLUBB
+     &                          x2         = work(lspd2),
+     &                          mdim       = nasgem,
+#else
+     &                          x2         = tdm2,
+     &                          mdim       = ntdm2,
+#endif
+     &                          state      = iWork(lLROOT+ISTATE-1),
+     &                          stateL     = iWork(lLROOT+JSTATE-1),
+     &                          msproj     = msproj1,
+     &                          msprojL    = msproj2,
+     &                          multiplet  = MPLET1-1, ! (we need 2*S)
+     &                          multipletL = MPLET2-1, ! (we need 2*S)
+     &                          rdm1       = .false.,
+     &                          rdm2       = .true.
+     &                          )
+        end if
+#ifdef BLUBB
+        goto 124
+#endif
+      end if
+#endif
+
+#ifdef _DMRG_
+      if(debug_dmrg_rassi_code)then
+        write(6,*)'density for i, j',istate,jstate
+        write(6,*)'dimension: ',nasgem**2, '--> #nact', nasorb
+        call pretty_print_util(WORK(LSPD2),1,nasgem,1,nasgem,
+     &                         nasgem,nasgem,1,6)
+      end if
+#endif
+
       SGNJL=1.0D0 ! dummy initialize
       SGNIK=1.0D0 ! dummy initialize
       IAKA=0      ! dummy initialize
@@ -145,6 +222,18 @@ C Position determined by active orbital index in external order:
         END DO
        END DO
       END DO
+
+#ifdef BLUBB
+ 124  CONTINUE
+#endif
+
+#ifdef _DMRG_DEBUG_
+      write(6,*)' final 2-TDM'
+      DO IJ=1,ntdm2
+        write(6,*)' IJ, value = ',IJ,TDM2(IJ)
+      end do
+#endif
+
       CALL GETMEM('SPD2','Free','Real',LSPD2,NSPD2)
 C DIAGONAL ELEMENTS HALF-SIZED (This is for proper contraction with TUVX):
       IJIJ=0

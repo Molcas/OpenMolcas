@@ -17,7 +17,11 @@ else
   pymolcas_file="$1"
 fi
 if [ -f $pymolcas_file ] ; then
+if [[ $OSTYPE == darwin* ]]; then
+  current_checksum=`md5 -r $pymolcas_file | awk '{print $1}'`
+else
   current_checksum=`md5sum $pymolcas_file | awk '{print $1}'`
+fi
 else
   echo "*** $pymolcas_file does not exist"
   exit 1
@@ -32,7 +36,11 @@ orig_IFS=$IFS
 IFS=':'
 for x in $PATH ; do
   if [ -f "$x/pymolcas" ] ; then
-    l=`md5sum "$x/pymolcas" | awk '{print $1}'`
+    if [[ $OSTYPE == darwin* ]]; then
+      l=`md5 -r "$x/pymolcas" | awk '{print $1}'`
+    else
+      l=`md5sum "$x/pymolcas" | awk '{print $1}'`
+    fi
     if [ "$l" != "$current_checksum" ] ; then
       echo "*** Warning! A different pymolcas version was found at: $x"
     else
@@ -120,7 +128,11 @@ else
         cp "$pymolcas_file" "$PYMOLCAS/pymolcas"
         chmod +x "$PYMOLCAS/pymolcas"
         # check again the driver was installed
-        l=`md5sum "$x/pymolcas" | awk '{print $1}'`
+        if [[ $OSTYPE == darwin* ]]; then
+          l=`md5 -r "$x/pymolcas" | awk '{print $1}'`
+        else
+          l=`md5sum "$x/pymolcas" | awk '{print $1}'`
+        fi
         if [ "$l" = "$current_checksum" -a -x "$PYMOLCAS/pymolcas" ] ; then
           echo "The installation of pymolcas was successful"
         else

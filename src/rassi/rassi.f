@@ -13,9 +13,10 @@
       !> module dependencies
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
-      use qcmaquis_interface_environment, only:
-     &    read_dmrg_info
+      use qcmaquis_interface_environment, only: finalize_dmrg
+      use qcmaquis_info, only : qcmaquis_info_deinit
 #endif
+      use mspt2_eigenvectors, only : deinit_mspt2_eigenvectors
 
       IMPLICIT REAL*8 (A-H,O-Z)
 C Matrix elements over RAS wave functions.
@@ -37,9 +38,6 @@ C RAS state interaction.
       PARAMETER (ROUTINE='RASSI')
       Logical Fake_CMO2
       COMMON / CHO_JOBS / Fake_CMO2
-#ifdef _DMRG_
-      logical dmrg_interface_exists
-#endif
 
       IRETURN=20
 
@@ -52,22 +50,9 @@ C RAS state interaction.
 C Greetings. Default settings. Initialize data sets.
       CALL INIT_RASSI()
 
-#ifdef _DMRG_
-      !> initialize DMRG
-      inquire(file="dmrg_interface.parameters",
-     &        exist=dmrg_interface_exists)
-      if(dmrg_interface_exists) call read_dmrg_info()
-#endif
-
 C Read and check keywords etc. from stdin. Print out.
       CALL INPCTL_RASSI()
 
-#ifdef _DMRG_
-!     !> disable Hamiltonian calculation for rassi-dmrg for the time
-!     being. TODO: FIXME: requires general 2-particle RDMs - not
-!     difficult but extra work...
-!     if(dodmrg) ifham = .false.
-#endif
 CSVC: prepare HDF5 wavefunction file
       CALL CRE_RASSIWFN
 
@@ -257,11 +242,14 @@ CIgorS End------------------------------------------------------------C
       CALL GETMEM('INilPt','FREE','INTE',LINILPT,1)
 
 #ifdef _DMRG_
-      !> finalize DMRG
-      if(dmrg_interface_exists.and.
-     &  allocated(dmrg_external%dmrg_state_specific))
-     &  deallocate(dmrg_external%dmrg_state_specific)
+!     !> finalize MPS-SI interface
+      if (doDMRG)then
+        call finalize_dmrg()
+        call qcmaquis_info_deinit
+      end if
 #endif
+      !> free memory (if allocated at all - currently only for QD-NEVPT2 as ref wfn)
+      call deinit_mspt2_eigenvectors()
 *                                                                      *
 ************************************************************************
 *                                                                      *

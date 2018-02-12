@@ -15,7 +15,9 @@
 #ifdef _DMRG_
 ! module dependencies
       use qcmaquis_interface_environment, only: initialize_dmrg
+      use qcmaquis_interface_cfg
 #endif
+      use active_space_solver_cfg
 
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
@@ -72,6 +74,11 @@
       Integer IPRGLB_IN, IPRLOC_IN(7)
 
       Logical DoCholesky,timings,DensityCheck
+#ifdef _DMRG_
+      Integer MPSCompressM
+      Logical DoNEVPT2Prep, DoEvaluateRDM
+      Common /NEVPTP/ DoNEVPT2Prep,DoEvaluateRDM, MPSCompressM
+#endif
       Logical DoLocK,Deco
       Logical Estimate,Update
       Integer ALGO,Nscreen
@@ -123,6 +130,12 @@ C   No changing about read in orbital information from INPORB yet.
 
       DoFaro = .FALSE.
 
+#ifdef _DMRG
+* Leon: Prepare 4-RDM calculations for (CD)-DMRG-NEVPT2 at the end of the calculation
+      DoNEVPT2Prep = .FALSE.
+      DoEvaluateRDM = .FALSE.
+      MPSCompressM = 0 ! If this is set to 0, MPS compression is disabled
+#endif
 * NN.14 Block DMRG flag
       DoBlockDMRG = .false.
 #ifdef _ENABLE_CHEMPS2_DMRG_
@@ -162,7 +175,11 @@ C   No changing about read in orbital information from INPORB yet.
 * ========================================================================
       dofcidump      =   .false.
       ifverbose_dmrg =   .false.
+#ifdef _DMRG_
+      ifdo_dmrg      =   doDMRG
+#else
       ifdo_dmrg      =   .false.
+#endif
 
 * ==================================================================================
 
@@ -1963,7 +1980,6 @@ C orbitals accordingly
       End If
 *
 * --- Process HEXS command
-*
       IF (KEYHEXS) THEN
         IF(DBG) WRITE(6,*) ' HEXS (Highly excited states)'//
      &                       ' keyword was given. '
@@ -2509,9 +2525,15 @@ c       write(6,*)          '  --------------------------------------'
 * ======================================================================
 *          start of QCMaquis DMRG input section
 * =======================================================================
+#ifdef _DMRG_
+      If(keyDMRG .or. doDMRG)then
+#else
       If(keyDMRG)then
-        Call SetPos(LUInput,'DMRG',Line,iRc)
-        Call ChkIfKey()
+#endif
+        if(.not.doDMRG)then
+          Call SetPos(LUInput,'DMRG',Line,iRc)
+          Call ChkIfKey()
+        end if
         !> DMRG flag
         ifdo_dmrg=.true.
         LRras2_dmrg(1:8) = 0
@@ -2536,12 +2558,14 @@ c       write(6,*)          '  --------------------------------------'
         Call SetPos(LUInput,'RGIN',Line,iRc)
 
         if(.not.KeyDMRG)then
-          Call WarningMessage(2,'Error in input processing.')
-          Write(6,*)' PROC_INP: the keyword DMRG is not present but'
-          Write(6,*)' is required to enable the DMRG internal keyword'
-          Write(6,*)' section RGInput.'
-          iRc=_RC_INPUT_ERROR_
-          Go to 9900
+          if(.not.doDMRG)then
+            Call WarningMessage(2,'Error in input processing.')
+            Write(6,*)' PROC_INP: the keyword DMRG is not present but'
+            Write(6,*)' is required to enable the DMRG internal keyword'
+            Write(6,*)' section RGInput.'
+            iRc=_RC_INPUT_ERROR_
+            Go to 9900
+          end if
         end if
 
 #ifdef _DMRG_
@@ -2560,17 +2584,51 @@ c       write(6,*)          '  --------------------------------------'
         Call SetPos(LUInput,'SOCC',Line,iRc)
 
 #ifdef _DMRG_
-        if(keyDMRG)then
+        if(keyDMRG.or.doDMRG)then
           call socc_dmrg_rdinp(LuInput,initial_occ,nrs2t,nroots)
           guess_dmrg(1:7) = 'HF     '
         end if
 #endif
       End if
 
+*-- Leon: Process NEVP(t2prep) keyword, prepare for 4-RDM calculation for
+*--- (CD)-DMRG-NEVPT2
+
+      If (KeyNEVP) Then
+        If (DBG) Write(6,*) ' NEVP(t2prep) keyword was given.'
+        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+#ifdef _DMRG_
+        if(.not.KeyDMRG.and..not.doDMRG)then
+          Call WarningMessage(2,'Error in input processing.')
+          Write(6,*)' PROC_INP: the keyword DMRG is not present or'
+          Write(6,*)' DMRG not activated but is required to enable'
+          Write(6,*)' the NEVP keyword.'
+          iRc=_RC_INPUT_ERROR_
+          Go to 9900
+        end if
+
+        DoNEVPT2Prep = .TRUE.
+        Call SetPos(LUInput,'NEVP',Line,iRc)
+        Line=Get_Ln(LUInput)
+        call UpCase(Line)
+        If (Index(Line,'EVRD').ne.0) then
+          DoEvaluateRDM = .TRUE.
+        end if
+
+#else
+        Call WarningMessage(2,'Error in input processing.')
+        Write(6,*) ('MOLCAS was compiled without QCMaquis support.')
+        Write(6,*) ('Thus, no DMRG-NEVPT2 calculations are possible.')
+        iRc=_RC_INPUT_ERROR_
+        Go to 9900
+#endif
+      End If
+
 #ifdef _DMRG_
       !> sanity checks
       !> a. DMRG requested but mandatory keywords not set at all
-      if(KeyDMRG .and. .not.KeyRGIN)then
+      if((KeyDMRG .or. doDMRG) .and.
+     &   (.not.KeyRGIN .and. .not.as_solver_inp_proc))then
         Call WarningMessage(2,'Error in input processing.')
         Write(6,*)' PROC_INP: the keyword RGINput is not present but'
         Write(6,*)' is required for QCMaquis DMRG calculations in order'
@@ -2582,7 +2640,8 @@ c       write(6,*)          '  --------------------------------------'
         Go to 9900
       end if
       !> b. DMRG requested so check that ALL mandatory keywords have been set
-      if(KeyDMRG .and. KeyRGIN)then
+      if((KeyDMRG .or. doDMRG).and.(KeyRGIN.or.as_solver_inp_proc))then
+        nr_lines = dmrg_input%nr_qcmaquis_input_lines
         call qcmaquis_rdinp(LuInput,3,nr_lines)
         if(nr_lines <= 0)then
           iRc=_RC_INPUT_ERROR_
@@ -2895,8 +2954,8 @@ C Test read failed. JOBOLD cannot be used.
 * ===============================================================
 
       ! Setup part for DMRG calculations
-      if(keyDMRG)then
 #ifdef _DMRG_
+      if(keyDMRG .or. doDMRG)then
         call initialize_dmrg(
      &!>>>>>>>>>>>>>>>>>>>>>>>>>>>>   DMRGSCF wave function    <<<<<<<<<<<<<<<<<<<<<<<<<!
      &           nsym,              ! Number of irreps
@@ -2922,8 +2981,8 @@ C Test read failed. JOBOLD cannot be used.
 #endif
      &!>>>>>>>>>>>>><<>>>>>>>>>>>>>   Developer options        <<<<<<<<<<<<<<<<<<<<<<<<<<!
      &           )
-#endif
       end if
+#endif
 *
 *
 *     Check the input data
@@ -2946,7 +3005,11 @@ C Test read failed. JOBOLD cannot be used.
 *  right now skip most part of gugactl for GAS, but only call mknsm.
         if(.not.iDoGas) then
 ! DMRG calculation no need the GugaCtl subroutine
+#ifdef _DMRG_
+          if(KeyDMRG .or. doDMRG)then
+#else
           if(KeyDMRG)then
+#endif
             call mma_deallocate(initial_occ)
             GoTo 9000
           else
@@ -2998,14 +3061,20 @@ C Test read failed. JOBOLD cannot be used.
       If (ifvb .ne. 0) iSpeed(1) = 0
 *
       if(.not.KeyDMRG .and. .not.IDoNECI)then ! switch on/off determinants
+#ifdef _DMRG_
+        if(.not.doDMRG)then
+#endif
 * Initialize LUCIA and determinant control
-        Call StatusLine('RASSCF:','Initializing Lucia...')
-        CALL Lucia_Util('Ini',iDummy,iDummy,Dummy)
+          Call StatusLine('RASSCF:','Initializing Lucia...')
+          CALL Lucia_Util('Ini',iDummy,iDummy,Dummy)
 * to get number of CSFs for GAS
-        nconf=0
-        do i=1,mxsym
-          nconf=nconf+ncsasm(i)
-        end do
+          nconf=0
+          do i=1,mxsym
+            nconf=nconf+ncsasm(i)
+          end do
+#ifdef _DMRG_
+        end if
+#endif
       end if
 
       IF(iDoNECI) THEN

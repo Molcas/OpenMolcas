@@ -39,6 +39,12 @@
       CHARACTER*8 LABEL
       Complex*16 T0(3), TIJ(3), TM1, TM2, E1A, E2A, E1B, E2B,
      &           IMAGINARY, T1(3)
+
+#ifdef _DEBUG_RASSI_
+      logical :: debug_dmrg_rassi_code = .true.
+#else
+      logical :: debug_dmrg_rassi_code = .false.
+#endif
       REAL*8 COMPARE
 
 
@@ -54,6 +60,19 @@ C CONSTANTS:
       AU2EV=CONV_AU_TO_EV_
       AU2CM=CONV_AU_TO_CM1_
       IMAGINARY=DCMPLX(0.0D0,1.0D0)
+
+#ifdef _DEBUG_RASSI_
+      write(6,*) 'BLUBB start of eigctl: debug print of property matrix'
+        do istate = 1, nstate
+        do jstate = 1, nstate
+        DO IPROP=1,NPROP
+          if(abs(prop(istate,jstate,iprop)) > 1.0d-14)
+     &    write(6,*) 'prop(',istate,',',jstate,',',iprop,') = ',
+     &                prop(istate,jstate,iprop)
+        end do
+        end do
+        end do
+#endif
 
 C DIAGONALIZE SCALAR HAMILTONIAN.
 
@@ -124,6 +143,10 @@ C Stack up the states belonging to this set:
         END IF
        END DO
 
+       if(debug_dmrg_rassi_code)then
+         write(6,*) 'BLUBB DEBUG print of Hamiltonian and overlap'
+       end if
+
 C 1. PUT UNIT MATRIX INTO UU
       CALL DCOPY_(MSTATE**2,0.0D0,0,WORK(LUU),1)
       CALL DCOPY_(MSTATE   ,1.0D0,0,WORK(LUU),MSTATE+1)
@@ -136,6 +159,10 @@ C    and Hamiltonian into square storage:
         DO JJ=1,II
           J=IWORK(LSTK-1+JJ)
           IJ=IJ+1
+          if(debug_dmrg_rassi_code)then
+            write(6,*) 'overlap     for i,j',i,j,ovlp(i,j)
+            write(6,*) 'Hamiltonian for i,j',i,j,HAM(i,j)
+          end if
           WORK(LSS-1+IJ)=OVLP(I,J)
           WORK(LHSQ-1+II+MSTATE*(JJ-1))=HAM(I,J)
           WORK(LHSQ-1+JJ+MSTATE*(II-1))=HAM(I,J)
@@ -451,6 +478,12 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
      &             0.0D0,PROP(1,1,IP),NSTATE)
       END DO
       CALL GETMEM('SCR','FREE','REAL',LSCR,NSTATE**2)
+!<<<<<<< HEAD
+!      IF(IPGLOB.le.SILENT) GOTO 900
+!
+!** CALCULATION OF THE DIPOLE TRANSITION STRENGTHS
+!
+!=======
 *
 * Initial setup for both dipole, quadrupole etc. and exact operator
 *
@@ -776,6 +809,7 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
 ! Store dipole oscillator strength
                   WORK(LDV-1+IJ) = F
 
+!>>>>>>> openmolcas-master
                END IF
                Call Add_Info('TMS(SF,Vel)',F,1,6)
             END DO
@@ -2389,6 +2423,18 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *
 
  900  CONTINUE
+      if(debug_dmrg_rassi_code)then
+        write(6,*) 'end of eigctl: BLUBB debug print of property matrix'
+        do istate = 1, nstate
+        do jstate = 1, nstate
+        DO IPROP=1,NPROP
+          if(abs(prop(istate,jstate,iprop)) > 1.0d-14)
+     &    write(6,*) 'prop(',istate,',',jstate,',',iprop,') = ',
+     &                prop(istate,jstate,iprop)
+        end do
+        end do
+        end do
+      end if
 
       CALL QEXIT(ROUTINE)
       RETURN

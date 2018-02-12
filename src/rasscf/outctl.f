@@ -216,6 +216,11 @@ C Local print level (if any)
         Write(LF,Fmt2//'A)')'----------------------------'
         Write(LF,*)
 #ifdef _DMRG_
+       if(dmrg_warmup%docideas .and. nsym > 1)then
+          Write(LF,*) ' CI-DEAS decativated for point group symmetry'//
+     &                ' other than C1'
+          dmrg_warmup%docideas = .false.
+       end if
        if(dmrg_orbital_space%initial_occ(1,1) > 0)then
          dmrg_start_guess = "Single determinant"
        else
@@ -506,6 +511,7 @@ C Local print level (if any)
       Call Free_Work(ipEneTmp)
 
       iTol = Cho_X_GetTol(8)
+      if(doDMRG) iTol = 6
       Call Add_Info('E_RASSCF',ENER(1,ITER),NRoots,iTol)
 *---------------------------------------------------------------
 * New JOBIPH layout: Also write hamiltonian matrix at IADR15(17):
