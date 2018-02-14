@@ -41,7 +41,9 @@
      &    Method(1:5) .eq. 'CCSDT'  .OR.
      &    Method(1:4) .eq. 'CHCC'   .OR.
      &    Method(1:6) .eq. 'MCPDFT' .OR.
+#ifdef _DMRG_
      &    Method(1:7) .eq. 'DMRGSCF'.OR.
+#endif
      &    Method(1:4) .eq. 'CHT3') Then
          Continue
       Else
@@ -111,6 +113,7 @@
      &                  iReturn
             Call Abend()
          End If
+#ifdef _DMRG_
       Else If (Method(1:7) .eq. 'DMRGSCF') Then
          Call StartLight('dmrgscf')
          Call Disable_Spool()
@@ -121,6 +124,7 @@
      &                  iReturn
             Call Abend()
          End If
+#endif
       End If
 
 *

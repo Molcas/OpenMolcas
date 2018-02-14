@@ -110,13 +110,13 @@ C Overlap:
           end if
 
         end if ! DMRG or not
-#endif
+
 
         if(debug_dmrg_rassi_code)then
           write(6,*) 'overlap sij is for i,j',istate,jstate,sij
           call flush(6)
         end if
-
+#endif
       END IF ! mmplet and msproj check
 
 C General 1-particle transition density matrix:

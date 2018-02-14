@@ -866,8 +866,8 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
 
         !> check whether the rf target h5 file exists (needed at this
         !point for numerical gradient calculations)
-        if(doDMRG.and.exist)then
 #ifdef _DMRG_
+        if(doDMRG.and.exist)then
           inquire(file="rf.results_state.h5", exist=rfh5DMRG)
           if(.not.rfh5DMRG)then
             maquis_name_states  = ""
@@ -883,9 +883,9 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
      & "rm -rf rf.checkpoint_state.h5 && "//
      & "cp -r "//trim(maquis_name_states)//" rf.checkpoint_state.h5"
      &                 )
-#endif
           end if
         end if
+#endif
 
         If (Exist
      &      .and. mConf .eq. nConf

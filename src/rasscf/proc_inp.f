@@ -2527,9 +2527,6 @@ c       write(6,*)          '  --------------------------------------'
 * =======================================================================
 #ifdef _DMRG_
       If(keyDMRG .or. doDMRG)then
-#else
-      If(keyDMRG)then
-#endif
         if(.not.doDMRG)then
           Call SetPos(LUInput,'DMRG',Line,iRc)
           Call ChkIfKey()
@@ -2568,12 +2565,10 @@ c       write(6,*)          '  --------------------------------------'
           end if
         end if
 
-#ifdef _DMRG_
         nr_lines = 0
         call qcmaquis_rdinp(LuInput,1,nr_lines)
         Call SetPos(LUInput,'RGIN',Line,iRc)
         call qcmaquis_rdinp(LuInput,2,nr_lines)
-#endif
 
       End if
 *---  Process SOCC command (state occupation for initial guess in DMRG) ------------------------*
@@ -2583,14 +2578,12 @@ c       write(6,*)          '  --------------------------------------'
         If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
         Call SetPos(LUInput,'SOCC',Line,iRc)
 
-#ifdef _DMRG_
         if(keyDMRG.or.doDMRG)then
           call socc_dmrg_rdinp(LuInput,initial_occ,nrs2t,nroots)
           guess_dmrg(1:7) = 'HF     '
         end if
-#endif
       End if
-
+#endif
 *-- Leon: Process NEVP(t2prep) keyword, prepare for 4-RDM calculation for
 *--- (CD)-DMRG-NEVPT2
 

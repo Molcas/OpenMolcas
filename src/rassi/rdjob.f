@@ -316,6 +316,7 @@
 * For JOBIPH/JOBMIX formatted job files
 *
 ************************************************************************
+#ifdef _DMRG_
       if (doDMRG) then
         if (doMPSSICheckpoints) then
           call WarningMessage(3, "QCMaquis checkpoint names from "//
@@ -327,6 +328,7 @@
      &      "and hence default naming convention for checkpoint files")
         end if
       end if
+#endif
       IF (IPGLOB.GE.USUAL) THEN
         IF (JOB.EQ.1) THEN
           WRITE(6,*)
