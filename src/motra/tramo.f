@@ -32,8 +32,8 @@
       Real*8 CMO(*)
 *
       Integer iDsk(3,mOVX)
-      integer, save :: total_number_2ints = 0
 #ifdef _HDF5_QCM_
+      integer, save :: total_number_2ints = 0
       real*8, allocatable :: tmpbuf(:)
       integer             :: iout_total
 #endif

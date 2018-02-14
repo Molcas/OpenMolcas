@@ -274,6 +274,11 @@ c Avoid unused argument warnings
       IF (.FALSE.) THEN
         CALL Unused_integer(ISTATE)
         CALL Unused_integer(JSTATE)
+        call Unused_integer(lLROOT)
+        call Unused_integer(job1)
+        call Unused_integer(job2)
+        call Unused_integer(ist)
+        call Unused_integer(jst)
       END IF
 #endif
 

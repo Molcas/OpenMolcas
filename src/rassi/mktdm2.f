@@ -37,7 +37,9 @@
       INTEGER JORBA,JORBB,KORB,KORBA,KORBB,LORB,LORBA,LORBB
       INTEGER LSPD2,NASGEM,NSPD2,ISTATE,JSTATE
       INTEGER job1,job2,ist,jst
+#ifdef _DMRG_
       LOGICAL :: debug_dmrg_rassi_code = .false.
+#endif
 #include "symmul.fh"
 #include "WrkSpc.fh"
 
@@ -242,4 +244,16 @@ C DIAGONAL ELEMENTS HALF-SIZED (This is for proper contraction with TUVX):
         TDM2(IJIJ)=0.5D0*TDM2(IJIJ)
       END DO
       RETURN
+#ifndef _DMRG_
+! Leon: Avoid warnings for unused variables if DMRG support is disabled
+      if (.false.) then
+        call Unused_integer(ISTATE)
+        call Unused_integer(JSTATE)
+        call Unused_integer(lLROOT)
+        call Unused_integer(job1)
+        call Unused_integer(job2)
+        call Unused_integer(ist)
+        call Unused_integer(jst)
+      endif
+#endif
       END

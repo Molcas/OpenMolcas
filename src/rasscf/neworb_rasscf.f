@@ -62,10 +62,6 @@ C     Calling arguments:
 #include "raswfn.fh"
 #include "rctfld.fh"
 
-#ifndef _DMRG_
-      logical :: dodmrg = .false.
-#endif
-
       DIMENSION CMOO(*),CMON(*),FP(*),FTR(*),VEC(*),
      *          WO(*),SQ(*),D(*),OCCN(*),CMOX(*)
 

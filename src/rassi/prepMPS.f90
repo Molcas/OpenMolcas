@@ -66,13 +66,10 @@
   integer,intent(in)    :: nosh(nsym)
   logical,intent(in)    :: trorb
 !-------------------------------------------------------------------------------
+#ifdef _DMRG_
   integer               :: i, isym, no, ii, ista, na, jorb, ni
   real*8                :: fac(1,1), ckk
-#ifdef _DMRG_
   logical               :: debug_dmrg_rassi_code = .false.
-#endif
-
-#ifdef _DMRG_
 
   if(.not.trorb)then
     !> if a backup of the actual MPS exists - copy it back
@@ -197,5 +194,24 @@
 #else
   write(lupri,*) ' calling prepMPS w/o DMRG interface - foolish!'
   write(lupri,*) ' ... no actual task is performed.            '
+! Avoid unused variable warnings if DMRG is disabled
+  if (.false.) then
+    call unused_real_array(tra)
+    call unused_integer(istate)
+    call unused_integer(istatereal)
+    call unused_integer(job)
+    call unused_integer(ist)
+    call unused_integer(lsym)
+    call unused_integer(mplet)
+    call unused_integer(mspro)
+    call unused_integer(nacte)
+    call unused_integer(nsym)
+    call unused_integer(ntra)
+    call unused_integer(lupri)
+    call unused_integer_array(nish)
+    call unused_integer_array(nash)
+    call unused_integer_array(nosh)
+    call unused_integer(trorb)
+  end if
 #endif
   end subroutine prepMPS

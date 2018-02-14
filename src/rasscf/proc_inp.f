@@ -75,6 +75,7 @@
 
       Logical DoCholesky,timings,DensityCheck
 #ifdef _DMRG_
+* DMRG-NEVPT2 variables: MPS compression, 4-RDM evaluation
       Integer MPSCompressM
       Logical DoNEVPT2Prep, DoEvaluateRDM
       Common /NEVPTP/ DoNEVPT2Prep,DoEvaluateRDM, MPSCompressM
@@ -117,12 +118,14 @@
       Character*8 MaxLab
       Logical, External :: Is_First_Iter
 
+#ifdef _DMRG_
 !     dmrg(QCMaquis)-stuff
       integer              :: LRras2_dmrg(8)
       integer, allocatable :: initial_occ(:,:)
       logical              :: ifverbose_dmrg,ifdo_dmrg
       character(len=20)    :: guess_dmrg
 !     dmrg(QCMaquis)-stuff
+#endif
 
       Intrinsic INDEX,NINT,DBLE,SQRT
 C...Dongxia note for GAS:
@@ -174,11 +177,9 @@ C   No changing about read in orbital information from INPORB yet.
 *   QCMaquis flags
 * ========================================================================
       dofcidump      =   .false.
-      ifverbose_dmrg =   .false.
 #ifdef _DMRG_
       ifdo_dmrg      =   doDMRG
-#else
-      ifdo_dmrg      =   .false.
+      ifverbose_dmrg =   .false.
 #endif
 
 * ==================================================================================
@@ -3000,17 +3001,17 @@ C Test read failed. JOBOLD cannot be used.
 ! DMRG calculation no need the GugaCtl subroutine
 #ifdef _DMRG_
           if(KeyDMRG .or. doDMRG)then
-#else
-          if(KeyDMRG)then
-#endif
             call mma_deallocate(initial_occ)
             GoTo 9000
           else
+#endif
             Call Timing(Eterna_1,Swatch,Swatch,Swatch)
             If (DBG) Write(6,*)' Call GugaCtl'
             Call GugaCtl
             Call Timing(Eterna_2,Swatch,Swatch,Swatch)
+#ifdef _DMRG_
           end if
+#endif
         else  ! if iDoGas
           call mknsm
         end if

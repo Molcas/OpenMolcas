@@ -1390,9 +1390,9 @@ cGLM        write(6,*) 'CASDFT energy :', CASDFT_Funct
      &      'Total time spent (hh:mm:ss):        ',ihh,':',imm,':',iss
           else
             if(doDMRG)then
+#ifdef _DMRG_
               maxtrW = 0.0d0
               maxtrR = -1
-#ifdef _DMRG_
               ITERCI = MAXVAL(dmrg_energy%num_sweeps)
               IROT   = MAXLOC(dmrg_energy%num_sweeps,nroots)
               maxtrW = MAXVAL(dmrg_energy%max_truncW)

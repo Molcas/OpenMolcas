@@ -76,7 +76,10 @@
       end if
       call upcase(line(1:12))
       if (line(1:12).ne.'END OF INPUT') goto 10
- 9909 call close_luspool(LUSpool)
+#ifdef _DMRG_
+ 9909 continue
+#endif
+      call close_luspool(LUSpool)
       return
  9910 continue
 * Something went wrong...Let the caller handle it:
