@@ -54,13 +54,12 @@
       Integer LEJOB, LHEFF, NEJOB, NHEFF, NIS, NIS1, NTIT1, NMAYBE
       INTEGER JOB
       LOGICAL READ_STATES
-#ifndef _DMRG_
-      logical :: doDMRG = .false.
-#endif
+#ifdef _HDF5_
       character(len=8)  :: heff_string
       character(len=12) :: heff_evc_string
       character(len=21) :: pt2_e_string
       integer           :: tag
+#endif
 
 
       CALL QENTER(ROUTINE)

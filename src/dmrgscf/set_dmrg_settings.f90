@@ -27,6 +27,7 @@
 ! ----------------------------------------------------------------------
 
 
+  nr_lines = 0
   luspool = 18
   luspool = isfreeunit(luspool)
   call spoolinp(luspool)
@@ -50,7 +51,6 @@
 
   if(as_solver(1:8) == 'qcmaquis')then
 #ifdef _DMRG_
-    nr_lines = 0
     call qcmaquis_rdinp(luspool,1,nr_lines)
     call setpos(luspool,'DMRG',line,irc)
     call qcmaquis_rdinp(luspool,2,nr_lines)

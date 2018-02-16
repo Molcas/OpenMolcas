@@ -99,17 +99,17 @@
      &                     )
           end if
 
-#ifdef _HDF5_
           if(put_h5_data)then
+#ifdef _HDF5_
             call mh5_put_dset_array_real(wfn_sfs_tdm,
      &                                   rtdm, [NTDMZZ,1,1],
      &                                   [0,ISTATE-1,JSTATE-1])
             call mh5_put_dset_array_real(wfn_sfs_tsdm,
      &                                   stdm, [NTDMZZ,1,1],
      &                                   [0,ISTATE-1,JSTATE-1])
-          end if
 #endif
 
+          end if
         end subroutine prpdata_mspt2_eigenvectors
 
       end module mspt2_eigenvectors
