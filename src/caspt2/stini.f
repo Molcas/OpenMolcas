@@ -29,12 +29,12 @@ C     indices
       INTEGER IDCI
 
       CALL QENTER('STINI')
-      Write(STLNE2,'(A24,I3)')
+      Write(STLNE2,'(A,I4)')
      &                ' Compute H0 matrices for state ',MSTATE(JSTATE)
       Call StatusLine('CASPT2:',STLNE2)
       IF(IPRGLB.GE.USUAL) THEN
         WRITE(6,'(20A4)')('****',I=1,20)
-        WRITE(6,'(A,I3)')
+        WRITE(6,'(A,I4)')
      &   ' Compute H0 matrices for state ',MSTATE(JSTATE)
         WRITE(6,'(20A4)')('----',I=1,20)
         CALL XFlush(6)
@@ -54,8 +54,8 @@ C     indices
         IF(IPRGLB.GE.VERBOSE) THEN
           WRITE(6,*)
           IF(NSTATE.GT.1) THEN
-            WRITE(6,'(A,I3)')
-     &      ' With new orbitals, the CI array of state',MSTATE(JSTATE)
+            WRITE(6,'(A,I4)')
+     &      ' With new orbitals, the CI array of state ',MSTATE(JSTATE)
           ELSE
             WRITE(6,*)' With new orbitals, the CI array is:'
           END IF
