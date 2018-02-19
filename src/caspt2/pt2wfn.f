@@ -103,7 +103,7 @@
      $        'Reference energy for each state, '//
      $        'arranged as array of [NSTATE]')
 
-*     reference energy (for each CI root)
+*     PT2 energy (for each CI root)
         pt2wfn_energy = mh5_create_dset_real (pt2wfn_id,
      $        'STATE_PT2_ENERGIES', 1, [NSTATE])
         call mh5_init_attr(pt2wfn_energy, 'description',
@@ -139,11 +139,11 @@
      $        'in Split-GUGA ordering for each STATE, '//
      $        'arranged as matrix of size [NCONF,NSTATE]')
 
-*     molecular orbital coefficients
+*     effective Hamiltonian coefficients
         pt2wfn_heff = mh5_create_dset_real(pt2wfn_id,
      $        'H_EFF', 2, [NSTATE, NSTATE])
         call mh5_init_attr(pt2wfn_heff, 'description',
-     $        'Effective (X)MS-CASPT2 hamiltonian, '//
+     $        'Effective (X)MS-CASPT2 Hamiltonian, '//
      $        'arranged as matrix of size [NSTATE,NSTATE]')
 
       Else

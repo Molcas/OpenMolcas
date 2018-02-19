@@ -13,7 +13,6 @@
 *     SVC: read basic molecular information from the RunFile
 *     and 1-electron integral file and write it to the HDF5
 *     file specified with fileid.
-*     This routine does nothing if HDF5 is not supported.
 *
 *     Attributes:
 *       NSYM, IRREPS, POTNUC, NBAS
