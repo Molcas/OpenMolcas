@@ -107,8 +107,14 @@
       ref_nash = ref_nrs1 + ref_nrs2 + ref_nrs3
       call mma_deallocate (typestring)
 
+#ifdef _DMRG_
       If (.not.mh5_exists_dset(refwfn_id, 'CI_VECTORS').and.
      &    .not.doDMRG) Then
+* Leon: TODO: This must be also extended for other DMRG interfaces
+* than QCMaquis
+#else
+      If (.not.mh5_exists_dset(refwfn_id, 'CI_VECTORS') then
+#endif
         Write(6,'(1X,A)') 'The HDF5 file does not contain CI vectors,'
         Write(6,'(1X,A)') 'make sure it was created by rasscf/caspt2.'
         Call AbEnd()
