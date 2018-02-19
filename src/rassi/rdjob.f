@@ -113,7 +113,7 @@
 * Leon: TODO: This must be also extended for other DMRG interfaces
 * than QCMaquis
 #else
-      If (.not.mh5_exists_dset(refwfn_id, 'CI_VECTORS') then
+      If (.not.mh5_exists_dset(refwfn_id, 'CI_VECTORS')) then
 #endif
         Write(6,'(1X,A)') 'The HDF5 file does not contain CI vectors,'
         Write(6,'(1X,A)') 'make sure it was created by rasscf/caspt2.'
