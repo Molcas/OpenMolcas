@@ -20,7 +20,7 @@
 #include "SysDef.fh"
 #include "intgrl.fh"
 #include "eqsolv.fh"
-      CHARACTER(30)  STLNE2
+      CHARACTER(50)  STLNE2
 C     timers
       REAL*8 CPU0,CPU1,CPU,
      &       TIO0,TIO1,TIO
@@ -31,7 +31,7 @@ C     indices
       CALL QENTER('STINI')
       Write(STLNE2,'(A,I4)')
      &                ' Compute H0 matrices for state ',MSTATE(JSTATE)
-      Call StatusLine('CASPT2:',STLNE2)
+      Call StatusLine('CASPT2: ',trim(STLNE2))
       IF(IPRGLB.GE.USUAL) THEN
         WRITE(6,'(20A4)')('****',I=1,20)
         WRITE(6,'(A,I4)')
