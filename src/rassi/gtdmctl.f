@@ -75,7 +75,11 @@
 #include "SysDef.fh"
 
       CALL QENTER(ROUTINE)
-
+* Avoid compiler warnings about possibly unitialised mstate_1pdens
+* The below can be removed if the file is compiled with
+* -Wno-error=maybe-uninitialized
+      allocate(mstate_1pdens(0,0))
+      deallocate(mstate_1pdens)
 C WF parameters for ISTATE and JSTATE
       NACTE1=NACTE(JOB1)
       MPLET1=MLTPLT(JOB1)
