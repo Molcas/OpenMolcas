@@ -1099,10 +1099,11 @@ if (HDF5)
              list (APPEND EXTERNAL_LIBRARIES ${HDF5_C_LIBRARIES})
 
              ## Leon: require zlib for hdf5 for enabled compression
-             find_package(ZLIB REQUIRED)
-             if (ZLIB_FOUND)
-               include_directories( ${ZLIB_INCLUDE_DIRS} )
-             endif (ZLIB_FOUND)
+             ## disabled as long as HDF5 compression is disabled
+             # find_package(ZLIB REQUIRED)
+             #if (ZLIB_FOUND)
+             #  include_directories( ${ZLIB_INCLUDE_DIRS} )
+             #endif (ZLIB_FOUND)
 
         add_definitions (-D_HDF5_)
 
@@ -2619,9 +2620,10 @@ foreach (prog ${progs})
         endif ()
 
         ## Leon: zlib requirement for HDF5
-        if (ZLIB_FOUND)
-                target_link_libraries(${prog}.exe ${ZLIB_LIBRARIES})
-        endif (ZLIB_FOUND)
+        ## disabled as long as HDF5 compression is disabled
+        #if (ZLIB_FOUND)
+        #        target_link_libraries(${prog}.exe ${ZLIB_LIBRARIES})
+        #endif (ZLIB_FOUND)
 
         list (APPEND PROGRAM_EXECUTABLES ${prog}.exe)
 endforeach (prog)
