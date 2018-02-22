@@ -1157,7 +1157,7 @@ class Molcas_module(object):
       set_utf8('MOLCAS_REDUCE_PRT', 'NO')
 
     command = self.parent.wrap_command(self._exec[0])
-    no_tee=(get_utf8('MOLCAS_DEBUGGER') != '')
+    no_tee=(get_utf8('MOLCAS_DEBUGGER') is not None)
 
     self._output = BytesIO()
     self._error = BytesIO()
