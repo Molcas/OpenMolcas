@@ -2232,6 +2232,7 @@ if (HDF5 AND HDF5_FOUND)
                 rassi
                 single_aniso
                 poly_aniso
+                slapaf
                 dynamix
                 surfacehop
                 )

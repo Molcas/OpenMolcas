@@ -89,6 +89,9 @@ INT mh5c_create_dset_scalar_str(INT file_id, char* name, INT size);
 INT mh5c_create_dset_array_int(INT file_id, char* name, INT rank, INT* dims);
 INT mh5c_create_dset_array_real(INT file_id, char* name, INT rank, INT* dims);
 INT mh5c_create_dset_array_str(INT file_id, char* name, INT rank, INT* dims, INT size);
+INT mh5c_create_dset_array_dyn_int(INT file_id, char* name, INT rank, INT* dims);
+INT mh5c_create_dset_array_dyn_real(INT file_id, char* name, INT rank, INT* dims);
+INT mh5c_create_dset_array_dyn_str(INT file_id, char* name, INT rank, INT* dims, INT size);
 INT mh5c_open_dset(INT file_id, char* name);
 INT mh5c_close_dset(INT dset_id);
 
@@ -113,6 +116,7 @@ INT mh5c_get_dset_array_real_full(INT dset_id, void* buffer);
 /* array rank/dimensions */
 INT mh5c_get_dset_array_rank(INT dset_id);
 INT mh5c_get_dset_array_dims(INT dset_id, INT* dims);
+INT mh5c_extend_dset_array(INT dset_id, INT* dims);
 
 /* internal interface */
 
@@ -127,7 +131,7 @@ herr_t mh5c_get_attr(hid_t dset_id, void* value, hid_t value_type);
 
 /* datasets */
 hid_t mh5c_create_dset_scalar(hid_t file_id, char* name, hid_t hdf5_type);
-hid_t mh5c_create_dset_array(hid_t file_id, char* name, int rank, const INT* dims, hid_t hdf5_type);
+hid_t mh5c_create_dset_array(hid_t file_id, char* name, int rank, const INT* dims, const INT mdim, hid_t hdf5_type);
 herr_t mh5c_put_dset_scalar(hid_t dset_id, void* value, hid_t value_type);
 herr_t mh5c_put_dset_array(hid_t dset_id, const INT* extents, const INT* offsets, void* buffer, hid_t buffer_type);
 herr_t mh5c_get_dset_scalar(hid_t dset_id, void* value, hid_t value_type);
@@ -349,10 +353,10 @@ INT mh5c_create_dset_scalar_str(INT file_id, char* name, INT size) {
 }
 
 INT mh5c_create_dset_array_int(INT file_id, char* name, INT rank, INT* dims) {
-        return mh5c_create_dset_array(file_id, name, rank, dims, H5T_STORAGE_INT);
+        return mh5c_create_dset_array(file_id, name, rank, dims, 0, H5T_STORAGE_INT);
 }
 INT mh5c_create_dset_array_real(INT file_id, char* name, INT rank, INT* dims) {
-        return mh5c_create_dset_array(file_id, name, rank, dims, H5T_STORAGE_REAL);
+        return mh5c_create_dset_array(file_id, name, rank, dims, 0, H5T_STORAGE_REAL);
 }
 INT mh5c_create_dset_array_str(INT file_id, char* name, INT rank, INT* dims, INT size) {
         hid_t dset_id;
@@ -360,7 +364,23 @@ INT mh5c_create_dset_array_str(INT file_id, char* name, INT rank, INT* dims, INT
         h5t_string = H5Tcopy(H5T_C_S1);
         H5Tset_size (h5t_string, size);
         H5Tset_strpad(h5t_string, H5T_STR_NULLPAD);
-        dset_id = mh5c_create_dset_array(file_id, name, rank, dims, h5t_string);
+        dset_id = mh5c_create_dset_array(file_id, name, rank, dims, 0, h5t_string);
+        H5Tclose(h5t_string);
+        return dset_id;
+}
+INT mh5c_create_dset_array_dyn_int(INT file_id, char* name, INT rank, INT* dims) {
+        return mh5c_create_dset_array(file_id, name, rank, dims, H5S_UNLIMITED, H5T_STORAGE_INT);
+}
+INT mh5c_create_dset_array_dyn_real(INT file_id, char* name, INT rank, INT* dims) {
+        return mh5c_create_dset_array(file_id, name, rank, dims, H5S_UNLIMITED, H5T_STORAGE_REAL);
+}
+INT mh5c_create_dset_array_dyn_str(INT file_id, char* name, INT rank, INT* dims, INT size) {
+        hid_t dset_id;
+        hid_t h5t_string;
+        h5t_string = H5Tcopy(H5T_C_S1);
+        H5Tset_size (h5t_string, size);
+        H5Tset_strpad(h5t_string, H5T_STR_NULLPAD);
+        dset_id = mh5c_create_dset_array(file_id, name, rank, dims, H5S_UNLIMITED, h5t_string);
         H5Tclose(h5t_string);
         return dset_id;
 }
@@ -492,6 +512,13 @@ INT mh5c_get_dset_array_dims(INT dset_id, INT* dims) {
         return rank;
 }
 
+INT mh5c_extend_dset_array(INT dset_id, INT* dims) {
+        int rank = mh5c_get_dset_array_rank(dset_id);
+        hsize_t hdims[MAX_RANK];
+        copy_cast_f2c(rank,dims,hdims);
+        return H5Dset_extent(dset_id,hdims);
+}
+
 /* attribute array info */
 
 INT mh5c_get_attr_scalar_rank(INT dset_id) {
@@ -563,19 +590,32 @@ hid_t mh5c_create_dset_scalar(hid_t file_id, char* name, hid_t hdf5_type) {
         return dset_id;
 }
 
-hid_t mh5c_create_dset_array(hid_t file_id, char* name, int rank, const INT* dims, hid_t hdf5_type) {
+hid_t mh5c_create_dset_array(hid_t file_id, char* name, int rank, const INT* dims, const INT mdim, hid_t hdf5_type) {
         herr_t status;
         hid_t space_id, plist_id, dset_id;
         hsize_t hdims[MAX_RANK];
+        hsize_t kdims[MAX_RANK];
         hsize_t cdims[MAX_RANK];
         return_on_oob_rank(rank);
         copy_cast_f2c(rank,dims,hdims);
-        space_id = H5Screate_simple(rank, hdims, NULL);
-        plist_id  = H5Pcreate (H5P_DATASET_CREATE);
+        if (mdim == 0) {
+                space_id = H5Screate_simple(rank, hdims, NULL);
+        } else {
+                for (int i=0; i<rank; i++) {
+                        kdims[i] = mdim;
+                }
+                space_id = H5Screate_simple(rank, hdims, kdims);
+        }
+        plist_id = H5Pcreate (H5P_DATASET_CREATE);
 #ifdef _HDF5_COMPRESSION_
         chunk_dimensions(rank, hdims, cdims);
         status = H5Pset_chunk (plist_id, rank, cdims);
         status = H5Pset_deflate (plist_id, 6);
+#else
+        if (mdims < 0) {
+                chunk_dimensions(rank, hdims, cdims);
+                status = H5Pset_chunk (plist_id, rank, cdims);
+        }
 #endif
         dset_id = H5Dcreate(file_id, name, hdf5_type, space_id, H5P_DEFAULT, plist_id, H5P_DEFAULT);
         status = H5Sclose(space_id);
