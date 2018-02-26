@@ -71,10 +71,11 @@ endif ()
 # The build type, specifies the different optimization types.
 if (NOT DEFINED CMAKE_BUILD_TYPE OR "${CMAKE_BUILD_TYPE}" STREQUAL "")
         set (CMAKE_BUILD_TYPE "Release" CACHE STRING
-                "Type of build, options are: None (CFLAGS/FFLAGS can be used) Debug Garble RelWithDebInfo Release Fast."
+                "Type of build, options are: None (CFLAGS/FFLAGS can be used), Debug, Garble, RelWithDebInfo, Release, Fast."
                 FORCE
                 )
 endif ()
+set_property (CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS None Debug Garble RelWithDebInfo Release Fast)
 
 # The place where Molcas is installed with make install.
 if (NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -121,6 +122,7 @@ if (DEFINED LINALG)
 else ()
         set (LINALG "Internal"  CACHE STRING "${LINALG_OPTIONS}")
 endif ()
+set_property (CACHE LINALG PROPERTY STRINGS Internal Runtime MKL ACML OpenBLAS)
 
 option (CUBLAS "Enable CUDA BLAS library." OFF)
 option (NVBLAS "Enable NVidia BLAS library." OFF)
@@ -2388,7 +2390,6 @@ foreach (util ${utils})
         # ignore empty directories
         if (NOT "${source}" STREQUAL "")
                 add_library (${util}_obj OBJECT ${source})
-                list (APPEND ALL_SOURCES ${source})
                 if (BUILD_SHARED_LIBS)
                         set_target_properties (${util}_obj PROPERTIES
                                 POSITION_INDEPENDENT_CODE "TRUE")
