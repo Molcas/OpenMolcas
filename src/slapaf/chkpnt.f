@@ -10,6 +10,7 @@
 *                                                                      *
 * Copyright (C) 2018, Ignacio Fdez. Galvan                             *
 ************************************************************************
+*                                                                      *
       Module Chkpnt
       Implicit None
 #ifdef _HDF5_
@@ -17,12 +18,14 @@
 #endif
       Character(Len=9) :: basename = 'SLAPAFCHK'
       Character(Len=12) :: filename
-      Integer :: chkpnt_id, chkpnt_iter
-      Integer :: chkpnt_ener, chkpnt_coor, chkpnt_grad, chkpnt_new
+      Integer :: chkpnt_id, chkpnt_iter, chkpnt_hess
+      Integer :: chkpnt_ener, chkpnt_coor, chkpnt_force, chkpnt_new
       Integer :: Iter_all
 
       Contains
-
+*                                                                      *
+************************************************************************
+*                                                                      *
       Subroutine Chkpnt_open()
 #ifdef _HDF5_
 #  include "info_slapaf.fh"
@@ -42,8 +45,9 @@
         chkpnt_iter = mh5_open_attr(chkpnt_id, 'ITERATIONS')
         chkpnt_ener = mh5_open_dset(chkpnt_id, 'ENERGIES')
         chkpnt_coor = mh5_open_dset(chkpnt_id, 'COORDINATES')
-        chkpnt_new  = mh5_open_dset(chkpnt_id, 'CENTER_COORDINATES')
-        chkpnt_grad = mh5_open_dset(chkpnt_id, 'FORCES')
+        chkpnt_new = mh5_open_dset(chkpnt_id, 'CENTER_COORDINATES')
+        chkpnt_force = mh5_open_dset(chkpnt_id, 'FORCES')
+        chkpnt_hess = mh5_open_dset(chkpnt_id, 'HESSIAN')
         Call mh5_fetch_attr(chkpnt_id, 'NSYM', tmp)
         If (tmp.ne.nSym) create = .True.
         Call mh5_fetch_attr(chkpnt_id, 'NATOMS_UNIQUE', tmp)
@@ -67,19 +71,21 @@
       End If
 #endif
       End Subroutine Chkpnt_open
-
+*                                                                      *
+************************************************************************
+*                                                                      *
       Subroutine Chkpnt_init()
 #ifdef _HDF5_
 #  include "info_slapaf.fh"
 #  include "WrkSpc.fh"
 #  include "stdalloc.fh"
       Character :: lIrrep(24)
-      Integer :: dsetid, attrid, mAtom, i, j
+      Integer :: dsetid, attrid, mAtom, i, j, k
       Real*8, Allocatable :: charges(:)
       Integer :: iPhase(3,0:7)
       Data iPhase/ 1, 1, 1,   -1, 1, 1,   1,-1, 1,  -1,-1, 1,
      &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
-      Integer, Allocatable :: desym(:,:)
+      Integer, Allocatable :: desym(:,:), symdof(:,:)
 
       chkpnt_id = mh5_create_file(filename)
 
@@ -92,6 +98,8 @@
      &                   1, [nSym], lIrrep, 3)
 
       Call mh5_init_attr(chkpnt_id, 'NATOMS_UNIQUE', nsAtom)
+
+      Call mh5_init_attr(chkpnt_id, 'DOF', nDimBC)
 
 *     atom labels
       dsetid = mh5_create_dset_str(chkpnt_id,
@@ -139,7 +147,9 @@
           mAtom = mAtom+nSym/nStab(i)
         End Do
         Call mma_allocate(desym, 4, mAtom)
+        Call mma_allocate(symdof, 2, nDimBC)
         mAtom = 0
+        k = 0
         Do i=1,nsAtom
           Do j=0,nSym/nStab(i)-1
             mAtom = mAtom+1
@@ -147,6 +157,12 @@
             desym(2,mAtom) = iPhase(1,iCoSet(j,i))
             desym(3,mAtom) = iPhase(2,iCoSet(j,i))
             desym(4,mAtom) = iPhase(3,iCoSet(j,i))
+          End Do
+          Do j=1,3
+            If (.Not.Smmtrc(3*(i-1)+j)) Cycle
+            k = k+1
+            symdof(1,k) = i
+            symdof(2,k) = j
           End Do
         End Do
 
@@ -165,6 +181,16 @@
         Call mh5_close_dset(dsetid)
         Call mma_deallocate(desym)
 
+*     symmetry-unique degrees of freedom (Cartesian indices)
+        dsetid = mh5_create_dset_int(chkpnt_id,
+     &           'DOF_INDICES', 2, [2, nDimBC])
+        Call mh5_init_attr(dsetid, 'description',
+     &      'Indices of the Cartesian degrees of freedom, matrix of '//
+     &      'size [DOF, 2], each row contains the atom index and the '//
+     &      'Cartesian index (1=x, 2=y, 3=z)')
+        Call mh5_put_dset(dsetid, symdof(1,1))
+        Call mh5_close_dset(dsetid)
+        Call mma_deallocate(symdof)
       End If
 
 *     iteration data:
@@ -185,12 +211,19 @@
      &     'then atom index')
 
 *     Cartesian forces (F = -g)
-      chkpnt_grad = mh5_create_dset_real(chkpnt_id,
-     &              'FORCES', 3, [3,nsAtom,0], dyn=.True.)
-      Call mh5_init_attr(chkpnt_grad, 'description',
+      chkpnt_force = mh5_create_dset_real(chkpnt_id,
+     &               'FORCES', 3, [3,nsAtom,0], dyn=.True.)
+      Call mh5_init_attr(chkpnt_force, 'description',
      &     'Cartesian forces, matrix of size [ITERATIONS,'//
      &     'NATOMS_UNIQUE,3], stored with iteration varying slowest, '//
      &     'then atom index')
+
+*     Cartesian Hessian
+      chkpnt_hess = mh5_create_dset_real(chkpnt_id,
+     &              'HESSIAN', 1, [nDimBC*(nDimBC+1)/2])
+      Call mh5_init_attr(chkpnt_hess, 'description',
+     &     'Cartesian Hessian in triangular form, as a vector of '//
+     &     'size [DOF*(DOF+1)/2]')
 
 *     MEP/IRC information
       If (MEP) Then
@@ -206,29 +239,57 @@
 #endif
 
       End Subroutine Chkpnt_init
-
+*                                                                      *
+************************************************************************
+*                                                                      *
       Subroutine Chkpnt_update()
 #ifdef _HDF5_
 #  include "info_slapaf.fh"
 #  include "WrkSpc.fh"
-      Integer :: N3
+#  include "stdalloc.fh"
+      Integer :: N3, i, j
+      Logical :: Found
+      Real*8, Allocatable :: Hss_X(:)
+
+      Call Qpg_dArray('Hss_X',Found,i)
+      If (Found) Then
+        If (i.ne.nDimBC**2) Then
+          Call WarningMessage(2,'Hessian with wrong dimension')
+          Call AbEnd()
+        End If
+        Call mma_allocate(Hss_X,i)
+        Call Get_dArray('Hss_X',Hss_X,i)
+        Do i=1,nDimBC
+          Do j=1,nDimBC
+            Hss_X(i*(i-1)/2+j) = Hss_X(nDimBC*(i-1)+j)
+          End Do
+        End Do
+      End If
 
       N3 = 3*nsAtom
+*     iterations
       Call mh5_put_attr(chkpnt_iter, Iter_all)
+*     energies
       Call mh5_resize_dset(chkpnt_ener, [Iter_all])
       Call mh5_put_dset_array_real(chkpnt_ener,
      &     Work(ipEner+(Iter-1)), [1], [Iter_all-1])
+*     coordinates
       Call mh5_resize_dset(chkpnt_coor, [3,nsAtom,Iter_all])
       Call mh5_put_dset_array_real(chkpnt_coor,
      &     Work(ipCx+N3*(Iter-1)), [3,nsAtom,1], [0,0,Iter_all-1])
-      Call mh5_put_dset_array_real(chkpnt_new,
-     &     Work(ipCx+N3*Iter), [3,nsAtom], [0,0])
-      Call mh5_resize_dset(chkpnt_grad, [3,nsAtom,Iter_all])
-      Call mh5_put_dset_array_real(chkpnt_grad,
+*     new coordinates
+      Call mh5_put_dset(chkpnt_new,Work(ipCx+N3*Iter))
+*     forces
+      Call mh5_resize_dset(chkpnt_force, [3,nsAtom,Iter_all])
+      Call mh5_put_dset_array_real(chkpnt_force,
      &     Work(ipGx+N3*(Iter-1)), [3,nsAtom,1], [0,0,Iter_all-1])
+*     Hessian
+      If (Found) Call mh5_put_dset(chkpnt_hess,Hss_X(1))
 #endif
       End Subroutine Chkpnt_update
-
+*                                                                      *
+************************************************************************
+*                                                                      *
       Subroutine Chkpnt_update_MEP(IRCRestart)
       Logical, Intent(In) :: IRCRestart
 #ifdef _HDF5_
@@ -249,11 +310,15 @@
       Call mh5_close_dset(dsetid)
 #endif
       End Subroutine Chkpnt_update_MEP
-
+*                                                                      *
+************************************************************************
+*                                                                      *
       Subroutine Chkpnt_close()
 #ifdef _HDF5_
       Call mh5_close_file(chkpnt_id)
 #endif
       End Subroutine Chkpnt_close
-
+*                                                                      *
+************************************************************************
+*                                                                      *
       End Module Chkpnt
