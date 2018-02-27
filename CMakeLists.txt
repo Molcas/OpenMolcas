@@ -1162,6 +1162,9 @@ if (LINALG STREQUAL "MKL")
         elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
                 find_library (LIBMKL_INTERFACE NAMES "mkl_intel_ilp64"
                         PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+        elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "PGI") # apparently PGI uses this too
+                find_library (LIBMKL_INTERFACE NAMES "mkl_intel_ilp64"
+                        PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
         endif ()
         # sequential/compiler-specific threading interface
         find_library (LIBMKL_SEQUENTIAL NAMES "mkl_sequential"
