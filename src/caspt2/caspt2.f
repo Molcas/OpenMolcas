@@ -85,10 +85,6 @@ C     indices
       INTEGER IGROUP,JSTATE_OFF
 C     convergence check
       INTEGER ICONV
-#ifdef _DEBUG_
-C     Memory check
-      INTEGER LCASPT2
-#endif
 C     relative energies
       REAL*8  RELAU,RELEV,RELCM,RELKJ
 
