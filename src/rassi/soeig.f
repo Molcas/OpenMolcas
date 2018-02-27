@@ -344,10 +344,6 @@ C SPIN-ORBIT HAMILTONIAN MATRIX ELEMENTS:
 !       end do
 !     end do
 
-      !> free memory for H_SO - do not use it below!
-      !> eigenvalues are stored in ENSOR!
-      CALL GETMEM('HTOTR','FREE','REAL',LHTOTR,NSS**2)
-      CALL GETMEM('HTOTI','FREE','REAL',LHTOTI,NSS**2)
 
       call mma_allocate(HAMSOR,NSS,NSS,'HAMSOR')
       call mma_allocate(HAMSOI,NSS,NSS,'HAMSOI')
@@ -365,6 +361,10 @@ C SPIN-ORBIT HAMILTONIAN MATRIX ELEMENTS:
       call mh5_put_dset_array_real(wfn_sos_hsoi,HAMSOI)
 #endif
 
+      !> free memory for H_SO - do not use it below!
+      !> eigenvalues are stored in ENSOR!
+      CALL GETMEM('HTOTR','FREE','REAL',LHTOTR,NSS**2)
+      CALL GETMEM('HTOTI','FREE','REAL',LHTOTI,NSS**2)
 C
 C     BOR in Krapperup 070227
 C     Compute J-values and Omega here instead of in subroutine PRPROP
