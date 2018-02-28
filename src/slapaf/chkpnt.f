@@ -308,6 +308,10 @@
       Call mh5_resize_dset(dsetid, [iMEP])
       Call mh5_put_dset_array_int(dsetid, [Iter_all], [1], [iMEP-1])
       Call mh5_close_dset(dsetid)
+#else
+      Return
+* Avoid unused argument warnings
+      If (.False.) Call Unused_logical(IRCRestart)
 #endif
       End Subroutine Chkpnt_update_MEP
 *                                                                      *
