@@ -49,7 +49,6 @@
 !
 !-------------------------------------------------------------------------------
 
-  real*8, intent(inout) :: tra(ntra)
   integer,intent(in)    :: istate
   integer,intent(in)    :: istatereal
   integer,intent(in)    :: job
@@ -64,6 +63,7 @@
   integer,intent(in)    :: nish(nsym)
   integer,intent(in)    :: nash(nsym)
   integer,intent(in)    :: nosh(nsym)
+  real*8, intent(inout) :: tra(ntra)
   logical,intent(in)    :: trorb
 !-------------------------------------------------------------------------------
 #ifdef _DMRG_
