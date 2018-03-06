@@ -15,7 +15,7 @@
 *                kinetic energy )
 *
       !> module dependencies
-#ifdef _HDF5_F2003_
+#ifdef _HDF5_QCM_
       use hdf5_utils
 #endif
 
@@ -27,7 +27,7 @@
 #include "files_motra.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-#ifdef _HDF5_F2003_
+#ifdef _HDF5_QCM_
       real*8,  allocatable :: writebuf(:,:)
 #endif
 *
@@ -149,7 +149,7 @@ c write core energy into FCIDMP file
         write(LuFCI,'(1X,G20.12,4I5)') ECOR, 0, 0, 0, 0
       end if
 
-#ifdef _HDF5_F2003_
+#ifdef _HDF5_QCM_
       if(ihdf5 == 1)then
         msym = nsym
         !> put data to file

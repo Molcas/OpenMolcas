@@ -164,7 +164,9 @@ C      a,b,g,d:  AO-index
 C      p,q,r,s:  MO-indeces belonging to all (fro and del excluded)
 C
 **********************************************************************
-
+#ifdef _HDF5_QCM_
+      use hdf5_utils
+#endif
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc,nIsh(*),nAsh(*),nSsh(*),lXint, ihdf5
@@ -187,6 +189,11 @@ C
       COMMON    /CHOTRAW /tv2disk
 
       parameter (zero = 0.0D0, one = 1.0D0)
+
+#ifdef _HDF5_QCM_
+      integer(HID_T)  :: choset_id
+      integer(HID_T)  :: space_id
+#endif
 
 #include "cholesky.fh"
 #include "choptr.fh"
@@ -214,12 +221,19 @@ C
 
       Call QEnter(SECNAM)
 
-      Do i=1,nSym
-        LunChVF(i) = 80
-        LunChVF(i) = isfreeunit(LunChVF(i))
-        write(Fnam,'(A6,I1)') BName,i
-        call DaName_mf_wa(LunChVF(i),Fnam)
-      End Do
+#ifdef _HDF5_QCM_
+      ! Leon 13.6.2017: Avoid opening a regular file if HDF5 is used
+      if (ihdf5/=1) then
+#endif
+        Do i=1,nSym
+          LunChVF(i) = 80
+          LunChVF(i) = isfreeunit(LunChVF(i))
+          write(Fnam,'(A6,I1)') BName,i
+          call DaName_mf_wa(LunChVF(i),Fnam)
+        End Do
+#ifdef _HDF5_QCM_
+      End If
+#endif
 
       DoRead  = .false.
       IREDC = -1  ! unknown reduced set in core
@@ -267,6 +281,18 @@ c
 
       DO jSym=1,nSym
 
+! Init the HDF5 section
+#ifdef _HDF5_QCM_
+         if(ihdf5 == 1)then
+           ! max size of the cholesky vector for now is the
+           ! max(nPorb)*(max(nPorb)+1)/2
+           ! probably this can be chosen more efficiently,
+           ! but would matter only if we use symmetry
+           call hdf5_init_wr_cholesky(file_id(1), JSym,
+     &       maxval(nPorb(1:nSym))*(maxval(nPorb(1:nSym))+1)/2,
+     &       NumCho(JSym), choset_id, space_id)
+         end if
+#endif
          If (NumCho(jSym).lt.1) GOTO 1000
 
 C --- Set up the skipping flags + some initializations --------
@@ -469,9 +495,21 @@ C --------------------------------------------------------------------
                      If (NApq.ne.0) Then
 
                         If (tv2disk.eq.'PQK') Then
+#ifdef _HDF5_QCM_
+                         if (ihdf5/=1) then
+#endif
                            Call ddafile(LunChVF(jSym),1,Work(ipLpq),
      &                                                NApq*JNUM,
      &                                                iOffB(iSymb))
+#ifdef _HDF5_QCM_
+                         else
+                           ! this should never happen, this case should be caught in motra.f
+                           Write(6,*)' Writing of Cholesky vectors'//
+     &                       'in HDF5 format as (pq,k) is not'//
+     &                       'supported.'
+                           call Abend()
+                         end if
+#endif
                            If (Do_int) Then
                               Do ipq=0,NApq-1
                                  kt=kOff(iSymb)+ipq
@@ -491,9 +529,34 @@ C --------------------------------------------------------------------
      &                                                  Work(ipChoT),1)
                               EndIf
                               idisk=iOffB(iSymb)+NumCho(jSym)*ipq
+#ifdef _HDF5_QCM_
+                             ! Leon 13.6.2017: Do not write Cholesky vectors to the regular file
+                             ! if the hdf5 file is written. It becomes counterproductive to write
+                             ! the same content twice for large basis sets
+                             if (ihdf5/=1) then
+#endif
                               Call ddafile(LunChVF(jSym),1,Work(ipChoT),
      &                                                   JNUM,
      &                                                   idisk)
+
+#ifdef _HDF5_QCM_
+                             ! Write the transformed Cholesky batch to the hdf5 dataset
+                             ! The ordering in HDF5 is in column-major order, corresponding to
+                             ! the 'Kpq' storage
+                             ! This way all the elements needed to compute one integral can be
+                             ! read with one read operation.
+
+                             ! TODO: eventually row-major order storage + chunked dataset might
+                             ! improve the performance -- but probably it's irrelevant.
+                             ! Leon 22.4.2016 -- modified the write_cholesky call below to
+                             ! account for multiple reduced sets
+                             else
+                               call hdf5_write_cholesky(choset_id,
+     &                           space_id,ipq,nVec*(iBatch-1)+iVrs-1,
+     &                                             JNUM,Work(ipChoT))
+                             end if
+#endif
+
                            End Do
                            iOffB(iSymb)=iOffB(iSymb)+JNUM
                         EndIf
@@ -567,6 +630,18 @@ C --------------------------------------------------------------------
      &                                                  Work(ipChoT),1)
                               EndIf
                               idisk=iOffB(iSymp)+NumCho(jSym)*ipq
+#ifdef _HDF5_QCM_
+                             ! Write the transformed Cholesky batch to the hdf5 dataset
+                             ! The ordering in HDF5 is in column-major order, corresponding to
+                             ! the 'Kpq' storage
+                             ! See above for more explanation
+                             if (ihdf5==1) then
+                               call hdf5_write_cholesky(choset_id,
+     &                           space_id,ipq,nVec*(iBatch-1),JNUM,
+     &                                                    Work(ipChoT))
+                             end if
+#endif
+
                               Call ddafile(LunChVF(jSym),1,Work(ipChoT),
      &                                                   JNUM,
      &                                                   idisk)
@@ -597,8 +672,16 @@ C --- free memory
 
          END DO   ! loop over red sets
 
-
-         call daclos(LunChVF(jSym))
+#ifdef _HDF5_QCM_
+         ! close Cholesky HDF5 stuff
+         if (ihdf5==1) then
+           call hdf5_close_cholesky(choset_id, space_id)
+         else
+#endif
+           call daclos(LunChVF(jSym))
+#ifdef _HDF5_QCM_
+         endif
+#endif
 1000     CONTINUE
 
       END DO   !loop over JSYM

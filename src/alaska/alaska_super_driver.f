@@ -115,10 +115,14 @@
 *     If (isNAC) Do_ESPF=.False.
 *                                                                      *
 ************************************************************************
+      if(Method .eq. 'DMRGSCFS')then
+        Call Get_iScalar('SA ready',iGo)
+      end if
 *                                                                      *
       If (Numerical              .OR.
      &    Do_Numerical_Cholesky  .OR.
      &    Method .eq. 'RASSCFSA' .OR.
+     &    (Method .eq. 'DMRGSCFS' .and. iGo /= 2) .OR.
      &    Method .eq. 'CASPT2'   .OR.
      &  ((Method .eq. 'MBPT2').and. (iMp2Prpt.ne.2)) .OR.
      &    Method .eq. 'CCSDT'    ) Then
@@ -183,11 +187,12 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Else If (Method.eq.'CASSCFSA') Then
+      Else If (Method.eq.'CASSCFSA' .or.
+     &        (Method == 'DMRGSCFS' .and. iGo == 2)) Then
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*        State-Average CASSCF
+*        State-Average CASSCF / DMRGSCF
 *
          Call Get_iScalar('SA ready',iGo)
          Call Get_iScalar('Relax CASSCF root',iRlxRoot)
