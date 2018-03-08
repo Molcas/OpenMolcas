@@ -40,7 +40,7 @@ hcbanner = '''#
       &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
       &&&                                                      &&&
       &&&                                                      &&&
-      &&&      MOLCAS source code or broken installation       &&&
+      &&&    OpenMolcas source code or broken installation     &&&
       &&&                                                      &&&
       &&&                                                      &&&
       &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
