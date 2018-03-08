@@ -27,6 +27,7 @@
 $ (file)  TRAONE  "$WorkDir/$Project."TraOne       rw*st
 $ (file)  FCIDMP  "$WorkDir/$Project."FciDmp       rw*sti
 $ (file)  FCINP  "$WorkDir/$Project."FciInp       rw*sti
+$ (file) ONERDM  "$WorkDir/$Project."OneRDM rw*st
 $ (file) TWORDM1 "$WorkDir/$Project."TwoRDM_aaaa rw*st
 $ (file) TWORDM2 "$WorkDir/$Project."TwoRDM_abab rw*st
 $ (file) TWORDM3 "$WorkDir/$Project."TwoRDM_abba rw*st

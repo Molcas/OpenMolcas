@@ -113,10 +113,10 @@ option (EXPERT "Show advanced CMake cache entries in GUI)." OFF)
 
 option (BIGOT "Do not allow any compiler warning (treat them as errors)." OFF)
 
-set (LINALG_OPTIONS "Choose linear algebra library, options: Internal (default), Runtime, MKL, ACML, OpenBLAS.")
+set (LINALG_OPTIONS "Choose linear algebra library, options: Internal (default), Runtime, MKL, ACML, OpenBLAS, Accelerate.")
 if (DEFINED LINALG)
         set (LINALG "${LINALG}" CACHE STRING "${LINALG_OPTIONS}")
-        if (NOT ";Internal;Runtime;MKL;ACML;OpenBLAS;" MATCHES ";${LINALG};")
+        if (NOT ";Internal;Runtime;MKL;ACML;OpenBLAS;Accelerate;" MATCHES ";${LINALG};")
                 message (FATAL_ERROR "Unsuported LINALG: ${LINALG}")
         endif ()
 else ()
@@ -143,17 +143,19 @@ mark_as_advanced (CTEST)
 
 # External projects
 option (MSYM       "Activate MSYM support (requires External/libmsym submodule)."                                                     OFF)
-option (DMRG       "Activate QCMaquis driver and library (requires External/qcmaquis_suite and External/qcmaquis_driver submodules)." OFF)
+option (DMRG       "Activate QCMaquis DMRG driver and library." OFF)
 option (DMRG_DEBUG "Enable DEBUG print in QCMaquis driver."                                                                           OFF)
+set(QCMaquis_ROOT "None" CACHE STRING "Specify path to existing QCMaquis installation. This will allow to skip the
+installation of ALPS/BOOST and QCMaquis.")
 if (DMRG)
         mark_as_advanced (CLEAR DMRG_DEBUG)
 else ()
         mark_as_advanced (FORCE DMRG_DEBUG)
 endif ()
-option (GEN1INT    "Enable Gen1Int library for 1-electron integrals (requires External/gen1int-molcaslib submodule)."                 OFF)
-option (NECI       "Activate NECI support (requires External/NECI submodule)."                                                        ON)
-option (HDF5_F2003 "Activate a F2003 interface to the HDF5 library (requires External/hdf5_f2003_interface submodule)."               OFF)
+option (GEN1INT    "Enable Gen1Int library for 1-electron integrals." OFF)
+option (NECI       "Activate NECI support (requires External/NECI submodule)."                                                        OFF)
 option (WFA        "Activate extended wavefunction analysis (requires External/libwfa submodule)."                                    OFF)
+option (NEVPT2     "Activate (DMRG)-NEVPT2 support" OFF)
 option (EFPLIB     "Enable EFPLib library for effective fragment potentials (requires External/efp submodule)."                       OFF)
 option (GRID_IT    "Enable public GRID_IT code (requires External/grid_it submodule)."                                                OFF)
 
@@ -168,16 +170,23 @@ set (ENV{CMAKE_SESSION} "OpenMolcas")
 
 # project name and supported languages
 #=====================================
-message ("Configuring compilers:")
+
 if (DMRG)
         project (Molcas Fortran C CXX)
+        cmake_minimum_required (VERSION 3.0.2)
+        set(CMAKE_DISABLE_SOURCE_CHANGES OFF)
+if(NOT DEFINED QCMaquis_ROOT)
+        if (DEFINED ENV{QCMaquis_ROOT})
+                SET (QCMaquis_ROOT $ENV{QCMaquis_ROOT})
+        else ()
+                SET (QCMaquis_ROOT "None")
+        endif ()
+endif()
+message ("Configuring compilers:")
 elseif (WFA)
         project (Molcas Fortran C CXX)
 else ()
         project (Molcas Fortran C    )
-endif ()
-if (DMRG)
-        cmake_minimum_required (VERSION 3.0.2)
 endif ()
 if (EFPLIB)
         cmake_minimum_required (VERSION 3.0.2)
@@ -255,7 +264,7 @@ function (find_source name)
                         endif ()
                 endif ()
         endforeach ()
-        # do not overwrite existing definitions
+       # do not overwrite existing definitions
         if (DEFINED ${name}_src)
                 set (${name}_src "${${name}_src}" PARENT_SCOPE)
         else ()
@@ -1053,6 +1062,7 @@ if (MPI)
         message ("-- MPI_Fortran_LIBRARIES: ${MPI_Fortran_LIBRARIES}")
         message ("-- MPIEXEC: ${MPIEXEC}")
 
+        string (TOLOWER "${MPI_LIBRARIES}" MPI_LIBRARIES_LOWER)
         execute_process (
                 COMMAND ${MPIEXEC} "--version"
                 OUTPUT_VARIABLE MPIEXEC_VERSION
@@ -1083,13 +1093,23 @@ if (HDF5)
         else ()
                 find_package (HDF5 COMPONENTS C)
         endif ()
-        if (HDF5_FOUND)
-                message ("-- HDF5_INCLUDE_PATH: ${HDF5_INCLUDE_DIRS}")
-                message ("-- HDF5_LIBRARIES: ${HDF5_LIBRARIES}")
-                list (APPEND EXTERNAL_LIBRARIES ${HDF5_LIBRARIES})
-        else ()
-                message ("-- HDF5 not found, it will be deactivated")
-        endif ()
+        if (NOT HDF5_FOUND)
+             message ("-- HDF5 not found, it will be deactivated")
+        else()
+             message ("-- HDF5_INCLUDE_PATH: ${HDF5_INCLUDE_DIRS}")
+             message ("-- HDF5_C_LIBRARIES: ${HDF5_C_LIBRARIES}")
+             list (APPEND EXTERNAL_LIBRARIES ${HDF5_C_LIBRARIES})
+
+             ## Leon: require zlib for hdf5 for enabled compression
+             ## disabled as long as HDF5 compression is disabled
+             # find_package(ZLIB REQUIRED)
+             #if (ZLIB_FOUND)
+             #  include_directories( ${ZLIB_INCLUDE_DIRS} )
+             #endif (ZLIB_FOUND)
+
+        add_definitions (-D_HDF5_)
+
+        endif()
 endif ()
 
 # BLAS/LAPACK settings
@@ -1347,6 +1367,12 @@ else ()
 endif ()
 
 # Internal LAPACK+BLAS libraries shipped with Molcas source
+if (LINALG STREQUAL "Accelerate")
+        message ("-- Using XCode's veclib libraries")
+        set (LINALG_LIBRARIES "-framework Accelerate")
+endif ()
+
+# Internal LAPACK+BLAS libraries shipped with Molcas source
 if (LINALG STREQUAL "Internal")
         message ("-- Using Molcas' LAPACK+BLAS libraries (SLOW!)")
         set (LINALG_LIBRARIES "lapack" "blas")
@@ -1354,6 +1380,13 @@ endif ()
 
 # Runtime loading of LAPACK+BLAS libraries (experimental)
 if (LINALG STREQUAL "Runtime")
+#<<<<<<< HEAD
+#        if (GA)
+#                message (FATAL_ERROR
+#                        "Runtime LAPACK+BLAS loading is not compatible with Global Arrays. "
+#                        "Please select an explicit LINALG library or turn off GA."
+#                        )
+#        endif ()
         message ("-- Using Runtime LAPACK+BLAS libraries (Internal as fallback)")
         set (LINALG_LIBRARIES "dl")
 
@@ -1622,22 +1655,6 @@ if (FDE)
         add_definitions (-D_FDE_)
 endif ()
 
-# HDF5 F2003 library
-#===================
-
-if (HDF5_F2003)
-        FIND_PACKAGE (HDF5 NAMES hdf5)
-        if (HDF5_FOUND)
-                INCLUDE_DIRECTORIES (${HDF5_INCLUDE_DIR})
-        else (HDF5_FOUND)
-                FIND_PACKAGE (HDF5) # Find non-cmake built HDF5
-                if (HDF5_FOUND)
-                        INCLUDE_DIRECTORIES (${HDF5_INCLUDE_DIR})
-                endif (HDF5_FOUND)
-        endif (HDF5_FOUND)
-        add_definitions (-D_HDF5_F2003_)
-endif (HDF5_F2003)
-
 ################################################################################
 #                                                                              #
 # External programs/libraries: compilation does not require a Molcas library,  #
@@ -1681,80 +1698,67 @@ if (MSYM)
                 message ("-- MSYM interface ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
         endif ()
 else ()
-        message ("MSYM support DISABLED")
+        message (STATUS "MSYM support DISABLED")
 endif ()
 
 if (DMRG)
-        message ("Configuring DMRG support:")
-
-        set (ExternalProjectCMakeArgs
-           -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER}
-           -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-           -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-           )
-
-        # 1. QCMaquis driver
-        set (proj ${extprojsdir}/qcmaquis_driver)
-        set (proj_bin ${PROJECT_BINARY_DIR}/External/qcmaquis_driver)
-        if (EXISTS ${proj}/CMakeLists.txt)
-                add_subdirectory (${proj} ${proj_bin})
-                set (DMRG_INCLUDE ${proj_bin}/modules)
-                set (DMRG_LIBRARIES qcmaquis-driver-utils)
-
-                include_directories (${DMRG_INCLUDE})
-
-                message ("-- DMRG_INCLUDE_PATH: ${DMRG_INCLUDE}")
-                message ("-- DMRG_LIBRARIES: ${DMRG_LIBRARIES}")
-
-                list (APPEND EXTERNAL_LIBRARIES ${DMRG_LIBRARIES})
-                add_definitions (-D_DMRG_)
-                if (DMRG_DEBUG)
-                        add_definitions (-D_DMRG_DEBUG_)
-                endif ()
-        else ()
-                message ("-- DMRG interface ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
+        message ("Configuring QCMaquis DMRG support:")
+        message (WARNING "-------------------------------------------------------------------------\
+         You're installing QCMaquis DMRG. Make sure you obtained access to the QCMaquis repository at\n\
+https://gitlab.com/qc-maquis\n\
+If you have done so already, you may safely ignore this message. If not, please open the \
+above URL and click on 'Request access'. \
+-------------------------------------------------------------------------")
+        add_definitions (-D_DMRG_)
+        if (DMRG_DEBUG)
+                add_definitions (-D_DMRG_DEBUG_)
         endif ()
 
-        # 2. interface utilities (python) and the actual binary
-        message ("-- Copying python scripts and template inputs for QCMaquis")
-        file (COPY ${proj}/pytools        DESTINATION ${PROJECT_BINARY_DIR})
-        file (COPY ${proj}/template-files DESTINATION ${PROJECT_BINARY_DIR})
+        set (proj ${PROJECT_SOURCE_DIR}/src/qcmaquis)
+        set (proj_bin ${PROJECT_BINARY_DIR}/External/qcmaquis-full)
 
-        set (proj ${extprojsdir}/qcmaquis_suite)
-        set (proj_bin ${PROJECT_BINARY_DIR}/External/qcmaquis_suite)
-        if (EXISTS ${proj}/CMakeLists.txt)
-                add_subdirectory (${proj} ${proj_bin})
-        else ()
-                message ("-- DMRG sources ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
-        endif ()
-else ()
-        message ("DMRG support DISABLED")
-endif ()
+        configure_file(${proj}/CMakeLists.txt.in ${proj_bin}/CMakeLists.txt COPYONLY)
+        add_subdirectory(${proj_bin})
 
-# HDF5 F2003 support
-if (HDF5_F2003)
-        message ("Configuring HDF5 F0023 support:")
-        set (proj ${extprojsdir}/hdf5_f2003_interface)
-        set (proj_bin ${PROJECT_BINARY_DIR}/External/hdf5_f2003_interface)
-        if (EXISTS ${proj}/CMakeLists.txt)
-                add_subdirectory (${proj} ${proj_bin})
-                list (APPEND HDF5_LIBRARIES HDF5interface)
-                include_directories (${proj_bin})
+        get_directory_property(${DMRG_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${DMRG_INCLUDE})
+        get_directory_property(${DMRG_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${DMRG_LIBRARIES})
+        include_directories(${DMRG_INCLUDE})
 
-                set (HDF5_F2003_INCLUDE ${proj_bin})
-                set (HDF5_F2003_LIBRARIES HDF5interface)
-
-                message ("-- HDF5_F2003_INCLUDE_PATH: ${HDF5_F2003_INCLUDE}")
-                message ("-- HDF5_LIBRARIES: ${HDF5_LIBRARIES}")
-
-                list (APPEND EXTERNAL_LIBRARIES ${HDF5_LIBRARIES})
-        else ()
-                message ("-- HDF5 2003 interface ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
-        endif ()
+        list (APPEND EXTERNAL_LIBRARIES ${DMRG_LIBRARIES})
+        message ("-- DMRG_INCLUDE_PATH: ${DMRG_INCLUDE}")
+        message ("-- DMRG_LIBRARIES: ${DMRG_LIBRARIES}")
 
 else ()
-        message ("HDF5 F2003 interface DISABLED")
+        message (STATUS "DMRG support DISABLED")
 endif ()
+
+# HDF5 QCMaquis interface
+# QCMaquis uses its own HDF5 interface, which is used here
+# TODO: Leon: Actually, it's mostly NEVPT2 code that's using this interface, therefore it should be independent from DMRG/QCMaquis once we have a CASSCF-NEVPT2 interface
+# and in that case we should add another variable here (or another variable for NEVPT2 and link the HDF5_QCM support to it)
+if(HDF5 AND HDF5_FOUND AND DMRG)
+        message ("Configuring HDF5 QCMaquis support:")
+
+        add_definitions (-D_HDF5_QCM_)
+
+        set (proj ${PROJECT_SOURCE_DIR}/src/hdf5_qcm_util)
+        set (proj_bin ${PROJECT_BINARY_DIR}/External/hdf5_qcm_util)
+
+        configure_file(${proj}/CMakeLists.txt.in ${proj_bin}/CMakeLists.txt COPYONLY)
+        add_subdirectory(${proj_bin})
+
+        get_directory_property(${HDF5_QCM_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${HDF5_QCM_INCLUDE})
+        get_directory_property(${HDF5_QCM_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${HDF5_QCM_LIBRARIES})
+        include_directories(${HDF5_QCM_INCLUDE})
+
+        list (APPEND HDF5_LIBRARIES ${HDF5_QCM_LIBRARIES})
+        message ("-- HDF5_QCM_INCLUDE_PATH: ${HDF5_QCM_INCLUDE}")
+        message ("-- HDF5_C_LIBRARIES: ${HDF5_LIBRARIES}")
+
+        list (APPEND EXTERNAL_LIBRARIES ${HDF5_LIBRARIES})
+else()
+        message (STATUS "HDF5 QCMaquis interface DISABLED")
+endif()
 
 # NECI Full-CI Quantum Monte-Carlo
 if (NECI)
@@ -1842,35 +1846,25 @@ endif ()
 
 # GEN1INT interface
 if (GEN1INT)
-        message ("Configuring GEN1INT support:")
+         message ("Configuring GEN1INT")
+         add_definitions (-D_GEN1INT_)
 
-        set (ExternalProjectCMakeArgs
-           -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER}
-           -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-           -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-           )
+         set (proj ${PROJECT_SOURCE_DIR}/src/gen1int_util)
+         set (proj_bin ${PROJECT_BINARY_DIR}/External/gen1int_util)
 
-        # GEN1INT library and interface
-        set (proj ${extprojsdir}/gen1int-molcaslib)
-        set (proj_bin ${PROJECT_BINARY_DIR}/External/gen1int-molcaslib)
-        if (EXISTS ${proj}/CMakeLists.txt)
-                add_subdirectory (${proj} ${proj_bin})
-                set (GEN1INT_INCLUDE ${proj_bin}/modules ${proj}/src)
-                set (GEN1INT_LIBRARIES gen1int-molcaslib)
+         configure_file(${proj}/CMakeLists.txt.in ${proj_bin}/CMakeLists.txt COPYONLY)
+         add_subdirectory(${proj_bin})
 
-                include_directories (${GEN1INT_INCLUDE})
+         get_directory_property(${GEN1INT_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${GEN1INT_INCLUDE})
+         get_directory_property(${GEN1INT_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${GEN1INT_LIBRARIES})
+         include_directories(${GEN1INT_INCLUDE})
 
-                message ("-- GEN1INT_INCLUDE_PATH: ${GEN1INT_INCLUDE}")
-                message ("-- GEN1INT_LIBRARIES:    ${GEN1INT_LIBRARIES}")
+         message ("-- GEN1INT_INCLUDE_PATH: ${GEN1INT_INCLUDE}")
+         message ("-- GEN1INT_LIBRARIES:    ${GEN1INT_LIBRARIES}")
 
-                list (APPEND EXTERNAL_LIBRARIES ${GEN1INT_LIBRARIES})
-                add_definitions (-D_GEN1INT_)
-        else ()
-                message ("-- GEN1INT interface ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
-        endif ()
-
+         list (APPEND EXTERNAL_LIBRARIES ${GEN1INT_LIBRARIES})
 else ()
-        message ("GEN1INT support DISABLED")
+         message ("GEN1INT support DISABLED")
 endif ()
 
 # libwfa interface
@@ -1905,7 +1899,48 @@ if (WFA)
         endif ()
 else ()
         mark_as_advanced(FORCE ARMADILLO_INC)
-        message("libwfa support DISABLED")
+        message(STATUS "libwfa support DISABLED")
+endif ()
+
+# NEVPT2
+if (NEVPT2)
+        message("Enabling NEVPT2 dependencies:")
+        if (NOT DMRG)
+              set (DMRG ON FORCE)
+              message ("-- Enabling (QCMaquis) DMRG")
+        endif()
+        if (NOT HDF5_QCM)
+              set (HDF5_QCM ON FORCE)
+              message ("-- Enabling HDF5_QCM")
+        endif()
+#         add_dependencies(mods_obj nevpt2)
+
+        set (proj ${PROJECT_SOURCE_DIR}/src/nevpt2)
+        set (proj_bin ${PROJECT_BINARY_DIR}/External/nevpt2_ext)
+
+        configure_file(${proj}/CMakeLists.txt.in ${proj_bin}/CMakeLists.txt COPYONLY)
+
+        add_subdirectory(${proj_bin})
+
+        get_directory_property(${NEVPT2_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${NEVPT2_INCLUDE})
+        get_directory_property(${NEVPT2_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${NEVPT2_LIBRARIES})
+#         include_directories(${NEVPT2_INCLUDE})
+
+#         list (APPEND EXTERNAL_LIBRARIES ${DMRG_LIBRARIES})
+#         message ("-- DMRG_INCLUDE_PATH: ${DMRG_INCLUDE}")
+#         message ("-- DMRG_LIBRARIES: ${DMRG_LIBRARIES}")
+#         set(NEVPT2_ROOT "None" CACHE STRING "Specify path to existing NEVPT2 installation.")
+#         mark_as_advanced(NEVPT2_ROOT)
+#         if(NOT DEFINED NEVPT2_ROOT)
+#                 if (DEFINED ENV{NEVPT2_ROOT})
+#                         SET (NEVPT2_ROOT $ENV{NEVPT2_ROOT})
+#                 else ()
+#                         SET (NEVPT2_ROOT "None")
+#                 endif ()
+#         endif()
+
+else ()
+        message(STATUS "NEVPT2 support DISABLED")
 endif ()
 
 # external GRID_IT
@@ -2079,9 +2114,14 @@ list (REMOVE_ITEM utils
         msym_util
         )
 list (REMOVE_ITEM progs
+#        Driver
+#        Include
+#        Modules
         parnell
         symmetrize
         wfa
+        nevpt2 # although not necessarily
+        dmrgscf
         )
 
 # set the location of the sources for the utilities
@@ -2166,6 +2206,11 @@ if (HDF5 AND HDF5_FOUND)
         endforeach ()
 endif ()
 
+if (NEVPT2)
+  list (APPEND progs nevpt2)
+#   list (APPEND nevpt2_defs "_NEVPT2_") # if we have conditional compilation, we theoretically don't need this flag
+#   set (nevpt2_deps $<TARGET_OBJECTS:caspt2>) # TODO: and somehow hdf5_qcm and qcmaquis driver
+endif ()
 # activate MSYM support
 if (MSYM AND MSYM_FOUND)
         set (util msym_util)
@@ -2208,6 +2253,10 @@ if (WFA AND WFA_FOUND)
         list (APPEND progs wfa)
 endif ()
 
+if (BLOCK OR DMRG)
+        list (APPEND progs dmrgscf)
+endif ()
+
 # finally, sort the list
 list (SORT utils)
 
@@ -2243,6 +2292,9 @@ if (HDF5 AND HDF5_FOUND)
                 )
                 list (APPEND ${prog}_defs "_HDF5_")
         endforeach ()
+        if(NEVPT2)
+                list (APPEND nevpt2_defs "_HDF5_")
+        endif()
 endif ()
 
 # activate grid_it
@@ -2266,6 +2318,11 @@ list (SORT progs)
 set (casvb_deps
         $<TARGET_OBJECTS:rasscf>
         )
+if (BLOCK OR DMRG)
+set (dmrgscf_deps
+        $<TARGET_OBJECTS:rasscf>
+        )
+endif()
 set (espf_deps
         $<TARGET_OBJECTS:seward>
         $<TARGET_OBJECTS:alaska>
@@ -2300,10 +2357,32 @@ set (last_energy_deps
         $<TARGET_OBJECTS:cht3>
         $<TARGET_OBJECTS:mcpdft>
         )
+if (BLOCK OR DMRG)
+list (APPEND last_energy_deps
+      $<TARGET_OBJECTS:dmrgscf>
+     )
+endif()
 
 
 ################################################################################
 #                                                                              #
+#<<<<<<< HEAD
+## Disable some warnings that are buggy or on code we don't want to modify      #
+##                                                                              #
+#################################################################################
+#if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+#        # gfortran (version?) does not detect functions passed as arguments
+#        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${fmm_util_src}/*.f90)
+#        set_source_files_properties (${source} PROPERTIES COMPILE_FLAGS "-Wno-unused-function")
+#        # netlib blas/lapack has too many problems to fix (yet)
+#        set (netlib_nowarn_flags "-Wno-conversion -Wno-unused-dummy-argument -Wno-maybe-uninitialized")
+#        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${blas_util_src}/*.f)
+#        set_source_files_properties (${source} PROPERTIES COMPILE_FLAGS ${netlib_nowarn_flags})
+#        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${lapack_util_src}/*.f)
+#        set_source_files_properties (${source} PROPERTIES COMPILE_FLAGS ${netlib_nowarn_flags})
+#        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${delayed_util_src}/*.f)
+#        set_source_files_properties (${source} PROPERTIES COMPILE_FLAGS ${netlib_nowarn_flags})
+#=======
 # Disable some warnings or use other flags on code we don't want to modify     #
 #                                                                              #
 ################################################################################
@@ -2361,22 +2440,18 @@ set (util "Modules")
 file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${OPENMOLCAS_DIR}/src/${util}/*.f ${OPENMOLCAS_DIR}/src/${util}/*.f90)
 add_library (mods_obj OBJECT ${source})
 list (APPEND ALL_SOURCES ${source})
-if (DMRG)
-        add_dependencies(mods_obj ${DMRG_LIBRARIES})
+If(DMRG)
+        if(HDF5)
+            add_dependencies(mods_obj hdf5-qcm)
+        endif()
+        add_dependencies(mods_obj qcmaquis-driver)
 endif ()
-if (GEN1INT)
-        add_dependencies(mods_obj ${GEN1INT_LIBRARIES})
+If(GEN1INT)
+        add_dependencies(mods_obj gen1int)
 endif ()
-if (HDF5 AND HDF5_FOUND)
-        set_target_properties (mods_obj PROPERTIES
-                COMPILE_DEFINITIONS "_HDF5_"
-        )
-endif ()
-
 if (BUILD_SHARED_LIBS)
         set_target_properties (mods_obj PROPERTIES
-                POSITION_INDEPENDENT_CODE "TRUE"
-        )
+                POSITION_INDEPENDENT_CODE "TRUE")
 endif ()
 set_target_properties (mods_obj PROPERTIES
         Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/mod)
@@ -2466,17 +2541,17 @@ endif ()
 ################################################################################
 
 foreach (prog ${progs})
-        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${${prog}_src}/*.f ${${prog}_src}/*.f90 ${${prog}_src}/*.c)
+        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${${prog}_src}/*.f ${${prog}_src}/*.f90 ${${prog}_src}/*.F90 ${${prog}_src}/*.c)
         list (APPEND ALL_SOURCES ${source})
         # ignore empty programs
         if ("${source}" STREQUAL "")
                 list (REMOVE_ITEM progs ${prog})
         else ()
                 # FIXME: the checks below remove any main.* file, which is needed in
-                # order to be able to make a library out of the program sources. This
+                # order to be able to make a library out of the program sources.  This
                 # is required for supermodules.
                 #------------------------------------------------------------------
-                foreach (lext "f" "f90" "c")
+                foreach (lext "f" "f90" "F90" "c")
                         if (EXISTS ${PROJECT_SOURCE_DIR}/${${prog}_src}/main.${lext})
                                 list (REMOVE_ITEM source ${${prog}_src}/main.${lext})
                                 set (${prog}_main ${${prog}_src}/main.${lext})
@@ -2545,8 +2620,25 @@ foreach (prog ${progs})
                 set_target_properties (${prog}.exe PROPERTIES LINKER_LANGUAGE "Fortran")
         endif ()
 
+        ## Leon: zlib requirement for HDF5
+        ## disabled as long as HDF5 compression is disabled
+        #if (ZLIB_FOUND)
+        #        target_link_libraries(${prog}.exe ${ZLIB_LIBRARIES})
+        #endif (ZLIB_FOUND)
+
         list (APPEND PROGRAM_EXECUTABLES ${prog}.exe)
 endforeach (prog)
+
+### custom include/link libraries for nevpt2, in order to avoid having them for all targets
+if (NEVPT2)
+  message (STATUS "NEVPT2 libraries: ${NEVPT2_LIBRARIES}")
+  message (STATUS "HDF5 QCM libraries: ${HDF5_QCM_LIBRARIES}")
+  message (STATUS "DMRG interface libraries: ${DMRG_LIBRARIES}")
+  target_include_directories(nevpt2.exe PRIVATE ${NEVPT2_INCLUDE})
+  target_link_libraries(nevpt2.exe ${NEVPT2_LIBRARIES} ${HDF5_QCM_LIBRARIES} ${DMRG_LIBRARIES})
+  add_dependencies(nevpt2_ext hdf5-qcm qcmaquis-driver)
+  add_dependencies(mods_obj nevpt2_ext)
+endif()
 
 # build parnell as a stand-alone executable
 set (prog parnell)
@@ -2695,11 +2787,6 @@ file (APPEND ${PROJECT_BINARY_DIR}/test/testdirs
 if (DEFINED EXTRA_DIR)
         file (APPEND ${PROJECT_BINARY_DIR}/test/testdirs
                 ${EXTRA_DIR}/test\n
-                )
-endif ()
-if (DMRG)
-        file (APPEND ${PROJECT_BINARY_DIR}/test/testdirs
-                ${extprojsdir}/qcmaquis_driver/test\n
                 )
 endif ()
 if (GEN1INT)

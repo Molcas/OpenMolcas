@@ -55,8 +55,13 @@
 
       CALL QENTER(ROUTINE)
 
-CTEST      write(*,*)' Entering CITRA. TRA='
-CTEST      write(*,'(1x,5f16.8)')(TRA(I),I=1,NTRA)
+#ifdef DEBUG_MPSSI
+      write(6,*)' Entering CITRA. norm=',ddot_(NCO,CI,1,CI,1)
+#endif
+!     write(6,*)' Entering CITRA. TRA='
+!     write(6,'(1x,5f16.8)')(TRA(I),I=1,NTRA)
+!     write(6,*)' Entering CITRA. CI='
+!     write(6,'(1x,5f16.8)')(CI(I),I=1,NCO)
 C TRA contains square matrices, one per symmetry
 C  FIRST TRANSFORM THE INACTIVE ORBITALS:
       FAC=1.0D00
@@ -70,8 +75,11 @@ C  FIRST TRANSFORM THE INACTIVE ORBITALS:
         END DO
         ISTA=ISTA+NO**2
       END DO
+!     write(6,*) 'FAC, FAC**2 ... ',FAC,FAC**2
       FAC=FAC**2
       CALL DSCAL_(NCO,FAC,CI,1)
+!     write(6,*)' CITRA. inactive done CI='
+!     write(6,'(1x,5f16.8)')(CI(I),I=1,NCO)
 C  THEN THE ACTIVE ONES:
       IF(WFTP.EQ.'EMPTY   ') GOTO 100
 * The HISPIN case may be buggy and is not presently used.
@@ -105,6 +113,11 @@ C The general case:
         END DO
         CALL GETMEM('TMP   ','FREE','REAL',LTMP,NCO)
       END IF
+#ifdef DEBUG_MPSSI
+      write(6,*)' DONE in  CITRA. norm=',ddot_(NCO,CI,1,CI,1)
+#endif
+!     write(6,*)' CITRA completely done. CI='
+!     write(6,'(1x,5f16.8)')(CI(I),I=1,NCO)
 
  100  CONTINUE
       CALL QEXIT(ROUTINE)
