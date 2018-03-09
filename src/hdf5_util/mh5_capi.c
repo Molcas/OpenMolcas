@@ -598,7 +598,6 @@ hid_t mh5c_create_dset_array(hid_t file_id, char* name, int rank, const INT* dim
         hsize_t hdims[MAX_RANK];
         hsize_t kdims[MAX_RANK];
         hsize_t cdims[MAX_RANK];
-#endif
         return_on_oob_rank(rank);
         copy_cast_f2c(rank,dims,hdims);
         if (mdim == 0) {
@@ -615,7 +614,7 @@ hid_t mh5c_create_dset_array(hid_t file_id, char* name, int rank, const INT* dim
         status = H5Pset_chunk (plist_id, rank, cdims);
         status = H5Pset_deflate (plist_id, 6);
 #else
-        if (mdims < 0) {
+        if (mdim < 0) {
                 chunk_dimensions(rank, hdims, cdims);
                 status = H5Pset_chunk (plist_id, rank, cdims);
         }
