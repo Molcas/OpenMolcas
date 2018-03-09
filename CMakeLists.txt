@@ -1847,6 +1847,11 @@ if (GEN1INT)
          set (proj ${PROJECT_SOURCE_DIR}/src/gen1int_util)
          set (proj_bin ${PROJECT_BINARY_DIR}/External/gen1int_util)
 
+         if (NOT DMRG)
+             # Enabling source changes to keep ExternalProject happy
+             set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
+         endif ()
+
          configure_file(${proj}/CMakeLists.txt.in ${proj_bin}/CMakeLists.txt COPYONLY)
          add_subdirectory(${proj_bin})
 
