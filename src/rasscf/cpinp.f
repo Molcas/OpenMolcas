@@ -12,6 +12,14 @@
       implicit integer (a-z)
       character*180 line
       character*1 ch
+
+#ifdef _DMRG_
+      External Get_ProgName
+      Character*100 Get_ProgName
+      character*180 line2
+#endif
+      Character*100 ProgName
+
 #include "warnings.fh"
       iRc=_RC_ALL_IS_WELL_
 * The following code will open, and return the unit number LUSpool,
@@ -28,7 +36,17 @@
 * lines. (The latter is put there by sbin/auto.plx, so it is safe to
 * assume it is not abbreviated). The copied lines are left adjusted.
 * Positioning LUSpool after the '&RASSCF' marker.
-      Call RdNLst(LuSpool,'RASSCF')
+#ifdef _DMRG_
+      ProgName = Get_ProgName()
+#else
+      ProgName(1:6) = 'rasscf'
+#endif
+      if(ProgName(1:5) .eq.'dmrgs')then
+        Call RdNLst(LuSpool,'DMRGSCF')
+        call setpos(luspool,'OPTI',line,irc)
+      else
+        Call RdNLst(LuSpool,'RASSCF')
+      end if
 * Opening a new file:
       LUnit=99
       LUnit=IsFreeUnit(LUnit)
@@ -40,12 +58,27 @@
   10  continue
       read(luspool,'(A180)',err=9910,end=9910) line
       call leftad(line)
+#ifdef _DMRG_
+      if(ProgName(1:5) .eq.'dmrgs')then
+        line2 = line
+        call upcase(line2(1:4))
+        if(line2(1:4) == 'ENDO')then
+          line       = ' '
+          line(1:12) = 'End of Input'
+          write(LUnit,'(A180)') line
+          goto 9909
+        end if
+      end if
+#endif
       ch=line(1:1)
       if(ch.ne.' ' .and. ch.ne.'*' .and. ch.ne.'!') then
        write(LUnit,'(A180)') line
       end if
       call upcase(line(1:12))
       if (line(1:12).ne.'END OF INPUT') goto 10
+#ifdef _DMRG_
+ 9909 continue
+#endif
       call close_luspool(LUSpool)
       return
  9910 continue

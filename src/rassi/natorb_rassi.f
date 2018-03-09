@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE NATORB_RASSI(DMAT,TDMZZ,VNAT,OCC)
+      SUBROUTINE NATORB_RASSI(DMAT,TDMZZ,VNAT,OCC,EIGVEC)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "Molcas.fh"
@@ -20,6 +20,7 @@
       DIMENSION DMAT(NBSQ),TDMZZ(NTDMZZ),VNAT(NBSQ),OCC(NBST)
       CHARACTER*8 FNAME
       CHARACTER*2 KNUM
+      REAL*8 EIGVEC(NSTATE,NSTATE)
 
       Call qEnter('NATORB')
 C ALLOCATE WORKSPACE AREAS.
@@ -87,7 +88,7 @@ C HOWEVER, WE ARE LOOPING TRIANGULARLY AND WILL RESTORE SYMMETRY BY
 C ADDING TRANSPOSE AFTER DMAT HAS BEEN FINISHED, SO I=J IS SPECIAL CASE:
             X=EIGVEC(I,KEIG)*EIGVEC(J,KEIG)
             IF(ABS(X).GT.1.0D-12) THEN
-              IDISK=IDTDM(I,J)
+              IDISK=iWork(lIDTDM+(I-1)*NSTATE+J-1)
               CALL DDAFILE(LUTDM,2,TDMZZ,NTDMZZ,IDISK)
               IF(I.EQ.J) X=0.5D00*X
               CALL DAXPY_(NTDMZZ,X,TDMZZ,1,DMAT,1)

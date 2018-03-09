@@ -81,7 +81,7 @@ class MolcasException(Exception):
 
 class Molcas_wrapper(object):
 
-  version = 'py1.08'
+  version = 'py1.10'
   rc = 0
 
   def __init__(self, **kwargs):
@@ -680,7 +680,7 @@ class Molcas_wrapper(object):
     nprocs = int(get_utf8('MOLCAS_NPROCS', default='1'))
     return ((serial == 'YES') or (nprocs == 1))
 
-  def wrap_command(self, executable, may_be_serial=True):
+  def wrap_command(self, executable, may_be_serial=True, may_debug=True):
     '''
     Wrap the specified command as appropriate.
     If may_be_serial=False, never uses RUNBINARYSER.
@@ -688,7 +688,10 @@ class Molcas_wrapper(object):
     '''
     nprocs = int(get_utf8('MOLCAS_NPROCS', default='1'))
     set_utf8('MOLCAS_NPROCS', nprocs)
-    debugger = get_utf8('MOLCAS_DEBUGGER')
+    if (may_debug):
+      debugger = get_utf8('MOLCAS_DEBUGGER')
+    else:
+      debugger = ''
     if (debugger):
       command = '{0} $program'.format(debugger)
     elif (may_be_serial and self.is_serial):
@@ -815,7 +818,7 @@ class Molcas_wrapper(object):
       cwd = None
     else:
       cwd = self.scratch
-    parnell = self.wrap_command(self.parnell, may_be_serial=False)
+    parnell = self.wrap_command(self.parnell, may_be_serial=False, may_debug=False)
     rc = teed_call(parnell + task, cwd=cwd, stdout=output, stderr=error)
     return rc
 
@@ -842,10 +845,11 @@ class Molcas_wrapper(object):
 
   def in_sbin(self, prog):
     '''Return the path of a program in sbin if it exists'''
-    for path in [self.molcas] + self.sources:
-      filename = join(path, 'sbin', prog)
-      if (isfile(filename) and access(filename, X_OK)):
-        return filename
+    if (prog == basename(prog)):
+      for path in [self.molcas] + self.sources:
+        filename = join(path, 'sbin', prog)
+        if (isfile(filename) and access(filename, X_OK)):
+          return filename
     return False
 
   def run_sbin(self, command):
@@ -1153,6 +1157,7 @@ class Molcas_module(object):
       set_utf8('MOLCAS_REDUCE_PRT', 'NO')
 
     command = self.parent.wrap_command(self._exec[0])
+    no_tee=(get_utf8('MOLCAS_DEBUGGER') != '')
 
     self._output = BytesIO()
     self._error = BytesIO()
@@ -1162,7 +1167,7 @@ class Molcas_module(object):
     self._rstart = getrusage(RUSAGE_CHILDREN)
     self.parent.run_logue('module.prologue')
     if (isfile(self._exec[0]) and access(self._exec[0], X_OK)):
-      teed_call(command, cwd=self.parent.scratch, stdout=self._output, stderr=self._error)
+      teed_call(command, cwd=self.parent.scratch, stdout=self._output, stderr=self._error, no_tee=no_tee)
       self._read_rc()
     else:
       self.rc = '_RC_NOT_AVAILABLE_'

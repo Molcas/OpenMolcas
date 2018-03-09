@@ -78,6 +78,7 @@
         OutStr = Input
       Else
         WD = WorkDir
+        If (Trim(WD) .eq. '') WD = '.'
         Num = FindFile(Input, FileTable)
         If (Num .gt. 0) Then
 #ifdef _DEBUG_

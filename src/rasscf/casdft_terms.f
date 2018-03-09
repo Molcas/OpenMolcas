@@ -25,6 +25,10 @@
 *     M.P. Fuelscher, Lund, July 1990
 *     GLM, Minneapolis,   May 2013
 *
+#ifdef _DMRG_
+!     module dependencies
+      use qcmaquis_interface_cfg
+#endif
       Implicit Real*8 (A-H,O-Z)
 *
 #include "rasdim.fh"
@@ -375,7 +379,11 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
           IADD=IADD+NAT
         ENDIF
       END DO
-      CALL CP_ONE_INT(WORK(LX0),ITU)
+#ifdef _DMRG_
+      if(.not.doDMRG)then
+        CALL CP_ONE_INT(WORK(LX0),ITU)
+      end if
+#endif
       CALL GETMEM('XXX1','FREE','REAL',LX1,NTOT1)
       CALL GETMEM('XXX0','FREE','REAL',LX0,NTOT1)
 

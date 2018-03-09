@@ -13,6 +13,7 @@
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='INPPRC')
+#include "WrkSpc.fh"
 #include "rasdim.fh"
 #include "rasdef.fh"
 #include "symmul.fh"
@@ -32,6 +33,7 @@
 
       CALL QENTER(ROUTINE)
 
+      Call GetMem('IDTDM','Allo','Inte',lIDTDM,NSTATE**2)
 * PAM07: The printing of spin-orbit Hamiltonian matrix elements:
 * If no value for SOTHR_PRT was given in the input, it has a
 * negative value that was set in init_rassi:
@@ -92,9 +94,9 @@ c     executed.
       CALL DANAME_MF(LUTDM,FNTDM)
 c ... end import from init_rassi
       IDISK=0
-      DO ISTATE=1,MXSTAT
+      DO ISTATE=1,nstate
        DO JSTATE=1,ISTATE
-        IDTDM(ISTATE,JSTATE)=IDISK
+        iWork(lIDTDM+(iState-1)*Nstate+Jstate-1)=IDISK
 C Compute next disk address after writing TDMZZ data set..
          CALL DDAFILE(LUTDM,0,DUMMY,NTDMZZ,IDISK)
 C ..and also a TSDMZZ data set
@@ -726,7 +728,10 @@ C Write out various input data:
         if (have_heff) then
           DO J=1,NSTATE
             DO I=1,NSTATE
-              HAM(I,J)=0.5D0*(HEFF(I,J)+HEFF(J,I))
+              iadr=(j-1)*nstate+i-1
+              iadr2=(i-1)*nstate+j-1
+              Work(LHAM+iadr)=0.5D0*(Work(L_HEFF+iadr)+
+     &                               Work(L_HEFF+iadr2))
             END DO
           END DO
           if (jobmatch) then
@@ -739,12 +744,12 @@ C Write out various input data:
         end if
       else if (ifejob) then
         if (have_diag) then
-          DO I=1,NSTATE
-            HAM(I,I)=REFENE(I)
+          DO I=0,NSTATE-1
+            Work(LHAM+i*nstate+i)=Work(LREFENE+i)
           END DO
         else if (have_heff) then
-          DO I=1,NSTATE
-            HAM(I,I)=HEFF(I,I)
+          DO I=0,NSTATE-1
+            Work(LHAM+i*nstate+i)=Work(L_HEFF+i*nstate+i)
           END DO
         else
           call WarningMessage(2,'EJOB used but no energies available!')
@@ -756,13 +761,16 @@ C Write out various input data:
           ifheff=.true.
           DO J=1,NSTATE
             DO I=1,NSTATE
-              HAM(I,J)=0.5D0*(HEFF(I,J)+HEFF(J,I))
+              iadr=(j-1)*nstate+i-1
+              iadr2=(i-1)*nstate+j-1
+              Work(LHAM+iadr)=0.5D0*(Work(L_HEFF+iadr)+
+     &                               Work(L_HEFF+iadr2))
             END DO
           END DO
         else if (have_diag) then
           ifhdia=.true.
-          DO I=1,NSTATE
-            HDIAG(I)=REFENE(I)
+          DO I=0,NSTATE-1
+            Work(LHDIAG+I)=Work(LREFENE+i)
           END DO
         end if
       end if
@@ -898,14 +906,16 @@ C Write out various input data:
         III=MIN(II+19,NSTATE)
         WRITE(6,*)
         WRITE(6,'(1X,A8,5x,20I4)')'  State:',(I,I=II,III)
-        WRITE(6,'(1X,A8,5x,20I4)')' JobIph:',(JBNUM(I),I=II,III)
-        WRITE(6,'(1X,A8,5x,20I4)')'Root nr:',(LROOT(I),I=II,III)
+        WRITE(6,'(1X,A8,5x,20I4)')' JobIph:',
+     &                             (iWork(lJBNUM+I-1),I=II,III)
+        WRITE(6,'(1X,A8,5x,20I4)')'Root nr:',
+     &                             (iWork(lLROOT+I-1),I=II,III)
        END DO
        IF(IFSHFT) THEN
          WRITE(6,*)
          WRITE(6,*)'Each input state will be shifted with an individual'
          WRITE(6,*)'amount of energy. These energy shifts are (a.u.):'
-         WRITE(6,'(1X,5F16.8)')(ESHFT(I),I=1,NSTATE)
+         WRITE(6,'(1X,5F16.8)')(Work(LESHFT+I),I=0,NSTATE-1)
        END IF
       END IF
 
@@ -913,8 +923,8 @@ C Added by Ungur Liviu on 04.11.2009
 C Addition of NSTATE, JBNUM, and LROOT to RunFile.
 
        CALL Put_iscalar('NSTATE_SINGLE',NSTATE)
-       CALL Put_iArray('JBNUM_SINGLE',JBNUM,NSTATE)
-       CALL Put_iArray('LROOT_SINGLE',LROOT,NSTATE)
+       CALL Put_iArray('JBNUM_SINGLE',iWork(lJBNUM),NSTATE)
+       CALL Put_iArray('LROOT_SINGLE',iWork(lLROOT),NSTATE)
 
 
       CALL XFLUSH(6)

@@ -26,7 +26,7 @@
       INTEGER IJPAIR, KEIG_BRA, KEIG_KET, LSYM_BRA
       INTEGER LSYM_KET, LSYM12, IDISK, IV, IE, ITD, IRC, ISYM
       INTEGER ISYM1, ISYM2, NB, NB1, NB2, LV2, LE2, ITD1, ITD2
-      INTEGER ISV, LB, LK, NBMIN
+      INTEGER ISV, LB, LK, NBMIN, ibra,jket
       INTEGER LUNIT, ISFREEUNIT, IDUMMY
       REAL*8  SSEL, SWAP, SEV, X, DUMMY
       CHARACTER*4  KNUM
@@ -154,12 +154,12 @@ C The BRA and KET binatural orbitals:
 
 C A long loop over eigenstate pairs:
       DO IJPAIR=1,NBINA
-C Requested state pairs for computation:
+C Requested state pairs for computation: (OBSOLETE)
        KEIG_BRA=IBINA(1,IJPAIR)
        KEIG_KET=IBINA(2,IJPAIR)
 C Get symmetries, via jobiph number for the states:
-       LSYM_BRA=IRREP(JBNUM(KEIG_BRA))
-       LSYM_KET=IRREP(JBNUM(KEIG_KET))
+       LSYM_BRA=IRREP(iWork(lJBNUM+KEIG_BRA-1))
+       LSYM_KET=IRREP(iWork(lJBNUM+KEIG_KET-1))
 C Combined symmetry:
        LSYM12=MUL(LSYM_BRA,LSYM_KET)
 C For relating left and right symmetry blocks, offset tables are
@@ -176,18 +176,20 @@ C needed for the singular values and for the TDM.
        CALL DCOPY_(NBSQ,0.0D0,0,WORK(LTDMAT),1)
 C DOUBLE LOOP OVER RASSCF WAVE FUNCTIONS
        DO I=1,NSTATE
-        IF (IRREP(JBNUM(I)).NE.LSYM_BRA) GOTO 92
+        IF (IRREP(iWork(lJBNUM+I-1)).NE.LSYM_BRA) GOTO 92
         DO J=1,NSTATE
-         IF (IRREP(JBNUM(J)).NE.LSYM_KET) GOTO 91
+         IF (IRREP(iWork(lJBNUM+J-1)).NE.LSYM_KET) GOTO 91
 C PICK UP TRANSITION DENSITY MATRIX FOR THIS PAIR OF RASSCF STATES:
 C WEIGHT WITH WHICH THEY CONTRIBUTE IS EIGVEC(I,KEIG_BRA)*EIGVEC(J,KEIG_KET).
-         X=EIGVEC(I,KEIG_BRA)*EIGVEC(J,KEIG_KET)
+         ibra=(i-1)*nstate+KEIG_BRA-1
+         jket=(j-1)*nstate+KEIG_KET-1
+         X=Work(LEIGVEC+ibra)*Work(LEIGVEC+jket)
          IF (I.GT.J) THEN
-           IDISK=IDTDM(I,J)
+           IDISK=iWork(lIDTDM+(I-1)*NSTATE+J-1)
            CALL DDAFILE(LUTDM,2,WORK(LTDMAO),NBSQ,IDISK)
          ELSE
 C Pick up conjugate TDM array, and transpose it into TDMAO.
-           IDISK=IDTDM(J,I)
+           IDISK=iWork(lIDTDM+(J-1)*NSTATE+I-1)
            CALL DDAFILE(LUTDM,2,WORK(LSCR),NBSQ,IDISK)
 C Loop over the receiving side:
            DO ISYM1=1,NSYM

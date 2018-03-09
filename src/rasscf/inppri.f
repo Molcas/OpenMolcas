@@ -292,12 +292,16 @@ C.. for GAS
       Write(LF,Fmt1)'----------------------------'
       Write(LF,*)
 
-      if(doDMRG)then  ! Information for DMRG
+      if(doDMRG)then  !> Information for QCMaquis-DMRG
 #ifdef _DMRG_
        if(dmrg_orbital_space%initial_occ(1,1) > 0)then
          dmrg_start_guess = "Single determinant"
        else
-         dmrg_start_guess = "Random numbers (default)"
+         if(dmrg_warmup%doCIDEAS)then
+           dmrg_start_guess = "CI-DEAS"
+         else
+           dmrg_start_guess = "Random numbers (default)"
+         end if
        end if
        call print_dmrg_info(lf,fmt2,1,dmrg_start_guess,nroots,thre)
 #endif

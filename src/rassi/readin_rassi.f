@@ -9,6 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE READIN_RASSI
+
+#ifdef _DMRG_
+      use qcmaquis_interface_cfg
+!       use qcmaquis_interface_environment, only:
+!      &    read_dmrg_info
+#endif
+
       IMPLICIT NONE
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -32,6 +39,9 @@
       Integer I, J, ISTATE, JSTATE, IJOB, ILINE, LINENR
       Integer LuIn
       Integer NFLS
+#ifdef _DMRG_
+      CHARACTER*16 dmrgchkp
+#endif
       REAL*8 ANORM
 
       CALL QENTER(ROUTINE)
@@ -53,6 +63,9 @@ C --- Default settings for Cholesky
       ChFracMem=0.0d0
 #endif
 
+      !> set some defaults
+      QDPT2SC = .false.
+      QDPT2EV = .true.
 
 C Find beginning of input:
  50   Read(LuIn,'(A72)',END=998) LINE
@@ -230,23 +243,23 @@ C ------------------------------------------
         ELSE
           BACKSPACE(LuIn)
           Read(LuIn,*,ERR=997) NJOB,(NSTAT(I),I=1,NJOB)
+          DO IJOB=1,NJOB
+            NSTATE=NSTATE+NSTAT(IJOB)
+          END DO
+          Call GetMem('JBNUM','Allo','Inte',LJBNUM,NSTATE)
+          Call GetMem('LROOT','Allo','Inte',LLROOT,NSTATE)
           LINENR=LINENR+1
+          NSTATE=0
           DO IJOB=1,NJOB
             ISTAT(IJOB)=NSTATE+1
-            Read(LuIn,*,ERR=997) (LROOT(NSTATE+J),J=1,NSTAT(IJOB))
+            Read(LuIn,*,ERR=997) (iWork(lLROOT+NSTATE+J),
+     &                                 J=0,NSTAT(IJOB)-1)
             LINENR=LINENR+1
             DO ISTATE=NSTATE+1,NSTATE+NSTAT(IJOB)
-              JBNUM(ISTATE)=IJOB
+              iWork(lJBNUM+ISTATE-1)=IJOB
             END DO
             NSTATE=NSTATE+NSTAT(IJOB)
           END DO
-        END IF
-        IF(NSTATE.GT.MXSTAT) THEN
-          Call WarningMessage(2,'Too many states.')
-          WRITE(6,*)' Max nr of (spin-free) states is MXSTAT=',MXSTAT
-          WRITE(6,*)' with value taken from parameter MXROOT in'
-          WRITE(6,*)' ''Molcas.fh''. Increase and recompile.'
-          CALL ABEND()
         END IF
         GOTO 100
       END IF
@@ -276,11 +289,14 @@ C ------------------------------------------
       IF(LINE(1:4).EQ.'HEXT') THEN
         IFHEXT=.TRUE.
         IFHAM =.TRUE.
-        Read(LuIn,*,ERR=997)((HAM(ISTATE,JSTATE),JSTATE=1,ISTATE),
-     &                                           ISTATE=1,NSTATE)
-        DO ISTATE=1,NSTATE-1
-         DO JSTATE=ISTATE+1,NSTATE
-          HAM(ISTATE,JSTATE)=HAM(JSTATE,ISTATE)
+        Call GetMem('HAM','Allo','Real',LHAM,NSTATE**2)
+        Read(LuIn,*,ERR=997)((WORK(LHAM+ISTATE*NSTATE+JSTATE),
+     &                                           JSTATE=0,ISTATE),
+     &                                           ISTATE=0,NSTATE-1)
+        DO ISTATE=0,NSTATE-2
+         DO JSTATE=ISTATE,NSTATE-1
+           WORK(LHAM+JSTATE*NSTATE+ISTATE)=
+     &     WORK(LHAM+ISTATE*NSTATE+JSTATE)
          END DO
         END DO
         LINENR=LINENR+NSTATE
@@ -302,20 +318,26 @@ C ------------------------------------------
       IF(LINE(1:4).EQ.'EJOB') THEN
         IFEJOB=.TRUE.
         IFHAM=.TRUE.
-        LINENR=LINENR+1
+!<<<<<<< HEAD
+!=======
+!   Leon: Is it really needed?
+!        LINENR=LINENR+1
+!>>>>>>> openmolcas-master
         GOTO 100
       END IF
 C ------------------------------------------
       IF(LINE(1:4).EQ.'HDIA') THEN
         IFHDIA=.TRUE.
-        Read(LuIn,*,ERR=997)(HDIAG(ISTATE),ISTATE=1,NSTATE)
+        Call GetMem('HDIAG','ALLO','REAL',LHDIAG,NSTATE)
+        Read(LuIn,*,ERR=997)(Work(LHDIAG+ISTATE),ISTATE=0,NSTATE-1)
         LINENR=LINENR+1
         GOTO 100
       END IF
 C ------------------------------------------
       IF(LINE(1:4).EQ.'SHIF') THEN
         IFSHFT=.TRUE.
-        Read(LuIn,*,ERR=997)(ESHFT(ISTATE),ISTATE=1,NSTATE)
+        Call GetMem('ESHFT','Allo','Real',LESHFT,NSTATE)
+        Read(LuIn,*,ERR=997)(Work(LESHFT+ISTATE),ISTATE=0,NSTATE-1)
         LINENR=LINENR+1
         GOTO 100
       END IF
@@ -608,7 +630,40 @@ C ------------------------------------------
         Linenr=Linenr+1
         GoTo 100
       Endif
-C ------------------------------------------
+C--------------------------------------------
+#ifdef _DMRG_
+      ! Leon 22/11/2016 -- Moved DMRG initialisation here
+      ! Introduced a mandatory keyword for DMRG
+      IF (Line(1:4).eq.'DMRG') then
+      ! Leon 29/11/2016 -- Ignore the dmrg_interface.parameters file
+      ! since different JobIPHs/checkpoint files may come from different
+      ! calculations. The parameters that should be otherwise read in
+      ! read_dmrg_info() will be read in rdjob, if we need them
+        doDMRG = .true.
+      ! check whether we should NOT read checkpoint names from xxx.h5 files
+        Read(LuIn,*,ERR=997) dmrgchkp
+        call UpCase(dmrgchkp)
+        if (dmrgchkp(1:5).eq.'NOCH') then
+          doMPSSICheckpoints = .false.
+          LINENR=LINENR+1
+        else
+          doMPSSICheckpoints = .true.
+          BACKSPACE(LuIn)
+        end if
+        GOTO 100
+      End IF
+C--------------------------------------------
+      if (Line(1:4).eq.'QDSC') then
+        QDPT2SC = .true.
+        goto 100
+      end if
+C--------------------------------------------
+      if (Line(1:4).eq.'NOQD') then
+        QDPT2EV = .false.
+        goto 100
+      end if
+#endif
+C--------------------------------------------
       IF(LINE(1:4).EQ.'KVEC')THEN
 ! Calculate exact semi-classical intensities in given directions
         DO_KVEC=.TRUE.

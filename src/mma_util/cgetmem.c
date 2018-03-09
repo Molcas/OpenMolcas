@@ -527,7 +527,7 @@ INT add_mentry(mstat *MM, mentry mentries[], mentry *tmp) {
        wrkspc=(char *) malloc(tmp->len);
     } else {
 #ifdef _DARWIN_
-       wrkspc=(char *) valloc((size_t) tmp->len);
+       wrkspc=(char *) malloc((size_t) tmp->len);
 #else
        rc=posix_memalign((void **) &wrkspc, (size_t) sysconf(_SC_PAGESIZE), (size_t) tmp->len);
        (void)rc;

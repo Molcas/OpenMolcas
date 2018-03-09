@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE PRPROP(PROP,USOR,USOI,ENSOR,NSS)
+      SUBROUTINE PRPROP(PROP,USOR,USOI,ENSOR,NSS,OVLP,ENERGY,JBNUM)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
 #include "prgm.fh"
@@ -23,7 +23,8 @@
 #include "Files.fh"
 #include "WrkSpc.fh"
 #include "constants.fh"
-      DIMENSION PROP(NSTATE,NSTATE,NPROP)
+      DIMENSION PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
+     &          ENERGY(NSTATE),JBNUM(NSTATE)
 #include "SysDef.fh"
 #include "rassiwfn.fh"
       Character*1 xyzchr(3)
@@ -69,8 +70,6 @@
       Complex*16 T0(3), T1(3), TM1, TM2, E1A, E2A, E1B, E2B,
      &           IMAGINARY
       REAL*8 COMPARE
-
-
 
 
       CALL QENTER(ROUTINE)
@@ -765,7 +764,7 @@ C printing threshold
           DO I=1,IEND
             DO J=JSTART,NSS
                IJ=I+NSS*(J-1)
-               EDIFF=ENERGY(J)-ENERGY(I)
+               EDIFF=ENSOR(J)-ENSOR(I)
                IF(EDIFF.LT.0.0D0) CYCLE
            IF(WORK(LDL-1+IJ).GE.OSTHR.AND.WORK(LDV-1+IJ).GE.OSTHR) THEN
                COMPARE = ABS(1-WORK(LDL-1+IJ)/WORK(LDV-1+IJ))
@@ -1996,7 +1995,7 @@ C printing threshold
 *
       Call DaName(LuToM,FnToM)
       iDisk=0
-      Call iDaFile(LuToM,2,iTocM,MxStat*(MxStat+1)/2,iDisk)
+      Call iDaFile(LuToM,2,iWork(liTocM),nState*(nState+1)/2,iDisk)
 *
 *     Allocate some temporary arrays for handling the
 *     properties of the spin-orbit states.
@@ -2185,7 +2184,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                      ISTATE=MAX(i,j)
                      JSTATE=MIN(i,j)
                      ij=ISTATE*(ISTATE-1)/2+JSTATE
-                     iDisk=iTocM(ij)
+                     iDisk=iWork(liTocM+ij-1)
                      Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
 *
 *                    Compute the transition property of the property

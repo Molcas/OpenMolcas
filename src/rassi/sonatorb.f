@@ -38,7 +38,7 @@ c transform V matrix in SF basis to spin basis
 c This was taken from smmat.f and modified slightly
       ISS=0
       DO ISTATE=1,NSTATE
-       JOB1=JBNUM(ISTATE)
+       JOB1=iWork(lJBNUM+ISTATE-1)
        MPLET1=MLTPLT(JOB1)
        S1=0.5D0*DBLE(MPLET1-1)
 
@@ -48,7 +48,7 @@ c This was taken from smmat.f and modified slightly
         JSS=0
 
         DO JSTATE=1,NSTATE
-         JOB2=JBNUM(JSTATE)
+         JOB2=iWork(lJBNUM+JSTATE-1)
          MPLET2=MLTPLT(JOB2)
          S2=0.5D0*DBLE(MPLET2-1)
 
@@ -58,7 +58,7 @@ c This was taken from smmat.f and modified slightly
 
           IF (MPLET1.EQ.MPLET2 .AND. MSPROJ1.EQ.MSPROJ2) THEN
            IJ=(JSS-1)*NSS+ISS
-           WORK(LVMAT-1+IJ)=EIGVEC(ISTATE,JSTATE)
+           WORK(LVMAT-1+IJ)=WORK(LEIGVEC+(ISTATE-1)*NSTATE+JSTATE-1)
           END IF ! IF (MPLET1.EQ.MPLET2 .AND. MSPROJ1.EQ.MSPROJ2)
          END DO ! DO MSPROJ2=-MPLET2+1,MPLET2-1,2
         END DO ! end DO JSTATE=1,NSTATE
@@ -259,7 +259,7 @@ C (see prprop.f and others)
 
       ISS=0
       DO ISF=1,NSTATE
-        JOB=JBNUM(ISF)
+        JOB=iWork(lJBNUM+ISF-1)
         MPLET=MLTPLT(JOB)
 
         DO MSPROJ=-MPLET+1,MPLET-1,2
@@ -346,8 +346,8 @@ C REQUESTED SPIN STATES
         MPLETL=IWORK(LMAPSP-1+LSS)
         MSPROJL=IWORK(LMAPMS-1+LSS)
 
-        JOB1=JBNUM(KSF)
-        JOB2=JBNUM(LSF)
+        JOB1=iWork(lJBNUM+KSF-1)
+        JOB2=iWork(lJBNUM+LSF-1)
         LSYM1=IRREP(JOB1)
         LSYM2=IRREP(JOB2)
         ISY12=MUL(LSYM1,LSYM2)
@@ -385,9 +385,9 @@ C IDTDM: TOC array for transition 1-matrices
 c TDMZZ is stored on disk from i = 1, NSTATE j=1, i
 c so swap if needed
         IF(LSF.GT.KSF) THEN
-          IDISK=IDTDM(LSF,KSF)
+          IDISK=iWork(lIDTDM+(LSF-1)*NSTATE+KSF-1)
         ELSE
-          IDISK=IDTDM(KSF,LSF)
+          IDISK=iWork(lIDTDM+(KSF-1)*NSTATE+LSF-1)
         END IF
         CALL DDAFILE(LUTDM,2,WORK(LTDMZZ),NTDMZZ,IDISK)
 
@@ -660,7 +660,7 @@ C (see prprop.f and others)
 
       ISS=0
       DO ISF=1,NSTATE
-        JOB=JBNUM(ISF)
+        JOB=iWork(lJBNUM+ISF-1)
         MPLET=MLTPLT(JOB)
 
         DO MSPROJ=-MPLET+1,MPLET-1,2

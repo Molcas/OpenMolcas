@@ -10,7 +10,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2017, Ignacio Fdez. Galván                             *
+# Copyright (C) 2017,2018, Ignacio Fdez. Galván                        *
 #***********************************************************************
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
@@ -95,10 +95,16 @@ def check_test(infofile, checkfile, count):
     start = False
     print('\nChecking results:')
     factor = int(get_utf8('MOLCAS_THR', default='0'))
+    passcheck = int(get_utf8('MOLCAS_PASSCHECK', default='0'))
+    failrc = '_RC_ALL_IS_WELL_' if (passcheck) else '_RC_CHECK_ERROR_'
     fuzzy = get_utf8('MOLCAS_CHECK_FUZZY', default='').upper()
     fuzzy = ((fuzzy == 'YES') or (fuzzy == 'ON'))
-    if (factor != 0):
+    if (factor > 0):
       print('\n*** Tolerance increased by a factor of {0}'.format(10**factor))
+    else:
+      factor = 0
+    if (passcheck):
+      print('\n*** This check is informative only, nothing fails')
     fmt_head = '\n{0:^30} {1:^16} {2:^16} {3:^9} {4:^9}'.format('Label','Value','Reference','Error','Tolerance')
     fmt_num = '{0:<30} {1:16.12g} {2:16.12g} {3:9.3e} {4:9.3e} {5}'
     fmt_rule = '-'*84
@@ -111,10 +117,10 @@ def check_test(infofile, checkfile, count):
         extra.append(vals[j]['lab'])
         j += 1
         if (not fuzzy):
-          rc = '_RC_CHECK_ERROR_'
+          rc = failrc
       if (j >= len(vals)):
         print('*** Label not found: {0}'.format(refs[i]['lab']))
-        rc = '_RC_CHECK_ERROR_'
+        rc = failrc
         break
       else:
         for item in extra:
@@ -134,7 +140,7 @@ def check_test(infofile, checkfile, count):
             tag = 'Skipped'
           else:
             tag = 'Failed'
-            rc = '_RC_CHECK_ERROR_'
+            rc = failrc
         else:
           tag = ''
         print(fmt_num.format(refs[i]['lab'], vals[j]['val'], refs[i]['val'], dif, tol, tag))
@@ -144,7 +150,7 @@ def check_test(infofile, checkfile, count):
       print('*** Extra label: {0}'.format(vals[j]['lab']))
       j += 1
       if (not fuzzy):
-        rc = '_RC_CHECK_ERROR_'
+        rc = failrc
     if (start):
       print('-'*84)
     elif (rc == '_RC_ALL_IS_WELL_'):

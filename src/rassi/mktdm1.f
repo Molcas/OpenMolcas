@@ -10,7 +10,8 @@
 ************************************************************************
       SUBROUTINE MKTDM1(LSYM1,MPLET1,MSPROJ1,IFSBTAB1,
      &    LSYM2,MPLET2,MSPROJ2,IFSBTAB2,ISSTAB,MAPORB,
-     &    DET1,DET2,SIJ,NASHT,TDM1,TSDM1,WTDM1,ISTATE,JSTATE)
+     &    DET1,DET2,SIJ,NASHT,TDM1,TSDM1,WTDM1,ISTATE,JSTATE,
+     &    lLROOT,job1,job2,ist,jst)
 
       !> module dependencies
 #ifdef _DMRG_
@@ -18,18 +19,29 @@
       use qcmaquis_interface_wrapper
       use qcmaquis_interface_utility_routines, only:
      &    pretty_print_util
+      use qcmaquis_info
 #endif
 
       IMPLICIT NONE
-      INTEGER LSYM1,MPLET1,MSPROJ1,LSYM2,MPLET2,MSPROJ2
+      INTEGER LSYM1,MPLET1,MSPROJ1,LSYM2,MPLET2,MSPROJ2,lLROOT
       INTEGER IFSBTAB1(*),IFSBTAB2(*),ISSTAB(*),MAPORB(*)
       INTEGER IORB,ISORB,ISYOP,ITABS,IUABS,JORB,JSORB,LORBTB
       INTEGER LSPD1,MS2OP,NASHT,NASORB,NSPD1
-      INTEGER, INTENT(IN) :: ISTATE, JSTATE
+      INTEGER, INTENT(IN) :: ISTATE, JSTATE,job1,job2,ist,jst
       REAL*8 DET1(*),DET2(*)
       REAL*8 SIJ,TDM1(NASHT,NASHT),TSDM1(NASHT,NASHT),WTDM1(NASHT,NASHT)
       REAL*8 S1,S2,SM,SM1,SM2,GAA,GAB,GBA,GBB
       REAL*8 OVERLAP_RASSI,TMATEL,RED,FACT,CGCOEF,DCLEBS
+#ifdef _DMRG_
+      LOGICAL :: debug_dmrg_rassi_code = .false.
+#endif
+
+#ifdef _DMRG_
+      ! strings for conversion of the qcmaquis h5 checkpoint names from 2u1 to su2u1
+      character(len=3) :: mplet1s, msproj1s
+      ! new checkpoint names
+      character(len=2300) :: checkpoint1_2u1,checkpoint2_2u1
+#endif
 
 #include "symmul.fh"
 #include "WrkSpc.fh"
@@ -46,7 +58,9 @@ C Pick out nr of active orbitals from orbital table:
       NASORB=IWORK(LORBTB+3)
 
 C Overlap:
+
       SIJ=0.0D00
+
       IF(MPLET1.EQ.MPLET2.AND.MSPROJ1.EQ.MSPROJ2) THEN
 
 #ifdef _DMRG_
@@ -57,28 +71,62 @@ C Overlap:
 
 #ifdef _DMRG_
         else
-!         if(istate == jstate)then
-!           sij = 1.0d0
-!         else
-          call dmrg_interface_ctl(
+          if (doMPSSICheckpoints) then
+            if (dmrg_external%MPSrotated) then
+              write(mplet1s,'(I3)')  MPLET1-1
+              write(msproj1s,'(I3)')  MSPROJ1
+
+              checkpoint1_2u1 = qcm_group_names(job1)%states(ist)
+     &(1:len_trim(qcm_group_names(job1)%states(ist))-3)
+     &//"."//trim(adjustl(mplet1s))//"."//trim(adjustl(msproj1s))//".h5"
+              checkpoint2_2u1 = qcm_group_names(job2)%states(jst)
+     &(1:len_trim(qcm_group_names(job2)%states(jst))-3)
+     &//"."//trim(adjustl(mplet1s))//"."//trim(adjustl(msproj1s))//".h5"
+
+              call dmrg_interface_ctl(
+     &                            task        = 'overlapU',
+     &                            energy      = sij,
+     &                            checkpoint1 = checkpoint1_2u1,
+     &                            checkpoint2 = checkpoint2_2u1
+     &                           )
+            else
+              call dmrg_interface_ctl(
      &                            task   = 'overlap ',
      &                            energy = sij,
-     &                            state  = istate,
-     &                            stateL = jstate
+     &                            checkpoint1 =
+     &                            qcm_group_names(job1)%states(ist),
+     &                            checkpoint2 =
+     &                            qcm_group_names(job2)%states(jst)
      &                           )
-!         print *, 'overlap sij is for i,j; dmrg',istate,jstate,sij
+            end if
+          else
+          ! Leon: TODO: Add possibility to calculate overlap of rotated MPS without using checkpoint names
+            call dmrg_interface_ctl(
+     &                            task   = 'overlap ',
+     &                            energy = sij,
+     &                            state  = iWork(lLROOT+istate-1),
+     &                            stateL = iWork(lLROOT+jstate-1)
+     &                           )
+          end if
+
+        end if ! DMRG or not
+
+
+        if(debug_dmrg_rassi_code)then
+          write(6,*) 'overlap sij is for i,j',istate,jstate,sij
+          call flush(6)
         end if
 #endif
-      END IF
+      END IF ! mmplet and msproj check
 
 C General 1-particle transition density matrix:
       NSPD1=NASORB**2
       CALL GETMEM('SPD1','Allo','Real',LSPD1,NSPD1)
       CALL DCOPY_(NSPD1,0.0D0,0,WORK(LSPD1),1)
-      ISYOP=MUL(LSYM1,LSYM2)
-      MS2OP=MSPROJ1-MSPROJ2
-      IF(ABS(MSPROJ1-MSPROJ2).LE.2) THEN
+      ISYOP = MUL(LSYM1,LSYM2)
+      MS2OP = MSPROJ1-MSPROJ2
 
+      IF(ABS(MS2OP).LE.2) THEN
 #ifdef _DMRG_
         if(.not.doDMRG)then
 #endif
@@ -90,23 +138,49 @@ C General 1-particle transition density matrix:
 
 #ifdef _DMRG_
         else
-          call dmrg_interface_ctl(
-     &                            task  = 'imp rdmY',
-     &                            x1    = work(lspd1),
-     &                            ndim  = nasorb,
-     &                            state = istate,
-     &                            stateL= jstate,
-     &                            rdm1  = .true.,
-     &                            rdm2  = .false.
+          if(isyop /= 1)
+     & stop 'MPS property density with spatial symm irrep > 1: FIXME!'
+          if (doMPSSICheckpoints) then
+            call dmrg_interface_ctl(
+     &                            task       = 'imp rdmY',
+     &                            x1         = work(lspd1),
+     &                            ndim       = nasorb,
+     &                            checkpoint1=
+     &                            qcm_group_names(job1)%states(ist),
+     &                            checkpoint2=
+     &                            qcm_group_names(job2)%states(jst),
+     &                            msproj     = msproj1,
+     &                            msprojL    = msproj2,
+     &                            multiplet  = MPLET1-1, ! (MPLET1 == 2*S+1) and we need 2*S
+     &                            multipletL = MPLET2-1, ! (MPLET2 == 2*S+1) and we need 2*S
+     &                            rdm1       = .true.,
+     &                            rdm2       = .false.
      &                           )
+          else
+            call dmrg_interface_ctl(
+     &                            task       = 'imp rdmY',
+     &                            x1         = work(lspd1),
+     &                            ndim       = nasorb,
+     &                            state      = iWork(lLROOT+istate-1),
+     &                            stateL     = iWork(lLROOT+jstate-1),
+     &                            msproj     = msproj1,
+     &                            msprojL    = msproj2,
+     &                            multiplet  = MPLET1-1, ! (MPLET1 == 2*S+1) and we need 2*S
+     &                            multipletL = MPLET2-1, ! (MPLET2 == 2*S+1) and we need 2*S
+     &                            rdm1       = .true.,
+     &                            rdm2       = .false.
+     &                           )
+          end if
         end if
 #endif
 
 #ifdef _DMRG_
-!       print *, 'density for i, j',istate,jstate
-!       print *, 'dimension: ',nasorb**2, '--> #nact', nasorb
-!       call pretty_print_util(WORK(LSPD1),1,nasorb,1,nasorb,
-!    &                         nasorb,nasorb,1,6)
+        if(debug_dmrg_rassi_code)then
+          write(6,*) 'density for i, j',istate,jstate
+          write(6,*) 'dimension: ',nasorb**2, '--> #nact', nasorb
+          call pretty_print_util(WORK(LSPD1),1,nasorb,1,nasorb,
+     &                           nasorb,nasorb,1,6)
+        end if
 #endif
 
       END IF
@@ -134,12 +208,17 @@ C Position determined by active orbital index in external order:
         ITABS=MAPORB(ISORB)
         IUABS=MAPORB(JSORB)
 
+#ifdef _DMRG_
+        if(debug_dmrg_rassi_code)then
+          write(6,'(a,2i3,4f12.8)') ' i,j: GAA,GBB,GAB,GBA ==> ',
+     &                itabs,iuabs,gaa,gbb,gab,gba
+        end if
+#endif
+
         !> scalar TDM
         TDM1(ITABS,IUABS)=GAA+GBB
         !> spin TDM
         TSDM1(ITABS,IUABS)=GAA-GBB
-
-!       print *, ' GBA and GBA ==> i, j',ISORB,JSORB,GAB,GBA
 
 C Clebsch-Gordan coefficient:
         SM=SM1-SM2
@@ -178,21 +257,28 @@ C Thus obtain reduced matrix element from Wigner-Eckart theorem:
       END DO
 
 #ifdef _DMRG_
-      !> debug print
-!     print *, '1-tdm density for i, j',istate,jstate
-!     call pretty_print_util(tdm1,1,nasht,1,nasht,
-!    &                       nasht,nasht,1,6)
-!     print *, '1-tdm sp-density for i, j',istate,jstate
-!     call pretty_print_util(tsdm1,1,nasht,1,nasht,
-!    &                       nasht,nasht,1,6)
-!     print *, 'w-reduced tdm for i, j',istate,jstate
-!     call pretty_print_util(wtdm1,1,nasht,1,nasht,
-!    &                       nasht,nasht,1,6)
+      if(debug_dmrg_rassi_code)then
+        !> debug print
+        write(6,*) '1-tdm density for i, j',istate,jstate
+        call pretty_print_util(tdm1,1,nasht,1,nasht,
+     &                         nasht,nasht,1,6)
+        write(6,*) '1-tdm sp-density for i, j',istate,jstate
+        call pretty_print_util(tsdm1,1,nasht,1,nasht,
+     &                         nasht,nasht,1,6)
+        write(6,*) 'w-reduced tdm for i, j',istate,jstate
+        call pretty_print_util(wtdm1,1,nasht,1,nasht,
+     &                         nasht,nasht,1,6)
+      end if
 #else
 c Avoid unused argument warnings
       IF (.FALSE.) THEN
         CALL Unused_integer(ISTATE)
         CALL Unused_integer(JSTATE)
+        call Unused_integer(lLROOT)
+        call Unused_integer(job1)
+        call Unused_integer(job2)
+        call Unused_integer(ist)
+        call Unused_integer(jst)
       END IF
 #endif
 

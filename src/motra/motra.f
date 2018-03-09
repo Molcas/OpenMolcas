@@ -22,7 +22,7 @@
 ***** M.P. Fuelscher, University of Lund, Sweden, 1991 *****************
 
       !> module dependencies
-#ifdef _HDF5_F2003_
+#ifdef _HDF5_QCM_
       use hdf5_utils
 #endif
 
@@ -30,6 +30,8 @@
 #include "trafo_motra.fh"
 #include "WrkSpc.fh"
       COMMON / CHO_Minp / iCTonly, iDoInt
+      Character*3  tv2disk
+      COMMON / CHOTRAW /tv2disk
       Logical DoCholesky, Do_int
 *----------------------------------------------------------------------*
 *     Start program and say Hello                                      *
@@ -46,7 +48,7 @@
       Call InpCtl_Motra(ipOvlp,ipHOne,ipKine,ipCMO)
 
       !> initialize HDF5 interface
-#ifdef _HDF5_F2003_
+#ifdef _HDF5_QCM_
       if(ihdf5 == 1)then
         !> enable HDF5 support and open the file ijklname
         call hdf5_init()
@@ -64,11 +66,21 @@
             write(6,*)'      Warning! This is not RI/CD calculation: '
             write(6,*)'                      keyword CTonly ignored! '
          Else
+#ifdef _HDF5_QCM_
+            If ((ihdf5.eq.1).and.(tv2disk.ne.'KPQ')) Then
+              Write(6,*)' Transformed Cholesky vectors cannot be '//
+     &          ' written as (pq,K) in HDF5 file as of now. Activate'//
+     &          ' the KPQ option to store them or disable'//
+     &          ' the HDF5 option.'
+              Call Abend()
+            End If
+#endif
             write(6,*)
             write(6,*)'      ... Skipping MoTRA of ERIs ...'
             write(6,*)
             write(6,*)'      ... but Cholesky vectors will be MoTRA.'
             write(6,*)
+            ! Cholesky vectors in HDF5 must be stored as KPQ format (for now)
             Do_int=.false.
             If (iDoInt.eq.1) Do_int=.true.
             Call Cho_MOtra(Work(ipCMO),nTot2,Do_int,ihdf5)
@@ -125,7 +137,7 @@
       Call GetMem('HOne','Free','Real',ipHOne,nTot1+4)
       Call GetMem('Ovlp','Free','Real',ipOvlp,nTot1+4)
 *
-#ifdef _HDF5_F2003_
+#ifdef _HDF5_QCM_
       if(ihdf5 == 1)then
         !> close the file ijkl.h5 and turn off HDF5 support.
         call hdf5_close(file_id(1))

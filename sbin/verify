@@ -194,6 +194,7 @@ if ($opt{fuzzy}) {
 # to ignore failures, choose negative threshold
 if ($opt{pass}) {
         $ENV{'MOLCAS_THR'} = '-1';
+        $ENV{'MOLCAS_PASSCHECK'} = '1';
 }
 
 #-------------------------------------------

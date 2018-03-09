@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-* Uncontracted muonic Gaussian primitives for H...He, Ar.
+* Uncontracted muonic Gaussian primitives for H...Ar, Cu.
 * Exponents optimized with respect to average CI energy in RASSCF calculation.
 * FINIte nuclei is used.
 /H.muonic.Ugandi.18s14p11d.18s14p11d.

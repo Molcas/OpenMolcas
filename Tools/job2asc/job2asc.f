@@ -21,6 +21,7 @@ C with some additional explanation.
 #include "general.fh"
 
       CALL INIT_LINALG
+      CALL PrgmInit('Job2Asc')
 
       JOBIPH=15
       JOBIPH=isFreeUnit(JOBIPH)

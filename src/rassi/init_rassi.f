@@ -102,27 +102,10 @@ C NR OF JOBIPHS AND STATES:
        WRITE(6,'(1X,A,I4)')'  NJOB:',NJOB
        WRITE(6,'(1X,A,I4)')'NSTATE:',NSTATE
       END IF
-
-C Hamiltonian matrix:
-      DO JSTATE=1,MXSTAT
-       DO ISTATE=1,MXSTAT
-        HEFF(ISTATE,JSTATE)=0.0D0
-        HAM(ISTATE,JSTATE)=0.0D0
-       END DO
-      END DO
-
-C Initialize eigenvector array.
-      DO J=1,MXSTAT
-        DO I=1,MXSTAT
-          EIGVEC(I,J)=0.0D0
-        END DO
-        EIGVEC(J,J)=1.0D0
-      END DO
-
-C ENERGY SHIFTS OF INPUT STATES:
-      DO  I=1,MXSTAT
-        ESHFT(I)=0.0D00
-      END DO
+C
+      LHAM=ip_Dummy
+      LESHFT=ip_Dummy
+      LHdiag=ip_Dummy
 
 C NR OF OPERATORS FOR WHICH MATRIX ELEMENTS ARE TO BE CALCULATED:
       NPROP=0

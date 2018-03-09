@@ -30,11 +30,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
-!     Real*8  Final (nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,9),
-!    &        Slalbp(nZeta,(la+1)*(la+2)/2,(lb+2)*(lb+3)/2,3,3),
-!    &        Slalb (nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,3),
-!    &        Slalbm(nZeta,(la+1)*(la+2)/2, lb   *(lb+1)/2,3,3),
-!    &        Beta(nZeta)
+
       Real*8  Final (nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,9),
      &        Slalbp(nZeta,(la+1)*(la+2)/2,(lb+2)*(lb+3)/2,6),
      &        Slalb (nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,3),
@@ -152,33 +148,6 @@
             ipb = Ind(lb,ixb,izb)
 *
             Do 30 iZeta = 1, nZeta
-!              temp_xx = Two*Beta(iZeta) * (
-!    &                  Slalbp(iZeta,ipa,Ind(lb+1,ixb,izb+1),1,2)
-!    &                 -Slalbp(iZeta,ipa,Ind(lb+1,ixb,izb  ),1,3) )
-!              temp_yx = Two*Beta(iZeta) * (
-!    &                  Slalbp(iZeta,ipa,Ind(lb+1,ixb,izb+1),2,2)
-!    &                 -Slalbp(iZeta,ipa,Ind(lb+1,ixb,izb  ),2,3) )
-!              temp_zx = Two*Beta(iZeta) * (
-!    &                  Slalbp(iZeta,ipa,Ind(lb+1,ixb,izb+1),3,2)
-!    &                 -Slalbp(iZeta,ipa,Ind(lb+1,ixb,izb  ),3,3) )
-!              temp_xy = Two*Beta(iZeta) * (
-!    &                  Slalbp(iZeta,ipa,Ind(lb+1,ixb+1,izb),1,3)
-!    &                 -Slalbp(iZeta,ipa,Ind(lb+1,ixb,izb+1),1,1) )
-!              temp_yy = Two*Beta(iZeta) * (
-!    &                  Slalbp(iZeta,ipa,Ind(lb+1,ixb+1,izb),2,3)
-!    &                 -Slalbp(iZeta,ipa,Ind(lb+1,ixb,izb+1),2,1) )
-!              temp_zy = Two*Beta(iZeta) * (
-!    &                  Slalbp(iZeta,ipa,Ind(lb+1,ixb+1,izb),3,3)
-!    &                 -Slalbp(iZeta,ipa,Ind(lb+1,ixb,izb+1),3,1) )
-!              temp_xz = Two*Beta(iZeta) * (
-!    &                  Slalbp(iZeta,ipa,Ind(lb+1,ixb,izb  ),1,1)
-!    &                 -Slalbp(iZeta,ipa,Ind(lb+1,ixb+1,izb),1,2) )
-!              temp_yz = Two*Beta(iZeta) * (
-!    &                  Slalbp(iZeta,ipa,Ind(lb+1,ixb,izb  ),2,1)
-!    &                 -Slalbp(iZeta,ipa,Ind(lb+1,ixb+1,izb),2,2) )
-!              temp_zz = Two*Beta(iZeta) * (
-!    &                  Slalbp(iZeta,ipa,Ind(lb+1,ixb,izb  ),3,1)
-!    &                 -Slalbp(iZeta,ipa,Ind(lb+1,ixb+1,izb),3,2) )
                temp_xx = Two*Beta(iZeta) * (
      &                  Slalbp(iZeta,ipa,Ind(lb+1,ixb,izb+1),2)
      &                 -Slalbp(iZeta,ipa,Ind(lb+1,ixb,izb  ),3) )
@@ -233,18 +202,6 @@
 *
             If (ixb.gt.0) Then
                Do 31 iZeta = 1, nZeta
-!              temp_xy = Dble(ixb) *
-!    &                  Slalbm(iZeta,ipa,Ind(lb-1,ixb-1,izb),1,3)
-!              temp_yy = Dble(ixb) *
-!    &                  Slalbm(iZeta,ipa,Ind(lb-1,ixb-1,izb),2,3)
-!              temp_zy = Dble(ixb) *
-!    &                  Slalbm(iZeta,ipa,Ind(lb-1,ixb-1,izb),3,3)
-!              temp_xz =-Dble(ixb) *
-!    &                  Slalbm(iZeta,ipa,Ind(lb-1,ixb-1,izb),1,2)
-!              temp_yz =-Dble(ixb) *
-!    &                  Slalbm(iZeta,ipa,Ind(lb-1,ixb-1,izb),2,2)
-!              temp_zz =-Dble(ixb) *
-!    &                  Slalbm(iZeta,ipa,Ind(lb-1,ixb-1,izb),3,2)
                temp_yx = Dble(ixb) *
      &                  Slalbm(iZeta,ipa,Ind(lb-1,ixb-1,izb),3)
                temp_yy = Dble(ixb) *
@@ -275,18 +232,6 @@
 *
             If (iyb.gt.0) Then
                Do 32 iZeta = 1, nZeta
-!              temp_xx =-Dble(iyb) *
-!    &                  Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb  ),1,3)
-!              temp_yx =-Dble(iyb) *
-!    &                  Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb  ),2,3)
-!              temp_zx =-Dble(iyb) *
-!    &                  Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb  ),3,3)
-!              temp_xz = Dble(iyb) *
-!    &                  Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb  ),1,1)
-!              temp_yz = Dble(iyb) *
-!    &                  Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb  ),2,1)
-!              temp_zz = Dble(iyb) *
-!    &                  Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb  ),3,1)
                temp_xx =-Dble(iyb) *
      &                  Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb  ),3)
                temp_xy =-Dble(iyb) *
@@ -318,18 +263,6 @@
 *
             If (izb.gt.0) Then
                Do 33 iZeta = 1, nZeta
-!              temp_xx = Dble(izb) *
-!    &                  Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb-1),1,2)
-!              temp_yx = Dble(izb) *
-!    &                  Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb-1),2,2)
-!              temp_zx = Dble(izb) *
-!    &                  Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb-1),3,2)
-!              temp_xy =-Dble(izb) *
-!    &                  Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb-1),1,1)
-!              temp_yy =-Dble(izb) *
-!    &                  Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb-1),2,1)
-!              temp_zy =-Dble(izb) *
-!    &                  Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb-1),3,1)
                temp_xx = Dble(izb) *
      &                  Slalbm(iZeta,ipa,Ind(lb-1,ixb,izb-1),2)
                temp_xy = Dble(izb) *

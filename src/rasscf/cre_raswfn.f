@@ -11,6 +11,9 @@
       subroutine cre_raswfn
 *     SVC: Create a wavefunction file. If another .wfn file already
 *     exists, it will be overwritten.
+#ifdef _DMRG_
+      use qcmaquis_interface_cfg
+#endif
       implicit none
 #ifdef _HDF5_
 #  include "rasdim.fh"
@@ -148,5 +151,16 @@
      $        'Fock matrix '//
      $        'arranged as blocks of size [NBAS(i)**2], i=1,#irreps')
 
+#ifdef _DMRG_
+      if (doDMRG) then
+! Leon 1/12/2016: Add the QCMaquis checkpoint name to the description of each state
+! maximum allowed filename length is equal to MH5_MAX_LBL_LEN=256
+        wfn_dmrg_checkpoint = mh5_create_dset_str(wfn_fileid,
+     $        'QCMAQUIS_CHECKPOINT', 1, [lRoots], 256)
+        call mh5_init_attr(wfn_dmrg_checkpoint,'description',
+     $        'QCMaquis checkpoint directory names for each root'//
+     $        ' in [NROOTS].')
+      end if
+#endif
 #endif
       end
