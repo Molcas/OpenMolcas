@@ -1445,7 +1445,6 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
 !
             EDIFF2=EDIFF**2
             IJSS=ISS+NSS*(JSS-1)
-!           print*,' For ISS and JSS = ',ISS,JSS
 !
             DXYDZ=0.0D0
             DYXDZ=0.0D0
@@ -1455,7 +1454,6 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
      &                           *PROP(JSS,ISS,IPRDZ)
             FXY=ONEOVER9C2*EDIFF2*(DXYDZ)
             FYX=-ONEOVER9C2*EDIFF2*(DYXDZ)
-!           print*,'YX,XY',PROP(JSS,ISS,IPRDYX),PROP(JSS,ISS,IPRDXY)
 
             DZXDY=0.0D0
             DXZDY=0.0D0
@@ -1465,7 +1463,6 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
      &                           *PROP(JSS,ISS,IPRDY)
             FZX=ONEOVER9C2*EDIFF2*(DZXDY)
             FXZ=-ONEOVER9C2*EDIFF2*(DXZDY)
-!           print*,'ZX,XZ',PROP(JSS,ISS,IPRDZX),PROP(JSS,ISS,IPRDXZ)
 
             DYZDX=0.0D0
             DZYDX=0.0D0
@@ -1475,7 +1472,6 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
      &                           *PROP(JSS,ISS,IPRDX)
             FYZ=ONEOVER9C2*EDIFF2*(DYZDX)
             FZY=-ONEOVER9C2*EDIFF2*(DZYDX)
-!           print*,'YZ,ZY',PROP(JSS,ISS,IPRDYZ),PROP(JSS,ISS,IPRDZY)
 
             F =FYX+FXY+FZX+FXZ+FYZ+FZY
 ! Add it!to the total
