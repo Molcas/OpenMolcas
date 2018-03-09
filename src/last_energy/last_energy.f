@@ -84,7 +84,7 @@
 *
 *     Compute the wave function
 *
-      If ((Method(5:7) .eq. 'SCF' .and. Method(1:4) /= 'DMRG') .OR.
+      If ((Method(5:7) .eq. 'SCF' .and. Method(1:4) .ne. 'DMRG') .OR.
      &    Method(1:6) .eq. 'KS-DFT' .OR.
      &    Method(1:5) .eq. 'MBPT2' . OR.
      &    Method(1:4) .eq. 'CHCC' . OR.

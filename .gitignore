@@ -119,5 +119,3 @@ Tools/pymolcas/*.egg-info
 /molcas-*
 /make-*
 /build*
-#local basis sets
-basis_library/SV

@@ -76,9 +76,7 @@
       Logical DoCholesky,timings,DensityCheck
 #ifdef _DMRG_
 * DMRG-NEVPT2 variables: MPS compression, 4-RDM evaluation
-      Integer MPSCompressM
-      Logical DoNEVPT2Prep, DoEvaluateRDM
-      Common /NEVPTP/ DoNEVPT2Prep,DoEvaluateRDM, MPSCompressM
+#include "nevptp.fh"
 #endif
       Logical DoLocK,Deco
       Logical Estimate,Update
@@ -173,16 +171,16 @@ C   No changing about read in orbital information from INPORB yet.
 *    BK type of approximation (GLMJ)
       DoBKAP    = .false.
 
-* ========================================================================
+* ======================================================================
 *   QCMaquis flags
-* ========================================================================
+* ======================================================================
       dofcidump      =   .false.
 #ifdef _DMRG_
       ifdo_dmrg      =   doDMRG
       ifverbose_dmrg =   .false.
 #endif
 
-* ==================================================================================
+* ======================================================================
 
 *    GAS flag, means the INPUT was GAS
       iDoGas = .false.
@@ -658,7 +656,7 @@ C   No changing about read in orbital information from INPORB yet.
      &                nOrbRoot
          End If
        End If
-*---  Process ORDER command (SVC Feb 06)----------------------------------*
+*---  Process ORDER command (SVC Feb 06)-------------------------------*
       If (KeyORDE) Then
        If (DBG) Write(6,*) ' ORDER command was used.'
        Call SetPos(LUInput,'ORDE',Line,iRc)
@@ -739,7 +737,7 @@ C   No changing about read in orbital information from INPORB yet.
        Call SetPos(LUInput,'ATOM',Line,iRc)
        Call ChkIfKey()
       End If
-*---  Process LINEAR command (P A Malmqvist Apr 05)----------------------*
+*---  Process LINEAR command (P A Malmqvist Apr 05)--------------------*
       If(KeyLINE) Then
        PURIFY='LINEAR'
        ISUPSM=1
@@ -1776,7 +1774,7 @@ C orbitals accordingly
         write(6,*)'       NFROT  =',NFROT
         write(6,*)' Resulting NActEl=',NActEl
       End If
-*---  Process RASSCF command --------------------------------------------*
+*---  Process RASSCF command ------------------------------------------*
       IF(KeyRASS) Then
        If (DBG) Write(6,*) ' RASSCF keyword was given.'
        Call SetPos(LUInput,'RASS',Line,iRc)
@@ -1839,7 +1837,7 @@ C orbitals accordingly
         ISPDEN=0
       END IF
 * =======================================================================
-*---  Process NECI commands --------------------------------------------*
+*---  Process NECI commands -------------------------------------------*
       If (KeyNECI) Then
        if(DBG) write(6,*) 'NECI is actived'
        iDoNECI = .true.
@@ -1852,10 +1850,10 @@ C orbitals accordingly
        IterSampleRDM=1000 ! Default value for NECI sampling RDMs
        realspawncutoff=0.3 ! Default value for NECI RealSpawnCutOff
        diagshift=0.00 ! Default value for NECI diagonal shift value
-*--- The code will stop and wait for RDMs generated from Externally run NECI job -------------------
+*--- The code will stop and wait for RDMs generated from Externally run NECI job --------
 *--- This is necessary when FCIQMC cannot converge by standard ways! --------------------
        if(KeyEXNE) iDoExtNECI = .true.
-*--- This is to generate only HUGE dump files. To be used one PMAT does not fit memory  --------------------
+*--- This is to generate only HUGE dump files. To be used one PMAT does not fit memory --
        if(KeyDMPO) iDumpOnly = .true.
 
 *--- This block is to process the DEFINEDET -------------------
@@ -1934,20 +1932,21 @@ C orbitals accordingly
       If (DBG) Write(6,*)' State symmetry LSYM=',LSYM
 *
 * =======================================================================
+*
 *---  Process CIRE command --------------------------------------------*
       If (KeyCIRE) Then
        If (DBG) Write(6,*) ' CIRESTART keyword was given.'
        ICIRST=1
       End If
 *
-*---  Process HOME command (root homing in SXCI part)--------------------*
+*---  Process HOME command (root homing in SXCI part)------------------*
       If (KeyHOME) Then
        SXSEL='HOMING  '
        If (DBG) Write(6,*) ' HOME (Root Homing) keyword was given.'
         Call SetPos(LUInput,'HOME',Line,iRc)
         Call ChkIfKey()
       End If
-
+*
 *---  Process SUPS command ---*
       If (KeySUPS) Then
        If (DBG) Write(6,*) ' SUPS (Supersymmetry) keyword was given.'
@@ -2018,7 +2017,6 @@ C orbitals accordingly
       END IF
 *
 *---  Process HROO command ---
-*
       IF (KEYHROO) THEN
         IF(DBG) WRITE(6,*) ' HROO (Hidden roots)'//
      &                       ' keyword was given. '
@@ -2030,7 +2028,6 @@ C orbitals accordingly
       END IF
 *
 *---  Process CLEA command ---
-*
       Continue
       If (KeyCLEA) Then
        If (DBG) Write(6,*) ' CLEAN (Orbital Cleaning) keyword.'
@@ -2089,7 +2086,7 @@ C orbitals accordingly
        Call GetMem('Temp3','Free','Inte',ipTemp3,mxOrb)
        Call ChkIfKey()
       End If
-
+*
 *---  Process CHOL command (Cholesky Default Input, F.Aquilante Sept 04)
       If (KeyCHOL) Then
        If (DBG) Write(6,*) ' CHOLESKY keyword was given.'
@@ -2162,7 +2159,6 @@ C orbitals accordingly
        End If
        Call ChkIfKey()
       End If
-
 *
 *---  Process TIGH command --------------------------------------------*
       If (KeyTIGH) Then
@@ -2257,7 +2253,6 @@ C orbitals accordingly
       End If
 *
 *---  Process OFEM commands for Orbital-Free embedding -------------*
-*
       If (KeyOFEM) Then
        If (DBG) Then
          Write(6,*) ' OFEM (Orbital-Free Embedding activated)'
@@ -2310,8 +2305,9 @@ c       write(6,*)          '  --------------------------------------'
         Xsigma=abs(Xsigma)
        EndIf
       EndIf
-*---  Process BKAP command for BK type of approximation (Giovanni Li Manni J.:GLMJ) Nov 2011-------------*
 *
+*---  Process BKAP command for BK type of approximation
+*     (Giovanni Li Manni J.:GLMJ) Nov 2011                -------------*
       If (KeyBKAP) Then
        DoBKAP = .true.
        Call SetPos(LUInput,'BKAP',Line,iRc)
@@ -2334,8 +2330,8 @@ c       write(6,*)          '  --------------------------------------'
        End If
       End If
 *
-*---  Process SPLI command for SplitCAS calculations (Giovanni Li Manni J.:GLMJ) -------------*
-*
+*---  Process SPLI command for SplitCAS calculations
+*     (Giovanni Li Manni J.:GLMJ)                         -------------*
       If (KeySPLI) Then
        If (DBG) Then
          Write(6,*) ' SPLI (Activation SplitCAS)'
@@ -2352,8 +2348,7 @@ c       write(6,*)          '  --------------------------------------'
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
       End If
 *
-*---  Process NUSP command for Numerical SplitCAS param. (GLMJ) ------------*
-*
+*---  Process NUSP command for Numerical SplitCAS param. (GLMJ) --------*
       If (KeyNUSP) Then
        If (DBG) Then
          Write(6,*)' NUSP - Manual Setting of Numerical SplitCAS Param.'
@@ -2380,8 +2375,7 @@ c       write(6,*)          '  --------------------------------------'
        end if
       End If
 *
-*---  Process ENSP command for Energetical SplitCAS param. (GLMJ) ------------*
-*
+*---  Process ENSP command for Energetical SplitCAS param. (GLMJ) -----*
       If (KeyENSP) Then
        If (DBG) Then
          Write(6,*)
@@ -2408,8 +2402,7 @@ c       write(6,*)          '  --------------------------------------'
        If (DBG) Write(6,*) ' Root to be opt. in SplitCAS = ', ThrSplit
       End If
 *
-*---  Process PESP command for Percentage SplitCAS param. (GLMJ) -------*
-*
+*---  Process PESP command for Percentage SplitCAS param. (GLMJ) ------*
       If (KeyPESP) Then
        If (DBG) Then
          Write(6,*)
@@ -2432,8 +2425,7 @@ c       write(6,*)          '  --------------------------------------'
        If (DBG) Write(6,*) ' Root to be opt. in SplitCAS = ', ThrSplit
       End If
 *
-*------- Process FOSP command for First Order SplitCAS Approx. (GLMJ)  -------*
-*
+*------- Process FOSP command for First Order SplitCAS Approx. (GLMJ) -*
       If (KeyFOSP) Then
        If (DBG) Then
          Write(6,*)
@@ -2454,7 +2446,7 @@ c       write(6,*)          '  --------------------------------------'
        Call ChkIfKey()
       End If
 *
-*---  Process SXDAmp command --------------------------------------------*
+*---  Process SXDAmp command ------------------------------------------*
       If (KeySXDA) Then
        If (DBG) Write(6,*)' SXDAMPING was requested.'
        Call SetPos(LUInput,'SXDA',Line,iRc)
@@ -2465,7 +2457,7 @@ c       write(6,*)          '  --------------------------------------'
        If (DBG) Write(6,*)' Parameter SXDamp=',SXDamp
        Call ChkIfKey()
       End If
-
+*
 *---  Process LOWM command ---
       If (KeyLOWM) Then
        If (DBG) Then
@@ -2476,7 +2468,7 @@ c       write(6,*)          '  --------------------------------------'
        Call SetPos(LUInput,'LOWM',Line,iRc)
        Call ChkIfKey()
       End If
-
+*
 *---  Process LOWD keyword: Turn on Lowdin orthonormalization of CMOs
       If (KeyLOWD) Then
        If (DBG) Then
@@ -2487,7 +2479,6 @@ c       write(6,*)          '  --------------------------------------'
        Call SetPos(LUInput,'LOWD',Line,iRc)
        Call ChkIfKey()
       End If
-*
 *
 *---  Process PRWF command --------------------------------------------*
       If (KeyPRWF) Then
@@ -2502,7 +2493,6 @@ c       write(6,*)          '  --------------------------------------'
        Call ChkIfKey()
       End If
 *
-*
 *---  Process PRSD command --------------------------------------------*
       If (KeyPRSD) Then
        If (DBG) Write(6,*)' The PRSD keyword was used.'
@@ -2511,10 +2501,9 @@ c       write(6,*)          '  --------------------------------------'
        If (DBG) Write(6,*)' Print determinant expansions of CSFs'
        Call ChkIfKey()
       End If
-
+*
 *---  Process FCIDUMP command -----------------------------------------*
       If (KeyFCID) Then
-
 !      activate the DMRG interface in RASSCF (dummy here since we stop after FCIDUMP)
        DOFCIDUMP = .true.
        if(.not.KeyDMRG) KeyDMRG = .true.
@@ -2547,9 +2536,8 @@ c       write(6,*)          '  --------------------------------------'
         ifverbose_dmrg = .true.
 #endif
       end if
-
-*---  Process RGIN command (QCMaquis Custom Input) ------------------------*
-
+*
+*---  Process RGIN command (QCMaquis Custom Input) --------------------*
       If (KeyRGIN) Then
         If (DBG) Write(6,*) ' RGINPUT keyword was given.'
         If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
@@ -2572,8 +2560,8 @@ c       write(6,*)          '  --------------------------------------'
         call qcmaquis_rdinp(LuInput,2,nr_lines)
 
       End if
-*---  Process SOCC command (state occupation for initial guess in DMRG) ------------------------*
-
+*
+*---  Process SOCC command (state occupation for initial guess in DMRG)
       If (KeySOCC) Then
         If (DBG) Write(6,*) ' SOCC keyword was given.'
         If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
@@ -2585,9 +2573,9 @@ c       write(6,*)          '  --------------------------------------'
         end if
       End if
 #endif
-*-- Leon: Process NEVP(t2prep) keyword, prepare for 4-RDM calculation for
-*--- (CD)-DMRG-NEVPT2
-
+*
+*-- Leon: Process NEVP(t2prep) keyword, prepare for 4-RDM calculation
+*--- for (CD)-DMRG-NEVPT2
       If (KeyNEVP) Then
         If (DBG) Write(6,*) ' NEVP(t2prep) keyword was given.'
         If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
@@ -2645,9 +2633,9 @@ c       write(6,*)          '  --------------------------------------'
 #endif
 * ======================================================================
 *          end of QCMaquis DMRG input section
-* =======================================================================
+* ======================================================================
 #endif
-
+*
 *---  Process FARO command --------------------------------------------*
       If (KeyFARO) Then
         DoFaro = .TRUE.
@@ -2697,6 +2685,7 @@ c       write(6,*)          '  --------------------------------------'
        DoBlockDMRG=.True.
        Call ChkIfKey()
       End If
+*
 *---  Process 3RDM command --------------------------------------------*
       If (Key3RDM) Then
        If (DBG) Then
@@ -2719,6 +2708,7 @@ c       write(6,*)          '  --------------------------------------'
       End If
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
+*
 *---  Process DAVT command --------------------------------------------*
       If (KeyDAVT) Then
        Call SetPos(LUInput,'DAVT',Line,iRc)
@@ -2728,6 +2718,7 @@ c       write(6,*)          '  --------------------------------------'
        ReadStatus=' O.K. after reading data after DAVT keyword.'
        Call ChkIfKey()
       End If
+*
 *---  Process CHRE command --------------------------------------------*
       If (KeyCHRE) Then
        If (DBG) Then
@@ -2737,6 +2728,7 @@ c       write(6,*)          '  --------------------------------------'
        Call SetPos(LUInput,'CHRE',Line,iRc)
        Call ChkIfKey()
       End If
+*
 *---  Process CHBL command --------------------------------------------*
       If (KeyCHBL) Then
        Call SetPos(LUInput,'CHBL',Line,iRc)
@@ -2746,6 +2738,7 @@ c       write(6,*)          '  --------------------------------------'
        ReadStatus=' O.K. after reading data after CHBL keyword.'
        Call ChkIfKey()
       End If
+*
 *---  Process MXSW command --------------------------------------------*
       If (KeyMXSW) Then
        Call SetPos(LUInput,'MXSW',Line,iRc)
@@ -2755,6 +2748,7 @@ c       write(6,*)          '  --------------------------------------'
        ReadStatus=' O.K. after reading data after MXSW keyword.'
        Call ChkIfKey()
       End If
+*
 *---  Process NOIS command --------------------------------------------*
       If (KeyNOIS) Then
        Call SetPos(LUInput,'NOIS',Line,iRc)
@@ -2764,6 +2758,7 @@ c       write(6,*)          '  --------------------------------------'
        ReadStatus=' O.K. after reading data after NOIS keyword.'
        Call ChkIfKey()
       End If
+*
 *---  Process DMRE command --------------------------------------------*
       If (KeyDMRE) Then
        Call SetPos(LUInput,'DMRE',Line,iRc)
@@ -2773,6 +2768,7 @@ c       write(6,*)          '  --------------------------------------'
        ReadStatus=' O.K. after reading data after DMRE keyword.'
        Call ChkIfKey()
       End If
+*
 *---  Process MXCA command --------------------------------------------*
       If (KeyMXCA) Then
        Call SetPos(LUInput,'MXCA',Line,iRc)
@@ -3165,7 +3161,7 @@ C Test read failed. JOBOLD cannot be used.
       If (DBG) Write(6,*)' Normal exit from PROC_INP.'
       Call qExit('Proc_Inp')
       Return
-*---  Abnormal exit -----------------------------------------------------*
+*---  Abnormal exit ---------------------------------------------------*
 9900  CONTINUE
       If (DBG) Write(6,*)' Abnormal exit from PROC_INP.'
       Call qExit('Proc_Inp')
