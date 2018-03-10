@@ -173,7 +173,7 @@ C 3. SPECTRAL DECOMPOSITION OF OVERLAP MATRIX:
       II=0
       DO I=1,MSTATE
         II=II+I
-        X=1.0D00/SQRT(MAX(1.0D-14,WORK(LSS-1+II)))
+        X=1.0D00/SQRT(MAX(0.5D-14,WORK(LSS-1+II)))
         DO K=1,MSTATE
           LPOS=LUU-1+K+MSTATE*(I-1)
           WORK(LPOS)=X*WORK(LPOS)
@@ -194,6 +194,7 @@ C 4. TRANSFORM HAMILTON MATRIX.
         CALL DGEMM_('T','N',MSTATE,MSTATE,MSTATE,1.0D0,
      &             WORK(LUU),MSTATE,WORK(LSCR),MSTATE,
      &             0.0D0,WORK(LHSQ),MSTATE)
+
 C 5. DIAGONALIZE HAMILTONIAN.
       IJ=0
       DO I=1,MSTATE
@@ -202,8 +203,10 @@ C 5. DIAGONALIZE HAMILTONIAN.
           WORK(LHH-1+IJ)=WORK(LHSQ-1+I+MSTATE*(J-1))
         END DO
       END DO
+
       CALL Jacob(WORK(LHH),WORK(LUU),MSTATE,MSTATE)
       CALL JACORD(WORK(LHH),WORK(LUU),MSTATE,MSTATE)
+
       IDIAG=0
       DO II=1,MSTATE
         IDIAG=IDIAG+II
@@ -213,6 +216,34 @@ C 5. DIAGONALIZE HAMILTONIAN.
           J=IWORK(LSTK-1+JJ)
           EIGVEC(I,J)=WORK(LUU-1+II+MSTATE*(JJ-1))
         END DO
+      END DO
+
+CUNGUR
+c   Correct for diagonal energies in case of orbital degeneracy:
+c   Convention: two energies are considered degenerate if their energy difference is
+c               lower than 1.0D-4 cm-1
+      TMP=0.d0
+      DLT=0.d0
+      IDIAG=0
+      DO II=1,MSTATE
+        I=IWORK(LSTK-1+II)
+        TMP=ENERGY(I)
+        JDIAG=0
+        Do JJ=1,MSTATE
+          J=IWORK(LSTK-1+JJ)
+          IF(I==J) CYCLE
+          DLT=ABS(ENERGY(J)-TMP)*AU2CM
+          If(DLT<1.0D-4) THEN
+            ENERGY(J)=TMP
+          End If
+        End Do
+      End Do
+
+      IDIAG=0
+      DO II=1,MSTATE
+        IDIAG=IDIAG+II
+        I=IWORK(LSTK-1+II)
+        WORK(LHH-1+IDIAG)=ENERGY(I)
       END DO
 C End of loop over sets.
       END DO
@@ -236,7 +267,7 @@ C especially for already diagonal Hamiltonian matrix.
 
       IF(IPGLOB.GE.TERSE) THEN
        DO ISTATE=1,NSTATE
-        Call PrintResult(6,'(6x,A,I5,5X,A,F16.8)',
+        Call PrintResult(6,'(6x,A,I5,5X,A,F25.14)',
      &    'RASSI State',ISTATE,'Total energy:',ENERGY(ISTATE),1)
        END DO
       END IF
@@ -251,13 +282,18 @@ cvv NAG compiler overoptimize this!
 c       EMIN=MIN(EMIN,ENERGY(ISTATE))
        if(ENERGY(ISTATE).lt.EMIN) EMIN=ENERGY(ISTATE)
       END DO
-      KAU= INT(EMIN/1000.0D0)
-      EVAC=1000.0D0*DBLE(KAU)
-      IF(KAU.NE.0) THEN
+c      KAU= INT(EMIN/1000.0D0)
+c      EVAC=1000.0D0*DBLE(KAU)
+      EVAC=0.D0
+      DO ISTATE=1,NSTATE
+         EVAC=EVAC+ENERGY(ISTATE)/DBLE(NSTATE)
+      ENDDO
+c      IF(KAU.NE.0) THEN
         DO ISTATE=1,NSTATE
-         ENERGY(ISTATE)=ENERGY(ISTATE)-EVAC
+          ENERGY(ISTATE)=ENERGY(ISTATE)-EVAC
         END DO
-      END IF
+c      END IF
+
 C Put energies onto info file for automatic verification runs:
 CPAM06 Added error estimate, based on independent errors for all
 C components of H and S in original RASSCF wave function basis:
@@ -367,22 +403,22 @@ C REPORT ON SECULAR EQUATION RESULT:
 *
          IF(IFJ2.ne.0 .and. IAMXYZ.gt.0) THEN
           IF(IFJZ.ne.0 .and. IAMZ.gt.0) THEN
-           EFFL=SQRT(MAX(1.0D-12,0.25D0+WORK(LL2DIA-1+ISTATE)))-0.5D0
-           EFFM=SQRT(MAX(1.0D-12,WORK(LM2DIA-1+ISTATE)))
-          WRITE(6,'(1X,I5,7X,F18.8,2X,F18.6,2X,F18.3,6X,f6.1,2X,F6.1)')
+           EFFL=SQRT(MAX(0.5D-12,0.25D0+WORK(LL2DIA-1+ISTATE)))-0.5D0
+           EFFM=SQRT(MAX(0.5D-12,WORK(LM2DIA-1+ISTATE)))
+          WRITE(6,'(1X,I5,7X,F18.8,2X,F18.6,2X,F25.14,6X,f6.1,2X,F6.1)')
      &               ISTATE,E1,E2,E3,EFFL,EFFM
           ELSE
-           EFFL=SQRT(MAX(1.0D-12,0.25D0+WORK(LL2DIA-1+ISTATE)))-0.5D0
-           WRITE(6,'(1X,I5,7X,F18.8,2X,F18.6,2X,F18.3,6X,f6.1)')
+           EFFL=SQRT(MAX(0.5D-12,0.25D0+WORK(LL2DIA-1+ISTATE)))-0.5D0
+           WRITE(6,'(1X,I5,7X,F18.8,2X,F18.6,2X,F25.14,6X,f6.1)')
      &               ISTATE,E1,E2,E3,EFFL
           END IF
          ELSE
           IF(IFJZ.ne.0 .and. IAMZ.gt.0) THEN
-           EFFM=SQRT(MAX(1.0D-12,WORK(LM2DIA-1+ISTATE)))
-           WRITE(6,'(1X,I5,7X,F18.8,2X,F18.6,2X,F18.3,6X,f6.1)')
+           EFFM=SQRT(MAX(0.5D-12,WORK(LM2DIA-1+ISTATE)))
+           WRITE(6,'(1X,I5,7X,F18.8,2X,F18.6,2X,F25.14,6X,f6.1)')
      &               ISTATE,E1,E2,E3,EFFM
           ELSE
-           WRITE(6,'(1X,I5,7X,F18.8,2X,F18.6,2X,F18.3)')
+           WRITE(6,'(1X,I5,7X,F18.8,2X,F18.6,2X,F25.14)')
      &               ISTATE,E1,E2,E3
           END IF
          END IF

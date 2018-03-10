@@ -60,7 +60,7 @@
          Call RecPrt('Tvalue',' ',T,nT,1)
          Call RecPrt('Fact  ',' ',Fact,nT,1)
       End If
-#else
+#endif
 c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(Eta)
@@ -68,6 +68,6 @@ c Avoid unused argument warnings
          Call Unused_integer(IsChi)
          Call Unused_real(ChiI2)
       End If
-#endif
+
       Return
       End

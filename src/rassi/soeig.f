@@ -272,6 +272,20 @@ C SPIN-ORBIT HAMILTONIAN MATRIX ELEMENTS:
        CALL PRCHAM(NSS,WORK(LHTOTR),WORK(LHTOTI))
        WRITE(6,'(1X,11A7)')('-------',I=1,11)
       ENDIF
+! save data on RunFile
+      call mma_allocate(HAMSOR,NSS,NSS,'HAMSOR')
+      call mma_allocate(HAMSOI,NSS,NSS,'HAMSOI')
+      call dcopy_(NSS*NSS,0.d0,0,HAMSOR,1)
+      call dcopy_(NSS*NSS,0.d0,0,HAMSOI,1)
+      call dcopy_(NSS*NSS,WORK(LHTOTR),1,HAMSOR,1)
+      call dcopy_(NSS*NSS,WORK(LHTOTI),1,HAMSOI,1)
+      call put_darray('HAMSOR_SINGLE',HAMSOR,NSS*NSS)
+      call put_darray('HAMSOI_SINGLE',HAMSOI,NSS*NSS)
+#ifdef _HDF5_
+      call mh5_put_dset_array_real(wfn_sos_hsor,HAMSOR)
+      call mh5_put_dset_array_real(wfn_sos_hsoi,HAMSOI)
+#endif
+
 
       !> use complex matrix diagonalization
 #ifdef _DMRG_
@@ -343,24 +357,18 @@ C SPIN-ORBIT HAMILTONIAN MATRIX ELEMENTS:
 !         write(6,*) 'usoi(',iss,',',jss,') =',usoi(iss,jss)
 !       end do
 !     end do
-
-
-      call mma_allocate(HAMSOR,NSS,NSS,'HAMSOR')
-      call mma_allocate(HAMSOI,NSS,NSS,'HAMSOI')
-      call dcopy_(NSS*NSS,0.d0,0,HAMSOR,1)
-      call dcopy_(NSS*NSS,0.d0,0,HAMSOI,1)
-      call dcopy_(NSS*NSS,WORK(LHTOTR),1,HAMSOR,1)
-      call dcopy_(NSS*NSS,WORK(LHTOTI),1,HAMSOI,1)
-      call put_darray('HAMSOR_SINGLE',HAMSOR,NSS*NSS)
-      call put_darray('HAMSOI_SINGLE',HAMSOI,NSS*NSS)
+C Array of eigenvalues:
+      CALL ZJAC(NSS,WORK(LHTOTR),WORK(LHTOTI),
+     &          NSS,USOR,USOI)
+      DO ISS=1,NSS
+       ENSOR(ISS)=WORK(LHTOTR-1+ISS+NSS*(ISS-1))
+       Write(6,'(A,I3,A,F25.14)') 'ENSOR(',ISS,')=',ENSOR(ISS)
+      END DO
 #ifdef _HDF5_
       call mh5_put_dset(wfn_sos_energy, ENSOR)
       call mh5_put_dset_array_real(wfn_sos_coefr,USOR)
       call mh5_put_dset_array_real(wfn_sos_coefi,USOI)
-      call mh5_put_dset_array_real(wfn_sos_hsor,HAMSOR)
-      call mh5_put_dset_array_real(wfn_sos_hsoi,HAMSOI)
 #endif
-
       !> free memory for H_SO - do not use it below!
       !> eigenvalues are stored in ENSOR!
       CALL GETMEM('HTOTR','FREE','REAL',LHTOTR,NSS**2)
@@ -569,16 +577,16 @@ C Saving the SO energies in ESO array.
         ESO(ISS)=E3
 
         if(ifj2.ne.0.and.ifjz.ne.0) then
-          WRITE(6,'(1X,I5,F18.8,2X,F18.6,2X,F18.3,4x,2F6.1)')
+          WRITE(6,'(1X,I5,F18.8,2X,F18.6,2X,F25.14,4x,2F6.1)')
      &        ISS,E1,E2,E3,XJEFF,OMEGA
         else if(ifj2.ne.0.and.ifjz.eq.0) then
-          WRITE(6,'(1X,I5,F18.8,2X,F18.6,2X,F18.3,4x,F6.1)')
+          WRITE(6,'(1X,I5,F18.8,2X,F18.6,2X,F25.14,4x,F6.1)')
      &        ISS,E1,E2,E3,XJEFF
         else if(ifj2.eq.0.and.ifjz.ne.0) then
-          WRITE(6,'(1X,I5,F18.8,2X,F18.6,2X,F18.3,4x,F6.1)')
+          WRITE(6,'(1X,I5,F18.8,2X,F18.6,2X,F25.14,4x,F6.1)')
      &        ISS,E1,E2,E3,OMEGA
         else if(ifj2.eq.0.and.ifjz.eq.0) then
-          WRITE(6,'(1X,I5,F18.8,2X,F18.6,2X,F18.3)')
+          WRITE(6,'(1X,I5,F18.8,2X,F18.6,2X,F25.14)')
      &      ISS,E1,E2,E3
         endif
        ENDDO
