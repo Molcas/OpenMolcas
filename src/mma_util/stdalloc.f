@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2014-2016, Steven Vancoillie                           *
 *               2015, Ignacio Fdez. Galvan                             *
-*               2015,2017,2018 Liviu Ungur                             *
+*               2015,2017,2018, Liviu Ungur                            *
 *               2015, Yingjin Ma                                       *
 ************************************************************************
 * stdalloc: wraps the standard allocate/deallocate fortran intrinsics.

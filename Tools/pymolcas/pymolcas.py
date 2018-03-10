@@ -65,7 +65,7 @@ def main(my_name):
   parser.add_argument('-old', '--old_scratch', help='reuse scratch area (default)', action='store_true')
   parser.add_argument('-ign', '--ignore_environment', help='run ignoring resource files', action='store_true')
   parser.add_argument('-np', '--nprocs', help='number of parallel (MPI) processes', type=int)
-  parser.add_argument('-v', '--version', help='print version of the EMIL interpreter', action='store_true')
+  parser.add_argument('-v', '--version', help='print version of the driver', action='store_true')
   parser.add_argument('-o', '--output', help='redirect output stream to FILE', metavar='FILE')
   parser.add_argument('-e', '--error', help='redirect error stream to FILE', metavar='FILE')
   parser.add_argument('-oe', '-eo', '--outputerror', help='redirect output and error streams to FILE', metavar='FILE')
@@ -84,7 +84,7 @@ def main(my_name):
 
   # Checking for version right at the beginning, in case MOLCAS cannot be found
   if (args['version']):
-    print('python EMIL interpreter version = {0}'.format(Molcas_wrapper.version))
+    print('python driver version = {0}'.format(Molcas_wrapper.version))
     print('(after the original perl EMIL interpreter of Valera Veryazov)')
     sys.exit(0)
 

@@ -7,6 +7,8 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2017, Stefan Knecht                                    *
 !***********************************************************************
 ! author: S. Knecht (modified version of pt2wfn.f in CASPT2 written by
 !                    S. Vancoillie)

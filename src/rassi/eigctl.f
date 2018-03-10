@@ -478,12 +478,6 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
      &             0.0D0,PROP(1,1,IP),NSTATE)
       END DO
       CALL GETMEM('SCR','FREE','REAL',LSCR,NSTATE**2)
-!<<<<<<< HEAD
-!      IF(IPGLOB.le.SILENT) GOTO 900
-!
-!** CALCULATION OF THE DIPOLE TRANSITION STRENGTHS
-!
-!=======
 *
 * Initial setup for both dipole, quadrupole etc. and exact operator
 *
@@ -809,7 +803,6 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
 ! Store dipole oscillator strength
                   WORK(LDV-1+IJ) = F
 
-!>>>>>>> openmolcas-master
                END IF
                Call Add_Info('TMS(SF,Vel)',F,1,6)
             END DO
