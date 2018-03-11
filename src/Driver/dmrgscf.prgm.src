@@ -27,4 +27,3 @@
  (file)  GV1.off   "$WorkDir/$Project$SubProject."GV1.off    rw
  (file)  TRAONE  "$WorkDir/$Project."TraOne       rw*st
  (file)  FCIDMP  "$WorkDir/$Project."FciDmp       rw*sti
- (file) NEWCYCLE "$CurrDir/"NEWCYCLE         rw

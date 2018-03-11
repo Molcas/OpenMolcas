@@ -55,6 +55,9 @@ set(reference_git_repo git@gitlab.chab.ethz.ch:dmrg/gen1int-molcaslib.git)
 set(EP_PROJECT gen1int)
 
 
+# Enabling source changes to keep ExternalProject happy
+set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
+
 ExternalProject_Add(${EP_PROJECT}
                     PREFIX ${CUSTOM_GEN1INT_LOCATION}
                     GIT_REPOSITORY ${reference_git_repo}
@@ -69,6 +72,8 @@ ExternalProject_Add(${EP_PROJECT}
                     LOG_TEST 1
                     LOG_INSTALL 1
                    )
+
+set (CMAKE_DISABLE_SOURCE_CHANGES ON)
 
 # set variables for use in parent CMakeLists.txt
 ExternalProject_Get_Property(${EP_PROJECT} install_dir)
