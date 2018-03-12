@@ -16,6 +16,7 @@
      &                  Analytic_hessian,rMEP,MEP,nMEP,Numerical,
      &                  Just_Frequencies,FindTS,ipCoor,eMEPTest,nLambda,
      &                  TSReg)
+      Use Chkpnt
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -868,6 +869,8 @@ C              Write (6,*) 'SubProject=.Prod'
             End If
 *
          End If
+*
+         Call Chkpnt_update_MEP(IRCRestart)
 *
          Call Free_Work(ipE)
          Call Free_Work(ipG)

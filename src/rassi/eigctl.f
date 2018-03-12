@@ -514,12 +514,6 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
      &             0.0D0,PROP(1,1,IP),NSTATE)
       END DO
       CALL GETMEM('SCR','FREE','REAL',LSCR,NSTATE**2)
-!<<<<<<< HEAD
-!      IF(IPGLOB.le.SILENT) GOTO 900
-!
-!** CALCULATION OF THE DIPOLE TRANSITION STRENGTHS
-!
-!=======
 *
 * Initial setup for both dipole, quadrupole etc. and exact operator
 *
@@ -845,7 +839,6 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
 ! Store dipole oscillator strength
                   WORK(LDV-1+IJ) = F
 
-!>>>>>>> openmolcas-master
                END IF
                Call Add_Info('TMS(SF,Vel)',F,1,6)
             END DO
@@ -1481,7 +1474,6 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
 !
             EDIFF2=EDIFF**2
             IJSS=ISS+NSS*(JSS-1)
-!           print*,' For ISS and JSS = ',ISS,JSS
 !
             DXYDZ=0.0D0
             DYXDZ=0.0D0
@@ -1491,7 +1483,6 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
      &                           *PROP(JSS,ISS,IPRDZ)
             FXY=ONEOVER9C2*EDIFF2*(DXYDZ)
             FYX=-ONEOVER9C2*EDIFF2*(DYXDZ)
-!           print*,'YX,XY',PROP(JSS,ISS,IPRDYX),PROP(JSS,ISS,IPRDXY)
 
             DZXDY=0.0D0
             DXZDY=0.0D0
@@ -1501,7 +1492,6 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
      &                           *PROP(JSS,ISS,IPRDY)
             FZX=ONEOVER9C2*EDIFF2*(DZXDY)
             FXZ=-ONEOVER9C2*EDIFF2*(DXZDY)
-!           print*,'ZX,XZ',PROP(JSS,ISS,IPRDZX),PROP(JSS,ISS,IPRDXZ)
 
             DYZDX=0.0D0
             DZYDX=0.0D0
@@ -1511,7 +1501,6 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
      &                           *PROP(JSS,ISS,IPRDX)
             FYZ=ONEOVER9C2*EDIFF2*(DYZDX)
             FZY=-ONEOVER9C2*EDIFF2*(DZYDX)
-!           print*,'YZ,ZY',PROP(JSS,ISS,IPRDYZ),PROP(JSS,ISS,IPRDZY)
 
             F =FYX+FXY+FZX+FXZ+FYZ+FZY
 ! Add it!to the total

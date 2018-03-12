@@ -60,9 +60,9 @@
       Do iCmd=1,NKeys
 
 #ifdef _DMRG_
-        if(ProgName(1:5) == 'rassc' .and. command == 'ENDR')then
+        if(ProgName(1:5).eq.'rassc' .and. command.eq.'ENDR')then
           qcmaquis_input = .false.
-        else if(ProgName(1:5) == 'dmrgs' .and. command == 'ENDO')then
+        else if(ProgName(1:5).eq.'dmrgs' .and. command.eq.'ENDO')then
           goto 9990
         end if
 #endif
@@ -71,7 +71,7 @@
 
 #ifdef _DMRG_
           !> check for QCMaquis input section
-          if(ProgName(1:5) == 'rassc' .and. command == 'RGIN')then
+          if(ProgName(1:5).eq.'rassc' .and. command.eq.'RGIN')then
             qcmaquis_input = .true.
             KeyFlags(iCmd) = .true.
           end if
@@ -115,9 +115,9 @@
       Do iCmd=1,NKeys
 
 #ifdef _DMRG_
-        if(ProgName(1:5) == 'rassc' .and. command == 'ENDR')then
+        if(ProgName(1:5).eq.'rassc' .and. command.eq.'ENDR')then
           qcmaquis_input = .false.
-        else if(ProgName(1:5) == 'dmrgs' .and. command == 'ENDO')then
+        else if(ProgName(1:5).eq.'dmrgs' .and. command.eq.'ENDO')then
           goto 9990
         end if
 #endif
@@ -126,7 +126,7 @@
 
 #ifdef _DMRG_
           !> check for QCMaquis input section
-          if(ProgName(1:5) == 'rassc' .and. command == 'RGIN')then
+          if(ProgName(1:5).eq.'rassc' .and. command.eq.'RGIN')then
             qcmaquis_input = .true.
             KeyFlags(iCmd) = .true.
           end if

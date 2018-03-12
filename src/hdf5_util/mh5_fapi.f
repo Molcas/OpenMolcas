@@ -316,7 +316,7 @@
       end function
 
       function mh5_create_attr_scalar_str (lu, name, size)
-     $        result (dset_id)
+     &        result (dset_id)
       use iso_c_binding
       implicit none
       character(MH5_MAX_LBL_LEN) :: mh5_lbl
@@ -326,8 +326,8 @@
       integer :: dset_id
       interface
         function mh5c_create_attr_scalar_str(lu, name, size)
-     $          result (dset_id)
-     $          bind(C, name='mh5c_create_attr_scalar_str')
+     &          result (dset_id)
+     &          bind(C, name='mh5c_create_attr_scalar_str')
         use iso_c_binding
         implicit none
         integer(MOLCAS_C_INT), VALUE :: lu
@@ -463,7 +463,7 @@
       end subroutine
 
       function mh5_create_attr_array_int (lu, name, rank, dims)
-     $        result(attr_id)
+     &        result(attr_id)
       use iso_c_binding
       implicit none
       integer :: lu
@@ -490,7 +490,7 @@
       end function
 
       function mh5_create_attr_array_real (lu, name, rank, dims)
-     $        result(attr_id)
+     &        result(attr_id)
       use iso_c_binding
       implicit none
       integer :: lu
@@ -517,7 +517,7 @@
       end function
 
       function mh5_create_attr_array_str (lu, name, rank, dims, size)
-     $        result(attr_id)
+     &        result(attr_id)
       use iso_c_binding
       implicit none
       integer :: lu
@@ -543,7 +543,7 @@
 
       call f2c_upcase(name,mh5_lbl)
       attr_id = mh5c_create_attr_array_str(
-     $        lu, mh5_lbl, rank, dims, size)
+     &        lu, mh5_lbl, rank, dims, size)
       end function
 
 
@@ -742,7 +742,7 @@
       end subroutine
 
       subroutine mh5_init_attr_array_str (
-     $        lu, name, rank, dims, buffer, size)
+     &        lu, name, rank, dims, buffer, size)
       implicit none
       integer :: lu
       character(len=*) :: name
@@ -879,7 +879,7 @@
       end function
 
       function mh5_create_dset_scalar_str (lu, name, size)
-     $        result (dset_id)
+     &        result (dset_id)
       use iso_c_binding
       implicit none
       character(MH5_MAX_LBL_LEN) :: mh5_lbl
@@ -889,7 +889,7 @@
       integer :: dset_id
       interface
         function mh5c_create_dset_scalar_str(lu, name, size)
-     $          result (dset_id)
+     &          result (dset_id)
      &          bind(C, name='mh5c_create_dset_scalar_str')
         use iso_c_binding
         implicit none
@@ -1025,14 +1025,15 @@
       ierr = mh5c_get_dset_scalar_str(dset_id, value)
       end subroutine
 
-      function mh5_create_dset_array_int (lu, name, rank, dims)
-     $        result(dset_id)
+      function mh5_create_dset_array_int (lu, name, rank, dims, dyn)
+     &        result(dset_id)
       use iso_c_binding
       implicit none
       integer :: lu
       character(len=*) :: name
       integer :: rank
       integer :: dims(*)
+      logical, optional :: dyn
       integer :: dset_id
       interface
         function mh5c_create_dset_array_int(lu, name, rank, dims)
@@ -1045,21 +1046,41 @@
         integer(MOLCAS_C_INT) :: dims(*)
         integer(MOLCAS_C_INT) :: ierr
         end function
+        function mh5c_create_dset_array_dyn_int(lu, name, rank, dims)
+     &   result(ierr) bind(C, name='mh5c_create_dset_array_dyn_int')
+        use iso_c_binding
+        implicit none
+        integer(MOLCAS_C_INT), VALUE :: lu
+        character(c_char) :: name(*)
+        integer(MOLCAS_C_INT), VALUE :: rank
+        integer(MOLCAS_C_INT) :: dims(*)
+        integer(MOLCAS_C_INT) :: ierr
+        end function
       end interface
       character(len=MH5_MAX_LBL_LEN) :: mh5_lbl
+      logical :: isdyn
+
+      isdyn = .false.
+      if (present(dyn)) isdyn = dyn
 
       call f2c_upcase(name,mh5_lbl)
-      dset_id = mh5c_create_dset_array_int(lu, mh5_lbl, rank, dims)
+      if (isdyn) then
+        dset_id = mh5c_create_dset_array_dyn_int(lu, mh5_lbl, rank,
+     &                                           dims)
+      else
+        dset_id = mh5c_create_dset_array_int(lu, mh5_lbl, rank, dims)
+      end if
       end function
 
-      function mh5_create_dset_array_real (lu, name, rank, dims)
-     $        result(dset_id)
+      function mh5_create_dset_array_real (lu, name, rank, dims, dyn)
+     &        result(dset_id)
       use iso_c_binding
       implicit none
       integer :: lu
       character(len=*) :: name
       integer :: rank
       integer :: dims(*)
+      logical, optional :: dyn
       integer :: dset_id
       interface
         function mh5c_create_dset_array_real(lu, name, rank, dims)
@@ -1072,15 +1093,35 @@
         integer(MOLCAS_C_INT) :: dims(*)
         integer(MOLCAS_C_INT) :: ierr
         end function
+        function mh5c_create_dset_array_dyn_real(lu, name, rank, dims)
+     &   result(ierr) bind(C, name='mh5c_create_dset_array_dyn_real')
+        use iso_c_binding
+        implicit none
+        integer(MOLCAS_C_INT), VALUE :: lu
+        character(c_char) :: name(*)
+        integer(MOLCAS_C_INT), VALUE :: rank
+        integer(MOLCAS_C_INT) :: dims(*)
+        integer(MOLCAS_C_INT) :: ierr
+        end function
       end interface
       character(MH5_MAX_LBL_LEN) :: mh5_lbl
+      logical :: isdyn
+
+      isdyn = .false.
+      if (present(dyn)) isdyn = dyn
 
       call f2c_upcase(name,mh5_lbl)
-      dset_id = mh5c_create_dset_array_real(lu, mh5_lbl, rank, dims)
+      if (isdyn) then
+        dset_id = mh5c_create_dset_array_dyn_real(lu, mh5_lbl, rank,
+     &                                            dims)
+      else
+        dset_id = mh5c_create_dset_array_real(lu, mh5_lbl, rank, dims)
+      end if
       end function
 
-      function mh5_create_dset_array_str (lu, name, rank, dims, size)
-     $        result(dset_id)
+      function mh5_create_dset_array_str (lu, name, rank, dims, size,
+     &                                    dyn)
+     &        result(dset_id)
       use iso_c_binding
       implicit none
       integer :: lu
@@ -1088,6 +1129,7 @@
       integer :: rank
       integer :: dims(*)
       integer :: size
+      logical, optional :: dyn
       integer :: dset_id
       interface
         function mh5c_create_dset_array_str(lu, name, rank, dims, size)
@@ -1101,12 +1143,33 @@
         integer(MOLCAS_C_INT), VALUE :: size
         integer(MOLCAS_C_INT) :: ierr
         end function
+        function mh5c_create_dset_array_dyn_str(lu, name, rank, dims,
+     &                                          size)
+     &   result(ierr) bind(C, name='mh5c_create_dset_array_dyn_str')
+        use iso_c_binding
+        implicit none
+        integer(MOLCAS_C_INT), VALUE :: lu
+        character(c_char) :: name(*)
+        integer(MOLCAS_C_INT), VALUE :: rank
+        integer(MOLCAS_C_INT) :: dims(*)
+        integer(MOLCAS_C_INT), VALUE :: size
+        integer(MOLCAS_C_INT) :: ierr
+        end function
       end interface
       character(MH5_MAX_LBL_LEN) :: mh5_lbl
+      logical :: isdyn
+
+      isdyn = .false.
+      if (present(dyn)) isdyn = dyn
 
       call f2c_upcase(name,mh5_lbl)
-      dset_id = mh5c_create_dset_array_str(
-     $        lu, mh5_lbl, rank, dims, size)
+      if (isdyn) then
+        dset_id = mh5c_create_dset_array_dyn_str(
+     &          lu, mh5_lbl, rank, dims, size)
+      else
+        dset_id = mh5c_create_dset_array_str(
+     &          lu, mh5_lbl, rank, dims, size)
+      end if
       end function
 
       subroutine mh5_put_dset_array_int (dset_id, buffer, exts, offs)
@@ -1332,6 +1395,28 @@
       end if
       end subroutine
 
+      subroutine mh5_extend_dset_array(dset_id, dims)
+      implicit none
+      integer :: dset_id
+      integer :: dims(*)
+      integer :: ierr
+      interface
+        function mh5c_extend_dset_array(id, dims)
+     &   result(ierr) bind(C, name='mh5c_extend_dset_array')
+        use iso_c_binding
+        implicit none
+        integer(MOLCAS_C_INT), VALUE :: id
+        integer(MOLCAS_C_INT) :: dims(*)
+        integer(MOLCAS_C_INT) :: ierr
+        end function
+      end interface
+
+      ierr = mh5c_extend_dset_array(dset_id, dims)
+      if (ierr .lt. 0) then
+        call abend
+      end if
+      end subroutine
+
 * Convenience wrappers: 'init' and 'fetch'
 
 * init: create, put, close
@@ -1371,17 +1456,29 @@
       call mh5_close_dset(dset_id)
       end subroutine
 
-      subroutine mh5_init_dset_array_int (lu, name, rank, dims, buffer)
+      subroutine mh5_init_dset_array_int (lu, name, rank, dims, buffer,
+     &                                    dyn)
       implicit none
       integer :: lu
       character(len=*) :: name
       integer :: rank
       integer :: dims(*)
       integer :: buffer(*)
+      logical, optional :: dyn
       integer :: ierr
       integer :: dset_id
-      integer :: mh5_create_dset_array_int
       interface
+        function mh5_create_dset_array_int (lu, name, rank, dims, dyn)
+     &   result(dset_id)
+        use iso_c_binding
+        implicit none
+        integer :: lu
+        character(len=*) :: name
+        integer :: rank
+        integer :: dims(*)
+        logical, optional :: dyn
+        integer :: dset_id
+        end function
         function mh5c_put_dset_array_int_full(id, buffer)
      &   result(ierr) bind(C, name='mh5c_put_dset_array_int_full')
         use iso_c_binding
@@ -1391,22 +1488,37 @@
         integer(MOLCAS_C_INT) :: ierr
         end function
       end interface
-      dset_id = mh5_create_dset_array_int(lu, name, rank, dims)
+      logical :: isdyn
+      isdyn = .false.
+      if (present(dyn)) isdyn = dyn
+      dset_id = mh5_create_dset_array_int(lu, name, rank, dims, isdyn)
       ierr = mh5c_put_dset_array_int_full(dset_id, buffer)
       call mh5_close_dset(dset_id)
       end subroutine
 
-      subroutine mh5_init_dset_array_real(lu, name, rank, dims, buffer)
+      subroutine mh5_init_dset_array_real(lu, name, rank, dims, buffer,
+     &                                    dyn)
       implicit none
       integer :: lu
       character(len=*) :: name
       integer :: rank
       integer :: dims(*)
       real*8 :: buffer(*)
+      logical, optional :: dyn
       integer :: ierr
       integer :: dset_id
-      integer :: mh5_create_dset_array_real
       interface
+        function mh5_create_dset_array_real (lu, name, rank, dims, dyn)
+     &   result(dset_id)
+        use iso_c_binding
+        implicit none
+        integer :: lu
+        character(len=*) :: name
+        integer :: rank
+        integer :: dims(*)
+        logical, optional :: dyn
+        integer :: dset_id
+        end function
         function mh5c_put_dset_array_real_full(id, buffer)
      &   result(ierr) bind(C, name='mh5c_put_dset_array_real_full')
         use iso_c_binding
@@ -1416,13 +1528,16 @@
         integer(MOLCAS_C_INT) :: ierr
         end function
       end interface
-      dset_id = mh5_create_dset_array_real(lu, name, rank, dims)
+      logical :: isdyn
+      isdyn = .false.
+      if (present(dyn)) isdyn = dyn
+      dset_id = mh5_create_dset_array_real(lu, name, rank, dims, dyn)
       ierr = mh5c_put_dset_array_real_full(dset_id, buffer)
       call mh5_close_dset(dset_id)
       end subroutine
 
       subroutine mh5_init_dset_array_str(
-     $        lu, name, rank, dims, buffer, size)
+     &        lu, name, rank, dims, buffer, size, dyn)
       implicit none
       integer :: lu
       character(len=*) :: name
@@ -1430,10 +1545,23 @@
       integer :: dims(*)
       character :: buffer(*)
       integer :: size
+      logical, optional :: dyn
       integer :: ierr
       integer :: dset_id
-      integer :: mh5_create_dset_array_str
       interface
+        function mh5_create_dset_array_str (lu, name, rank, dims, size,
+     &                                      dyn)
+     &   result(dset_id)
+        use iso_c_binding
+        implicit none
+        integer :: lu
+        character(len=*) :: name
+        integer :: rank
+        integer :: dims(*)
+        integer :: size
+        logical, optional :: dyn
+        integer :: dset_id
+        end function
         function mh5c_put_dset_array_str_full(id, buffer)
      &   result(ierr) bind(C, name='mh5c_put_dset_array_str_full')
         use iso_c_binding
@@ -1443,7 +1571,11 @@
         integer(MOLCAS_C_INT) :: ierr
         end function
       end interface
-      dset_id = mh5_create_dset_array_str(lu, name, rank, dims, size)
+      logical :: isdyn
+      isdyn = .false.
+      if (present(dyn)) isdyn = dyn
+      dset_id = mh5_create_dset_array_str(lu, name, rank, dims, size,
+     &                                    isdyn)
       ierr = mh5c_put_dset_array_str_full(dset_id, buffer)
       call mh5_close_dset(dset_id)
       end subroutine
