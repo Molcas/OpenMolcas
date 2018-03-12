@@ -1909,14 +1909,14 @@ if (NEVPT2)
         set (proj ${PROJECT_SOURCE_DIR}/src/nevpt2)
         set (proj_bin ${PROJECT_BINARY_DIR}/External/nevpt2_ext)
 
-        add_dependencies(nevpt2_ext hdf5-qcm qcmaquis-driver)
-
         configure_file(${proj}/CMakeLists.txt.in ${proj_bin}/CMakeLists.txt COPYONLY)
 
         add_subdirectory(${proj_bin})
 
         get_directory_property(${NEVPT2_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${NEVPT2_INCLUDE})
         get_directory_property(${NEVPT2_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${NEVPT2_LIBRARIES})
+
+        add_dependencies(nevpt2_ext hdf5-qcm qcmaquis-driver)
 
         list (APPEND EXTERNAL_LIBRARIES ${NEVPT2_LIBRARIES})
         message ("-- NEVPT2_LIBRARIES: ${NEVPT2_LIBRARIES}")
