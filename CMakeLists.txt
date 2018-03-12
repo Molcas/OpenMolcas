@@ -1909,7 +1909,7 @@ if (NEVPT2)
 
         add_dependencies(nevpt2_ext hdf5-qcm qcmaquis-driver)
 
-        list (APPEND EXTERNAL_LIBRARIES ${NEVPT2_LIBRARIES})
+        list (APPEND EXTERNAL_LIBRARIES ${NEVPT2_LIBRARIES} ${HDF5_QCM_LIBRARIES} ${DMRG_LIBRARIES})
         message ("-- NEVPT2_LIBRARIES: ${NEVPT2_LIBRARIES}")
 else ()
         message(STATUS "NEVPT2 support DISABLED")
