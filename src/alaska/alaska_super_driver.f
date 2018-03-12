@@ -122,9 +122,9 @@
       If (Numerical              .OR.
      &    Do_Numerical_Cholesky  .OR.
      &    Method .eq. 'RASSCFSA' .OR.
-     &    (Method .eq. 'DMRGSCFS' .and. iGo /= 2) .OR.
+     &  ((Method .eq. 'DMRGSCFS').and.(iGo.ne.2)) .OR.
      &    Method .eq. 'CASPT2'   .OR.
-     &  ((Method .eq. 'MBPT2').and. (iMp2Prpt.ne.2)) .OR.
+     &  ((Method .eq. 'MBPT2').and.(iMp2Prpt.ne.2)) .OR.
      &    Method .eq. 'CCSDT'    ) Then
          If (isNAC) Then
            Call Store_Not_Grad(0,NACstates(1),NACstates(2))
@@ -188,7 +188,7 @@
 ************************************************************************
 *                                                                      *
       Else If (Method.eq.'CASSCFSA' .or.
-     &        (Method == 'DMRGSCFS' .and. iGo == 2)) Then
+     &        (Method.eq.'DMRGSCFS' .and. iGo.ne.2)) Then
 *                                                                      *
 ************************************************************************
 *                                                                      *

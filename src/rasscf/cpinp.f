@@ -62,7 +62,7 @@
       if(ProgName(1:5) .eq.'dmrgs')then
         line2 = line
         call upcase(line2(1:4))
-        if(line2(1:4) == 'ENDO')then
+        if(line2(1:4) .eq. 'ENDO')then
           line       = ' '
           line(1:12) = 'End of Input'
           write(LUnit,'(A180)') line

@@ -33,9 +33,7 @@
       logical                :: compr_flag
       ! Leon: the evil common block that contains the MPSCompressM
       ! option for the MPS compression
-      Integer MPSCompressM
-      Logical DoNEVPT2Prep, DoEvaluateRDM
-      Common /NEVPTP/ DoNEVPT2Prep, DoEvaluateRDM, MPSCompressM
+#include "nevptp.fh"
 
       compr_flag = .false.
 

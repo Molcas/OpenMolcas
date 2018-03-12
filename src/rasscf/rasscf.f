@@ -129,9 +129,7 @@
 #else
       integer :: maxtrR
       real*8  :: maxtrW
-      Integer :: MPSCompressM
-      Logical :: DoNEVPT2Prep, DoEvaluateRDM
-      Common /NEVPTP/ DoNEVPT2Prep, DoEvaluateRDM, MPSCompressM
+#include "nevptp.fh"
 #endif
 
 * Start the traceback utilities
@@ -638,9 +636,8 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
            If (NASH(1).ne.NAC) Call DBLOCK(Work(ipTmpDMAT))
            Call Get_D1A_RASSCF(Work(LCMO),Work(ipTmpDMAT),WORK(LD1A))
            Call GetMem('TmpDMAT','Free','Real',ipTmpDMAT,NACPAR)
-*
+
            DoActive = .true.
-*
 
         Else
 
@@ -681,7 +678,6 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
           iOff = iOff + iBas*iBas
          End Do
         end if
-
 
 *
 * Transform two-electron integrals and compute the Fock matrices FI and FA
@@ -726,7 +722,6 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
         Call Timing(Swatch,Swatch,Fortis_2,Swatch)
         Fortis_2 = Fortis_2 - Fortis_1
         Fortis_3 = Fortis_3 + Fortis_2
-
 
         If ( IPRLEV.ge.DEBUG ) then
          Write(LF,*)

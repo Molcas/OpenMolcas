@@ -318,11 +318,8 @@ C ------------------------------------------
       IF(LINE(1:4).EQ.'EJOB') THEN
         IFEJOB=.TRUE.
         IFHAM=.TRUE.
-!<<<<<<< HEAD
-!=======
 !   Leon: Is it really needed?
 !        LINENR=LINENR+1
-!>>>>>>> openmolcas-master
         GOTO 100
       END IF
 C ------------------------------------------

@@ -99,7 +99,7 @@
       Do i = kOptim, 1, -1
          Ind(i)=0
 *
-         tmp0= 0.0D0
+         tmp0= Zero
          Do j = 1, iter
 *
             Ignore=.False.
@@ -108,7 +108,7 @@
             End Do
             If (Ignore) Cycle
 *
-            tmp = 0.0D0
+            tmp = Zero
             Do iD = 1, nD
                tmp = tmp + Elst(j,iD)
             End Do
@@ -148,7 +148,7 @@
                   DjFi=TrDh(jj,jj,iD)+TrDP(jj,ii,iD)
                   DjFj=TrDh(jj,jj,iD)+TrDP(jj,jj,iD)
                   Equad(kOptim*(i-1)+j,iD)=
-     &             -0.5d0*(DiFi-DiFj-DjFi+DjFj)
+     &             -Half*(DiFi-DiFj-DjFi+DjFj)
                   DD(kOptim*(i-1)+j,iD)=TrDD(ii,jj,iD)
                End Do
             End Do
@@ -163,12 +163,12 @@
                ii = Ind(i)
                DiFn=TrDh(ii,ii,iD)+TrDP(ii,kk,iD)
                DnFn=TrDh(kk,kk,iD)+TrDP(kk,kk,iD)
-               Eline(i,iD)= 1.0D0 * (DiFn-DnFn)
+               Eline(i,iD)= DiFn-DnFn
                Do j=1,kOptim
                   jj = Ind(j)
                   DiFj=TrDh(ii,ii,iD)+TrDp(ii,jj,iD)
                   DnFj=TrDh(kk,kk,iD)+TrDp(kk,jj,iD)
-                  Equad(kOptim*(i-1)+j,iD)=  1.0D0*(DiFj-DiFn-DnFj+DnFn)
+                  Equad(kOptim*(i-1)+j,iD)=  DiFj-DiFn-DnFj+DnFn
                   DD(kOptim*(i-1)+j,iD)=TrDD(ii,jj,iD)
                End Do
             End Do
@@ -197,8 +197,8 @@
 ************************************************************************
 *
       If(kOptim.ge.3) Then
-         BigOne=0.0d0
-         BigTwo=0.0d0
+         BigOne=Zero
+         BigTwo=Zero
          Do iD = 1, nD
             Do i=2,kOptim
                Do j=1,i-1
@@ -258,8 +258,8 @@
 *
       If (iter.gt.3) Then
          E_Pred=EPred(iter)
-         E_n1 = 0.0D0
-         E_n  = 0.0D0
+         E_n1 = Zero
+         E_n  = Zero
          Do iD = 1, nD
             E_n1 = E_n1 + Elst(iter,iD)
             E_n  = E_n  + Elst(iter-1,iD)
@@ -280,7 +280,7 @@
 *
          r_SO = (E_n1 - E_n)/(E_Pred - E_n + 1.0D-12 )
       Else
-         r_SO = 1.0D0
+         r_SO = One
       End If
 *
 *     Update the trust radius according to this ad hoc scheme.
@@ -298,11 +298,11 @@
 *     Find the reference density for the density with the
 *     lowest energy.
 *
-      E_Min=0.0D0
+      E_Min=Zero
       n_min = 0
       n1    = 0
       Do i=1,kOptim
-         E_tot=0.0D0
+         E_tot=Zero
          Do iD = 1, nD
             E_tot = E_tot + Elst(Ind(i),iD)
          End Do
@@ -318,8 +318,9 @@
 *     Compute the square of the trace of the difference between the
 *     reference density and the new interpolated density.
 *
+      If (.false.) Then
       nn = Ind(n_min)
-      r2 = 0.0D0
+      r2 = Zero
       Do i = 1, kOptim
          ii = Ind(i)
          Do j = 1, kOptim
@@ -336,8 +337,7 @@
 *                                                                      *
 *     Perform a RS-DIIS interpolation if required
 *
-*     If (Sqrt(r2).gt.h) Then
-      If (.false.) Then
+      If (Sqrt(r2).gt.h) Then
          Write (6,*) 'Apply optimization with step restriction'
          Write (6,*) 'r,h =', Sqrt(r2),h
          Call Quit()
@@ -349,6 +349,7 @@
 *
          If (nD.eq.2) Call DCopy_(nCI,CInter(1,1),1,CInter(1,2),1)
 *
+      End If
       End If
 *                                                                      *
 ************************************************************************
@@ -370,12 +371,14 @@
 *        If the coefficient for the last density is zero we are in
 *        problem.
 *
-         If (CInter(kOptim,iD).eq.0.0D0.and.kOptim.gt.2.and.
-     &       CInter(kOptim-1,iD).eq.1.0D0) Then
+         If (CInter(kOptim,iD).eq.Zero.and.kOptim.gt.2.and.
+     &       CInter(kOptim-1,iD).eq.One) Then
             Write (6,*) 'DIIS_I optimization failed!'
-            Write (6,*) 'iD=',iD
-            Write (6,*) (CInter(i,iD),i=1,kOptim)
-            EmConv=.True.
+*           Write (6,*) 'iD=',iD
+*           Write (6,*) (CInter(i,iD),i=1,kOptim)
+            CInter(kOptim,iD)=1.0D-6
+            CInter(kOptim,iD-1)=One-1.0D-6
+*           EmConv=.True.
          End If
       End Do
 *                                                                      *

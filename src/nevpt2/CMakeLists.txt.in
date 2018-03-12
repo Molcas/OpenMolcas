@@ -7,10 +7,11 @@
 # is provided "as is" and without any express or implied warranties.   *
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#                                                                      *
+# Copyright (C) 2017, Leon Freitag                                     *
 #***********************************************************************
 #                                                                      *
-# Copyright (C) 2017, Leon Freitag, based on HDF5_QCM Makefile by      *
-# Stefan Knecht                                                        *
+# Based on HDF5_QCM Makefile by Stefan Knecht                          *
 #                                                                      *
 #***********************************************************************
 # CMakeLists.txt for NEVPT2                                            *
