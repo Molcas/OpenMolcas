@@ -173,7 +173,6 @@ message ("Configuring compilers:")
 if (DMRG)
         project (Molcas Fortran C CXX)
         cmake_minimum_required (VERSION 3.0.2)
-        set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
         if (NOT DEFINED QCMaquis_ROOT)
                 if (DEFINED ENV{QCMaquis_ROOT})
                         set (QCMaquis_ROOT $ENV{QCMaquis_ROOT})
@@ -1103,8 +1102,6 @@ if (HDF5)
                 #        include_directories( ${ZLIB_INCLUDE_DIRS} )
                 #        list (APPEND EXTERNAL_LIBRARIES ${ZLIB_LIBRARIES})
                 #endif (ZLIB_FOUND)
-
-                add_definitions (-D_HDF5_)
         else()
                 message ("-- HDF5 not found, it will be deactivated")
         endif()
@@ -1728,8 +1725,6 @@ endif ()
 if(HDF5 AND HDF5_FOUND AND DMRG)
         message ("Configuring HDF5 QCMaquis support:")
 
-        add_definitions (-D_HDF5_QCM_)
-
         set (proj ${PROJECT_SOURCE_DIR}/src/hdf5_qcm_util)
         set (proj_bin ${PROJECT_BINARY_DIR}/External/hdf5_qcm_util)
 
@@ -1839,11 +1834,6 @@ if (GEN1INT)
 
          set (proj ${PROJECT_SOURCE_DIR}/src/gen1int_util)
          set (proj_bin ${PROJECT_BINARY_DIR}/External/gen1int_util)
-
-         if (NOT DMRG)
-             # Enabling source changes to keep ExternalProject happy
-             set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
-         endif ()
 
          configure_file(${proj}/CMakeLists.txt.in ${proj_bin}/CMakeLists.txt COPYONLY)
          add_subdirectory(${proj_bin})
@@ -2183,6 +2173,13 @@ if (HDF5 AND HDF5_FOUND)
                 )
                 list (APPEND ${util}_defs "_HDF5_")
         endforeach ()
+        if (DMRG)
+                foreach (util
+                        transform_util
+                        )
+                        list (APPEND ${util}_defs "_HDF5_QCM_")
+                endforeach ()
+        endif ()
 endif ()
 
 if (NEVPT2)
@@ -2275,6 +2272,14 @@ if (HDF5 AND HDF5_FOUND)
                 )
                 list (APPEND ${prog}_defs "_HDF5_")
         endforeach ()
+        if (DMRG)
+                foreach (prog
+                        motra
+                        nevpt2
+                        )
+                        list (APPEND ${prog}_defs "_HDF5_QCM_")
+                endforeach ()
+        endif ()
 endif ()
 
 # activate grid_it
