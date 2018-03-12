@@ -10,7 +10,7 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #***********************************************************************
 
-if [ `uname` == "Darwin" ] ; then
+if [ `uname` = "Darwin" ] ; then
   MD5="md5 -r"
 else
   MD5="md5sum"
