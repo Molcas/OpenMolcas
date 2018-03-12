@@ -39,6 +39,7 @@
       CHARACTER*8 LABEL
       Complex*16 T0(3), TIJ(3), TM1, TM2, E1A, E2A, E1B, E2B,
      &           IMAGINARY, T1(3)
+      Character*50 FMTLINE
 
 #ifdef _DEBUG_RASSI_
       logical :: debug_dmrg_rassi_code = .true.
@@ -267,7 +268,7 @@ C especially for already diagonal Hamiltonian matrix.
 
       IF(IPGLOB.GE.TERSE) THEN
        DO ISTATE=1,NSTATE
-        Call PrintResult(6,'(6x,A,I5,5X,A,F25.14)',
+        Call PrintResult(6,'(6x,A,I5,5X,A,F16.8)',
      &    'RASSI State',ISTATE,'Total energy:',ENERGY(ISTATE),1)
        END DO
       END IF
@@ -282,17 +283,13 @@ cvv NAG compiler overoptimize this!
 c       EMIN=MIN(EMIN,ENERGY(ISTATE))
        if(ENERGY(ISTATE).lt.EMIN) EMIN=ENERGY(ISTATE)
       END DO
-c      KAU= INT(EMIN/1000.0D0)
-c      EVAC=1000.0D0*DBLE(KAU)
-      EVAC=0.D0
+      KAU= INT(EMIN/1000.0D0)
+      EVAC=1000.0D0*DBLE(KAU)
+      EMIN=EVAC
       DO ISTATE=1,NSTATE
-         EVAC=EVAC+ENERGY(ISTATE)/DBLE(NSTATE)
-      ENDDO
-c      IF(KAU.NE.0) THEN
-        DO ISTATE=1,NSTATE
-          ENERGY(ISTATE)=ENERGY(ISTATE)-EVAC
-        END DO
-c      END IF
+c        ENERGY(ISTATE)=ENERGY(ISTATE)-EVAC
+        ENERGY(ISTATE)=ENERGY(ISTATE)-EMIN
+      END DO
 
 C Put energies onto info file for automatic verification runs:
 CPAM06 Added error estimate, based on independent errors for all
@@ -310,7 +307,7 @@ C components of H and S in original RASSCF wave function basis:
        IDX=MIN(IDX,INT(-LOG10(ERMS)))
       END DO
       iTol=cho_x_gettol(IDX) ! reset thr iff Cholesky
-      Call Add_Info('E_RASSI',ENERGY,NSTATE,iTol)
+      Call Add_Info('E_RASSI',ENERGY+EMIN-EVAC,NSTATE,iTol)
 
 C Experimental addition: Effective L and/or M quantum numbers.
 
@@ -372,25 +369,23 @@ C REPORT ON SECULAR EQUATION RESULT:
        WRITE(6,*)
        WRITE(6,*)
        WRITE(6,*)' SPIN-FREE ENERGIES:'
-       IF(EVAC.NE.0.0D0) THEN
-        WRITE(6,'(1X,A,F18.1,A1)')' (Shifted by EVAC (a.u.) =',EVAC,')'
-       END IF
+       WRITE(6,'(1X,A,F22.10,A1)')' (Shifted by EVAC (a.u.) =',EMIN,')'
        WRITE(6,*)
        IF(IFJ2.ne.0 .and. IAMXYZ.gt.0) THEN
         IF(IFJZ.ne.0 .and. IAMZ.gt.0) THEN
-        WRITE(6,*)'SF State    Relative EVAC(au)   Rel lowest'//
-     &          ' level(eV)      D:o, cm**(-1)    L_eff   Abs_M'
+        WRITE(6,*)'SF State       Relative EVAC(au)   Rel lowest'//
+     &          ' level(eV)    D:o, cm**(-1)      L_eff   Abs_M'
         ELSE
-        WRITE(6,*)'SF State    Relative EVAC(au)   Rel lowest'//
-     &          ' level(eV)      D:o, cm**(-1)      L_eff'
+        WRITE(6,*)'SF State       Relative EVAC(au)   Rel lowest'//
+     &          ' level(eV)    D:o, cm**(-1)      L_eff'
         END IF
        ELSE
         IF(IFJZ.ne.0 .and. IAMZ.gt.0) THEN
-        WRITE(6,*)'SF State    Relative EVAC(au)   Rel lowest'//
-     &          ' level(eV)      D:o, cm**(-1)      Abs_M'
+        WRITE(6,*)'SF State       Relative EVAC(au)   Rel lowest'//
+     &          ' level(eV)    D:o, cm**(-1)      Abs_M'
         ELSE
-        WRITE(6,*)'SF State    Relative EVAC(au)   Rel lowest'//
-     &          ' level(eV)      D:o, cm**(-1)'
+        WRITE(6,*)'SF State       Relative EVAC(au)   Rel lowest'//
+     &          ' level(eV)    D:o, cm**(-1)'
         END IF
        END IF
        WRITE(6,*)
@@ -405,21 +400,22 @@ C REPORT ON SECULAR EQUATION RESULT:
           IF(IFJZ.ne.0 .and. IAMZ.gt.0) THEN
            EFFL=SQRT(MAX(0.5D-12,0.25D0+WORK(LL2DIA-1+ISTATE)))-0.5D0
            EFFM=SQRT(MAX(0.5D-12,WORK(LM2DIA-1+ISTATE)))
-          WRITE(6,'(1X,I5,7X,F18.8,2X,F18.6,2X,F25.14,6X,f6.1,2X,F6.1)')
-     &               ISTATE,E1,E2,E3,EFFL,EFFM
+           FMTLINE='(1X,I5,7X,F18.10,2X,F18.10,2X,F18.4,6X,F6.1,2X,'//
+     &              'F6.1)'
+           WRITE(6,FMTLINE) ISTATE,E1,E2,E3,EFFL,EFFM
           ELSE
            EFFL=SQRT(MAX(0.5D-12,0.25D0+WORK(LL2DIA-1+ISTATE)))-0.5D0
-           WRITE(6,'(1X,I5,7X,F18.8,2X,F18.6,2X,F25.14,6X,f6.1)')
-     &               ISTATE,E1,E2,E3,EFFL
+           FMTLINE='(1X,I5,7X,F18.10,2X,F18.10,2X,F18.4,6X,F6.1)'
+           WRITE(6,FMTLINE) ISTATE,E1,E2,E3,EFFL
           END IF
          ELSE
           IF(IFJZ.ne.0 .and. IAMZ.gt.0) THEN
            EFFM=SQRT(MAX(0.5D-12,WORK(LM2DIA-1+ISTATE)))
-           WRITE(6,'(1X,I5,7X,F18.8,2X,F18.6,2X,F25.14,6X,f6.1)')
-     &               ISTATE,E1,E2,E3,EFFM
+           FMTLINE='(1X,I5,7X,F18.10,2X,F18.10,2X,F18.4,6X,F6.1)'
+           WRITE(6,FMTLINE) ISTATE,E1,E2,E3,EFF
           ELSE
-           WRITE(6,'(1X,I5,7X,F18.8,2X,F18.6,2X,F25.14)')
-     &               ISTATE,E1,E2,E3
+           FMTLINE='(1X,I5,7X,F18.10,2X,F18.10,2X,F18.4)'
+           WRITE(6,FMTLINE) ISTATE,E1,E2,E3
           END IF
          END IF
        ESFS(ISTATE)=E3
