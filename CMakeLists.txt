@@ -1740,9 +1740,10 @@ if(HDF5 AND HDF5_FOUND AND DMRG)
         get_directory_property(${HDF5_QCM_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${HDF5_QCM_LIBRARIES})
         include_directories(${HDF5_QCM_INCLUDE})
 
-        list (APPEND HDF5_LIBRARIES ${HDF5_QCM_LIBRARIES})
         message ("-- HDF5_QCM_INCLUDE_PATH: ${HDF5_QCM_INCLUDE}")
         message ("-- HDF5_QCM_LIBRARIES: ${HDF5_QCM_LIBRARIES}")
+
+        list (APPEND EXTERNAL_LIBRARIES ${HDF5_QCM_LIBRARIES})
 else ()
         message (STATUS "HDF5 QCMaquis interface DISABLED")
 endif ()
