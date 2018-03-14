@@ -1719,7 +1719,8 @@ above URL and click on 'Request access'. \
         set (proj_bin ${PROJECT_BINARY_DIR}/External/qcmaquis-full)
 
         configure_file(${proj}/CMakeLists.txt.in ${proj_bin}/CMakeLists.txt COPYONLY)
-        add_subdirectory(${proj_bin})
+        ## Builds with build subdirectory outside the source tree require the second argument of add_subdirectory
+        add_subdirectory(${proj_bin} ${proj_bin})
 
         get_directory_property(${DMRG_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${DMRG_INCLUDE})
         get_directory_property(${DMRG_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${DMRG_LIBRARIES})
@@ -1744,7 +1745,7 @@ if(HDF5 AND HDF5_FOUND AND DMRG)
         set (proj_bin ${PROJECT_BINARY_DIR}/External/hdf5_qcm_util)
 
         configure_file(${proj}/CMakeLists.txt.in ${proj_bin}/CMakeLists.txt COPYONLY)
-        add_subdirectory(${proj_bin})
+        add_subdirectory(${proj_bin} ${proj_bin})
 
         get_directory_property(${HDF5_QCM_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${HDF5_QCM_INCLUDE})
         get_directory_property(${HDF5_QCM_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${HDF5_QCM_LIBRARIES})
@@ -1851,7 +1852,7 @@ if (GEN1INT)
          set (proj_bin ${PROJECT_BINARY_DIR}/External/gen1int_util)
 
          configure_file(${proj}/CMakeLists.txt.in ${proj_bin}/CMakeLists.txt COPYONLY)
-         add_subdirectory(${proj_bin})
+         add_subdirectory(${proj_bin} ${proj_bin})
 
          get_directory_property(${GEN1INT_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${GEN1INT_INCLUDE})
          get_directory_property(${GEN1INT_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${GEN1INT_LIBRARIES})
@@ -1914,7 +1915,7 @@ if (NEVPT2)
 
         configure_file(${proj}/CMakeLists.txt.in ${proj_bin}/CMakeLists.txt COPYONLY)
 
-        add_subdirectory(${proj_bin})
+        add_subdirectory(${proj_bin} ${proj_bin})
 
         get_directory_property(${NEVPT2_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${NEVPT2_INCLUDE})
         get_directory_property(${NEVPT2_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${NEVPT2_LIBRARIES})
