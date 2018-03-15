@@ -39,7 +39,7 @@
       CHARACTER*8 LABEL
       Complex*16 T0(3), TIJ(3), TM1, TM2, E1A, E2A, E1B, E2B,
      &           IMAGINARY, T1(3)
-      Character*50 FMTLINE
+      Character*60 FMTLINE
 
 #ifdef _DEBUG_RASSI_
       logical :: debug_dmrg_rassi_code = .true.
@@ -401,7 +401,7 @@ C REPORT ON SECULAR EQUATION RESULT:
            EFFL=SQRT(MAX(0.5D-12,0.25D0+WORK(LL2DIA-1+ISTATE)))-0.5D0
            EFFM=SQRT(MAX(0.5D-12,WORK(LM2DIA-1+ISTATE)))
            FMTLINE='(1X,I5,7X,F18.10,2X,F18.10,2X,F18.4,6X,F6.1,2X,'//
-     &              'F6.1)'
+     &             'F6.1)'
            WRITE(6,FMTLINE) ISTATE,E1,E2,E3,EFFL,EFFM
           ELSE
            EFFL=SQRT(MAX(0.5D-12,0.25D0+WORK(LL2DIA-1+ISTATE)))-0.5D0
