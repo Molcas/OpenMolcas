@@ -258,7 +258,7 @@ CIgorS End------------------------------------------------------------C
       Call DaClos(LuScr)
 c jochen 02/15: sonatorb needs LUTDM
 c     we'll make it conditional upon the keyword
-      IF(SONATNSTATE.GT.0) THEN
+      IF((SONATNSTATE.GT.0).OR.NATO) THEN
         Call DaClos(LuTDM)
       end if
 c ... jochen end

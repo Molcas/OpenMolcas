@@ -37,7 +37,7 @@
  (file)  JOBIPH10 "$WorkDir/$Project."JobIph10    ro
  (file)  JOBMIX   "$WorkDir/$Project."JobMix      ro
  (file)  SCRATCH  "$WorkDir/"purge.tmp001         rw
- (file)  TDMFILE  "$WorkDir/"purge.tmp002         rw*
+ (file)  TDMFILE  "$WorkDir/"purge.tmp002         rw
  (file)  ANNI     "$WorkDir/"purge.tmp003         rw
  (file)  EXTRACT  "$WorkDir/$Project."Extract     rw
  (file)  TOFILE   "$WorkDir/$Project."ToFile      rw
