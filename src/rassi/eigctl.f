@@ -851,28 +851,35 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
                IJ=I+NSTATE*(J-1)
                EDIFF=ENERGY(J)-ENERGY(I)
                IF(EDIFF.LT.0.0D0.OR.I.GE.J) CYCLE
-           IF(WORK(LDL-1+IJ).GE.OSTHR.AND.WORK(LDV-1+IJ).GE.OSTHR) THEN
+               COMPARE=0.0D0
+             IF(WORK(LDL-1+IJ).GE.OSTHR.AND.WORK(LDV-1+IJ).GE.OSTHR)
+     &          THEN
                COMPARE = ABS(1-WORK(LDL-1+IJ)/WORK(LDV-1+IJ))
-               IF(COMPARE.GE.TOLERANCE) THEN
-                 I_PRINT_HEADER = I_PRINT_HEADER + 1
-                 IF(I_PRINT_HEADER.EQ.1) THEN
-                   WRITE(6,*)
-                   WRITE(6,*) " Problematic transitions have been found"
-                   WRITE(6,*)
-                   WRITE(6,*) "      From   To   Percent difference"//
-     &                        "  Osc. st. (len.) Osc. st. (vel.)"
-                   WRITE(6,*) " ---------------------------------------"
-                   WRITE(6,*)
-                 END IF
+             ELSE IF(WORK(LDL-1+IJ).GE.OSTHR) THEN
+               COMPARE = -1.5D0
+             ELSE IF(WORK(LDV-1+IJ).GE.OSTHR) THEN
+               COMPARE = -2.5D0
+             END IF
+             IF(ABS(COMPARE).GE.TOLERANCE) THEN
+               I_PRINT_HEADER = I_PRINT_HEADER + 1
+               IF(I_PRINT_HEADER.EQ.1) THEN
+                 WRITE(6,*)
+                 WRITE(6,*) " Problematic transitions have been found"
+                 WRITE(6,*)
+                 WRITE(6,*) "     From   To      Difference (%)  "//
+     &                      "Osc. st. (len.) Osc. st. (vel.)"
+                 WRITE(6,*) "     -------------------------------"//
+     &                      "-------------------------------"
+                 WRITE(6,*)
+               END IF
+               IF (COMPARE.GE.0.0D0) THEN
                  WRITE(6,33) I,J,COMPARE*100D0,
      &                      WORK(LDL-1+IJ),WORK(LDV-1+IJ)
-              END IF
-             ELSE IF(WORK(LDL-1+IJ).GE.OSTHR) THEN
-               WRITE(6,*) " Velocity gauge below threshold. "//
-     &                    " Length gauge value = ",WORK(LDL-1+IJ)
-             ELSE IF(WORK(LDV-1+IJ).GE.OSTHR) THEN
-               WRITE(6,*) " Length gauge below threshold. "//
-     &                    " Velocity gauge value = ",WORK(LDV-1+IJ)
+               ELSE IF (COMPARE.GE.-2.0D0) THEN
+                 WRITE(6,36) I,J,WORK(LDL-1+IJ),"below threshold"
+               ELSE
+                 WRITE(6,37) I,J,"below threshold",WORK(LDV-1+IJ)
+               END IF
              END IF
             END DO
           END DO
@@ -882,6 +889,8 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
      &                 "the tolerance ", TOLERANCE," have been found"
             WRITE(6,*)
           ELSE
+            WRITE(6,*) "     -------------------------------"//
+     &                 "-------------------------------"
             WRITE(6,*)
             WRITE(6,*) "Number of problematic transitions = ",
      &                  I_PRINT_HEADER
@@ -1580,22 +1589,6 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
 ! release the memory again
          CALL GETMEM('TOT2K','FREE','REAL',LTOT2K,NSS**2)
 
-*      IF(NATO) THEN
-*C CALCULATE AND WRITE OUT NATURAL ORBITALS.
-*        CALL GETMEM('DMAT  ','ALLO','REAL',LDMAT,NBSQ)
-*        CALL GETMEM('TDMZZ ','ALLO','REAL',LTDMZZ,NTDMZZ)
-*        CALL GETMEM('VNAT  ','ALLO','REAL',LVNAT,NBSQ)
-*        CALL GETMEM('OCC   ','ALLO','REAL',LOCC,NBST)
-*        CALL NATORB_RASSI(WORK(LDMAT),WORK(LTDMZZ),WORK(LVNAT),
-*     &                    WORK(LOCC))
-*        CALL NATSPIN_RASSI(WORK(LDMAT),WORK(LTDMZZ),WORK(LVNAT),
-*     &                    WORK(LOCC))
-*        CALL GETMEM('DMAT  ','FREE','REAL',LDMAT,NBSQ)
-*        CALL GETMEM('TDMZZ ','FREE','REAL',LTDMZZ,NTDMZZ)
-*        CALL GETMEM('VNAT  ','FREE','REAL',LVNAT,NBSQ)
-*        CALL GETMEM('OCC   ','FREE','REAL',LOCC,NBST)
-*      END IF
-*
 ************************************************************************
 *                                                                      *
 *     Start of section for transition moments                          *
@@ -2433,6 +2426,8 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 33    FORMAT (5X,2(1X,I4),5X,5(1X,ES15.8))
 34    FORMAT (5X,2(1X,A4),5X,4(1X,A15),1X,A)
 35    FORMAT (5X,31('-'))
+36    FORMAT (5X,2(1X,I4),6X,15('-'),1X,ES15.8,1X,A15)
+37    FORMAT (5X,2(1X,I4),6X,15('-'),1X,A15,1X,ES15.8)
       END
       Subroutine Setup_O()
       IMPLICIT REAL*8 (A-H,O-Z)
