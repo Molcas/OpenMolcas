@@ -22,6 +22,7 @@
 #include "rasdef.fh"
 #include "jobin.fh"
 #include "symmul.fh"
+#include "constants.fh"
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='SODIAG')
 
@@ -54,8 +55,8 @@ C subroutine arguments
       REAL*8 MU_BOHR
 
 C For creating the filename of the ORB file
-      CHARACTER*10 FILEBASE
-      CHARACTER*10 FILEBASEL
+      CHARACTER*11 FILEBASE
+      CHARACTER*11 FILEBASEL
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C Matrices
@@ -67,9 +68,9 @@ C DEIGVAL     Storage for eigenvalues (REAL!)
 C DEIGVEC     Storage for eigenvectors
 C BPTST       Storage for some testing
 
-C from single_aniso
-      ge=2.0023193043718d0
-      MU_BOHR=0.466864374d0
+      ge=-(CONST_ELECTRON_G_FACTOR_)
+      MU_BOHR=CONST_BOHR_MAGNETON_IN_SI_*
+     &        (CONV_AU_TO_CM1_/CONV_AU_TO_KJ_/1.0D3) ! in cm-1/T
 
       WRITE(6,*)
       WRITE(6,*)
@@ -358,12 +359,12 @@ c REDO USING SONATORB_MIX
         WRITE(6,*) "State: ",ISTATE,JSTATE
 
 c file name for the spin density orb file
-        IF(IDIR.EQ.1) FILEBASE='SODIXSDENS'
-        IF(IDIR.EQ.2) FILEBASE='SODIYSDENS'
-        IF(IDIR.EQ.3) FILEBASE='SODIZSDENS'
-        IF(IDIR.EQ.1) FILEBASEL='SODIXLDENS'
-        IF(IDIR.EQ.2) FILEBASEL='SODIYLDENS'
-        IF(IDIR.EQ.3) FILEBASEL='SODIZLDENS'
+        IF(IDIR.EQ.1) FILEBASE='SODISDENS.X'
+        IF(IDIR.EQ.2) FILEBASE='SODISDENS.Y'
+        IF(IDIR.EQ.3) FILEBASE='SODISDENS.Z'
+        IF(IDIR.EQ.1) FILEBASEL='SODILDENS.X'
+        IF(IDIR.EQ.2) FILEBASEL='SODILDENS.Y'
+        IF(IDIR.EQ.3) FILEBASEL='SODILDENS.Z'
 
 
 C For L, mix the AO integrals, leave the density alone
