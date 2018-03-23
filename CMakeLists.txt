@@ -536,7 +536,7 @@ endif ()
 # defines __GNUC__
 # C++ compiler
 list (APPEND SUPPORTED_CXX_COMPILERS "GNU")
-set (CXXFLAGS_GNU_BASIC "-std=gnu99")
+set (CXXFLAGS_GNU_BASIC "")
 set (CXXFLAGS_GNU_OPENMP "-fopenmp")
 # build targets
 set (CXXFLAGS_GNU_DEBUG "-O0 -g -Wall")
@@ -1868,7 +1868,7 @@ if (WFA)
                 add_subdirectory (${proj}/libwfa)
                 target_include_directories (wfa_molcas PRIVATE ${proj} ${ARMADILLO_INC} ${HDF5_INCLUDE_DIRS})
                 target_compile_definitions (wfa_molcas PRIVATE "ARMA_DONT_USE_WRAPPER")
-                list (APPEND wfa_libs wfa_molcas)
+                list (APPEND wfa_libs wfa_molcas ${HDF5_CXX_LIBRARIES})
 
                 message ("-- wfa_libs: ${wfa_libs}")
                 message ("-- ARMADILLO_INC: ${ARMADILLO_INC}")
