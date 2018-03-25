@@ -69,6 +69,8 @@ set(reference_git_commit release-2.0)
 set(reference_git_repo git@gitlab.com:qc-maquis/nevpt2.git)
 set(EP_PROJECT nevpt2_ext)
 
+# Enabling source changes to keep ExternalProject happy
+set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
 
 ExternalProject_Add(${EP_PROJECT}
                     PREFIX ${CUSTOM_NEVPT2_LOCATION}
@@ -98,3 +100,5 @@ ExternalProject_Get_Property(${EP_PROJECT} BINARY_DIR)
 
 set(NEVPT2_INCLUDE ${CMAKE_Fortran_MODULE_DIRECTORY} PARENT_SCOPE)
 set(NEVPT2_LIBRARIES ${BINARY_DIR}/${CMAKE_FIND_LIBRARY_PREFIXES}qdnevpt2.a ${BINARY_DIR}/${CMAKE_FIND_LIBRARY_PREFIXES}AUXLIB_F.a PARENT_SCOPE)
+
+set (CMAKE_DISABLE_SOURCE_CHANGES ON)

@@ -51,6 +51,8 @@ set(reference_git_commit release-2.0)
 set(reference_git_repo git@gitlab.com:qc-maquis/hdf5-qcm.git)
 set(EP_PROJECT hdf5-qcm)
 
+# Enabling source changes to keep ExternalProject happy
+set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
 
 ExternalProject_Add(${EP_PROJECT}
                     PREFIX ${CUSTOM_HDF5_QCM_LOCATION}
@@ -71,3 +73,5 @@ ExternalProject_Add(${EP_PROJECT}
 ExternalProject_Get_Property(${EP_PROJECT} install_dir)
 set(HDF5_QCM_INCLUDE ${CMAKE_Fortran_MODULE_DIRECTORY} PARENT_SCOPE)
 set(HDF5_QCM_LIBRARIES ${install_dir}/lib/${CMAKE_FIND_LIBRARY_PREFIXES}HDF5interface.a PARENT_SCOPE)
+
+set (CMAKE_DISABLE_SOURCE_CHANGES ON)

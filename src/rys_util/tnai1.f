@@ -56,11 +56,10 @@
       If (iPrint.ge.99) Then
          Call RecPrt('Tvalue',' ',T,nT,1)
       End If
-#else
+#endif
 c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(Eta)
       If (.False.) Call Unused_integer(IsChi)
       If (.False.) Call Unused_real(ChiI2)
-#endif
       Return
       End
