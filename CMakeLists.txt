@@ -1735,9 +1735,10 @@ if(HDF5 AND HDF5_FOUND AND DMRG)
         get_directory_property(${HDF5_QCM_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${HDF5_QCM_LIBRARIES})
         include_directories(${HDF5_QCM_INCLUDE})
 
-        list (APPEND HDF5_LIBRARIES ${HDF5_QCM_LIBRARIES})
         message ("-- HDF5_QCM_INCLUDE_PATH: ${HDF5_QCM_INCLUDE}")
         message ("-- HDF5_QCM_LIBRARIES: ${HDF5_QCM_LIBRARIES}")
+
+        list (APPEND EXTERNAL_LIBRARIES ${HDF5_QCM_LIBRARIES})
 else ()
         message (STATUS "HDF5 QCMaquis interface DISABLED")
 endif ()
@@ -1899,14 +1900,14 @@ if (NEVPT2)
         set (proj ${PROJECT_SOURCE_DIR}/src/nevpt2)
         set (proj_bin ${PROJECT_BINARY_DIR}/External/nevpt2_ext)
 
-        add_dependencies(nevpt2_ext hdf5-qcm qcmaquis-driver)
-
         configure_file(${proj}/CMakeLists.txt.in ${proj_bin}/CMakeLists.txt COPYONLY)
 
         add_subdirectory(${proj_bin})
 
         get_directory_property(${NEVPT2_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${NEVPT2_INCLUDE})
         get_directory_property(${NEVPT2_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${NEVPT2_LIBRARIES})
+
+        add_dependencies(nevpt2_ext hdf5-qcm qcmaquis-driver)
 
         list (APPEND EXTERNAL_LIBRARIES ${NEVPT2_LIBRARIES})
         message ("-- NEVPT2_LIBRARIES: ${NEVPT2_LIBRARIES}")
