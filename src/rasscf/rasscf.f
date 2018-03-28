@@ -1788,18 +1788,19 @@ c Clean-close as much as you can the CASDFT stuff...
          Call GetMem('RVEC','ALLO','REAL',iVecR,NConf)
          Call GetMem('KCNF','ALLO','INTE',ivkcnf,NACTEL)
          Call GetMem('Dtmp','ALLO','REAL',LW6,NAC*NAC)
+         jDisk=IADR15(4)
+         Call DDafile(JOBIPH,2,Work(iTmp),nConf,jDisk)
          Do jRoot=2,lRoots
 *           Read and reorder the left CI vector
-            iDisk=IADR15(4)+jRoot-1
-            Call DDafile(JOBIPH,2,Work(iTmp),nConf,iDisk)
+            Call DDafile(JOBIPH,2,Work(iTmp),nConf,jDisk)
             Call Reord2(NAC,NACTEL,LSYM,1,
      &                  iWork(KICONF(1)),iWork(KCFTP),
      &                  Work(iTmp),Work(iVecL),iWork(ivkcnf))
             C_Pointer=iVecL
+            kDisk=IADR15(4)
             Do kRoot=1,jRoot-1
 *              Read and reorder the right CI vector
-               iDisk=IADR15(4)+kRoot-1
-               Call DDafile(JOBIPH,2,Work(iTmp),nConf,iDisk)
+               Call DDafile(JOBIPH,2,Work(iTmp),nConf,kDisk)
                Call Reord2(NAC,NACTEL,LSYM,1,
      &                     iWork(KICONF(1)),iWork(KCFTP),
      &                     Work(iTmp),Work(iVecR),iWork(ivkcnf))
