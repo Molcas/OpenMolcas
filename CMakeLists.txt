@@ -2226,7 +2226,6 @@ if (MSYM AND MSYM_FOUND)
 endif ()
 
 if (BLOCK)
-        message(">>> Enabling BLOCK")
         set (util block_dmrg_util)
         find_source(${util})
         if (DEFINED ${util}_src)
@@ -2434,7 +2433,7 @@ if (DMRG)
         else ()
                 message (FATAL_ERROR "QCMaquis DMRG support requires the HDF5 library.")
         endif ()
-        
+
         add_dependencies(mods_obj qcmaquis-driver)
 endif ()
 if (GEN1INT)

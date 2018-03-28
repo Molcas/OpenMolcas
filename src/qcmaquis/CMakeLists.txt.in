@@ -75,6 +75,8 @@ ExternalProject_Add(${EP_PROJECT}
 #                    UPDATE_COMMAND cmake -E echo "Skipping QCMaquis driver update"
                    )
 
+set (CMAKE_DISABLE_SOURCE_CHANGES ON)
+
 # post installation steps
 ExternalProject_Add_Step(${EP_PROJECT} install_tools DEPENDEES update
                          COMMAND ${CMAKE_COMMAND} -E copy_directory ${CUSTOM_QCMaquis_LOCATION}/src/${EP_PROJECT}/tools/pytools ${PROJECT_BINARY_DIR}/pytools
@@ -109,8 +111,8 @@ if(NOT MAQUIS_DMRG_FOUND)
          "-DLOCAL_QCM_INSTALL_PATH:STRING=${PROJECT_BINARY_DIR}"
         )
 
-# Enabling source changes to keep ExternalProject happy
-set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
+    # Enabling source changes to keep ExternalProject happy
+    set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
 
     ExternalProject_Add(${EP_PROJECT}
                         PREFIX ${CUSTOM_QCMaquis_LOCATION}
@@ -131,8 +133,6 @@ set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
 #                        DOWNLOAD_COMMAND cmake -E echo "Skipping QCMaquis download"
                        )
 
-# Enabling source changes to keep ExternalProject happy
-set (CMAKE_DISABLE_SOURCE_CHANGES ON)
+    set (CMAKE_DISABLE_SOURCE_CHANGES ON)
 
 endif()
-
