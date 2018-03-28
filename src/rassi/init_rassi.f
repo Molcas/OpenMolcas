@@ -52,12 +52,6 @@ C UNIT NUMBERS AND NAMES
       LUIPH=15
       LUSCR=20
       FNSCR='SCRATCH'
-c jochen 02/15: sonatorb needs LUTDM
-c      IF(SONATNSTATE.GT.0) THEN
-c        LUTDM=21
-c        FNTDM='TDMFILE'
-c      end if
-c ... jochen end
       LUEXC=22
       FNEXC='ANNI'
       LUEXT=21
@@ -78,18 +72,11 @@ c ... jochen end
         WRITE(6,'(1x,I8,5x,A8)')LUONE,FNONE
         WRITE(6,'(1x,I8,5x,A8)')LUORD,FNORD
         WRITE(6,'(1x,I8,5x,A8)')LUSCR,FNSCR
-c jochen 02/15: sonatorb needs LUTDM
-c        WRITE(6,'(1x,I8,5x,A8)')LUTDM,FNTDM
-c ... jochen end
         WRITE(6,'(1x,I8,5x,A8)')LUEXC,FNEXC
       END IF
 
       IF(IPGLOB.GT.VERBOSE) WRITE(6,*)' OPENING ',FNSCR
       CALL DANAME(LUSCR,FNSCR)
-c jochen 02/15: sonatorb needs LUTDM
-c        IF(IPGLOB.GT.VERBOSE) WRITE(6,*)' OPENING ',FNTDM
-c        CALL DANAME_MF(LUTDM,FNTDM)
-c ... jochen end
       IF(IPGLOB.GT.VERBOSE) WRITE(6,*)' OPENING ',FNEXC
       CALL DANAME(LUEXC,FNEXC)
 

@@ -84,28 +84,29 @@ C HOWEVER, MAX POSSIBLE SIZE IS WHEN LSYM1=LSYM2.
       NTDMAB=NTRA
 c jochen 02/15: sonatorb needs LUTDM
 c     we'll make it conditional upon the keyword
-      IF(SONATNSTATE.GT.0) THEN
-      write(6,*) 'Info: creating TDMFILE'
+      IF((SONATNSTATE.GT.0).OR.NATO) THEN
+        WRITE(6,*) ' Info: creating TDMFILE'
 c ... the following code used to be in init_rassi. The problem
 c     is that sonatnstate is unknown when that routine is
 c     executed.
-      LUTDM=21
-      FNTDM='TDMFILE'
-      CALL DANAME_MF(LUTDM,FNTDM)
+        LUTDM=21
+        LUTDM=IsFreeUnit(LUTDM)
+        FNTDM='TDMFILE'
+        CALL DANAME_MF(LUTDM,FNTDM)
 c ... end import from init_rassi
-      IDISK=0
-      DO ISTATE=1,nstate
-       DO JSTATE=1,ISTATE
-        iWork(lIDTDM+(iState-1)*Nstate+Jstate-1)=IDISK
+        IDISK=0
+        DO ISTATE=1,nstate
+          DO JSTATE=1,ISTATE
+            iWork(lIDTDM+(iState-1)*Nstate+Jstate-1)=IDISK
 C Compute next disk address after writing TDMZZ data set..
-         CALL DDAFILE(LUTDM,0,DUMMY,NTDMZZ,IDISK)
+            CALL DDAFILE(LUTDM,0,DUMMY,NTDMZZ,IDISK)
 C ..and also a TSDMZZ data set
-         CALL DDAFILE(LUTDM,0,DUMMY,NTDMZZ,IDISK)
+            CALL DDAFILE(LUTDM,0,DUMMY,NTDMZZ,IDISK)
 C ..and also a WDMZZ data set ('Triplet TDM')
-         CALL DDAFILE(LUTDM,0,DUMMY,NTDMZZ,IDISK)
-       END DO
-      END DO
-      end if
+            CALL DDAFILE(LUTDM,0,DUMMY,NTDMZZ,IDISK)
+          END DO
+        END DO
+      END IF
 c ... jochen end
 
 C Upcase property names in lists of requests:
@@ -890,7 +891,7 @@ C Write out various input data:
         WRITE(6,*)'     PRMES :',PRMES
       END IF
       IF(IPGLOB.GE.USUAL) THEN
-       IF(NATO) THEN
+       IF(NATO.AND.(NRNATO.GT.0)) THEN
         WRITE(6,*)' Natural orbitals will be computed for the'
         WRITE(6,*)' lowest eigenstates. NRNATO=',NRNATO
        END IF
