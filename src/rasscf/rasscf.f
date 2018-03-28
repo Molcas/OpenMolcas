@@ -1780,6 +1780,46 @@ c Clean-close as much as you can the CASDFT stuff...
       Call GetMem('OCCX','Free','Real',LOCCX,NTOT)
 
 *
+* Compute transition density matrices
+      If (KeyTDM) Then
+#ifdef _HDF5_
+         Call GetMem('TMP','ALLO','REAL',iTmp,NConf)
+         Call GetMem('LVEC','ALLO','REAL',iVecL,NConf)
+         Call GetMem('RVEC','ALLO','REAL',iVecR,NConf)
+         Call GetMem('KCNF','ALLO','INTE',ivkcnf,NACTEL)
+         Call GetMem('Dtmp','ALLO','REAL',LW6,NAC*NAC)
+         Do jRoot=2,lRoots
+*           Read and reorder the left CI vector
+            iDisk=IADR15(4)+jRoot-1
+            Call DDafile(JOBIPH,2,Work(iTmp),nConf,iDisk)
+            Call Reord2(NAC,NACTEL,LSYM,1,
+     &                  iWork(KICONF(1)),iWork(KCFTP),
+     &                  Work(iTmp),Work(iVecL),iWork(ivkcnf))
+            C_Pointer=iVecL
+            Do kRoot=1,jRoot-1
+*              Read and reorder the right CI vector
+               iDisk=IADR15(4)+kRoot-1
+               Call DDafile(JOBIPH,2,Work(iTmp),nConf,iDisk)
+               Call Reord2(NAC,NACTEL,LSYM,1,
+     &                     iWork(KICONF(1)),iWork(KCFTP),
+     &                     Work(iTmp),Work(iVecR),iWork(ivkcnf))
+*              Compute TDM and store in h5 file
+               Call Lucia_Util('Densi',iVecR,iDummy,Dummy)
+               idx=(jRoot-2)*(jRoot-1)/2+kRoot
+               Call mh5_put_dset_array_real(wfn_transdens, Work(LW6),
+     &              [NAC,NAC,1], [0,0,idx-1])
+            End Do
+         End Do
+         Call GetMem('TMP','FREE','REAL',iTmp,NConf)
+         Call GetMem('LVEC','FREE','REAL',iVecL,NConf)
+         Call GetMem('RVEC','FREE','REAL',iVecR,NConf)
+         Call GetMem('KCNF','FREE','INTE',ivkcnf,NACTEL)
+         Call GetMem('Dtmp','FREE','REAL',LW6,NAC*NAC)
+#else
+         Call WarningMessage(1,'HDF5 support disabled, '//
+     &                         'TDM keyword ignored.')
+#endif
+      End If
 *
 *****************************************************************
 * Export all information relevant to geometry optimizations.

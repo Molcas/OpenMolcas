@@ -24,6 +24,7 @@
 #  include "raswfn.fh"
 #  include "gugx.fh"
 #  include "gas.fh"
+#  include "input_ras.fh"
       Integer         IDXCI(mxAct), IDXSX(mxAct)
       Common /IDSXCI/ IDXCI,        IDXSX
 
@@ -143,6 +144,16 @@
       call mh5_init_attr(wfn_spindens, 'description',
      $        'active 1-body spin density matrix, size [NAC,NAC] '//
      $        'for each root in NROOTS: [NAC,NAC,NROOTS].')
+
+      if (KeyTDM) then
+      wfn_transdens = mh5_create_dset_real (wfn_fileid,
+     $        'TRANSITION_DENSITY_MATRIX', 3,
+     $        [NAC, NAC, lRoots*(lRoots-1)/2])
+      call mh5_init_attr(wfn_transdens, 'description',
+     $        'active 1-body transition density matrix, '//
+     $        'size [NAC,NAC] for each pair of roots in NROOTS: '//
+     $        '[NAC,NAC,NROOTS*(NROOTS-1)/2].')
+      end if
 
 *     fock matrix
       wfn_fockmat = mh5_create_dset_real (wfn_fileid,
