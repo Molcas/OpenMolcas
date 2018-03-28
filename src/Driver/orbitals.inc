@@ -28,6 +28,9 @@
  (file)  SPDORB  "$WorkDir/$Project$SubProject."SpdOrb        rws*t
  (file)  SIORB   "$WorkDir/$Project$SubProject."SiOrb         rw*st
  (file)  SSORB   "$WorkDir/$Project$SubProject."SsOrb         rw*st
+ (file)  BIORB   "$WorkDir/$Project$SubProject."BiOrb         rw*st
  (file)  TMPORB  "$WorkDir/$Project$SubProject."purge.TmpOrb  rwp
+ (file)  SONATTDENS  "$WorkDir/$Project$SubProject."SOOrb     rw*st
+ (file)  SONATSDENS  "$WorkDir/$Project$SubProject."SOSOrb    rw*st
 #define _ORBITALS_
 #endif

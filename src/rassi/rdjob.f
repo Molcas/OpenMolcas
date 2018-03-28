@@ -545,15 +545,15 @@ C AMOUNT OF TITLE LINES.
         WRITE(6,*)'  NR OF CONFIG:       ',NCONF1
       END IF
       WFTYPE='GENERAL '
-*      IF(MPLET1.EQ.(NASHT+1)) WFTYPE='HISPIN  '
+*      IF(MPLET1.EQ.(SUM(NASH(1:NSYM))+1)) WFTYPE='HISPIN  '
 * Note: the HISPIN case may be buggy and is not used presently.
-      IF(MPLET1.EQ.(NASHT+1)) THEN
+      IF(MPLET1.EQ.(SUM(NASH(1:NSYM))+1)) THEN
        write(6,*)' This wave function is of HISPIN type.'
        write(6,*)' However, the special handling for that case'
        write(6,*)' is suspected to be buggy. So the variable'
        write(6,*)' WFTYPE is set to GENERAL.'
       END IF
-      IF(NACTE1.EQ.2*NASHT) WFTYPE='CLOSED  '
+      IF(NACTE1.EQ.2*SUM(NASH(1:NSYM))) WFTYPE='CLOSED  '
       IF(NACTE1.EQ.0) WFTYPE='EMPTY   '
       RASTYP(JOB)=WFTYPE
       IF(IPGLOB.GE.VERBOSE)
@@ -619,7 +619,6 @@ C Where is the CMO data set stored?
 ************************************************************************
 *                                                                      *
 *     Only read the number of states                                   *
-*                                                                      *
 *                                                                      *
 ************************************************************************
       Subroutine rdjob_nstates(JOB)

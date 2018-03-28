@@ -88,11 +88,11 @@ C ------------------------------------------
       END IF
 C ------------------------------------------
       IF (LINE(1:4).EQ.'BINA') THEN
+        BINA=.TRUE.
+        NATO=.TRUE.
+        Read(LuIn,*,ERR=997) NBINA
         LINENR=LINENR+1
-        WRITE(6,*)' The BINAtural orbitals option is not possible yet'
-        WRITE(6,*)' with this version of RASSI, since the TDMFILE is'
-        WRITE(6,*)' no longer used -- code must be revised!'
-        WRITE(6,*)' The BINA keyword is ignored.'
+        Read(LuIn,*,ERR=997) (IBINA(1,I),IBINA(2,I),I=1,NBINA)
         GOTO 100
       END IF
 C ------------------------------------------
@@ -105,11 +105,9 @@ C ------------------------------------------
       END IF
 C ------------------------------------------
       IF (LINE(1:4).EQ.'NATO') THEN
+        NATO=.TRUE.
+        Read(LuIn,*,ERR=997) NRNATO
         LINENR=LINENR+1
-        WRITE(6,*)' The natural orbitals option is not possible yet'
-        WRITE(6,*)' with this version of RASSI, since the TDMFILE is'
-        WRITE(6,*)' no longer used -- code must be revised!'
-        WRITE(6,*)' The NATO keyword is ignored.'
         GOTO 100
       END IF
 C-------------------------------------------

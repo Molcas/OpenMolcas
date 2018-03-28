@@ -9,7 +9,7 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
 # Copyright (C) 2014-2016, Steven Vancoillie                           *
-#               2014-2017, Ignacio Fdez. Galván                        *
+#               2014-2018, Ignacio Fdez. Galván                        *
 #               2015, Stefan Knecht                                    *
 #***********************************************************************
 # Global CMakeLists.txt file for building Molcas with CMake.
@@ -150,7 +150,7 @@ if (DMRG)
 else ()
         mark_as_advanced (FORCE DMRG_DEBUG)
 endif ()
-option (GEN1INT    "Enable Gen1Int library for 1-electron integrals." OFF)
+option (GEN1INT    "Enable Gen1Int library for 1-electron integrals."                                           OFF)
 option (NECI       "Activate NECI support (requires External/NECI submodule)."                                  OFF)
 option (WFA        "Activate extended wavefunction analysis (requires External/libwfa submodule)."              OFF)
 option (NEVPT2     "Activate (DMRG)-NEVPT2 support."                                                            OFF)
@@ -200,9 +200,6 @@ find_program (GIT "git")
 find_program (PERL "perl")
 mark_as_advanced(FORCE GIT PERL)
 
-# set function to find source directories
-#========================================
-
 # location of molcas-extra
 if (NOT DEFINED EXTRA)
         if (DEFINED ENV{EXTRA})
@@ -250,6 +247,9 @@ foreach (BASE_DIR ${basedirs})
 endforeach ()
 list (REVERSE basedirs)
 
+# set function to find source directories
+#========================================
+
 function (find_source name)
         foreach (src ${source_roots})
                 if (EXISTS ${PROJECT_SOURCE_DIR}/${src}/${name})
@@ -272,6 +272,20 @@ function (find_source name)
                 #        message (WARNING "${name} not found, expect trouble")
                 endif ()
         endif ()
+endfunction ()
+
+# set function to insert list
+#============================
+
+function (insert_before _list _item _new)
+        list (GET ${_item} 0 _first)
+        list (FIND ${_list} ${_first} _index)
+        if (_index GREATER -1)
+                list (INSERT ${_list} ${_index} ${_new})
+        else ()
+                list (APPEND ${_list} ${_new})
+        endif ()
+        set (${_list} ${${_list}} PARENT_SCOPE)
 endfunction ()
 
 # get version from git if available, otherwise look in .molcasversion
@@ -536,7 +550,7 @@ endif ()
 # defines __GNUC__
 # C++ compiler
 list (APPEND SUPPORTED_CXX_COMPILERS "GNU")
-set (CXXFLAGS_GNU_BASIC "-std=gnu99")
+set (CXXFLAGS_GNU_BASIC "")
 set (CXXFLAGS_GNU_OPENMP "-fopenmp")
 # build targets
 set (CXXFLAGS_GNU_DEBUG "-O0 -g -Wall")
@@ -1705,15 +1719,17 @@ above URL and click on 'Request access'. \
         set (proj_bin ${PROJECT_BINARY_DIR}/External/qcmaquis-full)
 
         configure_file(${proj}/CMakeLists.txt.in ${proj_bin}/CMakeLists.txt COPYONLY)
-        add_subdirectory(${proj_bin})
+        ## Builds with build subdirectory outside the source tree require the second argument of add_subdirectory
+        add_subdirectory(${proj_bin} ${proj_bin})
 
         get_directory_property(${DMRG_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${DMRG_INCLUDE})
         get_directory_property(${DMRG_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${DMRG_LIBRARIES})
         include_directories(${DMRG_INCLUDE})
 
-        list (APPEND EXTERNAL_LIBRARIES ${DMRG_LIBRARIES})
         message ("-- DMRG_INCLUDE_PATH: ${DMRG_INCLUDE}")
         message ("-- DMRG_LIBRARIES: ${DMRG_LIBRARIES}")
+
+        list (APPEND EXTERNAL_LIBRARIES ${DMRG_LIBRARIES})
 else ()
         message (STATUS "DMRG support DISABLED")
 endif ()
@@ -1729,7 +1745,7 @@ if(HDF5 AND HDF5_FOUND AND DMRG)
         set (proj_bin ${PROJECT_BINARY_DIR}/External/hdf5_qcm_util)
 
         configure_file(${proj}/CMakeLists.txt.in ${proj_bin}/CMakeLists.txt COPYONLY)
-        add_subdirectory(${proj_bin})
+        add_subdirectory(${proj_bin} ${proj_bin})
 
         get_directory_property(${HDF5_QCM_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${HDF5_QCM_INCLUDE})
         get_directory_property(${HDF5_QCM_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${HDF5_QCM_LIBRARIES})
@@ -1738,7 +1754,7 @@ if(HDF5 AND HDF5_FOUND AND DMRG)
         message ("-- HDF5_QCM_INCLUDE_PATH: ${HDF5_QCM_INCLUDE}")
         message ("-- HDF5_QCM_LIBRARIES: ${HDF5_QCM_LIBRARIES}")
 
-        list (APPEND EXTERNAL_LIBRARIES ${HDF5_QCM_LIBRARIES})
+        insert_before(EXTERNAL_LIBRARIES HDF5_C_LIBRARIES "${HDF5_QCM_LIBRARIES}")
 else ()
         message (STATUS "HDF5 QCMaquis interface DISABLED")
 endif ()
@@ -1836,7 +1852,7 @@ if (GEN1INT)
          set (proj_bin ${PROJECT_BINARY_DIR}/External/gen1int_util)
 
          configure_file(${proj}/CMakeLists.txt.in ${proj_bin}/CMakeLists.txt COPYONLY)
-         add_subdirectory(${proj_bin})
+         add_subdirectory(${proj_bin} ${proj_bin})
 
          get_directory_property(${GEN1INT_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${GEN1INT_INCLUDE})
          get_directory_property(${GEN1INT_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${GEN1INT_LIBRARIES})
@@ -1869,12 +1885,12 @@ if (WFA)
                 add_subdirectory (${proj}/libwfa)
                 target_include_directories (wfa_molcas PRIVATE ${proj} ${ARMADILLO_INC} ${HDF5_INCLUDE_DIRS})
                 target_compile_definitions (wfa_molcas PRIVATE "ARMA_DONT_USE_WRAPPER")
-                list (APPEND wfa_libs wfa_molcas)
+                list (APPEND wfa_libs wfa_molcas ${HDF5_CXX_LIBRARIES})
 
                 message ("-- wfa_libs: ${wfa_libs}")
                 message ("-- ARMADILLO_INC: ${ARMADILLO_INC}")
 
-                list (INSERT EXTERNAL_LIBRARIES 0 ${wfa_libs})
+                insert_before(EXTERNAL_LIBRARIES HDF5_C_LIBRARIES "${wfa_libs}")
         else ()
                 set (WFA_FOUND OFF)
                 mark_as_advanced(FORCE ARMADILLO_INC)
@@ -1887,14 +1903,11 @@ endif ()
 
 # NEVPT2
 if (NEVPT2)
-        message("Enabling NEVPT2 dependencies:")
         if (NOT DMRG)
-                set (DMRG ON FORCE)
-                message ("-- Enabling (QCMaquis) DMRG")
+                message (FATAL_ERROR "NEVPT2 support requires enabling DMRG too.")
         endif ()
-        if (NOT HDF5_QCM)
-                set (HDF5_QCM ON FORCE)
-                message ("-- Enabling HDF5_QCM")
+        if (NOT (HDF5 AND HDF5_FOUND))
+                message (FATAL_ERROR "NEVPT2 support requires enabling HDF5 too.")
         endif ()
 
         set (proj ${PROJECT_SOURCE_DIR}/src/nevpt2)
@@ -1902,15 +1915,16 @@ if (NEVPT2)
 
         configure_file(${proj}/CMakeLists.txt.in ${proj_bin}/CMakeLists.txt COPYONLY)
 
-        add_subdirectory(${proj_bin})
+        add_subdirectory(${proj_bin} ${proj_bin})
 
         get_directory_property(${NEVPT2_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${NEVPT2_INCLUDE})
         get_directory_property(${NEVPT2_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${NEVPT2_LIBRARIES})
 
         add_dependencies(nevpt2_ext hdf5-qcm qcmaquis-driver)
 
-        list (APPEND EXTERNAL_LIBRARIES ${NEVPT2_LIBRARIES})
         message ("-- NEVPT2_LIBRARIES: ${NEVPT2_LIBRARIES}")
+
+        insert_before(EXTERNAL_LIBRARIES HDF5_QCM_LIBRARIES "${NEVPT2_LIBRARIES}")
 else ()
         message(STATUS "NEVPT2 support DISABLED")
 endif ()
@@ -2111,11 +2125,19 @@ if (FDE)
         else ()
                 message (FATAL_ERROR "\"${util}\" not found in source directories")
         endif ()
-        list (APPEND gateway_util_incs ${${util}_src})
-        list (APPEND seward_incs ${${util}_src})
-        list (APPEND scf_incs ${${util}_src})
-        list (APPEND rasscf_incs ${${util}_src})
-        list (APPEND grid_it_incs ${${util}_src})
+        foreach (util
+                gateway_util
+                )
+                list (APPEND ${util}_incs ${${util}_src})
+        endforeach ()
+        foreach (prog
+                seward
+                scf
+                rasscf
+                grid_it
+                )
+                list (APPEND ${prog}_incs ${${util}_src})
+        endforeach ()
 endif ()
 
 # If an external GA library is not present, we use the internal
@@ -2407,9 +2429,12 @@ file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${OPENMOLCAS_DIR}/src/${util}/*
 add_library (mods_obj OBJECT ${source})
 list (APPEND ALL_SOURCES ${source})
 if (DMRG)
-        if (HDF5)
+        if (HDF5 AND HDF5_FOUND)
                 add_dependencies(mods_obj hdf5-qcm)
+        else ()
+                message (FATAL_ERROR "QCMaquis DMRG support requires the HDF5 library.")
         endif ()
+        
         add_dependencies(mods_obj qcmaquis-driver)
 endif ()
 if (GEN1INT)

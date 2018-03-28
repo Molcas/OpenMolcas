@@ -19,21 +19,21 @@
 
 *  Note that dgesvd returns V**T, not V.
 *      nm=min(n,m)
-      write(6,*)' In full_svd. Calling dgesvd:'
+c     write(6,*)' In full_svd. Calling dgesvd:'
       call xflush(6)
       call dgesvd_('A','A',m,n,amat,m,svals,umat,m,vmat,n,
      &                                     wrk1_lapack,-1,info)
-      write(6,*)' full_svd back from dgesvd'
+c     write(6,*)' full_svd back from dgesvd'
       call xflush(6)
       lwork=int(wrk1_lapack(1))
-      write(6,*)' lwork:',lwork
+c     write(6,*)' lwork:',lwork
       call xflush(6)
       call getmem('lapckwrk','allo','real',ipwork,lwork)
-      write(6,*)' Calling dgesvd again:'
+c     write(6,*)' Calling dgesvd again:'
       call xflush(6)
       call dgesvd_('A','A',m,n,amat,m,svals,umat,m,vmat,n,
      &                                 work(ipwork),lwork,info)
-      write(6,*)' full_svd back from dgesvd'
+c     write(6,*)' full_svd back from dgesvd'
       call xflush(6)
       call getmem('lapckwrk','free','real',ipwork,lwork)
 
