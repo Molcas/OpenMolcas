@@ -348,7 +348,7 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
      &    call mh5_fetch_dset(mh5id, trim(VecTit), typestring)
         call mh5_close_file(mh5id)
 * Reorder orbitals based on typeindex
-        If (typeindex.ne.'') Then
+        If (typestring.ne.'') Then
           NNwOrd=0
           Do iSym=1,nSym
             NNwOrd=NNwOrd+NBas(iSym)
