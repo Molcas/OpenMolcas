@@ -172,7 +172,7 @@ message ("Configuring compilers:")
 
 if (DMRG)
         project (Molcas Fortran C CXX)
-        cmake_minimum_required (VERSION 3.0.2)
+        cmake_minimum_required (VERSION 3.2.0)
         if (NOT DEFINED QCMaquis_ROOT)
                 if (DEFINED ENV{QCMaquis_ROOT})
                         set (QCMaquis_ROOT $ENV{QCMaquis_ROOT})
