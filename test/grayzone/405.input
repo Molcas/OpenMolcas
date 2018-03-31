@@ -8,18 +8,18 @@
 *-------------------------------------------------------------------------------
 &Gateway
 Title
-Muonic argon 
+Muonic argon
 expert
 
 Basis set
 Ar.MUONIC
-mH    0.0     0.0     0.0   
+mH    0.0     0.0     0.0
 Nucl=0.45D9
 End of basis
 
 Basis set
 Cl.ANO-L-VTZP
-H    0.0     0.0     0.0   
+H    0.0     0.0     0.0
 Nucl=0.45D9
 Charge=0.0
 End of basis
