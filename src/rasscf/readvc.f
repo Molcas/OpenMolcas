@@ -88,7 +88,9 @@ c      Integer StrnLn
       Logical Found
       Logical Changed
       Integer nTmp(8)
+#ifdef _HDF5_
       Character(Len=maxbfn) typestring
+#endif
 
 *----------------------------------------------------------------------*
 *                                                                      *
