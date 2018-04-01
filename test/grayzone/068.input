@@ -33,7 +33,7 @@ End of input
 RICD
 
 >>> DO WHILE
- &SEWARD; &SCF 
+ &SEWARD; &SCF
  &Slapaf; Cartesian
 >>> END DO
 

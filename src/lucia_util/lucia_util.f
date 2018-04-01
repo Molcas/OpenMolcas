@@ -106,7 +106,7 @@
          Call Traci_Master(Int1,Int2,Array1,iWork(ivlrec))
          Call GetMem('lrec','free','inte',ivlrec,MXNTTS)
       Else If (Module_(1:5) .eq. 'DENSI') Then
-         Call Densi_Master
+         Call Densi_Master(Int1)
       Else If (Module_(1:3) .eq. 'INI') Then
          Call Lucia_Ini
          Call DetCtl_Gas

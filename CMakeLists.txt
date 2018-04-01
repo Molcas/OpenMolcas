@@ -1108,6 +1108,10 @@ if (HDF5)
                 message ("-- HDF5_INCLUDE_PATH: ${HDF5_INCLUDE_DIRS}")
                 message ("-- HDF5_C_LIBRARIES: ${HDF5_C_LIBRARIES}")
                 list (APPEND EXTERNAL_LIBRARIES ${HDF5_C_LIBRARIES})
+                if (HDF5_CXX_LIBRARIES)
+                        message ("-- HDF5_CXX_LIBRARIES: ${HDF5_CXX_LIBRARIES}")
+                        list (APPEND EXTERNAL_LIBRARIES ${HDF5_CXX_LIBRARIES})
+                endif ()
 
                 ## Leon: require zlib for hdf5 for enabled compression
                 ## disabled as long as HDF5 compression is disabled
@@ -1885,7 +1889,7 @@ if (WFA)
                 add_subdirectory (${proj}/libwfa)
                 target_include_directories (wfa_molcas PRIVATE ${proj} ${ARMADILLO_INC} ${HDF5_INCLUDE_DIRS})
                 target_compile_definitions (wfa_molcas PRIVATE "ARMA_DONT_USE_WRAPPER")
-                list (APPEND wfa_libs wfa_molcas ${HDF5_CXX_LIBRARIES})
+                list (APPEND wfa_libs wfa_molcas)
 
                 message ("-- wfa_libs: ${wfa_libs}")
                 message ("-- ARMADILLO_INC: ${ARMADILLO_INC}")
@@ -2226,7 +2230,6 @@ if (MSYM AND MSYM_FOUND)
 endif ()
 
 if (BLOCK)
-        message(">>> Enabling BLOCK")
         set (util block_dmrg_util)
         find_source(${util})
         if (DEFINED ${util}_src)
@@ -2434,7 +2437,7 @@ if (DMRG)
         else ()
                 message (FATAL_ERROR "QCMaquis DMRG support requires the HDF5 library.")
         endif ()
-        
+
         add_dependencies(mods_obj qcmaquis-driver)
 endif ()
 if (GEN1INT)

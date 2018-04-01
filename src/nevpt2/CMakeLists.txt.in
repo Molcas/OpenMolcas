@@ -87,6 +87,8 @@ ExternalProject_Add(${EP_PROJECT}
                     LOG_INSTALL 1
                    )
 
+set (CMAKE_DISABLE_SOURCE_CHANGES ON)
+
 ExternalProject_Add_Step(${EP_PROJECT} install_tools DEPENDEES update
                    # Copy distributed 4-RDM tools
                    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CUSTOM_QCMaquis_LOCATION}/src/qcmaquis-driver/tools/distributed-4rdm ${PROJECT_BINARY_DIR}/Tools/distributed-4rdm
@@ -100,5 +102,3 @@ ExternalProject_Get_Property(${EP_PROJECT} BINARY_DIR)
 
 set(NEVPT2_INCLUDE ${CMAKE_Fortran_MODULE_DIRECTORY} PARENT_SCOPE)
 set(NEVPT2_LIBRARIES ${BINARY_DIR}/${CMAKE_FIND_LIBRARY_PREFIXES}qdnevpt2.a ${BINARY_DIR}/${CMAKE_FIND_LIBRARY_PREFIXES}AUXLIB_F.a PARENT_SCOPE)
-
-set (CMAKE_DISABLE_SOURCE_CHANGES ON)
