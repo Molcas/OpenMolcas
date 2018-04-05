@@ -54,6 +54,8 @@
 ************************************************************************
       rHrmt=-One ! Note used
 *
+*     B*s Magnetic * Spin
+*
       nOrdOp = 0
       Label='TMOS0'
       nComp = 2
@@ -81,6 +83,8 @@
 *
       Call GetMem('Nuc   ','FREE','REAL',ipNuc,nComp)
       Call Deallocate_Auxiliary()
+*
+*     A*p
 *
       nOrdOp = 1
       Label='TMOS'
