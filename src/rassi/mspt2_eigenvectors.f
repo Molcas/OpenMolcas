@@ -97,7 +97,7 @@
      &                     )
           end if
 
-          if(put_h5_data)then
+          if(put_h5_data.or.put_so_data)then
 #ifdef _HDF5_
             call mh5_put_dset_array_real(wfn_sfs_tdm,
      &                                   rtdm, [NTDMZZ,1,1],
@@ -105,6 +105,11 @@
             call mh5_put_dset_array_real(wfn_sfs_tsdm,
      &                                   stdm, [NTDMZZ,1,1],
      &                                   [0,ISTATE-1,JSTATE-1])
+            if(put_so_data)then
+              call mh5_put_dset_array_real(wfn_sfs_wetdm,
+     &                                     wetdm, [NTDMZZ,1,1],
+     &                                     [0,ISTATE-1,JSTATE-1])
+            end if
 #endif
 
           end if
