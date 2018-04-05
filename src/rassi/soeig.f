@@ -272,6 +272,19 @@ C SPIN-ORBIT HAMILTONIAN MATRIX ELEMENTS:
        CALL PRCHAM(NSS,WORK(LHTOTR),WORK(LHTOTI))
        WRITE(6,'(1X,11A7)')('-------',I=1,11)
       ENDIF
+      ! save the Hamiltonian
+      call mma_allocate(HAMSOR,NSS,NSS,'HAMSOR')
+      call mma_allocate(HAMSOI,NSS,NSS,'HAMSOI')
+      call dcopy_(NSS*NSS,0.d0,0,HAMSOR,1)
+      call dcopy_(NSS*NSS,0.d0,0,HAMSOI,1)
+      call dcopy_(NSS*NSS,WORK(LHTOTR),1,HAMSOR,1)
+      call dcopy_(NSS*NSS,WORK(LHTOTI),1,HAMSOI,1)
+      call put_darray('HAMSOR_SINGLE',HAMSOR,NSS*NSS)
+      call put_darray('HAMSOI_SINGLE',HAMSOI,NSS*NSS)
+#ifdef _HDF5_
+      call mh5_put_dset_array_real(wfn_sos_hsor,HAMSOR)
+      call mh5_put_dset_array_real(wfn_sos_hsoi,HAMSOI)
+#endif
 
       !> use complex matrix diagonalization
 #ifdef _DMRG_
@@ -344,23 +357,11 @@ C SPIN-ORBIT HAMILTONIAN MATRIX ELEMENTS:
 !       end do
 !     end do
 
-
-      call mma_allocate(HAMSOR,NSS,NSS,'HAMSOR')
-      call mma_allocate(HAMSOI,NSS,NSS,'HAMSOI')
-      call dcopy_(NSS*NSS,0.d0,0,HAMSOR,1)
-      call dcopy_(NSS*NSS,0.d0,0,HAMSOI,1)
-      call dcopy_(NSS*NSS,WORK(LHTOTR),1,HAMSOR,1)
-      call dcopy_(NSS*NSS,WORK(LHTOTI),1,HAMSOI,1)
-      call put_darray('HAMSOR_SINGLE',HAMSOR,NSS*NSS)
-      call put_darray('HAMSOI_SINGLE',HAMSOI,NSS*NSS)
 #ifdef _HDF5_
       call mh5_put_dset(wfn_sos_energy, ENSOR)
       call mh5_put_dset_array_real(wfn_sos_coefr,USOR)
       call mh5_put_dset_array_real(wfn_sos_coefi,USOI)
-      call mh5_put_dset_array_real(wfn_sos_hsor,HAMSOR)
-      call mh5_put_dset_array_real(wfn_sos_hsoi,HAMSOI)
 #endif
-
       !> free memory for H_SO - do not use it below!
       !> eigenvalues are stored in ENSOR!
       CALL GETMEM('HTOTR','FREE','REAL',LHTOTR,NSS**2)
@@ -483,7 +484,7 @@ C910  CONTINUE
        WRITE(6,*)
        WRITE(6,'(6X,A)')' Total energies including SO-coupling:'
        DO ISS=1,NSS
-       E_tmp=ENSOR(ISS)+EVAC
+       E_tmp=ENSOR(ISS)+EMIN
        Call PrintResult(6, '(6x,A,I5,5X,A,F16.8)',
      &  'SO-RASSI State',ISS,'Total energy:',E_tmp,1)
        END DO
@@ -507,22 +508,22 @@ C910  CONTINUE
        WRITE(6,*)
        IF(EVAC.NE.0.0D0) THEN
         if(ifj2.ne.0.and.ifjz.ne.0) then
-         WRITE(6,'(1X,A,F18.1,A1)')' (Shifted by EVAC (a.u.) =',EVAC,')'
+         WRITE(6,'(1X,A,F20.9,A1)')' (Shifted by EVAC (a.u.) =',EMIN,')'
          WRITE(6,*)
          WRITE(6,*) '         Relative EVac(au)    Rel lowest'//
-     &              ' level(eV)    D:o, cm**(-1)  J-value, Omega'
+     &              ' level(eV)    D:o, cm**(-1)    J-value, Omega'
         else if(ifj2.ne.0.and.ifjz.eq.0) then
-         WRITE(6,'(1X,A,F18.1,A1)')' (Shifted by EVAC (a.u.) =',EVAC,')'
+         WRITE(6,'(1X,A,F20.9,A1)')' (Shifted by EVAC (a.u.) =',EMIN,')'
          WRITE(6,*)
          WRITE(6,*) '         Relative EVac(au)    Rel lowest'//
-     &              ' level(eV)    D:o, cm**(-1)  J-value'
+     &              ' level(eV)    D:o, cm**(-1)    J-value'
         else if(ifj2.eq.0.and.ifjz.ne.0) then
-         WRITE(6,'(1X,A,F18.1,A1)')' (Shifted by EVAC (a.u.) =',EVAC,')'
+         WRITE(6,'(1X,A,F20.9,A1)')' (Shifted by EVAC (a.u.) =',EMIN,')'
          WRITE(6,*)
          WRITE(6,*) '         Relative EVac(au)    Rel lowest'//
      &              ' level(eV)    D:o, cm**(-1)  Omega'
         else if(ifj2.eq.0.and.ifjz.eq.0) then
-         WRITE(6,'(1X,A,F18.1,A1)')' (Shifted by EVAC (a.u.) =',EVAC,')'
+         WRITE(6,'(1X,A,F20.9,A1)')' (Shifted by EVAC (a.u.) =',EMIN,')'
          WRITE(6,*)
          WRITE(6,*) '         Relative EVac(au)    Rel lowest'//
      &              ' level(eV)    D:o, cm**(-1)'
@@ -531,15 +532,15 @@ C910  CONTINUE
         if(ifj2.ne.0.and.ifjz.ne.0) then
          WRITE(6,*)
          WRITE(6,*) '         Total energy (au)    Rel lowest'//
-     &              ' level(eV)    D:o, cm**(-1)  J-value, Omega'
+     &              ' level(eV)    D:o, cm**(-1)    J-value, Omega'
         else if(ifj2.ne.0.and.ifjz.eq.0) then
          WRITE(6,*)
          WRITE(6,*) '         Total energy (au)    Rel lowest'//
-     &              ' level(eV)    D:o, cm**(-1)  J-value'
+     &              ' level(eV)    D:o, cm**(-1)    J-value'
         else if(ifj2.eq.0.and.ifjz.ne.0) then
          WRITE(6,*)
          WRITE(6,*) '         Total energy (au)    Rel lowest'//
-     &              ' level(eV)    D:o, cm**(-1)  Omega'
+     &              ' level(eV)    D:o, cm**(-1)   Omega'
         else if(ifj2.eq.0.and.ifjz.eq.0) then
          WRITE(6,*)
          WRITE(6,*) '         Total energy (au)    Rel lowest'//
@@ -569,16 +570,16 @@ C Saving the SO energies in ESO array.
         ESO(ISS)=E3
 
         if(ifj2.ne.0.and.ifjz.ne.0) then
-          WRITE(6,'(1X,I5,F18.8,2X,F18.6,2X,F18.3,4x,2F6.1)')
+          WRITE(6,'(1X,I5,F20.10,2X,F20.10,2X,F18.4,4x,2F6.1)')
      &        ISS,E1,E2,E3,XJEFF,OMEGA
         else if(ifj2.ne.0.and.ifjz.eq.0) then
-          WRITE(6,'(1X,I5,F18.8,2X,F18.6,2X,F18.3,4x,F6.1)')
+          WRITE(6,'(1X,I5,F20.10,2X,F20.10,2X,F18.4,4x,F6.1)')
      &        ISS,E1,E2,E3,XJEFF
         else if(ifj2.eq.0.and.ifjz.ne.0) then
-          WRITE(6,'(1X,I5,F18.8,2X,F18.6,2X,F18.3,4x,F6.1)')
+          WRITE(6,'(1X,I5,F20.10,2X,F20.10,2X,F18.4,4x,F6.1)')
      &        ISS,E1,E2,E3,OMEGA
         else if(ifj2.eq.0.and.ifjz.eq.0) then
-          WRITE(6,'(1X,I5,F18.8,2X,F18.6,2X,F18.3)')
+          WRITE(6,'(1X,I5,F20.10,2X,F20.10,2X,F18.4)')
      &      ISS,E1,E2,E3
         endif
        ENDDO
@@ -601,7 +602,7 @@ C Saving the ESO array in the RunFile.
 
 C Put energy onto info file for automatic verification runs:
       iTol=cho_x_gettol(8) ! reset thr iff Cholesky
-      Call Add_Info('ESO_LOW',ENSOR,NSS,iTol)
+      Call Add_Info('ESO_LOW',ENSOR+EMIN-EVAC,NSS,iTol)
 
       IF(IPGLOB.GE.VERBOSE) THEN
        WRITE(6,*)

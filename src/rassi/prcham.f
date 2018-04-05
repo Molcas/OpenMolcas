@@ -18,7 +18,7 @@ C in a triangular format.
        WRITE(6,*)
        WRITE(6,'(1X,A8,11X,I4,33X,I4)')'SO-STATE',(JSS,JSS=JSTA,JEND)
        DO ISS=JSTA,NSS
-       WRITE(6,'(1X,I4,2x,2(A1,F15.8,A1,F15.8,A1,3x))')
+       WRITE(6,'(1X,I4,2x,2(A1,F15.11,A1,F15.11,A1,3x))')
      &           ISS,('(',CHAMR(ISS,JSS),',',CHAMI(ISS,JSS),
      &           ')',JSS=JSTA,MIN(ISS,JEND))
        END DO

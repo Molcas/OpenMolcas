@@ -295,8 +295,6 @@ c#endif
 #endif
       ENDIF
 
-* removed call to natorb_rassi (this is done in eigctl.f)
-
 *******************************************************
 * printout of properties over the spin-orbit states
 *******************************************************
@@ -492,8 +490,8 @@ C printing threshold
           END IF
         END DO
 
+        i_Print=0
         IF(IFANYD.NE.0) THEN
-         i_Print=0
          AFACTOR=32.1299D09
 
          CALL GETMEM('DXR','ALLO','REAL',LDXR,NSS**2)
@@ -587,8 +585,6 @@ C printing threshold
            END IF
           END DO
          END DO
-         WRITE(6,*)'        -----------------------------------------'//
-     &    '--------------------------------------------------'
 
          CALL GETMEM('DXR','FREE','REAL',LDXR,NSS**2)
          CALL GETMEM('DXI','FREE','REAL',LDXI,NSS**2)
@@ -597,9 +593,13 @@ C printing threshold
          CALL GETMEM('DZR','FREE','REAL',LDZR,NSS**2)
          CALL GETMEM('DZI','FREE','REAL',LDZI,NSS**2)
 
-         Call CollapseOutput(0,
+         If (i_Print.eq.1) THEN
+           WRITE(6,*)'        -----------------------------------------'
+     &      //'--------------------------------------------------'
+           Call CollapseOutput(0,
      &                     'Dipole transition strengths (SO states):')
-         WRITE(6,*)
+           WRITE(6,*)
+         END IF
          I_HAVE_DL = 1
         END IF
 
@@ -618,9 +618,9 @@ C printing threshold
           END IF
         END DO
 
+        i_Print=0
         IF(IFANYD.NE.0) THEN
          AFACTOR=32.1299D09
-         i_Print=0
 
          CALL GETMEM('DXR','ALLO','REAL',LDXR,NSS**2)
          CALL GETMEM('DXI','ALLO','REAL',LDXI,NSS**2)
@@ -715,8 +715,6 @@ C printing threshold
            END IF
           END DO
          END DO
-         WRITE(6,*)'        -----------------------------------------'//
-     &    '--------------------------------------------------'
 
          CALL GETMEM('DXR','FREE','REAL',LDXR,NSS**2)
          CALL GETMEM('DXI','FREE','REAL',LDXI,NSS**2)
@@ -725,9 +723,13 @@ C printing threshold
          CALL GETMEM('DZR','FREE','REAL',LDZR,NSS**2)
          CALL GETMEM('DZI','FREE','REAL',LDZI,NSS**2)
 
-         Call CollapseOutput(0,
+         If (i_Print.eq.1) THEN
+           WRITE(6,*)'        -----------------------------------------'
+     &     //'--------------------------------------------------'
+           Call CollapseOutput(0,
      &                     'Velocity transition strengths (SO states):')
-         WRITE(6,*)
+           WRITE(6,*)
+         END IF
          I_HAVE_DV = 1
         END IF
 
@@ -766,28 +768,34 @@ C printing threshold
                IJ=I+NSS*(J-1)
                EDIFF=ENSOR(J)-ENSOR(I)
                IF(EDIFF.LT.0.0D0) CYCLE
-           IF(WORK(LDL-1+IJ).GE.OSTHR.AND.WORK(LDV-1+IJ).GE.OSTHR) THEN
+               COMPARE=0.0D0
+             IF(WORK(LDL-1+IJ).GE.OSTHR.AND.WORK(LDV-1+IJ).GE.OSTHR)
+     &          THEN
                COMPARE = ABS(1-WORK(LDL-1+IJ)/WORK(LDV-1+IJ))
-               IF(COMPARE.GE.TOLERANCE) THEN
-                 I_PRINT_HEADER = I_PRINT_HEADER + 1
-                 IF(I_PRINT_HEADER.EQ.1) THEN
-                   WRITE(6,*)
-                   WRITE(6,*) " Problematic transitions have been found"
-                   WRITE(6,*)
-                   WRITE(6,*) "      From   To   Percent difference"//
-     &                        "  Osc. st. (len.) Osc. st. (vel.)"
-                   WRITE(6,*) " ---------------------------------------"
-                   WRITE(6,*)
-                 END IF
-                 WRITE(6,'(5X,2I5,5X,5ES16.8)') I,J,COMPARE*100D0,
-     &                      WORK(LDL-1+IJ),WORK(LDV-1+IJ)
-              END IF
              ELSE IF(WORK(LDL-1+IJ).GE.OSTHR) THEN
-               WRITE(6,*) " Velocity gauge below threshold. "//
-     &                    " Length gauge value = ",WORK(LDL-1+IJ)
+               COMPARE = -1.5D0
              ELSE IF(WORK(LDV-1+IJ).GE.OSTHR) THEN
-               WRITE(6,*) " Length gauge below threshold. "//
-     &                    " Velocity gauge value = ",WORK(LDV-1+IJ)
+               COMPARE = -2.5D0
+             END IF
+             IF(ABS(COMPARE).GE.TOLERANCE) THEN
+               I_PRINT_HEADER = I_PRINT_HEADER + 1
+               IF(I_PRINT_HEADER.EQ.1) THEN
+                 WRITE(6,*)
+                 WRITE(6,*) " Problematic transitions have been found"
+                 WRITE(6,*) "     From   To      Difference (%)  "//
+     &                      "Osc. st. (len.) Osc. st. (vel.)"
+                 WRITE(6,*) "     -------------------------------"//
+     &                      "-------------------------------"
+                 WRITE(6,*)
+               END IF
+               IF (COMPARE.GE.0.0D0) THEN
+                 WRITE(6,33) I,J,COMPARE*100D0,
+     &                    WORK(LDL-1+IJ),WORK(LDV-1+IJ)
+               ELSE IF (COMPARE.GE.2.0D0) THEN
+                 WRITE(6,36) I,J,WORK(LDL-1+IJ),"below threshold"
+               ELSE
+                 WRITE(6,37) I,J,"below threshold",WORK(LDV-1+IJ)
+               END IF
              END IF
             END DO
           END DO
@@ -797,12 +805,17 @@ C printing threshold
      &                 "the tolerance ", TOLERANCE," have been found"
             WRITE(6,*)
           ELSE
+            WRITE(6,*) "     -------------------------------"//
+     &                 "-------------------------------"
             WRITE(6,*)
             WRITE(6,*) "Number of problematic transitions = ",
      &                  I_PRINT_HEADER
             WRITE(6,*)
           END IF
         END IF
+33    FORMAT (5X,2(1X,I4),5X,5(1X,ES15.8))
+36    FORMAT (5X,2(1X,I4),6X,15('-'),1X,ES15.8,1X,A15)
+37    FORMAT (5X,2(1X,I4),6X,15('-'),1X,A15,1X,ES15.8)
 *
 * Free the memory
 *
@@ -1875,22 +1888,8 @@ C printing threshold
 ! Now write out the total
 !
 ! Add it to the total
-         Call CollapseOutput(1,
-     &                  'Total transition strengths ' //
-     &                  'for the second-order expansion of the wave '//
-     &                  'vector (SO states):')
-         WRITE(6,'(3X,A)')
-     &                  '---------------------------' //
-     &                  '-------------------------------------------'//
-     &                  '-------------------'
 !
-         IF(OSTHR2.GT.0.0D0) THEN
-          WRITE(6,*)'   for osc. strength at least ',OSTHR2
-          WRITE(6,*)
-         END IF
-         WRITE(6,*)"        To  From     Osc. strength"
-         WRITE(6,*)'        ----------------------------'
-!
+         i_Print=0
          DO ISS=1,IEND
           DO JSS=JSTART,NSS
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
@@ -1899,16 +1898,36 @@ C printing threshold
             IJSS=ISS+NSS*(JSS-1)
             F = WORK(LTOT2K-1+IJSS)
             IF(ABS(F).GE.OSTHR2) THEN
+             IF(i_Print.eq.0) THEN
+              i_Print=1
+              Call CollapseOutput(1,
+     &                  'Total transition strengths ' //
+     &                  'for the second-order expansion of the wave '//
+     &                  'vector (SO states):')
+              WRITE(6,'(3X,A)')
+     &                  '---------------------------' //
+     &                  '-------------------------------------------'//
+     &                  '-------------------'
+!
+              IF(OSTHR2.GT.0.0D0) THEN
+               WRITE(6,*)'   for osc. strength at least ',OSTHR2
+               WRITE(6,*)
+              END IF
+              WRITE(6,*)"        To  From     Osc. strength"
+              WRITE(6,*)'        ----------------------------'
+             END IF
              WRITE(6,'(5X,2I5,5X,ES16.8)') ISS,JSS,F
             END IF
            END IF
           END DO
          END DO
-         Call CollapseOutput(0,
+         If (i_Print.eq.1) THEN
+           Call CollapseOutput(0,
      &                  'Total transition strengths ' //
      &                  'for the second-order expansion of the wave '//
      &                  'vector (SO states):')
-         WRITE(6,*)
+           WRITE(6,*)
+         END IF
 ! release the memory again
          CALL GETMEM('TOT2K','FREE','REAL',LTOT2K,NSS**2)
 

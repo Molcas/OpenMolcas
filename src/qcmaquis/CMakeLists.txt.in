@@ -55,6 +55,8 @@ set(reference_git_commit release-2.0)
 set(reference_git_repo git@gitlab.com:qc-maquis/dmrg-interface-utils.git)
 set(EP_PROJECT qcmaquis-driver)
 
+# Enabling source changes to keep ExternalProject happy
+set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
 
 ExternalProject_Add(${EP_PROJECT}
                     PREFIX ${CUSTOM_QCMaquis_LOCATION}
@@ -72,6 +74,8 @@ ExternalProject_Add(${EP_PROJECT}
                     LOG_INSTALL 1
 #                    UPDATE_COMMAND cmake -E echo "Skipping QCMaquis driver update"
                    )
+
+set (CMAKE_DISABLE_SOURCE_CHANGES ON)
 
 # post installation steps
 ExternalProject_Add_Step(${EP_PROJECT} install_tools DEPENDEES update
@@ -95,6 +99,8 @@ set(reference_git_commit release-2.0)
 set(reference_git_repo git@gitlab.com:qc-maquis/qcmaquis-public.git)
 set(EP_PROJECT qcmaquis-suite)
 
+set (CMAKE_DISABLE_SOURCE_CHANGES ON)
+
 #check if installation needed or provided by the user
 include(qcmaquis)
 
@@ -104,6 +110,9 @@ if(NOT MAQUIS_DMRG_FOUND)
          "-DQCM_standalone:BOOL=ON"
          "-DLOCAL_QCM_INSTALL_PATH:STRING=${PROJECT_BINARY_DIR}"
         )
+
+    # Enabling source changes to keep ExternalProject happy
+    set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
 
     ExternalProject_Add(${EP_PROJECT}
                         PREFIX ${CUSTOM_QCMaquis_LOCATION}
@@ -124,5 +133,6 @@ if(NOT MAQUIS_DMRG_FOUND)
 #                        DOWNLOAD_COMMAND cmake -E echo "Skipping QCMaquis download"
                        )
 
-endif()
+    set (CMAKE_DISABLE_SOURCE_CHANGES ON)
 
+endif()

@@ -13,9 +13,12 @@
 
   integer, intent(in) :: adim, lu, adr
   real*8 , intent(in) :: array1(*),array2(*),array3(*)
+  integer :: idisk
 
-    call ddafile(lu,1,array1,adim,adr)
-    call ddafile(lu,1,array2,adim,adr)
-    call ddafile(lu,1,array3,adim,adr)
+    idisk = adr
+    ! note that ddafile modifies idisk
+    call ddafile(lu,1,array1,adim,idisk)
+    call ddafile(lu,1,array2,adim,idisk)
+    call ddafile(lu,1,array3,adim,idisk)
 
   end subroutine dens2file

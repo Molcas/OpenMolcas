@@ -22,6 +22,7 @@
 #include "rasdef.fh"
 #include "jobin.fh"
 #include "symmul.fh"
+#include "constants.fh"
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='SODIAG')
 
@@ -37,7 +38,6 @@ C subroutine arguments
 
       REAL*8 GTENS(3),MAXES(3,3),MAXES2(3,3)
       COMPLEX*16 H_ZEE(SODIAGNSTATE,SODIAGNSTATE)
-      COMPLEX*16 H_ZEE2(SODIAGNSTATE*(SODIAGNSTATE+1)/2)
       COMPLEX*16 ZOUT(SODIAGNSTATE,SODIAGNSTATE)
 
       REAL*8 RWORK(3*SODIAGNSTATE-2)
@@ -54,8 +54,8 @@ C subroutine arguments
       REAL*8 MU_BOHR
 
 C For creating the filename of the ORB file
-      CHARACTER*10 FILEBASE
-      CHARACTER*10 FILEBASEL
+      CHARACTER*11 FILEBASE
+      CHARACTER*11 FILEBASEL
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C Matrices
@@ -67,9 +67,9 @@ C DEIGVAL     Storage for eigenvalues (REAL!)
 C DEIGVEC     Storage for eigenvectors
 C BPTST       Storage for some testing
 
-C from single_aniso
-      ge=2.0023193043718d0
-      MU_BOHR=0.466864374d0
+      ge=-(CONST_ELECTRON_G_FACTOR_)
+      MU_BOHR=CONST_BOHR_MAGNETON_IN_SI_*
+     &        (CONV_AU_TO_CM1_/CONV_AU_TO_KJ_/1.0D3) ! in cm-1/T
 
       WRITE(6,*)
       WRITE(6,*)
@@ -224,21 +224,18 @@ c  apply the magnetic field along the main iDir axis
       END IF
 
 c DIAGONALIZE
-      DO J=1,N
-      DO I=1,J
-        IJ=J*(J-1)/2+I
-        H_ZEE2(IJ) = H_ZEE(I,J)
-      END DO
-      END DO
+      lcwork = (2*n-1); info = 0
+      call zheev('V','U',n,h_zee,n,deigval,zwork,lcwork,
+     &           rwork,info)
 
-      call zhpev_('V','U',N,H_ZEE2,DEIGVAL,
-     &           DEIGVEC,N,ZWORK,RWORK,INFO)
-
+      !> put eigenvectors in deigvec
+      call zcopy(n**2,h_zee,1,deigvec,1)
 
       IF(INFO.NE.0) THEN
         WRITE(6,*) "DIAGONALIZATION FAILED! ERROR: ",INFO
         CALL ABEND()
       END IF
+
 
       IF(IPGLOB.GE.DEBUG) THEN
         WRITE(6,*) "EIGENVALUES OF L+ge*S in direction: ",IDIR
@@ -358,12 +355,12 @@ c REDO USING SONATORB_MIX
         WRITE(6,*) "State: ",ISTATE,JSTATE
 
 c file name for the spin density orb file
-        IF(IDIR.EQ.1) FILEBASE='SODIXSDENS'
-        IF(IDIR.EQ.2) FILEBASE='SODIYSDENS'
-        IF(IDIR.EQ.3) FILEBASE='SODIZSDENS'
-        IF(IDIR.EQ.1) FILEBASEL='SODIXLDENS'
-        IF(IDIR.EQ.2) FILEBASEL='SODIYLDENS'
-        IF(IDIR.EQ.3) FILEBASEL='SODIZLDENS'
+        IF(IDIR.EQ.1) FILEBASE='SODISDENS.X'
+        IF(IDIR.EQ.2) FILEBASE='SODISDENS.Y'
+        IF(IDIR.EQ.3) FILEBASE='SODISDENS.Z'
+        IF(IDIR.EQ.1) FILEBASEL='SODILDENS.X'
+        IF(IDIR.EQ.2) FILEBASEL='SODILDENS.Y'
+        IF(IDIR.EQ.3) FILEBASEL='SODILDENS.Z'
 
 
 C For L, mix the AO integrals, leave the density alone

@@ -22,19 +22,19 @@
     AMFI
     SDIP
 
-  &SEWARD 
+  &SEWARD
 
-  &SCF 
+  &SCF
     PRORbitals
       2 1.d+10
     OCCUPATION
       14
     OCCNUM
       2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0 2.0
-      2.0 
+      2.0
       0.333 0.333 0.333
 
-  &RASSCF 
+  &RASSCF
     Symmetry=1
     LUMORB
     Spin=2
@@ -54,8 +54,8 @@
 
   &RASSI  &END
     Nr of JobIph files:
-      1 3 
-      1 2 3 
+      1 3
+      1 2 3
    SpinOrbit
  TMOS
 >>FILE checkfile

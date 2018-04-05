@@ -51,6 +51,8 @@ set(reference_git_commit release-2.0)
 set(reference_git_repo git@gitlab.com:qc-maquis/hdf5-qcm.git)
 set(EP_PROJECT hdf5-qcm)
 
+# Enabling source changes to keep ExternalProject happy
+set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
 
 ExternalProject_Add(${EP_PROJECT}
                     PREFIX ${CUSTOM_HDF5_QCM_LOCATION}
@@ -66,6 +68,8 @@ ExternalProject_Add(${EP_PROJECT}
                     LOG_TEST 1
                     LOG_INSTALL 1
                    )
+
+set (CMAKE_DISABLE_SOURCE_CHANGES ON)
 
 # set variables for use in parent CMakeLists.txt
 ExternalProject_Get_Property(${EP_PROJECT} install_dir)

@@ -39,6 +39,7 @@
       CHARACTER*8 LABEL
       Complex*16 T0(3), TIJ(3), TM1, TM2, E1A, E2A, E1B, E2B,
      &           IMAGINARY, T1(3)
+      Character*60 FMTLINE
 
 #ifdef _DEBUG_RASSI_
       logical :: debug_dmrg_rassi_code = .true.
@@ -173,7 +174,7 @@ C 3. SPECTRAL DECOMPOSITION OF OVERLAP MATRIX:
       II=0
       DO I=1,MSTATE
         II=II+I
-        X=1.0D00/SQRT(MAX(1.0D-14,WORK(LSS-1+II)))
+        X=1.0D00/SQRT(MAX(0.5D-14,WORK(LSS-1+II)))
         DO K=1,MSTATE
           LPOS=LUU-1+K+MSTATE*(I-1)
           WORK(LPOS)=X*WORK(LPOS)
@@ -194,6 +195,7 @@ C 4. TRANSFORM HAMILTON MATRIX.
         CALL DGEMM_('T','N',MSTATE,MSTATE,MSTATE,1.0D0,
      &             WORK(LUU),MSTATE,WORK(LSCR),MSTATE,
      &             0.0D0,WORK(LHSQ),MSTATE)
+
 C 5. DIAGONALIZE HAMILTONIAN.
       IJ=0
       DO I=1,MSTATE
@@ -202,8 +204,10 @@ C 5. DIAGONALIZE HAMILTONIAN.
           WORK(LHH-1+IJ)=WORK(LHSQ-1+I+MSTATE*(J-1))
         END DO
       END DO
+
       CALL Jacob(WORK(LHH),WORK(LUU),MSTATE,MSTATE)
       CALL JACORD(WORK(LHH),WORK(LUU),MSTATE,MSTATE)
+
       IDIAG=0
       DO II=1,MSTATE
         IDIAG=IDIAG+II
@@ -213,6 +217,34 @@ C 5. DIAGONALIZE HAMILTONIAN.
           J=IWORK(LSTK-1+JJ)
           EIGVEC(I,J)=WORK(LUU-1+II+MSTATE*(JJ-1))
         END DO
+      END DO
+
+CUNGUR
+c   Correct for diagonal energies in case of orbital degeneracy:
+c   Convention: two energies are considered degenerate if their energy difference is
+c               lower than 1.0D-4 cm-1
+      TMP=0.d0
+      DLT=0.d0
+      IDIAG=0
+      DO II=1,MSTATE
+        I=IWORK(LSTK-1+II)
+        TMP=ENERGY(I)
+        JDIAG=0
+        Do JJ=1,MSTATE
+          J=IWORK(LSTK-1+JJ)
+          IF(I==J) CYCLE
+          DLT=ABS(ENERGY(J)-TMP)*AU2CM
+          If(DLT<1.0D-4) THEN
+            ENERGY(J)=TMP
+          End If
+        End Do
+      End Do
+
+      IDIAG=0
+      DO II=1,MSTATE
+        IDIAG=IDIAG+II
+        I=IWORK(LSTK-1+II)
+        WORK(LHH-1+IDIAG)=ENERGY(I)
       END DO
 C End of loop over sets.
       END DO
@@ -253,11 +285,12 @@ c       EMIN=MIN(EMIN,ENERGY(ISTATE))
       END DO
       KAU= INT(EMIN/1000.0D0)
       EVAC=1000.0D0*DBLE(KAU)
-      IF(KAU.NE.0) THEN
-        DO ISTATE=1,NSTATE
-         ENERGY(ISTATE)=ENERGY(ISTATE)-EVAC
-        END DO
-      END IF
+c      EMIN=EVAC
+      DO ISTATE=1,NSTATE
+c        ENERGY(ISTATE)=ENERGY(ISTATE)-EVAC
+        ENERGY(ISTATE)=ENERGY(ISTATE)-EMIN
+      END DO
+
 C Put energies onto info file for automatic verification runs:
 CPAM06 Added error estimate, based on independent errors for all
 C components of H and S in original RASSCF wave function basis:
@@ -274,7 +307,7 @@ C components of H and S in original RASSCF wave function basis:
        IDX=MIN(IDX,INT(-LOG10(ERMS)))
       END DO
       iTol=cho_x_gettol(IDX) ! reset thr iff Cholesky
-      Call Add_Info('E_RASSI',ENERGY,NSTATE,iTol)
+      Call Add_Info('E_RASSI',ENERGY+EMIN-EVAC,NSTATE,iTol)
 
 C Experimental addition: Effective L and/or M quantum numbers.
 
@@ -336,25 +369,23 @@ C REPORT ON SECULAR EQUATION RESULT:
        WRITE(6,*)
        WRITE(6,*)
        WRITE(6,*)' SPIN-FREE ENERGIES:'
-       IF(EVAC.NE.0.0D0) THEN
-        WRITE(6,'(1X,A,F18.1,A1)')' (Shifted by EVAC (a.u.) =',EVAC,')'
-       END IF
+       WRITE(6,'(1X,A,F22.10,A1)')' (Shifted by EVAC (a.u.) =',EMIN,')'
        WRITE(6,*)
        IF(IFJ2.ne.0 .and. IAMXYZ.gt.0) THEN
         IF(IFJZ.ne.0 .and. IAMZ.gt.0) THEN
-        WRITE(6,*)'SF State    Relative EVAC(au)   Rel lowest'//
-     &          ' level(eV)      D:o, cm**(-1)    L_eff   Abs_M'
+        WRITE(6,*)'SF State       Relative EVAC(au)   Rel lowest'//
+     &          ' level(eV)    D:o, cm**(-1)      L_eff   Abs_M'
         ELSE
-        WRITE(6,*)'SF State    Relative EVAC(au)   Rel lowest'//
-     &          ' level(eV)      D:o, cm**(-1)      L_eff'
+        WRITE(6,*)'SF State       Relative EVAC(au)   Rel lowest'//
+     &          ' level(eV)    D:o, cm**(-1)      L_eff'
         END IF
        ELSE
         IF(IFJZ.ne.0 .and. IAMZ.gt.0) THEN
-        WRITE(6,*)'SF State    Relative EVAC(au)   Rel lowest'//
-     &          ' level(eV)      D:o, cm**(-1)      Abs_M'
+        WRITE(6,*)'SF State       Relative EVAC(au)   Rel lowest'//
+     &          ' level(eV)    D:o, cm**(-1)      Abs_M'
         ELSE
-        WRITE(6,*)'SF State    Relative EVAC(au)   Rel lowest'//
-     &          ' level(eV)      D:o, cm**(-1)'
+        WRITE(6,*)'SF State       Relative EVAC(au)   Rel lowest'//
+     &          ' level(eV)    D:o, cm**(-1)'
         END IF
        END IF
        WRITE(6,*)
@@ -367,23 +398,24 @@ C REPORT ON SECULAR EQUATION RESULT:
 *
          IF(IFJ2.ne.0 .and. IAMXYZ.gt.0) THEN
           IF(IFJZ.ne.0 .and. IAMZ.gt.0) THEN
-           EFFL=SQRT(MAX(1.0D-12,0.25D0+WORK(LL2DIA-1+ISTATE)))-0.5D0
-           EFFM=SQRT(MAX(1.0D-12,WORK(LM2DIA-1+ISTATE)))
-          WRITE(6,'(1X,I5,7X,F18.8,2X,F18.6,2X,F18.3,6X,f6.1,2X,F6.1)')
-     &               ISTATE,E1,E2,E3,EFFL,EFFM
+           EFFL=SQRT(MAX(0.5D-12,0.25D0+WORK(LL2DIA-1+ISTATE)))-0.5D0
+           EFFM=SQRT(MAX(0.5D-12,WORK(LM2DIA-1+ISTATE)))
+           FMTLINE='(1X,I5,7X,F18.10,2X,F18.10,2X,F18.4,6X,F6.1,2X,'//
+     &             'F6.1)'
+           WRITE(6,FMTLINE) ISTATE,E1,E2,E3,EFFL,EFFM
           ELSE
-           EFFL=SQRT(MAX(1.0D-12,0.25D0+WORK(LL2DIA-1+ISTATE)))-0.5D0
-           WRITE(6,'(1X,I5,7X,F18.8,2X,F18.6,2X,F18.3,6X,f6.1)')
-     &               ISTATE,E1,E2,E3,EFFL
+           EFFL=SQRT(MAX(0.5D-12,0.25D0+WORK(LL2DIA-1+ISTATE)))-0.5D0
+           FMTLINE='(1X,I5,7X,F18.10,2X,F18.10,2X,F18.4,6X,F6.1)'
+           WRITE(6,FMTLINE) ISTATE,E1,E2,E3,EFFL
           END IF
          ELSE
           IF(IFJZ.ne.0 .and. IAMZ.gt.0) THEN
-           EFFM=SQRT(MAX(1.0D-12,WORK(LM2DIA-1+ISTATE)))
-           WRITE(6,'(1X,I5,7X,F18.8,2X,F18.6,2X,F18.3,6X,f6.1)')
-     &               ISTATE,E1,E2,E3,EFFM
+           EFFM=SQRT(MAX(0.5D-12,WORK(LM2DIA-1+ISTATE)))
+           FMTLINE='(1X,I5,7X,F18.10,2X,F18.10,2X,F18.4,6X,F6.1)'
+           WRITE(6,FMTLINE) ISTATE,E1,E2,E3,EFF
           ELSE
-           WRITE(6,'(1X,I5,7X,F18.8,2X,F18.6,2X,F18.3)')
-     &               ISTATE,E1,E2,E3
+           FMTLINE='(1X,I5,7X,F18.10,2X,F18.10,2X,F18.4)'
+           WRITE(6,FMTLINE) ISTATE,E1,E2,E3
           END IF
          END IF
        ESFS(ISTATE)=E3
@@ -851,28 +883,35 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
                IJ=I+NSTATE*(J-1)
                EDIFF=ENERGY(J)-ENERGY(I)
                IF(EDIFF.LT.0.0D0.OR.I.GE.J) CYCLE
-           IF(WORK(LDL-1+IJ).GE.OSTHR.AND.WORK(LDV-1+IJ).GE.OSTHR) THEN
+               COMPARE=0.0D0
+             IF(WORK(LDL-1+IJ).GE.OSTHR.AND.WORK(LDV-1+IJ).GE.OSTHR)
+     &          THEN
                COMPARE = ABS(1-WORK(LDL-1+IJ)/WORK(LDV-1+IJ))
-               IF(COMPARE.GE.TOLERANCE) THEN
-                 I_PRINT_HEADER = I_PRINT_HEADER + 1
-                 IF(I_PRINT_HEADER.EQ.1) THEN
-                   WRITE(6,*)
-                   WRITE(6,*) " Problematic transitions have been found"
-                   WRITE(6,*)
-                   WRITE(6,*) "      From   To   Percent difference"//
-     &                        "  Osc. st. (len.) Osc. st. (vel.)"
-                   WRITE(6,*) " ---------------------------------------"
-                   WRITE(6,*)
-                 END IF
+             ELSE IF(WORK(LDL-1+IJ).GE.OSTHR) THEN
+               COMPARE = -1.5D0
+             ELSE IF(WORK(LDV-1+IJ).GE.OSTHR) THEN
+               COMPARE = -2.5D0
+             END IF
+             IF(ABS(COMPARE).GE.TOLERANCE) THEN
+               I_PRINT_HEADER = I_PRINT_HEADER + 1
+               IF(I_PRINT_HEADER.EQ.1) THEN
+                 WRITE(6,*)
+                 WRITE(6,*) " Problematic transitions have been found"
+                 WRITE(6,*)
+                 WRITE(6,*) "     From   To      Difference (%)  "//
+     &                      "Osc. st. (len.) Osc. st. (vel.)"
+                 WRITE(6,*) "     -------------------------------"//
+     &                      "-------------------------------"
+                 WRITE(6,*)
+               END IF
+               IF (COMPARE.GE.0.0D0) THEN
                  WRITE(6,33) I,J,COMPARE*100D0,
      &                      WORK(LDL-1+IJ),WORK(LDV-1+IJ)
-              END IF
-             ELSE IF(WORK(LDL-1+IJ).GE.OSTHR) THEN
-               WRITE(6,*) " Velocity gauge below threshold. "//
-     &                    " Length gauge value = ",WORK(LDL-1+IJ)
-             ELSE IF(WORK(LDV-1+IJ).GE.OSTHR) THEN
-               WRITE(6,*) " Length gauge below threshold. "//
-     &                    " Velocity gauge value = ",WORK(LDV-1+IJ)
+               ELSE IF (COMPARE.GE.-2.0D0) THEN
+                 WRITE(6,36) I,J,WORK(LDL-1+IJ),"below threshold"
+               ELSE
+                 WRITE(6,37) I,J,"below threshold",WORK(LDV-1+IJ)
+               END IF
              END IF
             END DO
           END DO
@@ -882,6 +921,8 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
      &                 "the tolerance ", TOLERANCE," have been found"
             WRITE(6,*)
           ELSE
+            WRITE(6,*) "     -------------------------------"//
+     &                 "-------------------------------"
             WRITE(6,*)
             WRITE(6,*) "Number of problematic transitions = ",
      &                  I_PRINT_HEADER
@@ -1580,22 +1621,6 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
 ! release the memory again
          CALL GETMEM('TOT2K','FREE','REAL',LTOT2K,NSS**2)
 
-*      IF(NATO) THEN
-*C CALCULATE AND WRITE OUT NATURAL ORBITALS.
-*        CALL GETMEM('DMAT  ','ALLO','REAL',LDMAT,NBSQ)
-*        CALL GETMEM('TDMZZ ','ALLO','REAL',LTDMZZ,NTDMZZ)
-*        CALL GETMEM('VNAT  ','ALLO','REAL',LVNAT,NBSQ)
-*        CALL GETMEM('OCC   ','ALLO','REAL',LOCC,NBST)
-*        CALL NATORB_RASSI(WORK(LDMAT),WORK(LTDMZZ),WORK(LVNAT),
-*     &                    WORK(LOCC))
-*        CALL NATSPIN_RASSI(WORK(LDMAT),WORK(LTDMZZ),WORK(LVNAT),
-*     &                    WORK(LOCC))
-*        CALL GETMEM('DMAT  ','FREE','REAL',LDMAT,NBSQ)
-*        CALL GETMEM('TDMZZ ','FREE','REAL',LTDMZZ,NTDMZZ)
-*        CALL GETMEM('VNAT  ','FREE','REAL',LVNAT,NBSQ)
-*        CALL GETMEM('OCC   ','FREE','REAL',LOCC,NBST)
-*      END IF
-*
 ************************************************************************
 *                                                                      *
 *     Start of section for transition moments                          *
@@ -2433,6 +2458,8 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 33    FORMAT (5X,2(1X,I4),5X,5(1X,ES15.8))
 34    FORMAT (5X,2(1X,A4),5X,4(1X,A15),1X,A)
 35    FORMAT (5X,31('-'))
+36    FORMAT (5X,2(1X,I4),6X,15('-'),1X,ES15.8,1X,A15)
+37    FORMAT (5X,2(1X,I4),6X,15('-'),1X,A15,1X,ES15.8)
       END
       Subroutine Setup_O()
       IMPLICIT REAL*8 (A-H,O-Z)

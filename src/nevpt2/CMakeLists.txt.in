@@ -69,6 +69,8 @@ set(reference_git_commit release-2.0)
 set(reference_git_repo git@gitlab.com:qc-maquis/nevpt2.git)
 set(EP_PROJECT nevpt2_ext)
 
+# Enabling source changes to keep ExternalProject happy
+set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
 
 ExternalProject_Add(${EP_PROJECT}
                     PREFIX ${CUSTOM_NEVPT2_LOCATION}
@@ -84,6 +86,8 @@ ExternalProject_Add(${EP_PROJECT}
                     LOG_TEST 1
                     LOG_INSTALL 1
                    )
+
+set (CMAKE_DISABLE_SOURCE_CHANGES ON)
 
 ExternalProject_Add_Step(${EP_PROJECT} install_tools DEPENDEES update
                    # Copy distributed 4-RDM tools

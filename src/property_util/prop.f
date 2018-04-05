@@ -470,7 +470,7 @@ c            End If
       If (Maxlab.eq.7) Then
         Call Prout(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrElAug,PrNuAug,
      &             maxlab,labsAug,Work(ipPrTot),iPL,icen)
-        MaxLab=6 ! Reset so call to AddInfo is correct!
+        MaxLab=6 ! Reset so call to Add_Info is correct!
 *
       Else
         Call Prout(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,

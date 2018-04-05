@@ -1340,14 +1340,14 @@ CIgorS End
          IF(IPRLEV.ge.VERBOSE)
      &    Write(LF,*)' Orbital specification will be taken '//
      &               'from orbital file'
-          Call GetMem('TypeIdx','Allo','Inte',ipType,mxOrb)
-          LuStartOrb=19
-          Call RdVec(StartOrbFile,LuStartOrb,'IA',NSYM_L,NBAS_L,NBAS_L,
-     &            Dummy,Dummy,Dummy,iWork(ipType),myTitle,0,iErr)
-          call tpidx2orb(NSYM_L,NBAS_L,
-     $            iWork(ipType),
-     $            NFRO_L,NISH_L,NRS1_L,NRS2_L,NRS3_L,NSSH_L,NDEL_L)
-          Call GetMem('TypeIdx','Free','Inte',ipType,mxOrb)
+         Call GetMem('TypeIdx','Allo','Inte',ipType,mxOrb)
+         LuStartOrb=19
+         Call RdVec(StartOrbFile,LuStartOrb,'IA',NSYM_L,NBAS_L,NBAS_L,
+     &           Dummy,Dummy,Dummy,iWork(ipType),myTitle,0,iErr)
+         call tpidx2orb(NSYM_L,NBAS_L,
+     $           iWork(ipType),
+     $           NFRO_L,NISH_L,NRS1_L,NRS2_L,NRS3_L,NSSH_L,NDEL_L)
+         Call GetMem('TypeIdx','Free','Inte',ipType,mxOrb)
          IERR=0
          IF (NSYM_L.ne.NSYM) IERR=1
          IF(IERR.eq.0) THEN
