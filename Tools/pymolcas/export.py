@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 #***********************************************************************
@@ -11,7 +11,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2015,2017, Ignacio Fdez. Galván                        *
+# Copyright (C) 2015,2017,2018, Ignacio Fdez. Galván                   *
 #***********************************************************************
 
 '''
@@ -20,6 +20,10 @@ It still uses python and it's trivial to recover the original files (although
 without comments). Obfuscation is not the goal here, just getting something
 that's easy to run, move and distribute.
 '''
+
+from __future__ import (unicode_literals, division, absolute_import, print_function)
+from builtins import (bytes, str)
+from io import open
 
 import sys, zlib, base64, os, stat
 sys.dont_write_bytecode = True
@@ -72,12 +76,15 @@ mods_name = 'M' if obfuscate else 'modules'
 failed = False
 
 with open(exe_name, 'w', encoding='utf-8') as f:
-  f.write('''#!/usr/bin/env python3
+  interpreter = sys.executable
+  if (interpreter is None):
+    interpreter = '/usr/bin/env python'
+  f.write('''#!{0}
 # -*- coding: utf-8 -*-
-#{0}
-{1} = [
+#{1}
+{2} = [
 
-'''.format(warning.replace('\n','\n#'), mods_name))
+'''.format(interpreter, warning.replace('\n','\n#'), mods_name))
 
   try:
 
@@ -86,19 +93,24 @@ with open(exe_name, 'w', encoding='utf-8') as f:
       with open(filename, 'r', encoding='utf-8') as fin:
         content = fin.read()
       if (compact):
-        content = minify(content)
+        try:
+          #python3
+          content = minify(content)
+        except UnicodeEncodeError:
+          #python2
+          content = minify(bytes(content, 'utf-8'))
       if (compress_and_b64):
-        content = str(base64.b64encode(zlib.compress(bytes(content, 'utf8'))), 'utf8')
+        content = str(base64.b64encode(zlib.compress(bytes(content, 'utf-8'))), 'utf-8')
         content = wrap(content, 120)
         fmt = "  ['{0}', '''\n{1}\n'''],\n\n"
       else:
-        content = bytes(content, 'utf8')
         fmt = "  ['{0}', \n{1}\n],\n\n"
+      content = bytes(content, 'utf-8')
       if (obfuscate):
         name_i = ''.join('{:02x}'.format(c) for c in bytes(i, 'ascii'))
       else:
         name_i = i
-      f.write(fmt.format(name_i, content))
+      f.write(fmt.format(name_i, content.decode('utf-8')))
 
     f.write(']\n')
 
@@ -116,6 +128,7 @@ checksum = '\''
 
     f.write('''
 import sys, shutil, os.path, types, binascii
+from builtins import bytes
 for m in {0}:
   x = {1}
   module = types.ModuleType(x)
@@ -124,8 +137,12 @@ for m in {0}:
 del {0}, types, binascii
 
 from pymolcas import main
+from molcas_aux import which
 
-sys.exit(main(os.path.realpath(shutil.which(sys.argv[0]))))
+f = which(sys.argv[0])
+if (f is None):
+  f = sys.argv[0]
+sys.exit(main(os.path.realpath(f)))
 '''.format(mods_name, mod_name_code, mod_code))
 
   except Exception as e:

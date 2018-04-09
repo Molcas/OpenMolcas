@@ -34,7 +34,7 @@ def tee(infile, *files):
         try:
           f.write(line)
         except TypeError:
-          f.write(line.decode('utf8', 'replace'))
+          f.write(line.decode('utf-8', 'replace'))
     infile.close()
   t = Thread(target=fanout, args=(infile,)+files)
   t.daemon = True

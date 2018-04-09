@@ -19,7 +19,7 @@ set (OUTPUT_PATH ${PROJECT_BINARY_DIR}/${tooldir})
 file (GLOB py_sources "*.py")
 list (REMOVE_ITEM py_sources "${CMAKE_CURRENT_LIST_DIR}/pack.py")
 
-FIND_PACKAGE(PythonInterp 3.0)
+FIND_PACKAGE(PythonInterp 2.7)
 if (PYTHONINTERP_FOUND)
 
         set (PYMOLCAS_TARGET "${OUTPUT_PATH}/pymolcas_")
