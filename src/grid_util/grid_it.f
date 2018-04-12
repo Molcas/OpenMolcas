@@ -12,8 +12,7 @@
 *               1990, IBM                                              *
 *               2000-2015, Valera Veryazov                             *
 ************************************************************************
-#ifdef _HAVE_GRID_IT_
-      subroutine Grid_it(iRun,INPORB,ireturn)
+      subroutine Grid_it_nosupport(iRun,INPORB,ireturn)
 c  iRun =1 normal run, 0=trancated from scf
 ************************************************************************
 *                                                                      *
@@ -56,9 +55,7 @@ c  iRun =1 normal run, 0=trancated from scf
 c      Character*120 Lines(17)
       Character INPORB*(*)
       Logical OldTst, DoRys
-#ifdef _EXTERNAL_GRID_IT_
-#include "grid.fh"
-#endif
+#include "grid.nosupport.fh"
 #include "warnings.fh"
 *
 *     Prologue
@@ -100,12 +97,8 @@ c      Call GetInf(Info,nInfo,DoRys,nDiff,idum)
       if (iReturn.eq._RC_INVOKED_OTHER_MODULE_) then
 c* take care to close files and release the potential memory...
 c       close(unit=LuOrb)
-#ifdef _EXTERNAL_GRID_IT_
         close(unit=LuVal)
         if(isUHF.eq.1) close(unit=LuVal_ab)
-#else
-        call close_grids()
-#endif
       goto 999
       endif
 *
@@ -113,7 +106,7 @@ c       close(unit=LuOrb)
 *     Start computing the spin density and spin density gradient
 *     at the grid.
 *
-      Call DrvMO(iRun,INPORB)
+      Call DrvMO_nosupport(iRun,INPORB)
 *
 *-----At the end of the calculation free all memory to check for
 *     corruption of the memory.
@@ -136,8 +129,3 @@ c      ireturn=0
       Call qExit('GRID')
       return
       End
-#elif defined (NAGFOR)
-c Some compilers do not like empty files
-      Subroutine empty_grid_it
-      End
-#endif

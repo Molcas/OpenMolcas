@@ -8,12 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
- (prgm)  "$MOLCAS"/bin/grid_it.exe                  executable
+ (prgm)  "$MOLCAS"/bin/gridit.exe                  executable
  (file)  ONEINT     "$WorkDir/$Project."OneInt      ro*
  (file)  M2MSI      "$WorkDir/$Project."grid        rwsg
  (file)  AM2MSI     "$WorkDir/$Project".a.grid      rwsg
  (file)  BM2MSI     "$WorkDir/$Project".b.grid      rwsg
- (file)  LUSCUS     "$WorkDir/$Project".lus         rwsg
  (file)  CHARGEFILE "$WorkDir/$Project."Charge      rw
  (file)  GRIDFILE   "$WorkDir/$Project."GridFile    rw
 * test
