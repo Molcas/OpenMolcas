@@ -840,7 +840,7 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
             END DO
          END DO
          IF (LNCNT.EQ.0) THEN
-            WRITE(6,*)' ( Max oscillator strenght is only ',FMAX,')'
+            WRITE(6,*)' ( Max oscillator strength is only ',FMAX,')'
          ELSE
             WRITE(6,32)
          END IF
