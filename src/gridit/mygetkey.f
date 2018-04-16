@@ -64,7 +64,7 @@
         return
        end
         subroutine NoBlanks(out,n,in)
-        character out*(*), in*(*)
+        character out*(*), in*(n)
         integer flag
         flag=-1
         j=0

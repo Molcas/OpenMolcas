@@ -93,7 +93,7 @@ c      Call GetInf(Info,nInfo,DoRys,nDiff,idum)
 *---- Read the input
 *
       iReturn=0
-      Call Input_Grid_It(iRun,INPORB,iReturn)
+      Call Input_Grid_It_nosupport(iRun,INPORB,iReturn)
       if (iReturn.eq._RC_INVOKED_OTHER_MODULE_) then
 c* take care to close files and release the potential memory...
 c       close(unit=LuOrb)

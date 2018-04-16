@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
 
-      SubRoutine Input_Grid_It(iRun,INPORB)
+      SubRoutine Input_Grid_It_nosupport(iRun,INPORB)
 ************************************************************************
 *                                                                      *
 * Object: input module for grid code                                   *
@@ -133,7 +133,7 @@ c        isCutOff=1
       InUnit=5
 
       Call RdNLst(InUnit,'GRID_IT')
- 998  if(MyGetKey_nosupport(InUnit,'S',iD,rD,Key,iD,iD,rD).ne.0) 
+ 998  if(MyGetKey_nosupport(InUnit,'S',iD,rD,Key,iD,iD,rD).ne.0)
      * goto 997
       iKey=index(AllKeys,Key(1:4))
 
@@ -145,10 +145,10 @@ c        isCutOff=1
 *
       if(iKey.eq.1) then
 * PRIN
-      if(mygetkey_nosupport(InUnit,'I',n,rD,Key,iD,iD,rD).ne.0) 
+      if(mygetkey_nosupport(InUnit,'I',n,rD,Key,iD,iD,rD).ne.0)
      * goto 666
       Do j = 1, n
-      if(mygetkey_nosupport(InUnit,'A',iD,rD,Key,2,iTemp,rD).ne.0) 
+      if(mygetkey_nosupport(InUnit,'A',iD,rD,Key,2,iTemp,rD).ne.0)
      *goto 666
          nPrint(iTemp(1))=iTemp(2)
       enddo
@@ -164,7 +164,7 @@ c        Write(6,*) ' Keyword ASCII is obsolete'
       endif
       if(iKey.eq.4) then
 * NPOI
-      if(mygetkey_nosupport(InUnit,'A',iD,rD,Key,3,iGridNpt,rD).ne.0) 
+      if(mygetkey_nosupport(InUnit,'A',iD,rD,Key,3,iGridNpt,rD).ne.0)
      * goto 666
       isNet=-1
       isReadNet=isReadNet+1
@@ -185,7 +185,7 @@ c        Write(6,*) ' Keyword ASCII is obsolete'
         write(6,*) 'ORBI keyword can not be used together with SELEct'
         call Quit_OnUserError()
       endif
-      if(mygetkey_nosupport(InUnit,'I',nReq,rD,Key,iD,iD,rD).ne.0) 
+      if(mygetkey_nosupport(InUnit,'I',nReq,rD,Key,iD,iD,rD).ne.0)
      * goto 666
 
       if(nReq.gt.MAXGRID) then
@@ -199,7 +199,7 @@ cc      if(mygetkey_nosupport(InUnit,'A',iD,rD,Key,nReq*2,iReq,rD).ne.0) goto 66
       endif
       if(iKey.eq.8) then
 * REGION
-      if(mygetkey_nosupport(InUnit,'D',iD,rD,Key,2,iD,Region).ne.0) 
+      if(mygetkey_nosupport(InUnit,'D',iD,rD,Key,2,iD,Region).ne.0)
      * goto 666
       itRange=1
       isAuMO=1
@@ -208,7 +208,7 @@ cc      if(mygetkey_nosupport(InUnit,'A',iD,rD,Key,nReq*2,iReq,rD).ne.0) goto 66
       endif
       if(iKey.eq.9) then
 * ONE - debug option
-      if(mygetkey_nosupport(InUnit,'D',iD,rD,Key,7,iD,OneCoor).ne.0) 
+      if(mygetkey_nosupport(InUnit,'D',iD,rD,Key,7,iD,OneCoor).ne.0)
      * goto 666
       isTheOne=1
       isBinary=0
@@ -216,12 +216,12 @@ cc      if(mygetkey_nosupport(InUnit,'A',iD,rD,Key,nReq*2,iReq,rD).ne.0) goto 66
       if(iKey.eq.10) then
 * TITLE
 * NOTE: Title can be only ONE line here!!!
-      if(mygetkey_nosupport(InUnit,'S',iD,rD,Title1,iD,iD,rD).ne.0) 
+      if(mygetkey_nosupport(InUnit,'S',iD,rD,Title1,iD,iD,rD).ne.0)
      * goto 666
       endif
       if(iKey.eq.11) then
 * GAP
-      if(mygetkey_nosupport(InUnit,'R',iD,TheGap,Key,iD,iD,rD).ne.0) 
+      if(mygetkey_nosupport(InUnit,'R',iD,TheGap,Key,iD,iD,rD).ne.0)
      * goto 666
       endif
 
@@ -273,7 +273,7 @@ c unfortunately mygetkey_nosupport uppercases strings!
       iGridNpt(1)=0
       iGridNpt(2)=0
       iGridNpt(3)=0
-      if(mygetkey_nosupport(InUnit,'I',nGridPoints,rD,Key,1,iD,rD).ne.0) 
+      if(mygetkey_nosupport(InUnit,'I',nGridPoints,rD,Key,1,iD,rD).ne.0)
      * goto 666
         Call GetMem('Grid','ALLO','REAL',ipGrid,nGridPoints*3)
        Read(InUnit,*,Err=666, end=666)
@@ -294,7 +294,7 @@ c unfortunately mygetkey_nosupport uppercases strings!
       endif
 * PkBits
       if (iKey .eq. 23) then
-        if (mygetkey_nosupport(InUnit,'I',ibits,rD,Key,1,iD,rD).ne.0) 
+        if (mygetkey_nosupport(InUnit,'I',ibits,rD,Key,1,iD,rD).ne.0)
      * goto 666
         if (ibits .eq. 16) then
           iyRange=32768
@@ -307,7 +307,7 @@ c unfortunately mygetkey_nosupport uppercases strings!
       endif
 * LINE - density on line
       if (iKey .eq. 25) then
-      if(mygetkey_nosupport(InUnit,'D',iD,rD,Key,7,iD,OneCoor).ne.0) 
+      if(mygetkey_nosupport(InUnit,'D',iD,rD,Key,7,iD,OneCoor).ne.0)
      * goto 666
       isTheOne=1
       isTotal=1
@@ -316,7 +316,7 @@ c unfortunately mygetkey_nosupport uppercases strings!
       endif
       if(iKey.eq.26) then
 * ORANGE
-      if(mygetkey_nosupport(InUnit,'D',iD,rD,Key,2,iD,Region).ne.0) 
+      if(mygetkey_nosupport(InUnit,'D',iD,rD,Key,2,iD,Region).ne.0)
      * goto 666
       itRange=0
       isAuMO=1
@@ -324,7 +324,7 @@ c unfortunately mygetkey_nosupport uppercases strings!
       endif
       if(iKey.eq.27) then
 * ERANGE
-      if(mygetkey_nosupport(InUnit,'D',iD,rD,Key,2,iD,Region).ne.0) 
+      if(mygetkey_nosupport(InUnit,'D',iD,rD,Key,2,iD,Region).ne.0)
      * goto 666
       itRange=1
       isAuMO=1
@@ -336,7 +336,7 @@ c unfortunately mygetkey_nosupport uppercases strings!
       endif
       if(iKey.eq.29) then
 * CUTOFF
-      if(mygetkey_nosupport(InUnit,'R',iD,CutOff,Key,1,iD,rD).ne.0) 
+      if(mygetkey_nosupport(InUnit,'R',iD,CutOff,Key,1,iD,rD).ne.0)
      * goto 666
       isCutOff=1
       endif
@@ -347,18 +347,18 @@ c unfortunately mygetkey_nosupport uppercases strings!
       if(iKey.eq.31) then
 * GORI
       iCustOrig=1
-      if(mygetkey_nosupport(InUnit,'D',iD,rD,Key,3,iD,GridOrigin).ne.0) 
+      if(mygetkey_nosupport(InUnit,'D',iD,rD,Key,3,iD,GridOrigin).ne.0)
      * goto 666
-      if(mygetkey_nosupport(InUnit,'D',iD,rD,Key,3,iD,GridAxis1).ne.0) 
+      if(mygetkey_nosupport(InUnit,'D',iD,rD,Key,3,iD,GridAxis1).ne.0)
      *goto 666
-      if(mygetkey_nosupport(InUnit,'D',iD,rD,Key,3,iD,GridAxis2).ne.0) 
+      if(mygetkey_nosupport(InUnit,'D',iD,rD,Key,3,iD,GridAxis2).ne.0)
      *goto 666
-      if(mygetkey_nosupport(InUnit,'D',iD,rD,Key,3,iD,GridAxis3).ne.0) 
+      if(mygetkey_nosupport(InUnit,'D',iD,rD,Key,3,iD,GridAxis3).ne.0)
      *goto 666
       endif
       if(iKey.eq.32) then
 * SELEct
-      if(mygetkey_nosupport(InUnit,'S',iD,rD,SelectStr,iD,iD,rD).ne.0) 
+      if(mygetkey_nosupport(InUnit,'S',iD,rD,SelectStr,iD,iD,rD).ne.0)
      * then
          goto 666
       endif
@@ -391,7 +391,7 @@ c      call fileorb(FileIn,FileStr)
       if(iKey.eq.37) then
 * VIRT
       isVirt=1
-      if(mygetkey_nosupport(InUnit,'R',iD,Virt,Key,1,iD,rD).ne.0) 
+      if(mygetkey_nosupport(InUnit,'R',iD,Virt,Key,1,iD,rD).ne.0)
      * goto 666
       endif
       if(iKey.eq.38) then
