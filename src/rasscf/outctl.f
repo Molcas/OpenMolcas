@@ -50,6 +50,7 @@
       Character*3 lIrrep(8)
       Character*80 Note
       Character*120 Line
+      Character*3 SNAC
       Logical FullMlk, get_BasisType
 cnf
       Logical Do_ESPF,lSave, lOPTO
@@ -196,6 +197,10 @@ C Local print level (if any)
      &                           Do3RDM
       Write(LF,Fmt2//'A,T45,I6)')'Restart scheme in 3-RDM and F.4-RDM',
      &                           chemps2_lrestart
+      write(SNAC, '(I3)') NAC
+      Write(LF,Fmt2//'A,T45,'//trim(adjustl(SNAC))//'I2)')
+     &                           'Occupation guess',
+     &                           (HFOCC(ihfocc), ihfocc=1,NAC)
 #endif
 
 * NN.14 FIXME: haven't yet checked whether geometry opt. works correctly with DMRG
