@@ -1,11 +1,22 @@
-      Function MyGetKey_nosupport (InUnit, What, IValue, RValue, SValue,
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      Integer Function MyGetKey_nosupport (InUnit, What, IValue,
+     &    RValue, SValue,
      &    N, IArray, RArray)
       Implicit Real*8 (A-H,O-Z)
       character SValue *(*)
       Dimension IArray(*), RArray(*)
       character What
       character KWord*120
-      MyGetKey=0
+      MyGetKey_nosupport=0
       iptr=1
       i=1
  1    Read(InUnit,'(A)',Err=20, end=20) KWord
@@ -49,7 +60,7 @@
 100    return
 40      iptr=i
         goto 1
-20      MyGetKey=1
+20      MyGetKey_nosupport=1
         return
        end
         subroutine NoBlanks(out,n,in)
