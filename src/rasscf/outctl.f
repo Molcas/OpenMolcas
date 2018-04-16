@@ -50,7 +50,9 @@
       Character*3 lIrrep(8)
       Character*80 Note
       Character*120 Line
+#ifdef _ENABLE_CHEMPS2_DMRG_
       Character*3 SNAC
+#endif
       Logical FullMlk, get_BasisType
 cnf
       Logical Do_ESPF,lSave, lOPTO

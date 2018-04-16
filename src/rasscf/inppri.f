@@ -48,7 +48,9 @@
       Character*8   Fmt1,Fmt2,Label
       Character*120  Line,BlLine,StLine
       Character*3 lIrrep(8)
+#ifdef _ENABLE_CHEMPS2_DMRG_
       Character*3 SNAC
+#endif
       Logical DoCholesky
       Logical DoLocK,Deco, lOPTO, l_casdft
       Real*8  dmpK
