@@ -88,6 +88,9 @@ c      Integer StrnLn
       Logical Found
       Logical Changed
       Integer nTmp(8)
+#ifdef _HDF5_
+      Character(Len=maxbfn) typestring
+#endif
 
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -334,12 +337,60 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
         select case (iAlphaBeta)
           case (1)
             call mh5_fetch_dset(mh5id, 'MO_ALPHA_VECTORS', CMO)
+            VecTit='MO_ALPHA_TYPEINDICES'
           case (-1)
             call mh5_fetch_dset(mh5id, 'MO_BETA_VECTORS', CMO)
+            VecTit='MO_BETA_TYPEINDICES'
           case default
             call mh5_fetch_dset(mh5id, 'MO_VECTORS', CMO)
+            VecTit='MO_TYPEINDICES'
         end select
+        typestring=''
+        if (mh5_exists_dset(mh5id, trim(VecTit)))
+     &    call mh5_fetch_dset(mh5id, trim(VecTit), typestring)
         call mh5_close_file(mh5id)
+* Reorder orbitals based on typeindex
+        If (typestring.ne.'') Then
+          NNwOrd=0
+          Do iSym=1,nSym
+            NNwOrd=NNwOrd+NBas(iSym)
+          End Do
+          Call GetMem('TInd','Allo','Inte',iTInd,NNWOrd)
+          Call GetMem('NewOrd','Allo','Inte',LNewOrd,NNwOrd)
+          Call iCopy(NNWOrd,0,0,iWork(iTInd),1)
+          Do i=1,len_trim(typestring)
+            select case (typestring(i:i))
+              case ('F')
+                iWork(iTInd+i-1)=1
+              case ('I')
+                iWork(iTInd+i-1)=2
+              case ('1')
+                iWork(iTInd+i-1)=3
+              case ('2')
+                iWork(iTInd+i-1)=4
+              case ('3')
+                iWork(iTInd+i-1)=5
+              case ('S')
+                iWork(iTInd+i-1)=6
+              case ('D')
+                iWork(iTInd+i-1)=7
+            end select
+          End Do
+          Call VecSort(NSYM,NBAS,NBAS,CMO,OCC,iWork(iTInd),
+     &                                NNwOrd,iWork(lNewOrd),iErr)
+* If there is a supersymmetry array, use the orbital mapping:
+          If (iSUPSM.ne.0) Then
+            Call GetMem('TmpXSym','Allo','Inte',LTmpXSym,NNwOrd)
+            Do i=1,NNwOrd
+              j=iWork(lNewOrd-1+i)
+              iWork(lTmpXSym-1+i)=iXSym(j)
+            End Do
+            Call iCopy(NNwOrd,iWork(lTmpXSym),1,iXSym,1)
+            Call GetMem('TmpXSym','Free','Inte',LTmpXSym,NNwOrd)
+          End If
+          Call GetMem('NewOrd','Free','Inte',LNewOrd,NNwOrd)
+          Call GetMem('TInd','Free','Inte',iTInd,maxbfn)
+        End If
 #else
         write (6,*) 'Orbitals requested from HDF5, but this'
         write (6,*) 'installation does not support that, abort!'

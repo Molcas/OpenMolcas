@@ -5,8 +5,8 @@
 * Symmetry: c1
 * Features tested: SEWARD(RICD),SCF,MBPT2(FC),ALASKA(ANALYTICAL)
 * Responsible person: Victor P. Vysotskiy & R. Lindh
-* Comments: SP calculation of analytical gradients at the MBPT2(FC)/ANO-L-VDZP 
-*           level of theory. 
+* Comments: SP calculation of analytical gradients at the MBPT2(FC)/ANO-L-VDZP
+*           level of theory.
 *-------------------------------------------------------------------------------
  &Gateway; Title= Ethylene, ANO-L-VDZP basis set
 Coord

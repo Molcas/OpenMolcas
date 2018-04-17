@@ -38,7 +38,6 @@ C subroutine arguments
 
       REAL*8 GTENS(3),MAXES(3,3),MAXES2(3,3)
       COMPLEX*16 H_ZEE(SODIAGNSTATE,SODIAGNSTATE)
-      COMPLEX*16 H_ZEE2(SODIAGNSTATE*(SODIAGNSTATE+1)/2)
       COMPLEX*16 ZOUT(SODIAGNSTATE,SODIAGNSTATE)
 
       REAL*8 RWORK(3*SODIAGNSTATE-2)
@@ -225,21 +224,18 @@ c  apply the magnetic field along the main iDir axis
       END IF
 
 c DIAGONALIZE
-      DO J=1,N
-      DO I=1,J
-        IJ=J*(J-1)/2+I
-        H_ZEE2(IJ) = H_ZEE(I,J)
-      END DO
-      END DO
+      lcwork = (2*n-1); info = 0
+      call zheev('V','U',n,h_zee,n,deigval,zwork,lcwork,
+     &           rwork,info)
 
-      call zhpev_('V','U',N,H_ZEE2,DEIGVAL,
-     &           DEIGVEC,N,ZWORK,RWORK,INFO)
-
+      !> put eigenvectors in deigvec
+      call zcopy(n**2,h_zee,1,deigvec,1)
 
       IF(INFO.NE.0) THEN
         WRITE(6,*) "DIAGONALIZATION FAILED! ERROR: ",INFO
         CALL ABEND()
       END IF
+
 
       IF(IPGLOB.GE.DEBUG) THEN
         WRITE(6,*) "EIGENVALUES OF L+ge*S in direction: ",IDIR

@@ -13,7 +13,7 @@
       Integer LuInput
 * Used for input processing
       Integer NKeys
-      Parameter (NKeys=114)
+      Parameter (NKeys=115)
 *------------------------------------------------------
 * Logical flags, to check whether a keyword has been used
 * in the input:
@@ -41,7 +41,8 @@
      &     KeyNOCA, KeySAVE, KeyEXPA, KeyH5OR, KeyH5CI,
      &     KeyHEXS, KeyHEUR, KeyDMPO, KeyNEVP, keyHFOC,
      &     keyDAVT, keyCHRE, keyCHBL, keyMXSW, keyNOIS,
-     &     keyDMRE, keyMXCA, keyDEXS, keyHROO, KeyZZZZ
+     &     keyDMRE, keyMXCA, keyDEXS, keyHROO, KeyTDM,
+     &     KeyZZZZ
 
       Common /InputFlags/ KeyAAAA,
      &     KeyALTE, KeyATOM, KeyAVER, KeyCHAR, KeyCHOI,
@@ -66,7 +67,8 @@
      &     KeyNOCA, KeySAVE, KeyEXPA, KeyH5OR, KeyH5CI,
      &     KeyHEXS, KeyHEUR, KeyDMPO, KeyNEVP, keyHFOC,
      &     keyDAVT, keyCHRE, keyCHBL, keyMXSW, keyNOIS,
-     &     keyDMRE, keyMXCA, KeyDEXS, keyHROO, KeyZZZZ
+     &     keyDMRE, keyMXCA, KeyDEXS, keyHROO, KeyTDM,
+     &     KeyZZZZ
 
       Equivalence(KeyAAAA,KeyFlags(0))
 *------------------------------------------------------
@@ -94,12 +96,16 @@
      &           'NOCA','SAVE','EXPA','H5OR','H5CI',
      &           'HEXS','HEUR','DMPO','NEVP','HFOC',
      &           'DAVT','CHRE','CHBL','MXSW','NOIS',
-     &           'DMRE','MXCA','DEXS','HROO'/
+     &           'DMRE','MXCA','DEXS','HROO','TDM '/
 *------------------------------------------------------
 * Input data sets:
+      Integer iCI_I,IROOT_I,NFRO_I,NISH_I,NRS1_I,NRS2_I,NRS3_I,NDEL_I,
+     &        ISPIN_I,LSYM_I,NACTEL_I,NHOLE_I,NELEC_I,NChrg_I,NROOTS_I,
+     &        LROOTS_I,IRLXROOT_I
       Common /InputInt/ LuInput,iCI_I(mxRoot,mxRef),IROOT_I(mxRoot),
      &           NFRO_I(8),NISH_I(8),NRS1_I(8),NRS2_I(8),
      &           NRS3_I(8),NDEL_I(8),ISPIN_I,LSYM_I,
      &           NACTEL_I,NHOLE_I,NELEC_I,NChrg_I,NROOTS_I,
      &           LROOTS_I,IRLXROOT_I
+      Real*8 cCI_I,WEIGHT_I
       Common /InputReal/ cCI_I(mxRoot,mxRef),WEIGHT_I(mxRoot)

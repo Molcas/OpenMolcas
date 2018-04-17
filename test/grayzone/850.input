@@ -68,7 +68,7 @@ DMRG = 1000
  CheMPS2
  MULT = 1 1
  NOMUL
- 
+
 &RASSCF
 LumOrb
 Spin

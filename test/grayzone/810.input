@@ -5,14 +5,14 @@
 * Symmetry: c1
 * Features tested: SEWARD(RICD),SCF,MBPT2(FULL),ALASKA(ANALYTICAL)
 * Responsible person: Victor P. Vysotskiy & R. Lindh
-* Comments: SP calculation of analytical gradients at the MBPT2(FULL)/ANO-L-VTZP 
-*           level of theory. 
+* Comments: SP calculation of analytical gradients at the MBPT2(FULL)/ANO-L-VTZP
+*           level of theory.
 *-------------------------------------------------------------------------------
  &Gateway; Title= Water, ANO-L-VTZP basis set
 Coord
 3
 
-H   0.75653778     0.00000000    -0.45468701 
+H   0.75653778     0.00000000    -0.45468701
 H  -0.75653778     0.00000000    -0.45468701
 O   0.00000000     0.00000000     0.13369084
 Basis=ANO-L-VTZP
@@ -25,9 +25,9 @@ RICD
      ITERATIONS= 20, 20
      THREsholds= 1.0d-10 1.0d-6 0.5d-7 0.2d-5
 *-------------------------------------------------------------------------------
- &MBPT2; Grdt; Frozen= 0 
+ &MBPT2; Grdt; Frozen= 0
 *-------------------------------------------------------------------------------
- &ALASKA; Show 
+ &ALASKA; Show
 *-------------------------------------------------------------------------------
  &SLAPAF
 >>> End Do

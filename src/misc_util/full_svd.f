@@ -15,26 +15,20 @@
       dimension vmat(n,*)
       dimension svals(*)
 #include "WrkSpc.fh"
-      dimension wrk1_lapack(1000)
+      dimension wrk1_lapack(1)
 
 *  Note that dgesvd returns V**T, not V.
-*      nm=min(n,m)
 c     write(6,*)' In full_svd. Calling dgesvd:'
-      call xflush(6)
       call dgesvd_('A','A',m,n,amat,m,svals,umat,m,vmat,n,
      &                                     wrk1_lapack,-1,info)
 c     write(6,*)' full_svd back from dgesvd'
-      call xflush(6)
       lwork=int(wrk1_lapack(1))
 c     write(6,*)' lwork:',lwork
-      call xflush(6)
       call getmem('lapckwrk','allo','real',ipwork,lwork)
 c     write(6,*)' Calling dgesvd again:'
-      call xflush(6)
       call dgesvd_('A','A',m,n,amat,m,svals,umat,m,vmat,n,
      &                                 work(ipwork),lwork,info)
 c     write(6,*)' full_svd back from dgesvd'
-      call xflush(6)
       call getmem('lapckwrk','free','real',ipwork,lwork)
 
       return
