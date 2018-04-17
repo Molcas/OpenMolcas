@@ -28,11 +28,20 @@
       Character*180  Line
       Character*180 Get_LN
       External Get_LN
+
+#ifdef _DMRG_
+      External Get_ProgName
+      Character*100 Get_ProgName
+      Character*100 ProgName
       logical qcmaquis_input
+#endif
 *
       Call qEnter('Scan_Inp')
 
+#ifdef _DMRG_
       qcmaquis_input = .false.
+      ProgName       = Get_ProgName()
+#endif
 
 * If the return code is already set to indicate an error, there will
 * be an error trace written out.
@@ -50,18 +59,24 @@
       Call UpCase(Command)
       Do iCmd=1,NKeys
 
-        if(command == 'ENDR')then
+#ifdef _DMRG_
+        if(ProgName(1:5).eq.'rassc' .and. command.eq.'ENDR')then
           qcmaquis_input = .false.
+        else if(ProgName(1:5).eq.'dmrgs' .and. command.eq.'ENDO')then
+          goto 9990
         end if
+#endif
 
         If ( Command.eq.Cmd(iCmd) ) Then
 
+#ifdef _DMRG_
           !> check for QCMaquis input section
-          if(command == 'RGIN')then
+          if(ProgName(1:5).eq.'rassc' .and. command.eq.'RGIN')then
             qcmaquis_input = .true.
             KeyFlags(iCmd) = .true.
           end if
           if(qcmaquis_input) goto 20
+#endif
 
           KeyFlags(iCmd)=.TRUE.
 * Special case: Skip title line.
@@ -99,18 +114,24 @@
       Call UpCase(Command)
       Do iCmd=1,NKeys
 
-        if(command == 'ENDR')then
+#ifdef _DMRG_
+        if(ProgName(1:5).eq.'rassc' .and. command.eq.'ENDR')then
           qcmaquis_input = .false.
+        else if(ProgName(1:5).eq.'dmrgs' .and. command.eq.'ENDO')then
+          goto 9990
         end if
+#endif
 
         If ( Command.eq.Cmd(iCmd) ) Then
 
+#ifdef _DMRG_
           !> check for QCMaquis input section
-          if(command == 'RGIN')then
+          if(ProgName(1:5).eq.'rassc' .and. command.eq.'RGIN')then
             qcmaquis_input = .true.
             KeyFlags(iCmd) = .true.
           end if
           if(qcmaquis_input) goto 220
+#endif
 
           write(6,*)' Understood keyword '''//Cmd(iCmd)//''''
           KeyFlags(iCmd)=.TRUE.

@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE NATORB_RASSI(DMAT,TDMZZ,VNAT,OCC)
+      SUBROUTINE NATORB_RASSI(DMAT,TDMZZ,VNAT,OCC,EIGVEC)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "Molcas.fh"
@@ -18,8 +18,12 @@
 #include "Files.fh"
 #include "WrkSpc.fh"
       DIMENSION DMAT(NBSQ),TDMZZ(NTDMZZ),VNAT(NBSQ),OCC(NBST)
-      CHARACTER*8 FNAME
-      CHARACTER*2 KNUM
+      CHARACTER*14 FNAME
+      CHARACTER*8 KNUM
+      REAL*8 EIGVEC(NSTATE,NSTATE)
+
+      EXTERNAL ISFREEUNIT
+      EXTERNAL DDOT_
 
       Call qEnter('NATORB')
 C ALLOCATE WORKSPACE AREAS.
@@ -72,7 +76,7 @@ C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
         LV=LV+NB**2
         LE=LE+NB
 100   CONTINUE
-      CALL GETMEM('      ','FREE','REAL',LSZZ,NSZZ)
+      CALL GETMEM('SZZ   ','FREE','REAL',LSZZ,NSZZ)
 
 C VERY LONG LOOP OVER EIGENSTATES KEIG.
       DO KEIG=1,NRNATO
@@ -87,7 +91,7 @@ C HOWEVER, WE ARE LOOPING TRIANGULARLY AND WILL RESTORE SYMMETRY BY
 C ADDING TRANSPOSE AFTER DMAT HAS BEEN FINISHED, SO I=J IS SPECIAL CASE:
             X=EIGVEC(I,KEIG)*EIGVEC(J,KEIG)
             IF(ABS(X).GT.1.0D-12) THEN
-              IDISK=IDTDM(I,J)
+              IDISK=iWork(lIDTDM+(I-1)*NSTATE+J-1)
               CALL DDAFILE(LUTDM,2,TDMZZ,NTDMZZ,IDISK)
               IF(I.EQ.J) X=0.5D00*X
               CALL DAXPY_(NTDMZZ,X,TDMZZ,1,DMAT,1)
@@ -159,9 +163,10 @@ C REEXPRESS THE EIGENVECTORS IN AO BASIS FUNCTIONS. REVERSE ORDER.
           LE=LE+NB
         END DO
 C WRITE OUT THIS SET OF NATURAL ORBITALS. THE FILES WILL BE NAMED
-C SIORB01,SIORB02,...ETC.
-        WRITE(KNUM,'(I2.2)') KEIG
-        FNAME='SIORB'//KNUM
+C SIORB.1, SIORB.2, ...
+        WRITE(KNUM,'(I8)') KEIG
+        KNUM=ADJUSTL(KNUM)
+        FNAME='SIORB.'//KNUM
         WRITE(6,'(A,I2)')' NATURAL ORBITALS FOR EIGENSTATE NR ',KEIG
         WRITE(6,'(A,A)')' ORBITALS ARE WRITTEN ONTO FILE ID = ',FNAME
         WRITE(6,'(A)')' OCCUPATION NUMBERS:'
@@ -179,16 +184,18 @@ C SIORB01,SIORB02,...ETC.
         LuxxVec=isfreeunit(LuxxVec)
         CALL WRVEC(FNAME,LUXXVEC,'CO',NSYM,NBASF,NBASF,
      &     VNAT, OCC, Dummy, iDummy,
-     &     '* NATURAL ORBITALS FROM RASSI EIGENSTATE NR '//KNUM )
+     &     '* NATURAL ORBITALS FROM RASSI EIGENSTATE NR '//TRIM(KNUM) )
+        SUMOCC=DDOT_(NBASF,OCC,1,OCC,1)
+        CALL ADD_INFO("NATORB",SUMOCC,1,5)
 
 C End of very long loop over eigenstates KEIG.
       END DO
 
       WRITE(6,*)('*',I=1,80)
-      CALL GETMEM('      ','FREE','REAL',LVEC,NVEC)
-      CALL GETMEM('      ','FREE','REAL',LVEC2,NVEC2)
-      CALL GETMEM('      ','FREE','REAL',LSCR,NSCR)
-      CALL GETMEM('      ','FREE','REAL',LEIG,NEIG)
+      CALL GETMEM('VEC   ','FREE','REAL',LVEC,NVEC)
+      CALL GETMEM('VEC2  ','FREE','REAL',LVEC2,NVEC2)
+      CALL GETMEM('SCR   ','FREE','REAL',LSCR,NSCR)
+      CALL GETMEM('EIG   ','FREE','REAL',LEIG,NEIG)
       Call qExit('NATORB')
       RETURN
       END

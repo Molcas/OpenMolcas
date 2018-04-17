@@ -14,7 +14,7 @@
 >> FILE h2o.xyz
 3
 
-  O    0.0000000000        0.0090555961        6.00 
+  O    0.0000000000        0.0090555961        6.00
   H    0.7127780136        0.5518142020        6.00
   H   -0.7127780136        0.5518142020        6.00
 >> EOF
@@ -26,7 +26,7 @@ Title
 coord = h2co.xyz
 coord = h2o.xyz
 bsse  = 1
-basis = ANO-RCC-MB   
+basis = ANO-RCC-MB
 NoMove
 GROUP
 NoSym
@@ -38,7 +38,7 @@ End Of Input
 >>> COPY $Project.GssOrb INPORB
 
 &SCF
-Charge  
+Charge
  0
 KSDFT
  pbe
@@ -57,7 +57,7 @@ Title
 coord = h2co.xyz
 coord = h2o.xyz
 bsse  = 2
-basis = ANO-RCC-MB   
+basis = ANO-RCC-MB
 NoMove
 GROUP
 NoSym
@@ -70,12 +70,12 @@ End Of Input
 >>> COPY $Project.GssOrb INPORB
 
 &SCF
-Charge  
- 0  
+Charge
+ 0
 KSDFT
  pbe0
 OFEMbedding
- ldtf/pbe 
+ ldtf/pbe
 LuMOrb
 End Of Input
 >>> RM AUXRFIL
@@ -90,7 +90,7 @@ Title
 coord = h2co.xyz
 coord = h2o.xyz
 bsse  = 1
-basis = ANO-RCC-MB   
+basis = ANO-RCC-MB
 NoMove
 GROUP
 NoSym
@@ -108,7 +108,7 @@ Charge
 KSDFT
  pbe
 OFEMbedding
- ldtf/pbe 
+ ldtf/pbe
 Fthaw thr
  1.0d-9
 LuMOrb

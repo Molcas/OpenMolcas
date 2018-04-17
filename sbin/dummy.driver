@@ -1,0 +1,36 @@
+#!/bin/sh
+#***********************************************************************
+# This file is part of OpenMolcas.                                     *
+#                                                                      *
+# OpenMolcas is free software; you can redistribute it and/or modify   *
+# it under the terms of the GNU Lesser General Public License, v. 2.1. *
+# OpenMolcas is distributed in the hope that it will be useful, but it *
+# is provided "as is" and without any express or implied warranties.   *
+# For more details see the full text of the license in the file        *
+# LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#                                                                      *
+# Copyright (C) 2017, Ignacio Fdez. Galván                             *
+#***********************************************************************
+
+# Simple wrapper script that allows calling sbin scripts as with the
+# standard molcas.driver, in case it is needed.
+
+MOLCAS_DRIVER=$0
+export MOLCAS_DRIVER
+
+if [ -z "$MOLCAS" ] ; then
+  MOLCAS=`pwd`
+fi
+export MOLCAS
+
+if [ -z "$MOLCAS_SOURCE" ] ; then
+  MOLCAS_SOURCE="$MOLCAS"
+fi
+export MOLCAS_SOURCE
+
+if [ -n "$1" ] && [ -x "$MOLCAS/sbin/$1" ] ; then
+  $MOLCAS/sbin/$*
+  exit $?
+else
+  exit 1
+fi

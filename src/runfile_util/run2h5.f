@@ -13,7 +13,6 @@
 *     SVC: read basic molecular information from the RunFile
 *     and 1-electron integral file and write it to the HDF5
 *     file specified with fileid.
-*     This routine does nothing if HDF5 is not supported.
 *
 *     Attributes:
 *       NSYM, IRREPS, POTNUC, NBAS
@@ -83,7 +82,7 @@
 *     atom labels
       dsetid = mh5_create_dset_str(fileid,
      $        'CENTER_LABELS', 1, [nAtoms], LENIN)
-        call mh5_init_attr(dsetid, 'description',
+      call mh5_init_attr(dsetid, 'description',
      $          'Unique center labels '//
      $          'arranged as one [NATOMS_UNIQUE] block')
       call mma_allocate(atomlbl,nAtoms)
@@ -202,7 +201,7 @@
       dsetid = mh5_create_dset_int(fileid,
      $        'PRIMITIVE_IDS', 2, [3,nPrim])
       call mh5_init_attr(dsetid, 'description',
-     $        'Primitive IDs, aranged as an '//
+     $        'Primitive IDs, arranged as an '//
      $        'array of size [3*NPRIM], with consecutive '//
      $        'center_id, angmom, shell_id (C1 2s <-> 1,0,2)')
       call mma_allocate(PrimIDs,3,nPrim)
@@ -215,7 +214,7 @@
       dsetid = mh5_create_dset_real(fileid,
      $        'PRIMITIVES', 2, [2,nPrim])
       call mh5_init_attr(dsetid, 'description',
-     $        'Primitives, aranged as an '//
+     $        'Primitives, arranged as an '//
      $        'array of size [2*NPRIM], with consecutive '//
      $        'exponent, contraction coefficient')
       call mma_allocate(Primitives,2,nPrim)

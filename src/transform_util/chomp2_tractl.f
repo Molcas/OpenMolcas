@@ -10,6 +10,26 @@
 *                                                                      *
 * Copyright (C) 2004,2005, Giovanni Ghigo                              *
 ************************************************************************
+*  ChoMP2_TraCtl
+*
+*> @brief
+*>   Driver for the generation of the two-electrons integrals file (``MOLINT``)
+*>   from the AO-based Cholesky Full Vectors for MBPT2 program
+*> @author Giovanni Ghigo
+*>
+*> @details
+*> This routine is similar to ::Cho_TraCtl routine but only the
+*> transformed vectors type ``C`` (TCVC) are generated. See ::Cho_TraCtl
+*> and related routines for more details.
+*>
+*> @note
+*> The number of frozen and deleted MO used in the post-SCF
+*> must be written in the RunFile in \c nFroPT and \c nDelPT arrays.
+*>
+*> @param[in] LUINTM Unit number of two-electrons integrals file (``MOLINT``)
+*> @param[in] CMO    MO coefficients
+*> @param[in] NCMO   Total number of MO coefficients
+************************************************************************
       Subroutine ChoMP2_TraCtl(LUINTM,CMO,NCMO)
 ************************************************************************
 * Author :  Giovanni Ghigo                                             *
@@ -26,40 +46,6 @@
 * THIS CODE IS ONLY FOR MBPT2 AND IT IS SPLIT FROM THE GENERAL CODE    *
 * BUT IT IS STILL INTEGRATED AND DEPENDENT ON THE GENERAL CODE         *
 ************************************************************************
-*
-*   <DOC>
-*     <Name>ChoMP2\_TraCtl</Name>
-*     <Syntax>Call ChoMP2\_TraCtl(LUINTM,CMO,NCMO)
-*     </Syntax>
-*     <Arguments>
-*      \Argument{LUINTM}{Unit number of Two-electrons integrals file
-*                                                (MOLINT)}{Integer}{in}
-*      \Argument{CMO}{MO coefficients}{Array Real*8}{in}
-*      \Argument{NCMO}{Total number of MO coefficients}{Integer}{in}
-*     </Arguments>
-*     <Purpose>
-*      Driver for the generation of the Two-electrons integrals file
-*      (MOLINT) from the AO-based Cholesky Full Vectors for MBPT2
-*      program.\\
-*      Called by TraCtl\_Drv.
-*     </Purpose>
-*     <Dependencies>
-*      The number of frozen and deleted MO used in the post-SCF
-*      must be written in the RunFile in nFroPT and nDelPT arrays.
-*     </Dependencies>
-*     <Author>
-*      G. Ghigo
-*     </Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*      This routine is similar to Cho\_TraCtl routine but only the
-*      transformed vectors tipe C (TCVC) are generated. See Cho\_TraCtl
-*      and related routines for more details.
-*     </Description>
-*    </DOC>
-*
-******************************************************************
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
 #include "rasdim.fh"

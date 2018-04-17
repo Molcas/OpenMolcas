@@ -50,7 +50,7 @@ C read number of atoms
       else
         attr_id = mh5_open_attr(restart_fileid,'NATOMS_UNIQUE')
       endif
-      call mh5_get_attr_scalar_int(attr_id,natom)
+      call mh5_get_attr(attr_id,natom)
 
 C read time and save in RunFile
       call mh5_fetch_dset_scalar_real(restart_fileid,'TIME',time)

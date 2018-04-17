@@ -10,31 +10,21 @@
 *                                                                      *
 * Copyright (C) Yannick Carissan                                       *
 ************************************************************************
+*  QuaterSetup
+*
+*> @brief
+*>   Transforms \p V2 such that \f$ U_1 \cdot V_1 = U_2 \cdot V_2 \f$
+*> @author Y. Carissan
+*>
+*> @details
+*> Transforms \p V2 such that \f$ U_1 \cdot V_1 = U_2 \cdot V_2 \f$.
+*>
+*> @param[in]     U1 Input Vector
+*> @param[in]     V1 Input Vector
+*> @param[in]     U2 Input Vector
+*> @param[in,out] V2 Input and output Vector
+************************************************************************
       Subroutine QuaterSetup(U1,U2,V1,V2)
-************************************************************
-*
-*   <DOC>
-*     <Name>QuaterSetup</Name>
-*     <Syntax>Call QuaterSetup(U1,U2,V1,V2)</Syntax>
-*     <Arguments>
-*       \Argument{U1}{Input Vector, Dimension(3)}{Real*8}{in}
-*       \Argument{V1}{Input Vector, Dimension(3)}{Real*8}{in}
-*       \Argument{U2}{Input Vector, Dimension(3)}{Real*8}{in}
-*       \Argument{V2}{Input and output Vector, Dimension(3)}{Real*8}{in-out}
-*     </Arguments>
-*     <Purpose>
-*        Transforms V2 such that U1.V1 = U2.V2
-*       </Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>Y. Carissan</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects>none</Side_Effects>
-*     <Description>
-*              Transforms V2 such that U1.V1 = U2.V2
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit none
 #include "debug.fh"
 #include "real.fh"

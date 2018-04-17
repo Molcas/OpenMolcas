@@ -116,16 +116,14 @@
       integer iRef_E,IAD19
       integer IADR19(1:15)
 !
-
       real*8, allocatable :: PLWO(:)
-!      integer PLWO
 * Start the traceback utilities
 *
       Call QENTER(ROUTINE)
 * Set status line for monitor:
       Call StatusLine('MCPDFT:',' Just started.')
 * Set the return code(s)
-
+      CASDFT_E = 0d0
       ITERM  = 0
       IRETURN=_RC_ALL_IS_WELL_
 
@@ -306,7 +304,16 @@
       Call ReadVc_m(Work(LCMO),Work(lOCCN),
      &             WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA))
 * Only now are such variables finally known.
-
+       If (IPRLOC(1).GE.DEBUG) Then
+        CALL TRIPRT('Averaged one-body density matrix, D, in RASSCF',
+     &              ' ',Work(LDMAT),NAC)
+        CALL TRIPRT('Averaged one-body spin density matrix DS, RASSCF',
+     &              ' ',Work(LDSPN),NAC)
+        CALL TRIPRT('Averaged two-body density matrix, P',
+     &              ' ',WORK(LPMAT),NACPAR)
+        CALL TRIPRT('Averaged antisym 2-body density matrix PA RASSCF',
+     &              ' ',WORK(LPA),NACPAR)
+       END IF
 *
 * Allocate core space for dynamic storage of data
 *
@@ -407,8 +414,8 @@ CGG03 Aug 03
 !
 
         iJOB=0
-      Call GetMem('REF_E','ALLO','REAL',iRef_E,nroots)
-      Call Fzero(Work(iRef_E),nroots)
+      Call GetMem('REF_E','ALLO','REAL',iRef_E,lroots)
+      Call Fzero(Work(iRef_E),lroots)
         Call f_Inquire('JOBOLD',Found)
         if (.not.found) then
           Call f_Inquire('JOBIPH',Found)
@@ -440,7 +447,7 @@ CGG03 Aug 03
       END DO
   11  CONTINUE
 !      Write(*,*) NMAYBE
-      do KROOT=1,NROOTS
+      do KROOT=1,lROOTS
         ENER(IROOT(KROOT),1)=Work(iEList+MXROOT*(NMAYBE-1) +
      &                                     (KROOT-1))
          EAV=EAV+ENER(IROOT(KROOT),ITER)*WEIGHT(KROOT)
@@ -596,7 +603,7 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
         !  CASDFT_E = ECAS
         !end if
 
-        !Elec_Ener = CASDFT_E-PotNuc
+        Elec_Ener = CASDFT_E-PotNuc
         write(6,*) "PLWO"
         write(6,*) PLWO(:)
 !        Call Calc_E(Work(LDMAT),Work(LDSPN),WORK(LPMAT),
@@ -632,14 +639,14 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
       endif
 
 *  Release  some memory allocations
-      Call GetMem('FOCC','FREE','REAL',ipFocc,idum)
+      Call GetMem('FOCC','FREE','REAL',ipFocc,NTOT1)
       Call GetMem('FI','Free','Real',LFI,NTOT1)
       Call GetMem('FA','Free','Real',LFA,NTOT1)
       Call GetMem('D1I','Free','Real',LD1I,NTOT2)
       Call GetMem('D1A','Free','Real',LD1A,NTOT2)
       Call GetMem('D1tot','Free','Real',lD1tot,NTOT1)
       Call GetMem('LCMO','Free','Real',LCMO,NTOT2)
-      Call GetMem('REF_E','Free','REAL',iRef_E,nroots)
+      Call GetMem('REF_E','Free','REAL',iRef_E,lroots)
       Call GetMem('OCCN','Free','Real',LOCCN,NTOT)
 
       If ( NAC.GT.0 ) then
@@ -655,7 +662,7 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
 * Create output orbital files:
 !      Call OrbFiles(JOBIPH,IPRLEV)
 *
-      Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
+!      Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
 *
 * Exit
 *
@@ -703,7 +710,7 @@ c       End If
       EndIf
 
 !      if(.not.(iDoGas.or.doDMRG.or.doBlockDMRG.or.iDoNeci)) then
-        Call MKGUGA_FREE_m
+!        Call MKGUGA_FREE_m
 !      end if
 
  9990 Continue

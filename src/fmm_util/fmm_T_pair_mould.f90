@@ -24,46 +24,6 @@ MODULE fmm_T_pair_mould
 CONTAINS
 
 !-------------------------------------------------------------------------------
-! This routine directs the saving of functions in fmm_proc_selector.c
-! relevant to the formation of a T-pair entity.
-! There are 4 parts to the making of a T-pair once raw data has been
-! suppplied from the classical interaction search algorithm.
-! These are all called consecutively from the C-code via
-! fmm_stored_t_pair_mould.
-! The 4 functions saved are selected here and depend on whether
-! pure boxed moments, or unboxed moments, are being contracted.
-
-   SUBROUTINE fmm_init_T_pair_mould(scheme,pair_type)
-
-      IMPLICIT NONE
-      TYPE(scheme_paras), INTENT(IN) :: scheme
-      INTEGER(INTK),      INTENT(IN) :: pair_type
-      EXTERNAL fmm_store_t_pair_mould1   ! raw/box dependent variables
-      EXTERNAL fmm_store_t_pair_mould2   ! set LMAX (LHS)
-      EXTERNAL fmm_store_t_pair_mould3   ! set LMAX (RHS)
-      EXTERNAL fmm_store_t_pair_mould4   ! common to all T-pair builds
-
-      CALL fmm_store_t_pair_mould2(fmm_set_LHS_LMAX)
-      CALL fmm_store_t_pair_mould3(fmm_set_RHS_LMAX)
-      CALL fmm_store_t_pair_mould4(fmm_set_T_pair_basics)
-      SELECT CASE (pair_type)
-      CASE (LHS_raw_RHS_raw)
-         LHS_LMAX = scheme%raw_LMAX
-         RHS_LMAX = scheme%raw_LMAX
-         CALL fmm_store_t_pair_mould1(fmm_set_RR_paras)
-      CASE (LHS_box_RHS_box)
-         LHS_LMAX = scheme%trans_LMAX
-         RHS_LMAX = scheme%trans_LMAX
-         CALL fmm_store_t_pair_mould1(fmm_set_BB_paras)
-      CASE DEFAULT
-         CALL fmm_quit ('cannot recognise T_pair type!')
-      END SELECT
-
-      fmm_init_mould = 'initialised'
-
-   END SUBROUTINE fmm_init_T_pair_mould
-
-!-------------------------------------------------------------------------------
 
    SUBROUTINE fmm_close_T_pair_mould
 
@@ -179,6 +139,46 @@ CONTAINS
          CALL Unused_real(Y) !not really real, but well...
       END IF
    END SUBROUTINE fmm_set_RHS_LMAX
+
+!-------------------------------------------------------------------------------
+! This routine directs the saving of functions in fmm_proc_selector.c
+! relevant to the formation of a T-pair entity.
+! There are 4 parts to the making of a T-pair once raw data has been
+! suppplied from the classical interaction search algorithm.
+! These are all called consecutively from the C-code via
+! fmm_stored_t_pair_mould.
+! The 4 functions saved are selected here and depend on whether
+! pure boxed moments, or unboxed moments, are being contracted.
+
+   SUBROUTINE fmm_init_T_pair_mould(scheme,pair_type)
+
+      IMPLICIT NONE
+      TYPE(scheme_paras), INTENT(IN) :: scheme
+      INTEGER(INTK),      INTENT(IN) :: pair_type
+      EXTERNAL fmm_store_t_pair_mould1   ! raw/box dependent variables
+      EXTERNAL fmm_store_t_pair_mould2   ! set LMAX (LHS)
+      EXTERNAL fmm_store_t_pair_mould3   ! set LMAX (RHS)
+      EXTERNAL fmm_store_t_pair_mould4   ! common to all T-pair builds
+
+      CALL fmm_store_t_pair_mould2(fmm_set_LHS_LMAX)
+      CALL fmm_store_t_pair_mould3(fmm_set_RHS_LMAX)
+      CALL fmm_store_t_pair_mould4(fmm_set_T_pair_basics)
+      SELECT CASE (pair_type)
+      CASE (LHS_raw_RHS_raw)
+         LHS_LMAX = scheme%raw_LMAX
+         RHS_LMAX = scheme%raw_LMAX
+         CALL fmm_store_t_pair_mould1(fmm_set_RR_paras)
+      CASE (LHS_box_RHS_box)
+         LHS_LMAX = scheme%trans_LMAX
+         RHS_LMAX = scheme%trans_LMAX
+         CALL fmm_store_t_pair_mould1(fmm_set_BB_paras)
+      CASE DEFAULT
+         CALL fmm_quit ('cannot recognise T_pair type!')
+      END SELECT
+
+      fmm_init_mould = 'initialised'
+
+   END SUBROUTINE fmm_init_T_pair_mould
 
 !-------------------------------------------------------------------------------
 

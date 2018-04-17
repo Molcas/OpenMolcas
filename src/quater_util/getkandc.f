@@ -10,33 +10,26 @@
 *                                                                      *
 * Copyright (C) Yannick Carissan                                       *
 ************************************************************************
+*  GetKandC
+*
+*> @brief
+*>   Utility routine for quaternion resolution
+*> @author Y. Carissan
+*>
+*> @details
+*> Performs the following operation:
+*>
+*> \f[ K = (V_1-U_1) \times (V_2-U_2) \\
+*>     C = K . (U_1 \times U_2) \f]
+*>
+*> @param[in]  U1 Input vector \f$ U_1 \f$
+*> @param[in]  U2 Input vector \f$ U_2 \f$
+*> @param[in]  V1 Input vector \f$ V_1 \f$
+*> @param[in]  V2 Input vector \f$ V_2 \f$
+*> @param[out] K  Output vector \f$ K \f$
+*> @param[out] C  Output value \f$ C \f$
+************************************************************************
       Subroutine GetKandC(U1,U2,V1,V2,K,C)
-************************************************************
-*
-*   <DOC>
-*     <Name>GetKandC</Name>
-*     <Syntax>GetKandC(U1,U2,V1,V2,K,C)</Syntax>
-*     <Arguments>
-*       \Argument{U1}{Input Vector U1, Dimension(3)}{Real*8}{in}
-*       \Argument{U2}{Input Vector U2, Dimension(3)}{Real*8}{in}
-*       \Argument{V1}{Input Vector V1, Dimension(3)}{Real*8}{in}
-*       \Argument{V2}{Input Vector V2, Dimension(3)}{Real*8}{in}
-*       \Argument{K}{Output Vector K, Dimension(3)}{Real*8}{out}
-*       \Argument{C}{Output value C}{Real*8}{out}
-*     </Arguments>
-*     <Purpose>Utility routine for quaternion resolution</Purpose>
-*     <Dependencies>blas routines and call cross</Dependencies>
-*     <Author>Y. Carissan</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects>none</Side_Effects>
-*     <Description>
-*        Performs the following operation :
-*  K = (V1-U1) x (V2-U2)
-*  C = K . (U1 x U2)
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit none
 #include "debug.fh"
 #include "real.fh"

@@ -9,6 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
         program main
+#ifdef _FPE_TRAP_
+        Use, Intrinsic :: IEEE_Exceptions
+        Call IEEE_Set_Halting_Mode(IEEE_Usual,.True._4)
+#endif
         Call Start('quater')
         Call quater(ireturn)
         Call Finish(ireturn)

@@ -24,7 +24,7 @@ that's easy to run, move and distribute.
 import sys, zlib, base64, os, stat
 sys.dont_write_bytecode = True
 
-files = ['tee', 'molcas_aux', 'emil_grammar', 'abstract_flow', 'emil_parse', 'python_parse', 'molcas_wrapper', 'pymolcas']
+files = ['tee', 'molcas_aux', 'emil_grammar', 'simpleeval', 'abstract_flow', 'emil_parse', 'python_parse', 'check_test', 'molcas_wrapper', 'pymolcas']
 try:
   exe_name = sys.argv[1]
 except:
@@ -59,7 +59,7 @@ def minify(string):
   return string
 
 if (compress_and_b64):
-  code = 'import zlib,base64;exec(zlib.decompress(base64.b64decode(m[1])),module.__dict__);del zlib,base64'
+  code = 'import zlib,base64;exec(zlib.decompress(base64.b64decode(bytes(m[1],\\\'ascii\\\'))),module.__dict__);del zlib,base64'
 else:
   code = 'exec(m[1],module.__dict__)'
 

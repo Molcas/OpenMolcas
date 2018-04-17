@@ -10,31 +10,24 @@
 *                                                                      *
 * Copyright (C) Thomas Bondo Pedersen                                  *
 ************************************************************************
+*  obeysCauchySchwarz
+*
+*> @brief
+*>   Return ``.True.`` if \p M obeys the Cauchy--Schwarz inequality within tolerance \p Tol
+*> @author Thomas Bondo Pedersen
+*>
+*> @details
+*> Test if matrix \p M obeys the Cauchy--Schwarz inequality.
+*> If \f$ \exists i \gt j \; |M_{ij}^2 - M_{ii}M_{jj}| \gt \text{Tol} \f$
+*> return ``.False.``.
+*>
+*> @param[in] M   \p n &times; \p n square matrix to test
+*> @param[in] n   Dimension of \p M
+*> @param[in] Tol Tolerance
+*>
+*> @return ``.True.`` if \p M obeys the Cauchy--Schwarz inequality within tolerance \p Tol
+************************************************************************
       Logical Function obeysCauchySchwarz(M,n,Tol)
-************************************************************
-*
-*   <DOC>
-*     <Name>obeysCauchySchwarz</Name>
-*     <Syntax>obeysCauchySchwarz(M,n,Tol)</Syntax>
-*     <Arguments>
-*       \Argument{M}{n-by-n quadratic matrix to test}{Real*8 array}{in}
-*       \Argument{n}{Dimension of M}{Integer}{in}
-*       \Argument{Tol}{Tolerance}{Real*8 scalar}{in}
-*     </Arguments>
-*     <Purpose>Return .True. if M obeys the Cauchy-Schwarz inequality
-*              within tolerance Tol</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>Thomas Bondo Pedersen</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description> Test if matrix M obeys the C-S inequality. If for
-*     some i.gt.j,
-*     abs(M(i,j)**2-M(i,i)*M(j,j)) .gt. Tol
-*     return .False.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit None
       Integer n
       Real*8  M(n,n)

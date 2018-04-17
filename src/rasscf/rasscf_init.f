@@ -10,25 +10,18 @@
 *                                                                      *
 * Copyright (C) Per Ake Malmqvist                                      *
 ************************************************************************
+*  RasScf_Init
+*
+*> @brief
+*>   Initialize variables in commons, and set default values.
+*>   Determine whether orbital files should be read, etc.
+*> @author  P. &Aring;. Malmqvist
+*>
+*> @details
+*> Sets values in common blocks in rasscf.fh, general.fh, timers.fh
+************************************************************************
+
       Subroutine RasScf_Init()
-************************************************************
-*   <DOC>
-*     <Name>RasScf\_Init</Name>
-*     <Syntax>Call RasScf\_Init()</Syntax>
-*     <Purpose>
-*       Initialize variables in commons, and set default values
-*       Determine whether orbital files should be read, etc.
-*     </Purpose>
-*     <Dependencies>
-*     </Dependencies>
-*     <Author> P. {\AA}. Malmqvist </Author>
-*     <Side_Effects> Sets values in common blocks in
-*           rasscf.fh,general.fh,timers.fh
-*     </Side_Effects>
-*     <Description>
-*     </Description>
-*    </DOC>
-************************************************************
       Implicit Real*8 (A-H,O-Z)
       External Get_SuperName
       Character*100 ProgName, Get_SuperName
@@ -58,6 +51,9 @@
       Common /CHOLK / DoLocK,Deco,dmpk,Nscreen
       COMMON /CHOSCREEN/ Estimate,Update
       COMMON /CHOPAR/ ChFracMem
+
+      Call qEnter(ROUTINE)
+
 *----------------------------------------------------------------------*
       ProgName=Get_SuperName()
 *----------------------------------------------------------------------*
@@ -230,6 +226,8 @@ C        ICIRST=1 ! to be activated!
 * make no use of supersymmetry
       I_ELIMINATE_GAS_MOLCAS = 0
 * Highly excited states are not default
+      hRoots=0
+* No hidden roots by default
       IORDEM=0
 * (SVC) do not force any ordering options
       IFORDE=1

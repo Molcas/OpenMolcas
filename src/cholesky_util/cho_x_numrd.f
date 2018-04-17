@@ -10,42 +10,29 @@
 *                                                                      *
 * Copyright (C) Thomas Bondo Pedersen                                  *
 ************************************************************************
+*  Cho_X_NumRd
+*
+*> @brief
+*>   Return the number of Cholesky vectors that may be read into \p Mem words of memory.
+*> @author Thomas Bondo Pedersen
+*>
+*> @details
+*> The count starts at vector \p iVec1 of symmetry \p iSym
+*> (this is needed since the vectors are stored in
+*> different reduces sets).
+*> On exit, \p Cho_X_NumRd is negative if some error has
+*> occurred (``-1``, ``-2``, and ``-3`` signify errors in input
+*> variables, ``-4`` indicates an error in \p Cho_X_SetRed).
+*>
+*> @note
+*> The Cholesky procedure must have been successfully initialized (by ::Cho_X_Init).
+*>
+*> @param[in] iVec1 First vector
+*> @param[in] iSym  Symmetry
+*> @param[in] iRedC Reduced set in core (location ``3``); ``0`` (or ``-1``) if unknown or undefined
+*> @param[in] Mem   Memory available for read
+************************************************************************
       Integer Function Cho_X_NumRd(iVec1,iSym,iRedC,Mem)
-************************************************************
-*
-*   <DOC>
-*     <Name>Cho\_X\_NumRd</Name>
-*     <Syntax>Cho\_X\_NumRd(iVec1,iSym,iRedC,Mem)</Syntax>
-*     <Arguments>
-*       \Argument{iVec1}{First vector}{Integer}{in}
-*       \Argument{iSym}{Symmetry}{Integer}{in}
-*       \Argument{iRedC}{Reduced set in core (location 3);
-*                        0 (or -1) if unknown or undefined}
-*                {Integer}{in}
-*       \Argument{Mem}{Memory available for read}{Integer}{in}
-*     </Arguments>
-*     <Purpose>
-*        Return the number of Cholesky vectors that may be read
-*        into Mem words of memory.
-*     </Purpose>
-*     <Dependencies>
-*        The Cholesky procedure must have been successfully
-*        initialized (by Cho\_X\_Init).
-*     </Dependencies>
-*     <Author>Thomas Bondo Pedersen</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*        The count starts at vector iVec1 of symmetry iSym
-*        (this is needed since the vectors are stored in
-*        different reduces sets).
-*        On exit, Cho\_X\_NumRd is negative if some error has
-*        occurred (-1, -2, and -3 signify errors in input
-*        variables, -4 indicates an error in Cho\_X\_SetRed).
-*     </Description>
-*    </DOC>
-*
-************************************************************
 
 #include "implicit.fh"
 #include "cholesky.fh"

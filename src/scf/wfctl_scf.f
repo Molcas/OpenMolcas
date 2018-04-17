@@ -64,7 +64,7 @@
 *                                                                      *
 *     called from: SCF                                                 *
 *                                                                      *
-*     calls to: PrBeg,Aufbau,DMat,PMat,EneClc,SOIniH,LinSer,UpdFck,    *
+*     calls to: PrBeg,Aufbau,DMat,PMat,EneClc,SOIniH,UpdFck,           *
 *               TraFck,DIIS_x,DIIS_i,NewOrb,MODens,PrIte               *
 *               uses SubRoutines and Functions from Module cycbuf.f    *
 *               -cyclic buffer implementation                          *
@@ -370,12 +370,12 @@
          If (iOpt.ge.2 .OR.
      &      (iOpt.eq.1 .AND. DMOMax.lt.QNRTh .AND.  Iter_DIIS.ge.2))
      &      Then
-*define _TEST_OF_RS_RFO_
-#ifdef  _TEST_OF_RS_RFO_
-            iOpt=3
-#else
-            iOpt=2
-#endif
+            If (RSRFO) Then
+               iOpt=3
+               kOptim=2
+            Else
+               iOpt=2
+            End If
             If (QNR1st) Then
                kOptim=2
 *
@@ -523,7 +523,7 @@
             Call TraClc_x(kOptim,iOpt.eq.2,FrstDs,QNR1st,CInter,nCI,
      &                    nD,nOV,Lux,iter,memRsv,LLx)
 *
-            Call LinSer()
+            Call dGrd()
 *
 *---        Update the Fock Matrix from actual OneHam, Vxc & TwoHam
 *           AO basis
@@ -555,7 +555,7 @@
 *-------    compute new displacement vector delta
 *           dX(n) = -H(-1)*grd'(n), grd'(n): extrapolated gradient
 *
-            Call SOrUpV(MemRsv,Grd1,HDiag,nOV*nD,Disp,'DISP')
+            Call SOrUpV(MemRsv,Grd1,HDiag,nOV*nD,Disp,'DISP','BFGS')
 *
 *           from this, compute new orb rot parameter X(n+1)
 *
@@ -623,7 +623,7 @@
             Call TraClc_x(kOptim,iOpt.ge.2,FrstDs,QNR1st,CInter,nCI,
      &                    nD,nOV,Lux,iter,memRsv,LLx)
 *
-            Call LinSer()
+            Call dGrd()
 *
 *---        Update the Fock Matrix from actual OneHam, Vxc & TwoHam
 *           AO basis
@@ -649,8 +649,6 @@
 *           get last gradient grad(n) from LList
 *
             Call GetVec(LuGrd,iter,LLGrad,inode,Grd1,nOV*nD)
-            Call Abend()
-*...code is missing...
 #ifdef _DEBUG_
             Call RecPrt('Wfctl: g(n)',' ',Grd1,1,nOV*nD)
 #endif
@@ -658,19 +656,9 @@
 *           Call restricted-step rational function optimization procedure
 *           to compute dX(n)=Xn+1 - Xn
 *
-*           DEVELOPMENT IN PROGRESS
-*
             StepMax=0.3D0
-*define _DEBUG_SORUPV_
-#ifdef _DEBUG_SORUPV_
-            Call rs_rfo_scf(HDiag,Grd1,nOV*nD,Disp,AccCon(1:6),dqdq,
-     &                      dqHdq,StepMax,AccCon(9:9),MemRsv,iter)
-#else
             Call rs_rfo_scf(HDiag,Grd1,nOV*nD,Disp,AccCon(1:6),dqdq,
      &                      dqHdq,StepMax,AccCon(9:9),MemRsv)
-#endif
-*
-*           END OF DEVELOPMENT
 *
 *           store dX(n) vector from Disp to LList
 *

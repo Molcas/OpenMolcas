@@ -7,34 +7,40 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2015, Giovanni Li Manni                                *
 ************************************************************************
       SUBROUTINE Fill1elInt(Fock,nacpar,emy,DIAF,iter)
-*
-*     Purpose: generate 1-electron integral entries in FCIDUMP file (NECI).
-*              This should be working with Choleski as well.
+************************************************************************
+*                                                                      *
+* Purpose: generate 1-electron integral entries in FCIDUMP file (NECI).*
+*          This should be working with Choleski as well.               *
+*                                                                      *
+*     Author:    G. Li Manni, Max-Planck Institute January 2015        *
+*                                                                      *
+************************************************************************
 *
 #include "fciqmc_global.fh"
 #include "files_fciqmc.fh"
 #include "fciqmc.fh"
 #include "WrkSpc.fh"
-*
 *     Declaring explicitely the needed ones... I would like to get read of the IMPLICIT
       Real*8 Fock(nacpar), Fval,emy,emyn,DIAF(*)
       Real*8 CPT,CPE,TIOT,TIOE
       integer nacpar,i,k,iorb,jorb,nactel,ioff,icount,isym,ITER
       integer itotnbas,Dummy, iErr
-      logical okay
+      logical okay, Dbg
 *
       Call qEnter('Fill1elInt')
+      Dbg=.false.
 *
 *     Set time at start of transformation
       CALL SETTIM
-c          write(6,*) 'Fock elements'
-c          write(6,*)  (Fock(i),i=1,nacpar)
-c          CALL TRIPRT('Fock matrix in Fill1ElInt',
-c     &              ' ',Fock,NAC)
+      if(Dbg) then
+        CALL TRIPRT('Fock matrix in Fill1ElInt',' ',Fock,NAC)
+      end if
       Call Get_iScalar('nActel',nActEl)
-c      write(6,*) 'nActEl = ', nActEl
+      if(Dbg) write(6,*) 'nActEl = ', nActEl
 
       IF(NACTEL.NE.0) THEN
         EMYN= EMY/DBLE(NACTEL)
@@ -42,20 +48,23 @@ c      write(6,*) 'nActEl = ', nActEl
         EMYN = 0.0d0
       END IF
 
+      call Add_Info('Fock-elements',Fock,nacpar,8)
+
       do k = 1, nacpar
 * We are going to compute i and j from k=ij....
         iorb = ceiling(-0.5d0+sqrt(2.0d0*k))
         jorb = k - (iorb-1)*iorb/2
         Fval = Fock(k)
         if(iorb.eq.jorb) Fval = Fock(k)- EMYN
-          if(abs(Fval).ge.1.0d-11)then
-            write(LuFCI,'(1X,G20.11,4I5)')  Fval,iorb,jorb,0,0
-c            write(6,'(1X,G20.11,4I5)')     Fval,iorb,jorb,0,0
+        if(abs(Fval).ge.1.0d-11)then
+          write(LuFCI,'(1X,G20.11,4I5)')  Fval,iorb,jorb,0,0
+          if(Dbg)then
+             write(6,'(1X,G20.11,4I5)')   Fval,iorb,jorb,0,0
+          end if
         endif
       enddo
 
 c Orbital energies section ....
-c        write(6,*) 'Orbital energies... for iter:', iter
         IF(ITER.eq.1) then
 c read orbital energies from INPORB file
          call f_Inquire (FnInpOrb,okay)
@@ -73,6 +82,7 @@ c read orbital energies from INPORB file
           Call QTrace()
           Call Abend()
          End If
+
 c write orbital energies into FCIDUMP file
          ioff   = 0
          icount = 0
@@ -81,8 +91,10 @@ c write orbital energies into FCIDUMP file
             do i = 1,norb(isym)
              write(LuFCI,'(1X,G20.11,4I5)') WORK(ipEOrb+ioff+nfro(isym)+
      &                                    i-1),i+icount,0,0,0
-c             write(6,'(1X,G20.11,4I5)') WORK(ipEOrb+ioff+nfro(isym)+
-c     &                                    i-1),i+icount,0,0,0
+             if(Dbg)then
+               write(6,'(1X,G20.11,4I5)')   WORK(ipEOrb+ioff+nfro(isym)+
+     &                                    i-1),i+icount,0,0,0
+             endif
             enddo
            END IF
            ioff   = ioff + nbas(isym)
@@ -100,8 +112,10 @@ c orbital energies
             do i = 1,norb(isym)
              write(LuFCI,'(1X,G20.11,4I5)') DIAF(ioff+nfro(isym)+
      &                                   i),i+icount,0,0,0
-c             write(6,'(1X,G20.11,4I5)') DIAF(ioff+nfro(isym)+
-c     &                                   i),i+icount,0,0,0
+             if(Dbg)then
+                write(6,'(1X,G20.11,4I5)') DIAF(ioff+nfro(isym)+
+     &                                     i),i+icount,0,0,0
+             end if
             enddo
            END IF
            ioff   = ioff + nbas(isym)
@@ -111,9 +125,14 @@ c     &                                   i),i+icount,0,0,0
 c write core energy into FCIDMP file
 
 *     write the core energy to dump file ....
-c      write(6,*) 'Core energy...'
-c      write(6,'(1X,G20.11,4I5)') EMY,0,0,0,0
       write(LuFCI,'(1X,G20.11,4I5)') EMY,0,0,0,0
+
+      call Add_Info('core energy',EMY,1,8)
+
+      if(Dbg)then
+        write(6,*) 'Core energy...'
+        write(6,'(1X,G20.11,4I5)') EMY,0,0,0,0
+      end if
 
       CALL TIMING(CPT,CPE,TIOT,TIOE)
       If (iPrint.GE.5) WRITE(6,2200) CPT,TIOT

@@ -98,6 +98,7 @@ c                               !   should be calculated
       Logical page
       Logical fail              ! Calculation didnt converge
       Logical Timedep           ! Time-dependent calculation
+      Logical iMCPD             ! CAS-PDFT calculation
       Logical McKinley          ! Input read from McKinley
 c                               !    True if MCKINT exists
       Logical TwoPert           ! Not in use
@@ -140,7 +141,7 @@ c
      &               LuAChoVec,LuIChoVec,LuChoInt,
      &               iEndofinput,lmode,nmode,nfiles, imass
       Common/lInput/ Debug, ISOTOP, CASINT, Mckinley, Fail,
-     &               page,lcalc,TimeDep,PT2,
+     &               page,lcalc,TimeDep,iMCPD,PT2,
      &               SpinPol,elechess,save,
      &               TwoPert,BasCon, double, multi, mout,
      &               lmass, newCho

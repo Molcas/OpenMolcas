@@ -10,32 +10,23 @@
 *                                                                      *
 * Copyright (C) Chad E. Hoyer                                          *
 ************************************************************************
-      SUBROUTINE DQVDiabat(PROP)
-************************************************************
+*  DQVDiabat
 *
-*   <DOC>
-*     <Name>DQVDiabat</Name>
-*     <Syntax>Call DQVDiabat(PROP)</Syntax>
-*     <Arguments>
-*       \Argument{PROP}{Properties computed in RASSI}
-*          {Real*8 array}{in}
-*     </Arguments>
-*     <Purpose> Compute diabats with DQV</Purpose>
-*     <Dependencies>RASSI</Dependencies>
-*     <Author>C. E. Hoyer (CEH)</Author>
-*     <Modified_by>C.E. Hoyer</Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*        This subroutine takes in properties that have been
-*       computed by RASSI and uses them to compute diabatic
-*       states and thus diabatic energies and couplings.
-*       Currently, the user must compute x, y, z, xx,
-*       yy, zz, and 1/r, and they must be computed in that
-*       order.
-*     </Description>
-*    </DOC>
-*
-************************************************************
+*> @brief
+*>   Compute diabats with DQV
+*> @author C. E. Hoyer
+*>
+*> @details
+*> This subroutine takes in properties that have been
+*> computed by RASSI and uses them to compute diabatic
+*> states and thus diabatic energies and couplings.
+*> Currently, the user must compute x, y, z, xx,
+*> yy, zz, and 1/r, and they must be computed in that
+*> order.
+*>
+*> @param[in] PROP Properties computed in RASSI
+************************************************************************
+      SUBROUTINE DQVDiabat(PROP,HAM)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -57,6 +48,7 @@
       REAL*8 HDIA(NSTATE,NSTATE)
       REAL*8 HDIAI(NSTATE,NSTATE)
       REAL*8 HAMT(NSTATE,NSTATE)
+      REAL*8 HAM(NSTATE,NSTATE)
 
 *  These are the blocks of parameters
       INTEGER, PARAMETER :: MAX=50

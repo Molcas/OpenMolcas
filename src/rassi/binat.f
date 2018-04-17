@@ -26,18 +26,20 @@
       INTEGER IJPAIR, KEIG_BRA, KEIG_KET, LSYM_BRA
       INTEGER LSYM_KET, LSYM12, IDISK, IV, IE, ITD, IRC, ISYM
       INTEGER ISYM1, ISYM2, NB, NB1, NB2, LV2, LE2, ITD1, ITD2
-      INTEGER ISV, LB, LK, NBMIN
+      INTEGER ISV, LB, LK, NBMIN, ibra,jket
       INTEGER LUNIT, ISFREEUNIT, IDUMMY
-      REAL*8  SSEL, SWAP, SEV, X, DUMMY
-      CHARACTER*4  KNUM
-      CHARACTER*9  TXT
-      CHARACTER*10 FNAME
+      REAL*8  SSEL, SWAP, SEV, X, DUMMY, SUMSNG, DDOT_
+      CHARACTER*16 KNUM
+      CHARACTER*8  BNUM
+      CHARACTER*21 TXT
+      CHARACTER*24 FNAME
 
 C Tables of starting locations, created and used later
       DIMENSION IOFF_VEC(8),IOFF_SEV(8),IOFF_TDM(8),IOFF_ISV(8)
       DIMENSION IDUMMY(2),DUMMY(2)
 
       EXTERNAL ISFREEUNIT
+      EXTERNAL DDOT_
 
       Call qEnter('BINAT')
 C Nr of basis functions, total
@@ -154,12 +156,12 @@ C The BRA and KET binatural orbitals:
 
 C A long loop over eigenstate pairs:
       DO IJPAIR=1,NBINA
-C Requested state pairs for computation:
+C Requested state pairs for computation: (OBSOLETE)
        KEIG_BRA=IBINA(1,IJPAIR)
        KEIG_KET=IBINA(2,IJPAIR)
 C Get symmetries, via jobiph number for the states:
-       LSYM_BRA=IRREP(JBNUM(KEIG_BRA))
-       LSYM_KET=IRREP(JBNUM(KEIG_KET))
+       LSYM_BRA=IRREP(iWork(lJBNUM+KEIG_BRA-1))
+       LSYM_KET=IRREP(iWork(lJBNUM+KEIG_KET-1))
 C Combined symmetry:
        LSYM12=MUL(LSYM_BRA,LSYM_KET)
 C For relating left and right symmetry blocks, offset tables are
@@ -176,18 +178,20 @@ C needed for the singular values and for the TDM.
        CALL DCOPY_(NBSQ,0.0D0,0,WORK(LTDMAT),1)
 C DOUBLE LOOP OVER RASSCF WAVE FUNCTIONS
        DO I=1,NSTATE
-        IF (IRREP(JBNUM(I)).NE.LSYM_BRA) GOTO 92
+        IF (IRREP(iWork(lJBNUM+I-1)).NE.LSYM_BRA) GOTO 92
         DO J=1,NSTATE
-         IF (IRREP(JBNUM(J)).NE.LSYM_KET) GOTO 91
+         IF (IRREP(iWork(lJBNUM+J-1)).NE.LSYM_KET) GOTO 91
 C PICK UP TRANSITION DENSITY MATRIX FOR THIS PAIR OF RASSCF STATES:
 C WEIGHT WITH WHICH THEY CONTRIBUTE IS EIGVEC(I,KEIG_BRA)*EIGVEC(J,KEIG_KET).
-         X=EIGVEC(I,KEIG_BRA)*EIGVEC(J,KEIG_KET)
+         ibra=(i-1)*nstate+KEIG_BRA-1
+         jket=(j-1)*nstate+KEIG_KET-1
+         X=Work(LEIGVEC+ibra)*Work(LEIGVEC+jket)
          IF (I.GT.J) THEN
-           IDISK=IDTDM(I,J)
+           IDISK=iWork(lIDTDM+(I-1)*NSTATE+J-1)
            CALL DDAFILE(LUTDM,2,WORK(LTDMAO),NBSQ,IDISK)
          ELSE
 C Pick up conjugate TDM array, and transpose it into TDMAO.
-           IDISK=IDTDM(J,I)
+           IDISK=iWork(lIDTDM+(J-1)*NSTATE+I-1)
            CALL DDAFILE(LUTDM,2,WORK(LSCR),NBSQ,IDISK)
 C Loop over the receiving side:
            DO ISYM1=1,NSYM
@@ -276,11 +280,9 @@ C Move the singular values into their proper places:
        END DO
 
 C WRITE OUT THIS SET OF BI-NATURAL ORBITALS. THE FILES WILL BE NAMED
-C BRAORB0x0y, where x,y are KEIG_BRA and KEIG_KET, and KETORB0x0y,
-C similarly. Later, when there is GV support for binatural orbital
-C pairs, there will be one single orbital file.
-C Using separate conventional files, the singular values will be
-C written as ''occupation numbers''.
+C BIORB.x_y, where x,y are KEIG_BRA and KEIG_KET.
+C The BRA and KET orbitals will be written as alpha and beta, respectively,
+C and the singular values will be written as "occupation numbers".
 
         WRITE(6,*)' Binatural singular values for the transition from'
         WRITE(6,*)' ket eigenstate KEIG_KET to bra eigenstate KEIG_BRA'
@@ -294,35 +296,31 @@ C written as ''occupation numbers''.
           ENDIF
         END DO
 
-        WRITE(6,*)' Presently, GV lacks support for viewing binatural'
-        WRITE(6,*)' pairs of orbitals from a single orbital files.'
-        WRITE(6,*)' For the moment, two individual files are produced:'
-        WRITE(KNUM,'(I2.2,I2.2)') KEIG_BRA,KEIG_KET
-        TXT=KNUM(1:2)//' <-- '//KNUM(3:4)
+        WRITE(BNUM,'(I8)') KEIG_BRA
+        BNUM=ADJUSTL(BNUM)
+        WRITE(KNUM,'(I8)') KEIG_KET
+        KNUM=ADJUSTL(KNUM)
+        TXT=TRIM(BNUM)//' <-- '//TRIM(KNUM)
+        KNUM=TRIM(BNUM)//'_'//TRIM(KNUM)
 
-        FNAME='BRAORB'//KNUM
-        WRITE(6,*)' File ',FNAME,' with the left singular orbitals,'
+        FNAME='BIORB.'//KNUM
+        WRITE(6,'(A,A)')' Orbitals are written onto file id = ',FNAME
         LUNIT=50
         LUNIT=ISFREEUNIT(LUNIT)
-        CALL WRVEC(FNAME,LUNIT,'CO',NSYM,NBASF,NBASF,
-     &     WORK(LBRABNO),WORK(LSNGV1), DUMMY, IDUMMY,
-     &     '* Left singular orbitals from transition '//TXT )
+        CALL WRVEC_(FNAME,LUNIT,'CO',1,NSYM,NBASF,NBASF,
+     &     WORK(LBRABNO),WORK(LKETBNO),WORK(LSNGV1),WORK(LSNGV2),
+     &     DUMMY, DUMMY, IDUMMY,
+     &     '* Binatural orbitals from transition '//TRIM(TXT), 0 )
         CLOSE(LUNIT)
+        SUMSNG=DDOT_(NBASF,WORK(LSNGV1),1,WORK(LSNGV2),1)
+        CALL ADD_INFO("BINAT",SUMSNG,1,5)
 
-        FNAME='KETORB'//KNUM
-        WRITE(6,*)' and ',FNAME,' with the right singular orbitals.'
-        LUNIT=50
-        LUNIT=ISFREEUNIT(LUNIT)
-        CALL WRVEC(FNAME,LUNIT,'CO',NSYM,NBASF,NBASF,
-     &     WORK(LKETBNO),WORK(LSNGV2), DUMMY, IDUMMY,
-     &     '* Right singular orbitals from transition '//TXT )
-        CLOSE(LUNIT)
 C End of very long loop over eigenstate pairs.
       END DO
 
       WRITE(6,*)('*',I=1,80)
       CALL GETMEM('ONBAS','FREE','REAL',LONBAS,NBSQ)
-      CALL GETMEM('SEV   ','FREE','REAL',LSEV,NBST)
+      CALL GETMEM('SEV','FREE','REAL',LSEV,NBST)
       CALL GETMEM('SCR','FREE','REAL',LSCR,NBSQ)
       CALL GETMEM('UMAT','FREE','REAL',LUMAT,NBMX**2)
       CALL GETMEM('VTMAT','FREE','REAL',LVTMAT,NBMX**2)

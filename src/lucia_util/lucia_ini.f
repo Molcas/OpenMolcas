@@ -251,6 +251,7 @@ C ============================================================
 *
 C ===========
 C HEXS - Highly excited states
+C DEXS - Doubly excited states
 C ===========
       I_ELIMINATE_GAS = I_ELIMINATE_GAS_MOLCAS
       N_ELIMINATED_GAS = N_ELIMINATED_GAS_MOLCAS

@@ -5,23 +5,23 @@
 * Symmetry: c1
 * Features tested: SEWARD(RICD),SCF,MBPT2(FC),ALASKA(ANALYTICAL)
 * Responsible person: Victor P. Vysotskiy & R. Lindh
-* Comments: SP calculation of analytical gradients at the MBPT2(FC)/ANO-L-VTZP 
-*           level of theory. 
+* Comments: SP calculation of analytical gradients at the MBPT2(FC)/ANO-L-VTZP
+*           level of theory.
 *-------------------------------------------------------------------------------
  &Gateway; Title= Water, ANO-L-VTZP basis set
 Coord
 3
 
-H   0.75721767     0.00000000    -0.45518577 
-H  -0.75721767     0.00000000    -0.45518577 
-O   0.00000000     0.00000000     0.13468836 
+H   0.75721767     0.00000000    -0.45518577
+H  -0.75721767     0.00000000    -0.45518577
+O   0.00000000     0.00000000     0.13468836
 Basis= ANO-L-VTZP
 Group=noSym
 RICD
 
 >>> Do While
 *-------------------------------------------------------------------------------
- &SEWARD 
+ &SEWARD
 *-------------------------------------------------------------------------------
  &SCF; Title= Water, ANO-L-VTZP basis set
      ITERATIONS= 20, 20

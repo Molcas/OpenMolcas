@@ -54,6 +54,8 @@
       Real*8       Random_molcas
       External     Random_molcas
 
+      Call Init_LinAlg
+      Call PrgmInit('TestRF')
       Call NameRun('RUNFILE')
       UseOld=.false.
       If(UseOld) GoTo 500

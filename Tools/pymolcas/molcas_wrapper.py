@@ -16,11 +16,11 @@
 from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 from os import environ, access, W_OK, X_OK, listdir, remove, getpid, getcwd, makedirs, symlink, devnull
-from os.path import isfile, isdir, isabs, join, basename, splitext, getmtime, abspath, exists
+from os.path import isfile, isdir, isabs, join, basename, splitext, getmtime, abspath, exists, relpath, realpath
 from datetime import datetime
-from shutil import copy2, move, rmtree
-from subprocess import call, check_output, STDOUT
-from re import compile as re_compile, match, search, sub, MULTILINE, IGNORECASE
+from shutil import copy2, move, rmtree, SameFileError
+from subprocess import check_output, STDOUT, CalledProcessError
+from re import compile as re_compile, search, sub, MULTILINE, IGNORECASE
 from io import BytesIO
 from resource import getrusage, RUSAGE_CHILDREN
 from glob import glob
@@ -33,13 +33,14 @@ from tee import teed_call
 from emil_parse import EMIL_Parse, EMILException
 from python_parse import Python_Parse
 from molcas_aux import *
+from check_test import *
 
 hcbanner = '''#
       &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
       &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
       &&&                                                      &&&
       &&&                                                      &&&
-      &&&      MOLCAS source code or broken installation       &&&
+      &&&    OpenMolcas source code or broken installation     &&&
       &&&                                                      &&&
       &&&                                                      &&&
       &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -80,7 +81,7 @@ class MolcasException(Exception):
 
 class Molcas_wrapper(object):
 
-  version = 'py1.0'
+  version = 'py1.10'
   rc = 0
 
   def __init__(self, **kwargs):
@@ -90,6 +91,11 @@ class Molcas_wrapper(object):
       raise MolcasException('"MOLCAS" is not defined')
     if (not isfile(join(self.molcas, '.molcashome'))):
       raise MolcasException('"{0}" is not a valid MOLCAS installation'.format(self.molcas))
+    # Get location of sources (other than MOLCAS)
+    self.sources = []
+    self.sources.append(abspath(get_utf8('OPENMOLCAS_SOURCE', default='')))
+    self.sources.append(abspath(get_utf8('MOLCAS_SOURCE', default='')))
+    self.sources = [i for i in self.sources if (i != '' and i != self.molcas)]
     # Some settings
     self.allow_shell = True
     self.echo = True
@@ -104,6 +110,7 @@ class Molcas_wrapper(object):
       self.warning = kwargs['warning']
     if ('stamp' in kwargs):
       self.stamp = kwargs['stamp']
+    self.licensee = None
     self.rc = None
     self._ready = False
     self._goto = False
@@ -223,7 +230,10 @@ class Molcas_wrapper(object):
     set_utf8('EMIL_RC2', '0')
     set_utf8('EMIL_InLoop', '0')
     set_utf8('MOLCAS_STRUCTURE', '0')
-    set_utf8('MOLCAS_STAMP', '5')
+    if (self.check_license() == 0):
+      set_utf8('MOLCAS_STAMP', '5')
+    else:
+      set_utf8('MOLCAS_STAMP', 'UNKNOWN_VARIABLE')
     # Get current directory
     self.currdir = getcwd()
     set_utf8('CurrDir', self.currdir)
@@ -356,16 +366,17 @@ class Molcas_wrapper(object):
     if ((tag_x != '') and (tag == '(unknown)')):
       tag = tag_x
       tag_x = ''
-    v_match = match('v(\d+\.\d+)\.(.*)', tag)
-    if (v_match):
-      version = v_match.group(1)
-      patch = v_match.group(2)
+    v_match = re_compile('v(\d+\.\d+)\.(.*)')
+    match = v_match.match(tag)
+    if (match):
+      version = match.group(1)
+      patch = match.group(2)
     else:
       version = tag
       patch = ''
-    v_match = match('v(\d+\.\d+)\.(.*)', tag_x)
-    if (v_match):
-      patch_x = v_match.group(2)
+    match = v_match.match(tag_x)
+    if (match):
+      patch_x = match.group(2)
     else:
       patch_x = ''
       with utf8_open(join(self.molcas, '.molcashome')) as homefile:
@@ -385,7 +396,10 @@ class Molcas_wrapper(object):
         banner = patch_re.sub(s, banner)
     banner = sub(r'\$V\$', version, banner)
     banner = sub(r'\$P\$', patch, banner)
-    banner = sub(r'\$Px\$', patch_x, banner)
+    if (patch_x):
+      banner = sub(r'\$Px\$', patch_x, banner)
+    else:
+      banner = sub(r'.*\$Px\$.*\n', patch_x, banner)
     # Christmas tree between Dec. 18th and Jan. 8th
     # (disabled)
     #if ((date.month == 12 and date.day > 17) or
@@ -544,7 +558,8 @@ class Molcas_wrapper(object):
     molcas_env = {k:get_utf8(k) for k in environ.keys() if k.startswith('MOLCAS')}
     # Write the molcas.env file
     fmt = '{0}={1}'
-    with utf8_open(join(self.scratch, 'molcas.env'), 'w') as env:
+    env_file = join(self.scratch, 'molcas.env')
+    with utf8_open(env_file, 'w') as env:
       print('# this is a generated file! do not edit.', file=env)
       print(fmt.format('WorkDir', self.scratch), file=env)
       print(fmt.format('Project', self.project), file=env)
@@ -552,8 +567,7 @@ class Molcas_wrapper(object):
       print(fmt.format('GeoDir', get_utf8('GeoDir', '')), file=env)
       for key in sorted(molcas_env.keys()):
         print(fmt.format(key, molcas_env[key]), file=env)
-    if (not self.is_serial):
-      self.parallel_task(['c', '1', 'molcas.env', self.scratch])
+    self.parallel_task(['c', '1', env_file, self.scratch])
 
   def show_environment(self):
     molcas_env = {k:get_utf8(k) for k in environ.keys() if k.startswith('MOLCAS')}
@@ -607,7 +621,9 @@ class Molcas_wrapper(object):
   def startup(self):
     if (self._ready):
       self.write_environment()
-      print('   This copy of MOLCAS is not supported')
+      print('   This run of MOLCAS is using the pymolcas driver')
+      if (self.licensee):
+        print('   Licensed to: {0}'.format(self.licensee))
       self.print_banner()
       print('\n')
       if (hasattr(self, 'warning') and self.warning):
@@ -618,6 +634,13 @@ class Molcas_wrapper(object):
 
   def end(self):
     if (hasattr(self, 'rc')):
+      # In case of error in parallel, collect the "stdout" files from the slaves,
+      # since they may have important information (create an empty "stdout" file
+      # to avoid further errors)
+      if ((self.rc_to_name(self.rc) == '_RC_INTERNAL_ERROR_') and not self.is_serial):
+        f = 'stdout'
+        open(join(self.scratch, f), 'a').close()
+        self.parallel_task(['c', '2', f, self.currdir], force=True)
       rc_form = re_compile('rc={0}(\s.*)'.format(self.rc_num))
       try:
         with utf8_open(join(self.molcas, 'data', 'landing.txt'), 'r') as l:
@@ -626,7 +649,7 @@ class Molcas_wrapper(object):
             if match:
               print(match.group(1))
       except:
-        pass
+        print('')
       if (self.rc_num == -1):
         print('\nAborting...')
     if (self._resources != (0,0,0)):
@@ -657,7 +680,7 @@ class Molcas_wrapper(object):
     nprocs = int(get_utf8('MOLCAS_NPROCS', default='1'))
     return ((serial == 'YES') or (nprocs == 1))
 
-  def wrap_command(self, executable, may_be_serial=True):
+  def wrap_command(self, executable, may_be_serial=True, may_debug=True):
     '''
     Wrap the specified command as appropriate.
     If may_be_serial=False, never uses RUNBINARYSER.
@@ -665,7 +688,10 @@ class Molcas_wrapper(object):
     '''
     nprocs = int(get_utf8('MOLCAS_NPROCS', default='1'))
     set_utf8('MOLCAS_NPROCS', nprocs)
-    debugger = get_utf8('MOLCAS_DEBUGGER')
+    if (may_debug):
+      debugger = get_utf8('MOLCAS_DEBUGGER')
+    else:
+      debugger = ''
     if (debugger):
       command = '{0} $program'.format(debugger)
     elif (may_be_serial and self.is_serial):
@@ -729,57 +755,102 @@ class Molcas_wrapper(object):
     return self.rc
 
   def _run_check(self):
+    '''
+    Run the check command for verification.
+    Give preference to the compiled "CHECK" program, but use a python method if not available.
+    '''
     check = get_utf8('MOLCAS_TEST', default='').lower()
     if ((check == 'check') or (check=='gene')):
       set_utf8('MOLCAS_CURRENT_PROGRAM', 'check')
       self._check_count += 1
       self.write_environment()
       check_input = 'check {0}'.format(self._check_count)
-      self._current_module = Molcas_module(self, 'check', check_input)
-      rc = self._current_module.run()
+      try:
+        self._current_module = Molcas_module(self, 'check', check_input)
+        rc = self._current_module.run()
+        if (rc == '_RC_NOT_AVAILABLE_'):
+          raise Exception
+      except:
+        rc = check_test(join(self.scratch, 'molcas_info'), join(self.scratch, 'checkfile'), self._check_count)
       if (self.rc_to_name(rc) != '_RC_ALL_IS_WELL_'):
         self.rc = rc
-    info_file = join(self.scratch, 'molcas_info')
-    if (exists(info_file)):
-      remove(info_file)
+    self.parallel_task(['x', 'molcas_info'], force=True)
 
-  def parallel_task(self, task):
+  #TODO: buffer parnell calls
+  def parallel_task(self, task, force=False):
+    task_type = task[0][0]
+    # same replacements for parnell calls in the serial case,
+    # if no replacement is available, parnell will be used
+    if (self.is_serial):
+      # copy files: should also work if the destination is a dir
+      if (task_type == 'c'):
+        orig = task[2]
+        if (not isabs(orig)):
+          orig = join(self.scratch, orig)
+        dest = task[3]
+        if (not isabs(dest)):
+          dest = join(self.scratch, dest)
+        try:
+          copy2(orig, dest)
+        except SameFileError:
+          pass
+        except FileNotFoundError:
+          if (not force):
+            print('Error: file "{0}" not found'.format(orig))
+          return -1
+        return 0
+      # remove files: the list is colon-separated, and based on the scratch dir
+      if (task_type == 'x'):
+        rc = 0
+        for i in task[1].split(':'):
+          try:
+            orig = join(self.scratch, i)
+            remove(orig)
+          except FileNotFoundError:
+            if (not force):
+              print('Error: file "{0}" not found'.format(orig))
+            rc -= 1
+        return rc
     output = BytesIO()
     error = BytesIO()
-    if (task[0][0] == 'b'):
+    if (task_type == 'b'):
       # No working directory for "base"
       cwd = None
     else:
       cwd = self.scratch
-    parnell = self.wrap_command(self.parnell, may_be_serial=False)
+    parnell = self.wrap_command(self.parnell, may_be_serial=False, may_debug=False)
     rc = teed_call(parnell + task, cwd=cwd, stdout=output, stderr=error)
     return rc
 
   def delete_scratch(self, force=False):
     #TODO: use parnell
     if (self._ready or force):
-      # WorkDir may be a link and not a real directory, so remove its contents
-      try:
-        filelist = listdir(self.scratch)
-      except:
-        filelist = []
-      for i in [join(self.scratch, x) for x in filelist]:
-        if (isdir(i)):
-          rmtree(i)
-        else:
-          remove(i)
-      line = '*** WorkDir at {0} cleaned ***'.format(self.scratch)
+      if (realpath(self.scratch) == realpath(self.currdir)):
+        line = '*** WorkDir and CurrDir are the same, not cleaned! ***'
+      else:
+        # WorkDir may be a link and not a real directory, so remove its contents
+        try:
+          filelist = listdir(self.scratch)
+        except:
+          filelist = []
+        for i in [join(self.scratch, x) for x in filelist]:
+          if (isdir(i)):
+            rmtree(i)
+          else:
+            remove(i)
+        line = '*** WorkDir at {0} cleaned ***'.format(self.scratch)
       print('*'*len(line))
       print(line)
       print('*'*len(line))
 
   def in_sbin(self, prog):
     '''Return the path of a program in sbin if it exists'''
-    filename = join(self.molcas, 'sbin', prog)
-    if (isfile(filename) and access(filename, X_OK)):
-      return filename
-    else:
-      return False
+    if (prog == basename(prog)):
+      for path in [self.molcas] + self.sources:
+        filename = join(path, 'sbin', prog)
+        if (isfile(filename) and access(filename, X_OK)):
+          return filename
+    return False
 
   def run_sbin(self, command):
     '''Run a program from the sbin directory if it exists'''
@@ -811,9 +882,17 @@ class Molcas_wrapper(object):
     '''Use molcas.exe to check the license'''
     filename = join(self.molcas, 'bin', 'molcas.exe')
     if (isfile(filename) and access(filename, X_OK)):
-      with utf8_open(devnull, 'w') as f:
-        rc = call(filename, stdout=f, stderr=STDOUT)
-      return rc-1
+      try:
+        out = check_output(filename, stderr=STDOUT).decode('utf8')
+        rc = 0
+      except CalledProcessError as e:
+        out = e.output.decode('utf8')
+        rc = e.returncode-1
+      # Capture the licensee
+      match = search(r'This copy of MOLCAS is licensed to\s*(.*)\n', out)
+      if (match):
+        self.licensee = match.group(1)
+      return rc
     else:
       return None
 
@@ -955,15 +1034,14 @@ class Molcas_module(object):
       print('End of input', file=i_f)
     input_file = self.name.upper()[:5] + 'INP'
     if (input_file in self._files):
-      copy2(stdin, self._files[input_file][0])
-    if (not self.parent.is_serial):
-      self.parent.parallel_task(['c', '1', 'stdin', self.parent.scratch])
+      self.parent.parallel_task(['c', '1', stdin, self._files[input_file][0]], force=True)
+    self.parent.parallel_task(['c', '1', stdin, self.parent.scratch], force=True)
 
   # Private method to read the return code from the $WorkDir
   def _read_rc(self):
     rc_local = join(self.parent.scratch, 'rc.local')
     rc_global = join(self.parent.scratch, 'rc.global')
-    self.parent.parallel_task(['c', '4', rc_local, rc_global])
+    self.parent.parallel_task(['c', '4', rc_local, rc_global], force=True)
     with utf8_open(rc_global, 'r') as rc_f:
       self.rc = int(rc_f.read())
 
@@ -971,7 +1049,6 @@ class Molcas_module(object):
     prgm_file = join(self.parent.scratch, 'extra.prgm')
     if (exists(prgm_file)):
       self._files.update(parse_prgm(prgm_file)[1])
-      remove(prgm_file)
 
   def _copy_files(self):
     self._read_extra_prgm();
@@ -991,6 +1068,7 @@ class Molcas_module(object):
 
   def _copy_or_move(self, action, dest, filelist):
     #TODO: use parnell
+    #TODO: support the '.' attribute
     files = []
     for name, path in filelist:
       if '*' in self._files[name][1]:
@@ -1025,17 +1103,19 @@ class Molcas_module(object):
     return files
 
   def _delete_files(self):
-    #TODO: use parnell
     files_to_delete = [(k,v[0]) for (k,v) in self._files.items() if 'p' in v[1]]
+    rmlist = ['extra.prgm']
     for name, path in files_to_delete:
       if '*' in self._files[name][1]:
         path += '*'
       for i in glob(path):
-        remove(i)
+        rmlist.append(relpath(i, self.parent.scratch))
     for i in glob(join(self.parent.scratch, 'purge*')):
-      remove(i)
+      rmlist.append(relpath(i, self.parent.scratch))
     for i in self._links:
-      remove(i)
+      rmlist.append(relpath(i, self.parent.scratch))
+    if (len(rmlist) > 0):
+      self.parent.parallel_task(['x', ':'.join(rmlist)], force=True)
 
   def _make_links(self):
     if (self.name == 'check'):
@@ -1056,6 +1136,7 @@ class Molcas_module(object):
       for orbfile in orblist:
         if (exists(orbfile)):
           symlink(orbfile, inporb)
+          self.parent.parallel_task(['c', '1', inporb, self.parent.scratch], force=True)
           self._links.append(inporb)
           print('*** symbolic link created: INPORB -> {0}'.format(basename(orbfile)))
           break
@@ -1068,16 +1149,15 @@ class Molcas_module(object):
     self._write_input(self.module_input)
 
     if (self.name == 'gateway'):
-      runfiles = [join(self.parent.scratch, 'RUNFILE')]
+      runfiles = ['RUNFILE']
       if ('RUNFILE' in self._files):
-        runfiles.append(self._files['RUNFILE'][0])
-      for i in runfiles:
-        if (isfile(i)):
-          remove(i)
+        runfiles.append(relpath(self._files['RUNFILE'][0], self.parent.scratch))
+      self.parent.parallel_task(['x', ':'.join(runfiles)], force=True)
     elif (self.name == 'loop'):
       set_utf8('MOLCAS_REDUCE_PRT', 'NO')
 
     command = self.parent.wrap_command(self._exec[0])
+    no_tee=(get_utf8('MOLCAS_DEBUGGER') is not None)
 
     self._output = BytesIO()
     self._error = BytesIO()
@@ -1087,7 +1167,7 @@ class Molcas_module(object):
     self._rstart = getrusage(RUSAGE_CHILDREN)
     self.parent.run_logue('module.prologue')
     if (isfile(self._exec[0]) and access(self._exec[0], X_OK)):
-      teed_call(command, cwd=self.parent.scratch, stdout=self._output, stderr=self._error)
+      teed_call(command, cwd=self.parent.scratch, stdout=self._output, stderr=self._error, no_tee=no_tee)
       self._read_rc()
     else:
       self.rc = '_RC_NOT_AVAILABLE_'

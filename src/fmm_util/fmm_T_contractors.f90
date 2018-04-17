@@ -95,45 +95,6 @@ CONTAINS
 
 !-------------------------------------------------------------------------------
 
-   SUBROUTINE fmm_select_T_con(scheme)
-
-      IMPLICIT NONE
-      TYPE(scheme_paras), INTENT(IN) :: scheme
-      INTEGER(INTK) :: T_con_ID
-      EXTERNAL fmm_store_t_contractor
-
-      IF (scheme%phase == NEAR_FIELD) THEN
-         T_con_ID = scheme%T_con%NF_id
-      ELSE
-         T_con_ID = scheme%T_con%FF_id
-      END IF
-
-      SELECT CASE (T_con_ID)
-         CASE (T_CONTRACTOR_DIRECT)
-            CALL fmm_store_t_contractor(fmm_T_con_DIRECT)
-         CASE (T_CONTRACTOR_BOUNDARY)
-            CALL fmm_store_t_contractor(fmm_T_con_BOUNDARY)
-         CASE (T_CONTRACTOR_TREE)
-            CALL fmm_store_t_contractor(fmm_T_con_TREE)
-         CASE (T_CONTRACTOR_SCALE_TREE)
-            CALL fmm_store_t_contractor(fmm_T_con_SCALE_TREE)
-         CASE (T_CONTRACTOR_SCALE)
-            CALL fmm_store_t_contractor(fmm_T_con_SCALE)
-         CASE (T_CONTRACTOR_MULTI)
-            CALL fmm_store_t_contractor(fmm_T_con_MULTI)
-         CASE (T_CONTRACTOR_FULL)
-            CALL fmm_store_t_contractor(fmm_T_con_FULL)
-         CASE DEFAULT
-            CALL fmm_quit ('invalid T_contractor requested!')
-      END SELECT
-      ! initialise diagnostics
-      T_con_stat = 'initialised'
-      fmm_lock_T_con = .FALSE.
-
-   END SUBROUTINE fmm_select_T_con
-
-!-------------------------------------------------------------------------------
-
    SUBROUTINE fmm_set_T_con_ptrs(Vff,qlm)
 
       IMPLICIT NONE
@@ -518,6 +479,45 @@ CONTAINS
       Vff_ptr(:hi,iLHS) = Vff_ptr(:hi,iLHS) + Vff_tmp(:hi)
 
    END SUBROUTINE fmm_T_con_FULL
+
+!-------------------------------------------------------------------------------
+
+   SUBROUTINE fmm_select_T_con(scheme)
+
+      IMPLICIT NONE
+      TYPE(scheme_paras), INTENT(IN) :: scheme
+      INTEGER(INTK) :: T_con_ID
+      EXTERNAL fmm_store_t_contractor
+
+      IF (scheme%phase == NEAR_FIELD) THEN
+         T_con_ID = scheme%T_con%NF_id
+      ELSE
+         T_con_ID = scheme%T_con%FF_id
+      END IF
+
+      SELECT CASE (T_con_ID)
+         CASE (T_CONTRACTOR_DIRECT)
+            CALL fmm_store_t_contractor(fmm_T_con_DIRECT)
+         CASE (T_CONTRACTOR_BOUNDARY)
+            CALL fmm_store_t_contractor(fmm_T_con_BOUNDARY)
+         CASE (T_CONTRACTOR_TREE)
+            CALL fmm_store_t_contractor(fmm_T_con_TREE)
+         CASE (T_CONTRACTOR_SCALE_TREE)
+            CALL fmm_store_t_contractor(fmm_T_con_SCALE_TREE)
+         CASE (T_CONTRACTOR_SCALE)
+            CALL fmm_store_t_contractor(fmm_T_con_SCALE)
+         CASE (T_CONTRACTOR_MULTI)
+            CALL fmm_store_t_contractor(fmm_T_con_MULTI)
+         CASE (T_CONTRACTOR_FULL)
+            CALL fmm_store_t_contractor(fmm_T_con_FULL)
+         CASE DEFAULT
+            CALL fmm_quit ('invalid T_contractor requested!')
+      END SELECT
+      ! initialise diagnostics
+      T_con_stat = 'initialised'
+      fmm_lock_T_con = .FALSE.
+
+   END SUBROUTINE fmm_select_T_con
 
 !-------------------------------------------------------------------------------
 

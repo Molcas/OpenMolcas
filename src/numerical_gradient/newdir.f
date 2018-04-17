@@ -39,10 +39,12 @@
           Integer(Kind=MOLCAS_C_INT) :: c_rmrf
           Character(Kind=c_char) :: path(*)
         End Function c_rmrf
+#ifdef _HAVE_EXTRA_
         Subroutine c_setsubdir(sub) bind(C,name="setsubdir")
           Use iso_c_binding
           Character(Kind=c_char) :: sub(*)
         End Subroutine c_setsubdir
+#endif
       End Interface
       Character(Len=1024) :: Sub, OldWorkDir, NewWorkDir
 
@@ -90,6 +92,7 @@
         If (Present(err)) err = loc_err
       End Subroutine f_rmrf
 
+#ifdef _HAVE_EXTRA_
       Subroutine f_setsubdir(sub)
         Use iso_c_binding
         Implicit None
@@ -100,5 +103,17 @@
           Call c_setsubdir('/'//Trim(sub)//c_null_char)
         End If
       End Subroutine f_setsubdir
+#else
+      Subroutine f_setsubdir(sub)
+        Use Prgm
+        Implicit None
+        Character(*) :: sub
+        If (Trim(sub).eq.'') Then
+          Call SetSubDir('')
+        Else
+          Call SetSubDir('/'//Trim(sub))
+        End If
+      End Subroutine f_setsubdir
+#endif
 
       End Module NewDir

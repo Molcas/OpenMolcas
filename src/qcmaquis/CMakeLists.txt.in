@@ -1,0 +1,138 @@
+#***********************************************************************
+# This file is part of OpenMolcas.                                     *
+#                                                                      *
+# OpenMolcas is free software; you can redistribute it and/or modify   *
+# it under the terms of the GNU Lesser General Public License, v. 2.1. *
+# OpenMolcas is distributed in the hope that it will be useful, but it *
+# is provided "as is" and without any express or implied warranties.   *
+# For more details see the full text of the license in the file        *
+# LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#                                                                      *
+# Copyright (C) 2017, Stefan Knecht                                    *
+#***********************************************************************
+#                                                                      *
+#***********************************************************************
+# CMakeLists.txt for QCMaquis                                          *
+#***********************************************************************
+
+# load External Project macro
+include(ExternalProject)
+# Set up compilation of QCMaquis components
+set(CUSTOM_QCMaquis_LOCATION ${PROJECT_BINARY_DIR}/External/qcmaquis-full)
+
+# QCMaquis does not know profile
+if(CMAKE_BUILD_TYPE MATCHES "profile")
+  set(QCM_BUILD_TYPE "release")
+else()
+  set(QCM_BUILD_TYPE ${CMAKE_BUILD_TYPE})
+endif()
+
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_ROOT})
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/custom)
+
+set(CMAKE_Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/mod)
+
+set(QCM_CMake_CXX_FLAGS " -std=c++11 ${CMake_CXX_FLAGS}")
+
+list(APPEND QCMaquisCMakeArgs
+  -DCMAKE_BUILD_TYPE=${QCM_BUILD_TYPE}
+  -DCMAKE_INSTALL_PREFIX=${PROJECT_BINARY_DIR}/External
+  -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER}
+  -DCMAKE_Fortran_FLAGS=${CMAKE_Fortran_FLAGS}
+  -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+  -DCMAKE_C_FLAGS=${CMake_C_FLAGS}
+  -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+  -DCMAKE_CXX_FLAGS=${QCM_CMake_CXX_FLAGS}
+  -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+  -DCMAKE_INSTALL_LIBDIR=lib
+  -DCMAKE_Fortran_MODULE_DIRECTORY=${CMAKE_Fortran_MODULE_DIRECTORY}
+  )
+
+######################################
+# git references for QCMaquis driver #
+######################################
+set(reference_git_commit release-2.0.2)
+set(reference_git_repo git@gitlab.com:qc-maquis/dmrg-interface-utils.git)
+set(EP_PROJECT qcmaquis-driver)
+
+# Enabling source changes to keep ExternalProject happy
+set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
+
+ExternalProject_Add(${EP_PROJECT}
+                    PREFIX ${CUSTOM_QCMaquis_LOCATION}
+                    GIT_REPOSITORY ${reference_git_repo}
+                    GIT_TAG ${reference_git_commit}
+                    CMAKE_ARGS "${QCMaquisCMakeArgs}"
+                    INSTALL_DIR "${PROJECT_BINARY_DIR}"
+#                    UPDATE_DISCONNECTED 1
+                    LOG_INSTALL 1
+                    LOG_DOWNLOAD 1
+                    LOG_UPDATE 1
+                    LOG_CONFIGURE 1
+                    LOG_BUILD 1
+                    LOG_TEST 1
+                    LOG_INSTALL 1
+#                    UPDATE_COMMAND cmake -E echo "Skipping QCMaquis driver update"
+                   )
+
+set (CMAKE_DISABLE_SOURCE_CHANGES ON)
+
+# post installation steps
+ExternalProject_Add_Step(${EP_PROJECT} install_tools DEPENDEES update
+                         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CUSTOM_QCMaquis_LOCATION}/src/${EP_PROJECT}/tools/pytools ${PROJECT_BINARY_DIR}/pytools
+                         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CUSTOM_QCMaquis_LOCATION}/src/${EP_PROJECT}/template-files ${PROJECT_BINARY_DIR}/template-files
+                         # Add QCMaquis tests
+			 COMMAND ${CMAKE_COMMAND} -E copy_directory ${CUSTOM_QCMaquis_LOCATION}/src/${EP_PROJECT}/test/ ${PROJECT_BINARY_DIR}/qcmaquis/test/
+                         COMMAND ${CMAKE_COMMAND} -E echo ${PROJECT_BINARY_DIR}/qcmaquis/test/ >> ${PROJECT_BINARY_DIR}/test/testdirs
+                         COMMENT "Copying QCMaquis tests, python tools and template files"
+                        )
+
+# set variables for use in parent CMakeLists.txt
+ExternalProject_Get_Property(${EP_PROJECT} install_dir)
+set(DMRG_INCLUDE ${CMAKE_Fortran_MODULE_DIRECTORY} PARENT_SCOPE)
+set(DMRG_LIBRARIES ${install_dir}/lib/${CMAKE_FIND_LIBRARY_PREFIXES}qcmaquis-driver-utils.a PARENT_SCOPE)
+
+#############################################################################
+# git references for QCMaquis suite (consisting of ALPS/BOOST and QCMaquis) #
+#############################################################################
+set(reference_git_commit release-2.0.2)
+set(reference_git_repo git@gitlab.com:qc-maquis/qcmaquis-public.git)
+set(EP_PROJECT qcmaquis-suite)
+
+set (CMAKE_DISABLE_SOURCE_CHANGES ON)
+
+#check if installation needed or provided by the user
+include(qcmaquis)
+
+if(NOT MAQUIS_DMRG_FOUND)
+
+    list(APPEND QCMaquisCMakeArgs
+         "-DQCM_standalone:BOOL=ON"
+         "-DLOCAL_QCM_INSTALL_PATH:STRING=${PROJECT_BINARY_DIR}"
+        )
+
+    # Enabling source changes to keep ExternalProject happy
+    set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
+
+    ExternalProject_Add(${EP_PROJECT}
+                        PREFIX ${CUSTOM_QCMaquis_LOCATION}
+                        GIT_REPOSITORY ${reference_git_repo}
+                        GIT_TAG ${reference_git_commit}
+                        CMAKE_ARGS "${QCMaquisCMakeArgs}"
+                        INSTALL_DIR "${PROJECT_BINARY_DIR}"
+#                        UPDATE_DISCONNECTED 1
+                        LOG_DOWNLOAD 1
+                        LOG_UPDATE 1
+                        LOG_CONFIGURE 1
+                        LOG_BUILD 0
+                        LOG_TEST 1
+                        LOG_INSTALL 1
+                        INSTALL_COMMAND cmake -E echo "Skipping install step - Nothing left to be done."
+## uncomment the lines below if you're modifying the source
+#                        UPDATE_COMMAND cmake -E echo "Skipping QCMaquis update"
+#                        DOWNLOAD_COMMAND cmake -E echo "Skipping QCMaquis download"
+                       )
+
+    set (CMAKE_DISABLE_SOURCE_CHANGES ON)
+
+endif()

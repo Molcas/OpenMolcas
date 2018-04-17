@@ -11,6 +11,9 @@
       subroutine cre_raswfn
 *     SVC: Create a wavefunction file. If another .wfn file already
 *     exists, it will be overwritten.
+#ifdef _DMRG_
+      use qcmaquis_interface_cfg
+#endif
       implicit none
 #ifdef _HDF5_
 #  include "rasdim.fh"
@@ -21,6 +24,7 @@
 #  include "raswfn.fh"
 #  include "gugx.fh"
 #  include "gas.fh"
+#  include "input_ras.fh"
       Integer         IDXCI(mxAct), IDXSX(mxAct)
       Common /IDSXCI/ IDXCI,        IDXSX
 
@@ -141,6 +145,16 @@
      $        'active 1-body spin density matrix, size [NAC,NAC] '//
      $        'for each root in NROOTS: [NAC,NAC,NROOTS].')
 
+      if (KeyTDM) then
+      wfn_transdens = mh5_create_dset_real (wfn_fileid,
+     $        'TRANSITION_DENSITY_MATRIX', 3,
+     $        [NAC, NAC, lRoots*(lRoots-1)/2])
+      call mh5_init_attr(wfn_transdens, 'description',
+     $        'active 1-body transition density matrix, '//
+     $        'size [NAC,NAC] for each pair of roots in NROOTS: '//
+     $        '[NAC,NAC,NROOTS*(NROOTS-1)/2].')
+      end if
+
 *     fock matrix
       wfn_fockmat = mh5_create_dset_real (wfn_fileid,
      $        'FOCK_MATRIX', 1, [NTOT2])
@@ -148,5 +162,16 @@
      $        'Fock matrix '//
      $        'arranged as blocks of size [NBAS(i)**2], i=1,#irreps')
 
+#ifdef _DMRG_
+      if (doDMRG) then
+! Leon 1/12/2016: Add the QCMaquis checkpoint name to the description of each state
+! maximum allowed filename length is equal to MH5_MAX_LBL_LEN=256
+        wfn_dmrg_checkpoint = mh5_create_dset_str(wfn_fileid,
+     $        'QCMAQUIS_CHECKPOINT', 1, [lRoots], 256)
+        call mh5_init_attr(wfn_dmrg_checkpoint,'description',
+     $        'QCMaquis checkpoint directory names for each root'//
+     $        ' in [NROOTS].')
+      end if
+#endif
 #endif
       end

@@ -10,45 +10,35 @@
 *                                                                      *
 * Copyright (C) Thomas Bondo Pedersen                                  *
 ************************************************************************
+*  Cho_X_Test
+*
+*> @brief
+*>   Check Cholesky decomposition of matrix \p X
+*> @author Thomas Bondo Pedersen
+*>
+*> @details
+*> The difference between the matrix \p X and its Cholesky
+*> representation is calculated and returned in array \p Y. If the
+*> RMS error is less than \p Thr, \p irc = ``0`` is returned, else a positive
+*> value is returned (a negative value signals an input error).
+*> The input matrix \p X may be stored as a lower triangle
+*> (\p Square = ``.false.``) or as a full square matrix (\p Square = ``.true.``).
+*> The dimension of \p Y will be the same as that of \p X
+*> (i.e. ``n(n+1)/2`` for lower triangular storage or ``n*n`` for full
+*> square storage).
+*>
+*> @param[in]  X      The \p n &times; \p n matrix to be tested
+*> @param[in]  n      Dimension of matrix \p X
+*> @param[in]  Square Flag for packing of \p X
+*> @param[in]  Vec    Cholesky vectors representing \p X
+*> @param[in]  nVec   Number of Cholesky vectors
+*> @param[in]  xf     Factor for the scaling of the vectors
+*> @param[out] Y      ``Y = X - xf*Vec*VecT``
+*> @param[in]  lY     Dimension of array \p Y
+*> @param[in]  Thr    Threshold allowed for RMS error
+*> @param[out] irc    Return code
+************************************************************************
       SubRoutine Cho_X_Test(X,n,Square,Vec,nVec,xf,Y,lY,Thr,irc)
-************************************************************
-*
-*   <DOC>
-*     <Name>Cho\_X\_Test</Name>
-*     <Syntax>
-*       Call Cho\_X\_Test(X,n,Square,Vec,nVec,xf,Y,lY,Thr,irc)
-*     </Syntax>
-*     <Arguments>
-*     \Argument{X}{The n-by-n matrix to be tested}{Real*8}{in}
-*       \Argument{n}{Dimension of matrix X}{Integer}{in}
-*       \Argument{Square}{Flag for packing of X}{Logical}{in}
-*       \Argument{Vec}{Cholesky vectors representing X}{Real*8}{in}
-*       \Argument{nVec}{Number of Cholesky vectors}{Integer}{in}
-*       \Argument{xf}{Factor for the scaling of the vectors}{Real*8}{in}
-*       \Argument{Y}{Y = X - xf*Vec*VecT}{Real*8}{out}
-*       \Argument{lY}{Dimension of array Y}{Integer}{in}
-*       \Argument{Thr}{Threshold allowed for RMS error}{Real*8}{in}
-*       \Argument{irc}{Return code}{}{out}
-*     </Arguments>
-*     <Purpose>Check Cholesky decomposition of matrix X</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>Thomas Bondo Pedersen</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*        The difference between the matrix X and its Cholesky
-*        representation is calculated and returned in array Y. If the
-*        RMS error is less than Thr, irc=0 is returned, else a positive
-*        value is returned (a negative value signals an input error).
-*        The input matrix X may be stored as a lower triangle
-*        (Square=.false.) or as a full square matrix (Square=.true.).
-*        The dimension of Y will be the same as that of X
-*        (i.e. n(n+1)/2 for lower triangular storage or n*n for full
-*        square storage).
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8 (a-h,o-z)
       Dimension X(*), Vec(n,nVec), Y(lY)
       Logical   Square

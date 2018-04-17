@@ -13,6 +13,9 @@
       use Period
       use MpmC
       use EFP_Module
+#ifndef _HAVE_EXTRA_
+      use XYZ
+#endif
       Implicit Real*8 (a-h,o-z)
       External iMostAbundantIsotope, NucExp
 #include "para_info.fh"
@@ -871,9 +874,13 @@ c      End If
 
       CoordSet=.true.
       GWInput=.True.
+#ifdef _HAVE_EXTRA_
       Call XYZread(LuRd,ForceZMAT,nCoord, iErr)
       If (iErr.ne.0) Call Quit_OnUserError()
       Call XYZcollect(iCoord,nCoord,OrigTrans,OrigRot,nFragment)
+#else
+      Call Read_XYZ(LuRd,OrigRot,OrigTrans)
+#endif
       Go To 998
 *                                                                      *
 ****** GROUP ***********************************************************
@@ -889,7 +896,6 @@ c      End If
          Call WarningMessage(2,'COORD keyword is not found')
          Call Quit_OnUserError()
       End If
-c Group command found - good reason to give up
       KeepGroup=Get_Ln(LuRd)
 c Simplistic validity check for value
       temp1=KeepGroup
@@ -916,14 +922,13 @@ c Simplistic validity check for value
 *                                                                      *
 ****** BSSE ************************************************************
 *                                                                      *
-*     Read information for a group
+*     Read information for BSSE
 *
 6020  Continue
       if(.not.CoordSet) Then
          Call WarningMessage(2,'COORD keyword is not found')
          Call Quit_OnUserError()
       End If
-c Group command found - good reason to give up
       KWord=Get_Ln(LuRd)
       read(Kword,*,end=6666,err=6666) iBSSE
       GWInput=.True.
@@ -938,7 +943,6 @@ c Group command found - good reason to give up
          Call WarningMessage(2,'COORD keyword is not found')
          Call Quit_OnUserError()
       End If
-c Group command found - good reason to give up
       isHold=0
       GWInput=.True.
       goto 998
@@ -952,7 +956,6 @@ c Group command found - good reason to give up
          Call WarningMessage(2,'COORD keyword is not found')
          Call Quit_OnUserError()
       End If
-c Group command found - good reason to give up
       isHold=1
       GWInput=.True.
       goto 998
@@ -966,7 +969,6 @@ c Group command found - good reason to give up
          Call WarningMessage(2,'COORD keyword is not found')
          Call Quit_OnUserError()
       End If
-c Group command found - good reason to give up
       KWord=Get_Ln(LuRd)
       read(Kword,*,end=6666, err=6666) SymThr
       GWInput=.True.
@@ -1657,8 +1659,13 @@ c     Go To 998
       GWInput=.True.
       KWord = Get_Ln(LuRd)
 *     Open external file if the line does not start with an integer
+*       Note that the "Err" signal cannot be completely trusted, since
+*       a slash (i.e., an absolute path) marks end of input and gives
+*       no error
       LuRd_saved=LuRd
+      ibla = -1
       Read(KWord,*,Err=9751) ibla
+      If (ibla.lt.0) Goto 9751
       Goto 9752
 9751  LuRd=1
       Call Get_S(1,filename,1)
@@ -2592,7 +2599,11 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
 **  write a separate file for findsym
 *
          Write(LuRP,*) nRP/3
+#ifdef _HAVE_EXTRA_
          Write(LuRP,'(a)')
+#else
+         Write(LuRP,'(a)') 'bohr'
+#endif
          Do i=1,nRP/3
             KWord = Get_Ln(LuIn)
             Read(KWord,*,err=9083) Key,(Work(ipRP1+3*(i-1)+j),j=0,2)
@@ -2609,7 +2620,11 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
          LuRP=isFreeUnit(LuRP)
          call molcas_open(LuRP,'findsym.RP2')
          Write(LuRP,*) nRP/3
+#ifdef _HAVE_EXTRA_
          Write(LuRP,'(a)')
+#else
+         Write(LuRP,'(a)') 'bohr'
+#endif
          Read(KWord,*,err=9083) E2
          Do i=1,nRP/3
             KWord = Get_Ln(LuIn)
@@ -3198,8 +3213,8 @@ CDP      If (nCtrLD.eq.0) radiLD=0.0d0
          Call Quit_OnUserError()
       End If
       DoTinker = .True.
+      ITkQMMM = 1
       If (MyRank.eq.0) Then
-        ITkQMMM = 1
         ITkQMMM = IsFreeUnit(ITkQMMM)
         Call Molcas_Open (ITkQMMM,'QMMM')
         Write(ITkQMMM,'(A)') 'Molcas -1 0'
@@ -3241,9 +3256,10 @@ c
 #endif
       iCoord=iCoord+1
       CoordSet=.True.
+      ITkQMMM = IsFreeUnit(ITkQMMM)
       Call Molcas_Open (ITkQMMM,'QMMM')
+#ifdef _HAVE_EXTRA_
       Call XYZread(ITkQMMM,ForceZMAT,nCoord,iErr)
-      Close(ITkQMMM)
       If (iErr.ne.0) Then
         Key='RdCtl_Seward: Tinker+XYZread failed:'//
      &          ' check Tinker input files'
@@ -3251,6 +3267,10 @@ c
         Call Abend()
       End If
       Call XYZcollect(iCoord,nCoord,OrigTrans,OrigRot,nFragment)
+#else
+      Call Read_XYZ(ITkQMMM,OrigRot,OrigTrans)
+#endif
+      Close(ITkQMMM)
       GWInput = .True.
       Go To 998
 *                                                                      *
@@ -3265,7 +3285,7 @@ c
       End If
       If(.not. OriginSet) Then
          Call mma_allocate(OrigTrans,3,nFragment,label='OrigTrans')
-         Call mma_allocate(OrigRot,3,3,nFragment,label='OrogRot')
+         Call mma_allocate(OrigRot,3,3,nFragment,label='OrigRot')
          OriginSet = .True.
       End If
       Do iFrag = 1, nFragment
@@ -3523,6 +3543,7 @@ c
       LuXYZ = 1
       LuXYZ = isFreeUnit(LuXYZ)
       Call molcas_open(LuXYZ,'GMX.XYZ')
+#ifdef _HAVE_EXTRA_
       Call XYZread(LuXYZ,ForceZMAT,nCoord,iErr)
       If (iErr.NE.0) Then
          Message='RdCtl_Seward: XYZread returned non-zero error code'
@@ -3530,6 +3551,9 @@ c
          Call Abend()
       End If
       Call XYZcollect(iCoord,nCoord,OrigTrans,OrigRot,nFragment)
+#else
+      Call Read_XYZ(LuXYZ,OrigRot,OrigTrans)
+#endif
       Close(LuXYZ)
 #else
       Message = 'Interface to Gromacs not installed'
@@ -3700,15 +3724,25 @@ c      endif
          End Do
 1997     Continue
          KeepBasis=KeepBasis(1:ik)
+#ifdef _HAVE_EXTRA_
          Call ProcessXYZ(BasisSet, KeepBasis, KeepGroup,iBSSE,
      &                   SymThr,isHold,ScaleFactor,HyperParSet,
      &                   isXfield)
-
+#else
+         Call Parse_Basis(KeepBasis)
+         Call Parse_Group(KeepGroup, SymThr)
+         Call Write_SewInp('COORD',[iBSSE])
+#endif
          if(writeZmat) then
+#ifdef _HAVE_EXTRA_
             stepFactor = stepFac1/(hypParam(1)*hypParam(1))
             Call Geo_Setup_Drv(ishold,oldZMat,zConstraints,
      &                         geoInput,hypParam,nFragment,iOptimType,
      &                         stepFactor,gradLim)
+#else
+            Call WarningMessage(2,'molcas-extra not installed')
+            Call Quit_OnUserError()
+#endif
          end if
          DoneCoord=.true.
       if(isXfield.eq.1) then
@@ -3723,7 +3757,11 @@ c      endif
          CoordSet=.false.
          LuRdSave=LuRd
          LuFS=IsFreeUnit(1)
+#ifdef _HAVE_EXTRA_
          Call Molcas_Open(LuFS,'FS.std')
+#else
+         Call Molcas_Open(LuFS,'COORD')
+#endif
          LuRd=LuFS
          GWInput=.True.
          Go To 998
@@ -3731,6 +3769,9 @@ c      endif
          If (DoneCoord) Then
            Close(LuFS)
            LuRd=LuRdSave
+#ifndef _HAVE_EXTRA_
+           Call Clear_XYZ()
+#endif
          End If
       End If
 *
@@ -4376,7 +4417,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
                Do j=0,2
                   If (iAnd(jTmp,2**j).eq.0) Then
                      Work(ixyz+j)=Work(ixyz+j)+
-     &                            Shake*(Two*Random_Molcas(iSeed)-One)
+     &                           Shake*(Two*Random_Molcas(iSeed)-One)
                   End If
                End Do
             End If

@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      PROGRAM JOB2ASC
+      PROGRAM ASC2JOB
       IMPLICIT REAL*8 (A-H,O-Z)
       INTEGER FMTIPH
 
@@ -16,6 +16,9 @@
 #include "rasscf.fh"
 #include "WrkSpc.fh"
 #include "general.fh"
+
+      CALL INIT_LINALG
+      CALL PrgmInit('Asc2Job')
 
       JOBIPH=15
       JOBIPH=isFreeUnit(JOBIPH)

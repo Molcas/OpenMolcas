@@ -36,12 +36,18 @@ contains
                                 pdim,                             &
                                 state,                            &
                                 stateL,                           &
+                                msproj,                           &
+                                msprojL,                          &
+                                multiplet,                        &
+                                multipletL,                       &
                                 rdm1,                             &
                                 rdm2,                             &
                                 rdm3,                             &
                                 rdm4,                             &
                                 Key_CION,                         &
-                                IterSCF                           &
+                                IterSCF,                          &
+                                checkpoint1,                      &
+                                checkpoint2                       &
                                )
 
       character(len=8),                intent(in)    :: task
@@ -56,12 +62,19 @@ contains
       integer, optional,               intent(in)    :: pdim
       integer, optional,               intent(in)    :: state
       integer, optional,               intent(in)    :: stateL
+      integer, optional,               intent(in)    :: msproj
+      integer, optional,               intent(in)    :: msprojL
+      integer, optional,               intent(in)    :: multiplet
+      integer, optional,               intent(in)    :: multipletL
       logical, optional,               intent(in)    :: rdm1
       logical, optional,               intent(in)    :: rdm2
       logical, optional,               intent(in)    :: rdm3
       logical, optional,               intent(in)    :: rdm4
       logical, optional,               intent(in)    :: Key_CION
       integer, optional,               intent(in)    :: iterSCF
+      ! Leon 02-12-2016: added optional custom checkpoint names
+      character(len=*),optional,       intent(in)    :: checkpoint1
+      character(len=*),optional,       intent(in)    :: checkpoint2
 
       !print *, 'DMRG interface called with task == ',trim(task)
 
@@ -80,12 +93,18 @@ contains
                                     pdim,                             &
                                     state,                            &
                                     stateL,                           &
+                                    msproj,                           &
+                                    msprojL,                          &
+                                    multiplet,                        &
+                                    multipletL,                       &
                                     rdm1,                             &
                                     rdm2,                             &
                                     rdm3,                             &
                                     rdm4,                             &
                                     Key_CION,                         &
-                                    IterSCF                           &
+                                    IterSCF,                          &
+                                    checkpoint1,                      &
+                                    checkpoint2                       &
                                    )
 
       end if ! only myrank == 0 enters the interface

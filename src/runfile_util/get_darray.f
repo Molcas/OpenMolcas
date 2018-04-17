@@ -22,25 +22,20 @@
 * Written: August 2003                                                 *
 *                                                                      *
 ************************************************************************
+*  Get_dArray
 *
-* <DOC>
-*   <Name>Get\_dArray</Name>
-*   <Syntax>Call Get\_dArray(Label,Data,nData)</Syntax>
-*   <Arguments>
-*     \Argument{Label}{Name of field}{Character*(*)}{in}
-*     \Argument{Data}{Data to read from runfile}{Real*8}{out}
-*     \Argument{nData}{Length of array}{Integer}{in}
-*   </Arguments>
-*   <Purpose>To read array data from runfile</Purpose>
-*   <Dependencies></Dependencies>
-*   <Author>Per-Olof Widmark</Author>
-*   <Modified_by></Modified_by>
-*   <Side_Effects></Side_Effects>
-*   <Description>
-*     See section \ref{routine:Put_dArray} on page \pageref{routine:Put_dArray}.
-*   </Description>
-* </DOC>
-*
+*> @brief
+*>   Read array data from runfile
+*> @author Per-Olof Widmark
+*>
+*> @details
+*> This routine gets array double data from the runfile.
+*>
+*> @param[in]  Label Name of field
+*> @param[out] Data  Data to read from runfile
+*> @param[in]  nData Length of array
+*>
+*> @see ::Put_dArray
 ************************************************************************
       Subroutine Get_dArray(Label,Data,nData)
       Implicit None

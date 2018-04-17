@@ -65,7 +65,7 @@ def main(my_name):
   parser.add_argument('-old', '--old_scratch', help='reuse scratch area (default)', action='store_true')
   parser.add_argument('-ign', '--ignore_environment', help='run ignoring resource files', action='store_true')
   parser.add_argument('-np', '--nprocs', help='number of parallel (MPI) processes', type=int)
-  parser.add_argument('-v', '--version', help='print version of the EMIL interpreter', action='store_true')
+  parser.add_argument('-v', '--version', help='print version of the driver', action='store_true')
   parser.add_argument('-o', '--output', help='redirect output stream to FILE', metavar='FILE')
   parser.add_argument('-e', '--error', help='redirect error stream to FILE', metavar='FILE')
   parser.add_argument('-oe', '-eo', '--outputerror', help='redirect output and error streams to FILE', metavar='FILE')
@@ -79,17 +79,18 @@ def main(my_name):
   parser.usage = '{0} [options] [input_file | script ...]'.format(parser.prog)
   args = vars(parser.parse_args())
 
-  from molcas_aux import find_molcas, attach_streams
+  from molcas_aux import find_molcas, find_sources, attach_streams
   from molcas_wrapper import Molcas_wrapper, MolcasException
 
   # Checking for version right at the beginning, in case MOLCAS cannot be found
   if (args['version']):
-    print('python EMIL interpreter version = {0}'.format(Molcas_wrapper.version))
+    print('python driver version = {0}'.format(Molcas_wrapper.version))
     print('(after the original perl EMIL interpreter of Valera Veryazov)')
     sys.exit(0)
 
   xbin_list={}
   find_molcas(xbin_list, here=(not args['not_here']))
+  find_sources()
 
   # If this a program defined in xbin, call it
   import subprocess
@@ -101,16 +102,21 @@ def main(my_name):
     sys.exit(subprocess.call(command))
 
   # If this is not calling a program in sbin, pass the extra options to the main program
-  if (args['filename'] and args['extra']):
-    filetest = os.path.join(os.environ['MOLCAS'], 'sbin', args['filename'])
-    if (os.path.isfile(filetest) and os.access(filetest, os.X_OK)):
-      # Specifically, verify should work with the default environment
-      if (args['filename'] == 'verify'):
-        args['ignore_environment'] = True
-    else:
-      for k,v in vars(parser.parse_args(args['extra'])).items():
-        if (v):
-          args[k] = v
+  # Unfortunately we cannot use Molcas.in_sbin yet, because Molcas is not initialized
+  if (args['filename']):
+    # Specifically, verify should work with the default environment
+    if (args['filename'] == 'verify'):
+      args['ignore_environment'] = True
+    if (args['extra']):
+      in_sbin = False
+      for path in ['MOLCAS', 'OPENMOLCAS_SOURCE', 'MOLCAS_SOURCE']:
+        filetest = os.path.join(os.environ[path], 'sbin', args['filename'])
+        if (os.path.isfile(filetest) and os.access(filetest, os.X_OK)):
+          in_sbin = True
+      if (not in_sbin):
+        for k,v in vars(parser.parse_args(args['extra'])).items():
+          if (v):
+            args[k] = v
 
   if args['outputerror']:
     args['output'] = args['outputerror']
@@ -162,6 +168,8 @@ def main(my_name):
       print('The license is expired, missing or not valid')
     else:
       print('The license is valid')
+      if (Molcas.licensee):
+        print('Licensed to {0}'.format(Molcas.licensee))
     sys.exit(0)
 
   if (not args['filename']):

@@ -11,50 +11,28 @@
 * Copyright (C) Francesco Aquilante                                    *
 *               Thomas Bondo Pedersen                                  *
 ************************************************************************
+*  Cho_X_CalcChoDiag
+*
+*> @brief
+*>   Calculate integral diagonal from Cholesky vectors
+*> @author Francesco Aquilante
+*> @modified_by Thomas Bondo Pedersen
+*>
+*> @details
+*> This routine calculates the integral diagonal from Cholesky
+*> vectors,
+*>
+*> \f[ (ab|ab) = \sum_J L_{ab,J}^2 \quad (a,b: \text{AO-indices}) \f]
+*>
+*> The diagonal calculation is parallelized.
+*> The diagonal is returned in first reduced set storage and must
+*> be allocated before calling this routine.
+*> Return code is ``0`` if successful execution.
+*>
+*> @param[out] rc   Return code
+*> @param[out] Diag Array containing diagonal on exit
+************************************************************************
       SUBROUTINE Cho_X_CalcChoDiag(rc,Diag)
-************************************************************
-*
-*   <DOC>
-*     <Name>Cho\_X\_CalcChoDiag</Name>
-*     <Syntax>Call Cho\_X\_CalcChoDiag(rc,Diag)</Syntax>
-*     <Arguments>
-*       \Argument{rc}{Return code}{Integer}{out}
-*       \Argument{Diag}{Array containing diagonal on exit}{Real*8}{out}
-*     </Arguments>
-*     <Purpose>Calculate integral diagonal from Cholesky vectors
-*     </Purpose>
-*     <Dependencies>Cho\_X\_Init must have been called</Dependencies>
-*     <Author>Francesco Aquilante</Author>
-*     <Modified_by>Thomas Bondo Pedersen</Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*         This routine calculates the integral diagonal from Cholesky
-*         vectors,
-*
-*         (ab|ab) = sum(J)  (Lab,J)**2   (a,b:  AO-indices)
-*
-*         The diagonal calculation is parallelized.
-*         The diagonal is returned in first reduced set storage and must
-*         be allocated before calling this routine.
-*         Return code is 0 if successful execution.
-*     </Description>
-*    </DOC>
-**********************************************************************
-
-**********************************************************************
-*  Author : F. Aquilante
-*
-**********************************************************************
-C
-C  Computes diagonal elements of the ERI matrix from Cholesky vectors
-C          and returns them in Diag (1st red set storage)
-C
-C      (ab|ab) = sum_J  (Lab,J)^2
-C
-C      a,b:  AO-index
-C
-**********************************************************************
-
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc

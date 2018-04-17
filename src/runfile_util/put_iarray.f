@@ -22,61 +22,44 @@
 * Written: August 2003                                                 *
 *                                                                      *
 ************************************************************************
+*  Put_iArray
 *
-* <DOC>
-*   <Name>Put\_iArray</Name>
-*   <Syntax>Call Put\_iArray(Label,Data,nData)</Syntax>
-*   <Arguments>
-*     \Argument{Label}{Name of field}{Character*(*)}{in}
-*     \Argument{Data}{Data to put on runfile}{Integer}{in}
-*     \Argument{nData}{Length of array}{Integer}{in}
-*   </Arguments>
-*   <Purpose>To add/update array data in runfile.</Purpose>
-*   <Dependencies></Dependencies>
-*   <Author>Per-Olof Widmark</Author>
-*   <Modified_by></Modified_by>
-*   <Side_Effects></Side_Effects>
-*   <Description>
-*     This routine is used to put array data of type
-*     Integer into the runfile. The data items are
-*     identified by the label. Below is a list of the
-*     data items that are recognized. The labels are
-*     case insensitive and significant to 16 characters.
-*
-*     For development purposes you can use an unsupported
-*     label. Whenever such a field is accessed a warning
-*     message is printed in the output, to remind the
-*     developer to update this routine.
-*
-*     List of known labels:
-*     \begin{itemize}
-*     %\item `Center Index' ???
-*     \item `Ctr Index Prim' Idem with primitive basis set
-*     \item `nAsh' The number of active orbitals per irreducible
-*                  representation.
-*     \item `nBas' The number of basis functions per irreducible
-*                  representation.
-*     \item `nDel' The number of deleted orbitals per irreducible
-*                  representation.
-*     \item `nFro' The number of frozen orbitals per irreducible
-*                  representation, i.e. orbtials that are not optimized.
-*     \item `nIsh' The number of inactive orbitals per irreducible
-*                  representation.
-*     \item `nIsh beta'
-*     \item `nOrb' The total number of orbitals per irreducible
-*                  representation.
-*     %\item `Orbital Type' ???
-*     \item `Slapaf Info 1' Misc. information for module SLAPAF.
-*     \item `Symmetry operations' The symmetry operations of the point
-*                                 group.
-*     \item `Non valence orbitals' The total number of non valence
-*            orbitals per irreducible representation.
-*     \item `MkNemo.hDisp' The hash matrix for displacements as
-*             specified in the mknemo module.
-*     \end{itemize}
-*   </Description>
-* </DOC>
-*
+*> @brief
+*>   Add/update array data in runfile
+*> @author Per-Olof Widmark
+*>
+*> @details
+*> This routine is used to put array data of type
+*> ``Integer`` into the runfile. The data items are
+*> identified by the label. Below is a list of the
+*> data items that are recognized. The labels are
+*> case insensitive and significant to 16 characters.
+*>
+*> For development purposes you can use an unsupported
+*> label. Whenever such a field is accessed a warning
+*> message is printed in the output, to remind the
+*> developer to update this routine.
+*>
+*> List of known labels:
+*>
+*> - '``Center Index``'
+*> - '``Ctr Index Prim``'       Idem with primitive basis set.
+*> - '``nAsh``'                 The number of active orbitals per irreducible representation.
+*> - '``nBas``'                 The number of basis functions per irreducible representation.
+*> - '``nDel``'                 The number of deleted orbitals per irreducible representation.
+*> - '``nFro``'                 The number of frozen orbitals per irreducible representation, i.e. orbitals that are not optimized.
+*> - '``nIsh``'                 The number of inactive orbitals per irreducible representation.
+*> - '``nIsh beta``'
+*> - '``nOrb``'                 The total number of orbitals per irreducible representation.
+*> - '``Orbital Type``'
+*> - '``Slapaf Info 1``'        Misc. information for module SLAPAF.
+*> - '``Symmetry operations``'  The symmetry operations of the point group.
+*> - '``Non valence orbitals``' The total number of non valence orbitals per irreducible representation.
+*> - '``MkNemo.hDisp``'         The hash matrix for displacements as specified in the mknemo module.
+*>
+*> @param[in] Label Name of field
+*> @param[in] Data  Data to put on runfile
+*> @param[in] nData Length of array
 ************************************************************************
       Subroutine Put_iArray(Label,Data,nData)
       Implicit None

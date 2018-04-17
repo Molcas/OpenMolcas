@@ -18,6 +18,9 @@ subroutine chemps2_load2pdm( NAC, PT, CHEMROOT )
 
   USE HDF5
   USE ISO_C_BINDING
+#ifdef _MOLCAS_MPP_
+  USE MPI
+#endif
 
   IMPLICIT NONE
   INTEGER, INTENT(IN) :: NAC, CHEMROOT
@@ -36,7 +39,6 @@ subroutine chemps2_load2pdm( NAC, PT, CHEMROOT )
   EXTERNAL Is_Real_Par, KING
   Logical KING
   Logical Is_Real_Par
-#include "mpif.h"
 #endif
 
   REAL*8, DIMENSION( 1 : NAC * NAC * NAC * NAC ), TARGET :: two_rdm

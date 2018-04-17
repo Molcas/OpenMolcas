@@ -109,7 +109,6 @@ C     Write (Lu,*) iOptC
       If (Char(1:4).eq.'DISO') Go To 9452
       If (Char(1:4).eq.'DXDX') Go To 939
       If (Char(1:4).eq.'DXG ') Go To 940
-      If (Char(1:4).eq.'IMLS') Go To 989
       If (Char(1:4).eq.'END ') Go To 998
       If (Char(1:4).eq.'EXPE') Go To 993
       If (Char(1:4).eq.'EXTR') Go To 971
@@ -787,15 +786,6 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *                                                                      *
  980  rMEP=.True.
       MEP=.False.
-      Go To 999
-*                                                                      *
-****** IMLS ************************************************************
-*                                                                      *
- 989  iOptC = iOr(2**14,iOptC)
-*     if (iAnd(iOptC,2**14).eq.2**14) then
-*        Write(6,*) 'IMLS is set.'
-*     endif
-      UpMeth=' IMLS '
       Go To 999
 *                                                                      *
 ****** rHidden *********************************************************

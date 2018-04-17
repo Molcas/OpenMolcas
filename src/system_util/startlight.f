@@ -9,6 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine StartLight(ModuleName)
+#ifndef _HAVE_EXTRA_
+      Use Prgm
+#endif
       Implicit None
       Character*(*) ModuleName
       External Get_SuperName

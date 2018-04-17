@@ -9,7 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
         program main
+#ifdef _FPE_TRAP_
+        Use, Intrinsic :: IEEE_Exceptions
+#endif
         Logical Standalone
+#ifdef _FPE_TRAP_
+        Call IEEE_Set_Halting_Mode(IEEE_Usual,.True._4)
+#endif
 *
         Call Start('espf')
         StandAlone=.True.

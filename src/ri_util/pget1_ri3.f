@@ -138,7 +138,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (ExFac.ne.Zero .and. NumOrb(1).gt.0 .and. iMP2prpt.ne.2.
+      If (ExFac.ne.Zero .and. NumOrb(1).gt.0 .and. iMP2prpt.ne.2
      &    .and. .not. lPSO  .and. iUHF.eq.0 ) Then
 *                                                                      *
 ************************************************************************
@@ -286,7 +286,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Else If (ExFac.ne.Zero .and. NumOrb(1).gt.0 .and. iMP2prpt.ne.2.
+      Else If (ExFac.ne.Zero .and. NumOrb(1).gt.0 .and. iMP2prpt.ne.2
      &    .and. .not. lPSO  .and. iUHF.eq.1 ) Then
 *                                                                      *
 ************************************************************************

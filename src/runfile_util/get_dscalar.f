@@ -22,24 +22,19 @@
 * Written: August 2003                                                 *
 *                                                                      *
 ************************************************************************
+*  Get_dScalar
 *
-* <DOC>
-*   <Name>Get\_dScalar</Name>
-*   <Syntax>Call Get\_dScalar(Label,Data)</Syntax>
-*   <Arguments>
-*     \Argument{Label}{Name of field}{Character*(*)}{in}
-*     \Argument{Data}{Data to get from runfile}{Real*8}{out}
-*   </Arguments>
-*   <Purpose>To get scalar data form runfile</Purpose>
-*   <Dependencies></Dependencies>
-*   <Author>Per-Olof Widmark</Author>
-*   <Modified_by></Modified_by>
-*   <Side_Effects></Side_Effects>
-*   <Description>
-*      See section \ref{routine:Put_dScalar} on page \pageref{routine:Put_dScalar}.
-*   </Description>
-*  </DOC>
-*
+*> @brief
+*>   Get scalar data form runfile
+*> @author Per-Olof Widmark
+*>
+*> @details
+*> This routine gets scalar double data from the runfile.
+*>
+*> @param[in]  Label Name of field
+*> @param[out] Data  Data to get from runfile
+*>
+*> @see ::Put_dScalar
 ************************************************************************
       Subroutine Get_dScalar(Label,Data)
       Implicit None

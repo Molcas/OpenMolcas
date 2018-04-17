@@ -115,7 +115,7 @@
                If (Transf(iShll)) itemp=itemp+2      !
                iSD(9,nSkal)=itemp                    ! sph., car., cont.
                iSD(10,nSkal)=mdci                    ! Center index
-               iSD(11,nSkal)=Ind_Shell(IndSOff(iCnttp,iCnt)) + iAng + 1 !
+               iSD(11,nSkal)=Ind_Shell(IndSOff(iCnttp,iCnt)) + iAng + 1
                If (pChrg(iCnttp)) Then
                   iSD(12,nSkal)= 1                   ! pseudo charge
                Else

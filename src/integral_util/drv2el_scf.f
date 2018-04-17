@@ -17,7 +17,7 @@
 ************************************************************************
 *                                                                      *
 *  Object: driver for two-electron integrals. The four outermost loops *
-*          will controll the type of the two-electron integral, eg.    *
+*          will control the type of the two-electron integral, e.g.    *
 *          (ss|ss), (sd|pp), etc. The next four loops will generate    *
 *          list of symmetry distinct centers that do have basis func-  *
 *          tions of the requested type.                                *
@@ -368,7 +368,7 @@ CMAW end
 *     Write (6,*) 'Ondisk=',Ondisk
 *     Write (6,*) 'lBuf=',lBuf
 *
-*---- Initiate asyncroneous double buffer I/O.
+*---- Initiate asynchronous double buffer I/O.
 *
       IODone = .False.
       Disk = 0.0D0

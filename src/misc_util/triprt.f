@@ -10,51 +10,21 @@
 *                                                                      *
 * Copyright (C) 1992, Markus P. Fuelscher                              *
 ************************************************************************
+* SubRecPrt
+*
+*> @brief
+*>   Print a triangular matrix
+*> @author M. P. F&uuml;lscher, Lund, 1992
+*>
+*> @details
+*> Print a square matrix stored in packed, lower triangular storage mode.
+*>
+*> @param[in] Title   String containing a title
+*> @param[in] FmtIn   String containing a format
+*> @param[in] A       Triangular matrix to be printed
+*> @param[in] N       Dimension of matrix \p A
+************************************************************************
       Subroutine TriPrt(Title,FmtIn,A,N)
-************************************************************
-*
-*   <DOC>
-*     <Name>TriPrt</Name>
-*     <Syntax>Call TriPrt(Title,FmtIn,A,N)</Syntax>
-*     <Arguments>
-*       \Argument{Title}{String containing a title}{Character*(*)}{in}
-*       \Argument{FmtIn}{String containing a format}{Character*(*)}{in}
-*       \Argument{A}{Triangular matrix to be printed}{Array Real*8}{in}
-*       \Argument{N}{Dimension of matrix A}{Integer}{in}
-*     </Arguments>
-*     <Purpose>Print a triangular matrix</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author></Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*     </Description>
-*    </DOC>
-*
-************************************************************
-************************************************************************
-*                                                                      *
-*     purpose:                                                         *
-*     Print a square matrix stored in packed, lower triangular         *
-*     storage mode                                                     *
-*                                                                      *
-*     calling arguments                                                *
-*     Title  : character string containing a title                     *
-*              If the string is empty no title will be printed         *
-*     A      : triangular matrix of double precision reals             *
-*     N      : dimension of matrix A                                   *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M. P. Fuelscher                                                  *
-*     University of Lund, Sweden, 1992                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "standard_iounits.fh"
       Character*(*) Title

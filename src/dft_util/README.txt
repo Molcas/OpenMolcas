@@ -19,7 +19,7 @@ and would like to share it.
 
 The following routines for functional cores were added:
 
-  KealTozer, CTCA, CWIG, XG96, XB86, XOPT, XRGE2, XSSB
+  KealTozer, CTCA, CWIG, XG96, XB86, XOPT, XRGE2, XSSBSW
 
 Derivation was done using Maxima, following spirit of Pawel Salek's Funclib.
 I did not use his scripts nor Funclib Maxima code, for I wanted Fortran77 conversion
@@ -30,7 +30,7 @@ Based on these added functionals and the ones that existed in MOLCAS already,
 the following combinations were created.
 
   B2PLYP B86LYP B86PBE BPBE PBESOL GLYP GPBE KT2 KT3 OLYP
-  OPBE O2PLYP O3LYP PTCA RGE2 SSB
+  OPBE O2PLYP O3LYP PTCA RGE2 SSBSW
 
 I've added references and minimal info/notes in the source files.
 For double-hybrid functionals, MBPT2 code can be modified to check the RunFile

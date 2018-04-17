@@ -17,7 +17,7 @@
 *     REWIND (LU)
       KCMO  = 0
       NDIV  = 4
-      IF(TITLE(1:1).NE.'*') TITLE='*'//TITLE
+      IF(TITLE(1:1).NE.'*') TITLE='*'//TITLE(:LEN(TITLE)-1)
       If (locc.ne.2) Then
       DO 100 ISYM=1,NSYM
          DO 110 IORB=1,NORB(ISYM)

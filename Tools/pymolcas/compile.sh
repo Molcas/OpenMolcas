@@ -22,6 +22,7 @@ nuitka --python-version=3.4 --remove-output \
        --recurse-to=molcas_aux \
        --recurse-to=molcas_wrapper \
        --recurse-to=python_parse \
+       --recurse-to=simpleeval \
        --recurse-to=tee \
        pymolcas.py
 

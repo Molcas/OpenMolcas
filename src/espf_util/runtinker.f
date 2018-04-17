@@ -37,8 +37,8 @@
 *
 * Only call Tinker on the master node
 *
+      ITkQMMM = 1
       If (MyRank .eq. 0) Then
-        ITkQMMM = 1
         ITkQMMM = IsFreeUnit(ITkQMMM)
         Call Molcas_Open (ITkQMMM,'QMMM')
 *
@@ -159,7 +159,8 @@
       If (           (StandAlone.and.iPL.ge.2)
      &     .or. (.not.StandAlone.and.iPL.ge.3)) Then
          iSomething = 0
-         Lu=IsFreeUnit(55)
+         Lu=55
+         Lu=IsFreeUnit(Lu)
          Call Molcas_Open(Lu,'TINKER.LOG')
  666     Continue
          Read(Lu,'(A)',End=667) Line

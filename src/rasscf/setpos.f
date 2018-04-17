@@ -20,6 +20,9 @@
 #include "output_ras.fh"
       Parameter(ROUTINE='SetPos  ')
       Intrinsic len, min
+
+      Call QENTER(ROUTINE)
+
 * Read until, and including, a line beginning with a particular
 * string in an ASCII file, assumed already opened, with unit
 * number LUnit. That line is returned.

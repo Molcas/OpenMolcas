@@ -22,6 +22,9 @@ c         print *,'>',out(1:l),'<'
 c         call prgmfree
 c         end
          subroutine prgminit(module)
+#ifndef _HAVE_EXTRA_
+         Use Prgm
+#endif
          character*(*) module
          l=len(module)
 c         print *,l

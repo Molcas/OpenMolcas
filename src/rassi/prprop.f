@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE PRPROP(PROP,USOR,USOI,ENSOR,NSS)
+      SUBROUTINE PRPROP(PROP,USOR,USOI,ENSOR,NSS,OVLP,ENERGY,JBNUM)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
 #include "prgm.fh"
@@ -23,7 +23,8 @@
 #include "Files.fh"
 #include "WrkSpc.fh"
 #include "constants.fh"
-      DIMENSION PROP(NSTATE,NSTATE,NPROP)
+      DIMENSION PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
+     &          ENERGY(NSTATE),JBNUM(NSTATE)
 #include "SysDef.fh"
 #include "rassiwfn.fh"
       Character*1 xyzchr(3)
@@ -43,7 +44,9 @@
       COMPLEX*16 DIPSOfcsd(3,NSS,NSS),DIPSOfpso(3,NSS,NSS)
        !REAL*8  DIMSOIJ(3,3,NSS)
       REAL*8 GTOTAL(9),ANGMOME(3,NSTATE,NSTATE),ESO(NSS)
-      REAL*8 EDIP1MOM(3,NSTATE,NSTATE)
+      REAL*8 EDIP1MOM(3,NSTATE,NSTATE),AMFIINT(3,NSTATE,NSTATE)
+      REAL*8 TMPL(NSTATE,NSTATE,3),TMPE(NSTATE,NSTATE,3)
+      REAL*8 TMPA(NSTATE,NSTATE,3)
       Dimension TMPm(NTS),TMPf(NTP)
 *     Dimension TMPm(NTS),TMPf(NTP),TMFC(NTF)
       Dimension c_1(3,3),c_2(3,3)!,Zstat1m(NTS),Zstat1f(NTP)
@@ -57,7 +60,7 @@
 *     Dimension NMRFT(NTF,3,3),NMRFP(NTF,3,3),NMRFC(NTF,3,3)
 *     Dimension NMRFD(NTF,3,3)
       REAL*8 DLTTA,DLTT,Zstat,p_Boltz,Boltz_k,coeff_chi
-      LOGICAL ISGS(NSS),IFANGM,IFDIP1
+      LOGICAL ISGS(NSS),IFANGM,IFDIP1,IFAMFI
       Dimension IMR(3),IMI(3),RMAGM(3),Chi(3)
       INTEGER IFUNCT
       REAL*8 J2CM
@@ -66,8 +69,7 @@
       CHARACTER*8 LABEL
       Complex*16 T0(3), T1(3), TM1, TM2, E1A, E2A, E1B, E2B,
      &           IMAGINARY
-
-
+      REAL*8 COMPARE
 
 
       CALL QENTER(ROUTINE)
@@ -215,6 +217,7 @@ C Addition of ANGMOM to Runfile.
 
       IFANGM=.FALSE.
       IFDIP1=.FALSE.
+      IFAMFI=.FALSE.
       DO IPROP=1,NPROP
          IF(PNAME(IPROP)(1:6).EQ.'ANGMOM') THEN
             IFANGM=.TRUE.
@@ -222,38 +225,75 @@ C Addition of ANGMOM to Runfile.
                DO J=1,NSTATE
                   ANGMOME(ICOMP(IPROP),I,J)=0.0D0
                   ANGMOME(ICOMP(IPROP),I,J)=PROP(I,J,IPROP)
+                  TMPL(I,J,ICOMP(IPROP))=0.0D0
+                  TMPL(I,J,ICOMP(IPROP))=PROP(I,J,IPROP)
                ENDDO
             ENDDO
-#ifdef _HDF5_
-            call mh5_put_dset_array_real(wfn_sfs_angmom,
-     $      PROP(:,:,ICOMP(IPROP)),
-     $      [NSTATE,NSTATE,1], [0,0,ICOMP(IPROP)-1])
-#endif
+c#ifdef _HDF5_
+c            call mh5_put_dset_array_real(wfn_sfs_angmom,
+c     $      PROP(1:NSTATE,1:NSTATE,ICOMP(IPROP)),
+c     $      [NSTATE,NSTATE,1], [0,0,ICOMP(IPROP)-1])
+c#endif
          ENDIF
 c add dipole moment integrals:
-         IF(PNAME(IPROP)(1:6).EQ.'MLTPL1') THEN
+         IF(PNAME(IPROP)(1:8).EQ.'MLTPL  1') THEN
             IFDIP1=.TRUE.
             DO I=1,NSTATE
                DO J=1,NSTATE
                   EDIP1MOM(ICOMP(IPROP),I,J)=0.0D0
                   EDIP1MOM(ICOMP(IPROP),I,J)=PROP(I,J,IPROP)
+                  TMPE(I,J,ICOMP(IPROP))=0.0D0
+                  TMPE(I,J,ICOMP(IPROP))=PROP(I,J,IPROP)
                ENDDO
             ENDDO
 c#ifdef _HDF5_
-c            call mh5_put_dset_array_real(wfn_sfs_angmom,
-c     $      PROP(:,:,ICOMP(IPROP)),
+c            call mh5_put_dset_array_real(wfn_sfs_edipmom,
+c     $      PROP(1:NSTATE,1:NSTATE,ICOMP(IPROP)),
+c     $      [NSTATE,NSTATE,1], [0,0,ICOMP(IPROP)-1])
+c#endif
+         ENDIF
+c add spin-orbit AMFI integrals:
+         IF(PNAME(IPROP)(1:8).EQ.'AMFI    ') THEN
+            IFAMFI=.TRUE.
+            DO I=1,NSTATE
+               DO J=1,NSTATE
+                  AMFIINT(ICOMP(IPROP),I,J)=0.0D0
+                  AMFIINT(ICOMP(IPROP),I,J)=PROP(I,J,IPROP)
+                  TMPA(I,J,ICOMP(IPROP))=0.0D0
+                  TMPA(I,J,ICOMP(IPROP))=PROP(I,J,IPROP)
+               ENDDO
+            ENDDO
+c#ifdef _HDF5_
+c            call mh5_put_dset_array_real(wfn_sfs_amfi,
+c     $      PROP(1:NSTATE,1:NSTATE,ICOMP(IPROP)),
 c     $      [NSTATE,NSTATE,1], [0,0,ICOMP(IPROP)-1])
 c#endif
          ENDIF
       ENDDO
       IF(IFANGM.EQV..TRUE.) THEN
        CALL Put_dArray('ANGM_SINGLE',ANGMOME,3*NSTATE*NSTATE)
+#ifdef _HDF5_
+            call mh5_put_dset_array_real(wfn_sfs_angmom,
+     $      TMPL(:,:,:),
+     $      [NSTATE,NSTATE,3], [0,0,0])
+#endif
       ENDIF
       IF(IFDIP1.EQV..TRUE.) THEN
        CALL Put_dArray('DIP1_SINGLE',EDIP1MOM,3*NSTATE*NSTATE)
+#ifdef _HDF5_
+            call mh5_put_dset_array_real(wfn_sfs_edipmom,
+     $      TMPE(:,:,:),
+     $      [NSTATE,NSTATE,3], [0,0,0])
+#endif
       ENDIF
-
-* removed call to natorb_rassi (this is done in eigctl.f)
+      IF(IFAMFI.EQV..TRUE.) THEN
+       CALL Put_dArray('AMFI_SINGLE',AMFIINT,3*NSTATE*NSTATE)
+#ifdef _HDF5_
+            call mh5_put_dset_array_real(wfn_sfs_amfi,
+     $      TMPA(:,:,:),
+     $      [NSTATE,NSTATE,3], [0,0,0])
+#endif
+      ENDIF
 
 *******************************************************
 * printout of properties over the spin-orbit states
@@ -391,8 +431,8 @@ CIFG  should print the origin, but where is it stored (for SO properties)?
 C Compute transition strengths for spin-orbit states:
       IF(.not.IFSO) GOTO 500
 *
-      IF (IPGLOB.GE.TERSE) THEN
-
+* Initial setup for both dipole, quadrupole etc. and exact operator
+*
 C printing threshold
 !     IF(IPGLOB.eq.USUAL) OSTHR=1.0D-8 ! first order
 !     IF(IPGLOB.eq.USUAL) OSTHR2=1.0D-12 ! second order (weaker)
@@ -410,6 +450,30 @@ C printing threshold
       IF(QIPR) WRITE(6,*) ' Quadrupole threshold changed to ',OSTHR2
 
       IF(QIALL) WRITE(6,*) ' Will write all quadrupole contributions '
+!
+!     Reducing the loop over states - good for X-rays
+!     At the moment memory is not reduced
+!
+      IF(REDUCELOOP) THEN
+        IEND = LOOPDIVIDE
+        JSTART = LOOPDIVIDE+1
+      ELSE
+        IEND = NSS
+        JSTART = 1
+      END IF
+!
+      IF (IPGLOB.GE.TERSE) THEN
+!
+!     Initialize arrays for indentifying problematic transitions
+!     These stores all dipole oscillator strengths in
+!     length and velocity gauge for a later comparison.
+!
+      CALL GETMEM('DL   ','ALLO','REAL',LDL,NSS**2)
+      CALL GETMEM('DV   ','ALLO','REAL',LDV,NSS**2)
+      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDL),1)
+      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDV),1)
+      I_HAVE_DL = 0
+      I_HAVE_DV = 0
 
 *Electric-Dipole Electric-Dipole transitions
 
@@ -426,8 +490,8 @@ C printing threshold
           END IF
         END DO
 
+        i_Print=0
         IF(IFANYD.NE.0) THEN
-         i_Print=0
          AFACTOR=32.1299D09
 
          CALL GETMEM('DXR','ALLO','REAL',LDXR,NSS**2)
@@ -457,8 +521,8 @@ C printing threshold
          END IF
 
          Two3rds=2.0D0/3.0D0
-         DO ISS=1,NSS
-          DO JSS=1,NSS
+         DO ISS=1,IEND
+          DO JSS=JSTART,NSS
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
            IF (ABS(EDIFF).LE.1.0D-8) CYCLE
            IF(EDIFF.GT.0.0D0) THEN
@@ -488,6 +552,8 @@ C printing threshold
             AY=(AFACTOR*EDIFF**2)*FY
             AZ=(AFACTOR*EDIFF**2)*FZ
             A =(AFACTOR*EDIFF**2)*F
+! Store dipole oscillator strength
+            WORK(LDL-1+IJSS) = F
             IF(ABS(F).GE.OSTHR) THEN
               If (i_Print.eq.0) Then
                  i_Print=1
@@ -519,8 +585,6 @@ C printing threshold
            END IF
           END DO
          END DO
-         WRITE(6,*)'        -----------------------------------------'//
-     &    '--------------------------------------------------'
 
          CALL GETMEM('DXR','FREE','REAL',LDXR,NSS**2)
          CALL GETMEM('DXI','FREE','REAL',LDXI,NSS**2)
@@ -529,9 +593,14 @@ C printing threshold
          CALL GETMEM('DZR','FREE','REAL',LDZR,NSS**2)
          CALL GETMEM('DZI','FREE','REAL',LDZI,NSS**2)
 
-         Call CollapseOutput(0,
+         If (i_Print.eq.1) THEN
+           WRITE(6,*)'        -----------------------------------------'
+     &      //'--------------------------------------------------'
+           Call CollapseOutput(0,
      &                     'Dipole transition strengths (SO states):')
-         WRITE(6,*)
+           WRITE(6,*)
+         END IF
+         I_HAVE_DL = 1
         END IF
 
 *       Now the same in velocity representation
@@ -549,9 +618,9 @@ C printing threshold
           END IF
         END DO
 
+        i_Print=0
         IF(IFANYD.NE.0) THEN
          AFACTOR=32.1299D09
-         i_Print=0
 
          CALL GETMEM('DXR','ALLO','REAL',LDXR,NSS**2)
          CALL GETMEM('DXI','ALLO','REAL',LDXI,NSS**2)
@@ -582,8 +651,8 @@ C printing threshold
          END IF
 
          Two3rds=2.0D0/3.0D0
-         DO ISS=1,NSS
-          DO JSS=1,NSS
+         DO ISS=1,IEND
+          DO JSS=JSTART,NSS
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
            IF (ABS(EDIFF).LE.1.0D-8) CYCLE
            IF(EDIFF.GT.0.0D0) THEN
@@ -613,6 +682,8 @@ C printing threshold
             AY=(AFACTOR*EDIFF**2)*FY
             AZ=(AFACTOR*EDIFF**2)*FZ
             A =(AFACTOR*EDIFF**2)*F
+! Store dipole oscillator strength
+            WORK(LDV-1+IJSS) = F
             IF(ABS(F).GE.OSTHR) THEN
               If (i_Print.eq.0) Then
                  i_Print=1
@@ -644,8 +715,6 @@ C printing threshold
            END IF
           END DO
          END DO
-         WRITE(6,*)'        -----------------------------------------'//
-     &    '--------------------------------------------------'
 
          CALL GETMEM('DXR','FREE','REAL',LDXR,NSS**2)
          CALL GETMEM('DXI','FREE','REAL',LDXI,NSS**2)
@@ -654,11 +723,104 @@ C printing threshold
          CALL GETMEM('DZR','FREE','REAL',LDZR,NSS**2)
          CALL GETMEM('DZI','FREE','REAL',LDZI,NSS**2)
 
-         Call CollapseOutput(0,
+         If (i_Print.eq.1) THEN
+           WRITE(6,*)'        -----------------------------------------'
+     &     //'--------------------------------------------------'
+           Call CollapseOutput(0,
      &                     'Velocity transition strengths (SO states):')
-         WRITE(6,*)
+           WRITE(6,*)
+         END IF
+         I_HAVE_DV = 1
         END IF
 
+!
+!      Compare oscillator strengths in length and velocity gauge
+!      All differences in oscillator strengths above the tolerance
+!      of 0.1 (10 percent) will be printed.
+!
+       IF(I_HAVE_DL.EQ.1.AND.I_HAVE_DV.EQ.1) THEN
+!
+! I guess that I have to explain it when I print a warning
+!
+         WRITE(6,*)
+         WRITE(6,*) "--------------------------------------------------"
+         WRITE(6,*)
+         WRITE(6,*) "A comparison between the dipole oscillator "//
+     &              "strengths in "
+         WRITE(6,*) "length and velocity gauge "//
+     &              "will be performed"
+         WRITE(6,*)
+         WRITE(6,*) "All dipole oscillator differences above the "//
+     &              "tolerance of ",TOLERANCE," will be printed "
+         WRITE(6,*)
+         WRITE(6,*) "Due to basis set deficiency these oscillator "//
+     &              "may be problematic "
+         WRITE(6,*)
+         WRITE(6,*) "The tolerance is defined as ABS(1-O_l/O_v) "
+         WRITE(6,*) "O_l : dipole oscillator strength in length gauge"
+         WRITE(6,*) "O_p : dipole oscillator strength in velocity gauge"
+         WRITE(6,*)
+         WRITE(6,*) "--------------------------------------------------"
+!
+          I_PRINT_HEADER = 0
+          DO I=1,IEND
+            DO J=JSTART,NSS
+               IJ=I+NSS*(J-1)
+               EDIFF=ENSOR(J)-ENSOR(I)
+               IF(EDIFF.LT.0.0D0) CYCLE
+               COMPARE=0.0D0
+             IF(WORK(LDL-1+IJ).GE.OSTHR.AND.WORK(LDV-1+IJ).GE.OSTHR)
+     &          THEN
+               COMPARE = ABS(1-WORK(LDL-1+IJ)/WORK(LDV-1+IJ))
+             ELSE IF(WORK(LDL-1+IJ).GE.OSTHR) THEN
+               COMPARE = -1.5D0
+             ELSE IF(WORK(LDV-1+IJ).GE.OSTHR) THEN
+               COMPARE = -2.5D0
+             END IF
+             IF(ABS(COMPARE).GE.TOLERANCE) THEN
+               I_PRINT_HEADER = I_PRINT_HEADER + 1
+               IF(I_PRINT_HEADER.EQ.1) THEN
+                 WRITE(6,*)
+                 WRITE(6,*) " Problematic transitions have been found"
+                 WRITE(6,*) "     From   To      Difference (%)  "//
+     &                      "Osc. st. (len.) Osc. st. (vel.)"
+                 WRITE(6,*) "     -------------------------------"//
+     &                      "-------------------------------"
+                 WRITE(6,*)
+               END IF
+               IF (COMPARE.GE.0.0D0) THEN
+                 WRITE(6,33) I,J,COMPARE*100D0,
+     &                    WORK(LDL-1+IJ),WORK(LDV-1+IJ)
+               ELSE IF (COMPARE.GE.2.0D0) THEN
+                 WRITE(6,36) I,J,WORK(LDL-1+IJ),"below threshold"
+               ELSE
+                 WRITE(6,37) I,J,"below threshold",WORK(LDV-1+IJ)
+               END IF
+             END IF
+            END DO
+          END DO
+          IF(I_PRINT_HEADER.EQ.0) THEN
+            WRITE(6,*)
+            WRITE(6,*) "No problematic oscillator strengths above "//
+     &                 "the tolerance ", TOLERANCE," have been found"
+            WRITE(6,*)
+          ELSE
+            WRITE(6,*) "     -------------------------------"//
+     &                 "-------------------------------"
+            WRITE(6,*)
+            WRITE(6,*) "Number of problematic transitions = ",
+     &                  I_PRINT_HEADER
+            WRITE(6,*)
+          END IF
+        END IF
+33    FORMAT (5X,2(1X,I4),5X,5(1X,ES15.8))
+36    FORMAT (5X,2(1X,I4),6X,15('-'),1X,ES15.8,1X,A15)
+37    FORMAT (5X,2(1X,I4),6X,15('-'),1X,A15,1X,ES15.8)
+*
+* Free the memory
+*
+      CALL GETMEM('DL   ','FREE','REAL',LDL,NSTATE**2)
+      CALL GETMEM('DV   ','FREE','REAL',LDV,NSTATE**2)
 !
 ! We will first allocate a matrix for the total of the second order wave vector
 !
@@ -791,8 +953,8 @@ C printing threshold
 
          ONEOVER6C2=1.0D0/(6.0D0*CONST_C_IN_AU_**2)
          g = 2.0D0 ! Well I assume that the g-factor for the electron is 2
-         DO ISS=1,NSS
-          DO JSS=1,NSS
+         DO ISS=1,IEND
+          DO JSS=JSTART,NSS
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
            IF(EDIFF.GT.0.0D0) THEN
             IJSS=ISS+NSS*(JSS-1)
@@ -941,8 +1103,8 @@ C printing threshold
          ONEOVER10C=1.0D0/(10.0D0*CONST_C_IN_AU_**2)
          ONEOVER30C=ONEOVER10C/3.0D0
 
-         DO ISS=1,NSS
-          DO JSS=1,NSS
+         DO ISS=1,IEND
+          DO JSS=JSTART,NSS
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
            IF(EDIFF.GT.0.0D0) THEN
 !
@@ -1225,8 +1387,8 @@ C printing threshold
          END IF
 
          TWOOVERM45C=-2.0D0/(45.0D0*CONST_C_IN_AU_**2)
-         DO ISS=1,NSS
-          DO JSS=1,NSS
+         DO ISS=1,IEND
+          DO JSS=JSTART,NSS
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
            IF(EDIFF.GT.0.0D0) THEN
 !
@@ -1590,8 +1752,8 @@ C printing threshold
 
          ONEOVER9C2=1.0D0/(9.0D0*CONST_C_IN_AU_**2)
          g = 2
-         DO ISS=1,NSS
-          DO JSS=1,NSS
+         DO ISS=1,IEND
+          DO JSS=JSTART,NSS
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
            IF(EDIFF.GT.0.0D0) THEN
 !
@@ -1726,40 +1888,46 @@ C printing threshold
 ! Now write out the total
 !
 ! Add it to the total
-         Call CollapseOutput(1,
-     &                  'Total transition strengths ' //
-     &                  'for the second-order expansion of the wave '//
-     &                  'vector (SO states):')
-         WRITE(6,'(3X,A)')
-     &                  '---------------------------' //
-     &                  '-------------------------------------------'//
-     &                  '-------------------'
 !
-         IF(OSTHR2.GT.0.0D0) THEN
-          WRITE(6,*)'   for osc. strength at least ',OSTHR2
-          WRITE(6,*)
-         END IF
-         WRITE(6,*)"        To  From     Osc. strength"
-         WRITE(6,*)'        ----------------------------'
-!
-         DO ISS=1,NSS
-          DO JSS=1,NSS
+         i_Print=0
+         DO ISS=1,IEND
+          DO JSS=JSTART,NSS
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
            IF(EDIFF.GT.0.0D0) THEN
 !
             IJSS=ISS+NSS*(JSS-1)
             F = WORK(LTOT2K-1+IJSS)
             IF(ABS(F).GE.OSTHR2) THEN
+             IF(i_Print.eq.0) THEN
+              i_Print=1
+              Call CollapseOutput(1,
+     &                  'Total transition strengths ' //
+     &                  'for the second-order expansion of the wave '//
+     &                  'vector (SO states):')
+              WRITE(6,'(3X,A)')
+     &                  '---------------------------' //
+     &                  '-------------------------------------------'//
+     &                  '-------------------'
+!
+              IF(OSTHR2.GT.0.0D0) THEN
+               WRITE(6,*)'   for osc. strength at least ',OSTHR2
+               WRITE(6,*)
+              END IF
+              WRITE(6,*)"        To  From     Osc. strength"
+              WRITE(6,*)'        ----------------------------'
+             END IF
              WRITE(6,'(5X,2I5,5X,ES16.8)') ISS,JSS,F
             END IF
            END IF
           END DO
          END DO
-         Call CollapseOutput(0,
+         If (i_Print.eq.1) THEN
+           Call CollapseOutput(0,
      &                  'Total transition strengths ' //
      &                  'for the second-order expansion of the wave '//
      &                  'vector (SO states):')
-         WRITE(6,*)
+           WRITE(6,*)
+         END IF
 ! release the memory again
          CALL GETMEM('TOT2K','FREE','REAL',LTOT2K,NSS**2)
 
@@ -1817,7 +1985,8 @@ C printing threshold
 *
 *     Initiate the Seward environment
 *
-      Call IniSew(Info,.FALSE.,0)
+      nDiff=0
+      Call IniSew(Info,.FALSE.,nDiff)
 *
 *     Generate the quadrature points.
 *
@@ -1833,11 +2002,19 @@ C printing threshold
          Call Do_Lebedev(L_Eff,nQuad,ipR)
       End If
 *
+      IF(DO_KVEC) THEN
+*
+*     Specific directions specified by user
+*     The arrays from the Lebedev procedure is still used
+*
+        NQUAD = NKVEC
+      END IF
+*
 *     Get table of content for density matrices.
 *
       Call DaName(LuToM,FnToM)
       iDisk=0
-      Call iDaFile(LuToM,2,iTocM,MxStat*(MxStat+1)/2,iDisk)
+      Call iDaFile(LuToM,2,iWork(liTocM),nState*(nState+1)/2,iDisk)
 *
 *     Allocate some temporary arrays for handling the
 *     properties of the spin-orbit states.
@@ -1851,6 +2028,11 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       CALL GETMEM('IP    ','ALLO','REAL',LIP,NIP)
       NSCR=(NBST*(NBST+1))/2
       CALL GETMEM('TDMSCR','Allo','Real',LSCR,4*NSCR)
+*
+*     Array for printing contributions from different directions
+*
+      CALL GETMEM('RAW   ','ALLO','REAL',LRAW,NQUAD*5)
+      CALL GETMEM('WEIGHT','ALLO','REAL',LWEIGH,NQUAD*5)
 *
 *     Allocate vector to store all individual transition moments.
 *     We do this for
@@ -1880,12 +2062,12 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       G_Elec=CONST_ELECTRON_G_FACTOR_
       iPrint=0
       IJSO=0
-      DO ISO=1, NSS
-         DO JSO=1, NSS
+      DO ISO=1, IEND
+         DO JSO=JSTART, NSS
 *
             EDIFF=ENSOR(JSO)-ENSOR(ISO)
             IF (ABS(EDIFF).LE.1.0D-8) CYCLE
-            IF (EDIFF.LE.0.0D0) CYCLE
+            IF(EDIFF.LT.0.0D0) CYCLE
             IJSO=IJSO+1
             iOff_= (IJSO-1)*nQuad*nData
 *
@@ -1902,8 +2084,24 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
             F =0.0D0
             Fm=0.0D0
 *
+*           Initialize output arrays
+*
+            CALL DCOPY_(NQUAD*5,0.0D0,0,WORK(LRAW),1)
+            CALL DCOPY_(NQUAD*5,0.0D0,0,WORK(LWEIGH),1)
+
             Do iQuad = 1, nQuad
                iStorage = iOff_+ (iQuad-1)*nData + ipStorage - 1
+*
+*              Read or generate the wavevector
+*
+               IF(DO_KVEC) THEN
+*
+*              Get wavevector from input
+*
+               XCOOR = WORK(PKVEC+IQUAD-1)
+               YCOOR = WORK(PKVEC+IQUAD-1+NQUAD)
+               ZCOOR = WORK(PKVEC+IQUAD-1+2*NQUAD)
+               ELSE
 *
 *              Generate the wavevector associated with this quadrature
 *              point and pick up the associated quadrature weight.
@@ -1911,6 +2109,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                xcoor=Work((iQuad-1)*4  +ipR)
                ycoor=Work((iQuad-1)*4+1+ipR)
                zcoor=Work((iQuad-1)*4+2+ipR)
+               END IF
+
                PORIG(1,IPREMFR_RS)=rkNorm*xcoor
                PORIG(2,IPREMFR_RS)=rkNorm*ycoor
                PORIG(3,IPREMFR_RS)=rkNorm*zcoor
@@ -2003,7 +2203,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                      ISTATE=MAX(i,j)
                      JSTATE=MIN(i,j)
                      ij=ISTATE*(ISTATE-1)/2+JSTATE
-                     iDisk=iTocM(ij)
+                     iDisk=iWork(liTocM+ij-1)
                      Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
 *
 *                    Compute the transition property of the property
@@ -2089,16 +2289,40 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
                F_Temp = 2.0D0*TM_2/EDIFF
 *
+*              Do only the magnetic part.
+*
+               TM1 = IMAGINARY*(g_Elec/2.0D0)*E1B
+               TM2 = IMAGINARY*(g_Elec/2.0D0)*E2B
+               TM_2 = Half*DBLE(DCONJG(TM1)*TM1 + DCONJG(TM2)*TM2)
+               F_Tempm = 2.0D0*TM_2/EDIFF
+*
+*              Save the raw oscillator strengths in a given direction
+*
+               WORK(LRAW+(IQUAD-1)+0*NQUAD) = F_TEMP
+               WORK(LRAW+(IQUAD-1)+1*NQUAD) = F_TEMPM
+               WORK(LRAW+(IQUAD-1)+2*NQUAD) = XCOOR
+               WORK(LRAW+(IQUAD-1)+3*NQUAD) = YCOOR
+               WORK(LRAW+(IQUAD-1)+4*NQUAD) = ZCOOR
+*
 *              Compute the oscillator strength
 *
                F = F + Weight * F_Temp
 *
 *              Do only the magnetic part.
-               TM1 = IMAGINARY*(g_Elec/2.0D0)*E1B
-               TM2 = IMAGINARY*(g_Elec/2.0D0)*E2B
-               TM_2 = Half*DBLE(DCONJG(TM1)*TM1 + DCONJG(TM2)*TM2)
-               F_Temp = 2.0D0*TM_2/EDIFF
-               Fm= Fm+ Weight * F_Temp
+*              TM1 = IMAGINARY*(g_Elec/2.0D0)*E1B
+*              TM2 = IMAGINARY*(g_Elec/2.0D0)*E2B
+*              TM_2 = Half*DBLE(DCONJG(TM1)*TM1 + DCONJG(TM2)*TM2)
+*              F_Temp = 2.0D0*TM_2/EDIFF
+               Fm= Fm+ Weight * F_Tempm
+*
+*              Save the weighted oscillator strengths in a given direction
+*
+               WORK(LWEIGH+(IQUAD-1)+0*NQUAD) = F_TEMP*WEIGHT
+               WORK(LWEIGH+(IQUAD-1)+1*NQUAD) = F_TEMPM*WEIGHT
+               WORK(LWEIGH+(IQUAD-1)+2*NQUAD) = XCOOR
+               WORK(LWEIGH+(IQUAD-1)+3*NQUAD) = YCOOR
+               WORK(LWEIGH+(IQUAD-1)+4*NQUAD) = ZCOOR
+
             End Do ! iQuad
 *
 *           Note that the weights are normalized to integrate to
@@ -2112,48 +2336,96 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
             AZ=(AFACTOR*EDIFF**2)*FZ
             A =(AFACTOR*EDIFF**2)*F
 *
-            If (iPrint.eq.0) Then
-               WRITE(6,*)
-               If (Do_SK) Then
-                  CALL CollapseOutput(1,
-     &                'Transition moment strengths:')
-               Else
-                  CALL CollapseOutput(1,
-     &                'Isotropic transition moment strengths:')
-               End If
-               WRITE(6,'(3X,A)')
-     &                '--------------------------------------'
-               IF (OSTHR.GT.0.0D0) THEN
-                  WRITE(6,'(1x,a,ES16.8)')
-     &                  '   for osc. strength at least ',OSTHR
-               END IF
-               WRITE(6,*)
-               If (Do_SK) Then
-                  WRITE(6,'(4x,a,3F8.4,a)')
-     &                  'Direction of the k-vector: ',
-     &                   (Work(ipR+k),k=0,2),' (au)'
-                  WRITE(6,'(4x,a)')
-     &                  'The light is assumed to be unpolarized.'
-               Else
-                  WRITE(6,'(1x,a,I4,a)')
-     &               '   Integrated over ',nQuad,' directions of the'//
-     &               ' wave vector'
-                  WRITE(6,'(1x,a)')
-     &               '   Integrated over all directions of the polar'//
-     &               'ization vector'
-               End If
-               WRITE(6,*)
-               WRITE(6,*)"        To  From     Osc. strength"//
-     &           "   Einstein coefficients Ax, Ay, Az (sec-1) "//
-     &           "      Total A (sec-1)  "
-               WRITE(6,*)
+            IF(.NOT.DO_KVEC) THEN
+              If (iPrint.eq.0) Then
+                 WRITE(6,*)
+                 If (Do_SK) Then
+                    CALL CollapseOutput(1,
+     &                  'Transition moment strengths:')
+                 Else
+                    CALL CollapseOutput(1,
+     &                  'Isotropic transition moment strengths:')
+                 End If
+                 WRITE(6,'(3X,A)')
+     &                  '--------------------------------------'
+                 IF (OSTHR.GT.0.0D0) THEN
+                    WRITE(6,'(1x,a,ES16.8)')
+     &                    '   for osc. strength at least ',OSTHR
+                 END IF
+                 WRITE(6,*)
+                 If (Do_SK) Then
+                    WRITE(6,'(4x,a,3F8.4,a)')
+     &                    'Direction of the k-vector: ',
+     &                     (Work(ipR+k),k=0,2),' (au)'
+                    WRITE(6,'(4x,a)')
+     &                    'The light is assumed to be unpolarized.'
+                 Else
+                    WRITE(6,'(1x,a,I4,a)')
+     &                '   Integrated over ',nQuad,' directions of the'//
+     &                ' wave vector'
+                    WRITE(6,'(1x,a)')
+     &                '   Integrated over all directions of the polar'//
+     &                'ization vector'
+                 End If
+                 WRITE(6,*)
+                 WRITE(6,*)"        To  From     Osc. strength"//
+     &             "   Einstein coefficients Ax, Ay, Az (sec-1) "//
+     &             "      Total A (sec-1)  "
+                 WRITE(6,*)
      &  '        -------------------------------------------'//
      &  '------------------------------------------------'
                 iPrint=1
+              END IF
+*
+              WRITE(6,'(5X,2I5,5X,5G16.8)') ISO,JSO,F,AX,AY,AZ,A
+              WRITE(6,'(A,6X,G16.8)') ' Magnetic only',Fm
             END IF
 *
-            WRITE(6,'(5X,2I5,5X,5ES16.8)') ISO,JSO,F,AX,AY,AZ,A
-            WRITE(6,'(A,6X,ES16.8)') ' Magnetic only',Fm
+*     Printing raw (unweighted) and direction for every transition
+*
+            IF(PRRAW) THEN
+              WRITE(6,*)
+              WRITE(6,*)
+              WRITE(6,*)"        To  From     Raw Osc. str."//
+     &          "   Mag. cont.       "//
+     &          "   kx,            ky,            kz "
+              WRITE(6,*)
+     &  '        -------------------------------------------'//
+     &  '------------------------------------------------'
+              DO IQUAD = 1, NQUAD
+                WRITE(6,'(5X,2I5,5X,5G16.8)') ISO,JSO,
+     &          WORK(LRAW+(IQUAD-1)+0*NQUAD),
+     &          WORK(LRAW+(IQUAD-1)+1*NQUAD),
+     &          WORK(LRAW+(IQUAD-1)+2*NQUAD),
+     &          WORK(LRAW+(IQUAD-1)+3*NQUAD),
+     &          WORK(LRAW+(IQUAD-1)+4*NQUAD)
+              END DO
+              WRITE(6,*)
+              WRITE(6,*)
+            END IF
+*
+*     Printing weighted and direction for every transition
+*
+            IF(PRWEIGHT) THEN
+              WRITE(6,*)
+              WRITE(6,*)
+              WRITE(6,*)"        To  From     Wei Osc. str."//
+     &          "   Mag. cont.       "//
+     &          "   kx,            ky,            kz "
+              WRITE(6,*)
+     &  '        -------------------------------------------'//
+     &  '------------------------------------------------'
+              DO IQUAD = 1, NQUAD
+                WRITE(6,'(5X,2I5,5X,5G16.8)') ISO,JSO,
+     &          WORK(LWEIGH+(IQUAD-1)+0*NQUAD)/ (4.0D0*PI),
+     &          WORK(LWEIGH+(IQUAD-1)+1*NQUAD)/ (4.0D0*PI),
+     &          WORK(LWEIGH+(IQUAD-1)+2*NQUAD)/ (4.0D0*PI),
+     &          WORK(LWEIGH+(IQUAD-1)+3*NQUAD)/ (4.0D0*PI),
+     &          WORK(LWEIGH+(IQUAD-1)+4*NQUAD)/ (4.0D0*PI)
+              END DO
+              WRITE(6,*)
+              WRITE(6,*)
+            END IF
 *
             Call Add_Info('ITMS(SO)',F,1,6)
 *
@@ -2176,6 +2448,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *     Do some cleanup
 *
       Call GetMem('STORAGE','FREE','Real',ipStorage,nStorage)
+      CALL GETMEM('RAW   ','FREE','REAL',LRAW,NQUAD*5)
+      CALL GETMEM('WEIGHT','FREE','REAL',LWEIGH,NQUAD*5)
       CALL GETMEM('TDMSCR','FREE','Real',LSCR,4*NSCR)
       CALL GETMEM('IP    ','FREE','REAL',LIP,NIP)
       CALL GETMEM('DXR','FREE','REAL',LDXR,NSS**2)
@@ -6528,9 +6802,9 @@ C backtransformation in two steps, -phi and -theta
       write(6,'(10A)') (('############'),J=1,10)
 
       do l=1,3
-      if(l.eq.1.)  angm='X'
-      if(l.eq.2.)  angm='Y'
-      if(l.eq.3.)  angm='Z'
+      if(l.eq.1)  angm='X'
+      if(l.eq.2)  angm='Y'
+      if(l.eq.3)  angm='Z'
       write(6,'(/)')
       write(6,'(4X,A12,A2)') 'PROJECTION: ', angm
       write(6,'(/)')
@@ -6639,9 +6913,9 @@ C backtransformation in two steps, -phi and -theta
       write(6,'(10A)') (('############'),J=1,10)
       write(6,'(/)')
       do l=1,3
-      if(l.eq.1.)  angm='X'
-      if(l.eq.2.)  angm='Y'
-      if(l.eq.3.)  angm='Z'
+      if(l.eq.1)  angm='X'
+      if(l.eq.2)  angm='Y'
+      if(l.eq.3)  angm='Z'
       write(6,'(/)')
       write(6,'(4X,A,A)') 'PROJECTION: ', angm
       write(6,'(/)')

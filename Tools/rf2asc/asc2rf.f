@@ -21,7 +21,7 @@
 *          Lund University, Sweden                                     *
 *                                                                      *
 ************************************************************************
-      Program RF2Asc
+      Program Asc2RF
 #include "runinfo.fh"
 #include "runtypes.fh"
 *----------------------------------------------------------------------*
@@ -40,6 +40,8 @@
       Integer      iRc
       Integer      iOpt
       Integer      i
+      Call Init_LinAlg
+      Call PrgmInit('Asc2RF')
 *----------------------------------------------------------------------*
 * Create RunFile.                                                      *
 *----------------------------------------------------------------------*

@@ -25,6 +25,8 @@
       Dimension nOcc(MxAt),natyp(MxAt)
       Character Labjhr*4
 ****************
+      Logical  Is_Real_Par
+      External Is_Real_Par
 
 *
 *-- The journey begins. Set non-zero return code.
@@ -36,10 +38,12 @@
 *-- If parallel compilation, terminate, but gracefully.
 *
 #ifdef _MOLCAS_MPP_
-      Write(6,*)
-      Write(6,*)' QMStat does not run in parallel!'
-      Write(6,*)
-      Call Quit(_RC_EXIT_)
+      If (Is_Real_Par()) Then
+        Write(6,*)
+        Write(6,*)' QMStat does not run in parallel!'
+        Write(6,*)
+        Call Quit(_RC_NOT_AVAILABLE_)
+      End If
 #endif
 
 *

@@ -564,7 +564,7 @@ C-SVC: identify runfile with a fingerprint
 *
       ireturn=_RC_ALL_IS_WELL_
       If (Test)  Then
-         ireturn=_RC_EXIT_
+         ireturn=_RC_EXIT_EXPECTED_
       Else
          If (isGvMode.gt.0.or.lRP_Post)
      &       ireturn=_RC_INVOKED_OTHER_MODULE_

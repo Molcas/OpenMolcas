@@ -302,7 +302,7 @@ C always write the chunks to LUDRA, both for serial and parallel
       INTEGER*4 IERROR4,ITYPE
       INTEGER*4, PARAMETER :: ONE4 = 1
       INTEGER :: LDISP,LSIZE,LRECVBUF,LTRANSP
-      INTEGER :: I,JNUM,JNUMT,NPQ,NUMSEND,IDISKT,IERROR
+      INTEGER :: I,JNUM,JNUMT,NPQ,NUMSEND(1),IDISKT,IERROR
 #ifdef _DEBUG_
       INTEGER :: MY_N,NOFF
       REAL*8 :: SQFP
@@ -326,9 +326,9 @@ C vectors, and for the per-process size and offset into LUDRATOT
 C gather sizes of local cholesky bits
         NPQ=NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
         JNUM=NVLOC_CHOBATCH(IB)
-        NUMSEND=NPQ*JNUM
+        NUMSEND(1)=NPQ*JNUM
         CALL MPI_Allgather(NUMSEND,ONE4,ITYPE,
-     &       IWORK(LSIZE),ONE4,ITYPE,
+     &       IWORK(LSIZE:LSIZE+NPROCS-1),ONE4,ITYPE,
      &       MPI_COMM_WORLD, IERROR4)
 C compute offsets into the receiving array
         IWORK(LDISP)=0
@@ -339,7 +339,7 @@ C compute offsets into the receiving array
 C collect the vectors
         CALL GETMEM('RECVBUF','ALLO','REAL',LRECVBUF,NFTSPC_TOT)
         CALL MPI_Barrier(MPI_COMM_WORLD, IERROR4)
-        CALL MPI_Allgatherv_(CHOBUF,NUMSEND,MPI_REAL8,
+        CALL MPI_Allgatherv_(CHOBUF,NUMSEND(1),MPI_REAL8,
      &       WORK(LRECVBUF),IWORK(LSIZE),IWORK(LDISP),
      &       MPI_REAL8,MPI_COMM_WORLD, IERROR)
 

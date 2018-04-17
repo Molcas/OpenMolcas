@@ -44,6 +44,7 @@
 #include "WrkSpc.fh"
 #include "splitcas.fh"
 #include "fciqmc.fh"
+#include "lucia_ini.fh"
       Character*8   Fmt1,Fmt2,Label
       Character*120  Line,BlLine,StLine
       Character*3 lIrrep(8)
@@ -85,7 +86,9 @@
       l_casdft = KSDFT(1:5).eq.'TLSDA'   .or.
      &           KSDFT(1:6).eq.'TLSDA5'  .or.
      &           KSDFT(1:5).eq.'TBLYP'   .or.
-     &           KSDFT(1:4).eq.'TSSB'    .or.
+     &           KSDFT(1:6).eq.'TSSBSW'  .or.
+     &           KSDFT(1:5).eq.'TSSBD'   .or.
+     &           KSDFT(1:5).eq.'TS12G'   .or.
      &           KSDFT(1:4).eq.'TPBE'    .or.
      &           KSDFT(1:5).eq.'FTPBE'   .or.
      &           KSDFT(1:7).eq.'TREVPBE' .or.
@@ -289,18 +292,26 @@ C.. for GAS
       Write(LF,Fmt1)'----------------------------'
       Write(LF,*)
 
-      if(doDMRG)then  ! Information for DMRG
+      if(doDMRG)then  !> Information for QCMaquis-DMRG
 #ifdef _DMRG_
        if(dmrg_orbital_space%initial_occ(1,1) > 0)then
          dmrg_start_guess = "Single determinant"
        else
-         dmrg_start_guess = "Random numbers (default)"
+         if(dmrg_warmup%doCIDEAS)then
+           dmrg_start_guess = "CI-DEAS"
+         else
+           dmrg_start_guess = "Random numbers (default)"
+         end if
        end if
        call print_dmrg_info(lf,fmt2,1,dmrg_start_guess,nroots,thre)
 #endif
       else
         Write(LF,Fmt2//'A,T40,I11)')'Number of CSFs',
      &                           NCSASM(LSYM)
+        if (N_ELIMINATED_GAS_MOLCAS.gt.0) Then
+          Write(LF,Fmt2//'A,T40,I11)')'Number of highly excited CSFs',
+     &                           nCSF_HEXS
+        EndIf
         Write(LF,Fmt2//'A,T40,I11)')'Number of determinants',
      &                           NDTASM(LSYM)
       end if

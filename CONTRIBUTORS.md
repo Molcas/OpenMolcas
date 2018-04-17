@@ -16,6 +16,11 @@ along with OpenMolcas. If not, see <http://www.gnu.org/licenses/>.
 Copyright (C) 1989-2017, The OpenMolcas Authors
 
 
+NOTE: Some of the files distributed with OpenMolcas may be subject to a more
+permissive or otherwise compatible license. Some of the files from external
+sources may be subject to a more restrictive or otherwise incompatible license.
+
+
 General citations
 =================
 
@@ -52,9 +57,11 @@ Margareta R. A. Blomberg
 Piotr Borowski  
 Jonas Boström  
 Per Boussard  
+John Burkardt 
 Yannick Carissan  
 Liviu Chibotaru  
 Christophe Chipot  
+Aron Cohen 
 David L. Cooper  
 Maurizio Cossi  
 Oleh Danyliv  
@@ -63,6 +70,7 @@ Ajitha Devarajan
 Luca De Vico  
 Michael Diedenhofen  
 Thomas Dresselhaus  
+Daniel Fairhead  
 Ignacio Fdez. Galván  
 Nicolas Ferré  
 Timo Fleig  
@@ -71,8 +79,10 @@ Luis Manuel Frutos
 Markus P. Fülscher  
 Alexander Gaenko  
 Laura Gagliardi  
+Walter Gautschi  
 Giovanni Ghigo  
 Coen de Graaf  
+Gene H. Golub  
 Sergey Gusarov  
 Daniel Hagberg  
 Jun-ya Hasegawa  
@@ -92,7 +102,6 @@ Johan Lorentzon
 Dongxia Ma  
 Yingjin Ma  
 Per Åke Malmqvist  
-Koni Marti  
 Neil Martinsen-Burrell  
 Andy May  
 Manuela Merchán  

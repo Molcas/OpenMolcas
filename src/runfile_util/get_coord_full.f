@@ -10,28 +10,20 @@
 *                                                                      *
 * Copyright (C) 2015, Ignacio Fdez. Galvan                             *
 ************************************************************************
+*  Get_Coord_Full
+*
+*> @brief
+*>   Get coordinates from RUNFILE
+*> @author I. Fdez. Galv&aacute;n
+*>
+*> @details
+*> Place Cartesian coordinates (in a.u.) into array \p Coord_Full(3,*).
+*> Includes MM atoms otherwise invisible to gateway/slapaf.
+*>
+*> @param[out] Coord_Full  Array of coordinates
+*> @param[in]  nAtoms_Full Number of atoms
+************************************************************************
       Subroutine Get_Coord_Full(Coord_Full,nAtoms_Full)
-************************************************************
-*
-*   <DOC>
-*     <Name>Get\_Coord\_Full</Name>
-*     <Syntax>Call Get\_Coord\_Full(Coord\_Full,nAtoms\_Full)</Syntax>
-*     <Arguments>
-*       \Argument{Coord\_Full}{Array of coordinates}{Real*8 (3,nAtoms\_All)}{out}
-*       \Argument{nAtoms\_Full}{Number of atoms}{Integer}{in}
-*     </Arguments>
-*     <Purpose>Get Coordinates from RUNFILE</Purpose>
-*     <Dependencies>Get\_Coord\_All, Get\_nAtoms\_Full</Dependencies>
-*     <Author>I. Fdez. Galvan</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*       Place cartesian coordinates (in a.u. into array Coord\_Full(3,*).
-*       Includes MM atoms otherwise invisible to gateway/slapaf.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit None
       Integer nAtoms_Full, nAtoms_Fullx, nAtoms_All, nCoordMM
       Real*8 Coord_Full(3,nAtoms_Full)

@@ -36,15 +36,15 @@ end of input
 
 &RASSCF &END
 Spin
- 2    
+ 2
 Symmetry
- 1    
+ 1
 nActEl
 9 0 0
 Inactive
-0 
+0
 Ras2
-12                
+12
 Iter
 100 100
 LumOrb
@@ -56,7 +56,7 @@ levshift
 end of input
 
 &RASSI &END
-omega  
+omega
 NrofJobIphs
 1 1
  1

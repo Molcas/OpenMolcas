@@ -10,47 +10,37 @@
 *                                                                      *
 * Copyright (C) 1989,1998, Per Ake Malmqvist                           *
 ************************************************************************
-*****************************************************************
 *  PROGRAM RASSI        PER-AAKE MALMQVIST
 *  SUBROUTINE CITRA     IBM-3090 RELEASE 89 01 31
 *  USE THE COEFFICIENTS FOR A SEQUENCE OF SINGLE-ORBITAL TRANSFOR-
 *  MATION, TRA, TO TRANSFORM THE CI EXPANSION COEFFICIENTS
 *  IN-PLACE TO A NEW NON-ON ORBITAL BASIS.
 *  NEW VERSION 981122, using arrays ISGS,ICIS,IXS.
-*****************************************************************
+************************************************************************
+*  CITRA
+*
+*> @brief
+*>   Recompute a CI coefficient array to use another orbital basis
+*> @author P. &Aring;. Malmqvist
+*>
+*> @details
+*> For a given linear transformation of the orbitals, and a
+*> CI array where the CSF basis is built from the old
+*> orbitals, compute the CI array using the new orbitals
+*> instead. The orbitals are transformed sequentially, and
+*> for each active orbital, a call to ::SSOTRA performs the
+*> single-orbital transformation.
+*>
+*> @param[in]     WFTP Wave function Type Name
+*> @param[in]     ISGS Split Graph Structure Array
+*> @param[in]     ICIS CI Structure Array
+*> @param[in]     IXS  Excitation operator Structure Array
+*> @param[in]     LSM  Wave function Symmetry Label
+*> @param[in]     TRA  Transformation Matrix
+*> @param[in]     NCO  Number of Configuration Functions
+*> @param[in,out] CI   CI Array
+************************************************************************
       SUBROUTINE CITRA(WFTP,ISGS,ICIS,IXS,LSM,TRA,NCO,CI)
-************************************************************
-*
-*   <Dummy DOC>
-*     <Name>CITRA</Name>
-*     <Syntax>Call CITRA(WFTP,ISGS,ICIS,IXS,LSM,TRA,NCO,CI)</Syntax>
-*     <Arguments>
-*       \Argument{WFTP}{Wave function Type Name}{Character*8}{in}
-*       \Argument{ISGS}{Split Graph Structure Array}{Integer (NSGSIZE)}{in}
-*       \Argument{ICIS}{CI Structure Array}{Integer (NCISIZE)}{in}
-*       \Argument{IXS}{Excitation operator Structure Array}{Integer (NXSIZE)}{in}
-*       \Argument{LSM}{Wave function Symmetry Label}{Integer}{in}
-*       \Argument{TRA}{Transformation Matrix}{Real*8 (NTRA)}{in}
-*       \Argument{NCO}{Number of Configuration Functions}{Integer}{in}
-*       \Argument{CI}{CI Array}{Real*8 (NCO)}{inout}
-*     </Arguments>
-*     <Purpose> Recompute a CI coefficient array to use another
-*               orbital basis. </Purpose>
-*     <Dependencies> Calling SSOTRA </Dependencies>
-*     <Author> P.A. Malmqvist </Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*      For a given linear transformation of the orbitals, and a
-*      CI array where the CSF basis is built from the old
-*      orbitals, compute the CI array using the new orbitals
-*      instead. The orbitals are transformed sequentially, and
-*      for each active orbital, a call to SSOTRA performs the
-*      single-orbital transformation.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -65,8 +55,13 @@
 
       CALL QENTER(ROUTINE)
 
-CTEST      write(*,*)' Entering CITRA. TRA='
-CTEST      write(*,'(1x,5f16.8)')(TRA(I),I=1,NTRA)
+#ifdef DEBUG_MPSSI
+      write(6,*)' Entering CITRA. norm=',ddot_(NCO,CI,1,CI,1)
+#endif
+!     write(6,*)' Entering CITRA. TRA='
+!     write(6,'(1x,5f16.8)')(TRA(I),I=1,NTRA)
+!     write(6,*)' Entering CITRA. CI='
+!     write(6,'(1x,5f16.8)')(CI(I),I=1,NCO)
 C TRA contains square matrices, one per symmetry
 C  FIRST TRANSFORM THE INACTIVE ORBITALS:
       FAC=1.0D00
@@ -80,8 +75,11 @@ C  FIRST TRANSFORM THE INACTIVE ORBITALS:
         END DO
         ISTA=ISTA+NO**2
       END DO
+!     write(6,*) 'FAC, FAC**2 ... ',FAC,FAC**2
       FAC=FAC**2
       CALL DSCAL_(NCO,FAC,CI,1)
+!     write(6,*)' CITRA. inactive done CI='
+!     write(6,'(1x,5f16.8)')(CI(I),I=1,NCO)
 C  THEN THE ACTIVE ONES:
       IF(WFTP.EQ.'EMPTY   ') GOTO 100
 * The HISPIN case may be buggy and is not presently used.
@@ -115,6 +113,11 @@ C The general case:
         END DO
         CALL GETMEM('TMP   ','FREE','REAL',LTMP,NCO)
       END IF
+#ifdef DEBUG_MPSSI
+      write(6,*)' DONE in  CITRA. norm=',ddot_(NCO,CI,1,CI,1)
+#endif
+!     write(6,*)' CITRA completely done. CI='
+!     write(6,'(1x,5f16.8)')(CI(I),I=1,NCO)
 
  100  CONTINUE
       CALL QEXIT(ROUTINE)

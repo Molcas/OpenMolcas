@@ -165,6 +165,11 @@ c
 c      Fortran IO
        read (lun) ((mapd(i,j),i=0,512),j=1,6),
      & (((mapi(l,m,n),l=1,8),m=1,8),n=1,8)
+c workaround for a bug in some Intel versions
+#ifdef __INTEL_COMPILER
+       else if (iokey.lt.0) then
+       write(6,*) "this should never happen"
+#endif
 c
        else
 c      MOLCAS IO

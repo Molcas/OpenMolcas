@@ -10,45 +10,40 @@
 *                                                                      *
 * Copyright (C) Anders Ohrn                                            *
 ************************************************************************
-*----------------------------------------------------------------------*
+*  OrbRot2
+*
+*> @brief
+*>   Rotate orbitals of the solvent
+*> @author A. Ohrn
+*>
+*> @details
+*> Given a rotation matrix \f$ R \f$ it is easy to rotate the p-orbitals since
+*> they behave just like the three axes. The d-orbitals are more
+*> intricate.
+*>
+*> To obtain a representation
+*> of the d-orbital \f$ \mathrm{d}_{xy} \f$ we perform the outer product \f$ \mathrm{d}_x \mathrm{d}_y + \mathrm{d}_y \mathrm{d}_x \f$,
+*> which generates a two-dimensional matrix. Now rotate each px and py
+*> and perform this multiplication. We obtain a symmetric matrix from
+*> whose elements we can compute how the \f$ \mathrm{d}_{xy} \f$ transforms when
+*> rotated. The same is done for the other d-orbitals and we can
+*> construct a transformation matrix, which we apply to the MO-coeff.
+*> Other ways to look at it are available, but the present one can be
+*> seen as a generation of table 3 in \cite Iva1996-JPC-100-6342.
+*> The present method is efficient
+*> with no trigonometric functions and ample use of BLAS_UTIL.
+*>
+*> @note
+*> ::Qfread as well as ::transrot must precede.
+*>
+*> @param[in] Rot  The rotation matrix
+*> @param[in] Cmo  The MO-coefficients
+*> @param[in] iQ   The angular type of the \f$ i \f$ -th basis (observe, not the \f$ i \f$ -th basis function, see givemeinfo.f)
+*> @param[in] iOrb Number of orbitals
+*> @param[in] lMax Number of bases (not basis functions), see qfread.f
+*> @param[in] nCnC Number of contracted basis functions of same type as the \f$ i \f$ -th basis. For example 7s4p will have vector ``7,7,7,7,7,7,7,4,4,4,4``.
+************************************************************************
       Subroutine OrbRot2(Rot,Cmo,iQ,iOrb,lMax,nCnC)
-************************************************************
-*
-*   <DOC>
-*     <Name>OrbRot2</Name>
-*     <Syntax>Call OrbRot2(Rot,Cmo,iQ,iOrb,lMax,nCnC)</Syntax>
-*     <Arguments>
-*       \Argument{Rot}{The rotation matrix}{}{in}
-*       \Argument{Cmo}{The MO-coefficients}{}{in}
-*       \Argument{iQ}{The angular type of the i:th basis (observe, not the i:th basis function, see givemeinfo.f)}{}{in}
-*       \Argument{iOrb}{Number of orbitals}{}{in}
-*       \Argument{lMax}{Number of bases (not basis functions), see qfread.f}{}{in}
-*       \Argument{nCnC}{Number of contracted basis functions of same type as the i:th basis. For example 7s4p will have vector 7,7,7,7,7,7,7,4,4,4,4.}{}{in}
-*     </Arguments>
-*     <Purpose>Rotate orbitals of the solvent</Purpose>
-*     <Dependencies>Qfread as well as transrot must precede</Dependencies>
-*     <Author>A.Ohrn</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*    Given a rotation matrix R it is easy to rotate the p-orbitals since
-*    they behave just like the three axes. The d-orbitals are more
-*    intricate.
-*    To obtain a representation
-*    of the d-orbital d$_xy$ we perform the outer product px*py+py*px,
-*    which generates a two-dimensional matrix. Now rotate each px and py
-*    and perform this multiplication. We obtain a symmetric matrix from
-*    whose elements we can compute how the d$_xy$ transforms when
-*    rotated. The same is done for the other d-orbitals and we can
-*    construct a transformation matrix, which we apply to the MO-coeff.
-*    Other ways to look at it are available, but the present one can be
-*    seen as a generation of table 3 in Ivanic and Ruedenberg
-*    J.Phys.Chem, 100, 6342 (1996). The present method is efficient
-*    with no trigonmetric functions and ample use of BLAS\_UTIL.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit Real*8 (a-h,o-z)
 
 #include "maxi.fh"

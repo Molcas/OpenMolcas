@@ -10,48 +10,40 @@
 *                                                                      *
 * Copyright (C) Valera Veryazov                                        *
 ************************************************************************
+*  WRVEC
+*
+*> @brief
+*>   A routine to write MO coefficients, occupation numbers, one-electron energies and type index information to ``INPORB`` file
+*> @author V. Veryazov
+*>
+*> @details
+*> New version of ::wrvec routine.
+*> ::WRVEC is a wrapper to ::WRVEC_, which writes UHF
+*> information to ``INPORB`` file.
+*>
+*> \p Label defines the type of information to write to ``INPORB`` file.
+*> Valid targets are: ``C``---CMO, ``O``---OCC, ``E``---EORB, ``I``---INDT, ``A``---Append Index
+*>
+*> Example: Write CMO coeff. for RHF:
+*>
+*> \code
+*> Call WrVec('INPORB',Lu,'C',NSYM,NBAS,NBAS,CMO,Dummy,Dummy,iDummy,Title)
+*> \endcode
+*>
+*> @param[in] Name  File name
+*> @param[in] LU_   Unit number
+*> @param[in] LABEL Task
+*> @param[in] NSYM  N symmetries
+*> @param[in] NBAS  N basis functions
+*> @param[in] NORB  N orbitals
+*> @param[in] CMO   MO coefficients
+*> @param[in] OCC   Occupations
+*> @param[in] EORB  One electron energies
+*> @param[in] INDT  Type Index information
+*> @param[in] TITLE Title of orbitals
+************************************************************************
       SUBROUTINE WRVEC(Name,LU_,LABEL,NSYM,NBAS,NORB,CMO,
      & OCC, EORB, INDT,TITLE)
-************************************************************
-*
-*   <DOC>
-*     <Name>WRVEC</Name>
-*     <Syntax>Call WRVEC(Name,LU\_,LABEL,NSYM,NBAS,NORB,CMO,OCC,EORB,INDT,TITLE)</Syntax>
-*     <Arguments>
-*       \Argument{Name}{File name}{Character}{in}
-*       \Argument{LU\_}{Unit number}{Integer}{in}
-*       \Argument{LABEL}{Task}{Character}{in}
-*       \Argument{NSYM}{N symmetries}{Integer}{in}
-*       \Argument{NBAS}{N basis functions}{Integer(NSYM)}{in}
-*       \Argument{NORB}{N orbitals}{Integer(NSYM)}{in}
-*       \Argument{CMO}{MO coefficients}{Real(*)}{in}
-*       \Argument{OCC}{Occupations}{Real(*)}{in}
-*       \Argument{EORB}{One electron energies}{Real(*)}{in}
-*       \Argument{INDT}{Type Index information}{Integer(*)}{in}
-*       \Argument{TITLE}{Title of orbitals}{Character}{in}
-*     </Arguments>
-*     <Purpose>A routine to write MO coefficients, Occupation numbers,
-*      One-electron energies and
-*      type index information to INPORB file </Purpose>
-*     <Dependencies>WRVEC\_</Dependencies>
-*     <Author>V.Veryazov</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*       New version of wrvec routine.
-*       WRVEC is a wrapper to WRVEC\_, which write UHF
-*       information from INPORB file
-*
-*       Label defines the type of information to read from INPORB file
-*       Valid targets are: C-CMO, O-OCC, E-EORB, I-INDT, A-Append Index
-*
-*       Example: Write CMO coeff. for RHF
-*       Call WrVec('INPORB',Lu,'C',NSYM,NBAS,NBAS,CMO,Dummy,Dummy,iDummy,Title)
-*     </Description>
-*    </DOC>
-*
-************************************************************
-
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION NBAS(NSYM),NORB(NSYM),CMO(*),OCC(*),EORB(*),INDT(7,8)
       CHARACTER*(*) TITLE, Name,LABEL
@@ -133,8 +125,8 @@ c#endif
       endif
 
 
-* Use version 2.0!
-      iVer=iVer20
+* Use version 2.2!
+      iVer=iVer22
 *
 *  Write INFO header
 *
@@ -142,7 +134,7 @@ c#endif
       Write(Lu,'(A)') '#INFO'
 
       KCMO  = 0
-      IF(TITLE(1:1).NE.'*') TITLE='*'//TITLE
+      IF(TITLE(1:1).NE.'*') TITLE='*'//TITLE(:LEN(TITLE)-1)
       WRITE(LU,'(A)') TITLE(:mylen(TITLE))
       Write(LU,'(3i8)') IUHF, NSYM, iWFtype
       WRITE(LU,'(8i8)') (NBAS(I),I=1,NSYM)
@@ -198,8 +190,8 @@ c#endif
       EndDo
       Endif  ! UHF
       Endif  ! iCMO
-* OCC section
 
+* OCC section
       if(iOcc.eq.1) then
       NDIV=nDivOcc(iVer)
       FMT=FmtOcc(iVer)
@@ -226,6 +218,34 @@ c#endif
          KOCC=KOCC+NORB(ISYM)
       EndDo
       Endif  ! UHF
+
+      NDIV=nDivOccHR(iVer)
+      If (NDIV.gt.0) Then
+         FMT=FmtOccHR(iVer)
+         Write(Lu,'(A)') '#OCHR'
+         WRITE(LU,'(A)') '* OCCUPATION NUMBERS (HUMAN-READABLE)'
+         KOCC=0
+         DO ISYM=1,NSYM
+            DO IORB=1,NORB(ISYM),NDIV
+              IORBEND=MIN(IORB+NDIV-1,NORB(ISYM))
+               WRITE(LU,FMT) (OCC(I+KOCC),I=IORB,IORBEND)
+            EndDo
+            KOCC=KOCC+NORB(ISYM)
+         EndDo
+
+         if(iUHF.eq.1) then
+         Write(Lu,'(A)') '#UOCHR'
+         WRITE(LU,'(A)') '* Beta OCCUPATION NUMBERS (HUMAN-READABLE)'
+         KOCC=0
+         DO ISYM=1,NSYM
+            DO IORB=1,NORB(ISYM),NDIV
+              IORBEND=MIN(IORB+NDIV-1,NORB(ISYM))
+            WRITE(LU,FMT) (OCC_ab(I+KOCC),I=IORB,IORBEND)
+            EndDo
+            KOCC=KOCC+NORB(ISYM)
+         EndDo
+         Endif  ! UHF
+      End If
       Endif  ! iOcc
 
 * ONE section

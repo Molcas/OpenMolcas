@@ -63,7 +63,7 @@
       Parameter ( pOp    = pTitle + nTitle + 1     )
       Parameter ( pSym   = pOp    + MxOp*LenOp     )
       Parameter ( pSymOp = pSym   + 1              )
-      Parameter ( pBas   = pSymOp + (3*MxSym+ItoB-1)/ItoB )
+      Parameter ( pBas   = pSymOp + int(dble(3*MxSym+ItoB-1)/ItoB) )
       Parameter ( pASh   = pBas   + MxSym          )
       Parameter ( pish   = pAsh   + MxSym          )
       Parameter ( pChdisp = pish +  MxSym          )
@@ -76,7 +76,7 @@
 *
       Parameter ( pNext  = ppert + 5   )
       Parameter ( pEnd   = pNext  + 1              )
-      Parameter ( lToc   = 1024*((pEnd+1023)/1024) )
+      Parameter ( lToc   = 1024*int(dble(pEnd+1023)/1024) )
 *
       Parameter ( oLabel = 0          )
       Parameter ( oComp  = oLabel + 2 )

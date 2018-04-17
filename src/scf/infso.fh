@@ -19,7 +19,7 @@
 *     QNRTh    - threshold for QNR/C2Diis startup
 *     DltNTh   - convergence threshold for Norm of delta
 *     DltNrm   - actual Norm of delta after QNR/C2Diis extrapolation
-      Integer   iterso, MemRsv
+      Integer   iterso, MemRsv, micItT
       Real*8 QNRTh,DltNTh,DltNrm
 *
       Common /INFSO/ QNRTh,DltNTh,DltNrm,iterso,micItT,MemRsv

@@ -10,8 +10,6 @@
 ************************************************************************
       Subroutine dWBuf(Array,nArray)
       Implicit Real*8 (a-h,o-z)
-      External Disk2Byte
-      Real*8 Disk2Byte
 #include "IOBuf.fh"
 #include "SysDef.fh"
 #include "WrkSpc.fh"
@@ -46,7 +44,7 @@
 *
 *---------- Put current buffer on disk and change buffer.
 *
-            temp=Disk2Byte(Disk)+DBLE(lBuf*RtoB)
+            temp=Disk+DBLE(lBuf*RtoB)
 *           Write (6,*) 'temp=',temp
             If (temp.le.DiskMx_Byte) Then
                Disk_2 = Disk_1

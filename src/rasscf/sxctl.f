@@ -220,7 +220,9 @@ C --------------------------------------
       l_casdft = KSDFT(1:5).eq.'TLSDA'   .or.
      &           KSDFT(1:6).eq.'TLSDA5'  .or.
      &           KSDFT(1:5).eq.'TBLYP'   .or.
-     &           KSDFT(1:4).eq.'TSSB'    .or.
+     &           KSDFT(1:6).eq.'TSSBSW'  .or.
+     &           KSDFT(1:5).eq.'TSSBD'   .or.
+     &           KSDFT(1:5).eq.'TS12G'   .or.
      &           KSDFT(1:4).eq.'TPBE'    .or.
      &           KSDFT(1:5).eq.'FTPBE'   .or.
      &           KSDFT(1:7).eq.'TREVPBE' .or.
@@ -434,19 +436,29 @@ C LSQ and LWO: scratch areas
 * compute orbital overlap matrix
 c           IF (NACTEL.GT.0) THEN
 * NN.14 Skip this when DMRG-CASSCF due to CI-vector dependency
-         IF(.NOT.(DoDMRG.or.doBlockDMRG.or.iDoNECI).AND.NACTEL.GT.0)THEN
-           CALL GETMEM('SMAT','ALLO','REAL',LSMAT,NAC*NAC)
-           IWAY = 1
-           CALL OVLP(IWAY,CMO,WORK(LCMON),WORK(LSMAT))
-*
-           IDISK=IADR15(4)
-           CALL LUCIA_UTIL('TRACI',IDISK,JOBIPH,WORK(LSMAT))
-           CALL GETMEM('SMAT','FREE','REAL',LSMAT,NAC*NAC)
-         ELSE
-           CIDUMMY=1.0D0
-           IDISK=IADR15(4)
-           CALL DDAFILE(JOBIPH,1,CIDUMMY,1,IDISK)
-         END IF
+           !IF(.NOT.(DoDMRG.or.doBlockDMRG).AND.NACTEL.GT.0) THEN
+           IF(NACTEL.GT.0)THEN
+             CALL GETMEM('SMAT','ALLO','REAL',LSMAT,NAC*NAC)
+             IWAY = 1
+             CALL OVLP(IWAY,CMO,WORK(LCMON),WORK(LSMAT))
+
+             if(dodmrg)then
+#ifdef _DMRG_
+#ifdef BLUBB
+               call mpsrot(work(lsmat),nac,nrs2,nsym)
+#endif
+#endif
+             else if(doBlockDMRG .or. iDoNECI)then
+             else !CI
+               IDISK=IADR15(4)
+               CALL LUCIA_UTIL('TRACI',IDISK,JOBIPH,WORK(LSMAT))
+             end if
+             CALL GETMEM('SMAT','FREE','REAL',LSMAT,NAC*NAC)
+           ELSE
+             CIDUMMY=1.0D0
+             IDISK=IADR15(4)
+             CALL DDAFILE(JOBIPH,1,CIDUMMY,1,IDISK)
+           END IF
         End If
 
 * IPT2 = 1 for OUTO, CANOnical option...

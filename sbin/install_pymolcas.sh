@@ -10,6 +10,12 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #***********************************************************************
 
+if [ `uname` = "Darwin" ] ; then
+  MD5="md5 -r"
+else
+  MD5="md5sum"
+fi
+
 # current pymolcas checksum
 if [ -z "$1" ] ; then
   pymolcas_file="Tools/pymolcas/pymolcas"
@@ -17,7 +23,7 @@ else
   pymolcas_file="$1"
 fi
 if [ -f $pymolcas_file ] ; then
-  current_checksum=`md5sum $pymolcas_file | awk '{print $1}'`
+  current_checksum=`$MD5 $pymolcas_file | awk '{print $1}'`
 else
   echo "*** $pymolcas_file does not exist"
   exit 1
@@ -32,7 +38,7 @@ orig_IFS=$IFS
 IFS=':'
 for x in $PATH ; do
   if [ -f "$x/pymolcas" ] ; then
-    l=`md5sum "$x/pymolcas" | awk '{print $1}'`
+    l=`$MD5 "$x/pymolcas" | awk '{print $1}'`
     if [ "$l" != "$current_checksum" ] ; then
       echo "*** Warning! A different pymolcas version was found at: $x"
     else
@@ -75,6 +81,7 @@ for x in $E_PATH ; do
     break
   fi
 done
+IFS=$orig_IFS
 
 # are we in interactive mode?
 if [ "$CMAKE_SESSION" = "OpenMolcas" ] ; then
@@ -87,14 +94,10 @@ fi
 
 # function to read with timeout in POSIX sh
 read_timeout() {
-  trap : ALRM
-  trap 'kill "$pid" 2> /dev/null' EXIT
-  (sleep "$1" && kill -ALRM "$$") & pid=$!
-  read "$2"
-  ret=$?
-  kill "$pid" 2> /dev/null
-  trap - EXIT
-  return "$ret"
+  old=$(stty -g)
+  stty -icanon min 0 time 255
+  read $1
+  stty $old
 }
 
 # create a default molcas driver
@@ -110,20 +113,20 @@ if [ $dir_found = 0 ] ; then
   fi
 else
   echo "pymolcas will be installed in $PYMOLCAS"
-  echo "Is this OK? [Y/n] (will assume \"Yes\" in 60 seconds)"
+  echo "Is this OK? [Y/n] (will assume \"Yes\" in 25 seconds)"
   while true ; do
     if [ "$INTERACTIVE" = "0" ] ; then
       echo "Running in non-interactive mode, assuming \"Yes\""
       answer="Yes"
     else
-      read_timeout 60 answer
+      read_timeout answer
     fi
     case "${answer}_" in
       [Yy]*|_ )
         cp "$pymolcas_file" "$PYMOLCAS/pymolcas"
         chmod +x "$PYMOLCAS/pymolcas"
         # check again the driver was installed
-        l=`md5sum "$x/pymolcas" | awk '{print $1}'`
+        l=`$MD5 "$x/pymolcas" | awk '{print $1}'`
         if [ "$l" = "$current_checksum" -a -x "$PYMOLCAS/pymolcas" ] ; then
           echo "The installation of pymolcas was successful"
         else

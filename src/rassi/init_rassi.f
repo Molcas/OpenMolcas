@@ -52,12 +52,6 @@ C UNIT NUMBERS AND NAMES
       LUIPH=15
       LUSCR=20
       FNSCR='SCRATCH'
-c jochen 02/15: sonatorb needs LUTDM
-c      IF(SONATNSTATE.GT.0) THEN
-c        LUTDM=21
-c        FNTDM='TDMFILE'
-c      end if
-c ... jochen end
       LUEXC=22
       FNEXC='ANNI'
       LUEXT=21
@@ -78,18 +72,11 @@ c ... jochen end
         WRITE(6,'(1x,I8,5x,A8)')LUONE,FNONE
         WRITE(6,'(1x,I8,5x,A8)')LUORD,FNORD
         WRITE(6,'(1x,I8,5x,A8)')LUSCR,FNSCR
-c jochen 02/15: sonatorb needs LUTDM
-c        WRITE(6,'(1x,I8,5x,A8)')LUTDM,FNTDM
-c ... jochen end
         WRITE(6,'(1x,I8,5x,A8)')LUEXC,FNEXC
       END IF
 
       IF(IPGLOB.GT.VERBOSE) WRITE(6,*)' OPENING ',FNSCR
       CALL DANAME(LUSCR,FNSCR)
-c jochen 02/15: sonatorb needs LUTDM
-c        IF(IPGLOB.GT.VERBOSE) WRITE(6,*)' OPENING ',FNTDM
-c        CALL DANAME_MF(LUTDM,FNTDM)
-c ... jochen end
       IF(IPGLOB.GT.VERBOSE) WRITE(6,*)' OPENING ',FNEXC
       CALL DANAME(LUEXC,FNEXC)
 
@@ -102,27 +89,10 @@ C NR OF JOBIPHS AND STATES:
        WRITE(6,'(1X,A,I4)')'  NJOB:',NJOB
        WRITE(6,'(1X,A,I4)')'NSTATE:',NSTATE
       END IF
-
-C Hamiltonian matrix:
-      DO JSTATE=1,MXSTAT
-       DO ISTATE=1,MXSTAT
-        HEFF(ISTATE,JSTATE)=0.0D0
-        HAM(ISTATE,JSTATE)=0.0D0
-       END DO
-      END DO
-
-C Initialize eigenvector array.
-      DO J=1,MXSTAT
-        DO I=1,MXSTAT
-          EIGVEC(I,J)=0.0D0
-        END DO
-        EIGVEC(J,J)=1.0D0
-      END DO
-
-C ENERGY SHIFTS OF INPUT STATES:
-      DO  I=1,MXSTAT
-        ESHFT(I)=0.0D00
-      END DO
+C
+      LHAM=ip_Dummy
+      LESHFT=ip_Dummy
+      LHdiag=ip_Dummy
 
 C NR OF OPERATORS FOR WHICH MATRIX ELEMENTS ARE TO BE CALCULATED:
       NPROP=0
@@ -178,11 +148,22 @@ C DEFAULT FLAGS:
       HOP=.FALSE.
       TRACK=.FALSE.
       ONLY_OVERLAPS=.FALSE.
+* Intesities
       DIPR=.FALSE.
       OSTHR_DIPR = 0.0D0
       QIPR=.FALSE.
       OSTHR_QIPR = 0.0D0
       QIALL=.FALSE.
+* Exact operator
+      Do_TMOS=.FALSE.
+      DO_KVEC=.FALSE.
+      NKVEC=0
+      PRRAW=.FALSE.
+      PRWEIGHT=.FALSE.
+      NEW_TOLERANCE=.FALSE.
+      TOLERANCE=0.1D0
+      REDUCELOOP=.FALSE.
+      LOOPDIVIDE=0
 cnf
       IfDCpl = .False.
 cnf
@@ -203,6 +184,7 @@ c BP - Hyperfine tensor and SONATORB initialization
       SODIAGNSTATE=0
 
       IFCURD=.FALSE.
+
       Do_TMOS=.FALSE.
       Do_SK  =.FALSE.
       L_Eff=5

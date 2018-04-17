@@ -19,7 +19,6 @@
 *
 #include "itmax.fh"
 #include "print.fh"
-#include "notab.fh"
 #include "FMM.fh"
 cgh - stuff for short range integrals
 #include "srint.fh"

@@ -590,7 +590,7 @@ c     not used
          If (ChoMP2_ChkPar()) Then
             Call WarningMessage(2,'SOS-MP2 is not implemented '
      &                               //'for parallel runs. !! SORRY !!')
-            Call Quit(_RC_EXIT_)
+            Call Quit(_RC_NOT_AVAILABLE_)
          End If
       End If
       Goto 100

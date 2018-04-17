@@ -10,29 +10,21 @@
 *                                                                      *
 * Copyright (C) Yannick Carissan                                       *
 ************************************************************************
+*  RdInput
+*
+*> @brief
+*>   Reads the input of the quater program
+*> @author Y. Carissan
+*>
+*> @param[out] U1 vector needed for the rotation
+*> @param[out] U2 vector needed for the rotation
+*> @param[out] V1 vector needed for the rotation
+*> @param[out] V2 vector needed for the rotation
+*>
+*> @details
+*> Reads the input of the quater program.
+************************************************************************
       Subroutine RdInput(U1,U2,V1,V2)
-************************************************************
-*
-*   <DOC>
-*     <Name>RdInput</Name>
-*     <Syntax>RdInput(U1,U2,V1,V2)</Syntax>
-*     <Arguments>
-*       \Argument{U1}{vector needed for the rotation, Dimension(3)}{Real*8}{out}
-*       \Argument{U2}{vector needed for the rotation, Dimension(3)}{Real*8}{out}
-*       \Argument{V1}{vector needed for the rotation, Dimension(3)}{Real*8}{out}
-*       \Argument{V2}{vector needed for the rotation, Dimension(3)}{Real*8}{out}
-*     </Arguments>
-*     <Purpose>Reads the input of the quater program</Purpose>
-*     <Dependencies></Dependencies>
-*     <Author>Y. Carissan</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects>none</Side_Effects>
-*     <Description>
-*        Reads the input of the quter program
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit none
 #include "WrkSpc.fh"
 #include "debug.fh"

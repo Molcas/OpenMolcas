@@ -8,15 +8,39 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2013, Ignacio Fdez. Galvan                             *
+* Copyright (C) 2013,2018, Ignacio Fdez. Galvan                        *
 ************************************************************************
-*     Find the "alpha" value that produces a given step length in the
-*     RS-RFO family of algorithms. This routine assumes that a larger
-*     alpha produces a smaller step.
+*  Find_RFO_Root
 *
-*     Use a "regula falsi"-like method, instead of diagonalization
-*     as in Eqs. (16) and (20)
-*
+*> @brief
+*>   Find the \f$ \alpha \f$ value for the RS-RFO family of algorithms.
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> Find the \f$ \alpha \f$ value that produces a given step length in the
+*> RS-RFO family of algorithms. \cite Bes1998-TCA-100-265
+*> This routine assumes that a larger \f$ \alpha \f$ produces a smaller step.
+*>
+*> Use a *regula falsi*-like method, instead of diagonalization as in eqs.
+*> (16) and (20). This subroutine is designed to be used in an iterative loop.
+*>
+*> (\p x1, \p y1) and (\p x2, \p y2) are two \f$ \alpha \f$ and step length
+*> values bracketing the desired root. If \p x2 = `0.0`, an appropriate value
+*> for \p x2 will first be searched. (\p x3, \p y3) is another point between
+*> \p x1 and \p x2. On output a new value for \p x3 will be suggested (and
+*> the bracketing points will be updated), the surrounding loop must calculate
+*> the new \p y3 value.
+*>
+*> @param[in,out] x1,y1     Smaller \f$ \alpha \f$ and larger step length
+*> @param[in,out] x2,y2     Larger \f$ \alpha \f$ and smaller step length
+*> @param[in,out] x3        Middle \f$ \alpha \f$, new value on output
+*> @param[in]     y3        Step length at \p x3
+*> @param[in]     Val       Desired step length value
+*>
+*> @see ::RS_RFO
+*> @see ::RS_I_RFO
+*> @see ::RS_P_RFO
+************************************************************************
       SUBROUTINE Find_RFO_Root(x1,y1,x2,y2,x3,y3,Val)
       IMPLICIT NONE
 #include "real.fh"
@@ -76,6 +100,13 @@
         ELSE
           xx1=x3
           yy1=y3
+        END IF
+*       If the middle point is shorter than the "short" step, something went
+*       wrong, start again from 1 (signal with -1),
+*       maybe now we will get a better eigenvalue to start with
+        IF ((y3 .LT. y2) .AND. (y3 .GT. Val)) THEN
+          x3 = -One
+          RETURN
         END IF
         new=xx1+(Val-yy1)/(yy2-yy1)*(xx2-xx1)
         IF ((new.LE.xx1).OR.(new.GE.xx2)) new=Half*(xx1+xx2)

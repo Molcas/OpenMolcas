@@ -98,7 +98,6 @@ C     Call View(H,nInter,print)
 *     iOptC=0010   : C1-DIIS
 *     iOptC=0100   : C2-DIIS
 *     iOptC=1000   : Rational Function
-*     iOptC=16384d : IMLS
 *
       call dcopy_(nInter,Zero,0,Scrt1,1)
 *                                                                      *
@@ -187,44 +186,9 @@ C     Call View(H,nInter,print)
 *
 *---------- Restricted Step RFO
 *
-         If (iAnd(iOptC,2**14).eq.(2**14).and.nIter.gt.3) Then
-*                                                                      *
-************************************************************************
-*                                                                      *
-*                                     INTERFACING CIMLS
-
-*---------- Interpolating Moving Least-Squares (IMLS)
-*                    Koni Marti, ETH Zurich, Feb 6 2009
-
-*        Write (6,*) 'Koni Fortran', kIter
-*        Write (6,*) 'kIter', kIter
-*        Write (6,*) 'iInt', iInt
-*        Write (6,*) 'nInter', nInter
-*        Write (6,*) 'comparte Grad'
-*        Do i=1, kIter
-*           Do j=1, nInter
-*              Write(6,*) i, j, Grad(j,i)
-*           EndDo
-*        EndDo
-
-*
-* --------- Finding new structure on IMLS fitted surface
-*
-            Write(6,*) 'Calling Imls_Driver'
-            call Imls_Driver(nIter,nInter,Energy,g,q,dq)
-            Write(6,*) 'Returning Imls_Driver'
-            UpMeth=' IMLS '
-*
-*           Do i=1,nInter
-*              q(i,nIter+1)=q(i,nIter)
-*              dq(i,nIter) = 1.0d-7
-*           EndDo
-*
-         Else
 *
             Call RS_RFO(H,g(1,nIter),nInter,dq(1,nIter),
      &                  UpMeth,dqHdq,Beta,Step_Trunc)
-         EndIf
 *
          End If
 *                                                                      *

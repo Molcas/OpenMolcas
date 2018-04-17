@@ -10,50 +10,26 @@
 *                                                                      *
 * Copyright (C) 2003, Per-Olof Widmark                                 *
 ************************************************************************
+*  StrToChk
+*
+*> @brief
+*>   Compute a checksum for a character string. Used for example to compute checksum for basis set
+*> @author Per-Olof Widmark
+*>
+*> @details
+*> This routine takes a character string and compute an
+*> integer number. This number is not necessarily unique
+*> but the chance that two different string will have the
+*> same checksum is small. Whitespace is ignored so that
+*> '``HelloDolly``' and '``Hello Dolly``'
+*> will have the same checksum.
+*> By default (\p iOpt = ``0``) the checksum is case insensitive,
+*> but can be made case sensitive by setting \p iOpt = ``1``.
+*>
+*> @param[in]  String String to be checksummed
+*> @param[out] Chk    Checksum
+*> @param[in]  iOpt   Bitswitch, ``1`` for case sensitive checksum
 ************************************************************************
-*                                                                      *
-* This routine computes a checksum for a string. Whitespace characters *
-* do not contribute to the checksum, for example 'Hello Dolly' and     *
-* 'HelloDolly' will have the same checksum.                            *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-* String -- The input string to be checksummed, (input).               *
-* Chk    -- The checksum, (output).                                    *
-* iOpt   -- Option switch, (input).                                    *
-*           1: make case insensitive checksum.                         *
-*                                                                      *
-*----------------------------------------------------------------------*
-* <DOC>
-*   <Name>StrToChk</Name>
-*   <Syntax>Call StrToChk(Str,iChk,iOpt)</Syntax>
-*   <Arguments>
-*     \Argument{Str}{String to be checksummed}{Character string}{in}
-*     \Argument{iChk}{Checksum}{Integer}{out}
-*     \Argument{iOpt}{Bitswitch, 1 for case sensitive checksum}{Integer}{in}
-*   </Arguments>
-*   <Purpose>
-*     To compute a checksum for a character string.
-*     Used for example to compute checksum for basis set.
-*   </Purpose>
-*   <Dependencies>none</Dependencies>
-*   <Author>Per-Olof Widmark</Author>
-*   <Modified_by></Modified_by>
-*   <Side_Effects></Side_Effects>
-*   <Description>
-*     This routine takes a character string and compute an
-*     integer number. This number is not necessarily unique
-*     but the chance that two different string will have the
-*     same checksum is small. Whitespace is ignored so that
-*     `\verb*+Hello Dolly+' and
-*     `\verb*+Hello  Dolly+'
-*     will have the same checksum.
-*     By default (iOpt=0) the checksum is case insensitive,
-*     but can be made case sensitive by setting iOpt=1.
-*     \index{checksum}
-*   </Description>
-* </DOC>
-*----------------------------------------------------------------------*
 *                                                                      *
 * Author:  Per-Olof Widmark                                            *
 *          Lund University, Sweden                                     *

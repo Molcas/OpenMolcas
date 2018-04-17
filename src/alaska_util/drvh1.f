@@ -89,6 +89,8 @@ CAOM>
 *...  Read the variational 1st order density matrix
 *...  density matrix in AO/SO basis
 *     print *,' Read density matrix'
+      Call Get_D1ao(ipD_var,Length)
+
       Call Get_D1ao_Var(ipD_var,Length)
       If ( length.ne.nDens ) Then
          Call WarningMessage(2,'Error in Drvh1')

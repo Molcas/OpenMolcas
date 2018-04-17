@@ -28,7 +28,7 @@ C                 Modified finally by NEWORB to pseudo-nat orbitals
 C                 Average occupation numbers appended.
 C     IADR15(3):  density matrices for active orbitals
 C                 (4 matrices per root)
-C                 D  : one-bobdy density matrix
+C                 D  : one-body density matrix
 C                 DS : spin density matrix
 C                 P  : symmetric two-body density matrix
 C                 PA : antsymmetric two-body density matrix

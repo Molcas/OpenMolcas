@@ -29,6 +29,7 @@
 *
       Call Allocate_Work(ipEVec,2*nX**2)
       Call Allocate_Work(ipEVal,2*nX)
+      Call Allocate_Work(ipRedMas,nX)
       Call Allocate_Work(ipdDipM,3*mInter)
       Call Allocate_Work(ipTmp1,nX**2)
       Call Allocate_Work(ipTmp2,nX**2)
@@ -40,7 +41,7 @@
       DipM(2)=0.0D0
       DipM(3)=0.0D0
       Call GF(nX,mInter,nInter,Work(ipTmp1),Work(ipTmp2),
-     &        Work(ipEVec),Work(ipEVal),
+     &        Work(ipEVec),Work(ipEVal),Work(ipRedMas),
      &        iNeg,iDo_dDipM,Work(ipdDipM),mTR,Smmtrc,nAtom,DipM)
 *
       Call Free_Work(ipTmp2)
@@ -89,7 +90,8 @@
 *
       Write(Lu_10,'(A,I1)') '*NORMAL MODES SYMMETRY: ',jsym
       Call GF_Print(Work(ipEVal),Work(ipEVec),Work(ipTemp),iEl,
-     &              mInter,nInter,iCtl,Work(ipIRInt),Lu_10,iOff)
+     &              mInter,nInter,iCtl,Work(ipIRInt),Work(ipRedMas),
+     &              Lu_10,iOff)
 *
       Close(Lu_10)
       Call Free_Work(ipTemp)
@@ -141,6 +143,7 @@
       Call Free_Work(ipIRInt)
       Call Free_Work(ipEVal)
       Call Free_Work(ipEVec)
+      Call Free_Work(ipRedMas)
 *                                                                      *
 ************************************************************************
 *                                                                      *

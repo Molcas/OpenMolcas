@@ -85,10 +85,6 @@ C     indices
       INTEGER IGROUP,JSTATE_OFF
 C     convergence check
       INTEGER ICONV
-#ifdef _DEBUG_
-C     Memory check
-      INTEGER LCASPT2
-#endif
 C     relative energies
       REAL*8  RELAU,RELEV,RELCM,RELKJ
 
@@ -114,6 +110,7 @@ C     effective hamiltonian
 *======================================================================*
 
       CALL MMA_ALLOCATE(HEFF,NSTATE,NSTATE)
+      CALL DCOPY_(NSTATE**2,0.D0,0,HEFF,1)
 
 C If the EFFE keyword has been used, we already have the multi state
 C coupling Hamiltonian effective matrix, just copy the energies and

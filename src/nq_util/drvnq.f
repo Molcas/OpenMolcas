@@ -405,7 +405,9 @@ c      Call GetMem('tmpB','Allo','Real',ip_tmpB,nGridMax)
       l_casdft = KSDFA(1:5).eq.'TLSDA'   .or.
      &           KSDFA(1:6).eq.'TLSDA5'  .or.
      &           KSDFA(1:5).eq.'TBLYP'   .or.
-     &           KSDFA(1:4).eq.'TSSB'    .or.
+     &           KSDFA(1:6).eq.'TSSBSW'  .or.
+     &           KSDFA(1:5).eq.'TSSBD'   .or.
+     &           KSDFA(1:5).eq.'TS12G'   .or.
      &           KSDFA(1:4).eq.'TPBE'    .or.
      &           KSDFA(1:5).eq.'FTPBE'   .or.
      &           KSDFA(1:7).eq.'TREVPBE' .or.
@@ -423,6 +425,7 @@ c      Call GetMem('tmpB','Allo','Real',ip_tmpB,nGridMax)
            End If
          End If
          Call Get_CMO(ipCmo,nCmo)
+         Call Get_iArray('nAsh',nAsh,mIrrep)
          nMOs=0
          Do iIrrep = 0, mIrrep-1
             nMOs=nMOs+mBas(iIrrep)
@@ -529,6 +532,9 @@ cGLM          write(6,*) (Work(ipP2mo+i), i=0,NQNACPR2-1)
      &               nP2_ontop*nGridMax)
          Call GetMem('dF_dP2ontop','Allo','Real',ipdF_dP2ontop,
      &               ndF_dP2ontop*nGridMax)
+        Call dCopy_(nP2_ontop*nGridMax,0.0d0,0,Work(ipp2_ontop),1)
+        Call dCopy_(ndF_dP2ontop*nGridMax,0.0d0,0,Work(ipdF_dP2ontop),1)
+
       end if
 
       Call DrvNQ_(Kernel,Func,

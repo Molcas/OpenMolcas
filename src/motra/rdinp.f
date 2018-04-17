@@ -77,7 +77,7 @@
         If ( Line(1:lCmd).eq.CmdTab(iCmd)(1:lCmd) ) jCmd=iCmd
       End Do
       If ( jCmd.eq.0 ) Then
-         Write (6,*) 'RdInp: jCmd.eq.0'
+         Write (6,*) 'RdInp: Unknown command at line: ', trim(Line)
          Call QTrace()
          Call Abend()
       End If

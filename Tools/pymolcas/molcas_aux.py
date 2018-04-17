@@ -19,7 +19,7 @@ from os import environ, getcwd, symlink
 from os.path import join, split, isfile, exists, expanduser, realpath
 from tempfile import mkdtemp
 from shutil import rmtree
-from re import sub
+from re import sub, match
 from subprocess import Popen, PIPE
 from json import loads
 
@@ -75,7 +75,7 @@ def dotmolcas(filename):
 def find_molcas(xbin_list=None, here=True):
   '''Find a molcas installation and define MOLCAS
      based on a tag file or the path in some configuration file.
-     Also adds the molcas libraries to LD_LIBRARY_PATH
+     Also add the molcas libraries to LD_LIBRARY_PATH
   '''
   # walk up the tree to find .molcashome
   # (this overwrites MOLCAS if defined)
@@ -129,6 +129,40 @@ def find_molcas(xbin_list=None, here=True):
         for line in xf:
           a, b = line.split('=')
           xbin_list[a.strip()] = b.strip()
+
+def find_sources():
+  '''Find the source directories from a build directory,
+     if using CMake, and sets the *_SOURCE variables.
+     Otherwise they default to $MOLCAS
+  '''
+  MOLCAS = get_utf8('MOLCAS')
+  cmake_src = ''
+  OPENMOLCAS_SOURCE = ''
+  MOLCAS_SOURCE = ''
+  try:
+    with utf8_open(join(MOLCAS, 'CMakeCache.txt'), 'r') as f:
+      for line in f:
+        m = match(r'Molcas_SOURCE_DIR:.*?=(.*)', line)
+        if (m):
+          cmake_src = m.group(1)
+        m = match(r'OPENMOLCAS_DIR:.*?=(.*)', line)
+        if (m):
+          OPENMOLCAS_SOURCE = m.group(1)
+        m = match(r'EXTRA:.*?=(.*)', line)
+        if (m):
+          MOLCAS_SOURCE = m.group(1)
+  except:
+    pass
+  if (cmake_src == ''):
+    cmake_src = MOLCAS
+  if (MOLCAS_SOURCE == ''):
+    MOLCAS_SOURCE = cmake_src
+  if (OPENMOLCAS_SOURCE == ''):
+    OPENMOLCAS_SOURCE = cmake_src
+  if (get_utf8('MOLCAS_SOURCE', default='') == ''):
+    set_utf8('MOLCAS_SOURCE', MOLCAS_SOURCE)
+  if (get_utf8('OPENMOLCAS_SOURCE', default='') == ''):
+    set_utf8('OPENMOLCAS_SOURCE', OPENMOLCAS_SOURCE)
 
 def attach_streams(output, error, buffer_size=-1):
   '''Attach output and error streams to files, with optional buffer size'''

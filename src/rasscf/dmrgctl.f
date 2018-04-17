@@ -10,41 +10,33 @@
 *                                                                      *
 * Copyright (C) Naoki Nakatani                                         *
 ************************************************************************
+*  DMRGCtl
+*
+*> @brief
+*>   DMRG Control
+*> @author N. Nakatani
+*>
+*> @details
+*> Many functionality is same as ::CICtl (copy most part of ::CICtl to here)
+*> To use DMRG as CAS-CI solver.
+*> \p IRst = ``0`` is used for the first and the last (DMRG-) CI calculations
+*> to fully optimize the DMRG wavefunction.
+*> \p IRst = ``1`` enables to restart DMRG calculation from last iteration
+*>
+*> @param[in]     CMO    MO coefficients
+*> @param[out]    D      Average 1-dens matrix
+*> @param[out]    DS     Average spin 1-dens matrix
+*> @param[out]    P      Average symm. 2-dens matrix
+*> @param[out]    PA     Average antisymm. 2-dens matrix
+*> @param[out]    FI     Fock matrix from inactive density
+*> @param[in,out] D1I    Inactive 1-dens matrix
+*> @param[in,out] D1A    Active 1-dens matrix
+*> @param[in]     TUVX   Active 2-el integrals
+*> @param[in]     IFINAL Calculation status switch
+*> @param[in]     IRst   DMRG restart status switch
+************************************************************************
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
       Subroutine DMRGCtl(CMO,D,DS,P,PA,FI,D1I,D1A,TUVX,IFINAL,IRst)
-* ***********************************************************
-*
-*    <DOC>
-*      <Name>DMRGCtl</Name>
-*      <Syntax>Call DMRGCtl(IRst,CMO,D,DS,P,PA,FI,D1I,D1A,TUVX,IFINAL)</Syntax>
-*      <Arguments>
-*        \Argument{CMO}{MO coefficients}{Real*8 array (NTOT2)}{in}
-*        \Argument{D}{Average 1-dens matrix}{Real*8 array (NACPAR)}{out}
-*        \Argument{DS}{Average spin 1-dens matrix}{Real*8 array (NACPAR)}{out}
-*        \Argument{P}{Average symm. 2-dens matrix}{Real*8 array (NACPR2)}{out}
-*        \Argument{PA}{Average antisymm. 2-dens matrix}{Real*8 array (NACPR2)}{out}
-*        \Argument{FI}{Fock matrix from inactive density}{Real*8 array (NTOT1)}{out}
-*        \Argument{D1I}{Inactive 1-dens matrix}{Real*8 array (NTOT2)}{inout}
-*        \Argument{D1A}{Active 1-dens matrix}{Real*8 array (NTOT2)}{inout}
-*        \Argument{TUVX}{Active 2-el integrals}{Real*8 array (NACPR2)}{in}
-*        \Argument{IFINAL}{Calculation status switch}{Integer: 0,1 or 2}{in}
-*        \Argument{IRst}{DMRG restart status switch}{Integer: 0 or 1}{in}
-*      </Arguments>
-*      <Purpose> DMRG Control </Purpose>
-*      <Dependencies> Block DMRG code and its interfaces </Dependencies>
-*      <Author> N. Nakatani </Author>
-*      <Modified_by> N. Nakatani </Modified_by>
-*      <Side_Effects> Not known </Side_Effects>
-*      <Description>
-*        Many functionality is same as CICtl (copy most part of CICtl to here)
-*        To use DMRG as CAS-CI solver.
-*        IRst=0 is used for the first and the last (DMRG-) CI calculations
-*        to fully optimize the DMRG wavefunction.
-*        IRst=1 enables to restart DMRG calculation from last iteration
-*      </Description>
-*    </DOC>
-*
-* ***********************************************************
 
       Implicit Real* 8 (A-H,O-Z)
       Dimension CMO(*),D(*),DS(*),P(*),PA(*),FI(*),D1I(*),D1A(*),

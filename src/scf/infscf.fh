@@ -273,23 +273,23 @@
 *                  => to be moved to Seward due to move of GuessOrb    *
 * NoExchange - Skip calculation of exchange contribution to the Fock   *
 *              matrix (introduced for debugging purposes)              *
-* Falcon     -T    = Fock matrix is stored in Runfile
+* Falcon     - T   = Fock matrix is stored in Runfile                  *
+* RSRFO      - F   = Use RS-RFO instead of DIIS extrapolation          *
 *----------------------------------------------------------------------*
       Logical Lgcl_Strt,Lgcl_End,FrstDs,FrstDa,DSCF,lRel,
      &        PreSch,MiniDn,WrOutD,c1Diis,Scrmbl,RFpert,Aufb,Teee,
      &        Damping,Diis,One_Grid,DoCholesky,DDnOFF,Two_Thresholds,
      &        PmTime,EmConv,WarnCfg,DoHLgap,AddFragments,WarnPocc,
      &        DoFMM,LKon,OnlyProp,DoLDF,NoExchange,WarnSlow,NoProp,
-     &        FckAuf,
-     &        Falcon
+     &        FckAuf,Falcon,RSRFO
       Common /Lgcl  / Lgcl_Strt,
      &                FrstDs,FrstDa,DSCF,lRel,Teee,
      &                PreSch,MiniDn,WrOutD,c1Diis,Scrmbl,RFpert,Aufb,
      &                Damping,Diis,One_Grid,DoCholesky,DDnOFF,
      &                Two_Thresholds,PmTime,EmConv,WarnCfg,DoHLgap,
      &                AddFragments,WarnPocc,DoFMM,LKon,OnlyProp,
-     &                DoLDF,NoExchange,WarnSlow,NoProp,Falcon,
-     &                FckAuf,
+     &                DoLDF,NoExchange,WarnSlow,NoProp,FckAuf,
+     &                Falcon,RSRFO,
      &                Lgcl_End
       Integer iStatPRN
       Common/PrintLev/ iStatPRN

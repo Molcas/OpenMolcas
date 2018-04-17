@@ -483,12 +483,14 @@ C  - F(xvzyut) -> BA(yvx,zut)
       INTEGER*1 idxG3(6,NG3)
 
       INTEGER*4, ALLOCATABLE :: SCOUNTS(:), RCOUNTS(:)
+      INTEGER*4, ALLOCATABLE :: SCOUNTS2(:), RCOUNTS2(:)
       INTEGER*4, ALLOCATABLE :: SDISPLS(:), RDISPLS(:)
+      INTEGER*4, ALLOCATABLE :: SDISPLS2(:), RDISPLS2(:)
 
-      INTEGER*4, ALLOCATABLE :: SENDIDX(:,:), RECVIDX(:,:)
+      INTEGER*4, ALLOCATABLE :: SENDIDX(:), RECVIDX(:)
       REAL*8,    ALLOCATABLE :: SENDVAL(:), RECVVAL(:)
 
-      INTEGER*4, PARAMETER :: ONE4=1
+      INTEGER*4, PARAMETER :: ONE4=1, TWO4=2
       INTEGER*4 :: IERROR4
       INTEGER, PARAMETER :: I4=KIND(ONE4)
 
@@ -507,8 +509,12 @@ C  - F(xvzyut) -> BA(yvx,zut)
 
       ALLOCATE(SCOUNTS(NPROCS))
       ALLOCATE(RCOUNTS(NPROCS))
+      ALLOCATE(SCOUNTS2(NPROCS))
+      ALLOCATE(RCOUNTS2(NPROCS))
       ALLOCATE(SDISPLS(NPROCS))
       ALLOCATE(RDISPLS(NPROCS))
+      ALLOCATE(SDISPLS2(NPROCS))
+      ALLOCATE(RDISPLS2(NPROCS))
 
       ALLOCATE(IBUF(NPROCS))
 
@@ -528,7 +534,7 @@ C  - F(xvzyut) -> BA(yvx,zut)
       NBUF=12*NG3B
 
       ALLOCATE(SENDVAL(NBUF))
-      ALLOCATE(SENDIDX(2,NBUF))
+      ALLOCATE(SENDIDX(2*NBUF))
 
       ! Finally, we need some info on the layout of the global array in
       ! order to compute the process row of the row index.
@@ -704,8 +710,8 @@ C  - F(tuvxyz) -> BA(xut,vyz)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=F3VAL
-            SENDIDX(1,IBUF(IP))=INT(IROW,I4)
-            SENDIDX(2,IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
           ENDIF
           if (iTU.eq.iVX.and.iVX.eq.iYZ) go to 301
           if (iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ) go to 201
@@ -717,8 +723,8 @@ C  - F(vxtuyz) -> BA(uxv,tyz)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=F3VAL
-            SENDIDX(1,IBUF(IP))=INT(IROW,I4)
-            SENDIDX(2,IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
           ENDIF
 C  - F(yzvxtu) -> BA(xzy,vtu)
           jSYM=MUL(IASYM(iX),MUL(IASYM(iZ),IASYM(iY)))
@@ -728,8 +734,8 @@ C  - F(yzvxtu) -> BA(xzy,vtu)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=F3VAL
-            SENDIDX(1,IBUF(IP))=INT(IROW,I4)
-            SENDIDX(2,IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
           ENDIF
 C  - F(tuyzvx) -> BA(zut,yvx)
           jSYM=MUL(IASYM(iZ),MUL(IASYM(iU),IASYM(iT)))
@@ -739,8 +745,8 @@ C  - F(tuyzvx) -> BA(zut,yvx)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=F3VAL
-            SENDIDX(1,IBUF(IP))=INT(IROW,I4)
-            SENDIDX(2,IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
           ENDIF
  201      CONTINUE
 C  - F(yztuvx) -> BA(uzy,tvx)
@@ -751,8 +757,8 @@ C  - F(yztuvx) -> BA(uzy,tvx)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=F3VAL
-            SENDIDX(1,IBUF(IP))=INT(IROW,I4)
-            SENDIDX(2,IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
           ENDIF
 C  - F(vxyztu) -> BA(zxv,ytu)
           jSYM=MUL(IASYM(iZ),MUL(IASYM(iX),IASYM(iV)))
@@ -762,8 +768,8 @@ C  - F(vxyztu) -> BA(zxv,ytu)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=F3VAL
-            SENDIDX(1,IBUF(IP))=INT(IROW,I4)
-            SENDIDX(2,IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
           ENDIF
  301      CONTINUE
           if (iT.eq.iU.and.iV.eq.iX.and.iY.eq.iZ) CYCLE
@@ -778,8 +784,8 @@ C  - F(utxvzy) -> BA(vtu,xzy)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=F3VAL
-            SENDIDX(1,IBUF(IP))=INT(IROW,I4)
-            SENDIDX(2,IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
           ENDIF
           if (iTU.eq.iVX.and.iVX.eq.iYZ) CYCLE
           if (iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ) go to 401
@@ -791,8 +797,8 @@ C  - F(xvutzy) -> BA(tvx,uzy)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=F3VAL
-            SENDIDX(1,IBUF(IP))=INT(IROW,I4)
-            SENDIDX(2,IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
           ENDIF
 C  - F(zyxvut) -> BA(vyz,xut)
           jSYM=MUL(IASYM(iV),MUL(IASYM(iY),IASYM(iZ)))
@@ -802,8 +808,8 @@ C  - F(zyxvut) -> BA(vyz,xut)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=F3VAL
-            SENDIDX(1,IBUF(IP))=INT(IROW,I4)
-            SENDIDX(2,IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
           ENDIF
 C  - F(utzyxv) -> BA(ytu,zxv)
           jSYM=MUL(IASYM(iY),MUL(IASYM(iT),IASYM(iU)))
@@ -813,8 +819,8 @@ C  - F(utzyxv) -> BA(ytu,zxv)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=F3VAL
-            SENDIDX(1,IBUF(IP))=INT(IROW,I4)
-            SENDIDX(2,IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
           ENDIF
  401      CONTINUE
 C  - F(zyutxv) -> BA(tyz,uxv)
@@ -825,8 +831,8 @@ C  - F(zyutxv) -> BA(tyz,uxv)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=F3VAL
-            SENDIDX(1,IBUF(IP))=INT(IROW,I4)
-            SENDIDX(2,IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
           ENDIF
 C  - F(xvzyut) -> BA(yvx,zut)
           jSYM=MUL(IASYM(iY),MUL(IASYM(iV),IASYM(iX)))
@@ -836,8 +842,8 @@ C  - F(xvzyut) -> BA(yvx,zut)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=F3VAL
-            SENDIDX(1,IBUF(IP))=INT(IROW,I4)
-            SENDIDX(2,IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
           ENDIF
         END DO
 
@@ -850,26 +856,30 @@ C  - F(xvzyut) -> BA(yvx,zut)
         DO I=1,NPROCS
           RDISPLS(I)=INT(IOFFSET,I4)
           IOFFSET=IOFFSET+RCOUNTS(I)
+          SCOUNTS2(I)=TWO4*SCOUNTS(I)
+          RCOUNTS2(I)=TWO4*RCOUNTS(I)
+          SDISPLS2(I)=TWO4*SDISPLS(I)
+          RDISPLS2(I)=TWO4*RDISPLS(I)
         END DO
         NRECV=IOFFSET
 
         ALLOCATE(RECVVAL(NRECV))
-        ALLOCATE(RECVIDX(2,NRECV))
+        ALLOCATE(RECVIDX(2*NRECV))
 
         ! Now, it is time to collect the appropriate values and indices
         ! in their respective receive buffers.
         CALL MPI_ALLTOALLV(SENDVAL, SCOUNTS, SDISPLS, MPI_REAL8,
      &                     RECVVAL, RCOUNTS, RDISPLS, MPI_REAL8,
      &                     MPI_COMM_WORLD, IERROR4)
-        CALL MPI_ALLTOALLV(SENDIDX, SCOUNTS, SDISPLS, MPI_INTEGER8,
-     &                     RECVIDX, RCOUNTS, RDISPLS, MPI_INTEGER8,
+        CALL MPI_ALLTOALLV(SENDIDX, SCOUNTS2, SDISPLS2, MPI_INTEGER4,
+     &                     RECVIDX, RCOUNTS2, RDISPLS2, MPI_INTEGER4,
      &                     MPI_COMM_WORLD, IERROR4)
 
         ! Finally, fill the local chunk of the SA matrix (block of rows)
         ! with the received values at their appropriate place.
         DO I=1,NRECV
-          ISUP=RECVIDX(1,I)
-          JSUP=RECVIDX(2,I)
+          ISUP=RECVIDX(2*I-1)
+          JSUP=RECVIDX(2*I)
           BA(ISUP-ILO+1,JSUP-JLO+1)=
      &      BA(ISUP-ILO+1,JSUP-JLO+1)+RECVVAL(I)
         END DO
@@ -884,8 +894,12 @@ C  - F(xvzyut) -> BA(yvx,zut)
 
       DEALLOCATE(SCOUNTS)
       DEALLOCATE(RCOUNTS)
+      DEALLOCATE(SCOUNTS2)
+      DEALLOCATE(RCOUNTS2)
       DEALLOCATE(SDISPLS)
       DEALLOCATE(RDISPLS)
+      DEALLOCATE(SDISPLS2)
+      DEALLOCATE(RDISPLS2)
 
       DEALLOCATE(IBUF)
 
@@ -1279,12 +1293,14 @@ C  - F(xvzyut) -> BC(zvx,yut)
       INTEGER*1 idxG3(6,NG3)
 
       INTEGER*4, ALLOCATABLE :: SCOUNTS(:), RCOUNTS(:)
+      INTEGER*4, ALLOCATABLE :: SCOUNTS2(:), RCOUNTS2(:)
       INTEGER*4, ALLOCATABLE :: SDISPLS(:), RDISPLS(:)
+      INTEGER*4, ALLOCATABLE :: SDISPLS2(:), RDISPLS2(:)
 
-      INTEGER*4, ALLOCATABLE :: SENDIDX(:,:), RECVIDX(:,:)
+      INTEGER*4, ALLOCATABLE :: SENDIDX(:), RECVIDX(:)
       REAL*8,    ALLOCATABLE :: SENDVAL(:), RECVVAL(:)
 
-      INTEGER*4, PARAMETER :: ONE4=1
+      INTEGER*4, PARAMETER :: ONE4=1, TWO4=2
       INTEGER*4 :: IERROR4
       INTEGER, PARAMETER :: I4=KIND(ONE4)
 
@@ -1303,8 +1319,12 @@ C  - F(xvzyut) -> BC(zvx,yut)
 
       ALLOCATE(SCOUNTS(NPROCS))
       ALLOCATE(RCOUNTS(NPROCS))
+      ALLOCATE(SCOUNTS2(NPROCS))
+      ALLOCATE(RCOUNTS2(NPROCS))
       ALLOCATE(SDISPLS(NPROCS))
       ALLOCATE(RDISPLS(NPROCS))
+      ALLOCATE(SDISPLS2(NPROCS))
+      ALLOCATE(RDISPLS2(NPROCS))
 
       ALLOCATE(IBUF(NPROCS))
 
@@ -1324,7 +1344,7 @@ C  - F(xvzyut) -> BC(zvx,yut)
       NBUF=12*NG3B
 
       ALLOCATE(SENDVAL(NBUF))
-      ALLOCATE(SENDIDX(2,NBUF))
+      ALLOCATE(SENDIDX(2*NBUF))
 
       ! Finally, we need some info on the layout of the global array in
       ! order to compute the process row of the row index.
@@ -1500,8 +1520,8 @@ C  - F(tuvxyz) -> BC(vut,xyz)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=F3VAL
-            SENDIDX(1,IBUF(IP))=INT(IROW,I4)
-            SENDIDX(2,IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
           ENDIF
           if (iTU.eq.iVX.and.iVX.eq.iYZ) go to 301
           if (iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ) go to 201
@@ -1513,8 +1533,8 @@ C  - F(vxtuyz) -> BC(txv,uyz)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=F3VAL
-            SENDIDX(1,IBUF(IP))=INT(IROW,I4)
-            SENDIDX(2,IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
           ENDIF
 C  - F(yzvxtu) -> BC(vzy,xtu)
           jSYM=MUL(IASYM(iV),MUL(IASYM(iZ),IASYM(iY)))
@@ -1524,8 +1544,8 @@ C  - F(yzvxtu) -> BC(vzy,xtu)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=F3VAL
-            SENDIDX(1,IBUF(IP))=INT(IROW,I4)
-            SENDIDX(2,IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
           ENDIF
 C  - F(tuyzvx) -> BC(yut,zvx)
           jSYM=MUL(IASYM(iY),MUL(IASYM(iU),IASYM(iT)))
@@ -1535,8 +1555,8 @@ C  - F(tuyzvx) -> BC(yut,zvx)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=F3VAL
-            SENDIDX(1,IBUF(IP))=INT(IROW,I4)
-            SENDIDX(2,IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
           ENDIF
  201   CONTINUE
 C  - F(yztuvx) -> BC(tzy,uvx)
@@ -1547,8 +1567,8 @@ C  - F(yztuvx) -> BC(tzy,uvx)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=F3VAL
-            SENDIDX(1,IBUF(IP))=INT(IROW,I4)
-            SENDIDX(2,IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
           ENDIF
 C  - F(vxyztu) -> BC(yxv,ztu)
           jSYM=MUL(IASYM(iY),MUL(IASYM(iX),IASYM(iV)))
@@ -1558,8 +1578,8 @@ C  - F(vxyztu) -> BC(yxv,ztu)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=F3VAL
-            SENDIDX(1,IBUF(IP))=INT(IROW,I4)
-            SENDIDX(2,IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
           ENDIF
  301   CONTINUE
           if (iT.eq.iU.and.iV.eq.iX.and.iY.eq.iZ) go to 501
@@ -1574,8 +1594,8 @@ C  - F(utxvzy) -> BC(xtu,vzy)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=F3VAL
-            SENDIDX(1,IBUF(IP))=INT(IROW,I4)
-            SENDIDX(2,IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
           ENDIF
           if (iTU.eq.iVX.and.iVX.eq.iYZ) go to 501
           if (iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ) go to 401
@@ -1587,8 +1607,8 @@ C  - F(xvutzy) -> BC(uvx,tzy)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=F3VAL
-            SENDIDX(1,IBUF(IP))=INT(IROW,I4)
-            SENDIDX(2,IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
           ENDIF
 C  - F(zyxvut) -> BC(xyz,vut)
           jSYM=MUL(IASYM(iX),MUL(IASYM(iY),IASYM(iZ)))
@@ -1598,8 +1618,8 @@ C  - F(zyxvut) -> BC(xyz,vut)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=F3VAL
-            SENDIDX(1,IBUF(IP))=INT(IROW,I4)
-            SENDIDX(2,IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
           ENDIF
 C  - F(utzyxv) -> BC(ztu,yxv)
           jSYM=MUL(IASYM(iZ),MUL(IASYM(iT),IASYM(iU)))
@@ -1609,8 +1629,8 @@ C  - F(utzyxv) -> BC(ztu,yxv)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=F3VAL
-            SENDIDX(1,IBUF(IP))=INT(IROW,I4)
-            SENDIDX(2,IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
           ENDIF
  401   CONTINUE
 C  - F(zyutxv) -> BC(uyz,txv)
@@ -1621,8 +1641,8 @@ C  - F(zyutxv) -> BC(uyz,txv)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=F3VAL
-            SENDIDX(1,IBUF(IP))=INT(IROW,I4)
-            SENDIDX(2,IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
           ENDIF
 C  - F(xvzyut) -> BC(zvx,yut)
           jSYM=MUL(IASYM(iZ),MUL(IASYM(iV),IASYM(iX)))
@@ -1632,8 +1652,8 @@ C  - F(xvzyut) -> BC(zvx,yut)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=F3VAL
-            SENDIDX(1,IBUF(IP))=INT(IROW,I4)
-            SENDIDX(2,IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
           ENDIF
  501   CONTINUE
         END DO
@@ -1647,26 +1667,30 @@ C  - F(xvzyut) -> BC(zvx,yut)
         DO I=1,NPROCS
           RDISPLS(I)=INT(IOFFSET,I4)
           IOFFSET=IOFFSET+RCOUNTS(I)
+          SCOUNTS2(I)=TWO4*SCOUNTS(I)
+          RCOUNTS2(I)=TWO4*RCOUNTS(I)
+          SDISPLS2(I)=TWO4*SDISPLS(I)
+          RDISPLS2(I)=TWO4*RDISPLS(I)
         END DO
         NRECV=IOFFSET
 
         ALLOCATE(RECVVAL(NRECV))
-        ALLOCATE(RECVIDX(2,NRECV))
+        ALLOCATE(RECVIDX(2*NRECV))
 
         ! Now, it is time to collect the appropriate values and indices
         ! in their respective receive buffers.
         CALL MPI_ALLTOALLV(SENDVAL, SCOUNTS, SDISPLS, MPI_REAL8,
      &                     RECVVAL, RCOUNTS, RDISPLS, MPI_REAL8,
      &                     MPI_COMM_WORLD, IERROR4)
-        CALL MPI_ALLTOALLV(SENDIDX, SCOUNTS, SDISPLS, MPI_INTEGER8,
-     &                     RECVIDX, RCOUNTS, RDISPLS, MPI_INTEGER8,
+        CALL MPI_ALLTOALLV(SENDIDX, SCOUNTS2, SDISPLS2, MPI_INTEGER4,
+     &                     RECVIDX, RCOUNTS2, RDISPLS2, MPI_INTEGER4,
      &                     MPI_COMM_WORLD, IERROR4)
 
         ! Finally, fill the local chunk of the SC matrix (block of rows)
         ! with the received values at their appropriate place.
         DO I=1,NRECV
-          ISUP=RECVIDX(1,I)
-          JSUP=RECVIDX(2,I)
+          ISUP=RECVIDX(2*I-1)
+          JSUP=RECVIDX(2*I)
           BC(ISUP-ILO+1,JSUP-JLO+1)=
      &      BC(ISUP-ILO+1,JSUP-JLO+1)+RECVVAL(I)
         END DO
@@ -1681,8 +1705,12 @@ C  - F(xvzyut) -> BC(zvx,yut)
 
       DEALLOCATE(SCOUNTS)
       DEALLOCATE(RCOUNTS)
+      DEALLOCATE(SCOUNTS2)
+      DEALLOCATE(RCOUNTS2)
       DEALLOCATE(SDISPLS)
       DEALLOCATE(RDISPLS)
+      DEALLOCATE(SDISPLS2)
+      DEALLOCATE(RDISPLS2)
 
       DEALLOCATE(IBUF)
       RETURN

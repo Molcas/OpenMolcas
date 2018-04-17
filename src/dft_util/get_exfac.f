@@ -39,7 +39,9 @@ c      Get_ExFac=HFLDA
        l_casdft = KSDFT(1:5).eq.'TLSDA'   .or.
      &            KSDFT(1:6).eq.'TLSDA5'  .or.
      &            KSDFT(1:5).eq.'TBLYP'   .or.
-     &            KSDFT(1:4).eq.'TSSB'    .or.
+     &            KSDFT(1:6).eq.'TSSBSW'  .or.
+     &            KSDFT(1:5).eq.'TSSBD'   .or.
+     &            KSDFT(1:5).eq.'TS12G'   .or.
      &            KSDFT(1:4).eq.'TPBE'    .or.
      &            KSDFT(1:5).eq.'FTPBE'   .or.
      &            KSDFT(1:7).eq.'TREVPBE' .or.
@@ -310,10 +312,31 @@ c      Get_ExFac=HFLDA
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     SSB                                                              *
+*     SSBSW                                                            *
 *                                                                      *
-      Else If (KSDFT(1:4).eq.'SSB') Then
+      Else If (KSDFT(1:5).eq.'SSBSW') Then
          Get_ExFac=Zero
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     SSBD                                                             *
+*                                                                      *
+      Else If (KSDFT(1:4).eq.'SSBD') Then
+         Get_ExFac=Zero
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     S12G                                                             *
+*                                                                      *
+      Else If (KSDFT(1:4).eq.'S12G') Then
+         Get_ExFac=Zero
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     S12H                                                             *
+*                                                                      *
+      Else If (KSDFT(1:4).eq.'S12H') Then
+         Get_ExFac=0.25d0
 *                                                                      *
 ************************************************************************
 *                                                                      *

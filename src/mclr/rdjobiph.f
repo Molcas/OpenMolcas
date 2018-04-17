@@ -151,6 +151,8 @@ C     Read state for geo opt
 C
       Call Get_iScalar('Relax CASSCF root',irlxroot)
       Call Get_cArray('Relax Method',Method,8)
+      iMCPD=.False.
+      if(Method.eq.'MCPDFT  ')iMCPD=.True.
       If (Method.eq.'CASSCFSA') Then
          Call Get_iScalar('SA ready',iGo)
          If (iGO.eq.-1) Then
@@ -184,7 +186,7 @@ C
      &              'Cannot relax a root not included in the SA')
             End If
          End If
-      Else If (irlxroot.eq.1.and..Not.(McKinley.or.PT2)) Then
+      Else If (irlxroot.eq.1.and..Not.(McKinley.or.PT2.or.iMCPD)) Then
          Write (6,*)
          Write (6,*) 'W A R N I N G !'
          Write (6,*)

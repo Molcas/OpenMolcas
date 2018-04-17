@@ -48,7 +48,7 @@
          DO k = 1,2
             IF (k==1) THEN
                WRITE(FileName,'(I16.4)') Iter
-               FileName = 'QMMMITXYZ.'//ADJUSTL(FileName)
+               FileName = 'QMMMITXYZ.'//TRIM(ADJUSTL(FileName))
             ELSE
                FileName='QMMMENDXYZ'
             END IF

@@ -82,7 +82,9 @@
       l_casdft = KSDFA(1:5).eq.'TLSDA'   .or.
      &           KSDFA(1:6).eq.'TLSDA5'  .or.
      &           KSDFA(1:5).eq.'TBLYP'   .or.
-     &           KSDFA(1:4).eq.'TSSB'    .or.
+     &           KSDFA(1:6).eq.'TSSBSW'  .or.
+     &           KSDFA(1:5).eq.'TSSBD'   .or.
+     &           KSDFA(1:5).eq.'TS12G'   .or.
      &           KSDFA(1:4).eq.'TPBE'    .or.
      &           KSDFA(1:5).eq.'FTPBE'   .or.
      &           KSDFA(1:7).eq.'TREVPBE' .or.
@@ -97,13 +99,16 @@
         LuMC=37
         LuMT=37
         call OpnFl('MCPDFT',LuMC,Exist)
+        Call append_file(LuMC)
         call OpnFl('MCTRUD',LuMT,Exist)
         write(LuMC,'(A)') ' Here densities are MCPDFT modified ones'
         write(LuMC,'(A)') '       X         Y        Z'//
      &   '            d_alpha     d_beta       dTot         P2'//
      &   '         ratio'
-        write(LuMT,'(A)') '       X         Y        Z'//
-     &   '            d_alpha     d_beta       dTot'
+        write(LuMT,'(A)') '     X    ,     Y    ,     Z    ,'//
+     &                    '       d_a*W     ,       d_b*W     ,'//
+     &                    '       dTot*W    ,       Weights   ,'//
+     &                    '       dTot '
       END IF
 ************************************************************************
 *

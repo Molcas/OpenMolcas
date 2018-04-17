@@ -10,28 +10,21 @@
 *                                                                      *
 * Copyright (C) Roland Lindh                                           *
 ************************************************************************
+*  ip_of_Work
+*
+*> @brief
+*>   Return pointer to be used in \c Work which corresponds to the first element of array \p A
+*> @author R. Lindh
+*>
+*> @details
+*> Function returns pointer such that \p A and \c Work(ip_of_Work(A)) refer to
+*> the same memory location.
+*>
+*> @param[in] A first element of real array
+*>
+*> @return pointer to \p A in \c Work
+************************************************************************
       Integer Function ip_of_work(A)
-************************************************************
-*
-*   <DOC>
-*     <Name>ip\_of\_Work</Name>
-*     <Syntax>ip\_of\_Work(A)</Syntax>
-*     <Arguments>
-*       \Argument{A}{first element of real array}{real}{in}
-*     </Arguments>
-*     <Purpose>To return pointer to be used in Work which correspond to
-*              the first element of array A.</Purpose>
-*     <Dependencies>idLoc</Dependencies>
-*     <Author>R. Lindh</Author>
-*     <Modified_by></Modified_by>
-*     <Side_Effects></Side_Effects>
-*     <Description>
-*     Function returns pointer such that A and Work(ip\_of\_Work(A)) refers to
-*     the same memory location.
-*     </Description>
-*    </DOC>
-*
-************************************************************
       Implicit real*8 (a-h,o-z)
 #include "WrkSpc.fh"
       Real*8 A

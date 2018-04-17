@@ -471,9 +471,13 @@ c ipO eigenvalues of eff dens
 c ipCMON eigenvectors (new orb coef)
 c
          Call Getmem('TMP', 'ALLO','Real',ipT,nBuf/2)
+         Call Getmem('TMP', 'ALLO','Real',ipTt,nBuf/2)
          Call NatOrb(Work(ipD_K),Work(ipCMO),Work(ipCMON),Work(ipO))
          Call dmat(Work(ipCMON),Work(ipO),Work(ipT))
          Call Put_D1ao_Var(Work(ipT),nTot1)
+         Call get_D1MO(ipT,nTot1)
+         Call get_DLMO(ipTt,nTot1)
+       Call DaxPy_(nTot1,1.0d0,Work(ipTt),1,Work(ipT),1)
          Call Getmem('TMP', 'FREE','Real',ipT,nBuf/2)
          Note='var'
          LuTmp=50
@@ -546,7 +550,7 @@ c      Call Getmem('TMP', 'FREE','Real',ipT,nBuf/2)
 *
        Call GetMem('kappa1','FREE','Real',ipK1,  nDens2)
        Call Getmem('kappa2','FREE','Real',ipk2,  nDens2)
-       Call GetMem('ONEDEN','FREE','Real',ipD_K,nDens2)
+         Call GetMem('Dens','FREE','Real',ipD_K,Length)
        Call GetMem('ONEDEN','FREE','Real',ipDAO,nDens2)
        Call GetMem('ONEDEN','FREE','Real',ipD_CI,n1Dens)
        Call GetMem('ONEDEN','FREE','Real',ipD1,n1Dens)

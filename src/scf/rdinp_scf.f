@@ -328,6 +328,7 @@
       If (Line(1:4).eq.'WRDE') Go To 3500
       If (Line(1:4).eq.'C1DI') Go To 3600
       If (Line(1:4).eq.'QUAD') Go To 3700
+      If (Line(1:4).eq.'RS-R') Go To 3750
       If (Line(1:4).eq.'SCRA') Go To 3800
       If (Line(1:4).eq.'EXTR') Go To 3900
       If (Line(1:4).eq.'RFPE') Go To 4000
@@ -873,6 +874,11 @@ c      End If
  3700 Continue
       Line=Get_Ln(LuSpool)
       Call Get_F(1,QudThr,1)
+      GoTo 1000
+*
+*>>>>>>>>>>>>> RS-R <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ 3750 Continue
+      RSRFO = .True.
       GoTo 1000
 *
 *>>>>>>>>>>>>> SCRA <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
