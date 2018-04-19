@@ -187,7 +187,7 @@ C ii counter on CURRENT STEP
          jjj=0
          do i=1,NSTATE
             if (decVec(i) .eq. 1) then
-               if (ABS(sp(stateRi,i)) .gt. prod) then
+               if (ABS(sp(stateRi,i)) .gt. ABS(prod)) then
                   prod = sp(stateRi,i)
                   jjj = i
                end if
