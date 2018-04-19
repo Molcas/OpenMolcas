@@ -43,13 +43,17 @@ def tee(infile, *files):
 
 def teed_call(cmd_args, **kwargs):    
   stdout, stderr = [kwargs.pop(s, None) for s in ['stdout', 'stderr']]
-  p = Popen(cmd_args,
+  no_tee = kwargs.pop('no_tee', False)
+  if (no_tee):
+    p = Popen(cmd_args, stdout=sys.stdout, stderr=sys.stderr, **kwargs)
+  else:
+    p = Popen(cmd_args,
             stdout=PIPE if stdout is not None else None,
             stderr=PIPE if stderr is not None else None,
             **kwargs)
-  threads = []
-  if stdout is not None: threads.append(tee(p.stdout, stdout, sys.stdout))
-  if stderr is not None: threads.append(tee(p.stderr, stderr, sys.stderr))
-  for t in threads:
-    t.join()
+    threads = []
+    if stdout is not None: threads.append(tee(p.stdout, stdout, sys.stdout))
+    if stderr is not None: threads.append(tee(p.stderr, stderr, sys.stderr))
+    for t in threads:
+      t.join()
   return p.wait()
