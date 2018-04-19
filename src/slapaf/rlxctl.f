@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine RlxCtl(iStop)
+      Use Chkpnt
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *     Program for determination of the new molecular geometry          *
@@ -45,6 +46,8 @@
       Call RdCtl_Slapaf(iRow,iInt,nFix,LuSpool,.False.)
 *
       Call Close_LuSpool(LuSpool)
+*
+      Call Chkpnt_open()
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -371,6 +374,9 @@
       If (Found) Then
          If (AixRm('GRADS').ne.0) Call Abend()
       End If
+*
+      Call Chkpnt_update()
+      Call Chkpnt_close()
 *                                                                      *
 ************************************************************************
 *                                                                      *

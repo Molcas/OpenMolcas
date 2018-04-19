@@ -1,0 +1,77 @@
+#***********************************************************************
+# This file is part of OpenMolcas.                                     *
+#                                                                      *
+# OpenMolcas is free software; you can redistribute it and/or modify   *
+# it under the terms of the GNU Lesser General Public License, v. 2.1. *
+# OpenMolcas is distributed in the hope that it will be useful, but it *
+# is provided "as is" and without any express or implied warranties.   *
+# For more details see the full text of the license in the file        *
+# LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#                                                                      *
+# Copyright (C) 2017, Stefan Knecht                                    *
+#***********************************************************************
+#                                                                      *
+#***********************************************************************
+# CMakeLists.txt for HDF5 QCM                                          *
+#***********************************************************************
+
+# load External Project macro
+include(ExternalProject)
+# Set up compilation of QCMaquis components
+set(CUSTOM_HDF5_QCM_LOCATION ${PROJECT_BINARY_DIR}/External/hdf5_qcm)
+
+# QCMaquis does not know profile
+if(CMAKE_BUILD_TYPE MATCHES "profile")
+  set(HDF5_QCM_BUILD_TYPE "release")
+else()
+  set(HDF5_QCM_BUILD_TYPE ${CMAKE_BUILD_TYPE})
+endif()
+
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_ROOT})
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/custom)
+
+set(CMAKE_Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/mod)
+
+list(APPEND HDF5_QCMCMakeArgs
+  -DCMAKE_BUILD_TYPE=${HDF5_QCM_BUILD_TYPE}
+  -DCMAKE_INSTALL_PREFIX=${PROJECT_BINARY_DIR}/External
+  -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER}
+  -DCMAKE_Fortran_FLAGS=${CMAKE_Fortran_FLAGS}
+  -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+  -DCMAKE_C_FLAGS=${CMake_C_FLAGS}
+  -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+  -DCMAKE_INSTALL_LIBDIR=lib
+  -DCMAKE_Fortran_MODULE_DIRECTORY=${CMAKE_Fortran_MODULE_DIRECTORY}
+  )
+
+######################################
+# git references for HDF5 QCM module #
+######################################
+set(reference_git_commit release-2.0)
+set(reference_git_repo git@gitlab.com:qc-maquis/hdf5-qcm.git)
+set(EP_PROJECT hdf5-qcm)
+
+# Enabling source changes to keep ExternalProject happy
+set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
+
+ExternalProject_Add(${EP_PROJECT}
+                    PREFIX ${CUSTOM_HDF5_QCM_LOCATION}
+                    GIT_REPOSITORY ${reference_git_repo}
+                    GIT_TAG ${reference_git_commit}
+                    CMAKE_ARGS "${HDF5_QCMCMakeArgs}"
+                    INSTALL_DIR "${PROJECT_BINARY_DIR}"
+                    LOG_INSTALL 1
+                    LOG_DOWNLOAD 1
+                    LOG_UPDATE 1
+                    LOG_CONFIGURE 1
+                    LOG_BUILD 1
+                    LOG_TEST 1
+                    LOG_INSTALL 1
+                   )
+
+set (CMAKE_DISABLE_SOURCE_CHANGES ON)
+
+# set variables for use in parent CMakeLists.txt
+ExternalProject_Get_Property(${EP_PROJECT} install_dir)
+set(HDF5_QCM_INCLUDE ${CMAKE_Fortran_MODULE_DIRECTORY} PARENT_SCOPE)
+set(HDF5_QCM_LIBRARIES ${install_dir}/lib/${CMAKE_FIND_LIBRARY_PREFIXES}HDF5interface.a PARENT_SCOPE)

@@ -93,6 +93,8 @@
 #else
       character(len=2300) :: maquis_name_states
       character(len=2300) :: maquis_name_results
+      logical             :: rfh5DMRG
+      logical             :: twordm_qcm
 #endif
 
 *PAM05      SymProd(i,j)=1+iEor(i-1,j-1)
@@ -138,6 +140,7 @@ C Local print level (if any)
         Write(LF,*) ' SGFCIN ',LW1
       END IF
       Call DecideOnESPF(Do_ESPF)
+
 *                                                                      *
 ************************************************************************
 * Global variable for MCPDFT functionals                               *
@@ -275,7 +278,7 @@ C Local print level (if any)
                  Call GetMem('PAtmp','ALLO','REAL',LW9,NACPR2)
                  Call GetMem('Pscr','ALLO','REAL',LW10,NACPR2)
                  C_Pointer = Lw4
-                 CALL Lucia_Util('Densi',iDummy,iDummy,Dummy)
+                 CALL Lucia_Util('Densi',0,iDummy,Dummy)
                  If (IFCAS.GT.2 .OR. iDoGAS) Then
                    Call CISX(IDXSX,Work(LW6),Work(LW7),Work(LW8),
      &                     Work(LW9),Work(LW10))
@@ -378,8 +381,8 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
       if(IfVB.eq.1)then
         call cvbmn_rvb(max(ifinal,1))
       else
-        If (KSDFT(1:3).ne.'SCF'.
-     &      and.DFTFOCK(1:4).eq.'DIFF'.and.nac.ne.0) Then
+        If (KSDFT(1:3).ne.'SCF'
+     &      .and.DFTFOCK(1:4).eq.'DIFF'.and.nac.ne.0) Then
           nTmpPUVX=nFint
           Call GetMem('TmpPUVX','Allo','Real',ipTmpPUVX,nTmpPUVX)
           Call GetMem('TmpTUVX','Allo','Real',ipTmpTUVX,NACPR2)
@@ -443,9 +446,11 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
 ! Call DMRG staff in Molcas - yingjin
            if(doDMRG)then
 #ifdef _DMRG_
+                                                  twordm_qcm = .true.
+             if(KeyCION .and. .not. domcpdftDMRG) twordm_qcm = .false.
              call dmrg_interface_ctl(
      &                               task = 'run DMRG',
-     &                               Key_CION = KeyCION,
+     &                               Key_CION = .not.twordm_qcm,
      &                               IterSCF  = Iter
      &                              )
 ! Keep the root energies
@@ -504,7 +509,7 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
          If ( NAC.ge.1 ) Then
            C_Pointer = Lw4
            if(.not.(doDMRG))
-     &       CALL Lucia_Util('Densi',iDummy,iDummy,Dummy)
+     &       CALL Lucia_Util('Densi',0,iDummy,Dummy)
            IF ( IPRLEV.GE.INSANE  ) THEN
              write(6,*) 'At root number =', jroot
              CALL TRIPRT('D after lucia  ',' ',Work(LW6),NAC)
@@ -527,7 +532,7 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
      &                             mdim  = nacpr2,
      &                             state = jroot,
      &                             rdm1  = .true.,
-     &                             rdm2  = (.not.KeyCION)
+     &                             rdm2  = twordm_qcm
      &                            )
 
            !> import 1p-spin density
@@ -618,7 +623,7 @@ C and for now don't bother with 2-electron active density matrices
 * compute density matrices
         If ( NAC.ge.1 ) Then
            C_Pointer = Lw4
-           CALL Lucia_Util('Densi',iDummy,iDummy,Dummy)
+           CALL Lucia_Util('Densi',0,iDummy,Dummy)
            IF ( IPRLEV.GE.INSANE  ) THEN
              CALL TRIPRT('D after lucia',' ',Work(LW6),NAC)
              CALL TRIPRT('DS after lucia',' ',Work(LW7),NAC)
@@ -722,6 +727,11 @@ c         if(.not.iDoGas)then
 #ifdef _HDF5_
           call mh5_put_dset_array_real
      $            (wfn_cicoef,Work(LW11),[nconf,1],[0,i-1])
+#ifdef _DMRG_
+          call mh5_put_dset_array_str
+     $         (wfn_dmrg_checkpoint,dmrg_file%qcmaquis_checkpoint_file)
+#endif
+
 #endif
 c         else
 c         call DDafile(JOBIPH,1,Work(LW4),nConf,jDisk)
@@ -853,6 +863,30 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
         mconf = 0
         Call Allocate_Work(ipRF,nConf)
         Call Qpg_dArray("RF CASSCF Vector",Exist,mConf)
+
+        !> check whether the rf target h5 file exists (needed at this
+        !point for numerical gradient calculations)
+#ifdef _DMRG_
+        if(doDMRG.and.exist)then
+          inquire(file="rf.results_state.h5", exist=rfh5DMRG)
+          if(.not.rfh5DMRG)then
+            maquis_name_states  = ""
+            maquis_name_results = ""
+            call file_name_generator(IPCMROOT-1,"checkpoint_state.",
+     &                               17,".h5",3,maquis_name_states)
+            call file_name_generator(IPCMROOT-1,"results_state.",
+     &                               14,".h5",3,maquis_name_results)
+
+          !> copy current target wave function to local wave function
+            call system(
+     & "cp -f "//trim(maquis_name_results)//" rf.results_state.h5 && "//
+     & "rm -rf rf.checkpoint_state.h5 && "//
+     & "cp -r "//trim(maquis_name_states)//" rf.checkpoint_state.h5"
+     &                 )
+          end if
+        end if
+#endif
+
         If (Exist
      &      .and. mConf .eq. nConf
      &      .and. iFinal.ne.2

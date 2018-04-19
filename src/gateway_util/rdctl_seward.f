@@ -1659,8 +1659,13 @@ c     Go To 998
       GWInput=.True.
       KWord = Get_Ln(LuRd)
 *     Open external file if the line does not start with an integer
+*       Note that the "Err" signal cannot be completely trusted, since
+*       a slash (i.e., an absolute path) marks end of input and gives
+*       no error
       LuRd_saved=LuRd
+      ibla = -1
       Read(KWord,*,Err=9751) ibla
+      If (ibla.lt.0) Goto 9751
       Goto 9752
 9751  LuRd=1
       Call Get_S(1,filename,1)

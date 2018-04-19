@@ -48,6 +48,9 @@
       Character*8   Fmt1,Fmt2,Label
       Character*120  Line,BlLine,StLine
       Character*3 lIrrep(8)
+#ifdef _ENABLE_CHEMPS2_DMRG_
+      Character*3 SNAC
+#endif
       Logical DoCholesky
       Logical DoLocK,Deco, lOPTO, l_casdft
       Real*8  dmpK
@@ -269,6 +272,10 @@ C.. for GAS
      &                           Do3RDM
       Write(LF,Fmt2//'A,T45,I6)')'Restart scheme in 3-RDM and F.4-RDM',
      &                           chemps2_lrestart
+      write(SNAC, '(I3)') NAC
+      Write(LF,Fmt2//'A,T45,'//trim(adjustl(SNAC))//'I2)')
+     &                           'Occupation guess',
+     &                           (HFOCC(ihfocc), ihfocc=1,NAC)
 #endif
 
 * NN.14 FIXME: haven't yet checked whether geometry opt. works correctly with DMRG
@@ -292,12 +299,16 @@ C.. for GAS
       Write(LF,Fmt1)'----------------------------'
       Write(LF,*)
 
-      if(doDMRG)then  ! Information for DMRG
+      if(doDMRG)then  !> Information for QCMaquis-DMRG
 #ifdef _DMRG_
        if(dmrg_orbital_space%initial_occ(1,1) > 0)then
          dmrg_start_guess = "Single determinant"
        else
-         dmrg_start_guess = "Random numbers (default)"
+         if(dmrg_warmup%doCIDEAS)then
+           dmrg_start_guess = "CI-DEAS"
+         else
+           dmrg_start_guess = "Random numbers (default)"
+         end if
        end if
        call print_dmrg_info(lf,fmt2,1,dmrg_start_guess,nroots,thre)
 #endif

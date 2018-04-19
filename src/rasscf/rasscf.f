@@ -50,6 +50,7 @@
 
 #ifdef _DMRG_
 !     module dependencies
+      use qcmaquis_interface_wrapper
       use qcmaquis_interface_cfg
       use qcmaquis_interface_version
       use qcmaquis_interface_environment, only:
@@ -88,6 +89,7 @@
 #include "embpotdata.fh"
 #endif
 #include "raswfn.fh"
+
       Logical DSCF
       Logical lTemp, lOPTO
       Character*8 label
@@ -124,6 +126,10 @@
       External Proc_Inp
 #ifndef _DMRG_
       logical :: doDMRG = .false.
+#else
+      integer :: maxtrR
+      real*8  :: maxtrW
+#include "nevptp.fh"
 #endif
 
 * Start the traceback utilities
@@ -245,8 +251,7 @@
 
 * If the ORBONLY option was chosen, then Proc_Inp just generated
 *  orbitals from the JOBIPH file. Nothing more to do:
-      IF(KeyORBO) GOTO 9990
-
+      IF(KeyORBO.or.(MAXIT.eq.0)) GOTO 9989
 *                                                                 *
 *******************************************************************
 * Initialize global variable for mcpdft method                    *
@@ -263,6 +268,9 @@
      &            KSDFT(1:6).eq.'FTLSDA'  .or.
      &            KSDFT(1:6).eq.'FTBLYP'
 *******************************************************************
+#ifdef _DMRG_
+      if(l_casdft .and. doDMRG) domcpdftDMRG = .true.
+#endif
 *
 * Allocate various matrices
 *
@@ -351,18 +359,21 @@
        end if
       end if
 #endif
+
 *
 * Get start orbitals
 
 * Initialize OCCN array, to prevent false alarms later from
 * automated detection of using uninitialized variables:
       call dcopy_(NTot,0.0D0,0,Work(lOCCN),1)
+
 * PAM03: Note that removal of linear dependence may change the nr
 * of secondary/deleted orbitals, affecting some of the global
 * variables: NSSH(),NDEL(),NORB(),NTOT3, etc etc
       Call ReadVc(Work(LCMO),Work(lOCCN),
      &             WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA))
 * Only now are such variables finally known.
+
       If ( IPRLEV.ge.DEBUG ) then
         CALL TRIPRT('Averaged one-body density matrix, D, in RASSCF',
      &              ' ',Work(LDMAT),NAC)
@@ -388,6 +399,7 @@
 
       Call Timing(Swatch,Swatch,Ebel_1,Swatch)
 
+CGG03 Aug 03
       If(NAlter.gt.0) Call Alter_MO(Work(LCMO))
 
 c At this point all is ready to potentially dump MO integrals... just do it if required.
@@ -451,17 +463,16 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
        END IF
 #ifdef _DMRG_
        if(doDMRG)then
-          Write(LF,'(45x,a//,36x,a/,36x,a/,36x,a//,45x,a//,36x,a/,'//
-     &               '36x,a/,36x,a//,36x,a/,36x,a,a/,36x,a//)')
+          Write(LF,'(45x,a//,36x,a/,36x,a/,36x,a//,45x,a//,'//
+     &               '36x,a/,36x,a/,36x,a//,36x,a/,36x,a,a/,36x,a//)')
      &        'Please cite for the QCMaquis-Molcas driver:',
-     &        'Y. Ma, S. Keller, C. Stein, S. Knecht, R. Lindh,'//
-     &        ' and M. Reiher,',
-     &        'in preparation (2015).',
+     &        'Freitag L.; Keller S.; Knecht S.; Lindh R.; Ma Y.; ',
+     &        'Stein C. J. and Reiher M., in preparation. (2018).',
      &        '------------------------------------------------'//
      &        '---------------',
      &        'Please cite for the QCMaquis DMRG software:',
      &        'S. Keller, M. Dolfi, M. Troyer, M. Reiher,',
-     &        'arXiv:1510.02026 [physics.comp-ph].',
+     &        'J. Chem. Phys. 143, 244118 (2015)',
      &        '------------------------------------------------'//
      &        '---------------',
      &        trim(qcmaquis_interface_v),
@@ -507,13 +518,15 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
      &         'update hh:mm:ss'
         else if (DoDMRG .and. ICIONLY == 0)then
          Write(LF,'(6X,A)')
-     &         'Iter CI   SX   DMRG    DMRGSCF       Energy    '//
-     &         'max ROT   max BLB   max BLB  Level Ln srch  Step   '//
-     &         '  QN   CPU Time'
+     &         'Iter num  DMRG max tr DMRG  SX      DMRGSCF'//
+     &         '       Energy    '//
+     &         'max ROT   max BLB     max BLB  Level Ln srch  Step '//
+     &         '  QN     CPU Time'
          Write(LF,'(6X,A)')
-     &         '    iter iter root      energy       change    '//
-     &         ' param    element    value    shift minimum  type '//
-     &         'update hh:mm:ss'
+     &         '   sweeps/root weight/root iter     energy'//
+     &         '        change    '//
+     &         ' param    element      value   shift minimum  type '//
+     &         'update   hh:mm:ss'
         else if (DoDMRG .and. ICIONLY /= 0)then
 
         else if( l_casdft ) then
@@ -568,19 +581,39 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
       Write(STLNE2,'(A12,I3)')' Iteration ',ITER
       Call StatusLine('RASSCF:',STLNE2)
       Call Timing(Swatch,Swatch,Certina_1,Swatch)
+#ifdef _DMRG_
+      ! Leon 27/11/2017: Skip the first CI iteration if we're using
+      ! DMRGCI and CIOnly.It's enabled only for DMRGCI with QCMaquis
+      ! now, (to exclude potential side effects)
+      ! but consider extending it to other cases!
+      If (( ITER.EQ.1 ).and.((.not.(DoDMRG.and.(ICIONLY.NE.0))).or.lRf))
+     &    THEN
+#else
       If ( ITER.EQ.1 ) THEN
+#endif
 ************************************************************************
 *     ^   First iteration
 ************************************************************************
 *
-* Print header to CI_Iteration file.
+
+* Print header to file containing informations on CI iterations.
+*
         Write(IterFile,'(20A4)') ('****',i=1,20)
         Write(IterFile,'(15X,A)') 'RASSCF iteration: 1A'
-
+*
         Start_Vectors=.True.
         lTemp = lRf
+*
+* Transform two-electron integrals and compute at the same time
+* the Fock matrices FI and FA
+*
+        Call Timing(Swatch,Swatch,Fortis_1,Swatch)
 
-* Compute D1I from CMO coefficients
+        If (.not.DoCholesky .or. ALGO.eq.1) Then
+           Call GetMem('PUVX','Allo','Real',LPUVX,NFINT)
+           Call FZero(Work(LPUVX),NFINT)
+        EndIf
+
         Call Get_D1I_RASSCF(Work(LCMO),Work(lD1I))
         If ( IPRLEV.ge.DEBUG ) then
           Write(LF,*)
@@ -597,18 +630,43 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
 
 * Compute D1A from CMO coefficients and, if CIREstart, old DMAT.
         If (iCIRST.eq.1) Then
+
            Call GetMem('TmpDMAT','Allo','Real',ipTmpDMAT,NACPAR)
            call dcopy_(NACPAR,Work(LDMAT),1,Work(ipTmpDMAT),1)
            If (NASH(1).ne.NAC) Call DBLOCK(Work(ipTmpDMAT))
            Call Get_D1A_RASSCF(Work(LCMO),Work(ipTmpDMAT),WORK(LD1A))
            Call GetMem('TmpDMAT','Free','Real',ipTmpDMAT,NACPAR)
+
            DoActive = .true.
+
         Else
+
            lRf = .false.
+           IF( .not.l_casdft )  then
+             KSDFT='SCF'
+             ExFac=1.0D0
+           end IF
            Call dcopy_(NTOT2,0.0D0,0,WORK(LD1A),1)
+
            DoActive = .false.
+
         End If
+
+        DoQmat=.false.
+
+        IPR=0
+        IF(IPRLOC(2).EQ.4) IPR=5
+        IF(IPRLOC(2).EQ.5) IPR=10
+
         If ( IPRLEV.ge.DEBUG ) then
+         Write(LF,*)
+         Write(LF,*) ' PUVX in rasscf bf first TRACTL2'
+         Write(LF,*) ' ---------------------'
+         Write(LF,*)
+         call wrtmat(Work(LPUVX),1,nFint, 1, nFint)
+
+         Write(LF,*)
+         Write(LF,*) ' ---------------------'
          Write(LF,*)
          Write(LF,*) ' D1A in AO basis in RASSCF bf TRACTL2 1'
          Write(LF,*) ' ---------------------'
@@ -621,33 +679,12 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
          End Do
         end if
 
-*       if(.not.l_casdft) then ! GLM2017Jun02
-
-        Call Timing(Swatch,Swatch,Fortis_1,Swatch)
-* Allocate memory for PUVX integrals and initialize to zero
-        If (.not.DoCholesky .or. ALGO.eq.1) Then
-           Call GetMem('PUVX','Allo','Real',LPUVX,NFINT)
-           Call FZero(Work(LPUVX),NFINT)
-        EndIf
-        If ( IPRLEV.ge.DEBUG ) then
-         Write(LF,*)
-         Write(LF,*) ' PUVX in rasscf bf first TRACTL2'
-         Write(LF,*) ' ---------------------'
-         Write(LF,*)
-         call wrtmat(Work(LPUVX),1,nFint, 1, nFint)
-         Write(LF,*)
-         Write(LF,*) ' ---------------------'
-        end if
-
-        DoQmat=.false.
-        IPR=0
-        IF(IPRLOC(2).EQ.4) IPR=5
-        IF(IPRLOC(2).EQ.5) IPR=10
 *
 * Transform two-electron integrals and compute the Fock matrices FI and FA
 * FI and FA are output from TRACTL2...
         CALL TRACTL2(WORK(LCMO),WORK(LPUVX),WORK(LTUVX),WORK(LD1I),
      &               WORK(LFI),WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
+
 
         If ( IPRLEV.ge.DEBUG ) then
          Write(LF,*)
@@ -660,14 +697,15 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
           call wrtmat(Work(lD1A+ioff-1),iBas,iBas, iBas, iBas)
           iOff = iOff + iBas*iBas
          End Do
+
          Write(LF,*)
          Write(LF,*) ' ---------------------'
-
          Write(LF,*)
          Write(LF,*) ' PUVX in rasscf af first TRACTL2'
          Write(LF,*) ' ---------------------'
          Write(LF,*)
          call wrtmat(Work(LPUVX),1,nFint, 1, nFint)
+
          Write(LF,*)
          Write(LF,*) ' ---------------------'
 
@@ -680,6 +718,10 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
         If (.not.DoCholesky .or. ALGO.eq.1) Then
            Call GetMem('PUVX','Free','Real',LPUVX,NFINT)
         EndIf
+
+        Call Timing(Swatch,Swatch,Fortis_2,Swatch)
+        Fortis_2 = Fortis_2 - Fortis_1
+        Fortis_3 = Fortis_3 + Fortis_2
 
         If ( IPRLEV.ge.DEBUG ) then
          Write(LF,*)
@@ -698,10 +740,6 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
           end if
          End Do
         End If
-
-        Call Timing(Swatch,Swatch,Fortis_2,Swatch)
-        Fortis_2 = Fortis_2 - Fortis_1
-        Fortis_3 = Fortis_3 + Fortis_2
 
 *
 * Compute initial CI vectors and density matrices
@@ -828,6 +866,11 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
         Zenith_3 = Zenith_3 + Zenith_2
         lRf = lTemp
 
+        IF( .not.l_casdft ) then
+          KSDFT=KSDFT_TEMP
+          ExFac=Get_ExFac(KSDFT)
+        end IF
+
 *     v GLM for MC-PDFT
       If(KSDFT.ne.'SCF'.and.KSDFT.ne.'PAM'.or.l_casdft) Then
         If ( IPRLEV.ge.DEBUG ) then
@@ -894,9 +937,6 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
           write(6,*) EAV
          END if
         End if
-
-*       End If ! for (.not.l_casdft) case 2017June02
-
           END IF
 ************************************************************************
 *         ^ End First iteration
@@ -924,10 +964,13 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
         write(6,*) ('*',i=1,70)
       End if
 
-        IF( l_casdft ) then
-          KSDFT=KSDFT_TEMP
-          ExFac=0.0d0
-        end IF
+
+      IF( l_casdft ) then
+        KSDFT=KSDFT_TEMP
+        ExFac=0.0d0
+      end IF
+
+
       IF(ICIONLY.NE.0) IFINAL=1
 *
 * Transform two-electron integrals and compute at the same time
@@ -1129,8 +1172,6 @@ c      call triprt('P-mat 2',' ',WORK(LPMAT),nAc*(nAc+1)/2)
          End Do
        End if
       END IF
-c     ^ End IF (.not.l_casdft ) This long if is skipped for MCPDFT
-************************************************************************
 
       IF( l_casdft ) THEN
         CALL GETMEM('CASDFT_Fock','ALLO','REAL',LFOCK,NACPAR)
@@ -1256,6 +1297,7 @@ cGLM   write(6,*) 'ECAS in RASSCF after call to SXCTL', ECAS
       If (KSDFT.ne.'SCF'.and.KSDFT.ne.'PAM') then
         Call Get_dScalar('CASDFT energy',CASDFT_Funct)
 cGLM        write(6,*) 'CASDFT energy :', CASDFT_Funct
+
       end IF
       DE=(ECAS+CASDFT_Funct)-ECAS1
       ECAS1=ECAS+CASDFT_Funct
@@ -1342,12 +1384,29 @@ cGLM        write(6,*) 'CASDFT energy :', CASDFT_Funct
             Write(LF,'(6X,a,I5,A1,I2.2,A1,I2.2/)')
      &      'Total time spent (hh:mm:ss):        ',ihh,':',imm,':',iss
           else
-         Write(LF,'(6X,I3,I4,I5,I5,F15.8,E12.2,A1,E10.2,A1,2I4,I2,'//
-     &            'E10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I5,A1,I2.2,A1,I2.2)')
-     &        ITER,ITERCI,
-     &        ITERSX,IROT,ECAS-EVAC+CASDFT_Funct,DE,CTHRE,
+            if(doDMRG)then
+#ifdef _DMRG_
+              maxtrW = 0.0d0
+              maxtrR = -1
+              ITERCI = MAXVAL(dmrg_energy%num_sweeps)
+              IROT   = MAXLOC(dmrg_energy%num_sweeps,nroots)
+              maxtrW = MAXVAL(dmrg_energy%max_truncW)
+              maxtrR = MAXLOC(dmrg_energy%max_truncW,nroots)
+#endif
+         Write(LF,'(6X,I3,I3,I4,E12.2,I4,I5,F15.8,E12.2,A1,E9.2,A1,'//
+     &   '2I4,I2,E10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I7,A1,I2.2,A1,I2.2)')
+     &        ITER,ITERCI,IROT,maxtrW,maxtrR,
+     &        ITERSX,ECAS-EVAC+CASDFT_Funct,DE,CTHRE,
      &        ROTMAX,CTHRTE,IBLBM,JBLBM,ISYMBB,CBLBM,CTHRSX,
      &        SXSHFT,TMIN,QNSTEP,QNUPDT,ihh,':',imm,':',iss
+            else
+            Write(LF,'(6X,I3,I4,I5,I5,F15.8,E12.2,A1,E10.2,A1,2I4,I2,'//
+     &          'E10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I5,A1,I2.2,A1,I2.2)')
+     &          ITER,ITERCI,
+     &          ITERSX,IROT,ECAS-EVAC+CASDFT_Funct,DE,CTHRE,
+     &          ROTMAX,CTHRTE,IBLBM,JBLBM,ISYMBB,CBLBM,CTHRSX,
+     &          SXSHFT,TMIN,QNSTEP,QNUPDT,ihh,':',imm,':',iss
+            end if
           end if
         end if
       ELSE IF ( IPRLEV.GE.4) THEN
@@ -1491,6 +1550,7 @@ cGLM some additional printout for MC-PDFT
 * IF CIONLY calculation the convergence is skipped and goes to line 2000
 ************************************************************************
 ************************************************************************
+
       IF (IFINAL.EQ.1) GOTO 2000
       IF (DE.GT.1.0D0) THEN
         Call StatusLine('RASSCF:','No convergence.')
@@ -1560,6 +1620,7 @@ cGLM some additional printout for MC-PDFT
 ************************************************************************
 ******************           Closing up MC-PDFT      *******************
 ************************************************************************
+
 c Clean-close as much as you can the CASDFT stuff...
       if( l_casdft ) goto 2010
 
@@ -1649,10 +1710,20 @@ c Clean-close as much as you can the CASDFT stuff...
      &             work(ltuvx))
       else
 #endif
+! Leon 27/11/2017: Skip the final CI iteration if we're using DMRGCI
+! and CIOnly. It's enabled only for DMRGCI with QCMaquis now
+! (to exclude potential side effects)
+! but consider extending it to other cases!
+#ifdef _DMRG_
+      if (.not.(doDMRG.and.(ICIONLY.NE.0))) then
+#endif
         CALL CICTL(WORK(LCMO),
      &           WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
      &           WORK(LFI),WORK(LD1I),WORK(LD1A),
      &           WORK(LTUVX),IFINAL)
+#ifdef _DMRG_
+      end if
+#endif
 #ifdef _NECI_
       end if
 #endif
@@ -1709,6 +1780,47 @@ c Clean-close as much as you can the CASDFT stuff...
       Call GetMem('OCCX','Free','Real',LOCCX,NTOT)
 
 *
+* Compute transition density matrices
+      If (KeyTDM) Then
+#ifdef _HDF5_
+         Call GetMem('TMP','ALLO','REAL',iTmp,NConf)
+         Call GetMem('LVEC','ALLO','REAL',iVecL,NConf)
+         Call GetMem('RVEC','ALLO','REAL',iVecR,NConf)
+         Call GetMem('KCNF','ALLO','INTE',ivkcnf,NACTEL)
+         Call GetMem('Dtmp','ALLO','REAL',LW6,NAC*NAC)
+         jDisk=IADR15(4)
+         Call DDafile(JOBIPH,2,Work(iTmp),nConf,jDisk)
+         Do jRoot=2,lRoots
+*           Read and reorder the left CI vector
+            Call DDafile(JOBIPH,2,Work(iTmp),nConf,jDisk)
+            Call Reord2(NAC,NACTEL,LSYM,1,
+     &                  iWork(KICONF(1)),iWork(KCFTP),
+     &                  Work(iTmp),Work(iVecL),iWork(ivkcnf))
+            C_Pointer=iVecL
+            kDisk=IADR15(4)
+            Do kRoot=1,jRoot-1
+*              Read and reorder the right CI vector
+               Call DDafile(JOBIPH,2,Work(iTmp),nConf,kDisk)
+               Call Reord2(NAC,NACTEL,LSYM,1,
+     &                     iWork(KICONF(1)),iWork(KCFTP),
+     &                     Work(iTmp),Work(iVecR),iWork(ivkcnf))
+*              Compute TDM and store in h5 file
+               Call Lucia_Util('Densi',iVecR,iDummy,Dummy)
+               idx=(jRoot-2)*(jRoot-1)/2+kRoot
+               Call mh5_put_dset_array_real(wfn_transdens, Work(LW6),
+     &              [NAC,NAC,1], [0,0,idx-1])
+            End Do
+         End Do
+         Call GetMem('TMP','FREE','REAL',iTmp,NConf)
+         Call GetMem('LVEC','FREE','REAL',iVecL,NConf)
+         Call GetMem('RVEC','FREE','REAL',iVecR,NConf)
+         Call GetMem('KCNF','FREE','INTE',ivkcnf,NACTEL)
+         Call GetMem('Dtmp','FREE','REAL',LW6,NAC*NAC)
+#else
+         Call WarningMessage(1,'HDF5 support disabled, '//
+     &                         'TDM keyword ignored.')
+#endif
+      End If
 *
 *****************************************************************
 * Export all information relevant to geometry optimizations.
@@ -1798,6 +1910,7 @@ c  i_root>0 gives natural spin orbitals for that root
 ************************************************************************
 ******************           Closing up RASSCF       *******************
 ************************************************************************
+
 2010   continue
 
 c deallocating TUVX memory...
@@ -1809,6 +1922,7 @@ c deallocating TUVX memory...
 c deallocating detorb... allocated in proc_inp.f used throughout the iterations
         If(iDoNECI.and.definedet)
      &            Call GetMem('DetOrb','Free','Inte',ipDet,nActel)
+
 *
 * release SEWARD
       Call ClsSew
@@ -1856,16 +1970,6 @@ c       if(iDoNECI) then
 c         CALL GETMEM('INT1  ','FREE','REAL',kint1_pointer,NAC**2)
 c       end if
 *
-* DMRG: Save results for other use
-! ==========================================================
-      if(doDMRG)then
-#ifdef _DMRG_
-        call dump_dmrg_info()
-        call finalize_dmrg()
-#endif
-      end if
-! ==========================================================
-* Exit
 *
 
       Call StatusLine('RASSCF:','Finished.')
@@ -1911,6 +2015,51 @@ c      End If
       if(.not.(iDoGas.or.doDMRG.or.doBlockDMRG.or.iDoNeci)) then
         Call MKGUGA_FREE
       end if
+
+
+!Leon: The velociraptor comes! xkcd.com/292/
+ 9989 Continue
+* DMRG: Save results for other use
+! ==========================================================
+      if(doDMRG)then
+#ifdef _DMRG_
+        !Leon: Generate 4-RDM evaluation templates for NEVPT2
+
+        if (DoNEVPT2Prep) then
+          do i=1,NROOTS
+            if (DoEvaluateRDM) then
+              Write (6,'(a,i4)') 'Evaluating 4-RDM for state ', i
+            else
+        Write (6,'(a,i4)') 'Writing 4-RDM QCMaquis template'//
+     &   ' for state ', i
+            end if
+            call dmrg_interface_ctl(task='w 4rdmin',state=i-1,
+     &       msproj=MPSCompressM,rdm4=DoEvaluateRDM)
+      !> MPSCompressM is passed to dmrg_interface_ctl via msproj,
+      !> if it is > 0, then MPS compression is triggered there
+          end do
+          ! Generate 3-TDM templates
+          do i=1,NROOTS
+            do j=i+1,NROOTS
+              if (DoEvaluateRDM) then
+            Write (6,'(a,i4,i4)') 'Evaluating 3-TDM for states ', i,j
+            else
+        Write (6,'(a,i4,i4)') 'Writing 3-TDM QCMaquis'//
+     &   ' template for state ', i,j
+            end if
+
+              call dmrg_interface_ctl(task='w 3tdmin',state=i-1,
+     &         stateL=j-1,rdm3=DoEvaluateRDM)
+            end do
+          end do
+        end if
+!       call dump_dmrg_info()
+        call finalize_dmrg()
+#endif
+      end if
+! ==========================================================
+! Exit
+
 
  9990 Continue
 C Close the one-electron integral file:

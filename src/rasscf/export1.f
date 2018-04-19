@@ -35,6 +35,11 @@
 *                                                                      *
 ************************************************************************
 *
+#ifdef _DMRG_
+!     module dependencies
+      use qcmaquis_interface_cfg
+#endif
+*
       Implicit Real*8 (a-h,o-z)
 *...  Define global variables .........................................*
 #include "rasdim.fh"
@@ -49,6 +54,10 @@
       Logical SCF
       Integer nTemp(8)
       Character(Len=16) mstate
+*
+#ifndef _DMRG_
+      logical :: doDMRG = .false.
+#endif
 *----------------------------------------------------------------------*
 *     Prologue                                                         *
 *----------------------------------------------------------------------*
@@ -115,8 +124,13 @@
       End If
 *
 *     Check if it is a RASSCF function and not a CASSCF
-*
       If (nHole1.ne.0 .or. nElec3.ne.0) Method(1:1)='R'
+*     Check if it is a DMRGSCF function
+      if(doDMRG)then
+                        Method='DMRGSCF '
+        if(nroots.ne.1) Method='DMRGSCFS'
+      endif
+*
       Call Put_cArray('Relax Method',Method,8)
 *                                                                      *
 ************************************************************************

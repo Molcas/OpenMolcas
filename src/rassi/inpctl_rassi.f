@@ -9,6 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE INPCTL_RASSI()
+#ifdef _DMRG_
+      use qcmaquis_interface_cfg
+      use qcmaquis_interface_environment,
+     & only: initialize_dmrg_rassi
+      use qcmaquis_info
+#endif
+      use mspt2_eigenvectors
       IMPLICIT NONE
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -25,7 +32,8 @@
 #  include "mh5.fh"
 #endif
 
-      INTEGER JOB,i
+      LOGICAL READ_STATES
+      INTEGER JOB, i
 
       CALL QENTER(ROUTINE)
 
@@ -41,8 +49,9 @@ C Read data from the ONEINT file:
 C Read (and do some checking) the standard input.
       CALL READIN_RASSI
 * if there have been no states selected at this point, we need to read
-* the states from the job files.
+* the states later from the job files.
       IF(NSTATE.EQ.0) THEN
+        READ_STATES=.TRUE.
         DO JOB=1,NJOB
           call rdjob_nstates(JOB)
         END DO
@@ -55,8 +64,20 @@ C Read (and do some checking) the standard input.
             iWork(lJBNUM+ISTAT(JOB)-1+I)=JOB
           End Do
         End Do
+      ELSE
+        READ_STATES=.FALSE.
       END IF
 
+#ifdef _DMRG_
+      !> initialize DMRG interface
+      if (doDMRG) then
+        !> initialize only the qcm file name array (one for each job) and initialize the DMRG interface later
+        call qcmaquis_info_init(njob,-1,0)
+      endif
+#endif
+
+      !> initialize eigenvector array for mspt2 hamiltonians
+      call init_mspt2_eigenvectors(njob,-1,0)
 * Allocate a bunch of stuff
       Call GetMem('REFENE','Allo','Real',LREFENE,NSTATE)
       L_HEFF=ip_Dummy
@@ -76,8 +97,21 @@ C Read (and do some checking) the standard input.
 
 C Read information on the job files and check for consistency
       DO JOB=1,NJOB
-        CALL RDJOB(JOB)
+        CALL RDJOB(JOB,READ_STATES)
       END DO
+
+C Number of active orbitals is taken from the first JobIph. MPS-SI cannot
+C handle different active spaces per JobIph, but this is checked elsewhere
+#ifdef _DMRG_
+      if (doDMRG)then
+        !> stupid info.h defines "sum", so I cannot use the intrinsic sum function here...
+        dmrg_external%norb = 0; do i = 1, nsym; dmrg_external%norb =
+     &  dmrg_external%norb + nash(i); end do
+        !> initialize the MPS-SI interface
+        call initialize_dmrg_rassi(nstate)
+      end if
+#endif
+
 * set orbital partitioning data
       CALL WFNSIZES
 
@@ -96,6 +130,19 @@ C Set up tables of coordinates and differentiated nuclei:
       IF(NONA) THEN
         CALL MKDISP
       END IF
+#endif
+
+#ifdef _DMRG_
+      if (doDMRG) then
+        !> print info about MPS-SI
+        Write(6,'(/a/,a//,a/,a/,a/,a/,a/)')
+     & '   ---------------------------------------------------------',
+     & '   Matrix-Product-State State-Interaction (MPS-SI) activated',
+     & '   Please cite for the MPS-SI framework:',
+     & '   S. Knecht, S. Keller, J. Autschbach, M. Reiher,',
+     & '   J. Chem. Theory Comput., 12, 5881-5894 (2016).',
+     & '   ---------------------------------------------------------'
+      endif
 #endif
 
 C Additional input processing. Start writing report.
