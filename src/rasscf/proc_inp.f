@@ -148,9 +148,14 @@ C   No changing about read in orbital information from INPORB yet.
       max_sweep = 8
       chemps2_noise = 0.05
       max_canonical = max_sweep*5
-      hfocc = 0
 #endif
+* Init HFOCC array containing user defined occupancies for the active orbitals.
+* This array is used by DMRG codes (Block as well as ChemPS2).
+* Terefore I took it out of any ifdef preprocessing flag.
 
+      do i = 1, MxAct
+        hfocc(i) = 0
+      end do
 
 * Orbital-free embedding
       Do_OFemb=.false.
@@ -2780,18 +2785,24 @@ c       write(6,*)          '  --------------------------------------'
        Call ChkIfKey()
       End If
 *
+#endif
+
+#endif
 *---  Process HFOC command --------------------------------------------*
+* This keyword is to specify a user customized orbs occupancies guess.
+* It is used by Block and ChemPS2... but it could be useful for other codes.
+* Therefore it is now outside the ifdef Block or ChemPS2.
       If (KeyHFOC) Then
        If (DBG) Write(6,*) ' HFOC keyword was given.'
        Call SetPos(LUInput,'HFOC',Line,iRc)
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
        ReadStatus=' Failure reading after HFOC keyword.'
-       Read(LUInput,*,End=9910,Err=9920) (HFOCC(i),i=1,NASHT)
+       Read(LUInput,*,End=9910,Err=9920) (hfocc(i),i=1,NASHT)
        ReadStatus=' O.K. reading after HFOC keyword.'
+*       write(6,*)'HFOCC read in proc_inp of size:', NASHT
+*       write(6,*)(hfocc(i),i=1,NASHT)
       End If
-#endif
 
-#endif
 *---  All keywords have been processed ------------------------------*
 
 ************************************************************************
