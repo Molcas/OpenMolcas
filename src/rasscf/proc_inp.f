@@ -148,6 +148,7 @@ C   No changing about read in orbital information from INPORB yet.
       max_sweep = 8
       chemps2_noise = 0.05
       max_canonical = max_sweep*5
+      hfocc = 0
 #endif
 
 
@@ -2777,6 +2778,16 @@ c       write(6,*)          '  --------------------------------------'
        Read(LUInput,*,End=9910,Err=9920) max_canonical
        ReadStatus=' O.K. after reading data after MXCA keyword.'
        Call ChkIfKey()
+      End If
+*
+*---  Process HFOC command --------------------------------------------*
+      If (KeyHFOC) Then
+       If (DBG) Write(6,*) ' HFOC keyword was given.'
+       Call SetPos(LUInput,'HFOC',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading after HFOC keyword.'
+       Read(LUInput,*,End=9910,Err=9920) (HFOCC(i),i=1,NASHT)
+       ReadStatus=' O.K. reading after HFOC keyword.'
       End If
 #endif
 
