@@ -56,10 +56,10 @@
      &                ITMAX,IPT2,ISPDEN,LOWMS,
      &                ISUPSM,IORDEM,IFORDE,IPCMROOT,ICIRFROOT,
      &                iRlxRoot,n_Det,iAlphaBeta,
-     &                MxDMRG,INOCALC,ISAVE_EXP,IEXPAND,hRoots
+     &                MxDMRG,INOCALC,ISAVE_EXP,IEXPAND,hRoots,
+     &                hfocc(mxact)
 #ifdef _ENABLE_CHEMPS2_DMRG_
-     &                ,max_sweep,chemps2_lrestart,max_canonical,
-     &                hfocc(100)
+     &                ,max_sweep,chemps2_lrestart,max_canonical
 #endif
       COMMON/INTINP/  LROOTS,ICICH,IDIAG,ICIRST,KAVER,KSYM,MAXJT,
      &                IXSYM,IPRSEC,MAXORBOUT,
@@ -70,10 +70,10 @@
      &                ITMAX,IPT2,ISPDEN,LOWMS,
      &                ISUPSM,IORDEM,IFORDE,IPCMROOT,ICIRFROOT,
      &                iRlxRoot,n_Det,iAlphaBeta,
-     &                MxDMRG,INOCALC,ISAVE_EXP,IEXPAND,hRoots
-#ifdef _ENABLE_CHEMPS2_DMRG_
-     &                ,max_sweep,chemps2_lrestart,max_canonical,
+     &                MxDMRG,INOCALC,ISAVE_EXP,IEXPAND,hRoots,
      &                hfocc
+#ifdef _ENABLE_CHEMPS2_DMRG_
+     &                ,max_sweep,chemps2_lrestart,max_canonical
 #endif
 *
       Logical         RFpert,lSquare, Start_Vectors, NonEq, DoFaro
