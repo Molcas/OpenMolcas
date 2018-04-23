@@ -69,8 +69,11 @@
         Do j=0,i-1
           Work(ipG1q+ij)=(Work(ipG1r+i*ntAsh+j)+
      &                    Work(ipG1r+j*ntAsh+i))*Half
-          Work(ipG1m+ij)=(Work(ipG1r+i*ntAsh+j)-
-     &                    Work(ipG1r+j*ntAsh+i))*Half
+*         Note that the order of subtraction depends on how the matrix
+*         will be used when contracting with derivative integrals
+*         This is found to give the correct results:
+          Work(ipG1m+ij)=(Work(ipG1r+j*ntAsh+i)-
+     &                    Work(ipG1r+i*ntAsh+j))*Half
           ij=ij+1
         End Do
         Work(ipG1q+ij)=Work(ipG1r+i*ntAsh+i)
