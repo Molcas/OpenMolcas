@@ -23,7 +23,7 @@ up and running is the following:
 1.  Clone the repository:
 
     ```
-    git clone https://gitlab.com/Molcas/OpenMolcas
+    git clone https://gitlab.com/Molcas/OpenMolcas.git
     ```
 
 2.  Get the `lapack` submodule (only needed if you don't use another linear
