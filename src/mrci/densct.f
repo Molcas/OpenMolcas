@@ -27,7 +27,7 @@
       DO 10 I=1,NRROOT
         IDC(I)=IDREST
         CALL dDAFILE(LUREST,2,Work(LCI),NCONF,IDREST)
-        CALL VCLR(Work(LDMO),1,NBTRI)
+        CALL FZERO(Work(LDMO),NBTRI)
 *PAM04        IF(ICPF.NE.0) CALL DCORR(HWork(LJREFX),HWork(LAREF),
 *PAM04     *                                 HWork(LCSPCK),
 *PAM04     *                           HWork(LINTSY),HWork(LINDX),
@@ -60,8 +60,8 @@
         DO 20 J=1,I-1
           IDREST=IDC(J)
           CALL dDAFILE(LUREST,2,Work(LSGM),NCONF,IDREST)
-*PAM04          CALL VCLR(HWork(LTDMO),1,NBAST**2)
-          CALL VCLR(Work(LTDMO),1,NBAST**2)
+*PAM04          CALL FZERO(HWork(LTDMO),NBAST**2)
+          CALL FZERO(Work(LTDMO),NBAST**2)
 *PAM04          CALL FIJTD (HWork(LINTSY),HWork(LINDX),HWork(LCI),
 *PAM04     *                HWork(LSGM),HWork(LTDMO))
           CALL FIJTD (IWork(LINTSY),IWork(LINDX),Work(LCI),

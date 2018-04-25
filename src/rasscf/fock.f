@@ -117,7 +117,7 @@ C
 *************************
 * clear F_gen matrix
 *************************
-       CALL VCLR(F(ISTFCK+1),1,NO**2)
+       CALL FZERO(F(ISTFCK+1),NO**2)
 
 *********************************************************************************
 * first index in F is inactive: F_gen is twice FP=FI+FA (Eq.10.8.27 MEST)
