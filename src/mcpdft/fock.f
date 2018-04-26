@@ -102,7 +102,7 @@ C
        N1=0
        N2=0
        IF(NO.EQ.0) GO TO 90
-       CALL VCLR(F(ISTFCK+1),1,NO**2)
+       CALL FZERO(F(ISTFCK+1),NO**2)
 c
 c      first index in F is inactive
 c
@@ -474,7 +474,7 @@ C
        N1=0
        N2=0
        IF(NO.EQ.0) GO TO 90
-       CALL VCLR(Work(iTF-1+ISTFCK+1),1,NO**2)
+       CALL FZERO(Work(iTF-1+ISTFCK+1),NO**2)
 
 !    First index in F is inactive
 

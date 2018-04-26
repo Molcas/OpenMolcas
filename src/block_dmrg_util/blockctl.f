@@ -124,18 +124,32 @@
         End If
       End If
 
+* In the following calls the extra array HFOCC has been passed
+* from Molcas to Block to have a user customized reference det.
+* This change must be done accordingly into the block code.
+* In particular, in file molcas/block_calldmrg.C:
+* line~23:  const char* hf_occ)
+* line~24:  block_calldmrg(*Restart, *N_roots, *N_act, *N_elec, *M_s, Sym, *iSym, OrbSym, *E_core, h0, tuvx, *M_state, *N_pdm, *T_sweep, *T_noise, E_sweep, hf_occ);
+* line~63:  const char* hf_occ)
+* line~186: fcon << "hf_occ " << hf_occ << endl;
+*
+* In molcas/block_calldmrg.h:
+* line~25:  const char* hf_occ);
+* line~46:  const char* hf_occ);
+
+
 * Compute DMRG
       Call block_calldmrg(JRST,lRoots,NAC,NACTEL,ISPIN-1,
      &                    Label,lSymMolpro,iWork(lOrbSym),
      &                    0.0d0,LW1,TUVX,MxDMRG,NRDM_ORDER,
-     &                    ThDMRG,ThNoise,ENER(1,ITER))
+     &                    ThDMRG,ThNoise,ENER(1,ITER),HFOCC,NRS2T)
 
       If (IFINAL.EQ.2 .AND. Do3RDM .AND. NACTEL.GT.2) Then
 * Compute 3RDM for DMRG-cu4-CASPT2
         Call block_calldmrg(1,lRoots,NAC,NACTEL,ISPIN-1,
      &                      Label,lSymMolpro,iWork(lOrbSym),
      &                      0.0d0,LW1,TUVX,MxDMRG,3,
-     &                      THRE,0.0d0,ENER(1,ITER))
+     &                      THRE,0.0d0,ENER(1,ITER),HFOCC,NRS2T)
       End If
 
       Call Getmem('OrbSym','Free','Inte',lOrbSym,NAC)

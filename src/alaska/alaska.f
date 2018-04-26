@@ -290,6 +290,15 @@
       End Do
  1999 Continue
 *
+*     f^AB is the "total derivative coupling"
+*     h^AB is the "CI derivative coupling"
+*     f^AB = <B|dA/dR> = h^AB/(E_A-E_B) + f_CSF^AB = -f^BA
+*     h^AB = <B|dH/dR|A> = h^BA
+*     f_CSF^AB = -f_CSF^BA
+*
+*     Note that we store h^AB + f_CSF^AB*(E_A-E-B), or just h^AB if
+*     NOCSF was given, to avoid division by (nearly) zero
+*
       If (isNAC) Then
         Call PrGrad('CI derivative coupling ',
      &                 Work(ipGrad),lDisp(0),lIrrep,ChDisp,iPrint)
@@ -325,7 +334,8 @@
          End If
       End If
       If (isNAC) Then
-*        For NAC, the sign is undefined, check only absolute values
+*        For NAC, the sign is undefined (because the wave functions can change sign),
+*        check only absolute values
          Call Allocate_Work(ipTmp,lDisp(0))
          Do i=0,lDisp(0)-1
             Work(ipTmp+i)=Abs(Work(ipGrad+i))

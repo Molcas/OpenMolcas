@@ -37,7 +37,7 @@ C
 c     Loop over all reordered 2-matrix elements.
 C
       LPMAT=ISTORP(NSYM+1)
-      CALL VCLR(X,1,LPMAT)
+      CALL FZERO(X,LPMAT)
 C
       IAT=0
       DO NSP=1,NSYM
