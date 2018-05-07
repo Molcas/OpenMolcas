@@ -249,8 +249,10 @@ tinker:
                            parameter (maxval=8)
                            parameter (maxgrp=1000)
                            parameter (maxref=10)
+  before_script:
+    - >
+      if ( ! which patch ) ; then apt-get install -y --no-install-recommends patch ; fi
   script:
-    - apt-get install -y --no-install-recommends patch
     # Use backup if the tinker website is down
     - >
       sed -i -e 's/wget.*/& || \\/' -e '/wget/a wget https://gitlab.com/Molcas/Mirrors/Tinker/raw/master/${TINKERVERSION}.tar.gz?private_token=Y5PsqzY_Ev8U6JQDGyuL -O ${TINKERVERSION}.tar.gz' Tools/patch2tinker/get_tinker

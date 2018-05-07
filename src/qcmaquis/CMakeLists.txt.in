@@ -51,7 +51,7 @@ list(APPEND QCMaquisCMakeArgs
 ######################################
 # git references for QCMaquis driver #
 ######################################
-set(reference_git_commit release-2.0)
+set(reference_git_commit release-2.0.2)
 set(reference_git_repo git@gitlab.com:qc-maquis/dmrg-interface-utils.git)
 set(EP_PROJECT qcmaquis-driver)
 
@@ -95,7 +95,7 @@ set(DMRG_LIBRARIES ${install_dir}/lib/${CMAKE_FIND_LIBRARY_PREFIXES}qcmaquis-dri
 #############################################################################
 # git references for QCMaquis suite (consisting of ALPS/BOOST and QCMaquis) #
 #############################################################################
-set(reference_git_commit release-2.0)
+set(reference_git_commit release-2.0.2)
 set(reference_git_repo git@gitlab.com:qc-maquis/qcmaquis-public.git)
 set(EP_PROJECT qcmaquis-suite)
 

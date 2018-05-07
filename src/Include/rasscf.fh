@@ -56,7 +56,8 @@
      &                ITMAX,IPT2,ISPDEN,LOWMS,
      &                ISUPSM,IORDEM,IFORDE,IPCMROOT,ICIRFROOT,
      &                iRlxRoot,n_Det,iAlphaBeta,
-     &                MxDMRG,INOCALC,ISAVE_EXP,IEXPAND,hRoots
+     &                MxDMRG,INOCALC,ISAVE_EXP,IEXPAND,hRoots,
+     &                hfocc(mxact)
 #ifdef _ENABLE_CHEMPS2_DMRG_
      &                ,max_sweep,chemps2_lrestart,max_canonical
 #endif
@@ -69,7 +70,8 @@
      &                ITMAX,IPT2,ISPDEN,LOWMS,
      &                ISUPSM,IORDEM,IFORDE,IPCMROOT,ICIRFROOT,
      &                iRlxRoot,n_Det,iAlphaBeta,
-     &                MxDMRG,INOCALC,ISAVE_EXP,IEXPAND,hRoots
+     &                MxDMRG,INOCALC,ISAVE_EXP,IEXPAND,hRoots,
+     &                hfocc
 #ifdef _ENABLE_CHEMPS2_DMRG_
      &                ,max_sweep,chemps2_lrestart,max_canonical
 #endif
@@ -99,6 +101,7 @@
 *
       Character(8)    IPHNAME,OutFmt1,OutFmt2,SXSEL,PURIFY
       COMMON/CHRINP/  IPHNAME,OutFmt1,OutFmt2,SXSEL,PURIFY
+
 *
       INTEGER         iCIonly,NSM(mxOrb),KTIGHT
       COMMON/INTCI/   iCIonly,NSM,KTIGHT

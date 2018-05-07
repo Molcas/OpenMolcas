@@ -38,7 +38,7 @@
       Integer, Dimension(5) :: TOC
       Integer, Dimension(:), Allocatable :: i_grad,i_nac
       Integer :: nRoots,nCoup,LuGrad,iAd,Length,iSt,jSt,idx
-      Logical :: Found,Reverse
+      Logical :: Found
       Character(Len=5) :: Filename
 *
 * If the GRADS file does not exist, there is no gradient
@@ -73,14 +73,12 @@
 *
 * Read the gradient or NAC vector
 *
-        Reverse=.False.
         If (iRoot.eq.0) Then
           If ((iNAC.ne.0).and.(jNAC.ne.0)) Then
             iSt=Max(iNAC,jNAC)-1
             jSt=Min(iNAC,jNAC)
             idx=iSt*(iSt-1)/2+jSt
             iAd=i_nac(idx)
-            If (iNAC.lt.jNAC) Reverse=.True.
           Else
             iAd=-1
           End If
@@ -95,7 +93,6 @@
           Read_Grad=-1
         Else
           Call dDaFile(LuGrad,2,Grad,nGrad,iAd)
-          If (Reverse) Call dScal_(nGrad,-One,Grad,1)
           Read_Grad=1
         End If
 *
