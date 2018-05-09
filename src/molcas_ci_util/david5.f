@@ -36,6 +36,7 @@
       Dimension HTUTRI(*), GTUVXTRI(*)
       real*8, allocatable :: sgm(:,:), psi(:,:)
       real*8, allocatable :: htu(:,:), gtuvx(:,:,:,:)
+      integer nnew(mxkeep)
 *-------------------------------------------------------------------
 *MGD dec 2017 : When optimizing many states, the lowest ones tend to
 *converge much faster than the rest. Changed the code so that the converged states
@@ -123,26 +124,25 @@ C Trying to avoid writing out of bound in CSDTVC :::: JESPER :::: CHEAT
 *===================================================================
 * start long loop over iterations
       nconverged=0
-      iskipconv=0
+      iskipconv=1
+      nnew(1)=lroots
       Do iterci=1,mxItr
 *MGD Dynamically evaluate the size of nkeep (useful for large lroots
 *when we don't want too large hamiltonians with strong linear dependencies)
          nhamil=nsel
          if (nsel.lt.1) nhamil=200
-         nkeep=nhamil/(lroots-nconverged)+1
+         istart=0
+         if (iterci.eq.1) istart=1
+         nkeep=nhamil/(nnew(2-istart))+1
          nkeep=max(min(nkeep,mxkeep),3)
-*
-         ntrial=Min(iterci,nKeep)*(lRoots-nconverged)+nconverged
 *-------------------------------------------------------------------
 *MGD for stability purposes recompute sigma vec from time to time
          idelta=0
-         if ((mod(iterci-1,12).eq.0)) idelta=1
-         istart=0
-         if (iterci.eq.1) istart=1
+         if ((mod(iterci-1,24).eq.0)) idelta=1
          Do i=istart,idelta
 * New CI vectors (iterci,mroot) are available.
 * compute new sigma vectors
-           Do mRoot = (1-i)*nconverged+1,lRoots
+           Do mRoot = 1,nnew(2-i)
               Call Load_CI_vec(iterci-1+i,mRoot,lRoots,nConf,
      &                        Work(iVec1),LuDavid)
               If ( iprlev.ge.DEBUG ) then
@@ -239,9 +239,7 @@ C Timings on generation of the sigma vector
          jtrial = 0
          jstart=Max(1,iterci-nKeep+1)
          Do jter = iterci,jstart,-1
-            Do jRoot = 1,lRoots
-*If converged, only take the last (i.e. converged) vector
-               If ((jRoot.le.nconverged).and.(jter.lt.iterci)) go to 11
+            Do jRoot = 1,nnew(iterci-jter+1)
                jtrial = jtrial+1
                Call Load_CI_vec(jter,jRoot,lRoots,nConf,Work(iVec1),
      &                    LuDavid)
@@ -249,11 +247,9 @@ C Timings on generation of the sigma vector
      &                    LuDavid)
                ktrial = 0
                Do kter = iterci,jter,-1
-                  max_kRoot = lRoots
+                  max_kRoot = nnew(iterci-kter+1)
                   If ( kter.eq.jter ) max_kRoot = jRoot
                   Do kRoot = 1, max_kRoot
-                     If ((kRoot.le.nconverged).and.(kter.lt.iterci))
-     &                   go to 12
                      ktrial = ktrial+1
                      Call Load_CI_vec(kter,kRoot,lRoots,nConf,
      &                    Work(iVec3),LuDavid)
@@ -262,12 +258,11 @@ C Timings on generation of the sigma vector
                      Hji = dDot_(nConf,Work(iVec2),1,Work(iVec3),1)
                      Work(iSs+ij-1) = Sji
                      Work(iHs+ij-1) = Hji
- 12                  Continue
                   End Do
                End Do
- 11            Continue
             End Do
          End Do
+         ntrial=jtrial
          If ( iprlev.ge.DEBUG ) then
             Call TriPrt('Hsmall',' ',Work(iHs),ntrial)
             Call TriPrt('Ssmall',' ',Work(iSs),ntrial)
@@ -310,8 +305,7 @@ C Timings on generation of the sigma vector
 *...      accumulate contributions
             jtrial = 0
             Do jter=iterci,jstart,-1
-               Do jRoot=1,lRoots
-               If ((jRoot.le.nconverged).and.(jter.lt.iterci)) go to 13
+               Do jRoot=1,nnew(iterci-jter+1)
                   jtrial = jtrial+1
                   Cik=Work(iCs-1+jtrial+(mRoot-1)*ntrial)
                   Call Load_CI_vec(jter,jRoot,lRoots,nConf,Work(iVec3),
@@ -320,7 +314,6 @@ C Timings on generation of the sigma vector
                   Call Load_Sig_vec(jter,jRoot,lRoots,nConf,Work(iVec3),
      &                       LuDavid)
                   Call Daxpy_(nConf,Cik,Work(iVec3),1,Work(iVec2),1)
- 13               Continue
                End Do
             End Do
             RR = dDot_(nConf,Work(iVec1),1,Work(iVec1),1)
@@ -438,14 +431,7 @@ C Timings on generation of the sigma vector
                If (jRoot.eq.nconverged+1) nconverged=nconverged+1
             EndIf
          End Do
-*check also if nconv was not 0 to start with
-*Do one more unconstrained optimization
-*         if ((iconv.ge.lRoots-hRoots).and.(iskipconv.eq.1)) then
-*           iskipconv=0
-*           iconv=0
-*         EndIf
          if (iskipconv.eq.0) nconverged=0
-         if ((mod(iterci-1,12).eq.0)) nconverged=0
 *         write(6,*) 'nconverged=',nconverged,'iskipconv=',iskipconv
          If ( iConv.ge.lRoots-hroots ) Goto 100
 *-------------------------------------------------------------------
@@ -568,6 +554,10 @@ C Timings on generation of the sigma vector
      &                  Work(iScr5),nSel,
      &                  0.0d0,Work(iScr3),nSel)
          End If
+         Do i=min(iterci,mxkeep),2,-1
+           nnew(i+1)=nnew(i)
+         End Do
+         nnew(2)=0
          Do mRoot=nconverged+1,lRoots
             Call Load_tmp_Sig_vec(mRoot,lRoots,nConf,Work(iVec1),
      &                    LuDavid)
@@ -590,26 +580,27 @@ C Timings on generation of the sigma vector
                   Work(iVec3+iConf-1) = Work(iScr3+iOff+i-1)
                End Do
             End If
+*Orthonormalize wrt previous vectors
             updsiz=dnrm2_(nconf,Work(iVec3),1)
             scl=1.0D0/updsiz
             Call DScal_(nConf,scl,Work(iVec3),1)
-            Call Save_CI_vec(iterci,mRoot,lRoots,nConf,Work(iVec3),
+            Do jter=iterci,jstart+1,-1
+               Do jRoot=1,nnew(iterci-jter+1)
+                 Call Load_CI_vec(jter,jRoot,lRoots,nConf,Work(iVec2),
      &                    LuDavid)
+                 ovl = dDot_(nConf,Work(iVec3),1,Work(iVec2),1)
+                 call daxpy_(nConf,-ovl,Work(iVec2),1,Work(iVec3),1)
+               End Do
+            End Do
+            updsiz=dnrm2_(nconf,Work(iVec3),1)
+            If (updsiz.gt.1.0d-6) then
+              scl=1.0D0/updsiz
+              Call DScal_(nConf,scl,Work(iVec3),1)
+              nnew(2)=nnew(2)+1
+              Call Save_CI_vec(iterci,nnew(2),lRoots,nConf,Work(iVec3),
+     &                    LuDavid)
+            EndIf
          End Do
-*MGD Just to make sure the vectors exist, displace the previous ones
-         if (iterci.gt.1) then
-           jter=max(1,iterci-mxkeep+2)
-           Do mRoot=1,nconverged
-               Call Load_CI_vec(jter,mRoot,lRoots,nConf,Work(iVec1),
-     &                   LuDavid)
-               Call Save_CI_vec(iterci,mRoot,lRoots,nConf,Work(iVec1),
-     &                   LuDavid)
-               Call Load_sig_vec(jter,mRoot,lRoots,nConf,Work(iVec1),
-     &                   LuDavid)
-               Call Save_sig_vec(iterci,mRoot,lRoots,nConf,Work(iVec1),
-     &                   LuDavid)
-           End Do
-         EndIf
 *-------------------------------------------------------------------
 * move the current best CI and sigma vectors to the last place
 * in the list of retained CI vectors
