@@ -616,7 +616,7 @@ C Local print level (if any)
 *       Compute Mulliken's population analysis
 *
         Write(LF,'(/6X,A,I3)')
-     *  'Mulliken population Analysis for root number:',KROOT
+     *  'Mulliken population analysis for root number:',KROOT
         Write(LF,'(6X,A)')
      *  '-----------------------------------------------'
         Write(LF,*)
@@ -665,11 +665,11 @@ C Local print level (if any)
 * Start of long if-block F over IPRLEV
          IF(ISPDEN .EQ. 1) THEN
 *         Print spin density matrix
-           Write(LF,'(/6X,A,I3)')
-     &     'Spin density matrix for root number:',KROOT
-           Write(LF,'(6X,A)')
-     &     '--------------------------------------'
-           Write(LF,*)
+          Write(LF,'(/6X,A,I3)')
+     &    'Spin density matrix for root number:',KROOT
+          Write(LF,'(6X,A)')
+     &    '--------------------------------------'
+          Write(LF,*)
           IND=0
           IDIMV=0
           IDIMO=0
@@ -681,12 +681,9 @@ C Local print level (if any)
             IDIMV=IDIMV+NAO*NAO
             IDIMO=IDIMO+NAO
             IDIMN=IDIMN+NO*NAO
-            If(iprlev.ge.VERBOSE) then
-             Write(LF,'(/6X,A,I2)')
-     &      'symmetry species',ISYM
-             Write(LF,*)
-             CALL TRIPRT(' ',' ',WORK(LX6+IND),NASH(ISYM))
-            Endif
+            Write(LF,'(/6X,A,I2)') 'symmetry species',ISYM
+            Write(LF,*)
+            CALL TRIPRT(' ',' ',WORK(LX6+IND),NASH(ISYM))
             IND=IND+NASH(ISYM)*(NASH(ISYM)+1)/2
   50        CONTINUE
           END DO
@@ -711,7 +708,7 @@ C Local print level (if any)
 * Start of long if-block G over IPRLEV
          IF(ISPDEN .EQ. 1) THEN
           Write(LF,'(/6X,A,I3)')
-     &    'Mulliken spin population Analysis for root number:',KROOT
+     &    'Mulliken spin population analysis for root number:',KROOT
           Write(LF,'(6X,A)')
      &    '---------------------------------------------------'
           Write(LF,*)
@@ -726,13 +723,13 @@ C Local print level (if any)
 *
          If (get_BasisType('ANO')) Then
            Write(LF,'(/6X,A,I3)')
-     *     'LoProp population Analysis for root number:',KROOT
+     *     'LoProp population analysis for root number:',KROOT
            Write(LF,'(6X,A)')
      *     '-----------------------------------------------'
            Write(LF,*)
            Write(LF,*)
            Line=''
-           Write(Line(left-2:),'(A)') 'LoProp Analysis:'
+           Write(Line(left-2:),'(A)') 'LoProp analysis:'
            Call CollapseOutput(1,Line)
            Write(LF,Fmt2//'A)') '----------------'
            Write(LF,*)
@@ -744,9 +741,9 @@ C Local print level (if any)
            Call LoProp(iRC)
            Write(LF,*)
            Write(LF,'(6X,A,I3)')
-     &     'Natural Bond Order Analysis for root number:',KROOT
+     &     'Natural Bond Order analysis for root number:',KROOT
            Call Nat_Bond_Order(nSym,nBas,Name,2)
-           Call CollapseOutput(0,'LoProp Analysis:')
+           Call CollapseOutput(0,'LoProp analysis:')
            Write(6,*)
          End If
 * End of long if-block G over IPRLEV

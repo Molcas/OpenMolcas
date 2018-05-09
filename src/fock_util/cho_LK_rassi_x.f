@@ -925,10 +925,10 @@ C ---  || La,J[k] ||  .le.  || Lab,J || * || Cb[k] ||
                                iWork(ip_Lab+nShell*(jDen-1)+iaSh-1) =
      &                                 ipChoT + iOffSha*JNUM
      &                                        + (jDen-1)*nBas(lSym)*JNUM
-                               Write (6,*)' lSym.ge.kSym'
-                               Write (6,*) 'iaSh,jDen=',iaSh,jDen
-                               mx = iWork(ip_Lab+nShell*(jDen-1)+iaSh-1)
-                               Write (6,*) mx
+c                              Write (6,*)' lSym.ge.kSym'
+c                              Write (6,*) 'iaSh,jDen=',iaSh,jDen
+c                              mx = iWork(ip_Lab+nShell*(jDen-1)+iaSh-1)
+c                              Write (6,*) mx
 
                                ibcount=0
 
@@ -982,11 +982,11 @@ c --- iaSh vector LaJ[k] can be neglected because identically zero
                                iWork(ip_Lab+nShell*(jDen-1)+iaSh-1) =
      &                               ipLab(iaSh,jDen)*Min(1,ibcount)
      &                             + ipAbs*(1-Min(1,ibcount))
-                               Write (6,*) 'Reassigned'
-                               Write (6,*) 'iaSh,jDen=',iaSh,jDen
-                               mx = iWork(ip_Lab+nShell*(jDen-1)+iaSh-1)
-                               Write (6,*) mx
-                               Write (6,*) 'ibcount=',ibcount
+c                              Write (6,*) 'Reassigned'
+c                              Write (6,*) 'iaSh,jDen=',iaSh,jDen
+c                              mx = iWork(ip_Lab+nShell*(jDen-1)+iaSh-1)
+c                              Write (6,*) mx
+c                              Write (6,*) 'ibcount=',ibcount
 
 
                             End Do
@@ -1004,10 +1004,10 @@ c --- iaSh vector LaJ[k] can be neglected because identically zero
                                iWork(ip_Lab+nShell*(jDen-1)+iaSh-1) =
      &                              ipChoT + iOffSha*JNUM
      &                                     + (jDen-1)*nBas(lSym)*JNUM
-                               Write (6,*)' lSym.lt.kSym'
-                               Write (6,*) 'iaSh,jDen=',iaSh,jDen
-                               mx = iWork(ip_Lab+nShell*(jDen-1)+iaSh-1)
-                               Write (6,*) mx
+c                              Write (6,*)' lSym.lt.kSym'
+c                              Write (6,*) 'iaSh,jDen=',iaSh,jDen
+c                              mx = iWork(ip_Lab+nShell*(jDen-1)+iaSh-1)
+c                              Write (6,*) mx
 
                                ibcount=0
 
@@ -1059,10 +1059,10 @@ c --- iaSh vector LaJ[k] can be neglected because identically zero
                                iWork(ip_Lab+nShell*(jDen-1)+iaSh-1) =
      &                               ipLab(iaSh,jDen)*Min(1,ibcount)
      &                             + ipAbs*(1-Min(1,ibcount))
-                               Write (6,*) 'Reassign '
-                               Write (6,*) 'iaSh,jDen=',iaSh,jDen
-                               mx = iWork(ip_Lab+nShell*(jDen-1)+iaSh-1)
-                               Write (6,*) mx
+c                              Write (6,*) 'Reassign '
+c                              Write (6,*) 'iaSh,jDen=',iaSh,jDen
+c                              mx = iWork(ip_Lab+nShell*(jDen-1)+iaSh-1)
+c                              Write (6,*) mx
 
 
                             End Do

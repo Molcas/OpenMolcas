@@ -74,7 +74,7 @@ C
       Rc_SX = 0
       NTRIAL=NROOT
       NCR=NROOT*NDIM
-      CALL VCLR(C,1,NCR)
+      CALL FZERO(C,NCR)
       II=0
       DO I=1,NROOT
         C(II+I)=1.0D0
@@ -118,7 +118,7 @@ C
 C set eigenvector array to identity before JACO call
 C
        NDIMH2=NDIMH**2
-       CALL VCLR(CC,1,NDIMH2)
+       CALL FZERO(CC,NDIMH2)
        II=-NDIMH
        DO I=1,NDIMH
         II=II+NDIMH+1

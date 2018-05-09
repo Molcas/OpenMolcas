@@ -727,10 +727,6 @@ c         if(.not.iDoGas)then
 #ifdef _HDF5_
           call mh5_put_dset_array_real
      $            (wfn_cicoef,Work(LW11),[nconf,1],[0,i-1])
-#ifdef _DMRG_
-          call mh5_put_dset_array_str
-     $         (wfn_dmrg_checkpoint,dmrg_file%qcmaquis_checkpoint_file)
-#endif
 
 #endif
 c         else
@@ -821,6 +817,11 @@ C.. printout of the wave function
         Call GetMem('PrSel','Free','Inte',LW12,nConf)
         Call GetMem('CIVtmp','Free','Real',LW11,nConf)
       ENDIF
+#ifdef _DMRG_
+          call mh5_put_dset_array_str
+     &         (wfn_dmrg_checkpoint,dmrg_file%qcmaquis_checkpoint_file)
+#endif
+
       CALL GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
       CALL GETMEM('CICTL1','FREE','REAL',LW1,NACPAR)
 

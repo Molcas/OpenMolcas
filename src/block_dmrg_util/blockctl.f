@@ -125,7 +125,7 @@
       End If
 
 * In the following calls the extra array HFOCC has been passed
-* from Molacs to Block to have a user customized reference det.
+* from Molcas to Block to have a user customized reference det.
 * This change must be done accordingly into the block code.
 * In particular, in file molcas/block_calldmrg.C:
 * line~23:  const char* hf_occ)

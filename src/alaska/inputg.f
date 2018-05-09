@@ -493,7 +493,7 @@ c      nprint(26)=99
          Call Get_iScalar('Number of roots',nRoots)
          Call Allocate_Work(ipTmp,nRoots)
          Call Get_dArray('Last energies',Work(ipTmp),nRoots)
-         Ediff=Work(ipTmp+NACstates(2)-1)-Work(ipTmp+NACstates(1)-1)
+         Ediff=Work(ipTmp+NACstates(1)-1)-Work(ipTmp+NACstates(2)-1)
          Call Free_Work(ipTmp)
       End If
 *

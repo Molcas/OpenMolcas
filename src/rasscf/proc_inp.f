@@ -150,7 +150,7 @@ C   No changing about read in orbital information from INPORB yet.
       max_canonical = max_sweep*5
 #endif
 * Init HFOCC array containing user defined occupancies for the active orbitals.
-* This array is used by DMRG codes (Block as well as ChemPS2).
+* This array is used by DMRG codes (Block as well as CheMPS2).
 * Terefore I took it out of any ifdef preprocessing flag.
 
       do i = 1, MxAct
@@ -2790,8 +2790,8 @@ c       write(6,*)          '  --------------------------------------'
 #endif
 *---  Process HFOC command --------------------------------------------*
 * This keyword is to specify a user customized orbs occupancies guess.
-* It is used by Block and ChemPS2... but it could be useful for other codes.
-* Therefore it is now outside the ifdef Block or ChemPS2.
+* It is used by Block and CheMPS2... but it could be useful for other codes.
+* Therefore it is now outside the ifdef Block or CheMPS2.
       If (KeyHFOC) Then
        If (DBG) Write(6,*) ' HFOC keyword was given.'
        Call SetPos(LUInput,'HFOC',Line,iRc)
