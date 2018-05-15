@@ -70,9 +70,9 @@ c      call getmem('test','chec','real',ldum,ndum)
          IJ1=IROW(NI)+NJ
          ILIM=IPOF(NSYM+1)
 * Clear matrices ABIJ, AIBJ, and AJBI.
-         CALL VCLR(ABIJ,1,ILIM)
-         CALL VCLR(AIBJ,1,ILIM)
-         CALL VCLR(AJBI,1,ILIM)
+         CALL FZERO(ABIJ,ILIM)
+         CALL FZERO(AIBJ,ILIM)
+         CALL FZERO(AJBI,ILIM)
          IF(ITER.EQ.1 .AND. IREST.EQ.0)GO TO 207
 *
 *     READ (AB/IJ) INTEGRALS

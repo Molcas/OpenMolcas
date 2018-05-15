@@ -118,7 +118,7 @@ C       MOVE FP TO TRIANGULAR FORM
         END DO
 C       DIAGONALIZE
         NIO2=NIO**2
-        CALL VCLR(VEC,1,NIO2)
+        CALL FZERO(VEC,NIO2)
         II=1
         DO NI=1,NIO
          VEC(II)=1.0D0
@@ -210,7 +210,7 @@ C       because the DMRG is orbital variant.
 C
 C       DIAGONALIZE
         NAO2=ngssh(igas,isym)**2
-        CALL VCLR(VEC,1,NAO2)
+        CALL FZERO(VEC,NAO2)
         II=1
         DO NT=1,ngssh(igas,isym)
          VEC(II)=1.0D0
@@ -316,7 +316,7 @@ C       Move fp to triangular form
         END DO
 C       DIAGONALIZE
         NEO2=NEO**2
-        CALL VCLR(VEC,1,NEO2)
+        CALL FZERO(VEC,NEO2)
         II=1
         DO NA=1,NEO
          VEC(II)=1.0D0
