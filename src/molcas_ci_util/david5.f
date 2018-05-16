@@ -432,7 +432,6 @@ C Timings on generation of the sigma vector
             EndIf
          End Do
          if (iskipconv.eq.0) nconverged=0
-*         write(6,*) 'nconverged=',nconverged,'iskipconv=',iskipconv
          If ( iConv.ge.lRoots-hroots ) Goto 100
 *-------------------------------------------------------------------
 * compute correction vectors q1 = r/(E0-H) and q2 = c/(E0-H)
