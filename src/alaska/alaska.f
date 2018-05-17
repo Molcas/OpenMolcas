@@ -58,6 +58,7 @@
 #include "para_info.fh"
       Logical OldTst, DoRys, RF_On
       Logical Do_OFemb,KEonly,OFE_first
+      Character(Len=180) Label
       COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
 ************ columbus interface ****************************************
         Integer  Columbus, colgradmode
@@ -302,28 +303,28 @@
       If (isNAC) Then
         Call PrGrad('CI derivative coupling ',
      &                 Work(ipGrad),lDisp(0),lIrrep,ChDisp,iPrint)
+        EDiff_s = Max(One, Ten**(-Floor(Log10(Abs(EDiff)))-4))
+        EDiff_f = EDiff*EDiff_s
         If (DoCSF) Then
           Call Allocate_Work(ipCSFG,lDisp(0))
           Call CSFGrad(Work(ipCSFG),lDisp(0))
           Call PrGrad('CSF derivative coupling ',
      &                   Work(ipCSFG),lDisp(0),lIrrep,ChDisp,iPrint)
-          Call daxpy_(lDisp(0),Ediff,Work(ipCSFG),1,Work(ipGrad),1)
+          Call daxpy_(lDisp(0),EDiff_f,Work(ipCSFG),1,Work(ipGrad),1)
           Call Free_Work(ipCSFG)
         End If
         write(6,'(15X,A,ES13.6)') 'Energy difference: ',EDiff
-        If (abs(Ediff).gt.1.0d-6) Then
-          Call Allocate_Work(ipTmp,lDisp(0))
-          call dcopy_(lDisp(0),Work(ipGrad),1,Work(ipTmp),1)
-          call dscal_(lDisp(0),One/Ediff,Work(ipTmp),1)
-          Call PrGrad('Total derivative coupling',
-     &                 Work(ipTmp),lDisp(0),lIrrep,ChDisp,iPrint)
-          write(6,'(15X,A,F12.4)') 'norm: ',
-     &              dnrm2_(lDisp(0),Work(ipTmp),1)
-          Call Free_Work(ipTmp)
-        Else
-          Call WarningMessage(0,
-     &   'Small energy difference, the non-adiabatic coupling diverges')
-        EndIf
+        Label = ''
+        If (EDiff_s.gt.One)
+     &      Write(Label,'(A,ES7.1,A)') ' (divided by ',EDiff_s,')'
+        Label = 'Total derivative coupling'//Trim(Label)
+        Call Allocate_Work(ipTmp,lDisp(0))
+        call dcopy_(lDisp(0),Work(ipGrad),1,Work(ipTmp),1)
+        call dscal_(lDisp(0),One/EDiff_f,Work(ipTmp),1)
+        Call PrGrad(Trim(Label),
+     &              Work(ipTmp),lDisp(0),lIrrep,ChDisp,iPrint)
+        write(6,'(15X,A,F12.4)') 'norm: ',dnrm2_(lDisp(0),Work(ipTmp),1)
+        Call Free_Work(ipTmp)
       ElseIf (iPrint.ge.4) then
          If (HF_Force) Then
             Call PrGrad('Hellmann-Feynman Forces ',
