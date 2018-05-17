@@ -237,6 +237,7 @@ subroutine dgemm_(transa,transb,m_,n_,k_, &
   BLASINT          k,  lda,  ldb,  ldc,  m,  n
 #endif
 #ifdef _CUDA_BLAS_
+  integer          ncuda
   parameter (ncuda=128*128)
   integer*4        k4,lda4,ldb4,ldc4,m4,n4
 #endif
@@ -287,6 +288,7 @@ subroutine zgemm_(transa,transb,m_,n_,k_, &
   BLASINT          k,  lda,  ldb,  ldc,  m,  n
 #endif
 #ifdef _CUDA_BLAS_
+  integer          ncuda
   parameter (ncuda=128*128)
   integer*4        k4,lda4,ldb4,ldc4,m4,n4
 #endif
@@ -336,6 +338,7 @@ subroutine dspmv_ ( uplo,n_,alpha,ap,x,incx_,beta,y,incy_)
   BLASINT            n,  incx,  incy
 #endif
 #ifdef _CUDA_BLAS_
+  integer            ncuda
   parameter (ncuda=128)
   integer*4          n4, incx4, incy4
 #endif
@@ -373,6 +376,7 @@ subroutine dgemv_(trans,m_,n_,alpha,a,lda_,x,incx_,beta,y,incy_)
   BLASINT          incx, incy, lda, m, n
 #endif
 #ifdef _CUDA_BLAS_
+  integer          ncuda
   parameter (ncuda=128*128)
   integer*4        lda4,m4,n4,incx4,incy4
 #endif
