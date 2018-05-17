@@ -32,10 +32,10 @@ Theor. Chim. Acta 77, 291 (1990)
 * NOTE: Identical to ANO-L                                             *
 * Basic primitive: Duijneveldt 7s                                      *
 * Augmented: 1s with exponent 0.35x lowest exponent                    *
-*            4p eventempered with scale factor 0.35, 3 optimized for   *
+*            4p even-tempered with scale factor 0.35, 3 optimized for  *
 *               the average energy of SDCI H- and SCF H2 at 1.4 au     *
 *               and the fourth added as an additional diffuse          *
-*            3d eventempered with scale factor 0.40, 2 optimized for   *
+*            3d even-tempered with scale factor 0.40, 2 optimized for  *
 *               the average energy of SDCI H- and SCF H2 at 1.4 au     *
 *               and the third addad as an additional diffuse           *
 *            1f added to reach QZ quality (030607)                     *
@@ -97,10 +97,10 @@ Theor. Chim. Acta 77, 291 (1990)
 * NOTE: Identical to ANO-L                                             *
 * Basic primitive: Duijneveldt 8s                                      *
 * Augmented: 1s with exponent 0.35x lowest exponent                    *
-*            4p eventempered with scale factor 0.35, 3 optimized for   *
+*            4p even-tempered with scale factor 0.35, 3 optimized for  *
 *               the SDCI energy of He and the fourth added as an       *
 *               additional diffuse.                                    *
-*            3d eventempered with scale factor 0.40, 2 optimized for   *
+*            3d even-tempered with scale factor 0.40, 2 optimized for  *
 *               the SDCI energy of He and the third added as an        *
 *               additional diffuse.                                    *
 *            2f added to reach QZ quality (030607)                     *
@@ -166,10 +166,10 @@ Theor. Chem. Acc. 111, 345 (2004)
 * Augmented: 8p SCF optimized for the 2P state.                        *
 *            1s with exponent 0.35x lowest exponent                    *
 *            1p with exponent 0.35x lowest exponent                    *
-*            4d eventempered with scale factor 0.35, 3 optimized for   *
+*            4d even-tempered with scale factor 0.35, 3 optimized for  *
 *               the SDCI energy for Li2 at equilibrium and the         *
 *               fourth added as an additional diffuse                  *
-*            3f eventempered with scale factor 0.40, 2 optimized for   *
+*            3f even-tempered with scale factor 0.40, 2 optimized for  *
 *               the SDCI energy for Li2 at equilibrium and the         *
 *               third added as an additional diffuse                   *
 *            1g added to reach QZ quality (030607)                     *
@@ -485,10 +485,10 @@ J. Phys. Chem. A 108, 2851 (2004)
 * Basic primitive: Duijneveldt 13s,8p                                  *
 * Augmented: 1s with exponent 0.35x lowest exponent                    *
 *            1p with exponent 0.35x lowest exponent                    *
-*            4d eventempered with scale factor 0.35, 3 optimized for   *
+*            4d even-tempered with scale factor 0.35, 3 optimized for  *
 *               the SDCI energy for the ground state atom, and the     *
 *               fourth added as an additional diffuse                  *
-*            3f eventempered with scale factor 0.40, 2 optimized for   *
+*            3f even-tempered with scale factor 0.40, 2 optimized for  *
 *               the SDCI energy for the ground state atom, and the     *
 *               third added as an additional diffuse                   *
 *            2g (1.25*f) added to reach QZ quality (030607)            *
@@ -595,10 +595,10 @@ J. Phys. Chem. A 108, 2851 (2004)
 * Basic primitive: Duijneveldt 13s,8p                                  *
 * Augmented: 1s with exponent 0.35x lowest exponent                    *
 *            1p with exponent 0.35x lowest exponent                    *
-*            4d eventempered with scale factor 0.35, 3 optimized for   *
+*            4d even-tempered with scale factor 0.35, 3 optimized for  *
 *               the SDCI energy for the ground state atom, and the     *
 *               fourth added as an additional diffuse                  *
-*            3f eventempered with scale factor 0.40, 2 optimized for   *
+*            3f even-tempered with scale factor 0.40, 2 optimized for  *
 *               the SDCI energy for the ground state atom, and the     *
 *               third added as an additional diffuse                   *
 *            2g (1.25*f) added to reach QZ quality (030607)            *
@@ -702,10 +702,10 @@ J. Phys. Chem. A 108, 2851 (2004)
 * Basic primitive: Duijneveldt 13s,8p                                  *
 * Augmented: 1s with exponent 0.35x lowest exponent                    *
 *            1p with exponent 0.35x lowest exponent                    *
-*            4d eventempered with scale factor 0.35, 3 optimized for   *
+*            4d even-tempered with scale factor 0.35, 3 optimized for  *
 *               the SDCI energy for the ground state atom, and the     *
 *               fourth added as an additional diffuse                  *
-*            3f eventempered with scale factor 0.40, 2 optimized for   *
+*            3f even-tempered with scale factor 0.40, 2 optimized for  *
 *               the SDCI energy for the ground state atom, and the     *
 *               third added as an additional diffuse                   *
 *            2g (1.25*f) added to reach QZ quality (030607)            *
@@ -810,10 +810,10 @@ J. Phys. Chem. A 108, 2851 (2004)
 * Basic primitive: Duijneveldt 13s,8p                                  *
 * Augmented: 1s with exponent 0.35x lowest exponent                    *
 *            1p with exponent 0.35x lowest exponent                    *
-*            4d eventempered with scale factor 0.35, 3 optimized for   *
+*            4d even-tempered with scale factor 0.35, 3 optimized for  *
 *               the SDCI energy for the ground state atom, and the     *
 *               fourth added as an additional diffuse                  *
-*            3f eventempered with scale factor 0.40, 2 optimized for   *
+*            3f even-tempered with scale factor 0.40, 2 optimized for  *
 *               the SDCI energy for the ground state atom, and the     *
 *               third added as an additional diffuse                   *
 *            2g (1.25*f) added to reach QZ quality (030607)            *
@@ -918,10 +918,10 @@ J. Phys. Chem. A 108, 2851 (2004)
 * Basic primitive: Duijneveldt 13s,8p                                  *
 * Augmented: 1s with exponent 0.35x lowest exponent                    *
 *            1p with exponent 0.35x lowest exponent                    *
-*            4d eventempered with scale factor 0.35, 3 optimized for   *
+*            4d even-tempered with scale factor 0.35, 3 optimized for  *
 *               the SDCI energy for the ground state atom, and the     *
 *               fourth added as an additional diffuse                  *
-*            3f eventempered with scale factor 0.40, 2 optimized for   *
+*            3f even-tempered with scale factor 0.40, 2 optimized for  *
 *               the SDCI energy for the ground state atom, and the     *
 *               third added as an additional diffuse                   *
 *            2g one CASPT2 optimized, split with 0.4 scale factor      *
@@ -1482,7 +1482,7 @@ EndOptions
 B. O. Roos, R. Lindh, P.-A. Malmqvist, V. Veryazov, and P.-O. Widmark,
 J. Phys. Chem. A 108, 2851 (2004)
 ************************************************************************
-* P Phosphorous atom                                                   *
+* P Phosphorus atom                                                    *
 * Relativistic Contraction of the ANO-L set                            *
 * based on CASSCF/CASPT2 using the Douglas-Kroll Hamiltonian.          *
 * Active space 3s and 3p orbitals. 2p correlated in CASPT2             *
@@ -3393,7 +3393,7 @@ EndOptions
 B. O. Roos, R. Lindh and P.-A. Malmqvist, V. Veryazov and P.-O. Widmark
 J. Phys. Chem. A, 109. 6575-6579 (2005).
 ************************************************************************
-* Zn Zink atom                                                         *
+* Zn Zinc atom                                                         *
 * Relativistic Contraction of the ANO-L set                            *
 * based on CASSCF/CASPT2 using the Douglas-Kroll Hamiltonian.          *
 * Active space 4s,4p orbitals. 3d correlated in CASPT2                 *
@@ -3795,7 +3795,7 @@ EndOptions
 B. O. Roos, R. Lindh, P.-A. Malmqvist, V. Veryazov, and P.-O. Widmark,
 J. Phys. Chem. A 108, 2851 (2004)
 ************************************************************************
-* As Arsenium atom                                                     *
+* As Arsenic atom                                                      *
 * Relativistic Contraction based on CASSCF/CASPT2 using the            *
 * Douglas-Kroll Hamiltonian.                                           *
 * Active space 4s and 4p orbitals. No core correlation                 *
@@ -4753,7 +4753,7 @@ EndOptions
 B. O. Roos, R. Lindh and P.-A. Malmqvist, V. Veryazov and P.-O. Widmark
 J. Phys. Chem. A, 109. 6575-6579 (2005).
 ************************************************************************
-* Zr Zirkonium atom                                                    *
+* Zr Zirconium atom                                                    *
 * Relativistic Contraction based on CASSCF/CASPT2 using the            *
 * Douglas-Kroll Hamiltonian.                                           *
 * Active space 4d,5s,5p (3/9).  CASPT2 Correlation of 4s,4p            *
@@ -6159,7 +6159,7 @@ EndOptions
 B. O. Roos, R. Lindh, P.-A. Malmqvist, V. Veryazov, and P.-O. Widmark,
 J. Phys. Chem. A 108, 2851 (2004)
 ************************************************************************
-* Sn Stannum atom                                                      *
+* Sn Tin atom                                                          *
 * Relativistic Contraction based on CASSCF/CASPT2 using the            *
 * Douglas-Kroll Hamiltonian.                                           *
 * Active space 5s and 5p orbitals. 4d correlated in CASPT2             *
@@ -6312,7 +6312,7 @@ EndOptions
 B. O. Roos, R. Lindh, P.-A. Malmqvist, V. Veryazov, and P.-O. Widmark,
 J. Phys. Chem. A 108, 2851 (2004)
 ************************************************************************
-* Sb Antimon atom                                                      *
+* Sb Antimony atom                                                     *
 * Relativistic Contraction based on CASSCF/CASPT2 using the            *
 * Douglas-Kroll Hamiltonian.                                           *
 * Active space 5s and 5p orbitals. 4d correlated in CASPT2             *
@@ -11117,7 +11117,7 @@ EndOptions
 B. O. Roos, R. Lindh, P.-A. Malmqvist, V. Veryazov, and P.-O. Widmark,
 J. Phys. Chem. A 108, 2851 (2004)
 ************************************************************************
-* Tl Tallium atom                                                      *
+* Tl Thallium atom                                                     *
 * Relativistic Contraction based on CASSCF/CASPT2 using the            *
 * Douglas-Kroll Hamiltonian.                                           *
 * Active space 6s and 6p orbitals. 5d correlated in CASPT2             *
