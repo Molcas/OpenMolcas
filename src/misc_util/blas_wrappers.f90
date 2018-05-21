@@ -245,15 +245,15 @@ subroutine dgemm_(transa,transb,m_,n_,k_, &
   if(m_.eq.0.and.n_.eq.0) return
 
 #ifdef _CUDA_BLAS_
-  if(n*m.gt.ncuda) then
+  if(n_*m_.gt.ncuda) then
     k4=k_
     lda4=lda_
     ldb4=ldb_
     ldc4=ldc_
     m4=m_
     n4=n_
-    call cublas_dgemm(transa,transb,
-    &     m4,n4,k4,alpha,a,lda4,b,ldb4,beta,c,ldc4)
+    call cublas_dgemm(transa,transb, &
+      &               m4,n4,k4,alpha,a,lda4,b,ldb4,beta,c,ldc4)
   else
 #endif
 
@@ -265,10 +265,10 @@ subroutine dgemm_(transa,transb,m_,n_,k_, &
     ldb=ldb_
     ldc=ldc_
     call dgemm(transa,transb, &
-        &      m,n,k,alpha,a,lda,b,ldb,beta,c,ldc)
+      &        m,n,k,alpha,a,lda,b,ldb,beta,c,ldc)
 #else
     call dgemm(transa,transb,m_,n_,k_, &
-        &      alpha,a,lda_,b,ldb_,beta,c,ldc_)
+      &        alpha,a,lda_,b,ldb_,beta,c,ldc_)
 #endif
 
 #ifdef _CUDA_BLAS_
@@ -296,15 +296,15 @@ subroutine zgemm_(transa,transb,m_,n_,k_, &
   if(m_.eq.0.and.n_.eq.0) return
 
 #ifdef _CUDA_BLAS_
-  if(n*m.gt.ncuda) then
+  if(n_*m_.gt.ncuda) then
     k4=k_
     lda4=lda_
     ldb4=ldb_
     ldc4=ldc_
     m4=m_
     n4=n_
-    call cublas_zgemm(transa,transb,
-    &     m4,n4,k4,alpha,a,lda4,b,ldb4,beta,c,ldc4)
+    call cublas_zgemm(transa,transb, &
+      &               m4,n4,k4,alpha,a,lda4,b,ldb4,beta,c,ldc4)
   else
 #endif
 
@@ -316,10 +316,10 @@ subroutine zgemm_(transa,transb,m_,n_,k_, &
     ldb=ldb_
     ldc=ldc_
     call zgemm(transa,transb, &
-        &      m,n,k,alpha,a,lda,b,ldb,beta,c,ldc)
+      &        m,n,k,alpha,a,lda,b,ldb,beta,c,ldc)
 #else
     call zgemm(transa,transb,m_,n_,k_, &
-        &      alpha,a,lda_,b,ldb_,beta,c,ldc_)
+      &        alpha,a,lda_,b,ldb_,beta,c,ldc_)
 #endif
 
 #ifdef _CUDA_BLAS_
@@ -344,7 +344,7 @@ subroutine dspmv_ ( uplo,n_,alpha,ap,x,incx_,beta,y,incy_)
 #endif
 
 #ifdef _CUDA_BLAS_
-  if(n.gt.ncuda) then
+  if(n_.gt.ncuda) then
     n4=n_
     incx4=incx_
     incy4=incy_
@@ -382,7 +382,7 @@ subroutine dgemv_(trans,m_,n_,alpha,a,lda_,x,incx_,beta,y,incy_)
 #endif
 
 #ifdef _CUDA_BLAS_
-  if(n*m.gt.ncuda) then
+  if(n_*m_.gt.ncuda) then
     m4=m_
     n4=n_
     lda4=lda_
