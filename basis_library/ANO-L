@@ -1193,7 +1193,7 @@ EndOptions
 P.-O. Widmark, B. J. Persson, and B. O. Roos
 Theor. Chim. Acta 79, 419 (1991)
 ************************************************************************
-* S Sulfur atom                                                        *
+* S Sulphur atom                                                       *
 * Basic primitive: 16s,11p - SCF optimized                             *
 *                  4d,3f   - SDCI optimized                            *
 * Augmented: 1s with exponent 0.40x lowest exponent                    *
@@ -1278,7 +1278,7 @@ EndOptions
 P.-O. Widmark, B. J. Persson, and B. O. Roos
 Theor. Chim. Acta 79, 419 (1991)
 ************************************************************************
-* Cl Clorine atom                                                      *
+* Cl Chlorine atom                                                     *
 * Basic primitive: 16s,11p - SCF optimized                             *
 *                  4d,3f   - SDCI optimized                            *
 * Augmented: 1s with exponent 0.40x lowest exponent                    *
@@ -2130,7 +2130,7 @@ EndOptions
 R. Pou-Amerigo, M. Merchan, P.-O. Widmark and B.O. Roos
 Theor. Chim. Acta 92, 149 (1995)
 ************************************************************************
-* Co Cobolt atom                                                       *
+* Co Cobalt atom                                                       *
 * Basic primitive: 20s12p9d from                                       *
 *                  H. Partridge, J. Chem. Phys., 90, 1043 (1989)       *
 * Augmented: 1s even-tempered continuation with beta=0.4               *
@@ -2359,7 +2359,7 @@ EndOptions
 R. Pou-Amerigo, M. Merchan, P.-O. Widmark and B.O. Roos
 Theor. Chim. Acta 92, 149 (1995)
 ************************************************************************
-* Cu copper atom                                                       *
+* Cu Copper atom                                                       *
 * Basic primitive: 20s12p9d from                                       *
 *                  H. Partridge, J. Chem. Phys., 90, 1043 (1989)       *
 * Augmented: 1s even-tempered continuation with beta=0.4               *

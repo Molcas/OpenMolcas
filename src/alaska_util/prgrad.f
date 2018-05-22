@@ -57,7 +57,7 @@
             Write (6,'(2X,A,3X,3F14.8)') Namei, TempX, TempY, TempZ
          End Do
          Write (6,'(1x,A)')
-     &             '---------------------------------------------------'
+     &       '---------------------------------------------------------'
       else
 *
 *        Modified by Luca De Vico november 2005 Teokem
