@@ -106,7 +106,17 @@
     # default if no tests specified is .all
     - |
       if [ -z "${tests}" ] ; then export tests=".all" ; fi
-      pymolcas verify --status ${tests}
+    # run only a subset of the tests if specified
+    - |
+      if [ -n "${subset}" ] ; then
+        pymolcas verify --flatlist ${tests} > filelist
+        split --numeric-suffixes=1 --suffix-length=1 --lines=250 filelist fl
+        if [ -f "fl${subset}" ] ; then
+          pymolcas verify --status --fromfile fl${subset}
+        fi
+      else
+        pymolcas verify --status ${tests}
+      fi
     # special post-script that may be needed in some installations
     # (not using before_script because it would be overwritten)
     - |
@@ -304,61 +314,126 @@ build:plain:
   stage: build
   <<: *plain
   <<: *compile
-test:plain:
+test:plain_1:
   stage: test
   dependencies:
     - build:plain
     - tinker
   <<: *plain
   <<: *run-tests
+  variables:
+    <<: *plain_vars
+    subset: "1"
+test:plain_2:
+  stage: test
+  dependencies:
+    - build:plain
+    - tinker
+  <<: *plain
+  <<: *run-tests
+  variables:
+    <<: *plain_vars
+    subset: "2"
 
 build:options:
   stage: build
   <<: *options
   <<: *compile
-test:options:
+test:options_1:
   stage: test
   dependencies:
     - build:options
     - tinker
   <<: *options
   <<: *run-tests
+  variables:
+    <<: *options_vars
+    subset: "1"
+test:options_2:
+  stage: test
+  dependencies:
+    - build:options
+    - tinker
+  <<: *options
+  <<: *run-tests
+  variables:
+    <<: *options_vars
+    subset: "2"
 
 build:pgi:
   stage: build
   <<: *pgi
   <<: *compile
-test:pgi:
+test:pgi_1:
   stage: test
   dependencies:
     - build:pgi
     - tinker
   <<: *pgi
   <<: *run-tests
+  variables:
+    <<: *pgi_vars
+    subset: "1"
+test:pgi_2:
+  stage: test
+  dependencies:
+    - build:pgi
+    - tinker
+  <<: *pgi
+  <<: *run-tests
+  variables:
+    <<: *pgi_vars
+    subset: "2"
 
 build:sun:
   stage: build
   <<: *sun
   <<: *compile
-test:sun:
+test:sun_1:
   stage: test
   dependencies:
     - build:sun
     - tinker
   <<: *sun
   <<: *run-tests
+  variables:
+    <<: *sun_vars
+    subset: "1"
+test:sun_2:
+  stage: test
+  dependencies:
+    - build:sun
+    - tinker
+  <<: *sun
+  <<: *run-tests
+  variables:
+    <<: *sun_vars
+    subset: "2"
 
 build:intel:
   stage: build
   <<: *intel
   <<: *compile
-test:intel:
+test:intel_1:
   stage: test
   dependencies:
     - build:intel
     - tinker
   <<: *intel
   <<: *run-tests
+  variables:
+    <<: *intel_vars
+    subset: "1"
+test:intel_2:
+  stage: test
+  dependencies:
+    - build:intel
+    - tinker
+  <<: *intel
+  <<: *run-tests
+  variables:
+    <<: *intel_vars
+    subset: "2"
 
 build:nowarn:
   stage: build
