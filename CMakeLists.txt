@@ -1112,6 +1112,7 @@ if (HDF5)
                         message ("-- HDF5_CXX_LIBRARIES: ${HDF5_CXX_LIBRARIES}")
                         list (APPEND EXTERNAL_LIBRARIES ${HDF5_CXX_LIBRARIES})
                 endif ()
+                add_definitions (-D_HDF5_)
 
                 ## Leon: require zlib for hdf5 for enabled compression
                 ## disabled as long as HDF5 compression is disabled
