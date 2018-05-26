@@ -29,7 +29,7 @@ if (PYTHONINTERP_FOUND)
         set (PYMOLCAS_TARGET "${PYMOLCAS_TARGET}" PARENT_SCOPE)
 
         add_custom_command (OUTPUT ${PYMOLCAS_TARGET}
-                COMMAND ./export.py ${PYMOLCAS_TARGET}
+                COMMAND ${PYTHON_EXECUTABLE} export.py ${PYMOLCAS_TARGET}
                 WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
                 DEPENDS ${py_sources}
                 )
