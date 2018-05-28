@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 #***********************************************************************
@@ -11,10 +11,11 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2015-2017, Ignacio Fdez. Galván                        *
+# Copyright (C) 2015-2018, Ignacio Fdez. Galván                        *
 #***********************************************************************
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
+from six import text_type
 import sys
 sys.dont_write_bytecode = True
 
@@ -22,8 +23,12 @@ warning = ''
 stamp = 'd41d8cd98f00b204e9800998ecf8427e'
 
 def main(my_name):
-  if sys.hexversion < 0x03040000:
-    sys.exit("Python 3.4 or newer is required to run this program.")
+  if sys.hexversion < 0x03000000:
+    if sys.hexversion < 0x02070000:
+      sys.exit("Python 2.7 or newer is required to run this program.")
+  else:
+    if sys.hexversion < 0x03040000:
+      sys.exit("Python 3.4 or newer is required to run this program.")
 
   import os
   import os.path
@@ -40,11 +45,11 @@ def main(my_name):
   sys.stdout = os.fdopen(sys.stdout.fileno(), 'wb', 0)
   sys.stderr = os.fdopen(sys.stderr.fileno(), 'wb', 0)
   try:
-    sys.stdout = codecs.getwriter('utf8')(sys.stdout.buffer)
-    sys.stderr = codecs.getwriter('utf8')(sys.stderr.buffer)
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer)
+    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer)
   except AttributeError:
-    sys.stdout = codecs.getwriter('utf8')(sys.stdout)
-    sys.stderr = codecs.getwriter('utf8')(sys.stderr)
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
+    sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
 
   with open(my_name, 'rb') as thisfile:
     stamp = hashlib.md5(thisfile.read()).hexdigest()
@@ -55,7 +60,11 @@ def main(my_name):
     os.environ['PYMOLCAS_STARTED'] = ''
 
   # Define this as the driver, so scripts can use the same driver
-  os.environ['MOLCAS_DRIVER'] = sys.argv[0]
+  # (if there is a directory name, we should use the full path)
+  if (os.path.dirname(sys.argv[0])):
+    os.environ['MOLCAS_DRIVER'] = my_name
+  else:
+    os.environ['MOLCAS_DRIVER'] = sys.argv[0]
 
   # Command-line arguments
   parser = argparse.ArgumentParser(formatter_class=lambda prog: argparse.HelpFormatter(prog,max_help_position=42,width=120))
@@ -124,7 +133,7 @@ def main(my_name):
 
   # Define environment variables according to input arguments
   if (args['nprocs']):
-    os.environ['MOLCAS_NPROCS'] = str(args['nprocs'])
+    os.environ['MOLCAS_NPROCS'] = text_type(args['nprocs'])
 
   if (args['clean_scratch']):
     os.environ['MOLCAS_KEEP_WORKDIR'] = 'NO'
@@ -199,8 +208,8 @@ def main(my_name):
       print(message, file=sys.stderr)
       # Skip verification with unsupported features
       # TODO: remove when ready
-      if ('is unsupported' in str(message) or
-          'Unknown module' in str(message)):
+      if ('is unsupported' in text_type(message) or
+          'Unknown module' in text_type(message)):
         Molcas.rc = '_RC_NOT_AVAILABLE_'
       else:
         Molcas.rc = '_RC_JOB_KILLED_'
@@ -213,5 +222,8 @@ def main(my_name):
 
 # Run pymolcas if not called via import
 if (__name__ == '__main__'):
-  import shutil
-  sys.exit(main(shutil.which(sys.argv[0])))
+  from molcas_aux import which
+  f = which(sys.argv[0])
+  if (f is None):
+    f = sys.argv[0]
+  sys.exit(main(f))

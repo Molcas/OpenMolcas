@@ -10,21 +10,23 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2015-2017, Ignacio Fdez. Galván                        *
+# Copyright (C) 2015-2018, Ignacio Fdez. Galván                        *
 #***********************************************************************
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
+from builtins import bytes
+from six import text_type
 
 from os import environ, access, W_OK, X_OK, listdir, remove, getpid, getcwd, makedirs, symlink, devnull
 from os.path import isfile, isdir, isabs, join, basename, splitext, getmtime, abspath, exists, relpath, realpath
 from datetime import datetime
-from shutil import copy2, move, rmtree, SameFileError
+from shutil import copy2, move, rmtree, Error
 from subprocess import check_output, STDOUT, CalledProcessError
 from re import compile as re_compile, search, sub, MULTILINE, IGNORECASE
 from io import BytesIO
 from resource import getrusage, RUSAGE_CHILDREN
 from glob import glob
-from errno import EEXIST
+from errno import EEXIST, ENOENT
 from shlex import split as shsplit
 from contextlib import contextmanager
 from textwrap import fill
@@ -34,6 +36,15 @@ from emil_parse import EMIL_Parse, EMILException
 from python_parse import Python_Parse
 from molcas_aux import *
 from check_test import *
+
+# python2 has no FileNotFoundError, so we will have to check
+# the errno attribute of the raised exception
+try:
+  #python3
+  FileNotFoundError
+except:
+  #python2 (IOError when opening files, OSError when removing files)
+  FileNotFoundError = (IOError, OSError)
 
 hcbanner = '''#
       &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -81,7 +92,7 @@ class MolcasException(Exception):
 
 class Molcas_wrapper(object):
 
-  version = 'py1.10'
+  version = 'py2.00'
   rc = 0
 
   def __init__(self, **kwargs):
@@ -342,8 +353,11 @@ class Molcas_wrapper(object):
     try:
       with utf8_open(join(self.molcas, 'data', 'banner.txt'), 'r') as banner_file:
         banner = banner_file.read().rstrip('\n')
-    except FileNotFoundError:
-      banner = hcbanner.rstrip('\n')
+    except FileNotFoundError as e:
+      if (e.errno == ENOENT):
+        banner = hcbanner.rstrip('\n')
+      else:
+        raise
     tag = '(unknown)'
     tag_x = ''
     try:
@@ -353,16 +367,19 @@ class Molcas_wrapper(object):
             tag_x = line.rstrip()
           else:
             tag = line.rstrip()
-    except FileNotFoundError:
-      try:
-        command = ["git", "describe", "--always", "--match", "v*", "--dirty"]
-        line = check_output(command, stderr=STDOUT).decode('utf8')
-        if (search('\.x\d', line)):
-          tag_x = line.rstrip()
-        else:
-          tag = line.rstrip()
-      except:
-        tag = '(unknown)'
+    except FileNotFoundError as e:
+      if (e.errno == ENOENT):
+        try:
+          command = ["git", "describe", "--always", "--match", "v*", "--dirty"]
+          line = check_output(command, stderr=STDOUT).decode('utf-8')
+          if (search('\.x\d', line)):
+            tag_x = line.rstrip()
+          else:
+            tag = line.rstrip()
+        except:
+          tag = '(unknown)'
+      else:
+        raise
     if ((tag_x != '') and (tag == '(unknown)')):
       tag = tag_x
       tag_x = ''
@@ -485,8 +502,9 @@ class Molcas_wrapper(object):
 
   def print_input(self):
     if (get_utf8('MOLCAS_ECHO_INPUT', default='YES').upper() != 'NO'):
+      foo = text_type(self.flow)
       print('++ ---------   Input file   ---------\n')
-      print(self.flow)
+      print(foo)
       print('\n-- ----------------------------------')
 
   def print_environment(self):
@@ -792,12 +810,18 @@ class Molcas_wrapper(object):
           dest = join(self.scratch, dest)
         try:
           copy2(orig, dest)
-        except SameFileError:
-          pass
-        except FileNotFoundError:
-          if (not force):
-            print('Error: file "{0}" not found'.format(orig))
-          return -1
+        # would use SameFileError, but that's only available since python 3.4,
+        # so use this workaround
+        except Error as e:
+          if ('same file' not in text_type(e)):
+            raise
+        except FileNotFoundError as e:
+          if (e.errno == ENOENT):
+            if (not force):
+              print('Error: file "{0}" not found'.format(orig))
+            return -1
+          else:
+            raise
         return 0
       # remove files: the list is colon-separated, and based on the scratch dir
       if (task_type == 'x'):
@@ -806,10 +830,13 @@ class Molcas_wrapper(object):
           try:
             orig = join(self.scratch, i)
             remove(orig)
-          except FileNotFoundError:
-            if (not force):
-              print('Error: file "{0}" not found'.format(orig))
-            rc -= 1
+          except FileNotFoundError as e:
+            if (e.errno == ENOENT):
+              if (not force):
+                print('Error: file "{0}" not found'.format(orig))
+              rc -= 1
+            else:
+              raise
         return rc
     output = BytesIO()
     error = BytesIO()
@@ -883,10 +910,10 @@ class Molcas_wrapper(object):
     filename = join(self.molcas, 'bin', 'molcas.exe')
     if (isfile(filename) and access(filename, X_OK)):
       try:
-        out = check_output(filename, stderr=STDOUT).decode('utf8')
+        out = check_output(filename, stderr=STDOUT).decode('utf-8')
         rc = 0
       except CalledProcessError as e:
-        out = e.output.decode('utf8')
+        out = e.output.decode('utf-8')
         rc = e.returncode-1
       # Capture the licensee
       match = search(r'This copy of MOLCAS is licensed to\s*(.*)\n', out)
@@ -949,8 +976,11 @@ class Molcas_module(object):
     try:
       prgm_file = join(self.parent.molcas, 'data', self.name + '.prgm')
       (self._exec, self._files) = parse_prgm(prgm_file)
-    except FileNotFoundError:
-      raise MolcasException('Unknown module: {0}'.format(self.name))
+    except FileNotFoundError as e:
+      if (e.errno == ENOENT):
+        raise MolcasException('Unknown module: {0}'.format(self.name))
+      else:
+        raise
     prgm_file = join(self.parent.molcas, 'data', 'global.prgm')
     self._files.update(parse_prgm(prgm_file)[1])
     self._links = []
@@ -1012,12 +1042,12 @@ class Molcas_module(object):
   # Get the output stream
   @property
   def output(self):
-    return (bytes(self.start, 'utf8') + b'\n' + self._output.getvalue() + b'\n' + bytes(self.stop, 'utf8'))
+    return (bytes(self.start, 'utf-8') + b'\n' + self._output.getvalue() + b'\n' + bytes(self.stop, 'utf-8'))
 
   # Get the error stream
   @property
   def error(self):
-    return (bytes(self.start, 'utf8') + b'\n' + self._error.getvalue() + b'\n' + bytes(self.stop, 'utf8'))
+    return (bytes(self.start, 'utf-8') + b'\n' + self._error.getvalue() + b'\n' + bytes(self.stop, 'utf-8'))
 
   # Get the named return code (if available)
   @property
@@ -1182,5 +1212,6 @@ class Molcas_module(object):
       print(span)
 
     self.parent.add_resources(self.timing)
+    k = self.output
 
     return self.rc
