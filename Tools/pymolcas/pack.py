@@ -22,7 +22,7 @@ something that's easy to run, move and distribute.
 '''
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-from builtins import (bytes)
+from builtins import bytes
 
 import glob, os.path
 

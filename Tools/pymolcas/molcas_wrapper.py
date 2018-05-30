@@ -92,7 +92,7 @@ class MolcasException(Exception):
 
 class Molcas_wrapper(object):
 
-  version = 'py2.00'
+  version = 'py2.01'
   rc = 0
 
   def __init__(self, **kwargs):
@@ -769,7 +769,6 @@ class Molcas_wrapper(object):
       print('*** MOLCAS system not ready -- setup not called ***')
       print('***************************************************')
       self.rc = '_RC_GENERAL_ERROR_'
-    set_utf8('EMIL_RETURNCODE', self.rc_num)
     return self.rc
 
   def _run_check(self):

@@ -6,22 +6,15 @@
 * Responsible person: Quan Phung
 * Comments: Only run test if CheMPS2 is installed
 *-------------------------------------------------------------------------------
-
->> EXPORT HAVE_CHEMPS2=0
->> EXPORT MOLCAS_TRAP=OFF
->> SHELL chemps2 --version > chemps2.version
->> SHELL if [ ! -s chemps2.version ]; then rm chemps2.version; fi
->> IF ( -FILE chemps2.version )
->> SHELL echo "Found CheMPS2"
->> EXPORT HAVE_CHEMPS2=1
->> END IF
->> EXPORT MOLCAS_TRAP=ON
-
->> IF ( $HAVE_CHEMPS2 = 1 ) GOTO DO_CHEMPS2
-* Otherwise, skip this test
->> EXIT 36
-
->> LABEL DO_CHEMPS2
+* Test if CheMPS2 is available and skip the test if not
+>> RM -FORCE TEST_CHEMPS2
+>> IF ( $MOLCAS_DRIVER = UNKNOWN_VARIABLE )
+>>   EXPORT MOLCAS_DRIVER=molcas
+>> ENDIF
+>> SHELL $MOLCAS_DRIVER have_feature chemps2 || touch TEST_CHEMPS2
+>> IF ( -FILE TEST_CHEMPS2 )
+>>   EXIT 36
+>> ENDIF
 
 &GATEWAY
 Title
