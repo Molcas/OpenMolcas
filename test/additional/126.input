@@ -3,7 +3,7 @@
 * Molecule: water
 * Basis: STO-3G
 * Symmetry: no
-* SCF: Semi-direct
+* SCF: Semi-Direct
 *
 
  &SEWARD &END
@@ -30,7 +30,6 @@ ITERATIONS
 Occupied
 5
 End of input
-
 
 
 >>FILE checkfile
