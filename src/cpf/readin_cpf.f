@@ -231,7 +231,7 @@ CPAM97      Read(Line,*,Err=992) ETrsh
       Goto 10
 *
 *---  process EXTR command --------------------------------------------*
-1700  WRITE(6,*) 'The EXTRACT option is redudant and is ignored!'
+1700  WRITE(6,*) 'The EXTRACT option is redundant and is ignored!'
       Goto 10
 *
 *---  The end of the input is reached, print the title ----------------*

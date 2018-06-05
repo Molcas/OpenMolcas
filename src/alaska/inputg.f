@@ -396,7 +396,8 @@ c      nprint(26)=99
 *
 *     Put the program name and the time stamp onto the extract file
 *
-971   Write (LuWr,*)'InputG: EXTRACT option is redudant and is ignored!'
+971   Write (LuWr,*)'InputG: EXTRACT option is redundant and is',
+     &              ' ignored!'
       Go To 998
 *                                                                      *
 ************************************************************************
