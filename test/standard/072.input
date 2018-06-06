@@ -3,6 +3,9 @@
 > IF ( $MOLCAS_DRIVER = UNKNOWN_VARIABLE )
 >   EXPORT MOLCAS_DRIVER=molcas
 > ENDIF
+> IF ( -FILE $MOLCAS/tinker/bin/tkr2qm_s )
+>   EXPORT TINKER=$MOLCAS/tinker/bin
+> ENDIF
 > SHELL $MOLCAS_DRIVER have_feature tinker || touch TEST_TINKER
 > IF ( -FILE TEST_TINKER )
 >   EXIT 36

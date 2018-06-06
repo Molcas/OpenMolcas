@@ -97,13 +97,9 @@ while [ -n "$1" ]; do
 
     "tinker")
       Echo "Processing feature: $FEATURE"
-      TINKER_FILE="tkr2qm_s"
-      PATH_1="$TINKER"
-      PATH_2="$MOLCAS/tinker/bin"
-      if [ -f "$PATH_1/$TINKER_FILE" ] ; then
-        Echo "Found: $PATH_1/$TINKER_FILE"
-      elif [ -f "$PATH_2/$TINKER_FILE" ] ; then
-        Echo "Found: $PATH_2/$TINKER_FILE"
+      TINKER_FILE="$TINKER/tkr2qm_s"
+      if [ -x "$TINKER_FILE" ] ; then
+        Echo "Found: $TINKER_FILE"
       else
         Echo "Not found!"
         RC=1
