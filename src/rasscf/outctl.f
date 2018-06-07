@@ -486,11 +486,11 @@ C Local print level (if any)
        Write(LF,*)
        If ( (nMVInt+nDCInt).ne.0) then
          Write(LF,Fmt2//'A)')
-     &        'root  nonrelativistic    mass-velocity   '//
-     &        'Darwin-contact    relativistic'
+     &        'root     nonrelativistic        mass-velocity       '//
+     &        'Darwin-contact         relativistic'
          Write(LF,Fmt2//'A)')
-     &        '           energy           term         '//
-     &        '    term             energy   '
+     &        '             energy                term             '//
+     &        '     term                 energy'
          Do i=1,lRoots
             Emv=Temp(1,i)
             Edc=Temp(2,i)

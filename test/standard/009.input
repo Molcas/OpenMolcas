@@ -21,6 +21,7 @@ Basis set
 H.ANO-L...3s2p.
 H      0.00000   0.00000   0.00000
 End of basis
+RelInts
 NoCD
 End of input
 *-------------------------------------------------------------------------------
@@ -124,8 +125,6 @@ End of input
 Title
  HF molecule
 LumOrb
-Frozen
- 1 0 0 0
 End of input
 *-------------------------------------------------------------------------------
 >>> RM INPORB

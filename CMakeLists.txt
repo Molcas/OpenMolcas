@@ -1541,6 +1541,7 @@ endif ()
 
 # Chan group's DMRG (Block code) support
 #=======================================
+
 if (BLOCK)
         mark_as_advanced(CLEAR BLOCK_DIR)
 
@@ -2189,10 +2190,11 @@ if (HDF5 AND HDF5_FOUND)
         endif ()
         # additional utilities doing internal HDF5 calls
         foreach (util
+                Modules
+                aniso_util
                 guessorb_util
                 hyper_util
                 molcas_ci_util
-                msym_util
                 oneint_util
                 restart_util
                 runfile_util
@@ -2284,16 +2286,17 @@ endif ()
 # programs doing HDF5 calls
 if (HDF5 AND HDF5_FOUND)
         foreach (prog
-                scf
-                rasscf
                 caspt2
-                rassi
-                single_aniso
-                poly_aniso
-                slapaf
                 dynamix
-                surfacehop
+                mcpdft
                 nevpt2
+                poly_aniso
+                rasscf
+                rassi
+                scf
+                single_aniso
+                slapaf
+                surfacehop
                 )
                 list (APPEND ${prog}_defs "_HDF5_")
         endforeach ()
@@ -2431,6 +2434,9 @@ set (util "Modules")
 file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${OPENMOLCAS_DIR}/src/${util}/*.f ${OPENMOLCAS_DIR}/src/${util}/*.f90)
 add_library (mods_obj OBJECT ${source})
 list (APPEND ALL_SOURCES ${source})
+if (DEFINED ${util}_defs)
+        set_target_properties (mods_obj PROPERTIES COMPILE_DEFINITIONS "${${util}_defs}")
+endif ()
 if (DMRG)
         if (HDF5 AND HDF5_FOUND)
                 add_dependencies(mods_obj hdf5-qcm)
@@ -2747,7 +2753,7 @@ if (DEFINED EXTRA_DIR)
 endif ()
 # copy the necessary files from sbin
 file (REMOVE_RECURSE ${PROJECT_BINARY_DIR}/sbin)
-foreach (f verify version chkunprint.plx updatetest.plx find_sources help_basis help_doc)
+foreach (f verify version chkunprint.plx updatetest.plx find_sources have_feature help_basis help_doc)
         file (COPY ${OPENMOLCAS_DIR}/sbin/${f} DESTINATION ${PROJECT_BINARY_DIR}/sbin)
 endforeach ()
 if (DEFINED EXTRA_DIR)

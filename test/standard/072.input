@@ -1,19 +1,16 @@
-> EXPORT HAVE_TINKER=0
-* If TINKER is defined and valid, use it
-> IF ( -FILE $TINKER/tkr2qm_s )
->   EXPORT HAVE_TINKER=1
+* Test if Tinker is available and skip the test if not
+> RM -FORCE TEST_TINKER
+> IF ( $MOLCAS_DRIVER = UNKNOWN_VARIABLE )
+>   EXPORT MOLCAS_DRIVER=molcas
 > ENDIF
-> IF ( $HAVE_TINKER = 1 ) GOTO DO_TINKER
-* If tinker is installed in the molcas directory, use it
 > IF ( -FILE $MOLCAS/tinker/bin/tkr2qm_s )
 >   EXPORT TINKER=$MOLCAS/tinker/bin
->   EXPORT HAVE_TINKER=1
 > ENDIF
-> IF ( $HAVE_TINKER = 1 ) GOTO DO_TINKER
-* Otherwise, skip this test
-> EXIT 36
+> SHELL $MOLCAS_DRIVER have_feature tinker || touch TEST_TINKER
+> IF ( -FILE TEST_TINKER )
+>   EXIT 36
+> ENDIF
 
-> LABEL DO_TINKER
 > EXPORT MOLCAS_THR=1
 > COPY start.xyz $Project.xyz
 * trick to put the right path in the .key file

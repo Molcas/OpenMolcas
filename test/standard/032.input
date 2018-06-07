@@ -10,7 +10,7 @@
  &SEWARD  &END
 NoCD
 Title
- TiCl    C2                                            r(Ti-Cl)= 4.6000
+ TiCl    C2     r(Ti-Cl)= 4.6000
 *   Ti: QR[Mg]  TIQR3F-PDS(9/51/51/3)-SO  (711/411/3111/3)
 *   Cl: QR[Ne]  CLQR-SP(7/61/1)-SO        (511/4111/1)
 Molecule

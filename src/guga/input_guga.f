@@ -216,7 +216,7 @@ CPAM97 IFCORE was not set -- assume bug. Following line inserted:
       Goto 10
 *
 *---  process EXTRACT  command ----------------------------------------*
-1500  Write (6,*) 'Input: EXTRACT option is redudant and is ignored!'
+1500  Write (6,*) 'Input: EXTRACT option is redundant and is ignored!'
       Goto 10
 *
 *---  process NON-INTERACT command ----------------------------------------*

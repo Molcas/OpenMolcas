@@ -86,26 +86,18 @@ C BPTST       Storage for some testing
         WRITE(6,*) IWORK(LSODIAG-1+I)
       END DO
 
-      CALL DCOPY_(9*N**2,0.0d0,1,LMATR,1)
-      CALL DCOPY_(9*N**2,0.0d0,1,LMATI,1)
-      CALL DCOPY_(9*N**2,0.0d0,1,SMATR,1)
-      CALL DCOPY_(9*N**2,0.0d0,1,SMATI,1)
-      CALL DCOPY_(9*N**2,0.0d0,1,MUMAT2R,1)
-      CALL DCOPY_(9*N**2,0.0d0,1,MUMAT2I,1)
-
+      CALL DCOPY_(9*N**2,0.0d0,0,LMATR,1)
+      CALL DCOPY_(9*N**2,0.0d0,0,LMATI,1)
+      CALL DCOPY_(9*N**2,0.0d0,0,SMATR,1)
+      CALL DCOPY_(9*N**2,0.0d0,0,SMATI,1)
+      CALL DCOPY_(9*N**2,0.0d0,0,MUMAT2R,1)
+      CALL DCOPY_(9*N**2,0.0d0,0,MUMAT2I,1)
 
       CALL GETMEM('DMATTMPA','ALLO','REAL',LDMATTMP,3*(NBST*(NBST+1)))
 
-c actually the opposite of the identity mat
-      IDENTMAT(1,1) = 1.0d0;
-      IDENTMAT(1,2) = 0.0d0;
-      IDENTMAT(1,3) = 0.0d0;
-      IDENTMAT(2,1) = 0.0d0;
-      IDENTMAT(2,2) = 1.0d0;
-      IDENTMAT(2,3) = 0.0d0;
-      IDENTMAT(3,1) = 0.0d0;
-      IDENTMAT(3,2) = 0.0d0;
-      IDENTMAT(3,3) = 1.0d0;
+      !> identity mat
+      CALL DCOPY_(3*3,0.0d0,0,IDENTMAT,1)
+      IDENTMAT(1,1)=1.0d0; IDENTMAT(2,2)=1.0d0; IDENTMAT(3,3)=1.0d0
 
 C First, we calculate the expectation values of
 C  (L+ge*S)x (L+ge*S)y (L+ge*S)z

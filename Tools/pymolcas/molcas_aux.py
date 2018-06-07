@@ -10,13 +10,15 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2015-2017, Ignacio Fdez. Galván                        *
+# Copyright (C) 2015-2018, Ignacio Fdez. Galván                        *
 #***********************************************************************
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
+from six import text_type
 
-from os import environ, getcwd, symlink
-from os.path import join, split, isfile, exists, expanduser, realpath
+from os import environ, getcwd, symlink, access, F_OK, X_OK, pathsep, defpath, curdir
+from os.path import join, split, isfile, isdir, exists, expanduser, realpath, dirname, normcase
+from sys import platform, executable
 from tempfile import mkdtemp
 from shutil import rmtree
 from re import sub, match
@@ -25,23 +27,23 @@ from json import loads
 
 def set_utf8(var, val, dummy_val='UNKNOWN_VARIABLE'):
   '''Auxiliary function to set environment variables
-     making sure they are utf8-encoded (works with python 2 and 3).
+     making sure they are utf-8-encoded (works with python 2 and 3).
   '''
   try:
     environ[var] = val
   except TypeError:
-    environ[var] = str(val)
+    environ[var] = text_type(val)
   except UnicodeEncodeError:
-    environ[var] = val.encode('utf8')
+    environ[var] = val.encode('utf-8')
   if (val == dummy_val):
     del environ[var]
 
 def get_utf8(var, default=None, dummy_val='UNKNOWN_VARIABLE'):
   '''Auxiliary function to get environment variables
-     making sure they are utf8-encoded (works with python 2 and 3).
+     making sure they are utf-8-encoded (works with python 2 and 3).
   '''
   try:
-    val = environ.get(var, default).decode('utf8')
+    val = environ.get(var, default).decode('utf-8')
   except AttributeError:
     val = environ.get(var, default)
   if (val == dummy_val):
@@ -115,10 +117,13 @@ def find_molcas(xbin_list=None, here=True):
   filename = dotmolcas('molcas.shell')
   if isfile(filename):
     source = '. {0}'.format(filename)
-    dump = 'python3 -c "import os, json;print(json.dumps(dict(os.environ)))"'
+    dump = '{0} -c "import os, json;print(json.dumps(dict(os.environ)))"'.format(executable)
     pipe = Popen(['/bin/sh', '-c', '{0} && {1}'.format(source, dump)], stdout=PIPE)
-    env = loads(pipe.stdout.read().decode('utf-8'))
-    environ.update(env)
+    try:
+      env = loads(pipe.stdout.read().decode('utf-8'))
+      environ.update(env)
+    except:
+      print('Warning: {0} could not be processed\n'.format(filename))
 
   # read xbin.cfg for custom executables
   # (no expansion here)
@@ -174,3 +179,38 @@ def attach_streams(output, error, buffer_size=-1):
       sys.stderr = sys.stdout
     else:
       sys.stderr = utf8_open(error, 'w', buffer_size)
+
+def which(cmd, mode=F_OK | X_OK, path=None):
+  '''Copy of shutil.which, since it is not available for python < 3.3
+     Modified to return realpath'''
+  def _access_check(fn, mode):
+    return (exists(fn) and access(fn, mode) and not isdir(fn))
+  if dirname(cmd):
+    if _access_check(cmd, mode):
+      return realpath(cmd)
+    return None
+  if path is None:
+    path = environ.get('PATH', defpath)
+  if not path:
+    return None
+  path = path.split(pathsep)
+  if platform == 'win32':
+    if curdir not in path:
+      path.insert(0, curdir)
+    pathext = environ.get('PATHEXT', '').split(pathsep)
+    if any(cmd.lower().endswith(ext.lower()) for ext in pathext):
+      files = [cmd]
+    else:
+      files = [cmd + ext for ext in pathext]
+  else:
+    files = [cmd]
+  seen = set()
+  for dir in path:
+    normdir = normcase(dir)
+    if normdir not in seen:
+      seen.add(normdir)
+      for thefile in files:
+        name = join(dir, thefile)
+        if _access_check(name, mode):
+          return realpath(name)
+  return None

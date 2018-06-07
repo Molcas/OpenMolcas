@@ -330,12 +330,12 @@ C Local print level (if any)
         Write(LF,Fmt2//'A)')'------------------------'
         Write(LF,*)
         If ( (nMVInt+nDCInt).ne.0) then
-          Write(LF,Fmt2//'A)')
-     &        'root  nonrelativistic    mass-velocity   '//
-     &        'Darwin-contact    relativistic'
-          Write(LF,Fmt2//'A)')
-     &        '           energy           term         '//
-     &        '    term             energy   '
+         Write(LF,Fmt2//'A)')
+     &        'root     nonrelativistic        mass-velocity       '//
+     &        'Darwin-contact         relativistic'
+         Write(LF,Fmt2//'A)')
+     &        '             energy                term             '//
+     &        '     term                 energy'
           i=lRootSplit
           Emv=Temp(1,i)
           Edc=Temp(2,i)

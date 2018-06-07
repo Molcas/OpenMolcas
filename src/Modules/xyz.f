@@ -353,8 +353,8 @@
       ! If the first part is empty, use it as a general basis set
       Idx = 0
       Do i=1,Num
-        Next = Index(Basis(Idx+1:), ',')
-        If (Next .eq. 0) Next = Len_Trim(Basis)+1
+        Next = Idx+Index(Basis(Idx+1:), ',')
+        If (Next .eq. Idx) Next = Len_Trim(Basis)+1
         BasisSets(2,i) = Basis(Idx+1:Next-1)
         IdxDot = Index(BasisSets(2,i), '.')
         If (IdxDot .eq. 0) Then

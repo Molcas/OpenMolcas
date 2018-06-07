@@ -11,7 +11,7 @@
 #                                                                      *
 # Copyright (C) 2000-2012, Valera Veryazov                             *
 #               2015, Steven Vancoillie                                *
-#               2017, Ignacio Fdez. Galván                             *
+#               2017-2018, Ignacio Fdez. Galván                        *
 #***********************************************************************
 #
 # verify
@@ -33,6 +33,8 @@
 # Further updates for better interaction with dailymerge
 # Ignacio Fdez. Galván, June 2017
 #
+# Add --fromfile option
+# Ignacio Fdez. Galván, May 2018
 
 # perl modules
 use warnings;
@@ -73,6 +75,7 @@ GetOptions ( \%opt,
              "existing",
              "failed",
              "flatlist",
+             "fromfile=s",
              "fuzzy",
              "generate",
              "grouplist",
@@ -91,7 +94,21 @@ GetOptions ( \%opt,
              "word=s",
            ) or short_help(1);
 
-my @tasklist = @ARGV;
+my @tasklist;
+
+if ($opt{fromfile}) {
+        my $file_list = File::Spec->catfile ($opt{fromfile});
+        if (-f $file_list) {
+                open (FILE_LIST, "<", $file_list)
+                  or error ("cannot open file $file_list\n");
+                chomp (@tasklist = <FILE_LIST>);
+                close (FILE_LIST);
+        } else {
+                error ("cannot open file $file_list\n");
+        }
+}
+
+push (@tasklist, @ARGV);
 
 @tasklist = ('.default') unless (@tasklist);
 
@@ -759,6 +776,7 @@ options:
   --existing       use existing scratch if available
   --failed         rerun tests that failed the last time
   --flatlist       only list matching tests (as a flat list of tasks)
+  --fromfile FILE  read tasks from file FILE, in addition to command line
   --fuzzy          do not fail if a label is not in the reference (old behavior)
   --generate       generate checkfile and append to input
   --grouplist      list the groups (see below)

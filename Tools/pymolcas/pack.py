@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 #***********************************************************************
@@ -11,7 +11,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2015, Ignacio Fdez. Galván                             *
+# Copyright (C) 2015,2018, Ignacio Fdez. Galván                        *
 #***********************************************************************
 
 '''
@@ -20,6 +20,9 @@ copied around. It still uses python and it's trivial to recover the original
 files, comments included. Obfuscation is not the goal here, just getting
 something that's easy to run, move and distribute.
 '''
+
+from __future__ import (unicode_literals, division, absolute_import, print_function)
+from builtins import bytes
 
 import glob, os.path
 
@@ -57,4 +60,3 @@ with open(exe_name, 'wb') as new:
 os.remove(wheel)
 st = os.stat(exe_name)
 os.chmod(exe_name, st.st_mode | stat.S_IEXEC)
-
