@@ -553,7 +553,7 @@ C Timings on generation of the sigma vector
      &                  Work(iScr5),nSel,
      &                  0.0d0,Work(iScr3),nSel)
          End If
-         Do i=min(iterci,mxkeep),2,-1
+         Do i=min(iterci,mxkeep-1),2,-1
            nnew(i+1)=nnew(i)
          End Do
          nnew(2)=0
