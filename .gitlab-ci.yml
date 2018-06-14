@@ -78,8 +78,10 @@
       - molcas-extra/
     expire_in: 1 day
   only:
-    - branches
+    - api
+    - triggers
     - web
+    - branches
   except:
     - master
   # allow failures so that the next stages are not blocked
@@ -134,8 +136,10 @@
     expire_in: 1 month
     when: always
   only:
-    - daily-snapshot
+    - api
+    - triggers
     - web
+    - daily-snapshot
 
 # Define some configuration groups (variables, tags, etc.) to be used in jobs
 # - plain: default configuration
@@ -143,6 +147,7 @@
 # - pgi: use PGI compilers
 # - sun: use Oracle compilers
 # - intel: use Intel compilers (must install them every time and it's a bit shaky)
+# - intel13: use Intel 2013 compilers (specific runner)
 # - nowarn: no warnings allowed
 
 .template: &plain
@@ -200,7 +205,7 @@
     - docker
 
 .template: &intel
-  image: ${CI_REGISTRY}/molcas/dockerfiles/ubuntu-14.04:latest
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-5.4:latest
   variables: &intel_vars
     cache_file: |
       set (DEFMOLCASMEM "1024" CACHE STRING "reduce memory")
@@ -225,6 +230,26 @@
   tags:
     - docker
 
+.template: &intel13
+  variables: &intel13_vars
+    cache_file: |
+      set (CMAKE_BUILD_TYPE "Release" CACHE STRING "opt, no debug info" )
+      set (HDF5 "OFF" CACHE STRING "turn off HDF5")
+      set (LINALG "MKL" CACHE STRING "enable MKL")
+    pre_compile_script: |
+      . /usr/license/intel/composer_xe_2013.1.117/bin/compilervars.sh intel64
+      export PATH=$${PWD}:$${PATH}
+      touch pymolcas
+    pre_run_script: |
+      . /usr/license/intel/composer_xe_2013.1.117/bin/compilervars.sh intel64
+      export PATH=$${PWD}:$${PATH}
+      touch pymolcas
+    CC: "icc"
+    CXX: "icpc"
+    FC: "ifort"
+  tags:
+    - intel13
+
 .template: &nowarn
   image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-5.4:latest
   variables: &nowarn_vars
@@ -243,7 +268,7 @@
 
 tinker:
   stage: build
-  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-5.4:latest
+  image: ${CI_REGISTRY}/molcas/dockerfiles/ubuntu-14.04:latest
   variables:
     # A patch to the tinker patch to make it work in low memory conditions
     patch_to_patch: |
@@ -282,8 +307,10 @@ tinker:
       - build/
     expire_in: 1 day
   only:
-    - branches
+    - api
+    - triggers
     - web
+    - branches
   except:
     - master
   allow_failure: false
@@ -293,8 +320,8 @@ tinker:
 # whenever the master changes
 
 trigger_doc:
-  image: ${CI_REGISTRY}/molcas/dockerfiles/ubuntu-14.04:latest
   stage: build
+  image: ${CI_REGISTRY}/molcas/dockerfiles/ubuntu-14.04:latest
   script:
     - export PROJECT_URL=${CI_PROJECT_URL#https://}
     - >
@@ -434,6 +461,19 @@ test:intel_2:
   variables:
     <<: *intel_vars
     subset: "2"
+
+build:intel13:
+  stage: build
+  <<: *intel13
+  <<: *compile
+test:intel13:
+  stage: test
+  dependencies:
+    - build:intel13
+  <<: *intel13
+  <<: *run-tests
+  variables:
+    <<: *intel13_vars
 
 build:nowarn:
   stage: build
