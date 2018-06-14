@@ -14,7 +14,10 @@
 #***********************************************************************
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-from builtins import super
+try:
+  from builtins import super
+except ImportError:
+  from future.builtins import super
 from six import text_type, python_2_unicode_compatible
 
 from os.path import isfile

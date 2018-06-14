@@ -1121,7 +1121,7 @@ C     End Do !  iS
       Call GetMem('MemMax','Free','Real',ipMem,MemMax-iii)
       Call Free_Tsk(id_Tsk)
 *
-*    YIPPIEEEE Finnished OK fill it UP!!
+*    YIPPIEEEE Finished OK fill it UP!!
 *
       Call GADSum(Work(ipInt),nInt)
       jDisp=0

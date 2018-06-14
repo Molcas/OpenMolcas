@@ -14,7 +14,10 @@
 #***********************************************************************
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-from builtins import bytes
+try:
+  from builtins import bytes
+except ImportError:
+  from future.builtins import bytes
 from six import text_type
 
 from os import environ, access, W_OK, X_OK, listdir, remove, getpid, getcwd, makedirs, symlink, devnull
