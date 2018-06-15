@@ -51,11 +51,11 @@ standard_modules = [
 ]
 
 # These modules may have to be installed
-modules = [
-  'pyparsing',
+modules = {
+  'pyparsing':[],
   #'setuptools', (only used in pack.py)
-  'six',
-]
+  'six':['python_2_unicode_compatible'],
+}
 
 fail = []
 
@@ -64,17 +64,22 @@ try:
 except ImportError:
   fail.append('importlib')
 else:
-  for item in standard_modules + modules:
+  for item in standard_modules + list(modules):
     mods = item.split('|')
     result = []
     for m in mods:
       try:
-        importlib.import_module(m)
+        tmp = importlib.import_module(m)
         result.append(True)
       except ImportError:
         result.append(False)
     if (not any(result)):
       fail.append(item)
+      continue
+    if item in modules:
+      for i in modules[item]:
+        if (i not in dir(tmp)):
+          fail.append('{}({})'.format(item, i))
 
 import sys
 

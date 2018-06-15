@@ -77,6 +77,7 @@
       - build/
       - molcas-extra/
     expire_in: 1 day
+    when: always
   only:
     - api
     - triggers
@@ -205,7 +206,7 @@
     - docker
 
 .template: &intel
-  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-5.4:latest
+  image: ${CI_REGISTRY}/molcas/dockerfiles/ubuntu-14.04:latest
   variables: &intel_vars
     cache_file: |
       set (DEFMOLCASMEM "1024" CACHE STRING "reduce memory")
@@ -268,7 +269,7 @@
 
 tinker:
   stage: build
-  image: ${CI_REGISTRY}/molcas/dockerfiles/ubuntu-14.04:latest
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-5.4:latest
   variables:
     # A patch to the tinker patch to make it work in low memory conditions
     patch_to_patch: |
