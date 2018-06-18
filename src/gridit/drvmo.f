@@ -289,7 +289,7 @@ c      call iXML('nPoints',nCoor)
 *                                                                      *
 *---- Start run over sets of grid points
 *
-555     continue
+c555     continue
 c       if(isBinary.eq.1) then
        nShowMOs=nShowMOs+isDensity+isSphere+isColor
 c       else
@@ -795,12 +795,12 @@ c6000  continue
 
       Call qExit('DrvMO')
       Return
-2000  write(6,*) 'Error during open InpOrb file'
-      Call Quit_OnUserError()
-1000  write(6,*) 'Error during read from InpOrb file'
-      Call Quit_OnUserError()
-3000  Write (6,*) 'Section not found in INPORB file'
-      Call Quit_OnUserError()
+c2000  write(6,*) 'Error during open InpOrb file'
+c      Call Quit_OnUserError()
+c1000  write(6,*) 'Error during read from InpOrb file'
+c      Call Quit_OnUserError()
+c3000  Write (6,*) 'Section not found in INPORB file'
+c      Call Quit_OnUserError()
       End
 
       Subroutine save_ddNorm(ddNorm,ii,jj,Wdd,nMOs)

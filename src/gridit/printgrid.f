@@ -225,7 +225,9 @@ c          enddo
       Character Slash
       Character*12 Alpha
       Slash='/'
-
+      if(INPORB(1:1).eq.Slash) then
+        write (6,*)
+      endif
       LuOrb=isFreeUnit(46)
       iPRGM=0
 c      Call Chk_Rdvec(INPORB,LuOrb,isUHF)
@@ -555,7 +557,7 @@ cvv ! NOT CODED YET
 c packing late
             if(isCutOff.eq.1) then
               Call GetMem('TMP','Allo','Real',ipCMP,mCoor)
-              call dcopy(mCoor,WipOut,1,Work(ipCMP),1)
+              call dcopy_(mCoor,WipOut,1,Work(ipCMP),1)
               iii=0
               do ii=1,mCoor
                 if(iWipCutOff(ii).eq.1) then
@@ -697,7 +699,7 @@ cvv!!!!!!!
 c packing late
               if(isCutOff.eq.1) then
                 Call GetMem('TMP','Allo','Real',ipCMP,mCoor)
-                call dcopy(mCoor,WipOut,1,Work(ipCMP),1)
+                call dcopy_(mCoor,WipOut,1,Work(ipCMP),1)
                 iii=0
                 do ii=1,mCoor
                   if(iWipCutOff(ii).eq.1) then

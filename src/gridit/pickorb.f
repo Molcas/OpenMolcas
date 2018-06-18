@@ -201,7 +201,7 @@ c       print *,'EE',Work(ipE+i), Region(1),Region(2)
                  if(Work(ipE_ab+j).eq.Work(ipE_ab+i)) then
                    if(Work(ipOcc_ab+j).le.Work(ipOcc_ab+i)) then
                      iWork(ipSort_ab+i)=iWork(ipSort_ab+i)+1
-        print *,'Here', ik_ab,iWork(ipSort_ab+i)
+c        print *,'Here', ik_ab,iWork(ipSort_ab+i)
                        if(ik_ab.lt.iWork(ipSort_ab+i))
      &                           ik_ab=iWork(ipSort_ab+i)
                    endif
@@ -247,7 +247,7 @@ c        print *,'ief=',ief, ief_ab
         enddo
         endif
 
-666   continue
+c666   continue
 
       il=0
       do j=1,ik
