@@ -353,8 +353,8 @@
       ! If the first part is empty, use it as a general basis set
       Idx = 0
       Do i=1,Num
-        Next = Index(Basis(Idx+1:), ',')
-        If (Next .eq. 0) Next = Len_Trim(Basis)+1
+        Next = Idx+Index(Basis(Idx+1:), ',')
+        If (Next .eq. Idx) Next = Len_Trim(Basis)+1
         BasisSets(2,i) = Basis(Idx+1:Next-1)
         IdxDot = Index(BasisSets(2,i), '.')
         If (IdxDot .eq. 0) Then
@@ -363,6 +363,7 @@
           BasisSets(1,i) = AdjustL(BasisSets(2,i)(1:IdxDot-1))
           BasisSets(2,i)(1:IdxDot) = ''
         End If
+        Call UpCase(BasisSets(1,i))
         BasisSets(2,i) = AdjustL(BasisSets(2,i))
         If (BasisSets(1,i) .eq. '') BasisAll = BasisSets(2,i)
         Idx = Next
@@ -644,9 +645,16 @@
 #else
       Character (Len=MAXLEN) :: FindBasis
 #endif
+      Character (Len=Len(AtSym)) :: UpSym
+      Character (Len=Len(AtLab)) :: UpLab
       Integer :: i
+      ! Prepare for case-insensitive comparisons
+      UpSym = AtSym
+      Call UpCase(UpSym)
+      UpLab = AtLab
+      Call UpCase(UpLab)
       ! Special case: if the Label is "MM", no basis
-      If (AtLab .eq. '_MM') Then
+      If (UpLab .eq. '_MM') Then
         FindBasis = Trim(AtSym)//'...... / MM'
         Return
       End If
@@ -657,7 +665,7 @@
       End If
       ! Otherwise, find the basis set that matches the symbol and label
       Do i=1,Size(BasisSets,2)
-        If (Trim(AtSym)//AtLab .eq. BasisSets(1,i)) Then
+        If (Trim(UpSym)//UpLab .eq. BasisSets(1,i)) Then
           FindBasis = Trim(AtSym)//'.'//Trim(BasisSets(2,i))
           Return
         End If

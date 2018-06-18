@@ -12,7 +12,7 @@
 *           -> No Symmetry
 ********************************************************************************
 
->>> EXPORT MOLCAS_TIMELIM=1200
+>> EXPORT MOLCAS_TIMELIM=1200
 >>COPY cucl4.xyz .
 
  &GATEWAY
@@ -20,10 +20,8 @@ Coord = cucl4.xyz
 Basis = ANO-RCC-VTZP
 NoCD
 
-
  &SEWARD
 Title = [CuCl4]^2-
-*High Cholesky
 
 ********************************************************************************
 

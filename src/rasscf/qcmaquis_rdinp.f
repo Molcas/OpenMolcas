@@ -129,8 +129,8 @@
       end select
 
       end subroutine qcmaquis_rdinp
-#else
-      subroutine qcmaquis_rdinp()
-      implicit none
-      end subroutine qcmaquis_rdinp
+#elif defined (NAGFOR)
+c Some compilers do not like empty files
+      subroutine empty_qcmaquis_rdinp()
+      end subroutine empty_qcmaquis_rdinp
 #endif

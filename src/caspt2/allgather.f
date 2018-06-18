@@ -13,9 +13,9 @@
       use mpi
       IMPLICIT REAL*8 (A-H,O-Z)
 ************************************************************************
-* ALLGATHER_REAL: gathers local buffers SEND of size NSEND on
-*                 each process into a buffer RECV of size NRECV.
-*                 The receiving buffer is allocated by this subroutine.
+* ALLGATHER: gathers local buffers SEND of size NSEND on
+*            each process into a buffer RECV of size NRECV.
+*            The receiving buffer is allocated by this subroutine.
 ************************************************************************
 #include "warnings.fh"
 #include "WrkSpc.fh"

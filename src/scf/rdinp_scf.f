@@ -891,7 +891,7 @@ c      End If
 *>>>>>>>>>>>>> EXTR <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  3900 Continue
       call WarningMessage(1,
-     &    'EXTRACT option is redudant and is ignored!')
+     &    'EXTRACT option is redundant and is ignored!')
       Goto 1000
 *
 *>>>>>>>>>>>>> RFPE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

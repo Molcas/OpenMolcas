@@ -10,10 +10,15 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2015-2017, Ignacio Fdez. Galván                        *
+# Copyright (C) 2015-2018, Ignacio Fdez. Galván                        *
 #***********************************************************************
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
+try:
+  from builtins import super
+except ImportError:
+  from future.builtins import super
+from six import text_type, python_2_unicode_compatible
 
 from os.path import isfile
 from re import match
@@ -31,11 +36,11 @@ import decimal
 
 def _pymolcas_eval(self, expr):
   self.expr = expr
-  return str(self._eval(ast.parse(expr.strip()).body[0].value))
+  return text_type(self._eval(ast.parse(expr.strip()).body[0].value))
 
 @staticmethod
 def _pymolcas_eval_num(node):
-  return decimal.Decimal(str(node.n))
+  return decimal.Decimal(text_type(node.n))
 
 SimpleEval.eval = _pymolcas_eval
 SimpleEval._eval_num = _pymolcas_eval_num
@@ -60,6 +65,7 @@ def check_trap(rc_name=None):
   else:
     return True
 
+@python_2_unicode_compatible
 class Expression(object):
   def __init__(self, var, op, val):
     self.var = var
@@ -82,6 +88,8 @@ class Expression(object):
       return '{0} != {1}'.format(var, self.val)
     if (self.op == 'file'):
       return '-FILE {0}'.format(self.val)
+  #python2
+  __nonzero__ = __bool__
 
 class Statement(object):
   def __init__(self, string=None):
@@ -96,9 +104,10 @@ class Statement(object):
     print('Unsupported statement: {0}'.format(self.string))
     return self.rc
 
-class Group(object):
+@python_2_unicode_compatible
+class Group(Statement):
   def __init__(self, contents, condition=True, rerun=False, var=None, val=None):
-    Statement.__init__(self)
+    super().__init__()
     self.contents = contents
     self.condition = condition
     self.rerun = rerun
@@ -137,7 +146,7 @@ class Group(object):
     else:
       init = '('
       end = ')'
-    return '{0}{1}{2}'.format(init, '\n\n'.join(map(str, self.contents)), end)
+    return '{0}{1}{2}'.format(init, '\n\n'.join(map(text_type, self.contents)), end)
   def run(self, env):
     if (env._goto):
       return None
@@ -146,7 +155,7 @@ class Group(object):
       re_match = match(r'(\d+)\s*\.\.\s*(\d+)', self.values)
       if (re_match):
         self.values = range(int(re_match.group(1)), int(re_match.group(2))+1)
-        self.values = list(map(str, self.values))
+        self.values = list(map(text_type, self.values))
       else:
         self.values = [x.strip() for x in self.values.split(',')]
       self.maxiter = len(self.values)
@@ -189,6 +198,7 @@ class Group(object):
             if ((not no_break) and (not check_trap(rc_name))):
               no_break = True
               rc_name = '_RC_ALL_IS_WELL_'
+          set_utf8('EMIL_RETURNCODE', 0 if self.rc is None else self.rc)
           i += 1
       else:
         env_print(env, '(Skipped)')
@@ -233,11 +243,13 @@ class Group(object):
     # if all items have returned None, here we return success
     if (self.rc is None):
       self.rc = 0
+    set_utf8('EMIL_RETURNCODE', self.rc)
     return self.rc
 
+@python_2_unicode_compatible
 class Assignment(Statement):
   def __init__(self, var, val, literal=True):
-    Statement.__init__(self)
+    super().__init__()
     self.literal = literal
     self.var = var
     self.val = val
@@ -263,9 +275,10 @@ class Assignment(Statement):
       set_utf8(self.var, eval_val)
     return self.rc
 
+@python_2_unicode_compatible
 class Break(Statement):
   def __init__(self, rc):
-    Statement.__init__(self)
+    super().__init__()
     self.rc = rc
   def __str__(self):
     num = ' {0}'.format(self.rc)
@@ -287,9 +300,10 @@ class Break(Statement):
     env_print(env, '\n>>> EXIT {0}'.format(env.rc_to_name(rc)))
     return rc
 
+@python_2_unicode_compatible
 class Include(Statement):
   def __init__(self, filename):
-    Statement.__init__(self)
+    super().__init__()
     self.filename = filename
   def __str__(self):
     return self.level*self.indent + '>>> INCLUDE {0}'.format(self.filename)
@@ -309,9 +323,10 @@ class Include(Statement):
       self.rc = '_RC_INPUT_EMIL_ERROR_'
     return self.rc
 
+@python_2_unicode_compatible
 class Program(Statement):
   def __init__(self, lines):
-    Statement.__init__(self)
+    super().__init__()
     self.lines = lines
   def __str__(self):
     name = '&' + self.lines[1].upper()
@@ -330,9 +345,10 @@ class Program(Statement):
     return self.rc
 
 # TODO: convert to ParTask?
+@python_2_unicode_compatible
 class System(Statement):
   def __init__(self, commandline, parallel=False):
-    Statement.__init__(self)
+    super().__init__()
     self.commandline = commandline
     self.parallel = parallel
   @property
@@ -365,9 +381,10 @@ class System(Statement):
       self.rc = None
     return self.rc
 
+@python_2_unicode_compatible
 class Setting(Statement):
   def __init__(self, var, val):
-    Statement.__init__(self)
+    super().__init__()
     self.var = var
     self.val = val
   def __str__(self):
@@ -388,9 +405,10 @@ class Setting(Statement):
         print(self.val)
     return self.rc
 
+@python_2_unicode_compatible
 class Label(Statement):
   def __init__(self, name):
-    Statement.__init__(self)
+    super().__init__()
     self.name = name
   def __str__(self):
     return self.level*self.indent + '>>> LABEL {0}'.format(self.name)
@@ -400,9 +418,10 @@ class Label(Statement):
         env._goto = False
     return self.rc
 
+@python_2_unicode_compatible
 class Jump(Statement):
   def __init__(self, name):
-    Statement.__init__(self)
+    super().__init__()
     self.name = name
   def __str__(self):
     return self.level*self.indent + '>>> GOTO {0}'.format(self.name)
@@ -413,9 +432,10 @@ class Jump(Statement):
     env._goto = self.name
     return self.rc
 
+@python_2_unicode_compatible
 class ParTask(Statement):
   def __init__(self, action, force, args):
-    Statement.__init__(self)
+    super().__init__()
     self.action = action
     self.force = force
     self.args = args
@@ -469,6 +489,7 @@ class ParTask(Statement):
       self.rc = '_RC_INPUT_EMIL_ERROR_'
     return self.rc
 
+@python_2_unicode_compatible
 class Python(Statement):
   '''
   This is not really part of the "abstract flow" family, but it's included

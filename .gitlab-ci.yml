@@ -77,9 +77,12 @@
       - build/
       - molcas-extra/
     expire_in: 1 day
+    when: always
   only:
-    - branches
+    - api
+    - triggers
     - web
+    - branches
   except:
     - master
   # allow failures so that the next stages are not blocked
@@ -106,7 +109,17 @@
     # default if no tests specified is .all
     - |
       if [ -z "${tests}" ] ; then export tests=".all" ; fi
-      pymolcas verify --status ${tests}
+    # run only a subset of the tests if specified
+    - |
+      if [ -n "${subset}" ] ; then
+        pymolcas verify --flatlist ${tests} > filelist
+        split --numeric-suffixes=1 --suffix-length=1 --lines=250 filelist fl
+        if [ -f "fl${subset}" ] ; then
+          pymolcas verify --status --fromfile fl${subset}
+        fi
+      else
+        pymolcas verify --status ${tests}
+      fi
     # special post-script that may be needed in some installations
     # (not using before_script because it would be overwritten)
     - |
@@ -124,8 +137,10 @@
     expire_in: 1 month
     when: always
   only:
-    - daily-snapshot
+    - api
+    - triggers
     - web
+    - daily-snapshot
 
 # Define some configuration groups (variables, tags, etc.) to be used in jobs
 # - plain: default configuration
@@ -133,6 +148,7 @@
 # - pgi: use PGI compilers
 # - sun: use Oracle compilers
 # - intel: use Intel compilers (must install them every time and it's a bit shaky)
+# - intel13: use Intel 2013 compilers (specific runner)
 # - nowarn: no warnings allowed
 
 .template: &plain
@@ -215,6 +231,26 @@
   tags:
     - docker
 
+.template: &intel13
+  variables: &intel13_vars
+    cache_file: |
+      set (CMAKE_BUILD_TYPE "Release" CACHE STRING "opt, no debug info" )
+      set (HDF5 "OFF" CACHE STRING "turn off HDF5")
+      set (LINALG "MKL" CACHE STRING "enable MKL")
+    pre_compile_script: |
+      . /usr/license/intel/composer_xe_2013.1.117/bin/compilervars.sh intel64
+      export PATH=$${PWD}:$${PATH}
+      touch pymolcas
+    pre_run_script: |
+      . /usr/license/intel/composer_xe_2013.1.117/bin/compilervars.sh intel64
+      export PATH=$${PWD}:$${PATH}
+      touch pymolcas
+    CC: "icc"
+    CXX: "icpc"
+    FC: "ifort"
+  tags:
+    - intel13
+
 .template: &nowarn
   image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-5.4:latest
   variables: &nowarn_vars
@@ -249,8 +285,10 @@ tinker:
                            parameter (maxval=8)
                            parameter (maxgrp=1000)
                            parameter (maxref=10)
+  before_script:
+    - >
+      if ( ! which patch ) ; then apt-get install -y --no-install-recommends patch ; fi
   script:
-    - apt-get install -y --no-install-recommends patch
     # Use backup if the tinker website is down
     - >
       sed -i -e 's/wget.*/& || \\/' -e '/wget/a wget https://gitlab.com/Molcas/Mirrors/Tinker/raw/master/${TINKERVERSION}.tar.gz?private_token=Y5PsqzY_Ev8U6JQDGyuL -O ${TINKERVERSION}.tar.gz' Tools/patch2tinker/get_tinker
@@ -270,8 +308,10 @@ tinker:
       - build/
     expire_in: 1 day
   only:
-    - branches
+    - api
+    - triggers
     - web
+    - branches
   except:
     - master
   allow_failure: false
@@ -281,8 +321,8 @@ tinker:
 # whenever the master changes
 
 trigger_doc:
-  image: ${CI_REGISTRY}/molcas/dockerfiles/ubuntu-14.04:latest
   stage: build
+  image: ${CI_REGISTRY}/molcas/dockerfiles/ubuntu-14.04:latest
   script:
     - export PROJECT_URL=${CI_PROJECT_URL#https://}
     - >
@@ -302,61 +342,139 @@ build:plain:
   stage: build
   <<: *plain
   <<: *compile
-test:plain:
+test:plain_1:
   stage: test
   dependencies:
     - build:plain
     - tinker
   <<: *plain
   <<: *run-tests
+  variables:
+    <<: *plain_vars
+    subset: "1"
+test:plain_2:
+  stage: test
+  dependencies:
+    - build:plain
+    - tinker
+  <<: *plain
+  <<: *run-tests
+  variables:
+    <<: *plain_vars
+    subset: "2"
 
 build:options:
   stage: build
   <<: *options
   <<: *compile
-test:options:
+test:options_1:
   stage: test
   dependencies:
     - build:options
     - tinker
   <<: *options
   <<: *run-tests
+  variables:
+    <<: *options_vars
+    subset: "1"
+test:options_2:
+  stage: test
+  dependencies:
+    - build:options
+    - tinker
+  <<: *options
+  <<: *run-tests
+  variables:
+    <<: *options_vars
+    subset: "2"
 
 build:pgi:
   stage: build
   <<: *pgi
   <<: *compile
-test:pgi:
+test:pgi_1:
   stage: test
   dependencies:
     - build:pgi
     - tinker
   <<: *pgi
   <<: *run-tests
+  variables:
+    <<: *pgi_vars
+    subset: "1"
+test:pgi_2:
+  stage: test
+  dependencies:
+    - build:pgi
+    - tinker
+  <<: *pgi
+  <<: *run-tests
+  variables:
+    <<: *pgi_vars
+    subset: "2"
 
 build:sun:
   stage: build
   <<: *sun
   <<: *compile
-test:sun:
+test:sun_1:
   stage: test
   dependencies:
     - build:sun
     - tinker
   <<: *sun
   <<: *run-tests
+  variables:
+    <<: *sun_vars
+    subset: "1"
+test:sun_2:
+  stage: test
+  dependencies:
+    - build:sun
+    - tinker
+  <<: *sun
+  <<: *run-tests
+  variables:
+    <<: *sun_vars
+    subset: "2"
 
 build:intel:
   stage: build
   <<: *intel
   <<: *compile
-test:intel:
+test:intel_1:
   stage: test
   dependencies:
     - build:intel
     - tinker
   <<: *intel
   <<: *run-tests
+  variables:
+    <<: *intel_vars
+    subset: "1"
+test:intel_2:
+  stage: test
+  dependencies:
+    - build:intel
+    - tinker
+  <<: *intel
+  <<: *run-tests
+  variables:
+    <<: *intel_vars
+    subset: "2"
+
+build:intel13:
+  stage: build
+  <<: *intel13
+  <<: *compile
+test:intel13:
+  stage: test
+  dependencies:
+    - build:intel13
+  <<: *intel13
+  <<: *run-tests
+  variables:
+    <<: *intel13_vars
 
 build:nowarn:
   stage: build

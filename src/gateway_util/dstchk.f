@@ -62,21 +62,22 @@
 *
       If (RMax*Angstr.lt.0.7D0) Then
          Write (lu,*)
-     &     'All bonds less than 0.7 Angstrom, this is probably wrong!'
+     &     'All bonds shorter than 0.7 angstrom, this is probably '//
+     &     'wrong!'
          Write (lu,*)
-     &     'The program will stop execusion. To proceed correct the  '
+     &     'The program will stop execution. To proceed, correct the '
          Write (lu,*)
-     &     'input or use the "Expert" keyword to force execusion'
-         Call ABend()
+     &     'input or use the "Expert" keyword to force execution'
+         Call AbEnd()
       End If
       If (RMin*Angstr.gt.2.8D0) Then
          Write (lu,*)
-     &     'All bonds longer than 2.8 Angstrom, this is probably wrong!'
+     &     'All bonds longer than 2.8 angstrom, this is probably wrong!'
          Write (lu,*)
-     &     'The program will stop execusion. To proceed correct the  '
+     &     'The program will stop execution. To proceed, correct the '
          Write (lu,*)
-     &     'input or use the "Expert" keyword to force execusion'
-         Call ABend()
+     &     'input or use the "Expert" keyword to force execution'
+         Call AbEnd()
       End If
 *
  99   Continue

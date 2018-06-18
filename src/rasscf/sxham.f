@@ -166,7 +166,7 @@ C Form the occupied (F1) and active-external (F2) part of FP
 C and the occupied part DIA of the density matrix D
 C
        IPQ=ISTFP
-       CALL VCLR(DIA(ISTIA+1),1,NIA**2)
+       CALL FZERO(DIA(ISTIA+1),NIA**2)
        DO 20 NP=1,NO
        DO 20 NQ=1,NP
         IPQ=IPQ+1

@@ -38,6 +38,8 @@ set(CMAKE_Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/mod)
 # enforce Intel MKL only if set for Molcas as well
 if(LINALG STREQUAL "MKL")
     set(ENABLE_INTEL_MKL ON)
+    list(APPEND NEVPT2CMakeArgs
+    -DMKLROOT=${MKLROOT} )
 else()
     set(ENABLE_INTEL_MKL OFF)
 endif()

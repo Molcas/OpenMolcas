@@ -90,15 +90,6 @@
         ref_nroots = ref_nstates
       End If
 
-      call mma_allocate(ref_rootid,ref_nstates)
-      call mh5_fetch_attr (refwfn_id,'STATE_ROOTID', ref_rootid)
-*If unset yet, set now
-      If (iWork(lLROOT+ISTAT(JOB)-1).eq.0) Then
-        DO I=0,NSTAT(JOB)-1
-          iWork(lLROOT+ISTAT(JOB)-1+I)=ref_rootid(I+1)
-        End DO
-      EndIf
-
       call mma_allocate (typestring, sum(ref_nbas(1:ref_nsym)))
       call mh5_fetch_dset (refwfn_id, 'MO_TYPEINDICES', typestring)
       call tpstr2orb (ref_nsym,ref_nbas,typestring,
@@ -129,6 +120,8 @@
       call mh5_fetch_attr (refwfn_id,'L2ACT', L2ACT)
       call mh5_fetch_attr (refwfn_id,'A2LEV', LEVEL)
 
+      call mma_allocate(ref_rootid,ref_nstates)
+      call mh5_fetch_attr (refwfn_id,'STATE_ROOTID', ref_rootid)
       if (read_states) then
 *  Do not update the state number here, because it's already read in
 *  rdjob_nstates()
@@ -136,7 +129,7 @@
 *        NSTATE=NSTATE+ref_nstates
 * store the root IDs of each state
         DO I=0,NSTAT(JOB)-1
-          iWork(lLROOT+ISTAT(JOB)-1+I)=ref_rootid(I)
+          iWork(lLROOT+ISTAT(JOB)-1+I)=ref_rootid(I+1)
           iWork(lJBNUM+ISTAT(JOB)-1+I)=JOB
         END DO
       end if

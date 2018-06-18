@@ -1,7 +1,5 @@
-*$ this file belongs to the Molcas repository $
 >export MOLCAS_PRINT=VERBOSE
  &SEWARD  &END
-NoCD
 Title
  H-like atoms
 expert
@@ -36,6 +34,7 @@ Hg
 *1
 *112 10
 FOOC
+NoCD
 End of input
 
  &SCF &END
