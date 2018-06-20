@@ -46,7 +46,11 @@ def check_test(infofile, checkfile, count):
 
   # If generating check file, write the values
   if (get_utf8('MOLCAS_TEST', default='').upper().startswith('GENE')):
-    if (count > 500):
+    try:
+      maxcount = int(get_utf8('MOLCAS_MAX_CHECKS', default=''))
+    except:
+      maxcount = 500
+    if (count > maxcount):
       print('*** Too many program calls in test file')
       return '_RC_CHECK_ERROR_'
     print('\nGenerating check file')
