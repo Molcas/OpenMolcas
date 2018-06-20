@@ -114,15 +114,15 @@
                Write (LuWr,'(6X,A)') 'This is a MM atom: no basis set'
             Else
                If (pChrg(iCnttp)) Then
-                  Write (LuWr,'(6X,A,F9.6,A)')
+                  Write (LuWr,'(6X,A,F10.6,A)')
      &                'Associated Effective Charge ',
      &               Charge(iCnttp), ' au (this is a pseudo charge)'
                Else
-                  Write (LuWr,'(6X,A,F9.6,A)')
+                  Write (LuWr,'(6X,A,F10.6,A)')
      &                'Associated Effective Charge ',
      &               Charge(iCnttp), ' au'
                End If
-               Write (LuWr,'(6X,A,F9.6,A)')
+               Write (LuWr,'(6X,A,F10.6,A)')
      &               'Associated Actual Charge    ',
      &               Max(Zero,DBLE(iAtmNr(iCnttp))), ' au'
 *

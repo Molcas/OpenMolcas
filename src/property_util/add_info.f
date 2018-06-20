@@ -31,7 +31,7 @@
       Real*8 Array(nArray)
       Character*32 File_Name
 c     Logical Exist
-      Character*24 Junk
+      Character*30 Junk
       Character*8 Toll
 c     Integer irecl
 c     Logical is_error
@@ -207,7 +207,7 @@ C If this label should not be checked, then just return immediately:
           write(Junk,'(I24)')ia
           else
             if(abs(Array(iArray)).gt.1D-14)then
-              write(Junk,'(F24.12)') Array(iArray)
+              write(Junk,'(F30.12)') Array(iArray)
             else
            Junk='0.0'
            endif

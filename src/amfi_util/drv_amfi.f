@@ -234,7 +234,7 @@
          End If
 *
          Write (Lu_AMFI,'(A)') '     '
-         Write (Lu_AMFI,'(4X,F4.1,I4)') charge_x, l_max
+         Write (Lu_AMFI,'(3X,F5.1,I4)') charge_x, l_max
          If (IfTest) Write (6,*) charge_x, l_max
 *
          Do l = 0, l_max
