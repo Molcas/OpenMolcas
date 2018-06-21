@@ -204,7 +204,7 @@ C If this label should not be checked, then just return immediately:
          Line(nlabel:nlabel)='"'
          ia=int(Array(iArray)+0.3d0)
          if(abs(Array(iArray)-ia).lt.0.0000001.and.ia.ne.0) then
-          write(Junk,'(I24)')ia
+          write(Junk,'(I30)')ia
           else
             if(abs(Array(iArray)).gt.1D-14)then
               write(Junk,'(F30.12)') Array(iArray)
@@ -212,7 +212,7 @@ C If this label should not be checked, then just return immediately:
            Junk='0.0'
            endif
          endif
-         do j=1,24
+         do j=1,30
            if(Junk(j:j).ne.' ') then
            nlabel=nlabel+1
            Line(nlabel:nlabel)=Junk(j:j)
