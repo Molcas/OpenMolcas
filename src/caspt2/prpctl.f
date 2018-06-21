@@ -151,8 +151,16 @@ C Write natural orbitals as standard orbital file on LUMORB.
         IndType(6+iShift)= NBAS(ISYM)-IndT
         iShift=iShift+7
       EndDo
+      If (NSTATE.GT.1) THEN
+        Write(Note,'(A41,I3,A3,f22.12)')
+     &   '* CASPT2 natural orbitals for root number',N,
+     &   ' E=',Energy(JSTATE)
+      Else
+        Note='* CASPT2 natural orbitals'
+      End If
+
       CALL WRVEC(FILENAME,LUTMP,'COI',NSYM,NBAS,NBAS,
-     &  WORK(LCNAT), WORK(LOCC),Dummy  ,IndType,'* CASPT2')
+     &  WORK(LCNAT), WORK(LOCC),Dummy  ,IndType,Note)
       AddFragments=.True.
       iUHF=0
       Call Molden_Interface(iUHF,FILENAME,MDNAME,AddFragments)
