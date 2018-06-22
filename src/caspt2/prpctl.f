@@ -17,6 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE PRPCTL
+      USE PT2WFN
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -103,6 +104,9 @@ C Compute natural orbitals of CASPT2 wave function.
       CALL GETMEM('OCC','ALLO','REAL',LOCC,NOCC)
       CALL NATORB_CASPT2(WORK(LDMAT),WORK(LCMO),WORK(LOCC),WORK(LCNAT))
       CALL GETMEM('LCMO','FREE','REAL',LCMO,NCMO)
+C Backtransform density matrix to original MO basis before storing
+      CALL TRANSFOCK(WORK(LTORB),WORK(LDMAT),-1)
+      CALL PT2WFN_DENSSTORE(WORK(LDMAT),NDMAT)
       CALL GETMEM('DMAT','FREE','REAL',LDMAT,NDMAT)
 C Write natural orbitals as standard orbital file on LUMORB.
 * PAM2008: Separate PT2ORB files for each state:

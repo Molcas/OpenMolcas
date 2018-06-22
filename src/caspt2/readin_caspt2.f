@@ -234,7 +234,9 @@ C as if the values were read directly from the file.
 
       Case('FILE')
       If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
-      Read(Line,*,Err=9920,End=9920) Input % FILE
+C Not using list-directed input (*), because then the slash means
+C end of input
+      Read(Line,'(A)',Err=9920,End=9920) Input % FILE
 
       ! Root selection
 
