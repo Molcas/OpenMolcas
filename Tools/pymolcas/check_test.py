@@ -109,9 +109,9 @@ def check_test(infofile, checkfile, count):
       factor = 0
     if (passcheck):
       print('\n*** This check is informative only, nothing fails')
-    fmt_head = '\n{0:^30} {1:^16} {2:^16} {3:^9} {4:^9}'.format('Label','Value','Reference','Error','Tolerance')
-    fmt_num = '{0:<30} {1:16.12g} {2:16.12g} {3:9.3e} {4:9.3e} {5}'
-    fmt_rule = '-'*84
+    fmt_head = '\n{0:^30} {1:^20} {2:^20} {3:^9} {4:^9}'.format('Label','Value','Reference','Error','Tolerance')
+    fmt_num = '{0:<30} {1:20.16g} {2:20.16g} {3:9.3e} {4:9.3e} {5}'
+    fmt_rule = '-'*92
     j = -1
     for i in range(len(refs)):
       # Find the corresponding item in the actual values
@@ -131,7 +131,11 @@ def check_test(infofile, checkfile, count):
           print('*** Extra label: {0}'.format(item))
       # Check the difference against the tolerace (with some dirty tricks)
       dif = abs(vals[j]['val'] - refs[i]['val'])
-      tol = 10**(-refs[i]['tol']+factor)
+      tol = -refs[i]['tol']
+      if (tol < 0):
+        tol = 10**(tol+factor)
+      else:
+        tol = tol*10**(factor)
       if (dif > 0.0):
         if (not start):
           print(fmt_head)
@@ -156,7 +160,7 @@ def check_test(infofile, checkfile, count):
       if (not fuzzy):
         rc = failrc
     if (start):
-      print('-'*84)
+      print(fmt_rule)
     elif (rc == '_RC_ALL_IS_WELL_'):
       print('All values match the reference')
 
