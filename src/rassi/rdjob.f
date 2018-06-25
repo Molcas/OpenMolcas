@@ -55,6 +55,7 @@
       INTEGER JOB
       LOGICAL READ_STATES
 #ifdef _HDF5_
+      character(len=16) :: molcas_module
       character(len=8)  :: heff_string
       character(len=12) :: heff_evc_string
       character(len=21) :: pt2_e_string
@@ -74,6 +75,7 @@
 
       refwfn_id = mh5_open_file_r(jbname(job))
 
+      call mh5_fetch_attr (refwfn_id,'MOLCAS_MODULE', molcas_module)
       call mh5_fetch_attr (refwfn_id,'SPINMULT', ref_iSpin)
       call mh5_fetch_attr (refwfn_id,'NSYM', ref_nSym)
       call mh5_fetch_attr (refwfn_id,'LSYM', ref_lSym)
@@ -134,10 +136,7 @@
         END DO
       end if
 
-      heff_string     = ''
-      heff_evc_string = ''
-      pt2_e_string    = ''
-      if(qdpt2sc)then
+      if(qdpt2sc.and.(molcas_module.eq.'NEVPT2'))then
         heff_string     = 'H_EFF_SC'
         heff_evc_string = 'H_EFF_EVC_SC'
         pt2_e_string    = 'STATE_PT2_ENERGIES_SC'
