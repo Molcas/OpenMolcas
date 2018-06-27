@@ -43,13 +43,14 @@
 *
 #include "Molcas.fh"
       DIMENSION nBas(*),nOrb(*),Ene(*),CMO(*),Occ(*)
-      CHARACTER*(LENIN4) Name(*)
+      CHARACTER*(LENIN8) Name(*)
       CHARACTER*(*) Header
       CHARACTER*24 FMT0,FMT1,FMT2,LABEL0,LABEL1,LABEL2
       Character*3 IrrepName(8)
       Character*20 Fmt_s, Fmt_l, Fmt_f, Fmt
       Character*180 Line
-      Character*(4+1+LENIN4*2+1+6+3) ChCMO
+      Parameter (Magic=5+1+LENIN8+1+6+3)
+      Character*(Magic) ChCMO
       Character*4 Star(10)
       Real*8 Shift(10)
       LOGICAL PrEne,PrOcc, Large, Go, Debug, Header_Done
@@ -65,7 +66,6 @@
       Do i=1,10
          Star(i)=' '
       End Do
-      Magic=4+1+LENIN4*2+1+6+3
       iPL=iPrintLevel(-1)
       If (Reduce_Prt().and.iPL.lt.3) iPL=0
       If (iPL.le.1) Return
@@ -119,8 +119,8 @@ c     Write(6,*) 'test print out'
       LABEL0='Orbital '
       LABEL1='Energy  '
       LABEL2='Occ. No.'
-      FMT0='(10X,A8,3X,10(I5,A,1X))'
-      FMT1='(10X,A8,2X,10F10.4)'
+      FMT0='(10X,A12,3X,10(I5,A,1X))'
+      FMT1='(10X,A12,2X,10F10.4)'
       FMT2='(6X,I3,1X,A,10F10.4)'
 *
 *----------------------------------------------------------------------*
@@ -194,7 +194,7 @@ c     Write(6,*) 'test print out'
                   Do iB = 1, Inc
 ct.t.;
 c                    Write (6,'(6X,5(I3,1X,A,15X))')
-                     Write (6,'(4X,5(I5,1X,A,13X))')
+                     Write (6,'(4X,5(I5,1X,A,9X))')
 ct.t.; end
      &               (jB,Name(jSB+jB),jB=iB, nB, Inc)
                   End Do

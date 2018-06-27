@@ -39,7 +39,7 @@ C
       Logical long_prt
 #include "Molcas.fh"
 #include "WrkSpc.fh"
-      CHARACTER*(LENIN4) NAME(MxBas)
+      CHARACTER*(LENIN8) NAME(MxBas)
 
 
       MXTYP=0
@@ -48,7 +48,7 @@ C
          MxTyp=MxTyp+nBas(iSym)
          nTot1=nTot1+nBas(iSym)*(nBas(iSym)+1)/2
       End Do
-      Call Get_cArray('Unique Basis Names',Name,(LENIN4)*MxTyp)
+      Call Get_cArray('Unique Basis Names',Name,(LENIN8)*MxTyp)
       Call GetMem('XOCC','ALLO','REAL',ipXocc,MXTYP)
       Call Get_iScalar('Unique atoms',nNUC)
       Call GetMem('QQ','ALLO','REAL',ipQQ,MXTYP*nNuc)
@@ -117,12 +117,12 @@ c         Write(6,*) 'Label = ',Label
 #include "real.fh"
 #include "WrkSpc.fh"
 *
-      CHARACTER*(LENIN4) NAME(*)
+      CHARACTER*(LENIN8) NAME(*)
       DIMENSION NBAS(NSYM),CMO(*),OCCN(*),SMAT(*)
 *
       CHARACTER*(LENIN) CNAME(MXATOM)
-      CHARACTER*4 TNAME(MXTYP),TMP
-      Character*4 TSwap(MXTYP)
+      CHARACTER*8 TNAME(MXTYP),TMP
+      Character*8 TSwap(MXTYP)
       Character*4 TLbl(MXATOM)
       Character*2 AufBau(19)
       Integer ICNT(MXBAS),ITYP(MXBAS), nStab(MxAtom)
@@ -161,7 +161,7 @@ c         Write(6,*) 'Label = ',Label
 ************************************************************************
 *                                                                      *
       Do i = 1, mxTyp
-         TName(i)='    '
+         TName(i)='        '
       End Do
 *
 *----------------------------------------------------------------------*
@@ -231,13 +231,13 @@ c         Write(6,*) 'Label = ',Label
              Write (6,*) 'Increase MxType and recompile!'
              Call Abend()
           End If
-          If (NAME(I)(LENIN1:LENIN4).EQ.TNAME(J)) Then
+          If (NAME(I)(LENIN1:LENIN8).EQ.TNAME(J)) Then
             ITYP(I)=J
             Go To 99
           End If
         End Do
         NXTYP=NXTYP+1
-        TNAME(NXTYP)=NAME(I)(LENIN1:LENIN4)
+        TNAME(NXTYP)=NAME(I)(LENIN1:LENIN8)
 
 *
         ITYP(I)=NXTYP
@@ -357,10 +357,12 @@ c      End Do
       Else If (iAng.ge.2) Then
          Do i = iStart, jEnd-1
             iM = iChar(tName(i)(3:3)) - i0
-            If (tName(i)(4:4).eq.'-') iM = -iM
+            iM = 10*iM + iChar(tName(i)(4:4)) - i0
+            If (tName(i)(5:5).eq.'-') iM = -iM
             Do j = i+1, jEnd
                jM = iChar(tName(j)(3:3)) - i0
-               If (tName(j)(4:4).eq.'-') jM = -jM
+               jM = 10*jM + iChar(tName(j)(4:4)) - i0
+               If (tName(j)(5:5).eq.'-') jM = -jM
                If (jM.gt.iM) Then
                   iSwap=iM
                   iM=jM
@@ -391,15 +393,15 @@ c      End Do
          Do i = 1, NxTyp
             If (TName(i)(1:2).eq.AufBau(iAB)) Then
                TSwap(iStart) = TName(i)
-               TName(i)='    '
+               TName(i)='        '
                iStart = iStart + 1
             End If
          End Do
       End Do
       Do i = 1, NxTyp
-         If (TName(i).ne.'    ') Then
+         If (TName(i).ne.'        ') Then
             TSwap(iStart) = TName(i)
-            TName(i)='    '
+            TName(i)='        '
             iStart = iStart + 1
          End If
       End Do
@@ -411,7 +413,7 @@ c      End Do
       Do I=1,NBAST
          If (ICNT(I).lt.0) Go To 98  ! skip pseudo center
          Do J=1,NXTYP
-            If (NAME(I)(LENIN1:LENIN4).eq.TNAME(J)) Then
+            If (NAME(I)(LENIN1:LENIN8).eq.TNAME(J)) Then
                ITYP(I)=J
                Go To 98
              End If
@@ -862,9 +864,9 @@ c second call, make a real print out
             Fact = DBLE(nStab(ist))/DBLE(nSym)
             IEND=MIN(IEND+6,nNuc)
             Write(6,*)
-            Write(6,'(11X,6(14X,A,4X))')
+            Write(6,'(15X,6(14X,A,4X))')
      &         (CNAME(I),I=IST,IEND)
-            Write(6,'(11X,6(A12,A12))')
+            Write(6,'(15X,6(A12,A12))')
      &         (' alpha','  beta',I=IST,IEND)
             Do IT=1,NXTYP
                Do J=IST,IEND
@@ -872,7 +874,7 @@ c second call, make a real print out
                   ik=ik+1
                End Do
                If (FullMlk) then
-                  Write(6,'(6X,A4,1X,12F12.4)')TNAME(IT),
+                  Write(6,'(6X,A8,12F12.4)')TNAME(IT),
      &                 (Fac(j)*Q2(J),Fac(j)*QQ(IT,J), J=IST,IEND)
                End If
             End Do
@@ -882,12 +884,12 @@ c second call, make a real print out
                ikk=ikk+1
             End Do
 *
-            Write(6,'(6X,A,12F12.4)')'Total',
+            Write(6,'(6X,A,12F12.4)')'Total   ',
      &         (Fac(i)*Q2(I),Fac(i)*QSUM(I),I=IST,IEND)
-            Write(6,'(6X,A,6(6X,F12.4,6X))')'Total',
+            Write(6,'(6X,A,6(6X,F12.4,6X))')'Total   ',
      &         (Fac(i)*(Q2(I)+QSUM(I)),I=IST,IEND)
             Write(6,*)
-            Write(6,'(6X,A,6(5X,F12.4,7X))')'Charge',
+            Write(6,'(6X,A,6(5X,F12.4,7X))')'Charge  ',
      &         (Fac(i)*Work(ip_Charge+I-1),I=IST,IEND)
          End Do
          Write(6,*)
@@ -934,17 +936,18 @@ c icase=2 for usual mulliken, =2 for spin population.
             Fact = DBLE(nStab(ist))/DBLE(nSym)
             IEND=MIN(IEND+12,nNuc)
             Write(6,*)
-            Write(6,'(11X,12(2X,A))') (CNAME(I),I=IST,IEND)
+            Write(6,'(15X,12(2X,A))') (CNAME(I),I=IST,IEND)
             If (FullMlk) then
                Do IT=1,NXTYP
-                  Write(6,'(6X,A4,1X,12F8.4)')TNAME(IT),
+                  Write(6,'(6X,A8,12F8.4)')TNAME(IT),
      &              (Fac(j)*QQ(IT,J),J=IST,IEND)
                End Do
             endIf
-            Write(6,'(6X,A,12F8.4)')'Total',(Fac(i)*QSUM(I),I=IST,IEND)
+            Write(6,'(6X,A,12F8.4)')'Total   ',
+     &             (Fac(i)*QSUM(I),I=IST,IEND)
             If (iCase.ne.3) Then
               Write(6,*)
-c              Write(6,'(6X,A,12F8.4)')'N-E  ',
+c              Write(6,'(6X,A,12F8.4)')'N-E     ',
 c     &             (Fac(i)*Work(ip_Charge+I-1),I=IST,IEND)
             End If
          End Do
@@ -1016,19 +1019,19 @@ c         Call xml_dDump('FormalCharge','Total charge','a.u',0,TCh,1,1)
 
  9999 Continue
       If (DoBond) Then
-          If (nSym.gt.1) then
-              Call Free_Work(ipP)
-              Call Free_Work(ipPInv)
-              Call Free_Work(ipD_blo)
-              Call Free_Work(ipS_blo)
-          End If
-          Call Free_iWork(ip_center)
-          Call Free_Work(ipD_tmp)
-          Call Free_Work(ipS_tmp)
-          Call Free_Work(ipD)
-          Call Free_Work(ipS)
-          Call Free_Work(ipDS)
-          Call Free_Work(ipBonds)
+         If (nSym.gt.1) then
+            Call Free_Work(ipP)
+            Call Free_Work(ipPInv)
+            Call Free_Work(ipD_blo)
+            Call Free_Work(ipS_blo)
+         End If
+         Call Free_iWork(ip_center)
+         Call Free_Work(ipD_tmp)
+         Call Free_Work(ipS_tmp)
+         Call Free_Work(ipD)
+         Call Free_Work(ipS)
+         Call Free_Work(ipDS)
+         Call Free_Work(ipBonds)
       End If
 *
       Return
@@ -1040,12 +1043,12 @@ c         Call xml_dDump('FormalCharge','Total charge','a.u',0,TCh,1,1)
 991   Write(6,'(/6X,A)')
      &'The number of basis functions exceeds the present limit'
       Call Abend
-c992   Write(6,'(/6X,A)')
-c     &'The number of basis functions exceeds the present limit'
-c      Call Abend
-c993   Write(6,'(/6X,A)')
-c     &'Warning: Total charge is not equal to number of electrons'
-c      Call Abend
+*992   Write(6,'(/6X,A)')
+*     &'The number of basis functions exceeds the present limit'
+*      Call Abend
+*993   Write(6,'(/6X,A)')
+*     &'Warning: Total charge is not equal to number of electrons'
+*      Call Abend
 
       Return
       End

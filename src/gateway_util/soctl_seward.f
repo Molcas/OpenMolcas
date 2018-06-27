@@ -18,7 +18,7 @@
 #include "print.fh"
 #include "stdalloc.fh"
 *
-      Character ChOper(0:7)*3,ChTemp*4, Mamn(nMamn)*(LENIN4)
+      Character ChOper(0:7)*3,ChTemp*8, Mamn(nMamn)*(LENIN8)
       Character LP_Names(MxAtom)*(LENIN4)
       Character*60 Fmt
       Logical Type(0:7), lSkip, kECP, TstFnc, output, Get_BasisType
@@ -389,7 +389,7 @@ C     Show=Show.and..Not.Primitive_Pass
                         Call Name_to_lm(ChTemp,llab,mlab)
 *
                         If(output)
-     &                  Write (6,'(I4,3X,A8,5X,A4,4X,8(I3,4X,I2,4X))')
+     &                  Write (6,'(I4,3X,A8,5X,A8,8(I3,4X,I2,4X))')
      &                        iSO_,LblCnt(mdc),ChTemp,
      &                        (mc+iCo,iPrmt(NrOpr(iCoSet(iCo,0,mdc),
      &                        iOper,nIrrep),iChbs)*
@@ -476,7 +476,7 @@ C     Show=Show.and..Not.Primitive_Pass
 *                                                                      *
 ************************************************************************
 *                                                                      *
-                        Mamn(iSO)=LblCnt(mdc)(1:LENIN)//ChTemp(1:4)
+                        Mamn(iSO)=LblCnt(mdc)(1:LENIN)//ChTemp(1:8)
                         basis_ids(1,iSO) = mdc
                         basis_ids(2,iSO) = iCntrc
                         basis_ids(3,iSO) = llab
@@ -697,6 +697,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                            Call Abend
                         End If
                         jSO = jSO + 1
+*
                         ChTemp=LblCBs(lComp)
                         If (Transf(iSh)) ChTemp=LblSbs(lComp)
 *
@@ -726,7 +727,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                         End If
                         Call Name_to_lm(ChTemp,llab,mlab)
 *
-                        if(output) Write (6,'(I4,3X,A8,5X,A4,4X,I3)')
+                        if(output) Write (6,'(I4,3X,A8,5X,A8,I3)')
      &                        iSO_,LblCnt(mdc),ChTemp,mc+imc
 *
                         iSOInf(1,iSO_)=iCnttp
@@ -763,11 +764,11 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                         LPC(3,mdc)=ZCoor
                         LPQ(mdc)=Charge(iCnttp)
                         LPA(mdc)=iAtmnr(iCnttp)
-                        LP_Names(mdc)=LblCnt(mdc)(1:LENIN)//'    '
+                        LP_Names(mdc)=LblCnt(mdc)(1:LENIN)//'        '
 *                                                                      *
 ************************************************************************
 *                                                                      *
-                        Mamn(iSO)=LblCnt(mdc)(1:LENIN)//ChTemp(1:4)
+                        Mamn(iSO)=LblCnt(mdc)(1:LENIN)//ChTemp(1:8)
                         basis_ids(1,iSO) = mdc
                         basis_ids(2,iSO) = iCntrc
                         basis_ids(3,iSO) = llab

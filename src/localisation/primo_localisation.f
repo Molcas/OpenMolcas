@@ -25,7 +25,7 @@ C
       Implicit None
 #include "Molcas.fh"
       Character*(*) Header
-      Character*(LENIN4) Nme(*)
+      Character*(LENIN8) Nme(*)
       Logical PrOcc, PrEne
       Real*8  ThrOcc, ThrEne
       Integer nSym

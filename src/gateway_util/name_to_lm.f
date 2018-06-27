@@ -49,8 +49,8 @@
         End Do
         If (l .ge. 0) Then
 *         If a label is found it is a spherical shell, just read m
-          Read(BName(3:3),*) m
-          If (BName(4:4) .eq. '-') m = -m
+          Read(BName(3:4),*) m
+          If (BName(5:5) .eq. '-') m = -m
         Else
 *         If no label, this is a Cartesian shell, return -l and some convention for m.
 *         We use m=T(ly+lz)-(lx+ly), where T(n) is the nth triangular number: n*(n+1)/2).
@@ -59,9 +59,9 @@
 *         possible combinations of lx,ly,lz are encoded in -l plus a number from -l to l*(l+1)/2,
 *         in descending order with priority lx>ly>lz: (3,0,0), (2,1,0), (2,0,1), (1,2,0),
 *         (1,1,1), (1,0,2), (0,3,0), (0,2,1), (0,1,2), (0,0,3)
-          Read(BName(2:2),*) lx
-          Read(BName(3:3),*) ly
-          Read(BName(4:4),*) lz
+          Read(BName(2:3),*) lx
+          Read(BName(4:5),*) ly
+          Read(BName(6:7),*) lz
           l = -lx-ly-lz
           m = (ly+lz)*(ly+lz+1)/2-(lx+ly)
         End If

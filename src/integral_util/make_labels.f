@@ -12,8 +12,8 @@
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "angtp.fh"
-      Character*4 LblCBs(MxFnc), LblSBs(MxFnc)
-      Character Sgn*1
+      Character*8 LblCBs(MxFnc), LblSBs(MxFnc)
+      Character Sgn*4
 *
 *-----Shlnm
 *
@@ -34,28 +34,25 @@
       If (iAngMx.ge.14) AngTp(14)='t'
       If (iAngMx.ge.15) AngTp(15)='u'
 *
-*---- Generate cartesian lables
+*---- Generate cartesian labels
 *
       lxyz=0
       Do ixyz = 0, Max(iAngMx,1)
          Do ix = ixyz, 0, -1
-            jx = Mod(ix,2)
             iyMax=ixyz-ix
             Do iy = iyMax, 0 , -1
-               jy = Mod(iy,2)
                lxyz=lxyz+1
                iz=ixyz-ix-iy
-               jz = Mod(iz,2)
 *              Form labels for cartesian basis functions
-               Write (LblCBs(lxyz),'(A,3I1)') AngTp(ixyz),ix,iy,iz
+               Write (LblCBs(lxyz),'(A,3I2.2)') AngTp(ixyz),ix,iy,iz
             End Do
          End Do
       End Do
-      If (iAngMx.ge.0) LblCBs(1) = '1s  '
+      If (iAngMx.ge.0) LblCBs(1) = '1s      '
       If (iAngMx.ge.1) Then
-         LblCBs(2) = '2px '
-         LblCBs(3) = '2py '
-         LblCBs(4) = '2pz '
+         LblCBs(2) = '2px     '
+         LblCBs(3) = '2py     '
+         LblCBs(4) = '2pz     '
       End If
 *
 *     Do the same for the spherical gaussians.
@@ -65,13 +62,13 @@
          Do l = n, 0, -2
             Do m = -l, l
                If (m.lt.0) Then
-                  Sgn='-'
+                  Sgn='-   '
                Else If (m.gt.0) Then
-                  Sgn='+'
+                  Sgn='+   '
                Else
-                  Sgn=' '
+                  Sgn='    '
                End If
-               Write (LblSbs(i),'(I1,A,I1,A)') n+1,AngTp(l),Abs(m),Sgn
+               Write (LblSbs(i),'(I1,A,I2.2,A)') n+1,AngTp(l),Abs(m),Sgn
                i=i+1
             End Do
          End Do

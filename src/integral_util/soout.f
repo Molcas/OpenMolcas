@@ -35,7 +35,7 @@
 #include "real.fh"
 #include "print.fh"
 *
-      Character ChOper(0:7)*3, ChTemp*4, Mamn(nMamn)*(LENIN4)
+      Character ChOper(0:7)*3, ChTemp*8, Mamn(nMamn)*(LENIN4)
       Logical kECP, TstFnc
       Integer cnt_ico(0:7,*),phase_ico(0:7,*)
 *
@@ -105,7 +105,7 @@
      &                        iChTbl(iIrrep,NrOpr(iCoSet(iCo,0,mdc),
      &                        iOper,nIrrep))
                         End Do
-                        Mamn(iSO)=LblCnt(mdc)(1:LENIN)//ChTemp(1:4)
+                        Mamn(iSO)=LblCnt(mdc)(1:LENIN)//ChTemp(1:8)
  205                 Continue
 *
  204              Continue

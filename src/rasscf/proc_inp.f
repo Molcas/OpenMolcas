@@ -1604,7 +1604,7 @@ CIgorS End
         lll = MAX(lll,mxSym)
         lll = MAX(lll,mxOrb)
         lll = MAX(lll,RtoI)
-        lll = MAX(lll,4*2*mxOrb/ItoB)
+        lll = MAX(lll,LENIN8*mxOrb/ItoB)
         lll = MAX(lll,2*72/ItoB)
         lll = MAX(lll,RtoI*mxRoot)
         CALL GETMEM('JOBOLD','ALLO','INTEGER',lJobH,lll)
@@ -1613,7 +1613,7 @@ CIgorS End
         iAd19=iAdr19(1)
         CALL WR_RASSCF_Info(JobOld,2,iAd19,NACTEL,ISPIN,NSYM,LSYM,
      &                      NFRO,NISH,NASH,NDEL,NBAS,
-     &                      mxSym,iWork(lJobH),4*2*mxOrb,NCONF,
+     &                      mxSym,iWork(lJobH),LENIN8*mxOrb,NCONF,
      &                      iWork(lJobH),2*72,JobTit,4*18*mxTit,
      &                      POTNUCDUMMY,LROOTS,NROOTS,IROOT,mxRoot,
      &                      NRS1,NRS2,NRS3,NHOLE1,NELEC3,IPT2,WEIGHT)

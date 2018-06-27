@@ -16,7 +16,7 @@
 #include "Molcas.fh"
       Real*8  CMO(*), XMO(*), Eorb(*), Smat(*), Saa(*), ThrSel
       Integer irc, nSym, nActa, mOrb(nSym), nBas(nSym), n_OK(nSym)
-      Character*(LENIN4)  Name(*)
+      Character*(LENIN8)  Name(*)
       Character*(LENIN) NamAct(nActa)
       Logical ortho
 #include "WrkSpc.fh"

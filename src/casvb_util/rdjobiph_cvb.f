@@ -28,7 +28,7 @@ c      integer iadr15_j(15)
 c      integer nactel_j,ispin_j,nsym_j,lsym_j,nfro_j(mxsym),
 c     >  nish_j(mxsym),nash_j(mxsym),ndel_j(mxsym),
 c     >  nbas_j(mxsym)
-c       character*4 name_j(2,mxorb)
+c       character*(lenin8) name_j(mxorb)
 c      integer nconf_j
 c       character*2 header_j(72)
 c       character*72 title_j(18)
@@ -61,7 +61,7 @@ c Read the the system description :
       call WR_RASSCF_Info(lujob,2,idisk,
      >                    nactel_j,ispin_j,nsym_j,lsym_j,nfro_j,
      >                    nish_j,nash_j,ndel_j,
-     >                    nbas_j,mxsym,name_j,8*mxorb,
+     >                    nbas_j,mxsym,name_j,lenin8*mxorb,
      >                    nconf_j,header_j,144,
      >                    title_j,4*18*mxtit,potnuc_j,lroots_j,
      >                    nroots_j,iroot_j,mxroot,
@@ -82,7 +82,7 @@ c Read the the system description :
         write(6,*)' nbas   :',nbas_j
         write(6,*)' name   :'
         do 100 ii=1,mxorb
-100     if(name_j(1,ii)(4:4).eq.' ')write(6,*)name_j(1,ii),name_j(2,ii)
+100     if(name_j(ii)(4:4).eq.' ')write(6,*)name_j(ii)
         write(6,*)' nconf  :',nconf_j
         write(6,*)' header :',header_j
         write(6,*)' title  :'

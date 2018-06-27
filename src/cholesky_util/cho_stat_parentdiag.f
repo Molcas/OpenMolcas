@@ -29,7 +29,7 @@ C
       Character*19 SecNam
       Parameter (SecNam = 'Cho_Stat_ParentDiag')
 
-      Character*(LENIN4) AtomLabel(MxBas)
+      Character*(LENIN8) AtomLabel(MxBas)
 
       Logical Debug
 
@@ -85,7 +85,7 @@ C     Call Get_nAtoms_All(nAtom)
 C     Get atomic labels and basis function labels.
 C     --------------------------------------------
 
-      Call Get_cArray('Unique Basis Names',AtomLabel,LENIN4*nBasT)
+      Call Get_cArray('Unique Basis Names',AtomLabel,LENIN8*nBasT)
 
 C     Allocate and get index arrays for indexation of basis functions on
 C     each atom.

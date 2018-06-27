@@ -77,7 +77,7 @@
       DIMENSION NBAS(*)
 
       Integer NBAST, tNUC, tRealNUC, NPBonds, AtomA, AtomB
-      CHARACTER*(LENIN4) NAME(*)
+      CHARACTER*(LENIN8) NAME(*)
       Integer ICNT(MXBAS), nStab(MxAtom)
       CHARACTER*(LENIN) CNAME(MXATOM)
       Character*(LENIN4) LblCnt4(MxAtom)

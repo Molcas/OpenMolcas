@@ -38,7 +38,7 @@
       Dimension CMO(*), EOcc(*), EVir(*)
       Real*8  Thrs
       Logical DoMP2, all_Vir
-      Character*(LENIN4) Name(mxBas)
+      Character*(LENIN8) Name(mxBas)
       Character*(LENIN) NamAct(*)
       Logical ortho
       Real*8  TrA(8), TrF(8), TrX(8)
@@ -85,7 +85,7 @@
        Call Abend
       Endif
 *
-      Call Get_cArray('Unique Basis Names',Name,(LENIN4)*nxBasT)
+      Call Get_cArray('Unique Basis Names',Name,(LENIN8)*nxBasT)
 *
 *----------------------------------------------------------------------*
 *     Read the overlap matrix                                          *

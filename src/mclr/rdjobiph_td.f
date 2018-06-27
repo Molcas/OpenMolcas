@@ -44,12 +44,13 @@
 *----------------------------------------------------------------------*
 *     Read the the system description                                  *
 *----------------------------------------------------------------------*
-      Call Getmem('TMP','ALLO','INTE',ipdum,16*mxorb/itob)
+      ndum=lenin8*mxorb/itob
+      Call Getmem('TMP','ALLO','INTE',ipdum,ndum)
       iDisk=iToc(1)
       Call WR_RASSCF_Info(LuJob,2,iDisk,
      &                    nActEl,iSpin,nSym,State_sym,nFro,
      &                    nIsh,nAsh,nDel,
-     &                    nBas,MxSym,iwork(ipdum),8*mxorb,
+     &                    nBas,MxSym,iwork(ipdum),LENIN8*mxorb,
      &                    nConf,HeaderJP,144,
      &                    TitleJP,4*18*mxTit,PotNuc0,lRoots,
      &                    nRoots,iRoot,mxRoot,

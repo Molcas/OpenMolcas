@@ -22,7 +22,7 @@ C
 #include "Molcas.fh"
       Integer jBas, nBas, nAtoms
       Integer nBas_per_Atom(nAtoms), nBas_Start(nAtoms)
-      Character*(LENIN4) Name(nBas)
+      Character*(LENIN8) Name(nBas)
       Character*(LENIN) AtName(nAtoms)
       Logical DoPrint
 

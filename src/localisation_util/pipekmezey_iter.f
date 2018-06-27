@@ -26,7 +26,7 @@ C
       Real*8      CMO(nBasis,*), Ovlp(nBasis,*)
       Integer     iTab_Ptr(nAtoms)
       Integer     nBas_per_Atom(nAtoms), nBas_Start(nAtoms)
-      Character*(LENIN4) Name(nBasis)
+      Character*(LENIN8) Name(nBasis)
       Logical     Maximisation, Converged, Debug, Silent
 #include "real.fh"
 #include "WrkSpc.fh"

@@ -56,7 +56,7 @@
       Do iSym = 1, nSym
          nDim=nDim+nBas(iSym)
       End Do
-      Call Get_cArray('Unique Basis Names',Name,(LENIN4)*nDim)
+      Call Get_cArray('Unique Basis Names',Name,(LENIN8)*nDim)
       Call ClsOne(irc,0)
       Write(6,'(a,i5)') ' nSym:',nSym
       Write(6,'(a,8i5)') ' nBas:',(nBas(i),i=1,nSym)

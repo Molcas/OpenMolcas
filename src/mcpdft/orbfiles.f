@@ -48,7 +48,7 @@ c***********************************************************************
       Call WR_RASSCF_Info(JobIph,2,iDisk,
      &                    nActEl,iSpin,nSym,lSym,
      &                    nFro,nIsh,nAsh,nDel,
-     &                    nBas,mxSym,Name,4*2*mxOrb,nConf,
+     &                    nBas,mxSym,Name,LENIN8*mxOrb,nConf,
      &                    Header,144,Title,4*18*mxTit,PotNucDummy,
      &                    lRoots,nRoots,iRoot,mxRoot,
      &                    nRs1,nRs2,nRs3,

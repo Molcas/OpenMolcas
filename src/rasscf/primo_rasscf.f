@@ -208,20 +208,20 @@
            ISEND=MIN(ISSTART+NCOLS-1,NS)
            Write(LF,*)
            Write(LF,*)
-           Write(LF,Fmt2//'A,2X,10I10)')'Orbital ',
+           Write(LF,Fmt2//'A,6X,10I10)')'Orbital ',
      &               (IWORK(LSLCT-1+ISOFF+I)-IBOFF,I=ISSTART,ISEND)
            IF (PRENE) THEN
-             Write(LF,Fmt2//'A,2X,10F10.4)')'Energy  ',
+             Write(LF,Fmt2//'A,6X,10F10.4)')'Energy  ',
      &               (ENE(IWORK(LSLCT-1+ISOFF+I)),I=ISSTART,ISEND)
            END IF
            IF (PROCC) THEN
-             Write(LF,Fmt2//'A,2X,10F10.4)')'Occ. No.',
+             Write(LF,Fmt2//'A,6X,10F10.4)')'Occ. No.',
      &               (OCC(IWORK(LSLCT-1+ISOFF+I)),I=ISSTART,ISEND)
            END IF
            Write(LF,*)
            DO IB=1,NB
             Write(LF,'(2X,I3,1X,2A,10F10.4)') IB,
-     &        NAME(IBOFF+IB)(1:LENIN),NAME(IBOFF+IB)(LENIN1:LENIN4),
+     &        NAME(IBOFF+IB)(1:LENIN),NAME(IBOFF+IB)(LENIN1:LENIN8),
      &     (CMO(ICOFF+(IWORK(LSLCT-1+ISOFF+I)-1-IBOFF)*NB+IB),
      &        I=ISSTART,ISEND)
            END DO
@@ -283,10 +283,10 @@
                 IF ( ABS(CC).GE.0.1D0 ) THEN
                   Write(LINE(IST:132),'(I4,1X,2A,A,F7.4,A)')
      &              IBAS,NAME(IBOFF+IBAS)(1:LENIN),
-     &              NAME(IBOFF+IBAS)(LENIN1:LENIN4),
+     &              NAME(IBOFF+IBAS)(LENIN1:LENIN8),
      &              '(',CC,')'
-                  IST = IST+24
-                  IF ( IST.GT.(132-LEFT-24) ) THEN
+                  IST = IST+28
+                  IF ( IST.GT.(132-LEFT-28) ) THEN
                     Write(LF,FMT2//'A)') LINE
                     LINE = BLANK
                     IST = 9

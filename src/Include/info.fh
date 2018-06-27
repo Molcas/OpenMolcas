@@ -417,7 +417,7 @@
       Character BLine*80, lIrrep(0:7)*3, lBsFnc(0:7)*80
       Character*(LENIN)  lblxxx(8*mxdc)
       Character*(LENIN4) LblCnt(Mxdc)
-      Character LblCBs(MxFnc)*4, LblSBs(MxFnc)*4
+      Character LblCBs(MxFnc)*8, LblSBs(MxFnc)*8
       Character Title(10)*80, Bsl(Mxdbsc)*80, Bsl_Old(Mxdbsc)*80
       Character SW_FileOrb*512, Align_Weights*512
       Integer cxStrt,cxEnd
