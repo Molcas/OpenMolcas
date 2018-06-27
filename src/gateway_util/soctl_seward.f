@@ -361,32 +361,43 @@ C     Show=Show.and..Not.Primitive_Pass
                         ChTemp=LblCBs(lComp)
                         If (Transf(iSh)) ChTemp=LblSbs(lComp)
 *
+                        Call Name_to_lm(ChTemp,llab,mlab)
+*
 *                       Introduce a somewhat better labelling. Thnx LG!
 *
                         If (IsBasisAE) Then
                            If (IsBasisANO) Then
-                              Write (ChTemp(1:1),'(I1)') iAng+iCntrc
+                              Write (ChTemp(1:2),'(I2.2)') iAng+iCntrc
                            Else
                               If (nExp(iSh).eq.nBasis(iSh)) Then
                                  Write (ChTemp(1:1),'(A1)') '*'
+                                 If (llab.ge.0)
+     &                               Write(ChTemp(2:2),'(A1)') '0'
                               Else If (iCntrc.le.list(iAng)) Then
-                                 Write (ChTemp(1:1),'(I1)') iAng+iCntrc
+                                 Write (ChTemp(1:2),'(I2.2)')
+     &                                 iAng+iCntrc
                               Else
                                  Write (ChTemp(1:1),'(A1)') '*'
+                                 If (llab.ge.0)
+     &                               Write(ChTemp(2:2),'(A1)') '0'
                               End If
                            End If
                         Else If (.Not.IsBasisUNK) Then
                            If (nExp(iSh).eq.nBasis(iSh)) Then
                               Write (ChTemp(1:1),'(A1)') '*'
+                              If (llab.ge.0)
+     &                            Write(ChTemp(2:2),'(A1)') '0'
                            Else If (iCntrc.le.list(iAng)) Then
-                                 Write (ChTemp(1:1),'(I1)') iAng+iCntrc+
+                                 Write (ChTemp(1:2),'(I2.2)')
+     &                                 iAng+iCntrc+
      &                                 (List_AE(iAng)-List(iAng))
                            Else
                               Write (ChTemp(1:1),'(A1)') '*'
+                              If (llab.ge.0)
+     &                            Write(ChTemp(2:2),'(A1)') '0'
                            End If
 *
                         End If
-                        Call Name_to_lm(ChTemp,llab,mlab)
 *
                         If(output)
      &                  Write (6,'(I4,3X,A8,5X,A8,8(I3,4X,I2,4X))')
@@ -701,31 +712,42 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                         ChTemp=LblCBs(lComp)
                         If (Transf(iSh)) ChTemp=LblSbs(lComp)
 *
+                        Call Name_to_lm(ChTemp,llab,mlab)
+*
 *                       Introduce a somewhat better labelling. Thnx LG!
 *
                         If (IsBasisAE) Then
                            If (IsBasisANO) Then
-                              Write (ChTemp(1:1),'(I1)') iAng+iCntrc
+                              Write (ChTemp(1:2),'(I2.2)') iAng+iCntrc
                            Else
                               If (nExp(iSh).eq.nBasis(iSh)) Then
                                  Write (ChTemp(1:1),'(A1)') '*'
+                                 If (llab.ge.0)
+     &                               Write(ChTemp(2:2),'(A1)') '0'
                               Else If (iCntrc.le.list(iAng)) Then
-                                 Write (ChTemp(1:1),'(I1)') iAng+iCntrc
+                                 Write (ChTemp(1:2),'(I2.2)')
+     &                                 iAng+iCntrc
                               Else
                                  Write (ChTemp(1:1),'(A1)') '*'
+                                 If (llab.ge.0)
+     &                               Write(ChTemp(2:2),'(A1)') '0'
                               End If
                            End If
                         Else If (.Not.IsBasisUNK) Then
                            If (nExp(iSh).eq.nBasis(iSh)) Then
                               Write (ChTemp(1:1),'(A1)') '*'
+                              If (llab.ge.0)
+     &                            Write(ChTemp(2:2),'(A1)') '0'
                            Else If (iCntrc.le.list(iAng)) Then
-                                 Write (ChTemp(1:1),'(I1)') iAng+iCntrc+
+                                 Write (ChTemp(1:2),'(I2.2)')
+     &                                 iAng+iCntrc+
      &                                 (List_AE(iAng)-List(iAng))
                            Else
                               Write (ChTemp(1:1),'(A1)') '*'
+                              If (llab.ge.0)
+     &                            Write(ChTemp(2:2),'(A1)') '0'
                            End If
                         End If
-                        Call Name_to_lm(ChTemp,llab,mlab)
 *
                         if(output) Write (6,'(I4,3X,A8,5X,A8,I3)')
      &                        iSO_,LblCnt(mdc),ChTemp,mc+imc
@@ -764,7 +786,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                         LPC(3,mdc)=ZCoor
                         LPQ(mdc)=Charge(iCnttp)
                         LPA(mdc)=iAtmnr(iCnttp)
-                        LP_Names(mdc)=LblCnt(mdc)(1:LENIN)//'        '
+                        LP_Names(mdc)=LblCnt(mdc)(1:LENIN)//'    '
 *                                                                      *
 ************************************************************************
 *                                                                      *

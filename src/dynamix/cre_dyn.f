@@ -65,7 +65,7 @@
      $          'arranged as a [NATOMS] block')
       call mma_allocate(atomlbl,natoms)
       if (nsym .gt. 1) then
-        call get_cArray('LP_L',atomlbl,LENIN*natoms)
+        call get_cArray('LP_L',atomlbl,LENIN4*natoms)
       else
         Call Get_cArray('Unique Atom Names',atomlbl,LENIN*natoms)
       endif

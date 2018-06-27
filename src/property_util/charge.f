@@ -92,7 +92,6 @@ c a temporary clone for CHARGE util
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "Molcas.fh"
-#include "angtp.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 *
@@ -104,7 +103,7 @@ c      PARAMETER(MXTYP=maxbfn)
       CHARACTER*8 TNAME(MXTYP),TMP
       Character*8 TSwap(MXTYP)
       Character*4 TLbl(MXATOM)
-      Character*2 AufBau(19)
+      Character*3 AufBau(19)
       Integer ICNT(MXBAS),ITYP(MXBAS), nStab(MxAtom)
       Integer tNUC, NPBonds, AtomA, AtomB, nBas2
       Real*8 QQ(MXTYP,nNuc),QSUM(MXATOM)
@@ -123,13 +122,13 @@ c      Character*(LENIN) LblCnt(MxAtom)
       Character*100 ProgName, Get_ProgName
       Logical DoBond,Reduce_Prt
       External Reduce_Prt
-      Data AufBau/'1s',
-     &            '2s',          '2p',
-     &            '3s',          '3p',
-     &            '4s',     '3d','4p',
-     &            '5s',     '4d','5p',
-     &            '6s','4f','5d','6p',
-     &            '7s','5f','6d','7p'/
+      Data AufBau/'01s',
+     &            '02s',            '02p',
+     &            '03s',            '03p',
+     &            '04s',      '03d','04p',
+     &            '05s',      '04d','05p',
+     &            '06s','04f','05d','06p',
+     &            '07s','05f','06d','07p'/
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -261,11 +260,13 @@ c same with DS matrix
       jx=0
       Do i = 1, NxTyp-1
          ix = iChar(TNAME(i)(1:1))-iChar('1')+1
+         ix = 10*ix + iChar(TNAME(i)(2:2))-iChar('1')+1
 *        Put polarization and diffuse functions last
-         if (tName(i)(1:1).eq.'*') ix = 99
+         if (tName(i)(1:1).eq.'*') ix = 100
          Do j = i+1, NxTyp
             jx = iChar(TNAME(j)(1:1))-iChar('1')+1
-            if (tName(j)(1:1).eq.'*') jx = 99
+            jx = 10*jx + iChar(TNAME(j)(2:2))-iChar('1')+1
+            if (tName(j)(1:1).eq.'*') jx = 100
             If (ix.gt.jx) Then
                iSwap=ix
                ix=jx
@@ -283,18 +284,20 @@ c same with DS matrix
       jAng = 0
       ix = 1
  666  iix = iChar(tName(ix)(1:1))
+      iixx = iChar(tName(ix)(2:2))
       jx = ix
       Do i = Min(ix+1,NxTyp), NxTyp
-         If (iChar(tName(i)(1:1)).eq.iix) jx = i
+         If ((iChar(tName(i)(1:1)).eq.iix).and.
+     &       (iChar(tName(i)(2:2)).eq.iixx)) jx = i
       End Do
 *
       Do i = ix, jx-1
          Do k = 0, iTabMx
-            If (AngTp(k).eq.tName(i)(2:2)) iAng=k
+            If (AngTp(k).eq.tName(i)(3:3)) iAng=k
          End Do
          Do j = i+1, jx
             Do l = 0, iTabMx
-               If (AngTp(l).eq.tName(j)(2:2)) jAng=l
+               If (AngTp(l).eq.tName(j)(3:3)) jAng=l
             End Do
             If (iAng.gt.jAng) Then
                iSwap=iAng
@@ -313,15 +316,14 @@ c      End Do
 *
 *     Now sort with respect to the magnetic index
 *
-      If (iAng.gt.9) Go To 888 ! skip sorting!
       iEnd = jx
       iStart = ix
  777  Do k = 0, iTabMx
-         If (AngTp(k).eq.tName(iStart)(2:2)) iAng=k
+         If (AngTp(k).eq.tName(iStart)(3:3)) iAng=k
       End Do
       jEnd = iStart
       Do i = Min(iStart+1,iEnd),iEnd
-         If (tName(i)(2:2).eq.AngTp(iAng)) jEnd=i
+         If (tName(i)(3:3).eq.AngTp(iAng)) jEnd=i
       End Do
       if (jEnd.gt.mxtyp) then
         call abend
@@ -333,13 +335,13 @@ c      End Do
       jM = 0
       If (iAng.eq.1) Then
          Do i = iStart, jEnd-1
-            If (tName(i)(3:3).eq.'x') iM = 1
-            If (tName(i)(3:3).eq.'z') iM = 0
-            If (tName(i)(3:3).eq.'y') iM =-1
+            If (tName(i)(4:4).eq.'x') iM = 1
+            If (tName(i)(4:4).eq.'z') iM = 0
+            If (tName(i)(4:4).eq.'y') iM =-1
             Do j = i+1, jEnd
-               If (tName(j)(3:3).eq.'x') jM = 1
-               If (tName(j)(3:3).eq.'z') jM = 0
-               If (tName(j)(3:3).eq.'y') jM =-1
+               If (tName(j)(4:4).eq.'x') jM = 1
+               If (tName(j)(4:4).eq.'z') jM = 0
+               If (tName(j)(4:4).eq.'y') jM =-1
                If (jM.gt.iM) Then
                   iSwap=iM
                   iM=jM
@@ -352,13 +354,13 @@ c      End Do
          End Do
       Else If (iAng.ge.2) Then
          Do i = iStart, jEnd-1
-            iM = iChar(tName(i)(3:3)) - i0
-            iM = 10*iM + iChar(tName(i)(4:4)) - i0
-            If (tName(i)(5:5).eq.'-') iM = -iM
+            iM = iChar(tName(i)(4:4)) - i0
+            iM = 10*iM + iChar(tName(i)(5:5)) - i0
+            If (tName(i)(6:6).eq.'-') iM = -iM
             Do j = i+1, jEnd
-               jM = iChar(tName(j)(3:3)) - i0
-               jM = 10*jM + iChar(tName(j)(4:4)) - i0
-               If (tName(j)(5:5).eq.'-') jM = -jM
+               jM = iChar(tName(j)(4:4)) - i0
+               jM = 10*jM + iChar(tName(j)(5:5)) - i0
+               If (tName(j)(6:6).eq.'-') jM = -jM
                If (jM.gt.iM) Then
                   iSwap=iM
                   iM=jM
@@ -376,7 +378,6 @@ c      End Do
           Go To 777
       End If
 *
- 888  Continue
       If (jx.ne.NxTyp) Then
          ix = jx + 1
          Go To 666
@@ -387,7 +388,7 @@ c      End Do
       iStart = 1
       Do iAB = 1, 19
          Do i = 1, NxTyp
-            If (TName(i)(1:2).eq.AufBau(iAB)) Then
+            If (TName(i)(1:3).eq.AufBau(iAB)) Then
                TSwap(iStart) = TName(i)
                TName(i)='        '
                iStart = iStart + 1

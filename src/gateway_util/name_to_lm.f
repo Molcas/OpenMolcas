@@ -17,9 +17,8 @@
       Character :: Letter
       Integer :: i, lx, ly, lz
 #include "itmax.fh"
-#include "angtp.fh"
 *
-      Letter = BName(2:2)
+      Letter = BName(3:3)
       Call LoCase(Letter)
       l = 0
       m = 0
@@ -29,7 +28,7 @@
       Else if (Letter .eq. 'p') Then
 *       p always appear as px, py, pz
         l = 1
-        Letter = BName(3:3)
+        Letter = BName(4:4)
         Call LoCase(Letter)
         If (Letter .eq. 'x') Then
           m = 1
@@ -49,8 +48,8 @@
         End Do
         If (l .ge. 0) Then
 *         If a label is found it is a spherical shell, just read m
-          Read(BName(3:4),*) m
-          If (BName(5:5) .eq. '-') m = -m
+          Read(BName(4:5),*) m
+          If (BName(6:6) .eq. '-') m = -m
         Else
 *         If no label, this is a Cartesian shell, return -l and some convention for m.
 *         We use m=T(ly+lz)-(lx+ly), where T(n) is the nth triangular number: n*(n+1)/2).

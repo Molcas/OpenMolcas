@@ -119,7 +119,6 @@
       Data DefNm/'basis_library'/
       Data IfTest/.False./
       Data iSeed/24619/
-#include "angtp.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *

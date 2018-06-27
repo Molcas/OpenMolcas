@@ -36,7 +36,7 @@
       END DO
       CALL GETMEM('LAMBDA','ALLO','INTE',LLMB,NBTOT)
       DO IBAS=1,NBTOT
-       LCHAR=NAME(IBAS)(LENIN3:LENIN4)
+       LCHAR=NAME(IBAS)(LENIN4:LENIN5)
        IF(LCHAR.EQ.'  ') THEN
          L=0
        ELSE IF(LCHAR.EQ.'x ') THEN
@@ -47,7 +47,7 @@
          L=0
        ELSE
          READ(LCHAR,'(I2)') L
-         IF (NAME(IBAS)(LENIN5:LENIN5).EQ.'-') THEN
+         IF (NAME(IBAS)(LENIN6:LENIN6).EQ.'-') THEN
            L=-L
          END IF
        END IF

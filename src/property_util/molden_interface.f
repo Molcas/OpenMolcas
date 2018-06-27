@@ -385,51 +385,51 @@ C     Write (MF,'(A)') '[DIPOLE]'
 *
                 If (l.eq.0) Then
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'1s      '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'01s     '//
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                 End If
                 If (l.eq.1) Then
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'2px     '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'02px    '//
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'2py     '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'02py    '//
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'2pz     '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'02pz    '//
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                 End If
                 If ((l.eq.2).and.(.not.y_cart)) Then
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'3d00    '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'03d00   '//
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'3d01+   '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'03d01+  '//
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'3d01-   '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'03d01-  '//
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'3d02+   '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'03d02+  '//
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'3d02-   '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'03d02-  '//
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
@@ -468,37 +468,37 @@ C     Write (MF,'(A)') '[DIPOLE]'
                 End If
                 If ((l.eq.3).and.(.not.y_cart)) Then
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'4f00    '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'04f00   '//
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'4f01+   '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'04f01+  '//
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'4f01-   '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'04f01-  '//
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'4f02+   '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'04f02+  '//
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'4f02-   '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'04f02-  '//
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'4f03+   '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'04f03+  '//
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'4f03-   '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'04f03-  '//
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
@@ -557,47 +557,47 @@ C     Write (MF,'(A)') '[DIPOLE]'
                 End If
                 If ((l.eq.4).and.(.not.y_cart)) Then
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'5g00    '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'05g00   '//
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'5g01+   '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'05g01+  '//
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'5g01-   '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'05g01-  '//
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'5g02+   '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'05g02+  '//
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                  iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'5g02-   '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'05g02-  '//
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'5g03+   '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'05g03+  '//
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'5g03-   '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'05g03-  '//
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'5g04+   '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'05g04+  '//
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
                   kk=kk+1
-                  gtolabel(kk)=AtomLabel(iAtom)//'5g04-   '//
+                  gtolabel(kk)=AtomLabel(iAtom)//'05g04-  '//
      &                         number(icontr)
                   r_Norm(kk)=1.0D0
                   iWork(ipCent3+kk-1)=iAtom
