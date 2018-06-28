@@ -475,6 +475,7 @@ test:intel13:
   <<: *run-tests
   variables:
     <<: *intel13_vars
+    tests: ".all exhaustive"
 
 build:nowarn:
   stage: build

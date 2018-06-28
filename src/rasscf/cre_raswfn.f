@@ -155,13 +155,6 @@
      $        '[NAC,NAC,NROOTS*(NROOTS-1)/2].')
       end if
 
-*     fock matrix
-      wfn_fockmat = mh5_create_dset_real (wfn_fileid,
-     $        'FOCK_MATRIX', 1, [NTOT2])
-      call mh5_init_attr(wfn_fockmat, 'description',
-     $        'Fock matrix '//
-     $        'arranged as blocks of size [NBAS(i)**2], i=1,#irreps')
-
 #ifdef _DMRG_
       if (doDMRG) then
 ! Leon 1/12/2016: Add the QCMaquis checkpoint name to the description of each state
