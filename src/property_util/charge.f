@@ -102,7 +102,7 @@ c      PARAMETER(MXTYP=maxbfn)
       CHARACTER*(LENIN) CNAME(MXATOM)
       CHARACTER*8 TNAME(MXTYP),TMP
       Character*8 TSwap(MXTYP)
-      Character*4 TLbl(MXATOM)
+c      Character*4 TLbl(MXATOM)
       Character*3 AufBau(19)
       Integer ICNT(MXBAS),ITYP(MXBAS), nStab(MxAtom)
       Integer tNUC, NPBonds, AtomA, AtomB, nBas2
@@ -111,7 +111,6 @@ c      PARAMETER(MXTYP=maxbfn)
       Logical FullMlk,lSave
 c      Character*(LENIN) LblCnt(MxAtom)
       Character*(LENIN4) LblCnt4(MxAtom)
-      Character*(LENIN4) Atom_A, Atom_B
       Save ipqswap
       Save ipDSswap
       Logical DMN_SpinAV
@@ -122,6 +121,8 @@ c      Character*(LENIN) LblCnt(MxAtom)
       Character*100 ProgName, Get_ProgName
       Logical DoBond,Reduce_Prt
       External Reduce_Prt
+      Character*8 Clean_BName
+      External Clean_BName
       Data AufBau/'01s',
      &            '02s',            '02p',
      &            '03s',            '03p',
@@ -499,7 +500,7 @@ c      End Do
 *     Just atom label. It's a double of the next one,
 *     but someone could find it usefull in future
 
-      Call Get_LblCnt_All(TLbl)
+c      Call Get_LblCnt_All(TLbl)
 
 *     Atom labels plus symmetry generator
 
@@ -868,9 +869,9 @@ c second call, make a real print out
             Fact = DBLE(nStab(ist))/DBLE(nSym)
             IEND=MIN(IEND+6,nNuc)
             Write(6,*)
-            Write(6,'(15X,6(14X,A,4X))')
+            Write(6,'(14X,6(14X,A,4X))')
      &         (CNAME(I),I=IST,IEND)
-            Write(6,'(15X,6(A12,A12))')
+            Write(6,'(14X,6(A12,A12))')
      &         (' alpha','  beta',I=IST,IEND)
             Do IT=1,NXTYP
                Do J=IST,IEND
@@ -878,7 +879,7 @@ c second call, make a real print out
                   ik=ik+1
                End Do
                If (FullMlk) then
-                  Write(6,'(6X,A8,12F12.4)')TNAME(IT),
+                  Write(6,'(5X,A8,12F12.4)')Clean_BName(TNAME(IT),0),
      &                 (Fac(j)*Q2(J),Fac(j)*QQ(IT,J), J=IST,IEND)
                End If
             End Do
@@ -888,12 +889,12 @@ c second call, make a real print out
                ikk=ikk+1
             End Do
 *
-            Write(6,'(6X,A,12F12.4)')'Total   ',
+            Write(6,'(6X,A,12F12.4)')'Total  ',
      &         (Fac(i)*Q2(I),Fac(i)*QSUM(I),I=IST,IEND)
-            Write(6,'(6X,A,6(6X,F12.4,6X))')'Total   ',
+            Write(6,'(6X,A,6(6X,F12.4,6X))')'Total  ',
      &         (Fac(i)*(Q2(I)+QSUM(I)),I=IST,IEND)
             Write(6,*)
-            Write(6,'(6X,A,6(5X,F12.4,7X))')'Charge  ',
+            Write(6,'(6X,A,6(5X,F12.4,7X))')'Charge ',
      &         (Fac(i)*Work(ip_Charge+I-1),I=IST,IEND)
          End Do
          Write(6,*)
@@ -938,18 +939,18 @@ c icase=2 for usual mulliken, =2 for spin population.
             Fact = DBLE(nStab(ist))/DBLE(nSym)
             IEND=MIN(IEND+12,nNuc)
             Write(6,*)
-            Write(6,'(15X,12(2X,A))') (CNAME(I),I=IST,IEND)
+            Write(6,'(14X,12(2X,A))') (CNAME(I),I=IST,IEND)
             If (FullMlk) then
                Do IT=1,NXTYP
-                  Write(6,'(6X,A8,12F8.4)')TNAME(IT),
+                  Write(6,'(5X,A8,12F8.4)')Clean_BName(TNAME(IT),0),
      &              (Fac(j)*QQ(IT,J),J=IST,IEND)
                End Do
             endIf
-            Write(6,'(6X,A,12F8.4)')'Total   ',
+            Write(6,'(6X,A,12F8.4)')'Total  ',
      &             (Fac(i)*QSUM(I),I=IST,IEND)
             If (iCase.ne.3) Then
               Write(6,*)
-              Write(6,'(6X,A,12F8.4)')'N-E     ',
+              Write(6,'(6X,A,12F8.4)')'N-E    ',
      &             (Fac(i)*Work(ip_Charge+I-1),I=IST,IEND)
             End If
          End Do
@@ -977,6 +978,7 @@ c icase=2 for usual mulliken, =2 for spin population.
       If (iPL.le.2) Go To 9999
       If((iCase.ge.1) .AND. (iCase.le.2) .AND. (tNUC.gt.1)
      &    .AND. (DoBond)) then
+        Write(6,*)
         Write(6,'(6X,A)')
      &   'Mulliken Bond Order analysis'
         Write(6,'(6X,A)')
@@ -985,36 +987,20 @@ c icase=2 for usual mulliken, =2 for spin population.
      &   'Only bonds with order larger than ',BOThrs,' are printed'
         Write(6,*)
         If (nSym.gt.1) then
-            Write(6,'(6X,A)')
-     &      'Atom A -   Generator  Atom B -   Generator  Bond Order'
-            Do I=1, tNUC-1
-             Do J=I+1, tNUC
-                iPair = (J-1)*(J-2)/2 + I
-                BO = Work(ipBonds -1 + iPair)
-              If (BO .ge. BOThrs) then
-               Atom_A =  LblCnt4(I)
-*    &          TLbl(I)//' -  '//LblCnt(I)(Index(LblCnt(I),':')+1:)
-               Atom_B =   LblCnt4(J)
-*    &          TLbl(J)//' -  '//LblCnt(J)(Index(LblCnt(J),':')+1:)
-               Write(6,'(8X,A,9X,A,9X,F7.3)')
-     &          Atom_A, Atom_B, BO
-              End If
-             End Do
-            End Do
+            Write(6,'(8X,A)')'Atom A:Gen.   Atom B:Gen.   Bond Order'
         Else
-            Write(6,'(6X,A)')'Atom A  Atom B  Bond Order'
-            Do I=1, tNUC-1
-              Do J=I+1, tNUC
-                 iPair = (J-1)*(J-2)/2 + I
-                 BO = Work(ipBonds -1 + iPair)
-                If (BO .ge. BOThrs) then
-                    Write(6,'(8X,A,4X,A,4X,F7.3)')
-     &               LblCnt4(I),LblCnt4(J),BO
-*    &               TLbl(I),TLbl(J),BO
-                End If
-              End Do
-            End Do
+            Write(6,'(8X,A)')'Atom A        Atom B        Bond Order'
         End If
+        Do I=1, tNUC-1
+          Do J=I+1, tNUC
+            iPair = (J-1)*(J-2)/2 + I
+            BO = Work(ipBonds -1 + iPair)
+            If (BO .ge. BOThrs) then
+               Write(6,'(8X,2(A,4X),F7.3)')
+     &          LblCnt4(I), LblCnt4(J), BO
+            End If
+          End Do
+        End Do
         Write(6,*)
       End If
 

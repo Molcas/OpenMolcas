@@ -10,6 +10,31 @@
 *                                                                      *
 * Copyright (C) 2017, Ignacio Fdez. Galvan                             *
 ************************************************************************
+*  Name_to_lm
+*
+*> @brief
+*>   Get \f$ l \f$ and \f$ m \f$ numbers from a basis function name.
+*> @author Ignacio Fdez. Galv&aacute;n
+*>
+*> @details
+*> Given a basis function name as a character string, extract the \f$ l
+*> \f$ and \f$ m \f$ quantum numbers.
+*>
+*> Spherical harmonics functions are expected with the format `nnLmms`,
+*> where `nn` is the shell number, `L` is a letter denoting angular
+*> momentum, `mm` is the absolute value of the \f$ m \f$ number, and `s`
+*> is the sign of \f$ m \f$.
+*>
+*> Cartesian functions are expected with the format `Lxxyyzz`, where `L`
+*> is a letter denoting angular momentum, and `xx`, `yy`, `zz` are the
+*> powers of \f$ x \f$, \f$ y \f$ and \f$ z \f$ (\f$ m_x,m_y,m_z \f$).
+*> in this case, the numbers returned are \f$ -l \f$ and
+*> \f$ ((m_y+m_z)^2+m_z-m_y)/2-m_x \f$.
+*>
+*> @param[in]  BName Basis function name
+*> @param[out] l     \f$ l \f$ number (\f$ -l \f$ for Cartesians)
+*> @param[out] m     \f$ m \f$ number (see details for Cartesians)
+************************************************************************
       Subroutine Name_to_lm(BName,l,m)
       Implicit None
       Character(Len=*), Intent(In) :: BName

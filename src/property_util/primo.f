@@ -56,6 +56,8 @@
       LOGICAL PrEne,PrOcc, Large, Go, Debug, Header_Done
       Logical Reduce_Prt
       External Reduce_Prt
+      Character*(LENIN8) Clean_BName
+      External Clean_BName
       Debug=.false.
 #ifdef _DEBUG_
       Debug=.true.
@@ -196,7 +198,7 @@ ct.t.;
 c                    Write (6,'(6X,5(I3,1X,A,15X))')
                      Write (6,'(4X,5(I5,1X,A,9X))')
 ct.t.; end
-     &               (jB,Name(jSB+jB),jB=iB, nB, Inc)
+     &               (jB,Clean_BName(Name(jSB+jB),LENIN),jB=iB, nB, Inc)
                   End Do
                   Write (6,*)
 *
@@ -239,7 +241,7 @@ ct.t.; end
                      End If
                      If (Debug) Write (6,*) ' Fmt=',Fmt
                      Write (ChCMO,Fmt)
-     &                  iB+1,Name(ISB+IB),
+     &                  iB+1,Clean_BName(Name(ISB+IB),LENIN),
      &                  '(',CMO(isCMO+iSO*nB+iB),'), '
                      If (Debug) Write (6,'(A)') ChCMO
                      If (iPos.eq.1) Then
@@ -343,7 +345,7 @@ c          End Do
              if(iPrForm.ne.1) then
               Do IB=0,NB-1
                 Write(6,FMT2)
-     &            IB+1,Name(ISB+IB),
+     &            IB+1,Clean_BName(Name(ISB+IB),LENIN),
      &            (CMO(ISCMO+IO*NB+IB),IO=ISO,IEO)
               End Do
              endif

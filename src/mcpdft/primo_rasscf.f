@@ -33,6 +33,8 @@
 
       Character*8 Fmt1,Fmt2
       Character*132 Line,Blank
+      Character*8 Clean_BName
+      External Clean_BName
 * PAM Nov 05: Non-valence orbitals
       Dimension NVSH(8)
 
@@ -220,9 +222,9 @@
            END IF
            Write(LF,*)
            DO IB=1,NB
-            Write(LF,'(2X,I3,1X,2A,10F10.4)') IB,
-     &        NAME(IBOFF+IB)(1:LENIN),NAME(IBOFF+IB)(LENIN1:LENIN8),
-     &     (CMO(ICOFF+(IWORK(LSLCT-1+ISOFF+I)-1-IBOFF)*NB+IB),
+            Write(LF,'(2X,I3,1X,A,10F10.4)') IB,
+     &        Clean_BName(NAME(IBOFF+IB),LENIN),
+     &        (CMO(ICOFF+(IWORK(LSLCT-1+ISOFF+I)-1-IBOFF)*NB+IB),
      &        I=ISSTART,ISEND)
            END DO
           END DO
@@ -281,19 +283,18 @@
               DO IBAS = 1,NB
                 CC = CMO(ICOFF+(ICOL-1)*NB+IBAS)
                 IF ( ABS(CC).GE.0.1D0 ) THEN
-                  Write(LINE(IST:132),'(I4,1X,2A,A,F7.4,A)')
-     &              IBAS,NAME(IBOFF+IBAS)(1:LENIN),
-     &              NAME(IBOFF+IBAS)(LENIN1:LENIN8),
+                  Write(LINE(IST:132),'(I4,1X,A,A,F7.4,A)')
+     &              IBAS,Clean_BName(NAME(IBOFF+IBAS),LENIN),
      &              '(',CC,')'
                   IST = IST+28
                   IF ( IST.GT.(132-LEFT-28) ) THEN
-                    Write(LF,FMT2//'A)') LINE
+                    Write(LF,FMT2//'A)') TRIM(LINE)
                     LINE = BLANK
                     IST = 9
                   END IF
                 END IF
               END DO
-              Write(LF,FMT2//'A)') LINE
+              Write(LF,FMT2//'A)') TRIM(LINE)
               LINE = BLANK
               IST = 9
             END DO
