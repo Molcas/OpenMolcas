@@ -128,11 +128,16 @@
 *
       Lu_=LuOrb
       Call mma_Allocate(IndT,nnB,Label='IndT')
-      Call RdVec_(FName,Lu_,'COEI',0,nSym,nBas,nOrb,
-     &            CMO,Dummy,
-     &            OccNo,Dummy,
-     &            EOrb,Dummy,
-     &            IndT,VTitle,1,iErr,iWFtype)
+      If (isHDF5) Then
+         Call RdVec_HDF5(fileorb_id,'COEI',nSym,nBas,
+     &                   CMO,OccNo,EOrb,IndT)
+      Else
+         Call RdVec_(FName,Lu_,'COEI',0,nSym,nBas,nOrb,
+     &               CMO,Dummy,
+     &               OccNo,Dummy,
+     &               EOrb,Dummy,
+     &               IndT,VTitle,1,iErr,iWFtype)
+      End If
       Call RdTwoEnrg(Lu_,E_nondyn)
       Call VecSort(nSym,nBas,nBas,CMO,OccNo,IndT,0,NewOrd,iErr)
       indx=1
