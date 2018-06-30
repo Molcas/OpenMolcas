@@ -199,7 +199,7 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       lOMQ=.False.
       lDMS=.False.
       lRel=.False.
-      SW_FileOrb=' '
+      SW_FileOrb='INPORB'
       Prprt=.False.
       Short=.True.
       lECP=.False.

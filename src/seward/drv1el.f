@@ -128,7 +128,6 @@
       endif
       If (Prprt) Then
          FName=SW_FileOrb
-         IF (mylen(FName).eq.0) FName='INPORB'
          Call GetDens(FName(:mylen(FName)),short,iPrint)
          Call CollapseOutput(1,'   Molecular properties:')
          Write (6,'(3X,A)')    '   ---------------------'
@@ -1874,12 +1873,9 @@ c        Call DCopy_(3,Work(ipPSO),1,CoorO(1+(iComp-1)*3),1)
 *     Deallocate memory for property calculation.
 *
       If (Prprt) Then
-         If (Short) then
-            Call mma_deallocate(Den)
-         Else
-            Call mma_deallocate(Vec)
-            Call mma_deallocate(Occ)
-         End If
+         If (Short) Call mma_deallocate(Den)
+         Call mma_deallocate(Vec)
+         Call mma_deallocate(Occ)
          Call CollapseOutput(0,'   Molecular properties:')
       End If
 *                                                                      *
