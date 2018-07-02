@@ -63,6 +63,9 @@
 #include "infscf.fh"
 #include "infso.fh"
 #include "file.fh"
+#ifdef _HDF5_
+#  include "mh5.fh"
+#endif
       Real*8 CMO(mBB,nD), TrM(mBB,nD), OneHam(mBT), Fock(mBT,nD),
      &       Ovrlp(mBT), EOrb(mmB,nD), OccNo(mmB,nD)
       Character FName*512, KSDFT_save*16
@@ -214,7 +217,9 @@
          End Do
       End If
       Call SOrbCHk(OneHam,Ovrlp,Fock,mBT,nD,CMO,mBB)
+#ifdef _HDF5_
       If (isHDF5) Call mh5_close_file(fileorb_id)
+#endif
 #ifdef _DEBUG_
       Call qExit('SOrb')
 #endif
