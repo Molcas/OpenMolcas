@@ -115,6 +115,8 @@
 !      real*8 Elec_Ener
       integer iRef_E,IAD19
       integer IADR19(1:15)
+      integer NMAYBE,KROOT
+      real*8 EAV
 !
       real*8, allocatable :: PLWO(:)
 * Start the traceback utilities
@@ -143,6 +145,7 @@
       IfVB=0
       If (ProgName(1:5).eq.'casvb') IfVB=2
 * Default option switches and values, and initial data.
+      EAV = 0.0d0
       EAV1=0.0d0
       Call RasScf_Init_m()
       Call Seward_Init()
@@ -446,11 +449,10 @@ CGG03 Aug 03
         NMAYBE=IT
       END DO
   11  CONTINUE
-!      Write(*,*) NMAYBE
       do KROOT=1,lROOTS
         ENER(IROOT(KROOT),1)=Work(iEList+MXROOT*(NMAYBE-1) +
      &                                     (KROOT-1))
-         EAV=EAV+ENER(IROOT(KROOT),ITER)*WEIGHT(KROOT)
+         EAV = EAV + ENER(IROOT(KROOT),ITER) * WEIGHT(KROOT)
          Work(iRef_E + KROOT-1) = ENER(IROOT(KROOT),1)
       end do
       Call GetMem('ELIST','FREE','REAL',iEList,MXROOT*MXITER)
