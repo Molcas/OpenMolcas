@@ -42,7 +42,7 @@
 * SEWARD_KINETIC for the heavier atoms is huge, and the default absolute
 * tolerance is too small. It would be better to have relative tolerances,
 * but for the time being we just increase the absolute one
-> Export MOLCAS_THR = 1
+> Export MOLCAS_THR = 2
 
 &SEWARD
   Basis

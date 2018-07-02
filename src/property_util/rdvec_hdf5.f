@@ -38,109 +38,72 @@
 #ifdef _HDF5_
 #include "mh5.fh"
 #include "stdalloc.fh"
-      Logical :: Beta
-      Integer :: nB
+      Integer :: Beta,nB
+      Character(Len=128) :: DataSet,su,sl
       Character(1), Allocatable :: typestring(:)
 
-      Beta = Index(Label,'B').gt.0
+      Beta=0
+      su=''
+      sl=''
+      If (Index(Label,'A').gt.0) Then
+        Beta=-1
+        su='ALPHA_'
+        sl='alpha '
+      End If
+      If (Index(Label,'B').gt.0) Then
+        If (Beta.ne.0) Then
+          Write(6,*)
+          Call AbEnd
+        End If
+        Beta=1
+        su='BETA_'
+        sl='beta '
+      End If
 
       If (Index(Label,'E').gt.0) Then
-        If (Beta) Then
-          If (mh5_exists_dset(fileid,'MO_BETA_ENERGIES')) Then
-            Call mh5_fetch_dset_array_real(fileid,
-     &           'MO_BETA_ENERGIES',Ene)
-          Else
-            Write(6,'(1X,A)') 'The HDF5 file does not contain '//
-     &                        'beta MO energies.'
-            Call AbEnd()
-          End If
+        DataSet='MO_'//Trim(su)//'ENERGIES'
+        If (mh5_exists_dset(fileid,DataSet)) Then
+          Call mh5_fetch_dset_array_real(fileid,DataSet,Ene)
         Else
-          If (mh5_exists_dset(fileid,'MO_ENERGIES')) Then
-            Call mh5_fetch_dset_array_real(fileid,
-     &           'MO_ENERGIES',Ene)
-          Else If (mh5_exists_dset(fileid,'MO_ALPHA_ENERGIES')) Then
-            Call mh5_fetch_dset_array_real(fileid,
-     &           'MO_ALPHA_ENERGIES',Ene)
-          Else
-            Write(6,'(1X,A)') 'The HDF5 file does not contain '//
-     &                        'MO energies.'
-            Call AbEnd()
-          End If
+          Write(6,*) 'The HDF5 file does not contain '//
+     &               Trim(sl)//'MO energies.'
+          Call AbEnd()
         End If
       End If
 
       If (Index(Label,'O').gt.0) Then
-        If (Beta) Then
-          If (mh5_exists_dset(fileid,'MO_BETA_OCCUPATIONS')) Then
-            Call mh5_fetch_dset_array_real(fileid,
-     &           'MO_BETA_OCCUPATIONS',Occ)
-          Else
-            Write(6,'(1X,A)') 'The HDF5 file does not contain '//
-     &                        'beta MO occupations.'
-            Call AbEnd()
-          End If
+        DataSet='MO_'//Trim(su)//'OCCUPATIONS'
+        If (mh5_exists_dset(fileid,DataSet)) Then
+          Call mh5_fetch_dset_array_real(fileid,DataSet,Occ)
         Else
-          If (mh5_exists_dset(fileid,'MO_OCCUPATIONS')) Then
-            Call mh5_fetch_dset_array_real(fileid,
-     &           'MO_OCCUPATIONS',Occ)
-          Else If (mh5_exists_dset(fileid,'MO_ALPHA_OCCUPATIONS')) Then
-            Call mh5_fetch_dset_array_real(fileid,
-     &           'MO_ALPHA_OCCUPATIONS',Occ)
-          Else
-            Write(6,'(1X,A)') 'The HDF5 file does not contain '//
-     &                        'MO occupations.'
-            Call AbEnd()
-          End If
+          Write(6,*) 'The HDF5 file does not contain '//
+     &               Trim(sl)//'MO occupations.'
+          Call AbEnd()
         End If
       End If
 
       If (Index(Label,'C').gt.0) Then
-        If (Beta) Then
-          If (mh5_exists_dset(fileid,'MO_BETA_VECTORS')) Then
-            Call mh5_fetch_dset_array_real(fileid,
-     &           'MO_BETA_VECTORS',CMO)
-          Else
-            Write(6,'(1X,A)') 'The HDF5 file does not contain '//
-     &                        'beta MO coefficients.'
-            Call AbEnd()
-          End If
+        DataSet='MO_'//Trim(su)//'VECTORS'
+        If (mh5_exists_dset(fileid,DataSet)) Then
+          Call mh5_fetch_dset_array_real(fileid,DataSet,CMO)
         Else
-          If (mh5_exists_dset(fileid,'MO_VECTORS')) Then
-            Call mh5_fetch_dset_array_real(fileid,
-     &           'MO_VECTORS',CMO)
-          Else If (mh5_exists_dset(fileid,'MO_ALPHA_VECTORS')) Then
-            Call mh5_fetch_dset_array_real(fileid,
-     &           'MO_ALPHA_VECTORS',CMO)
-          Else
-            Write(6,'(1X,A)') 'The HDF5 file does not contain '//
-     &                        'MO coefficients.'
-            Call AbEnd()
-          End If
+          Write(6,*) 'The HDF5 file does not contain '//
+     &               Trim(sl)//'MO coefficients.'
+          Call AbEnd()
         End If
       End If
 
       If (Index(Label,'I').gt.0) Then
         nB = Sum(nBas)
         Call mma_allocate(typestring,nB)
-        If (Beta) Then
-          If (mh5_exists_dset(fileid,'MO_BETA_TYPEINDICES')) Then
-            Call mh5_fetch_dset_array_str(fileid,
-     &           'MO_BETA_TYPEINDICES',typestring)
-            Call tpstr2tpidx(typestring,Ind,nB)
-          End If
-        Else
-          If (mh5_exists_dset(fileid,'MO_TYPEINDICES')) Then
-            Call mh5_fetch_dset_array_str(fileid,
-     &           'MO_TYPEINDICES',typestring)
-            Call tpstr2tpidx(typestring,Ind,nB)
-          Else If (mh5_exists_dset(fileid,'MO_ALPHA_TYPEINDICES')) Then
-            Call mh5_fetch_dset_array_str(fileid,
-     &           'MO_ALPHA_TYPEINDICES',typestring)
-            Call tpstr2tpidx(typestring,Ind,nB)
-          End If
+        DataSet='MO_'//Trim(su)//'TYPEINDICES'
+        If (mh5_exists_dset(fileid,DataSet)) Then
+          Call mh5_fetch_dset_array_str(fileid,DataSet,typestring)
+          Call tpstr2tpidx(typestring,Ind,nB)
         End If
         Call mma_deallocate(typestring)
       End If
+
 #else
       Call WarningMessage(2,'Calling RdVec_HDF5, but HDF5 is disabled')
       Call AbEnd()

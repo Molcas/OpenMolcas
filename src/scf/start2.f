@@ -113,7 +113,7 @@
          End If
          If(isUHF.eq.1) Then
             If (isHDF5) Then
-              Call RdVec_HDF5(fileorb_id,'COEI',nSym,nBas,
+              Call RdVec_HDF5(fileorb_id,'COEIA',nSym,nBas,
      &                        CMO(1,1),OccNo(1,1),EOrb(1,1),IndT(1,1))
               Call RdVec_HDF5(fileorb_id,'COEIB',nSym,nBas,
      &                        CMO(1,2),OccNo(1,2),EOrb(1,2),IndT(1,2))
