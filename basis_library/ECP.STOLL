@@ -900,6 +900,8 @@ PP,ca,10,4;
 2; ! D-G POTENTIAL
 2, 13.7547280,-16.201965;
 2, 4.76247000,-1.1323900;
+1; ! F-G POTENTIAL
+2, 12.765846,-26.7281780;
 *
 Spectral
 End of Spectral
@@ -1806,10 +1808,10 @@ End of Spectral
 *
 ***************************************
 *   ECP28MWB
-/Br.ECP.Stoll.6s6p1d.5s5p1d.7e-MWB.
+/Br.ECP.Stoll.4s5p.2s3p.7e-MWB.
 Ref 4: A. Bergner, M. Dolg, W. Kuechle, H. Stoll, H. Preuss,
  * Mol. Phys. 80, 1431 (1993).
-    7.00000   2
+    7.00000   1
 *s functions
   4  2
   0.47218810E+01  0.22575550E+01  0.38960800E+00  0.14713400E+00
@@ -3571,84 +3573,6 @@ PP,Pm,51,4;
 2, 1.26960000,-0.6891240;
 1; ! F-G POTENTIAL
 2, 4.81260000,-53.570506;
-*
-Spectral
-End of Spectral
-*
-****************************************
-*   ERROR  -  No corresponding Molpro input found.
-/Sm.ECP.Stoll.12s11p9d8f6g.5s5p4d4f3g.34e-MWB.
-Ref : M. Dolg,  MPI-PKS Dresden, unpublished 1997,
- * XXXXXXXXXX  (1997).
-    34.00000  4
-*s functions
-  12  5
-  8882.9526   1344.0796  299.67129    21.074712  15.053366
-  4.283367    2.380595   0.61494  0.439204  0.264089  0.0552750
-  0.0226590
-  0.001194  0.001158  0.000462  0.002025  0.002924
-  0.007914  0.007230  0.002871  0.012529  0.017967
-  0.019065  0.019891  0.007992  0.035242  0.051312
-  0.826665  0.429244  0.154130  0.580576  0.715743
- -1.457888 -0.771265 -0.276499 -1.050670 -1.303793
-  0.615642  0.478398  0.181360  1.158396  1.915584
-  0.762913  0.637929  0.238869  0.124678 -0.723215
-  0.127363 -0.774686 -0.314185 -3.326173 -7.914616
- -0.101839 -0.113009 -0.215659  1.263720 10.544283
-  0.024742 -0.398638 -0.267984  1.696545 -2.689675
- -0.001975 -0.053711  0.853204  0.347165 -1.781614
-  0.000743 -0.018096  0.345818 -0.854180  1.591670
-*p functions
-  11  5
-  680.84918  157.57119  30.68751  21.757915  15.42526
-  4.92776  2.39658  0.947605  0.425404  0.172344  0.07
-  0.00068   -0.00034   0.000186   -0.000515   -0.000802
-  0.004004  -0.001893  0.000977   -0.002893   -0.006401
-  0.042252  -0.029802  0.018273   -0.048990   -0.045472
-  0.041999   0.019295 -0.018189    0.048370   -0.011450
- -0.277929   0.088152 -0.039333    0.112184    0.271651
- 0.580959   -0.325898  0.177104   -0.598263   -1.615351
- 0.524313   -0.271103  0.159076   -0.232946    1.447931
- 0.071816    0.345828  -0.365862   1.520257    0.933929
- -0.007870   0.631848  -0.250020  -0.505134    -2.735621
- 0.00.023    0.224161  -0.038790   -1.324970   2.630061
- -0.000900   0.003569  1.059783   1.069821    -1.165613
-* d functions
-  9   4
-  329.8599  99.590457  37.617718  7.933572  4.475529
-  2.431973  1.247813  0.561752  0.25
-  0.000625 -0.000309  0.000325   0.000562
-  0.004812 -0.002405  0.002475   0.004760
-  0.019242 -0.009541  0.009784   0.016403
-  0.215587 -0.129358  0.132853   0.300998
-  0.392128 -0.164431  0.216752   0.417614
-  0.351884 -0.236732  0.220092  -0.010264
-  0.149436  0.292386 -0.666675  -1.936117
-  0.019787  0.621834 -0.613043   2.471196
-  0.000187  0.280401  1.220905  -1.269230
-* f functions
-  8  4
-  109.524820  40.0531470  17.836566  8.10981  3.705554
-  1.647552  0.684474  0.25034
-  0.004434   0.005289  0.005272   -0.006969
-  0.041322   0.047697  0.039938  -0.081275
-  0.132556   0.158082  0.1516556  -0.221811
-  0.258937  0.284625   0.203283   -0.449424
-  0.344927  0.288967   0.240459   0.379078
-  0.330962  -0.097944  -0.717002  0.820942
-  0.229281  -0.553571  -0.190351  -1.324701
-  0.108861  -0.348470  0.863505  0.799305
-* g functions
-  6   3
-  17.836566   8.10981  3.705554   1.647552   0.684474
-  0.25034
-  0.029821  0.092417  0.103435
-  0.099822  0.232546  0.242709
-  0.212972  0.532846  0.429888
-  0.47233   0.135175  -0.781292
-  0.441275  -0.632488 0.035535
-  0.086276  -0.183293  0.765358
-**** ADD A PSEUDO POTENTIAL HERE
 *
 Spectral
 End of Spectral
@@ -5917,8 +5841,9 @@ DKSO
 *
 End Of Spectral Representation Operator
 ***************************************
-*  ERROR - not quite ECP2MWB
-/O.ECP.Stoll.4s5p.2s3p.6e-SOC.
+*   ERROR - Not quite ECP2MWB
+* commented out, since there is no pseudopotential
+*/O.ECP.Stoll.4s5p.2s3p.6e-SOC.
 Ref 4: A. Bergner, M. Dolg, W. Kuechle, H. Stoll, H. Preuss,
  * Mol. Phys. 80, 1431 (1993). Recontracted
     6.00000  1
@@ -5970,8 +5895,9 @@ DKSO
 *
 End Of Spectral Representation Operator
 ***************************************
-*  ERROR - not quite Stuttgart RSC 1997 ECP
-/Np.ECP.Stoll.12s11p10d8f.8s7p6d4f.33e-SOC.
+*   ERROR - Not quite Stuttgart RSC 1997 ECP
+* commented out, since there is no pseudopotential
+*/Np.ECP.Stoll.12s11p10d8f.8s7p6d4f.33e-SOC.
 -Basissatz fuer PP. von W. Kuechle, Diplomarbeit 1993.  recontracted for SOC
  * ?????
     33.0000   3
@@ -6151,8 +6077,9 @@ DKSO
 *
 End Of Spectral Representation Operator
 ***************************************
-*  ERROR - not quite Stuttgart RSC 1997 ECP
-/Np.ECP.Stoll.12s11p10d8f2g.8s7p6d4f2g.33e-SOC.
+*   ERROR - Not quite Stuttgart RSC 1997 ECP
+* commented out, since there is no pseudopotential
+*/Np.ECP.Stoll.12s11p10d8f2g.8s7p6d4f2g.33e-SOC.
 -Basissatz fuer PP. von W. Kuechle, Diplomarbeit 1993.  recontracted for SOC
  * ?????
     33.0000   4
@@ -6534,7 +6461,7 @@ End of Spectral
 *
 ***************************************
 *    ECP60MWB  (ECP60ANO basis functions)
-/Pa.ECP.Stoll.14s13p10d8f3g.6s6p5d4f3g.31e-MWB.
+/Pa.ECP.Stoll.14s13p10d8f6g.6s6p5d4f3g.31e-MWB.
 -X. Cao, M. Dolg, H. Stoll, J. Chem. Phys. 118, 487 (2003).
  ?????
     31.0000   4
@@ -6601,8 +6528,8 @@ End of Spectral
     0.400573   -0.190315   -0.891219   -1.250898
     0.305573    0.501246   -0.213899    1.478948
     0.139256    0.544479    0.661085   -0.880560
-    6    3
 *g functions
+    6    3
    87.991327   28.340195   12.440994    3.957296    1.875944
     0.827589
     0.000282    0.001875   -0.001008
@@ -7207,7 +7134,7 @@ End of Spectral
 ***************************************
 *    ECP60MWB  (ECP60ANO basis functions)
 /Cf.ECP.Stoll.14s13p10d8f6g.6s6p5d4f3g.38e-MWB.
--X. Cao, M. Dolg, H. Stoll, J. Chem. Phys. 118, 487 (2003).
+*-X. Cao, M. Dolg, H. Stoll, J. Chem. Phys. 118, 487 (2003).
 Basissatz fuer PP. von W. Kuechle, Diplomarbeit 1993.
  ?????
     38.0000    4
@@ -9355,10 +9282,12 @@ End of Spectral
 *
 ***************************************
 *   ERROR - Not quite Stuttgart RSC 1997 ECP
-/U.ECP.Stoll.12s11p10d8f2g.8s7p6d4f2g.32e-SOC.
+* commented out, since there is no pseudopotential
+*/U.ECP.Stoll.12s11p10d8f2g.8s7p6d4f2g.32e-SOC.
 -Basissatz fuer PP. von W. Kuechle, Diplomarbeit 1993.
  Recontracted and modified for use with AMFI
    32.   4
+*s functions
    12   8
   0.15349336E+04  0.22774838E+03  0.30696831E+02  0.18170626E+02  0.10813537E+02
   0.27332980E+01  0.14314980E+01  0.61529800E+00  0.28663900E+00  0.71170000E-01
@@ -9543,10 +9472,12 @@ DKSO
 End Of Spectral Representation Operator
 ***************************************
 *   ERROR - Not quite Stuttgart RSC 1997 ECP
-/Pu.ECP.Stoll.12s11p10d8f2g.8s7p6d4f2g.34e-SOC.
+* commented out, since there is no pseudopotential
+*/Pu.ECP.Stoll.12s11p10d8f2g.8s7p6d4f2g.34e-SOC.
 -Basissatz fuer PP. von W. Kuechle, Diplomarbeit 1993.
  Recontracted and modified for use with AMFI
    34.   4
+*s functions
    12    8
   0.94868027E+03  0.54715783E+02  0.35296205E+02  0.24290501E+02  0.11292792E+02
   0.30681880E+01  0.15936980E+01  0.69447400E+00  0.31770700E+00  0.72427000E-01

@@ -229,6 +229,7 @@ c      END IF
                JASM = ICBLOCK(3,JBLOCK)
                JBSM = ICBLOCK(4,JBLOCK)
                JOFF = ICBLOCK(5,JBLOCK)
+               PL=1.D0
                CALL PRMBLK(     IDC,  ISTRFL,    JASM,    JBSM,    JATP,
      &                         JBTP,      PS,      PL,    LATP,    LBTP,
      &                         LASM,    LBSM,    LSGN,    LTRP,   NPERM)

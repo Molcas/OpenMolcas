@@ -25,23 +25,39 @@ if (NOT PYTHONINTERP_FOUND)
 endif ()
 if (PYTHONINTERP_FOUND)
 
-        set (PYMOLCAS_TARGET "${OUTPUT_PATH}/pymolcas_")
-        set (PYMOLCAS_TARGET "${PYMOLCAS_TARGET}" PARENT_SCOPE)
-
-        add_custom_command (OUTPUT ${PYMOLCAS_TARGET}
-                COMMAND ${PYTHON_EXECUTABLE} export.py ${PYMOLCAS_TARGET}
+        execute_process (
+                COMMAND ${PYTHON_EXECUTABLE} imports.py
                 WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-                DEPENDS ${py_sources}
+                OUTPUT_VARIABLE PYMOLCAS_IMPORT_OUTPUT
+                RESULT_VARIABLE PYMOLCAS_IMPORT_RC
+                OUTPUT_STRIP_TRAILING_WHITESPACE
                 )
 
-        add_custom_target (pymolcas ALL
-                DEPENDS ${PYMOLCAS_TARGET}
+        if (PYMOLCAS_IMPORT_RC)
+
+                message (WARNING "Some python modules are not available: ${PYMOLCAS_IMPORT_OUTPUT}\npymolcas will be disabled")
+
+        else ()
+
+                set (PYMOLCAS_TARGET "${OUTPUT_PATH}/pymolcas_")
+                set (PYMOLCAS_TARGET "${PYMOLCAS_TARGET}" PARENT_SCOPE)
+
+                add_custom_command (OUTPUT ${PYMOLCAS_TARGET}
+                        COMMAND ${PYTHON_EXECUTABLE} export.py ${PYMOLCAS_TARGET}
+                        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+                        DEPENDS ${py_sources}
+                        )
+
+                add_custom_target (pymolcas ALL
+                        DEPENDS ${PYMOLCAS_TARGET}
+                        )
+
+                add_custom_command (TARGET pymolcas
+                        POST_BUILD
+                        COMMAND ${OPENMOLCAS_DIR}/sbin/install_pymolcas.sh ${PYMOLCAS_TARGET}
                 )
 
-        add_custom_command (TARGET pymolcas
-                POST_BUILD
-                COMMAND ${OPENMOLCAS_DIR}/sbin/install_pymolcas.sh ${PYMOLCAS_TARGET}
-                )
+        endif ()
 
 else ()
 

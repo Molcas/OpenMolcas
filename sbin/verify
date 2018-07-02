@@ -814,7 +814,7 @@ task:
   group is specified, a default group is selected
   (i.e. the 'standard' group). When nothing is specified,
   the virtual group '.default' (which consists of
-  'standard', 'extra', and 'grayzone') is selected.
+  'standard', 'additional', and 'grayzone') is selected.
 
   empty: run all tests from group '.default'
   a list of tests (group:nr1[,nr2,...]):
@@ -827,15 +827,17 @@ task:
     001-010,-004 (tests 1 to 10 except 4)
   a group (subdirectory), specified by name:
     standard
-    extra
+    additional
     performance
     benchmark
     grayzone
+    ...
   a group (virtual), specified by name:
     .basic
     .default
     .critical
     .all
+    ...
   a group followed by a colon and then any of the above
   lists of numbers/ranges:
     performance:000-100,-005-009,-043
@@ -847,19 +849,19 @@ are separated by a space (you can mix e.g. number tasks and
 files)
 
 Examples:
-  $DRIVER_base verify                - run default tests (standard, extra, grayzone)
-  $DRIVER_base verify .all           - run all tests (but not performance, benchmark)
-  $DRIVER_base verify .everything    - run _all_ tests (yes, ALL tests)
-  $DRIVER_base verify standard       - run all standard tests
-  $DRIVER_base verify performance    - run performance tests (ca 30 min)
-  $DRIVER_base verify benchmark      - run benchmark tests (several hours)
-  $DRIVER_base verify -m caspt2      - run standard tests that contain &caspt2 module
-  $DRIVER_base verify -w ksdft       - run all tests with 'ksdft' word
-  $DRIVER_base verify 001-005,-003   - run standard tests 001 to 005 but not 003
-  $DRIVER_base verify extra:200-220  - run extra tests from 200 to 220
-  $DRIVER_base verify .all extra:-   - run all tests except those from extra
-  $DRIVER_base verify --failed       - run (default) tests that failed the last time
-  $DRIVER_base verify -d 000         - run standard test 000 with output on the screen
+  $DRIVER_base verify                   - run default tests (standard, additional, grayzone)
+  $DRIVER_base verify .all              - run all tests (but not performance, benchmark)
+  $DRIVER_base verify .everything       - run _all_ tests (yes, ALL tests)
+  $DRIVER_base verify standard          - run all standard tests
+  $DRIVER_base verify performance       - run performance tests (ca 30 min)
+  $DRIVER_base verify benchmark         - run benchmark tests (several hours)
+  $DRIVER_base verify -m caspt2         - run standard tests that contain &caspt2 module
+  $DRIVER_base verify -w ksdft          - run all tests with 'ksdft' word
+  $DRIVER_base verify 001-005,-003      - run standard tests 001 to 005 but not 003
+  $DRIVER_base verify standard:050-070  - run standard tests from 050 to 070
+  $DRIVER_base verify .all standard:-   - run all tests except those from standard
+  $DRIVER_base verify --failed          - run (default) tests that failed the last time
+  $DRIVER_base verify -d 000            - run standard test 000 with output on the screen
 
 EOF
         exit shift(@_);
@@ -972,7 +974,7 @@ sub list_groups {
 sub vgroup_to_groups {
         # convert virtual group name from task to array of real group names:
         #   standard  -> (standard)
-        #   .critical -> (standard, extra)
+        #   .critical -> (standard, additional)
         my $vgroup = shift;
         my @groups;
         if ($vgroup =~ /^\./) {

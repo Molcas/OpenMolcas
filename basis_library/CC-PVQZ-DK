@@ -21,7 +21,7 @@
 * Original exponents recontracted: W.A. de Jong, R.J. Harrison and D.A. Dixon, J. Chem. Phys. 114, 48 (2001).
 * Sc - Zn: N.B. Balabanov and K.A. Peterson, J. Chem. Phys. 123, 064107 (2005)
 ********************************************************************************
-/H.cc-pVQZ-DK....
+/H.cc-pVQZ-DK..6s3p2d1f.4s3p2d1f.
 For reference to original basis set, see header.
 HYDROGEN       (6s,3p,2d,1f) -> [4s,3p,2d,1f]
          1.   3
@@ -57,7 +57,7 @@ HYDROGEN       (6s,3p,2d,1f) -> [4s,3p,2d,1f]
    1    1
              1.3970000
      1.0000000
-/He.cc-pVQZ-DK....
+/He.cc-pVQZ-DK..7s3p2d1f.4s3p2d1f.
 For reference to original basis set, see header.
 HELIUM       (7s,3p,2d,1f) -> [4s,3p,2d,1f]
          2.   3
@@ -95,7 +95,7 @@ HELIUM       (7s,3p,2d,1f) -> [4s,3p,2d,1f]
    1    1
              2.6800000
      1.0000000
-/Li.cc-pVQZ-DK....
+/Li.cc-pVQZ-DK..12s6p3d2f1g.5s4p3d2f1g.
 For reference to original basis set, see header.
 LITHIUM       (12s,6p,3d,2f,1g) -> [5s,4p,3d,2f,1g]
          3.   4
@@ -157,7 +157,7 @@ LITHIUM       (12s,6p,3d,2f,1g) -> [5s,4p,3d,2f,1g]
    1    1
              0.2380000
      1.0000000
-/Be.cc-pVQZ-DK....
+/Be.cc-pVQZ-DK..12s6p3d2f1g.5s4p3d2f1g.
 For reference to original basis set, see header.
 BERYLLIUM       (12s,6p,3d,2f,1g) -> [5s,4p,3d,2f,1g]
          4.   4
@@ -219,7 +219,7 @@ BERYLLIUM       (12s,6p,3d,2f,1g) -> [5s,4p,3d,2f,1g]
    1    1
              0.4150000
      1.0000000
-/B.cc-pVQZ-DK....
+/B.cc-pVQZ-DK..12s6p3d2f1g.5s4p3d2f1g.
 For reference to original basis set, see header.
 BORON       (12s,6p,3d,2f,1g) -> [5s,4p,3d,2f,1g]
          5.   4
@@ -281,7 +281,7 @@ BORON       (12s,6p,3d,2f,1g) -> [5s,4p,3d,2f,1g]
    1    1
              0.6730000
      1.0000000
-/C.cc-pVQZ-DK....
+/C.cc-pVQZ-DK..12s6p3d2f1g.5s4p3d2f1g.
 For reference to original basis set, see header.
 CARBON       (12s,6p,3d,2f,1g) -> [5s,4p,3d,2f,1g]
          6.   4
@@ -343,7 +343,7 @@ CARBON       (12s,6p,3d,2f,1g) -> [5s,4p,3d,2f,1g]
    1    1
              1.0110000
      1.0000000
-/N.cc-pVQZ-DK....
+/N.cc-pVQZ-DK..12s6p3d2f1g.5s4p3d2f1g.
 For reference to original basis set, see header.
 NITROGEN       (12s,6p,3d,2f,1g) -> [5s,4p,3d,2f,1g]
          7.   4
@@ -405,7 +405,7 @@ NITROGEN       (12s,6p,3d,2f,1g) -> [5s,4p,3d,2f,1g]
    1    1
              1.4270000
      1.0000000
-/O.cc-pVQZ-DK....
+/O.cc-pVQZ-DK..12s6p3d2f1g.5s4p3d2f1g.
 For reference to original basis set, see header.
 OXYGEN       (12s,6p,3d,2f,1g) -> [5s,4p,3d,2f,1g]
          8.   4
@@ -467,7 +467,7 @@ OXYGEN       (12s,6p,3d,2f,1g) -> [5s,4p,3d,2f,1g]
    1    1
              1.8460000
      1.0000000
-/F.cc-pVQZ-DK....
+/F.cc-pVQZ-DK..12s6p3d2f1g.5s4p3d2f1g.
 For reference to original basis set, see header.
 FLUORINE       (12s,6p,3d,2f,1g) -> [5s,4p,3d,2f,1g]
          9.   4
@@ -529,7 +529,7 @@ FLUORINE       (12s,6p,3d,2f,1g) -> [5s,4p,3d,2f,1g]
    1    1
              2.3760000
      1.0000000
-/Ne.cc-pVQZ-DK....
+/Ne.cc-pVQZ-DK..12s6p3d2f1g.5s4p3d2f1g.
 For reference to original basis set, see header.
 NEON       (12s,6p,3d,2f,1g) -> [5s,4p,3d,2f,1g]
          10.   4
@@ -591,7 +591,7 @@ NEON       (12s,6p,3d,2f,1g) -> [5s,4p,3d,2f,1g]
    1    1
              2.9830000
      1.0000000
-/Na.cc-pVQZ-DK....
+/Na.cc-pVQZ-DK..19s12p3d2f1g.6s5p3d2f1g.
 For reference to original basis set, see header.
 SODIUM       (19s,12p,3d,2f,1g) -> [6s,5p,3d,2f,1g]
          11.   4
@@ -679,7 +679,7 @@ SODIUM       (19s,12p,3d,2f,1g) -> [6s,5p,3d,2f,1g]
    1    1
              0.1722000
      1.0000000
-/Mg.cc-pVQZ-DK....
+/Mg.cc-pVQZ-DK..16s12p3d2f1g.6s5p3d2f1g.
 For reference to original basis set, see header.
 MAGNESIUM       (16s,12p,3d,2f,1g) -> [6s,5p,3d,2f,1g]
          12.   4
@@ -761,7 +761,7 @@ MAGNESIUM       (16s,12p,3d,2f,1g) -> [6s,5p,3d,2f,1g]
    1    1
              0.3070000
      1.0000000
-/Al.cc-pVQZ-DK....
+/Al.cc-pVQZ-DK..16s11p3d2f1g.6s5p3d2f1g.
 For reference to original basis set, see header.
 ALUMINUM       (16s,11p,3d,2f,1g) -> [6s,5p,3d,2f,1g]
          13.   4
@@ -841,7 +841,7 @@ ALUMINUM       (16s,11p,3d,2f,1g) -> [6s,5p,3d,2f,1g]
    1    1
              0.3570000
      1.0000000
-/Si.cc-pVQZ-DK....
+/Si.cc-pVQZ-DK..16s11p3d2f1g.6s5p3d2f1g.
 For reference to original basis set, see header.
 SILICON       (16s,11p,3d,2f,1g) -> [6s,5p,3d,2f,1g]
          14.   4
@@ -921,7 +921,7 @@ SILICON       (16s,11p,3d,2f,1g) -> [6s,5p,3d,2f,1g]
    1    1
              0.4610000
      1.0000000
-/P.cc-pVQZ-DK....
+/P.cc-pVQZ-DK..16s11p3d2f1g.6s5p3d2f1g.
 For reference to original basis set, see header.
 PHOSPHOROUS       (16s,11p,3d,2f,1g) -> [6s,5p,3d,2f,1g]
          15.   4
@@ -1001,7 +1001,7 @@ PHOSPHOROUS       (16s,11p,3d,2f,1g) -> [6s,5p,3d,2f,1g]
    1    1
              0.5970000
      1.0000000
-/S.cc-pVQZ-DK....
+/S.cc-pVQZ-DK..16s11p3d2f1g.6s5p3d2f1g.
 For reference to original basis set, see header.
 SULFUR       (16s,11p,3d,2f,1g) -> [6s,5p,3d,2f,1g]
          16.   4
@@ -1081,7 +1081,7 @@ SULFUR       (16s,11p,3d,2f,1g) -> [6s,5p,3d,2f,1g]
    1    1
              0.6830000
      1.0000000
-/Cl.cc-pVQZ-DK....
+/Cl.cc-pVQZ-DK..16s11p3d2f1g.6s5p3d2f1g.
 For reference to original basis set, see header.
 CHLORINE       (16s,11p,3d,2f,1g) -> [6s,5p,3d,2f,1g]
          17.   4
@@ -1161,7 +1161,7 @@ CHLORINE       (16s,11p,3d,2f,1g) -> [6s,5p,3d,2f,1g]
    1    1
              0.8270000
      1.0000000
-/Ar.cc-pVQZ-DK....
+/Ar.cc-pVQZ-DK..16s11p3d2f1g.6s5p3d2f1g.
 For reference to original basis set, see header.
 ARGON       (16s,11p,3d,2f,1g) -> [6s,5p,3d,2f,1g]
          18.   4
@@ -1241,7 +1241,7 @@ ARGON       (16s,11p,3d,2f,1g) -> [6s,5p,3d,2f,1g]
    1    1
              1.0070000
      1.0000000
-/Sc.cc-pVQZ-DK....
+/Sc.cc-pVQZ-DK..22s18p11d3f2g1h.8s7p5d3f2g1h.
 For reference to original basis set, see header.
 SCANDIUM       (22s,18p,11d,3f,2g,1h) -> [8s,7p,5d,3f,2g,1h]
          21.   5
@@ -1371,7 +1371,7 @@ SCANDIUM       (22s,18p,11d,3f,2g,1h) -> [8s,7p,5d,3f,2g,1h]
    1    1
              0.4934000
      1.0000000
-/Ti.cc-pVQZ-DK....
+/Ti.cc-pVQZ-DK..22s18p11d3f2g1h.8s7p5d3f2g1h.
 For reference to original basis set, see header.
 TITANIUM       (22s,18p,11d,3f,2g,1h) -> [8s,7p,5d,3f,2g,1h]
          22.   5
@@ -1501,7 +1501,7 @@ TITANIUM       (22s,18p,11d,3f,2g,1h) -> [8s,7p,5d,3f,2g,1h]
    1    1
              0.8524000
      1.0000000
-/V.cc-pVQZ-DK....
+/V.cc-pVQZ-DK..22s18p11d3f2g1h.8s7p5d3f2g1h.
 For reference to original basis set, see header.
 VANADIUM       (22s,18p,11d,3f,2g,1h) -> [8s,7p,5d,3f,2g,1h]
          23.   5
@@ -1631,7 +1631,7 @@ VANADIUM       (22s,18p,11d,3f,2g,1h) -> [8s,7p,5d,3f,2g,1h]
    1    1
              1.2875000
      1.0000000
-/Cr.cc-pVQZ-DK....
+/Cr.cc-pVQZ-DK..22s18p11d3f2g1h.8s7p5d3f2g1h.
 For reference to original basis set, see header.
 CHROMIUM       (22s,18p,11d,3f,2g,1h) -> [8s,7p,5d,3f,2g,1h]
          24.   5
@@ -1761,7 +1761,7 @@ CHROMIUM       (22s,18p,11d,3f,2g,1h) -> [8s,7p,5d,3f,2g,1h]
    1    1
              1.6472000
      1.0000000
-/Mn.cc-pVQZ-DK....
+/Mn.cc-pVQZ-DK..22s18p11d3f2g1h.8s7p5d3f2g1h.
 For reference to original basis set, see header.
 MANGANESE       (22s,18p,11d,3f,2g,1h) -> [8s,7p,5d,3f,2g,1h]
          25.   5
@@ -1891,7 +1891,7 @@ MANGANESE       (22s,18p,11d,3f,2g,1h) -> [8s,7p,5d,3f,2g,1h]
    1    1
              1.9660000
      1.0000000
-/Fe.cc-pVQZ-DK....
+/Fe.cc-pVQZ-DK..22s18p11d3f2g1h.8s7p5d3f2g1h.
 For reference to original basis set, see header.
 IRON       (22s,18p,11d,3f,2g,1h) -> [8s,7p,5d,3f,2g,1h]
          26.   5
@@ -2021,7 +2021,7 @@ IRON       (22s,18p,11d,3f,2g,1h) -> [8s,7p,5d,3f,2g,1h]
    1    1
              2.3448000
      1.0000000
-/Co.cc-pVQZ-DK....
+/Co.cc-pVQZ-DK..22s18p11d3f2g1h.8s7p5d3f2g1h.
 For reference to original basis set, see header.
 COBALT       (22s,18p,11d,3f,2g,1h) -> [8s,7p,5d,3f,2g,1h]
          27.   5
@@ -2151,7 +2151,7 @@ COBALT       (22s,18p,11d,3f,2g,1h) -> [8s,7p,5d,3f,2g,1h]
    1    1
              2.7485000
      1.0000000
-/Ni.cc-pVQZ-DK....
+/Ni.cc-pVQZ-DK..22s18p11d3f2g1h.8s7p5d3f2g1h.
 For reference to original basis set, see header.
 NICKEL       (22s,18p,11d,3f,2g,1h) -> [8s,7p,5d,3f,2g,1h]
          28.   5
@@ -2281,7 +2281,7 @@ NICKEL       (22s,18p,11d,3f,2g,1h) -> [8s,7p,5d,3f,2g,1h]
    1    1
              3.1948000
      1.0000000
-/Cu.cc-pVQZ-DK....
+/Cu.cc-pVQZ-DK..22s18p11d3f2g1h.8s7p5d3f2g1h.
 For reference to original basis set, see header.
 COPPER       (22s,18p,11d,3f,2g,1h) -> [8s,7p,5d,3f,2g,1h]
          29.   5
@@ -2411,7 +2411,7 @@ COPPER       (22s,18p,11d,3f,2g,1h) -> [8s,7p,5d,3f,2g,1h]
    1    1
              3.7293000
      1.0000000
-/Zn.cc-pVQZ-DK....
+/Zn.cc-pVQZ-DK..22s18p11d3f2g1h.8s7p5d3f2g1h.
 For reference to original basis set, see header.
 ZINC       (22s,18p,11d,3f,2g,1h) -> [8s,7p,5d,3f,2g,1h]
          30.   5
@@ -2541,7 +2541,7 @@ ZINC       (22s,18p,11d,3f,2g,1h) -> [8s,7p,5d,3f,2g,1h]
    1    1
              4.3396000
      1.0000000
-/Ga.cc-pVQZ-DK....
+/Ga.cc-pVQZ-DK..21s16p12d2f1g.7s6p4d2f1g.
 For reference to original basis set, see header.
 GALLIUM       (21s,16p,12d,2f,1g) -> [7s,6p,4d,2f,1g]
          31.   4
@@ -2659,7 +2659,7 @@ GALLIUM       (21s,16p,12d,2f,1g) -> [7s,6p,4d,2f,1g]
    1    1
              0.4032000
      1.0000000
-/Ge.cc-pVQZ-DK....
+/Ge.cc-pVQZ-DK..21s16p12d2f1g.7s6p4d2f1g.
 For reference to original basis set, see header.
 GERMANIUM       (21s,16p,12d,2f,1g) -> [7s,6p,4d,2f,1g]
          32.   4
@@ -2777,7 +2777,7 @@ GERMANIUM       (21s,16p,12d,2f,1g) -> [7s,6p,4d,2f,1g]
    1    1
              0.4681000
      1.0000000
-/As.cc-pVQZ-DK....
+/As.cc-pVQZ-DK..21s16p12d2f1g.7s6p4d2f1g.
 For reference to original basis set, see header.
 ARSENIC       (21s,16p,12d,2f,1g) -> [7s,6p,4d,2f,1g]
          33.   4
@@ -2895,7 +2895,7 @@ ARSENIC       (21s,16p,12d,2f,1g) -> [7s,6p,4d,2f,1g]
    1    1
              0.5465000
      1.0000000
-/Se.cc-pVQZ-DK....
+/Se.cc-pVQZ-DK..21s16p12d2f1g.7s6p4d2f1g.
 For reference to original basis set, see header.
 SELENIUM       (21s,16p,12d,2f,1g) -> [7s,6p,4d,2f,1g]
          34.   4
@@ -3013,7 +3013,7 @@ SELENIUM       (21s,16p,12d,2f,1g) -> [7s,6p,4d,2f,1g]
    1    1
              0.5730000
      1.0000000
-/Br.cc-pVQZ-DK....
+/Br.cc-pVQZ-DK..21s16p12d2f1g.7s6p4d2f1g.
 For reference to original basis set, see header.
 BROMINE       (21s,16p,12d,2f,1g) -> [7s,6p,4d,2f,1g]
          35.   4
@@ -3131,7 +3131,7 @@ BROMINE       (21s,16p,12d,2f,1g) -> [7s,6p,4d,2f,1g]
    1    1
              0.6491000
      1.0000000
-/Kr.cc-pVQZ-DK....
+/Kr.cc-pVQZ-DK..21s16p12d2f1g.7s6p4d2f1g.
 For reference to original basis set, see header.
 KRYPTON       (21s,16p,12d,2f,1g) -> [7s,6p,4d,2f,1g]
          36.   4
