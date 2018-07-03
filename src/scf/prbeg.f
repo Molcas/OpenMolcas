@@ -73,13 +73,8 @@
             Write(6,'(29x,A)') 'Results refer to orbitals obtained '
      &                       //'from core diagonalization'
          Else If (InVec.eq.2) Then
-            if(is_FileOrb.eq.0) then
-            Write(6,'(34x,A)') 'Results refer to input orbitals '
-     &                       //'read from INPORB'
-            else
             Write(6,'(34x,A,A)') 'Results refer to input orbitals '
-     &            //'read from ',SCF_FileOrb(1:index(SCF_FileOrb,' '))
-            endif
+     &            //'read from ',Trim(SCF_FileOrb)
          Else If (InVec.eq.3) Then
             Write(6,'(34x,A)') 'Results refer to density matrix '
      &                       //'read from COMOLD'

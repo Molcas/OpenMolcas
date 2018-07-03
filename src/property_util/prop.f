@@ -50,7 +50,7 @@
 * 2000 Dept. of Chem. Phys., Univ. of Lund, Sweden                     *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-#include "constants.fh"
+#include "constants2.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
       parameter (lmax=16)
@@ -166,36 +166,22 @@
 *
 *----    New style output
 *
-*        conversion factor from au to Debye*Ang**l
-*
-         Fact_e=CONST_ELEMENTARY_CHARGE_IN_SI_
-         Fact_a=CONST_BOHR_RADIUS_IN_SI_
-         Fact_c=CONST_C_IN_SI_
-*        In esu * m
-         Fact_au2esum=Fact_e*Fact_c*Fact_a*10.D0
-*        In esu * cm
-         Fact_au2esucm=Fact_au2esum*100.D0
-*        In Debye
-         Fact_au2Debye=Fact_au2esucm*1.0D18
-*
-         Fact_au2ang=Fact_a*1.0D10
-*
          Line=' '
          If (lPole.eq.0) Then
             Line='Charge (e):'
             Fact=1.0D0
          Else If (lPole.eq.1) Then
             Line='Dipole Moment (Debye):'
-            Fact=Fact_au2Debye
+            Fact=Debye
          Else If (lPole.eq.2) Then
             Line='Quadrupole Moment (Debye*Ang):'
-            Fact=Fact_au2Debye*Fact_au2ang
+            Fact=Debye*Angstrom
          Else If (lPole.eq.3) Then
             Line='Octapole Moment (Debye*Ang**2):'
-            Fact=Fact_au2Debye*Fact_au2ang**2
+            Fact=Debye*Angstrom**2
          Else If (lPole.eq.4) Then
             Line='Hexadecapole Moment (Debye*Ang**3):'
-            Fact=Fact_au2Debye*Fact_au2ang**3
+            Fact=Debye*Angstrom**3
          Else
             Line=''
             If (lpole.le.9) Then
@@ -215,12 +201,12 @@
                iSt=iSt+2
             End If
             Line(iSt:iSt+2)='):'
-            Fact=Fact_au2Debye*Fact_au2ang**(lPole-1)
+            Fact=Debye*Angstrom**(lPole-1)
          End If
          Write(6,'(6X,A)') Line(:mylen(Line))
          If (lpole.gt.0) Then
             Write (6,'(6X,A,3F10.4)') 'Origin of the operator (Ang)=',
-     &            (cen1(i)*Fact_au2ang,i=1,3)
+     &            (cen1(i)*Angstrom,i=1,3)
          End If
          If (lPole.eq.0) Then
             tmp=Work(ipPrTot)
@@ -238,9 +224,9 @@
      &            '           Total','=',tmp*Fact
             If (Abs(Molecular_Charge).gt.0.90D0) Then
                Write(6,'(6X,A)') 'Center of Charge (Ang)'
-               X_Coor=Fact_au2ang*(Work(ipPrTot  )/Molecular_Charge)
-               Y_Coor=Fact_au2ang*(Work(ipPrTot+1)/Molecular_Charge)
-               Z_Coor=Fact_au2ang*(Work(ipPrTot+2)/Molecular_Charge)
+               X_Coor=Angstrom*(Work(ipPrTot  )/Molecular_Charge)
+               Y_Coor=Angstrom*(Work(ipPrTot+1)/Molecular_Charge)
+               Z_Coor=Angstrom*(Work(ipPrTot+2)/Molecular_Charge)
                Write (6,'(6X,3(A,A,F14.8))')
      &                       labs(1),'=',X_Coor,
      &                       labs(2),'=',Y_Coor,
@@ -301,7 +287,7 @@ c            End If
 *
 *----    Old style output
 *
-         If (lpole.eq.0) lab5=' 0-st'
+         If (lpole.eq.0) lab5=' 0-th'
          If (lpole.eq.1) lab5=' 1-st'
          If (lpole.eq.2) lab5=' 2-nd'
          If (lpole.eq.3) lab5=' 3-rd'
@@ -317,11 +303,9 @@ c            End If
          Call PrOut(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,
      &              maxlab,labs,Work(ipPrTot),iPL,0)
          If (lpole.eq.1) Then
-            fact=
-     &    CONV_AU_TO_DEBYE_
             Write (6,'(6x,76(''-''))')
             Write(6,'(6x,a,3f16.8,3x,a)')   'Total             ',
-     &               (Work(ipPrTot+j)*fact,j=0,2), 'Debye'
+     &               (Work(ipPrTot+j)*Debye,j=0,2), 'Debye'
             Call Put_DArray('Dipole moment',Work(ipPrTot),3)
          End If
 *
@@ -556,7 +540,7 @@ c            End If
 *
 *     Print cartesian moments
 *
-      If (lpole.eq.0) lab5=' 0-st'
+      If (lpole.eq.0) lab5=' 0-th'
       If (lpole.eq.1) lab5=' 1-st'
       If (lpole.eq.2) lab5=' 2-nd'
       If (lpole.eq.3) lab5=' 3-rd'

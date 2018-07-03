@@ -459,32 +459,29 @@ c make a fix for energies for deleted orbitals
          call orb2tpstr(NSYM,NBAS,
      $           NFRO,NOCC(1,1),NZERO,NZERO,NZERO,NSSH,NDEL,
      $           typestring)
-         call mh5_put_dset(wfn_tpidx, typestring)
+         call mh5_put_dset(wfn_tpidx_a, typestring)
          Do i = 1, nSym
          nSSh(i) = nBas(i) - nFro(i) - nOcc(i,2) - nDel(i)
          End Do
          call orb2tpstr(NSYM,NBAS,
      $           NFRO,NOCC(1,2),NZERO,NZERO,NZERO,NSSH,NDEL,
      $           typestring)
-         call mh5_put_dset(wfn_tpidx_ab, typestring)
-         call mma_deallocate(typestring)
-         call mh5_put_dset(wfn_mocoef, CMO(1,1))
-         call mh5_put_dset(wfn_occnum, OccNo(1,1))
-         call mh5_put_dset(wfn_orbene, EOrb(1,1))
-         call mh5_put_dset(wfn_mocoef_ab, CMO(1,2))
-         call mh5_put_dset(wfn_occnum_ab, OccNo(1,2))
-         call mh5_put_dset(wfn_orbene_ab, EOrb(1,2))
+         call mh5_put_dset(wfn_tpidx_b, typestring)
+         call mh5_put_dset(wfn_mocoef_a, CMO(1,1))
+         call mh5_put_dset(wfn_occnum_a, OccNo(1,1))
+         call mh5_put_dset(wfn_orbene_a, EOrb(1,1))
+         call mh5_put_dset(wfn_mocoef_b, CMO(1,2))
+         call mh5_put_dset(wfn_occnum_b, OccNo(1,2))
+         call mh5_put_dset(wfn_orbene_b, EOrb(1,2))
 #endif
-      End If
-      If(iUHF.eq.1) Then
          iBas=0
          Do iSym=1,nSym
-            IndType(1,iSym)=0
+            IndType(1,iSym)=nFro(iSym)
             IndType(2,iSym)=0
             IndType(3,iSym)=0
             IndType(4,iSym)=0
             IndType(5,iSym)=0
-            IndType(6,iSym)=nOrb(iSym)-nDel(iSym)
+            IndType(6,iSym)=nOrb(iSym)-nFro(iSym)-nDel(iSym)
             IndType(7,iSym)=nDel(iSym)
             Do kBas=1,nBas(iSym)
                iBas=iBas+1
@@ -507,6 +504,16 @@ c make a fix for energies for deleted orbitals
          Call WrVec_(OrbName,LuOut,'COEI',0,nSym,nBas,nBas,
      &               CMOn,Dummy,Etan,Dummy,Epsn,
      &               Dummy,IndType, Note,iWFtype)
+#ifdef _HDF5_
+         call orb2tpstr(NSYM,NBAS,
+     $           NFRO,IndType(2,:),NZERO,IndType(4,:),NZERO,
+     $           IndType(6,:),NDEL,typestring)
+         call mh5_put_dset(wfn_tpidx, typestring)
+         call mma_deallocate(typestring)
+         call mh5_put_dset(wfn_mocoef, CMOn)
+         call mh5_put_dset(wfn_occnum, Etan)
+         call mh5_put_dset(wfn_orbene, Epsn)
+#endif
          Call mma_deallocate(Epsn)
          Call mma_deallocate(Etan)
          Call mma_deallocate(CMOn)

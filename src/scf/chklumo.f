@@ -26,6 +26,9 @@
 #include "mxdm.fh"
 #include "infscf.fh"
 #include "stdalloc.fh"
+#ifdef _HDF5_
+#  include "mh5.fh"
+#endif
 *----------------------------------------------------------------------*
 * Dummy arguments                                                      *
 *----------------------------------------------------------------------*
@@ -54,31 +57,50 @@
       Call mma_Allocate(OccVec,nVec,nD,Label='OccVec')
       Call mma_Allocate(EpsVec,nVec,nD,Label='EpsVec')
 *----------------------------------------------------------------------*
-* Read occupation numbers and orbital eneries                          *
+* Read occupation numbers and orbital energies                         *
 *----------------------------------------------------------------------*
       Lu=17
-      if (is_FileOrb.eq.0) then
-         FNAME='INPORB'
-      else
-         Fname=SCF_FileOrb
-      endif
+      FName=SCF_FileOrb
       If(iUHF.eq.0) Then
-         Call RdVec_(FNAME,Lu,'OE',iUHF,nSym,nBas,nOrb,Dummy,Dummy,
-     &      OccVec(1,1),Dummy,EpsVec(1,1),Dummy,
-     &      iDummy,VTitle,1,iErr,iWFtype)
-      Else
-         Call Chk_Vec_UHF(FNAME,Lu,isUHF)
-         If(isUHF.eq.1) Then
-            Call RdVec_(FNAME,Lu,'OE',iUHF,nSym,nBas,nOrb,Dummy,Dummy,
-     &         OccVec(1,1),OccVec(1,2),EpsVec(1,1),EpsVec(1,2),
-     &         iDummy,VTitle,1,iErr,iWFtype)
+         If (isHDF5) Then
+            Call RdVec_HDF5(fileorb_id,'OE',nSym,nBas,
+     &                      Dummy,OccVec(1,1),EpsVec(1,1),Dummy)
          Else
-            Call RdVec_(FNAME,Lu,'OE',0,nSym,nBas,nOrb,Dummy,Dummy,
+            Call RdVec_(FNAME,Lu,'OE',iUHF,nSym,nBas,nOrb,Dummy,Dummy,
      &         OccVec(1,1),Dummy,EpsVec(1,1),Dummy,
      &         iDummy,VTitle,1,iErr,iWFtype)
-               Call dCopy_(nVec,OccVec(1,1),1,OccVec(1,2),1)
-               Call dCopy_(nVec,EpsVec(1,1),1,EpsVec(1,2),1)
-               Call dScal_(nVec*nD,0.5d0,OccVec,1)
+         End If
+      Else
+         If (isHDF5) Then
+#ifdef _HDF5_
+            If (mh5_exists_dset(fileorb_id,'MO_ALPHA_VECTORS')) isUHF=1
+#endif
+         Else
+            Call Chk_Vec_UHF(FNAME,Lu_,isUHF)
+         End If
+         If(isUHF.eq.1) Then
+            If (isHDF5) Then
+               Call RdVec_HDF5(fileorb_id,'OEA',nSym,nBas,
+     &                         Dummy,OccVec(1,1),EpsVec(1,1),Dummy)
+               Call RdVec_HDF5(fileorb_id,'OEB',nSym,nBas,
+     &                         Dummy,OccVec(1,2),EpsVec(1,2),Dummy)
+            Else
+               Call RdVec_(FNAME,Lu,'OE',iUHF,nSym,nBas,nOrb,Dummy,
+     &            Dummy,OccVec(1,1),OccVec(1,2),EpsVec(1,1),EpsVec(1,2),
+     &            iDummy,VTitle,1,iErr,iWFtype)
+            End If
+         Else
+            If (isHDF5) Then
+               Call RdVec_HDF5(fileorb_id,'OE',nSym,nBas,
+     &                         Dummy,OccVec(1,1),EpsVec(1,1),Dummy)
+            Else
+               Call RdVec_(FNAME,Lu,'OE',0,nSym,nBas,nOrb,Dummy,Dummy,
+     &            OccVec(1,1),Dummy,EpsVec(1,1),Dummy,
+     &            iDummy,VTitle,1,iErr,iWFtype)
+            End If
+            Call dCopy_(nVec,OccVec(1,1),1,OccVec(1,2),1)
+            Call dCopy_(nVec,EpsVec(1,1),1,EpsVec(1,2),1)
+            Call dScal_(nVec*nD,0.5d0,OccVec,1)
          End If
       End If
 *     If(iUHF.eq.0) Then
