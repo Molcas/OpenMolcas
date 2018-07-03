@@ -41,8 +41,8 @@
 > Export MOLCAS_MAX_CHECKS = 2500
 * SEWARD_KINETIC for the heavier atoms is huge, and the default absolute
 * tolerance is too small. It would be better to have relative tolerances,
-* but for the time being we just increase the absolute one
-> Export MOLCAS_THR = 2
+* but for the time being we just ignore it.
+> Export MOLCAS_NOCHECK = SEWARD_KINETIC
 
 &SEWARD
   Basis
