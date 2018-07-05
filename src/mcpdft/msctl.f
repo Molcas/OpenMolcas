@@ -65,7 +65,7 @@
       integer itmp0,itmp1,itmp2,itmp3,itmp4
       integer itmp5,itmp6,itmp7
       integer ifocki,ifocka
-      integer IADR19(1:15)
+      integer IADR19(1:30)
       integer LP,NQ,LQ,LPUVX
       integer  LOEOTP,NACP,NACP2
       integer vdisk,jroot
@@ -207,6 +207,7 @@ C Local print level (if any)
         end if
        IADR19(:)=0
        Call IDaFile(JOBOLD,2,IADR19,15,IAD19)
+       IADR15 = IADR19
        vDisk =  IADR19(4)
        dmDisk = IADR19(3)
 !       Call GetMem('jVector','Allo','Real',ijVec,nConf)
