@@ -27,10 +27,11 @@
 ************************************************************************
       Function Clean_BName(BName,Offset)
       Implicit None
+#include "Molcas.fh"
       Character(Len=*), Intent(In) :: BName
       Integer, Intent(In) :: Offset
-      Character(Len=Len(BName)) :: Clean_BName
-      Character(Len=Len(BName)-Offset) :: Clean
+      Character(Len=LENIN8) :: Clean_BName
+      Character(Len=8) :: Clean
       Integer :: i,Err
       Logical :: Cart
 *

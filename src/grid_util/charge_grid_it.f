@@ -136,7 +136,7 @@ c      Character*4 TLbl(MXATOM)
       Character*100 ProgName, Get_ProgName
       Logical DoBond,Reduce_Prt
       External Reduce_Prt
-      Character*8 Clean_BName
+      Character*(LENIN8) Clean_BName
       External Clean_BName
       Data AufBau/'01s',
      &            '02s',            '02p',

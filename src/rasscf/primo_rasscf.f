@@ -33,7 +33,7 @@
 
       Character*8 Fmt1,Fmt2
       Character*132 Line,Blank
-      Character*8 Clean_BName
+      Character*(LENIN8) Clean_BName
       External Clean_BName
 * PAM Nov 05: Non-valence orbitals
       Dimension NVSH(8)

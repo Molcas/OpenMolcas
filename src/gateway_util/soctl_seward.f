@@ -18,7 +18,7 @@
 #include "print.fh"
 #include "stdalloc.fh"
 *
-      Character ChOper(0:7)*3,ChTemp*8,ChTmp*8,Mamn(nMamn)*(LENIN8)
+      Character ChOper(0:7)*3,ChTemp*8,Mamn(nMamn)*(LENIN8)
       Character LP_Names(MxAtom)*(LENIN4)
       Character*60 Fmt
       Logical Type(0:7), lSkip, kECP, TstFnc, output, Get_BasisType
@@ -35,7 +35,7 @@
       Real*8, Dimension(:), Allocatable :: LPQ
       Real*8, Dimension(:,:), Allocatable :: SM, LPC
       Real*8 DInf(nDInf)
-      Character*8 Clean_BName
+      Character*(LENIN8) Clean_BName,ChTmp
       External Clean_BName
 
 CSVC: the basis ids are tuples (c,n,l,m) with c the center index,
