@@ -298,6 +298,7 @@ C
       nkeep=max(nkeep,3*nRoots)
 *
       istart=0
+      nvec=nkeep
 
 *     check the amount of available memory and decide which algorithm
 *     is to be used to save intermediate results
@@ -1705,7 +1706,7 @@ CFUE  End If
 
       itmp1 = iRoot
       If (iRoot.gt.n_Roots) then
-        itmp1=n_Roots+mod(istart+iRoot-n_Roots-1,nkeep-n_Roots)+1
+        itmp1=n_Roots+mod(istart+iRoot-n_Roots-1,nvec-n_Roots)+1
       EndIf
       PageNo = itmp1
 

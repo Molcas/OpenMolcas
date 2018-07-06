@@ -237,7 +237,7 @@ C Timings on generation of the sigma vector
                Work(iHs+ij-1) = Hji
             End Do
          End Do
-         ntrial=jRoot
+         ntrial=nvec
          If ( iprlev.ge.DEBUG ) then
             Call TriPrt('Hsmall',' ',Work(iHs),ntrial)
             Call TriPrt('Ssmall',' ',Work(iSs),ntrial)
@@ -553,7 +553,7 @@ C Timings on generation of the sigma vector
             updsiz=dnrm2_(nconf,Work(iVec3),1)
             scl=1.0D0/updsiz
             Call DScal_(nConf,scl,Work(iVec3),1)
-            Do jRoot=lRoots+1,nvec-nconverged
+            Do jRoot=lRoots+1,min(nvec,nkeep-nconverged)
                Call Load_CI_vec(jRoot,nConf,Work(iVec2),LuDavid)
                ovl = dDot_(nConf,Work(iVec3),1,Work(iVec2),1)
                call daxpy_(nConf,-ovl,Work(iVec2),1,Work(iVec3),1)
@@ -563,12 +563,12 @@ C Timings on generation of the sigma vector
               scl=1.0D0/updsiz
               Call DScal_(nConf,scl,Work(iVec3),1)
               nnew=nnew+1
+              nvec=nvec+1
+              nvec=min(nvec,nkeep)
               Call Save_CI_vec(lRoots+mRoot-nconverged,nConf,
      &                         Work(iVec3),LuDavid)
             EndIf
          End Do
-         nvec=nvec+nnew
-         nvec=min(nvec,nkeep)
 *-------------------------------------------------------------------
 * move the current best CI and sigma vectors to the first place
 * in the list of retained CI vectors

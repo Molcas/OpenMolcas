@@ -47,5 +47,5 @@
      &                 mxMemStk,mxDiskStk,nMemStk,nDiskStk
 
 *
-      Integer     nkeep,n_Roots,istart
-      Common /DavCtl4/ nkeep,n_Roots,istart
+      Integer     nkeep,n_Roots,istart,nvec
+      Common /DavCtl4/ nkeep,nvec,n_Roots,istart
