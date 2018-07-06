@@ -46,6 +46,54 @@
       end do
       END
 
+      SUBROUTINE tpstr2tpidx(TYPESTRING,TYPEINDEX,NB)
+      IMPLICIT NONE
+      character :: TYPESTRING(*)
+      integer :: TYPEINDEX(*),NB,i
+      do i=1,NB
+        select case (TYPESTRING(i))
+          case ('F','f')
+            TYPEINDEX(i)=1
+          case ('I','i')
+            TYPEINDEX(i)=2
+          case ('1')
+            TYPEINDEX(i)=3
+          case ('2')
+            TYPEINDEX(i)=4
+          case ('3')
+            TYPEINDEX(i)=5
+          case ('S','s')
+            TYPEINDEX(i)=6
+          case ('D','d')
+            TYPEINDEX(i)=7
+        end select
+      end do
+      END
+
+      SUBROUTINE tpidx2tpstr(TYPEINDEX,TYPESTRING,NB)
+      IMPLICIT NONE
+      character :: TYPESTRING(*)
+      integer :: TYPEINDEX(*),NB,i
+      do i=1,NB
+        select case (TYPEINDEX(i))
+          case (1)
+            TYPESTRING(i)='F'
+          case (2)
+            TYPESTRING(i)='I'
+          case (3)
+            TYPESTRING(i)='1'
+          case (4)
+            TYPESTRING(i)='2'
+          case (5)
+            TYPESTRING(i)='3'
+          case (6)
+            TYPESTRING(i)='S'
+          case (7)
+            TYPESTRING(i)='D'
+        end select
+      end do
+      END
+
       SUBROUTINE tpstr2orb(NSYM,NB,
      $        TYPESTRING,
      $        NF,NI,N1,N2,N3,NS,ND)
@@ -182,7 +230,7 @@
 *SVC: read orbital partition info from a typestring array
 *     corresponding to a _specific_symmetry_ (so these variables are
 *     scalars!!
-*     A typstring array consists of characters of 'fi123sd'
+*     A typestring array consists of characters of 'fi123sd'
       implicit none
       character :: typestring(*)
       integer :: NB
@@ -229,7 +277,7 @@
 *SVC: convert orbital partition info to a typestring array
 *     corresponding to a _specific_symmetry_ (so these variables are
 *     scalars!!
-*     A typstring array consists of characters of 'fi123sd'
+*     A typestring array consists of characters of 'fi123sd'
       implicit none
       character :: typestring(*)
       integer :: NF, NI, N1, N2, N3, NS, ND

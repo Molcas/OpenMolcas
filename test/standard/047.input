@@ -40,13 +40,13 @@ Title
  Ge
 Symmetry
  1
-Spin 
+Spin
  3
 nActEl
  4 0 0
 Inactive
  8 6
-Ras2    
+Ras2
  1 3
 Lumorb
 Levshft
@@ -75,7 +75,7 @@ Multistate
 CONVergence
  1.0D-9
 PROPerties
-End of input                                                                  
+End of input
 >>> COPY $Project.JobMix JOBMIX_T
 *-------------------------------------------------------------------------------
  &RASSCF &END
@@ -83,13 +83,13 @@ Title
  Ge
 Symmetry
  1
-Spin 
+Spin
  1
 nActEl
  4 0 0
 Inactive
  8 6
-Ras2    
+Ras2
  1 3
 Levshft
  0.5
@@ -117,7 +117,7 @@ Multistate
 CONVergence
  1.0D-9
 PROPerties
-End of input                                                                  
+End of input
 >>> COPY $Project.JobMix JOBMIX_S
 *-------------------------------------------------------------------------------
  &RASSI &END

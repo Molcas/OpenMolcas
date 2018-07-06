@@ -4245,7 +4245,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 ************************************************************************
 *                                                                      *
 *     If no multipole moment integrals are requested turn also of the
-*     computation of the velcity integrals.
+*     computation of the velocity integrals.
 *
       If (nMltpl.eq.0) Vlct=.False.
 *

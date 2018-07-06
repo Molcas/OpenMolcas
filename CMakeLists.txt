@@ -2196,6 +2196,7 @@ if (HDF5 AND HDF5_FOUND)
                 hyper_util
                 molcas_ci_util
                 oneint_util
+                property_util
                 restart_util
                 runfile_util
                 )
