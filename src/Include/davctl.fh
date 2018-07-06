@@ -45,3 +45,7 @@
       Integer mxMemStk, mxDiskStk, nMemStk, nDiskStk
       Common /DavCtl3/ LblStk(lAdrTbl),
      &                 mxMemStk,mxDiskStk,nMemStk,nDiskStk
+
+*
+      Integer     nkeep,n_Roots,istart
+      Common /DavCtl4/ nkeep,n_Roots,istart
