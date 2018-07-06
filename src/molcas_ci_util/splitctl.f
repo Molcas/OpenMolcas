@@ -86,7 +86,7 @@
 *       ^to avoid last diagonalization
           Call dCopy_(nConf,0.0d0,0,Work(LW4),1)
 *          Call Load_tmp_CI_vec(1,1,nConf,Work(LW4),LuDavid)
-           Call Load_CI_vec(1,1,1,nConf,Work(LW4),LuDavid)
+           Call Load_CI_vec(1,nConf,Work(LW4),LuDavid)
 *          Call dDaFile(JOBIPH,2,Work(LW4),nConf,LuDavid)
           if (DBG) then
             write(6,*) 'LuDavid', LuDavid

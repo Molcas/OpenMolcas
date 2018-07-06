@@ -36,7 +36,6 @@
       Dimension HTUTRI(*), GTUVXTRI(*)
       real*8, allocatable :: sgm(:,:), psi(:,:)
       real*8, allocatable :: htu(:,:), gtuvx(:,:,:,:)
-      integer nnew(mxkeep)
 *-------------------------------------------------------------------
 *MGD dec 2017 : When optimizing many states, the lowest ones tend to
 *converge much faster than the rest. Changed the code so that the converged states
@@ -89,7 +88,7 @@
       IPRLEV=IPRLOC(3)
 
 * allocate space for CI-vectors
-      l1 = lRoots*mxKeep
+      l1 = nKeep
       l2 = l1*l1
       l3 = (l2+l1)/2
 C Trying to avoid writing out of bound in CSDTVC :::: JESPER :::: CHEAT
@@ -125,108 +124,97 @@ C Trying to avoid writing out of bound in CSDTVC :::: JESPER :::: CHEAT
 * start long loop over iterations
       nconverged=0
       iskipconv=1
-      nnew(1)=lroots
+      nnew=0
+      nvec=lRoots
       Do iterci=1,mxItr
-*MGD Dynamically evaluate the size of nkeep (useful for large lroots
-*when we don't want too large hamiltonians with strong linear dependencies)
-         nhamil=nsel
-         if (nsel.lt.1) nhamil=200
-         istart=0
-         if (iterci.eq.1) istart=1
-         nkeep=nhamil/(nnew(2-istart))+1
-         nkeep=max(min(nkeep,mxkeep),3)
 *-------------------------------------------------------------------
 *MGD for stability purposes recompute sigma vec from time to time
-         idelta=0
-         if ((mod(iterci-1,24).eq.0)) idelta=1
-         Do i=istart,idelta
+         idelta=1
+         if ((mod(iterci-1,24).eq.0)) idelta=0
+         Do mRoot=lRoots*idelta+1,lRoots+nnew
 * New CI vectors (iterci,mroot) are available.
 * compute new sigma vectors
-           Do mRoot = 1,nnew(2-i)
-              Call Load_CI_vec(iterci-1+i,mRoot,lRoots,nConf,
-     &                        Work(iVec1),LuDavid)
+            Call Load_CI_vec(mRoot,nConf,Work(iVec1),LuDavid)
+            If ( iprlev.ge.DEBUG ) then
+               lPrint = Min(nConf,200)
+               Write (6,'(1X,A,I2,A,I2)')
+     &              'CI vector, iter =',iterci,' mRoot =',mRoot
+               Write (6,'(1X,A)')
+     &              '(max. 200 elements)'
+               Write (6,'(1X,A)')
+     &              '-----------------------------'
+               Call dVcPrt(' ',' ',Work(iVec1),lPrint)
+            End If
+
+            Call Timing(Rolex_1,Swatch,Swatch,Swatch)
+            IF (DOFARO) THEN
+              ! determinant wavefunctions
+              allocate(sgm(ndeta,ndetb))
+              allocate(psi(ndeta,ndetb))
+
+              CALL DCOPY_(NCONF, 0.0D0, 0, WORK(IVECSVC), 1)
+              CALL REORD2(MY_NORB,NACTEL,1,0,
+     &                    IWORK(KICONF(1)),IWORK(KCFTP),
+     &                    WORK(IVEC1),WORK(IVECSVC),IWORK(IVKCNF))
+              CALL CITRANS_SORT('C',WORK(IVECSVC),WORK(IVEC2))
+              PSI = 0.0D0
+              CALL CITRANS_CSF2SD(WORK(IVEC2),PSI)
+              SGM = 0.0D0
+              CALL SIGMA_UPDATE(HTU,GTUVX,SGM,PSI)
+              CALL CITRANS_SD2CSF(SGM,WORK(IVEC2))
+              CALL CITRANS_SORT('O',WORK(IVEC2),WORK(IVECSVC))
+              Call Reord2(my_norb,NACTEL,1,1,
+     &                    iWork(KICONF(1)),iWork(KCFTP),
+     &                    Work(IVECSVC),Work(IVEC2),iWork(ivkcnf))
+
               If ( iprlev.ge.DEBUG ) then
-                 lPrint = Min(nConf,200)
-                 Write (6,'(1X,A,I2,A,I2)')
-     &                'CI vector, iter =',iterci,' mRoot =',mRoot
-                 Write (6,'(1X,A)')
-     &                '(max. 200 elements)'
-                 Write (6,'(1X,A)')
-     &                '-----------------------------'
-                 Call dVcPrt(' ',' ',Work(iVec1),lPrint)
+                FP=DNRM2_(NCONF,WORK(IVEC2),1)
+                WRITE(6,'(1X,A,F21.14)') 'sigma dnrm2_(faroald): ', FP
               End If
 
-              Call Timing(Rolex_1,Swatch,Swatch,Swatch)
-              IF (DOFARO) THEN
-                ! determinant wavefunctions
-                allocate(sgm(ndeta,ndetb))
-                allocate(psi(ndeta,ndetb))
-
-                CALL DCOPY_(NCONF, 0.0D0, 0, WORK(IVECSVC), 1)
-                CALL REORD2(MY_NORB,NACTEL,1,0,
-     &                      IWORK(KICONF(1)),IWORK(KCFTP),
-     &                      WORK(IVEC1),WORK(IVECSVC),IWORK(IVKCNF))
-                CALL CITRANS_SORT('C',WORK(IVECSVC),WORK(IVEC2))
-                PSI = 0.0D0
-                CALL CITRANS_CSF2SD(WORK(IVEC2),PSI)
-                SGM = 0.0D0
-                CALL SIGMA_UPDATE(HTU,GTUVX,SGM,PSI)
-                CALL CITRANS_SD2CSF(SGM,WORK(IVEC2))
-                CALL CITRANS_SORT('O',WORK(IVEC2),WORK(IVECSVC))
-                Call Reord2(my_norb,NACTEL,1,1,
-     &                      iWork(KICONF(1)),iWork(KCFTP),
-     &                      Work(IVECSVC),Work(IVEC2),iWork(ivkcnf))
-
-                If ( iprlev.ge.DEBUG ) then
-                  FP=DNRM2_(NCONF,WORK(IVEC2),1)
-                  WRITE(6,'(1X,A,F21.14)') 'sigma dnrm2_(faroald): ', FP
-                End If
-
-                ! free the arrays
-                deallocate(sgm,psi)
-              Else
+              ! free the arrays
+              deallocate(sgm,psi)
+            Else
 C     Convert the CI-vector from CSF to Det. basis
-                call dcopy_(nconf, work(ivec1), 1, work(kctemp),1)
-                call dcopy_(ndet, 0.0d0, 0, work(ksigtemp), 1)
-                CALL csdtvc(work(kctemp), work(ksigtemp), 1, work(kdtoc)
-     &             ,iwork(kicts(1)), LSym, 1)
-                call dcopy_(ndet, 0.0d0, 0, work(ksigtemp), 1)
-                c_pointer = kctemp
+              call dcopy_(nconf, work(ivec1), 1, work(kctemp),1)
+              call dcopy_(ndet, 0.0d0, 0, work(ksigtemp), 1)
+              CALL csdtvc(work(kctemp), work(ksigtemp), 1, work(kdtoc)
+     &           ,iwork(kicts(1)), LSym, 1)
+              call dcopy_(ndet, 0.0d0, 0, work(ksigtemp), 1)
+              c_pointer = kctemp
 C     Calling Lucia to determine the sigma vector
-                CALL Lucia_Util('Sigma',iDummy,iDummy,Dummy)
+              CALL Lucia_Util('Sigma',iDummy,iDummy,Dummy)
 C     Set mark so densi_master knows that the Sigma-vector exists on disk.
-                iSigma_on_disk = 1
-                CALL CSDTVC(work(iVec2), work(kctemp), 2, work(kdtoc),
-     &             iWork(kicts(1)), LSym, 1)
+              iSigma_on_disk = 1
+              CALL CSDTVC(work(iVec2), work(kctemp), 2, work(kdtoc),
+     &           iWork(kicts(1)), LSym, 1)
 
-                If ( iprlev.ge.DEBUG ) then
-                  FP=DNRM2_(NCONF,WORK(IVEC2),1)
-                  WRITE(6,'(1X,A,F21.14)') 'sigma dnrm2_(lucia):   ', FP
-                End If
+              If ( iprlev.ge.DEBUG ) then
+                FP=DNRM2_(NCONF,WORK(IVEC2),1)
+                WRITE(6,'(1X,A,F21.14)') 'sigma dnrm2_(lucia):   ', FP
               End If
+            End If
 
 C  Add ECORE_HEX (different from zero when particle-hole formalism used)
-              ECORE_HEX = GET_ECORE()
-              call daxpy_(nconf,ecore_hex,work(iVec1),1,work(iVec2),1)
+            ECORE_HEX = GET_ECORE()
+            call daxpy_(nconf,ecore_hex,work(iVec1),1,work(iVec2),1)
 C Timings on generation of the sigma vector
-              Call Timing(Rolex_2,Swatch,Swatch,Swatch)
-              Rolex_2 = Rolex_2 - Rolex_1
-              Rolex_3 = Rolex_3 + Rolex_2
+            Call Timing(Rolex_2,Swatch,Swatch,Swatch)
+            Rolex_2 = Rolex_2 - Rolex_1
+            Rolex_3 = Rolex_3 + Rolex_2
 
-              If ( iprlev.ge.DEBUG ) then
-                 lPrint = Min(nConf,200)
-                 Write (6,*) ' '
-                 Write (6,'(1X,A,I2,A,I2)')
-     &                'sigma vector, iter =',iterci,' mRoot =',mRoot
-                 Write (6,'(1X,A)')
-     &                '(max. 200 elements)'
-                 Write (6,'(1X,A)')
-     &                '--------------------------------'
-                 Call dVcPrt(' ',' ',Work(iVec2),lPrint)
-              End If
-              Call Save_Sig_vec(iterci-1+i,mRoot,lRoots,nConf,
-     &                 Work(iVec2),LuDavid)
-           End Do
+            If ( iprlev.ge.DEBUG ) then
+               lPrint = Min(nConf,200)
+               Write (6,*) ' '
+               Write (6,'(1X,A,I2,A,I2)')
+     &              'sigma vector, iter =',iterci,' mRoot =',mRoot
+               Write (6,'(1X,A)')
+     &              '(max. 200 elements)'
+               Write (6,'(1X,A)')
+     &              '--------------------------------'
+               Call dVcPrt(' ',' ',Work(iVec2),lPrint)
+            End If
+            Call Save_Sig_vec(mRoot,nConf,Work(iVec2),LuDavid)
          End Do
 * Sigma vectors (iterci,mroot) have been computed, for mroot=1..lroots
 *-------------------------------------------------------------------
@@ -237,32 +225,19 @@ C Timings on generation of the sigma vector
 * (Fewer, at the beginning)
 
          jtrial = 0
-         jstart=Max(1,iterci-nKeep+1)
-         Do jter = iterci,jstart,-1
-            Do jRoot = 1,nnew(iterci-jter+1)
-               jtrial = jtrial+1
-               Call Load_CI_vec(jter,jRoot,lRoots,nConf,Work(iVec1),
-     &                    LuDavid)
-               Call Load_Sig_vec(jter,jRoot,lRoots,nConf,Work(iVec2),
-     &                    LuDavid)
-               ktrial = 0
-               Do kter = iterci,jter,-1
-                  max_kRoot = nnew(iterci-kter+1)
-                  If ( kter.eq.jter ) max_kRoot = jRoot
-                  Do kRoot = 1, max_kRoot
-                     ktrial = ktrial+1
-                     Call Load_CI_vec(kter,kRoot,lRoots,nConf,
-     &                    Work(iVec3),LuDavid)
-                     ij = ktrial+(jtrial*jtrial-jtrial)/2
-                     Sji = dDot_(nConf,Work(iVec1),1,Work(iVec3),1)
-                     Hji = dDot_(nConf,Work(iVec2),1,Work(iVec3),1)
-                     Work(iSs+ij-1) = Sji
-                     Work(iHs+ij-1) = Hji
-                  End Do
-               End Do
+         Do jRoot = 1,nvec
+            Call Load_CI_vec(jRoot,nConf,Work(iVec1),LuDavid)
+            Call Load_Sig_vec(jRoot,nConf,Work(iVec2),LuDavid)
+            Do kRoot = 1,jRoot
+               Call Load_CI_vec(kRoot,nConf,Work(iVec3),LuDavid)
+               ij = kRoot+(jRoot*jRoot-jRoot)/2
+               Sji = dDot_(nConf,Work(iVec1),1,Work(iVec3),1)
+               Hji = dDot_(nConf,Work(iVec2),1,Work(iVec3),1)
+               Work(iSs+ij-1) = Sji
+               Work(iHs+ij-1) = Hji
             End Do
          End Do
-         ntrial=jtrial
+         ntrial=jRoot
          If ( iprlev.ge.DEBUG ) then
             Call TriPrt('Hsmall',' ',Work(iHs),ntrial)
             Call TriPrt('Ssmall',' ',Work(iSs),ntrial)
@@ -304,25 +279,19 @@ C Timings on generation of the sigma vector
             Call dCopy_(nConf,0.0d0,0,Work(iVec2),1)
 *...      accumulate contributions
             jtrial = 0
-            Do jter=iterci,jstart,-1
-               Do jRoot=1,nnew(iterci-jter+1)
-                  jtrial = jtrial+1
-                  Cik=Work(iCs-1+jtrial+(mRoot-1)*ntrial)
-                  Call Load_CI_vec(jter,jRoot,lRoots,nConf,Work(iVec3),
-     &                       LuDavid)
-                  Call Daxpy_(nConf,Cik,Work(iVec3),1,Work(iVec1),1)
-                  Call Load_Sig_vec(jter,jRoot,lRoots,nConf,Work(iVec3),
-     &                       LuDavid)
-                  Call Daxpy_(nConf,Cik,Work(iVec3),1,Work(iVec2),1)
-               End Do
+            Do jRoot=1,nvec
+               Cik=Work(iCs-1+jRoot+(mRoot-1)*ntrial)
+               Call Load_CI_vec(jRoot,nConf,Work(iVec3),LuDavid)
+               Call Daxpy_(nConf,Cik,Work(iVec3),1,Work(iVec1),1)
+               Call Load_Sig_vec(jRoot,nConf,Work(iVec3),LuDavid)
+               Call Daxpy_(nConf,Cik,Work(iVec3),1,Work(iVec2),1)
             End Do
             RR = dDot_(nConf,Work(iVec1),1,Work(iVec1),1)
             scl=1.0d0/sqrt(RR)
             Call DScal_(nConf,scl,Work(iVec1),1)
             Call DScal_(nConf,scl,Work(iVec2),1)
-            Call Save_tmp_CI_vec(mRoot,lRoots,nConf,Work(iVec1),LuDavid)
-            Call Save_tmp_Sig_vec(mRoot,lRoots,nConf,Work(iVec2),
-     &                       LuDavid)
+            Call Save_tmp_CI_vec(mRoot,nConf,Work(iVec1),LuDavid)
+            Call Save_tmp_Sig_vec(mRoot,nConf,Work(iVec2),LuDavid)
 *...      compute residual vector
             E0 = Work(iEs+mRoot-1)
             Call dCopy_(nConf,Work(iVec2),1,Work(iVec3),1)
@@ -479,9 +448,9 @@ C Timings on generation of the sigma vector
 *-------------------------------------------------------------------
          Do mRoot=nconverged+1,lRoots
             E0 = -Work(iEs+mRoot-1)
-            Call Load_tmp_Sig_vec(mRoot,lRoots,nConf,Work(iVec1),
+            Call Load_tmp_Sig_vec(mRoot,nConf,Work(iVec1),
      &                LuDavid)
-            Call Load_tmp_CI_vec(mRoot,lRoots,nConf,Work(iVec2),LuDavid)
+            Call Load_tmp_CI_vec(mRoot,nConf,Work(iVec2),LuDavid)
             call daxpy_(nConf,E0,Work(iVec2),1,Work(iVec1),1)
             Call Load_H_diag(nConf,Work(iVec3),LuDavid)
             E0 = Work(iEs+mRoot-1)
@@ -519,9 +488,9 @@ C Timings on generation of the sigma vector
 * compute correction vectors q3 = (r-E1*q2)/(E0-H)
          If ( nSel.gt.1 ) then
             Do mRoot=1,lRoots
-               Call Load_tmp_Sig_vec(mRoot,lRoots,nConf,Work(iVec1),
+               Call Load_tmp_Sig_vec(mRoot,nConf,Work(iVec1),
      &                     LuDavid)
-               Call Load_tmp_CI_vec(mRoot,lRoots,nConf,Work(iVec2),
+               Call Load_tmp_CI_vec(mRoot,nConf,Work(iVec2),
      &                     LuDavid)
                E0 = -Work(iEs+mRoot-1)
                call daxpy_(nConf,E0,Work(iVec2),1,Work(iVec1),1)
@@ -553,14 +522,15 @@ C Timings on generation of the sigma vector
      &                  Work(iScr5),nSel,
      &                  0.0d0,Work(iScr3),nSel)
          End If
-         Do i=min(iterci,mxkeep-1),2,-1
-           nnew(i+1)=nnew(i)
-         End Do
-         nnew(2)=0
+*move the index of CI_vec
+         istart=istart+nnew
+         istart=mod(istart,nkeep-n_Roots)
+*
+         nnew=0
          Do mRoot=nconverged+1,lRoots
-            Call Load_tmp_Sig_vec(mRoot,lRoots,nConf,Work(iVec1),
+            Call Load_tmp_Sig_vec(mRoot,nConf,Work(iVec1),
      &                    LuDavid)
-            Call Load_tmp_CI_vec(mRoot,lRoots,nConf,Work(iVec2),LuDavid)
+            Call Load_tmp_CI_vec(mRoot,nConf,Work(iVec2),LuDavid)
             E0 = -Work(iEs+mRoot-1)
             call daxpy_(nConf,E0,Work(iVec2),1,Work(iVec1),1)
             E1 = -Alpha(mRoot)/Beta(mRoot)
@@ -583,35 +553,30 @@ C Timings on generation of the sigma vector
             updsiz=dnrm2_(nconf,Work(iVec3),1)
             scl=1.0D0/updsiz
             Call DScal_(nConf,scl,Work(iVec3),1)
-            Do jter=iterci,jstart+1,-1
-               Do jRoot=1,nnew(iterci-jter+1)
-                 Call Load_CI_vec(jter,jRoot,lRoots,nConf,Work(iVec2),
-     &                    LuDavid)
-                 ovl = dDot_(nConf,Work(iVec3),1,Work(iVec2),1)
-                 call daxpy_(nConf,-ovl,Work(iVec2),1,Work(iVec3),1)
-               End Do
+            Do jRoot=lRoots+1,nvec-nconverged
+               Call Load_CI_vec(jRoot,nConf,Work(iVec2),LuDavid)
+               ovl = dDot_(nConf,Work(iVec3),1,Work(iVec2),1)
+               call daxpy_(nConf,-ovl,Work(iVec2),1,Work(iVec3),1)
             End Do
             updsiz=dnrm2_(nconf,Work(iVec3),1)
             If (updsiz.gt.1.0d-6) then
               scl=1.0D0/updsiz
               Call DScal_(nConf,scl,Work(iVec3),1)
-              nnew(2)=nnew(2)+1
-              Call Save_CI_vec(iterci,nnew(2),lRoots,nConf,Work(iVec3),
-     &                    LuDavid)
+              nnew=nnew+1
+              Call Save_CI_vec(lRoots+mRoot-nconverged,nConf,
+     &                         Work(iVec3),LuDavid)
             EndIf
          End Do
+         nvec=nvec+nnew
+         nvec=min(nvec,nkeep)
 *-------------------------------------------------------------------
-* move the current best CI and sigma vectors to the last place
+* move the current best CI and sigma vectors to the first place
 * in the list of retained CI vectors
          Do mRoot=1,lRoots
-           Call Load_tmp_CI_vec(mRoot,lRoots,nConf,Work(iVec1),
-     &                    LuDavid)
-           Call Save_CI_vec(iterci+1,mRoot,lRoots,nConf,Work(iVec1),
-     &                    LuDavid)
-           Call Load_tmp_Sig_vec(mRoot,lRoots,nConf,Work(iVec1),
-     &                    LuDavid)
-           Call Save_Sig_vec(iterci+1,mRoot,lRoots,nConf,Work(iVec1),
-     &                    LuDavid)
+           Call Load_tmp_CI_vec(mRoot,nConf,Work(iVec1),LuDavid)
+           Call Save_CI_vec(mRoot,nConf,Work(iVec1),LuDavid)
+           Call Load_tmp_Sig_vec(mRoot,nConf,Work(iVec1),LuDavid)
+           Call Save_Sig_vec(mRoot,nConf,Work(iVec1),LuDavid)
          End Do
 
 * end of the long loop over iterations
