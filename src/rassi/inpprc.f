@@ -752,7 +752,8 @@ C Write out various input data:
           DO I=0,NSTATE-1
             Work(LHAM+i*nstate+i)=Work(L_HEFF+i*nstate+i)
           END DO
-          Call WarningMessage(1,'EJOB used when HEFF is available!')
+          call WarningMessage(1,'EJOB used when HEFF is available, '//
+     &      'posible extra interaction between states is ignored!')
         else
           call WarningMessage(2,'EJOB used but no energies available!')
           call Quit_OnUserError

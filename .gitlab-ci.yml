@@ -158,6 +158,7 @@
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
+    tests: ".all exhaustive"
   tags:
     - docker
 
@@ -261,6 +262,9 @@
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
+    # only interested in compilation, so run no tests
+    # (but the test job will fail if the compilation didn't succeed)
+    tests: ".none"
   tags:
     - docker
 
@@ -473,9 +477,6 @@ test:intel13:
     - build:intel13
   <<: *intel13
   <<: *run-tests
-  variables:
-    <<: *intel13_vars
-    tests: ".all exhaustive"
 
 build:nowarn:
   stage: build
@@ -487,8 +488,3 @@ test:nowarn:
     - build:nowarn
   <<: *nowarn
   <<: *run-tests
-  # only interested in compilation, so run no tests
-  # (but the job will fail if the compilation didn't succeed)
-  variables:
-    <<: *nowarn_vars
-    tests: ".none"
