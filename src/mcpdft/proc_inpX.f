@@ -104,7 +104,7 @@
       Character*256 RealName
       Logical, External :: Is_First_Iter
 
-      INTEGER :: iDNG
+      INTEGER :: iDNG,IPRLEV
       Logical :: DoDMRG,DNG
       Character*8 emiloop
       Character*8 inGeo
