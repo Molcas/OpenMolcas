@@ -254,9 +254,9 @@ C is positive. This is to avoid spurious changes of
 C sign of the SFS with respect to the original ones,
 C especially for already diagonal Hamiltonian matrix.
       do i=1,nstate
-         j = maxloc(abs(eigvec(i,1:nstate)),1)
+         j = maxloc(abs(eigvec(:,i)),1)
          if (eigvec(i,j) .lt. 0.0d0) then
-           eigvec(i,1:nstate) = -eigvec(i,1:nstate)
+           eigvec(:,i) = -eigvec(:,i)
          endif
       enddo
       CALL GETMEM('HH','FREE','REAL',LHH,NHH)
