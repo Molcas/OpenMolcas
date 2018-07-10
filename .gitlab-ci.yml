@@ -1,6 +1,6 @@
 # Define templates for "sub-jobs"
 # - install-key: install the SSH key to access private repositories
-# - compile: compile Molcas with CMake
+# - compile: compile OpenMolcas with CMake
 # - run-tests: run the verification suite
 
 .template: &install-key
@@ -79,6 +79,7 @@
     expire_in: 1 day
     when: always
   except:
+    - tags
     - master
 
 .template: &run-tests
@@ -310,6 +311,7 @@ tinker:
       - build/
     expire_in: 1 day
   except:
+    - tags
     - master
 
 # Another special job for building doxygen documentation
