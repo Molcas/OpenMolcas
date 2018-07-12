@@ -464,7 +464,7 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
 * linear dependence.
       CALL GETMEM('CMOO','ALLO','REAL',LCMOO,NTOT2)
       CALL DCOPY_(NTOT2,CMO,1,WORK(LCMOO),1)
-      CALL ONCMO_m(WORK(LCMOO),CMO)
+!      CALL ONCMO_m(WORK(LCMOO),CMO)
       CALL GETMEM('CMOO','FREE','REAL',LCMOO,NTOT2)
 
 *     save start orbitals

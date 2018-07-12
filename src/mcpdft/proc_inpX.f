@@ -119,12 +119,14 @@ C   No changing about read in orbital information from INPORB yet.
 !      DBG = .TRUE.
       DBG = .FALSE.
       DoFaro = .FALSE.
+      IPRLEV = TERSE
 
 * NN.14 Block DMRG flag
       DoDMRG = .false.
 
       doGradPDFT = .false.
       doNOGRad = .false.
+      DoGSOR=.false.
 
 * Orbital-free embedding
       Do_OFemb=.false.
@@ -2529,6 +2531,15 @@ c       write(6,*)          '  --------------------------------------'
        Call ChkIfKey_m()
       End If
 *
+*---  Process GSOR command --------------------------------------------*
+      If (DBG) Write(6,*) ' Check if Gram-Schmidt case.'
+      If (KeyGSOR) Then
+       If (DBG) Write(6,*) ' GSOR keyword was used.'
+       DoGSOR=.true.
+       Call SetPos_m(LUInput,'GSOR',Line,iRc)
+       Call ChkIfKey_m()
+      End If
+*
 *---  Process DMRG command --------------------------------------------*
 #ifdef _ENABLE_BLOCK_DMRG_
       If (KeyDMRG) Then
@@ -2758,8 +2769,10 @@ C Test read failed. JOBOLD cannot be used.
 *
 *     In DMRG-CASSCF, skip GUGA and LUCIA settings
 *
-      NCONF=1
-      GoTo 9000
+      if(.not.DoGSOR) then
+        NCONF=1
+        GoTo 9000
+      end if
       If(DoDMRG) GoTo 9000
 * ===============================================================
 *

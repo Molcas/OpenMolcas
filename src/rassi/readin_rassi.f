@@ -67,6 +67,10 @@ C --- Default settings for Cholesky
       QDPT2SC = .true.
       QDPT2EV = .true.
 
+      !Defaults for SI-PDFT runs:
+      Second_time = .false.
+      DoGSOR = .false.
+
 C Find beginning of input:
  50   Read(LuIn,'(A72)',END=998) LINE
       CALL NORMAL(LINE)
@@ -84,6 +88,16 @@ C ------------------------------------------
         PRORB=.TRUE.
         PRTRA=.TRUE.
         PRCI=.TRUE.
+        GOTO 100
+      END IF
+C ------------------------------------------
+      IF (LINE(1:4).EQ.'SECO') THEN
+        SECOND_TIME = .true.
+        GOTO 100
+      END IF
+C ------------------------------------------
+      IF (LINE(1:4).EQ.'GSOR') THEN
+        DoGSOR = .true.
         GOTO 100
       END IF
 C ------------------------------------------
