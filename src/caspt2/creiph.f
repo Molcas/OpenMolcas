@@ -33,6 +33,12 @@ C energies.
 
 C Not called, if .NOT.IFMIX, then only the new CI coefficients are
 C printed, no JOBMIX file is created.
+      IF (IFMSCOUP.AND.(ISCF.EQ.0)) THEN
+        IF (.NOT.IFMIX) THEN
+          IF (IPRGLB.GE.USUAL) CALL PRINT_CI_MIX(EIGVEC)
+          RETURN
+        END IF
+      END IF
       IF (DOCUMULANT .OR. (.NOT.IFMIX)) RETURN
 
       IF(IFMSCOUP) THEN
@@ -74,7 +80,7 @@ C to JOBMIX, we use the same TOC array, IADR15.
      &                    LROOTS,NROOTS,IROOT,MXROOT,NRAS1,
      &                    NRAS2,NRAS3,NHOLE1,NELE3,IFQCAN,
      &                    Weight)
-* Copy  MO coefficients from JOBIPH to JOBMIX
+* Copy MO coefficients from JOBIPH to JOBMIX
       NCMO=NBSQT
       CALL GETMEM('LCMO','ALLO','REAL',LCMO,NCMO)
       IAD15=IADR15(9)
@@ -151,7 +157,7 @@ C Write the present effective Hamiltonian:
       IAD15=IADR15(17)
       CALL DDAFILE(JOBIPH,1,WORK(LEFFCP),LROOTS**2,IAD15)
       CALL GETMEM('EFFCP','FREE','REAL',LEFFCP,LROOTS**2)
-* Now 'mix' those states that was treated in the multi-state CASPT2
+* Now 'mix' those states that were treated in the multi-state CASPT2
        IF (IPRGLB.GE.USUAL) THEN
          WRITE(6,*)
          CALL CollapseOutput(1,'Mixed CI coefficients:')

@@ -134,6 +134,7 @@
         END IF
         CALL RecPrt('Weights used for alignment and distance',' ',
      &              W,nAt,1)
+        WRITE(6,*)
       END IF
 *
 *---- Store weights in the runfile too

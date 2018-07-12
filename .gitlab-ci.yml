@@ -1,6 +1,6 @@
 # Define templates for "sub-jobs"
 # - install-key: install the SSH key to access private repositories
-# - compile: compile Molcas with CMake
+# - compile: compile OpenMolcas with CMake
 # - run-tests: run the verification suite
 
 .template: &install-key
@@ -77,14 +77,10 @@
       - build/
       - molcas-extra/
     expire_in: 1 day
-  only:
-    - branches
-    - web
+    when: always
   except:
+    - tags
     - master
-  # allow failures so that the next stages are not blocked
-  # (but test jobs that depend on this will fail later)
-  allow_failure: true
 
 .template: &run-tests
   script:
@@ -134,8 +130,14 @@
     expire_in: 1 month
     when: always
   only:
-    - daily-snapshot
+    - api
+    - triggers
     - web
+    - daily-snapshot
+  # run even if the previous stage failed
+  # (in general, we want to run those configurations that didn't fail,
+  #  but there's no harm in running all)
+  when: always
 
 # Define some configuration groups (variables, tags, etc.) to be used in jobs
 # - plain: default configuration
@@ -143,15 +145,18 @@
 # - pgi: use PGI compilers
 # - sun: use Oracle compilers
 # - intel: use Intel compilers (must install them every time and it's a bit shaky)
-# - nowarn: no warnings allowed
+# - intel13: use Intel 2013 compilers (specific runner)
+# - debug: build with no optimization (no tests)
 
 .template: &plain
   image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-5.4:latest
   variables: &plain_vars
-    cache_file: ""
+    cache_file: |
+      set (BIGOT "ON" CACHE STRING "do not allow any warning")
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
+    tests: ".all exhaustive"
   tags:
     - docker
 
@@ -162,6 +167,7 @@
       set (CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "opt, debug info")
       set (BUILD_SHARED_LIBS "ON" CACHE STRING "use shared libmolcas")
       set (BUILD_STATIC_LIB "ON" CACHE STRING "build static libmolcas too")
+      set (BIGOT "ON" CACHE STRING "do not allow any warning")
       set (LINALG "Runtime" CACHE STRING "runtime blas/lapack linking")
       set (FDE "ON" CACHE STRING "enable frozen-density-embedding (FDE) interface")
       set (GRID_IT "ON" CACHE STRING "enable public GRID_IT code")
@@ -225,9 +231,29 @@
   tags:
     - docker
 
-.template: &nowarn
+.template: &intel13
+  variables: &intel13_vars
+    cache_file: |
+      set (CMAKE_BUILD_TYPE "Release" CACHE STRING "opt, no debug info" )
+      set (HDF5 "OFF" CACHE STRING "turn off HDF5")
+      set (LINALG "MKL" CACHE STRING "enable MKL")
+    pre_compile_script: |
+      . /usr/license/intel/composer_xe_2013.1.117/bin/compilervars.sh intel64
+      export PATH=$${PWD}:$${PATH}
+      touch pymolcas
+    pre_run_script: |
+      . /usr/license/intel/composer_xe_2013.1.117/bin/compilervars.sh intel64
+      export PATH=$${PWD}:$${PATH}
+      touch pymolcas
+    CC: "icc"
+    CXX: "icpc"
+    FC: "ifort"
+  tags:
+    - intel13
+
+.template: &debug
   image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-5.4:latest
-  variables: &nowarn_vars
+  variables: &debug_vars
     cache_file: |
       set (CMAKE_BUILD_TYPE "Debug" CACHE STRING "no opt, debug info")
       set (BUILD_SHARED_LIBS "OFF" CACHE STRING "do not use shared libmolcas")
@@ -235,6 +261,9 @@
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
+    # only interested in compilation, so run no tests
+    # (but the test job will fail if the compilation didn't succeed)
+    tests: ".none"
   tags:
     - docker
 
@@ -281,20 +310,17 @@ tinker:
     paths:
       - build/
     expire_in: 1 day
-  only:
-    - branches
-    - web
   except:
+    - tags
     - master
-  allow_failure: false
 
 # Another special job for building doxygen documentation
 # This is done in a different project, so here simply run a trigger
 # whenever the master changes
 
 trigger_doc:
-  image: ${CI_REGISTRY}/molcas/dockerfiles/ubuntu-14.04:latest
   stage: build
+  image: ${CI_REGISTRY}/molcas/dockerfiles/ubuntu-14.04:latest
   script:
     - export PROJECT_URL=${CI_PROJECT_URL#https://}
     - >
@@ -435,18 +461,24 @@ test:intel_2:
     <<: *intel_vars
     subset: "2"
 
-build:nowarn:
+build:intel13:
   stage: build
-  <<: *nowarn
+  <<: *intel13
   <<: *compile
-test:nowarn:
+test:intel13:
   stage: test
   dependencies:
-    - build:nowarn
-  <<: *nowarn
+    - build:intel13
+  <<: *intel13
   <<: *run-tests
-  # only interested in compilation, so run no tests
-  # (but the job will fail if the compilation didn't succeed)
-  variables:
-    <<: *nowarn_vars
-    tests: ".none"
+
+build:debug:
+  stage: build
+  <<: *debug
+  <<: *compile
+test:debug:
+  stage: test
+  dependencies:
+    - build:debug
+  <<: *debug
+  <<: *run-tests

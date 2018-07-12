@@ -43,6 +43,9 @@
 #include "mxdm.fh"
 #include "infscf.fh"
 #include "stdalloc.fh"
+#ifdef _HDF5_
+#  include "mh5.fh"
+#endif
 *----------------------------------------------------------------------*
 * Dummy arguments                                                      *
 *----------------------------------------------------------------------*
@@ -97,19 +100,18 @@
             End If
          Else If(LstVec(i).eq.2) Then
 *           Write(6,'(2i5,a)') i,LstVec(i),' Lumorb orbitals'
-            if(is_FileOrb.eq.0) then
-            Call F_Inquire('INPORB',Found)
-            else
             Call F_Inquire(SCF_FileOrb,Found)
-            endif
             If(Found) Then
-               if(is_FileOrb.eq.0) then
-                 Call ChkVec('INPORB',
-     $                   iVer,mynSym,mynBas,mynOrb,InfoLbl,iRc)
-               else
+               If (isHDF5) Then
+#ifdef _HDF5_
+                 iVer=-1
+                 Call mh5_fetch_attr(fileorb_id,'NSYM',mynSym)
+                 Call mh5_fetch_attr(fileorb_id,'NBAS',mynBas)
+#endif
+               Else
                  Call ChkVec(SCF_FileOrb,
-     $                   iVer,mynSym,mynBas,mynOrb,InfoLbl,iRc)
-               endif
+     $                  iVer,mynSym,mynBas,mynOrb,InfoLbl,iRc)
+               End If
                If(iVer.eq.0) Found=.false.
                If(mynSym.ne.nSym) Found=.false.
                Do j=1,nSym
@@ -158,7 +160,11 @@
             Else If (LstVec(i).eq.2) Then
                n1=n2+1
                n2=n1+8
-               Write(cList(n1:n2),'(a)') 'Lumorb, '
+               If (isHDF5) Then
+                  Write(cList(n1:n2),'(a)') 'HDF5, '
+               Else
+                  Write(cList(n1:n2),'(a)') 'Lumorb, '
+               End If
             Else If (LstVec(i).eq.3) Then
                n1=n2+1
                n2=n1+13

@@ -7,6 +7,16 @@
 * Responsible person: Michael Stenrup
 * Comments: Only run test if interface is installed
 *-------------------------------------------------------------------------------
+* Test if Gromacs is available and skip the test if not
+> RM -FORCE TEST_GROMACS
+> IF ( $MOLCAS_DRIVER = UNKNOWN_VARIABLE )
+>   EXPORT MOLCAS_DRIVER=molcas
+> ENDIF
+> SHELL $MOLCAS_DRIVER have_feature gromacs || touch TEST_GROMACS
+> IF ( -FILE TEST_GROMACS )
+>   EXIT 36
+> ENDIF
+*-------------------------------------------------------------------------------
 > FILE conf.gro
 Water dimer
    6
@@ -75,24 +85,10 @@ QMmethod = CASSCF
 QMbasis = STO-3G
 > EOF
 *-------------------------------------------------------------------------------
-* Test if Gromacs is correctly installed by checking if grompp finishes
-* correctly
-> EXPORT MOLCAS_TRAP=OFF
 > SHELL grompp_d -n index
-> EXPORT MOLCAS_TRAP=ON
-> EXPORT TEST_GROMACS=0
-> IF ( -FILE topol.tpr )
->    EXPORT TEST_GROMACS=1
-> ENDIF
-> IF ( $TEST_GROMACS=0 )
->    EXIT 36
-> ENDIF
-*-------------------------------------------------------------------------------
 > EXPORT GMX_NB_GENERIC=1
 > EXPORT GMX_MAXBACKUP=-1
 
-* Test Gromacs interface by checking if GATEWAY finishes correctly
-> EXPORT MOLCAS_TRAP=OFF
 &GATEWAY
 Gromacs
  Simple
@@ -101,14 +97,6 @@ Basis
 Group
  NoSym
 NoCD
-> EXPORT MOLCAS_TRAP=ON
-> EXPORT TEST_GROMACS=0
-> IF ( -FILE $Project.SymInfo )
->    EXPORT TEST_GROMACS=1
-> ENDIF
-> IF ( $TEST_GROMACS=0 )
->    EXIT 36
-> ENDIF
 
 > DO WHILE
 

@@ -280,7 +280,7 @@ C        nFro1(iSym)=0
          Case Default
             Goto 1000
       End Select
-*---  Process the "average orbitals" input ----------------------------*
+*---  Process the "TITL" input card -----------------------------------*
  501  Continue
       If ( lTit ) Then
          Write (6,*) 'RdInp: Error while reading input!'

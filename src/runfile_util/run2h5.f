@@ -15,9 +15,13 @@
 *     file specified with fileid.
 *
 *     Attributes:
-*       NSYM, IRREPS, POTNUC, NBAS
+*       NSYM, IRREP_LABELS, POTNUC, NBAS, NATOMS_UNIQUE, NATOMS_ALL,
+*       NPRIM
 *     Datasets:
-*       BASIS_LABELS, OVLMAT
+*       CENTER_LABELS, CENTER_CHARGES, CENTER_COORDINATES,
+*       BASIS_FUNCTION_IDS, DESYM_CENTER_LABELS, DESYM_CENTER_CHARGES,
+*       DESYM_CENTER_COORDINATES, DESYM_BASIS_FUNCTION_IDS,
+*       DESYM_MATRIX, PRIMITIVE_IDS, PRIMITIVES
 
       implicit none
       integer :: fileid

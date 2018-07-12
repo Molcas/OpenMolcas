@@ -14,7 +14,10 @@
 #***********************************************************************
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-from builtins import bytes
+try:
+  from builtins import bytes
+except ImportError:
+  from future.builtins import bytes
 from six import text_type
 
 from os import environ, access, W_OK, X_OK, listdir, remove, getpid, getcwd, makedirs, symlink, devnull
@@ -92,7 +95,7 @@ class MolcasException(Exception):
 
 class Molcas_wrapper(object):
 
-  version = 'py2.00'
+  version = 'py2.03'
   rc = 0
 
   def __init__(self, **kwargs):
@@ -769,7 +772,6 @@ class Molcas_wrapper(object):
       print('*** MOLCAS system not ready -- setup not called ***')
       print('***************************************************')
       self.rc = '_RC_GENERAL_ERROR_'
-    set_utf8('EMIL_RETURNCODE', self.rc_num)
     return self.rc
 
   def _run_check(self):

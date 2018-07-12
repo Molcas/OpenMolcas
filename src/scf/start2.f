@@ -39,6 +39,9 @@
 #include "mxdm.fh"
 #include "infscf.fh"
 #include "stdalloc.fh"
+#ifdef _HDF5_
+#  include "mh5.fh"
+#endif
       Real*8 CMO(mBB,nD), Ovrlp(mBT), EOrb(mmB,nD), OccNo(mmB,nD)
       Character FName*(*)
       Integer nTmp(8)
@@ -59,11 +62,16 @@
       Lu_=LuOrb
       nD = iUHF + 1
       If(iUHF.eq.0) Then
-         Call RdVec_(FName,Lu_,'COEI',iUHF,nSym,nBas,nOrb,
-     &               CMO,Dummy,
-     &               OccNo,Dummy,
-     &               EOrb(1,1),Dummy,
-     &               IndT(1,1),VTitle,1,iErr,iWFtype)
+         If (isHDF5) Then
+            Call RdVec_HDF5(fileorb_id,'COEI',nSym,nBas,
+     &                      CMO,OccNo,EOrb,IndT)
+         Else
+            Call RdVec_(FName,Lu_,'COEI',iUHF,nSym,nBas,nOrb,
+     &                  CMO,Dummy,
+     &                  OccNo,Dummy,
+     &                  EOrb(1,1),Dummy,
+     &                  IndT(1,1),VTitle,1,iErr,iWFtype)
+         End If
          Call VecSort(nSym,nBas,nBas,
      &               CMO,OccNo,IndT(1,1),0,NewOrd,iErr)
          indx=1
@@ -95,14 +103,28 @@
             End Do
          End If
       Else
-         Call Chk_Vec_UHF(FNAME,Lu_,isUHF)
+         If (isHDF5) Then
+            isUHF=0
+#ifdef _HDF5_
+            If (mh5_exists_dset(fileorb_id,'MO_ALPHA_VECTORS')) isUHF=1
+#endif
+         Else
+            Call Chk_Vec_UHF(FNAME,Lu_,isUHF)
+         End If
          If(isUHF.eq.1) Then
-            Call RdVec_(FName,Lu_,'COEI',iUHF,nSym,nBas,nOrb,
-     &                  CMO(1,1),CMO(1,2),
-     &                  OccNo(1,1),OccNo(1,2),
-     &                  EOrb(1,1),EOrb(1,2),
-     &                  IndT(1,1),VTitle,1,iErr,iWFtype)
-            Call iCopy(nnB,IndT(1,1),1,IndT(1,2),1)
+            If (isHDF5) Then
+              Call RdVec_HDF5(fileorb_id,'COEIA',nSym,nBas,
+     &                        CMO(1,1),OccNo(1,1),EOrb(1,1),IndT(1,1))
+              Call RdVec_HDF5(fileorb_id,'COEIB',nSym,nBas,
+     &                        CMO(1,2),OccNo(1,2),EOrb(1,2),IndT(1,2))
+            Else
+               Call RdVec_(FName,Lu_,'COEI',iUHF,nSym,nBas,nOrb,
+     &                     CMO(1,1),CMO(1,2),
+     &                     OccNo(1,1),OccNo(1,2),
+     &                     EOrb(1,1),EOrb(1,2),
+     &                     IndT(1,1),VTitle,1,iErr,iWFtype)
+               Call iCopy(nnB,IndT(1,1),1,IndT(1,2),1)
+            End If
             Call VecSort(nSym,nBas,nBas,CMO(1,1),OccNo(1,1),
      &                   IndT(1,1),0,NewOrd,iErr)
             Call VecSort(nSym,nBas,nBas,CMO(1,2),OccNo(1,2),
@@ -125,11 +147,16 @@
             Call TrimEor(EOrb(1,2),EOrb(1,2),nSym,nBas,nOrb)
             Call Setup
          Else
-            Call RdVec_(FName,Lu_,'COEI',0,nSym,nBas,nOrb,
-     &                  CMO,Dummy,
-     &                  OccNo,Dummy,
-     &                  EOrb(1,1),Dummy,
-     &                  IndT(1,1),VTitle,1,iErr,iWFtype)
+            If (isHDF5) Then
+              Call RdVec_HDF5(fileorb_id,'COEI',nSym,nBas,
+     &                        CMO,OccNo,EOrb,IndT)
+            Else
+               Call RdVec_(FName,Lu_,'COEI',0,nSym,nBas,nOrb,
+     &                     CMO,Dummy,
+     &                     OccNo,Dummy,
+     &                     EOrb(1,1),Dummy,
+     &                     IndT(1,1),VTitle,1,iErr,iWFtype)
+            End If
             Call VecSort(nSym,nBas,nBas,CMO,OccNo,
      &                   IndT(1,1),0,NewOrd,iErr)
             indx=1

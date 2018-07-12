@@ -28,8 +28,8 @@
 *      the preconditioning elements between active and active orbitals *
 *                                                                      *
 *      The spin correction part of the code is a experimental          *
-*      test platform, it is not finnished and is not working,          *
-*      If someone wants to help me finnishing it please contact me     *
+*      test platform, it is not finished and is not working,           *
+*      If someone wants to help me finishing it please contact me      *
 *                                                                      *
 *                                                                      *
 *   "Real programmers don't comment their codes.                       *

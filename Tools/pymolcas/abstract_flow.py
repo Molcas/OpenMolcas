@@ -14,7 +14,10 @@
 #***********************************************************************
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-from builtins import super
+try:
+  from builtins import super
+except ImportError:
+  from future.builtins import super
 from six import text_type, python_2_unicode_compatible
 
 from os.path import isfile
@@ -195,6 +198,7 @@ class Group(Statement):
             if ((not no_break) and (not check_trap(rc_name))):
               no_break = True
               rc_name = '_RC_ALL_IS_WELL_'
+          set_utf8('EMIL_RETURNCODE', 0 if self.rc is None else self.rc)
           i += 1
       else:
         env_print(env, '(Skipped)')
@@ -239,6 +243,7 @@ class Group(Statement):
     # if all items have returned None, here we return success
     if (self.rc is None):
       self.rc = 0
+    set_utf8('EMIL_RETURNCODE', self.rc)
     return self.rc
 
 @python_2_unicode_compatible

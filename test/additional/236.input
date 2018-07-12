@@ -59,7 +59,6 @@ End of Input
 >>COPY $Project.JobIph $Project.JobOld
 
  &ALASKA &END
-Extract
 End of input
 
  &SLAPAF &END

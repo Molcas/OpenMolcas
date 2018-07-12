@@ -783,8 +783,8 @@ relativistic     core[He] val[2s]     (51/1*)=2s1p recommended
 *
 * Core AIMP: LIQR-1S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
     8
    148400.0000
@@ -869,8 +869,8 @@ relativistic     core[Be] val[2p,3s]     (71/511*)=2s3p recommended
 *
 * Core AIMP: NAQR-2S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    240800.0000
@@ -969,8 +969,8 @@ relativistic     core[Mg] val[3p,4s]     (91/611*)=2s3p recommended
 *
 * Core AIMP: KQR-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    268000.0000
@@ -1117,8 +1117,8 @@ relativistic     core[Zn] val[4p,5s]     (11,1/811*/6o)=2s3p1d recommended
 *
 * Core AIMP: RBQR-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    325900.0000
@@ -1301,8 +1301,8 @@ relativistic     core[Cd] val[5p,6s]     (13,1,1/10,11*/8o)=3s3p1d recommended
 *
 * Core AIMP: CSQR-4D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    13
    325700.0000
@@ -1450,8 +1450,8 @@ relativistic     core[He] val[2s]     (51/1*)=2s1p recommended
 *
 * Core AIMP: BEQR-1S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
     8
    164400.0000
@@ -1542,8 +1542,8 @@ relativistic     core[Be] val[2p,3s]     (71/511*/1*)=2s3p1d recommended
 *
 * Core AIMP: MGQR-2S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    264900.0000
@@ -1657,8 +1657,8 @@ relativistic Chem.Phys.82(1983)355) core[Mg] val[3p,4s] (91/611*/311)=2s3p3d rec
 *
 * Core AIMP: CAQR-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    249400.0000
@@ -1806,8 +1806,8 @@ relativistic    core[Zn] val[4p,5s]  (11,11/811*/611)=3s3p3d recommended
 *
 * Core AIMP: SRQR-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    325499.2800
@@ -1991,8 +1991,8 @@ relativistic  core[Cd] val[5p,6s]     (13,1,1/10,11*/811)=3s3p3d recommended
 *
 * Core AIMP: BAQR-4D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    411800.0000
@@ -2149,8 +2149,8 @@ relativistic  core[He] val[2s,2p]     (51/511/1*)=2s3p1d recommended
 *
 * Core AIMP: BQR-1S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
     7
    144139.2300
@@ -2236,8 +2236,8 @@ relativistic  core[Ne] val[3s,3p]     (71/611/1*)=2s3p1d recommended
 *
 * Core AIMP: ALQR-2P
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
     9
    205916.3600
@@ -2364,8 +2364,8 @@ relativistic  core[Ar,3d] val[4s,4p]     (911/811/3o1*)=3s3p2d recommended
 *
 * Core AIMP: GAQR-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    341600.0000
@@ -2527,8 +2527,8 @@ relativistic  core[Kr] val[4d,5s,5p]     (11,11/10,11/611*)=3s3p3d recommended
 *
 * Core AIMP: INQR-4P
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    375600.0000
@@ -2727,8 +2727,8 @@ relativistic core[Xe,4f] val[5d,6s,6p]SO-corr (13,11/12,111/711*/5o1)=3s4p3d2f r
 *
 * Core AIMP: TLQR-4F
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    3859400.000
@@ -2905,8 +2905,8 @@ relativistic   core[He] val[2s,2p]     (51/511/1*)=2s3p1d recommended
 *
 * Core AIMP: CQR-1S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
     7
    161533.6600
@@ -2992,8 +2992,8 @@ relativistic   core[Ne] val[3s,3p]     (71/611/1*)=2s3p1d recommended
 *
 * Core AIMP: SIQR-2P
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
     9
    221861.0500
@@ -3120,8 +3120,8 @@ relativistic   core[Ar,3d] val[4s,4p]     (911/811/3o1*)=3s3p2d recommended
 *
 * Core AIMP: GEQR-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    333700.0000
@@ -3283,8 +3283,8 @@ relativistic   core[Kr] val[4d,5s,5p]     (11,11/10,11/611*)=3s3p3d recommended
 *
 * Core AIMP: SNQR-4P
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    385800.0000
@@ -3483,8 +3483,8 @@ relativistic core[Xe,4f] val[5d,6s,6p]SO-corr (13,11/12,111/711*/5o1)=3s4p3d2f r
 *
 * Core AIMP: PBQR-4F
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    3733300.000
@@ -3661,8 +3661,8 @@ relativistic   core[He] val[2s,2p]     (51/511/1*)=2s3p1d recommended
 *
 * Core AIMP: NQR-1S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
     7
    185074.9500
@@ -3748,8 +3748,8 @@ relativistic   core[Ne] val[3s,3p]     (71/611/1*)=2s3p1d recommended
 *
 * Core AIMP: PQR-2P
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
     9
    231564.0100
@@ -3876,8 +3876,8 @@ relativistic   core[Ar,3d] val[4s,4p]     (911/811/3o1*)=3s3p2d recommended
 *
 * Core AIMP: ASQR-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    338900.0000
@@ -4039,8 +4039,8 @@ relativistic   core[Kr] val[4d,5s,5p] (11,11/10,11/611*)=3s3p3d recommended
 *
 * Core AIMP: SBQR-4P
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    394600.0000
@@ -4239,8 +4239,8 @@ relativistic core[Xe,4f] val[5d,6s,6p]SO-corr (13,11/12,111/711*/5o1)=3s4p3d2f r
 *
 * Core AIMP: BIQR-4F
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    3919600.000
@@ -4424,8 +4424,8 @@ relativistic core[He] val[2s,2p]     (51/5111a/1*)=2s4p1d recommeded
 *
 * Core AIMP: OQR-1S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
     7
    200307.5400
@@ -4511,8 +4511,8 @@ relativistic core[Ne] val[3s,3p]     (71/611/1*)=2s3p1d recommended
 *
 * Core AIMP: SQR-2P
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
     9
    237485.0100
@@ -4639,8 +4639,8 @@ relativistic core[Ar,3d] val[4s,4p]     (911/811/3o1*)=3s3p2d recommended
 *
 * Core AIMP: SEQR-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    349400.0000
@@ -4802,8 +4802,8 @@ relativistic core[Kr] val[4d,5s,5p]     (11.11/10,11/611*)=3s3p3d recommended
 *
 * Core AIMP: TEQR-4P
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    410300.0000
@@ -5002,8 +5002,8 @@ relativistic core[Xe,4f] val[5d,6s,6p]SO-corr (13,11/12,111/711*/5o1)=3s4p3d2f r
 *
 * Core AIMP: POQR-4F
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    3520400.000
@@ -5187,8 +5187,8 @@ relativistic core[He] val[2s,2p]     (51/5111a/1*)=2s4p1d recommended
 *
 * Core AIMP: FQR-1S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
     7
    214747.4000
@@ -5281,8 +5281,8 @@ relativistic core[Ne] val[3s,3p]     (71/6111a/1*)=2s4p1d recommended
 *
 * Core AIMP: CLQR-2P
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
     9
    243528.2400
@@ -5409,8 +5409,8 @@ relativistic core[Ar,3d] val[4s,4p]     (911/8111/3o1*)=3s4p2d recommended
 *
 * Core AIMP: BRQR-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    330382.4900
@@ -5572,8 +5572,8 @@ relativistic core[Kr] val[4d,5s,5p]  (11,11/10,111/611*)=3s4p3d recommended
 *
 * Core AIMP: IQR-4P
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    407900.0000
@@ -5772,8 +5772,8 @@ relativistic core[Xe,4f] val[5d,6s,6p]SO-corr (13,11/12,111/711*/5o1)=3s4p3d2f r
 *
 * Core AIMP: ATQR-4F
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    3550800.000
@@ -5950,8 +5950,8 @@ relativistic  core[He] val[2s,2p]     (51/511/1*)=2s3p1d recommended
 *
 * Core AIMP: NEQR-1S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
     7
    241001.2500
@@ -6037,8 +6037,8 @@ relativistic  core[Ne] val[3s,3p]     (71/611/1*)=2s3p1d recommended
 *
 * Core AIMP: ARQR-2P
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
     9
    250861.6300
@@ -6165,8 +6165,8 @@ relativistic  core[Ar,3d] val[4s,4p]     (911/811/3o1*)=3s3p2d recommended
 *
 * Core AIMP: KRQR-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    348300.0000
@@ -6328,8 +6328,8 @@ relativistic  core[Kr] val[4d,5s,5p]   (11,11/10,11/611*)=3s3p3d recommended
 *
 * Core AIMP: XEQR-4P
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    397600.0000
@@ -6528,8 +6528,8 @@ relativistic  core[Xe,4f] val[5d,6s,6p]SO-corr (13,11/12,111/711*/5o1)=3s4p3d2f 
 *
 * Core AIMP: RNQR-4F
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    3618000.000
@@ -6737,8 +6737,8 @@ relativistic  core[Mg] val[3p,4s,3d]     (911/511*/5111d)=3s3p4d recomended
 *
 * Core AIMP: SCQR2D-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    265100.0000
@@ -6866,8 +6866,8 @@ relativistic  core[Mg] val[3p,4s,3d]     (911/511*/5111d)=3s3p4d recomended
 *
 * Core AIMP: TIQR3F-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    265900.0000
@@ -6995,8 +6995,8 @@ relativistic  core[Mg] val[3p,4s,3d]     (911/511*/5111d)=3s3p4d recomended
 *
 * Core AIMP: VQR4F-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    266000.0000
@@ -7124,8 +7124,8 @@ relativistic  core[Mg] val[3p,4s,3d]     (911/511*/5111d)=3s3p4d recomended
 *
 * Core AIMP: CRQR7S-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    289100.0000
@@ -7253,8 +7253,8 @@ relativistic  core[Mg] val[3p,4s,3d]     (911/511*/5111d)=3s3p4d recomended
 *
 * Core AIMP: MNQR6S-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    295500.0000
@@ -7382,8 +7382,8 @@ relativistic  core[Mg] val[3p,4s,3d]     (911/511*/5111d)=3s3p4d recomended
 *
 * Core AIMP: FEQR5D-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    311500.0000
@@ -7511,8 +7511,8 @@ relativistic  core[Mg] val[3p,4s,3d]     (911/511*/5111d)=3s3p4d recomended
 *
 * Core AIMP: COQR4F-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    304700.0000
@@ -7640,8 +7640,8 @@ relativistic  core[Mg] val[3p,4s,3d]     (911/511*/5111d)=3s3p4d recomended
 *
 * Core AIMP: NIQR3F-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    292600.0000
@@ -7769,8 +7769,8 @@ relativistic  core[Mg] val[3p,4s,3d]     (911/511*/5111d)=3s3p4d recomended
 *
 * Core AIMP: CUQR2D-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    323800.0000
@@ -7896,8 +7896,8 @@ relativistic  core[Mg] val[3p,4s,3d]     (911/511*/511)=3s3p3d recomended
 *
 * Core AIMP: ZNQR1S-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    315500.0000
@@ -8041,8 +8041,8 @@ relativistic  core[Mg] val[3p,4s,3d]     (911/511*/5111d)=3s3p4d recomended
 *
 * Core AIMP: SCQR2D-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    265100.0000
@@ -8177,8 +8177,8 @@ relativistic  core[Mg] val[3p,4s,3d]     (911/511*/5111d)=3s3p4d recomended
 *
 * Core AIMP: TIQR3F-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    265900.0000
@@ -8313,8 +8313,8 @@ relativistic  core[Mg] val[3p,4s,3d]     (911/511*/5111d)=3s3p4d recomended
 *
 * Core AIMP: VQR4F-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    266000.0000
@@ -8449,8 +8449,8 @@ relativistic  core[Mg] val[3p,4s,3d]     (911/511*/5111d)=3s3p4d recomended
 *
 * Core AIMP: CRQR7S-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    289100.0000
@@ -8585,8 +8585,8 @@ relativistic  core[Mg] val[3p,4s,3d]     (911/511*/5111d)=3s3p4d recomended
 *
 * Core AIMP: MNQR6S-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    295500.0000
@@ -8721,8 +8721,8 @@ relativistic  core[Mg] val[3p,4s,3d]     (911/511*/5111d)=3s3p4d recomended
 *
 * Core AIMP: FEQR5D-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    311500.0000
@@ -8857,8 +8857,8 @@ relativistic  core[Mg] val[3p,4s,3d]     (911/511*/5111d)=3s3p4d recomended
 *
 * Core AIMP: COQR4F-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    304700.0000
@@ -8993,8 +8993,8 @@ relativistic  core[Mg] val[3p,4s,3d]     (911/511*/5111d)=3s3p4d recomended
 *
 * Core AIMP: NIQR3F-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    292600.0000
@@ -9129,8 +9129,8 @@ relativistic  core[Mg] val[3p,4s,3d]     (911/511*/5111d)=3s3p4d recomended
 *
 * Core AIMP: CUQR2D-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    323800.0000
@@ -9263,8 +9263,8 @@ relativistic  core[Mg] val[3p,4s,3d]     (911/511*/511)=3s3p3d recomended
 *
 * Core AIMP: ZNQR1S-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    315500.0000
@@ -9412,8 +9412,8 @@ relativistic  core[Zn] val[4p,5s,4d]     (11,11/711*/6111d)=3s3p4d recommended
 *
 * Core AIMP: YQR2D-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    300200.0000
@@ -9579,8 +9579,8 @@ relativistic  core[Zn] val[4p,5s,4d]     (11,11/711*/6111d)=3s3p4d recommended
 *
 * Core AIMP: ZRQR5F-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    289700.0000
@@ -9746,8 +9746,8 @@ relativistic  core[Zn] val[4p,5s,4d]     (11,11/711*/6111d)=3s3p4d recommended
 *
 * Core AIMP: NBQR6D-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    308700.0000
@@ -9913,8 +9913,8 @@ relativistic  core[Zn] val[4p,5s,4d]     (11,11/711*/6111d)=3s3p4d recommended
 *
 * Core AIMP: MOQR7S-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    315500.0000
@@ -10080,8 +10080,8 @@ relativistic  core[Zn] val[4p,5s,4d]     (11,11/711*/6111d)=3s3p4d recommended
 *
 * Core AIMP: TCQR6S-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    309200.0000
@@ -10247,8 +10247,8 @@ relativistic  core[Zn] val[4p,5s,4d]     (11,11/711*/6111d)=3s3p4d recommended
 *
 * Core AIMP: RUQR5F-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    327700.0000
@@ -10414,8 +10414,8 @@ relativistic  core[Zn] val[4p,5s,4d]     (11,11/711*/6111d)=3s3p4d recommended
 *
 * Core AIMP: RHQR4F1-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    342900.0000
@@ -10581,8 +10581,8 @@ relativistic  core[Zn] val[4p,5s,4d]     (11,11/711*/6111d)=3s3p4d recommended
 *
 * Core AIMP: PDQR3D-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    328700.0000
@@ -10748,8 +10748,8 @@ relativistic  core[Zn] val[4p,5s,4d]     (11,11/711*/6111d)=3s3p4d recommended
 *
 * Core AIMP: AGQR2S-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    339100.0000
@@ -10913,8 +10913,8 @@ relativistic  core[Zn] val[4p,5s,4d]     (11,11/711*/611)=3s3p3d recommended
 *
 * Core AIMP: CDQR1S-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    369100.0000
@@ -11096,8 +11096,8 @@ relativistic  core[Zn] val[4p,5s,4d]     (11,11/711*/6111d)=3s3p4d recommended
 *
 * Core AIMP: YQR2D-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    300200.0000
@@ -11270,8 +11270,8 @@ relativistic  core[Zn] val[4p,5s,4d]     (11,11/711*/6111d)=3s3p4d recommended
 *
 * Core AIMP: ZRQR5F-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    289700.0000
@@ -11444,8 +11444,8 @@ relativistic  core[Zn] val[4p,5s,4d]     (11,11/711*/6111d)=3s3p4d recommended
 *
 * Core AIMP: NBQR6D-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    308700.0000
@@ -11618,8 +11618,8 @@ relativistic  core[Zn] val[4p,5s,4d]     (11,11/711*/6111d)=3s3p4d recommended
 *
 * Core AIMP: MOQR7S-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    315500.0000
@@ -11792,8 +11792,8 @@ relativistic  core[Zn] val[4p,5s,4d]     (11,11/711*/6111d)=3s3p4d recommended
 *
 * Core AIMP: TCQR6S-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    309200.0000
@@ -11966,8 +11966,8 @@ relativistic  core[Zn] val[4p,5s,4d]     (11,11/711*/6111d)=3s3p4d recommended
 *
 * Core AIMP: RUQR5F-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    327700.0000
@@ -12140,8 +12140,8 @@ relativistic  core[Zn] val[4p,5s,4d]     (11,11/711*/6111d)=3s3p4d recommended
 *
 * Core AIMP: RHQR4F1-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    342900.0000
@@ -12314,8 +12314,8 @@ relativistic  core[Zn] val[4p,5s,4d]     (11,11/711*/6111d)=3s3p4d recommended
 *
 * Core AIMP: PDQR3D-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    328700.0000
@@ -12488,8 +12488,8 @@ relativistic  core[Zn] val[4p,5s,4d]     (11,11/711*/6111d)=3s3p4d recommended
 *
 * Core AIMP: AGQR2S-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    339100.0000
@@ -12680,8 +12680,8 @@ core[Cd] val[5p,6s,5d]SO-corr (13,11/911*/711d)=3s3p3d recommended
 *
 * Core AIMP: LAQR(2D)-[CD]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    13
    385600.0000
@@ -12891,8 +12891,8 @@ core[Cd,4f] val[5p,6s,5d] SO-corr  (13,11/911*/8111d/5o1*)=3s3p4d2f recommended
 *
 * Core AIMP: HFQR(3F)-[CD]4F
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    15
    621798.4200
@@ -13122,8 +13122,8 @@ core[Cd,4f] val[5p,6s,5d] SO-corr  (13,11/911*/8111d/5o1*)=3s3p4d2f recommended
 *
 * Core AIMP: TAQR(4F)-[CD]4F
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    15
    643635.7500
@@ -13353,8 +13353,8 @@ core[Cd,4f] val[5p,6s,5d] SO-corr  (13,11/911*/8111d/5o1*)=3s3p4d2f recommended
 *
 * Core AIMP: WQR(5D)-[CD]4F
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    15
    660569.7200
@@ -13584,8 +13584,8 @@ core[Cd,4f] val[5p,6s,5d] SO-corr  (13,11/911*/8111d/5o1*)=3s3p4d2f recommended
 *
 * Core AIMP: REQR(6S)-[CD]4F
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    15
    606460.6200
@@ -13815,8 +13815,8 @@ core[Cd,4f] val[5p,6s,5d] SO-corr  (13,11/911*/8111d/5o1*)=3s3p4d2f recommended
 *
 * Core AIMP: OSQR(5D)-[CD]4F
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    15
    674621.6200
@@ -14046,8 +14046,8 @@ core[Cd,4f] val[5p,6s,5d] SO-corr  (13,11/911*/8111d/5o1*)=3s3p4d2f recommended
 *
 * Core AIMP: IRQR(4F)-[CD]4F
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    15
    643773.6200
@@ -14277,8 +14277,8 @@ core[Cd,4f] val[5p,6s,5d] SO-corr  (13,11/911*/8111d/5o1*)=3s3p4d2f recommended
 *
 * Core AIMP: PTQR(3F)-[CD]4F
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    15
    614528.9900
@@ -14516,8 +14516,8 @@ core[Cd,4f] val[5p,6s,5d] SO-corr  (13,11/911*/8111d/5o1*)=3s3p4d2f recommended
 *
 * Core AIMP: PTQR(3D)-[CD]4F
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    15
    601813.0200
@@ -14747,8 +14747,8 @@ core[Cd,4f] val[5p,6s,5d] SO-corr  (13,11/911*/8111d/5o1*)=3s3p4d2f recommended
 *
 * Core AIMP: AUQR(2S)-[CD]4F
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    15
    687021.6200
@@ -14978,8 +14978,8 @@ core[Cd,4f] val[5p,6s,5d] SO-corr  (13,11/911*/8111d/5o1*)=3s3p4d2f recommended
 *
 * Core AIMP: HGQR(1S)-[CD]4F
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    15
    706558.6200
@@ -32690,8 +32690,8 @@ core[He] val[2s]     (41/1*)=2s1p recommended
 *
 * Core AIMP: LI-1S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
     8
    197775.8700
@@ -32790,8 +32790,8 @@ L.S. and Z.B., unpublished.     core[Be] val[2p,3s]   (61/411*)=2s3p recommended
 *
 * Core AIMP: NA-2S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    278669.0000
@@ -32904,8 +32904,8 @@ L.S. and Z.B., unpublished.   core[Mg] val[3p,4s]     (81/511*)=2s3p recommended
 *
 * Core AIMP: K-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    299115.0000
@@ -33074,8 +33074,8 @@ L.S. and Z.B., unpublished. core[Zn] val[4p,5s]  (10,1/711*/6o)=2s3p1d recomm.
 *
 * Core AIMP: RB-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    360544.0000
@@ -33290,8 +33290,8 @@ L.S. and Z.B., unpublished. core[Cd] val[5p,6s]  (11,1,1/911*/8o)=3s3p1d recomm.
 *
 * Core AIMP: CS-4D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    13
    412347.0000
@@ -33437,8 +33437,8 @@ core[He] val[2s]     (41/1*)=2s1p recommended
 *
 * Core AIMP: BE-1S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
     8
    220020.6800
@@ -33543,8 +33543,8 @@ core[Be] val[2p,3s]     (61/411*/1*)=2s3p1d recommended
 *
 * Core AIMP: MG-2S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
     8
    178524.9800
@@ -33668,8 +33668,8 @@ et al., Chem.Phys.82(1983)355. core[Mg] val[3p,4s] (81/511*/311)=2s3p3d recomm.
 *
 * Core AIMP: CA-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    293637.0500
@@ -33841,8 +33841,8 @@ core[Zn] val[4p,5s]     (9,1,1/711*/411)=3s3p3d recommended
 *
 * Core AIMP: SR-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    325199.2800
@@ -34024,8 +34024,8 @@ core[Cd] val[5p,6s]     (A111/911*/611)=3s3p3d recommended
 *
 * Core AIMP: BA-4D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    417700.0000
@@ -34180,8 +34180,8 @@ core[He] val[2s,2p]     (41/311/1*)=2s3p1d recommended
 *
 * Core AIMP: B-1S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
     7
    215139.2300
@@ -34281,8 +34281,8 @@ core[Ne] val[3s,3p]     (61/411/1*)=2s3p1d recommended
 *
 * Core AIMP: AL-2P
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
     9
    322316.3600
@@ -34431,8 +34431,8 @@ core[Ar,3d] val[4s,4p]     (711/611/3o1*)=3s3p2d recommended
 *
 * Core AIMP: GA-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    604373.0100
@@ -34630,8 +34630,8 @@ core[Kr] val[4d,5s,5p]     (911/811/511*)=3s3p3d recommended
 *
 * Core AIMP: IN-4P
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    424501.0000
@@ -34869,8 +34869,8 @@ core[Xe,4f] val[5d,6s,6p]     (11,1,1/9111/611*/4o1)=3s4p3d2f recommended
 *
 * Core AIMP: TL-4F
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    4229690.000
@@ -35045,8 +35045,8 @@ core[He] val[2s,2p]     (41/311/1*)=2s3p1d recommended
 *
 * Core AIMP: C-1S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
     7
    233033.6600
@@ -35146,8 +35146,8 @@ core[Ne] val[3s,3p]     (61/411/1*)=2s3p1d recommended
 *
 * Core AIMP: SI-2P
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
     9
    321661.0500
@@ -35296,8 +35296,8 @@ core[Ar,3d] val[4s,4p]     (711/611/3o1*)=3s3p2d recommended
 *
 * Core AIMP: GE-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    668170.8800
@@ -35495,8 +35495,8 @@ core[Kr] val[4d,5s,5p]     (911/811/511*)=3s3p3d recommended
 *
 * Core AIMP: SN-4P
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    384685.2900
@@ -35734,8 +35734,8 @@ core[Xe,4f] val[5d,6s,6p]     (11,1,1/9111/611*/4o1)=3s4p3d2f recommended
 *
 * Core AIMP: PB-4F
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    4347790.000
@@ -35910,8 +35910,8 @@ core[He] val[2s,2p]     (41/311/1*)=2s3p1d recommended
 *
 * Core AIMP: N-1S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
     7
    249574.9500
@@ -36011,8 +36011,8 @@ core[Ne] val[3s,3p]     (61/411/1*)=2s3p1d recommended
 *
 * Core AIMP: P-2P
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
     9
    325164.0100
@@ -36161,8 +36161,8 @@ core[Ar,3d] val[4s,4p]     (711/611/3o1*)=3s3p2d recommended
 *
 * Core AIMP: AS-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    484958.7800
@@ -36360,8 +36360,8 @@ core[Kr] val[4d,5s,5p]     (911/811/511*)=3s3p3d recommended
 *
 * Core AIMP: SB-4P
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    442356.0000
@@ -36599,8 +36599,8 @@ core[Xe,4f] val[5d,6s,6p]     (11,1,1/9111/611*/4o1)=3s4p3d2f recommended
 *
 * Core AIMP: BI-4F
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    4347280.000
@@ -36782,8 +36782,8 @@ core[He] val[2s,2p]     (41/3111a/1*)=2s4p1d recommended
 *
 * Core AIMP: O-1S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
     7
    265207.5400
@@ -36883,8 +36883,8 @@ core[Ne] val[3s,3p]     (61/411/1*)=2s3p1d recommended
 *
 * Core AIMP: S-2P
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
     9
    324985.0100
@@ -37033,8 +37033,8 @@ core[Ar,3d] val[4s,4p]     (711/611/3o1*)=3s3p2d recommended
 *
 * Core AIMP: SE-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    457507.7500
@@ -37232,8 +37232,8 @@ core[Kr] val[4d,5s,5p]     (911/811/511*)=3s3p3d recommended
 *
 * Core AIMP: TE-4P
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    438081.0000
@@ -37471,8 +37471,8 @@ core[Xe,4f] val[5d,6s,6p]     (11,1,1/9111/611*/4o1)=3s4p3d2f recommended
 *
 * Core AIMP: PO-4F
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    4440930.000
@@ -37654,8 +37654,8 @@ core[He] val[2s,2p]     (41/3111a/1*)=2s4p1d recommended
 *
 * Core AIMP: F-1S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
     7
    279347.4000
@@ -37762,8 +37762,8 @@ core[Ne] val[3s,3p]     (61/4111a/1*)=2s4p1d recommended
 *
 * Core AIMP: CL-2P
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
     9
    310528.2400
@@ -37912,8 +37912,8 @@ core[Ar,3d] val[4s,4p]     (711/5111/3o1*)=3s4p2d recommended
 *
 * Core AIMP: BR-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    409488.2600
@@ -38111,8 +38111,8 @@ core[Kr] val[4d,5s,5p]     (911/7111/511*)=3s4p3d recommended
 *
 * Core AIMP: I-4P
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    391685.2900
@@ -38308,8 +38308,8 @@ core[Xe,4f] val[5d,6s,6p]     (11,1,1/9111/611*/4o1)=3s4p3d2f recommended
 *
 * Core AIMP: AT-4F
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    3663200.000
@@ -38484,8 +38484,8 @@ core[He] val[2s,2p]     (41/311/1*)=2s3p1d recommended
 *
 * Core AIMP: NE-1S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
     7
    292201.2500
@@ -38585,8 +38585,8 @@ core[Ne] val[3s,3p]     (61/411/1*)=2s3p1d recommended
 *
 * Core AIMP: AR-2P
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
     9
    337361.6300
@@ -38735,8 +38735,8 @@ core[Ar,3d] val[4s,4p]     (711/611/3o1*)=3s3p2d recommended
 *
 * Core AIMP: KR-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    400264.0500
@@ -38934,8 +38934,8 @@ core[Kr] val[4d,5s,5p]     (911/811/511*)=3s3p3d recommended
 *
 * Core AIMP: XE-4P
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    437148.0000
@@ -39173,8 +39173,8 @@ core[Xe,4f] val[5d,6s,6p]     (11,1,1/9111/611*/4o1)=3s4p3d2f recommended
 *
 * Core AIMP: RN-4F
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    4687170.000
@@ -39380,8 +39380,8 @@ core[Mg] val[3p,4s,3d]     (711/411*/3111d)=3s3p4d recomended
 *
 * Core AIMP: SC2D-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    277100.0000
@@ -39539,8 +39539,8 @@ core[Mg] val[3p,4s,3d]     (711/411*/3111d)=3s3p4d recomended
 *
 * Core AIMP: TI3F-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    267000.0000
@@ -39698,8 +39698,8 @@ core[Mg] val[3p,4s,3d]     (711/411*/3111d)=3s3p4d recomended
 *
 * Core AIMP: V4F-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    266000.0000
@@ -39857,8 +39857,8 @@ core[Mg] val[3p,4s,3d]     (711/411*/3111d)=3s3p4d recomended
 *
 * Core AIMP: CR7S-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    272000.0000
@@ -40016,8 +40016,8 @@ core[Mg] val[3p,4s,3d]     (711/411*/3111d)=3s3p4d recomended
 *
 * Core AIMP: MN6S-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    282000.0000
@@ -40175,8 +40175,8 @@ core[Mg] val[3p,4s,3d]     (711/411*/3111d)=3s3p4d recomended
 *
 * Core AIMP: FE5D-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    290000.0000
@@ -40334,8 +40334,8 @@ core[Mg] val[3p,4s,3d]     (711/411*/3111d)=3s3p4d recomended
 *
 * Core AIMP: CO4F-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    298000.0000
@@ -40493,8 +40493,8 @@ core[Mg] val[3p,4s,3d]     (711/411*/3111d)=3s3p4d recomended
 *
 * Core AIMP: NI3F-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    305000.0000
@@ -40652,8 +40652,8 @@ core[Mg] val[3p,4s,3d]     (711/411*/3111d)=3s3p4d recomended
 *
 * Core AIMP: CU2S-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    311000.0000
@@ -40809,8 +40809,8 @@ core[Mg] val[3p,4s,3d]     (711/411*/311)=3s3p3d recomended
 *
 * Core AIMP: ZN1S-3S
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    318000.0000
@@ -40988,8 +40988,8 @@ core[Zn] val[4p,5s,4d]     (911/611*/4111d)=3s3p4d recommended
 *
 * Core AIMP: Y2D-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    284600.0000
@@ -41193,8 +41193,8 @@ core[Zn] val[4p,5s,4d]     (911/611*/4111d)=3s3p4d recommended
 *
 * Core AIMP: ZR5F-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    300400.0000
@@ -41398,8 +41398,8 @@ core[Zn] val[4p,5s,4d]     (911/611*/4111d)=3s3p4d recommended
 *
 * Core AIMP: NB6D-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    304100.0000
@@ -41603,8 +41603,8 @@ core[Zn] val[4p,5s,4d]     (911/611*/4111d)=3s3p4d recommended
 *
 * Core AIMP: MO7S-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    303200.0000
@@ -41808,8 +41808,8 @@ core[Zn] val[4p,5s,4d]     (911/611*/4111d)=3s3p4d recommended
 *
 * Core AIMP: TC6S-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    320000.0000
@@ -42013,8 +42013,8 @@ core[Zn] val[4p,5s,4d]     (911/611*/4111d)=3s3p4d recommended
 *
 * Core AIMP: RU5F-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    323800.0000
@@ -42218,8 +42218,8 @@ core[Zn] val[4p,5s,4d]     (911/611*/4111d)=3s3p4d recommended
 *
 * Core AIMP: RH4F1-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    328600.0000
@@ -42423,8 +42423,8 @@ core[Zn] val[4p,5s,4d]     (911/611*/4111d)=3s3p4d recommended
 *
 * Core AIMP: PD3D-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    342300.0000
@@ -42628,8 +42628,8 @@ core[Zn] val[4p,5s,4d]     (911/611*/4111d)=3s3p4d recommended
 *
 * Core AIMP: AG2S-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    343300.0000
@@ -42831,8 +42831,8 @@ core[Zn] val[4p,5s,4d]     (911/611*/411)=3s3p4d recommended
 *
 * Core AIMP: CD1S-3D
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    355800.0000
@@ -43058,8 +43058,8 @@ core[Cd] val[5p,6s,5d]     SO-corrected (11,1,1/811*/611d)=3s3p3d recommended
 *
 * Core AIMP: LA(2D)-[CD]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    13
    434774.0000
@@ -43268,8 +43268,8 @@ core[Cd,4f] val[5p,6s,5d]     (11,1,1/811*/6111d/4o1*)=3s3p4d2f recommended
 *
 * Core AIMP: HF(3F)-[CD]4F
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    15
    614895.4200
@@ -43494,8 +43494,8 @@ core[Cd,4f] val[5p,6s,5d]     (11,1,1/811*/6111d/4o1*)=3s3p4d2f recommended
 *
 * Core AIMP: TA(4F)-[CD]4F
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    15
    645914.0700
@@ -43720,8 +43720,8 @@ core[Cd,4f] val[5p,6s,5d]     (11,1,1/811*/6111d/4o1*)=3s3p4d2f recommended
 *
 * Core AIMP: W(5D)-[CD]4F
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    15
    625813.8200
@@ -43946,8 +43946,8 @@ core[Cd,4f] val[5p,6s,5d]     (11,1,1/811*/6111d/4o1*)=3s3p4d2f recommended
 *
 * Core AIMP: RE(6S)-[CD]4F
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    15
    612737.6200
@@ -44172,8 +44172,8 @@ core[Cd,4f] val[5p,6s,5d]     (11,1,1/811*/6111d/4o1*)=3s3p4d2f recommended
 *
 * Core AIMP: OS(5D)-[CD]4F
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    15
    666914.6200
@@ -44398,8 +44398,8 @@ core[Cd,4f] val[5p,6s,5d]     (11,1,1/811*/6111d/4o1*)=3s3p4d2f recommended
 *
 * Core AIMP: IR(4F)-[CD]4F
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    15
    656500.6200
@@ -44624,8 +44624,8 @@ core[Cd,4f] val[5p,6s,5d]     (11,1,1/811*/6111d/4o1*)=3s3p4d2f recommended
 *
 * Core AIMP: PT(3D)-[CD]4F
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    15
    626955.0200
@@ -44850,8 +44850,8 @@ core[Cd,4f] val[5p,6s,5d]     (11,1,1/811*/6111d/4o1*)=3s3p4d2f recommended
 *
 * Core AIMP: AU(2S)-[CD]4F
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    15
    693176.9200
@@ -45076,8 +45076,8 @@ core[Cd,4f] val[5p,6s,5d]     (11,1,1/811*/6111d/4o1*)=3s3p4d2f recommended
 *
 * Core AIMP: HG(1S)-[CD]4F
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    15
    695586.0200
@@ -45414,8 +45414,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: SC-NP-(d1s2)2D-[NE]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    361581.0000
@@ -45613,8 +45613,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: TI-NP-(d2s2)3F-[NE]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    371198.0000
@@ -45812,8 +45812,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: V-NP-(d3s2)4F-[NE]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    380976.0000
@@ -46011,8 +46011,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: CR-NP-(d5s1)7S-[NE]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    389446.0000
@@ -46210,8 +46210,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: MN-NP-(d5s2)6S-[NE]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    398793.0000
@@ -46410,8 +46410,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: FE-NP-(d6s2)5D-[NE]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    407567.0000
@@ -46610,8 +46610,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: CO-NP-(d7s2)4F-[NE]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    416074.0000
@@ -46809,8 +46809,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: NI-NP-(d8s2)3F-[NE]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    418107.0000
@@ -47008,8 +47008,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: CU-NP-(d10s1)2S-[NE]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    427693.0000
@@ -47207,8 +47207,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: ZN-NP-(d10s2)1S-[NE]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    10
    436495.0000
@@ -47433,8 +47433,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: Y-NP-(d1s2)2D-[AR,3D]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    13
    537147.0000
@@ -47696,8 +47696,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: ZR-NP-(d2s2)3F-[AR,3D]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    13
    553364.0000
@@ -47959,8 +47959,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: NB-NP-(d4s1)6D-[AR,3D]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    13
    577190.0000
@@ -48222,8 +48222,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: MO-NP-(d5s1)7S-[AR,3D]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    13
    556967.0000
@@ -48485,8 +48485,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: TC-NP-(d5s2)6S-[AR,3D]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    13
    546590.0000
@@ -48749,8 +48749,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: RU-NP-(d7s1)5F-[AR,3D]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    13
    543650.0000
@@ -49013,8 +49013,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: RH-NP-(d8s1)4F-[AR,3D]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    13
    584373.0000
@@ -49276,8 +49276,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: PD-NP-(d9s1)3D-[AR,3D]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    13
    584500.0000
@@ -49539,8 +49539,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: AG-NP-(d10s1)2S-[AR,3D]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    13
    580380.0000
@@ -49802,8 +49802,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: CD-NP-(d10s2)1S-[AR,3D]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    13
    577018.0000
@@ -50098,8 +50098,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: HF-NP-(d2s2)3F-[KR,4D,4F]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    555880.0000
@@ -50418,8 +50418,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: HF-NP-(d2s2)3F-[KR,4D,4F]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    555880.0000
@@ -50748,8 +50748,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: TA-NP-(d3s2)4F-[KR,4D,4F]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    4410740.000
@@ -51068,8 +51068,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: TA-NP-(d3s2)4F-[KR,4D,4F]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    4410740.000
@@ -51398,8 +51398,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: W-NP-(d4s2)5D-[KR,4D,4F]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    557120.0000
@@ -51718,8 +51718,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: W-NP-(d4s2)5D-[KR,4D,4F]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    557120.0000
@@ -52048,8 +52048,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: RE-NP-(d5s2)6S-[KR,4D,4F]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    552011.0000
@@ -52368,8 +52368,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: RE-NP-(d5s2)6S-[KR,4D,4F]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    552011.0000
@@ -52698,8 +52698,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: OS-NP-(d6s2)5D-[KR,4D,4F]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    546955.0000
@@ -53018,8 +53018,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: OS-NP-(d6s2)5D-[KR,4D,4F]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    546955.0000
@@ -53348,8 +53348,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: IR-NP-(d7s2)4F-[KR,4D,4F]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    549975.0000
@@ -53668,8 +53668,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: IR-NP-(d7s2)4F-[KR,4D,4F]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    549975.0000
@@ -53998,8 +53998,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: PT-NP-(d9s1)3D-[KR,4D,4F]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    4481990.000
@@ -54318,8 +54318,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: PT-NP-(d9s1)3D-[KR,4D,4F]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    4481990.000
@@ -54648,8 +54648,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: AU-NP-(d10s1)2S-[KR,4D,4F]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    558674.0000
@@ -54968,8 +54968,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: AU-NP-(d10s1)2S-[KR,4D,4F]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    558674.0000
@@ -55298,8 +55298,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: HG-NP-(d10s2)1S-[KR,4D,4F]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    566279.0000
@@ -55618,8 +55618,8 @@ F Rakowitz, C M Marian, and L Seijo, J. Chem. Phys., 111(1999)10436
 *
 * Core AIMP: HG-NP-(d10s2)1S-[KR,4D,4F]
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    566279.0000
@@ -69803,7 +69803,7 @@ SOC
 *                                                                                         *
 *******************************************************************************************
    3
-   35    7
+   35   11 5
  0.32870111D+13 0.30927164D+12 0.48590502D+11 0.99519574D+10 0.24755508D+10 0.72245565D+09
  0.24149867D+09 0.86617857D+08 0.30900291D+08 0.10755812D+08 0.37243158D+07 0.13136748D+07
  0.47990476D+06 0.18455574D+06 0.75318558D+05 0.32758743D+05 0.15113137D+05 0.72610425D+04
@@ -75092,7 +75092,7 @@ End
 *    E.7. Zincblende                                                           *
 *         E.7.1. CuF                                                           *
 *           E.7.1.a. CuF (a=4.255 A)                                           *
-*             /Cu.ECP.Sosua.14s11p6d.1s1p1d.0e-AIMP-CuF.                       *
+*             /Cu.ECP.Sousa.14s11p6d.1s1p1d.0e-AIMP-CuF.                       *
 *             /Cu.ECP.Sousa.14s11p.1s1p.0e-AIMP-CuF.                           *
 *             /Cu.ECP.Sousa.0s.0s.0e-AIMP-CuF.                                 *
 *             /F.ECP.Sousa.0s.0s.0e-AIMP-CuF.                                  *
@@ -75528,8 +75528,8 @@ From a SCEI calculation in K2NaGaF6 with a=8.246A x=0.235.
 *
 * External AIMP: K(K2NAGAF6)/P=0
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    13
    331500.0000
@@ -75635,8 +75635,8 @@ From a SCEI calculation in K2NaGaF6 with a=8.246A x=0.235.
 *
 * External AIMP: NA(K2NAGAF6)/P=0
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    257500.0000
@@ -75704,8 +75704,8 @@ From a SCEI calculation in K2NaGaF6 with a=8.246A x=0.235.
 *
 * External AIMP: NA(K2NAGAF6)/P=0
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    257500.0000
@@ -75773,8 +75773,8 @@ From a SCEI calculation in K2NaGaF6 with a=8.246A x=0.235.
 *
 * External AIMP: GA(K2NAGAF6)/P=0
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    13
    368000.0000
@@ -75868,8 +75868,8 @@ From a SCEI calculation in K2NaGaF6 with a=8.246A x=0.235.
 *
 * External AIMP: F(K2NAGAF6)/P=0
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    219000.0000
@@ -75949,8 +75949,8 @@ From a SCEI calculation in K2NaGaF6 with a=8.000A x=0.235.
 *
 * External AIMP: K(K2NAGAF6)/P=60
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    13
    331500.0000
@@ -76056,8 +76056,8 @@ From a SCEI calculation in K2NaGaF6 with a=8.000A x=0.235.
 *
 * External AIMP: NA(K2NAGAF6)/P=60
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    257500.0000
@@ -76125,8 +76125,8 @@ From a SCEI calculation in K2NaGaF6 with a=8.000A x=0.235.
 *
 * External AIMP: NA(K2NAGAF6)/P=60
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    257500.0000
@@ -76194,8 +76194,8 @@ From a SCEI calculation in K2NaGaF6 with a=8.000A x=0.235.
 *
 * External AIMP: GA(K2NAGAF6)/P=60
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    13
    368000.0000
@@ -76289,8 +76289,8 @@ From a SCEI calculation in K2NaGaF6 with a=8.000A x=0.235.
 *
 * External AIMP: F(K2NAGAF6)/P=60
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    219000.0000
@@ -78049,8 +78049,8 @@ From a SCEI calculation in Cs2NaYBr6 with a=11.3047 A, x=0.2446.
 *
 * External AIMP: Cs(CS2NAYBR6)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    15
    412200.0000
@@ -78190,8 +78190,8 @@ From a SCEI calculation in Cs2NaYBr6 with a=11.3047 A, x=0.2446.
 *
 * External AIMP: Na(CS2NAYBR6)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    257500.0000
@@ -78263,8 +78263,8 @@ From a SCEI calculation in Cs2NaYBr6 with a=11.3047 A, x=0.2446.
 *
 * External AIMP: Na(CS2NAYBR6)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    257500.0000
@@ -78336,8 +78336,8 @@ From a SCEI calculation in Cs2NaYBr6 with a=11.3047 A, x=0.2446.
 *
 * External AIMP: Y(CS2NAYBR6)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    13
    391760.0000
@@ -78453,8 +78453,8 @@ From a SCEI calculation in Cs2NaYBr6 with a=11.3047 A, x=0.2446.
 *
 * External AIMP: Br(CS2NAYBR6)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    16
    430625.1200
@@ -79001,8 +79001,8 @@ From a SCEI calculation on KMgF3 with a=3.973A.
 *
 * External AIMP: K(KMGF3)/OK
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    13
    327671.8300
@@ -79116,8 +79116,8 @@ From a SCEI calculation on KMgF3 with a=3.973A.
 *
 * External AIMP: MG(KMGF3)/OK
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    366051.1700
@@ -79191,8 +79191,8 @@ From a SCEI calculation on KMgF3 with a=3.973A.
 *
 * External AIMP: MG(KMGF3)/OK
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    366051.1700
@@ -79266,8 +79266,8 @@ From a SCEI calculation on KMgF3 with a=3.973A.
 *
 * External AIMP: F(KMGF3)/OK
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    274951.1700
@@ -79356,8 +79356,8 @@ From a SCEI calculation on KZnF3 with a=4.054A.
 *
 * External AIMP: K(KZNF3)/OK
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    13
    330971.8300
@@ -79498,8 +79498,8 @@ From a SCEI calculation on KZnF3 with a=4.054A.
 *
 * External AIMP: ZN(KZNF3)/OK
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    429451.1700
@@ -79647,8 +79647,8 @@ From a SCEI calculation on KZnF3 with a=4.054A.
 *
 * External AIMP: ZN(KZNF3)/OK
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    429451.1700
@@ -79754,8 +79754,8 @@ From a SCEI calculation on KZnF3 with a=4.054A.
 *
 * External AIMP: ZN(KZNF3)/OK
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    429451.1700
@@ -79861,8 +79861,8 @@ From a SCEI calculation on KZnF3 with a=4.054A.
 *
 * External AIMP: F(KZNF3)/OK
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    275951.1700
@@ -79951,8 +79951,8 @@ From a SCEI calculation on KCdF3 with a=4.302A.
 *
 * External AIMP: K(KCDF3)/OK
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    13
    329471.8300
@@ -80093,8 +80093,8 @@ From a SCEI calculation on KCdF3 with a=4.302A. QR-Cd.
 *
 * External AIMP: CDQR(KCDF3)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    15
    516301.2480
@@ -80244,8 +80244,8 @@ From a SCEI calculation on KCdF3 with a=4.302A.
 *
 * External AIMP: CDQR(KCDF3)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    15
    516301.2480
@@ -80355,8 +80355,8 @@ From a SCEI calculation on KCdF3 with a=4.302A.
 *
 * External AIMP: CDQR(KCDF3)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    15
    516301.2480
@@ -80466,8 +80466,8 @@ From a SCEI calculation on KCdF3 with a=4.302A.
 *
 * External AIMP: F(KCDF3)/OK
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    278251.1700
@@ -80555,8 +80555,8 @@ From a SCEI calculation on CsCaF3 with a=4.526A. QR-Cs
 *
 * External AIMP: CSQR(CSCAF)/OK
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    15
    412200.0000
@@ -80712,8 +80712,8 @@ From a SCEI calculation on CsCaF3 with a=4.526A.
 *
 * External AIMP: CA(CSCAF)/OK
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    338351.1700
@@ -80799,8 +80799,8 @@ From a SCEI calculation on CsCaF3 with a=4.526A.
 *
 * External AIMP: CA(CSCAF)/OK
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    338351.1700
@@ -80886,8 +80886,8 @@ From a SCEI calculation on CsCaF3 with a=4.526A.
 *
 * External AIMP: F(CSCAF)/OK
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    275451.1700
@@ -83065,8 +83065,8 @@ M.A.Nygren, L.G.M.Pettersson, Z.Barandiaran, L.Seijo, J.Chem.Phys.100(1994)2010.
 *
 * External AIMP: MG(MGO)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    344151.1700
@@ -83146,8 +83146,8 @@ M.A.Nygren, L.G.M.Pettersson, Z.Barandiaran, L.Seijo, J.Chem.Phys.100(1994)2010.
 *
 * External AIMP: MG(MGO)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    344151.1700
@@ -83227,8 +83227,8 @@ M.A.Nygren, L.G.M.Pettersson, Z.Barandiaran, L.Seijo, J.Chem.Phys.100(1994)2010.
 *
 * External AIMP: MG(MGO)0.65
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    344151.1700
@@ -83340,8 +83340,8 @@ M.A.Nygren, L.G.M.Pettersson, Z.Barandiaran, and L.Seijo,JCP 100(1994)2010
 *
 * External AIMP: O(MGO)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    313071.8300
@@ -83421,8 +83421,8 @@ M.A.Nygren, L.G.M.Pettersson, Z.Barandiaran, and L.Seijo,JCP 100(1994)2010
 *
 * External AIMP: O(MGO)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    313071.8300
@@ -83502,8 +83502,8 @@ M.A.Nygren, L.G.M.Pettersson, Z.Barandiaran, and L.Seijo,JCP 100(1994)2010
 *
 * External AIMP: O(MGO)0.65
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    313071.8300
@@ -83636,8 +83636,8 @@ From a SCEI calculation on CaO.
 *
 * External AIMP: CA(CAO)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    326151.1700
@@ -83729,8 +83729,8 @@ From a SCEI calculation on CaO.
 *
 * External AIMP: CA(CAO)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    326151.1700
@@ -83822,8 +83822,8 @@ From a SCEI calculation on CaO.
 *
 * External AIMP: O(CAO)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    313071.8300
@@ -83969,8 +83969,8 @@ From a SCEI calculation on SrO.
 *
 * External AIMP: SR(SRO)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    324151.1700
@@ -84088,8 +84088,8 @@ From a SCEI calculation on SrO.
 *
 * External AIMP: SR(SRO)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    324151.1700
@@ -84207,8 +84207,8 @@ From a SCEI calculation on SrO.
 *
 * External AIMP: O(SRO)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    293071.8300
@@ -84288,8 +84288,8 @@ From a SCEI calculation on SrO. QR-Sr.
 *
 * External AIMP: SRQR(SROQR)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    13
    349051.1700
@@ -84393,8 +84393,8 @@ From a SCEI calculation on SrO. QR-Sr.
 *
 * External AIMP: O(SROQR)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    293071.8300
@@ -84549,8 +84549,8 @@ From a SCEI calculation in NiO with a=4.164 A
 *
 * External AIMP: Ni(NiO)/OK
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    324151.1700
@@ -84666,8 +84666,8 @@ From a SCEI calculation in NiO with a=4.164 A
 *
 * External AIMP: Ni(NiO)/OK
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    324151.1700
@@ -84783,8 +84783,8 @@ From a SCEI calculation in NiO with a=4.164 A
 *
 * External AIMP: O(NiO)/OK
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    293071.8300
@@ -84881,8 +84881,8 @@ From a SCEI calculation in LiF with a=4.028 A
 *
 * External AIMP: Li(LiF)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
     9
    211074.0000
@@ -84934,8 +84934,8 @@ From a SCEI calculation in LiF with a=4.028 A
 *
 * External AIMP: Li(LiF)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
     9
    211074.0000
@@ -84987,8 +84987,8 @@ From a SCEI calculation in LiF with a=4.028 A
 *
 * External AIMP: F(LiF)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    218800.0000
@@ -85058,7 +85058,7 @@ End of Spectral Representation Operator
 *             /Na.ECP.Seijo.6s3p.1s1p.0e-AIMP-NaF.                             *
 *             /Na.ECP.Seijo.0s.0s.0e-AIMP-NaF.                                 *
 *             /F.ECP.Seijo.0s.0s.0e-AIMP-NaF.                                  *
-*             /F..Seijo.0s.0s.0e-AIMP-co-NaF.    (core of Shell Model)         *
+*             /F.ECP.Seijo.0s.0s.0e-AIMP-co-NaF. (core of Shell Model)         *
 *             /F.ECP.Seijo.0s.0s.0e-AIMP-sh-NaF. (shell of Shell Model)        *
 ********************************************************************************
 /Na.ECP.Seijo.6s3p.1s1p.0e-AIMP-NaF.
@@ -85088,8 +85088,8 @@ From a SCEI calculation in NaF with a=4.634 A
 *
 * External AIMP: Na(NaF)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    291000.0000
@@ -85157,8 +85157,8 @@ From a SCEI calculation in NaF with a=4.634 A
 *
 * External AIMP: Na(NaF)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    291000.0000
@@ -85226,8 +85226,8 @@ From a SCEI calculation in NaF with a=4.634 A
 *
 * External AIMP: F(NaF)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    218800.0000
@@ -85289,11 +85289,15 @@ Core primitive basis
 Exchange
 End of Spectral Representation Operator
 
-/F..Seijo.0s.0s.0e-AIMP-co-NaF.
+/F.ECP.Seijo.0s.0s.0e-AIMP-co-NaF.
 Core of F(-) in a shell-model.
-
+(see below)
  +0.3390000   0
     0    0
+PP,f ,0,0;
+0;
+Spectral Representation Operator
+End of Spectral Representation Operator
 
 /F.ECP.Seijo.0s.0s.0e-AIMP-sh-NaF.
 L.Seijo, unpublished.  Shell of F(-) in a shell-model.
@@ -85303,8 +85307,8 @@ From a SCEI calculation in NaF with a=4.634 A
 *
 * External AIMP: F(NaF)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    218800.0000
@@ -85418,8 +85422,8 @@ From a SCEI calculation in KF with a=5.348 A
 *
 * External AIMP: K(KF)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    13
    327671.8300
@@ -85507,8 +85511,8 @@ From a SCEI calculation in KF with a=5.348 A
 *
 * External AIMP: K(KF)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    13
    327671.8300
@@ -85596,8 +85600,8 @@ From a SCEI calculation in KF with a=5.348 A
 *
 * External AIMP: F(KF)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    274951.1700
@@ -85701,8 +85705,8 @@ From a SCEI calculation in NaCl with a=5.64056 A
 *
 * External AIMP: Na(NaCl)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    291100.0000
@@ -85770,8 +85774,8 @@ From a SCEI calculation in NaCl with a=5.64056 A
 *
 * External AIMP: Na(NaCl)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    291100.0000
@@ -85839,8 +85843,8 @@ From a SCEI calculation in NaCl with a=5.64056 A
 *
 * External AIMP: Cl(NaCl)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    220800.0000
@@ -85966,8 +85970,8 @@ From a SCEI calculation in KCl a=11.892173 b.
 *
 * External AIMP: K(KCl)/OK
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    13
    373094.3300
@@ -86055,8 +86059,8 @@ From a SCEI calculation in KCl a=11.892173 b.
 *
 * External AIMP: K(KCl)/OK
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    13
    373094.3300
@@ -86144,8 +86148,8 @@ From a SCEI calculation in KCl a=11.892173 b.
 *
 * External AIMP: Cl(KCl)/OK
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    13
    349379.2000
@@ -86862,8 +86866,8 @@ From a SCEI calculation on CaF2.
 *
 * External AIMP: CA(CAF2)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    398851.1700
@@ -86959,8 +86963,8 @@ From a SCEI calculation on CaF2.
 *
 * External AIMP: F(CAF2)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    278551.1700
@@ -88095,8 +88099,8 @@ From a SCEI calculation on BaF2, a=6.2001 A.
 *
 * External AIMP: BA(BAF2)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    14
    414951.1700
@@ -88216,8 +88220,8 @@ From a SCEI calculation on BaF2, a=6.2001 A.
 *
 * External AIMP: F(BAF2)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    278551.1700
@@ -88305,8 +88309,8 @@ From a SCEI calculation on CdF2.
 *
 * External AIMP: CD(CDF2)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    13
    421351.1700
@@ -88428,8 +88432,8 @@ From a SCEI calculation on CdF2.
 *
 * External AIMP: F(CDF2)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    279651.1700
@@ -88618,8 +88622,8 @@ From a SCEI calculation on Cs2GeF6 (Oh5(Fm3m), a=9.021 A, x=0.20, Wyckoff, 1968)
 *
 * External AIMP: Cs(Cs2GeF6)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    15
    412200.0000
@@ -88735,8 +88739,8 @@ From a SCEI calculation on Cs2GeF6 (Oh5(Fm3m), a=9.021 A, x=0.20, Wyckoff, 1968)
 *
 * External AIMP: Ge(Cs2GeF6)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    329500.0000
@@ -88832,8 +88836,8 @@ From a SCEI calculation on Cs2GeF6 (Oh5(Fm3m), a=9.021 A, x=0.20, Wyckoff, 1968)
 *
 * External AIMP: F(Cs2GeF6)
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    224900.0000
@@ -89142,8 +89146,8 @@ From a SCEI calculation in YVO4 (a=7.123 A, c=6.292 A, yO=0.4346, zO=0.2023)
 *
 * External AIMP: Y(YVO4)/OK
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    13
    411131.3300
@@ -89265,8 +89269,8 @@ From a SCEI calculation in YVO4 (a=7.123 A, c=6.292 A, yO=0.4346, zO=0.2023)
 *
 * External AIMP: V(YVO4)/OK
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    13
    412401.9300
@@ -89360,8 +89364,8 @@ From a SCEI calculation in YVO4 (a=7.123 A, c=6.292 A, yO=0.4346, zO=0.2023)
 *
 * External AIMP: O(YVO4)/OK
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    244639.3820
@@ -89452,8 +89456,8 @@ SCEI on Al2O3 (D63d(R3c) a=4.75999 c=12.99481 z=0.35219 x=0.69367)
 *
 * External AIMP: Al(Al2O3)/OK
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    13
    441811.3300
@@ -89545,8 +89549,8 @@ SCEI on Al2O3 (D63d(R3c) a=4.75999 c=12.99481 z=0.35219 x=0.69367)
 *
 * External AIMP: O(Al2O3)/OK
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    202377.3820
@@ -91660,7 +91664,7 @@ End of Spectral Representation Operator
 *         E.7.1. CuF                                                           *
 ********************************************************************************
 *           E.7.1.a. CuF (a=4.255 A)                                           *
-*             /Cu.ECP.Sosua.14s11p6d.1s1p1d.0e-AIMP-CuF.                       *
+*             /Cu.ECP.Sousa.14s11p6d.1s1p1d.0e-AIMP-CuF.                       *
 *             /Cu.ECP.Sousa.14s11p.1s1p.0e-AIMP-CuF.                           *
 *             /Cu.ECP.Sousa.0s.0s.0e-AIMP-CuF.                                 *
 *             /F.ECP.Sousa.0s.0s.0e-AIMP-CuF.                                  *
@@ -91693,12 +91697,12 @@ End of Spectral Representation Operator
 *         E.7.1. CuF                                                           *
 ********************************************************************************
 *           E.7.1.a. CuF (a=4.255 A)                                           *
-*             /Cu.ECP.Sosua.14s11p6d.1s1p1d.0e-AIMP-CuF.                       *
+*             /Cu.ECP.Sousa.14s11p6d.1s1p1d.0e-AIMP-CuF.                       *
 *             /Cu.ECP.Sousa.14s11p.1s1p.0e-AIMP-CuF.                           *
 *             /Cu.ECP.Sousa.0s.0s.0e-AIMP-CuF.                                 *
 *             /F.ECP.Sousa.0s.0s.0e-AIMP-CuF.                                  *
 ********************************************************************************
-/Cu.ECP.Sosua.14s11p6d.1s1p1d.0e-AIMP-CuF.
+/Cu.ECP.Sousa.14s11p6d.1s1p1d.0e-AIMP-CuF.
 C. de Graaf, C. Sousa, R. Broer, J. Mol. Struct. (TheoChem) 458, 53 (1999)
 From a SCEI calculation in CuF with a=4.255A
 * with orthogonalization functions
@@ -91758,7 +91762,6 @@ From a SCEI calculation in CuF with a=4.255A
      .011300078300
      .001355332440
     6    1
-  .258600000
    53.64780000
    15.07470000
    5.103900000
@@ -91774,8 +91777,8 @@ From a SCEI calculation in CuF with a=4.255A
 *
 * External AIMP: AIMP
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    324151.1700
@@ -91945,8 +91948,8 @@ From a SCEI calculation in CuF with a=4.255A
 *
 * External AIMP: AIMP
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    324151.1700
@@ -92062,8 +92065,8 @@ From a SCEI calculation in CuF with a=4.255A
 *
 * External AIMP: AIMP
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    324151.1700
@@ -92179,8 +92182,8 @@ From a SCEI calculation in CuF with a=4.255A
 *
 * External AIMP: AIMP
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    12
    324151.1700
@@ -92373,8 +92376,8 @@ From a SCEI calculation in CuCl with a=5.40A
 *
 * External AIMP: AIMP
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    287630.0000
@@ -92542,8 +92545,8 @@ From a SCEI calculation in CuCl with a=5.40A
 *
 * External AIMP: AIMP
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    287630.0000
@@ -92657,8 +92660,8 @@ From a SCEI calculation in CuCl with a=5.40A
 *
 * External AIMP: AIMP
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    287630.0000
@@ -92772,8 +92775,8 @@ From a SCEI calculation in CuCl with a=5.40A
 *
 * External AIMP: AIMP
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    287630.0000
@@ -92964,8 +92967,8 @@ From a SCEI calculation in CuBr with a=5.69A
 *
 * External AIMP: AIMP
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    287090.0000
@@ -93133,8 +93136,8 @@ From a SCEI calculation in CuBr with a=5.69A
 *
 * External AIMP: AIMP
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    287090.0000
@@ -93248,8 +93251,8 @@ From a SCEI calculation in CuBr with a=5.69A
 *
 * External AIMP: AIMP
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    287090.0000
@@ -93364,8 +93367,8 @@ From a SCEI calculation in CuBr with a=5.69A
 *
 * External AIMP: AIMP
 *
-* Local Potential Paramenters : (ECP convention)
-*                               A(AIMP)=-Zeff*A(ECP)
+* Local Potential Parameters : (ECP convention)
+*                              A(AIMP)=-Zeff*A(ECP)
 M1
    11
    287090.0000
@@ -101778,7 +101781,7 @@ End of Spectral Representation Operator
 L. Seijo, Z. Barandiaran, Phys.Chem.Chem.Phys., 15(2013)19221.
 Embedding AIMP of Sit(4+) in Fe3Al2Si3O12 (Almandine) with orthogonality orbitals
    4.000    1
-  138.0882903      12.59267433
+   16    1
   1453205.000      183024.6000      37505.20000      9899.251000
   3067.379000      1068.804000      406.1585000      164.8768000
   70.46529000      31.35984000      14.24023000      5.516831000

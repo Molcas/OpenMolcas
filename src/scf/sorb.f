@@ -31,7 +31,7 @@
 ************************************************************************
 *                                                                      *
 *     purpose: Get starting orbitals from:                             *
-*              -1) default choise                                      *
+*              -1) default choice                                      *
 *               0) diagonalizaton of the core                          *
 *               1) via intermediate calculation of HF AOs              *
 *               2) input orbitals                                      *
@@ -63,6 +63,9 @@
 #include "infscf.fh"
 #include "infso.fh"
 #include "file.fh"
+#ifdef _HDF5_
+#  include "mh5.fh"
+#endif
       Real*8 CMO(mBB,nD), TrM(mBB,nD), OneHam(mBT), Fock(mBT,nD),
      &       Ovrlp(mBT), EOrb(mmB,nD), OccNo(mmB,nD)
       Character FName*512, KSDFT_save*16
@@ -146,8 +149,7 @@
          write(6,*)
          StVec='Constrained orbitals'
          One_Grid=.True.
-         FName='INPORB'
-         if(is_FileOrb.eq.1) Fname=SCF_FileOrb
+         FName=SCF_FileOrb
          Call Chk_Vec_UHF(FName,LuOrb,isUHF)
          If (IsUHF.eq.1) Then
             InVec=2
@@ -165,8 +167,7 @@
       Else If (InVec.eq.2) Then
 *-------- Read INPORB
          One_Grid=.True.
-         FName='INPORB'
-         if(is_FileOrb.eq.1) Fname=SCF_FileOrb
+         FName=SCF_FileOrb
          Call Start2(FName,LuOrb,CMO,mBB,nD,Ovrlp,mBT,
      &               EOrb,OccNo,mmB)
       Else If (InVec.eq.3) Then
@@ -216,6 +217,9 @@
          End Do
       End If
       Call SOrbCHk(OneHam,Ovrlp,Fock,mBT,nD,CMO,mBB)
+#ifdef _HDF5_
+      If (isHDF5) Call mh5_close_file(fileorb_id)
+#endif
 #ifdef _DEBUG_
       Call qExit('SOrb')
 #endif

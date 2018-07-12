@@ -113,7 +113,7 @@ C Compute (Proj_CAS)*(Ham)*(Wave op) acting on Psi_0:
       ELSE
        WORK(LSGM)=E2TOT*WORK(LCI)
       END IF
-      IF(IFMIX) THEN
+      IF(IFMSCOUP) THEN
 C Multi-State HEFF:
 C Loop over all the other root states, and compute off-diagonal
 C effective Hamiltonian matrix elements.
@@ -172,7 +172,7 @@ C-Multi-State insert ------------------------------------------------
 C In Multi-State calculations, it is very convenient to use the opportunity
 C here, when the SGM wave function is available, to compute the coupling
 C elements in Heff simply by contraction with the bra CAS functions.
-      IF(IFMIX) THEN
+      IF(IFMSCOUP) THEN
 C Multi-State HEFF:
 C Loop over all the other root states, and compute off-diagonal
 C effective Hamiltonian matrix elements. Given that the SGM

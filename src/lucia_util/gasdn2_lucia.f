@@ -264,8 +264,10 @@ C             CALL IWRTMA(IBLOCKR(1,IR),4,1,4,1)
                  END IF
               END IF
            END DO
+
 *. Loop over L and R blocks in batches and obtain  contribution from
 * given L and R blocks
+           PLR=1.D0
            DO 10000 IIL = 1, NBLKL
               IL  = I1BATL(IBATCHL)-1+IIL
               IF(SCLFAC_L(IL).NE.0.0D0) THEN

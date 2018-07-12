@@ -1,0 +1,267 @@
+# Define templates for "sub-jobs"
+# - install-key: install the SSH key to access private repositories
+# - compile: compile Molcas with CMake
+# - run-tests: run the verification suite
+
+.template: &install-key
+  before_script:
+    # Install ssh-agent if not already installed
+    - >
+      which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )
+    # Run ssh-agent (inside the build environment)
+    - eval $(ssh-agent -s)
+    # Add the SSH key stored in the ssh_key file (created by the runner)
+    - >
+      ssh-add /ssh_key || true
+    # Disable host key checking
+    - mkdir -p ~/.ssh && chmod 700 ~/.ssh
+    - >
+      [ -f /.dockerenv ] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config && chmod 644 ~/.ssh/config
+
+.template: &compile
+  #<<: *install-key
+  script:
+    # special pre-script that may be needed in some installations
+    # (not using before_script because it would be overwritten)
+    - |
+      if [ -n "${pre_compile_script}" ] ; then
+        eval "${pre_compile_script}"
+      fi
+    # clone molcas-extra if specified and copy some files
+    # so they can be included in the artifacts
+    # (artifacts must be relative to the default directory)
+    - |
+      if [ -n "${extra}" ] ; then
+        git clone --depth 1 git@git.teokem.lu.se:molcas-extra ${extra}
+        mkdir molcas-extra
+        cp -a ${extra}/sbin/molcas.driver ${extra}/test molcas-extra/
+      fi
+    # get submodules
+    - |
+      if [ -z "${submodules}" ] ; then export submodules="External/lapack" ; fi
+      for s in ${submodules} ; do
+        git submodule update --init ${s}
+      done
+    - mkdir build
+    - cd build
+    - >
+      cp /license.dat . || true
+    # save the CMake configuration from a variable and add extra path
+    - |
+      echo "${cache_file}" > flags.cmake
+      if [ -n "${extra}" ] ; then
+        echo 'set (EXTRA "$ENV{extra}" CACHE PATH "location of molcas-extra")' >> flags.cmake
+      fi
+    - cmake -C flags.cmake ..
+    - |
+      if [ -n "${tries}" ] && [ "${tries}" -gt 1 ] ; then
+        for i in `seq 1 ${tries}` ; do
+          make && break
+        done
+      else
+        make #VERBOSE=1
+      fi
+    - pymolcas verify 000 -k
+    # some clean up to reduce artifact size
+    - >
+      shopt -s globstar ; rm -rf **/CMakeFiles
+    # special post-script that may be needed in some installations
+    # (not using before_script because it would be overwritten)
+    - cd ..
+    - |
+      if [ -n "${post_compile_script}" ] ; then
+        eval "${post_compile_script}"
+      fi
+  artifacts:
+    paths:
+      - build/
+      - molcas-extra/
+    expire_in: 1 day
+    when: always
+  except:
+    - master
+
+.template: &run-tests
+  script:
+    # special pre-script that may be needed in some installations
+    # (not using before_script because it would be overwritten)
+    - |
+      if [ -n "${pre_run_script}" ] ; then
+        eval "${pre_run_script}"
+      fi
+    # install/restore extra files that were included in the artifacts
+    - |
+      if [ -n "${extra}" ] ; then
+        sbin/install_driver.sh molcas-extra/molcas.driver
+        mkdir -p ${extra}
+        cp -a molcas-extra/test ${extra}
+      fi
+    - sbin/install_pymolcas.sh build/Tools/pymolcas/pymolcas_
+    - cd build
+    # default if no tests specified is .all
+    - |
+      if [ -z "${tests}" ] ; then export tests=".all" ; fi
+    # run only a subset of the tests if specified
+    - |
+      if [ -n "${subset}" ] ; then
+        pymolcas verify --flatlist ${tests} > filelist
+        split --numeric-suffixes=1 --suffix-length=1 --lines=250 filelist fl
+        if [ -f "fl${subset}" ] ; then
+          pymolcas verify --status --fromfile fl${subset}
+        fi
+      else
+        pymolcas verify --status ${tests}
+      fi
+    # special post-script that may be needed in some installations
+    # (not using before_script because it would be overwritten)
+    - |
+      if [ -n "${post_run_script}" ] ; then
+        eval "${post_run_script}"
+      fi
+  after_script:
+    - |
+      cp -L build/test/result result
+      cp -Lr build/test/failed failed
+  artifacts:
+    paths:
+      - result
+      - failed/
+    expire_in: 1 month
+    when: always
+  only:
+    - api
+    - triggers
+    - web
+    - daily-snapshot
+  # run even if the previous stage failed
+  # (in general, we want to run those configurations that didn't fail,
+  #  but there's no harm in running all)
+  when: always
+
+# Define some configuration groups (variables, tags, etc.) to be used in jobs
+# - plain: default configuration
+# - options: enable several options
+# - pgi: use PGI compilers
+# - sun: use Oracle compilers
+# - intel: use Intel compilers (must install them every time and it's a bit shaky)
+# - intel13: use Intel 2013 compilers (specific runner)
+# - debug: build with no optimization (no tests)
+
+.template: &plain
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-5.4:latest
+  variables: &plain_vars
+    cache_file: |
+      set (BIGOT "ON" CACHE STRING "do not allow any warning")
+    CC: "gcc"
+    CXX: "g++"
+    FC: "gfortran"
+    tests: ".all exhaustive"
+  tags:
+    - docker
+
+.template: &options
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-4.8:latest
+  variables: &options_vars
+    cache_file: |
+      set (CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "opt, debug info")
+      set (BUILD_SHARED_LIBS "ON" CACHE STRING "use shared libmolcas")
+      set (BUILD_STATIC_LIB "ON" CACHE STRING "build static libmolcas too")
+      set (BIGOT "ON" CACHE STRING "do not allow any warning")
+      set (LINALG "Runtime" CACHE STRING "runtime blas/lapack linking")
+      set (FDE "ON" CACHE STRING "enable frozen-density-embedding (FDE) interface")
+      set (GRID_IT "ON" CACHE STRING "enable public GRID_IT code")
+      set (TOOLS "ON" CACHE STRING "compile Tools")
+      #set (MSYM "ON" CACHE STRING "enable libmsym (needs submodule)")
+      #set (WFA "ON" CACHE STRING "enable libwfa (needs submodule)")
+    CC: "gcc"
+    CXX: "g++"
+    FC: "gfortran"
+    submodules: "External/lapack External/grid_it External/libmsym External/libwfa"
+    MOLCAS_LINALG: "/opt/OpenBLAS/lib/libopenblas.so"
+    MOLCAS_LINALG_INFO: "YES"
+  tags:
+    - docker
+
+.template: &pgi
+  image: ${CI_REGISTRY}/molcas/dockerfiles/pgi:latest
+  variables: &pgi_vars
+    cache_file: ""
+    # Add -tp=x64 flag to make the result more portable
+    CC: "pgcc '-tp=x64'"
+    CXX: "pgc++ '-tp=x64'"
+    FC: "pgfortran '-tp=x64'"
+  tags:
+    - docker
+
+.template: &sun
+  image: ${CI_REGISTRY}/molcas/dockerfiles/oracle:latest
+  variables: &sun_vars
+    cache_file: |
+      set (DEFMOLCASMEM "1024" CACHE STRING "reduce memory")
+    CC: "suncc -I/usr/include/x86_64-linux-gnu"
+    CXX: "sunCC -I/usr/include/x86_64-linux-gnu"
+    FC: "sunf90 -I/usr/include/x86_64-linux-gnu"
+  tags:
+    - docker
+
+.template: &intel
+  image: ${CI_REGISTRY}/molcas/dockerfiles/ubuntu-14.04:latest
+  variables: &intel_vars
+    cache_file: |
+      set (DEFMOLCASMEM "1024" CACHE STRING "reduce memory")
+    # script to install the Intel compilers
+    intel_path: ${CI_PROJECT_DIR}/intel
+    tries: 5
+    pre_compile_script: |
+      apt-get install -y --no-install-recommends cpio man-db
+      for i in {1..10} ; do
+        wget -q -O /dev/stdout 'https://raw.githubusercontent.com/nemequ/icc-travis/master/install-icc.sh' | sed 's/realpath/readlink -m/' | /bin/sh -s -- --components icc,ifort --dest ${intel_path} && break
+        sleep 10
+      done
+      cp ~/.bashrc ${intel_path}/compilervars.sh
+      . ${intel_path}/compilervars.sh
+    post_compile_script: |
+      cp ${intel_path}/lib/intel64_lin/libirng.so      build/lib
+      cp ${intel_path}/lib/intel64_lin/libcilkrts.so.5 build/lib
+      cp ${intel_path}/lib/intel64_lin/libintlc.so.5   build/lib
+    CC: "icc"
+    CXX: "icpc"
+    FC: "ifort"
+  tags:
+    - docker
+
+.template: &intel13
+  variables: &intel13_vars
+    cache_file: |
+      set (CMAKE_BUILD_TYPE "Release" CACHE STRING "opt, no debug info" )
+      set (HDF5 "OFF" CACHE STRING "turn off HDF5")
+      set (LINALG "MKL" CACHE STRING "enable MKL")
+    pre_compile_script: |
+      . /usr/license/intel/composer_xe_2013.1.117/bin/compilervars.sh intel64
+      export PATH=$${PWD}:$${PATH}
+      touch pymolcas
+    pre_run_script: |
+      . /usr/license/intel/composer_xe_2013.1.117/bin/compilervars.sh intel64
+      export PATH=$${PWD}:$${PATH}
+      touch pymolcas
+    CC: "icc"
+    CXX: "icpc"
+    FC: "ifort"
+  tags:
+    - intel13
+
+.template: &debug
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-5.4:latest
+  variables: &debug_vars
+    cache_file: |
+      set (CMAKE_BUILD_TYPE "Debug" CACHE STRING "no opt, debug info")
+      set (BUILD_SHARED_LIBS "OFF" CACHE STRING "do not use shared libmolcas")
+      set (BIGOT "ON" CACHE STRING "do not allow any warning")
+    CC: "gcc"
+    CXX: "g++"
+    FC: "gfortran"
+    # only interested in compilation, so run no tests
+    # (but the test job will fail if the compilation didn't succeed)
+    tests: ".none"
+  tags:
+    - docker

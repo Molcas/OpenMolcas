@@ -76,6 +76,10 @@
       Real*8  dActEl
       Integer nIsh(8)
       Integer nAsh(8)
+#ifdef _HDF5_
+      Character(1), Allocatable :: typestring(:)
+      Integer nZero(MxSym)
+#endif
 *----------------------------------------------------------------------*
 * Some setup                                                           *
 *----------------------------------------------------------------------*
@@ -483,6 +487,15 @@
       Call WrVec('GSSORB',Lu,'COEI',nSym,nBas,nBas,CMO,
      &           T1,Eps,IndType,Title)
 #ifdef _HDF5_
+      nZero=0
+      call mma_allocate(typestring, nBasTot)
+      call orb2tpstr(nSym,nBas,
+     &        IndType(1,:),IndType(2,:),
+     &        IndType(3,:),IndType(4,:),IndType(5,:),
+     &        IndType(6,:),IndType(7,:),
+     &        typestring)
+      call mh5_put_dset(wfn_tpidx,typestring)
+      call mma_deallocate(typestring)
       call mh5_put_dset(wfn_mocoef,CMO)
       call mh5_put_dset(wfn_occnum,T1)
       call mh5_put_dset(wfn_orbene,Eps)

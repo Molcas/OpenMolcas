@@ -752,6 +752,8 @@ C Write out various input data:
           DO I=0,NSTATE-1
             Work(LHAM+i*nstate+i)=Work(L_HEFF+i*nstate+i)
           END DO
+          call WarningMessage(1,'EJOB used when HEFF is available, '//
+     &      'posible extra interaction between states is ignored!')
         else
           call WarningMessage(2,'EJOB used but no energies available!')
           call Quit_OnUserError
@@ -827,10 +829,10 @@ C Write out various input data:
           WRITE(6,*)
 * which kind of base hamiltonian is taken?
           IF(IFHEXT) THEN
-            WRITE(6,*)' a hamiltonian matrix that '//
+            WRITE(6,*)' a Hamiltonian matrix that '//
      &                'was supplied in the input.'
           ELSE IF(IFHEFF) THEN
-            WRITE(6,*)' a (effective) hamiltonian matrix that '//
+            WRITE(6,*)' a (effective) Hamiltonian matrix that '//
      &                'was read from the wavefunction file(s).'
           ELSE IF(IFEJOB) THEN
             WRITE(6,*)' a Hamiltonian matrix assumed to be diagonal '//

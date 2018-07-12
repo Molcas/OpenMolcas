@@ -983,9 +983,6 @@ EndOptions
 /Fe.aug-cc-pVTZ.Balabanov.21s17p9d3f2g.8s7p5d3f2g..
 Ref: N.B. Balabanov and K.A. Peterson, J. Chem. Phys. 123, 064107 (2005).
 IRON         (20s,16p,8d,2f,1g) -> [7s,6p,4d,2f,1g], Diffuse (1s,1p,1d,1f,1g)
-Options
-OrbitalEnergies
-EndOptions
          26.   4
 * S-type functions
    21    8

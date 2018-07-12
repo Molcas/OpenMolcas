@@ -282,12 +282,12 @@ cbsuo, jun. 30, 2009 - neglect them
       goto 10
 *
 *---  process extract  command ----------------------------------------*
-1500  write (6,*) 'input: extract option is redudant and is ignored!'
+1500  write (6,*) 'input: extract option is redundant and is ignored!'
       goto 10
 *
 *---  process non-interact command -------------------------------------
 1600  continue
-      write (6,*) 'input: non-interact option is redudant and is',
+      write (6,*) 'input: non-interact option is redundant and is',
      *            ' ignored!'
       intnum=0
       goto 10

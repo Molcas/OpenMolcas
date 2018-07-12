@@ -455,8 +455,12 @@ c           Call Abend()
          Write(6,Fmt)
      &         'NDDO MOs are generated before actual HF SCF computation'
       Else If (InVec.eq.2) Then
-         Write(6,Fmt) 'Input vectors read from INPORB'
-         Write(6,Fmt) 'Orbital file label: ',VTitle(:mylen(VTitle))
+         If (isHDF5) Then
+            Write(6,Fmt) 'Input vectors read from HDF5 file'
+         Else
+            Write(6,Fmt) 'Input vectors read from INPORB'
+            Write(6,Fmt) 'Orbital file label: ',VTitle(:mylen(VTitle))
+         End If
       Else If (InVec.eq.3) Then
          Write(6,Fmt) 'Input density matrix read from RUNFILE'
       Else If (InVec.eq.4) Then

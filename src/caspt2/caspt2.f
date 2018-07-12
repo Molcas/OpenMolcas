@@ -311,9 +311,6 @@ C End of long loop over groups
         END DO
       END DO
 
-* Store the PT2 energy and effective hamiltonian on the wavefunction file
-      CALL PT2WFN_ESTORE(HEFF)
-
       IF(IPRGLB.GE.TERSE) THEN
        WRITE(6,*)' Total CASPT2 energies:'
        DO I=1,NSTATE
@@ -347,10 +344,12 @@ C End of long loop over groups
         CALL MLTCTL(HEFF,EIGVEC)
       END IF
 
-* create a JobMix file when we are not using HDF5 for the PT2 wavefunction
-      IF (.NOT.PT2WFN_IS_H5) THEN
-        CALL CREIPH_CASPT2(HEFF,EIGVEC)
-      END IF
+* create a JobMix file
+* (note that when using HDF5 for the PT2 wavefunction, IFMIX is false)
+      CALL CREIPH_CASPT2(HEFF,EIGVEC)
+
+* Store the PT2 energy and effective hamiltonian on the wavefunction file
+      CALL PT2WFN_ESTORE(HEFF)
 
 * store information on runfile for geometry optimizations
       Call Put_iScalar('NumGradRoot',iRlxRoot)
