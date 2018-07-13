@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE EIGCTL(PROP,OVLP,HAM,EIGVEC,ENERGY)
+      SUBROUTINE EIGCTL(PROP,OVLP,DYSAMPS,HAM,EIGVEC,ENERGY)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -27,7 +27,8 @@
 
       character*100 line
       REAL*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
-     &       HAM(NSTATE,NSTATE),EIGVEC(NSTATE,NSTATE),ENERGY(NSTATE)
+     &       HAM(NSTATE,NSTATE),EIGVEC(NSTATE,NSTATE),ENERGY(NSTATE),
+     &       DYSAMPS(NSTATE,NSTATE)
       REAL*8, ALLOCATABLE :: ESFS(:)
 * Short array, just for putting transition dipole values
 * into Add_Info, for generating check numbers:
@@ -509,6 +510,17 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
      &             EIGVEC,NSTATE,WORK(LSCR),NSTATE,
      &             0.0D0,PROP(1,1,IP),NSTATE)
       END DO
+
+! +++ J. Norell 12/7 - 2018
+C And the same for the Dyson amplitudes
+        CALL DGEMM_('N','N',NSTATE,NSTATE,NSTATE,1.0D0,
+     &             DYSAMPS,NSTATE,EIGVEC,NSTATE,
+     &             0.0D0,WORK(LSCR),NSTATE)
+        CALL DGEMM_('T','N',NSTATE,NSTATE,NSTATE,1.0D0,
+     &             EIGVEC,NSTATE,WORK(LSCR),NSTATE,
+     &             0.0D0,DYSAMPS,NSTATE)
+! +++ J. Norell
+
       CALL GETMEM('SCR','FREE','REAL',LSCR,NSTATE**2)
 *
 * Initial setup for both dipole, quadrupole etc. and exact operator
@@ -1620,6 +1632,36 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
          End If
 ! release the memory again
          CALL GETMEM('TOT2K','FREE','REAL',LTOT2K,NSS**2)
+
+! +++ J. Norell 12/7 - 2018
+! Dyson amplitudes for (1-electron) ionization transitions
+        DYSTHR=1.0D-5
+        WRITE(6,*)
+        CALL CollapseOutput(1,'Dyson amplitudes '//
+     &                        '(spin-free states):')
+        WRITE(6,'(3X,A)')     '----------------------------'//
+     &                        '-------------------'
+        WRITE(6,*) '       From      To        '//
+     &   'BE (eV)       Dyson amplitude'
+        WRITE(6,32)
+        IF (DYSTHR.GT.0.0D0) THEN
+           WRITE(6,30) 'for Dyson amps. at least',DYSTHR
+           WRITE(6,30)
+        END IF
+        FMAX=0.0D0
+        DO I=1,NSTATE
+         DO J=1,NSTATE
+          F=DYSAMPS(I,J)*DYSAMPS(I,J)
+          EDIFF=AU2EV*(ENERGY(J)-ENERGY(I))
+          IF (F.GT.0.00001) THEN
+           IF (EDIFF.GT.0.0D0) THEN
+            WRITE(6,'(A,I8,I8,F15.3,E22.5)') '    ',I,J,EDIFF,F
+           END IF
+          END IF
+         END DO ! J
+        END DO ! I
+! +++ J. Norell
+
 
 ************************************************************************
 *                                                                      *

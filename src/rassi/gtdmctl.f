@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE GTDMCTL(PROP,JOB1,JOB2,OVLP,HAM,IDDET1)
+      SUBROUTINE GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,HAM,IDDET1)
 
       !> module dependencies
 #ifdef _DMRG_
@@ -41,6 +41,7 @@
       DIMENSION NGASORB(100),NGASLIM(2,10)
       DIMENSION NASHES(8)
       DIMENSION OVLP(NSTATE,NSTATE),HAM(NSTATE,NSTATE)
+      DIMENSION DYSAMPS(NSTATE,NSTATE)
       DIMENSION IDDET1(NSTATE)
       LOGICAL IF00, IF10,IF01,IF20,IF11,IF02,IF21,IF12,IF22
       LOGICAL IFTWO,TRORB
@@ -716,6 +717,21 @@ C it is known to be zero.
       HTWO =0.0D0
 
       SIJ=0.0D0
+      DYSAMP=0.0D0
+
+! +++ J. Norell 12/7 - 2018
+C Dyson amplitudes (orbitals and their norms):
+      IF (IF10.or.IF01) THEN
+        CALL DYSON(IWORK(LFSBTAB1),
+     &            IWORK(LFSBTAB2),IWORK(LSSTAB),
+     &            WORK(LDET1),WORK(LDET2),
+     &            ISTATE,
+     &            JSTATE,IF10,IF01,DYSAMP)
+      END IF ! IF01 IF10
+      DYSAMPS(ISTATE,JSTATE)=DYSAMP
+      DYSAMPS(JSTATE,ISTATE)=DYSAMP
+! +++ J. Norell
+
 C General 1-particle transition density matrix:
       IF (IF11) THEN
         CALL MKTDM1(LSYM1,MPLET1,MSPROJ1,IWORK(LFSBTAB1),

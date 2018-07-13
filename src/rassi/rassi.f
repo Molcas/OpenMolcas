@@ -64,6 +64,7 @@ C GTDMCTL. They are written on unit LUTDM.
 C Needed matrix elements are computed by PROPER.
       NSTATE2=NSTATE*NSTATE
       Call GetMem('OVLP','Allo','Real',LOVLP,NSTATE2)
+      Call GetMem('DYSAMPS','Allo','Real',LDYSAMPS,NSTATE2)
       Call GetMem('EIGVEC','Allo','Real',LEIGVEC,NSTATE2)
       Call GetMem('ENERGY','Allo','Real',LENERGY,NSTATE)
       Call GetMem('ITOCM','Allo','Inte',liTocM,NSTATE*(NSTATE+1)/2)
@@ -79,8 +80,8 @@ C Loop over jobiphs JOB1:
         Fake_CMO2 = JOB1.eq.JOB2  ! MOs1 = MOs2  ==> Fake_CMO2=.true.
 
 C Compute generalized transition density matrices, as needed:
-          CALL GTDMCTL(WORK(LPROP),JOB1,JOB2,WORK(LOVLP),Work(LHAM),
-     &                iWork(lIDDET1))
+          CALL GTDMCTL(WORK(LPROP),JOB1,JOB2,WORK(LOVLP),WORK(LDYSAMPS),
+     &                Work(LHAM),iWork(lIDDET1))
         END DO
       END DO
       Call GetMem('IDDET1','Free','Inte',lIDDET1,NSTATE)
@@ -124,8 +125,8 @@ C and perhaps GTDM's.
 C Hamiltonian matrix elements, eigenvectors:
       IF(IFHAM) THEN
         Call StatusLine('RASSI:','Computing Hamiltonian.')
-        CALL EIGCTL(WORK(LPROP),WORK(LOVLP),Work(LHAM),Work(LEIGVEC),
-     &              WORK(LENERGY))
+        CALL EIGCTL(WORK(LPROP),WORK(LOVLP),WORK(LDYSAMPS),Work(LHAM),
+     &              Work(LEIGVEC),WORK(LENERGY))
       END IF
 
 C Natural orbitals, if requested:
@@ -228,6 +229,7 @@ CIgorS End------------------------------------------------------------C
 
  100  CONTINUE
       Call GetMem('OVLP','Free','Real',LOVLP,NSTATE2)
+      Call GetMem('DYSAMPS','Free','Real',LDYSAMPS,NSTATE2)
       Call GetMem('HAM','Free','Real',LHAM,NSTATE2)
       Call GetMem('EIGVEC','Free','Real',LEIGVEC,NSTATE2)
       Call GetMem('ENERGY','Free','Real',LENERGY,NSTATE)
