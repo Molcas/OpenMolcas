@@ -82,6 +82,7 @@
 
       If( l_casdft ) then
         DFTFOCK='ROKS'
+        Call Get_iScalar('System BitSwitch',iOpt)
         iOpt=iOr(iOpt,2**6)
         Call Put_iScalar('System BitSwitch',iOpt)
       End IF
