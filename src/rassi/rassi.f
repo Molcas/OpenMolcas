@@ -182,10 +182,28 @@ C Nr of spin states and division of loops:
      &             WORK(LSOENE),NSS,WORK(LENERGY))
       END IF
 
-      CALL PRPROP(WORK(LPROP),WORK(LUTOTR),WORK(LUTOTI),
-     &            WORK(LSOENE),NSS,WORK(LOVLP),WORK(LENERGY),
-     &            iWork(lJBNUM))
+! +++ J. Norell 19/7 - 2018
+C Make the SO Dyson orbitals and amplitudes from the SF ones
 
+      LSODYSAMPS=0
+      CALL GETMEM('SODYSAMPS','ALLO','REAL',LSODYSAMPS,NSS*NSS)
+
+      ! Number of basis functions
+      NZ=0 ! (NBAS is already used...)
+      DO ISY=1,NSYM
+       NZ=NZ+NBASF(ISY)
+      END DO
+      LSFDYS=0
+      CALL GETMEM('SFDYS','ALLO','REAL',LSFDYS,NZ*NSTATE*NSTATE)
+      CALL DO_SODYSORB(NSS,LUTOTR,LUTOTI,WORK(LDYSAMPS),
+     &                 WORK(LSFDYS),NZ,WORK(LSODYSAMPS))
+
+      CALL GETMEM('SFDYS','FREE','REAL',LSFDYS,NZ*NSTATE*NSTATE)
+! +++
+
+      CALL PRPROP(WORK(LPROP),WORK(LUTOTR),WORK(LUTOTI),
+     &            WORK(LSOENE),NSS,WORK(LOVLP),WORK(LSODYSAMPS),
+     &            WORK(LENERGY),iWork(lJBNUM))
 
 C Plot SO-Natural Orbitals if requested
 C Will also handle mixing of states (sodiag.f)
@@ -236,12 +254,14 @@ CIgorS End------------------------------------------------------------C
       Call GetMem('ESHFT','Free','Real',LESHFT,NSTATE)
       Call GetMem('HDIAG','Free','Real',LHDIAG,NSTATE)
       Call GetMem('IDTDM','Free','Inte',lIDTDM,NSTATE2)
+      Call GetMem('IDDYS','Free','Inte',LIDDYS,NSTATE2)
       Call GetMem('JBNUM','Free','Inte',LJBNUM,NSTATE)
       Call GetMem('LROOT','Free','Inte',LLROOT,NSTATE)
       Call GetMem('ITOCM','Free','Inte',liTocM,NSTATE*(NSTATE+1)/2)
       CALL GETMEM('Prop','Free','Real',LPROP,NPROPSZ)
       CALL GETMEM('NilPt','FREE','REAL',LNILPT,1)
       CALL GETMEM('INilPt','FREE','INTE',LINILPT,1)
+      CALL GETMEM('SODYSAMPS','FREE','REAL',LSODYSAMP,NSS*NSS)
 
 #ifdef _DMRG_
 !     !> finalize MPS-SI interface
@@ -258,6 +278,8 @@ CIgorS End------------------------------------------------------------C
 *     Close dafiles.
 *
       Call DaClos(LuScr)
+      Call DaClos(LuTDM)
+      Call DaClos(LUDYS)
 c jochen 02/15: sonatorb needs LUTDM
 c     we'll make it conditional upon the keyword
       IF((SONATNSTATE.GT.0).OR.NATO) THEN

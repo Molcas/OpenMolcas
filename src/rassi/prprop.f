@@ -8,9 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE PRPROP(PROP,USOR,USOI,ENSOR,NSS,OVLP,ENERGY,JBNUM)
+      SUBROUTINE PRPROP(PROP,USOR,USOI,ENSOR,NSS,OVLP,SODYSAMPS,
+     &     ENERGY,JBNUM)
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
+      DIMENSION USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS),
+     &          SODYSAMPS(NSS,NSS)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='PRPROP')
@@ -1932,6 +1934,36 @@ C printing threshold
          CALL GETMEM('TOT2K','FREE','REAL',LTOT2K,NSS**2)
 
       END IF
+
+! +++ J. Norell 19/7 - 2018
+! Dyson amplitudes for (1-electron) ionization transitions
+        DYSTHR=1.0D-5
+        WRITE(6,*)
+        CALL CollapseOutput(1,'Dyson amplitudes '//
+     &                        '(SO states):')
+        WRITE(6,'(3X,A)')     '----------------------------'//
+     &                        '-------------------'
+        WRITE(6,*) '       From      To        '//
+     &   'BE (eV)       Dyson amplitude'
+        WRITE(6,*)
+        IF (DYSTHR.GT.0.0D0) THEN
+           WRITE(6,*) 'for Dyson amps. at least',DYSTHR
+           WRITE(6,*)
+        END IF
+        FMAX=0.0D0
+        DO I=1,NSS
+         DO J=1,NSS
+          F=SODYSAMPS(I,J)*SODYSAMPS(I,J)
+          EDIFF=AU2EV*(ENSOR(J)-ENSOR(I))
+          IF (F.GT.0.00001) THEN
+           IF (EDIFF.GT.0.0D0) THEN
+            WRITE(6,'(A,I8,I8,F15.3,E22.5)') '    ',I,J,EDIFF,F
+           END IF
+          END IF
+         END DO ! J
+        END DO ! I
+! +++ J. Norell
+
 *
 ************************************************************************
 *                                                                      *

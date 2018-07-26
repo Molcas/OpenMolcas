@@ -8,11 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE MKDYORB(IORBTAB,ISSTAB,IFSBTAB1,IFSBTAB2,
-     &                 PSI1,PSI2,SPD12,IF10,IF01,DYSAMP)
+      SUBROUTINE MKDYSORB(IORBTAB,ISSTAB,IFSBTAB1,IFSBTAB2,
+     &                 PSI1,PSI2,SPD12,IF10,IF01,DYSAMP,DYSCOF)
 
       IMPLICIT NONE
-      REAL*8 PSI1(*),PSI2(*),SPD12(*)
+      REAL*8 PSI1(*),PSI2(*),SPD12(*),DYSCOF(*)
       REAL*8 COEFF,OVERLAP_RASSI,OVLP,DYSAMP
       INTEGER IORBTAB(*),NASORB
       INTEGER ISSTAB(*)
@@ -34,14 +34,13 @@ C Calculates the Dyson orbital between two states with
 C N and N-1 electrons, defined as:
 C D = < N-1 | anni_right | N >, or
 C D = < N | anni_left | N-1 >
-C |D|^2 gives the PES intensity as evaluated within the
-C sudden approximation, for more precise treatment
-C the Dyson orbital must be numerically overlapped
-C with a dipole operator and continuum electron.
 
 C Nr of active spin-orbitals
       NASORB= IORBTAB(4)
-      DYSAMP=0.0
+      DYSAMP=0.0D0
+      DO ISORB=1,NASORB
+       DYSCOF(ISORB)=0.0D0
+      END DO
 
 C IF10 = Eliminate to the left (state 1)
       IF(IF10) THEN
@@ -68,6 +67,8 @@ C Compute the coefficient as the overlap between the N-1 electron w.f.s
      &                  IFSBTAB2,WORK(LANN1),PSI2)
         CALL GETMEM('ANN1','Free','Real',LANN1,NDETS1)
         CALL KILLOBJ(LFSBANN1)
+        DYSCOF(ISORB)=OVLP
+
 C Collect the squared norm of the Dyson orbital
         DYSAMP=DYSAMP+OVLP*OVLP
 
@@ -95,13 +96,15 @@ C Compute the coefficient as the overlap between the N-1 electron w.f.s
      &                  IWORK(LFSBANN2),PSI1,WORK(LANN2))
         CALL GETMEM('ANN2','Free','Real',LANN2,NDETS2)
         CALL KILLOBJ(LFSBANN2)
+        DYSCOF(JSORB)=OVLP
+
 C Collect the squared norm of the Dyson orbital
         DYSAMP=DYSAMP+OVLP*OVLP
 
        END DO ! JSORB LOOP
 
       ELSE
-       WRITE(6,*)'Invalid state combination in MKDYORB'
+       WRITE(6,*)'Invalid state combination in MKDYSORB'
        WRITE(6,*)'(No such Dyson orbital can exist!)'
 
       END IF ! IF10 or IF01

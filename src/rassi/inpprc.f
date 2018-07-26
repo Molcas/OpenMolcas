@@ -33,6 +33,23 @@
 
       CALL QENTER(ROUTINE)
 
+* +++ J. Norell 16/7 - 2018
+C Allocate disk address array for DYSZZ arrays
+      Call GetMem('IDDYS','Allo','Inte',LIDDYS,NSTATE**2)
+C Prepare the address array
+        LUDYS=28
+        LUDYS=IsFreeUnit(LUDYS)
+        CALL DANAME_MF(LUDYS,'DYSFILE')
+        IDISK=0
+        DO ISTATE=1,NSTATE
+          DO JSTATE=1,NSTATE
+            IWORK(LIDDYS+(ISTATE-1)*NSTATE+JSTATE-1)=IDISK
+C Compute next disk address after writing a DYSZZ array
+            CALL DDAFILE(LUDYS,0,DUMMY,NSTATE*NSTATE,IDISK)
+          END DO
+        END DO
+* +++
+
       Call GetMem('IDTDM','Allo','Inte',lIDTDM,NSTATE**2)
 * PAM07: The printing of spin-orbit Hamiltonian matrix elements:
 * If no value for SOTHR_PRT was given in the input, it has a

@@ -11,14 +11,14 @@
       SUBROUTINE DYSON(IFSBTAB1,
      &    IFSBTAB2,ISSTAB,
      &    DET1,DET2,ISTATE,JSTATE,
-     &    IF10,IF01,DYSAMP)
+     &    IF10,IF01,DYSAMP,DYSCOF)
 
       IMPLICIT NONE
       INTEGER IFSBTAB1(*),IFSBTAB2(*),ISSTAB(*)
       INTEGER IORB,ISORB,ISYOP,ITABS,IUABS,JORB,JSORB,LORBTB
       INTEGER LSPD1,MS2OP,NASHT,NASORB,NSPD1
       INTEGER, INTENT(IN) :: ISTATE, JSTATE
-      REAL*8 DET1(*),DET2(*),DYSAMP
+      REAL*8 DET1(*),DET2(*),DYSAMP,DYSCOF(*)
       LOGICAL IF10,IF01
 
 #include "symmul.fh"
@@ -28,21 +28,25 @@
 C Given two CI expansions, using a biorthonormal set of SD's,
 C (assuming one state with N and one with N-1 electrons)
 C calculate the following quantities:
-C (1) The Dyson orbital norm between the two states
+C (1) The Dyson orbital norm between the two states (DYSAMP)
 C (2) The Dyson orbital expansion coefficients in the
-C     biorthonormal basis (and more options for visualization
-C     and analysisi) to be added later.
+C     basis of active biorthonormal orbitals (DYSCOF)
+C More functionality should be added here later.
 
       LORBTB=ISSTAB(3)
 C Pick out nr of active orbitals from orbital table:
       NASORB=IWORK(LORBTB+3)
 
-      !> mkdyorb calculates the Dyson orbital expansion coeffs.
-      !> in the biorthonormal basis (tbd.), and its norm
-      !> (DYSAMP)
-      CALL MKDYORB(IWORK(LORBTB),ISSTAB,
+      CALL MKDYSORB(IWORK(LORBTB),ISSTAB,
      &               IFSBTAB1,IFSBTAB2,DET1,DET2,WORK(LSPD1),
-     &               IF10,IF01,DYSAMP)
+     &               IF10,IF01,DYSAMP,DYSCOF)
+
+!      WRITE(*,*)
+!      WRITE(*,*)'--- DYSON ---'
+!      WRITE(*,*)'DYSCOFS:'
+!      DO ISORB=1,NASORB
+!       WRITE(*,'(F6.2)',advance="no")DYSCOF(ISORB)
+!      END DO
 
 
       RETURN

@@ -163,12 +163,36 @@ C Pick up orbitals of ket and bra states.
       CALL GETMEM('GTDMCMO1','ALLO','REAL',LCMO1,NCMO)
       CALL RDCMO(JOB1,WORK(LCMO1))
       CALL GETMEM('GTDMCMO2','ALLO','REAL',LCMO2,NCMO)
+
+
       CALL RDCMO(JOB2,WORK(LCMO2))
 C Nr of active spin-orbitals
       NASORB=2*NASHT
       NTDM1=NASHT**2
       NTSDM1=NASHT**2
       NTDM2=(NTDM1*(NTDM1+1))/2
+
+! +++ J. Norell 13/7 - 2018
+C 1D arrays for Dyson orbital coefficients
+C COF = active biorthonormal orbital base
+C AB  = inactive+active biorthonormal orbital base
+C ZZ  = atomic (basis function) base
+      IF (IF10.or.IF01) THEN
+        LDYSCOF=LNILPT
+        LDYSAB=LNILPT
+        LDYSZZ=LNILPT
+        CALL GETMEM('DYSCOF','Allo','Real',LDYSCOF,NASORB)
+        ! Number of inactive+active orbitals
+        NDYSAB = INT(SQRT(REAL(NTDMAB)))
+        CALL GETMEM('DYSAB','Allo','Real',LDYSAB,NDYSAB)
+        ! Number of atomic / basis functions
+        NDYSZZ = INT(SQRT(REAL(NTDMZZ)))
+        CALL GETMEM('DYSZZ','Allo','Real',LDYSZZ,NDYSZZ)
+        DO NDUM=1,NDYSZZ
+         WORK(LDYSZZ+NDUM-1)=0.0D0
+        END DO
+      END IF
+! +++
 
 C Transition density matrices, TDMAB is for active biorthonormal
 C orbitals only, while TDMZZ is in the fixed AO basis.
@@ -720,17 +744,54 @@ C it is known to be zero.
       DYSAMP=0.0D0
 
 ! +++ J. Norell 12/7 - 2018
-C Dyson amplitudes (orbitals and their norms):
+C Dyson amplitudes:
+C DYSAMP = D_ij for states i and j
+C DYSCOF = Active orbital coefficents of the DO
       IF (IF10.or.IF01) THEN
         CALL DYSON(IWORK(LFSBTAB1),
      &            IWORK(LFSBTAB2),IWORK(LSSTAB),
      &            WORK(LDET1),WORK(LDET2),
-     &            ISTATE,
-     &            JSTATE,IF10,IF01,DYSAMP)
+     &            ISTATE,JSTATE,IF10,IF01,
+     &            DYSAMP,WORK(LDYSCOF))
+
+C Write Dyson orbital coefficients in AO basis to disk.
+C In full biorthonormal basis:
+        CALL MKDYSAB(WORK(LDYSCOF),WORK(LDYSAB))
+C In AO basis:
+        CALL MKDYSZZ(WORK(LCMO1),WORK(LDYSAB),
+     &              WORK(LDYSZZ))
+C Save to disk:
+       IDISK=IWORK(LIDDYS+(ISTATE-1)*NSTATE+JSTATE-1)
+!       WRITE(*,*)
+!       WRITE(*,*)
+!       WRITE(*,*)'--- GTDMCTL ---'
+!       WRITE(*,*)'ISTATE=',ISTATE,' JSTATE=',JSTATE
+!       WRITE(*,*)'LIDDYS=',LIDDYS,' IDISK=',IDISK
+!       WRITE(*,*)'LUDYS=',LUDYS,' NDYSZZ=',NDYSZZ
+!       WRITE(*,*)'DYSAMP=',DYSAMP
+!       WRITE(*,*)'DYSZZ='
+!       DO NDUM=1,NDYSZZ
+!        WRITE(*,'(F6.2)',advance='no')WORK(LDYSZZ+NDUM-1)
+!       END DO
+!       WRITE(*,*)
+       CALL DDAFILE(LUDYS,1,WORK(LDYSZZ),NDYSZZ,IDISK)
+       DO NDUM=1,NDYSZZ
+        WORK(LDYSZZ+NDUM-1)=0.0D0
+       END DO
+!       DO NDUM=1,NDYSZZ
+!        WRITE(*,'(F6.2)',advance='no')WORK(LDYSZZ+NDUM-1)
+!       END DO
+!       WRITE(*,*)
+       IDISK=IWORK(LIDDYS+(ISTATE-1)*NSTATE+JSTATE-1)
+       CALL DDAFILE(LUDYS,2,WORK(LDYSZZ),NDYSZZ,IDISK)
+!       DO NDUM=1,NDYSZZ
+!        WRITE(*,'(F6.2)',advance='no')WORK(LDYSZZ+NDUM-1)
+!       END DO
+!       WRITE(*,*)
       END IF ! IF01 IF10
       DYSAMPS(ISTATE,JSTATE)=DYSAMP
       DYSAMPS(JSTATE,ISTATE)=DYSAMP
-! +++ J. Norell
+! +++
 
 C General 1-particle transition density matrix:
       IF (IF11) THEN
@@ -744,6 +805,7 @@ C General 1-particle transition density matrix:
 C Compute 1-electron contribution to Hamiltonian matrix element:
         HONE=DDOT_(NTRAD,WORK(LTRAD),1,WORK(LFMO),1)
         END IF
+
 
 C             Write density 1-matrices in AO basis to disk.
             IF(NATO.OR.(NPROP.GT.0))THEN
@@ -1116,6 +1178,13 @@ C             Write density 1-matrices in AO basis to disk.
         CALL KILLSCTAB(LSPNTAB1)
         CALL KILLSCTAB(LSPNTAB2)
       end if
+! +++ J. Norell 13/7 - 2018
+      IF (IF10.or.IF01) THEN
+        CALL GETMEM('DYSCOF','Free','Real',LDYSCOF,NASORB)
+        CALL GETMEM('DYSAB','Free','Real',LDYSAB,NDYSAB)
+        CALL GETMEM('DYSZZ','Free','Real',LDYSZZ,NDYSZZ)
+      END IF
+! +++
       IF (IF11) THEN
         CALL GETMEM('SPD1','Free','Real',LSPD1,NSPD1)
         CALL GETMEM('TRAD','Free','Real',LTRAD,NTRAD)
