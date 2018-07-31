@@ -17,10 +17,13 @@
 ! drot_
 ! dswap_
 ! dscal_
+! zscal_
+! zdscal_
 ! dcopy_
 ! zcopy_
 ! scopy_
 ! daxpy_
+! zaxpy_
 ! ddot_
 ! dnrm2_
 ! dasum_
@@ -86,6 +89,35 @@ subroutine dscal_(n_,da,dx,incx_)
 #endif
 end subroutine
 
+subroutine zscal_(n_,da,dx,incx_)
+  implicit none
+  integer n_, incx_
+  complex*16 da, dx(*)
+#ifdef MOLCAS_TO_BLAS_INT
+  BLASINT n,  incx
+  n=n_
+  incx=incx_
+  call zscal(n,da,dx,incx)
+#else
+  call zscal(n_,da,dx,incx_)
+#endif
+end subroutine
+
+subroutine zdscal_(n_,da,dx,incx_)
+  implicit none
+  integer n_, incx_
+  real*8 da
+  complex*16 dx(*)
+#ifdef MOLCAS_TO_BLAS_INT
+  BLASINT n,  incx
+  n=n_
+  incx=incx_
+  call zdscal(n,da,dx,incx)
+#else
+  call zdscal(n_,da,dx,incx_)
+#endif
+end subroutine
+
 subroutine dcopy_(n_,dx,incx_,dy,incy_)
   implicit none
   integer n_, incx_, incy_
@@ -143,6 +175,21 @@ subroutine daxpy_(n_,da,dx,incx_,dy,incy_)
   call daxpy(n,da,dx,incx,dy,incy)
 #else
   call daxpy(n_,da,dx,incx_,dy,incy_)
+#endif
+end subroutine
+
+subroutine zaxpy_(n_,da,dx,incx_,dy,incy_)
+  implicit none
+  integer n_, incx_, incy_
+  complex*16 da, dx(*), dy(*)
+#ifdef MOLCAS_TO_BLAS_INT
+  BLASINT n,  incx,  incy
+  n=n_
+  incx=incx_
+  incy=incy_
+  call zaxpy(n,da,dx,incx,dy,incy)
+#else
+  call zaxpy(n_,da,dx,incx_,dy,incy_)
 #endif
 end subroutine
 
