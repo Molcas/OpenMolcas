@@ -77,7 +77,8 @@
 #endif
 *
       Logical         RFpert,lSquare, Start_Vectors, NonEq, DoFaro
-     &                ,DOFCIDUMP,DoBlockDMRG,DoGradPDFT
+     &                ,DOFCIDUMP,DoBlockDMRG,DoGradPDFT,DoNOGRAD,
+     &                DoGSOR
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
      &                , Do3RDM
 #endif
@@ -85,7 +86,8 @@
      &                , chemps2_restart
 #endif
       COMMON/LOGINP/  RFpert,lSquare, Start_Vectors, NonEq, DoFaro
-     &                ,DOFCIDUMP,DoBlockDMRG,DoGradPDFT
+     &                ,DOFCIDUMP,DoBlockDMRG,DoGradPDFT,DoNOGRAD,
+     &                DoGSOR
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
      &                , Do3RDM
 #endif

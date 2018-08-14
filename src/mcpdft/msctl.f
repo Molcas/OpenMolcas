@@ -65,7 +65,7 @@
       integer itmp0,itmp1,itmp2,itmp3,itmp4
       integer itmp5,itmp6,itmp7
       integer ifocki,ifocka
-      integer IADR19(1:15)
+      integer IADR19(1:30)
       integer LP,NQ,LQ,LPUVX
       integer  LOEOTP,NACP,NACP2
       integer vdisk,jroot
@@ -73,6 +73,7 @@
       integer count_tmp1,count_tmp2
       integer  i_off1,i_off2,ifone
       integer isym,iorb,iash,iish,jsym
+      integer LUGS
       iTrii(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 
 
@@ -198,6 +199,10 @@ C Local print level (if any)
         iJOB=0
         IAD19=0
         Call f_Inquire('JOBOLD',Found)
+        If (.not.found) then
+          Call f_Inquire('JOBIPH',Found)
+          if (Found) JOBOLD=JOBIPH
+        end if
         If (Found) iJOB=1
         If (iJOB.eq.1) Then
            if(JOBOLD.le.0) Then
@@ -207,6 +212,7 @@ C Local print level (if any)
         end if
        IADR19(:)=0
        Call IDaFile(JOBOLD,2,IADR19,15,IAD19)
+       IADR15 = IADR19
        vDisk =  IADR19(4)
        dmDisk = IADR19(3)
 !       Call GetMem('jVector','Allo','Real',ijVec,nConf)
@@ -902,10 +908,15 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
 !      end do
       end do !loop over roots
 
-
-
-
-
+      if(doGSOR) then
+        LUGS=25
+        LUGS=IsFreeUnit(LUGS)
+        IAD19=0
+        Call DaName(LUGS,'JOBGS')
+        Call IDaFile(LUGS,2,IADR19,15,IAD19)
+        Call DDAFile(LUGS,1,Energies,lroots,IADR19(6))
+        Call DaClos(LUGS)
+      end if
 
       If (.not.DoCholesky .or. ALGO.eq.1) Then
         if (nFint.gt.0) then
