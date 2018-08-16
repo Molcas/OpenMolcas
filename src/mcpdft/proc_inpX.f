@@ -2527,7 +2527,7 @@ c       write(6,*)          '  --------------------------------------'
       If (KeyNOGR) Then
        If (DBG) Write(6,*) ' NOGRadient keyword was used.'
        DoNoGrad=.true.
-       Call SetPos_m(LUInput,'GRAD',Line,iRc)
+       Call SetPos_m(LUInput,'NOGR',Line,iRc)
        Call ChkIfKey_m()
       End If
 *
