@@ -487,7 +487,7 @@ C Timings on generation of the sigma vector
 
 * compute correction vectors q3 = (r-E1*q2)/(E0-H)
          If ( nSel.gt.1 ) then
-            Do mRoot=1,lRoots
+            Do mRoot=nconverged+1,lRoots
                Call Load_tmp_Sig_vec(mRoot,nConf,Work(iVec1),
      &                     LuDavid)
                Call Load_tmp_CI_vec(mRoot,nConf,Work(iVec2),
@@ -507,7 +507,7 @@ C Timings on generation of the sigma vector
      &                  1.0d0,ExplV,nSel,
      &                  Work(iScr3),nSel,
      &                  0.0d0,Work(iScr5),nSel)
-            Do mRoot=1,lRoots
+            Do mRoot=nconverged+1,lRoots
                E0 = Work(iEs+mRoot-1)
                iOff = (mRoot-1)*nSel
                Do i = 1,nSel
