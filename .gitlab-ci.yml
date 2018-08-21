@@ -146,6 +146,7 @@
 # - sun: use Oracle compilers
 # - intel: use Intel compilers (must install them every time and it's a bit shaky)
 # - intel13: use Intel 2013 compilers (specific runner)
+# - nag: use NAG Fortran compiler and Garble (specific runner)
 # - debug: build with no optimization (no tests)
 
 .template: &plain
@@ -250,6 +251,27 @@
     FC: "ifort"
   tags:
     - intel13
+
+.template: &nag
+  variables: &nag_vars
+    cache_file: |
+      set (CMAKE_BUILD_TYPE "Garble" CACHE STRING "garble installation" )
+      set (BUILD_SHARED_LIBS "OFF" CACHE STRING "static molcas lib" )
+      set (HDF5 "OFF" CACHE STRING "turn off HDF5")
+      set (DEFMOLCASMEM "256" CACHE STRING "reduce memory to get more speed")
+    pre_compile_script: |
+      export PATH=$${PWD}:/opt/NAG/Fortran-amd64/6.0/bin:$${PATH}
+      touch pymolcas
+    pre_run_script: |
+      export PATH=$${PWD}:/home/tester/bin/:$${PATH}
+      touch pymolcas
+    CX: "gcc"
+    CCX: "g++"
+    FC: "nagfor"
+    NAG_KUSARI_FILE: "/opt/NAG/npl6a60na.key"
+    FFLAGS: "-w=obs -w=x77 -Wc,-fno-aggressive-loop-optimizations -Qpath /opt/NAG/Fortran-amd64/6.0/lib"
+  tags:
+    - nag
 
 .template: &debug
   image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-5.4:latest
@@ -470,6 +492,17 @@ test:intel13:
   dependencies:
     - build:intel13
   <<: *intel13
+  <<: *run-tests
+
+build:nag:
+  stage: build
+  <<: *nag
+  <<: *compile
+test:nag:
+  stage: test
+  dependencies:
+    - build:nag
+  <<: *nag
   <<: *run-tests
 
 build:debug:
