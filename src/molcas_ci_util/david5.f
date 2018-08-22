@@ -405,15 +405,17 @@ C Timings on generation of the sigma vector
 *-------------------------------------------------------------------
 * compute correction vectors q1 = r/(E0-H) and q2 = c/(E0-H)
 
+         nleft=lRoots-nconverged
          If ( nSel.gt.1 ) then
+            ioff=nconverged*nSel
             Call DGEMM_('T','N',
-     &                  nSel,lRoots,nSel,
+     &                  nSel,nleft,nSel,
      &                  1.0d0,ExplV,nSel,
-     &                  Work(iScr3),nSel,
+     &                  Work(iScr3+ioff),nSel,
      &                  0.0d0,Work(iScr5),nSel)
-            Do mRoot=1,lRoots
+            Do mRoot=nconverged+1,lRoots
                E0 = Work(iEs+mRoot-1)
-               iOff = (mRoot-1)*nSel
+               iOff = (mRoot-nconverged-1)*nSel
                Do i = 1,nSel
                   Z = E0-ExplE(i)
                   If ( Abs(Z).lt.0.001d0 ) Z = 0.001d0
@@ -421,18 +423,19 @@ C Timings on generation of the sigma vector
                End Do
             End Do
             Call DGEMM_('N','N',
-     &                  nSel,lRoots,nSel,
+     &                  nSel,nleft,nSel,
      &                  1.0d0,ExplV,nSel,
      &                  Work(iScr5),nSel,
      &                  0.0d0,Work(iScr3),nSel)
+            ioff=nconverged*nSel
             Call DGEMM_('T','N',
-     &                  nSel,lRoots,nSel,
+     &                  nSel,nleft,nSel,
      &                  1.0d0,ExplV,nSel,
-     &                  Work(iScr4),nSel,
+     &                  Work(iScr4+ioff),nSel,
      &                  0.0d0,Work(iScr5),nSel)
-            Do mRoot=1,lRoots
+            Do mRoot=nconverged+1,lRoots
                E0 = Work(iEs+mRoot-1)
-               iOff = (mRoot-1)*nSel
+               iOff = (mRoot-nconverged-1)*nSel
                Do i = 1,nSel
                   Z = E0-ExplE(i)
                   If ( Abs(Z).lt.0.001d0 ) Z = 0.001d0
@@ -440,7 +443,7 @@ C Timings on generation of the sigma vector
                End Do
             End Do
             Call DGEMM_('N','N',
-     &                  nSel,lRoots,nSel,
+     &                  nSel,nleft,nSel,
      &                  1.0d0,ExplV,nSel,
      &                  Work(iScr5),nSel,
      &                  0.0d0,Work(iScr4),nSel)
@@ -460,7 +463,7 @@ C Timings on generation of the sigma vector
                Work(iVec3+i) = Work(iVec1+i)/Z
             End Do
             If ( nSel.gt.1 ) then
-               iOff = (mRoot-1)*nSel
+               iOff = (mRoot-nconverged-1)*nSel
                Do i = 1,nSel
                   iConf = iSel(i)
                   Work(iVec3+iConf-1) = Work(iScr3+iOff+i-1)
@@ -475,7 +478,7 @@ C Timings on generation of the sigma vector
                Work(iVec3+i) = Work(iVec2+i)/Z
             End Do
             If ( nSel.gt.1 ) then
-               iOff = (mRoot-1)*nSel
+               iOff = (mRoot-nconverged-1)*nSel
                Do i = 1,nSel
                   iConf = iSel(i)
                   Work(iVec3+iConf-1) = Work(iScr4+iOff+i-1)
@@ -496,20 +499,20 @@ C Timings on generation of the sigma vector
                call daxpy_(nConf,E0,Work(iVec2),1,Work(iVec1),1)
                E1 = -Alpha(mRoot)/Beta(mRoot)
                call daxpy_(nConf,E1,Work(iVec2),1,Work(iVec1),1)
-               iOff = (mRoot-1)*nSel
+               iOff = (mRoot-nconverged-1)*nSel
                Do i = 1,nSel
                   iConf = iSel(i)
                   Work(iScr3+iOff+i-1) = Work(iVec1+iConf-1)
                End Do
             End Do
             Call DGEMM_('T','N',
-     &                  nSel,lRoots,nSel,
+     &                  nSel,nleft,nSel,
      &                  1.0d0,ExplV,nSel,
      &                  Work(iScr3),nSel,
      &                  0.0d0,Work(iScr5),nSel)
             Do mRoot=nconverged+1,lRoots
                E0 = Work(iEs+mRoot-1)
-               iOff = (mRoot-1)*nSel
+               iOff = (mRoot-nconverged-1)*nSel
                Do i = 1,nSel
                   Z = E0-ExplE(i)
                   If ( Abs(Z).lt.0.001d0 ) Z = 0.001d0
@@ -517,7 +520,7 @@ C Timings on generation of the sigma vector
                End Do
             End Do
             Call DGEMM_('N','N',
-     &                  nSel,lRoots,nSel,
+     &                  nSel,nleft,nSel,
      &                  1.0d0,ExplV,nSel,
      &                  Work(iScr5),nSel,
      &                  0.0d0,Work(iScr3),nSel)
@@ -543,7 +546,7 @@ C Timings on generation of the sigma vector
                Work(iVec3+i) = Work(iVec1+i)/Z
             End Do
             If ( nSel.gt.1 ) then
-               iOff = (mRoot-1)*nSel
+               iOff = (mRoot-nconverged-1)*nSel
                Do i = 1,nSel
                   iConf = iSel(i)
                   Work(iVec3+iConf-1) = Work(iScr3+iOff+i-1)
