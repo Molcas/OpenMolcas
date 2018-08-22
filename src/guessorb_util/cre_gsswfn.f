@@ -44,6 +44,12 @@
          nBasTot=nBasTot+nBas(iSym)
       End Do
 
+*     typestring
+      wfn_tpidx = mh5_create_dset_str(wfn_fileid,
+     $        'MO_TYPEINDICES', 1, [nBasTot], 1)
+      call mh5_init_attr(wfn_tpidx, 'description',
+     $        'Type index of the molecular orbitals '//
+     $        'arranged as blocks of size [NBAS(i)], i=1,#irreps')
 *     molecular orbital coefficients
       wfn_mocoef = mh5_create_dset_real(wfn_fileid,
      $        'MO_VECTORS', 1, [nSqrTot])
@@ -51,11 +57,11 @@
      $        'Coefficients of the molecular orbitals, '//
      $        'arranged as blocks of size [NBAS(i)**2], i=1,#irreps')
 *     molecular orbital occupation numbers
-        wfn_occnum = mh5_create_dset_real(wfn_fileid,
-     $          'MO_OCCUPATIONS', 1, [nBasTot])
-        call mh5_init_attr(wfn_occnum, 'description',
-     $          'Occupation numbers of the molecular orbitals '//
-     $          'arranged as blocks of size [NBAS(i)], i=1,#irreps')
+      wfn_occnum = mh5_create_dset_real(wfn_fileid,
+     $        'MO_OCCUPATIONS', 1, [nBasTot])
+      call mh5_init_attr(wfn_occnum, 'description',
+     $        'Occupation numbers of the molecular orbitals '//
+     $        'arranged as blocks of size [NBAS(i)], i=1,#irreps')
 *     molecular orbital energies
       wfn_orbene = mh5_create_dset_real(wfn_fileid,
      $        'MO_ENERGIES', 1, [nBasTot])

@@ -135,6 +135,11 @@ C Use a symmetrized matrix, in triangular storage:
        WRITE(6,*)
       END IF
 
+* Restore original effective Hamiltonian
+      DO I=1,NSTATE
+        HEFF(I,I)=HEFF(I,I)+DSHIFT
+      END DO
+
 * In automatic verification calculations, the precision is lower
 * in case of Cholesky calculation.
       LAXITY=8

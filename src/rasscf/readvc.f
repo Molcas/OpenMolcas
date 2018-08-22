@@ -334,21 +334,22 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
         END IF
 
         mh5id = mh5_open_file_r(StartOrbFile)
-        select case (iAlphaBeta)
-          case (1)
-            call mh5_fetch_dset(mh5id, 'MO_ALPHA_VECTORS', CMO)
-            VecTit='MO_ALPHA_TYPEINDICES'
-          case (-1)
-            call mh5_fetch_dset(mh5id, 'MO_BETA_VECTORS', CMO)
-            VecTit='MO_BETA_TYPEINDICES'
-          case default
-            call mh5_fetch_dset(mh5id, 'MO_VECTORS', CMO)
-            VecTit='MO_TYPEINDICES'
-        end select
         typestring=''
-        if (mh5_exists_dset(mh5id, trim(VecTit)))
-     &    call mh5_fetch_dset(mh5id, trim(VecTit), typestring)
-        call mh5_close_file(mh5id)
+        Select Case (iAlphaBeta)
+          Case (1)
+            Label='CA  '
+            VecTit='MO_ALPHA_TYPEINDICES'
+          Case (-1)
+            Label='CB  '
+            VecTit='MO_BETA_TYPEINDICES'
+          Case default
+            Label='C   '
+            VecTit='MO_TYPEINDICES'
+        End Select
+        Call RdVec_HDF5(mh5id,Label,NSYM,NBAS,CMO,Dummy,Dummy,iDummy)
+        If (mh5_exists_dset(mh5id,Trim(VecTit)))
+     &    Call mh5_fetch_dset(mh5id,Trim(VecTit),typestring)
+        Call mh5_close_file(mh5id)
 * Reorder orbitals based on typeindex
         If (typestring.ne.'') Then
           NNwOrd=0
@@ -357,25 +358,7 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
           End Do
           Call GetMem('TInd','Allo','Inte',iTInd,NNWOrd)
           Call GetMem('NewOrd','Allo','Inte',LNewOrd,NNwOrd)
-          Call iCopy(NNWOrd,0,0,iWork(iTInd),1)
-          Do i=1,len_trim(typestring)
-            select case (typestring(i:i))
-              case ('F')
-                iWork(iTInd+i-1)=1
-              case ('I')
-                iWork(iTInd+i-1)=2
-              case ('1')
-                iWork(iTInd+i-1)=3
-              case ('2')
-                iWork(iTInd+i-1)=4
-              case ('3')
-                iWork(iTInd+i-1)=5
-              case ('S')
-                iWork(iTInd+i-1)=6
-              case ('D')
-                iWork(iTInd+i-1)=7
-            end select
-          End Do
+          Call tpstr2tpidx(typestring,iWork(iTInd),NNWOrd)
           Call VecSort(NSYM,NBAS,NBAS,CMO,OCC,iWork(iTInd),
      &                                NNwOrd,iWork(lNewOrd),iErr)
 * If there is a supersymmetry array, use the orbital mapping:

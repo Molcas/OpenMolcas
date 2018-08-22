@@ -157,15 +157,15 @@
      $        'matrix of size [NBAST,NSTATE,NSTATE], where NBAST '//
      $        'is of size [NBAS(I)**2] for I=1,NSYM')
 
-* SFS spin transition density
+*     SFS spin transition density
       wfn_sfs_tsdm = mh5_create_dset_real(wfn_fileid,
      $        'SFS_TRANSITION_SPIN_DENSITIES', 3, [NBAST,NSTATE,NSTATE])
       call mh5_init_attr(wfn_sfs_tsdm, 'description',
-     $   'Transition spin density matrices for each pair of states, '//
-     $        'matrix of size [NBAST,NSTATE,NSTATE], where NBAST '//
-     $        'is of size [NBAS(I)**2] for I=1,NSYM')
+     $        'Transition spin density matrices for each pair of '//
+     $        'states, matrix of size [NBAST,NSTATE,NSTATE], where '//
+     $        'NBAST is of size [NBAS(I)**2] for I=1,NSYM')
 
-!> SFS WE-reduced TDM''s of triplet type
+*     SFS WE-reduced TDM''s of triplet type
       wfn_sfs_wetdm = mh5_create_dset_real(wfn_fileid,
      $        'SFS_WE_TRANSITION_DENSITIES', 3, [NBAST,NSTATE,NSTATE])
       call mh5_init_attr(wfn_sfs_wetdm, 'description',

@@ -115,8 +115,11 @@
 !      real*8 Elec_Ener
       integer iRef_E,IAD19
       integer IADR19(1:15)
+      integer NMAYBE,KROOT
+      real*8 EAV
 !
       real*8, allocatable :: PLWO(:)
+      integer ivkcnf
 * Start the traceback utilities
 *
       Call QENTER(ROUTINE)
@@ -143,6 +146,7 @@
       IfVB=0
       If (ProgName(1:5).eq.'casvb') IfVB=2
 * Default option switches and values, and initial data.
+      EAV = 0.0d0
       EAV1=0.0d0
       Call RasScf_Init_m()
       Call Seward_Init()
@@ -446,11 +450,10 @@ CGG03 Aug 03
         NMAYBE=IT
       END DO
   11  CONTINUE
-!      Write(*,*) NMAYBE
       do KROOT=1,lROOTS
         ENER(IROOT(KROOT),1)=Work(iEList+MXROOT*(NMAYBE-1) +
      &                                     (KROOT-1))
-         EAV=EAV+ENER(IROOT(KROOT),ITER)*WEIGHT(KROOT)
+         EAV = EAV + ENER(IROOT(KROOT),ITER) * WEIGHT(KROOT)
          Work(iRef_E + KROOT-1) = ENER(IROOT(KROOT),1)
       end do
       Call GetMem('ELIST','FREE','REAL',iEList,MXROOT*MXITER)
@@ -520,6 +523,73 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
        CALL TRACTL2(WORK(LCMO),WORK(LPUVX),WORK(LTUVX),WORK(LD1I),
      &              WORK(LFI),WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
        Call Put_CMO(Work(LCMO),ntot2)
+
+       if (doGSOR) then
+        Call f_Inquire('JOBOLD',Found)
+        if (.not.found) then
+          Call f_Inquire('JOBIPH',Found)
+          if(Found) JOBOLD=JOBIPH
+        end if
+        If (Found) iJOB=1
+        If (iJOB.eq.1) Then
+           if(JOBOLD.le.0) Then
+             JOBOLD=20
+             Call DaName(JOBOLD,'JOBOLD')
+           end if
+        end if
+       IADR19(:)=0
+       IAD19=0
+       Open(unit=87,file='CI_THETA',iostat=ios,
+     &    action='read')
+
+      Call IDaFile(JOBOLD,2,IADR19,15,IAD19)
+          CALL GETMEM('CIVEC','ALLO','REAL',LW4,NCONF)
+          CALL GETMEM('Dtmp ','ALLO','REAL',LW6,NACPAR)
+          CALL GETMEM('DStmp','ALLO','REAL',LW7,NACPAR)
+          CALL GETMEM('Ptmp ','ALLO','REAL',LW8,NACPR2)
+          CALL GETMEM('PAtmp','ALLO','REAL',LW9,NACPR2)
+          CALL GETMEM('Pscr','ALLO','REAL',LW10,NACPR2)
+
+          call dcopy_(NACPAR,0.0D0,0,WORK(LW6),1)
+          call dcopy_(NACPAR,0.0D0,0,WORK(LW7),1)
+          call dcopy_(NACPR2,0.0D0,0,WORK(LW8),1)
+          call dcopy_(NCONF,0.0D0,0,WORK(LW4),1)
+          iDisk = IADR19(4)
+          jDisk = IADR19(3)
+
+       Call GetMem('CIVtmp','Allo','Real',LW11,nConf)
+          DO jRoot=1,lroots
+           do i=1,nconf
+             read(87,*) Work(LW4-1+i)
+           end do
+           Call DDafile(JOBOLD,1,Work(LW4),nConf,iDisk)
+          call getmem('kcnf','allo','inte',ivkcnf,nactel)
+          Call Reord2(NAC,NACTEL,LSYM,1,
+     &                iWork(KICONF(1)),iWork(KCFTP),
+     &                Work(LW4),Work(LW11),iWork(ivkcnf))
+          Call dcopy_(nconf,Work(LW11),1,Work(LW4),1)
+          call getmem('kcnf','free','inte',ivkcnf,nactel)
+         C_Pointer = Lw4
+         CALL GetMem('Lucia','Allo','Real',Lucia_Base, 1)
+!Andrew - changed here
+         CALL Lucia_Util('Densi',0,iDummy,Dummy)
+                 If (IFCAS.GT.2 .OR. iDoGAS) Then
+                   Call CISX_m(IDXSX,Work(LW6),Work(LW7),Work(LW8),
+     &                     Work(LW9),Work(LW10))
+                 End If
+         CALL GetMem('Lucia','Free','Real',Lucia_Base, 1)
+
+!         write(6,*) 'jDisk',jDisk
+         Call DDafile(JOBOLD,1,Work(LW6),NACPAR,jDisk)
+         Call DDafile(JOBOLD,1,Work(LW7),NACPAR,jDisk)
+         Call DDafile(JOBOLD,1,Work(LW8),NACPR2,jDisk)
+         Call DDafile(JOBOLD,1,Work(LW9),NACPR2,jDisk)
+       end do
+       Close(87)
+
+       Call fCopy('JOBIPH','JOBGS',ierr)
+
+       end if!DoGSOR
 
 
 !      write(*,*) "two ints",Work(LPUVX:LPUVX+NACPR2-1)

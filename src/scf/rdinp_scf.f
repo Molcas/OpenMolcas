@@ -49,6 +49,9 @@
 #include "ldfscf.fh"
 #include "file.fh"
 #include "iprlv.fh"
+#ifdef _HDF5_
+#  include "mh5.fh"
+#endif
 *
 *---- Define local variables
       Character*180  Key, Line, BLIne
@@ -128,7 +131,8 @@
 #else
       ChFracMem=0.5d0
 #endif
-      is_FileOrb=0
+      SCF_FileOrb='INPORB'
+      isHDF5=.False.
 * Constrained SCF initialization
       Do i=1,nSym
          nConstr(i)=0
@@ -641,9 +645,14 @@ c      End If
       One_Grid=.True.
       LstVec(1)=2
       LstVec(2)=-1
-      is_FileOrb=1
       Line=Get_Ln(LuSpool)
       call fileorb(Line,SCF_FileOrb)
+#ifdef _HDF5_
+      If (mh5_is_hdf5(SCF_FileOrb)) Then
+         isHDF5=.True.
+         fileorb_id=mh5_open_file_r(SCF_FileOrb)
+      End If
+#endif
       goto 1000
 *>>>>>>>>>>>>> GSSR <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 21003 Continue

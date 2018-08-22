@@ -55,6 +55,7 @@
       INTEGER JOB
       LOGICAL READ_STATES
 #ifdef _HDF5_
+      character(len=16) :: molcas_module
       character(len=8)  :: heff_string
       character(len=12) :: heff_evc_string
       character(len=21) :: pt2_e_string
@@ -72,8 +73,24 @@
 ************************************************************************
       If (mh5_is_hdf5(jbname(job))) Then
 
+      IF (IPGLOB.GE.USUAL) THEN
+        IF (JOB.EQ.1) THEN
+          WRITE(6,*)
+          WRITE(6,'(6X,80A1)') ('*',i=1,80)
+          WRITE(6,'(6X,A1,78X,A1)') '*','*'
+          WRITE(6,'(6X,A1,24X,A,24X,A1)')
+     &       '*','     General data section     ','*'
+          WRITE(6,'(6X,A1,78X,A1)') '*','*'
+          WRITE(6,'(6X,80A1)') ('*',i=1,80)
+        END IF
+        WRITE(6,*)
+        WRITE(6,*)'  Specific data for HDF5 file ',JBNAME(JOB)
+        WRITE(6,*)'  -------------------------------------'
+      END IF
+
       refwfn_id = mh5_open_file_r(jbname(job))
 
+      call mh5_fetch_attr (refwfn_id,'MOLCAS_MODULE', molcas_module)
       call mh5_fetch_attr (refwfn_id,'SPINMULT', ref_iSpin)
       call mh5_fetch_attr (refwfn_id,'NSYM', ref_nSym)
       call mh5_fetch_attr (refwfn_id,'LSYM', ref_lSym)
@@ -134,10 +151,7 @@
         END DO
       end if
 
-      heff_string     = ''
-      heff_evc_string = ''
-      pt2_e_string    = ''
-      if(qdpt2sc)then
+      if(qdpt2sc.and.(molcas_module.eq.'NEVPT2'))then
         heff_string     = 'H_EFF_SC'
         heff_evc_string = 'H_EFF_EVC_SC'
         pt2_e_string    = 'STATE_PT2_ENERGIES_SC'
@@ -303,6 +317,17 @@
       IF(ref_nactel.EQ.2*SUM(NASH(1:NSYM))) WFTYPE='CLOSED  '
       IF(ref_nactel.EQ.0) WFTYPE='EMPTY   '
       RASTYP(JOB)=WFTYPE
+
+      IF (IPGLOB.GE.USUAL) THEN
+        WRITE(6,*)'  STATE IRREP:        ',IRREP(JOB)
+        WRITE(6,*)'  SPIN MULTIPLICITY:  ',MLTPLT(JOB)
+        WRITE(6,*)'  ACTIVE ELECTRONS:   ',NACTE(JOB)
+        WRITE(6,*)'  MAX RAS1 HOLES:     ',NHOLE1(JOB)
+        WRITE(6,*)'  MAX RAS3 ELECTRONS: ',NELE3(JOB)
+        WRITE(6,*)'  NR OF CONFIG:       ',NCONF(JOB)
+      END IF
+      IF(IPGLOB.GE.VERBOSE)
+     &          WRITE(6,*)'  Wave function type WFTYPE=',WFTYPE
 
       call mma_deallocate(ref_rootid)
       call mh5_close_file(refwfn_id)
@@ -626,7 +651,6 @@ C Where is the CMO data set stored?
 #  include "mh5.fh"
       integer :: refwfn_id
       integer :: ref_nstates
-      integer, allocatable :: ref_rootid(:)
 #endif
       Real*8 Weight(MxRoot), ENUCDUMMY
       Integer job,iad,ipt2
@@ -639,8 +663,6 @@ C Where is the CMO data set stored?
       If (mh5_is_hdf5(jbname(job))) Then
         refwfn_id = mh5_open_file_r(jbname(job))
         call mh5_fetch_attr (refwfn_id,'NSTATES', ref_nstates)
-        call mma_allocate(ref_rootid,ref_nstates)
-        call mh5_fetch_attr (refwfn_id,'STATE_ROOTID', ref_rootid)
 * update the state offset, number of states, and total number of states
         ISTAT(JOB)=NSTATE+1
         NSTAT(JOB)=ref_nstates

@@ -1,0 +1,81 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 1997, Per Ake Malmqvist                                *
+*               2018, Ignacio Fdez. Galvan                             *
+************************************************************************
+      Subroutine Print_CI_Mix(EigVec)
+      Use RefWfn
+      Implicit None
+#include "WrkSpc.fh"
+#include "stdalloc.fh"
+#include "rasdim.fh"
+#include "caspt2.fh"
+#include "pt2_guga.fh"
+#ifdef _HDF5_
+#include "mh5.fh"
+#endif
+      Real*8 :: EigVec(nState,nState)
+      Integer :: iState, jSNum, iDisk, UJob
+      Real*8, Allocatable, Dimension(:) :: cCI, mCI
+
+      Call QEnter('Print_CI_Mix')
+
+      Call mma_allocate(mCI, nConf, Label='MixCICoeff')
+      Call mma_allocate(cCI, nConf, Label='CICoeff')
+
+      If (.Not.refwfn_is_h5) Then
+        UJob=15
+        Call DAName(UJob,refwfn_filename)
+      End If
+
+      Call CollapseOutput(1,'Mixed CI coefficients:')
+
+      Write(6,*)
+      Write(6,*)' The original CI arrays are now mixed as linear'
+      Write(6,*)' combinations, given by the eigenvectors.'
+      Write(6,*)
+
+      Do iState=1,nState
+        Call FZero(mCI, nConf)
+        iDisk=iAdr15(4)
+        Do jState=1,nState
+          jSNum=mState(jState)
+          If (refwfn_is_h5) Then
+#ifdef _HDF5_
+            Call mh5_fetch_dset_array_real(
+     &           refwfn_id,'CI_VECTORS',cCI,[nConf,1],[0,jSNum-1])
+#else
+* This should never happen
+            Call AbEnd()
+#endif
+          Else
+            Call dDAFile(UJob,2,cCI,nConf,iDisk)
+          End If
+          Call daXpY_(nConf,EigVec(jState,iState),cCI,1,mCI,1)
+        End Do
+        Write(6,'(1X,A,I3)')
+     &     ' The CI coefficients for the MIXED state nr. ',iState
+        Call PrWf_CP2(lSym,nConf,mCI,CITHR)
+      End Do
+
+      Call CollapseOutput(0,'Mixed CI coefficients:')
+      Write(6,*)
+
+      If (.Not.refwfn_is_h5) Then
+        Call DAClos(UJob)
+      End If
+
+      Call mma_deallocate(mCI)
+      Call mma_deallocate(cCI)
+
+      Call QExit('Print_CI_Mix')
+
+      End Subroutine Print_CI_Mix

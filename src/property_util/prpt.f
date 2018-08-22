@@ -207,7 +207,7 @@ c
       Real*8  occ(1:ndim), scr(1:maxscr), Vec(n2Tot)
 c
 #ifdef _DEBUG_
-      Call qEnter('PrPt2')
+      Call qEnter('PrPt_')
 #endif
 *                                                                      *
 ************************************************************************
@@ -655,7 +655,7 @@ c
 *                                                                      *
 499   continue
 #ifdef _DEBUG_
-      Call qExit('PrPt2')
+      Call qExit('PrPt_')
 #endif
       If (iPL.ge.2) Then
          Call CollapseOutput(0,'   Molecular properties:')

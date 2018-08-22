@@ -33,6 +33,9 @@
 #include "info.fh"
 #include "print.fh"
 #include "stdalloc.fh"
+#ifdef _HDF5_
+#  include "mh5.fh"
+#endif
       Character Line*80
       Character*(*) FName
       Logical Density
@@ -48,14 +51,29 @@
       iadVec=1
       iadOcc=1
       iOpt = 1
-      LuVec = 19
-      Call RdVec(FName,LuVec,'CO',nIrrep,nBas,nBas,
-     &           Vec, Occ, Dummy, iDummy, Line,0,iErr)
-      Write (6,*)
-      Write (6,'(A)') ' Header from vector file:'
-      Write (6,*)
-      Write (6,'(A)') Line(:mylen(Line))
-      Write (6,*)
+#ifdef _HDF5_
+      If (mh5_is_hdf5(FName)) Then
+         id_file=mh5_open_file_r(FName)
+         Call RdVec_HDF5(id_file,'CO',nIrrep,nBas,
+     &                   Vec,Occ,Dummy,iDummy)
+         Call mh5_close_file(id_file)
+         Write (6,*)
+         Write (6,'(A,1X,A)') ' Vectors read from HDF5 file:',
+     &                        Trim(FName)
+         Write (6,*)
+      Else
+#endif
+         LuVec = 19
+         Call RdVec(FName,LuVec,'CO',nIrrep,nBas,nBas,
+     &              Vec, Occ, Dummy, iDummy, Line,0,iErr)
+         Write (6,*)
+         Write (6,'(A)') ' Header from vector file:'
+         Write (6,*)
+         Write (6,'(A)') Line(:mylen(Line))
+         Write (6,*)
+#ifdef _HDF5_
+      End If
+#endif
 *
       If (Density) Then
 *
@@ -86,8 +104,6 @@
             End Do
             ictd=ictd+nBas(iIrrep)*(nBas(iIrrep)+1)/2
          End Do
-         Call mma_deallocate(Occ)
-         Call mma_deallocate(Vec)
          iadVec=iadDen
          iadOcc=iadDen
          nOcc = nDen

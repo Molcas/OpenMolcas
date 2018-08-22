@@ -80,11 +80,8 @@ C Read (and do some checking) the standard input.
       call init_mspt2_eigenvectors(njob,-1,0)
 * Allocate a bunch of stuff
       Call GetMem('REFENE','Allo','Real',LREFENE,NSTATE)
-      L_HEFF=ip_Dummy
-      If (ifheff) Then
-         Call GetMem('HEFF','Allo','Real',L_HEFF,NSTATE**2)
-         Call dzero(Work(L_HEFF),NSTATE**2)
-      EndIf
+      Call GetMem('HEFF','Allo','Real',L_HEFF,NSTATE**2)
+      Call dzero(Work(L_HEFF),NSTATE**2)
       If (.not.IFHEXT) Then
         Call GetMem('HAM','Allo','Real',LHAM,NSTATE**2)
         call dzero(Work(LHAM),NSTATE**2)
@@ -149,7 +146,7 @@ C Additional input processing. Start writing report.
       CALL INPPRC
 *
       Call GetMem('REFENE','Free','Real',LREFENE,NSTATE)
-      If (ifheff) Call GetMem('HEFF','Free','Real',L_HEFF,NSTATE**2)
+      Call GetMem('HEFF','Free','Real',L_HEFF,NSTATE**2)
 C
       CALL QEXIT(ROUTINE)
       RETURN

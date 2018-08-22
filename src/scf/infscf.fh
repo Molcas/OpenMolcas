@@ -173,7 +173,7 @@
      &        kIvo,iCoCo,iUHF,iROHF,jVOut,iPrOrb,iPrint,MinDMx,iDMin,
      &        MaxBas,MaxOrb,ivvloop,MaxFro,MaxOrF,MaxBxO,MaxBOO,MaxBOF,
      &        MaxOrO,nBB,nBO,nOO,nOV,nnB,nnO,nBT,nOT,nnOc,nnFr,nOFS,
-     &        nOFT,nDisc,nCore,iPrForm,MaxFlip,is_FileOrb,iterprlv,
+     &        nOFT,nDisc,nCore,iPrForm,MaxFlip,iterprlv,
      &        UHF_Size,nSkip(MxSym),iAu_ab,LstVec(nStOpt),
      &        iDummy_run, iTer2run
       Common /FIX_SCF/ iFix_Strt,
@@ -188,7 +188,7 @@
      &        MaxBOO,MaxBOF,MaxOrO,
      &        nBB,nBO,nOO,nOV,nnB,nnO,nBT,nOT,nnOc,nnFr,nOFS,
      &        nOFT,nDisc,nCore,UHF_Size,nSkip,iAu_ab,iPrForm,
-     &        MaxFlip,is_FileOrb,
+     &        MaxFlip,
      &        iDummy_run, iTer2run
 
       Character*(LENIN4)   Name(MxBS)
@@ -198,12 +198,14 @@
       Character*4   Neg2_Action
       Character*16  KSDFT
       Character*512 SCF_FileOrb
+      Logical isHDF5
+      Integer fileorb_id
       Logical MSYMON
 
       Common /TEXTS1/ AccCon,KSDFT
       Common /TEXTS2/ Name,Atom,Type
       Common /SCFNG2/ Neg2_Action
-      Common /SCF_FileOrb/ SCF_FileOrb
+      Common /SCF_FileOrb/ SCF_FileOrb,isHDF5,fileorb_id
       Common /MSYMON/ MSYMON
 *----------------------------------------------------------------------*
 * Allocate space for timing informations                               *
