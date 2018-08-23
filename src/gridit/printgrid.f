@@ -129,7 +129,7 @@ c      call eXML('Header')
       Include 'grid.nosupport.fh'
       Character namepack*3
       Character CubeName*80
-      Real tmp(3)
+      Real*8 tmp(3)
 
 
       do i=1,nShowMOs
