@@ -73,7 +73,7 @@ c      Dimension iToc(15)
 C$$$        ExplE(1) = C(1)  ! Commented out by Jesper
 C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
         C(1) = 1.0d0
-        Call Save_tmp_CI_vec(1,lRoots,nConf,C,LuDavid)
+        Call Save_tmp_CI_vec(1,nConf,C,LuDavid)
         Call qExit('CStart')
         Return
       End If
@@ -97,7 +97,7 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
             k = iSel(j)
             C(k) = ExplV(j+(i-1)*nSel)
           End Do
-          Call Save_tmp_CI_vec(i,lRoots,nConf,C,LuDavid)
+          Call Save_tmp_CI_vec(i,nConf,C,LuDavid)
           If ( IPRLEV.ge. INSANE ) then
             Write (String,'(A,I2)') 'CI vector of root',i
             Write (String,'(A,I4,A)') '(max. ',nSel,' elements)'
@@ -130,7 +130,7 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
                 Call Reord2(NAC,NACTEL,LSYM,1,
      &                  iWork(KICONF(1)),iWork(KCFTP),
      &                  Work(iTmp1),C,iwork(ivkcnf))
-                Call Save_CI_vec(1,i,lRoots,nConf,C,LuDavid)
+                Call Save_CI_vec(i,nConf,C,LuDavid)
               End Do
               call GetMem('kcnf','free','inte',ivkcnf,nactel)
               Call GetMem('Scr1','Free','Real',iTmp1,nConf)
@@ -174,7 +174,7 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
      &              iWork(KICONF(1)),iWork(KCFTP),
      &              Work(iTmp1),C,iwork(ivkcnf))
             call GetMem('kcnf','free','inte',ivkcnf,nactel)
-            Call Save_CI_vec(1,i,lRoots,nConf,C,LuDavid)
+            Call Save_CI_vec(i,nConf,C,LuDavid)
             If ( IPRLEV.ge. INSANE ) then
               Write (String,'(A,I2)') 'Start vector of root',i
               Write (String,'(A,I4,A)') '(max. ',nSel,' elements)'
@@ -206,7 +206,7 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
               k = iSel(j)
               C(k) = ExplV(j+(i-1)*nSel)
             End Do
-            Call Save_CI_vec(1,i,lRoots,nConf,C,LuDavid)
+            Call Save_CI_vec(i,nConf,C,LuDavid)
             If ( IPRLEV.ge. INSANE ) then
               Write (String,'(A,I2)') 'Start vector of root',i
               Write (String,'(A,I4,A)') '(max. ',nSel,' elements)'
@@ -232,7 +232,7 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
         iDisk = IADR15(4)
         Do i = 1,lRoots-hRoots
           Call DDafile(JOBIPH,2,C,nConf,iDisk)
-          Call Save_CI_vec((1),i,lRoots,nConf,C,LuDavid)
+          Call Save_CI_vec(i,nConf,C,LuDavid)
           If ( IPRLEV.gt.10 ) then
             Write (String,'(A,I2)') 'Start vector of root',i
             Write (String,'(A,I4,A)') '(max. ',nSel,' elements)'
@@ -248,7 +248,7 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
              k = iSel(j)
              C(k) = ExplV(j+(i-1)*nSel)
            End Do
-          Call Save_CI_vec((1),i,lRoots,nConf,C,LuDavid)
+          Call Save_CI_vec(i,nConf,C,LuDavid)
         End Do
 
       End If
