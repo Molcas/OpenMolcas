@@ -10,7 +10,7 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
 # Copyright (C) 2013, Steven Vancoillie                                *
-#               2016,2017, Ignacio Fdez. Galván                        *
+#               2016-2018, Ignacio Fdez. Galván                        *
 #***********************************************************************
 #
 # dailymerge.plx:
@@ -33,6 +33,10 @@
 # Ignacio Fdez. Galván, Uppsala, November 2016 - April 2017
 #
 # modified to handle two repositories, and other improvements
+#
+# July-August 2018
+#
+# remove OpenMolcas, this script should now only handle molcas-extra
 
 # Perl modules
 use warnings;
@@ -108,16 +112,6 @@ sub git {
     }
 }
 
-# subroutine to protect/unprotect a branch in GitLab
-# (required because protected branches cannot be force-pushed, and this is needed if the snapshot failed)
-my $gitlabtoken='********************';
-sub protect {
-    system 'curl', '-s', '--request', 'PUT', '--header', "PRIVATE-TOKEN: $gitlabtoken", "https://gitlab.com/api/v4/projects/Molcas%2FOpenMolcas/repository/branches/$_[0]/protect?developers_can_push=false&developers_can_merge=false", '-o', '/dev/null'
-}
-sub unprotect {
-    system 'curl', '-s', '--request', 'PUT', '--header', "PRIVATE-TOKEN: $gitlabtoken", "https://gitlab.com/api/v4/projects/Molcas%2FOpenMolcas/repository/branches/$_[0]/unprotect", '-o', '/dev/null'
-}
-
 ################################################################################
 ####                             CONFIGURATION                              ####
 ################################################################################
@@ -129,7 +123,6 @@ my $testpage='http://molcas.org/dev/test';
 
 # location of the local repository in which the commits will be applied
 my $localrepo = q(/home/gitupdater/molcas-extra);
-my $localrepo_open = q(/home/gitupdater/OpenMolcas);
 
 # location of the directory containing the source code snapshots
 my $snapshots = q(/home/gitupdater/snapshots);
@@ -144,7 +137,7 @@ my $usermail = q(**********@**********);
 my @admin_devs = qw(
                        valera
                        stevenv
-                       ignacio dev/Jellby
+                       ignacio
                   );
 
 ################################################################################
@@ -155,39 +148,16 @@ my @admin_devs = qw(
 
 # set date
 chomp(my $date = `date +%y%m%d-%H%M`);
-chomp(my $rel = `date +%y.0`);
 my $relx = '8.3';
 my $current_time = time;
 my @now = localtime;
 
-### openmolcas ###
-
 ## change current directory to the local repository
-chdir $localrepo_open or die 'Error: cannot change to repo (open) directory';
-
 print "DAILY MERGE\n";
 print "===========\n";
-print "Fetch latest updates from origin (open):\n";
-&git("fetch", "-p")==0 or die 'Error: failed to fetch';
+chdir $localrepo or die 'Error: cannot change to repo directory';
 
-# get current hashes for master and daily-snapshot
-chomp(my $master_open = `git rev-parse origin/master`);
-chomp(my $daily_open  = `git rev-parse origin/daily-snapshot`);
-print " origin/master          = $master_open\n";
-print " origin/daily-snapshot  = $daily_open\n";
-
-# Check if the daily snapshot is an actual merge (multiple parents) or if
-# it corresponds to someone's branch. This could make a difference for sending
-# out emails.
-my @parents_open = split (/ +/, `git log --pretty=%P -n 1 $daily_open`);
-my $number_of_parents_open = @parents_open;
-
-### molcas-extra ###
-
-## change current directory to the local repository
-chdir $localrepo or die 'Error: cannot change to repo (extra)directory';
-
-print "Fetch latest updates from origin (extra):\n";
+print "Fetch latest updates from origin:\n";
 &git("fetch", "-p")==0 or die 'Error: failed to fetch';
 
 # get current hashes for master and daily-snapshot
@@ -205,15 +175,15 @@ my $number_of_parents = @parents;
 goto SNAPSHOT if $snapshot_only;
 
 ################################################################################
-####                        UPDATE MASTER BRANCHES                          ####
+####                         UPDATE MASTER BRANCH                           ####
 ################################################################################
 
 UPDATE:
 print "\n";
-print "Update master branches\n";
-print "----------------------\n";
+print "Update master branch\n";
+print "--------------------\n";
 
-foreach ($localrepo, $localrepo_open) {
+foreach ($localrepo) {
     chdir $_ or die "Error: cannot change to directory $_";
     &git("checkout", "master", "-q")==0 or die 'Error: failed to checkout';
     &git("merge", "--ff-only", "origin/master", "-q")==0 or die 'Error: failed to merge';
@@ -223,15 +193,12 @@ foreach ($localrepo, $localrepo_open) {
 # during the update section in case we have to make a snapshot with verified
 # branches (-g option)
 my @merge_heads;
-my @merge_heads_open;
 
 $number_of_parents = 0 if ($master eq $daily);
-$number_of_parents_open = 0 if ($master_open eq $daily_open);
 
 my %failed_configs;
 my %failed_parents;
-my %failed_parents_open;
-unless (($master eq $daily) and ($master_open eq $daily_open)) {
+unless ($master eq $daily) {
 
     # Get hashes of failed snapshots from certified servers.
 
@@ -273,20 +240,13 @@ unless (($master eq $daily) and ($master_open eq $daily_open)) {
         open TESTPAGE, '<', $autolog or die "Error: failed to open file\n";
 
         my $sha1;
-        my $sha1_open;
         my $down = 0;
         my $contact;
         while (<TESTPAGE>) {
             next unless /^SHA1  /;
             chomp;
             $sha1 = (split)[2];
-            while (<TESTPAGE>) {
-                next unless /^SHA1 \(open\)/;
-                chomp;
-                $sha1_open = (split)[3];
-                last;
-            }
-            if (($sha1 ne $daily) or ($sha1_open ne $daily_open)) {
+            if ($sha1 ne $daily) {
                 while (<TESTPAGE>) {
                     next unless /^Contact/;
                     chomp;
@@ -302,7 +262,7 @@ unless (($master eq $daily) and ($master_open eq $daily_open)) {
                 my $msg = "/tmp/msg";
                 open MSG, '>', $msg or die "Error: failed to open file\n";
                 print MSG "The machine $config has not reported the test results\n";
-                print MSG "for the latest daily snapshots (extra: $daily, open: $daily_open).\n";
+                print MSG "for the latest daily snapshots ($daily).\n";
                 print MSG "Please check the machine and fix the problem as soon\n";
                 print MSG "as possible.\n\n";
                 print MSG "Common causes are:\n";
@@ -321,7 +281,6 @@ unless (($master eq $daily) and ($master_open eq $daily_open)) {
         }
 
         die "Error: no SHA1 hash in auto.log\n" unless $sha1;
-        die "Error: no SHA1 (open) hash in auto.log\n" unless $sha1_open;
 
         unless ($down) {
             my $badtests = "/tmp/badtests";
@@ -352,51 +311,35 @@ unless (($master eq $daily) and ($master_open eq $daily_open)) {
             }
 
             my @failed = ();
-            my @failed_open = ();
             while (<TESTPAGE>) {
                 next unless s/^:: fail\s+//;
                 chomp;
-                if (s/\(open\)\s+//) {
-                    push @failed_open, $_;
-                } else {
-                    push @failed, $_;
-                }
+                push @failed, $_;
             }
 
             close BADTESTS;
 
             # printing
-            if ($failed_verification or @failed or @failed_open) {
+            if ($failed_verification or @failed) {
                 $failed_configs{$config}++;
                 print "FAIL\n";
-                if ((($number_of_parents > 1) and not @failed) and
-                    (($number_of_parents_open > 1) and not @failed_open)) {
-                    print STDERR "WARNING!! snapshot failed, but parents are OK!!\n" unless (@failed or @failed_open);
+                if (($number_of_parents > 1) and not @failed) {
+                    print STDERR "WARNING!! snapshot failed, but parents are OK!!\n" unless (@failed);
                 }
             } else {
                 print "PASS\n";
             }
 
             # emailing
-            # The distinction between actual merges (multiple parents) and single parents
-            # does not make much sense when every "snapshot" is a merge of two repositories
-            # so just send a mail to every committer whose branch failed
-            chdir $localrepo or die 'Error: cannot change to repo (extra) directory';
-            if ($number_of_parents > 0) {
+            chdir $localrepo or die 'Error: cannot change to repo directory';
+            if ($number_of_parents > 1) {
+                # In case of an actual merge (multiple parents) we have to
+                # email the owners of the failed parent commits.
                 foreach (@failed) {
                     $failed_parents{$_}++;
                     chomp(my $committer = `git show -s --pretty=format:%ce $_`);
-                    print "  bad parent (extra) $_ ($committer)\n";
-                    system("mail -s \"[molcas] your snapshot (extra) failed on $config\" $committer < $badtests") unless ($committer eq 'gitupdater@signe.teokem.lu.se');
-                }
-            }
-            chdir $localrepo_open or die 'Error: cannot change to repo (open) directory';
-            if ($number_of_parents_open > 0) {
-                foreach (@failed_open) {
-                    $failed_parents_open{$_}++;
-                    chomp(my $committer = `git show -s --pretty=format:%ce $_`);
-                    print "  bad parent (open) $_ ($committer)\n";
-                    system("mail -s \"[molcas] your snapshot (open) failed on $config\" $committer < $badtests") unless ($committer eq 'gitupdater@signe.teokem.lu.se');
+                    print "  bad parent $_ ($committer)\n";
+                    system("mail -s \"[molcas] your snapshot failed on $config\" $committer < $badtests") unless ($committer eq 'gitupdater@signe.teokem.lu.se');
                 }
             }
 
@@ -417,13 +360,13 @@ unless (($master eq $daily) and ($master_open eq $daily_open)) {
         }
     }
 } else {
-    print "master (extra & open) already at daily snapshot, no update needed\n";
+    print "master already at daily snapshot, no update needed\n";
     goto SNAPSHOT;
 }
 
 unless ($master eq $daily) {
 
-    chdir $localrepo or die 'Error: cannot change to repo (extra) directory';
+    chdir $localrepo or die 'Error: cannot change to repo directory';
 
     # check if the tag we will use is still available
     my $tag_master = "master-x$date";
@@ -446,7 +389,7 @@ unless ($master eq $daily) {
         &git ("tag", "-a", $tag_master, "-m", "verified snapshot")==0 or die 'Error: failed to tag';
 
         # push changes to remote origin
-        print qq(Pushing tags and updating master on remote (extra):\n);
+        print qq(Pushing tags and updating master on remote:\n);
         &git("push", "--tags")==0 or die 'Error: failed to push';
         &git("push", "origin", "master:master")==0 or die 'Error: failed to push';
 
@@ -477,120 +420,29 @@ unless ($master eq $daily) {
             &git("checkout", "master")==0 or die 'Error: failed to checkout';
 
             # push changes to remote origin
-            print qq(Pushing tags and resetting daily-snapshot on remote (extra):\n);
+            print qq(Pushing tags and resetting daily-snapshot on remote:\n);
             &git("push", "--tags")==0 or die 'Error: failed to push';
             &git("push", "-f", "origin", "daily-snapshot:daily-snapshot")==0 or die 'Error: failed to push';
         } else {
             # if no failed parents (including the merge)
             &git("checkout", "master")==0 or die 'Error: failed to checkout';
-            print qq(Pushing tags on remote (extra):\n);
+            print qq(Pushing tags on remote:\n);
             &git("push", "--tags")==0 or die 'Error: failed to push';
         }
 
         # If we need to make a snapshot from verified branches (-g option), then
         # set the list of merge heads here by getting the parents of the failed
-        # snapshot and exclude those that have failed.
-        if ($goodriddens) {
-            if ($number_of_parents > 1) {
-                my @parents = split (/ +/, `git log --pretty=%P -n 1 $daily`);
-                foreach (@parents) {
-                    chomp; push @merge_heads, $_ unless $failed_parents{$_};
-                }
-            # If there is only one parent, check if it actually failed
-            } else {
-                push @merge_heads, $daily unless $failed_parents{$daily};
+        # snapshot and exclude those that have failed. If there is only one parent,
+        # nothing needs to be done (as there was only one failing branch).
+        if ($goodriddens and ($number_of_parents > 1)) {
+            my @parents = split (/ +/, `git log --pretty=%P -n 1 $daily`);
+            foreach (@parents) {
+                chomp; push @merge_heads, $_ unless $failed_parents{$_};
             }
         }
     }
 } else {
-    print "master (extra) already at daily snapshot, no update needed\n";
-}
-
-unless ($master_open eq $daily_open) {
-
-    chdir $localrepo_open or die 'Error: cannot change to repo (open) directory';
-
-    # check if the tag we will use is still available
-    my $tag_master = "master-o$date";
-    die "Error: tag $tag_master already exists\n" if `git tag -l $tag_master`;
-
-    if (%failed_configs) {
-        print STDERR "Failed configurations:\n";
-        print STDERR " $_\n" foreach keys %failed_configs;
-    } else {
-        print "Verification complete\n";
-    }
-
-    # Now, unless there are any failed snapshots, fast-forward the
-    # master branch to the daily snapshot. If not, tag the failed
-    # branches as such and reset the daily branch back to master.
-
-    unless (%failed_configs) {
-        # forward master to daily snapshot
-        &git ("merge", "--ff-only", "origin/daily-snapshot")==0 or die 'Error: failed to merge';
-        &git ("tag", "-a", $tag_master, "-m", "verified snapshot")==0 or die 'Error: failed to tag';
-
-        # push changes to remote origin
-        print qq(Pushing tags and updating master on remote (open):\n);
-        &git("push", "--tags")==0 or die 'Error: failed to push';
-        &git("push", "origin", "master:master")==0 or die 'Error: failed to push';
-
-        # update link to stable snapshot
-        chomp (my $version = `git tag -l --points-at master v*`);
-        system ("(cd $snapshots && ln -sf openmolcas-$version.tar.gz openmolcas-dev-stable.tgz)");
-
-    } else {
-        # go through SHA1 of failed commits and tag them as such
-        my $i = 0;
-        # the merge commit is listed as a "parent"
-        #&git("tag", "FAILED-o$date.".$i++, $daily_open)==0 or die 'Error: failed to tag';
-        foreach (keys %failed_parents_open) {
-            if ($_ eq $daily_open) {
-                die "Error: tag FAILED-o$date already exists\n" if `git tag -l FAILED-o$date`;
-                &git("tag", "FAILED-o$date", $_)==0 or die 'Error: failed to tag';
-            } else {
-                $i++;
-                die "Error: tag FAILED-o$date.$i already exists\n" if `git tag -l FAILED-o$date.$i`;
-                &git("tag", "FAILED-o$date.$i", $_)==0 or die 'Error: failed to tag';
-            }
-        }
-
-        if (%failed_parents_open) {
-            # reset daily-snapshot
-            &git("checkout", "daily-snapshot")==0 or die 'Error: failed to checkout';
-            &git("reset", "--hard", "master")==0 or die 'Error: failed to reset';
-            &git("checkout", "master")==0 or die 'Error: failed to checkout';
-
-            # push changes to remote origin
-            print qq(Pushing tags and resetting daily-snapshot on remote (open):\n);
-            &git("push", "--tags")==0 or die 'Error: failed to push';
-            &unprotect("daily-snapshot");
-            &git("push", "-f", "origin", "daily-snapshot:daily-snapshot")==0 or die 'Error: failed to push';
-            &protect("daily-snapshot")==0 or die 'Error: failed to push';
-        } else {
-            # if no failed parents (including the merge)
-            &git("checkout", "master")==0 or die 'Error failed to checkout';
-            print qq(Pushing tags on remote (open):\n);
-            &git("push", "--tags")==0 or die 'Error failed to push';
-        }
-
-        # If we need to make a snapshot from verified branches (-g option), then
-        # set the list of merge heads here by getting the parents of the failed
-        # snapshot and exclude those that have failed.
-        if ($goodriddens) {
-            if ($number_of_parents_open > 1) {
-                my @parents_open = split (/ +/, `git log --pretty=%P -n 1 $daily_open`);
-                foreach (@parents_open) {
-                    chomp; push @merge_heads_open, $_ unless $failed_parents_open{$_};
-                }
-            # If there is only one parent, check if it actually failed
-            } else {
-                push @merge_heads_open, $daily_open unless $failed_parents_open{$daily_open};
-            }
-        }
-    }
-} else {
-    print "master (open) already at daily snapshot, no update needed\n";
+    print "master already at daily snapshot, no update needed\n";
 }
 
 # now checkout daily-snapshot
@@ -608,15 +460,100 @@ exit 0 if $update_only;
 # verification failed. Either way, they must have the same SHA1 hash.
 
 my $skip_extra = 0;
-my $skip_open = 0;
 
-### molcas-extra ###
+chdir $localrepo or die 'Error: cannot change to repo directory';
 
-chdir $localrepo or die 'Error: cannot change to repo (extra) directory';
+# Update gitupdater branch by putting the latest OpenMolcas
+# master in the fetch.cfg file
 
 print "\n";
-print "Checkout daily-snapshot branch (extra)\n";
-print "--------------------------------------\n";
+print "Update gitupdater branch\n";
+print "------------------------\n";
+
+&git("checkout", "gitupdater")==0 or die 'Error: failed to checkout';
+
+# Find latest OpenMolcas master
+my $master_open = `git ls-remote https://gitlab.com/Molcas/OpenMolcas refs/heads/master`;
+$master_open =~ m/(\w+).*/;
+$master_open = $1;
+$master_open or die 'Error: could not get current OpenMolcas version';
+print "Current OpenMolcas master: $master_open\n";
+# Find the version currently listed in the gitupdater branch
+my $stable_open = '';
+open(CFG, "fetch.cfg") or die 'Error: could not open fetch.cfg';
+my $flag = 0;
+foreach my $line (<CFG>) {
+    if ($flag) {
+        if ($line =~ m/\[\w*\]/) {
+            $flag = 0;
+        } else {
+            if ($line =~ m/^ ?StableUrl ?=/i) {
+                $line =~ m/(\S+)\s*$/;
+                $stable_open = $1;
+            }
+        }
+    }
+    if ($line =~ m/\[OPENMOLCAS\]/) { $flag = 1 }
+}
+close(CFG);
+print "Listed OpenMolcas version: $stable_open\n";
+
+# If they are different versions, we update it, but do it from the master
+# branch, such that gitupdater is always only one commit ahead.
+if ($master_open ne $stable_open) {
+    print "Resetting to master\n";
+    &git("reset", "--hard", "origin/master")==0 or die 'Error: failed to reset';
+    rename("fetch.cfg", "backup_copy_of_fetch.cfg") or die 'Error: failed to rename';
+    # To replace a line in the file we have to make a copy
+    open(CFGIN, "<backup_copy_of_fetch.cfg") or die 'Error: could not open fetch.cfg (read)';
+    open(CFGOUT, ">fetch.cfg") or die 'Error: could not open fetch.cfg (write)';
+    my $stable_open = '';
+    my $flag = 0;
+    foreach my $line (<CFGIN>) {
+        if ($flag) {
+            if ($line =~ m/\[\w*\]/) {
+                $flag = 0;
+            } else {
+                if ($line =~ m/^ ?StableUrl ?=/i) {
+                    $line =~ m/(\S+)\s*$/;
+                    $stable_open = $1;
+                    if ($master_open ne $stable_open) {
+                        $line = "StableUrl=; cd \$PARENT/openmolcas && git checkout $master_open\n";
+                    }
+                }
+            }
+        } elsif (
+            $line =~ m/\[OPENMOLCAS\]/) { $flag = 1
+        }
+        print CFGOUT $line;
+    }
+    close(CFGIN);
+    close(CFGOUT);
+    unlink "backup_copy_of_fetch.cfg";
+    # In case the master wasn't actually up to date (maybe it was updated manually),
+    # update the gitupdater branch
+    if ($stable_open && ($master_open ne $stable_open)) {
+        print "Updating fetch.cfg\n";
+        &git("add", "fetch.cfg")==0 or die 'Error: failed to add';
+        my $short = substr $master_open, 0, 8;
+        &git("commit", "-m", "Update stable OpenMolcas to $short")==0 or die 'Error: failed to commit';
+    # If it was, there's nothing to do
+    } else {
+        print "Master is up to date.\n";
+    }
+    # In any case, push back the branch
+    &git("push", "--force", "--set-upstream", "origin", "gitupdater")==0 or die 'Error: failed to push';
+# If they are the same, there's nothing to do, either it passed and is already
+# (or will be soon) merged, or it failed and there's no reason to try again
+} else {
+    print "Nothing to do.\n";
+}
+
+# Now actually create the daily snapshot
+
+print "\n";
+print "Checkout daily-snapshot branch\n";
+print "------------------------------\n";
 
 &git("checkout", "daily-snapshot")==0 or die 'Error: failed to checkout';
 
@@ -628,46 +565,14 @@ print "daily-snapshot  = $daily\n";
 if ($master ne $daily) {
     print 'Error: master and daily-snapshot do not match';
 
-    $skip_extra = 1;
-}
-
-### openmolcas ###
-
-chdir $localrepo_open or die 'Error: cannot change to repo (open) directory';
-
-print "\n";
-print "Checkout daily-snapshot branch (open)\n";
-print "-------------------------------------\n";
-
-&git("checkout", "daily-snapshot")==0 or die 'Error: failed to checkout';
-
-chomp($master_open = `git rev-parse master`);
-chomp($daily_open  = `git rev-parse daily-snapshot`);
-print "master          = $master_open\n";
-print "daily-snapshot  = $daily_open\n";
-
-if ($master_open ne $daily_open) {
-    print 'Error: master and daily-snapshot (open) do not match';
-
-    $skip_open = 1;
-}
-
-if ($skip_extra and $skip_open) {
-    exit 1;
-}
-if (not $goodriddens and ($skip_extra or $skip_open)) {
     exit 1;
 }
 
-### molcas-extra ###
-
-goto MERGE_DONE if $skip_extra;
-
-chdir $localrepo or die 'Error: cannot change to repo (extra) directory';
+chdir $localrepo or die 'Error: cannot change to repo directory';
 
 print "\n";
-print "Update daily-snapshot branch (extra)\n";
-print "------------------------------------\n";
+print "Update daily-snapshot branch\n";
+print "----------------------------\n";
 
 my @unauthorized_branches;
 my @failed_branches;
@@ -758,7 +663,7 @@ unless ($goodriddens) {
         my @tags = `git tag --points-at $commit`;
         if (grep /^FAILED-/, @tags) {
             print "Internal Error: inherited merge head was supposed to be OK\n";
-            print "                offending SHA1 (extra) hash = $commit\n";
+            print "                offending SHA1 hash = $commit\n";
             exit 1;
         }
     }
@@ -770,7 +675,7 @@ unless ($goodriddens) {
 # Send mail for unauthorized (changes in sbin) branches
 my $msg = "/tmp/msg";
 open MSG, '>', $msg or die "Error: failed to open file\n";
-print MSG "Today, your branch was not included in our daily snapshot (extra),\n";
+print MSG "Today, your branch was not included in our daily snapshot,\n";
 print MSG "because it contained changes in the sbin/ directory.\n";
 print MSG "This is restricted and only allowed for administrators.\n\n";
 print MSG "If you wish to apply the changes, please contact one of the\n";
@@ -820,10 +725,10 @@ MERGE:
 $number_of_merge_attempts++;
 
 if (@merge_heads) {
-    print "branches/commits selected for merging (extra):\n";
+    print "branches/commits selected for merging:\n";
     print " $_\n" foreach @merge_heads;
 } else {
-    print "No valid unmerged branches (extra), done.\n";
+    print "No valid unmerged branches, done.\n";
     goto MERGE_DONE;
 }
 
@@ -858,13 +763,19 @@ if ($status == 0) {
         &git("tag", "-a", $tag_daily, "-m", "daily snapshot for testing")==0 or die 'Error: failed to tag';
 
         # prepare snapshot
-        system ("(cd $localrepo_open ; MOLCAS_SOURCE=$localrepo molcas export && mv $localrepo/molcas-$tag_daily.tar.gz $snapshots/molcas-extra-$tag_daily.tar.gz)");
+        # note we have to use the export script from OpenMolcas
+        my $openmolcas_dir = q(/home/gitupdater/OpenMolcas);
+        chdir $openmolcas_dir or die 'Error: cannot change to OpenMolcas directory';
+        &git("fetch", "-p")==0 or die 'Error: failed to fetch OpenMolcas';
+        &git("checkout", "master", "-q")==0 or die 'Error: failed to checkout OpenMolcas';
+        system ("(MOLCAS_SOURCE=$localrepo molcas export && mv $localrepo/molcas-$tag_daily.tar.gz $snapshots/molcas-extra-$tag_daily.tar.gz)");
         system ("(cd $snapshots && ln -sf molcas-extra-$tag_daily.tar.gz molcas-extra-dev-daily.tgz)");
+        chdir $localrepo or die 'Error: cannot change to repo directory';
 
     }
 
     # apply the local changes now to the remote
-    print "Pushing tags and daily-snapshot to remote origin (extra):\n";
+    print "Pushing tags and daily-snapshot to remote origin:\n";
     &git("push", "--tags")==0 or die 'Error: failed to push';
     &git("push", "origin", "daily-snapshot:daily-snapshot")==0 or die 'Error: failed to push';
 
@@ -873,7 +784,7 @@ if ($status == 0) {
 
     my $signal = $status & 127;
     my $retval = $status >> 8;
-    print STDERR "Error: merge failed (extra) with return code $retval\n";
+    print STDERR "Error: merge failed with return code $retval\n";
 
     # get conflicting files
     my @conflicts = `git diff --name-only --cached --diff-filter=U`;
@@ -922,7 +833,7 @@ if ($status == 0) {
 
     my $msg = "/tmp/msg";
     open MSG, '>', $msg or die "Error: failed to open file\n";
-    print MSG "Today, your branch was not included in our daily snapshot (extra),\n";
+    print MSG "Today, your branch was not included in our daily snapshot,\n";
     print MSG "because it conflicted with origin/master or another branch.\n\n";
     print MSG "This is the list of conflicting branches/files:\n";
     foreach my $branch (keys %bad_branches) {
@@ -963,7 +874,7 @@ if ($status == 0) {
         push @merge_heads, $head unless $bad_branches{$head};
     }
     if ($number_of_merge_attempts > 2) {
-        print "-> I reached the maximum number of merge attempts (extra).\n";
+        print "-> I reached the maximum number of merge attempts.\n";
         print "-> Either increase the number of attempts or wait\n";
         print "-> until some developers have manually resolved the\n";
         print "-> merge conflicts in their branch.\n";
@@ -975,324 +886,5 @@ if ($status == 0) {
 }
 
 MERGE_DONE:
-
-### openmolcas ###
-
-goto MERGE_DONE_open if $skip_open;
-
-chdir $localrepo_open or die 'Error: cannot change to repo (open) directory';
-
-print "\n";
-print "Update daily-snapshot branch (open)\n";
-print "-----------------------------------\n";
-
-my @unauthorized_branches_open;
-my @failed_branches_open;
-
-unless ($goodriddens) {
-    # Get a list of all remote branches that have not been merged yet and
-    # remove HEAD, master, daily-snapshot or any branches having a tag
-    # beginning with 'FAILED-'. For all valid branches, remove any branches
-    # that do not belong to an admin and introduce changes in sbin/, because
-    # this is not allowed.
-
-    my @remote_branches = `git branch --remote --no-merged`;
-    foreach (@remote_branches) {
-        chomp; s/^\s+//; s/\s+$//;
-    }
-
-    my @valid_branches;
-    my %exclude_tip;
-    foreach my $branch (@remote_branches) {
-        (my $branchname = $branch) =~ s!^origin/!!;
-
-        # skip non-dev branches
-        next if $branchname !~ m/^dev\//;
-
-        # record branches to be excluded
-        (my $nickname = $branchname) =~ s/-.*$//;
-        if ($branchname eq $nickname."-EXCLUDE") {
-            chomp(my $sha1 = `git rev-parse $branch`);
-            $exclude_tip{$nickname} = $sha1;
-        } else {
-            $exclude_tip{$nickname} = "";
-        }
-
-        # skip nickname-... branches
-        next if $branchname =~ m/\w+-/;
-
-        # skip malformed names (like "origin/HEAD -> origin/master")
-        next if $branchname =~ m/\s/;
-
-        # remove failed branches
-        my @tags = `git tag --points-at $branch`;
-        if (grep /^FAILED-/, @tags) {
-            push @failed_branches_open, $branch;
-            next;
-        }
-
-        # if there is the special "patchmaster" branch, then take only that
-        # branch, assign it to the merge heads and proceed immediately to the
-        # merge phase.
-        if ($branchname =~ m/patchmaster/) {
-            @merge_heads_open = ($branch);
-            goto PATCHMASTER_open;
-        }
-
-        # manually skip/include branches
-        #next if $branchname =~ m/devname/;
-        #next unless $branchname =~ m/devname/;
-
-        push @valid_branches, $branch;
-    }
-
-    foreach my $branch (@valid_branches) {
-        (my $nickname = $branch) =~ s!^origin/!!;
-
-        # skip nickname-EXCLUDE branches
-        chomp(my $sha1 = `git rev-parse $branch`);
-        if ($exclude_tip{$nickname} eq $sha1) {
-            print "EXCLUDE $branch\n";
-            next;
-        }
-
-        # check for unauthorized changes
-        chomp(my $merge_base = `git merge-base HEAD $branch`);
-        my @files = `git diff --name-only $merge_base $branch`;
-        unless (grep /^$nickname$/, @admin_devs) {
-            if ( grep /^sbin\//, @files ) {
-                print "Warning: $nickname not allowed to change files\n";
-                print "         in sbin/, excluding branch $branch...\n";
-                push @unauthorized_branches_open, $branch;
-            } else {
-                push @merge_heads_open, $branch;
-            }
-        } else {
-            push @merge_heads_open, $branch;
-        }
-    }
-} else {
-    # The merge heads were inherited from the update section, but be paranoid
-    # and check again that none of them have a FAILED- tag pointing at them!
-    foreach my $commit (@merge_heads_open) {
-        my @tags = `git tag --points-at $commit`;
-        if (grep /^FAILED-/, @tags) {
-            print "Internal Error: inherited merge head was supposed to be OK\n";
-            print "                offending SHA1 (open) hash = $commit\n";
-            exit 1;
-        }
-    }
-}
-
-# manually skip emails (for testing purposes)
-#goto PATCHMASTER_open;
-
-# Send mail for unauthorized (changes in sbin) branches
-$msg = "/tmp/msg";
-open MSG, '>', $msg or die "Error: failed to open file\n";
-print MSG "Today, your branch was not included in our daily snapshot (open),\n";
-print MSG "because it contained changes in the sbin/ directory.\n";
-print MSG "This is restricted and only allowed for administrators.\n\n";
-print MSG "If you wish to apply the changes, please contact one of the\n";
-print MSG "the administrators.\n\n";
-print MSG "You can undo your changes in sbin/ by running:\n";
-print MSG "  git checkout origin/master -- sbin\n";
-print MSG "and committing the result as usual.\n";
-close MSG;
-foreach my $branch (@unauthorized_branches_open) {
-    chomp(my $committer = `git show -s --pretty=format:%ce $branch`);
-    system("mail -s \"[molcas-git] there were unauthorized changes\" $committer < $msg");
-    #system("mail -s \"[molcas-git] there were unauthorized changes for $committer\" $usermail < $msg");
-    print "Mail sent to $committer\n";
-}
-
-# Check and report old unmerged branches, only on Mondays PM
-if (($now[6] == 1) && ($now[2] >= 12)) {
-    open MSG, '>', $msg or die "Error: failed to open file\n";
-    print MSG "Your branch in openmolcas failed two weeks ago or earlier. It has not\n";
-    print MSG "been updated since then, so it is not being considered for merges with\n";
-    print MSG "the master.  If you want your changes included, please merge with the\n";
-    print MSG "current master branch, fix any problem that caused your branch to fail,\n";
-    print MSG "and push your branch to the repository. If you don't do anything, you\n";
-    print MSG "will continue to get this message every week, you can avoid this by\n";
-    print MSG "creating a branch called <nickname>-EXCLUDE, where <nickname> is the\n";
-    print MSG "name of your normal branch.\n";
-    close MSG;
-    print "\nExcluded (FAILED) branches:\n";
-    foreach my $branch (@failed_branches_open) {
-        chomp(my $ts = `git show -s --format=%ct $branch`);
-        my $age = int(($current_time-$ts)/86400);
-        print "$branch: age: $age days old\n";
-        if ($age >= 14) {
-            chomp(my $committer = `git show -s --pretty=format:%ce $branch`);
-            system("mail -s \"[molcas-git] you have old unmerged changes\" $committer < $msg");
-            #system("mail -s \"[molcas-git] $committer has old unmerged changes\" $usermail < $msg");
-            print "Mail sent to $committer\n";
-        }
-    }
-}
-
-PATCHMASTER_open:
-$number_of_merge_attempts = 0;
-
-MERGE_open:
-$number_of_merge_attempts++;
-
-if (@merge_heads_open) {
-    print "branches/commits selected for merging (open):\n";
-    print " $_\n" foreach @merge_heads_open;
-} else {
-    print "No valid unmerged branches (open), done.\n";
-    goto MERGE_DONE_open;
-}
-
-# Merge the selected branches into daily-snapshot at master.
-#
-# Now that we have the needed branches in @merge_heads_open, merge them into the
-# daily-snapshot branch, at the tip of master. We can just merge everything as
-# git itself will make sure nothing unnecessary is merged (already merged
-# branches are ignored, so we do not need to check for that!).
-
-$status = &git("merge", "-q", "-m", "Merge developer branches into daily-snapshot", "--log", @merge_heads_open);
-if ($status == 0) {
-    # merging went fine
-
-    chomp(my $merged = `git rev-parse HEAD`);
-    goto MERGE_DONE_open if $merged eq $daily_open;
-
-    # if a version tag already exist here, we don't create a new one
-    my @tags = `git tag --points-at $merged`;
-    chomp(my $tag_match = first { $_ =~ m/^v8\.3\.o/ } @tags) if @tags;
-    if ($tag_match) {
-
-        # link old snapshot
-        system ("(cd $snapshots && ln -sf openmolcas-$tag_match.tar.gz openmolcas-dev-daily.tgz)");
-
-    } else {
-
-        # first, check if certain tags exist that shouldn't
-        my $tag_daily  = "v$rel.o$date";
-        die "Error: tag $tag_daily already exists\n" if `git tag -l $tag_daily`;
-
-        &git("tag", "-a", $tag_daily, "-m", "daily snapshot for testing")==0 or die 'Error: failed to tag';
-
-        # prepare snapshot
-        system ("(cd $localrepo_open ; MOLCAS_SOURCE=$localrepo_open molcas export && mv $localrepo_open/molcas-$tag_daily.tar.gz $snapshots/openmolcas-$tag_daily.tar.gz)");
-        system ("(cd $snapshots && ln -sf openmolcas-$tag_daily.tar.gz openmolcas-dev-daily.tgz)");
-
-    }
-
-    # apply the local changes now to the remote
-    print "Pushing tags and daily-snapshot to remote origin (open):\n";
-    &git("push", "--tags")==0 or die 'Error: failed to push';
-    &git("push", "origin", "daily-snapshot:daily-snapshot")==0 or die 'Error: failed to push';
-
-} else {
-    # there was a problem with merging
-
-    my $signal = $status & 127;
-    my $retval = $status >> 8;
-    print STDERR "Error: merge failed with return code $retval\n";
-
-    # get conflicting files
-    my @conflicts = `git diff --name-only --cached --diff-filter=U`;
-
-    # identify merge heads that touch the conflicting files
-    my %bad_branches;
-    foreach my $branch (@merge_heads_open) {
-        chomp(my $merge_base = `git merge-base HEAD $branch`);
-        my @files = `git diff --name-only $merge_base $branch`;
-        foreach my $conflict (@conflicts) {
-            chomp $conflict;
-            if (grep /\Q$conflict\E/, @files) {
-                push @{ $bad_branches{$branch} }, $conflict;
-            }
-        }
-    }
-
-    # if the number of bad branches is 1, then assume it is in conflict with
-    # the master branch or it is the only remaining branch of the bunch. It
-    # should just be deleted later, so let it stay in the bad_branches hash.
-    if (keys %bad_branches == 1) {
-        print "single bad branch: ", keys %bad_branches, "\n";
-    } else {
-        # for multiple bad branches, take the first one that has merged the latest
-        # origin/master branch. If none are found, traverse all master snapshots till
-        # there is one that has been merged by a branch, and then take that branch
-        my @master_tags = `git tag --list master-* | sort -r`;
-      SELECT_GOOD_BRANCH:
-        foreach my $master_tag (@master_tags) {
-            chomp $master_tag;
-            chomp (my $master_hash = `git rev-parse $master_tag^{commit}`);
-            foreach my $branch (keys %bad_branches) {
-                chomp(my $merge_base = `git merge-base $branch $master_hash`);
-                if ($master_hash eq $merge_base) {
-                    # remove one of the chosen branches from the bad branches
-                    delete $bad_branches{$branch};
-                    last SELECT_GOOD_BRANCH;
-                }
-                ;
-            }
-        }
-    }
-
-    # manually skip emails (for testing purposes)
-    #goto RESET_open;
-
-    my $msg = "/tmp/msg";
-    open MSG, '>', $msg or die "Error: failed to open file\n";
-    print MSG "Today, your branch was not included in our daily snapshot (open),\n";
-    print MSG "because it conflicted with origin/master or another branch.\n\n";
-    print MSG "This is the list of conflicting branches/files:\n";
-    foreach my $branch (keys %bad_branches) {
-        chomp(my $committer = `git show -s --pretty=format:%ce $branch`);
-        print MSG "\nconflicting files in: $branch ($committer)\n";
-        foreach my $conflict (@{ $bad_branches{$branch} }) {
-            print MSG " $conflict\n";
-        }
-    }
-    print MSG "\n";
-    print MSG "In order to resolve this issue, you should merge the\n";
-    print MSG "origin/master branch tomorrow and resolve any conflicts.\n";
-    print MSG "You can find how to do this on our developer's DokuWiki.\n\n";
-    print MSG "If you have no time to do this, don't worry, you will\n";
-    print MSG "just keep receiving this message but otherwise no-one\n";
-    print MSG "else is affected by this issue.\n\n";
-    print MSG "Please note that conflicts can be avoided by checking\n";
-    print MSG "if a file has been changed by someone but was not yet\n";
-    print MSG "merged. From your current branch, execute:\n\n";
-    print MSG "git log --no-merges --remotes ^HEAD -- path/to/file\n";
-    close MSG;
-    foreach my $branch (keys %bad_branches) {
-        chomp(my $committer = `git show -s --pretty=format:%ce $branch`);
-        system("mail -s \"[molcas-git] there were conflicts during merge\" $committer < $msg");
-        #system("mail -s \"[molcas-git] there were conflicts during merge for $committer\" $usermail < $msg");
-        print "Mail sent to $committer\n";
-    }
-
-  RESET_open:
-    &git("reset", "--hard")==0 or die 'Error: failed to reset';
-
-    # finally, remove the bad branches from the merge heads and then
-    # jump back to the merge procedure, unless we have already tried
-    # it a couple of times (set to 2 tries, increase if necessary).
-    my @old_heads = @merge_heads_open;
-    @merge_heads_open = ();
-    foreach my $head (@old_heads) {
-        push @merge_heads_open, $head unless $bad_branches{$head};
-    }
-    if ($number_of_merge_attempts > 2) {
-        print "-> I reached the maximum number of merge attempts (open).\n";
-        print "-> Either increase the number of attempts or wait\n";
-        print "-> until some developers have manually resolved the\n";
-        print "-> merge conflicts in their branch.\n";
-    } else {
-        print "-> trying new merge\n";
-        goto MERGE_open;
-    }
-
-}
-
-MERGE_DONE_open:
 
 exit 0;

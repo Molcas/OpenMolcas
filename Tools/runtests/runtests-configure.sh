@@ -10,7 +10,7 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
 # Copyright (C) 2013, Steven Vancoillie                                *
-#               2016,2017, Ignacio Fdez. Galván                        *
+#               2016-2018, Ignacio Fdez. Galván                        *
 #***********************************************************************
 #
 # runtests-configure -- run verification tests
@@ -36,6 +36,8 @@
 # several repositories.
 # June 2017: Support for submodules
 # August 2017: Use fetch
+# July-August 2018: Remove OpenMolcas testing, this should now only handle
+#   molcas-extra
 
 ################################################################################
 ####                             CONFIGURATION                              ####
@@ -101,7 +103,7 @@ then
 fi
 if [ -z "$SUBMODULES_OPEN" ]
 then
-    SUBMODULES_OPEN='External/lapack'
+    SUBMODULES_OPEN=''
 fi
 
 ################################################################################
@@ -113,8 +115,7 @@ TESTPAGE='test@signe.teokem.lu.se'
 UPLOADPAGE='https://molcas.altervista.org/tests/upload.php'
 GITSERVER='git@git.teokem.lu.se:'
 REPO='molcas-extra'
-SERVER_OPEN="https://${GITLABAUTH}gitlab.com/Molcas/"
-REPO_OPEN='OpenMolcas'
+REPO_OPEN='openmolcas'
 
 RECIPIENT="$RECIPIENT $TESTPAGE"
 
@@ -199,16 +200,14 @@ checkout_clean () {
     fi
 
     git fetch || return -1
-    if git branch -r | grep -q "origin/$BRANCH"
+    if git branch -r | grep -q "origin/$1"
     then
-        git fetch --force origin $BRANCH:$BRANCH || return -1
-        git checkout $BRANCH || return -1
+        git fetch --force origin $1:$1 || return -1
+        git checkout $1 || return -1
         git branch -D tmp || return -1
     else
         return 1
     fi
-
-    cd ..
 }
 
 update_submodules () {
@@ -254,7 +253,7 @@ test_configfile () {
     echo
 
     # get configuration flags
-    MY_FLAGS="-noprompt -noopen"
+    MY_FLAGS="-noprompt"
     for line in `cat $configfile`
     do
         MY_FLAGS="$MY_FLAGS $line"
@@ -282,57 +281,45 @@ test_configfile () {
         ISOLD="0"
         git clone -b $BRANCH $GITSERVER$REPO $REPO.$BRANCH || return
     fi
-    if [ ! -d $REPO_OPEN.$BRANCH ]
+    if [ -d $REPO_OPEN ]
     then
-        ISOLD="0"
-        git clone -b $BRANCH $SERVER_OPEN$REPO_OPEN $REPO_OPEN.$BRANCH || return
+        rm -rf $REPO_OPEN || return
     fi
 
-    for R in $REPO_OPEN $REPO
-    do
-        cd $R.$BRANCH || return
-        checkout_clean $R
-        rc=$?
-        if [ $rc -lt 0 ]
-        then
-            echo "error checking out $BRANCH from $R, skipping testing..."
-            cd ../; rm -f $REPO.$BRANCH.LOCK; return
-        elif [ $rc -gt 0 ]
-        then
-            echo "no branch $BRANCH available on origin ($R), skipping testing..."
-            cd ../; rm -f $REPO.$BRANCH.LOCK; return
-        fi
-    done
-
-    export OPENMOLCAS_DIR=`readlink -f $REPO_OPEN.$BRANCH`
-    cd $REPO_OPEN.$BRANCH || return
-    for sub in `git submodule foreach -q 'echo $path'` ; do
-        git submodule deinit --force $sub || return 1
-    done
-    for sub in $SUBMODULES_OPEN ; do
-        git submodule update --init --force $sub || return 1
-    done
-
-    SHA1_OPEN=`git rev-parse $BRANCH`
-    MASTER_OPEN=`git rev-parse origin/master`
-    echo "source tree (open) clean at $SHA1_OPEN"
-
-    parents_open=`git log --pretty=%P -n 1 $BRANCH`
-    if [ `echo $parents_open | wc -w` -eq 1 ] || [ "$SHA1_OPEN" = "$MASTER_OPEN" ]
+    cd $REPO.$BRANCH || return
+    checkout_clean $BRANCH
+    rc=$?
+    if [ $rc -lt 0 ]
     then
-        parents_open=""
+        echo "error checking out $BRANCH from $REPO, skipping testing..."
+        cd ../; rm -f $REPO.$BRANCH.LOCK; return
+    elif [ $rc -gt 0 ]
+    then
+        echo "no branch $BRANCH available on origin ($REPO), skipping testing..."
+        cd ../; rm -f $REPO.$BRANCH.LOCK; return
     fi
 
-    VERSION=$(git describe --always --dirty --match "v*")
-    P=$(echo $VERSION | awk -F. '{print $NF}')
-
-    cd ../$REPO.$BRANCH || return
     for sub in `git submodule foreach -q 'echo $path'` ; do
         git submodule deinit --force $sub || return 1
     done
     for sub in $SUBMODULES ; do
         git submodule update --init --force $sub || return 1
     done
+
+    ./fetch OPENMOLCAS
+    cd ../$REPO_OPEN || return
+    for sub in `git submodule foreach -q 'echo $path'` ; do
+        git submodule deinit --force $sub || return 1
+    done
+    for sub in $SUBMODULES_OPEN ; do
+        git submodule update --init --force $sub || return 1
+    done
+    export OPENMOLCAS_DIR=`readlink -f $PWD`
+    SHA1_OPEN=`git rev-parse HEAD`
+    VERSION=$(git describe --always --dirty --match "v*")
+    P=$(echo $VERSION | awk -F. '{print $NF}')
+    cd ../$REPO.$BRANCH || return
+    rm -f fetch.log
 
     SHA1=`git rev-parse $BRANCH`
     MASTER=`git rev-parse origin/master`
@@ -358,7 +345,7 @@ test_configfile () {
     # test the branches only if they differ from the master (no mail sent)
     if [ $ISOLD -eq "1" ]
     then
-        if [ "$SHA1_OPEN" = "$MASTER_OPEN" ] && [ "$SHA1" = "$MASTER" ]
+        if [ "$SHA1" = "$MASTER" ]
         then
             echo "same as master, no testing needed"
             cd ../; rm -f $REPO.$BRANCH.LOCK; return
@@ -371,25 +358,16 @@ test_configfile () {
     cd ../
 
     retry="retry.sh"
-    echo "#!/bin/sh"                       >  $retry
-    echo "mkdir $testconfig || exit"       >> $retry
-    echo "cd $testconfig"                  >> $retry
-    cat ../$testconfig.cmd                 >> $retry
-    echo "cp -r $PWD/$REPO_OPEN.$BRANCH ." >> $retry
-    echo "(cd $REPO_OPEN.$BRANCH"          >> $retry
-    echo "    git checkout $SHA1_OPEN"     >> $retry
-    echo "    git clean -f -d -x -q)"      >> $retry
-    echo "cp -r $PWD/$REPO.$BRANCH ."      >> $retry
-    echo "(cd $REPO.$BRANCH"               >> $retry
-    echo "    git checkout $SHA1"          >> $retry
-    echo "    git clean -f -d -x -q)"      >> $retry
-    echo "OPENMOLCAS_DIR=\`readlink -f $REPO_OPEN.$BRANCH\`"      >> $retry
-    echo "cd $REPO.$BRANCH"                                       >> $retry
-    echo "echo \"OPENMOLCAS=\$OPENMOLCAS_DIR\" > .openmolcashome" >> $retry
+    echo "#!/bin/sh"                  >  $retry
+    echo "mkdir $testconfig || exit"  >> $retry
+    echo "cd $testconfig"             >> $retry
+    cat ../$testconfig.cmd            >> $retry
+    echo "cp -r $PWD/$REPO.$BRANCH ." >> $retry
+    echo "cd $REPO.$BRANCH"           >> $retry
+    echo "git checkout $SHA1"         >> $retry
+    echo "git clean -f -d -x -q"      >> $retry
     echo "./configure $MY_FLAGS > make.log 2>&1 && $MAKE_cmd >> make.log 2>&1" >> $retry
     chmod +x $retry
-
-    export OPENMOLCAS_DIR=`readlink -f $REPO_OPEN.$BRANCH`
 
     #### building ####
     ##################
@@ -431,8 +409,6 @@ test_configfile () {
         echo "#### END ####"            >> $outfile
     done
 
-    #sed -i 's|/opt/local/bin/perl|/usr/bin/perl|' sbin/*
-    echo "OPENMOLCAS=$OPENMOLCAS_DIR" > .openmolcashome
     # run configure and make
     if ./configure $MY_FLAGS >> make.log 2>&1 && $MAKE_cmd >> make.log 2>&1
     then
@@ -442,14 +418,13 @@ test_configfile () {
         echo "Make Failed! See logs." >> auto.log
         echo '************************************' >> auto.log
         echo '----------- parent details ---------' >> auto.log
-        (cd ../$REPO_OPEN.$BRANCH && git reset --hard && git checkout origin/master && update_submodules)
         for commit in $SHA1 $parents
         do
             if [ "$commit" = "$MASTER" ]
             then
                 continue
             fi
-            git reset --hard && git checkout $commit && update_submodules
+            (git reset --hard && git checkout $commit && update_submodules && ./fetch OPENMOLCAS && cd ../$REPO_OPEN && update_submodules)
             make distclean >/dev/null 2>&1
             if ./configure $MY_FLAGS >/dev/null 2>&1 && $MAKE_cmd >/dev/null 2>&1
             then
@@ -459,28 +434,10 @@ test_configfile () {
                 git log -1 --pretty=tformat:"developer: %ce" $commit >> auto.log
             fi
         done
-        git reset --hard && git checkout origin/master && update_submodules
-        for commit in $SHA1_OPEN $parents_open
-        do
-            if [ "$commit" = "$MASTER_OPEN" ]
-            then
-                continue
-            fi
-            (cd ../$REPO_OPEN.$BRANCH && git reset --hard && git checkout $commit && update_submodules)
-            make distclean >/dev/null 2>&1
-            if ./configure $MY_FLAGS >/dev/null 2>&1 && $MAKE_cmd >/dev/null 2>&1
-            then
-                echo ":: good (open) $commit" >> auto.log
-            else
-                echo ":: fail (open) $commit" >> auto.log
-                (cd ../$REPO_OPEN.$BRANCH && git log -1 --pretty=tformat:"developer: %ce" $commit) >> auto.log
-            fi
-        done
         echo '************************************' >> auto.log
 
         # remake the original branch to save trouble for manual inspection later
-        git reset --hard && git checkout $BRANCH && update_submodules
-        (cd ../$REPO_OPEN.$BRANCH && git reset --hard && git checkout $BRANCH && update_submodules)
+        (git reset --hard && git checkout $BRANCH && update_submodules && ./fetch OPENMOLCAS && cd ../$REPO_OPEN && update_submodules)
         make distclean >/dev/null 2>&1
         ./configure $MY_FLAGS >/dev/null 2>&1 && $MAKE_cmd >/dev/null 2>&1
 
@@ -549,14 +506,13 @@ test_configfile () {
 
         echo '************************************' >> auto.log
         echo '----------- parent details ---------' >> auto.log
-        (cd ../$REPO_OPEN.$BRANCH && git reset --hard && git checkout origin/master && update_submodules)
         for commit in $SHA1 $parents
         do
             if [ "$commit" = "$MASTER" ]
             then
                 continue
             fi
-            git reset --hard && git checkout $commit && update_submodules
+            (git reset --hard && git checkout $commit && update_submodules && ./fetch OPENMOLCAS && cd ../$REPO_OPEN && update_submodules)
             make distclean >/dev/null 2>&1
             if ./configure $MY_FLAGS >/dev/null 2>&1 && $MAKE_cmd >/dev/null 2>&1 && $DRIVER verify --trap $failed_tests
             then
@@ -566,28 +522,10 @@ test_configfile () {
                 git log -1 --pretty=tformat:"developer: %ce" $commit >> auto.log
             fi
         done
-        git reset --hard && git checkout origin/master && update_submodules
-        for commit in $SHA1_OPEN $parents_open
-        do
-            if [ "$commit" = "$MASTER_OPEN" ]
-            then
-                continue
-            fi
-            (cd ../$REPO_OPEN.$BRANCH && git reset --hard && git checkout $commit && update_submodules)
-            make distclean >/dev/null 2>&1
-            if ./configure $MY_FLAGS >/dev/null 2>&1 && $MAKE_cmd >/dev/null 2>&1 && $DRIVER verify --trap $failed_tests
-            then
-                echo ":: good (open) $commit" >> auto.log
-            else
-                echo ":: fail (open) $commit" >> auto.log
-                (cd ../$REPO_OPEN.$BRANCH && git log -1 --pretty=tformat:"developer: %ce" $commit) >> auto.log
-            fi
-        done
         echo '************************************' >> auto.log
 
         # remake the original branch to save trouble for manual inspection later
-        git reset --hard && git checkout $BRANCH && update_submodules
-        (cd ../$REPO_OPEN.$BRANCH && git reset --hard && git checkout $BRANCH && update_submodules)
+        (git reset --hard && git checkout $BRANCH && update_submodules && ./fetch OPENMOLCAS && cd ../$REPO_OPEN && update_submodules)
         make distclean >/dev/null 2>&1
         ./configure $MY_FLAGS >/dev/null 2>&1 && $MAKE_cmd >/dev/null 2>&1
     fi
@@ -608,7 +546,7 @@ test_configfile () {
             cut_log $MESSAGE
             curl --form "file=@$MESSAGE" $UPLOADPAGE || curl --ciphers ecdhe_ecdsa_aes_256_sha --form "file=@$MESSAGE" $UPLOADPAGE
             # remove garbage from any output
-            if ! ../$REPO_OPEN.$BRANCH/sbin/chkunprint.plx < $MESSAGE
+            if ! ../$REPO_OPEN/sbin/chkunprint.plx < $MESSAGE
             then
                 cp $MESSAGE ${MESSAGE}.gbg
                 tr -c '\11\12\15\40-\176' ';' < ${MESSAGE}.gbg > $MESSAGE
