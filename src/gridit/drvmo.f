@@ -149,7 +149,7 @@ c       print *,'Pab=', (Work(ipPab+i),i=0,nMOs-1)
      &  myTitle,0,iErr)
         if(iErr.eq.1) then
           do j=0, nMOs-1
-          iWork(ipType+j)=Zero
+          iWork(ipType+j)=0
           enddo
         endif
       else  ! UHF case
@@ -167,7 +167,7 @@ c allocate memory for extra arrays.
      &  myTitle,0,iErr,iWFtype)
 c it can be only after SCF, so we do not need TypeIndex info
           do j=0, nMOs-1
-          iWork(ipType+j)=Zero
+          iWork(ipType+j)=0
           enddo
 
       endif
