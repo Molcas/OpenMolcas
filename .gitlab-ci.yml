@@ -520,6 +520,7 @@ test:intel13:
 #  stage: test
 #  dependencies:
 #    - build:nag
+#    - tinker
 #  <<: *nag
 #  <<: *run-tests
 

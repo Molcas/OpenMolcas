@@ -1215,7 +1215,6 @@ if (LINALG STREQUAL "MKL")
         find_library (LIBMKL_SCALAPACK NAMES "mkl_scalapack_ilp64"
                 PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
         if (MPI_IMPLEMENTATION STREQUAL "openmpi")
-                list (APPEND MKL_LIB_NAMES "-lmkl_blacs_openmpi_ilp64")
                 find_library (LIBMKL_BLACS NAMES "mkl_blacs_openmpi_ilp64"
                         PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
         elseif (MPI_IMPLEMENTATION STREQUAL "impi")
