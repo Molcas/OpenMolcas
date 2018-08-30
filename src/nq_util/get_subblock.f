@@ -25,7 +25,8 @@
      &                        Temp,mGrad,F_xc,dF_dRho,
 cGLM     &                        Temp,mGrad,F_xc,F_xca,F_xcb,dF_dRho,
      &                        dF_dP2ontop,
-     &                        DFTFOCK,mAO,mdRho_dR)
+     &                        DFTFOCK,mAO,mdRho_dR,
+     &                        LOE_DB,LTEG_DB)
 ************************************************************************
 *                                                                      *
 * Object: to generate the list of the shell and exponent that have an  *
@@ -69,6 +70,7 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),
      &        More_to_come
       Logical Do_Mo,Do_TwoEl,l_Xhol
       Character*4 DFTFOCK
+      Integer LOE_DB,LTEG_DB
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -711,7 +713,7 @@ c
 cGLM     &                 list_g,IndGrd,iTab,Temp,F_xc,F_xca,F_xcb,
      &                 Work(ip_dW_dR),iNQ,
      &                 Maps2p,dF_dRho,dF_dP2ontop,
-     &                 DFTFOCK)
+     &                 DFTFOCK,LOE_DB,LTEG_DB)
 *
          nTotGP=nTotGP+nogp
 * update the "LuGridFile":
