@@ -10,7 +10,6 @@
 *
 * Responsible person: F. Aquilante 061117
 **********************************************************************
->>export MOLCAS_THR=2
  &SEWARD  &END
 Title
  Nitronyl Nitroxide Radical
