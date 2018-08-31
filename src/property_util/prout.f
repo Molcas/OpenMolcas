@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine PrOut(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,
-     &                 maxlab,labs,PrTot,iPL,iPoint)
+     &                 maxlab,labs,PrTot,iPL,iPoint,ifallorb)
 ************************************************************************
 *                                                                      *
 *     purpose: printing of tables for different tensor properties      *
@@ -43,8 +43,15 @@
 *     PrTot(1:maxlab) Total value for each component                   *
 *     iPL             Print level                                      *
 *     iPoint          The number of the center                         *
+*     ifallorb        logical option for whether the property of       *
+*                     all orbitals are printed (and not weighted by    *
+*                     occupation number)in property calculation when   *
+*                     short=.false. (S.S.Dong, 2018)                   *
 *                                                                      *
 * 2000 Dept. of Chem. Phys., Univ. of Lund, Sweden                     *
+* Modified by S.S.Dong, 2018, Univ. of Minnesota                       *
+* - Enable properties to be printed for all orbitals                   *
+* (including virtuals) and not weighted by occupation numbers          *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -52,7 +59,7 @@
       Character*16 labs(1:maxlab),lab
       Character*132 outlab
       Character*5 lab5
-      Logical Short
+      Logical Short, ifallorb
       Integer nBas(0:nIrrep-1)
       Real*8 Occ(1:nTot), PrEl(1:nTot,1:maxlab),PrNu(1:maxlab),
      &       TotEl(1:6), PrTot(1:maxlab)
@@ -77,9 +84,15 @@
       Write(Format3(12:12),'(I1)') nDec
       Write(Format4(10:10),'(I1)') nDec
 *
-      If (.Not.Short) Write (6,'(A,A,D9.2/)')
+      If ((.Not.Short).and.(.Not.ifallorb)) Then
+        Write (6,'(A,A,D9.2/)')
      &' orbital contributions printed for occupation numbers',
      &' gt.',ThrSV
+      Else if ((.Not.Short).and.ifallorb) Then
+        Write (6, '(A)')
+     &' orbital properties printed for all occupation numbers'
+      End If
+
 *
       Do i = 1, maxlab, 6
 *
@@ -121,11 +134,17 @@
                   jcount=0
                   Do j=i,min(i+5,maxlab)
                      jcount=jcount+1
-                      TotEl(jcount)=TotEl(jcount)+PrEl(icount,j)
+                     If (ifallorb) Then
+                       TotEl(jcount)=TotEl(jcount)+PrEl(icount,j)
+     &                 *Occ(icount)
+                     Else If (.Not.ifallorb) Then
+                       TotEl(jcount)=TotEl(jcount)+PrEl(icount,j)
+                     End If
                   End Do
-                  If (Occ(icount).gt.ThrSV)
-     &               Write (6,Format1) ii+1,jj,Occ(icount),
+                  If (ifallorb.or.(Occ(icount).gt.ThrSV)) Then
+                    Write (6,Format1) ii+1,jj,Occ(icount),
      &                         (sig*PrEl(icount,j),j=i,min(i+5,maxlab))
+                  End If
                End Do
             End Do
             Write(6,'(1x,a)') outlab(:mylen(outlab))
