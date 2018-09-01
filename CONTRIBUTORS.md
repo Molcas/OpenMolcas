@@ -90,6 +90,7 @@ José Manuel Hermida-Ramón
 Bernd Artur Heß  
 Asbjørn Holt  
 Chad E. Hoyer  
+Denis Jelovina  
 Marcus Johansson  
 Erik Källman  
 Gunnar Karlström  
