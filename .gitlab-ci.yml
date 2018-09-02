@@ -105,8 +105,9 @@
     # run only a subset of the tests if specified
     - |
       if [ -n "${subset}" ] ; then
+        if [ -z "${subset_size}" ] ; then export subset_size="250" ; fi
         pymolcas verify --flatlist ${tests} > filelist
-        split --numeric-suffixes=1 --suffix-length=1 --lines=250 filelist fl
+        split --numeric-suffixes=1 --suffix-length=1 --lines=${subset_size} filelist fl
         if [ -f "fl${subset}" ] ; then
           pymolcas verify --status --fromfile fl${subset}
         fi
@@ -146,7 +147,8 @@
 # - sun: use Oracle compilers
 # - intel: use Intel compilers (must install them every time and it's a bit shaky)
 # - intel13: use Intel 2013 compilers (specific runner)
-# - nag: use NAG Fortran compiler and Garble (specific runner)
+# - nag: use NAG Fortran compiler and Garble (specific runner, disabled)
+# - garble: setup with Garble option and gcc compilers
 # - debug: build with no optimization (no tests)
 
 .template: &plain
@@ -272,6 +274,21 @@
     FFLAGS: "-w=obs -w=x77 -Wc,-fno-aggressive-loop-optimizations -Qpath /opt/NAG/Fortran-amd64/6.0/lib"
   tags:
     - nag
+
+.template: &garble
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-5.4:latest
+  variables: &garble_vars
+    cache_file: |
+      set (CMAKE_BUILD_TYPE "Garble" CACHE STRING "garble installation" )
+      #set (BOUNDS "ON" CACHE STRING "enable bounds checking" )
+      set (BUILD_SHARED_LIBS "OFF" CACHE STRING "static molcas lib" )
+      set (HDF5 "OFF" CACHE STRING "turn off HDF5")
+      set (DEFMOLCASMEM "256" CACHE STRING "reduce memory to get more speed")
+    CX: "gcc"
+    CCX: "g++"
+    FC: "gfortran"
+  tags:
+    - docker
 
 .template: &debug
   image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-5.4:latest
@@ -494,16 +511,56 @@ test:intel13:
   <<: *intel13
   <<: *run-tests
 
-build:nag:
+# Disable NAG, since the runner is unavailable
+#build:nag:
+#  stage: build
+#  <<: *nag
+#  <<: *compile
+#test:nag:
+#  stage: test
+#  dependencies:
+#    - build:nag
+#    - tinker
+#  <<: *nag
+#  <<: *run-tests
+
+build:garble:
   stage: build
-  <<: *nag
+  <<: *garble
   <<: *compile
-test:nag:
+test:garble_1:
   stage: test
   dependencies:
-    - build:nag
-  <<: *nag
+    - build:garble
+    - tinker
+  <<: *garble
   <<: *run-tests
+  variables:
+    <<: *garble_vars
+    subset_size: "150"
+    subset: "1"
+test:garble_2:
+  stage: test
+  dependencies:
+    - build:garble
+    - tinker
+  <<: *garble
+  <<: *run-tests
+  variables:
+    <<: *garble_vars
+    subset_size: "150"
+    subset: "2"
+test:garble_3:
+  stage: test
+  dependencies:
+    - build:garble
+    - tinker
+  <<: *garble
+  <<: *run-tests
+  variables:
+    <<: *garble_vars
+    subset_size: "150"
+    subset: "3"
 
 build:debug:
   stage: build
