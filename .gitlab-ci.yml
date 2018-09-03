@@ -134,7 +134,6 @@
     - api
     - triggers
     - web
-    - daily-snapshot
   # run even if the previous stage failed
   # (in general, we want to run those configurations that didn't fail,
   #  but there's no harm in running all)
