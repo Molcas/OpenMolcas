@@ -494,7 +494,7 @@
 
 ! Function to check if a symmetry operation conserves the geometry
       Function CheckOp(Op,Thr)
-      INteger, Intent(In) :: Op
+      Integer, Intent(In) :: Op
       Real*8, Intent(In) :: Thr
       Logical :: CheckOp, Found
       Logical, Dimension(Size(Geom)) :: Done
@@ -604,7 +604,7 @@
       Integer, Intent(Out) :: Num
       Character (Len=Len(At)) :: String
       Character :: c
-      Integer :: Idx, i, j
+      Integer :: Idx, i, j, k
       String = At
       ! Get the Bas part
       Idx = Index(String, '.')
@@ -625,13 +625,15 @@
       End If
       Sym = String(1:Idx-1)
       Num = 0
+      k = 0
       ! Remove digits and compute Num
       Do i = Len_Trim(Sym),1,-1
         c = Sym(i:i)
         If ((IChar(c) .ge. IChar('0')) .and.
      &      (IChar(c) .le. IChar('9'))) Then
           Read(c,*) j
-          Num = Num + j*10**Int(Log10(Dble(Num)))
+          Num = Num + j*10**k
+          k = k+1
           Sym(i:i) = ' '
         End If
       End Do

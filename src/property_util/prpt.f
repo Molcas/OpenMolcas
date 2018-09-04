@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
+*               2018, Sijia S. Dong                                    *
 ************************************************************************
       Subroutine Prpt()
 ************************************************************************
@@ -22,15 +23,17 @@ c
 #include "WrkSpc.fh"
       Integer nBas(8)
       Character*8 Method
-      Logical var, Short
+      Logical var, Short, ifallorb
       Character*81 note, lbl*2, PrpLst*4
 *
       Call GetEnvf("MOLCAS_PROPERTIES",PrpLst)
       Call UpCase(PrpLst)
       If (PrPlst(1:3).eq.'LON') Then
          Short=.False.
+*         ifallorb=.True.
       Else
          Short=.True.
+         ifallorb=.False.
       End If
 *
 *     This variable is used so we know if the density we search for is labeled
@@ -138,7 +141,7 @@ c
 *
       Call Prpt_(nIrrep,nBas,n2Dim,
      &            nDim,Work(ipOcc),n2Tot,Work(ipVec),MaxScr,
-     &            Work(ipScr),var,Short,iUHF)
+     &            Work(ipScr),var,Short,iUHF,ifallorb)
 *
       Call GetMem('Scr','Free','Real',ipScr,MaxScr)
       Call GetMem('Occ','Free','Real',ipOcc,nDim)
@@ -147,7 +150,7 @@ c
       End
 *
       Subroutine Prpt_(nIrrep,nBas,n2Dim,nDim,Occ,n2Tot,Vec,
-     &                 MaxScr,Scr,var,Short,iUHF)
+     &                 MaxScr,Scr,var,Short,iUHF,ifallorb)
 ************************************************************************
 c
 c     Purpose: calculation of expectation values of different
@@ -191,9 +194,16 @@ c                         the l-th moment opartors which are trans-
 c                         formed into l-pole moment. Currently,
 c                         ntComp=15 (hexadecapole moments)
 c
+c     ifallorb        logical option for whether the property of
+c                     all orbitals are printed (and not weighted by
+c                     occupation number)in property calculation
+c                     (S.S.Dong, 2018)
 c
 c
 * 1991 R. Lindh, Dept. of Theor. Chem. Univ. of Lund, Sweden.          *
+* Modified by S.S.Dong, 2018, Univ. of Minnesota                       *
+* - Enable properties to be printed for all orbitals                   *
+* (including virtuals) and not weighted by occupation numbers          *
 ************************************************************************
       Implicit real*8 (a-h,o-z)
 *
@@ -201,7 +211,7 @@ c
 #include "WrkSpc.fh"
 c
       Character*8 label
-      Logical short, NxtOpr, var, Reduce_Prt
+      Logical short, NxtOpr, var, Reduce_Prt, ifallorb
       External Reduce_Prt
       Integer nBas(0:nirrep-1), mBas(0:7)
       Real*8  occ(1:ndim), scr(1:maxscr), Vec(n2Tot)
@@ -345,11 +355,11 @@ c
 102         continue
           endif
           If (mInt.eq.0) Go To 101
-          Call Xprop(short,
+          Call Xprop(short,ifallorb,
      &               nIrrep,nBas,
      &               nBlock,Scr(iadDen),nDim,Occ,Thrs,
      &               nblock,Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim))
-          If (.Not.Short.and.iUHF.eq.1) Call Xprop(short,
+          If (.Not.Short.and.iUHF.eq.1) Call Xprop(short,ifallorb,
      &               nIrrep,nBas,
      &               nBlock,Scr(iadDen_ab),nDim,Occ(iOcc_ab),Thrs,
      &               nblock,Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim+nDim))
@@ -373,7 +383,7 @@ c
         Call prop (short,label,scr(iadC1),scr(iadC2),
      &             nirrep,mBas,mDim,occ,Thrs,
      &             scr(iadEl),scr(iadNuc),i,scr(iadLab),
-     &             scr(iadTmt),scr(iadTmp))
+     &             scr(iadTmt),scr(iadTmp),ifallorb)
         If (.Not.Short) Call Free_Work(iadEl_Work)
 100   continue
 c
@@ -433,11 +443,11 @@ C     Write (*,*) ' Starting scan of ONEINT for various elec. field integrals'
                   End Do
                Endif
                If (mInt.eq.0) Go To 201
-               Call Xprop(short,
+               Call Xprop(short,ifallorb,
      &                    nIrrep,nBas,
      &                    nBlock,Scr(iadDen),nDim,Occ,Thrs,
      &                    nblock,Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim))
-               If (.Not.Short.and.iUHF.eq.1) Call Xprop(short,
+               If (.Not.Short.and.iUHF.eq.1) Call Xprop(short,ifallorb,
      &                    nIrrep,nBas,
      &                    nBlock,Scr(iadDen_ab),nDim,Occ(iOcc_ab),Thrs,
      &                    nblock,Scr(iadOpr),
@@ -451,7 +461,7 @@ C     Write (*,*) ' Starting scan of ONEINT for various elec. field integrals'
             Call Prop (short,label,scr(iadC1),scr(iadC2),
      &                 nirrep,mBas,mDim,occ,Thrs,
      &                 scr(iadEl),scr(iadNuc),iEF,scr(iadLab),
-     &                 scr(iadTmt),scr(iadTmp))
+     &                 scr(iadTmt),scr(iadTmp),ifallorb)
 *           add the components to the sums, and update the total number of centers
             Do iComp=0,nComp-1
               iInd1=iadElSum+iComp
@@ -529,11 +539,11 @@ C     Write (*,*) ' Starting scan of ONEINT for various contact term integrals'
             scr(iadC2+k)=scr(iadOpr+mInt+k)
          End Do
          If (mInt.eq.0) Go To 301
-         Call Xprop(short,
+         Call Xprop(short,ifallorb,
      &              nIrrep,nBas,
      &              nBlock,Scr(iadDen),nDim,Occ,Thrs,
      &              nblock,Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim))
-         If (.Not.Short.and.iUHF.eq.1) Call Xprop(short,
+         If (.Not.Short.and.iUHF.eq.1) Call Xprop(short,ifallorb,
      &              nIrrep,nBas,
      &              nBlock,Scr(iadDen_ab),nDim,Occ(iOcc_ab),Thrs,
      &              nblock,Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim+nDim))
@@ -546,7 +556,7 @@ C     Write (*,*) ' Starting scan of ONEINT for various contact term integrals'
          Call Prop (short,label,scr(iadC1),scr(iadC2),
      &              nirrep,mBas,mDim,occ,Thrs,
      &              scr(iadEl),scr(iadNuc),iEF,scr(iadLab),
-     &              scr(iadTmt),scr(iadTmp))
+     &              scr(iadTmt),scr(iadTmp),ifallorb)
 *        add the components to the sums, and update the total number of centers
          Do iComp=0,nComp-1
            iInd1=iadElSum+iComp
@@ -626,11 +636,11 @@ c       loop over different operator origins (max.99)
 404           continue
             endif
             If (mInt.eq.0) Go To 402
-            Call Xprop(short,
+            Call Xprop(short,ifallorb,
      &                 nIrrep,nBas,
      &                 nBlock,Scr(iadDen),nDim,Occ,Thrs,
      &                 nblock,Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim))
-            If (.Not.Short.and.iUHF.eq.1) Call Xprop(short,
+            If (.Not.Short.and.iUHF.eq.1) Call Xprop(short,ifallorb,
      &                 nIrrep,nBas,
      &                 nBlock,Scr(iadDen_ab),nDim,Occ(iOcc_ab),Thrs,
      &                 nblock,Scr(iadOpr),
@@ -641,7 +651,7 @@ c
           call prop (short,label,scr(iadC1),scr(iadC2),
      &               nirrep,mBas,mDim,occ,Thrs,
      &               scr(iadEl),scr(iadNuc),lpole,scr(iadLab),
-     &               scr(iadTmt),scr(iadTmp))
+     &               scr(iadTmt),scr(iadTmp),ifallorb)
            jRC = 1
 401     continue
 4000    If (jRC.eq.0) Then

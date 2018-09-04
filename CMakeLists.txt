@@ -790,7 +790,7 @@ set(NAG_TRAP "-ieee=stop")
 # Preprocessor
 if (CMAKE_BUILD_TYPE STREQUAL "Garble")
         add_definitions (-D_GARBLE_ -D_NO_IEEECK_ -D_FPE_TRAP_)
-        # Disable FPE traps for compiler that do not support IEEE Fortran modules
+        # Disable FPE traps for compilers that do not support IEEE Fortran modules
         # version check for Fortran doesn't work yet, assume it is the same as the C compiler GCC version
         if (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND
             CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND
@@ -1215,7 +1215,6 @@ if (LINALG STREQUAL "MKL")
         find_library (LIBMKL_SCALAPACK NAMES "mkl_scalapack_ilp64"
                 PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
         if (MPI_IMPLEMENTATION STREQUAL "openmpi")
-                list (APPEND MKL_LIB_NAMES "-lmkl_blacs_openmpi_ilp64")
                 find_library (LIBMKL_BLACS NAMES "mkl_blacs_openmpi_ilp64"
                         PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
         elseif (MPI_IMPLEMENTATION STREQUAL "impi")

@@ -166,6 +166,8 @@
 *             calculation                                              *
 *     Short : logical flag that the short list should be used in the   *
 *             output of the property calculation                       *
+*     ifallorb : logical flag that properties of all orbitals are      *
+*               printed if short=false                                 *
 *     lDMS  : logical flag to indicate that the diamagnetic shielding  *
 *             integrals should be computed                             *
 *     lRel  : logical flag to indicate that the 1-electron Darwin and  *
@@ -341,8 +343,8 @@
 *                                                                      *
       Logical   Prjct(MxShll),Transf(MxShll),DirInt, Onenly, Petite,
      &          lSOInt, Test, Vlct, lOAM, lOMQ, lOMQS, lAMP, lAux,
-     &          Prprt, Short, lDMS, lRel, Do_RI,  UnNorm, lSchw,
-     &          Dist, lAMFI, force_part_p, FockOp(Mxdbsc),
+     &          Prprt, Short, ifallorb, lDMS, lRel, Do_RI,  UnNorm,
+     &          lSchw, Dist, lAMFI, force_part_p, FockOp(Mxdbsc),
      &          lECP, lNOpair, NoPairL(Mxdbsc), force_part_c, Expert,
      &          ECP(Mxdbsc), pChrg(Mxdbsc), Fixed(Mxdbsc),lXF, BSS,
      &          DKroll, LDKroll, Primitive_Pass,NEMO,lPP, GIAO,
@@ -361,7 +363,7 @@
      &               lAux,  NEMO,lPP, LDF,      AuxCnttp, Do_RI,
      &               lAMFI,  Onenly, Petite, lSOInt, Do_GuessOrb,
      &               Test, Vlct,      lOAM, lOMQ, lOMQS, lAMP, FockOp,
-     &               Prprt, Short, lDMS, lRel,        UnNorm,
+     &               Prprt, Short, ifallorb, lDMS, lRel,        UnNorm,
      &               lSchw, Dist,ECP, lECP, lXF,pChrg, Fixed, lNOpair,
      &               NoPairL, force_part_c, force_part_p, Expert,
      &               GIAO, SODK,         Do_FckInt, Cholesky,
