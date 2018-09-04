@@ -19,11 +19,20 @@ C
 #include "WrkSpc.fh"
       Real*8 a(*)
       integer n,ipiv,iTMp,info1,info2
+#ifdef _MOLCAS_MPP_
+      logical :: isCloneQ
+      call check_parallel_data(a,n*n,isCloneQ,"C")
+#endif
       call getmem('ipiv','ALLOC','INTE',ipiv,n+4)
       call getmem('tmp ','ALLOC','REAL',iTmp,n+4)
       call dgetrf_(n,n,a(1),n,iWork(ipiv),info1)
       call dgetri_(n  ,a(1),n,iWork(ipiv),Work(iTmp),n,info2)
       call getmem('ipiv','FREE','INTE',ipiv,n+4)
       call getmem('tmp ','FREE','REAL',iTmp,n+4)
+#ifdef _MOLCAS_MPP_
+      if(isCloneQ)then
+         call check_parallel_data(a,n*n,isCloneQ,"S")
+      end if
+#endif
       return
       end

@@ -155,7 +155,7 @@ def main(my_name):
   try:
     Molcas = Molcas_wrapper(warning=warning, stamp=stamp)
   except MolcasException as message:
-    print(message, file=sys.stderr)
+    print(text_type(message), file=sys.stderr)
     sys.exit(1)
 
   if (not args['ignore_environment']):
@@ -199,13 +199,13 @@ def main(my_name):
     try:
       attach_streams(output=args['output'], error=args['error'], buffer_size=args['buffer'])
     except IOError as e:
-      print(e, file=sys.stderr)
+      print(text_type(e), file=sys.stderr)
       sys.exit(1)
     try:
       Molcas.read_input(args['filename'])
       Molcas.auto()
     except MolcasException as message:
-      print(message, file=sys.stderr)
+      print(text_type(message), file=sys.stderr)
       # Skip verification with unsupported features
       # TODO: remove when ready
       if ('is unsupported' in text_type(message) or

@@ -202,6 +202,9 @@ c    &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       SW_FileOrb='INPORB'
       Prprt=.False.
       Short=.True.
+*--sdong, Apr. 2018--*
+      ifallorb=.False.
+*--sdong end---------*
       lECP=.False.
       lAux=.False.
       lPAM2=.False.

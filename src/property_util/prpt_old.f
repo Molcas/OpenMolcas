@@ -68,7 +68,7 @@ c
 #include "real.fh"
 c
       Character*8 label
-      Logical short, NxtOpr
+      Logical short, NxtOpr, ifallorb
       Integer nbas(0:nirrep)
       Real*8 vec(1:n2dim), occ(1:ndim), scr(1:maxscr)
 c
@@ -80,6 +80,7 @@ c
       Write (6,'(3X,A)')    '   ---------------------'
       Write (6,*)
       short=.true.
+      ifallorb=.false.
       mDim = 1
       iadopr=-1 ! dummy initialize
       iadtmt=-1 ! dummy initialize
@@ -170,7 +171,7 @@ c
 102         continue
           endif
           If (nInt.eq.0) Go To 101
-          Call Xprop(short,
+          Call Xprop(short, ifallorb,
      &               nIrrep,nBas,
      &               nBlock,Scr(iadDen),nDim,Occ,dummy,
      &               nblock,Scr(iadOpr),Scr(iadEl+iComp-1))
@@ -188,7 +189,7 @@ c
         call prop (short,label,scr(iadC1),scr(iadC2),
      &             nirrep,nBas,mDim,occ,dummy,
      &             scr(iadEl),scr(iadNuc),i,scr(iadLab),
-     &             scr(iadTmt),scr(iadTmp))
+     &             scr(iadTmt),scr(iadTmp),ifallorb)
 100   continue
 *                                                                      *
 ************************************************************************
@@ -237,7 +238,7 @@ c
 202           continue
             endif
             If (nInt.eq.0) Go To 201
-            Call Xprop(short,
+            Call Xprop(short, ifallorb,
      &                 nIrrep,nBas,
      &                 nBlock,Scr(iadDen),nDim,Occ,dummy,
      &                 nblock,Scr(iadOpr),Scr(iadEl+iComp-1))
@@ -247,7 +248,7 @@ c
           call prop (short,label,scr(iadC1),scr(iadC2),
      &               nirrep,nBas,mDim,occ,dummy,
      &               scr(iadEl),scr(iadNuc),i,scr(iadLab),
-     &               scr(iadTmt),scr(iadTmp))
+     &               scr(iadTmt),scr(iadTmp),ifallorb)
 200     continue
 c
 299      continue
@@ -301,7 +302,7 @@ c       loop over differnt operator origins (max.99)
 404           continue
             endif
             If (nInt.eq.0) Go To 402
-            Call Xprop(short,
+            Call Xprop(short,ifallorb,
      &                 nIrrep,nBas,
      &                 nBlock,Scr(iadDen),nDim,Occ,dummy,
      &                 nblock,Scr(iadOpr),Scr(iadEl+iComp-1))
@@ -311,7 +312,7 @@ c
           call prop (short,label,scr(iadC1),scr(iadC2),
      &               nirrep,nBas,mDim,occ,dummy,
      &               scr(iadEl),scr(iadNuc),i,scr(iadLab),
-     &               scr(iadTmt),scr(iadTmp))
+     &               scr(iadTmt),scr(iadTmp),ifallorb)
            jRC = 1
 401     continue
 4000    If (jRC.eq.0) Go To 499

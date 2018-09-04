@@ -480,6 +480,7 @@ cperiod
       If (KWord(1:4).eq.'ONEO') Go To 990
       If (KWord(1:4).eq.'OPTH') Go To 8022
       If (KWord(1:4).eq.'OPTO') Go To 940
+      If (KWord(1:4).eq.'ORBA') Go To 913
       If (KWord(1:4).eq.'ORBC') Go To 906
       If (KWord(1:4).eq.'ORIG') Go To 8015
       If (KWord(1:4).eq.'OVER') Go To 41
@@ -796,6 +797,15 @@ c     Call Abend()
       nPrint(80)=6
       nPrint( 1)=6
       GWInput = Run_Mode.eq.G_Mode
+      Go To 998
+*                                                                      *
+****** ORBA ************************************************************
+*                                                                      *
+*     Request property output with explicit listing of properties of
+*     all orbitals, including all unoccupied (ignoring THRS), and not
+*     weighted by occupation numbers. (S.S.Dong, 2018)
+*
+ 913  ifallorb = .True.
       Go To 998
 *                                                                      *
 ****** ZMAT ************************************************************
