@@ -155,6 +155,7 @@
   variables: &plain_vars
     cache_file: |
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
+      set (DEBUG_DEFS "_BIGOT_" CACHE STRING "stricter runtime checks")
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
@@ -170,6 +171,7 @@
       set (BUILD_SHARED_LIBS "ON" CACHE STRING "use shared libmolcas")
       set (BUILD_STATIC_LIB "ON" CACHE STRING "build static libmolcas too")
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
+      set (DEBUG_DEFS "_BIGOT_" CACHE STRING "stricter runtime checks")
       set (LINALG "Runtime" CACHE STRING "runtime blas/lapack linking")
       set (FDE "ON" CACHE STRING "enable frozen-density-embedding (FDE) interface")
       set (GRID_IT "ON" CACHE STRING "enable public GRID_IT code")
@@ -296,6 +298,7 @@
       set (CMAKE_BUILD_TYPE "Debug" CACHE STRING "no opt, debug info")
       set (BUILD_SHARED_LIBS "OFF" CACHE STRING "do not use shared libmolcas")
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
+      set (DEBUG_DEFS "_BIGOT_" CACHE STRING "stricter runtime checks")
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"

@@ -293,6 +293,7 @@
       end do
       end if
 
+      Call GetMem('FockOt ','Free','Real',ipFMO1t,nTri)
       Call GetMem('FockO ','Free','Real',ipFMO1,ndens2)
       Call GetMem('FockT ','Free','Real',ipFMO2,n2dens)
 

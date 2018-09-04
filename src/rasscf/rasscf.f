@@ -282,6 +282,14 @@
       Call GetMem('OCCN','Allo','Real',LOCCN,NTOT)
       Call GetMem('LCMO','Allo','Real',LCMO,NTOT2)
       Call GetMem('DIAF','Allo','Real',LDIAF,NTOT)
+      lfi_cvb=lfi
+      lfa_cvb=lfa
+      ld1i_cvb=ld1i
+      ld1a_cvb=ld1a
+      ld1tot_cvb=ld1tot
+      loccn_cvb=loccn
+      lcmo_cvb=lcmo
+      ldiaf_cvb=ldiaf
       Call FZero(Work(LFA),NTOT1)
       Call FZero(Work(LDIAF),NTOT)
 *
@@ -314,6 +322,10 @@
            Call GetMem('P2AS','Allo','Real',LPA,NACPR2)
            call dcopy_(NACPAR,0.0d0,0,Work(LDMAT),1)
            call dcopy_(NACPAR,0.0d0,0,Work(LDSPN),1)
+           ldmat_cvb=ldmat
+           ldspn_cvb=ldspn
+           lpmat_cvb=lpmat
+           lpa_cvb=lpa
          end if
         Else
          LTUVX = ip_Dummy
@@ -559,6 +571,7 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
       IFINAL = 0
       TMXTOT = 0.0D0
       Call GetMem('FOcc','ALLO','REAL',ipFocc,nTot1)
+      ipfocc_cvb=ipfocc
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1842,12 +1855,6 @@ c      write(6,*) 'I am in RASSCF before call to PutRlx!'
       Call Timing(Swatch,Swatch,Oris_2,Swatch)
       Oris_2 = Oris_2 - Oris_1
 *****************************************************************
-
-      IF(NACPAR.GT.0 ) THEN
-         Call GetMem('PMAT','Free','Real',LPMAT,NACPR2)
-         Call GetMem('DMAT','Free','Real',LDMAT,NACPAR)
-         Call GetMem('DSPN','Free','Real',LDSPN,NACPAR)
-      END IF
 *
       EMY=EMY+CASDFT_Funct
 *                                                                      *
@@ -1914,9 +1921,14 @@ c  i_root>0 gives natural spin orbitals for that root
 2010   continue
 
 c deallocating TUVX memory...
-      IF(NACPR2.GT.0) THEN
+      IF(NAC.GT.0) THEN
          Call GetMem('TUVX','Free','Real',LTUVX,NACPR2)
-         Call GetMem('P2AS','Free','Real',LPA,NACPR2)
+         if(.not.iDumpOnly) Then
+            Call GetMem('P2AS','Free','Real',LPA,NACPR2)
+            Call GetMem('PMAT','Free','Real',LPMAT,NACPR2)
+            Call GetMem('DMAT','Free','Real',LDMAT,NACPAR)
+            Call GetMem('DSPN','Free','Real',LDSPN,NACPAR)
+         endif
       END IF
 *
 c deallocating detorb... allocated in proc_inp.f used throughout the iterations

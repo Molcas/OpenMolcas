@@ -284,7 +284,10 @@
       Call mh5_put_dset_array_real(chkpnt_force,
      &     Work(ipGx+N3*(Iter-1)), [3,nsAtom,1], [0,0,Iter_all-1])
 *     Hessian
-      If (Found) Call mh5_put_dset(chkpnt_hess,Hss_X(1))
+      If (Found) Then
+        Call mh5_put_dset(chkpnt_hess,Hss_X(1))
+        Call mma_deallocate(Hss_X)
+      End If
 #endif
       End Subroutine Chkpnt_update
 *                                                                      *
