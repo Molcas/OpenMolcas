@@ -234,7 +234,7 @@
      &           'MEP_INDICES', 1, [0], dyn=.True.)
         Call mh5_init_attr(dsetid, 'description',
      &       'Iteration number for each converged MEP step, as a '//
-     &       'of size [MEP_ITERATIONS]')
+     &       'vector of size [MEP_ITERATIONS]')
       End If
 #endif
 
