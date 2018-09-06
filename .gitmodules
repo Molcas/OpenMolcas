@@ -3,7 +3,7 @@
 	url = https://github.com/mcodev31/libmsym.git
 [submodule "External/NECI"]
 	path = External/NECI
-	url = git@bitbucket.org:limanni/neci_dev_4molcas.git
+	url = https://github.com/ghb24/NECI_STABLE.git
 [submodule "External/libwfa"]
 	path = External/libwfa
 	url = https://github.com/libwfa/libwfa.git
