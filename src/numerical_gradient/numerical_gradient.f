@@ -804,9 +804,9 @@ C_MPP End Do
 *     Restore the "new geometry" field to the RunFile, if any
 *
       If (nGNew.eq.0) Then
-        Call Put_Coord_New(Zero,0)
+        Call Put_Coord_New([Zero],0)
       Else
-        Call Put_Coord_New(GNew,nGNew)
+        Call Put_Coord_New(GNew,nGNew/3)
         Call mma_deallocate(GNew)
       End If
 *                                                                      *
