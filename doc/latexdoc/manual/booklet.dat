@@ -1,0 +1,16 @@
+# $ this file belongs to the Molcas repository $
+# configuration file for booklet
+#
+# + add files. - remove files
+#
++molcas.sty
++*.tex
++*.eps
++*.pdf
++molcas.bib
++tutorials/*.tex
++tutorials/*.eps
++tutorials/*.pdf
++Makefile.booklet
+-manual.tex
+-titlepage.tex

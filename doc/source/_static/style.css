@@ -1,0 +1,37 @@
+/***********************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2015, Ignacio Fdez. Galván                             *
+***********************************************************************/
+
+.sc { font-variant: small-caps; }
+.bdit { font-weight: bold; font-style: italic; }
+
+.filelist { padding: 3px; margin-top: 0.8em; margin-bottom: 0.8em; }
+.filelist dt { padding: 0 3px; }
+.filelist dd { padding-top: 0.4em; padding-bottom: 1em; }
+.keywordlist { padding: 3px; margin-top: 0.8em; margin-bottom: 0.8em; }
+.keywordlist dt { padding: 0 3px; }
+.keywordlist dd { padding-top: 0.4em; padding-bottom: 1em; }
+.programlist { padding: 3px; margin-top: 0.8em; margin-bottom: 0.8em; }
+.programlist dt { padding: 0 3px; }
+.programlist dd { padding-top: 0.4em; padding-bottom: 1em; }
+.commandlist { padding: 3px; margin-top: 0.8em; margin-bottom: 0.8em; }
+.commandlist dt { padding: 0 3px; }
+.commandlist dd { padding-top: 0.4em; padding-bottom: 1em; }
+.variablelist { padding: 3px; margin-top: 0.8em; margin-bottom: 0.8em; }
+.variablelist dt { padding: 0 3px; }
+.variablelist dd { padding-top: 0.4em; padding-bottom: 1em; }
+
+.primlist { margin-top: 0.4em; margin-bottom: 0.4em; }
+.primlist dt { font-weight: bold; }
+
+.container.list { margin-bottom: 0.5em; }
+.container.list p { margin-top: 0; margin-bottom: 0; text-indent: -2em; margin-left: 2em; text-align: left; }

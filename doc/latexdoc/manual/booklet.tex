@@ -1,0 +1,43 @@
+%! manual.tex $ this file belongs to the Molcas repository $*/
+
+\documentclass[a4paper,11pt]{book}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{molcas}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage[breaklinks=true]{hyperref}
+\hypersetup{colorlinks=true,urlcolor=blue,linkcolor=blue,citecolor=red}
+% \usepackage{graphics}
+%LATEX2HTML: \usepackage{html} % to assist latex2html processing
+% note: these definitions must be duplicated in titlepage.
+%\def\molcasversion{5.3}
+\def\thismanual{Short Guide for Molcas}
+\def\molcasauthor{No author}
+\newif\ifprintauthor\printauthorfalse
+\newif\ifmanual\manualfalse
+\newif\ifbooklet\booklettrue
+\def\variable#1{{\keyfont #1}}
+\makeindex
+%===============================================================================
+\begin{document}
+\frontmatter
+%begin{latexonly}
+\include{titlepage_booklet}
+%end{latexonly}
+\tableofcontents
+%\listoffigures
+%\listoftables
+\mainmatter
+%
+\include{introduction}
+\include{tutorials/tut}
+%
+\backmatter
+%\nocite{*}
+\bibliographystyle{unsrt}
+\bibliography{molcas}
+%\listoffigures
+%\listoftables
+\include{index_bib}
+\end{document}

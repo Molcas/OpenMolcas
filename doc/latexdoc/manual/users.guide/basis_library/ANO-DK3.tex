@@ -1,0 +1,174 @@
+%! ANO-DK3.tex $ this file belongs to the Molcas repository $*/
+\paragraph{Relativistic minimal valence ANO basis sets --- ANO-DK3}
+A highly accurate minimal valence relativistic basis set developed for the 103 elements from
+H to Lr \cite{ANO-DK3}. 
+The orbital exponents were optimized by minimizing the atomic self-consistent field (SCF) energy
+with relativistic third-order Douglas-Kroll approximation (the atomic ground states were:
+H($^2$S), He($^1$S), Li($^2$S), Be($^1$S), B($^2$P), C($^3$P), N($^4$S), O($^3$P), F($^2$P),
+Ne($^1$S), Na($^2$S), Mg($^1$S), Al($^2$P), Si($^3$P), P($^4$S), S($^3$P), Cl($^2$P), Ar($^1$S),
+K($^2$S), Ca($^1$S), Sc($^2$D), Ti($^3$F), V($^4$F), Cr($^7$S), Mn($^6$S), Fe($^5$D), Co($^4$F),
+Ni($^3$F), Cu($^2$S), Zn($^1$S), Ga($^2$P), Ge($^3$P), As($^4$S), Se($^3$P), Br($^2$P), Kr($^1$S),
+Rb($^2$S), Sr($^1$S), Y($^2$D), Zr($^3$F), Nb($^6$D), Mo($^7$S), Tc($^6$S), Ru($^5$F), Rh($^4$F),
+Pd($^1$S), Ag($^2$S), Cd($^1$S), In($^2$P), Sn($^3$P), Sb($^4$S), Te($^3$P), I($^2$P), Xe($^1$S),
+Cs($^2$S), Ba($^1$S), La($^2$D), Ce($^1$G), Pr($^4$I), Nd($^5$I), Pm($^6$H), Sm($^7$F), Eu($^8$S),
+Gd($^9$D), Tb($^6$H), Dy($^5$I), Ho($^4$I), Er($^3$H), Tm($^2$F), Yb($^1$S), Lu($^2$D), Hf($^3$F),
+Ta($^4$F), W($^5$D), Re($^6$S), Os($^5$D), Ir($^4$F), Pt($^3$D), Au($^2$S), Hg($^1$S), Tl($^2$P),
+Pb($^3$P), Bi($^4$S), Po($^3$P), At($^2$P), Rn($^1$S), Fr($^2$S), Ra($^1$S), Ac($^2$D), Th($^3$F),
+Pa($^4$J), U($^5$L), Np($^6$L), Pu($^7$F), Am($^8$S), Cm($^9$D), Bk($^8$H), Cf($^5$I), Es($^4$I),
+Fm($^3$H), Md($^2$F), No($^1$S), and Lr($^2$D)). The minimal valence basis set is of a quality better
+than a typical 6-31G basis set. For more accurate calculations the basis need additional
+polarization and diffuse functions. The latter can be accomplished by on-the-fly decontraction.
+
+The primitive sets are:
+\begin{itemize}
+\item 6s for H--He
+\item 12s for Li--Be
+\item 12s8p for B--Ne
+\item 16s11p for Na--Ar
+\item 20s15p for K--Ca
+\item 20s15p9d for Sc--Kr
+\item 23s19p12d for Rb--Xe
+\item 27s23p15d for Cs--La
+\item 27s23p15d10f for Ce--Rn
+\item 35s26p18d13f for Fr--Lr
+\end{itemize}
+
+The maximum number of ANO-DK3's given in the library is:
+\begin{itemize}
+\item 1s for H--He
+\item 2s for Li--Be
+\item 2s1p for B--Ne
+\item 3s1p for Na--Mg
+\item 3s1p for Al--Ar
+\item 4s2p for K--Ca
+\item 4s2p1d for Sc--Zn
+\item 4s3p1d for Ga--Kr
+\item 5s3p1d for Rb--Rh
+\item 4s3p2d for Pd
+\item 5s3p2d for Ag--Cd
+\item 5s4p2d for In--Xe
+\item 6s4p2d for Cs--Ba
+\item 6s4p3d for La
+\item 6s4p3d1f for Ce
+\item 6s4p2d1f for Pr--Eu
+\item 6s4p3d1f for Gd
+\item 6s4p2d1f for Tb--Yb  
+\item 6s4p3d1f for Lu--Hg
+\item 6s5p3d1f for Tl--Rn
+\item 7s5p3d1f for Fr--Ra
+\item 7s5p4d1f for Ac--Th
+\item 7s5p4d2f for Pa--Np
+\item 7s5p3d2f for Pu--Am
+\item 7s5p4d2f for Cm--Bk
+\item 7s5p3d2f for Cf--No
+\item 7s5p4d2f for Lr
+\end{itemize}
+Note, however, the number of contracted functions can always be extended by automatic decontraction of the most
+diffuse exponents in each shell by specifying more contracted functions as compared to what the basis set formally carrys.
+
+Below is a list of the basis sets available in this class.
+\begin{verbatim}
+H.ANO-DK3.Tsuchiya.6s.1s.
+He.ANO-DK3.Tsuchiya.6s.1s.
+Li.ANO-DK3.Tsuchiya.12s.2s.
+Be.ANO-DK3.Tsuchiya.12s.2s.
+B.ANO-DK3.Tsuchiya.12s8p.2s1p.
+C.ANO-DK3.Tsuchiya.12s8p.2s1p.
+N.ANO-DK3.Tsuchiya.12s8p.2s1p.
+O.ANO-DK3.Tsuchiya.12s8p.2s1p.
+F.ANO-DK3.Tsuchiya.12s8p.2s1p.
+Ne.ANO-DK3.Tsuchiya.12s8p.2s1p.
+Na.ANO-DK3.Tsuchiya.16s11p.3s1p.
+Mg.ANO-DK3.Tsuchiya.16s11p.3s1p.
+Al.ANO-DK3.Tsuchiya.16s11p.3s2p.
+Si.ANO-DK3.Tsuchiya.16s11p.3s2p.
+P.ANO-DK3.Tsuchiya.16s11p.3s2p.
+S.ANO-DK3.Tsuchiya.16s11p.3s2p.
+Cl.ANO-DK3.Tsuchiya.16s11p.3s2p.
+Ar.ANO-DK3.Tsuchiya.16s11p.3s2p.
+K.ANO-DK3.Tsuchiya.20s15p.4s2p.
+Ca.ANO-DK3.Tsuchiya.20s15p.4s2p.
+Sc.ANO-DK3.Tsuchiya.20s15p9d.4s2p1d.
+Ti.ANO-DK3.Tsuchiya.20s15p9d.4s2p1d.
+V.ANO-DK3.Tsuchiya.20s15p9d.4s2p1d.
+Cr.ANO-DK3.Tsuchiya.20s15p9d.4s2p1d.
+Mn.ANO-DK3.Tsuchiya.20s15p9d.4s2p1d.
+Fe.ANO-DK3.Tsuchiya.20s15p9d.4s2p1d.
+Co.ANO-DK3.Tsuchiya.20s15p9d.4s2p1d.
+Ni.ANO-DK3.Tsuchiya.20s15p9d.4s2p1d.
+Cu.ANO-DK3.Tsuchiya.20s15p9d.4s2p1d.
+Zn.ANO-DK3.Tsuchiya.20s15p9d.4s2p1d.
+Ga.ANO-DK3.Tsuchiya.20s15p9d.4s3p1d.
+Ge.ANO-DK3.Tsuchiya.20s15p9d.4s3p1d.
+As.ANO-DK3.Tsuchiya.20s15p9d.4s3p1d.
+Se.ANO-DK3.Tsuchiya.20s15p9d.4s3p1d.
+Br.ANO-DK3.Tsuchiya.20s15p9d.4s3p1d.
+Kr.ANO-DK3.Tsuchiya.20s15p9d.4s3p1d.
+Rb.ANO-DK3.Tsuchiya.23s19p12d.5s3p1d.
+Sr.ANO-DK3.Tsuchiya.23s19p12d.5s3p1d.
+Y.ANO-DK3.Tsuchiya.23s19p12d.5s3p2d.
+Zr.ANO-DK3.Tsuchiya.23s19p12d.5s3p2d.
+Nb.ANO-DK3.Tsuchiya.23s19p12d.5s3p2d.
+Mo.ANO-DK3.Tsuchiya.23s19p12d.5s3p2d.
+Tc.ANO-DK3.Tsuchiya.23s19p12d.5s3p2d.
+Ru.ANO-DK3.Tsuchiya.23s19p12d.5s3p2d.
+Rh.ANO-DK3.Tsuchiya.23s19p12d.5s3p2d.
+Pd.ANO-DK3.Tsuchiya.23s19p12d.4s3p2d.
+Ag.ANO-DK3.Tsuchiya.23s19p12d.5s3p2d.
+Cd.ANO-DK3.Tsuchiya.23s19p12d.5s3p2d.
+In.ANO-DK3.Tsuchiya.23s19p12d.5s4p2d.
+Sn.ANO-DK3.Tsuchiya.23s19p12d.5s4p2d.
+Sb.ANO-DK3.Tsuchiya.23s19p12d.5s4p2d.
+Te.ANO-DK3.Tsuchiya.23s19p12d.5s4p2d.
+I.ANO-DK3.Tsuchiya.23s19p12d.5s4p2d.
+Xe.ANO-DK3.Tsuchiya.23s19p12d.5s4p2d.
+Cs.ANO-DK3.Tsuchiya.27s23p15d.6s4p2d.
+Ba.ANO-DK3.Tsuchiya.27s23p15d.6s4p2d.
+La.ANO-DK3.Tsuchiya.27s23p15d.6s4p3d.
+Ce.ANO-DK3.Tsuchiya.27s23p15d10f.6s4p3d1f.
+Pr.ANO-DK3.Tsuchiya.27s23p15d10f.6s4p2d1f.
+Nd.ANO-DK3.Tsuchiya.27s23p15d10f.6s4p2d1f.
+Pm.ANO-DK3.Tsuchiya.27s23p15d10f.6s4p2d1f.
+Sm.ANO-DK3.Tsuchiya.27s23p15d10f.6s4p2d1f.
+Eu.ANO-DK3.Tsuchiya.27s23p15d10f.6s4p2d1f.
+Gd.ANO-DK3.Tsuchiya.27s23p15d10f.6s4p3d1f.
+Tb.ANO-DK3.Tsuchiya.27s23p15d10f.6s4p2d1f.
+Dy.ANO-DK3.Tsuchiya.27s23p15d10f.6s4p2d1f.
+Ho.ANO-DK3.Tsuchiya.27s23p15d10f.6s4p2d1f.
+Er.ANO-DK3.Tsuchiya.27s23p15d10f.6s4p2d1f.
+Tm.ANO-DK3.Tsuchiya.27s23p15d10f.6s4p2d1f.
+Yb.ANO-DK3.Tsuchiya.27s23p15d10f.6s4p2d1f.
+Lu.ANO-DK3.Tsuchiya.27s23p15d10f.6s4p3d1f.
+Hf.ANO-DK3.Tsuchiya.27s23p15d10f.6s4p3d1f.
+Ta.ANO-DK3.Tsuchiya.27s23p15d10f.6s4p3d1f.
+W.ANO-DK3.Tsuchiya.27s23p15d10f.6s4p3d1f.
+Re.ANO-DK3.Tsuchiya.27s23p15d10f.6s4p3d1f.
+Os.ANO-DK3.Tsuchiya.27s23p15d10f.6s4p3d1f.
+Ir.ANO-DK3.Tsuchiya.27s23p15d10f.6s4p3d1f.
+Pt.ANO-DK3.Tsuchiya.27s23p15d10f.6s4p3d1f.
+Au.ANO-DK3.Tsuchiya.27s23p15d10f.6s4p3d1f.
+Hg.ANO-DK3.Tsuchiya.27s23p15d10f.6s4p3d1f.
+Tl.ANO-DK3.Tsuchiya.27s23p15d10f.6s5p3d1f.
+Pb.ANO-DK3.Tsuchiya.27s23p15d10f.6s5p3d1f.
+Bi.ANO-DK3.Tsuchiya.27s23p15d10f.6s5p3d1f.
+Po.ANO-DK3.Tsuchiya.27s23p15d10f.6s5p3d1f.
+At.ANO-DK3.Tsuchiya.27s23p15d10f.6s5p3d1f.
+Rn.ANO-DK3.Tsuchiya.27s23p15d10f.6s5p3d1f.
+Fr.ANO-DK3.Tsuchiya.35s26p18d13f.7s5p3d1f.
+Ra.ANO-DK3.Tsuchiya.35s26p18d13f.7s5p3d1f.
+Ac.ANO-DK3.Tsuchiya.35s26p18d13f.7s5p4d1f.
+Th.ANO-DK3.Tsuchiya.35s26p18d13f.7s5p4d1f.
+Pa.ANO-DK3.Tsuchiya.35s26p18d13f.7s5p4d2f.
+U.ANO-DK3.Tsuchiya.35s26p18d13f.7s5p4d2f.
+Np.ANO-DK3.Tsuchiya.35s26p18d13f.7s5p4d2f.
+Pu.ANO-DK3.Tsuchiya.35s26p18d13f.7s5p3d2f.
+Am.ANO-DK3.Tsuchiya.35s26p18d13f.7s5p3d2f.
+Cm.ANO-DK3.Tsuchiya.35s26p18d13f.7s5p4d2f.
+Bk.ANO-DK3.Tsuchiya.35s26p18d13f.7s5p4d2f.
+Cf.ANO-DK3.Tsuchiya.35s26p18d13f.7s5p3d2f.
+Es.ANO-DK3.Tsuchiya.35s26p18d13f.7s5p3d2f.
+Fm.ANO-DK3.Tsuchiya.35s26p18d13f.7s5p3d2f.
+Md.ANO-DK3.Tsuchiya.35s26p18d13f.7s5p3d2f.
+No.ANO-DK3.Tsuchiya.35s26p18d13f.7s5p3d2f.
+Lr.ANO-DK3.Tsuchiya.35s26p18d13f.7s5p4d2f.
+\end{verbatim}

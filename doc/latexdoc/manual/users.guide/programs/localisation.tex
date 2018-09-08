@@ -1,0 +1,576 @@
+% localisation.tex $ this file belongs to the Molcas repository $
+
+\section{\program{localisation}}
+\label{UG:sec:localisation}
+\index{Program!Localisation@\program{Localisation}}\index{Localisation@\program{Localisation}}
+
+\subsection{Description}
+\label{UG:sec:localisation_description}
+%%%<MODULE NAME="LOCALISATION">
+%%Description:
+%%%<HELP>
+%%+The LOCALISATION program of the molcas program system generates
+%%+localised occupied orbitals according to one of the following procedures:
+%%+Pipek-Mezey, Boys, Edmiston-Ruedenberg, or Cholesky.
+%%+Orthonormal, linearly independent, local virtual orbitals may also be
+%%+generated from projected atomic orbitals (Cholesky PAOs).
+%%%</HELP>
+The \program{LOCALISATION} program of the \molcas\ program system generates
+localised occupied orbitals according to one of the following procedures:
+Pipek-Mezey\cite{Pipek:89},
+Boys\cite{Boys:60,Foster:60},
+Edmiston-Ruedenberg\cite{Edmiston:63}, or
+Cholesky\cite{Aquilante:06a}.
+Orthonormal, linearly independent, local orbitals may also be
+generated from projected atomic orbitals (Cholesky PAOs)\cite{Aquilante:06a}.
+
+Orbital localisation makes use of the fact that a Hartree-Fock wave function
+is invariant under unitary transformations of the occupied orbitals,
+\begin{equation}
+   {\tilde C}_{\mu i} = \sum_j C_{\mu j} U_{ji} ,
+\end{equation}
+where ${\bf U}$ is unitary (i.e. orthogonal for real orbitals).
+The same is true for the inactive or active orbitals in a CASSCF wave function.
+Whereas the Pipek-Mezey\cite{Pipek:89},
+Boys\cite{Boys:60,Foster:60}, and
+Edmiston-Ruedenberg\cite{Edmiston:63} procedures define ${\bf U}$
+through an iterative maximization of a localisation functional,
+the Cholesky orbitals are simply defined through the Cholesky decomposition
+of the one-electron density, i.e.
+\begin{equation}
+   \sum_i {\tilde C}_{\mu i}{\tilde C}_{\nu i} = P_{\mu\nu} = \sum_i C_{\mu i} C_{\mu i} .
+\end{equation}
+Cholesky orbitals are thus not optimum localised orbitals by any of the
+Pipek-Mezey, Boys, or Edmiston-Ruedenberg measures, but rather inherit locality
+from the density matrix, see \cite{Aquilante:06a} for details.
+
+Although these localisation schemes are mostly meant for localising occupied
+orbitals (except for PAOs which are defined for the virtual orbitals), the
+\program{LOCALISATION} program will attempt to localise any set of orbitals
+that the user specifies. This means that it is possible to mix
+occupied and virtual orbitals and thereby break the Hartree-Fock
+invariance. The default settings, however, do not break the invariance.
+
+For Pipek-Mezey, Boys, and Edmiston-Ruedenberg localisations, iterative
+optimizations are carried out. We use
+the $\eta$-steps of Subotnik {\em et al.}\cite{Subotnik:04} for
+Edmiston-Ruedenberg, whereas the traditional Jacobi sweeps (consecutive
+two-by-two orbital rotations)\cite{Pipek:89,Subotnik:04}
+are employed for the Pipek-Mezey and Boys schemes.
+
+\subsection{Dependencies}
+\label{UG:sec:localisation_dependencies}
+The \program{LOCALISATION} program requires the one-{}electron integral file
+\file{ONEINT} and the communications file \file{RUNFILE},
+which contains, among other data, the
+basis set specifications processed by \program{GATEWAY} and \program{SEWARD}.
+In addition, the Edmiston-Ruedenberg procedure requires the presence
+of Cholesky decomposed two-electron integrals produced by \program{SEWARD}.
+
+\subsection{Files}
+\label{UG:sec:localisation_files}
+\index{Files!LOCALISATION}\index{LOCALISATION!Files}
+
+Below is a list of the files that are used/created by the program
+\program{LOCALISATION}.
+
+\subsubsection{Input files}
+\program{LOCALISATION} will use the following input
+files: \file{ONEINT}, \file{RUNFILE}, \file{INPORB}.
+For Edmiston-Ruedenberg localisation,
+it also needs \file{CHVEC}, \file{CHRED} and \file{CHORST} files
+(for more information see~\ref{UG:sec:files_list}).
+
+\subsubsection{Output files}
+
+\begin{filelist}
+%---
+\item[LOCORB]
+Localised orthonormal orbital output file.
+Note that \file{LOCORB} contains all orbitals (localised as well as non-localised
+according to the input specification).
+%---
+\item[DPAORB]
+Linearly dependent nonorthonormal projected atomic orbital output file
+(only produced for PAO runs).
+%---
+\item[IPAORB]
+Linearly independent nonorthonormal projected atomic orbital output file
+(only produced for PAO runs).
+%---
+\item[RUNFILE]
+Communication file for subsequent programs.
+%---
+\item[MD\_LOC]
+Molden input file for molecular orbital analysis.
+\end{filelist}
+
+\subsection{Input}
+\label{UG:sec:scf_inploc}
+\index{Input!SCF}\index{SCF!Input}
+
+Below follows a description of the input to \program{LOCALISATION}.
+The \program{LOCALISATION} program section of the \molcas\ input is bracketed by
+a preceding program reference
+\begin{inputlisting}
+ &LOCALISATION
+\end{inputlisting}
+
+
+\subsubsection{Optional general keywords}
+\begin{keywordlist}
+%---
+%%%<KEYWORD MODULE="LOCALISATION" NAME="FILE" APPEAR="Orbitals file" KIND="STRING" LEVEL="BASIC">
+%%Keyword: FileOrb <basic>
+%%%<HELP>
+%%+The next line specifies the filename containing the input orbitals that will
+%%+be localised. By default a file named INPORB will be used.
+%%%</HELP>
+\item[FILEorb]
+The next line specifies the filename containing the input orbitals that will
+be localised. By default a file named \file{INPORB} will be used.
+%%%</KEYWORD>
+%---
+%%%<KEYWORD MODULE="LOCALISATION" NAME="NORB" APPEAR="Number of orbitals" LEVEL="BASIC"
+%%% KIND="INTS_LOOKUP" SIZE="NSYM" >
+%%%<HELP>
+%%+Please, specify the number of orbitals to localise in each irrep.
+%%%</HELP>
+%%%</KEYWORD>
+%%Keyword: NORB <basic>
+%%+The following line specifies the number of orbitals to localise in each
+%%+irreducible representation. The default is to localise all occupied
+%%+orbitals as specified in the INPORB input file, except for PAO runs where
+%%+all the virtual orbitals are treated by default.
+\item[NORBitals]
+The following line specifies the number of orbitals to localise in each
+irreducible representation. The default is to localise all occupied
+orbitals as specified in the \file{INPORB} input file, except for PAO runs where
+all the virtual orbitals are treated by default.
+%%%<SELECT MODULE="LOCALISATION" NAME="ORBITAL_FREEZE" APPEAR="Frozen orbitals selection"
+%%% CONTAINS="NFROZEN,FREEZE">
+%%%<KEYWORD MODULE="LOCALISATION" NAME="NFROZEN" APPEAR="Orbitals to freeze" LEVEL="BASIC"
+%%% KIND="INTS_LOOKUP" SIZE="NSYM" EXCLUSIVE="FREEZE">
+%%%<HELP>
+%%+Please, specify the number of orbitals to freeze in each irrep.
+%%%</HELP>
+%%%</KEYWORD>
+%%Keyword: NFRO <basic>
+%%+The following line specifies the number of orbitals to freeze in each
+%%+irreducible representation. The default is not to freeze any orbitals,
+%%+except for the localisations of the virtual space (see keywords PAO and
+%%+VIRTual) where the default is to freeze all occupied orbitals (occupation
+%%+number different from zero, as reported in the INPORB file).
+\item[NFROzen]
+The following line specifies the number of orbitals to freeze in each
+irreducible representation. The default is not to freeze any orbitals,
+except for the localisations of the virtual space (see keywords \keyword{PAO} and
+\keyword{VIRTual}) where the default is to freeze all occupied orbitals (occupation
+number different from zero, as reported in the \file{INPORB} file).
+%%%<KEYWORD MODULE="LOCALISATION" NAME="FREEZE" APPEAR="Freeze core orbitals" LEVEL="BASIC"
+%%% KIND="SINGLE" EXCLUSIVE="NFROZEN">
+%%%<HELP>
+%%+Freeze the core orbitals as defined by SEWARD.
+%%%</HELP>
+%%%</KEYWORD>
+%%%</SELECT>
+%%Keyword: FREE <basic>
+%%+Implicit frozen core option. The default is not to freeze any orbitals,
+%%+except for the localisations of the virtual space (see keywords PAO and
+%%+VIRTual) where the default is to freeze all occupied orbitals (occupation
+%%+number different from zero, as reported in the INPORB file).
+\item[FREEze]
+Implicit frozen core option. The default is not to freeze any orbitals,
+except for the localisations of the virtual space (see keywords \keyword{PAO} and
+\keyword{VIRTual}) where the default is to freeze all occupied orbitals (occupation
+number different from zero, as reported in the \file{INPORB} file).
+The definition of core orbitals is taken from program \program{SEWARD}.
+%
+%%%<SELECT MODULE="LOCALISATION"
+%%%        NAME="LOC_ORB"
+%%%        APPEAR="Orbitals to localise"
+%%%        CONTAINS="OCCU,VIRT,ALL">
+%
+%%%<KEYWORD MODULE="LOCALISATION" NAME="OCCU" APPEAR="Localise occupied orbitals" LEVEL="BASIC"
+%%% KIND="SINGLE" EXCLUSIVE="VIRT,ALL">
+%%%<HELP>
+%%+Requests that the occupied orbitals should be localised.
+%%%</HELP>
+%%%</KEYWORD>
+%%Keyword: OCCU <basic>
+%%+Requests that the occupied orbitals should be localised. This is the default
+%%+except for PAO where the default is virtual.
+\item[OCCUpied]
+Requests that the occupied orbitals should be localised. This is the default
+except for PAO where the default is virtual.
+%
+%%%<KEYWORD MODULE="LOCALISATION" NAME="VIRT" APPEAR="Localise virtual orbitals" LEVEL="BASIC"
+%%% KIND="SINGLE" EXCLUSIVE="OCCU,ALL">
+%%%<HELP>
+%%+Requests that the virtual orbitals should be localised.
+%%%</HELP>
+%%%</KEYWORD>
+%%Keyword: VIRT <basic>
+%%+Requests that the virtual orbitals should be localised. The default is
+%%+to localise the occupied orbitals, except for PAO where the default is
+%%+virtual.
+\item[VIRTual]
+Requests that the virtual orbitals should be localised. The default is
+to localise the occupied orbitals, except for PAO where the default is
+virtual.
+%
+%%%<KEYWORD MODULE="LOCALISATION" NAME="ALL" APPEAR="Localise all orbitals" LEVEL="BASIC"
+%%% KIND="SINGLE" EXCLUSIVE="OCCU,VIRT">
+%%%<HELP>
+%%+Requests that all orbitals should be localised.
+%%%</HELP>
+%%%</KEYWORD>
+%%Keyword: ALL  <basic>
+%%+Requests that all orbitals should be localised. The default is
+%%+to localise the occupied orbitals, except for PAO where the default is
+%%+virtual.
+\item[ALL ]
+Requests that all orbitals should be localised. The default is
+to localise the occupied orbitals, except for PAO where the default is
+virtual.
+%
+%%%</SELECT>
+%
+%%% <SELECT MODULE="LOCALISATION" NAME="LOC_METHODS" APPEAR="Localisation method"
+%%% CONTAINS="PIPE,BOYS,EDMI,CHOL,PAO,SKIP">
+%
+%%%<KEYWORD MODULE="LOCALISATION" NAME="PIPE" APPEAR="Pipek-Mezey" LEVEL="ADVANCED"
+%%% KIND="SINGLE" EXCLUSIVE="BOYS,EDMI,CHOL,PAO,SKIP">
+%%%<HELP>
+%%+Requests Pipek-Mezey localisation.
+%%%</HELP>
+%%%</KEYWORD>
+%%Keyword: PIPE <advanced>
+%%+Requests Pipek-Mezey localisation. This is the default.
+\item[PIPEk-Mezey]
+Requests Pipek-Mezey localisation. This is the default.
+%%%<KEYWORD MODULE="LOCALISATION" NAME="BOYS" APPEAR="Boys-Forster" LEVEL="ADVANCED"
+%%% KIND="SINGLE" EXCLUSIVE="PIPE,EDMI,CHOL,PAO,SKIP">
+%%%<HELP>
+%%+Requests Boys localisation.
+%%%</HELP>
+%%%</KEYWORD>
+%%Keyword: BOYS <advanced>
+%%+Requests Boys localisation. The default is Pipek-Mezey.
+\item[BOYS]
+Requests Boys localisation. The default is Pipek-Mezey.
+%%%<KEYWORD MODULE="LOCALISATION" NAME="EDMI" APPEAR="Edmiston-Ruedenberg" LEVEL="ADVANCED"
+%%% KIND="SINGLE" EXCLUSIVE="PIPE,BOYS,CHOL,PAO,SKIP">
+%%%<HELP>
+%%+Requests Edmiston-Ruedenberg localisation.
+%%%</HELP>
+%%%</KEYWORD>
+%%Keyword: EDMI <advanced>
+%%+Requests Edmiston-Ruedenberg localisation. The default is Pipek-Mezey.
+%%+Note that this option requires that the Cholesky (or RI/DF) representation
+%%+of the two-electron integrals has been produced by SEWARD.
+\item[EDMIston-Ruedenberg]
+Requests Edmiston-Ruedenberg localisation. The default is Pipek-Mezey.
+Note that this option requires that the Cholesky (or RI/DF) representation
+of the two-electron integrals has been produced by \program{SEWARD}.
+%%%<KEYWORD MODULE="LOCALISATION" NAME="CHOL" APPEAR="Cholesky" LEVEL="ADVANCED"
+%%% KIND="SINGLE" EXCLUSIVE="PIPE,BOYS,EDMI,PAO,SKIP">
+%%%<HELP>
+%%+Requests Cholesky localisation.
+%%%</HELP>
+%%%</KEYWORD>
+%%Keyword: CHOL <advanced>
+%%+Requests Cholesky localisation. The default is Pipek-Mezey.
+\item[CHOLesky]
+Requests Cholesky localisation (non-iterative). The default is Pipek-Mezey.
+This and PAO are the only options that can handle point group symmetry.
+The decomposition threshold is by default 1.0d-8 but may be changed
+through the \keyword{THREshold} keyword.
+%%%<KEYWORD MODULE="LOCALISATION" NAME="PAO" APPEAR="PAO" LEVEL="ADVANCED"
+%%% KIND="SINGLE" EXCLUSIVE="PIPE,BOYS,EDMI,CHOL,SKIP">
+%%%<HELP>
+%%+Requests PAO localisation.
+%%%</HELP>
+%%%</KEYWORD>
+%%Keyword: PAO  <advanced>
+%%+Requests PAO localisation. The default is Pipek-Mezey.
+\item[PAO]
+Requests PAO localisation (non-iterative) using Cholesky decomposition
+to remove linear dependence.
+The default is Pipek-Mezey.
+This and Cholesky are the only options that can handle point group symmetry.
+The decomposition threshold is by default 1.0d-8 but may be changed
+through the \keyword{THREshold} keyword.
+%%%<KEYWORD MODULE="LOCALISATION" NAME="SKIP" APPEAR="None" LEVEL="ADVANCED"
+%%% KIND="SINGLE" EXCLUSIVE="PIPE,BOYS,EDMI,CHOL,PAO">
+%%%<HELP>
+%%+Leaves the input orbitals unchanged.
+%%%</HELP>
+%%%</KEYWORD>
+%%Keyword: SKIP  <advanced>
+%%+Leaves the input orbitals unchanged.
+\item[SKIP]
+Leaves the input orbitals unchanged. It is turned off by default.
+%
+%%%</SELECT>
+%
+%%%<KEYWORD MODULE="LOCALISATION" NAME="ITER" APPEAR="Iterations" LEVEL="ADVANCED"
+%%% KIND="INT">
+%%%<HELP>
+%%+Please, specify the maximum number of iterations to be
+%%+used by the iterative localisation procedures. The default is 100.
+%%%</HELP>
+%%%</KEYWORD>
+%%Keyword: ITER <advanced>
+%%+The following line specifies the maximum number of iterations to be
+%%+used by the iterative localisation procedures. The default is 100.
+\item[ITERations]
+The following line specifies the maximum number of iterations to be
+used by the iterative localisation procedures. The default is 100.
+%%%<KEYWORD MODULE="LOCALISATION" NAME="THRE" APPEAR="Functional threshold" LEVEL="ADVANCED"
+%%% KIND="REAL">
+%%%<HELP>
+%%+Please, specify the convergence threshold used for
+%%+changes in the localisation functional (default: 1.0d-6)
+%%+or the decomposition threshold (default: 1.0d-8).
+%%%</HELP>
+%%%</KEYWORD>
+%%Keyword: THRE <advanced>
+%%+The following line specifies the convergence threshold used for
+%%+changes in the localisation functional. The default is 1.0d-6.
+%%+For Cholesky and PAO methods, it is the decomposition threshold and
+%%+the default is 1.0d-8.
+\item[THREshold]
+The following line specifies the convergence threshold used for
+changes in the localisation functional. The default is 1.0d-6.
+For Cholesky and PAO methods, it is the decomposition threshold and
+the default is 1.0d-8.
+%%%<KEYWORD MODULE="LOCALISATION" NAME="THRG" APPEAR="Gradient threshold" LEVEL="ADVANCED"
+%%% KIND="REAL">
+%%%<HELP>
+%%+Please, specify the convergence threshold used for
+%%+changes in the gradient of the localisation functional. The default is 1.0d-2.
+%%%</HELP>
+%%%</KEYWORD>
+%%Keyword: THRG <advanced>
+%%+The following line specifies the convergence threshold used for
+%%+the gradient of the localisation functional. The default is 1.0d-2.
+\item[THRGradient]
+The following line specifies the convergence threshold used for
+the gradient of the localisation functional. The default is 1.0d-2.
+%%%<KEYWORD MODULE="LOCALISATION" NAME="THRR" APPEAR="Screening threshold" LEVEL="ADVANCED"
+%%% KIND="REAL">
+%%%<HELP>
+%%+Please, specify the convergence threshold used in
+%%+the Jacobi sweep optimization algorithm. The default is 1.0d-10.
+%%%</HELP>
+%%%</KEYWORD>
+%%Keyword: THRR <advanced>
+%%+The following line specifies the screening threshold used in
+%%+the Jacobi sweep optimization algorithm. The default is 1.0d-10.
+\item[THRRotations]
+The following line specifies the screening threshold used in
+the Jacobi sweep optimization algorithm. The default is 1.0d-10.
+%%%<KEYWORD MODULE="LOCALISATION" NAME="CHOS" APPEAR="Cholesky guess" LEVEL="ADVANCED"
+%%% KIND="SINGLE" >
+%%%<HELP>
+%%+Requests that the localisation procedure uses Cholesky orbitals
+%%+as initial orbitals.
+%%%</HELP>
+%%%</KEYWORD>
+%%Keyword: CHOS <advanced>
+%%+Requests that the localisation procedure uses Cholesky orbitals
+%%+as initial orbitals. The default is not to use Cholesky orbitals.
+\item[CHOStart]
+Requests that iterative localisation procedures use Cholesky orbitals
+as initial orbitals. The default is to use the orbitals from
+\file{INPORB} directly.
+%%%<KEYWORD MODULE="LOCALISATION" NAME="ORDE" APPEAR="Orbital reordering" LEVEL="ADVANCED"
+%%% KIND="SINGLE" >
+%%%<HELP>
+%%+Requests that the localised orbitals are ordered in the same way
+%%+as the Cholesky orbitals would be.
+%%%</HELP>
+%%%</KEYWORD>
+%%Keyword: ORDE <advanced>
+%%+Requests that the localised orbitals are ordered in the same way
+%%+as the Cholesky orbitals would be.
+%%+The default is not to order.
+\item[ORDEr]
+Requests that the localised orbitals are ordered in the same way
+as the Cholesky orbitals would be. This is mainly useful when
+comparing orbitals from different localisation schemes. The
+ordering is done according to maximum overlap with the
+Cholesky orbitals. The default is not to order.
+%%%<KEYWORD MODULE="LOCALISATION" NAME="DOMA" APPEAR="Orbital and pair domains analysis" LEVEL="ADVANCED"
+%%% KIND="SINGLE" >
+%%%<HELP>
+%%+Requests orbital domains and pair domains are set up and analyzed.
+%%%</HELP>
+%%%</KEYWORD>
+%%Keyword: DOMA <advanced>
+%%+Requests orbital domains and pair domains are set up and analyzed.
+%%+The default is not to set up domains.
+\item[DOMAin]
+Requests orbital domains and pair domains are set up and analyzed.
+The default is not to set up domains.
+%%%<KEYWORD MODULE="LOCALISATION" NAME="THRD" APPEAR="Domain thresholds" LEVEL="ADVANCED"
+%%% KIND="REALS" SIZE="2" REQUIRE="DOMA">
+%%%<HELP>
+%%+Please, specify two thresholds:
+%%+The first is the Mulliken population threshold
+%%+such that atoms are included in the domain (default: 9.0d-1).
+%%+The second threshold is used for the Pulay completeness check of
+%%+the domain (default: 2.0d-2).
+%%%</HELP>
+%%%</KEYWORD>
+%%Keyword: THRD <advanced>
+%%+The following line specifies two thresholds to be used in defining
+%%+orbital domains. The first is the Mulliken population threshold
+%%+such that atoms are included in the domain until the population
+%%+(divided by 2) is larger than this number (default: 9.0d-1).
+%%+The second threshold is used for the Pulay completeness check of
+%%+the domain (default: 2.0d-2).
+\item[THRDomain]
+The following line specifies two thresholds to be used in defining
+orbital domains. The first is the Mulliken population threshold
+such that atoms are included in the domain until the population
+(divided by 2) is larger than this number (default: 9.0d-1).
+The second threshold is used for the Pulay completeness check of
+the domain (default: 2.0d-2).
+%%%<KEYWORD MODULE="LOCALISATION" NAME="THRP" APPEAR="Pair domain threshold" LEVEL="ADVANCED"
+%%% KIND="REALS" SIZE="3" REQUIRE="DOMA">
+%%%<HELP>
+%%+Please, specify three thresholds to be used for
+%%+classifying pair domains: R1, R2, and R3. (Defaults: 1.0d-10,
+%%+1.0d1, and 1.5d1.)
+%%%</HELP>
+%%%</KEYWORD>
+%%Keyword: THRP <advanced>
+%%+The following line specifies three thresholds to be used for
+%%+classifying pair domains: R1, R2, and R3. (Defaults: 1.0d-10,
+%%+1.0d1, and 1.5d1.)
+\item[THRPairdomain]
+The following line specifies three thresholds to be used for
+classifying pair domains: R1, R2, and R3. (Defaults: 1.0d-10,
+1.0d1, and 1.5d1.)
+If R is the smallest distance
+between two atoms in the pair domain (union of the individual orbital
+domains), then pair domains are classified according to:
+R$\leq$R1: strong pair,
+R1$<$R$\leq$R2: weak pair,
+R2$<$R$\leq$R3: distant pair, and
+R3$<$R: very distant pair.
+%---
+\item[LOCNatural orbitals]
+%%Keyword: LOCN <basic>
+%%+This keyword is used to select atoms for defining the localised natural
+%%+orbitals (LNOs), thus a set of localised orbitals with well-defined occupation numbers.
+%%+All other options specified in the localisation input apply (e.g., input orbitals,
+%%+localisation method, etc.).
+%%+On the next line give the number of (symmetry unique) atoms that identify the region of interest
+%%+and the threshold used to select the localised orbitals belonging to this region.
+%%+An additional line gives the names of the atoms as defined in the SEWARD input.
+%%+This keyword is used to define occupation numbers when localising active orbitals
+%%+from RASSCF calculations. Particularly useful in Effective Bond Order (EBO) analysis.
+This keyword is used to select atoms for defining the localised natural
+orbitals (LNOs), thus a set of localised orbitals with well-defined occupation numbers.
+All other options specified in the \program{LOCALISATION} program input apply (e.g., input orbitals,
+localisation method, etc.).
+On the next line give the number of atoms that identify the region of interest
+and the threshold used to select the localised orbitals belonging to this region
+(recommended values $>$ 0.2 and $<$ 1).
+An additional line gives the names of the (symmetry unique) atoms as defined in the \program{SEWARD} input.
+The keyword \keyword{LOCN} is used to define suitable occupation numbers for RASSCF active orbitals
+that have been localised. It has proven useful in Effective Bond Order (EBO) analysis.
+Here is a sample input for a complex containing an iron-iron multiple bond.
+\begin{inputlisting}
+ LOCN
+ 2  0.3
+ Fe1  Fe2
+\end{inputlisting}
+In this example, the (localised) orbitals constructed by the \program{LOCALISATION} program
+are subdivided in two groups: those having less than 0.3 total Mulliken population on
+the two iron atoms, and the remaining orbitals, obviously localised on the iron-iron region. The resulting
+density matrices for the two subsets of orbitals are then diagonalized separately
+and the corresponding (localised) natural orbitals written to \file{LOCORB} with the proper occupation
+numbers. Note that the two sets of LNOs are mutually non-orthogonal.
+%---
+\item[LOCCanonical orbitals]
+%%Keyword: LOCC <basic>
+%%+This keyword is used to select atoms for defining the localised canonical
+%%+orbitals (LCOs), thus a set of localised orbitals with well-defined orbital energies.
+%%+Please, refer to the analogous keyword LOCN in this manual for more details and input examples.
+This keyword is used to select atoms for defining the localised canonical
+orbitals (LCOs), thus a set of localised orbitals with well-defined orbital energies
+(eigenvalues of a local Fock matrix).
+Please, refer to the analogous keyword \keyword{LOCN} in this manual for more details and input examples.
+%---
+\end{keywordlist}
+
+
+\subsubsection{Limitations}
+The limitations on the number of basis functions are the same as specified
+for \program{SEWARD}.
+
+\subsubsection{Input examples}
+
+This input is an example of the Boys localisation of the CO molecule. Note that no
+symmetry should not be used in any calculation of localised orbitals except for
+Cholesky and PAO orbitals.
+%%%To_extract{/doc/samples/ug/localisation.Boys.input}
+\begin{inputlisting}
+ &GATEWAY
+Coord = $MOLCAS/Coord/CO.xyz
+Basis = STO-3G
+Group = C1
+
+ &SEWARD ; &SCF
+
+ &LOCALISATION
+Boys
+\end{inputlisting}
+%%%To_extract
+
+This input is an example of the Projected Atomic Orbital localisation of the
+virtual orbitals of the CO molecule. The threshold for the Cholesky
+decomposition that removes linear dependence is set to 1.0d-14.
+
+%%%To_extract{/doc/samples/ug/localisation.PAO.input}
+\begin{inputlisting}
+ &GATEWAY
+Coord = $MOLCAS/Coord/CO.xyz
+Basis = STO-3G
+Group = C1
+
+ &SEWARD ; &SCF
+
+ &LOCALISATION
+PAO
+Threshold = 1.0d-14
+\end{inputlisting}
+%%%To_extract
+
+This input is an example of the Cholesky localisation (using default 1.0d-8 as
+threshold for the decomposition) of the
+valence occupied orbitals of the CO molecule.
+Orbital domains are set up and analyzed.
+
+%%%To_extract{/doc/samples/ug/localisation.Cholesky.input}
+\begin{inputlisting}
+ &GATEWAY
+Coord = $MOLCAS/Coord/CO.xyz
+Basis = STO-3G
+Group = C1
+
+ &SEWARD ; &SCF
+
+ &LOCALISATION
+Cholesky
+Freeze
+Domain
+\end{inputlisting}
+%%%To_extract
+
+%%%</MODULE>
+
