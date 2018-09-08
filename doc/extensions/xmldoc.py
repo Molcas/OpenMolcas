@@ -177,6 +177,6 @@ def purge_XMLDocs(app, env, docname):
 def setup(app):
   app.add_directive('xmldoc', XMLDocDirective)
   app.connect('env-purge-doc', purge_XMLDocs)
-  app.connect('build-finished', write_XMLDocs)
-  app.connect('build-finished', write_Help)
+  #app.connect('build-finished', write_XMLDocs)
+  #app.connect('build-finished', write_Help)
   app.add_config_value('data_dir', 'xmldoc_files', '')

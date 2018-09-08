@@ -2891,23 +2891,16 @@ add_custom_target(prgms ALL
         )
 add_dependencies(mods_obj prgms)
 
-# generate help databases from source (if using molcas-extra)
-if (DEFINED EXTRA_DIR)
-        set (ENV{MOLCAS} ${PROJECT_BINARY_DIR})
-        file (WRITE ${PROJECT_BINARY_DIR}/.openmolcashome
-                "OPENMOLCAS=${OPENMOLCAS_DIR}"
-                )
+# generate help databases from doc
+if (PYTHONINTERP_FOUND)
         execute_process (
-                COMMAND ${MOLCAS_DRIVER} mkhelp
-                WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-                ERROR_VARIABLE MKHELP_ERROR
-                RESULT_VARIABLE MKHELP_RESULT
+                COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/sbin/extract_xmldoc.py ${PROJECT_SOURCE_DIR}/doc ${PROJECT_BINARY_DIR}/data
+                ERROR_VARIABLE EXTRACT_ERROR
+                RESULT_VARIABLE EXTRACT_RESULT
                 )
-        file (REMOVE ${PROJECT_BINARY_DIR}/.openmolcashome)
-        if (MKHELP_RESULT)
-                message(FATAL_ERROR "Running \"mkhelp\" failed: ${MKHELP_ERROR}")
+        if (EXTRACT_RESULT)
+                message(FATAL_ERROR "Running \"extract_xmldoc.py\" failed: ${EXTRACT_ERROR}")
         endif ()
-
         # check XML consistency, only if the program is found
         find_program (XMLLINT "xmllint")
         mark_as_advanced(FORCE XMLLINT)
@@ -2919,6 +2912,8 @@ if (DEFINED EXTRA_DIR)
                         VERBATIM
                         )
         endif ()
+else ()
+        message (WARNING "No python found, help databases will not be created.")
 endif ()
 
 # generate rcodes.txt file
@@ -2988,9 +2983,9 @@ endif ()
 message ("Configuring documentation")
 
 find_program(SPHINX_EXECUTABLE
-             NAMES sphinx-build
-             DOC "Sphinx Documentation Builder (sphinx-doc.org)"
-            )
+        NAMES sphinx-build
+        DOC "Sphinx Documentation Builder (sphinx-doc.org)"
+        )
 mark_as_advanced(FORCE SPHINX_EXECUTABLE)
 
 if (SPHINX_EXECUTABLE)
@@ -3002,7 +2997,7 @@ if (SPHINX_EXECUTABLE)
         string (SUBSTRING "${tmp}" 0 ${pos} SHORT_VERSION)
 
         set (SPHINX_BUILDDIR "${PROJECT_BINARY_DIR}/doc")
-        set (SPHINX_OPTIONS -d ${SPHINX_BUILDDIR}/doctrees)
+        set (SPHINX_OPTIONS -d ${SPHINX_BUILDDIR}/doctrees -D extract_dir=${SPHINX_BUILDDIR}/samples)
 
         add_custom_target (doc_all)
 
@@ -3010,7 +3005,7 @@ if (SPHINX_EXECUTABLE)
                 doc_html
                 COMMAND OPENMOLCAS_RELEASE=${MOLCAS_VERSION} OPENMOLCAS_VERSION=${SHORT_VERSION}
                         ${SPHINX_EXECUTABLE} -b html ${SPHINX_OPTIONS} ${PROJECT_SOURCE_DIR}/doc/source ${SPHINX_BUILDDIR}/html
-        )
+                )
         add_dependencies (doc_all doc_html)
 
         find_program (LATEXMK "latexmk")
@@ -3023,7 +3018,7 @@ if (SPHINX_EXECUTABLE)
                         COMMAND OPENMOLCAS_RELEASE=${MOLCAS_VERSION} OPENMOLCAS_VERSION=${SHORT_VERSION}
                                 ${SPHINX_EXECUTABLE} -b latex ${SPHINX_OPTIONS} ${PROJECT_SOURCE_DIR}/doc/source ${SPHINX_BUILDDIR}/latex
                         COMMAND make -C ${SPHINX_BUILDDIR}/latex all-pdf
-                )
+                        )
                 add_dependencies (doc_all doc_pdf)
         else ()
                 message ("-- LaTeX compiler: no latexmk available, pdf documentation disabled")
@@ -3079,6 +3074,18 @@ if (DEFINED PYMOLCAS_TARGET)
 
         install (CODE "execute_process(COMMAND ${OPENMOLCAS_DIR}/sbin/install_pymolcas.sh ${PYMOLCAS_TARGET})")
 endif ()
+
+install (DIRECTORY
+        ${PROJECT_BINARY_DIR}/doc/html
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/doc
+        OPTIONAL
+        )
+
+install (FILES
+        ${PROJECT_BINARY_DIR}/doc/latex/Manual.pdf
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/doc
+        OPTIONAL
+        )
 
 if (DEFINED EXTRA_DIR)
         install (PROGRAMS

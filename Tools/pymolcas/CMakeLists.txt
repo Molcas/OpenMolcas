@@ -24,6 +24,7 @@ if (NOT PYTHONINTERP_FOUND)
         FIND_PACKAGE(PythonInterp 2.7)
 endif ()
 if (PYTHONINTERP_FOUND)
+        set (PYTHONINTERP_FOUND "${PYTHONINTERP_FOUND}" PARENT_SCOPE)
 
         execute_process (
                 COMMAND ${PYTHON_EXECUTABLE} imports.py
