@@ -375,6 +375,7 @@ doc:
   image: ${CI_REGISTRY}/molcas/dockerfiles/doc:latest
   script:
     # First build sphinx doc
+    - git submodule update --init External/lapack
     - mkdir build
     - cd build
     - cmake ..
