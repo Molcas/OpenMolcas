@@ -9,10 +9,14 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2015, Ignacio Fdez. Galván                             *
+# Copyright (C) 2015,2018, Ignacio Fdez. Galván                        *
 #***********************************************************************
 
-from docutils.parsers.rst import Directive
+try:
+  from docutils.parsers.rst import Directive
+  do_directive = True
+except ImportError:
+  do_directive = False
 import re
 import codecs
 import os.path
@@ -38,22 +42,23 @@ nowrap3 = re.compile(br'\u00a6(.*?)\u00a6'.decode('raw_unicode_escape'))
 
 # Create the xmldoc directive
 #
-class XMLDocDirective(Directive):
-  has_content = True
+if (do_directive):
+  class XMLDocDirective(Directive):
+    has_content = True
 
-  def run(self):
-    self.assert_has_content()
-    # Add a global "XMLDocs" attribute to the environment
-    env = self.state.document.settings.env
-    if not hasattr(env, 'XMLDocs'):
-      env.XMLDocs = []
-    # The "XMLDocs" attribute contains all the xmldoc pieces
-    env.XMLDocs.append({
-      'docname': env.docname,
-      'lineno': self.lineno,
-      'content': [line for line in self.content],
-    })
-    return []
+    def run(self):
+      self.assert_has_content()
+      # Add a global "XMLDocs" attribute to the environment
+      env = self.state.document.settings.env
+      if not hasattr(env, 'XMLDocs'):
+        env.XMLDocs = []
+      # The "XMLDocs" attribute contains all the xmldoc pieces
+      env.XMLDocs.append({
+        'docname': env.docname,
+        'lineno': self.lineno,
+        'content': [line for line in self.content],
+      })
+      return []
 
 # Write all the XML pieces at the end
 #
@@ -174,9 +179,10 @@ def purge_XMLDocs(app, env, docname):
 
 # Setup
 #
-def setup(app):
-  app.add_directive('xmldoc', XMLDocDirective)
-  app.connect('env-purge-doc', purge_XMLDocs)
-  #app.connect('build-finished', write_XMLDocs)
-  #app.connect('build-finished', write_Help)
-  app.add_config_value('data_dir', 'xmldoc_files', '')
+if (do_directive):
+  def setup(app):
+    app.add_directive('xmldoc', XMLDocDirective)
+    app.connect('env-purge-doc', purge_XMLDocs)
+    app.connect('build-finished', write_XMLDocs)
+    app.connect('build-finished', write_Help)
+    app.add_config_value('data_dir', 'xmldoc_files', '')
