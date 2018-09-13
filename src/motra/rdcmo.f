@@ -28,7 +28,7 @@
 *
       Real*8 CMO(*), Ovlp(*)
       Logical okay
-      Integer itemp2((2*4*MxOrb)/ItoB)
+      Integer itemp2((LENIN8*MxOrb)/ItoB)
       Real*8  temp2(MxRoot)
 *
       Call qEnter('RdCmo')
@@ -70,7 +70,7 @@
           Call WR_RASSCF_Info(LuJobIph,2,iDisk,
      &                        itemp2,itemp2,itemp2,itemp2,
      &                        itemp2,itemp2,itemp2,itemp2,
-     &                        itemp2,mxSym,itemp2,4*2*mxOrb,
+     &                        itemp2,mxSym,itemp2,lenin8*mxOrb,
      &                        itemp2,itemp2,144,
      &                        itemp2,4*18*mxTit,
      &                        temp2,itemp2,itemp2,

@@ -12,7 +12,6 @@
       Implicit None
 #include "itmax.fh"
 #include "info.fh"
-#include "angtp.fh"
 #include "stdalloc.fh"
       integer :: nPrim
       integer :: iExp, kExp, iCff

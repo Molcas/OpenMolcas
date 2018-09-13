@@ -69,8 +69,13 @@ module link_blas
       int_ztrmv=>ztrmv
   use lapack_mod, &
       int_dbdsqr=>dbdsqr, &
+      int_dgebak=>dgebak, &
+      int_dgebal=>dgebal, &
       int_dgebd2=>dgebd2, &
       int_dgebrd=>dgebrd, &
+      int_dgeev=>dgeev,   &
+      int_dgehd2=>dgehd2, &
+      int_dgehrd=>dgehrd, &
       int_dgelq2=>dgelq2, &
       int_dgelqf=>dgelqf, &
       int_dgels=>dgels, &
@@ -82,6 +87,7 @@ module link_blas
       int_dgetrf2=>dgetrf2, &
       int_dgetri=>dgetri, &
       int_dgetrs=>dgetrs, &
+      int_dhseqr=>dhseqr, &
       int_disnan=>disnan, &
       int_dlabad=>dlabad, &
       int_dlabrd=>dlabrd, &
@@ -92,22 +98,34 @@ module link_blas
       int_dlae2=>dlae2, &
       int_dlaebz=>dlaebz, &
       int_dlaev2=>dlaev2, &
+      int_dlaexc=>dlaexc, &
       int_dlagtf=>dlagtf, &
       int_dlagts=>dlagts, &
+      int_dlahqr=>dlahqr, &
+      int_dlahr2=>dlahr2, &
       int_dlaisnan=>dlaisnan, &
+      int_dlaln2=>dlaln2, &
       int_dlamch=>dlamch, &
       int_dlaneg=>dlaneg, &
       int_dlange=>dlange, &
       int_dlansp=>dlansp, &
       int_dlanst=>dlanst, &
       int_dlansy=>dlansy, &
+      int_dlanv2=>dlanv2, &
       int_dlapy2=>dlapy2, &
       int_dlapy3=>dlapy3, &
+      int_dlaqr0=>dlaqr0, &
+      int_dlaqr1=>dlaqr1, &
+      int_dlaqr2=>dlaqr2, &
+      int_dlaqr3=>dlaqr3, &
+      int_dlaqr4=>dlaqr4, &
+      int_dlaqr5=>dlaqr5, &
       int_dlar1v=>dlar1v, &
       int_dlarfb=>dlarfb, &
       int_dlarf=>dlarf, &
       int_dlarfg=>dlarfg, &
       int_dlarft=>dlarft, &
+      int_dlarfx=>dlarfx, &
       int_dlarnv=>dlarnv, &
       int_dlarra=>dlarra, &
       int_dlarrb=>dlarrb, &
@@ -135,12 +153,14 @@ module link_blas
       int_dlassq=>dlassq, &
       int_dlasv2=>dlasv2, &
       int_dlaswp=>dlaswp, &
+      int_dlasy2=>dlasy2, &
       int_dlatrd=>dlatrd, &
       int_dopgtr=>dopgtr, &
       int_dopmtr=>dopmtr, &
       int_dorg2l=>dorg2l, &
       int_dorg2r=>dorg2r, &
       int_dorgbr=>dorgbr, &
+      int_dorghr=>dorghr, &
       int_dorgl2=>dorgl2, &
       int_dorglq=>dorglq, &
       int_dorgql=>dorgql, &
@@ -149,6 +169,7 @@ module link_blas
       int_dorm2l=>dorm2l, &
       int_dorm2r=>dorm2r, &
       int_dormbr=>dormbr, &
+      int_dormhr=>dormhr, &
       int_dorml2=>dorml2, &
       int_dormlq=>dormlq, &
       int_dormql=>dormql, &
@@ -176,6 +197,8 @@ module link_blas
       int_dsygv=>dsygv, &
       int_dsytd2=>dsytd2, &
       int_dsytrd=>dsytrd, &
+      int_dtrevc3=>dtrevc3, &
+      int_dtrexc=>dtrexc, &
       int_dtrti2=>dtrti2, &
       int_dtrtri=>dtrtri, &
       int_dtrtrs=>dtrtrs, &
@@ -282,8 +305,13 @@ module link_blas
   procedure(int_ztrmv), pointer :: lb_ztrmv
 ! LAPACK procedures
   procedure(int_dbdsqr), pointer :: lb_dbdsqr
+  procedure(int_dgebak), pointer :: lb_dgebak
+  procedure(int_dgebal), pointer :: lb_dgebal
   procedure(int_dgebd2), pointer :: lb_dgebd2
   procedure(int_dgebrd), pointer :: lb_dgebrd
+  procedure(int_dgeev), pointer :: lb_dgeev
+  procedure(int_dgehd2), pointer :: lb_dgehd2
+  procedure(int_dgehrd), pointer :: lb_dgehrd
   procedure(int_dgelq2), pointer :: lb_dgelq2
   procedure(int_dgelqf), pointer :: lb_dgelqf
   procedure(int_dgels), pointer :: lb_dgels
@@ -295,6 +323,7 @@ module link_blas
   procedure(int_dgetrf2), pointer :: lb_dgetrf2
   procedure(int_dgetri), pointer :: lb_dgetri
   procedure(int_dgetrs), pointer :: lb_dgetrs
+  procedure(int_dhseqr), pointer :: lb_dhseqr
   procedure(int_disnan), pointer :: lb_disnan
   procedure(int_dlabad), pointer :: lb_dlabad
   procedure(int_dlabrd), pointer :: lb_dlabrd
@@ -305,22 +334,34 @@ module link_blas
   procedure(int_dlae2), pointer :: lb_dlae2
   procedure(int_dlaebz), pointer :: lb_dlaebz
   procedure(int_dlaev2), pointer :: lb_dlaev2
+  procedure(int_dlaexc), pointer :: lb_dlaexc
   procedure(int_dlagtf), pointer :: lb_dlagtf
   procedure(int_dlagts), pointer :: lb_dlagts
+  procedure(int_dlahqr), pointer :: lb_dlahqr
+  procedure(int_dlahr2), pointer :: lb_dlahr2
   procedure(int_dlaisnan), pointer :: lb_dlaisnan
+  procedure(int_dlaln2), pointer :: lb_dlaln2
   procedure(int_dlamch), pointer :: lb_dlamch
   procedure(int_dlaneg), pointer :: lb_dlaneg
   procedure(int_dlange), pointer :: lb_dlange
   procedure(int_dlansp), pointer :: lb_dlansp
   procedure(int_dlanst), pointer :: lb_dlanst
   procedure(int_dlansy), pointer :: lb_dlansy
+  procedure(int_dlanv2), pointer :: lb_dlanv2
   procedure(int_dlapy2), pointer :: lb_dlapy2
   procedure(int_dlapy3), pointer :: lb_dlapy3
+  procedure(int_dlaqr0), pointer :: lb_dlaqr0
+  procedure(int_dlaqr1), pointer :: lb_dlaqr1
+  procedure(int_dlaqr2), pointer :: lb_dlaqr2
+  procedure(int_dlaqr3), pointer :: lb_dlaqr3
+  procedure(int_dlaqr4), pointer :: lb_dlaqr4
+  procedure(int_dlaqr5), pointer :: lb_dlaqr5
   procedure(int_dlar1v), pointer :: lb_dlar1v
   procedure(int_dlarfb), pointer :: lb_dlarfb
   procedure(int_dlarf), pointer :: lb_dlarf
   procedure(int_dlarfg), pointer :: lb_dlarfg
   procedure(int_dlarft), pointer :: lb_dlarft
+  procedure(int_dlarfx), pointer :: lb_dlarfx
   procedure(int_dlarnv), pointer :: lb_dlarnv
   procedure(int_dlarra), pointer :: lb_dlarra
   procedure(int_dlarrb), pointer :: lb_dlarrb
@@ -348,12 +389,14 @@ module link_blas
   procedure(int_dlassq), pointer :: lb_dlassq
   procedure(int_dlasv2), pointer :: lb_dlasv2
   procedure(int_dlaswp), pointer :: lb_dlaswp
+  procedure(int_dlasy2), pointer :: lb_dlasy2
   procedure(int_dlatrd), pointer :: lb_dlatrd
   procedure(int_dopgtr), pointer :: lb_dopgtr
   procedure(int_dopmtr), pointer :: lb_dopmtr
   procedure(int_dorg2l), pointer :: lb_dorg2l
   procedure(int_dorg2r), pointer :: lb_dorg2r
   procedure(int_dorgbr), pointer :: lb_dorgbr
+  procedure(int_dorghr), pointer :: lb_dorghr
   procedure(int_dorgl2), pointer :: lb_dorgl2
   procedure(int_dorglq), pointer :: lb_dorglq
   procedure(int_dorgql), pointer :: lb_dorgql
@@ -362,6 +405,7 @@ module link_blas
   procedure(int_dorm2l), pointer :: lb_dorm2l
   procedure(int_dorm2r), pointer :: lb_dorm2r
   procedure(int_dormbr), pointer :: lb_dormbr
+  procedure(int_dormhr), pointer :: lb_dormhr
   procedure(int_dorml2), pointer :: lb_dorml2
   procedure(int_dormlq), pointer :: lb_dormlq
   procedure(int_dormql), pointer :: lb_dormql
@@ -389,6 +433,8 @@ module link_blas
   procedure(int_dsygv), pointer :: lb_dsygv
   procedure(int_dsytd2), pointer :: lb_dsytd2
   procedure(int_dsytrd), pointer :: lb_dsytrd
+  procedure(int_dtrevc3), pointer :: lb_dtrevc3
+  procedure(int_dtrexc), pointer :: lb_dtrexc
   procedure(int_dtrti2), pointer :: lb_dtrti2
   procedure(int_dtrtri), pointer :: lb_dtrtri
   procedure(int_dtrtrs), pointer :: lb_dtrtrs
@@ -751,6 +797,16 @@ contains
         call c_f_procpointer(funptr, lb_dbdsqr)
       end if
 !
+      funptr=link_func('dgebak')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dgebak)
+      end if
+!
+      funptr=link_func('dgebal')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dgebal)
+      end if
+!
       funptr=link_func('dgebd2')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dgebd2)
@@ -759,6 +815,21 @@ contains
       funptr=link_func('dgebrd')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dgebrd)
+      end if
+!
+      funptr=link_func('dgeev')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dgeev)
+      end if
+!
+      funptr=link_func('dgehd2')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dgehd2)
+      end if
+!
+      funptr=link_func('dgehrd')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dgehrd)
       end if
 !
       funptr=link_func('dgelq2')
@@ -816,6 +887,11 @@ contains
         call c_f_procpointer(funptr, lb_dgetrs)
       end if
 !
+      funptr=link_func('dhseqr')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dhseqr)
+      end if
+!
       funptr=link_func('disnan')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_disnan)
@@ -866,6 +942,11 @@ contains
         call c_f_procpointer(funptr, lb_dlaev2)
       end if
 !
+      funptr=link_func('dlaexc')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlaexc)
+      end if
+!
       funptr=link_func('dlagtf')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dlagtf)
@@ -876,9 +957,24 @@ contains
         call c_f_procpointer(funptr, lb_dlagts)
       end if
 !
+      funptr=link_func('dlahqr')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlahqr)
+      end if
+!
+      funptr=link_func('dlahr2')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlahr2)
+      end if
+!
       funptr=link_func('dlaisnan')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dlaisnan)
+      end if
+!
+      funptr=link_func('dlaln2')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlaln2)
       end if
 !
       funptr=link_func('dlamch')
@@ -911,6 +1007,11 @@ contains
         call c_f_procpointer(funptr, lb_dlansy)
       end if
 !
+      funptr=link_func('dlanv2')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlanv2)
+      end if
+!
       funptr=link_func('dlapy2')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dlapy2)
@@ -919,6 +1020,36 @@ contains
       funptr=link_func('dlapy3')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dlapy3)
+      end if
+!
+      funptr=link_func('dlaqr0')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlaqr0)
+      end if
+!
+      funptr=link_func('dlaqr1')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlaqr1)
+      end if
+!
+      funptr=link_func('dlaqr2')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlaqr2)
+      end if
+!
+      funptr=link_func('dlaqr3')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlaqr3)
+      end if
+!
+      funptr=link_func('dlaqr4')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlaqr4)
+      end if
+!
+      funptr=link_func('dlaqr5')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlaqr5)
       end if
 !
       funptr=link_func('dlar1v')
@@ -944,6 +1075,11 @@ contains
       funptr=link_func('dlarft')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dlarft)
+      end if
+!
+      funptr=link_func('dlarfx')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlarfx)
       end if
 !
       funptr=link_func('dlarnv')
@@ -1081,6 +1217,11 @@ contains
         call c_f_procpointer(funptr, lb_dlaswp)
       end if
 !
+      funptr=link_func('dlasy2')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dlasy2)
+      end if
+!
       funptr=link_func('dlatrd')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dlatrd)
@@ -1116,6 +1257,11 @@ contains
         call c_f_procpointer(funptr, lb_dorgl2)
       end if
 !
+      funptr=link_func('dorghr')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dorghr)
+      end if
+!
       funptr=link_func('dorglq')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dorglq)
@@ -1149,6 +1295,11 @@ contains
       funptr=link_func('dormbr')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dormbr)
+      end if
+!
+      funptr=link_func('dormhr')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dormhr)
       end if
 !
       funptr=link_func('dorml2')
@@ -1284,6 +1435,16 @@ contains
       funptr=link_func('dsytrd')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dsytrd)
+      end if
+!
+      funptr=link_func('dtrevc3')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dtrevc3)
+      end if
+!
+      funptr=link_func('dtrexc')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dtrexc)
       end if
 !
       funptr=link_func('dtrti2')
@@ -1542,8 +1703,13 @@ contains
       !
       ! LAPACK
       lb_dbdsqr=>int_dbdsqr
+      lb_dgebak=>int_dgebak
+      lb_dgebal=>int_dgebal
       lb_dgebd2=>int_dgebd2
       lb_dgebrd=>int_dgebrd
+      lb_dgeev=>int_dgeev
+      lb_dgehd2=>int_dgehd2
+      lb_dgehrd=>int_dgehrd
       lb_dgelq2=>int_dgelq2
       lb_dgelqf=>int_dgelqf
       lb_dgels=>int_dgels
@@ -1555,6 +1721,7 @@ contains
       lb_dgetrf2=>int_dgetrf2
       lb_dgetri=>int_dgetri
       lb_dgetrs=>int_dgetrs
+      lb_dhseqr=>int_dhseqr
       lb_disnan=>int_disnan
       lb_dlabad=>int_dlabad
       lb_dlabrd=>int_dlabrd
@@ -1565,22 +1732,34 @@ contains
       lb_dlae2=>int_dlae2
       lb_dlaebz=>int_dlaebz
       lb_dlaev2=>int_dlaev2
+      lb_dlaexc=>int_dlaexc
       lb_dlagtf=>int_dlagtf
       lb_dlagts=>int_dlagts
+      lb_dlahqr=>int_dlahqr
+      lb_dlahr2=>int_dlahr2
       lb_dlaisnan=>int_dlaisnan
+      lb_dlaln2=>int_dlaln2
       lb_dlamch=>int_dlamch
       lb_dlaneg=>int_dlaneg
       lb_dlange=>int_dlange
       lb_dlansp=>int_dlansp
       lb_dlanst=>int_dlanst
       lb_dlansy=>int_dlansy
+      lb_dlanv2=>int_dlanv2
       lb_dlapy2=>int_dlapy2
       lb_dlapy3=>int_dlapy3
+      lb_dlaqr0=>int_dlaqr0
+      lb_dlaqr1=>int_dlaqr1
+      lb_dlaqr2=>int_dlaqr2
+      lb_dlaqr3=>int_dlaqr3
+      lb_dlaqr4=>int_dlaqr4
+      lb_dlaqr5=>int_dlaqr5
       lb_dlar1v=>int_dlar1v
       lb_dlarfb=>int_dlarfb
       lb_dlarf=>int_dlarf
       lb_dlarfg=>int_dlarfg
       lb_dlarft=>int_dlarft
+      lb_dlarfx=>int_dlarfx
       lb_dlarnv=>int_dlarnv
       lb_dlarra=>int_dlarra
       lb_dlarrb=>int_dlarrb
@@ -1608,12 +1787,14 @@ contains
       lb_dlassq=>int_dlassq
       lb_dlasv2=>int_dlasv2
       lb_dlaswp=>int_dlaswp
+      lb_dlasy2=>int_dlasy2
       lb_dlatrd=>int_dlatrd
       lb_dopgtr=>int_dopgtr
       lb_dopmtr=>int_dopmtr
       lb_dorg2l=>int_dorg2l
       lb_dorg2r=>int_dorg2r
       lb_dorgbr=>int_dorgbr
+      lb_dorghr=>int_dorghr
       lb_dorgl2=>int_dorgl2
       lb_dorglq=>int_dorglq
       lb_dorgql=>int_dorgql
@@ -1622,6 +1803,7 @@ contains
       lb_dorm2l=>int_dorm2l
       lb_dorm2r=>int_dorm2r
       lb_dormbr=>int_dormbr
+      lb_dormhr=>int_dormhr
       lb_dorml2=>int_dorml2
       lb_dormlq=>int_dormlq
       lb_dormql=>int_dormql
@@ -1649,6 +1831,8 @@ contains
       lb_dsygv=>int_dsygv
       lb_dsytd2=>int_dsytd2
       lb_dsytrd=>int_dsytrd
+      lb_dtrevc3=>int_dtrevc3
+      lb_dtrexc=>int_dtrexc
       lb_dtrti2=>int_dtrti2
       lb_dtrtri=>int_dtrtri
       lb_dtrtrs=>int_dtrtrs
@@ -1962,6 +2146,16 @@ contains
       else
         write(6,*) 'no dbdsqr found!'
       end if
+      if (DLAddr(c_funloc(lb_dgebak),c_loc(info)) /= 0) then
+        write(6,*) 'dgebak from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dgebak found!'
+      end if
+      if (DLAddr(c_funloc(lb_dgebal),c_loc(info)) /= 0) then
+        write(6,*) 'dgebal from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dgebal found!'
+      end if
       if (DLAddr(c_funloc(lb_dgebd2),c_loc(info)) /= 0) then
         write(6,*) 'dgebd2 from: ',c_f_string(info%dli_fname)
       else
@@ -1971,6 +2165,21 @@ contains
         write(6,*) 'dgebrd from: ',c_f_string(info%dli_fname)
       else
         write(6,*) 'no dgebrd found!'
+      end if
+      if (DLAddr(c_funloc(lb_dgeev),c_loc(info)) /= 0) then
+        write(6,*) 'dgeev from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dgeev found!'
+      end if
+      if (DLAddr(c_funloc(lb_dgehd2),c_loc(info)) /= 0) then
+        write(6,*) 'dgehd2 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dgehd2 found!'
+      end if
+      if (DLAddr(c_funloc(lb_dgehrd),c_loc(info)) /= 0) then
+        write(6,*) 'dgehrd from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dgehrd found!'
       end if
       if (DLAddr(c_funloc(lb_dgelq2),c_loc(info)) /= 0) then
         write(6,*) 'dgelq2 from: ',c_f_string(info%dli_fname)
@@ -2027,6 +2236,11 @@ contains
       else
         write(6,*) 'no dgetrs found!'
       end if
+      if (DLAddr(c_funloc(lb_dhseqr),c_loc(info)) /= 0) then
+        write(6,*) 'dhseqr from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dhseqr found!'
+      end if
       if (DLAddr(c_funloc(lb_disnan),c_loc(info)) /= 0) then
         write(6,*) 'disnan from: ',c_f_string(info%dli_fname)
       else
@@ -2077,6 +2291,11 @@ contains
       else
         write(6,*) 'no dlaev2 found!'
       end if
+      if (DLAddr(c_funloc(lb_dlaexc),c_loc(info)) /= 0) then
+        write(6,*) 'dlaexc from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlaexc found!'
+      end if
       if (DLAddr(c_funloc(lb_dlagtf),c_loc(info)) /= 0) then
         write(6,*) 'dlagtf from: ',c_f_string(info%dli_fname)
       else
@@ -2087,10 +2306,25 @@ contains
       else
         write(6,*) 'no dlagts found!'
       end if
+      if (DLAddr(c_funloc(lb_dlahqr),c_loc(info)) /= 0) then
+        write(6,*) 'dlahqr from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlahqr found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlahr2),c_loc(info)) /= 0) then
+        write(6,*) 'dlahr2 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlahr2 found!'
+      end if
       if (DLAddr(c_funloc(lb_dlaisnan),c_loc(info)) /= 0) then
         write(6,*) 'dlaisnan from: ',c_f_string(info%dli_fname)
       else
         write(6,*) 'no dlaisnan found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlaln2),c_loc(info)) /= 0) then
+        write(6,*) 'dlaln2 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlaln2 found!'
       end if
       if (DLAddr(c_funloc(lb_dlamch),c_loc(info)) /= 0) then
         write(6,*) 'dlamch from: ',c_f_string(info%dli_fname)
@@ -2122,6 +2356,11 @@ contains
       else
         write(6,*) 'no dlansy found!'
       end if
+      if (DLAddr(c_funloc(lb_dlanv2),c_loc(info)) /= 0) then
+        write(6,*) 'dlanv2 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlanv2 found!'
+      end if
       if (DLAddr(c_funloc(lb_dlapy2),c_loc(info)) /= 0) then
         write(6,*) 'dlapy2 from: ',c_f_string(info%dli_fname)
       else
@@ -2131,6 +2370,36 @@ contains
         write(6,*) 'dlapy3 from: ',c_f_string(info%dli_fname)
       else
         write(6,*) 'no dlapy3 found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlaqr0),c_loc(info)) /= 0) then
+        write(6,*) 'dlaqr0 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlaqr0 found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlaqr1),c_loc(info)) /= 0) then
+        write(6,*) 'dlaqr1 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlaqr1 found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlaqr2),c_loc(info)) /= 0) then
+        write(6,*) 'dlaqr2 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlaqr2 found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlaqr3),c_loc(info)) /= 0) then
+        write(6,*) 'dlaqr3 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlaqr3 found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlaqr4),c_loc(info)) /= 0) then
+        write(6,*) 'dlaqr4 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlaqr4 found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlaqr5),c_loc(info)) /= 0) then
+        write(6,*) 'dlaqr5 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlaqr5 found!'
       end if
       if (DLAddr(c_funloc(lb_dlar1v),c_loc(info)) /= 0) then
         write(6,*) 'dlar1v from: ',c_f_string(info%dli_fname)
@@ -2156,6 +2425,11 @@ contains
         write(6,*) 'dlarft from: ',c_f_string(info%dli_fname)
       else
         write(6,*) 'no dlarft found!'
+      end if
+      if (DLAddr(c_funloc(lb_dlarfx),c_loc(info)) /= 0) then
+        write(6,*) 'dlarfx from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlarfx found!'
       end if
       if (DLAddr(c_funloc(lb_dlarnv),c_loc(info)) /= 0) then
         write(6,*) 'dlarnv from: ',c_f_string(info%dli_fname)
@@ -2292,6 +2566,11 @@ contains
       else
         write(6,*) 'no dlaswp found!'
       end if
+      if (DLAddr(c_funloc(lb_dlasy2),c_loc(info)) /= 0) then
+        write(6,*) 'dlasy2 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dlasy2 found!'
+      end if
       if (DLAddr(c_funloc(lb_dlatrd),c_loc(info)) /= 0) then
         write(6,*) 'dlatrd from: ',c_f_string(info%dli_fname)
       else
@@ -2321,6 +2600,11 @@ contains
         write(6,*) 'dorgbr from: ',c_f_string(info%dli_fname)
       else
         write(6,*) 'no dorgbr found!'
+      end if
+      if (DLAddr(c_funloc(lb_dorghr),c_loc(info)) /= 0) then
+        write(6,*) 'dorghr from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dorghr found!'
       end if
       if (DLAddr(c_funloc(lb_dorgl2),c_loc(info)) /= 0) then
         write(6,*) 'dorgl2 from: ',c_f_string(info%dli_fname)
@@ -2361,6 +2645,11 @@ contains
         write(6,*) 'dormbr from: ',c_f_string(info%dli_fname)
       else
         write(6,*) 'no dormbr found!'
+      end if
+      if (DLAddr(c_funloc(lb_dormhr),c_loc(info)) /= 0) then
+        write(6,*) 'dormhr from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dormhr found!'
       end if
       if (DLAddr(c_funloc(lb_dorml2),c_loc(info)) /= 0) then
         write(6,*) 'dorml2 from: ',c_f_string(info%dli_fname)
@@ -2496,6 +2785,16 @@ contains
         write(6,*) 'dsytrd from: ',c_f_string(info%dli_fname)
       else
         write(6,*) 'no dsytrd found!'
+      end if
+      if (DLAddr(c_funloc(lb_dtrevc3),c_loc(info)) /= 0) then
+        write(6,*) 'dtrevc3 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dtrevc3 found!'
+      end if
+      if (DLAddr(c_funloc(lb_dtrexc),c_loc(info)) /= 0) then
+        write(6,*) 'dtrexc from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dtrexc found!'
       end if
       if (DLAddr(c_funloc(lb_dtrti2),c_loc(info)) /= 0) then
         write(6,*) 'dtrti2 from: ',c_f_string(info%dli_fname)

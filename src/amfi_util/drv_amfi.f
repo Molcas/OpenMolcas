@@ -21,7 +21,6 @@
 #include "setup.fh"
 #include "print.fh"
 #include "para.fh"
-#include "angtp.fh"
       Real*8 DInf(nDInf)
       Integer, Allocatable :: iDel(:)
       Real*8, Allocatable :: SOInt(:)

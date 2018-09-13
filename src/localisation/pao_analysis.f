@@ -40,7 +40,7 @@ C
 #include "Molcas.fh"
       Integer nBas(nSym), nFro(nSym), nOrb2Loc(nSym)
       Real*8  D(*), R(*), X(*), C(*), S(*)
-      Character*(LENIN4) Nam(*)
+      Character*(LENIN8) Nam(*)
       Character*3 AnaNrm
 #include "WrkSpc.fh"
 

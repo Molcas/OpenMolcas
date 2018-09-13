@@ -56,7 +56,7 @@
       Do iSym = 1, nSym
          nBas_tot=nBas_tot+nBas(iSym)
       End Do
-      Call Get_cArray('Unique Basis Names',Name,(LENIN4)*nBas_tot)
+      Call Get_cArray('Unique Basis Names',Name,(LENIN8)*nBas_tot)
 *---- read number of atoms
       Call Get_iScalar('Unique atoms',nAtoms)
 *---- read nuclear potential
@@ -72,7 +72,7 @@
 *---- Define atom and type
       Do i = 1, lthBas
          Atom(i) = Name(i)(1:LENIN)
-         Type(i) = Name(i)(LENIN1:LENIN4)
+         Type(i) = Name(i)(LENIN1:LENIN8)
       End Do
 *
       Call qExit('R1IBas')

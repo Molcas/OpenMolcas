@@ -18,6 +18,24 @@ subroutine dbdsqr( uplo, n, ncvt, nru, ncc, d, e, vt, ldvt, u, ldu, c, ldc, work
   call lb_dbdsqr( uplo, n, ncvt, nru, ncc, d, e, vt, ldvt, u, ldu, c, ldc, work, info )
 end subroutine dbdsqr
 
+subroutine dgebak( job, side, n, ilo, ihi, scale, m, v, ldv, info )
+  use link_blas
+  implicit none
+  character :: job, side
+  integer   :: ihi, ilo, info, ldv, m, n
+  real*8 ::   scale( * ), v( ldv, * )
+  call lb_dgebak( job, side, n, ilo, ihi, scale, m, v, ldv, info )
+end subroutine dgebak
+
+subroutine dgebal( job, n, a, lda, ilo, ihi, scale, info )
+  use link_blas
+  implicit none
+  character :: job
+  integer :: ihi, ilo, info, lda, n
+  real*8 ::  a( lda, * ), scale( * )
+  call lb_dgebal( job, n, a, lda, ilo, ihi, scale, info )
+end subroutine dgebal
+
 subroutine dgebd2( m, n, a, lda, d, e, tauq, taup, work, info )
   use link_blas
   implicit none
@@ -33,6 +51,31 @@ subroutine dgebrd( m, n, a, lda, d, e, tauq, taup, work, lwork, info )
   real*8 :: a( lda, * ), d( * ), e( * ), taup( * ), tauq( * ), work( * )
   call lb_dgebrd( m, n, a, lda, d, e, tauq, taup, work, lwork, info )
 end subroutine dgebrd
+
+subroutine dgeev( jobvl, jobvr, n, a, lda, wr, wi, vl, ldvl, vr, ldvr, work, lwork, info )
+  use link_blas
+  implicit none
+  character :: jobvl, jobvr
+  integer :: info, lda, ldvl, ldvr, lwork, n
+  real*8 :: a( lda, * ), vl( ldvl, * ), vr( ldvr, * ),  wi( * ), work( * ), wr( * )
+  call lb_dgeev( jobvl, jobvr, n, a, lda, wr, wi, vl, ldvl, vr, ldvr, work, lwork, info )
+end subroutine dgeev
+
+subroutine dgehd2( n, ilo, ihi, a, lda, tau, work, info )
+  use link_blas
+  implicit none
+  integer :: ihi, ilo, info, lda, n
+  real*8 :: a( lda, * ), tau( * ), work( * )
+  call lb_dgehd2( n, ilo, ihi, a, lda, tau, work, info )
+end subroutine dgehd2
+
+subroutine dgehrd( n, ilo, ihi, a, lda, tau, work, lwork, info )
+  use link_blas
+  implicit none
+  integer :: ihi, ilo, info, lda, lwork, n
+  real*8 :: a( lda, * ), tau( * ), work( * )
+  call lb_dgehrd( n, ilo, ihi, a, lda, tau, work, lwork, info )
+end subroutine dgehrd
 
 subroutine dgelq2( m, n, a, lda, tau, work, info )
   use link_blas
@@ -130,6 +173,15 @@ subroutine dgetrs( trans, n, nrhs, a, lda, ipiv, b, ldb, info )
   call lb_dgetrs( trans, n, nrhs, a, lda, ipiv, b, ldb, info )
 end subroutine dgetrs
 
+subroutine dhseqr( job, compz, n, ilo, ihi, h, ldh, wr, wi, z, ldz, work, lwork, info )
+  use link_blas
+  implicit none
+  integer :: ihi, ilo, info, ldh, ldz, lwork, n
+  character :: compz, job
+  real*8 :: h( ldh, * ), wi( * ), work( * ), wr( * ), z( ldz, * )
+  call lb_dhseqr( job, compz, n, ilo, ihi, h, ldh, wr, wi, z, ldz, work, lwork, info )
+end subroutine dhseqr
+
 function disnan( din )
   use link_blas
   implicit none
@@ -208,6 +260,15 @@ subroutine dlaev2( a, b, c, rt1, rt2, cs1, sn1 )
   call lb_dlaev2( a, b, c, rt1, rt2, cs1, sn1 )
 end subroutine dlaev2
 
+subroutine dlaexc( wantq, n, t, ldt, q, ldq, j1, n1, n2, work, info )
+  use link_blas
+  implicit none
+  logical :: wantq
+  integer :: info, j1, ldq, ldt, n, n1, n2
+  real*8 :: q( ldq, * ), t( ldt, * ), work( * )
+  call lb_dlaexc( wantq, n, t, ldt, q, ldq, j1, n1, n2, work, info )
+end subroutine dlaexc
+
 subroutine dlagtf( n, a, lambda, b, c, tol, d, in, info )
   use link_blas
   implicit none
@@ -228,6 +289,23 @@ subroutine dlagts( job, n, a, b, c, d, in, y, tol, info )
   call lb_dlagts( job, n, a, b, c, d, in, y, tol, info )
 end subroutine dlagts
 
+subroutine dlahqr( wantt, wantz, n, ilo, ihi, h, ldh, wr, wi, iloz, ihiz, z, ldz, info )
+  use link_blas
+  implicit none
+  integer :: ihi, ihiz, ilo, iloz, info, ldh, ldz, n
+  logical :: wantt, wantz
+  real*8 :: h( ldh, * ), wi( * ), wr( * ), z( ldz, * )
+  call lb_dlahqr( wantt, wantz, n, ilo, ihi, h, ldh, wr, wi, iloz, ihiz, z, ldz, info )
+end subroutine dlahqr
+
+subroutine dlahr2( n, k, nb, a, lda, tau, t, ldt, y, ldy )
+  use link_blas
+  implicit none
+  integer :: k, lda, ldt, ldy, n, nb
+  real*8 :: a( lda, * ), t( ldt, nb ), tau( nb ), y( ldy, nb )
+  call lb_dlahr2( n, k, nb, a, lda, tau, t, ldt, y, ldy )
+end subroutine dlahr2
+
 function dlaisnan( din1, din2 )
   use link_blas
   implicit none
@@ -235,6 +313,16 @@ function dlaisnan( din1, din2 )
   logical :: dlaisnan
   dlaisnan=lb_dlaisnan( din1, din2 )
 end function dlaisnan
+
+subroutine dlaln2( ltrans, na, nw, smin, ca, a, lda, d1, d2, b, ldb, wr, wi, x, ldx, scale, xnorm, info )
+  use link_blas
+  implicit none
+  logical :: ltrans
+  integer :: info, lda, ldb, ldx, na, nw
+  real*8 :: ca, d1, d2, scale, smin, wi, wr, xnorm
+  real*8 :: a( lda, * ), b( ldb, * ), x( ldx, * )
+  call lb_dlaln2( ltrans, na, nw, smin, ca, a, lda, d1, d2, b, ldb, wr, wi, x, ldx, scale, xnorm, info )
+end subroutine dlaln2
 
 function dlamch( cmach )
   use link_blas
@@ -294,6 +382,13 @@ function dlansy( norm, uplo, n, a, lda, work )
   dlansy=lb_dlansy( norm, uplo, n, a, lda, work )
 end function dlansy
 
+subroutine dlanv2( a, b, c, d, rt1r, rt1i, rt2r, rt2i, cs, sn )
+  use link_blas
+  implicit none
+  real*8 :: a, b, c, cs, d, rt1i, rt1r, rt2i, rt2r, sn
+  call lb_dlanv2( a, b, c, d, rt1r, rt1i, rt2r, rt2i, cs, sn )
+end subroutine dlanv2
+
 function dlapy2( x, y )
   use link_blas
   implicit none
@@ -309,6 +404,66 @@ function dlapy3( x, y, z )
   real*8 :: dlapy3
   dlapy3=lb_dlapy3( x, y, z )
 end function dlapy3
+
+subroutine dlaqr0( wantt, wantz, n, ilo, ihi, h, ldh, wr, wi, iloz, ihiz, z, ldz, work, lwork, info )
+  use link_blas
+  implicit none
+  integer :: ihi, ihiz, ilo, iloz, info, ldh, ldz, lwork, n
+  logical :: wantt, wantz
+  real*8 :: h( ldh, * ), wi( * ), work( * ), wr( * ), z( ldz, * )
+  call lb_dlaqr0( wantt, wantz, n, ilo, ihi, h, ldh, wr, wi, iloz, ihiz, z, ldz, work, lwork, info )
+end subroutine dlaqr0
+
+subroutine dlaqr1( n, h, ldh, sr1, si1, sr2, si2, v )
+  use link_blas
+  implicit none
+  real*8 :: si1, si2, sr1, sr2
+  integer :: ldh, n
+  real*8 :: h( ldh, * ), v( * )
+  call lb_dlaqr1( n, h, ldh, sr1, si1, sr2, si2, v )
+end subroutine dlaqr1
+
+subroutine dlaqr2( wantt, wantz, n, ktop, kbot, nw, h, ldh, iloz, ihiz, z, ldz, ns, nd, sr, si, v, ldv, &
+                   nh, t, ldt, nv, wv, ldwv, work, lwork )
+  use link_blas
+  implicit none
+  integer :: ihiz, iloz, kbot, ktop, ldh, ldt, ldv, ldwv, ldz, lwork, n, nd, nh, ns, nv, nw
+  logical :: wantt, wantz
+  real*8 :: h( ldh, * ), si( * ), sr( * ), t( ldt, * ), v( ldv, * ), work( * ), wv( ldwv, * ), z( ldz, * )
+  call lb_dlaqr2( wantt, wantz, n, ktop, kbot, nw, h, ldh, iloz, ihiz, z, ldz, ns, nd, sr, si, v, ldv, &
+                   nh, t, ldt, nv, wv, ldwv, work, lwork )
+end subroutine dlaqr2
+
+subroutine dlaqr3( wantt, wantz, n, ktop, kbot, nw, h, ldh, iloz, ihiz, z, ldz, ns, nd, sr, si, v, ldv, nh, t, &
+                   ldt, nv, wv, ldwv, work, lwork )
+  use link_blas
+  implicit none
+  integer :: ihiz, iloz, kbot, ktop, ldh, ldt, ldv, ldwv, ldz, lwork, n, nd, nh, ns, nv, nw
+  logical :: wantt, wantz
+  real*8 :: h( ldh, * ), si( * ), sr( * ), t( ldt, * ), v( ldv, * ), work( * ), wv( ldwv, * ), z( ldz, * )
+  call lb_dlaqr3( wantt, wantz, n, ktop, kbot, nw, h, ldh, iloz, ihiz, z, ldz, ns, nd, sr, si, v, ldv, nh, t, &
+                   ldt, nv, wv, ldwv, work, lwork )
+end subroutine dlaqr3
+
+subroutine dlaqr4( wantt, wantz, n, ilo, ihi, h, ldh, wr, wi, iloz, ihiz, z, ldz, work, lwork, info )
+  use link_blas
+  implicit none
+  integer :: ihi, ihiz, ilo, iloz, info, ldh, ldz, lwork, n
+  logical :: wantt, wantz
+  real*8 :: h( ldh, * ), wi( * ), work( * ), wr( * ), z( ldz, * )
+  call lb_dlaqr4( wantt, wantz, n, ilo, ihi, h, ldh, wr, wi, iloz, ihiz, z, ldz, work, lwork, info )
+end subroutine dlaqr4
+
+subroutine dlaqr5( wantt, wantz, kacc22, n, ktop, kbot, nshfts, sr, si, h, ldh, iloz, ihiz, z, ldz, v, ldv, u,  &
+                   ldu, nv, wv, ldwv, nh, wh, ldwh )
+  use link_blas
+  implicit none
+  integer :: ihiz, iloz, kacc22, kbot, ktop, ldh, ldu, ldv, ldwh, ldwv, ldz, n, nh, nshfts, nv
+  logical :: wantt, wantz
+  real*8 :: h( ldh, * ), si( * ), sr( * ), u( ldu, * ), v( ldv, * ), wh( ldwh, * ), wv( ldwv, * ), z( ldz, * )
+  call lb_dlaqr5( wantt, wantz, kacc22, n, ktop, kbot, nshfts, sr, si, h, ldh, iloz, ihiz, z, ldz, v, ldv, u,  &
+                   ldu, nv, wv, ldwv, nh, wh, ldwh )
+end subroutine dlaqr5
 
 subroutine dlar1v( n, b1, bn, lambda, d, l, ld, lld, pivmin, gaptol, z, wantnc, negcnt, ztz, mingma, r, isuppz, nrminv, resid, &
                    rqcorr, work )
@@ -360,6 +515,16 @@ subroutine dlarft( direct, storev, n, k, v, ldv, tau, t, ldt )
   real*8 :: t( ldt, * ), tau( * ), v( ldv, * )
   call lb_dlarft( direct, storev, n, k, v, ldv, tau, t, ldt )
 end subroutine dlarft
+
+subroutine dlarfx( side, m, n, v, tau, c, ldc, work )
+  use link_blas
+  implicit none
+  character :: side
+  integer :: ldc, m, n
+  real*8 :: tau
+  real*8 :: c( ldc, * ), v( * ), work( * )
+  call lb_dlarfx( side, m, n, v, tau, c, ldc, work )
+end subroutine dlarfx
 
 subroutine dlarnv( idist, iseed, n, x )
   use link_blas
@@ -615,6 +780,16 @@ subroutine dlaswp( n, a, lda, k1, k2, ipiv, incx )
   call lb_dlaswp( n, a, lda, k1, k2, ipiv, incx )
 end subroutine dlaswp
 
+subroutine dlasy2( ltranl, ltranr, isgn, n1, n2, tl, ldtl, tr, ldtr, b, ldb, scale, x, ldx, xnorm, info )
+  use link_blas
+  implicit none
+  logical :: ltranl, ltranr
+  integer :: info, isgn, ldb, ldtl, ldtr, ldx, n1, n2
+  real*8 :: scale, xnorm
+  real*8 :: b( ldb, * ), tl( ldtl, * ), tr( ldtr, * ), x( ldx, * )
+  call lb_dlasy2( ltranl, ltranr, isgn, n1, n2, tl, ldtl, tr, ldtr, b, ldb, scale, x, ldx, xnorm, info )
+end subroutine dlasy2
+
 subroutine dlatrd( uplo, n, nb, a, lda, e, tau, w, ldw )
   use link_blas
   implicit none
@@ -666,6 +841,14 @@ subroutine dorgbr( vect, m, n, k, a, lda, tau, work, lwork, info )
   real*8 :: a( lda, * ), tau( * ), work( * )
   call lb_dorgbr( vect, m, n, k, a, lda, tau, work, lwork, info )
 end subroutine dorgbr
+
+subroutine dorghr( n, ilo, ihi, a, lda, tau, work, lwork, info )
+  use link_blas
+  implicit none
+  integer :: ihi, ilo, info, lda, lwork, n
+  real*8 :: a( lda, * ), tau( * ), work( * )
+  call lb_dorghr( n, ilo, ihi, a, lda, tau, work, lwork, info )
+end subroutine dorghr
 
 subroutine dorgl2( m, n, k, a, lda, tau, work, info )
   use link_blas
@@ -734,6 +917,15 @@ subroutine dormbr( vect, side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork,
   real*8 :: a( lda, * ), c( ldc, * ), tau( * ), work( * )
   call lb_dormbr( vect, side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info )
 end subroutine dormbr
+
+subroutine dormhr( side, trans, m, n, ilo, ihi, a, lda, tau, c, ldc, work, lwork, info )
+  use link_blas
+  implicit none
+  character :: side, trans
+  integer :: ihi, ilo, info, lda, ldc, lwork, m, n
+  real*8 :: a( lda, * ), c( ldc, * ), tau( * ), work( * )
+  call lb_dormhr( side, trans, m, n, ilo, ihi, a, lda, tau, c, ldc, work, lwork, info )
+end subroutine dormhr
 
 subroutine dorml2( side, trans, m, n, k, a, lda, tau, c, ldc, work, info )
   use link_blas
@@ -986,6 +1178,25 @@ subroutine dsytrd( uplo, n, a, lda, d, e, tau, work, lwork, info )
   real*8 :: a( lda, * ), d( * ), e( * ), tau( * ), work( * )
   call lb_dsytrd( uplo, n, a, lda, d, e, tau, work, lwork, info )
 end subroutine dsytrd
+
+subroutine dtrevc3( side, howmny, select, n, t, ldt, vl, ldvl, vr, ldvr, mm, m, work, lwork, info )
+  use link_blas
+  implicit none
+  character :: howmny, side
+  integer :: info, ldt, ldvl, ldvr, lwork, m, mm, n
+  logical :: select( * )
+  real*8 :: t( ldt, * ), vl( ldvl, * ), vr( ldvr, * ), work( * )
+  call lb_dtrevc3( side, howmny, select, n, t, ldt, vl, ldvl, vr, ldvr, mm, m, work, lwork, info )
+end subroutine dtrevc3
+
+subroutine dtrexc( compq, n, t, ldt, q, ldq, ifst, ilst, work, info )
+  use link_blas
+  implicit none
+  character :: compq
+  integer :: ifst, ilst, info, ldq, ldt, n
+  real*8 :: q( ldq, * ), t( ldt, * ), work( * )
+  call lb_dtrexc( compq, n, t, ldt, q, ldq, ifst, ilst, work, info )
+end subroutine dtrexc
 
 subroutine dtrti2( uplo, diag, n, a, lda, info )
   use link_blas

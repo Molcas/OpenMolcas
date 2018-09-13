@@ -15,4 +15,4 @@ c  this hack is used her.
 c
 
       Parameter(LENIN=6)
-      Parameter(LENIN4=LENIN+4)
+      Parameter(LENIN8=LENIN+8)

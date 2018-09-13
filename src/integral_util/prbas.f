@@ -29,7 +29,6 @@
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
-#include "angtp.fh"
 #include "WrkSpc.fh"
       Character*80 Lines(10)
 *

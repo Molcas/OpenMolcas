@@ -148,6 +148,7 @@
 # - intel13: use Intel 2013 compilers (specific runner)
 # - nag: use NAG Fortran compiler and Garble (specific runner, disabled)
 # - garble: setup with Garble option and gcc compilers
+# - bounds: enable bounds checking (slow)
 # - debug: build with no optimization (no tests)
 
 .template: &plain
@@ -155,6 +156,7 @@
   variables: &plain_vars
     cache_file: |
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
+      set (DEBUG_DEFS "_BIGOT_" CACHE STRING "stricter runtime checks")
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
@@ -170,6 +172,7 @@
       set (BUILD_SHARED_LIBS "ON" CACHE STRING "use shared libmolcas")
       set (BUILD_STATIC_LIB "ON" CACHE STRING "build static libmolcas too")
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
+      set (DEBUG_DEFS "_BIGOT_" CACHE STRING "stricter runtime checks")
       set (LINALG "Runtime" CACHE STRING "runtime blas/lapack linking")
       set (FDE "ON" CACHE STRING "enable frozen-density-embedding (FDE) interface")
       set (GRID_IT "ON" CACHE STRING "enable public GRID_IT code")
@@ -289,6 +292,19 @@
   tags:
     - docker
 
+.template: &bounds
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-5.4:latest
+  variables: &bounds_vars
+    cache_file: |
+      set (CMAKE_BUILD_TYPE "Release" CACHE STRING "opt, no debug info" )
+      set (BOUNDS "ON" CACHE STRING "enable bounds checking" )
+      set (DEFMOLCASMEM "256" CACHE STRING "reduce memory to get more speed")
+    CX: "gcc"
+    CCX: "g++"
+    FC: "gfortran"
+  tags:
+    - docker
+
 .template: &debug
   image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-5.4:latest
   variables: &debug_vars
@@ -296,6 +312,7 @@
       set (CMAKE_BUILD_TYPE "Debug" CACHE STRING "no opt, debug info")
       set (BUILD_SHARED_LIBS "OFF" CACHE STRING "do not use shared libmolcas")
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
+      set (DEBUG_DEFS "_BIGOT_" CACHE STRING "stricter runtime checks")
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
@@ -560,6 +577,51 @@ test:garble_3:
     <<: *garble_vars
     subset_size: "150"
     subset: "3"
+
+build:bounds:
+  stage: build
+  <<: *bounds
+  <<: *compile
+test:bounds_1:
+  stage: test
+  dependencies:
+    - build:bounds
+  <<: *bounds
+  <<: *run-tests
+  variables:
+    <<: *bounds_vars
+    subset_size: "115"
+    subset: "1"
+test:bounds_2:
+  stage: test
+  dependencies:
+    - build:bounds
+  <<: *bounds
+  <<: *run-tests
+  variables:
+    <<: *bounds_vars
+    subset_size: "115"
+    subset: "2"
+test:bounds_3:
+  stage: test
+  dependencies:
+    - build:bounds
+  <<: *bounds
+  <<: *run-tests
+  variables:
+    <<: *bounds_vars
+    subset_size: "115"
+    subset: "3"
+test:bounds_4:
+  stage: test
+  dependencies:
+    - build:bounds
+  <<: *bounds
+  <<: *run-tests
+  variables:
+    <<: *bounds_vars
+    subset_size: "115"
+    subset: "4"
 
 build:debug:
   stage: build

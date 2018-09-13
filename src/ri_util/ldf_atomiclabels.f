@@ -27,9 +27,9 @@ C
 
       Integer  LDF_nAtom, LDF_nShell_Atom, LDF_lShell_Atom
       External LDF_nAtom, LDF_nShell_Atom, LDF_lShell_Atom
-      Integer  LDF_GetLenIn4
+      Integer  LDF_GetLenIn8
 
-      Integer LenIn4
+      Integer LenIn8
       Integer ip_Temp, l_Temp
       Integer ip_SB, l_SB
       Integer n
@@ -55,12 +55,12 @@ C
       l_AtomicLabels=4*LDF_nAtom()
       Call GetMem('LDFALbl','Allo','Char',ip_AtomicLabels,
      &                                     l_AtomicLabels)
-      LenIn4=LDF_GetLenIn4()
-      If (LenIn4.lt.4) Then
-         Call WarningMessage(2,'LDF_SetAtomicLabels: LenIn4 < 4')
+      LenIn8=LDF_GetLenIn8()
+      If (LenIn8.lt.8) Then
+         Call WarningMessage(2,'LDF_SetAtomicLabels: LenIn8 < 8')
          Call LDF_Quit(1)
       End If
-      l_Temp=LenIn4*nBas_Valence
+      l_Temp=LenIn8*nBas_Valence
       Call GetMem('LDFALTmp','Allo','Char',ip_Temp,l_Temp)
       Call Get_cArray('Unique Basis Names',cWork(ip_Temp),l_Temp)
       l_SB=nShell_Valence
@@ -79,7 +79,7 @@ C
          nS=LDF_nShell_Atom(A)
          If (nS.gt.0) Then
             iShell=iWork(LDF_lShell_Atom(A))
-            ipT=ip_Temp+LenIn4*iSB(iShell)
+            ipT=ip_Temp+LenIn8*iSB(iShell)
             Do j=0,3
                cWork(ipAL+j)=cWork(ipT+j)
             End Do
@@ -88,7 +88,7 @@ C
             Do iS=1,nS
                iShell=iWork(ip+iS)
                Do ii=0,nBasSh(iShell)-1
-                  ipT=ip_Temp+LenIn4*(iSB(iShell)+ii)
+                  ipT=ip_Temp+LenIn8*(iSB(iShell)+ii)
                   Do j=0,3
                      If (cWork(ipT+j).ne.cWork(ipAL+j)) Then
                         Call WarningMessage(2,
@@ -177,8 +177,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      Integer Function LDF_GetLenIn4()
+      Integer Function LDF_GetLenIn8()
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
-      LDF_GetLenIn4=LENIN4
+      LDF_GetLenIn8=LENIN8
       End

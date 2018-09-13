@@ -59,7 +59,6 @@
 #include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
-#include "angtp.fh"
 #include "lundio.fh"
 #include "print.fh"
 #include "nsd.fh"

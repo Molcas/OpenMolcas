@@ -25,7 +25,7 @@
       Implicit Real*8 (a-h,o-z)
 #include "WrkSpc.fh"
 *
-      Call GetMem('FiW','Free','Inte',ip,nDum)
+      Call GetMem('AiW','Free','Inte',ip,nDum)
 *
       Return
       End

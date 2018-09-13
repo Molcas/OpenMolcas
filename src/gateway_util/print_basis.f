@@ -27,7 +27,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
-#include "angtp.fh"
 #include "relmp.fh"
 #include "real.fh"
 #include "print.fh"

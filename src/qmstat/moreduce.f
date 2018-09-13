@@ -26,7 +26,7 @@
 
       Character Header*50,BsLbl*1
 
-      Dimension BsLbl(LENIN4*MxBas)
+      Dimension BsLbl(LENIN8*MxBas)
 
       Logical LindMOs(MxBas),First
 
@@ -158,7 +158,7 @@
         TraceFull=TraceFull+Work(iOcc+i-1)
 233   Continue
       If(iPrint.ge.10) then
-        Call Get_cArray('Unique Basis Names',BsLbl,LENIN4*nBas(1))
+        Call Get_cArray('Unique Basis Names',BsLbl,LENIN8*nBas(1))
         Write(Header,'(A)')'All average transition density orbitals'
         ThrOcc=-1D-0
         Call Primo(Header,.true.,.false.,ThrOcc,Dum,iONE,nBas(1),nBas(1)
@@ -224,7 +224,7 @@
         Write(6,*)'You should consider lowering the threshold!'
       Endif
       If(iPrint.ge.5) then
-        Call Get_cArray('Unique Basis Names',BsLbl,LENIN4*nBas(1))
+        Call Get_cArray('Unique Basis Names',BsLbl,LENIN8*nBas(1))
         Write(Header,'(A)')'Reduced average orbitals'
         ThrOcc=-1D-0
         Call Primo(Header,.true.,.false.,ThrOcc,Dum,iONE,nBas(1)

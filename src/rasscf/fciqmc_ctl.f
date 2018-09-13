@@ -321,11 +321,11 @@ c
 **************************************************************
 **************************************************************
 
-      CALL GETMEM('CICTL','FREE','REAL',LW1,NACPAR)
+999   continue
+      CALL GETMEM('CICTL1','FREE','REAL',LW1,NACPAR)
 *
 c      Call qExit('FCIQMC_CTL')
 
-999   continue
       Return
 
       End

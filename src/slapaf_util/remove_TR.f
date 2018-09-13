@@ -52,6 +52,9 @@
         If (iV.ne.iK) Call dSwap_(nQ,KMat(1,iK),1,KMat(1,iV),1)
       End Do
 
+      Call mma_deallocate(TR)
+      Call mma_deallocate(VecInt)
+
       Return
       End
 

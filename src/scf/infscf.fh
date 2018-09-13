@@ -128,8 +128,8 @@
 * nConstr - number of constrained MOs for irrep                        *
 *                                                                      *
 * Atom    - name of atom *LENIN                                        *
-* Type    - type of basis function *4                                  *
-* Name    - Atom = Name(1:LENIN); Type = Name(LENIN+1:LENIN+4)         *
+* Type    - type of basis function *8                                  *
+* Name    - Atom = Name(1:LENIN); Type = Name(LENIN+1:LENIN+8)         *
 * AccCon  - acceleration convergence scheeme used in iteration         *
 *                                                                      *
 * ChFracMem - fraction of memory used as a buffer for keeping          *
@@ -191,10 +191,10 @@
      &        MaxFlip,
      &        iDummy_run, iTer2run
 
-      Character*(LENIN4)   Name(MxBS)
+      Character*(LENIN8)   Name(MxBS)
       Character*9   AccCon
       Character*(LENIN)  Atom(MxBS)
-      Character*4   Type(MxBS)
+      Character*8   Type(MxBS)
       Character*4   Neg2_Action
       Character*16  KSDFT
       Character*512 SCF_FileOrb

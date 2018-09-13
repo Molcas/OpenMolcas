@@ -20,7 +20,7 @@ C
 C
       Implicit real*8 (a-h,o-z)
 #include "Molcas.fh"
-      Character*(LENIN4) Bas1(*),Bas2(*)
+      Character*(LENIN8) Bas1(*),Bas2(*)
       Integer indt1(*),indt2(*)
       Dimension Orb1(*),Orb2(*),Izero(Nbas2),occ1(*),eorb1(*),
      &          occ2(*),eorb2(*)

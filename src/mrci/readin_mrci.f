@@ -70,7 +70,7 @@
 *
 *     Read the header of the ONEINT file
 *
-      NAMSIZ=(2*MXORB*4)
+      NAMSIZ=LENIN8*MXORB
       IDISK=0
       CALL WR_MOTRA_Info(LUONE,2,iDisk,
      &                   ITOC17,64, POTNUC,

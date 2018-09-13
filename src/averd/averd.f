@@ -64,7 +64,7 @@
       Do 31, iSym=1,nSym
         itBas=itBas+nBas(isym)
 31    Continue
-      Call Get_cArray('Unique Basis Names',BsLbl,(LENIN4)*itBas)
+      Call Get_cArray('Unique Basis Names',BsLbl,(LENIN8)*itBas)
 
 *
 *-- Some dimensions.

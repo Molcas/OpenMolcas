@@ -30,7 +30,7 @@ c
       Integer iTab_ptr(nAtoms),nBas_per_Atom(*),nBas_Start(*)
       Logical Maximisation, Debug
       Character*80 Txt
-      Character*(LENIN4) Name(*),PALbl
+      Character*(LENIN8) Name(*),PALbl
 c
       xDone = 0.0d0
       If (Debug) Then

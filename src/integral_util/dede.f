@@ -60,7 +60,6 @@
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-#include "angtp.fh"
 #include "lundio.fh"
 #include "print.fh"
 #include "nsd.fh"
