@@ -396,6 +396,8 @@ doc:
     expire_in: 1 day
   except:
     - tags
+  tags:
+    - docker
 
 # And the corresponding job to publish the documentation for the master branch
 pages:
