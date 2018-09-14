@@ -75,6 +75,7 @@ compat = False
 try:
   flag = sys.argv[1]
 except IndexError:
+  flag = None
   pass
 if (flag == '-bw'):
   sys.argv.pop(1)
