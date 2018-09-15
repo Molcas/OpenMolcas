@@ -206,6 +206,10 @@
 .template: &intel
   image: ${CI_REGISTRY}/molcas/dockerfiles/intel-arch:latest
   variables: &intel_vars
+    cache_file: |
+      set (CMAKE_BUILD_TYPE "Release" CACHE STRING "opt, no debug info" )
+      set (HDF5 "ON" CACHE STRING "turn on HDF5")
+      set (LINALG "MKL" CACHE STRING "enable MKL")
     pre_compile_script: |
       . /opt/intel/composerxe/linux/bin/compilervars.sh intel64
     pre_run_script: |
