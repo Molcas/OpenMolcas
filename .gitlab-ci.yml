@@ -513,7 +513,6 @@ test:intel:
   stage: test
   dependencies:
     - build:intel
-    - tinker
   <<: *intel
   <<: *run-tests
 

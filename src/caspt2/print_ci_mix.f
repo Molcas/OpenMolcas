@@ -23,17 +23,25 @@
 #include "mh5.fh"
 #endif
       Real*8 :: EigVec(nState,nState)
-      Integer :: iState, jSNum, iDisk, UJob
+      Integer :: iState, jSNum, iDisk
       Real*8, Allocatable, Dimension(:) :: cCI, mCI
+      Logical :: Close_refwfn
 
       Call QEnter('Print_CI_Mix')
 
       Call mma_allocate(mCI, nConf, Label='MixCICoeff')
       Call mma_allocate(cCI, nConf, Label='CICoeff')
 
-      If (.Not.refwfn_is_h5) Then
-        UJob=15
-        Call DAName(UJob,refwfn_filename)
+      Close_refwfn = .False.
+      If (.Not.refwfn_active) Then
+        ! bypass refwfn_open, because we don't want to set global stuff
+        If (refwfn_is_h5) Then
+          refwfn_id = mh5_open_file_r(refwfn_filename)
+        Else
+          refwfn_id=15
+          Call DAName(refwfn_id,refwfn_filename)
+        End If
+        Close_refwfn = .True.
       End If
 
       Call CollapseOutput(1,'Mixed CI coefficients:')
@@ -57,7 +65,7 @@
             Call AbEnd()
 #endif
           Else
-            Call dDAFile(UJob,2,cCI,nConf,iDisk)
+            Call dDAFile(refwfn_id,2,cCI,nConf,iDisk)
           End If
           Call daXpY_(nConf,EigVec(jState,iState),cCI,1,mCI,1)
         End Do
@@ -69,9 +77,7 @@
       Call CollapseOutput(0,'Mixed CI coefficients:')
       Write(6,*)
 
-      If (.Not.refwfn_is_h5) Then
-        Call DAClos(UJob)
-      End If
+      If (Close_refwfn) Call refwfn_close()
 
       Call mma_deallocate(mCI)
       Call mma_deallocate(cCI)
