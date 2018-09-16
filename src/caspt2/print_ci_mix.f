@@ -36,7 +36,12 @@
       If (.Not.refwfn_active) Then
         ! bypass refwfn_open, because we don't want to set global stuff
         If (refwfn_is_h5) Then
+#ifdef _HDF5_
           refwfn_id = mh5_open_file_r(refwfn_filename)
+#else
+* This should never happen
+          Call AbEnd()
+#endif
         Else
           refwfn_id=15
           Call DAName(refwfn_id,refwfn_filename)
