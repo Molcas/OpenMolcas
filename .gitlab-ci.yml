@@ -369,22 +369,52 @@ tinker:
     - tags
     - master
 
-# Another special job for building doxygen documentation
-# This is done in a different project, so here simply run a trigger
-# whenever the master changes
-
-trigger_doc:
+# Another special job for building the documentation,
+doc:
   stage: build
-  image: ${CI_REGISTRY}/molcas/dockerfiles/ubuntu-14.04:latest
+  image: ${CI_REGISTRY}/molcas/dockerfiles/doc:latest
   script:
-    - export PROJECT_URL=${CI_PROJECT_URL#https://}
+    # First build sphinx doc
+    - git submodule update --init External/lapack
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make doc_all
+    # Now build doxygen doc
+    - cd ../doc/doxygen
     - >
-      curl --request POST
-      --form "token=$CI_JOB_TOKEN"
-      --form "ref=master"
-      --form "variables[SOURCE_URL]=${PROJECT_URL}"
-      --form "variables[SOURCE_COMMIT]=${CI_COMMIT_SHA}"
-      https://gitlab.com/api/v4/projects/Molcas%2Fdoc/trigger/pipeline
+      echo "PROJECT_NUMBER = $(git describe --always --match 'v*')" >> Doxyfile
+    # Generating call/caller graphs unfortunately results in too large artifacts for the pages:deploy stage
+    #- echo 'CALL_GRAPH = YES' >> Doxyfile
+    #- echo 'CALLER_GRAPH = YES' >> Doxyfile
+    - doxygen
+  after_script:
+    - cat doc/doxygen/doxygen.log
+  artifacts:
+    paths:
+      - build/doc
+      - doc/doxygen/html
+    expire_in: 1 day
+  except:
+    - tags
+  tags:
+    - docker
+
+# And the corresponding job to publish the documentation for the master branch
+pages:
+  stage: deploy
+  script:
+    - mkdir -p public
+    - mv build/doc/html public/sphinx
+    - mv build/doc/latex/Manual.pdf public/
+    - mv doc/doxygen/html public/doxygen
+    - du -sh public/*
+  dependencies:
+    - doc
+  artifacts:
+    paths:
+      - public
+    expire_in: 1 day
   only:
     - master
 
