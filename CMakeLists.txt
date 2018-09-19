@@ -2894,7 +2894,7 @@ add_dependencies(mods_obj prgms)
 # generate help databases from doc
 if (PYTHONINTERP_FOUND)
         execute_process (
-                COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/sbin/extract_xmldoc.py ${PROJECT_SOURCE_DIR}/doc ${PROJECT_BINARY_DIR}/data
+                COMMAND ${PYTHON_EXECUTABLE} ${OPENMOLCAS_DIR}/sbin/extract_xmldoc.py ${OPENMOLCAS_DIR}/doc ${PROJECT_BINARY_DIR}/data
                 ERROR_VARIABLE EXTRACT_ERROR
                 RESULT_VARIABLE EXTRACT_RESULT
                 )

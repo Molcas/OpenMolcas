@@ -65,7 +65,7 @@ Documentation
 The documentation can be found in the
 [`doc`](https://gitlab.com/Molcas/OpenMolcas/tree/master/doc) directory, you
 can read it in [HTML format](https://molcas.gitlab.io/OpenMolcas/sphinx/) or
-[PDF format](https://gitlab.com/Molcas/OpenMolcas/Manual.pdf). Note that most
+[PDF format](https://molcas.gitlab.io/OpenMolcas/Manual.pdf). Note that most
 of it precedes the creation of OpenMolcas and it is probably outdated in
 several points. It may also mention features not available in OpenMolcas.
 
