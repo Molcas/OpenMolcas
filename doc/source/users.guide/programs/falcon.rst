@@ -204,7 +204,7 @@ Keywords
   occupied orbitals in each symmetry representation in the unfragmented
   system.
 
-  .. xmldoc:: <KEYWORD MODULE="FALCON" NAME="OCCUPATION" KIND="INTS" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="FALCON" NAME="OCCUPATION" KIND="INTS_LOOKUP" SIZE="NSYM" LEVEL="BASIC">
               %%Keyword: Occupation <basic> GUI:keyword
               <HELP>
               A list of integer(s) following this keyword specifies the number of

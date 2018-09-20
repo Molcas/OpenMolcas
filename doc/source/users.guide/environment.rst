@@ -674,5 +674,5 @@ Example:
 .. xmldoc:: </MODULE>
 
 .. xmldoc:: <MODULE NAME="COMMENT" LEVEL="HIDDEN">
-               <KEYWORD MODULE="COMMENT" NAME="UNDEFINED" APPEAR="Unrecognized Content" KIND="STRINGS" SIZE="200" LEVEL="BASIC" />
+               <KEYWORD MODULE="COMMENT" NAME="UNDEFINED" APPEAR="Unrecognized Content" KIND="STRINGS" LEVEL="BASIC" />
             </MODULE>

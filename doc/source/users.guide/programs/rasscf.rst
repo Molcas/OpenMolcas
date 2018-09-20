@@ -945,7 +945,7 @@ A list of these keywords is given below:
   use a pre-optimized CI vector, :kword:`CIONLY` is used to avoid conflicts between the standard :program:`RASSCF` module
   and the MC-PDFT method (not compatible with SCF so far). The functional chosen is the translated-PBE.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="KSDFT" APPEAR="MC-PDFT" KIND="CHOICE" LIST="ROKS; tPBE,ROKS; tBLYP,ROKS; tLSDA" LEVEL="ADVANCED" REQUIRE="CIONLY">
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="KSDFT" APPEAR="MC-PDFT" KIND="CHOICE" LIST="----,ROKS; tPBE:tPBE,ROKS; tBLYP:tBLYP,ROKS; tLSDA:tLSDA" LEVEL="ADVANCED" REQUIRE="CIONLY">
               %%Keyword: KSDFT <advanced>
               <HELP>
               Needed to perform MC-PDFT calculations. It must be used together with
@@ -1711,7 +1711,7 @@ A list of these keywords is given below:
 
     (unless other limits are specified by the :kword:`PROR` keyword).
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="ORBLISTING" LEVEL="BASIC" APPEAR="Printed orbitals" KIND="CHOICE" LIST="No,Few,NoCore,All">
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="ORBLISTING" LEVEL="BASIC" APPEAR="Printed orbitals" KIND="CHOICE" LIST="----,No,Few,NoCore,All">
               %%Keyword: ORBListing <basic>
               <HELP>
               Select how extensive orbital list you want in the output file.
@@ -1728,7 +1728,7 @@ A list of these keywords is given below:
     Coefficients smaller than 0.1 will be omitted.
   * **FULL:** The tabular form will be chosen.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="ORBAppear" LEVEL="BASIC" APPEAR="Orbital appearance" KIND="CHOICE" LIST="Compact,Full">
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="ORBAppear" LEVEL="BASIC" APPEAR="Orbital appearance" KIND="CHOICE" LIST="----,Compact,Full">
               %%Keyword: ORBAppear <basic>
               <HELP>
               Select appearance of orbital list in the output file.
@@ -1886,7 +1886,7 @@ A list of these keywords is given below:
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="MXSWEEP" LEVEL="BASIC" APPEAR="Maximum number of sweeps (CheMPS2)" KIND="INT" DEFAULT_VALUE="8">
               %%Keyword: MXSWeep <basic>
               <HELP>
-              Maximum number of sweeps in the last instruction in CheMPS2p
+              Maximum number of sweeps in the last instruction in CheMPS2.
               </HELP>
               (Default: 8)
               </KEYWORD>

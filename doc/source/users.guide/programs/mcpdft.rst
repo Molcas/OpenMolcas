@@ -106,7 +106,7 @@ The :kword:`KSDFT` is the only required keyword.
   The functional choice follows. Currently available functionals are: tPBE, tBLYP, tLSDA, trevPBE,
   ftPBE, ftBLYP, ftLSDA, and ftrevPBE.
 
-  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="KSDFT" APPEAR="Pair-density functional" KIND="CHOICE" LIST="tLSDA, tPBE, tBLYP, trevPBE, ftLSDA, ftPBE, ftBLYP, ftrevPBE"> LEVEL="BASIC"
+  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="KSDFT" APPEAR="Pair-density functional" KIND="CHOICE" LIST="----,tLSDA,tPBE,tBLYP,trevPBE,ftLSDA,ftPBE,ftBLYP,ftrevPBE"> LEVEL="BASIC"
               %Keyword: KSDFT <basic>
               <HELP>
               Needed to perform MC-PDFT calculations.

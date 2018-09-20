@@ -26,7 +26,7 @@
             in density fitting procedures.
             </HELP>
 
-.. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="FREEINPUT" APPEAR="Free input" KIND="STRINGS" SIZE="20" LEVEL="GUI">
+.. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="FREEINPUT" APPEAR="Free input" KIND="STRINGS" LEVEL="GUI">
             <HELP>
             Input section which is not recognized by GUI
             </HELP>

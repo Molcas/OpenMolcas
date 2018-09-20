@@ -594,7 +594,7 @@ Keywords
   "JOB002", etc. will be used, and all states found on these files will be
   used.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="JOBIPH" APPEAR="Input states from JOBIPHs" KIND="STRINGS" SIZE="100" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="JOBIPH" APPEAR="Input states from JOBIPHs" KIND="STRINGS" LEVEL="BASIC">
               %%Keyword: NrOf <basic>
               <HELP>
               Number of JOBIPH files used as input, followed by a list of
