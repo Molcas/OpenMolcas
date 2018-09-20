@@ -423,7 +423,7 @@ C-SVC: identify runfile with a fingerprint
                   Write (6,'(A)')
      &              ' No packing of integrals has been applied'
                Else
-                  Write (6,'(A,G10.4)') ' Packing accuracy = ',
+                  Write (6,'(A,G11.4)') ' Packing accuracy =',
      &                                   PkAcc
                   Write (6,'(A,I10)')
      &             ' Highest disk address written',MaxDax

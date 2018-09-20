@@ -54,7 +54,7 @@
          iComp=gLblC(iLbl)
          Alpha=gLblW(iLbl)
          If ( Debug ) Then
-           Write(6,'(6X,5A,I2,2A,G8.2)')
+           Write(6,'(6X,5A,I2,2A,G9.2)')
      &     'GLBL    ',
      &     'label  ="',gLblN(iLbl),'",',
      &     'comp   =',gLblC(iLbl),',',

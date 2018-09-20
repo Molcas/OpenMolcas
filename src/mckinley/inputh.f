@@ -368,8 +368,8 @@ c      EndIf
  10   Continue
 *
       Write (6,*)
-      Write (6,'(20X,A,E8.3)')
-     &  ' Threshold for contributions to the gradient or Hessian: ',
+      Write (6,'(20X,A,E10.3)')
+     &  ' Threshold for contributions to the gradient or Hessian:',
      &   CutInt
       Write (6,*)
 *

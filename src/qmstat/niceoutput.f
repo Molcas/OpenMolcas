@@ -165,9 +165,9 @@
 15    Format('    ',A,2(I8,'         '))
 16    Format('    ',2(I5,'                '))
 17    Format('    ',I5)
-18    Format('      ',2(E10.4,'          '))
-19    Format('    ',A,'                ',E10.4)
-20    Format('      ',E10.4,'           ',A)
+18    Format('     ',2(E11.4,'         '),' ')
+19    Format('    ',A,'               ',E11.4)
+20    Format('     ',E11.4,'           ',A)
 
 *
 *-- Tschuss

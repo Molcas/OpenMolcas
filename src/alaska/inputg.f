@@ -541,8 +541,8 @@ c      nprint(26)=99
       End If
       If (Show.and.iPrint.ge.6) Then
          Write (LuWr,*)
-         Write (LuWr,'(20X,A,E8.3)')
-     &     ' Threshold for contributions to the gradient: ',CutGrd
+         Write (LuWr,'(20X,A,E10.3)')
+     &     ' Threshold for contributions to the gradient:',CutGrd
          Write (LuWr,*)
       End If
 *
