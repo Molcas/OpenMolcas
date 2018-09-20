@@ -38,5 +38,8 @@ C CORRECTION TO DENSITY MATRIX IN ACPF CASE.
 40    CONTINUE
       RETURN
 c Avoid unused argument warnings
-      IF (.FALSE.) CALL Unused_integer_array(INDX)
+      IF (.FALSE.) THEN
+         CALL Unused_integer_array(INTSYM)
+         CALL Unused_integer_array(INDX)
+      END IF
       END

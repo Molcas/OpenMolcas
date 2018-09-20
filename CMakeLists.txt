@@ -590,8 +590,8 @@ if (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND
         set (FFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
 endif ()
 
-set (CXXFLAGS_GNU_BIGOT "-Wall -Werror")
-set (CFLAGS_GNU_BIGOT "-Wall -Werror")
+set (CXXFLAGS_GNU_BIGOT "-Wall -Wextra -Wpedantic -Werror")
+set (CFLAGS_GNU_BIGOT "-Wall -Wextra -Wpedantic -Werror")
 set (FFLAGS_GNU_BIGOT "-Wall -Werror")
 set (GNU_TRAP "-ffpe-trap=invalid,zero,overflow")
 

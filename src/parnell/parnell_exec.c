@@ -29,6 +29,8 @@
 parnell_status_t
 parnell_exec (int argc, char ** argv)
 {
+        (void)argc;
+
         pid_t pid;
         parnell_status_t status = PARNELL_OK;
         if (MyRank == 0 && nProcs > 1) {
