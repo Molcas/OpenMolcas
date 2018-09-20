@@ -1,0 +1,115 @@
+{#**********************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2015-2017, Ignacio Fdez. Galván                        *
+**********************************************************************#}
+{#
+    molcas/layout.html
+    ~~~~~~~~~~~~~~~~~
+
+    Sphinx layout template for the molcas theme, based on agogo
+#}
+{%- extends "basic/layout.html" %}
+
+{% block header %}
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        {%- if logo %}
+          <p class="logo"><a href="{{ pathto(master_doc) }}">
+            <img class="logo" src="{{ pathto('_static/' + logo, 1) }}" alt="Logo"/>
+          </a></p>
+        {%- endif %}
+        {%- block headertitle %}
+        <div class="headertitle"><a
+          href="{{ pathto(master_doc) }}">{{ shorttitle }}</a></div>
+        {%- endblock %}
+        {%- block navigation %}
+        <div class="styles"></div>
+        <div class="currenttitle">{{ title }}</div>
+        <div class="rel" role="navigation" aria-label="related navigation">
+          {%- for rellink in rellinks|reverse %}
+          <a href="{{ pathto(rellink[0]) }}" title="{{ rellink[1]|striptags|e }}"
+             {{ accesskey(rellink[2]) }}>{{ rellink[3] }}</a>
+          {%- if not loop.last %}{{ reldelim2 }}{% endif %}
+          {%- endfor %}
+        </div>
+        {%- endblock %}
+       </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+          {%- block document %}
+            {{ super() }}
+          {%- endblock %}
+        </div>
+        <div class="sidebar">
+          {%- block sidebartoc %}
+          <h3>{{ _('Table Of Contents') }}</h3>
+          {{ toctree(collapse=True,maxdepth=3,titles_only=False) }}
+          {%- endblock %}
+          {%- block sidebarsearch %}
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">{{ _('Search') }}</h3>
+            <form class="search" action="{{ pathto('search') }}" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="{{ _('Go') }}" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+          </div>
+          {%- endblock %}
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+{% endblock %}
+
+{% block footer %}
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="related navigaton">
+            {%- for rellink in rellinks|reverse %}
+            <a href="{{ pathto(rellink[0]) }}" title="{{ rellink[1]|striptags|e }}"
+              {{ accesskey(rellink[2]) }}>{{ rellink[3] }}</a>
+            {%- if not loop.last %}{{ reldelim2 }}{% endif %}
+            {%- endfor %}
+          </div>
+          <div role="note" aria-label="source link" class="source_link">
+            {%- if show_source and has_source and sourcename %}
+              <a href="{{ pathto('_sources/' + sourcename, true)|e }}"
+                rel="nofollow">{{ _('Show Source') }}</a>
+            {%- endif %}
+          </div>
+        </div>
+
+        <div class="right">
+          {{ super() }}
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+{% endblock %}
+
+{% block relbar1 %}{% endblock %}
+{% block relbar2 %}{% endblock %}
+
+{% set script_files = ["_static/mathjax_config.js"] + script_files + ["_static/styleswitcher.js", "_static/functions.js"] %}
+
+{%- if theme_fontimport %}
+    {%- block css %}
+    <link rel="stylesheet" href="{{ theme_fontimport }}" type="text/css" />
+      {{- super() }}
+    {%- endblock %}
+{%- endif %}

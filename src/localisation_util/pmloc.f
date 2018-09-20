@@ -56,7 +56,7 @@
       Character*5 SecNam
       Parameter (SecNam = 'PMLoc')
 
-      Character*(LENIN4)  myName(MxAtom)
+      Character*(LENIN8)  myName(MxAtom)
       Character*80 Txt
       Logical Maximization, Converged, Debug
 
@@ -96,7 +96,7 @@ C     ---------------------------------------------------------------
          Write(Txt,'(A,I9)') 'nAtoms =',nAtoms
          Call SysAbendMsg(SecNam,'Atom limit exceeded!',Txt)
       End If
-      Call Get_cArray('Unique Basis Names',myName,LENIN4*nBasT)
+      Call Get_cArray('Unique Basis Names',myName,LENIN8*nBasT)
 
 C     Localize.
 C     ---------

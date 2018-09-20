@@ -19,8 +19,8 @@ C              the real and imaginary part of eigenvalues in EVR and
 C              EVI. If iGetVecs=0 no eigenvectors are computed; else,
 C              eigenvectors are returned in A (such that column one
 C              corresponds to eigenvalue 1 in EVR and EVI). Uses XEIGEN
-C              from the linalg_util directory (which uses EISPACK).
-C              See XEIGEN for details about the storage of real and
+C              from the linalg_util directory (which uses LAPACK).
+C              See LAPACK for details about the storage of real and
 C              complex eigenvectors.
 C
       Implicit None
@@ -33,19 +33,12 @@ C
 
       Integer iErr
       Integer ip_Vecs, l_Vecs
-      Integer ip_Scr1, l_Scr1
-      Integer ip_Scr2, l_Scr2
 
-      l_Scr1 = n
-      l_Scr2 = n
       l_Vecs = n*n
-      Call GetMem('Scr1','Allo','Real',ip_Scr1,l_Scr1)
-      Call GetMem('Scr2','Allo','Real',ip_Scr2,l_Scr2)
       Call GetMem('Vecs','Allo','Real',ip_Vecs,l_Vecs)
 
       iErr = 0
-      Call xEigen(iGetVecs,n,n,A,EVR,EVI,Work(ip_Vecs),
-     &            Work(ip_Scr1),Work(ip_Scr2),iErr)
+      Call xEigen(iGetVecs,n,n,A,EVR,EVI,Work(ip_Vecs),iErr)
       If (iErr .ne. 0) Then
          Write(6,*) SecNam,': xEigen returned ',iErr
          Call SysAbendMsg(SecNam,'Error in xEigen',' ')
@@ -54,7 +47,5 @@ C
       If (iGetVecs .ne. 0) Call dCopy_(n*n,Work(ip_Vecs),1,A,1)
 
       Call GetMem('Vecs','Free','Real',ip_Vecs,l_Vecs)
-      Call GetMem('Scr2','Free','Real',ip_Scr2,l_Scr2)
-      Call GetMem('Scr1','Free','Real',ip_Scr1,l_Scr1)
 
       End

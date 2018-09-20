@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Prop(Short,qplab,cen1,cen2,nIrrep,nBas,nTot,Occ,ThrSV,
-     &                PrEl,PrNu,lpole,labs,tmat,temp)
+     &                PrEl,PrNu,lpole,labs,tmat,temp,ifallorb)
 ************************************************************************
 *                                                                      *
 *     purpose: preprocessing of tables for different tensor            *
@@ -41,13 +41,19 @@
 *     PrNu(1:maxlab)  nuclear contributions for each component         *
 *     labs(1:maxlab)  labels for each component                        *
 *     temp(1:maxlab)  auxiliary storage area                           *
-*                                                                      *
+*     ifallorb        logical option for whether the property of       *
+*                     all orbitals are printed (and not weighted by    *
+*                     occupation number)in property calculation when   *
+*                     short=.false. (S.S.Dong, 2018)                   *
 *                                                                      *
 *     lpole is the value for l in l-pole moments                       *
 *     allocate integer storage area of the size appropriate            *
 *     for the actual lpole value: size as below                        *
 *                                                                      *
 * 2000 Dept. of Chem. Phys., Univ. of Lund, Sweden                     *
+* Modified by S.S.Dong, 2018, Univ. of Minnesota                       *
+* - Enable properties to be printed for all orbitals                   *
+* (including virtuals) and not weighted by occupation numbers          *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "constants2.fh"
@@ -61,7 +67,7 @@
       Character*8 qplab,oplab
       Character*(lmax) labs(1:(lpole+1)*(lpole+2)/2),lab
       Character*80 Line
-      Logical Short
+      Logical Short, ifallorb
       Integer nBas(0:nIrrep-1)
       Integer Cho_X_GetTol
       External Cho_X_GetTol
@@ -301,7 +307,7 @@ c            End If
          Write (6,'(6x,76(''-''))')
          sig=-One
          Call PrOut(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,
-     &              maxlab,labs,Work(ipPrTot),iPL,0)
+     &              maxlab,labs,Work(ipPrTot),iPL,0,ifallorb)
          If (lpole.eq.1) Then
             Write (6,'(6x,76(''-''))')
             Write(6,'(6x,a,3f16.8,3x,a)')   'Total             ',
@@ -326,7 +332,7 @@ c            End If
 *
            sig=-One
            Call PrOut(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,
-     &                maxlab,labs,Work(ipPrTot),iPL,0)
+     &                maxlab,labs,Work(ipPrTot),iPL,0,ifallorb)
          End If
 *
 *----------------------------------------------------------------------*
@@ -453,12 +459,12 @@ c            End If
 *
       If (Maxlab.eq.7) Then
         Call Prout(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrElAug,PrNuAug,
-     &             maxlab,labsAug,Work(ipPrTot),iPL,icen)
+     &             maxlab,labsAug,Work(ipPrTot),iPL,icen,ifallorb)
         MaxLab=6 ! Reset so call to Add_Info is correct!
 *
       Else
         Call Prout(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,
-     &             maxlab,labs,Work(ipPrTot),iPL,icen)
+     &             maxlab,labs,Work(ipPrTot),iPL,icen,ifallorb)
       End If
 *
       If (lab3.eq.'EF2') Then
@@ -509,7 +515,7 @@ c            End If
       Write (6,'(6x,78(''-''))')
       sig=+One
       Call PrOut(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,maxlab,
-     &           labs,Work(ipPrTot),iPL,0)
+     &           labs,Work(ipPrTot),iPL,0,ifallorb)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -554,7 +560,7 @@ c            End If
       Write (6,'(6x,76(''-''))')
       sig=One
       Call PrOut(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,maxlab,
-     &           labs,Work(ipPrTot),iPL,0)
+     &           labs,Work(ipPrTot),iPL,0,ifallorb)
 *
       If (lpole.gt.1.and.lpole.le.4) Then
         Write (6,'(//6x,a,i2,a,3(f12.8,a))') 'Cartesian ',lpole,
@@ -573,7 +579,7 @@ c            End If
 *
         sig=One
         Call PrOut(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,
-     &             maxlab,labs,Work(ipPrTot),iPL,0)
+     &             maxlab,labs,Work(ipPrTot),iPL,0,ifallorb)
       End If
 *      Go To 999
 *                                                                      *
@@ -603,7 +609,7 @@ c            End If
       End If
       sig=+One
       Call PrOut(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,maxlab,
-     &           labs,Work(ipPrTot),iPL,icen)
+     &           labs,Work(ipPrTot),iPL,icen,ifallorb)
 *
 *     do not write the contact term through Add_Info
       StoreInfo=.False.

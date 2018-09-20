@@ -609,6 +609,10 @@ C Timings on generation of the sigma vector
       Call GetMem('Scr3','Free','Real',iScr3,lRoots*nSel)
       Call GetMem('Scr4','Free','Real',iScr4,lRoots*nSel)
       Call GetMem('Scr5','Free','Real',iScr5,lRoots*nSel)
+      If (DoFaro) Then
+        CALL GetMem('CIVEC','Free','Real',IVECSVC, nconf)
+        call getmem('kcnf','free','inte',ivkcnf,nactel)
+      End If
 
       Call Timing(Alfex_2,Swatch,Swatch,Swatch)
       Alfex_2 = Alfex_2 - Alfex_1

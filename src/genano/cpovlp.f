@@ -33,7 +33,7 @@
          Do 110 iBas=1,nBas(iSym)
          iBasX=iBasX+1
          oki=Name(iBasX)(1:LENIN).eq.Center
-         oki=oki .and. Name(iBasX)(LENIN1:LENIN4).eq.type(iBlk)
+         oki=oki .and. Name(iBasX)(LENIN1:LENIN8).eq.type(iBlk)
          If(oki) indx=indx+1
          jndx=0
          jBasX=iBasX-iBas
@@ -41,7 +41,7 @@
             jBasX=jBasX+1
             ijBas=ijBas+1
             okj=Name(jBasX)(1:LENIN).eq.Center
-            okj=okj .and. Name(jBasX)(LENIN1:LENIN4).eq.type(iBlk)
+            okj=okj .and. Name(jBasX)(LENIN1:LENIN8).eq.type(iBlk)
             If(okj) jndx=jndx+1
             If(oki .and. okj) Then
                ind=jndx+indx*(indx-1)/2+iSymBk(iBlk)-1

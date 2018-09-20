@@ -242,7 +242,7 @@ cglm      TCONEMO(5)=IDISK
 cglm      IDISK=0
 cglm      CALL WR_MOTRA_Info(LUONEMO,1,iDisk,
 cglm     &                   TCONEMO,64,ECOR,NSYM,
-cglm     &                   NBAS,NORB,NFRO,NDEL,8,BSLBL,2*4*mxOrb)
+cglm     &                   NBAS,NORB,NFRO,NDEL,8,BSLBL,LENIN8*mxOrb)
 cglm      CALL DACLOS(LUONEMO)
 *
       Call qExit('Tr1Ctl_rasscf')

@@ -129,10 +129,10 @@ C     --------------------------------------------------------------
          Call SysAbendMsg(SecNam,'Atom limit exceeded!',Txt)
       End If
 c     Call Get_cArray('Unique Atom Names',AtomLbl,4*nAtoms)
-      Call Get_cArray('Unique Basis Names',Name,(LENIN4)*nBasT)
+      Call Get_cArray('Unique Basis Names',Name,(LENIN8)*nBasT)
       Do i = 1,nBasT
-         Atom(i) = Name(i)(1:4)
-         Type(i) = Name(i)(5:8)
+         Atom(i) = Name(i)(1:LENIN)
+         Type(i) = Name(i)(LENIN1:LENIN8)
       End Do
 
       End

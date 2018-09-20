@@ -17,7 +17,7 @@
      &                ITER,MAXIT,NROOTS,IROOT(mxRoot),NAC,
      &                ITRI(ITRIM),IADR15(30),
      &                IBLBM,JBLBM,ISYMBB,ISCF,NQUNE
-      CHARACTER(LENIN4) NAME(mxOrb)
+      CHARACTER(LENIN8) NAME(mxOrb)
       CHARACTER(2) HEADER(72)
       CHARACTER(2) QNSTEP
       CHARACTER(3) QNUPDT

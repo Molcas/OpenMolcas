@@ -1,0 +1,43 @@
+%! manual.tex $ this file belongs to the Molcas repository $*/
+
+\documentclass[a4paper,11pt]{book}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{molcas}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\makeindex
+%===============================================================================
+\begin{document}
+%\frontmatter
+%\include{titlepage}
+%\tableofcontents
+%\listoffigures
+%\listoftables
+%\mainmatter
+%
+\part{Introduction}
+\include{introduction}
+%
+\part{Short Guide to COLUMBUS}
+\section{Short Guide to COLUMBUS}
+%\include{tutorials/tut}
+%
+\part{User's Guide to COLUMBUS}
+\include{columbus}
+%
+\part{Installation Guide}
+%\include{installation.guide/ig}
+%
+\part{Advanced Examples and Annexes}
+%\include{advanced.examples/examples}
+%\include{annexes/annexes.tex}
+%
+\backmatter
+%\nocite{*}
+\bibliographystyle{unsrt}
+\bibliography{columbus}
+%\listoffigures
+%\listoftables
+\include{index}
+\end{document}

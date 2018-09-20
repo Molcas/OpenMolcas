@@ -1,6 +1,5 @@
-*$ this file belongs to the Molcas repository $
 *-------------------------------------------------------------------------------
-* Molecule: Methyl radical (CH3)
+* Molecule: Hydrogen atom
 * Basis: Uncontracted inline primitive basis
 * Symmetry: Cs
 * Features tested: SCF(UHF) and automatic muonic starting orbitals

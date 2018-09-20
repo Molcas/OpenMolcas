@@ -61,7 +61,7 @@
      &   Ssym(MxDsym),Cmo(MxCmo),Occ(MxBasX),Eps(MxBasX),
      &   Cmo2(MxCmo),Occ2(MxBasX),wc0,wc1
       Character*(LENIN) Center
-      Character*(LENIN4) Name(MxBasX)
+      Character*(LENIN8) Name(MxBasX)
       Character*80 Title
       Common /chrdta/ Name,Title,Center
       Logical rowise,lftdeg,rydgen

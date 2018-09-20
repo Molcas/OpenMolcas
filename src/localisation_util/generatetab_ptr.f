@@ -19,7 +19,7 @@ c
       Logical Debug
 #include "WrkSpc.fh"
 #include "Molcas.fh"
-      Character*(LENIN4) Name(*),PALbl
+      Character*(LENIN8) Name(*),PALbl
       Integer iTab_ptr(*),nBas_Start(*)
 
       nSize=nOrb2Loc**2

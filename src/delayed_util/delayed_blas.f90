@@ -137,16 +137,6 @@ subroutine dspmv(uplo,n,alpha,ap,x,incx,beta,y,incy)
   call lb_dspmv(uplo,n,alpha,ap,x,incx,beta,y,incy)
 end subroutine dspmv
 
-subroutine dspr2(uplo,n,alpha,x,incx,y,incy,ap)
-  use link_blas
-  implicit none
-  real*8 :: alpha
-  integer :: incx,incy,n
-  character :: uplo
-  real*8 :: ap(*),x(*),y(*)
-  call lb_dspr2(uplo,n,alpha,x,incx,y,incy,ap)
-end subroutine dspr2
-
 subroutine dspr(uplo,n,alpha,x,incx,ap)
   use link_blas
   implicit none
@@ -156,6 +146,16 @@ subroutine dspr(uplo,n,alpha,x,incx,ap)
   real*8 :: ap(*),x(*)
   call lb_dspr(uplo,n,alpha,x,incx,ap)
 end subroutine dspr
+
+subroutine dspr2(uplo,n,alpha,x,incx,y,incy,ap)
+  use link_blas
+  implicit none
+  real*8 :: alpha
+  integer :: incx,incy,n
+  character :: uplo
+  real*8 :: ap(*),x(*),y(*)
+  call lb_dspr2(uplo,n,alpha,x,incx,y,incy,ap)
+end subroutine dspr2
 
 subroutine dswap(n,dx,incx,dy,incy)
   use link_blas

@@ -22,7 +22,7 @@
 
       Integer iDisk,LuTraOne
       Integer TocTraOne(64)
-      Character*4 BsLbl(2,MxOrb)
+      Character*(LENIN8) BsLbl(MxOrb)
 
       LuTraOne = 3
 
@@ -36,7 +36,7 @@ culf
      &                   EcorX,
      &                   nSymX,
      &                   nBasX,nOrbX,nFroX,nDelX,8,
-     &                   BsLbl,4*2*MxOrb)
+     &                   BsLbl,LENIN8*MxOrb)
 
       Call Daclos(LuTraOne)
 

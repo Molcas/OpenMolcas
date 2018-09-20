@@ -23,7 +23,7 @@
       Integer   nDel(mxSym)
       Integer   nFro(mxSym)
 c      Character*(LENIN) AtLbl(mxAtms)
-      Character*(LENIN4) BsLbl(mxOrb)
+      Character*(LENIN8) BsLbl(mxOrb)
       Real*8 Coor(3,MxAtms)
       Real*8 PotNuc
       Common /Info_MOTRA/ PotNuc,Coor,BsLbl,

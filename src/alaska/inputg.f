@@ -23,7 +23,6 @@
 *              RecPrt                                                  *
 *              DaXpY   (ESSL)                                          *
 *              DDot_   (ESSL)                                          *
-*              DGeICD  (ESSL)                                          *
 *              DScal   (ESSL)                                          *
 *              DGEMM_  (ESSL)                                          *
 *              QExit                                                   *
@@ -50,7 +49,6 @@
       Character*1 xyz(0:2)
       Character KWord*80, Key*80
       Integer iSym(3), iTemp(3*mxdc)
-      Real*8 Det(2)
       Logical timings,Reduce_Prt
       External Reduce_Prt
       Data xyz/'x','y','z'/
@@ -845,13 +843,7 @@ c      nprint(26)=99
 *
 *        Compute the inverse of the T matrix
 *
-         nAux = 100*nTR
-         iOpt = 1
-         Call GetMem('Aux','Allo','Real',ipAux,nAux)
-         Call DGeICD(Work(ipTmp),nTR,nTR,iOpt,rcond,
-     &               det,Work(ipAux),nAux)
-         Call GetMem('Aux','Free','Real',ipAux,nAux)
-*        Write (LuWr,*) ' rcond=',rcond
+         Call MatInvert(Work(ipTmp),nTR)
          If (IPrint.ge.99)
      &      Call RecPrt(' The T-1 matrix',' ',Work(ipTmp),nTR,nTR)
          Call DScal_(nTR**2,-One,Work(ipTmp),1)

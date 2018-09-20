@@ -1,0 +1,102 @@
+%! dft_functionals.tex $ this file belongs to the Molcas repository $*/
+\paragraph{DFT functionals:}
+Below is listed the keywords for the DFT functionals currently implemented in the package.
+\begin{keywordlist}
+\item[LSDA, LDA, SVWN]
+Vosko, Wilk, and Nusair 1980 correlation functional fitting the
+RPA solution to the uniform electron gas \cite{Vosko:80} (functional III in the paper).
+\item[LSDA5, LDA5, SVWN5]
+Functional V from the VWN80 paper \cite{Vosko:80} which fits the Ceperley-Alder solution to the uniform electron gas.
+\item[HFB]
+Becke's 1988 exchange functional which includes
+the Slater exchange along with corrections involving the gradient of the density \cite{Becke:88}.
+\item[HFS]
+$\rho ^{4/3}$ with the theoretical coefficient of 2/3 also known as Local Spin Density exchange
+\cite{Hohenberg:64,Kohn:65,Slater:74}.
+\item[HFB86]
+Becke's 1986 two-parameter exchange functional which includes
+the Slater exchange along with corrections involving the gradient of the density \cite{B86,B07}.
+\item[HFO]
+Handy's stand-alone OPTX exchange functional \cite{OPTX}
+%\item[XALPHA]
+%$\rho ^{4/3}$ with the empirical coefficient of 0.7 usually used when this exchange functional
+%is used without correlation functional \cite{Hohenberg:64,Kohn:65,Slater:74}.
+\item[BLYP]
+Becke's 1988 exchange functional which includes
+the Slater exchange along with corrections involving the gradient of the density \cite{Becke:88}.
+Correlation functional of Lee, Yang, and Parr, which includes both local and non-local terms \cite{Lee:88,Miehlich:89}.
+\item[BPBE]
+Becke's 1988 exchange functional which includes
+the Slater exchange along with corrections involving the gradient of the density \cite{Becke:88} ,
+combined with the GGA correlation functional by Perdew, Burke and Ernzerhof  \cite{PBE:96}
+\item[B3LYP]
+Becke's 3 parameter functional \cite{Becke:93} with the form
+\begin{equation}
+A*E_X ^{Slater} + (1-A)*E_X ^{HF} + B*\Delta E_X ^{Becke} + E_C ^{VWN} + C*\Delta E_C ^{non-local}
+\end{equation}
+where the non-local correlation functional is the LYP functional and the VWN is functional III (not functional V).
+The constants A, B, C are those determined by Becke by fitting to the G1 molecule set, namely
+A=0.80, B=0.72, C=0.81.
+\item[B3LYP5]
+Becke's 3 parameter functional \cite{Becke:93} with the form
+\begin{equation}
+A*E_X ^{Slater} + (1-A)*E_X ^{HF} + B*\Delta E_X ^{Becke} + E_C ^{VWN} + C*\Delta E_C ^{non-local}
+\end{equation}
+where the non-local correlation functional is the LYP functional and the VWN is functional V.
+The constants A, B, C are those determined by Becke by fitting to the G1 molecule set, namely
+A=0.80, B=0.72, C=0.81.
+\item[B2PLYP]
+Grimme's double-hybrid density functional \cite{B2PLYP} based on Becke;s 1988 exchange and LYP correlation GGA functionals  with the form
+\begin{equation}
+A*E_X ^{Slater} + (1-A)*E_X ^{HF} + A*\Delta E_X ^{Becke} + C*E_C ^{LYP} + (1-C)*E_C ^{PT2}
+\end{equation}
+The constants A, and  C are A=0.47, C=0.73. The SCF program computes only the DFT part of the B2PLYP energy.
+In order to get the PT2 term, one has to run the MBPT2 program on converged B2PLYP orbitals, and scale the MP2
+correlation energy by the factor (1-C)=0.27.
+\item[B86LYP]
+Becke's 1986 exchange \cite{B86,B07} functional combined with the LYP correlation \cite{Lee:88,Miehlich:89}
+\item[BWig]
+Becke's 1988 GGA exchange functional combined with the local Wigner correlation functional \cite{GillWig}
+\item[GLYP]
+Gill's 1996 GGA exchange functional \cite{G96} combined with the  combined with the LYP correlation \cite{Lee:88,Miehlich:89}
+\item[OLYP]
+Handy's OPTX exchange functional \cite{OPTX} combined with the LYP correlation \cite{Lee:88,Miehlich:89}
+\item[OPBE]
+Handy's OPTX exchange functional \cite{OPTX} combined with the PBE correlation\cite{PBE:96}
+\item[O3LYP]
+A hybrid density functional based on the OPTX exchange \cite{O3LYP} , with the form
+\begin{equation}
+  A*E_X ^{HF} +B*E_X ^{Slater}  + C*\Delta E_X ^{OPTX} + 0.19*E_C ^{VWN} + 0.81*\Delta E_C ^{LYP}
+\end{equation}
+The constants A, B, C are as provided in Ref. \cite{O3LYP} :  A=0.1161, B=0.9262, C=0.8133.
+\item[KT3]
+The exchange-correlation functional by Keal and Tozer, 2004 \cite{KT2,KT3}
+\item[TLYP]
+\begin{equation}
+ E_X ^{HF} + E_C ^{non-local}
+\end{equation}
+where the non-local correlation functional is the LYP functional
+\item[PBE]
+The Perdew, Burke, Ernzerhof GGA functional 1996 \cite{PBE:96}.
+\item[PBE0]
+The Perdew, Ernzerhof, Burke non-empirical hybrid functional 1996 \cite{PBE0:96}.
+\item[PBEsol]
+The Perdew et al. 2008 modification of PBE for solids
+%\cite{PBEsol}
+\item[RGE2]
+The regularized gradient approximation (RGE2 )exchange functional by Ruzsinszky, Csonka, and Scuseria, 2009 that contains
+higher-power s terms in the exchange functional, as compared to the PBEsol. It is coupled with the PBEsol correlation \cite{RGE2}
+\item[PTCA]
+The correlation functional by Tognetti, Cortona, and Adamo combined with the PBE exchange  \cite{TCA}
+\item[SSB]
+The exchange functional SSB-sw by Swart, Sola, and Bickelhaupt, 2008  \cite{SSB} that switches between the OPTX exchange
+for small values of the reduced density gradient and the PBE exchange for the large ones. It is combined with the PBE correlation functional.
+\item[M06]
+The M06 functional of the Minnesota 2006 class of functionals by Zhao and Truhlar \cite{ZT1,ZT2,ZT3,ZT4}
+\item[M06L]
+The M06-L functional of the Minnesota 2006 class of functionals by Zhao and Truhlar \cite{ZT1,ZT2,ZT3,ZT4}
+\item[M06HF]
+The M06-HF functional of the Minnesota 2006 class of functionals by Zhao and Truhlar \cite{ZT1,ZT2,ZT3,ZT4}
+\item[M062X]
+The M06-2X functional of the Minnesota 2006 class of functionals by Zhao and Truhlar \cite{ZT1,ZT2,ZT3,ZT4}
+\end{keywordlist}

@@ -204,7 +204,7 @@ CAOM>
       Call GetMem('nB_per_Atom','Allo','Inte',ip_nBas_per_Atom,nAtoms)
       Call GetMem('nB_Start','Allo','Inte',ip_nBas_Start,nAtoms)
 
-      Call Get_cArray('Unique Basis Names',Name,(LENIN4)*nBas)
+      Call Get_cArray('Unique Basis Names',Name,(LENIN8)*nBas)
 
       Call BasFun_Atom(iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),
      &                 Name,nBas,nAtoms,.false.)

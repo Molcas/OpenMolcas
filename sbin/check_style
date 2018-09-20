@@ -40,6 +40,8 @@ if (not isdir(MOLCAS)):
 
 # Non-ASCII characters
 def non_ascii(line, filename):
+  if (filename.endswith(('.py'))):
+    return False
   try:
     a = line.decode('ascii')
     return False

@@ -1,0 +1,39 @@
+%***********************************************************************
+% This file is part of OpenMolcas.                                     *
+%                                                                      *
+% OpenMolcas is free software; you can redistribute it and/or modify   *
+% it under the terms of the GNU Lesser General Public License, v. 2.1. *
+% OpenMolcas is distributed in the hope that it will be useful, but it *
+% is provided "as is" and without any express or implied warranties.   *
+% For more details see the full text of the license in the file        *
+% LICENSE or in <http://www.gnu.org/licenses/>.                        *
+%                                                                      *
+% Copyright (C) 2015-2017, Ignacio Fdez. Galván                        *
+%***********************************************************************
+
+\RequirePackage{mhchem}
+
+% Custom math command definitions
+\DeclareMathOperator{\sign}{sign}
+\DeclareMathOperator{\abs}{abs}
+\DeclareMathOperator{\Tr}{Tr}
+\newcommand{\mat}[1]{\boldsymbol{#1}}
+\newcommand{\bra}[1]{\left<#1\right|}
+\newcommand{\ket}[1]{\left|#1\right>}
+\newcommand{\braket}[2]{\left<#1\middle|#2\right>}
+\newcommand{\braopket}[3]{\left<#1\middle|#2\middle|#3\right>}
+
+% Custom role definitions
+\newcommand{\DUroleprogram}[1]{\texttt{\textbf{#1}}} % uppercased with a docutils Transform
+\newcommand{\DUrolefile}[1]{\texttt{\textit{#1}}}
+\newcommand{\DUrolekword}[1]{\textsc{\textbf{#1}}}
+\newcommand{\DUrolecommand}[1]{\textsf{#1}}
+\newcommand{\DUrolevariable}[1]{\textrm{#1}}
+\newcommand{\DUrolesc}[1]{\textsc{#1}}
+\newcommand{\DUrolebdit}[1]{\textbf{\textit{#1}}}
+
+% Override defaults
+%  cross-references and citations
+\renewcommand{\sphinxcrossref}[1]{#1}
+%  font in code blocks
+\fvset{fontsize=\footnotesize}

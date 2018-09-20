@@ -43,18 +43,21 @@
 *
 #include "Molcas.fh"
       DIMENSION nBas(*),nOrb(*),Ene(*),CMO(*),Occ(*)
-      CHARACTER*(LENIN4) Name(*)
+      CHARACTER*(LENIN8) Name(*)
       CHARACTER*(*) Header
       CHARACTER*24 FMT0,FMT1,FMT2,LABEL0,LABEL1,LABEL2
       Character*3 IrrepName(8)
       Character*20 Fmt_s, Fmt_l, Fmt_f, Fmt
       Character*180 Line
-      Character*(4+1+LENIN4*2+1+6+3) ChCMO
+      Parameter (Magic=5+1+LENIN8+1+6+3)
+      Character*(Magic) ChCMO
       Character*4 Star(10)
       Real*8 Shift(10)
       LOGICAL PrEne,PrOcc, Large, Go, Debug, Header_Done
       Logical Reduce_Prt
       External Reduce_Prt
+      Character*(LENIN8) Clean_BName
+      External Clean_BName
       Debug=.false.
 #ifdef _DEBUG_
       Debug=.true.
@@ -65,7 +68,6 @@
       Do i=1,10
          Star(i)=' '
       End Do
-      Magic=4+1+LENIN4*2+1+6+3
       iPL=iPrintLevel(-1)
       If (Reduce_Prt().and.iPL.lt.3) iPL=0
       If (iPL.le.1) Return
@@ -119,8 +121,8 @@ c     Write(6,*) 'test print out'
       LABEL0='Orbital '
       LABEL1='Energy  '
       LABEL2='Occ. No.'
-      FMT0='(10X,A8,3X,10(I5,A,1X))'
-      FMT1='(10X,A8,2X,10F10.4)'
+      FMT0='(10X,A12,3X,10(I5,A,1X))'
+      FMT1='(10X,A12,2X,10F10.4)'
       FMT2='(6X,I3,1X,A,10F10.4)'
 *
 *----------------------------------------------------------------------*
@@ -194,9 +196,9 @@ c     Write(6,*) 'test print out'
                   Do iB = 1, Inc
 ct.t.;
 c                    Write (6,'(6X,5(I3,1X,A,15X))')
-                     Write (6,'(4X,5(I5,1X,A,13X))')
+                     Write (6,'(4X,5(I5,1X,A,9X))')
 ct.t.; end
-     &               (jB,Name(jSB+jB),jB=iB, nB, Inc)
+     &               (jB,Clean_BName(Name(jSB+jB),LENIN),jB=iB, nB, Inc)
                   End Do
                   Write (6,*)
 *
@@ -239,7 +241,7 @@ ct.t.; end
                      End If
                      If (Debug) Write (6,*) ' Fmt=',Fmt
                      Write (ChCMO,Fmt)
-     &                  iB+1,Name(ISB+IB),
+     &                  iB+1,Clean_BName(Name(ISB+IB),LENIN),
      &                  '(',CMO(isCMO+iSO*nB+iB),'), '
                      If (Debug) Write (6,'(A)') ChCMO
                      If (iPos.eq.1) Then
@@ -343,7 +345,7 @@ c          End Do
              if(iPrForm.ne.1) then
               Do IB=0,NB-1
                 Write(6,FMT2)
-     &            IB+1,Name(ISB+IB),
+     &            IB+1,Clean_BName(Name(ISB+IB),LENIN),
      &            (CMO(ISCMO+IO*NB+IB),IO=ISO,IEO)
               End Do
              endif

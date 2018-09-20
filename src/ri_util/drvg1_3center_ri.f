@@ -254,6 +254,7 @@ cVV: ifort 11 can't handle the code without this dummy print.
       End Do
 *
       Call Free_Work(ipDMLT(1))
+      If (nKdens.eq.2) Call Free_Work(ipDMLT(2))
 *
 *     Create list of non-vanishing pairs
 *

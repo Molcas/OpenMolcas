@@ -95,7 +95,7 @@ class MolcasException(Exception):
 
 class Molcas_wrapper(object):
 
-  version = 'py2.03'
+  version = 'py2.04'
   rc = 0
 
   def __init__(self, **kwargs):
@@ -386,7 +386,7 @@ class Molcas_wrapper(object):
     if ((tag_x != '') and (tag == '(unknown)')):
       tag = tag_x
       tag_x = ''
-    v_match = re_compile('v(\d+\.\d+)\.(.*)')
+    v_match = re_compile('v(\d+\.\d+)[\.-](.*)')
     match = v_match.match(tag)
     if (match):
       version = match.group(1)
@@ -453,7 +453,7 @@ class Molcas_wrapper(object):
         if ((lline[i] == ch0) or (lline[i] == ch1)):
           lline[i] = rep[j]
           j = (j+1) % len(rep)
-        if (lline[i] == ch2):
+        elif (lline[i] == ch2):
           lline[i] = ' '
       line = ''.join(lline)
       new_banner.append(line.rstrip())

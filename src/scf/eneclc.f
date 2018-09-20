@@ -89,7 +89,7 @@ c set to Zero for RHF
      &         +    iUHF *nOcc(iSym,2)
       End Do
       En2V=0
-      If (nElec.le.1) Go To 999
+      If ((nElec.le.1).and.(KSDFT.eq.'SCF')) Go To 999
 *
       En2V  = DDot_(nBT,TwoHam(1,1,iPsLst),1,Dens(1,1,iPsLst),1)
       If (iUHF.eq.1) Then

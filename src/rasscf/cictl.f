@@ -322,6 +322,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
 
            Call GetMem('DStmp','FREE','REAL',LW7,NACPAR)
            Call GetMem('Dtmp ','FREE','REAL',LW6,NACPAR)
+           Call GetMem('CIVEC','FREE','REAL',LW4,NCONF)
 *
            Call SGFCIN(CMO,Work(LW1),FI,D1I,Work(LRCT_F),Work(LRCT_FS))
 *
@@ -362,7 +363,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
      &                          energy = emy
      &                         )
         if(dofcidump)then
-          CALL GETMEM('CICTL','FREE','REAL',LW1,NACPAR)
+          CALL GETMEM('CICTL1','FREE','REAL',LW1,NACPAR)
           goto 9000
         end if
 #endif
