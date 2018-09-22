@@ -171,7 +171,7 @@
       call f_Inquire('ORDINT',int2check)
       If (.not.(int2check.or.DoCholesky)) then
        write(6,*)' Two-electron integrals file not found!'
-       write(6,*)' IF Choleski is used than keep going... else stop!'
+       write(6,*)' If Cholesky is used then keep going... else stop!'
       End If
 
 c I let the master node do this to avoid a bug with FockTwo later on.
