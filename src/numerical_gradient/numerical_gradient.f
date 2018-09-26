@@ -220,7 +220,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
             Write (LuWr,*)
             Write (LuWr,'(A,A,A)')
      &    ' Numerical_Gradient: Original ',Method,' Energies:'
-            Write (LuWr,'(G20.14)')
+            Write (LuWr,'(G21.14)')
      &    (Work(ipEnergies_Ref+i-1),i=1,nRoots)
             Write (LuWr,*)
          End If

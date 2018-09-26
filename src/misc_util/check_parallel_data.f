@@ -37,7 +37,7 @@ c if action="S" copy data from masterto all processes
       end do
 c
       j=MyRank*n
-      do i=1,ns
+      do i=1,n
          Work(j+itemp+i-1)=x(i)
       end do
       call GADsum(Work(itemp),ns)
@@ -60,7 +60,7 @@ c     comparing MyRank vs rank j
 c     copy data from master to MyRank
          if(MyRank.ne.0)then
             j=0
-            do i=1,ns
+            do i=1,n
                x(i)=Work(j+itemp+i-1)
             end do
          end if

@@ -63,8 +63,6 @@
       Character*72 SLine
       Real*8 res_tmp
 *
-      itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-
       Call QEnter('WfCtl')
 *----------------------------------------------------------------------*
 *     Start                                                            *

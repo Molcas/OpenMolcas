@@ -74,8 +74,6 @@
       integer  i_off1,i_off2,ifone
       integer isym,iorb,iash,iish,jsym
       integer LUGS
-      iTrii(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
-
 
       Call qEnter('MSCTL')
       Call unused_real_array(F)

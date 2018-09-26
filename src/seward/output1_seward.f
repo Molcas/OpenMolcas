@@ -461,10 +461,10 @@
 ************************************************************************
 *                                                                      *
       Write (LuWr,*)
-      Write (LuWr,'(19X,A,E8.2)')
-     &      'Integrals are discarded if absolute value <: ',ThrInt
-      Write (LuWr,'(19X,A,E8.2)')
-     &      'Integral cutoff threshold is set to       <: ',CutInt
+      Write (LuWr,'(19X,A,E9.2)')
+     &      'Integrals are discarded if absolute value <:',ThrInt
+      Write (LuWr,'(19X,A,E9.2)')
+     &      'Integral cutoff threshold is set to       <:',CutInt
 *                                                                      *
 ************************************************************************
 *                                                                      *

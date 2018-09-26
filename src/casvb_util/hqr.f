@@ -1,11 +1,19 @@
 ************************************************************************
-* This file from EISPACK:                                              *
-*   http://www.netlib.org/eispack/                                     *
+* This file is part of OpenMolcas.                                     *
 *                                                                      *
-* To the best of our knowledge, the routines in EISPACK are public     *
-* domain or freely distributable and modifiable.                       *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-
+c  ********************************************************
+c  ** Public-domain library routines used by casvb only. **
+c  ********************************************************
+c  **********************
+c  ** EISPACK ROUTINES **
+c  **********************
       subroutine hqr(nm,n,low,igh,h,wr,wi,ierr)
 C  RESTORED CORRECT INDICES OF LOOPS (200,210,230,240). (9/29/89 BSG)
 c

@@ -451,14 +451,14 @@
       STrF=0.0d0
       STrX=0.0d0
       Do iSym=1,nSym
-        write(6,'(2X,I4,10X,G10.4,4X,G10.4,4X,G10.4)') iSym,TrA(iSym),
+        write(6,'(2X,I4,9X,G11.4,3X,G11.4,3X,G11.4)') iSym,TrA(iSym),
      &       TrF(iSym),TrX(iSym)
         STrA=STrA+TrA(iSym)
         STrF=STrF+TrF(iSym)
         STrX=STrX+TrX(iSym)
       End Do
       write(6,*)'------------------------------------------------------'
-      write(6,'(A,G10.4,4X,G10.4,4X,G10.4)')'          Sum:  ',
+      write(6,'(A,G11.4,3X,G11.4,3X,G11.4)')'          Sum: ',
      & STrA,STrF,STrX
       write(6,*)'------------------------------------------------------'
       write(6,*)

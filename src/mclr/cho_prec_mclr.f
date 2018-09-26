@@ -51,15 +51,9 @@
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
-      iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-******
       InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
 ******
       nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
-******
-      NBASSH(I,J)=IWORK(ip_NBASSH-1+NSYM*(J-1)+I)
-******
-      kOffSh(i,j) = iWork(ip_kOffSh+nShell*(j-1)+i-1)
 ************************************************************************
       timings=.false.
       CALL CWTIME(TCstart1,TWstart1)

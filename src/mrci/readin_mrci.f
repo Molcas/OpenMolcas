@@ -30,7 +30,7 @@
      *          'NRRO','MXVE','TRAN','EXTR','END '/
 *
 *---- convert a pointer in H to a pointer for iH
-      ipointer(i)=(i-1)*RtoI+1
+*     ipointer(i)=(i-1)*RtoI+1
 *
       Call qEnter('ReadIn')
 *
@@ -513,11 +513,11 @@ C NR OF VIRTUALS IN PREVIOUS SYMMETRIES:
       WRITE(6,'(A)')'      MALMQVIST DIAGONALIZATION'
       WRITE(6,*)
       WRITE(6,'(A,I8)')  '      PRINT LEVEL                   ',IPRINT
-      WRITE(6,'(A,I12)')  '      WORKSPACE WORDS, (Re*8)   ',MEMTOT
+      WRITE(6,'(A,I12)') '      WORKSPACE WORDS, (Re*8)   '    ,MEMTOT
       WRITE(6,'(A,I8)')  '      MAXIMUM NR OF ORBITALS        ',IOM
       WRITE(6,'(A,I8)')  '      MAX NR OF STORED CI/SGM ARR.  ',MXVC
       WRITE(6,'(A,I8)')  '      MAX NR OF ITERATIONS          ',MAXIT
-      WRITE(6,'(A,D8.2)')'      ENERGY CONVERGENCE THRESHOLD  ',ETHRE
+      WRITE(6,'(A,D9.2)')'      ENERGY CONVERGENCE THRESHOLD ' ,ETHRE
       WRITE(6,'(A,F8.1)')'      SPIN QUANTUM NUMBER           ',SPIN
       WRITE(6,'(A,I8)')  '      CORRELATED ELECTRONS          ',NELEC
       WRITE(6,'(A,I8)')  '      WAVE FUNCTION SYMMETRY LABEL  ',LSYM

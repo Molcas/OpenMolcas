@@ -57,7 +57,7 @@ CPAM971001  format(1h1,1x,'Matrix elements of observables'/1x,A80//
 CPAM97     *       1x,'Asymtotic energy difference (au):',E14.6)
       Write(6,*)
       Call CollapseOutput(1,'Matrix elements of observable: '//Title)
-      Write(6,'(a,e14.8)')' Asymptotic energy difference (au):',Teas
+      Write(6,'(a,e15.8)')' Asymptotic energy difference (au):',Teas
       print=2
 c
 c     check dimensions
@@ -322,7 +322,7 @@ C
              Sw(iwr)=Osc(nv1,nv2)
           End Do
        End Do
-       Write(6,'(6(2X,I3,1X,I3,1X,E11.5))')
+       Write(6,'(6(2X,I3,1X,I3,1X,E12.5))')
      &      (nv1w(i),nv2w(i),Sw(i),i=1,iwr)
 C
 C      Print lifetime
@@ -340,7 +340,7 @@ C
              Sw(iwr)=Taui(nv1,nv2)
           End Do
        End Do
-       Write(6,'(6(2X,I3,1X,I3,1X,E11.5))')
+       Write(6,'(6(2X,I3,1X,I3,1X,E12.5))')
      &      (nv1w(i),nv2w(i),Sw(i),i=1,iwr)
 C Compute lifetimes for upper state
        Write(6,1600)

@@ -314,10 +314,10 @@
       Character (Len=*), Intent(In) :: String, WD
 #ifdef ALLOC_ASSIGN
       Character (Len=:), Allocatable :: ExpandVars
-#define LE Len(ExpandVars)
+#define LEV Len(ExpandVars)
 #else
       Character (Len=MAXSTR) :: ExpandVars
-#define LE Len_Trim(ExpandVars)
+#define LEV Len_Trim(ExpandVars)
 #endif
       Character (Len=MAXSTR) :: Var, Val
       Integer :: i, j, Ini, Fin
@@ -329,13 +329,13 @@
       ! will change as replacements are done
       Do
         i = i+1
-        If (i .gt. LE) Exit
+        If (i .gt. LEV) Exit
         ! the $ marks the start of the variable, find the end
         ! (by default the end of the string)
         If (ExpandVars(i:i) .eq. '$') Then
           Ini = i
-          Fin = LE
-          Do j = i+1, LE
+          Fin = LEV
+          Do j = i+1, LEV
             If (Index(' $/.', ExpandVars(j:j)) .ne. 0) Then
               Fin = j-1
               Exit

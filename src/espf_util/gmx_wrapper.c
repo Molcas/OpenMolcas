@@ -79,4 +79,6 @@ int mmslave_calc_energy_(gmx_mmslave_t gms, const rvec *x, rvec *f, rvec *A, rea
   return mmslave_calc_energy(gms, fp, x, f, A, phi, energy) ;
 }
 
+#else
+typedef int make_iso_compilers_happy;
 #endif

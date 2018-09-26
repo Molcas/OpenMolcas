@@ -33,7 +33,9 @@
       declare_ip_atom_nr
       declare_ip_r_quad
       declare_ip_r_max
+#ifdef _DEBUG_
       iROff(i,ir)=2*(ir-1)+i-1
+#endif
 *
 ************************************************************************
 *

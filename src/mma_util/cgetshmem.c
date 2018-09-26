@@ -244,7 +244,7 @@ INT c_getshmem(char *name, char* Op, char *dtyp, INT *offset, INT *len, char *pa
     char e_dtyp[MXLINE];
     char action[MXLINE];
 
-    string2UC(name,e_name);strncat(e_name, "_s", 2);
+    string2UC(name,e_name);strcat(e_name, "_s");
     string2UC(dtyp,e_dtyp);
     string2UC(Op,action);
 

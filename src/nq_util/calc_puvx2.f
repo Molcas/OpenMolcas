@@ -184,6 +184,7 @@
 #include "rasdim.fh"
 #include "general.fh"
 #include "WrkSpc.fh"
+#include "ksdft.fh"
       Integer off_Ash(mxSym), off_BasAsh(mxSym),
      &        off_PUVX(mxSym),off_Bas(mxSym),
      &        off_ish(mxSym),off_BasIsh(mxSym),
@@ -349,10 +350,10 @@
 !I think I can generate the contributions from the potentials to the new
 !FI and FA terms at this level.  Then there will be no need to store a
 !large number of V_TE potentials.
-      CALL GETMEM('FI_V','ALLO','REAL',ifiv,ntot1)
-      CALL GETMEM('FA_V','ALLO','REAL',ifav,ntot1)
-      Call Get_dArray('FI_V',Work(ifiv),ntot1)
-      Call Get_dArray('FA_V',Work(ifav),ntot1)
+!      CALL GETMEM('FI_V','ALLO','REAL',ifiv,ntot1)
+!      CALL GETMEM('FA_V','ALLO','REAL',ifav,ntot1)
+!      Call Get_dArray('FI_V',Work(ifiv),ntot1)
+!      Call Get_dArray('FA_V',Work(ifav),ntot1)
 
       Do iSym = 1,nSym !sym for p
         iOrb = nOrb(iSym)
@@ -1092,10 +1093,10 @@
         End Do
       End Do
 
-      Call Put_dArray('FI_V',Work(ifiv),ntot1)
-      Call Put_dArray('FA_V',Work(ifav),ntot1)
-      CALL GETMEM('FI_V','FREE','REAL',ifiv,ntot1)
-      CALL GETMEM('FA_V','FREE','REAL',ifav,ntot1)
+!      Call Put_dArray('FI_V',Work(ifiv),ntot1)
+!      Call Put_dArray('FA_V',Work(ifav),ntot1)
+!      CALL GETMEM('FI_V','FREE','REAL',ifiv,ntot1)
+!      CALL GETMEM('FA_V','FREE','REAL',ifav,ntot1)
       lsym=lsym_tmp
 *
       Return
@@ -1111,6 +1112,7 @@
 #include "rasdim.fh"
 #include "general.fh"
 #include "WrkSpc.fh"
+#include "ksdft.fh"
       Integer off_Ash(mxSym), off_BasAsh(mxSym),
      &        off_Bas(mxSym)!,off_Ish(mxSym)!,off_Fmat(mxSym),
 !     &        off_Dmat(mxSym)
@@ -1201,6 +1203,7 @@
 #include "rasdim.fh"
 #include "general.fh"
 #include "WrkSpc.fh"
+#include "ksdft.fh"
       Integer off_Ash(mxSym), off_BasAsh(mxSym),
      &        off_Bas(mxSym)
 !     &        off_Dmat(mxSym)
@@ -1324,6 +1327,7 @@
 #include "rasdim.fh"
 #include "general.fh"
 #include "WrkSpc.fh"
+#include "ksdft.fh"
       Integer nIrrep
       Integer off_Ash(mxSym), off_BasAsh(mxSym),
      &        off_PUVX(mxSym),off_Bas(mxSym),
@@ -1619,10 +1623,10 @@
 !I think I can generate the contributions from the potentials to the new
 !FI and FA terms at this level.  Then there will be no need to store a
 !large number of V_TE potentials.
-      CALL GETMEM('FI_V','ALLO','REAL',ifiv,ntot1)
-      CALL GETMEM('FA_V','ALLO','REAL',ifav,ntot1)
-      Call Get_dArray('FI_V',Work(ifiv),ntot1)
-      Call Get_dArray('FA_V',Work(ifav),ntot1)
+!      CALL GETMEM('FI_V','ALLO','REAL',ifiv,ntot1)
+!      CALL GETMEM('FA_V','ALLO','REAL',ifav,ntot1)
+!      Call Get_dArray('FI_V',Work(ifiv),ntot1)
+!      Call Get_dArray('FA_V',Work(ifav),ntot1)
 
       Do iSym = 1,nSym !sym for p
         iOrb = nOrb(iSym)
@@ -2307,10 +2311,10 @@
           End Do
         End Do
       End Do
-      Call Put_dArray('FI_V',Work(ifiv),ntot1)
-      Call Put_dArray('FA_V',Work(ifav),ntot1)
-      CALL GETMEM('FI_V','FREE','REAL',ifiv,ntot1)
-      CALL GETMEM('FA_V','FREE','REAL',ifav,ntot1)
+!      Call Put_dArray('FI_V',Work(ifiv),ntot1)
+!      Call Put_dArray('FA_V',Work(ifav),ntot1)
+!      CALL GETMEM('FI_V','FREE','REAL',ifiv,ntot1)
+!      CALL GETMEM('FA_V','FREE','REAL',ifav,ntot1)
       lsym=lsym_tmp
       Return
       End
@@ -2324,6 +2328,7 @@
 #include "rasdim.fh"
 #include "general.fh"
 #include "WrkSpc.fh"
+#include "ksdft.fh"
       Integer off_Ash(mxSym), off_BasAsh(mxSym),
      &        off_PUVX(mxSym),off_Bas(mxSym),
      &        off_ish(mxSym),off_BasIsh(mxSym),
@@ -2501,10 +2506,10 @@
 !I think I can generate the contributions from the potentials to the new
 !FI and FA terms at this level.  Then there will be no need to store a
 !large number of V_TE potentials.
-      CALL GETMEM('FI_V','ALLO','REAL',ifiv,ntot1)
-      CALL GETMEM('FA_V','ALLO','REAL',ifav,ntot1)
-      Call Get_dArray('FI_V',Work(ifiv),ntot1)
-      Call Get_dArray('FA_V',Work(ifav),ntot1)
+!      CALL GETMEM('FI_V','ALLO','REAL',ifiv,ntot1)
+!      CALL GETMEM('FA_V','ALLO','REAL',ifav,ntot1)
+!      Call Get_dArray('FI_V',Work(ifiv),ntot1)
+!      Call Get_dArray('FA_V',Work(ifav),ntot1)
 
       Do iSym = 1,nSym !sym for p
         iOrb = nOrb(iSym)
@@ -3695,10 +3700,10 @@
         End Do
       End Do
 
-      Call Put_dArray('FI_V',Work(ifiv),ntot1)
-      Call Put_dArray('FA_V',Work(ifav),ntot1)
-      CALL GETMEM('FI_V','FREE','REAL',ifiv,ntot1)
-      CALL GETMEM('FA_V','FREE','REAL',ifav,ntot1)
+!      Call Put_dArray('FI_V',Work(ifiv),ntot1)
+!      Call Put_dArray('FA_V',Work(ifav),ntot1)
+!      CALL GETMEM('FI_V','FREE','REAL',ifiv,ntot1)
+!      CALL GETMEM('FA_V','FREE','REAL',ifav,ntot1)
 *
       lsym=lsym_tmp
 *
@@ -3714,6 +3719,7 @@
 #include "rasdim.fh"
 #include "general.fh"
 #include "WrkSpc.fh"
+#include "ksdft.fh"
       Integer off_Ash(mxSym), off_BasAsh(mxSym),
      &        off_PUVX(mxSym),off_Bas(mxSym)!,off_Fmat(mxSym),
 !     &        off_Dmat(mxSym)
@@ -3868,6 +3874,7 @@
 #include "rasdim.fh"
 #include "general.fh"
 #include "WrkSpc.fh"
+#include "ksdft.fh"
       Integer off_Ash(mxSym), off_BasAsh(mxSym),
      &        off_Bas(mxSym)!,off_Fmat(mxSym),
 !     &        off_Dmat(mxSym)
@@ -3987,6 +3994,7 @@
 #include "rasdim.fh"
 #include "general.fh"
 #include "WrkSpc.fh"
+#include "ksdft.fh"
       Integer nIrrep
       Integer off_Ash(mxSym), off_BasAsh(mxSym),
      &        off_PUVX(mxSym),off_Bas(mxSym),
@@ -4182,10 +4190,10 @@
 !I think I can generate the contributions from the potentials to the new
 !FI and FA terms at this level.  Then there will be no need to store a
 !large number of V_TE potentials.
-      CALL GETMEM('FI_V','ALLO','REAL',ifiv,ntot1)
-      CALL GETMEM('FA_V','ALLO','REAL',ifav,ntot1)
-      Call Get_dArray('FI_V',Work(ifiv),ntot1)
-      Call Get_dArray('FA_V',Work(ifav),ntot1)
+!      CALL GETMEM('FI_V','ALLO','REAL',ifiv,ntot1)
+!      CALL GETMEM('FA_V','ALLO','REAL',ifav,ntot1)
+!      Call Get_dArray('FI_V',Work(ifiv),ntot1)
+!      Call Get_dArray('FA_V',Work(ifav),ntot1)
 
       Do iSym = 1,nSym !sym for p
         iOrb = nOrb(iSym)
@@ -5530,10 +5538,10 @@
         End Do
       End Do
 
-      Call Put_dArray('FI_V',Work(ifiv),ntot1)
-      Call Put_dArray('FA_V',Work(ifav),ntot1)
-      CALL GETMEM('FI_V','FREE','REAL',ifiv,ntot1)
-      CALL GETMEM('FA_V','FREE','REAL',ifav,ntot1)
+!      Call Put_dArray('FI_V',Work(ifiv),ntot1)
+!      Call Put_dArray('FA_V',Work(ifav),ntot1)
+!      CALL GETMEM('FI_V','FREE','REAL',ifiv,ntot1)
+!      CALL GETMEM('FA_V','FREE','REAL',ifav,ntot1)
       lsym=lsym_tmp
 *
       Return
@@ -5548,6 +5556,7 @@
 #include "rasdim.fh"
 #include "general.fh"
 #include "WrkSpc.fh"
+#include "ksdft.fh"
       Integer nIrrep
       Integer off_Ash(mxSym), off_BasAsh(mxSym),
      &        off_PUVX(mxSym),off_Bas(mxSym),
@@ -5873,10 +5882,10 @@
 !I think I can generate the contributions from the potentials to the new
 !FI and FA terms at this level.  Then there will be no need to store a
 !large number of V_TE potentials.
-      CALL GETMEM('FI_V','ALLO','REAL',ifiv,ntot1)
-      CALL GETMEM('FA_V','ALLO','REAL',ifav,ntot1)
-      Call Get_dArray('FI_V',Work(ifiv),ntot1)
-      Call Get_dArray('FA_V',Work(ifav),ntot1)
+!      CALL GETMEM('FI_V','ALLO','REAL',ifiv,ntot1)
+!      CALL GETMEM('FA_V','ALLO','REAL',ifav,ntot1)
+!      Call Get_dArray('FI_V',Work(ifiv),ntot1)
+!      Call Get_dArray('FA_V',Work(ifav),ntot1)
 
       Do iSym = 1,nSym !sym for p
         iOrb = nOrb(iSym)
@@ -10350,10 +10359,10 @@
         End Do
       End Do
 
-      Call Put_dArray('FI_V',Work(ifiv),ntot1)
-      Call Put_dArray('FA_V',Work(ifav),ntot1)
-      CALL GETMEM('FI_V','FREE','REAL',ifiv,ntot1)
-      CALL GETMEM('FA_V','FREE','REAL',ifav,ntot1)
+!      Call Put_dArray('FI_V',Work(ifiv),ntot1)
+!      Call Put_dArray('FA_V',Work(ifav),ntot1)
+!      CALL GETMEM('FI_V','FREE','REAL',ifiv,ntot1)
+!      CALL GETMEM('FA_V','FREE','REAL',ifav,ntot1)
       lsym=lsym_tmp
 *
       Return
@@ -10370,6 +10379,7 @@
 #include "rasdim.fh"
 #include "general.fh"
 #include "WrkSpc.fh"
+#include "ksdft.fh"
       Integer nIrrep
       Integer off_Ash(mxSym), off_BasAsh(mxSym),
      &        off_Bas(mxSym)!,off_Fmat(mxSym),
@@ -10529,6 +10539,7 @@
 #include "rasdim.fh"
 #include "general.fh"
 #include "WrkSpc.fh"
+#include "ksdft.fh"
       Integer nIrrep
       Integer off_Ash(mxSym), off_BasAsh(mxSym),
      &        off_Bas(mxSym)!,off_Fmat(mxSym),

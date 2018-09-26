@@ -24,7 +24,7 @@ cpgi$g opt=1
       DIMENSION IPOF(9),IPOA(9),IPOB(9)
       PARAMETER (IPOW5=2**5, IPOW10=2**10, IPOW18=2**18)
 *
-      JSYM(L)=JSUNP(JSY,L)
+c      JSYM(L)=JSUNP(JSY,L)
 *
       ITYP  = 0 ! dummy initialize
       ICOUP = 0 ! dummy initialize
