@@ -600,7 +600,7 @@
 
 
 !Quan: check chemps2 convergence
-      write (rootindex, "(I2)") lroots+8
+      write (rootindex, "(I2)") lroots+9
       imp1=""
       imp1="grep ""***  2-RDM"" -B "//trim(adjustl(rootindex))//
      & " chemps2.log | grep ""Energy difference"""//
