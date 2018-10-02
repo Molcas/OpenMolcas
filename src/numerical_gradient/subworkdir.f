@@ -12,7 +12,7 @@
       Use NewDir
       Implicit None
       Integer :: i,Length,iErr
-      Integer, Parameter :: nFiles=17
+      Integer, Parameter :: nFiles=21
       Character(Len=1024) :: Names(nFiles),
      &                       OldFile(nFiles),NewFile(nFiles)
       Logical :: Found
@@ -36,6 +36,10 @@
       Names(15)='TINKER.XYZ'
       Names(16)='TINKER.KEY'
       Names(17)='MCPDFINP'
+      Names(18)='CHEMNATFIE'
+      Names(19)='CHEMCANFIE'
+      Names(20)='CHEMNATMPS0'
+      Names(21)='CHEMCANMPS0'
 
 *     Get real filenames to copy
       Do i=1,nFiles
