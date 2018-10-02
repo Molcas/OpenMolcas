@@ -49,3 +49,4 @@
 #include "dkhfiles.inc"
  (file)  DEVNULL "$WorkDir/"purge.devnull       rwp
  (file)  DEVSTDOUT "$WorkDir/"stdout            rw
+#include "chemps2files.inc"

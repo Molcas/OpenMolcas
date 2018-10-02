@@ -105,39 +105,25 @@
 *************************
 
 #ifdef _MOLCAS_MPP_
-      if ( KING() ) then
+      if ( KING() .OR. .not.Is_Real_Par() ) then
 #endif
       IF (IRST.EQ.0) THEN
 ! Cleanup chemps2.log.total
         call c_remove("chemps2.log.total")
-!        call system('rm -f chemps2.log.total')
 ! Check if checkpoint files exist
         if (chemps2_restart.EQV..TRUE.) then
            call f_inquire('CHEMNATFIE',fiedler)
            call f_inquire('CHEMNATMPS0',mps0)
-!           INQUIRE(FILE='molcas_natorb_fiedler.txt', EXIST=fiedler)
-!           INQUIRE(FILE='CheMPS2_natorb_MPS0.h5', EXIST=mps0)
            if (fiedler .and. mps0) then
              write(6,*) 'CHEMPS2> Found checkpoint files for DMRG-SCF'
 ! Copy CheMPS2_natorb_MPSxxx.h5 to CheMPS2_MPSxxx.h5
              call fcopy('CHEMNATFIE','CHEMFIE',iErr)
-!             write(6,*) 'CHEMPS2> DB: 118', iErr
              do chemroot=1,lroots
               write (rootindex, "(I2)") chemroot-1
               imp1="CheMPS2_natorb_MPS"//trim(adjustl(rootindex))//".h5"
               imp2="CheMPS2_MPS"//trim(adjustl(rootindex))//".h5"
               call fcopy(imp1,imp2,iErr)
-!              write(6,*) 'CHEMPS2> DB: 124', iErr
              enddo
-!              call system("cp molcas_natorb_fiedler.txt
-!     &                     molcas_fiedler.txt")
-!              do chemroot=1,lroots
-!                write (rootindex, "(I2)") chemroot-1
-!                andrea=""
-!             andrea="cp CheMPS2_natorb_MPS"//trim(adjustl(rootindex))//
-!     &              ".h5 CheMPS2_MPS"//trim(adjustl(rootindex))//".h5"
-!                call system(andrea)
-!              enddo
            else
 ! Reset chemps2_restart = .false. if not checkpoint files
               write(6,*) 'CHEMPS2> No checkpoint files for DMRG-SCF'
@@ -148,8 +134,6 @@
         if (chemps2_lrestart.EQ.1.) then
            call f_inquire('CHEMCANFIE',fiedler)
            call f_inquire('CHEMCANMPS0',mps0)
-!           INQUIRE(FILE='molcas_canorb_fiedler.txt', EXIST=fiedler)
-!           INQUIRE(FILE='CheMPS2_canorb_MPS0.h5', EXIST=mps0)
            if (fiedler .and. mps0) then
              write(6,*) 'CHEMPS2> Found checkpoint files for n-RDM'
            else
@@ -182,10 +166,8 @@
      &                .AND. (chemps2_lrestart.EQ.0))) THEN
 
             call c_remove("molcas_fiedler.txt")
-!            call system('rm -f molcas_fiedler.txt')
 !Quan: FIXME: how to remove CheMPS2_MPS0.h5, etc with c_remove
             call systemf("rm -f CheMPS2_MPS*.h5", iErr)
-!            write(6,*) 'CHEMPS2> DB: 187', iErr
             write(LUCHEMIN,*) 'MOLCAS_MPS     = TRUE'
             write(6,*) 'CHEMPS2> Start DMRG from scratch'
 
@@ -372,12 +354,15 @@
       write(LUCHEMIN,*) 'MOLCAS_STATE_AVG = TRUE'
       write(LUCHEMIN,*) 'MOLCAS_2RDM    = molcas_2rdm.h5'
 
-      if (sum(hfocc) .NE. 0) then
+      if (sum(hfocc) .EQ. NACTEL) then
+        write(6,*)  'CHEMPS2> Using user-specified ROHF guess'
         write(LUCHEMIN,'(A13)',ADVANCE='NO') 'MOLCAS_OCC ='
         do ihfocc=1,NAC-1
           write(LUCHEMIN,'(I3,A2)', ADVANCE='NO') HFOCC(ihfocc), ', '
         enddo
         write(LUCHEMIN,'(I3)') HFOCC(NAC)
+      else
+        write(6,*)  'CHEMPS2> Using noise guess'
       endif
 
       If (IFINAL.EQ.2 .AND. Do3RDM .AND. NACTEL.GT.2) Then
@@ -396,7 +381,7 @@
 
 #ifdef _MOLCAS_MPP_
       write(6,'(1X,A21,I3)') 'CHEMPS2> ITERATION : ', ITER
-      if ( KING() ) then
+      if ( KING() .OR. .not.Is_Real_Par() ) then
 #endif
 
 ! Quan: overwrite CheMPS2_xxxorb_MPSX.h5 to CheMPS2_MPSX.h5
@@ -408,19 +393,11 @@
            if (chemps2_lrestart.EQ.1) then
              write(6,*) 'CHEMPS2> Using user-supplied checkpoint files'
              call fcopy('CHEMCANFIE','CHEMFIE',iErr)
-!             write(6,*) 'CHEMPS2> DB: 390', iErr
-!             call system("cp molcas_canorb_fiedler.txt
-!     &                   molcas_fiedler.txt")
              do chemroot=1,lroots
               write (rootindex, "(I2)") chemroot-1
               imp1="CheMPS2_canorb_MPS"//trim(adjustl(rootindex))//".h5"
               imp2="CheMPS2_MPS"//trim(adjustl(rootindex))//".h5"
               call fcopy(imp1,imp2,iErr)
-!              write(6,*) 'CHEMPS2> DB: 398', iErr
-!               andrea=""
-!              andrea="cp CheMPS2_canorb_MPS"//trim(adjustl(rootindex))//
-!     &               ".h5 CheMPS2_MPS"//trim(adjustl(rootindex))//".h5"
-!               call system(andrea)
              enddo
            endif
 
@@ -428,24 +405,14 @@
              write(6,*) 'CHEMPS2> Using checkpoint files from',
      &                   ' previous step (not recommended)'
              call fcopy('CHEMNATFIE','CHEMFIE',iErr)
-!             write(6,*) 'CHEMPS2> DB: 410', iErr
-!             call system("cp molcas_natorb_fiedler.txt
-!     &                   molcas_fiedler.txt")
              do chemroot=1,lroots
               write (rootindex, "(I2)") chemroot-1
               imp1="CheMPS2_natorb_MPS"//trim(adjustl(rootindex))//".h5"
               imp2="CheMPS2_MPS"//trim(adjustl(rootindex))//".h5"
               call fcopy(imp1,imp2,iErr)
-!              write(6,*) 'CHEMPS2> DB: 418', iErr
-!               andrea=""
-!              andrea="cp CheMPS2_natorb_MPS"//trim(adjustl(rootindex))//
-!     &               ".h5 CheMPS2_MPS"//trim(adjustl(rootindex))//".h5"
-!               call system(andrea)
              enddo
            endif
          endif
-
-
 
 ! Quan: save CANORB before actually calculating
          if (
@@ -459,10 +426,7 @@
          endif
 
          call systemf("chemps2 --file=chemps2.input > chemps2.log",iErr)
-!         write(6,*) 'CHEMPS2> DB: 441', iErr
-! Quan: FIXME: How to save chemps2.log file
          call systemf("cat chemps2.log >> chemps2.log.total",iErr)
-!         write(6,*) 'CHEMPS2> DB: 444', iErr
 
 ! Quan: save natorb checkpoint file in all iteration
          if (IFINAL<2) then
@@ -470,25 +434,12 @@
              write(6,*) 'CHEMPS2> Save natorb checkpoint files'
            endif
            call fcopy('CHEMFIE','CHEMNATFIE',iErr)
-!           write(6,*) 'CHEMPS2> DB: 452', iErr
              do chemroot=1,lroots
               write (rootindex, "(I2)") chemroot-1
               imp1="CheMPS2_natorb_MPS"//trim(adjustl(rootindex))//".h5"
               imp2="CheMPS2_MPS"//trim(adjustl(rootindex))//".h5"
               call fcopy(imp2,imp1,iErr)
-!              write(6,*) 'CHEMPS2> DB: 458', iErr
              enddo
-
-
-!           call system("cp molcas_fiedler.txt
-!     &                     molcas_natorb_fiedler.txt")
-!           do chemroot=1,lroots
-!             write (rootindex, "(I2)") chemroot-1
-!             andrea=""
-!             andrea="cp CheMPS2_MPS"//trim(adjustl(rootindex))//
-!     &       ".h5 CheMPS2_natorb_MPS"//trim(adjustl(rootindex))//".h5"
-!             call system(andrea)
-!           enddo
          endif
 
 ! Quan: save canorb checkpoint file if possible
@@ -500,33 +451,19 @@
 
            write(6,*) 'CHEMPS2> Save canorb checkpoint files'
            call fcopy('CHEMFIE','CHEMCANFIE',iErr)
-!           write(6,*) 'CHEMPS2> DB: 482', iErr
              do chemroot=1,lroots
               write (rootindex, "(I2)") chemroot-1
               imp1="CheMPS2_canorb_MPS"//trim(adjustl(rootindex))//".h5"
               imp2="CheMPS2_MPS"//trim(adjustl(rootindex))//".h5"
               call fcopy(imp2,imp1,iErr)
-!              write(6,*) 'CHEMPS2> DB: 488', iErr
              enddo
-!           call system("cp molcas_fiedler.txt
-!     &                     molcas_canorb_fiedler.txt")
-!           do chemroot=1,lroots
-!             write (rootindex, "(I2)") chemroot-1
-!             andrea=""
-!             andrea="cp CheMPS2_MPS"//trim(adjustl(rootindex))//
-!     &       ".h5 CheMPS2_canorb_MPS"//trim(adjustl(rootindex))//".h5"
-!             call system(andrea)
-!           enddo
-
          endif
 
 ! Quan: Cleanup checkpoint files
          if (IFINAL.EQ.2) then
             call c_remove("molcas_fiedler.txt")
-!            call system('rm -f molcas_fiedler.txt')
 !Quan: FIXME: how to remove CheMPS2_MPS0.h5, etc with c_remove
             call systemf("rm -f CheMPS2_MPS*.h5",iErr)
-!            write(6,*) 'CHEMPS2> DB: 508', iErr
          endif
 
 #ifdef _MOLCAS_MPP_
@@ -538,28 +475,29 @@
       end if
 
 !Quan: FIXME: softlink all the n-RDM files
-      if ( Is_Real_Par().AND.( KING().EQV..false. ) ) then
-!         call system("ln -sf ../molcas_2rdm.h5 .")
-!         call system("ln -sf ../molcas_3rdm.h5 .")
-!         call system("ln -sf ../molcas_f4rdm.h5 .")
-!         call system("ln -sf ../chemps2.log .")
+      if ( Is_Real_Par().AND.( KING().EQV..false. ) )
+     &  then
         do chemroot=1,lroots
           write(rootindex,"(I2)") chemroot-1
           imp1="ln -sf ../molcas_2rdm.h5.r"//
      &           trim(adjustl(rootindex))//" ."
           call systemf(imp1,iErr)
-!          write(6,*) 'CHEMPS2> DB: 529', iErr
           imp1="ln -sf ../molcas_3rdm.h5.r"//
      &           trim(adjustl(rootindex))//" ."
           call systemf(imp1,iErr)
-!          write(6,*) 'CHEMPS2> DB: 533', iErr
           imp1="ln -sf ../molcas_f4rdm.h5.r"//
      &           trim(adjustl(rootindex))//" ."
           call systemf(imp1,iErr)
-!          write(6,*) 'CHEMPS2> DB: 537', iErr
+          imp1="ln -sf ../CheMPS2_natorb_MPS0.h5 ."
+          call systemf(imp1,iErr)
+          imp1="ln -sf ../CheMPS2_canorb_MPS0.h5 ."
+          call systemf(imp1,iErr)
+          imp1="ln -sf ../molcas_natorb_fiedler.txt ."
+          call systemf(imp1,iErr)
+          imp1="ln -sf ../molcas_canorb_fiedler.txt ."
+          call systemf(imp1,iErr)
         enddo
         call systemf("ln -sf ../chemps2.log .",iErr)
-!        write(6,*) 'CHEMPS2> DB: 541', iErr
       end if
 #endif
 
@@ -567,12 +505,10 @@
        call systemf(
      & 'grep "***  2-RDM" -B 5 chemps2.log | grep "all instructions" '//
      & '| cut -c 61- > chemps2_totale_4d', iErr)
-!       write(6,*) 'CHEMPS2> DB: 549', iErr
 
 !Quan: fix bug E(FCI) != E(CASSCF)
       call systemf(
      & 'grep "Econst" chemps2.log | cut -c 39- > chemps2_totale', iErr)
-!      write(6,*) 'CHEMPS2> DB: 554', iErr
 
       LUTOTE = isFreeUnit(30)
       call molcas_open(LUTOTE,'chemps2_totale')
@@ -590,7 +526,6 @@
         read(LUTOTE,*) chemps2_totale_4d
         revdiff = abs(chemps2_totale_4d -
      &                  ENER(chemroot,ITER))/chemps2_totale_4d
-!        write(6,*) 'CHEMPS2> DB: revdiff', revdiff
         if (revdiff > 1.0D-9) then
           write(6,*) 'CHEMPS2> large (E(4m) - E(m))/E(4m) = ',
      &      revdiff, 'for root', chemroot, ', consider increasing m!'
@@ -606,7 +541,6 @@
      & " chemps2.log | grep ""Energy difference"""//
      & " | cut -c 69- > chemps2_conv"
       call systemf(imp1,iErr)
-!      write(6,*) 'CHEMPS2> DB: 587', iErr
 
       LUCONV = isFreeUnit(30)
       call molcas_open(LUCONV,'chemps2_conv')
@@ -625,7 +559,6 @@
       imp1="grep ""Info on DMRG"" chemps2.log | "//
      &       "cut -c 43- > chemps2_info"
       call systemf(imp1,iErr)
-!      write(6,*) 'CHEMPS2> DB: 687', iErr
 
       LUCONV = isFreeUnit(30)
       call molcas_open(LUCONV,'chemps2_info')
