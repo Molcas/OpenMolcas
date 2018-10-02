@@ -772,6 +772,7 @@ INT c_getmem_kern(INT *op, mentry *tmp, INT *offset, INT *len) {
     switch (*op) {
         case PINN:
             allo=0;
+            /* fall through */
         case ALLO:
             tmp->offset=(allo)?UNDEF_MEM:PINNED_MEM; /* Just to be sure that we are not going to allocate the PINNED memory for wrong reasons */
 /* Checking for memory leaks     */

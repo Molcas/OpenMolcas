@@ -13,6 +13,9 @@ MolGUI. These blocks use the `.. xmldoc::` directive and follow a format
 similar to that described
 [here](https://gitlab.com/Molcas/OpenMolcas/wikis/Programming%20guide/Documentation).
 
+To build the documentation, after configuring OpenMolcas with `cmake`, run
+`make doc_html` or `make doc_pdf`.
+
 In addition, some subdirectories have other content:
 
 `doxygen`
@@ -21,9 +24,10 @@ Configuration and auxiliary files to generate source code documentation with
 [Doxygen](http://www.doxygen.org/). The documentation itself, where it exists,
 is included in the source files.
 
+To build the doxygen documentation just run `doxygen` inside this directory.
+
 `latexdoc`
 
 This is the Molcas documentation in LaTeX format. It is kept here for
 historical reasons, and in deference to [molcas.org](http://www.molcas.org). It
 is **not** the primary documentation for OpenMolcas.
-

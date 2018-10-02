@@ -160,7 +160,7 @@ General keywords
 :kword:`MAXHOP`
   This keyword must be used after the :kword:`TULLY` keyword. It specifies how many non-adiabatic transitions are allowed between electronic states.
 
-  .. xmldoc:: <KEYWORD MODULE="SURFACEHOP" NAME="MAXHOP" APPEAR="Maximum number of hops allowed" KIND="INTEGER" LEVEL="ADVANCED" REQUIRE="TULLY">
+  .. xmldoc:: <KEYWORD MODULE="SURFACEHOP" NAME="MAXHOP" APPEAR="Maximum number of hops allowed" KIND="INT" LEVEL="ADVANCED" REQUIRE="TULLY">
               %%Keyword: MAXHop <advanced>
               This keyword must be used after the TULLY keyword.
               <HELP>

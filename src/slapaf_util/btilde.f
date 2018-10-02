@@ -25,7 +25,7 @@
 #include "WrkSpc.fh"
 #include "print.fh"
       Real*8 B(3,nAtom,nInt), BTILDA(3,nAtom,nInt), Coor(3,nAtom),
-     &       A(3*nAtom,nDim), AB(nDim,nDim), Det(2)
+     &       A(3*nAtom,nDim), AB(nDim,nDim)
       Integer   Index(3,nAtom), iOper(0:7)
       Logical SymDsp, Smmtrc(3,nAtom), TransVar, RotVar
 *
@@ -118,11 +118,7 @@
 *
 *     Compute the inverse
 *
-      nAux = 33*nDim
-      iOpt=0
-      Call GetMem(' Aux','Allo','Real',ipAux,nAux)
-      Call DGeICD(AB,nDim,nDim,iOpt,rcond,Det,Work(ipAux),nAux)
-      Call GetMem(' Aux','Free','Real',ipAux,nAux)
+      Call MatInvert(AB,nDim)
 *     If (iPrint.ge.99) Call RecPrt(' In BTilde: (B-1)+',' ',
 *    &                                AB,nDim,nDim)
       If (iPrint.ge.99) Call RecPrt(' In BTilde: (B-1)+',

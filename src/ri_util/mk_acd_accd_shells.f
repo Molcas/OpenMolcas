@@ -1468,7 +1468,7 @@ C                          Thrs= 1.0D-12
 *
 *              Write out the exponents
 *
-               Write (Lu_lib,'( 5(1X,D20.15))')
+               Write (Lu_lib,'( 5(1X,D20.13))')
      &               (Work(i+ipExp(iShll_)),i=0,nExp(iShll_)-1)
 *
 *              Write out the contraction coefficients
@@ -1476,7 +1476,7 @@ C                          Thrs= 1.0D-12
                iS=0
                iE=nBasis(iShll_)*nExp(iShll_)-1
                Do i = 1, nExp(iShll_)
-                  Write (Lu_lib,'( 5(1x,D20.13))')
+                  Write (Lu_lib,'( 5(1X,D20.13))')
      &                  (Work(j+ipCff_Cntrct(iShll_)),
      &                j=iS,iS+iE,nExp(iShll_))
                   iS = iS + 1

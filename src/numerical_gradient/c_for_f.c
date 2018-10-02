@@ -52,6 +52,10 @@ static int unlink_cb(const char *fpath, const struct stat *sb, int typeflag, str
 {
     int rv = remove(fpath);
 
+    (void)sb;
+    (void)typeflag;
+    (void)ftwbuf;
+
     if (rv)
         perror(fpath);
 

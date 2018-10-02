@@ -145,7 +145,7 @@
 # - debug: build with no optimization (no tests)
 
 .template: &plain
-  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-5.4:latest
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-4.8:latest
   variables: &plain_vars
     cache_file: |
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
@@ -158,7 +158,7 @@
     - docker
 
 .template: &options
-  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-4.8:latest
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-5.4:latest
   variables: &options_vars
     cache_file: |
       set (CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "opt, debug info")
@@ -171,7 +171,7 @@
       set (GRID_IT "ON" CACHE STRING "enable public GRID_IT code")
       set (TOOLS "ON" CACHE STRING "compile Tools")
       #set (MSYM "ON" CACHE STRING "enable libmsym (needs submodule)")
-      #set (WFA "ON" CACHE STRING "enable libwfa (needs submodule)")
+      set (WFA "ON" CACHE STRING "enable libwfa (needs submodule)")
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"

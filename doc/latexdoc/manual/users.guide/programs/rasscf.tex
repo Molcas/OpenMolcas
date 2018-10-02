@@ -851,7 +851,7 @@ the values of MIN and MAX for GSOC are identical for each of the five subspaces.
 %%%</GROUP>
 %---
 \item[KSDFT]
-%%%<KEYWORD MODULE="RASSCF" NAME="KSDFT" APPEAR="MC-PDFT" KIND="CHOICE" LIST="ROKS; tPBE,ROKS; tBLYP,ROKS; tLSDA" LEVEL="ADVANCED" REQUIRE="CIONLY">
+%%%<KEYWORD MODULE="RASSCF" NAME="KSDFT" APPEAR="MC-PDFT" KIND="CHOICE" LIST="----,ROKS; tPBE:tPBE,ROKS; tBLYP:tBLYP,ROKS; tLSDA:tLSDA" LEVEL="ADVANCED" REQUIRE="CIONLY">
 %%Keyword: KSDFT <advanced>
 %%%<HELP>
 %%+Needed to perform MC-PDFT calculations. It must be used together with
@@ -1553,7 +1553,7 @@ OUTOrbital= Natural; 15
 %---
 \item[ORBListing]
 %%%<KEYWORD MODULE="RASSCF" NAME="ORBLISTING" LEVEL="BASIC" APPEAR="Printed orbitals"
-%%% KIND="CHOICE" LIST="No,Few,NoCore,All">
+%%% KIND="CHOICE" LIST="----,No,Few,NoCore,All">
 %%Keyword: ORBListing <basic>
 %%%<HELP>
 %%+Select how extensive orbital list you want in the output file.
@@ -1574,7 +1574,7 @@ secondary with less than 0.15 a.u. orbital energy.
 %---
 \item[ORBAppear]
 %%%<KEYWORD MODULE="RASSCF" NAME="ORBAppear" LEVEL="BASIC" APPEAR="Orbital appearance"
-%%% KIND="CHOICE" LIST="Compact,Full">
+%%% KIND="CHOICE" LIST="----,Compact,Full">
 %%Keyword: ORBAppear <basic>
 %%%<HELP>
 %%+Select appearance of orbital list in the output file.

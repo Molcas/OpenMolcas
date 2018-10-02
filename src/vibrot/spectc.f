@@ -103,7 +103,7 @@ c
 92    Continue
       write(6,990) nv1,B(nv),D(nv)
 990   format(/5x,'Rotational constants for vibrational quantum number',
-     *       i3/5x,'B=',e12.6,' cm-1     D=',e12.6,' cm-1'/
+     *       i3/5x,'B=',e13.6,' cm-1     D=',e13.6,' cm-1'/
      *       5x,'Observed and computed term values (cm-1)')
       Do 93 J=J1A+1,J2A
        write(6,991) J,F(J),Fc(J),dF(J)
@@ -140,8 +140,8 @@ C
       betae=(b2*a11-b1*a12)/det
 111   Continue
       write(6,994) dele,betae
-994   format(/5x,'Spectroscopic constants De=',e12.6,' cm-1  Betae=',
-     *       e12.6,' cm-1'/5x,'Observed and computed D values')
+994   format(/5x,'Spectroscopic constants De=',e13.6,' cm-1  Betae=',
+     *       e13.6,' cm-1'/5x,'Observed and computed D values')
       Do 112 nv=1,ne
        nv1=nv-1
        dc=dele+betae*(nv-0.5d0)
@@ -198,8 +198,8 @@ C
       gammae=x(3)
       write(6,995) be,alphae,gammae
 995   format(/5x,'Spectroscopic constants Be,Alphae and Gammae'
-     *       /5x,'Be=',e12.6,' cm-1    Alphae=',e12.6,' cm-1    Gammae='
-     *       ,e12.6/5x,'Observed and computed B values')
+     *       /5x,'Be=',e13.6,' cm-1    Alphae=',e13.6,' cm-1    Gammae='
+     *       ,e13.6/5x,'Observed and computed B values')
       Do 127 nv=1,ne
        nv1=nv-1
        bc=be-alphae*(nv-0.5d0)+gammae*(nv-0.5d0)**2
@@ -253,9 +253,9 @@ c
       wexe=x(2)*const
       weye=x(3)*const
       write(6,996) we,wexe,weye
-996   format(/5x,'Vibrational constants we  =',e12.6,' cm-1'
-     *       /5x,'                      wexe=',e12.6,' cm-1'
-     *       /5x,'                      weye=',e12.6,' cm-1'
+996   format(/5x,'Vibrational constants we  =',e13.6,' cm-1'
+     *       /5x,'                      wexe=',e13.6,' cm-1'
+     *       /5x,'                      weye=',e13.6,' cm-1'
      *       /5x,'Observed and computed band origins')
       Do 155 nv=1,ne
        nv1=nv-1
@@ -285,14 +285,14 @@ c
 1200  format(///5x,'Re(a)',15x,f8.4,
      *         /5x,'De(ev)',14x,f8.4,
      *         /5x,'D0(ev)',14x,f8.4,
-     *         /5x,'we(cm-1)',8x,e12.6,
-     *         /5x,'wexe(cm-1)',6x,e12.6,
-     *         /5x,'weye(cm-1)',6x,e12.6,
-     *         /5x,'Be(cm-1)',8x,e12.6,
-     *         /5x,'Alphae(cm-1)',4x,e12.6,
-     *         /5x,'Gammae(cm-1)',4x,e12.6,
-     *         /5x,'Dele(cm-1)',6x,e12.6,
-     *         /5x,'Betae(cm-1)',5x,e12.6)
+     *         /5x,'we(cm-1)',7x,e13.6,
+     *         /5x,'wexe(cm-1)',5x,e13.6,
+     *         /5x,'weye(cm-1)',5x,e13.6,
+     *         /5x,'Be(cm-1)',7x,e13.6,
+     *         /5x,'Alphae(cm-1)',3x,e13.6,
+     *         /5x,'Gammae(cm-1)',3x,e13.6,
+     *         /5x,'Dele(cm-1)',5x,e13.6,
+     *         /5x,'Betae(cm-1)',4x,e13.6)
 *...+....1....+....2....+....3....+....4....+....5....+....6....+....7.>..+....8
       ChkSum=ChkSum + we + wexe
 c

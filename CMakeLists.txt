@@ -590,8 +590,8 @@ if (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND
         set (FFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
 endif ()
 
-set (CXXFLAGS_GNU_BIGOT "-Wall -Werror")
-set (CFLAGS_GNU_BIGOT "-Wall -Werror")
+set (CXXFLAGS_GNU_BIGOT "-Wall -Wextra -Wpedantic -Werror")
+set (CFLAGS_GNU_BIGOT "-Wall -Wextra -Wpedantic -Werror")
 set (FFLAGS_GNU_BIGOT "-Wall -Werror")
 set (GNU_TRAP "-ffpe-trap=invalid,zero,overflow")
 
@@ -1097,32 +1097,28 @@ endif ()
 #=============================
 
 if (HDF5)
-        message ("Configuring HDF5 support:")
-        get_property (languages GLOBAL PROPERTY ENABLED_LANGUAGES)
-        if (";${languages};" MATCHES ";CXX;")
-                find_package (HDF5 COMPONENTS C CXX)
-        else ()
-                find_package (HDF5 COMPONENTS C)
-        endif ()
-        if (HDF5_FOUND)
-                message ("-- HDF5_INCLUDE_PATH: ${HDF5_INCLUDE_DIRS}")
-                message ("-- HDF5_C_LIBRARIES: ${HDF5_C_LIBRARIES}")
-                list (APPEND EXTERNAL_LIBRARIES ${HDF5_C_LIBRARIES})
-                if (HDF5_CXX_LIBRARIES)
-                        message ("-- HDF5_CXX_LIBRARIES: ${HDF5_CXX_LIBRARIES}")
-                        list (APPEND EXTERNAL_LIBRARIES ${HDF5_CXX_LIBRARIES})
-                endif ()
-
-                ## Leon: require zlib for hdf5 for enabled compression
-                ## disabled as long as HDF5 compression is disabled
-                #find_package(ZLIB REQUIRED)
-                #if (ZLIB_FOUND)
-                #        include_directories( ${ZLIB_INCLUDE_DIRS} )
-                #        list (APPEND EXTERNAL_LIBRARIES ${ZLIB_LIBRARIES})
-                #endif (ZLIB_FOUND)
+        if (ADDRMODE EQUAL 32)
+                message ("-- HDF5 interface not compatible with 32bit installations")
         else()
-                message ("-- HDF5 not found, it will be deactivated")
-        endif()
+                message ("Configuring HDF5 support:")
+                get_property (languages GLOBAL PROPERTY ENABLED_LANGUAGES)
+                if (";${languages};" MATCHES ";CXX;")
+                        find_package (HDF5 COMPONENTS C CXX)
+                else ()
+                        find_package (HDF5 COMPONENTS C)
+                endif ()
+                if (HDF5_FOUND)
+                        message ("-- HDF5_INCLUDE_PATH: ${HDF5_INCLUDE_DIRS}")
+                        message ("-- HDF5_C_LIBRARIES: ${HDF5_C_LIBRARIES}")
+                        list (APPEND EXTERNAL_LIBRARIES ${HDF5_C_LIBRARIES})
+                        if (HDF5_CXX_LIBRARIES)
+                                message ("-- HDF5_CXX_LIBRARIES: ${HDF5_CXX_LIBRARIES}")
+                                list (APPEND EXTERNAL_LIBRARIES ${HDF5_CXX_LIBRARIES})
+                        endif ()
+                else()
+                        message ("-- HDF5 not found, it will be deactivated")
+                endif()
+        endif ()
 endif ()
 
 # BLAS/LAPACK settings
@@ -2894,7 +2890,7 @@ add_dependencies(mods_obj prgms)
 # generate help databases from doc
 if (PYTHONINTERP_FOUND)
         execute_process (
-                COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/sbin/extract_xmldoc.py ${PROJECT_SOURCE_DIR}/doc ${PROJECT_BINARY_DIR}/data
+                COMMAND ${PYTHON_EXECUTABLE} ${OPENMOLCAS_DIR}/sbin/extract_xmldoc.py ${OPENMOLCAS_DIR}/doc ${PROJECT_BINARY_DIR}/data
                 ERROR_VARIABLE EXTRACT_ERROR
                 RESULT_VARIABLE EXTRACT_RESULT
                 )

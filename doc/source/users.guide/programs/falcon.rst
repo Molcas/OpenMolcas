@@ -149,7 +149,7 @@ Keywords
   A unit of either bohr or angstrom can follow. The default unit is angstrom.
   This keyword takes effect only when the equivalent fragment is specified.
 
-  .. xmldoc:: <KEYWORD MODULE="FALCON" NAME="TRANSLATE" KIND="REALs" SIZE="3" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="FALCON" NAME="TRANSLATE" KIND="REALS" SIZE="3" LEVEL="BASIC">
               %%Keyword: Translate <basic> GUI:keyword
               <HELP>
               An integer following this keyword specifies the number of fragments.
@@ -204,7 +204,7 @@ Keywords
   occupied orbitals in each symmetry representation in the unfragmented
   system.
 
-  .. xmldoc:: <KEYWORD MODULE="FALCON" NAME="OCCUPATION" KIND="INTS" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="FALCON" NAME="OCCUPATION" KIND="INTS_LOOKUP" SIZE="NSYM" LEVEL="BASIC">
               %%Keyword: Occupation <basic> GUI:keyword
               <HELP>
               A list of integer(s) following this keyword specifies the number of

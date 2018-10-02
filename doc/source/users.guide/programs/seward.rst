@@ -424,7 +424,7 @@ General keywords
 :kword:`CLDF`
   Constrained LDF/LDF2: specify constraint order on the next line (-1 for unconstrained, 0 for charge constraint). Default: unconstrained LDF.
 
-  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="CLDF" APPEAR="Constrained LDF" KIND="INTEGER" EXCLUSIVE="CHOL,LOW,MEDI,HIGH" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="CLDF" APPEAR="Constrained LDF" KIND="INT" EXCLUSIVE="CHOL,LOW,MEDI,HIGH" LEVEL="BASIC">
               %%Keyword: CLDF <basic>
               <HELP>
               Constrained LDF/LDF2: specify constraint order on the next line (-1 for unconstrained, 0 for charge constraint). Default: unconstrained LDF.

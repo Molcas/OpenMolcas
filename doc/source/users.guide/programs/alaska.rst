@@ -407,19 +407,19 @@ Optional keywords for numerical gradients
               </KEYWORD>
 
 :kword:`ROOT`
-  Specifies which root to optimize the geometry for, if there is more than
+  Specifies which root to compute the gradient for, if there is more than
   one root to choose from. In a RASSCF optimization, the default is to
-  optimize for the same root as is relaxed. In a MS-CASPT2 calculation, the
-  default is to optimize for root 1. It can be used to override the default
+  compute the gradient for the same root as is relaxed. In a MS-CASPT2 calculation, the
+  default is to compute it for root 1. It can be used to override the default
   root in an analytical calculation too.
 
-  .. xmldoc:: <KEYWORD MODULE="ALASKA" NAME="ROOT" APPEAR="Root selection" KIND="INT" MEMBER="NUMGRAD" LEVEL="ADVANCED" DEFAULT_VALUE="1" MIN_VALUE="1">
+  .. xmldoc:: <KEYWORD MODULE="ALASKA" NAME="ROOT" APPEAR="Root selection" KIND="INT" MEMBER="NUMGRAD" LEVEL="ADVANCED" MIN_VALUE="1">
               %%Keyword: Root <advanced>
               <HELP>
-              Specifies which root to optimize the geometry for, if there is more than
+              Specifies which root to compute the gradient the geometry for, if there is more than
               one root to choose from. In a RASSCF optimization, the default is to
-              optimize for the same root as is relaxed. In a MS-CASPT2 calculation, the
-              default is to optimize for root 1.
+              compute the gradient for the same root as is relaxed. In a MS-CASPT2 calculation, the
+              default is to compute it for root 1.
               </HELP>
               </KEYWORD>
 

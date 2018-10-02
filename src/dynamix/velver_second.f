@@ -162,7 +162,7 @@ C
           READ(file,*)line
              DO WHILE (i.le.80)
                 IF (line(i:i).eq.'$') THEN
-                   READ(file,'(E20.14)')Epot
+                   READ(file,'(E20.13)')Epot
                    i=80
                 ELSEIF (i.eq.80.and.line(i:i).ne.'$') THEN
                    WRITE(6,*)'No energy found'
@@ -199,7 +199,7 @@ C--------------------------------------------------------------------C
          WRITE(6,'(5X,A)') 'The temperature is control with a '
          WRITE(6,'(5X,A)') 'Nose-Hoover chain of thermostats'
          WRITE(6,'(5X,A,/)') '========================'
-         WRITE(6,'(5X,A,7X,E9.4,1X,A,//)') 'instantaneous temperature'
+         WRITE(6,'(5X,A,5X,E11.4,1X,A,//)') 'instantaneous temperature'
      &                                  ,tempNow,'kelvin'
 
       ENDIF
@@ -294,7 +294,7 @@ C         write (6,*) nsAtom
       call mh5_put_dset(dyn_vel,vel)
 #endif
 
- 401  FORMAT(5X,A,4X,E10.4)
+ 401  FORMAT(5X,A,3X,E11.4)
 
       CALL mma_deallocate(atom)
       CALL mma_deallocate(Mass)

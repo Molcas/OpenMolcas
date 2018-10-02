@@ -45,7 +45,7 @@
        End Do
       End Do
 !      Call RecPrt('S',' ',S,nroots,nroots)
-      Call Invert(S,nroots)
+      Call MatInvert(S,nroots)
 !      Call RecPrt('Inverted S',' ',S,nroots,nroots)
       Return
       end

@@ -31,7 +31,7 @@
       End Do
       Work(ipSS+irec(2*lroots-1,2*lroots-1)-1)=
      &     Work(ipSS+irec(2*lroots-1,2*lroots-1)-1)+1.0d0
-      Call INVERT(Work(ipSs),2*lroots)
+      Call MatInvert(Work(ipSs),2*lroots)
       DO I=1,lroots
        DO J=1,lroots
         Work(ipSS+irec(2*i-1,2*j-1)-1)=
@@ -46,7 +46,7 @@
           Work(ipSS+irec(2*i-1,2*i)-1)=
      &    Work(ipSS+irec(2*i-1,2*i)-1)+1.0d0
       End Do
-      Call INVERT(Work(ipSs),2*lroots)
+      Call MatInvert(Work(ipSs),2*lroots)
       Call DSCAL_(4*lroots**2,-1.0d0,Work(ipss),1)
       Work(ipSS+irec(2*lroots,2*lroots)-1)=
      &     Work(ipSS+irec(2*lroots,2*lroots)-1)-1.0d0

@@ -35,7 +35,7 @@
 *     Character*8 OVRPROP
       Dimension IPAMFI(3),IPAM(3),IZMR(3),IZMI(3)
       Dimension DTENS(3,3),GTENS(3,3),GSTENS(3,3),SOSTERM(9)
-      Dimension TMPMAT(3,3),TMPVEC(3,3),EVR(3),EVI(3),SCR1(3),SCR2(3)
+      Dimension TMPMAT(3,3),TMPVEC(3,3),EVR(3),EVI(3)
       COMPLEX*16 ZEKL(2,2,3,NSTATE),GCONT(9,NSTATE)
       COMPLEX*16 DIPSOm(3,NSS,NSS),Z(NSS,NSS),DIPSOn(3,NSS,NSS)
       COMPLEX*16 SPNSFS(3,NSS,NSS)
@@ -2560,8 +2560,6 @@ C    &                 PROP(JSTATE,ISTATE,IPAMFI(JXYZ))
       DO I=1,3
       EVR(I)=0.0D0
       EVI(I)=0.0D0
-      SCR1(I)=0.0D0
-      SCR2(I)=0.0D0
       END DO
       DO IXYZ=1,3
        DO JXYZ=1,3
@@ -2573,7 +2571,7 @@ C    &                 PROP(JSTATE,ISTATE,IPAMFI(JXYZ))
         END IF
        END DO
       END DO
-      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,SCR1,SCR2,IERR)
+      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
 
 * D-factor printout
 * D = D_zz - 1/2 * (D_xx + D_yy)
@@ -2761,8 +2759,6 @@ C determine the eigenvalues of the g matrix
       DO I=1,3
       EVR(I)=0.0D0
       EVI(I)=0.0D0
-      SCR1(I)=0.0D0
-      SCR2(I)=0.0D0
       END DO
 C XEIGEN alters the input matrix! copy GTENS to TMPMAT
       DO IXYZ=1,3
@@ -2777,7 +2773,7 @@ C XEIGEN alters the input matrix! copy GTENS to TMPMAT
       ENDDO
 
       IERR=0
-      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,SCR1,SCR2,IERR)
+      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
       IF (IERR.NE.0) THEN
           WRITE(6,*) 'Error: xEigen returned IERR = ', IERR
           RETURN
@@ -2803,8 +2799,6 @@ C determine the eigenvalues of the G = gg* matrix
       DO I=1,3
       EVR(I)=0.0D0
       EVI(I)=0.0D0
-      SCR1(I)=0.0D0
-      SCR2(I)=0.0D0
       ENDDO
       DO IXYZ=1,3
        DO JXYZ=1,3
@@ -2818,7 +2812,7 @@ C determine the eigenvalues of the G = gg* matrix
       ENDDO
 
       IERR=0
-      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,SCR1,SCR2,IERR)
+      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
       IF (IERR.NE.0) THEN
           WRITE(6,*) 'Error: xEigen returned IERR = ', IERR
           RETURN
@@ -3432,8 +3426,6 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
       DO I=1,3
       EVR(I)=0.0D0
       EVI(I)=0.0D0
-      SCR1(I)=0.0D0
-      SCR2(I)=0.0D0
       END DO
       DO IXYZ=1,3
        DO JXYZ=1,3
@@ -3446,7 +3438,7 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
        END DO
       ENDDO
 
-      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,SCR1,SCR2,IERR)
+      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
 
 C construct g_s matrix from G by back-transormation of the
 C square root of the G eigenvalues
@@ -4421,8 +4413,6 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
       DO I=1,3
       EVR(I)=0.0D0
       EVI(I)=0.0D0
-      SCR1(I)=0.0D0
-      SCR2(I)=0.0D0
       END DO
       DO IXYZ=1,3
        DO JXYZ=1,3
@@ -4435,7 +4425,7 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
        END DO
       ENDDO
 
-      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,SCR1,SCR2,IERR)
+      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
 
 C construct g_s matrix from G by back-transormation of the
 C square root of the G eigenvalues
@@ -4949,8 +4939,6 @@ c
       DO I=1,3
       EVR(I)=0.0D0
       EVI(I)=0.0D0
-      SCR1(I)=0.0D0
-      SCR2(I)=0.0D0
       END DO
       DO IXYZ=1,3
        DO JXYZ=1,3
@@ -4963,7 +4951,7 @@ c
        END DO
       ENDDO
 
-      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,SCR1,SCR2,IERR)
+      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
 
       DO IXYZ=1,3
        DO JXYZ=1,3
@@ -5421,8 +5409,6 @@ c
       DO I=1,3
       EVR(I)=0.0D0
       EVI(I)=0.0D0
-      SCR1(I)=0.0D0
-      SCR2(I)=0.0D0
       END DO
       DO IXYZ=1,3
        DO JXYZ=1,3
@@ -5435,7 +5421,7 @@ c
        END DO
       ENDDO
 
-      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,SCR1,SCR2,IERR)
+      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
 
       DO IXYZ=1,3
        DO JXYZ=1,3
@@ -5909,8 +5895,6 @@ C     &                 ZEKL(:,:,IXYZ,ISTATE)
       DO I=1,3
       EVR(I)=0.0D0
       EVI(I)=0.0D0
-      SCR1(I)=0.0D0
-      SCR2(I)=0.0D0
       END DO
       DO IXYZ=1,3
        DO JXYZ=1,3
@@ -5922,7 +5906,7 @@ C     &                 ZEKL(:,:,IXYZ,ISTATE)
        END IF
        END DO
       ENDDO
-      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,SCR1,SCR2,IERR)
+      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
 
 C construct g_s matrix from G by back-transormation of the
 C square root of the G eigenvalues
@@ -6326,8 +6310,6 @@ c
       DO I=1,3
       EVR(I)=0.0D0
       EVI(I)=0.0D0
-      SCR1(I)=0.0D0
-      SCR2(I)=0.0D0
       END DO
       DO IXYZ=1,3
        DO JXYZ=1,3
@@ -6340,7 +6322,7 @@ c
        END DO
       ENDDO
 
-      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,SCR1,SCR2,IERR)
+      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
 
 C construct g_s matrix from G by back-transormation of the
 C square root of the G eigenvalues

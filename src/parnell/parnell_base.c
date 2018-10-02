@@ -29,6 +29,7 @@ parnell_status_t
 parnell_base (int argc, char **argv)
 {
         struct stat info;
+        char tmpWorkDir[FILENAME_MAX+7];
 
         if (argc != 1)  {
                 fprintf(stderr,"%d parnell_base: expecting 1 argument, received %d\n", MyRank, argc);
@@ -36,7 +37,8 @@ parnell_base (int argc, char **argv)
         }
 
         /* all processes need to create the parent directory */
-        strncpy (WorkDir, *argv, FILENAME_MAX);
+        strncpy (WorkDir, *argv, FILENAME_MAX-1);
+        WorkDir[FILENAME_MAX-1] = 0;
         if (stat (WorkDir, &info) != 0) {
                 if (errno != ENOENT) {
                         perror ("unexpected error while accessing directory");
@@ -65,7 +67,9 @@ parnell_base (int argc, char **argv)
         if (MyRank == 0) {
                 strncpy(MyWorkDir, WorkDir, FILENAME_MAX);
         } else {
-                snprintf(MyWorkDir, FILENAME_MAX, "%s/tmp_%d", WorkDir, MyRank);
+                snprintf(tmpWorkDir, FILENAME_MAX+7, "%s/tmp_%d", WorkDir, MyRank);
+                strncpy(MyWorkDir, tmpWorkDir, FILENAME_MAX-1);
+                MyWorkDir[FILENAME_MAX-1] = 0;
                 if (stat (MyWorkDir, &info) != 0) {
                         if (errno != ENOENT) {
                                 perror ("unexpected error while accessing directory");
