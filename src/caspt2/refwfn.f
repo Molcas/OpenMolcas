@@ -90,6 +90,7 @@
 #ifdef _HDF5_
       End If
 #endif
+      refwfn_id = -1
       refwfn_active = .False.
       End SUbroutine
 

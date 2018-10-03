@@ -10,7 +10,6 @@
 *                                                                      *
 * Copyright (C) 2016, Steven Vancoillie                                *
 *               2018, Ignacio Fdez. Galvan                             *
-*                                                                      *
 ************************************************************************
       module pt2wfn
       integer :: pt2wfn_id
@@ -258,6 +257,7 @@ c Avoid unused argument warnings
       if (pt2wfn_is_h5) then
         call mh5_close_file(pt2wfn_id)
       end if
+      pt2wfn_id = -1
 #endif
       end subroutine
       end module

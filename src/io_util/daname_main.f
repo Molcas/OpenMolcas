@@ -149,11 +149,12 @@
       If(mf) then
         Multi_File(Lu)=.True.
         MaxFileSize = AllocDisk()
-        If (MaxFileSize.gt.Max_File_Length/(1024**2)) Then
+        MFMB = Int(Dble(Max_File_Length)/(1024**2))
+        If (MaxFileSize.gt.MFMB) Then
             Write (6,*)
             Write (6,*) 'DANAME_MF: Requested MaxFileSize is too large!'
             Write (6,*) ' Requested value of ',MaxFileSize
-            MaxFileSize=Max_File_Length/(1024**2)
+            MaxFileSize=MFMB
             Write (6,*) ' has been reset to  ',MaxFileSize
         Else If ( MaxFileSize.ne.0 ) then
           If ( Trace ) Write (6,*) ' This is a partitioned data set'

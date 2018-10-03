@@ -149,7 +149,7 @@ Keywords
   A unit of either bohr or angstrom can follow. The default unit is angstrom.
   This keyword takes effect only when the equivalent fragment is specified.
 
-  .. xmldoc:: <KEYWORD MODULE="FALCON" NAME="TRANSLATE" KIND="REALs" SIZE="3" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="FALCON" NAME="TRANSLATE" KIND="REALS" SIZE="3" LEVEL="BASIC">
               %%Keyword: Translate <basic> GUI:keyword
               <HELP>
               An integer following this keyword specifies the number of fragments.
