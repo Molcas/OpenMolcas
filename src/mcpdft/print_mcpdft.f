@@ -20,6 +20,7 @@
 *
 * Author:
 * G. Li Manni (GLM)
+* S Dong, 2018 (added print outs related to scaling)
 ******************************************************************
 
       Implicit Real*8 (A-H,O-Z)
