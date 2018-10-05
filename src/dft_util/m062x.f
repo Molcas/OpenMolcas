@@ -43,13 +43,13 @@ C     Call QEnter('M062X ')
 ************************************************************************
 *                                                                      *
       ijzy=4
-      CoeffA=1.0D0*CoefX
+      CoeffA=One*CoefX
       Call XM06(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
      &          CoeffA,iSpin,F_xc,T_X,ijzy)
-      CoeffA=1.0D0*CoefR
+      CoeffA=One*CoefR
       Call CM06(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
      &          CoeffA,iSpin,F_xc,T_X,ijzy)
-      CoeffA=1.0D0*CoefR
+      CoeffA=One*CoefR
       Call CVS98(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
      &           CoeffA,iSpin,F_xc,T_X,ijzy+1)
 *                                                                      *

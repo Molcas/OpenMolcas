@@ -43,13 +43,13 @@
 *                                                                      *
 *---- Dirac (Slater) exchange                                          *
 *                                                                      *
-      Coeff=One*CoeffX
+      Coeff=One*CoefX
       Call DiracX(mGrid,Rho,nRho,iSpin,F_xc,
      &            dF_dRho,ndF_dRho,Coeff,T_X)
 *                                                                      *
 *---- becke 86 Exchange Functional                                     *
 *                                                                      *
-      Coeff=One*CoeffX
+      Coeff=One*CoefX
       Call xB86(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
      &          Coeff,iSpin,F_xc,T_X)
 *                                                                      *

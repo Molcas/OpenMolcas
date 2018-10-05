@@ -44,19 +44,19 @@ C     Call QEnter('BLYP')
 *                                                                      *
 *---- Dirac Exchange
 *
-      Coeff=1.0D0*CoefX
+      Coeff=One*CoefX
       Call Diracx(mGrid,Rho,nRho,iSpin,F_xc,
      &            dF_dRho,ndF_dRho,Coeff,T_X)
 *
 *---- Becke 88 Exchange
 *
-      Coeff=1.0D0*CoefX
+      Coeff=One*CoefX
       Call xB88(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
      &          Coeff,iSpin,F_xc,T_X)
 *
 *---- Lee-Yang-Parr Correlation
 *
-      Coeff=1.0D0*CoefR
+      Coeff=One*CoefR
       Call LYP(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
      &         Coeff,iSpin,F_xc,T_X)
 *                                                                      *

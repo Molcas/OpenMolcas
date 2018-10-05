@@ -36,11 +36,11 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      CoeffA=1.0D0*CoefR
+      CoeffA=One*CoefR
       Call CTCA(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
      &          CoeffA,iSpin,F_xc,T_X)
 
-      CoeffB=1.0D0*CoefX
+      CoeffB=One*CoefX
       Call XPBE(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
      &          CoeffB,iSpin,F_xc,T_X)
 *                                                                      *
