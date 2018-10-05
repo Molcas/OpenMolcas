@@ -31,6 +31,7 @@
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
+#include "ksdft.fh"
       Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
@@ -43,13 +44,13 @@ C     Call QEnter('LSDA5')
 *                                                                      *
 *---- Vosko-Wilk-Nusair correlation functional V
 *
-      Coeff=One
+      Coeff=One*CoefR
       Call VWN_V(mGrid,Rho,nRho,iSpin,F_xc,dF_dRho,
      &           ndF_dRho,Coeff,T_X)
 *
 *---- Dirac exchange
 *
-      Coeff=One
+      Coeff=One*CoefX
       Call DiracX(mGrid,Rho,nRho,iSpin,F_xc,
      &            dF_dRho,ndF_dRho,Coeff,T_X)
 *                                                                      *

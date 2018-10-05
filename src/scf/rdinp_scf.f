@@ -49,6 +49,7 @@
 #include "ldfscf.fh"
 #include "file.fh"
 #include "iprlv.fh"
+#include "ksdft.fh"
 #ifdef _HDF5_
 #  include "mh5.fh"
 #endif
@@ -152,6 +153,9 @@
       ipFMaux = -666666
       ip_NDSD = -696969
       l_NDSD = 0
+* KSDFT exch. and corr. scaling factors
+      CoefX = 1.0D0
+      CoefR = 1.0D0
 * Delta_Tw correlation energy calculation
       Do_Tw=.false.
 * Read Cholesky info from runfile and save in infscf.fh
@@ -343,6 +347,7 @@
       If (Line(1:4).eq.'CHAR') Go To 4400
       If (Line(1:4).eq.'NOTE') Go To 4500
       If (Line(1:4).eq.'KSDF') Go To 4600
+      If (Line(1:4).eq.'DFCF') Go To 4605
       If (Line(1:4).eq.'OFEM') Go To 4650
       If (Line(1:4).eq.'FTHA') Go To 4655
       If (Line(1:4).eq.'DFMD') Go To 4656
@@ -1052,6 +1057,13 @@ c      End If
       Call UpCase(Line)
       Call LeftAd(Line)
       KSDFT=Line(1:16)
+      GoTo 1000
+*
+*>>>>>>>>>>>>> DFCF <<<< Factors to scale exch. and corr. <<
+ 4605 Continue
+      Line=Get_Ln(LuSpool)
+      Call Get_F(1,CoefX,1)
+      Call Get_F(2,CoefR,1)
       GoTo 1000
 *
 *>>>>>>>>>>>>> OFEM <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

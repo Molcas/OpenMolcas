@@ -29,6 +29,7 @@
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
+#include "ksdft.fh"
       Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
@@ -42,9 +43,9 @@
 C "physically motivated" values from Grimme's B2PLYP paper are 0.5 * GGA XC
 * + 0.5* HF; since the parent GGA OLYP is non-UEG Grigory took 0.5* OLYP's
 * LDA and GGA coefficients here
-      Coeff_A=0.525755D0
-      Coeff_B=0.715845D0
-      Coeff_C=0.75D0
+      Coeff_A=0.525755D0*CoefX
+      Coeff_B=0.715845D0*CoefX
+      Coeff_C=0.75D0*CoefR
 C MP2 correlation energy to be scaled to 1 - Coeff_C = 0.25
 
 *                                                                      *

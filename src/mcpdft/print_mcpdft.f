@@ -24,12 +24,12 @@
 
       Implicit Real*8 (A-H,O-Z)
       Real*8 CASDFT_E,E_nuc,E_cor,E_cas,E_ot
+      Real*8 CASDFT_E_1,E_ot_1,Funcaa1,Funcbb1,Funccc1
       Dimension Ref_Ener(*)
       integer jroot
 #include "WrkSpc.fh"
 #include "ksdft.fh"
 #include "nq_info.fh"
-
 
       write(6,'(6X,80A)')
       write(6,'(6X,80A)') ('*',i=1,80)
@@ -52,6 +52,11 @@
       write(6,'(6X,A58,12X,F10.3)') 'Integrated  beta density '//
      &           ' after functional transformation:', Dens_b2
       write(6,'(6X,80A)')
+      write(6,'(6X,A33,29X,F18.6)') 'Exchange energy scaling factor',
+     &          CoefX
+      write(6,'(6X,A33,29X,F18.6)') 'Correlation energy scaling factor',
+     &          CoefR
+      write(6,'(6X,80A)')
       write(6,'(6X,A32,30X,F18.6)') 'Integrated alpha exchange energy',
      &          Funcaa
       write(6,'(6X,A32,30X,F18.6)') 'Integrated beta  exchange energy',
@@ -70,6 +75,31 @@
       write(6,'(6X,A20,42X,F18.8)') 'Total MC-PDFT energy',
      &         CASDFT_E
 
+      if ((CoefX*CoefR.ne.0.0).and.(CoefX.ne.1.0.or.CoefR.ne.1.0)) Then
+         Funcaa1 = Funcaa/CoefX
+         Funcbb1 = Funcbb/CoefX
+         Funccc1 = Funccc/CoefR
+         E_ot_1 = E_ot-Funcaa-Funcbb-Funccc+Funcaa1+Funcbb1+Funccc1
+         CASDFT_E_1 = CASDFT_E-E_ot+E_ot_1
+         write(6,'(6X,80A)')
+         write(6,'(6X,80A)')
+         write(6,'(6X,A43,19X,F18.6)') 'Integrated alpha exchange '//
+     &          'energy (unscaled)',
+     &          Funcaa1
+         write(6,'(6X,A43,19X,F18.6)') 'Integrated beta  exchange '//
+     &          'energy (unscaled)',
+     &          Funcbb1
+         write(6,'(6X,A43,19X,F18.6)') 'Integrated  correlation   '//
+     &          'energy (unscaled)',
+     &          Funccc1
+!         write(6,'(6X,80A)')
+         write(6,'(6X,A24,38X,F18.8)') 'On-top energy (unscaled)',E_ot_1
+!         write(6,'(6X,80A)')
+         write(6,'(6X,A31,31X,F18.8)') 'Total MC-PDFT energy '//
+     &         '(unscaled)',
+     &         CASDFT_E_1
+      end if
+
       write(6,'(6X,80A)')
       write(6,'(6X,80A)') ('*',i=1,80)
       write(6,'(6X,80A)')
@@ -79,6 +109,8 @@
       Call Add_Info('dens_b1',Dens_b1,1,6)
       Call Add_Info('dens_a2',Dens_a2,1,6)
       Call Add_Info('dens_b2',Dens_b2,1,6)
+      Call Add_Info('exch_f',CoefX,1,6)
+      Call Add_Info('corr_f',CoefR,1,6)
       Call Add_Info('excha_a',Funcaa,1,6)
       Call Add_Info('excha_b',Funcbb,1,6)
       Call Add_Info('corr_e', Funccc,1,6)
