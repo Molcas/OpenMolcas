@@ -115,8 +115,8 @@ The :kword:`KSDFT` is the only required keyword.
               </KEYWORD>
 
 :kword:`DFCF`
-  Use this Keyword to scaled the exchange energy and/or correlation energy of the functional requested.
-  This Keyword should be followed by the scaling factor for the exchange energy and the scaling factor for the correlation energy, separated by a space.
+  Use this Keyword to scaled the exchange terms and/or correlation terms of the functional requested.
+  This Keyword should be followed by the scaling factor for the exchange terms and the scaling factor for the correlation terms, separated by a space.
   If the values are 1.0 (default), then the original functional is used.
   For an HLE-type functional, use 1.25 (for exchange) and 0.5 (for correlation).
   Example: DFCF=1.25 0.5
@@ -124,9 +124,9 @@ The :kword:`KSDFT` is the only required keyword.
   .. xmldoc:: <KEYWORD MODULE="SCF" NAME="DFCF" APPEAR="DFT exch. & corr. scaling factors" KIND="REAL" LEVEL="ADVANCED">
               %%Keyword: DFCF <advanced>
               <HELP>
-              Use this Keyword to scaled the exchange energy and/or correlation energy of the functional requested.
-              This Keyword should be followed by the scaling factor for the exchange energy
-              and the scaling factor for the correlation energy, separated by a space.
+              Use this Keyword to scaled the exchange terms and/or correlation terms of the functional requested.
+              This Keyword should be followed by the scaling factor for the exchange terms
+              and the scaling factor for the correlation terms, separated by a space.
               If the values are 1.0 (default), then the original functional is used.
               For an HLE-type functional, use 1.25 (for exchange) and 0.5 (for correlation).
               Example: DFCF=1.25 0.5
