@@ -330,7 +330,7 @@ Below is a list of keywords that should cover the needs of most users.
               </KEYWORD>
 
 :kword:`DFCF`
-  Use this Keyword to scaled the exchange terms and/or correlation terms of a density functional.
+  Use this Keyword to scale the exchange terms and/or correlation terms of a density functional.
   This Keyword should be followed by the scaling factor for the exchange terms and the scaling factor for the correlation terms, separated by a space.
   If the values are 1.0 (default), then the original density functional is used. 
   For an HLE-type functional, use 1.25 (for exchange) and 0.5 (for correlation).
@@ -339,7 +339,7 @@ Below is a list of keywords that should cover the needs of most users.
   .. xmldoc:: <KEYWORD MODULE="SCF" NAME="DFCF" APPEAR="DFT exch. & corr. scaling factors" KIND="REALS" SIZE="2" LEVEL="ADVANCED">
               %%Keyword: DFCF <advanced>
               <HELP>
-              Use this Keyword to scaled the exchange terms and/or correlation terms of a density functional.
+              Use this Keyword to scale the exchange terms and/or correlation terms of a density functional.
               This Keyword should be followed by the scaling factor for the exchange terms 
               and the scaling factor for the correlation terms, separated by a space.
               If the values are 1.0 (default), then the original density functional is used.
