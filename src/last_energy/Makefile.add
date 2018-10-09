@@ -1,8 +1,0 @@
-PROGS = seward scf rasscf caspt2 mbpt2 ccsdt motra chcc cht3 mcpdft
-ULINK += $(addprefix -l, ${PROGS})
-ULIBA += $(addsuffix .a, $(addprefix ${LIBDIR}/lib, ${PROGS}))
-
-ifeq (@F90ENABLE@,YES)
-PPFLAG += -D_F90ENABLE_
-endif
-

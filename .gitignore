@@ -1,123 +1,50 @@
 ## GENERAL
-# binary files
-*.[oa]
-*.exe
-# dependencies files
-*.d
-# latex documents
-*.aux
-*.blg
-*.bbl
-*.idx
-*.ilg
-*.toc
-*.dvi
-*.ps
-*.pdf
-*.lof
-*.lot
-# log files
-*.log
-# fortran 90/95 modules
-*.mod
 # backup files
 *.orig
 *.bak
 *~
-#if MOLGUI source code is stored at the same place
-molgui/
-#odd compilation leftovers
-src/dmrg_util/lib
-src/*/CMakeLists.txt
 *.swp
-
-## SPECIFIC
-# configuration files
-.molcasversion
-.dependencies
-.stamp
-00dependencies
-00sources
-Makefile
-findsym.inp
-findsym.out
-module.lst
-molcas.rte*
-molcasrc
-cfg/Makefile.sed
-cfg/lists.cfg
-src/Include/buildinfo.fh
-setup.lst
-.setup.completed
-Symbols
-xbin.cfg
-stdsuffix
-checksum
-molden.ogl
+# leftovers
+CMakeCache.txt
+CMakeFiles
+# tags files
 tags
 TAGS
 GPATH
 GRTAGS
 GTAGS
 .vscode
+
+## SPECIFIC
 # data
-data/prgms.cntrl
-data/*.prgm
-data/filelist
-data/sublist
 data/basis.db
 data/find.db
-data/dict.xml
-data/keyword.db
-data/keyword.xml
-data/saved.db
-data/warnings.plx
-data/src_docs.db
 # documentation
-doc/booklet/
-doc/latex2html-tmp/
-doc/latex2html/HTML/
-doc/samples/
-doc/manual/index.tex
-doc/manual/installation.guide/Linux-x86.cfg
-doc/manual/installation.guide/prgms.cntrl
-doc/manual/users.guide/programs.tex
-doc/manual/*.out
+doc/doxygen/*.log
 doc/doxygen/*tmp
 doc/doxygen/html
-doc/doxygen/latex
-doc/doxygen/xml
-doc/doxygen/man
-# testing
-test/result
-test/timing*
-test/failed
-test/log/
-test/tmp/
-# package archives (external)
-packages/
-nopackages/
-PACKAGE
-# libraries
-lib/
-# license file
-/license.dat
+doc/latexdoc/**/*.aux
+doc/latexdoc/**/*.bbl
+doc/latexdoc/**/*.blg
+doc/latexdoc/**/*.fdb_latexmk
+doc/latexdoc/**/*.fls
+doc/latexdoc/**/*.idx
+doc/latexdoc/**/*.ilg
+doc/latexdoc/**/*.ind
+doc/latexdoc/**/*.lof
+doc/latexdoc/**/*.log
+doc/latexdoc/**/*.lot
+doc/latexdoc/**/*.out
+doc/latexdoc/**/*.pdf
+doc/latexdoc/**/*.toc
+doc/latexdoc/**/programs.tex
+!doc/latexdoc/**/fragment.pdf
+!doc/latexdoc/**/ubar.pdf
 # tinker
 /tinker-*.tar
 /tinker
 /tinker*/
-# Test/
-test/sonatorb/
-test/sonatorb
 #Python
 *__pycache__*
-# pymolcas
-Tools/pymolcas/pymolcas
-Tools/pymolcas/pymolcas.exe
-Tools/pymolcas/pymolcas.whl
-Tools/pymolcas/build
-Tools/pymolcas/*.egg-info
 # build products
-/molcas-*
-/make-*
 /build*

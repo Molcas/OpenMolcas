@@ -1,3 +1,0 @@
-PROGS = rasscf
-ULINK += $(addprefix -l, ${PROGS})
-ULIBA += $(addsuffix .a, $(addprefix ${LIBDIR}/lib, ${PROGS}))
