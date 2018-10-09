@@ -46,5 +46,3 @@ doc/latexdoc/**/programs.tex
 /tinker*/
 #Python
 *__pycache__*
-# build products
-/build*
