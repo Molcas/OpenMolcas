@@ -63,7 +63,7 @@
       integer iD1I,iD1Act,iD1ActAO,iD1Spin,iD1SpinAO,IAD19
       integer iJOB,dmDisk,iP2d
       integer itmp0,itmp1,itmp2,itmp3,itmp4
-      integer itmp5,itmp6,itmp7
+      integer itmp5,itmp6,itmp7,itmpn,itmpk,itmpa
       integer ifocki,ifocka
       integer IADR19(1:30)
       integer LP,NQ,LQ,LPUVX
@@ -74,6 +74,8 @@
       integer  i_off1,i_off2,ifone
       integer isym,iorb,iash,iish,jsym
       integer LUGS
+      iTrii(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
+
 
       Call qEnter('MSCTL')
       Call unused_real_array(F)
@@ -148,9 +150,9 @@ C Local print level (if any)
         End Do
       End If
 
-!Do I need this Kincore and NucElcore?
-      if(iPrLev.ge.DEBUG) then
+c      if(iPrLev.ge.DEBUG) then
       Call GetMem('Kincore','Allo','Real',iTmpk,nTot1)
+c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
       iComp  =  1
       iSyLbl =  1
       iRc    = -1
@@ -178,9 +180,7 @@ C Local print level (if any)
          Call QTrace
          Call Abend
       Endif
-      Call GetMem('Kincore','free','Real',iTmpk,nTot1)
-      Call GetMem('NucElcore','free','Real',iTmpn,nTot1)
-      end if
+c      end if
 
 
 !Here we calculate the D1 Inactive matrix (AO).
@@ -464,23 +464,50 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
       Call GetMem('DoneI','Allo','Real',iTmp2,nTot1)
 
       Call Fold(nSym,nBas,Work(iD1I),Work(iTmp2))
+         call xflush(6)
+
+      Call GetMem('DoneA','Allo','Real',iTmpa,nTot1)
+         call xflush(6)
+      Call Fold(nSym,nBas,Work(iD1ActAO),Work(iTmpa))
+         call xflush(6)
 *
       Eone = dDot_(nTot1,Work(iTmp2),1,Work(iTmp1),1)
       Call Get_dScalar('PotNuc',PotNuc_Ref)
       Eone = Eone + (PotNuc-PotNuc_Ref)
       Etwo = dDot_(nTot1,Work(iTmp2),1,Work(iFockI),1)
-      Call GetMem('DoneI','Free','Real',iTmp2,nTot1)
+
+!**************Kinetic energy of inactive electrons********
+      Ekin = dDot_(nTot1,Work(iTmp2),1,Work(iTmpk),1)
+
+!*****Nuclear electron attraction for inactive electrons******
+      Enuc = dDot_(nTot1,Work(iTmp2),1,Work(iTmpn),1)
+
+c**************Kinetic energy of active electrons*********
+      EactK = dDot_(nTot1,Work(iTmpk),1,Work(iTmpa),1)
+
+      EactN = dDot_(nTot1,Work(iTmpn),1,Work(iTmpa),1)
+      EFI = dDot_(nTot1,Work(iFockI),1,Work(iTmpa),1)
+         call xflush(6)
+      Eact = EactK + EactN + EFI
       EMY  = PotNuc_Ref+Eone+0.5d0*Etwo
 
       CASDFT_Funct = 0.0D0
       Call Get_dScalar('CASDFT energy',CASDFT_Funct)
-      If ( IPRLEV.ge.DEBUG ) then
-         Write(LF,*) ' Nuclear repulsion energy :',PotNuc
-         Write(LF,*) ' One-electron core energy :',Eone
-         Write(LF,*) ' Two-electron core energy :',Etwo
-         Write(LF,*) ' Total core energy        :',EMY
-         Write(LF,*) ' CASDFT Energy            :',CASDFT_Funct
-      End If
+c      If ( IPRLEV.ge.DEBUG ) then
+       Write(LF,'(4X,A35,F18.8)')
+     &  'Nuclear repulsion energy :',PotNuc
+       Write(LF,'(4X,A35,F18.8)')
+     &  'One-electron kinetic core energy:',Ekin
+       Write(LF,'(4X,A35,F18.8)')
+     &   'Nuc-elec attraction core energy :',Enuc
+       Write(LF,'(4X,A35,F18.8)') 'One-electron core energy :',Eone
+       Write(LF,'(4X,A35,F18.8)') 'Two-electron core energy :',Etwo
+       Write(LF,'(4X,A35,F18.8)') 'Total core energy        :',EMY
+       Write(LF,'(4X,A35,F18.8)') 'Active Kinetic energy:',EactK
+       Write(LF,'(4X,A35,F18.8)')
+     &  'Active nuc-elec attraction energy:',EactN
+c       Write(LF,*) ' CASDFT Energy            :',CASDFT_Funct
+c      End If
          call xflush(6)
 ***********************************************************
 * Printing matrices
@@ -936,6 +963,10 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
       Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,dmDisk)
       Call GetMem('P2','Free','Real',iP2d,NACPR2)
       Call GetMem('D1Inact','Free','Real',iD1i,NTOT2)
+      Call GetMem('Kincore','free','Real',iTmpk,nTot1)
+      Call GetMem('NucElcore','free','Real',iTmpn,nTot1)
+      Call GetMem('DoneI','Free','Real',iTmp2,nTot1)
+      Call GetMem('DoneA','Free','Real',iTmpa,nTot1)
       call xflush(6)
       Call qExit('MSCTL')
       Return
