@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE DO_SODYSORB(NSS,LUTOTR,LUTOTI,DYSAMPS,SFDYS,NZ,
+      SUBROUTINE SODYSORB(NSS,LUTOTR,LUTOTI,DYSAMPS,SFDYS,NZ,
      &                       SODYSAMPS)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "Molcas.fh"
@@ -19,7 +19,6 @@
 #include "symmul.fh"
 #include "Files.fh"
       CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='DO_SONATORB')
       LOGICAL   FIRSTSO
       INTEGER   SOTOT,SFTOT,SO2SFNUM,DUMMY
       INTEGER   NZ,LSZZ
@@ -28,7 +27,7 @@
       DIMENSION DYSAMPS(NSTATE,NSTATE)
       DIMENSION SFDYS(NZ,NSTATE,NSTATE)
       DIMENSION SODYSAMPS(NSS,NSS)
-      DIMENSION SODYSCOFS(NZ)
+      DIMENSION SODYSCOFSR(NZ),SODYSCOFSI(NZ)
       DIMENSION SZZFULL(NZ,NZ)
 
 C Calculates spin-orbit Dyson orbitals
@@ -39,15 +38,26 @@ C 2. Pick up the SF Dyson orbitals in the atomic basis from disk
 C 3. Build the SO Dyson orbitals from the SF ones
 C 4. Save the SO Dyson orbitals to disk
 
-      WRITE(6,*)
-      WRITE(6,*)
-      WRITE(6,*) '*****************************************'
-      WRITE(6,*) '* RUNNING SODYSORB CODE *****************'
-      WRITE(6,*) '*****************************************'
-      WRITE(6,*)
+!      WRITE(6,*)
+!      WRITE(6,*)
+!      WRITE(6,*) '*****************************************'
+!      WRITE(6,*) '* RUNNING SODYSORB CODE *****************'
+!      WRITE(6,*) '*****************************************'
+!      WRITE(6,*)
 
       SO2SFNUM=0
       CALL GETMEM('SO2SF','ALLO','INTE',SO2SFNUM,NSS)
+
+C Write out DYSAMPS for debugging
+!      WRITE(*,*)'---------------------------'
+!      WRITE(*,*)'------- SFDYSAMPS ---------'
+!      WRITE(*,*)'---------------------------'
+!      DO JSTATE=1,NSTATE
+!       DO ISTATE=1,NSTATE
+!        WRITE(*,'(F5.2)',advance="no")DYSAMPS(JSTATE,ISTATE)
+!       END DO
+!       WRITE(*,*)
+!      END DO
 
 C Setup SO2SFNUM list which contains the original SF state numbers
 C as a function of the SO state number
@@ -67,13 +77,13 @@ C as a function of the SO state number
       END DO ! DO ISTATE=1,NSTATE
 
 C Write out SO2SFNUM for debugging
-!      WRITE(*,*)'---------------------------'
-!      WRITE(*,*)'------- SO2SFNUM ----------'
-!      WRITE(*,*)'---------------------------'
-!      DO ISTATE=1,NSS
-!        WRITE(*,'(F5.2)',advance="no"),WORK(SO2SFNUM+ISTATE-1)
-!       WRITE(*,*)
-!      END DO
+!       WRITE(*,*)'---------------------------'
+!       WRITE(*,*)'------- SO2SFNUM ----------'
+!       WRITE(*,*)'---------------------------'
+!       DO ISTATE=1,NSS
+!         WRITE(*,'(F5.2)',advance="no"),WORK(SO2SFNUM+ISTATE-1)
+!        WRITE(*,*)
+!       END DO
 
 ! **** This part seems unecessary, as it essentially appears *******
 ! **** to create an identity matrix, but lets leave it for now!
@@ -116,15 +126,15 @@ C states in the (multiplicity expanded) SF basis
 
 C Write out V-matrix for debugging
 !      WRITE(*,*)'---------------------------'
-!      WRITE(*,*)'------- V-matrix ----------'
-!      WRITE(*,*)'---------------------------'
-!      DO JSTATE=1,NSS
-!       DO ISTATE=1,NSS
-!        WRITE(*,'(F5.2)',advance="no"),WORK(LVMAT-1+NSS*(ISTATE-1)
-!     &    +JSTATE)
-!       END DO
-!       WRITE(*,*)
+!     WRITE(*,*)'------- V-matrix ----------'
+!     WRITE(*,*)'---------------------------'
+!     DO JSTATE=1,NSS
+!      DO ISTATE=1,NSS
+!       WRITE(*,'(F5.2)',advance="no"),WORK(LVMAT-1+NSS*(ISTATE-1)
+!    &    +JSTATE)
 !      END DO
+!      WRITE(*,*)
+!     END DO
 
 ! ****************************************************************
 
@@ -137,7 +147,7 @@ C the SO eigenstates in the (multiplicity expanded) spin-free basis.
      &      1.0d0,WORK(LVMAT),NSS,WORK(LUTOTI),NSS,0.0d0,
      &      WORK(LUMATI),NSS)
 
-C Write out V*E-matrix for debugging
+!C Write out V*E-matrix for debugging
 !      WRITE(*,*)'---------------------------'
 !      WRITE(*,*)'------- V*E-matrix --------'
 !      WRITE(*,*)'---------------------------'
@@ -145,7 +155,7 @@ C Write out V*E-matrix for debugging
 !       DO JSTATE=1,NSS
 !        NINDEX=NSS*(ISTATE-1)+JSTATE-1
 !        WRITE(*,'(F5.2,A,F4.2,A)',advance="no")
-!     &        WORK(LUTOTR+NINDEX),'+',WORK(LUOTI+NINDEX),'i'
+!     &        WORK(LUTOTR+NINDEX),'+',WORK(LUTOTI+NINDEX),'i'
 !       END DO
 !       WRITE(*,*)
 !      END DO
@@ -156,13 +166,39 @@ C Now read in all the previously saved SF Dyson orbitals in the
 C atomic basis from disk
 
       DO JSTATE=1,NSTATE
-       DO ISTATE=JSTATE,NSTATE
-       IF (DYSAMPS(ISTATE,JSTATE).GT.1.0D-6) THEN
-        IDISK=IWORK(LIDDYS+(ISTATE-1)*NSTATE+JSTATE-1)
-        CALL DDAFILE(LUDYS,2,SFDYS(:,ISTATE,JSTATE),NZ,IDISK)
-       END IF
+       DO ISTATE=JSTATE+1,NSTATE
+        IF (DYSAMPS(JSTATE,ISTATE).GT.1.0D-6) THEN
+         IDISK=IWORK(LIDDYS+(ISTATE-1)*NSTATE+JSTATE-1)
+         CALL DDAFILE(LUDYS,2,SFDYS(:,JSTATE,ISTATE),NZ,IDISK)
+         ! Loops over states are performed triangularly, but
+         ! permutation of degenerate states in the SO part
+         ! might 'escape' this, therefore we fill out the
+         ! full matrix to be safe.
+         IDISK=IWORK(LIDDYS+(ISTATE-1)*NSTATE+JSTATE-1)
+         CALL DDAFILE(LUDYS,2,SFDYS(:,ISTATE,JSTATE),NZ,IDISK)
+        ELSE
+         DO NDUM=1,NZ
+          SFDYS(NDUM,JSTATE,ISTATE)=0.0D0
+          SFDYS(NDUM,ISTATE,JSTATE)=0.0D0
+         END DO
+        END IF
        END DO
       END DO
+
+C Write out the SFDYS for debugging
+!      DO JSTATE=1,NSTATE
+!       DO ISTATE=JSTATE+1,NSTATE
+!        WRITE(*,*)'------------------------------------'
+!        WRITE(*,*)'JSTATE,ISTATE=',JSTATE,ISTATE
+!        SFJ=WORK(SO2SFNUM+JSTATE-1)
+!        SFI=WORK(SO2SFNUM+ISTATE-1)
+!        WRITE(*,*)'SFJ,SFI=      ',SFJ,SFI
+!        WRITE(*,*)'SODYSCOFS='
+!        DO NDUM=1,NZ
+!         WRITE(*,*)SFDYS(NDUM,JSTATE,ISTATE)
+!        END DO
+!       END DO
+!      END DO
 
 ! ****************************************************************
 
@@ -206,7 +242,7 @@ C Write out SZZ for debugging
 !      WRITE(*,*)'SZZ:'
 !      DO ZJ=1,NZ
 !       DO ZI=1,NZ
-!        WRITE(*,'(F6.2)')SZZFULL(ZJ,ZI)
+!        WRITE(*,'(F6.2)',advance='no')SZZFULL(ZJ,ZI)
 !       END DO
 !       WRITE(*,*)
 !      END DO
@@ -218,14 +254,18 @@ C SO coefficients
 
       ! For all possible SO state combinations
       DO JSTATE=1,NSS
-       DO ISTATE=1,JSTATE
+       DO ISTATE=JSTATE+1,NSS
 
         ! Reset values for next state combination
         DIJ=0.0D0
         DO NDUM=1,NZ
-         SODYSCOFS(NDUM)=0.0D0
+         SODYSCOFSR(NDUM)=0.0D0
+         SODYSCOFSI(NDUM)=0.0D0
         END DO
 
+!        WRITE(*,*)
+!        WRITE(*,*)'------------------------------------'
+!        WRITE(*,*)'JSTATE,ISTATE=',JSTATE,ISTATE
         ! Iterate over the eigenvector components of both states
         DO JEIG=1,NSS
          DO IEIG=1,NSS
@@ -234,25 +274,47 @@ C SO coefficients
           ! later
           ! Coefficient of first state
           INDJ=NSS*(JSTATE-1)+JEIG-1
-          CJ=WORK(LUTOTR+INDJ)
+          CJR=WORK(LUTOTR+INDJ)
+          CJI=WORK(LUTOTI+INDJ)
           ! Coefficient of second state
           INDI=NSS*(ISTATE-1)+IEIG-1
-          CI=WORK(LUTOTR+INDI)
+          CIR=WORK(LUTOTR+INDI)
+          CII=WORK(LUTOTI+INDI)
           ! Find the corresponding SF states
           SFJ=WORK(SO2SFNUM+JEIG-1)
           SFI=WORK(SO2SFNUM+IEIG-1)
-          ! Multiply coefficients with the corresponding SF Dyson orbital
-          SODYSCOFS=SODYSCOFS+(CJ*CI)*SFDYS(:,SFJ,SFI)
+          IF (DYSAMPS(SFJ,SFI).GT.1.0D-6) THEN
+           ! Multiply together coefficients
+           CREAL=CJR*CIR+CJI*CII!(CJR*CIR+CJI*CII)
+           CIMAG=CJR*CII-CJI*CIR!(CJR*CII-CJI*CIR)
+           ! Multiply with the corresponding SF Dyson orbital
+           SODYSCOFSR=SODYSCOFSR+CREAL*SFDYS(:,SFJ,SFI)
+           SODYSCOFSI=SODYSCOFSI+CIMAG*SFDYS(:,SFJ,SFI)
+!           IF ((CREAL+CIMAG).GT.0.001) THEN
+!            WRITE(*,*)'SFJ,SFI=      ',SFJ,SFI
+!            WRITE(*,*)'JEIG,IEIG=    ',JEIG,IEIG
+!            WRITE(*,*)'CJ=',CJR,'+',CJI,'i'
+!            WRITE(*,*)'CI=',CIR,'+',CII,'i'
+!            WRITE(*,*)'CC=',CREAL,CIMAG,'i'
+!            WRITE(*,*)'SODYSCOFS='
+!            DO NDUM=1,NZ
+!             WRITE(*,*)SFDYS(NDUM,SFJ,SFI)
+!            END DO
+!           END IF
+          END IF
 
          END DO
         END DO
 
 C Write out SODYSCOFS for debugging
-!        WRITE(*,*)
-!        WRITE(*,*)'SODYSCOFS='
-!        DO NDUM=1,NZ
-!         WRITE(*,'(F6.2)',advance='no')SODYSCOFS(NDUM)
-!        END DO
+!        IF (DYSAMPS(SFJ,SFI).GT.1.0D-6) THEN
+!         WRITE(*,*)
+!         WRITE(*,*)'SODYSCOFS='
+!         DO NDUM=1,NZ
+!          WRITE(*,'(F6.2,A,F6.2,A)')
+!     &       SODYSCOFSR(NDUM),'+',SODYSCOFSI(NDUM),'i'
+!         END DO
+!        END IF
 
 ! Normalize the overlap of SODYSCOFS expanded orbitals with the
 ! atomic overlap matrix SZZ to obtain correct amplitudes
@@ -261,22 +323,30 @@ C Write out SODYSCOFS for debugging
 
           DO ZJ=1,NZ
            DO ZI=1,NZ
-            ! SZZ normalization must be added!
-            AMPLITUDE=AMPLITUDE+SODYSCOFS(ZJ)*SODYSCOFS(ZI)
-     &                *SZZFULL(ZJ,ZI)
+            AMPR=SODYSCOFSR(ZJ)*SODYSCOFSR(ZI)
+     &            +SODYSCOFSI(ZJ)*SODYSCOFSI(ZI)
+            AMPI=SODYSCOFSI(ZJ)*SODYSCOFSR(ZI)
+     &            -SODYSCOFSR(ZJ)*SODYSCOFSI(ZI)
+!            WRITE(*,'(F5.2,A)',advance="no")AMPR,' '
+            AMPLITUDE=AMPLITUDE+
+     &         SQRT(AMPR*AMPR+AMPI*AMPI)*SZZFULL(ZJ,ZI)
+!     &         (AMPR+AMPI)*SZZFULL(ZJ,ZI)
            END DO
+!           WRITE(*,*)
           END DO
 
-          AMPLITUDE=SQRT(AMPLITUDE)
+!          WRITE(*,*)'AMPLITUDE**2=',AMPLITUDE
+!          AMPLITUDE=SQRT(AMPLITUDE)
+!          WRITE(*,*)'AMPLITUDE   =',AMPLITUDE
           SODYSAMPS(JSTATE,ISTATE)=AMPLITUDE
           SODYSAMPS(ISTATE,JSTATE)=AMPLITUDE
-
-        END DO
-       END DO
 
 ! The coefficients could be used for some kind of analysis,
 ! but for now we will not save them before going to the next
 ! state combination
+
+        END DO
+       END DO
 
 C Write out SODYSAMPS for debugging
 !      WRITE(*,*)'SODYSAMPS='
@@ -296,6 +366,7 @@ C Free all the allocated memory
       CALL GETMEM('UMATR2','FREE','REAL',LUMATR,NSS**2)
       CALL GETMEM('UMATI2','FREE','REAL',LUMATI,NSS**2)
       CALL GETMEM('EIGVEC2','FREE','REAL',LVMAT,NSS**2)
+      CALL GETMEM('SZZ   ','FREE','REAL',LSZZ,NSZZ)
 
 
       RETURN

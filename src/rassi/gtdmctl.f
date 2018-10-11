@@ -782,6 +782,7 @@ C Save to disk:
 !        WRITE(*,'(F6.2)',advance='no')WORK(LDYSZZ+NDUM-1)
 !       END DO
 !       WRITE(*,*)
+C Is this step necessary?
        IDISK=IWORK(LIDDYS+(ISTATE-1)*NSTATE+JSTATE-1)
        CALL DDAFILE(LUDYS,2,WORK(LDYSZZ),NDYSZZ,IDISK)
 !       DO NDUM=1,NDYSZZ

@@ -195,7 +195,7 @@ C Make the SO Dyson orbitals and amplitudes from the SF ones
       END DO
       LSFDYS=0
       CALL GETMEM('SFDYS','ALLO','REAL',LSFDYS,NZ*NSTATE*NSTATE)
-      CALL DO_SODYSORB(NSS,LUTOTR,LUTOTI,WORK(LDYSAMPS),
+      CALL SODYSORB(NSS,LUTOTR,LUTOTI,WORK(LDYSAMPS),
      &                 WORK(LSFDYS),NZ,WORK(LSODYSAMPS))
 
       CALL GETMEM('SFDYS','FREE','REAL',LSFDYS,NZ*NSTATE*NSTATE)
@@ -261,7 +261,7 @@ CIgorS End------------------------------------------------------------C
       CALL GETMEM('Prop','Free','Real',LPROP,NPROPSZ)
       CALL GETMEM('NilPt','FREE','REAL',LNILPT,1)
       CALL GETMEM('INilPt','FREE','INTE',LINILPT,1)
-      CALL GETMEM('SODYSAMPS','FREE','REAL',LSODYSAMP,NSS*NSS)
+      CALL GETMEM('SODYSAMPS','FREE','REAL',LSODYSAMPS,NSS*NSS)
 
 #ifdef _DMRG_
 !     !> finalize MPS-SI interface
@@ -278,7 +278,6 @@ CIgorS End------------------------------------------------------------C
 *     Close dafiles.
 *
       Call DaClos(LuScr)
-      Call DaClos(LuTDM)
       Call DaClos(LUDYS)
 c jochen 02/15: sonatorb needs LUTDM
 c     we'll make it conditional upon the keyword

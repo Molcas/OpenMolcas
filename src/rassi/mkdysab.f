@@ -75,7 +75,7 @@ C THEN ADD CONTRIBUTION FROM ACTIVE SPACE.
 ! for now
 ! (Might have to be changed later for SO part?)
 ! Alpha
-          DYSAB(IPOS)=DYSAB(IPOS)+DYSCOF(ICOFF)
+          DYSAB(IPOS)=DYSCOF(ICOFF) ! Overwrite "old" values
           ICOFF=ICOFF+1
 ! Beta
           DYSAB(IPOS)=DYSAB(IPOS)+DYSCOF(ICOFF)

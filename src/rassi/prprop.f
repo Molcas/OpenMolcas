@@ -1962,6 +1962,8 @@ C printing threshold
           END IF
          END DO ! J
         END DO ! I
+        WRITE(6,*)
+        WRITE(6,*)
 ! +++ J. Norell
 
 *

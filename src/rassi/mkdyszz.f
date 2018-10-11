@@ -55,6 +55,7 @@ C *** Helpful debugging printouts
 !      WRITE(*,*)'NCMO:',NCMO
 !      WRITE(*,*)'DYSAB:'
 !      DO I=1,NO1
+!       WRITE(*,*),DYSAB(I)
 !       WRITE(*,'(F6.2)', advance="no"),DYSAB(I)
 !      END DO
 !      WRITE(*,*)
@@ -66,8 +67,10 @@ C *** Helpful debugging printouts
 !       END DO
 !       WRITE(*,*)
 !      END DO
+!      WRITE(*,*)
 !      WRITE(*,*)'DYSZZ:'
 !      DO I=1,NB1
+!       WRITE(*,*),DYSZZ(I)
 !       WRITE(*,'(F6.2)', advance="no"),DYSZZ(I)
 !      END DO
 
