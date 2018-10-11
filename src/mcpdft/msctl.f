@@ -336,7 +336,7 @@ c      end if
          do i=1,ntot1
            write(6,*) work(itmp3-1+i)
          end do
-         call xflush(6)
+cPS         call xflush(6)
       end if
 
 !Get the spin density matrix for open shell cases
@@ -464,12 +464,12 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
       Call GetMem('DoneI','Allo','Real',iTmp2,nTot1)
 
       Call Fold(nSym,nBas,Work(iD1I),Work(iTmp2))
-         call xflush(6)
+c         call xflush(6)
 
       Call GetMem('DoneA','Allo','Real',iTmpa,nTot1)
-         call xflush(6)
+c         call xflush(6)
       Call Fold(nSym,nBas,Work(iD1ActAO),Work(iTmpa))
-         call xflush(6)
+c         call xflush(6)
 *
       Eone = dDot_(nTot1,Work(iTmp2),1,Work(iTmp1),1)
       Call Get_dScalar('PotNuc',PotNuc_Ref)
@@ -487,7 +487,7 @@ c**************Kinetic energy of active electrons*********
 
       EactN = dDot_(nTot1,Work(iTmpn),1,Work(iTmpa),1)
       EFI = dDot_(nTot1,Work(iFockI),1,Work(iTmpa),1)
-         call xflush(6)
+c         call xflush(6)
       Eact = EactK + EactN + EFI
       EMY  = PotNuc_Ref+Eone+0.5d0*Etwo
 
@@ -502,13 +502,13 @@ c      If ( IPRLEV.ge.DEBUG ) then
      &   'Nuc-elec attraction core energy :',Enuc
        Write(LF,'(4X,A35,F18.8)') 'One-electron core energy :',Eone
        Write(LF,'(4X,A35,F18.8)') 'Two-electron core energy :',Etwo
-       Write(LF,'(4X,A35,F18.8)') 'Total core energy        :',EMY
+       Write(LF,'(4X,A35,F18.8)') 'Total core energy:',EMY
        Write(LF,'(4X,A35,F18.8)') 'Active Kinetic energy:',EactK
        Write(LF,'(4X,A35,F18.8)')
      &  'Active nuc-elec attraction energy:',EactN
 c       Write(LF,*) ' CASDFT Energy            :',CASDFT_Funct
 c      End If
-         call xflush(6)
+c         call xflush(6)
 ***********************************************************
 * Printing matrices
 ***********************************************************
@@ -579,7 +579,7 @@ c      End If
          end do
        end if
 !DANGER!
-         call xflush(6)
+cPS         call xflush(6)
          NQ=0
          NSXS=0
          NIAIA=0
@@ -589,13 +589,13 @@ c      End If
            NIAIA = NIAIA+(NASH(ISYM)+NISH(ISYM))**2
          end do
          if(NQ.lt.NIAIA) NQ=NIAIA
-         call xflush(6)
+cPS         call xflush(6)
 
          CALL GETMEM('FOCK','ALLO','REAL',LFOCK,NTOT4)
          CALL GETMEM('SXBM','ALLO','REAL',LBM,NSXS)
          CALL GETMEM('SXLQ','ALLO','REAL',LQ,NQ) ! q-matrix(1symmblock)
          IFINAL = 1
-         call xflush(6)
+cPS         call xflush(6)
          CALL FOCK_m(WORK(LFOCK),WORK(LBM),Work(iFockI),Work(iFockA),
      &         Work(iD1Act),WORK(LP),WORK(LQ),WORK(LPUVX),IFINAL,CMO)
 !         CALL GETMEM('FOCK','FREE','REAL',LFOCK,NTOT4)
@@ -613,7 +613,7 @@ c      End If
 !         write(*,*) 'ENERGY REPORT FOR STATE',jroot
         Call Print_MCPDFT_2(CASDFT_E,PotNuc,EMY,ECAS,CASDFT_Funct,
      &         jroot,Ref_Ener)
-         call xflush(6)
+c         call xflush(6)
 
          Energies(jroot)=CASDFT_E
 
@@ -648,7 +648,7 @@ c      End If
 !      write(6,*) 'NACPAR (input fock)',nacpar
 !      write(6,*) 'ntot1 (# of V, fock_occ)',ntot1
 !      write(6,*) 'nfint (# of v)',nfint
-         call xflush(6)
+cPS         call xflush(6)
 
 !I will read in the one- and two-electron potentials here
 
@@ -873,7 +873,7 @@ c      End If
 
       write(6,*) 'DONE WITH NEW FOCK OPERATOR'
         end if
-      call xflush(6)
+cPS      call xflush(6)
 
          CALL GETMEM('FOCK','Free','REAL',LFOCK,NTOT4)
          CALL GETMEM('SXBM','Free','REAL',LBM,NSXS)
@@ -967,7 +967,7 @@ c      End If
       Call GetMem('NucElcore','free','Real',iTmpn,nTot1)
       Call GetMem('DoneI','Free','Real',iTmp2,nTot1)
       Call GetMem('DoneA','Free','Real',iTmpa,nTot1)
-      call xflush(6)
+c      call xflush(6)
       Call qExit('MSCTL')
       Return
       END
@@ -992,7 +992,7 @@ c      End If
          Work(iD1c + iTrii(i,i)-1) =
      &   work(iD1c + iTrii(i,i)-1)*2
       end do
-      call xflush(6)
+cPS      call xflush(6)
        ijkl=0
        do i=1,nac
          do j=1,i
