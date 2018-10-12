@@ -74,7 +74,7 @@
       integer  i_off1,i_off2,ifone
       integer isym,iorb,iash,iish,jsym
       integer LUGS
-      iTrii(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
+c      iTrii(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 
 
       Call qEnter('MSCTL')
@@ -499,9 +499,9 @@ c      If ( IPRLEV.ge.DEBUG ) then
        Write(LF,'(4X,A35,F18.8)')
      &  'One-electron kinetic core energy:',Ekin
        Write(LF,'(4X,A35,F18.8)')
-     &   'Nuc-elec attraction core energy :',Enuc
-       Write(LF,'(4X,A35,F18.8)') 'One-electron core energy :',Eone
-       Write(LF,'(4X,A35,F18.8)') 'Two-electron core energy :',Etwo
+     &   'Nuc-elec attraction core energy:',Enuc
+       Write(LF,'(4X,A35,F18.8)') 'One-electron core energy:',Eone
+       Write(LF,'(4X,A35,F18.8)') 'Two-electron core energy:',Etwo
        Write(LF,'(4X,A35,F18.8)') 'Total core energy:',EMY
        Write(LF,'(4X,A35,F18.8)') 'Active Kinetic energy:',EactK
        Write(LF,'(4X,A35,F18.8)')
