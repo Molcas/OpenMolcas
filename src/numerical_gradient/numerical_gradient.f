@@ -44,7 +44,7 @@
       Real*8 FX(3)
       Real*8, Allocatable, Dimension(:,:) :: EnergyArray, GradArray,
      &                                       OldGrads
-      Real*8, Allocatable, Dimension(:) :: Grad
+      Real*8, Allocatable, Dimension(:) :: Grad, GNew
       Integer rc, Read_Grad
       External Read_Grad
       Parameter (ToHartree = CONV_CAL_TO_J_ / CONV_AU_TO_KJ_PER_MOLE_)
@@ -220,7 +220,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
             Write (LuWr,*)
             Write (LuWr,'(A,A,A)')
      &    ' Numerical_Gradient: Original ',Method,' Energies:'
-            Write (LuWr,'(G20.14)')
+            Write (LuWr,'(G21.14)')
      &    (Work(ipEnergies_Ref+i-1),i=1,nRoots)
             Write (LuWr,*)
          End If
@@ -377,6 +377,17 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
      &                          + Sign*Work(ipDisp+icoor-1)
  101        Continue
          End Do
+      End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Save the "new geometry" field from the RunFile, if any
+*
+      Call qpg_dArray('GeoNew',Found,nGNew)
+      If (.not.Found) nGNew=0
+      If (nGNew.gt.0) Then
+        Call mma_allocate(GNew,nGNew)
+        Call Get_dArray('GeoNew',GNew,nGNew)
       End If
 *                                                                      *
 ************************************************************************
@@ -786,6 +797,17 @@ C_MPP End Do
       If (MyRank.ne.0) Then
          Close(LuWr)
          LuWr=LuWr_save
+      End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Restore the "new geometry" field to the RunFile, if any
+*
+      If (nGNew.eq.0) Then
+        Call Put_Coord_New([Zero],0)
+      Else
+        Call Put_Coord_New(GNew,nGNew/3)
+        Call mma_deallocate(GNew)
       End If
 *                                                                      *
 ************************************************************************

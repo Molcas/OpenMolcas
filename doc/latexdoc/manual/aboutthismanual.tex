@@ -1,0 +1,91 @@
+%! aboutthismanual.tex $ this file belongs to the Molcas repository $*/
+
+\section{The \molcas\ Manual}
+\label{sec:about_this_manual}
+
+%================================================================
+\subsection{Manual in Four Parts}
+\label{sec:who_should_read}
+
+This manual is designed for use with the {\it ab initio} Quantum
+chemistry software package \molcas\ \molcasversion\ developed at the
+by the world-wide \molcas\ team where its base and origin is the
+Department of Theoretical Chemistry, Lund University, Sweden.  \molcas\ is designed for use
+by Theoretical Chemists and requires knowledge of the
+Chemistry involved in the calculations in order to produce and
+interpret the results correctly.  The package can be moderately difficult to use
+because of this `knowledge requirement', but the results are often more
+meaningful than those produced by \textbf{\textit{blackbox}} packages which may not be
+sufficiently chemically precise in either input or output.
+
+The \molcas\ manual is divided in four parts to facilitate its use.
+
+\begin{enumerate}
+\item The \textbf{\textit{\molcas\ Installation Guide}} describes simple and more complex aspects on how to install, tailor, and
+control the \molcas\ package.
+
+\item The \textbf{\textit{Short Guide to \molcas }} is a brief introductory guide which addresses the needs of the novice and intermediate users
+and is designed for all those who want to start using \molcas\ as soon as possible. 
+Only basic environment definitions, simple input examples, and minimal description of output results are included in the short guide.
+
+Two types of introductory tutorials are given in the short guide: problem-based and program-specific.
+\begin{enumerate}
+\item Problem-based tutorials are exercises focused on solving a simple Quantum
+Chemical project and contain all the required input files. Examples include 
+computing electronic energy of a molecule at different levels of
+theory, optimizing the geometry of a molecule, calculating the transition state in the ground
+state of a chemical system, and computing an excited state.
+The input files for this section can be found in the directory {\$MOLCAS/doc/samples/problem\_based\_tutorials}.
+These examples are also employed in \molcas\ workshops that the \molcas\ team has organized in recent years.
+
+\item Another type of tutorial is designed for the first-time user to provide an understanding of program modules 
+contained in \molcas\ include simple, easy-to-follow examples for many of these modules.
+\end{enumerate}
+
+The systems covered in the short guide are not necessarily calculated with most suitable methods or produce highly significant results,
+but provide both several tips for the beginner and actual input file formats.
+
+The \textbf{\textit{Short Guide to \molcas}} can be independently printed as a booklet.
+\item The \textbf{\textit{\molcas\ User's Guide}} contains a complete listing of the input
+keywords for each of the program modules and a information regarding
+files used in each calculation. Here the user will find all keywords that can be
+used together with a specific program and thus how to set up the input for a
+\molcas\ run.
+
+\item \textit{\textbf{Advanced Examples}} and \textbf{\textit{Annexes}} include outlines of
+actual research performed using \molcas. 
+
+The approach to a research project is outlined including input files and shell scripts. More
+importantly, however, the value of the calculations is evaluated and
+advanced features of \molcasversion\ are used and explained to improve the
+value of the results.
+\end{enumerate}
+
+The complete manual is available on the net in HTML and PDF formats \\
+(\MolcasWWW).
+
+%================================================================
+\subsection{Notation}
+\label{sec:notation}
+
+For clarity, some words are printed using special typefaces.
+
+\begin{itemize}
+\item
+Keywords, i.e. words used in input files, are typeset in
+the small-caps typeface, for example \keyword{EndOfInput}.
+\item
+Programs (or modules) are typeset in the teletype typeface.
+This will eliminate some potential confusion. For example,
+when discussing the RASSCF method, regular uppercase letters
+are used, while the program will look like \program{RASSCF}.
+\item
+Files are typeset in the slanted teletype typeface, like
+\file{InpOrb}.
+\item 
+Commands, unix or other, are typeset in a sans serif typeface,
+like \command{ln -fs}.
+\item
+Complete examples, like input files, shell scripts, etc,
+are typeset in the teletype typeface.
+\end{itemize}

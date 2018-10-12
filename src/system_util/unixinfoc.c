@@ -70,6 +70,11 @@ void unixinfoc(INT *pid, INT *ppid,
      for(i=0;i<(int)strlen(user->pw_dir);i++)   homedir[i]=user->pw_dir[i];
      for(i=0;i<(int)strlen(user->pw_shell);i++) shell[i]=user->pw_shell[i];
    }
+#else
+   (void)username;
+   (void)realname;
+   (void)homedir;
+   (void)shell;
 #endif
 /* Environment variables */
 /* Molcas directory */

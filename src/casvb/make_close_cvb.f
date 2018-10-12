@@ -17,6 +17,7 @@
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
+#include "applyh_cvb.fh"
 
 #include "io_cvb.fh"
 #include "idbl_cvb.fh"
@@ -47,5 +48,23 @@ c         print *,'closing ',LuName(n)
               endif
       enddo
       enddo
+      if(.not.variat) then
+         call mkguga_free()
+         call getmem('CICTL1','FREE','REAL',lw1_cvb,0)
+         call getmem('TUVX','FREE','REAL',ltuvx_cvb,0)
+         call getmem('DMAT','FREE','REAL',ldmat_cvb,0)
+         call getmem('DSPN','FREE','REAL',ldspn_cvb,0)
+         call getmem('PMAT','FREE','REAL',lpmat_cvb,0)
+         call getmem('P2AS','FREE','REAL',lpa_cvb,0)
+         call getmem('DIAF','FREE','REAL',ldiaf_cvb,0)
+         call getmem('FOCC','FREE','REAL',ipfocc_cvb,0)
+         call getmem('FI','FREE','REAL',lfi_cvb,0)
+         call getmem('FA','FREE','REAL',lfa_cvb,0)
+         call getmem('D1I','FREE','REAL',ld1i_cvb,0)
+         call getmem('D1A','FREE','REAL',ld1a_cvb,0)
+         call getmem('D1tot','FREE','REAL',ld1tot_cvb,0)
+         call getmem('OCCN','FREE','REAL',loccn_cvb,0)
+         call getmem('LCMO','FREE','REAL',lcmo_cvb,0)
+      endif
       return
       end

@@ -24,7 +24,7 @@
       Dimension nCnC_C(MxBasC)
       Dimension Sint(MxBas,MxBasC),SintPar(MxBas,MxBasC),Rot(3,3)
       Dimension Inside(MxAt,3)
-      Character Snack*30,BsLbl*4000
+      Character Snack*30,BsLbl*(LENIN8*MxBasC)
       Logical PrEne,PrOcc,Inside
 
 *--------------------------------------------------------------------------*
@@ -70,7 +70,7 @@
 526       Continue
 525     Continue
         Call NameRun('WRUNFIL')
-        Call Get_cArray('Unique Basis Names',BsLbl,LENIN4*nBaseC)
+        Call Get_cArray('Unique Basis Names',BsLbl,LENIN8*nBaseC)
         Call Primo(Snack,PrOcc,PrEne,Dummy,Dummy,1,nBaseC
      &         ,iOrb(2),BsLbl,Dummy,Dummy,Work(ipPPP),3)
         Call GetMem('PrCMO','Free','Real',ipPPP,nBaseC*iOrb(2))

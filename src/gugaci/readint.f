@@ -395,10 +395,11 @@ c....end of readtwoeint
       implicit REAL*8 (a-h,o-z)
 #include "maxbfn.fh"
       parameter (maxmolcasorb=maxbfn)
+      parameter (lenin8=6+8)
       dimension ncone(64),nbas(8),norb(8),nfro(8),
      *          ndel(8)
       dimension indx_idisk(64)
-      character bsbl(2*4*maxmolcasorb)*1
+      character bsbl(maxmolcasorb)*(lenin8)
 
       indx_idisk=0
       idisk=0
@@ -409,7 +410,7 @@ c....end of readtwoeint
       call idafile(nft,2,norb,8,idisk)
       call idafile(nft,2,nfro,8,idisk)
       call idafile(nft,2,ndel,8,idisk)
-      lenrd=2*4*maxmolcasorb
+      lenrd=lenin8*maxmolcasorb
       call cdafile(nft,2,bsbl,lenrd,idisk)
 
 c#ifdef debug

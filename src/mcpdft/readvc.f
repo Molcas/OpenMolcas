@@ -240,7 +240,7 @@ C Local print level (if any)
         lll = MAX(lll,mxSym)
         lll = MAX(lll,mxOrb)
         lll = MAX(lll,RtoI)
-        lll = MAX(lll,4*2*mxOrb/ItoB)
+        lll = MAX(lll,LENIN8*mxOrb/ItoB)
         lll = MAX(lll,2*72/ItoB)
         lll = MAX(lll,RtoI*mxRoot)
         CALL GETMEM('JOBOLD','ALLO','INTEGER',lJobH,lll)
@@ -250,7 +250,7 @@ C Local print level (if any)
      &                      iWork(lJobH),iWork(lJobH),iWork(lJobH),
      &                      iWork(lJobH),iWork(lJobH),iWork(lJobH),
      &                      mxSym,
-     &                      iWork(lJobH),4*2*mxOrb,iWork(lJobH),
+     &                      iWork(lJobH),LENIN8*mxOrb,iWork(lJobH),
      &                      iWork(lJobH),2*72,JobTit,72*mxTit,
      &                      iWork(lJobH),iWork(lJobH),
      &                      iWork(lJobH),iWork(lJobH),mxRoot,

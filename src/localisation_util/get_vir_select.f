@@ -17,7 +17,7 @@
       Real*8  CMO(*), XMO(*), Eorb(*), Smat(*)
       Integer irc, nSym, nActa, mOrb(nSym), nBas(nSym), n_OK(nSym)
       Integer ind_V(*)
-      Character*(LENIN4)  Name(*)
+      Character*(LENIN8)  Name(*)
       Character*(LENIN) NamAct(nActa)
       Logical ortho
 #include "WrkSpc.fh"

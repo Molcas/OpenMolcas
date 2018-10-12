@@ -90,6 +90,7 @@
 #ifdef _HDF5_
       End If
 #endif
+      refwfn_id = -1
       refwfn_active = .False.
       End SUbroutine
 
@@ -161,7 +162,7 @@ C TITLE2. That one is printed out in PRINP_CASPT2.
         CALL WR_RASSCF_Info(refwfn_id,2,iAd15,
      &                      NACTEL,ISPIN,REF_NSYM,LSYM,
      &                      NFRO,NISH,NASH,NDEL,REF_NBAS,8,
-     &                      NAME,4*2*MXORB,NCONF,HEADER,144,
+     &                      NAME,LENIN8*MXORB,NCONF,HEADER,144,
      &                      TITLE,4*18*mxTit,POTNUC,
      &                      LROOTS,NROOTS,IROOT,MXROOT,NRAS1,
      &                      NRAS2,NRAS3,NHOLE1,NELE3,IFQCAN,

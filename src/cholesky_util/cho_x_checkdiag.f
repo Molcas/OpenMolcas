@@ -238,7 +238,7 @@ C     --------------
 #include "choorb.fh"
 #include "choptr.fh"
 #include "WrkSpc.fh"
-      Character*(LENIN4)  Name(maxbfn)
+      Character*(LENIN8)  Name(maxbfn)
       Character*(LENIN)  ctmp1, ctmp2
       Real*8 Err(4)
 
@@ -247,7 +247,7 @@ C     --------------
 ************************************************************************
 
 
-      Call Get_cArray('Unique Basis Names',Name,LENIN4*nBasT)
+      Call Get_cArray('Unique Basis Names',Name,LENIN8*nBasT)
 
       Do krs=1,nnBstRT(1)
          ia = iRS2F(1,krs)

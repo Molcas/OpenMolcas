@@ -46,7 +46,7 @@ c      Parameter ( MxAtom  = 2000 )
 * Character data.                                                      *
 *----------------------------------------------------------------------*
       Character*(LENIN) Name(MxAtom)
-      Character*(LENIN4) Label(MxBasis)
+      Character*(LENIN8) Label(MxBasis)
       Common /chrgo/ Name,Label
 *----------------------------------------------------------------------*
 * Logical data.                                                        *

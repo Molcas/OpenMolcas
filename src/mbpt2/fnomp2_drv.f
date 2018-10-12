@@ -226,12 +226,12 @@ C
       STrDF=0.0d0
       STrDP=0.0d0
       Do iSym=1,nSym
-        write(6,'(4X,I4,15X,G12.6,6X,G12.6)') iSym,TrDF(iSym),TrDP(iSym)
+        write(6,'(4X,I4,14X,G13.6,5X,G13.6)') iSym,TrDF(iSym),TrDP(iSym)
         STrDF=STrDF+TrDF(iSym)
         STrDP=STrDP+TrDP(iSym)
       End Do
       write(6,*)'------------------------------------------------------'
-      write(6,'(A,G12.6,6X,G12.6)')'   Sum :               ',STrDF,STrDP
+      write(6,'(A,G13.6,5X,G13.6)')'   Sum :              ',STrDF,STrDP
       write(6,*)'------------------------------------------------------'
 *
 *     Update the nSsh, nDel for FNO-MP2

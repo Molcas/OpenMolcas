@@ -772,6 +772,7 @@ INT c_getmem_kern(INT *op, mentry *tmp, INT *offset, INT *len) {
     switch (*op) {
         case PINN:
             allo=0;
+            /* fall through */
         case ALLO:
             tmp->offset=(allo)?UNDEF_MEM:PINNED_MEM; /* Just to be sure that we are not going to allocate the PINNED memory for wrong reasons */
 /* Checking for memory leaks     */
@@ -859,9 +860,8 @@ INT c_getmem_kern(INT *op, mentry *tmp, INT *offset, INT *len) {
             if(MlM.nmentry==0) {
                break;
             } else {
-#ifdef _DEBUG_MEM_
+#if defined(_DEBUG_MEM_) || defined(_BIGOT_)
                printf("MEMORY ERROR: some memory allocations are not released!\n");
-               list_MlM(&MlM,MDATA);
                abort();
 #else
                printf("MEMORY WARNING: some memory allocations are not released!\n");

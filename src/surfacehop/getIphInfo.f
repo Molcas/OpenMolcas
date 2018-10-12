@@ -21,7 +21,7 @@
       IAD15=IADR15(1)
       CALL WR_RASSCF_Info(JOBIPH,2,IAD15,NACTEL,ISPIN,NSYM,LSYM,
      &            NFRO,NISH,NASH,NDEL,NBAS,MxSym,
-     &            NAME,4*2*mxOrb,NCONF,HEADER,2*72,
+     &            NAME,LENIN8*mxOrb,NCONF,HEADER,2*72,
      &            TITLE,4*18*mxTit,POTNUC,LROOTS,NROOTS,
      &            IROOT,MxRoot,NRS1,NRS2,NRS3,
      &            NHOLE1,NELEC3,IPT2,WEIGHT)

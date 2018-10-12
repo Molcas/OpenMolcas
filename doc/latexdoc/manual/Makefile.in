@@ -1,0 +1,122 @@
+Revision = $Revision 7.9 $
+#======================================================================
+#
+# Makefile.in to build MOLCAS user's guide
+# @AutoGen@
+#
+#----------------------------------------------------------------------
+#
+# Author:  Per-Olof Widmark
+#          Theoretical Chemistry
+#          Lund University, Sweden
+# Written: June 2000
+# History: Modified A.Gaenko 2004
+#          Modified V.Veryazov 2008
+#----------------------------------------------------------------------
+#
+# Copyright: Author reserves all rights
+#
+#======================================================================
+#
+# Various macros
+#
+VERSION   = $(shell echo "${REVISION}" | awk '{ print $2 }')
+SHELL     = @SH@
+MOLCASDIR    = ../..
+PDFLATEX  = pdflatex
+LATEX     = latex
+DVIPS     = dvips
+BIBTEX    = bibtex
+MAKEINDEX = makeindex
+EPSTOPDF  = epstopdf
+TEXINPUTS =
+RM        = @RM@ -f
+CAT       = @CAT@
+MV        = @MV@
+CP        = @CP@
+GREP      = @GREP@
+FIND      = @FIND@
+IG        = 'installation.guide'
+UG        = 'users.guide'
+TUT       = 'tutorials'
+#
+# Reset locale settings to "C"
+#
+#-----------------------------------------------------------------------
+OLD_LC_ALL = ${LC_ALL}
+OLD_LANG = ${LANG}
+LC_ALL = C
+LANG = C
+export OLD_LC_ALL OLD_LANG LC_ALL LANG
+#-----------------------------------------------------------------------
+#
+# Sources
+#
+TEXSRC    = ${shell ls [a-z]*.tex | ${GREP} -v index.tex} ${shell ls ${IG}/[a-z]*.tex} \
+            ${shell ls ${UG}/[a-z]*.tex} ${shell ls ${TUT}/[a-z]*.tex}
+EPSSRC = ${shell ${FIND} . -name '*.eps' -type f}
+STYSRC = molcas.sty
+BIBSRC = molcas.bib
+EXTSRC = ${MOLCASDIR}/data/prgms.cntrl \
+         ${MOLCASDIR}/cfg/Linux-x86.cfg
+EXTLOC = $(notdir ${EXTSRC})
+SRC    = ${TEXSRC} ${EPSSRC} ${STYSRC} ${BIBSRC}
+DOC    = manual.ps
+PDF    = manual.pdf
+LOG    = manual.log
+#
+# Dependencies
+#
+default: ps
+
+ps:	extloc ${DOC}
+
+pdf:	extloc ${PDF}
+
+${DOC}: ${SRC}
+	@echo "Building databases..."
+	@molcas mkhelp
+	@molcas extract
+	@molcas mkdocs
+	@echo >${LOG}
+	echo y | ${LATEX} manual >>${LOG} 2>>${LOG}
+	${BIBTEX} manual >>${LOG} 2>>${LOG}
+	echo y | ${LATEX} manual >>${LOG} 2>>${LOG}
+	${MAKEINDEX} -o index.tex manual >>${LOG} 2>>${LOG}
+	echo y | ${LATEX} manual >>${LOG} 2>>${LOG}
+	${DVIPS} -o manual.ps manual >>${LOG} 2>>${LOG}
+extloc:
+	@(for name in ${EXTSRC}; do \
+	localname=`basename $$name` ;\
+	${CAT} ${IG}/beginsource.txt >  ${IG}/$$localname ;\
+	${CAT} $$name          >> installation.guide/$$localname ;\
+	${CAT} ${IG}/endsource.txt   >> ${IG}/$$localname ;\
+	done)
+
+${PDF}:	${SRC}
+	@echo >${LOG}
+	@for name in ${EPSSRC}; do ${EPSTOPDF} $$name; done
+	echo y | ${PDFLATEX} manual >>${LOG} 2>>${LOG}
+	${BIBTEX} manual >>${LOG} 2>>${LOG}
+	echo y | ${PDFLATEX} manual >>${LOG} 2>>${LOG}
+	${MAKEINDEX} -o index.tex manual >>${LOG} 2>>${LOG}
+	echo y | ${PDFLATEX} manual >>${LOG} 2>>${LOG}
+
+clean:
+	${RM} *.log *.dvi *.aux *.toc *.blg *.idx *.ilg *.ind *.lot *.lof *.bbl \
+	${IG}/*.aux ${UG}/*aux ${TUT}/*.aux \
+	${IG}/*.cntrl ${IG}/*.prgm ${IG}/*.cfg
+#	-mv -f ${PDF} ${PDF}.precious 2>/dev/null
+#	${FIND} . -name '*.pdf' -exec ${RM} {} \;
+#	-mv -f ${PDF}.precious ${PDF} 2>/dev/null
+veryclean: clean
+	${RM} Makefile index.tex
+	${RM} -r ../samples/
+distclean: veryclean
+	${RM} ${DOC} ${PDF}
+	${RM} -r ../samples/
+	${RM} -r ../booklet/
+Makefile: Makefile.in.in
+	cd ${MOLCASDIR}; ./configure -makefiles
+.PHONY: default extloc clean veryclean distclean ps pdf
+.PRECIOUS: Makefile

@@ -28,6 +28,7 @@ void molcas_sighandler (int signo) {
         case SIGALRM:
                 rc = _RC_TIMEOUT_;
                 write_rc(&rc);
+                printf("Maximum execution time reached\n");
                 exit(signo);
                 break;
         case SIGINT:

@@ -24,7 +24,6 @@
 *              RecPrt                                                  *
 *              DaXpY   (ESSL)                                          *
 *              DDot_   (ESSL)                                          *
-*              DGeICD  (ESSL)                                          *
 *              DScal   (ESSL)                                          *
 *              DGEMM_  (ESSL)                                          *
 *              QExit                                                   *
@@ -54,7 +53,6 @@ c      Logical DoCholesky
       Logical Run_MCLR
       Character*80  KWord, Key
       Integer iSym(3), iTemp(3*mxdc)
-      Real*8 Det(2)
       Data xyz/'x','y','z'/
 *
       Call QEnter('InputH')
@@ -370,8 +368,8 @@ c      EndIf
  10   Continue
 *
       Write (6,*)
-      Write (6,'(20X,A,E8.3)')
-     &  ' Threshold for contributions to the gradient or Hessian: ',
+      Write (6,'(20X,A,E10.3)')
+     &  ' Threshold for contributions to the gradient or Hessian:',
      &   CutInt
       Write (6,*)
 *
@@ -737,13 +735,7 @@ c      EndIf
 *
 *        Compute the inverse of the T matrix
 *
-         nAux = 100*nTR
-         iOpt = 1
-         Call GetMem('Aux','Allo','Real',ipAux,nAux)
-         Call DGeICD(Work(ipTmp),nTR,nTR,iOpt,rcond,
-     &               det,Work(ipAux),nAux)
-         Call GetMem('Aux','Free','Real',ipAux,nAux)
-*        Write (*,*) ' rcond=',rcond
+         Call MatInvert(Work(ipTmp),nTR)
          If (IPrint.ge.99)
      &      Call RecPrt(' The T-1 matrix',' ',Work(ipTmp),nTR,nTR)
          Call DScal_(nTR**2,-One,Work(ipTmp),1)

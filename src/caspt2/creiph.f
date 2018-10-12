@@ -75,7 +75,7 @@ C to JOBMIX, we use the same TOC array, IADR15.
       CALL WR_RASSCF_INFO(JOBMIX,1,iAd15,
      &                    NACTEL,ISPIN,NSYM,LSYM,
      &                    NFRO,NISH,NASH,NDEL,NBAS,8,
-     &                    NAME,4*2*MXORB,NCONF,HEADER,144,
+     &                    NAME,LENIN8*MXORB,NCONF,HEADER,144,
      &                    TITLE,4*18*MXTIT,POTNUC,
      &                    LROOTS,NROOTS,IROOT,MXROOT,NRAS1,
      &                    NRAS2,NRAS3,NHOLE1,NELE3,IFQCAN,

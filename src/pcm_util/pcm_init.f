@@ -110,12 +110,11 @@
 *---- Define PCM matrix: the inverse is stored in ip_DM
 *
       nTs2 = nTs * nTs
-      LenScr = 2 * nTs
+c     LenScr = 2 * nTs
       Call GetMem('SMat','Allo','Real',ip_SM,nTs2)
       Call GetMem('SDMat','Allo','Real',ip_SDM,nTs2)
       Call GetMem('TMat','Allo','Real',ip_TM,nTs2)
       Call GetMem('RMat','Allo','Real',ip_RM,nTs2)
-      Call GetMem('Scr','Allo','Real',ip_Scr,LenScr)
       If (NonEq) Then
          Eps_=EpsInf
       Else
@@ -124,9 +123,7 @@
       Call MatPCM(nTs,Eps_,Conductor,iWork(ip_ISph),
      &            Work(ip_Sph), Work(ip_Tess),
      &            Work(ip_DM),Work(ip_SM),Work(ip_SDM),
-     &            Work(ip_TM),Work(ip_RM),
-     &            Work(ip_Scr),LenScr)
-      Call GetMem('Scr','Free','Real',ip_Scr,LenScr)
+     &            Work(ip_TM),Work(ip_RM))
       Call GetMem('RMat','Free','Real',ip_RM,nTs2)
       Call GetMem('TMat','Free','Real',ip_TM,nTs2)
       Call GetMem('SDMat','Free','Real',ip_SDM,nTs2)

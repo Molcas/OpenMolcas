@@ -140,7 +140,7 @@ C     Convert coordinates from Angstrom to Bohr
 C
       call dscal_(3*natom,a2bohr,xyz,1)
 
- 101  FORMAT(3(E20.14,1X),A)
+ 101  FORMAT(3E21.14,A)
  102  FORMAT(6F12.7)
 
       RETURN

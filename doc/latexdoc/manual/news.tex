@@ -1,0 +1,270 @@
+%! news.tex $ this file belongs to the Molcas repository $*/
+
+\section{New features and updates}
+
+Below is presented a list of the major new features of \molcas. 
+These features comprise a number of new codes and
+introduction of new methods, but also considerable updates of many of the
+programs in \molcas. We keep some history, so that people who are using older
+versions of \molcas\ can get a feeling for what has happened on later versions
+
+New features in 8.0:
+\begin{itemize}
+%%==============================================================================
+\item General improvements:
+\begin{itemize}
+\item includes major bug fixes;
+\item enhanced performance;
+\item better parallelization;
+\item better support for the Intel, and GCC compilers;
+\end{itemize}
+\item New codes and major updates:
+\begin{itemize}
+\item MC-PDFT combines multiconfigurational wavefunctions with density functional theory to recover both static and dynamical correlation energy;
+\item GASSCF allows for more flexibility in choosing the active space;
+\item EMBQ is general purpose embedding technique;
+\item FALCON is fragment-based approach for computing an electronic energy of the large systems;
+\item GEO/HYPER module for constrained multi-fragment geometry optimisation in internal coordinates;
+\item enhanced I/O via the Files In Memory technology;
+\item SINGLE\_ANISO code received several important updates:
+    \begin{itemize}
+       \item CRYS: extraction of the parameters of the multiplet-specific crystal field for lanthanides;
+       \item UBAR: construction of the blocking barriers of single-molecule magnets;
+       \item ABCC: magnetic and anisotropy axes are given in the crystallographic $abc$ system;
+    \end{itemize}
+\end{itemize}
+\item New features in existing codes:
+\begin{itemize}
+\item Relativistic exact decoupling (X2C/BSS/infinite-order DKH);
+\item Local X2C/BSS/infinite-order DKH;
+\item RICD analytical gradients are available for the MBPT2, and CASSCF methods;
+\item auto-segmentation in CD-based coupled cluster CHCC and CHT3 modules;
+\item Orbital-free density embedding;
+\item more robust and efficient SLAPAF module;
+\item enhanced EMIL functional;
+\end{itemize}
+\item Installation and tools:
+\begin{itemize}
+\item first release of the Global Arrays free MOLCAS; a new parallel framework of MOLCAS requires only MPI-2 library;
+\item better support for Mac OS X (including the both serial and parallel installations);
+\end{itemize}
+\end{itemize}
+
+%New features in 7.6:
+%\begin{itemize}
+%%==============================================================================
+%\item Bug fixing release
+%\item Short guide for Molcas
+%\item GUI-ready release
+%\end{itemize}
+%
+%
+%New features in 7.4:
+%\begin{itemize}
+%%==============================================================================
+%\item New codes and major updates:
+%\begin{itemize}
+%\item There is a new set of coupled cluster codes added.
+%\item The M06 DFT functional have been implemented.
+%\item There are added constraints in \program{slapaf}.
+%\item New method for transition state search and reaction coordinate analysis.
+%\end{itemize}
+%%==============================================================================
+%\item Performance enhancements:
+%\begin{itemize}
+%\item
+%\end{itemize}
+%%==============================================================================
+%\item New features in existing codes:
+%\begin{itemize}
+%\item There are improvements in the capabilities of the emil input.
+%\item It is now possible to specify the actual name of the orbital
+%  input files in modules \program{SCF} and \program{GRID\_IT}.
+%\end{itemize}
+%%==============================================================================
+%\item Changes in usage of the package:
+%\begin{itemize}
+%\item You can now get properties broken down by orbital contributions
+%  by setting environment variable.
+%\end{itemize}
+%%==============================================================================
+%\item Installation and tools
+%\begin{itemize}
+%\item You can now tell \molcas\ at configuration time to use an externally
+%  installed version of Global Arrays.
+%\item There are prebuilt versions of the GUI that can be installed in a very
+%  simple manner.
+%\item The default compiler on linux system is now gfortran.
+%\end{itemize}
+%%==============================================================================
+%\end{itemize}
+%
+%New features in 7.2
+%\begin{itemize}
+%
+%\item New codes and major updates:
+%
+%\begin{itemize}
+%\item pre-release version of GUI for input generation and \molcas\ job submition (MING).
+%\item Module Seward has been split into Gateway (set up of molecular system) 
+%and Seward itself (computation of integrals).
+%\item Major improvements in runtime settings for the package, and new flags for \molcas\ command
+%\item New manual for novice \molcas\ users
+%\end{itemize}
+%
+%
+%\item Performance enhancements:
+%\begin{itemize}
+%\item A new version of GA has been included. 
+%\item Default integral thresholds are now changed to 1.0D-10.
+%\item RI code has been improved
+%\end{itemize}
+%
+%
+%
+%\item New features in existing codes:
+%\begin{itemize}
+%\item The exchange-hole dipole moments in \program{LoProp} code
+%\item Better handling of supersymmetry in \program{RASSCF} code
+%\item Localized natural orbitals in \program{Localisation} code
+%\item BSSE calculations in \program{SCF} code
+%\item A second finite nuclei charge distribution model, the so-called modified Gaussian charge distribution,
+%has been implemented
+%\item Frequency calculations for \program{MBPT2}
+%\item The \program{ESPF} module can be used in order to compute electrostatic potential derived charges
+%\item Frozen Natural Orbital approach in \program{CASPT2}
+%\item On-the-fly generation of RI auxiliary basis set
+%\item Flexible selection of orbitals in \program{GRID\_IT}
+%\item New features in GV code: visualization of molden files, selection of atomic groups, symmetry operations
+%\end{itemize}
+%
+%
+%
+%\item Changes in usage of the package:
+%\begin{itemize}
+%\item No shell scripts are needed to run \molcas. 
+%\item New EMIL commands for file handling
+%\item Control of the print level of the code
+%\end{itemize}
+%
+%
+%\item Installation and tools
+%\begin{itemize}
+%\item New tools for memory and I/O profiling
+%\item New configuration files has been included
+%\end{itemize}
+%\end{itemize}
+%
+%
+%New features in 7.0
+%\begin{itemize}
+%
+%\item New codes and major updates:
+%
+%\begin{itemize}
+%\item CHOLESKY - a new approach to ab initio and first principle QM methods free
+%from explicit two-electron integrals. SCF/DFT, RASSCF, RASSI and MP2 energy
+%calculation can now be done with considerable improvement of performance
+%and with controlled accuracy of the results.
+%\item The 1-center approximation of the Cholesky decomposition, 1-CCD
+%\item Resolution of Identity (RI)/ Density fitting (DF) scheme for SCF, DFT,
+%CASSCF, RASSI and CASPT2
+%\item The \program{CASPT2} module can be used in connection with Cholesky and RI/DF approximations,
+%allowing for the treatment of larger systems
+%\item Update of guessorb code
+%\item Electrostatic potential fitted (ESPF) QM/MM interface for SCF, DFT,
+%CASSCF, CASPT2, and CC. ESPF analytic gradients for SCF, DFT, and CASSCF.
+%\item Gradients for 'pure' DFT for the 1-CCD, and RI/DF approximations
+%\item Scaled Opposite-Spin (SOS) and Scaled Spin Component (SCS) MP2 are implemented when
+%using Cholesky or RI/DF approximation.
+%\item NEMO program: fitting of potential surfaces, energy optimizations, potential curves 
+%and simulation parameters.
+%\item interface to MOLSIM code
+%\item Major update for GUI code \program{GV}, with a possibility to edit coordinates and
+%      visually select active space for RASSCF calculations.
+%\item A new program, \program{EXPBAS}, has been introduced that allows expanding an
+%orbital file from a small to a larger basis set.
+%\item Several different procedures for constructing localized orbitals have been
+%implemented. Among them is one based on a Cholesky decomposition of the density
+%matrix.
+%\end{itemize}
+%
+%
+%\item Performance enhancements:
+%\begin{itemize}
+%\item Use of external blas libraries: lapack, GotoBLAS, Atlas, Intel MKL, ACML
+%\item New version of GA has been included. 
+%\item Improved diagonalization routines and improved convergence in scf and rasscf
+%\item Some size limits in \program{RASSCF} and \program{CASPT2} have been increased or eliminated.
+%\item Automatic generation of starting orbitals for arbitrary valence and
+%ECP basis sets.
+%\end{itemize}
+%
+%
+%
+%\item New features in existing codes:
+%\begin{itemize}
+%\item Natural orbitals for UHF calculations. Can, for example be used as
+%starting orbitals for \program{RASSCF}.
+%\item Natural Bond Order (NBO) based on the LoProp partitioning.
+%\item Arbitrary order Douglas-Kroll-Hess (DKH) transformation to include
+%scalar relativistic effects.
+%\item Picture-change-corrected electric potential, electric field, and
+%electric field gradient properties.
+%\item Automatic generation of rydberg orbitals in genano.
+%\item RASSI can compute g-tensors.
+%\item CASPT2 is able to run with Cholesky vectors instead of integrals.
+%\item Transverse constraint for geometry optimizations.
+%\item Numerical gradients for several methods.
+%\item Numerical IR intensities for Numerical Hessian.
+%\item Computation of charge capacitances for bonds using Loprop.
+%\item Localized exchange-hole dipole moments in Loprop.
+%\item Possibility to use loprop with user-defined densities.
+%\item Evaluation of transition density between two states.
+%\item Mulliken type multicenter multipole expansion and localized 
+%      polarizablilites based on the uncoupled HF approach.
+%\item Several improvements and enhancements in the visualization program GV.
+%\item The ANO-RCC basis set is now complete covering all atoms H-Cm.
+%\item The GUESSORB facility is now included in \program{SEWARD}, which automatically
+%produces starting orbitals for arbitrary basis sets.
+%\end{itemize}
+%
+%
+%
+%\item Changes in usage of the package:
+%\begin{itemize}
+%\item Improvements in \molcas\ input language.
+%\item \molcas\ job can be submitted without shell scripts.
+%\item The programs are making extensive use of the runfile to simplify
+%the input and eliminate unnecessary inputs.
+%\item automatic saving of output files (molden files, and orbital files)
+%\item The starting orbitals for \program{RASSCF} can be taken from a number of sources
+%   (Guessorb, runfile, etc.), and this is done in a semi-intelligent
+%   way unless specified in user input.
+%\item simplified RASSCF input: number of
+%   orbitals, spin, etc can sometimes be deduced by the program from
+%   information available on the runfile or an orbital file.
+%   One can use CHARGE instead of the number of active electrons.
+%\item If used in multiple runs in one job, the RASSCF automatically
+%   selects suitable individual names for the JOBIPH files. The choice
+%   can be overridden by keyword input, but if not, it matches the
+%   default selection of JOBIPH names in \program{RASSI}.
+%\item RASSI can use default selection of JOBIPH names, when used together with multiple
+%   RASSCF runs in one job.
+%\item RASSCF can use natural orbitals from a preceeding UHF calculation as input
+%orbitals.
+%\end{itemize}
+
+
+%\item Installation and tools
+%\begin{itemize}
+%\item improved installation procedure, with possibility to select compilers,
+%BLAS libraries, and parallel environment.
+%\item Configuration files for new compilers, including gfortran, g95, SunStudio
+%\item Configuration files for OpenMP parallelization.
+%\item Tools for extracting information from RUNFILE and JOBIPH files.
+%\end{itemize}
+
+%\end{itemize}
+
+

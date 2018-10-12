@@ -226,8 +226,8 @@ c         print *,'Elumo',Elumo
          Else
             If (jPrint.ge.2) Then
                Write(6,*)
-               Write(6,'(6X,2A,E10.4,A)')'All orbitals with orbital',
-     &              ' energies smaller than ',ThrEne,' are printed'
+               Write(6,'(6X,2A,E11.4,A)')'All orbitals with orbital',
+     &              ' energies smaller than',ThrEne,' are printed'
             End If
          End If
          ThrOcc = -99999.0d+00

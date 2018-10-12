@@ -49,7 +49,7 @@
       Do iSym = 1, nSym
          nBas_tot=nBas_tot+nBas(iSym)
       End Do
-      Call Get_cArray('Unique Basis Names',Name,(LENIN4)*nBas_tot)
+      Call Get_cArray('Unique Basis Names',Name,(LENIN8)*nBas_tot)
 *----------------------------------------------------------------------*
 *     Exit                                                             *
 *----------------------------------------------------------------------*

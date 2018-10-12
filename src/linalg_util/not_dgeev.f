@@ -37,7 +37,7 @@
          Call Abend()
       End If
       iErr=0
-      Call XEIGEN(iOpt,lda,n,a,w,w1,z,aux,aux(iOff),iErr)
+      Call XEIGEN(iOpt,lda,n,a,w,w1,z,iErr)
       If (iErr.ne.0) Then
          Write (6,*) ' not_DGeEV: iErr=/= 0!'
          Call Abend()

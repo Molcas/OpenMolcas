@@ -27,8 +27,11 @@
             Do l=1,nBas
               TMij=TM(i,j)
               TMkl=TM(k,l)
-              If(j.lt.l) Djl=Work(ip_D+l*(l-1)/2+j-1)
-              If(j.ge.l) Djl=Work(ip_D+j*(j-1)/2+l-1)
+              If(j.lt.l) Then
+                Djl=Work(ip_D+l*(l-1)/2+j-1)
+              Else
+                Djl=Work(ip_D+j*(j-1)/2+l-1)
+              EndIf
               TmpDensity=TmpDensity+TMij*TMkl*Djl
             EndDo
           EndDo

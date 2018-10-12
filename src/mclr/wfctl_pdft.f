@@ -53,7 +53,6 @@
       Real*8 rchc(mxroot)
 
       Integer ipFT99,iptemp5
-      itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *
       Call QEnter('WfCtl_SA')
 *----------------------------------------------------------------------*
@@ -293,6 +292,7 @@
       end do
       end if
 
+      Call GetMem('FockOt ','Free','Real',ipFMO1t,nTri)
       Call GetMem('FockO ','Free','Real',ipFMO1,ndens2)
       Call GetMem('FockT ','Free','Real',ipFMO2,n2dens)
 

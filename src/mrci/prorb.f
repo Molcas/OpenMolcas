@@ -15,6 +15,8 @@
 
 #include "mrci.fh"
       DIMENSION CNO(NCMO),OCC(NBAST)
+      CHARACTER*(LENIN8) CLEAN_BNAME
+      EXTERNAL CLEAN_BNAME
       WRITE(6,*)
       CALL XFLUSH(6)
       WRITE(6,*)'NATURAL ORBITALS IN AO BASIS. IN EACH SYMMETRY,'
@@ -40,9 +42,9 @@
       CALL XFLUSH(6)
          DO 30 IST=1,NPRT,NDIV
            IEND=MIN(NPRT,IST-1+NDIV)
-           WRITE(6,'(/5X,''ORBITAL'',10I8)') (I,I=IST,IEND)
+           WRITE(6,'(/5X,''ORBITAL'',6X,10I8)') (I,I=IST,IEND)
       CALL XFLUSH(6)
-           WRITE(6,'( 5X,''OCC.NO.  '',10F8.5)')
+           WRITE(6,'( 5X,''OCC.NO.'',8X,10F8.5)')
      *              (OCC(IEB+I),I=IST,IEND)
       CALL XFLUSH(6)
            WRITE(6,*)
@@ -50,9 +52,8 @@
            DO 20 I=1,NB
               JSMO=IEM+I+NB*(IST-1)
               JEMO=IEM+I+NB*(IEND-1)
-              WRITE(6,'(1X,I3,2X,2A,10F8.4)')
-     *                   I,NAME(IEB+I)(1:LENIN),
-     *                   NAME(IEB+I)(LENIN1:LENIN4),
+              WRITE(6,'(1X,I3,2X,A,10F8.4)')
+     *                   I,CLEAN_BNAME(NAME(IEB+I),LENIN),
      *                   (CNO(J),J=JSMO,JEMO,NB)
       CALL XFLUSH(6)
 20         CONTINUE

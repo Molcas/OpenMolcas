@@ -1,0 +1,253 @@
+% wfa.tex $ this file belongs to the Molcas repository $
+
+\section{\program{wfa}}
+\label{UG:sec:wfa}
+%%%<MODULE NAME="WFA">
+%%Description:
+%%%<HELP>
+%%+The WFA program of the molcas program system provides various
+%%+visual and quantitative wavefunction analysis methods.
+%%%</HELP>
+
+The \program{WFA} program of the \molcas\ program system provides various
+visual and quantitative wavefunction analysis methods.
+%Quantitative analysis methods are printed to the standard output, orbital coefficients are
+%written to the HDF5 file that is used for input and output, and input files
+%for the external TheoDORE program are created.
+It is based on the libwfa \cite{libwfa} wavefunction analysis library.
+The interface to \molcas\ is described in Ref. \cite{Molcas_libwfa}.
+
+The program computes natural transition
+orbitals (NTO) \cite{Martin2003, Plasser2014}, which provide a compact description of
+one-electron excited states. Natural difference orbitals (NDO) \cite{Plasser2014} can be
+computed to visualize many-body effects and orbital relaxation effects \cite{Plasser2014b}. A module for the
+statistical analysis of exciton wavefunctions is included \cite{Bappler2014, Plasser2015},
+which provides various quantitative descriptors to describe the excited states.
+Output is printed for the 1-electron transition density matrix (1TDM) and for the 1-electron difference density matrix (1DDM).
+A decomposition into local and charge transfer contributions on different chromophores
+is possible through the charge transfer number analysis \cite{Plasser2012}, which is
+available in connection with the external TheoDORE \cite{TheoDORE} program.
+
+\subsection{Installation}
+The \program{WFA} module is currently not installed by default.
+Its installation occurs via CMake.
+It requires a working HDF5 installation and access to the include files of the Armadillo C++ linear algebra library.
+In the current settings, external BLAS/LAPACK libraries have to be used.
+Use, e.g., the following commands for installation:
+
+\begin{inputlisting}
+FC=ifort cmake -D LINALG=MKL -D WFA=ON -D ARMADILLO_INC=../armadillo-7.300.0/include ../openmolcas/
+\end{inputlisting}
+
+\subsection{Dependencies}
+\label{UG:sec:wfa_dependencies}
+The \program{WFA} program requires HDF5 files, which are written by either
+\program{SCF}, \program{RASSCF}, or \program{RASSI}. In the case of \program{RASSI},
+the  \keyword{TRD1} keyword has to be activated.
+
+\subsection{Files}
+\label{UG:sec:wfa_files}
+
+\subsubsection{Input files}
+\begin{filelist}
+%------
+\item[WFAH5]
+All information that the \program{WFA} program needs is contained in this HDF5 file.
+The name can be adjusted with the \keyword{H5FIle} option.
+\end{filelist}
+
+\subsubsection{Output files}
+
+\begin{filelist}
+%------
+\item[WFAH5]
+The orbital coefficients of NOs, NTOs, and NDOs are written to the same HDF5 file that
+is also used for input.
+\item[*atomic.om]
+These are input files for the external TheoDORE program.
+\end{filelist}
+
+Extraction of the NOs, NTOs, and NDOs from the HDF5 file occurs with the external Molpy program. Call, e.g.:
+
+\begin{inputlisting}
+penny molcas.rassi.h5 --wfaorbs molden
+\end{inputlisting}
+
+\subsection{Input}
+\label{UG:sec:wfa_input}
+
+The input for the \program{WFA} module is preceded by:
+\begin{inputlisting}
+ &WFA
+\end{inputlisting}
+
+\subsubsection{Keywords}
+
+Basic Keywords:
+
+\begin{keywordlist}
+\item[H5FIle]
+%%Keyword:H5FIle <basic>
+%%+Specifies the name of the HDF5 file used for reading and writing
+%%+(e.g. $Project.scf.h5, $Project.rasscf.h5, $Project.rassi.h5).
+%%+You either have to use this option or rename the file of
+%%+interest to WFAH5.
+Specifies the name of the HDF5 file used for reading and writing
+(e.g. \file{\$Project.scf.h5}, \file{\$Project.rasscf.h5}, \file{\$Project.rassi.h5}).
+You either have to use this option or rename the file of
+interest to WFAH5.
+
+\item[REFState]
+%%Keyword:REFState <basic>
+%%+Index of the reference state for 1TDM and 1DDM analysis.
+Index of the reference state for 1TDM and 1DDM analysis.
+
+\item[WFALevel]
+%%Keyword:WFALevel <basic>
+%%+Select how much output is produced (0-4, default: 3).
+Select how much output is produced (0-4, default: 3).
+
+\end{keywordlist}
+
+Advanced keywords for fine grain output options and debug information:
+
+\begin{keywordlist}
+\item[MULLiken]
+%%Keyword:MULLiken <advanced>
+%%+Activate Mulliken population analysis.
+Activate Mulliken population analysis.
+
+\item[LOWDin]
+%%Keyword:LOWDin <advanced>
+%%+Activate Lowdin population analysis.
+Activate L\"owdin population analysis.
+
+\item[NXO]
+%%Keyword:NXO <advanced>
+%%+Activate NO, NTO, and NDO analysis.
+Activate NO, NTO, and NDO analysis.
+
+\item[EXCIton]
+%%Keyword:EXCIton <advanced>
+%%+Activate exciton and multipole analysis.
+Activate exciton and multipole analysis.
+
+\item[CTNUmbers]
+%%Keyword:CTNUmbers <advanced>
+%%+Activate charge transfer number analysis and creation of *.om files.
+Activate charge transfer number analysis and creation of \file{*.om} files.
+
+\item[H5ORbitals]
+%%Keyword:H5ORbitals <advanced>
+%%+Print the NOs, NTOs, and/or NDOs to the HDF file.
+Print the NOs, NTOs, and/or NDOs to the HDF file.
+
+\item[DEBUg]
+%%Keyword:DEBUg <advanced>
+%%+Print debug information.
+Print debug information.
+
+\item[ADDInfo]
+%%Keyword:ADDInfo <advanced>
+%%+Add info for molcas verify.
+Add info for \command{molcas verify}.
+\end{keywordlist}
+
+\subsubsection{Input example}
+\begin{inputlisting}
+ * Analysis of SCF job
+ &SCF \\
+
+ &WFA
+ H5file = $Project.scf.h5 \\
+
+ * Analysis of RASSCF job
+ * Reduced output: only charge transfer numbers
+ &RASSCF \\
+
+ &WFA
+ H5file = $Project.rasscf.h5
+ wfalevel = 0
+ ctnumbers \\
+
+ * Analysis of RASSI job, use the TRD1 keyword
+ * Second state as reference
+ &RASSI
+ TRD1 \\
+
+ &WFA
+ H5file = $Project.rassi.h5
+ Refstate = 2
+ 
+\end{inputlisting}
+
+\subsection{Output}
+\label{UG:sec:wfa_output}
+
+\subsubsection{State/difference density matrix analysis (\program{SCF}/\program{RASSCF}/\program{RASSI})}
+
+\verb+RASSCF analysis for state 2 (3) A+ or
+
+\verb+RASSI analysis for state R_2+
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+\textbf{Descriptor} & \textbf{Explanation} \\
+\hline
+\verb+n_u+ & Number of unpaired electrons $n_u=\sum_i\min(n_i, 2-n_i)$ \cite{Head-Gordon2003, Plasser2014}\\
+\verb+n_u,nl+ & Number of unpaired electrons $n_{u,nl}=\sum_i n_i^2(2-n_i)^2$ \\
+\verb+PR_NO+ & NO participation ratio $\mathrm{PR}_\mathrm{NO}$ \\
+\verb+p_D+ and \verb+p_A+ & Promotion number $p_D$ and $p_A$ \\
+\verb+PR_D+ and \verb+PR_A+ & D/A participation ratio $\mathrm{PR}_D$ and $\mathrm{PR}_A$ \\
+\verb+<r_h> [Ang]+ & Mean position of detachment density $\vec{d}_D$ \cite{Plasser2015}\\
+\verb+<r_e> [Ang]+ & Mean position of attachment density $\vec{d}_A$ \\
+\verb+|<r_e - r_h>| [Ang]+ &
+Linear D/A distance $\vec{d}_{D\rightarrow A} = \vec{d}_A - \vec{d}_D$ \\
+\verb+Hole size [Ang]+ &
+RMS size of detachment density $\sigma_D$ \\
+\verb+Electron size [Ang]+ &
+RMS size of attachment density $\sigma_A$ \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Transition density matrix analysis (\program{RASSI})}
+
+\verb+RASSI analysis for transiton from state 1 to 2 (Tr_1-2)+
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+\textbf{Output listing} & \textbf{Explanation} \\
+\hline
+\verb+Leading SVs+ & Largest NTO occupation numbers \\
+\verb+Sum of SVs (Omega)+ & $\Omega$, Sum of NTO occupation numbers \\
+\verb+PR_NTO+ & NTO participation ratio $\mathrm{PR}_\mathrm{NTO}$ \cite{Plasser2012}\\
+\verb+Entanglement entropy (S_HE)+ & $S_{H|E}=-\sum_i\lambda_i\log_2\lambda_i$ \cite{Plasser2016}\\
+\verb+Nr of entangled states (Z_HE)+ & $Z_{HE}=2^{S_{H|E}}$ \\
+\verb+Renormalized S_HE/Z_HE+ & Replace $\lambda_i\rightarrow \lambda_i/\Omega$\\
+\verb+omega+ & Norm of the 1TDM $\Omega$, single-exc. character \\
+\verb+<r_h> [Ang]+ & Mean position of hole $\langle\vec{x}_h\rangle_\mathrm{exc}$ \cite{Plasser2015}\\
+\verb+<r_e> [Ang]+ & Mean position of electron $\langle\vec{x}_e\rangle_\mathrm{exc}$ \\
+\verb+|<r_e - r_h>| [Ang]+ &
+Linear e/h distance $\vec{d}_{h\rightarrow e} = \langle\vec{x}_e - \vec{x}_h\rangle_\mathrm{exc}$ \\
+\verb+Hole size [Ang]+ &
+RMS hole size: $\sigma_h = (\langle\vec{x}_h^2\rangle_\mathrm{exc} - \langle\vec{x}_h\rangle_\mathrm{exc}^2)^{1/2}$ \\
+\verb+Electron size [Ang]+ &
+RMS elec.\ size: $\sigma_e = (\langle\vec{x}_e^2\rangle_\mathrm{exc} - \langle\vec{x}_e\rangle_\mathrm{exc}^2)^{1/2}$ \\
+\verb+RMS electron-hole separation [Ang]+ &
+$d_\mathrm{exc} = (\langle \left|\vec{x}_e - \vec{x}_h\right|^2\rangle_\mathrm{exc})^{1/2}$ \cite{Bappler2014}\\
+\verb+Covariance(r_h, r_e) [Ang^2]+ &
+$ \mathrm{COV}\left(\vec{x}_h,\vec{x}_e\right) = \langle\vec{x}_h\cdot\vec{x}_e\rangle_\mathrm{exc}
+        - \langle\vec{x}_h\rangle_\mathrm{exc}\cdot\langle\vec{x}_e\rangle_\mathrm{exc} $ \\
+\verb+Correlation coefficient+ &
+$ R_{eh} = \mathrm{COV}\left(\vec{x}_h,\vec{x}_e\right)/\sigma_h\cdot\sigma_e$\\
+\hline
+\end{tabular}
+\end{center}
+
+
+
+
+%%%</MODULE>

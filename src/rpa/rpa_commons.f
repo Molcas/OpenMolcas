@@ -91,8 +91,8 @@
       RPA_iUHF=iUHF
       End
 ************************************************************************
-      Integer Function RPA_LENIN4()
+      Integer Function RPA_LENIN8()
       Implicit None
 #include "Molcas.fh"
-      RPA_LENIN4=LENIN4
+      RPA_LENIN8=LENIN8
       End

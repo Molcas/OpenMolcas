@@ -99,7 +99,7 @@ cDIVNUO
        CALL WR_RASSCF_Info(JOBIPH,2,iAd15,
      &                     NACTEL,ISPIN,NSYM,LSYM,
      &                     NFRO,NISH,NASH,NDEL,NBAS,8,
-     &                     NAME,4*2*MXORB,
+     &                     NAME,LENIN8*MXORB,
      &                     NCONF,HEADER,2*72,
      &                     TITLE,4*18*MXTIT,POTNUC,
      &                     LROOTS,NROOTS,IROOT,MXROOT,NRAS1,

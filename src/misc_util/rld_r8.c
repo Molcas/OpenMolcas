@@ -45,6 +45,8 @@ void rld_r8(double in[], INT *n_in, double out[], INT *n_out, double *thr) {
    unsigned short          *ptr_16;
    INT      i,k,m,n,r,cnt;
 
+   (void)thr;
+
    if(0) {
       n=0;
       ptr_64=(unsigned long long int *)in;

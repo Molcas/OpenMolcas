@@ -316,7 +316,7 @@
         write(6,'(15X,A,ES13.6)') 'Energy difference: ',EDiff
         Label = ''
         If (EDiff_s.gt.One)
-     &      Write(Label,'(A,ES7.1,A)') ' (divided by ',EDiff_s,')'
+     &      Write(Label,'(A,ES8.1,A)') ' (divided by',EDiff_s,')'
         Label = 'Total derivative coupling'//Trim(Label)
         Call Allocate_Work(ipTmp,lDisp(0))
         call dcopy_(lDisp(0),Work(ipGrad),1,Work(ipTmp),1)
