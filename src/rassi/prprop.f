@@ -2459,7 +2459,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       Call DaClos(LuToM)
       If (.NOT.Do_SK) Call Free_O()
       Call Free_Work(ipR)
-      Call ClsSew()
+      Call ClsSew(1)
 *
 ************************************************************************
 *                                                                      *

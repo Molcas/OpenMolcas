@@ -1925,7 +1925,7 @@ c deallocating detorb... allocated in proc_inp.f used throughout the iterations
 
 *
 * release SEWARD
-      Call ClsSew
+      Call ClsSew(1)
 * ClsSew is needed for releasing memory used by integral_util, rys... which is allocated when MC-PDFT run is performed.
 
 *---  Finalize Cholesky information if initialized

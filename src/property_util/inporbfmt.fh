@@ -11,26 +11,29 @@
 * INPORB formatting parameters
 * to add a new version, increase version number and
 * add appropriate new Magic string and format descriptors
-      Integer, Parameter :: mxVer = 5
+      Integer, Parameter :: mxVer = 6
       Character(11) :: Magic(mxVer)
       Character(40) :: FMTORB(mxVer), FMTOCC(mxVer), FMTOCCHR(mxVer),
      &                 FMTENE(mxVer)
       Integer :: nDivOrb(mxVer), nDivOcc(mxVer), nDivOccHR(mxVer),
      &           nDivENE(mxVer)
       Integer, Parameter :: iVer10=1, iVer11=2, iVer20=3, iVer21=4,
-     &                      iVer22=5
+     &                      iVer22=5, iVer23=6
       DATA Magic     /'#INPORB 1.0','#INPORB 1.1',
-     &                '#INPORB 2.0','#INPORB 2.1','#INPORB 2.2'/
+     &                '#INPORB 2.0','#INPORB 2.1','#INPORB 2.2',
+     &                '#INPORB 2.3'/
       DATA FMTORB    /'(4E18.12)', '(4E18.12)',
      &                '(5(1X,ES21.14))', '(5(1X,ES21.14))',
-     &                '(5(1X,ES21.14))'/
-      DATA nDivOrb   / 4, 4, 5, 5, 5 /
+     &                '(5(1X,ES21.14))', '(5(1X,ES21.14))'/
+      DATA nDivOrb   / 4, 4, 5, 5, 5, 5 /
       DATA FMTOCC    /'(4E18.12)', '(4E18.12)',
-     &                '(10(1X,F7.4))', '(4E18.12)', '(5(1X,ES21.14))'/
-      DATA nDivOcc   / 4, 4, 10, 4, 5 /
-      DATA FMTOCCHR  /'', '', '', '(10(1X,F7.4))', '(10(1X,F7.4))'/
-      DATA nDivOccHR / 0, 0, 0, 10, 10 /
+     &                '(10(1X,F7.4))', '(4E18.12)', '(5(1X,ES21.14))',
+     &                '(5(1X,ES21.14))'/
+      DATA nDivOcc   / 4, 4, 10, 4, 5, 5 /
+      DATA FMTOCCHR  /'', '', '', '(10(1X,F7.4))', '(10(1X,F7.4))',
+     &                '(10(1X,F7.4))'/
+      DATA nDivOccHR / 0, 0, 0, 10, 10, 10 /
       DATA FMTENE    /'(4E18.12)', '(4E18.12)',
      &                '(10(1X,ES11.4))', '(10(1X,ES11.4))',
-     &                '(10(1X,ES11.4))'/
-      DATA nDivENE   / 4, 4, 10, 10, 10 /
+     &                '(10(1X,ES11.4))', '(10(1X,ES11.4))'/
+      DATA nDivENE   / 4, 4, 10, 10, 10, 10 /

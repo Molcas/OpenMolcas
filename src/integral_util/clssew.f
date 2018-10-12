@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1992, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine ClsSew
+      SubRoutine ClsSew(iFrom)
 ************************************************************************
 *                                                                      *
 * Object:                                                              *
@@ -38,6 +38,14 @@
 #include "setup.fh"
 #include "status.fh"
 *
+      if(iFrom.eq.0) then
+      iu=16
+      iu=isfreeunit(iu)
+      open(iu,file="ORB.std")
+      Call Koor2file(iu)
+      Call Basi2file(iu)
+      close(iu)
+      endif
       If (Seward_Status.eq.InActive) Return
 *
       Call Term_Ints(.False.,.True.)

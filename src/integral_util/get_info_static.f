@@ -48,6 +48,7 @@
 *
       Len = iiLoc(ixEnd)-iiLoc(ixStrt)
       Len = (Len+nbyte_i)/nbyte_i
+c      call izero(iwork(ixStrt),Len)
       Call Get_iArray('SewIInfo',ixStrt,Len) ! temporarely deactivated
       Call Get_iArray('nExp',nExp,Mx_Shll)
       Call Get_iArray('nBasis',nBasis,Mx_Shll)

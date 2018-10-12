@@ -429,7 +429,7 @@
 *
 *     Epilogue
 *
-      Call ClsSew
+      Call ClsSew(1)
       Call qExit('Alaska')
 *
       If (iPrint.ge.6) Then

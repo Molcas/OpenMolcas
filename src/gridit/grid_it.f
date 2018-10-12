@@ -113,7 +113,7 @@ c       close(unit=LuOrb)
 *
 999   continue
 
-      Call ClsSew()
+      Call ClsSew(1)
 *
 *     Epilogue
 *

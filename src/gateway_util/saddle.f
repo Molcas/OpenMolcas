@@ -222,7 +222,7 @@
                   Call mma_deallocate(iStab)
                   Call mma_deallocate(W)
                   Call mma_deallocate(Elm)
-                  Call ClsSew()
+                  Call ClsSew(1)
                   Call xQuit(iReturn)
                End If
             End If

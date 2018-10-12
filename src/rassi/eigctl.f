@@ -2427,7 +2427,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
       Call DaClos(LuToM)
       If (.NOT.Do_SK) Call Free_O()
       Call Free_Work(ipR)
-      Call ClsSew()
+      Call ClsSew(1)
 *
 ************************************************************************
 *                                                                      *

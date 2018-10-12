@@ -55,7 +55,7 @@
             irc=1
          End If
          If (Term_Sew) Then
-            Call ClsSew()
+            Call ClsSew(1)
          End If
          LDF_Status=LDF_Set-1
          Call LDF_SetStatusOnRunFile(LDF_Status)

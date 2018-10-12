@@ -87,6 +87,7 @@
       COMMON  / ADDcorr_L   / Do_Addc
       Logical Do_Tw
       COMMON  / Tw_corr_L   / Do_Tw
+      Common /Sagit/ isSagit
 #ifdef _EFP_
       Logical EFP_On
 #endif
@@ -98,6 +99,8 @@
       Character*128 OrbName
       Logical RF_On,Langevin_On,PCM_On
       Character*80 Note
+      Character*8 What
+      Character*16 Value
       Integer IndType(7,8)
       Real*8, Dimension(:), Allocatable:: Temp, CMOn, Etan, Epsn
       Real*8, Dimension(:,:), Allocatable:: GVFck, Scrt1, Scrt2, DMat,
@@ -117,6 +120,14 @@
       Call qEnter('Final')
 #endif
 *
+         call getenvf('MOLCAS_NOSAGIT',Value)
+         if(Value(1:1).eq.'Y'.or.Value(1:1).eq.'y') iSagit=0
+         if(iSagit.eq.1) then
+             What='COEKBI'
+         Else
+             What='COEI'
+         endif
+
       Call SorbCMOs(CMO,mBB,nD,EOrb,OccNo,mmB,nBas,nOrb,nSym)
 *
       Call Put_darray('SCF orbitals',CMO(1,1),mBB)
@@ -421,7 +432,7 @@ c make a fix for energies for deleted orbitals
             Note=Trim(Note)//' / '//Trim(KSDFT)
             iWFtype=3
          End If
-         Call WrVec_(OrbName,LuOut,'COEI',iUHF,nSym,nBas,nBas,
+         Call WrVec_(OrbName,LuOut,What,iUHF,nSym,nBas,nBas,
      &             CMO(1,1),Dummy, OccNo(1,1),Dummy,EOr(1,1),
      &     Dummy,IndType,Note,iWFtype)
 #ifdef _HDF5_
@@ -447,7 +458,7 @@ c make a fix for energies for deleted orbitals
             Note=Trim(Note)//' / '//Trim(KSDFT)
             iWFtype=5
          End If
-         Call WrVec_(OrbName,LuOut,'COEI',iUHF,nSym,nBas,nBas,
+         Call WrVec_(OrbName,LuOut,What,iUHF,nSym,nBas,nBas,
      &               CMO(1,1),CMO(1,2), OccNo(1,1),OccNo(1,2),
      &               EOr(1,1),EOr(1,2), IndType, Note,iWFtype)
 #ifdef _HDF5_
@@ -501,7 +512,7 @@ c make a fix for energies for deleted orbitals
          Else
             iWFtype=7
          End If
-         Call WrVec_(OrbName,LuOut,'COEI',0,nSym,nBas,nBas,
+         Call WrVec_(OrbName,LuOut,What,0,nSym,nBas,nBas,
      &               CMOn,Dummy,Etan,Dummy,Epsn,
      &               Dummy,IndType, Note,iWFtype)
 #ifdef _HDF5_
@@ -534,7 +545,7 @@ c make a fix for energies for deleted orbitals
 #ifdef _EFP_
      &     EFP_On()         .or.
 #endif
-     &     KSDFT.ne.'SCF'        ) Call ClsSew
+     &     KSDFT.ne.'SCF'        ) Call ClsSew (1)
 *
       If (Do_OFemb) Then
           Call GetMem('FMaux','Free','Real',ipFMaux,nBT)

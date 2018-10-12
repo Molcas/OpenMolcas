@@ -891,7 +891,7 @@ cvv this statement prevents overoptimization
       Call GetMem('CMO2','FREE','REAL',ipC2,nB**2)
       Call GetMem('VECTOR','FREE','REAL',ipV,nB**2)
  998  Close (MF)
- 999  Call ClsSew
+ 999  Call ClsSew(1)
 *
 C -------------FORMATS-------------
  100  format(I4,3x,F16.8)

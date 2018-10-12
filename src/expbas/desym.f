@@ -792,7 +792,7 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
       Call GetMem('CMO2','FREE','REAL',ipC2,nB**2)
       Call GetMem('VECTOR','FREE','REAL',ipV,nB**2)
 C 998  Close (MF)
- 999  Call ClsSew
+ 999  Call ClsSew(1)
 *
 C -------------FORMATS-------------
 c100  format(I4,3x,F16.8)
