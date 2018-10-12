@@ -258,17 +258,7 @@ c      EndDo
       Call GetMem('ANr','Allo','Inte',ipANr,tRealNUC)
       jj = ipANr
       Do 110 isAtom = 1, tRealNUC
-         ind = Int(Work(ii))
-         If (ind.le.0) Then
-*        If (ind.eq.0) Then
-*           Work(ii) = Zero
-*        Else If (ind.eq.-1) Then
-*           Work(ii) = 1.0D99
-            Work(ii) = 1.0D-10
-         Else
-            Work(ii) = rmass(ind)
-         End If
-         iWork(jj)=ind
+         iWork(jj)=Int(Work(ii))
          ii = ii + 1
          jj = jj + 1
 110   Continue
