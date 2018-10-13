@@ -122,6 +122,7 @@
 *
          call getenvf('MOLCAS_NOSAGIT',Value)
          if(Value(1:1).eq.'Y'.or.Value(1:1).eq.'y') iSagit=0
+         iSagit=0
          if(iSagit.eq.1) then
              What='COEKBI'
          Else

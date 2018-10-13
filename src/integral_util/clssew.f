@@ -38,7 +38,7 @@
 #include "setup.fh"
 #include "status.fh"
 *
-      if(iFrom.eq.0) then
+      if(iFrom.eq.2) then
       iu=16
       iu=isfreeunit(iu)
       open(iu,file="ORB.std")
