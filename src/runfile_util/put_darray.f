@@ -301,7 +301,7 @@ c mess started here :)
          RecLab(142)='ESFS_SINGLE     '
          RecLab(143)='LA Fact         '
          RecLab(144)='primitives      '
-         RecLab(145)='Isotopes        '
+         RecLab(145)='Isotopes        ' ! Atom masses in a.u.
          RecLab(146)='P2AO            '
          RecLab(147)='State Overlaps  '
          RecLab(148)='EFP_Coors       ' ! EFP fragment coordinates

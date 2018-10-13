@@ -28,19 +28,31 @@
 #include "constants2.fh"
       Real*8 rMass
 *
-      rMass=Zero
+      rMass=rMassx(nAtom,0)
+      Return
+      End
+*
+      Function rMassx(nAtom,nIso)
+      Use Isotopes
+      Implicit Real*8 (A-H,O-Z)
+#include "real.fh"
+#include "constants2.fh"
+      Real*8 rMassx
+      Integer nIso
+*
+      rMassx=Zero
       If (nAtom.gt.MaxAtomNum) Then
 *        Write (6,*) ' Weight for this atom is not listed!'
 *        Write (6,*) ' Mass set to 2.6 times atom number'
-         rMass = 2.6D0 * DBLE(nAtom) * uToau
+         rMassx = 2.6D0 * DBLE(nAtom) * uToau
       Else If (nAtom.eq.0) Then
 *        Write (6,*) ' Weight for this atom is meaningless!'
 *        Write (6,*) ' Mass set to 0.0'
       Else If (nAtom.lt.0) Then
-         rMass=1.0D99 * uToau
+         rMassx = 1.0D99 * uToau
       Else
-         isnx=0
-         Call Isotope(isnx,nAtom,rMass)
+         isnx=nIso
+         Call Isotope(isnx,nAtom,rMassx)
       End If
       Return
       End

@@ -32,7 +32,7 @@ C
       DIMENSION W1W1(N,N),W1E0W1(N,N)
 *
 C      CALL PRMAT(6,SMAT,N,0,'SMAT    ')
-      VELIT=CLight
+      VELIT=CLightAU
       ISIZE=N*(N+1)/2
       TOL=1.D-14
       PREA=1/(VELIT*VELIT)
