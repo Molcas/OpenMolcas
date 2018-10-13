@@ -35,7 +35,6 @@
       Character FMT*16
       Real*8 DInf(nDInf)
       Real*8, Dimension (:,:), Allocatable :: Centr
-      Real*8, Dimension (:), Allocatable :: Mass
 #include "angstr.fh"
 *                                                                      *
 ************************************************************************
@@ -49,7 +48,6 @@
 ************************************************************************
 *                                                                      *
       Call mma_allocate(Centr,3,mCentr)
-      Call mma_allocate(Mass,mCentr)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -130,11 +128,6 @@
                Centr(2,nc) = y1*Facy
                Centr(3,nc) = z1*Facz
                nchr=iAtmNr(jCnttp)
-               If (nchr.ge.0) Then
-                  Mass(nc) = rMass(nchr)
-               Else
-                  Mass(nc) = Zero
-               End If
                nchr=iAtmNr(jCnttp)
                if (nc.gt.8*mxdc) Then
                   Call WarningMessage(2,'lblxxx too small')
@@ -171,7 +164,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call mma_deallocate(Mass)
       Call mma_deallocate(Centr)
 *                                                                      *
 ************************************************************************
