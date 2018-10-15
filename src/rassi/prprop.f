@@ -62,7 +62,7 @@
       REAL*8 DLTTA,DLTT,Zstat,p_Boltz,Boltz_k,coeff_chi
       LOGICAL ISGS(NSS),IFANGM,IFDIP1,IFAMFI
       Dimension IMR(3),IMI(3),RMAGM(3),Chi(3)
-      INTEGER IFUNCT
+      INTEGER IFUNCT, SECORD(4)
       REAL*8 J2CM
       Real*8 P1(3), P2(3), kxe1(3), kxe2(3)
       INTEGER IOFF(8)
@@ -826,6 +826,9 @@ C printing threshold
 !
         CALL GETMEM('TOT2K','ALLO','REAL',LTOT2K,NSS**2)
         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LTOT2K),1)
+!
+! Checking if all are in
+        SECORD = 0
 
 * Magnetic-Dipole - Magnetic-Dipole transitions and
 * Spin-Magnetic-Dipole - Spin-Magnetic-Dipole transitions
@@ -1012,6 +1015,7 @@ C printing threshold
           WRITE(6,*)
          END IF
         END IF
+        SECORD(1) = 1
         END IF
 
 *Electric-Quadrupole Electric-Quadrupole transitions
@@ -1167,6 +1171,7 @@ C printing threshold
      &                 'Quadrupole transition strengths (SO states):')
          WRITE(6,*)
         END IF
+        SECORD(2) = 1
         END IF
 
 *Electric-Dipole Electric-Octupole transitions
@@ -1471,6 +1476,7 @@ C printing threshold
      &                     'transition strengths (SO states):')
          WRITE(6,*)
         END IF
+        SECORD(3) = 1
         END IF
 
 *Electric-Dipole - Magnetic-Quadrupole transitions and
@@ -1882,13 +1888,28 @@ C printing threshold
          WRITE(6,*)
          END IF
         END IF
-
+        SECORD(4) = 1
         END IF
 !
 ! Now write out the total
 !
 ! Add it to the total
 !
+      I2TOT = 0
+      DO I = 1, 4
+        IF(SECORD(I).EQ.1) THEN
+          I2TOT = I2TOT + 1
+        END IF
+      END DO
+       IF(I2TOT.GE.1) THEN
+         IF(SECORD(1).EQ.0)
+     &   WRITE(6,*) 'Magnetic-dipole - Magnetic-dipole not included'
+         IF(SECORD(2).EQ.0)
+     &   WRITE(6,*) 'Electric-Quadrupole - Electric-Quadrupole not in'
+         IF(SECORD(3).EQ.0)
+     &   WRITE(6,*) 'Electric-Dipole - Electric-Octupole not included'
+         IF(SECORD(4).EQ.0)
+     &   WRITE(6,*) 'Electric-Dipole - Magnetic-Quadrupole not included'
          i_Print=0
          DO ISS=1,IEND
           DO JSS=JSTART,NSS
@@ -1928,6 +1949,7 @@ C printing threshold
      &                  'vector (SO states):')
            WRITE(6,*)
          END IF
+       END IF
 ! release the memory again
          CALL GETMEM('TOT2K','FREE','REAL',LTOT2K,NSS**2)
 

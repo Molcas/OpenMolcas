@@ -35,7 +35,7 @@
       Integer  cho_x_gettol
       External cho_x_gettol
       Real*8 P1(3), P2(3), kxe1(3), kxe2(3) !, ZVAL(9) for debug
-      INTEGER IOFF(8)
+      INTEGER IOFF(8), SECORD(4)
       CHARACTER*8 LABEL
       Complex*16 T0(3), TIJ(3), TM1, TM2, E1A, E2A, E1B, E2B,
      &           IMAGINARY, T1(3)
@@ -937,6 +937,7 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
 *
 * CALCULATION OF THE QUADRUPOLE TRANSITION STRENGTHS
 *
+      SECORD = 0
 !
 ! Lazy mans version
 !
@@ -1052,6 +1053,8 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
      &                  'Magnetic-Dipole - Magnetic-Dipole '//
      &                  'transition strengths (spin-free states):')
         END IF
+! Magnetic-dipole - Magnetic-dipole calculated
+          SECORD(1) = 1
         END IF
 
 *Electric-Quadrupole Electric-Quadrupole transitions
@@ -1177,6 +1180,7 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
          Call CollapseOutput(0,
      &            'Quadrupole transition strengths (spin-free states):')
         END IF
+          SECORD(2) = 1
         END IF
 
 *Electric-Dipole Electric-Octupole transitions
@@ -1392,6 +1396,7 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
      &                     'Electric-Dipole - Electric-Octupole '//
      &                     'transition strengths (spin-free states):')
         END IF
+          SECORD(3) = 1
         END IF
 *
 *Electric-Dipole - Magnetic-Quadrupole transitions
@@ -1572,12 +1577,28 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
      &                  'Electric-Dipole - Magnetic-Quadrupole '//
      &                  'transition strengths (spin-free states):')
         END IF
+          SECORD(4) = 1
         END IF
 !
 ! Now write out the total
 !
 ! Add it to the total
 !
+      I2TOT = 0
+      DO I = 1, 4
+        IF(SECORD(I).EQ.1) THEN
+          I2TOT = I2TOT + 1
+        END IF
+      END DO
+       IF(I2TOT.GE.1) THEN
+         IF(SECORD(1).EQ.0)
+     &   WRITE(6,*) 'Magnetic-dipole - Magnetic-dipole not included'
+         IF(SECORD(2).EQ.0)
+     &   WRITE(6,*) 'Electric-Quadrupole - Electric-Quadrupole not in'
+         IF(SECORD(3).EQ.0)
+     &   WRITE(6,*) 'Electric-Dipole - Electric-Octupole not included'
+         IF(SECORD(4).EQ.0)
+     &   WRITE(6,*) 'Electric-Dipole - Magnetic-Quadrupole not included'
          iPrint=0
          DO ISS=1,NSS
           DO JSS=1,NSS
@@ -1618,6 +1639,7 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
      &                'for the second-order expansion of the wave ' //
      &                'vector (spin-free states):')
          End If
+       END IF
 ! release the memory again
          CALL GETMEM('TOT2K','FREE','REAL',LTOT2K,NSS**2)
 
