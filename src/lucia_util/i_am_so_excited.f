@@ -127,12 +127,12 @@
                 IF(IEL.EQ.IMAX_OCC(JBATCH,IGAS,1)-1)THEN
                   IF(JBATCH.EQ.1) THEN
                     NALPHAM1 = NALPHAM1 + 1
-                    MAXM1_E_GAS_ALPHA(1,NALPHA) = IGAS
-                    MAXM1_E_GAS_ALPHA(2,NALPHA) = ISPGP
+                    MAXM1_E_GAS_ALPHA(1,NALPHAM1) = IGAS
+                    MAXM1_E_GAS_ALPHA(2,NALPHAM1) = ISPGP
                   ELSE
                     NBETAM1 = NBETAM1 + 1
-                    MAXM1_E_GAS_BETA(1,NBETA) = IGAS
-                    MAXM1_E_GAS_BETA(2,NBETA) = ISPGP
+                    MAXM1_E_GAS_BETA(1,NBETAM1) = IGAS
+                    MAXM1_E_GAS_BETA(2,NBETAM1) = ISPGP
                   END IF
                 END IF
               END IF
