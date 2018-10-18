@@ -38,13 +38,16 @@
 #include "setup.fh"
 #include "status.fh"
 *
-      if(iFrom.eq.2) then
-      iu=16
-      iu=isfreeunit(iu)
-      open(iu,file="ORB.std")
-      Call Koor2file(iu)
-      Call Basi2file(iu)
-      close(iu)
+CVV: dump info from rinfile into orb.std
+C    note that changes in info.fh
+C    should be reflected in sagit
+      if(iFrom.eq.3) then
+      iutemp=16
+      iutemp=isfreeunit(iutemp)
+      open(iutemp,file="ORB.std")
+      Call Koor2file(iutemp)
+      Call Basi2file(iutemp)
+      close(iutemp)
       endif
       If (Seward_Status.eq.InActive) Return
 *
