@@ -17,17 +17,30 @@
 
 #include "real.fh"
 #include "constants2.fh"
+#include "stdalloc.fh"
       Integer nrvec(*),ndeg(*)
+      Logical Found
+      Real*8, Allocatable :: Mass(:)
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 
+*
+*----- read masses from runfile
+*
+      Call Qpg_dArray('Isotopes',Found,nIsot)
+      If (.Not.Found) Then
+        Write(6,*) 'No masses found on RunFile'
+        Call AbEnd()
+      End If
+      Call mma_allocate(Mass,nIsot)
+      Call Get_dArray('Isotopes',Mass,nIsot)
 *
 *----- form the Mass Weighted Cartesian force constant matrix.
 *
       iprint=0
       Do i = 1, nX
-       Do j=1,nX
-            rm=rmass(nrvec(i))
-            If (rm.eq.Zero) rm=1.0d7
+         rm=Mass(nrvec(i))
+         If (rm.eq.Zero) rm=1.0d7
+         Do j=1,nX
             Tmp3(i,j) = sqrt(DBLE(nDeg(i)*nDeg(j)))*
      &                  H(itri(i,j))/rm
        End Do
@@ -66,7 +79,7 @@
       Do iHarm = 1, nX
         r2=Zero
         Do i=1,nx
-            rm=rmass(nrvec(i))/UTOAU
+            rm=Mass(nrvec(i))/UTOAU
             r2=r2+Evec(2*(i-1)+1,iHarm)*Evec(2*(i-1)+1,iHarm)*rm
         End Do
         RedM(iHarm)=r2
@@ -89,6 +102,8 @@
             End If
          End Do
       End Do
+*
+      Call mma_deallocate(Mass)
 *
       Return
       End
