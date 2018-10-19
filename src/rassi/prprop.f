@@ -1937,19 +1937,23 @@ C printing threshold
 
 ! +++ J. Norell 19/7 - 2018
 ! Dyson amplitudes for (1-electron) ionization transitions
+      IF (DYSO) THEN
         DYSTHR=1.0D-5
         WRITE(6,*)
         CALL CollapseOutput(1,'Dyson amplitudes '//
      &                        '(SO states):')
         WRITE(6,'(3X,A)')     '----------------------------'//
      &                        '-------------------'
-        WRITE(6,*) '       From      To        '//
-     &   'BE (eV)       Dyson amplitude'
-        WRITE(6,*)
         IF (DYSTHR.GT.0.0D0) THEN
-           WRITE(6,*) 'for Dyson amps. at least',DYSTHR
+           WRITE(6,*) 'for Dyson intensities at least',DYSTHR
            WRITE(6,*)
         END IF
+        WRITE(6,*) '       From      To        '//
+     &   'BE (eV)       Dyson intensity'
+              WRITE(6,'(3X,A)')
+     &                  '---------------------------' //
+     &                  '-------------------------------------------'//
+     &                  '-------------------'
         FMAX=0.0D0
         DO I=1,NSS
          DO J=1,NSS
@@ -1964,6 +1968,7 @@ C printing threshold
         END DO ! I
         WRITE(6,*)
         WRITE(6,*)
+       END IF
 ! +++ J. Norell
 
 *

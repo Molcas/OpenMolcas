@@ -177,7 +177,7 @@ C 1D arrays for Dyson orbital coefficients
 C COF = active biorthonormal orbital base
 C AB  = inactive+active biorthonormal orbital base
 C ZZ  = atomic (basis function) base
-      IF (IF10.or.IF01) THEN
+      IF ((IF10.or.IF01).and.DYSO) THEN
         LDYSCOF=LNILPT
         LDYSAB=LNILPT
         LDYSZZ=LNILPT
@@ -747,7 +747,7 @@ C it is known to be zero.
 C Dyson amplitudes:
 C DYSAMP = D_ij for states i and j
 C DYSCOF = Active orbital coefficents of the DO
-      IF (IF10.or.IF01) THEN
+      IF ((IF10.or.IF01).and.DYSO) THEN
         CALL DYSON(IWORK(LFSBTAB1),
      &            IWORK(LFSBTAB2),IWORK(LSSTAB),
      &            WORK(LDET1),WORK(LDET2),
@@ -762,33 +762,10 @@ C In AO basis:
      &              WORK(LDYSZZ))
 C Save to disk:
        IDISK=IWORK(LIDDYS+(ISTATE-1)*NSTATE+JSTATE-1)
-!       WRITE(*,*)
-!       WRITE(*,*)
-!       WRITE(*,*)'--- GTDMCTL ---'
-!       WRITE(*,*)'ISTATE=',ISTATE,' JSTATE=',JSTATE
-!       WRITE(*,*)'LIDDYS=',LIDDYS,' IDISK=',IDISK
-!       WRITE(*,*)'LUDYS=',LUDYS,' NDYSZZ=',NDYSZZ
-!       WRITE(*,*)'DYSAMP=',DYSAMP
-!       WRITE(*,*)'DYSZZ='
-!       DO NDUM=1,NDYSZZ
-!        WRITE(*,'(F6.2)',advance='no')WORK(LDYSZZ+NDUM-1)
-!       END DO
-!       WRITE(*,*)
        CALL DDAFILE(LUDYS,1,WORK(LDYSZZ),NDYSZZ,IDISK)
        DO NDUM=1,NDYSZZ
         WORK(LDYSZZ+NDUM-1)=0.0D0
        END DO
-!       DO NDUM=1,NDYSZZ
-!        WRITE(*,'(F6.2)',advance='no')WORK(LDYSZZ+NDUM-1)
-!       END DO
-!       WRITE(*,*)
-C Is this step necessary?
-       IDISK=IWORK(LIDDYS+(ISTATE-1)*NSTATE+JSTATE-1)
-       CALL DDAFILE(LUDYS,2,WORK(LDYSZZ),NDYSZZ,IDISK)
-!       DO NDUM=1,NDYSZZ
-!        WRITE(*,'(F6.2)',advance='no')WORK(LDYSZZ+NDUM-1)
-!       END DO
-!       WRITE(*,*)
       END IF ! IF01 IF10
       DYSAMPS(ISTATE,JSTATE)=DYSAMP
       DYSAMPS(JSTATE,ISTATE)=DYSAMP
@@ -1180,7 +1157,7 @@ C             Write density 1-matrices in AO basis to disk.
         CALL KILLSCTAB(LSPNTAB2)
       end if
 ! +++ J. Norell 13/7 - 2018
-      IF (IF10.or.IF01) THEN
+      IF ((IF10.or.IF01).and.DYSO) THEN
         CALL GETMEM('DYSCOF','Free','Real',LDYSCOF,NASORB)
         CALL GETMEM('DYSAB','Free','Real',LDYSAB,NDYSAB)
         CALL GETMEM('DYSZZ','Free','Real',LDYSZZ,NDYSZZ)

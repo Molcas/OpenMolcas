@@ -1635,19 +1635,20 @@ C And the same for the Dyson amplitudes
 
 ! +++ J. Norell 12/7 - 2018
 ! Dyson amplitudes for (1-electron) ionization transitions
+       IF (DYSO) THEN
         DYSTHR=1.0D-5
         WRITE(6,*)
         CALL CollapseOutput(1,'Dyson amplitudes '//
      &                        '(spin-free states):')
         WRITE(6,'(3X,A)')     '----------------------------'//
      &                        '-------------------'
-        WRITE(6,*) '       From      To        '//
-     &   'BE (eV)       Dyson amplitude'
-        WRITE(6,32)
         IF (DYSTHR.GT.0.0D0) THEN
-           WRITE(6,30) 'for Dyson amps. at least',DYSTHR
+           WRITE(6,30) 'for Dyson intensities at least',DYSTHR
            WRITE(6,30)
         END IF
+        WRITE(6,*) '       From      To        '//
+     &   'BE (eV)       Dyson intensity'
+        WRITE(6,32)
         FMAX=0.0D0
         DO I=1,NSTATE
          DO J=1,NSTATE
@@ -1660,6 +1661,7 @@ C And the same for the Dyson amplitudes
           END IF
          END DO ! J
         END DO ! I
+       END IF
 ! +++ J. Norell
 
 

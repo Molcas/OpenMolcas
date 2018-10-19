@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE SODYSORB(NSS,LUTOTR,LUTOTI,DYSAMPS,SFDYS,NZ,
-     &                       SODYSAMPS)
+     &                       SODYSAMPS,SOENE)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "cntrl.fh"
@@ -21,46 +21,40 @@
       CHARACTER*16 ROUTINE
       LOGICAL   FIRSTSO
       INTEGER   SOTOT,SFTOT,SO2SFNUM,DUMMY
-      INTEGER   NZ,LSZZ
+      INTEGER   NZ,LSZZ,ORBNUM
       INTEGER   IDISK
+      INTEGER   SODYSCIND,ENIND
       INTEGER   INDJ,INDI,SFI,SFJ,ZI,ZJ,NSZZ,NDUM
+
       DIMENSION DYSAMPS(NSTATE,NSTATE)
       DIMENSION SFDYS(NZ,NSTATE,NSTATE)
       DIMENSION SODYSAMPS(NSS,NSS)
       DIMENSION SODYSCOFSR(NZ),SODYSCOFSI(NZ)
       DIMENSION SZZFULL(NZ,NZ)
 
+      ! Joel
+      DIMENSION SODYSCMO(NZ*NSS)
+      DIMENSION SOENE(NSS)
+      DIMENSION DYSEN(NSS)
+      DIMENSION AMPS(NSS)
+
+! +++ J.Norell 2018
+
 C Calculates spin-orbit Dyson orbitals
-C The routine was in large part adapted from DO_SONATORB
+C The routine was in some part adapted from DO_SONATORB
 
 C 1. Perform a mapping from the SO eigenstates to the SF eigenstates
 C 2. Pick up the SF Dyson orbitals in the atomic basis from disk
-C 3. Build the SO Dyson orbitals from the SF ones
-C 4. Save the SO Dyson orbitals to disk
+C 3. Build the SO Dyson orbitals (and their amplitudes) from the SF ones
+C 4. (Optional) export the SO orbitals
 
-!      WRITE(6,*)
-!      WRITE(6,*)
-!      WRITE(6,*) '*****************************************'
-!      WRITE(6,*) '* RUNNING SODYSORB CODE *****************'
-!      WRITE(6,*) '*****************************************'
-!      WRITE(6,*)
-
-      SO2SFNUM=0
-      CALL GETMEM('SO2SF','ALLO','INTE',SO2SFNUM,NSS)
-
-C Write out DYSAMPS for debugging
-!      WRITE(*,*)'---------------------------'
-!      WRITE(*,*)'------- SFDYSAMPS ---------'
-!      WRITE(*,*)'---------------------------'
-!      DO JSTATE=1,NSTATE
-!       DO ISTATE=1,NSTATE
-!        WRITE(*,'(F5.2)',advance="no")DYSAMPS(JSTATE,ISTATE)
-!       END DO
-!       WRITE(*,*)
-!      END DO
+! ****************************************************************
 
 C Setup SO2SFNUM list which contains the original SF state numbers
 C as a function of the SO state number
+
+      SO2SFNUM=0
+      CALL GETMEM('SO2SF','ALLO','INTE',SO2SFNUM,NSS)
       ISS=0
       SOTOT=0
       SFTOT=0
@@ -75,15 +69,6 @@ C as a function of the SO state number
 
        END DO ! DO MSPROJ1=-MPLET1+1,MPLET1-1,2
       END DO ! DO ISTATE=1,NSTATE
-
-C Write out SO2SFNUM for debugging
-!       WRITE(*,*)'---------------------------'
-!       WRITE(*,*)'------- SO2SFNUM ----------'
-!       WRITE(*,*)'---------------------------'
-!       DO ISTATE=1,NSS
-!         WRITE(*,'(F5.2)',advance="no"),WORK(SO2SFNUM+ISTATE-1)
-!        WRITE(*,*)
-!       END DO
 
 ! **** This part seems unecessary, as it essentially appears *******
 ! **** to create an identity matrix, but lets leave it for now!
@@ -124,18 +109,6 @@ C states in the (multiplicity expanded) SF basis
        END DO ! DO MSPROJ1=-MPLET1+1,MPLET1-1,2
       END DO ! DO ISTATE=1,NSTATE
 
-C Write out V-matrix for debugging
-!      WRITE(*,*)'---------------------------'
-!     WRITE(*,*)'------- V-matrix ----------'
-!     WRITE(*,*)'---------------------------'
-!     DO JSTATE=1,NSS
-!      DO ISTATE=1,NSS
-!       WRITE(*,'(F5.2)',advance="no"),WORK(LVMAT-1+NSS*(ISTATE-1)
-!    &    +JSTATE)
-!      END DO
-!      WRITE(*,*)
-!     END DO
-
 ! ****************************************************************
 
 C Now multiply V with the SO eigenvector matrices to obtain the
@@ -147,19 +120,6 @@ C the SO eigenstates in the (multiplicity expanded) spin-free basis.
      &      1.0d0,WORK(LVMAT),NSS,WORK(LUTOTI),NSS,0.0d0,
      &      WORK(LUMATI),NSS)
 
-!C Write out V*E-matrix for debugging
-!      WRITE(*,*)'---------------------------'
-!      WRITE(*,*)'------- V*E-matrix --------'
-!      WRITE(*,*)'---------------------------'
-!      DO ISTATE=1,NSS
-!       DO JSTATE=1,NSS
-!        NINDEX=NSS*(ISTATE-1)+JSTATE-1
-!        WRITE(*,'(F5.2,A,F4.2,A)',advance="no")
-!     &        WORK(LUTOTR+NINDEX),'+',WORK(LUTOTI+NINDEX),'i'
-!       END DO
-!       WRITE(*,*)
-!      END DO
-
 ! ****************************************************************
 
 C Now read in all the previously saved SF Dyson orbitals in the
@@ -167,6 +127,8 @@ C atomic basis from disk
 
       DO JSTATE=1,NSTATE
        DO ISTATE=JSTATE+1,NSTATE
+       ! This loop nestling order is for some reason the reverse
+       ! of what is done in GTDMCTL
         IF (DYSAMPS(JSTATE,ISTATE).GT.1.0D-6) THEN
          IDISK=IWORK(LIDDYS+(ISTATE-1)*NSTATE+JSTATE-1)
          CALL DDAFILE(LUDYS,2,SFDYS(:,JSTATE,ISTATE),NZ,IDISK)
@@ -174,31 +136,15 @@ C atomic basis from disk
          ! permutation of degenerate states in the SO part
          ! might 'escape' this, therefore we fill out the
          ! full matrix to be safe.
-         IDISK=IWORK(LIDDYS+(ISTATE-1)*NSTATE+JSTATE-1)
-         CALL DDAFILE(LUDYS,2,SFDYS(:,ISTATE,JSTATE),NZ,IDISK)
+         SFDYS(:,ISTATE,JSTATE)=SFDYS(:,JSTATE,ISTATE)
         ELSE
          DO NDUM=1,NZ
           SFDYS(NDUM,JSTATE,ISTATE)=0.0D0
           SFDYS(NDUM,ISTATE,JSTATE)=0.0D0
-         END DO
-        END IF
-       END DO
-      END DO
-
-C Write out the SFDYS for debugging
-!      DO JSTATE=1,NSTATE
-!       DO ISTATE=JSTATE+1,NSTATE
-!        WRITE(*,*)'------------------------------------'
-!        WRITE(*,*)'JSTATE,ISTATE=',JSTATE,ISTATE
-!        SFJ=WORK(SO2SFNUM+JSTATE-1)
-!        SFI=WORK(SO2SFNUM+ISTATE-1)
-!        WRITE(*,*)'SFJ,SFI=      ',SFJ,SFI
-!        WRITE(*,*)'SODYSCOFS='
-!        DO NDUM=1,NZ
-!         WRITE(*,*)SFDYS(NDUM,JSTATE,ISTATE)
-!        END DO
-!       END DO
-!      END DO
+         END DO ! NDUM
+        END IF ! AMP Threshold
+       END DO ! ISTATE
+      END DO ! JSTATE
 
 ! ****************************************************************
 
@@ -238,15 +184,6 @@ C Write out the SFDYS for debugging
        END DO
       END DO
 
-C Write out SZZ for debugging
-!      WRITE(*,*)'SZZ:'
-!      DO ZJ=1,NZ
-!       DO ZI=1,NZ
-!        WRITE(*,'(F6.2)',advance='no')SZZFULL(ZJ,ZI)
-!       END DO
-!       WRITE(*,*)
-!      END DO
-
 ! ****************************************************************
 
 C Multiply together with the SO eigenvector coefficients to get the
@@ -254,7 +191,9 @@ C SO coefficients
 
       ! For all possible SO state combinations
       DO JSTATE=1,NSS
-       DO ISTATE=JSTATE+1,NSS
+         DO ISTATE=JSTATE+1,NSS
+      ! This loop nestling order is for some reason the reverse
+      ! of what is done in GTDMCTL
 
         ! Reset values for next state combination
         DIJ=0.0D0
@@ -263,15 +202,10 @@ C SO coefficients
          SODYSCOFSI(NDUM)=0.0D0
         END DO
 
-!        WRITE(*,*)
-!        WRITE(*,*)'------------------------------------'
-!        WRITE(*,*)'JSTATE,ISTATE=',JSTATE,ISTATE
         ! Iterate over the eigenvector components of both states
         DO JEIG=1,NSS
          DO IEIG=1,NSS
 
-          ! Lets start with real values for testing and add imag part
-          ! later
           ! Coefficient of first state
           INDJ=NSS*(JSTATE-1)+JEIG-1
           CJR=WORK(LUTOTR+INDJ)
@@ -285,36 +219,15 @@ C SO coefficients
           SFI=WORK(SO2SFNUM+IEIG-1)
           IF (DYSAMPS(SFJ,SFI).GT.1.0D-6) THEN
            ! Multiply together coefficients
-           CREAL=CJR*CIR+CJI*CII!(CJR*CIR+CJI*CII)
-           CIMAG=CJR*CII-CJI*CIR!(CJR*CII-CJI*CIR)
+           CREAL=CJR*CIR+CJI*CII
+           CIMAG=CJR*CII-CJI*CIR
            ! Multiply with the corresponding SF Dyson orbital
            SODYSCOFSR=SODYSCOFSR+CREAL*SFDYS(:,SFJ,SFI)
            SODYSCOFSI=SODYSCOFSI+CIMAG*SFDYS(:,SFJ,SFI)
-!           IF ((CREAL+CIMAG).GT.0.001) THEN
-!            WRITE(*,*)'SFJ,SFI=      ',SFJ,SFI
-!            WRITE(*,*)'JEIG,IEIG=    ',JEIG,IEIG
-!            WRITE(*,*)'CJ=',CJR,'+',CJI,'i'
-!            WRITE(*,*)'CI=',CIR,'+',CII,'i'
-!            WRITE(*,*)'CC=',CREAL,CIMAG,'i'
-!            WRITE(*,*)'SODYSCOFS='
-!            DO NDUM=1,NZ
-!             WRITE(*,*)SFDYS(NDUM,SFJ,SFI)
-!            END DO
-!           END IF
           END IF
 
-         END DO
-        END DO
-
-C Write out SODYSCOFS for debugging
-!        IF (DYSAMPS(SFJ,SFI).GT.1.0D-6) THEN
-!         WRITE(*,*)
-!         WRITE(*,*)'SODYSCOFS='
-!         DO NDUM=1,NZ
-!          WRITE(*,'(F6.2,A,F6.2,A)')
-!     &       SODYSCOFSR(NDUM),'+',SODYSCOFSI(NDUM),'i'
-!         END DO
-!        END IF
+         END DO ! IEIG
+        END DO ! JEIG
 
 ! Normalize the overlap of SODYSCOFS expanded orbitals with the
 ! atomic overlap matrix SZZ to obtain correct amplitudes
@@ -327,35 +240,55 @@ C Write out SODYSCOFS for debugging
      &            +SODYSCOFSI(ZJ)*SODYSCOFSI(ZI)
             AMPI=SODYSCOFSI(ZJ)*SODYSCOFSR(ZI)
      &            -SODYSCOFSR(ZJ)*SODYSCOFSI(ZI)
-!            WRITE(*,'(F5.2,A)',advance="no")AMPR,' '
-            AMPLITUDE=AMPLITUDE+
-     &         SQRT(AMPR*AMPR+AMPI*AMPI)*SZZFULL(ZJ,ZI)
-!     &         (AMPR+AMPI)*SZZFULL(ZJ,ZI)
-           END DO
-!           WRITE(*,*)
-          END DO
+            AMPLITUDE=AMPLITUDE+(AMPR+AMPI)*SZZFULL(ZJ,ZI)
+           END DO ! ZI
+          END DO ! ZJ
 
-!          WRITE(*,*)'AMPLITUDE**2=',AMPLITUDE
-!          AMPLITUDE=SQRT(AMPLITUDE)
-!          WRITE(*,*)'AMPLITUDE   =',AMPLITUDE
+          AMPLITUDE=SQRT(AMPLITUDE)
           SODYSAMPS(JSTATE,ISTATE)=AMPLITUDE
           SODYSAMPS(ISTATE,JSTATE)=AMPLITUDE
 
-! The coefficients could be used for some kind of analysis,
-! but for now we will not save them before going to the next
-! state combination
+!+++  J. Creutzberg, J. Norell  - 2018 (.DysOrb and .molden export )
+!     For each initial state JSTATE we will gather all the obtained Dysorbs
+!     and export to a shared .DysOrb file and .molden file if
+!     requested
+          IF (.NOT.DYSEXPORT) THEN
+              CYCLE
+          ELSE IF (JSTATE.GT.DYSEXPSO) THEN
+              CYCLE
+          END IF
+          IF ( ISTATE.EQ.(JSTATE+1) ) THEN
+              SODYSCIND=0 ! Orbital coeff. index
+              ORBNUM=0 ! Dysorb index for given JSTATE
+          END IF
 
-        END DO
-       END DO
+         IF (AMPLITUDE.GT.1.0D-6) THEN
+          ! For now we are only exporting the real part
+          ! of the orbitals, this should be updated later
+          DO NDUM=1,NZ
+             SODYSCIND=SODYSCIND+1
+             SODYSCMO(SODYSCIND)=SODYSCOFSR(NDUM)
+          END DO
+          ORBNUM=ORBNUM+1
+          DYSEN(ORBNUM)=SOENE(ISTATE)-SOENE(JSTATE)
+          AMPS(ORBNUM)=AMPLITUDE*AMPLITUDE
+         END IF
+! +++
 
-C Write out SODYSAMPS for debugging
-!      WRITE(*,*)'SODYSAMPS='
-!      DO ISS=1,NSS
-!       DO JSS=1,NSS
-!        WRITE(*,*)SODYSAMPS(JSS,ISS)
-!       END DO
-!       WRITE(*,*)
-!      END DO
+        END DO ! ISTATE
+
+! +++ J. Creutzberg, J. Norell - 2018
+! Write the Dysorbs from JSTATE to .DysOrb and .molden file
+         IF (.NOT.DYSEXPORT) THEN
+             CYCLE
+         ELSE IF (JSTATE.GT.DYSEXPSO) THEN
+             CYCLE
+         END IF
+         Call Dys_Interf(.TRUE.,JSTATE,NZ,SODYSCMO(1:NZ*ORBNUM),
+     &        DYSEN(1:ORBNUM),AMPS(1:ORBNUM))
+! +++
+
+       END DO ! JSTATE
 
 ! ****************************************************************
 

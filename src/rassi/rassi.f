@@ -129,6 +129,27 @@ C Hamiltonian matrix elements, eigenvectors:
      &              Work(LEIGVEC),WORK(LENERGY))
       END IF
 
+
+! +++ J. Creutzberg, J. Norell - 2018
+! Write the spin-free Dyson orbitals to .DysOrb and .molden
+! files if requested (KEYWORD to be added)
+*----------------------------------------------------------------
+! Number of basis functions
+      NZ=0                      ! (NBAS is already used...)
+      DO ISY=1,NSYM
+         NZ=NZ+NBASF(ISY)
+      END DO
+
+      IF (DYSEXPORT) THEN
+
+       CALL WRITEDYS(WORK(LDYSAMPS),WORK(LSFDYS),NZ,NSTATE*NSTATE,
+     &        WORK(LENERGY))
+
+      END IF
+! +++
+
+
+*---------------------------------------------------------------------*
 C Natural orbitals, if requested:
       IF(NATO) THEN
 C CALCULATE AND WRITE OUT NATURAL ORBITALS.
@@ -182,23 +203,20 @@ C Nr of spin states and division of loops:
      &             WORK(LSOENE),NSS,WORK(LENERGY))
       END IF
 
-! +++ J. Norell 19/7 - 2018
+! +++ J. Norell - 2018
 C Make the SO Dyson orbitals and amplitudes from the SF ones
 
       LSODYSAMPS=0
       CALL GETMEM('SODYSAMPS','ALLO','REAL',LSODYSAMPS,NSS*NSS)
+      IF (DYSO.AND.IFSO) THEN
 
-      ! Number of basis functions
-      NZ=0 ! (NBAS is already used...)
-      DO ISY=1,NSYM
-       NZ=NZ+NBASF(ISY)
-      END DO
-      LSFDYS=0
-      CALL GETMEM('SFDYS','ALLO','REAL',LSFDYS,NZ*NSTATE*NSTATE)
-      CALL SODYSORB(NSS,LUTOTR,LUTOTI,WORK(LDYSAMPS),
-     &                 WORK(LSFDYS),NZ,WORK(LSODYSAMPS))
+       LSFDYS=0
+       CALL GETMEM('SFDYS','ALLO','REAL',LSFDYS,NZ*NSTATE*NSTATE)
+       CALL SODYSORB(NSS,LUTOTR,LUTOTI,WORK(LDYSAMPS),
+     &     WORK(LSFDYS),NZ,WORK(LSODYSAMPS),WORK(LSOENE))
 
-      CALL GETMEM('SFDYS','FREE','REAL',LSFDYS,NZ*NSTATE*NSTATE)
+       CALL GETMEM('SFDYS','FREE','REAL',LSFDYS,NZ*NSTATE*NSTATE)
+      END IF
 ! +++
 
       CALL PRPROP(WORK(LPROP),WORK(LUTOTR),WORK(LUTOTI),
