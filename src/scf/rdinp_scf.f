@@ -1064,6 +1064,8 @@ c      End If
       Line=Get_Ln(LuSpool)
       Call Get_F(1,CoefX,1)
       Call Get_F(2,CoefR,1)
+!      Call put_dscalar('DFT exch coeff',CoefX)
+!      Call put_dscalar('DFT corr coeff',CoefR)
       GoTo 1000
 *
 *>>>>>>>>>>>>> OFEM <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

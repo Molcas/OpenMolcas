@@ -258,6 +258,9 @@ C        ICIRST=1 ! to be activated!
 *
       KSDFT='SCF'
       ExFac=1.0D0
+* Initialize KSDF coefficients (S Dong, 2018)
+      CoefR = 1.0D0
+      CoefX = 1.0D0
 ** Default orthonormalization of CMOs to be with
 ** Gram-Schmidt
 *      Lowdin_ON=.False.

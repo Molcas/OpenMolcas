@@ -51,6 +51,9 @@ c     Call SetQue('Trace=on')
       Call Set_Basis_Mode('Valence')
       Call Setup_iSD()
 *                                                                      *
+      Call Get_dScalar('DFT exch coeff',CoefX)
+      Call Get_dScalar('DFT corr coeff',CoefR)
+*
 ************************************************************************
 *                                                                      *
       If (Do_Grad) Call FZero(Grad,nGrad)

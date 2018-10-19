@@ -49,8 +49,9 @@
       Integer ipDLAO,ipDS1,ipDSVar1,ipLCMO,ipPLMO,ipt,ipTmp1,ipTemp
       Integer iSpin,jBas,length,nAct,nDens_Valence,nsa,nTemp,nTst
       Integer iRout,iPrint,iComp
-      Real*8  Get_ExFac
+      Real*8  Get_ExFac,CoefX,CoefR
       External Get_ExFac
+      Character*80 Fmt*60
 
 *
 *...  Prologue
@@ -76,6 +77,8 @@
      &    Method.eq. 'CASDFT  ' ) Then
          Call Get_iScalar('Multiplicity',iSpin)
          Call Get_cArray('DFT functional',KSDFT,16)
+         Call Get_dScalar('DFT exch coeff',CoefX)
+         Call Get_dScalar('DFT corr coeff',CoefR)
          ExFac=Get_ExFac(KSDFT)
          CoulFac=One
       Else
@@ -98,6 +101,9 @@
             Write (6,'(2A)') ' Wavefunction type: ',Method
             If (Method.eq.'KS-DFT  ')
      &         Write (6,'(2A)') ' Functional type:   ',KSDFT
+               Fmt = '(1X,A26,20X,F18.6)'
+               Write(6,Fmt)'Exchange scaling factor',CoefX
+               Write(6,Fmt)'Correlation scaling factor',CoefR
             Write (6,*)
          End If
 *                                                                      *

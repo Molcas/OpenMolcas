@@ -78,6 +78,7 @@
 #include "orthonormalize.fh"
 #include "ciinfo.fh"
 #include "raswfn.fh"
+#include "ksdft.fh"
       Logical DSCF
       Logical lTemp, lOPTO
       Character*80 Line
@@ -372,6 +373,8 @@ CGG03 Aug 03
       KSDFT_TEMP=KSDFT
         KSDFT='SCF'
         ExFac=1.0D0
+        Call Put_dScalar('DFT exch coeff',CoefX)
+        Call Put_dScalar('DFT corr coeff',CoefR)
       else
          KSDFT_TEMP=KSDFT
       end if
