@@ -56,9 +56,9 @@
 *> - '``Thrs``'
 *> - '``UHF energy``'
 *> - '``DFT exch coeff``' Scaling factor for exchange terms of a density
-*functional
+*>   functional
 *> - '``DFT corr coeff``' Scaling factor for correlation terms of a
-*density functional
+*>   density functional
 *>
 *> @param[in] Label Name of field
 *> @param[in] Data  Data to put on runfile
