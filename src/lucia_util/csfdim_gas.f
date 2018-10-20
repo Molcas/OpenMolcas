@@ -180,6 +180,9 @@ C
            Do j=1,N_ELIMINATED_GAS
              jGAS=IELIMINATED_IN_GAS(j)
              If (IOCCLS(jGAS,JOCCLS).eq.maxingas(j)) ielim=1
+             IF(I_ELIMINATE_GAS.GT.1) THEN
+               If (IOCCLS(jGAS,JOCCLS).eq.maxingas(j)-1) ielim=1
+             END IF
            End Do
            If (ielim.eq.0) Then
              Do i=1,maxop+1
