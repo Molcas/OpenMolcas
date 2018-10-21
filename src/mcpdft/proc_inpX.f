@@ -28,6 +28,7 @@
 #include "general.fh"
 #include "output_ras.fh"
 #include "orthonormalize.fh"
+#include "ksdft.fh"
       Parameter (ROUTINE='READIN  ')
 #include "casvb.fh"
 #include "pamint.fh"
@@ -37,7 +38,6 @@
 #include "spinfo.fh"
 #include "lucia_ini.fh"
 #include "stdalloc.fh"
-#include "ksdft.fh"
 #ifdef _HDF5_
 #  include "mh5.fh"
       character(32) :: prgm

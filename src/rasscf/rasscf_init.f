@@ -36,6 +36,7 @@
 #include "lucia_ini.fh"
 #include "orthonormalize.fh"
 #include "WrkSpc.fh"
+#include "ksdft.fh"
       Integer IPRGLB_IN, IPRLOC_IN(7)
 * What to do with Cholesky stuff?
       Logical DoCholesky,timings,DensityCheck

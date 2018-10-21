@@ -32,6 +32,7 @@
 #include "general.fh"
 #include "output_ras.fh"
 #include "orthonormalize.fh"
+#include "ksdft.fh"
       Parameter (ROUTINE='READIN  ')
 #include "casvb.fh"
 #include "pamint.fh"
@@ -791,6 +792,22 @@ CGG Calibration of A, B, C, and D coefficients in SG's NewFunctional 1
        End If
 CGG This part will be removed. (PAM 2009: What on earth does he mean??)
       ExFac=Get_ExFac(KSDFT)
+*---  Process DFCF command --------------------------------------------*
+      If (KeyDFCF) Then
+       If (DBG) Write(6,*) ' DFCF (dens. func. coeff) command was used.'
+       Call SetPos(LUInput,'DFCF',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading DF coeff after DFCF keyword.'
+       Read(LUInput,*,End=9910,Err=9920) CoefX,CoefR
+       ReadStatus=' O.K. after reading DF coeff after DFCF keyword.'
+       If (DBG) Then
+        Write(6,*) ' Density functional exchange coeff, CoefX=',CoefX
+        Write(6,*) ' Density functional correlation coeff, CoefRE=',
+     &                                                          CoefR
+       End If
+       Call ChkIfKey()
+      End If
+*
 *******
 *
 * Read numbers, and coefficients for rasscf potential calculations:
