@@ -13,7 +13,7 @@ c
      c             NaGrpR,NaSGrpR,NchBlk,LunAux)
 c
 c       This routine do:
-c       1) Read local CD1 file of Choleski vectors from MC
+c       1) Read local CD1 file of Cholesky vectors from MC
 c       2) Reorder ChV from pq,mloc to mloc,pq
 c           Make L0-L2 files (local, dimensioned as ncLoc)
 c           (if needed: (JoinLkey=1)
@@ -45,7 +45,7 @@ c       (A'B'|IJ) I3xxyy xx - Group of A'
 c                        yy - Group of B'
 c
 c
-c2      Structure of Choleski vector files
+c2      Structure of Cholesky vector files
 c
 c       L0(m,IJ)    L0vctr  I>=J
 c
@@ -60,7 +60,7 @@ c       t2(A'B',I,J)  T2xxyy xx - Group of A'
 c                            yy - Group of B'
 c
 c       Memory requirements:
-c        choleski:
+c        cholesky:
 c       V1   - max {ov'ov'; nbas.nbas.m'; ov'm; v'v'm;  oom}
 c       V2   - max {ov'ov'; v'v'm, ov'm; oom}
 c       V3   - max {ov'm; oom}
@@ -499,7 +499,7 @@ c
 c
 c
 c
-c*      ------- part 3, produce I integrals from Choleski vectors
+c*      ------- part 3, produce I integrals from Cholesky vectors
 c
 c3.1    Generate I0(ij,kl)
 c

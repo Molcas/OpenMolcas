@@ -83,7 +83,7 @@ c       (A'B'|IJ) I3xxyy xx - Group of A'
 c                        yy - Group of B'
 c
 c
-c3      Structure of Choleski vector files
+c3      Structure of Cholesky vector files
 c
 c       L1(m,I ,A')  L1vcxx xx - Group of A'
 c
@@ -434,7 +434,7 @@ cAex1.2         Make Tau in V1 (@@@ toto sa menilo oproti T1=0 - OK)
      c                           dima,dimb,no,1.0d0,1.0d0)
 c
                 if (intkey.eq.0) then
-c                choleski generation of integrals
+c                cholesky generation of integrals
 cAex1.3f          Aex(ij,u,v) <<- V3(T)(a',b',ij) . V1(a',b',u,v)
                   dim1=no*(no+1)/2
                   call mc0c1at3b (dimb*dima,dim1,dimb*dima,no*no,
