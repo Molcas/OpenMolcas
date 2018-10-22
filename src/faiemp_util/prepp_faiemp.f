@@ -99,11 +99,12 @@
          If (lPrint) Then
             Write (6,*)
             Write (6,'(2A)') ' Wavefunction type: ',Method
-            If (Method.eq.'KS-DFT  ')
+            If (Method.eq.'KS-DFT  ') Then
      &         Write (6,'(2A)') ' Functional type:   ',KSDFT
                Fmt = '(1X,A26,20X,F18.6)'
                Write(6,Fmt)'Exchange scaling factor',CoefX
                Write(6,Fmt)'Correlation scaling factor',CoefR
+            End If
             Write (6,*)
          End If
 *                                                                      *
