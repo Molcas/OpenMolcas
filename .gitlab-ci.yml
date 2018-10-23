@@ -253,8 +253,8 @@
     pre_run_script: |
       export PATH=$${PWD}:/home/tester/bin/:$${PATH}
       touch pymolcas
-    CX: "gcc"
-    CCX: "g++"
+    CC: "gcc"
+    CXX: "g++"
     FC: "nagfor"
     NAG_KUSARI_FILE: "/opt/NAG/npl6a60na.key"
     FFLAGS: "-w=obs -w=x77 -Wc,-fno-aggressive-loop-optimizations -Qpath /opt/NAG/Fortran-amd64/6.0/lib"
@@ -270,8 +270,8 @@
       set (BUILD_SHARED_LIBS "OFF" CACHE STRING "static molcas lib" )
       set (HDF5 "OFF" CACHE STRING "turn off HDF5")
       set (DEFMOLCASMEM "256" CACHE STRING "reduce memory to get more speed")
-    CX: "gcc"
-    CCX: "g++"
+    CC: "gcc"
+    CXX: "g++"
     FC: "gfortran"
   tags:
     - docker
@@ -283,8 +283,8 @@
       set (CMAKE_BUILD_TYPE "Release" CACHE STRING "opt, no debug info" )
       set (BOUNDS "ON" CACHE STRING "enable bounds checking" )
       set (DEFMOLCASMEM "256" CACHE STRING "reduce memory to get more speed")
-    CX: "gcc"
-    CCX: "g++"
+    CC: "gcc"
+    CXX: "g++"
     FC: "gfortran"
   tags:
     - docker

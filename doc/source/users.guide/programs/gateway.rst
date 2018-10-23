@@ -133,6 +133,30 @@ General keywords
               was specified, the default is "Bohr".
               The default values are 15 and 3.0 au.
 
+:kword:`ISOTopes`
+  Specify isotopic substitutions or atomic masses. By default, the mass of the most
+  abundant or stable isotope is used for each atom. With this keyword different
+  isotopes or arbitrary masses can be chosen. The keyword is followed by the number
+  :math:`n` of isotopic specifications, and then by :math:`n` lines. Each of these
+  lines should contain the symmetry-unique index of the atom for which the default
+  mass is to be modified and either the mass number of the desired isotope (tabulated
+  masses for most known isotopes are available in the code, use `0` for the default
+  isotope) or the desired mass in dalton, in the latter case the keyword :kword:`Dalton`
+  should follow. Note that all atoms belonging to the same "center type" must have the
+  same mass. This usually means all atoms of a given element with the same basis set.
+  If more fine-grained specifications are wanted, additional center types must be
+  created by using several :kword:`BASIs Set` blocks for the same element (native
+  input) or by using labels (XYZ input).
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="ISOT" APPEAR="Isotopic specification" KIND="STRINGS" LEVEL="ADVANCED">
+              %%Keyword: Isotopes <advanced>
+              <HELP>
+              Specifies isotopes or masses. First write the number of atom masses to change,
+              then that number of lines, on each: the symmetry-unique index of the atom and
+              (a) the mass number of the isotope, or (b) the mass in dalton and the word DALTON.
+              </HELP>
+              </KEYWORD>
+
 Molecular structure: coordinates, symmetry and basis sets
 .........................................................
 
