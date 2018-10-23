@@ -35,6 +35,7 @@
 #include "lucia_ini.fh"
 #include "orthonormalize.fh"
 #include "WrkSpc.fh"
+#include "ksdft.fh"
       Integer IPRGLB_IN, IPRLOC_IN(7)
 * What to do with Cholesky stuff?
       Logical DoCholesky,timings,DensityCheck
@@ -248,6 +249,11 @@ C        ICIRST=1 ! to be activated!
 *
       KSDFT='SCF'
       ExFac=1.0D0
+* Initialize KSDF coefficients (S Dong, 2018)
+      CoefR = 1.0D0
+      CoefX = 1.0D0
+!      Write(6,*) ' Correlation energy scaling factor (init) is ',CoefR
+!      Write(6,*) ' Exchange energy scaling factor (init) is ',CoefX
 ** Default orthonormalization of CMOs to be with
 ** Gram-Schmidt
 *      Lowdin_ON=.False.

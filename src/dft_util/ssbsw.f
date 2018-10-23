@@ -36,7 +36,7 @@
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
-
+#include "ksdft.fh"
       Real*8 Rho(nRho,mGrid), dF_dRho(ndF_dRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
@@ -48,12 +48,12 @@
 ************************************************************************
 *                                                                      *
 *---- SSBSW Exchange -- unlike OPTX, SSBSW has its LDA part included !
-      Coeff=1.0d0
+      Coeff=1.0d0*CoefX
       Call xSSBSW(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
      &          Coeff,iSpin,F_xc,T_X)
 *
 *---- PBE Correlation
-      Coeff=1.0d0
+      Coeff=1.0d0*CoefR
       Call CPBE(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
      &         Coeff,iSpin,F_xc,T_X)
 *                                                                      *

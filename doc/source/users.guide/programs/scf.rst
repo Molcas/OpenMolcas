@@ -314,18 +314,37 @@ Below is a list of keywords that should cover the needs of most users.
               </KEYWORD>
 
 :kword:`KSDFT`
-  Use this Keyword to do the Density Functional Theory Calculations.
-  This Keyword should be followed by functional Keyword:
+  Use this keyword to do density functional theory calculations.
+  This keyword should be followed by functional keyword:
   BLYP, B3LYP, B3LYP5, HFB, HFS, LDA, LDA5, LSDA, LSDA5, SVWN, SVWN5, TLYP, PBE, PBE0, M06, M06HF, M062X, M06L.
-  Example: KSDFT=B3LYP
+  Example: `KSDFT=B3LYP`
 
   .. xmldoc:: <KEYWORD MODULE="SCF" NAME="KSDFT" APPEAR="DFT" KIND="CHOICE" LIST="----,BLYP,B3LYP,B3LYP5,HFB,HFS,LDA,LDA5,LSDA,LSDA5,SVWN,SVWN5,TLYP,PBE,PBE0,M06,M06HF,M062X,M06L" LEVEL="BASIC">
               %%Keyword: KSDFT <basic>
               <HELP>
-              Use this Keyword to do the Density Functional Theory Calculations
-              This Keyword should be followed by the functional Keyword:
+              Use this keyword to do density functional theory calculations
+              This keyword should be followed by the functional keyword:
               BLYP, B3LYP, B3LYP5, HFB, HFS, LDA, LDA5, LSDA, LSDA5, SVWN, SVWN5, TLYP, PBE, PBE0, M06, M062X, M06HF, M06L.
               Example: KSDFT=B3LYP
+              </HELP>
+              </KEYWORD>
+
+:kword:`DFCF`
+  Use this keyword to scale the exchange terms and/or correlation terms of a density functional.
+  This keyword should be followed by the scaling factor for the exchange terms and the scaling factor for the correlation terms, separated by a space.
+  If the values are 1.0 (default), then the original density functional is used. 
+  For an HLE-type functional, use 1.25 (for exchange) and 0.5 (for correlation).
+  Example: `DFCF=1.25 0.5`
+
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="DFCF" APPEAR="DFT exch. & corr. scaling factors" KIND="REALS" SIZE="2" LEVEL="ADVANCED">
+              %%Keyword: DFCF <advanced>
+              <HELP>
+              Use this keyword to scale the exchange terms and/or correlation terms of a density functional.
+              This keyword should be followed by the scaling factor for the exchange terms 
+              and the scaling factor for the correlation terms, separated by a space.
+              If the values are 1.0 (default), then the original density functional is used.
+              For an HLE-type functional, use 1.25 (for exchange) and 0.5 (for correlation).
+              Example: DFCF=1.25 0.5
               </HELP>
               </KEYWORD>
 

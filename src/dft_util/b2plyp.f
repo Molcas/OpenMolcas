@@ -34,6 +34,7 @@
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
+#include "ksdft.fh"
       Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
@@ -44,9 +45,9 @@ C      Call QEnter('B2PLYP')
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Coeff_A=0.470D0
-      Coeff_B=0.0000
-      Coeff_C=0.73D0
+      Coeff_A=0.470D0*CoefX
+      Coeff_B=0.0000*CoefX
+      Coeff_C=0.73D0*CoefR
 C    requires 0.27 times MP2 correlation energy from MBPT2
 *                                                                      *
 *---- Dirac Exchange Functional                                        *
@@ -65,7 +66,7 @@ C    requires 0.27 times MP2 correlation energy from MBPT2
 *                                                                      *
 C--      Call VWN_V(mGrid,Rho,nRho,
 C--     &           iSpin,F_xc,dF_dRho,
-C--     &           ndF_dRho,One-Coeff_C,T_X)
+C--     &           ndF_dRho,CoefR-Coeff_C,T_X)
 *                                                                      *
 *---- Lee-Yang-Parr Correlation Functional                             *
 *                                                                      *

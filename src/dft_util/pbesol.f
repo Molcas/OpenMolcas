@@ -26,17 +26,18 @@
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
+#include "ksdft.fh"
       Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      CoeffA=1.0D0
+      CoeffA=One*CoefR
       Call CPBEsol(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
      &          CoeffA,iSpin,F_xc,T_X)
 
-      CoeffB=1.0D0
+      CoeffB=One*CoefX
       Call XPBEsol(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
      &          CoeffB,iSpin,F_xc,T_X)
 *                                                                      *

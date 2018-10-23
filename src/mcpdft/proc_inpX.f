@@ -28,6 +28,7 @@
 #include "general.fh"
 #include "output_ras.fh"
 #include "orthonormalize.fh"
+#include "ksdft.fh"
       Parameter (ROUTINE='READIN  ')
 #include "casvb.fh"
 #include "pamint.fh"
@@ -881,6 +882,18 @@ CGG This part will be removed. (PAM 2009: What on earth does he mean??)
         Write(LF,*) ' specified for MCPDFT calculations '
         Write(LF,*) ' **********************************'
         Call Abend()
+      End If
+*---  Process DFCF command (S Dong, 2018)--------------------------*
+      If (DBG) Write(6,*) ' Check if DFCF was provided.'
+      If (KeyDFCF) Then
+       If (DBG) Write(6,*) ' DFCF command has been used.'
+       Call SetPos_m(LUInput,'DFCF',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure after reading DFCF keyword.'
+       Read(LUInput,*,End=9910,Err=9920) CoefX,CoefR
+       ReadStatus=' O.K. after reading DFCF keyword.'
+!       Write(6,*) ' Exchange energy scaling factor is ',CoefX
+!       Write(6,*) ' Correlation energy scaling factor is ',CoefR
       End If
 *---  Process CION command --------------------------------------------*
       If (DBG) Write(6,*) ' Check if CIONLY case.'
