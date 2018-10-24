@@ -276,9 +276,12 @@
 #ifdef _HDF5_
       if (pt2wfn_is_h5) then
         call mh5_close_file(pt2wfn_id)
+        pt2wfn_is_h5 = .False.
+        pt2wfn_id    = -1
 #ifdef _DMRG_
         call qcmaquis_info_deinit
 #endif
+
       end if
 #endif
       end subroutine

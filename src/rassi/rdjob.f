@@ -151,7 +151,8 @@
         END DO
       end if
 
-      if(qdpt2sc.and.(molcas_module.eq.'NEVPT2'))then
+
+      if(qdpt2sc.and.(trim(molcas_module(1:6)).eq.'NEVPT2'))then
         heff_string     = 'H_EFF_SC'
         heff_evc_string = 'H_EFF_EVC_SC'
         pt2_e_string    = 'STATE_PT2_ENERGIES_SC'
@@ -174,13 +175,17 @@
             JSTATE=ISTAT(JOB)-1+J
             iadr=(istate-1)*nstate+jstate-1
             Work(l_heff+iadr)=ref_Heff(I,J)
-!>            write(6,*) 'readin: Heff(',istate,',',jstate,') = ',
-!>     &      Work(l_heff+iadr)
-            call xflush(6)
+!           write(6,*) 'readin: Heff(',istate,',',jstate,') = ',
+!    &      Work(l_heff+iadr)
+!           call xflush(6)
           END DO
         END DO
         call mma_deallocate(ref_Heff)
-        If (mh5_exists_dset(refwfn_id, heff_evc_string)) Then
+        If(mh5_exists_dset(refwfn_id, heff_evc_string).and.qdpt2ev)Then
+          write(6,'(2x,a)')
+     & ' eigenvectors of the effective Hamiltonian from MRPT2 requested'
+          write(6,'(2x,a)')
+     & ' --------------------------------------------------------------'
           !> read eigenvectors of Heff (currently used only for QD-NEVPT2 as ref wfn)
                       tag = 1
           if(qdpt2sc) tag = 2
@@ -190,7 +195,8 @@
      &                                     Heff_evc(job)%sc)
             DO I=1,NSTAT(JOB)
               DO J=1,NSTAT(JOB)
-                write(6,*) 'readin: Heff_evc(',i,',',j,') = ',
+                write(6,'(2x,a,i0,a,i0,a,1f12.8)')
+     &          ' C^{Heff}(',i,',',j,') = ',
      &          Heff_evc(job)%sc(i,j)
               END DO
             END DO
@@ -199,11 +205,14 @@
      &                                     Heff_evc(job)%pc)
             DO I=1,NSTAT(JOB)
               DO J=1,NSTAT(JOB)
-                write(6,*) 'readin: Heff_evc(',i,',',j,') = ',
+                write(6,'(1x,a,i0,a,i0,a,1f12.8)')
+     &          ' C^{Heff}(',i,',',j,') = ',
      &          Heff_evc(job)%pc(i,j)
               END DO
             END DO
           end if
+          write(6,'(2x,a//)')
+     & ' --------------------------------------------------------------'
         end if
 * read the caspt2/qdnevpt2 reference energies if available
       Else If (mh5_exists_dset(refwfn_id, pt2_e_string)) Then
