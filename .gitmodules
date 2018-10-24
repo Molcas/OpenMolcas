@@ -14,6 +14,3 @@
 	path = External/lapack
 	url = https://github.com/Reference-LAPACK/lapack-release.git
 	branch = lapack-3.7.1
-[submodule "External/grid_it"]
-	path = External/grid_it
-	url = https://git.code.sf.net/p/gridit/code
