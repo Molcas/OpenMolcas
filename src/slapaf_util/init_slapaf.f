@@ -421,6 +421,8 @@ C           NADC= .False. ! for debugging
 *     Transform charges to masses (C=12)
 *
       ii = ipCM
+      Call GetMem('Mass','Allo','Real',ip_xMass,nsAtom)
+      Call Get_Mass(Work(ip_xMass),nsAtom)
 *     Call RecPrt(' Charges',' ',Work(ipCM),nsAtom,1)
       Call GetMem('ANr','Allo','Inte',ipANr,nsAtom)
       jj = ipANr
@@ -433,12 +435,13 @@ C           NADC= .False. ! for debugging
 *           Work(ii) = 1.0D99
             Work(ii) = 1.0D-10
          Else
-            Work(ii) = rmass(ind)
+            Work(ii) = Work(ip_xMass+isAtom-1)
          End If
          iWork(jj)=ind
          ii = ii + 1
          jj = jj + 1
  110  Continue
+      Call GetMem('Mass','Free','Real',ip_xMass,nsAtom)
 *                                                                      *
 ************************************************************************
 *                                                                      *

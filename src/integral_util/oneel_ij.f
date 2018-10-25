@@ -27,7 +27,6 @@
 *
       use Real_Spherical
       use iSD_data
-      use Isotopes
       Implicit Real*8 (a-h,o-z)
       External Kernel, KrnlMm
 #include "itmax.fh"
@@ -527,9 +526,8 @@
      &             A(3).eq.RB(3)) .AND.
      &             Charge(iCnttp).ne.Zero) Then
                      iAtom=iAtmNr(iCnttp)
-                     isnx=0
 *                    Get the atom mass in au (me=1)
-                     Call Isotope(isnx,iAtom,xMass)
+                     xMass=CntMass(iCnttp)
 *                    Substract the electron mass to get the nuclear
 *                    mass.
                      xMass=xMass-DBLE(iAtom)

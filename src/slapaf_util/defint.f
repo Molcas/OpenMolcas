@@ -11,7 +11,7 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
       SubRoutine DefInt(BVct,nBVct,Labels,BMtrx,nQQ,nAtom,nLines,Value,
-     &                  rInt,Lbl,Name,Coor,rMass,nSym,iOper,
+     &                  rInt,Lbl,Name,Coor,dMass,nSym,iOper,
      &                  jStab,nStab,mxdc,rMult,nDim,Redundant)
 ************************************************************************
 *                                                                      *
@@ -43,7 +43,7 @@
 #include "WrkSpc.fh"
 #include "Molcas.fh"
       Real*8 BVct(3*nAtom,nBVct), Value(nBVct), BMtrx(3*nAtom,nQQ),
-     &       rInt(nQQ), Coor(3,nAtom), rMass(nAtom),
+     &       rInt(nQQ), Coor(3,nAtom), dMass(nAtom),
      &       rMult(nBVct)
       Character Labels(nBVct)*8, Type*6, Temp*120, Lbl(nQQ)*8, cNum*4,
      &          Name(nAtom)*(LENIN), Line*120, Format*8, filnam*16
@@ -250,7 +250,7 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
          Call Cllct(Line(nGo:nTemp),BVct(1,iBVct),Value_Temp,
      &              Name,nAtom,Coor,nCntr,mCntr,
      &              Work(ipxyz),Work(ipTemp),iWork(ipInd),Type,
-     &              rMass,Work(ipMass),Work(ipTM),lWrite,
+     &              dMass,Work(ipMass),Work(ipTM),lWrite,
      &              Labels(iBVct),nSym,lWrite,iOper,jStab,nStab,mxdc,
      &              rMult(iBVct),lAtom)
 *

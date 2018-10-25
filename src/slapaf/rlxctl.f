@@ -87,7 +87,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (lCtoF .AND. PrQ) Call Def_CtoF(.False.,nsAtom,AtomLbl,
+      If (lCtoF .AND. PrQ) Call Def_CtoF(.False.,Work(ipCM),
+     &                                   nsAtom,AtomLbl,
      &                                   Work(ipCoor),nSym,iOper,
      &                                   jStab,nStab)
 *                                                                      *
@@ -312,7 +313,7 @@
 *
       Call DstInf(iStop,Just_Frequencies,
      &            (lNmHss.or.lRowH) .and.iter.le.NmIter)
-      If (lCtoF) Call Def_CtoF(.True.,
+      If (lCtoF) Call Def_CtoF(.True.,Work(ipCM),
      &         nsAtom,AtomLbl,Work(ipCoor),nSym,iOper,jStab,nStab)
       If (.Not.User_Def .and.
      &   ((lNmHss.and.iter.ge.NmIter).or..Not.lNmHss)) Call cp_SpcInt

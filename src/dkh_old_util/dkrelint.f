@@ -207,7 +207,7 @@ c                   write(stdout,'(a11,f20.8)') ' Exponents',rExpi
 *
 *     Allocate memory for relativistic part
 *
-      VELIT=CLight
+      VELIT=CLightAU
       iSizep=0
       iSizec=0
       Do L=0,nSym-1
@@ -466,9 +466,9 @@ C           Write (6,*) 'dkhmemmax=',dkhmemmax
             Call dkhparser_driver(n,isize,dkhscfflg,dkhorder,xorder,
      &                            Work(iSS+k), Work(iK+k),Work(iV+k),
 *    &                            Work(ipVp+k),Work(ip_Dummy),
-*    &                            Work(ip_Dummy),clight,paramtype,
+*    &                            Work(ip_Dummy),clightau,paramtype,
      &                            Work(ipVp+k),Work(ip1),Work(ip2),
-     &                            clight,paramtype,dkhmemmax,
+     &                            clightau,paramtype,dkhmemmax,
      &                            Work(iDKHmem),no_hamil,no_prop,
      &                            nbasp,nbaso,LDKroll,iWork(indx2),
      &                            nAtom,maxsiz,nblock,LDKpert)
@@ -676,7 +676,7 @@ C              Write (6,*) 'dkhmemmax=',dkhmemmax
                Call dkhparser_driver(n,isize,dkhscfflg,dkhorder,xorder,
      &                               Work(iSS+k), Work(iK+k),Work(iV+k),
      &                               Work(ipVp+k),Work(iX+k),
-     &                               Work(ipXp+k),clight,paramtype,
+     &                               Work(ipXp+k),clightau,paramtype,
      &                               dkhmemmax,Work(iDKHmem),no_hamil,
      &                               no_prop,nbasp,nbaso,LDKroll,
      &                               iWork(indx2),nAtom,maxsiz,nblock,

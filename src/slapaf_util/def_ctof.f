@@ -11,7 +11,7 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 *               2008, Giovanni Ghigo                                   *
 ************************************************************************
-      SubRoutine Def_CtoF(lNew,
+      SubRoutine Def_CtoF(lNew,dMass,
      &                    nAtom,Name,Coor,nSym,iOper,jStab,nStab)
 ************************************************************************
 *                                                                      *
@@ -27,7 +27,7 @@
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "Molcas.fh"
-      Real*8    Coor(3,nAtom)
+      Real*8    Coor(3,nAtom), dMass(nAtom)
       Character Labels*8, Type*6, Temp*120,
      &          Name(nAtom)*(LENIN), Line*120, Format*8, filnam*16
       Logical lWrite, lNew
@@ -94,7 +94,7 @@ c      iBVct = 0
          Labels = Line(iFrst:jEnd)
       End If
 *
-*-----Constructe the corresponding transformation vector
+*-----Construct the corresponding transformation vector
 *
       mCntr = 0
       If (Index(Temp,'CART').Ne.0) Then
@@ -185,7 +185,7 @@ c      iBVct = 0
 *
       Call CllCtoF(Line(nGo:nTemp),Name,nAtom,Coor,nCntr,mCntr,
      &           Work(ipxyz),Work(ipTemp),iWork(ipInd),Type,
-     &           rMass,Work(ipMass),
+     &           dMass,Work(ipMass),
      &           Labels,nSym,iOper,jStab,nStab,nAtom)
 *
       Call GetMem('Mass','Free','Real',ipMass,2*msAtom)

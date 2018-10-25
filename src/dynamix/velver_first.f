@@ -41,14 +41,14 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       REAL*8      DT2,DTSQ2,Ekin,time,totimpl,RMS
 
       CHARACTER  caption*15, lastline*80, filname*80
-      LOGICAL    hybrid,qmmm,lIsotope
+      LOGICAL    hybrid,qmmm
 *
-      INTEGER    natom2,nIsoAtoms
+      INTEGER    natom2
 *
       REAL*8, ALLOCATABLE ::      vel(:),xyz(:),force(:)
       REAL*8, ALLOCATABLE ::      Mass(:),tstxyz(:)
       CHARACTER, ALLOCATABLE ::  atom(:)*2, atom2(:)*2
-      REAL*8, ALLOCATABLE ::     force2(:),xyz2(:),dIsotopes(:)
+      REAL*8, ALLOCATABLE ::     force2(:),xyz2(:)
       INTEGER Iso
 *
       IF(IPRINT.EQ.INSANE) WRITE(6,*)' Entering ',ROUTINE
@@ -88,15 +88,6 @@ C
 C     Read the velocities
 C
       CALL Get_Velocity(vel,3*natom)
-C
-C     Check if the Isotope option is selected
-C
-      CALL Qpg_dArray('Isotopes',lIsotope,nIsoAtoms)
-      IF (lIsotope) THEN
-         CALL mma_allocate(dIsotopes,natom)
-         CALL Get_dArray('Isotopes',dIsotopes,natom)
-      WRITE(6,*) 'Isotopes Label:' ,lIsotope
-      END IF
 
 C--------------------------------------------------------------------C
 C CANONICAL ENSEMBLE
@@ -108,9 +99,8 @@ C--------------------------------------------------------------------C
 
 C     Initialize the Mass variable
 C
-      DO i=1, natom
-         Mass(i)=0.D0
-      END DO
+      CALL Get_nAtoms_All(matom)
+      CALL Get_Mass_All(Mass,matom)
 C
 C     Write out the old coordinates
 C
@@ -137,14 +127,10 @@ C
 *
       DO i=1, natom
 C     Determines the mass of an atom from its name
-        CALL LeftAd(atom(i))
-        Iso=0
-        CALL Isotope(Iso,atom(i),Mass(i))
-C     Manual isotope modification -----------
-        IF (lIsotope) THEN
-           IF ((dIsotopes(i)).NE.0.0D0) THEN
-              Mass(i)=dIsotopes(i)
-           END IF
+        IF (i.GT.matom) THEN
+           CALL LeftAd(atom(i))
+           Iso=0
+           CALL Isotope(Iso,atom(i),Mass(i))
         END IF
 C-------------------------------------------
         DO j=1, 3
@@ -162,19 +148,6 @@ C-------------------------------------------
           totimpl = totimpl + vel(3*(i-1)+j) * Mass(i)
         END DO
       END DO
-
-      IF (lIsotope) THEN
-       write (6,*) ' isotopes: '
-       do i=1,natom
-         write (6,*) i, dIsotopes(i)
-       end do
-       write (6,*) ' '
-       write (6,*) ' Atom Masses: '
-       do i=1,natom
-         write (6,*) i, Mass(i)
-       end do
-       write (6,*) ' '
-      END IF
 
       Call Add_Info('EKin',EKin,1,6)
 
@@ -260,9 +233,6 @@ C
       CALL mma_deallocate(xyz2)
       CALL mma_deallocate(force2)
       CALL mma_deallocate(atom2)
-      IF (lIsotope) THEN
-         CALL mma_deallocate(dIsotopes)
-      END IF
 C
 C     The return code is set in order to continue the loop
 C

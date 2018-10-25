@@ -142,7 +142,7 @@ c                    write(6,'(a11,f20.8)') ' Exponents',rExpi
       call dcopy_(LenIntf1,Zero,0,Work(iAaf),1)
       call dcopy_(LenIntf1,Zero,0,Work(iRrf),1)
 *
-      VELIT=CLight
+      VELIT=CLightAU
       iSizep=0
       Do L=0,nSym-1
          iSizep=iSizep + nBas(L)*(nBas(L)+1)/2
