@@ -50,7 +50,7 @@ C Compute the effective Hamiltonian:
        WRITE(6,*)
        WRITE(6,'(10X,6X,A3,I4,A3)') ' | ', MSTATE(JSTATE), ' > '
        DO ISTATE=1,NSTATE
-        WRITE(6,'(A3,I4,A3,F16.8)') ' < ',MSTATE(ISTATE),' | ',
+        WRITE(6,'(A3,I4,A3,F20.12)') ' < ',MSTATE(ISTATE),' | ',
      &    HEFF(ISTATE,JSTATE)
        ENDDO
       ENDIF
