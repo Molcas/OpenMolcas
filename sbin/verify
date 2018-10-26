@@ -195,7 +195,6 @@ if ($opt{reset}) {
 
 $ENV{'MOLCAS_OUTPUT'} = 'WORKDIR';
 $ENV{'MOLCAS_TIME'} = 'YES';
-$ENV{'MOLCAS_GRID'} = 'NO';
 # set test type: generating or checking?
 if ($opt{generate}) {
         $ENV{'MOLCAS_INFO'}= "$MOLCAS_ID!$MACHINE!$DATE!";
