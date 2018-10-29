@@ -132,7 +132,7 @@ C Hamiltonian matrix elements, eigenvectors:
 
 ! +++ J. Creutzberg, J. Norell - 2018
 ! Write the spin-free Dyson orbitals to .DysOrb and .molden
-! files if requested (KEYWORD to be added)
+! files if requested
 *----------------------------------------------------------------
 ! Number of basis functions
       NZ=0                      ! (NBAS is already used...)

@@ -33,10 +33,10 @@
       DIMENSION SZZFULL(NZ,NZ)
 
       ! Joel
-      DIMENSION SODYSCMO(NZ*NSS)
-      DIMENSION SOENE(NSS)
-      DIMENSION DYSEN(NSS)
-      DIMENSION AMPS(NSS)
+      DIMENSION SODYSCMO(NZ*NZ)
+      DIMENSION SOENE(NZ)
+      DIMENSION DYSEN(NZ)
+      DIMENSION AMPS(NZ)
 
 ! +++ J.Norell 2018
 
@@ -136,7 +136,7 @@ C atomic basis from disk
          ! permutation of degenerate states in the SO part
          ! might 'escape' this, therefore we fill out the
          ! full matrix to be safe.
-         SFDYS(:,ISTATE,JSTATE)=SFDYS(:,JSTATE,ISTATE)
+!         SFDYS(:,ISTATE,JSTATE)=SFDYS(:,JSTATE,ISTATE)
         ELSE
          DO NDUM=1,NZ
           SFDYS(NDUM,JSTATE,ISTATE)=0.0D0
@@ -188,6 +188,12 @@ C atomic basis from disk
 
 C Multiply together with the SO eigenvector coefficients to get the
 C SO coefficients
+
+      SODYSCIND=0 ! Orbital coeff. index
+      ORBNUM=0 ! Dysorb index for given JSTATE
+      SODYSCMO=0.0D0
+      DYSEN=0.0D0
+      AMPS=0.0D0
 
       ! For all possible SO state combinations
       DO JSTATE=1,NSS
@@ -260,6 +266,9 @@ C SO coefficients
           IF ( ISTATE.EQ.(JSTATE+1) ) THEN
               SODYSCIND=0 ! Orbital coeff. index
               ORBNUM=0 ! Dysorb index for given JSTATE
+              SODYSCMO=0.0D0
+              DYSEN=0.0D0
+              AMPS=0.0D0
           END IF
 
          IF (AMPLITUDE.GT.1.0D-6) THEN
@@ -284,8 +293,8 @@ C SO coefficients
          ELSE IF (JSTATE.GT.DYSEXPSO) THEN
              CYCLE
          END IF
-         Call Dys_Interf(.TRUE.,JSTATE,NZ,SODYSCMO(1:NZ*ORBNUM),
-     &        DYSEN(1:ORBNUM),AMPS(1:ORBNUM))
+         Call Dys_Interf(.TRUE.,JSTATE,NZ,SODYSCMO,
+     &        DYSEN,AMPS)
 ! +++
 
        END DO ! JSTATE

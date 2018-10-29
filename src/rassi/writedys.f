@@ -33,9 +33,9 @@
       DIMENSION DYSAMPS(NSTATE,NSTATE)
       DIMENSION SFDYS(NZ,NSTATE,NSTATE)
       DIMENSION ENERGY(NSTATE)
-      DIMENSION DYSEN(NSTATE)
-      DIMENSION AMPS(NSTATE)
-      DIMENSION CMO(NZ*NSTATE)
+      DIMENSION DYSEN(NZ)
+      DIMENSION AMPS(NZ)
+      DIMENSION CMO(NZ*NZ)
 
 C Read in all the previously saved SF Dyson orbitals in the
 C atomic basis from disk
@@ -72,6 +72,9 @@ C atomic basis from disk
           IF ( ISTATE.EQ.(JSTATE+1) ) THEN
               DYSCIND=0 ! Orbital coeff. index
               ORBNUM=0 ! Dysorb index for given JSTATE
+              CMO=0.0D0
+              DYSEN=0.0D0
+              AMPS=0.0D0
           END IF
 
          IF (DYSAMPS(JSTATE,ISTATE).GT.1.0D-6) THEN
@@ -87,8 +90,8 @@ C atomic basis from disk
        END DO ! ISTATE
 
 ! Write the Dysorbs from JSTATE to .DysOrb and .molden file
-         Call Dys_Interf(.FALSE.,JSTATE,NZ,CMO(1:NZ*ORBNUM),
-     &        DYSEN(1:ORBNUM),AMPS(1:ORBNUM))
+         Call Dys_Interf(.FALSE.,JSTATE,NZ,CMO,
+     &        DYSEN,AMPS)
 ! +++
 
 

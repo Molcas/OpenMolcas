@@ -755,17 +755,19 @@ C DYSCOF = Active orbital coefficents of the DO
      &            DYSAMP,WORK(LDYSCOF))
 
 C Write Dyson orbital coefficients in AO basis to disk.
+        IF (DYSAMP.GT.1.0D-6) THEN
 C In full biorthonormal basis:
-        CALL MKDYSAB(WORK(LDYSCOF),WORK(LDYSAB))
+         CALL MKDYSAB(WORK(LDYSCOF),WORK(LDYSAB))
 C In AO basis:
-        CALL MKDYSZZ(WORK(LCMO1),WORK(LDYSAB),
-     &              WORK(LDYSZZ))
+         CALL MKDYSZZ(WORK(LCMO1),WORK(LDYSAB),
+     &               WORK(LDYSZZ))
 C Save to disk:
-       IDISK=IWORK(LIDDYS+(ISTATE-1)*NSTATE+JSTATE-1)
-       CALL DDAFILE(LUDYS,1,WORK(LDYSZZ),NDYSZZ,IDISK)
-       DO NDUM=1,NDYSZZ
-        WORK(LDYSZZ+NDUM-1)=0.0D0
-       END DO
+        IDISK=IWORK(LIDDYS+(ISTATE-1)*NSTATE+JSTATE-1)
+        CALL DDAFILE(LUDYS,1,WORK(LDYSZZ),NDYSZZ,IDISK)
+        DO NDUM=1,NDYSZZ
+         WORK(LDYSZZ+NDUM-1)=0.0D0
+        END DO
+       END IF ! AMP THRS
       END IF ! IF01 IF10
       DYSAMPS(ISTATE,JSTATE)=DYSAMP
       DYSAMPS(JSTATE,ISTATE)=DYSAMP

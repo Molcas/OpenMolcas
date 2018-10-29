@@ -41,11 +41,13 @@ C Prepare the address array
         LUDYS=IsFreeUnit(LUDYS)
         CALL DANAME_MF(LUDYS,'DYSFILE')
         IDISK=0
-        DO ISTATE=1,NSTATE
-          DO JSTATE=1,NSTATE
+!        DO ISTATE=1,NSTATE
+!          DO JSTATE=1,NSTATE
+         DO JSTATE=1,NSTATE
+          DO ISTATE=JSTATE+1,NSTATE
             IWORK(LIDDYS+(ISTATE-1)*NSTATE+JSTATE-1)=IDISK
 C Compute next disk address after writing a DYSZZ array
-            CALL DDAFILE(LUDYS,0,DUMMY,NSTATE*NSTATE,IDISK)
+            CALL DDAFILE(LUDYS,0,DUMMY,NZ,IDISK)
           END DO
         END DO
 * +++
