@@ -125,15 +125,12 @@
      $        'Reference energy for each state, '//
      $        'arranged as array of [nr_states]')
 
-      if(skip_effective_ham)then
-        !> PT2 energy (SC for each state)
-        pt2wfn_energy_sc = mh5_create_dset_real (pt2wfn_id,
-     $        'STATE_PT2_ENERGIES_SC', 1, [nr_states])
-        call mh5_init_attr(pt2wfn_energy_sc, 'description',
-     $        'PT2 energy (SC) for each state, '//
-     $        'arranged as array of [nr_states]')
-      else
-
+      !> PT2 energy (SC for each state)
+      pt2wfn_energy_sc = mh5_create_dset_real (pt2wfn_id,
+     $      'STATE_PT2_ENERGIES_SC', 1, [nr_states])
+      call mh5_init_attr(pt2wfn_energy_sc, 'description',
+     $      'PT2 energy (SC) for each state, '//
+     $      'arranged as array of [nr_states]')
       !> effective Hamiltonian (SC)
         pt2wfn_heff_sc = mh5_create_dset_real(pt2wfn_id,
      &        'H_EFF_SC', 2, [nr_states, nr_states])
@@ -141,14 +138,6 @@
      &        'Effective QD-NEVPT2 hamiltonian (SC), '//
      &        'arranged as matrix of size [nr_states,nr_states]')
 
-      !> eigenvectors of effective Hamiltonian (SC)
-        pt2wfn_heff_evc_sc = mh5_create_dset_real(pt2wfn_id,
-     &        'H_EFF_EVC_SC', 2, [nr_states, nr_states])
-        call mh5_init_attr(pt2wfn_heff_evc_sc, 'description',
-     &        'Eigenvectors of effective QD-NEVPT2 hamiltonian (SC), '//
-     &        'arranged as matrix of size [nr_states,nr_states]')
-
-      end if
       !> molecular orbital coefficients
         pt2wfn_mocoef = mh5_create_dset_real(pt2wfn_id,
      $        'MO_VECTORS', 1, [NBSQT])
@@ -157,29 +146,19 @@
      $        'arranged as blocks of size [NBAS(i)**2], i=1,#irreps')
 
       if(.not.no_pc)then
-        if(skip_effective_ham)then
         !> PT2 energy (PC for each state) - default
-          pt2wfn_energy_pc = mh5_create_dset_real (pt2wfn_id,
-     $          'STATE_PT2_ENERGIES', 1, [nr_states])
-          call mh5_init_attr(pt2wfn_energy_pc, 'description',
-     $          'PT2 energy (PC) for each state, '//
-     $          'arranged as array of [nr_states]')
-        else
-
-      !> effective Hamiltonian (PC) - default
+        pt2wfn_energy_pc = mh5_create_dset_real (pt2wfn_id,
+     $        'STATE_PT2_ENERGIES', 1, [nr_states])
+        call mh5_init_attr(pt2wfn_energy_pc, 'description',
+     $        'PT2 energy (PC) for each state, '//
+     $        'arranged as array of [nr_states]')
+        !> effective Hamiltonian (PC) - default
         pt2wfn_heff_pc = mh5_create_dset_real(pt2wfn_id,
      &        'H_EFF', 2, [nr_states, nr_states])
         call mh5_init_attr(pt2wfn_heff_pc, 'description',
      &        'Effective QD-NEVPT2 hamiltonian (PC), '//
      &        'arranged as matrix of size [nr_states,nr_states]')
 
-      !> eigenvectors of effective Hamiltonian (PC) - default
-        pt2wfn_heff_evc_pc = mh5_create_dset_real(pt2wfn_id,
-     &        'H_EFF_EVC', 2, [nr_states, nr_states])
-        call mh5_init_attr(pt2wfn_heff_evc_pc, 'description',
-     &        'Eigenvectors of effective QD-NEVPT2 hamiltonian (PC), '//
-     &        'arranged as matrix of size [nr_states,nr_states]')
-        end if
       end if
 
 #ifdef _DMRG_
@@ -242,7 +221,7 @@
       subroutine nevpt2wfn_estore()
       use refwfn
       use nevpt2_cfg
-      use info_state_energy  ! energies, effective Hamiltonian + eigenvectors
+      use info_state_energy  ! energies + effective Hamiltonian
       implicit none
 #ifdef _HDF5_
 #  include "mh5.fh"
@@ -250,19 +229,14 @@
       If (pt2wfn_is_h5) Then
         !> reference energies aka DMRG-SCF energies
         call mh5_put_dset_array_real(pt2wfn_refene, e)
-        if(skip_effective_ham)then !> single-state energies
-          call mh5_put_dset_array_real(pt2wfn_energy_sc, psimp)
-        else !> effective Ham and eigenvectors
-          call mh5_put_dset_array_real(pt2wfn_heff_sc,e2mp)
-          call mh5_put_dset_array_real(pt2wfn_heff_evc_sc,heff_sc)
-        end if
+        call mh5_put_dset_array_real(pt2wfn_energy_sc, psimp)
+        !> effective Hamiltonian
+        call mh5_put_dset_array_real(pt2wfn_heff_sc,e2mp)
         if(.not.no_pc)then
-          if(skip_effective_ham)then !> single-state energies
-            call mh5_put_dset_array_real(pt2wfn_energy_pc, psien)
-          else !> effective Ham and eigenvectors
-            call mh5_put_dset_array_real(pt2wfn_heff_pc,e2en)
-            call mh5_put_dset_array_real(pt2wfn_heff_evc_pc,heff_pc)
-          end if
+          !> single-state PC energies
+          call mh5_put_dset_array_real(pt2wfn_energy_pc, psien)
+          !> effective PC Hamiltonian
+          call mh5_put_dset_array_real(pt2wfn_heff_pc,e2en)
         end if
       End If
 #endif
