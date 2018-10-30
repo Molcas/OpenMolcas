@@ -317,6 +317,7 @@ c mess started here :)
          RecLab(158)='AMFI_SINGLE     '
          RecLab(159)='HAMSOR_SINGLE   '
          RecLab(160)='HAMSOI_SINGLE   '
+         RecLab(161)='Last Dipole Mome' !nts
 *                     1234567890123456
 *
 *        If you go beyond 256: update pg_da_info.fh and this line!

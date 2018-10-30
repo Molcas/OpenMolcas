@@ -31,7 +31,7 @@
       If(.not.Found .or. nFockOcc.eq.0) Then
          Call SysAbendMsg('get_fock_occ','Did not find:',Label)
       End If
-      Call GetMem('Dens','Allo','Real',ipFockOcc,nFockOcc)
+      Call GetMem('FockOcc','Allo','Real',ipFockOcc,nFockOcc)
       Call Get_dArray(Label,Work(ipFockOcc),nFockOcc)
 *                                                                      *
 ************************************************************************
