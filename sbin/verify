@@ -342,7 +342,7 @@ if ($opt{module} or $opt{word}) {
                         push @pattern_list, "$key";
                 }
         }
-        my $filter_pattern = '^ *(' . join ('|', @pattern_list) . ')';
+        my $filter_pattern = '^\s*(' . join ('|', @pattern_list) . ')';
         my @filtered_filelist;
         for my $file (@filelist) {
                 open (FILE, '<', $file);
