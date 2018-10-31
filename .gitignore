@@ -105,8 +105,6 @@ lib/
 /tinker
 /tinker*/
 # Test/
-test/qcmaquis
-test/qcmaquis/
 test/sonatorb/
 test/sonatorb
 # pymolcas

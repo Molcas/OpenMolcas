@@ -176,6 +176,19 @@ contains
 
 #endif
 
+      ! take care of unused variable warnings
+      if (.false.) then
+        call Unused_integer(ndim)
+        call Unused_integer(mdim)
+        call Unused_integer(error)
+        call Unused_logical(rdm1)
+        call Unused_logical(rdm2)
+        call Unused_character(task)
+        call Unused_real(energy)
+        call Unused_real_array(x1)
+        call Unused_real_array(x2)
+      end if
+
       end subroutine dmrg_task_process_update
 
 #else
