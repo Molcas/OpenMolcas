@@ -15,6 +15,7 @@ import numpy as np
 import random
 import argparse
 import os
+import sys
 
 
 def printDict(dictionary):
@@ -144,10 +145,12 @@ def parseCL():
 
 def parseMoldenFreq(fn):
     inp = {}
+    sys.exit('This feature is still not available')
     return(inp)
 
 def parseh5Freq(fn):
     inp = {}
+    sys.exit('This feature is still not available')
     return(inp)
 
 def main():
@@ -156,7 +159,7 @@ def main():
     if args.i:
         fn=args.i
     else:
-        fn='/home/alessio/Molcas-Initial/Test/water.freq.molden'
+        fn=''
 
     if args.seed:
         seedI = args.seed
@@ -176,22 +179,22 @@ def main():
 
     # check if is is molden or h5
     name, ext = os.path.splitext(fn)
+    print (ext)
     if ext == '.molden':
         inputs = parseMoldenFreq(fn)
     elif ext == '.h5':
         inputs = parseh5Freq(fn)
     else:
         print('You must use freq.molden or .h5 files')
-        inputs = giveMeDataJefe()
 
     ##################################################
     # take out this line to make it work as intended #
     inputs = giveMeDataJefe()
     ##################################################
 
-    printDict(inputs)
+    # printDict(inputs)
 
-    print('\n\n\n\nAFTER DICTIONARY')
+    #print('\n\n\n\nAFTER DICTIONARY')
     for counter in range(number_of_ic):
         complete_label = '{}{:04}'.format(label,counter)
         generate_one_boltz(inputs,complete_label)
