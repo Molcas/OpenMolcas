@@ -70,6 +70,15 @@ def generate_one_boltz(dictio,label):
     Main driver for initial condition. Takes as input a dictionary of inputs.
     dictio :: Dictionary <- inputs
     label :: String <- project name
+    in this routine the boltzmann distribution is calculated for a single initial condition
+
+    degrN :: Int <- number of degrees of freedom
+    atomN :: Int <- number of atoms
+
+    some dimesions
+    NCMatx :: (degrN, atomN, 3)
+    Pcart,vcart :: (atomN,3)
+
     '''
     # dictionary unpacking
     c = dictio['c']
@@ -88,10 +97,6 @@ def generate_one_boltz(dictio,label):
     # change of dimensions
     Pint = (np.array([ gaus_dist(x) for x in sigmaP ]))*6.02214086E21
 
-    # some dimesions
-    # NCMatx :: (degrN, atomN, 3) 
-    # Pcart,vcart :: (atomN,3)
-
     # I want to multiply on first axis, both for Pcart and vcart
     # this is why I am broadcasting/transposing
     pint_transpose = np.broadcast_to(Pint,(degrN,atomN,3)).T
@@ -104,6 +109,7 @@ def generate_one_boltz(dictio,label):
     # change of dimensions
     Qint = (np.array([ gaus_dist(x) for x in sigma_q ]))*2.4540051E23
 
+    # same multiplication on first axis.
     qint_transpose = np.broadcast_to(Qint,(degrN,atomN,3)).T
     to_be_summed = NCMatx * qint_transpose
     Qcart_temp = np.sum(to_be_summed, axis=0)
@@ -140,18 +146,116 @@ def parseCL():
                         required=False,
                         type=int,
                         help="how many initial condition needed? (default 1)")
+    parser.add_argument("-t", "--temperature",
+                        dest="temp",
+                        required=True,
+                        type=float,
+                        help="temperature in Kelvin for the initial conditions")
     args = parser.parse_args()
     return args
 
 def parseMoldenFreq(fn):
     inp = {}
-    sys.exit('This feature is still not available')
+    with open(fn) as f:
+        first = f.readline()
+        # parse n_freq
+        second = f.readline()
+        if second.strip() == '[N_FREQ]':
+            degrN = int(f.readline().strip())
+            inp['degrN'] = degrN
+        else:
+            sys.exit('This molden format is not recognized N_FREQ')
+
+        # parse frequencies (they should be second)
+        freqLabel = f.readline()
+        if freqLabel.strip() == '[FREQ]':
+            freq = np.empty(degrN)
+            for i in range(degrN):
+                freq_this_line = f.readline()
+                freq[i] = float(freq_this_line.strip())
+            inp['freq'] = freq
+        else:
+            sys.exit('This molden format is not recognized FREQ')
+
+        # parse INT (they should be third)
+        intLabel = f.readline()
+        if intLabel.strip() == '[INT]':
+            intL = np.empty(degrN)
+            for i in range(degrN):
+                intL_this_line = f.readline()
+                intL[i] = float(intL_this_line.strip())
+            inp['intL'] = intL
+        else:
+            sys.exit('This molden format is not recognized INT')
+
+        # parse NATOM
+        natomLabel = f.readline()
+        if natomLabel.strip() == '[NATOM]':
+            atomN = int(f.readline().strip())
+            inp['atomN'] = atomN
+        else:
+            sys.exit('This molden format is not recognized NATOM')
+
+        # parse FR-COORD (they should be fifth field)
+        coordLabel = f.readline()
+        if coordLabel.strip() == '[FR-COORD]':
+            atomT = []
+            coordL = np.empty((atomN,3))
+            for i in range(atomN):
+                geom_this_line = f.readline()
+                # H 1.9 1.3 -4.5
+                lol = filter(None, geom_this_line.strip('\n').split(' '))
+                a,x,y,z = list(lol)
+                atomT.append(a)
+                coordL[i] = [float(x),float(y),float(z)]
+            inp['atomT'] = atomT
+            inp['geom'] = coordL
+        else:
+            sys.exit('This molden format is not recognized FR-COORD')
+
+        # parse FR-NORM-COORD (they should be sixth field)
+        norm_coord_Label = f.readline()
+        if norm_coord_Label.strip() == '[FR-NORM-COORD]':
+            NCMatx = np.empty((degrN,atomN,3))
+            for j in range(degrN):
+                vibration_line = f.readline()
+                for i in range(atomN):
+                    geom_this_line = f.readline()
+                    # H 1.9 1.3 -4.5
+                    lol = filter(None, geom_this_line.strip('\n').split(' '))
+                    x,y,z = list(lol)
+                    NCMatx[j,i] = [float(x),float(y),float(z)]
+            inp['NCMatx'] = NCMatx
+        else:
+            sys.exit('This molden format is not recognized FR-COORD')
+
+        # parse RMASS (they should be third)
+        rmass_Label = f.readline()
+        if rmass_Label.strip() == '[RMASS]':
+            rmassL = np.empty(degrN)
+            for i in range(degrN):
+                rmassL_this_line = f.readline()
+                rmassL[i] = float(rmassL_this_line.strip())
+            inp['RedMass'] = rmassL
+        else:
+            sys.exit('This molden format is not recognized RMASS')
+    # molden file finished, passing the dictionary back
     return(inp)
 
 def parseh5Freq(fn):
     inp = {}
     sys.exit('This feature is still not available')
     return(inp)
+
+def atomic_masses(atomtype_list):
+    '''
+    this function takes an atomtype list and return a numpy array with
+    atomic masses
+    atomtype_list :: [String] <- ['H', 'H', 'O']
+    '''
+    atomMass = {'H': 1.00794, 'O': 15.9994}
+    at_mass = [ atomMass[x] for x in atomtype_list ]
+    return np.array(at_mass)
 
 def main():
     args = parseCL()
@@ -179,7 +283,6 @@ def main():
 
     # check if is is molden or h5
     name, ext = os.path.splitext(fn)
-    print (ext)
     if ext == '.molden':
         inputs = parseMoldenFreq(fn)
     elif ext == '.h5':
@@ -189,10 +292,16 @@ def main():
 
     ##################################################
     # take out this line to make it work as intended #
-    inputs = giveMeDataJefe()
+    # inputs = giveMeDataJefe()
     ##################################################
 
-    # printDict(inputs)
+    inputs['T'] = args.temp
+    inputs['kb'] = 1.38064852E-23
+    inputs['beta'] = 1 / (inputs['T'] * 1.38064852E-23)
+    inputs['c'] = 299792458.00
+    inputs['AtMass'] = atomic_masses(inputs['atomT'])
+
+    printDict(inputs)
 
     #print('\n\n\n\nAFTER DICTIONARY')
     for counter in range(number_of_ic):
@@ -203,36 +312,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-#      
-#      
-#      write(2,*) Qcart(2,2)
-#      go to 1
-#      
-#      write(1,*) 'Cartesian geometry:'
-#       write(1,*) 'O  ',q0cart(1,1)+Qcart(1,1),q0cart(2,1)+Qcart(2,1),
-#     &               q0cart(3,1)+Qcart(3,1)
-#       write(1,*) 'H  ',q0cart(1,2)+Qcart(1,2),q0cart(2,3)+Qcart(2,3),
-#     &               q0cart(3,2)+Qcart(3,2)
-#       write(1,*) 'H  ',q0cart(1,3)+Qcart(1,3),q0cart(2,3)+Qcart(2,3),
-#     &               q0cart(3,3)+Qcart(3,3)
-#
-#       write(1,*) 'Cartesian momentum:'
-#       write(1,*) 'O  ',Pcart(1,1),Pcart(2,1),Pcart(3,1)
-#       write(1,*) 'H  ',Pcart(1,2),Pcart(2,2),Pcart(3,2)
-#       write(1,*) 'H  ',Pcart(1,3),Pcart(2,3),Pcart(3,3)
-#      
-#      END
-
-#      subroutine GaussDistr (sigma,z)
-#      real sigma,z,u1,u2
-#C      integer,parameter :: seed = 86456
-#C generate an "x" number randomly distributed among (0,1)
-#C      x=0.1
-#      u1=RAND(0)
-#      u2=RAND(0)
-#      z=sqrt(-2*log(u1))*sin(2*3.141592654*u2)
-#      z=z*sigma
-#      return
-#      end subroutine
 
