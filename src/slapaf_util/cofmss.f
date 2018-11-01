@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine CofMss(Coor,rMass,iOper,nIrrep,nsAtom,LWrite,cMass,
+      Subroutine CofMss(Coor,dMass,iOper,nIrrep,nsAtom,LWrite,cMass,
      &           iSym)
 ************************************************************************
 *     Object: To calculate the molecular mass, the center of mass and  *
@@ -16,7 +16,7 @@
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-      Real*8 COOR(3,nsAtom), rMass(nsAtom), cMass(3)
+      Real*8 COOR(3,nsAtom), dMass(nsAtom), cMass(3)
       Integer   iOper(0:nIrrep-1), iSym(3)
       Logical LWRITE
 *
@@ -27,12 +27,12 @@
 *
       TMass = Zero
       Do I = 1, nsAtom
-         TMass = TMass + rMass(I) * DBLE(iDeg(Coor(1,i),iOper,nIrrep))
+         TMass = TMass + dMass(I) * DBLE(iDeg(Coor(1,i),iOper,nIrrep))
       End Do
       iCOM=-1
       If (TMass.ge.1.D99) Then
          Do i = 1, nsAtom
-            If (rMass(i).eq.1.D99) Then
+            If (dMass(i).eq.1.D99) Then
                iCOM=i
                Go To 99
             End If
@@ -48,7 +48,7 @@
          Do j = 1, 3
 *-----------Add contribution
             If (iSym(j).eq.0) cMass(j) = cMass(j) +
-     &         rMass(i) *  Coor(j,i) *
+     &         dMass(i) *  Coor(j,i) *
      &         DBLE(iDeg(Coor(1,i),iOper,nIrrep))
          End Do
       End Do

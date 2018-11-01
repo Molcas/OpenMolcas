@@ -390,7 +390,7 @@ C
        iRC=-1
        iOpt=0
        Call GetMem('NRDISP','ALLO','INTE',ipnrdisp,ndisp)
-       Call RdMck(irc,iopt,'NRDISP',idum,iWork(ipnrDisp),idum)
+       Call RdMck(irc,iopt,'NRCTDISP',idum,iWork(ipnrDisp),idum)
        iRC=-1
        iOpt=0
        Call GetMem('DEGDISP','ALLO','INTE',ipdegdisp,ndisp)

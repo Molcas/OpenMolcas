@@ -127,10 +127,12 @@ C     really parallel or not.
       PRORB=.TRUE.
       PRSD=.FALSE.
       NCASES=13
-      JMS=.FALSE.
-      NLYROOT=0
 
-      DoCumulant = Input%DoCumulant
+      JMS = Input % JMS
+      NLYROOT = Input % OnlyRoot
+      NLYGROUP = 0
+
+      DoCumulant = Input % DoCumulant
 
 ************************************************************************
 *
@@ -211,6 +213,16 @@ C     really parallel or not.
           NGROUPSTATE(1:NGROUP)=1
         End If
       END IF
+* Find the group number for OnlyRoot
+      If (NLYROOT.ne.0) Then
+        IOFF=0
+        Do IGROUP=1,NGROUP
+          Do I=1,NGROUPSTATE(IGROUP)
+            If (IOFF+I.eq.NLYROOT) NLYGROUP=IGROUP
+          End Do
+          IOFF=IOFF+NGROUPSTATE(IGROUP)
+        End Do
+      End If
 * Finally, some sanity checks.
       IF(NSTATE.LE.0.OR.NSTATE.GT.MXROOT) Then
         Call WarningMessage(2,'Number of states is <0 or too large.')

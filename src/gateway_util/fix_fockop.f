@@ -29,7 +29,6 @@
 ************************************************************************
       use Her_RW
       use Real_Spherical
-      use Isotopes
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -130,9 +129,8 @@ C     nPrint(122)=99
             xFactor=1.0D0/fMass(iCnttp)
             If (FNMC) Then
                iAtom=iAtmNr(iCnttp)
-               isnx=0
 *              Get the atom mass in au (me=1)
-               Call Isotope(isnx,iAtom,xMass)
+               xMass=CntMass(iCnttp)
 *              Substract the electron mass to get the nuclear mass.
                xMass=xMass-DBLE(iAtom)
                xfactor=xfactor+One/xMass

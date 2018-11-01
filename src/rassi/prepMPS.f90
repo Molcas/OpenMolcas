@@ -65,7 +65,7 @@
   logical,intent(in)    :: trorb
 !-------------------------------------------------------------------------------
 #ifdef _DMRG_
-  integer               :: i, isym, no, ii, ista, na, jorb, ni
+  integer               :: i, isym, no, ii, ista, jorb, ni
   real*8                :: fac(1,1), ckk
   logical               :: debug_dmrg_rassi_code = .false.
 
@@ -189,6 +189,10 @@
     write(lupri,*) ' counterrotation done'
   end if
 
+  ! Avoid unused variable warnings
+  if (.false.) then
+    call unused_integer(istatereal)
+  end if
 #else
   write(lupri,*) ' calling prepMPS w/o DMRG interface - foolish!'
   write(lupri,*) ' ... no actual task is performed.            '

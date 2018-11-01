@@ -450,7 +450,7 @@ c      EndIf
      &                      iCo=0,nIrrep/nStab(mdc)-1 )
                       Write (ChDisp(nDisp),'(A,1X,A1)')
      &                       LblCnt(mdc),xyz(iCar)
-                      iwork(ipad+ndisp-1)=nint(abs(charge(icnttp)))
+                      iwork(ipad+ndisp-1)=icnttp
                       iwork(ipdd+ndisp-1)=nIrrep/nstab(mdc)
                   End If
 *
@@ -496,7 +496,7 @@ c      EndIf
          Call Abend()
       End If
       Call GetMem('DEGDISP','Free','INTE',ipdd,mDisp)
-      LABEL='NRDISP'
+      LABEL='NRCTDISP'
       iRc=-1
       iOpt=0
       Call iWrMck(iRC,iOpt,Label,idum,iwork(ipad),idum)

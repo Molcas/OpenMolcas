@@ -191,7 +191,8 @@ c
  7000 Continue
       If(.NOT.next_non_comment(LuSpool,Line)) GoTo 9910
       Call LeftAd(line)
-      Read(Line,*,Err=9920,End=9920) refwfnfile
+      call fileorb(Line,refwfnfile)
+!     Read(Line,*,Err=9920,End=9920) refwfnfile
       Go To 999
 c
 c END of Input

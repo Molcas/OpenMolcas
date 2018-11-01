@@ -14,8 +14,8 @@
 
       integer            dyn_fileid,
      $        dyn_time, dyn_dt, dyn_etot, dyn_etot0,
-     $        dyn_vel, dyn_nh, dyn_iso, dyn_geom
+     $        dyn_vel, dyn_nh, dyn_mass, dyn_geom
 
       common /dyn_handles/ dyn_fileid,
      $        dyn_time, dyn_dt, dyn_etot, dyn_etot0,
-     $        dyn_vel, dyn_nh, dyn_iso, dyn_geom
+     $        dyn_vel, dyn_nh, dyn_mass, dyn_geom

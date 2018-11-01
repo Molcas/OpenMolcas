@@ -57,9 +57,7 @@
 #ifdef _HDF5_
       character(len=16) :: molcas_module
       character(len=8)  :: heff_string
-      character(len=12) :: heff_evc_string
       character(len=21) :: pt2_e_string
-      integer           :: tag
 #endif
 
 
@@ -151,60 +149,36 @@
         END DO
       end if
 
-      if(qdpt2sc.and.(molcas_module.eq.'NEVPT2'))then
+
+      if(qdpt2sc.and.(trim(molcas_module(1:6)).eq.'NEVPT2'))then
         heff_string     = 'H_EFF_SC'
-        heff_evc_string = 'H_EFF_EVC_SC'
         pt2_e_string    = 'STATE_PT2_ENERGIES_SC'
       else
         heff_string     = 'H_EFF'
-        heff_evc_string = 'H_EFF_EVC'
         pt2_e_string    = 'STATE_PT2_ENERGIES'
       end if
 
 * read the ms-caspt2/qd-nevpt2 effective hamiltonian if it is available
-      If (mh5_exists_dset(refwfn_id, heff_string)) Then
+      If (.not.ifejob.and.mh5_exists_dset(refwfn_id, heff_string)) Then
         HAVE_HEFF=.TRUE.
         call mma_allocate(ref_Heff,ref_nstates,ref_nstates)
         call mh5_fetch_dset_array_real(refwfn_id,heff_string,ref_Heff)
-! commented debugging output
-!>        write(6,*) 'readin: Heff from input string ',trim(heff_string)
+        write(6,'(2x,a)')
+     & ' Effective Hamiltonian from MRPT2 in action'
+        write(6,'(2x,a)')
+     & ' ------------------------------------------'
         DO I=1,NSTAT(JOB)
           ISTATE=ISTAT(JOB)-1+I
           DO J=1,NSTAT(JOB)
             JSTATE=ISTAT(JOB)-1+J
             iadr=(istate-1)*nstate+jstate-1
             Work(l_heff+iadr)=ref_Heff(I,J)
-!>            write(6,*) 'readin: Heff(',istate,',',jstate,') = ',
-!>     &      Work(l_heff+iadr)
-            call xflush(6)
+!           write(6,*) 'readin: Heff(',istate,',',jstate,') = ',
+!    &      Work(l_heff+iadr)
+!           call xflush(6)
           END DO
         END DO
         call mma_deallocate(ref_Heff)
-        If (mh5_exists_dset(refwfn_id, heff_evc_string)) Then
-          !> read eigenvectors of Heff (currently used only for QD-NEVPT2 as ref wfn)
-                      tag = 1
-          if(qdpt2sc) tag = 2
-          call init_mspt2_eigenvectors(job,nstat(job),tag)
-          if(qdpt2sc)then
-            call mh5_fetch_dset_array_real(refwfn_id,heff_evc_string,
-     &                                     Heff_evc(job)%sc)
-            DO I=1,NSTAT(JOB)
-              DO J=1,NSTAT(JOB)
-                write(6,*) 'readin: Heff_evc(',i,',',j,') = ',
-     &          Heff_evc(job)%sc(i,j)
-              END DO
-            END DO
-          else
-            call mh5_fetch_dset_array_real(refwfn_id,heff_evc_string,
-     &                                     Heff_evc(job)%pc)
-            DO I=1,NSTAT(JOB)
-              DO J=1,NSTAT(JOB)
-                write(6,*) 'readin: Heff_evc(',i,',',j,') = ',
-     &          Heff_evc(job)%pc(i,j)
-              END DO
-            END DO
-          end if
-        end if
 * read the caspt2/qdnevpt2 reference energies if available
       Else If (mh5_exists_dset(refwfn_id, pt2_e_string)) Then
         HAVE_DIAG=.TRUE.

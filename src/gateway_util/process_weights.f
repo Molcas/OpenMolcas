@@ -60,7 +60,7 @@
         DO i=1,nCnttp
           IF (.NOT.(pChrg(i).OR.FragCnttp(i).OR.AuxCnttp(i))) THEN
             DO iCnt=1,nCntr(i)
-              W(j)=rmass(iAtmNr(i))/UTOAU
+              W(j)=CntMass(i)/UTOAU
               j=j+1
             END DO
           END IF

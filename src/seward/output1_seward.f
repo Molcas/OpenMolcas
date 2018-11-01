@@ -521,6 +521,7 @@
          else
             Call Print_Geometry(0,DInf,nDInf)
          EndIf
+         Call Print_Isotopes()
 *                                                                      *
 ************************************************************************
 *                                                                      *

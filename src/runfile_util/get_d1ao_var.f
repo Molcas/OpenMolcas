@@ -31,7 +31,7 @@
       If(.not.Found .or. nDens.eq.0) Then
          Call Get_D1ao(ipD1ao,nDens)
       Else
-         Call GetMem('Dens','Allo','Real',ipD1ao,nDens)
+         Call GetMem('D1ao_var','Allo','Real',ipD1ao,nDens)
          Call get_dArray(Label,Work(ipD1ao),nDens)
       End If
 *                                                                      *

@@ -81,6 +81,13 @@
       Write (LuInput,'(A)') '>export MCK_OLD_MAXITER=$MOLCAS_MAXITER'
       Write (LuInput,'(A)') '> export MOLCAS_TRAP=ON'
       Write (LuInput,'(A)') '> export MOLCAS_MAXITER=500'
+*
+*     If SA-CASSCF run the MCLR code so that the reference dipole moment
+*     is variational.
+*
+      If (Method .eq. 'RASSCFSA'.or.Method .eq. 'CASSCFSA')
+     &   Write (LuInput,'(A)') '&MCLR'
+*
       Write (LuInput,'(A)') '> DO WHILE <'
       Write (LuInput,'(A)') '> IF (ITER NE 1) <'
 *

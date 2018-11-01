@@ -264,7 +264,7 @@
          End If
       Else If (label.eq.'PERT') Then
          Call icopy(16/icpi,TocOne(pPert),1,Data,1)
-      Else If (label.eq.'NRDISP') THEN
+      Else If (label.eq.'NRCTDISP') THEN
 *
          If(TocOne(pndisp).eq.NaN) Then
          Call SysAbendMsg(TheName,'Undefined Label:',Label)

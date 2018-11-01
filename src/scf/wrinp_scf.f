@@ -45,6 +45,7 @@
 #include "infso.fh"
 #include "rctfld.fh"
 #include "ldfscf.fh"
+#include "ksdft.fh"
 *
 *---- Define local variables
       Character*60 Fmt, FmtR, FmtI
@@ -203,6 +204,8 @@ c           Call Abend()
 *---- Print out grid information in case of DFT
 *
       If (KSDFT.ne.'SCF') Then
+         Call Put_dScalar('DFT exch coeff',CoefX)
+         Call Put_dScalar('DFT corr coeff',CoefR)
          Call Put_dScalar('EThr',EThr)
          Call Funi_Print
          If (jPrint.ge.2) Then

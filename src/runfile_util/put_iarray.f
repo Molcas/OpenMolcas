@@ -168,7 +168,7 @@
          RecLab( 63)='MkNemo.hDisp    '
          RecLab( 64)='Index ZMAT      '
          RecLab( 65)='NAT ZMAT        '
-         RecLab( 66)='NrDisp          '
+         RecLab( 66)='                ' !Free slot
          RecLab( 67)='nDisp           '
          RecLab( 68)='DegDisp         '
          RecLab( 69)='LBList          '

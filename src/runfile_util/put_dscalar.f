@@ -55,6 +55,10 @@
 *> - '``EThr``'           Energy convergence threshold.
 *> - '``Thrs``'
 *> - '``UHF energy``'
+*> - '``DFT exch coeff``' Scaling factor for exchange terms of a density
+*>   functional
+*> - '``DFT corr coeff``' Scaling factor for correlation terms of a
+*>   density functional
 *>
 *> @param[in] Label Name of field
 *> @param[in] Data  Data to put on runfile
@@ -137,6 +141,8 @@
          RecLab( 32)='MD_Etot         '
          RecLab( 33)='Max error       '
          RecLab( 34)='Total Charge    ' ! stores the total number of electrons in the computed system.
+         RecLab( 35)='DFT exch coeff  '
+         RecLab( 36)='DFT corr coeff  '
 *                     1234567890123456
 *
 *        If u go beyond 64: update pg_ds_info.fh and this line!

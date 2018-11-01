@@ -43,16 +43,15 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 #include "dyn.fh"
 #include "constants2.fh"
       EXTERNAL     IsFreeUnit
-      INTEGER      i,j,natom,file,IsFreeUnit,nsAtom,nIsoAtoms
+      INTEGER      i,j,natom,file,IsFreeUnit,nsAtom
       CHARACTER    filname*80,line*80
       REAL*8       conv,tolerance,DT2,time,kb
       REAL*8       Ekin,Epot,Etot,Etot0,Ekin_target
       REAL*8       EtotLastPoint
-      LOGICAL      hybrid,found,lIsotope
+      LOGICAL      hybrid,found
       CHARACTER  caption*15, lastline*80
       CHARACTER, ALLOCATABLE ::    atom(:)*2
       REAL*8, ALLOCATABLE ::       Mass(:),vel(:),force(:),xyz(:)
-      REAL*8, ALLOCATABLE ::       dIsotopes(:)
       INTEGER Iso
 C
 C     The parameter conv converts the gradients (Hartree/Bohr) to
@@ -102,26 +101,14 @@ C
 
       CALL Get_dScalar('MD_Time',time)
 
-C
-C     Check if the Isotope option is selected
-C
-      CALL Qpg_dArray('Isotopes',lIsotope,nIsoAtoms)
-      IF (lIsotope) THEN
-         CALL mma_allocate(dIsotopes,natom)
-         CALL Get_dArray('Isotopes',dIsotopes,natom)
-      WRITE(6,*) 'Isotopes Label:' ,lIsotope
-      END IF
-
+      CALL Get_nAtoms_All(matom)
+      CALL Get_Mass_All(Mass,matom)
       DO i=1, natom
 C     Determines the mass of an atom from its name
-         CALL LeftAd(atom(i))
-         Iso=0
-         CALL Isotope(Iso,atom(i),Mass(i))
-C     Manual isotope modification -----------
-         IF (lIsotope) THEN
-            IF ((dIsotopes(i)).NE.0.0D0) THEN
-               Mass(i)=dIsotopes(i)
-            END IF
+         IF (i.GT.matom) THEN
+            CALL LeftAd(atom(i))
+            Iso=0
+            CALL Isotope(Iso,atom(i),Mass(i))
          END IF
 C-------------------------------------------
          DO j=1, 3
@@ -301,9 +288,6 @@ C         write (6,*) nsAtom
       CALL mma_deallocate(vel)
       CALL mma_deallocate(force)
       CALL mma_deallocate(xyz)
-      IF (lIsotope) THEN
-         CALL mma_deallocate(dIsotopes)
-      END IF
 
 C
 C     The return code is set in order to continue the loop
