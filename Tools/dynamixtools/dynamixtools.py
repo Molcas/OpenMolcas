@@ -138,7 +138,7 @@ def parseCL():
                         help="label for your project (default is \"geom\")")
     parser.add_argument("-i", "--input",
                         dest="i",
-                        required=False,
+                        required=True,
                         type=str,
                         help="path of the frequency h5 or molden file")
     parser.add_argument("-n", "--number",
