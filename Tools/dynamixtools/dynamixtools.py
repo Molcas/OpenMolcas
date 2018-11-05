@@ -141,11 +141,11 @@ def parseCL():
                         required=True,
                         type=str,
                         help="path of the frequency h5 or molden file")
-    parser.add_argument("-n", "--number",
-                        dest="num",
+    parser.add_argument("-b", "--boltzmann",
+                        dest="bol",
                         required=False,
                         type=int,
-                        help="how many initial condition needed? (default 1)")
+                        help="number of initial condition following boltzmann distribution (default 1)")
     parser.add_argument("-t", "--temperature",
                         dest="temp",
                         required=True,
@@ -276,8 +276,9 @@ def main():
     else:
         label = 'geom'
 
-    if args.num:
-        number_of_ic = args.num
+    if args.bol:
+        # right now this is only boltzmann, we need to rethink this IF when wigner is implemented
+        number_of_ic = args.bol
     else:
         number_of_ic = 1
 
