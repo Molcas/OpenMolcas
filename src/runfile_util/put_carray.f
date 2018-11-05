@@ -167,6 +167,9 @@ cvv      Character*(*) Data(nData)
             Write(6,*) '*** Warning, writing temporary cArray field'
             Write(6,*) '***   Field: ',myLabel
             Write(6,*) '***'
+#ifdef _BIGOT_
+            Call AbEnd()
+#endif
          End If
       End If
 *----------------------------------------------------------------------*
