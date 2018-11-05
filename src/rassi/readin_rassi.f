@@ -65,7 +65,7 @@ C --- Default settings for Cholesky
 
       !> set some defaults
       QDPT2SC = .true.
-      QDPT2EV = .true.
+      QDPT2EV = .false.
 
       !Defaults for SI-PDFT runs:
       Second_time = .false.
@@ -669,11 +669,6 @@ C--------------------------------------------
 C--------------------------------------------
       if (Line(1:4).eq.'QDPC') then
         QDPT2SC = .false.
-        goto 100
-      end if
-C--------------------------------------------
-      if (Line(1:4).eq.'NOQD') then
-        QDPT2EV = .false.
         goto 100
       end if
 #endif

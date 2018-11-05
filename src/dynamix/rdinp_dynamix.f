@@ -18,7 +18,9 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       INTEGER Task(nTasks),maxHop
       INTEGER VelVer, VV_First, VV_Second, Gromacs, VV_Dump
       PARAMETER(VelVer=1,VV_First=2,VV_Second=3,Gromacs=4,VV_Dump=5)
+#ifdef _HDF5_
       REAL*8, ALLOCATABLE :: Mass(:)
+#endif
       LOGICAL lHop
 
 C

@@ -143,6 +143,7 @@
 # - garble: setup with Garble option and gcc compilers
 # - bounds: enable bounds checking (slow)
 # - debug: build with no optimization (no tests)
+# - qcmaquis: default build with QCMaquis and NEVPT2 support (only qcmaquis tests)
 
 .template: &plain
   image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-4.8:latest
@@ -306,6 +307,22 @@
   tags:
     - docker
 
+.template: &qcmaquis
+  image: ${CI_REGISTRY}/molcas/dockerfiles/qcmaquis:latest
+  variables: &qcmaquis_vars
+    cache_file: |
+      set (DMRG ON CACHE STRING "Enable DMRG")
+      set (NEVPT2 ON CACHE STRING "Enable NEVPT2")
+      set (QCMaquis_NAME "GitLab CI" CACHE STRING "QCMaquis name")
+      set (QCMaquis_EMAIL "gitlab.ci@example.com" CACHE STRING "QCMaquis e-mail")
+    pre_run_script: |
+      . ${CI_PROJECT_DIR}/build/qcmaquis/bin/qcmaquis.sh
+    CC: "gcc"
+    CXX: "g++"
+    FC: "gfortran"
+    tests: "qcmaquis"
+  tags:
+    - docker
 # A special job for compiling the tinker interface
 # By adding "tinker" as a dependency, other jobs can use it
 
@@ -632,4 +649,15 @@ test:debug:
   dependencies:
     - build:debug
   <<: *debug
+  <<: *run-tests
+
+build:qcmaquis:
+  stage: build
+  <<: *qcmaquis
+  <<: *compile
+test:qcmaquis:
+  stage: test
+  dependencies:
+    - build:qcmaquis
+  <<: *qcmaquis
   <<: *run-tests

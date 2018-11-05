@@ -75,7 +75,6 @@ hcbanner = '''#
 # MOLCAS_EMIL_DEBUG
 # MOLCAS_IN_GEO
 # MOLCAS_ISDEV
-# MOLCAS_KEEP_WORKDIR
 # MOLCAS_LASTMOD
 # MOLCAS_LINK
 # MOLCAS_LOG
@@ -95,7 +94,7 @@ class MolcasException(Exception):
 
 class Molcas_wrapper(object):
 
-  version = 'py2.04'
+  version = 'py2.05'
   rc = 0
 
   def __init__(self, **kwargs):
