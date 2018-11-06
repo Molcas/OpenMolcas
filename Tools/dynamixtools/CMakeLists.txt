@@ -16,7 +16,7 @@ endif ()
 file (RELATIVE_PATH tooldir ${BASE_DIR} ${CMAKE_CURRENT_LIST_DIR})
 set (EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/${tooldir})
 
-foreach (prog IN ITEMS dynamixtools.py)
+foreach (prog IN ITEMS dynamixtools)
         file (COPY ${CMAKE_CURRENT_LIST_DIR}/${prog}.py
               DESTINATION ${EXECUTABLE_OUTPUT_PATH}
         )
