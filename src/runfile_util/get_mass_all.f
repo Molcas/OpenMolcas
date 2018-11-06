@@ -26,8 +26,8 @@
       Subroutine Get_Mass_All(Mass_All,nAtoms_All)
       Implicit None
 #include "stdalloc.fh"
-      Real*8 Mass_All(nAtoms_All)
       Integer nAtoms_All, nAtoms_Allx, nAtoms
+      Real*8 Mass_All(nAtoms_All)
       Real*8, Dimension (:), Allocatable :: Mass
       Real*8, Dimension (:,:), Allocatable :: CU
       Integer i,j,nSym,nGen,MaxDCR,iOper(0:7),iChAtom,iCo,nCoSet,nStab

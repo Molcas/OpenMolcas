@@ -1,0 +1,12 @@
+--- alps_old/lib/pyalps/load.py 2016-05-20 16:23:06.253658131 +0200
++++ alps/lib/pyalps/load.py     2016-05-20 14:55:33.565735644 +0200
+@@ -79,6 +79,9 @@
+       if '--' in x:
+         if first==None:
+           first = v[0]
++# Leon Freitag 20-05-2016: allsame shows wrong behaviour for only one element in labels (why is it needed at all?)
++          if len(labels)==1:
++            allsame = False
+         else:
+           if first != v[0] or len(v) != 2:
+             allsame = False

@@ -8,7 +8,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2017, Leon Freitag                                     *
+# Copyright (C) 2017-2018 Leon Freitag                                 *
 #***********************************************************************
 #                                                                      *
 # Based on HDF5_QCM Makefile by Stefan Knecht                          *
@@ -37,55 +37,57 @@ set(CMAKE_Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/mod)
 
 # enforce Intel MKL only if set for Molcas as well
 if(LINALG STREQUAL "MKL")
-    set(ENABLE_INTEL_MKL ON)
-    list(APPEND NEVPT2CMakeArgs
-    -DMKLROOT=${MKLROOT} )
+        set(ENABLE_INTEL_MKL ON)
+        list(APPEND NEVPT2CMakeArgs
+            -DMKLROOT=${MKLROOT} )
 else()
-    set(ENABLE_INTEL_MKL OFF)
+        set(ENABLE_INTEL_MKL OFF)
 endif()
 
 list(APPEND NEVPT2CMakeArgs
-  -DCMAKE_BUILD_TYPE=${NEVPT2_BUILD_TYPE}
-  -DCMAKE_INSTALL_PREFIX=${PROJECT_BINARY_DIR}/External
-  -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER}
-  -DCMAKE_Fortran_FLAGS=${CMAKE_Fortran_FLAGS}
-  -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-  -DCMAKE_C_FLAGS=${CMake_C_FLAGS}
-  -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-  -DCMAKE_INSTALL_LIBDIR=lib
-  -DCMAKE_Fortran_MODULE_DIRECTORY=${CMAKE_Fortran_MODULE_DIRECTORY}
-  -DENABLE_DEBUG_DMRG=OFF
-  -DENABLE_DMRG=ON
-  -DENABLE_OPENMP=${OPENMP}
-  -DENABLE_INTEL_MKL=${ENABLE_INTEL_MKL}
-  -DENABLE_MOLCAS=ON
-  -DMOLCAS_BUILD_DIR=${PROJECT_BINARY_DIR}
+        -DCMAKE_BUILD_TYPE=${NEVPT2_BUILD_TYPE}
+        -DCMAKE_INSTALL_PREFIX=${PROJECT_BINARY_DIR}/External
+        -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER}
+        -DCMAKE_Fortran_FLAGS=${CMAKE_Fortran_FLAGS}
+        -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+        -DCMAKE_C_FLAGS=${CMake_C_FLAGS}
+        -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+        -DCMAKE_INSTALL_LIBDIR=lib
+        -DCMAKE_Fortran_MODULE_DIRECTORY=${CMAKE_Fortran_MODULE_DIRECTORY}
+        -DENABLE_DEBUG_DMRG=OFF
+        -DENABLE_DMRG=ON
+        -DENABLE_OPENMP=${OPENMP}
+        -DENABLE_INTEL_MKL=${ENABLE_INTEL_MKL}
+        -DENABLE_MOLCAS=ON
+        -DMOLCAS_BUILD_DIR=${PROJECT_BINARY_DIR}
   )
 # feel free to add more flags
 
 
 ######################################
-# git references for NEVPT2          #
+# Download NEVPT2                    #
 ######################################
-set(reference_git_commit release-2.0)
-set(reference_git_repo git@gitlab.com:qc-maquis/nevpt2.git)
 set(EP_PROJECT nevpt2_ext)
 
 # Enabling source changes to keep ExternalProject happy
 set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
 
+set (NEVPT2_dl_cmd "sh" "-c" "${QCMaquis_dl_SCRIPT} ${QCMaquis_URL} nevpt2 \'${QCMaquis_GIVEN_NAME}\' \'${QCMaquis_SURNAME}\' ${QCMaquis_EMAIL} && cd ${EP_PROJECT} && tar xvjf ../nevpt2.tar.bz2")
+
+if (QCMaquis_UPDATE)
+  message (STATUS "QCMaquis update:" ${QCMaquis_UPDATE} "; Triggering NEVPT2 update")
+  set (NEVPT2_up_cmd "sh" "-c" "cd ../ && rm nevpt2.tar.bz2 || true && ${QCMaquis_dl_SCRIPT} ${QCMaquis_URL} nevpt2 \'${QCMaquis_GIVEN_NAME}\' \'${QCMaquis_SURNAME}\' ${QCMaquis_EMAIL} && cd ${EP_PROJECT} && tar xvjf ../nevpt2.tar.bz2")
+endif()
+
 ExternalProject_Add(${EP_PROJECT}
                     PREFIX ${CUSTOM_NEVPT2_LOCATION}
-                    GIT_REPOSITORY ${reference_git_repo}
-                    GIT_TAG ${reference_git_commit}
-                    CMAKE_ARGS "${NEVPT2CMakeArgs}"
-                    INSTALL_DIR "${PROJECT_BINARY_DIR}"
-                    LOG_INSTALL 1
+                    DOWNLOAD_COMMAND ${NEVPT2_dl_cmd}
+                    UPDATE_COMMAND ${NEVPT2_up_cmd}
+                    CMAKE_ARGS ${NEVPT2CMakeArgs}
+                    INSTALL_DIR ${PROJECT_BINARY_DIR}
                     LOG_DOWNLOAD 1
                     LOG_UPDATE 1
                     LOG_CONFIGURE 1
-                    LOG_BUILD 1
-                    LOG_TEST 1
                     LOG_INSTALL 1
                    )
 

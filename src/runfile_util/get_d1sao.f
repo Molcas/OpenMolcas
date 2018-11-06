@@ -30,7 +30,7 @@
       If(.not.Found .or. nDens.eq.0) Then
          Call SysAbendMsg('get_d1sao','Did not find',Label)
       End If
-      Call GetMem('Dens','Allo','Real',ipD1sao,nDens)
+      Call GetMem('D1sao','Allo','Real',ipD1sao,nDens)
       Call Get_dArray(Label,Work(ipD1sao),nDens)
 *                                                                      *
 ************************************************************************

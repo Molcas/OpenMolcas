@@ -99,7 +99,7 @@ General keywords
 
 :kword:`BASLIB`
   The keyword followed by the absolute path to the basis set library directory. The default
-  is the $MOLCAS/basis_library directory. Note that this directory must also be host to
+  is the :file:`$MOLCAS/basis_library` directory. Note that this directory must also be host to
   local copies of the .tbl files.
 
   .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="BASLIB" APPEAR="BasLib" KIND="STRING" LEVEL="BASIC">
@@ -140,7 +140,7 @@ General keywords
   :math:`n` of isotopic specifications, and then by :math:`n` lines. Each of these
   lines should contain the symmetry-unique index of the atom for which the default
   mass is to be modified and either the mass number of the desired isotope (tabulated
-  masses for most known isotopes are available in the code, use `0` for the default
+  masses for most known isotopes are available in the code, use ``0`` for the default
   isotope) or the desired mass in dalton, in the latter case the keyword :kword:`Dalton`
   should follow. Note that all atoms belonging to the same "center type" must have the
   same mass. This usually means all atoms of a given element with the same basis set.

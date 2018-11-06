@@ -25,8 +25,8 @@
       Subroutine Get_Mass(Mass,nAtoms)
       Implicit None
 #include "stdalloc.fh"
-      Real*8 Mass(nAtoms)
       Integer nAtoms,mAtoms,nCent,i
+      Real*8 Mass(nAtoms)
       Integer, Dimension (:), Allocatable :: AtoB
       Real*8, Dimension (:), Allocatable :: CentMass
       Logical Found
