@@ -35,7 +35,7 @@ c  local variables:
       End If
 
       R1=dznrm2_(3*EXCH*EXCH,M1,1)
-      R2=dznrm2_(  EXCH*EXCH,Z,1)
+      R2=dznrm2_(  N*N,Z,1)
       If((R1<1.0e-25_wp).or.(R2<1.0e-25_wp)) Then
          Write(6,'(A)') 'in UTMU:   M1 or Z are empty!!!'
          Write(6,*) 'norm(M1)=', R1
@@ -116,8 +116,8 @@ c  local variables:
             End Do
          End Do
          Write(6,'(A)') 'UTMU :: unitary transformtion matrix'
-         Do i=1,EXCH
-            Do j=1,EXCH
+         Do i=1,N
+            Do j=1,N
                Write(6,'(A,i3,A,i3,A,3(2E16.8,2x))')
      &                         '<',i,'| U |',j,'>',(Z(i,j),l=1,3)
             End Do
@@ -180,7 +180,7 @@ c  local variables:
       end if
 
       r1=dznrm2_(3*exch*exch,m,1)
-      r2=dznrm2_(  exch*exch,z,1)
+      r2=dznrm2_(  n*n,z,1)
       if((r1<1.0e-25_wp).or.(r2<1.0e-25_wp)) then
          write(6,'(a)') 'in utmu2:   m or z are empty!!!'
          write(6,*) 'norm(m)=', r1
@@ -269,8 +269,8 @@ c  local variables:
 
       if (dbg) then
          write(6,'(a)') 'utmu2 :: unitary transformtion matrix'
-         do i=1,exch
-            do j=1,exch
+         do i=1,n
+            do j=1,n
                write(6,'(a,i3,a,i3,a,3(2e16.8,2x))')
      &                         '<',i,'| u |',j,'>',z(i,j)
             end do
@@ -336,7 +336,7 @@ c  local variables:
       End If
 
       R1=dznrm2_(EXCH*EXCH,ML,1)
-      R2=dznrm2_(EXCH*EXCH,Z,1)
+      R2=dznrm2_(N*N,Z,1)
       If((R1<1.0e-25_wp).or.(R2<1.0e-25_wp)) Then
          Write(6,'(A)') 'in UTMU2:   M or Z are empty!!!'
          Write(6,*) 'norm(M)=', R1
@@ -419,8 +419,8 @@ c  local variables:
 
       If (DBG) Then
          Write(6,'(A)') 'UTMU :: unitary transformtion matrix'
-         Do i=1,EXCH
-            Do j=1,EXCH
+         Do i=1,N
+            Do j=1,N
                Write(6,'(A,i3,A,i3,A,3(2E16.8,2x))')
      &                         '<',i,'| U |',j,'>',Z(i,j)
             End Do
