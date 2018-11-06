@@ -5,13 +5,11 @@
      & compute_g_tensors,compute_CF,nDirTot,nss,nstate,
      & compute_magnetization,compute_torque,smagn,tinput,hinput,
      & compute_Mdir_vector, zeeman_energy, LUZee, doplot,
-     & do_project_exchange,
      & encut_rate,ncut,nTempMagn,TempMagn,m_paranoid,
      & compute_barrier,nBlock,AngPoints,input_file_name,
      & nT,nH,texp,chit_exp,zJ,hexp,magn_exp,hmin,hmax,
      & nDir,nDirZee,dirX,dirY,dirZ,dir_weight,xfield,tmin,tmax,
-     & thrs,idim1,idim2,aniso_file_site_1,aniso_file_site_2,
-     & H_torq,T_torq)
+     & thrs,H_torq,T_torq)
 C
 C  THIS ROUTINE READS THE FILE "SINGLE_ANISO.INPUT".
 C
@@ -69,13 +67,6 @@ c----------------------------------------------------------------
       Character(2)  :: cME,clanth(37)
       Character(21) :: namefile_energy
       Character(180):: input_file_name,tmpline,err_msg
-
-      ! project exchange interaction
-      Logical, intent(out)        :: do_project_exchange
-      Integer, intent(out)        :: iDim1, iDim2
-      Character(180), intent(out) :: aniso_file_site_1
-      Character(180), intent(out) :: aniso_file_site_2
-
 
       External      :: FindDetR
 
@@ -258,7 +249,6 @@ c      nTempMagn             = 1
       zeeman_energy         =  .false.
       ENCUT_check           =  .false.
       doplot                =  .false.
-      do_project_exchange   =  .false.
       nlanth                =  0
       nDIMcf                =  0
       cME                   =  '  '

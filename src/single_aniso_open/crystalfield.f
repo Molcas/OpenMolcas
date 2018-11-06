@@ -346,8 +346,8 @@ c-----------------------------------------------------------------------
       Real(kind=wp), intent(out)    :: B(n,0:n), C(n,0:n)
       Real(kind=wp), intent(out)    :: Bstev(n,-n:n)
       ! local variables:
-      Integer                       :: ipar, Kmax,ik,iq
-      Real(kind=wp)                 :: rJ,rfact,cr,mfact,C0
+      Integer                       :: ik,iq
+      Real(kind=wp)                 :: rfact,cr,mfact,C0
       Complex(kind=wp)              :: trace, cfact
       Complex(kind=wp), allocatable :: Cp(:,:), Cm(:,:)
       Complex(kind=wp)              :: mf
@@ -364,9 +364,6 @@ c-----------------------------------------------------------------------
       Call mma_allocate(Cm,n,n,'operator W')
 !-------------------------------------------
 !     n=2*J+1;  or   n=2*S+1
-        rJ=dble(Kmax)/2.0_wp   ! J as real number
-      ipar=mod(Kmax,2)         ! for even n:  ipar=1
-                               ! for odd  n:  ipar=0
       Bstev(1:n,-n:n)=0.0_wp
       B(1:n,0:n)=0.0_wp
       C(1:n,0:n)=0.0_wp
