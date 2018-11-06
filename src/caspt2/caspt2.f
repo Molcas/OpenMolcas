@@ -72,7 +72,7 @@ C
 #include "eqsolv.fh"
 #include "chocaspt2.fh"
 #include "stdalloc.fh"
-      CHARACTER(30) STLNE2
+      CHARACTER(60) STLNE2
 #ifdef _MOLCAS_MPP_
       LOGICAL KING, Is_Real_Par
 #endif
@@ -80,7 +80,7 @@ C     timers
       REAL*8 CPTF0,CPTF11,CPTF12,CPTF13,CPTF14,CPE,CPUTOT,
      &       TIOTF0,TIOTF11,TIOTF12,TIOTF13,TIOTF14,TIOE,TIOTOT
 C     indices
-      INTEGER I, J
+      INTEGER I
       INTEGER ISTATE
       INTEGER IGROUP,JSTATE_OFF
 C     convergence check
@@ -119,6 +119,7 @@ C proceed to the MS coupling section.
         DO I=1,NSTATE
           ENERGY(I)=INPUT%HEFF(I,I)
         END DO
+        HEFF=INPUT%HEFF
         GOTO 1000
       END IF
 
@@ -128,9 +129,14 @@ C of group states for which GRPINI is called.
       JSTATE_OFF=0
       STATELOOP: DO IGROUP=1,NGROUP
 
+       IF ((NLYGROUP.NE.0).AND.(IGROUP.NE.NLYGROUP)) THEN
+         JSTATE_OFF = JSTATE_OFF + NGROUPSTATE(IGROUP)
+         CYCLE
+       END IF
+
        IF (IPRGLB.GE.USUAL) THEN
-         WRITE(STLNE2,'(A,1X,I3)') 'CASPT2 computation ',IGROUP
-         CALL CollapseOutput(1,STLNE2)
+         WRITE(STLNE2,'(A,1X,I3)') 'CASPT2 computation for group',IGROUP
+         CALL CollapseOutput(1,TRIM(STLNE2))
          WRITE(6,*)
        END IF
 
@@ -158,7 +164,7 @@ C     SOLVE CASPT2 EQUATION SYSTEM AND COMPUTE CORR ENERGIES.
 
          Write(STLNE2,'(A27,I3)')'Solve CASPT2 eqs for state ',
      &                               MSTATE(JSTATE)
-         Call StatusLine('CASPT2:',STLNE2)
+         Call StatusLine('CASPT2:',TRIM(STLNE2))
          CALL EQCTL2(ICONV)
 
 * Save the final caspt2 energy in the global array ENERGY():
@@ -292,7 +298,7 @@ C     transition density matrices.
 C End of long loop over states in the group
        END DO
        IF (IPRGLB.GE.USUAL) THEN
-         CALL CollapseOutput(0,'CASPT2 computation')
+         CALL CollapseOutput(0,'CASPT2 computation for group ')
          WRITE(6,*)
        END IF
 C End of long loop over groups
@@ -303,23 +309,16 @@ C End of long loop over groups
 
       IF (IRETURN.NE.0) GOTO 9000
 
-* symmetrize the effective hamiltonian
-      DO I=1,NSTATE
-        DO J=1,I-1
-          HEFF(I,J) = 0.5D0*(HEFF(I,J)+HEFF(J,I))
-          HEFF(J,I) = HEFF(I,J)
-        END DO
-      END DO
-
       IF(IPRGLB.GE.TERSE) THEN
        WRITE(6,*)' Total CASPT2 energies:'
        DO I=1,NSTATE
+        IF ((NLYROOT.NE.0).AND.(I.NE.NLYROOT)) CYCLE
         CALL PrintResult(6,'(6x,A,I3,5X,A,F16.8)',
      &    'CASPT2 Root',I,'Total energy:',ENERGY(I),1)
        END DO
        WRITE(6,*)
       END IF
-      IF(IPRGLB.GE.VERBOSE) THEN
+      IF(IPRGLB.GE.VERBOSE.AND.(NLYROOT.EQ.0)) THEN
        WRITE(6,*)' Relative CASPT2 energies:'
        WRITE(6,'(1X,A4,4X,A12,1X,A10,1X,A10,1X,A10)')
      &   'Root', '(a.u.)', '(eV)', '(cm^-1)', '(kJ/mol)'
@@ -339,7 +338,8 @@ C End of long loop over groups
       DO I=1,NSTATE
         EIGVEC(I,I) = 1.0D0
       END DO
-      IF(IFMSCOUP.and.NLYROOT.eq.0) THEN
+      IF(NLYROOT.NE.0) IFMSCOUP=.FALSE.
+      IF(IFMSCOUP) THEN
         Call StatusLine('CASPT2:','Effective Hamiltonian')
         CALL MLTCTL(HEFF,EIGVEC)
       END IF

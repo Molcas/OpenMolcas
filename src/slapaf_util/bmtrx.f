@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine BMtrx(nLines,nBVec,ipBMx,nAtom,nInter,
-     &                 ip_rInt,Lbl,Coor,nDim,rMass,
+     &                 ip_rInt,Lbl,Coor,nDim,dMass,
      &                 Name,nSym,iOper,Smmtrc,
      &                 Degen,BSet,HSet,nIter,ip_drInt,
      &                 ipShift,Gx,Cx,mTtAtm,iAnr,iOptH,User_Def,
@@ -23,7 +23,7 @@
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
-      Real*8 Coor(3,nAtom),  rMass(nAtom), Degen(3*nAtom),
+      Real*8 Coor(3,nAtom),  dMass(nAtom), Degen(3*nAtom),
      &       Gx(3*nAtom,nIter), Cx(3*nAtom,nIter)
       Character Lbl(nInter)*8,Name(nAtom)*(LENIN)
       Integer   iOper(0:nSym-1), iAnr(nAtom),
@@ -74,7 +74,7 @@
       Call FZero(Work(ipTR),18*nAtom)
 *
       Call TRPGen(nDim,nAtom,Cx(1,iIter),Degen,nSym,iOper,Smmtrc,mTR,
-     &            rMass,.False.,Work(ipTR))
+     &            dMass,.False.,Work(ipTR))
 *
       Call Allocate_Work(ipTRnew,3*nAtom*mTR)
       Call FZero(Work(ipTRnew),3*nAtom*mTR)
@@ -169,7 +169,7 @@
 *                                                                      *
          Call BMtrx_User_Defined(
      &                 nLines,nBVec,ipBMx,nAtom,nInter,
-     &                 ip_rInt,Lbl,Coor,nDim,rMass,
+     &                 ip_rInt,Lbl,Coor,nDim,dMass,
      &                 Name,nSym,iOper,Smmtrc,
      &                 Degen,BSet,HSet,nIter,ip_drInt,
      &                 Gx,Cx,mTtAtm,iAnr,
@@ -198,7 +198,7 @@
          End If
          Call BMtrx_Internal(
      &                 nLines,ipBMx,nAtom,nInter,
-     &                 ip_rInt,Coor,nDim,rMass,
+     &                 ip_rInt,Coor,nDim,dMass,
      &                 Name,nSym,iOper,Smmtrc,
      &                 Degen,BSet,HSet,nIter,ip_drInt,
      &                 Gx,Cx,mTtAtm,iAnr,
@@ -223,7 +223,7 @@
 *                                                                      *
          Call BMtrx_Cartesian(
      &                 nLines,ipBMx,nAtom,nInter,
-     &                 ip_rInt,Coor,nDim,rMass,
+     &                 ip_rInt,Coor,nDim,dMass,
      &                 Name,nSym,iOper,Smmtrc,
      &                 Degen,BSet,HSet,nIter,ip_drInt,
      &                 Gx,Cx,mTtAtm,iAnr,

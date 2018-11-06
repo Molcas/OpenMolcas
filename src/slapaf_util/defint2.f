@@ -14,7 +14,7 @@
      &                   nLines,Value,rInt,rInt0,Lbl,Name,Coor,
      &                   lWrite,nSym,iOper,jStab,nStab,mxdc,
      &                   rMult,Smmtrc,nDim,dBMtrx,Value0,lIter,
-     &                   iFlip,rMass)
+     &                   iFlip,dMass)
 ************************************************************************
 *                                                                      *
 * Object: to generate the B matrix which is the transformation matrix  *
@@ -49,7 +49,7 @@
       Real*8 BVct(3*nAtom,nBVct), dBVct(3*nAtom,3*nAtom,nBVct),
      &       Value(nBVct), BMtrx(3*nAtom,mInt),
      &       rInt(mInt), Coor(3,nAtom), rInt0(mInt),
-     &       rMult(nBVct,nBVct), rMass(nAtom),
+     &       rMult(nBVct,nBVct), dMass(nAtom),
      &       dBMtrx(3*nAtom,3*nAtom,mInt), Value0(nBVct), MaxErr
       Character Line*120, Labels(nBVct)*8, Type*6, Format*8,
      &          Temp*120, Lbl(mInt)*8, Name(nAtom)*(LENIN),filnam*16
@@ -291,7 +291,7 @@ c      Open(Lu_UDC,File=filnam,Form='FORMATTED',Status='OLD')
          Call Cllct2(Line(nGo:nTemp),BVct(1,iBVct),
      &               dBVct(1,1,iBVct),Value(iBVct),Name,nAtom,Coor,
      &               nCntr,mCntr,Work(ipxyz),Work(ipGrad),iWork(ipInd),
-     &               Type,rMass,Work(ipMass),
+     &               Type,dMass,Work(ipMass),
      &               Labels(iBVct),nSym,lWrite,iOper,jStab,
      &               nStab,mxdc,rMult(iBVct,iBVct),Smmtrc,
      &               Work(ipHess),lIter)

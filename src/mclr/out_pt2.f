@@ -25,7 +25,7 @@
 #include "sa.fh"
 #include "dmrginfo_mclr.fh"
 #include "SysDef.fh"
-       Logical CI
+       Logical CI, Is_Roots_Set
        Character*80 Note
 ! Added for DMRG calculation
        real*8,allocatable::tmpDe(:,:),tmpP(:),tmpDeM(:,:),tmpPM(:,:,:,:)
@@ -343,6 +343,7 @@ c
 *
        If (isNAC) Then
          Call Get_D1MO(ipG1q,ng1)
+         iR = 0 ! set to dummy value.
        Else
          iR=iroot(istate)
          jdisk=itoc(3)
@@ -486,7 +487,38 @@ c
          Call WrVec('TMPORB',LuTmp,'O',nSym,nBas,nBas,
      &            Dum,Work(ipO),Dum,iDum,Note)
          Call Prpt()
-       EndIf
+*                                                                     *
+***********************************************************************
+*        There should now be dipole moments on the runfile which
+*        corresponds to the gradient of the energy w.r.t. the
+*        electric field. Let's update the list of values stored
+*        on the runfile.
+*
+         Is_Roots_Set = .False.
+         Call Qpg_iScalar('Number of roots',Is_Roots_Set)
+         nRoots = 1
+         If (Is_Roots_Set) Then
+            Call Get_iScalar('Number of roots',nRoots)
+         End If
+*
+         If (nRoots.ne.1) Then
+*           Write (*,*) 'iR=',iR
+            Call GetMem('DIPM', 'Allo','Real',ipDM,3)
+            Call GetMem('DIPMs','Allo','Real',ipDMs,3*nROOTS)
+            Call Get_dArray('Last Dipole Moments',Work(ipDMs),3*nRoots)
+*           Call RecPrt('Last Dipole Moments',' ',Work(ipDMS),3,nRoots)
+            Call Get_dArray('Dipole Moment',Work(ipDM),3)
+*           Call RecPrt('Dipole Moment',' ',Work(ipDM),1,3)
+            Call DCopy_(3,Work(ipDM),1,
+     &                    Work(ipDMS+(iR-1)*3),1)
+*           Call RecPrt('Last Dipole Moments',' ',Work(ipDMS),3,nRoots)
+            Call Put_dArray('Last Dipole Moments',Work(ipDMs),3*nRoots)
+            Call Free_Work(ipDMs)
+            Call Free_Work(ipDM)
+         End If
+***********************************************************************
+*                                                                     *
+       End If
        Call Getmem('TMP', 'FREE','Real',ipG1q,ng1)
 C
 c--------------------------  debug -----

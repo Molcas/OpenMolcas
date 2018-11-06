@@ -14,7 +14,6 @@
 * Object: driver for computation of TMOS integrals                     *
 *                                                                      *
 ************************************************************************
-      Use GeoList
       Use MpmC
       Implicit Real*8 (A-H,O-Z)
       External EMFInt, EMFMem

@@ -51,7 +51,7 @@
       Dimension CMO(*),DA(*),PA(*),DAO(*),Focc(*)
 *...  Define local variables ..........................................*
       Character*8 RlxLbl,Method
-      Logical SCF
+      Logical SCF, Found
       Integer nTemp(8)
       Character(Len=16) mstate
 *
@@ -147,6 +147,16 @@
 *...  Add two body density matrix in MO basis, active orbitals only ...*
       If ( .not.SCF ) Call Put_P2MO(PA,NACPR2)
 *...  Next version of MOLCAS add the state to relax file ..............*
+      Call Qpg_iScalar('Relax Original ro',Found)
+      If (Found) Then
+         Call Get_iScalar('Relax Original ro',irlxroot1)
+         Call Get_iScalar('Relax CASSCF root',irlxroot2)
+         If (irlxroot1.eq.irlxroot2) Then
+            Call Put_iScalar('Relax Original ro',irlxroot)
+         End If
+      Else
+         Call Put_iScalar('Relax Original ro',irlxroot)
+      End If
       Call Put_iScalar('Relax CASSCF root',irlxroot)
 *...  Remove overlaps (computed by rassi) .............................*
       Call Put_darray('State Overlaps',Work(ip_Dummy),0)

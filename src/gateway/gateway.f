@@ -139,6 +139,7 @@ C-SVC: identify runfile with a fingerprint
       Call Flip_Flop(.False.)
       Call Print_Basis(lOPTO,Work(Info),nDInf)
       Call Print_Geometry(0,Work(Info),nDInf)
+      Call Print_Isotopes()
       If (nPrint(2).gt.0) nPrint(117)=6
       Call RigRot(Centr,Mass,kCentr)
       Call Print_Basis2(Work(Info),nDInf)

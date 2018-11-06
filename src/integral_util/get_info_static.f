@@ -101,7 +101,7 @@ c      call izero(iwork(ixStrt),Len)
       Len = idLoc(RMax_Shll(Mx_Shll))-idLoc(RMax_Shll(1))
       Len = (Len+nByte_r)/nByte_r
       Call Get_dArray('RMax_Shll',RMax_Shll,Len)
-      CLight=CLight_Info
+      CLightAU=CLight_Info
 *
 *     Load the common CINFO
 *

@@ -236,6 +236,7 @@
 *     radiLD: cutoff radius for LDKH procedure                         *
 *     KVector: the k-vector of the EMFR                                *
 *     fmass  : fermionic mass (used for electrons and muons)           *
+*     CntMass: the mass of the i''th unique center                     *
 *                                                                      *
 * -> Character <-                                                      *
 *     BLine : blank line                                               *
@@ -395,7 +396,7 @@
      &               RMax_Shll(MxShll), Thrshld_CD, RPQMin,SadStep,
      &               Delta_RICD, CLight_Info, w_mGauss(mxdbsc),
      &               aCD_Thr(mxdbsc),radiLD, Shake, KVector(3), ChiI2,
-     &               fmass(mxdbsc)
+     &               fmass(mxdbsc), CntMass(mxdc)
       Real*8         rxStrt, rxEnd
       Common /RInfo/ rxStrt,  ! Put never ever anything before rxStrt!!!
      &               AccMch,         ThrInt, Charge, PotNuc, Sum,
@@ -405,7 +406,7 @@
      &               ExpNuc,FragCharge, Rtrnc, RMax_Shll,
      &               Thrshld_CD, RPQMin, Delta_RICD, CLight_Info,
      &               w_mGauss, aCD_Thr, E1, E2, radiLD, SadStep, Shake,
-     &               KVector, ChiI2, fmass,
+     &               KVector, ChiI2, fmass, CntMass,
      &               rxEnd      ! Put never ever anything after rxEnd!!!
 *                                                                      *
 ************************************************************************

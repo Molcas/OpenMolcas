@@ -114,10 +114,10 @@
       end if
 
 *     Isotopes
-      dyn_iso = mh5_create_dset_real(dyn_fileid,
-     $          'ISOTOPES', 1, [natoms])
-      call mh5_init_attr(dyn_iso, 'description',
-     $          'Isotopes')
+      dyn_mass = mh5_create_dset_real(dyn_fileid,
+     $          'MASSES', 1, [natoms])
+      call mh5_init_attr(dyn_mass, 'description',
+     $          'Atomic masses, in a.u.')
 
 *     The following variables are relevant to the SURFACEHOP module.
 *     They are not modified by the DYNAMIX module but saved here on the H5 file.

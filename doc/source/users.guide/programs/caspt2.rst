@@ -624,7 +624,7 @@ Keywords
 
 :kword:`EFFE`
   This keyword requires the :kword:`MULTistate` keyword. It is followed by
-  a matrix of real numbers, specifying the effective Hamiltonian
+  the number of states and a matrix of real numbers, specifying the effective Hamiltonian
   couplings, as provided in a previous calculation using the
   :kword:`ONLY` keyword.
   In a Multistate calculation over, e.g., 3 states, 3 separate
@@ -639,7 +639,7 @@ Keywords
               %%Keyword: EFFE <advanced>
               <HELP>
               This keyword requires the MULTistate keyword. It is followed by
-              a matrix of real numbers, specifying the effective Hamiltonian
+              the number of states and a matrix of real numbers, specifying the effective Hamiltonian
               couplings, as provided in a previous calculation using the
               ONLY keyword.
               In a Multistate calculation over, e.g., 3 states, 3 separate

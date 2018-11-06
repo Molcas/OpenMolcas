@@ -8,24 +8,24 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine GetFullCoord(Coor,FCharge,FAtLbl,nFAtoms,mxAtm,lSlapaf)
+      Subroutine GetFullCoord(Coor,FMass,FAtLbl,nFAtoms,mxAtm,lSlapaf)
       Implicit Real*8 ( a-h,o-z )
       Implicit Integer (i-n)
 #include "Molcas.fh"
 #include "real.fh"
+#include "constants2.fh"
 #include "WrkSpc.fh"
       Dimension iOper(8)
       Dimension RotVec(3)
       Character*(LENIN) AtomLbl(mxAtom)
       Character*(LENIN) FAtLbl(mxAtom), Byte4
-      Real*8  Coor(3,mxAtom), Charge(mxAtom), FCharge(mxAtom), ACharge
+      Real*8  Coor(3,mxAtom), Mass(MxAtom), FMass(mxAtom), AMass
       Logical lSlapaf
 *
       Call Get_iScalar('nSym',nSym)
       Call Get_iArray('Symmetry operations',iOper,nSym)
       Call Get_iScalar('Unique atoms',nAtoms)
       Call Get_cArray('Unique Atom Names',AtomLbl,LENIN*nAtoms)
-      Call Get_dArray('Nuclear charge',Charge,nAtoms)
       Call GetMem('Coor','ALLO','REAL',lw1,3*8*nAtoms)
       If (lSlapaf) then
         Call Get_dArray('Initial Coordinates',Work(lw1),3*nAtoms)
@@ -33,10 +33,13 @@
         Call Get_dArray('Unique Coordinates',Work(lw1),3*nAtoms)
       EndIf
 *
+      Call Get_Mass(Mass,nAtoms)
+      Call dScal_(nAtoms,One/uToau,Mass,1)
+*
       If (nSym.EQ.1) then
         nFAtoms = nAtoms
         Do i = 0, nFAtoms-1
-          FCharge(i+1) = Charge(i+1)
+          FMass(i+1) = Mass(i+1)
           FAtLbl(i+1) = AtomLbl(i+1)
           Coor(1,i+1) = Work(lw1+3*i  )
           Coor(2,i+1) = Work(lw1+3*i+1)
@@ -66,8 +69,8 @@
           Yold=Work(lw1+iAt*3+1)
           Zold=Work(lw1+iAt*3+2)
           Byte4=AtomLbl(lw2+iAt)
-          ACharge=Charge(lw2+iAt)
-          FCharge(lw2+iAt)=ACharge
+          AMass=Mass(lw2+iAt)
+          FMass(lw2+iAt)=AMass
           Xnew=RotVec(1)*Xold
           Ynew=RotVec(2)*Yold
           Znew=RotVec(3)*Zold
@@ -86,7 +89,7 @@
           Work(lw1+(nCenter-1)*3+1)=Ynew
           Work(lw1+(nCenter-1)*3+2)=Znew
           AtomLbl(lw2+nCenter-1)=Byte4
-          Charge(lw2+nCenter-1)=ACharge
+          Mass(lw2+nCenter-1)=AMass
  999      Continue
         End Do
       End Do
@@ -94,7 +97,7 @@
 
       Do iAt=0,nCenter-1
         FAtLbl(iAt+1) =  AtomLbl(lw2+iAt)
-        FCharge(iAt+1)=  Charge(lw2+iAt)
+        FMass(iAt+1)  =  Mass(lw2+iAt)
         Coor(1,iAt+1) =  Work(lw1+3*iAt)
         Coor(2,iAt+1) =  Work(lw1+3*iAt+1)
         Coor(3,iAt+1) =  Work(lw1+3*iAt+2)

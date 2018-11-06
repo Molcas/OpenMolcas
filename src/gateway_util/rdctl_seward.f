@@ -17,12 +17,13 @@
       use XYZ
 #endif
       Implicit Real*8 (a-h,o-z)
-      External iMostAbundantIsotope, NucExp
+      External NucExp
 #include "para_info.fh"
 *
 #include "itmax.fh"
 #include "info.fh"
 #include "constants.fh"
+#include "constants2.fh"
 #include "SysDef.fh"
 #include "notab.fh"
 #include "WrkSpc.fh"
@@ -67,8 +68,9 @@
       Real*8 NucExp, WellCff(3),WellExp(3), WellRad(3), CholeskyThr(1)
       Real*8 spanCD(1)
       Real*8, Allocatable :: RTmp(:,:), EFt(:,:), OAMt(:), OMQt(:),
-     &                       DMSt(:,:), OrigTrans(:,:), OrigRot(:,:,:)
-      Integer, Allocatable :: ITmp(:)
+     &                       DMSt(:,:), OrigTrans(:,:), OrigRot(:,:,:),
+     &                       mIsot(:)
+      Integer, Allocatable :: ITmp(:), nIsot(:,:)
       Character*180 STDINP(mxAtom*2)
       Character Basis_lib*256, INT2CHAR*4, CHAR4*4
       Character*256 Project, GeoDir, temp1, temp2
@@ -263,8 +265,8 @@
          End Do
          nOper=0
       ipExp(1) = Info
-*     CLight = 137.036d0
-      CLight = CONST_C_IN_AU_
+*     CLightAU = 137.036d0
+      CLightAU = CONST_C_IN_AU_
       End If
 *
       nDKfull = 0
@@ -441,6 +443,7 @@ cperiod
       If (KWord(1:4).eq.'GROU') Go To 6010
       If (KWord(1:4).eq.'HIGH') Go To 9096
       If (KWord(1:4).eq.'HYPE') Go To 8016
+      If (KWord(1:4).eq.'ISOT') Go To 7654
       If (KWord(1:4).eq.'JMAX') Go To 971
       If (KWord(1:4).eq.'KHAC') Go To 8003
       If (KWord(1:4).eq.'LDF ') Go To 35
@@ -2348,9 +2351,9 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
 *     Speed of light (in au)
 *
  9000 KWord = Get_Ln(LuRd)
-      Call Get_F(1,CLight,1)
-      CLight = Abs(CLight)
-      write(LuWr,*)'The speed of light in this calculation =', CLight
+      Call Get_F(1,CLightAU,1)
+      CLightAU = Abs(CLightAU)
+      write(LuWr,*)'The speed of light in this calculation =', CLightAU
       Go To 998
 *                                                                      *
 ***** NEMO *************************************************************
@@ -3661,6 +3664,31 @@ c
       FNMC=.True.
       Go To 998
 *                                                                      *
+****** ISOT ************************************************************
+*                                                                      *
+ 7654 GWinput = .True.
+      KWord = Get_Ln(LuRd)
+      Call Upcase(KWord)
+      Call Get_I(1,nIsotopes,1)
+      Call mma_allocate(nIsot,nIsotopes,2)
+      Call mma_allocate(mIsot,nIsotopes)
+      Do i=1,nIsotopes
+         KWord = Get_Ln(LuRd)
+         Call Upcase(KWord)
+         Call Get_I(1,iAt,1)
+         nIsot(i,1)=iAt
+         If (Index(KWord,'DALTON').ne.0) Then
+            Call Get_F(2,dMass,1)
+            nIsot(i,2) = -1
+            mIsot(i) = dMass*UToAU
+         Else
+            Call Get_I(2,iIso,1)
+            nIsot(i,2) = iIso
+            mIsot(i) = -One
+         End If
+      End Do
+      Go To 998
+*                                                                      *
 ****** EFP  ************************************************************
 *                                                                      *
  9088 GWinput = .True.
@@ -3783,7 +3811,64 @@ c      endif
 #endif
          End If
       End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Isotopic specifications
 *
+      If (.not.Allocated(nIsot)) Call mma_allocate(nIsot,0,2)
+
+      If (Run_Mode.ne.S_Mode) Then
+         Call dZero(CntMass,nCnttp)
+*        Loop over unique centers
+         iUnique = 0
+         Do iCnttp = 1, nCnttp
+            nCnt = nCntr(iCnttp)
+            Do iCnt = 1, nCnt
+               iUnique = iUnique+1
+*              Get the mass for this center
+               dm = rMass(iAtmNr(iCnttp))
+               Do j = 1, Size(nIsot, 1)
+                  If (nIsot(j,1).eq.iUnique) Then
+                     If (nIsot(j,2).ge.0) Then
+                        dm = rMassx(iAtmNr(iCnttp),nIsot(j,2))
+                     Else
+                        dm = mIsot(j)
+                     End If
+                     Exit
+                  End If
+               End Do
+               If (iCnt.eq.1) Then
+                  CntMass(iCnttp) = dm
+               Else
+                  If (dm.ne.CntMass(iCnttp)) Then
+                     Call WarningMessage(2,
+     &                 'Error: All centers of the same type must '//
+     &                 'have the same mass')
+                     Call Quit_OnUserError()
+                  End If
+               End If
+            End Do
+         End Do
+         Call Put_dArray('Isotopes',CntMass,nCnttp)
+
+*        Find errors
+         Do j = 1, Size(nIsot, 1)
+            If (nIsot(j,1).gt.iUnique) Then
+               Call WarningMessage(2,
+     &           'Error: Isotope specification index larger than the '//
+     &           'number of unique centers')
+               Call Quit_OnUserError()
+            End If
+         End Do
+      End If
+
+*     Deallocate
+      If (Allocated(nIsot)) Call mma_deallocate(nIsot)
+      If (Allocated(mIsot)) Call mma_deallocate(mIsot)
+*                                                                      *
+************************************************************************
+*                                                                      *
 **    post-processing for RP-Coord
 *
       If (lRP.and.RPset) Then
@@ -3916,17 +4001,17 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *
 *           If ExpNuc not explicitly defined use default value.
 *
+            nMass = nInt(CntMass(iCnttp)/UToAU)
             If (ExpNuc(iCnttp).lt.Zero)
-     &          ExpNuc(iCnttp)=
-     &            NucExp(iAtmNr(iCnttp),
-     &            iMostAbundantIsotope(iAtmNr(iCnttp)))
+     &          ExpNuc(iCnttp)=NucExp(iAtmNr(iCnttp),nMass)
          Else If (Nuclear_Model.eq.mGaussian_Type) Then
 *
 *           Get parameters for the Modified Gaussian Nuclear
 *           charge distribution.
 *
             jAtmNr=iAtmNr(iCnttp)
-            Call ModGauss(DBLE(jAtmNr),iMostAbundantIsotope(jAtmNr),
+            nMass = nInt(CntMass(iCnttp)/UToAU)
+            Call ModGauss(DBLE(jAtmNr),nMass,
      &                    ExpNuc(iCnttp),
      &                    w_mGauss(iCnttp))
 *
