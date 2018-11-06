@@ -57,7 +57,7 @@
      &                ISUPSM,IORDEM,IFORDE,IPCMROOT,ICIRFROOT,
      &                iRlxRoot,n_Det,iAlphaBeta,
      &                MxDMRG,INOCALC,ISAVE_EXP,IEXPAND,hRoots,
-     &                hfocc(mxact)
+     &                n_keep,hfocc(mxact)
 #ifdef _ENABLE_CHEMPS2_DMRG_
      &                ,max_sweep,chemps2_lrestart,max_canonical
 #endif
@@ -71,7 +71,7 @@
      &                ISUPSM,IORDEM,IFORDE,IPCMROOT,ICIRFROOT,
      &                iRlxRoot,n_Det,iAlphaBeta,
      &                MxDMRG,INOCALC,ISAVE_EXP,IEXPAND,hRoots,
-     &                hfocc
+     &                n_keep,hfocc
 #ifdef _ENABLE_CHEMPS2_DMRG_
      &                ,max_sweep,chemps2_lrestart,max_canonical
 #endif

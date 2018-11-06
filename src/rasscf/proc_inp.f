@@ -2049,6 +2049,21 @@ C orbitals accordingly
        Read(LUInput,*,End=9910,Err=9920) hRoots
        ReadStatus=' O.K. after reading data following HROO keyword.'
       END IF
+*---  Process NKEE command ---
+      IF (KEYNKEE) THEN
+        IF(DBG) WRITE(6,*) ' NKEE (nr of kept vectors)'//
+     &                       ' keyword was given. '
+       Call SetPos(LUInput,'NKEE',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading data following NKEE keyword.'
+       Read(LUInput,*,End=9910,Err=9920) n_keep
+       ReadStatus=' O.K. after reading data following NKEE keyword.'
+       If (n_keep.lt.lRoots) Then
+        Call WarningMessage(2,
+     &   'nkeep must be at least equal to the number of roots')
+        Call Quit(_RC_INPUT_ERROR_)
+       EndIf
+      END IF
 *
 *---  Process CLEA command ---
       Continue
