@@ -2252,7 +2252,7 @@ if (HDF5 AND HDF5_FOUND)
         # additional utilities doing internal HDF5 calls
         foreach (util
                 Modules
-                aniso_util
+                aniso_open_util
                 guessorb_util
                 hyper_util
                 molcas_ci_util
@@ -2352,11 +2352,11 @@ if (HDF5 AND HDF5_FOUND)
                 dynamix
                 mcpdft
                 nevpt2
-                poly_aniso
+                poly_aniso_open
                 rasscf
                 rassi
                 scf
-                single_aniso
+                single_aniso_open
                 slapaf
                 surfacehop
                 )

@@ -1,0 +1,2 @@
+ (prgm) "$MOLCAS/bin/single_aniso_open.exe"  executable
+ (file) POLYFILE "$WorkDir/$Project".aniso  rw*
