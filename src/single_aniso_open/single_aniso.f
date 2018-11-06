@@ -123,12 +123,6 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 c      Real(kind=wp) :: F, Fx,Fy,Fz, AT, Ax,Ay,Az, AF, dnrm, dE
       Real(kind=wp) :: DZNRM2
       External      :: DZNRM2
-      !--- Project Exchange -----------
-      Integer       :: iDIM1, iDIM2, nExch
-      Logical       :: do_project_exchange
-      Character(180):: aniso_file_site_1
-      Character(180):: aniso_file_site_2
-
       Real(kind=wp) :: H_torq, T_torq
       !----BIG ARRAYS------------------
       Real(kind=wp), allocatable :: eso(:)
@@ -361,12 +355,10 @@ C  read the input
      & compute_g_tensors,compute_CF,nDirTot,nss,nstate,
      & compute_magnetization, compute_torque, smagn, tinput, hinput,
      & compute_Mdir_vector, zeeman_energy, LUZee, doplot,
-     & do_project_exchange,
      & encut_rate,ncut,nTempMagn,TempMagn, m_paranoid,
      & compute_barrier,nBlock,AngPoints,input_file_name,
      & nT,nH,texp,chit_exp,zJ,hexp,magn_exp,hmin,hmax,
      & nDir,nDirZee,dirX,dirY,dirZ,dir_weight,xfield,tmin,tmax,thrs,
-     & iDIM1, iDIM2, aniso_file_site_1, aniso_file_site_2,
      & H_torq,T_torq )
       IF(DBG) Write(6,*) 'SINGLE_ANISO2::  Exit readin_single'
 
