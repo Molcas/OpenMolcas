@@ -519,7 +519,7 @@ C  read the input
 !----------------------------------------------------------------------|
       !   >> AB INITIO CRYSTAL-FIELD <<
 
-      If(compute_CF .AND. nDIMCF>0 .AND. lDIMCF>0 ) Then
+      If(compute_CF .AND. nDIMCF>0 ) Then
         If(axisoption==1 .AND. nMult>0 .AND. nDIM(1)>1 ) Then
           iDIM=NDIM(1)
           lDIM=NDIM(1)
@@ -539,14 +539,22 @@ C  read the input
      &                       iPrint)
           IF(DBG) Write(6,*) 'SINGLE_ANISO2::  Exit CF',nDIMCF
         End If
+      End If
 
         IF(DBG) Write(6,*) 'SINGLE_ANISO2:: nlanth=', nlanth
         IF(DBG) Write(6,*) 'SINGLE_ANISO2:: lDIMCF=', lDIMCF
         IF(DBG) Write(6,*) 'SINGLE_ANISO2:: nstate=', nstate
 
+      If(compute_CF .AND. ( (lDIMCF>0).AND.(lDIMCF<=nstate) ) Then
+        If(axisoption==1 .AND. nMult>0 .AND. nDIM(1)>1 ) Then
+          iDIM=NDIM(1)
+          lDIM=NDIM(1)
+        Else
+          iDIM=nDIMCF
+          lDIM=lDIMCF
+        End If
         ! compute the CF of the ground |L,ML> term:
         If( .not.(ifrestart.and.(input_to_read.eq.4)) ) Then
-          If ((lDIMCF>1).AND.(lDIMCF<=nstate)) Then
              IF(DBG) Write(6,*) 'SINGLE_ANISO2::  Enter t-CF',lDIMCF
              Call termCF( angmom(1:3,1:lDIMCF,1:lDIMCF),
      &                    AMFI(1:3,1:lDIMCF,1:lDIMCF),
@@ -555,7 +563,6 @@ C  read the input
      &                    zmagn, axisoption, nlanth,
      &                    iPrint )
              IF(DBG) Write(6,*) 'SINGLE_ANISO2::  Exit t-CF',lDIMCF
-          End If
         End If !ifrestart
       End If !compute_CF
 
