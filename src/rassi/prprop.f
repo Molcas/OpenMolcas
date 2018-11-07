@@ -2250,7 +2250,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
 *              The contribution to the generalized momentum operator.
 *
-               IJ=(JSO-1)*NSS + ISO - 1
+C              IJ=(JSO-1)*NSS + ISO - 1
                Do iCar = 1, 3
                   CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXR),1)
                   CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXI),1)
@@ -2267,11 +2267,14 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                   CALL SMMAT(PROP,WORK(LTMP),NSS,'TMOS  IA',iCar)
                   CALL DAXPY_(NSS**2,1.0D0,WORK(LTMP),1,WORK(LDXI),1)
 *                 Transform properties to the spin-orbit basis
-                  CALL ZTRNSF(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI))
+*                 and pick up correct element
+                  CALL ZTRNSF_IJ(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI),
+     &                           WORK(LTMP),T0(iCar),ISO,JSO)
+C                 CALL ZTRNSF(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI))
 *                 CALL PRCMAT(NSS,WORK(LDXR),WORK(LDXI))
 *                 Pick up the property of the (I,J) element
 *
-                  T0(iCar)=DCMPLX(WORK(LDXR+IJ),WORK(LDXI+IJ))
+C                 T0(iCar)=DCMPLX(WORK(LDXR+IJ),WORK(LDXI+IJ))
                End Do
 *
                E1A = P1(1)*T0(1) + P1(2)*T0(2) + P1(3)*T0(3)
@@ -2279,7 +2282,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
 *              (2) the magnetic-spin part
 *
-               IJ=(JSO-1)*NSS + ISO - 1
+C              IJ=(JSO-1)*NSS + ISO - 1
                Do iCar = 1, 3
                   CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXR),1)
                   CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXI),1)
@@ -2287,9 +2290,11 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                   CALL SMMAT(PROP,WORK(LDXR),NSS,'TMOS0  R',iCar)
 *                 pick up the imaginary component
                   CALL SMMAT(PROP,WORK(LDXI),NSS,'TMOS0  I',iCar)
-                  CALL ZTRNSF(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI))
+                  CALL ZTRNSF_IJ(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI),
+     &                           WORK(LTMP),T1(iCar),ISO,JSO)
+C                 CALL ZTRNSF(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI))
 *                 CALL PRCMAT(NSS,WORK(LDXR),WORK(LDXI))
-                  T1(iCar)=DCMPLX(WORK(LDXR+IJ),WORK(LDXI+IJ))
+C                 T1(iCar)=DCMPLX(WORK(LDXR+IJ),WORK(LDXI+IJ))
                End Do
 *
                E1B=kxe1(1)*T1(1)+kxe1(2)*T1(2)+kxe1(3)*T1(3)
