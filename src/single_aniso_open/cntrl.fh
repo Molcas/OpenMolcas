@@ -1,0 +1,6 @@
+      Integer, parameter ::  SILENT =0,
+     &                       TERSE  =1,
+     &                       USUAL  =2,
+     &                       VERBOSE=3,
+     &                       DEBUG  =4,
+     &                       INSANE =5
