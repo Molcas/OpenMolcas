@@ -64,7 +64,7 @@ DMRGSettings
               nsweeps =   10
    max_bond_dimension =  200
 EndDMRGSettings
-OptimizationSettings
+OOptimizationSettings
 Title
 h2co
 nActEl
@@ -82,7 +82,7 @@ Iter
 LumOrb
 SOCC
  2,0,2,0,2,0
-EndOptimizationSettings
+EndOOptimizationSettings
 *-------------------------------------------------------------------------------
 >>COPY $Project.JobIph $Project.JobOld
 &DMRGSCF &END

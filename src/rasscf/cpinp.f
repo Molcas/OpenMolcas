@@ -43,7 +43,7 @@
 #endif
       if(ProgName(1:5) .eq.'dmrgs')then
         Call RdNLst(LuSpool,'DMRGSCF')
-        call setpos(luspool,'OPTI',line,irc)
+        call setpos(luspool,'OOPT',line,irc)
       else
         Call RdNLst(LuSpool,'RASSCF')
       end if

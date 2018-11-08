@@ -44,12 +44,12 @@ DMRGSettings
   truncation_final   = 1e-7
   ietl_jcd_tol       = 1e-8
 EndDMRGSettings
-OptimizationSettings
+OOptimizationSettings
  inactive=16
  RAS2=6
  SOCC
  2,2,0,2,0,0
-EndOptimizationSettings
+EndOOptimizationSettings
 &ALASKA
 &SLAPAF
 >>>  EndDo  <<<
