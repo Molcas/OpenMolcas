@@ -60,7 +60,7 @@
 *     Dimension NMRFT(NTF,3,3),NMRFP(NTF,3,3),NMRFC(NTF,3,3)
 *     Dimension NMRFD(NTF,3,3)
       REAL*8 DLTTA,DLTT,Zstat,p_Boltz,Boltz_k,coeff_chi
-      LOGICAL ISGS(NSS),IFANGM,IFDIP1,IFAMFI
+      LOGICAL ISGS(NSS),IFANGM,IFDIP1,IFAMFI, Sparse_I,Sparse_J
       Dimension IMR(3),IMI(3),RMAGM(3),Chi(3)
       INTEGER IFUNCT, SECORD(4)
       REAL*8 J2CM
@@ -2084,8 +2084,32 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       G_Elec=CONST_ELECTRON_G_FACTOR_
       iPrint=0
       IJSO=0
+*
+      Sparse_Limit=0.25D0
+      ThrSparse=1.0D-6
       DO ISO=1, IEND
+*
+*        Check the sparseness of the coefficient array
+*
+         mSS=0
+         Do i = 1, nSS
+            temp = USOR(i,ISO)**2 + USOI(i,ISO)**2
+            If (temp.gt.ThrSparse) mSS=mSS+1
+         End Do
+*
+         Sparse_I = DBLE(MSS)/DBLE(NSS) .le. Sparse_Limit
+*
          DO JSO=JSTART, NSS
+*
+*           Check the sparseness of the coefficient array
+*
+            mSS=0
+            Do i = 1, nSS
+               temp = USOR(i,JSO)**2 + USOI(i,JSO)**2
+               If (temp.gt.ThrSparse) mSS=mSS+1
+            End Do
+*
+            Sparse_J = DBLE(MSS)/DBLE(NSS) .le. Sparse_Limit
 *
             EDIFF=ENSOR(JSO)-ENSOR(ISO)
             IF (ABS(EDIFF).LE.1.0D-8) CYCLE
@@ -2189,11 +2213,41 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *                                                                      *
 ************************************************************************
 *
-*              DO IPROP = IPREMFR_RS-6, IPREMFR_RS+11
-*                 Call FZero(PROP(1,1,IPROP),NSTATE**2)
-*              End Do
+               DO IPROP = IPREMFR_RS-6, IPREMFR_RS+11
+                  Call FZero(PROP(1,1,IPROP),NSTATE**2)
+               End Do
+               ISS = 0
                DO I=1, NSTATE
+*
+*                 Does this spin-free state contribute to any of the
+*                 two spin states? Check the corresponding coefficients.
+*
+                  JOB1=iWork(lJBNUM+I-1)
+                  MPLET1 = MLTPLT(JOB1)
+*
+                  temp=0.0D0
+                  Do MS1 = 1, MPLET1
+                     ISS = ISS + 1
+                     temp=Max(temp,USOR(ISS,ISO)**2 + USOI(ISS,ISO)**2)
+                     temp=Max(temp,USOR(ISS,JSO)**2 + USOI(ISS,JSO)**2)
+                  End Do
+                  If (temp.le.ThrSparse)  Cycle
+*
+                  JSS=0
                   DO J=1, I
+*
+                     JOB2=iWork(lJBNUM+J-1)
+                     MPLET2 = MLTPLT(JOB2)
+*
+                     temp=0.0D0
+                     Do MS2 = 1, MPLET2
+                        JSS = JSS + 1
+                        temp=
+     &                     Max(temp,USOR(JSS,ISO)**2 + USOI(JSS,ISO)**2)
+                        temp=
+     &                     Max(temp,USOR(JSS,JSO)**2 + USOI(JSS,JSO)**2)
+                     End Do
+                     If (temp.le.ThrSparse)  Cycle
 *
 *                    COMBINED SYMMETRY OF STATES:
                      JOB1=JBNUM(I)
@@ -2222,9 +2276,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *                    Pick up the transition density between the two
 *                    states from disc. Generated in PROPER.
 *
-                     ISTATE=MAX(i,j)
-                     JSTATE=MIN(i,j)
-                     ij=ISTATE*(ISTATE-1)/2+JSTATE
+                     ij=I*(I-1)/2+J
                      iDisk=iWork(liTocM+ij-1)
                      Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
 *
@@ -2256,25 +2308,24 @@ C              IJ=(JSO-1)*NSS + ISO - 1
                   CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXI),1)
                   CALL DCOPY_(NSS**2,0.0D0,0,WORK(LTMP),1)
 *                 the real symmetric part
-                  CALL SMMAT(PROP,WORK(LDXR),NSS,'TMOS  RS',iCar)
+                  CALL SMMAT_CHECK(PROP,WORK(LDXR),NSS,'TMOS  RS',iCar,
+     &                             USOR,USOI,ISO,JSO,ThrSparse)
 *                 the real anti-symmetric part
-                  CALL SMMAT(PROP,WORK(LTMP),NSS,'TMOS  RA',iCar)
+                  CALL SMMAT_CHECK(PROP,WORK(LTMP),NSS,'TMOS  RA',iCar,
+     &                             USOR,USOI,ISO,JSO,ThrSparse)
                   CALL DAXPY_(NSS**2,1.0D0,WORK(LTMP),1,WORK(LDXR),1)
                   CALL DCOPY_(NSS**2,0.0D0,0,WORK(LTMP),1)
 *                 the imaginary symmetric part
-                  CALL SMMAT(PROP,WORK(LDXI),NSS,'TMOS  IS',iCar)
+                  CALL SMMAT_CHECK(PROP,WORK(LDXI),NSS,'TMOS  IS',iCar,
+     &                             USOR,USOI,ISO,JSO,ThrSparse)
 *                 the imaginary anti-symmetric part
-                  CALL SMMAT(PROP,WORK(LTMP),NSS,'TMOS  IA',iCar)
+                  CALL SMMAT_CHECK(PROP,WORK(LTMP),NSS,'TMOS  IA',iCar,
+     &                             USOR,USOI,ISO,JSO,ThrSparse)
                   CALL DAXPY_(NSS**2,1.0D0,WORK(LTMP),1,WORK(LDXI),1)
 *                 Transform properties to the spin-orbit basis
 *                 and pick up correct element
                   CALL ZTRNSF_IJ(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI),
      &                           WORK(LTMP),T0(iCar),ISO,JSO)
-C                 CALL ZTRNSF(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI))
-*                 CALL PRCMAT(NSS,WORK(LDXR),WORK(LDXI))
-*                 Pick up the property of the (I,J) element
-*
-C                 T0(iCar)=DCMPLX(WORK(LDXR+IJ),WORK(LDXI+IJ))
                End Do
 *
                E1A = P1(1)*T0(1) + P1(2)*T0(2) + P1(3)*T0(3)
@@ -2287,14 +2338,13 @@ C              IJ=(JSO-1)*NSS + ISO - 1
                   CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXR),1)
                   CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXI),1)
 *                 pick up the real component
-                  CALL SMMAT(PROP,WORK(LDXR),NSS,'TMOS0  R',iCar)
+                  CALL SMMAT_CHECK(PROP,WORK(LDXR),NSS,'TMOS0  R',iCar,
+     &                             USOR,USOI,ISO,JSO,ThrSparse)
 *                 pick up the imaginary component
-                  CALL SMMAT(PROP,WORK(LDXI),NSS,'TMOS0  I',iCar)
+                  CALL SMMAT_CHECK(PROP,WORK(LDXI),NSS,'TMOS0  I',iCar,
+     &                             USOR,USOI,ISO,JSO,ThrSparse)
                   CALL ZTRNSF_IJ(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI),
      &                           WORK(LTMP),T1(iCar),ISO,JSO)
-C                 CALL ZTRNSF(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI))
-*                 CALL PRCMAT(NSS,WORK(LDXR),WORK(LDXI))
-C                 T1(iCar)=DCMPLX(WORK(LDXR+IJ),WORK(LDXI+IJ))
                End Do
 *
                E1B=kxe1(1)*T1(1)+kxe1(2)*T1(2)+kxe1(3)*T1(3)
