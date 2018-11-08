@@ -41,6 +41,7 @@ Programs
    programs/mknemo
    programs/motra
    programs/mpprop
+   programs/mpssi
    programs/mrci
    programs/mula
    programs/nemo

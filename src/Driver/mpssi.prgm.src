@@ -8,8 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
- (prgm) "$MOLCAS"/bin/rassi.exe             executable
+ (prgm) "$MOLCAS"/bin/mpssi.exe             executable
+ (file)  MPSSIINP "$WorkDir/$Project."Mpssi.Input     rwi
 #include "state_interaction.inc"
- (file)  RASSIINP "$WorkDir/$Project."Rassi.Input     rwi
- (file)  CIVECTOR "$WorkDir/$Project".CIVector    rw
- (file)  CIVECTUP "$WorkDir/$Project".CIVectup    rw
+ (file)  RASSIWFN "$WorkDir/$Project$SubProject."mpssi.h5    rws
+

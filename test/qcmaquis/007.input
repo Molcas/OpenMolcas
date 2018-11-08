@@ -60,8 +60,7 @@ EndOptimizationSettings
 >> COPY $Project.rasscf.h5 $Project.sing.h5
 >> EXEC mv $CurrDir/$Project.checkpoint_state.0.h5 $CurrDir/$Project.sing.checkpoint_state.0.h5
 >> EXEC $MOLCAS/pytools/qcm_checkpoint_rename.py $Project.sing.h5 -q
-&RASSI
-DMRG
+&MPSSI
 Nrof
 2 1 1
 1
