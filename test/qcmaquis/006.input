@@ -91,7 +91,7 @@ DMRGSettings
               nsweeps =   10
    max_bond_dimension =  200
 EndDMRGSettings
-OptimizationSettings
+OOptimizationSettings
 Title
 h2co
 nActEl
@@ -110,7 +110,7 @@ JOBIPH
 NonEq
 SOCC
  2,0,2,u,d,0
-EndOptimizationSettings
+EndOOptimizationSettings
 *-------------------------------------------------------------------------------
 &DMRGSCF &END
 ActiveSpaceOptimizer=QCMaquis
