@@ -1,0 +1,13 @@
+c  nsymm specIfies the symmetry of the sphere grid used to average the magnetization
+c   nsymm=1  for half sphere
+c   nsymm=2  for a quarter of a sphere
+c   nsymm=3  for an octant of a sphere
+c  other values for "nsymm" are not allowed
+c
+c   ngrid = defines the size of the Lebedev grid
+c    ngrid=1  the smallest grid
+c    ngrid=32 the largest grid
+c   get_nP - array Returning the number of the Lebedev grid for a defined symmetry and grid_number
+
+      Integer       nsymm, ngrid, get_nP(3,32)
+      common/xgrid/ nsymm, ngrid, get_nP

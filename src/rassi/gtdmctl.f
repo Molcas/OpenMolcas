@@ -1039,8 +1039,8 @@ C             Write density 1-matrices in AO basis to disk.
 
 #ifdef _HDF5_
           if(.not.mstate_dens)then
-            IF(IF11.AND.(LSYM1.EQ.LSYM2).or.
-     &        (SONATNSTATE.GT.0).OR.NATO)THEN
+            IF(IF11.AND.(LSYM1.EQ.LSYM2).and.
+     &        ((SONATNSTATE.GT.0).OR.NATO))THEN
               call mh5_put_dset_array_real(wfn_sfs_tdm,
      $        WORK(LTDMZZ),[NTDMZZ,1,1], [0,ISTATE-1,JSTATE-1])
               call mh5_put_dset_array_real(wfn_sfs_tsdm,
