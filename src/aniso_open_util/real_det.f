@@ -45,7 +45,7 @@ c local variables:
       End If
       ! Evaluate determinant by finding product of diagonal elements
       Do i=1, N
-         FindDetR = FindDetR * w(i,i)
+         FindDetR = FindDetR * w(i)
       End Do
       Call mma_deallocate(w)
       Call mma_deallocate(z)
