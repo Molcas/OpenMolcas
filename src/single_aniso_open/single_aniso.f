@@ -551,11 +551,12 @@ C  read the input
         End If
       End If
 
-        IF(DBG) Write(6,*) 'SINGLE_ANISO2:: nlanth=', nlanth
-        IF(DBG) Write(6,*) 'SINGLE_ANISO2:: lDIMCF=', lDIMCF
-        IF(DBG) Write(6,*) 'SINGLE_ANISO2:: nstate=', nstate
+      IF(DBG) Write(6,*) 'SINGLE_ANISO2:: nlanth=', nlanth
+      IF(DBG) Write(6,*) 'SINGLE_ANISO2:: lDIMCF=', lDIMCF
+      IF(DBG) Write(6,*) 'SINGLE_ANISO2:: nstate=', nstate
 
-      If(compute_CF .AND. ( (lDIMCF>0).AND.(lDIMCF<=nstate) ) Then
+
+      If(compute_CF .AND. ( (lDIMCF>0).AND.(lDIMCF<=nstate) )) Then
         If(axisoption==1 .AND. nMult>0 .AND. nDIM(1)>1 ) Then
           iDIM=NDIM(1)
           lDIM=NDIM(1)

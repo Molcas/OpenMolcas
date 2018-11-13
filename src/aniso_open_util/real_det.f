@@ -44,6 +44,7 @@ c local variables:
          Return
       End If
       ! Evaluate determinant by finding product of diagonal elements
+      FindDetR=1.0_wp
       Do i=1, N
          FindDetR = FindDetR * w(i)
       End Do
