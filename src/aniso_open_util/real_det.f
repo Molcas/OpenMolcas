@@ -28,7 +28,6 @@ c Calling parameters
 c local variables:
       Real(kind=wp), allocatable :: w(:), z(:,:)
       Integer                    :: i, info
-      Logical                    :: DetExists
 
       info=0
       FindDetR=0.0_wp
