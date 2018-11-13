@@ -8,32 +8,41 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2017, Stefan Knecht                                    *
+! Copyright (C) 2018, Stefan Knecht                                    *
 !***********************************************************************
-  subroutine dmrgscf(iReturn)
+  subroutine mpssi(iReturn)
 
 #ifdef _DMRG_
   use qcmaquis_interface_cfg
 #endif
+
   implicit none
 
   integer, intent(inout) :: iReturn
 ! ----------------------------------------------------------------------
 
-  !> set DMRG driver as active space solver
-  call set_as_solver()
-
-  !> read DMRG settings (driver-specific input)
-  call set_dmrg_settings()
-
-  !> call wave function optimizer
-  iReturn = 0
-  call rasscf(iReturn)
-
+  !> set QCMaquis as default (actually the only possible) DMRG driver in RASSI
 #ifdef _DMRG_
-  !> reset in case we call RASSCF (or RASSI or CASPT2) afterwards requesting a CI driver
-  if(doDMRG) doDMRG = .false.
+  doDMRG = .true.
 #endif
 
-  end subroutine dmrgscf
+  !> print info about MPS-SI
+  write(6,'(/a/,a//,a/,a/,a/,a/,a/)')                             &
+  '   ---------------------------------------------------------', &
+  '   Matrix-Product-State State-Interaction (MPS-SI) activated', &
+  '   Please cite for the MPS-SI framework:',                     &
+  '   S. Knecht, S. Keller, J. Autschbach, M. Reiher,',           &
+  '   J. Chem. Theory Comput., 12, 5881-5894 (2016).',            &
+  '   ---------------------------------------------------------'
+
+  !> call state-interaction workhorse aka RASSI
+  iReturn = 0
+  call rassi(iReturn)
+
+#ifdef _DMRG_
+  !> reset in case we call RASSI afterwards requesting a CI driver
+  doDMRG = .false.
+#endif
+
+  end subroutine mpssi
 ! ----------------------------------------------------------------------
