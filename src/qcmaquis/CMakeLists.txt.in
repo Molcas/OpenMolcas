@@ -133,7 +133,11 @@ if(NOT MAQUIS_DMRG_FOUND)
                   -DLAPACK_LIBRARY=-lopenblas
                   )
         endif ()
-
+        if (LINALG STREQUAL "Accelerate")
+                list(APPEND QCMaquisCMakeArgs
+                  -DBLAS_LAPACK_SELECTOR=veclib
+                )
+        endif ()
 
         set(LOCAL_QCM_INSTALL_PATH ${PROJECT_BINARY_DIR})
 

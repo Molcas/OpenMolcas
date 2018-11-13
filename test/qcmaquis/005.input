@@ -37,7 +37,7 @@ DMRGSettings
     truncation_final = 1e-8
     ietl_jcd_tol     = 1e-9
 EndDMRGSettings
-OptimizationSettings
+OOptimizationSettings
  inactive = 2 0 0 0 2 0 0 0
      RAS2 = 1 1 1 0 1 1 1 0
  CIROOT= 2 2; 1 2; 0 1
@@ -48,7 +48,7 @@ OptimizationSettings
   LINEAR
   AVERAGE
   2; 2 3; 6 7
-EndOptimizationSettings
+EndOOptimizationSettings
 &ALASKA
 &SLAPAF
 >>>  EndDo  <<<

@@ -2171,6 +2171,7 @@ list (REMOVE_ITEM progs
         wfa
         nevpt2 # although not necessarily
         dmrgscf
+        mpssi
         )
 
 # set the location of the sources for the utilities
@@ -2325,6 +2326,10 @@ if (BLOCK OR DMRG)
         list (APPEND progs dmrgscf)
 endif ()
 
+if (DMRG)
+        list (APPEND progs mpssi)
+endif ()
+
 # finally, sort the list
 list (SORT utils)
 
@@ -2435,6 +2440,10 @@ list (APPEND last_energy_deps
         $<TARGET_OBJECTS:dmrgscf>
         )
 endif ()
+
+set (mpssi_deps
+        $<TARGET_OBJECTS:rassi>
+        )
 
 
 ################################################################################
