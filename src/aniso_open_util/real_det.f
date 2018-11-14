@@ -1,9 +1,15 @@
-* $ this file belongs to the Molcas repository $
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
       Real*8 Function FindDetR(matrix, n)
-c
 c     Function to find the determinant of a square matrix
-c
-c     Author : Louisda16th a.k.a Ashwith J. Rego
 c
 c     Description: The Subroutine is based on two key points:
 c
@@ -13,51 +19,35 @@ c         would work as well) are used to convert the matrix the matrix
 c         into upper triangular form
 c     2]  The determinant of a triangular matrix is obtained by finding
 c         the product of the diagonal elements
-c
       Implicit None
+#include "stdalloc.fh"
       Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
 c Calling parameters
       Integer, intent(in)        :: N
       Real(kind=wp)              :: matrix(N,N)
 c local variables:
-      Real(kind=wp)              :: m, temp
-      Integer                    :: i, j, k, l
-      Logical                    :: DetExists
+      Real(kind=wp), allocatable :: w(:), z(:,:)
+      Integer                    :: i, info
 
-      DetExists = .TRUE.
-      l = 1
-      temp=0
-C  Convert to upper triangular form
-      Do k = 1, N-1
-         If (matrix(k,k) .eq. 0.0_wp) Then
-            DetExists = .FALSE.
-            Do i = k+1, N
-               If (matrix(i,k) .ne. 0.0_wp) Then
-                  Do j = 1, N
-                           temp  =  matrix(i,j)
-                     matrix(i,j) =  matrix(k,j)
-                     matrix(k,j) =  temp
-                  End Do
-                  DetExists = .TRUE.
-               End If
-            End Do
-            If (DetExists .EQV. .FALSE.) Then
-               FindDetR = 0
-               Return
-            End If
-         End If
-         Do j = k+1, N
-            m = matrix(j,k)/matrix(k,k)
-            Do i = k+1, N
-               matrix(j,i) = matrix(j,i) - m*matrix(k,i)
-            End Do
-         End Do
-      End Do ! k
-c  Evaluate determinant by finding product of diagonal elements
-      FindDetR = l
+      info=0
+      FindDetR=0.0_wp
+      Call mma_allocate(w,n,'eigenvalues')
+      Call mma_allocate(z,n,n,'engenvectors')
+      Call dcopy_(  n,0.0_wp,0,w,1)
+      Call dcopy_(n*n,0.0_wp,0,z,1)
+      ! diagonalize the matrix:
+      Call diag_r2(matrix,n,info,w,z)
+      If (info.ne.0) then
+         Write(6,*) 'inside FindDetR. diagonalization failed. Info =',
+     &               info
+         Return
+      End If
+      ! Evaluate determinant by finding product of diagonal elements
+      FindDetR=1.0_wp
       Do i=1, N
-         FindDetR = FindDetR * matrix(i,i)
+         FindDetR = FindDetR * w(i)
       End Do
-
+      Call mma_deallocate(w)
+      Call mma_deallocate(z)
       Return
       End
