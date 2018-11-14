@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine SPIN_PHASE(MM,dim,Zinp,Zout)
 C
-C     The RASSI program gives a ranDom phase to the spin-orbit functions.
+C     The RASSI program gives a random phase to the spin-orbit functions.
 C
 C     This routine performs a simple check with the obtained spin functions,
 C     in order to determine the phase of the spin functions.
