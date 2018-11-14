@@ -2171,6 +2171,7 @@ list (REMOVE_ITEM progs
         wfa
         nevpt2 # although not necessarily
         dmrgscf
+        mpssi
         )
 
 # set the location of the sources for the utilities
@@ -2252,7 +2253,7 @@ if (HDF5 AND HDF5_FOUND)
         # additional utilities doing internal HDF5 calls
         foreach (util
                 Modules
-                aniso_util
+                aniso_open_util
                 guessorb_util
                 hyper_util
                 molcas_ci_util
@@ -2325,6 +2326,10 @@ if (BLOCK OR DMRG)
         list (APPEND progs dmrgscf)
 endif ()
 
+if (DMRG)
+        list (APPEND progs mpssi)
+endif ()
+
 # finally, sort the list
 list (SORT utils)
 
@@ -2352,11 +2357,11 @@ if (HDF5 AND HDF5_FOUND)
                 dynamix
                 mcpdft
                 nevpt2
-                poly_aniso
+                poly_aniso_open
                 rasscf
                 rassi
                 scf
-                single_aniso
+                single_aniso_open
                 slapaf
                 surfacehop
                 )
@@ -2435,6 +2440,10 @@ list (APPEND last_energy_deps
         $<TARGET_OBJECTS:dmrgscf>
         )
 endif ()
+
+set (mpssi_deps
+        $<TARGET_OBJECTS:rassi>
+        )
 
 
 ################################################################################
