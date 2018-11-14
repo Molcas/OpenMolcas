@@ -1,3 +1,13 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
       Subroutine Msum( N, Mex,Zex, ML,ZL, MR,ZR, iopt, M, Z )
 c   computes the total M, provided all input values are provided
 c   according to the desired partition scheme  (iopt = 1 or 2 )

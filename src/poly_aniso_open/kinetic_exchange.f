@@ -1,3 +1,13 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
       Subroutine Kinetic_Exchange(  N1,   N2,   M1,S1,  M2,S2,
      &                            eso1, eso2,
      &                            tpar, upar, lant, OPT, HKEX,

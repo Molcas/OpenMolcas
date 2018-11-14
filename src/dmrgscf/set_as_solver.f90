@@ -89,7 +89,7 @@
       end do
       !exit
     end if
-    if(line(1:6) == 'END OF' .or. line(1:6) == 'DMRGSE' .or. line(1:6) == 'OPTIMI') exit
+    if(line(1:6) == 'END OF' .or. line(1:6) == 'DMRGSE' .or. line(1:6) == 'OOPTIM') exit
 
   end do
 
