@@ -14,7 +14,7 @@
       Integer nFro(MxSym), nISh(MxSym), nASh(MxSym), nDel(MxSym),
      &        nBas(MxSym), iRoot(MxRoot),
      &        nRS1(MxSym), nRS2(MxSym), nRS3(MxSym)
-      Character*4 Name(2,mxOrb), Title(18,mxTit)
+      Character*(LENIN8) Name(mxOrb), Title(18,mxTit)
       Character*2 Header(72)
       Real*8 Weight(MxRoot)
       Dimension IADR15(*)
