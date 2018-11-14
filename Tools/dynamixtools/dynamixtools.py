@@ -8,7 +8,8 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2018, Alessio Valentini, Luis Manuel Frutos            *
+# Copyright (C) 2018, Alessio Valentini,                               *
+#               2018, Luis Manuel Frutos                               *
 #***********************************************************************
 
 import numpy as np
@@ -26,10 +27,11 @@ def printDict(dictionary):
     for x in dictionary:
         print('{} -> {}'.format(x,dictionary[x]))
 
-def giveMeDataJefe():
+def test_initial_things():
     '''
     This function returns a dictionary with test inputs instead of reading them
     dictio :: Dictionary
+    These values can be used as a test. I need to set the seed and the results.
     '''
     dictio = {}
     dictio['degrN'] = 3
@@ -125,7 +127,8 @@ def generate_one_boltz(dictio,label):
     np.savetxt(geomName,newGeom,header='{}\n'.format(atomN),comments='')
 
 def parseCL():
-    parser = argparse.ArgumentParser()
+    d = 'This tools is intended to be used as a support to launch molecular dynamics'
+    parser = argparse.ArgumentParser(description=d)
     parser.add_argument("-s", "--seed",
                         dest="seed",
                         required=False,
@@ -291,10 +294,10 @@ def main():
     else:
         print('You must use freq.molden or .h5 files')
 
-    ##################################################
-    # take out this line to make it work as intended #
-    # inputs = giveMeDataJefe()
-    ##################################################
+    ###################################################
+    # This is the function that will be used for test #
+    # inputs = test_initial_things()                  #
+    ###################################################
 
     inputs['T'] = args.temp
     inputs['kb'] = 1.38064852E-23
