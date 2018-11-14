@@ -30,7 +30,7 @@
             </HELP>
 
 The
-:program:`MPSSI` (MPS :index:`State Interaction`) program forms overlaps and
+:program:`MPSSI` (MPS :index:`State Interaction`) program :cite:`knec16b` forms overlaps and
 other :index:`matrix
 elements <single: Matrix elements; DMRGSCF>` of the Hamiltonian and other operators
 over a wave function basis, which consists of matrix-product state (MPS) wave functions,

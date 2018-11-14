@@ -18,6 +18,7 @@ Programs
    programs/cmocorr
    programs/cpf
    programs/dimerpert
+   programs/dmrgscf
    programs/dynamix
    programs/embq
    programs/espf

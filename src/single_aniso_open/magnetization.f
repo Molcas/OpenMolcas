@@ -1,4 +1,13 @@
-* $ this file belongs to the Molcas repository $
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
       Subroutine magnetization( nss, nM, nTempMagn, nDirTot, nDir,
      &                          nDirZee, nH, iPrint, LUZee, mem,
      &                          compute_Mdir_vector, zeeman_energy,
@@ -7,15 +16,6 @@
      &                          dir_weight, hexp, magn_exp, zJ, hmin,
      &                          hmax, EM, thrs,
      &                          dipm, sm, dbg )
-************************************************************************
-*                                                                      *
-*     (c) Copyright. All rights reserved                               *
-*                                                                      *
-*     This code or parts thereof may not be copied or redistributed,   *
-*     without the written permission of the author. The use is re-     *
-*     stricted to research purposes only, and the material may not be  *
-*     included in any commercial product.                              *
-*                                                                      *
 ************************************************************************
 *                                                                      *
 *     MAGNETIZATION control section                                    *
