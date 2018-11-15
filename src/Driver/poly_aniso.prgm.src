@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
- (prgm) "$MOLCAS"/bin/poly_aniso_open.exe             executable
+ (prgm) "$MOLCAS"/bin/poly_aniso.exe             executable
  (file)  POLYINP "$WorkDir/$Project."Poly.Input     rwi
  (file)  SITE01   "$WorkDir/$Project."Aniso       ro*
  (file)  SITE02   "$WorkDir/$Project."NoFile      ro

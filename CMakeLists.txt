@@ -208,8 +208,6 @@ if (DMRG)
         # Set QCMaquis download URL and path to the download script
         set (QCMaquis_URL "https://scine.ethz.ch/download/")
         set (QCMaquis_dl_SCRIPT "${CMAKE_SOURCE_DIR}/src/qcmaquis/get_qcmaquis.sh")
-
-
 else ()
         mark_as_advanced (FORCE DMRG_DEBUG)
 endif ()
@@ -257,7 +255,6 @@ add_definitions (-D_MOLCAS_)
 
 #set cmake module search paths
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH})
-
 
 # location of molcas-extra
 if (NOT DEFINED EXTRA)
@@ -2086,7 +2083,6 @@ message ("-- RUNSCRIPT:    ${RUNSCRIPT}")
 message ("-- RUNBINARY:    ${RUNBINARY}")
 message ("-- RUNBINARYSER: ${RUNBINARYSER}")
 
-
 ################################################################################
 #                                                                              #
 # Print summary                                                                #
@@ -2253,7 +2249,7 @@ if (HDF5 AND HDF5_FOUND)
         # additional utilities doing internal HDF5 calls
         foreach (util
                 Modules
-                aniso_open_util
+                aniso_util
                 guessorb_util
                 hyper_util
                 molcas_ci_util
@@ -2357,11 +2353,11 @@ if (HDF5 AND HDF5_FOUND)
                 dynamix
                 mcpdft
                 nevpt2
-                poly_aniso_open
+                poly_aniso
                 rasscf
                 rassi
                 scf
-                single_aniso_open
+                single_aniso
                 slapaf
                 surfacehop
                 )
@@ -2400,6 +2396,9 @@ set (casvb_deps
         )
 set (dmrgscf_deps
         $<TARGET_OBJECTS:rasscf>
+        )
+set (mpssi_deps
+        $<TARGET_OBJECTS:rassi>
         )
 set (espf_deps
         $<TARGET_OBJECTS:seward>
@@ -2440,11 +2439,6 @@ list (APPEND last_energy_deps
         $<TARGET_OBJECTS:dmrgscf>
         )
 endif ()
-
-set (mpssi_deps
-        $<TARGET_OBJECTS:rassi>
-        )
-
 
 ################################################################################
 #                                                                              #

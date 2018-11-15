@@ -21,5 +21,3 @@ casscf = rasscf
 raspt2 = caspt2
 localization = localisation
 gridit = grid_it
-single_aniso = single_aniso_open
-poly_aniso = poly_aniso_open

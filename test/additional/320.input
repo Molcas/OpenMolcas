@@ -62,7 +62,6 @@ SpinOrbit
 EJOB
 End Of Input
 
->>ECHO "SA  ORIGINAL VERSION"
 &SINGLE_ANISO
 MLTP
 1
@@ -78,25 +77,6 @@ TMAG
 TINT
 0.0 300 104
 End of Input
-
-
->>ECHO "SA  OPEN VERSION"
-&SINGLE_ANISO_OPEN
-MLTP
-1
-2
-MVEC
-2
-0.0 0.0 1.0
-0.0 1.0 0.0
-HINT
-0.0 7.0 28
-TMAG
-3  1.0 3.0 9.0
-TINT
-0.0 300 104
-End of Input
-
 
 ****
 
