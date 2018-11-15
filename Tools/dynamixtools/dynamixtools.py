@@ -8,7 +8,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2018, Alessio Valentini,                               *
+# Copyright (C) 2018, Alessio Valentini                                *
 #               2018, Luis Manuel Frutos                               *
 #***********************************************************************
 
@@ -158,6 +158,9 @@ def parseCL():
     return args
 
 def parseMoldenFreq(fn):
+    '''
+    This function is the parser for molden freq files.
+    '''
     inp = {}
     with open(fn) as f:
         first = f.readline()

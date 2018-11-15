@@ -12,6 +12,8 @@
 *               2015, Alessio Valentini                                *
 ************************************************************************
 
+C This module calculates an external force applied to the system.
+
       Subroutine extf(ireturn)
 
       integer aN, atomNumberx3, nsAtom, efatom1, efatom2, ext
@@ -26,7 +28,7 @@
 C get initial values
 
       call qEnter('extf')
-      call Mem_Info('EXTF')
+C      call Mem_Info('EXTF')
 
       call Get_iScalar('Unique atoms',nsAtom)
 
@@ -71,7 +73,6 @@ C get initial values
       GOTO 999
 *>>>>>>>>>>>>>>>>>>>> END <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  9000 CONTINUE
-      WRITE (6,*) ' DEBUG HERE AND THERE '
 C>>>>>>>>>>>>>>>>>>>>> LINEAR CODE <<<<<<<<<<<<<<<<<<<<<<<<<<<
       IF (linear) then
       aN=1

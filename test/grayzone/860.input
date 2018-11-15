@@ -1,0 +1,58 @@
+*-------------------------------------------------------------------------------
+* Molecule: CH2=NH2+
+* Basis: STO-3G
+* Symmetry: C1
+* Features tested: extf
+* Responsible person: Alessio Valentini, Luis Manuel Frutos
+* Comments: in this test we just test the LINEAR keyword
+*-------------------------------------------------------------------------------
+
+&Gateway
+ coord
+ 6
+
+ C         -4.53613        0.69499        0.00345
+ N         -3.17049        0.55472        0.10884
+ H         -5.31119        0.21606        0.67233
+ H         -5.06136        1.23079       -0.78413
+ H         -2.66459       -0.14355        0.45280
+ H         -2.84137        1.49862       -0.20683
+
+ basis=STO-3G
+ group=NoSym
+NoCD
+
+&Seward
+
+&Rasscf
+SYMMETRY
+ 1
+SPIN
+ 1
+NACTEL
+ 4 0 0
+FROZEN
+ 0
+INACTIVE
+ 6
+RAS2
+ 4
+CIROOT
+ 3 3
+ 1 2 3
+ 1 1 1
+MDRLXROOT
+ 2
+
+&Alaska
+
+&extf
+ LINEAR
+ 1
+ 2
+ 1.5
+ 0
+
+
+
+

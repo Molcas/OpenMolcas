@@ -21,7 +21,7 @@
 
             </HELP>
 
-This module calculates the contribution of an external force that is acting on the system. It applies the modification directly on the gradient and it needs to be called after the execution of :program:`ALASKA`, in an optimization or molecular dynamics calculation. At present time, just the `LINEAR` keyword is present, that applies a constant linear force between two atoms :cite:`valentini2017optomechanical`. The following input example is a semiclassical molecular dynamics with tully surface hop, where a linear force of 2.9 Hartree/Bohr is applied between atom 1 and atom 2.
+This module calculates the contribution of an external force that is acting on the system. It applies the modification directly on the gradient and it needs to be called after the execution of :program:`ALASKA`, in an optimization or molecular dynamics calculation. At present time, just the `LINEAR` keyword is present, that applies a constant linear force between two atoms :cite:`valentini2017optomechanical`. The following input example is a semiclassical molecular dynamics with tully surface hop, where a linear force of 2.9 nN is applied between atom 1 and atom 2.
 
 .. _UG\:sec\:extf_inp:
 
@@ -80,7 +80,7 @@ General keywords
               %%Keyword: LINEar <advanced>
               This keyword enables the linear external force between two atoms.
               <HELP>
-              This keyword works by specifying 4 parameters, each one in its own line after the keyword itself. First parameter (Integer) is the first atom number following the numeration of the geometry. Second parameter (Integer) is the second atom number. Third parameter is the force (Float) in Hartree/Bohr applied along the vector between the two atoms. Fourth parameter is 0 or 1 (Bool), where 0 indicates a repulsive force, and 1 is for an attractive force.
+              This keyword works by specifying 4 parameters, each one in its own line after the keyword itself. First parameter (Integer) is the first atom number following the numeration of the geometry. Second parameter (Integer) is the second atom number. Third parameter is the force (Float) in nanonewton applied along the vector between the two atoms. Fourth parameter is 0 or 1 (Bool), where 0 indicates a repulsive force, and 1 is for an attractive force.
               </HELP>
               </KEYWORD>
 
@@ -88,7 +88,7 @@ Input examples
 ..............
 
 This example shows an excited state CASSCF MD simulation
-of a methaniminium cation using the Tully Surface Hop algorithm. In the simulation, the carbon and the nitrogen are pulled apart with a constant force of 1.5 Hartree/Bohr.
+of a methaniminium cation using the Tully Surface Hop algorithm. In the simulation, the carbon and the nitrogen are pulled apart with a constant force of 1.5 nN (nanonewton).
 Within the :program:`Extf` module the keyword :kword:`LINEAR` is used. Note that :program:`Extf` needs to be called after the execution of :program:`ALASKA`, inside the loop. The options are:
 (1) the atom number corresponding to the C atom
 (2) the atom number corresponding to the N atom
