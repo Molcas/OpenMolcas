@@ -177,6 +177,7 @@ c         RecLab( 58)='GEO_nConnect    '
          RecLab( 70)='nEFP_fragments  '
          RecLab( 71)='Coor_Type       ' ! EFP fragment coordinate format
          RecLab( 72)='nEFP_Coor       ' ! Associated number of coordinates per fragment
+         RecLab( 72)='Relax Original r' !oot
 *                     1234567890123456
 *
 *        Note, when the counter here exceeds 128 update this line
@@ -224,6 +225,9 @@ c         RecLab( 58)='GEO_nConnect    '
             Write(6,*) '*** Warning, writing temporary iScalar field'
             Write(6,*) '***   Field: ',Label
             Write(6,*) '***'
+#ifdef _BIGOT_
+            Call AbEnd()
+#endif
          End If
       End If
 *----------------------------------------------------------------------*

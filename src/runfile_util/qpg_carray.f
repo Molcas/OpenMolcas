@@ -93,6 +93,9 @@
             Write(6,*) '*** Warning, querying temporary cArray field'
             Write(6,*) '***   Field: ',Label
             Write(6,*) '***'
+#ifdef _BIGOT_
+            Call AbEnd()
+#endif
          End If
       End If
 *----------------------------------------------------------------------*

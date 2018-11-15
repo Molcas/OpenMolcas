@@ -8,7 +8,6 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-* $ this file belongs to the Molcas repository $
       Subroutine mu_order( dim, MS, MM, gtens, order, HCF2, AMM,
      &                     AMS, Z, iprint)
 

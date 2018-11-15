@@ -57,7 +57,11 @@ up and running is the following:
 
 For running other calculations you should define the `MOLCAS` environment
 variable to point to the `build` directory. Run `pymolcas --help` to see the
-available options of the script.
+available options of the script. In particular it is recommended to run:
+```
+pymolcas -setup
+```
+for your first installation.
 
 Documentation
 -------------

@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-c  nsymm specIfies the symmetry of the sphere grid used to average the magnetization
+c  nsymm specifies the symmetry of the sphere grid used to average the magnetization
 c   nsymm=1  for half sphere
 c   nsymm=2  for a quarter of a sphere
 c   nsymm=3  for an octant of a sphere
