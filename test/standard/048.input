@@ -10,7 +10,7 @@
 * Trick to check that there is enough memory,
 * the second part will be skipped if there is not.
 >> FILE checkmem
-if [ $MOLCAS_MEM -lt 2048 ] ; then
+if [ $MOLCAS_MEM -lt 1420 ] ; then
   touch not_enough
 fi
 >> EOF
@@ -78,11 +78,12 @@ fi
 >> ENDIF
 
 * RICD, we can go up to l=int(iTabMx/2)=7
+* but there are some stability and memory issues
 * (include all l values to avoid problems)
 &GATEWAY
   Expert
   Basis = H..... / inline
-    1.0 7
+    1.0 6
     * s functions (STO-3G)
     3   1
     3.42525091
@@ -115,10 +116,10 @@ fi
     1   1
     5.0e1
       1.0
-    * k functions
-    1   1
-    2.5e1
-      1.0
+*   * k functions
+*   1   1
+*   2.5e1
+*     1.0
     H1 -0.35  0.00  0.00
     H2  0.35  0.00  0.00
     Cartesian k
