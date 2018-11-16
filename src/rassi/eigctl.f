@@ -29,6 +29,7 @@
       REAL*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
      &       HAM(NSTATE,NSTATE),EIGVEC(NSTATE,NSTATE),ENERGY(NSTATE)
       REAL*8, ALLOCATABLE :: ESFS(:)
+      Integer, Dimension(:), Allocatable :: IndexE
 * Short array, just for putting transition dipole values
 * into Add_Info, for generating check numbers:
       Real*8 TDIPARR(3)
@@ -353,8 +354,33 @@ C within the basis formed by the states.
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*      Sort the states energywise
+*
+       Call mma_Allocate(IndexE,nState,Label='IndexE')
+       Do iState = 1, nState
+          IndexE(iState)=iState
+       End Do
+       Do iState = 1, nState-1
+          EX=ENERGY(IndexE(iState))
+*
+          kState=iState
+          Do jState = iState+1, nState
+             If (ENERGY(IndexE(jState)).lt.EX) Then
+                kState=jState
+                EX=ENERGY(IndexE(jState))
+             End If
+          End Do
+          If (kState.ne.iState) Then
+             lState=IndexE(iState)
+             IndexE(iState)=IndexE(kState)
+             IndexE(kState)=lState
+          End If
+       End Do
+*                                                                      *
+************************************************************************
+*                                                                      *
 C REPORT ON SECULAR EQUATION RESULT:
-       CALL MMA_ALLOCATE(ESFS,NSTATE)
+      CALL MMA_ALLOCATE(ESFS,NSTATE)
       IF(IPGLOB.ge.TERSE) THEN
        WRITE(6,*)
        WRITE(6,*)
@@ -363,6 +389,10 @@ C REPORT ON SECULAR EQUATION RESULT:
        WRITE(6,'(6X,A,98X,A)') '*','*'
        WRITE(6,'(6X,A,34X,A,34X,A)')
      &     '*','       Spin-free section      ','*'
+       WRITE(6,'(6X,A,98X,A)') '*','*'
+       WRITE(6,'(6X,A,17X,A,17X,A)')
+     &     '*','Note: index according to input order, order according'
+     &     //' to energy.','*'
        WRITE(6,'(6X,A,98X,A)') '*','*'
        WRITE(6,'(6X,100A1)') ('*',i=1,100)
        WRITE(6,*)
@@ -390,8 +420,9 @@ C REPORT ON SECULAR EQUATION RESULT:
        END IF
        WRITE(6,*)
 *
-       E0=ENERGY(1)
-       Do ISTATE=1,NSTATE
+       E0=ENERGY(IndexE(1))
+       Do kSTATE=1,NSTATE
+          iState=IndexE(kState)
           E1=ENERGY(ISTATE)
           E2=AU2EV*(E1-E0)
           E3=AU2CM*(E1-E0)
@@ -439,28 +470,30 @@ c
        WRITE(6,*)'  Spin-free eigenstates in basis of input states:'
        WRITE(6,*)'  -----------------------------------------------'
        WRITE(6,*)
-       DO I=1,NSTATE
+       DO L=1,NSTATE
+          I=IndexE(L)
          Write(6,'(5X,A,I5,A,F18.10)')'Eigenstate No.',I,
      &         ' energy=',ENERGY(I)
          WRITE(6,'(5X,5F15.7)')(EIGVEC(K,I),K=1,NSTATE)
        END DO
-        CALL GETMEM('ILST','ALLO','INTE',LILST,NSTATE)
+       CALL GETMEM('ILST','ALLO','INTE',LILST,NSTATE)
        CALL GETMEM('VLST','ALLO','REAL',LVLST,NSTATE)
-       DO I=1,NSTATE
-        Write(6,'(5X,A,I5,A,F18.10)')'Eigenstate No.',I,
+       DO L=1,NSTATE
+          I=IndexE(L)
+          Write(6,'(5X,A,I5,A,F18.10)')'Eigenstate No.',I,
      &          ' energy=',ENERGY(I)
         EVMAX=0.0D0
         DO K=1,NSTATE
-         EVMAX=MAX(EVMAX,ABS(EIGVEC(K,I)))
+         EVMAX=MAX(EVMAX,ABS(EIGVEC(IndexE(K),I)))
         END DO
         EVLIM=0.10D0*EVMAX
         NLST=0
         DO K=1,NSTATE
-         EV=EIGVEC(K,I)
+         EV=EIGVEC(IndexE(K),I)
          IF(ABS(EV).GE.EVLIM) THEN
            NLST=NLST+1
            WORK(LVLST-1+NLST)=EV
-           IWORK(LILST-1+NLST)=K
+           IWORK(LILST-1+NLST)=IndexE(K)
          END IF
         END DO
          DO KSTA=1,NLST,6
@@ -477,34 +510,24 @@ c
         WRITE(6,*)
         WRITE(6,*)' THE INPUT RASSCF STATES REEXPRESSED IN EIGENSTATES:'
         WRITE(6,*)
-        DO I=1,NSTATE
-*        CALL MXMA (EIGVEC,NSTATE,1,
-*     &             OVLP,  1,NSTATE,
-*     &             WORK(LSCR),1,NSTATE,
-*     &             NSTATE,NSTATE,NSTATE)
+        DO L=1,NSTATE
+           I=IndexE(L)
          CALL DGEMM_('T','N',NSTATE,NSTATE,NSTATE,1.0D0,
      &             EIGVEC,NSTATE,OVLP,NSTATE,
      &             0.0D0,WORK(LSCR),NSTATE)
          WRITE(6,'(A,I5)')' INPUT STATE NR.:',I
          WRITE(6,*)' OVERLAP WITH THE EIGENSTATES:'
-        WRITE(6,'(5(1X,F15.7))')(WORK(LSCR-1+K+NSTATE*(I-1)),K=1,NSTATE)
+         WRITE(6,'(5(1X,F15.7))')(WORK(LSCR-1+IndexE(K)+NSTATE*(I-1)),
+     &         K=1,NSTATE)
          WRITE(6,*)
        END DO
       END IF
 
 C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
       DO IP=1,NPROP
-*        CALL MXMA(PROP(1,1,IP),1,NSTATE,
-*     *            EIGVEC,      1,NSTATE,
-*     *            WORK(LSCR),  1,NSTATE,
-*     *            NSTATE,NSTATE,NSTATE)
         CALL DGEMM_('N','N',NSTATE,NSTATE,NSTATE,1.0D0,
      &             PROP(1,1,IP),NSTATE,EIGVEC,NSTATE,
      &             0.0D0,WORK(LSCR),NSTATE)
-*        CALL MXMA(EIGVEC,      NSTATE,1,
-*     *            WORK(LSCR),  1,NSTATE,
-*     *            PROP(1,1,IP),1,NSTATE,
-*     *            NSTATE,NSTATE,NSTATE)
         CALL DGEMM_('T','N',NSTATE,NSTATE,NSTATE,1.0D0,
      &             EIGVEC,NSTATE,WORK(LSCR),NSTATE,
      &             0.0D0,PROP(1,1,IP),NSTATE)
@@ -605,8 +628,10 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
         LNCNT=0
         FMAX=0.0D0
         Two3rds=2.0D0/3.0D0
-        DO I=1,IEND
-         DO J=JSTART,NSTATE
+        DO K_=1,IEND
+         I=IndexE(K_)
+         DO L_=JSTART,NSTATE
+          J=IndexE(L_)
           IJ=I+NSTATE*(J-1)
           EDIFF=ENERGY(J)-ENERGY(I)
           IF(EDIFF.GT.0.0D0) THEN
@@ -781,11 +806,13 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
          LNCNT=0
          FMAX=0.0D0
          Two3rds=2.0D0/3.0D0
-         DO I=1,IEND
-            DO J=JSTART,NSTATE
+         DO K_=1,IEND
+            I=IndexE(K_)
+            DO L_=JSTART,NSTATE
+               J=IndexE(L_)
                IJ=I+NSTATE*(J-1)
                EDIFF=ENERGY(J)-ENERGY(I)
-               IF (EDIFF.LE.0.0D0) CYCLE
+               IF (JSTART.eq.1.AND.EDIFF.LE.0.0D0) CYCLE
                DX2=0.0D0
                DY2=0.0D0
                DZ2=0.0D0
@@ -878,11 +905,13 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
          WRITE(6,*) "--------------------------------------------------"
 !
           I_PRINT_HEADER = 0
-          DO I=1,IEND
-            DO J=JSTART,NSTATE
+          DO K_=1,IEND
+            I=IndexE(K_)
+            DO L_=JSTART,NSTATE
+               J=IndexE(L_)
                IJ=I+NSTATE*(J-1)
                EDIFF=ENERGY(J)-ENERGY(I)
-               IF(EDIFF.LT.0.0D0.OR.I.GE.J) CYCLE
+               IF(JSTART.EQ.1.AND.EDIFF.LT.0.0D0) CYCLE
                COMPARE=0.0D0
              IF(WORK(LDL-1+IJ).GE.OSTHR.AND.WORK(LDV-1+IJ).GE.OSTHR)
      &          THEN
@@ -994,8 +1023,10 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
 
          ONEOVER6C2=1.0D0/(6.0D0*CONST_C_IN_AU_**2)
 
-         DO ISS=1,IEND
-          DO JSS=JSTART,NSS
+         DO ISS_=1,IEND
+            ISS=IndexE(ISS_)
+          DO JSS_=JSTART,NSS
+           JSS=IndexE(JSS_)
            EDIFF=ENERGY(JSS)-ENERGY(ISS)
            IF(EDIFF.GT.0.0D0) THEN
             IJSS=ISS+NSS*(JSS-1)
@@ -1097,8 +1128,10 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
          ONEOVER10C=1.0D0/(10.0D0*CONST_C_IN_AU_**2)
          ONEOVER30C=ONEOVER10C/3.0D0
 
-         DO ISS=1,IEND
-          DO JSS=JSTART,NSS
+         DO ISS_=1,IEND
+          ISS=IndexE(ISS_)
+          DO JSS_=JSTART,NSS
+           JSS=IndexE(JSS_)
            EDIFF=ENERGY(JSS)-ENERGY(ISS)
            IF(EDIFF.GT.0.0D0) THEN
 !
@@ -1295,8 +1328,10 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
         END IF
 
          TWOOVERM45C=-2.0D0/(45.0D0*CONST_C_IN_AU_**2)
-         DO ISS=1,IEND
-          DO JSS=JSTART,NSS
+         DO ISS_=1,IEND
+          ISS=IndexE(ISS_)
+          DO JSS_=JSTART,NSS
+           JSS=IndexE(JSS_)
            EDIFF=ENERGY(JSS)-ENERGY(ISS)
            IF(EDIFF.GT.0.0D0) THEN
 !
@@ -1477,8 +1512,10 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
          END IF
 
          ONEOVER9C2=1.0D0/(9.0D0*CONST_C_IN_AU_**2)
-         DO ISS=1,IEND
-          DO JSS=JSTART,NSS
+         DO ISS_=1,IEND
+          ISS=IndexE(ISS_)
+          DO JSS_=JSTART,NSS
+           JSS=IndexE(JSS_)
            EDIFF=ENERGY(JSS)-ENERGY(ISS)
            IF(EDIFF.GT.0.0D0) THEN
 !
@@ -1600,8 +1637,10 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
          IF(SECORD(4).EQ.0)
      &   WRITE(6,*) 'Electric-Dipole - Magnetic-Quadrupole not included'
          iPrint=0
-         DO ISS=1,NSS
-          DO JSS=1,NSS
+         DO ISS_=1,NSS
+          ISS=IndexE(ISS_)
+          DO JSS_=1,NSS
+           JSS=IndexE(JSS_)
            EDIFF=ENERGY(JSS)-ENERGY(ISS)
            IF(EDIFF.GT.0.0D0) THEN
 !
@@ -1734,9 +1773,11 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
       HALF=0.5D0
       G_Elec=CONST_ELECTRON_G_FACTOR_
       iPrint=0
-      DO I=1, NSTATE
+      DO I_=1, IEND
+         I=IndexE(I_)
          MPLET_I=MLTPLT(iWork(lJBNUM+I-1))
-         DO J=1, NSTATE
+         DO J_=JSTART, NSTATE
+            J=IndexE(J_)
             MPLET_J=MLTPLT(iWork(lJBNUM+J-1))
 *
             EDIFF=ENERGY(J)-ENERGY(I)
@@ -2012,21 +2053,25 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
       G_Elec=CONST_ELECTRON_G_FACTOR_
       iPrint=0
       IJSO=0
-      DO I=1, IEND
+      DO I_=1, IEND
+         I=IndexE(I_)
          MPLET_I=MLTPLT(iWork(lJBNUM+I-1))
-         DO J=JSTART, NSTATE
+         DO J_=JSTART, NSTATE
+            J=IndexE(J_)
             MPLET_J=MLTPLT(iWork(lJBNUM+J-1))
 *
             EDIFF=ENERGY(J)-ENERGY(I)
             If (ABS(EDIFF).le.1.0D-8) CYCLE
-            IF(EDIFF.LT.0.0D0.OR.I.GE.J) CYCLE
+*
+            If (JSTART.eq.1 .AND.  EDIFF.LT.0.0D0) CYCLE
+*
             IJSO=IJSO+1
             iOff_=(IJSO-1)*nQuad*nData
 *
 *           The energy difference is used to define the norm of the
 *           wave vector.
 *
-            rkNorm=EDIFF/(HBAR*SPEED_OF_LIGHT)
+            rkNorm=ABS(EDIFF)/(HBAR*SPEED_OF_LIGHT)
 *           rkNorm=1.0D-31
 *
 C COMBINED SYMMETRY OF STATES:
@@ -2276,14 +2321,14 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *
 *                    NOW, compute the oscillator strength
 *
-                     F_Temp = Max( F_Temp, 2.0D0*TM_2/EDIFF )
+                     F_Temp = Max( F_Temp, 2.0D0*TM_2/ABS(EDIFF))
 *
 *                    Magnetic only
 *
                      TM1 = IMAGINARY*(g_Elec/2.0D0)*E1B
                      TM2 = IMAGINARY*(g_Elec/2.0D0)*E2B
                      TM_2 = Half*DBLE(DCONJG(TM1)*TM1 +DCONJG(TM2)*TM2)
-                     F_Tempm= Max( F_Tempm,2.0D0*TM_2/EDIFF )
+                     F_Tempm= Max( F_Tempm,2.0D0*TM_2/ABS(EDIFF))
 *
                   END DO
                END DO
@@ -2471,6 +2516,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
         end do
         end do
       end if
+      Call mma_DeAllocate(IndexE)
 
       CALL QEXIT(ROUTINE)
       RETURN
