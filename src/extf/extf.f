@@ -132,7 +132,7 @@ C the direction of the ExtGrad vector will be changed
 
 
 C Creating ihe final modified external gradient vector (modgrad)
-10    do i=1,atomNumberx3
+      do i=1,atomNumberx3
        modgrad(i)=gradient(i)+ExtGrad(i)
       end do
 
