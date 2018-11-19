@@ -44,36 +44,37 @@ matrix yields spin-orbit coupled wave functions as linear combinations of the
 uncoupled, spin-pure MPS states. The latter can (but do not have to) be obtained as
 results from one or several DMRG-SCF orbital optimization calculations (see :program:`DMRGSCF`).
 
-Following the work of Malmqvist :cite:`Malmqvist:89`, the central element of the MPS-SI algorithm
-is the transformation of the bra and ket MPS wave functions to a biorthonormal basis
-representation. It is important to note that the latter transformation is not needed if
-the MPS wave functions considered for state interaction share a common MO basis.
-In this particular case, the MPS-SI program directly proceeds with the calculation of
-the reduced (transition) one- and two-particle density matrices. We emphasize that
-our approach is applicable to the general case with MPS wave functions built from
-mutually nonorthogonal molecular orbital bases. It therefore provides the desired
-flexibility to find the best individual molecular orbital basis to represent wave functions
-of different spin and/or spatial symmetry. After solving a generalized eigenvalue
-equation of the form
+.. compound::
 
-.. math:: Hc = ESc
-   :label: egv
+  Following the work of Malmqvist :cite:`Malmqvist:89`, the central element of the MPS-SI algorithm
+  is the transformation of the bra and ket MPS wave functions to a biorthonormal basis
+  representation. It is important to note that the latter transformation is not needed if
+  the MPS wave functions considered for state interaction share a common MO basis.
+  In this particular case, the MPS-SI program directly proceeds with the calculation of
+  the reduced (transition) one- and two-particle density matrices. We emphasize that
+  our approach is applicable to the general case with MPS wave functions built from
+  mutually nonorthogonal molecular orbital bases. It therefore provides the desired
+  flexibility to find the best individual molecular orbital basis to represent wave functions
+  of different spin and/or spatial symmetry. After solving a generalized eigenvalue
+  equation of the form
 
-with the Hamiltonian matrix :math:`H` expressed in the basis of the DMRG-SCF MPS wave
-functions and the wave function overlap matrix :math:`S`, a set of fully orthogonal and noninteracting
-states are obtained as linear combinations of the DMRG-SCF MPS wave
-functions with the expansion coefficients given by :math:`c` in Eq. :eq:`egv`.
+  .. math:: Hc = ESc
+     :label: egv
+
+  with the Hamiltonian matrix :math:`H` expressed in the basis of the DMRG-SCF MPS wave
+  functions and the wave function overlap matrix :math:`S`, a set of fully orthogonal and noninteracting
+  states are obtained as linear combinations of the DMRG-SCF MPS wave
+  functions with the expansion coefficients given by :math:`c` in Eq. :eq:`egv`.
 
 Apart from computing oscillator strengths, overlaps and Hamiltonian
 matrix elements can be used to compute :index:`electron transfer rates <single: Electron transfer rate>`, or
 to form :index:`quasi-diabatic states <single: Quasi-diabatic states>` and reexpress matrix elements over a
 basis of such states.
 
-Moreover, it is possible to “dress" the diagonal elements of the Hamiltonian in
-Eq.  :eq:`egv` for MPS-SI by adding a correlation-correction term obtained, for example,
-from a preceding NEVPT2 calculation (see Section 6), by either using the HDIAG keyword
-within the RASSI module or provide the nevpt2.h5 wave function file as input
-
+Moreover, it is possible to "dress" the diagonal elements of the Hamiltonian in
+Eq. :eq:`egv` for MPS-SI by adding a correlation-correction term obtained, for example,
+from a preceding NEVPT2 calculation (see Section 6), by either using the :kword:`HDIAG` keyword
+within the :program:`RASSI` module or provide the :file:`nevpt2.h5` wave function file as input
 
 .. index::
    pair: Dependencies; MPSSI
@@ -90,7 +91,7 @@ one or more :file:`nevpt2.h5` files). Also, it needs a :file:`ONEINT` file from
 property integrals for the requested matrix elements. If Hamiltonian
 matrix elements are used, also the :file:`ORDINT` file is needed.
 
-For further information see the description of the :program:`RASSI`.
+or further information see the description of the :program:`RASSI` program (:ref:`UG:sec:rassi`).
 
 .. index::
    pair: Files; MPSSI
@@ -176,20 +177,20 @@ Keywords
   Enable the effective Hamiltonian from a quasi-degenerate (QD) multi-state strongly-contracted i(SC) :program:`NEVPT2`
   calculation.
 
-  .. xmldoc:: <GROUP MODULE="MPSSI" NAME="QDSC" APPEAR="effective Hamiltonian" KIND="BLOCK" LEVEL="ADVANCED">
+  .. xmldoc:: <GROUP MODULE="MPSSI" NAME="QDSC" APPEAR="SC effective Hamiltonian" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: QDSC <advanced>
               <HELP>
-              Enable the QDSC effective Hamiltonian in MPSSI.
+              Enable the QDSC (quasi-degenerate strongly contracted) effective Hamiltonian.
               </HELP>
 
 :kword:`QDPC`
   Enable the effective Hamiltonian from a quasi-degenerate (QD) multi-state partially-contracted (PC) :program:`NEVPT2`
   calculation.
 
-  .. xmldoc:: <GROUP MODULE="MPSSI" NAME="QDPC" APPEAR="effective Hamiltonian" KIND="BLOCK" LEVEL="ADVANCED">
+  .. xmldoc:: <GROUP MODULE="MPSSI" NAME="QDPC" APPEAR="PC effective Hamiltonian" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: QDPC <advanced>
               <HELP>
-              Enable the QDPC effective Hamiltonian in MPSSI.
+              Enable the QDPC (quasi-degenerate partially contracted) effective Hamiltonian.
               </HELP>
 
 Input example
