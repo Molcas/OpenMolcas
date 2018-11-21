@@ -210,6 +210,7 @@ c       close (lgtoc)
 *                                                                      *
       Else if ( Method.eq.'RASSCF  ' .or.
      &          Method.eq.'CASSCF  ' .or.
+     &          Method.eq.'GASSCF  ' .or.
      &          Method.eq.'MCPDFT  ' .or.
      &          Method.eq.'DMRGSCF ' .or.
      &          Method.eq.'CASDFT  ') then
@@ -237,6 +238,7 @@ c       close (lgtoc)
 *                                                                      *
       Else if ( Method.eq.'CASSCFSA' .or.
      &          Method.eq.'DMRGSCFS' .or.
+     &          Method.eq.'GASSCFSA' .or.
      &          Method.eq.'RASSCFSA' ) then
          Call Get_iArray('nAsh',nAsh,nIrrep)
          nAct = 0
