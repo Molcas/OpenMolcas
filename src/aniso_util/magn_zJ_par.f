@@ -77,7 +77,8 @@ c local variables:
       Complex(kind=wp), allocatable :: HZEE(:), WORK(:), W_c(:)
       Complex(kind=wp), allocatable :: ZM(:,:)
       Complex(kind=wp), allocatable :: SZ(:,:,:) !SZ(3,EXCH,EXCH), MZ(3,EXCH,EXCH)
-      Complex(kind=wp), allocatable :: MZ(:,:,:) !SZ(3,EXCH,EXCH), MZ(3,EXCH,EXCH)
+!      Complex(kind=wp), allocatable :: MZ(:,:,:) !SZ(3,EXCH,EXCH), MZ(3,EXCH,EXCH)
+      Complex(kind=wp), allocatable :: MZ(3,EXCH,EXCH) !SZ(3,EXCH,EXCH), MZ(3,EXCH,EXCH)
 
       Call qEnter('MAGN_ZJ_PAR')
       kB=0.6950356000_wp   ! Boltzmann constant,  in cm^-1*K-1
@@ -102,7 +103,7 @@ c a few checks, before proceeding:
       Call mma_allocate(SZ,3,exch,exch,'SZ')
       Call zcopy_(3*exch*exch,(0.0_wp,0.0_wp),0,SZ,1)
 
-      Call mma_allocate(MZ,3,exch,exch,'MZ')
+!      Call mma_allocate(MZ,3,exch,exch,'MZ')
       Call zcopy_(3*exch*exch,(0.0_wp,0.0_wp),0,MZ,1)
 
       ! temporary arrays used in ZEEM_SA:
@@ -215,7 +216,7 @@ c /// calculation of matrix elements of spin momentum in the basis of Zeeman sta
       Call mma_deallocate(WM)
       Call mma_deallocate(ZM)
       Call mma_deallocate(SZ)
-      Call mma_deallocate(MZ)
+!      Call mma_deallocate(MZ)
       Call qExit('MAGN_ZJ_PAR')
       Return
       End
