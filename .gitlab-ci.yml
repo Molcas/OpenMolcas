@@ -1,3 +1,9 @@
+include:
+  # Configurations defined in an external file
+  - "/.configs.yml"
+  # Jobs for building the documentation
+  - "/doc/.gitlab-ci.yml"
+
 # Define templates for "sub-jobs"
 # - install-key: install the SSH key to access private repositories
 # - compile: compile OpenMolcas with CMake
@@ -151,10 +157,6 @@
   #  but there's no harm in running all)
   when: always
 
-# Jobs for building the documentation
-
-include: "/doc/.gitlab-ci.yml"
-
 # A special job for compiling the tinker interface
 # By adding "tinker" as a dependency, other jobs can use it
 
@@ -203,10 +205,6 @@ tinker:
   except:
     - tags
     - master
-
-# Configurations defined in an external file
-
-include: "/.configs.yml"
 
 # Define the actual jobs, each job has a "build" and a "test" stage,
 # the latter depends on the former.
