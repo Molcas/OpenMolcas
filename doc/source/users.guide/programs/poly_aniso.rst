@@ -7,10 +7,6 @@
 :program:`poly_aniso` |extramark|
 =================================
 
-.. warning::
-
-   This program is not available in OpenMolcas
-
 .. only:: html
 
   .. contents::
