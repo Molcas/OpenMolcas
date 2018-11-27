@@ -75,10 +75,6 @@
       INTEGER IISTSGP(MXPNSMST,MXPNGAS)
       INTEGER KGRP(MXPNGAS)
       INTEGER IACIST(MXPNSMST), NACIST(MXPNSMST)
-*. Temporary solution ( for once )
-cSJS      PARAMETER(LOFFI=8*8*8*8*8)
-cSJS * Declaring later so it can be in terms of NGAS and NIRREP
-cSJS      PARAMETER(LOFFI=NGAS**NIRREP) !SJS
       DIMENSION IOFFI(LOFFI)
 *
 *
