@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine SINGLE_ANISO(IReturn)
+      Subroutine SINGLE_ANISO_OPEN(IReturn)
 
       Implicit None
 
@@ -49,7 +49,7 @@ C*  initializations
       End If !Ifrestart
 
       Write(6,'(120A)') ('@',i=1,95)
-      Write(6,'(A)') '   SINGLE_ANISO'
+      Write(6,'(A)') '   SINGLE_ANISO (OPEN)'
       Write(6,'(A)') '(last updated on 12-March-2018)'
       Write(6,'(A)') '   New features: '
       Write(6,*)

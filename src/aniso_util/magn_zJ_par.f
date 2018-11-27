@@ -140,7 +140,7 @@ c start calculations:
                Call dcopy_(3,0.0_wp,0,STsave,1)
                Call mean_field( EXCH, N, H, X,Y,Z, zJ, T(iT), W, thrs,
      &                          DM, SM, ST, dbg )
-               Call dcopy_(3,ST,0,STsave,1)
+               Call dcopy_(3,ST,1,STsave,1)
             Else
                ! use the last saved value of the ST:
                Call dcopy_(3,STsave,1,ST,1)
