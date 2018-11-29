@@ -2810,14 +2810,15 @@ c       write(6,*)          '  --------------------------------------'
 * It is used by Block and CheMPS2... but it could be useful for other codes.
 * Therefore it is now outside the ifdef Block or CheMPS2.
       If (KeyHFOC) Then
-       If (DBG) Write(6,*) ' HFOC keyword was given.'
+       Write(6,*) ' HFOC keyword was given.'
        Call SetPos(LUInput,'HFOC',Line,iRc)
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
        ReadStatus=' Failure reading after HFOC keyword.'
+       write(6,*) 'NASHT, mxact = ', NASHT, mxact
        Read(LUInput,*,End=9910,Err=9920) (hfocc(i),i=1,NASHT)
        ReadStatus=' O.K. reading after HFOC keyword.'
-*       write(6,*)'HFOCC read in proc_inp of size:', NASHT
-*       write(6,*)(hfocc(i),i=1,NASHT)
+       write(6,*)'HFOCC read in proc_inp of size:', NASHT
+       write(6,*)(hfocc(i),i=1,NASHT)
       End If
 
 *---  All keywords have been processed ------------------------------*

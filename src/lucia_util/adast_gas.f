@@ -235,23 +235,26 @@
       ZERO =0.0D0
       IZERO = 0
       CALL ISETVC(I1,IZERO,NORBTS*NKSTR)
-*
 * Loop over symmetry distribtions of K strings
-*
       KFIRST = 1
       KSTRBS = 1
       DO IGAS = 1, NIGRP
         ISMFGS(IGAS) = 1
       END DO
  1000 CONTINUE
+cGLM        IF(KFIRST .EQ. 1 ) THEN
+cGLM          DO IGAS = 1, NIGRP
+cGLM            ISMFGS(IGAS) = MNVLI(IGAS)
+cGLM          END DO
+cGLM        ELSE
 *. Next distribution
-*        CALL NEXT_SYM_DISTR(  NGASL,  MNVLK,  MXVLK, ISMFGS,    KSM,
-*     &                       KFIRST,  NONEW)
-         CALL NEXT_SYM_DISTR_NEW(NSMST,NGRP,KGRP,NIGRP,
+          CALL NEXT_SYM_DISTR_NEW(NSMST,NGRP,KGRP,NIGRP,
      &                           ISMFGS,KSM,KFIRST,NONEW,
      &                  iWork(ISMDFGP),iWork(NACTSYM),iWork(ISMSCR))
+cGLM          IF(NONEW.EQ.1) GOTO 9999
+cGLM        END IF
         IF(NTEST.GE.1000) THEN
-          write(6,*) ' Symmetry distribution '
+          write(6,*) ' Symmetry distribution   '
           call iwrtma(ISMFGS,1,NIGRP,1,NIGRP)
         END IF
         IF(NONEW.EQ.1) GOTO 9999
@@ -266,6 +269,7 @@
         CALL  SYMCOM(3,1,IOBSM,ISMFGS(IACGRP),IACSM)
         ISMFGS(IACGRP) = IACSM
         IBSTRINI = IOFF_SYM_DIST(ISMFGS,NIGASL,IOFFI,MXVLI,MNVLI)
+c        write(6,*) 'IBSTRINI :', IBSTRINI
         ISMFGS(IACGRP) = ISAVE
 *. Number of strings before active GAS space
         NSTB = 1
