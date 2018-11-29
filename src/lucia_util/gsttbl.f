@@ -12,7 +12,10 @@
      &                      IBSM,   IOCOC,  NOCTPA,  NOCTPB,   NSASO,
      &                     NSBSO,  PSSIGN,  ICOOSC,     IDC,  PLSIGN,
      &                       LUC,     SCR,   NSMST,  ISCALE,  SCLFAC)
-*
+*****************************************************************************
+* Variables status:
+* C     = input CI vector
+* CTT   = output CI vector in SD format
 * obtain  determinant block (iatp iasm, ibtp ibsm )
 * from vector packed in combination format according to IDC
 *
