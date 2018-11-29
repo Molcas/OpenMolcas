@@ -43,8 +43,13 @@
         IMULT = IMULT*(MAXVAL(IGAS)-MINVAL(IGAS)+1)
 c        write(6,*) ' igas,i,imult ',igas,i,imult
       END DO
-      IOFF_SYM_DIST=IOFF(I)
-      IF(I.le.0) IOFF_SYM_DIST=0
+c The following IF block is needed for avoinging going outside the IOFF bounds.
+c This is possible for certain GAS setups. Test 897 helped in finding this issue.
+      IF (I.le.0) THEN
+        IOFF_SYM_DIST=0
+      ELSE
+        IOFF_SYM_DIST=IOFF(I)
+      END IF
 *
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Info from IOFF_SYM_DIST'
