@@ -1,0 +1,106 @@
+% tutorials.tex $ this file belongs to the Molcas repository $*/
+
+\index{Tutorials}
+\input {tutorials/pbtutorials}
+
+\chapter{Program Based Tutorials}
+\label{TUT:sec:pg-based-tut}
+
+The \molcas\ \molcasversion\ suite of Quantum Chemical programs is modular in
+design.  The desired calculation is achieved by executing a list of
+\molcas\ program modules in succession, while potentially manipulating
+the program information files. If the information files from a previous
+calculation are saved, then a subsequent calculation need not recompute
+them.  This is dependent on the correct information being preserved in
+the information files for subsequent calculations.
+Each module has keywords to specify the
+functions to be carried out, and many modules rely on the
+specification of keywords in previous modules.
+
+The following sections describe the use of the \molcas\ modules and
+their inter-relationships.  Each module is introduced in the
+approximate order for performing a typical calculation.
+A complete flowchart for the \molcas\ \molcasversion\ suite of programs follows.
+
+\clearpage
+\section{\molcasversion\ Flowchart}
+\label{TUT:sec:flow_all}
+\begin{figure}[hbt]
+\leavevmode
+\flowchart{all}
+\caption{Flowchart for Module Dependencies in \molcas }
+\label{fig:flow_all}
+\end{figure}
+
+\section{Environment and EMIL Commands}
+
+The following are basic and most common commands for the \molcas\ environment variables and input language (EMIL):
+
+\begin{variablelist}
+\item[MOLCAS] \molcas\ home directory.
+\item[MOLCAS\_MEM] Memory definition in Mb. Default 1024.
+\item[MOLCAS\_PRINT] Printing level: 2 Normal, 3 Verbose
+\item[MOLCAS\_PROJECT] Name used for the project/files.
+\item[MOLCAS\_WORKDIR] Scratch directory for intermediate files.
+\end{variablelist}
+\begin{commandlist}
+\item[$>>$Do While] Start of a loop in an input file for geometry optimization with conditional termination.
+\item[$>>$Foreach]  Start of a loop in an input file over a number of items.
+\item[$>>$EndDo] End of a loop in an input file.
+\item[$>>$If ( condition )] Start of If block.
+\item[$>>$EndIf] End of If block.
+\item[$>>$Label Mark] Setting the label "Mark" in the input.
+\item[$>>$Goto Mark] Forward jump to the label "Mark" skipping that part of the input.
+\end{commandlist}
+
+
+\input {tutorials/tut_gateway}
+\input {tutorials/tut_seward}
+\input {tutorials/tut_scf}
+\input {tutorials/tut_mbpt2}
+\input {tutorials/tut_rasscf}
+\input {tutorials/tut_caspt2}
+\input {tutorials/tut_rassi}
+\ifmanual
+\input {tutorials/tut_casvb}
+\input {tutorials/tut_motra}
+\input {tutorials/tut_guga}
+\input {tutorials/tut_mrci}
+\input {tutorials/tut_cpf}
+\input {tutorials/tut_ccsdt}
+\else
+\section{Other Multiconfigurational and Multireference Methods}
+\molcas\ contains computational modules to perform
+\begin{itemize}
+\item Coupled Cluster calculations: CCSD, CCSD(T), etc.  (\program{CCSDT} and \program{CHCC})
+\item Multireference singles and doubles Configuration Interaction calculations ( \program{mrci} )
+\item SDCI - single and double Configuration Interaction calculations (\program{SDCI})
+\item CASVB/MCSCF Valence Bond calculations (\program{CASVB})
+\end{itemize}
+
+The Users Guide and Tutorials should be consulted for relevant keywords to be used in these modules.
+\fi
+%\input {tutorials/tut_alaska}
+\input {tutorials/tut_optimiza}
+\ifmanual
+\input {tutorials/tut_mckinley}
+\input {tutorials/tut_mclr}
+\fi
+\ifmanual
+\input {tutorials/tut_genano}
+\fi
+\ifmanual
+\input {tutorials/tut_ffpt}
+\input {tutorials/tut_vibrot}
+\input {tutorials/tut_single_aniso}
+\input {tutorials/tut_poly_aniso}
+\fi
+\input {tutorials/tut_grid_it}
+\ifmanual
+\input {tutorials/tut_molden}
+\fi
+\ifmanual
+\input {tutorials/tut_errors}
+\fi
+\input {tutorials/tut_expbas}
+\input {tutorials/tut_hints}

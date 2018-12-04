@@ -67,7 +67,7 @@
          End If
          Do iSym=1,nSym
             If (nFro(iSym).ne.0) Then
-               Write (6,*) 'Some orbtials where frozen in the SCF!'
+               Write (6,*) 'Some orbitals where frozen in the SCF!'
                Call QTrace()
                Call Abend()
             End If

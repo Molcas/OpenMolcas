@@ -11,7 +11,7 @@
       SUBROUTINE LINPUR_m(CMO)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION CMO(*)
-      CHARACTER*1 LCHAR
+      CHARACTER*2 LCHAR
       DIMENSION WGTLMB(0:9)
       LOGICAL IFTEST
 * Define mxsym etc.
@@ -36,18 +36,18 @@
       END DO
       CALL GETMEM('LAMBDA','ALLO','INTE',LLMB,NBTOT)
       DO IBAS=1,NBTOT
-       LCHAR=NAME(IBAS)(LENIN3:LENIN3)
-       IF(LCHAR.EQ.' ') THEN
+       LCHAR=NAME(IBAS)(LENIN4:LENIN5)
+       IF(LCHAR.EQ.'  ') THEN
          L=0
-       ELSE IF(LCHAR.EQ.'x') THEN
+       ELSE IF(LCHAR.EQ.'x ') THEN
          L=1
-       ELSE IF(LCHAR.EQ.'y') THEN
+       ELSE IF(LCHAR.EQ.'y ') THEN
          L=-1
-       ELSE IF(LCHAR.EQ.'z') THEN
+       ELSE IF(LCHAR.EQ.'z ') THEN
          L=0
        ELSE
-         READ(LCHAR,'(I1)') L
-         IF (NAME(IBAS)(LENIN4:LENIN4).EQ.'-') THEN
+         READ(LCHAR,'(I2)') L
+         IF (NAME(IBAS)(LENIN6:LENIN6).EQ.'-') THEN
            L=-L
          END IF
        END IF

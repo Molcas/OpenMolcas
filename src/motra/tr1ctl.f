@@ -45,7 +45,7 @@
       ECOR=0.0D0
       CALL WR_MOTRA_Info(LUONEMO,1,iDisk,
      &                   TCONEMO,64,ECOR,NSYM,
-     &                   NBAS,NORB,NFRO,NDEL,8,BSLBL,2*4*mxOrb)
+     &                   NBAS,NORB,NFRO,NDEL,8,BSLBL,LENIN8*mxOrb)
 *
 *     Write Mo coefficients to disc
 *
@@ -221,7 +221,7 @@ c write core energy into FCIDMP file
       IDISK=0
       CALL WR_MOTRA_Info(LUONEMO,1,iDisk,
      &                   TCONEMO,64,ECOR,NSYM,
-     &                   NBAS,NORB,NFRO,NDEL,8,BSLBL,2*4*mxOrb)
+     &                   NBAS,NORB,NFRO,NDEL,8,BSLBL,LENIN8*mxOrb)
       CALL DACLOS(LUONEMO)
 *
       Call qExit('Tr1Ctl')

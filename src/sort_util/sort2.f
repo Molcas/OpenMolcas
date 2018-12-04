@@ -196,7 +196,7 @@ C     Common /SRT3/ nStk,IOStk
 *     always given to the lowest available disk adresses.              *
 *----------------------------------------------------------------------*
 *
-                         Call ISORT(iWork(ip_IOStk),1,nStk)
+                         Call ILASRT('D',nStk,iWork(ip_IOStk),iErr)
 *
 *----------------------------------------------------------------------*
 *     Restore integrals on LuTwo                                       *

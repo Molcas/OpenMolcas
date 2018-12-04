@@ -129,18 +129,6 @@ C Set up tables of coordinates and differentiated nuclei:
       END IF
 #endif
 
-#ifdef _DMRG_
-      if (doDMRG) then
-        !> print info about MPS-SI
-        Write(6,'(/a/,a//,a/,a/,a/,a/,a/)')
-     & '   ---------------------------------------------------------',
-     & '   Matrix-Product-State State-Interaction (MPS-SI) activated',
-     & '   Please cite for the MPS-SI framework:',
-     & '   S. Knecht, S. Keller, J. Autschbach, M. Reiher,',
-     & '   J. Chem. Theory Comput., 12, 5881-5894 (2016).',
-     & '   ---------------------------------------------------------'
-      endif
-#endif
 
 C Additional input processing. Start writing report.
       CALL INPPRC

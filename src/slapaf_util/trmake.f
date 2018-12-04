@@ -9,14 +9,14 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine TRMake(TRVec,Coor,nAtoms,nTR,uMtrx,iOper,nSym,
-     &                  Smmtrc,nDim,rMass,CofM)
+     &                  Smmtrc,nDim,dMass,CofM)
       Implicit Real*8 (a-h,o-z)
 #include "sbs.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
       Real*8 TRVec(6,3*nAtoms), Coor(3,nAtoms),uMtrx(3*nAtoms),
-     &       CM(3), rMass(nAtoms)
+     &       CM(3), dMass(nAtoms)
       Integer   iOper(0:nSym-1)
       Logical SymDsp, Smmtrc(3,nAtoms), TransVar, RotVar, CofM
 *
@@ -61,9 +61,9 @@
          Do iAtom = 1, nAtoms
             j = (iAtom-1)*3+i
             If (CofM) Then
-               rNorm=rNorm+uMtrx(j)*rMass(iAtom)
+               rNorm=rNorm+uMtrx(j)*dMass(iAtom)
                If (Smmtrc(i,iAtom)) Then
-                  CM(i)=CM(i)+uMtrx(j)*Coor(i,iAtom)*rMass(iAtom)
+                  CM(i)=CM(i)+uMtrx(j)*Coor(i,iAtom)*dMass(iAtom)
                End If
             Else
                rNorm=rNorm+uMtrx(j)

@@ -155,7 +155,7 @@ c#endif
         Write(Lu,'(A)') '#EXTRAS'
         If(iTwoE.eq.1) then
           WRITE(LU,'(A)') '* ACTIVE TWO-EL ENERGY'
-          WRITE(LU,'(E18.12)') EORB_ab(1)
+          WRITE(LU,'(E19.12)') EORB_ab(1)
         EndIf
       EndIf
 

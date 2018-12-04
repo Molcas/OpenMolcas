@@ -162,7 +162,11 @@ C If this label should not be checked, then just return immediately:
       if(icoma.ne.0) then
         STRING=' '
         STRING=STMP(1:icoma-1)
-        STMP=STMP(icoma+1:)
+        if(icoma.lt.len(STMP)) then
+          STMP=STMP(icoma+1:)
+        else
+          STMP=''
+        endif
       else
         STRING=STMP
         STMP=' '

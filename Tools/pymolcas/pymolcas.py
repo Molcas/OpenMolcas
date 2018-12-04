@@ -25,10 +25,10 @@ stamp = 'd41d8cd98f00b204e9800998ecf8427e'
 def main(my_name):
   if sys.hexversion < 0x03000000:
     if sys.hexversion < 0x02070000:
-      sys.exit("Python 2.7 or newer is required to run this program.")
+      return("Python 2.7 or newer is required to run this program.")
   else:
     if sys.hexversion < 0x03040000:
-      sys.exit("Python 3.4 or newer is required to run this program.")
+      return("Python 3.4 or newer is required to run this program.")
 
   import os
   import os.path
@@ -68,6 +68,7 @@ def main(my_name):
 
   # Command-line arguments
   parser = argparse.ArgumentParser(formatter_class=lambda prog: argparse.HelpFormatter(prog,max_help_position=42,width=120))
+  parser.add_argument('-s', '--setup', help='set up a custom molcasrc file with useful environment variables', action='store_true')
   parser.add_argument('-env', '--environment', help='display information about environment', action='store_true')
   parser.add_argument('-clean', '--clean_scratch', help='clean scratch area after calculation', action='store_true')
   parser.add_argument('-new', '--new_scratch', help='clean scratch area before calculation', action='store_true')
@@ -88,14 +89,21 @@ def main(my_name):
   parser.usage = '{0} [options] [input_file | script ...]'.format(parser.prog)
   args = vars(parser.parse_args())
 
-  from molcas_aux import find_molcas, find_sources, attach_streams
+  from molcas_aux import find_molcas, find_sources, attach_streams, dotmolcas
+  from write_molcasrc import write_molcasrc
   from molcas_wrapper import Molcas_wrapper, MolcasException
 
   # Checking for version right at the beginning, in case MOLCAS cannot be found
   if (args['version']):
     print('python driver version = {0}'.format(Molcas_wrapper.version))
     print('(after the original perl EMIL interpreter of Valera Veryazov)')
-    sys.exit(0)
+    return(0)
+
+  if (args['setup']):
+    if (write_molcasrc(dotmolcas('molcasrc'), parser.prog)):
+      return(0)
+    else:
+      return(1)
 
   xbin_list={}
   find_molcas(xbin_list, here=(not args['not_here']))
@@ -108,7 +116,7 @@ def main(my_name):
     print('"{0}" aliased to {1}'.format(args['filename'], target))
     command = '{0} {1}'.format(args['filename'], args['extra'])
     command = [target] + args['extra']
-    sys.exit(subprocess.call(command))
+    return(subprocess.call(command))
 
   # If this is not calling a program in sbin, pass the extra options to the main program
   # Unfortunately we cannot use Molcas.in_sbin yet, because Molcas is not initialized
@@ -155,19 +163,19 @@ def main(my_name):
   try:
     Molcas = Molcas_wrapper(warning=warning, stamp=stamp)
   except MolcasException as message:
-    print(message, file=sys.stderr)
-    sys.exit(1)
+    print(text_type(message), file=sys.stderr)
+    return(1)
 
   if (not args['ignore_environment']):
     Molcas.read_environment()
 
   if (args['environment']):
     Molcas.show_environment()
-    sys.exit(0)
+    return(0)
 
   if (args['banner']):
     Molcas.print_banner()
-    sys.exit(0)
+    return(0)
 
   if (args['license']):
     rc = Molcas.check_license()
@@ -179,12 +187,12 @@ def main(my_name):
       print('The license is valid')
       if (Molcas.licensee):
         print('Licensed to {0}'.format(Molcas.licensee))
-    sys.exit(0)
+    return(0)
 
   if (not args['filename']):
     parser.description = 'MOLCAS has been found at {0}'.format(Molcas.molcas)
     parser.print_help()
-    sys.exit(0)
+    return(0)
   else:
     # could this be a program from sbin?
     if (Molcas.in_sbin(args['filename'])):
@@ -192,20 +200,20 @@ def main(my_name):
       try:
         rc = Molcas.run_sbin([args['filename']] + args['extra'])
         if (rc is not None):
-          sys.exit(rc)
+          return(rc)
       except KeyboardInterrupt:
-        sys.exit(1)
+        return(1)
     # if not, it must be an input file
     try:
       attach_streams(output=args['output'], error=args['error'], buffer_size=args['buffer'])
     except IOError as e:
-      print(e, file=sys.stderr)
-      sys.exit(1)
+      print(text_type(e), file=sys.stderr)
+      return(1)
     try:
       Molcas.read_input(args['filename'])
       Molcas.auto()
     except MolcasException as message:
-      print(message, file=sys.stderr)
+      print(text_type(message), file=sys.stderr)
       # Skip verification with unsupported features
       # TODO: remove when ready
       if ('is unsupported' in text_type(message) or

@@ -77,7 +77,7 @@
       DIMENSION NBAS(*)
 
       Integer NBAST, tNUC, tRealNUC, NPBonds, AtomA, AtomB
-      CHARACTER*(LENIN4) NAME(*)
+      CHARACTER*(LENIN8) NAME(*)
       Integer ICNT(MXBAS), nStab(MxAtom)
       CHARACTER*(LENIN) CNAME(MXATOM)
       Character*(LENIN4) LblCnt4(MxAtom)
@@ -258,17 +258,7 @@ c      EndDo
       Call GetMem('ANr','Allo','Inte',ipANr,tRealNUC)
       jj = ipANr
       Do 110 isAtom = 1, tRealNUC
-         ind = Int(Work(ii))
-         If (ind.le.0) Then
-*        If (ind.eq.0) Then
-*           Work(ii) = Zero
-*        Else If (ind.eq.-1) Then
-*           Work(ii) = 1.0D99
-            Work(ii) = 1.0D-10
-         Else
-            Work(ii) = rmass(ind)
-         End If
-         iWork(jj)=ind
+         iWork(jj)=Int(Work(ii))
          ii = ii + 1
          jj = jj + 1
 110   Continue
@@ -727,21 +717,15 @@ c       Call Get_iScalar('nSym',nSym)
 *
 *---- Diagonalization
 *
-           Call Allocate_Work(ipSubScr1,  nBasAtoms)
-           Call Allocate_Work(ipSubScr2,  nBasAtoms)
-
            Call xEigen(1,nBasAtoms,nBasAtoms,work(ipSubDNAO),
      &                 Work(ipSubVal),Work(ipSubIVal),Work(ipSubVec),
-     &                 Work(ipSubScr1),Work(ipSubScr2),iErr)
+     &                 iErr)
 
            If (iErr.ne.0) Then
                Write(6,*) 'Something went wrong when diagonalizing.'
                Write(6,*) 'NBO analysis cannot be finished, sorry.'
                Return
            End If
-
-           Call Free_Work(ipSubScr1)
-           Call Free_Work(ipSubScr2)
 
 #ifdef _DEBUG_
            Write (6,*)
@@ -923,21 +907,15 @@ c       Call Get_iScalar('nSym',nSym)
 *
 *---- Diagonalization
 *
-           Call Allocate_Work(ipSubScr1,  nBasAtoms)
-           Call Allocate_Work(ipSubScr2,  nBasAtoms)
-
            Call xEigen(1,nBasAtoms,nBasAtoms,work(ipSubDNAO),
      &                 Work(ipSubVal),Work(ipSubIVal),Work(ipSubVec),
-     &                 Work(ipSubScr1),Work(ipSubScr2),iErr)
+     &                 iErr)
 
            If (iErr.ne.0) Then
                Write(6,*) 'Something went wrong when diagonalizing.'
                Write(6,*) 'NBO analysis cannot be finished, sorry.'
                Return
            End If
-
-           Call Free_Work(ipSubScr1)
-           Call Free_Work(ipSubScr2)
 
 #ifdef _DEBUG_
            Write (6,*)
@@ -1136,21 +1114,15 @@ c       Call Get_iScalar('nSym',nSym)
 *
 *---- Diagonalization
 *
-           Call Allocate_Work(ipSubScr1,  nBasAtoms)
-           Call Allocate_Work(ipSubScr2,  nBasAtoms)
-
            Call xEigen(1,nBasAtoms,nBasAtoms,work(ipSubDNAO),
      &                 Work(ipSubVal),Work(ipSubIVal),Work(ipSubVec),
-     &                 Work(ipSubScr1),Work(ipSubScr2),iErr)
+     &                 iErr)
 
            If (iErr.ne.0) Then
                Write(6,*) 'Something went wrong when diagonalizing.'
                Write(6,*) 'NBO analysis cannot be finished, sorry.'
                Return
            End If
-
-           Call Free_Work(ipSubScr1)
-           Call Free_Work(ipSubScr2)
 
 #ifdef _DEBUG_
            Write (6,*)
@@ -1313,22 +1285,15 @@ c       Call Get_iScalar('nSym',nSym)
 *
 *---- Diagonalization
 *
-           Call Allocate_Work(ipSubScr1,  nBasAtoms)
-           Call Allocate_Work(ipSubScr2,  nBasAtoms)
-
            Call xEigen(1,nBasAtoms,nBasAtoms,work(ipSubDNAO),
      &                 Work(ipSubVal),Work(ipSubIVal),Work(ipSubVec),
-     &                 Work(ipSubScr1),Work(ipSubScr2),iErr)
+     &                 iErr)
 
            If (iErr.ne.0) Then
                Write(6,*) 'Something went wrong when diagonalizing.'
                Write(6,*) 'NBO analysis cannot be finished, sorry.'
                Return
            End If
-
-           Call Free_Work(ipSubScr1)
-           Call Free_Work(ipSubScr2)
-
 
 #ifdef _DEBUG_
            Write (6,*)

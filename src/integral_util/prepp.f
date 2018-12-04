@@ -58,6 +58,8 @@
       Character*8 RlxLbl,Method, KSDFT*16
       Logical lPrint
       Logical DoCholesky
+      Real*8 CoefX,CoefR
+      Character*80 Fmt*60
 *
 *...  Prologue
 
@@ -99,6 +101,8 @@
      &    Method.eq. 'CASDFT  ' ) Then
          Call Get_iScalar('Multiplicity',iSpin)
          Call Get_cArray('DFT functional',KSDFT,16)
+         Call Get_dScalar('DFT exch coeff',CoefX)
+         Call Get_dScalar('DFT corr coeff',CoefR)
          ExFac=Get_ExFac(KSDFT)
          CoulFac=One
       Else
@@ -121,8 +125,12 @@
          If (lPrint) Then
             Write (6,*)
             Write (6,'(2A)') ' Wavefunction type: ',Method
-            If (Method.eq.'KS-DFT  ')
-     &         Write (6,'(2A)') ' Functional type:   ',KSDFT
+            If (Method.eq.'KS-DFT  ') Then
+               Write (6,'(2A)') ' Functional type:   ',KSDFT
+               Fmt = '(1X,A26,20X,F18.6)'
+               Write(6,Fmt)'Exchange scaling factor',CoefX
+               Write(6,Fmt)'Correlation scaling factor',CoefR
+            End If
             Write (6,*)
          End If
          If(Method.eq.'MBPT2   ') Then
@@ -202,6 +210,7 @@ c       close (lgtoc)
 *                                                                      *
       Else if ( Method.eq.'RASSCF  ' .or.
      &          Method.eq.'CASSCF  ' .or.
+     &          Method.eq.'GASSCF  ' .or.
      &          Method.eq.'MCPDFT  ' .or.
      &          Method.eq.'DMRGSCF ' .or.
      &          Method.eq.'CASDFT  ') then
@@ -229,6 +238,7 @@ c       close (lgtoc)
 *                                                                      *
       Else if ( Method.eq.'CASSCFSA' .or.
      &          Method.eq.'DMRGSCFS' .or.
+     &          Method.eq.'GASSCFSA' .or.
      &          Method.eq.'RASSCFSA' ) then
          Call Get_iArray('nAsh',nAsh,nIrrep)
          nAct = 0

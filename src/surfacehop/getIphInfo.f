@@ -14,14 +14,14 @@
       Integer nFro(MxSym), nISh(MxSym), nASh(MxSym), nDel(MxSym),
      &        nBas(MxSym), iRoot(MxRoot),
      &        nRS1(MxSym), nRS2(MxSym), nRS3(MxSym)
-      Character*4 Name(2,mxOrb), Title(18,mxTit)
+      Character*(LENIN8) Name(mxOrb), Title(18,mxTit)
       Character*2 Header(72)
       Real*8 Weight(MxRoot)
       Dimension IADR15(*)
       IAD15=IADR15(1)
       CALL WR_RASSCF_Info(JOBIPH,2,IAD15,NACTEL,ISPIN,NSYM,LSYM,
      &            NFRO,NISH,NASH,NDEL,NBAS,MxSym,
-     &            NAME,4*2*mxOrb,NCONF,HEADER,2*72,
+     &            NAME,LENIN8*mxOrb,NCONF,HEADER,2*72,
      &            TITLE,4*18*mxTit,POTNUC,LROOTS,NROOTS,
      &            IROOT,MxRoot,NRS1,NRS2,NRS3,
      &            NHOLE1,NELEC3,IPT2,WEIGHT)

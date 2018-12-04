@@ -110,9 +110,10 @@ struct  mstat{
     INT   naccess;             /* Total number of allocs                     */
     INT   mxmem;               /* MOLCASMEM                                  */
     INT   avmem;               /* maximal available memory for MOLCAS        */
+    INT   totmem;              /* initial MOLCAS_MEM                         */
 };
 
-mstat   MlM={0,SYS_ATIME+1,0,0};
+mstat   MlM={0,SYS_ATIME+1,0,0,0};
 
 double *dptr;
 float  *sptr;
@@ -263,6 +264,7 @@ INT allocmem(double ref[],char cref[],INT *intof,INT *dblof,INT *sglof, INT *chr
      cptr=(char *) cref;
 
      MlM.avmem=MOLCASMEM;
+     MlM.totmem=MOLCASMEM;
 #ifndef _DEMO_
      free(memsize);
 #endif
@@ -772,6 +774,7 @@ INT c_getmem_kern(INT *op, mentry *tmp, INT *offset, INT *len) {
     switch (*op) {
         case PINN:
             allo=0;
+            /* fall through */
         case ALLO:
             tmp->offset=(allo)?UNDEF_MEM:PINNED_MEM; /* Just to be sure that we are not going to allocate the PINNED memory for wrong reasons */
 /* Checking for memory leaks     */
@@ -787,7 +790,7 @@ INT c_getmem_kern(INT *op, mentry *tmp, INT *offset, INT *len) {
                 printf("MEMORY ERROR: Memory is exhausted!\n");
                 printf("MEMORY ERROR: Available memory = %ld ( %ld Mb ) !\n",LIFMT(MlM.avmem+MlM.mxmem),LIFMT((MlM.avmem+MlM.mxmem)/MB));
                 printf("MEMORY ERROR: Requested memory = %ld ( %ld Mb ) !\n",LIFMT(tmp->len),LIFMT(tmp->len/MB));
-                printf("MEMORY ERROR: The suggested MOLCAS_MEM=%ld !\n",LIFMT((tmp->len+MlM.avmem+MlM.mxmem)/MB));
+                printf("MEMORY ERROR: The suggested MOLCAS_MEM=%ld !\n",LIFMT((tmp->len-MlM.avmem+MlM.totmem)/MB+1));
                 return(-4);
               } else {
 #ifdef _DEBUG_MEM_
@@ -859,9 +862,8 @@ INT c_getmem_kern(INT *op, mentry *tmp, INT *offset, INT *len) {
             if(MlM.nmentry==0) {
                break;
             } else {
-#ifdef _DEBUG_MEM_
+#if defined(_DEBUG_MEM_) || defined(_BIGOT_)
                printf("MEMORY ERROR: some memory allocations are not released!\n");
-               list_MlM(&MlM,MDATA);
                abort();
 #else
                printf("MEMORY WARNING: some memory allocations are not released!\n");

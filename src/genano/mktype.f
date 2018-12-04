@@ -26,8 +26,8 @@
       Parameter (MxLst=MxLqn*(MxLqn*(MxLqn+6)+11)/6+1)
 #include "common.fh"
 #include "symlab.fh"
-      Character*4 CrtLst(0:MxLst)
-      Character*4 SphLst(0:MxLst)
+      Character*8 CrtLst(0:MxLst)
+      Character*8 SphLst(0:MxLst)
 *----------------------------------------------------------------------*
 * Get labels from utility routine                                      *
 *----------------------------------------------------------------------*

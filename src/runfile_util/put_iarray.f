@@ -168,7 +168,7 @@
          RecLab( 63)='MkNemo.hDisp    '
          RecLab( 64)='Index ZMAT      '
          RecLab( 65)='NAT ZMAT        '
-         RecLab( 66)='NrDisp          '
+         RecLab( 66)='                ' !Free slot
          RecLab( 67)='nDisp           '
          RecLab( 68)='DegDisp         '
          RecLab( 69)='LBList          '
@@ -232,6 +232,9 @@
             Write(6,*) '*** Warning, writing temporary iArray field'
             Write(6,*) '***   Field: ',Label
             Write(6,*) '***'
+#ifdef _BIGOT_
+            Call AbEnd()
+#endif
          End If
       End If
 *----------------------------------------------------------------------*

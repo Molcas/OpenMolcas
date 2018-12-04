@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 2016, Morgane Vacher                                   *
-*               2017, Ignacio Fdez. Galvan                             *
+*               2017,2018, Ignacio Fdez. Galvan                        *
 ************************************************************************
 
 * Module to handle the COORD keyword in gateway/seward
@@ -494,13 +494,13 @@
 
 ! Function to check if a symmetry operation conserves the geometry
       Function CheckOp(Op,Thr)
-      INteger, Intent(In) :: Op
+      Integer, Intent(In) :: Op
       Real*8, Intent(In) :: Thr
       Logical :: CheckOp, Found
       Logical, Dimension(Size(Geom)) :: Done
       Real*8, Dimension(3) :: New
       Real*8 :: Dist
-      Character (Len=MAXLEN) :: SymA, SymB, Lab, Bas
+      Character (Len=MAXLEN) :: Sym, SymA, SymB, Lab, Bas
       Integer :: Num, i, j
 #include "constants2.fh"
       Done = .False.
@@ -508,11 +508,15 @@
       ! matches the result of the symmetry operation
       Do i=1,Size(Geom)
         If (Done(i)) Cycle
-        Call SplitLabel(Geom(i)%Lab, SymA, Num, Lab, Bas)
+        Call SplitLabel(Geom(i)%Lab, Sym, Num, Lab, Bas)
+        SymA = Trim(Sym)//Trim(Lab)
+        Call UpCase(SymA)
         New = ApplySym(Op, Geom(i)%Coord)
         Found = .False.
         Do j=i,Size(Geom)
           Call SplitLabel(Geom(j)%Lab, SymB, Num, Lab, Bas)
+          SymB = Trim(Sym)//Trim(Lab)
+          Call UpCase(SymB)
           If (SymB .ne. SymA) Cycle
           Dist = (New(1)-Geom(j)%Coord(1))**2 +
      &           (New(2)-Geom(j)%Coord(2))**2 +
@@ -539,7 +543,7 @@
       Real*8, Dimension(3) :: Aver, New
       Real*8 :: Dist
       Integer :: Op, nOp, Num, i, j
-      Character (Len=MAXLEN) :: SymA, SymB, Lab, Bas
+      Character (Len=MAXLEN) :: Sym, SymA, SymB, Lab, Bas
       Logical :: Found, Moved
 #include "constants2.fh"
 #include "real.fh"
@@ -549,13 +553,17 @@
       ! For each atom, find all symmetric images to average
       Do i=1,Size(Geom)
         If (Geom(i)%FileNum .eq. 0) Cycle
-        Call SplitLabel(Geom(i)%Lab, SymA, Num, Lab, Bas)
+        Call SplitLabel(Geom(i)%Lab, Sym, Num, Lab, Bas)
+        SymA = Trim(Sym)//Trim(Lab)
+        Call UpCase(SymA)
         Aver = Geom(i)%Coord
         Do Op=1,7
           If (Oper(Op) .eq. 0) Exit
           Found = .False.
           Do j=i,Size(Geom)
             Call SplitLabel(Geom(j)%Lab, SymB, Num, Lab, Bas)
+            SymB = Trim(Sym)//Trim(Lab)
+            Call UpCase(SymB)
             If (SymB .ne. SymA) Cycle
             New = ApplySym(Oper(Op), Geom(j)%Coord)
             Dist = (New(1)-Geom(i)%Coord(1))**2 +
@@ -604,7 +612,7 @@
       Integer, Intent(Out) :: Num
       Character (Len=Len(At)) :: String
       Character :: c
-      Integer :: Idx, i, j
+      Integer :: Idx, i, j, k
       String = At
       ! Get the Bas part
       Idx = Index(String, '.')
@@ -625,13 +633,15 @@
       End If
       Sym = String(1:Idx-1)
       Num = 0
+      k = 0
       ! Remove digits and compute Num
       Do i = Len_Trim(Sym),1,-1
         c = Sym(i:i)
         If ((IChar(c) .ge. IChar('0')) .and.
      &      (IChar(c) .le. IChar('9'))) Then
           Read(c,*) j
-          Num = Num + j*10**Int(Log10(Dble(Num)))
+          Num = Num + j*10**k
+          k = k+1
           Sym(i:i) = ' '
         End If
       End Do

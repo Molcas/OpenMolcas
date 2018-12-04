@@ -51,6 +51,10 @@
       fndlnk(irc,fntmp,fnout);
      }
      *irc=lstat(fnout,&tmp);
+#else
+     (void)irc;
+     (void)fnin;
+     (void)fnout;
 #endif
 
     }

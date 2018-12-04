@@ -53,7 +53,7 @@
       Do iSym=1,nSym
          nDim=nDim+nBas(iSym)
       End Do
-      Call Get_cArray('Unique Basis Names',BsLbl,(LENIN4)*nDim)
+      Call Get_cArray('Unique Basis Names',BsLbl,(LENIN8)*nDim)
 *----------------------------------------------------------------------*
 *     Read no. of unique atoms in the system                           *
 *----------------------------------------------------------------------*

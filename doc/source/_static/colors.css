@@ -1,0 +1,23 @@
+/***********************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2015, Ignacio Fdez. Galván                             *
+***********************************************************************/
+
+.filelist { background-color: hsl(200,50%,90%); border-top: 2px solid hsl(200,45%,85%); border-bottom: 2px solid hsl(200,45%,85%); }
+.filelist dt { background-color: hsl(200,45%,85%); border-top: 2px solid hsl(200,40%,80%); border-bottom: 4px dotted hsl(200,50%,90%); }
+.keywordlist { background-color: hsl(240,50%,90%); border-top: 2px solid hsl(240,45%,85%); border-bottom: 2px solid hsl(240,45%,85%); }
+.keywordlist dt { background-color: hsl(240,45%,85%); border-top: 2px solid hsl(240,40%,80%); border-bottom: 4px dotted hsl(240,50%,90%); }
+.programlist { background-color: hsl(280,50%,90%); border-top: 2px solid hsl(280,45%,85%); border-bottom: 2px solid hsl(280,45%,85%); }
+.programlist dt { background-color: hsl(280,45%,85%); border-top: 2px solid hsl(280,40%,80%); border-bottom: 4px dotted hsl(280,50%,90%); }
+.commandlist { background-color: hsl(40,50%,90%); border-top: 2px solid hsl(40,45%,85%); border-bottom: 2px solid hsl(40,45%,85%); }
+.commandlist dt { background-color: hsl(40,45%,85%); border-top: 2px solid hsl(40,40%,80%); border-bottom: 4px dotted hsl(40,50%,90%); }
+.variablelist { background-color: hsl(80,50%,90%); border-top: 2px solid hsl(80,45%,85%); border-bottom: 2px solid hsl(80,45%,85%); }
+.variablelist dt { background-color: hsl(80,45%,85%); border-top: 2px solid hsl(80,40%,80%); border-bottom: 4px dotted hsl(80,50%,90%); }

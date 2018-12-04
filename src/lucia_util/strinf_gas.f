@@ -160,7 +160,7 @@ C     DIMENSION IOCTYP(MXPNGAS)
       IF(NTEST.GT.5) THEN
         WRITE(6,*) ' MINMAX array for sym of groups '
         WRITE(6,*) ' =============================='
-        CALL IWRTMA(MINMAX_SM_GP,1,NSMST,1,NSMST)
+        CALL IWRTMA(MINMAX_SM_GP,2,NGRP,2,NGRP)
       END IF
 *
 *

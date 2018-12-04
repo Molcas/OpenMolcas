@@ -12,8 +12,6 @@
 
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
-!       use qcmaquis_interface_environment, only:
-!      &    read_dmrg_info
 #endif
 
       IMPLICIT NONE
@@ -39,10 +37,9 @@
       Integer I, J, ISTATE, JSTATE, IJOB, ILINE, LINENR
       Integer LuIn
       Integer NFLS
-#ifdef _DMRG_
-      CHARACTER*16 dmrgchkp
-#endif
       REAL*8 ANORM
+
+      character(len=7) :: input_id = '&RASSI '
 
       CALL QENTER(ROUTINE)
 
@@ -63,14 +60,23 @@ C --- Default settings for Cholesky
       ChFracMem=0.0d0
 #endif
 
-      !> set some defaults
+      !> set some defaults for MPSSI
       QDPT2SC = .true.
-      QDPT2EV = .true.
+      QDPT2EV = .false.
+#ifdef _DMRG_
+      !> make sure that we read checkpoint names from xxx.h5 files, for example: rasscf.h5, nevpt2.h5, caspt2.h5, ...
+      doMPSSICheckpoints = .true.
+      if(doDMRG) input_id = '&MPSSI '
+#endif
+
+      !Defaults for SI-PDFT runs:
+      Second_time = .false.
+      DoGSOR = .false.
 
 C Find beginning of input:
  50   Read(LuIn,'(A72)',END=998) LINE
       CALL NORMAL(LINE)
-      IF(LINE(1:7).NE.'&RASSI ') GOTO 50
+      IF(LINE(1:7).NE.input_id) GOTO 50
       LINENR=0
 100   Read(LuIn,'(A72)',END=998) LINE
       LINENR=LINENR+1
@@ -84,6 +90,16 @@ C ------------------------------------------
         PRORB=.TRUE.
         PRTRA=.TRUE.
         PRCI=.TRUE.
+        GOTO 100
+      END IF
+C ------------------------------------------
+      IF (LINE(1:4).EQ.'SECO') THEN
+        SECOND_TIME = .true.
+        GOTO 100
+      END IF
+C ------------------------------------------
+      IF (LINE(1:4).EQ.'GSOR') THEN
+        DoGSOR = .true.
         GOTO 100
       END IF
 C ------------------------------------------
@@ -642,26 +658,6 @@ C ------------------------------------------
       Endif
 C--------------------------------------------
 #ifdef _DMRG_
-      ! Leon 22/11/2016 -- Moved DMRG initialisation here
-      ! Introduced a mandatory keyword for DMRG
-      IF (Line(1:4).eq.'DMRG') then
-      ! Leon 29/11/2016 -- Ignore the dmrg_interface.parameters file
-      ! since different JobIPHs/checkpoint files may come from different
-      ! calculations. The parameters that should be otherwise read in
-      ! read_dmrg_info() will be read in rdjob, if we need them
-        doDMRG = .true.
-      ! check whether we should NOT read checkpoint names from xxx.h5 files
-        Read(LuIn,*,ERR=997) dmrgchkp
-        call UpCase(dmrgchkp)
-        if (dmrgchkp(1:5).eq.'NOCH') then
-          doMPSSICheckpoints = .false.
-          LINENR=LINENR+1
-        else
-          doMPSSICheckpoints = .true.
-          BACKSPACE(LuIn)
-        end if
-        GOTO 100
-      End IF
 C--------------------------------------------
       if (Line(1:4).eq.'QDSC') then
         QDPT2SC = .true.
@@ -670,11 +666,6 @@ C--------------------------------------------
 C--------------------------------------------
       if (Line(1:4).eq.'QDPC') then
         QDPT2SC = .false.
-        goto 100
-      end if
-C--------------------------------------------
-      if (Line(1:4).eq.'NOQD') then
-        QDPT2EV = .false.
         goto 100
       end if
 #endif

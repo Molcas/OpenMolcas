@@ -42,7 +42,7 @@ NTAB1 and NTAB2 are the first and last table index. PRECIS is the
 accuracy to which the values were computed. For each table with index
 ITAB, the corresponding T value is:
 
-  T = (sqrt(72900-(260+ITAB)*ITAB)+ITAB-270)/10
+  T = (sqrt(72900-(260-ITAB)*ITAB)+ITAB-270)/10
 
 and the inverse formula for later interpolation:
 
@@ -56,7 +56,7 @@ PRECIS
 # Compute and print alpha and beta values for different x values
 for i in range(tabini, tabend+1):
   # Get the x value from the index
-  x = mp.mpf(mp.sqrt(72900-(260+i)*i)+i-270)/10
+  x = mp.mpf(mp.sqrt(72900-(260-i)*i)+i-270)/10
   alpha, beta = rysab(terms, x, preci=preci)
   # Transform to the Molcas convention
   beta = [mp.sqrt(b) for b in beta]

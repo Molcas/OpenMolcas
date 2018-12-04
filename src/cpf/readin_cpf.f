@@ -87,7 +87,7 @@ CPAM97      IRHP=0
 *
 *---  read the header of TRAONE ---------------------------------------*
 C Note: NORB(i)=NBAS(i)-NPFRO(i)-NPDEL(i)
-      NAMSIZ=(2*MXORB*4)
+      NAMSIZ=LENIN8*MXORB
       IDISK=0
       CALL WR_MOTRA_Info(Lu_TraOne,2,iDisk,
      &                   ITOC17,64, POTNUC,NSYM,

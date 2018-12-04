@@ -27,7 +27,7 @@
       Integer   iOper(mxSym)
       Integer   nIsh(mxSym)
       Integer   nAsh(mxSym)
-      Character*(LENIN4) BsLbl(mxOrb)
+      Character*(LENIN8) BsLbl(mxOrb)
       Real*8 Coor(3,MxAtms)
       Real*8 PotNuc
       Common /Info_FCIQMC/ PotNuc,Coor,BsLbl,

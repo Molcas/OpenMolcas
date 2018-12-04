@@ -86,7 +86,7 @@
 *       ^to avoid last diagonalization
           Call dCopy_(nConf,0.0d0,0,Work(LW4),1)
 *          Call Load_tmp_CI_vec(1,1,nConf,Work(LW4),LuDavid)
-           Call Load_CI_vec(1,1,1,nConf,Work(LW4),LuDavid)
+           Call Load_CI_vec(1,nConf,Work(LW4),LuDavid)
 *          Call dDaFile(JOBIPH,2,Work(LW4),nConf,LuDavid)
           if (DBG) then
             write(6,*) 'LuDavid', LuDavid
@@ -384,8 +384,8 @@ C         CALL SPLITCSF(Work(ipAABlock),EnInSplit,Work(ipDHAM),
               k= iWork(ipCSFtot+j-1)
               Work(LW4+k-1) = Work(ipTotSplitV+j-1)
             end do
-            Call   Save_CI_vec(1,1,1,nConf,Work(LW4),LuDavid)
-            Call Save_tmp_CI_vec(1,1,nConf,Work(LW4),LuDavid)
+            Call   Save_CI_vec(1,nConf,Work(LW4),LuDavid)
+            Call Save_tmp_CI_vec(1,nConf,Work(LW4),LuDavid)
             if (DBG) then
               Write (String,'(A)') 'CI-diag in SplitCTL'
               Call dVcPrt(String,' ',Work(LW4),nConf)
@@ -499,7 +499,7 @@ C        CALL GETMEM('IPCNF','FREE','INTE',LG1,NCNASM(LSYM))
           end do
 *         Call Save_tmp_CI_vec(i,lRootSplit,nConf,Work(LW4),LuDavid)
 *         Call Save_tmp_CI_vec(1,lRootSplit,nConf,Work(LW4),LuDavid)
-          Call Save_tmp_CI_vec(1,1,nConf,Work(LW4),LuDavid)
+          Call Save_tmp_CI_vec(1,nConf,Work(LW4),LuDavid)
 *         If ( IPRLEV.eq. INSANE ) then
 *           Write (6,'(A,I2)') 'Start vector of root',i
 *            write(6,*)'LuDavid',LuDavid
@@ -562,7 +562,7 @@ C        CALL GETMEM('IPCNF','FREE','INTE',LG1,NCNASM(LSYM))
      &              iWork(KICONF(1)),iWork(KCFTP),
      &              Work(iTmp1),C,iwork(ivkcnf))
         call GetMem('kcnf','free','inte',ivkcnf,nactel)
-        Call Save_CI_vec(1,1,1,nConf,C,LuDavid)
+        Call Save_CI_vec(1,nConf,C,LuDavid)
 *        Write (6,'(A,I2)') 'Start vector of root',i
 *      if (DBG) then
         write(6,*)'LuDavid',LuDavid

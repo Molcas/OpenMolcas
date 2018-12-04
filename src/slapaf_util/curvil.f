@@ -14,7 +14,7 @@
      &                  nSym,jStab,Degen,Smmtrc,mTR,TRVec,
      &                  ip_rInt,ip_drInt,HSet,BSet,ipBMx,Numerical,iANr,
      &                  HWRS,Analytic_Hessian,iOptC,Name,PrQ,Proj,
-     &                  rMass,iCoSet,iTabBonds,
+     &                  dMass,iCoSet,iTabBonds,
      &                  iTabAtoms, nBonds,nMax,iTabAI,mAtoms,lOld,
      &                  ip_KtB_Hessian,nQQ,nqInt,MaxItr,nWndw)
 ************************************************************************
@@ -34,7 +34,7 @@
 #include "db.fh"
 #include "print.fh"
       Real*8 Cx(3*nAtoms,nIter), Degen(3*nAtoms),
-     &       Gx(3*nAtoms,nIter), Proj(nDim), rMass(nAtoms),
+     &       Gx(3*nAtoms,nIter), Proj(nDim), dMass(nAtoms),
      &       TRVec(nDim,mTR)
       Integer nStab(nAtoms), iOper(0:nSym-1), iCoSet(0:7,nAtoms),
      &        jStab(0:7,nAtoms), iANr(nAtoms), iDum(6),
@@ -127,7 +127,7 @@
      &           nAtoms,iIter,nIter,Cx,iOper,nSym,jStab,
      &           nStab,nDim,Smmtrc,Proc,Dum,1,iANr,cDum,
      &           iRef,Dum,Dum,iOptC,LuIC,
-     &           Name,iDum,iIter,rMass,iCoSet,Dum,
+     &           Name,iDum,iIter,dMass,iCoSet,Dum,
      &           iDum(1),iDum(1),
      &           Proc_dB,
      &           iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,
@@ -189,7 +189,7 @@
      &           nStab,nDim,Smmtrc,Proc,
      &           Work(ipqVal),nq,iANr,cWork(ipqLbl),
      &           iRef,Work(ipf_c),Work(ipMult),iOptC,
-     &           LuIC,Name,iWork(ipInd),iIter,rMass,iCoSet,Work(ipGRef),
+     &           LuIC,Name,iWork(ipInd),iIter,dMass,iCoSet,Work(ipGRef),
      &           iGlow,iGHi,
      &           Proc_dB,
      &           iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,
@@ -398,7 +398,7 @@ C        iEnd = 1
      &              nStab,nDim,Smmtrc,Proc,
      &              Work(ipqVal),nq,iANr,cWork(ipqLbl),
      &              iRef, Work(ipf_c),Work(ipMult),
-     &              iOptC,LuIC,Name,iWork(ipInd),iIter,rMass,iCoSet,
+     &              iOptC,LuIC,Name,iWork(ipInd),iIter,dMass,iCoSet,
      &              Work(ipGRef),iGlow,iGHi,
      &              Proc_dB,
      &              iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,

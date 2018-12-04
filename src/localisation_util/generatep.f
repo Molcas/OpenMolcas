@@ -26,7 +26,7 @@ c
       Integer nBas_per_Atom(*),nBas_Start(*),iTab_Ptr(*)
       Real*8 cMO(nBasis,*),Ovlp(nBasis,nBasis)
       Logical Debug
-      Character*(LENIN4) Name(*)
+      Character*(LENIN8) Name(*)
 
       l_Sbar = nBasis*nOrb2Loc
       Call GetMem('Sbar','Allo','Real',ip_Sbar,l_Sbar)
@@ -52,7 +52,7 @@ c
       Real*8 cMO(nBasis,*),Ovlp(nBasis,nBasis)
       Real*8 Sbar(nBasis,nOrb2Loc)
       Logical Debug
-      Character*(LENIN4) Name(*),PALbl
+      Character*(LENIN8) Name(*),PALbl
 c
 c---- Compute Sbar(mu,s) = sum_{nu} Ovlp(mu,nu) * cMO(nu,s)
 c

@@ -32,6 +32,7 @@
 #include "general.fh"
 #include "output_ras.fh"
 #include "orthonormalize.fh"
+#include "ksdft.fh"
       Parameter (ROUTINE='READIN  ')
 #include "casvb.fh"
 #include "pamint.fh"
@@ -791,6 +792,22 @@ CGG Calibration of A, B, C, and D coefficients in SG's NewFunctional 1
        End If
 CGG This part will be removed. (PAM 2009: What on earth does he mean??)
       ExFac=Get_ExFac(KSDFT)
+*---  Process DFCF command --------------------------------------------*
+      If (KeyDFCF) Then
+       If (DBG) Write(6,*) ' DFCF (dens. func. coeff) command was used.'
+       Call SetPos(LUInput,'DFCF',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading DF coeff after DFCF keyword.'
+       Read(LUInput,*,End=9910,Err=9920) CoefX,CoefR
+       ReadStatus=' O.K. after reading DF coeff after DFCF keyword.'
+       If (DBG) Then
+        Write(6,*) ' Density functional exchange coeff, CoefX=',CoefX
+        Write(6,*) ' Density functional correlation coeff, CoefRE=',
+     &                                                          CoefR
+       End If
+       Call ChkIfKey()
+      End If
+*
 *******
 *
 * Read numbers, and coefficients for rasscf potential calculations:
@@ -1604,7 +1621,7 @@ CIgorS End
         lll = MAX(lll,mxSym)
         lll = MAX(lll,mxOrb)
         lll = MAX(lll,RtoI)
-        lll = MAX(lll,4*2*mxOrb/ItoB)
+        lll = MAX(lll,LENIN8*mxOrb/ItoB)
         lll = MAX(lll,2*72/ItoB)
         lll = MAX(lll,RtoI*mxRoot)
         CALL GETMEM('JOBOLD','ALLO','INTEGER',lJobH,lll)
@@ -1613,7 +1630,7 @@ CIgorS End
         iAd19=iAdr19(1)
         CALL WR_RASSCF_Info(JobOld,2,iAd19,NACTEL,ISPIN,NSYM,LSYM,
      &                      NFRO,NISH,NASH,NDEL,NBAS,
-     &                      mxSym,iWork(lJobH),4*2*mxOrb,NCONF,
+     &                      mxSym,iWork(lJobH),LENIN8*mxOrb,NCONF,
      &                      iWork(lJobH),2*72,JobTit,4*18*mxTit,
      &                      POTNUCDUMMY,LROOTS,NROOTS,IROOT,mxRoot,
      &                      NRS1,NRS2,NRS3,NHOLE1,NELEC3,IPT2,WEIGHT)
@@ -2793,14 +2810,15 @@ c       write(6,*)          '  --------------------------------------'
 * It is used by Block and CheMPS2... but it could be useful for other codes.
 * Therefore it is now outside the ifdef Block or CheMPS2.
       If (KeyHFOC) Then
-       If (DBG) Write(6,*) ' HFOC keyword was given.'
+       Write(6,*) ' HFOC keyword was given.'
        Call SetPos(LUInput,'HFOC',Line,iRc)
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
        ReadStatus=' Failure reading after HFOC keyword.'
+       write(6,*) 'NASHT, mxact = ', NASHT, mxact
        Read(LUInput,*,End=9910,Err=9920) (hfocc(i),i=1,NASHT)
        ReadStatus=' O.K. reading after HFOC keyword.'
-*       write(6,*)'HFOCC read in proc_inp of size:', NASHT
-*       write(6,*)(hfocc(i),i=1,NASHT)
+       write(6,*)'HFOCC read in proc_inp of size:', NASHT
+       write(6,*)(hfocc(i),i=1,NASHT)
       End If
 
 *---  All keywords have been processed ------------------------------*

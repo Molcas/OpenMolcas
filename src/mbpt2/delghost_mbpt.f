@@ -30,7 +30,7 @@
 
 *     declaration of local variables...
       Integer nZero(8)
-      Character*(LENIN4) Name(mxBas)
+      Character*(LENIN8) Name(mxBas)
       Logical Debug
       Data Debug/.False./
 
@@ -69,7 +69,7 @@
      &  ' Deleted orbitals before selection:  ',(nDel(i),i=1,nSym)
 
       Call Get_iScalar('Unique atoms',nUniqAt)
-      Call Get_cArray('Unique Basis Names',Name,(LENIN4)*nnB)
+      Call Get_cArray('Unique Basis Names',Name,(LENIN8)*nnB)
       Call Delete_GHOSTS(irc,nSym,nBas,nFro,nOcc,nZero,nExt,nDel,
      &       NAME,nUniqAt,thr_ghs,.False.,Work(ipCMO_t),Work(ipEOrb_t))
 

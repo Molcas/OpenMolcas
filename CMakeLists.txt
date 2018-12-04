@@ -62,6 +62,11 @@ if (${CMAKE_VERSION} VERSION_LESS 3.1)
         endif ()
 endif ()
 
+# discover some necessary tools
+find_program (GIT "git")
+find_program (PERL "perl")
+mark_as_advanced(FORCE GIT PERL)
+
 ################################################################################
 #                                                                              #
 # Options                                                                      #
@@ -145,8 +150,64 @@ mark_as_advanced (CTEST)
 option (MSYM       "Activate MSYM support (requires External/libmsym submodule)."                               OFF)
 option (DMRG       "Activate QCMaquis DMRG driver and library."                                                 OFF)
 option (DMRG_DEBUG "Enable DEBUG print in QCMaquis driver."                                                     OFF)
+
 if (DMRG)
         mark_as_advanced (CLEAR DMRG_DEBUG)
+        # Name and e-mail required for downloading QCMaquis
+        # Try to get the real name from the system account information
+        if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+          set(QCMaquis_NAME_GET_CMD "id -F")
+        else()
+        # should we distinguish other platforms?
+          set(QCMaquis_NAME_GET_CMD "sh" "-c" "getent passwd $USER | awk -F: '{print \$5}'")
+        endif()
+        execute_process (
+                COMMAND ${QCMaquis_NAME_GET_CMD}
+                OUTPUT_VARIABLE QCMaquis_NAME_
+                OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+        set (QCMaquis_NAME ${QCMaquis_NAME_} CACHE STRING "Your name (required for downloading QCMaquis)")
+
+        # Update QCMaquis flag. Off by default.
+        # QCMaquis must be updated manually, as there might be QCMaquis upstream changes even when OpenMolcas is not changed,
+        # or vice versa. Running cmake with QCMaquis_UPDATE=ON will force-update QCMaquis.
+        if (NOT QCMaquis_UPDATE)
+                set (QCMaquis_UPDATE OFF CACHE STRING "Trigger QCMaquis update" FORCE)
+        endif()
+
+        # try to get the e-mail address from git config (TODO: is there a better option?)
+        execute_process (
+                COMMAND ${GIT} "config" "user.email"
+                OUTPUT_VARIABLE QCMaquis_EMAIL_
+                OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+        set (QCMaquis_EMAIL ${QCMaquis_EMAIL_} CACHE STRING "Your e-mail address (required for downloading QCMaquis)")
+
+        # Prepare variables for QCMaquis: separate name and surname
+        set (QCMaquis_NAME_LIST ${QCMaquis_NAME})
+
+        separate_arguments (QCMaquis_NAME_LIST)
+        list(LENGTH QCMaquis_NAME_LIST qcm_name_len)
+        if (qcm_name_len LESS 2)
+                message (FATAL_ERROR
+                  "Your name has been specified as: " ${QCMaquis_NAME} "\n"
+                  "Please specify both name and surname. If you have only one name, please specify it twice.")
+        endif()
+
+        # Separate first name from the last name
+        # Currently, only the first word is treated by QCMaquis as the first name,
+        # all the rest is considered surnames -- to accomodate multiple surnames common in the Spanish-speaking
+        # areas or suffixes as Jr., III etc. Middle names are therefore incorrectly considered parts of
+        # the last name. However, this has no influence on the QCMaquis download.
+        list(GET QCMaquis_NAME_LIST 0 QCMaquis_GIVEN_NAME)
+        list(REMOVE_AT QCMaquis_NAME_LIST 0)
+        foreach(arg ${QCMaquis_NAME_LIST})
+                      set(QCMaquis_SURNAME "${QCMaquis_SURNAME} ${arg}")
+        endforeach()
+
+        # Set QCMaquis download URL and path to the download script
+        set (QCMaquis_URL "https://scine.ethz.ch/download/")
+        set (QCMaquis_dl_SCRIPT "${CMAKE_SOURCE_DIR}/src/qcmaquis/get_qcmaquis.sh")
 else ()
         mark_as_advanced (FORCE DMRG_DEBUG)
 endif ()
@@ -194,11 +255,6 @@ add_definitions (-D_MOLCAS_)
 
 #set cmake module search paths
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH})
-
-# discover some necessary tools
-find_program (GIT "git")
-find_program (PERL "perl")
-mark_as_advanced(FORCE GIT PERL)
 
 # location of molcas-extra
 if (NOT DEFINED EXTRA)
@@ -590,8 +646,8 @@ if (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND
         set (FFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
 endif ()
 
-set (CXXFLAGS_GNU_BIGOT "-Wall -Werror")
-set (CFLAGS_GNU_BIGOT "-Wall -Werror")
+set (CXXFLAGS_GNU_BIGOT "-Wall -Wextra -Wpedantic -Werror")
+set (CFLAGS_GNU_BIGOT "-Wall -Wextra -Wpedantic -Werror")
 set (FFLAGS_GNU_BIGOT "-Wall -Werror")
 set (GNU_TRAP "-ffpe-trap=invalid,zero,overflow")
 
@@ -790,7 +846,7 @@ set(NAG_TRAP "-ieee=stop")
 # Preprocessor
 if (CMAKE_BUILD_TYPE STREQUAL "Garble")
         add_definitions (-D_GARBLE_ -D_NO_IEEECK_ -D_FPE_TRAP_)
-        # Disable FPE traps for compiler that do not support IEEE Fortran modules
+        # Disable FPE traps for compilers that do not support IEEE Fortran modules
         # version check for Fortran doesn't work yet, assume it is the same as the C compiler GCC version
         if (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND
             CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND
@@ -1097,32 +1153,28 @@ endif ()
 #=============================
 
 if (HDF5)
-        message ("Configuring HDF5 support:")
-        get_property (languages GLOBAL PROPERTY ENABLED_LANGUAGES)
-        if (";${languages};" MATCHES ";CXX;")
-                find_package (HDF5 COMPONENTS C CXX)
-        else ()
-                find_package (HDF5 COMPONENTS C)
-        endif ()
-        if (HDF5_FOUND)
-                message ("-- HDF5_INCLUDE_PATH: ${HDF5_INCLUDE_DIRS}")
-                message ("-- HDF5_C_LIBRARIES: ${HDF5_C_LIBRARIES}")
-                list (APPEND EXTERNAL_LIBRARIES ${HDF5_C_LIBRARIES})
-                if (HDF5_CXX_LIBRARIES)
-                        message ("-- HDF5_CXX_LIBRARIES: ${HDF5_CXX_LIBRARIES}")
-                        list (APPEND EXTERNAL_LIBRARIES ${HDF5_CXX_LIBRARIES})
-                endif ()
-
-                ## Leon: require zlib for hdf5 for enabled compression
-                ## disabled as long as HDF5 compression is disabled
-                #find_package(ZLIB REQUIRED)
-                #if (ZLIB_FOUND)
-                #        include_directories( ${ZLIB_INCLUDE_DIRS} )
-                #        list (APPEND EXTERNAL_LIBRARIES ${ZLIB_LIBRARIES})
-                #endif (ZLIB_FOUND)
+        if (ADDRMODE EQUAL 32)
+                message ("-- HDF5 interface not compatible with 32bit installations")
         else()
-                message ("-- HDF5 not found, it will be deactivated")
-        endif()
+                message ("Configuring HDF5 support:")
+                get_property (languages GLOBAL PROPERTY ENABLED_LANGUAGES)
+                if (";${languages};" MATCHES ";CXX;")
+                        find_package (HDF5 COMPONENTS C CXX)
+                else ()
+                        find_package (HDF5 COMPONENTS C)
+                endif ()
+                if (HDF5_FOUND)
+                        message ("-- HDF5_INCLUDE_PATH: ${HDF5_INCLUDE_DIRS}")
+                        message ("-- HDF5_C_LIBRARIES: ${HDF5_C_LIBRARIES}")
+                        list (APPEND EXTERNAL_LIBRARIES ${HDF5_C_LIBRARIES})
+                        if (HDF5_CXX_LIBRARIES)
+                                message ("-- HDF5_CXX_LIBRARIES: ${HDF5_CXX_LIBRARIES}")
+                                list (APPEND EXTERNAL_LIBRARIES ${HDF5_CXX_LIBRARIES})
+                        endif ()
+                else()
+                        message ("-- HDF5 not found, it will be deactivated")
+                endif()
+        endif ()
 endif ()
 
 # BLAS/LAPACK settings
@@ -1215,7 +1267,6 @@ if (LINALG STREQUAL "MKL")
         find_library (LIBMKL_SCALAPACK NAMES "mkl_scalapack_ilp64"
                 PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
         if (MPI_IMPLEMENTATION STREQUAL "openmpi")
-                list (APPEND MKL_LIB_NAMES "-lmkl_blacs_openmpi_ilp64")
                 find_library (LIBMKL_BLACS NAMES "mkl_blacs_openmpi_ilp64"
                         PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
         elseif (MPI_IMPLEMENTATION STREQUAL "impi")
@@ -1317,8 +1368,14 @@ if (LINALG STREQUAL "OpenBLAS")
                 # check if the configuration header is available
                 set (OPENBLAS_CONFIG "${OPENBLASROOT}/include/openblas_config.h")
                 if (NOT EXISTS ${OPENBLAS_CONFIG})
+                     # for system-wide OpenBLAS installations the config path might be different
+                     # so try with an alternative path
+                     set (OPENBLAS_CONFIG "${OPENBLASROOT}/include/openblas/openblas_config.h")
+                endif ()
+                if (NOT EXISTS ${OPENBLAS_CONFIG})
                         message (FATAL_ERROR
-                                "Could not find OpenBLAS config header: ${OPENBLAS_CONFIG}, "
+                                "Could not find OpenBLAS config header in: ${OPENBLASROOT} "
+                                "(tried ${OPENBLASROOT}/include/openblas_config.h and "
                                 "please check if the OPENBLASROOT variable points to a "
                                 "valid OpenBLAS installation directory."
                                 )
@@ -1541,7 +1598,6 @@ endif ()
 
 # Chan group's DMRG (Block code) support
 #=======================================
-
 if (BLOCK)
         mark_as_advanced(CLEAR BLOCK_DIR)
 
@@ -1709,12 +1765,14 @@ endif ()
 
 if (DMRG)
         message ("Configuring QCMaquis DMRG support:")
-        message (WARNING "-------------------------------------------------------------------------\
-         You're installing QCMaquis DMRG. Make sure you obtained access to the QCMaquis repository at\n\
-https://gitlab.com/qc-maquis\n\
-If you have done so already, you may safely ignore this message. If not, please open the \
-above URL and click on 'Request access'. \
--------------------------------------------------------------------------")
+
+        if ( "${QCMaquis_NAME}" STREQUAL "" OR "${QCMaquis_EMAIL}" STREQUAL "")
+          message (WARNING "Please set your name and e-mail with -DQCMaquis_NAME and -DQCMaquis_EMAIL to be able to download QCMaquis.")
+        else ()
+          message (STATUS "Your name (used to download QCMaquis): " ${QCMaquis_NAME})
+          message (STATUS "Your email (used to download QCMaquis): " ${QCMaquis_EMAIL})
+        endif ()
+
         add_definitions (-D_DMRG_)
         if (DMRG_DEBUG)
                 add_definitions (-D_DMRG_DEBUG_)
@@ -2025,7 +2083,6 @@ message ("-- RUNSCRIPT:    ${RUNSCRIPT}")
 message ("-- RUNBINARY:    ${RUNBINARY}")
 message ("-- RUNBINARYSER: ${RUNBINARYSER}")
 
-
 ################################################################################
 #                                                                              #
 # Print summary                                                                #
@@ -2110,6 +2167,7 @@ list (REMOVE_ITEM progs
         wfa
         nevpt2 # although not necessarily
         dmrgscf
+        mpssi
         )
 
 # set the location of the sources for the utilities
@@ -2264,6 +2322,10 @@ if (BLOCK OR DMRG)
         list (APPEND progs dmrgscf)
 endif ()
 
+if (DMRG)
+        list (APPEND progs mpssi)
+endif ()
+
 # finally, sort the list
 list (SORT utils)
 
@@ -2335,6 +2397,9 @@ set (casvb_deps
 set (dmrgscf_deps
         $<TARGET_OBJECTS:rasscf>
         )
+set (mpssi_deps
+        $<TARGET_OBJECTS:rassi>
+        )
 set (espf_deps
         $<TARGET_OBJECTS:seward>
         $<TARGET_OBJECTS:alaska>
@@ -2374,7 +2439,6 @@ list (APPEND last_energy_deps
         $<TARGET_OBJECTS:dmrgscf>
         )
 endif ()
-
 
 ################################################################################
 #                                                                              #
@@ -2892,23 +2956,16 @@ add_custom_target(prgms ALL
         )
 add_dependencies(mods_obj prgms)
 
-# generate help databases from source (if using molcas-extra)
-if (DEFINED EXTRA_DIR)
-        set (ENV{MOLCAS} ${PROJECT_BINARY_DIR})
-        file (WRITE ${PROJECT_BINARY_DIR}/.openmolcashome
-                "OPENMOLCAS=${OPENMOLCAS_DIR}"
-                )
+# generate help databases from doc
+if (PYTHONINTERP_FOUND)
         execute_process (
-                COMMAND ${MOLCAS_DRIVER} mkhelp
-                WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-                ERROR_VARIABLE MKHELP_ERROR
-                RESULT_VARIABLE MKHELP_RESULT
+                COMMAND ${PYTHON_EXECUTABLE} ${OPENMOLCAS_DIR}/sbin/extract_xmldoc.py ${OPENMOLCAS_DIR}/doc ${PROJECT_BINARY_DIR}/data
+                ERROR_VARIABLE EXTRACT_ERROR
+                RESULT_VARIABLE EXTRACT_RESULT
                 )
-        file (REMOVE ${PROJECT_BINARY_DIR}/.openmolcashome)
-        if (MKHELP_RESULT)
-                message(FATAL_ERROR "Running \"mkhelp\" failed: ${MKHELP_ERROR}")
+        if (EXTRACT_RESULT)
+                message(FATAL_ERROR "Running \"extract_xmldoc.py\" failed: ${EXTRACT_ERROR}")
         endif ()
-
         # check XML consistency, only if the program is found
         find_program (XMLLINT "xmllint")
         mark_as_advanced(FORCE XMLLINT)
@@ -2920,6 +2977,8 @@ if (DEFINED EXTRA_DIR)
                         VERBATIM
                         )
         endif ()
+else ()
+        message (WARNING "No python found, help databases will not be created.")
 endif ()
 
 # generate rcodes.txt file
@@ -2988,147 +3047,53 @@ endif ()
 
 message ("Configuring documentation")
 
-find_package (LATEX)
-find_program (LATEXMK "latexmk")
-mark_as_advanced(FORCE LATEXMK)
+find_program(SPHINX_EXECUTABLE
+        NAMES sphinx-build
+        DOC "Sphinx Documentation Builder (sphinx-doc.org)"
+        )
+mark_as_advanced(FORCE SPHINX_EXECUTABLE)
 
-# FIXME: (temporarily) copy only selected doc directories, to avoid copying the huge doxygen tree
-set (copy_dirs "")
-foreach (dir manual latex2html)
+if (SPHINX_EXECUTABLE)
+        message ("-- Sphinx compiler: ${SPHINX_EXECUTABLE}")
+
+        # Get the short version (not using REGEX_REPLACE for backwards compatibility)
+        string (REPLACE "v" "" tmp ${MOLCAS_VERSION})
+        string (FIND "${tmp}" "-" pos)
+        string (SUBSTRING "${tmp}" 0 ${pos} SHORT_VERSION)
+
+        set (SPHINX_BUILDDIR "${PROJECT_BINARY_DIR}/doc")
+        set (SPHINX_OPTIONS -d ${SPHINX_BUILDDIR}/doctrees -D extract_dir=${SPHINX_BUILDDIR}/samples)
+
+        add_custom_target (doc_all)
+
         add_custom_target (
-                copy_${dir}
-                COMMAND ${CMAKE_COMMAND} -E remove_directory doc/${dir}
+                doc_html
+                COMMAND OPENMOLCAS_RELEASE=${MOLCAS_VERSION} OPENMOLCAS_VERSION=${SHORT_VERSION}
+                        ${SPHINX_EXECUTABLE} -b html ${SPHINX_OPTIONS} ${PROJECT_SOURCE_DIR}/doc/source ${SPHINX_BUILDDIR}/html
                 )
-        foreach (BASE_DIR ${basedirs})
-                add_custom_command (
-                        TARGET copy_${dir}
-                        COMMAND ${CMAKE_COMMAND} -E copy_directory ${BASE_DIR}/doc/${dir} doc/${dir}
-                )
-        endforeach ()
-        list (APPEND copy_dirs copy_${dir})
-endforeach ()
+        add_dependencies (doc_all doc_html)
 
-add_custom_target (
-        copy_docs
-        DEPENDS ${copy_dirs}
-        COMMAND ${CMAKE_COMMAND} -E remove_directory doc/booklet
-        COMMAND ${MOLCAS_DRIVER} mkdocs
-        COMMENT "Copying documentation source"
-        VERBATIM
-        )
+        find_program (LATEXMK "latexmk")
+        mark_as_advanced(FORCE LATEXMK)
+        if (LATEXMK)
+                message ("-- LaTeX compiler: ${LATEXMK}")
 
-add_custom_target (
-        create_booklet
-        COMMAND ${MOLCAS_DRIVER} booklet
-        COMMENT "Creating booklet source"
-        VERBATIM
-        )
-add_dependencies(create_booklet copy_docs)
-
-# convert eps figures to pdf right after copying files
-if (PS2PDF_CONVERTER)
-        foreach (BASE_DIR ${basedirs})
-                file (GLOB_RECURSE eps_files_tmp RELATIVE ${BASE_DIR} ${BASE_DIR}/doc/*eps)
-                list (APPEND eps_files ${eps_files_tmp})
-        endforeach ()
-        if (DEFINED eps_files)
-                list (REMOVE_DUPLICATES eps_files)
-                list (SORT eps_files)
+                add_custom_target (
+                        doc_pdf
+                        COMMAND OPENMOLCAS_RELEASE=${MOLCAS_VERSION} OPENMOLCAS_VERSION=${SHORT_VERSION}
+                                ${SPHINX_EXECUTABLE} -b latex ${SPHINX_OPTIONS} ${PROJECT_SOURCE_DIR}/doc/source ${SPHINX_BUILDDIR}/latex
+                        COMMAND make -C ${SPHINX_BUILDDIR}/latex all-pdf
+                        )
+                add_dependencies (doc_all doc_pdf)
+        else ()
+                message ("-- LaTeX compiler: no latexmk available, pdf documentation disabled")
         endif ()
-        foreach (eps_file ${eps_files})
-                string (REPLACE ".eps" ".pdf" pdf_file ${eps_file})
-                add_custom_command (
-                        TARGET copy_docs
-                        POST_BUILD
-                        COMMAND ${PS2PDF_CONVERTER} -dEPSCrop ${eps_file} ${pdf_file}
-                        COMMENT "Creating ${pdf_file}"
-                        )
-        endforeach ()
-endif ()
 
-# set up different latexmk arguments
-set (latexmk_arg_pdf "-pdf")
-set (latexmk_arg_ps  "-ps")
-list (APPEND DOC_FORMATS "pdf" "ps")
-
-if (LATEXMK)
-        message ("-- LaTeX compiler: ${LATEXMK}")
-        foreach (format ${DOC_FORMATS})
-                set (LATEXMK_ARGS "-quiet")
-                list (APPEND LATEXMK_ARGS ${latexmk_arg_${format}})
-                add_custom_target (
-                        manual_${format}
-                        COMMAND ${LATEXMK} ${LATEXMK_ARGS} manual.tex > _cmake_latexmk.log 2> _cmake_latexmk.err
-                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/doc/manual/
-                        COMMENT "Creating Molcas manual (${format})"
-                        VERBATIM
-                        )
-                add_custom_target (
-                        booklet_${format}
-                        COMMAND ${LATEXMK} ${LATEXMK_ARGS} booklet.tex > _cmake_latexmk.log 2> _cmake_latexmk.err
-                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/doc/booklet/
-                        COMMENT "Creating Molcas booklet (${format})"
-                        VERBATIM
-                        )
-                add_dependencies (manual_${format} copy_docs)
-                add_dependencies (booklet_${format} copy_docs create_booklet)
-                # make an overall target for all documentation
-                add_custom_target (doc_${format})
-                add_dependencies (doc_${format} manual_${format})
-                add_dependencies (doc_${format} booklet_${format})
-        endforeach ()
-
-        # make default targets
         add_custom_target (doc)
-        add_custom_target (manual)
-        add_custom_target (booklet)
-        # link to specific format
-        if (PDFLATEX_COMPILER)
-                set (default_format "pdf")
-        else ()
-                set (default_format "ps")
-        endif ()
-        message ("-- Default documentation format: ${default_format}")
-        add_dependencies (doc doc_${default_format})
-        add_dependencies (manual manual_${default_format})
-        add_dependencies (booklet booklet_${default_format})
-
-        if (LATEX2HTML_CONVERTER)
-                message ("-- LaTeX HTML converter: ${LATEX2HTML_CONVERTER}")
-                add_custom_target (
-                        doc_html
-                        COMMAND ${MOLCAS_DRIVER} mkhtml
-                        COMMENT "Creating HTML documentation"
-                        VERBATIM
-                        )
-                add_dependencies (doc_html doc)
-        else ()
-                message ("-- No latex2html support found, disabled HTML docs")
-                add_custom_target (
-                        doc_html
-                        COMMAND false
-                        COMMENT "No latex2html support found, disabled HTML docs"
-                        )
-        endif ()
+        add_dependencies (doc doc_html)
 else ()
-        message ("-- LaTeX compiler: no latexmk available, documentation disabled")
-        # dummy targets to give some feedback
-        add_custom_target (
-                no_doc
-                COMMAND false
-                COMMENT "No latexmk available, documentation disabled"
-                )
-        foreach (format ${DOC_FORMATS})
-                add_custom_target (doc_${format} DEPENDS no_doc)
-                add_custom_target (manual_${format} DEPENDS no_doc)
-                add_custom_target (booklet_${format} DEPENDS no_doc)
-        endforeach ()
-        add_custom_target (doc DEPENDS no_doc)
-        add_custom_target (manual DEPENDS no_doc)
-        add_custom_target (booklet DEPENDS no_doc)
-        add_custom_target (doc_html DEPENDS no_doc)
+        message ("-- Sphinx compiler: no sphinx-build available, documentation disabled")
 endif ()
-
 
 ################################################################################
 #                                                                              #
@@ -3174,6 +3139,18 @@ if (DEFINED PYMOLCAS_TARGET)
 
         install (CODE "execute_process(COMMAND ${OPENMOLCAS_DIR}/sbin/install_pymolcas.sh ${PYMOLCAS_TARGET})")
 endif ()
+
+install (DIRECTORY
+        ${PROJECT_BINARY_DIR}/doc/html
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/doc
+        OPTIONAL
+        )
+
+install (FILES
+        ${PROJECT_BINARY_DIR}/doc/latex/Manual.pdf
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/doc
+        OPTIONAL
+        )
 
 if (DEFINED EXTRA_DIR)
         install (PROGRAMS

@@ -44,7 +44,7 @@
       Real*8 FX(3)
       Real*8, Allocatable, Dimension(:,:) :: EnergyArray, GradArray,
      &                                       OldGrads
-      Real*8, Allocatable, Dimension(:) :: Grad
+      Real*8, Allocatable, Dimension(:) :: Grad, GNew
       Integer rc, Read_Grad
       External Read_Grad
       Parameter (ToHartree = CONV_CAL_TO_J_ / CONV_AU_TO_KJ_PER_MOLE_)
@@ -69,12 +69,23 @@
 *
       Call Get_cArray('Relax Method',Method,8)
       Call DecideOnESPF(Do_ESPF)
-      Call Get_iScalar('NumGradRoot',iRoot)
       Is_Roots_Set = .False.
       Call Qpg_iScalar('Number of roots',Is_Roots_Set)
-      nRoots = 1
       If (Is_Roots_Set) Then
          Call Get_iScalar('Number of roots',nRoots)
+         If (nRoots.eq.1) Then
+            iRoot=1
+         Else
+            Call qpg_iScalar('NumGradRoot',Found)
+            If (Found) Then
+               Call Get_iScalar('NumGradRoot',iRoot)
+            Else
+               iRoot=1
+            End If
+         End If
+      Else
+         nRoots = 1
+         iRoot  = 1
       End If
       Call Allocate_Work(ipEnergies_Ref,nRoots)
 C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
@@ -210,6 +221,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
      &    Method(1:6) .eq. 'KS-DFT' .OR.
      &    Method(1:6) .eq. 'CASSCF' .OR.
      &    Method(1:6) .eq. 'RASSCF' .OR.
+     &    Method(1:6) .eq. 'GASSCF' .OR.
      &    Method(1:6) .eq. 'CASPT2' .OR.
      &    Method(1:5) .eq. 'MBPT2'  .OR.
      &    Method(1:5) .eq. 'CCSDT'  .OR.
@@ -220,7 +232,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
             Write (LuWr,*)
             Write (LuWr,'(A,A,A)')
      &    ' Numerical_Gradient: Original ',Method,' Energies:'
-            Write (LuWr,'(G20.14)')
+            Write (LuWr,'(G21.14)')
      &    (Work(ipEnergies_Ref+i-1),i=1,nRoots)
             Write (LuWr,*)
          End If
@@ -377,6 +389,17 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
      &                          + Sign*Work(ipDisp+icoor-1)
  101        Continue
          End Do
+      End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Save the "new geometry" field from the RunFile, if any
+*
+      Call qpg_dArray('GeoNew',Found,nGNew)
+      If (.not.Found) nGNew=0
+      If (nGNew.gt.0) Then
+        Call mma_allocate(GNew,nGNew)
+        Call Get_dArray('GeoNew',GNew,nGNew)
       End If
 *                                                                      *
 ************************************************************************
@@ -597,6 +620,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
                Call Abend()
             End If
          Else If (Method(1:6) .eq. 'RASSCF' .OR.
+     &            Method(1:6) .eq. 'GASSCF' .OR.
      &            Method(1:6) .eq. 'CASSCF' .OR.
      &            Method(1:6) .eq. 'MCPDFT' .OR.
      &            Method(1:6) .eq. 'CASPT2' .OR.
@@ -786,6 +810,17 @@ C_MPP End Do
       If (MyRank.ne.0) Then
          Close(LuWr)
          LuWr=LuWr_save
+      End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Restore the "new geometry" field to the RunFile, if any
+*
+      If (nGNew.eq.0) Then
+        Call Put_Coord_New([Zero],0)
+      Else
+        Call Put_Coord_New(GNew,nGNew/3)
+        Call mma_deallocate(GNew)
       End If
 *                                                                      *
 ************************************************************************
@@ -1009,6 +1044,19 @@ C_MPP End Do
 *
       nfld_tim  = 0
       nfld_stat = 0
+*
+*     Restore iRlxRoot if changed as set by the RASSCF module.
+*
+      If (Method(1:6) .eq. 'CASSCF' .OR.
+     &    Method(1:6) .eq. 'RASSCF' ) Then
+         Call Get_iScalar('Relax CASSCF root',irlxroot1)
+         Call Get_iScalar('Relax Original ro',irlxroot2)
+         If (iRlxRoot1.ne.iRlxRoot2) Then
+            Call Put_iScalar('Relax CASSCF root',irlxroot2)
+            Call Put_iScalar('NumGradRoot',irlxroot2)
+         End If
+      End If
+
 *
       Return
       End

@@ -55,7 +55,7 @@
 #endif
       Logical FullMlk, get_BasisType
 cnf
-      Logical Do_ESPF,lSave, lOPTO
+      Logical Do_ESPF,lSave, lOPTO, Do_DM
 cnf
       DIMENSION CMO(*),OCCN(*),SMAT(*)
       Dimension Temp(2,mxRoot)
@@ -582,6 +582,13 @@ C Local print level (if any)
 *
       Call Get_D1AO(ipDSave,NTOT1)
 *
+*     The dipole moments will also be stored over all kroot states.
+*
+      Call GetMem('DIPM', 'Allo','Real',ipDM,3)
+      Call GetMem('DIPMs','Allo','Real',ipDMs,3*LROOTS)
+      CALL FZERO(Work(ipDMs),3*LROOTS)
+      Do_DM=.False.
+*
       DO KROOT=1,LROOTS
 *
 * Read natural orbitals
@@ -645,13 +652,27 @@ C Local print level (if any)
         Call WrVec('TMPORB',LuTmp,'CO',nSym,nBas,nBas,
      &            CMO,OCCN,Dum,iDum,Note)
         CALL PRPT()
-
+*                                                                     *
+***********************************************************************
+*       Store away the dipole moment of this state                    *
+*
+        Call Qpg_dArray('Dipole Moment',Do_DM,iDum)
+        If (Do_DM) Then
+*          Write (6,*) 'iRoot=',kRoot
+           Call Get_dArray('Dipole Moment',Work(ipDM),3)
+*          Call RecPrt('Dipole Moment',' ',Work(ipDM),1,3)
+           Call DCopy_(3,Work(ipDM),1,Work(ipDMs+(KROOT-1)*3),1)
+        End If
+*                                                                     *
+***********************************************************************
+*                                                                     *
 *
 *       Compute spin orbitals and spin population
 *       (Note: this section overwrites the pseudo natural orbitals
 *              with the spin orbitals).
 *
-* PAM2008: Only for at most MAXORBOUT orbitals. Default 10, reset by keyword.
+* PAM2008: Only for at most MAXORBOUT orbitals. Default 10, reset by
+*       keyword.
         IF(KROOT.LE.MAXORBOUT) THEN
 
         CALL GETMEM('RHO1S','ALLO','REAL',LX6,NACPAR)
@@ -765,6 +786,14 @@ cnf
 *
       Call Put_D1AO(Work(ipDSave),NTOT1)
       Call GetMem('DSave','Free','REAL',ipDSave,nTot1)
+*
+*     Save the list of dipole moments on the run file.
+*
+      If (Do_DM)
+     &   Call Put_dArray('Last Dipole Moments',Work(ipDMs),3*LROOTS)
+*     Call RecPrt('Last Dipole Moments',' ',Work(ipDMs),3,LROOTS)
+      Call GetMem('DipM', 'Free','Real',ipDM, 3)
+      Call GetMem('DipMs','Free','Real',ipDMs,3*LROOTS)
 *                                                                      *
 ************************************************************************
 *                                                                      *

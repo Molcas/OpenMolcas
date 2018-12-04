@@ -40,7 +40,7 @@
       Character xLblCnt(MxAtom)*(LENIN)
       Character KWord*80, Header(2)*72
       Parameter (nMamn=MaxBfn+MaxBfn_Aux)
-      Character Mamn(nMamn)*(LENIN4)
+      Character Mamn(nMamn)*(LENIN8)
       Logical lOPTO, Pseudo, Do_OneEl
       Logical Get_Cho_1Center, Cho_1Center
 CVV      LOGICAL GA_USES_MA,GA_MEMORY_LIMITED
@@ -139,6 +139,7 @@ C-SVC: identify runfile with a fingerprint
       Call Flip_Flop(.False.)
       Call Print_Basis(lOPTO,Work(Info),nDInf)
       Call Print_Geometry(0,Work(Info),nDInf)
+      Call Print_Isotopes()
       If (nPrint(2).gt.0) nPrint(117)=6
       Call RigRot(Centr,Mass,kCentr)
       Call Print_Basis2(Work(Info),nDInf)
@@ -177,7 +178,7 @@ C-SVC: identify runfile with a fingerprint
       Call Put_iArray('Symmetry operations',iOper,nIrrep)
       Call Put_iScalar('Rotational Symmetry Number',iSigma)
       Call Put_cArray('Irreps',lIrrep,24)
-      Call Put_cArray('Unique Basis Names',Mamn,(LENIN4)*nDim)
+      Call Put_cArray('Unique Basis Names',Mamn,(LENIN8)*nDim)
       Call Put_iArray('NBAS',nBas,nIrrep)
       call basis2run(Work(Info),nInfo)
       Call Gen_RelPointers(Info-1)

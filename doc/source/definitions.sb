@@ -1,0 +1,96 @@
+.. semantic classes
+.. role:: program
+.. role:: file
+.. role:: kword
+.. role:: command
+.. role:: variable
+
+.. formatting classes
+.. role:: sc
+.. role:: bdit
+
+.. substitutions
+.. |molcas|        replace:: :sc:`Molcas`
+.. |molcasversion| replace:: 8.3
+.. |molcasthis|    replace:: |molcas|-\ |molcasversion|
+.. |molcasiii|     replace:: |molcas|-3
+.. |molcasiv|      replace:: |molcas|-4
+.. |molcasv|       replace:: |molcas|-5
+.. |molcasvi|      replace:: |molcas|-6
+.. |molcasvii|     replace:: |molcas|-7
+.. |molcasviii|    replace:: |molcas|-8
+.. |molcasWWW|     replace:: http://www.molcas.org
+.. |GnuWWW|        replace:: https://www.gnu.org
+.. |GnuMakeWWW|    replace:: https://www.gnu.org/software/make/
+.. |CygwinWWW|     replace:: https://www.cygwin.com
+.. |extramark|     replace:: |cur|
+
+.. Unicode characters
+.. |-|             unicode:: U+02212 .. minus sign
+.. |+-|            unicode:: U+000B1 .. plus/minus sign
+.. |x|             unicode:: U+000D7 .. multiplication (cross) sign
+.. |o|             unicode:: U+000B0 .. degree sign
+.. |2|             unicode:: U+000B2 .. superscript 2
+.. |->|            unicode:: U+02192 .. rightwards arrow
+.. |inf|           unicode:: U+0221E .. infinity symbol
+.. |zws|           unicode:: U+0200B .. zero-width space
+.. |dag|           unicode:: U+02020 .. dagger
+.. |cur|           unicode:: U+000A4 .. currency sign
+
+.. units
+.. |Eh|            replace:: :math:`E_{\text{h}}`
+.. |a0|            replace:: :math:`a_0`
+
+.. substitutions for examples
+.. |Cinfv|         replace:: :math:`C_{\infty v}`
+.. |Dinfh|         replace:: :math:`D_{\infty h}`
+.. |Ctv|           replace:: :math:`C_{2v}`
+.. |Dth|           replace:: :math:`D_{2h}`
+.. |ao|            replace:: :math:`a_1`
+.. |at|            replace:: :math:`a_2`
+.. |bo|            replace:: :math:`b_1`
+.. |bt|            replace:: :math:`b_2`
+.. |ag|            replace:: :math:`a_g`
+.. |au|            replace:: :math:`a_u`
+.. |bog|           replace:: :math:`b_{1g}`
+.. |btg|           replace:: :math:`b_{2g}`
+.. |bttg|          replace:: :math:`b_{3g}`
+.. |bou|           replace:: :math:`b_{1u}`
+.. |btu|           replace:: :math:`b_{2u}`
+.. |bttu|          replace:: :math:`b_{3u}`
+.. |SAO|           replace:: :math:`^1A_1`
+.. |SAG|           replace:: :math:`^1A_g`
+.. |SAU|           replace:: :math:`^1A_u`
+.. |SBOG|          replace:: :math:`^1B_{1g}`
+.. |SBTG|          replace:: :math:`^1B_{2g}`
+.. |SBTTG|         replace:: :math:`^1B_{3g}`
+.. |SBOU|          replace:: :math:`^1B_{1u}`
+.. |SBTU|          replace:: :math:`^1B_{2u}`
+.. |SBTTU|         replace:: :math:`^1B_{3u}`
+.. |TAG|           replace:: :math:`^3A_g`
+.. |TAU|           replace:: :math:`^3A_u`
+.. |TBOG|          replace:: :math:`^3B_{1g}`
+.. |TBTG|          replace:: :math:`^3B_{2g}`
+.. |TBTTG|         replace:: :math:`^3B_{3g}`
+.. |TBOU|          replace:: :math:`^3B_{1u}`
+.. |TBTU|          replace:: :math:`^3B_{2u}`
+.. |TBTTU|         replace:: :math:`^3B_{3u}`
+.. |s|             replace:: s
+.. |p.|            replace:: p
+.. |px|            replace:: p\ :math:`_x`
+.. |py|            replace:: p\ :math:`_y`
+.. |pz|            replace:: p\ :math:`_z`
+.. |d.|            replace:: d
+.. |dzt|           replace:: d\ :math:`_{z^2}`
+.. |dxtyt|         replace:: d\ :math:`_{x^2-y^2}`
+.. |dxz|           replace:: d\ :math:`_{xz}`
+.. |dyz|           replace:: d\ :math:`_{yz}`
+.. |dxy|           replace:: d\ :math:`_{xy}`
+.. |f.|            replace:: f
+.. |fxtt|          replace:: f\ :math:`_{x^3}`
+.. |fytt|          replace:: f\ :math:`_{y^3}`
+.. |fztt|          replace:: f\ :math:`_{z^3}`
+.. |fxyz|          replace:: f\ :math:`_{xyz}`
+.. |fx|            replace:: f\ :math:`_{x(z^2-y^2)}`
+.. |fy|            replace:: f\ :math:`_{y(z^2-x^2)}`
+.. |fz|            replace:: f\ :math:`_{z(x^2-y^2)}`

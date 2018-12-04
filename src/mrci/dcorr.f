@@ -16,7 +16,6 @@
      *          INTSYM(*),INDX(*),DMO(*)
 *
       JO(L)=ICUNP(ICSPCK,L)
-      JSYM(L)=JSUNP(INTSYM,L)
 *
 C CORRECTION TO DENSITY MATRIX IN ACPF CASE.
       IF(IPRINT.GE.7) WRITE(6,*)' ENP IN DENS =',ENP
@@ -39,5 +38,8 @@ C CORRECTION TO DENSITY MATRIX IN ACPF CASE.
 40    CONTINUE
       RETURN
 c Avoid unused argument warnings
-      IF (.FALSE.) CALL Unused_integer_array(INDX)
+      IF (.FALSE.) THEN
+         CALL Unused_integer_array(INTSYM)
+         CALL Unused_integer_array(INDX)
+      END IF
       END

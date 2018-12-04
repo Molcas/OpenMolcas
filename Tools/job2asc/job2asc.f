@@ -36,7 +36,7 @@ C with some additional explanation.
       WRITE(FMTIPH,*) 'print out of IADR15: '
       WRITE(FMTIPH,'(15I10)') (IADR15(I), I=1,30)
 
-      nName=4*2*mxOrb
+      nName=LENIN8*mxOrb
       nHeader=144
       nTitle=4*18*mxTit
 

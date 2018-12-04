@@ -54,6 +54,9 @@
       CHARACTER*48 STLNE2
 * PAM 2011 Nov 3, added write buffer WBUF:
       DIMENSION WBUF(5)
+      Real*8 Energies(1:20)
+      Integer IAD,LUIPHn,lThetaM
+      Real*8 Norm_fac
 
       type mixed_1pdensities
         real*8              :: overlap
@@ -241,6 +244,17 @@ C WDMAB, WDMZZ similar, but WE-reduced 'triplet' densities.
       LTRA2=LNILPT
       IF(JOB1.NE.JOB2) THEN
 C Transform to biorthonormal orbital system
+        IF (DoGSOR) Then
+          Call FCopy(Trim(JBNAME(JOB2)),'JOBGS',ierr)
+          Call DANAME(LUIPH,'JOBGS')
+          IAD = 0
+          Call IDAFile(LUIPH,2,ITOC15,30,IAD)
+          IAD=ITOC15(2)
+          Call DDAFile(LUIPH,1,Work(LCMO2),nCMO,IAD)
+          Call DACLOS(LUIPH)
+        End if !DoGSOR
+
+
         CALL GETMEM('GTDMTRA1','ALLO','REAL',LTRA1,NTRA)
         CALL GETMEM('GTDMTRA2','ALLO','REAL',LTRA2,NTRA)
         CALL FINDT(WORK(LCMO1),WORK(LCMO2),WORK(LTRA1),WORK(LTRA2))
@@ -542,6 +556,9 @@ C Presently, the only other cases are HISPIN, CLOSED or EMPTY.
         NCONF2=1
       END IF
       CALL GETMEM('GTDMCI2','ALLO','REAL',LCI2,NCONF2)
+      If (DoGSOR) Then
+        CALL GETMEM('GTDMCI2_o','ALLO','REAL',LCI2_o,NCONF2)
+      end if!DoGSOR
 
       NPART=3
       NGAS=NPART
@@ -673,6 +690,11 @@ C Write out the determinant expansion to disk.
         end if
       END DO
 
+      If (DoGSOR) Then
+        CALL GETMEM('Theta1','ALLO','REAL',LTheta1,NCONF2)
+        CALL DCOPY_(NCONF2,0.0D0,0,WORK(LTheta1),1)
+      End If
+
 C-------------------------------------------------------------
 
 C Loop over the states of JOBIPH nr JOB2
@@ -687,6 +709,9 @@ C Read JSTATE wave function
           ELSE
             WORK(LCI2)=1.0D0
           END IF
+          If(DoGSOR) Then
+            CALL DCOPY_(NCONF2,Work(LCI2),1,WORK(LCI2_o),1)
+          End If
           CALL DCOPY_(NDET2,0.0D0,0,WORK(LDET2),1)
           CALL PREPSD(WFTP2,TRORB,ISGSTR2,ICISTR2,IXSTR2,LSYM2,
      &                WORK(LTRA2),IWORK(LCNFTAB2),IWORK(LSPNTAB2),
@@ -735,6 +760,15 @@ C Read ISTATE wave function from disk
 #ifdef _DMRG_
       end if
 #endif
+
+       if(doGSOR) then
+         if(JOB1.ne.JOB2) then
+           ST_TOT = NSTAT(JOB2)
+           Dot_prod = 0
+           Dot_prod = DDOT_(NCONF2,Work(LCI1),1,Work(LCI2),1)
+           Call DAXPY_(NCONF2,Dot_prod,Work(LCI2_o),1,Work(LTHETA1),1)
+         end if
+       end if
 
 C Calculate whatever type of GTDM that was requested, unless
 C it is known to be zero.
@@ -974,7 +1008,7 @@ C             Write density 1-matrices in AO basis to disk.
               NB=NBASF(ISYM)
               DO IO=1,NO
                 WRITE(LU,*)'#  Symm ',ISYM,'   Orbital ',IO
-                WRITE(LU,'(5D18.12)')(WORK(LPOS+NB*(IO-1)+i),i=0,NB-1)
+                WRITE(LU,'(5D19.12)')(WORK(LPOS+NB*(IO-1)+i),i=0,NB-1)
               END DO
               LPOS=LPOS+NB**2
             END DO
@@ -985,12 +1019,12 @@ C             Write density 1-matrices in AO basis to disk.
               NB=NBASF(ISYM)
               DO IO=1,NO
                 WRITE(LU,*)'#  Symm ',ISYM,'   Orbital ',IO
-                WRITE(LU,'(5D18.12)')(WORK(LPOS+NB*(IO-1)+i),i=0,NB-1)
+                WRITE(LU,'(5D19.12)')(WORK(LPOS+NB*(IO-1)+i),i=0,NB-1)
               END DO
               LPOS=LPOS+NB**2
             END DO
             WRITE(LU,*)'#  States ',ISTATE,JSTATE,' Overlap:'
-            WRITE(LU,'(5D18.12)') SIJ
+            WRITE(LU,'(5D19.12)') SIJ
             WRITE(LU,*)'#  States ',ISTATE,JSTATE,' Active TRD1:'
             LSYM12=MUL(LSYM1,LSYM2)
             LPOS=LTDMAB
@@ -1005,7 +1039,7 @@ C             Write density 1-matrices in AO basis to disk.
                   NI1=NISH(ISYM1)
                   NI2=NISH(ISYM2)
                   WRITE(LU,*)'#  Symmetries ',ISYM1,ISYM2
-                  WRITE(LU,'(5D18.12)')((WORK(LPOS-1+II+NO1*(JJ-1)),
+                  WRITE(LU,'(5D19.12)')((WORK(LPOS-1+II+NO1*(JJ-1)),
      &                                  JJ=NI2+1,NO2),II=NI1+1,NO1)
                 END IF
                 LPOS=LPOS+NO1*NO2
@@ -1046,7 +1080,7 @@ C             Write density 1-matrices in AO basis to disk.
                               IWBUF=IWBUF+1
                               WBUF(IWBUF)=WORK(LTDM2-1+ITUVX)
                               IF(IWBUF.EQ.5) THEN
-                                WRITE(LU,'(5D18.12)')(WBUF(I),I=1,IWBUF)
+                                WRITE(LU,'(5D19.12)')(WBUF(I),I=1,IWBUF)
                                 IWBUF=0
                               END IF
                             END DO
@@ -1054,7 +1088,7 @@ C             Write density 1-matrices in AO basis to disk.
                         END DO
                       END DO
                       IF(IWBUF.GT.0) THEN
-                        WRITE(LU,'(5D18.12)')(WBUF(I),I=1,IWBUF)
+                        WRITE(LU,'(5D19.12)')(WBUF(I),I=1,IWBUF)
                         IWBUF=0
                       END IF
 * End of writing a symmetry block.
@@ -1068,8 +1102,8 @@ C             Write density 1-matrices in AO basis to disk.
 
 #ifdef _HDF5_
           if(.not.mstate_dens)then
-            IF(IF11.AND.(LSYM1.EQ.LSYM2).or.
-     &        (SONATNSTATE.GT.0).OR.NATO)THEN
+            IF(IF11.AND.(LSYM1.EQ.LSYM2).and.
+     &        ((SONATNSTATE.GT.0).OR.NATO))THEN
               call mh5_put_dset_array_real(wfn_sfs_tdm,
      $        WORK(LTDMZZ),[NTDMZZ,1,1], [0,ISTATE-1,JSTATE-1])
               call mh5_put_dset_array_real(wfn_sfs_tsdm,
@@ -1086,6 +1120,21 @@ C             Write density 1-matrices in AO basis to disk.
             HIJ                = HZERO+HONE+HTWO
             HAM(ISTATE,JSTATE) = HIJ
             HAM(JSTATE,ISTATE) = HIJ
+
+         !SI-PDFT related code for "second_time" case
+          if(second_time) then
+            Energies(:) =0.0d0
+            CALL DANAME(LUIPH,'JOBGS')
+            IAD = 0
+            Call IDAFILE(LUIPH,2,ITOC15,30,IAD)
+            IAD=ITOC15(6)
+            Call DDAFILE(LUIPH,2,Energies,NSTAT(JOB1),IAD)
+            do i=1,NSTAT(JOB1)
+              HAM(i,i) = Energies(i)
+             end do
+          end if
+
+
             IF(IPGLOB.GE.DEBUG) THEN
               WRITE(6,'(1x,a,2I5)')' ISTATE, JSTATE:',ISTATE,JSTATE
               WRITE(6,'(1x,a,f16.8)')' HZERO=',HZERO
@@ -1098,6 +1147,102 @@ C             Write density 1-matrices in AO basis to disk.
         END DO job1_loop
 
       END DO job2_loop
+
+      IF(DoGSOR) then
+        if(job1.ne.job2) then
+        Norm_Fac = 0.0d0
+        dot_prod = DDOT_(NCONF2,Work(LTheta1),1,Work(LTheta1),1)
+        Norm_Fac = 1d0/sqrt(dot_prod)
+        Call DSCAL_(NCONF2,Norm_Fac,Work(LTheta1),1)
+
+      !Write theta1 to file.
+        Open(unit=87,file='CI_THETA', action='write',iostat=ios)
+        do i=1,NCONF2
+          write(87,*) Work(LTheta1-1+i)
+        end do
+        Close(87)
+
+       !Now we need to build the other states.
+        DO JST=2,NSTAT(JOB2)
+          JSTATE=ISTAT(JOB2)-1+JST
+          CALL READCI(JSTATE,ISGSTR2,ICISTR2,NCONF2,WORK(LCI2))
+          Call DCOPY_(NCONF2,Work(LCI2),1,Work(LCI2_o),1)
+          CALL DCOPY_(NDET2,0.0D0,0,WORK(LDET2),1)
+          CALL PREPSD(WFTP2,TRORB,ISGSTR2,ICISTR2,IXSTR2,LSYM2,
+     &              WORK(LTRA2),IWORK(LCNFTAB2),IWORK(LSPNTAB2),
+     &          IWORK(LSSTAB),IWORK(LFSBTAB2),NCONF2,WORK(LCI2),
+     &          WORK(LDET2))
+
+          CALL GETMEM('ThetaN','ALLO','REAL',LThetaN,NCONF2)
+          CALL DCOPY_(NCONF2,Work(LCI2_o),1,WORK(LThetaN),1)
+          Norm_Fac = DDOT_(NCONF2,Work(LTheta1),1,Work(LCI2_o),1)
+          Call DAXPY_(NCONF2,-Norm_Fac,Work(LTHETA1),1,Work(LThetaN),1)
+
+          Open(unit=87,file='CI_THETA', action='read',iostat=ios)
+          if(JST-1.ge.2) then
+            do i=1,NCONF2
+              Read(87,*) dummy
+            end do
+          end if
+          CALL GETMEM('ThetaM','ALLO','REAL',LThetaM,NCONF2)
+          DO IST=2,JST-1
+            CALL DCOPY_(NCONF2,0.0D0,0,WORK(LThetaM),1)
+            !Read in previous theta vectors
+            do i=1,NCONF2
+              Read(87,*) Work(LThetaM-1+i)
+            end do
+            Dot_prod = DDOT_(NCONF2,Work(LThetaM),1,Work(LCI2_o),1)
+           Call DAXPY_(NCONF2,-Dot_prod,Work(LThetaM),1,Work(LThetaN),1)
+
+
+          END DO
+          Close(87)
+          !Normalize
+          dot_prod = DDOT_(NCONF2,Work(LThetaN),1,Work(LThetaN),1)
+          Norm_Fac = 1d0/sqrt(dot_prod)
+          Call DSCAL_(NCONF2,Norm_Fac,Work(LThetaN),1)
+
+        !dot_prod = DDOT_(NCONF2,Work(LTheta1),1,Work(LTheta1),1)
+        !dot_prod = DDOT_(NCONF2,Work(LThetaN),1,Work(LTheta1),1)
+        !dot_prod = DDOT_(NCONF2,Work(LThetaN),1,Work(LThetaN),1)
+
+          !Write to file
+          Open(unit=87,file='CI_THETA', position='append',iostat=ios,
+     &    action='write')
+          do i=1,nConf2
+            write(87,*) Work(LThetaN-1+i)
+          end do
+          close(87)
+          !Deallocate
+        END DO
+!Copy to new IPH file
+        Open(unit=87,file='CI_THETA',iostat=ios,
+     &    action='read')
+        CALL DANAME(LUIPHn,'JOBGS')
+        IAD = 0
+        Call IDAFILE(LUIPHn,2,ITOC15,30,IAD)
+        IAD=ITOC15(4)
+        do i=1,ISTAT(JOB1)-1
+         CALL DCOPY_(NCONF2,0.0D0,0,WORK(LThetaM),1)
+         do j=1,nCONF2
+           read(87,*) Work(LThetaM-1+i)
+         end do
+         Call DDafile(LUIPHn,1,Work(LThetaM),nCONF2,IAD)
+       end do
+
+       IAD = ITOC15(4)
+       CALL DCOPY_(NCONF2,0.0D0,0,WORK(LThetaM),1)
+       Call DDAFILE(LUIPHn,2,Work(LThetaM),nCONF2,IAD)
+       Call DDAFILE(LUIPHn,2,Work(LThetaM),nCONF2,IAD)
+
+       Close(87)
+       Call DACLOS(LUIPHn)
+       CALL GETMEM('ThetaM','FREE','REAL',LThetaM,NCONF2)
+       end if
+       CALL GETMEM('Theta1','FREE','REAL',LTheta1,NCONF1)
+      end if!DoGSOR
+
+
 
 #ifdef _DMRG_
       IF(IPGLOB.GE.DEBUG) THEN

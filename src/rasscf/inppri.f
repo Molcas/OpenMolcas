@@ -45,6 +45,7 @@
 #include "splitcas.fh"
 #include "fciqmc.fh"
 #include "lucia_ini.fh"
+#include "ksdft.fh"
       Character*8   Fmt1,Fmt2,Label
       Character*120  Line,BlLine,StLine
       Character*3 lIrrep(8)
@@ -175,7 +176,7 @@ C.. for GAS
       else
         DO IGAS=1,NGAS
           Write(LF,Fmt2//'A,I1,A,T45,2I6)')
-     &      'Min/Max nr of electrons up to GAS',IGAS,' space',
+     &      'Min/Max nr of electrons up to GAS',IGAS,' sp.',
      &                           igsoccx(igas,1),igsoccx(igas,2)
         END DO
       end if
@@ -510,6 +511,9 @@ C.. for GAS
        IF(l_casdft) then
           Write(LF,Fmt2//'A)') 'This is a MC-PDFT calculation '//
      &                         'with functional: '//KSDFT
+          Write(LF,Fmt2//'A,T45,E10.3)')'Exchange scaling factor',CoefX
+          Write(LF,Fmt2//'A,T45,E10.3)')'Correlation scaling factor',
+     &                                 CoefR
        end if
 ************************************************************************
 
@@ -596,6 +600,8 @@ C.. for GAS
 *---- Print out grid information in case of DFT
 *
        If (KSDFT.ne.'SCF') Then
+         Call Put_dScalar('DFT exch coeff',CoefX)
+         Call Put_dScalar('DFT corr coeff',CoefR)
          Call Funi_Print
        End If
       END IF

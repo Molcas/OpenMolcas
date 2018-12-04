@@ -81,10 +81,10 @@ C     END DO
       END DO
 *
       IF(NTEST.GE.1000) THEN
+        write(6,*) 'NIGRP:', NIGRP
         WRITE(6,*)  ' MINVAL and MAXVAL '
         CALL IWRTMA(MINVAL,1,NIGRP,1,NIGRP)
         CALL IWRTMA(MAXVAL,1,NIGRP,1,NIGRP)
-        WRITE(6,*) ' NIGRP = ', NIGRP
       END IF
 
 *. Total number of symmetry blocks that will be generated

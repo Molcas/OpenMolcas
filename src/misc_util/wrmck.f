@@ -200,7 +200,7 @@ C     Character*8 TmpLab,Label, Label_Add*11
          Call iCOPY(Len,Data,1,TocOne(pchdisp),1)
 *----------------------------------------------------------------------*
 *
-      Else If (label.eq.'NRDISP') THEN
+      Else If (label.eq.'NRCTDISP') THEN
 *
          If(TocOne(pndisp).eq.NaN) Then
          Call SysAbendMsg(TheName,'Undefined Label:',Label)

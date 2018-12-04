@@ -12,7 +12,7 @@
      &                 nq,nAtoms,iIter,nIter,Cx,iOper,nSym,jStab,
      &                 nStab,nDim,Smmtrc,Process,Value,
      &                 nB,iANr,qLbl,iRef,fconst,
-     &                 rMult,LuIC,Indq,rMass,iCoSet,
+     &                 rMult,LuIC,Indq,dMass,iCoSet,
      &                 Proc_dB,mB_Tot,mdB_Tot,
      &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,nqB)
       Implicit Real*8 (a-h,o-z)
@@ -22,7 +22,7 @@
 #include "sbs.fh"
 #include "print.fh"
       Real*8 Cx(3,nAtoms,nIter),
-     &       rMass(nAtoms), fconst(nB), Value(nB,nIter), rMult(nB),
+     &       dMass(nAtoms), fconst(nB), Value(nB,nIter), rMult(nB),
      &       Trans(3), RotVec(3), RotMat(3,3),
      &       BM(nB_Tot), dBM(ndB_Tot)
       Integer   nStab(nAtoms), iOper(0:nSym-1), iCoSet(0:7,nAtoms),
@@ -113,8 +113,8 @@
       TMass = Zero
       Do iCent = 1, nCent
          iAtom = Ind(iCent)
-         xMass(iCent) = rMass(iAtom)
-         TMass = TMass + rMass(iAtom)
+         xMass(iCent) = dMass(iAtom)
+         TMass = TMass + dMass(iAtom)
       End Do
 *---- Loop over cartesian components
 *
@@ -161,7 +161,7 @@
          Do iCent = 1, nCent
             iAtom=Ind(iCent)
 *           Write (6,*) 'iAtom,iCOM=',iAtom,iCOM
-            Grad(ixyz,iCent) = rMass(iAtom)/TMass
+            Grad(ixyz,iCent) = dMass(iAtom)/TMass
          End Do
 C        Call RecPrt('Grad (Trans)',' ',Grad,3,nCent)
 *

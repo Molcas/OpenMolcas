@@ -258,8 +258,27 @@ c     Work(ipEner+iter-1)=Energy
 *     The dipole moment is required for numerical differentiation.
 *     Currently it is not written to the RUNFILE if we are in C&M mode.
 *
-      If (columbus.ne.1) Then
-         Call Get_DArray('Dipole moment',Work(ipDipM+(iter-1)*3),3)
+      If (columbus.eq.1) Then
+      Else
+         Is_Roots_Set = .False.
+         Call Qpg_iScalar('Number of roots',Is_Roots_Set)
+         nRoots = 1
+         If (Is_Roots_Set) Then
+            Call Get_iScalar('Number of roots',nRoots)
+         End If
+         If (nRoots.ne.1) Then
+            Call Get_iScalar('NumGradRoot',iRoot)
+*           Write (6,*) 'iRoot=',iRoot
+            Call Allocate_Work(ipDMs,3*nRoots)
+            Call Get_dArray('Last Dipole Moments',Work(ipDMs),3*nRoots)
+            Call DCopy_(3,Work(ipDMs+(iRoot-1)*3),1,
+     &                    Work(ipDipM+(iter-1)*3),1)
+*           Call RecPrt('Dipole Moment',' ',
+*    &                    Work(ipDipM+(iter-1)*3),1,3)
+            Call Free_Work(ipDMs)
+         Else
+            Call Get_DArray('Dipole moment',Work(ipDipM+(iter-1)*3),3)
+         End If
       End If
 *                                                                      *
 ************************************************************************

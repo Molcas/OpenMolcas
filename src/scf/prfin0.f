@@ -48,6 +48,7 @@
 #include "embpotdata.fh"
 #endif
 #include "scfwfn.fh"
+#include "ksdft.fh"
 
       Logical Do_OFemb,KEonly,OFE_first
       COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
@@ -215,6 +216,10 @@ c            Write(6,Fmt)'Total KS-DFT energy',EneV
       If (nIter(nIterP).gt.0.and.jPrint.ge.2) Then
          Write(6,Fmt)'Max non-diagonal density matrix element',DMOMax
          Write(6,Fmt)'Max non-diagonal Fock matrix element',FMOMax
+      End If
+      if (CoefX.ne.1.0.or.CoefR.ne.1.0) Then
+         Write(6,Fmt)'Exchange scaling factor',CoefX
+         Write(6,Fmt)'Correlation scaling factor',CoefR
       End If
       If (jPrint.ge.2) Write(6,*)
 c      If (jPrint.ge.2 .and. Do_OFemb) Call OFE_print(EneV)

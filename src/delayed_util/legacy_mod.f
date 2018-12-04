@@ -11,6 +11,8 @@
 
 * Legacy code that is not used by current LAPACK but could be "needed"
 * by other libraries. Define here just as dummy procedures
+*
+* If you modify this, the files f[1-5].fh should be updated too, use delayed.py
 
       module LEGACY_MOD
 

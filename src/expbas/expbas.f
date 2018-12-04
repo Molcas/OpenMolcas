@@ -26,7 +26,7 @@
       Dimension nBas1(mxsym),nBas2(mxsym),Occ1(maxbfn),Eorb1(maxbfn),
      &          Occ2(maxbfn),Eorb2(maxbfn)
       Integer indt1(maxbfn),indt2(maxbfn),Indtype(56)
-      Character*(LENIN4) Bas1(maxbfn),Bas2(maxbfn)
+      Character*(LENIN8) Bas1(maxbfn),Bas2(maxbfn)
       Character*80 VecTit
       Character*512 FName
       Logical Exist_1,Exist_2,okay
@@ -53,7 +53,7 @@
          nDim1=nDim1+nBas1(iSym)
          nTot1=nTot1+nBas1(iSym)**2
       End Do
-      Call Get_cArray('Unique Basis Names',Bas1,(LENIN4)*nDim1)
+      Call Get_cArray('Unique Basis Names',Bas1,(LENIN8)*nDim1)
 *----------------------------------------------------------------------*
 *     Read information from Runfile 2                                  *
 *----------------------------------------------------------------------*
@@ -74,7 +74,7 @@
          nDim2=nDim2+nBas2(iSym)
          ntot2=ntot2+nBas2(iSym)**2
       End Do
-      Call Get_cArray('Unique Basis Names',Bas2,(LENIN4)*nDim2)
+      Call Get_cArray('Unique Basis Names',Bas2,(LENIN8)*nDim2)
 *----------------------------------------------------------------------*
 *     Read MO coefficients from a formatted vector file                *
 *----------------------------------------------------------------------*

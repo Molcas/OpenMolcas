@@ -12,7 +12,7 @@
       integer nactel_j,ispin_j,nsym_j,lsym_j,nfro_j(mxsym),
      >  nish_j(mxsym),nash_j(mxsym),ndel_j(mxsym),
      >  nbas_j(mxsym)
-       character*4 name_j(2,mxorb)
+       character*(lenin8) name_j(mxorb)
       integer nconf_j
        character*2 header_j(72)
        character*72 title_j(18)

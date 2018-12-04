@@ -1,0 +1,39 @@
+% tut_molden.tex $ this file belongs to the Molcas repository $*/
+\section{Writing MOLDEN input}
+\label{TUT:sec:Molden}
+\index{Tool!MOLDEN} \index{MOLDEN}
+
+By default the \program{GUESSORB}, \program{SCF}, \program{MBPT2}, \program{RASSCF},
+\program{SLAPAF}, \program{LOCALISATION}, and \program{MCLR} modules
+generate input in Molden format. The \program{SCF}, \program{MBPT2}, \program{RASSCF},
+and \program{LOCALISATION} modules generate input for molecular orbital
+analysis, \program{SLAPAF} for geometry optimization analysis, minimum energy paths,
+Saddle optimization paths and IRC TS analysis,
+and the \program{MCLR} module generates input for
+analysis of harmonic frequencies. Molden files can be visualized by \program{GV}
+or by \program{Molden} (http://www.caos.kun.nl/\~{}schaft/molden/molden.html).
+
+The generic name of the input file and the actual
+name are different for the nodes as a reflection on the data generated
+by each module. Hence, the actual names (generic name) for the Molden files in each module are
+\begin{itemize}
+\item GUESSORB module:
+\$Project.guessorb.molden (MD\_GSS)
+\item SCF module:
+\$Project.scf.molden (MD\_SCF)
+\item MBPT2 module:
+\$Project.mp2.molden (MD\_MP2)
+\item RASSCF module:
+\$Project.rasscf.molden (MD\_CAS) for the state-averaged natural orbitals, and
+\$Project.rasscf.x.molden (MD\_CAS.x) for the state-specific natural spin orbitals,
+where x is the index of a CI root.
+\item SLAPAF module:
+\$Project.geo.molden (MD\_GEO) for geometry optimizations,
+\$Project.mep.molden (MD\_MEP) for minimum energy paths,
+\$Project.irc.molden (MD\_IRC) for IRC analysis of a TS, and
+\$Project.saddle.molden (MD\_SADDLE) for Saddle method TS optimizations.
+\item LOCALISATION module:
+\$Project.local.molden (MD\_LOC)
+\item MCLR module:
+\$Project.freq.molden (MD\_FREQ)
+\end{itemize}

@@ -1,0 +1,46 @@
+%! parallelization.tex $ this file belongs to the Molcas repository $*/
+
+\section{Parallelization efforts for \molcas\ modules}
+
+Presented below is a table of modules in \molcas\ that \emph{can} benifit from
+parallel execution through distribution of work and/or resources. If a module
+is not listed in this table, and the module-specific documentation does not
+mention anything about parallelization, then you have to assume the module is
+not (efficiently) parallelized. This means that even though it will get
+executed in parallel, all processes will perform the same serial calculation!
+Be aware that for parallel modules with serial components, the use of the
+serial components (indirectly or through the use of a keyword) might adversely
+affect CPU and memory usage for large calculations. In that case, you might
+have to increase the runtime or memory, or avoid/use keywords that
+activate/deactivate the serial components.
+
+\begin{table}[ht]
+\begin{center}
+\caption{\label{tab:mpp_effort}Modules in \molcas\ which benefit from parallel processing.}
+\begin{tabular}{lll}
+\\
+Module    &  Parallel speed-up expected for &  Notable non-parallel parts\\
+\hline
+\program{seward}  & conventional 2-el integrals & 1-el integrals \\
+                  & Cholesky vectors            & Douglas-Kroll-Hess \\
+                  &                             & properties \\
+\hline
+\program{scf}     & orbital optimization        & properties \\
+\hline
+\program{rasscf}  & orbital optimization        & CI optimization \\
+                  &                             & properties \\
+\hline
+\program{mbpt2}   &                             &                 \\
+\hline
+\program{caspt2}  & Cholesky vectors            & conventional 2-el integrals \\
+                  &                             & properties \\
+                  &                             & multi-state interaction\\
+\hline
+\program{alaska}  & displacements (if using numerical gradients)& \\
+\hline
+\program{geo}     & displacements & \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+

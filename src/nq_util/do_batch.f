@@ -24,7 +24,7 @@
      &                    P2mo,np2act,D1mo,nd1mo,P2_ontop,
      &                    Do_Grad,Grad,nGrad,dRho_dR,ndRho_dR,nGrad_Eff,
      &                    list_g,IndGrd,iTab,Temp,F_xc,dW_dR,iNQ,Maps2p,
-     &                    dF_dRho,dF_dP2ontop,DFTFOCK)
+     &                    dF_dRho,dF_dP2ontop,DFTFOCK,LOE_DB,LTEG_DB)
 ************************************************************************
 *                                                                      *
 * Object:                                                              *
@@ -82,7 +82,8 @@
       Real*8 dTot_d,ratio_d,Zeta_d
       Integer nAOs
       Real*8 P2_ontop_d(nP2_ontop,nGrad_Eff,mGrid)
-      Integer LOE_DB,LTEG_DB,ntot1
+      Integer ntot1
+      Integer LOE_DB,LTEG_DB
 *define _DEBUG_
 #ifdef _DEBUG_
       Logical Debug_Save
@@ -1763,63 +1764,63 @@ cGLM     write(6,*) 'Func in do_batch =', Func
 
              If(KSDFA(1:5).eq.'TLSDA') then
                If(do_pdftPot) then
-               CALL GETMEM('OE_OT','ALLO','REAL',LOE_DB,NTOT1)
-               CALL GETMEM('TEG_OT','ALLO','REAL',LTEG_DB,NFINT)
+!               CALL GETMEM('OE_OT','ALLO','REAL',LOE_DB,NTOT1)
+!               CALL GETMEM('TEG_OT','ALLO','REAL',LTEG_DB,NFINT)
 
-               CALL DCOPY_(NTOT1,0.0D0,0,WORK(LOE_DB),1)!NTOT1
-               CALL DCOPY_(NFINT,0.0D0,0,WORK(LTEG_DB),1)
+!               CALL DCOPY_(NTOT1,0.0D0,0,WORK(LOE_DB),1)!NTOT1
+!               CALL DCOPY_(NFINT,0.0D0,0,WORK(LTEG_DB),1)
 
-               Call Get_dArray('ONTOPO',work(LOE_DB),NTOT1)
-               Call Get_dArray('ONTOPT',work(LTEG_DB),NFINT)
+!               Call Get_dArray('ONTOPO',work(LOE_DB),NTOT1)
+!               Call Get_dArray('ONTOPT',work(LTEG_DB),NFINT)
 
-               Call Calc_OTPUVX(WORK(LTEG_DB),TabMO,mAO,mGrid,
+               Call Calc_OTPUVX(Work(LTEG_DB),TabMO,mAO,mGrid,
      &         nMOs,P2_ontop,nP2_ontop,Rho,nRho,dF_dRho,
      &         ndF_dRho,Work(ipRhoI),Work(ipRhoA),mRho,Weights,
      &         D1MO,nD1MO,nsym)
 
 !
-               Call Calc_OTOE(WORK(LOE_DB),TabMO,mAO,mGrid,
+               Call Calc_OTOE(Work(LOE_DB),TabMO,mAO,mGrid,
      &         nMOs,P2_ontop,nP2_ontop,Rho,nRho,dF_dRho,
      &         ndF_dRho,Work(ipRhoI),Work(ipRhoA),mRho,Weights,
      &         nsym)
 
-               Call Put_dArray('ONTOPO',work(LOE_DB),NTOT1)
-               Call Put_dArray('ONTOPT',work(LTEG_DB),NFINT)
+!               Call Put_dArray('ONTOPO',work(LOE_DB),NTOT1)
+!               Call Put_dArray('ONTOPT',work(LTEG_DB),NFINT)
 
-               CALL GETMEM('OE_OT','FREE','REAL',LOE_DB,NTOT1)
-               CALL GETMEM('TEG_OT','FREE','REAL',LTEG_DB,NFINT)
+!               CALL GETMEM('OE_OT','FREE','REAL',LOE_DB,NTOT1)
+!               CALL GETMEM('TEG_OT','FREE','REAL',LTEG_DB,NFINT)
                end if
              else If(KSDFA(1:6).eq.'FTLSDA') then
                If(do_pdftPot) then
 
-               CALL GETMEM('OE_OT','ALLO','REAL',LOE_DB,NTOT1)
-               CALL GETMEM('TEG_OT','ALLO','REAL',LTEG_DB,NFINT)
+!               CALL GETMEM('OE_OT','ALLO','REAL',LOE_DB,NTOT1)
+!               CALL GETMEM('TEG_OT','ALLO','REAL',LTEG_DB,NFINT)
 
-               CALL DCOPY_(NTOT1,0.0D0,0,WORK(LOE_DB),1)!NTOT1
-               CALL DCOPY_(NFINT,0.0D0,0,WORK(LTEG_DB),1)
+!               CALL DCOPY_(NTOT1,0.0D0,0,WORK(LOE_DB),1)!NTOT1
+!               CALL DCOPY_(NFINT,0.0D0,0,WORK(LTEG_DB),1)
 
-               Call Get_dArray('ONTOPO',work(LOE_DB),NTOT1)
-               Call Get_dArray('ONTOPT',work(LTEG_DB),NFINT)
+!               Call Get_dArray('ONTOPO',work(LOE_DB),NTOT1)
+!               Call Get_dArray('ONTOPT',work(LTEG_DB),NFINT)
 
 
-               Call Calc_OTPUVX_ftlsda2(WORK(LTEG_DB),TabMO,mAO,mGrid,
+               Call Calc_OTPUVX_ftlsda2(Work(LTEG_DB),TabMO,mAO,mGrid,
      &         nMOs,P2_ontop,nP2_ontop,Rho,nRho,dF_dRho,
      &         ndF_dRho,Work(ipRhoI),Work(ipRhoA),mRho,Weights,
      &         D1MO,nD1MO,nsym)
 
-               tmpor = Work(loe_db)
+!               tmpor = Work(loe_db)
 !
-               Call Calc_OTOEf(WORK(LOE_DB),TabMO,mAO,mGrid,
+               Call Calc_OTOEf(Work(LOE_DB),TabMO,mAO,mGrid,
      &         nMOs,P2_ontop,nP2_ontop,Rho,nRho,dF_dRho,
      &         ndF_dRho,Work(ipRhoI),Work(ipRhoA),mRho,Weights,
      &         nsym)
 
-               Call Put_dArray('ONTOPO',work(LOE_DB),NTOT1)
-               Call Put_dArray('ONTOPT',work(LTEG_DB),NFINT)
+!               Call Put_dArray('ONTOPO',work(LOE_DB),NTOT1)
+!               Call Put_dArray('ONTOPT',work(LTEG_DB),NFINT)
 
                Call xflush(6)
-               CALL GETMEM('OE_OT','FREE','REAL',LOE_DB,NTOT1)
-               CALL GETMEM('TEG_OT','FREE','REAL',LTEG_DB,NFINT)
+!               CALL GETMEM('OE_OT','FREE','REAL',LOE_DB,NTOT1)
+!               CALL GETMEM('TEG_OT','FREE','REAL',LTEG_DB,NFINT)
                end if
              end if
 
@@ -1872,59 +1873,59 @@ cGLM     write(6,*) 'Func in do_batch =', Func
      &               KSDFA(1:7).eq.'TREVPBE') then
 
                If(do_pdftPot) then
-               CALL GETMEM('OE_OT','ALLO','REAL',LOE_DB,NTOT1)
-               CALL GETMEM('TEG_OT','ALLO','REAL',LTEG_DB,NFINT)
+!               CALL GETMEM('OE_OT','ALLO','REAL',LOE_DB,NTOT1)
+!               CALL GETMEM('TEG_OT','ALLO','REAL',LTEG_DB,NFINT)
 
-               CALL DCOPY_(NTOT1,0.0D0,0,WORK(LOE_DB),1)!NTOT1
-               CALL DCOPY_(NFINT,0.0D0,0,WORK(LTEG_DB),1)
+!               CALL DCOPY_(NTOT1,0.0D0,0,WORK(LOE_DB),1)!NTOT1
+!               CALL DCOPY_(NFINT,0.0D0,0,WORK(LTEG_DB),1)
 
-               Call Get_dArray('ONTOPO',work(LOE_DB),NTOT1)
-               Call Get_dArray('ONTOPT',work(LTEG_DB),NFINT)
+!               Call Get_dArray('ONTOPO',work(LOE_DB),NTOT1)
+!               Call Get_dArray('ONTOPT',work(LTEG_DB),NFINT)
 
-               Call Calc_OTPUVXGGA(WORK(LTEG_DB),TabMO,mAO,mGrid,
+               Call Calc_OTPUVXGGA(Work(LTEG_DB),TabMO,mAO,mGrid,
      &         nMOs,P2_ontop,nP2_ontop,Rho,nRho,dF_dRho,
      &         ndF_dRho,Work(ipRhoI),Work(ipRhoA),mRho,Weights,
      &         D1MO,nD1MO,nsym)
 
-               Call Calc_OTOEGGA(WORK(LOE_DB),TabMO,mAO,mGrid,
+               Call Calc_OTOEGGA(Work(LOE_DB),TabMO,mAO,mGrid,
      &         nMOs,P2_ontop,nP2_ontop,Rho,nRho,dF_dRho,
      &         ndF_dRho,Work(ipRhoI),Work(ipRhoA),mRho,Weights,
      &         nsym)
 
-               Call Put_dArray('ONTOPO',work(LOE_DB),NTOT1)
-               Call Put_dArray('ONTOPT',work(LTEG_DB),NFINT)
+!               Call Put_dArray('ONTOPO',work(LOE_DB),NTOT1)
+!               Call Put_dArray('ONTOPT',work(LTEG_DB),NFINT)
 
-               CALL GETMEM('OE_OT','FREE','REAL',LOE_DB,NTOT1)
-               CALL GETMEM('TEG_OT','FREE','REAL',LTEG_DB,NFINT)
+!               CALL GETMEM('OE_OT','FREE','REAL',LOE_DB,NTOT1)
+!               CALL GETMEM('TEG_OT','FREE','REAL',LTEG_DB,NFINT)
               end if
              Else If(KSDFA(1:5).eq.'FTPBE'.or.
      &               KSDFA(1:6).eq.'FTBLYP'.or.
      &               KSDFA(1:8).eq.'FTREVPBE') then
                If(do_pdftPot) then
-               CALL GETMEM('OE_OT','ALLO','REAL',LOE_DB,NTOT1)
-               CALL GETMEM('TEG_OT','ALLO','REAL',LTEG_DB,NFINT)
+!               CALL GETMEM('OE_OT','ALLO','REAL',LOE_DB,NTOT1)
+!               CALL GETMEM('TEG_OT','ALLO','REAL',LTEG_DB,NFINT)
 
-               CALL DCOPY_(NTOT1,0.0D0,0,WORK(LOE_DB),1)!NTOT1
-               CALL DCOPY_(NFINT,0.0D0,0,WORK(LTEG_DB),1)
+!               CALL DCOPY_(NTOT1,0.0D0,0,WORK(LOE_DB),1)!NTOT1
+!               CALL DCOPY_(NFINT,0.0D0,0,WORK(LTEG_DB),1)
 
-               Call Get_dArray('ONTOPO',work(LOE_DB),NTOT1)
-               Call Get_dArray('ONTOPT',work(LTEG_DB),NFINT)
+!               Call Get_dArray('ONTOPO',work(LOE_DB),NTOT1)
+!               Call Get_dArray('ONTOPT',work(LTEG_DB),NFINT)
 
-               Call Calc_OTPUVXGGA_ft(WORK(LTEG_DB),TabMO,mAO,mGrid,
+               Call Calc_OTPUVXGGA_ft(Work(LTEG_DB),TabMO,mAO,mGrid,
      &         nMOs,P2_ontop,nP2_ontop,Rho,nRho,dF_dRho,
      &         ndF_dRho,Work(ipRhoI),Work(ipRhoA),mRho,Weights,
      &         D1MO,nD1MO,nsym)
 
-               Call Calc_OTOEGGA_ft(WORK(LOE_DB),TabMO,mAO,mGrid,
+               Call Calc_OTOEGGA_ft(Work(LOE_DB),TabMO,mAO,mGrid,
      &         nMOs,P2_ontop,nP2_ontop,Rho,nRho,dF_dRho,
      &         ndF_dRho,Work(ipRhoI),Work(ipRhoA),mRho,Weights,
      &         nsym)
 
-               Call Put_dArray('ONTOPO',work(LOE_DB),NTOT1)
-               Call Put_dArray('ONTOPT',work(LTEG_DB),NFINT)
+!               Call Put_dArray('ONTOPO',work(LOE_DB),NTOT1)
+!               Call Put_dArray('ONTOPT',work(LTEG_DB),NFINT)
 
-               CALL GETMEM('OE_OT','FREE','REAL',LOE_DB,NTOT1)
-               CALL GETMEM('TEG_OT','FREE','REAL',LTEG_DB,NFINT)
+!               CALL GETMEM('OE_OT','FREE','REAL',LOE_DB,NTOT1)
+!               CALL GETMEM('TEG_OT','FREE','REAL',LTEG_DB,NFINT)
               end if
              end if
 !FIND NTOT1,NFINT equivalents

@@ -10,15 +10,16 @@
 " LICENSE or in <http://www.gnu.org/licenses/>.                        *
 "                                                                      *
 " Copyright (C) 2013, Steven Vancoillie                                *
-"               2017, Ignacio Fdez. Galván                             *
+"               2017,2018, Ignacio Fdez. Galván                        *
 "***********************************************************************
 " Language:	Molcas input (*.input)
-" Version:	8.1
-" Last Change:	2017 January 11
+" Version:	8.2
+" Last Change:	2018 November 1
 " Maintainer:	Ignacio Fdez. Galván <Ignacio.Fernandez@kemi.uu.se>
 "
 " shell variables, these are substituted by emil
 syn match molcasVariable "\$\w\+"
+syn match molcasVariable "\${\w\+}"
 " emil commands, starts with 1 or more '>'
 syn match molcasEmil "^[ \t]*>\+[ \t]*\w\+"
 " module, word starting with '&'

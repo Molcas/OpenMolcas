@@ -622,7 +622,7 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
       Rewind(LU)
  55   READ(LU,'(A80)',END=888,ERR=888) Line
       If(Line(1:22).ne.'* ACTIVE TWO-EL ENERGY') goto 55
-      READ(LU,'(E18.12)',err=888,end=888) E2act
+      READ(LU,'(E18.11)',err=888,end=888) E2act
 
       Close(LU)
       Return

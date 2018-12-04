@@ -151,7 +151,8 @@
      &      Call CmpInt(Array(ip(iComp)),nInt,nBas,nIrrep,iSmLbl)
             Nuc(ipNuc+(iComp-1)) = Array(ip(iComp)+nInt+3)
             If (nInt.ne.0)
-     &      Call XProp(Short,nIrrep,nBas,nVec,Vec,nOcc,Occ,
+     &      Call XProp(Short,ifallorb,
+     &                 nIrrep,nBas,nVec,Vec,nOcc,Occ,
      &                 Thrs,nDen,Array(ip(iComp)),
      &                 Out(ipOut+(iComp-1)*mDim))
 *
@@ -198,7 +199,7 @@ c               Close(28)
                End If
                Call Prop(Short,Label,Ccoor(1,1),Ccoor(1,ipC2),
      &                   nIrrep,nBas,mDim,Occ,Thrs,
-     &                   Out,Nuc,lpole,plabs,TMat,Temp)
+     &                   Out,Nuc,lpole,plabs,TMat,Temp,ifallorb)
 *
 * For a properties calculation, save the values of EF or CNT operators,
 * they will be used to write the sum through Add_Info in Drv1El

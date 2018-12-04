@@ -37,7 +37,7 @@
 *     Character*8 OVRPROP
       Dimension IPAMFI(3),IPAM(3),IZMR(3),IZMI(3)
       Dimension DTENS(3,3),GTENS(3,3),GSTENS(3,3),SOSTERM(9)
-      Dimension TMPMAT(3,3),TMPVEC(3,3),EVR(3),EVI(3),SCR1(3),SCR2(3)
+      Dimension TMPMAT(3,3),TMPVEC(3,3),EVR(3),EVI(3)
       COMPLEX*16 ZEKL(2,2,3,NSTATE),GCONT(9,NSTATE)
       COMPLEX*16 DIPSOm(3,NSS,NSS),Z(NSS,NSS),DIPSOn(3,NSS,NSS)
       COMPLEX*16 SPNSFS(3,NSS,NSS)
@@ -62,9 +62,9 @@
 *     Dimension NMRFT(NTF,3,3),NMRFP(NTF,3,3),NMRFC(NTF,3,3)
 *     Dimension NMRFD(NTF,3,3)
       REAL*8 DLTTA,DLTT,Zstat,p_Boltz,Boltz_k,coeff_chi
-      LOGICAL ISGS(NSS),IFANGM,IFDIP1,IFAMFI
+      LOGICAL ISGS(NSS),IFANGM,IFDIP1,IFAMFI, Sparse_I,Sparse_J
       Dimension IMR(3),IMI(3),RMAGM(3),Chi(3)
-      INTEGER IFUNCT
+      INTEGER IFUNCT, SECORD(4)
       REAL*8 J2CM
       Real*8 P1(3), P2(3), kxe1(3), kxe2(3)
       INTEGER IOFF(8)
@@ -457,8 +457,20 @@ C printing threshold
 !     At the moment memory is not reduced
 !
       IF(REDUCELOOP) THEN
-        IEND = LOOPDIVIDE
-        JSTART = LOOPDIVIDE+1
+        EX=ENSOR(1)
+        L=1
+        LD=1
+        DO ISO = 2, NSS
+           If (ABS(ENSOR(ISO)-EX).gt.1.0D-8) Then
+              LD = LD + 1
+              EX = ENSOR(ISO)
+           Else
+              L = L + 1
+           End If
+           If (LD.gt.LOOPDIVIDE) Exit
+        End Do
+        IEND = L
+        JSTART = L+1
       ELSE
         IEND = NSS
         JSTART = 1
@@ -828,6 +840,9 @@ C printing threshold
 !
         CALL GETMEM('TOT2K','ALLO','REAL',LTOT2K,NSS**2)
         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LTOT2K),1)
+!
+! Checking if all are in
+        SECORD = 0
 
 * Magnetic-Dipole - Magnetic-Dipole transitions and
 * Spin-Magnetic-Dipole - Spin-Magnetic-Dipole transitions
@@ -1014,6 +1029,7 @@ C printing threshold
           WRITE(6,*)
          END IF
         END IF
+        SECORD(1) = 1
         END IF
 
 *Electric-Quadrupole Electric-Quadrupole transitions
@@ -1169,6 +1185,7 @@ C printing threshold
      &                 'Quadrupole transition strengths (SO states):')
          WRITE(6,*)
         END IF
+        SECORD(2) = 1
         END IF
 
 *Electric-Dipole Electric-Octupole transitions
@@ -1473,6 +1490,7 @@ C printing threshold
      &                     'transition strengths (SO states):')
          WRITE(6,*)
         END IF
+        SECORD(3) = 1
         END IF
 
 *Electric-Dipole - Magnetic-Quadrupole transitions and
@@ -1884,13 +1902,28 @@ C printing threshold
          WRITE(6,*)
          END IF
         END IF
-
+        SECORD(4) = 1
         END IF
 !
 ! Now write out the total
 !
 ! Add it to the total
 !
+      I2TOT = 0
+      DO I = 1, 4
+        IF(SECORD(I).EQ.1) THEN
+          I2TOT = I2TOT + 1
+        END IF
+      END DO
+       IF(I2TOT.GE.1) THEN
+         IF(SECORD(1).EQ.0)
+     &   WRITE(6,*) 'Magnetic-dipole - Magnetic-dipole not included'
+         IF(SECORD(2).EQ.0)
+     &   WRITE(6,*) 'Electric-Quadrupole - Electric-Quadrupole not in'
+         IF(SECORD(3).EQ.0)
+     &   WRITE(6,*) 'Electric-Dipole - Electric-Octupole not included'
+         IF(SECORD(4).EQ.0)
+     &   WRITE(6,*) 'Electric-Dipole - Magnetic-Quadrupole not included'
          i_Print=0
          DO ISS=1,IEND
           DO JSS=JSTART,NSS
@@ -1930,6 +1963,7 @@ C printing threshold
      &                  'vector (SO states):')
            WRITE(6,*)
          END IF
+       END IF
 ! release the memory again
          CALL GETMEM('TOT2K','FREE','REAL',LTOT2K,NSS**2)
 
@@ -2101,8 +2135,32 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       G_Elec=CONST_ELECTRON_G_FACTOR_
       iPrint=0
       IJSO=0
+*
+      Sparse_Limit=0.25D0
+      ThrSparse=1.0D-6
       DO ISO=1, IEND
+*
+*        Check the sparseness of the coefficient array
+*
+         mSS=0
+         Do i = 1, nSS
+            temp = USOR(i,ISO)**2 + USOI(i,ISO)**2
+            If (temp.gt.ThrSparse) mSS=mSS+1
+         End Do
+*
+         Sparse_I = DBLE(MSS)/DBLE(NSS) .le. Sparse_Limit
+*
          DO JSO=JSTART, NSS
+*
+*           Check the sparseness of the coefficient array
+*
+            mSS=0
+            Do i = 1, nSS
+               temp = USOR(i,JSO)**2 + USOI(i,JSO)**2
+               If (temp.gt.ThrSparse) mSS=mSS+1
+            End Do
+*
+            Sparse_J = DBLE(MSS)/DBLE(NSS) .le. Sparse_Limit
 *
             EDIFF=ENSOR(JSO)-ENSOR(ISO)
             IF (ABS(EDIFF).LE.1.0D-8) CYCLE
@@ -2206,11 +2264,41 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *                                                                      *
 ************************************************************************
 *
-*              DO IPROP = IPREMFR_RS-6, IPREMFR_RS+11
-*                 Call FZero(PROP(1,1,IPROP),NSTATE**2)
-*              End Do
+               DO IPROP = IPREMFR_RS-6, IPREMFR_RS+11
+                  Call FZero(PROP(1,1,IPROP),NSTATE**2)
+               End Do
+               ISS = 0
                DO I=1, NSTATE
+*
+*                 Does this spin-free state contribute to any of the
+*                 two spin states? Check the corresponding coefficients.
+*
+                  JOB1=iWork(lJBNUM+I-1)
+                  MPLET1 = MLTPLT(JOB1)
+*
+                  temp=0.0D0
+                  Do MS1 = 1, MPLET1
+                     ISS = ISS + 1
+                     temp=Max(temp,USOR(ISS,ISO)**2 + USOI(ISS,ISO)**2)
+                     temp=Max(temp,USOR(ISS,JSO)**2 + USOI(ISS,JSO)**2)
+                  End Do
+                  If (temp.le.ThrSparse)  Cycle
+*
+                  JSS=0
                   DO J=1, I
+*
+                     JOB2=iWork(lJBNUM+J-1)
+                     MPLET2 = MLTPLT(JOB2)
+*
+                     temp=0.0D0
+                     Do MS2 = 1, MPLET2
+                        JSS = JSS + 1
+                        temp=
+     &                     Max(temp,USOR(JSS,ISO)**2 + USOI(JSS,ISO)**2)
+                        temp=
+     &                     Max(temp,USOR(JSS,JSO)**2 + USOI(JSS,JSO)**2)
+                     End Do
+                     If (temp.le.ThrSparse)  Cycle
 *
 *                    COMBINED SYMMETRY OF STATES:
                      JOB1=JBNUM(I)
@@ -2239,9 +2327,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *                    Pick up the transition density between the two
 *                    states from disc. Generated in PROPER.
 *
-                     ISTATE=MAX(i,j)
-                     JSTATE=MIN(i,j)
-                     ij=ISTATE*(ISTATE-1)/2+JSTATE
+                     ij=I*(I-1)/2+J
                      iDisk=iWork(liTocM+ij-1)
                      Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
 *
@@ -2267,28 +2353,30 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
 *              The contribution to the generalized momentum operator.
 *
-               IJ=(JSO-1)*NSS + ISO - 1
+C              IJ=(JSO-1)*NSS + ISO - 1
                Do iCar = 1, 3
                   CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXR),1)
                   CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXI),1)
                   CALL DCOPY_(NSS**2,0.0D0,0,WORK(LTMP),1)
 *                 the real symmetric part
-                  CALL SMMAT(PROP,WORK(LDXR),NSS,'TMOS  RS',iCar)
+                  CALL SMMAT_CHECK(PROP,WORK(LDXR),NSS,'TMOS  RS',iCar,
+     &                             USOR,USOI,ISO,JSO,ThrSparse)
 *                 the real anti-symmetric part
-                  CALL SMMAT(PROP,WORK(LTMP),NSS,'TMOS  RA',iCar)
+                  CALL SMMAT_CHECK(PROP,WORK(LTMP),NSS,'TMOS  RA',iCar,
+     &                             USOR,USOI,ISO,JSO,ThrSparse)
                   CALL DAXPY_(NSS**2,1.0D0,WORK(LTMP),1,WORK(LDXR),1)
                   CALL DCOPY_(NSS**2,0.0D0,0,WORK(LTMP),1)
 *                 the imaginary symmetric part
-                  CALL SMMAT(PROP,WORK(LDXI),NSS,'TMOS  IS',iCar)
+                  CALL SMMAT_CHECK(PROP,WORK(LDXI),NSS,'TMOS  IS',iCar,
+     &                             USOR,USOI,ISO,JSO,ThrSparse)
 *                 the imaginary anti-symmetric part
-                  CALL SMMAT(PROP,WORK(LTMP),NSS,'TMOS  IA',iCar)
+                  CALL SMMAT_CHECK(PROP,WORK(LTMP),NSS,'TMOS  IA',iCar,
+     &                             USOR,USOI,ISO,JSO,ThrSparse)
                   CALL DAXPY_(NSS**2,1.0D0,WORK(LTMP),1,WORK(LDXI),1)
 *                 Transform properties to the spin-orbit basis
-                  CALL ZTRNSF(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI))
-*                 CALL PRCMAT(NSS,WORK(LDXR),WORK(LDXI))
-*                 Pick up the property of the (I,J) element
-*
-                  T0(iCar)=DCMPLX(WORK(LDXR+IJ),WORK(LDXI+IJ))
+*                 and pick up correct element
+                  CALL ZTRNSF_IJ(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI),
+     &                           WORK(LTMP),T0(iCar),ISO,JSO)
                End Do
 *
                E1A = P1(1)*T0(1) + P1(2)*T0(2) + P1(3)*T0(3)
@@ -2296,17 +2384,18 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
 *              (2) the magnetic-spin part
 *
-               IJ=(JSO-1)*NSS + ISO - 1
+C              IJ=(JSO-1)*NSS + ISO - 1
                Do iCar = 1, 3
                   CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXR),1)
                   CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXI),1)
 *                 pick up the real component
-                  CALL SMMAT(PROP,WORK(LDXR),NSS,'TMOS0  R',iCar)
+                  CALL SMMAT_CHECK(PROP,WORK(LDXR),NSS,'TMOS0  R',iCar,
+     &                             USOR,USOI,ISO,JSO,ThrSparse)
 *                 pick up the imaginary component
-                  CALL SMMAT(PROP,WORK(LDXI),NSS,'TMOS0  I',iCar)
-                  CALL ZTRNSF(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI))
-*                 CALL PRCMAT(NSS,WORK(LDXR),WORK(LDXI))
-                  T1(iCar)=DCMPLX(WORK(LDXR+IJ),WORK(LDXI+IJ))
+                  CALL SMMAT_CHECK(PROP,WORK(LDXI),NSS,'TMOS0  I',iCar,
+     &                             USOR,USOI,ISO,JSO,ThrSparse)
+                  CALL ZTRNSF_IJ(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI),
+     &                           WORK(LTMP),T1(iCar),ISO,JSO)
                End Do
 *
                E1B=kxe1(1)*T1(1)+kxe1(2)*T1(2)+kxe1(3)*T1(3)
@@ -2599,8 +2688,6 @@ C    &                 PROP(JSTATE,ISTATE,IPAMFI(JXYZ))
       DO I=1,3
       EVR(I)=0.0D0
       EVI(I)=0.0D0
-      SCR1(I)=0.0D0
-      SCR2(I)=0.0D0
       END DO
       DO IXYZ=1,3
        DO JXYZ=1,3
@@ -2612,7 +2699,7 @@ C    &                 PROP(JSTATE,ISTATE,IPAMFI(JXYZ))
         END IF
        END DO
       END DO
-      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,SCR1,SCR2,IERR)
+      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
 
 * D-factor printout
 * D = D_zz - 1/2 * (D_xx + D_yy)
@@ -2800,8 +2887,6 @@ C determine the eigenvalues of the g matrix
       DO I=1,3
       EVR(I)=0.0D0
       EVI(I)=0.0D0
-      SCR1(I)=0.0D0
-      SCR2(I)=0.0D0
       END DO
 C XEIGEN alters the input matrix! copy GTENS to TMPMAT
       DO IXYZ=1,3
@@ -2816,7 +2901,7 @@ C XEIGEN alters the input matrix! copy GTENS to TMPMAT
       ENDDO
 
       IERR=0
-      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,SCR1,SCR2,IERR)
+      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
       IF (IERR.NE.0) THEN
           WRITE(6,*) 'Error: xEigen returned IERR = ', IERR
           RETURN
@@ -2842,8 +2927,6 @@ C determine the eigenvalues of the G = gg* matrix
       DO I=1,3
       EVR(I)=0.0D0
       EVI(I)=0.0D0
-      SCR1(I)=0.0D0
-      SCR2(I)=0.0D0
       ENDDO
       DO IXYZ=1,3
        DO JXYZ=1,3
@@ -2857,7 +2940,7 @@ C determine the eigenvalues of the G = gg* matrix
       ENDDO
 
       IERR=0
-      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,SCR1,SCR2,IERR)
+      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
       IF (IERR.NE.0) THEN
           WRITE(6,*) 'Error: xEigen returned IERR = ', IERR
           RETURN
@@ -3471,8 +3554,6 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
       DO I=1,3
       EVR(I)=0.0D0
       EVI(I)=0.0D0
-      SCR1(I)=0.0D0
-      SCR2(I)=0.0D0
       END DO
       DO IXYZ=1,3
        DO JXYZ=1,3
@@ -3485,7 +3566,7 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
        END DO
       ENDDO
 
-      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,SCR1,SCR2,IERR)
+      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
 
 C construct g_s matrix from G by back-transormation of the
 C square root of the G eigenvalues
@@ -4460,8 +4541,6 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
       DO I=1,3
       EVR(I)=0.0D0
       EVI(I)=0.0D0
-      SCR1(I)=0.0D0
-      SCR2(I)=0.0D0
       END DO
       DO IXYZ=1,3
        DO JXYZ=1,3
@@ -4474,7 +4553,7 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
        END DO
       ENDDO
 
-      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,SCR1,SCR2,IERR)
+      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
 
 C construct g_s matrix from G by back-transormation of the
 C square root of the G eigenvalues
@@ -4988,8 +5067,6 @@ c
       DO I=1,3
       EVR(I)=0.0D0
       EVI(I)=0.0D0
-      SCR1(I)=0.0D0
-      SCR2(I)=0.0D0
       END DO
       DO IXYZ=1,3
        DO JXYZ=1,3
@@ -5002,7 +5079,7 @@ c
        END DO
       ENDDO
 
-      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,SCR1,SCR2,IERR)
+      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
 
       DO IXYZ=1,3
        DO JXYZ=1,3
@@ -5460,8 +5537,6 @@ c
       DO I=1,3
       EVR(I)=0.0D0
       EVI(I)=0.0D0
-      SCR1(I)=0.0D0
-      SCR2(I)=0.0D0
       END DO
       DO IXYZ=1,3
        DO JXYZ=1,3
@@ -5474,7 +5549,7 @@ c
        END DO
       ENDDO
 
-      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,SCR1,SCR2,IERR)
+      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
 
       DO IXYZ=1,3
        DO JXYZ=1,3
@@ -5948,8 +6023,6 @@ C     &                 ZEKL(:,:,IXYZ,ISTATE)
       DO I=1,3
       EVR(I)=0.0D0
       EVI(I)=0.0D0
-      SCR1(I)=0.0D0
-      SCR2(I)=0.0D0
       END DO
       DO IXYZ=1,3
        DO JXYZ=1,3
@@ -5961,7 +6034,7 @@ C     &                 ZEKL(:,:,IXYZ,ISTATE)
        END IF
        END DO
       ENDDO
-      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,SCR1,SCR2,IERR)
+      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
 
 C construct g_s matrix from G by back-transormation of the
 C square root of the G eigenvalues
@@ -6365,8 +6438,6 @@ c
       DO I=1,3
       EVR(I)=0.0D0
       EVI(I)=0.0D0
-      SCR1(I)=0.0D0
-      SCR2(I)=0.0D0
       END DO
       DO IXYZ=1,3
        DO JXYZ=1,3
@@ -6379,7 +6450,7 @@ c
        END DO
       ENDDO
 
-      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,SCR1,SCR2,IERR)
+      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
 
 C construct g_s matrix from G by back-transormation of the
 C square root of the G eigenvalues

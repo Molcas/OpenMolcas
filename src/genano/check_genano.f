@@ -37,7 +37,7 @@
 *           Write(*,*) Name(1,ind),Name(2,ind)
             Do 111 l=0,MxLqn
                If(Name(ind)(1:LENIN).eq.Center) Then
-                  If(Name(ind)(LENIN1:LENIN4).eq.type(l*(l+1)+1)) Then
+                  If(Name(ind)(LENIN1:LENIN8).eq.type(l*(l+1)+1)) Then
                      icnt(l)=icnt(l)+1
                   End If
                End If

@@ -25,7 +25,7 @@ c nOrb2Loc: Number of orbital to localise
 c
 c Atom    : name of atom
 c Type    : type of basis function
-c Name    : Atom = Name(1:LENIN); Type = Name(LENIN1:LENIN4)
+c Name    : Atom = Name(1:LENIN); Type = Name(LENIN1:LENIN8)
 c
 c LC_FileOrb: orbital file for Seward to read
 c
@@ -39,9 +39,9 @@ c
       Integer nLocModel,LocModel
       Real*8 Thrs, ThrRot, ThrGrad
       Real*8 ThrDomain(2), ThrPairDomain(3)
-      Character*(LENIN4) Name(MxBas)
+      Character*(LENIN8) Name(MxBas)
       Character*(LENIN) Atom(MxBas)
-      Character*4 Type(MxBas)
+      Character*8 Type(MxBas)
       Character*3 AnaNrm
       Character*(LENIN) NamAct(mxAtom)
       Integer nActa

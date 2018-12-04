@@ -23,7 +23,7 @@
 * Called by READIN_CASPT2                                                   *
 * Author: B. O. Roos in July 2007 for MOLCAS-7                              *
 *     Calling parameters:                                                   *
-*     NSYM   : Number of symmtetries                                        *
+*     NSYM   : Number of symmetries                                         *
 *     NFRO   : Number of frozen orbitals (modified by the program)          *
 *     NISH   : Number of inactive orbitals                                  *
 *     Name   : Center and function type label per basis function            *

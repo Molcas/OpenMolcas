@@ -217,7 +217,6 @@ c        Write(6,*) ' oneel *',Label,'*'
 #include "real.fh"
 #include "rmat_option.fh"
 #include "stdalloc.fh"
-#include "angtp.fh"
 #include "lundio.fh"
 #include "print.fh"
 #include "nsd.fh"
