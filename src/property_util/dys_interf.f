@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Dys_Interf(SO,i_root,NZ,CMO,ENE,OCC)
+      Subroutine Dys_Interf(SO,i_root,i_file,NZ,CMO,ENE,OCC)
 ************************************************************************
 !     +++ J. Creutzberg, J. Norell - 2018
 !     Subroutine to generate .DysOrb and .molden files for Dyson orbitals
@@ -27,21 +27,26 @@
       Character*30 Filename
       Character*30 orbfile
       Character*80 Note
-      Logical SO
+      INTEGER SO ! 0=SF, 1=SO-Real, 2=SO-Imaginary
 
       Dimension ENE(*)
       Dimension CMO(*)
       Dimension OCC(*)
+
 *                                                                      *
 
 ************************************************************************
 *                                                                      *
 *     Make the .DysOrb file (for use with Molden_interface)
 *
-      IF (SO) THEN
-       Write(orbfile,'(A10,I1)') 'DYSORB.SO.',i_root
-      ELSE
-       Write(orbfile,'(A10,I1)') 'DYSORB.SF.',i_root
+      IF (SO.EQ.0) THEN
+       Write(orbfile,'(A10,I0,A1,I0)') 'DYSORB.SF.',i_root,".",i_file
+      ELSE IF (SO.EQ.1) THEN
+       Write(orbfile,'(A10,I0,A1,I0,A3)') 'DYSORB.SO.',i_root,
+     &  ".",i_file,".Re"
+      ELSE IF (SO.EQ.2) THEN
+       Write(orbfile,'(A10,I0,A1,I0,A3)') 'DYSORB.SO.',i_root,
+     &  ".",i_file,".Im"
       ENDIF
       Note='Temporary orbital file for the MOLDEN interface.'
       LuTmp=50
@@ -58,10 +63,16 @@
 *                                                                      *
 *     Call the generic MOLDEN interface
 
-      IF (SO) THEN
-       Write(filename,'(A17,I1)') 'DysOrb.SO.molden.',i_root
+      IF (SO.EQ.0) THEN
+       Write(filename,'(A17,I0,A1,I0)') 'DysOrb.SF.molden.',i_root,
+     &  ".",i_file
+      ELSE IF (SO.EQ.1) THEN
+       Write(filename,'(A17,I0,A1,I0,A3)') 'DysOrb.SO.molden.',i_root,
+     &  ".",i_file,".Re"
+      ELSE IF (SO.EQ.2) THEN
+       Write(filename,'(A17,I0,A1,I0,A3)') 'DysOrb.SO.molden.',i_root,
+     &  ".",i_file,".Im"
       ELSE
-       Write(filename,'(A17,I1)') 'DysOrb.SF.molden.',i_root
       ENDIF
       Call Molden_Interface(0,orbfile,filename,.False.)
 *

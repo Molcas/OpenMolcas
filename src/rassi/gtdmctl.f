@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,HAM,IDDET1)
+      SUBROUTINE GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,SFDYS,NZ,
+     &     HAM,IDDET1)
 
       !> module dependencies
 #ifdef _DMRG_
@@ -42,6 +43,7 @@
       DIMENSION NASHES(8)
       DIMENSION OVLP(NSTATE,NSTATE),HAM(NSTATE,NSTATE)
       DIMENSION DYSAMPS(NSTATE,NSTATE)
+      DIMENSION SFDYS(NZ,NSTATE,NSTATE)
       DIMENSION IDDET1(NSTATE)
       LOGICAL IF00, IF10,IF01,IF20,IF11,IF02,IF21,IF12,IF22
       LOGICAL IFTWO,TRORB
@@ -761,9 +763,12 @@ C In full biorthonormal basis:
 C In AO basis:
          CALL MKDYSZZ(WORK(LCMO1),WORK(LDYSAB),
      &               WORK(LDYSZZ))
-C Save to disk:
-        IDISK=IWORK(LIDDYS+(ISTATE-1)*NSTATE+JSTATE-1)
-        CALL DDAFILE(LUDYS,1,WORK(LDYSZZ),NDYSZZ,IDISK)
+        IF (DYSO) THEN
+         DO NDUM=1,NDYSZZ
+          SFDYS(NDUM,JSTATE,ISTATE)=WORK(LDYSZZ+NDUM-1)
+          SFDYS(NDUM,ISTATE,JSTATE)=WORK(LDYSZZ+NDUM-1)
+         END DO
+        END IF
         DO NDUM=1,NDYSZZ
          WORK(LDYSZZ+NDUM-1)=0.0D0
         END DO

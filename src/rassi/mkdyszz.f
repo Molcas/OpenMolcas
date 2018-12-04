@@ -48,32 +48,6 @@ C *** of the annihilated electron is not accountd for.
         ISTTZ=ISTTZ+NB1
 20    CONTINUE
 
-C *** Helpful debugging printouts
-
-!      WRITE(*,*)
-!      WRITE(*,*)'--- MKDYSZZ ---'
-!      WRITE(*,*)'NCMO:',NCMO
-!      WRITE(*,*)'DYSAB:'
-!      DO I=1,NO1
-!       WRITE(*,*),DYSAB(I)
-!       WRITE(*,'(F6.2)', advance="no"),DYSAB(I)
-!      END DO
-!      WRITE(*,*)
-!      WRITE(*,*)'CMOA:'
-!      DO I=1,NO1
-!       DO J=1,NB1
-!        IST=NB1*(I-1)+J
-!        WRITE(*,'(F10.2)', advance="no"),CMOA(IST)
-!       END DO
-!       WRITE(*,*)
-!      END DO
-!      WRITE(*,*)
-!      WRITE(*,*)'DYSZZ:'
-!      DO I=1,NB1
-!       WRITE(*,*),DYSZZ(I)
-!       WRITE(*,'(F6.2)', advance="no"),DYSZZ(I)
-!      END DO
-
       RETURN
       END
 

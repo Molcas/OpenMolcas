@@ -41,14 +41,5 @@ C Pick out nr of active orbitals from orbital table:
      &               IFSBTAB1,IFSBTAB2,DET1,DET2,WORK(LSPD1),
      &               IF10,IF01,DYSAMP,DYSCOF)
 
-!      WRITE(*,*)
-!      WRITE(*,*)
-!      WRITE(*,*)'--- DYSON ---'
-!      WRITE(*,*)'DYSCOFS:'
-!      DO ISORB=1,NASORB
-!       WRITE(*,'(F6.2)',advance="no")DYSCOF(ISORB)
-!      END DO
-
-
       RETURN
       END

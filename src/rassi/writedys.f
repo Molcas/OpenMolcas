@@ -37,8 +37,7 @@
       DIMENSION AMPS(NZ)
       DIMENSION CMO(NZ*NZ)
 
-C Read in all the previously saved SF Dyson orbitals in the
-C atomic basis from disk
+!+++  J. Creutzberg, J. Norell  - 2018 (.DysOrb and .molden export )
 
 ! In principle we should here take into account the diagonalization
 ! matrix from RASSCF. This will only rarely be needed for regular
@@ -46,30 +45,16 @@ C atomic basis from disk
 
       EN_IND=1
       CMO_IND=1
-      DO JSTATE=1,NSTATE
-
-       IF (JSTATE.GT.DYSEXPSF) THEN
-        EXIT
-       END IF
-
+      DO JSTATE=1,DYSEXPSF
          DO ISTATE=JSTATE+1,NSTATE
-            IF (DYSAMPS(JSTATE,ISTATE).GT.1.0D-6) THEN
 
-             IDISK=IWORK(LIDDYS+(ISTATE-1)*NSTATE+JSTATE-1)
-             CALL DDAFILE(LUDYS,2,SFDYS(:,JSTATE,ISTATE),NZ,IDISK)
-             ! Loops over states are performed triangularly, but
-             ! permutation of degenerate states in the SO part
-             ! might 'escape' this, therefore we fill out the
-             ! full matrix to be safe.
-             IDISK=IWORK(LIDDYS+(ISTATE-1)*NSTATE+JSTATE-1)
-             CALL DDAFILE(LUDYS,2,SFDYS(:,ISTATE,JSTATE),NZ,IDISK)
-            END IF
-
-!+++  J. Creutzberg, J. Norell  - 2018 (.DysOrb and .molden export )
 !     For each initial state JSTATE we will gather all the obtained Dysorbs
 !     and export to a shared .DysOrb file and .molden file if
 !     requested
+!     Each file can however only contain NZ numbe of orbitals, so we
+!     might have to split into several files IFILE
           IF ( ISTATE.EQ.(JSTATE+1) ) THEN
+              IFILE=1
               DYSCIND=0 ! Orbital coeff. index
               ORBNUM=0 ! Dysorb index for given JSTATE
               CMO=0.0D0
@@ -87,11 +72,27 @@ C atomic basis from disk
           AMPS(ORBNUM)=DYSAMPS(JSTATE,ISTATE)*DYSAMPS(JSTATE,ISTATE)
          END IF
 
+! Write the Dysorbs from JSTATE to .DysOrb and .molden file
+! (Enough to fill one file)
+         IF(ORBNUM.EQ.NZ) THEN
+          Call Dys_Interf(0,JSTATE,IFILE,NZ,CMO,
+     &        DYSEN,AMPS)
+          IFILE=IFILE+1
+          SODYSCIND=0 ! Orbital coeff. index
+          ORBNUM=0 ! Dysorb index for given JSTATE
+          SODYSCMO=0.0D0
+          DYSEN=0.0D0
+          AMPS=0.0D0
+         END IF
+
        END DO ! ISTATE
 
 ! Write the Dysorbs from JSTATE to .DysOrb and .molden file
-         Call Dys_Interf(.FALSE.,JSTATE,NZ,CMO,
+! (All remaining, if any)
+        IF(ORBNUM.GT.0) THEN
+        Call Dys_Interf(0,JSTATE,IFILE,NZ,CMO,
      &        DYSEN,AMPS)
+        END IF
 ! +++
 
 

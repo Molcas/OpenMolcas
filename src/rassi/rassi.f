@@ -72,6 +72,16 @@ C Needed matrix elements are computed by PROPER.
 
       NPROPSZ=NSTATE*NSTATE*NPROP
       CALL GETMEM('Prop','Allo','Real',LPROP,NPROPSZ)
+
+C Number of basis functions
+      NZ=0                      ! (NBAS is already used...)
+      DO ISY=1,NSYM
+         NZ=NZ+NBASF(ISY)
+      END DO
+      IF (DYSO) THEN
+       LSFDYS=0
+       CALL GETMEM('SFDYS','ALLO','REAL',LSFDYS,NZ*NSTATE*NSTATE)
+      END IF
       CALL DCOPY_(NPROPSZ,0.0D0,0,WORK(LPROP),1)
 C Loop over jobiphs JOB1:
       DO JOB1=1,NJOB
@@ -81,7 +91,7 @@ C Loop over jobiphs JOB1:
 
 C Compute generalized transition density matrices, as needed:
           CALL GTDMCTL(WORK(LPROP),JOB1,JOB2,WORK(LOVLP),WORK(LDYSAMPS),
-     &                Work(LHAM),iWork(lIDDET1))
+     &          WORK(LSFDYS),NZ,Work(LHAM),iWork(lIDDET1))
         END DO
       END DO
       Call GetMem('IDDET1','Free','Inte',lIDDET1,NSTATE)
@@ -134,11 +144,6 @@ C Hamiltonian matrix elements, eigenvectors:
 ! Write the spin-free Dyson orbitals to .DysOrb and .molden
 ! files if requested
 *----------------------------------------------------------------
-! Number of basis functions
-      NZ=0                      ! (NBAS is already used...)
-      DO ISY=1,NSYM
-         NZ=NZ+NBASF(ISY)
-      END DO
 
       IF (DYSEXPORT) THEN
 
@@ -206,15 +211,20 @@ C Nr of spin states and division of loops:
 ! +++ J. Norell - 2018
 C Make the SO Dyson orbitals and amplitudes from the SF ones
 
-      LSODYSAMPS=0
-      CALL GETMEM('SODYSAMPS','ALLO','REAL',LSODYSAMPS,NSS*NSS)
       IF (DYSO.AND.IFSO) THEN
+       LSODYSAMPS=0
+       CALL GETMEM('SODYSAMPS','ALLO','REAL',LSODYSAMPS,NSS*NSS)
+       LSODYSAMPSR=0
+       CALL GETMEM('SODYSAMPSR','ALLO','REAL',LSODYSAMPSR,NSS*NSS)
+       LSODYSAMPSI=0
+       CALL GETMEM('SODYSAMPSI','ALLO','REAL',LSODYSAMPSI,NSS*NSS)
 
-       LSFDYS=0
-       CALL GETMEM('SFDYS','ALLO','REAL',LSFDYS,NZ*NSTATE*NSTATE)
        CALL SODYSORB(NSS,LUTOTR,LUTOTI,WORK(LDYSAMPS),
-     &     WORK(LSFDYS),NZ,WORK(LSODYSAMPS),WORK(LSOENE))
+     &     WORK(LSFDYS),NZ,WORK(LSODYSAMPS),
+     &     WORK(LSODYSAMPSR),WORK(LSODYSAMPSI),WORK(LSOENE))
+      END IF
 
+      IF (DYSO) THEN
        CALL GETMEM('SFDYS','FREE','REAL',LSFDYS,NZ*NSTATE*NSTATE)
       END IF
 ! +++
@@ -233,6 +243,11 @@ C Will also handle mixing of states (sodiag.f)
       CALL GETMEM('UTOTR','FREE','REAL',LUTOTR,NSS**2)
       CALL GETMEM('UTOTI','FREE','REAL',LUTOTI,NSS**2)
       CALL GETMEM('SOENE','FREE','REAL',LSOENE,NSS)
+      IF (DYSO.AND.IFSO) THEN
+       CALL GETMEM('SODYSAMPS','FREE','REAL',LSODYSAMPS,NSS*NSS)
+       CALL GETMEM('SODYSAMPSR','FREE','REAL',LSODYSAMPSR,NSS*NSS)
+       CALL GETMEM('SODYSAMPSI','FREE','REAL',LSODYSAMPSI,NSS*NSS)
+      END IF
 
 CIgorS 02/10-2007  Begin----------------------------------------------C
 C   Trajectory Surface Hopping                                        C
@@ -272,14 +287,12 @@ CIgorS End------------------------------------------------------------C
       Call GetMem('ESHFT','Free','Real',LESHFT,NSTATE)
       Call GetMem('HDIAG','Free','Real',LHDIAG,NSTATE)
       Call GetMem('IDTDM','Free','Inte',lIDTDM,NSTATE2)
-      Call GetMem('IDDYS','Free','Inte',LIDDYS,NSTATE2)
       Call GetMem('JBNUM','Free','Inte',LJBNUM,NSTATE)
       Call GetMem('LROOT','Free','Inte',LLROOT,NSTATE)
       Call GetMem('ITOCM','Free','Inte',liTocM,NSTATE*(NSTATE+1)/2)
       CALL GETMEM('Prop','Free','Real',LPROP,NPROPSZ)
       CALL GETMEM('NilPt','FREE','REAL',LNILPT,1)
       CALL GETMEM('INilPt','FREE','INTE',LINILPT,1)
-      CALL GETMEM('SODYSAMPS','FREE','REAL',LSODYSAMPS,NSS*NSS)
 
 #ifdef _DMRG_
 !     !> finalize MPS-SI interface
@@ -296,7 +309,6 @@ CIgorS End------------------------------------------------------------C
 *     Close dafiles.
 *
       Call DaClos(LuScr)
-      Call DaClos(LUDYS)
 c jochen 02/15: sonatorb needs LUTDM
 c     we'll make it conditional upon the keyword
       IF((SONATNSTATE.GT.0).OR.NATO) THEN
