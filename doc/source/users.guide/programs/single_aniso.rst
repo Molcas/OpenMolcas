@@ -7,10 +7,6 @@
 :program:`single_aniso` |extramark|
 ===================================
 
-.. warning::
-
-   This program is not available in OpenMolcas
-
 .. only:: html
 
 .. contents::
@@ -503,7 +499,7 @@ Optional general keywords to control the input
   2. Parameterisation of the ground :math:`\ket{L,M_L}` group of spin-free states (e.g. parameterisation of the ground :math:`^6H` multiplet of a :math:`\ce{Dy^{3+}}`).
 
   For each of the above cases, the parameters of the crystal field are given in terms of irreducible tensor
-  operators defined in :cite:`Chibotaru:3`, in terms of Extended Stevens Operators defined in :cite:`Rudowicz1985` and also
+  operators defined in :cite:`Chibotaru:3`, in terms of Extended Stevens Operators defined in :cite:`Rudowicz1985,Rudowicz2004,Rudowicz2015` and also
   employed in the EasySpin function of MATLAB.
   On the next line the program will read the chemical symbol of the metal ion.
   The code understands the labels of: lanthanides, actinides and first-row transition metal ions. For transition metal ions, the oxidation state

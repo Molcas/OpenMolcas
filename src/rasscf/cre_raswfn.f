@@ -29,6 +29,7 @@
       Common /IDSXCI/ IDXCI,        IDXSX
 
       integer :: dsetid
+      integer, dimension(mxsym) :: NTMP1, NTMP2, NTMP3
       character(1), allocatable :: typestring(:)
 
 *     create a new wavefunction file!
@@ -44,7 +45,9 @@
       call one2h5_crtmom(wfn_fileid, nsym, nbas)
 
 *     set wavefunction type
-      if (IFCAS.EQ.0) then
+      if (iDoGAS) then
+        call mh5_init_attr (wfn_fileid,'CI_TYPE', 'GAS')
+      else if (IFCAS.EQ.0) then
         call mh5_init_attr (wfn_fileid,'CI_TYPE', 'CAS')
       else
         call mh5_init_attr (wfn_fileid,'CI_TYPE', 'RAS')
@@ -67,9 +70,18 @@
       wfn_iter = mh5_create_attr_int (wfn_fileid,'RASSCF_ITERATIONS')
 
 *     molecular orbital type index
+      if (iDoGAS) then
+        NTMP1(:)=0
+        NTMP2(:)=sum(NGSSH(1:NGAS,:),dim=1)
+        NTMP3(:)=0
+      else
+        NTMP1(:)=NRS1(:)
+        NTMP2(:)=NRS2(:)
+        NTMP3(:)=NRS3(:)
+      end if
       call mma_allocate(typestring, ntot)
       call orb2tpstr(NSYM,NBAS,
-     $        NFRO,NISH,NRS1,NRS2,NRS3,NSSH,NDEL,
+     $        NFRO,NISH,NTMP1,NTMP2,NTMP3,NSSH,NDEL,
      $        typestring)
       dsetid = mh5_create_dset_str(wfn_fileid,
      $        'MO_TYPEINDICES', 1, [NTOT],1)

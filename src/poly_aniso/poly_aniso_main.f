@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine poly_aniso(iReturn)
+      Subroutine poly_aniso_open(iReturn)
 
       Implicit None
 #include "warnings.fh"
@@ -21,6 +21,7 @@
       iReturn=0
       dbg=.false.
 
+      Write(6,'(A)') 'POLY_ANISO (OPEN):'
       Write(6,'(A)') 'by:   Liviu Unugur       '//
      &               '(chmlu@nus.edu.sg)'
       Write(6,'(A)') 'and   Liviu F. Chibotaru '//

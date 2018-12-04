@@ -17,7 +17,7 @@
       Call IEEE_Set_Halting_Mode(IEEE_Usual,.True._4)
 #endif
 
-      Call Start('single_aniso')
-      Call single_aniso(iReturn)
+      Call Start('single_aniso_open')
+      Call single_aniso_open(iReturn)
       Call Finish(iReturn)
       End

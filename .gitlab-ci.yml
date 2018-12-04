@@ -120,12 +120,12 @@ include:
       if [ -z "${tests}" ] ; then export tests=".all" ; fi
     # run only a subset of the tests if specified
     - |
-      if [ -n "${subset}" ] ; then
-        if [ -z "${subset_size}" ] ; then export subset_size="250" ; fi
+      if [ -n "${CI_NODE_INDEX}" ] ; then
         pymolcas verify --flatlist ${tests} > filelist
+        export subset_size=$(($(wc -l < filelist)/${CI_NODE_TOTAL}))
         split --numeric-suffixes=1 --suffix-length=1 --lines=${subset_size} filelist fl
-        if [ -f "fl${subset}" ] ; then
-          pymolcas verify --status --fromfile fl${subset}
+        if [ -f "fl${CI_NODE_INDEX}" ] ; then
+          pymolcas verify --status --fromfile fl${CI_NODE_INDEX}
         fi
       else
         pymolcas verify --status ${tests}
@@ -212,74 +212,46 @@ tinker:
 build:plain:
   extends: .plain
   <<: *compile
-.test:plain:
+test:plain:
   extends: .plain
   <<: *run-tests
   dependencies:
     - build:plain
     - tinker
-test:plain_1:
-  extends: .test:plain
-  variables:
-    subset: "1"
-test:plain_2:
-  extends: .test:plain
-  variables:
-    subset: "2"
+  parallel: 2
 
 build:options:
   extends: .options
   <<: *compile
-.test:options:
+test:options:
   extends: .options
   <<: *run-tests
   dependencies:
     - build:options
     - tinker
-test:options_1:
-  extends: .test:options
-  variables:
-    subset: "1"
-test:options_2:
-  extends: .test:options
-  variables:
-    subset: "2"
+  parallel: 2
 
 build:pgi:
   extends: .pgi
   <<: *compile
-.test:pgi:
+test:pgi:
   extends: .pgi
   <<: *run-tests
   dependencies:
     - build:pgi
     - tinker
-test:pgi_1:
-  extends: .test:pgi
-  variables:
-    subset: "1"
-test:pgi_2:
-  extends: .test:pgi
-  variables:
-    subset: "2"
+  parallel: 2
 
 build:sun:
   extends: .sun
   <<: *compile
-.test:sun:
+test:sun:
   extends: .sun
   <<: *run-tests
   dependencies:
     - build:sun
     - tinker
-test:sun_1:
-  extends: .test:sun
-  variables:
-    subset: "1"
-test:sun_2:
-  extends: .test:sun
-  variables:
-    subset: "2"
+  parallel: 2
 
 build:intel:
   extends: .intel
@@ -313,53 +285,23 @@ test:intel13:
 build:garble:
   extends: .garble
   <<: *compile
-.test:garble:
+test:garble:
   extends: .garble
   <<: *run-tests
   dependencies:
     - build:garble
     - tinker
-  variables:
-    subset_size: "150"
-test:garble_1:
-  extends: .test:garble
-  variables:
-    subset: "1"
-test:garble_2:
-  extends: .test:garble
-  variables:
-    subset: "2"
-test:garble_3:
-  extends: .test:garble
-  variables:
-    subset: "3"
+  parallel: 4
 
 build:bounds:
   extends: .bounds
   <<: *compile
-.test:bounds:
+test:bounds:
   extends: .bounds
   <<: *run-tests
   dependencies:
     - build:bounds
-  variables:
-    subset_size: "115"
-test:bounds_1:
-  extends: .test:bounds
-  variables:
-    subset: "1"
-test:bounds_2:
-  extends: .test:bounds
-  variables:
-    subset: "2"
-test:bounds_3:
-  extends: .test:bounds
-  variables:
-    subset: "3"
-test:bounds_4:
-  extends: .test:bounds
-  variables:
-    subset: "4"
+  parallel: 4
 
 build:debug:
   extends: .debug
