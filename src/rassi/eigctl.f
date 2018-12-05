@@ -812,7 +812,7 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
                J=IndexE(L_)
                IJ=I+NSTATE*(J-1)
                EDIFF=ENERGY(J)-ENERGY(I)
-               IF (JSTART.eq.1.AND.EDIFF.LE.0.0D0) CYCLE
+               IF(EDIFF.GT.0.0D0) THEN
                DX2=0.0D0
                DY2=0.0D0
                DZ2=0.0D0
@@ -864,6 +864,7 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
 
                END IF
                Call Add_Info('TMS(SF,Vel)',F,1,6)
+               END IF
             END DO
          END DO
          IF (LNCNT.EQ.0) THEN
@@ -2414,7 +2415,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *     Regular print
 *
               WRITE(6,33) I,J,F,AX,AY,AZ,A
-              WRITE(6,'(A,6X,G16.8)') 'Magnetic only', Fm
+*             WRITE(6,'(A,6X,G16.8)') 'Magnetic only', Fm
             END IF
 *
 *     Printing raw (unweighted) and direction for every transition
