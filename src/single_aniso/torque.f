@@ -36,7 +36,7 @@ c magnetic field strength and orientation data:
       Parameter (nPlanes=1)
 !      Real(kind=wp) :: dlth
       Real(kind=wp), allocatable :: W(:)    ! W(NM) ! Zeeman exchange energies
-      Real(kind=wp), allocatable :: ZT    ! ZT(nTempMagn) ! total statistical sum, Boltzmann distribution
+      Real(kind=wp)              :: ZT    ! ZT ! total statistical sum, Boltzmann distribution
       Real(kind=wp), allocatable :: ST(:) ! ST(3) ! total spin magnetisation,
       Real(kind=wp), allocatable :: MT(:) ! MT(3) ! total magnetisation
       Real(kind=wp), allocatable :: dX(:) ! dX(AngPoints)
