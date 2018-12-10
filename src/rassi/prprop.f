@@ -2345,16 +2345,24 @@ C              IJ=(JSO-1)*NSS + ISO - 1
 *
 *              (2) the magnetic-spin part
 *
-C              IJ=(JSO-1)*NSS + ISO - 1
+*              iCar=1: 1/2(S(+)+S(-))
+*              iCar=2: 1/2i(S(+)-S(-))
+*              iCar=3: Sz
+*
                Do iCar = 1, 3
                   CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXR),1)
                   CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXI),1)
-*                 pick up the real component
-                  CALL SMMAT_CHECK(PROP,WORK(LDXR),NSS,'TMOS0  R',iCar,
-     &                             USOR,USOI,ISO,JSO,ThrSparse)
-*                 pick up the imaginary component
-                  CALL SMMAT_CHECK(PROP,WORK(LDXI),NSS,'TMOS0  I',iCar,
-     &                             USOR,USOI,ISO,JSO,ThrSparse)
+                  If (iCar.eq.1.or.iCar.eq.3) Then
+*                    pick up the real component
+                     CALL SMMAT_CHECK(PROP,WORK(LDXR),NSS,'TMOS0  R',
+     &                                iCar,
+     &                                USOR,USOI,ISO,JSO,ThrSparse)
+*                 Else
+*                    pick up the imaginary component
+                     CALL SMMAT_CHECK(PROP,WORK(LDXI),NSS,'TMOS0  I',
+     &                                iCar,
+     &                                USOR,USOI,ISO,JSO,ThrSparse)
+                  End If
                   CALL ZTRNSF_IJ(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI),
      &                           WORK(LTMP),T1(iCar),ISO,JSO)
                End Do
@@ -2398,10 +2406,6 @@ C              IJ=(JSO-1)*NSS + ISO - 1
                F = F + Weight * F_Temp
 *
 *              Do only the magnetic part.
-*              TM1 = IMAGINARY*(g_Elec/2.0D0)*E1B
-*              TM2 = IMAGINARY*(g_Elec/2.0D0)*E2B
-*              TM_2 = Half*DBLE(DCONJG(TM1)*TM1 + DCONJG(TM2)*TM2)
-*              F_Temp = 2.0D0*TM_2/EDIFF
                Fm= Fm+ Weight * F_Tempm
 *
 *              Save the weighted oscillator strengths in a given direction

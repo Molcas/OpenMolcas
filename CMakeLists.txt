@@ -2068,7 +2068,7 @@ set (RUNBINARYSER "${SER_LAUNCHER} $program")
 # Specify the launch command for an MPI run
 if (MPI)
         if (NOT MPI_LAUNCHER)
-                set (MPI_LAUNCHER "${MPIEXEC} -n $MOLCAS_NPROCS" CACHE STRING "Command to launch MPI programs.")
+                set (MPI_LAUNCHER "${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} $MOLCAS_NPROCS ${MPIEXEC_PREFLAGS}" CACHE STRING "Command to launch MPI programs.")
         endif ()
         set (RUNBINARY "${MPI_LAUNCHER} $program")
 else ()
