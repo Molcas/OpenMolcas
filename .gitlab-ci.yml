@@ -1,3 +1,4 @@
+# Then can only be a single "include" per file
 include:
   # Configurations defined in an external file
   - "/.configs.yml"
@@ -148,6 +149,7 @@ include:
     when: always
   only:
     refs:
+      - merge_requests
       - api
       - triggers
       - web
