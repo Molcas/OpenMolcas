@@ -11,6 +11,9 @@
       subroutine cre_rassiwfn
 *     SVC: Create a wavefunction file. If another .wfn file already
 *     exists, it will be overwritten.
+#ifdef _DMRG_
+      use qcmaquis_interface_cfg
+#endif
       implicit none
 #ifdef _HDF5_
 #  include "Molcas.fh"
@@ -33,7 +36,15 @@
       wfn_fileid = mh5_create_file('RASSIWFN')
 
 *     set module type
+#ifdef _DMRG_
+      if(doDMRG)then
+        call mh5_init_attr (wfn_fileid,'MOLCAS_MODULE', 'MPSSI')
+      else
+#endif
       call mh5_init_attr (wfn_fileid,'MOLCAS_MODULE', 'RASSI')
+#ifdef _DMRG_
+      end if
+#endif
 
 *     copy basic molecular information to the HDF5 file
       call run2h5_molinfo(wfn_fileid)

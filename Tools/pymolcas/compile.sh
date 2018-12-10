@@ -24,6 +24,8 @@ nuitka --python-version=3.4 --remove-output \
        --recurse-to=python_parse \
        --recurse-to=simpleeval \
        --recurse-to=tee \
+       --recurse-to=check_test \
+       --recurse-to=write_molcasrc \
        pymolcas.py
 
 rm -rf __pycache__

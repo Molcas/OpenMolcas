@@ -35,7 +35,7 @@
       Integer StrnLn
       External Get_Ln, StrnLn
       Logical External_UDC, External_Case,
-     &        Explicit_IRC, Expert, ThrInp
+     &        Explicit_IRC, Expert, ThrInp, FirstNum
 #include "angstr.fh"
 *                                                                      *
 ************************************************************************
@@ -978,7 +978,11 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *
       If ((.Not.ThrInp).and.(.Not.Baker)) ThrEne=Zero
       Call Init2
-      If (SuperName.eq.'slapaf') Then
+*     Gradients are not needed at the first iteration of a numerical
+*     Hessian procedure (and only that, i.e. MxItr=0)
+      FirstNum = (lRowH.or.lNmHss.or.Cubic)
+     &           .and.(Iter.eq.1).and.(MxItr.eq.0)
+      If ((SuperName.eq.'slapaf').and.(.not.FirstNum)) Then
          If (Track) Then
             Call Process_Track()
          Else

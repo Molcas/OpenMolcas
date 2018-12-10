@@ -586,6 +586,7 @@ C start the HOPPING procedure
 
       call Put_iScalar('NumGradRoot',ISTATE2)
       call Put_iScalar('Relax CASSCF root',ISTATE2)
+      call Put_iScalar('Relax Original root',ISTATE2)
       call Put_dScalar('Last energy',Venergy(ISTATE2))
       end if
 C scale velocities
