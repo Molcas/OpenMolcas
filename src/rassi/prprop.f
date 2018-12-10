@@ -2141,6 +2141,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
             FZ=0.0D0
             F =0.0D0
             Fm=0.0D0
+            R =0.0D0
 *
 *           Initialize output arrays
 *
@@ -2386,32 +2387,31 @@ C              IJ=(JSO-1)*NSS + ISO - 1
 *
                F_Temp = 2.0D0*TM_2/EDIFF
 *
-*              Do only the magnetic part.
+*              Compute the rotatory strength
 *
-               TM1 = IMAGINARY*(g_Elec/2.0D0)*E1B
-               TM2 = IMAGINARY*(g_Elec/2.0D0)*E2B
-               TM_2 = Half*DBLE(DCONJG(TM1)*TM1 + DCONJG(TM2)*TM2)
-               F_Tempm = 2.0D0*TM_2/EDIFF
+               R_Temp = g_Elec*(E1A*E2B + E1B*E2A)
 *
 *              Save the raw oscillator strengths in a given direction
 *
                WORK(LRAW+(IQUAD-1)+0*NQUAD) = F_TEMP
-               WORK(LRAW+(IQUAD-1)+1*NQUAD) = F_TEMPM
+               WORK(LRAW+(IQUAD-1)+1*NQUAD) = R_TEMP
                WORK(LRAW+(IQUAD-1)+2*NQUAD) = XCOOR
                WORK(LRAW+(IQUAD-1)+3*NQUAD) = YCOOR
                WORK(LRAW+(IQUAD-1)+4*NQUAD) = ZCOOR
 *
-*              Compute the oscillator strength
+*              Accumulate to the isotropic oscillator strength
 *
                F = F + Weight * F_Temp
 *
-*              Do only the magnetic part.
-               Fm= Fm+ Weight * F_Tempm
+*              Accumulate to the isotropic rotatory strength
 *
-*              Save the weighted oscillator strengths in a given direction
+               R = R + Weight * R_Temp
+*
+*              Save the weighted oscillator and rotatory strengths in a
+*              given direction k.
 *
                WORK(LWEIGH+(IQUAD-1)+0*NQUAD) = F_TEMP*WEIGHT
-               WORK(LWEIGH+(IQUAD-1)+1*NQUAD) = F_TEMPM*WEIGHT
+               WORK(LWEIGH+(IQUAD-1)+1*NQUAD) = R_TEMP*WEIGHT
                WORK(LWEIGH+(IQUAD-1)+2*NQUAD) = XCOOR
                WORK(LWEIGH+(IQUAD-1)+3*NQUAD) = YCOOR
                WORK(LWEIGH+(IQUAD-1)+4*NQUAD) = ZCOOR
@@ -2422,7 +2422,7 @@ C              IJ=(JSO-1)*NSS + ISO - 1
 *           4*pi over the solid angles.
 *
             F = F / (4.0D0*PI)
-            Fm= Fm/ (4.0D0*PI)
+            R = R / (4.0D0*PI)
             IF (ABS(F).LT.OSTHR) CYCLE
             AX=(AFACTOR*EDIFF**2)*FX
             AY=(AFACTOR*EDIFF**2)*FY
@@ -2470,8 +2470,8 @@ C              IJ=(JSO-1)*NSS + ISO - 1
                 iPrint=1
               END IF
 *
-              WRITE(6,'(5X,2I5,5X,5G16.8)') ISO,JSO,F,AX,AY,AZ,A
-              WRITE(6,'(A,6X,G16.8)') ' Magnetic only',Fm
+              WRITE(6,'(5X,2I5,5X,5ES16.8)') ISO,JSO,F,AX,AY,AZ,A
+              WRITE(6,'(A,6X,ES16.8)') ' Rotatory Strength',R
             END IF
 *
 *     Printing raw (unweighted) and direction for every transition
