@@ -95,7 +95,7 @@ include:
     <<: *sources
   except:
     - tags
-    - master
+    - master@Molcas/OpenMolcas
 
 .template: &run-tests
   stage: test
@@ -204,7 +204,7 @@ tinker:
     <<: *sources
   except:
     - tags
-    - master
+    - master@Molcas/OpenMolcas
 
 # Define the actual jobs, each job has a "build" and a "test" stage,
 # the latter depends on the former.
