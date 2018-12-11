@@ -14,7 +14,7 @@
       DIMENSION USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='PRPROP')
+      PARAMETER (ROUTINE='PRPROP_TM')
       parameter (THRSH=1.0D-10)
       parameter (ZERO=0.0D0)
 #include "symmul.fh"
@@ -29,51 +29,18 @@
 #include "SysDef.fh"
 #include "rassiwfn.fh"
       Character*1 xyzchr(3)
-      Character*3 ASDLAB
-      Character*8 EFPROP
-      Character*8 PSOPROP
-      Character*8 DMPPROP
-*     Character*8 OVRPROP
-      Dimension IPAMFI(3),IPAM(3),IZMR(3),IZMI(3)
-      Dimension DTENS(3,3),GTENS(3,3),GSTENS(3,3),SOSTERM(9)
-      Dimension TMPMAT(3,3),TMPVEC(3,3),EVR(3),EVI(3)
-      COMPLEX*16 ZEKL(2,2,3,NSTATE),GCONT(9,NSTATE)
-      COMPLEX*16 DIPSOm(3,NSS,NSS),Z(NSS,NSS),DIPSOn(3,NSS,NSS)
-      COMPLEX*16 SPNSFS(3,NSS,NSS)
-      COMPLEX*16 DIPSOf(3,NSS,NSS),DIMSO(3,3,NSS,NSS)
-      COMPLEX*16 DIPSOfc(3,NSS,NSS),DIPSOfsd(3,NSS,NSS)
-      COMPLEX*16 DIPSOfcsd(3,NSS,NSS),DIPSOfpso(3,NSS,NSS)
-       !REAL*8  DIMSOIJ(3,3,NSS)
-      REAL*8 GTOTAL(9),ANGMOME(3,NSTATE,NSTATE),ESO(NSS)
-      REAL*8 EDIP1MOM(3,NSTATE,NSTATE),AMFIINT(3,NSTATE,NSTATE)
-      REAL*8 TMPL(NSTATE,NSTATE,3),TMPE(NSTATE,NSTATE,3)
-      REAL*8 TMPA(NSTATE,NSTATE,3)
-      Dimension TMPm(NTS),TMPf(NTP)
-*     Dimension TMPm(NTS),TMPf(NTP),TMFC(NTF)
-      Dimension c_1(3,3),c_2(3,3)!,Zstat1m(NTS),Zstat1f(NTP)
-      Dimension curit(3,3),paramt(3,3)
-      Dimension HFC_1(3,3),HFC_2(3,3),HFC_3(3,3)
-      Dimension CurieT(3,3),DiamT(3,3),PNMRCPS(NTP,NSS,3,3)
-      Dimension chiT_tens(NTS,3,3),PNMRT(NTP,3,3),PNMR(NTP,3,3)
-      Dimension chicuriT_tens(NTS,3,3),chiparamT_tens(NTS,3,3)
-      Dimension PNMRC(NTP,3,3),PNMRD(NTP,3,3)
-*     Dimension PNMRC(NTP,3,3),PNMRD(NTP,3,3),PNMRFCC(NTP,3,3)
-*     Dimension NMRFT(NTF,3,3),NMRFP(NTF,3,3),NMRFC(NTF,3,3)
-*     Dimension NMRFD(NTF,3,3)
-      REAL*8 DLTTA,DLTT,Zstat,p_Boltz,Boltz_k,coeff_chi
-      LOGICAL ISGS(NSS),IFANGM,IFDIP1,IFAMFI, Sparse_I,Sparse_J
-      Dimension IMR(3),IMI(3),RMAGM(3),Chi(3)
-      INTEGER IFUNCT, SECORD(4)
+      REAL*8 Boltz_k,coeff_chi
+      LOGICAL Sparse_I,Sparse_J
       REAL*8 J2CM
       Real*8 P1(3), P2(3), kxe1(3), kxe2(3)
       INTEGER IOFF(8)
       CHARACTER*8 LABEL
       Complex*16 T0(3), T1(3), TM1, TM2, E1A, E2A, E1B, E2B,
      &           IMAGINARY
-      REAL*8 COMPARE
 
       CALL QENTER(ROUTINE)
 
+      Dummy=Energy(1)
       AVOGADRO=CONST_AVOGADRO_
       AU2EV=CONV_AU_TO_EV_
       AU2CM=CONV_AU_TO_CM1_
