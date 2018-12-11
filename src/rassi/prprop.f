@@ -60,15 +60,11 @@
 *     Dimension NMRFT(NTF,3,3),NMRFP(NTF,3,3),NMRFC(NTF,3,3)
 *     Dimension NMRFD(NTF,3,3)
       REAL*8 DLTTA,DLTT,Zstat,p_Boltz,Boltz_k,coeff_chi
-      LOGICAL ISGS(NSS),IFANGM,IFDIP1,IFAMFI, Sparse_I,Sparse_J
+      LOGICAL ISGS(NSS),IFANGM,IFDIP1,IFAMFI
       Dimension IMR(3),IMI(3),RMAGM(3),Chi(3)
       INTEGER IFUNCT, SECORD(4)
       REAL*8 J2CM
-      Real*8 P1(3), P2(3), kxe1(3), kxe2(3)
-      INTEGER IOFF(8)
-      CHARACTER*8 LABEL
-      Complex*16 T0(3), T1(3), TM1, TM2, E1A, E2A, E1B, E2B,
-     &           IMAGINARY
+      Complex*16 T0(3), TM1
       REAL*8 COMPARE
 
 
@@ -83,7 +79,6 @@
       AU2JTM=(AU2J/AU2T)*AVOGADRO
       ALPHA=CONST_AU_VELOCITY_IN_SI_/CONST_C_IN_SI_
       ALPHA2= ALPHA*ALPHA
-      IMAGINARY=DCMPLX(0.0D0,1.0D0)
 
       BOLTZ_K=CONST_BOLTZMANN_*J2CM
       coeff_chi=0.1D0*AVOGADRO/CONST_BOLTZMANN_*
