@@ -558,7 +558,7 @@ C              IJ=(JSO-1)*NSS + ISO - 1
 *
 *              Compute the rotatory strength
 *
-               R_Temp = g_Elec*(E1A*E2B + E1B*E2A)
+               R_Temp = g_Elec*AIMAG(E1A*E2B + E1B*E2A)
 *
 *              Save the raw oscillator strengths in a given direction
 *
