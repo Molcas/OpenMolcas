@@ -41,6 +41,8 @@
       CALL QENTER(ROUTINE)
 
       Dummy=Energy(1)
+      Dummy=OVLP(1,1)
+*
       AVOGADRO=CONST_AVOGADRO_
       AU2EV=CONV_AU_TO_EV_
       AU2CM=CONV_AU_TO_CM1_
