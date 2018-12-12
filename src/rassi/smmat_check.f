@@ -29,16 +29,18 @@
 C IFSPIN takes values the values 0,1,2
 C 0 = spin free property
 C 1 = spin operator (S)
-C 2 = spin dependent property
+C 2 = spin dependent property, triplet operator
       IFSPIN=0
 
       DO IPROP=1,NPROP
         IF (PRLBL.EQ.PNAME(IPROP)) THEN
-          IF(IPRCMP.EQ.ICOMP(IPROP)) IPRNUM=IPROP
+           IFSPIN=0
+           IF(IPRCMP.EQ.ICOMP(IPROP)) IPRNUM=IPROP
         ELSE IF (PRLBL(1:4).EQ.'SPIN') THEN
-                IFSPIN=1
+           IFSPIN=1
         ELSE IF (PRLBL(1:5).EQ.'TMOS0') THEN
-                IFSPIN=2
+           IFSPIN=2
+           IF (PRLBL(1:8).EQ.PNAME(IPROP)) IPRNUM=IPROP
         END IF
       END DO
 C Mapping from spin states to spin-free state and to spin:
@@ -105,12 +107,18 @@ C Mapping from spin states to spin-free state and to spin:
                             PRMAT(ISS,JSS)=SZMER
                     END IF
                   END IF
-          ELSE IF (IFSPIN.EQ.2 .AND. IPRNUM.EQ.0) THEN
+          ELSE IF (IFSPIN.EQ.2) THEN
 C 1-electron triplet operator so only Delta S =0,+-1 and Delta MS =0,+-1
 C Notice S1,S2 and SM1,SM2 need not to be integers
 C Hence MPLET1,MPLET2 and MSPROJ1,MSPROJ2 are used
 C Notice SMINUS and SPLUS is interchanged compared to above
 C Notice that the Y part is imaginary
+C
+C see section 3 (Spin_orbit coupling in RASSI) in
+C P A Malmqvist, et. al CPL, 357 (2002) 230-240
+C for details
+C
+C Note that we work on the x,y, and Z components at this time.
 C
                   IF(ABS(MPLET1-MPLET2).GT.2) CYCLE
                   IF(ABS(MSPROJ1-MSPROJ2).GT.2) CYCLE
@@ -123,46 +131,46 @@ C
                   ONE = 1.0D0
                   TWO = 2.0D0
 C
-                  IF(MPLET1.EQ.MPLET2-2) THEN ! <SM|O|S+1M+?>
+                  IF(MPLET1+2.EQ.MPLET2) THEN ! <SM|O|S+1M+?>
 C
-                    IF (MSPROJ1.eq.MSPROJ2+2) THEN ! <SM|O|S+1M-1>
-                      SMINUS=SQRT((S1-SM1+ONE)*(S1-SM1+TWO))
-                      SXMER= 0.5D0*SMINUS
-                      SYMEI=-0.5D0*SMINUS
+                    IF (MSPROJ1+2.eq.MSPROJ2) THEN ! <SM|O|S+1M+1>
+                      SPLUS=-0.5D0*SQRT((S1+SM1+ONE)*(S1+SM1+TWO))
+                      SXMER=+SMINUS
+                      SYMEI=+SMINUS
                     ELSE IF (MSPROJ1.eq.MSPROJ2) THEN ! <SM|O|S+1M>
                       SZMER=SQRT((S1+ONE)**2-SM1**2)
-                    ELSE IF (MSPROJ1.eq.MSPROJ2-2) THEN ! <SM|O|S+1M+1>
-                      SPLUS=SQRT((S1+SM1+ONE)*(S1+SM1+TWO))
-                      SXMER=-0.5D0*SPLUS
-                      SYMEI=-0.5D0*SPLUS
+                    ELSE IF (MSPROJ1-2.eq.MSPROJ2) THEN ! <SM|O|S+1M-1>
+                      SMINUS=-0.5D0*SQRT((S1-SM1+ONE)*(S1-SM1+TWO))
+                      SXMER=-SPLUS
+                      SYMEI=+SPLUS
                     END IF
 C
                   ELSE IF(MPLET1.EQ.MPLET2) THEN ! <SM|O|SM+?>
 C
-                    IF (MSPROJ1.eq.MSPROJ2+2) THEN ! <SM|O|SM-1>
-                      SMINUS=SQRT((S1+SM1)*(S1-SM1+ONE))
-                      SXMER= 0.5D0*SMINUS
-                      SYMEI=-0.5D0*SMINUS
+                    IF (MSPROJ1+2.eq.MSPROJ2) THEN ! <SM|O|SM+1>
+                      SPLUS= 0.5D0*SQRT((S1-SM1)*(S1+SM1+ONE))
+                      SXMER=+SPLUS
+                      SYMEI=+SPLUS
                     ELSE IF (MSPROJ1.eq.MSPROJ2) THEN ! <SM|O|SM>
                       SZMER=SM1
-                    ELSE IF (MSPROJ1.eq.MSPROJ2-2) THEN ! <SM|O|SM+1>
-                      SPLUS=SQRT((S1-SM1)*(S1+SM1+ONE))
-                      SXMER= 0.5D0*SPLUS
-                      SYMEI= 0.5D0*SPLUS
+                    ELSE IF (MSPROJ1-2.eq.MSPROJ2) THEN ! <SM|O|SM-1>
+                      SMINUS=-0.5D0*SQRT((S1+SM1)*(S1-SM1+ONE))
+                      SXMER=-SMINUS
+                      SYMEI=+SMINUS
                     END IF
 C
-                  ELSE IF(MPLET1.EQ.MPLET2+2) THEN ! <SM|O|S-1M+?>
+                  ELSE IF(MPLET1-2.EQ.MPLET2) THEN ! <SM|O|S-1M+?>
 C
-                    IF (MSPROJ1.eq.MSPROJ2+2) THEN ! <SM|O|S-1M-1>
-                      SMINUS=SQRT((S1+SM1)*(S1+SM1-ONE))
-                      SXMER=-0.5D0*SMINUS
-                      SYMEI= 0.5D0*SMINUS
+                    IF (MSPROJ1-2.eq.MSPROJ2) THEN ! <SM|O|S-1M-1>
+                      SMINUS=0.5D0*SQRT((S1+SM1)*(S1+SM1-ONE))
+                      SXMER=-SMINUS
+                      SYMEI= SMINUS
                     ELSE IF (MSPROJ1.eq.MSPROJ2) THEN ! <SM|O|S-1M>
                       SZMER=SQRT(S1**2-SM1**2)
-                    ELSE IF (MSPROJ1.eq.MSPROJ2-2) THEN ! <SM|O|S-1M+1>
-                      SPLUS=SQRT((S1-SM1)*(S1-SM1-ONE))
-                      SXMER= 0.5D0*SPLUS
-                      SYMEI= 0.5D0*SPLUS
+                    ELSE IF (MSPROJ1+2.eq.MSPROJ2) THEN ! <SM|O|S-1M+1>
+                      SPLUS=0.5D0*SQRT((S1-SM1)*(S1-SM1-ONE))
+                      SXMER= SPLUS
+                      SYMEI= SPLUS
                     END IF
 C
                   END IF

@@ -654,6 +654,7 @@ C Put energy onto info file for automatic verification runs:
       DIMENSION AR(N,N),AI(N,N)
       DIMENSION CX(N,2)
       COMPLEX*16 TX
+      Call FZero(CX,N*2)
 *
       CALL DGEMV_('N',N,N,
      &            1.0D0,AR,N,
@@ -663,6 +664,7 @@ C Put energy onto info file for automatic verification runs:
      &           -1.0D0,AI,N,
      &                  UI(1,J),1,
      &            1.0D0,CX(1,1),1)
+*
       CALL DGEMV_('N',N,N,
      &            1.0D0,AR,N,
      &                  UI(1,J),1,
