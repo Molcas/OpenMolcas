@@ -1967,6 +1967,7 @@ C printing threshold
 ! +++ J. Norell 19/7 - 2018
 ! Dyson amplitudes for (1-electron) ionization transitions
       IF (DYSO) THEN
+        Call Add_Info('SODYSAMPS',SODYSAMPS,NSS*NSS,4)
         DYSTHR=1.0D-5
         WRITE(6,*)
         CALL CollapseOutput(1,'Dyson amplitudes '//
