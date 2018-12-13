@@ -20,7 +20,6 @@
       IMPLICIT REAL*8 (A-H,O-Z)
       REAL*8 DYSAB(*),DYSZZ(*)
       DIMENSION CMOA(NCMO)
-      DIMENSION ISTCMO(8)
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "WrkSpc.fh"
