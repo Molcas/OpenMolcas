@@ -4,8 +4,8 @@
 
 .. _UG\:sec\:poly_aniso:
 
-:program:`poly_aniso` |extramark|
-=================================
+:program:`poly_aniso`
+=====================
 
 .. only:: html
 

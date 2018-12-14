@@ -4,8 +4,8 @@
 
 .. _UG\:sec\:single_aniso:
 
-:program:`single_aniso` |extramark|
-===================================
+:program:`single_aniso`
+=======================
 
 .. only:: html
 
