@@ -180,7 +180,7 @@ c                   write(stdout,'(a11,f20.8)') ' Exponents',rExpi
 *
 *     Allocate memory for relativistic part
 *
-      VELIT=CLight
+      VELIT=CLightAU
       iSizep=0
       iSizes=0
       iSizec=0
@@ -356,14 +356,14 @@ CDP     &                    '  = Local ',(iWork(iLoc+i),i=0,nbl-1)
      &                     dkhorder,xorder,Work(iSS+k),Work(iK+k),
      &                     Work(iV+k),Work(ipVp+k),Work(iU_L+ks),
      &                     Work(iU_S+ks),iWork(indx+kz),nbl,
-     &                     iWork(iLoc),iWork(iMap),DoFullLT,clight)
+     &                     iWork(iLoc),iWork(iMap),DoFullLT,clightau)
               Call GetMem('InfoLoc','FREE','INTE',iLoc,n+4)
               Call GetMem('MapLoc ','FREE','INTE',iMap,n+4)
             Else
               Call XDR_Ham(n,isize,n*n,relmethod,dkhparam,dkhorder,
      &                     xorder,Work(iSS+k),Work(iK+k),Work(iV+k),
      &                     Work(ipVp+k),Work(iU_L+ks),Work(iU_S+ks),
-     &                     clight)
+     &                     clightau)
             End If
 *                                                                      *
 ************************************************************************
@@ -501,7 +501,7 @@ C           Write (6,*) 'Mem_Available=',Mem_Available
                Call XDR_Prop(n,isize,n*n,relmethod,dkhparam,dkhorder,
      &                       xorder,Work(iSS+k),Work(iK+k),Work(iV+k),
      &                       Work(ipVp+k),Work(iX+k),Work(ipXp+k),
-     &                       Work(iU_L+ks),Work(iU_S+ks),clight)
+     &                       Work(iU_L+ks),Work(iU_S+ks),clightau)
                ks=ks+n*n
                kz=kz+n
  91            k=k+isize

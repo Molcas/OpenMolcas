@@ -8,4 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      COMMON/LOFF/LOFFI !SJS
+cSJS      PARAMETER(LOFFI=NGAS**NIRREP) !SJS
+      PARAMETER (LOFFI=8**6) !SJS
+* Setting LOFFI to 8**6 is a bandaid - it will not be enough for some
+* situations with many GAS spaces at high symmetry.
+* The right thing to do would be some slimmer version of NIRREP**NGAS
+* in which LOFFI will be set based only on active symmetries.
+* Giovanni knows more about this issue. !SJS
+

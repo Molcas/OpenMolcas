@@ -18,7 +18,7 @@
 #include "print.fh"
       Real*8 dDipM(3,nInter+mTR), DipM(3), IRInt(nInter+mTR)
       Logical Smmtrc(3,nAtom), lTherm, lDoubleIso
-      Integer NrDisp(3*MxAtom), mDisp(8), nUserPT, nsRot
+      Integer mDisp(8), nUserPT, nsRot
       Real*8  UserT(64), UserP
 *                                                                      *
 ************************************************************************
@@ -104,8 +104,6 @@
       nDisp=mInter
       Call GetMem('NMod','Allo','Real',ipNMod,nDisp**2)
       ipNx=ipNMod
-      Call Get_iScalar('nChDisp',nDisp_)
-      Call Get_iArray('NrDisp',NrDisp,nDisp_)
 *
       lModes=0
       nModes=0

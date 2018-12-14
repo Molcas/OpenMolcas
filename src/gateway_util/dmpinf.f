@@ -57,7 +57,7 @@
 *
 *
       iRELAE_info=iRELAE
-      CLight_Info=CLight
+      CLight_Info=CLightAU
 *
 *     Save the common INFO
 *

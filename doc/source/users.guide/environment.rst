@@ -383,22 +383,6 @@ The complete list of |molcas|-related environment variables:
               </HELP>
               </KEYWORD>
 
-:variable:`MOLCAS_GRID`
-  :program:`Seward`, :program:`SCF`, :program:`RASSCF` can compute (screen quality) grid automatically.
-  If set to AUTO, only the last program in the input will compute grid.
-  Yes --- force the code always compute grids (it might take time)
-  No --- disable the automatic generation of grids.
-
-  .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_GRID" APPEAR="Automatically compute grid files" KIND="CHOICE" LIST="----,AUTO,YES,NO" LEVEL="ADVANCED">
-              %%Keyword: MOLCAS_GRID <advanced>
-              <HELP>
-              Seward, SCF, RASSCF can compute (screen quality) grid automatically.
-              If set to AUTO, only the last program in the input will compute grid.
-              ||Yes - force the code always compute grids (it might take time)
-              ||No - disable the automatic generation of grids.
-              </HELP>
-              </KEYWORD>
-
 :variable:`MOLCAS_KEEP_WORKDIR`
   If set to NO |molcas| will remove scratch area after a calculation.
   This setting can be overwritten by running :command:`molcas` with flag :command:`-clean`.

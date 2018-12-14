@@ -19,7 +19,7 @@
       If(.not.Found .or. nDens.eq.0) Then
          Call SysAbendMsg('get_dlmo','Did not find:',Label)
       End If
-      Call GetMem('Dens','Allo','Real',ipDLMO,nDens)
+      Call GetMem('DLMO','Allo','Real',ipDLMO,nDens)
       Call Get_dArray(Label,Work(ipDLMO),nDens)
 
       Return

@@ -62,6 +62,11 @@ if (${CMAKE_VERSION} VERSION_LESS 3.1)
         endif ()
 endif ()
 
+# discover some necessary tools
+find_program (GIT "git")
+find_program (PERL "perl")
+mark_as_advanced(FORCE GIT PERL)
+
 ################################################################################
 #                                                                              #
 # Options                                                                      #
@@ -145,8 +150,64 @@ mark_as_advanced (CTEST)
 option (MSYM       "Activate MSYM support (requires External/libmsym submodule)."                               OFF)
 option (DMRG       "Activate QCMaquis DMRG driver and library."                                                 OFF)
 option (DMRG_DEBUG "Enable DEBUG print in QCMaquis driver."                                                     OFF)
+
 if (DMRG)
         mark_as_advanced (CLEAR DMRG_DEBUG)
+        # Name and e-mail required for downloading QCMaquis
+        # Try to get the real name from the system account information
+        if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+          set(QCMaquis_NAME_GET_CMD "id -F")
+        else()
+        # should we distinguish other platforms?
+          set(QCMaquis_NAME_GET_CMD "sh" "-c" "getent passwd $USER | awk -F: '{print \$5}'")
+        endif()
+        execute_process (
+                COMMAND ${QCMaquis_NAME_GET_CMD}
+                OUTPUT_VARIABLE QCMaquis_NAME_
+                OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+        set (QCMaquis_NAME ${QCMaquis_NAME_} CACHE STRING "Your name (required for downloading QCMaquis)")
+
+        # Update QCMaquis flag. Off by default.
+        # QCMaquis must be updated manually, as there might be QCMaquis upstream changes even when OpenMolcas is not changed,
+        # or vice versa. Running cmake with QCMaquis_UPDATE=ON will force-update QCMaquis.
+        if (NOT QCMaquis_UPDATE)
+                set (QCMaquis_UPDATE OFF CACHE STRING "Trigger QCMaquis update" FORCE)
+        endif()
+
+        # try to get the e-mail address from git config (TODO: is there a better option?)
+        execute_process (
+                COMMAND ${GIT} "config" "user.email"
+                OUTPUT_VARIABLE QCMaquis_EMAIL_
+                OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+        set (QCMaquis_EMAIL ${QCMaquis_EMAIL_} CACHE STRING "Your e-mail address (required for downloading QCMaquis)")
+
+        # Prepare variables for QCMaquis: separate name and surname
+        set (QCMaquis_NAME_LIST ${QCMaquis_NAME})
+
+        separate_arguments (QCMaquis_NAME_LIST)
+        list(LENGTH QCMaquis_NAME_LIST qcm_name_len)
+        if (qcm_name_len LESS 2)
+                message (FATAL_ERROR
+                  "Your name has been specified as: " ${QCMaquis_NAME} "\n"
+                  "Please specify both name and surname. If you have only one name, please specify it twice.")
+        endif()
+
+        # Separate first name from the last name
+        # Currently, only the first word is treated by QCMaquis as the first name,
+        # all the rest is considered surnames -- to accomodate multiple surnames common in the Spanish-speaking
+        # areas or suffixes as Jr., III etc. Middle names are therefore incorrectly considered parts of
+        # the last name. However, this has no influence on the QCMaquis download.
+        list(GET QCMaquis_NAME_LIST 0 QCMaquis_GIVEN_NAME)
+        list(REMOVE_AT QCMaquis_NAME_LIST 0)
+        foreach(arg ${QCMaquis_NAME_LIST})
+                      set(QCMaquis_SURNAME "${QCMaquis_SURNAME} ${arg}")
+        endforeach()
+
+        # Set QCMaquis download URL and path to the download script
+        set (QCMaquis_URL "https://scine.ethz.ch/download/")
+        set (QCMaquis_dl_SCRIPT "${CMAKE_SOURCE_DIR}/src/qcmaquis/get_qcmaquis.sh")
 else ()
         mark_as_advanced (FORCE DMRG_DEBUG)
 endif ()
@@ -194,11 +255,6 @@ add_definitions (-D_MOLCAS_)
 
 #set cmake module search paths
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH})
-
-# discover some necessary tools
-find_program (GIT "git")
-find_program (PERL "perl")
-mark_as_advanced(FORCE GIT PERL)
 
 # location of molcas-extra
 if (NOT DEFINED EXTRA)
@@ -1312,8 +1368,14 @@ if (LINALG STREQUAL "OpenBLAS")
                 # check if the configuration header is available
                 set (OPENBLAS_CONFIG "${OPENBLASROOT}/include/openblas_config.h")
                 if (NOT EXISTS ${OPENBLAS_CONFIG})
+                     # for system-wide OpenBLAS installations the config path might be different
+                     # so try with an alternative path
+                     set (OPENBLAS_CONFIG "${OPENBLASROOT}/include/openblas/openblas_config.h")
+                endif ()
+                if (NOT EXISTS ${OPENBLAS_CONFIG})
                         message (FATAL_ERROR
-                                "Could not find OpenBLAS config header: ${OPENBLAS_CONFIG}, "
+                                "Could not find OpenBLAS config header in: ${OPENBLASROOT} "
+                                "(tried ${OPENBLASROOT}/include/openblas_config.h and "
                                 "please check if the OPENBLASROOT variable points to a "
                                 "valid OpenBLAS installation directory."
                                 )
@@ -1536,7 +1598,6 @@ endif ()
 
 # Chan group's DMRG (Block code) support
 #=======================================
-
 if (BLOCK)
         mark_as_advanced(CLEAR BLOCK_DIR)
 
@@ -1704,12 +1765,14 @@ endif ()
 
 if (DMRG)
         message ("Configuring QCMaquis DMRG support:")
-        message (WARNING "-------------------------------------------------------------------------\
-         You're installing QCMaquis DMRG. Make sure you obtained access to the QCMaquis repository at\n\
-https://gitlab.com/qc-maquis\n\
-If you have done so already, you may safely ignore this message. If not, please open the \
-above URL and click on 'Request access'. \
--------------------------------------------------------------------------")
+
+        if ( "${QCMaquis_NAME}" STREQUAL "" OR "${QCMaquis_EMAIL}" STREQUAL "")
+          message (WARNING "Please set your name and e-mail with -DQCMaquis_NAME and -DQCMaquis_EMAIL to be able to download QCMaquis.")
+        else ()
+          message (STATUS "Your name (used to download QCMaquis): " ${QCMaquis_NAME})
+          message (STATUS "Your email (used to download QCMaquis): " ${QCMaquis_EMAIL})
+        endif ()
+
         add_definitions (-D_DMRG_)
         if (DMRG_DEBUG)
                 add_definitions (-D_DMRG_DEBUG_)
@@ -2005,7 +2068,7 @@ set (RUNBINARYSER "${SER_LAUNCHER} $program")
 # Specify the launch command for an MPI run
 if (MPI)
         if (NOT MPI_LAUNCHER)
-                set (MPI_LAUNCHER "${MPIEXEC} -n $MOLCAS_NPROCS" CACHE STRING "Command to launch MPI programs.")
+                set (MPI_LAUNCHER "${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} $MOLCAS_NPROCS ${MPIEXEC_PREFLAGS}" CACHE STRING "Command to launch MPI programs.")
         endif ()
         set (RUNBINARY "${MPI_LAUNCHER} $program")
 else ()
@@ -2019,7 +2082,6 @@ string (STRIP ${RUNBINARYSER} RUNBINARYSER)
 message ("-- RUNSCRIPT:    ${RUNSCRIPT}")
 message ("-- RUNBINARY:    ${RUNBINARY}")
 message ("-- RUNBINARYSER: ${RUNBINARYSER}")
-
 
 ################################################################################
 #                                                                              #
@@ -2105,6 +2167,7 @@ list (REMOVE_ITEM progs
         wfa
         nevpt2 # although not necessarily
         dmrgscf
+        mpssi
         )
 
 # set the location of the sources for the utilities
@@ -2259,6 +2322,10 @@ if (BLOCK OR DMRG)
         list (APPEND progs dmrgscf)
 endif ()
 
+if (DMRG)
+        list (APPEND progs mpssi)
+endif ()
+
 # finally, sort the list
 list (SORT utils)
 
@@ -2330,6 +2397,9 @@ set (casvb_deps
 set (dmrgscf_deps
         $<TARGET_OBJECTS:rasscf>
         )
+set (mpssi_deps
+        $<TARGET_OBJECTS:rassi>
+        )
 set (espf_deps
         $<TARGET_OBJECTS:seward>
         $<TARGET_OBJECTS:alaska>
@@ -2369,7 +2439,6 @@ list (APPEND last_energy_deps
         $<TARGET_OBJECTS:dmrgscf>
         )
 endif ()
-
 
 ################################################################################
 #                                                                              #

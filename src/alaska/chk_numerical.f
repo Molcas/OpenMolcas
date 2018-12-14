@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine Chk_Numerical(LuSpool,Numerical)
       Implicit Real*8 (A-H,O-Z)
-      Logical Numerical,Is_Root_Set, DNG, KeepOld
+      Logical Numerical,Is_Root_Set, DNG, KeepOld, Found
       Character KWord*180, Key*180, Get_Ln*180
       External Get_Ln
 #include "nac.fh"
@@ -96,8 +96,14 @@
 *
 * Put on the runfile which root and delta to use
 *
-      Call Put_iScalar('NumGradRoot',iRoot)
-      Call Put_iScalar('Relax CASSCF root',iroot)
+      Call qpg_iScalar('Relax CASSCF root',Found)
+      If (Found) Then
+         Call Get_iScalar('Relax CASSCF root',iRoot0)
+         Call Put_iScalar('NumGradRoot',iRoot)
+         Call Put_iScalar('Relax CASSCF root',iRoot)
+      Else
+         iRoot0=0
+      End If
       Call Put_dScalar('Numerical Gradient rDelta',rDelta)
 *
 * These are really input options for numerical_gradient

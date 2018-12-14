@@ -84,14 +84,14 @@
          Tmp1(iz) = Zero
          i = 0
          Do iAtom = 1, nAtom
-         Do ixyz = 1, 3
-            If (Smmtrc(ixyz,iAtom)) Then
-               i = i + 1
-               Tmp1(ix) = Tmp1(ix) + dDipM(1,i)*Tmp2(i)
-               Tmp1(iy) = Tmp1(iy) + dDipM(2,i)*Tmp2(i)
-               Tmp1(iz) = Tmp1(iz) + dDipM(3,i)*Tmp2(i)
-            End If
-         End Do
+            Do ixyz = 1, 3
+               If (Smmtrc(ixyz,iAtom)) Then
+                  i = i + 1
+                  Tmp1(ix) = Tmp1(ix) + dDipM(1,i)*Tmp2(i)
+                  Tmp1(iy) = Tmp1(iy) + dDipM(2,i)*Tmp2(i)
+                  Tmp1(iz) = Tmp1(iz) + dDipM(3,i)*Tmp2(i)
+               End If
+            End Do
          End Do
       End Do
       call dcopy_(3*mInter,Tmp1,1,dDipM,1)

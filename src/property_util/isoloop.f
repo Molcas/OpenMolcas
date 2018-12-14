@@ -55,12 +55,13 @@
 #include "real.fh"
 #include "periodic_table.fh"
 #include "constants2.fh"
+#include "WrkSpc.fh"
       Integer AtNum, IsoNum, AtNum2, Subs, Subs2
       Real*8 Temp(nTemp), Coord(3,mAtoms)
       Real*8 MassIso
       Real*8 Mass(MxAtom)
       Character*2 Element(mAtoms)
-      Logical EQ, Double, lmass, Found
+      Logical EQ, Double, lmass, Found, Changed
       Character*3 cmass(MxAtom)
       Real*8 umass(MxAtom)
 *                                                                      *
@@ -81,12 +82,11 @@
 *
       Call Get_dArray('FC-Matrix',Temp(ipH),n**2)
 *
-*---- Put in the most abundant masses
+*---- Put in the initial masses and take backup copy
 *
-      Do i=1,mAtoms
-         IsoNum=0
-         Call Isotope(IsoNum,Element(i),Mass(i))
-      End Do
+      Call Get_Mass_All(Mass,mAtoms)
+      Call GetMem('DefaultMass','ALLO','REAL',ipDefMass,mAtoms)
+      Call dCopy_(mAtoms,Mass,1,Work(ipDefMass),1)
 *
       Do i=1,mAtoms
          Coord(1,i)=Abs(Coord(1,i))
@@ -103,6 +103,7 @@
       ip2=ip1+2*n**2
       ipVal=ip2+2*n**2
       ipVec=ipVal+2*n**2
+      Call Initialize_Isotopes()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -134,19 +135,21 @@
 *
 *           Get list of natural isotopes
 *
-            Subs=ElementList(AtNum)%Nat-1
+            Subs=ElementList(AtNum)%Nat
          End If
 *
+         dMass = Mass(i)
          Do k = 1, Subs
             If (.not.lmass) Then
-               IsoNum=ElementList(AtNum)%Isotopes(k+1)%A
+               IsoNum=ElementList(AtNum)%Isotopes(k)%A
+               If (IsoNum.eq.nInt(dMass/UtoAU)) Cycle
                Call Isotope(IsoNum,AtNum,Mass(i))
             End If
 *
             call dcopy_(n**2,Temp(ipH),1,Temp(ipH2),1)
             Write(6,*) 'Masses:'
             Write(6,*) '======='
-            Write(6,'(20I4)') (int(mass(l)/UtoAU+Half),l=1,mAtoms)
+            Write(6,'(20I4)') (nInt(mass(l)/UtoAU),l=1,mAtoms)
             Write(6,*)
             Write(6,*)
             Write(6,*) 'Frequencies:'
@@ -155,9 +158,8 @@
      &               Temp(ipVec),Temp(ipVal),ineg)
             call GFPrnt_i(Temp(ipVal),n)
          End Do
-*        Put back the most abundant mass
-         IsoNum=0
-         Call Isotope(IsoNum,AtNum,Mass(i))
+*        Put back the original mass
+         Mass(i) = dMass
  94      Continue
       End Do
 *                                                                      *
@@ -182,37 +184,40 @@
 *
 *           Loop over all natural isotopes of this element.
 *
-            Do k = 1, ElementList(iElement)%Nat-1
-               IsoNum=ElementList(iElement)%Isotopes(k+1)%A
+            Do k = 1, ElementList(iElement)%Nat
+               IsoNum=ElementList(iElement)%Isotopes(k)%A
                Call Isotope(IsoNum,iElement,MassIso)
 *
 *              Substitute all instances.
 *
+               Changed = .False.
                Do i = 1, mAtoms
-                  If (PTab(iElement).eq.Element(i)) Mass(i)=MassIso
+                  If (PTab(iElement).eq.Element(i)) Then
+                     If (IsoNum.ne.nInt(Work(ipDefMass+i-1)/UtoAU))
+     &                  Changed=.True.
+                     Mass(i)=MassIso
+                  End If
                End Do
 *
-               call dcopy_(n**2,Temp(ipH),1,Temp(ipH2),1)
-               Write(6,*) 'Masses:'
-               Write(6,*) '======='
-               Write(6,'(20I4)') (int(mass(l)/UtoAU+Half),l=1,mAtoms)
-               Write(6,*)
-               Write(6,*)
-               Write(6,*) 'Frequencies:'
-               Write(6,*) '============'
-               Call Freq_i(n,Temp(ipH2),mass,Temp(ip1),Temp(ip2),
-     &                     Temp(ipVec),Temp(ipVal),ineg)
-               Call GFPrnt_i(Temp(ipVal),n)
+               If (Changed) Then
+                  call dcopy_(n**2,Temp(ipH),1,Temp(ipH2),1)
+                  Write(6,*) 'Masses:'
+                  Write(6,*) '======='
+                  Write(6,'(20I4)') (nInt(mass(l)/UtoAU),l=1,mAtoms)
+                  Write(6,*)
+                  Write(6,*)
+                  Write(6,*) 'Frequencies:'
+                  Write(6,*) '============'
+                  Call Freq_i(n,Temp(ipH2),mass,Temp(ip1),Temp(ip2),
+     &                        Temp(ipVec),Temp(ipVal),ineg)
+                  Call GFPrnt_i(Temp(ipVal),n)
+               End If
 *
             End Do
 *
-*           Cleanup the Mass array, put in the mass for the most abundant.
+*           Restore the initial mass array
 *
-            IsoNum=0
-            Call Isotope(IsoNum,iElement,MassIso)
-            Do i = 1, mAtoms
-               If (PTab(iElement).eq.Element(i)) Mass(i)=MassIso
-            End Do
+            Call dCopy_(mAtoms,Work(ipDefMass),1,Mass,1)
 *
          End If
       End Do
@@ -238,13 +243,15 @@
                End If
             End Do
          Else
-            Subs=ElementList(AtNum)%Nat-1
+            Subs=ElementList(AtNum)%Nat
          End If
 *
 *        All isotopes first atom
+         dMass1 = Mass(i)
          Do k = 1, Subs
             If (.not.lmass) Then
-               IsoNum=ElementList(AtNum)%Isotopes(k+1)%A
+               IsoNum=ElementList(AtNum)%Isotopes(k)%A
+               If (IsoNum.eq.nInt(dMass1/UtoAU)) Cycle
                Call Isotope(IsoNum,AtNum,Mass(i))
             End If
 *
@@ -260,13 +267,15 @@
                      End If
                   End Do
                Else
-                  Subs2=ElementList(AtNum2)%Nat-1
+                  Subs2=ElementList(AtNum2)%Nat
                End If
 *
 *              All isotopes for second atom
+               dMass2 = Mass(j)
                Do l = 1, Subs2
                   If (.not.lmass) Then
-                     IsoNum=ElementList(AtNum2)%Isotopes(l+1)%A
+                     IsoNum=ElementList(AtNum2)%Isotopes(l)%A
+                     If (IsoNum.eq.nInt(dMass2/UtoAU)) Cycle
                      Call Isotope(IsoNum,AtNum2,Mass(j))
                   End If
 *
@@ -274,7 +283,7 @@
                   Write(6,*) 'Masses:'
                   Write(6,*) '======='
                   Write(6,'(20I4)')
-     &                 (int(mass(m)/UtoAU+Half),m=1,mAtoms)
+     &                 (nInt(mass(m)/UtoAU),m=1,mAtoms)
                   Write(6,*)
                   Write(6,*)
                   Write(6,*) 'Frequencies:'
@@ -284,20 +293,19 @@
                   call GFPrnt_i(Temp(ipVal),n)
 
                End do
-*              Put back the most abundant mass
-               IsoNum=0
-               Call Isotope(IsoNum,AtNum2,Mass(j))
+*              Put back the original mass
+               Mass(j) = dMass2
             End do   ! End inner loop over atoms
 *
          End Do
-*        Put back the most abundant mass
-         IsoNum=0
-         Call Isotope(IsoNum,AtNum,Mass(i))
+*        Put back the original mass
+         Mass(i) = dMass1
       End Do ! End outer loop over atoms
 *                                                                      *
 ************************************************************************
 *                                                                      *
       End if
+      Call GetMem('DefaultMass','FREE','REAL',ipDefMass,mAtoms)
 *
 *
       Return

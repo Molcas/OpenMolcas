@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine NewCar(kIter,nBVec,nLines,nAtom,nDim,nInter,
-     &                  Coor,ipBMx,rMass,Lbl,Shift,ip_qInt,ip_dqInt,
+     &                  Coor,ipBMx,dMass,Lbl,Shift,ip_qInt,ip_dqInt,
      &                  DFC,dss,Tmp,Stop,Name,iOper,nSym,iSym,Smmtrc,
      &                  Degen,Gx,Cx,mTtAtm,iANr,iOptH,User_Def,nStab,
      &                  jStab,Curvilinear,Numerical,DDV_Schlegel,HWRS,
@@ -20,7 +20,7 @@
 #include "WrkSpc.fh"
 #include "print.fh"
 #include "Molcas.fh"
-      Real*8 Coor(3,nAtom), rMass(nAtom),Shift(nInter,kIter),
+      Real*8 Coor(3,nAtom), dMass(nAtom),Shift(nInter,kIter),
      &       DFC(3*nAtom), dss(nInter), Tmp(nInter), Degen(3*nAtom),
      &       Gx(3*nAtom,kIter), Cx(3*nAtom,kIter+1)
       Integer   iOper(0:7), iSym(3), iANr(nAtom),
@@ -58,7 +58,7 @@
       call dcopy_(nInter,Shift(1,kIter),1,dss,1)
       Call DaXpY_(nInter,One,dss,1,Tmp,1)
 *
-      Call Int2Car(dss,Tmp,nInter,ip_qInt,Coor,nAtom,nBVec,ipBMx,rMass,
+      Call Int2Car(dss,Tmp,nInter,ip_qInt,Coor,nAtom,nBVec,ipBMx,dMass,
      &             nLines,DFC,ndim,Lbl,Name,iOper,nSym,iSym,Smmtrc,
      &             Degen,kIter,ip_dqInt,Gx,Cx,mTtAtm,iANr,iOptH,
      &             User_Def,nStab,jStab,Curvilinear,Numerical,

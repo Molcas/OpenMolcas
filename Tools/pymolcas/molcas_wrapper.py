@@ -75,7 +75,6 @@ hcbanner = '''#
 # MOLCAS_EMIL_DEBUG
 # MOLCAS_IN_GEO
 # MOLCAS_ISDEV
-# MOLCAS_KEEP_WORKDIR
 # MOLCAS_LASTMOD
 # MOLCAS_LINK
 # MOLCAS_LOG
@@ -95,7 +94,7 @@ class MolcasException(Exception):
 
 class Molcas_wrapper(object):
 
-  version = 'py2.04'
+  version = 'py2.05'
   rc = 0
 
   def __init__(self, **kwargs):
@@ -799,7 +798,7 @@ class Molcas_wrapper(object):
   #TODO: buffer parnell calls
   def parallel_task(self, task, force=False):
     task_type = task[0][0]
-    # same replacements for parnell calls in the serial case,
+    # some replacements for parnell calls in the serial case,
     # if no replacement is available, parnell will be used
     if (self.is_serial):
       # copy files: should also work if the destination is a dir

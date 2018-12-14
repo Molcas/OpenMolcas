@@ -69,12 +69,23 @@
 *
       Call Get_cArray('Relax Method',Method,8)
       Call DecideOnESPF(Do_ESPF)
-      Call Get_iScalar('NumGradRoot',iRoot)
       Is_Roots_Set = .False.
       Call Qpg_iScalar('Number of roots',Is_Roots_Set)
-      nRoots = 1
       If (Is_Roots_Set) Then
          Call Get_iScalar('Number of roots',nRoots)
+         If (nRoots.eq.1) Then
+            iRoot=1
+         Else
+            Call qpg_iScalar('NumGradRoot',Found)
+            If (Found) Then
+               Call Get_iScalar('NumGradRoot',iRoot)
+            Else
+               iRoot=1
+            End If
+         End If
+      Else
+         nRoots = 1
+         iRoot  = 1
       End If
       Call Allocate_Work(ipEnergies_Ref,nRoots)
 C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
@@ -210,6 +221,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
      &    Method(1:6) .eq. 'KS-DFT' .OR.
      &    Method(1:6) .eq. 'CASSCF' .OR.
      &    Method(1:6) .eq. 'RASSCF' .OR.
+     &    Method(1:6) .eq. 'GASSCF' .OR.
      &    Method(1:6) .eq. 'CASPT2' .OR.
      &    Method(1:5) .eq. 'MBPT2'  .OR.
      &    Method(1:5) .eq. 'CCSDT'  .OR.
@@ -608,6 +620,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
                Call Abend()
             End If
          Else If (Method(1:6) .eq. 'RASSCF' .OR.
+     &            Method(1:6) .eq. 'GASSCF' .OR.
      &            Method(1:6) .eq. 'CASSCF' .OR.
      &            Method(1:6) .eq. 'MCPDFT' .OR.
      &            Method(1:6) .eq. 'CASPT2' .OR.
@@ -1031,6 +1044,19 @@ C_MPP End Do
 *
       nfld_tim  = 0
       nfld_stat = 0
+*
+*     Restore iRlxRoot if changed as set by the RASSCF module.
+*
+      If (Method(1:6) .eq. 'CASSCF' .OR.
+     &    Method(1:6) .eq. 'RASSCF' ) Then
+         Call Get_iScalar('Relax CASSCF root',irlxroot1)
+         Call Get_iScalar('Relax Original ro',irlxroot2)
+         If (iRlxRoot1.ne.iRlxRoot2) Then
+            Call Put_iScalar('Relax CASSCF root',irlxroot2)
+            Call Put_iScalar('NumGradRoot',irlxroot2)
+         End If
+      End If
+
 *
       Return
       End

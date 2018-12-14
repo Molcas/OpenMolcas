@@ -410,8 +410,6 @@ c      Call GetMem('tmpB','Allo','Real',ip_tmpB,nGridMax)
      &           KSDFA(1:5).eq.'TS12G'   .or.
      &           KSDFA(1:4).eq.'TPBE'    .or.
      &           KSDFA(1:5).eq.'FTPBE'   .or.
-     &           KSDFA(1:5).eq.'TOPBE'   .or.
-     &           KSDFA(1:6).eq.'FTOPBE'  .or.
      &           KSDFA(1:7).eq.'TREVPBE' .or.
      &           KSDFA(1:8).eq.'FTREVPBE'.or.
      &           KSDFA(1:6).eq.'FTLSDA'  .or.

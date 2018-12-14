@@ -133,7 +133,6 @@
 * Repeated allocation/deallocation inside ADSTN_GAS has been
 * outerlooped to here. KLOFFI added to call parameters of
 * ADSTN_GAS. PAM March 2006.
-cSJS      LOFFI=8**6
       IDUM=1
       CALL GETMEM('KLOFFI','ALLO','REAL',KLOFFI,LOFFI)
       Call FZero(Work(KLOFFI),LOFFI)

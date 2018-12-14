@@ -494,7 +494,7 @@ c       Call HssPrt_MCLR(iwork(ipdegdisp),Work(ipHess2),ldisp2)
        iRC=-1
        iOpt=0
        Call GetMem('NRDISP','ALLO','INTE',ipnrdisp,ndisp)
-       Call RdMck(irc,iopt,'NRDISP',idum,iWork(ipnrDisp),idum)
+       Call RdMck(irc,iopt,'NRCTDISP',idum,iWork(ipnrDisp),idum)
        iRC=-1
        iOpt=0
        Call GetMem('DEGDISP','ALLO','INTE',ipdegdisp,ndisp)
@@ -549,7 +549,7 @@ c       Open(unit=Lu_10, file='UNSYM')
        Call TriPrt(' ',' ',Pola,3)
        close(Lu_10)
        Call GetMem('NRDISP','FREE','INTE',ipnrdisp,ndisp)
-       Call GetMem('NRDISP','FREE','INTE',ipdegdisp,ndisp)
+       Call GetMem('DEGDISP','FREE','INTE',ipdegdisp,ndisp)
       End If
 *----------------------------------------------------------------------*
 *     Exit                                                             *

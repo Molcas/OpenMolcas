@@ -57,7 +57,7 @@
                Centr(3,nc) = z1*DBLE(iFacz)
                nchr=iAtmNr(jCnttp)
                If (nchr.ge.0) Then
-                  Mass(nc) = rMass(nchr)
+                  Mass(nc) = CntMass(jCnttp)
                Else
                   Mass(nc) = Zero
                End If

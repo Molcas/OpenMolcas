@@ -69,7 +69,7 @@ def test_write(line, filename):
   return write_star.search(line.decode('ascii', 'ignore').strip('\n'))
 
 # Bare (without wrapper) LAPACK/BLAS calls
-unwrapped_sub = re.compile(r'call\s*(drot|dswap|dscal|[ds]copy|daxpy|dgemm|dspmv|dgemv|dopmtr|dspgv|dsptrd|dstevr|dgetrs|dspev|dgesvd|dgetrf|dgesv|dsyev|dsyevr|dgetri|zhpev|dsygv|dpotrf|dgels|dsytrd|dposv|dsterf|dsteqr|dlascl|dorgtr)\s*\(', re.IGNORECASE)
+unwrapped_sub = re.compile(r'call\s*(drot|dswap|dscal|[ds]copy|daxpy|dgemm|dspmv|dgemv|dopmtr|dspgv|dsptrd|dstevr|dgetrs|dspev|dgeev|dgesvd|dgetrf|dgesv|dsyev|dsyevr|dgetri|zhpev|dsygv|dpotrf|dgels|dsytrd|dposv|dsterf|dsteqr|dlascl|dorgtr)\s*\(', re.IGNORECASE)
 unwrapped_func = re.compile(r'\b(ddot|dnrm2|dasum|idamax|dlamch|ilaenv|dlansy)\s*\(', re.IGNORECASE)
 def test_unwrapped(line, filename):
   if (not filename.endswith(('.f', '.F', '.f90', '.F90'))):

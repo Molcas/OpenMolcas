@@ -572,10 +572,9 @@ C     Logical Addpot
 *           Special trick for integrals over electromagnetic field
 *           radiation integrals.
 *
-            rHrmt_Save=Zero
+            rHrmt_Save=rHrmt
 
             If (Label(1:5).eq.'EMFR '.or.Label(1:5).eq.'TMOS ') Then
-               rHrmt_Save=rHrmt
                If (MOD((iComp+5),6).lt.3) Then
                   rHrmt= One
                Else
@@ -589,15 +588,14 @@ C     Logical Addpot
                   rHrmt=-One
                End If
             End If
-*           Write (*,*) ',iComp,rHrmt=',iComp,rHrmt
+*           Write (*,*) 'Label,iComp,rHrmt=',Label,iComp,rHrmt
             If (mSO.ne.0) Then
                Call SOSctt(SOInt(iSOBlk),iBas,jBas,mSO,Array(ip(iComp)),
      &                     n2Tri(iSmLbl),iSmLbl,iCmp,jCmp,iShell,
      &                     jShell,iAO,jAO,nComp,Label,lOper,rHrmt)
                iSOBlk = iSOBlk + mSO*iBas*jBas
             End If
-            If (Label(1:4).eq.'EMFR'.or.Label(1:4).eq.'TMOS')
-     &          rHrmt=rHrmt_Save
+            rHrmt=rHrmt_Save
          End Do
          Call mma_deallocate(SOInt)
       End If

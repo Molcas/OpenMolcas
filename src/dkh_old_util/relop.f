@@ -30,7 +30,7 @@ c     X//)
       ZWPH32=ZWP**1.5D0
       ZWPH12=sqrt(ZWP)
       SQPI=sqrt(PI)
-      VELIT=CLight
+      VELIT=CLightAU
       PREA=1.D0/(VELIT*VELIT)
       CSQ=VELIT*VELIT
       FAK(1)=1.D0
