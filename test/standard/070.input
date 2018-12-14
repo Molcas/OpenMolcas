@@ -35,13 +35,13 @@ Spin
 >>> COPY $Project.JobIph test.JobIph
 
  &MCPDFT
- KSDFT=TPBE
+ KSDFT=TOPBE
  GRADIENT
 
  &SLAPAF
 
 
->>foreach DFT in (TPBE, TBLYP, TLSDA, TOPBE,FTOPBE)
+>>foreach DFT in (TPBE, TBLYP, TLSDA)
 
 >>> COPY test.JobIph JOBOLD
  &RASSCF &END
