@@ -49,7 +49,7 @@ Kerstin Andersson
 János G. Ángyán  
 Francesco Aquilante  
 Jochen Autschbach  
-Jie J. Bao
+Jie J. Bao  
 Maria Barysz  
 Eugeniusz Bednarz  
 Nelson H. F. Beebe  

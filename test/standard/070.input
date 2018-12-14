@@ -41,7 +41,7 @@ Spin
  &SLAPAF
 
 
->>foreach DFT in (TPBE, TBLYP, TLSDA)
+>>foreach DFT in (TPBE, TBLYP, TLSDA, TOPBE,FTOPBE)
 
 >>> COPY test.JobIph JOBOLD
  &RASSCF &END
