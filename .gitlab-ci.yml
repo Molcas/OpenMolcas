@@ -1,7 +1,26 @@
+include:
+  # Configurations defined in an external file
+  - "/.configs.yml"
+  # Jobs for building the documentation
+  - "/doc/.gitlab-ci.yml"
+
 # Define templates for "sub-jobs"
 # - install-key: install the SSH key to access private repositories
 # - compile: compile OpenMolcas with CMake
 # - run-tests: run the verification suite
+
+.template: &sources
+  changes:
+    - .gitlab-ci.yml
+    - .gitmodules
+    - basis_library/**/*
+    - CMakeLists.txt
+    - cmake/**/*
+    - data/**/*
+    - sbin/**/*
+    - src/**/*
+    - test/**/*
+    - Tools/**/*
 
 .template: &install-key
   before_script:
@@ -19,6 +38,7 @@
       [ -f /.dockerenv ] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config && chmod 644 ~/.ssh/config
 
 .template: &compile
+  stage: build
   #<<: *install-key
   script:
     # special pre-script that may be needed in some installations
@@ -59,7 +79,7 @@
     - >
       shopt -s globstar ; rm -rf **/CMakeFiles
     # special post-script that may be needed in some installations
-    # (not using before_script because it would be overwritten)
+    # (not using after_script because it would be overwritten)
     - cd ..
     - |
       if [ -n "${post_compile_script}" ] ; then
@@ -71,11 +91,14 @@
       - molcas-extra/
     expire_in: 1 day
     when: always
+  only:
+    <<: *sources
   except:
     - tags
     - master
 
 .template: &run-tests
+  stage: test
   script:
     # special pre-script that may be needed in some installations
     # (not using before_script because it would be overwritten)
@@ -97,18 +120,18 @@
       if [ -z "${tests}" ] ; then export tests=".all" ; fi
     # run only a subset of the tests if specified
     - |
-      if [ -n "${subset}" ] ; then
-        if [ -z "${subset_size}" ] ; then export subset_size="250" ; fi
+      if [ -n "${CI_NODE_INDEX}" ] ; then
         pymolcas verify --flatlist ${tests} > filelist
+        export subset_size=$(($(wc -l < filelist)/${CI_NODE_TOTAL}))
         split --numeric-suffixes=1 --suffix-length=1 --lines=${subset_size} filelist fl
-        if [ -f "fl${subset}" ] ; then
-          pymolcas verify --status --fromfile fl${subset}
+        if [ -f "fl${CI_NODE_INDEX}" ] ; then
+          pymolcas verify --status --fromfile fl${CI_NODE_INDEX}
         fi
       else
         pymolcas verify --status ${tests}
       fi
     # special post-script that may be needed in some installations
-    # (not using before_script because it would be overwritten)
+    # (not using after_script because it would be overwritten)
     - |
       if [ -n "${post_run_script}" ] ; then
         eval "${post_run_script}"
@@ -124,187 +147,15 @@
     expire_in: 1 month
     when: always
   only:
-    - api
-    - triggers
-    - web
+    refs:
+      - api
+      - triggers
+      - web
+    <<: *sources
   # run even if the previous stage failed
   # (in general, we want to run those configurations that didn't fail,
   #  but there's no harm in running all)
   when: always
-
-# Define some configuration groups (variables, tags, etc.) to be used in jobs
-# - plain: default configuration
-# - options: enable several options
-# - pgi: use PGI compilers
-# - sun: use Oracle compilers
-# - intel: use Intel compilers (needs access to a license)
-# - intel13: use Intel 2013 compilers (specific runner)
-# - nag: use NAG Fortran compiler and Garble (specific runner, disabled)
-# - garble: setup with Garble option and gcc compilers
-# - bounds: enable bounds checking (slow)
-# - debug: build with no optimization (no tests)
-
-.template: &plain
-  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-4.8:latest
-  variables: &plain_vars
-    cache_file: |
-      set (BIGOT "ON" CACHE STRING "do not allow any warning")
-      set (DEBUG_DEFS "_BIGOT_" CACHE STRING "stricter runtime checks")
-    CC: "gcc"
-    CXX: "g++"
-    FC: "gfortran"
-    tests: ".all exhaustive"
-  tags:
-    - docker
-
-.template: &options
-  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-5.4:latest
-  variables: &options_vars
-    cache_file: |
-      set (CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "opt, debug info")
-      set (BUILD_SHARED_LIBS "ON" CACHE STRING "use shared libmolcas")
-      set (BUILD_STATIC_LIB "ON" CACHE STRING "build static libmolcas too")
-      set (BIGOT "ON" CACHE STRING "do not allow any warning")
-      set (DEBUG_DEFS "_BIGOT_" CACHE STRING "stricter runtime checks")
-      set (LINALG "Runtime" CACHE STRING "runtime blas/lapack linking")
-      set (FDE "ON" CACHE STRING "enable frozen-density-embedding (FDE) interface")
-      set (GRID_IT "ON" CACHE STRING "enable public GRID_IT code")
-      set (TOOLS "ON" CACHE STRING "compile Tools")
-      #set (MSYM "ON" CACHE STRING "enable libmsym (needs submodule)")
-      set (WFA "ON" CACHE STRING "enable libwfa (needs submodule)")
-    CC: "gcc"
-    CXX: "g++"
-    FC: "gfortran"
-    submodules: "External/lapack External/grid_it External/libmsym External/libwfa"
-    MOLCAS_LINALG: "/opt/OpenBLAS/lib/libopenblas.so"
-    MOLCAS_LINALG_INFO: "YES"
-  tags:
-    - docker
-
-.template: &pgi
-  image: ${CI_REGISTRY}/molcas/dockerfiles/pgi:latest
-  variables: &pgi_vars
-    cache_file: ""
-    # Add -tp=x64 flag to make the result more portable
-    CC: "pgcc '-tp=x64'"
-    CXX: "pgc++ '-tp=x64'"
-    FC: "pgfortran '-tp=x64'"
-  tags:
-    - docker
-
-.template: &sun
-  image: ${CI_REGISTRY}/molcas/dockerfiles/oracle:latest
-  variables: &sun_vars
-    cache_file: |
-      set (DEFMOLCASMEM "1024" CACHE STRING "reduce memory")
-    CC: "suncc -I/usr/include/x86_64-linux-gnu"
-    CXX: "sunCC -I/usr/include/x86_64-linux-gnu"
-    FC: "sunf90 -I/usr/include/x86_64-linux-gnu"
-  tags:
-    - docker
-
-.template: &intel
-  image: ${CI_REGISTRY}/molcas/dockerfiles/intel-arch:latest
-  variables: &intel_vars
-    cache_file: |
-      set (CMAKE_BUILD_TYPE "Release" CACHE STRING "opt, no debug info" )
-      set (HDF5 "ON" CACHE STRING "turn on HDF5")
-      set (LINALG "MKL" CACHE STRING "enable MKL")
-    pre_compile_script: |
-      . /opt/intel/composerxe/linux/bin/compilervars.sh intel64
-    pre_run_script: |
-      . /opt/intel/composerxe/linux/bin/compilervars.sh intel64
-    CC: "icc"
-    CXX: "icpc"
-    FC: "ifort"
-  tags:
-    - intel_license
-
-.template: &intel13
-  variables: &intel13_vars
-    cache_file: |
-      set (CMAKE_BUILD_TYPE "Release" CACHE STRING "opt, no debug info" )
-      set (HDF5 "OFF" CACHE STRING "turn off HDF5")
-      set (LINALG "MKL" CACHE STRING "enable MKL")
-    pre_compile_script: |
-      . /usr/license/intel/composer_xe_2013.1.117/bin/compilervars.sh intel64
-      export PATH=$${PWD}:$${PATH}
-      touch pymolcas
-    pre_run_script: |
-      . /usr/license/intel/composer_xe_2013.1.117/bin/compilervars.sh intel64
-      export PATH=$${PWD}:$${PATH}
-      touch pymolcas
-    CC: "icc"
-    CXX: "icpc"
-    FC: "ifort"
-  tags:
-    - intel13
-
-.template: &nag
-  variables: &nag_vars
-    cache_file: |
-      set (CMAKE_BUILD_TYPE "Garble" CACHE STRING "garble installation" )
-      set (BUILD_SHARED_LIBS "OFF" CACHE STRING "static molcas lib" )
-      set (HDF5 "OFF" CACHE STRING "turn off HDF5")
-      set (DEFMOLCASMEM "256" CACHE STRING "reduce memory to get more speed")
-    pre_compile_script: |
-      export PATH=$${PWD}:/opt/NAG/Fortran-amd64/6.0/bin:$${PATH}
-      touch pymolcas
-    pre_run_script: |
-      export PATH=$${PWD}:/home/tester/bin/:$${PATH}
-      touch pymolcas
-    CX: "gcc"
-    CCX: "g++"
-    FC: "nagfor"
-    NAG_KUSARI_FILE: "/opt/NAG/npl6a60na.key"
-    FFLAGS: "-w=obs -w=x77 -Wc,-fno-aggressive-loop-optimizations -Qpath /opt/NAG/Fortran-amd64/6.0/lib"
-  tags:
-    - nag
-
-.template: &garble
-  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-5.4:latest
-  variables: &garble_vars
-    cache_file: |
-      set (CMAKE_BUILD_TYPE "Garble" CACHE STRING "garble installation" )
-      #set (BOUNDS "ON" CACHE STRING "enable bounds checking" )
-      set (BUILD_SHARED_LIBS "OFF" CACHE STRING "static molcas lib" )
-      set (HDF5 "OFF" CACHE STRING "turn off HDF5")
-      set (DEFMOLCASMEM "256" CACHE STRING "reduce memory to get more speed")
-    CX: "gcc"
-    CCX: "g++"
-    FC: "gfortran"
-  tags:
-    - docker
-
-.template: &bounds
-  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-5.4:latest
-  variables: &bounds_vars
-    cache_file: |
-      set (CMAKE_BUILD_TYPE "Release" CACHE STRING "opt, no debug info" )
-      set (BOUNDS "ON" CACHE STRING "enable bounds checking" )
-      set (DEFMOLCASMEM "256" CACHE STRING "reduce memory to get more speed")
-    CX: "gcc"
-    CCX: "g++"
-    FC: "gfortran"
-  tags:
-    - docker
-
-.template: &debug
-  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-5.4:latest
-  variables: &debug_vars
-    cache_file: |
-      set (CMAKE_BUILD_TYPE "Debug" CACHE STRING "no opt, debug info")
-      set (BUILD_SHARED_LIBS "OFF" CACHE STRING "do not use shared libmolcas")
-      set (BIGOT "ON" CACHE STRING "do not allow any warning")
-      set (DEBUG_DEFS "_BIGOT_" CACHE STRING "stricter runtime checks")
-    CC: "gcc"
-    CXX: "g++"
-    FC: "gfortran"
-    # only interested in compilation, so run no tests
-    # (but the test job will fail if the compilation didn't succeed)
-    tests: ".none"
-  tags:
-    - docker
 
 # A special job for compiling the tinker interface
 # By adding "tinker" as a dependency, other jobs can use it
@@ -349,287 +200,124 @@ tinker:
     paths:
       - build/
     expire_in: 1 day
-  except:
-    - tags
-    - master
-
-# Another special job for building the documentation,
-doc:
-  stage: build
-  image: ${CI_REGISTRY}/molcas/dockerfiles/doc:latest
-  script:
-    # First build sphinx doc
-    - git submodule update --init External/lapack
-    - mkdir build
-    - cd build
-    - cmake ..
-    - make doc_all
-    # Now build doxygen doc
-    - cd ../doc/doxygen
-    - >
-      echo "PROJECT_NUMBER = $(git describe --always --match 'v*')" >> Doxyfile
-    # Generating call/caller graphs unfortunately results in too large artifacts for the pages:deploy stage
-    #- echo 'CALL_GRAPH = YES' >> Doxyfile
-    #- echo 'CALLER_GRAPH = YES' >> Doxyfile
-    - doxygen
-  after_script:
-    - cat doc/doxygen/doxygen.log
-  artifacts:
-    paths:
-      - build/doc
-      - doc/doxygen/html
-    expire_in: 1 day
-  except:
-    - tags
-  tags:
-    - docker
-
-# And the corresponding job to publish the documentation for the master branch
-pages:
-  stage: deploy
-  script:
-    - mkdir -p public
-    - mv build/doc/html public/sphinx
-    - mv build/doc/latex/Manual.pdf public/
-    - mv doc/doxygen/html public/doxygen
-    - du -sh public/*
-  dependencies:
-    - doc
-  artifacts:
-    paths:
-      - public
-    expire_in: 1 day
   only:
+    <<: *sources
+  except:
+    - tags
     - master
 
 # Define the actual jobs, each job has a "build" and a "test" stage,
-# the latter depends on the former, variables can be overriden.
+# the latter depends on the former.
 
 build:plain:
-  stage: build
-  <<: *plain
+  extends: .plain
   <<: *compile
-test:plain_1:
-  stage: test
+test:plain:
+  extends: .plain
+  <<: *run-tests
   dependencies:
     - build:plain
     - tinker
-  <<: *plain
-  <<: *run-tests
-  variables:
-    <<: *plain_vars
-    subset: "1"
-test:plain_2:
-  stage: test
-  dependencies:
-    - build:plain
-    - tinker
-  <<: *plain
-  <<: *run-tests
-  variables:
-    <<: *plain_vars
-    subset: "2"
+  parallel: 2
 
 build:options:
-  stage: build
-  <<: *options
+  extends: .options
   <<: *compile
-test:options_1:
-  stage: test
+test:options:
+  extends: .options
+  <<: *run-tests
   dependencies:
     - build:options
     - tinker
-  <<: *options
-  <<: *run-tests
-  variables:
-    <<: *options_vars
-    subset: "1"
-test:options_2:
-  stage: test
-  dependencies:
-    - build:options
-    - tinker
-  <<: *options
-  <<: *run-tests
-  variables:
-    <<: *options_vars
-    subset: "2"
+  parallel: 2
 
 build:pgi:
-  stage: build
-  <<: *pgi
+  extends: .pgi
   <<: *compile
-test:pgi_1:
-  stage: test
+test:pgi:
+  extends: .pgi
+  <<: *run-tests
   dependencies:
     - build:pgi
     - tinker
-  <<: *pgi
-  <<: *run-tests
-  variables:
-    <<: *pgi_vars
-    subset: "1"
-test:pgi_2:
-  stage: test
-  dependencies:
-    - build:pgi
-    - tinker
-  <<: *pgi
-  <<: *run-tests
-  variables:
-    <<: *pgi_vars
-    subset: "2"
+  parallel: 2
 
 build:sun:
-  stage: build
-  <<: *sun
+  extends: .sun
   <<: *compile
-test:sun_1:
-  stage: test
+test:sun:
+  extends: .sun
+  <<: *run-tests
   dependencies:
     - build:sun
     - tinker
-  <<: *sun
-  <<: *run-tests
-  variables:
-    <<: *sun_vars
-    subset: "1"
-test:sun_2:
-  stage: test
-  dependencies:
-    - build:sun
-    - tinker
-  <<: *sun
-  <<: *run-tests
-  variables:
-    <<: *sun_vars
-    subset: "2"
+  parallel: 2
 
 build:intel:
-  stage: build
-  <<: *intel
+  extends: .intel
   <<: *compile
 test:intel:
-  stage: test
+  extends: .intel
+  <<: *run-tests
   dependencies:
     - build:intel
-  <<: *intel
-  <<: *run-tests
 
 build:intel13:
-  stage: build
-  <<: *intel13
+  extends: .intel13
   <<: *compile
 test:intel13:
-  stage: test
+  extends: .intel13
+  <<: *run-tests
   dependencies:
     - build:intel13
-  <<: *intel13
-  <<: *run-tests
 
 # Disable NAG, since the runner is unavailable
 #build:nag:
-#  stage: build
-#  <<: *nag
+#  extends: .nag
 #  <<: *compile
 #test:nag:
-#  stage: test
+#  extends: .nag
+#  <<: *run-tests
 #  dependencies:
 #    - build:nag
 #    - tinker
-#  <<: *nag
-#  <<: *run-tests
 
 build:garble:
-  stage: build
-  <<: *garble
+  extends: .garble
   <<: *compile
-test:garble_1:
-  stage: test
+test:garble:
+  extends: .garble
+  <<: *run-tests
   dependencies:
     - build:garble
     - tinker
-  <<: *garble
-  <<: *run-tests
-  variables:
-    <<: *garble_vars
-    subset_size: "150"
-    subset: "1"
-test:garble_2:
-  stage: test
-  dependencies:
-    - build:garble
-    - tinker
-  <<: *garble
-  <<: *run-tests
-  variables:
-    <<: *garble_vars
-    subset_size: "150"
-    subset: "2"
-test:garble_3:
-  stage: test
-  dependencies:
-    - build:garble
-    - tinker
-  <<: *garble
-  <<: *run-tests
-  variables:
-    <<: *garble_vars
-    subset_size: "150"
-    subset: "3"
+  parallel: 4
 
 build:bounds:
-  stage: build
-  <<: *bounds
+  extends: .bounds
   <<: *compile
-test:bounds_1:
-  stage: test
+test:bounds:
+  extends: .bounds
+  <<: *run-tests
   dependencies:
     - build:bounds
-  <<: *bounds
-  <<: *run-tests
-  variables:
-    <<: *bounds_vars
-    subset_size: "115"
-    subset: "1"
-test:bounds_2:
-  stage: test
-  dependencies:
-    - build:bounds
-  <<: *bounds
-  <<: *run-tests
-  variables:
-    <<: *bounds_vars
-    subset_size: "115"
-    subset: "2"
-test:bounds_3:
-  stage: test
-  dependencies:
-    - build:bounds
-  <<: *bounds
-  <<: *run-tests
-  variables:
-    <<: *bounds_vars
-    subset_size: "115"
-    subset: "3"
-test:bounds_4:
-  stage: test
-  dependencies:
-    - build:bounds
-  <<: *bounds
-  <<: *run-tests
-  variables:
-    <<: *bounds_vars
-    subset_size: "115"
-    subset: "4"
+  parallel: 4
 
 build:debug:
-  stage: build
-  <<: *debug
+  extends: .debug
   <<: *compile
 test:debug:
-  stage: test
+  extends: .debug
+  <<: *run-tests
   dependencies:
     - build:debug
-  <<: *debug
+
+build:qcmaquis:
+  extends: .qcmaquis
+  <<: *compile
+test:qcmaquis:
+  extends: .qcmaquis
   <<: *run-tests
+  dependencies:
+    - build:qcmaquis
+
