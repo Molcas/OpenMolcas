@@ -1,0 +1,17 @@
+&GATEWAY
+  Coord = $XYZ
+  Basis = $BASIS
+  Group = NoSym
+  $OPTS
+
+>>> Do While
+
+&SEWARD
+
+&SCF
+  $SCF
+
+&SLAPAF
+  $SLAPAF
+
+>>> End Do
