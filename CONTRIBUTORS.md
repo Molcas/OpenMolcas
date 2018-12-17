@@ -167,4 +167,7 @@ Małgorzata Wierzbowska
 Alexander Wolf  
 Sebastian Wouters  
 Felipe Zapata  
-Yan Zhao  
+Yan Zhao
+Jesper Norell
+Joel Creutzberg
+
