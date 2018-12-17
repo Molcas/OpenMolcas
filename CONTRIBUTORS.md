@@ -49,6 +49,7 @@ Kerstin Andersson
 János G. Ángyán  
 Francesco Aquilante  
 Jochen Autschbach  
+Jie J. Bao  
 Maria Barysz  
 Eugeniusz Bednarz  
 Nelson H. F. Beebe  
@@ -169,5 +170,6 @@ Małgorzata Wierzbowska
 Alexander Wolf  
 Sebastian Wouters  
 Felipe Zapata  
-Yan Zhao
+Yan Zhao  
+J. Patrick Zobel  
 

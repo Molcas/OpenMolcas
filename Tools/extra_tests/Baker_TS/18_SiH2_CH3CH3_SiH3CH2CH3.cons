@@ -1,0 +1,5 @@
+TSConstraints
+  d = bond C2 Si3
+Values
+  d = 2 angstrom
+End of TSConstraints

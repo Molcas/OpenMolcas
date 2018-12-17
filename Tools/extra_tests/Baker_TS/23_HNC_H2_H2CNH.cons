@@ -1,0 +1,5 @@
+TSConstraints
+  d = bond H4 H5
+Values
+  d = 1.2 angstrom
+End of TSConstraints

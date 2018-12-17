@@ -1,0 +1,7 @@
+TSConstraints
+  d1 = bond N1 C3
+  d2 = bond N2 C4
+Values
+  d1 = 2 angstrom
+  d2 = 2 angstrom
+End of TSConstraints
