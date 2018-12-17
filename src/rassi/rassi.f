@@ -147,7 +147,7 @@ C Hamiltonian matrix elements, eigenvectors:
 
       IF (DYSEXPORT) THEN
 
-       CALL WRITEDYS(WORK(LDYSAMPS),WORK(LSFDYS),NZ,NSTATE*NSTATE,
+       CALL WRITEDYS(WORK(LDYSAMPS),WORK(LSFDYS),NZ,
      &        WORK(LENERGY))
 
       END IF

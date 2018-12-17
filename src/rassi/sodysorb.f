@@ -18,12 +18,9 @@
 #include "prgm.fh"
 #include "symmul.fh"
 #include "Files.fh"
-      CHARACTER*16 ROUTINE
-      LOGICAL   FIRSTSO
-      INTEGER   SOTOT,SFTOT,SO2SFNUM,DUMMY
+      INTEGER   SOTOT,SFTOT,SO2SFNUM
       INTEGER   NZ,LSZZ,ORBNUM
-      INTEGER   IDISK
-      INTEGER   SODYSCIND,ENIND
+      INTEGER   SODYSCIND
       INTEGER   INDJ,INDI,SFI,SFJ,ZI,ZJ,NSZZ,NDUM
 
       DIMENSION DYSAMPS(NSTATE,NSTATE)
@@ -70,7 +67,7 @@ C as a function of the SO state number
 
        DO MSPROJ1=-MPLET1+1,MPLET1-1,2
         SOTOT=SOTOT+1
-        WORK(SO2SFNUM+SOTOT-1)=SFTOT
+        IWORK(SO2SFNUM+SOTOT-1)=SFTOT
 
        END DO ! DO MSPROJ1=-MPLET1+1,MPLET1-1,2
       END DO ! DO ISTATE=1,NSTATE
@@ -83,8 +80,8 @@ C (initially all real, therefore put into SODYSAMPSR)
       SODYSAMPSI=0.0D0
       DO JSTATE=1,NSS
          DO ISTATE=JSTATE+1,NSS
-          SFJ=WORK(SO2SFNUM+JSTATE-1)
-          SFI=WORK(SO2SFNUM+ISTATE-1)
+          SFJ=IWORK(SO2SFNUM+JSTATE-1)
+          SFI=IWORK(SO2SFNUM+ISTATE-1)
           SODYSAMPSR(JSTATE,ISTATE)=DYSAMPS(SFJ,SFI)
           SODYSAMPSR(ISTATE,JSTATE)=DYSAMPS(SFJ,SFI)
          END DO
@@ -182,7 +179,7 @@ C SO Dyson orbitals
          CJR=WORK(LUTOTR+INDJ)
          CJI=WORK(LUTOTI+INDJ)
          ! Find the corresponding SF states
-         SFJ=WORK(SO2SFNUM+JEIG-1)
+         SFJ=IWORK(SO2SFNUM+JEIG-1)
 
          DO IEIG=1,NSS
 
@@ -191,7 +188,7 @@ C SO Dyson orbitals
           CIR=WORK(LUTOTR+INDI)
           CII=WORK(LUTOTI+INDI)
           ! Find the corresponding SF states
-          SFI=WORK(SO2SFNUM+IEIG-1)
+          SFI=IWORK(SO2SFNUM+IEIG-1)
 
           IF (DYSAMPS(SFJ,SFI).GT.1.0D-6) THEN
            ! Multiply together coefficients

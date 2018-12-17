@@ -10,14 +10,13 @@
 ************************************************************************
       SUBROUTINE DYSON(IFSBTAB1,
      &    IFSBTAB2,ISSTAB,
-     &    DET1,DET2,ISTATE,JSTATE,
+     &    DET1,DET2,
      &    IF10,IF01,DYSAMP,DYSCOF)
 
       IMPLICIT NONE
       INTEGER IFSBTAB1(*),IFSBTAB2(*),ISSTAB(*)
-      INTEGER IORB,ISORB,ISYOP,ITABS,IUABS,JORB,JSORB,LORBTB
-      INTEGER LSPD1,MS2OP,NASHT,NASORB,NSPD1
-      INTEGER, INTENT(IN) :: ISTATE, JSTATE
+      INTEGER LORBTB
+      INTEGER NASORB
       REAL*8 DET1(*),DET2(*),DYSAMP,DYSCOF(*)
       LOGICAL IF10,IF01
 
@@ -38,7 +37,7 @@ C Pick out nr of active orbitals from orbital table:
       NASORB=IWORK(LORBTB+3)
 
       CALL MKDYSORB(IWORK(LORBTB),ISSTAB,
-     &               IFSBTAB1,IFSBTAB2,DET1,DET2,WORK(LSPD1),
+     &               IFSBTAB1,IFSBTAB2,DET1,DET2,
      &               IF10,IF01,DYSAMP,DYSCOF)
 
       RETURN

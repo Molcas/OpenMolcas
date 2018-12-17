@@ -14,7 +14,7 @@
 !     creation.
 !     Heavily based on SODYSORB subroutine.
 
-      SUBROUTINE WRITEDYS(DYSAMPS,SFDYS,NZ,NSTATE2,ENERGY)
+      SUBROUTINE WRITEDYS(DYSAMPS,SFDYS,NZ,ENERGY)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "cntrl.fh"
@@ -23,12 +23,10 @@
 #include "prgm.fh"
 #include "symmul.fh"
 #include "Files.fh"
-      CHARACTER*16 ROUTINE
 
       INTEGER   NZ,ORBNUM
-      INTEGER   IDISK
-      INTEGER   DYSCIND,ENIND
-      INTEGER   INDJ,INDI,SFI,SFJ,ZI,ZJ,NSZZ,NDUM
+      INTEGER   DYSCIND
+      INTEGER   NDUM
 
       DIMENSION DYSAMPS(NSTATE,NSTATE)
       DIMENSION SFDYS(NZ,NSTATE,NSTATE)
@@ -45,6 +43,8 @@
 
       EN_IND=1
       CMO_IND=1
+      DYSCIND=0
+      ORBNUM=0
       DO JSTATE=1,DYSEXPSF
          DO ISTATE=JSTATE+1,NSTATE
 

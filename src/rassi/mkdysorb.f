@@ -9,15 +9,15 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE MKDYSORB(IORBTAB,ISSTAB,IFSBTAB1,IFSBTAB2,
-     &                 PSI1,PSI2,SPD12,IF10,IF01,DYSAMP,DYSCOF)
+     &                 PSI1,PSI2,IF10,IF01,DYSAMP,DYSCOF)
 
       IMPLICIT NONE
-      REAL*8 PSI1(*),PSI2(*),SPD12(*),DYSCOF(*)
+      REAL*8 PSI1(*),PSI2(*),DYSCOF(*)
       REAL*8 COEFF,OVERLAP_RASSI,OVLP,DYSAMP
       INTEGER IORBTAB(*),NASORB
       INTEGER ISSTAB(*)
       INTEGER IFSBTAB1(*),IFSBTAB2(*)
-      INTEGER FSBOP,IJSORB,IMODE,ISORB
+      INTEGER FSBOP,IMODE,ISORB
       INTEGER NDETS1,NDETS2
       INTEGER LFSBANN1,LFSBANN2
       INTEGER JSORB,LANN1,LANN2
