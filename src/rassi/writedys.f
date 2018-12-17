@@ -7,8 +7,11 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2018, Jesper Norell                                    *
+*               2018, Joel Creutzberg                                  *
 ************************************************************************
-!     +++ J. Creutzberg, J. Norell  - 2018
+
 !     Subroutine to correctly bunch together spin-free Dyson orbitals
 !     and pass them to the interface for .DysOrb and .molden file
 !     creation.

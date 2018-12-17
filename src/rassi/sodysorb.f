@@ -7,6 +7,10 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 1987, Per Ake Malmqvist                                *
+*               2018, Jesper Norell                                    *
+*               2018, Joel Creutzberg                                  *
 ************************************************************************
       SUBROUTINE SODYSORB(NSS,LUTOTR,LUTOTI,DYSAMPS,SFDYS,NZ,
      &                 SODYSAMPS,SODYSAMPSR,SODYSAMPSI,SOENE)

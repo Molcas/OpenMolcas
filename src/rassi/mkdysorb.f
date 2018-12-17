@@ -7,6 +7,8 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2018, Jesper Norell                                    *
 ************************************************************************
       SUBROUTINE MKDYSORB(IORBTAB,ISSTAB,IFSBTAB1,IFSBTAB2,
      &                 PSI1,PSI2,IF10,IF01,DYSAMP,DYSCOF)

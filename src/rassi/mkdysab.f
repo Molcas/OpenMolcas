@@ -8,12 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-************************************************************************
-* Modified from MKTAB by Jesper Norell, 2018, which has:               *
 * Copyright (C) 1989, Per Ake Malmqvist                                *
+*               2018, Jesper Norell                                    *
 ************************************************************************
 
 *****************************************************************
+* Modified from MKTAB to MKDYSAB by Jesper Norell, 2018
 *  SUBROUTINE MKDYSAB
 *  PURPOSE: CALCULATE DYSON ORBITAL COEFFICIENTS FOR CI EXPANSIONS IN
 *  BIORTHONORMAL ORBITAL BASE A,

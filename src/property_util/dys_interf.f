@@ -7,10 +7,12 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2018, Jesper Norell                                    *
+*               2018, Joel Creutzberg                                  *
 ************************************************************************
       Subroutine Dys_Interf(SO,i_root,i_file,NZ,CMO,ENE,OCC)
 ************************************************************************
-!     +++ J. Creutzberg, J. Norell - 2018
 !     Subroutine to generate .DysOrb and .molden files for Dyson orbitals
 !     heavily based on the interf subroutine.
 
