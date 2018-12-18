@@ -37,7 +37,6 @@
       Integer I, J, ISTATE, JSTATE, IJOB, ILINE, LINENR
       Integer LuIn
       Integer NFLS
-      REAL*8 ANORM
 
       character(len=7) :: input_id = '&RASSI '
 
