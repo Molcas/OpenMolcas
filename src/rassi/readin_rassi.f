@@ -630,6 +630,21 @@ C ------------------------------------------
         GOTO 100
       END IF
 C ------------------------------------------
+      IF(LINE(1:4).EQ.'DYSO')THEN
+! Enable Dyson orbital calculations
+        DYSO=.TRUE.
+        LINENR=LINENR+1
+        GOTO 100
+      END IF
+C ------------------------------------------
+      IF(LINE(1:4).EQ.'DYSE')THEN
+! Enable Dyson orbital calculations
+        DYSEXPORT=.TRUE.
+        Read(LuIn,*,ERR=997) DYSEXPSF,DYSEXPSO
+        LINENR=LINENR+1
+        GOTO 100
+      END IF
+C ------------------------------------------
       If(Line(1:4).eq.'TMOS') then
 ! Calculate exact isotropically averaged semi-classical intensities
 ! Activate integration of transition moment oscillator strengths

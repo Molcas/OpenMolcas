@@ -154,6 +154,8 @@ C DEFAULT FLAGS:
       QIPR=.FALSE.
       OSTHR_QIPR = 0.0D0
       QIALL=.FALSE.
+      DYSO=.FALSE.
+      DYSEXPORT=.FALSE.
 * Exact operator
       Do_TMOS=.FALSE.
       NKVEC=0

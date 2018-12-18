@@ -1,0 +1,5 @@
+TSConstraints
+  t = dihedral C1 C2 C3 O4
+Values
+  t = -90 degree
+End of TSConstraints

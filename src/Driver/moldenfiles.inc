@@ -15,6 +15,7 @@
  (file)  MD_MP2    "$WorkDir/$Project$SubProject."mp2.molden      rwstg*
  (file)  MD_SCF    "$WorkDir/$Project$SubProject."scf.molden      rwstg*
  (file)  MD_CAS    "$WorkDir/$Project$SubProject."rasscf.molden   rwstg*
+ (file)  MD_DYS    "$WorkDir/$Project$SubProject."dys.molden 	  rwstg
  (file)  MD_PT2    "$WorkDir/$Project$SubProject."caspt2.molden   rwstg*
  (file)  MD_VB     "$WorkDir/$Project$SubProject."casvb.molden    rwstg*
  (file)  MD_GEO    "$WorkDir/$Project$SubProject."geo.molden      rwstg
