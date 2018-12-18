@@ -1,0 +1,5 @@
+TSConstraints
+  d = bond Cl3 H4
+Values
+  d = 1.2 angstrom
+End of TSConstraints
