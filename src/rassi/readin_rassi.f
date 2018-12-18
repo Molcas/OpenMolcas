@@ -655,34 +655,6 @@ C--------------------------------------------
       end if
 #endif
 C--------------------------------------------
-      IF(LINE(1:4).EQ.'KVEC')THEN
-! Calculate exact semi-classical intensities in given directions
-        DO_KVEC=.TRUE.
-        PRRAW=.TRUE.
-        Do_TMOS=.TRUE.
-        ToFile=.TRUE.
-        Read(LuIn,*,ERR=997) NKVEC
-        CALL GETMEM('KVEC  ','ALLO','REAL',PKVEC,3*NKVEC)
-        Linenr=Linenr+1
-        DO ILINE=1,NKVEC
-          Read(LuIn,*,ERR=997) (WORK(PKVEC+ILINE-1+(I-1)*NKVEC),I=1,3)
-          Linenr=Linenr+1
-        END DO
-! Ensure that the wavectors are normalized
-        DO ILINE=1,NKVEC
-          ANORM = WORK(PKVEC+ILINE-1)**2 +
-     &            WORK(PKVEC+ILINE-1+NKVEC)**2 +
-     &            WORK(PKVEC+ILINE-1+2*NKVEC)**2
-          WORK(PKVEC+ILINE-1) =
-     &    WORK(PKVEC+ILINE-1)/DSQRT(ANORM)
-          WORK(PKVEC+ILINE-1+NKVEC) =
-     &    WORK(PKVEC+ILINE-1+NKVEC)/DSQRT(ANORM)
-          WORK(PKVEC+ILINE-1+2*NKVEC) =
-     &    WORK(PKVEC+ILINE-1+2*NKVEC)/DSQRT(ANORM)
-        END DO
-        GOTO 100
-      END IF
-C--------------------------------------------
       IF(LINE(1:4).EQ.'PRRA')THEN
 ! Print the raw directions for exact semi-classical intensities
         PRRAW=.TRUE.

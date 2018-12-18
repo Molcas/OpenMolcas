@@ -2002,14 +2002,6 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
          Call Do_Lebedev(L_Eff,nQuad,ipR)
       End If
 *
-      IF(DO_KVEC) THEN
-*
-*     Specific directions specified by user
-*     The arrays from the Lebedev procedure is still used
-*
-        NQUAD = NKVEC
-      END IF
-*
 *     Get table of content for density matrices.
 *
       Call DaName(LuToM,FnToM)
@@ -2128,22 +2120,12 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *
 *              Read or generate the wavevector
 *
-               IF(DO_KVEC) THEN
-*
-*              Get wavevector from input
-*
-               X = WORK(PKVEC+IQUAD-1)
-               Y = WORK(PKVEC+IQUAD-1+NQUAD)
-               Z = WORK(PKVEC+IQUAD-1+2*NQUAD)
-               ELSE
-*
 *              Generate the wavevector associated with this quadrature
 *              point and pick up the associated quadrature weight.
 *
                x=Work((iQuad-1)*4  +ipR)
                y=Work((iQuad-1)*4+1+ipR)
                z=Work((iQuad-1)*4+2+ipR)
-               END IF
 
                PORIG(1,IPRTMOS_RS)=rkNorm*x
                PORIG(2,IPRTMOS_RS)=rkNorm*y
@@ -2372,51 +2354,49 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
             AZ=(AFACTOR*EDIFF**2)*FZ
             A =(AFACTOR*EDIFF**2)*F
 *
-            IF(.NOT.DO_KVEC) THEN
-              If (iPrint.eq.0) Then
-                 WRITE(6,*)
-                 If (Do_SK) Then
-                    CALL CollapseOutput(1,
-     &                     'Transition moment strengths:')
-                 Else
-                 CALL CollapseOutput(1,
-     &                  'Isotropic transition moment strengths '//
-     &                  '(spin-free states):')
-                 End If
-                 WRITE(6,'(3X,A)')
-     &                  '--------------------------------------'//
-     &                  '-------------------'
-                 IF (OSTHR.GT.0.0D0) THEN
-                    WRITE(6,30) 'for osc. strength at least',OSTHR
-                 END IF
-                 WRITE(6,*)
-                 If (Do_SK) Then
-                    WRITE(6,'(4x,a,3F8.4,a)')
-     &                    'Direction of the k-vector: ',
-     &                     (k_vector(k),k=1,3),' (au)'
-                    WRITE(6,'(4x,a)')
-     &                    'The light is assumed to be unpolarized.'
-                 Else
-                    WRITE(6,'(4x,a,I4,a)')
-     &                   'Integrated over ',nQuad,' directions of the'//
-     &                   ' wave vector'
-                    WRITE(6,'(4x,a)')
-     &                   'Integrated over all directions of the polar'//
-     &                   'ization vector'
-                 End If
-                 WRITE(6,*)
-                 WRITE(6,31) 'From','To','Osc. strength',
-     &                 'Einstein coefficients Ax, Ay, Az (sec-1)   ',
-     &                 'Total A (sec-1)'
-                 WRITE(6,32)
-                  iPrint=1
-              END IF
+            If (iPrint.eq.0) Then
+               WRITE(6,*)
+               If (Do_SK) Then
+                  CALL CollapseOutput(1,
+     &                   'Transition moment strengths:')
+               Else
+               CALL CollapseOutput(1,
+     &                'Isotropic transition moment strengths '//
+     &                '(spin-free states):')
+               End If
+               WRITE(6,'(3X,A)')
+     &                '--------------------------------------'//
+     &                '-------------------'
+               IF (OSTHR.GT.0.0D0) THEN
+                  WRITE(6,30) 'for osc. strength at least',OSTHR
+               END IF
+               WRITE(6,*)
+               If (Do_SK) Then
+                  WRITE(6,'(4x,a,3F8.4,a)')
+     &                  'Direction of the k-vector: ',
+     &                   (k_vector(k),k=1,3),' (au)'
+                  WRITE(6,'(4x,a)')
+     &                  'The light is assumed to be unpolarized.'
+               Else
+                  WRITE(6,'(4x,a,I4,a)')
+     &                 'Integrated over ',nQuad,' directions of the'//
+     &                 ' wave vector'
+                  WRITE(6,'(4x,a)')
+     &                 'Integrated over all directions of the polar'//
+     &                 'ization vector'
+               End If
+               WRITE(6,*)
+               WRITE(6,31) 'From','To','Osc. strength',
+     &               'Einstein coefficients Ax, Ay, Az (sec-1)   ',
+     &               'Total A (sec-1)'
+               WRITE(6,32)
+                iPrint=1
+            END IF
 *
 *     Regular print
 *
-              WRITE(6,33) I,J,F,AX,AY,AZ,A
-*             WRITE(6,'(A,6X,G16.8)') 'Magnetic only', Fm
-            END IF
+            WRITE(6,33) I,J,F,AX,AY,AZ,A
+*           WRITE(6,'(A,6X,G16.8)') 'Magnetic only', Fm
 *
 *     Printing raw (unweighted) and direction for every transition
 *
