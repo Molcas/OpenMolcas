@@ -82,6 +82,7 @@ def generate_one_boltz(dictio,label):
     Pcart,vcart :: (atomN,3)
 
     '''
+
     # dictionary unpacking
     c = dictio['c']
     beta = dictio['beta']
@@ -93,12 +94,13 @@ def generate_one_boltz(dictio,label):
     RedMass = dictio['RedMass']
     degrN = dictio['degrN']
     debug = dictio['debug']
+    atomT = dictio['atomT']
 
     # DEBUG TIME
     if debug:
         printDict(dictio)
         import pickle
-        with open('dictio.pkl', 'wb') as f:
+        with open('debug_dictionary_file.pkl', 'wb') as f:
             pickle.dump(dictio, f, pickle.HIGHEST_PROTOCOL)
 
     # this is lambda :: (degrN)
@@ -139,13 +141,20 @@ def generate_one_boltz(dictio,label):
     atmass_squared = np.sqrt(AtMass_broadcasted)
     Qcart = Qcart_temp/atmass_squared
 
-    newGeom = Pcart + geom
+    # Pcart is the displacement, added to the main geometry
+    # Transformed into ANGSTROM !!
+    newGeom = (Pcart + geom) * 0.529177249
     geomName = label + '.xyz'
     veloName = label + '.velocity.xyz'
-    stringOUT = '\n{}\n{}\n{}\n{}'
+
+    #stringOUT = '\n{}\n{}\n{}\n{}'
     #print(stringOUT.format(veloName, Qcart, geomName, newGeom))
-    np.savetxt(veloName,Qcart)
-    np.savetxt(geomName,newGeom,header='{}\n'.format(atomN),comments='')
+
+    np.savetxt(veloName,Qcart,fmt='%1.6f')
+    # add the atom name in the matrix
+    atom_type = np.array(atomT)[:, np.newaxis]
+    atom_t_and_geom = np.hstack((atom_type,newGeom))
+    np.savetxt(geomName,atom_t_and_geom,header='{}\n'.format(atomN),comments='',fmt='%s %s %s %s')
 
 def parseCL():
     d = '''
@@ -326,6 +335,7 @@ def atomic_masses(atomtype_list):
     return np.array(at_mass)
 
 def main():
+    print('')
     args = parseCL()
     # i is input file from command line
     if args.i:
@@ -379,6 +389,7 @@ def main():
     for counter in range(number_of_ic):
         complete_label = '{}{:04}'.format(label,counter)
         generate_one_boltz(inputs,complete_label)
+    print('\nThis routine generates geometries in Angstrom and velocities in Bohr (the format that Molcas requires for a Semiclassical Molecular Dynamics)\n')
 
 
 
