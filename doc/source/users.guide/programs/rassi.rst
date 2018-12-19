@@ -723,7 +723,7 @@ Keywords
               </HELP>
               </KEYWORD>
 
-:kword:`DIPR`
+:kword:`DIPRrint`
   The next entry gives the threshold for printing dipole intensities.
   Default is 1.0D-5.
 
@@ -735,7 +735,7 @@ Keywords
               </HELP>
               </KEYWORD>
 
-:kword:`QIPR`
+:kword:`QIPRrint`
   The next entry gives the threshold for printing quadrupole intensities.
   Default is 1.0D-5.
   Will overwrite any value chosen for dipole intensities.
@@ -773,7 +773,7 @@ Keywords
               </HELP>
               </KEYWORD>
 
-:kword:`L-EF`
+:kword:`L-EFfective`
   Set the order of the Lebedev grids used in the interpolation of the solid angles
   in association with the :kword:`TMOS` option. Default value is 5.
   Other allowed values are: 7, 11, 17, 23, 29, 35, 41, 47, 53, and 59.
@@ -787,7 +787,7 @@ Keywords
               </HELP>
               </KEYWORD>
 
-:kword:`K-VE`
+:kword:`K-VEctor`
   Define the direction of the incident light for which we will
   compute transition moments and oscillator strengths. The keyword
   is followed by three reals specifying the direction. The values
@@ -803,7 +803,7 @@ Keywords
               </HELP>
               </KEYWORD>
 
-:kword:`RFPE`
+:kword:`RFPErt`
   :program:`RASSI` will read from :file:`RUNOLD` (if not present defaults to :file:`RUNFILE`) a response field contribution
   and add it to the Fock matrix.
 
