@@ -154,9 +154,10 @@ C DEFAULT FLAGS:
       QIPR=.FALSE.
       OSTHR_QIPR = 0.0D0
       QIALL=.FALSE.
+      DYSO=.FALSE.
+      DYSEXPORT=.FALSE.
 * Exact operator
       Do_TMOS=.FALSE.
-      DO_KVEC=.FALSE.
       NKVEC=0
       PRRAW=.FALSE.
       PRWEIGHT=.FALSE.
@@ -164,6 +165,11 @@ C DEFAULT FLAGS:
       TOLERANCE=0.1D0
       REDUCELOOP=.FALSE.
       LOOPDIVIDE=0
+      Do_SK  =.FALSE.
+      L_Eff=5
+      k_vector(1) = 0.0D0
+      k_vector(2) = 0.0D0
+      k_vector(3) = 0.0D0
 cnf
       IfDCpl = .False.
 cnf
@@ -185,12 +191,6 @@ c BP - Hyperfine tensor and SONATORB initialization
 
       IFCURD=.FALSE.
 
-      Do_TMOS=.FALSE.
-      Do_SK  =.FALSE.
-      L_Eff=5
-      k_vector(1) = 0.0D0
-      k_vector(2) = 0.0D0
-      k_vector(3) = 0.0D0
 
 * Nr of states for which natural orbitals will be computed:
       NRNATO=0
