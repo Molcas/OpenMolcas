@@ -787,7 +787,7 @@ C DYSCOF = Active orbital coefficents of the DO
         CALL DYSON(IWORK(LFSBTAB1),
      &            IWORK(LFSBTAB2),IWORK(LSSTAB),
      &            WORK(LDET1),WORK(LDET2),
-     &            ISTATE,JSTATE,IF10,IF01,
+     &            IF10,IF01,
      &            DYSAMP,WORK(LDYSCOF))
 
 C Write Dyson orbital coefficients in AO basis to disk.
