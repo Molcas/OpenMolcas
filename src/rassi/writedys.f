@@ -48,6 +48,7 @@
        WRITE(6,*)""
        WRITE(6,*)"! Molden export of Dyson orbitals is "//
      & "currently not supported for calculations with symmetry !"
+       RETURN
       END IF
 
       EN_IND=1
