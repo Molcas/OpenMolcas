@@ -174,14 +174,6 @@ C printing threshold
          Call Do_Lebedev(L_Eff,nQuad,ipR)
       End If
 *
-      IF(DO_KVEC) THEN
-*
-*     Specific directions specified by user
-*     The arrays from the Lebedev procedure is still used
-*
-        NQUAD = NKVEC
-      END IF
-*
 *     Get table of content for density matrices.
 *
       Call DaName(LuToM,FnToM)
@@ -289,24 +281,12 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
             Do iQuad = 1, nQuad
                iStorage = iOff_+ (iQuad-1)*nData + ipStorage - 1
 *
-*              Read or generate the wavevector
-*
-               IF(DO_KVEC) THEN
-*
-*              Get wavevector from input
-*
-               XCOOR = WORK(PKVEC+IQUAD-1)
-               YCOOR = WORK(PKVEC+IQUAD-1+NQUAD)
-               ZCOOR = WORK(PKVEC+IQUAD-1+2*NQUAD)
-               ELSE
-*
 *              Generate the wavevector associated with this quadrature
 *              point and pick up the associated quadrature weight.
 *
                xcoor=Work((iQuad-1)*4  +ipR)
                ycoor=Work((iQuad-1)*4+1+ipR)
                zcoor=Work((iQuad-1)*4+2+ipR)
-               END IF
 
                PORIG(1,IPREMFR_RS)=rkNorm*xcoor
                PORIG(2,IPREMFR_RS)=rkNorm*ycoor
@@ -567,50 +547,48 @@ C              IJ=(JSO-1)*NSS + ISO - 1
             AZ=(AFACTOR*EDIFF**2)*FZ
             A =(AFACTOR*EDIFF**2)*F
 *
-            IF(.NOT.DO_KVEC) THEN
-              If (iPrint.eq.0) Then
-                 WRITE(6,*)
-                 If (Do_SK) Then
-                    CALL CollapseOutput(1,
-     &                  'Transition moment strengths:')
-                 Else
-                    CALL CollapseOutput(1,
-     &                  'Isotropic transition moment strengths:')
-                 End If
-                 WRITE(6,'(3X,A)')
-     &                  '--------------------------------------'
-                 IF (OSTHR.GT.0.0D0) THEN
-                    WRITE(6,'(1x,a,ES16.8)')
-     &                    '   for osc. strength at least ',OSTHR
-                 END IF
-                 WRITE(6,*)
-                 If (Do_SK) Then
-                    WRITE(6,'(4x,a,3F8.4,a)')
-     &                    'Direction of the k-vector: ',
-     &                     (Work(ipR+k),k=0,2),' (au)'
-                    WRITE(6,'(4x,a)')
-     &                    'The light is assumed to be unpolarized.'
-                 Else
-                    WRITE(6,'(1x,a,I4,a)')
-     &                '   Integrated over ',nQuad,' directions of the'//
-     &                ' wave vector'
-                    WRITE(6,'(1x,a)')
-     &                '   Integrated over all directions of the polar'//
-     &                'ization vector'
-                 End If
-                 WRITE(6,*)
-                 WRITE(6,*)"        To  From     Osc. strength"//
-     &             "   Einstein coefficients Ax, Ay, Az (sec-1) "//
-     &             "      Total A (sec-1)  "
-                 WRITE(6,*)
-     &  '        -------------------------------------------'//
+            If (iPrint.eq.0) Then
+               WRITE(6,*)
+               If (Do_SK) Then
+                  CALL CollapseOutput(1,
+     &                'Transition moment strengths:')
+               Else
+                  CALL CollapseOutput(1,
+     &                'Isotropic transition moment strengths:')
+               End If
+               WRITE(6,'(3X,A)')
+     &                '--------------------------------------'
+               IF (OSTHR.GT.0.0D0) THEN
+                  WRITE(6,'(1x,a,ES16.8)')
+     &                  '   for osc. strength at least ',OSTHR
+               END IF
+               WRITE(6,*)
+               If (Do_SK) Then
+                  WRITE(6,'(4x,a,3F8.4,a)')
+     &                  'Direction of the k-vector: ',
+     &                   (Work(ipR+k),k=0,2),' (au)'
+                  WRITE(6,'(4x,a)')
+     &                  'The light is assumed to be unpolarized.'
+               Else
+                  WRITE(6,'(1x,a,I4,a)')
+     &              '   Integrated over ',nQuad,' directions of the'//
+     &              ' wave vector'
+                  WRITE(6,'(1x,a)')
+     &              '   Integrated over all directions of the polar'//
+     &              'ization vector'
+               End If
+               WRITE(6,*)
+               WRITE(6,*)"        To  From     Osc. strength"//
+     &           "   Einstein coefficients Ax, Ay, Az (sec-1) "//
+     &           "      Total A (sec-1)  "
+               WRITE(6,*)
+     &  '      -------------------------------------------'//
      &  '------------------------------------------------'
-                iPrint=1
-              END IF
-*
-              WRITE(6,'(5X,2I5,5X,5ES16.8)') ISO,JSO,F,AX,AY,AZ,A
-              WRITE(6,'(A,6X,ES16.8)') ' Rotatory Strength',R
+              iPrint=1
             END IF
+*
+            WRITE(6,'(5X,2I5,5X,5ES16.8)') ISO,JSO,F,AX,AY,AZ,A
+            WRITE(6,'(A,6X,ES16.8)') ' Rotatory Strength',R
 *
 *     Printing raw (unweighted) and direction for every transition
 *
