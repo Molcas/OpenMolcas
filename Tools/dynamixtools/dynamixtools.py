@@ -92,6 +92,14 @@ def generate_one_boltz(dictio,label):
     AtMass = dictio['AtMass']
     RedMass = dictio['RedMass']
     degrN = dictio['degrN']
+    debug = dictio['debug']
+
+    # DEBUG TIME
+    if debug:
+        printDict(dictio)
+        import pickle
+        with open('dictio.pkl', 'wb') as f:
+            pickle.dump(dictio, f, pickle.HIGHEST_PROTOCOL)
 
     # this is lambda :: (degrN)
     lamb = 4 * (np.pi**2) * (freq*100)**2 * c**2
@@ -100,22 +108,35 @@ def generate_one_boltz(dictio,label):
     Pint = (np.array([ gaus_dist(x) for x in sigmaP ]))*6.02214086E21
 
     # I want to multiply on first axis, both for Pcart and vcart
-    # this is why I am broadcasting/transposing
-    pint_transpose = np.broadcast_to(Pint,(degrN,atomN,3)).T
-    to_be_summed = NCMatx * pint_transpose
+    # this is why I create and tile the new pint_broadcasted vector
+    # it is ugly, there must be a broadcast numpy rule that works better and more efficient
+    # but since the degrees of freedom are never gonna be 30.000.000, this loop here is
+    # still efficient enough.
+    pint_broadcasted = np.empty((degrN,atomN,3))
+    for i in range(degrN):
+        pint_broadcasted[i] = np.ones((atomN,3)) * Pint[i]
+
+    to_be_summed = NCMatx * pint_broadcasted
     Pcart = np.sum(to_be_summed, axis=0)
-    AtMass_transpose = np.broadcast_to(AtMass,(atomN,3)).T
-    vcart = Pcart / AtMass_transpose
+
+    # same multiplication on first axis.
+    AtMass_broadcasted = np.empty((atomN,3))
+    for i in range(atomN):
+        AtMass_broadcasted[i] = np.ones(3) * AtMass[i]
+    vcart = Pcart / AtMass_broadcasted
 
     sigma_q = 1/np.sqrt(beta*lamb)
     # change of dimensions
     Qint = (np.array([ gaus_dist(x) for x in sigma_q ]))*2.4540051E23
 
     # same multiplication on first axis.
-    qint_transpose = np.broadcast_to(Qint,(degrN,atomN,3)).T
-    to_be_summed = NCMatx * qint_transpose
+    qint_broadcasted = np.empty((degrN,atomN,3))
+    for i in range(degrN):
+        qint_broadcasted[i] = np.ones((atomN,3)) * Qint[i]
+
+    to_be_summed = NCMatx * qint_broadcasted
     Qcart_temp = np.sum(to_be_summed, axis=0)
-    atmass_squared = np.sqrt(AtMass_transpose)
+    atmass_squared = np.sqrt(AtMass_broadcasted)
     Qcart = Qcart_temp/atmass_squared
 
     newGeom = Pcart + geom
@@ -127,7 +148,14 @@ def generate_one_boltz(dictio,label):
     np.savetxt(geomName,newGeom,header='{}\n'.format(atomN),comments='')
 
 def parseCL():
-    d = 'This tools is intended to be used as a support to launch molecular dynamics'
+    d = '''
+This tools is intended to be used as a support to launch molecular dynamics'
+
+usage example:
+
+python3 $MOLCAS/Tools/dynamixtools/dynamixtools.py -t 273 -b 100 -i ${Project}.freq.molden
+
+'''
     parser = argparse.ArgumentParser(description=d)
     parser.add_argument("-s", "--seed",
                         dest="seed",
@@ -154,6 +182,11 @@ def parseCL():
                         required=True,
                         type=float,
                         help="temperature in Kelvin for the initial conditions")
+    parser.add_argument("-v", "--verbose",
+                        dest="debug",
+                        required=False,
+                        action='store_true',
+                        help="more verbose output")
     args = parser.parse_args()
     return args
 
@@ -253,14 +286,43 @@ def parseh5Freq(fn):
     sys.exit('This feature is still not available')
     return(inp)
 
+def massOf(elem):
+    '''
+    You get the mass of an element from the label string
+    elem :: String
+    '''
+    dictMass = {'X': 0, 'Ac': 227.028, 'Al': 26.981539, 'Am': 243, 'Sb': 121.757, 'Ar':
+            39.948, 'As': 74.92159, 'At': 210, 'Ba': 137.327, 'Bk': 247, 'Be':
+            9.012182, 'Bi': 208.98037, 'Bh': 262, 'B': 10.811, 'Br': 79.904,
+            'Cd': 112.411, 'Ca': 40.078, 'Cf': 251, 'C': 12.011, 'Ce': 140.115,
+            'Cs': 132.90543, 'Cl': 35.4527, 'Cr': 51.9961, 'Co': 58.9332, 'Cu':
+            63.546, 'Cm': 247, 'Db': 262, 'Dy': 162.5, 'Es': 252, 'Er': 167.26,
+            'Eu': 151.965, 'Fm': 257, 'F': 18.9984032, 'Fr': 223, 'Gd': 157.25,
+            'Ga': 69.723, 'Ge': 72.61, 'Au': 196.96654, 'Hf': 178.49, 'Hs':
+            265, 'He': 4.002602, 'Ho': 164.93032, 'H': 1.00794, 'In': 114.82,
+            'I': 126.90447, 'Ir': 192.22, 'Fe': 55.847, 'Kr': 83.8, 'La':
+            138.9055, 'Lr': 262, 'Pb': 207.2, 'Li': 6.941, 'Lu': 174.967, 'Mg':
+            24.305, 'Mn': 54.93805, 'Mt': 266, 'Md': 258, 'Hg': 200.59, 'Mo': 95.94,
+            'Nd': 144.24, 'Ne': 20.1797, 'Np': 237.048, 'Ni': 58.6934, 'Nb': 92.90638,
+            'N': 14.00674, 'No': 259, 'Os': 190.2, 'O': 15.9994, 'Pd': 106.42, 'P':
+            30.973762, 'Pt': 195.08, 'Pu': 244, 'Po': 209, 'K': 39.0983, 'Pr':
+            140.90765, 'Pm': 145, 'Pa': 231.0359, 'Ra': 226.025, 'Rn': 222,
+            'Re': 186.207, 'Rh': 102.9055, 'Rb': 85.4678, 'Ru': 101.07, 'Rf':
+            261, 'Sm': 150.36, 'Sc': 44.95591, 'Sg': 263, 'Se': 78.96, 'Si':
+            28.0855, 'Ag': 107.8682, 'Na': 22.989768, 'Sr': 87.62, 'S': 32.066,
+            'Ta': 180.9479, 'Tc': 98, 'Te': 127.6, 'Tb': 158.92534, 'Tl':
+            204.3833, 'Th': 232.0381, 'Tm': 168.93421, 'Sn': 118.71, 'Ti':
+            47.88, 'W': 183.85, 'U': 238.0289, 'V': 50.9415, 'Xe': 131.29,
+            'Yb': 173.04, 'Y': 88.90585, 'Zn': 65.39, 'Zr': 91.224}
+    return(dictMass[elem])
+
 def atomic_masses(atomtype_list):
     '''
     this function takes an atomtype list and return a numpy array with
     atomic masses
     atomtype_list :: [String] <- ['H', 'H', 'O']
     '''
-    atomMass = {'H': 1.00794, 'O': 15.9994}
-    at_mass = [ atomMass[x] for x in atomtype_list ]
+    at_mass = [ massOf(x) for x in atomtype_list ]
     return np.array(at_mass)
 
 def main():
@@ -302,13 +364,16 @@ def main():
     # inputs = test_initial_things()                  #
     ###################################################
 
+    if args.debug:
+        inputs['debug'] = True
+    else:
+        inputs['debug'] = False
+
     inputs['T'] = args.temp
     inputs['kb'] = 1.38064852E-23
     inputs['beta'] = 1 / (inputs['T'] * 1.38064852E-23)
     inputs['c'] = 299792458.00
     inputs['AtMass'] = atomic_masses(inputs['atomT'])
-
-    printDict(inputs)
 
     #print('\n\n\n\nAFTER DICTIONARY')
     for counter in range(number_of_ic):
