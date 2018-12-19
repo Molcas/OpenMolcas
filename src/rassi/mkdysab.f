@@ -71,9 +71,8 @@ C THEN ADD CONTRIBUTION FROM ACTIVE SPACE.
           II=NI1+I
           IPOS=IOFFTD+II
 
-! Lets add up alpha+beta spin orbital contributions
-! for now
-! (Might have to be changed later for SO part?)
+! Alpha and beta contributions are added up, in analogue to other rassi
+! routines.
 ! Alpha
           DYSAB(IPOS)=DYSCOF(ICOFF) ! Overwrite "old" values
           ICOFF=ICOFF+1

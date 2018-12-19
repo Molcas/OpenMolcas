@@ -183,15 +183,12 @@ C COF = active biorthonormal orbital base
 C AB  = inactive+active biorthonormal orbital base
 C ZZ  = atomic (basis function) base
       IF ((IF10.or.IF01).and.DYSO) THEN
-        LDYSCOF=LNILPT
-        LDYSAB=LNILPT
-        LDYSZZ=LNILPT
         CALL GETMEM('DYSCOF','Allo','Real',LDYSCOF,NASORB)
         ! Number of inactive+active orbitals
-        NDYSAB = INT(SQRT(REAL(NTDMAB)))
+        NDYSAB = NASHT+NISHT
         CALL GETMEM('DYSAB','Allo','Real',LDYSAB,NDYSAB)
         ! Number of atomic / basis functions
-        NDYSZZ = INT(SQRT(REAL(NTDMZZ)))
+        NDYSZZ = NZ
         CALL GETMEM('DYSZZ','Allo','Real',LDYSZZ,NDYSZZ)
         DO NDUM=1,NDYSZZ
          WORK(LDYSZZ+NDUM-1)=0.0D0
@@ -794,9 +791,19 @@ C Write Dyson orbital coefficients in AO basis to disk.
         IF (DYSAMP.GT.1.0D-6) THEN
 C In full biorthonormal basis:
          CALL MKDYSAB(WORK(LDYSCOF),WORK(LDYSAB))
+!         WRITE(*,*)"NDYSAB=",NDYSAB
+!         WRITE(*,*)"DYSAB="
+!         DO NDUM=1,NDYSAB
+!          WRITE(*,*)WORK(LDYSAB+NDUM-1)
+!         END DO
 C In AO basis:
          CALL MKDYSZZ(WORK(LCMO1),WORK(LDYSAB),
      &               WORK(LDYSZZ))
+!        WRITE(*,*)"NDYSZZ=",NDYSZZ
+!        WRITE(*,*)"DYSZZ="
+!        DO NDUM=1,NDYSZZ
+!         WRITE(*,*)WORK(LDYSZZ+NDUM-1)
+!        END DO
         IF (DYSO) THEN
          DO NDUM=1,NDYSZZ
           SFDYS(NDUM,JSTATE,ISTATE)=WORK(LDYSZZ+NDUM-1)
