@@ -65,6 +65,7 @@ Christophe Chipot
 Aron Cohen  
 David L. Cooper  
 Maurizio Cossi  
+Joel Creutzberg  
 Oleh Danyliv  
 Mickaël G. Delcey  
 Ajitha Devarajan  
@@ -114,6 +115,7 @@ Thomas Müller
 Takahito Nakajima  
 Naoki Nakatani  
 Pavel Neogrády  
+Jesper Norell  
 Anders Öhrn  
 Jeppe Olsen  
 Markus Oppel  
@@ -170,3 +172,4 @@ Sebastian Wouters
 Felipe Zapata  
 Yan Zhao  
 J. Patrick Zobel  
+
