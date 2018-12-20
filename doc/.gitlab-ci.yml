@@ -24,6 +24,12 @@ doc:
       - build/doc
       - doc/doxygen/html
     expire_in: 1 day
+  only:
+    - branches
+    - merge_requests
+    - api
+    - triggers
+    - web
   except:
     - tags
   tags:

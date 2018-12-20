@@ -93,6 +93,12 @@ include:
     expire_in: 1 day
     when: always
   only:
+    refs:
+      - branches
+      - merge_requests
+      - api
+      - triggers
+      - web
     <<: *sources
   except:
     - tags
@@ -203,6 +209,12 @@ tinker:
       - build/
     expire_in: 1 day
   only:
+    refs:
+      - branches
+      - merge_requests
+      - api
+      - triggers
+      - web
     <<: *sources
   except:
     - tags
