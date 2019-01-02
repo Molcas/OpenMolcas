@@ -395,6 +395,13 @@ CIFG  should print the origin, but where is it stored (for SO properties)?
          call mh5_put_dset_array_real(wfn_sos_angmomi,
      $   WORK(LSOPRI),[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
         ENDIF
+
+        IF( SOPRNM(ISOPR)(1:8) .EQ.'MLTPL  1') THEN
+         call mh5_put_dset_array_real(wfn_sos_edipmomr,
+     $   WORK(LSOPRR),[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
+         call mh5_put_dset_array_real(wfn_sos_edipmomi,
+     $   WORK(LSOPRI),[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
+        ENDIF
 #endif
         CALL GETMEM('SOPROPR','FREE','REAL',LSOPRR,NSS**2*NSOPR)
         CALL GETMEM('SOPROPI','FREE','REAL',LSOPRI,NSS**2*NSOPR)
