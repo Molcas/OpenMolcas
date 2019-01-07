@@ -295,6 +295,20 @@ c#endif
 *******************************************************
 * printout of properties over the spin-orbit states
 *******************************************************
+c If PRPR requested, print the spin matrices
+      IF (LPRPR) THEN
+         CALL GETMEM('SOPROPR','ALLO','REAL',LSOPRR,NSS**2*NSOPR)
+         CALL GETMEM('SOPROPI','ALLO','REAL',LSOPRI,NSS**2*NSOPR)
+         DO ISOPR=1,3
+            CALL DCOPY_(NSS**2,0.0D0,0,WORK(LSOPRR),1)
+            CALL DCOPY_(NSS**2,0.0D0,0,WORK(LSOPRI),1)
+            CALL SMMAT(PROP,WORK(LSOPRR),NSS,'SPIN    ',ISOPR)
+            CALL ZTRNSF(NSS,USOR,USOI,WORK(LSOPRR),WORK(LSOPRI))
+!           CALL BRCMAT(NSS,WORK(LSOPRR),WORK(LSOPRI),ISOPR)
+         END DO
+         CALL GETMEM('SOPROPR','FREE','REAL',LSOPRR,NSS**2*NSOPR)
+         CALL GETMEM('SOPROPI','FREE','REAL',LSOPRI,NSS**2*NSOPR)
+      END IF
 
       IF(.not.IFSO) GOTO 300
       NPMSIZ=NSOPR
@@ -388,6 +402,11 @@ CIFG  should print the origin, but where is it stored (for SO properties)?
         CALL SMMAT(PROP,WORK(LSOPRR),NSS,SOPRNM(ISOPR),ISOCMP(ISOPR))
         CALL ZTRNSF(NSS,USOR,USOI,WORK(LSOPRR),WORK(LSOPRI))
         CALL PRCMAT(NSS,WORK(LSOPRR),WORK(LSOPRI))
+C tjd-  BMII: Print out spin-orbit properties to a file
+        IF (LPRPR) THEN
+          CALL BRCMAT(ISOPR,NSS,WORK(LSOPRR),WORK(LSOPRI))
+        ENDIF
+
 #ifdef _HDF5_
         IF( SOPRNM(ISOPR)(1:6) .EQ.'ANGMOM') THEN
          call mh5_put_dset_array_real(wfn_sos_angmomr,

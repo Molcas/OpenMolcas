@@ -174,11 +174,17 @@ cnf
       IfDCpl = .False.
 cnf
 
+C tjd- BMII: Print out spin-orbit properties to files
+      LPRPR=.FALSE.
+      LHAMI=.FALSE.
+
 C K. Sharkas  BEG
       IFATCALSA=.FALSE.
       IFGTCALSA=.FALSE.
       IFGTSHSA=.FALSE.
 C K. Sharkas  END
+C tjd-
+      IFACALX2C=.FALSE.
 
 c BP - Hyperfine tensor and SONATORB initialization
       IFACAL=.FALSE.

@@ -378,7 +378,21 @@ C-SVC 2007-----------------------------------
         GoTo 100
       Endif
 
+C tjd- BMII: Print out spin-orbit properties to files
+      IF(Line(1:4).eq.'PRPR') then
+        WRITE(6,*) "SPIN-ORBIT PROPERTY PRINT ON"
+        LPRPR=.TRUE.
+        Linenr=Linenr+1
+        GoTo 100
+      Endif
 
+C tjd- Yoni: Force an identity SO hamiltonian
+      IF (LINE(1:4).eq.'HAMI') then
+        WRITE(6,*) "Identity Hamiltonian turned on"
+        LHAMI=.TRUE.
+        Linenr=Linenr+1
+        GoTo 100
+      Endif
 
 c BP - Hyperfine calculations
       If(Line(1:4).eq.'EPRA') then
