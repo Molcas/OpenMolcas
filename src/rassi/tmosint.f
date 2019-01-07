@@ -40,7 +40,6 @@
 *
       Call Set_Basis_Mode('Valence')
       Call Setup_iSD()
-*     Write (*,*) 'wavevector=',wavevector
 *
 ************************************************************************
 ************************************************************************
@@ -74,7 +73,6 @@
       OperC(1+1 ) = 0 ! Dummy
 *
       Call dcopy_(nComp,Zero,0,Work(ipNuc),1)
-*     Write (*,*) 'Here we go!'
       Call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,
      &           CoorO,nOrdOp,Work(ipNuc),rHrmt,OperC,
      &           dum,1,dum,idum,0,0,
@@ -96,7 +94,7 @@
 *
 *     The electromagnetic field operator contributes to all
 *     irreducible irreps, hence OperI=255. Since the operator
-*     it self is not symmetry adopted OperC is set to a dummy value.
+*     it self is not symmetry adapted OperC is set to a dummy value.
 *
       OperI(1   ) = 255
       OperI(1+1 ) = 255
@@ -124,7 +122,6 @@
       OperC(1+11) = 0 ! Dummy
 *
       Call dcopy_(nComp,Zero,0,Work(ipNuc),1)
-*     Write (*,*) 'Here we go!'
       Call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,
      &           CoorO,nOrdOp,Work(ipNuc),rHrmt,OperC,
      &           dum,1,dum,idum,0,0,
@@ -156,7 +153,6 @@
       OperC(1+1 ) = 0 ! Dummy
 *
       Call dcopy_(nComp,Zero,0,Work(ipNuc),1)
-*     Write (*,*) 'Here we go!'
       Call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,
      &           CoorO,nOrdOp,Work(ipNuc),rHrmt,OperC,
      &           dum,1,dum,idum,0,0,
