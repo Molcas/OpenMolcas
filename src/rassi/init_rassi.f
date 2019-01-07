@@ -183,8 +183,6 @@ C K. Sharkas  BEG
       IFGTCALSA=.FALSE.
       IFGTSHSA=.FALSE.
 C K. Sharkas  END
-C tjd-
-      IFACALX2C=.FALSE.
 
 c BP - Hyperfine tensor and SONATORB initialization
       IFACAL=.FALSE.

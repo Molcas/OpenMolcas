@@ -133,8 +133,6 @@ c IFACALSDON    TRUE to calculate SD  terms individually
 c IFACALFCSDON  TRUE to calculate FC +SD terms
 c IFGTCALSA     TRUE to calculate single_aniso g-tensor in RASSI
 c K.Sharkas end
-c tjd- IFACALX2C TRUE to calculate terms with X2C transformation
-      LOGICAL IFACALX2C
       LOGICAL IFACAL,IFACALFC,IFACALSD
       LOGICAL IFACALFCON,IFACALSDON,IFACALPSO
       LOGICAL IFACALFCSDON,IFVANVLECK,IFSONCINI
