@@ -26,28 +26,7 @@ C in square format
       RETURN
       END
 
-      SUBROUTINE MULMAT(NSS,XMATR,XMATI,ee,Z)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      REAL*8 XMATR(NSS,NSS),XMATI(NSS,NSS)
-      COMPLEX*16 Z(NSS,NSS)
-      ee=0.d0
-      DO ISS=1,NSS
-      DO JSS=1,NSS
-      Z(ISS,JSS)=(0.0d0,0.0d0)
-      enddo
-      enddo
-      DO ISS=1,NSS
-      DO JSS=1,NSS
-      ee=ee+XMATR(ISS,JSS)*XMATR(ISS,JSS)+
-     & XMATI(ISS,JSS)*XMATI(ISS,JSS)
-      Z(ISS,JSS)=Z(ISS,JSS)+
-     &DCMPLX(XMATR(ISS,JSS),XMATI(ISS,JSS))
-      enddo
-      enddo
-      RETURN
-      END
-
-      SUBROUTINE BRCMAT(INPUT,NSS,XMATR,XMATI)
+      SUBROUTINE PRCMAT2(INPUT,NSS,XMATR,XMATI)
       IMPLICIT REAL*8 (A-H,O-Z)
       REAL*8 XMATR(NSS,NSS),XMATI(NSS,NSS)
 #include "Molcas.fh"
@@ -93,4 +72,48 @@ C in parsable format
  100  CONTINUE
       RETURN
       END
-C THE ORIGI : WRITE(6,'(1X,I4,2x,2(A1,G16.9,A1,G16.9,A1,3x))')
+
+      SUBROUTINE PRCMAT3(NSS,SMATR,SMATI,DIR)
+      IMPLICIT REAL*8 (A-H,O-Z)
+      REAL*8 SMATR(NSS,NSS), SMATI(NSS,NSS)
+      INTEGER DIR
+#include "Molcas.fh"
+#include "cntrl.fh"
+      CHARACTER(LEN=1) DIRECTION
+      CHARACTER(LEN=200) FILENAME
+C Write out spin matrix elements in parsable format
+      WRITE(DIRECTION,'(I1)') DIR
+      FILENAME = 'spin-'//DIRECTION//'.txt'
+      OPEN(UNIT=88,FILE=FILENAME,STATUS='REPLACE')
+      WRITE(88,*) "#NROW NCOL REAL IMAG"
+      DO JSTA=1,NSS
+        DO ISS=1,NSS
+        WRITE(88,'(I4,I4,A1,E25.16,A1,E25.16)') ISS,JSTA,' ',
+     &   SMATR(ISS,JSTA),' ',SMATI(ISS,JSTA)
+        END DO
+      END DO
+      CLOSE(88)
+      RETURN
+      END
+
+      SUBROUTINE MULMAT(NSS,XMATR,XMATI,ee,Z)
+      IMPLICIT REAL*8 (A-H,O-Z)
+      REAL*8 XMATR(NSS,NSS),XMATI(NSS,NSS)
+      COMPLEX*16 Z(NSS,NSS)
+      ee=0.d0
+      DO ISS=1,NSS
+      DO JSS=1,NSS
+      Z(ISS,JSS)=(0.0d0,0.0d0)
+      enddo
+      enddo
+      DO ISS=1,NSS
+      DO JSS=1,NSS
+      ee=ee+XMATR(ISS,JSS)*XMATR(ISS,JSS)+
+     & XMATI(ISS,JSS)*XMATI(ISS,JSS)
+      Z(ISS,JSS)=Z(ISS,JSS)+
+     &DCMPLX(XMATR(ISS,JSS),XMATI(ISS,JSS))
+      enddo
+      enddo
+      RETURN
+      END
+
