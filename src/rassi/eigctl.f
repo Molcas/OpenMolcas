@@ -40,7 +40,7 @@
       INTEGER IOFF(8), SECORD(4)
       CHARACTER*8 LABEL
       Complex*16 T0(3), TIJ(3), TM1, TM2, E1A, E2A, E1B, E2B,
-     &           IMAGINARY, T1(3)
+     &           IMAGINARY, T1(3), TMR, TML
       Character*60 FMTLINE
 
 #ifdef _DEBUG_RASSI_
@@ -2269,7 +2269,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *              Accumulate all contributions (S_1,MS_1|O|S_2,MS_2)
 *
                F_Temp=0.0D0
-               F_Tempm=0.0D0
+               R_Temp=0.0D0
                r_S1= DBLE(MPLET_I-1)/2.0D0
                r_S2= DBLE(MPLET_J-1)/2.0D0
                r_MS1 = - r_S1 - 1.0D0
@@ -2346,16 +2346,16 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *
                      TM_2 = Half*DBLE(DCONJG(TM1)*TM1 +DCONJG(TM2)*TM2)
 *
-*                    NOW, compute the oscillator strength
+*                    Compute the oscillator strength
 *
                      F_Temp = Max( F_Temp, 2.0D0*TM_2/ABS(EDIFF))
 *
-*                    Magnetic only
+*                    Compute the rotatory strength
 *
-                     TM1 = IMAGINARY*(g_Elec/2.0D0)*E1B
-                     TM2 = IMAGINARY*(g_Elec/2.0D0)*E2B
-                     TM_2 = Half*DBLE(DCONJG(TM1)*TM1 +DCONJG(TM2)*TM2)
-                     F_Tempm= Max( F_Tempm,2.0D0*TM_2/ABS(EDIFF))
+                     TMR = (TM1 + IMAGINARY*TM2)/Sqrt(2.0D0)
+                     TML = (TM1 - IMAGINARY*TM2)/Sqrt(2.0D0)
+                     TM_2 =      DBLE(DCONJG(TMR)*TMR -DCONJG(TML)*TML)
+                     R_Temp= Max( R_Temp,2.0D0*TM_2/ABS(EDIFF))
 *
                   END DO
                END DO
@@ -2363,7 +2363,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *              Save the raw oscillator strengths in a given direction
 *
                WORK(LRAW+(IQUAD-1)+0*NQUAD) = F_TEMP
-               WORK(LRAW+(IQUAD-1)+1*NQUAD) = F_TEMPM
+               WORK(LRAW+(IQUAD-1)+1*NQUAD) = R_TEMP
                WORK(LRAW+(IQUAD-1)+2*NQUAD) = X
                WORK(LRAW+(IQUAD-1)+3*NQUAD) = Y
                WORK(LRAW+(IQUAD-1)+4*NQUAD) = Z
@@ -2372,12 +2372,12 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *              Compute the oscillator strength
 *
                F = F + Weight * F_Temp
-               Fm= Fm+ Weight * F_Tempm
+               R = R + Weight * R_Temp
 *
 *              Save the weighted oscillator strengths in a given direction
 *
                WORK(LWEIGH+(IQUAD-1)+0*NQUAD) = F_TEMP*WEIGHT
-               WORK(LWEIGH+(IQUAD-1)+1*NQUAD) = F_TEMPM*WEIGHT
+               WORK(LWEIGH+(IQUAD-1)+1*NQUAD) = R_TEMP*WEIGHT
                WORK(LWEIGH+(IQUAD-1)+2*NQUAD) = X
                WORK(LWEIGH+(IQUAD-1)+3*NQUAD) = Y
                WORK(LWEIGH+(IQUAD-1)+4*NQUAD) = Z
@@ -2390,7 +2390,6 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *           4*pi over the solid angles.
 *
             F = F / (4.0D0*PI)
-            Fm= Fm/ (4.0D0*PI)
 
             IF (ABS(F).LT.OSTHR) CYCLE
             AX=(AFACTOR*EDIFF**2)*FX
@@ -2440,7 +2439,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *     Regular print
 *
             WRITE(6,33) I,J,F,AX,AY,AZ,A
-*           WRITE(6,'(A,6X,G16.8)') 'Magnetic only', Fm
+            WRITE(6,'(A,6X,G16.8)') 'Rotatory strength', R
 *
 *     Printing raw (unweighted) and direction for every transition
 *
