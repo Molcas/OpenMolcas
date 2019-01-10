@@ -304,7 +304,7 @@ c If PRPR requested, print the spin matrices
             CALL DCOPY_(NSS**2,0.0D0,0,WORK(LSOPRI),1)
             CALL SMMAT(PROP,WORK(LSOPRR),NSS,'SPIN    ',ISOPR)
             CALL ZTRNSF(NSS,USOR,USOI,WORK(LSOPRR),WORK(LSOPRI))
-!           CALL BRCMAT(NSS,WORK(LSOPRR),WORK(LSOPRI),ISOPR)
+            CALL PRCMAT3(NSS,WORK(LSOPRR),WORK(LSOPRI),ISOPR)
          END DO
          CALL GETMEM('SOPROPR','FREE','REAL',LSOPRR,NSS**2*NSOPR)
          CALL GETMEM('SOPROPI','FREE','REAL',LSOPRI,NSS**2*NSOPR)
@@ -404,7 +404,7 @@ CIFG  should print the origin, but where is it stored (for SO properties)?
         CALL PRCMAT(NSS,WORK(LSOPRR),WORK(LSOPRI))
 C tjd-  BMII: Print out spin-orbit properties to a file
         IF (LPRPR) THEN
-          CALL BRCMAT(ISOPR,NSS,WORK(LSOPRR),WORK(LSOPRI))
+          CALL PRCMAT2(ISOPR,NSS,WORK(LSOPRR),WORK(LSOPRI))
         ENDIF
 
 #ifdef _HDF5_
