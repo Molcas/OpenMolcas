@@ -2355,7 +2355,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                      TMR = (TM1 + IMAGINARY*TM2)/Sqrt(2.0D0)
                      TML = (TM1 - IMAGINARY*TM2)/Sqrt(2.0D0)
                      TM_2 =      DBLE(DCONJG(TMR)*TMR -DCONJG(TML)*TML)
-                     R_Temp= Max( R_Temp,2.0D0*TM_2/ABS(EDIFF))
+                     R_Temp= Max(R_Temp,2.0D0*TM_2/ABS(EDIFF))
 *
                   END DO
                END DO
@@ -2429,7 +2429,8 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
      &                 'ization vector'
                End If
                WRITE(6,*)
-               WRITE(6,31) 'From','To','Osc. strength',
+               WRITE(6,39) 'From','To','Osc. strength',
+     &                                 'Rot. strength',
      &               'Einstein coefficients Ax, Ay, Az (sec-1)   ',
      &               'Total A (sec-1)'
                WRITE(6,32)
@@ -2438,8 +2439,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *
 *     Regular print
 *
-            WRITE(6,33) I,J,F,AX,AY,AZ,A
-            WRITE(6,'(A,6X,G16.8)') 'Rotatory strength', R
+            WRITE(6,38) I,J,F,R,AX,AY,AZ,A
 *
 *     Printing raw (unweighted) and direction for every transition
 *
@@ -2552,6 +2552,8 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 35    FORMAT (5X,31('-'))
 36    FORMAT (5X,2(1X,I4),6X,15('-'),1X,ES15.8,1X,A15)
 37    FORMAT (5X,2(1X,I4),6X,15('-'),1X,A15,1X,ES15.8)
+38    FORMAT (5X,2(1X,I4),5X,6(1X,ES15.8))
+39    FORMAT (5X,2(1X,A4),6X,A15,3X,A13,1X,A47,1X,A15)
       END
       Subroutine Setup_O()
       IMPLICIT REAL*8 (A-H,O-Z)
