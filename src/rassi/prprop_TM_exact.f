@@ -627,6 +627,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                End If
                WRITE(6,*)
                WRITE(6,*)"        To  From     Osc. strength"//
+     &           "    Rot. strength",
      &           "   Einstein coefficients Ax, Ay, Az (sec-1) "//
      &           "      Total A (sec-1)  "
                WRITE(6,*)
@@ -635,8 +636,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
               iPrint=1
             END IF
 *
-            WRITE(6,'(5X,2I5,5X,5ES16.8)') ISO,JSO,F,AX,AY,AZ,A
-            WRITE(6,'(A,6X,ES16.8)') ' Rotatory Strength',R
+            WRITE(6,'(5X,2I5,5X,6ES16.8)') ISO,JSO,F,R,AX,AY,AZ,A
 *
 *     Printing raw (unweighted) and direction for every transition
 *
