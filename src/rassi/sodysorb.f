@@ -96,7 +96,7 @@ C by combining the multiplicity expanded SF dysamps with the
 C SO eigenvector in the ZTRNSF routine.
       CALL ZTRNSF(NSS,WORK(LUTOTR),WORK(LUTOTI),SODYSAMPSR,SODYSAMPSI)
 
-C Compute the magnitude of the complex amplitudes
+C Compute the magnitude of the complex amplitudes as an approximation
       SODYSAMPSR=SODYSAMPSR*SODYSAMPSR
       SODYSAMPSI=SODYSAMPSI*SODYSAMPSI
       SODYSAMPS=SQRT(SODYSAMPSR+SODYSAMPSI)
@@ -138,21 +138,35 @@ C Compute the magnitude of the complex amplitudes
 
 ! SZZ is originally given in triangular form, lets make it a full
 ! matrix for convenience
+      SZZFULL=0.0D0
       NDUM=0
-      DO ZJ=1,NZ
-       DO ZI=1,ZJ
-        SZZFULL(ZJ,ZI)=WORK(LSZZ+NDUM)
-        SZZFULL(ZI,ZJ)=WORK(LSZZ+NDUM)
-        NDUM=NDUM+1
+      NOFF=0
+      DO ISY=1,NSYM
+       NB=NBASF(ISY)
+       DO ZJ=1,NB
+        DO ZI=1,ZJ
+         SZZFULL(ZJ+NOFF,ZI+NOFF)=WORK(LSZZ+NDUM)
+         SZZFULL(ZI+NOFF,ZJ+NOFF)=WORK(LSZZ+NDUM)
+         NDUM=NDUM+1
+        END DO
        END DO
+       NOFF=NOFF+NB
       END DO
       CALL GETMEM('SZZ   ','FREE','REAL',LSZZ,NSZZ)
+!      WRITE(*,*)"---SZZ---"
+!      WRITE(*,*)SZZFULL
 
 ! ****************************************************************
 
 C Multiply together with the SO eigenvector coefficients with the SF
 C Dyson orbital coefficients in the atomic basis to obtain
 C SO Dyson orbitals
+
+      IF (NSYM.GT.1) THEN
+       WRITE(6,*)""
+       WRITE(6,*)"! Molden export of Dyson orbitals is "//
+     & "currently not supported for calculations with symmetry !"
+      END IF
 
       SODYSCIND=0 ! Orbital coeff. index
       ORBNUM=0 ! Dysorb index for given JSTATE
@@ -167,9 +181,10 @@ C SO Dyson orbitals
          DO ISTATE=JSTATE+1,NSS
       ! This loop nestling order is for some reason the reverse
       ! of what is done in GTDMCTL
+!        WRITE(*,*)"------------------"
+!        WRITE(*,*)"I,J=",ISTATE,JSTATE
 
         ! Reset values for next state combination
-        DIJ=0.0D0
         DO NDUM=1,NZ
          SODYSCOFSR(NDUM)=0.0D0
          SODYSCOFSI(NDUM)=0.0D0
@@ -198,6 +213,11 @@ C SO Dyson orbitals
            ! Multiply together coefficients
            CREAL=CJR*CIR+CJI*CII
            CIMAG=CJR*CII-CJI*CIR
+!           WRITE(*,*)""
+!           WRITE(*,*)"SFJ,SFI",SFJ,SFI
+!           WRITE(*,*)"CRE,CIM",CREAL,CIMAG
+!           WRITE(*,*)"SFDYSCOF=",SFDYS(:,SFJ,SFI)
+!           WRITE(*,*)"SFDYSCOF=",SFDYS(:,SFI,SFJ)
            ! Multiply with the corresponding SF Dyson orbital
            SODYSCOFSR=SODYSCOFSR+CREAL*SFDYS(:,SFJ,SFI)
            SODYSCOFSI=SODYSCOFSI+CIMAG*SFDYS(:,SFJ,SFI)
@@ -217,11 +237,14 @@ C SO Dyson orbitals
      &            +SODYSCOFSI(ZJ)*SODYSCOFSI(ZI)
             AMPI=SODYSCOFSI(ZJ)*SODYSCOFSR(ZI)
      &            -SODYSCOFSR(ZJ)*SODYSCOFSI(ZI)
+!            WRITE(*,*)"AMPR,AMPI",AMPR,AMPI
+!            WRITE(*,*)"SZZ_JI",SZZFULL(ZJ,ZI)
             AMPLITUDE=AMPLITUDE+(AMPR+AMPI)*SZZFULL(ZJ,ZI)
            END DO ! ZI
           END DO ! ZJ
 
           AMPLITUDE=SQRT(AMPLITUDE)
+!          WRITE(*,*)"AMPLITUDE=",AMPLITUDE
           SODYSAMPS(JSTATE,ISTATE)=AMPLITUDE
           SODYSAMPS(ISTATE,JSTATE)=AMPLITUDE
 
@@ -254,10 +277,12 @@ C SO Dyson orbitals
 ! Write the Dysorbs from JSTATE to .DysOrb and .molden file
 ! (Enough to fill one file)
          IF(ORBNUM.EQ.NZ) THEN
-          Call Dys_Interf(1,JSTATE,IFILE,NZ,SODYSCMOR,
-     &        DYSEN,AMPS)
-          Call Dys_Interf(2,JSTATE,IFILE,NZ,SODYSCMOI,
-     &        DYSEN,AMPS)
+          IF(NSYM.LT.2) THEN
+           Call Dys_Interf(1,JSTATE,IFILE,NZ,SODYSCMOR,
+     &         DYSEN,AMPS)
+           Call Dys_Interf(2,JSTATE,IFILE,NZ,SODYSCMOI,
+     &         DYSEN,AMPS)
+          END IF
           IFILE=IFILE+1
           SODYSCIND=0 ! Orbital coeff. index
           ORBNUM=0 ! Dysorb index for given JSTATE
@@ -273,7 +298,7 @@ C SO Dyson orbitals
 ! +++ J. Creutzberg, J. Norell - 2018
 ! Write the Dysorbs from JSTATE to .DysOrb and .molden file
 ! (All remaining, if any)
-        IF(ORBNUM.GT.0) THEN
+        IF((ORBNUM.GT.0).AND.(NSYM.LT.2)) THEN
         Call Dys_Interf(1,JSTATE,IFILE,NZ,SODYSCMOR,
      &        DYSEN,AMPS)
         Call Dys_Interf(2,JSTATE,IFILE,NZ,SODYSCMOI,

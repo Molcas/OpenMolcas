@@ -174,6 +174,10 @@ cnf
       IfDCpl = .False.
 cnf
 
+C tjd- BMII: Print out spin-orbit properties to files
+      LPRPR=.FALSE.
+      LHAMI=.FALSE.
+
 C K. Sharkas  BEG
       IFATCALSA=.FALSE.
       IFGTCALSA=.FALSE.

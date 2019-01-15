@@ -28,14 +28,15 @@
      &          ENERGY(NSTATE),JBNUM(NSTATE)
 #include "SysDef.fh"
 #include "rassiwfn.fh"
-      Character*1 xyzchr(3)
       REAL*8 Boltz_k,coeff_chi
       LOGICAL Sparse_I,Sparse_J
       REAL*8 J2CM
-      Real*8 P1(3), P2(3), kxe1(3), kxe2(3)
+      Real*8 E1(3), E2(3), kxe1(3), kxe2(3)
       INTEGER IOFF(8)
       CHARACTER*8 LABEL
-      Complex*16 T0(3), T1(3), TM1, TM2, E1A, E2A, E1B, E2B,
+      Complex*16 T0_e(3), T0_m(3), T1(3), TM1, TM2, PE1_e, PE1_m,
+     &                                    TMR, TML, PE2_e, PE2_m,
+     &           E1B, E2B,
      &           IMAGINARY
 
       CALL QENTER(ROUTINE)
@@ -61,10 +62,6 @@
       BOLTZ=CONST_BOLTZMANN_/AU2J
       Rmu0=4.0D-7*CONST_PI_
 
-      xyzchr(1)='x'
-      xyzchr(2)='y'
-      xyzchr(3)='z'
-
 C Compute transition strengths for spin-orbit states:
 *
 * Initial setup for both dipole, quadrupole etc. and exact operator
@@ -89,7 +86,7 @@ C printing threshold
       IF(REDUCELOOP) THEN
         EX=ENSOR(1)
         L=1
-        LD=1
+       LD=1
         DO ISO = 2, NSS
            If (ABS(ENSOR(ISO)-EX).gt.1.0D-8) Then
               LD = LD + 1
@@ -301,36 +298,36 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
                IF (PORIG(1,IPREMFR_RS).EQ.0.0D0 .and.
      &             PORIG(2,IPREMFR_RS).EQ.0.0D0) Then
-                  P1(1)=1.0D0
-                  P1(2)=0.0D0
-                  P1(3)=0.0D0
+                  E1(1)=1.0D0
+                  E1(2)=0.0D0
+                  E1(3)=0.0D0
                ELSE
-                  P1(1)= PORIG(2,IPREMFR_RS)
-                  P1(2)=-PORIG(1,IPREMFR_RS)
-                  P1(3)= 0.0D0
+                  E1(1)= PORIG(2,IPREMFR_RS)
+                  E1(2)=-PORIG(1,IPREMFR_RS)
+                  E1(3)= 0.0D0
                END IF
-               Tmp=1.0D0/SQRT(P1(1)**2+P1(2)**2+P1(3)**2)
-               P1(1)=P1(1)*Tmp
-               P1(2)=P1(2)*Tmp
-               P1(3)=P1(3)*Tmp
-               P2(1)=PORIG(2,IPREMFR_RS)*P1(3)-P1(2)*PORIG(3,IPREMFR_RS)
-               P2(2)=PORIG(3,IPREMFR_RS)*P1(1)-P1(3)*PORIG(1,IPREMFR_RS)
-               P2(3)=PORIG(1,IPREMFR_RS)*P1(2)-P1(1)*PORIG(2,IPREMFR_RS)
-               Tmp=1.0D0/SQRT(P2(1)**2+P2(2)**2+P2(3)**2)
-               P2(1)=P2(1)*Tmp
-               P2(2)=P2(2)*Tmp
-               P2(3)=P2(3)*Tmp
-               Call DCopy_(3,P1,1,Work(iStorage+ip_e1),1)
-               Call DCopy_(3,P2,1,Work(iStorage+ip_e2),1)
+               Tmp=1.0D0/SQRT(E1(1)**2+E1(2)**2+E1(3)**2)
+               E1(1)=E1(1)*Tmp
+               E1(2)=E1(2)*Tmp
+               E1(3)=E1(3)*Tmp
+               E2(1)=PORIG(2,IPREMFR_RS)*E1(3)-E1(2)*PORIG(3,IPREMFR_RS)
+               E2(2)=PORIG(3,IPREMFR_RS)*E1(1)-E1(3)*PORIG(1,IPREMFR_RS)
+               E2(3)=PORIG(1,IPREMFR_RS)*E1(2)-E1(1)*PORIG(2,IPREMFR_RS)
+               Tmp=1.0D0/SQRT(E2(1)**2+E2(2)**2+E2(3)**2)
+               E2(1)=E2(1)*Tmp
+               E2(2)=E2(2)*Tmp
+               E2(3)=E2(3)*Tmp
+               Call DCopy_(3,E1,1,Work(iStorage+ip_e1),1)
+               Call DCopy_(3,E2,1,Work(iStorage+ip_e2),1)
 *
 *              Compute the vectors (k x e1) and  (k x e2).
 *
-               kxe1(1)=PORIG(2,IPORIG)*P1(3)-PORIG(3,IPORIG)*P1(2)
-               kxe1(2)=PORIG(3,IPORIG)*P1(1)-PORIG(1,IPORIG)*P1(3)
-               kxe1(3)=PORIG(1,IPORIG)*P1(2)-PORIG(2,IPORIG)*P1(1)
-               kxe2(1)=PORIG(2,IPORIG)*P2(3)-PORIG(3,IPORIG)*P2(2)
-               kxe2(2)=PORIG(3,IPORIG)*P2(1)-PORIG(1,IPORIG)*P2(3)
-               kxe2(3)=PORIG(1,IPORIG)*P2(2)-PORIG(2,IPORIG)*P2(1)
+               kxe1(1)=PORIG(2,IPORIG)*E1(3)-PORIG(3,IPORIG)*E1(2)
+               kxe1(2)=PORIG(3,IPORIG)*E1(1)-PORIG(1,IPORIG)*E1(3)
+               kxe1(3)=PORIG(1,IPORIG)*E1(2)-PORIG(2,IPORIG)*E1(1)
+               kxe2(1)=PORIG(2,IPORIG)*E2(3)-PORIG(3,IPORIG)*E2(2)
+               kxe2(2)=PORIG(3,IPORIG)*E2(1)-PORIG(1,IPORIG)*E2(3)
+               kxe2(3)=PORIG(1,IPORIG)*E2(2)-PORIG(2,IPORIG)*E2(1)
 *
 *              Generate the property integrals associated with this
 *              direction of the wave vector k.
@@ -429,40 +426,80 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                   END DO ! J
                END DO ! I
 *
-*              (1) the oam part
+*              (1) the spin-free part. This part is split into a
+*                  symmetric and an antisymmetric part, being electric
+*                  and magnetic, respectively. We will treat them
+*                  separate for now to facilitate the calculation of
+*                  the rotatory strength.
 *
-*              The contribution to the generalized momentum operator.
+*              Note that the integrals are not computed for the
+*              momentum opertor but rather for nabla. That is
+*              as we assemble to transition momentum we have to
+*              remember to put in a factor of -i.
 *
-C              IJ=(JSO-1)*NSS + ISO - 1
                Do iCar = 1, 3
+*
                   CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXR),1)
                   CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXI),1)
                   CALL DCOPY_(NSS**2,0.0D0,0,WORK(LTMP),1)
+*
+*                 The electric (symmetric) part
+*
 *                 the real symmetric part
                   CALL SMMAT_CHECK(PROP,WORK(LDXR),NSS,'TMOS  RS',iCar,
      &                             USOR,USOI,ISO,JSO,ThrSparse)
-*                 the real anti-symmetric part
-                  CALL SMMAT_CHECK(PROP,WORK(LTMP),NSS,'TMOS  RA',iCar,
-     &                             USOR,USOI,ISO,JSO,ThrSparse)
-                  CALL DAXPY_(NSS**2,1.0D0,WORK(LTMP),1,WORK(LDXR),1)
-                  CALL DCOPY_(NSS**2,0.0D0,0,WORK(LTMP),1)
+*
 *                 the imaginary symmetric part
                   CALL SMMAT_CHECK(PROP,WORK(LDXI),NSS,'TMOS  IS',iCar,
      &                             USOR,USOI,ISO,JSO,ThrSparse)
-*                 the imaginary anti-symmetric part
-                  CALL SMMAT_CHECK(PROP,WORK(LTMP),NSS,'TMOS  IA',iCar,
-     &                             USOR,USOI,ISO,JSO,ThrSparse)
-                  CALL DAXPY_(NSS**2,1.0D0,WORK(LTMP),1,WORK(LDXI),1)
+*
 *                 Transform properties to the spin-orbit basis
 *                 and pick up correct element
                   CALL ZTRNSF_IJ(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI),
-     &                           WORK(LTMP),T0(iCar),ISO,JSO)
+     &                           WORK(LTMP),T0_e(iCar),ISO,JSO)
+*
+                  CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXR),1)
+                  CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXI),1)
+                  CALL DCOPY_(NSS**2,0.0D0,0,WORK(LTMP),1)
+*
+*                 The magnetic (antisymmetric) part
+*
+*                 the real anti-symmetric part
+                  CALL SMMAT_CHECK(PROP,WORK(LDXR),NSS,'TMOS  RA',iCar,
+     &                             USOR,USOI,ISO,JSO,ThrSparse)
+*
+*                 the imaginary anti-symmetric part
+                  CALL SMMAT_CHECK(PROP,WORK(LTMP),NSS,'TMOS  IA',iCar,
+     &                             USOR,USOI,ISO,JSO,ThrSparse)
+*
+*                 Transform properties to the spin-orbit basis
+*                 and pick up correct element
+                  CALL ZTRNSF_IJ(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI),
+     &                           WORK(LTMP),T0_m(iCar),ISO,JSO)
+*
                End Do
 *
-               E1A = P1(1)*T0(1) + P1(2)*T0(2) + P1(3)*T0(3)
-               E2A = P2(1)*T0(1) + P2(2)*T0(2) + P2(3)*T0(3)
+*              Assemble the electric and magnetic contribution of the
+*              transition moment for the respective polarization
+*              directions from the spin-independent part of the
+*              Hamiltonian.
 *
-*              (2) the magnetic-spin part
+               PE1_e = E1(1)*T0_e(1) + E1(2)*T0_e(2) + E1(3)*T0_e(3)
+               PE1_m = E1(1)*T0_m(1) + E1(2)*T0_m(2) + E1(3)*T0_m(3)
+*
+               PE2_e = E2(1)*T0_e(1) + E2(2)*T0_e(2) + E2(3)*T0_e(3)
+               PE2_m = E2(1)*T0_m(1) + E2(2)*T0_m(2) + E2(3)*T0_m(3)
+*
+*              Multiply with the factor -i to have the transition
+*              moment corresponding to the momentum operator and not
+*              as now nabla!
+*
+               PE1_e = - Imaginary * PE1_e
+               PE1_m = - Imaginary * PE1_m
+               PE2_e = - Imaginary * PE2_e
+               PE2_m = - Imaginary * PE2_m
+*
+*              (2) the spin-dependent part, magnetic
 *
 *              iCar=1: 1/2(S(+)+S(-))
 *              iCar=2: 1/2i(S(+)-S(-))
@@ -486,10 +523,18 @@ C              IJ=(JSO-1)*NSS + ISO - 1
      &                           WORK(LTMP),T1(iCar),ISO,JSO)
                End Do
 *
+*              Assemble the spin-dependent part of the transition
+*              moment.
+*
                E1B=kxe1(1)*T1(1)+kxe1(2)*T1(2)+kxe1(3)*T1(3)
                E2B=kxe2(1)*T1(1)+kxe2(2)*T1(2)+kxe2(3)*T1(3)
-               TM1 = E1A + IMAGINARY*(g_Elec/2.0D0)*E1B
-               TM2 = E2A + IMAGINARY*(g_Elec/2.0D0)*E2B
+*
+*              Assemble to total transition moment for the two
+*              polarization directions.
+*
+               TM1 = PE1_e + PE1_m + IMAGINARY*(g_Elec/2.0D0)*E1B
+               TM2 = PE2_e + PE2_m + IMAGINARY*(g_Elec/2.0D0)*E2B
+*
                Work(iStorage+ip_TM1R)=DBLE(TM1)
                Work(iStorage+ip_TM1I)=AIMAG(TM1)
                Work(iStorage+ip_TM2R)=DBLE(TM2)
@@ -507,7 +552,10 @@ C              IJ=(JSO-1)*NSS + ISO - 1
 *
 *              Compute the rotatory strength
 *
-               R_Temp = g_Elec*AIMAG(E1A*E2B + E1B*E2A)
+               TMR = (TM1 + IMAGINARY*TM2)/Sqrt(2.0D0)
+               TML = (TM1 - IMAGINARY*TM2)/Sqrt(2.0D0)
+*
+               R_Temp = DBLE(DCONJG(TMR)*TMR - DCONJG(TML)*TML)
 *
 *              Save the raw oscillator strengths in a given direction
 *
@@ -540,7 +588,7 @@ C              IJ=(JSO-1)*NSS + ISO - 1
 *           4*pi over the solid angles.
 *
             F = F / (4.0D0*PI)
-            R = R / (4.0D0*PI)
+*           R = R / (4.0D0*PI)
             IF (ABS(F).LT.OSTHR) CYCLE
             AX=(AFACTOR*EDIFF**2)*FX
             AY=(AFACTOR*EDIFF**2)*FY
@@ -579,6 +627,7 @@ C              IJ=(JSO-1)*NSS + ISO - 1
                End If
                WRITE(6,*)
                WRITE(6,*)"        To  From     Osc. strength"//
+     &           "    Rot. strength",
      &           "   Einstein coefficients Ax, Ay, Az (sec-1) "//
      &           "      Total A (sec-1)  "
                WRITE(6,*)
@@ -587,8 +636,7 @@ C              IJ=(JSO-1)*NSS + ISO - 1
               iPrint=1
             END IF
 *
-            WRITE(6,'(5X,2I5,5X,5ES16.8)') ISO,JSO,F,AX,AY,AZ,A
-            WRITE(6,'(A,6X,ES16.8)') ' Rotatory Strength',R
+            WRITE(6,'(5X,2I5,5X,6ES16.8)') ISO,JSO,F,R,AX,AY,AZ,A
 *
 *     Printing raw (unweighted) and direction for every transition
 *
