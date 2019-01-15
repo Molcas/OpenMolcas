@@ -28,19 +28,29 @@
 *     +
 *     +  (ISM L-1-MINVAL(L-1))*Prod(i=1,L-2)(MAXVAL(i)-MINVAL(i)+1)
 *
-C     write(6,*) ' Isym and minval '
-C     call iwrtma(isym,1,ngasl,1,ngasl)
-C     call iwrtma(minval,1,ngasl,1,ngasl)
+      NTEST = 00
+      IF(NTEST.GE.100) THEN
+       write(6,*) ' Isym, minval, ioff:'
+       call iwrtma(isym,1,ngasl,1,ngasl)
+       call iwrtma(minval,1,ngasl,1,ngasl)
+       call iwrtma(ioff,1,ngasl,1,ngasl)
+      END IF
+*. Offset for this symmetry distribution in IOFFI
       I = 1
       IMULT = 1
       DO IGAS = 1, NGASL-1
         I = I + (ISYM(IGAS)-MINVAL(IGAS)) * IMULT
         IMULT = IMULT*(MAXVAL(IGAS)-MINVAL(IGAS)+1)
-C       write(6,*) ' igas i imult ',igas,i,imult
+c        write(6,*) ' igas,i,imult ',igas,i,imult
       END DO
-      IOFF_SYM_DIST=IOFF(I)
+c The following IF block is needed for avoinging going outside the IOFF bounds.
+c This is possible for certain GAS setups. Test 897 helped in finding this issue.
+      IF (I.le.0) THEN
+        IOFF_SYM_DIST=0
+      ELSE
+        IOFF_SYM_DIST=IOFF(I)
+      END IF
 *
-      NTEST = 00
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Info from IOFF_SYM_DIST'
         WRITE(6,*) ' ======================='

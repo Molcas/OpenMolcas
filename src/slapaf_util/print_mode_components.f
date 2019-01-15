@@ -371,7 +371,7 @@
                   Sort(ii)=im
                End If
             End Do
-            If (Abs(IntMod(Sort(j),i)).lt.Half) Exit
+            If (Abs(IntMod(Sort(j),i)).lt.MinComp) Exit
             Write(6,'(8X,A,F7.4)') Label(Sort(j)),IntMod(Sort(j),i)
          End Do
          Write(6,'(6X,A)') '---------------------------------'

@@ -24,6 +24,12 @@ doc:
       - build/doc
       - doc/doxygen/html
     expire_in: 1 day
+  only:
+    - branches
+    - merge_requests
+    - api
+    - triggers
+    - web
   except:
     - tags
   tags:
@@ -45,4 +51,4 @@ pages:
       - public
     expire_in: 1 day
   only:
-    - master
+    - master@Molcas/OpenMolcas

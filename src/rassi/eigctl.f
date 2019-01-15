@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE EIGCTL(PROP,OVLP,HAM,EIGVEC,ENERGY)
+      SUBROUTINE EIGCTL(PROP,OVLP,DYSAMPS,HAM,EIGVEC,ENERGY)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -27,7 +27,8 @@
 
       character*100 line
       REAL*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
-     &       HAM(NSTATE,NSTATE),EIGVEC(NSTATE,NSTATE),ENERGY(NSTATE)
+     &       HAM(NSTATE,NSTATE),EIGVEC(NSTATE,NSTATE),ENERGY(NSTATE),
+     &       DYSAMPS(NSTATE,NSTATE)
       REAL*8, ALLOCATABLE :: ESFS(:)
       Integer, Dimension(:), Allocatable :: IndexE
 * Short array, just for putting transition dipole values
@@ -39,7 +40,7 @@
       INTEGER IOFF(8), SECORD(4)
       CHARACTER*8 LABEL
       Complex*16 T0(3), TIJ(3), TM1, TM2, E1A, E2A, E1B, E2B,
-     &           IMAGINARY, T1(3)
+     &           IMAGINARY, T1(3), TMR, TML
       Character*60 FMTLINE
 
 #ifdef _DEBUG_RASSI_
@@ -532,6 +533,17 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
      &             EIGVEC,NSTATE,WORK(LSCR),NSTATE,
      &             0.0D0,PROP(1,1,IP),NSTATE)
       END DO
+
+! +++ J. Norell 12/7 - 2018
+C And the same for the Dyson amplitudes
+        CALL DGEMM_('N','N',NSTATE,NSTATE,NSTATE,1.0D0,
+     &             DYSAMPS,NSTATE,EIGVEC,NSTATE,
+     &             0.0D0,WORK(LSCR),NSTATE)
+        CALL DGEMM_('T','N',NSTATE,NSTATE,NSTATE,1.0D0,
+     &             EIGVEC,NSTATE,WORK(LSCR),NSTATE,
+     &             0.0D0,DYSAMPS,NSTATE)
+! +++ J. Norell
+
       CALL GETMEM('SCR','FREE','REAL',LSCR,NSTATE**2)
 *
 * Initial setup for both dipole, quadrupole etc. and exact operator
@@ -812,7 +824,7 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
                J=IndexE(L_)
                IJ=I+NSTATE*(J-1)
                EDIFF=ENERGY(J)-ENERGY(I)
-               IF (JSTART.eq.1.AND.EDIFF.LE.0.0D0) CYCLE
+               IF(EDIFF.GT.0.0D0) THEN
                DX2=0.0D0
                DY2=0.0D0
                DZ2=0.0D0
@@ -864,6 +876,7 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
 
                END IF
                Call Add_Info('TMS(SF,Vel)',F,1,6)
+               END IF
             END DO
          END DO
          IF (LNCNT.EQ.0) THEN
@@ -1682,6 +1695,38 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
 ! release the memory again
          CALL GETMEM('TOT2K','FREE','REAL',LTOT2K,NSS**2)
 
+! +++ J. Norell 12/7 - 2018
+! Dyson amplitudes for (1-electron) ionization transitions
+       IF (DYSO) THEN
+        DYSTHR=1.0D-5
+        WRITE(6,*)
+        CALL CollapseOutput(1,'Dyson amplitudes '//
+     &                        '(spin-free states):')
+        WRITE(6,'(3X,A)')     '----------------------------'//
+     &                        '-------------------'
+        IF (DYSTHR.GT.0.0D0) THEN
+           WRITE(6,30) 'for Dyson intensities at least',DYSTHR
+           WRITE(6,30)
+        END IF
+        WRITE(6,*) '       From      To        '//
+     &   'BE (eV)       Dyson intensity'
+        WRITE(6,32)
+        FMAX=0.0D0
+        DO I=1,NSTATE
+         DO J=1,NSTATE
+          F=DYSAMPS(I,J)*DYSAMPS(I,J)
+          EDIFF=AU2EV*(ENERGY(J)-ENERGY(I))
+          IF (F.GT.0.00001) THEN
+           IF (EDIFF.GT.0.0D0) THEN
+            WRITE(6,'(A,I8,I8,F15.3,E22.5)') '    ',I,J,EDIFF,F
+           END IF
+          END IF
+         END DO ! J
+        END DO ! I
+       END IF
+! +++ J. Norell
+
+
 ************************************************************************
 *                                                                      *
 *     Start of section for transition moments                          *
@@ -2001,14 +2046,6 @@ C TRANSFORM AND PRINT OUT PROPERTY MATRICES:
          Call Do_Lebedev(L_Eff,nQuad,ipR)
       End If
 *
-      IF(DO_KVEC) THEN
-*
-*     Specific directions specified by user
-*     The arrays from the Lebedev procedure is still used
-*
-        NQUAD = NKVEC
-      END IF
-*
 *     Get table of content for density matrices.
 *
       Call DaName(LuToM,FnToM)
@@ -2127,22 +2164,12 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *
 *              Read or generate the wavevector
 *
-               IF(DO_KVEC) THEN
-*
-*              Get wavevector from input
-*
-               X = WORK(PKVEC+IQUAD-1)
-               Y = WORK(PKVEC+IQUAD-1+NQUAD)
-               Z = WORK(PKVEC+IQUAD-1+2*NQUAD)
-               ELSE
-*
 *              Generate the wavevector associated with this quadrature
 *              point and pick up the associated quadrature weight.
 *
                x=Work((iQuad-1)*4  +ipR)
                y=Work((iQuad-1)*4+1+ipR)
                z=Work((iQuad-1)*4+2+ipR)
-               END IF
 
                PORIG(1,IPRTMOS_RS)=rkNorm*x
                PORIG(2,IPRTMOS_RS)=rkNorm*y
@@ -2242,7 +2269,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *              Accumulate all contributions (S_1,MS_1|O|S_2,MS_2)
 *
                F_Temp=0.0D0
-               F_Tempm=0.0D0
+               R_Temp=0.0D0
                r_S1= DBLE(MPLET_I-1)/2.0D0
                r_S2= DBLE(MPLET_J-1)/2.0D0
                r_MS1 = - r_S1 - 1.0D0
@@ -2319,16 +2346,16 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *
                      TM_2 = Half*DBLE(DCONJG(TM1)*TM1 +DCONJG(TM2)*TM2)
 *
-*                    NOW, compute the oscillator strength
+*                    Compute the oscillator strength
 *
                      F_Temp = Max( F_Temp, 2.0D0*TM_2/ABS(EDIFF))
 *
-*                    Magnetic only
+*                    Compute the rotatory strength
 *
-                     TM1 = IMAGINARY*(g_Elec/2.0D0)*E1B
-                     TM2 = IMAGINARY*(g_Elec/2.0D0)*E2B
-                     TM_2 = Half*DBLE(DCONJG(TM1)*TM1 +DCONJG(TM2)*TM2)
-                     F_Tempm= Max( F_Tempm,2.0D0*TM_2/ABS(EDIFF))
+                     TMR = (TM1 + IMAGINARY*TM2)/Sqrt(2.0D0)
+                     TML = (TM1 - IMAGINARY*TM2)/Sqrt(2.0D0)
+                     TM_2 =      DBLE(DCONJG(TMR)*TMR -DCONJG(TML)*TML)
+                     R_Temp= Max(R_Temp,2.0D0*TM_2/ABS(EDIFF))
 *
                   END DO
                END DO
@@ -2336,7 +2363,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *              Save the raw oscillator strengths in a given direction
 *
                WORK(LRAW+(IQUAD-1)+0*NQUAD) = F_TEMP
-               WORK(LRAW+(IQUAD-1)+1*NQUAD) = F_TEMPM
+               WORK(LRAW+(IQUAD-1)+1*NQUAD) = R_TEMP
                WORK(LRAW+(IQUAD-1)+2*NQUAD) = X
                WORK(LRAW+(IQUAD-1)+3*NQUAD) = Y
                WORK(LRAW+(IQUAD-1)+4*NQUAD) = Z
@@ -2345,12 +2372,12 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *              Compute the oscillator strength
 *
                F = F + Weight * F_Temp
-               Fm= Fm+ Weight * F_Tempm
+               R = R + Weight * R_Temp
 *
 *              Save the weighted oscillator strengths in a given direction
 *
                WORK(LWEIGH+(IQUAD-1)+0*NQUAD) = F_TEMP*WEIGHT
-               WORK(LWEIGH+(IQUAD-1)+1*NQUAD) = F_TEMPM*WEIGHT
+               WORK(LWEIGH+(IQUAD-1)+1*NQUAD) = R_TEMP*WEIGHT
                WORK(LWEIGH+(IQUAD-1)+2*NQUAD) = X
                WORK(LWEIGH+(IQUAD-1)+3*NQUAD) = Y
                WORK(LWEIGH+(IQUAD-1)+4*NQUAD) = Z
@@ -2363,7 +2390,6 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *           4*pi over the solid angles.
 *
             F = F / (4.0D0*PI)
-            Fm= Fm/ (4.0D0*PI)
 
             IF (ABS(F).LT.OSTHR) CYCLE
             AX=(AFACTOR*EDIFF**2)*FX
@@ -2371,51 +2397,49 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
             AZ=(AFACTOR*EDIFF**2)*FZ
             A =(AFACTOR*EDIFF**2)*F
 *
-            IF(.NOT.DO_KVEC) THEN
-              If (iPrint.eq.0) Then
-                 WRITE(6,*)
-                 If (Do_SK) Then
-                    CALL CollapseOutput(1,
-     &                     'Transition moment strengths:')
-                 Else
-                 CALL CollapseOutput(1,
-     &                  'Isotropic transition moment strengths '//
-     &                  '(spin-free states):')
-                 End If
-                 WRITE(6,'(3X,A)')
-     &                  '--------------------------------------'//
-     &                  '-------------------'
-                 IF (OSTHR.GT.0.0D0) THEN
-                    WRITE(6,30) 'for osc. strength at least',OSTHR
-                 END IF
-                 WRITE(6,*)
-                 If (Do_SK) Then
-                    WRITE(6,'(4x,a,3F8.4,a)')
-     &                    'Direction of the k-vector: ',
-     &                     (k_vector(k),k=1,3),' (au)'
-                    WRITE(6,'(4x,a)')
-     &                    'The light is assumed to be unpolarized.'
-                 Else
-                    WRITE(6,'(4x,a,I4,a)')
-     &                   'Integrated over ',nQuad,' directions of the'//
-     &                   ' wave vector'
-                    WRITE(6,'(4x,a)')
-     &                   'Integrated over all directions of the polar'//
-     &                   'ization vector'
-                 End If
-                 WRITE(6,*)
-                 WRITE(6,31) 'From','To','Osc. strength',
-     &                 'Einstein coefficients Ax, Ay, Az (sec-1)   ',
-     &                 'Total A (sec-1)'
-                 WRITE(6,32)
-                  iPrint=1
-              END IF
+            If (iPrint.eq.0) Then
+               WRITE(6,*)
+               If (Do_SK) Then
+                  CALL CollapseOutput(1,
+     &                   'Transition moment strengths:')
+               Else
+               CALL CollapseOutput(1,
+     &                'Isotropic transition moment strengths '//
+     &                '(spin-free states):')
+               End If
+               WRITE(6,'(3X,A)')
+     &                '--------------------------------------'//
+     &                '-------------------'
+               IF (OSTHR.GT.0.0D0) THEN
+                  WRITE(6,30) 'for osc. strength at least',OSTHR
+               END IF
+               WRITE(6,*)
+               If (Do_SK) Then
+                  WRITE(6,'(4x,a,3F8.4,a)')
+     &                  'Direction of the k-vector: ',
+     &                   (k_vector(k),k=1,3),' (au)'
+                  WRITE(6,'(4x,a)')
+     &                  'The light is assumed to be unpolarized.'
+               Else
+                  WRITE(6,'(4x,a,I4,a)')
+     &                 'Integrated over ',nQuad,' directions of the'//
+     &                 ' wave vector'
+                  WRITE(6,'(4x,a)')
+     &                 'Integrated over all directions of the polar'//
+     &                 'ization vector'
+               End If
+               WRITE(6,*)
+               WRITE(6,39) 'From','To','Osc. strength',
+     &                                 'Rot. strength',
+     &               'Einstein coefficients Ax, Ay, Az (sec-1)   ',
+     &               'Total A (sec-1)'
+               WRITE(6,32)
+                iPrint=1
+            END IF
 *
 *     Regular print
 *
-              WRITE(6,33) I,J,F,AX,AY,AZ,A
-              WRITE(6,'(A,6X,G16.8)') 'Magnetic only', Fm
-            END IF
+            WRITE(6,38) I,J,F,R,AX,AY,AZ,A
 *
 *     Printing raw (unweighted) and direction for every transition
 *
@@ -2528,6 +2552,8 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 35    FORMAT (5X,31('-'))
 36    FORMAT (5X,2(1X,I4),6X,15('-'),1X,ES15.8,1X,A15)
 37    FORMAT (5X,2(1X,I4),6X,15('-'),1X,A15,1X,ES15.8)
+38    FORMAT (5X,2(1X,I4),5X,6(1X,ES15.8))
+39    FORMAT (5X,2(1X,A4),6X,A15,3X,A13,1X,A47,1X,A15)
       END
       Subroutine Setup_O()
       IMPLICIT REAL*8 (A-H,O-Z)

@@ -480,7 +480,14 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     OPBE                                                             *
 *                                                                      *
-      Else If (KSDFT.eq.'OPBE') Then
+      Else If (KSDFT.eq.'OPBE'
+     &     .or.KSDFT.eq.'TOPBE' !GLM
+     &     .or.KSDFT.eq.'FTOPBE'!AMS
+     &         ) then
+         If(KSDFT.eq.'TOPBE'
+     &     .or.KSDFT.eq.'FTOPBE') Do_MO=.true.
+         If(KSDFT.eq.'TOPBE'
+     &     .or.KSDFT.eq.'FTOPBE') Do_TwoEl=.true.
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          nFckDim = nD
