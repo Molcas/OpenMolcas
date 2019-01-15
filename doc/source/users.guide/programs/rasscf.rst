@@ -465,6 +465,17 @@ A list of these keywords is given below:
 
 .. class:: keywordlist
 
+:kword:`NECI`
+  This keyword is used to enable Stochastic-CASSSCF calculations and features related to it (such as produce a FCIDUMP file).
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="NECI" KIND="SINGLE" LEVEL="ADVANCED" EXCLUSIVE="DMRG">
+              %%Keyword: NECI <advanced>
+              <HELP>
+              This keyword is used to enable Stochastic-CASSSCF
+              calculations and features related to it (such as produce a FCIDUMP file).
+              </HELP>
+              </KEYWORD>
+
 :kword:`TITLe`
   Follows the title for the calculation in a single line
 
