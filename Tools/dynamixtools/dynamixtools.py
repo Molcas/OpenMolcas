@@ -51,6 +51,8 @@ def test_initial_things():
     dictio['RedMass'] = np.array([1.0825,1.0453,1.0810])
     dictio['AtMass'] = np.array([15.9994,1.00794,1.00794])
     dictio['freq'] = np.array([1713.0153, 3727.3731,3849.4717])
+    dictio['debug'] = False
+    dictio['atomT'] = ['O','H','H']
     return (dictio)
 
 
@@ -77,7 +79,7 @@ def generate_one_boltz(dictio,label):
     degrN :: Int <- number of degrees of freedom
     atomN :: Int <- number of atoms
 
-    some dimesions
+    some dimensions
     NCMatx :: (degrN, atomN, 3)
     Pcart,vcart :: (atomN,3)
 
@@ -106,6 +108,7 @@ def generate_one_boltz(dictio,label):
     # this is lambda :: (degrN)
     lamb = 4 * (np.pi**2) * (freq*100)**2 * c**2
     sigmaP = np.sqrt(RedMass * 1.660537E-27 / beta)
+
     # change of dimensions
     Pint = (np.array([ gaus_dist(x) for x in sigmaP ]))*6.02214086E21
 
@@ -114,6 +117,7 @@ def generate_one_boltz(dictio,label):
     # it is ugly, there must be a broadcast numpy rule that works better and more efficient
     # but since the degrees of freedom are never gonna be 30.000.000, this loop here is
     # still efficient enough.
+
     pint_broadcasted = np.empty((degrN,atomN,3))
     for i in range(degrN):
         pint_broadcasted[i] = np.ones((atomN,3)) * Pint[i]
@@ -121,17 +125,18 @@ def generate_one_boltz(dictio,label):
     to_be_summed = NCMatx * pint_broadcasted
     Pcart = np.sum(to_be_summed, axis=0)
 
-    # same multiplication on first axis.
+    # same multiplication on first axis as with pint
     AtMass_broadcasted = np.empty((atomN,3))
     for i in range(atomN):
         AtMass_broadcasted[i] = np.ones(3) * AtMass[i]
     vcart = Pcart / AtMass_broadcasted
 
     sigma_q = 1/np.sqrt(beta*lamb)
+
     # change of dimensions
     Qint = (np.array([ gaus_dist(x) for x in sigma_q ]))*2.4540051E23
 
-    # same multiplication on first axis.
+    # same multiplication on first axis as with pint and AtMass
     qint_broadcasted = np.empty((degrN,atomN,3))
     for i in range(degrN):
         qint_broadcasted[i] = np.ones((atomN,3)) * Qint[i]
@@ -143,6 +148,8 @@ def generate_one_boltz(dictio,label):
 
     # Pcart is the displacement, added to the main geometry
     # Transformed into ANGSTROM !!
+    # in Jan 2019, Dynamix takes geometries in angstrom but velocities in bohr
+
     newGeom = (Pcart + geom) * 0.529177249
     geomName = label + '.xyz'
     veloName = label + '.velocity.xyz'
@@ -151,6 +158,7 @@ def generate_one_boltz(dictio,label):
     #print(stringOUT.format(veloName, Qcart, geomName, newGeom))
 
     np.savetxt(veloName,Qcart,fmt='%1.6f')
+
     # add the atom name in the matrix
     atom_type = np.array(atomT)[:, np.newaxis]
     atom_t_and_geom = np.hstack((atom_type,newGeom))
@@ -178,7 +186,7 @@ python3 $MOLCAS/Tools/dynamixtools/dynamixtools.py -t 273 -b 100 -i ${Project}.f
                         help="label for your project (default is \"geom\")")
     parser.add_argument("-i", "--input",
                         dest="i",
-                        required=True,
+                        required=False,
                         type=str,
                         help="path of the frequency h5 or molden file")
     parser.add_argument("-b", "--boltzmann",
@@ -188,7 +196,7 @@ python3 $MOLCAS/Tools/dynamixtools/dynamixtools.py -t 273 -b 100 -i ${Project}.f
                         help="number of initial condition following boltzmann distribution (default 1)")
     parser.add_argument("-t", "--temperature",
                         dest="temp",
-                        required=True,
+                        required=False,
                         type=float,
                         help="temperature in Kelvin for the initial conditions")
     parser.add_argument("-v", "--verbose",
@@ -196,6 +204,11 @@ python3 $MOLCAS/Tools/dynamixtools/dynamixtools.py -t 273 -b 100 -i ${Project}.f
                         required=False,
                         action='store_true',
                         help="more verbose output")
+    parser.add_argument("-T", "--TEST",
+                        dest="test",
+                        required=False,
+                        action='store_true',
+                        help="keyword use to test the routines")
     args = parser.parse_args()
     return args
 
@@ -337,59 +350,76 @@ def atomic_masses(atomtype_list):
 def main():
     print('')
     args = parseCL()
-    # i is input file from command line
-    if args.i:
-        fn=args.i
-    else:
-        fn=''
+    print(args)
 
-    if args.seed:
-        seedI = args.seed
-        print('seed set to: {}'.format(seedI))
+    if args.test:
+        inputs = test_initial_things()
+        seedI = 123456789
         random.seed(seedI)
-
-    if args.label:
-        label = args.label
-        print('Project label set to: {}'.format(label))
-    else:
-        label = 'geom'
-
-    if args.bol:
-        # right now this is only boltzmann, we need to rethink this IF when wigner is implemented
-        number_of_ic = args.bol
-    else:
-        number_of_ic = 1
-
-    # check if is is molden or h5
-    name, ext = os.path.splitext(fn)
-    if ext == '.molden':
-        inputs = parseMoldenFreq(fn)
-    elif ext == '.h5':
-        inputs = parseh5Freq(fn)
-    else:
-        print('You must use freq.molden or .h5 files')
-
-    ###################################################
-    # This is the function that will be used for test #
-    # inputs = test_initial_things()                  #
-    ###################################################
-
-    if args.debug:
-        inputs['debug'] = True
-    else:
-        inputs['debug'] = False
-
-    inputs['T'] = args.temp
-    inputs['kb'] = 1.38064852E-23
-    inputs['beta'] = 1 / (inputs['T'] * 1.38064852E-23)
-    inputs['c'] = 299792458.00
-    inputs['AtMass'] = atomic_masses(inputs['atomT'])
-
-    #print('\n\n\n\nAFTER DICTIONARY')
-    for counter in range(number_of_ic):
-        complete_label = '{}{:04}'.format(label,counter)
+        complete_label = 'test_bolz'
         generate_one_boltz(inputs,complete_label)
-    print('\nThis routine generates geometries in Angstrom and velocities in Bohr (the format that Molcas requires for a Semiclassical Molecular Dynamics)\n')
+        print(inputs)
+    else:
+        # i is input file from command line
+        if args.i:
+            fn=args.i
+        else:
+
+            # I do not like this termination here, but I still have to figure out how 
+            # to properly do mutually exclusive argparse keywords. 
+            # I will keep this exit code here in the meanwhile...
+
+            sys.exit('-i input freq file is a required keyword')
+
+        if args.seed:
+            seedI = args.seed
+            print('seed set to: {}'.format(seedI))
+            random.seed(seedI)
+
+        if args.label:
+            label = args.label
+            print('Project label set to: {}'.format(label))
+        else:
+            label = 'geom'
+
+        if args.bol:
+            # right now this is only boltzmann, we need to rethink this IF when wigner is implemented
+            number_of_ic = args.bol
+        else:
+            number_of_ic = 1
+
+        # check if is is molden or h5
+        name, ext = os.path.splitext(fn)
+        if ext == '.molden':
+            inputs = parseMoldenFreq(fn)
+        elif ext == '.h5':
+            inputs = parseh5Freq(fn)
+        else:
+            print('You must use freq.molden or .h5 files')
+
+        if args.debug:
+            inputs['debug'] = True
+        else:
+            inputs['debug'] = False
+
+        if args.temp == None:
+            print('\nSetting default temperature to 300 K. Use the -t keyword to set a custom temperature.\n')
+            inputs['T'] = 300
+        else:
+            inputs['T'] = args.temp
+
+        inputs['kb'] = 1.38064852E-23
+        inputs['beta'] = 1 / (inputs['T'] * 1.38064852E-23)
+        inputs['c'] = 299792458.00
+        inputs['AtMass'] = atomic_masses(inputs['atomT'])
+
+
+
+        #print('\n\n\n\nAFTER DICTIONARY')
+        for counter in range(number_of_ic):
+            complete_label = '{}{:04}'.format(label,counter)
+            generate_one_boltz(inputs,complete_label)
+        print('\nThis routine generates geometries in Angstrom and velocities in Bohr (the format that Molcas requires for a Semiclassical Molecular Dynamics)\n')
 
 
 

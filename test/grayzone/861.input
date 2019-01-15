@@ -1,0 +1,54 @@
+*-------------------------------------------------------------------------------
+* Molecule: Water
+* Features tested: dynamixtools.py
+* Responsible person: Alessio Valentini, Luis Manuel Frutos
+* Comments: this test is to execute dynamixTool_test_function
+*-------------------------------------------------------------------------------
+
+&Gateway
+  coord
+  3
+
+  O 0.0  0.0002357  0.0631702
+  H 0.0  0.4016088 -0.2504332
+  H 0.0 -0.4053142 -0.2533975
+
+  basis=STO-3G
+  group=NoSym
+
+&Seward
+
+&SCF
+
+&mckinley
+
+** how is the .freq.molden named from the run of mckinley Is the use I make of the variable $Project correct here?
+** this should be enough to catch
+*>> SHELL $PYTHON_EXECUTABLE $MOLCAS/Tools/dynamixtools/dynamixtools.py -i $Project.freq.molden -t 300 -b 1 -l test
+*
+** the "-b 1 -l" combination of flag will create a 2 files named test000.xyz and test000.velocity.xyz
+** I think I need to export $Project again here, because Dynamix with VELO=1 uses it to automatically get the velocity file
+*
+*>> EXPORT Project=test000
+*
+*&Gateway
+*  coord = $Project.xyz
+*  basis = STO-3G
+*  group = NoSym
+*  NoCD
+*
+*>> FOREACH A in (1..20)
+*
+*&Seward
+*
+*&SCF
+*
+*&Alaska
+*
+*&Dynamix
+* VELVER
+* DT = 20.65
+* VELO = 1
+*
+*>>> End Do
+*
