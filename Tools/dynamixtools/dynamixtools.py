@@ -209,6 +209,11 @@ python3 $MOLCAS/Tools/dynamixtools/dynamixtools.py -t 273 -b 100 -i ${Project}.f
                         required=False,
                         action='store_true',
                         help="keyword use to test the routines")
+    parser.add_argument("-D", "--DIGIT",
+                        dest="digits",
+                        required=False,
+                        action='store_true',
+                        help="keyword to suppress the counter in the filename (needed for debug)")
     args = parser.parse_args()
     return args
 
@@ -350,7 +355,6 @@ def atomic_masses(atomtype_list):
 def main():
     print('')
     args = parseCL()
-    print(args)
 
     if args.test:
         inputs = test_initial_things()
@@ -368,7 +372,6 @@ def main():
             # I do not like this termination here, but I still have to figure out how 
             # to properly do mutually exclusive argparse keywords. 
             # I will keep this exit code here in the meanwhile...
-
             sys.exit('-i input freq file is a required keyword')
 
         if args.seed:
@@ -417,8 +420,12 @@ def main():
 
         #print('\n\n\n\nAFTER DICTIONARY')
         for counter in range(number_of_ic):
-            complete_label = '{}{:04}'.format(label,counter)
-            generate_one_boltz(inputs,complete_label)
+            if args.digits:
+                complete_label = '{}'.format(label)
+                generate_one_boltz(inputs,complete_label)
+            else:
+                complete_label = '{}{:04}'.format(label,counter)
+                generate_one_boltz(inputs,complete_label)
         print('\nThis routine generates geometries in Angstrom and velocities in Bohr (the format that Molcas requires for a Semiclassical Molecular Dynamics)\n')
 
 

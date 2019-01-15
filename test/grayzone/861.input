@@ -1,54 +1,73 @@
 *-------------------------------------------------------------------------------
 * Molecule: Water
+* Basis: STO-3G
+* Symmetry: C1
 * Features tested: dynamixtools.py
 * Responsible person: Alessio Valentini, Luis Manuel Frutos
 * Comments: this test is to execute dynamixTool_test_function
 *-------------------------------------------------------------------------------
 
+
+>> FILE $Project.freq.molden
+ [MOLDEN FORMAT]
+ [N_FREQ]
+                    3
+ [FREQ]
+   2163.6397715096487
+   4108.8572673967010
+   4370.8078937292603
+ [INT]
+   9.4312823889664159
+   40.803830680584561
+   27.977113946305028
+ [NATOM]
+                    3
+ [FR-COORD]
+  H   2.0458364006818993E-002  -8.1748002611882767E-002   1.9346521909055436
+  H   9.8983854451481043E-005   1.9745057212064765       -8.0841576578545668E-002
+  O   3.6134435902464367E-002  0.11035199328796522        7.3710033639986641E-002
+ [FR-NORM-COORD]
+ vibration                     1
+  -1.4425941274004379E-002  0.67472670898298714        7.5658489168655377E-002
+  -8.3603507437283505E-003   6.2069190727237371E-002  0.67621487465749675
+   1.4357435493327370E-003  -4.6424839959061423E-002  -4.7374857268937427E-002
+ vibration                     2
+  -4.7950780267911669E-003 -0.11606082372421840       0.67938467553650350
+  -1.2704808475685095E-002  0.68216042905106911      -0.10240661817131821
+   1.1026519426869123E-003  -3.5669421597654120E-002  -3.6354862973048095E-002
+ vibration                     3
+   5.6960514946603454E-003   6.9799722265682804E-002 -0.67618804240035169
+  -1.3080490525000099E-002  0.67666894110082254       -5.6101998085627040E-002
+   4.6528679150606992E-004  -4.7034312005365259E-002   4.6140929864765402E-002
+ [RMASS]
+   1.0790056720933097
+   1.0486101886349424
+   1.0779631076428289
+>> EOF
+
+>> SHELL python $MOLCAS/Tools/dynamixtools/dynamixtools.py -D -i $Project.freq.molden -s 123456789 -t 300 -b 1 -l $Project
+
 &Gateway
-  coord
-  3
+  coord = $Project.xyz
+  basis = STO-3G
+  group = NoSym
+  NoCD
 
-  O 0.0  0.0002357  0.0631702
-  H 0.0  0.4016088 -0.2504332
-  H 0.0 -0.4053142 -0.2533975
-
-  basis=STO-3G
-  group=NoSym
+>> FOREACH A in (1..20)
 
 &Seward
 
-&SCF
+&rasscf
+INACTIVE = 0
+RAS2 = 2
+nactel = 2 0 0
 
-&mckinley
+&Alaska
 
-** how is the .freq.molden named from the run of mckinley Is the use I make of the variable $Project correct here?
-** this should be enough to catch
-*>> SHELL $PYTHON_EXECUTABLE $MOLCAS/Tools/dynamixtools/dynamixtools.py -i $Project.freq.molden -t 300 -b 1 -l test
-*
-** the "-b 1 -l" combination of flag will create a 2 files named test000.xyz and test000.velocity.xyz
-** I think I need to export $Project again here, because Dynamix with VELO=1 uses it to automatically get the velocity file
-*
-*>> EXPORT Project=test000
-*
-*&Gateway
-*  coord = $Project.xyz
-*  basis = STO-3G
-*  group = NoSym
-*  NoCD
-*
-*>> FOREACH A in (1..20)
-*
-*&Seward
-*
-*&SCF
-*
-*&Alaska
-*
-*&Dynamix
-* VELVER
-* DT = 20.65
-* VELO = 1
-*
-*>>> End Do
-*
+&Dynamix
+ VELVER
+ DT = 20.65
+ VELO = 1
+
+>>> End Do
+
