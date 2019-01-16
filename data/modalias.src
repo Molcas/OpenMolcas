@@ -20,5 +20,4 @@ mp2 = mbpt2
 casscf = rasscf
 raspt2 = caspt2
 localization = localisation
-gridit = sagit
-
+gridit = grid_it

@@ -1181,8 +1181,8 @@ In many cases it can be helpful to view the shape of the converged valence bond 
 Molcas therefore provides two facilities for doing this. For the Molden program, an interface file
 is generated at the end of each :program:`CASVB` run (see also Section :ref:`UG:sec:Molden`).
 Alternatively a :program:`CASVB` run may be followed by :program:`RASSCF` to get orbitals
-(Section :ref:`UG:sec:rasscf`) and :program:`GRID_IT` with the :kword:`VB` specification, 
-in order to generate a three-dimensional grid, for viewing, for example,
+(Section :ref:`UG:sec:rasscf`) and :program:`GRID_IT` with the :kword:`VB` specification
+(Section :ref:`UG:sec:gridit`), in order to generate a three-dimensional grid, for viewing, for example,
 with :program:`LUSCUS` program.
 
 .. xmldoc:: </MODULE>

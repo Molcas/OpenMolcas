@@ -120,10 +120,9 @@
       Call qEnter('Final')
 #endif
 *
-         call getenvf('MOLCAS_NOSAGIT',Value)
-         if(Value(1:1).eq.'Y'.or.Value(1:1).eq.'y') iSagit=0
-         iSagit=0
-         if(iSagit.eq.1) then
+         call getenvf('MOLCAS_SAGIT',Value)
+         if(Value(1:1).eq.'N'.or.Value(1:1).eq.'n') isSagit=0
+         if(isSagit.eq.1) then
              What='COEKBI'
          Else
              What='COEI'
@@ -546,7 +545,7 @@ c make a fix for energies for deleted orbitals
 #ifdef _EFP_
      &     EFP_On()         .or.
 #endif
-     &     KSDFT.ne.'SCF'        ) Call ClsSew (1)
+     &     KSDFT.ne.'SCF'        ) Call ClsSew(1)
 *
       If (Do_OFemb) Then
           Call GetMem('FMaux','Free','Real',ipFMaux,nBT)

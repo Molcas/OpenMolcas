@@ -38,10 +38,10 @@
 #include "setup.fh"
 #include "status.fh"
 *
-CVV: dump info from rinfile into orb.std
+CVV: dump info from runfile into orb.std
 C    note that changes in info.fh
 C    should be reflected in sagit
-      if(iFrom.eq.3) then
+      if(iFrom.eq.0) then
       iutemp=16
       iutemp=isfreeunit(iutemp)
       open(iutemp,file="ORB.std")

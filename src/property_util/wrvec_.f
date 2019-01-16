@@ -22,7 +22,7 @@
 *> information to ``INPORB`` file.
 *>
 *> \p Label defines the type of information to write to ``INPORB`` file.
-*> Valid targets are: ``C``---CMO, ``O``---OCC, ``E``---EORB, ``I``---INDT, ``A``---Append Index,``K``---Coordinates, ``B``--- Basis section
+*> Valid targets are: ``C``---CMO, ``O``---OCC, ``E``---EORB, ``I``---INDT, ``A``---Append Index, ``K``---Coordinates, ``B``---Basis section
 *>
 *> Example: Write CMO coeff. for RHF:
 *>
@@ -130,8 +130,8 @@ c#endif
       endif
 
 
-* Use version 2.3!
-      iVer=iVer23
+* Use version 2.2!
+      iVer=iVer22
 *
 *  Write INFO header
 *
@@ -362,7 +362,6 @@ c      Character*16 FMT
 cVV: the constant is used in all GV packages
 #define R529 0.52917721067d0
         x529=R529
-c        x529=1.0d0
         write(Lu,'(A)') '#COORD'
 *----------------------------------------------------------------------*
 *     Read no.of symm. species                                         *
