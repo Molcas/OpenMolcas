@@ -16,10 +16,14 @@ C This module calculates an external force applied to the system.
 
       Subroutine extf(ireturn)
 
+#include "real.fh"
+#include "constants.fh"
       integer aN, atomNumberx3, nsAtom, efatom1, efatom2, ext
       real*8  gradient(1000), ExtGrad(1000), modgrad(1000)
       real*8  coord(1000), posvect12(3)
       real*8  efmodul, efmodulAU, norm
+      real*8  nnewt
+      parameter (nnewt = CONV_AU_TO_KJ_/CONST_BOHR_RADIUS_IN_SI_*1D12)
       logical linear
       CHARACTER*180  Key, Line
       CHARACTER*180  Get_Ln
@@ -84,11 +88,11 @@ C>>>>>>>>>>>>>>>>>>>>> LINEAR CODE <<<<<<<<<<<<<<<<<<<<<<<<<<<
       write(6,*) '  '
 
 C from nN to atomic units
-      efmodulAU=efmodul/82.38
+      efmodulAU=efmodul/nnewt
 
 C initialize the external gradient vector
       do i=1, atomNumberx3
-       ExtGrad(i)=0.0
+       ExtGrad(i)=Zero
       end do
 
 C posvect is the position vector from atom2 respect atom1
@@ -110,7 +114,7 @@ C creating "norm": the norm of the posvect12 vector
       ExtGrad((efatom2-1)*3+3)=-posvect12(3)*efmodulAU
 C Extension gradient vector created.
 
-C Checking if it is a compresion or extension force. In the former case
+C Checking if it is a compression or extension force. In the former case
 C the direction of the ExtGrad vector will be changed
       if (ext.eq.1) then
         ExtGrad((efatom1-1)*3+1)=-ExtGrad((efatom1-1)*3+1)
@@ -131,7 +135,7 @@ C the direction of the ExtGrad vector will be changed
       write(6,*) '  '
 
 
-C Creating ihe final modified external gradient vector (modgrad)
+C Creating the final modified external gradient vector (modgrad)
       do i=1,atomNumberx3
        modgrad(i)=gradient(i)+ExtGrad(i)
       end do

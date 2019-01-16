@@ -7,6 +7,12 @@
 * Comments: this test is to execute dynamixTool_test_function
 *-------------------------------------------------------------------------------
 
+> IF ( -FILE $MOLCAS/Tools/dynamixtools/dynamixtools.py )
+>   GOTO HAVE_DYNAMIXTOOLS
+> ENDIF
+> EXIT 36
+> LABEL HAVE_DYNAMIXTOOLS
+
 
 >> FILE $Project.freq.molden
  [MOLDEN FORMAT]
@@ -44,6 +50,7 @@
    1.0486101886349424
    1.0779631076428289
 >> EOF
+>> COPY $Project.freq.molden .
 
 >> SHELL python $MOLCAS/Tools/dynamixtools/dynamixtools.py -D -i $Project.freq.molden -s 123456789 -t 300 -b 1 -l $Project
 

@@ -58,7 +58,7 @@ def test_initial_things():
 
 def gaus_dist(sigma):
     '''
-    Generate a gaussian distribution given a sigma
+    Generate a Gaussian distribution given a sigma
     sigma :: Double
     '''
     u1 = random.uniform(0, 1)
@@ -74,7 +74,7 @@ def generate_one_boltz(dictio,label):
     Main driver for initial condition. Takes as input a dictionary of inputs.
     dictio :: Dictionary <- inputs
     label :: String <- project name
-    in this routine the boltzmann distribution is calculated for a single initial condition
+    in this routine the Boltzmann distribution is calculated for a single initial condition
 
     degrN :: Int <- number of degrees of freedom
     atomN :: Int <- number of atoms
@@ -193,12 +193,12 @@ python3 $MOLCAS/Tools/dynamixtools/dynamixtools.py -t 273 -b 100 -i ${Project}.f
                         dest="bol",
                         required=False,
                         type=int,
-                        help="number of initial condition following boltzmann distribution (default 1)")
+                        help="number of initial condition following Boltzmann distribution (default 1)")
     parser.add_argument("-t", "--temperature",
                         dest="temp",
                         required=False,
                         type=float,
-                        help="temperature in Kelvin for the initial conditions")
+                        help="temperature in kelvin for the initial conditions")
     parser.add_argument("-v", "--verbose",
                         dest="debug",
                         required=False,
@@ -293,7 +293,7 @@ def parseMoldenFreq(fn):
                     NCMatx[j,i] = [float(x),float(y),float(z)]
             inp['NCMatx'] = NCMatx
         else:
-            sys.exit('This molden format is not recognized FR-COORD')
+            sys.exit('This molden format is not recognized FR-NORM-COORD')
 
         # parse RMASS (they should be third)
         rmass_Label = f.readline()
@@ -386,7 +386,7 @@ def main():
             label = 'geom'
 
         if args.bol:
-            # right now this is only boltzmann, we need to rethink this IF when wigner is implemented
+            # right now this is only Boltzmann, we need to rethink this IF when Wigner is implemented
             number_of_ic = args.bol
         else:
             number_of_ic = 1
@@ -426,7 +426,7 @@ def main():
             else:
                 complete_label = '{}{:04}'.format(label,counter)
                 generate_one_boltz(inputs,complete_label)
-        print('\nThis routine generates geometries in Angstrom and velocities in Bohr (the format that Molcas requires for a Semiclassical Molecular Dynamics)\n')
+        print('\nThis routine generates geometries in angstrom and velocities in bohr (the format that Molcas requires for a Semiclassical Molecular Dynamics)\n')
 
 
 
