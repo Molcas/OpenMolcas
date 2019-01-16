@@ -353,6 +353,39 @@ Example 2: Intel C/Fortran compilers with GA/IntelMPI and MKL
   CC=mpiicc FC=mpiifort cmake -DMPI=ON -DGA=ON -DLINALG=MKL ../
   make -j4
 
+.. _sec\:configure_StochCAS:
+
+Configuring |molcas| for Stochastic-CASSCF calculations
+-------------------------------------------------------
+
+The Stochastic-CASSCF method relies on the interface of the NECI program, 
+responsible for the FCIQMC CI algorithm, and the RASSCF program of |molcas|,
+responsible for the Super-CI method as an orbital optimizer. In principle,
+two installation protocols can be adopted that are referred to as embedded and uncoupled
+forms. In the embedded form, the NECI program is treated as a dependent subroutine of the
+RASSCF program. This form effectively leads to an automatized version of the
+Stochastic-CASSCF within the OpenMolcas software.
+In the uncoupled form of Stochastic-CASSCF, NECI is installed as a stand-alone program
+and the |molcas|-NECI interface is controlled manually by the user. In this guide only
+the compilation of the uncloupled form will be discussed as it is the form preferred by 
+the developers of the method due to the non-black-box nature of the approach.
+In order to configure the uncoupled form of the Stochastic-CASSCF method 
+simply use the cmake flags::
+
+  cmake -DNECI=ON ~/molcas/
+
+The NECI code is available at https://github.com/ghb24/NECI_STABLE.
+
+For configuring and compiling NECI cmake is recommended::
+
+  cmake -DENABLE_BUILD_HDF5=ON -DENABLE_HDF5=ON -DCMAKE_BUILD_TYPE=Cluster ~/neci/
+  make -j hdf5
+  make -j neci dneci
+
+Two executable files will be generated: neci.exe and dneci.exe. The latter is compulsory for sampling one- and two-body
+density matrices necessary for performing the orbital optimization. For a more detailed description of the NECI configuration
+the users are invited to read the available NECI documentation.
+
 .. _sec\:building_molcas:
 
 Building |molcas|
