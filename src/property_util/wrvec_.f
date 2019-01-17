@@ -79,6 +79,7 @@
       CHARACTER FMT*40
       Logical Exist
       Character*10 Buff
+      Character*12 lBuff
       Dimension iBuff(0:7)
       Character*7 Crypt
 C-SVC: variable to hold birth certificate
@@ -323,8 +324,8 @@ c#endif
        if(iAppend.eq.0.or.(iAppend.eq.1.and.isIndex.eq.0)) then
          Write(Lu,'(A)') '#INDEX'
        endif
-      FMT='(A4)'
       iShift=0
+      nDiv=nDivInd(iVer)
 
       iBuff(0)=1
 c       do i=1,7
@@ -337,7 +338,7 @@ c       do i=1,7
 c       enddo
 
       DO ISYM=1,NSYM
-      write(Lu,'(A)') '* 1234567890'
+      If (nSkpInd(iVer).gt.0) write(Lu,'(A)') '* 1234567890'
       iLab=0
       iBuff(0)=1
 c       do i=1,7
@@ -349,9 +350,9 @@ c       do i=1,7
 
 c       enddo
        Ip=1
-         DO IORB=1,NORB(ISYM),10
+         DO IORB=1,NORB(ISYM),nDiv
          Buff='          '
-          do i=1,10
+          do i=1,nDiv
           iBB=1
           do iB=1,7
           if(Ip.ge.iBuff(iB)) iBB=iBB+1
@@ -363,10 +364,12 @@ c       enddo
           endif
           Ip=Ip+1
           enddo
-            WRITE(LU,'(i1,A1,A10)') iLab,' ',Buff
+            WRITE(lBuff,FMTIND(iVer)) Buff
+            If (Index(FMTIND(iVer),'X').gt.0)
+     &         WRITE(lBuff(1:1),'(i1)') iLab
+            WRITE(LU,'(A)') Trim(lBuff)
             iLab=iLab+1
             if(iLab.gt.9) iLab=0
-c            WRITE(*,FMT) Buff
          End Do
        iShift=iShift+7
       End Do
