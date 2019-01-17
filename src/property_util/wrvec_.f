@@ -281,6 +281,14 @@ c#endif
       End Do
       Endif  ! UHF
       Endif  ! iEne
+      Call getenvf('MOLCAS_SAGIT',inout)
+      If (inout(1:1).eq.'y'.or.inout(1:1).eq.'Y') Then
+        iKoor=iCMO
+        iBasis=iCMO
+      Else
+        iKoor=0
+        iBasis=0
+      End If
       if(iKoor.eq.1.and.iBasis.eq.1) then
         in=16
         in=isfreeunit(in)

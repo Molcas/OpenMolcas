@@ -91,7 +91,6 @@
       COMMON  / ADDcorr_L   / Do_Addc
       Logical Do_SpinAV
       COMMON  / SPAVE_L  / Do_SpinAV
-      Common /Sagit/isSagit
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -283,7 +282,6 @@
       MSYMON=.False.
 *
       iUHF = 0
-      isSagit=1
       nD = 1
 *
 *---- Locate "start of input"
@@ -403,7 +401,6 @@
       If (Line(1:4).eq.'MSYM') Go To 8904
       If (Line(1:4).eq.'ITDI') Go To 8905
       If (Line(1:4).eq.'FCKA') Go To 8906
-      If (Line(1:4).eq.'NOSA') Go To 8907
 *
       If (Line(1:4).eq.'FALC') Go To 30000
 *
@@ -1510,10 +1507,6 @@ c        Call FindErrorLine()
       Else
          FckAuf=.False.
       End If
-      GoTo 1000
-*>>>>>>>>>>>>> NOSA <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- 8907 Continue
-      isSagit=0
       GoTo 1000
 *>>>>>>>>>>>>> FALC <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 30000 Continue
