@@ -65,13 +65,13 @@
 *     Call the generic MOLDEN interface
 
       IF (SO.EQ.0) THEN
-       Write(filename,'(A17,I0,A1,I0)') 'DysOrb.SF.molden.',i_root,
+       Write(filename,'(A10,I0,A1,I0)') 'MD_DYS.SF.',i_root,
      &  ".",i_file
       ELSE IF (SO.EQ.1) THEN
-       Write(filename,'(A17,I0,A1,I0,A3)') 'DysOrb.SO.molden.',i_root,
+       Write(filename,'(A10,I0,A1,I0,A3)') 'MD_DYS.SO.',i_root,
      &  ".",i_file,".Re"
       ELSE IF (SO.EQ.2) THEN
-       Write(filename,'(A17,I0,A1,I0,A3)') 'DysOrb.SO.molden.',i_root,
+       Write(filename,'(A10,I0,A1,I0,A3)') 'MD_DYS.SO.',i_root,
      &  ".",i_file,".Im"
       ELSE
       ENDIF
