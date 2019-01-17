@@ -83,9 +83,11 @@
       Character*7 Crypt
 C-SVC: variable to hold birth certificate
       Character cDNA*256
-      Character *120 inout
+      Character*120 inout
+      Character*20 InpOrbVer
       Logical IsBorn
       Data Crypt/'fi123sd'/
+      Integer, Save :: iVer=0
 #include "inporbfmt.fh"
 *
 *
@@ -129,9 +131,27 @@ c#endif
        goto 100
       endif
 
+*
+*  Get version
+*
+      iDefault=iVer22
+      If (iVer.eq.0) Then
+        Call getenvf('MOLCAS_INPORB_VERSION',InpOrbVer)
+        If (InpOrbVer.eq.'') Then
+          iVer=iDefault
+        Else
+          InpOrbVer='#INPORB '//Trim(AdjustL(InpOrbVer))
+          Do jVer=1,mxVer
+            if(Magic(jVer).eq.InpOrbVer) iVer=jVer
+          End Do
+          If (iVer.eq.0) Then
+            Call WarningMessage(0,
+     &           'Unknown INPORB version, using the default')
+            iVer=iDefault
+          End If
+        End If
+      End If
 
-* Use version 2.2!
-      iVer=iVer22
 *
 *  Write INFO header
 *

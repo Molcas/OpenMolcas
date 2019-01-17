@@ -383,6 +383,17 @@ The complete list of |molcas|-related environment variables:
               </HELP>
               </KEYWORD>
 
+:variable:`MOLCAS_INPORB_VERSION`
+  Selects the version used for writing orbital files (`$Project.ScfOrb`, `$Project.RasOrb`, etc.).
+  The value should be a version number such as ``1.0`` or ``2.2``.
+  If the version is not known, the default (usually latest) version will be used.
+
+  .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_INPORB_VERSION" APPEAR="INPORB version" KIND="REAL"LEVEL="BASIC">
+              %%Keyword: MOLCAS_INPORB_VERSION <basic>
+              <HELP>
+              Selects the version used for writing orbital files.
+              The value should be a version number such as 1.0 or 2.2.
+
 :variable:`MOLCAS_KEEP_WORKDIR`
   If set to NO |molcas| will remove scratch area after a calculation.
   This setting can be overwritten by running :command:`molcas` with flag :command:`-clean`.
