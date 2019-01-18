@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1992, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine ClsSew(iFrom)
+      SubRoutine ClsSew
 ************************************************************************
 *                                                                      *
 * Object:                                                              *
@@ -38,17 +38,6 @@
 #include "setup.fh"
 #include "status.fh"
 *
-CVV: dump info from runfile into orb.std
-C    note that changes in info.fh
-C    should be reflected in sagit
-      if(iFrom.eq.0) then
-      iutemp=16
-      iutemp=isfreeunit(iutemp)
-      open(iutemp,file="ORB.std")
-      Call Koor2file(iutemp)
-      Call Basi2file(iutemp)
-      close(iutemp)
-      endif
       If (Seward_Status.eq.InActive) Return
 *
       Call Term_Ints(.False.,.True.)
@@ -75,4 +64,21 @@ C    should be reflected in sagit
 *
       Seward_Status=InActive
       Return
+      End
+*
+      Subroutine DumpSagit()
+      Implicit Real*8 (A-H,O-Z)
+      Character*8 sagit
+      Call getenvf('MOLCAS_SAGIT',sagit)
+      If (sagit(1:1).eq.'y'.or.sagit(1:1).eq.'Y') Then
+CVV: dump info from runfile into ORB.std
+C    note that changes in info.fh
+C    should be reflected in sagit
+        iutemp=16
+        iutemp=isfreeunit(iutemp)
+        open(iutemp,file="ORB.std")
+        Call Koor2file(iutemp)
+        Call Basi2file(iutemp)
+        close(iutemp)
+      End If
       End

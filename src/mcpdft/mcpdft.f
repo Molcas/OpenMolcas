@@ -699,7 +699,7 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
 *
 * release SEWARD
 *
-      Call ClsSew(1)
+      Call ClsSew
 * ClsSew is needed for releasing memory used by integral_util, rys... which is allocated when MC-PDFT run is performed.
 
 *---  Finalize Cholesky information if initialized

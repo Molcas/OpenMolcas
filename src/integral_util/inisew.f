@@ -36,7 +36,7 @@
       Logical DSCF
 *
       If (Seward_Status.eq.Active) Then
-         Call ClsSew(1)
+         Call ClsSew()
          Call xRlsMem_Ints()
       End If
 *

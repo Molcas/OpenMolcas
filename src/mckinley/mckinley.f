@@ -302,7 +302,7 @@ C     End If
       Call GetMem('Temp','Free','Real',ipTemp,nHess)
       Call GetMem('Hess','Free','Real',ipHess,nHess)
 *
-      Call ClsSew(1)
+      Call ClsSew
 *                                                                      *
 ************************************************************************
 *                                                                      *

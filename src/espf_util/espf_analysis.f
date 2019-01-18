@@ -150,7 +150,7 @@
       Call GetMem('IsMM for atoms','Free','Inte',ipIsMM,natom)
       Call GetMem('AtomCoord','Free','Real',ipCord,3*natom)
 *
-      Call ClsSew(1)
+      Call ClsSew()
 *
       Call QExit('espf_analysis')
       Return

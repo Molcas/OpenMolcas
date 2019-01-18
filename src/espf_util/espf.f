@@ -178,7 +178,7 @@
          Call espf_mltp(natom,MltOrd,nMult,nGrdPt,ipTTT,ipMltp,ipGrid,
      &                  ipIsMM,ipExt,iPL)
       End If
-      Call ClsSew(1)
+      Call ClsSew()
 *
 98    Continue
 *

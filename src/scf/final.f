@@ -537,7 +537,7 @@ c make a fix for energies for deleted orbitals
 #ifdef _EFP_
      &     EFP_On()         .or.
 #endif
-     &     KSDFT.ne.'SCF'        ) Call ClsSew(1)
+     &     KSDFT.ne.'SCF'        ) Call ClsSew
 *
       If (Do_OFemb) Then
           Call GetMem('FMaux','Free','Real',ipFMaux,nBT)
