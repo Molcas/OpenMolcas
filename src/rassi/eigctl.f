@@ -1694,7 +1694,103 @@ C And the same for the Dyson amplitudes
        END IF
 ! release the memory again
          CALL GETMEM('TOT2K','FREE','REAL',LTOT2K,NSS**2)
+!
+! We will first allocate a matrix for the individual contributions
+!
+      CALL GETMEM('INDCD','ALLO','REAL',LINDCD,NSS**2)
+      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LINDCD),1)
+* Lasse 2019
+* New CD here with electric dipole and magnetic-dipole
+        IPRDXD=0
+        IPRDYD=0
+        IPRDZD=0
+        IPRDXM=0
+        IPRDYM=0
+        IPRDZM=0
 
+        IFANYD=0
+        IFANYM=0
+        DO ISOPR=1,NPROP
+          IF (PNAME(IPROP).EQ.'VELOCITY') THEN
+             IFANYD=1
+             IF(ICOMP(IPROP).EQ.1) IPRDXD=IPROP
+             IF(ICOMP(IPROP).EQ.2) IPRDYD=IPROP
+             IF(ICOMP(IPROP).EQ.3) IPRDZD=IPROP
+          END IF
+          IF(SOPRNM(ISOPR).EQ.'ANGMOM  ') THEN
+           IFANYM=1
+           IF(ISOCMP(ISOPR).EQ.1) IPRDXM=ISOPR
+           IF(ISOCMP(ISOPR).EQ.2) IPRDYM=ISOPR
+           IF(ISOCMP(ISOPR).EQ.3) IPRDZM=ISOPR
+          END IF
+        END DO
+
+        IF((IFANYD.NE.0).AND.(IFANYM.NE.0)) THEN
+!
+! Only print the part calculated
+!
+          WRITE(6,*)
+          Call CollapseOutput(1,
+     &                  'Circular Dichoism '//
+     &                  'Electric-Dipole - Magnetic-Dipole '//
+     &                  'rotatory strengths (spin-free states):')
+          WRITE(6,'(3X,A)')
+     &                  '----------------------------------'//
+     &                  '----------------------------------------'
+          IF(OSTHR2.GT.0.0D0) THEN
+            WRITE(6,30) 'for rotatory strength at least',OSTHR2
+            WRITE(6,*)
+          END IF
+          WRITE(6,31) 'From','To','Rotatory strength'
+          WRITE(6,35)
+! Check this constant !
+         ONEOVER6C2=1.0D0/(6.0D0*CONST_C_IN_AU_**2)
+
+         DO ISS_=1,IEND
+            ISS=IndexE(ISS_)
+          DO JSS_=JSTART,NSS
+           JSS=IndexE(JSS_)
+           EDIFF=ENERGY(JSS)-ENERGY(ISS)
+           IF(EDIFF.GT.0.0D0) THEN
+            IJSS=ISS+NSS*(JSS-1)
+
+            DX2=0.0D0
+            DY2=0.0D0
+            DZ2=0.0D0
+
+            IF((IPRDXM.GT.0).AND.(IPRDXD.GT.0)) THEN
+              DX2=PROP(JSS,ISS,IPRDXM)*PROP(JSS,ISS,IPRDXD)
+            END IF
+            IF((IPRDYM.GT.0).AND.(IPRDYD.GT.0)) THEN
+              DY2=PROP(JSS,ISS,IPRDYM)*PROP(JSS,ISS,IPRDYD)
+            END IF
+            IF((IPRDZM.GT.0).AND.(IPRDZD.GT.0)) THEN
+              DZ2=PROP(JSS,ISS,IPRDZM)*PROP(JSS,ISS,IPRDZD)
+            END IF
+
+            F = (DX2 + DY2 + DZ2)*EDIFF*ONEOVER6C2
+! Add it to the total
+            WORK(LTOT2K-1+IJSS) = WORK(LTOT2K-1+IJSS) + F
+            WRITE(6,33) ISS,JSS,F
+!           IF(ABS(F).GE.OSTHR2) THEN
+!             WRITE(6,33) ISS,JSS,F
+!           END IF
+!
+           END IF
+          END DO
+         END DO
+         WRITE(6,35)
+
+         Call CollapseOutput(0,
+     &                  'Circular Dichoism '//
+     &                  'Electric-Dipole - Magnetic-Dipole '//
+     &                  'rotatory strengths (spin-free states):')
+        END IF
+! release the memory again
+         CALL GETMEM('INDCD','FREE','REAL',LINDCD,NSS**2)
+* CD end
+
+*
 ! +++ J. Norell 12/7 - 2018
 ! Dyson amplitudes for (1-electron) ionization transitions
        IF (DYSO) THEN
