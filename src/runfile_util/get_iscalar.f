@@ -138,6 +138,9 @@
             Write(6,*) '*** Warning, reading temporary iScalar field'
             Write(6,*) '***   Field: ',Label
             Write(6,*) '***'
+#ifdef _BIGOT_
+            Call AbEnd()
+#endif
          End If
       End If
 *----------------------------------------------------------------------*

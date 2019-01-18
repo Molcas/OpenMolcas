@@ -433,6 +433,9 @@ C             write(6,*) ' Loop 9999 ILPERM = ', ILPERM
                                    write(6,*) ' Updated rho1 '
                                    call wrtmat(rho1,nacob,nacob,nacob,
      &                                  nacob)
+                                   write(6,*) ' Updated srho1 '
+                                   call wrtmat(srho1,nacob,nacob,nacob,
+     &                                  nacob)
                                 END IF
 *
                              END IF

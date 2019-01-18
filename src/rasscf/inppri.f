@@ -176,7 +176,7 @@ C.. for GAS
       else
         DO IGAS=1,NGAS
           Write(LF,Fmt2//'A,I1,A,T45,2I6)')
-     &      'Min/Max nr of electrons up to GAS',IGAS,' space',
+     &      'Min/Max nr of electrons up to GAS',IGAS,' sp.',
      &                           igsoccx(igas,1),igsoccx(igas,2)
         END DO
       end if

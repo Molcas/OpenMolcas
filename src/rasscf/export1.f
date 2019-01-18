@@ -44,6 +44,7 @@
 *...  Define global variables .........................................*
 #include "rasdim.fh"
 #include "rasscf.fh"
+#include "gas.fh"
 #include "general.fh"
 #include "wadr.fh"
 #include "SysDef.fh"
@@ -125,6 +126,8 @@
 *
 *     Check if it is a RASSCF function and not a CASSCF
       If (nHole1.ne.0 .or. nElec3.ne.0) Method(1:1)='R'
+*     Check if it is a GASSCF function
+      If (iDoGAS) Method(1:1)='G'
 *     Check if it is a DMRGSCF function
       if(doDMRG)then
                         Method='DMRGSCF '

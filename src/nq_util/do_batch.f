@@ -118,6 +118,8 @@
      &           KSDFA(1:7).eq.'TREVPBE' .or.
      &           KSDFA(1:8).eq.'FTREVPBE'.or.
      &           KSDFA(1:6).eq.'FTLSDA'  .or.
+     &           KSDFA(1:5).eq.'TOPBE'   .or.
+     &           KSDFA(1:6).eq.'FTOPBE'  .or.
      &           KSDFA(1:6).eq.'FTBLYP'
 ************************************************************************
 #ifdef _TIME_
@@ -799,6 +801,7 @@ C    &                         list_bas,Index,nIndex)
      &   KSDFA(1:6).eq.'TSSBSW'.or.
      &   KSDFA(1:5).eq.'TSSBD'.or.
      &   KSDFA(1:5).eq.'TS12G'.or.
+     &   KSDFA(1:5).eq.'TOPBE'.or.
      &   KSDFA(1:7).eq.'TREVPBE') then
 *  iSwitch = 0  total density
 *  iSwitch = 1  alpha density
@@ -1083,6 +1086,7 @@ c         write(6,*)'X Y Z spinDens and grad aft on-top density'
 ************************************************************************
       if(KSDFA(1:6).eq.'FTBLYP'.or. !GLM
      &   KSDFA(1:5).eq.'FTPBE'.or.
+     &   KSDFA(1:6).eq.'FTOPBE'.or.
      &   KSDFA(1:8).eq.'FTREVPBE') then
 *  *
         T_Rho=T_X*1.0D-4
@@ -1869,6 +1873,7 @@ cGLM     write(6,*) 'Func in do_batch =', Func
              NTOT1=nFckInt
 
              If(KSDFA(1:4).eq.'TPBE'.or.
+     &               KSDFA(1:5).eq.'TOPBE'.or.
      &               KSDFA(1:5).eq.'TBLYP'.or.
      &               KSDFA(1:7).eq.'TREVPBE') then
 
@@ -1899,6 +1904,7 @@ cGLM     write(6,*) 'Func in do_batch =', Func
 !               CALL GETMEM('TEG_OT','FREE','REAL',LTEG_DB,NFINT)
               end if
              Else If(KSDFA(1:5).eq.'FTPBE'.or.
+     &               KSDFA(1:6).eq.'FTOPBE'.or.
      &               KSDFA(1:6).eq.'FTBLYP'.or.
      &               KSDFA(1:8).eq.'FTREVPBE') then
                If(do_pdftPot) then

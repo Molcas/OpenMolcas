@@ -1,0 +1,7 @@
+TSConstraints
+  d = bond O3 H7
+  t = dihedral C1 C2 O3 H7
+Values
+  d = 1 angstrom
+  t = fix
+End of TSConstraints

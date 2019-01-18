@@ -221,6 +221,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
      &    Method(1:6) .eq. 'KS-DFT' .OR.
      &    Method(1:6) .eq. 'CASSCF' .OR.
      &    Method(1:6) .eq. 'RASSCF' .OR.
+     &    Method(1:6) .eq. 'GASSCF' .OR.
      &    Method(1:6) .eq. 'CASPT2' .OR.
      &    Method(1:5) .eq. 'MBPT2'  .OR.
      &    Method(1:5) .eq. 'CCSDT'  .OR.
@@ -619,6 +620,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
                Call Abend()
             End If
          Else If (Method(1:6) .eq. 'RASSCF' .OR.
+     &            Method(1:6) .eq. 'GASSCF' .OR.
      &            Method(1:6) .eq. 'CASSCF' .OR.
      &            Method(1:6) .eq. 'MCPDFT' .OR.
      &            Method(1:6) .eq. 'CASPT2' .OR.

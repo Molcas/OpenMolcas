@@ -104,15 +104,6 @@
       Else
          iRoot0=0
       End If
-      Call qpg_iScalar('Relax Original root',Found)
-      If (.NOT.Found) Then
-         Call qpg_iScalar('Relax Original root',iRoot)
-      Else
-         Call Get_iScalar('Relax Original root',iRoot1)
-         If (iRoot1.eq.iRoot0) Then
-            Call Put_iScalar('Relax Original root',iRoot)
-         End If
-      End If
       Call Put_dScalar('Numerical Gradient rDelta',rDelta)
 *
 * These are really input options for numerical_gradient

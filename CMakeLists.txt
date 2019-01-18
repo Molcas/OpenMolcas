@@ -208,8 +208,6 @@ if (DMRG)
         # Set QCMaquis download URL and path to the download script
         set (QCMaquis_URL "https://scine.ethz.ch/download/")
         set (QCMaquis_dl_SCRIPT "${CMAKE_SOURCE_DIR}/src/qcmaquis/get_qcmaquis.sh")
-
-
 else ()
         mark_as_advanced (FORCE DMRG_DEBUG)
 endif ()
@@ -256,7 +254,6 @@ add_definitions (-D_MOLCAS_)
 
 #set cmake module search paths
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH})
-
 
 # location of molcas-extra
 if (NOT DEFINED EXTRA)
@@ -2049,7 +2046,7 @@ set (RUNBINARYSER "${SER_LAUNCHER} $program")
 # Specify the launch command for an MPI run
 if (MPI)
         if (NOT MPI_LAUNCHER)
-                set (MPI_LAUNCHER "${MPIEXEC} -n $MOLCAS_NPROCS" CACHE STRING "Command to launch MPI programs.")
+                set (MPI_LAUNCHER "${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} $MOLCAS_NPROCS ${MPIEXEC_PREFLAGS}" CACHE STRING "Command to launch MPI programs.")
         endif ()
         set (RUNBINARY "${MPI_LAUNCHER} $program")
 else ()
@@ -2063,7 +2060,6 @@ string (STRIP ${RUNBINARYSER} RUNBINARYSER)
 message ("-- RUNSCRIPT:    ${RUNSCRIPT}")
 message ("-- RUNBINARY:    ${RUNBINARY}")
 message ("-- RUNBINARYSER: ${RUNBINARYSER}")
-
 
 ################################################################################
 #                                                                              #
@@ -2149,6 +2145,7 @@ list (REMOVE_ITEM progs
         wfa
         nevpt2 # although not necessarily
         dmrgscf
+        mpssi
         )
 
 # set the location of the sources for the utilities
@@ -2302,6 +2299,10 @@ if (BLOCK OR DMRG)
         list (APPEND progs dmrgscf)
 endif ()
 
+if (DMRG)
+        list (APPEND progs mpssi)
+endif ()
+
 # finally, sort the list
 list (SORT utils)
 
@@ -2360,6 +2361,9 @@ set (casvb_deps
 set (dmrgscf_deps
         $<TARGET_OBJECTS:rasscf>
         )
+set (mpssi_deps
+        $<TARGET_OBJECTS:rassi>
+        )
 set (espf_deps
         $<TARGET_OBJECTS:seward>
         $<TARGET_OBJECTS:alaska>
@@ -2399,7 +2403,6 @@ list (APPEND last_energy_deps
         $<TARGET_OBJECTS:dmrgscf>
         )
 endif ()
-
 
 ################################################################################
 #                                                                              #

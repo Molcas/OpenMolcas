@@ -1,0 +1,54 @@
+# A special job for building the documentation,
+doc:
+  stage: build
+  image: ${CI_REGISTRY}/molcas/dockerfiles/doc:latest
+  script:
+    # First build sphinx doc
+    - git submodule update --init External/lapack
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make doc_all
+    # Now build doxygen doc
+    - cd ../doc/doxygen
+    - >
+      echo "PROJECT_NUMBER = $(git describe --always --match 'v*')" >> Doxyfile
+    # Generating call/caller graphs unfortunately results in too large artifacts for the pages:deploy stage
+    #- echo 'CALL_GRAPH = YES' >> Doxyfile
+    #- echo 'CALLER_GRAPH = YES' >> Doxyfile
+    - doxygen
+  after_script:
+    - cat doc/doxygen/doxygen.log
+  artifacts:
+    paths:
+      - build/doc
+      - doc/doxygen/html
+    expire_in: 1 day
+  only:
+    - branches
+    - merge_requests
+    - api
+    - triggers
+    - web
+  except:
+    - tags
+  tags:
+    - docker
+
+# And the corresponding job to publish the documentation for the master branch
+pages:
+  stage: deploy
+  script:
+    - mkdir -p public
+    - mv build/doc/html public/sphinx
+    - mv build/doc/latex/Manual.pdf public/
+    - mv doc/doxygen/html public/doxygen
+    - du -sh public/*
+  dependencies:
+    - doc
+  artifacts:
+    paths:
+      - public
+    expire_in: 1 day
+  only:
+    - master@Molcas/OpenMolcas

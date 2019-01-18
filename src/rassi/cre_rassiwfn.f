@@ -11,6 +11,9 @@
       subroutine cre_rassiwfn
 *     SVC: Create a wavefunction file. If another .wfn file already
 *     exists, it will be overwritten.
+#ifdef _DMRG_
+      use qcmaquis_interface_cfg
+#endif
       implicit none
 #ifdef _HDF5_
 #  include "Molcas.fh"
@@ -33,7 +36,15 @@
       wfn_fileid = mh5_create_file('RASSIWFN')
 
 *     set module type
+#ifdef _DMRG_
+      if(doDMRG)then
+        call mh5_init_attr (wfn_fileid,'MOLCAS_MODULE', 'MPSSI')
+      else
+#endif
       call mh5_init_attr (wfn_fileid,'MOLCAS_MODULE', 'RASSI')
+#ifdef _DMRG_
+      end if
+#endif
 
 *     copy basic molecular information to the HDF5 file
       call run2h5_molinfo(wfn_fileid)
@@ -147,6 +158,20 @@
       call mh5_init_attr(wfn_sos_angmomi, 'description',
      $        'Angular momentum components between the spin-orbit '//
      $        'states stored as <SOS1|iL(x,y,z)|SOS2> in'//
+     $        ' [NSS,NSS,3], imaginary part')
+
+      wfn_sos_edipmomr = mh5_create_dset_real(wfn_fileid,
+     $        'SOS_EDIPMOM_REAL', 3, [NSS,NSS,3])
+      call mh5_init_attr(wfn_sos_edipmomr, 'description',
+     $        'Electric dipole momentum components between the '//
+     $        'spin-orbit states stored as <SOS1|ED(x,y,z)|SOS2> in'//
+     $        ' [NSS,NSS,3], real part')
+
+      wfn_sos_edipmomi = mh5_create_dset_real(wfn_fileid,
+     $        'SOS_EDIPMOM_IMAG', 3, [NSS,NSS,3])
+      call mh5_init_attr(wfn_sos_edipmomi, 'description',
+     $        'Electric dipole momentum components between the '//
+     $        'spin-orbit states stored as <SOS1|ED(x,y,z)|SOS2> in'//
      $        ' [NSS,NSS,3], imaginary part')
 
 *     SFS transition density
