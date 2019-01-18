@@ -292,7 +292,7 @@ c#endif
       if(iKoor.eq.1.and.iBasis.eq.1) then
         in=16
         in=isfreeunit(in)
-        open(unit=in,file="ORB.std")
+        call molcas_open(in,'ORB.std')
 765     read(in,'(a)',end=766,err=766) InOut
         write(Lu,'(a)') InOut(1:mylen(InOut))
         goto 765

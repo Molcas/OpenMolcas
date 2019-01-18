@@ -76,7 +76,7 @@ C    note that changes in info.fh
 C    should be reflected in sagit
         iutemp=16
         iutemp=isfreeunit(iutemp)
-        open(iutemp,file="ORB.std")
+        Call molcas_open(iutemp,'ORB.std')
         Call Koor2file(iutemp)
         Call Basi2file(iutemp)
         close(iutemp)
