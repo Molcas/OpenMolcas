@@ -25,11 +25,15 @@
             </HELP>
 
 The :program:`RASSCF` program in |molcas| performs
-multiconfigurational SCF calculations using the Restricted Active
-Space :cite:`raspek` or the Generalized Active Space :cite:`gas2011` SCF construction of the wave function.
+multiconfigurational SCF calculations using the Complete Active Space (CAS), Restricted Active
+Space (RAS) :cite:`raspek` or the Generalized Active Space (GAS) :cite:`gas2011` SCF construction of the wave function.
 RASSCF is an extension of the Complete Active Space
 (CAS) approach, in which the wave function is obtained as a full CI
 expansion in an active orbital space :cite:`caspek1,Roos:87`.
+
+Within the :program:`RASSCF` program in |molcas| Stochastic-CASSCF calculations can be performed :cite:`limanni2016`.
+This method allows for CASSCF calculations with a large active space selection (calculations with 40 electrons and 40 orbitals have been reported) :cite: `limanni2016, limanni2018, limanni2019`.
+
 The RASSCF method is based on a partitioning of the occupied molecular
 orbitals into the following groups:
 
@@ -212,6 +216,16 @@ orbitals have been prepared to be adapted to linear symmetry, the
 The program will do this automatically with the use of the
 input keyword :kword:`LINEAR`. Similarly, for single atoms, spherical
 symmetry can be enforced by the keyword :kword:`ATOM`.
+
+The Stochastic-CASSCF method
+----------------------------
+
+The Stochastic-CASSCF :cite:`limanni2016` has been developed since 2015 by Li Manni and Alavi,
+initially into a locally modified version of Molcas and now available in OpenMolcas.
+The method retains the simplicity of CASSCF, while circuventing the the exponential scaling of CAS wave functions.
+This is obtained by replacing the Davidson diagonalization technique, in its direct-CI implementation (default in |molcas|),
+with the full-CI quantum Monte-Carlo (FCIQMC) algorithm :cite:`Alavi2009`, whilst the Super-CI method is used
+for the orbital optimization.
 
 GASSCF method
 -------------
