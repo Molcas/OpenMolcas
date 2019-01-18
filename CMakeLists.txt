@@ -2963,19 +2963,21 @@ if (PYTHONINTERP_FOUND)
                 ERROR_VARIABLE EXTRACT_ERROR
                 RESULT_VARIABLE EXTRACT_RESULT
                 )
-        if (EXTRACT_RESULT)
+        if (EXTRACT_ERROR)
                 message(FATAL_ERROR "Running \"extract_xmldoc.py\" failed: ${EXTRACT_ERROR}")
         endif ()
         # check XML consistency, only if the program is found
         find_program (XMLLINT "xmllint")
         mark_as_advanced(FORCE XMLLINT)
         if (XMLLINT)
-                add_custom_target (
-                        check_xml
+                execute_process (
                         COMMAND ${XMLLINT} "${PROJECT_BINARY_DIR}/data/keyword.xml" "-noout"
-                        COMMENT "Checking XML consistency"
-                        VERBATIM
+                        ERROR_VARIABLE XMLLINT_ERROR
+                        RESULT_VARIABLE XMLLINT_RESULT
                         )
+                if (XMLLINT_ERROR)
+                        message(FATAL_ERROR "Extracted XML file is malformed: ${XMLLINT_ERROR}")
+                endif ()
         endif ()
 else ()
         message (WARNING "No python found, help databases will not be created.")

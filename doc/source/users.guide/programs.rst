@@ -23,6 +23,7 @@ Programs
    programs/embq
    programs/espf
    programs/expbas
+   programs/extf
    programs/falcon
    programs/ffpt
    programs/gateway

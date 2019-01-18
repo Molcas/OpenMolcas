@@ -246,5 +246,34 @@ taken from a Maxwell-Boltzmann distribution at 300 K.
 
 >> END DO
 \end{inputlisting}
+
+\subsection{Dynamixtools}
+This tool can be found into the \texttt{Tools/} folder and it will provide some general tools to manage molecular dynamics calculation. At the moment it can be used to generate intial condition (geometries and momenta) following a Boltzmann distribution, based on a frequency calculation. It is working with a \texttt{freq.molden} file (\texttt{.h5} support coming soon...).
+
+From the command prompt:
+\begin{inputlisting}
+\$ python3 dynamixtools.py -h
+usage: dynamixtools.py [-h] [-s SEED] [-l LABEL] -i I [-b BOL] -t TEMP
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -s SEED, --seed SEED  indicate the SEED to use for the generation of randoms
+  -l LABEL, --label LABEL
+                        label for your project (default is "geom")
+  -i I, --input I       path of the frequency h5 or molden file
+  -b BOL, --boltzmann BOL
+                        number of initial condition following boltzmann
+                        distribution (default 1)
+  -t TEMP, --temperature TEMP
+                        temperature in Kelvin for the initial conditions
+\end{inputlisting}
+
+Having a \texttt{water.freq.molden} file, this is the command to generate 200 initial condition using \texttt{3435432} as seed and a temperature of 300 Kelvin.
+
+\begin{inputlisting}
+\$ python3 dynamixtools.py -i water.freq.molden -t 300 -b 200 -s 3435432
+\end{inputlisting}
+
 %%%To_extract
 %%%</MODULE>
+
