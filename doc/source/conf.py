@@ -36,7 +36,7 @@ sys.path.append(os.path.abspath('../extensions'))
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
-needs_sphinx = '1.4'
+needs_sphinx = '1.8'
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -202,7 +202,6 @@ html_show_sourcelink = True
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'Molcasdoc'
 
-
 # -- Options for LaTeX output ---------------------------------------------
 
 latex_elements = {
@@ -216,7 +215,7 @@ latex_elements = {
 #'preamble': '',
 
 # Maketitle command
-'maketitle': '\maketitle',
+  'maketitle': '\maketitle',
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
@@ -439,8 +438,11 @@ extract_dir = 'samples'
 ref_file = 'references'
 
 def setup(app):
-    app.add_stylesheet('fonts.css')
-    app.add_stylesheet('style.css')
-    app.add_stylesheet('colors.css', title="Default", alternate=False)
-    app.add_stylesheet('nocolors.css', title="No colors")
-    app.add_stylesheet('specific.css')
+    app.add_css_file('fonts.css')
+    app.add_css_file('style.css')
+    app.add_css_file('colors.css', title='Default', rel='alternate stylesheet')
+    app.add_css_file('nocolors.css', title='No colors')
+    app.add_css_file('specific.css')
+    app.add_js_file('styleswitcher.js')
+    app.add_js_file('functions.js')
+    app.add_js_file('mathjax_config.js')
