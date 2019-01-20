@@ -440,8 +440,8 @@ ref_file = 'references'
 def setup(app):
     app.add_css_file('fonts.css')
     app.add_css_file('style.css')
-    app.add_css_file('colors.css', title='Default', rel='alternate stylesheet')
-    app.add_css_file('nocolors.css', title='No colors')
+    app.add_css_file('colors.css', title='Default')
+    app.add_css_file('nocolors.css', title='No colors', rel='alternate stylesheet')
     app.add_css_file('specific.css')
     app.add_js_file('styleswitcher.js')
     app.add_js_file('functions.js')

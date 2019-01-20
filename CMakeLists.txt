@@ -3070,6 +3070,8 @@ if (SPHINX_EXECUTABLE)
 
         add_custom_target (
                 doc_html
+                # workaround for sphinx bug #5966
+                COMMAND touch ${PROJECT_SOURCE_DIR}/doc/source/index.rst
                 COMMAND OPENMOLCAS_RELEASE=${MOLCAS_VERSION} OPENMOLCAS_VERSION=${SHORT_VERSION}
                         ${SPHINX_EXECUTABLE} -b html ${SPHINX_OPTIONS} ${PROJECT_SOURCE_DIR}/doc/source ${SPHINX_BUILDDIR}/html
                 )
