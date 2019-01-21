@@ -27,7 +27,7 @@ simply use the cmake flag -DNECI=ON::
 
 The NECI code is available at https://github.com/ghb24/NECI_STABLE. 
 
-The code requires some external software and libraries:
+The NECI code requires some external software and libraries:
 
 * MPI: For builds intended to be run in parallel. OpenMPI, MPICH2 and its derivatives (IBM MPI, Cray MPI, and Intel MPI) have been tested.
 * Linear algebra: ACML, MKL, BLAS/LAPACK combination.
