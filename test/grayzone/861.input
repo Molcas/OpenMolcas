@@ -52,7 +52,7 @@
 >> EOF
 >> COPY $Project.freq.molden .
 
->> SHELL python $MOLCAS/Tools/dynamixtools/dynamixtools.py -D -i $Project.freq.molden -s 123456789 -t 300 -b 1 -l $Project
+>> SHELL $MOLCAS/Tools/dynamixtools/dynamixtools.py -D -i $Project.freq.molden -s 123456789 -t 300 -b 1 -l $Project
 
 &Gateway
   coord = $Project.xyz

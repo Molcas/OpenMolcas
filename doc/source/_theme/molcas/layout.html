@@ -26,9 +26,9 @@
             <img class="logo" src="{{ pathto('_static/' + logo, 1) }}" alt="Logo"/>
           </a></p>
         {%- endif %}
-        {%- block headertitle %}
+        {%- block headertitle %} {# note there's no escaping in the title, because we want to use HTML code #}
         <div class="headertitle"><a
-          href="{{ pathto(master_doc) }}">{{ shorttitle|e }}</a></div>
+          href="{{ pathto(master_doc) }}">{{ shorttitle }}</a></div>
         {%- endblock %}
         {%- block navigation %}
         <div class="styles"></div>
