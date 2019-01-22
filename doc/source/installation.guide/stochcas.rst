@@ -21,11 +21,11 @@ and the |molcas|-NECI interface is controlled manually by the user. In this guid
 the installation of the uncloupled form will be discussed as it is the form preferred by
 the developers of the method due to the non-black-box nature of the approach.
 In order to configure the uncoupled form of the Stochastic-CASSCF method
-simply use the cmake flag -DNECI=ON::
+simply use the cmake flag -DNECI=ON: ::
 
   cmake -DNECI=ON ~/molcas/
 
-The NECI code is available at https://github.com/ghb24/NECI_STABLE. 
+The NECI code is available at https://github.com/ghb24/NECI_STABLE.
 
 The NECI code requires some external software and libraries:
 
@@ -39,18 +39,17 @@ For configuring and compiling NECI cmake is recommended::
   make -j hdf5
   make -j neci dneci
 
-Cmake flag -DENABLE_BUILD_HDF5=ON builds the hdf5 library from source, and use that instead of one provided by the system.
-Cmake flag -DENABLE_HDF5=ON makes use of hdf5 for popsfiles (default=on).
+Cmake flag ``-DENABLE_BUILD_HDF5=ON`` builds the HDF5 library from source, and use that instead of one provided by the system.
+Cmake flag ``-DENABLE_HDF5=ON`` makes use of HDF5 for popsfiles (default=on).
 
-Two executable files will be generated: neci.exe and dneci.exe. The latter is compulsory for sampling one- and two-body
+Two executable files will be generated: :file:`neci.exe` and :file:`dneci.exe`. The latter is compulsory for sampling one- and two-body
 density matrices necessary for performing the orbital optimization. For a more detailed description of the NECI configuration
 the users are invited to read the available NECI documentation.
 
 More details about configuration/installation of the NECI code can be found in the NECI documentation.
 
-There are currently no verification tests for the Stochastic-CASSCF method. However, after installation of Molcas one test is possible
-to verify that MO integrals are correctly dumped into the FCIDUMP file. Simply use
-::
+There are currently no default verification tests for the Stochastic-CASSCF method. However, after installation of |molcas| one test is possible
+to verify that MO integrals are correctly dumped into the FCIDUMP file. Simply use: ::
 
   molcas verify limannig
 
