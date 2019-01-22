@@ -87,6 +87,12 @@
             {%- endfor %}
           </div>
           <div role="note" aria-label="source link" class="source_link">
+            {%- if theme_pdf_file  %}
+              <a href="{{ pathto( theme_pdf_file, true) }}">{{ ('Get PDF') }}</a>
+              {%- if show_source and has_source and sourcename %}
+              |
+              {%- endif %}
+            {%- endif %}
             {%- if show_source and has_source and sourcename %}
               <a href="{{ pathto('_sources/' + sourcename, true)|e }}"
                 rel="nofollow">{{ _('Show Source') }}</a>
