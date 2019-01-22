@@ -19,13 +19,9 @@ SBIN=0
 TMPDIR=$(mktemp -d)
 trap 'rm -rf "$TMPDIR"' EXIT
 
-# check changes to sbin/
+# checkout changed files
 for FILE in $(git diff-index --cached --name-only HEAD)
 do
-    if [[ "$FILE" == sbin\/* ]]
-    then
-        SBIN=1
-    fi
     git checkout-index --prefix=$TMPDIR/ $FILE 2> /dev/null
 done
 DIR=$PWD
@@ -74,27 +70,6 @@ esac
 if (( $RC ))
 then
     exit $RC
-fi
-
-# check changes to sbin/
-# (if this is a merge commit, bypass the check)
-if [ -z "$(git rev-parse -q --verify MERGE_HEAD)" ]
-then
-    if (( $SBIN ))
-    then
-        echo "    ==========================================================="
-        echo "    You tried to commit changes to the sbin/ directory."
-        echo "    This is restricted and only allowed for administrators."
-        echo ""
-        echo "    If you wish to apply the changes, please send the modified"
-        echo "    files to one of the administrators."
-        echo ""
-        echo "    If you are working on a local or special branch that is"
-        echo "    not meant to be merged, you can disable this check by using"
-        echo "    the \"--no-verify\" flag with \"git commit\"".
-        echo "    ==========================================================="
-        RC=2
-    fi
 fi
 
 exit $RC

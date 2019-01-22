@@ -98,6 +98,7 @@
       Character*128 OrbName
       Logical RF_On,Langevin_On,PCM_On
       Character*80 Note
+      Character*8 What
       Integer IndType(7,8)
       Real*8, Dimension(:), Allocatable:: Temp, CMOn, Etan, Epsn
       Real*8, Dimension(:,:), Allocatable:: GVFck, Scrt1, Scrt2, DMat,
@@ -117,6 +118,8 @@
       Call qEnter('Final')
 #endif
 *
+      What='COEI'
+
       Call SorbCMOs(CMO,mBB,nD,EOrb,OccNo,mmB,nBas,nOrb,nSym)
 *
       Call Put_darray('SCF orbitals',CMO(1,1),mBB)
@@ -421,7 +424,7 @@ c make a fix for energies for deleted orbitals
             Note=Trim(Note)//' / '//Trim(KSDFT)
             iWFtype=3
          End If
-         Call WrVec_(OrbName,LuOut,'COEI',iUHF,nSym,nBas,nBas,
+         Call WrVec_(OrbName,LuOut,What,iUHF,nSym,nBas,nBas,
      &             CMO(1,1),Dummy, OccNo(1,1),Dummy,EOr(1,1),
      &     Dummy,IndType,Note,iWFtype)
 #ifdef _HDF5_
@@ -447,7 +450,7 @@ c make a fix for energies for deleted orbitals
             Note=Trim(Note)//' / '//Trim(KSDFT)
             iWFtype=5
          End If
-         Call WrVec_(OrbName,LuOut,'COEI',iUHF,nSym,nBas,nBas,
+         Call WrVec_(OrbName,LuOut,What,iUHF,nSym,nBas,nBas,
      &               CMO(1,1),CMO(1,2), OccNo(1,1),OccNo(1,2),
      &               EOr(1,1),EOr(1,2), IndType, Note,iWFtype)
 #ifdef _HDF5_
@@ -501,7 +504,7 @@ c make a fix for energies for deleted orbitals
          Else
             iWFtype=7
          End If
-         Call WrVec_(OrbName,LuOut,'COEI',0,nSym,nBas,nBas,
+         Call WrVec_(OrbName,LuOut,What,0,nSym,nBas,nBas,
      &               CMOn,Dummy,Etan,Dummy,Epsn,
      &               Dummy,IndType, Note,iWFtype)
 #ifdef _HDF5_

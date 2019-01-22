@@ -26,7 +26,7 @@
             <img class="logo" src="{{ pathto('_static/' + logo, 1) }}" alt="Logo"/>
           </a></p>
         {%- endif %}
-        {%- block headertitle %}
+        {%- block headertitle %} {# note there's no escaping in the title, because we want to use HTML code #}
         <div class="headertitle"><a
           href="{{ pathto(master_doc) }}">{{ shorttitle }}</a></div>
         {%- endblock %}
@@ -55,7 +55,7 @@
         </div>
         <div class="sidebar">
           {%- block sidebartoc %}
-          <h3>{{ _('Table Of Contents') }}</h3>
+          <h3>{{ _('Table of Contents') }}</h3>
           {{ toctree(collapse=True,maxdepth=3,titles_only=False) }}
           {%- endblock %}
           {%- block sidebarsearch %}
@@ -104,8 +104,6 @@
 
 {% block relbar1 %}{% endblock %}
 {% block relbar2 %}{% endblock %}
-
-{% set script_files = ["_static/mathjax_config.js"] + script_files + ["_static/styleswitcher.js", "_static/functions.js"] %}
 
 {%- if theme_fontimport %}
     {%- block css %}

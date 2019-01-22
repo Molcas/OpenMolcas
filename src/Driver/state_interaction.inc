@@ -12,6 +12,7 @@
 #include "choints.inc"
 #include "orbitals.inc"
 #include "wfnfiles.inc"
+#include "moldenfiles.inc"
  (file)  JOB001   "$WorkDir/$Project."JobIph      ro*
  (file)  JOB002   "$WorkDir/$Project."JobIph01    ro
  (file)  JOB003   "$WorkDir/$Project."JobIph02    ro

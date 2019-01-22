@@ -336,7 +336,7 @@ Below is a list of keywords that should cover the needs of most users.
   For an HLE-type functional, use 1.25 (for exchange) and 0.5 (for correlation).
   Example: `DFCF=1.25 0.5`
 
-  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="DFCF" APPEAR="DFT exch. & corr. scaling factors" KIND="REALS" SIZE="2" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="DFCF" APPEAR="DFT exch. &amp; corr. scaling factors" KIND="REALS" SIZE="2" LEVEL="ADVANCED">
               %%Keyword: DFCF <advanced>
               <HELP>
               Use this keyword to scale the exchange terms and/or correlation terms of a density functional.
