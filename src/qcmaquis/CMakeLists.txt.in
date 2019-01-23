@@ -29,6 +29,10 @@ else()
         set(QCM_BUILD_TYPE ${CMAKE_BUILD_TYPE})
 endif()
 
+if(MPI)
+        set(CMAKE_QCM_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -D_MOLCAS_MPP_")
+endif()
+
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_ROOT})
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/custom)
 
@@ -38,7 +42,7 @@ list(APPEND QCMaquisDriverCMakeArgs
         -DCMAKE_BUILD_TYPE=${QCM_BUILD_TYPE}
         -DCMAKE_INSTALL_PREFIX=${PROJECT_BINARY_DIR}/External
         -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER}
-        -DCMAKE_Fortran_FLAGS=${CMAKE_Fortran_FLAGS}
+        -DCMAKE_Fortran_FLAGS=${CMAKE_QCM_Fortran_FLAGS}
         -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
         -DCMAKE_C_FLAGS=${CMake_C_FLAGS}
         -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
