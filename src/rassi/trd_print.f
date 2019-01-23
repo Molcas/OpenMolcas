@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2011 Per-Ake Malmqvist                                 *
+* Copyright (C) 2011, Per Ake Malmqvist                                *
 ************************************************************************
 
 ! Print the transition density matrices in ASCII format.
