@@ -19,6 +19,8 @@
 &SEWARD
   Cholesky
 
+> EXPORT MOLCAS_INPORB_VERSION=1.0
+
 &SCF
   Title = CO, cc-pVDZ basis set
   Occupied = 7
@@ -30,6 +32,8 @@
     2 0.1
     O C
   FileOrb = SCFORB
+
+> EXPORT MOLCAS_INPORB_VERSION=foo
 
 * Default localisation occupied/virtual orbitals
 &LOCALISATION
@@ -54,6 +58,8 @@
   Edmiston-Ruedenberg
   Order
   FileOrb = SCFORB
+
+> EXPORT MOLCAS_INPORB_VERSION=2.0
 
 &LOCALISATION
   Cholesky

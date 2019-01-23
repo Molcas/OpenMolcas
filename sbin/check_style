@@ -105,6 +105,13 @@ def test_printst(line, filename):
     return False
   return printst.match(line.decode('ascii', 'ignore').strip('\n'))
 
+# OPEN statement
+openst = re.compile(r'[\s\d]*open\s*\(', re.IGNORECASE)
+def test_openst(line, filename):
+  if (not filename.endswith(('.f', '.F', '.f90', '.F90'))):
+    return False
+  return openst.match(line.decode('ascii', 'ignore').strip('\n'))
+
 #====================================================
 
 #====================================================
@@ -124,6 +131,7 @@ tests.append({'func': test_unwrapped, 'print': '[{0}] "Unwrapped LAPACK/BLAS cal
 tests.append({'func': test_dp, 'print': '[{0}] "double precision" in {1}, line {2}', 'error': True})
 tests.append({'func': test_stop, 'print': '[{0}] "STOP" statement in {1}, line {2}', 'error': True})
 tests.append({'func': test_printst, 'print': '[{0}] "PRINT" statement in {1}, line {2}', 'error': True})
+tests.append({'func': test_openst, 'print': '[{0}] "OPEN" statement in {1}, line {2} (use molcas_open)', 'error': False})
 
 def run_tests(line, fname, ln):
   j = 0

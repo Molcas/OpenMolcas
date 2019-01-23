@@ -9,7 +9,7 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
 # Copyright (C) 2014-2016, Steven Vancoillie                           *
-#               2014-2018, Ignacio Fdez. Galván                        *
+#               2014-2019, Ignacio Fdez. Galván                        *
 #               2015, Stefan Knecht                                    *
 #***********************************************************************
 # Global CMakeLists.txt file for building Molcas with CMake.
@@ -66,6 +66,11 @@ endif ()
 find_program (GIT "git")
 find_program (PERL "perl")
 mark_as_advanced(FORCE GIT PERL)
+
+FIND_PACKAGE(PythonInterp 3.0)
+if (NOT PYTHONINTERP_FOUND)
+        FIND_PACKAGE(PythonInterp 2.7)
+endif ()
 
 ################################################################################
 #                                                                              #
@@ -2963,19 +2968,21 @@ if (PYTHONINTERP_FOUND)
                 ERROR_VARIABLE EXTRACT_ERROR
                 RESULT_VARIABLE EXTRACT_RESULT
                 )
-        if (EXTRACT_RESULT)
+        if (EXTRACT_ERROR)
                 message(FATAL_ERROR "Running \"extract_xmldoc.py\" failed: ${EXTRACT_ERROR}")
         endif ()
         # check XML consistency, only if the program is found
         find_program (XMLLINT "xmllint")
         mark_as_advanced(FORCE XMLLINT)
         if (XMLLINT)
-                add_custom_target (
-                        check_xml
+                execute_process (
                         COMMAND ${XMLLINT} "${PROJECT_BINARY_DIR}/data/keyword.xml" "-noout"
-                        COMMENT "Checking XML consistency"
-                        VERBATIM
+                        ERROR_VARIABLE XMLLINT_ERROR
+                        RESULT_VARIABLE XMLLINT_RESULT
                         )
+                if (XMLLINT_ERROR)
+                        message(FATAL_ERROR "Extracted XML file is malformed: ${XMLLINT_ERROR}")
+                endif ()
         endif ()
 else ()
         message (WARNING "No python found, help databases will not be created.")
@@ -3068,6 +3075,8 @@ if (SPHINX_EXECUTABLE)
 
         add_custom_target (
                 doc_html
+                # workaround for sphinx bug #5966
+                COMMAND touch ${PROJECT_SOURCE_DIR}/doc/source/index.rst
                 COMMAND OPENMOLCAS_RELEASE=${MOLCAS_VERSION} OPENMOLCAS_VERSION=${SHORT_VERSION}
                         ${SPHINX_EXECUTABLE} -b html ${SPHINX_OPTIONS} ${PROJECT_SOURCE_DIR}/doc/source ${SPHINX_BUILDDIR}/html
                 )

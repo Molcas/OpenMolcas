@@ -124,7 +124,7 @@
      &                              nModes,lModes,mDisp)
 !      End If
       Call Freq_Molden(Work(ipEVal),nModes,Work(ipNMod),lModes,nSym,
-     &                 IRInt,mDisp)
+     &                 IRInt,mDisp,Work(ipRedMas))
 *                                                                      *
 ************************************************************************
 *                                                                      *

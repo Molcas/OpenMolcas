@@ -612,8 +612,8 @@ The default units are Ångströms. By default, maximum possible symmetry is used
   * NOSYM (same as E, or C1)
   * space separated list of generators: e.g. X XY (for more details see SYMMETRY keyword)
 
-  Limitations: in the current implementation atom labels, and basis sets are ignored
-  during symmetry recognition.
+  .. Limitations: in the current implementation atom labels, and basis sets are ignored
+     during symmetry recognition.
 
   .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="GROUP" APPEAR="Group" KIND="LIST" LEVEL="BASIC">
               %%Keyword: GROUP (XYZ format) <basic>

@@ -49,7 +49,11 @@ a {
   color: {{ theme_linkcolor }};
 }
 
-div.bodywrapper a, div.footer a {
+div.source_link a {
+  text-decoration: none;
+}
+
+div.bodywrapper a, div.source_link a:hover {
   text-decoration: underline;
 }
 
