@@ -21,14 +21,14 @@
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='TRD_PRINT')
 #include "rasdim.fh"
-#include "rasdef.fh"
+!#include "rasdef.fh"
 #include "symmul.fh"
 #include "rassi.fh"
 #include "cntrl.fh"
 #include "WrkSpc.fh"
 #include "Files.fh"
 #include "Struct.fh"
-#include "rassiwfn.fh"
+!#include "rassiwfn.fh"
 #include "stdalloc.fh"
 ! Variables passed
       INTEGER ISTATE, JSTATE, LTDM2
