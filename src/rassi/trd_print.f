@@ -66,7 +66,7 @@
           WRITE(LU,*)'#  Symm ',ISYM,'   Orbital ',IO
           WRITE(LU,'(5D19.12)')(WORK(LPOS+NB*(IO-1)+i),i=0,NB-1)
         END DO
-        LPOS=LPOS+NB**2
+        LPOS=LPOS+NB*NO
       END DO
       WRITE(LU,*)'#  State ',JSTATE,'    CMO coefficients:'
       LPOS=LCMO2
@@ -77,7 +77,7 @@
           WRITE(LU,*)'#  Symm ',ISYM,'   Orbital ',IO
           WRITE(LU,'(5D19.12)')(WORK(LPOS+NB*(IO-1)+i),i=0,NB-1)
         END DO
-        LPOS=LPOS+NB**2
+        LPOS=LPOS+NB*NO
       END DO
       WRITE(LU,*)'#  States ',ISTATE,JSTATE,' Overlap:'
       WRITE(LU,'(5D19.12)') SIJ
