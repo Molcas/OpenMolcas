@@ -599,8 +599,8 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
       ! DMRGCI and CIOnly.It's enabled only for DMRGCI with QCMaquis
       ! now, (to exclude potential side effects)
       ! but consider extending it to other cases!
-      If (( ITER.EQ.1 ).and.((.not.(DoDMRG.and.(ICIONLY.NE.0))).or.lRf))
-     &    THEN
+      If (( ITER.EQ.1 ).and.((.not.(DoDMRG.and.(ICIONLY.NE.0))).or.lRf
+     &    .or.domcpdftDMRG))THEN
 #else
       If ( ITER.EQ.1 ) THEN
 #endif
