@@ -222,7 +222,7 @@
            END IF
            Write(LF,*)
            DO IB=1,NB
-            Write(LF,'(2X,I3,1X,A,10F10.4)') IB,
+            Write(LF,'(2X,I4,1X,A,10F10.4)') IB,
      &        Clean_BName(NAME(IBOFF+IB),LENIN),
      &        (CMO(ICOFF+(IWORK(LSLCT-1+ISOFF+I)-1-IBOFF)*NB+IB),
      &        I=ISSTART,ISEND)
