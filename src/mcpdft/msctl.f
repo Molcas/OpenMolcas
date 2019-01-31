@@ -461,6 +461,7 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
 ***********************************************************
 *     Compute energy contributions
 ***********************************************************
+      iTmp2=0
       Call GetMem('DoneI','Allo','Real',iTmp2,nTot1)
 
       Call Fold(nSym,nBas,Work(iD1I),Work(iTmp2))
@@ -578,8 +579,6 @@ c         call xflush(6)
            write(6,*) Work(LP-1+i)
          end do
        end if
-!DANGER!
-cPS         call xflush(6)
          NQ=0
          NSXS=0
          NIAIA=0
@@ -589,16 +588,13 @@ cPS         call xflush(6)
            NIAIA = NIAIA+(NASH(ISYM)+NISH(ISYM))**2
          end do
          if(NQ.lt.NIAIA) NQ=NIAIA
-cPS         call xflush(6)
 
          CALL GETMEM('FOCK','ALLO','REAL',LFOCK,NTOT4)
          CALL GETMEM('SXBM','ALLO','REAL',LBM,NSXS)
          CALL GETMEM('SXLQ','ALLO','REAL',LQ,NQ) ! q-matrix(1symmblock)
          IFINAL = 1
-cPS         call xflush(6)
          CALL FOCK_m(WORK(LFOCK),WORK(LBM),Work(iFockI),Work(iFockA),
      &         Work(iD1Act),WORK(LP),WORK(LQ),WORK(LPUVX),IFINAL,CMO)
-!         CALL GETMEM('FOCK','FREE','REAL',LFOCK,NTOT4)
 !TMP TEST
 !         Call Put_Darray('fock_tempo',Work(ipFocc),ntot1)
 !END TMP TEST
@@ -873,15 +869,9 @@ cPS         call xflush(6)
 
       write(6,*) 'DONE WITH NEW FOCK OPERATOR'
         end if
-cPS      call xflush(6)
 
-         CALL GETMEM('FOCK','Free','REAL',LFOCK,NTOT4)
          CALL GETMEM('SXBM','Free','REAL',LBM,NSXS)
          CALL GETMEM('SXLQ','Free','REAL',LQ,NQ) ! q-matrix(1symmblock)
-         IF(ISTORP(NSYM+1).GT.0) THEN
-           CALL GETMEM('ISTRP','FREE','REAL',LP,ISTORP(NSYM+1))
-           CALL GETMEM('ISTRP','FREE','REAL',LP1,ISTORP(NSYM+1))
-         END IF
       Call GetMem('ONTOPO','FREE','Real',ipTmpLOEOTP,ntot1)
       Call GetMem('ONTOPT','FREE','Real',ipTmpLTEOTP,nfint)
 
@@ -902,10 +892,6 @@ cPS      call xflush(6)
       Call FZero(Work(ip2dt1),Nacpr2)
       !I need the non-symmetry blocked d1act, hence the read.
       Call Get_D1MO(iD1Act1,NACPAR)
-!        write(*,*) 'd1act'
-!        do i=1,NACPAR
-!          write(*,*) work(iD1Act1-1+i)
-!        end do
       Call P2_contraction(Work(iD1Act1),Work(iP2dt1))
       Call Put_P2MOt(Work(iP2dt1),NACPR2)
 
@@ -921,6 +907,8 @@ cPS      call xflush(6)
       Call Put_cArray('MCLR Root','****************',16)
       !end if
 
+
+
       end if !DoGradPDFT
 
       !if (jroot.eq.iRlxRoot) then
@@ -930,7 +918,13 @@ cPS      call xflush(6)
       Call Put_dScalar('Last energy',Energies(iRlxRoot))
       !end if
 
-!      end do
+      Call GetMem('DoneI','Free','Real',iTmp2,nTot1)
+      Call GetMem('DoneA','Free','Real',iTmpa,nTot1)
+      CALL GETMEM('FOCK','Free','REAL',LFOCK,NTOT4)
+         IF(ISTORP(NSYM+1).GT.0) THEN
+           CALL GETMEM('ISTRP','FREE','REAL',LP,ISTORP(NSYM+1))
+           CALL GETMEM('ISTRP','FREE','REAL',LP1,ISTORP(NSYM+1))
+         END IF
       end do !loop over roots
 
       if(doGSOR) then
@@ -965,8 +959,6 @@ cPS      call xflush(6)
       Call GetMem('D1Inact','Free','Real',iD1i,NTOT2)
       Call GetMem('Kincore','free','Real',iTmpk,nTot1)
       Call GetMem('NucElcore','free','Real',iTmpn,nTot1)
-      Call GetMem('DoneI','Free','Real',iTmp2,nTot1)
-      Call GetMem('DoneA','Free','Real',iTmpa,nTot1)
 c      call xflush(6)
       Call qExit('MSCTL')
       Return
