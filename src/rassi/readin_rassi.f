@@ -670,19 +670,6 @@ C ------------------------------------------
         GoTo 100
       Endif
 C--------------------------------------------
-#ifdef _DMRG_
-C--------------------------------------------
-      if (Line(1:4).eq.'QDSC') then
-        QDPT2SC = .true.
-        goto 100
-      end if
-C--------------------------------------------
-      if (Line(1:4).eq.'QDPC') then
-        QDPT2SC = .false.
-        goto 100
-      end if
-#endif
-C--------------------------------------------
       IF(LINE(1:4).EQ.'PRRA')THEN
 ! Print the raw directions for exact semi-classical intensities
         PRRAW=.TRUE.
@@ -736,6 +723,23 @@ C--------------------------------------------
         k_Vector(3)=k_Vector(3)*tmp
         GoTo 100
       Endif
+C--------------------------------------------
+      IF(LINE(1:4).EQ.'DOCD') THEN
+! Perform regular circular dichroism
+        DOCD = .TRUE.
+      END IF
+#ifdef _DMRG_
+C--------------------------------------------
+      if (Line(1:4).eq.'QDSC') then
+        QDPT2SC = .true.
+        goto 100
+      end if
+C--------------------------------------------
+      if (Line(1:4).eq.'QDPC') then
+        QDPT2SC = .false.
+        goto 100
+      end if
+#endif
 C--------------------------------------------
 *
       WRITE(6,*)' The following input line was not understood:'

@@ -39,8 +39,9 @@ c    L_Eff            The order of the Lebedev solid angle integration
 c    Do_SK            Do single k-vector direction of the exact
 c                     Hamiltonian with a vector field.
 c    Kvector          The k-vector
+c    DOCD             Regular circular dichroism
       INTEGER SONATNSTATE,LSONAT,SODIAGNSTATE,LSODIAG
-      LOGICAL IFCURD, Do_TMOS, Do_SK
+      LOGICAL IFCURD, Do_TMOS, Do_SK, DOCD
       REAL*8 TDIPMIN,SOTHR_PRT,K_vector(3)
       INTEGER NSOTHR_PRT, ISMGRD, LDISP, NDISP, NTDISP
       INTEGER IFJ2, IFJZ
@@ -64,7 +65,7 @@ c    Kvector          The k-vector
      &     LTDMS,LTDMA,LTRA1,LTRA2,LIPAIR,LFMO,LTUVX,lJBNUM,
      &     liTocM,IFJ2,IFJZ,
      &     SONATNSTATE,LSONAT,SODIAGNSTATE,LSODIAG,PKVEC,IFCURD,Do_TMOS,
-     &     Do_SK
+     &     Do_SK,DOCD
 C CITHR  - THRESHOLD FOR PRINTING CI COEFFICIENTS.
 C ESHFT  - OPTIONAL ENERGY SHIFT OF EACH INPUT STATE.
 C LROOT  - ORDERING NUMBER, ON ITS JOBIPH FILE, OF EACH INPUT STATE.

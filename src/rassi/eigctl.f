@@ -1697,6 +1697,7 @@ C And the same for the Dyson amplitudes
 !
 ! We will first allocate a matrix for the individual contributions
 !
+      IF(DOCD) THEN
       CALL GETMEM('INDCD','ALLO','REAL',LINDCD,NSS**2)
       CALL DCOPY_(NSS**2,0.0D0,0,WORK(LINDCD),1)
 * Lasse 2019
@@ -1744,7 +1745,7 @@ C And the same for the Dyson amplitudes
           WRITE(6,31) 'From','To','Rotatory strength'
           WRITE(6,35)
 ! Check this constant !
-         ONEOVER6C2=1.0D0/(6.0D0*CONST_C_IN_AU_**2)
+         TWOOVER3C=2.0D0/(3.0D0*CONST_C_IN_AU_)
 
          DO ISS_=1,IEND
             ISS=IndexE(ISS_)
@@ -1768,7 +1769,7 @@ C And the same for the Dyson amplitudes
               DZ2=PROP(JSS,ISS,IPRDZM)*PROP(JSS,ISS,IPRDZD)
             END IF
 
-            F = (DX2 + DY2 + DZ2)*EDIFF*ONEOVER6C2
+            F = (DX2 + DY2 + DZ2)*TWOOVER3C !EDIFF*ONEOVER6C2
 ! Add it to the total
             WORK(LTOT2K-1+IJSS) = WORK(LTOT2K-1+IJSS) + F
             WRITE(6,33) ISS,JSS,F
@@ -1788,6 +1789,7 @@ C And the same for the Dyson amplitudes
         END IF
 ! release the memory again
          CALL GETMEM('INDCD','FREE','REAL',LINDCD,NSS**2)
+      END IF
 * CD end
 
 *

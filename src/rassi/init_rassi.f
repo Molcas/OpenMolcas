@@ -170,6 +170,8 @@ C DEFAULT FLAGS:
       k_vector(1) = 0.0D0
       k_vector(2) = 0.0D0
       k_vector(3) = 0.0D0
+C CD
+      DOCD = .FALSE.
 cnf
       IfDCpl = .False.
 cnf
@@ -243,6 +245,7 @@ c BP - Hyperfine tensor and SONATORB initialization
         WRITE(6,*)'     Do_SK:',Do_SK
         WRITE(6,*)'     L_Eff:',L_Eff
         WRITE(6,*)'     k-vector:',k_vector
+        WRITE(6,*)'     CD:',DOCD
       END IF
 
 C DEFAULT WAVE FUNCTION TYPE:
