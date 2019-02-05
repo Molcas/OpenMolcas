@@ -160,6 +160,20 @@
      $        'states stored as <SOS1|iL(x,y,z)|SOS2> in'//
      $        ' [NSS,NSS,3], imaginary part')
 
+      wfn_sos_edipmomr = mh5_create_dset_real(wfn_fileid,
+     $        'SOS_EDIPMOM_REAL', 3, [NSS,NSS,3])
+      call mh5_init_attr(wfn_sos_edipmomr, 'description',
+     $        'Electric dipole momentum components between the '//
+     $        'spin-orbit states stored as <SOS1|ED(x,y,z)|SOS2> in'//
+     $        ' [NSS,NSS,3], real part')
+
+      wfn_sos_edipmomi = mh5_create_dset_real(wfn_fileid,
+     $        'SOS_EDIPMOM_IMAG', 3, [NSS,NSS,3])
+      call mh5_init_attr(wfn_sos_edipmomi, 'description',
+     $        'Electric dipole momentum components between the '//
+     $        'spin-orbit states stored as <SOS1|ED(x,y,z)|SOS2> in'//
+     $        ' [NSS,NSS,3], imaginary part')
+
 *     SFS transition density
       wfn_sfs_tdm = mh5_create_dset_real(wfn_fileid,
      $        'SFS_TRANSITION_DENSITIES', 3, [NBAST,NSTATE,NSTATE])

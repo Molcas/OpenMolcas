@@ -4,12 +4,8 @@
 
 .. _UG\:sec\:poly_aniso:
 
-:program:`poly_aniso` |extramark|
-=================================
-
-.. warning::
-
-   This program is not available in OpenMolcas
+:program:`poly_aniso`
+=====================
 
 .. only:: html
 

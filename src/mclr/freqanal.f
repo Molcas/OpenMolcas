@@ -201,7 +201,7 @@
 *
       If (Do_Molden)
      &   Call Freq_Molden(Work(ipEVal),nModes,Work(ipNMod),lModes,nSym,
-     &                    Work(ipIntens),lDisp)
+     &                    Work(ipIntens),lDisp,Work(ipRedMas))
 *
       Call GetMem('NMod','Free','Real',ipNMod,nDisp**2)
       Call GetMem('EIGVEC','FREE','REAL',ipevec,2*nDisp**2)

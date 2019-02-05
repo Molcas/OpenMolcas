@@ -103,14 +103,14 @@ The :kword:`KSDFT` is the only required keyword.
 .. class:: keywordlist
 
 :kword:`KSDFT`
-  The functional choice follows. Currently available functionals are: tPBE, tBLYP, tLSDA, trevPBE,
-  ftPBE, ftBLYP, ftLSDA, and ftrevPBE.
+  The functional choice follows. Currently available functionals are: tPBE, tBLYP, tLSDA, trevPBE, tOPBE,
+  ftPBE, ftBLYP, ftLSDA, ftrevPBE and ftOPBE.
 
-  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="KSDFT" APPEAR="Pair-density functional" KIND="CHOICE" LIST="----,tLSDA,tPBE,tBLYP,trevPBE,ftLSDA,ftPBE,ftBLYP,ftrevPBE"> LEVEL="BASIC"
+  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="KSDFT" APPEAR="Pair-density functional" KIND="CHOICE" LIST="----,tLSDA,tPBE,tBLYP,trevPBE,tOPBE,ftLSDA,ftPBE,ftBLYP,ftrevPBE,ftOPBE"> LEVEL="BASIC"
               %Keyword: KSDFT <basic>
               <HELP>
               Needed to perform MC-PDFT calculations.
-              The functional choice follows. Currently available functionals: tPBE, tBLYP, tLSDA, trevPBE, ftPBE, ftBLYP, ftLSDA, ftrevPBE.
+              The functional choice follows. Currently available functionals: tPBE, tBLYP, tLSDA, trevPBE, tOPBE, ftPBE, ftBLYP, ftLSDA, ftrevPBE, ftOPBE.
               </HELP>
               </KEYWORD>
 
@@ -121,7 +121,7 @@ The :kword:`KSDFT` is the only required keyword.
   For an HLE-type functional, use 1.25 (for exchange) and 0.5 (for correlation).
   Example: `DFCF=1.25 0.5`
 
-  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="DFCF" APPEAR="DFT exch. & corr. scaling factors" KIND="REALS" SIZE="2" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="DFCF" APPEAR="DFT exch. &amp; corr. scaling factors" KIND="REALS" SIZE="2" LEVEL="ADVANCED">
               %%Keyword: DFCF <advanced>
               <HELP>
               Use this keyword to scale the exchange terms and/or correlation terms of the functional requested.

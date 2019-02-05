@@ -19,10 +19,6 @@ set (OUTPUT_PATH ${PROJECT_BINARY_DIR}/${tooldir})
 file (GLOB py_sources "*.py")
 list (REMOVE_ITEM py_sources "${CMAKE_CURRENT_LIST_DIR}/pack.py")
 
-FIND_PACKAGE(PythonInterp 3.0)
-if (NOT PYTHONINTERP_FOUND)
-        FIND_PACKAGE(PythonInterp 2.7)
-endif ()
 if (PYTHONINTERP_FOUND)
         set (PYTHONINTERP_FOUND "${PYTHONINTERP_FOUND}" PARENT_SCOPE)
 

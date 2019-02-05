@@ -37,7 +37,6 @@
       Integer I, J, ISTATE, JSTATE, IJOB, ILINE, LINENR
       Integer LuIn
       Integer NFLS
-      REAL*8 ANORM
 
       character(len=7) :: input_id = '&RASSI '
 
@@ -379,7 +378,21 @@ C-SVC 2007-----------------------------------
         GoTo 100
       Endif
 
+C tjd- BMII: Print out spin-orbit properties to files
+      IF(Line(1:4).eq.'PRPR') then
+        WRITE(6,*) "SPIN-ORBIT PROPERTY PRINT ON"
+        LPRPR=.TRUE.
+        Linenr=Linenr+1
+        GoTo 100
+      Endif
 
+C tjd- Yoni: Force an identity SO hamiltonian
+      IF (LINE(1:4).eq.'HAMI') then
+        WRITE(6,*) "Identity Hamiltonian turned on"
+        LHAMI=.TRUE.
+        Linenr=Linenr+1
+        GoTo 100
+      Endif
 
 c BP - Hyperfine calculations
       If(Line(1:4).eq.'EPRA') then
@@ -631,6 +644,21 @@ C ------------------------------------------
         GOTO 100
       END IF
 C ------------------------------------------
+      IF(LINE(1:4).EQ.'DYSO')THEN
+! Enable Dyson orbital calculations
+        DYSO=.TRUE.
+        LINENR=LINENR+1
+        GOTO 100
+      END IF
+C ------------------------------------------
+      IF(LINE(1:4).EQ.'DYSE')THEN
+! Enable Dyson orbital calculations
+        DYSEXPORT=.TRUE.
+        Read(LuIn,*,ERR=997) DYSEXPSF,DYSEXPSO
+        LINENR=LINENR+1
+        GOTO 100
+      END IF
+C ------------------------------------------
       If(Line(1:4).eq.'TMOS') then
 ! Calculate exact isotropically averaged semi-classical intensities
 ! Activate integration of transition moment oscillator strengths
@@ -654,34 +682,6 @@ C--------------------------------------------
         goto 100
       end if
 #endif
-C--------------------------------------------
-      IF(LINE(1:4).EQ.'KVEC')THEN
-! Calculate exact semi-classical intensities in given directions
-        DO_KVEC=.TRUE.
-        PRRAW=.TRUE.
-        Do_TMOS=.TRUE.
-        ToFile=.TRUE.
-        Read(LuIn,*,ERR=997) NKVEC
-        CALL GETMEM('KVEC  ','ALLO','REAL',PKVEC,3*NKVEC)
-        Linenr=Linenr+1
-        DO ILINE=1,NKVEC
-          Read(LuIn,*,ERR=997) (WORK(PKVEC+ILINE-1+(I-1)*NKVEC),I=1,3)
-          Linenr=Linenr+1
-        END DO
-! Ensure that the wavectors are normalized
-        DO ILINE=1,NKVEC
-          ANORM = WORK(PKVEC+ILINE-1)**2 +
-     &            WORK(PKVEC+ILINE-1+NKVEC)**2 +
-     &            WORK(PKVEC+ILINE-1+2*NKVEC)**2
-          WORK(PKVEC+ILINE-1) =
-     &    WORK(PKVEC+ILINE-1)/DSQRT(ANORM)
-          WORK(PKVEC+ILINE-1+NKVEC) =
-     &    WORK(PKVEC+ILINE-1+NKVEC)/DSQRT(ANORM)
-          WORK(PKVEC+ILINE-1+2*NKVEC) =
-     &    WORK(PKVEC+ILINE-1+2*NKVEC)/DSQRT(ANORM)
-        END DO
-        GOTO 100
-      END IF
 C--------------------------------------------
       IF(LINE(1:4).EQ.'PRRA')THEN
 ! Print the raw directions for exact semi-classical intensities

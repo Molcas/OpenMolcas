@@ -177,21 +177,23 @@ Keywords
   Enable the effective Hamiltonian from a quasi-degenerate (QD) multi-state strongly-contracted i(SC) :program:`NEVPT2`
   calculation.
 
-  .. xmldoc:: <GROUP MODULE="MPSSI" NAME="QDSC" APPEAR="SC effective Hamiltonian" KIND="SINGLE" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="MPSSI" NAME="QDSC" APPEAR="SC effective Hamiltonian" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: QDSC <advanced>
               <HELP>
               Enable the QDSC (quasi-degenerate strongly contracted) effective Hamiltonian.
               </HELP>
+              </KEYWORD>
 
 :kword:`QDPC`
   Enable the effective Hamiltonian from a quasi-degenerate (QD) multi-state partially-contracted (PC) :program:`NEVPT2`
   calculation.
 
-  .. xmldoc:: <GROUP MODULE="MPSSI" NAME="QDPC" APPEAR="PC effective Hamiltonian" KIND="SINGLE" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="MPSSI" NAME="QDPC" APPEAR="PC effective Hamiltonian" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: QDPC <advanced>
               <HELP>
               Enable the QDPC (quasi-degenerate partially contracted) effective Hamiltonian.
               </HELP>
+              </KEYWORD>
 
 Input example
 .............

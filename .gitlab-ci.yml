@@ -1,3 +1,4 @@
+# Then can only be a single "include" per file
 include:
   # Configurations defined in an external file
   - "/.configs.yml"
@@ -92,10 +93,16 @@ include:
     expire_in: 1 day
     when: always
   only:
+    refs:
+      - branches
+      - merge_requests
+      - api
+      - triggers
+      - web
     <<: *sources
   except:
     - tags
-    - master
+    - master@Molcas/OpenMolcas
 
 .template: &run-tests
   stage: test
@@ -148,10 +155,13 @@ include:
     when: always
   only:
     refs:
+      - merge_requests
       - api
       - triggers
       - web
     <<: *sources
+  except:
+    - master@Molcas/OpenMolcas
   # run even if the previous stage failed
   # (in general, we want to run those configurations that didn't fail,
   #  but there's no harm in running all)
@@ -201,10 +211,16 @@ tinker:
       - build/
     expire_in: 1 day
   only:
+    refs:
+      - branches
+      - merge_requests
+      - api
+      - triggers
+      - web
     <<: *sources
   except:
     - tags
-    - master
+    - master@Molcas/OpenMolcas
 
 # Define the actual jobs, each job has a "build" and a "test" stage,
 # the latter depends on the former.

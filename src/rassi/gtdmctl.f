@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE GTDMCTL(PROP,JOB1,JOB2,OVLP,HAM,IDDET1)
+      SUBROUTINE GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,SFDYS,NZ,
+     &     HAM,IDDET1)
 
       !> module dependencies
 #ifdef _DMRG_
@@ -41,16 +42,14 @@
       DIMENSION NGASORB(100),NGASLIM(2,10)
       DIMENSION NASHES(8)
       DIMENSION OVLP(NSTATE,NSTATE),HAM(NSTATE,NSTATE)
+      DIMENSION DYSAMPS(NSTATE,NSTATE)
+      DIMENSION SFDYS(NZ,NSTATE,NSTATE)
       DIMENSION IDDET1(NSTATE)
       LOGICAL IF00, IF10,IF01,IF20,IF11,IF02,IF21,IF12,IF22
       LOGICAL IFTWO,TRORB
       CHARACTER*8 WFTP1,WFTP2
       CHARACTER*6 STLNE1
-      CHARACTER*3 NUM1,NUM2
-      CHARACTER*12 FNM
       CHARACTER*48 STLNE2
-* PAM 2011 Nov 3, added write buffer WBUF:
-      DIMENSION WBUF(5)
       Real*8 Energies(1:20)
       Integer IAD,LUIPHn,lThetaM
       Real*8 Norm_fac
@@ -165,12 +164,33 @@ C Pick up orbitals of ket and bra states.
       CALL GETMEM('GTDMCMO1','ALLO','REAL',LCMO1,NCMO)
       CALL RDCMO(JOB1,WORK(LCMO1))
       CALL GETMEM('GTDMCMO2','ALLO','REAL',LCMO2,NCMO)
+
+
       CALL RDCMO(JOB2,WORK(LCMO2))
 C Nr of active spin-orbitals
       NASORB=2*NASHT
       NTDM1=NASHT**2
       NTSDM1=NASHT**2
       NTDM2=(NTDM1*(NTDM1+1))/2
+
+! +++ J. Norell 13/7 - 2018
+C 1D arrays for Dyson orbital coefficients
+C COF = active biorthonormal orbital base
+C AB  = inactive+active biorthonormal orbital base
+C ZZ  = atomic (basis function) base
+      IF ((IF10.or.IF01).and.DYSO) THEN
+        CALL GETMEM('DYSCOF','Allo','Real',LDYSCOF,NASORB)
+        ! Number of inactive+active orbitals
+        NDYSAB = NASHT+NISHT
+        CALL GETMEM('DYSAB','Allo','Real',LDYSAB,NDYSAB)
+        ! Number of atomic / basis functions
+        NDYSZZ = NZ
+        CALL GETMEM('DYSZZ','Allo','Real',LDYSZZ,NDYSZZ)
+        DO NDUM=1,NDYSZZ
+         WORK(LDYSZZ+NDUM-1)=0.0D0
+        END DO
+      END IF
+! +++
 
 C Transition density matrices, TDMAB is for active biorthonormal
 C orbitals only, while TDMZZ is in the fixed AO basis.
@@ -750,6 +770,51 @@ C it is known to be zero.
       HTWO =0.0D0
 
       SIJ=0.0D0
+      DYSAMP=0.0D0
+
+! +++ J. Norell 12/7 - 2018
+C Dyson amplitudes:
+C DYSAMP = D_ij for states i and j
+C DYSCOF = Active orbital coefficents of the DO
+      IF ((IF10.or.IF01).and.DYSO) THEN
+        CALL DYSON(IWORK(LFSBTAB1),
+     &            IWORK(LFSBTAB2),IWORK(LSSTAB),
+     &            WORK(LDET1),WORK(LDET2),
+     &            IF10,IF01,
+     &            DYSAMP,WORK(LDYSCOF))
+
+C Write Dyson orbital coefficients in AO basis to disk.
+        IF (DYSAMP.GT.1.0D-6) THEN
+C In full biorthonormal basis:
+         CALL MKDYSAB(WORK(LDYSCOF),WORK(LDYSAB))
+!         WRITE(*,*)"NDYSAB=",NDYSAB
+!         WRITE(*,*)"DYSAB="
+!         DO NDUM=1,NDYSAB
+!          WRITE(*,*)WORK(LDYSAB+NDUM-1)
+!         END DO
+C In AO basis:
+         CALL MKDYSZZ(WORK(LCMO1),WORK(LDYSAB),
+     &               WORK(LDYSZZ))
+!        WRITE(*,*)"NDYSZZ=",NDYSZZ
+!        WRITE(*,*)"DYSZZ="
+!        DO NDUM=1,NDYSZZ
+!         WRITE(*,*)WORK(LDYSZZ+NDUM-1)
+!        END DO
+        IF (DYSO) THEN
+         DO NDUM=1,NDYSZZ
+          SFDYS(NDUM,JSTATE,ISTATE)=WORK(LDYSZZ+NDUM-1)
+          SFDYS(NDUM,ISTATE,JSTATE)=WORK(LDYSZZ+NDUM-1)
+         END DO
+        END IF
+        DO NDUM=1,NDYSZZ
+         WORK(LDYSZZ+NDUM-1)=0.0D0
+        END DO
+       END IF ! AMP THRS
+      END IF ! IF01 IF10
+      DYSAMPS(ISTATE,JSTATE)=DYSAMP
+      DYSAMPS(JSTATE,ISTATE)=DYSAMP
+! +++
+
 C General 1-particle transition density matrix:
       IF (IF11) THEN
         CALL MKTDM1(LSYM1,MPLET1,MSPROJ1,IWORK(LFSBTAB1),
@@ -762,6 +827,7 @@ C General 1-particle transition density matrix:
 C Compute 1-electron contribution to Hamiltonian matrix element:
         HONE=DDOT_(NTRAD,WORK(LTRAD),1,WORK(LFMO),1)
         END IF
+
 
 C             Write density 1-matrices in AO basis to disk.
             IF(NATO.OR.(NPROP.GT.0))THEN
@@ -916,131 +982,11 @@ C             Write density 1-matrices in AO basis to disk.
           END IF ! IF22
 
           !> PAM 2011 Nov 3, writing transition matrices if requested
-          !> The following *long* section should later be moved to its own
-          !> subroutine...
           IF ((IFTRD1.or.IFTRD2).and..not.mstate_dens) THEN
-            LU=50
-            LU=IsFreeUnit(LU)
-            WRITE(NUM1,'(I3.3)') ISTATE
-            WRITE(NUM2,'(I3.3)') JSTATE
-            FNM='TRD2_'//NUM1//'_'//NUM2
-            CALL Molcas_Open(LU,FNM)
-            WRITE(LU,*)'#Transition density file from RASSI.'
-            WRITE(LU,*)'#  States:'
-            WRITE(LU,*) ISTATE, JSTATE
-            WRITE(LU,*)'#  Nr of irreps:'
-            WRITE(LU,*) NSYM
-            WRITE(LU,*)'#  Basis functions:'
-            WRITE(LU,'(8I5)') (NBASF(ISYM),ISYM=1,NSYM)
-            WRITE(LU,*)'#  Frozen orbitals:'
-            WRITE(LU,'(8I5)') (NFRO(ISYM),ISYM=1,NSYM)
-            WRITE(LU,*)'#  Inactive orbitals:'
-            WRITE(LU,'(8I5)') (NISH(ISYM),ISYM=1,NSYM)
-            WRITE(LU,*)'#  Active orbitals:'
-            WRITE(LU,'(8I5)') (NASH(ISYM),ISYM=1,NSYM)
-            WRITE(LU,*)'#  State ',ISTATE,'    CMO coefficients:'
-            LPOS=LCMO1
-            DO ISYM=1,NSYM
-              NO=NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
-              NB=NBASF(ISYM)
-              DO IO=1,NO
-                WRITE(LU,*)'#  Symm ',ISYM,'   Orbital ',IO
-                WRITE(LU,'(5D19.12)')(WORK(LPOS+NB*(IO-1)+i),i=0,NB-1)
-              END DO
-              LPOS=LPOS+NB**2
-            END DO
-            WRITE(LU,*)'#  State ',JSTATE,'    CMO coefficients:'
-            LPOS=LCMO2
-            DO ISYM=1,NSYM
-              NO=NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
-              NB=NBASF(ISYM)
-              DO IO=1,NO
-                WRITE(LU,*)'#  Symm ',ISYM,'   Orbital ',IO
-                WRITE(LU,'(5D19.12)')(WORK(LPOS+NB*(IO-1)+i),i=0,NB-1)
-              END DO
-              LPOS=LPOS+NB**2
-            END DO
-            WRITE(LU,*)'#  States ',ISTATE,JSTATE,' Overlap:'
-            WRITE(LU,'(5D19.12)') SIJ
-            WRITE(LU,*)'#  States ',ISTATE,JSTATE,' Active TRD1:'
-            LSYM12=MUL(LSYM1,LSYM2)
-            LPOS=LTDMAB
-            DO ISYM1=1,NSYM
-              NO1=NOSH(ISYM1)
-              ISYM2=MUL(ISYM1,LSYM12)
-              NO2=NOSH(ISYM2)
-              IF (NO1*NO2 .gt. 0) THEN
-                NA1=NASH(ISYM1)
-                NA2=NASH(ISYM2)
-                IF (NA1*NA2 .gt. 0) THEN
-                  NI1=NISH(ISYM1)
-                  NI2=NISH(ISYM2)
-                  WRITE(LU,*)'#  Symmetries ',ISYM1,ISYM2
-                  WRITE(LU,'(5D19.12)')((WORK(LPOS-1+II+NO1*(JJ-1)),
-     &                                  JJ=NI2+1,NO2),II=NI1+1,NO1)
-                END IF
-                LPOS=LPOS+NO1*NO2
-              END IF
-            END DO
-
-            IF (IFTRD2.AND.IF22) THEN
-              WRITE(LU,*)'#  States ',ISTATE,JSTATE,' Active TRD2:'
-              DO ISYT=1,NSYM
-                DO ISYU=1,NSYM
-                  ISYTU=ISYT+NSYM*(ISYU-1)
-                  DO ISYV=1,ISYT
-                    LIMX=ISYV
-                    IF(ISYV.EQ.ISYT) LIMX=ISYU
-                    DO ISYX=1,LIMX
-                      ISYVX=ISYV+NSYM*(ISYX-1)
-                      !> Write out one symmetry block (4 indices!) of two-electron
-                      !> transition density matrix elements.
-                      !> Write a full 'rectangular' array, even if it could be made
-                      !> smaller by permutation symmetry.
-                      WRITE(LU,*)'#  Orbital symm:',ISYT,ISYU,ISYV,ISYX
-                      IWBUF=0
-                      DO IT=1,NASH(ISYT)
-                        ITABS=NAES(ISYT)+IT
-                        DO IU=1,NASH(ISYU)
-                          IUABS=NAES(ISYU)+IU
-                          ITU=ITABS+NASHT*(IUABS-1)
-                          DO IV=1,NASH(ISYV)
-                            IVABS=NAES(ISYV)+IV
-                            DO IX=1,NASH(ISYX)
-                              IXABS=NAES(ISYX)+IX
-                              IVX=IVABS+NASHT*(IXABS-1)
-                              IF(ITU.GE.IVX) THEN
-                                ITUVX=(ITU*(ITU-1))/2+IVX
-                              ELSE
-                                ITUVX=(IVX*(IVX-1))/2+ITU
-                              END IF
-                              IWBUF=IWBUF+1
-                              WBUF(IWBUF)=WORK(LTDM2-1+ITUVX)
-                              IF(IWBUF.EQ.5) THEN
-                                WRITE(LU,'(5D19.12)')(WBUF(I),I=1,IWBUF)
-                                IWBUF=0
-                              END IF
-                            END DO
-                          END DO
-                        END DO
-                      END DO
-                      IF(IWBUF.GT.0) THEN
-                        WRITE(LU,'(5D19.12)')(WBUF(I),I=1,IWBUF)
-                        IWBUF=0
-                      END IF
-* End of writing a symmetry block.
-                    END DO
-                  END DO
-                END DO
-              END DO
-            END IF
-            CLOSE (LU)
-          END IF ! TRD1/2
+            call trd_print(ISTATE, JSTATE, IFTRD2.AND.IF22, LTDM2)
 
 #ifdef _HDF5_
-          if(.not.mstate_dens)then
-            IF(IF11.AND.(LSYM1.EQ.LSYM2).and.
-     &        ((SONATNSTATE.GT.0).OR.NATO))THEN
+            IF(IF11.AND.(LSYM1.EQ.LSYM2))THEN
               call mh5_put_dset_array_real(wfn_sfs_tdm,
      $        WORK(LTDMZZ),[NTDMZZ,1,1], [0,ISTATE-1,JSTATE-1])
               call mh5_put_dset_array_real(wfn_sfs_tsdm,
@@ -1050,8 +996,10 @@ C             Write density 1-matrices in AO basis to disk.
               call mh5_put_dset_array_real(wfn_sfs_wetdm,
      $        WORK(LWDMZZ),[NTDMZZ,1,1], [0,ISTATE-1,JSTATE-1])
             END IF
-          end if
 #endif
+
+          END IF ! TRD1/2, mstate_dens
+
           IF(IFHAM.AND..NOT.(IFHEXT.or.IFHEFF.or.IFEJOB))THEN
             HZERO              = ECORE*SIJ
             HIJ                = HZERO+HONE+HTWO
@@ -1245,6 +1193,13 @@ C             Write density 1-matrices in AO basis to disk.
         CALL KILLSCTAB(LSPNTAB1)
         CALL KILLSCTAB(LSPNTAB2)
       end if
+! +++ J. Norell 13/7 - 2018
+      IF ((IF10.or.IF01).and.DYSO) THEN
+        CALL GETMEM('DYSCOF','Free','Real',LDYSCOF,NASORB)
+        CALL GETMEM('DYSAB','Free','Real',LDYSAB,NDYSAB)
+        CALL GETMEM('DYSZZ','Free','Real',LDYSZZ,NDYSZZ)
+      END IF
+! +++
       IF (IF11) THEN
         CALL GETMEM('SPD1','Free','Real',LSPD1,NSPD1)
         CALL GETMEM('TRAD','Free','Real',LTRAD,NTRAD)

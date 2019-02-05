@@ -368,7 +368,9 @@ CGG03 Aug 03
      &   KSDFT(1:8).eq.'FTREVPBE'.or.
      &   KSDFT(1:6).eq.'FTLSDA'.or.
      &   KSDFT(1:6).eq.'FTBLYP'.or.
-     &   KSDFT(1:4).eq.'TPBE' ) then
+     &   KSDFT(1:4).eq.'TPBE'.or.
+     &   KSDFT(1:5).eq.'TOPBE'.or.
+     &   KSDFT(1:6).eq.'FTOPBE' ) then
       KSDFT_TEMP=KSDFT
         KSDFT='SCF'
         ExFac=1.0D0
@@ -394,7 +396,8 @@ CGG03 Aug 03
            lRf = .false.
            IF(KSDFT_TEMP(1:5).ne.'TLSDA'.and. !GLM
      &        KSDFT_TEMP(1:5).ne.'TBLYP'.and.
-     &        KSDFT_TEMP(1:4).ne.'TPBE')  then
+     &        KSDFT_TEMP(1:4).ne.'TPBE'.and.
+     &        KSDFT_TEMP(1:5).ne.'TOPBE')  then
             KSDFT='SCF'
             ExFac=1.0D0
            end IF
@@ -483,7 +486,9 @@ CGG03 Aug 03
      &     KSDFT_TEMP(1:8).eq.'FTREVPBE'.or.
      &     KSDFT_TEMP(1:6).eq.'FTLSDA'.or.
      &     KSDFT_TEMP(1:6).eq.'FTBLYP'.or.
-     &     KSDFT_TEMP(1:4).eq.'TPBE') then
+     &     KSDFT_TEMP(1:4).eq.'TPBE'.or.
+     &     KSDFT_TEMP(1:5).eq.'TOPBE'.or.
+     &     KSDFT_TEMP(1:6).eq.'FTOPBE') then
             KSDFT=KSDFT_TEMP
             ExFac=0.0d0
 *        ExFac=Get_ExFac(KSDFT)
@@ -615,7 +620,9 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
      &     KSDFT_TEMP(1:8).eq.'FTREVPBE'.or.
      &     KSDFT_TEMP(1:6).eq.'FTLSDA'.or.
      &     KSDFT_TEMP(1:6).eq.'FTBLYP'.or.
-     &    KSDFT_TEMP(1:4).eq.'TPBE') THEN
+     &    KSDFT_TEMP(1:4).eq.'TPBE'.or.
+     &     KSDFT_TEMP(1:5).eq.'TOPBE'.or.
+     &     KSDFT_TEMP(1:6).eq.'FTOPBE') THEN
 
         CALL GETMEM('CASDFT_Fock','ALLO','REAL',LFOCK,NACPAR)
         Call MSCtl(Work(LCMO),Work(LFOCK),Work(LFI),Work(LFA),
@@ -732,8 +739,17 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
 * Create output orbital files:
 !      Call OrbFiles(JOBIPH,IPRLEV)
 *
-!      Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
-*
+       if (doGSOR) then
+          CALL GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
+          CALL GETMEM('Dtmp ','FREE','REAL',LW6,NACPAR)
+          CALL GETMEM('DStmp','FREE','REAL',LW7,NACPAR)
+          CALL GETMEM('Ptmp ','FREE','REAL',LW8,NACPR2)
+          CALL GETMEM('PAtmp','FREE','REAL',LW9,NACPR2)
+          CALL GETMEM('Pscr','FREE','REAL',LW10,NACPR2)
+          Call GetMem('CIVtmp','FREE','Real',LW11,nConf)
+          Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
+          Call MKGUGA_FREE_m
+       end if
 * Exit
 *
       Call StatusLine('MCPDFT:','Finished.')

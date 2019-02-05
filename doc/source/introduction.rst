@@ -35,6 +35,9 @@ It is also possible using either CASSCF or RASSCF to
 employ optimization techniques and obtain equilibrium geometries, transition-state structures,
 force fields, and vibrational energies using gradient techniques.
 
+In the present version (|molcasversion|) the Stochastic-CASSCF method :cite:`limanni2016` is also available to treat systems requiring large active spaces.
+Routine calculations have been presented with active spaces of size of 40 electrons in 40 orbitals :cite:`limanni2018,limanni2019` and larger active space are currently tested.
+
 Although the RASSCF approach is known to give reasonable structures for
 degenerate systems both in ground and excited states, in
 general it is not capable of recovering more than a fraction of the correlation

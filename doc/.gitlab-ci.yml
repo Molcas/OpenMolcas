@@ -8,6 +8,7 @@ doc:
     - mkdir build
     - cd build
     - cmake ..
+    - export PDF_FILE="../Manual.pdf"
     - make doc_all
     # Now build doxygen doc
     - cd ../doc/doxygen
@@ -24,6 +25,12 @@ doc:
       - build/doc
       - doc/doxygen/html
     expire_in: 1 day
+  only:
+    - branches
+    - merge_requests
+    - api
+    - triggers
+    - web
   except:
     - tags
   tags:
@@ -45,4 +52,4 @@ pages:
       - public
     expire_in: 1 day
   only:
-    - master
+    - master@Molcas/OpenMolcas
