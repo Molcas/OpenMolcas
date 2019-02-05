@@ -2008,7 +2008,6 @@ C orbitals accordingly
      &                       ' keyword was given. '
        Call SetPos(LUInput,'HEXS',Line,iRc)
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-       Call GetMem('Temp1','Allo','Inte',ipTemp1,mxgas)
        I_ELIMINATE_GAS_MOLCAS = 1
        ReadStatus=' Failure reading data following HEXS keyword.'
        Read(LUInput,*,End=9910,Err=9920) N_ELIMINATED_GAS_MOLCAS
@@ -2028,7 +2027,6 @@ C orbitals accordingly
      &                       ' keyword was given. '
        Call SetPos(LUInput,'DEXS',Line,iRc)
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-       Call GetMem('Temp1','Allo','Inte',ipTemp1,mxgas)
        I_ELIMINATE_GAS_MOLCAS = 2
        ReadStatus=' Failure reading data following HEXS keyword.'
        Read(LUInput,*,End=9910,Err=9920) N_ELIMINATED_GAS_MOLCAS
