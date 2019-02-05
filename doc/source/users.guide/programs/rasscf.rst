@@ -1638,7 +1638,7 @@ A list of these keywords is given below:
   Here follows the maximum dimension of the full Davidson Hamiltonian.
   This Hamiltonian contains the current CI vectors for each state as well
   as a set of correction vectors from a number of past iterations.
-  Default value is the smallest of 300 and 6 times the number of states, though
+  Default value is the smallest of 400 and 6 times the number of states, though
   at least 2 times the number of states.
   Increasing this size reduces the number of CI iterations but increases memory requirements and can
   increase the computational cost associated with forming and diagonalizing the Hamiltonian matrix.
