@@ -2357,8 +2357,8 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *
                       TM_2 =      DBLE(DCONJG(TMR)*TMR -DCONJG(TML)*TML)
 *                     TM_2 = - 2.0D0 (
-*    &                               DBLE(TM1)*AIMAG(TM2)
-*    &                              -DBLE(TM2)*AIMAG(TM1)
+*    &                               DBLE(TMR)*AIMAG(TML)
+*    &                              -DBLE(TML)*AIMAG(TMR)
 *    &                               )
                      R_Temp= Max(R_Temp,2.0D0*TM_2/ABS(EDIFF))
 *

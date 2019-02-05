@@ -556,6 +556,11 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                TML = (TM1 - IMAGINARY*TM2)/Sqrt(2.0D0)
 *
                R_Temp = DBLE(DCONJG(TMR)*TMR - DCONJG(TML)*TML)
+*              R_Temp = - 2.0D0 (
+*    &                           DBLE(TMR)*AIMAG(TML)
+*    &                          -DBLE(TML)*AIMAG(TMR)
+*    &                           )
+
 *
 *              Save the raw oscillator strengths in a given direction
 *
