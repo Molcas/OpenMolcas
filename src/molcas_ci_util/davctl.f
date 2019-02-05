@@ -292,7 +292,7 @@ C
 *     If unitialized, determine a reasonable nkeep
       If (nkeep.eq.0) then
         nkeep=mxKeep*nRoots
-        nkeep=min(nkeep,300)
+        nkeep=min(nkeep,400)
         nkeep=max(nkeep,3*nRoots)
         nkeep=min(nkeep,mxkeep)
       else if (nkeep.gt.mxkeep) Then
