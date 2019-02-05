@@ -97,19 +97,14 @@ C
          lExplE=1
          lExplV=1
       ENDIF
+      nMaxSel=nConf
+      If (N_ELIMINATED_GAS_MOLCAS.gt.0) nmaxSel=nCSF_HEXS
+
       IF (IPRLEV.GE.20 .AND. NAC .NE. 0)
      &        WRITE(6,1100) 'CSTART',LW4,lSel,lExplE,lExplV
       Call CStart_CI_Util(WORK(LW4),LW1,TUVX,
-     &     iWork(lSel),Work(lExplE),Work(lExplV),IFINAL)
+     &     iWork(lSel),Work(lExplE),Work(lExplV),nMaxSel,IFINAL)
 
-*MGD if nsel=nCSF_HEXS, save CI vectors
-        If (N_ELIMINATED_GAS_MOLCAS.gt.0.and.
-     &      nSel.ne.nConf.and.nSel.eq.nCSF_HEXS) then
-          Do i = 1,lRoots
-            Call Load_CI_vec(i,nConf,WORK(LW4),LuDavid)
-            Call Save_tmp_CI_vec(i,nConf,WORK(LW4),LuDavid)
-          End Do
-        EndIf
       CALL GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
 C
 C -------------------------------------------------------------------- C
