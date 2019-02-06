@@ -36,7 +36,13 @@
       common /WarnMess/ MaxWarnMess
       if(Level.gt.MaxWarnMess) MaxWarnMess=Level
       call SysPutsStart()
-      call SysPuts(STR,' ',' ')
+      if (Level .eq. 1) then
+        call SysPuts('WARNING: ',STR,' ')
+      else if (Level .eq. 2) then
+        call SysPuts('ERROR: ',STR,' ')
+      else
+        call SysPuts(STR,' ',' ')
+      end if
       call SysPutsEnd()
 
 c      write(6,'(A)') '*** '
