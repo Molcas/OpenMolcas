@@ -1468,6 +1468,12 @@ CIgorS End
         Write(6,'(1x,8i5)')(NISH(i),i=1,NSYM)
        End If
        IORBDATA=1
+      else
+        if (sum(nIsh(:nSym)) .eq. 0) then
+          call WarningMessage(1,
+     &      'The number of inactive orbitals is zero. '//
+     &      'Do you really want this?')
+        end if
       End If
 *
 *---  Process RAS1 command --------------------------------------------*
@@ -1735,9 +1741,10 @@ C Cannot set the number of inactive orbitals if explicitly given or
 C or if there is symmetry
        If(KeyCHAR.and.(KeyINAC.or.(NSYM.gt.1))) Then
         If(IPRLEV.ge.TERSE) Then
-         Write(6,*)' CHARGE and NACTEL are only compatible if'
-         Write(6,*)' INACTIVE is not given and with no symmetry (C1)'
-         Write(6,*)' The CHARGE command will be ignored.'
+          call WarningMessage(1,
+     &      'CHARGE and NACTEL are only compatible if '//
+     &      'INACTIVE is not given and the symmetry group is C1. '//
+     &      'Hence the CHARGE command will be ignored.')
         End If
         KeyCHAR=.false.
        End If
