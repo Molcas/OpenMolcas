@@ -70,6 +70,9 @@ c Inactive and active Fock matrices:
       CALL FMAT_CASPT2(WORK(LFIMO),WORK(LFAMO),WORK(LDREF),NBUF,
      &                 WORK(LBUF))
 
+* both FIMO and FAMO refer to the active space part only. FIMO comes
+* from contractions over inactive orbitals, while FAMO from contractions
+* over active orbitals and therefore are summed up together here
       CALL DZAXPY(notri,1.0D00,WORK(LFIMO),1,WORK(LFAMO)
      &            ,1,WORK(LFIFA),1)
 

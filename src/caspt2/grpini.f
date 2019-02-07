@@ -98,6 +98,9 @@
         ELSE
 * Get the CI array:
          ID=IDCIEX
+* This loop is just to move ID to the right place in the file
+* so we can read the CI coeffs for the correct state.
+* Basically, we want to read from JSTATE
          DO I=1,JSTATE-1
            CALL DDAFILE(LUCIEX,0,WORK(LCI),NCONF,ID)
          END DO
