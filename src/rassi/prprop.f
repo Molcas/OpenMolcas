@@ -525,8 +525,17 @@ C printing threshold
           END IF
         END DO
 
-        i_Print=0
+        If (Do_SK) Then
+           nVec = nK_Vector
+        Else
+           nVec = 1
+        End If
+*
         IF(IFANYD.NE.0) THEN
+*
+           Do iVec = 1, nVec
+*
+         i_Print=0
          AFACTOR=32.1299D09
 
          CALL GETMEM('DXR','ALLO','REAL',LDXR,NSS**2)
@@ -566,11 +575,11 @@ C printing threshold
                T0(1)=DCMPLX(WORK(LDXR-1+IJSS),WORK(LDXI-1+IJSS))
                T0(2)=DCMPLX(WORK(LDYR-1+IJSS),WORK(LDYI-1+IJSS))
                T0(3)=DCMPLX(WORK(LDZR-1+IJSS),WORK(LDZI-1+IJSS))
-               TM1=k_vector(1)*T0(1)+k_vector(2)*T0(2)
-     &                              +k_vector(3)*T0(3)
-               T0(1) = T0(1) - TM1 * k_vector(1)
-               T0(2) = T0(2) - TM1 * k_vector(2)
-               T0(3) = T0(3) - TM1 * k_vector(3)
+               TM1=k_vector(1,iVec)*T0(1)+k_vector(2,iVec)*T0(2)
+     &                              +k_vector(3,iVec)*T0(3)
+               T0(1) = T0(1) - TM1 * k_vector(1,iVec)
+               T0(2) = T0(2) - TM1 * k_vector(2,iVec)
+               T0(3) = T0(3) - TM1 * k_vector(3,iVec)
                DX2=ABS(DCONJG(T0(1))*T0(1))
                DY2=ABS(DCONJG(T0(2))*T0(2))
                DZ2=ABS(DCONJG(T0(3))*T0(3))
@@ -603,7 +612,7 @@ C printing threshold
             WRITE(6,*)
             WRITE(6,'(4x,a,3F8.4,a)')
      &            'Direction of the k-vector: ',
-     &             (k_vector(k),k=1,3),' (au)'
+     &             (k_vector(k,iVec),k=1,3),' (au)'
             WRITE(6,'(4x,a)')
      &            'The light is assumed to be unpolarized.'
             WRITE(6,*)
@@ -635,6 +644,9 @@ C printing threshold
      &                     'Dipole transition strengths (SO states):')
            WRITE(6,*)
          END IF
+*
+         End Do ! iVec
+*
          I_HAVE_DL = 1
         END IF
 
@@ -652,9 +664,18 @@ C printing threshold
            IF(ISOCMP(ISOPR).EQ.3) IPRDZ=ISOPR
           END IF
         END DO
-
-        i_Print=0
+*
+        If (Do_SK) Then
+           nVec = nK_Vector
+        Else
+           nVec = 1
+        End If
+*
         IF(IFANYD.NE.0) THEN
+*
+        Do iVec = 1, nVec
+*
+         i_Print=0
          AFACTOR=32.1299D09
 
          CALL GETMEM('DXR','ALLO','REAL',LDXR,NSS**2)
@@ -696,11 +717,11 @@ C printing threshold
                T0(1)=DCMPLX(WORK(LDXR-1+IJSS),WORK(LDXI-1+IJSS))
                T0(2)=DCMPLX(WORK(LDYR-1+IJSS),WORK(LDYI-1+IJSS))
                T0(3)=DCMPLX(WORK(LDZR-1+IJSS),WORK(LDZI-1+IJSS))
-               TM1=k_vector(1)*T0(1)+k_vector(2)*T0(2)
-     &                              +k_vector(3)*T0(3)
-               T0(1) = T0(1) - TM1 * k_vector(1)
-               T0(2) = T0(2) - TM1 * k_vector(2)
-               T0(3) = T0(3) - TM1 * k_vector(3)
+               TM1=k_vector(1,iVec)*T0(1)+k_vector(2,iVec)*T0(2)
+     &                              +k_vector(3,iVec)*T0(3)
+               T0(1) = T0(1) - TM1 * k_vector(1,iVec)
+               T0(2) = T0(2) - TM1 * k_vector(2,iVec)
+               T0(3) = T0(3) - TM1 * k_vector(3,iVec)
                DX2=ABS(DCONJG(T0(1))*T0(1))
                DY2=ABS(DCONJG(T0(2))*T0(2))
                DZ2=ABS(DCONJG(T0(3))*T0(3))
@@ -733,7 +754,7 @@ C printing threshold
             WRITE(6,*)
             WRITE(6,'(4x,a,3F8.4,a)')
      &            'Direction of the k-vector: ',
-     &             (k_vector(k),k=1,3),' (au)'
+     &             (k_vector(k,iVec),k=1,3),' (au)'
             WRITE(6,'(4x,a)')
      &            'The light is assumed to be unpolarized.'
             WRITE(6,*)
@@ -765,6 +786,9 @@ C printing threshold
      &                     'Velocity transition strengths (SO states):')
            WRITE(6,*)
          END IF
+*
+         End Do ! iVec
+*
          I_HAVE_DV = 1
         END IF
 

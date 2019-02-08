@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      INTEGER MXJOB,MXPROP
+      INTEGER MXJOB,MXPROP,Mx_Vec
       PARAMETER (MXJOB=100,MXPROP=90000)
       INTEGER MXDISP
       PARAMETER (MXDISP=500)
@@ -28,6 +28,7 @@
       INTEGER NTSTEP,NBSTEP
       INTEGER NKVEC,PKVEC,LOOPDIVIDE
       INTEGER DYSEXPSF,DYSEXPSO
+      INTEGER nK_Vector
 c BP - SO Natural orbital information
 c    SONATNSTATE      Number of states to calculate
 c    LSONAT           Pointer to IWORK array of states
@@ -36,12 +37,14 @@ c    LSONAT           Pointer to IWORK array of states
 c    IFCURD           Do current density stuff
 c    Do_TMOS          Do Transition Moment Oscillator Strengths
 c    L_Eff            The order of the Lebedev solid angle integration
-c    Do_SK            Do single k-vector direction of the exact
+c    Do_SK            Do k-vector directions of the exact
 c                     Hamiltonian with a vector field.
-c    Kvector          The k-vector
+c    K_vector         The k-vector
+c    nK_vector        The number of k_vectors
+      Parameter (Mx_Vec=20)
       INTEGER SONATNSTATE,LSONAT,SODIAGNSTATE,LSODIAG
       LOGICAL IFCURD, Do_TMOS, Do_SK
-      REAL*8 TDIPMIN,SOTHR_PRT,K_vector(3)
+      REAL*8 TDIPMIN,SOTHR_PRT,K_vector(3,Mx_Vec)
       INTEGER NSOTHR_PRT, ISMGRD, LDISP, NDISP, NTDISP
       INTEGER IFJ2, IFJZ
       INTEGER L_Eff
@@ -52,7 +55,7 @@ c    Kvector          The k-vector
      &     NSOTHR_PRT,ICOMP(MXPROP),ISOCMP(MXPROP),
      &     L_HEFF,LEIGVEC,LESHFT,LHDIAG,
      &     IPUSED(MXPROP),NDISP,LDISP(8),ISMGRD(MXDISP),
-     &     NTDISP(MXDISP),NTSTEP,NBSTEP,NKVEC,LOOPDIVIDE,L_Eff
+     &     NTDISP(MXDISP),NTSTEP,NBSTEP,NKVEC,LOOPDIVIDE,L_Eff,nK_Vector
       COMMON /CNTRL/ TDIPMIN,CITHR,EPRTHR,
      &     ALPHZ,BETAE,NSTAT(MXJOB),ISTAT(MXJOB),
      &     NROOTS(MXJOB),LLROOT,

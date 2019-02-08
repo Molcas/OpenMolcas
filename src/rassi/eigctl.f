@@ -637,6 +637,14 @@ C And the same for the Dyson amplitudes
         losc_strength=isFreeUnit(losc_strength)
         Call Molcas_Open(losc_strength,'osc_strength.au')
 
+        If (Do_SK) Then
+           nVec = nK_Vector
+        Else
+           nVec = 1
+        End If
+*
+        Do iVec = 1, nVec
+*
         LNCNT=0
         FMAX=0.0D0
         Two3rds=2.0D0/3.0D0
@@ -646,21 +654,22 @@ C And the same for the Dyson amplitudes
           J=IndexE(L_)
           IJ=I+NSTATE*(J-1)
           EDIFF=ENERGY(J)-ENERGY(I)
+*
           IF(EDIFF.GT.0.0D0) THEN
            DX2=0.0D0
            DY2=0.0D0
            DZ2=0.0D0
            If (Do_SK) Then
               tmp=0.0D0
-              IF(IPRDX.GT.0) tmp=tmp+PROP(J,I,IPRDX)*k_vector(1)
-              IF(IPRDY.GT.0) tmp=tmp+PROP(J,I,IPRDY)*k_vector(2)
-              IF(IPRDZ.GT.0) tmp=tmp+PROP(J,I,IPRDZ)*k_vector(2)
+              IF(IPRDX.GT.0) tmp=tmp+PROP(J,I,IPRDX)*k_vector(1,iVec)
+              IF(IPRDY.GT.0) tmp=tmp+PROP(J,I,IPRDY)*k_vector(2,iVec)
+              IF(IPRDZ.GT.0) tmp=tmp+PROP(J,I,IPRDZ)*k_vector(2,iVec)
               IF(IPRDX.GT.0)
-     &           DX2=(PROP(J,I,IPRDX)-tmp*k_vector(1))**2
+     &           DX2=(PROP(J,I,IPRDX)-tmp*k_vector(1,iVec))**2
               IF(IPRDY.GT.0)
-     &           DY2=(PROP(J,I,IPRDY)-tmp*k_vector(2))**2
+     &           DY2=(PROP(J,I,IPRDY)-tmp*k_vector(2,iVec))**2
               IF(IPRDZ.GT.0)
-     &           DZ2=(PROP(J,I,IPRDZ)-tmp*k_vector(3))**2
+     &           DZ2=(PROP(J,I,IPRDZ)-tmp*k_vector(3,iVec))**2
            Else
               IF(IPRDX.GT.0) DX2=PROP(J,I,IPRDX)**2
               IF(IPRDY.GT.0) DY2=PROP(J,I,IPRDY)**2
@@ -675,28 +684,28 @@ C And the same for the Dyson amplitudes
            AY=(AFACTOR*EDIFF**2)*FY
            AZ=(AFACTOR*EDIFF**2)*FZ
            A =(AFACTOR*EDIFF**2)*F
-           IF(F.ge.OSTHR) THEN
-            IF(LNCNT.EQ.0) THEN
-              If (Do_SK) Then
-                 WRITE(6,*)
-                 WRITE(6,'(4x,a,3F8.4,a)')
+           IF (F.ge.OSTHR) THEN
+              IF (LNCNT.EQ.0) THEN
+                 If (Do_SK) Then
+                    WRITE(6,*)
+                    WRITE(6,'(4x,a,3F8.4,a)')
      &                 'Direction of the k-vector: ',
-     &                  (k_vector(k),k=1,3),' (au)'
-                 WRITE(6,'(4x,a)')
+     &                  (k_vector(k,iVec),k=1,3),' (au)'
+                    WRITE(6,'(4x,a)')
      &                 'The light is assumed to be unpolarized.'
-                 WRITE(6,*)
-              End If
-             WRITE(6,31) 'From','To','Osc. strength',
+                    WRITE(6,*)
+                 End If
+                 WRITE(6,31) 'From','To','Osc. strength',
      &                   'Einstein coefficients Ax, Ay, Az (sec-1)   ',
      &                   'Total A (sec-1)'
-             WRITE(6,32)
-             WRITE(losc_strength,34) 'From','To','Osc. strength',
+                 WRITE(6,32)
+                 WRITE(losc_strength,34) 'From','To','Osc. strength',
      &                   'Fx','Fy','Fz','(A.U.)'
-             WRITE(losc_strength,32)
-            END IF
-            LNCNT=LNCNT+1
-            WRITE(6,33) I,J,F,AX,AY,AZ,A
-            write(losc_strength,33) I,J,F,Fx,Fy,Fz
+                 WRITE(losc_strength,32)
+              END IF
+              LNCNT=LNCNT+1
+              WRITE(6,33) I,J,F,AX,AY,AZ,A
+              write(losc_strength,33) I,J,F,Fx,Fy,Fz
            END IF
 ! Store dipole oscillator strength
             WORK(LDL-1+IJ) = F
@@ -709,12 +718,15 @@ C And the same for the Dyson amplitudes
           END IF
          END DO
         END DO
-        IF(LNCNT.EQ.0) THEN
-         WRITE(6,*)' ( Max oscillator strength is only ',FMAX,')'
+        IF (LNCNT.EQ.0) THEN
+           WRITE(6,*)' ( Max oscillator strength is only ',FMAX,')'
         ELSE
-         WRITE(6,32)
-         WRITE(losc_strength,32)
+           WRITE(6,32)
+           WRITE(losc_strength,32)
         END IF
+*
+        End Do ! iVec
+*
         close(losc_strength)
         CALL CollapseOutput(0,'Dipole transition strengths '//
      &                        '(spin-free states):')
@@ -734,6 +746,14 @@ C And the same for the Dyson amplitudes
         END IF
         WRITE(6,*)
 
+        If (Do_SK) Then
+           nVec = nK_Vector
+        Else
+           nVec = 1
+        End If
+*
+        Do iVec = 1, nVec
+*
         LNCNT=0
         DMAX=0.0D0
         DO I=1,NSTATE-1
@@ -743,12 +763,12 @@ C And the same for the Dyson amplitudes
            DZ=0.0D0
            If (Do_SK) Then
               tmp=0.0D0
-              IF(IPRDX.GT.0) tmp=tmp+PROP(J,I,IPRDX)*k_vector(1)
-              IF(IPRDY.GT.0) tmp=tmp+PROP(J,I,IPRDY)*k_vector(2)
-              IF(IPRDZ.GT.0) tmp=tmp+PROP(J,I,IPRDZ)*k_vector(2)
-              IF(IPRDX.GT.0) DX=PROP(J,I,IPRDX)-tmp*k_vector(1)
-              IF(IPRDY.GT.0) DY=PROP(J,I,IPRDY)-tmp*k_vector(2)
-              IF(IPRDZ.GT.0) DZ=PROP(J,I,IPRDZ)-tmp*k_vector(3)
+              IF(IPRDX.GT.0) tmp=tmp+PROP(J,I,IPRDX)*k_vector(1,iVec)
+              IF(IPRDY.GT.0) tmp=tmp+PROP(J,I,IPRDY)*k_vector(2,iVec)
+              IF(IPRDZ.GT.0) tmp=tmp+PROP(J,I,IPRDZ)*k_vector(3,iVec)
+              IF(IPRDX.GT.0) DX=PROP(J,I,IPRDX)-tmp*k_vector(1,iVec)
+              IF(IPRDY.GT.0) DY=PROP(J,I,IPRDY)-tmp*k_vector(2,iVec)
+              IF(IPRDZ.GT.0) DZ=PROP(J,I,IPRDZ)-tmp*k_vector(3,iVec)
            Else
               IF(IPRDX.GT.0) DX2=PROP(J,I,IPRDX)**2
               IF(IPRDY.GT.0) DY2=PROP(J,I,IPRDY)**2
@@ -782,8 +802,11 @@ C And the same for the Dyson amplitudes
         END IF
         CALL CollapseOutput(0,'Dipole transition vectors '//
      &                        '(spin-free states):')
-       END IF
-
+*
+*
+      End Do ! iVec
+*
+      End If
       END IF
 *
 *     Transition moments computed with the velocity operator.
@@ -814,7 +837,15 @@ C And the same for the Dyson amplitudes
             WRITE(6,30) 'for osc. strength at least',OSTHR
          END IF
          WRITE(6,*)
-
+*
+         If (Do_SK) Then
+            nVec = nK_Vector
+         Else
+            nVec = 1
+         End If
+*
+         Do iVec = 1, nVec
+*
          LNCNT=0
          FMAX=0.0D0
          Two3rds=2.0D0/3.0D0
@@ -829,16 +860,16 @@ C And the same for the Dyson amplitudes
                DY2=0.0D0
                DZ2=0.0D0
                If (Do_SK) Then
-                  tmp=0.0D0
-                  IF(IPRDX.GT.0) tmp=tmp+PROP(J,I,IPRDX)*k_vector(1)
-                  IF(IPRDY.GT.0) tmp=tmp+PROP(J,I,IPRDY)*k_vector(2)
-                  IF(IPRDZ.GT.0) tmp=tmp+PROP(J,I,IPRDZ)*k_vector(2)
-                  IF(IPRDX.GT.0)
-     &               DX2=(PROP(J,I,IPRDX)-tmp*k_vector(1))**2
-                  IF(IPRDY.GT.0)
-     &               DY2=(PROP(J,I,IPRDY)-tmp*k_vector(2))**2
-                  IF(IPRDZ.GT.0)
-     &               DZ2=(PROP(J,I,IPRDZ)-tmp*k_vector(3))**2
+                 tmp=0.0D0
+                 IF(IPRDX.GT.0) tmp=tmp+PROP(J,I,IPRDX)*k_vector(1,iVec)
+                 IF(IPRDY.GT.0) tmp=tmp+PROP(J,I,IPRDY)*k_vector(2,iVec)
+                 IF(IPRDZ.GT.0) tmp=tmp+PROP(J,I,IPRDZ)*k_vector(3,iVec)
+                 IF(IPRDX.GT.0)
+     &              DX2=(PROP(J,I,IPRDX)-tmp*k_vector(1,iVec))**2
+                 IF(IPRDY.GT.0)
+     &              DY2=(PROP(J,I,IPRDY)-tmp*k_vector(2,iVec))**2
+                 IF(IPRDZ.GT.0)
+     &              DZ2=(PROP(J,I,IPRDZ)-tmp*k_vector(3,iVec))**2
                Else
                   IF(IPRDX.GT.0) DX2=PROP(J,I,IPRDX)**2
                   IF(IPRDY.GT.0) DY2=PROP(J,I,IPRDY)**2
@@ -859,7 +890,7 @@ C And the same for the Dyson amplitudes
                         WRITE(6,*)
                         WRITE(6,'(4x,a,3F8.4,a)')
      &                        'Direction of the k-vector: ',
-     &                         (k_vector(k),k=1,3),' (au)'
+     &                         (k_vector(k,ivec),k=1,3),' (au)'
                         WRITE(6,'(4x,a)')
      &                        'The light is assumed to be unpolarized.'
                         WRITE(6,*)
@@ -884,6 +915,8 @@ C And the same for the Dyson amplitudes
          ELSE
             WRITE(6,32)
          END IF
+*
+         End Do ! iVec
          CALL CollapseOutput(0,'Velocity transition strengths '//
      &                         '(spin-free states):')
          I_HAVE_DV = 1
@@ -2035,12 +2068,14 @@ C And the same for the Dyson amplitudes
 *     Generate the quadrature points.
 *
       If (Do_SK) Then
-         nQuad=1
-         Call GetMem('SK','ALLO','REAL',ipR,4)
-         Work(ipR  )=k_Vector(1)
-         Work(ipR+1)=k_Vector(2)
-         Work(ipR+2)=k_Vector(3)
-         Work(ipR+3)=1.0D0   ! Dummy weight
+         nQuad=nK_Vector
+         Call GetMem('SK','ALLO','REAL',ipR,4*nQuad)
+         Do iQuad = 1, nQuad
+            Work(ipR+(iQuad-1)*4  )=k_Vector(1,iQuad)
+            Work(ipR+(iQuad-1)*4+1)=k_Vector(2,iQuad)
+            Work(ipR+(iQuad-1)*4+2)=k_Vector(3,iQuad)
+            Work(ipR+(iQuad-1)*4+3)=1.0D0   ! Dummy weight
+         End Do
       Else
          Call Setup_O()
          Call Do_Lebedev(L_Eff,nQuad,ipR)
@@ -2152,6 +2187,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
             FY=0.0D0
             FZ=0.0D0
             F =0.0D0
+            R =0.0D0
             Fm=0.0D0
 *
 *           Initialize output arrays
@@ -2387,6 +2423,37 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                WORK(LWEIGH+(IQUAD-1)+3*NQUAD) = Y
                WORK(LWEIGH+(IQUAD-1)+4*NQUAD) = Z
 
+*
+               If (Do_SK) Then
+                  If (iPrint.eq.0) Then
+                     WRITE(6,*)
+                     CALL CollapseOutput(1,
+     &                   'Transition moment strengths:')
+                     WRITE(6,'(3X,A)')
+     &                '--------------------------------------'//
+     &                '-------------------'
+                     IF (OSTHR.GT.0.0D0)
+     &                  WRITE(6,30) 'for osc. strength at least',OSTHR
+                     WRITE(6,*)
+                     WRITE(6,'(4x,a)')
+     &                  'The light is assumed to be unpolarized.'
+                     iPrint=1
+                  End If
+                  WRITE(6,'(4x,a,3F8.4,a)')
+     &                  'Direction of the k-vector: ',
+     &                   (k_vector(k,iQuad),k=1,3),' (au)'
+                  WRITE(6,39) 'From','To','Osc. strength',
+     &                                    'Rot. strength',
+     &                  'Einstein coefficients Ax, Ay, Az (sec-1)   ',
+     &                  'Total A (sec-1)'
+                  WRITE(6,32)
+                  AX=0.0D0
+                  AY=0.0D0
+                  AZ=0.0D0
+                  A =(AFACTOR*EDIFF**2)*F_temp
+                  WRITE(6,38) I,J,F_temp,R_temp,AX,AY,AZ,A
+               End If
+*
             End Do ! iQuad
 *
             Call Add_Info('ITMS(SF)',F,1,6)
@@ -2404,14 +2471,9 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *
             If (iPrint.eq.0) Then
                WRITE(6,*)
-               If (Do_SK) Then
-                  CALL CollapseOutput(1,
-     &                   'Transition moment strengths:')
-               Else
                CALL CollapseOutput(1,
      &                'Isotropic transition moment strengths '//
      &                '(spin-free states):')
-               End If
                WRITE(6,'(3X,A)')
      &                '--------------------------------------'//
      &                '-------------------'
@@ -2419,27 +2481,19 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                   WRITE(6,30) 'for osc. strength at least',OSTHR
                END IF
                WRITE(6,*)
-               If (Do_SK) Then
-                  WRITE(6,'(4x,a,3F8.4,a)')
-     &                  'Direction of the k-vector: ',
-     &                   (k_vector(k),k=1,3),' (au)'
-                  WRITE(6,'(4x,a)')
-     &                  'The light is assumed to be unpolarized.'
-               Else
-                  WRITE(6,'(4x,a,I4,a)')
-     &                 'Integrated over ',nQuad,' directions of the'//
-     &                 ' wave vector'
-                  WRITE(6,'(4x,a)')
-     &                 'Integrated over all directions of the polar'//
-     &                 'ization vector'
-               End If
+               WRITE(6,'(4x,a,I4,a)')
+     &              'Integrated over ',nQuad,' directions of the'//
+     &              ' wave vector'
+               WRITE(6,'(4x,a)')
+     &              'Integrated over all directions of the polar'//
+     &              'ization vector'
                WRITE(6,*)
                WRITE(6,39) 'From','To','Osc. strength',
      &                                 'Rot. strength',
      &               'Einstein coefficients Ax, Ay, Az (sec-1)   ',
      &               'Total A (sec-1)'
                WRITE(6,32)
-                iPrint=1
+               iPrint=1
             END IF
 *
 *     Regular print

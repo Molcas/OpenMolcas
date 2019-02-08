@@ -200,7 +200,7 @@
 
       nQuad=0
       If (Do_SK) Then
-         nQuad=1
+         nQuad=nK_Vector
       Else
          Do iSet = 1, nSet
             If (Lebedev_order(iSet).eq.L_Eff) Then

@@ -722,18 +722,45 @@ C ------------------------------------------
         GoTo 100
       Endif
 C--------------------------------------------
+      If(Line(1:4).eq.'KVEC') then
+! Set a specific direction of the incident light when computing
+! the transition moment and oscillator stength in the use of
+! the vector field (A) in the non-relativistic Hamiltonian.
+        Do_SK=.TRUE.
+        Read(LuIn,*,ERR=997) nK_Vector
+        If (nK_Vector.gt.Mx_Vec) Then
+           Write (6,'(A,2I20)')' nK_Vector.gt.Mx_Vec:',
+     &                         nK_Vector,Mx_Vec
+           Write (6,'(A)')
+     &         'Update Mx_Vec src/rassi/cntrl.fh and recompile'
+           Call Abend()
+        End If
+        Linenr=Linenr+1
+        Do j = 1, nK_Vector
+           Read(LuIn,*,ERR=997) (K_Vector(i,j),i=1,3)
+           Linenr=Linenr+1
+           tmp=K_Vector(1,j)**2+k_Vector(2,j)**2+k_Vector(3,j)**2
+           tmp = 1.0D0/Sqrt(tmp)
+           k_Vector(1,j)=k_Vector(1,j)*tmp
+           k_Vector(2,j)=k_Vector(2,j)*tmp
+           k_Vector(3,j)=k_Vector(3,j)*tmp
+        End Do
+        GoTo 100
+      Endif
+C--------------------------------------------
       If(Line(1:4).eq.'K-VE') then
 ! Set a specific direction of the incident light when computing
 ! the transition moment and oscillator stength in the use of
 ! the vector field (A) in the non-relativistic Hamiltonian.
         Do_SK=.TRUE.
-        Read(LuIn,*,ERR=997) (K_Vector(i),i=1,3)
+        nK_Vector=1
+        Read(LuIn,*,ERR=997) (K_Vector(i,1),i=1,3)
         Linenr=Linenr+1
-        tmp=K_Vector(1)**2+k_Vector(2)**2+k_Vector(3)**2
+        tmp=K_Vector(1,1)**2+k_Vector(2,1)**2+k_Vector(3,1)**2
         tmp = 1.0D0/Sqrt(tmp)
-        k_Vector(1)=k_Vector(1)*tmp
-        k_Vector(2)=k_Vector(2)*tmp
-        k_Vector(3)=k_Vector(3)*tmp
+        k_Vector(1,1)=k_Vector(1,1)*tmp
+        k_Vector(2,1)=k_Vector(2,1)*tmp
+        k_Vector(3,1)=k_Vector(3,1)*tmp
         GoTo 100
       Endif
 C--------------------------------------------

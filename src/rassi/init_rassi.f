@@ -167,9 +167,7 @@ C DEFAULT FLAGS:
       LOOPDIVIDE=0
       Do_SK  =.FALSE.
       L_Eff=5
-      k_vector(1) = 0.0D0
-      k_vector(2) = 0.0D0
-      k_vector(3) = 0.0D0
+      Call FZero(k_vector,3*Mx_Vec)
 cnf
       IfDCpl = .False.
 cnf
