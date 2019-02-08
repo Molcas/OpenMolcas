@@ -1744,7 +1744,7 @@ C And the same for the Dyson amplitudes
           END IF
           WRITE(6,31) 'From','To','Rotatory strength'
           WRITE(6,35)
-! Check this constant !
+!
          TWOOVER3C=2.0D0/(3.0D0*CONST_C_IN_AU_)
 
          DO ISS_=1,IEND
