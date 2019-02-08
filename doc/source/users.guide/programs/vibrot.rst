@@ -264,12 +264,12 @@ input:
 
 :kword:`ORBItal`
   The next entry specifies the value of the orbital angular momentum
-  (0,1,2, etc). Default value is zero.
+  (0, 1, 2, etc.). Default value is zero.
 
   .. xmldoc:: <KEYWORD MODULE="VIBROT" NAME="ORBI" APPEAR="Orbital angular momentum" KIND="INT" LEVEL="BASIC" DEFAULT_VALUE="0" MIN_VALUE="0">
               %%Keyword: ORBItal <basic>
               <HELP>
-              Specify the orbital angular momentum:, 0, 1, 2,... (default is 0).
+              Specify the orbital angular momentum:, 0, 1, 2, ... (default is 0).
               </HELP>
               </KEYWORD>
 
