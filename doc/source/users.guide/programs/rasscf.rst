@@ -1634,6 +1634,25 @@ A list of these keywords is given below:
               </HELP>
               </KEYWORD>
 
+:kword:`NKEE`
+  Here follows the maximum dimension of the full Davidson Hamiltonian.
+  This Hamiltonian contains the current CI vectors for each state as well
+  as a set of correction vectors from a number of past iterations.
+  Default value is the smallest of 400 and 6 times the number of states, though
+  at least 2 times the number of states.
+  Increasing this size reduces the number of CI iterations but increases memory requirements and can
+  increase the computational cost associated with forming and diagonalizing the Hamiltonian matrix.
+  Very large values can lead to numerical instabilities.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="NKEE" APPEAR="Number of kept vectors" LEVEL="ADVANCED" KIND="INT">
+              %%Keyword: SDAV <advanced>
+              <HELP>
+              The keyword is followed by one line of input giving the maximum dimension
+              of the Hamiltonian used in the Davidson procedure.
+              Increase this value if the CI does not converge.
+              </HELP>
+              </KEYWORD>
+
 :kword:`SXDAmp`
   A variable called SXDAMP regulates the size of the orbital rotations.
   Use keyword :kword:`SXDAmp` and enter a real number.

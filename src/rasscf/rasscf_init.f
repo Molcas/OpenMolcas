@@ -229,6 +229,8 @@ C        ICIRST=1 ! to be activated!
 * Highly excited states are not default
       hRoots=0
 * No hidden roots by default
+      n_keep=0
+* Number of kept vectors in Davidson chosen in ini_david by default
       IORDEM=0
 * (SVC) do not force any ordering options
       IFORDE=1
