@@ -847,7 +847,7 @@ Keywords
 
 :kword:`HEXT`
   It is read from the following few lines, as a triangular matrix: One element
-  of the first row, two from the next, etc, as list-directed input of reals.
+  of the first row, two from the next, etc., as list-directed input of reals.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HEXT" APPEAR="External Hamiltonian" KIND="STRINGS" LEVEL="ADVANCED">
               %%Keyword: HExt <advanced>
@@ -855,7 +855,7 @@ Keywords
               The spin-free Hamiltonian is read from a file instead of being computed.
               </HELP>
               It is read from the following entries, as a triangular matrix: One element
-              of the first row, two from the next, etc, as list-directed input of reals.
+              of the first row, two from the next, etc., as list-directed input of reals.
               </KEYWORD>
 
 :kword:`HEFF`

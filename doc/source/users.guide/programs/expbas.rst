@@ -161,7 +161,7 @@ Optional general keywords
 **Comments**. For the basis set expansion
 procedure, this is the strategy:
 
-#. Do a calculation (SCF, DFT, CASSCF, etc) with a small basis set. Save the
+#. Do a calculation (SCF, DFT, CASSCF, etc.) with a small basis set. Save the
    produced orbital file and the runfile as: name.Inporb and name.Runfil1.
 
 #. Run a :program:`GATEWAY` to create the second runfile, which is then saved as

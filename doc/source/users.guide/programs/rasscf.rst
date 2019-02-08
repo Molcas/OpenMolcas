@@ -1355,7 +1355,7 @@ A list of these keywords is given below:
 
 :kword:`ORBOnly`
   This input keyword is used to get a formated ASCII file
-  (:file:`RASORB`, :file:`RASORB.2`, etc)
+  (:file:`RASORB`, :file:`RASORB.2`, etc.)
   containing molecular orbitals and occupations reading from a
   binary :file:`JobIph` file. The program will not perform any other operation.
   (In this usage, the program can be run without any files, except the :file:`JOBIPH` file).
@@ -1363,7 +1363,7 @@ A list of these keywords is given below:
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="Orbitals only" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: ORBOnly <basic>
               <HELP>
-              This input keyword is used to get a formated ASCII file (RASORB, RASORB.2, etc)
+              This input keyword is used to get a formated ASCII file (RASORB, RASORB.2, etc.)
               containing molecular orbitals and occupations reading from a
               binary JobIph file. The program will not perform any other operation.
               </HELP>
@@ -1815,7 +1815,7 @@ A list of these keywords is given below:
   This keyword is used to select the type of orbitals to be written
   in a formated ASCII file. By default a formated :file:`RASORB` file
   containing average orbitals and subsequent :file:`RASORB.1`,
-  :file:`RASORB.2`, etc, files containing natural orbitals for each
+  :file:`RASORB.2`, etc., files containing natural orbitals for each
   of the computed (up to ten) roots will be generated in the working directory.
   An entry follows with an additional keyword selecting the orbital type.
   The possibilities are:
@@ -2125,7 +2125,7 @@ A list of these keywords is given below:
 :kword:`CHREstart`
   Use this keyword to activate restart in the first DMRG iteration from a previous calculation.
   The working directory must contain :file:`molcas_natorb_fiedler.txt` and :file:`CheMPS2_natorb_MPSx.h5` (``x``\=0 for the ground state,
-  1 for the first excited state, etc).
+  1 for the first excited state, etc.).
   If these files are not in the working directory, a warning is printed at the beginning of
   the calculation and restart is skipped (start from scratch).
 
@@ -2142,7 +2142,7 @@ A list of these keywords is given below:
 
   :kword:`DMREstart` = ``1``: start form user-supplied checkpoint files.
   The working directory must contain :file:`molcas_canorb_fiedler.txt` and :file:`CheMPS2_canorb_MPSx.h5` (``x``\=0 for the ground state,
-  1 for the first excited state, etc).
+  1 for the first excited state, etc.).
   If these files are not in the working directory, a warning is printed at the
   beginning of the calculation and restart is skipped (start from scratch).
 
@@ -2179,7 +2179,7 @@ orbitals are :math:`1a_1` (oxygen 1s) :math:`2a_1` (oxygen 2s) and
 :math:`1b_1` (the :math:`\pi` lone-pair orbital). Two bonding and two anti-bonding
 OH orbitals are active, :math:`a_1` and :math:`b_2` symmetries. The calculation is
 performed for the :math:`^1A_1` ground state. Note that no information about basis set,
-geometry, etc has to be given. Such information is supplied by the
+geometry, etc. has to be given. Such information is supplied by the
 :program:`SEWARD` integral program via the one-electron integral file :file:`ONEINT`. ::
 
   &RASSCF
