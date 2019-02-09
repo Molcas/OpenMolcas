@@ -160,17 +160,13 @@ C printing threshold
 *     Generate the quadrature points.
 *
       If (Do_SK) Then
-         nQuad=nK_Vector
+         nQuad = 1
+         nVec=nK_Vector
          Call GetMem('SK','ALLO','REAL',ipR,4*nQuad)
-         Do iQuad = 1, nQuad
-            Work(ipR+(iQuad-1)*4  )=k_Vector(1,iQuad)
-            Work(ipR+(iQuad-1)*4+1)=k_Vector(2,iQuad)
-            Work(ipR+(iQuad-1)*4+2)=k_Vector(3,iQuad)
-            Work(ipR+(iQuad-1)*4+3)=1.0D0   ! Dummy weight
-         End Do
       Else
          Call Setup_O()
          Call Do_Lebedev(L_Eff,nQuad,ipR)
+         nVec = 1
       End If
 *
 *     Get table of content for density matrices.
@@ -216,6 +212,15 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       ip_TM1I   = ip_TM1R + 1
       ip_TM2R   = ip_TM1I + 1
       ip_TM2I   = ip_TM2R + 1
+*
+      Do iVec = 1, nVec
+*
+         If (Do_SK) Then
+            Work(ipR  )=k_Vector(1,iVec)
+            Work(ipR+1)=k_Vector(2,iVec)
+            Work(ipR+2)=k_Vector(3,iVec)
+            Work(ipR+3)=1.0D0   ! Dummy weight
+         End If
 *
       AFACTOR=32.1299D09
       HALF=0.5D0
@@ -589,39 +594,6 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                WORK(LWEIGH+(IQUAD-1)+3*NQUAD) = YCOOR
                WORK(LWEIGH+(IQUAD-1)+4*NQUAD) = ZCOOR
 
-               If (Do_SK) Then
-                  If (iPrint.eq.0) Then
-                     WRITE(6,*)
-                     CALL CollapseOutput(1,
-     &                'Transition moment strengths:')
-                     WRITE(6,'(3X,A)')
-     &                '--------------------------------------'
-                     IF (OSTHR.GT.0.0D0) THEN
-                        WRITE(6,'(1x,a,ES16.8)')
-     &                  '   for osc. strength at least ',OSTHR
-                     END IF
-                     WRITE(6,*)
-                     WRITE(6,'(4x,a)')
-     &                  'The light is assumed to be unpolarized.'
-*
-                     iPrint=1
-                  End If
-                  WRITE(6,'(4x,a,3F8.4,a)')
-     &                  'Direction of the k-vector: ',
-     &                   (Work(ipR+(iQuad-1)*4+k),k=0,2),' (au)'
-                  WRITE(6,*)
-                  WRITE(6,*)"        To  From     Osc. strength"//
-     &              "    Rot. strength",
-     &              "   Einstein coefficients Ax, Ay, Az (sec-1) "//
-     &              "      Total A (sec-1)  "
-                  WRITE(6,*)
-                  AX=0.0D0
-                  AY=0.0D0
-                  AZ=0.0D0
-                  A =(AFACTOR*EDIFF**2)*F_Temp
-                  WRITE(6,'(5X,2I5,5X,6ES16.8)') ISO,JSO,F_Temp,R_Temp,
-     &                  AX,AY,AZ,A
-               End If
             End Do ! iQuad
 *
 *           Note that the weights are normalized to integrate to
@@ -637,8 +609,20 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
             If (iPrint.eq.0) Then
                WRITE(6,*)
+               If (Do_SK) Then
+                  CALL CollapseOutput(1,
+     &                'Transition moment strengths:')
+               WRITE(6,'(1x,a)')
+     &           '   The oscillator strength is'//
+     &           ' integrated over all directions of the polar'//
+     &           'ization vector'
+                  WRITE(6,'(4x,a,3F8.4,a)')
+     &                  'Direction of the k-vector: ',
+     &                   (Work(ipR+k),k=0,2),' (au)'
+               Else
                   CALL CollapseOutput(1,
      &                'Isotropic transition moment strengths:')
+               End If
                WRITE(6,'(3X,A)')
      &                '--------------------------------------'
                IF (OSTHR.GT.0.0D0) THEN
@@ -646,13 +630,16 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
      &                  '   for osc. strength at least ',OSTHR
                END IF
                WRITE(6,*)
+               If (.NOT.Do_SK) Then
                WRITE(6,'(1x,a,I4,a)')
      &           '   Integrated over ',nQuad,' directions of the'//
      &           ' wave vector'
                WRITE(6,'(1x,a)')
-     &           '   Integrated over all directions of the polar'//
+     &           '   The oscillator strength is'//
+     &           ' integrated over all directions of the polar'//
      &           'ization vector'
                WRITE(6,*)
+               End If
                WRITE(6,*)"        To  From     Osc. strength"//
      &           "    Rot. strength",
      &           "   Einstein coefficients Ax, Ay, Az (sec-1) "//
@@ -662,7 +649,6 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
      &  '------------------------------------------------'
               iPrint=1
             END IF
-*
             WRITE(6,'(5X,2I5,5X,6ES16.8)') ISO,JSO,F,R,AX,AY,AZ,A
 *
 *     Printing raw (unweighted) and direction for every transition
@@ -715,7 +701,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
          END DO
       END DO
-      If (IPGLOB.EQ.1) THEN
+*
+      If (iPrint.EQ.1) THEN
          If (Do_SK) Then
             CALL CollapseOutput(0,
      &                'Transition moment strengths:')
@@ -724,6 +711,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
      &                'Isotropic transition moment strengths:')
          End If
       END IF
+*
+      End Do ! iVec
 *
 #ifdef _HDF5_
       Call mh5_put_dset(wfn_sos_tm,Work(ipStorage))

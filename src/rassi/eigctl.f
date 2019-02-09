@@ -2068,17 +2068,13 @@ C And the same for the Dyson amplitudes
 *     Generate the quadrature points.
 *
       If (Do_SK) Then
-         nQuad=nK_Vector
+         nQuad=1
          Call GetMem('SK','ALLO','REAL',ipR,4*nQuad)
-         Do iQuad = 1, nQuad
-            Work(ipR+(iQuad-1)*4  )=k_Vector(1,iQuad)
-            Work(ipR+(iQuad-1)*4+1)=k_Vector(2,iQuad)
-            Work(ipR+(iQuad-1)*4+2)=k_Vector(3,iQuad)
-            Work(ipR+(iQuad-1)*4+3)=1.0D0   ! Dummy weight
-         End Do
+         nVec = nK_Vector
       Else
          Call Setup_O()
          Call Do_Lebedev(L_Eff,nQuad,ipR)
+         nVec = 1
       End If
 *
 *     Get table of content for density matrices.
@@ -2116,6 +2112,15 @@ C And the same for the Dyson amplitudes
       ip_TM1I   = ip_TM1R + 1
       ip_TM2R   = ip_TM1I + 1
       ip_TM2I   = ip_TM2R + 1
+*
+      Do iVec = 1, nVec
+*
+         If (Do_SK) Then
+            Work(ipR  )=k_Vector(1,iVec)
+            Work(ipR+1)=k_Vector(2,iVec)
+            Work(ipR+2)=k_Vector(3,iVec)
+            Work(ipR+3)=1.0D0   ! Dummy weight
+         End If
 *
       AFACTOR=32.1299D09
       HALF=0.5D0
@@ -2422,37 +2427,6 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                WORK(LWEIGH+(IQUAD-1)+2*NQUAD) = X
                WORK(LWEIGH+(IQUAD-1)+3*NQUAD) = Y
                WORK(LWEIGH+(IQUAD-1)+4*NQUAD) = Z
-
-*
-               If (Do_SK) Then
-                  If (iPrint.eq.0) Then
-                     WRITE(6,*)
-                     CALL CollapseOutput(1,
-     &                   'Transition moment strengths:')
-                     WRITE(6,'(3X,A)')
-     &                '--------------------------------------'//
-     &                '-------------------'
-                     IF (OSTHR.GT.0.0D0)
-     &                  WRITE(6,30) 'for osc. strength at least',OSTHR
-                     WRITE(6,*)
-                     WRITE(6,'(4x,a)')
-     &                  'The light is assumed to be unpolarized.'
-                     iPrint=1
-                  End If
-                  WRITE(6,'(4x,a,3F8.4,a)')
-     &                  'Direction of the k-vector: ',
-     &                   (k_vector(k,iQuad),k=1,3),' (au)'
-                  WRITE(6,39) 'From','To','Osc. strength',
-     &                                    'Rot. strength',
-     &                  'Einstein coefficients Ax, Ay, Az (sec-1)   ',
-     &                  'Total A (sec-1)'
-                  WRITE(6,32)
-                  AX=0.0D0
-                  AY=0.0D0
-                  AZ=0.0D0
-                  A =(AFACTOR*EDIFF**2)*F_temp
-                  WRITE(6,38) I,J,F_temp,R_temp,AX,AY,AZ,A
-               End If
 *
             End Do ! iQuad
 *
@@ -2471,9 +2445,17 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *
             If (iPrint.eq.0) Then
                WRITE(6,*)
-               CALL CollapseOutput(1,
+               If (Do_SK) Then
+                  CALL CollapseOutput(1,
+     &                'Transition moment strengths:')
+                  WRITE(6,'(4x,a,3F8.4,a)')
+     &                  'Direction of the k-vector: ',
+     &                   (k_vector(k,iVec),k=1,3),' (au)'
+               Else
+                  CALL CollapseOutput(1,
      &                'Isotropic transition moment strengths '//
      &                '(spin-free states):')
+               End If
                WRITE(6,'(3X,A)')
      &                '--------------------------------------'//
      &                '-------------------'
@@ -2481,12 +2463,15 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                   WRITE(6,30) 'for osc. strength at least',OSTHR
                END IF
                WRITE(6,*)
-               WRITE(6,'(4x,a,I4,a)')
-     &              'Integrated over ',nQuad,' directions of the'//
-     &              ' wave vector'
-               WRITE(6,'(4x,a)')
-     &              'Integrated over all directions of the polar'//
-     &              'ization vector'
+               If (.NOT.Do_SK) Then
+                  WRITE(6,'(4x,a,I4,a)')
+     &                 'Integrated over ',nQuad,' directions of the'//
+     &                 ' wave vector'
+                  WRITE(6,'(4x,a)')
+     &                 'The oscillator strength is '//
+     &                 'integrated over all directions of the polar'//
+     &                 'ization vector'
+               End If
                WRITE(6,*)
                WRITE(6,39) 'From','To','Osc. strength',
      &                                 'Rot. strength',
@@ -2548,6 +2533,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *
          END DO
       END DO
+*
       If (iPrint.EQ.1) THEN
          WRITE(6,32)
          If (Do_SK) Then
@@ -2559,6 +2545,8 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
      &                '(spin-free states):')
          End If
       END IF
+*
+      End Do ! iVec
 *
 #ifdef _HDF5_
       Call mh5_put_dset(wfn_sfs_tm,Work(ipStorage))
