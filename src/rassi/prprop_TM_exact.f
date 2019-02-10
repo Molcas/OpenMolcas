@@ -274,7 +274,6 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
             FY=0.0D0
             FZ=0.0D0
             F =0.0D0
-            Fm=0.0D0
             R =0.0D0
 *
 *           Initialize output arrays
@@ -476,7 +475,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
      &                             USOR,USOI,ISO,JSO,ThrSparse)
 *
 *                 the imaginary anti-symmetric part
-                  CALL SMMAT_CHECK(PROP,WORK(LTMP),NSS,'TMOS  IA',iCar,
+                  CALL SMMAT_CHECK(PROP,WORK(LDXI),NSS,'TMOS  IA',iCar,
      &                             USOR,USOI,ISO,JSO,ThrSparse)
 *
 *                 Transform properties to the spin-orbit basis
@@ -539,8 +538,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *              Assemble to total transition moment for the two
 *              polarization directions.
 *
-               TM1 = PE1_e + PE1_m + IMAGINARY*(g_Elec/2.0D0)*E1B
-               TM2 = PE2_e + PE2_m + IMAGINARY*(g_Elec/2.0D0)*E2B
+               TM1 =(PE1_e + PE1_m)+ IMAGINARY*(g_Elec/2.0D0)*E1B
+               TM2 =(PE2_e + PE2_m)+ IMAGINARY*(g_Elec/2.0D0)*E2B
 *
                Work(iStorage+ip_TM1R)=DBLE(TM1)
                Work(iStorage+ip_TM1I)=AIMAG(TM1)
@@ -562,12 +561,12 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                TMR = (TM1 + IMAGINARY*TM2)/Sqrt(2.0D0)
                TML = (TM1 - IMAGINARY*TM2)/Sqrt(2.0D0)
 *
-               R_Temp = DBLE(DCONJG(TMR)*TMR - DCONJG(TML)*TML)
-*              R_Temp = - 2.0D0 (
+               TM_2 = DBLE(DCONJG(TMR)*TMR - DCONJG(TML)*TML)
+*              TM_2 = - 2.0D0 (
 *    &                           DBLE(TMR)*AIMAG(TML)
 *    &                          -DBLE(TML)*AIMAG(TMR)
 *    &                           )
-
+               R_Temp=2.0D0*TM_2/ABS(EDIFF)
 *
 *              Save the raw oscillator strengths in a given direction
 *
@@ -600,7 +599,6 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *           4*pi over the solid angles.
 *
             F = F / (4.0D0*PI)
-*           R = R / (4.0D0*PI)
             IF (ABS(F).LT.OSTHR) CYCLE
             AX=(AFACTOR*EDIFF**2)*FX
             AY=(AFACTOR*EDIFF**2)*FY
@@ -649,7 +647,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
      &  '------------------------------------------------'
               iPrint=1
             END IF
-            WRITE(6,'(5X,2I5,5X,6ES16.8)') ISO,JSO,F,R,AX,AY,AZ,A
+            WRITE(6,'(5X,2I5,5X,2(F8.6,8X),4ES16.8)')
+     &           ISO,JSO,F,R,AX,AY,AZ,A
 *
 *     Printing raw (unweighted) and direction for every transition
 *
@@ -698,6 +697,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
             END IF
 *
             Call Add_Info('ITMS(SO)',F,1,6)
+            Call Add_Info('ROTS(SO)',R,1,6)
 *
          END DO
       END DO

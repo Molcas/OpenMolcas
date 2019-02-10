@@ -1879,6 +1879,8 @@ C And the same for the Dyson amplitudes
 *
             E1A = P1(1)*T0(1) + P1(2)*T0(2) + P1(3)*T0(3)
             E2A = P2(1)*T0(1) + P2(2)*T0(2) + P2(3)*T0(3)
+            E1A = - Imaginary * E1A
+            E2A = - Imaginary * E2A
 *
 *           (2) the magnetic-spin part
 *
@@ -1896,7 +1898,7 @@ C And the same for the Dyson amplitudes
 *           Accumulate all contributions (S_1,MS_1|O|S_2,MS_2)
 *
             F=0.0D0
-            Fm=0.0D0
+            R=0.0D0
             r_S1= DBLE(MPLET_I-1)/2.0D0
             r_S2= DBLE(MPLET_J-1)/2.0D0
             r_MS1 = - r_S1 - 1.0D0
@@ -1974,7 +1976,7 @@ C And the same for the Dyson amplitudes
                   TM2 = IMAGINARY*(g_Elec/2.0D0)*E2B
                   TM1 = IMAGINARY*(g_Elec/2.0D0)*E1B
                   TM_2 = Half*DBLE(DCONJG(TM1)*TM1 +DCONJG(TM2)*TM2)
-                  Fm= Max( Fm, 2.0D0*TM_2/EDIFF )
+                  R= Max( R, 2.0D0*TM_2/EDIFF )
 *
                END DO
             END DO
@@ -2193,7 +2195,6 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
             FZ=0.0D0
             F =0.0D0
             R =0.0D0
-            Fm=0.0D0
 *
 *           Initialize output arrays
 *
@@ -2294,6 +2295,8 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *
                E1A = P1(1)*T0(1) + P1(2)*T0(2) + P1(3)*T0(3)
                E2A = P2(1)*T0(1) + P2(2)*T0(2) + P2(3)*T0(3)
+               E1A = - Imaginary * E1A
+               E2A = - Imaginary * E2A
 *
 *              (2) the magnetic-spin part
 *
@@ -2396,12 +2399,13 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                      TMR = (TM1 + IMAGINARY*TM2)/Sqrt(2.0D0)
                      TML = (TM1 - IMAGINARY*TM2)/Sqrt(2.0D0)
 *
-                      TM_2 =      DBLE(DCONJG(TMR)*TMR -DCONJG(TML)*TML)
-*                     TM_2 = - 2.0D0 (
-*    &                               DBLE(TMR)*AIMAG(TML)
-*    &                              -DBLE(TML)*AIMAG(TMR)
-*    &                               )
-                     R_Temp= Max(R_Temp,2.0D0*TM_2/ABS(EDIFF))
+                     TM_2 =      DBLE(DCONJG(TMR)*TMR -DCONJG(TML)*TML)
+*                    TM_2 = - 2.0D0 (
+*    &                              DBLE(TMR)*AIMAG(TML)
+*    &                             -DBLE(TML)*AIMAG(TMR)
+*    &                              )
+                     If (Abs(R_Temp).lt.Abs(2.0D0*TM_2/ABS(EDIFF)))
+     &                  R_Temp=2.0D0*TM_2/ABS(EDIFF)
 *
                   END DO
                END DO
@@ -2431,6 +2435,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
             End Do ! iQuad
 *
             Call Add_Info('ITMS(SF)',F,1,6)
+            Call Add_Info('ROTS(SF)',R,1,6)
 *
 *           Note that the weights are normalized to integrate to
 *           4*pi over the solid angles.
@@ -2599,7 +2604,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 35    FORMAT (5X,31('-'))
 36    FORMAT (5X,2(1X,I4),6X,15('-'),1X,ES15.8,1X,A15)
 37    FORMAT (5X,2(1X,I4),6X,15('-'),1X,A15,1X,ES15.8)
-38    FORMAT (5X,2(1X,I4),5X,6(1X,ES15.8))
+38    FORMAT (5X,2(1X,I4),5X,2(1X,F8.6,7X),4(1X,ES15.8))
 39    FORMAT (5X,2(1X,A4),6X,A15,3X,A13,1X,A47,1X,A15)
       END
       Subroutine Setup_O()
