@@ -1,4 +1,14 @@
-
+*$ this file belongs to the Molcas repository $
+*-------------------------------------------------------------------------------
+* Molecule: 2-chloropropionitrile
+* Basis: ANO-RCC-MB
+* Symmetry: No symmetry
+* Keywords tested: REDL, K-VE, KVEC, and TMOS
+* Responsible person: Roland Lindh (180210)
+* Comments: tests 414 and 415 are identical apart from that the molecule is
+*           the chira partner - rotatory strength should have the same value
+*           but different sign.
+*-------------------------------------------------------------------------------
  &GATEWAY
 TITLE
  2-Chloropropionitrile
