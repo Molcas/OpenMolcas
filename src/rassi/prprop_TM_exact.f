@@ -558,14 +558,14 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
 *              Compute the rotatory strength
 *
-               TMR = (TM1 + IMAGINARY*TM2)/Sqrt(2.0D0)
-               TML = (TM1 - IMAGINARY*TM2)/Sqrt(2.0D0)
+*              TMR = (TM1 + IMAGINARY*TM2)/Sqrt(2.0D0)
+*              TML = (TM1 - IMAGINARY*TM2)/Sqrt(2.0D0)
 *
-               TM_2 = DBLE(DCONJG(TMR)*TMR - DCONJG(TML)*TML)
-*              TM_2 = - 2.0D0 (
-*    &                           DBLE(TMR)*AIMAG(TML)
-*    &                          -DBLE(TML)*AIMAG(TMR)
-*    &                           )
+*              TM_2 = DBLE(DCONJG(TMR)*TMR - DCONJG(TML)*TML)
+               TM_2 = - 2.0D0*(
+     &                           DBLE(TM1)*AIMAG(TM2)
+     &                          -DBLE(TM2)*AIMAG(TM1)
+     &                           )
                R_Temp=2.0D0*TM_2/ABS(EDIFF)
 *
 *              Save the raw oscillator strengths in a given direction

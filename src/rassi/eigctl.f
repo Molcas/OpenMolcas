@@ -1975,7 +1975,7 @@ C And the same for the Dyson amplitudes
 *                 Just the magnetic part
                   TM2 = IMAGINARY*(g_Elec/2.0D0)*E2B
                   TM1 = IMAGINARY*(g_Elec/2.0D0)*E1B
-                  TM_2 = Half*DBLE(DCONJG(TM1)*TM1 +DCONJG(TM2)*TM2)
+                  TM_2 =      DBLE(DCONJG(TM1)*TM1 -DCONJG(TM2)*TM2)
                   R= Max( R, 2.0D0*TM_2/EDIFF )
 *
                END DO
@@ -2396,14 +2396,14 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *
 *                    Compute the rotatory strength
 *
-                     TMR = (TM1 + IMAGINARY*TM2)/Sqrt(2.0D0)
-                     TML = (TM1 - IMAGINARY*TM2)/Sqrt(2.0D0)
+*                    TMR = (TM1 + IMAGINARY*TM2)/Sqrt(2.0D0)
+*                    TML = (TM1 - IMAGINARY*TM2)/Sqrt(2.0D0)
 *
-                     TM_2 =      DBLE(DCONJG(TMR)*TMR -DCONJG(TML)*TML)
-*                    TM_2 = - 2.0D0 (
-*    &                              DBLE(TMR)*AIMAG(TML)
-*    &                             -DBLE(TML)*AIMAG(TMR)
-*    &                              )
+*                    TM_2 =      DBLE(DCONJG(TMR)*TMR -DCONJG(TML)*TML)
+                     TM_2 = - 2.0D0*(
+     &                              DBLE(TM1)*AIMAG(TM2)
+     &                             -DBLE(TM2)*AIMAG(TM1)
+     &                              )
                      If (Abs(R_Temp).lt.Abs(2.0D0*TM_2/ABS(EDIFF)))
      &                  R_Temp=2.0D0*TM_2/ABS(EDIFF)
 *
