@@ -2441,6 +2441,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *           4*pi over the solid angles.
 *
             F = F / (4.0D0*PI)
+            R = R / (4.0D0*PI)
 
             IF (ABS(F).LT.OSTHR) CYCLE
             AX=(AFACTOR*EDIFF**2)*FX

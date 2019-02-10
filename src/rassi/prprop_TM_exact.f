@@ -599,6 +599,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *           4*pi over the solid angles.
 *
             F = F / (4.0D0*PI)
+            R = R / (4.0D0*PI)
             IF (ABS(F).LT.OSTHR) CYCLE
             AX=(AFACTOR*EDIFF**2)*FX
             AY=(AFACTOR*EDIFF**2)*FY
