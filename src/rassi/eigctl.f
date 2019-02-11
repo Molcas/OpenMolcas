@@ -40,7 +40,8 @@
       INTEGER IOFF(8), SECORD(4)
       CHARACTER*8 LABEL
       Complex*16 T0(3), TIJ(3), TM1, TM2, E1A, E2A, E1B, E2B,
-     &           IMAGINARY, T1(3), TMR, TML
+     &           IMAGINARY, T1(3)
+*    &           IMAGINARY, T1(3), TMR, TML
       Character*60 FMTLINE
 
 #ifdef _DEBUG_RASSI_

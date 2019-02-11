@@ -35,7 +35,8 @@
       INTEGER IOFF(8)
       CHARACTER*8 LABEL
       Complex*16 T0_e(3), T0_m(3), T1(3), TM1, TM2, PE1_e, PE1_m,
-     &                                    TMR, TML, PE2_e, PE2_m,
+*    &                                    TMR, TML, PE2_e, PE2_m,
+     &                                              PE2_e, PE2_m,
      &           E1B, E2B,
      &           IMAGINARY
 
