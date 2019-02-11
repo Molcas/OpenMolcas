@@ -63,6 +63,8 @@ C CONSTANTS:
 #endif
       AU2EV=CONV_AU_TO_EV_
       AU2CM=CONV_AU_TO_CM1_
+      TMP=CONV_AU_TO_DEBYE_
+      AU2ESUISH=TMP**2 * 1.0d2
       IMAGINARY=DCMPLX(0.0D0,1.0D0)
 
 #ifdef _DEBUG_RASSI_
@@ -2411,6 +2413,11 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                      If (Abs(R_Temp).lt.Abs(2.0D0*TM_2/ABS(EDIFF)))
      &                  R_Temp=2.0D0*TM_2/ABS(EDIFF)
 *
+*                    Now let's convert this to the messy unit of the
+*                    rotational strength: 10^-40 esu^2 cm^2.
+*
+                     R_Temp=R_Temp*AU2ESUISH
+*
                   END DO
                END DO
 *
@@ -2444,8 +2451,10 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *           Note that the weights are normalized to integrate to
 *           4*pi over the solid angles.
 *
-            F = F / (4.0D0*PI)
-            R = R / (4.0D0*PI)
+            If (.NOT.Do_SK) Then
+               F = F / (4.0D0*PI)
+               R = R / (4.0D0*PI)
+            End If
 
             IF (ABS(F).LT.OSTHR) CYCLE
             AX=(AFACTOR*EDIFF**2)*FX

@@ -54,6 +54,8 @@
       AU2JTM=(AU2J/AU2T)*AVOGADRO
       ALPHA=CONST_AU_VELOCITY_IN_SI_/CONST_C_IN_SI_
       ALPHA2= ALPHA*ALPHA
+      TMP=CONV_AU_TO_DEBYE_
+      AU2ESUISH=TMP**2 *1.0D2
       IMAGINARY=DCMPLX(0.0D0,1.0D0)
 
       BOLTZ_K=CONST_BOLTZMANN_*J2CM
@@ -571,6 +573,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
      &                          -DBLE(TM2)*AIMAG(TM1)
      &                           )
                R_Temp=2.0D0*TM_2/ABS(EDIFF)
+               R_Temp = R_Temp * AU2ESUISH
 *
 *              Save the raw oscillator strengths in a given direction
 *
@@ -602,8 +605,10 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *           Note that the weights are normalized to integrate to
 *           4*pi over the solid angles.
 *
-            F = F / (4.0D0*PI)
-            R = R / (4.0D0*PI)
+            If (.NOT.Do_SK) Then
+               F = F / (4.0D0*PI)
+               R = R / (4.0D0*PI)
+            End If
             IF (ABS(F).LT.OSTHR) CYCLE
             AX=(AFACTOR*EDIFF**2)*FX
             AY=(AFACTOR*EDIFF**2)*FY
