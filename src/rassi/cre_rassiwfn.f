@@ -26,7 +26,7 @@
 #  include "lebedev.fh"
 
       integer :: ISTATE, NSS
-      integer :: iSet, nData, nIJ, nQuad
+      integer :: iSet, nData, nIJ, nQuad, nVec
       integer, allocatable :: state_irreps(:), state_mult(:)
       integer :: nbast
 
@@ -200,8 +200,10 @@
 
       nQuad=0
       If (Do_SK) Then
-         nQuad=nK_Vector
+         nVec = nK_Vector
+         nQuad= 1
       Else
+         nVec = 1
          Do iSet = 1, nSet
             If (Lebedev_order(iSet).eq.L_Eff) Then
                nQuad=Lebedev_npoints(iSet)
@@ -217,28 +219,28 @@
       nIJ=NSTATE*(NSTATE-1)/2
       nData= 1 + 3 + 2*3 + 2*2
       wfn_sfs_tm = mh5_create_dset_real(wfn_fileid,
-     $        'SFS_TRANSITION_MOMENTS', 3, [nIJ,nQuad,nData])
+     $        'SFS_TRANSITION_MOMENTS', 4, [nVec,nIJ,nQuad,nData])
       call mh5_init_attr(wfn_sfs_tm, 'description',
      $        'SFS intermediate transition moments (x2x2), '//
-     $        'k-vectors (nQuad), '//
+     $        'k-vectors (nQuad*nVec), '//
      $        'polarization vectors (x2), weights, for each, '//
      $        'unique pairs of SF states, '//
      $        'excluding self-pairs (nIJ), '//
      $        'and k-vector stored as a, '//
-     $        'matrix of size [nIJ,nQuad,nData]')
+     $        'matrix of size [nVec,nIJ,nQuad,nData]')
 
 *     SOS intermediate transition moments
       nIJ=NSS*(NSS-1)/2
       nData= 1 + 3 + 2*3 + 2*2
       wfn_sos_tm = mh5_create_dset_real(wfn_fileid,
-     $        'SOS_TRANSITION_MOMENTS', 3, [nIJ,nQuad,nData])
+     $        'SOS_TRANSITION_MOMENTS', 4, [nVec,nIJ,nQuad,nData])
       call mh5_init_attr(wfn_sos_tm, 'description',
      $        'SOS intermediate transition moments (x2x2), '//
-     $        'k-vectors (nQuad), '//
+     $        'k-vectors (nQuad*nVec), '//
      $        'polarization vectors (x2), weights, for each, '//
      $        'unique pairs of SO states, '//
      $        'excluding self-pairs (nIJ), '//
      $        'and k-vector stored as a, '//
-     $        'matrix of size [nIJ,nQuad,nData]')
+     $        'matrix of size [nVec,nIJ,nQuad,nData]')
 #endif
       end

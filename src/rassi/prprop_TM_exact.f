@@ -204,17 +204,19 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       nIJ=nSS*(nSS-1)/2
       nData= 1 + 3 + 2*3 + 2*2
       nStorage = nIJ * nQuad * nData
-      Call GetMem('STORAGE','Allo','Real',ipStorage,nStorage)
-      ip_w      = 1
-      ip_kvector= ip_w + 1
-      ip_e1     = ip_kvector + 3
-      ip_e2     = ip_e1 + 3
-      ip_TM1R   = ip_e2 + 3
-      ip_TM1I   = ip_TM1R + 1
-      ip_TM2R   = ip_TM1I + 1
-      ip_TM2I   = ip_TM2R + 1
+      mStorage = nStorage * nVec
+      Call GetMem('STORAGE','Allo','Real',ipStorage,mStorage)
 *
       Do iVec = 1, nVec
+*
+         ip_w      = 1
+         ip_kvector= ip_w + 1
+         ip_e1     = ip_kvector + 3
+         ip_e2     = ip_e1 + 3
+         ip_TM1R   = ip_e2 + 3
+         ip_TM1I   = ip_TM1R + 1
+         ip_TM2R   = ip_TM1I + 1
+         ip_TM2I   = ip_TM2R + 1
 *
          If (Do_SK) Then
             Work(ipR  )=k_Vector(1,iVec)
@@ -284,6 +286,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 
             Do iQuad = 1, nQuad
                iStorage = iOff_+ (iQuad-1)*nData + ipStorage - 1
+     &                  + (iVec-1)*nStorage
 *
 *              Generate the wavevector associated with this quadrature
 *              point and pick up the associated quadrature weight.
