@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE PRPROP_TM_Exact(PROP,USOR,USOI,ENSOR,NSS,OVLP,ENERGY,
      &                           JBNUM)
+      USE kVectors
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
 #include "prgm.fh"
@@ -164,7 +165,7 @@ C printing threshold
 *
       If (Do_SK) Then
          nQuad = 1
-         nVec=nK_Vector
+         nVec=nk_Vector
          Call GetMem('SK','ALLO','REAL',ipR,4*nQuad)
       Else
          Call Setup_O()

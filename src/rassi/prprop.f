@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE PRPROP(PROP,USOR,USOI,ENSOR,NSS,OVLP,SODYSAMPS,
      &     ENERGY,JBNUM)
+      USE kVectors
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS),
      &          SODYSAMPS(NSS,NSS)
@@ -526,7 +527,7 @@ C printing threshold
         END DO
 
         If (Do_SK) Then
-           nVec = nK_Vector
+           nVec = nk_Vector
         Else
            nVec = 1
         End If
@@ -666,7 +667,7 @@ C printing threshold
         END DO
 *
         If (Do_SK) Then
-           nVec = nK_Vector
+           nVec = nk_Vector
         Else
            nVec = 1
         End If

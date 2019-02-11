@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE EIGCTL(PROP,OVLP,DYSAMPS,HAM,EIGVEC,ENERGY)
+      USE kVectors
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -641,7 +642,7 @@ C And the same for the Dyson amplitudes
         Call Molcas_Open(losc_strength,'osc_strength.au')
 
         If (Do_SK) Then
-           nVec = nK_Vector
+           nVec = nk_Vector
         Else
            nVec = 1
         End If
@@ -750,7 +751,7 @@ C And the same for the Dyson amplitudes
         WRITE(6,*)
 
         If (Do_SK) Then
-           nVec = nK_Vector
+           nVec = nk_Vector
         Else
            nVec = 1
         End If
@@ -842,7 +843,7 @@ C And the same for the Dyson amplitudes
          WRITE(6,*)
 *
          If (Do_SK) Then
-            nVec = nK_Vector
+            nVec = nk_Vector
          Else
             nVec = 1
          End If
@@ -2075,7 +2076,7 @@ C And the same for the Dyson amplitudes
       If (Do_SK) Then
          nQuad=1
          Call GetMem('SK','ALLO','REAL',ipR,4*nQuad)
-         nVec = nK_Vector
+         nVec = nk_Vector
       Else
          Call Setup_O()
          Call Do_Lebedev(L_Eff,nQuad,ipR)

@@ -2,7 +2,7 @@
 * Molecule: 2-chloropropionitrile
 * Basis: ANO-RCC-MB
 * Symmetry: No symmetry
-* Keywords tested: REDL, K-VE, KVEC, and TMOS
+* Keywords tested: REDL, KVEC, and TMOS
 * Responsible person: Roland Lindh (180210)
 * Comments: tests 414 and 415 are identical apart from that the molecule is
 *           the chira partner - rotatory strength should have the same value
@@ -44,7 +44,7 @@ ANGM=0.0 0.0 0.0
       1 2 3 4 5 6
   TMOS
   REDL=1
-  k-Vector=1.0 0.0 0.0
+  kVector=1.0 0.0 0.0
 
   &RASSI  &END
    EJOB
@@ -53,7 +53,7 @@ ANGM=0.0 0.0 0.0
       1 2 3 4 5 6
   TMOS
   REDL=1
-  k-Vector=0.0 1.0 0.0
+  kVector=0.0 1.0 0.0
 
   &RASSI  &END
    EJOB
