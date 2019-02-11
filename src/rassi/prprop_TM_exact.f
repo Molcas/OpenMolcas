@@ -54,8 +54,8 @@
       AU2JTM=(AU2J/AU2T)*AVOGADRO
       ALPHA=CONST_AU_VELOCITY_IN_SI_/CONST_C_IN_SI_
       ALPHA2= ALPHA*ALPHA
-      TMP=CONV_AU_TO_DEBYE_
-      AU2ESUISH=TMP**2 *1.0D2
+      DEBYE=CONV_AU_TO_DEBYE_
+      AU2ESUISH=DEBYE**2 *1.0D2
       IMAGINARY=DCMPLX(0.0D0,1.0D0)
 
       BOLTZ_K=CONST_BOLTZMANN_*J2CM
@@ -572,7 +572,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
      &                           DBLE(TM1)*AIMAG(TM2)
      &                          -DBLE(TM2)*AIMAG(TM1)
      &                           )
-               R_Temp=2.0D0*TM_2/ABS(EDIFF)
+               R_Temp= TM_2/ABS(EDIFF)
                R_Temp = R_Temp * AU2ESUISH
 *
 *              Save the raw oscillator strengths in a given direction
