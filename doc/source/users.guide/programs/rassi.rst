@@ -807,18 +807,20 @@ Keywords
               </HELP>
               </KEYWORD>
 
-:kword:`K-VEctor`
+:kword:`KVECtor`
   Define the direction of the incident light for which we will
   compute transition moments and oscillator strengths. The keyword
-  is followed by three reals specifying the direction. The values
+  is followed by an integer :math:`n`, the number of directions,
+  and then :math:`n` lines with three real numbers each specifying the direction. The values
   do not need to be normalized.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="K-VECTOR" APPEAR="The wave k-vector" KIND="REALS" SIZE="3" LEVEL="ADVANCED">
-              %%Keyword: k-vector <advanced>
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="KVECTOR" APPEAR="The wave k-vector" KIND="REALS_COMPUTED" SIZE="3" LEVEL="ADVANCED">
+              %%Keyword: kVector <advanced>
               <HELP>
               Define the direction of the incident light for which we will
               compute transition moments and oscillator strengths. The keyword
-              is followed by three reals specifying the direction. The values
+              is followed by an integer n, the number of directions,
+              and then n lines with three real numbers each specifying the direction. The values
               do not need to be normalized.
               </HELP>
               </KEYWORD>
