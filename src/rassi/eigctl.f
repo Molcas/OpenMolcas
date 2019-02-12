@@ -65,7 +65,7 @@ C CONSTANTS:
       AU2EV=CONV_AU_TO_EV_
       AU2CM=CONV_AU_TO_CM1_
       DEBYE=CONV_AU_TO_DEBYE_
-      AU2ESUISH=DEBYE**2 * 1.0d2
+      AU2ESUISH=DEBYE**2 * 1.0d4
       IMAGINARY=DCMPLX(0.0D0,1.0D0)
 
 #ifdef _DEBUG_RASSI_
@@ -2493,6 +2493,10 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
      &                 'ization vector'
                End If
                WRITE(6,*)
+               WRITE(6,*) ' Units:'
+               WRITE(6,*) ' [Osc. strength] = unitless'
+               WRITE(6,*) ' [Rot. strength] = 1.0D-40 esu**2 cm**2'
+               WRITE(6,*)
                WRITE(6,39) 'From','To','Osc. strength',
      &                                 'Rot. strength',
      &               'Einstein coefficients Ax, Ay, Az (sec-1)   ',
@@ -2619,7 +2623,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 35    FORMAT (5X,31('-'))
 36    FORMAT (5X,2(1X,I4),6X,15('-'),1X,ES15.8,1X,A15)
 37    FORMAT (5X,2(1X,I4),6X,15('-'),1X,A15,1X,ES15.8)
-38    FORMAT (5X,2(1X,I4),5X,2(1X,F8.6,7X),4(1X,ES15.8))
+38    FORMAT (5X,2(1X,I4),5X,2(1X,F9.6,6X),4(1X,ES15.8))
 39    FORMAT (5X,2(1X,A4),6X,A15,3X,A13,1X,A47,1X,A15)
       END
       Subroutine Setup_O()

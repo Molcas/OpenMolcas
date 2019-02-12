@@ -56,7 +56,7 @@
       ALPHA=CONST_AU_VELOCITY_IN_SI_/CONST_C_IN_SI_
       ALPHA2= ALPHA*ALPHA
       DEBYE=CONV_AU_TO_DEBYE_
-      AU2ESUISH=DEBYE**2 *1.0D2
+      AU2ESUISH=DEBYE**2 *1.0D4
       IMAGINARY=DCMPLX(0.0D0,1.0D0)
 
       BOLTZ_K=CONST_BOLTZMANN_*J2CM
@@ -649,6 +649,11 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
      &           'ization vector'
                WRITE(6,*)
                End If
+               WRITE(6,*) ' Units:'
+               WRITE(6,*) ' [Osc. strength] = unitless'
+               WRITE(6,*) ' [Rot. strength] = 1.0D-40 esu**2 cm**2'
+               WRITE(6,*)
+
                WRITE(6,*)"        To  From     Osc. strength"//
      &           "    Rot. strength",
      &           "   Einstein coefficients Ax, Ay, Az (sec-1) "//
@@ -658,7 +663,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
      &  '------------------------------------------------'
               iPrint=1
             END IF
-            WRITE(6,'(5X,2I5,5X,2(F8.6,8X),4ES16.8)')
+            WRITE(6,'(5X,2I5,5X,2(F9.6,8X),4ES16.8)')
      &           ISO,JSO,F,R,AX,AY,AZ,A
 *
 *     Printing raw (unweighted) and direction for every transition
