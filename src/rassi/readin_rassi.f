@@ -729,9 +729,9 @@ C--------------------------------------------
 ! the transition moment and oscillator stength in the use of
 ! the vector field (A) in the non-relativistic Hamiltonian.
         Do_SK=.TRUE.
-        Read(LuIn,*,ERR=401) nk_Vector
+        Read(LuIn,*,ERR=997) nk_Vector
         Linenr=Linenr+1
- 400    Call mma_allocate(k_Vector,3,nk_Vector,label='k-Vector')
+        Call mma_allocate(k_Vector,3,nk_Vector,label='k-Vector')
         Do j = 1, nk_Vector
            Read(LuIn,*,ERR=997) (k_Vector(i,j),i=1,3)
            Linenr=Linenr+1
@@ -742,10 +742,6 @@ C--------------------------------------------
            k_Vector(3,j)=k_Vector(3,j)*tmp
         End Do
         GoTo 100
- 401    nk_Vector=1
-        BackSpace(LuIn)
-        Linenr=Linenr-1
-        GoTo 400
       Endif
 C--------------------------------------------
 *
