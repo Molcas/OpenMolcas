@@ -603,6 +603,26 @@ Keywords
               </HELP>
               </KEYWORD>
 
+
+:kword:`REDL`
+  In many cases, RASSI is used to compute the transition moments between
+  a set of initial states (for example the ground state) and a set of final states.
+  "Reduced loop" allows to restrict the computation of transition moments between the two sets
+  and not within each set, thus saving time and reducing the output size.
+  The keyword is followed by the index where the two sets split (assuming energy ordering).
+  For a calculation between one ground state and several excited states, REDL should be 1.
+  Default is to compute the transition moments between all states.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="REDL" APPEAR="Reduced loop" KIND="INT" SIZE="1" LEVEL="BASIC">
+              %%Keyword: Redl <basic>
+              <HELP>
+              Restricts the computation of transition moments to be only between
+              two sets of states, and not also within each set.
+              The keyword is followed by the number of states
+              in the first set (assuming energy ordering).
+              </HELP>
+              </KEYWORD>
+
 :kword:`IPHNames`
   Followed by one entry for each :file:`JOBIPH` file to be used, with the
   name of each file. Note: This keyword presumes that the number of
@@ -827,7 +847,7 @@ Keywords
 
 :kword:`HEXT`
   It is read from the following few lines, as a triangular matrix: One element
-  of the first row, two from the next, etc, as list-directed input of reals.
+  of the first row, two from the next, etc., as list-directed input of reals.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HEXT" APPEAR="External Hamiltonian" KIND="STRINGS" LEVEL="ADVANCED">
               %%Keyword: HExt <advanced>
@@ -835,7 +855,7 @@ Keywords
               The spin-free Hamiltonian is read from a file instead of being computed.
               </HELP>
               It is read from the following entries, as a triangular matrix: One element
-              of the first row, two from the next, etc, as list-directed input of reals.
+              of the first row, two from the next, etc., as list-directed input of reals.
               </KEYWORD>
 
 :kword:`HEFF`

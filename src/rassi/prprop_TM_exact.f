@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE PRPROP_TM_Exact(PROP,USOR,USOI,ENSOR,NSS,OVLP,ENERGY,
      &                           JBNUM)
+      USE kVectors
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
 #include "prgm.fh"
@@ -35,7 +36,8 @@
       INTEGER IOFF(8)
       CHARACTER*8 LABEL
       Complex*16 T0_e(3), T0_m(3), T1(3), TM1, TM2, PE1_e, PE1_m,
-     &                                    TMR, TML, PE2_e, PE2_m,
+*    &                                    TMR, TML, PE2_e, PE2_m,
+     &                                              PE2_e, PE2_m,
      &           E1B, E2B,
      &           IMAGINARY
 
@@ -53,6 +55,8 @@
       AU2JTM=(AU2J/AU2T)*AVOGADRO
       ALPHA=CONST_AU_VELOCITY_IN_SI_/CONST_C_IN_SI_
       ALPHA2= ALPHA*ALPHA
+      DEBYE=CONV_AU_TO_DEBYE_
+      AU2ESUISH=DEBYE**2 *1.0D2
       IMAGINARY=DCMPLX(0.0D0,1.0D0)
 
       BOLTZ_K=CONST_BOLTZMANN_*J2CM
@@ -160,15 +164,13 @@ C printing threshold
 *     Generate the quadrature points.
 *
       If (Do_SK) Then
-         nQuad=1
-         Call GetMem('SK','ALLO','REAL',ipR,4)
-         Work(ipR  )=k_Vector(1)
-         Work(ipR+1)=k_Vector(2)
-         Work(ipR+2)=k_Vector(3)
-         Work(ipR+3)=1.0D0   ! Dummy weight
+         nQuad = 1
+         nVec=nk_Vector
+         Call GetMem('SK','ALLO','REAL',ipR,4*nQuad)
       Else
          Call Setup_O()
          Call Do_Lebedev(L_Eff,nQuad,ipR)
+         nVec = 1
       End If
 *
 *     Get table of content for density matrices.
@@ -205,15 +207,26 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       nIJ=nSS*(nSS-1)/2
       nData= 1 + 3 + 2*3 + 2*2
       nStorage = nIJ * nQuad * nData
-      Call GetMem('STORAGE','Allo','Real',ipStorage,nStorage)
-      ip_w      = 1
-      ip_kvector= ip_w + 1
-      ip_e1     = ip_kvector + 3
-      ip_e2     = ip_e1 + 3
-      ip_TM1R   = ip_e2 + 3
-      ip_TM1I   = ip_TM1R + 1
-      ip_TM2R   = ip_TM1I + 1
-      ip_TM2I   = ip_TM2R + 1
+      mStorage = nStorage * nVec
+      Call GetMem('STORAGE','Allo','Real',ipStorage,mStorage)
+*
+      Do iVec = 1, nVec
+*
+         ip_w      = 1
+         ip_kvector= ip_w + 1
+         ip_e1     = ip_kvector + 3
+         ip_e2     = ip_e1 + 3
+         ip_TM1R   = ip_e2 + 3
+         ip_TM1I   = ip_TM1R + 1
+         ip_TM2R   = ip_TM1I + 1
+         ip_TM2I   = ip_TM2R + 1
+*
+         If (Do_SK) Then
+            Work(ipR  )=k_Vector(1,iVec)
+            Work(ipR+1)=k_Vector(2,iVec)
+            Work(ipR+2)=k_Vector(3,iVec)
+            Work(ipR+3)=1.0D0   ! Dummy weight
+         End If
 *
       AFACTOR=32.1299D09
       HALF=0.5D0
@@ -267,7 +280,6 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
             FY=0.0D0
             FZ=0.0D0
             F =0.0D0
-            Fm=0.0D0
             R =0.0D0
 *
 *           Initialize output arrays
@@ -277,6 +289,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 
             Do iQuad = 1, nQuad
                iStorage = iOff_+ (iQuad-1)*nData + ipStorage - 1
+     &                  + (iVec-1)*nStorage
 *
 *              Generate the wavevector associated with this quadrature
 *              point and pick up the associated quadrature weight.
@@ -469,7 +482,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
      &                             USOR,USOI,ISO,JSO,ThrSparse)
 *
 *                 the imaginary anti-symmetric part
-                  CALL SMMAT_CHECK(PROP,WORK(LTMP),NSS,'TMOS  IA',iCar,
+                  CALL SMMAT_CHECK(PROP,WORK(LDXI),NSS,'TMOS  IA',iCar,
      &                             USOR,USOI,ISO,JSO,ThrSparse)
 *
 *                 Transform properties to the spin-orbit basis
@@ -532,8 +545,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *              Assemble to total transition moment for the two
 *              polarization directions.
 *
-               TM1 = PE1_e + PE1_m + IMAGINARY*(g_Elec/2.0D0)*E1B
-               TM2 = PE2_e + PE2_m + IMAGINARY*(g_Elec/2.0D0)*E2B
+               TM1 =(PE1_e + PE1_m)+ IMAGINARY*(g_Elec/2.0D0)*E1B
+               TM2 =(PE2_e + PE2_m)+ IMAGINARY*(g_Elec/2.0D0)*E2B
 *
                Work(iStorage+ip_TM1R)=DBLE(TM1)
                Work(iStorage+ip_TM1I)=AIMAG(TM1)
@@ -552,10 +565,16 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
 *              Compute the rotatory strength
 *
-               TMR = (TM1 + IMAGINARY*TM2)/Sqrt(2.0D0)
-               TML = (TM1 - IMAGINARY*TM2)/Sqrt(2.0D0)
+*              TMR = (TM1 + IMAGINARY*TM2)/Sqrt(2.0D0)
+*              TML = (TM1 - IMAGINARY*TM2)/Sqrt(2.0D0)
 *
-               R_Temp = DBLE(DCONJG(TMR)*TMR - DCONJG(TML)*TML)
+*              TM_2 = DBLE(DCONJG(TMR)*TMR - DCONJG(TML)*TML)
+               TM_2 = - 2.0D0*(
+     &                           DBLE(TM1)*AIMAG(TM2)
+     &                          -DBLE(TM2)*AIMAG(TM1)
+     &                           )
+               R_Temp= TM_2/ABS(EDIFF)
+               R_Temp = R_Temp * AU2ESUISH
 *
 *              Save the raw oscillator strengths in a given direction
 *
@@ -587,8 +606,10 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *           Note that the weights are normalized to integrate to
 *           4*pi over the solid angles.
 *
-            F = F / (4.0D0*PI)
-*           R = R / (4.0D0*PI)
+            If (.NOT.Do_SK) Then
+               F = F / (4.0D0*PI)
+               R = R / (4.0D0*PI)
+            End If
             IF (ABS(F).LT.OSTHR) CYCLE
             AX=(AFACTOR*EDIFF**2)*FX
             AY=(AFACTOR*EDIFF**2)*FY
@@ -600,6 +621,13 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                If (Do_SK) Then
                   CALL CollapseOutput(1,
      &                'Transition moment strengths:')
+               WRITE(6,'(1x,a)')
+     &           '   The oscillator strength is'//
+     &           ' integrated over all directions of the polar'//
+     &           'ization vector'
+                  WRITE(6,'(4x,a,3F8.4,a)')
+     &                  'Direction of the k-vector: ',
+     &                   (Work(ipR+k),k=0,2),' (au)'
                Else
                   CALL CollapseOutput(1,
      &                'Isotropic transition moment strengths:')
@@ -611,21 +639,16 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
      &                  '   for osc. strength at least ',OSTHR
                END IF
                WRITE(6,*)
-               If (Do_SK) Then
-                  WRITE(6,'(4x,a,3F8.4,a)')
-     &                  'Direction of the k-vector: ',
-     &                   (Work(ipR+k),k=0,2),' (au)'
-                  WRITE(6,'(4x,a)')
-     &                  'The light is assumed to be unpolarized.'
-               Else
-                  WRITE(6,'(1x,a,I4,a)')
-     &              '   Integrated over ',nQuad,' directions of the'//
-     &              ' wave vector'
-                  WRITE(6,'(1x,a)')
-     &              '   Integrated over all directions of the polar'//
-     &              'ization vector'
-               End If
+               If (.NOT.Do_SK) Then
+               WRITE(6,'(1x,a,I4,a)')
+     &           '   Integrated over ',nQuad,' directions of the'//
+     &           ' wave vector'
+               WRITE(6,'(1x,a)')
+     &           '   The oscillator strength is'//
+     &           ' integrated over all directions of the polar'//
+     &           'ization vector'
                WRITE(6,*)
+               End If
                WRITE(6,*)"        To  From     Osc. strength"//
      &           "    Rot. strength",
      &           "   Einstein coefficients Ax, Ay, Az (sec-1) "//
@@ -635,8 +658,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
      &  '------------------------------------------------'
               iPrint=1
             END IF
-*
-            WRITE(6,'(5X,2I5,5X,6ES16.8)') ISO,JSO,F,R,AX,AY,AZ,A
+            WRITE(6,'(5X,2I5,5X,2(F8.6,8X),4ES16.8)')
+     &           ISO,JSO,F,R,AX,AY,AZ,A
 *
 *     Printing raw (unweighted) and direction for every transition
 *
@@ -685,10 +708,12 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
             END IF
 *
             Call Add_Info('ITMS(SO)',F,1,6)
+            Call Add_Info('ROTS(SO)',R,1,6)
 *
          END DO
       END DO
-      If (IPGLOB.EQ.1) THEN
+*
+      If (iPrint.EQ.1) THEN
          If (Do_SK) Then
             CALL CollapseOutput(0,
      &                'Transition moment strengths:')
@@ -697,6 +722,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
      &                'Isotropic transition moment strengths:')
          End If
       END IF
+*
+      End Do ! iVec
 *
 #ifdef _HDF5_
       Call mh5_put_dset(wfn_sos_tm,Work(ipStorage))

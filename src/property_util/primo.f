@@ -56,7 +56,7 @@
       LOGICAL PrEne,PrOcc, Large, Go, Debug, Header_Done
       Logical Reduce_Prt
       External Reduce_Prt
-      Character*(LENIN8) Clean_BName
+      Character*(LENIN8) Clean_BName !14
       External Clean_BName
       Debug=.false.
 #ifdef _DEBUG_
@@ -123,7 +123,7 @@ c     Write(6,*) 'test print out'
       LABEL2='Occ. No.'
       FMT0='(10X,A12,3X,10(I5,A,1X))'
       FMT1='(10X,A12,2X,10F10.4)'
-      FMT2='(6X,I3,1X,A,10F10.4)'
+      FMT2='(5X,I4,1X,A,10F10.4)'
 *
 *----------------------------------------------------------------------*
 *     Set up list of pointers                                          *
