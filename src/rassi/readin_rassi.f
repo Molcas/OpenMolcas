@@ -10,10 +10,9 @@
 ************************************************************************
       SUBROUTINE READIN_RASSI
 
+      use kVectors
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
-!       use qcmaquis_interface_environment, only:
-!      &    read_dmrg_info
 #endif
 
       IMPLICIT NONE
@@ -25,6 +24,7 @@
 #include "cntrl.fh"
 #include "jobin.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       CHARACTER*80 LINE
       INTEGER MXPLST
       PARAMETER (MXPLST=50)
@@ -39,10 +39,8 @@
       Integer I, J, ISTATE, JSTATE, IJOB, ILINE, LINENR
       Integer LuIn
       Integer NFLS
-#ifdef _DMRG_
-      CHARACTER*16 dmrgchkp
-#endif
-      REAL*8 ANORM
+
+      character(len=7) :: input_id = '&RASSI '
 
       CALL QENTER(ROUTINE)
 
@@ -63,9 +61,14 @@ C --- Default settings for Cholesky
       ChFracMem=0.0d0
 #endif
 
-      !> set some defaults
+      !> set some defaults for MPSSI
       QDPT2SC = .true.
       QDPT2EV = .false.
+#ifdef _DMRG_
+      !> make sure that we read checkpoint names from xxx.h5 files, for example: rasscf.h5, nevpt2.h5, caspt2.h5, ...
+      doMPSSICheckpoints = .true.
+      if(doDMRG) input_id = '&MPSSI '
+#endif
 
       !Defaults for SI-PDFT runs:
       Second_time = .false.
@@ -74,7 +77,7 @@ C --- Default settings for Cholesky
 C Find beginning of input:
  50   Read(LuIn,'(A72)',END=998) LINE
       CALL NORMAL(LINE)
-      IF(LINE(1:7).NE.'&RASSI ') GOTO 50
+      IF(LINE(1:7).NE.input_id) GOTO 50
       LINENR=0
 100   Read(LuIn,'(A72)',END=998) LINE
       LINENR=LINENR+1
@@ -377,7 +380,21 @@ C-SVC 2007-----------------------------------
         GoTo 100
       Endif
 
+C tjd- BMII: Print out spin-orbit properties to files
+      IF(Line(1:4).eq.'PRPR') then
+        WRITE(6,*) "SPIN-ORBIT PROPERTY PRINT ON"
+        LPRPR=.TRUE.
+        Linenr=Linenr+1
+        GoTo 100
+      Endif
 
+C tjd- Yoni: Force an identity SO hamiltonian
+      IF (LINE(1:4).eq.'HAMI') then
+        WRITE(6,*) "Identity Hamiltonian turned on"
+        LHAMI=.TRUE.
+        Linenr=Linenr+1
+        GoTo 100
+      Endif
 
 c BP - Hyperfine calculations
       If(Line(1:4).eq.'EPRA') then
@@ -629,6 +646,21 @@ C ------------------------------------------
         GOTO 100
       END IF
 C ------------------------------------------
+      IF(LINE(1:4).EQ.'DYSO')THEN
+! Enable Dyson orbital calculations
+        DYSO=.TRUE.
+        LINENR=LINENR+1
+        GOTO 100
+      END IF
+C ------------------------------------------
+      IF(LINE(1:4).EQ.'DYSE')THEN
+! Enable Dyson orbital calculations
+        DYSEXPORT=.TRUE.
+        Read(LuIn,*,ERR=997) DYSEXPSF,DYSEXPSO
+        LINENR=LINENR+1
+        GOTO 100
+      END IF
+C ------------------------------------------
       If(Line(1:4).eq.'TMOS') then
 ! Calculate exact isotropically averaged semi-classical intensities
 ! Activate integration of transition moment oscillator strengths
@@ -641,26 +673,6 @@ C ------------------------------------------
       Endif
 C--------------------------------------------
 #ifdef _DMRG_
-      ! Leon 22/11/2016 -- Moved DMRG initialisation here
-      ! Introduced a mandatory keyword for DMRG
-      IF (Line(1:4).eq.'DMRG') then
-      ! Leon 29/11/2016 -- Ignore the dmrg_interface.parameters file
-      ! since different JobIPHs/checkpoint files may come from different
-      ! calculations. The parameters that should be otherwise read in
-      ! read_dmrg_info() will be read in rdjob, if we need them
-        doDMRG = .true.
-      ! check whether we should NOT read checkpoint names from xxx.h5 files
-        Read(LuIn,*,ERR=997) dmrgchkp
-        call UpCase(dmrgchkp)
-        if (dmrgchkp(1:5).eq.'NOCH') then
-          doMPSSICheckpoints = .false.
-          LINENR=LINENR+1
-        else
-          doMPSSICheckpoints = .true.
-          BACKSPACE(LuIn)
-        end if
-        GOTO 100
-      End IF
 C--------------------------------------------
       if (Line(1:4).eq.'QDSC') then
         QDPT2SC = .true.
@@ -672,34 +684,6 @@ C--------------------------------------------
         goto 100
       end if
 #endif
-C--------------------------------------------
-      IF(LINE(1:4).EQ.'KVEC')THEN
-! Calculate exact semi-classical intensities in given directions
-        DO_KVEC=.TRUE.
-        PRRAW=.TRUE.
-        Do_TMOS=.TRUE.
-        ToFile=.TRUE.
-        Read(LuIn,*,ERR=997) NKVEC
-        CALL GETMEM('KVEC  ','ALLO','REAL',PKVEC,3*NKVEC)
-        Linenr=Linenr+1
-        DO ILINE=1,NKVEC
-          Read(LuIn,*,ERR=997) (WORK(PKVEC+ILINE-1+(I-1)*NKVEC),I=1,3)
-          Linenr=Linenr+1
-        END DO
-! Ensure that the wavectors are normalized
-        DO ILINE=1,NKVEC
-          ANORM = WORK(PKVEC+ILINE-1)**2 +
-     &            WORK(PKVEC+ILINE-1+NKVEC)**2 +
-     &            WORK(PKVEC+ILINE-1+2*NKVEC)**2
-          WORK(PKVEC+ILINE-1) =
-     &    WORK(PKVEC+ILINE-1)/DSQRT(ANORM)
-          WORK(PKVEC+ILINE-1+NKVEC) =
-     &    WORK(PKVEC+ILINE-1+NKVEC)/DSQRT(ANORM)
-          WORK(PKVEC+ILINE-1+2*NKVEC) =
-     &    WORK(PKVEC+ILINE-1+2*NKVEC)/DSQRT(ANORM)
-        END DO
-        GOTO 100
-      END IF
 C--------------------------------------------
       IF(LINE(1:4).EQ.'PRRA')THEN
 ! Print the raw directions for exact semi-classical intensities
@@ -740,19 +724,28 @@ C ------------------------------------------
         GoTo 100
       Endif
 C--------------------------------------------
-      If(Line(1:4).eq.'K-VE') then
+      If(Line(1:4).eq.'KVEC') then
 ! Set a specific direction of the incident light when computing
 ! the transition moment and oscillator stength in the use of
 ! the vector field (A) in the non-relativistic Hamiltonian.
         Do_SK=.TRUE.
-        Read(LuIn,*,ERR=997) (K_Vector(i),i=1,3)
+        Read(LuIn,*,ERR=401) nk_Vector
         Linenr=Linenr+1
-        tmp=K_Vector(1)**2+k_Vector(2)**2+k_Vector(3)**2
-        tmp = 1.0D0/Sqrt(tmp)
-        k_Vector(1)=k_Vector(1)*tmp
-        k_Vector(2)=k_Vector(2)*tmp
-        k_Vector(3)=k_Vector(3)*tmp
+ 400    Call mma_allocate(k_Vector,3,nk_Vector,label='k-Vector')
+        Do j = 1, nk_Vector
+           Read(LuIn,*,ERR=997) (k_Vector(i,j),i=1,3)
+           Linenr=Linenr+1
+           tmp=k_Vector(1,j)**2+k_Vector(2,j)**2+k_Vector(3,j)**2
+           tmp = 1.0D0/Sqrt(tmp)
+           k_Vector(1,j)=k_Vector(1,j)*tmp
+           k_Vector(2,j)=k_Vector(2,j)*tmp
+           k_Vector(3,j)=k_Vector(3,j)*tmp
+        End Do
         GoTo 100
+ 401    nk_Vector=1
+        BackSpace(LuIn)
+        Linenr=Linenr-1
+        GoTo 400
       Endif
 C--------------------------------------------
 *

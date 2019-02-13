@@ -103,14 +103,14 @@ The :kword:`KSDFT` is the only required keyword.
 .. class:: keywordlist
 
 :kword:`KSDFT`
-  The functional choice follows. Currently available functionals are: tPBE, tBLYP, tLSDA, trevPBE,
-  ftPBE, ftBLYP, ftLSDA, and ftrevPBE.
+  The functional choice follows. Currently available functionals are: tPBE, tBLYP, tLSDA, trevPBE, tOPBE,
+  ftPBE, ftBLYP, ftLSDA, ftrevPBE and ftOPBE.
 
-  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="KSDFT" APPEAR="Pair-density functional" KIND="CHOICE" LIST="----,tLSDA,tPBE,tBLYP,trevPBE,ftLSDA,ftPBE,ftBLYP,ftrevPBE"> LEVEL="BASIC"
+  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="KSDFT" APPEAR="Pair-density functional" KIND="CHOICE" LIST="----,tLSDA,tPBE,tBLYP,trevPBE,tOPBE,ftLSDA,ftPBE,ftBLYP,ftrevPBE,ftOPBE"> LEVEL="BASIC"
               %Keyword: KSDFT <basic>
               <HELP>
               Needed to perform MC-PDFT calculations.
-              The functional choice follows. Currently available functionals: tPBE, tBLYP, tLSDA, trevPBE, ftPBE, ftBLYP, ftLSDA, ftrevPBE.
+              The functional choice follows. Currently available functionals: tPBE, tBLYP, tLSDA, trevPBE, tOPBE, ftPBE, ftBLYP, ftLSDA, ftrevPBE, ftOPBE.
               </HELP>
               </KEYWORD>
 
@@ -121,7 +121,7 @@ The :kword:`KSDFT` is the only required keyword.
   For an HLE-type functional, use 1.25 (for exchange) and 0.5 (for correlation).
   Example: `DFCF=1.25 0.5`
 
-  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="DFCF" APPEAR="DFT exch. & corr. scaling factors" KIND="REALS" SIZE="2" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="DFCF" APPEAR="DFT exch. &amp; corr. scaling factors" KIND="REALS" SIZE="2" LEVEL="ADVANCED">
               %%Keyword: DFCF <advanced>
               <HELP>
               Use this keyword to scale the exchange terms and/or correlation terms of the functional requested.
@@ -146,7 +146,7 @@ orbitals are 1\ |ao| (oxygen 1\ |s|) 2\ |ao| (oxygen 2\ |s|) and
 1\ |bo| (the :math:`\pi` lone-pair orbital). Two bonding and two anti-bonding
 :math:`\ce{OH}` orbitals are active, |ao| and |bt| symmetries. The calculation is
 performed for the |SAO| ground state. Note that no information about basis set,
-geometry, etc has to be given. Such information is supplied by the
+geometry, etc. has to be given. Such information is supplied by the
 :program:`SEWARD` integral program via the one-electron integral file :file:`ONEINT`.
 
 ::

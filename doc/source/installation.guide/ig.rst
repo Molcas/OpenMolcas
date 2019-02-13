@@ -7,4 +7,5 @@ Installation Guide
    install
    parainst
    dmrginst
+   stochcas
    maintain

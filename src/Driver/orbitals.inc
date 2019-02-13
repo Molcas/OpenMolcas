@@ -18,6 +18,7 @@
  (file)  UNAORB  "$WorkDir/$Project$SubProject."UnaOrb        rwst
  (file)  MP2ORB  "$WorkDir/$Project$SubProject."MP2Orb        rwst
  (file)  RASORB  "$WorkDir/$Project$SubProject."RasOrb        rw*st
+ (file)  DYSORB  "$WorkDir/$Project$SubProject."DysOrb        rw*st
  (file)  PT2ORB  "$WorkDir/$Project$SubProject."Pt2Orb        rw*st
  (file)  CPFORB  "$WorkDir/$Project$SubProject."CpfOrb        rwst
  (file)  IPAORB  "$WorkDir/$Project$SubProject."IPAOrb        rwst

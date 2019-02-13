@@ -11,6 +11,7 @@
       SUBROUTINE RASSI(IRETURN)
 
       !> module dependencies
+      use kVectors
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
       use qcmaquis_interface_environment, only: finalize_dmrg
@@ -34,6 +35,7 @@ C RAS state interaction.
 #include "jobin.fh"
 #include "symmul.fh"
 #include "rassiwfn.fh"
+#include "stdalloc.fh"
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='RASSI')
       Logical Fake_CMO2
@@ -64,6 +66,7 @@ C GTDMCTL. They are written on unit LUTDM.
 C Needed matrix elements are computed by PROPER.
       NSTATE2=NSTATE*NSTATE
       Call GetMem('OVLP','Allo','Real',LOVLP,NSTATE2)
+      Call GetMem('DYSAMPS','Allo','Real',LDYSAMPS,NSTATE2)
       Call GetMem('EIGVEC','Allo','Real',LEIGVEC,NSTATE2)
       Call GetMem('ENERGY','Allo','Real',LENERGY,NSTATE)
       Call GetMem('ITOCM','Allo','Inte',liTocM,NSTATE*(NSTATE+1)/2)
@@ -71,6 +74,16 @@ C Needed matrix elements are computed by PROPER.
 
       NPROPSZ=NSTATE*NSTATE*NPROP
       CALL GETMEM('Prop','Allo','Real',LPROP,NPROPSZ)
+
+C Number of basis functions
+      NZ=0                      ! (NBAS is already used...)
+      DO ISY=1,NSYM
+         NZ=NZ+NBASF(ISY)
+      END DO
+      IF (DYSO) THEN
+       LSFDYS=0
+       CALL GETMEM('SFDYS','ALLO','REAL',LSFDYS,NZ*NSTATE*NSTATE)
+      END IF
       CALL DCOPY_(NPROPSZ,0.0D0,0,WORK(LPROP),1)
 C Loop over jobiphs JOB1:
       DO JOB1=1,NJOB
@@ -79,8 +92,8 @@ C Loop over jobiphs JOB1:
         Fake_CMO2 = JOB1.eq.JOB2  ! MOs1 = MOs2  ==> Fake_CMO2=.true.
 
 C Compute generalized transition density matrices, as needed:
-          CALL GTDMCTL(WORK(LPROP),JOB1,JOB2,WORK(LOVLP),Work(LHAM),
-     &                iWork(lIDDET1))
+          CALL GTDMCTL(WORK(LPROP),JOB1,JOB2,WORK(LOVLP),WORK(LDYSAMPS),
+     &          WORK(LSFDYS),NZ,Work(LHAM),iWork(lIDDET1))
         END DO
       END DO
       Call GetMem('IDDET1','Free','Inte',lIDDET1,NSTATE)
@@ -124,10 +137,26 @@ C and perhaps GTDM's.
 C Hamiltonian matrix elements, eigenvectors:
       IF(IFHAM) THEN
         Call StatusLine('RASSI:','Computing Hamiltonian.')
-        CALL EIGCTL(WORK(LPROP),WORK(LOVLP),Work(LHAM),Work(LEIGVEC),
-     &              WORK(LENERGY))
+        CALL EIGCTL(WORK(LPROP),WORK(LOVLP),WORK(LDYSAMPS),Work(LHAM),
+     &              Work(LEIGVEC),WORK(LENERGY))
       END IF
 
+
+! +++ J. Creutzberg, J. Norell - 2018
+! Write the spin-free Dyson orbitals to .DysOrb and .molden
+! files if requested
+*----------------------------------------------------------------
+
+      IF (DYSEXPORT) THEN
+
+       CALL WRITEDYS(WORK(LDYSAMPS),WORK(LSFDYS),NZ,
+     &        WORK(LENERGY))
+
+      END IF
+! +++
+
+
+*---------------------------------------------------------------------*
 C Natural orbitals, if requested:
       IF(NATO) THEN
 C CALCULATE AND WRITE OUT NATURAL ORBITALS.
@@ -159,13 +188,13 @@ C Nr of spin states and division of loops:
       NSS=0
       LOOPDIVIDE_TEMP = 0
       DO ISTATE=1,NSTATE
-       JOB=iWork(lJBNUM+ISTATE-1)
-       MPLET=MLTPLT(JOB)
-       NSS=NSS+MPLET
-       IF(ISTATE.GT.LOOPDIVIDE) CYCLE
-       LOOPDIVIDE_TEMP = LOOPDIVIDE_TEMP + MPLET
+         JOB=iWork(lJBNUM+ISTATE-1)
+         MPLET=MLTPLT(JOB)
+         NSS=NSS+MPLET
+         IF(ISTATE.GT.LOOPDIVIDE) CYCLE
+         LOOPDIVIDE_TEMP = LOOPDIVIDE_TEMP + MPLET
       END DO
-      LOOPDIVIDE = LOOPDIVIDE_TEMP
+*     LOOPDIVIDE = LOOPDIVIDE_TEMP
 
       CALL GETMEM('UTOTR','ALLO','REAL',LUTOTR,NSS**2)
       CALL GETMEM('UTOTI','ALLO','REAL',LUTOTI,NSS**2)
@@ -181,10 +210,30 @@ C Nr of spin states and division of loops:
      &             WORK(LSOENE),NSS,WORK(LENERGY))
       END IF
 
-      CALL PRPROP(WORK(LPROP),WORK(LUTOTR),WORK(LUTOTI),
-     &            WORK(LSOENE),NSS,WORK(LOVLP),WORK(LENERGY),
-     &            iWork(lJBNUM))
+! +++ J. Norell - 2018
+C Make the SO Dyson orbitals and amplitudes from the SF ones
 
+      IF (DYSO.AND.IFSO) THEN
+       LSODYSAMPS=0
+       CALL GETMEM('SODYSAMPS','ALLO','REAL',LSODYSAMPS,NSS*NSS)
+       LSODYSAMPSR=0
+       CALL GETMEM('SODYSAMPSR','ALLO','REAL',LSODYSAMPSR,NSS*NSS)
+       LSODYSAMPSI=0
+       CALL GETMEM('SODYSAMPSI','ALLO','REAL',LSODYSAMPSI,NSS*NSS)
+
+       CALL SODYSORB(NSS,LUTOTR,LUTOTI,WORK(LDYSAMPS),
+     &     WORK(LSFDYS),NZ,WORK(LSODYSAMPS),
+     &     WORK(LSODYSAMPSR),WORK(LSODYSAMPSI),WORK(LSOENE))
+      END IF
+
+      IF (DYSO) THEN
+       CALL GETMEM('SFDYS','FREE','REAL',LSFDYS,NZ*NSTATE*NSTATE)
+      END IF
+! +++
+
+      CALL PRPROP(WORK(LPROP),WORK(LUTOTR),WORK(LUTOTI),
+     &            WORK(LSOENE),NSS,WORK(LOVLP),WORK(LSODYSAMPS),
+     &            WORK(LENERGY),iWork(lJBNUM))
 
 C Plot SO-Natural Orbitals if requested
 C Will also handle mixing of states (sodiag.f)
@@ -196,6 +245,11 @@ C Will also handle mixing of states (sodiag.f)
       CALL GETMEM('UTOTR','FREE','REAL',LUTOTR,NSS**2)
       CALL GETMEM('UTOTI','FREE','REAL',LUTOTI,NSS**2)
       CALL GETMEM('SOENE','FREE','REAL',LSOENE,NSS)
+      IF (DYSO.AND.IFSO) THEN
+       CALL GETMEM('SODYSAMPS','FREE','REAL',LSODYSAMPS,NSS*NSS)
+       CALL GETMEM('SODYSAMPSR','FREE','REAL',LSODYSAMPSR,NSS*NSS)
+       CALL GETMEM('SODYSAMPSI','FREE','REAL',LSODYSAMPSI,NSS*NSS)
+      END IF
 
 CIgorS 02/10-2007  Begin----------------------------------------------C
 C   Trajectory Surface Hopping                                        C
@@ -228,6 +282,7 @@ CIgorS End------------------------------------------------------------C
 
  100  CONTINUE
       Call GetMem('OVLP','Free','Real',LOVLP,NSTATE2)
+      Call GetMem('DYSAMPS','Free','Real',LDYSAMPS,NSTATE2)
       Call GetMem('HAM','Free','Real',LHAM,NSTATE2)
       Call GetMem('EIGVEC','Free','Real',LEIGVEC,NSTATE2)
       Call GetMem('ENERGY','Free','Real',LENERGY,NSTATE)
@@ -240,6 +295,8 @@ CIgorS End------------------------------------------------------------C
       CALL GETMEM('Prop','Free','Real',LPROP,NPROPSZ)
       CALL GETMEM('NilPt','FREE','REAL',LNILPT,1)
       CALL GETMEM('INilPt','FREE','INTE',LINILPT,1)
+
+      If (Do_SK) Call mma_deallocate(k_Vector)
 
 #ifdef _DMRG_
 !     !> finalize MPS-SI interface

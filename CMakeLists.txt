@@ -9,7 +9,7 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
 # Copyright (C) 2014-2016, Steven Vancoillie                           *
-#               2014-2018, Ignacio Fdez. Galván                        *
+#               2014-2019, Ignacio Fdez. Galván                        *
 #               2015, Stefan Knecht                                    *
 #***********************************************************************
 # Global CMakeLists.txt file for building Molcas with CMake.
@@ -66,6 +66,11 @@ endif ()
 find_program (GIT "git")
 find_program (PERL "perl")
 mark_as_advanced(FORCE GIT PERL)
+
+FIND_PACKAGE(PythonInterp 3.0)
+if (NOT PYTHONINTERP_FOUND)
+        FIND_PACKAGE(PythonInterp 2.7)
+endif ()
 
 ################################################################################
 #                                                                              #
@@ -208,8 +213,6 @@ if (DMRG)
         # Set QCMaquis download URL and path to the download script
         set (QCMaquis_URL "https://scine.ethz.ch/download/")
         set (QCMaquis_dl_SCRIPT "${CMAKE_SOURCE_DIR}/src/qcmaquis/get_qcmaquis.sh")
-
-
 else ()
         mark_as_advanced (FORCE DMRG_DEBUG)
 endif ()
@@ -257,7 +260,6 @@ add_definitions (-D_MOLCAS_)
 
 #set cmake module search paths
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH})
-
 
 # location of molcas-extra
 if (NOT DEFINED EXTRA)
@@ -2071,7 +2073,7 @@ set (RUNBINARYSER "${SER_LAUNCHER} $program")
 # Specify the launch command for an MPI run
 if (MPI)
         if (NOT MPI_LAUNCHER)
-                set (MPI_LAUNCHER "${MPIEXEC} -n $MOLCAS_NPROCS" CACHE STRING "Command to launch MPI programs.")
+                set (MPI_LAUNCHER "${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} $MOLCAS_NPROCS ${MPIEXEC_PREFLAGS}" CACHE STRING "Command to launch MPI programs.")
         endif ()
         set (RUNBINARY "${MPI_LAUNCHER} $program")
 else ()
@@ -2085,7 +2087,6 @@ string (STRIP ${RUNBINARYSER} RUNBINARYSER)
 message ("-- RUNSCRIPT:    ${RUNSCRIPT}")
 message ("-- RUNBINARY:    ${RUNBINARY}")
 message ("-- RUNBINARYSER: ${RUNBINARYSER}")
-
 
 ################################################################################
 #                                                                              #
@@ -2171,6 +2172,7 @@ list (REMOVE_ITEM progs
         wfa
         nevpt2 # although not necessarily
         dmrgscf
+        mpssi
         )
 
 # set the location of the sources for the utilities
@@ -2325,6 +2327,10 @@ if (BLOCK OR DMRG)
         list (APPEND progs dmrgscf)
 endif ()
 
+if (DMRG)
+        list (APPEND progs mpssi)
+endif ()
+
 # finally, sort the list
 list (SORT utils)
 
@@ -2396,6 +2402,9 @@ set (casvb_deps
 set (dmrgscf_deps
         $<TARGET_OBJECTS:rasscf>
         )
+set (mpssi_deps
+        $<TARGET_OBJECTS:rassi>
+        )
 set (espf_deps
         $<TARGET_OBJECTS:seward>
         $<TARGET_OBJECTS:alaska>
@@ -2435,7 +2444,6 @@ list (APPEND last_energy_deps
         $<TARGET_OBJECTS:dmrgscf>
         )
 endif ()
-
 
 ################################################################################
 #                                                                              #
@@ -2960,19 +2968,21 @@ if (PYTHONINTERP_FOUND)
                 ERROR_VARIABLE EXTRACT_ERROR
                 RESULT_VARIABLE EXTRACT_RESULT
                 )
-        if (EXTRACT_RESULT)
+        if (EXTRACT_ERROR)
                 message(FATAL_ERROR "Running \"extract_xmldoc.py\" failed: ${EXTRACT_ERROR}")
         endif ()
         # check XML consistency, only if the program is found
         find_program (XMLLINT "xmllint")
         mark_as_advanced(FORCE XMLLINT)
         if (XMLLINT)
-                add_custom_target (
-                        check_xml
+                execute_process (
                         COMMAND ${XMLLINT} "${PROJECT_BINARY_DIR}/data/keyword.xml" "-noout"
-                        COMMENT "Checking XML consistency"
-                        VERBATIM
+                        ERROR_VARIABLE XMLLINT_ERROR
+                        RESULT_VARIABLE XMLLINT_RESULT
                         )
+                if (XMLLINT_ERROR)
+                        message(FATAL_ERROR "Extracted XML file is malformed: ${XMLLINT_ERROR}")
+                endif ()
         endif ()
 else ()
         message (WARNING "No python found, help databases will not be created.")
@@ -3065,6 +3075,8 @@ if (SPHINX_EXECUTABLE)
 
         add_custom_target (
                 doc_html
+                # workaround for sphinx bug #5966
+                COMMAND touch ${PROJECT_SOURCE_DIR}/doc/source/index.rst
                 COMMAND OPENMOLCAS_RELEASE=${MOLCAS_VERSION} OPENMOLCAS_VERSION=${SHORT_VERSION}
                         ${SPHINX_EXECUTABLE} -b html ${SPHINX_OPTIONS} ${PROJECT_SOURCE_DIR}/doc/source ${SPHINX_BUILDDIR}/html
                 )

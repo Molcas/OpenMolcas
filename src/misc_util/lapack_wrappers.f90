@@ -20,6 +20,7 @@
 ! dstevr_
 ! dgetrs_
 ! dspev_
+! dgeev_
 ! dgesvd_
 ! dgetrf_
 ! dgesv_
@@ -197,6 +198,28 @@ subroutine dspev_(jobz,uplo,n_,ap,w,z,ldz_,work,info_)
   info_=info
 #else
   call dspev(jobz,uplo,n_,ap,w,z,ldz_,work,info_)
+#endif
+end subroutine
+
+subroutine dgeev_( jobvl, jobvr, n_, a, lda_, wr, wi, vl, ldvl_, &
+  &                   vr, ldvr_, work, lwork_, info_ )
+  implicit none
+  character          jobvl, jobvr
+  integer            info_, lda_, ldvl_, ldvr_, lwork_, n_
+  real*8             a(lda_,*),wr(*),wi(*),vl(ldvl_,*),vr(ldvr_,*),work(*)
+#ifdef MOLCAS_TO_LAPACK_INT
+  LAPACKINT          info, lda, ldvl, ldvr, lwork, n
+  lda=lda_
+  ldvl=ldvl_
+  ldvr=ldvr_
+  lwork=lwork_
+  n=n_
+  call dgeev( jobvl, jobvr, n, a, lda, wr, wi, vl, ldvl, &
+      &                   vr, ldvr, work, lwork, info )
+  info_=info
+#else
+  call dgeev( jobvl, jobvr, n_, a, lda_, wr, wi, vl, ldvl_, &
+      &                   vr, ldvr_, work, lwork_, info_ )
 #endif
 end subroutine
 

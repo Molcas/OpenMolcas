@@ -18,6 +18,7 @@ versions of |molcas| can get a feeling for what has happened on later versions
 
 * New codes and major updates:
 
+  * Stochastic-CASSCF allows to choose large active spaces (currently active spaces containing up to 50 electrons and 50 orbitals have been tested) in part circumventing the exponential scaling limitation of the standard CASSCF method;
   * MC-PDFT combines multiconfigurational wavefunctions with density functional theory to recover both static and dynamical correlation energy;
   * GASSCF allows for more flexibility in choosing the active space;
   * EMBQ is general purpose embedding technique;

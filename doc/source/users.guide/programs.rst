@@ -18,10 +18,12 @@ Programs
    programs/cmocorr
    programs/cpf
    programs/dimerpert
+   programs/dmrgscf
    programs/dynamix
    programs/embq
    programs/espf
    programs/expbas
+   programs/extf
    programs/falcon
    programs/ffpt
    programs/gateway
@@ -41,6 +43,7 @@ Programs
    programs/mknemo
    programs/motra
    programs/mpprop
+   programs/mpssi
    programs/mrci
    programs/mula
    programs/nemo

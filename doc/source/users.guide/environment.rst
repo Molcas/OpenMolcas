@@ -383,19 +383,16 @@ The complete list of |molcas|-related environment variables:
               </HELP>
               </KEYWORD>
 
-:variable:`MOLCAS_GRID`
-  :program:`Seward`, :program:`SCF`, :program:`RASSCF` can compute (screen quality) grid automatically.
-  If set to AUTO, only the last program in the input will compute grid.
-  Yes --- force the code always compute grids (it might take time)
-  No --- disable the automatic generation of grids.
+:variable:`MOLCAS_INPORB_VERSION`
+  Selects the version used for writing orbital files (`$Project.ScfOrb`, `$Project.RasOrb`, etc.).
+  The value should be a version number such as ``1.0`` or ``2.2``.
+  If the version is not known, the default (usually latest) version will be used.
 
-  .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_GRID" APPEAR="Automatically compute grid files" KIND="CHOICE" LIST="----,AUTO,YES,NO" LEVEL="ADVANCED">
-              %%Keyword: MOLCAS_GRID <advanced>
+  .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_INPORB_VERSION" APPEAR="INPORB version" KIND="REAL" LEVEL="BASIC">
+              %%Keyword: MOLCAS_INPORB_VERSION <basic>
               <HELP>
-              Seward, SCF, RASSCF can compute (screen quality) grid automatically.
-              If set to AUTO, only the last program in the input will compute grid.
-              ||Yes - force the code always compute grids (it might take time)
-              ||No - disable the automatic generation of grids.
+              Selects the version used for writing orbital files.
+              The value should be a version number such as 1.0 or 2.2.
               </HELP>
               </KEYWORD>
 

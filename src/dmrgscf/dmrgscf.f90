@@ -12,6 +12,9 @@
 !***********************************************************************
   subroutine dmrgscf(iReturn)
 
+#ifdef _DMRG_
+  use qcmaquis_interface_cfg
+#endif
   implicit none
 
   integer, intent(inout) :: iReturn
@@ -26,6 +29,11 @@
   !> call wave function optimizer
   iReturn = 0
   call rasscf(iReturn)
+
+#ifdef _DMRG_
+  !> reset in case we call RASSCF (or RASSI or CASPT2) afterwards requesting a CI driver
+  if(doDMRG) doDMRG = .false.
+#endif
 
   end subroutine dmrgscf
 ! ----------------------------------------------------------------------

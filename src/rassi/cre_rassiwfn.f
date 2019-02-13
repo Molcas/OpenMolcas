@@ -11,6 +11,10 @@
       subroutine cre_rassiwfn
 *     SVC: Create a wavefunction file. If another .wfn file already
 *     exists, it will be overwritten.
+      use kVectors
+#ifdef _DMRG_
+      use qcmaquis_interface_cfg
+#endif
       implicit none
 #ifdef _HDF5_
 #  include "Molcas.fh"
@@ -23,7 +27,7 @@
 #  include "lebedev.fh"
 
       integer :: ISTATE, NSS
-      integer :: iSet, nData, nIJ, nQuad
+      integer :: nData, nIJ
       integer, allocatable :: state_irreps(:), state_mult(:)
       integer :: nbast
 
@@ -33,7 +37,15 @@
       wfn_fileid = mh5_create_file('RASSIWFN')
 
 *     set module type
+#ifdef _DMRG_
+      if(doDMRG)then
+        call mh5_init_attr (wfn_fileid,'MOLCAS_MODULE', 'MPSSI')
+      else
+#endif
       call mh5_init_attr (wfn_fileid,'MOLCAS_MODULE', 'RASSI')
+#ifdef _DMRG_
+      end if
+#endif
 
 *     copy basic molecular information to the HDF5 file
       call run2h5_molinfo(wfn_fileid)
@@ -149,6 +161,20 @@
      $        'states stored as <SOS1|iL(x,y,z)|SOS2> in'//
      $        ' [NSS,NSS,3], imaginary part')
 
+      wfn_sos_edipmomr = mh5_create_dset_real(wfn_fileid,
+     $        'SOS_EDIPMOM_REAL', 3, [NSS,NSS,3])
+      call mh5_init_attr(wfn_sos_edipmomr, 'description',
+     $        'Electric dipole momentum components between the '//
+     $        'spin-orbit states stored as <SOS1|ED(x,y,z)|SOS2> in'//
+     $        ' [NSS,NSS,3], real part')
+
+      wfn_sos_edipmomi = mh5_create_dset_real(wfn_fileid,
+     $        'SOS_EDIPMOM_IMAG', 3, [NSS,NSS,3])
+      call mh5_init_attr(wfn_sos_edipmomi, 'description',
+     $        'Electric dipole momentum components between the '//
+     $        'spin-orbit states stored as <SOS1|ED(x,y,z)|SOS2> in'//
+     $        ' [NSS,NSS,3], imaginary part')
+
 *     SFS transition density
       wfn_sfs_tdm = mh5_create_dset_real(wfn_fileid,
      $        'SFS_TRANSITION_DENSITIES', 3, [NBAST,NSTATE,NSTATE])
@@ -173,47 +199,32 @@
      $        'matrix of size [NBAST,NSTATE,NSTATE], where NBAST '//
      $        'is of size [NBAS(I)**2] for I=1,NSYM')
 
-      nQuad=0
-      If (Do_SK) Then
-         nQuad=1
-      Else
-         Do iSet = 1, nSet
-            If (Lebedev_order(iSet).eq.L_Eff) Then
-               nQuad=Lebedev_npoints(iSet)
-               Exit
-            End If
-         End Do
-      End If
-      If (nQuad.eq.0) Then
-         Write (6,*) 'cre_rassiwfn: nQuad.eq.0'
-         Call Abend()
-      End If
 *     SFS intermediate transition moments
       nIJ=NSTATE*(NSTATE-1)/2
       nData= 1 + 3 + 2*3 + 2*2
       wfn_sfs_tm = mh5_create_dset_real(wfn_fileid,
-     $        'SFS_TRANSITION_MOMENTS', 3, [nIJ,nQuad,nData])
+     $        'SFS_TRANSITION_MOMENTS', 4, [nk_Vector,nIJ,nQuad,nData])
       call mh5_init_attr(wfn_sfs_tm, 'description',
      $        'SFS intermediate transition moments (x2x2), '//
-     $        'k-vectors (nQuad), '//
+     $        'k-vectors (nQuad*nVec), '//
      $        'polarization vectors (x2), weights, for each, '//
      $        'unique pairs of SF states, '//
      $        'excluding self-pairs (nIJ), '//
      $        'and k-vector stored as a, '//
-     $        'matrix of size [nIJ,nQuad,nData]')
+     $        'matrix of size [nVec,nIJ,nQuad,nData]')
 
 *     SOS intermediate transition moments
       nIJ=NSS*(NSS-1)/2
       nData= 1 + 3 + 2*3 + 2*2
       wfn_sos_tm = mh5_create_dset_real(wfn_fileid,
-     $        'SOS_TRANSITION_MOMENTS', 3, [nIJ,nQuad,nData])
+     $        'SOS_TRANSITION_MOMENTS', 4, [nk_Vector,nIJ,nQuad,nData])
       call mh5_init_attr(wfn_sos_tm, 'description',
      $        'SOS intermediate transition moments (x2x2), '//
-     $        'k-vectors (nQuad), '//
+     $        'k-vectors (nQuad*nVec), '//
      $        'polarization vectors (x2), weights, for each, '//
      $        'unique pairs of SO states, '//
      $        'excluding self-pairs (nIJ), '//
      $        'and k-vector stored as a, '//
-     $        'matrix of size [nIJ,nQuad,nData]')
+     $        'matrix of size [nVec,nIJ,nQuad,nData]')
 #endif
       end

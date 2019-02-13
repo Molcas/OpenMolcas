@@ -34,6 +34,7 @@ from setuptools import setup
 files = [os.path.splitext(x)[0] for x in glob.glob('*.py')]
 files.remove('export')
 files.remove('pack')
+files.remove('imports')
 
 setup(
   script_args=['bdist_wheel', '-d', '.'],

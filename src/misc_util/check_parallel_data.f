@@ -77,7 +77,7 @@ c
       end
 #elif defined (NAGFOR)
       subroutine empty_check_parallel_data()
-c     NAG compiler doesn't line empty files 
+c     NAG compiler doesn't line empty files
       implicit none
       return
       end

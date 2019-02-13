@@ -25,6 +25,77 @@ C in square format
       END DO
       RETURN
       END
+
+      SUBROUTINE PRCMAT2(INPUT,NSS,XMATR,XMATI)
+      IMPLICIT REAL*8 (A-H,O-Z)
+      REAL*8 XMATR(NSS,NSS),XMATI(NSS,NSS)
+#include "Molcas.fh"
+#include "cntrl.fh"
+      CHARACTER(LEN=8) PROPERTY
+      CHARACTER(LEN=1) DIRECTION
+      CHARACTER(LEN=200) FILENAME
+C Write out matrix elements over states as a complex matrix
+C in parsable format
+      if(INPUT.gt.0) THEN
+        PROPERTY = SOPRNM(INPUT)
+      ELSE
+        PROPERTY = 'EIGVEC'
+      ENDIF
+
+      WRITE(DIRECTION,'(I1)') ISOCMP(INPUT)
+      IF (PROPERTY(1:4).EQ."MLTP") THEN
+          IF (PROPERTY(8:8).EQ.'0') THEN
+            FILENAME = 'monopole-'//DIRECTION//'.txt'
+          ELSE IF (PROPERTY(8:8).EQ.'1') THEN
+            FILENAME = 'dipole-'//DIRECTION//'.txt'
+          ELSE IF (PROPERTY(8:8).EQ.'2') THEN
+            FILENAME = 'quadrupole-'//DIRECTION//'.txt'
+          ELSE
+            GO TO 100
+          END IF
+      ELSE IF (PROPERTY(1:4).EQ."ANGM") THEN
+          FILENAME = 'angmom-'//DIRECTION//'.txt'
+      ELSE IF (PROPERTY(1:6).EQ."EIGVEC") THEN
+          FILENAME = "eigvectors.txt"
+      ELSE
+          GO TO 100
+      END IF
+      OPEN(UNIT=88,FILE=FILENAME,STATUS='REPLACE')
+      WRITE(88,*) "#NROW NCOL REAL IMAG"
+      DO JSTA=1,NSS
+        DO ISS=1,NSS
+        WRITE(88,'(I4,I4,A1,E25.16,A1,E25.16)') ISS,JSTA,' ',
+     &   XMATR(ISS,JSTA),' ',XMATI(ISS,JSTA)
+        END DO
+      END DO
+      CLOSE(88)
+ 100  CONTINUE
+      RETURN
+      END
+
+      SUBROUTINE PRCMAT3(NSS,SMATR,SMATI,DIR)
+      IMPLICIT REAL*8 (A-H,O-Z)
+      REAL*8 SMATR(NSS,NSS), SMATI(NSS,NSS)
+      INTEGER DIR
+#include "Molcas.fh"
+#include "cntrl.fh"
+      CHARACTER(LEN=1) DIRECTION
+      CHARACTER(LEN=200) FILENAME
+C Write out spin matrix elements in parsable format
+      WRITE(DIRECTION,'(I1)') DIR
+      FILENAME = 'spin-'//DIRECTION//'.txt'
+      OPEN(UNIT=88,FILE=FILENAME,STATUS='REPLACE')
+      WRITE(88,*) "#NROW NCOL REAL IMAG"
+      DO JSTA=1,NSS
+        DO ISS=1,NSS
+        WRITE(88,'(I4,I4,A1,E25.16,A1,E25.16)') ISS,JSTA,' ',
+     &   SMATR(ISS,JSTA),' ',SMATI(ISS,JSTA)
+        END DO
+      END DO
+      CLOSE(88)
+      RETURN
+      END
+
       SUBROUTINE MULMAT(NSS,XMATR,XMATI,ee,Z)
       IMPLICIT REAL*8 (A-H,O-Z)
       REAL*8 XMATR(NSS,NSS),XMATI(NSS,NSS)
@@ -45,4 +116,4 @@ C in square format
       enddo
       RETURN
       END
-C THE ORIGI : WRITE(6,'(1X,I4,2x,2(A1,G16.9,A1,G16.9,A1,3x))')
+

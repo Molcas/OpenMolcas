@@ -627,7 +627,6 @@ C Put energy onto info file for automatic verification runs:
       Call qExit(ROUTINE)
       RETURN
       END
-
       SUBROUTINE ZTRNSF(N,UR,UI,AR,AI)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION UR(N,N),UI(N,N)
@@ -649,3 +648,39 @@ C Put energy onto info file for automatic verification runs:
 
       RETURN
       END
+      SUBROUTINE ZTRNSF_IJ(N,UR,UI,AR,AI,CX,TX,I,J)
+      IMPLICIT REAL*8 (A-H,O-Z)
+      DIMENSION UR(N,N),UI(N,N)
+      DIMENSION AR(N,N),AI(N,N)
+      DIMENSION CX(N,2)
+      COMPLEX*16 TX
+      Call FZero(CX,N*2)
+*
+      CALL DGEMV_('N',N,N,
+     &            1.0D0,AR,N,
+     &                  UR(1,J),1,
+     &            0.0D0,CX(1,1),1)
+      CALL DGEMV_('N',N,N,
+     &           -1.0D0,AI,N,
+     &                  UI(1,J),1,
+     &            1.0D0,CX(1,1),1)
+*
+      CALL DGEMV_('N',N,N,
+     &            1.0D0,AR,N,
+     &                  UI(1,J),1,
+     &            0.0D0,CX(1,2),1)
+      CALL DGEMV_('N',N,N,
+     &            1.0D0,AI,N,
+     &                  UR(1,J),1,
+     &            1.0D0,CX(1,2),1)
+*
+      PR = DDOT_(N,CX(1,1),1,UR(1,I),1)
+     &   + DDOT_(N,CX(1,2),1,UI(1,I),1)
+      PI = DDOT_(N,CX(1,2),1,UR(1,I),1)
+     &   - DDOT_(N,CX(1,1),1,UI(1,I),1)
+*
+      TX=DCMPLX(PR,PI)
+*
+      RETURN
+      END
+

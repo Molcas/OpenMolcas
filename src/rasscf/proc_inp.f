@@ -1468,6 +1468,12 @@ CIgorS End
         Write(6,'(1x,8i5)')(NISH(i),i=1,NSYM)
        End If
        IORBDATA=1
+      else
+        if (sum(nIsh(:nSym)) .eq. 0) then
+          call WarningMessage(1,
+     &      'The number of inactive orbitals is zero. '//
+     &      'Do you really want this?')
+        end if
       End If
 *
 *---  Process RAS1 command --------------------------------------------*
@@ -1735,9 +1741,10 @@ C Cannot set the number of inactive orbitals if explicitly given or
 C or if there is symmetry
        If(KeyCHAR.and.(KeyINAC.or.(NSYM.gt.1))) Then
         If(IPRLEV.ge.TERSE) Then
-         Write(6,*)' CHARGE and NACTEL are only compatible if'
-         Write(6,*)' INACTIVE is not given and with no symmetry (C1)'
-         Write(6,*)' The CHARGE command will be ignored.'
+          call WarningMessage(1,
+     &      'CHARGE and NACTEL are only compatible if '//
+     &      'INACTIVE is not given and the symmetry group is C1. '//
+     &      'Hence the CHARGE command will be ignored.')
         End If
         KeyCHAR=.false.
        End If
@@ -2008,7 +2015,6 @@ C orbitals accordingly
      &                       ' keyword was given. '
        Call SetPos(LUInput,'HEXS',Line,iRc)
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-       Call GetMem('Temp1','Allo','Inte',ipTemp1,mxgas)
        I_ELIMINATE_GAS_MOLCAS = 1
        ReadStatus=' Failure reading data following HEXS keyword.'
        Read(LUInput,*,End=9910,Err=9920) N_ELIMINATED_GAS_MOLCAS
@@ -2028,7 +2034,6 @@ C orbitals accordingly
      &                       ' keyword was given. '
        Call SetPos(LUInput,'DEXS',Line,iRc)
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-       Call GetMem('Temp1','Allo','Inte',ipTemp1,mxgas)
        I_ELIMINATE_GAS_MOLCAS = 2
        ReadStatus=' Failure reading data following HEXS keyword.'
        Read(LUInput,*,End=9910,Err=9920) N_ELIMINATED_GAS_MOLCAS
@@ -2048,6 +2053,21 @@ C orbitals accordingly
        ReadStatus=' Failure reading data following HROO keyword.'
        Read(LUInput,*,End=9910,Err=9920) hRoots
        ReadStatus=' O.K. after reading data following HROO keyword.'
+      END IF
+*---  Process NKEE command ---
+      IF (KEYNKEE) THEN
+        IF(DBG) WRITE(6,*) ' NKEE (nr of kept vectors)'//
+     &                       ' keyword was given. '
+       Call SetPos(LUInput,'NKEE',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading data following NKEE keyword.'
+       Read(LUInput,*,End=9910,Err=9920) n_keep
+       ReadStatus=' O.K. after reading data following NKEE keyword.'
+       If (n_keep.lt.lRoots) Then
+        Call WarningMessage(2,
+     &   'nkeep must be at least equal to the number of roots')
+        Call Quit(_RC_INPUT_ERROR_)
+       EndIf
       END IF
 *
 *---  Process CLEA command ---
@@ -2810,14 +2830,15 @@ c       write(6,*)          '  --------------------------------------'
 * It is used by Block and CheMPS2... but it could be useful for other codes.
 * Therefore it is now outside the ifdef Block or CheMPS2.
       If (KeyHFOC) Then
-       If (DBG) Write(6,*) ' HFOC keyword was given.'
+       Write(6,*) ' HFOC keyword was given.'
        Call SetPos(LUInput,'HFOC',Line,iRc)
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
        ReadStatus=' Failure reading after HFOC keyword.'
+       write(6,*) 'NASHT, mxact = ', NASHT, mxact
        Read(LUInput,*,End=9910,Err=9920) (hfocc(i),i=1,NASHT)
        ReadStatus=' O.K. reading after HFOC keyword.'
-*       write(6,*)'HFOCC read in proc_inp of size:', NASHT
-*       write(6,*)(hfocc(i),i=1,NASHT)
+       write(6,*)'HFOCC read in proc_inp of size:', NASHT
+       write(6,*)(hfocc(i),i=1,NASHT)
       End If
 
 *---  All keywords have been processed ------------------------------*
