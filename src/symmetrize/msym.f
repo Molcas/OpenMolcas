@@ -19,7 +19,7 @@
       Call fmsym_find_symmetry(ctx)
       Call fmsym_symmetrize_molecule(ctx)
       Call fmsym_generate_orbital_subspaces(ctx)
-*      Call fmsym_symmetrize_orb_file(ctx,'INPORB')
+      Call fmsym_symmetrize_orb_file(ctx,'INPORB')
       Call fmsym_release_context(ctx)
       iReturn = 0
       Return

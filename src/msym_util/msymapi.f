@@ -86,6 +86,8 @@
          Call Abend()
       end if
 
+      return
+      if (.false.) Call Unused_character(Element)
       End
 
       Subroutine fmsym_find_symmetry(ctx)
@@ -170,6 +172,8 @@
       Call FZero(Work(ipOcc),nMO)
 
       Title='Orbital Subspaces'
+      LuOrb=50
+      LuOrb=isfreeunit(LuOrb)
       Call WrVec('MSYMAORB',LuOrb,'CO',nSym,nBas,nBas,Work(ipCAO),
      &     Work(ipOcc),Dymmy,iWork(ipIrrInd),Title)
 #ifdef _HDF5_
@@ -183,6 +187,20 @@
      $        'Coefficients of the SALCs as produced by MSYM, '//
      $        'arranged as blocks of size [NBAS(i)**2], i=1,#irreps')
       call mh5_put_dset(dsetid, Work(ipCAO))
+      call mh5_close_dset(dsetid)
+      ! mooc
+      dsetid = mh5_create_dset_real(fileid,'MO_OCCUPATIONS', 1, [nMO])
+      call mh5_init_attr(dsetid, 'description',
+     $        'Dummy occupation numbers '//
+     $        'arranged as blocks of size [NBAS(i)], i=1,#irreps')
+      call mh5_put_dset(dsetid, Work(ipOcc))
+      call mh5_close_dset(dsetid)
+      ! moene
+      dsetid = mh5_create_dset_real(fileid,'MO_ENERGIES', 1, [nMO])
+      call mh5_init_attr(dsetid, 'description',
+     $        'Dummy orbital energies '//
+     $        'arranged as blocks of size [NBAS(i)], i=1,#irreps')
+      call mh5_put_dset(dsetid, Work(ipOcc))
       call mh5_close_dset(dsetid)
       ! supsym
       dsetid = mh5_create_dset_int(fileid,
@@ -263,7 +281,7 @@
 #include "WrkSpc.fh"
 #include "constants2.fh"
       Integer ret
-      Dimension nBas(mxSym)
+      Dimension nBas(mxSym),indType(7,mxSym)
       Character*80 Title
       Character INPORB*(*)
 
@@ -290,6 +308,8 @@
       Call Allocate_Work(ipE,nMO)
       Call Allocate_iWork(iTIND,maxbfn)
 
+      LuOrb=50
+      LuOrb=isfreeunit(LuOrb)
       Call RdVec(INPORB,LuOrb,'COEI',nSym,nBas,nBas,Work(ipCIO),
      &     Work(ipOcc), Work(ipE) ,iWork(iTIND),Title,iWarn,iErr)
 
@@ -302,9 +322,20 @@
          call cmsym_release_context(ctx, ret)
          Call Abend()
       end if
+      indType=0
+      i=0
+      do iSym=1,nSym
+        do iBas=1,nBas(iSym)
+          j = iWork(iTIND+i)
+          indType(j,iSym) = indType(j,iSym)+1
+          i = i+1
+        end do
+      end do
       Title='Symmetrized Orbitals'
+      LuOrb=50
+      LuOrb=isfreeunit(LuOrb)
       Call WrVec('MSYMMORB',LuOrb,'COEI',nSym,nBas,nBas,Work(ipCIO),
-     &     Work(ipOcc),Work(ipE),iWork(iTIND),Title)
+     &     Work(ipOcc),Work(ipE),indType,Title)
 
       Call Free_Work(ipCIO)
       Call Free_Work(ipOcc)

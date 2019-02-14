@@ -1753,7 +1753,7 @@ if (MSYM)
                 set (INSTALL_INCLUDE_DIR ${INSTALL_INCLUDE_DIR} CACHE INTERNAL "Installation directory for header files." FORCE)
                 set (INSTALL_CMAKE_DIR   ${INSTALL_CMAKE_DIR}   CACHE INTERNAL "Installation directory for CMake files."  FORCE)
 
-		set (MSYM_INCLUDE ${proj}/src ${proj_bin})
+                set (MSYM_INCLUDE ${proj}/src ${proj_bin})
                 set (MSYM_LIBRARIES msym)
 
                 message ("-- MSYM_INCLUDE_PATH: ${MSYM_INCLUDE}")
@@ -2258,6 +2258,7 @@ if (HDF5 AND HDF5_FOUND)
                 guessorb_util
                 hyper_util
                 molcas_ci_util
+                msym_util
                 oneint_util
                 property_util
                 restart_util
