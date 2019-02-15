@@ -7,6 +7,11 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 1992, Per-Olof Widmark                                 *
+*               1992, Markus P. Fuelscher                              *
+*               1992, Piotr Borowski                                   *
+*               2019, Liviu Ungur                                      *
 ************************************************************************
       SubRoutine IvoGen_rasscf(nSym,nBas,nFro,nIsh,nAsh,nCMO,nEOrb,
      &                         CMO,EOrb)
@@ -17,8 +22,10 @@
 *              by the virtual orbitals                                 *
 *                                                                      *
 *     input:                                                           *
-*       OneHam  : one-electron hamiltonian of length nOne              *
-*       CMO     : molecular orbital coefficients of length nCMO        *
+*       CMO     : molecular orbital coefficients of length nCMO=NTOT2  *
+*       EOrb    : on input contain orbital energies as obtained in the *
+*                 NATORB_RASSCF, energies  of the virtual orbitals     *
+*                 are non-zero, length nEOrb=NTOT                      *
 *                                                                      *
 *     output:                                                          *
 *       CMO     : molecular orbital coefficients with virtual orbitals *
@@ -28,6 +35,11 @@
 *     called from: OutCtl, only when IVO is used in the input          *
 *                                                                      *
 *----------------------------------------------------------------------*
+*                                                                      *
+*     Original MOLCAS/scf/ivogen.f written by:                         *
+*     P.O. Widmark, M.P. Fuelscher and P. Borowski                     *
+*     University of Lund, Sweden, 1992                                 *
+*                                                                      *
 *                                                                      *
 *     written by:                                                      *
 *     L. Ungur  using the MOLCAS/scf/ivogen.f as start                 *
