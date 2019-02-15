@@ -1761,7 +1761,7 @@ A list of these keywords is given below:
   The RASSCF program will diagonalize the core Hamiltonian in the space of virtual orbitals, 
   before printing them in the output. The resulting orbitals are only suitable to select which one
   should enter the active space in a subsequent RASSCF calculation. The RASSCF wave function and 
-  orbitals are not suitable for CASPT2, MRCI or any other correlated methods, becasue the energies 
+  orbitals are not suitable for CASPT2, MRCI or any other correlated methods, because the energies 
   of the virtual orbitals are undefined.
   This keyword is equivalent to the IVO keyword of the SCF program. 
 
@@ -1771,7 +1771,7 @@ A list of these keywords is given below:
               The RASSCF program will diagonalize the core Hamiltonian in the space of virtual orbitals, 
               before printing them in the output. The resulting orbitals are only suitable to select which one
               should enter the active space in a subsequent RASSCF calculation. The RASSCF wave function and 
-              orbitals are not suitable for CASPT2, MRCI or any other correlated methods, becasue the energies 
+              orbitals are not suitable for CASPT2, MRCI or any other correlated methods, because the energies 
               of the virtual orbitals are undefined.
               This keyword is equivalent to the IVO keyword of the SCF program. 
               </HELP>
