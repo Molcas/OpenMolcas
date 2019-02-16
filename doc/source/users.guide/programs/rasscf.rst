@@ -555,13 +555,13 @@ it is important to know the difference between the sets:
    spin density matrix and can be used to compute spin properties.
 
 #. **Improved virtual orbitals:**
-   This refers only to virtual orbitals, when the `IVO` keyword is employed
+   This refers only to virtual orbitals, when the :kword:`IVO` keyword is employed
    in the input. In this case, the virtual orbitals are those which diagonalize
    the core Hamiltonian. Since the energies of virtual orbitals become thus undefined, 
-   the obtained RASORB and JOBIPH files can **not** be used for CASPT2 or MRCI or any correlated 
+   the obtained :file:`RASORB` and :file:`JOBIPH` files can **not** be used for CASPT2 or MRCI or any correlated 
    calculations. The printed virtual orbitals are quite localized and could be used only to
    decide which ones should be included in an (enlarged) active space in a subsequest 
-   RASSCF calculation.
+   :program:`RASSCF` calculation.
 
 .. _UG\:sec\:rasscf_dependencies:
 
@@ -1758,18 +1758,18 @@ A list of these keywords is given below:
               </KEYWORD>
 
 :kword:`IVO`
-  The RASSCF program will diagonalize the core Hamiltonian in the space of virtual orbitals, 
-  before printing them in the output. The resulting orbitals are only suitable to select which one
-  should enter the active space in a subsequent RASSCF calculation. The RASSCF wave function and 
+  The :program:`RASSCF` program will diagonalize the core Hamiltonian in the space of virtual orbitals, 
+  before printing them in the output. The resulting orbitals are only suitable to select which ones
+  should enter the active space in a subsequent :program:`RASSCF` calculation. The :program:`RASSCF` wave function and 
   orbitals are not suitable for CASPT2, MRCI or any other correlated methods, because the energies 
   of the virtual orbitals are undefined.
-  This keyword is equivalent to the IVO keyword of the SCF program. 
+  This keyword is equivalent to the :kword:`IVO` keyword of the :program:`SCF` program. 
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="IVO" APPEAR="Improved Virtual Orbitals" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: IVO <basic>
               <HELP>
               The RASSCF program will diagonalize the core Hamiltonian in the space of virtual orbitals, 
-              before printing them in the output. The resulting orbitals are only suitable to select which one
+              before printing them in the output. The resulting orbitals are only suitable to select which ones
               should enter the active space in a subsequent RASSCF calculation. The RASSCF wave function and 
               orbitals are not suitable for CASPT2, MRCI or any other correlated methods, because the energies 
               of the virtual orbitals are undefined.
@@ -1831,7 +1831,7 @@ A list of these keywords is given below:
               </KEYWORD>
 
 :kword:`MAXOrb`
-  Maximum number of RasOrb files to produce, one for each root up to the maximum.
+  Maximum number of :file:`RasOrb` files to produce, one for each root up to the maximum.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="MAXORB" APPEAR="Maximum orbital files" KIND="INT" LEVEL="BASIC">
               %%Keyword: MAXOrb <basic>
