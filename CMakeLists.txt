@@ -1749,6 +1749,8 @@ if (MSYM)
                 set (MSYM_FOUND ON)
                 add_subdirectory (${proj} ${proj_bin} EXCLUDE_FROM_ALL)
                 # hide from the Molcas CMake GUI
+                set (MSYM_BUILD_EXAMPLES OFF CACHE INTERNAL "Build example executables" FORCE)
+                set (MSYM_BUILD_PYTHON   OFF CACHE INTERNAL "Build python binding"      FORCE)
                 set (INSTALL_LIB_DIR     ${INSTALL_LIB_DIR}     CACHE INTERNAL "Installation directory for msym library." FORCE)
                 set (INSTALL_INCLUDE_DIR ${INSTALL_INCLUDE_DIR} CACHE INTERNAL "Installation directory for header files." FORCE)
                 set (INSTALL_CMAKE_DIR   ${INSTALL_CMAKE_DIR}   CACHE INTERNAL "Installation directory for CMake files."  FORCE)
@@ -1765,7 +1767,7 @@ if (MSYM)
                 message ("-- MSYM interface ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
         endif ()
 else ()
-        message (STATUS "MSYM support DISABLED")
+        message ("MSYM support DISABLED")
 endif ()
 
 if (DMRG)
@@ -1774,8 +1776,8 @@ if (DMRG)
         if ( "${QCMaquis_NAME}" STREQUAL "" OR "${QCMaquis_EMAIL}" STREQUAL "")
           message (WARNING "Please set your name and e-mail with -DQCMaquis_NAME and -DQCMaquis_EMAIL to be able to download QCMaquis.")
         else ()
-          message (STATUS "Your name (used to download QCMaquis): " ${QCMaquis_NAME})
-          message (STATUS "Your email (used to download QCMaquis): " ${QCMaquis_EMAIL})
+          message ("-- Your name (used to download QCMaquis): " ${QCMaquis_NAME})
+          message ("-- Your email (used to download QCMaquis): " ${QCMaquis_EMAIL})
         endif ()
 
         add_definitions (-D_DMRG_)
@@ -1799,7 +1801,7 @@ if (DMRG)
 
         list (APPEND EXTERNAL_LIBRARIES ${DMRG_LIBRARIES})
 else ()
-        message (STATUS "DMRG support DISABLED")
+        message ("DMRG support DISABLED")
 endif ()
 
 # HDF5 QCMaquis interface
@@ -1824,7 +1826,7 @@ if(HDF5 AND HDF5_FOUND AND DMRG)
 
         insert_before(EXTERNAL_LIBRARIES HDF5_C_LIBRARIES "${HDF5_QCM_LIBRARIES}")
 else ()
-        message (STATUS "HDF5 QCMaquis interface DISABLED")
+        message ("HDF5 QCMaquis interface DISABLED")
 endif ()
 
 # NECI Full-CI Quantum Monte-Carlo
@@ -1966,7 +1968,7 @@ if (WFA)
         endif ()
 else ()
         mark_as_advanced(FORCE ARMADILLO_INC)
-        message(STATUS "libwfa support DISABLED")
+        message("libwfa support DISABLED")
 endif ()
 
 # NEVPT2
@@ -1994,7 +1996,7 @@ if (NEVPT2)
 
         insert_before(EXTERNAL_LIBRARIES HDF5_QCM_LIBRARIES "${NEVPT2_LIBRARIES}")
 else ()
-        message(STATUS "NEVPT2 support DISABLED")
+        message("NEVPT2 support DISABLED")
 endif ()
 
 # external GRID_IT

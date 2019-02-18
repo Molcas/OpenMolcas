@@ -1394,6 +1394,25 @@ in each new structure iteration.
 With this keyword, the root selection in the Super-CI orbital update
 is by maximum overlap rather than lowest energy.
 %---
+\item[IVO]
+%%%<KEYWORD MODULE="RASSCF" NAME="IVO" APPEAR="Improved Virtual Orbitals" KIND="SINGLE"
+%%% LEVEL="BASIC">
+%%Keyword: IVO <basic>
+%%%<HELP>
+%%+The RASSCF program will diagonalize the core Hamiltonian in the space of virtual orbitals, 
+%%+before printing them in the output. The resulting orbitals are only suitable to select which one
+%%+should enter the active space in a subsequent calculation. The RASSCF calculation is not suitable
+%%+for CASPT2/MRCI or any other correlated methods, becasue the energies of the virtual orbitals is 
+%%+undefined.
+%%+This keyword is equivalent to IVO keyword of the SCF program. 
+%%%</HELP></KEYWORD>
+The RASSCF program will diagonalize the core Hamiltonian in the space of virtual orbitals, 
+before printing them in the output. The resulting orbitals are only suitable to select which one
+should enter the active space in a subsequent calculation. The RASSCF calculation is not suitable
+for CASPT2/MRCI or any other correlated methods, becasue the energies of the virtual orbitals is 
+undefined.
+This keyword is equivalent to IVO keyword of the SCF program. 
+%---
 \item[VB]
 %%%<GROUP MODULE="RASSCF" NAME="VB" APPEAR="CASVB" KIND="BLOCK" LEVEL="BASIC">
 %%Keyword: VB <basic>
