@@ -681,6 +681,11 @@ C   No changing about read in orbital information from INPORB yet.
        If (DBG) Write(6,*) ' PRSPIN command was used.'
        ISPDEN=1
       End If
+*---  Process IVO command --------------------------------------------*
+      If (KeyIVO) Then
+       If (DBG) Write(6,*) ' IVO command was used.'
+       kIvo=.true.
+      End If
 * ========================================================================
 *  If ORBONLY keyword was used, then the JOBIPH file should be used
 * only to produce orbital files, then the program stops.
