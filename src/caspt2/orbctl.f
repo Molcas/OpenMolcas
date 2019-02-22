@@ -43,12 +43,12 @@ c Determine PT2 orbitals, and transform CI coeffs.
        WRITE(6,*)' ORBCTL calling MKRPTORB...'
       END IF
 * The CMO coefficient array is changed by ortonormal transformations of
-* each of the inactive,Ras1,Ras2,Ras3,and secondary (i,e,virtual) orbitals
+* each of the inactive,Ras1,Ras2,Ras3,and secondary (i.e. virtual) orbitals
 * in each symmetry. The transformation matrices are stored as a sequence of
 * square matrices in TORB. The transformation is such that each of the
-* diagonal subblocks of the Fock matrix FIFA is diagonalized.
-* MKPT2ORB will at the same time transform each of the CI arrays on file
-* such that, with new CMO vectors, they still represent the orbiginal
+* diagonal blocks of the Fock matrix FIFA is diagonalized.
+* MKRPTORB will at the same time transform each of the CI arrays on file
+* such that, with new CMO vectors, they still represent the original
 * wave function.
 
 * The CI arrays are on file with unit number LUCIEX. There is NSTATE

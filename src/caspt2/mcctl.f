@@ -35,11 +35,12 @@ C The ket state is JSTATE.
 C Loop over the bra states
       DO ISTATE=1,NSTATE
         IF(ISTATE.EQ.JSTATE) THEN
-          HEFF(ISTATE,JSTATE)=E2TOT
+          ! HEFF(ISTATE,JSTATE)=E2TOT
+          HEFF(ISTATE,JSTATE)=HEFF(ISTATE,JSTATE)+E2CORR
         ELSE
 C Compute the effective Hamiltonian:
           CALL HEFVAL(ISTATE,JSTATE,DVALUE)
-          HEFF(ISTATE,JSTATE)=DVALUE
+          HEFF(ISTATE,JSTATE)=HEFF(ISTATE,JSTATE)+DVALUE
         END IF
       END DO
 

@@ -81,6 +81,12 @@
       NFIFA_AVE=NFIFA
       CALL GETMEM('FIFA_AVE','ALLO','REAL',LFIFA_AVE,NFIFA_AVE)
       CALL DCOPY_(NFIFA_AVE,0.0D0,0,WORK(LFIFA_AVE),1)
+      ! NFAMO_AVE=NFAMO
+      ! CALL GETMEM('FAMO_AVE','ALLO','REAL',LFAMO_AVE,NFAMO_AVE)
+      ! CALL DCOPY_(NFAMO_AVE,0.0D0,0,WORK(LFAMO_AVE),1)
+      ! NDREF_AVE=NDREF
+      ! CALL GETMEM('DREF_AVE','ALLO','REAL',LDREF_AVE,NDREF_AVE)
+      ! CALL DCOPY_(NDREF_AVE,0.0D0,0,WORK(LDREF_AVE),1)
       SCL=1.0D0/DBLE(NGRP)
 
       CALL GETMEM('LCI','ALLO','REAL',LCI,NCONF)
@@ -118,6 +124,10 @@
 * GETDPREF: Restructure GAMMA1 and GAMMA2, as DREF and PREF arrays.
         CALL GETDPREF(WORK(LDREF),WORK(LPREF))
 
+* Although this is never really used anywhere, we compute it the average
+* 1-el density matrix for consistency
+        ! CALL DAXPY_(NDREF_AVE,SCL,WORK(LDREF),1,WORK(LDREF_AVE),1)
+
 * INTCTL1/INTCTL2 call TRACTL(0), and other routines, for FIMO,FAMO,FIFA
 * FIFA, and orbital energies.
         If (IfChol) then
@@ -134,15 +144,20 @@ c Modify the Fock matrix, if needed:
         IF(FOCKTYPE.NE.'STANDARD') THEN
            CALL NEWFOCK(WORK(LFIFA))
         END IF
-* Compute Average fock matrix:
+* Compute Average fock matrix (total and active contributions):
+        ! CALL DAXPY_(NFAMO_AVE,SCL,WORK(LFAMO),1,WORK(LFAMO_AVE),1)
         CALL DAXPY_(NFIFA_AVE,SCL,WORK(LFIFA),1,WORK(LFIFA_AVE),1)
 
       END DO
       CALL GETMEM('LCI','FREE','REAL',LCI,NCONF)
 
-* Replace FIFA with average Fock matrix:
+* Replace FIFA, FAMO and DREF with average Fock and density matrix:
       CALL DCOPY_(NFIFA,WORK(LFIFA_AVE),1,WORK(LFIFA),1)
       CALL GETMEM('FIFA_AVE','FREE','REAL',LFIFA_AVE,NFIFA_AVE)
+      ! CALL DCOPY_(NFAMO,WORK(LFAMO_AVE),1,WORK(LFAMO),1)
+      ! CALL DCOPY_(NDREF,WORK(LDREF_AVE),1,WORK(LDREF),1)
+      ! CALL GETMEM('FAMO_AVE','FREE','REAL',LFAMO_AVE,NFAMO_AVE)
+      ! CALL GETMEM('DREF_AVE','FREE','REAL',LDREF_AVE,NDREF_AVE)
 
 * NN.15
 * TODO : MKFOP and following transformation are skipped in DMRG-CASPT2 run
@@ -200,9 +215,13 @@ c Modify the Fock matrix, if needed:
        END DO
        CALL GETMEM('HTMP1','FREE','REAL',LHTMP1,NGRP**2)
        CALL GETMEM('HTMP2','FREE','REAL',LHTMP2,NGRP**2)
-       DO J1=1,NSTATE
+
+       IF(IPRGLB.GE.DEBUG) THEN
+        WRITE(6,*) 'HEFF AFTER TRANSFORMATION IN THE NEW "XMS" BASIS:'
+        DO J1=1,NSTATE
          WRITE(6,'(5F16.8)')(HEFF(J1,J2),J2=1,NSTATE)
-       END DO
+        END DO
+       END IF
 * and then, transform the CI arrays. Assume we can put all the
 * original ones in memory, but put the resulting vectors one by
 * one in a buffer.
@@ -230,15 +249,14 @@ c Modify the Fock matrix, if needed:
        END DO
        CALL GETMEM('CIREF','FREE','REAL',LCIREF,NGRP*NCONF)
        CALL GETMEM('CIXMS','FREE','REAL',LCIXMS,NCONF)
-       CALL GETMEM('EVEC','FREE','REAL',LEVEC,NGRP**2)
 
       END IF
       CALL GETMEM('FOPXMS','FREE','REAL',LFOPXMS,NGRP**2)
 
  100  CONTINUE
 * We now know FIFA, as expressed in initial RAS orbitals. Transform to use new
-* orbitals, in which non-diagonal couplings between subspaces (inactive, ras1, etc)
-* are zero. As a by-product, the CI arrays will be transformed so so they still
+* orbitals, in which non-diagonal couplings within subspaces (inactive, ras1, etc)
+* are zero. As a by-product, the CI arrays will be transformed so they still
 * represent the XMS root functions, using the new orbitals.
 * Also, the matrices FIFA, etc, are themselves transformed:
       CALL ORBCTL(WORK(LCMO))
