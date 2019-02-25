@@ -96,6 +96,7 @@ C     Write (Lu,'(A)') Char
 C     Write (Lu,*) iOptC
       If (Char.eq.BLine) Go To 999
       If (Char(1:1).eq.'*') Go To 999
+      If (Char(1:4).eq.'AI  ') Go To 901
       If (Char(1:4).eq.'BAKE') Go To 926
       If (Char(1:4).eq.'C1-D') Go To 936
       If (Char(1:4).eq.'C2-D') Go To 937
@@ -470,6 +471,15 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
  925  Char=Get_Ln(LuRd)
       Call Get_I(1,iTmp,1)
       MxItr=Min(iTmp,MxItr)
+      Go To 999
+*                                                                      *
+****** AI   ************************************************************
+*                                                                      *
+901   Char=Get_Ln(LuRd)
+      If (Char.eq.'Kriging'.or.Char.eq.'kriging') then
+       Kriging = .True.
+       Write (Lu,*) 'Kriging AI method selected'
+      endif
       Go To 999
 *                                                                      *
 ****** BAKE ************************************************************
