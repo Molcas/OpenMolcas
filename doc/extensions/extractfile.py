@@ -125,7 +125,7 @@ def extractFiles (app, exception):
         with codecs.open(filename, 'w', 'utf-8') as extractedfile:
           extractedfile.write(item['content'])
       except:
-        print 'Error creating file %s' % filename
+        print ('Error creating file %s' % filename)
 
 # Purge the extractfile items from a file when it is changed
 #

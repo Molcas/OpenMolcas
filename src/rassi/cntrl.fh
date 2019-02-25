@@ -24,9 +24,7 @@
       INTEGER LCI1,LCI2,LCI3,LCMO1,LCMO2,LGAM1,LGAM2,LGAM3
       INTEGER LTDMAB,LTDMZZ,LTDMS,LTDMA,LTRA1,LTRA2,LIPAIR
       INTEGER LFMO,LTUVX,liTocM,LHAM,LREFENE,L_HEFF,LEIGVEC,LESHFT
-      INTEGER LHDIAG,lJBNUM,LLROOT
-      INTEGER NTSTEP,NBSTEP
-      INTEGER NKVEC,PKVEC,LOOPDIVIDE
+      INTEGER LHDIAG,lJBNUM,LLROOT,NTSTEP,NBSTEP,LOOPDIVIDE
       INTEGER DYSEXPSF,DYSEXPSO
 c BP - SO Natural orbital information
 c    SONATNSTATE      Number of states to calculate
@@ -36,24 +34,24 @@ c    LSONAT           Pointer to IWORK array of states
 c    IFCURD           Do current density stuff
 c    Do_TMOS          Do Transition Moment Oscillator Strengths
 c    L_Eff            The order of the Lebedev solid angle integration
-c    Do_SK            Do single k-vector direction of the exact
+c    Do_SK            Do k-vector directions of the exact
 c                     Hamiltonian with a vector field.
-c    Kvector          The k-vector
+c    nQuad            Number of vectors in the isotropic quadrature
 c    DOCD             Regular circular dichroism
       INTEGER SONATNSTATE,LSONAT,SODIAGNSTATE,LSODIAG
       LOGICAL IFCURD, Do_TMOS, Do_SK, DOCD
-      REAL*8 TDIPMIN,SOTHR_PRT,K_vector(3)
+      REAL*8 TDIPMIN,SOTHR_PRT
       INTEGER NSOTHR_PRT, ISMGRD, LDISP, NDISP, NTDISP
       INTEGER IFJ2, IFJZ
-      INTEGER L_Eff
+      INTEGER L_Eff,nQuad
       COMMON /PROPS/ EMIN,EVAC,ERFNUC,PNUC(MXPROP),
-     &     PORIG(3,MXPROP),SOTHR_PRT,K_vector,
+     &     PORIG(3,MXPROP),SOTHR_PRT,
      &     BSTART,BINCRE,TSTART,TINCRE,BANGRES,OSTHR_DIPR,OSTHR_QIPR,
      &     TOLERANCE,LHAM,LREFENE,
      &     NSOTHR_PRT,ICOMP(MXPROP),ISOCMP(MXPROP),
      &     L_HEFF,LEIGVEC,LESHFT,LHDIAG,
      &     IPUSED(MXPROP),NDISP,LDISP(8),ISMGRD(MXDISP),
-     &     NTDISP(MXDISP),NTSTEP,NBSTEP,NKVEC,LOOPDIVIDE,L_Eff
+     &     NTDISP(MXDISP),NTSTEP,NBSTEP,LOOPDIVIDE,L_Eff,nQuad
       COMMON /CNTRL/ TDIPMIN,CITHR,EPRTHR,
      &     ALPHZ,BETAE,NSTAT(MXJOB),ISTAT(MXJOB),
      &     NROOTS(MXJOB),LLROOT,
@@ -64,7 +62,7 @@ c    DOCD             Regular circular dichroism
      &     LCMO1,LCMO2,LGAM1,LGAM2,LGAM3,LTDMAB,LTDMZZ,
      &     LTDMS,LTDMA,LTRA1,LTRA2,LIPAIR,LFMO,LTUVX,lJBNUM,
      &     liTocM,IFJ2,IFJZ,
-     &     SONATNSTATE,LSONAT,SODIAGNSTATE,LSODIAG,PKVEC,IFCURD,Do_TMOS,
+     &     SONATNSTATE,LSONAT,SODIAGNSTATE,LSODIAG,IFCURD,Do_TMOS,
      &     Do_SK,DOCD
 C CITHR  - THRESHOLD FOR PRINTING CI COEFFICIENTS.
 C ESHFT  - OPTIONAL ENERGY SHIFT OF EACH INPUT STATE.

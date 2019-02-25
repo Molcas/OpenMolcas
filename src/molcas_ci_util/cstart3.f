@@ -10,7 +10,8 @@
 *                                                                      *
 * Copyright (C) 1996, Markus P. Fuelscher                              *
 ************************************************************************
-      Subroutine CStart_CI_Util(C,h0,TUVX,iSel,ExplE,ExplV,iFinal)
+      Subroutine CStart_CI_Util(C,h0,TUVX,iSel,ExplE,ExplV,
+     &                          nMaxSel,iFinal)
 ************************************************************************
 *                                                                      *
 *     Find initial CI-vectors                                          *
@@ -86,7 +87,7 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
 
 * special case: nSel=nConf
 
-      If ( nSel.eq.nConf ) then
+      If ( nSel.eq.nMaxSel ) then
         If ( IPRLEV.ge. DEBUG ) Write (6,*)
      &                  ' Initial CI-vectors are obtained by',
      &                  ' diagonalizing the explicit Hamiltonian'

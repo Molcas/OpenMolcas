@@ -403,7 +403,7 @@ C     Show=Show.and..Not.Primitive_Pass
                         ChTmp=Clean_BName(ChTemp,0)
 *
                         If(output)
-     &                  Write (6,'(I4,3X,A8,4X,A8,8(I3,4X,I2,4X))')
+     &                  Write (6,'(I5,3X,A8,4X,A8,8(I3,4X,I2,4X))')
      &                        iSO_,LblCnt(mdc),ChTmp,
      &                        (mc+iCo,iPrmt(NrOpr(iCoSet(iCo,0,mdc),
      &                        iOper,nIrrep),iChbs)*
@@ -753,7 +753,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                         End If
                         ChTmp=Clean_BName(ChTemp,0)
 *
-                        if(output) Write (6,'(I4,2X,A8,5X,A8,I3)')
+                        if(output) Write (6,'(I5,2X,A8,5X,A8,I3)')
      &                        iSO_,LblCnt(mdc),ChTmp,mc+imc
 *
                         iSOInf(1,iSO_)=iCnttp

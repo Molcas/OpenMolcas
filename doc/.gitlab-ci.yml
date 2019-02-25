@@ -8,6 +8,7 @@ doc:
     - mkdir build
     - cd build
     - cmake ..
+    - export PDF_FILE="../Manual.pdf"
     - make doc_all
     # Now build doxygen doc
     - cd ../doc/doxygen

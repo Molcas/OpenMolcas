@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE READIN_RASSI
 
+      use kVectors
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
 #endif
@@ -23,6 +24,7 @@
 #include "cntrl.fh"
 #include "jobin.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       CHARACTER*80 LINE
       INTEGER MXPLST
       PARAMETER (MXPLST=50)
@@ -709,19 +711,28 @@ C ------------------------------------------
         GoTo 100
       Endif
 C--------------------------------------------
-      If(Line(1:4).eq.'K-VE') then
+      If(Line(1:4).eq.'KVEC') then
 ! Set a specific direction of the incident light when computing
 ! the transition moment and oscillator stength in the use of
 ! the vector field (A) in the non-relativistic Hamiltonian.
         Do_SK=.TRUE.
-        Read(LuIn,*,ERR=997) (K_Vector(i),i=1,3)
+        Read(LuIn,*,ERR=401) nk_Vector
         Linenr=Linenr+1
-        tmp=K_Vector(1)**2+k_Vector(2)**2+k_Vector(3)**2
-        tmp = 1.0D0/Sqrt(tmp)
-        k_Vector(1)=k_Vector(1)*tmp
-        k_Vector(2)=k_Vector(2)*tmp
-        k_Vector(3)=k_Vector(3)*tmp
+ 400    Call mma_allocate(k_Vector,3,nk_Vector,label='k-Vector')
+        Do j = 1, nk_Vector
+           Read(LuIn,*,ERR=997) (k_Vector(i,j),i=1,3)
+           Linenr=Linenr+1
+           tmp=k_Vector(1,j)**2+k_Vector(2,j)**2+k_Vector(3,j)**2
+           tmp = 1.0D0/Sqrt(tmp)
+           k_Vector(1,j)=k_Vector(1,j)*tmp
+           k_Vector(2,j)=k_Vector(2,j)*tmp
+           k_Vector(3,j)=k_Vector(3,j)*tmp
+        End Do
         GoTo 100
+ 401    nk_Vector=1
+        BackSpace(LuIn)
+        Linenr=Linenr-1
+        GoTo 400
       Endif
 C--------------------------------------------
       IF(LINE(1:4).EQ.'DOCD') THEN

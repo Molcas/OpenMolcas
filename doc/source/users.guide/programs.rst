@@ -23,6 +23,7 @@ Programs
    programs/embq
    programs/espf
    programs/expbas
+   programs/extf
    programs/falcon
    programs/ffpt
    programs/gateway
@@ -58,6 +59,7 @@ Programs
    programs/single_aniso
    programs/slapaf
    programs/surfacehop
+   programs/symmetrize
    programs/vibrot
    programs/wfa
 
