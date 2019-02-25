@@ -69,8 +69,8 @@
       Subroutine DumpSagit()
       Implicit Real*8 (A-H,O-Z)
       Character*8 sagit
-      Call getenvf('MOLCAS_SAGIT',sagit)
-      If (sagit(1:1).eq.'y'.or.sagit(1:1).eq.'Y') Then
+c      Call getenvf('MOLCAS_SAGIT',sagit)
+c      If (sagit(1:1).eq.'y'.or.sagit(1:1).eq.'Y') Then
 CVV: dump info from runfile into ORB.std
 C    note that changes in info.fh
 C    should be reflected in sagit
@@ -80,5 +80,5 @@ C    should be reflected in sagit
         Call Koor2file(iutemp)
         Call Basi2file(iutemp)
         close(iutemp)
-      End If
+c      End If
       End
