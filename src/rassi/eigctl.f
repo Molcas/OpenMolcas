@@ -1732,7 +1732,6 @@ C And the same for the Dyson amplitudes
 ! release the memory again
          CALL GETMEM('TOT2K','FREE','REAL',LTOT2K,NSS**2)
 !
-! We will first allocate a matrix for the individual contributions
 !
       IF(DOCD) THEN
 * Lasse 2019
