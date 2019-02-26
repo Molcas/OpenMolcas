@@ -647,8 +647,15 @@ C ------------------------------------------
       END IF
 C--------------------------------------------
       IF(LINE(1:4).EQ.'DOCD') THEN
-! Perform regular circular dichroism
+! Perform regular circular dichroism - velocity gauge
         DOCD = .TRUE.
+        LINENR=LINENR+1
+        GOTO 100
+      END IF
+C ------------------------------------------
+      IF(LINE(1:4).EQ.'CD_L') THEN
+! Perform regular circular dichroism - mixed gauge
+        DOCD_L = .TRUE.
         LINENR=LINENR+1
         GOTO 100
       END IF
