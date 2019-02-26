@@ -2014,6 +2014,172 @@ C printing threshold
          CALL GETMEM('TOT2K','FREE','REAL',LTOT2K,NSS**2)
 
       END IF
+!
+! We will first allocate a matrix for the individual contributions
+!
+      IF(DOCD) THEN
+* Lasse 2019
+* New CD here with electric dipole and magnetic-dipole
+        IPRDXD=0
+        IPRDYD=0
+        IPRDZD=0
+        IPRDXM=0
+        IPRDYM=0
+        IPRDZM=0
+
+        IFANYD=0
+        IFANYM=0
+        DO ISOPR=1,NSOPR
+          IF (SOPRNM(ISOPR).EQ.'VELOCITY') THEN
+           IFANYD=1
+           IF(ISOCMP(ISOPR).EQ.1) IPRDXD=ISOPR
+           IF(ISOCMP(ISOPR).EQ.2) IPRDYD=ISOPR
+           IF(ISOCMP(ISOPR).EQ.3) IPRDZD=ISOPR
+          END IF
+          IF(SOPRNM(ISOPR).EQ.'ANGMOM  ') THEN
+           IFANYM=1
+           IF(ISOCMP(ISOPR).EQ.1) IPRDXM=ISOPR
+           IF(ISOCMP(ISOPR).EQ.2) IPRDYM=ISOPR
+           IF(ISOCMP(ISOPR).EQ.3) IPRDZM=ISOPR
+          END IF
+        END DO
+
+        IF((IFANYD.NE.0).AND.(IFANYM.NE.0)) THEN
+
+! Electric dipole
+         CALL GETMEM('DXR','ALLO','REAL',LDXR,NSS**2)
+         CALL GETMEM('DXI','ALLO','REAL',LDXI,NSS**2)
+         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXR),1)
+         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXI),1)
+         CALL GETMEM('DYR','ALLO','REAL',LDYR,NSS**2)
+         CALL GETMEM('DYI','ALLO','REAL',LDYI,NSS**2)
+         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDYR),1)
+         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDYI),1)
+         CALL GETMEM('DZR','ALLO','REAL',LDZR,NSS**2)
+         CALL GETMEM('DZI','ALLO','REAL',LDZI,NSS**2)
+         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDZR),1)
+         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDZI),1)
+
+         IF(IPRDXD.GT.0) THEN
+          CALL SMMAT(PROP,WORK(LDXR),NSS,SOPRNM(IPRDXD),ISOCMP(IPRDXD))
+          CALL ZTRNSF(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI))
+         END IF
+         IF(IPRDYD.GT.0) THEN
+          CALL SMMAT(PROP,WORK(LDYR),NSS,SOPRNM(IPRDYD),ISOCMP(IPRDYD))
+          CALL ZTRNSF(NSS,USOR,USOI,WORK(LDYR),WORK(LDYI))
+         END IF
+         IF(IPRDZD.GT.0) THEN
+          CALL SMMAT(PROP,WORK(LDZR),NSS,SOPRNM(IPRDZD),ISOCMP(IPRDZD))
+          CALL ZTRNSF(NSS,USOR,USOI,WORK(LDZR),WORK(LDZI))
+         END IF
+
+! Magnetic-Dipole
+         CALL GETMEM('DXR','ALLO','REAL',LMDXR,NSS**2)
+         CALL GETMEM('DXI','ALLO','REAL',LMDXI,NSS**2)
+         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LMDXR),1)
+         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LMDXI),1)
+         CALL GETMEM('DYR','ALLO','REAL',LMDYR,NSS**2)
+         CALL GETMEM('DYI','ALLO','REAL',LMDYI,NSS**2)
+         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LMDYR),1)
+         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LMDYI),1)
+         CALL GETMEM('DZR','ALLO','REAL',LMDZR,NSS**2)
+         CALL GETMEM('DZI','ALLO','REAL',LMDZI,NSS**2)
+         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LMDZR),1)
+         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LMDZI),1)
+
+         IF(IPRDXM.GT.0) THEN
+          CALL SMMAT(PROP,WORK(LMDXR),NSS,SOPRNM(IPRDXM),ISOCMP(IPRDXM))
+          CALL ZTRNSF(NSS,USOR,USOI,WORK(LMDXR),WORK(LMDXI))
+         END IF
+         IF(IPRDYM.GT.0) THEN
+          CALL SMMAT(PROP,WORK(LMDYR),NSS,SOPRNM(IPRDYM),ISOCMP(IPRDYM))
+          CALL ZTRNSF(NSS,USOR,USOI,WORK(LMDYR),WORK(LMDYI))
+         END IF
+         IF(IPRDZM.GT.0) THEN
+          CALL SMMAT(PROP,WORK(LMDZR),NSS,SOPRNM(IPRDZM),ISOCMP(IPRDZM))
+          CALL ZTRNSF(NSS,USOR,USOI,WORK(LMDZR),WORK(LMDZI))
+         END IF
+
+
+!
+! Only print the part calculated
+!
+          WRITE(6,*)
+          Call CollapseOutput(1,
+     &                  'Circular Dichoism '//
+     &                  'Electric-Dipole - Magnetic-Dipole '//
+     &                  'rotatory strengths (SO states):')
+          WRITE(6,'(3X,A)')
+     &                  '----------------------------------'//
+     &                  '----------------------------------------'
+          IF(OSTHR2.GT.0.0D0) THEN
+            WRITE(6,*) 'for rotatory strength at least',OSTHR2
+            WRITE(6,*)
+          END IF
+          WRITE(6,*) 'From ','To ','Rotatory strength'
+          WRITE(6,*)
+!
+         TWOOVER3C=2.0D0/(3.0D0*CONST_C_IN_AU_)
+
+         DO ISS=1,IEND
+          DO JSS=JSTART,NSS
+           EDIFF=ENERGY(JSS)-ENERGY(ISS)
+           IF(EDIFF.GT.0.0D0) THEN
+            IJSS=ISS+NSS*(JSS-1)
+
+            DX2=0.0D0
+            DY2=0.0D0
+            DZ2=0.0D0
+
+            IF((IPRDXM.GT.0).AND.(IPRDXD.GT.0)) THEN
+!             DX2=PROP(JSS,ISS,IPRDXM)*PROP(JSS,ISS,IPRDXD)
+              DX2 = WORK(LDXR-1+IJSS) * WORK(LMDXR-1+IJSS)
+            END IF
+            IF((IPRDYM.GT.0).AND.(IPRDYD.GT.0)) THEN
+!             DY2=PROP(JSS,ISS,IPRDYM)*PROP(JSS,ISS,IPRDYD)
+              DY2 = WORK(LDYR-1+IJSS) * WORK(LMDYR-1+IJSS)
+            END IF
+            IF((IPRDZM.GT.0).AND.(IPRDZD.GT.0)) THEN
+!             DZ2=PROP(JSS,ISS,IPRDZM)*PROP(JSS,ISS,IPRDZD)
+              DZ2 = WORK(LDZR-1+IJSS) * WORK(LMDZR-1+IJSS)
+            END IF
+
+            F = (DX2 + DY2 + DZ2)*TWOOVER3C !EDIFF*ONEOVER6C2
+
+            WRITE(6,33) ISS,JSS,F
+!           IF(ABS(F).GE.OSTHR2) THEN
+!             WRITE(6,33) ISS,JSS,F
+!           END IF
+!
+           END IF
+          END DO
+         END DO
+
+! Electric-Dipole
+         CALL GETMEM('DXR','FREE','REAL',LDXR,NSS**2)
+         CALL GETMEM('DXI','FREE','REAL',LDXI,NSS**2)
+         CALL GETMEM('DYR','FREE','REAL',LDYR,NSS**2)
+         CALL GETMEM('DYI','FREE','REAL',LDYI,NSS**2)
+         CALL GETMEM('DZR','FREE','REAL',LDZR,NSS**2)
+         CALL GETMEM('DZI','FREE','REAL',LDZI,NSS**2)
+
+! Magnetic-Dipole
+         CALL GETMEM('DXR','FREE','REAL',LMDXR,NSS**2)
+         CALL GETMEM('DXI','FREE','REAL',LMDXI,NSS**2)
+         CALL GETMEM('DYR','FREE','REAL',LMDYR,NSS**2)
+         CALL GETMEM('DYI','FREE','REAL',LMDYI,NSS**2)
+         CALL GETMEM('DZR','FREE','REAL',LMDZR,NSS**2)
+         CALL GETMEM('DZI','FREE','REAL',LMDZI,NSS**2)
+
+         WRITE(6,*)
+
+         Call CollapseOutput(0,
+     &                  'Circular Dichoism '//
+     &                  'Electric-Dipole - Magnetic-Dipole '//
+     &                  'rotatory strengths (SO states):')
+        END IF
+      END IF
+* CD end
 
 ! +++ J. Norell 19/7 - 2018
 ! Dyson amplitudes for (1-electron) ionization transitions
