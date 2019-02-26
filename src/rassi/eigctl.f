@@ -1735,8 +1735,6 @@ C And the same for the Dyson amplitudes
 ! We will first allocate a matrix for the individual contributions
 !
       IF(DOCD) THEN
-      CALL GETMEM('INDCD','ALLO','REAL',LINDCD,NSS**2)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LINDCD),1)
 * Lasse 2019
 * New CD here with electric dipole and magnetic-dipole
         IPRDXD=0
@@ -1755,11 +1753,11 @@ C And the same for the Dyson amplitudes
            IF(ICOMP(IPROP).EQ.2) IPRDYD=IPROP
            IF(ICOMP(IPROP).EQ.3) IPRDZD=IPROP
           END IF
-          IF(SOPRNM(IPROP).EQ.'ANGMOM  ') THEN
+          IF(PNAME(IPROP).EQ.'ANGMOM  ') THEN
            IFANYM=1
-           IF(ISOCMP(IPROP).EQ.1) IPRDXM=IPROP
-           IF(ISOCMP(IPROP).EQ.2) IPRDYM=IPROP
-           IF(ISOCMP(IPROP).EQ.3) IPRDZM=IPROP
+           IF(ICOMP(IPROP).EQ.1) IPRDXM=IPROP
+           IF(ICOMP(IPROP).EQ.2) IPRDYM=IPROP
+           IF(ICOMP(IPROP).EQ.3) IPRDZM=IPROP
           END IF
         END DO
 
@@ -1807,8 +1805,7 @@ C And the same for the Dyson amplitudes
             END IF
 
             F = (DX2 + DY2 + DZ2)*TWOOVER3C !EDIFF*ONEOVER6C2
-! Add it to the total
-            WORK(LTOT2K-1+IJSS) = WORK(LTOT2K-1+IJSS) + F
+
             WRITE(6,33) ISS,JSS,F
 !           IF(ABS(F).GE.OSTHR2) THEN
 !             WRITE(6,33) ISS,JSS,F
@@ -1824,8 +1821,6 @@ C And the same for the Dyson amplitudes
      &                  'Electric-Dipole - Magnetic-Dipole '//
      &                  'rotatory strengths (spin-free states):')
         END IF
-! release the memory again
-         CALL GETMEM('INDCD','FREE','REAL',LINDCD,NSS**2)
       END IF
 * CD end
 
