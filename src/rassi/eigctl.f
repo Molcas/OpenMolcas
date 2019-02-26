@@ -1748,18 +1748,18 @@ C And the same for the Dyson amplitudes
 
         IFANYD=0
         IFANYM=0
-        DO ISOPR=1,NPROP
+        DO IPROP=1,NPROP
           IF (PNAME(IPROP).EQ.'VELOCITY') THEN
-             IFANYD=1
-             IF(ICOMP(IPROP).EQ.1) IPRDXD=IPROP
-             IF(ICOMP(IPROP).EQ.2) IPRDYD=IPROP
-             IF(ICOMP(IPROP).EQ.3) IPRDZD=IPROP
+           IFANYD=1
+           IF(ICOMP(IPROP).EQ.1) IPRDXD=IPROP
+           IF(ICOMP(IPROP).EQ.2) IPRDYD=IPROP
+           IF(ICOMP(IPROP).EQ.3) IPRDZD=IPROP
           END IF
-          IF(SOPRNM(ISOPR).EQ.'ANGMOM  ') THEN
+          IF(SOPRNM(IPROP).EQ.'ANGMOM  ') THEN
            IFANYM=1
-           IF(ISOCMP(ISOPR).EQ.1) IPRDXM=ISOPR
-           IF(ISOCMP(ISOPR).EQ.2) IPRDYM=ISOPR
-           IF(ISOCMP(ISOPR).EQ.3) IPRDZM=ISOPR
+           IF(ISOCMP(IPROP).EQ.1) IPRDXM=IPROP
+           IF(ISOCMP(IPROP).EQ.2) IPRDYM=IPROP
+           IF(ISOCMP(IPROP).EQ.3) IPRDZM=IPROP
           END IF
         END DO
 

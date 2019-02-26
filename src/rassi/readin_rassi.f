@@ -645,6 +645,13 @@ C ------------------------------------------
         LINENR=LINENR+1
         GOTO 100
       END IF
+C--------------------------------------------
+      IF(LINE(1:4).EQ.'DOCD') THEN
+! Perform regular circular dichroism
+        DOCD = .TRUE.
+        LINENR=LINENR+1
+        GOTO 100
+      END IF
 C ------------------------------------------
       IF(LINE(1:4).EQ.'DYSO')THEN
 ! Enable Dyson orbital calculations
@@ -734,11 +741,6 @@ C--------------------------------------------
         Linenr=Linenr-1
         GoTo 400
       Endif
-C--------------------------------------------
-      IF(LINE(1:4).EQ.'DOCD') THEN
-! Perform regular circular dichroism
-        DOCD = .TRUE.
-      END IF
 #ifdef _DMRG_
 C--------------------------------------------
       if (Line(1:4).eq.'QDSC') then
