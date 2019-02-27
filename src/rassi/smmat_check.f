@@ -40,6 +40,10 @@ C 2 = spin dependent property, triplet operator
            IFSPIN=1
         ELSE IF (PRLBL(1:5).EQ.'TMOS0') THEN
            IFSPIN=2
+*
+*          Note that the integral is complex. Select the real or the
+*          imaginary component here.
+*
            IF (PRLBL(1:8).EQ.PNAME(IPROP)) IPRNUM=IPROP
         END IF
       END DO
@@ -118,7 +122,18 @@ C see section 3 (Spin_orbit coupling in RASSI) in
 C P A Malmqvist, et. al CPL, 357 (2002) 230-240
 C for details
 C
-C Note that we work on the x,y, and Z components at this time.
+C Note that we work on the x,y, and z components at this time.
+C
+C On page 234 we have the notation V^{AB}(x), that is the
+C potential has Cartesian components. Here, however, this is
+C partitioned in a slightly different way since we have that
+C V^{AB}(x)=(k x e_l)_x V^{AB}. We will only handle the
+C V^{AB} part.
+C
+C Hence, we will compute the contributions to T(i), i=x,y,z
+C here and form the inner product
+C (k x e_l)_i V^{AB} . T(i)
+C outside the code.
 C
                   IF(ABS(MPLET1-MPLET2).GT.2) CYCLE
                   IF(ABS(MSPROJ1-MSPROJ2).GT.2) CYCLE

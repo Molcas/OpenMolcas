@@ -518,26 +518,71 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *              iCar=2: 1/2i(S(+)-S(-))
 *              iCar=3: Sz
 *
+*              Here we need to be very careful. The operator is
+*              similar to the L.S operator, the spin-orbit coupling.
+*              However, here we have that the operator is B.S. Thus
+*              we can do this in a similar fashion as the spin-orbit
+*              coupling, but with some important difference.
+*
+*              For the spin-orbit coupling the L operator is divided
+*              into x-, y-, and z-components, that is the operator
+*              will be represented by three different integrals.
+*              For the integrals over B it is similar but the x-, y-,
+*              and z-components are constants outside of the intergral.
+*              For example, the x-component is expressed as
+*              (k x e_l)_x <0|e^(i k.r)|n>. In this section we will
+*              handle the (k x e_l)_x part out side the loop over the
+*              Cartesian components.
+*
+*              We have to note one further difference, the integrals
+*              are complex in this case.
+*
+*              Let us now compute the contributions T(i), i=x,y,z
+*
+*              In the equations we find that the y-component is imaginary,
+*              see the equations on page 234 in Per Ake's paper. Hence,
+*              the y-component is treated slightly differently.
+*
                Do iCar = 1, 3
+*
                   CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXR),1)
                   CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXI),1)
                   If (iCar.eq.1.or.iCar.eq.3) Then
+*
 *                    pick up the real component
                      CALL SMMAT_CHECK(PROP,WORK(LDXR),NSS,'TMOS0  R',
      &                                iCar,
      &                                USOR,USOI,ISO,JSO,ThrSparse)
-*                 Else
 *                    pick up the imaginary component
                      CALL SMMAT_CHECK(PROP,WORK(LDXI),NSS,'TMOS0  I',
      &                                iCar,
      &                                USOR,USOI,ISO,JSO,ThrSparse)
+*
+                  Else
+*
+*                    For the y-component we have to interchange the real and
+*                    the imaginary components. The real component gets a
+*                    minus sign due to the product ixi=-1
+*
+*                    pick up the real component
+                     CALL SMMAT_CHECK(PROP,WORK(LDXI),NSS,'TMOS0  R',
+     &                                iCar,
+     &                                USOR,USOI,ISO,JSO,ThrSparse)
+*                    pick up the imaginary component
+                     CALL SMMAT_CHECK(PROP,WORK(LDXR),NSS,'TMOS0  I',
+     &                                iCar,
+     &                                USOR,USOI,ISO,JSO,ThrSparse)
+                     Call DScal_(NSS**2,-1.0D0,WORK(LDXR),1)
+*
                   End If
+*
                   CALL ZTRNSF_IJ(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI),
      &                           WORK(LTMP),T1(iCar),ISO,JSO)
                End Do
 *
 *              Assemble the spin-dependent part of the transition
-*              moment.
+*              moment, that is, it is here we do the actual inner
+*              product of the operator B.s.
 *
                E1B=kxe1(1)*T1(1)+kxe1(2)*T1(2)+kxe1(3)*T1(3)
                E2B=kxe2(1)*T1(1)+kxe2(2)*T1(2)+kxe2(3)*T1(3)
