@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 1998, Per Ake Malmqvist                                *
+*               2019, Stefano Battaglia                                *
 ************************************************************************
 *--------------------------------------------*
 * 1998  PER-AAKE MALMQUIST                   *
@@ -35,7 +36,6 @@ C The ket state is JSTATE.
 C Loop over the bra states
       DO ISTATE=1,NSTATE
         IF(ISTATE.EQ.JSTATE) THEN
-          ! HEFF(ISTATE,JSTATE)=E2TOT
           HEFF(ISTATE,JSTATE)=HEFF(ISTATE,JSTATE)+E2CORR
         ELSE
 C Compute the effective Hamiltonian:

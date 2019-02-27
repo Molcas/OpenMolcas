@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 1998, Per Ake Malmqvist                                *
+*               2019, Stefano Battaglia                                *
 ************************************************************************
       SUBROUTINE CASPT2(IRETURN)
       USE SUPERINDEX

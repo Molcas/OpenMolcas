@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 1998,2006, Per Ake Malmqvist                           *
+*               2019, Stefano Battaglia                                *
 ************************************************************************
 *--------------------------------------------*
 * 1998, 2006, Per Ake Malmqvist              *
