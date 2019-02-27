@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE EIGCTL(PROP,OVLP,DYSAMPS,HAM,EIGVEC,ENERGY)
+      USE kVectors
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -40,7 +41,8 @@
       INTEGER IOFF(8), SECORD(4)
       CHARACTER*8 LABEL
       Complex*16 T0(3), TIJ(3), TM1, TM2, E1A, E2A, E1B, E2B,
-     &           IMAGINARY, T1(3), TMR, TML
+     &           IMAGINARY, T1(3)
+*    &           IMAGINARY, T1(3), TMR, TML
       Character*60 FMTLINE
 
 #ifdef _DEBUG_RASSI_
@@ -62,6 +64,8 @@ C CONSTANTS:
 #endif
       AU2EV=CONV_AU_TO_EV_
       AU2CM=CONV_AU_TO_CM1_
+      DEBYE=CONV_AU_TO_DEBYE_
+      AU2ESUISH=DEBYE**2 * 1.0d2
       IMAGINARY=DCMPLX(0.0D0,1.0D0)
 
 #ifdef _DEBUG_RASSI_
@@ -637,6 +641,14 @@ C And the same for the Dyson amplitudes
         losc_strength=isFreeUnit(losc_strength)
         Call Molcas_Open(losc_strength,'osc_strength.au')
 
+        If (Do_SK) Then
+           nVec = nk_Vector
+        Else
+           nVec = 1
+        End If
+*
+        Do iVec = 1, nVec
+*
         LNCNT=0
         FMAX=0.0D0
         Two3rds=2.0D0/3.0D0
@@ -646,21 +658,22 @@ C And the same for the Dyson amplitudes
           J=IndexE(L_)
           IJ=I+NSTATE*(J-1)
           EDIFF=ENERGY(J)-ENERGY(I)
+*
           IF(EDIFF.GT.0.0D0) THEN
            DX2=0.0D0
            DY2=0.0D0
            DZ2=0.0D0
            If (Do_SK) Then
               tmp=0.0D0
-              IF(IPRDX.GT.0) tmp=tmp+PROP(J,I,IPRDX)*k_vector(1)
-              IF(IPRDY.GT.0) tmp=tmp+PROP(J,I,IPRDY)*k_vector(2)
-              IF(IPRDZ.GT.0) tmp=tmp+PROP(J,I,IPRDZ)*k_vector(2)
+              IF(IPRDX.GT.0) tmp=tmp+PROP(J,I,IPRDX)*k_vector(1,iVec)
+              IF(IPRDY.GT.0) tmp=tmp+PROP(J,I,IPRDY)*k_vector(2,iVec)
+              IF(IPRDZ.GT.0) tmp=tmp+PROP(J,I,IPRDZ)*k_vector(2,iVec)
               IF(IPRDX.GT.0)
-     &           DX2=(PROP(J,I,IPRDX)-tmp*k_vector(1))**2
+     &           DX2=(PROP(J,I,IPRDX)-tmp*k_vector(1,iVec))**2
               IF(IPRDY.GT.0)
-     &           DY2=(PROP(J,I,IPRDY)-tmp*k_vector(2))**2
+     &           DY2=(PROP(J,I,IPRDY)-tmp*k_vector(2,iVec))**2
               IF(IPRDZ.GT.0)
-     &           DZ2=(PROP(J,I,IPRDZ)-tmp*k_vector(3))**2
+     &           DZ2=(PROP(J,I,IPRDZ)-tmp*k_vector(3,iVec))**2
            Else
               IF(IPRDX.GT.0) DX2=PROP(J,I,IPRDX)**2
               IF(IPRDY.GT.0) DY2=PROP(J,I,IPRDY)**2
@@ -675,28 +688,28 @@ C And the same for the Dyson amplitudes
            AY=(AFACTOR*EDIFF**2)*FY
            AZ=(AFACTOR*EDIFF**2)*FZ
            A =(AFACTOR*EDIFF**2)*F
-           IF(F.ge.OSTHR) THEN
-            IF(LNCNT.EQ.0) THEN
-              If (Do_SK) Then
-                 WRITE(6,*)
-                 WRITE(6,'(4x,a,3F8.4,a)')
+           IF (F.ge.OSTHR) THEN
+              IF (LNCNT.EQ.0) THEN
+                 If (Do_SK) Then
+                    WRITE(6,*)
+                    WRITE(6,'(4x,a,3F8.4,a)')
      &                 'Direction of the k-vector: ',
-     &                  (k_vector(k),k=1,3),' (au)'
-                 WRITE(6,'(4x,a)')
+     &                  (k_vector(k,iVec),k=1,3),' (au)'
+                    WRITE(6,'(4x,a)')
      &                 'The light is assumed to be unpolarized.'
-                 WRITE(6,*)
-              End If
-             WRITE(6,31) 'From','To','Osc. strength',
+                    WRITE(6,*)
+                 End If
+                 WRITE(6,31) 'From','To','Osc. strength',
      &                   'Einstein coefficients Ax, Ay, Az (sec-1)   ',
      &                   'Total A (sec-1)'
-             WRITE(6,32)
-             WRITE(losc_strength,34) 'From','To','Osc. strength',
+                 WRITE(6,32)
+                 WRITE(losc_strength,34) 'From','To','Osc. strength',
      &                   'Fx','Fy','Fz','(A.U.)'
-             WRITE(losc_strength,32)
-            END IF
-            LNCNT=LNCNT+1
-            WRITE(6,33) I,J,F,AX,AY,AZ,A
-            write(losc_strength,33) I,J,F,Fx,Fy,Fz
+                 WRITE(losc_strength,32)
+              END IF
+              LNCNT=LNCNT+1
+              WRITE(6,33) I,J,F,AX,AY,AZ,A
+              write(losc_strength,33) I,J,F,Fx,Fy,Fz
            END IF
 ! Store dipole oscillator strength
             WORK(LDL-1+IJ) = F
@@ -709,12 +722,15 @@ C And the same for the Dyson amplitudes
           END IF
          END DO
         END DO
-        IF(LNCNT.EQ.0) THEN
-         WRITE(6,*)' ( Max oscillator strength is only ',FMAX,')'
+        IF (LNCNT.EQ.0) THEN
+           WRITE(6,*)' ( Max oscillator strength is only ',FMAX,')'
         ELSE
-         WRITE(6,32)
-         WRITE(losc_strength,32)
+           WRITE(6,32)
+           WRITE(losc_strength,32)
         END IF
+*
+        End Do ! iVec
+*
         close(losc_strength)
         CALL CollapseOutput(0,'Dipole transition strengths '//
      &                        '(spin-free states):')
@@ -734,6 +750,14 @@ C And the same for the Dyson amplitudes
         END IF
         WRITE(6,*)
 
+        If (Do_SK) Then
+           nVec = nk_Vector
+        Else
+           nVec = 1
+        End If
+*
+        Do iVec = 1, nVec
+*
         LNCNT=0
         DMAX=0.0D0
         DO I=1,NSTATE-1
@@ -743,12 +767,12 @@ C And the same for the Dyson amplitudes
            DZ=0.0D0
            If (Do_SK) Then
               tmp=0.0D0
-              IF(IPRDX.GT.0) tmp=tmp+PROP(J,I,IPRDX)*k_vector(1)
-              IF(IPRDY.GT.0) tmp=tmp+PROP(J,I,IPRDY)*k_vector(2)
-              IF(IPRDZ.GT.0) tmp=tmp+PROP(J,I,IPRDZ)*k_vector(2)
-              IF(IPRDX.GT.0) DX=PROP(J,I,IPRDX)-tmp*k_vector(1)
-              IF(IPRDY.GT.0) DY=PROP(J,I,IPRDY)-tmp*k_vector(2)
-              IF(IPRDZ.GT.0) DZ=PROP(J,I,IPRDZ)-tmp*k_vector(3)
+              IF(IPRDX.GT.0) tmp=tmp+PROP(J,I,IPRDX)*k_vector(1,iVec)
+              IF(IPRDY.GT.0) tmp=tmp+PROP(J,I,IPRDY)*k_vector(2,iVec)
+              IF(IPRDZ.GT.0) tmp=tmp+PROP(J,I,IPRDZ)*k_vector(3,iVec)
+              IF(IPRDX.GT.0) DX=PROP(J,I,IPRDX)-tmp*k_vector(1,iVec)
+              IF(IPRDY.GT.0) DY=PROP(J,I,IPRDY)-tmp*k_vector(2,iVec)
+              IF(IPRDZ.GT.0) DZ=PROP(J,I,IPRDZ)-tmp*k_vector(3,iVec)
            Else
               IF(IPRDX.GT.0) DX2=PROP(J,I,IPRDX)**2
               IF(IPRDY.GT.0) DY2=PROP(J,I,IPRDY)**2
@@ -782,8 +806,11 @@ C And the same for the Dyson amplitudes
         END IF
         CALL CollapseOutput(0,'Dipole transition vectors '//
      &                        '(spin-free states):')
-       END IF
-
+*
+*
+      End Do ! iVec
+*
+      End If
       END IF
 *
 *     Transition moments computed with the velocity operator.
@@ -814,7 +841,15 @@ C And the same for the Dyson amplitudes
             WRITE(6,30) 'for osc. strength at least',OSTHR
          END IF
          WRITE(6,*)
-
+*
+         If (Do_SK) Then
+            nVec = nk_Vector
+         Else
+            nVec = 1
+         End If
+*
+         Do iVec = 1, nVec
+*
          LNCNT=0
          FMAX=0.0D0
          Two3rds=2.0D0/3.0D0
@@ -829,16 +864,16 @@ C And the same for the Dyson amplitudes
                DY2=0.0D0
                DZ2=0.0D0
                If (Do_SK) Then
-                  tmp=0.0D0
-                  IF(IPRDX.GT.0) tmp=tmp+PROP(J,I,IPRDX)*k_vector(1)
-                  IF(IPRDY.GT.0) tmp=tmp+PROP(J,I,IPRDY)*k_vector(2)
-                  IF(IPRDZ.GT.0) tmp=tmp+PROP(J,I,IPRDZ)*k_vector(2)
-                  IF(IPRDX.GT.0)
-     &               DX2=(PROP(J,I,IPRDX)-tmp*k_vector(1))**2
-                  IF(IPRDY.GT.0)
-     &               DY2=(PROP(J,I,IPRDY)-tmp*k_vector(2))**2
-                  IF(IPRDZ.GT.0)
-     &               DZ2=(PROP(J,I,IPRDZ)-tmp*k_vector(3))**2
+                 tmp=0.0D0
+                 IF(IPRDX.GT.0) tmp=tmp+PROP(J,I,IPRDX)*k_vector(1,iVec)
+                 IF(IPRDY.GT.0) tmp=tmp+PROP(J,I,IPRDY)*k_vector(2,iVec)
+                 IF(IPRDZ.GT.0) tmp=tmp+PROP(J,I,IPRDZ)*k_vector(3,iVec)
+                 IF(IPRDX.GT.0)
+     &              DX2=(PROP(J,I,IPRDX)-tmp*k_vector(1,iVec))**2
+                 IF(IPRDY.GT.0)
+     &              DY2=(PROP(J,I,IPRDY)-tmp*k_vector(2,iVec))**2
+                 IF(IPRDZ.GT.0)
+     &              DZ2=(PROP(J,I,IPRDZ)-tmp*k_vector(3,iVec))**2
                Else
                   IF(IPRDX.GT.0) DX2=PROP(J,I,IPRDX)**2
                   IF(IPRDY.GT.0) DY2=PROP(J,I,IPRDY)**2
@@ -859,7 +894,7 @@ C And the same for the Dyson amplitudes
                         WRITE(6,*)
                         WRITE(6,'(4x,a,3F8.4,a)')
      &                        'Direction of the k-vector: ',
-     &                         (k_vector(k),k=1,3),' (au)'
+     &                         (k_vector(k,ivec),k=1,3),' (au)'
                         WRITE(6,'(4x,a)')
      &                        'The light is assumed to be unpolarized.'
                         WRITE(6,*)
@@ -884,6 +919,8 @@ C And the same for the Dyson amplitudes
          ELSE
             WRITE(6,32)
          END IF
+*
+         End Do ! iVec
          CALL CollapseOutput(0,'Velocity transition strengths '//
      &                         '(spin-free states):')
          I_HAVE_DV = 1
@@ -1846,6 +1883,8 @@ C And the same for the Dyson amplitudes
 *
             E1A = P1(1)*T0(1) + P1(2)*T0(2) + P1(3)*T0(3)
             E2A = P2(1)*T0(1) + P2(2)*T0(2) + P2(3)*T0(3)
+            E1A = - Imaginary * E1A
+            E2A = - Imaginary * E2A
 *
 *           (2) the magnetic-spin part
 *
@@ -1863,7 +1902,7 @@ C And the same for the Dyson amplitudes
 *           Accumulate all contributions (S_1,MS_1|O|S_2,MS_2)
 *
             F=0.0D0
-            Fm=0.0D0
+            R=0.0D0
             r_S1= DBLE(MPLET_I-1)/2.0D0
             r_S2= DBLE(MPLET_J-1)/2.0D0
             r_MS1 = - r_S1 - 1.0D0
@@ -1940,8 +1979,8 @@ C And the same for the Dyson amplitudes
 *                 Just the magnetic part
                   TM2 = IMAGINARY*(g_Elec/2.0D0)*E2B
                   TM1 = IMAGINARY*(g_Elec/2.0D0)*E1B
-                  TM_2 = Half*DBLE(DCONJG(TM1)*TM1 +DCONJG(TM2)*TM2)
-                  Fm= Max( Fm, 2.0D0*TM_2/EDIFF )
+                  TM_2 =      DBLE(DCONJG(TM1)*TM1 -DCONJG(TM2)*TM2)
+                  R= Max( R, 2.0D0*TM_2/EDIFF )
 *
                END DO
             END DO
@@ -2036,14 +2075,12 @@ C And the same for the Dyson amplitudes
 *
       If (Do_SK) Then
          nQuad=1
-         Call GetMem('SK','ALLO','REAL',ipR,4)
-         Work(ipR  )=k_Vector(1)
-         Work(ipR+1)=k_Vector(2)
-         Work(ipR+2)=k_Vector(3)
-         Work(ipR+3)=1.0D0   ! Dummy weight
+         Call GetMem('SK','ALLO','REAL',ipR,4*nQuad)
+         nVec = nk_Vector
       Else
          Call Setup_O()
          Call Do_Lebedev(L_Eff,nQuad,ipR)
+         nVec = 1
       End If
 *
 *     Get table of content for density matrices.
@@ -2072,15 +2109,26 @@ C And the same for the Dyson amplitudes
       nIJ=nState*(nState-1)/2
       nData= 1 + 3 + 2*3 + 2*2
       nStorage = nIJ * nQuad * nData
-      Call GetMem('STORAGE','Allo','Real',ipStorage,nStorage)
-      ip_w      = 1
-      ip_kvector= ip_w + 1
-      ip_e1     = ip_kvector + 3
-      ip_e2     = ip_e1 + 3
-      ip_TM1R   = ip_e2 + 3
-      ip_TM1I   = ip_TM1R + 1
-      ip_TM2R   = ip_TM1I + 1
-      ip_TM2I   = ip_TM2R + 1
+      mStorage = nStorage * nVec
+      Call GetMem('STORAGE','Allo','Real',ipStorage,mStorage)
+*
+      Do iVec = 1, nVec
+*
+         ip_w      = 1
+         ip_kvector= ip_w + 1
+         ip_e1     = ip_kvector + 3
+         ip_e2     = ip_e1 + 3
+         ip_TM1R   = ip_e2 + 3
+         ip_TM1I   = ip_TM1R + 1
+         ip_TM2R   = ip_TM1I + 1
+         ip_TM2I   = ip_TM2R + 1
+*
+         If (Do_SK) Then
+            Work(ipR  )=k_Vector(1,iVec)
+            Work(ipR+1)=k_Vector(2,iVec)
+            Work(ipR+2)=k_Vector(3,iVec)
+            Work(ipR+3)=1.0D0   ! Dummy weight
+         End If
 *
       AFACTOR=32.1299D09
       HALF=0.5D0
@@ -2152,7 +2200,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
             FY=0.0D0
             FZ=0.0D0
             F =0.0D0
-            Fm=0.0D0
+            R =0.0D0
 *
 *           Initialize output arrays
 *
@@ -2161,6 +2209,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 
             Do iQuad = 1, nQuad
                iStorage = iOff_ + (iQuad-1)*nData + ipStorage -1
+     &                  + (iVec-1)*nStorage
 *
 *              Read or generate the wavevector
 *
@@ -2253,6 +2302,8 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *
                E1A = P1(1)*T0(1) + P1(2)*T0(2) + P1(3)*T0(3)
                E2A = P2(1)*T0(1) + P2(2)*T0(2) + P2(3)*T0(3)
+               E1A = - Imaginary * E1A
+               E2A = - Imaginary * E2A
 *
 *              (2) the magnetic-spin part
 *
@@ -2352,10 +2403,21 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *
 *                    Compute the rotatory strength
 *
-                     TMR = (TM1 + IMAGINARY*TM2)/Sqrt(2.0D0)
-                     TML = (TM1 - IMAGINARY*TM2)/Sqrt(2.0D0)
-                     TM_2 =      DBLE(DCONJG(TMR)*TMR -DCONJG(TML)*TML)
-                     R_Temp= Max(R_Temp,2.0D0*TM_2/ABS(EDIFF))
+*                    TMR = (TM1 + IMAGINARY*TM2)/Sqrt(2.0D0)
+*                    TML = (TM1 - IMAGINARY*TM2)/Sqrt(2.0D0)
+*
+*                    TM_2 =      DBLE(DCONJG(TMR)*TMR -DCONJG(TML)*TML)
+                     TM_2 = - 2.0D0*(
+     &                              DBLE(TM1)*AIMAG(TM2)
+     &                             -DBLE(TM2)*AIMAG(TM1)
+     &                              )
+                     If (Abs(R_Temp).lt.Abs(TM_2/ABS(EDIFF)))
+     &                  R_Temp=TM_2/ABS(EDIFF)
+*
+*                    Now let's convert this to the messy unit of the
+*                    rotational strength: 10^-40 esu^2 cm^2.
+*
+                     R_Temp=R_Temp*AU2ESUISH
 *
                   END DO
                END DO
@@ -2381,15 +2443,19 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                WORK(LWEIGH+(IQUAD-1)+2*NQUAD) = X
                WORK(LWEIGH+(IQUAD-1)+3*NQUAD) = Y
                WORK(LWEIGH+(IQUAD-1)+4*NQUAD) = Z
-
+*
             End Do ! iQuad
 *
             Call Add_Info('ITMS(SF)',F,1,6)
+            Call Add_Info('ROTS(SF)',R,1,6)
 *
 *           Note that the weights are normalized to integrate to
 *           4*pi over the solid angles.
 *
-            F = F / (4.0D0*PI)
+            If (.NOT.Do_SK) Then
+               F = F / (4.0D0*PI)
+               R = R / (4.0D0*PI)
+            End If
 
             IF (ABS(F).LT.OSTHR) CYCLE
             AX=(AFACTOR*EDIFF**2)*FX
@@ -2401,9 +2467,12 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                WRITE(6,*)
                If (Do_SK) Then
                   CALL CollapseOutput(1,
-     &                   'Transition moment strengths:')
+     &                'Transition moment strengths:')
+                  WRITE(6,'(4x,a,3F8.4,a)')
+     &                  'Direction of the k-vector: ',
+     &                   (k_vector(k,iVec),k=1,3),' (au)'
                Else
-               CALL CollapseOutput(1,
+                  CALL CollapseOutput(1,
      &                'Isotropic transition moment strengths '//
      &                '(spin-free states):')
                End If
@@ -2414,18 +2483,13 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                   WRITE(6,30) 'for osc. strength at least',OSTHR
                END IF
                WRITE(6,*)
-               If (Do_SK) Then
-                  WRITE(6,'(4x,a,3F8.4,a)')
-     &                  'Direction of the k-vector: ',
-     &                   (k_vector(k),k=1,3),' (au)'
-                  WRITE(6,'(4x,a)')
-     &                  'The light is assumed to be unpolarized.'
-               Else
+               If (.NOT.Do_SK) Then
                   WRITE(6,'(4x,a,I4,a)')
      &                 'Integrated over ',nQuad,' directions of the'//
      &                 ' wave vector'
                   WRITE(6,'(4x,a)')
-     &                 'Integrated over all directions of the polar'//
+     &                 'The oscillator strength is '//
+     &                 'integrated over all directions of the polar'//
      &                 'ization vector'
                End If
                WRITE(6,*)
@@ -2434,7 +2498,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
      &               'Einstein coefficients Ax, Ay, Az (sec-1)   ',
      &               'Total A (sec-1)'
                WRITE(6,32)
-                iPrint=1
+               iPrint=1
             END IF
 *
 *     Regular print
@@ -2489,6 +2553,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *
          END DO
       END DO
+*
       If (iPrint.EQ.1) THEN
          WRITE(6,32)
          If (Do_SK) Then
@@ -2500,6 +2565,8 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
      &                '(spin-free states):')
          End If
       END IF
+*
+      End Do ! iVec
 *
 #ifdef _HDF5_
       Call mh5_put_dset(wfn_sfs_tm,Work(ipStorage))
@@ -2552,7 +2619,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 35    FORMAT (5X,31('-'))
 36    FORMAT (5X,2(1X,I4),6X,15('-'),1X,ES15.8,1X,A15)
 37    FORMAT (5X,2(1X,I4),6X,15('-'),1X,A15,1X,ES15.8)
-38    FORMAT (5X,2(1X,I4),5X,6(1X,ES15.8))
+38    FORMAT (5X,2(1X,I4),5X,2(1X,F8.6,7X),4(1X,ES15.8))
 39    FORMAT (5X,2(1X,A4),6X,A15,3X,A13,1X,A47,1X,A15)
       END
       Subroutine Setup_O()

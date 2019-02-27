@@ -112,7 +112,7 @@ interaction with the intruding Rydberg state is small. It might then be
 safe to neglect the warning. A safer procedure is to include the Rydberg
 orbital into the active space. It can sometimes be deleted from the MO space.
 
-Calculations on compounds with heavy atoms (transition metals, actinides, etc)
+Calculations on compounds with heavy atoms (transition metals, actinides, etc.)
 may yield many virtual orbitals with low energies. The interaction energies for
 excitations to states where these orbitals are occupied are often very small and
 the low denominators can then be removed by a suitable level shift (see below).

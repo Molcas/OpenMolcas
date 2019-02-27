@@ -66,7 +66,7 @@ C -- INITIALIZE THE DAVIDSON DIAGONALIZATION
 C -------------------------------------------------------------------- C
 C
       lRoots=lRoots+hroots
-      Call Ini_David(lRoots,nConf,nDet,nSel,nAc,LuDavid)
+      Call Ini_David(lRoots,nConf,nDet,nSel,n_keep,nAc,LuDavid)
 
       IPRLEV=IPRLOC(3)
 C
@@ -97,19 +97,14 @@ C
          lExplE=1
          lExplV=1
       ENDIF
+      nMaxSel=nConf
+      If (N_ELIMINATED_GAS_MOLCAS.gt.0) nmaxSel=nCSF_HEXS
+
       IF (IPRLEV.GE.20 .AND. NAC .NE. 0)
      &        WRITE(6,1100) 'CSTART',LW4,lSel,lExplE,lExplV
       Call CStart_CI_Util(WORK(LW4),LW1,TUVX,
-     &     iWork(lSel),Work(lExplE),Work(lExplV),IFINAL)
+     &     iWork(lSel),Work(lExplE),Work(lExplV),nMaxSel,IFINAL)
 
-*MGD if nsel=nCSF_HEXS, save CI vectors
-        If (N_ELIMINATED_GAS_MOLCAS.gt.0.and.
-     &      nSel.ne.nConf.and.nSel.eq.nCSF_HEXS) then
-          Do i = 1,lRoots
-            Call Load_CI_vec(i,nConf,WORK(LW4),LuDavid)
-            Call Save_tmp_CI_vec(i,nConf,WORK(LW4),LuDavid)
-          End Do
-        EndIf
       CALL GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
 C
 C -------------------------------------------------------------------- C
@@ -205,7 +200,7 @@ C
 1100  FORMAT(1X,/,1X,'WORK SPACE VARIABLES IN SUBR. CICTL: ',/,
      &       1X,'SUBSECTION: ',A,/,(1X,12I10,/))
       End
-      Subroutine Ini_David(nRoots,nConf,nDet,nSel,ntAsh,LuDavid)
+      Subroutine Ini_David(nRoots,nConf,nDet,nSel,n_keep,ntAsh,LuDavid)
 ************************************************************************
 *                                                                      *
 *     purpose:                                                         *
@@ -244,6 +239,7 @@ C
 
 
 #include "rasdim.fh"
+#include "warnings.fh"
 
 #include "davctl.fh"
 #include "WrkSpc.fh"
@@ -292,10 +288,18 @@ C
          Call Abend
       Endif
       n_Roots=nRoots
-*     Determine a reasonable nkeep
-      nkeep=mxKeep*nRoots
-      nkeep=min(nkeep,300)
-      nkeep=max(nkeep,3*nRoots)
+      nkeep=n_keep
+*     If unitialized, determine a reasonable nkeep
+      If (nkeep.eq.0) then
+        nkeep=mxKeep*nRoots
+        nkeep=min(nkeep,400)
+        nkeep=max(nkeep,3*nRoots)
+        nkeep=min(nkeep,mxkeep)
+      else if (nkeep.gt.mxkeep) Then
+        Call WarningMessage(2,'nkeep .gt. mxkeep. Reduce nkeep'//
+     &      ' or increase mxkeep in src/Include/davctl.fh')
+        Call Quit(_RC_INPUT_ERROR_)
+      EndIf
 *
       istart=0
       nvec=nkeep

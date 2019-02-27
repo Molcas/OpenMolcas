@@ -127,7 +127,7 @@ Structure of the ECP libraries
       "*keyword* :kword:`mv&dw potentials start`" must
       exist, followed by the number of points in the radial logarithmic
       grid, the values of the radial coordinate r, and,
-      for each valence orbital, its label (2S, 4P, etc),
+      for each valence orbital, its label (2S, 4P, etc.),
       and the values of the mass-velocity plus Darwin potentials
       at the corresponding values of r; these data must end up with
       a line

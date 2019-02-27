@@ -308,7 +308,7 @@ By default, symmetry is not used in the calculation.
     The contaminants are functions of lower rank which are generated
     when a Cartesian shell is transformed to a spherical representation
     (e.g. :math:`r^2=x^2+y^2+z^2` for d-shells, p contaminants for f-shells,
-    s and d contaminants for g-shells, etc).
+    s and d contaminants for g-shells, etc.).
     Valid options are the same as for the **Spherical** keyword.
     The default is no contaminant in any shell. The **Contaminant** card is optional.
 
@@ -317,7 +317,7 @@ By default, symmetry is not used in the calculation.
                 The contaminants are functions of lower rank which are generated
                 when a Cartesian shell is transformed to a spherical representation
                 (e.g. r^2=x^2+y^2+z^2 for d-shells, p contaminants for f-shells,
-                s and d contaminants for g-shells, etc).
+                s and d contaminants for g-shells, etc.).
                 Valid options are the same as for the Spherical keyword.
                 The default is no contaminant in any shell. The "Contaminant" card is optional.
 
@@ -1250,7 +1250,7 @@ Optional keywords for the PCM Model
 :kword:`PCM-model`
   If no other keywords are specified, the program will execute a standard PCM calculation
   with water as solvent. The solvent reaction field will be included in all the
-  programs (:program:`SCF`, :program:`RASSCF`, :program:`CASPT2`, etc)
+  programs (:program:`SCF`, :program:`RASSCF`, :program:`CASPT2`, etc.)
   invoked after :program:`SEWARD`: note that in some cases additional keywords are required
   in the corresponding program sections. Some PCM parameters can be changed through the following
   keywords.
@@ -1260,7 +1260,7 @@ Optional keywords for the PCM Model
               <HELP>
               If no other keywords are specified, the program will execute a standard PCM calculation
               with water as solvent. The solvent reaction field will be included in all the
-              programs (SCF, RASSCF, CASPT2, etc)
+              programs (SCF, RASSCF, CASPT2, etc.)
               invoked after SEWARD: note that in some cases additional keywords are required
               in the corresponding program sections. Many PCM parameters can be changed through the following
               keywords.

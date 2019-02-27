@@ -192,7 +192,7 @@ the program module interdependencies.
 :program:`VIBROT`
   This program computes the vibrational-rotational spectrum of a
   diatomic molecule. Spectroscopic constants are computed. The program can also
-  compute transition moments, life times , etc for excited state potentials.
+  compute transition moments, life times, etc. for excited state potentials.
 
 .. _UG\:sec\:files_list:
 

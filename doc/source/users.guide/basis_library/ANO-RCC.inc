@@ -52,26 +52,26 @@ electrons.
 
 Below is a list of the core electrons correlated for each atom.
 
-======= ===================
-Li--B:  1s
-C--Ne:  No core correlation
-Na:     2s,2p
-Mg--Al: 2p
-Si--Ar: No core correlation
-K:      3s,3p
-Ca--Zn: 3p
-Ga--Ge: 3d
-As--Kr: No core correlation
-Rb--Sr: 4p
-In--Xe: 4d
-Cs--Ba: 5p
-La--Lu: 5s,5p
-Hf--Re: 4f,5s,5p
-Os--Hg: 5s,5p
-Tl--Rn: 5d
-Fr--Ra: 6p
-Ac--Cm: 6s,6p
-======= ===================
+====== ===================
+Li--B  1s
+C--Ne  No core correlation
+Na     2s,2p
+Mg--Al 2p
+Si--Ar No core correlation
+K      3s,3p
+Ca--Zn 3p
+Ga--Ge 3d
+As--Kr No core correlation
+Rb--Sr 4p
+In--Xe 4d
+Cs--Ba 5p
+La--Lu 5s,5p
+Hf--Re 4f,5s,5p
+Os--Hg 5s,5p
+Tl--Rn 5d
+Fr--Ra 6p
+Ac--Cm 6s,6p
+====== ===================
 
 Basis set label in input:
 

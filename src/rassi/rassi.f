@@ -11,6 +11,7 @@
       SUBROUTINE RASSI(IRETURN)
 
       !> module dependencies
+      use kVectors
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
       use qcmaquis_interface_environment, only: finalize_dmrg
@@ -34,6 +35,7 @@ C RAS state interaction.
 #include "jobin.fh"
 #include "symmul.fh"
 #include "rassiwfn.fh"
+#include "stdalloc.fh"
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='RASSI')
       Logical Fake_CMO2
@@ -293,6 +295,8 @@ CIgorS End------------------------------------------------------------C
       CALL GETMEM('Prop','Free','Real',LPROP,NPROPSZ)
       CALL GETMEM('NilPt','FREE','REAL',LNILPT,1)
       CALL GETMEM('INilPt','FREE','INTE',LINILPT,1)
+
+      If (Do_SK) Call mma_deallocate(k_Vector)
 
 #ifdef _DMRG_
 !     !> finalize MPS-SI interface

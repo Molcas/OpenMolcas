@@ -739,8 +739,17 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
 * Create output orbital files:
 !      Call OrbFiles(JOBIPH,IPRLEV)
 *
-!      Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
-*
+       if (doGSOR) then
+          CALL GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
+          CALL GETMEM('Dtmp ','FREE','REAL',LW6,NACPAR)
+          CALL GETMEM('DStmp','FREE','REAL',LW7,NACPAR)
+          CALL GETMEM('Ptmp ','FREE','REAL',LW8,NACPR2)
+          CALL GETMEM('PAtmp','FREE','REAL',LW9,NACPR2)
+          CALL GETMEM('Pscr','FREE','REAL',LW10,NACPR2)
+          Call GetMem('CIVtmp','FREE','Real',LW11,nConf)
+          Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
+          Call MKGUGA_FREE_m
+       end if
 * Exit
 *
       Call StatusLine('MCPDFT:','Finished.')
