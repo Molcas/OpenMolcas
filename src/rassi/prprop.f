@@ -2105,7 +2105,7 @@ C printing threshold
 !
           WRITE(6,*)
           Call CollapseOutput(1,
-     &                  'Circular Dichoism - velocity gauge '//
+     &                  'Circular Dichroism - velocity gauge '//
      &                  'Electric-Dipole - Magnetic-Dipole '//
      &                  'rotatory strengths (SO states):')
           WRITE(6,'(3X,A)')
@@ -2170,7 +2170,7 @@ C printing threshold
          WRITE(6,*)
 
          Call CollapseOutput(0,
-     &                  'Circular Dichoism - velocity gauge '//
+     &                  'Circular Dichroism - velocity gauge '//
      &                  'Electric-Dipole - Magnetic-Dipole '//
      &                  'rotatory strengths (SO states):')
         END IF
@@ -2264,7 +2264,7 @@ C printing threshold
 !
           WRITE(6,*)
           Call CollapseOutput(1,
-     &                  'Circular Dichoism - mixed gauge '//
+     &                  'Circular Dichroism - mixed gauge '//
      &                  'Electric-Dipole - Magnetic-Dipole '//
      &                  'rotatory strengths (SO states):')
           WRITE(6,'(3X,A)')
@@ -2329,7 +2329,7 @@ C printing threshold
          WRITE(6,*)
 
          Call CollapseOutput(0,
-     &                  'Circular Dichoism - mixed gauge '//
+     &                  'Circular Dichroism - mixed gauge '//
      &                  'Electric-Dipole - Magnetic-Dipole '//
      &                  'rotatory strengths (SO states):')
         END IF

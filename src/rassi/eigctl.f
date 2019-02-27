@@ -1766,7 +1766,7 @@ C And the same for the Dyson amplitudes
 !
           WRITE(6,*)
           Call CollapseOutput(1,
-     &                  'Circular Dichoism - velocity gauge '//
+     &                  'Circular Dichroism - velocity gauge '//
      &                  'Electric-Dipole - Magnetic-Dipole '//
      &                  'rotatory strengths (spin-free states):')
           WRITE(6,'(3X,A)')
@@ -1816,7 +1816,7 @@ C And the same for the Dyson amplitudes
          WRITE(6,35)
 
          Call CollapseOutput(0,
-     &                  'Circular Dichoism - velocity gauge '//
+     &                  'Circular Dichroism - velocity gauge '//
      &                  'Electric-Dipole - Magnetic-Dipole '//
      &                  'rotatory strengths (spin-free states):')
         END IF
@@ -1856,7 +1856,7 @@ C And the same for the Dyson amplitudes
 !
           WRITE(6,*)
           Call CollapseOutput(1,
-     &                  'Circular Dichoism - mixed gauge '//
+     &                  'Circular Dichroism - mixed gauge '//
      &                  'Electric-Dipole - Magnetic-Dipole '//
      &                  'rotatory strengths (spin-free states):')
           WRITE(6,'(3X,A)')
@@ -1906,7 +1906,7 @@ C And the same for the Dyson amplitudes
          WRITE(6,35)
 
          Call CollapseOutput(0,
-     &                  'Circular Dichoism - mixed gauge '//
+     &                  'Circular Dichroism - mixed gauge '//
      &                  'Electric-Dipole - Magnetic-Dipole '//
      &                  'rotatory strengths (spin-free states):')
         END IF
