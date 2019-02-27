@@ -77,16 +77,13 @@
 * For each such state, compute the one-electron Hamilonian to be used
 * in the CASPT2 H0, in original MO basis, and finally replace it with
 * the average over the group.
+* Note that, in principle, also FAMO and DREF should be averaged over
+* the states, but since we never used them during the XMS initialization
+* we don't compute them.
 
       NFIFA_AVE=NFIFA
       CALL GETMEM('FIFA_AVE','ALLO','REAL',LFIFA_AVE,NFIFA_AVE)
       CALL DCOPY_(NFIFA_AVE,0.0D0,0,WORK(LFIFA_AVE),1)
-      ! NFAMO_AVE=NFAMO
-      ! CALL GETMEM('FAMO_AVE','ALLO','REAL',LFAMO_AVE,NFAMO_AVE)
-      ! CALL DCOPY_(NFAMO_AVE,0.0D0,0,WORK(LFAMO_AVE),1)
-      ! NDREF_AVE=NDREF
-      ! CALL GETMEM('DREF_AVE','ALLO','REAL',LDREF_AVE,NDREF_AVE)
-      ! CALL DCOPY_(NDREF_AVE,0.0D0,0,WORK(LDREF_AVE),1)
       SCL=1.0D0/DBLE(NGRP)
 
       CALL GETMEM('LCI','ALLO','REAL',LCI,NCONF)
@@ -124,12 +121,8 @@
 * GETDPREF: Restructure GAMMA1 and GAMMA2, as DREF and PREF arrays.
         CALL GETDPREF(WORK(LDREF),WORK(LPREF))
 
-* Although this is never really used anywhere, we compute it the average
-* 1-el density matrix for consistency
-        ! CALL DAXPY_(NDREF_AVE,SCL,WORK(LDREF),1,WORK(LDREF_AVE),1)
-
-* INTCTL1/INTCTL2 call TRACTL(0), and other routines, for FIMO,FAMO,FIFA
-* FIFA, and orbital energies.
+* INTCTL1/INTCTL2 call TRACTL(0), and other routines, for FIMO, FAMO,
+* FIFA and orbital energies.
         If (IfChol) then
 * INTCTL2 uses TraCho2 and FMatCho to get matrices in MO basis.
           IF_TRNSF=.FALSE.
@@ -144,20 +137,15 @@ c Modify the Fock matrix, if needed:
         IF(FOCKTYPE.NE.'STANDARD') THEN
            CALL NEWFOCK(WORK(LFIFA))
         END IF
-* Compute Average fock matrix (total and active contributions):
-        ! CALL DAXPY_(NFAMO_AVE,SCL,WORK(LFAMO),1,WORK(LFAMO_AVE),1)
+* Compute average Fock matrix:
         CALL DAXPY_(NFIFA_AVE,SCL,WORK(LFIFA),1,WORK(LFIFA_AVE),1)
 
       END DO
       CALL GETMEM('LCI','FREE','REAL',LCI,NCONF)
 
-* Replace FIFA, FAMO and DREF with average Fock and density matrix:
+* Replace FIFA with average Fock matrix:
       CALL DCOPY_(NFIFA,WORK(LFIFA_AVE),1,WORK(LFIFA),1)
       CALL GETMEM('FIFA_AVE','FREE','REAL',LFIFA_AVE,NFIFA_AVE)
-      ! CALL DCOPY_(NFAMO,WORK(LFAMO_AVE),1,WORK(LFAMO),1)
-      ! CALL DCOPY_(NDREF,WORK(LDREF_AVE),1,WORK(LDREF),1)
-      ! CALL GETMEM('FAMO_AVE','FREE','REAL',LFAMO_AVE,NFAMO_AVE)
-      ! CALL GETMEM('DREF_AVE','FREE','REAL',LDREF_AVE,NDREF_AVE)
 
 * NN.15
 * TODO : MKFOP and following transformation are skipped in DMRG-CASPT2 run
@@ -249,6 +237,7 @@ c Modify the Fock matrix, if needed:
        END DO
        CALL GETMEM('CIREF','FREE','REAL',LCIREF,NGRP*NCONF)
        CALL GETMEM('CIXMS','FREE','REAL',LCIXMS,NCONF)
+       CALL GETMEM('EVEC','FREE','REAL',LEVEC,NGRP**2)
 
       END IF
       CALL GETMEM('FOPXMS','FREE','REAL',LFOPXMS,NGRP**2)

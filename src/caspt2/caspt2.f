@@ -133,7 +133,6 @@ C second-order correction Heff(2) = PH \Omega_1 P to Heff[1]
           DO I=1,NSTATE
             WRITE(6,'(1x,5f16.8)')(HEFF(I,J),J=1,NSTATE)
           END DO
-          call xflush(6)
         END IF
       END IF
 
@@ -230,6 +229,7 @@ C     Orbitals, properties:
 C     Gradients.
 C     Note: Quantities computed in gradients section can also
 C     be used efficiently for computing Multi-State HEFF.
+C     NOTE: atm the MS-CASPT2 couplings computed here are wrong!
          IF(IFDENS) THEN
            IF (IPRGLB.GE.VERBOSE) THEN
               WRITE(6,*)

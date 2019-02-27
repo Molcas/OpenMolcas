@@ -62,10 +62,18 @@ c Determine PT2 orbitals, and transform CI coeffs.
 * Use the transformation matrices to change the HONE, FIMO, and FIFA arrays:
       CALL TRANSFOCK(WORK(LTORB),WORK(LHONE),1)
       CALL TRANSFOCK(WORK(LTORB),WORK(LFIMO),1)
+* When doing XMS, FAMO refers only to the last state, therefore it's wrong!
+* However, we never use it anywhere else...
       CALL TRANSFOCK(WORK(LTORB),WORK(LFAMO),1)
+*****
       CALL TRANSFOCK(WORK(LTORB),WORK(LFIFA),1)
-* Need to recompute DREF:
+
+* When doing XMS, DREF refers to the last state considered and it is not the
+* state average density, therefore it's wrong to transform it!
+* However, it is never used again in this part, and next time it is used, it
+* is actually recomputed for the right place.
       CALL TRANSDREF(WORK(LTORB),WORK(LDREF))
+*****
       CALL MKEPS(WORK(LFIFA),WORK(LDREF))
       IF(IPRGLB.GE.DEBUG) THEN
        WRITE(6,*)' ORBCTL back from TRANSFOCK.'

@@ -79,10 +79,16 @@ C initialize global common-block variables appropriately.
           BSHIFT=0.25D0
           HZERO = TRIM(HZERO)//' WITH DEFAULT IPEA'
         End If
+* Notifiy that Hzero is different for XMS calculations.
+* SB: Don't talk about IPEA. Actually, I am not sure that
+* IPEA can be used with XMS
+        If (Input % XMUL) Then
+          HZERO = 'XMS'
+        End If
       END IF
 * print warnings if deviating from the default
-      If (HZERO.NE.'STANDARD WITH DEFAULT IPEA'.OR.
-     &    FOCKTYPE.NE.'STANDARD') Then
+      If (HZERO.NE.'STANDARD WITH DEFAULT IPEA'.AND.
+     &    HZERO.NE.'XMS'.OR.FOCKTYPE.NE.'STANDARD') Then
         IF (IPRGLB.ge.TERSE) THEN
           Call WarningMessage(1,'User-modified 0-order hamiltonian!')
         End If
@@ -180,6 +186,16 @@ C     really parallel or not.
       End If
       IOFF=NSTATE
       If(Input%XMUL) Then
+        If (NLYROOT.ne.0) Then
+          Call WarningMessage(2,'Keyword XMULtistate cannot be used '//
+     &                          'together with keyword ONLY.')
+          Call Quit_OnUserError
+        End If
+        If (JMS) Then
+          Call WarningMessage(2,'Keyword XMULtistate cannot be used '//
+     &                          'together with keyword EFFE.')
+          Call Quit_OnUserError
+        End If
         If (Input%MULT) Then
           Call WarningMessage(2,'Keyword XMULtistate cannot be used '//
      &                          'together with keyword MULTistate.')
@@ -353,6 +369,7 @@ C     really parallel or not.
       IFMIX = .NOT.Input % NoMix
       IFMSCOUP = (Input % MULT .OR. Input % XMUL)
      &           .AND.(.NOT.Input % NoMult)
+      IFXMS = Input % XMUL
 
 * Choice? of preprocessing route
       ORBIN='TRANSFOR'
