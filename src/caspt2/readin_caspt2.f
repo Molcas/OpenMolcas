@@ -201,7 +201,7 @@ C is nSym, as some input lines assume knowledge of the number of irreps.
 #endif
       Character(Len=4) :: Command, Word
 
-      Integer :: i, j, iSym, iGroup, nStates
+      Integer :: i, j, iSym, nStates
       Integer :: iSplit, iError
 
       logical, external :: next_non_comment
