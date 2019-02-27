@@ -10,17 +10,18 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-subroutine deriv(finder,foutder,nd,d1,d2)
-    use globvar
-    integer d1,d2,nd
-    real*8 finder(d1,d2),foutder(d1,d2),a,b(d1,d2),kr,nr
-    nr=real(nd)
-    a=Gamma(nr+1.0)/h**nd
-    b=0.0
-    do k=0,nd
-        kr=real(k)
-        finder=finder+kr*h
-        b=b+(-1)**(k+1)/(Gamma(nr-kr+1.0)*Gamma(kr+1.0))*finder
-    enddo
-    foutder=a*b*(-1)**(nr+1)
-end
+
+      Subroutine Start_Kriging(iter,nInter,qInt,Grad)
+        use globvar
+        Real*8 qInt(nInter,iter+1), Grad(nInter,iter), Energy(iter)
+        Write (6,*) 'Kriging values in Start Kriging'
+        Write (6,*) 'iter', iter
+        Write (6,*) 'nInter', nInter
+        Write (6,*) 'Grad: ',Grad
+        Write (6,*) 'Grad size: ',size(Grad)
+        Write (6,*) 'Grad shape: ',shape(Grad)
+        Write (6,*) 'Energy: ',Energy
+        Write (6,*) 'Coord: ',qInt
+        Write (6,*) 'Coord size: ',size(qInt)
+        Write (6,*) 'Coord shape: ',shape(qInt)
+      end

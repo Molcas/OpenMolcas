@@ -7,6 +7,8 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
 SUBROUTINE matern(dh,d1,d2)
     use globvar
@@ -22,8 +24,6 @@ SUBROUTINE matern(dh,d1,d2)
         b = b + (Gamma(p+1.0+d)/(Gamma(d+1)*Gamma(p+1.0-d)))*(2.0*Sqrt(2.0*p+1.0)*d0)**(p-i)
     enddo
         mat=a*b*exp(-sqrt(2*p+1)*d0)
-!    print *,'analitical matern'
-!    call printsmat(mat,size(mat,1),size(mat,2))
 END
 
 SUBROUTINE matderiv(nd,d1,d2)
@@ -59,8 +59,6 @@ SUBROUTINE matderiv(nd,d1,d2)
                             mat=merge(-5.0/8.0*t/dh,dh,dh.ne.0)*c
                     end select
             end select
-!            print *,'analitical der nd, matern p',nd, p
-!            call printsmat(mat,size(mat,1),size(mat,2))
         endif
     else
         a=Gamma(nr+1.0)/h**nd
@@ -72,7 +70,5 @@ SUBROUTINE matderiv(nd,d1,d2)
             b=b+(-1)**(k+1)/(Gamma(nr-kr+1.0)*Gamma(kr+1.0))*mat
         enddo
         mat=a*b*(-1)**(nr+1)
-!        print *,'numerical der mat nd',nd
-!        call printsmat(mat,size(mat,1),size(mat,2))
     endif
 END

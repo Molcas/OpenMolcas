@@ -97,6 +97,7 @@ C     Write (Lu,*) iOptC
       If (Char.eq.BLine) Go To 999
       If (Char(1:1).eq.'*') Go To 999
       If (Char(1:4).eq.'AI  ') Go To 901
+      If (Char(1:4).eq.'AISP') Go To 905
       If (Char(1:4).eq.'BAKE') Go To 926
       If (Char(1:4).eq.'C1-D') Go To 936
       If (Char(1:4).eq.'C2-D') Go To 937
@@ -475,11 +476,17 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *                                                                      *
 ****** AI   ************************************************************
 *                                                                      *
-901   Char=Get_Ln(LuRd)
+901   Char=Get_Ln(LuRd) ! Defining the AI method
       If (Char.eq.'Kriging'.or.Char.eq.'kriging') then
        Kriging = .True.
-       Write (Lu,*) 'Kriging AI method selected'
-      endif
+       nsPoints = 5
+       Call WarningMessage(1,'Kriging AI method selected')
+       Write (Lu,*) 'Default Number of source points is 5'
+      EndIf
+      Go To 999
+905   Char=Get_Ln(LuRd) ! Defining the number of source points for the AI method
+      Read (Char,'(I10)') nsPoints
+      Write (Lu,*) 'Number of source points selected: ', nsPoints
       Go To 999
 *                                                                      *
 ****** BAKE ************************************************************

@@ -142,6 +142,11 @@ c Avoid unused argument warnings
 *
          call dcopy_(nInter,qInt,1,Work(iptmp2),1)
 *
+         If (Kriging) then
+            Write (6,*) 'Work(ipCx): ',ipCx
+            Write (6,*) 'Iter', Iter
+         End if
+         write (6,*) ' Kriging Value', Kriging
          Call Update_sl_(iter_,iInt,nFix,nInter,Work(iptmp2),
      &                   Work(iptmp1),Grad,iOptC,
      &                   Beta,Lbl,GNrm,Energy,UpMeth,ed,Line_Search,
@@ -166,6 +171,9 @@ c Avoid unused argument warnings
 *
       Else
 *
+         If (Kriging.and.nsPoints>iter) then
+            Call Start_Kriging(iter,nInter,qInt,Grad)
+         End if
          Call Update_sl_(iter,iInt,nFix,nInter,qInt,Shift,
      &                   Grad,iOptC,Beta,Lbl,GNrm,Energy,
      &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,
