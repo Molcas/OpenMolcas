@@ -1820,9 +1820,7 @@ C And the same for the Dyson amplitudes
      &                  'Electric-Dipole - Magnetic-Dipole '//
      &                  'rotatory strengths (spin-free states):')
         END IF
-      END IF
 !
-      IF(DOCD_L) THEN
 * Lasse 2019
 * New CD here with electric dipole and magnetic-dipole - mixed gauge
 * Usually refered to as the length gauge

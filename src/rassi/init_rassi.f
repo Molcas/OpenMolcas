@@ -166,10 +166,8 @@ C DEFAULT FLAGS:
       LOOPDIVIDE=0
       Do_SK  =.FALSE.
       L_Eff=5
-C CD - velocity gauge
+C CD - velocity and mixed gauge
       DOCD = .FALSE.
-C CD - length gauge
-      DOCD_L = .FALSE.
 cnf
       IfDCpl = .False.
 cnf
@@ -243,7 +241,6 @@ c BP - Hyperfine tensor and SONATORB initialization
         WRITE(6,*)'     Do_SK:',Do_SK
         WRITE(6,*)'     L_Eff:',L_Eff
         WRITE(6,*)'     CD:',DOCD
-        WRITE(6,*)'     CD_L:',DOCD_L
       END IF
 
 C DEFAULT WAVE FUNCTION TYPE:

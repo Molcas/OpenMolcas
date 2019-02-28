@@ -2174,8 +2174,6 @@ C printing threshold
      &                  'Electric-Dipole - Magnetic-Dipole '//
      &                  'rotatory strengths (SO states):')
         END IF
-      END IF
-      IF(DOCD_L) THEN
 * Lasse 2019
 * New CD here with electric dipole and magnetic-dipole - mixed gauge
         IPRDXD=0
