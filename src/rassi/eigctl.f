@@ -1857,6 +1857,12 @@ C And the same for the Dyson amplitudes
      &                  'Circular Dichroism - mixed gauge '//
      &                  'Electric-Dipole - Magnetic-Dipole '//
      &                  'rotatory strengths (spin-free states):')
+          WRITE(6,*)
+          WRITE(6,*) ' WARNING WARNING WARNING !!! '
+          WRITE(6,*)
+          WRITE(6,*) ' Circular Dichroism in the mixed gauge '
+          WRITE(6,*) ' is NOT origin independent - check your results '
+          WRITE(6,*)
           WRITE(6,'(3X,A)')
      &                  '----------------------------------'//
      &                  '----------------------------------------'
