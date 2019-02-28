@@ -18,7 +18,7 @@ module globvar
     real*8 p,l,sb,variance,ll,detR
     real*8, parameter :: PI = 4.0 * atan (1.0_8), h=1e-5, eps=1e-6 ! eps avoid to become singular
     integer NS,dims,prev_ns,m_t,npx,counttimes
-    logical :: anamat=.false. !Analitical Matern
+    logical :: anamat=.true. !Analitical Matern
 end module globvar
 
 

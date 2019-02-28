@@ -96,8 +96,12 @@ C     Write (Lu,'(A)') Char
 C     Write (Lu,*) iOptC
       If (Char.eq.BLine) Go To 999
       If (Char(1:1).eq.'*') Go To 999
-      If (Char(1:4).eq.'AI  ') Go To 901
-      If (Char(1:4).eq.'AISP') Go To 905
+      If (Char(1:4).eq.'AI  ') Go To 100
+      If (Char(1:4).eq.'AIAM') Go To 101
+      If (Char(1:4).eq.'AIL ') Go To 102
+      If (Char(1:4).eq.'AINX') Go To 103
+      If (Char(1:4).eq.'AIP ') Go To 104
+      If (Char(1:4).eq.'AISP') Go To 105
       If (Char(1:4).eq.'BAKE') Go To 926
       If (Char(1:4).eq.'C1-D') Go To 936
       If (Char(1:4).eq.'C2-D') Go To 937
@@ -476,17 +480,47 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *                                                                      *
 ****** AI   ************************************************************
 *                                                                      *
-901   Char=Get_Ln(LuRd) ! Defining the AI method
+100   Char=Get_Ln(LuRd) ! Defining the AI method
       If (Char.eq.'Kriging'.or.Char.eq.'kriging') then
        Kriging = .True.
-       nsPoints = 5
-       Call WarningMessage(1,'Kriging AI method selected')
-       Write (Lu,*) 'Default Number of source points is 5'
+       nspAI = 5
+       anAI = .True.
+       pAI = 2
+       nxAI = 1000
+       lbAI(1) = 0.1
+       lbAI(2) = 6.0
+       lbAI(3) = 100
+       Call WarningMessage(1,'Kriging AI method selected.')
+       Write (Lu,*) 'Default number of source points: 5.'
+       Write (Lu,*) 'Default analytical Mat`ern derivatives: True*.'
+       Write (Lu,*) 'Default width of Mat`ern: 0.1:6 # of steps 100'
+       Write (Lu,*) 'Default resolution of the predicted path: 1000.'
+       Write (Lu,*) 'Default parameter of diff. for Mat`ern (p): 2*.'
+       Write (Lu,*) '*Note: for the analytical Matern the only choices'
+       Write (Lu,*) '    for (p) are 1 or 2, however for the numerical'
+       Write (Lu,*) '    Mat`ern you can choose between (0->"Inf"),'
+       Write (Lu,*) '    being in the limit of "Inf" the Gaussian case.'
       EndIf
       Go To 999
-905   Char=Get_Ln(LuRd) ! Defining the number of source points for the AI method
-      Read (Char,'(I10)') nsPoints
-      Write (Lu,*) 'Number of source points selected: ', nsPoints
+101   Char=Get_Ln(LuRd) ! Analitical or numerical Mat'ern derivatives
+      If (Char.eq.'False'.or.Char.eq.'false') anAI = .False.
+      Write (Lu,*) 'Analitical Matern derivatives: ', anAI
+      Go To 999
+102   Char=Get_Ln(LuRd) ! Widht limits of the Mat`ern function
+      Read (Char,'(F2.2)') lbAI(1),lbAI(2),lbAI(3)
+      Write (Lu,*) 'Widht of the gaussian (from,to,# steps): ', lbAI
+      Go To 999
+103   Char=Get_Ln(LuRd) ! The resolution of the predicted path
+      Read (Char,'(I10)') nxAI
+      Write (Lu,*) 'Resolution of the predicted path: ', nxAI
+      Go To 999
+104   Char=Get_Ln(LuRd) ! Parameter of differentiability for Mat`ern function
+      Read (Char,'(I10)') pAI
+      Write (Lu,*) 'Parameter of differentiability for Mat`ern: ', pAI
+      Go To 999
+105   Char=Get_Ln(LuRd) ! Defining the number of source points for the AI method
+      Read (Char,'(I10)') nspAI
+      Write (Lu,*) 'Number of source points selected: ', nspAI
       Go To 999
 *                                                                      *
 ****** BAKE ************************************************************

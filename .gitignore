@@ -117,3 +117,5 @@ Tools/pymolcas/*.egg-info
 /molcas-*
 /make-*
 /build*
+# vs files
+.vscode/*
