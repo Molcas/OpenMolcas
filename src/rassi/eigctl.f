@@ -1810,6 +1810,7 @@ C And the same for the Dyson amplitudes
 !             WRITE(6,33) ISS,JSS,F
 !           END IF
 !
+            Call Add_Info('CD_V(SF)',F,1,6)
            END IF
           END DO
          END DO
@@ -1904,6 +1905,7 @@ C And the same for the Dyson amplitudes
 !             WRITE(6,33) ISS,JSS,F
 !           END IF
 !
+            Call Add_Info('CD_M(SF)',F,1,6)
            END IF
           END DO
          END DO

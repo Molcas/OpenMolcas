@@ -2147,6 +2147,7 @@ C printing threshold
 !             WRITE(6,33) ISS,JSS,F
 !           END IF
 !
+            Call Add_Info('CD_V(SO)',F,1,6)
            END IF
           END DO
          END DO
@@ -2310,6 +2311,7 @@ C printing threshold
 !             WRITE(6,33) ISS,JSS,F
 !           END IF
 !
+            Call Add_Info('CD_M(SO)',F,1,6)
            END IF
           END DO
          END DO
