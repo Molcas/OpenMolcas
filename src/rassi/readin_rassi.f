@@ -645,6 +645,13 @@ C ------------------------------------------
         LINENR=LINENR+1
         GOTO 100
       END IF
+C--------------------------------------------
+      IF(LINE(1:4).EQ.'CD  ') THEN
+! Perform regular circular dichroism - velocity and mixed gauge
+        DOCD = .TRUE.
+        LINENR=LINENR+1
+        GOTO 100
+      END IF
 C ------------------------------------------
       IF(LINE(1:4).EQ.'DYSO')THEN
 ! Enable Dyson orbital calculations
@@ -671,19 +678,6 @@ C ------------------------------------------
         Linenr=Linenr+1
         GoTo 100
       Endif
-C--------------------------------------------
-#ifdef _DMRG_
-C--------------------------------------------
-      if (Line(1:4).eq.'QDSC') then
-        QDPT2SC = .true.
-        goto 100
-      end if
-C--------------------------------------------
-      if (Line(1:4).eq.'QDPC') then
-        QDPT2SC = .false.
-        goto 100
-      end if
-#endif
 C--------------------------------------------
       IF(LINE(1:4).EQ.'PRRA')THEN
 ! Print the raw directions for exact semi-classical intensities
@@ -743,6 +737,18 @@ C--------------------------------------------
         End Do
         GoTo 100
       Endif
+#ifdef _DMRG_
+C--------------------------------------------
+      if (Line(1:4).eq.'QDSC') then
+        QDPT2SC = .true.
+        goto 100
+      end if
+C--------------------------------------------
+      if (Line(1:4).eq.'QDPC') then
+        QDPT2SC = .false.
+        goto 100
+      end if
+#endif
 C--------------------------------------------
 *
       WRITE(6,*)' The following input line was not understood:'

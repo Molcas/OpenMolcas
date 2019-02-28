@@ -37,8 +37,9 @@ c    L_Eff            The order of the Lebedev solid angle integration
 c    Do_SK            Do k-vector directions of the exact
 c                     Hamiltonian with a vector field.
 c    nQuad            Number of vectors in the isotropic quadrature
+c    DOCD             Regular circular dichroism - velocity and mixed gauge
       INTEGER SONATNSTATE,LSONAT,SODIAGNSTATE,LSODIAG
-      LOGICAL IFCURD, Do_TMOS, Do_SK
+      LOGICAL IFCURD, Do_TMOS, Do_SK, DOCD
       REAL*8 TDIPMIN,SOTHR_PRT
       INTEGER NSOTHR_PRT, ISMGRD, LDISP, NDISP, NTDISP
       INTEGER IFJ2, IFJZ
@@ -62,7 +63,7 @@ c    nQuad            Number of vectors in the isotropic quadrature
      &     LTDMS,LTDMA,LTRA1,LTRA2,LIPAIR,LFMO,LTUVX,lJBNUM,
      &     liTocM,IFJ2,IFJZ,
      &     SONATNSTATE,LSONAT,SODIAGNSTATE,LSODIAG,IFCURD,Do_TMOS,
-     &     Do_SK
+     &     Do_SK,DOCD
 C CITHR  - THRESHOLD FOR PRINTING CI COEFFICIENTS.
 C ESHFT  - OPTIONAL ENERGY SHIFT OF EACH INPUT STATE.
 C LROOT  - ORDERING NUMBER, ON ITS JOBIPH FILE, OF EACH INPUT STATE.
