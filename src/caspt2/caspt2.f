@@ -332,6 +332,12 @@ C End of long loop over groups
      &    'CASPT2 Root',I,'Total energy:',ENERGY(I),1)
        END DO
        WRITE(6,*)
+       IF (IFXMS) THEN
+        WRITE(6,*)' Note that these CASPT2 energies are obtained using'
+        WRITE(6,*)' the XMS Fock operator and thus do not correspond'
+        WRITE(6,*)' to the true single-state CASPT2 ones.'
+       END IF
+       WRITE(6,*)
       END IF
       IF(IPRGLB.GE.VERBOSE.AND.(NLYROOT.EQ.0)) THEN
        WRITE(6,*)' Relative CASPT2 energies:'
