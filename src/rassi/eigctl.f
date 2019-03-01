@@ -1768,7 +1768,7 @@ C And the same for the Dyson amplitudes
               DZ2=PROP(JSS,ISS,IPRDZM)*PROP(JSS,ISS,IPRDZD)
             END IF
 
-            F = (DX2 + DY2 + DZ2)*TWOOVER3C !EDIFF*ONEOVER6C2
+            F = (DX2 + DY2 + DZ2)*TWOOVER3C*AU2ESUISH !EDIFF*ONEOVER6C2
 
             WRITE(6,33) ISS,JSS,F
 !           IF(ABS(F).GE.OSTHR2) THEN
@@ -1861,7 +1861,7 @@ C And the same for the Dyson amplitudes
               DZ2=PROP(JSS,ISS,IPRDZM)*PROP(JSS,ISS,IPRDZD)
             END IF
 
-            F = (DX2 + DY2 + DZ2)*TWOOVER3C !EDIFF*ONEOVER6C2
+            F = (DX2 + DY2 + DZ2)*TWOOVER3C*AU2ESUISH !EDIFF*ONEOVER6C2
 
             WRITE(6,33) ISS,JSS,F
 !           IF(ABS(F).GE.OSTHR2) THEN

@@ -82,6 +82,7 @@
       AU2JTM=(AU2J/AU2T)*AVOGADRO
       ALPHA=CONST_AU_VELOCITY_IN_SI_/CONST_C_IN_SI_
       ALPHA2= ALPHA*ALPHA
+      AU2ESUISH=DEBYE**2 *1.0D4
 
       BOLTZ_K=CONST_BOLTZMANN_*J2CM
       coeff_chi=0.1D0*AVOGADRO/CONST_BOLTZMANN_*
@@ -2140,7 +2141,7 @@ C printing threshold
               DZ2 = WORK(LDZR-1+IJSS) * WORK(LMDZR-1+IJSS)
             END IF
 
-            F = (DX2 + DY2 + DZ2)*TWOOVER3C !EDIFF*ONEOVER6C2
+            F = (DX2 + DY2 + DZ2)*TWOOVER3C*AU2ESUISH !EDIFF*ONEOVER6C2
 
             WRITE(6,33) ISS,JSS,F
 !           IF(ABS(F).GE.OSTHR2) THEN
@@ -2304,7 +2305,7 @@ C printing threshold
               DZ2 = WORK(LDZR-1+IJSS) * WORK(LMDZR-1+IJSS)
             END IF
 
-            F = (DX2 + DY2 + DZ2)*TWOOVER3C !EDIFF*ONEOVER6C2
+            F = (DX2 + DY2 + DZ2)*TWOOVER3C*AU2ESUISH !EDIFF*ONEOVER6C2
 
             WRITE(6,33) ISS,JSS,F
 !           IF(ABS(F).GE.OSTHR2) THEN
