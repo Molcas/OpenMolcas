@@ -25,16 +25,31 @@
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 #include "SysDef.fh"
+#include "stdalloc.fh"
       REAL*8 HEFF(NSTATE,NSTATE)
 
       INTEGER ISTATE
       REAL*8 DVALUE
+      REAL*8 TOTCPU1, TOTWALL1, TOTCPU2, TOTWALL2
+      Character(len=160) string
+      real*8, allocatable :: cpu_timing(:), wall_timing(:)
 
       CALL QENTER('MCCTL')
 
+      Call mma_allocate( cpu_timing,nstate,'timing in mcctl')
+      Call mma_allocate(wall_timing,nstate,'timing in mcctl')
+      Call dcopy_(nstate,0.d0,0, cpu_timing,1)
+      Call dcopy_(nstate,0.d0,0,wall_timing,1)
 C The ket state is JSTATE.
 C Loop over the bra states
       DO ISTATE=1,NSTATE
+        Write(string,'(A,I4,A,I4,A,I4)')
+     &     'Multistate coupling between state',ISTATE,' and',JSTATE,
+     &     ' out of ',NSTATE
+        Call StatusLine('CASPT2: MCCTL: ',trim(string))
+        TOTCPU1=0.d0; TOTWALL1=0.d0; TOTCPU2=0.d0; TOTWALL2=0.d0;
+        Call CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
+
         IF(ISTATE.EQ.JSTATE) THEN
           HEFF(ISTATE,JSTATE)=HEFF(ISTATE,JSTATE)+E2CORR
         ELSE
@@ -42,6 +57,10 @@ C Compute the effective Hamiltonian:
           CALL HEFVAL(ISTATE,JSTATE,DVALUE)
           HEFF(ISTATE,JSTATE)=HEFF(ISTATE,JSTATE)+DVALUE
         END IF
+
+        Call CWTIME(TOTCPU2,TOTWALL2)
+        cpu_timing(istate)=TOTCPU2-TOTCPU1
+        wall_timing(istate)=TOTWALL2-TOTWALL1
       END DO
 
       IF ((IPRGLB.GE.VERBOSE).OR.(NLYROOT.NE.0)) THEN
@@ -51,10 +70,24 @@ C Compute the effective Hamiltonian:
        WRITE(6,*)
        WRITE(6,'(10X,6X,A3,I4,A3)') ' | ', MSTATE(JSTATE), ' > '
        DO ISTATE=1,NSTATE
-        WRITE(6,'(A3,I4,A3,F20.12)') ' < ',MSTATE(ISTATE),' | ',
-     &    HEFF(ISTATE,JSTATE)
+        WRITE(6,'(A3,I4,A3,ES22.14)')
+     &   ' < ',MSTATE(ISTATE),' | ', HEFF(ISTATE,JSTATE)
        ENDDO
       ENDIF
+
+      IF ((IPRGLB.GE.VERBOSE).OR.(NLYROOT.NE.0)) THEN
+       WRITE(6,*)
+       WRITE(6,'(A,I4,A)')
+     &           'Time spent for multi-state couplings for root ',
+     &            MSTATE(JSTATE),':'
+       WRITE(6,*) '----------------- CPU TIME  -------- WALL TIME'
+       DO ISTATE=1,NSTATE
+        WRITE(6,'(A3,I4,A,F18.3,2x,F18.3)') ' < ',MSTATE(ISTATE),' |',
+     &    cpu_timing(istate),  wall_timing(istate)
+       ENDDO
+      ENDIF
+      Call mma_deallocate(cpu_timing)
+      Call mma_deallocate(wall_timing)
 
       CALL QEXIT('MCCTL')
       RETURN
