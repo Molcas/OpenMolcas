@@ -39,6 +39,9 @@ C are not supported with stdalloc. Hence, the infraction.
       Integer :: nXMulState = 0
       Type(States) :: XMulGroup
       Logical :: AllXMult = .False.
+      ! DYWE      dynamically-weight MS-CASPT2
+      Logical :: DYWE = .False.
+      Integer :: ZETA = 1
       ! LROO      compute only a single root, mutually exclusive
       !           with both MULT or XMUL
       Logical :: LROO = .False.
@@ -302,6 +305,11 @@ C end of input
         End If
       End Do
       dealloc_dline
+
+      Case('DYWE')
+      Input % DYWE = .True.
+      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
+      Read(Line,*,Err=9920,End=9920) Input % ZETA
 
       Case('LROO')
       Input % LROO = .True.

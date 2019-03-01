@@ -222,6 +222,15 @@ C     really parallel or not.
           End Do
         End Do
       End If
+* Set the exponent factor for dynamically-weighted CASPT2
+      If (Input % DYWE) Then
+        If (.NOT.Input%MULT) Then
+          Call WarningMessage(2,'Keyword DYWE can only be used in '//
+     &                          'conjunction with the MULT keyword.')
+          Call Quit_OnUserError
+        End If
+        ZETA = Input % ZETA
+      End If
 * The LROOt keyword specifies a single root to be used. It should not be
 * used together with either MULT or XMUL keywords.
       If (Input%LROO) Then
@@ -370,6 +379,7 @@ C     really parallel or not.
       IFMSCOUP = (Input % MULT .OR. Input % XMUL)
      &           .AND.(.NOT.Input % NoMult)
       IFXMS = Input % XMUL
+      IFDW  = Input % DYWE
 
 * Choice? of preprocessing route
       ORBIN='TRANSFOR'
