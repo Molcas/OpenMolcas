@@ -67,7 +67,7 @@ C Analyze the effective Hamiltonian:
         WRITE(6,*)
         WRITE(6,'(1x,5I16)')(I,I=ISTA,IEND)
         DO J=1,NSTATE
-          WRITE(6,'(1x,I2,3X,5F16.8)')J,(HEFF(J,I),I=ISTA,IEND)
+          WRITE(6,'(1x,I3,3X,5F16.8)')J,(HEFF(J,I),I=ISTA,IEND)
         END DO
        END DO
       END IF
@@ -94,7 +94,7 @@ C Use a symmetrized matrix, in triangular storage:
         WRITE(6,'(1x,5I16)')(I,I=ISTA,IEND)
         DO I=ISTA,NSTATE
           II0=(I*(I-1))/2
-          WRITE(6,'(1x,I2,3X,5F16.8)')
+          WRITE(6,'(1x,I3,3X,5F16.8)')
      &                     I,(WORK(LHTRI-1+II0+J),J=ISTA,MIN(I,IEND))
         END DO
        END DO
@@ -113,12 +113,21 @@ C Use a symmetrized matrix, in triangular storage:
       CALL GETMEM('HTRI','FREE','REAL',LHTRI,NHTRI)
 
       IF(IPRGLB.GE.TERSE) THEN
-       WRITE(6,*)
-       WRITE(6,'(6X,A)')' Total MS-CASPT2 energies:'
-       DO I=1,NSTATE
-        Call PrintResult(6,'(6x,A,I3,5X,A,F16.8)',
+       If (IFXMS) Then
+        WRITE(6,*)
+        WRITE(6,'(6X,A)')' Total XMS-CASPT2 energies:'
+        DO I=1,NSTATE
+         Call PrintResult(6,'(6x,A,I3,5X,A,F16.8)',
+     &    'XMS-CASPT2 Root',I,'Total energy:',ENERGY(I),1)
+        END DO
+       Else
+        WRITE(6,*)
+        WRITE(6,'(6X,A)')' Total MS-CASPT2 energies:'
+        DO I=1,NSTATE
+         Call PrintResult(6,'(6x,A,I3,5X,A,F16.8)',
      &    'MS-CASPT2 Root',I,'Total energy:',ENERGY(I),1)
-       END DO
+        END DO
+       End If
       END IF
 
       IF(IPRGLB.GE.USUAL) THEN

@@ -142,8 +142,8 @@ C     Show=Show.and..Not.Primitive_Pass
       Call mma_Allocate(iCI,iBas,label='iCI')       ! Stuff for LoProp
       Call mma_Allocate(jCI,iBas,label='jCI')       ! Stuff for LocalDKH/X2C/BSS
       Call mma_Allocate(iOT,iBas,label='iOT')       ! Stuff for LoProp
-      Call mma_Allocate(LPC,3,mCentr,label='LPC')   ! Stuff for LoProp
-      Call mma_Allocate(LPQ,mCentr,label='LPQ')     ! Stuff for LoProp
+      Call mma_Allocate(LPC,3,mCentr,label='LPC')   ! Stuff (not just) for LoProp
+      Call mma_Allocate(LPQ,mCentr,label='LPQ')     ! Stuff (not just) for LoProp
       Call mma_Allocate(LPA,mCentr,label='LPA')     ! Stuff for LoProp
       call mma_allocate(basis_ids,4,maxbfn+maxbfn_aux)
       call mma_allocate(desym_basis_ids,4,maxbfn+maxbfn_aux)
@@ -281,6 +281,25 @@ C     Show=Show.and..Not.Primitive_Pass
                kComp = 0
                kculf = 0
                iSh = ipVal(iCnttp) - 1
+               If (nVal_Shells(iCnttp).lt.1) Then
+                  Do iCo = 0, nIrrep/nStab(mdc)-1
+                     iyy=Index_Center(mdc,iCo,IndC,iAtoms,mCentr)
+                     iR=NrOpr(iCoSet(iCo,0,mdc),iOper,nIrrep)
+                     ipxyz=(iCnt-1)*3+ipCntr(iCnttp)
+                     XCoor=Dinf(ipxyz  )
+                     If (iAnd(iOper(iR),1).ne.0) XCoor=-XCoor
+                     YCoor=Dinf(ipxyz+1)
+                     If (iAnd(iOper(iR),2).ne.0) YCoor=-YCoor
+                     ZCoor=Dinf(ipxyz+2)
+                     If (iAnd(iOper(iR),4).ne.0) ZCoor=-ZCoor
+                     LPC(1,iyy)=XCoor
+                     LPC(2,iyy)=YCoor
+                     LPC(3,iyy)=ZCoor
+                     LPQ(iyy)=Charge(iCnttp)
+                     LP_Names(iyy)=LblCnt(mdc)(1:LENIN)//':'
+     &                       //ChOper(iOper(iR))
+                  End Do
+               End If
                Do 203 iAng = 0, nVal_Shells(iCnttp)-1
                   nCore=nCore_Sh(iAng)
                   iSh = iSh + 1
@@ -403,7 +422,7 @@ C     Show=Show.and..Not.Primitive_Pass
                         ChTmp=Clean_BName(ChTemp,0)
 *
                         If(output)
-     &                  Write (6,'(I4,3X,A8,4X,A8,8(I3,4X,I2,4X))')
+     &                  Write (6,'(I5,3X,A8,4X,A8,8(I3,4X,I2,4X))')
      &                        iSO_,LblCnt(mdc),ChTmp,
      &                        (mc+iCo,iPrmt(NrOpr(iCoSet(iCo,0,mdc),
      &                        iOper,nIrrep),iChbs)*
@@ -434,7 +453,7 @@ C     Show=Show.and..Not.Primitive_Pass
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*---------------------------- Stuff for LoProp
+*---------------------------- Stuff (not just) for LoProp
 *
                          Do iCo = 0, nIrrep/nStab(mdc)-1
                             ixxx = Index_NoSym(iCntrc,iComp,iAng,
@@ -637,6 +656,18 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                kComp = 0
                kculf = 0
                iSh = ipVal(iCnttp) - 1
+               If (nVal_Shells(iCnttp).lt.1) Then
+                  ipxyz=(iCnt-1)*3+ipCntr(iCnttp)
+                  XCoor=Dinf(ipxyz  )
+                  YCoor=Dinf(ipxyz+1)
+                  ZCoor=Dinf(ipxyz+2)
+                  LPC(1,mdc)=XCoor
+                  LPC(2,mdc)=YCoor
+                  LPC(3,mdc)=ZCoor
+                  LPQ(mdc)=Charge(iCnttp)
+                  LPA(mdc)=iAtmnr(iCnttp)
+                  LP_Names(mdc)=LblCnt(mdc)(1:LENIN)//'    '
+               End If
                Do 303 iAng = 0, nVal_Shells(iCnttp)-1
                   nCore=nCore_Sh(iAng)
                   iSh = iSh + 1
@@ -753,7 +784,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                         End If
                         ChTmp=Clean_BName(ChTemp,0)
 *
-                        if(output) Write (6,'(I4,2X,A8,5X,A8,I3)')
+                        if(output) Write (6,'(I5,2X,A8,5X,A8,I3)')
      &                        iSO_,LblCnt(mdc),ChTmp,mc+imc
 *
                         iSOInf(1,iSO_)=iCnttp
@@ -772,7 +803,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*---------------------------- Stuff for LoProp
+*---------------------------- Stuff (not just) for LoProp
 *
                         iCI(iSO)=mdc
                         jCI(iSO)=mdc
@@ -914,7 +945,7 @@ CSVC: basis IDs of non-symmetric case
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*---- Write info for LoProp
+*---- Write info (not just) for LoProp
 *
       If (.Not.Primitive_Pass) Then
          Call Put_cArray('LP_L',LP_Names,(LENIN4)*mCentr)

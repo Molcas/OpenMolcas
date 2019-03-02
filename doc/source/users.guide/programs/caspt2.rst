@@ -112,7 +112,7 @@ interaction with the intruding Rydberg state is small. It might then be
 safe to neglect the warning. A safer procedure is to include the Rydberg
 orbital into the active space. It can sometimes be deleted from the MO space.
 
-Calculations on compounds with heavy atoms (transition metals, actinides, etc)
+Calculations on compounds with heavy atoms (transition metals, actinides, etc.)
 may yield many virtual orbitals with low energies. The interaction energies for
 excitations to states where these orbitals are occupied are often very small and
 the low denominators can then be removed by a suitable level shift (see below).
@@ -268,6 +268,27 @@ Keywords
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="MULTISTATE" APPEAR="Multi-State" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC">
               %%Keyword: Multistate <basic> GUI:list
+              <HELP>
+              Enter the number of states for CASPT2 to compute, and a list of numbers
+              showing which CASSCF state to use as root state for each.
+              Alternatively, enter "all" for all the states included in the CASSCF
+              orbital optimization.
+              </HELP>
+              </KEYWORD>
+
+:kword:`XMULtistate`
+  Perform an extended MS-CASPT2 calculation according to :cite:`Granovsky2011,Shiozaki2011`.
+  Enter number of root states, and a list of which CI vector from
+  the CASSCF calculation to use for each state in the same exact way
+  as done for :kword:`MULTistate`. For example "``2 1 2``"
+  would specify the first and second root.
+  The special value "``all``" can be used if all the states included
+  in the CASSCF orbital optimization (keyword :kword:`CIRoot` in :program:`RASSCF`)
+  are desired.
+  This keyword is mutually exclusive with :kword:`MULTistate`.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="XMULTISTATE" APPEAR="Extended Multi-State" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC">
+              %%Keyword: XMultistate <basic> GUI:list
               <HELP>
               Enter the number of states for CASPT2 to compute, and a list of numbers
               showing which CASSCF state to use as root state for each.
@@ -568,11 +589,10 @@ Keywords
               </KEYWORD>
 
 :kword:`NOMIx`
-  Normally, a Multi-State CASPT2 calculation produces new jobiph file named
-  :file:`JOBMIX`. It has the same CASSCF wave functions as the original ones, except
-  that those CI vectors that was used in the Multi-State CASPT2 calculation
-  have been mixed, using the eigenvectors of the effective Hamiltonian matrix
-  as transformation coefficients.
+  Normally, an (X)MS-CASPT2 calculation produces a new jobiph file named :file:`JOBMIX`.
+  It has the same CASSCF wave functions as the original ones, except that those CI vectors
+  that were used in the (Extended) Multi-State CASPT2 calculation have been mixed,
+  using the eigenvectors of the effective Hamiltonian matrix as transformation coefficients.
   Keyword :kword:`NOMIX` prevents creation of this :file:`JOBMIX` file.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="NOMIX" APPEAR="No JobMix" KIND="SINGLE" LEVEL="ADVANCED">
@@ -585,10 +605,12 @@ Keywords
 :kword:`NOMUlt`
   This keyword removes the multi-state part of the calculation and only runs a
   series of independent CASPT2 calculations for the roots specified by the
-  :kword:`MULTistate` keyword. Useful when many roots are required, but multi-state is
-  not needed, or desired. Note that a :file:`JOBMIX` file is produced anyway, but the
-  vectors will not be mixed, and the energies will be single-state CASPT2
-  energies.
+  :kword:`MULTistate` or :kword:`XMULtistate` keyword. Useful when many roots are required,
+  but multi-state is not needed, or desired. Note that a :file:`JOBMIX` file is produced
+  anyway, but the vectors will not be mixed, and the energies will be single-state CASPT2
+  energies. If used with the :kword:`XMULtistate' keyword, the zeroth-order Hamiltonian
+  will be constructed with the state-average density and therefore will be the same for
+  all the states.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="NOMULTI" APPEAR="No Multi-State" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: NoMultistate <basic>
@@ -604,9 +626,10 @@ Keywords
   In a Multistate calculation, it requests to compute the energy of only
   the specified root. However, the effective Hamiltonian coupling terms
   between this root and all the others included in the Multistate
-  treatement will be computed and printed out.
-  This output will be used in a subsequent calculation, in conjuction
-  with the :kword:`EFFE` keyword.
+  treatment will be computed and printed out.
+  This output will be used in a subsequent calculation, in conjunction
+  with the :kword:`EFFE` keyword. This keyword cannot be used with
+  the :kword:`XMULtistate` keyword.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="ONLY" APPEAR="Only root" KIND="INT" LEVEL="ADVANCED" REQUIRE="MULTISTATE">
               %%Keyword: ONLY <advanced>
@@ -616,9 +639,10 @@ Keywords
               In a Multistate calculation, it requests to compute the energy of only
               the specified root. However, the effective Hamiltonian coupling terms
               between this root and all the others included in the Multistate
-              treatement will be computed and printed out.
-              This output will be used in a subsequent calculation, in conjuction
-              with the EFFE keyword.
+              treatment will be computed and printed out.
+              This output will be used in a subsequent calculation, in conjunction
+              with the EFFE keyword. This keyword cannot be used with the XMULtistate
+              keyword.
               </HELP>
               </KEYWORD>
 
@@ -634,6 +658,7 @@ Keywords
   keyword in matrix form, i.e. the first column is made by the
   couplings of the first computed root, etc.
   The program will then quickly compute the Multistate energies.
+  Note that :kword:`EFFE` cannot be used in conjunction with :kword:`XMULtistate`.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="EFFE" APPEAR="Effective Hamiltonian couplings" KIND="STRINGS" LEVEL="ADVANCED" REQUIRE="MULTISTATE">
               %%Keyword: EFFE <advanced>
@@ -649,6 +674,7 @@ Keywords
               keyword in matrix form, i.e. the first column is made by the
               couplings of the first computed root, etc.
               The program will then quickly compute the Multistate energies.
+              Note that EFFE cannot be used in conjunction with XMULtistate.
               </HELP>
               </KEYWORD>
 

@@ -603,6 +603,26 @@ Keywords
               </HELP>
               </KEYWORD>
 
+
+:kword:`REDL`
+  In many cases, RASSI is used to compute the transition moments between
+  a set of initial states (for example the ground state) and a set of final states.
+  "Reduced loop" allows to restrict the computation of transition moments between the two sets
+  and not within each set, thus saving time and reducing the output size.
+  The keyword is followed by the index where the two sets split (assuming energy ordering).
+  For a calculation between one ground state and several excited states, REDL should be 1.
+  Default is to compute the transition moments between all states.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="REDL" APPEAR="Reduced loop" KIND="INT" SIZE="1" LEVEL="BASIC">
+              %%Keyword: Redl <basic>
+              <HELP>
+              Restricts the computation of transition moments to be only between
+              two sets of states, and not also within each set.
+              The keyword is followed by the number of states
+              in the first set (assuming energy ordering).
+              </HELP>
+              </KEYWORD>
+
 :kword:`IPHNames`
   Followed by one entry for each :file:`JOBIPH` file to be used, with the
   name of each file. Note: This keyword presumes that the number of
@@ -723,7 +743,7 @@ Keywords
               </HELP>
               </KEYWORD>
 
-:kword:`DIPR`
+:kword:`DIPRrint`
   The next entry gives the threshold for printing dipole intensities.
   Default is 1.0D-5.
 
@@ -735,7 +755,7 @@ Keywords
               </HELP>
               </KEYWORD>
 
-:kword:`QIPR`
+:kword:`QIPRrint`
   The next entry gives the threshold for printing quadrupole intensities.
   Default is 1.0D-5.
   Will overwrite any value chosen for dipole intensities.
@@ -773,7 +793,7 @@ Keywords
               </HELP>
               </KEYWORD>
 
-:kword:`L-EF`
+:kword:`L-EFfective`
   Set the order of the Lebedev grids used in the interpolation of the solid angles
   in association with the :kword:`TMOS` option. Default value is 5.
   Other allowed values are: 7, 11, 17, 23, 29, 35, 41, 47, 53, and 59.
@@ -787,7 +807,7 @@ Keywords
               </HELP>
               </KEYWORD>
 
-:kword:`K-VE`
+:kword:`K-VEctor`
   Define the direction of the incident light for which we will
   compute transition moments and oscillator strengths. The keyword
   is followed by three reals specifying the direction. The values
@@ -803,7 +823,7 @@ Keywords
               </HELP>
               </KEYWORD>
 
-:kword:`RFPE`
+:kword:`RFPErt`
   :program:`RASSI` will read from :file:`RUNOLD` (if not present defaults to :file:`RUNFILE`) a response field contribution
   and add it to the Fock matrix.
 
@@ -827,7 +847,7 @@ Keywords
 
 :kword:`HEXT`
   It is read from the following few lines, as a triangular matrix: One element
-  of the first row, two from the next, etc, as list-directed input of reals.
+  of the first row, two from the next, etc., as list-directed input of reals.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HEXT" APPEAR="External Hamiltonian" KIND="STRINGS" LEVEL="ADVANCED">
               %%Keyword: HExt <advanced>
@@ -835,7 +855,7 @@ Keywords
               The spin-free Hamiltonian is read from a file instead of being computed.
               </HELP>
               It is read from the following entries, as a triangular matrix: One element
-              of the first row, two from the next, etc, as list-directed input of reals.
+              of the first row, two from the next, etc., as list-directed input of reals.
               </KEYWORD>
 
 :kword:`HEFF`

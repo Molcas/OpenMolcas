@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 1998, Per Ake Malmqvist                                *
+*               2019, Stefano Battaglia                                *
 ************************************************************************
       SUBROUTINE CASPT2(IRETURN)
       USE SUPERINDEX
@@ -80,7 +81,7 @@ C     timers
       REAL*8 CPTF0,CPTF11,CPTF12,CPTF13,CPTF14,CPE,CPUTOT,
      &       TIOTF0,TIOTF11,TIOTF12,TIOTF13,TIOTF14,TIOE,TIOTOT
 C     indices
-      INTEGER I
+      INTEGER I,J
       INTEGER ISTATE
       INTEGER IGROUP,JSTATE_OFF
 C     convergence check
@@ -115,12 +116,25 @@ C     effective hamiltonian
 C If the EFFE keyword has been used, we already have the multi state
 C coupling Hamiltonian effective matrix, just copy the energies and
 C proceed to the MS coupling section.
+C Otherwise, put the CASSCF energies on the diagonal, i.e. form the
+C first-order corrected Heff[1] = PHP and later on we will add the
+C second-order correction Heff(2) = PH \Omega_1 P to Heff[1]
       IF(INPUT%JMS) THEN
         DO I=1,NSTATE
           ENERGY(I)=INPUT%HEFF(I,I)
         END DO
         HEFF=INPUT%HEFF
         GOTO 1000
+      ELSE
+        DO I=1,NSTATE
+          HEFF(I,I) = REFENE(I)
+        END DO
+        IF (IPRGLB.GE.VERBOSE) THEN
+          WRITE(6,*)' HEFF[1] is initialized to:'
+          DO I=1,NSTATE
+            WRITE(6,'(1x,5f16.8)')(HEFF(I,J),J=1,NSTATE)
+          END DO
+        END IF
       END IF
 
 C For (X)Multi-State, a long loop over root states.
@@ -216,6 +230,7 @@ C     Orbitals, properties:
 C     Gradients.
 C     Note: Quantities computed in gradients section can also
 C     be used efficiently for computing Multi-State HEFF.
+C     NOTE: atm the MS-CASPT2 couplings computed here are wrong!
          IF(IFDENS) THEN
            IF (IPRGLB.GE.VERBOSE) THEN
               WRITE(6,*)
@@ -316,6 +331,12 @@ C End of long loop over groups
         CALL PrintResult(6,'(6x,A,I3,5X,A,F16.8)',
      &    'CASPT2 Root',I,'Total energy:',ENERGY(I),1)
        END DO
+       WRITE(6,*)
+       IF (IFXMS) THEN
+        WRITE(6,*)' Note that these CASPT2 energies are obtained using'
+        WRITE(6,*)' the XMS Fock operator and thus do not correspond'
+        WRITE(6,*)' to the true single-state CASPT2 ones.'
+       END IF
        WRITE(6,*)
       END IF
       IF(IPRGLB.GE.VERBOSE.AND.(NLYROOT.EQ.0)) THEN

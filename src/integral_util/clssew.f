@@ -65,3 +65,20 @@
       Seward_Status=InActive
       Return
       End
+*
+      Subroutine DumpSagit()
+      Implicit Real*8 (A-H,O-Z)
+      Character*8 sagit
+      Call getenvf('MOLCAS_SAGIT',sagit)
+      If (sagit(1:1).eq.'y'.or.sagit(1:1).eq.'Y') Then
+CVV: dump info from runfile into ORB.std
+C    note that changes in info.fh
+C    should be reflected in sagit
+        iutemp=16
+        iutemp=isfreeunit(iutemp)
+        Call molcas_open(iutemp,'ORB.std')
+        Call Koor2file(iutemp)
+        Call Basi2file(iutemp)
+        close(iutemp)
+      End If
+      End
