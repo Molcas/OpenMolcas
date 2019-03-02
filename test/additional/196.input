@@ -1,4 +1,3 @@
-* test092.input $ this file belongs to the Molcas repository $
  &SEWARD  &END
 symmetry
 x y z

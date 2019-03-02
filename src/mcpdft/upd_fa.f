@@ -354,18 +354,7 @@
 
 
 
-* $Revision: 8.1.151006-0932 Patch(8.1.151006-0932): $
-* upd_fa $ this file belongs to the Molcas repository $
       Subroutine Upd_FI_m(PUVX,F,D,ExFac)
-************************************************************************
-*                                                                      *
-*     (c) Copyright. All rights reserved                               *
-*                                                                      *
-*     This code or parts thereof may not be copied or redistributed,   *
-*     without the written permission of the author. The use is re-     *
-*     stricted to research purposes only, and the material may not be  *
-*     included in any commercial product.                              *
-*                                                                      *
 ************************************************************************
 *                                                                      *
 *     compute FIA, FAA, and FAS from the integral set (pu!vx)          *
@@ -525,15 +514,6 @@
 
       Subroutine Upd_FA_CI(PUVX,F,ExFac)
 
-************************************************************************
-*                                                                      *
-*     (c) Copyright. All rights reserved                               *
-*                                                                      *
-*     This code or parts thereof may not be copied or redistributed,   *
-*     without the written permission of the author. The use is re-     *
-*     stricted to research purposes only, and the material may not be  *
-*     included in any commercial product.                              *
-*                                                                      *
 ************************************************************************
 *                                                                      *
 *     compute FIA, FAA, and FAS from the integral set (pu!vx)          *
