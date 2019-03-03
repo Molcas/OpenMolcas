@@ -32,6 +32,7 @@
       LOGICAL IF_TRNSF
       CHARACTER(27)  STLNE2
       REAL*8 HEFF(NSTATE,NSTATE)
+      REAL*8 NORMFAC
 
       CALL QENTER('GRPINI')
 * ---------------------------------------------------------------------
@@ -78,7 +79,7 @@
 * in the CASPT2 H0, in original MO basis, and finally replace it with
 * the average over the group.
 * Note that, in principle, also FAMO and DREF should be averaged over
-* the states, but since we never used them during the XMS initialization
+* the states, but since we never use them during the XMS initialization
 * we don't compute them.
 
       NFIFA_AVE=NFIFA
@@ -88,8 +89,43 @@
 
       CALL GETMEM('LCI','ALLO','REAL',LCI,NCONF)
 
+      IF (IFDW) THEN
+        NGRP = NSTATE
+        WRITE(6,*)'    ZETA = ',NZETA
+      END IF
+
       DO ISTATE=1,NGRP
         JSTATE=JSTATE_OFF+ISTATE
+        IF (IFDW) THEN
+          JSTATE=ISTATE
+        END IF
+
+* If it is a dw-caspt2 calculation, compute the relative weight
+        IF (IFDW) THEN
+          WRITE(6,*)
+          WRITE(6,*)'    ALPHA = ',IGROUP
+          EALPHA = REFENE(IGROUP)
+          WRITE(6,*)'   EALPHA = ',EALPHA
+          WRITE(6,*)'  ----------------------------'
+          WRITE(6,*)'     BETA = ',JSTATE
+          EBETA = REFENE(JSTATE)
+          WRITE(6,*)'    EBETA = ',EBETA
+          WRITE(6,*)'  ----------------------------'
+
+* compute normalization factor
+          NORMFAC = 0.0D0
+          DO I=1,NSTATE
+            EGAMMA  = REFENE(I)
+            NORMFAC = NORMFAC + EXP(-NZETA*(EALPHA - EGAMMA)**2)
+          END DO
+          WRITE(6,*)'  NORMFAC = ',NORMFAC
+          WRITE(6,*)'  ----------------------------'
+
+* compute the weight Wab
+          SCL = EXP(-NZETA*(EALPHA - EBETA)**2)/NORMFAC
+          WRITE(6,*)'      SCL = ',SCL
+        END IF
+
 
 * Accumulate the average active density matrix over this group.
         IF(ISCF.NE.0) THEN
@@ -152,6 +188,11 @@ c Modify the Fock matrix, if needed:
 *        for the time, this will be fixed later to implement DMRG-MS-CASPT2.
       IF(DoCumulant) GoTo 100
 
+* Resetting NGRP to 1
+      IF (IFDW) THEN
+        NGRP = 1
+      END IF
+
 * Compute elements of Hamiltonian matrix obtained as
 * <BRA|FOP|KET> where FOP is the average Fock operator (FIFA)
 
@@ -171,7 +212,7 @@ c Modify the Fock matrix, if needed:
 * Note that the Fock matrix, etc are still assumed to be valid -- this seems
 * illogical, but is the way XMS is defined -- else we would need to repeat the
 * whole thing iteratively.
-      IF(NGRP.gt.1) THEN
+      IF(NGRP.GT.1.AND.IFXMS) THEN
 
        CALL GETMEM('EVEC','ALLO','REAL',LEVEC,NGRP**2)
        NSCR=(NGRP*(NGRP+1))/2

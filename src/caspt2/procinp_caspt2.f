@@ -229,7 +229,7 @@ C     really parallel or not.
      &                          'conjunction with the MULT keyword.')
           Call Quit_OnUserError
         End If
-        ZETA = Input % ZETA
+        NZETA = Input % ZETA
       End If
 * The LROOt keyword specifies a single root to be used. It should not be
 * used together with either MULT or XMUL keywords.
