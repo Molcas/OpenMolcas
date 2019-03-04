@@ -184,6 +184,12 @@ c      write(6,*) 'we here 0?'
         If (.Not.(AuxCnttp(iCnttp).or.FragCnttp(iCnttp))) Then
          Do l=0,nVal_Shells(iCnttp)-1
           ishell=ipVal(iCnttp)+l
+          If (Transf(ishell).and..not.Prjct(ishell)) Then
+           If (jPL.ge.2) Then
+            Write(6,*) 'Sorry, Molden does not support contaminants'
+           End If
+           Go To 999
+          End If
           Call Unnrmlz(Work(ipExp(ishell)),nexp(ishell),
      &                 Work(ipCff(ishell)),nbasis(ishell),l)
          End Do
@@ -692,7 +698,7 @@ C     Write (MF,'(A)') '[DIPOLE]'
             Write(6,*) 'Molden_Interface: nB.gt.kk_max'
             Write(6,*) 'nB,kk_Max=',nB,kk_Max
          End If
-         Go To 998
+         Go To 991
       End If
 *                                                                      *
 ************************************************************************
@@ -946,7 +952,7 @@ cvv this statement prevents overoptimization
       End If
       Call GetMem('CMO2','FREE','REAL',ipC2,nB**2)
       Call GetMem('VECTOR','FREE','REAL',ipV,nB**2)
- 998  Close (MF)
+      Close (MF)
  999  Call ClsSew
 *
 C -------------FORMATS-------------

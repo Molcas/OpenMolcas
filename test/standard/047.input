@@ -1,5 +1,3 @@
->>>EXPORT MOLCAS_PRINT = VERBOSE
-*$ this file belongs to the Molcas repository $
 *-------------------------------------------------------------------------------
 * Molecule: Ge atom
 * Basis: ANO-RCC, DZ(5s4p2d)
@@ -8,6 +6,7 @@
 * Responsible person: P.-O. Widmark 041227, R. Lindh 080225
 * Comments: Also testing finite nucleus (modified Gaussian) in Seward
 *-------------------------------------------------------------------------------
+>>>EXPORT MOLCAS_PRINT = VERBOSE
  &SEWARD  &END
 Title
  Ge

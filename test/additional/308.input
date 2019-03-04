@@ -1,5 +1,3 @@
-* $ this file belongs to the Molcas repository $
-*
 * on some machines this test requires more memory, so export EXTRAMEM
 >eval MM=64+$EXTRAMEM
 > export MOLCAS_MEM=$MM

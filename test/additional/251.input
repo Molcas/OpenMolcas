@@ -1,4 +1,3 @@
-*$ this file belongs to the Molcas repository $
 * Test of the CASDFT code using the Sergey's Colle-Salvetti functional
 *  Restricted Open-Shell (ROKS) case (see test 159)
 * Prepared by G. Ghigo with Molcas 6.3.130

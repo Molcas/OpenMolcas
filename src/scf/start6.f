@@ -8,8 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (c): 2017, Roland Lindh                                    *
-*                                                                      *
+* Copyright (C): 2017, Roland Lindh                                    *
 ************************************************************************
       SubRoutine Start6(FName,LuOrb,CMO,mBB,nD,EOrb,OccNo,mmB)
 ************************************************************************

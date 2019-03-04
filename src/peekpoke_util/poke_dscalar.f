@@ -35,8 +35,6 @@
 *>
 *> @param[in] Label Name of field
 *> @param[in] Data  Data to put on runfile
-*>
-*> @copyright All rights reserved by Lund University
 ************************************************************************
       Subroutine Poke_dScalar(Label,Data)
       Implicit None
