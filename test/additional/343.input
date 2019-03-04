@@ -1,4 +1,3 @@
-* $ this file belongs to the Molcas repository $
 *-------------------------------------------------------------------------------
 * Molecule: Carbon monoxide
 * Basis: ANO-S...C,O(3s2p1d)
@@ -341,7 +340,6 @@ End of Input
 
 >> FILE StartOrb.Sol
 #INPORB 1.0         
-*fordeck test156.Water.AveOrb $Revision: 7.9 $
 #INFO
 * SCF orbitals                                                                  
        0       1

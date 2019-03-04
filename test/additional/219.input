@@ -1,6 +1,3 @@
-*$ this file belongs to the Molcas repository $
-************************************************************************
-
  &SEWARD &END
  NoCD
 Basis set

@@ -36,9 +36,8 @@ C are not supported with stdalloc. Hence, the infraction.
       Logical :: AllMult = .False.
       ! XMUL      extended multi-state caspt2
       Logical :: XMUL = .False.
-      Integer, Allocatable :: nXMulState(:)
-      Integer :: nXMulGroup = 0
-      Type(States), Allocatable :: XMulGroup(:)
+      Integer :: nXMulState = 0
+      Type(States) :: XMulGroup
       Logical :: AllXMult = .False.
       ! LROO      compute only a single root, mutually exclusive
       !           with both MULT or XMUL
@@ -202,7 +201,7 @@ C is nSym, as some input lines assume knowledge of the number of irreps.
 #endif
       Character(Len=4) :: Command, Word
 
-      Integer :: i, j, iSym, iGroup, nStates
+      Integer :: i, j, iSym, nStates
       Integer :: iSplit, iError
 
       logical, external :: next_non_comment
@@ -278,41 +277,31 @@ C end of input
       Read(Line,*) Word
       Call UpCase(Word)
       If (Word=='ALL') Then
-        Input%nXMulGroup = 0
+        nStates = 0
         Input%AllXMult = .True.
       Else
-        Read(Line,*,Err=9920,End=9920) Input%nXMulGroup
-        If (Input%nXMulGroup.le.0) Then
-          Write(6,*)' number of XMUL groups must be > 0, quitting!'
-          Call Quit_OnUserError
-        End If
-      End If
-      Allocate(Input%nXMulState(Input%nXMulGroup))
-      Allocate(Input%XMulGroup(Input%nXMulGroup))
-      Do iGroup=1,Input%nXMulGroup
-        If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
         Read(Line,*,Err=9920,End=9920) nStates
         If (nStates.le.0) Then
           Write(6,*)' number of XMUL states must be > 0, quitting!'
           Call Quit_OnUserError
         End If
-        Allocate(Input%XMulGroup(iGroup)%State(nStates))
-        Input%nXMulState(iGroup) = nStates
-        iSplit = SCAN(Line,' ')
-        alloc_dline
-        dLine = Line(iSplit:)
-        iError = -1
-        Do While (iError.lt.0)
-          Read(dLine,*,IOStat=iError)
-     &      (Input%XMulGroup(iGroup)%State(i), i=1,nStates)
-          If (iError.gt.0) GoTo 9920
-          If (iError.lt.0) Then
-            If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
-            Call ExtendLine(dLine,Line)
-          End If
-        End Do
-        dealloc_dline
+      End If
+      Allocate(Input%XMulGroup%State(nStates))
+      Input%nXMulState = nStates
+      iSplit = SCAN(Line,' ')
+      alloc_dline
+      dLine = Line(iSplit:)
+      iError = -1
+      Do While (iError.lt.0)
+        Read(dLine,*,IOStat=iError)
+     &      (Input%XMulGroup%State(i), i=1,nStates)
+        If (iError.gt.0) GoTo 9920
+        If (iError.lt.0) Then
+          If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
+          Call ExtendLine(dLine,Line)
+        End If
       End Do
+      dealloc_dline
 
       Case('LROO')
       Input % LROO = .True.

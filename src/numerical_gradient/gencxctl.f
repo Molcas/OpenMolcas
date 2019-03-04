@@ -18,7 +18,7 @@
 *     differentiation based on the rlxctl.f routine.                   *
 *                                                                      *
 *     Author: R. Lindh, Uppsala University                             *
-*             (c) 2013, November                                       *
+*             2013, November                                           *
 ************************************************************************
 #include "info_slapaf.fh"
       Parameter(nLbl=10*MxAtom)

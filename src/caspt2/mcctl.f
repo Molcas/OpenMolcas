@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 1998, Per Ake Malmqvist                                *
+*               2019, Stefano Battaglia                                *
 ************************************************************************
 *--------------------------------------------*
 * 1998  PER-AAKE MALMQUIST                   *
@@ -50,11 +51,11 @@ C Loop over the bra states
         Call CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
         IF(ISTATE.EQ.JSTATE) THEN
-          HEFF(ISTATE,JSTATE)=E2TOT
+          HEFF(ISTATE,JSTATE)=HEFF(ISTATE,JSTATE)+E2CORR
         ELSE
 C Compute the effective Hamiltonian:
           CALL HEFVAL(ISTATE,JSTATE,DVALUE)
-          HEFF(ISTATE,JSTATE)=DVALUE
+          HEFF(ISTATE,JSTATE)=HEFF(ISTATE,JSTATE)+DVALUE
         END IF
 
         Call CWTIME(TOTCPU2,TOTWALL2)
