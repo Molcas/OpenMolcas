@@ -68,6 +68,9 @@ C CONSTANTS:
       DEBYE=CONV_AU_TO_DEBYE_
       AU2ESUISH=DEBYE**2 * 1.0d4
       IMAGINARY=DCMPLX(0.0D0,1.0D0)
+*
+      DIAGONAL=.TRUE.
+      ReOrder=.FALSE.
 
 #ifdef _DEBUG_RASSI_
       write(6,*) 'BLUBB start of eigctl: debug print of property matrix'
@@ -204,7 +207,6 @@ C 4. TRANSFORM HAMILTON MATRIX.
      &             0.0D0,WORK(LHSQ),MSTATE)
 
 C 5. DIAGONALIZE HAMILTONIAN.
-      DIAGONAL=.TRUE.
       IJ=0
       DO I=1,MSTATE
         DO J=1,I
@@ -217,7 +219,6 @@ C 5. DIAGONALIZE HAMILTONIAN.
       END DO
 
       CALL Jacob(WORK(LHH),WORK(LUU),MSTATE,MSTATE)
-      ReOrder=.FALSE.
       TEMP=WORK(LHH)
       DO I=2,MSTATE
          IJ=I*(I+1)/2
