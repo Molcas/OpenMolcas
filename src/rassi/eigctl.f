@@ -2256,37 +2256,34 @@ C And the same for the Dyson amplitudes
       Call mma_Allocate(TDS,4*nSCR,nState*(nState+1)/2,Label='TDS')
       Call FZero(4*nSCR*nState*(nState+1)/2,TDS)
 *
-*     Loop over all TDs and distribute their contributions to the TDs
-*     in the new basis.
+*     Loop over all unique TDs and distribute their contributions to the
+*     TDs in the new basis.
 *
       DO I=1, NSTATE
          DO J= 1, NSTATE
-*           Write (6,*) 'I,J=',I,J
             ISTATE=MAX(i,j)
             JSTATE=MIN(i,j)
             ij=ISTATE*(ISTATE-1)/2+JSTATE
             iDisk=iWork(liTocM+ij-1)
             Get_TDS=.True.
-*           Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
-*           Call RecPrt('Work(LSCR)',' ',Work(LSCR),4,NSCR)
-*           Write (6,*) 'Work(LSCR)=',
-*    &                   DDOT_(4*NSCR,WORK(LSCR),1,
-*    &                                     WORK(LSCR),1)
 *
-            Do k = 1, IEND
-               C_ik=EigVec(i,k)
-               Do l = JSTART, NSTATE
-                  C_jl=EigVec(j,l)
-*                 Write (6,*) 'K,L=',K,L
-*                 Write (6,*) 'C_ik, C_jl=',C_ik,C_jl
+*           The reading is postpone until it is really needed
+*           (see below).
+*           Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
+*
+*           Loop over the TDs which will be used in the subsequent part
+*           of the code.
+*
+            Do K = JSTART, NSTATE
+               Do L = 1, Min(IEND,K)
+                  C_ik=EigVec(i,K)
+                  C_jl=EigVec(j,L)
                   If (Abs(C_ik*C_jl).gt.1.0D-14) Then
                      If (Get_TDS) Then
                         Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
                         Get_TDS=.False.
                      End If
-                     KSTATE=Max(k,l)
-                     LSTATE=MIN(k,l)
-                     kl=KSTATE*(KSTATE-1)/2+LSTATE
+                     kl=K*(K-1)/2+L
                      Call DaXpY_(4*NSCR,C_ik*C_jl,Work(LSCR),1,
      &                                            TDS(1,kl),1)
                   End If
@@ -2300,14 +2297,11 @@ C And the same for the Dyson amplitudes
 *
       DO I=1, IEND
          DO J=JSTART, NSTATE
-*           Write (6,*) 'I,J=',I,J
             ISTATE=MAX(i,j)
             JSTATE=MIN(i,j)
             ij=ISTATE*(ISTATE-1)/2+JSTATE
             iDisk=iWork(liTocM+ij-1)
             Call dDaFile(LuToM,1,TDS(1,ij),4*NSCR,iDisk)
-*           Write(6,*) 'TDS(1,ij)',DDOT_(4*NSCR,TDS(1,ij),1,
-*    &                                          TDS(1,ij),1)
          END DO
       END DO
       Call mma_DeAllocate(TDS)
