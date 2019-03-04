@@ -22,7 +22,6 @@ END OF INPUT
 
 >> FILE SOLORB
 #INPORB 1.1         
-*$Revision: 7.9 $
 #INFO
 * SCF orbitals                                                                  
        0       1
@@ -450,7 +449,6 @@ END OF INPUT
 
 >> FILE AVEORB
 #INPORB 1.1         
-*$Revision: 7.9 $
 #INFO
 *Average Orbitals                                                       
        0       1
