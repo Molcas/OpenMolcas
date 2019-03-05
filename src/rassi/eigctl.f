@@ -575,6 +575,10 @@ C And the same for the Dyson amplitudes
         JSTART = 1
       END IF
 *
+      ! AFACTOR = 2*pi*e^2*E_h^2 / eps_0*m_e*c^3*h^2
+      AFACTOR = 2.0D0/CONST_C_IN_AU_**3 ! in a.u. of time^-1
+     &          /CONST_AU_TIME_IN_SI_   ! in s^-1
+*
       IF(IPGLOB.le.SILENT) GOTO 900
 !
 * CALCULATION OF THE DIPOLE TRANSITION STRENGTHS
@@ -608,7 +612,6 @@ C And the same for the Dyson amplitudes
        END DO
 
        IF(IFANYD.NE.0) THEN
-        AFACTOR=32.1299D09
         WRITE(6,*)
         CALL CollapseOutput(1,'Dipole transition strengths '//
      &                        '(spin-free states):')
@@ -813,7 +816,6 @@ C And the same for the Dyson amplitudes
       END DO
 
       IF (IFANYD.NE.0) THEN
-         AFACTOR=32.1299D09
          WRITE(6,*)
          CALL CollapseOutput(1,'Velocity transition strengths '//
      &                         '(spin-free states):')
@@ -888,7 +890,6 @@ C And the same for the Dyson amplitudes
                   WRITE(6,33) I,J,F,AX,AY,AZ,A
 ! Store dipole oscillator strength
                   WORK(LDV-1+IJ) = F
-
                END IF
                Call Add_Info('TMS(SF,Vel)',F,1,6)
                END IF
@@ -916,7 +917,6 @@ C And the same for the Dyson amplitudes
 !
          WRITE(6,*)
          WRITE(6,*) "--------------------------------------------------"
-         WRITE(6,*)
          WRITE(6,*) "A comparison between the dipole oscillator "//
      &              "strengths in "
          WRITE(6,*) "length and velocity gauge "//
@@ -931,7 +931,6 @@ C And the same for the Dyson amplitudes
          WRITE(6,*) "The tolerance is defined as ABS(1-O_l/O_v) "
          WRITE(6,*) "O_l : dipole oscillator strength in length gauge"
          WRITE(6,*) "O_p : dipole oscillator strength in velocity gauge"
-         WRITE(6,*)
          WRITE(6,*) "--------------------------------------------------"
 !
           I_PRINT_HEADER = 0
@@ -955,11 +954,9 @@ C And the same for the Dyson amplitudes
                  WRITE(6,*)
                  WRITE(6,*) " Problematic transitions have been found"
                  WRITE(6,*)
-                 WRITE(6,*) "     From   To      Difference (%)  "//
-     &                      "Osc. st. (len.) Osc. st. (vel.)"
-                 WRITE(6,*) "     -------------------------------"//
-     &                      "-------------------------------"
-                 WRITE(6,*)
+                 WRITE(6,39) "From","To","Difference (%)",
+     &                       "Osc. st. (len.)","Osc. st. (vel.)"
+                 WRITE(6,40)
                END IF
                IF (COMPARE.GE.0.0D0) THEN
                  WRITE(6,33) I,J,COMPARE*100D0,
@@ -978,8 +975,7 @@ C And the same for the Dyson amplitudes
      &                 "the tolerance ", TOLERANCE," have been found"
             WRITE(6,*)
           ELSE
-            WRITE(6,*) "     -------------------------------"//
-     &                 "-------------------------------"
+            WRITE(6,40)
             WRITE(6,*)
             WRITE(6,*) "Number of problematic transitions = ",
      &                  I_PRINT_HEADER
@@ -1570,7 +1566,7 @@ C And the same for the Dyson amplitudes
             FZY=-ONEOVER9C2*EDIFF2*(DZYDX)
 
             F =FYX+FXY+FZX+FXZ+FYZ+FZY
-! Add it!to the total
+! Add it to the total
             WORK(LTOT2K-1+IJSS) = WORK(LTOT2K-1+IJSS) + F
 
             IF(ABS(F).GE.OSTHR2) THEN
@@ -1658,7 +1654,7 @@ C And the same for the Dyson amplitudes
      &   WRITE(6,*) 'Electric-Dipole - Magnetic-Quadrupole not included'
          iPrint=0
          DO ISS=1,NSS
-          DO JSS=1,NSS
+          DO JSS=JSTART,NSS
            EDIFF=ENERGY(JSS)-ENERGY(ISS)
            IF(EDIFF.GT.0.0D0) THEN
 !
@@ -2003,7 +1999,6 @@ C And the same for the Dyson amplitudes
       kxe2(2)=PORIG(3,IPORIG)*P2(1)-PORIG(1,IPORIG)*P2(3)
       kxe2(3)=PORIG(1,IPORIG)*P2(2)-PORIG(2,IPORIG)*P2(1)
 *
-      AFACTOR=32.1299D09
       HALF=0.5D0
       G_Elec=CONST_ELECTRON_G_FACTOR_
       iPrint=0
@@ -2687,16 +2682,15 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
             End If
 
             IF (ABS(F).LT.OSTHR) CYCLE
-            AX=(AFACTOR*EDIFF**2)*FX
-            AY=(AFACTOR*EDIFF**2)*FY
-            AZ=(AFACTOR*EDIFF**2)*FZ
             A =(AFACTOR*EDIFF**2)*F
 *
             If (iPrint.eq.0) Then
                WRITE(6,*)
                If (Do_SK) Then
                   CALL CollapseOutput(1,
-     &                'Transition moment strengths:')
+     &                'Transition moment strengths (spin-free states):')
+                  WRITE(6,'(3X,A)')
+     &                '-----------------------------------------------'
                   WRITE(6,'(4x,a,3F8.4,a)')
      &                  'Direction of the k-vector: ',
      &                   (k_vector(k,iVec),k=1,3),' (au)'
@@ -2704,10 +2698,10 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                   CALL CollapseOutput(1,
      &                'Isotropic transition moment strengths '//
      &                '(spin-free states):')
-               End If
-               WRITE(6,'(3X,A)')
+                  WRITE(6,'(3X,A)')
      &                '--------------------------------------'//
      &                '-------------------'
+               End If
                IF (OSTHR.GT.0.0D0) THEN
                   WRITE(6,30) 'for osc. strength at least',OSTHR
                END IF
@@ -2727,28 +2721,23 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                WRITE(6,*) ' [Rot. strength] = 1.0D-40 esu**2 cm**2'
                WRITE(6,*)
                WRITE(6,39) 'From','To','Osc. strength',
-     &                                 'Rot. strength',
-     &               'Einstein coefficients Ax, Ay, Az (sec-1)   ',
-     &               'Total A (sec-1)'
-               WRITE(6,32)
+     &                     'Rot. strength','Total A (sec-1)'
+               WRITE(6,40)
                iPrint=1
             END IF
 *
 *     Regular print
 *
-            WRITE(6,38) I,J,F,R,AX,AY,AZ,A
+            WRITE(6,38) I,J,F,R,A
 *
 *     Printing raw (unweighted) and direction for every transition
 *
             IF(PRRAW) THEN
               WRITE(6,*)
               WRITE(6,*)
-              WRITE(6,*)"        To  From     Raw Osc. str."//
-     &          "   Mag. cont.       "//
-     &          "   kx,            ky,            kz "
-              WRITE(6,*)
-     &  '        -------------------------------------------'//
-     &  '------------------------------------------------'
+              WRITE(6,34) 'From', 'To', 'Raw osc. str.',
+     &                    'Mag. cont.','kx','ky','kz'
+              WRITE(6,32)
               DO IQUAD = 1, NQUAD
                 WRITE(6,'(5X,2I5,5X,5G16.8)') I,J,
      &          WORK(LRAW+(IQUAD-1)+0*NQUAD),
@@ -2757,7 +2746,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
      &          WORK(LRAW+(IQUAD-1)+3*NQUAD),
      &          WORK(LRAW+(IQUAD-1)+4*NQUAD)
               END DO
-              WRITE(6,*)
+              WRITE(6,32)
               WRITE(6,*)
             END IF
 *
@@ -2766,12 +2755,9 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
             IF(PRWEIGHT) THEN
               WRITE(6,*)
               WRITE(6,*)
-              WRITE(6,*)"        To  From     Wei Osc. str."//
-     &          "   Mag. cont.       "//
-     &          "   kx,            ky,            kz "
-              WRITE(6,*)
-     &  '        -------------------------------------------'//
-     &  '------------------------------------------------'
+              WRITE(6,34) 'From', 'To', 'Weig. osc. str.',
+     &                    'Mag. cont.','kx','ky','kz'
+              WRITE(6,32)
               DO IQUAD = 1, NQUAD
                 WRITE(6,'(5X,2I5,5X,5G16.8)') I,J,
      &          WORK(LWEIGH+(IQUAD-1)+0*NQUAD)/ (4.0D0*PI),
@@ -2780,7 +2766,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
      &          WORK(LWEIGH+(IQUAD-1)+3*NQUAD)            ,
      &          WORK(LWEIGH+(IQUAD-1)+4*NQUAD)
               END DO
-              WRITE(6,*)
+              WRITE(6,32)
               WRITE(6,*)
             END IF
 *
@@ -2788,10 +2774,10 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
       END DO
 *
       If (iPrint.EQ.1) THEN
-         WRITE(6,32)
+         WRITE(6,40)
          If (Do_SK) Then
             CALL CollapseOutput(0,
-     &                   'Transition moment strengths:')
+     &                'Transition moment strengths (spin-free states):')
          Else
          CALL CollapseOutput(0,
      &                'Isotropic transition moment strengths '//
@@ -2852,7 +2838,8 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 36    FORMAT (5X,2(1X,I4),6X,15('-'),1X,ES15.8,1X,A15)
 37    FORMAT (5X,2(1X,I4),6X,15('-'),1X,A15,1X,ES15.8)
 38    FORMAT (5X,2(1X,I4),5X,2(1X,F9.6,6X),4(1X,ES15.8))
-39    FORMAT (5X,2(1X,A4),6X,A15,3X,A13,1X,A47,1X,A15)
+39    FORMAT (5X,2(1X,A4),6X,A15,1X,A15,1X,A15)
+40    FORMAT (5X,63('-'))
       END
       Subroutine Setup_O()
       IMPLICIT REAL*8 (A-H,O-Z)

@@ -505,48 +505,22 @@ C910  CONTINUE
        WRITE(6,*)
        WRITE(6,*)'  Eigenvalues of complex Hamiltonian:'
        WRITE(6,*)'  -----------------------------------'
+       IF(EMIN.NE.0.0D0)
+     &  WRITE(6,'(1X,A,F22.10,A1)')' (Shifted by EVAC (a.u.) =',EMIN,')'
        WRITE(6,*)
-       IF(EVAC.NE.0.0D0) THEN
-        if(ifj2.ne.0.and.ifjz.ne.0) then
-         WRITE(6,'(1X,A,F20.9,A1)')' (Shifted by EVAC (a.u.) =',EMIN,')'
-         WRITE(6,*)
-         WRITE(6,*) '         Relative EVac(au)    Rel lowest'//
-     &              ' level(eV)    D:o, cm**(-1)    J-value, Omega'
-        else if(ifj2.ne.0.and.ifjz.eq.0) then
-         WRITE(6,'(1X,A,F20.9,A1)')' (Shifted by EVAC (a.u.) =',EMIN,')'
-         WRITE(6,*)
-         WRITE(6,*) '         Relative EVac(au)    Rel lowest'//
-     &              ' level(eV)    D:o, cm**(-1)    J-value'
-        else if(ifj2.eq.0.and.ifjz.ne.0) then
-         WRITE(6,'(1X,A,F20.9,A1)')' (Shifted by EVAC (a.u.) =',EMIN,')'
-         WRITE(6,*)
-         WRITE(6,*) '         Relative EVac(au)    Rel lowest'//
-     &              ' level(eV)    D:o, cm**(-1)  Omega'
-        else if(ifj2.eq.0.and.ifjz.eq.0) then
-         WRITE(6,'(1X,A,F20.9,A1)')' (Shifted by EVAC (a.u.) =',EMIN,')'
-         WRITE(6,*)
-         WRITE(6,*) '         Relative EVac(au)    Rel lowest'//
-     &              ' level(eV)    D:o, cm**(-1)'
-        endif
-       ELSE
-        if(ifj2.ne.0.and.ifjz.ne.0) then
-         WRITE(6,*)
-         WRITE(6,*) '         Total energy (au)    Rel lowest'//
-     &              ' level(eV)    D:o, cm**(-1)    J-value, Omega'
-        else if(ifj2.ne.0.and.ifjz.eq.0) then
-         WRITE(6,*)
-         WRITE(6,*) '         Total energy (au)    Rel lowest'//
-     &              ' level(eV)    D:o, cm**(-1)    J-value'
-        else if(ifj2.eq.0.and.ifjz.ne.0) then
-         WRITE(6,*)
-         WRITE(6,*) '         Total energy (au)    Rel lowest'//
-     &              ' level(eV)    D:o, cm**(-1)   Omega'
-        else if(ifj2.eq.0.and.ifjz.eq.0) then
-         WRITE(6,*)
-         WRITE(6,*) '         Total energy (au)    Rel lowest'//
-     &              ' level(eV)    D:o, cm**(-1)'
-        endif
-       END IF
+       if(ifj2.ne.0.and.ifjz.ne.0) then
+        WRITE(6,*)'SO State       Relative EVAC(au)   Rel lowest'//
+     &          ' level(eV)    D:o, cm**(-1)     J-value  Omega'
+       else if(ifj2.ne.0.and.ifjz.eq.0) then
+        WRITE(6,*)'SO State       Relative EVAC(au)   Rel lowest'//
+     &          ' level(eV)    D:o, cm**(-1)     J-value'
+       else if(ifj2.eq.0.and.ifjz.ne.0) then
+        WRITE(6,*)'SO State       Relative EVAC(au)   Rel lowest'//
+     &          ' level(eV)    D:o, cm**(-1)      Omega'
+       else if(ifj2.eq.0.and.ifjz.eq.0) then
+        WRITE(6,*)'SO State       Relative EVAC(au)   Rel lowest'//
+     &          ' level(eV)    D:o, cm**(-1)'
+       endif
        WRITE(6,*)
        E0=ENSOR(1)
        DO ISS=1,NSS
@@ -568,18 +542,17 @@ C910  CONTINUE
 C Added by Ungur Liviu on 04.11.2009
 C Saving the SO energies in ESO array.
         ESO(ISS)=E3
-
         if(ifj2.ne.0.and.ifjz.ne.0) then
-          WRITE(6,'(1X,I5,F20.10,2X,F20.10,2X,F18.4,4x,2F6.1)')
+          WRITE(6,'(1X,I5,7X,2(F18.10,2X),F18.4,4X,2(2X,F6.1))')
      &        ISS,E1,E2,E3,XJEFF,OMEGA
         else if(ifj2.ne.0.and.ifjz.eq.0) then
-          WRITE(6,'(1X,I5,F20.10,2X,F20.10,2X,F18.4,4x,F6.1)')
+          WRITE(6,'(1X,I5,7X,2(F18.10,2X),F18.4,6X,F6.1)')
      &        ISS,E1,E2,E3,XJEFF
         else if(ifj2.eq.0.and.ifjz.ne.0) then
-          WRITE(6,'(1X,I5,F20.10,2X,F20.10,2X,F18.4,4x,F6.1)')
+          WRITE(6,'(1X,I5,7X,2(F18.10,2X),F18.4,6X,F6.1)')
      &        ISS,E1,E2,E3,OMEGA
         else if(ifj2.eq.0.and.ifjz.eq.0) then
-          WRITE(6,'(1X,I5,F20.10,2X,F20.10,2X,F18.4)')
+          WRITE(6,'(1X,I5,7X,2(F18.10,2X),F18.4)')
      &      ISS,E1,E2,E3
         endif
        ENDDO
