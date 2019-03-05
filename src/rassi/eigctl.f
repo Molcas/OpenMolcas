@@ -33,6 +33,7 @@
       REAL*8, ALLOCATABLE :: ESFS(:)
       REAL*8, Dimension(:,:), Allocatable :: TDS
       Logical Get_TDS, Diagonal, ReOrder
+      Integer, Dimension(:), Allocatable :: IndexE
 * Short array, just for putting transition dipole values
 * into Add_Info, for generating check numbers:
       Real*8 TDIPARR(3)
@@ -376,6 +377,31 @@ C within the basis formed by the states.
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*      Sort the states energywise
+*
+       Call mma_Allocate(IndexE,nState,Label='IndexE')
+       Do iState = 1, nState
+          IndexE(iState)=iState
+       End Do
+       Do iState = 1, nState-1
+          EX=ENERGY(IndexE(iState))
+*
+          kState=iState
+          Do jState = iState+1, nState
+             If (ENERGY(IndexE(jState)).lt.EX) Then
+                kState=jState
+                EX=ENERGY(IndexE(jState))
+             End If
+          End Do
+          If (kState.ne.iState) Then
+             lState=IndexE(iState)
+             IndexE(iState)=IndexE(kState)
+             IndexE(kState)=lState
+          End If
+       End Do
+*                                                                      *
+************************************************************************
+*                                                                      *
 C REPORT ON SECULAR EQUATION RESULT:
       CALL MMA_ALLOCATE(ESFS,NSTATE)
       IF(IPGLOB.ge.TERSE) THEN
@@ -386,6 +412,10 @@ C REPORT ON SECULAR EQUATION RESULT:
        WRITE(6,'(6X,A,98X,A)') '*','*'
        WRITE(6,'(6X,A,34X,A,34X,A)')
      &     '*','       Spin-free section      ','*'
+       WRITE(6,'(6X,A,98X,A)') '*','*'
+       WRITE(6,'(6X,A,17X,A,17X,A)')
+     &     '*','Note: index according to input order, order according'
+     &     //' to energy.','*'
        WRITE(6,'(6X,A,98X,A)') '*','*'
        WRITE(6,'(6X,100A1)') ('*',i=1,100)
        WRITE(6,*)
@@ -413,8 +443,9 @@ C REPORT ON SECULAR EQUATION RESULT:
        END IF
        WRITE(6,*)
 *
-       E0=ENERGY(1)
-       Do iSTATE=1,NSTATE
+       E0=ENERGY(IndexE(1))
+       Do kSTATE=1,NSTATE
+          iState=IndexE(kState)
           E1=ENERGY(ISTATE)
           E2=AU2EV*(E1-E0)
           E3=AU2CM*(E1-E0)
@@ -462,28 +493,30 @@ c
        WRITE(6,*)'  Spin-free eigenstates in basis of input states:'
        WRITE(6,*)'  -----------------------------------------------'
        WRITE(6,*)
-       DO I=1,NSTATE
+       DO L=1,NSTATE
+          I=IndexE(L)
          Write(6,'(5X,A,I5,A,F18.10)')'Eigenstate No.',I,
      &         ' energy=',ENERGY(I)
          WRITE(6,'(5X,5F15.7)')(EIGVEC(K,I),K=1,NSTATE)
        END DO
        CALL GETMEM('ILST','ALLO','INTE',LILST,NSTATE)
        CALL GETMEM('VLST','ALLO','REAL',LVLST,NSTATE)
-       DO I=1,NSTATE
+       DO L=1,NSTATE
+          I=IndexE(L)
           Write(6,'(5X,A,I5,A,F18.10)')'Eigenstate No.',I,
      &          ' energy=',ENERGY(I)
         EVMAX=0.0D0
         DO K=1,NSTATE
-         EVMAX=MAX(EVMAX,ABS(EIGVEC(K,I)))
+         EVMAX=MAX(EVMAX,ABS(EIGVEC(IndexE(K),I)))
         END DO
         EVLIM=0.10D0*EVMAX
         NLST=0
         DO K=1,NSTATE
-         EV=EIGVEC(K,I)
+         EV=EIGVEC(IndexE(K),I)
          IF(ABS(EV).GE.EVLIM) THEN
            NLST=NLST+1
            WORK(LVLST-1+NLST)=EV
-           IWORK(LILST-1+NLST)=K
+           IWORK(LILST-1+NLST)=IndexE(K)
          END IF
         END DO
          DO KSTA=1,NLST,6
@@ -500,13 +533,14 @@ c
         WRITE(6,*)
         WRITE(6,*)' THE INPUT RASSCF STATES REEXPRESSED IN EIGENSTATES:'
         WRITE(6,*)
-        DO I=1,NSTATE
+        DO L=1,NSTATE
+           I=IndexE(L)
          CALL DGEMM_('T','N',NSTATE,NSTATE,NSTATE,1.0D0,
      &             EIGVEC,NSTATE,OVLP,NSTATE,
      &             0.0D0,WORK(LSCR),NSTATE)
          WRITE(6,'(A,I5)')' INPUT STATE NR.:',I
          WRITE(6,*)' OVERLAP WITH THE EIGENSTATES:'
-         WRITE(6,'(5(1X,F15.7))')(WORK(LSCR-1+K+NSTATE*(I-1)),
+         WRITE(6,'(5(1X,F15.7))')(WORK(LSCR-1+IndexE(K)+NSTATE*(I-1)),
      &         K=1,NSTATE)
          WRITE(6,*)
        END DO
@@ -639,8 +673,10 @@ C And the same for the Dyson amplitudes
         LNCNT=0
         FMAX=0.0D0
         Two3rds=2.0D0/3.0D0
-        DO I=1,IEND
-         DO J=JSTART,NSTATE
+        DO K_=1,IEND
+           I=IndexE(K_)
+         DO L_=JSTART,NSTATE
+            J=IndexE(L_)
           IJ=I+NSTATE*(J-1)
           EDIFF=ENERGY(J)-ENERGY(I)
 *
@@ -745,8 +781,10 @@ C And the same for the Dyson amplitudes
 *
         LNCNT=0
         DMAX=0.0D0
-        DO I=1,NSTATE-1
-         DO J=I+1,NSTATE
+        DO K_=1,NSTATE-1
+           I=IndexE(K_)
+         DO L_=I+1,NSTATE
+            J=IndexE(L_)
            DX=0.0D0
            DY=0.0D0
            DZ=0.0D0
@@ -837,8 +875,10 @@ C And the same for the Dyson amplitudes
          LNCNT=0
          FMAX=0.0D0
          Two3rds=2.0D0/3.0D0
-         DO I=1,IEND
-            DO J=JSTART,NSTATE
+         DO K_=1,IEND
+            I=IndexE(K_)
+            DO L_=JSTART,NSTATE
+               J=IndexE(L_)
                IJ=I+NSTATE*(J-1)
                EDIFF=ENERGY(J)-ENERGY(I)
                IF(EDIFF.GT.0.0D0) THEN
@@ -934,8 +974,10 @@ C And the same for the Dyson amplitudes
          WRITE(6,*) "--------------------------------------------------"
 !
           I_PRINT_HEADER = 0
-          DO I=1,IEND
-            DO J=JSTART,NSTATE
+          DO K_=1,IEND
+             I=IndexE(K_)
+            DO L_=JSTART,NSTATE
+               J=IndexE(L_)
                IJ=I+NSTATE*(J-1)
                EDIFF=ENERGY(J)-ENERGY(I)
                IF(JSTART.EQ.1.AND.EDIFF.LT.0.0D0) CYCLE
@@ -1047,8 +1089,10 @@ C And the same for the Dyson amplitudes
 
          ONEOVER6C2=1.0D0/(6.0D0*CONST_C_IN_AU_**2)
 
-         DO ISS=1,IEND
-          DO JSS=JSTART,NSS
+         DO ISS_=1,IEND
+            ISS=IndexE(ISS_)
+          DO JSS_=JSTART,NSS
+             JSS=IndexE(JSS_)
            EDIFF=ENERGY(JSS)-ENERGY(ISS)
            IF(EDIFF.GT.0.0D0) THEN
             IJSS=ISS+NSS*(JSS-1)
@@ -1150,8 +1194,10 @@ C And the same for the Dyson amplitudes
          ONEOVER10C=1.0D0/(10.0D0*CONST_C_IN_AU_**2)
          ONEOVER30C=ONEOVER10C/3.0D0
 
-         DO ISS=1,IEND
-          DO JSS=JSTART,NSS
+         DO ISS_=1,IEND
+            ISS=IndexE(ISS_)
+          DO JSS_=JSTART,NSS
+             JSS=IndexE(JSS_)
            EDIFF=ENERGY(JSS)-ENERGY(ISS)
            IF(EDIFF.GT.0.0D0) THEN
 !
@@ -1348,8 +1394,10 @@ C And the same for the Dyson amplitudes
         END IF
 
          TWOOVERM45C=-2.0D0/(45.0D0*CONST_C_IN_AU_**2)
-         DO ISS=1,IEND
-          DO JSS=JSTART,NSS
+         DO ISS_=1,IEND
+            ISS=IndexE(ISS_)
+          DO JSS_=JSTART,NSS
+             JSS=IndexE(JSS_)
            EDIFF=ENERGY(JSS)-ENERGY(ISS)
            IF(EDIFF.GT.0.0D0) THEN
 !
@@ -1530,8 +1578,10 @@ C And the same for the Dyson amplitudes
          END IF
 
          ONEOVER9C2=1.0D0/(9.0D0*CONST_C_IN_AU_**2)
-         DO ISS=1,IEND
-          DO JSS=JSTART,NSS
+         DO ISS_=1,IEND
+            ISS=IndexE(ISS_)
+          DO JSS_=JSTART,NSS
+             JSS=IndexE(JSS_)
            EDIFF=ENERGY(JSS)-ENERGY(ISS)
            IF(EDIFF.GT.0.0D0) THEN
 !
@@ -1653,8 +1703,10 @@ C And the same for the Dyson amplitudes
          IF(SECORD(4).EQ.0)
      &   WRITE(6,*) 'Electric-Dipole - Magnetic-Quadrupole not included'
          iPrint=0
-         DO ISS=1,NSS
-          DO JSS=JSTART,NSS
+         DO ISS_=1,NSS
+            ISS=IndexE(ISS_)
+          DO JSS_=JSTART,NSS
+             JSS=IndexE(JSS_)
            EDIFF=ENERGY(JSS)-ENERGY(ISS)
            IF(EDIFF.GT.0.0D0) THEN
 !
@@ -1745,8 +1797,10 @@ C And the same for the Dyson amplitudes
 !
          TWOOVER3C=2.0D0/(3.0D0*CONST_C_IN_AU_)
 
-         DO ISS=1,IEND
-          DO JSS=JSTART,NSS
+         DO ISS_=1,IEND
+            ISS=IndexE(ISS_)
+          DO JSS_=JSTART,NSS
+             JSS=IndexE(JSS_)
            EDIFF=ENERGY(JSS)-ENERGY(ISS)
            IF(EDIFF.GT.0.0D0) THEN
             IJSS=ISS+NSS*(JSS-1)
@@ -1838,8 +1892,10 @@ C And the same for the Dyson amplitudes
 !
          TWOOVER3C=2.0D0/(3.0D0*CONST_C_IN_AU_)
 
-         DO ISS=1,IEND
-          DO JSS=JSTART,NSS
+         DO ISS_=1,IEND
+            ISS=IndexE(ISS_)
+          DO JSS_=JSTART,NSS
+             JSS=IndexE(JSS_)
            EDIFF=ENERGY(JSS)-ENERGY(ISS)
            IF(EDIFF.GT.0.0D0) THEN
             IJSS=ISS+NSS*(JSS-1)
@@ -1897,8 +1953,10 @@ C And the same for the Dyson amplitudes
      &   'BE (eV)       Dyson intensity'
         WRITE(6,32)
         FMAX=0.0D0
-        DO I=1,NSTATE
-         DO J=1,NSTATE
+        DO I_=1,NSTATE
+           I=IndexE(I_)
+         DO J_=1,NSTATE
+            J=IndexE(J_)
           F=DYSAMPS(I,J)*DYSAMPS(I,J)
           EDIFF=AU2EV*(ENERGY(J)-ENERGY(I))
           IF (F.GT.0.00001) THEN
@@ -2002,9 +2060,11 @@ C And the same for the Dyson amplitudes
       HALF=0.5D0
       G_Elec=CONST_ELECTRON_G_FACTOR_
       iPrint=0
-      DO I=1, IEND
+      DO I_=1, IEND
+         I=IndexE(I_)
          MPLET_I=MLTPLT(iWork(lJBNUM+I-1))
-         DO J=JSTART, NSTATE
+         DO J_=JSTART, NSTATE
+            J=IndexE(J_)
             MPLET_J=MLTPLT(iWork(lJBNUM+J-1))
 *
             EDIFF=ENERGY(J)-ENERGY(I)
@@ -2364,9 +2424,11 @@ C And the same for the Dyson amplitudes
       G_Elec=CONST_ELECTRON_G_FACTOR_
       iPrint=0
       IJSO=0
-      DO I=1, IEND
+      DO I_=1, IEND
+         I=IndexE(I_)
          MPLET_I=MLTPLT(iWork(lJBNUM+I-1))
-         DO J=JSTART, NSTATE
+         DO J_=JSTART, NSTATE
+            J=IndexE(J_)
             MPLET_J=MLTPLT(iWork(lJBNUM+J-1))
 *
             EDIFF=ENERGY(J)-ENERGY(I)
@@ -2826,6 +2888,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
         end do
         end do
       end if
+      Call mma_DeAllocate(IndexE)
 
       CALL QEXIT(ROUTINE)
       RETURN
