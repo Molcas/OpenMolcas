@@ -779,15 +779,25 @@ Keywords
               </HELP>
               </KEYWORD>
 
+:kword:`CD`
+  Compute rotatory strengths (for circular dichroism) from the multipole expansion of transition moments.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="CD" APPEAR="Circular dichroism" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: CD <basic>
+              <HELP>
+              Compute rotatory strengths from the multipole expansion of transition moments.
+              </HELP>
+              </KEYWORD>
+
 :kword:`TMOS`
-  Activate the computation of oscillators strengths (and transition moments) using the
-  non-relativistic Hamiltonian with the explicit Coulomb-field vector operator (A) in
+  Activate the computation of oscillator strengths and rotatory strengths using the
+  non-relativistic Hamiltonian with the explicit Coulomb-field vector operator (:math:`A`) in
   the weak field approximation.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="TMOS" APPEAR="Transition moments - oscillator strength" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: TMOS <advanced>
               <HELP>
-              Activate the computation of oscillators strengths (and transition moments) using the
+              Activate the computation of oscillators strengths rotatory strengths using the
               non-relativistic Hamiltonian with the explicit Coulomb-field vector operator (A) in
               the weak field approximation.
               </HELP>
@@ -805,6 +815,28 @@ Keywords
               in association with the TMOS option. Default value is 5.
               Other allowed values are: 7, 11, 17, 23, 29, 35, 41, 47, 53, and 59.
               </HELP>
+              </KEYWORD>
+
+:kword:`PRRAw`
+  Print the raw directions for the exact semi-classical intensities (see the :kword:`TMOS` keyword).
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="PRRA" APPEAR="Print raw directions" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: PRRAw <advanced>
+              <HELP>
+              Print the raw directions for the exact semi-classical intensities
+              </HELP>
+              (see the TMOS keyword).
+              </KEYWORD>
+
+:kword:`PRWEighted`
+  Print the weighted directions for the exact semi-classical intensities (see the :kword:`TMOS` keyword).
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="PRWE" APPEAR="Print weighted directions" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: PRWEighted <advanced>
+              <HELP>
+              Print the weighted directions for the exact semi-classical intensities
+              </HELP>
+              (see the TMOS keyword).
               </KEYWORD>
 
 :kword:`KVECtor`

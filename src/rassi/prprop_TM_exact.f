@@ -36,7 +36,6 @@
       INTEGER IOFF(8)
       CHARACTER*8 LABEL
       Complex*16 T0_e(3), T0_m(3), T1(3), TM1, TM2, PE1_e, PE1_m,
-*    &                                    TMR, TML, PE2_e, PE2_m,
      &                                              PE2_e, PE2_m,
      &           E1B, E2B,
      &           IMAGINARY
@@ -68,21 +67,16 @@
 
 C Compute transition strengths for spin-orbit states:
 *
-* Initial setup for both dipole, quadrupole etc. and exact operator
+* Initial setup for exact operator
 *
 C printing threshold
       OSTHR=1.0D-5
-      OSTHR2=1.0D-5
       IF(DIPR) OSTHR = OSTHR_DIPR
-      IF(DIPR) WRITE(6,*) ' Dipole threshold changed to ',OSTHR
+      IF(DIPR) WRITE(6,*) ' Threshold changed to ',OSTHR
 ! Again to avoid total negative transition strengths
       IF(QIPR) OSTHR = OSTHR_QIPR
-      IF(QIPR) WRITE(6,*) ' Dipole threshold changed to ',OSTHR,
+      IF(QIPR) WRITE(6,*) ' Threshold changed to ',OSTHR,
      &                    ' since quadrupole threshold is given '
-      IF(QIPR) OSTHR2 = OSTHR_QIPR
-      IF(QIPR) WRITE(6,*) ' Quadrupole threshold changed to ',OSTHR2
-
-      IF(QIALL) WRITE(6,*) ' Will write all quadrupole contributions '
 !
 !     Reducing the loop over states - good for X-rays
 !     At the moment memory is not reduced
@@ -228,7 +222,9 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
             Work(ipR+3)=1.0D0   ! Dummy weight
          End If
 *
-      AFACTOR=32.1299D09
+      ! AFACTOR = 2*pi*e^2*E_h^2 / eps_0*m_e*c^3*h^2
+      AFACTOR = 2.0D0/CONST_C_IN_AU_**3 ! in a.u. of time^-1
+     &          /CONST_AU_TIME_IN_SI_   ! in s^-1
       HALF=0.5D0
       PI= CONST_PI_
       HBAR=1.0D0 ! in a.u.
@@ -528,10 +524,10 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *              into x-, y-, and z-components, that is the operator
 *              will be represented by three different integrals.
 *              For the integrals over B it is similar but the x-, y-,
-*              and z-components are constants outside of the intergral.
+*              and z-components are constants outside of the integral.
 *              For example, the x-component is expressed as
 *              (k x e_l)_x <0|e^(i k.r)|n>. In this section we will
-*              handle the (k x e_l)_x part out side the loop over the
+*              handle the (k x e_l)_x part outside the loop over the
 *              Cartesian components.
 *
 *              We have to note one further difference, the integrals
@@ -656,29 +652,28 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                R = R / (4.0D0*PI)
             End If
             IF (ABS(F).LT.OSTHR) CYCLE
-            AX=(AFACTOR*EDIFF**2)*FX
-            AY=(AFACTOR*EDIFF**2)*FY
-            AZ=(AFACTOR*EDIFF**2)*FZ
             A =(AFACTOR*EDIFF**2)*F
 *
             If (iPrint.eq.0) Then
                WRITE(6,*)
                If (Do_SK) Then
                   CALL CollapseOutput(1,
-     &                'Transition moment strengths:')
-               WRITE(6,'(1x,a)')
-     &           '   The oscillator strength is'//
-     &           ' integrated over all directions of the polar'//
-     &           'ization vector'
+     &            'Transition moment strengths (SO states):')
+                  WRITE(6,'(3X,A)')
+     &            '----------------------------------------'
+                  WRITE(6,'(1x,a)')
+     &            '   The oscillator strength is'//
+     &            ' integrated over all directions of the polar'//
+     &            'ization vector'
                   WRITE(6,'(4x,a,3F8.4,a)')
      &                  'Direction of the k-vector: ',
      &                   (Work(ipR+k),k=0,2),' (au)'
                Else
                   CALL CollapseOutput(1,
-     &                'Isotropic transition moment strengths:')
+     &            'Isotropic transition moment strengths (SO states):')
+                  WRITE(6,'(3X,A)')
+     &            '--------------------------------------------------'
                End If
-               WRITE(6,'(3X,A)')
-     &                '--------------------------------------'
                IF (OSTHR.GT.0.0D0) THEN
                   WRITE(6,'(1x,a,ES16.8)')
      &                  '   for osc. strength at least ',OSTHR
@@ -699,38 +694,30 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                WRITE(6,*) ' [Rot. strength] = 1.0D-40 esu**2 cm**2'
                WRITE(6,*)
 
-               WRITE(6,*)"        To  From     Osc. strength"//
-     &           "    Rot. strength",
-     &           "   Einstein coefficients Ax, Ay, Az (sec-1) "//
-     &           "      Total A (sec-1)  "
-               WRITE(6,*)
-     &  '      -------------------------------------------'//
-     &  '------------------------------------------------'
+               WRITE(6,31) 'From', 'To', 'Osc. strength',
+     &                     'Rot. strength', 'Total A (sec-1)'
+               WRITE(6,32)
               iPrint=1
             END IF
-            WRITE(6,'(5X,2I5,5X,2(F9.6,8X),4ES16.8)')
-     &           ISO,JSO,F,R,AX,AY,AZ,A
+            WRITE(6,33) ISO,JSO,F,R,A
 *
 *     Printing raw (unweighted) and direction for every transition
 *
             IF(PRRAW) THEN
               WRITE(6,*)
               WRITE(6,*)
-              WRITE(6,*)"        To  From     Raw Osc. str."//
-     &          "   Mag. cont.       "//
-     &          "   kx,            ky,            kz "
-              WRITE(6,*)
-     &  '        -------------------------------------------'//
-     &  '------------------------------------------------'
+              WRITE(6,34) 'From', 'To', 'Raw osc. str.',
+     &                    'Mag. cont.','kx','ky','kz'
+              WRITE(6,35)
               DO IQUAD = 1, NQUAD
-                WRITE(6,'(5X,2I5,5X,5G16.8)') ISO,JSO,
+                WRITE(6,33) ISO,JSO,
      &          WORK(LRAW+(IQUAD-1)+0*NQUAD),
      &          WORK(LRAW+(IQUAD-1)+1*NQUAD),
      &          WORK(LRAW+(IQUAD-1)+2*NQUAD),
      &          WORK(LRAW+(IQUAD-1)+3*NQUAD),
      &          WORK(LRAW+(IQUAD-1)+4*NQUAD)
               END DO
-              WRITE(6,*)
+              WRITE(6,35)
               WRITE(6,*)
             END IF
 *
@@ -739,21 +726,18 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
             IF(PRWEIGHT) THEN
               WRITE(6,*)
               WRITE(6,*)
-              WRITE(6,*)"        To  From     Wei Osc. str."//
-     &          "   Mag. cont.       "//
-     &          "   kx,            ky,            kz "
-              WRITE(6,*)
-     &  '        -------------------------------------------'//
-     &  '------------------------------------------------'
+              WRITE(6,34) 'From', 'To', 'Weig. osc. str.',
+     &                    'Mag. cont.','kx','ky','kz'
+              WRITE(6,35)
               DO IQUAD = 1, NQUAD
-                WRITE(6,'(5X,2I5,5X,5G16.8)') ISO,JSO,
+                WRITE(6,33) ISO,JSO,
      &          WORK(LWEIGH+(IQUAD-1)+0*NQUAD)/ (4.0D0*PI),
      &          WORK(LWEIGH+(IQUAD-1)+1*NQUAD)/ (4.0D0*PI),
      &          WORK(LWEIGH+(IQUAD-1)+2*NQUAD)/ (4.0D0*PI),
      &          WORK(LWEIGH+(IQUAD-1)+3*NQUAD)/ (4.0D0*PI),
      &          WORK(LWEIGH+(IQUAD-1)+4*NQUAD)/ (4.0D0*PI)
               END DO
-              WRITE(6,*)
+              WRITE(6,35)
               WRITE(6,*)
             END IF
 *
@@ -764,12 +748,13 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       END DO
 *
       If (iPrint.EQ.1) THEN
+         WRITE(6,32)
          If (Do_SK) Then
             CALL CollapseOutput(0,
-     &                'Transition moment strengths:')
+     &            'Transition moment strengths (SO states):')
          Else
             CALL CollapseOutput(0,
-     &                'Isotropic transition moment strengths:')
+     &            'Isotropic transition moment strengths (SO states):')
          End If
       END IF
 *
@@ -794,6 +779,12 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       If (.NOT.Do_SK) Call Free_O()
       Call Free_Work(ipR)
       Call ClsSew()
+*
+31    FORMAT (5X,2(1X,A4),6X,A15,1X,A15,1X,A15)
+32    FORMAT (5X,63('-'))
+33    FORMAT (5X,2(1X,I4),5X,5(1X,ES15.8))
+34    FORMAT (5X,2(1X,A4),6X,A15,1X,A15,1X,A15,1X,A15,1X,A15)
+35    FORMAT (5X,95('-'))
 *
 ************************************************************************
 *                                                                      *

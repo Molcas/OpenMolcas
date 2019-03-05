@@ -122,7 +122,7 @@ C see section 3 (Spin_orbit coupling in RASSI) in
 C P A Malmqvist, et. al CPL, 357 (2002) 230-240
 C for details
 C
-C Note that we work on the x,y, and z components at this time.
+C Note that we work on the x, y, and z components at this time.
 C
 C On page 234 we have the notation V^{AB}(x), that is the
 C potential has Cartesian components. Here, however, this is
