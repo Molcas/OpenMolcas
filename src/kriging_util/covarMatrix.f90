@@ -10,56 +10,57 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-SUBROUTINE covarMatrix()
-    use globvar
-    integer i,j,i0,i1,j0,j1
-    real*8 tmat(ns,ns),diffx(ns,ns),diffx0(ns,ns),c(ns,ns)
-    deallocate (rl,dl,mat)
-    allocate (rl(NS,NS),dl(NS,NS),mat(NS,NS))
-    do i=1,NS
-        do j=1,NS
-            rl(i,j)=(x(i)-x(j))/l
-        end do
-    end do
-    dl=rl**2
-    diffx=2.0*rl/l
-    diffx0=-2.0*rl/l
-    der=0
-    full_R=0
-    c=exp(-sqrt((2.0*p+1.0)*dl))
-    do i=0,dims
-        i0=i*ns+1
-        i1=i0+ns-1
-        if (i.eq.0) then
-            der(1,:)=0
-        else
-            der(1,:)=[0,1]
-        endif
-        do j=i,dims
-            j0=j*ns+1
-            j1=j0+ns-1
-            if(i.eq.0.and.j.eq.0) then
+        SUBROUTINE covarMatrix()
+            use globvar
+            integer i,j,i0,i1,j0,j1,k,kl
+            real*8 tmat(ns,ns),diffx(ns,ns),diffx0(ns,ns),c(ns,ns)
+            deallocate (rl,dl,mat)
+            allocate (rl(NS,NS),dl(NS,NS),mat(NS,NS))
+            !der=0
+            full_R=0
+            c=exp(-sqrt((2.0*p+1.0)*dl))
+            tmat=0
+            do i=1,dims
+                do k=1,NS
+                    do kl=1,NS
+                        rl(k,kl)=(x(i,k)-x(i,kl))/l
+                    end do
+                end do
+                dl=rl**2
                 call matern(dl,ns,ns)
-            else
-                if(i.eq.0.and.j.eq.1) then
-                    call matderiv(1,ns,ns)
-                    tmat=mat
-                    mat=mat*diffx
-                else
-                    if(i.eq.1.and.j.eq.1) then
-                        call matderiv(2,ns,ns)
-                        mat=mat*diffx*diffx0-tmat*(2/l**2)
+                tmat=tmat+mat
+            end do
+            full_R(1:NS,1:NS)=tmat
+            do i=0,dims
+                do k=1,NS
+                    do kl=1,NS
+                        rl(k,kl)=(x(i+1,k)-x(i+1,kl))/l
+                    end do
+                end do
+                dl=rl**2
+                diffx=2.0*rl/l
+                diffx0=-2.0*rl/l
+                i0=i*ns+1
+                i1=i0+ns-1
+                do j=i,dims
+                    if (j.ge.1) then
+                        j0=j*ns+1
+                        j1=j0+ns-1
+                        if(i.eq.0) then
+                            call matderiv(1,ns,ns)
+                            tmat=mat
+                            mat=mat*diffx
+                        else
+                            call matderiv(2,ns,ns)
+                            mat=mat*diffx*diffx0-tmat*(2/l**2)
+                        endif
+                        full_R(i0:i1,j0:j1)=transpose(mat)
+                        if (i.ne.j) then
+                            full_R(j0:j1,i0:i1)=mat
+                        else
+                            full_R(i0:i1,j0:j1)=full_R(i0:i1,j0:j1)+iden*eps
+                        endif
                     endif
-                endif
-            endif
-!            print *,'CovarMatrix mat'
-!            call printsmat(mat,size(mat,1),size(mat,2))
-            full_R(i0:i1,j0:j1)=transpose(mat)
-            if (i.ne.j) then
-                full_R(j0:j1,i0:i1)=mat
-            else
-                full_R(i0:i1,j0:j1)=full_R(i0:i1,j0:j1)+iden*eps
-            endif
-        enddo
-    enddo
-END
+                enddo
+            enddo
+        END

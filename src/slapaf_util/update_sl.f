@@ -169,7 +169,7 @@ c Avoid unused argument warnings
          If (Kriging) then
             If (nspAI>iter) then
                Call Start_Kriging(iter,nInter,qInt,Grad,Energy,anAI,pAI,
-     &                            lbAI,nxAI)
+     &                            lbAI,npxAI)
 
             End If
          End If

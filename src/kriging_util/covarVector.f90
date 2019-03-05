@@ -12,26 +12,34 @@
 !***********************************************************************
         SUBROUTINE covarVector(gh)
             use globvar
-            integer i,i0,i1,j,gh
-            real*8 tmat(NS,npx),tmat2(NS,npx),c(NS,npx)
+            integer i,i0,i1,j,gh,k
+            real*8 tmat(m_t,npx),tmat2(m_t,npx)!,c(m_t,npx)
             deallocate (rl,dl,mat)
             allocate (rl(NS,npx),dl(NS,npx),mat(NS,npx))
-            do i=1,NS
-                do j=1,int(npx)
-                    rl(i,j)=(x(i)-nx(j))/l
-                end do
-            end do
-            dl=rl**2
-            c=exp(-sqrt((2.0*p+1.0)*dl))
+            ! do i=1,dims
+            !     do j=1,ns
+            !         do k=1,int(npx)
+            !             rl(i,j)=(x(i)-nx(k))/l
+            !         enddo
+            !     enddo
+            ! enddo
+            ! dl=rl**2
+            ! c=exp(-sqrt((2.0*p+1.0)*dl))
             cv=0
             do i=0,dims
+                do j=1,ns
+                    do k=1,int(npx)
+                        rl(j,k)=(x(i,j)-nx(k))/l
+                    enddo
+                enddo
+                dl=rl**2
                 i0=i*ns+1
                 i1=i0+ns-1
                 if (i.eq.0.and.gh.eq.0) then
         !            print *,'CV-Entro Matern'
                     call matern(dl,size(dl,1),size(dl,2))
                 else
-                    if (i.eq.1.and.gh.eq.0.or.i.eq.0.and.gh.eq.1) then
+                    if (i.ge.1.and.gh.eq.0.or.i.eq.0.and.gh.eq.1) then
         !                print *,'covar vector calling deriv(1)'
                         call matderiv(1,size(dl,1),size(dl,2))
                         tmat=mat
