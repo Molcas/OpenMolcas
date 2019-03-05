@@ -12,6 +12,18 @@
 #Nucleus PN_
 #Contraction ANO
 #AllElectron YES
+************************************************************************
+* X Dummy atom                                                         *
+************************************************************************
+/X.ano-xs..0s.0s.
+Dummy Basis Set
+for dummy element
+Options
+OrbitalEnergies
+EndOptions
+ 0.0 0
+0 0
+0
 *-----------------------------------------------------------------------
 *
 * Basis for H

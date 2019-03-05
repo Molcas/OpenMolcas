@@ -17,7 +17,7 @@
 *     occupation numbers and corresponding molecular orbitals,
 *     used in MOLDEN.
 *
-*     (c) EAW 990118
+*     EAW 990118
 *
 *     For SCF it gets even more 'stupid', just reading the MO coefficients and
 *     dumping it into a large matrix of dimension nTot x nTot

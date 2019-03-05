@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-# $ this file belongs to the Molcas repository $
 
 ATOMIC_NUMBERS={
 "H": 1,

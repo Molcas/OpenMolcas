@@ -3941,36 +3941,36 @@ c      endif
 ************************************************************************
 *                                                                      *
       if (Expert) then
-         Call WarningMessage(2,
-     &      ';WARNING: EXPERT option is ON!;')
+         Call WarningMessage(1,
+     &      ' EXPERT option is ON!')
       endif
 
       IF (BSS.AND..Not.DKroll) Then
          Call WarningMessage(2,
-     &           'ERROR; BSSM GOES ALWAYS WITH DOUGLAS.'//
+     &           ';BSSM GOES ALWAYS WITH DOUGLAS.'//
      &           'THE OPPOSITE IS NOT TRUE')
          Call Abend()
       End If
 *
       If ((lECP.or.lPP).and.DKroll.and..Not.Expert) Then
          Call WarningMessage(2,
-     &               ' ECP option not compatible with Douglas-Kroll!;')
+     &               ' ECP option not compatible with Douglas-Kroll!')
          Call Quit_OnUserError()
       End If
 *
       If (imix.eq.1) Then
          Call WarningMessage(2,
-     &      ';ERROR: input is inconsistent!;'
+     &      ' input is inconsistent!;'
      &    //'SEWARD found basis sets of mixed relativistic'
-     &    //' and non-relativistic types!;')
+     &    //' and non-relativistic types!')
          if(.not.Expert) Call Quit_OnUserError()
       End If
       If (ifnr.eq.1) Then
          If (DKroll) Then
-         Call WarningMessage(2,
-     *    'WARNING: you requested the DK-option for;'
+         Call WarningMessage(1,
+     *    ';you requested the DK-option for;'
      *   //'a non-relativistic basis.;'
-     *   //'This request will be ignored;')
+     *   //'This request will be ignored')
          End If
          If (.Not.Expert) DKroll=.False.
       Else If (ifnr.eq.0) Then
@@ -3988,7 +3988,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *
       If ((lECP.or.lPP).and.lAMFI.and..Not.Expert) Then
          Call WarningMessage(2,
-     &               ' ECP option not compatible with AMFI!;')
+     &               ' ECP option not compatible with AMFI!')
          Call Quit_OnUserError()
       End If
 *                                                                      *

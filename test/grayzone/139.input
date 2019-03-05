@@ -1,5 +1,3 @@
-*$ this file belongs to the Molcas repository $
->> export MOLCAS_NOCHECK=MLTPL
 *-------------------------------------------------------------------------------
 * Molecule:CC (Carbon dimer)
 * Basis: DZP
@@ -9,6 +7,7 @@
 * CPF  keywords ACPF, SDCI, MCPF, CPF
 * Responsible person: P Å Malmqvist 081114
 *-------------------------------------------------------------------------------
+>> export MOLCAS_NOCHECK=MLTPL
 &SEWARD
 Title
  Carbon dimer

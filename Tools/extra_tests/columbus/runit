@@ -1,5 +1,5 @@
 
-VERSION="Revision $Revision: 7.9 $"
+VERSION="7.9"
 echo "runit  $VERSION" | sed -e 's/\$//g' | sed -e 's/: /  /g' 
 
 if [ -z "$1" ]; then
