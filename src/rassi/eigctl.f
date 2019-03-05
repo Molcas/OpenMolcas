@@ -2310,7 +2310,7 @@ C And the same for the Dyson amplitudes
 *     If (.NOT.Diagonal) Then
 *
       Call mma_Allocate(TDS,4*nSCR,nState*(nState+1)/2,Label='TDS')
-      Call FZero(4*nSCR*nState*(nState+1)/2,TDS)
+      Call FZero(TDS,4*nSCR*nState*(nState+1)/2)
 *
 *     Loop over all unique TDs and distribute their contributions to the
 *     TDs in the new basis.
