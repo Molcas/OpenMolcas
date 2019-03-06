@@ -16,7 +16,7 @@
             real*8 tmat(ns,ns),diffx(ns,ns),diffx0(ns,ns),c(ns,ns)
             deallocate (rl,dl,mat)
             allocate (rl(NS,NS),dl(NS,NS),mat(NS,NS))
-            !der=0
+            Write (6,*) 'Covar Matrix'
             full_R=0
             c=exp(-sqrt((2.0*p+1.0)*dl))
             tmat=0
@@ -63,4 +63,5 @@
                     endif
                 enddo
             enddo
+            !Write (6,*) full_R
         END

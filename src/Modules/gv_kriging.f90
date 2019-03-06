@@ -20,5 +20,3 @@
         integer NS,dims,prev_ns,m_t,npx,counttimes
         logical :: anamat=.true. !Analitical Matern
       end module globvar
-
-

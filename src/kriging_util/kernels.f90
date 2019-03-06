@@ -16,10 +16,11 @@
             real*8 tpred(npx)
             m_t=NS*(1+dims)
             allocate (full_R(m_t,m_t))
-            allocate (y(NS),dy(NS),rl(NS,NS),dl(NS,NS),mat(NS,NS),Iden(NS,NS),nx(npx))
+            allocate (rl(NS,NS),dl(NS,NS),mat(NS,NS),Iden(NS,NS),nx(npx))
             allocate (kv(m_t),pred(npx),var(npx),sigma(npx),cv(m_t,npx))
             call miden()
             z=int(lb(3))
+            Write (6,*) 'Kernels l', z
             do i = 1,z
                 l=lb(1)+(i-1)*(lb(2)-lb(1))/(lb(3)-1)
                 call covarmatrix()

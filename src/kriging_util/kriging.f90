@@ -41,6 +41,6 @@
             else
                 ll=variance*exp(log(detr)/m_t)
             endif
-        !   print *,'variance',variance
-        !   print *,'ll',ll
+            write(6,*) 'variance',variance
+            write(6,*) 'll',ll
         END

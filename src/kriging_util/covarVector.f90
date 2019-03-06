@@ -25,6 +25,7 @@
             ! enddo
             ! dl=rl**2
             ! c=exp(-sqrt((2.0*p+1.0)*dl))
+            Write (6,*) 'Covar Vector'
             cv=0
             do i=0,dims
                 do j=1,ns
@@ -45,13 +46,13 @@
                         tmat=mat
                         mat=mat*(2*rl)/l
                     else
-                        if(i.eq.1.and.gh.eq.1.or.i.eq.0.and.gh.eq.2) then
+                        if(i.ge.1.and.gh.eq.1.or.i.eq.0.and.gh.eq.2) then
         !                    print *,'covar vector calling deriv(2) for Kriging Gradients'
                             call matderiv(2,size(dl,1),size(dl,2))
                             tmat2=mat
                             mat=mat*(-4*rl**2/l**2)+tmat*(-2/l**2)
                         else
-                            if(i.eq.1.and.gh.eq.2) then
+                            if(i.ge.1.and.gh.eq.2) then
         !                        print *,'covar vector calling deriv(3)for Kriging Hessian'
                                 call matderiv(1,size(dl,1),size(dl,2))
                                 tmat=mat
@@ -62,7 +63,6 @@
                     endif
                 endif
                 cv(i0:i1,:)=mat
-        !        print *,'cv - i,i0,i1,gh',i,i0,i1,gh
-        !        call printsmat(cv,size(cv,1),size(cv,2))
+                !Write (6,*) cv
             enddo
         END

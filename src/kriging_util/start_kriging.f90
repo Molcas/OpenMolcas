@@ -13,10 +13,10 @@
 
       Subroutine Start_Kriging(iter,nInter,qInt,Grad,Energy,anAI,pAI,lbAI,npxAI)
         use globvar
-        Real*8 qInt(nInter,iter),Grad(nInter,iter),Energy(iter),pAI,lbAI
+        Real*8 qInt(nInter,iter),Grad(nInter,iter),Energy(iter),pAI,lbAI(3)
         Integer npxAI
         Logical anAI
-        allocate (x(nInter,iter),lb(3))
+        allocate (x(nInter,iter),y(iter),lb(3),dy(nInter*iter))
         Write (6,*) 'Kriging values in Start Kriging'
         Write (6,*) 'iter', iter
         Write (6,*) 'nInter', nInter
@@ -38,5 +38,13 @@
         lb=lbAI
         x = qInt
         y = Energy
+        do i=1,dims
+          do j=1,NS
+            dy(j+(i-1)*NS) = Grad(i,j)
+          enddo
+        enddo
+        Write (6,*) 'dy: ',dy
+        Write (6,*) 'dy size: ',size(dy)
+        Write (6,*) 'dy shape: ',shape(dy)
         call kernels()
       end

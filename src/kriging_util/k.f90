@@ -14,8 +14,10 @@
             use globvar
             real*8 B(m_t),A(m_t,m_t) !AF contains the factors L and U from the factorization A = P*L*U as computed by DGETRF
             integer IPIV(m_t),INFO ! ipiv the pivot indices that define the permutation matrix
+            Write (6,*) 'K'
             B=0
             B(1:ns)=1
+            write (6,*) 'rones', rones
             A=full_r !in, coefficent matrix A, out factors L and U from factorization A=PLU on AX=B
             CALL DGESV_(size(A,1), size(shape(B)),A,size(A,2),&
                     IPIV,B,size(B,1),INFO )
@@ -25,8 +27,8 @@
             do i=2,size(A,1)
                 detR=detR*A(i,i)
             enddo
-            b=[y-sb,dy] !Ys
-            Ys=b
+            B=[y-sb,dy]
+            Ys=B
             A=full_r
             CALL DGESV_(size(A,1), size(shape(B)),A,size(A,2),&
                     IPIV,B,size(B,1),INFO )
