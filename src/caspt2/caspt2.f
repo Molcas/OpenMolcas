@@ -90,7 +90,7 @@ C     relative energies
       REAL*8  RELAU,RELEV,RELCM,RELKJ
 
 C     effective hamiltonian
-      REAL*8, ALLOCATABLE :: HEFF(:,:), EIGVEC(:,:)
+      REAL*8, ALLOCATABLE :: HEFF(:,:), EIGVEC(:,:), H0(:,:)
 
       Call StatusLine('CASPT2:','Just starting')
 
@@ -112,6 +112,9 @@ C     effective hamiltonian
 
       CALL MMA_ALLOCATE(HEFF,NSTATE,NSTATE)
       CALL DCOPY_(NSTATE**2,0.D0,0,HEFF,1)
+
+      CALL MMA_ALLOCATE(H0,NSTATE,NSTATE)
+      CALL DCOPY_(NSTATE**2,0.D0,0,H0,1)
 
 C If the EFFE keyword has been used, we already have the multi state
 C coupling Hamiltonian effective matrix, just copy the energies and
@@ -154,7 +157,7 @@ C of group states for which GRPINI is called.
          WRITE(6,*)
        END IF
 
-       CALL GRPINI(IGROUP,NGROUPSTATE(IGROUP),JSTATE_OFF,HEFF)
+       CALL GRPINI(IGROUP,NGROUPSTATE(IGROUP),JSTATE_OFF,HEFF,H0)
 
        DO ISTATE=1,NGROUPSTATE(IGROUP)
          JSTATE = JSTATE_OFF + ISTATE
@@ -324,6 +327,16 @@ C End of long loop over groups
 
       IF (IRETURN.NE.0) GOTO 9000
 
+      IF(IPRGLB.GE.VERBOSE) THEN
+        WRITE(6,*)' H0 energies:'
+        DO I=1,NSTATE
+          CALL PrintResult(6,'(6x,A,I3,5X,A,F16.8)',
+     &     'H0 Root',I,'Total energy:',H0(I,I),1)
+        END DO
+        WRITE(6,*)
+        WRITE(6,*)
+      END IF
+
       IF(IPRGLB.GE.TERSE) THEN
        WRITE(6,*)' Total CASPT2 energies:'
        DO I=1,NSTATE
@@ -383,6 +396,7 @@ C Free resources, close files
       CALL PT2CLS
 
       CALL MMA_DEALLOCATE(HEFF)
+      CALL MMA_DEALLOCATE(H0)
 
 C     PRINT I/O AND SUBROUTINE CALL STATISTICS
       IF ( IPRGLB.GE.USUAL ) THEN

@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2012, Per Ake Malmqvist                                *
 ************************************************************************
-      SUBROUTINE GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF)
+      SUBROUTINE GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0)
       IMPLICIT REAL*8 (A-H,O-Z)
 * 2012  PER-AKE MALMQVIST
 * Multi-State and XMS initialization phase
@@ -32,7 +32,8 @@
       LOGICAL IF_TRNSF
       CHARACTER(27)  STLNE2
       REAL*8 HEFF(NSTATE,NSTATE)
-      REAL*8 NORMFAC
+      REAL*8 H0(NSTATE,NSTATE)
+      REAL*8 NFAC
 
       CALL QENTER('GRPINI')
 * ---------------------------------------------------------------------
@@ -75,7 +76,7 @@
 
 * ---------------------------------------------------------------------
 * Loop over states, selecting those belonging to this group.
-* For each such state, compute the one-electron Hamilonian to be used
+* For each such state, compute the one-electron Hamiltonian to be used
 * in the CASPT2 H0, in original MO basis, and finally replace it with
 * the average over the group.
 * Note that, in principle, also FAMO and DREF should be averaged over
@@ -89,9 +90,11 @@
 
       CALL GETMEM('LCI','ALLO','REAL',LCI,NCONF)
 
+* Momentarily change NGRP to NSTATE for DW calculations
+* since we need the densities of all states even in a
+* MS-type calculation
       IF (IFDW) THEN
         NGRP = NSTATE
-        WRITE(6,*)'    ZETA = ',NZETA
       END IF
 
       DO ISTATE=1,NGRP
@@ -113,16 +116,16 @@
           WRITE(6,*)'  ----------------------------'
 
 * compute normalization factor
-          NORMFAC = 0.0D0
+          NFAC = 0.0D0
           DO I=1,NSTATE
             EGAMMA  = REFENE(I)
-            NORMFAC = NORMFAC + EXP(-NZETA*(EALPHA - EGAMMA)**2)
+            NFAC = NFAC + EXP(-NZETA*(EALPHA - EGAMMA)**2)
           END DO
-          WRITE(6,*)'  NORMFAC = ',NORMFAC
+          WRITE(6,*)'  NFAC = ',NFAC
           WRITE(6,*)'  ----------------------------'
 
-* compute the weight Wab
-          SCL = EXP(-NZETA*(EALPHA - EBETA)**2)/NORMFAC
+* compute the density weight
+          SCL = EXP(-NZETA*(EALPHA - EBETA)**2)/NFAC
           WRITE(6,*)'      SCL = ',SCL
         END IF
 
@@ -130,20 +133,20 @@
 * Accumulate the average active density matrix over this group.
         IF(ISCF.NE.0) THEN
 * Then we still need the "CI array": It is used in subroutine calls
-         WORK(LCI)=1.0D0
+          WORK(LCI)=1.0D0
         ELSE IF(DoCumulant) THEN
 *          write(6,*) 'Cumulant approximated 4RDM'
-         WORK(LCI)=0.0D0
+          WORK(LCI)=0.0D0
         ELSE
 * Get the CI array:
-         ID=IDCIEX
+          ID=IDCIEX
 * This loop is just to move ID to the right place in the file
 * so we can read the CI coeffs for the correct state.
 * Basically, we want to read from JSTATE
-         DO I=1,JSTATE-1
-           CALL DDAFILE(LUCIEX,0,WORK(LCI),NCONF,ID)
-         END DO
-         CALL DDAFILE(LUCIEX,2,WORK(LCI),NCONF,ID)
+          DO I=1,JSTATE-1
+            CALL DDAFILE(LUCIEX,0,WORK(LCI),NCONF,ID)
+          END DO
+          CALL DDAFILE(LUCIEX,2,WORK(LCI),NCONF,ID)
         END IF
 * We may want to write out the CI array.
         IF(IPRGLB.GE.VERBOSE .AND. ORBIN.EQ.'NO TRANS') THEN
@@ -208,6 +211,13 @@ c Modify the Fock matrix, if needed:
        END DO
       END IF
 
+* Store zeero-th order energies
+      DO I=1,NGRP
+       DO J=1,NGRP
+        H0(I+JSTATE_OFF,J+JSTATE_OFF) = WORK(LFOPXMS-1+I+NGRP*(J-1))
+       END DO
+      END DO
+
 * Transform the CI arrays of this group of states, to make the FOP matrix diagonal.
 * Note that the Fock matrix, etc are still assumed to be valid -- this seems
 * illogical, but is the way XMS is defined -- else we would need to repeat the
@@ -246,11 +256,38 @@ c Modify the Fock matrix, if needed:
        CALL GETMEM('HTMP2','FREE','REAL',LHTMP2,NGRP**2)
 
        IF(IPRGLB.GE.DEBUG) THEN
-        WRITE(6,*) 'HEFF AFTER TRANSFORMATION IN THE NEW "XMS" BASIS:'
+        WRITE(6,*) ' HEFF IN THE NEW "XMS" BASIS:'
         DO J1=1,NSTATE
-         WRITE(6,'(5F16.8)')(HEFF(J1,J2),J2=1,NSTATE)
+         WRITE(6,'(1x,5F16.8)')(HEFF(J1,J2),J2=1,NSTATE)
         END DO
        END IF
+
+* obtain zero order energies
+       CALL GETMEM('HTMP1','ALLO','REAL',LHTMP1,NGRP**2)
+       CALL GETMEM('HTMP2','ALLO','REAL',LHTMP2,NGRP**2)
+       DO J1=1,NGRP
+        IK1=JSTATE_OFF+J1
+        DO J2=1,NGRP
+         IK2=JSTATE_OFF+J2
+         WORK(LHTMP1-1+J1+NGRP*(J2-1))=H0(IK1,IK2)
+        END DO
+       END DO
+       CALL DGEMM_('T','N',NGRP,NGRP,NGRP,
+     &              1.0d0,WORK(LEVEC),NGRP,WORK(LHTMP1),NGRP,
+     &              0.0d0,WORK(LHTMP2),NGRP)
+       CALL DGEMM_('N','N',NGRP,NGRP,NGRP,
+     &              1.0d0,WORK(LHTMP2),NGRP,WORK(LEVEC),NGRP,
+     &              0.0d0,WORK(LHTMP1),NGRP)
+       DO J1=1,NGRP
+        IK1=JSTATE_OFF+J1
+        DO J2=1,NGRP
+         IK2=JSTATE_OFF+J2
+         H0(IK1,IK2)=WORK(LHTMP1-1+J1+NGRP*(J2-1))
+        END DO
+       END DO
+       CALL GETMEM('HTMP1','FREE','REAL',LHTMP1,NGRP**2)
+       CALL GETMEM('HTMP2','FREE','REAL',LHTMP2,NGRP**2)
+
 * and then, transform the CI arrays. Assume we can put all the
 * original ones in memory, but put the resulting vectors one by
 * one in a buffer.

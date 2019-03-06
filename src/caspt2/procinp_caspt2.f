@@ -171,21 +171,31 @@ C     really parallel or not.
       MSTATE = 0
       NGROUP = 0
       NGROUPSTATE = 0
-      If(Input%MULT) Then
+      If (Input%MULT) Then
         If (Input%XMUL) Then
           Call WarningMessage(2,'Keyword MULTistate cannot be used '//
      &                          'together with keyword XMULtistate.')
           Call Quit_OnUserError
         End If
+* Save the states that need to be computed, this is the same for both
+* MS and XMS so we do it here
         Do I=1,Input%nMultState
-          NGROUP = NGROUP + 1
-          NGROUPSTATE(NGROUP) = 1
           MSTATE(I) = Input%MultGroup%State(I)
           NSTATE = NSTATE + 1
         End Do
+* XMS case: 1 group containing all states
+        If (Input%FXMS) Then
+          IFXMS = Input%FXMS
+          NGROUP = 1
+          NGROUPSTATE(NGROUP) = Input%nMultState
+* MS case: as many groups as states, 1 state per group
+        Else
+          NGROUP = Input%nMultState
+          NGROUPSTATE(1:NGROUP) = 1
+        End If
       End If
-      IOFF=NSTATE
-      If(Input%XMUL) Then
+* Legacy method, left for the moment for compatibility
+      If (Input%XMUL) Then
         If (NLYROOT.ne.0) Then
           Call WarningMessage(2,'Keyword XMULtistate cannot be used '//
      &                          'together with keyword ONLY.')
@@ -201,13 +211,13 @@ C     really parallel or not.
      &                          'together with keyword MULTistate.')
           Call Quit_OnUserError
         End If
-        NGROUP = NGROUP + 1
+        IFXMS = Input%XMUL
+        NGROUP = 1
         NGROUPSTATE(NGROUP) = Input%nXMulState
         Do I=1,Input%nXMulState
-          MSTATE(IOFF+I) = Input%XMulGroup%State(I)
+          MSTATE(I) = Input%XMulGroup%State(I)
           NSTATE = NSTATE + 1
         End Do
-        IOFF = IOFF + Input%nXMulState
       End If
 * After parsing mult or xmult, check that no two equal states where
 * given in the input
@@ -221,15 +231,6 @@ C     really parallel or not.
             End If
           End Do
         End Do
-      End If
-* Set the exponent factor for dynamically-weighted CASPT2
-      If (Input % DYWE) Then
-        If (.NOT.Input%MULT) Then
-          Call WarningMessage(2,'Keyword DYWE can only be used in '//
-     &                          'conjunction with the MULT keyword.')
-          Call Quit_OnUserError
-        End If
-        NZETA = Input % ZETA
       End If
 * The LROOt keyword specifies a single root to be used. It should not be
 * used together with either MULT or XMUL keywords.
@@ -249,12 +250,17 @@ C     really parallel or not.
       IF(NSTATE.EQ.0) THEN
         NSTATE=NROOTS
         MSTATE=IROOT
-        If (Input%AllXMult) Then
+        If (Input%AllMult) Then
+          If (.NOT.Input%FXMS) Then
+            NGROUP=NSTATE
+            NGROUPSTATE(1:NGROUP)=1
+          Else
+            NGROUP=1
+            NGROUPSTATE(1)=NSTATE
+          End If
+        Else
           NGROUP=1
           NGROUPSTATE(1)=NSTATE
-        Else
-          NGROUP=NSTATE
-          NGROUPSTATE(1:NGROUP)=1
         End If
       END IF
 * Find the group number for OnlyRoot
@@ -266,6 +272,10 @@ C     really parallel or not.
           End Do
           IOFF=IOFF+NGROUPSTATE(IGROUP)
         End Do
+      End If
+* Set exponent for DWMS
+      If (Input%DWMS) Then
+        NZETA = Input%ZETA
       End If
 * Finally, some sanity checks.
       IF(NSTATE.LE.0.OR.NSTATE.GT.MXROOT) Then
@@ -378,8 +388,7 @@ C     really parallel or not.
       IFMIX = .NOT.Input % NoMix
       IFMSCOUP = (Input % MULT .OR. Input % XMUL)
      &           .AND.(.NOT.Input % NoMult)
-      IFXMS = Input % XMUL
-      IFDW  = Input % DYWE
+      IFDW  = Input%DWMS
 
 * Choice? of preprocessing route
       ORBIN='TRANSFOR'
