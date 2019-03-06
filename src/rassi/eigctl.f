@@ -58,17 +58,12 @@
 
       CALL QENTER(ROUTINE)
 C CONSTANTS:
-#ifndef CONV_AU_TO_EV_
-#define CONV_AU_TO_EV_ 27.21138602d0
-#endif
-#ifndef CONV_AU_TO_CM1_
-#define CONV_AU_TO_CM1_ 2.194746313702d5
-#endif
       AU2EV=CONV_AU_TO_EV_
       AU2CM=CONV_AU_TO_CM1_
       DEBYE=CONV_AU_TO_DEBYE_
-      AU2ESUISH=DEBYE**2 * 1.0d4
+      AU2REDR=2.0D2*DEBYE
       IMAGINARY=DCMPLX(0.0D0,1.0D0)
+      HALF=0.5D0
 *
       DIAGONAL=.TRUE.
       ReOrder=.FALSE.
@@ -1095,7 +1090,7 @@ C And the same for the Dyson amplitudes
              JSS=IndexE(JSS_)
            EDIFF=ENERGY(JSS)-ENERGY(ISS)
            IF(EDIFF.GT.0.0D0) THEN
-            IJSS=ISS+NSS*(JSS-1)
+            IJSS=JSS+NSS*(ISS-1)
 
             DX2=0.0D0
             DY2=0.0D0
@@ -1202,7 +1197,7 @@ C And the same for the Dyson amplitudes
            IF(EDIFF.GT.0.0D0) THEN
 !
             EDIFF3=EDIFF**3
-            IJSS=ISS+NSS*(JSS-1)
+            IJSS=JSS+NSS*(ISS-1)
 
             DXX=0.0D0
             DYY=0.0D0
@@ -1402,7 +1397,7 @@ C And the same for the Dyson amplitudes
            IF(EDIFF.GT.0.0D0) THEN
 !
             EDIFF3=EDIFF**3
-            IJSS=ISS+NSS*(JSS-1)
+            IJSS=JSS+NSS*(ISS-1)
 
             DXXXDX=0.0D0
             DYYXDX=0.0D0
@@ -1586,7 +1581,7 @@ C And the same for the Dyson amplitudes
            IF(EDIFF.GT.0.0D0) THEN
 !
             EDIFF2=EDIFF**2
-            IJSS=ISS+NSS*(JSS-1)
+            IJSS=JSS+NSS*(ISS-1)
 !
             DXYDZ=0.0D0
             DYXDZ=0.0D0
@@ -1710,7 +1705,7 @@ C And the same for the Dyson amplitudes
            EDIFF=ENERGY(JSS)-ENERGY(ISS)
            IF(EDIFF.GT.0.0D0) THEN
 !
-            IJSS=ISS+NSS*(JSS-1)
+            IJSS=JSS+NSS*(ISS-1)
             F = WORK(LTOT2K-1+IJSS)
             IF(ABS(F).GE.OSTHR2) THEN
             If (iPrint.eq.0) Then
@@ -1786,47 +1781,37 @@ C And the same for the Dyson amplitudes
      &                  'Electric-Dipole - Magnetic-Dipole '//
      &                  'rotatory strengths (spin-free states):')
           WRITE(6,'(3X,A)')
+     &                  '------------------------------------'//
      &                  '----------------------------------'//
-     &                  '----------------------------------------'
-          IF(OSTHR2.GT.0.0D0) THEN
-            WRITE(6,30) 'for rotatory strength at least',OSTHR2
-            WRITE(6,*)
-          END IF
-          WRITE(6,31) 'From','To','Rotatory strength'
+     &                  '--------------------------------------'
+          WRITE(6,*)
+          WRITE(6,31) 'From','To','Red. rot. str.'
           WRITE(6,35)
 !
-         TWOOVER3C=2.0D0/(3.0D0*CONST_C_IN_AU_)
-
          DO ISS_=1,IEND
             ISS=IndexE(ISS_)
           DO JSS_=JSTART,NSS
              JSS=IndexE(JSS_)
            EDIFF=ENERGY(JSS)-ENERGY(ISS)
            IF(EDIFF.GT.0.0D0) THEN
-            IJSS=ISS+NSS*(JSS-1)
 
-            DX2=0.0D0
-            DY2=0.0D0
-            DZ2=0.0D0
+            R=0.0D0
 
             IF((IPRDXM.GT.0).AND.(IPRDXD.GT.0)) THEN
-              DX2=PROP(JSS,ISS,IPRDXM)*PROP(JSS,ISS,IPRDXD)
+              R=R+PROP(JSS,ISS,IPRDXD)*PROP(JSS,ISS,IPRDXM)
             END IF
             IF((IPRDYM.GT.0).AND.(IPRDYD.GT.0)) THEN
-              DY2=PROP(JSS,ISS,IPRDYM)*PROP(JSS,ISS,IPRDYD)
+              R=R+PROP(JSS,ISS,IPRDYD)*PROP(JSS,ISS,IPRDYM)
             END IF
             IF((IPRDZM.GT.0).AND.(IPRDZD.GT.0)) THEN
-              DZ2=PROP(JSS,ISS,IPRDZM)*PROP(JSS,ISS,IPRDZD)
+              R=R+PROP(JSS,ISS,IPRDZD)*PROP(JSS,ISS,IPRDZM)
             END IF
 
-            F = (DX2 + DY2 + DZ2)*TWOOVER3C*AU2ESUISH !EDIFF*ONEOVER6C2
+            R = R*Half/EDIFF*AU2REDR
 
-            WRITE(6,33) ISS,JSS,F
-!           IF(ABS(F).GE.OSTHR2) THEN
-!             WRITE(6,33) ISS,JSS,F
-!           END IF
+            WRITE(6,33) ISS,JSS,R
 !
-            Call Add_Info('CD_V(SF)',F,1,6)
+            Call Add_Info('CD_V(SF)',R,1,6)
            END IF
           END DO
          END DO
@@ -1874,54 +1859,43 @@ C And the same for the Dyson amplitudes
      &                  'Circular Dichroism - mixed gauge '//
      &                  'Electric-Dipole - Magnetic-Dipole '//
      &                  'rotatory strengths (spin-free states):')
+          WRITE(6,'(3X,A)')
+     &                  '---------------------------------'//
+     &                  '----------------------------------'//
+     &                  '--------------------------------------'
           WRITE(6,*)
           WRITE(6,*) ' WARNING WARNING WARNING !!! '
           WRITE(6,*)
           WRITE(6,*) ' Circular Dichroism in the mixed gauge '
           WRITE(6,*) ' is NOT origin independent - check your results '
           WRITE(6,*)
-          WRITE(6,'(3X,A)')
-     &                  '----------------------------------'//
-     &                  '----------------------------------------'
-          IF(OSTHR2.GT.0.0D0) THEN
-            WRITE(6,30) 'for rotatory strength at least',OSTHR2
-            WRITE(6,*)
-          END IF
-          WRITE(6,31) 'From','To','Rotatory strength'
+          WRITE(6,31) 'From','To','Red. rot. str.'
           WRITE(6,35)
 !
-         TWOOVER3C=2.0D0/(3.0D0*CONST_C_IN_AU_)
-
          DO ISS_=1,IEND
             ISS=IndexE(ISS_)
           DO JSS_=JSTART,NSS
              JSS=IndexE(JSS_)
            EDIFF=ENERGY(JSS)-ENERGY(ISS)
            IF(EDIFF.GT.0.0D0) THEN
-            IJSS=ISS+NSS*(JSS-1)
 
-            DX2=0.0D0
-            DY2=0.0D0
-            DZ2=0.0D0
+            R=0.0D0
 
             IF((IPRDXM.GT.0).AND.(IPRDXD.GT.0)) THEN
-              DX2=PROP(JSS,ISS,IPRDXM)*PROP(JSS,ISS,IPRDXD)
+              R=R+PROP(JSS,ISS,IPRDXD)*PROP(JSS,ISS,IPRDXM)
             END IF
             IF((IPRDYM.GT.0).AND.(IPRDYD.GT.0)) THEN
-              DY2=PROP(JSS,ISS,IPRDYM)*PROP(JSS,ISS,IPRDYD)
+              R=R+PROP(JSS,ISS,IPRDYD)*PROP(JSS,ISS,IPRDYM)
             END IF
             IF((IPRDZM.GT.0).AND.(IPRDZD.GT.0)) THEN
-              DZ2=PROP(JSS,ISS,IPRDZM)*PROP(JSS,ISS,IPRDZD)
+              R=R+PROP(JSS,ISS,IPRDZD)*PROP(JSS,ISS,IPRDZM)
             END IF
 
-            F = (DX2 + DY2 + DZ2)*TWOOVER3C*AU2ESUISH !EDIFF*ONEOVER6C2
+            R = R*Half*AU2REDR
 
-            WRITE(6,33) ISS,JSS,F
-!           IF(ABS(F).GE.OSTHR2) THEN
-!             WRITE(6,33) ISS,JSS,F
-!           END IF
+            WRITE(6,33) ISS,JSS,R
 !
-            Call Add_Info('CD_M(SF)',F,1,6)
+            Call Add_Info('CD_M(SF)',R,1,6)
            END IF
           END DO
          END DO
@@ -2057,7 +2031,6 @@ C And the same for the Dyson amplitudes
       kxe2(2)=PORIG(3,IPORIG)*P2(1)-PORIG(1,IPORIG)*P2(3)
       kxe2(3)=PORIG(1,IPORIG)*P2(2)-PORIG(2,IPORIG)*P2(1)
 *
-      HALF=0.5D0
       G_Elec=CONST_ELECTRON_G_FACTOR_
       iPrint=0
       DO I_=1, IEND
@@ -2323,7 +2296,7 @@ C And the same for the Dyson amplitudes
             iDisk=iWork(liTocM+ij-1)
             Get_TDS=.True.
 *
-*           The reading is postpone until it is really needed
+*           The reading is postponed until it is really needed
 *           (see below).
 *           Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
 *
@@ -2331,17 +2304,17 @@ C And the same for the Dyson amplitudes
 *           of the code.
 *
             Do K = JSTART, NSTATE
+               C_ik=EigVec(i,K)
                Do L = 1, Min(IEND,K)
-                  C_ik=EigVec(i,K)
-                  C_jl=EigVec(j,L)
-                  If (Abs(C_ik*C_jl).gt.1.0D-14) Then
+                  C_ikjl=C_ik*EigVec(j,L)
+                  If (Abs(C_ikjl).gt.1.0D-14) Then
                      If (Get_TDS) Then
                         Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
                         Get_TDS=.False.
                      End If
                      kl=K*(K-1)/2+L
-                     Call DaXpY_(4*NSCR,C_ik*C_jl,Work(LSCR),1,
-     &                                            TDS(1,kl),1)
+                     Call DaXpY_(4*NSCR,C_ikjl,Work(LSCR),1,
+     &                                         TDS(1,kl),1)
                   End If
                End Do
             End Do
@@ -2697,16 +2670,15 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
      &                              DBLE(TM1)*AIMAG(TM2)
      &                             -DBLE(TM2)*AIMAG(TM1)
      &                              )
-                     If (Abs(R_Temp).lt.Abs(TM_2/ABS(EDIFF)))
-     &                  R_Temp=TM_2/ABS(EDIFF)
-*
-*                    Now let's convert this to the messy unit of the
-*                    rotational strength: 10^-40 esu^2 cm^2.
-*
-                     R_Temp=R_Temp*AU2ESUISH
+                     If (Abs(R_Temp).lt.ABS(TM_2)) R_Temp = TM_2
 *
                   END DO
                END DO
+*
+*              Now let's convert this to reduced rotational strength
+*              (units of 1e-2 debye*Bohr_magneton)
+*
+               R_Temp=R_Temp*SPEED_OF_LIGHT/EDIFF**2/4.0D0*AU2REDR
 *
 *              Save the raw oscillator strengths in a given direction
 *
@@ -2773,24 +2745,20 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
      &                 'Integrated over ',nQuad,' directions of the'//
      &                 ' wave vector'
                   WRITE(6,'(4x,a)')
-     &                 'The oscillator strength is '//
+     &                 'The oscillator and rotatory strengths are '//
      &                 'integrated over all directions of the polar'//
      &                 'ization vector'
                End If
                WRITE(6,*)
-               WRITE(6,*) ' Units:'
-               WRITE(6,*) ' [Osc. strength] = unitless'
-               WRITE(6,*) ' [Rot. strength] = 1.0D-40 esu**2 cm**2'
-               WRITE(6,*)
                WRITE(6,39) 'From','To','Osc. strength',
-     &                     'Rot. strength','Total A (sec-1)'
+     &                     'Red. rot. str.','Total A (sec-1)'
                WRITE(6,40)
                iPrint=1
             END IF
 *
 *     Regular print
 *
-            WRITE(6,38) I,J,F,R,A
+            WRITE(6,33) I,J,F,R,A
 *
 *     Printing raw (unweighted) and direction for every transition
 *
@@ -2900,7 +2868,6 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 35    FORMAT (5X,31('-'))
 36    FORMAT (5X,2(1X,I4),6X,15('-'),1X,ES15.8,1X,A15)
 37    FORMAT (5X,2(1X,I4),6X,15('-'),1X,A15,1X,ES15.8)
-38    FORMAT (5X,2(1X,I4),5X,2(1X,F9.6,6X),4(1X,ES15.8))
 39    FORMAT (5X,2(1X,A4),6X,A15,1X,A15,1X,A15)
 40    FORMAT (5X,63('-'))
       END

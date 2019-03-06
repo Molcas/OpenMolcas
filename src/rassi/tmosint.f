@@ -44,13 +44,13 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-*     Electromagnetic field radation integrals.                        *
+*     Electromagnetic field radiation integrals.                       *
 *                                                                      *
 *     Note that the integral is not symmetric or antisymmetric!        *
 *                                                                      *
 ************************************************************************
 ************************************************************************
-      rHrmt=-One ! Note used
+      rHrmt=-One ! Not used
 *
 *     B*s Magnetic * Spin
 *
@@ -65,7 +65,7 @@
 *
 *     The electromagnetic field operator contributes to all
 *     irreducible irreps, hence OperI=255. Since the operator
-*     it self is not symmetry adopted OperC is set to a dummy value.
+*     itself is not symmetry-adapted OperC is set to a dummy value.
 *
       OperI(1   ) = 255
       OperI(1+1 ) = 255
@@ -94,7 +94,7 @@
 *
 *     The electromagnetic field operator contributes to all
 *     irreducible irreps, hence OperI=255. Since the operator
-*     it self is not symmetry adapted OperC is set to a dummy value.
+*     itself is not symmetry-adapted OperC is set to a dummy value.
 *
       OperI(1   ) = 255
       OperI(1+1 ) = 255
@@ -145,7 +145,7 @@
 *
 *     The electromagnetic field operator contributes to all
 *     irreducible irreps, hence OperI=255. Since the operator
-*     it self is not symmetry adopted OperC is set to a dummy value.
+*     itself is not symmetry-adapted OperC is set to a dummy value.
 *
       OperI(1   ) = 255
       OperI(1+1 ) = 255

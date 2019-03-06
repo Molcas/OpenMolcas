@@ -83,7 +83,8 @@
       ALPHA=CONST_AU_VELOCITY_IN_SI_/CONST_C_IN_SI_
       ALPHA2= ALPHA*ALPHA
       DEBYE=CONV_AU_TO_DEBYE_
-      AU2ESUISH=DEBYE**2 *1.0D4
+      AU2REDR=2.0D2*DEBYE
+      HALF=0.5D0
 
       BOLTZ_K=CONST_BOLTZMANN_*J2CM
       coeff_chi=0.1D0*AVOGADRO/CONST_BOLTZMANN_*
@@ -573,7 +574,7 @@ C printing threshold
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
            IF (ABS(EDIFF).LE.1.0D-8) CYCLE
            IF(EDIFF.GT.0.0D0) THEN
-            IJSS=ISS+NSS*(JSS-1)
+            IJSS=JSS+NSS*(ISS-1)
             If (Do_SK) Then
                T0(1)=DCMPLX(WORK(LDXR-1+IJSS),WORK(LDXI-1+IJSS))
                T0(2)=DCMPLX(WORK(LDYR-1+IJSS),WORK(LDYI-1+IJSS))
@@ -715,7 +716,7 @@ C printing threshold
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
            IF (ABS(EDIFF).LE.1.0D-8) CYCLE
            IF(EDIFF.GT.0.0D0) THEN
-            IJSS=ISS+NSS*(JSS-1)
+            IJSS=JSS+NSS*(ISS-1)
             If (Do_SK) Then
                T0(1)=DCMPLX(WORK(LDXR-1+IJSS),WORK(LDXI-1+IJSS))
                T0(2)=DCMPLX(WORK(LDYR-1+IJSS),WORK(LDYI-1+IJSS))
@@ -1013,7 +1014,7 @@ C printing threshold
           DO JSS=JSTART,NSS
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
            IF(EDIFF.GT.0.0D0) THEN
-            IJSS=ISS+NSS*(JSS-1)
+            IJSS=JSS+NSS*(ISS-1)
 
             DX2=(WORK(LDXR-1+IJSS)+g*WORK(LSXR-1+IJSS))**2
      &         +(WORK(LDXI-1+IJSS)+g*WORK(LSXI-1+IJSS))**2
@@ -1168,7 +1169,7 @@ C printing threshold
 ! D should be purely real since D is a real symmetric matrix
 !
             EDIFF3=EDIFF**3
-            IJSS=ISS+NSS*(JSS-1)
+            IJSS=JSS+NSS*(ISS-1)
 
             DXX2=WORK(LDXXR-1+IJSS)**2+WORK(LDXXI-1+IJSS)**2
             DYY2=WORK(LDYYR-1+IJSS)**2+WORK(LDYYI-1+IJSS)**2
@@ -1451,7 +1452,7 @@ C printing threshold
            IF(EDIFF.GT.0.0D0) THEN
 !
             EDIFF3=EDIFF**3
-            IJSS=ISS+NSS*(JSS-1)
+            IJSS=JSS+NSS*(ISS-1)
 
             DXXXDX=WORK(LDXXXR-1+IJSS)*WORK(LDXR-1+IJSS)
      &            +WORK(LDXXXI-1+IJSS)*WORK(LDXI-1+IJSS)
@@ -1817,7 +1818,7 @@ C printing threshold
            IF(EDIFF.GT.0.0D0) THEN
 !
             EDIFF2=EDIFF**2
-            IJSS=ISS+NSS*(JSS-1)
+            IJSS=JSS+NSS*(ISS-1)
 !
 ! Since the Spin-Magnetic-Quadrupole is made from the multiplication of two complex integrals we have
 ! M^s = (a+ib)(c+id) = ac-bd + i(ad+bc) hence the long expressions below
@@ -1969,7 +1970,7 @@ C printing threshold
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
            IF(EDIFF.GT.0.0D0) THEN
 !
-            IJSS=ISS+NSS*(JSS-1)
+            IJSS=JSS+NSS*(ISS-1)
             F = WORK(LTOT2K-1+IJSS)
             IF(ABS(F).GE.OSTHR2) THEN
              IF(i_Print.eq.0) THEN
@@ -2103,45 +2104,35 @@ C printing threshold
      &                  'Electric-Dipole - Magnetic-Dipole '//
      &                  'rotatory strengths (SO states):')
           WRITE(6,'(3X,A)')
+     &                  '------------------------------------'//
      &                  '----------------------------------'//
-     &                  '----------------------------------------'
-          IF(OSTHR2.GT.0.0D0) THEN
-            WRITE(6,*) 'for rotatory strength at least',OSTHR2
-            WRITE(6,*)
-          END IF
-          WRITE(6,31) 'From','To','Rot. strength'
+     &                  '-------------------------------'
+          WRITE(6,31) 'From','To','Red. rot. str.'
           WRITE(6,35)
 !
-         TWOOVER3C=2.0D0/(3.0D0*CONST_C_IN_AU_)
-
          DO ISS=1,IEND
           DO JSS=JSTART,NSS
            EDIFF=ENERGY(JSS)-ENERGY(ISS)
            IF(EDIFF.GT.0.0D0) THEN
-            IJSS=ISS+NSS*(JSS-1)
+            IJSS=JSS+NSS*(ISS-1)
 
-            DX2=0.0D0
-            DY2=0.0D0
-            DZ2=0.0D0
+            R=0.0D0
 
             IF((IPRDXM.GT.0).AND.(IPRDXD.GT.0)) THEN
-              DX2 = WORK(LDXR-1+IJSS) * WORK(LMDXR-1+IJSS)
+              R = R+WORK(LDXR-1+IJSS) * WORK(LMDXR-1+IJSS)
             END IF
             IF((IPRDYM.GT.0).AND.(IPRDYD.GT.0)) THEN
-              DY2 = WORK(LDYR-1+IJSS) * WORK(LMDYR-1+IJSS)
+              R = R+WORK(LDYR-1+IJSS) * WORK(LMDYR-1+IJSS)
             END IF
             IF((IPRDZM.GT.0).AND.(IPRDZD.GT.0)) THEN
-              DZ2 = WORK(LDZR-1+IJSS) * WORK(LMDZR-1+IJSS)
+              R = R+WORK(LDZR-1+IJSS) * WORK(LMDZR-1+IJSS)
             END IF
 
-            F = (DX2 + DY2 + DZ2)*TWOOVER3C*AU2ESUISH !EDIFF*ONEOVER6C2
+            R = R*Half/EDIFF*AU2REDR
 
-            WRITE(6,33) ISS,JSS,F
-!           IF(ABS(F).GE.OSTHR2) THEN
-!             WRITE(6,33) ISS,JSS,F
-!           END IF
+            WRITE(6,33) ISS,JSS,R
 !
-            Call Add_Info('CD_V(SO)',F,1,6)
+            Call Add_Info('CD_V(SO)',R,1,6)
            END IF
           END DO
          END DO
@@ -2260,52 +2251,42 @@ C printing threshold
      &                  'Circular Dichroism - mixed gauge '//
      &                  'Electric-Dipole - Magnetic-Dipole '//
      &                  'rotatory strengths (SO states):')
+          WRITE(6,'(3X,A)')
+     &                  '---------------------------------'//
+     &                  '----------------------------------'//
+     &                  '-------------------------------'
           WRITE(6,*)
           WRITE(6,*) ' WARNING WARNING WARNING !!! '
           WRITE(6,*)
           WRITE(6,*) ' Circular Dichroism in the mixed gauge '
           WRITE(6,*) ' is NOT origin independent - check your results '
           WRITE(6,*)
-          WRITE(6,'(3X,A)')
-     &                  '----------------------------------'//
-     &                  '----------------------------------------'
-          IF(OSTHR2.GT.0.0D0) THEN
-            WRITE(6,*) 'for rotatory strength at least',OSTHR2
-            WRITE(6,*)
-          END IF
           WRITE(6,31) 'From','To','Rot. strength'
           WRITE(6,35)
 !
-         TWOOVER3C=2.0D0/(3.0D0*CONST_C_IN_AU_)
-
          DO ISS=1,IEND
           DO JSS=JSTART,NSS
            EDIFF=ENERGY(JSS)-ENERGY(ISS)
            IF(EDIFF.GT.0.0D0) THEN
-            IJSS=ISS+NSS*(JSS-1)
+            IJSS=JSS+NSS*(ISS-1)
 
-            DX2=0.0D0
-            DY2=0.0D0
-            DZ2=0.0D0
+            R=0.0D0
 
             IF((IPRDXM.GT.0).AND.(IPRDXD.GT.0)) THEN
-              DX2 = WORK(LDXR-1+IJSS) * WORK(LMDXR-1+IJSS)
+              R = R+WORK(LDXR-1+IJSS) * WORK(LMDXR-1+IJSS)
             END IF
             IF((IPRDYM.GT.0).AND.(IPRDYD.GT.0)) THEN
-              DY2 = WORK(LDYR-1+IJSS) * WORK(LMDYR-1+IJSS)
+              R = R+WORK(LDYR-1+IJSS) * WORK(LMDYR-1+IJSS)
             END IF
             IF((IPRDZM.GT.0).AND.(IPRDZD.GT.0)) THEN
-              DZ2 = WORK(LDZR-1+IJSS) * WORK(LMDZR-1+IJSS)
+              R = R+WORK(LDZR-1+IJSS) * WORK(LMDZR-1+IJSS)
             END IF
 
-            F = (DX2 + DY2 + DZ2)*TWOOVER3C*AU2ESUISH !EDIFF*ONEOVER6C2
+            R = R*Half*AU2REDR
 
-            WRITE(6,33) ISS,JSS,F
-!           IF(ABS(F).GE.OSTHR2) THEN
-!             WRITE(6,33) ISS,JSS,F
-!           END IF
+            WRITE(6,33) ISS,JSS,R
 !
-            Call Add_Info('CD_M(SO)',F,1,6)
+            Call Add_Info('CD_M(SO)',R,1,6)
            END IF
           END DO
          END DO

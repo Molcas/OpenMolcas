@@ -75,13 +75,6 @@
       Call qEnter(ROUTINE)
 
 C CONSTANTS:
-#ifndef CONV_AU_TO_EV_
-#define CONV_AU_TO_EV_ 27.21138450d0
-#endif
-#ifndef CONV_AU_TO_CM1_
-#define CONV_AU_TO_CM1_ 2.194746313705d5
-#endif
-
       AU2EV=CONV_AU_TO_EV_
       AU2CM=CONV_AU_TO_CM1_
       lOMG=.False.

@@ -29,9 +29,7 @@
      &          ENERGY(NSTATE),JBNUM(NSTATE)
 #include "SysDef.fh"
 #include "rassiwfn.fh"
-      REAL*8 Boltz_k,coeff_chi
       LOGICAL Sparse_I,Sparse_J
-      REAL*8 J2CM
       Real*8 E1(3), E2(3), kxe1(3), kxe2(3)
       INTEGER IOFF(8)
       CHARACTER*8 LABEL
@@ -45,25 +43,17 @@
       Dummy=Energy(1)
       Dummy=OVLP(1,1)
 *
-      AVOGADRO=CONST_AVOGADRO_
-      AU2EV=CONV_AU_TO_EV_
-      AU2CM=CONV_AU_TO_CM1_
-      AU2T=CONV_AU_TO_T_
-      AU2J=CONV_AU_TO_KJ_*1.0D3
-      J2CM=AU2CM/AU2J
-      AU2JTM=(AU2J/AU2T)*AVOGADRO
-      ALPHA=CONST_AU_VELOCITY_IN_SI_/CONST_C_IN_SI_
-      ALPHA2= ALPHA*ALPHA
       DEBYE=CONV_AU_TO_DEBYE_
-      AU2ESUISH=DEBYE**2 *1.0D4
+      AU2REDR=2.0D2*DEBYE
       IMAGINARY=DCMPLX(0.0D0,1.0D0)
-
-      BOLTZ_K=CONST_BOLTZMANN_*J2CM
-      coeff_chi=0.1D0*AVOGADRO/CONST_BOLTZMANN_*
-     &          CONST_BOHR_MAGNETON_IN_SI_**2
-      FEGVAL=-(CONST_ELECTRON_G_FACTOR_)
-      BOLTZ=CONST_BOLTZMANN_/AU2J
-      Rmu0=4.0D-7*CONST_PI_
+      ! AFACTOR = 2*pi*e^2*E_h^2 / eps_0*m_e*c^3*h^2
+      AFACTOR = 2.0D0/CONST_C_IN_AU_**3 ! in a.u. of time^-1
+     &          /CONST_AU_TIME_IN_SI_   ! in s^-1
+      HALF=0.5D0
+      PI= CONST_PI_
+      HBAR=1.0D0 ! in a.u.
+      SPEED_OF_LIGHT=CONST_C_IN_AU_
+      G_Elec=CONST_ELECTRON_G_FACTOR_
 
 C Compute transition strengths for spin-orbit states:
 *
@@ -222,14 +212,6 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
             Work(ipR+3)=1.0D0   ! Dummy weight
          End If
 *
-      ! AFACTOR = 2*pi*e^2*E_h^2 / eps_0*m_e*c^3*h^2
-      AFACTOR = 2.0D0/CONST_C_IN_AU_**3 ! in a.u. of time^-1
-     &          /CONST_AU_TIME_IN_SI_   ! in s^-1
-      HALF=0.5D0
-      PI= CONST_PI_
-      HBAR=1.0D0 ! in a.u.
-      SPEED_OF_LIGHT=CONST_C_IN_AU_
-      G_Elec=CONST_ELECTRON_G_FACTOR_
       iPrint=0
       IJSO=0
 *
@@ -442,7 +424,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *                  the rotatory strength.
 *
 *              Note that the integrals are not computed for the
-*              momentum opertor but rather for nabla. That is
+*              momentum operator but rather for nabla. That is
 *              as we assemble to transition momentum we have to
 *              remember to put in a factor of -i.
 *
@@ -614,8 +596,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
      &                           DBLE(TM1)*AIMAG(TM2)
      &                          -DBLE(TM2)*AIMAG(TM1)
      &                           )
-               R_Temp= TM_2/ABS(EDIFF)
-               R_Temp = R_Temp * AU2ESUISH
+               R_Temp= TM_2*SPEED_OF_LIGHT/EDIFF**2/4.0D0*AU2REDR
 *
 *              Save the raw oscillator strengths in a given direction
 *
@@ -683,19 +664,15 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                WRITE(6,'(1x,a,I4,a)')
      &           '   Integrated over ',nQuad,' directions of the'//
      &           ' wave vector'
-               WRITE(6,'(1x,a)')
-     &           '   The oscillator strength is'//
-     &           ' integrated over all directions of the polar'//
+               WRITE(6,'(4x,a)')
+     &           'The oscillator and rotatory strengths are '//
+     &           'integrated over all directions of the polar'//
      &           'ization vector'
                WRITE(6,*)
                End If
-               WRITE(6,*) ' Units:'
-               WRITE(6,*) ' [Osc. strength] = unitless'
-               WRITE(6,*) ' [Rot. strength] = 1.0D-40 esu**2 cm**2'
-               WRITE(6,*)
 
                WRITE(6,31) 'From', 'To', 'Osc. strength',
-     &                     'Rot. strength', 'Total A (sec-1)'
+     &                     'Red. rot. str.', 'Total A (sec-1)'
                WRITE(6,32)
               iPrint=1
             END IF
