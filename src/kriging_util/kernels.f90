@@ -16,7 +16,7 @@
             real*8 tpred(npx)
             m_t=NS*(1+dims)
             allocate (full_R(m_t,m_t))
-            allocate (rl(NS,NS),dl(NS,NS),mat(NS,NS),Iden(NS,NS),nx(npx))
+            allocate (rl(NS,NS),dl(NS,NS),mat(NS,NS),Iden(NS,NS))
             allocate (kv(m_t),pred(npx),var(npx),sigma(npx),cv(m_t,npx))
             call miden()
             z=int(lb(3))

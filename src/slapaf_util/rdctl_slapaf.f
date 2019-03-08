@@ -483,18 +483,18 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 100   Char=Get_Ln(LuRd) ! Defining the AI method
       If (Char.eq.'Kriging'.or.Char.eq.'kriging') then
        Kriging = .True.
-       nspAI = 5
+       nspAI = 3
        anAI = .True.
        pAI = 2
-       nxAI = 1000
+       npxAI = 100
        lbAI(1) = 0.1
        lbAI(2) = 6.0
-       lbAI(3) = 100
+       lbAI(3) = 10
        Call WarningMessage(1,'Kriging AI method selected.')
-       Write (Lu,*) 'Default number of source points: 5.'
+       Write (Lu,*) 'Default number of source points: 3.'
        Write (Lu,*) 'Default analytical Mat`ern derivatives: True*.'
        Write (Lu,*) 'Default width of Mat`ern: 0.1:6 # of steps 100'
-       Write (Lu,*) 'Default resolution of the predicted path: 1000.'
+       Write (Lu,*) 'Default resolution of the predicted path: 100.'
        Write (Lu,*) 'Default parameter of diff. for Mat`ern (p): 2*.'
        Write (Lu,*) '*Note: for the analytical Matern the only choices'
        Write (Lu,*) '    for (p) are 1 or 2, however for the numerical'
@@ -511,8 +511,8 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
       Write (Lu,*) 'Widht of the gaussian (from,to,# steps): ', lbAI
       Go To 999
 103   Char=Get_Ln(LuRd) ! The resolution of the predicted path
-      Read (Char,'(I10)') nxAI
-      Write (Lu,*) 'Resolution of the predicted path: ', nxAI
+      Read (Char,'(I10)') npxAI
+      Write (Lu,*) 'Resolution of the predicted path: ', npxAI
       Go To 999
 104   Char=Get_Ln(LuRd) ! Parameter of differentiability for Mat`ern function
       Read (Char,'(I10)') pAI

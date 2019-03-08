@@ -20,6 +20,7 @@
             full_R=0
             c=exp(-sqrt((2.0*p+1.0)*dl))
             tmat=0
+            ! Covariant Matrix in kriging
             do i=1,dims
                 do k=1,NS
                     do kl=1,NS
@@ -31,10 +32,11 @@
                 tmat=tmat+mat
             end do
             full_R(1:NS,1:NS)=tmat
-            do i=0,dims
+            ! Covariant matrix in Gradient Enhanced Kriging
+            do i=1,dims
                 do k=1,NS
                     do kl=1,NS
-                        rl(k,kl)=(x(i+1,k)-x(i+1,kl))/l
+                        rl(k,kl)=(x(i,k)-x(i,kl))/l
                     end do
                 end do
                 dl=rl**2
@@ -42,11 +44,11 @@
                 diffx0=-2.0*rl/l
                 i0=i*ns+1
                 i1=i0+ns-1
-                do j=i,dims
+                do j=i,dims+1
                     if (j.ge.1) then
-                        j0=j*ns+1
+                        j0=(j-1)*ns+1
                         j1=j0+ns-1
-                        if(i.eq.0) then
+                        if(i.eq.1) then
                             call matderiv(1,ns,ns)
                             tmat=mat
                             mat=mat*diffx
@@ -63,5 +65,4 @@
                     endif
                 enddo
             enddo
-            !Write (6,*) full_R
         END

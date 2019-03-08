@@ -167,7 +167,7 @@ c Avoid unused argument warnings
       Else
 *
          If (Kriging) then
-            If (nspAI.gt.iter) then
+            If (nspAI.lt.iter) then
                Call Start_Kriging(iter,nInter,qInt,Grad,Energy,anAI,pAI,
      &                            lbAI,npxAI)
 

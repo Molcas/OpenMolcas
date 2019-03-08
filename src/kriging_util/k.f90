@@ -17,7 +17,6 @@
             Write (6,*) 'K'
             B=0
             B(1:ns)=1
-            write (6,*) 'rones', rones
             A=full_r !in, coefficent matrix A, out factors L and U from factorization A=PLU on AX=B
             CALL DGESV_(size(A,1), size(shape(B)),A,size(A,2),&
                     IPIV,B,size(B,1),INFO )
