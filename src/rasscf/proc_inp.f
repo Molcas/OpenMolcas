@@ -2227,6 +2227,20 @@ C orbitals accordingly
        Call ChkIfKey()
       End If
 *
+*---  Process CRPR command --------------------------------------------*
+      If (KeyCRPR) Then
+       If (DBG) Write(6,*) ' CRPR (Core Projector) keyword was used.'
+       Call SetPos(LUInput,'CRPR',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading core orbital after CRPR keyword.'
+       Read(LUInput,*,End=9910,Err=9920) ITCORE, CORESHIFT
+       ReadStatus=' O.K. reading core orbital after CRPR keyword.'
+       IfCRPR=.true.
+       If (DBG) Write(6,*) ' Core orbital is number ITCORE'
+       Call ChkIfKey()
+      End If
+*
+*
 *---  Process LEVS command --------------------------------------------*
       If (KeyLEVS) Then
        If (DBG) Write(6,*) ' LEVS (Level Shift) keyword was used.'
@@ -2909,6 +2923,14 @@ c       write(6,*)          '  --------------------------------------'
      &      'Do you really want this?')
       End If
 
+      IF (IfCRPR) Then
+* Core shift using a fixed projection operator.
+        NCRVEC=NBAS(1)
+        Call GetMem('CRVEC','Allo','Real',LCRVEC,NCRVEC)
+        N=NBAS(1)
+        NCRPROJ=(N*(N+1)*(N**2+N+2))/8
+        Call GetMem('CRPROJ','Allo','Real',LCRPROJ,NCRPROJ)
+      END IF
 ************************************************************************
 * Generate artificial splitting or RAS into GAS for parallel blocking  *
 ************************************************************************

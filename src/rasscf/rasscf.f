@@ -707,6 +707,12 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
         CALL TRACTL2(WORK(LCMO),WORK(LPUVX),WORK(LTUVX),WORK(LD1I),
      &               WORK(LFI),WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
 
+c         Write(6,*) ' TUVX after TRACTL2'
+c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
+        IF (ITER.eq.1 .and. IfCRPR) Then
+* Core shift applied to projection of WF with doubly occupied core
+          Call MkCRVEC(Work(LCMO),Work(LCRVEC))
+        END IF
 
         If ( IPRLEV.ge.DEBUG ) then
          Write(LF,*)
@@ -747,7 +753,7 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
 
         If ( IPRLEV.ge.DEBUG ) then
          Write(LF,*)
-         Write(LF,*) ' CMO in RASSCF bf firt call to CICTL'
+         Write(LF,*) ' CMO in RASSCF bf first call to CICTL'
          Write(LF,*) ' ---------------------'
          Write(LF,*)
          ioff=1
@@ -1761,6 +1767,11 @@ c Clean-close as much as you can the CASDFT stuff...
        END DO
       end if
       IF(NAC.EQ.0) EAV=ECAS
+      IF(NCRVEC.gt.0) then
+* Core shift has been used
+        Call GetMem('CRVEC','Free','Real',LCRVEC,NCRVEC)
+        Call GetMem('CRPROJ','Free','Real',LCRPROJ,NCRPROJ)
+      END IF
       Call Timing(Swatch,Swatch,Zenith_2,Swatch)
       Zenith_2 = Zenith_2 - Zenith_1
       Zenith_3 = Zenith_3 + Zenith_2

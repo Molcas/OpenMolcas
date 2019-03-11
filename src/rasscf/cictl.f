@@ -106,6 +106,18 @@ C Local print level (if any)
         WRITE(LF,*)' Entering ',ROUTINE
       END IF
 
+* PAM 2017-05-23 Modify TUVX by adding a shift vector to TUVX, which has
+* the effect of adding a scalar times a projector for doubly-occupied
+* core states.
+          IF(IfCRPR) Then
+*      write(6,*)' CICTL calling MKPROJ.'
+*      call xflush(6)
+            CALL MKPROJ(Work(LCRVEC),CMO,TUVX)
+*      write(6,*)' CICTL back from MKPROJ.'
+*      call xflush(6)
+          END IF
+
+
 * set up flag 'IFCAS' for GAS option, which is set up in gugatcl originally.
 * IFCAS = 0: This is a CAS calculation
 * IFCAS = 1: This is a RAS calculation

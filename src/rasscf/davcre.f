@@ -49,10 +49,17 @@ C
 #include "output_ras.fh"
       Parameter (ROUTINE='DAVCRE  ')
       CHARACTER*4 IOUTW,IOUTX
-      DIMENSION C(*),HC(*),HH(*),CC(*),E(*),SC(*),
-     *          Q(*),QQ(*),S(*)
-      CHARACTER*(*) SXSEL
+      DIMENSION C((NROOT+NSXS)*NROOT*(ITMAX+1))
+      DIMENSION HC((NROOT+NSXS)*NROOT*ITMAX)
+      DIMENSION HH((ITMAX*NROOT)*(ITMAX*NROOT+1))
+      DIMENSION CC((ITMAX*NROOT)**2)
+      DIMENSION E((ITMAX*NROOT))
       DIMENSION HD(NROOT+NSXS)
+      DIMENSION SC((NROOT+NSXS))
+      DIMENSION Q((NROOT+NSXS)*(NROOT+1))
+      DIMENSION QQ(NROOT)
+      DIMENSION S(ITMAX*NROOT**2)
+      CHARACTER*(*) SXSEL
 cvv   DATA THRA/1.D-13/,THRLD2/1.D-15/,THRQ/1.D-07/,THRZ/1.D-06/,
 cvv   Thrld2 changed to 1.D-14 to avoid numerial unstabillity
       DATA THRA/1.D-13/,THRLD2/5.D-14/,THRQ/1.D-07/,THRZ/1.D-06/,
