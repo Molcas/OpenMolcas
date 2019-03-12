@@ -621,60 +621,56 @@ Keywords
               </KEYWORD>
 
 :kword:`ONLY`
-  This keyword requires the :kword:`MULTistate` keyword, and is
-  followed by an integer specifying one of the roots.
-  In a Multistate calculation, it requests to compute the energy of only
-  the specified root. However, the effective Hamiltonian coupling terms
-  between this root and all the others included in the Multistate
+  This keyword requires the :kword:`MULTistate` or :kword:`XMULtistate` keyword,
+  and is followed by an integer specifying one of the roots.
+  In a (Extended) Multistate calculation, it requests to compute the energy of
+  only the specified root. However, the effective Hamiltonian coupling terms
+  between this root and all the others included in the (Extended) Multistate
   treatment will be computed and printed out.
   This output will be used in a subsequent calculation, in conjunction
-  with the :kword:`EFFE` keyword. This keyword cannot be used with
-  the :kword:`XMULtistate` keyword.
+  with the :kword:`EFFE` keyword.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="ONLY" APPEAR="Only root" KIND="INT" LEVEL="ADVANCED" REQUIRE="MULTISTATE">
               %%Keyword: ONLY <advanced>
               <HELP>
-              This keyword requires the MULTistate keyword, and is
+              This keyword requires the MULTistate or XMULtistate keyword, and is
               followed by an integer specifying one of the roots.
               In a Multistate calculation, it requests to compute the energy of only
               the specified root. However, the effective Hamiltonian coupling terms
               between this root and all the others included in the Multistate
               treatment will be computed and printed out.
               This output will be used in a subsequent calculation, in conjunction
-              with the EFFE keyword. This keyword cannot be used with the XMULtistate
-              keyword.
+              with the EFFE keyword.
               </HELP>
               </KEYWORD>
 
 :kword:`EFFE`
-  This keyword requires the :kword:`MULTistate` keyword. It is followed by
-  the number of states and a matrix of real numbers, specifying the effective Hamiltonian
-  couplings, as provided in a previous calculation using the
-  :kword:`ONLY` keyword.
-  In a Multistate calculation over, e.g., 3 states, 3 separate
+  This keyword requires the :kword:`MULTistate` or :kword:`XMULtistate` keyword.
+  It is followed by the number of states and a matrix of real numbers,
+  specifying the effective Hamiltonian couplings, as provided in a previous
+  calculation using the :kword:`ONLY` keyword.
+  In a (Extended) Multistate calculation over, e.g., 3 states, 3 separate
   calculations with the :kword:`ONLY` keyword will be performed, possibly
   on separate computing nodes, so as to speed up the overall process.
   The three couplings vectors will be given to the :kword:`EFFE`
   keyword in matrix form, i.e. the first column is made by the
   couplings of the first computed root, etc.
-  The program will then quickly compute the Multistate energies.
-  Note that :kword:`EFFE` cannot be used in conjunction with :kword:`XMULtistate`.
+  The program will then quickly compute the (Extended) Multistate energies.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="EFFE" APPEAR="Effective Hamiltonian couplings" KIND="STRINGS" LEVEL="ADVANCED" REQUIRE="MULTISTATE">
               %%Keyword: EFFE <advanced>
               <HELP>
-              This keyword requires the MULTistate keyword. It is followed by
-              the number of states and a matrix of real numbers, specifying the effective Hamiltonian
-              couplings, as provided in a previous calculation using the
-              ONLY keyword.
-              In a Multistate calculation over, e.g., 3 states, 3 separate
+              This keyword requires the MULTistate or XMULtistate keyword. It is
+              followed by the number of states and a matrix of real numbers,
+              specifying the effective Hamiltonian couplings, as provided in
+              a previous calculation using the ONLY keyword.
+              In a (Extended) Multistate calculation over, e.g., 3 states, 3 separate
               calculations with the ONLY keyword will be performed, possibly
               on separate computing nodes, so as to speed up the overall process.
               The three couplings vectors will be given to the EFFE
               keyword in matrix form, i.e. the first column is made by the
               couplings of the first computed root, etc.
-              The program will then quickly compute the Multistate energies.
-              Note that EFFE cannot be used in conjunction with XMULtistate.
+              The program will then quickly compute the (Extended) Multistate energies.
               </HELP>
               </KEYWORD>
 
