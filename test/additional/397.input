@@ -16,8 +16,6 @@ O.ano-rcc.Roos..3s2p1d.
 O1        0.000000000      0.000000000     -1.700000000   angstrom
 O2        0.000000000      0.000000000      1.700000000   angstrom
 end of basis
-Angmom
-0.0 0.0 0.0
 End of input
 
 &SCF &END

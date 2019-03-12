@@ -98,6 +98,7 @@
       Real*8 HypParam(3)
       Integer iSeed
       Save iSeed
+      Logical Vlct_
 *
       Logical DoEMPC
       Common /EmbPCharg/ DoEMPC
@@ -218,6 +219,7 @@
       iOptimType = 1
       gradLim = 0.0d0
       Do_OneEl=.True.
+      Vlct_=.False.
 #ifdef _FDE_
       ! Embedding
       embPot=.false.
@@ -1645,6 +1647,7 @@ c     Go To 998
       Call mma_allocate(ITmp,nTemp,label='ITmp')
       Do 1502 i = 1, nTemp
          KWord = Get_Ln(LuRd)
+         Call Upcase(KWord)
          Call Get_I(1,iMltpl,1)
          Call Get_F(2,RTmp(1,i),3)
          If (Index(KWord,'ANGSTROM').ne.0)
@@ -1693,7 +1696,7 @@ c     Go To 998
       KWord = Get_Ln(LuRd)
 9752  Call Get_I(1,nXF,1)
       Convert=.False.
-      Call Upcase(kWord)
+      Call Upcase(KWord)
       If (Index(KWord,'ANGSTROM').ne.0) Then
           Convert=.True.
           ix=Index(KWord,'ANGSTROM')
@@ -2043,6 +2046,7 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
             call Get_F(1,Work(ipW+2),1)
             call Get_F(2,Work(ipW+1),1)
             call Get_F(3,Work(ipW  ),1)
+            Call Upcase(KWord)
             If (Index(KWord,'ANGSTROM').ne.0) Then
                Work(ipW)=Work(ipW)/angstr
                Work(ipW+1)=Work(ipW+1)*angstr
@@ -2081,7 +2085,7 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
 *                                                                      *
 *     Compute integrals for transition dipole moment
 *
- 992  Vlct = .TRUE.
+ 992  Vlct_ = .TRUE.
       GWInput=.True.
       Go To 998
 *                                                                      *
@@ -2131,6 +2135,7 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
       Go To 9931
 *
  9931 KWord = Get_Ln(LuRd)
+      Call Upcase(KWord)
       Call Get_I(1,nEF,1)
       If (nEF.lt.0) nEF = 0
       If (nEF.eq.0) Go To 998
@@ -2140,7 +2145,6 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
 * Check whether a label is specified instead of a coordinate
          Call Get_S(1,Key,1)
          Call LeftAd(Key)
-         Call Upcase(Key)
          jTmp = iChar(Key(1:1))
          If (jTmp .ge. 65 .AND. jTmp .le. 90) Then
             iEnd=Index(Key,' ')-1
@@ -2184,6 +2188,7 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
       GWInput=.True.
       Call mma_allocate(OAMt,3,label='OAMt')
       KWord = Get_Ln(LuRd)
+      Call Upcase(KWord)
       Call Get_F(1,OAMt,3)
       If (Index(KWord,'ANGSTROM').ne.0)
      &    Call DScal_(3,One/angstr,OAMt,1)
@@ -2207,6 +2212,7 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
       GWInput=.True.
       Call mma_allocate(OMQt,3,label='OMQt')
       KWord = Get_Ln(LuRd)
+      Call Upcase(KWord)
       Call Get_F(1,OMQt,3)
       If (Index(KWord,'ANGSTROM').ne.0)
      &    Call DScal_(3,One/angstr,OMQt,1)
@@ -2221,6 +2227,7 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
       If (Run_Mode.eq.S_Mode.and.GWInput) Go To 9989
       ipAMP=ipExp(iShll+1)
       KWord = Get_Ln(LuRd)
+      Call Upcase(KWord)
       Call Get_F(1,Work(ipAMP),3)
       If (Index(KWord,'ANGSTROM').ne.0)
      &     Call DScal_(3,One/angstr,
@@ -2246,6 +2253,7 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
       Call mma_allocate(DMSt,3,nDMS,label='DMSt')
       Do iDMS = 1, nDMS
          KWord = Get_Ln(LuRd)
+         Call Upcase(KWord)
          Call Get_F(1,DMSt(1,iDMS),3)
          If (Index(KWord,'ANGSTROM').ne.0)
      &        Call DScal_(3,One/angstr,DMSt(1,iDMS),1)
@@ -3630,6 +3638,7 @@ c
 *                                                                      *
  8035 GWinput = .True.
       Kword = Get_Ln(LuRd)
+      Call Upcase(KWord)
       EMFR=.True.
       Call Get_F(1,KVector,3)
       Temp=Sqrt(KVector(1)**2+KVector(2)**2+KVector(3)**2)
@@ -4232,44 +4241,11 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*
 *---- Generate labels for cartesian and spherical basis sets.
 *     Generate the transformation matrix for cartesian to sphericals
 *     and contaminants.
 *
       Call Sphere(iAngMx)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Put up list for point at which the orbital angular momentum
-*     will be computed.
-*
-      If (lOAM .and. .NOT.(Run_Mode.eq.S_Mode)) Then
-         ipOAM=ipExp(Mx_Shll)
-         call dcopy_(3,OAMt,1,Work(ipOAM),1)
-         Call mma_deallocate(OAMt)
-         ipExp(Mx_Shll) = ipOAM + 3
-         nInfo = nInfo + 3
-      Else If (.NOT.(Run_Mode.eq.S_Mode)) Then
-         lOAM=.True.
-         ipOAM=ipExp(Mx_Shll)
-         call dcopy_(3,0.0D0,0,Work(ipOAM),1)
-         ipExp(Mx_Shll) = ipOAM + 3
-         nInfo = nInfo + 3
-      End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Put up list for point at which the orbital magnetic quadrupole
-*     will be computed.
-*
-      If (lOMQ .and. .NOT.(Run_Mode.eq.S_Mode)) Then
-         ipOMQ=ipExp(Mx_Shll)
-         Call DCopy_(3,OMQt,1,Work(ipOMQ),1)
-         Call mma_deallocate(OMQt)
-         ipExp(Mx_Shll) = ipOMQ + 3
-         nInfo = nInfo + 3
-      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4348,6 +4324,10 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *     computation of the velocity integrals.
 *
       If (nMltpl.eq.0) Vlct=.False.
+*
+*     But turn it on again if explicitly requested
+*
+      If (Vlct_) Vlct=.True.
 *
 *     This is the highest order of any property operator.
 *     The default value of 4 is due to the mass-velocity operator
@@ -4590,6 +4570,39 @@ C     Mx_mdc=mdc
 #ifdef _DEBUG_
        Call RecPrt(' Multipole centers',' ',Coor_MPM,3,nMltpl+1)
 #endif
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Put up list for point at which the orbital angular momentum
+*     will be computed.
+*
+      If (lOAM .and. .NOT.(Run_Mode.eq.S_Mode)) Then
+         ipOAM=ipExp(Mx_Shll)
+         call dcopy_(3,OAMt,1,Work(ipOAM),1)
+         Call mma_deallocate(OAMt)
+         ipExp(Mx_Shll) = ipOAM + 3
+         nInfo = nInfo + 3
+*     Else If (.NOT.(Run_Mode.eq.S_Mode)) Then
+*        lOAM=.True.
+*        ipOAM=ipExp(Mx_Shll)
+*        !call dcopy_(3,0.0D0,0,Work(ipOAM),1)
+*        call dcopy_(3,CoM,1,Work(ipOAM),1)
+*        ipExp(Mx_Shll) = ipOAM + 3
+*        nInfo = nInfo + 3
+      End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Put up list for point at which the orbital magnetic quadrupole
+*     will be computed.
+*
+      If (lOMQ .and. .NOT.(Run_Mode.eq.S_Mode)) Then
+         ipOMQ=ipExp(Mx_Shll)
+         Call DCopy_(3,OMQt,1,Work(ipOMQ),1)
+         Call mma_deallocate(OMQt)
+         ipExp(Mx_Shll) = ipOMQ + 3
+         nInfo = nInfo + 3
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *

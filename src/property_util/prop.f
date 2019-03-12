@@ -60,7 +60,6 @@
 #include "real.fh"
 #include "WrkSpc.fh"
       parameter (lmax=16)
-      Character*2 lab2
       Character*3 lab3
       Character*4 lab4
       Character*5 lab5
@@ -108,7 +107,7 @@
 *
       oplab=qplab
       Call UpCase(oplab)
-      Read (oplab,'(a4,a2,i2)') lab4,lab2,l
+      lab4=oplab(1:4)
       If (lab4.eq.'MLTP') Then
          If (lpole.lt.0) Then
             Return
@@ -120,6 +119,8 @@
       If (lab4.eq.'DMS ') Go To 500
       If (lab4(1:3).eq.'PAM') Go To 600
       If (lab4(1:3).eq.'CNT') Go To 700
+      If (lab4.eq.'VELO') Return
+      If (lab4.eq.'ANGM') Return
 *
 *     invalid label supplied
 *
@@ -183,7 +184,7 @@
             Line='Quadrupole Moment (Debye*Ang):'
             Fact=Debye*Angstrom
          Else If (lPole.eq.3) Then
-            Line='Octapole Moment (Debye*Ang**2):'
+            Line='Octupole Moment (Debye*Ang**2):'
             Fact=Debye*Angstrom**2
          Else If (lPole.eq.4) Then
             Line='Hexadecapole Moment (Debye*Ang**3):'

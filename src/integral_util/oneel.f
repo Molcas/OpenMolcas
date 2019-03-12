@@ -188,6 +188,8 @@ c               Close(28)
                    Read(Label,'(2X,I1)') lpole
                Else If (LBL.eq.'DMS ') Then
                    lpole = 3
+               Else If (LBL.eq.'VELO') Then
+                   lpole = 1
                End If
                Call mma_allocate(plabs,nComp,label='plabs')
                Call mma_allocate(TMat,nComp**2,label='TMat')
