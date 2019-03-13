@@ -35,7 +35,7 @@
             var=var+(1-ddottemp)**2/tsum
             do i=1,npx
                 pred(i) = sb + dot_product(tcv(i,:),Kv)
-                write(6,*) 'pred', i, pred(i)
+                write(6,*) 'pred:', i, pred(i)
             enddo
             sigma=1.96*sqrt(var*variance)
             if (detr<0) then
@@ -43,7 +43,7 @@
             else
                 ll=variance*exp(log(detr)/m_t)
             endif
-            write(6,*) 'l ',l
-            write(6,*) 'variance ',variance
-            write(6,*) 'll ',ll
+            write(6,*) 'l:',l
+            write(6,*) 'variance: ',variance
+            write(6,*) 'll: ',ll
         END

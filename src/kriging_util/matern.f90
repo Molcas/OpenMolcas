@@ -31,7 +31,6 @@
             integer nd,d1,d2,p0
             real*8 nr,kr,a,b(d1,d2),dh(d1,d2),c(d1,d2),t
             nr=real(nd)
-            Write (6,*) 'Matern deriv'
             if (anamat) then
                 p0=int(p)
                 t=sqrt(2.0*p+1)

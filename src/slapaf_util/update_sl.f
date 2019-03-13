@@ -165,15 +165,13 @@ c Avoid unused argument warnings
          Call GetMem('t_Shift','Free','Real',iptmp1,nInter*iter_)
 *
       Else
-*
+*        ------- AI loop begin here
          If (Kriging) then
             If (nspAI.lt.iter) then
-               Call Start_Kriging(iter,nInter,qInt,Grad,Energy,anAI,pAI,
-     &                            lbAI,npxAI)
-
-            End If
-         End If
-         Call Update_sl_(iter,iInt,nFix,nInter,qInt,Shift,
+               !do while (dAIy.lt.dAIyf)
+                  Call Start_Kriging(iter,nInter,qInt,Grad,Energy,anAI,
+     &                            pAI,lbAI,npxAI)
+            Call Update_sl_(iter,iInt,nFix,nInter,qInt,Shift,
      &                   Grad,iOptC,Beta,Lbl,GNrm,Energy,
      &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,
      &                   iRow_c,nsAtom,AtomLbl,nSym,iOper,mxdc,jStab,
@@ -183,7 +181,32 @@ c Avoid unused argument warnings
      &                   nWndw,Mode,ipMF,
      &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,dMass,
      &                   HrmFrq_Show,CnstWght,Curvilinear,Degen)
-*
+               !End Do
+            Else
+            Call Update_sl_(iter,iInt,nFix,nInter,qInt,Shift,
+     &                   Grad,iOptC,Beta,Lbl,GNrm,Energy,
+     &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,
+     &                   iRow_c,nsAtom,AtomLbl,nSym,iOper,mxdc,jStab,
+     &                   nStab,BMx,Smmtrc,nDimBC,rLambda,ipCx,
+     &                   GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
+     &                   Labels,nLabels,FindTS,TSC,nRowH,
+     &                   nWndw,Mode,ipMF,
+     &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,dMass,
+     &                   HrmFrq_Show,CnstWght,Curvilinear,Degen)
+            End If
+         Else
+            Call Update_sl_(iter,iInt,nFix,nInter,qInt,Shift,
+     &                   Grad,iOptC,Beta,Lbl,GNrm,Energy,
+     &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,
+     &                   iRow_c,nsAtom,AtomLbl,nSym,iOper,mxdc,jStab,
+     &                   nStab,BMx,Smmtrc,nDimBC,rLambda,ipCx,
+     &                   GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
+     &                   Labels,nLabels,FindTS,TSC,nRowH,
+     &                   nWndw,Mode,ipMF,
+     &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,dMass,
+     &                   HrmFrq_Show,CnstWght,Curvilinear,Degen)
+         End If
+*        ------- AI loop ends here
       End If
 *
 *-----Write out the shift in internal coordinates basis.

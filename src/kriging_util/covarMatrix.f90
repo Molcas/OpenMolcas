@@ -31,7 +31,7 @@
                 call matern(dl,ns,ns)
                 tmat=tmat+mat
             end do
-            full_R(1:NS,1:NS)=tmat
+            full_R(1:NS,1:NS)=tmat+iden*eps
             ! Covariant matrix in Gradient Enhanced Kriging
             do i=1,dims
                 do k=1,NS
@@ -45,24 +45,25 @@
                 i0=i*ns+1
                 i1=i0+ns-1
                 do j=i,dims+1
-                    if (j.ge.1) then
-                        j0=(j-1)*ns+1
-                        j1=j0+ns-1
-                        if(i.eq.1) then
-                            call matderiv(1,ns,ns)
-                            tmat=mat
-                            mat=mat*diffx
-                        else
-                            call matderiv(2,ns,ns)
-                            mat=mat*diffx*diffx0-tmat*(2/l**2)
-                        endif
-                        full_R(i0:i1,j0:j1)=transpose(mat)
-                        if (i.ne.j) then
-                            full_R(j0:j1,i0:i1)=mat
-                        else
-                            full_R(i0:i1,j0:j1)=full_R(i0:i1,j0:j1)+iden*eps
-                        endif
+                    j0=(j-1)*ns+1
+                    j1=j0+ns-1
+                    if(j.eq.1) then
+                        call matderiv(1,ns,ns)
+                        tmat=mat
+                        mat=mat*diffx
+                    else
+                        call matderiv(2,ns,ns)
+                        mat=mat*diffx*diffx0-tmat*(2/l**2)
+                    endif
+                    full_R(i0:i1,j0:j1)=mat
+                    if (j.ne.dims+1) then
+                        full_R(j0:j1,i0:i1)=transpose(mat)
+                    else
+                        full_R(i0:i1,j0:j1)=full_R(i0:i1,j0:j1)+iden*eps
                     endif
                 enddo
             enddo
+            write (6,*) 'full_R: ',full_R
+            Write (6,*) 'full_R size: ',size(full_R)
+            Write (6,*) 'full_R shape: ',shape(full_R)
         END
