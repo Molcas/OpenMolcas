@@ -113,8 +113,8 @@ C printing threshold
 *
 ************************************************************************
 *                                                                      *
-*     Section (1): Computation of k specific oscillator strength.
-*     Section (2): Computation of the isotropic oscillator strength.
+*     Section (1): Computation of k specific oscillator strength.      *
+*     Section (2): Computation of the isotropic oscillator strength.   *
 *                                                                      *
 ************************************************************************
 *
@@ -134,11 +134,17 @@ C printing threshold
             IPORIG=IPROP
          END IF
       ENDDO
+      IF (IPREMFR_RS.EQ.-1) RETURN
       IPREMFR_0R=IPREMFR_RS-6
+      IF (PNAME(IPREMFR_0R).NE.'TMOS0  R') RETURN
       IPREMFR_0I=IPREMFR_RS-3
+      IF (PNAME(IPREMFR_0I).NE.'TMOS0  I') RETURN
       IPREMFR_RA=IPREMFR_RS+3
+      IF (PNAME(IPREMFR_RA).NE.'TMOS  RA') RETURN
       IPREMFR_IS=IPREMFR_RS+6
+      IF (PNAME(IPREMFR_IS).NE.'TMOS  IS') RETURN
       IPREMFR_IA=IPREMFR_RS+9
+      IF (PNAME(IPREMFR_IA).NE.'TMOS  IA') RETURN
 *
 *     Initiate the Seward environment
 *

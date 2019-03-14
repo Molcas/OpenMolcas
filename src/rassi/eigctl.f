@@ -1966,13 +1966,13 @@ C And the same for the Dyson amplitudes
 *
 ************************************************************************
 *                                                                      *
-*     Section (1)
+*     Section (1)                                                      *
 *                                                                      *
 ************************************************************************
 *
 *     Find the location of the propetries in the PROP array.
 *
-      IPREMFR_RS=0
+      IPREMFR_RS=-1
       IPORIG=-1
       P1(1)=0.0D0
       P1(2)=0.0D0
@@ -2012,15 +2012,20 @@ C And the same for the Dyson amplitudes
             P2(3)=P2(3)*Tmp
          END IF
       END DO
-      IF (IPREMFR_RS.EQ.0) GOTO 901
+      IF (IPREMFR_RS.EQ.-1) GOTO 901
 *
 *     Compute the pointer to the three other blocks
 *
       IPREMFR_0R=IPREMFR_RS-6
+      IF (PNAME(IPREMFR_0R).NE.'EMFR0  R') GOTO 901
       IPREMFR_0I=IPREMFR_RS-3
+      IF (PNAME(IPREMFR_0I).NE.'EMFR0  I') GOTO 901
       IPREMFR_RA=IPREMFR_RS+3
+      IF (PNAME(IPREMFR_RA).NE.'EMFR  RA') GOTO 901
       IPREMFR_IS=IPREMFR_RS+6
+      IF (PNAME(IPREMFR_IS).NE.'EMFR  IS') GOTO 901
       IPREMFR_IA=IPREMFR_RS+9
+      IF (PNAME(IPREMFR_IA).NE.'EMFR  IA') GOTO 901
 *
 *     Compute the vectors (k x e1) and  (k x e2).
 *
@@ -2216,7 +2221,7 @@ C And the same for the Dyson amplitudes
 *
 ************************************************************************
 *                                                                      *
-*     Section (2): Computation of the isotropic oscillator strength.
+*     Section (2): Computation of the isotropic oscillator strength.   *
 *                                                                      *
 ************************************************************************
 *
@@ -2238,11 +2243,17 @@ C And the same for the Dyson amplitudes
             IPORIG=IPROP
          END IF
       ENDDO
+      IF (IPRTMOS_RS.EQ.-1) GOTO 900
       IPRTMOS_0R=IPRTMOS_RS-6
+      IF (PNAME(IPRTMOS_0R).NE.'TMOS0  R') GOTO 900
       IPRTMOS_0I=IPRTMOS_RS-3
+      IF (PNAME(IPRTMOS_0I).NE.'TMOS0  I') GOTO 900
       IPRTMOS_RA=IPRTMOS_RS+3
+      IF (PNAME(IPRTMOS_RA).NE.'TMOS  RA') GOTO 900
       IPRTMOS_IS=IPRTMOS_RS+6
+      IF (PNAME(IPRTMOS_IS).NE.'TMOS  IS') GOTO 900
       IPRTMOS_IA=IPRTMOS_RS+9
+      IF (PNAME(IPRTMOS_IA).NE.'TMOS  IA') GOTO 900
 *
 *     Initiate the Seward environment
 *

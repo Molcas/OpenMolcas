@@ -4582,13 +4582,12 @@ C     Mx_mdc=mdc
          Call mma_deallocate(OAMt)
          ipExp(Mx_Shll) = ipOAM + 3
          nInfo = nInfo + 3
-*     Else If (.NOT.(Run_Mode.eq.S_Mode)) Then
-*        lOAM=.True.
-*        ipOAM=ipExp(Mx_Shll)
-*        !call dcopy_(3,0.0D0,0,Work(ipOAM),1)
-*        call dcopy_(3,CoM,1,Work(ipOAM),1)
-*        ipExp(Mx_Shll) = ipOAM + 3
-*        nInfo = nInfo + 3
+      Else If (.NOT.(Run_Mode.eq.S_Mode)) Then
+         lOAM=.True.
+         ipOAM=ipExp(Mx_Shll)
+         call dcopy_(3,CoM,1,Work(ipOAM),1)
+         ipExp(Mx_Shll) = ipOAM + 3
+         nInfo = nInfo + 3
       End If
 *                                                                      *
 ************************************************************************
