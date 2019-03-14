@@ -4,8 +4,8 @@
 
 .. _TUT\:sec\:poly_aniso:
 
-:program:`POLY_ANISO` |extramark| --- Semi-*ab initio* Electronic Structure and Magnetism of Polynuclear Complexes Program
-==========================================================================================================================
+:program:`POLY_ANISO` --- Semi-*ab initio* Electronic Structure and Magnetism of Polynuclear Complexes Program
+===============================================================================================================
 
 .. warning::
 
