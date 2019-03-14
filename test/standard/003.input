@@ -88,7 +88,7 @@ CONVergence
  1.0D-9
 PROPerties
 End of input
->>> COPY $Project.JobMix JOBMIX_T
+>>> COPY $Project.JobIph JOBMIX_T
 *-------------------------------------------------------------------------------
  &RASSCF &END
 Title
@@ -145,7 +145,7 @@ CONVergence
  1.0D-9
 PROPerties
 End of input
->>> COPY $Project.JobMix JOBMIX_S
+>>> COPY $Project.JobIph JOBMIX_S
 *-------------------------------------------------------------------------------
 >>export MOLCAS_THR=0
  &RASSI &END
@@ -157,7 +157,8 @@ IphNames
  JOBMIX_T
  JOBMIX_S
 Spin Orbit
-Ejob
+* Note we use HEff with JobIph files (modified by MS-CASPT2)
+HEff
 End of input
 *-------------------------------------------------------------------------------
 
