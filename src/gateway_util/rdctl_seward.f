@@ -2135,7 +2135,6 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
       Go To 9931
 *
  9931 KWord = Get_Ln(LuRd)
-      Call Upcase(KWord)
       Call Get_I(1,nEF,1)
       If (nEF.lt.0) nEF = 0
       If (nEF.eq.0) Go To 998
@@ -2145,6 +2144,7 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
 * Check whether a label is specified instead of a coordinate
          Call Get_S(1,Key,1)
          Call LeftAd(Key)
+         Call Upcase(Key)
          jTmp = iChar(Key(1:1))
          If (jTmp .ge. 65 .AND. jTmp .le. 90) Then
             iEnd=Index(Key,' ')-1
@@ -2174,6 +2174,7 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
             End If
          Else
             Call Get_F(1,EFt(1,iEF),3)
+            Call Upcase(KWord)
             If (Index(KWord,'ANGSTROM').ne.0)
      &         Call DScal_(3,One/angstr,EFt(1,iEF),1)
          End If
