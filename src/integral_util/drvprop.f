@@ -589,10 +589,10 @@ cnf      If (iaddpot.le.0.and.ProgName.ne.'ALASKA')
          Call GetMem('Nuc   ','ALLO','REAL',ipNuc,nComp)
          Call GetMem('Ccoor ','ALLO','REAL',ipCc,nComp*3)
 *
-         Call dcopy_(nComp,Work(ipOMQ),1,Work(ipCc  ),1) ! Change from 3 to ncomp?
-         Call dcopy_(nComp,Work(ipOMQ),1,Work(ipCc+ncomp),1) !
-         Call dcopy_(nComp,Work(ipOMQ),1,Work(ipCc+2*ncomp),1) !
-         Call dcopy_(nComp,Work(ipOMQ),1,Ccoor,1) ! Should then not all be copied?
+         Call dcopy_(nComp,Work(ipOMQ),  0,Work(ipCc),  3)
+         Call dcopy_(nComp,Work(ipOMQ+1),0,Work(ipCc+1),3)
+         Call dcopy_(nComp,Work(ipOMQ+2),0,Work(ipCc+2),3)
+         Call dcopy_(3,Work(ipOMQ),1,Ccoor,1)
 *
          ixyz=1
          iSymX = 2**IrrFnc(ixyz)

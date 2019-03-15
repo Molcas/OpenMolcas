@@ -1053,12 +1053,12 @@ C And the same for the Dyson amplitudes
         IPRDZ=0
 
         IFANYD=0
-        DO ISOPR=1,NPROP
-          IF(SOPRNM(ISOPR).EQ.'ANGMOM  ') THEN
+        DO IPROP=1,NPROP
+          IF(PNAME(IPROP).EQ.'ANGMOM  ') THEN
            IFANYD=1
-           IF(ISOCMP(ISOPR).EQ.1) IPRDX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.2) IPRDY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.3) IPRDZ=ISOPR
+           IF(ICOMP(IPROP).EQ.1) IPRDX=IPROP
+           IF(ICOMP(IPROP).EQ.2) IPRDY=IPROP
+           IF(ICOMP(IPROP).EQ.3) IPRDZ=IPROP
           END IF
         END DO
 
@@ -1159,15 +1159,15 @@ C And the same for the Dyson amplitudes
         IPRDZZ=0
 
         IFANYD=0
-        DO ISOPR=1,NPROP
-          IF(SOPRNM(ISOPR).EQ.'MLTPL  2') THEN
+        DO IPROP=1,NPROP
+          IF(PNAME(IPROP).EQ.'MLTPL  2') THEN
            IFANYD=1
-           IF(ISOCMP(ISOPR).EQ.1) IPRDXX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.2) IPRDXY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.3) IPRDXZ=ISOPR
-           IF(ISOCMP(ISOPR).EQ.4) IPRDYY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.5) IPRDYZ=ISOPR
-           IF(ISOCMP(ISOPR).EQ.6) IPRDZZ=ISOPR
+           IF(ICOMP(IPROP).EQ.1) IPRDXX=IPROP
+           IF(ICOMP(IPROP).EQ.2) IPRDXY=IPROP
+           IF(ICOMP(IPROP).EQ.3) IPRDXZ=IPROP
+           IF(ICOMP(IPROP).EQ.4) IPRDYY=IPROP
+           IF(ICOMP(IPROP).EQ.5) IPRDYZ=IPROP
+           IF(ICOMP(IPROP).EQ.6) IPRDZZ=IPROP
           END IF
         END DO
 
@@ -1334,23 +1334,23 @@ C And the same for the Dyson amplitudes
 
 
         IFANYD=0
-        DO ISOPR=1,NPROP
-          IF(SOPRNM(ISOPR).EQ.'MLTPL  1') THEN
-           IF(ISOCMP(ISOPR).EQ.1) IPRDX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.2) IPRDY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.3) IPRDZ=ISOPR
-          ELSE IF(SOPRNM(ISOPR).EQ.'MLTPL  3') THEN
+        DO IPROP=1,NPROP
+          IF(PNAME(IPROP).EQ.'MLTPL  1') THEN
+           IF(ICOMP(IPROP).EQ.1) IPRDX=IPROP
+           IF(ICOMP(IPROP).EQ.2) IPRDY=IPROP
+           IF(ICOMP(IPROP).EQ.3) IPRDZ=IPROP
+          ELSE IF(PNAME(IPROP).EQ.'MLTPL  3') THEN
            IFANYD=1
-           IF(ISOCMP(ISOPR).EQ.1) IPRDXXX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.2) IPRDXXY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.3) IPRDXXZ=ISOPR
-           IF(ISOCMP(ISOPR).EQ.4) IPRDYYX=ISOPR ! Changed from XYY
-           IF(ISOCMP(ISOPR).EQ.5) IPRDXYZ=ISOPR
-           IF(ISOCMP(ISOPR).EQ.6) IPRDZZX=ISOPR ! Changed from XZZ
-           IF(ISOCMP(ISOPR).EQ.7) IPRDYYY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.8) IPRDYYZ=ISOPR
-           IF(ISOCMP(ISOPR).EQ.9) IPRDZZY=ISOPR ! Changed from YZZ
-           IF(ISOCMP(ISOPR).EQ.10) IPRDZZZ=ISOPR
+           IF(ICOMP(IPROP).EQ.1) IPRDXXX=IPROP
+           IF(ICOMP(IPROP).EQ.2) IPRDXXY=IPROP
+           IF(ICOMP(IPROP).EQ.3) IPRDXXZ=IPROP
+           IF(ICOMP(IPROP).EQ.4) IPRDYYX=IPROP ! Changed from XYY
+           IF(ICOMP(IPROP).EQ.5) IPRDXYZ=IPROP
+           IF(ICOMP(IPROP).EQ.6) IPRDZZX=IPROP ! Changed from XZZ
+           IF(ICOMP(IPROP).EQ.7) IPRDYYY=IPROP
+           IF(ICOMP(IPROP).EQ.8) IPRDYYZ=IPROP
+           IF(ICOMP(IPROP).EQ.9) IPRDZZY=IPROP ! Changed from YZZ
+           IF(ICOMP(IPROP).EQ.10) IPRDZZZ=IPROP
           END IF
         END DO
 ! Sanity check. Only check that dipole are there
@@ -1515,24 +1515,24 @@ C And the same for the Dyson amplitudes
         IPRDZ=0
 
         IFANYD=0
-        DO ISOPR=1,NPROP
-          IF(SOPRNM(ISOPR).EQ.'MLTPL  1') THEN
-           IF(ISOCMP(ISOPR).EQ.1) IPRDX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.2) IPRDY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.3) IPRDZ=ISOPR
-          ELSE IF(SOPRNM(ISOPR).EQ.'OMQ') THEN
+        DO IPROP=1,NPROP
+          IF(PNAME(IPROP).EQ.'MLTPL  1') THEN
+           IF(ICOMP(IPROP).EQ.1) IPRDX=IPROP
+           IF(ICOMP(IPROP).EQ.2) IPRDY=IPROP
+           IF(ICOMP(IPROP).EQ.3) IPRDZ=IPROP
+          ELSE IF(PNAME(IPROP).EQ.'OMQ') THEN
            IFANYD=1
-           IF(ISOCMP(ISOPR).EQ.1) IPRDXX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.2) IPRDXY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.3) IPRDXZ=ISOPR
+           IF(ICOMP(IPROP).EQ.1) IPRDXX=IPROP
+           IF(ICOMP(IPROP).EQ.2) IPRDXY=IPROP
+           IF(ICOMP(IPROP).EQ.3) IPRDXZ=IPROP
 
-           IF(ISOCMP(ISOPR).EQ.4) IPRDYX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.5) IPRDYY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.6) IPRDYZ=ISOPR
+           IF(ICOMP(IPROP).EQ.4) IPRDYX=IPROP
+           IF(ICOMP(IPROP).EQ.5) IPRDYY=IPROP
+           IF(ICOMP(IPROP).EQ.6) IPRDYZ=IPROP
 
-           IF(ISOCMP(ISOPR).EQ.7) IPRDZX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.8) IPRDZY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.9) IPRDZZ=ISOPR
+           IF(ICOMP(IPROP).EQ.7) IPRDZX=IPROP
+           IF(ICOMP(IPROP).EQ.8) IPRDZY=IPROP
+           IF(ICOMP(IPROP).EQ.9) IPRDZZ=IPROP
           END IF
         END DO
 ! Sanity check. Only check that dipole are there
@@ -1795,6 +1795,9 @@ C And the same for the Dyson amplitudes
            EDIFF=ENERGY(JSS)-ENERGY(ISS)
            IF(EDIFF.GT.0.0D0) THEN
 
+*           R = e^2*hbar/(2*m^2*E) <J|p|I>.<I|l|J>
+*             = e^2*hbar/(2*m^2*E) -i*hbar*<J|nabla|I>.-i*hbar*<I|r x nabla|J>
+*             = e^2*hbar^3/(2*m^2*E) <J|nabla|I>.<J|r x nabla|I>
             R=0.0D0
 
             IF((IPRDXM.GT.0).AND.(IPRDXD.GT.0)) THEN
@@ -1879,6 +1882,9 @@ C And the same for the Dyson amplitudes
            EDIFF=ENERGY(JSS)-ENERGY(ISS)
            IF(EDIFF.GT.0.0D0) THEN
 
+*           R = -i*e^2/(2*m) <J|r|I>.<I|l|J>
+*             = -i*e^2/(2*m) <J|r|I>.-i*hbar*<I|r x nabla|J>
+*             = e^2*hbar/(2*m) <J|r|I>.<J|r x nabla|I>
             R=0.0D0
 
             IF((IPRDXM.GT.0).AND.(IPRDXD.GT.0)) THEN
@@ -2736,6 +2742,10 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
      &                'Transition moment strengths (spin-free states):')
                   WRITE(6,'(3X,A)')
      &                '-----------------------------------------------'
+                  WRITE(6,'(4x,a)')
+     &            'The oscillator strength is '//
+     &            'integrated over all directions of the polar'//
+     &            'ization vector'
                   WRITE(6,'(4x,a,3F8.4,a)')
      &                  'Direction of the k-vector: ',
      &                   (k_vector(k,iVec),k=1,3),' (au)'
@@ -2753,10 +2763,10 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                WRITE(6,*)
                If (.NOT.Do_SK) Then
                   WRITE(6,'(4x,a,I4,a)')
-     &                 'Integrated over ',nQuad,' directions of the'//
-     &                 ' wave vector'
+     &                 'Integrated over ',nQuad,' directions of the '//
+     &                 'wave vector'
                   WRITE(6,'(4x,a)')
-     &                 'The oscillator and rotatory strengths are '//
+     &                 'The oscillator strength is '//
      &                 'integrated over all directions of the polar'//
      &                 'ization vector'
                End If

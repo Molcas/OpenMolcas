@@ -77,7 +77,7 @@
       nip = nip + nZeta*nElem(la)*nElem(lb)*nComp
       If (nip-1.gt.nArr*nZeta) Then
          Call WarningMessage(2,'VeInt: nip-1.gt.nArr*nZeta')
-         Write (6,*) ' nArr is Wrong! ', nip,' > ',nArr*nZeta
+         Write (6,*) ' nArr is Wrong! ', nip-1,' > ',nArr*nZeta
          Write (6,*) ' Abend in VeInt'
          Call Abend()
       End If

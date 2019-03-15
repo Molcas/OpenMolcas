@@ -146,7 +146,7 @@
           WRITE(6,*)
           WRITE(6,'(1X,A,A8,A,I4)')
      *  'PROPERTY: ',PNAME(IPROP),'   COMPONENT:',ICOMP(IPROP)
-          WRITE(6,'(1X,A,3D17.8)')
+          WRITE(6,'(1X,A,3(1X,ES16.9))')
      *'ORIGIN    :',(PORIG(I,IPROP),I=1,3)
           WRITE(6,'(1X,A,I8,4I17)')
      *'STATE     :',(I,I=ISTA,IEND)
@@ -194,7 +194,7 @@
          WRITE(6,*)
          WRITE(6,'(1X,A,A8,A,I4)')
      *   'PROPERTY: ',PNAME(IPROP),'   COMPONENT:',ICOMP(IPROP)
-         WRITE(6,'(1X,A,3D17.8)')
+         WRITE(6,'(1X,A,3(1X,ES16.9))')
      *   'ORIGIN: ',(PORIG(I,IPROP),I=1,3)
          DO ISTA=1,NSTATE,NCOL
            IEND=MIN(NSTATE,ISTA+NCOL-1)
@@ -2116,6 +2116,9 @@ C printing threshold
            IF(EDIFF.GT.0.0D0) THEN
             IJSS=JSS+NSS*(ISS-1)
 
+*           R = e^2*hbar/(2*m^2*E) <J|p|I>.<I|l|J>
+*             = e^2*hbar/(2*m^2*E) -i*hbar*<J|nabla|I>.-i*hbar*<I|r x nabla|J>
+*             = e^2*hbar^3/(2*m^2*E) <J|nabla|I>.<J|r x nabla|I>
             R=0.0D0
 
             IF((IPRDXM.GT.0).AND.(IPRDXD.GT.0)) THEN
@@ -2270,6 +2273,9 @@ C printing threshold
            IF(EDIFF.GT.0.0D0) THEN
             IJSS=JSS+NSS*(ISS-1)
 
+*           R = -i*e^2/(2*m) <J|r|I>.<I|l|J>
+*             = -i*e^2/(2*m) <J|r|I>.-i*hbar*<I|r x nabla|J>
+*             = e^2*hbar/(2*m) <J|r|I>.<J|r x nabla|I>
             R=0.0D0
 
             IF((IPRDXM.GT.0).AND.(IPRDXD.GT.0)) THEN

@@ -106,10 +106,10 @@ C printing threshold
 *     The operator is split in 4 different component, each with three
 *     elements corresponding to differentiation in the x, y, and z
 *     direction. The four parts are labels as:
-*     EMFR  RS: The symmetric part of the real comp. of the op.
-*     EMFR  RA: The asymmetric part of the real comp. of the op.
-*     EMFR  IS: The symmetric part of the imaginary comp. of the op.
-*     EMFR  IA: The asymmetric part of the imaginary comp. of the op.
+*     TMOS  RS: The symmetric part of the real comp. of the op.
+*     TMOS  RA: The asymmetric part of the real comp. of the op.
+*     TMOS  IS: The symmetric part of the imaginary comp. of the op.
+*     TMOS  IA: The asymmetric part of the imaginary comp. of the op.
 *
 ************************************************************************
 *                                                                      *
@@ -126,25 +126,25 @@ C printing threshold
 *     Find the slot on the one-electron file where we will store the
 *     on-the-fly generated property integrals.
 *
-      IPREMFR_RS=-1
+      IPRTMOS_RS=-1
       IPORIG=-1
       DO IPROP=1,NPROP
-         IF (PNAME(IPROP).EQ.'TMOS  RS'.AND.IPREMFR_RS.EQ.-1) THEN
-            IPREMFR_RS=IPROP
+         IF (PNAME(IPROP).EQ.'TMOS  RS'.AND.IPRTMOS_RS.EQ.-1) THEN
+            IPRTMOS_RS=IPROP
             IPORIG=IPROP
          END IF
       ENDDO
-      IF (IPREMFR_RS.EQ.-1) RETURN
-      IPREMFR_0R=IPREMFR_RS-6
-      IF (PNAME(IPREMFR_0R).NE.'TMOS0  R') RETURN
-      IPREMFR_0I=IPREMFR_RS-3
-      IF (PNAME(IPREMFR_0I).NE.'TMOS0  I') RETURN
-      IPREMFR_RA=IPREMFR_RS+3
-      IF (PNAME(IPREMFR_RA).NE.'TMOS  RA') RETURN
-      IPREMFR_IS=IPREMFR_RS+6
-      IF (PNAME(IPREMFR_IS).NE.'TMOS  IS') RETURN
-      IPREMFR_IA=IPREMFR_RS+9
-      IF (PNAME(IPREMFR_IA).NE.'TMOS  IA') RETURN
+      IF (IPRTMOS_RS.EQ.-1) RETURN
+      IPRTMOS_0R=IPRTMOS_RS-6
+      IF (PNAME(IPRTMOS_0R).NE.'TMOS0  R') RETURN
+      IPRTMOS_0I=IPRTMOS_RS-3
+      IF (PNAME(IPRTMOS_0I).NE.'TMOS0  I') RETURN
+      IPRTMOS_RA=IPRTMOS_RS+3
+      IF (PNAME(IPRTMOS_RA).NE.'TMOS  RA') RETURN
+      IPRTMOS_IS=IPRTMOS_RS+6
+      IF (PNAME(IPRTMOS_IS).NE.'TMOS  IS') RETURN
+      IPRTMOS_IA=IPRTMOS_RS+9
+      IF (PNAME(IPRTMOS_IA).NE.'TMOS  IA') RETURN
 *
 *     Initiate the Seward environment
 *
@@ -282,10 +282,10 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                ycoor=Work((iQuad-1)*4+1+ipR)
                zcoor=Work((iQuad-1)*4+2+ipR)
 
-               PORIG(1,IPREMFR_RS)=rkNorm*xcoor
-               PORIG(2,IPREMFR_RS)=rkNorm*ycoor
-               PORIG(3,IPREMFR_RS)=rkNorm*zcoor
-               Call DCopy_(3,PORIG(1,IPREMFR_RS),1,
+               PORIG(1,IPRTMOS_RS)=rkNorm*xcoor
+               PORIG(2,IPRTMOS_RS)=rkNorm*ycoor
+               PORIG(3,IPRTMOS_RS)=rkNorm*zcoor
+               Call DCopy_(3,PORIG(1,IPRTMOS_RS),1,
      &                       Work(iStorage+ip_kvector),1)
 *
                Weight=Work((iQuad-1)*4+3+ipR)
@@ -293,23 +293,23 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
 *              Generate the associated polarization vectors.
 *
-               IF (PORIG(1,IPREMFR_RS).EQ.0.0D0 .and.
-     &             PORIG(2,IPREMFR_RS).EQ.0.0D0) Then
+               IF (PORIG(1,IPRTMOS_RS).EQ.0.0D0 .and.
+     &             PORIG(2,IPRTMOS_RS).EQ.0.0D0) Then
                   E1(1)=1.0D0
                   E1(2)=0.0D0
                   E1(3)=0.0D0
                ELSE
-                  E1(1)= PORIG(2,IPREMFR_RS)
-                  E1(2)=-PORIG(1,IPREMFR_RS)
+                  E1(1)= PORIG(2,IPRTMOS_RS)
+                  E1(2)=-PORIG(1,IPRTMOS_RS)
                   E1(3)= 0.0D0
                END IF
                Tmp=1.0D0/SQRT(E1(1)**2+E1(2)**2+E1(3)**2)
                E1(1)=E1(1)*Tmp
                E1(2)=E1(2)*Tmp
                E1(3)=E1(3)*Tmp
-               E2(1)=PORIG(2,IPREMFR_RS)*E1(3)-E1(2)*PORIG(3,IPREMFR_RS)
-               E2(2)=PORIG(3,IPREMFR_RS)*E1(1)-E1(3)*PORIG(1,IPREMFR_RS)
-               E2(3)=PORIG(1,IPREMFR_RS)*E1(2)-E1(1)*PORIG(2,IPREMFR_RS)
+               E2(1)=PORIG(2,IPRTMOS_RS)*E1(3)-E1(2)*PORIG(3,IPRTMOS_RS)
+               E2(2)=PORIG(3,IPRTMOS_RS)*E1(1)-E1(3)*PORIG(1,IPRTMOS_RS)
+               E2(3)=PORIG(1,IPRTMOS_RS)*E1(2)-E1(1)*PORIG(2,IPRTMOS_RS)
                Tmp=1.0D0/SQRT(E2(1)**2+E2(2)**2+E2(3)**2)
                E2(1)=E2(1)*Tmp
                E2(2)=E2(2)*Tmp
@@ -329,7 +329,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *              Generate the property integrals associated with this
 *              direction of the wave vector k.
 *
-               Call TMOSInt(PORIG(1,IPREMFR_RS))
+               Call TMOSInt(PORIG(1,IPRTMOS_RS))
 *
 ************************************************************************
 *                                                                      *
@@ -338,7 +338,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *                                                                      *
 ************************************************************************
 *
-               DO IPROP = IPREMFR_RS-6, IPREMFR_RS+11
+               DO IPROP = IPRTMOS_RS-6, IPRTMOS_RS+11
                   Call FZero(PROP(1,1,IPROP),NSTATE**2)
                End Do
                ISS = 0
@@ -408,7 +408,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *                    Compute the transition property of the property
 *                    integrals between the two states.
 *
-                     DO IPROP = IPREMFR_RS-6, IPREMFR_RS+11
+                     DO IPROP = IPRTMOS_RS-6, IPRTMOS_RS+11
                         ITYPE=0
                         IF (PTYPE(IPROP).EQ.'HERMSING') ITYPE=1
                         IF (PTYPE(IPROP).EQ.'ANTISING') ITYPE=2
@@ -648,9 +648,9 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
      &            'Transition moment strengths (SO states):')
                   WRITE(6,'(3X,A)')
      &            '----------------------------------------'
-                  WRITE(6,'(1x,a)')
-     &            '   The oscillator strength is'//
-     &            ' integrated over all directions of the polar'//
+                  WRITE(6,'(4x,a)')
+     &            'The oscillator strength is '//
+     &            'integrated over all directions of the polar'//
      &            'ization vector'
                   WRITE(6,'(4x,a,3F8.4,a)')
      &                  'Direction of the k-vector: ',
@@ -662,19 +662,19 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
      &            '--------------------------------------------------'
                End If
                IF (OSTHR.GT.0.0D0) THEN
-                  WRITE(6,'(1x,a,ES16.8)')
-     &                  '   for osc. strength at least ',OSTHR
+                  WRITE(6,'(4x,a,ES16.8)')
+     &                  'for osc. strength at least ',OSTHR
                END IF
                WRITE(6,*)
                If (.NOT.Do_SK) Then
-               WRITE(6,'(1x,a,I4,a)')
-     &           '   Integrated over ',nQuad,' directions of the'//
-     &           ' wave vector'
-               WRITE(6,'(4x,a)')
-     &           'The oscillator and rotatory strengths are '//
-     &           'integrated over all directions of the polar'//
-     &           'ization vector'
-               WRITE(6,*)
+                 WRITE(6,'(4x,a,I4,a)')
+     &             'Integrated over ',nQuad,' directions of the '//
+     &             'wave vector'
+                 WRITE(6,'(4x,a)')
+     &             'The oscillator and strength is '//
+     &             'integrated over all directions of the polar'//
+     &             'ization vector'
+                 WRITE(6,*)
                End If
 
                WRITE(6,31) 'From', 'To', 'Osc. strength',

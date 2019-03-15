@@ -509,13 +509,13 @@ Keywords
 :kword:`SOPRoperty`
   Enter a user-supplied selection of one-electron operators, for which
   matrix elements and expectation values are to be calculated over the
-  of spin--orbital eigenstates. This keyword has no effect unless the
+  spin--orbital eigenstates. This keyword has no effect unless the
   :kword:`SPIN` keyword has been used. Format: see :kword:`PROP` keyword.
 
   .. xmldoc:: %%Keyword: SOProperty <basic>
               Enter a selection of one-electron operators, for which
               matrix elements and expectation values are to be calculated over the
-              of spin-orbital eigenstates. This keyword has no effect unless the
+              spin-orbital eigenstates. This keyword has no effect unless the
               SPIN keyword has been used. Format: see PROP keyword.
 
 :kword:`SPINorbit`

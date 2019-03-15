@@ -85,7 +85,7 @@
       ipB = nip
       nip = nip + nZeta
       If (nip-1.gt.nArr*nZeta) Then
-         Write (6,*) ' nArr is Wrong! ', nip,' > ',nArr*nZeta
+         Write (6,*) ' nArr is Wrong! ', nip-1,' > ',nArr*nZeta
          Call ErrTra
          Write (6,*) ' Abend in KnEGrd'
          Call Abend()
