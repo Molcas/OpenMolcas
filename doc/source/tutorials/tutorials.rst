@@ -19,10 +19,6 @@ their inter-relationships. Each module is introduced in the
 approximate order for performing a typical calculation.
 A complete flowchart for the |molcas| |molcasversion| suite of programs follows.
 
-.. note::
-
-   Programs marked with |extramark| are *not* available in OpenMolcas.
-
 .. toctree::
 
    flowchart
