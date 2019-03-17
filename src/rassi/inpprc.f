@@ -117,14 +117,6 @@ C Upcase property names in lists of requests:
         CALL UPCASE(SOPRNM(ISOPR))
       END DO
 
-C Upcase property names in lists of requests:
-      DO IPROP=1,NPROP
-        CALL UPCASE(PNAME(IPROP))
-      END DO
-      DO ISOPR=1,NSOPR
-        CALL UPCASE(SOPRNM(ISOPR))
-      END DO
-
 C Which properties are available in the ONEINT file?
 C (IPUSED will be set later, set it to zero now.)
       !write(6,*)"Which properties are available in the ONEINT file?"
@@ -330,6 +322,7 @@ C If no input at all, use this selection:
             DO IPRP=1,NPRPLST
                IF (PRPLST(IPRP).eq.'MLTPL  1' .or.
      &             PRPLST(IPRP).eq.'MLTPL  2'.or.
+     &             PRPLST(IPRP).eq.'ANGMOM'.or.
      &             PRPLST(IPRP)(1:4).eq.'TMOS'.or.
      &             PRPLST(IPRP).eq.'VELOCITY' .or.
      &             PRPLST(IPRP)(1:4).eq.'EMFR') THEN
@@ -339,14 +332,7 @@ C If no input at all, use this selection:
                END IF
 C Add some properties if DQVD is requested
                IF (DQVD) THEN
-                  IF ((PRPLST(IPRP).eq.'MLTPL  2').and.
-     &                (ICMPLST(IPRP).eq.1 .or.
-     &                 ICMPLST(IPRP).eq.4 .or.
-     &                 ICMPLST(IPRP).eq.6)) THEN
-                     NSOPR=NSOPR+1
-                     SOPRNM(NSOPR)=PRPLST(IPRP)
-                     ISOCMP(NSOPR)=ICMPLST(IPRP)
-                  END IF
+C                 'MLTPL  2' already there by default
                   IF (PRPLST(IPRP).eq.'EF0    1') THEN
                      NSOPR=NSOPR+1
                      SOPRNM(NSOPR)=PRPLST(IPRP)
@@ -416,45 +402,6 @@ C If no SOPR input, copy the PROP selection:
         write(6,*)' Reason: Angular momentum integrals are missing.'
         IFJZ=0
        END IF
-      END IF
-*
-*     Modified. Redundant with the new 2nd TM code. (RL)
-*     Remove commented code later!
-*
-* Check if angular momentum integrals should be added to the list of
-* property matrix elements to be computed:
-* IFAMX=0 if angular moment X-components will not be needed, etc
-*     IFAMX=0
-*     IFAMY=0
-*     IFAMZ=0
-*     IF(IFJZ.NE.0) IFAMZ=1
-*     IF(IFJ2.NE.0 .OR. IFGCAL .OR. IFXCAL) THEN
-       IFAMX=1
-       IFAMY=1
-       IFAMZ=1
-*     END IF
-* If already on the list, skip it.
-*     DO ISOPR=1,NSOPR
-*      IF(SOPRNM(ISOPR).eq.'ANGMOM  ') THEN
-*       IF(ISOCMP(ISOPR).EQ.1) IFAMX=0
-*       IF(ISOCMP(ISOPR).EQ.2) IFAMY=0
-*       IF(ISOCMP(ISOPR).EQ.3) IFAMZ=0
-*      END IF
-*     END DO
-      IF(IFAMX.NE.0) THEN
-       NSOPR=NSOPR+1
-       SOPRNM(NSOPR)='ANGMOM  '
-       ISOCMP(NSOPR)=1
-      END IF
-      IF(IFAMY.NE.0) THEN
-       NSOPR=NSOPR+1
-       SOPRNM(NSOPR)='ANGMOM  '
-       ISOCMP(NSOPR)=2
-      END IF
-      IF(IFAMZ.NE.0) THEN
-       NSOPR=NSOPR+1
-       SOPRNM(NSOPR)='ANGMOM  '
-       ISOCMP(NSOPR)=3
       END IF
 
 C Is everything available that we may need?
@@ -695,6 +642,7 @@ C to zero.
        IF(SOPRNM(ISOPR).EQ.'VELOCITY') SOPRTP(ISOPR)='ANTISING'
        IF(SOPRNM(ISOPR).EQ.'ANGMOM  ') SOPRTP(ISOPR)='ANTISING'
        IF(SOPRNM(ISOPR)(1:4).EQ.'PSOP') SOPRTP(ISOPR)='ANTISING'
+       IF(SOPRNM(IPROP).EQ.'OMQ     ') SOPRTP(IPROP)='ANTISING'
        IF(SOPRNM(ISOPR).EQ.'AMFI    ') SOPRTP(ISOPR)='ANTITRIP'
        IF(SOPRNM(ISOPR)(1:3).EQ.'ASD') SOPRTP(ISOPR)='HERMTRIP'
        IF(SOPRNM(ISOPR)(1:6).EQ.'DMP   ') SOPRTP(ISOPR)='HERMSING'

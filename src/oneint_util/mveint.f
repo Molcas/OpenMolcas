@@ -78,7 +78,7 @@
       nip = nip + nZeta
       If (nip-1.gt.nArr*nZeta) Then
          Call WarningMessage(2,'MVeInt: nip-1.gt.nArr*nZeta')
-         Write (6,*) ' nArr is Wrong! ', nip,' > ',nArr*nZeta
+         Write (6,*) ' nArr is Wrong! ', nip-1,' > ',nArr*nZeta
          Write (6,*) ' Abend in MVeInt'
          Call Abend()
       End If
