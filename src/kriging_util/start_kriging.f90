@@ -16,7 +16,7 @@
         Real*8 qInt(nInter,iter),Grad(nInter,iter),Energy(iter),pAI,lbAI(3)
         Integer npxAI
         Logical anAI
-        allocate (x(nInter,iter),y(iter),lb(3),dy(nInter*iter),nx(npxAI))
+        allocate (x(nInter,iter),y(iter),lb(3),dy(nInter*iter),nx(iter))
         Write (6,*) 'Kriging values in Start Kriging'
         Write (6,*) 'iter:', iter
         Write (6,*) 'nInter', nInter
@@ -32,12 +32,15 @@
         p = pAI
         NS = iter
         dims = nInter
-        npx=iter!npxAI
+        npx=iter !npxAI
         do i=1,int(npx)
-          nx(i)=(real(i)-1.0)*20.0/real(npx-1)
+          nx(i)=(real(i)-1.0)*4.0/real(npx-1)
         enddo
         lb=lbAI
         x = qInt
+        Write (6,*) 'nx: ',nx
+        Write (6,*) 'nx size: ',size(nx)
+        Write (6,*) 'nx shape: ',shape(nx)
         Write (6,*) 'x: ',x
         Write (6,*) 'x size: ',size(x)
         Write (6,*) 'x shape: ',shape(x)

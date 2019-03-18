@@ -181,6 +181,8 @@ c Avoid unused argument warnings
      &                   nWndw,Mode,ipMF,
      &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,dMass,
      &                   HrmFrq_Show,CnstWght,Curvilinear,Degen)
+               write(6,*) 'coord after Update_sl', qInt
+               Write (6,*) 'qInt shape: ',shape(qInt)
                !End Do
             Else
             Call Update_sl_(iter,iInt,nFix,nInter,qInt,Shift,

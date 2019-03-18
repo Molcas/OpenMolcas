@@ -17,6 +17,8 @@
             deallocate (rl,dl,mat)
             allocate (rl(NS,npx),dl(NS,npx),mat(NS,npx))
             cv=0
+            tmat=0
+            tmat2=0
             ! Covariant Vector in kriging
             do i=1,dims
                 do j=1,ns
@@ -24,8 +26,11 @@
                         rl(j,k)=(x(i,j)-nx(k))/l
                     enddo
                 enddo
+                write(6,*) 'CV-rl',i,rl
                 dl=rl**2
+                write(6,*) 'CV-dl',i,dl
                 call matern(dl,size(dl,1),size(dl,2))
+                write(6,*) 'CV-Mat',i,mat
                 tmat=tmat+mat
             enddo
             cv(1:NS,:)=tmat
