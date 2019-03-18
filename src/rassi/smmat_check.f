@@ -138,54 +138,69 @@ C
                   IF(ABS(MPLET1-MPLET2).GT.2) CYCLE
                   IF(ABS(MSPROJ1-MSPROJ2).GT.2) CYCLE
 C
-                  SXMER=0.0D0
-                  SYMEI=0.0D0
-                  SZMER=0.0D0
+                  SXMER =0.0D0
+                  SYMEI =0.0D0
+                  SZMER =0.0D0
                   SMINUS=0.0D0
-                  SPLUS=0.0D0
-                  ONE = 1.0D0
-                  TWO = 2.0D0
+                  SPLUS =0.0D0
+                  ONE   =1.0D0
+                  TWO   =2.0D0
 C
                   IF(MPLET1+2.EQ.MPLET2) THEN ! <SM|O|S+1M+?>
 C
+C                   MSPROJ1-MSPROJ2=-2
                     IF (MSPROJ1+2.eq.MSPROJ2) THEN ! <SM|O|S+1M+1>
-                      SPLUS=-0.5D0*SQRT((S1+SM1+ONE)*(S1+SM1+TWO))
-                      SXMER=+SMINUS
-                      SYMEI=+SMINUS
+                      SPLUS =-0.5D0*SQRT((S1+SM1+ONE)*(S1+SM1+TWO))
+                      SXMER =+SPLUS
+                      SYMEI =+SPLUS
+C
+C                   MSPROJ1-MSPROJ2= 0
                     ELSE IF (MSPROJ1.eq.MSPROJ2) THEN ! <SM|O|S+1M>
-                      SZMER=SQRT((S1+ONE)**2-SM1**2)
+                      SZMER =SQRT((S1+ONE)**2-SM1**2)
+C
+C                   MSPROJ1-MSPROJ2=+2
                     ELSE IF (MSPROJ1-2.eq.MSPROJ2) THEN ! <SM|O|S+1M-1>
                       SMINUS=-0.5D0*SQRT((S1-SM1+ONE)*(S1-SM1+TWO))
-                      SXMER=-SPLUS
-                      SYMEI=+SPLUS
+                      SXMER =-SMINUS
+                      SYMEI =+SMINUS
                     END IF
 C
                   ELSE IF(MPLET1.EQ.MPLET2) THEN ! <SM|O|SM+?>
 C
+C                   MSPROJ1-MSPROJ2=-2
                     IF (MSPROJ1+2.eq.MSPROJ2) THEN ! <SM|O|SM+1>
-                      SPLUS= 0.5D0*SQRT((S1-SM1)*(S1+SM1+ONE))
-                      SXMER=+SPLUS
-                      SYMEI=+SPLUS
+                      SPLUS = 0.5D0*SQRT((S1-SM1)*(S1+SM1+ONE))
+                      SXMER =+SPLUS
+                      SYMEI =+SPLUS
+C
+C                   MSPROJ1-MSPROJ2= 0
                     ELSE IF (MSPROJ1.eq.MSPROJ2) THEN ! <SM|O|SM>
-                      SZMER=SM1
+                      SZMER =SM1
+C
+C                   MSPROJ1-MSPROJ2=+2
                     ELSE IF (MSPROJ1-2.eq.MSPROJ2) THEN ! <SM|O|SM-1>
                       SMINUS=-0.5D0*SQRT((S1+SM1)*(S1-SM1+ONE))
-                      SXMER=-SMINUS
-                      SYMEI=+SMINUS
+                      SXMER =-SMINUS
+                      SYMEI =+SMINUS
                     END IF
 C
                   ELSE IF(MPLET1-2.EQ.MPLET2) THEN ! <SM|O|S-1M+?>
 C
-                    IF (MSPROJ1-2.eq.MSPROJ2) THEN ! <SM|O|S-1M-1>
-                      SMINUS=0.5D0*SQRT((S1+SM1)*(S1+SM1-ONE))
-                      SXMER=-SMINUS
-                      SYMEI= SMINUS
+C                   MSPROJ1-MSPROJ2=-2
+                    IF (MSPROJ1+2.eq.MSPROJ2) THEN ! <SM|O|S-1M+1>
+                      SPLUS =0.5D0*SQRT((S1-SM1)*(S1-SM1-ONE))
+                      SXMER = SPLUS
+                      SYMEI = SPLUS
+C
+C                   MSPROJ1-MSPROJ2= 0
                     ELSE IF (MSPROJ1.eq.MSPROJ2) THEN ! <SM|O|S-1M>
-                      SZMER=SQRT(S1**2-SM1**2)
-                    ELSE IF (MSPROJ1+2.eq.MSPROJ2) THEN ! <SM|O|S-1M+1>
-                      SPLUS=0.5D0*SQRT((S1-SM1)*(S1-SM1-ONE))
-                      SXMER= SPLUS
-                      SYMEI= SPLUS
+                      SZMER =SQRT(S1**2-SM1**2)
+C
+C                   MSPROJ1-MSPROJ2=+2
+                    ELSE IF (MSPROJ1-2.eq.MSPROJ2) THEN ! <SM|O|S-1M-1>
+                      SMINUS=0.5D0*SQRT((S1+SM1)*(S1+SM1-ONE))
+                      SXMER =-SMINUS
+                      SYMEI = SMINUS
                     END IF
 C
                   END IF
