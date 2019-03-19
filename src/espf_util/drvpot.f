@@ -34,7 +34,7 @@
 #include "espf.fh"
       Character*8 Label
       Real*8 Ccoor(3),opnuc(*),ptchrg(*)
-      Real*8, Allocatable :: Chrg(:), Centr(:,:)
+      Real*8, Allocatable :: Centr(:,:)
       Logical Do_ESPF
 *                                                                      *
 ************************************************************************
@@ -43,11 +43,6 @@
 *
       Call IniSewM('mltpl',0)
 *
-      isymxy=1
-      isymxz=1
-      isymyz=1
-      isyxyz=1
-      ipad=1
       Call Set_Basis_Mode('Valence')
       Call Setup_iSD()
       Call Get_iScalar('nSym',nSym)
@@ -59,7 +54,6 @@
       Call DecideOnESPF(Do_ESPF)
 c
       Call mma_allocate(Centr,3,mCentr)
-      Call mma_allocate(Chrg,mCentr)
       ndc = 0
       nc = 1
       Do jCnttp = 1, nCnttp
@@ -78,8 +72,6 @@ c
                Centr(1,nc) = x1*DBLE(iFacx)
                Centr(2,nc) = y1*DBLE(iFacy)
                Centr(3,nc) = z1*DBLE(iFacz)
-               nchr=iAtmNr(jCnttp)
-               Chrg(nc) = DBLE(nchr)
                nc = nc + 1
             End Do
             jxyz = jxyz + 3
@@ -115,7 +107,7 @@ c
         iWork(ip2) = 2**nirrep-1
         Call OneEl(PotInt,NAMem,Label,iWork(ip1),iWork(ip2),ncmp,
      &             Ccoor,nOrdOp,work(ipnuc),rHrmt,iWork(ip3),
-     &             dum,ipad,opnuc,iopadr,1,1,
+     &             dum,1,opnuc,iopadr,1,1,
      &             ptchrg,ngrid,iaddpot)
          If (iaddpot.eq.0.and..not.Do_ESPF)
      &      opnuc(1)=work(ipnuc)
@@ -127,7 +119,6 @@ c
       Call GetMem('ip    ','FREE','INTE',ip1,nComp)
 *
       Call mma_deallocate(Centr)
-      Call mma_deallocate(Chrg)
       Call Free_iSD()
 *
       Call QExit('DrvPot')
