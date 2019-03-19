@@ -175,9 +175,11 @@
         END IF
 
 * POLY2: Computing 1- and 2-particle active density matrices GAMMA1 and GAMMA2
-        CALL POLY2(WORK(LCI))
+        ! CALL POLY2(WORK(LCI))
+        CALL POLY1(WORK(LCI))
 * GETDPREF: Restructure GAMMA1 and GAMMA2, as DREF and PREF arrays.
-        CALL GETDPREF(WORK(LDREF),WORK(LPREF))
+        ! CALL GETDPREF(WORK(LDREF),WORK(LPREF))
+        CALL GETDREF(WORK(LDREF))
 
 * INTCTL1/INTCTL2 call TRACTL(0), and other routines, for FIMO, FAMO,
 * FIFA and orbital energies.
