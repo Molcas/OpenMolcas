@@ -269,23 +269,24 @@ test:sun:
     - tinker
   parallel: 2
 
-build:intel:
-  extends: .intel
-  <<: *compile
-test:intel:
-  extends: .intel
-  <<: *run-tests
-  dependencies:
-    - build:intel
+# Disable intel in my fork since unavailable
+# build:intel:
+#   extends: .intel
+#   <<: *compile
+# test:intel:
+#   extends: .intel
+#   <<: *run-tests
+#   dependencies:
+#     - build:intel
 
-build:intel13:
-  extends: .intel13
-  <<: *compile
-test:intel13:
-  extends: .intel13
-  <<: *run-tests
-  dependencies:
-    - build:intel13
+# build:intel13:
+#   extends: .intel13
+#   <<: *compile
+# test:intel13:
+#   extends: .intel13
+#   <<: *run-tests
+#   dependencies:
+#     - build:intel13
 
 # Disable NAG, since the runner is unavailable
 #build:nag:
