@@ -82,7 +82,7 @@ C initialize global common-block variables appropriately.
 * Notifiy that Hzero is different for XMS calculations.
 * SB: Don't talk about IPEA. Actually, I am not sure that
 * IPEA can be used with XMS
-        If (Input % XMUL) Then
+        If (Input%XMUL.OR.Input%FXMS) Then
           HZERO = 'XMS'
         End If
       END IF

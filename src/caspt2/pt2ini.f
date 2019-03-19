@@ -110,6 +110,10 @@ C     Cholesky
 * Density matrices, active indices.
       CALL GETMEM('DREF','ALLO','REAL',LDREF,NDREF)
       CALL GETMEM('PREF','ALLO','REAL',LPREF,NPREF)
+* All the density matrices kept in memory
+      CALL GETMEM('LFIFA_ALL','ALLO','REAL',LFIFA_ALL,NFIFA*NSTATE)
+      CALL GETMEM('LFIMO_CMO','ALLO','REAL',LFIMO_CMO,NFIMO)
+      CALL GETMEM('LHONE_CMO','ALLO','REAL',LHONE_CMO,NHONE)
 
 * Print input data
       CALL PRINP_CASPT2
@@ -201,8 +205,11 @@ C     size of idsct array
 C     Deallocate MAGEB, etc, superindex tables:
       CALL SUPFREE
 * Deallocate global array for Fock matrix, etc:
+      CALL GETMEM('LFIFA_ALL','FREE','REAL',LFIFA_ALL,NFIFA*NSTATE)
       CALL GETMEM('LFIFA','FREE','REAL',LFIFA,NFIFA)
+      CALL GETMEM('LHONE_CMO','FREE','REAL',LHONE_CMO,NHONE)
       CALL GETMEM('LHONE','FREE','REAL',LHONE,NHONE)
+      CALL GETMEM('LFIMO_CMO','FREE','REAL',LFIMO_CMO,NFIMO)
       CALL GETMEM('LFIMO','FREE','REAL',LFIMO,NFIMO)
       CALL GETMEM('LFAMO','FREE','REAL',LFAMO,NFAMO)
       CALL GETMEM('LDREF','FREE','REAL',LDREF,NDREF)

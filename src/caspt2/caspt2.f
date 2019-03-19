@@ -88,6 +88,7 @@ C     convergence check
       INTEGER ICONV
 C     relative energies
       REAL*8  RELAU,RELEV,RELCM,RELKJ
+      INTEGER IDISK
 
 C     effective hamiltonian
       REAL*8, ALLOCATABLE :: HEFF(:,:), EIGVEC(:,:), H0(:,:)
@@ -161,6 +162,43 @@ C of group states for which GRPINI is called.
 
        DO ISTATE=1,NGROUPSTATE(IGROUP)
          JSTATE = JSTATE_OFF + ISTATE
+
+* Because of DW-XMS, every state in the XMS group requires a
+* different set of quasi-canonical orbitals, thus we do the
+* transofmration here instead than in GROUPINI
+* To do that, we need to get the DW density and Fock matrix for each state
+         IF (IFDW.AND.IFXMS) THEN
+* ---------------------------------------------------------------------
+* GET ORIGINAL CASSCF CMO COEFFICIENTS.
+           CALL GETMEM('LCMO','ALLO','REAL',LCMO,NCMO)
+           IDISK=IAD1M(1)
+           CALL DDAFILE(LUONEM,2,WORK(LCMO),NCMO,IDISK)
+* ---------------------------------------------------------------------
+* Look for the right f_pq(delta) matrix in LFIFA_ALL and copy it to
+* LFIFA, so that ORBCTL diagonalizes the MOs for the right state
+          WRITE(6,*)
+          WRITE(6,'(2x,A,I1,A)')'Fetching F(D_',JSTATE,
+     &                          ') for orbital transformation...'
+          WRITE(6,*)
+          CALL DCOPY_(NFIFA,WORK(LFIFA_ALL+(ISTATE-1)*NFIFA),
+     &                1,WORK(LFIFA),1)
+          CALL DCOPY_(NFIMO,WORK(LFIMO_CMO),1,WORK(LFIMO),1)
+          CALL DCOPY_(NHONE,WORK(LHONE_CMO),1,WORK(LHONE),1)
+
+          ! WRITE(6,*)'      INACTIVE FOCK MATRIX IN MO BASIS'
+          ! WRITE(6,'(6X,A,I2)')' SYMMETRY SPECIES:',1
+          ! CALL TRIPRT(' ',' ',WORK(LFIMO),NORB(1))
+
+          CALL ORBCTL(WORK(LCMO))
+          Call TRACTL(0)
+          CALL DCOPY_(NCMO,WORK(LCMO),1,WORK(LCMOPT2),1)
+          CALL GETMEM('LCMO','FREE','REAL',LCMO,NCMO)
+         END IF
+*************
+
+        ! WRITE(6,*)'      INACTIVE FOCK MATRIX IN MO BASIS'
+        ! WRITE(6,'(6X,A,I2)')' SYMMETRY SPECIES:',1
+        ! CALL TRIPRT(' ',' ',WORK(LFIMO),NORB(1))
 
 C skip this state if we only need 1 state and it isn't this "One"
          IF ((NLYROOT.NE.0).AND.(JSTATE.NE.NLYROOT)) CYCLE
@@ -327,7 +365,7 @@ C End of long loop over groups
 
       IF (IRETURN.NE.0) GOTO 9000
 
-      IF(IPRGLB.GE.VERBOSE) THEN
+      IF(IPRGLB.GE.USUAL) THEN
         WRITE(6,*)' H0 energies:'
         DO I=1,NSTATE
           CALL PrintResult(6,'(6x,A,I3,5X,A,F16.8)',
