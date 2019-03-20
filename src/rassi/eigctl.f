@@ -2582,115 +2582,43 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                E2A = - Imaginary * E2A
 *
 *              (2) the magnetic-spin part
+C
+C              Well the B.S term is overkill, get ride of it.
+C              Why do it when we don't do the L.S-term!
+C
 *
-*              Pick up the property. This is a bit of overkill
-*              in the spin-free case. Never mind!
+*              Finally, evaluate the transition moment from the two
+*              different contributions.
 *
-               TM0_RX=PROP(I,J,iPRTMOS_0R  )
-               TM0_RY=PROP(I,J,iPRTMOS_0R+1)
-               TM0_RZ=PROP(I,J,iPRTMOS_0R+2)
-               TM0_IX=PROP(I,J,iPRTMOS_0I  )
-               TM0_IY=PROP(I,J,iPRTMOS_0I+1)
-               TM0_IZ=PROP(I,J,iPRTMOS_0I+2)
-*                                                     ^
-*              Accumulate all contributions (S_1,MS_1|O|S_2,MS_2)
+               TM1 = E1A
+               TM2 = E2A
 *
-               F_Temp=0.0D0
-               R_Temp=0.0D0
-               r_S1= DBLE(MPLET_I-1)/2.0D0
-               r_S2= DBLE(MPLET_J-1)/2.0D0
-               r_MS1 = - r_S1 - 1.0D0
-               DO MS_1 = 1, MPLET_I
-                  r_MS1=r_MS1+1.0D0
+               Work(iStorage+ip_TM1R)=DBLE(TM1)
+               Work(iStorage+ip_TM1I)=AIMAG(TM1)
+               Work(iStorage+ip_TM2R)=DBLE(TM2)
+               Work(iStorage+ip_TM2I)=AIMAG(TM2)
 *
-                  r_MS2 = - r_S2 - 1.0D0
-                  DO MS_2 = 1, MPLET_J
-                     r_MS2=r_MS2+1.0D0
+*              Integrate over all directions of the polarization
+*              vector and divide with the "distance", 2*pi, to get
+*              the average value.
 *
-*                    Only cases for S1=S2
+               TM_2 = Half*DBLE(DCONJG(TM1)*TM1 +DCONJG(TM2)*TM2)
 *
-                     If (ABS(MS_1-MS_2).eq.0) Then
+*              Compute the oscillator strength
 *
-*                       MS_2 = MS_1
+               F_Temp = 2.0D0*TM_2/ABS(EDIFF)
 *
-                        Fact = r_MS1
-                        TIJ(1)=DCMPLX(0.0D0,0.0D0)
-                        TIJ(2)=DCMPLX(0.0D0,0.0D0)
-                        TIJ(3)=DCMPLX(Fact ,0.0D0)
-                     Else If (MS_1-MS_2.eq.1) Then
+*              Compute the rotatory strength
 *
-*                       MS_2 = MS_1-1
+*              TMR = (TM1 + IMAGINARY*TM2)/Sqrt(2.0D0)
+*              TML = (TM1 - IMAGINARY*TM2)/Sqrt(2.0D0)
 *
-                        Fact =-Sqrt(
-     &                        ((r_S1+r_MS1)*(r_S1-r_MS1+1.0D0))/2.0D0
-     &                          )
-                        TIJ(1)=DCMPLX(-Fact,0.0D0)
-                        TIJ(2)=DCMPLX(0.0D0,Fact )
-                        TIJ(3)=DCMPLX(0.0D0,0.0D0)
-                     Else If (MS_1-MS_2.eq.-1) Then
-*
-*                       MS_2 = MS_1+1
-*
-                        Fact = Sqrt(
-     &                        ((r_S1-r_MS1)*(r_S1+r_MS1+1.0D0))/2.0D0
-     &                             )
-                        TIJ(1)=DCMPLX(Fact, 0.0D0)
-                        TIJ(2)=DCMPLX(0.0D0,Fact )
-                        TIJ(3)=DCMPLX(0.0D0,0.0D0)
-                     Else
-                        CYCLE
-                     End If
-*
-*                    Evaluate the expectation value of the triplet-
-*                    excitation operator time the property integral.
-*
-                     T1(1)=DCMPLX(TM0_RX,TM0_IX)*TIJ(1)
-                     T1(2)=DCMPLX(TM0_RY,TM0_IY)*TIJ(2)
-                     T1(3)=DCMPLX(TM0_RZ,TM0_IZ)*TIJ(3)
-*
-*                    Trace it against the cross product of the
-*                    wave vector and the polarization direction.
-*
-                     E1B=T1(1)*kxe1(1)+T1(2)*kxe1(2)+T1(3)*kxe1(3)
-                     E2B=T1(1)*kxe2(1)+T1(2)*kxe2(2)+T1(3)*kxe2(3)
-*
-*                    Finally, evaluate the transition moment from the two
-*                    different contributions.
-*
-                     TM1 = E1A + IMAGINARY*(g_Elec/2.0D0)*E1B
-                     TM2 = E2A + IMAGINARY*(g_Elec/2.0D0)*E2B
-*
-*                    these statements should be outside the loop!
-*
-                     Work(iStorage+ip_TM1R)=DBLE(TM1)
-                     Work(iStorage+ip_TM1I)=AIMAG(TM1)
-                     Work(iStorage+ip_TM2R)=DBLE(TM2)
-                     Work(iStorage+ip_TM2I)=AIMAG(TM2)
-*
-*                    Integrate over all directions of the polarization
-*                    vector and divide with the "distance", 2*pi, to get
-*                    the average value.
-*
-                     TM_2 = Half*DBLE(DCONJG(TM1)*TM1 +DCONJG(TM2)*TM2)
-*
-*                    Compute the oscillator strength
-*
-                     F_Temp = Max( F_Temp, 2.0D0*TM_2/ABS(EDIFF))
-*
-*                    Compute the rotatory strength
-*
-*                    TMR = (TM1 + IMAGINARY*TM2)/Sqrt(2.0D0)
-*                    TML = (TM1 - IMAGINARY*TM2)/Sqrt(2.0D0)
-*
-*                    TM_2 =      DBLE(DCONJG(TMR)*TMR -DCONJG(TML)*TML)
-                     TM_2 = - 2.0D0*(
-     &                              DBLE(TM1)*AIMAG(TM2)
-     &                             -DBLE(TM2)*AIMAG(TM1)
-     &                              )
-                     If (Abs(R_Temp).lt.ABS(TM_2)) R_Temp = TM_2
-*
-                  END DO
-               END DO
+*              TM_2 =      DBLE(DCONJG(TMR)*TMR -DCONJG(TML)*TML)
+               TM_2 = - 2.0D0*(
+     &                        DBLE(TM1)*AIMAG(TM2)
+     &                        -DBLE(TM2)*AIMAG(TM1)
+     &                        )
+               R_Temp = TM_2
 *
 *              Now let's convert this to reduced rotational strength
 *              (units of 1e-2 debye*Bohr_magneton)
@@ -2704,7 +2632,6 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                WORK(LRAW+(IQUAD-1)+2*NQUAD) = X
                WORK(LRAW+(IQUAD-1)+3*NQUAD) = Y
                WORK(LRAW+(IQUAD-1)+4*NQUAD) = Z
-
 *
 *              Compute the oscillator strength
 *
