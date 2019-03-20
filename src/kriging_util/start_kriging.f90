@@ -11,12 +11,17 @@
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
 
-      Subroutine Start_Kriging(iter,nInter,qInt,Grad,Energy,anAI,pAI,lbAI,npxAI)
+      Subroutine Start_Kriging(iterT,nInterT,qInt,Grad,Energy,anAIT,pAIT,lbAI,npxAIT)
         use globvar
-        Real*8 qInt(nInter,iter),Grad(nInter,iter),Energy(iter),pAI,lbAI(3)
-        Integer npxAI
-        Logical anAI
-        allocate (x(nInter,iter),y(iter),lb(3),dy(nInter*iter),nx(iter))
+        Integer npxAIT,nInterT,iterT
+        Real*8 qInt(nInterT,iterT),Grad(nInterT,iterT),Energy(iterT),pAIT,lbAI(3)
+        Logical anAIT
+        allocate (x(nInterT,iterT),y(iterT),lb(3),dy(nInterT*iterT),nx(iterT),l(nInterT))
+        iter=iterT
+        nInter=nInterT
+        npxAI=npxAIT
+        pAI=pAIT
+        anAI=anAIT
         Write (6,*) 'Kriging values in Start Kriging'
         Write (6,*) 'iter:', iter
         Write (6,*) 'nInter', nInter
@@ -28,10 +33,10 @@
         !---------------Testing old data
 
         !--------------------------------
-        anamat = anAI
-        p = pAI
-        NS = iter
-        dims = nInter
+        !anamat = anAI
+        !p = pAI
+        !NS = iter
+        !dims = nInter
         npx=iter !npxAI
         do i=1,int(npx)
           nx(i)=(real(i)-1.0)*4.0/real(npx-1)
@@ -48,9 +53,9 @@
         Write (6,*) 'y: ',y
         Write (6,*) 'y size: ',size(y)
         Write (6,*) 'y shape: ',shape(y)
-        do i=1,dims
-          do j=1,NS
-            dy(j+(i-1)*NS) = Grad(i,j)
+        do i=1,nInter
+          do j=1,iter
+            dy(j+(i-1)*iter) = Grad(i,j)
           enddo
         enddo
         Write (6,*) 'dy: ',dy

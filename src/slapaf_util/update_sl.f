@@ -171,6 +171,10 @@ c Avoid unused argument warnings
                !do while (dAIy.lt.dAIyf)
                   Call Start_Kriging(iter,nInter,qInt,Grad,Energy,anAI,
      &                            pAI,lbAI,npxAI)
+               write(6,*) 'coord before Update_sl', qInt
+               Write (6,*) 'qInt shape: ',shape(qInt)
+               write(6,*) 'Grad before Update_sl', Grad
+               Write (6,*) 'Grad shape: ',shape(Grad)
             Call Update_sl_(iter,iInt,nFix,nInter,qInt,Shift,
      &                   Grad,iOptC,Beta,Lbl,GNrm,Energy,
      &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,
@@ -183,6 +187,8 @@ c Avoid unused argument warnings
      &                   HrmFrq_Show,CnstWght,Curvilinear,Degen)
                write(6,*) 'coord after Update_sl', qInt
                Write (6,*) 'qInt shape: ',shape(qInt)
+               write(6,*) 'Grad after Update_sl', Grad
+               Write (6,*) 'Grad shape: ',shape(Grad)
                !End Do
             Else
             Call Update_sl_(iter,iInt,nFix,nInter,qInt,Shift,

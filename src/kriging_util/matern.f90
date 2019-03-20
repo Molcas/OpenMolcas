@@ -16,14 +16,14 @@
             REAL*8 b(d1,d2),a,d,d0(d1,d2),dh(d1,d2)
             INTEGER*8 c,i
             d0=sqrt(dh)
-            c=int(p)
-            a=Gamma(p+1)/Gamma(2*p+1)
+            c=int(pAI)
+            a=Gamma(pAI+1)/Gamma(2*pAI+1)
             b=0.0
             do i=0, c
                 d=real(i)
-                b = b + (Gamma(p+1.0+d)/(Gamma(d+1)*Gamma(p+1.0-d)))*(2.0*Sqrt(2.0*p+1.0)*d0)**(p-i)
+                b = b + (Gamma(pAI+1.0+d)/(Gamma(d+1)*Gamma(pAI+1.0-d)))*(2.0*Sqrt(2.0*pAI+1.0)*d0)**(pAI-i)
             enddo
-                mat=a*b*exp(-sqrt(2*p+1)*d0)
+                mat=a*b*exp(-sqrt(2*pAI+1)*d0)
         END
 
         SUBROUTINE matderiv(nd,d1,d2)
@@ -31,13 +31,13 @@
             integer nd,d1,d2,p0
             real*8 nr,kr,a,b(d1,d2),dh(d1,d2),c(d1,d2),t
             nr=real(nd)
-            if (anamat) then
-                p0=int(p)
-                t=sqrt(2.0*p+1)
+            if (anAI) then
+                p0=int(pAI)
+                t=sqrt(2.0*pAI+1)
                 dh=sqrt(dl)
-                c=(2.0*p+1)/(2.0*p-1)*exp(-t*dh)
-                if (p.gt.2.or.p.lt.1) then
-                    Write(6,*) 'Analytical Matern derivatives (anamat=.True.) is only valid for p = 1 or 2 (v = 3/2 or 5/2)'
+                c=(2.0*pAI+1)/(2.0*pAI-1)*exp(-t*dh)
+                if (pAI.gt.2.or.pAI.lt.1) then
+                    Write(6,*) 'Analytical Matern derivatives (anamat=.True.) is only valid for pAI = 1 or 2 (v = 3/2 or 5/2)'
                 else
                     select case (p0)
                         case (1)
