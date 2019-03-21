@@ -51,20 +51,15 @@
 *
  3000 Format(/,' RepNuc + MM = ',F13.8,' + ',F13.8,' = ',F13.8)
 *
-*     Call to DrvProp to compute the integrals
-*     Actually, H.-J. Werner told me the following arguments
-*     are only for Molpro use: opmol, idirect, isyop.
-*     Moreover here we don't care about opnuc (nuclear potential)
+*     Call to DrvPot to compute the integrals
+*     Here we don't care about opnuc (nuclear potential)
 *
       nSize = nBas0*(nBas0+1)/2 + 4
       If (nSize .ne. (nh1+4)) Then
          Write(6,*) 'In espf_energy, nSize ne nh1',nSize,nh1+4
          Call Abend()
       End If
-      opmol = Dum
       opnuc = Dum
-      idirect = 1
-      isyop = 1
 *
       ncmp = 1
       iAddPot = 1
@@ -75,8 +70,7 @@
  1234       Format('Grid point ',I4,/,4F12.6)
          End Do
       End If
-      Call DrvProp('POT',Work(ipGrid),opmol,opnuc,ncmp,idirect,
-     &             isyop,Work(ipB),nGrdPt,iAddPot)
+      Call DrvPot(Work(ipGrid),opnuc,ncmp,Work(ipB),nGrdPt,iAddPot)
       Label = 'Pot     '
       iComp = 1
       iSyLbl = 1

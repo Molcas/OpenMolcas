@@ -18,7 +18,7 @@
 *         Grid provided in CCoor(3,ngrid)                              *
 *         Potential values returned in pot                             *
 *                                                                      *
-* Called from: Drvprop                                                 *
+* Called from: Drvpot                                                  *
 *                                                                      *
 * Calling    : QEnter                                                  *
 *              GetMem                                                  *

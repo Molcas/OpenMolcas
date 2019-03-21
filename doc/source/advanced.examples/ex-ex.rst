@@ -1867,11 +1867,11 @@ matrix elements we have zero values for the interaction among :math:`^1A_1`
 states and non-zero values for the interaction among :math:`^1A_1` and :math:`^1B_2`
 states.
 
-The RASSI program in 6.0 and later versions of |molcas| will print the
-oscillator strengths and the Einstein A coefficients for all transitions. Also
+The :program:`RASSI` program in 6.0 and later versions of |molcas| will print the
+oscillator strengths and the Einstein :math:`A` coefficients for all transitions. Also
 the angles of the transition moment vectors to the coordinate axes will be
-printed. In the calculation RASSI will use the energies given as input, so be
-careful to use the keywords HDIAG or EJOB to use energies which include dynamic
+printed. In the calculation :program:`RASSI` will use the energies given as input, so be
+careful to use the keywords :kword:`HDIAG` or :kword:`EJOB` to use energies which include dynamic
 correlation.
 
 We illustrate how the oscillator strengths are computed. The 11 states are
