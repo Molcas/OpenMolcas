@@ -2250,10 +2250,6 @@ C And the same for the Dyson amplitudes
          END IF
       ENDDO
       IF (IPRTMOS_RS.EQ.-1) GOTO 900
-      IPRTMOS_0R=IPRTMOS_RS-6
-      IF (PNAME(IPRTMOS_0R).NE.'TMOS0  R') GOTO 900
-      IPRTMOS_0I=IPRTMOS_RS-3
-      IF (PNAME(IPRTMOS_0I).NE.'TMOS0  I') GOTO 900
       IPRTMOS_RA=IPRTMOS_RS+3
       IF (PNAME(IPRTMOS_RA).NE.'TMOS  RA') GOTO 900
       IPRTMOS_IS=IPRTMOS_RS+6
@@ -2543,7 +2539,8 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *              Generate the property integrals associated with this
 *              direction of the wave vector k.
 *
-               Call TMOSInt(PORIG(1,IPRTMOS_RS))
+               iOpt=1
+               Call TMOSInt(PORIG(1,IPRTMOS_RS),iOpt)
 *
 *              Compute the transition property of the property
 *              integrals between the two states.

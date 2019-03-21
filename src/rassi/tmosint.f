@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SubRoutine TMOSInt(wavevector)
+      SubRoutine TMOSInt(wavevector,iOpt)
 ************************************************************************
 *                                                                      *
 * Object: driver for computation of TMOS integrals                     *
@@ -54,6 +54,7 @@
 *
 *     B*s Magnetic * Spin
 *
+      If (iOpt.eq.2) Then
       nOrdOp = 0
       Label='TMOS0'
       nComp = 2
@@ -80,9 +81,11 @@
 *
       Call GetMem('Nuc   ','FREE','REAL',ipNuc,nComp)
       Call Deallocate_Auxiliary()
+      End If
 *
 *     A*p
 *
+      If (iOpt.le.2) Then
       nOrdOp = 1
       Label='TMOS'
       nComp = 12
@@ -129,9 +132,11 @@
 *
       Call GetMem('Nuc   ','FREE','REAL',ipNuc,nComp)
       Call Deallocate_Auxiliary()
+      End If
 *
 *     The A^2 term
 *
+      If (iOpt.gt.2) Then
       nOrdOp = 0
       Label='TMOS2'
       nComp = 2
@@ -160,6 +165,7 @@
 *
       Call GetMem('Nuc   ','FREE','REAL',ipNuc,nComp)
       Call Deallocate_Auxiliary()
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *

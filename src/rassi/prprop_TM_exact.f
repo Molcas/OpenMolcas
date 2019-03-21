@@ -329,7 +329,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *              Generate the property integrals associated with this
 *              direction of the wave vector k.
 *
-               Call TMOSInt(PORIG(1,IPRTMOS_RS))
+               iOpt=2
+               Call TMOSInt(PORIG(1,IPRTMOS_RS),iOpt)
 *
 ************************************************************************
 *                                                                      *
