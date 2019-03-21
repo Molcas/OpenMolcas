@@ -135,9 +135,9 @@ C printing threshold
          END IF
       ENDDO
       IF (IPRTMOS_RS.EQ.-1) RETURN
-      IPRTMOS_0R=IPRTMOS_RS-6
+      IPRTMOS_0R=IPRTMOS_RS-2
       IF (PNAME(IPRTMOS_0R).NE.'TMOS0  R') RETURN
-      IPRTMOS_0I=IPRTMOS_RS-3
+      IPRTMOS_0I=IPRTMOS_RS-1
       IF (PNAME(IPRTMOS_0I).NE.'TMOS0  I') RETURN
       IPRTMOS_RA=IPRTMOS_RS+3
       IF (PNAME(IPRTMOS_RA).NE.'TMOS  RA') RETURN
@@ -409,7 +409,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *                    Compute the transition property of the property
 *                    integrals between the two states.
 *
-                     DO IPROP = IPRTMOS_RS-6, IPRTMOS_RS+11
+                     DO IPROP = IPRTMOS_RS-2, IPRTMOS_RS+11
                         ITYPE=0
                         IF (PTYPE(IPROP).EQ.'HERMSING') ITYPE=1
                         IF (PTYPE(IPROP).EQ.'ANTISING') ITYPE=2

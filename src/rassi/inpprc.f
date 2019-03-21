@@ -197,12 +197,6 @@ C End dirty fix
 *
 *     Add empty slots for on-the-fly TM integrals.
 *
-*     Note that the some of the TMOS0 and TMOS2 slots do not
-*     correspond to actual integrals. On the integral file these are
-*     just a single real and imaginary component. These are however
-*     combined with the spin operator at which time they do become
-*     3 components for each type.
-*
 *     If the RASSI code is run several instances on the same job some
 *     of these labels will already be available on the file and need
 *     not to be added to the list.
@@ -211,22 +205,10 @@ C End dirty fix
          PRPLST(IPRP+ 1)='TMOS0  R'
          ICMPLST(IPRP+ 1)=1
          IPUSED(IPRP+ 1)=0
-         PRPLST(IPRP+ 2)='TMOS0  R'
-         ICMPLST(IPRP+ 2)=2
+         PRPLST(IPRP+ 2)='TMOS0  I'
+         ICMPLST(IPRP+ 2)=1
          IPUSED(IPRP+ 2)=0
-         PRPLST(IPRP+ 3)='TMOS0  R'
-         ICMPLST(IPRP+ 3)=3
-         IPUSED(IPRP+ 3)=0
-         PRPLST(IPRP+ 4)='TMOS0  I'
-         ICMPLST(IPRP+ 4)=1
-         IPUSED(IPRP+ 4)=0
-         PRPLST(IPRP+ 5)='TMOS0  I'
-         ICMPLST(IPRP+ 5)=2
-         IPUSED(IPRP+ 5)=0
-         PRPLST(IPRP+ 6)='TMOS0  I'
-         ICMPLST(IPRP+ 6)=3
-         IPUSED(IPRP+ 6)=0
-         IPRP=IPRP+6
+         IPRP=IPRP+2
 *
          PRPLST(IPRP+ 1)='TMOS  RS'
          ICMPLST(IPRP+ 1)=1
@@ -266,53 +248,47 @@ C End dirty fix
          IPUSED(IPRP+12)=0
          IPRP=IPRP+12
 *
-         PRPLST(IPRP+ 1)='TMOS2  R'
-         ICMPLST(IPRP+ 1)=1
-         IPUSED(IPRP+ 1)=0
-         PRPLST(IPRP+ 2)='TMOS2  R'
-         ICMPLST(IPRP+ 2)=2
-         IPUSED(IPRP+ 2)=0
-         PRPLST(IPRP+ 3)='TMOS2  R'
-         ICMPLST(IPRP+ 3)=3
-         IPUSED(IPRP+ 3)=0
-         PRPLST(IPRP+ 4)='TMOS2  I'
-         ICMPLST(IPRP+ 4)=1
-         IPUSED(IPRP+ 4)=0
-         PRPLST(IPRP+ 5)='TMOS2  I'
-         ICMPLST(IPRP+ 5)=2
-         IPUSED(IPRP+ 5)=0
-         PRPLST(IPRP+ 6)='TMOS2  I'
-         ICMPLST(IPRP+ 6)=3
-         IPUSED(IPRP+ 6)=0
-         IPRP=IPRP+6
+C        PRPLST(IPRP+ 1)='TMOS2  R'
+C        ICMPLST(IPRP+ 1)=1
+C        IPUSED(IPRP+ 1)=0
+C        PRPLST(IPRP+ 2)='TMOS2  R'
+C        ICMPLST(IPRP+ 2)=2
+C        IPUSED(IPRP+ 2)=0
+C        PRPLST(IPRP+ 3)='TMOS2  R'
+C        ICMPLST(IPRP+ 3)=3
+C        IPUSED(IPRP+ 3)=0
+C        PRPLST(IPRP+ 4)='TMOS2  I'
+C        ICMPLST(IPRP+ 4)=1
+C        IPUSED(IPRP+ 4)=0
+C        PRPLST(IPRP+ 5)='TMOS2  I'
+C        ICMPLST(IPRP+ 5)=2
+C        IPUSED(IPRP+ 5)=0
+C        PRPLST(IPRP+ 6)='TMOS2  I'
+C        ICMPLST(IPRP+ 6)=3
+C        IPUSED(IPRP+ 6)=0
+C        IPRP=IPRP+6
       Else IF (Do_TMOS) Then
          PRPLST(IPRP+ 1)='TMOS0  R'
-         ICMPLST(IPRP+ 1)=2
+         ICMPLST(IPRP+ 1)=1
          IPUSED(IPRP+ 1)=0
-         PRPLST(IPRP+ 2)='TMOS0  R'
-         ICMPLST(IPRP+ 2)=3
+         PRPLST(IPRP+ 2)='TMOS0  I'
+         ICMPLST(IPRP+ 2)=1
          IPUSED(IPRP+ 2)=0
-         PRPLST(IPRP+ 3)='TMOS0  I'
-         ICMPLST(IPRP+ 3)=2
-         IPUSED(IPRP+ 3)=0
-         PRPLST(IPRP+ 4)='TMOS0  I'
-         ICMPLST(IPRP+ 4)=3
-         IPUSED(IPRP+ 4)=0
-         IPRP=IPRP+4
+         IPRP=IPRP+2
 *
-         PRPLST(IPRP+ 1)='TMOS2  R'
-         ICMPLST(IPRP+ 1)=2
-         IPUSED(IPRP+ 1)=0
-         PRPLST(IPRP+ 2)='TMOS2  R'
-         ICMPLST(IPRP+ 2)=3
-         IPUSED(IPRP+ 2)=0
-         PRPLST(IPRP+ 3)='TMOS2  I'
-         ICMPLST(IPRP+ 3)=2
-         IPUSED(IPRP+ 3)=0
-         PRPLST(IPRP+ 4)='TMOS2  I'
-         ICMPLST(IPRP+ 4)=3
-         IPUSED(IPRP+ 4)=0
-         IPRP=IPRP+4
+C        PRPLST(IPRP+ 1)='TMOS2  R'
+C        ICMPLST(IPRP+ 1)=2
+C        IPUSED(IPRP+ 1)=0
+C        PRPLST(IPRP+ 2)='TMOS2  R'
+C        ICMPLST(IPRP+ 2)=3
+C        IPUSED(IPRP+ 2)=0
+C        PRPLST(IPRP+ 3)='TMOS2  I'
+C        ICMPLST(IPRP+ 3)=2
+C        IPUSED(IPRP+ 3)=0
+C        PRPLST(IPRP+ 4)='TMOS2  I'
+C        ICMPLST(IPRP+ 4)=3
+C        IPUSED(IPRP+ 4)=0
+C        IPRP=IPRP+4
       END IF
       NPRPLST=IPRP
 C Add some property names by defaults, if no input:
