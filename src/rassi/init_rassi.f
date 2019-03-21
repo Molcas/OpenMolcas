@@ -164,6 +164,7 @@ C DEFAULT FLAGS:
       TOLERANCE=0.1D0
       REDUCELOOP=.FALSE.
       LOOPDIVIDE=0
+      TMGr_thrs=-1.0d0
       Do_SK  =.FALSE.
       L_Eff=5
 C CD - velocity and mixed gauge
