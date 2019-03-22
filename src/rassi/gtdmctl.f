@@ -51,8 +51,9 @@
       CHARACTER*6 STLNE1
       CHARACTER*48 STLNE2
       Real*8 Energies(1:20)
-      Integer IAD,LUIPHn,lThetaM
+      Integer IAD,LUIPHn,lThetaM,LUCITH
       Real*8 Norm_fac
+      External IsFreeUnit
 
       type mixed_1pdensities
         real*8              :: overlap
@@ -1016,7 +1017,8 @@ C             Write density 1-matrices in AO basis to disk.
             Call DDAFILE(LUIPH,2,Energies,NSTAT(JOB1),IAD)
             do i=1,NSTAT(JOB1)
               HAM(i,i) = Energies(i)
-             end do
+            end do
+            Call DACLOS(LUIPH)
           end if
 
 
@@ -1041,11 +1043,14 @@ C             Write density 1-matrices in AO basis to disk.
         Call DSCAL_(NCONF2,Norm_Fac,Work(LTheta1),1)
 
       !Write theta1 to file.
-        Open(unit=87,file='CI_THETA', action='write',iostat=ios)
+        LUCITH=87
+        LUCITH=IsFreeUnit(LUCITH)
+        !Open(unit=87,file='CI_THETA', action='write',iostat=ios)
+        Call Molcas_Open(LUCITH,'CI_THETA')
         do i=1,NCONF2
-          write(87,*) Work(LTheta1-1+i)
+          write(LUCITH,*) Work(LTheta1-1+i)
         end do
-        Close(87)
+        Close(LUCITH)
 
        !Now we need to build the other states.
         DO JST=2,NSTAT(JOB2)
@@ -1063,10 +1068,12 @@ C             Write density 1-matrices in AO basis to disk.
           Norm_Fac = DDOT_(NCONF2,Work(LTheta1),1,Work(LCI2_o),1)
           Call DAXPY_(NCONF2,-Norm_Fac,Work(LTHETA1),1,Work(LThetaN),1)
 
-          Open(unit=87,file='CI_THETA', action='read',iostat=ios)
+          LUCITH=IsFreeUnit(LUCITH)
+          Call Molcas_Open(LUCITH,'CI_THETA')
+          !Open(unit=87,file='CI_THETA', action='read',iostat=ios)
           if(JST-1.ge.2) then
             do i=1,NCONF2
-              Read(87,*) dummy
+              Read(LUCITH,*) dummy
             end do
           end if
           CALL GETMEM('ThetaM','ALLO','REAL',LThetaM,NCONF2)
@@ -1074,14 +1081,14 @@ C             Write density 1-matrices in AO basis to disk.
             CALL DCOPY_(NCONF2,0.0D0,0,WORK(LThetaM),1)
             !Read in previous theta vectors
             do i=1,NCONF2
-              Read(87,*) Work(LThetaM-1+i)
+              Read(LUCITH,*) Work(LThetaM-1+i)
             end do
             Dot_prod = DDOT_(NCONF2,Work(LThetaM),1,Work(LCI2_o),1)
            Call DAXPY_(NCONF2,-Dot_prod,Work(LThetaM),1,Work(LThetaN),1)
 
 
           END DO
-          Close(87)
+          Close(LUCITH)
           !Normalize
           dot_prod = DDOT_(NCONF2,Work(LThetaN),1,Work(LThetaN),1)
           Norm_Fac = 1d0/sqrt(dot_prod)
@@ -1092,17 +1099,23 @@ C             Write density 1-matrices in AO basis to disk.
         !dot_prod = DDOT_(NCONF2,Work(LThetaN),1,Work(LThetaN),1)
 
           !Write to file
-          Open(unit=87,file='CI_THETA', position='append',iostat=ios,
-     &    action='write')
+          LUCITH=IsFreeUnit(LUCITH)
+          Call Molcas_Open(LUCITH,'CI_THETA')
+          Call Append_file(LUCITH)
+          !Open(unit=87,file='CI_THETA', position='append',iostat=ios,
+!    &    action='write')
           do i=1,nConf2
-            write(87,*) Work(LThetaN-1+i)
+            write(LUCITH,*) Work(LThetaN-1+i)
           end do
-          close(87)
+          close(LUCITH)
           !Deallocate
+          CALL GETMEM('ThetaN','FREE','REAL',LThetaN,NCONF2)
         END DO
 !Copy to new IPH file
-        Open(unit=87,file='CI_THETA',iostat=ios,
-     &    action='read')
+        LUCITH=IsFreeUnit(LUCITH)
+        Call Molcas_Open(LUCITH,'CI_THETA')
+!       Open(unit=87,file='CI_THETA',iostat=ios,
+!    &    action='read')
         CALL DANAME(LUIPHn,'JOBGS')
         IAD = 0
         Call IDAFILE(LUIPHn,2,ITOC15,30,IAD)
@@ -1110,17 +1123,17 @@ C             Write density 1-matrices in AO basis to disk.
         do i=1,ISTAT(JOB1)-1
          CALL DCOPY_(NCONF2,0.0D0,0,WORK(LThetaM),1)
          do j=1,nCONF2
-           read(87,*) Work(LThetaM-1+i)
+           read(LUCITH,*) Work(LThetaM-1+i)
          end do
          Call DDafile(LUIPHn,1,Work(LThetaM),nCONF2,IAD)
-       end do
+        end do
 
        IAD = ITOC15(4)
        CALL DCOPY_(NCONF2,0.0D0,0,WORK(LThetaM),1)
        Call DDAFILE(LUIPHn,2,Work(LThetaM),nCONF2,IAD)
        Call DDAFILE(LUIPHn,2,Work(LThetaM),nCONF2,IAD)
 
-       Close(87)
+       Close(LUCITH)
        Call DACLOS(LUIPHn)
        CALL GETMEM('ThetaM','FREE','REAL',LThetaM,NCONF2)
        end if
@@ -1188,6 +1201,7 @@ C             Write density 1-matrices in AO basis to disk.
       CALL GETMEM('GTDMDET1','FREE','REAL',LDET1,NDET1)
       CALL GETMEM('GTDMDET2','FREE','REAL',LDET2,NDET2)
       CALL GETMEM('GTDMCI2','FREE','REAL',LCI2,NCONF2)
+      If (DoGSOR) CALL GETMEM('GTDMCI2_o','FREE','REAL',LCI2_o,NCONF2)
       IF (.NOT.NONA) CALL GETMEM('GTDMCI1','FREE','REAL',LCI1,NCONF1)
       if(.not.doDMRG)then
         CALL KILLSCTAB(LSPNTAB1)
