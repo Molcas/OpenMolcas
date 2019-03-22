@@ -141,6 +141,11 @@ C second-order correction Heff(2) = PH \Omega_1 P to Heff[1]
         END IF
       END IF
 
+* Before entering the long loop over groups and states, precompute
+* the 1-RDMs for all states and mix them according to the type of
+* calculation: MS, XMS, DW-MS, DW-XMS.
+      CALL RDMINI
+
 C For (X)Multi-State, a long loop over root states.
 C The states are ordered by group, with each group containing a number
 C of group states for which GRPINI is called.

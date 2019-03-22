@@ -69,7 +69,7 @@
           END DO
         ELSE
           WRITE(6,*) ' Warning: neglecting the off-diagonal entries'
-          WRITE(6,*) ' the H0, XMS will be equal to MS!'
+          WRITE(6,*) ' of H0, XMS will be equal to MS!'
         END IF
         FOPEL=ESUM
         CALL QEXIT('FOPAB')

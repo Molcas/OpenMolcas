@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 2012, Per Ake Malmqvist                                *
+*               2019, Stefano Battaglia                                *
 ************************************************************************
       SUBROUTINE GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0)
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -33,7 +34,6 @@
       CHARACTER(27)  STLNE2
       REAL*8 HEFF(NSTATE,NSTATE)
       REAL*8 H0(NSTATE,NSTATE)
-      REAL*8 NFAC
 
       CALL QENTER('GRPINI')
 * ---------------------------------------------------------------------
@@ -76,110 +76,18 @@
 
 * ---------------------------------------------------------------------
 * Loop over states, selecting those belonging to this group.
-* For each such state, compute the one-electron Hamiltonian to be used
-* in the CASPT2 H0, in original MO basis, and finally replace it with
-* the average over the group.
-* Note that, in principle, also FAMO and DREF should be averaged over
-* the states, but since we never use them during the XMS initialization
-* we don't compute them.
-
-* In general, the number of required states is equal to the number
-* of states in the group. However, for DW-MS, this is not the case
-* and we need to manually change that here.
-      NREQ=NGRP
-      IF (IFDW.AND..NOT.IFXMS) THEN
-        NREQ = NSTATE
-      END IF
+* For each such state, compute the Fock matrix in original MO basis,
+* and then the zeroth-order Hamiltonian elements between states.
 
       CALL GETMEM('FOPXMS','ALLO','REAL',LFOPXMS,NGRP**2)
       CALL DCOPY_(NGRP**2,0.0D0,0,WORK(LFOPXMS),1)
-      CALL GETMEM('FOPTMP','ALLO','REAL',LFOPTMP,NGRP**2)
 
-* As of now, in case of a XMS-DW calculation, to construct
-* FOPXMS it is required an extra "outer" loop over the NSTATE
-* since we construct FOPXMS piece by piece.
-* Basically for F_alpha we need a loop over NSTATE and we
-* have NSTATE F_alpha matrices to compute
-      KMAX=0
-      IF (IFDW.AND.IFXMS) THEN
-        KMAX=NSTATE-1
-      END IF
+* Loop over all states in group
+      DO J2=1,NGRP
+        JSTATE=J2+JSTATE_OFF
 
-* Loop over NSTATE for DW-XMS, for all other cases KMAX=0
-* and this is no actual loop.
-      DO KK=0,KMAX
-
-* Setting the target state.
-* In a MS-type calculation, IGROUP is the same as the target state.
-* In a XMS-DW calculation, KK shifts IALPHA to get the right target state
-        IALPHA=IGROUP+KK
-
-        NFIFA_AVE=NFIFA
-        CALL GETMEM('FIFA_AVE','ALLO','REAL',LFIFA_AVE,NFIFA_AVE)
-        CALL DCOPY_(NFIFA_AVE,0.0D0,0,WORK(LFIFA_AVE),1)
-        SCL=1.0D0/DBLE(NGRP)
-
-        CALL GETMEM('LCI','ALLO','REAL',LCI,NCONF)
-
-        Write(6,*)
-        Write(6,'(2x,A,I1,A)')'Building Fock matrix F(D_',IALPHA,')...'
-* Loop over states required to build F_alpha
-        DO ISTATE=1,NREQ
-          JSTATE=JSTATE_OFF+ISTATE
-* If this is a DW-MS calculation, we should neglect the offset.
-* Still we know that the state of interest is equal to IGROUP.
-* Note that for DW-XMS, JSTATE_OFF=0 anyway
-          IF (IFDW) THEN
-            JSTATE=ISTATE
-          END IF
-
-* If it is a DW-(X)MS-CASPT2 calculation, compute the relative weight
-          IF (IFDW) THEN
-            EALPHA = REFENE(IALPHA)
-            EBETA = REFENE(JSTATE)
-* Compute normalization factor
-            NFAC = 0.0D0
-            DO I=1,NSTATE
-              EGAMMA  = REFENE(I)
-              NFAC = NFAC + EXP(-NZETA*(EALPHA - EGAMMA)**2)
-            END DO
-* SCL is the density weight
-            SCL = EXP(-NZETA*(EALPHA - EBETA)**2)/NFAC
-          END IF
-          WRITE(6,'(2x,A,I1,A,I1,A,2f8.4)')'Weight for D_',JSTATE,
-     &                                     '(',IALPHA,') =',SCL
-
-* Accumulate the average active density matrix over this group.
-        IF(ISCF.NE.0) THEN
-* Then we still need the "CI array": It is used in subroutine calls
-          WORK(LCI)=1.0D0
-        ELSE IF(DoCumulant) THEN
-*          write(6,*) 'Cumulant approximated 4RDM'
-          WORK(LCI)=0.0D0
-        ELSE
-* Get the CI array:
-          ID=IDCIEX
-* This loop is just to move ID to the right place in the file
-* so we can read the CI coeffs for the correct state.
-* Basically, we want to read from JSTATE
-          DO I=1,JSTATE-1
-            CALL DDAFILE(LUCIEX,0,WORK(LCI),NCONF,ID)
-          END DO
-          CALL DDAFILE(LUCIEX,2,WORK(LCI),NCONF,ID)
-        END IF
-* We may want to write out the CI array.
-        IF(IPRGLB.GE.VERBOSE .AND. ORBIN.EQ.'NO TRANS') THEN
-          WRITE(6,*)
-          WRITE(6,*)' CI array of CASSCF state nr ',MSTATE(JSTATE)
-          CALL PRWF_CP2(LSYM,NCONF,WORK(LCI),CITHR)
-        END IF
-
-* POLY2: Computing 1- and 2-particle active density matrices GAMMA1 and GAMMA2
-        ! CALL POLY2(WORK(LCI))
-        CALL POLY1(WORK(LCI))
-* GETDPREF: Restructure GAMMA1 and GAMMA2, as DREF and PREF arrays.
-        ! CALL GETDPREF(WORK(LDREF),WORK(LPREF))
-        CALL GETDREF(WORK(LDREF))
+* Copy the 1-RDM of JSTATE in LDREF
+        CALL DCOPY_(NDREF,WORK(LDMIX+(JSTATE-1)*NDREF),1,WORK(LDREF),1)
 
 * INTCTL1/INTCTL2 call TRACTL(0), and other routines, for FIMO, FAMO,
 * FIFA and orbital energies.
@@ -197,102 +105,66 @@ c Modify the Fock matrix, if needed:
         IF(FOCKTYPE.NE.'STANDARD') THEN
            CALL NEWFOCK(WORK(LFIFA))
         END IF
-* Compute average Fock matrix:
-        CALL DAXPY_(NFIFA_AVE,SCL,WORK(LFIFA),1,WORK(LFIFA_AVE),1)
-
-      END DO
-* End of loop over the states required to build f_pq for state IGROUP+KK
-      Write(6,'(2x,A,I1,A)')'Fock matrix F(D_',IALPHA,') built!'
-
-      CALL GETMEM('LCI','FREE','REAL',LCI,NCONF)
-
-* Replace FIFA with average Fock matrix:
-      ! WRITE(6,*)' Copying FIFA_AVE into FIFA...'
-      CALL DCOPY_(NFIFA,WORK(LFIFA_AVE),1,WORK(LFIFA),1)
-      CALL GETMEM('FIFA_AVE','FREE','REAL',LFIFA_AVE,NFIFA_AVE)
 
 * NN.15
 * TODO : MKFOP and following transformation are skipped in DMRG-CASPT2 run
 *        for the time, this will be fixed later to implement DMRG-MS-CASPT2.
-      IF(DoCumulant) GoTo 100
+        IF (DoCumulant) GoTo 100
 
-* Compute elements of Hamiltonian matrix obtained as
-* <BRA|FOP|KET> where FOP is the average Fock operator (FIFA)
-
-* Initialize FOPTMP with zeros
-      CALL DCOPY_(NGRP**2,0.0D0,0,WORK(LFOPTMP),1)
-
-* If this is a DW-XMS calculation, in principle we only need part of
-* FOPTMP, whereas for all other cases, we need it completely.
-      CALL MKFOP(WORK(LFIFA),NGRP,JSTATE_OFF,WORK(LFOPTMP))
-
-      IF (IPRGLB.GE.USUAL) THEN
-        WRITE(6,*)
-        WRITE(6,'(A,A,I1,A)')'  GRPINI computed FOPTMP:    ',
-     &                       '<alpha|F(D_',IALPHA,')|beta>'
-        DO I=1,NGRP
-          WRITE(6,'(1x,5F16.8)')(WORK(LFOPTMP-1+I+NGRP*(J-1)),J=1,NGRP)
+* Compute elements of zeroth-order Hamiltonian matrix obtained as
+* <BRA|FOP|KET> where FOP is the (average) Fock operator (FIFA)
+        IKET=JSTATE
+* Loop over bra functions:
+        DO J1=1,NGRP
+          IBRA=J1+JSTATE_OFF
+* Compute matrix element and put it into FOPXMS:
+          FOPEL = 0.0D0
+          CALL FOPAB(WORK(LFIFA),IBRA,IKET,FOPEL)
+          WORK(LFOPXMS + (J1-1) + (NGRP*(J2-1))) = FOPEL
         END DO
-      END IF
 
-* For DW-XMS only copy what is required
-      WRITE(6,*)
-      WRITE(6,*)' Copying FOPTMP (or part of it) into FOPXMS...'
-      IF (IFDW) THEN
-        DO I=1,NGRP
-          WORK(LFOPXMS-1+I+NGRP*(KK)) =
-     &    WORK(LFOPTMP-1+I+NGRP*(KK))
-        END DO
-* Else completely copy FOPTMP into FOPXMS
-      ELSE
-        CALL DCOPY_(NGRP**2,WORK(LFOPTMP),1,WORK(LFOPXMS),1)
-      END IF
-
-* Save f_pq(delta) into shared memory LFIFA_ALL, required for
+* Save f_pq(D) into shared memory LFIFA_ALL, required for
 * DW-XMS later on in the loop over states to obtain quasi-canonical
 * orbitals for each state independently
-      WRITE(6,'(2x,A,I1,A)')'Saving F(D_',IALPHA,
+        WRITE(6,'(2x,A,I1,A)')'Saving F(D_',JSTATE,
      &                      ') into shared memory LFIFA_ALL...'
-      CALL DCOPY_(NFIFA,WORK(LFIFA),1,WORK(LFIFA_ALL+(KK*NFIFA)),1)
+        CALL DCOPY_(NFIFA,WORK(LFIFA),1,WORK(LFIFA_ALL+
+     &                                ((J2-1)*NFIFA)),1)
 
-* Enf of loop for DW-XMS. For all other calculations this is not really
-* a loop, but just a single iteration.
       END DO
-***********KK loop is over***********
+* End of loop over states
 
-      IF(IPRGLB.GE.USUAL) THEN
+      IF(IPRGLB.GE.VERBOSE) THEN
         WRITE(6,*)
         WRITE(6,*)' FOPXMS (Asymmetric):'
         DO I=1,NGRP
-         WRITE(6,'(1x,5F16.8)')(WORK(LFOPXMS-1+I+NGRP*(J-1)),J=1,NGRP)
+          WRITE(6,'(1x,5F16.8)')(WORK(LFOPXMS-1+I+NGRP*(J-1)),J=1,NGRP)
         END DO
       END IF
 
 * Symmetrize FOPXMS (it really does something only for DW-XMS)
-      CALL DCOPY_(NGRP**2,0.0D0,0,WORK(LFOPTMP),1)
       DO I=1,NGRP
         DO J=I,NGRP
-          FIJ = WORK(LFOPXMS-1+I+NGRP*(J-1))
-          FJI = WORK(LFOPXMS-1+J+NGRP*(I-1))
-          WORK(LFOPTMP-1+I+NGRP*(J-1)) = 0.5D0*(FIJ+FJI)
-          WORK(LFOPTMP-1+J+NGRP*(I-1)) = 0.5D0*(FIJ+FJI)
+          FIJ = WORK(LFOPXMS+I-1+NGRP*(J-1))
+          FJI = WORK(LFOPXMS+J-1+NGRP*(I-1))
+          WORK(LFOPXMS+I-1+NGRP*(J-1)) = 0.5D0*(FIJ+FJI)
+          WORK(LFOPXMS+J-1+NGRP*(I-1)) = 0.5D0*(FIJ+FJI)
         END DO
       END DO
-      CALL DCOPY_(NGRP**2,WORK(LFOPTMP),1,WORK(LFOPXMS),1)
 
-      IF(IPRGLB.GE.USUAL) THEN
+      IF(IPRGLB.GE.VERBOSE) THEN
         WRITE(6,*)
         WRITE(6,*)' FOPXMS (Symmetric):'
         DO I=1,NGRP
-         WRITE(6,'(1x,5F16.8)')(WORK(LFOPXMS-1+I+NGRP*(J-1)),J=1,NGRP)
+          WRITE(6,'(1x,5F16.8)')(WORK(LFOPXMS+I-1+NGRP*(J-1)),J=1,NGRP)
         END DO
       END IF
 
 * Store zeroth order energies
       DO I=1,NGRP
-       DO J=1,NGRP
-        H0(I+JSTATE_OFF,J+JSTATE_OFF) = WORK(LFOPXMS-1+I+NGRP*(J-1))
-       END DO
+        DO J=1,NGRP
+          H0(I+JSTATE_OFF,J+JSTATE_OFF) = WORK(LFOPXMS+I-1+NGRP*(J-1))
+        END DO
       END DO
 
 * Transform the CI arrays of this group of states, to make the FOP matrix diagonal.
@@ -301,124 +173,80 @@ c Modify the Fock matrix, if needed:
 * whole thing iteratively.
       IF(NGRP.GT.1.AND.IFXMS) THEN
 
-       CALL GETMEM('EVEC','ALLO','REAL',LEVEC,NGRP**2)
-       NSCR=(NGRP*(NGRP+1))/2
-       CALL GETMEM('SCR','ALLO','REAL',LSCR,NSCR)
-       CALL DIAFOP(NGRP,WORK(LFOPXMS),WORK(LSCR),WORK(LEVEC))
-       CALL GETMEM('SCR','FREE','REAL',LSCR,NSCR)
-* Also change HEFF accordingly. Originally, it was diagonal:
-       CALL GETMEM('HTMP1','ALLO','REAL',LHTMP1,NGRP**2)
-       CALL GETMEM('HTMP2','ALLO','REAL',LHTMP2,NGRP**2)
-       DO J1=1,NGRP
-        IK1=JSTATE_OFF+J1
-        DO J2=1,NGRP
-         IK2=JSTATE_OFF+J2
-         WORK(LHTMP1-1+J1+NGRP*(J2-1))=HEFF(IK1,IK2)
-        END DO
-       END DO
-       CALL DGEMM_('T','N',NGRP,NGRP,NGRP,
-     &              1.0d0,WORK(LEVEC),NGRP,WORK(LHTMP1),NGRP,
-     &              0.0d0,WORK(LHTMP2),NGRP)
-       CALL DGEMM_('N','N',NGRP,NGRP,NGRP,
-     &              1.0d0,WORK(LHTMP2),NGRP,WORK(LEVEC),NGRP,
-     &              0.0d0,WORK(LHTMP1),NGRP)
-       DO J1=1,NGRP
-        IK1=JSTATE_OFF+J1
-        DO J2=1,NGRP
-         IK2=JSTATE_OFF+J2
-         HEFF(IK1,IK2)=WORK(LHTMP1-1+J1+NGRP*(J2-1))
-        END DO
-       END DO
-       CALL GETMEM('HTMP1','FREE','REAL',LHTMP1,NGRP**2)
-       CALL GETMEM('HTMP2','FREE','REAL',LHTMP2,NGRP**2)
+        CALL GETMEM('EVEC','ALLO','REAL',LEVEC,NGRP**2)
+        NSCR=(NGRP*(NGRP+1))/2
+        CALL GETMEM('SCR','ALLO','REAL',LSCR,NSCR)
+        CALL DIAFOP(NGRP,WORK(LFOPXMS),WORK(LSCR),WORK(LEVEC))
+        CALL GETMEM('SCR','FREE','REAL',LSCR,NSCR)
 
-       IF(IPRGLB.GE.DEBUG) THEN
-        WRITE(6,*) ' HEFF IN THE NEW "XMS" BASIS:'
-        DO J1=1,NSTATE
-         WRITE(6,'(1x,5F16.8)')(HEFF(J1,J2),J2=1,NSTATE)
-        END DO
-       END IF
+* Transform H0 (= FOPXMS) and HEFF (which at this stage corresponds to the 1st-order
+* corrected effective Hamiltonian) in the new basis that diagonalize FOPXMS
+        CALL TRANSMAT(H0,WORK(LEVEC),NGRP)
+        CALL TRANSMAT(HEFF,WORK(LEVEC),NGRP)
 
-      IF(IPRGLB.GE.USUAL) THEN
-       WRITE(6,*)
-       WRITE(6,'(6X,A)')' Eigenvectors:'
-       DO ISTA=1,NSTATE,5
-        IEND=MIN(ISTA+4,NSTATE)
-        DO J1=0,NSTATE-1
-          WRITE(6,'(6x,5F16.8)')(WORK(LEVEC+J1+NGRP*(I-1)),I=ISTA,IEND)
-        END DO
-        WRITE(6,*)
-       END DO
-      END IF
-
-* Also change H0 accordingly. It should become diagonal!
-       CALL GETMEM('HTMP1','ALLO','REAL',LHTMP1,NGRP**2)
-       CALL GETMEM('HTMP2','ALLO','REAL',LHTMP2,NGRP**2)
-       DO J1=1,NGRP
-        IK1=JSTATE_OFF+J1
-        DO J2=1,NGRP
-         IK2=JSTATE_OFF+J2
-         WORK(LHTMP1-1+J1+NGRP*(J2-1))=H0(IK1,IK2)
-        END DO
-       END DO
-       CALL DGEMM_('T','N',NGRP,NGRP,NGRP,
-     &              1.0d0,WORK(LEVEC),NGRP,WORK(LHTMP1),NGRP,
-     &              0.0d0,WORK(LHTMP2),NGRP)
-       CALL DGEMM_('N','N',NGRP,NGRP,NGRP,
-     &              1.0d0,WORK(LHTMP2),NGRP,WORK(LEVEC),NGRP,
-     &              0.0d0,WORK(LHTMP1),NGRP)
-       DO J1=1,NGRP
-        IK1=JSTATE_OFF+J1
-        DO J2=1,NGRP
-         IK2=JSTATE_OFF+J2
-         H0(IK1,IK2)=WORK(LHTMP1-1+J1+NGRP*(J2-1))
-        END DO
-       END DO
-       CALL GETMEM('HTMP1','FREE','REAL',LHTMP1,NGRP**2)
-       CALL GETMEM('HTMP2','FREE','REAL',LHTMP2,NGRP**2)
-
-* and then, transform the CI arrays. Assume we can put all the
-* original ones in memory, but put the resulting vectors one by
-* one in a buffer.
-       WRITE(6,*)
-       WRITE(6,*)' Mixing the CASSCF states according to FOPXMS...'
-       WRITE(6,*)
-       CALL GETMEM('CIREF','ALLO','REAL',LCIREF,NGRP*NCONF)
-       DO J=1,NGRP
-        IK=JSTATE_OFF+J
-        ID=IDCIEX
-        DO I=1,IK-1
-         CALL DDAFILE(LUCIEX,0,WORK(LCIREF),NCONF,ID)
-        END DO
-        CALL DDAFILE(LUCIEX,2,WORK(LCIREF+NCONF*(J-1)),NCONF,ID)
-       END DO
-       CALL GETMEM('CIXMS','ALLO','REAL',LCIXMS,NCONF)
-       DO J=1,NGRP
-        CALL DGEMM_('N','N',NCONF,1,NGRP,
-     &             1.0D0,WORK(LCIREF),NCONF,
-     &             WORK(LEVEC+NGRP*(J-1)),NGRP,
-     &             0.0D0,WORK(LCIXMS),NCONF)
-        IK=JSTATE_OFF+J
-        ID=IDCIEX
-        DO I=1,IK-1
-         CALL DDAFILE(LUCIEX,0,WORK(LCIXMS),NCONF,ID)
-        END DO
-        CALL DDAFILE(LUCIEX,1,WORK(LCIXMS),NCONF,ID)
-
-        IF(IPRGLB.GE.USUAL) THEN
-          WRITE(6,'(1x,a,i3)')
-     &     ' The CI coefficients for the MIXED state nr. ',MSTATE(IK)
-          CALL PRWF_CP2(LSYM,NCONF,WORK(LCIXMS),CITHR)
+        IF(IPRGLB.GE.DEBUG) THEN
+          WRITE(6,*) ' HEFF IN THE NEW "XMS" BASIS:'
+          DO J1=1,NSTATE
+            WRITE(6,'(1x,5F16.8)')(HEFF(J1,J2),J2=1,NSTATE)
+          END DO
         END IF
 
-       END DO
-       CALL GETMEM('CIREF','FREE','REAL',LCIREF,NGRP*NCONF)
-       CALL GETMEM('CIXMS','FREE','REAL',LCIXMS,NCONF)
-       CALL GETMEM('EVEC','FREE','REAL',LEVEC,NGRP**2)
+        IF(IPRGLB.GE.USUAL) THEN
+          WRITE(6,*)
+          WRITE(6,'(6X,A)')' Eigenvectors:'
+          DO ISTA=1,NSTATE,5
+            IEND=MIN(ISTA+4,NSTATE)
+            DO J1=0,NSTATE-1
+              WRITE(6,'(6x,5F16.8)')(WORK(LEVEC+J1+NGRP*(I-1)),
+     &                               I=ISTA,IEND)
+            END DO
+            WRITE(6,*)
+          END DO
+        END IF
+
+* And then, transform the CI arrays. Assume we can put all the
+* original ones in memory, but put the resulting vectors one by
+* one in a buffer.
+        WRITE(6,*)
+        WRITE(6,*)' Mixing the CASSCF states according to FOPXMS...'
+        WRITE(6,*)
+        CALL GETMEM('CIREF','ALLO','REAL',LCIREF,NGRP*NCONF)
+        DO J=1,NGRP
+          IK=JSTATE_OFF+J
+          ID=IDCIEX
+          DO I=1,IK-1
+            CALL DDAFILE(LUCIEX,0,WORK(LCIREF),NCONF,ID)
+          END DO
+          CALL DDAFILE(LUCIEX,2,WORK(LCIREF+NCONF*(J-1)),NCONF,ID)
+        END DO
+        CALL GETMEM('CIXMS','ALLO','REAL',LCIXMS,NCONF)
+        DO J=1,NGRP
+          CALL DGEMM_('N','N',NCONF,1,NGRP,
+     &                1.0D0,WORK(LCIREF),NCONF,
+     &                WORK(LEVEC+NGRP*(J-1)),NGRP,
+     &                0.0D0,WORK(LCIXMS),NCONF)
+          IK=JSTATE_OFF+J
+          ID=IDCIEX
+          DO I=1,IK-1
+            CALL DDAFILE(LUCIEX,0,WORK(LCIXMS),NCONF,ID)
+          END DO
+          CALL DDAFILE(LUCIEX,1,WORK(LCIXMS),NCONF,ID)
+
+          IF(IPRGLB.GE.VERBOSE) THEN
+            WRITE(6,'(1x,a,i3)')
+     &      ' The CI coefficients for the MIXED state nr. ',MSTATE(IK)
+            CALL PRWF_CP2(LSYM,NCONF,WORK(LCIXMS),CITHR)
+          END IF
+
+        END DO
+
+        CALL GETMEM('CIREF','FREE','REAL',LCIREF,NGRP*NCONF)
+        CALL GETMEM('CIXMS','FREE','REAL',LCIXMS,NCONF)
+        CALL GETMEM('EVEC','FREE','REAL',LEVEC,NGRP**2)
 
       END IF
+
       CALL GETMEM('FOPXMS','FREE','REAL',LFOPXMS,NGRP**2)
-      CALL GETMEM('FOPTMP','FREE','REAL',LFOPTMP,NGRP**2)
 
  100  CONTINUE
 * We now know FIFA, as expressed in initial RAS orbitals. Transform to use new
@@ -441,7 +269,7 @@ c Modify the Fock matrix, if needed:
       ELSE
       WRITE(6,*)
       WRITE(6,'(2x,A,A)')'Transformation to quasi-canonical orbitals',
-     &                   ' will be done in GROUPINI'
+     &                   ' will be done in GRPINI'
       WRITE(6,*)
 
       CALL ORBCTL(WORK(LCMO))
