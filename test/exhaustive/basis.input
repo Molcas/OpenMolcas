@@ -7580,8 +7580,15 @@
 
 &SEWARD
   Basis
-    Ca.DEF2-SVP..14s9p4d.5s3p2d.
     Ca 0.0 0.0 0.0
+  End of Basis
+  OneOnly
+  NoGuess
+
+&SEWARD
+  Basis
+    Co.DEF2-SVP..14s9p4d1f.5s3p2d1f.
+    Co 0.0 0.0 0.0
   End of Basis
   OneOnly
   NoGuess
