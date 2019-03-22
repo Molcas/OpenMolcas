@@ -8,14 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE SMMAT_CHECK(PROP,PRMAT,NSS,PRLBL,IPRCMP,
-     &                       USOR,USOI,ISO,JSO,ThrSparse)
+      SUBROUTINE SMMAT2(PROP,PRMAT,NSS,PRLBL,IPRCMP,IJ)
       IMPLICIT REAL*8 (A-H,O-Z)
       CHARACTER*(*) PRLBL
-      DIMENSION PRMAT(NSS,NSS), USOR(NSS,NSS), USOI(NSS,NSS)
+      DIMENSION PRMAT(NSS,NSS)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='SMMAT')
+      Integer IJ(4)
 #include "SysDef.fh"
 #include "Molcas.fh"
 #include "cntrl.fh"
@@ -58,7 +58,12 @@ C 2 = spin dependent property, triplet operator
       ENDIF
 C Mapping from spin states to spin-free state and to spin:
       ISS=0
-      DO ISTATE=1,NSTATE
+      DO ISTATE=1,IJ(3)-1
+        JOB1=iWork(lJBNUM+ISTATE-1)
+        MPLET1=MLTPLT(JOB1)
+        ISS=ISS+MPLET1
+      End Do
+      DO ISTATE=IJ(3),IJ(4)
        JOB1=iWork(lJBNUM+ISTATE-1)
        MPLET1=MLTPLT(JOB1)
        S1=0.5D0*DBLE(MPLET1-1)
@@ -66,16 +71,14 @@ C Mapping from spin states to spin-free state and to spin:
        DO MSPROJ1=-MPLET1+1,MPLET1-1,2
         SM1=0.5D0*DBLE(MSPROJ1)
         ISS=ISS+1
-*
-*       Check if the spin-free state contributes to the spin state
-*
-        temp=USOR(ISS,ISO)**2 + USOI(ISS,ISO)**2
-        temp=Max(temp,USOR(ISS,JSO)**2 + USOI(ISS,JSO)**2)
-        If (temp.le.ThrSparse)  Cycle
 
         JSS=0
-
-        DO JSTATE=1,NSTATE
+        DO JSTATE=1,IJ(1)-1
+         JOB2=iWork(lJBNUM+JSTATE-1)
+         MPLET2=MLTPLT(JOB2)
+         JSS=JSS+MPLET2
+        End Do
+        DO JSTATE=IJ(1),IJ(2)
          JOB2=iWork(lJBNUM+JSTATE-1)
          MPLET2=MLTPLT(JOB2)
          S2=0.5D0*DBLE(MPLET2-1)
@@ -83,12 +86,6 @@ C Mapping from spin states to spin-free state and to spin:
          DO MSPROJ2=-MPLET2+1,MPLET2-1,2
           SM2=0.5D0*DBLE(MSPROJ2)
           JSS=JSS+1
-*
-*         Check if the spin-free state contributes to the spin state
-*
-          temp=USOR(JSS,ISO)**2 + USOI(JSS,ISO)**2
-          temp=Max(temp,USOR(JSS,JSO)**2 + USOI(JSS,JSO)**2)
-          If (temp.le.ThrSparse)  Cycle
 
           IF (IFSPIN.EQ.0 .AND. IPRNUM.NE.0) THEN
                   IF (MPLET1.EQ.MPLET2 .AND. MSPROJ1.EQ.MSPROJ2) THEN
