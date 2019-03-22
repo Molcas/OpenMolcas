@@ -1015,7 +1015,8 @@ C printing threshold
          END IF
 
          ONEOVER6C2=1.0D0/(6.0D0*CONST_C_IN_AU_**2)
-         g = 2.0D0 ! Well I assume that the g-factor for the electron is 2
+!        Well I assume that the g-factor for the electron is 2
+         g = 2.0D0
          DO ISS=1,IEND
           DO JSS=JSTART,NSS
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
@@ -1830,8 +1831,9 @@ C printing threshold
 ! M^s = (a+ib)(c+id) = ac-bd + i(ad+bc) hence the long expressions below
 !
             DYXDZ=((WORK(LDYXR-1+IJSS) ! Magnetic-Quadrupole
+!               Spin-Magnetic-Quadrupole
      &         +g*(WORK(LSYR-1+IJSS)*WORK(LDXR-1+IJSS)
-     &            -WORK(LSYI-1+IJSS)*WORK(LDXI-1+IJSS))) ! Spin-Magnetic-Quadrupole
+     &            -WORK(LSYI-1+IJSS)*WORK(LDXI-1+IJSS)))
      &           *WORK(LDZR-1+IJSS)) ! Electric-Dipole
      &           +((WORK(LDYXI-1+IJSS)
      &         +g*(WORK(LSYR-1+IJSS)*WORK(LDXI-1+IJSS)

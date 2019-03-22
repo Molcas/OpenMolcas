@@ -68,7 +68,8 @@ c    ST -- value of the average spin of neighboring sites, Real(kind=wp) :: (3) 
 
 c local variables:
 #include "stdalloc.fh"
-      Integer, parameter :: mxIter=100 ! defines the maximal number of iterations for determination of the average spin
+      Integer, parameter :: mxIter=100
+! defines the maximal number of iterations for determination of the average spin
 !      parameter (mxIter=100) ! it is of any importance only If ( zJ.ne.0 )
       Integer          :: i, l, iT
       Real(kind=wp)    :: kB, mB, ST(3), STsave(3)
@@ -76,8 +77,9 @@ c local variables:
       Real(kind=wp), allocatable :: RWORK(:)
       Complex(kind=wp), allocatable :: HZEE(:), WORK(:), W_c(:)
       Complex(kind=wp), allocatable :: ZM(:,:)
-      Complex(kind=wp), allocatable :: SZ(:,:,:) !SZ(3,EXCH,EXCH), MZ(3,EXCH,EXCH)
-      Complex(kind=wp), allocatable :: MZ(:,:,:) !SZ(3,EXCH,EXCH), MZ(3,EXCH,EXCH)
+      Complex(kind=wp), allocatable :: SZ(:,:,:)
+      Complex(kind=wp), allocatable :: MZ(:,:,:)
+!                                      SZ(3,EXCH,EXCH), MZ(3,EXCH,EXCH)
 
       Call qEnter('MAGN_ZJ_PAR')
       kB=0.6950356000_wp   ! Boltzmann constant,  in cm^-1*K-1
@@ -146,9 +148,9 @@ c start calculations:
                Call dcopy_(3,STsave,1,ST,1)
             End If
          End If
-         !---------------------------------------------------------------
-         ! here  we have the value of the averaged spin for this temperature
-         ! proceed with the computation of magnetism for this temperature
+!        --------------------------------------------------------------
+!        here  we have the value of the averaged spin for this temperature
+!        proceed with the computation of magnetism for this temperature
          If(DBG) Write(6,'(A,3E13.5)')
      &                 'Average spin finished. ST on entrance to '//
      &                 'last ZEEM:',(ST(i),i=1,3)

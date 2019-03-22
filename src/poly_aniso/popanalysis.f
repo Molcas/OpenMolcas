@@ -31,7 +31,8 @@ c local variables
       Integer          :: i,j,l,isite,i1,i2,nb1,nb2,nb3,tmp,il,nb
       Integer          :: nind(lmax,2),intc(lmax)
       Integer          :: ibas(exch,lmax)
-      Complex(kind=wp), allocatable :: pop(:,:,:,:) !pop(exch,lmax,nmax,nmax)
+!     pop(exch,lmax,nmax,nmax)
+      Complex(kind=wp), allocatable :: pop(:,:,:,:)
       Character(len=50):: fmtline
       Logical          :: DBG
       Call qEnter('PA_popanalysis')
@@ -104,8 +105,9 @@ c
       Write(6,fmtline) '--------|-----|',
      & ('------------|',i=1,lmax)
 
-      Do nb1=1,NmaxPop ! loop over all states for which we want density matrices and
-c                      expectation values to be calculated
+!     loop over all states for which we want density matrices and
+!     expectation values to be calculated
+      Do nb1=1,NmaxPop
          Do l=1,lmax
          isite=nind(l,1)
             Do i1=1,nexch(isite)

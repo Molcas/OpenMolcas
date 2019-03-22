@@ -266,7 +266,8 @@ c------------------------------------------------------------------------
       Implicit None
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)          :: N ! dimension of the pseudospin
-      Complex(kind=wp), intent(in) :: M(n,n) ! complex parameters to print
+!     complex parameters to print
+      Complex(kind=wp), intent(in) :: M(n,n)
       Character*(1)                :: a
       ! local variables:
       Integer       :: k,i,j,jEnd
@@ -337,9 +338,10 @@ c------------------------------------------------------------------------
       Subroutine print_CFP_alpha(nlanth,n,B,C)
       Implicit None
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
-      Integer, intent(in)          :: n        ! dimension of the pseudospin
-      Integer, intent(in)          :: nlanth   ! number of the lanthanide
-      Real(kind=wp), intent(in)    :: B(n,0:n), C(n,0:n) ! real and imaginary CF paraemters
+      Integer, intent(in)          :: n    ! dimension of the pseudospin
+      Integer, intent(in)          :: nlanth  ! number of the lanthanide
+!     real and imaginary CF parameters
+      Real(kind=wp), intent(in)    :: B(n,0:n), C(n,0:n)
       !Logical, intent(in), optional:: print_all
       ! local variables:
       Integer       :: k,q,i
@@ -404,8 +406,9 @@ c------------------------------------------------------------------------
       Subroutine print_CFP_LCLU(n,B,C,print_all)
       Implicit None
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
-      Integer, intent(in)          :: n                  ! dimension of the pseudospin
-      Real(kind=wp), intent(in)    :: B(n,0:n), C(n,0:n) ! real and imaginary CF paraemters
+      Integer, intent(in)          :: n    ! dimension of the pseudospin
+!     real and imaginary CF parameters
+      Real(kind=wp), intent(in)    :: B(n,0:n), C(n,0:n)
       Logical, intent(in), optional:: print_all
       ! local variables:
       Integer       :: k,q,i
@@ -460,8 +463,9 @@ c------------------------------------------------------------------------
       Subroutine print_CFP_stev(n,B,print_all)
       Implicit None
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
-      Integer, intent(in)          :: n                  ! dimension of the pseudospin
-      Real(kind=wp), intent(in)    :: B(n,-n:n)          ! real and imaginary CF paraemters
+      Integer, intent(in)          :: n    ! dimension of the pseudospin
+!     real and imaginary CF parameters
+      Real(kind=wp), intent(in)    :: B(n,-n:n)
       Logical, intent(in), optional:: print_all
       ! local variables:
       Integer       :: k,q,i,kmax,iq
@@ -539,7 +543,8 @@ c------------------------------------------------------------------------
       Implicit None
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)          :: N ! dimension of the pseudospin
-      Complex(kind=wp), intent(in) :: A( (n-1), -(n-1):(n-1) ) ! complex parameters to print
+!     complex parameters to print
+      Complex(kind=wp), intent(in) :: A( (n-1), -(n-1):(n-1) )
       Logical, intent(in),optional :: print_all
       ! local variables:
       Integer       :: k,q,i
@@ -643,8 +648,9 @@ c------------------------------------------------------------------------
       Subroutine print_MOM_ITO_stev(n,B,print_all)
       Implicit None
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
-      Integer, intent(in)          :: n                  ! dimension of the pseudospin
-      Real(kind=wp), intent(in)    :: B(3,n,-n:n)        ! real and imaginary CF parameters, for x,y,z
+      Integer, intent(in)          :: n    ! dimension of the pseudospin
+!     real and imaginary CF parameters, for x,y,z
+      Real(kind=wp), intent(in)    :: B(3,n,-n:n)
       Logical, intent(in), optional:: print_all
       ! local variables:
       Integer       :: k,q,i,kmax,iq

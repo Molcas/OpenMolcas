@@ -22,7 +22,8 @@
       Logical, intent(in)          :: smagn
       Logical, intent(in)          :: m_paranoid
 c ab initio data:
-      Real(kind=wp), intent(in)    :: ESO(nss)  ! exchange energies printed out in the previous part
+!     exchange energies printed out in the previous part
+      Real(kind=wp), intent(in)    :: ESO(nss)
       Real(kind=wp), intent(in)    :: EM, zJ, thrs
       Real(kind=wp), intent(in)    :: H_torq, T_torq
       Real(kind=wp), intent(in)    :: ma(3,3) ! main magnetic axes
@@ -34,9 +35,12 @@ c magnetic field strength and orientation data:
       Integer       :: nPlanes
       Parameter (nPlanes=1)
 !      Real(kind=wp) :: dlth
-      Real(kind=wp), allocatable :: W(:)    ! W(NM) ! Zeeman exchange energies
-      Real(kind=wp)              :: ZT    ! ZT ! total statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ST(:) ! ST(3) ! total spin magnetisation,
+      Real(kind=wp), allocatable :: W(:)
+!                                   W(NM) ! Zeeman exchange energies
+      Real(kind=wp)              :: ZT!
+!                                   ZT ! total statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ST(:)
+!                                   ST(3) ! total spin magnetisation,
       Real(kind=wp), allocatable :: MT(:) ! MT(3) ! total magnetisation
       Real(kind=wp), allocatable :: dX(:) ! dX(AngPoints)
       Real(kind=wp), allocatable :: dY(:) ! dY(AngPoints)
@@ -45,9 +49,10 @@ c magnetic field strength and orientation data:
       Complex(kind=wp), allocatable :: M(:,:,:)
       Complex(kind=wp), allocatable :: S(:,:,:)
 c magnetic torque
-      !Real(kind=wp), allocatable :: tx(:,:) ! tx(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque
-      Real(kind=wp), allocatable :: ty(:) ! ty(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque
-      !Real(kind=wp), allocatable :: tz(:,:) ! tz(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque
+!     Real(kind=wp), allocatable :: tx(:,:) ! tx(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque
+      Real(kind=wp), allocatable :: ty(:)
+!                                   ty(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque
+!     Real(kind=wp), allocatable :: tz(:,:) ! tz(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque
 c magnetic and spin moments (i.e. the BIG matrices):
       Character(len=99):: STLNE1, STLNE2
       Real(kind=wp)    :: cm3tomB, g(3),mg(3,3)!,ma_inv(3,3)!,det

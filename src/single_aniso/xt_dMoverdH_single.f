@@ -37,25 +37,32 @@ cccc local variables ccc
      &                              WM5(:), WM6(:), WM7(:)
       !WM0(nm), WM1(nm), WM2(nm) ! Zeeman exchange energies
 c data for total system:
-      Real(kind=wp), allocatable :: ZT1(:)   ! total statistical sum, Boltzmann distribution
+!total statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ZT1(:)
       Real(kind=wp), allocatable :: ST1(:,:) ! total spin magnetisation,
       Real(kind=wp), allocatable :: MT1(:,:) ! total magnetisation
-      Real(kind=wp), allocatable :: ZT2(:)   ! total statistical sum, Boltzmann distribution
+!total statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ZT2(:)
       Real(kind=wp), allocatable :: ST2(:,:) ! total spin magnetisation,
       Real(kind=wp), allocatable :: MT2(:,:) ! total magnetisation
-      Real(kind=wp), allocatable :: ZT3(:)   ! total statistical sum, Boltzmann distribution
+!total statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ZT3(:)
       Real(kind=wp), allocatable :: ST3(:,:) ! total spin magnetisation,
       Real(kind=wp), allocatable :: MT3(:,:) ! total magnetisation
-      Real(kind=wp), allocatable :: ZT4(:)   ! total statistical sum, Boltzmann distribution
+!total statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ZT4(:)
       Real(kind=wp), allocatable :: ST4(:,:) ! total spin magnetisation,
       Real(kind=wp), allocatable :: MT4(:,:) ! total magnetisation
-      Real(kind=wp), allocatable :: ZT5(:)   ! total statistical sum, Boltzmann distribution
+!total statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ZT5(:)
       Real(kind=wp), allocatable :: ST5(:,:) ! total spin magnetisation,
       Real(kind=wp), allocatable :: MT5(:,:) ! total magnetisation
-      Real(kind=wp), allocatable :: ZT6(:)   ! total statistical sum, Boltzmann distribution
+!total statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ZT6(:)
       Real(kind=wp), allocatable :: ST6(:,:) ! total spin magnetisation,
       Real(kind=wp), allocatable :: MT6(:,:) ! total magnetisation
-      Real(kind=wp), allocatable :: ZT7(:)   ! total statistical sum, Boltzmann distribution
+!total statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ZT7(:)
       Real(kind=wp), allocatable :: ST7(:,:) ! total spin magnetisation,
       Real(kind=wp), allocatable :: MT7(:,:) ! total magnetisation
 c standard deviation data:
@@ -63,8 +70,10 @@ c standard deviation data:
       external dev
       Real(kind=wp), allocatable :: XTM_MH(:) !XTM_MH(  nT+nTempMagn)
       Real(kind=wp), allocatable :: XTM_dMdH(:) !XTM_dMdH(nT+nTempMagn)
-      Real(kind=wp), allocatable :: XTtens_MH(:,:,:) !XTtens_MH(  3,3,nT+nTempMagn)
-      Real(kind=wp), allocatable :: XTtens_dMdH(:,:,:) !XTtens_dMdH(3,3,nT+nTempMagn)
+      Real(kind=wp), allocatable :: XTtens_MH(:,:,:)
+!                                   XTtens_MH(  3,3,nT+nTempMagn)
+      Real(kind=wp), allocatable :: XTtens_dMdH(:,:,:)
+!                                   XTtens_dMdH(3,3,nT+nTempMagn)
 
       Integer       :: nTempTotal
       Real(kind=wp) :: Xfield_1, Xfield_2, Xfield_3, Xfield_4, Xfield_5,
@@ -87,7 +96,8 @@ c standard deviation data:
       DBG=.false.
       m_paranoid=.true.!.false.
       cm3tomB=0.5584938904_wp   !   in cm3 * mol-1 * T
-      THRS=1.d-13 !threshold for convergence of average spin, in case (zJ .ne. 0)
+!     threshold for convergence of average spin, in case (zJ .ne. 0)
+      THRS=1.d-13
       RtoB=8
       mem_local=0
 
@@ -338,7 +348,7 @@ c ///  opening the loop over different directions of the magnetic field
      &                                (MT7(l,iT)-MT1(l,iT),l=1,3)
         End Do
       End If !DBG
-         ! computing the AVERAGE MOMENTS calculated at different temperatures (T(i))
+!        computing the AVERAGE MOMENTS calculated at different temperatures (T(i))
          Do iT=1,nTempTotal
 
             ! dM/dH model

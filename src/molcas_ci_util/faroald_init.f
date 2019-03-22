@@ -39,31 +39,31 @@
       max_ex1a = nela * (nhoa + 1)
       max_ex1b = nelb * (nhob + 1)
 
-      ! The number of non-vanishing elements in F is the number of
-      ! non-vanashing single and double excitations from a string, and
-      ! computed as the number of strings which differ in two, one, or zero
-      ! spin orbitals from a given string.
+!     The number of non-vanishing elements in F is the number of
+!     non-vanashing single and double excitations from a string, and
+!     computed as the number of strings which differ in two, one, or zero
+!     spin orbitals from a given string.
       max_ex2a = (nela * (nela - 1) * (nhoa) * (nhoa - 1))/4 +
      & nela * nhoa + 1
       max_ex2b = (nelb * (nelb - 1) * (nhob) * (nhob - 1))/4 +
      & nelb * nhob + 1
 
-      ! For sigma1, we use an excitation table for the beta strings.
+!     For sigma1, we use an excitation table for the beta strings.
       allocate (ex1_b(max_ex1b,ndetb))
       call ex1_init(nelb, my_norb, ex1_b)
 
-      ! For sigma2, we use an excitation table for the alpha strings, unless
-      ! Ms = 0 (mult = 1), as for singlet spins sigma2 is not computed and
-      ! just taken as the transpose of sigma1.
+!     For sigma2, we use an excitation table for the alpha strings, unless
+!     Ms = 0 (mult = 1), as for singlet spins sigma2 is not computed and
+!     just taken as the transpose of sigma1.
       if (mult.ne.1) then
         allocate (ex1_a(max_ex1a,ndeta))
         call ex1_init(nela, my_norb, ex1_a)
       end if
 
-      ! For sigma3, we need to construct a list of determinant couples L(i)
-      ! = E_pq R(i) for a given p and q for the alpha strings. This is done
-      ! by a subroutine that takes L, R, and sgn arrays. The maximum size of
-      ! these arrays is when p=q, at which point the number of couples is:
+!     For sigma3, we need to construct a list of determinant couples L(i)
+!     = E_pq R(i) for a given p and q for the alpha strings. This is done
+!     by a subroutine that takes L, R, and sgn arrays. The maximum size of
+!     these arrays is when p=q, at which point the number of couples is:
       max_LRs = binom_coef(nela-1,my_norb-1)
 
       end subroutine

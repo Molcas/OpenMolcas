@@ -495,7 +495,7 @@ C-------------------------------------------
            Go To 595
         Else
            ENCUT_check=.true.
-           compute_magnetization=.true.  !request for computation of M(H)
+           compute_magnetization=.true. !request for computation of M(H)
            encut_definition=1
 
            READ(5,*,ERR=997) NCUT  !E_cut=ESO(Ncut)
@@ -544,7 +544,7 @@ C-------------------------------------------
         Else
           ENCUT_check=.true.
           compute_magnetization=.true.
-          encut_definition=3     !Ncut = INT(nss*encut_rate); E_cut=E(Ncut)
+          encut_definition=3  !Ncut = INT(nss*encut_rate); E_cut=E(Ncut)
 
           READ(5,*,ERR=997) encut_rate
 
@@ -1265,8 +1265,8 @@ C-------------------------------------------
         IF(DBG) Write(6,*) 'ZEEM: nDirZee=',nDirZee
 
         Do i=1,nDirZee
-          ! open the zeeman_energy_xxx.txt file where Zeeman eigenstates will
-          ! be further written in mangetization() subroutine
+!         open the zeeman_energy_xxx.txt file where Zeeman eigenstates will
+!         be further written in mangetization() subroutine
           Write(namefile_energy,'(5A)') 'zeeman_energy_',
      &                     CHAR(48+mod( int((i)/100),10)),
      &                     CHAR(48+mod( int((i)/10 ),10)),

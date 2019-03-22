@@ -305,7 +305,7 @@ CIgorS End------------------------------------------------------------C
         call qcmaquis_info_deinit
       end if
 #endif
-      !> free memory (if allocated at all - currently only for QD-NEVPT2 as ref wfn)
+!     > free memory (if allocated at all - currently only for QD-NEVPT2 as ref wfn)
       call deinit_mspt2_eigenvectors()
 *                                                                      *
 ************************************************************************

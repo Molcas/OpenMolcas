@@ -15,7 +15,8 @@ c           matrices to the basis of their local pseudospins
       Implicit None
       Integer, parameter            :: wp=SELECTED_REAL_KIND(p=15,r=307)
 #include "stdalloc.fh"
-      Integer, intent(in)           :: n1, n2, iopt! exchange basis of both sites
+!     exchange basis of both sites
+      Integer, intent(in)           :: n1, n2, iopt
       Real(kind=wp), intent(in)     :: rot1(3,3)
       Real(kind=wp), intent(in)     :: rot2(3,3)
       Complex(kind=wp), intent(in)  :: MM1(3,n1,n1)

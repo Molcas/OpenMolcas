@@ -59,9 +59,9 @@
 
       Subroutine mean_field_exch( N, H, X,Y,Z, zJ, T, thrs, W,
      &                               dM, sM, ST )
-      ! this Subroutine computes the mean field of neighboring spins ST(3)
-      ! for zJ .ne. 0.0_wp
-      ! using ONLY Zeeman basis (N)
+!     this Subroutine computes the mean field of neighboring spins ST(3)
+!     for zJ .ne. 0.0_wp
+!     using ONLY Zeeman basis (N)
 
       Implicit None
       Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
@@ -117,7 +117,7 @@
           SZ(1:3,1:N,1:N)=(0.0_wp,0.0_wp)
           Call UTMU( N, N, ZM(1:N,1:N), SM(1:3,1:N,1:N),
      &                                  SZ(1:3,1:N,1:N) )
-          ! compute the spin magnetization vector at this temperature (T):
+!         compute the spin magnetization vector at this temperature (T):
           If(iter==mxIter) Then
             SL=0.0_wp
             SL(1)=S(1)
@@ -195,9 +195,9 @@
 
       Subroutine mean_field_all( EXCH, N, H, X,Y,Z, zJ, T, thrs, W,
      &                           dM, SM, ST)
-      ! this Subroutine computes the mean field of neighboring spins ST(3)
-      ! for zJ .ne. 0.0_wp
-      ! using ONLY Zeeman basis (N)
+!     this Subroutine computes the mean field of neighboring spins ST(3)
+!     for zJ .ne. 0.0_wp
+!     using ONLY Zeeman basis (N)
 
       Implicit None
       Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
@@ -253,10 +253,10 @@
             End Do
           End If
 
-          ! transform the spin momenta to the Zeeman eigenstate basis
+!         transform the spin momenta to the Zeeman eigenstate basis
           Call zcopy_(3*EXCH*EXCH,(0.0_wp,0.0_wp),0,SZ,1)
           Call UTMU( EXCH, N, ZM(1:N,1:N), SM, SZ )
-          ! compute the spin magnetization vector at this temperature (T):
+!         compute the spin magnetization vector at this temperature (T):
           If(iter==mxIter) Then
             SL=0.0_wp
             SL(1)=S(1)

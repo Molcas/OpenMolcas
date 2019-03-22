@@ -200,7 +200,8 @@ C     --------------------------------------
       nBatch = (nAtom-nPseudo-1)/numAt + 1 ! exclude pseudo-atoms
       Do iBatch = 1,nBatch
          If (iBatch .eq. nBatch) Then
-            nAt = nAtom - nPseudo - numAt*(nBatch-1) ! exclude pseudo-atoms
+!           exclude pseudo-atoms
+            nAt = nAtom - nPseudo - numAt*(nBatch-1)
          Else
             nAt = numAt
          End If

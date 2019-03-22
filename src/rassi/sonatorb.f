@@ -193,7 +193,8 @@ c perform the state diagonalization similar to
 c what is done in single_aniso
       IF(SODIAGNSTATE.GT.0) THEN
 
-        LSOSIZ=SODIAGNSTATE*(SODIAGNSTATE+1) ! Triangular part of a matrix
+!       Triangular part of a matrix
+        LSOSIZ=SODIAGNSTATE*(SODIAGNSTATE+1)
 
 c This actually does all the work
         CALL SODIAG(WORK(LUMATR), WORK(LUMATI), NSS)

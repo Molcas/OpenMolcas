@@ -20,9 +20,9 @@
      &                    W,  Z,  S,   M, iPrint, mem  )
 
 
-      ! this Subroutine is a control Subroutine for the exchange interaction,
-      ! diagonalization of total hamiltonian and computation of matrix elements
-      ! of magnetic and spin moment
+!     this Subroutine is a control Subroutine for the exchange interaction,
+!     diagonalization of total hamiltonian and computation of matrix elements
+!     of magnetic and spin moment
       Implicit None
       Integer, parameter            :: wp=SELECTED_REAL_KIND(p=15,r=307)
 #include "stdalloc.fh"
@@ -36,7 +36,8 @@
       Integer, intent(in)           :: npair
       Integer, intent(in)           :: i_pair(npair,2)
       Integer, intent(in)           :: exch
-      Integer, intent(in)           :: lant !( takes values from 1-7 for Gd-Yb respectively
+!     ( takes values from 1-7 for Gd-Yb respectively
+      Integer, intent(in)           :: lant
       Integer, intent(in)           :: iPrint
       Integer, intent(in)           :: mem ! memory allocated so far
       Integer, intent(in)           :: MxRank1, MxRank2
@@ -112,13 +113,20 @@
       Complex(kind=wp), allocatable :: MM1(:,:,:) ! MM1(3,nmax,nmax)
       Complex(kind=wp), allocatable :: SM2(:,:,:) ! SM2(3,nmax,nmax)
       Complex(kind=wp), allocatable :: MM2(:,:,:) ! MM2(3,nmax,nmax)
-      Complex(kind=wp), allocatable :: HLIN1(:,:,:,:,:) ! HLIN1(npair,nmax,nmax,nmax,nmax)
-      Complex(kind=wp), allocatable :: HLIN3(:,:,:,:,:) ! HLIN3(npair,nmax,nmax,nmax,nmax)
-      Complex(kind=wp), allocatable :: HLIN9(:,:,:,:,:) ! HLIN9(npair,nmax,nmax,nmax,nmax)
-      Complex(kind=wp), allocatable :: HDIP(:,:,:,:,:) ! HDIP(npair,nmax,nmax,nmax,nmax)
-      Complex(kind=wp), allocatable :: HKEX(:,:,:,:,:) ! HKEX(npair,nmax,nmax,nmax,nmax)
-      Complex(kind=wp), allocatable :: HDMO(:,:,:,:,:) ! HDMO(npair,nmax,nmax,nmax,nmax)
-      Complex(kind=wp), allocatable :: HITO(:,:,:,:,:) ! HITO(npair,nmax,nmax,nmax,nmax)
+      Complex(kind=wp), allocatable :: HLIN1(:,:,:,:,:)
+!                                      HLIN1(npair,nmax,nmax,nmax,nmax)
+      Complex(kind=wp), allocatable :: HLIN3(:,:,:,:,:)
+!                                      HLIN3(npair,nmax,nmax,nmax,nmax)
+      Complex(kind=wp), allocatable :: HLIN9(:,:,:,:,:)
+!                                      HLIN9(npair,nmax,nmax,nmax,nmax)
+      Complex(kind=wp), allocatable :: HDIP(:,:,:,:,:)
+!                                      HDIP(npair,nmax,nmax,nmax,nmax)
+      Complex(kind=wp), allocatable :: HKEX(:,:,:,:,:)
+!                                      HKEX(npair,nmax,nmax,nmax,nmax)
+      Complex(kind=wp), allocatable :: HDMO(:,:,:,:,:)
+!                                      HDMO(npair,nmax,nmax,nmax,nmax)
+      Complex(kind=wp), allocatable :: HITO(:,:,:,:,:)
+!                                      HITO(npair,nmax,nmax,nmax,nmax)
       Complex(kind=wp), allocatable :: tmp(:,:) ! tmp(exch,exch)
 c two options for KE:
       Integer                       :: KEOPT
@@ -129,9 +137,11 @@ c two options for KE:
       Integer, allocatable          :: ibasR(:,:) ! ibasR(exchR,lmax)
       Integer, allocatable          :: intcR(:)   ! intcR(lmax)
       Real(kind=wp), allocatable    :: WR(:)  ! WR(exchR)
-      Real(kind=wp), allocatable    :: rotR(:,:,:,:) ! rotR(nneq,neqv,3,3)
+      Real(kind=wp), allocatable    :: rotR(:,:,:,:)
+!                                      rotR(nneq,neqv,3,3)
       Complex(kind=wp), allocatable :: ZR(:,:) ! ZR(exchR,exchR)
-      Complex(kind=wp), allocatable :: HKEXR(:,:,:,:,:) ! HKEXR(npair,2,2,2,2)
+      Complex(kind=wp), allocatable :: HKEXR(:,:,:,:,:)
+!                                      HKEXR(npair,2,2,2,2)
       Complex(kind=wp), allocatable :: MR(:,:,:) ! MR(3,exchR,exchR)
       Complex(kind=wp), allocatable :: SR(:,:,:) ! SR(3,exchR,exchR)
       Complex(kind=wp), allocatable :: SMR(:,:,:,:) ! SMR(nneq,3,2,2)
@@ -910,9 +920,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           End If ! KEOPT
         End Do ! lp
 
-        ! in case of KEOPT=3 or KEOPT=4 Then we need to compute the spectrum and the properties
-        ! in the reduced form, where nexch(i1)=2 ( ground Doublet only).
-        ! exchnew=8:
+!       in case of KEOPT=3 or KEOPT=4 Then we need to compute the spectrum and the properties
+!       in the reduced form, where nexch(i1)=2 ( ground Doublet only).
+!       exchnew=8:
         If(KEOPT.le.4) Then
           nmaxR=2
           nexchR(1)=2

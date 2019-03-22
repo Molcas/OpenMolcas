@@ -191,7 +191,7 @@ c     &                                              nFragDens(iCnttp)
       llOper = lOper(1)
       iComp = 1
       iCurMdc = 0
-c      ! The mdc value of the current fragment placeholder
+c     ! The mdc value of the current fragment placeholder
       iCurCnttp = 1
 c     ! The Cnttp of the fragment placeholder
       iCurCenter = 999999
@@ -693,12 +693,12 @@ c               Call Add_Info(Label,Final(1,ia,ib,1),nAlpha*nBeta,5)
          End Do
       End If
 c add some verification data
-      ! this check is to ensure that Add_Info is called only on the Master node
-      ! The reason being that the execution of this Kernel routine is split on
-      ! diffeent nodes eariler in the code.
-      ! OneEl -> OneEl_ -> OneEl_IJ -> this routine.
-      ! Normally, the Add_Info must be called after the parallelization is finalized,
-      ! i.e. in the OneEl function.
+!      this check is to ensure that Add_Info is called only on the Master node
+!      The reason being that the execution of this Kernel routine is split on
+!      diffeent nodes eariler in the code.
+!      OneEl -> OneEl_ -> OneEl_IJ -> this routine.
+!      Normally, the Add_Info must be called after the parallelization is finalized,
+!      i.e. in the OneEl function.
 c      If (MyRank.eq.0) then
 c         Do ia = 1, nElem(la)
 c            Do ib = 1, nElem(lb)

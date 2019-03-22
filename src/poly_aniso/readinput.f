@@ -56,15 +56,22 @@ c  definition of the local metal sites
       Real(kind=wp), intent(out) :: riso(nneq,3,3)
       Character(1)  :: itype(nneq)
 c  definition of the exchange:
-      Integer       :: exch                           ! total number of exchange states
-      Integer       :: nPair                          ! number of metal pairs (number of interactions)
-      Integer       :: nexch(nneq)                    ! exchange basis, nmax= MAX(nexch(:))
-      Integer       :: i_pair(nPair,2)                ! index of the metal site in a given interacting pair
+!     total number of exchange states
+      Integer       :: exch
+!     number of metal pairs (number of interactions)
+      Integer       :: nPair
+!     exchange basis, nmax= MAX(nexch(:))
+      Integer       :: nexch(nneq)
+!     index of the metal site in a given interacting pair
+      Integer       :: i_pair(nPair,2)
       Logical       :: AnisoLines1, AnisoLines3, AnisoLines9
       Logical       :: Dipol, DM_exchange
-      Real(kind=wp) :: Jex(nPair)                     ! Lines exchange    ( 1 parameter / interacting pair)
-      Real(kind=wp) :: JAex(nPair,3)                  ! Anisotropic Lines ( 3 parameter / interacting pair)
-      Real(kind=wp) :: JAex9(nPair,3,3)               ! Anisotropic Lines full ( 9 parameters / interacting pair)
+!     Lines exchange    ( 1 parameter / interacting pair)
+      Real(kind=wp) :: Jex(nPair)
+!     Anisotropic Lines ( 3 parameter / interacting pair)
+      Real(kind=wp) :: JAex(nPair,3)
+!     Anisotropic Lines full ( 9 parameters / interacting pair)
+      Real(kind=wp) :: JAex9(nPair,3,3)
       Real(kind=wp) :: JDMex(nPair,3)
       ! options used in connection with ITO exchange:
       Logical             :: JITO_exchange
@@ -132,7 +139,8 @@ c  definition of mean field parameter
 c  definintion of the crystal axes:
       Logical       :: Do_structure_abc
       Real(kind=wp) :: cryst(6) ! a, b, c, alpha, beta, gamma
-      Real(kind=wp) :: coord(3) ! Cartesian coordinates of the main metal site, or center
+!     Cartesian coordinates of the main metal site, or center
+      Real(kind=wp) :: coord(3)
 c  definitions for blocking barrier
       Logical       :: compute_barrier
 c  options for automatic fitting of parameters:
@@ -153,7 +161,8 @@ c--------- LOCAL VARIABLES --------------------
       Integer       :: duplicate_check(nPair), nind(exch,2)
       Integer       :: nst, ASUM, jrank1,jrank2,jproj1,jproj2
       Integer       :: i1,i2,lb1,lb2
-c      Integer       :: nind(nPair,2)                  ! index of the metal site in a given interacting pair
+!     index of the metal site in a given interacting pair
+c      Integer       :: nind(nPair,2)
 c      Integer       :: ind_exch(nneq)
 c      Real(lind=wp) :: magncoords(2*maxanisofiles,3)
       Real(kind=wp) :: finddetr, detR
@@ -446,8 +455,8 @@ C=========== End of default settings====================================
 
 *---  process MACC command --------------------------------------------**
       If (LINE(1:4).eq.'MACC') Then
-         compute_magnetization=.true.                      ! request for computation of M(H)
-         m_accurate=.true.                      ! request for computation of M(H)
+         compute_magnetization=.true.  ! request for computation of M(H)
+         m_accurate=.true.             ! request for computation of M(H)
          If(DBG) write(6,'(A,L2)') 'MACC: ',m_accurate
          LINENR=LINENR+1
          Go To 100
@@ -472,7 +481,7 @@ C=========== End of default settings====================================
 
 *---  process MPAR command --------------------------------------------**
       If (LINE(1:4).eq.'MPAR') Then
-         m_paranoid=.true.                      ! request for computation of M(H)
+         m_paranoid=.true.             ! request for computation of M(H)
          compute_magnetization=.true.
          If(DBG) write(6,'(A,L2)') 'MPAR: ',m_paranoid
          LINENR=LINENR+1
@@ -483,7 +492,7 @@ C=========== End of default settings====================================
 *---  process TORQ command --------------------------------------------**
       If (LINE(1:4).eq.'TORQ') Then
 
-         compute_torque=.true.          ! request for computation of M(H)
+         compute_torque=.true.         ! request for computation of M(H)
          READ(Input,*,ERR=997) i        ! number of angular points
 
          If ( i<=0 ) Then
@@ -503,7 +512,7 @@ C=========== End of default settings====================================
 
 *---  process MAVE command --------------------------------------------**
       If (LINE(1:4).eq.'MAVE') Then
-         compute_magnetization=.true.                      ! request for computation of M(H)
+         compute_magnetization=.true.  ! request for computation of M(H)
 
          READ(Input,*,ERR=997) i,j  !nsymm, ngrid
 
@@ -536,10 +545,12 @@ C=========== End of default settings====================================
             Go To 595
          Else
             ENCUT_check=.true.
-            compute_magnetization=.true.                      ! request for computation of M(H)
+!           request for computation of M(H)
+            compute_magnetization=.true.
             encut_definition=1
 
-            READ(Input,*,ERR=997) i ! NCUT                    ! E_cut= exchange_energy(Ncut)
+            READ(Input,*,ERR=997) i ! NCUT
+!           E_cut= exchange_energy(Ncut)
 
             If ( (i<=0).or.(i>exch) ) Then
                Call WarningMessage(2,'NCUT: value out of range!!!')
@@ -562,10 +573,12 @@ C=========== End of default settings====================================
             Go To 595
          Else
             ENCUT_check=.true.
-            compute_magnetization=.true.                      ! request for computation of M(H)
+!           request for computation of M(H)
+            compute_magnetization=.true.
             encut_definition=2
 
-            READ(Input,*,ERR=997) NK, MG                    ! E_cut = NK * K_Boltz + MG * mu_Bohr
+            READ(Input,*,ERR=997) NK, MG
+!           E_cut = NK * K_Boltz + MG * mu_Bohr
             If(DBG) write(6,'(A,2i6)') 'encu:  nK, mG=',NK, MG
 
             LINENR=LINENR+1
@@ -579,10 +592,12 @@ C=========== End of default settings====================================
             Go To 595
          Else
             ENCUT_check=.true.
-            compute_magnetization=.true.                      ! request for computation of M(H)
+!           request for computation of M(H)
+            compute_magnetization=.true.
             encut_definition=3
 
-            READ(Input,*,ERR=997) encut_rate                !Ncut = INT(nexch*encut_rate); E_cut= E(Ncut)
+            READ(Input,*,ERR=997) encut_rate
+!           Ncut = INT(nexch*encut_rate); E_cut= E(Ncut)
             If(DBG) write(6,'(A,i6)') 'encut_rate=',encut_rate
 
             LINENR=LINENR+1
@@ -620,7 +635,7 @@ C=========== End of default settings====================================
 
 *---  process MVEC command --------------------------------------------**
       If (LINE(1:4).eq.'MVEC') Then
-         compute_magnetization=.true.   ! request for computation of M(H)
+         compute_magnetization=.true.  ! request for computation of M(H)
          compute_Mdir_vector=.true.
 
          READ(Input,*,ERR=997) nDir
@@ -761,13 +776,16 @@ c
 *---  process NNEQ command --------------------------------------------*
 c this is the most important keyword for Poly_Aniso
       If (LINE(1:4).eq.'NNEQ') Then
-         READ(Input,*,ERR=997)  NNEQ, ab_initio_all, ifHDF     ! number of non-equivalent centers; type of all centers
+!        number of non-equivalent centers; type of all centers
+         READ(Input,*,ERR=997)  NNEQ, ab_initio_all, ifHDF
          If(DBG) Write(6,'(A,i4,A,L2,A,L2)') 'NNEQ=', NNEQ,
      &                          ' ab_initio_all=',ab_initio_all,
      &                          ' ifHDF=', ifHDF
-         READ(Input,*,ERR=997) (NEQ(i)  ,i=1,Nneq)       ! number of equivalent centers of type "i"
+!        number of equivalent centers of type "i"
+         READ(Input,*,ERR=997) (NEQ(i)  ,i=1,Nneq)
          If(DBG) Write(6,'(A,100I4)') 'NEQ(I)=',(NEQ(i),i=1,nneq)
-         READ(Input,*,ERR=997) (Nexch(i),i=1,Nneq)       ! number of RASSI wf for exchange
+!        number of RASSI wf for exchange
+         READ(Input,*,ERR=997) (Nexch(i),i=1,Nneq)
          If(DBG) Write(6,'(A,100I4)') 'NExch(I)=',(NExch(i),i=1,nneq)
 
          Do i=1,nneq
@@ -813,7 +831,8 @@ c         Do i=1,nCenter
 c            ind_exch(i)=i
 c         End Do
 
-         If(exch > 15000) Then     !If the EXCH is above the limit => exit with an error
+!        If the EXCH is above the limit => exit with an error
+         If(exch > 15000) Then
             Write(6,'(A)') 'The number of exchange states is very large'
             Write(6,'(A)') 'EXCH=',exch
             Write(6,'(A)') 'The calculation will continue, but might '//
@@ -825,9 +844,11 @@ c         End Do
          If(ab_initio_all .eqv. .false.) Then
             readgfact=.true.
 
-            READ(Input,*,ERR=997) (itype(i),i=1,Nneq)      ! type of the center:   A -- the information is read from aniso_ion.input
-c                                                                                  B -- the center is isotropic with g factor read from the input
-            If(DBG) Write(6,'(A,100A3)') 'itype: ',(itype(i),i=1,nneq) !           C -- the center is anisotropic with
+!           type of the center:   A -- the information is read from aniso_ion.input
+!                                 B -- the center is isotropic with g factor read from the input
+!                                 C -- the center is anisotropic with
+            READ(Input,*,ERR=997) (itype(i),i=1,Nneq)
+            If(DBG) Write(6,'(A,100A3)') 'itype: ',(itype(i),i=1,nneq)
             If(DBG) Call xFlush(6)
             icount_B_sites=0
             Do i=1,nneq
@@ -1049,8 +1070,8 @@ c                                                                               
          READ(Input,*,ERR=997) nDirZee
 
         Do i=1,nDirZee
-          ! open the zeeman_energy_xxx.txt file where Zeeman eigenstates will
-          ! be further written in mangetization() subroutine
+!         open the zeeman_energy_xxx.txt file where Zeeman eigenstates will
+!         be further written in mangetization() subroutine
           Write(namefile_energy,'(5A)') 'zeeman_energy_',
      &                     CHAR(48+mod( int((i)/100),10)),
      &                     CHAR(48+mod( int((i)/10 ),10)),
@@ -1418,7 +1439,7 @@ c--------  definintion of exchange ------------------------------
          End Do
 
 
-         ! check on the size of MxRank1 and MxRank2 wrt nexch(1) and nexch(2)
+!        check on the size of MxRank1 and MxRank2 wrt nexch(1) and nexch(2)
          If(JITO_exchange) Then
            l=0
            Do i=1,nneq

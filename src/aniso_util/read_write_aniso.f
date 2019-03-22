@@ -22,7 +22,8 @@
       Complex(kind=wp), intent(out) :: MM(3,nss,nss)
       Complex(kind=wp), intent(out) :: MS(3,nss,nss)
       Complex(kind=wp), intent(out) :: ML(3,nss,nss)
-      Complex(kind=wp), intent(out) :: DM(3,nss,nss) ! electric dipole moment
+!     electric dipole moment
+      Complex(kind=wp), intent(out) :: DM(3,nss,nss)
       Complex(kind=wp), intent(out) :: U(nss,nss)
       Character(180)                :: input_file_name
       ! local variables:

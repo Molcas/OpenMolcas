@@ -71,7 +71,7 @@ c write one electron fock matrix into voint
               lrcii=lrt
             endif
             voint(lrcii,lrcij)=xfock(nc+nidx)
-            !write(6,'(1x,i3,1x,i3,1x,f18.9)') lrcii,lrcij,xfock(nc+nidx)
+!           write(6,'(1x,i3,1x,i3,1x,f18.9)') lrcii,lrcij,xfock(nc+nidx)
           enddo
         enddo
         nidx=nidx+nsmint
@@ -263,7 +263,7 @@ c write one electron fock matrix into voint
               lrcii=lrt
             endif
             voint(lrcii,lrcij)=xfock(nc+nidx)
-            !write(6,'(1x,i3,1x,i3,1x,f18.9)') lrcii,lrcij,xfock(nc+nidx)
+!           write(6,'(1x,i3,1x,i3,1x,f18.9)') lrcii,lrcij,xfock(nc+nidx)
           enddo
         enddo
         nidx=nidx+nsmint

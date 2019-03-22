@@ -93,7 +93,8 @@
 
          Do i=1,nroots
            ! yma
-           if(doDMRG.and.doMCLR)then ! No need to copy,since there are no CI-vectors
+!          No need to copy,since there are no CI-vectors
+           if(doDMRG.and.doMCLR)then
              Call Getmem('CIROOT','ALLO','REAL',ipT,ndets_RGLR)
            else
              Call Getmem('CIROOT','ALLO','REAL',ipT,nconf)

@@ -837,10 +837,12 @@ c           iPAMcount=iPAMcount+1
          nOrdOp = 3
          Call Allocate_Auxiliary()
 *
-         Call dcopy_(nComp,Work(ipOMQ  ),0,CoorO(1  ),3) ! Change from 3 to ncomp?
+!        Change from 3 to ncomp?
+         Call dcopy_(nComp,Work(ipOMQ  ),0,CoorO(1  ),3)
          Call dcopy_(nComp,Work(ipOMQ+1),0,CoorO(1+1),3)
          Call dcopy_(nComp,Work(ipOMQ+2),0,CoorO(1+2),3)
-         Call dCopy_(3,Work(ipOMQ),1,Ccoor,1) ! Should then not all be copied?
+!        Should then not all be copied?
+         Call dCopy_(3,Work(ipOMQ),1,Ccoor,1)
 *
          ixyz=1
          iSymX = 2**IrrFnc(ixyz)

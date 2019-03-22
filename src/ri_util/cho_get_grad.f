@@ -317,7 +317,8 @@ c      Debug=.true.
          End Do
       End Do
 
-      Call GetMem('ip_iShp_rs','Allo','Inte',ip_iShp_rs,nnShl_tot) ! iShp_rs
+!     iShp_rs
+      Call GetMem('ip_iShp_rs','Allo','Inte',ip_iShp_rs,nnShl_tot)
 
 ************************************************************************
 *                                                                      *
@@ -367,7 +368,8 @@ c      Debug=.true.
 
          NumVT=NumChT
          Call GAIGOP_SCAL(NumVT,'+')
-         thrv = ( sqrt(ThrCom/DBLE(Max(1,nItmx)*NumVT)) )*dmpK ! Vector MO transformation screening thresholds
+!        Vector MO transformation screening thresholds
+         thrv = ( sqrt(ThrCom/DBLE(Max(1,nItmx)*NumVT)) )*dmpK
 
 #if defined (_MOLCAS_MPP_)
          If (Is_Real_Par() .and. Update) Then
@@ -389,7 +391,8 @@ c      Debug=.true.
 *
 ** Allocate memory
 *
-         CALL GETMEM('diahI','Allo','Real',ipDIAH,NNBSQ) ! sqrt(D(a,b)) stored in full (squared) dim
+!        sqrt(D(a,b)) stored in full (squared) dim
+         CALL GETMEM('diahI','Allo','Real',ipDIAH,NNBSQ)
          CALL FZERO(Work(ipDIAH),NNBSQ)
 
          Call GetMem('absc','Allo','Real',ipAbs,MaxB) ! abs(C(l)[k])
@@ -399,11 +402,13 @@ c      Debug=.true.
          Call GetMem('yq','Allo','Real',ipYQ,nItmx**2) ! Yi[k] vectors
 
 *used to be nShell*something
-         Call GetMem('MLk1','Allo','Real',ipML,nShell) ! ML[k] lists of largest elements in significant shells
+!        ML[k] lists of largest elements in significant shells
+         Call GetMem('MLk1','Allo','Real',ipML,nShell)
 
-         Call GetMem('SKsh','Allo','Real',ipSKsh(1),nShell*nI2t) ! list of S:= sum_l abs(C(l)[k])
+!        list of S:= sum_l abs(C(l)[k])
+         Call GetMem('SKsh','Allo','Real',ipSKsh(1),nShell*nI2t)
          Do i=2,5
-           ipSKsh(i)=ipSKsh(i-1)+nShell*nIt(i-1)                 ! for each shell
+           ipSKsh(i)=ipSKsh(i-1)+nShell*nIt(i-1)    ! for each shell
          End Do
 
 *
@@ -416,16 +421,19 @@ c      Debug=.true.
            End Do
          End Do
 
-         Call GetMem('Indx','Allo','Inte',ipIndx,(nShell+1)*nInd) ! Index array
+!        Index array
+         Call GetMem('Indx','Allo','Inte',ipIndx,(nShell+1)*nInd)
 
          Call GetMem('Indik','Allo','Inte',ipIndik,
      &               ((nItmx+1)*nItmx+1)*nInd)  !Yi[k] Index array
 
          Call GetMem('ip_Lab','Allo','Inte',ip_Lab,nShell) ! ipLab
 
-         Call GetMem('ip_kOffSh','Allo','Inte',ip_kOffSh,nShell*nSym) ! kOffSh
+!        kOffSh
+         Call GetMem('ip_kOffSh','Allo','Inte',ip_kOffSh,nShell*nSym)
 
-         Call GetMem('ip_SvShp','Allo','Real',ip_SvShp,2*nnShl) ! shell-pair Frobenius norm of the vectors
+!        shell-pair Frobenius norm of the vectors
+         Call GetMem('ip_SvShp','Allo','Real',ip_SvShp,2*nnShl)
 
 *
 ** Jonas - June 2010:

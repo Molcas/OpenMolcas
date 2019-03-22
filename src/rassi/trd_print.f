@@ -112,10 +112,10 @@
               IF(ISYV.EQ.ISYT) LIMX=ISYU
               DO ISYX=1,LIMX
                 ISYVX=ISYV+NSYM*(ISYX-1)
-                !> Write out one symmetry block (4 indices!) of two-electron
-                !> transition density matrix elements.
-                !> Write a full 'rectangular' array, even if it could be made
-                !> smaller by permutation symmetry.
+!               > Write out one symmetry block (4 indices!) of two-electron
+!               > transition density matrix elements.
+!               > Write a full 'rectangular' array, even if it could be made
+!               > smaller by permutation symmetry.
                 WRITE(LU,*)'#  Orbital symm:',ISYT,ISYU,ISYV,ISYX
                 IWBUF=0
                 DO IT=1,NASH(ISYT)

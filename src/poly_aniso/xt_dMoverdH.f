@@ -50,42 +50,71 @@ cccc local variables ccc
 
       Real(kind=wp), allocatable :: WEX0(:)
       Real(kind=wp), allocatable :: WEX1(:)
-      Real(kind=wp), allocatable :: WEX2(:)           ! Zeeman exchange energies
+      Real(kind=wp), allocatable :: WEX2(:)   ! Zeeman exchange energies
       Real(kind=wp), allocatable :: WL0(:,:)    ! Zeeman local energies
       Real(kind=wp), allocatable :: WL1(:,:)
       Real(kind=wp), allocatable :: WL2(:,:)    ! Zeeman local energies
-      Real(kind=wp), allocatable :: WR0(:,:)    ! Zeeman local reduced energies, using only NEXCH states;
+!     Zeeman local reduced energies, using only NEXCH states;
+      Real(kind=wp), allocatable :: WR0(:,:)
       Real(kind=wp), allocatable :: WR1(:,:)
-      Real(kind=wp), allocatable :: WR2(:,:)    ! Zeeman local reduced energies, using only NEXCH states;
+!     Zeeman local reduced energies, using only NEXCH states;
+      Real(kind=wp), allocatable :: WR2(:,:)
 
-      Real(kind=wp), allocatable :: ZL0(:,:) ! local statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ZR0(:,:) ! local statistical sum, Boltzmann distribution, using only NEXCH states
-      Real(kind=wp), allocatable :: ZL1(:,:) ! local statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ZR1(:,:) ! local statistical sum, Boltzmann distribution, using only NEXCH states
-      Real(kind=wp), allocatable :: ZL2(:,:) ! local statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ZR2(:,:) ! local statistical sum, Boltzmann distribution, using only NEXCH states
-      Real(kind=wp), allocatable :: SL0(:,:,:) ! spin magnetisation, from the local sites, using ALL states ;
-      Real(kind=wp), allocatable :: SR0(:,:,:) ! spin magnetisation, from the local sites, using only NEXCH states ;
-      Real(kind=wp), allocatable :: SL1(:,:,:) ! spin magnetisation, from the local sites, using ALL states ;
-      Real(kind=wp), allocatable :: SR1(:,:,:) ! spin magnetisation, from the local sites, using only NEXCH states ;
-      Real(kind=wp), allocatable :: SL2(:,:,:) ! spin magnetisation, from the local sites, using ALL states ;
-      Real(kind=wp), allocatable :: SR2(:,:,:) ! spin magnetisation, from the local sites, using only NEXCH states ;
-      Real(kind=wp), allocatable :: ML0(:,:,:) ! magnetisation, from local sites, using ALL states;
-      Real(kind=wp), allocatable :: MR0(:,:,:) ! magnetisation, from local sites, using only NEXCH states;
-      Real(kind=wp), allocatable :: ML1(:,:,:) ! magnetisation, from local sites, using ALL states;
-      Real(kind=wp), allocatable :: MR1(:,:,:) ! magnetisation, from local sites, using only NEXCH states;
-      Real(kind=wp), allocatable :: ML2(:,:,:) ! magnetisation, from local sites, using ALL states;
-      Real(kind=wp), allocatable :: MR2(:,:,:) ! magnetisation, from local sites, using only NEXCH states;
+!     local statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ZL0(:,:)
+!     local statistical sum, Boltzmann distribution, using only NEXCH states
+      Real(kind=wp), allocatable :: ZR0(:,:)
+!     local statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ZL1(:,:)
+!     local statistical sum, Boltzmann distribution, using only NEXCH states
+      Real(kind=wp), allocatable :: ZR1(:,:)
+!     local statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ZL2(:,:)
+!     local statistical sum, Boltzmann distribution, using only NEXCH states
+      Real(kind=wp), allocatable :: ZR2(:,:)
+!     spin magnetisation, from the local sites, using ALL states ;
+      Real(kind=wp), allocatable :: SL0(:,:,:)
+!     spin magnetisation, from the local sites, using only NEXCH states ;
+      Real(kind=wp), allocatable :: SR0(:,:,:)
+!     spin magnetisation, from the local sites, using ALL states ;
+      Real(kind=wp), allocatable :: SL1(:,:,:)
+!     spin magnetisation, from the local sites, using only NEXCH states ;
+      Real(kind=wp), allocatable :: SR1(:,:,:)
+!     spin magnetisation, from the local sites, using ALL states ;
+      Real(kind=wp), allocatable :: SL2(:,:,:)
+!     spin magnetisation, from the local sites, using only NEXCH states ;
+      Real(kind=wp), allocatable :: SR2(:,:,:)
+!     magnetisation, from local sites, using ALL states;
+      Real(kind=wp), allocatable :: ML0(:,:,:)
+!     magnetisation, from local sites, using only NEXCH states;
+      Real(kind=wp), allocatable :: MR0(:,:,:)
+!     magnetisation, from local sites, using ALL states;
+      Real(kind=wp), allocatable :: ML1(:,:,:)
+!     magnetisation, from local sites, using only NEXCH states;
+      Real(kind=wp), allocatable :: MR1(:,:,:)
+!     magnetisation, from local sites, using ALL states;
+      Real(kind=wp), allocatable :: ML2(:,:,:)
+!     magnetisation, from local sites, using only NEXCH states;
+      Real(kind=wp), allocatable :: MR2(:,:,:)
 
-      Real(kind=wp), allocatable :: SEX0(:,:) ! spin magnetisation, from the exchange block;
-      Real(kind=wp), allocatable :: SEX1(:,:) ! spin magnetisation, from the exchange block;
-      Real(kind=wp), allocatable :: SEX2(:,:) ! spin magnetisation, from the exchange block;
-      Real(kind=wp), allocatable :: MEX0(:,:) ! magnetisation, form the exchange block
-      Real(kind=wp), allocatable :: MEX1(:,:) ! magnetisation, form the exchange block
-      Real(kind=wp), allocatable :: MEX2(:,:) ! magnetisation, form the exchange block
-      Real(kind=wp), allocatable :: ZEX0(:) ! exchange statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ZEX1(:) ! exchange statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ZEX2(:) ! exchange statistical sum, Boltzmann distribution
+!     spin magnetisation, from the exchange block;
+      Real(kind=wp), allocatable :: SEX0(:,:)
+!     spin magnetisation, from the exchange block;
+      Real(kind=wp), allocatable :: SEX1(:,:)
+!     spin magnetisation, from the exchange block;
+      Real(kind=wp), allocatable :: SEX2(:,:)
+!     magnetisation, form the exchange block
+      Real(kind=wp), allocatable :: MEX0(:,:)
+!     magnetisation, form the exchange block
+      Real(kind=wp), allocatable :: MEX1(:,:)
+!     magnetisation, form the exchange block
+      Real(kind=wp), allocatable :: MEX2(:,:)
+!     exchange statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ZEX0(:)
+!     exchange statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ZEX1(:)
+!     exchange statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ZEX2(:)
 c total vectors in general coordinate system:
       Real(kind=wp), allocatable :: ZRT0(:,:)
       Real(kind=wp), allocatable :: ZLT0(:,:)
@@ -106,9 +135,12 @@ c total vectors in general coordinate system:
       Real(kind=wp), allocatable :: SRT2(:,:,:)
       Real(kind=wp), allocatable :: SLT2(:,:,:)
 c data for total system:
-      Real(kind=wp), allocatable :: ZT0(:) ! total statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ZT1(:) ! total statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ZT2(:) ! total statistical sum, Boltzmann distribution
+! total statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ZT0(:)
+! total statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ZT1(:)
+! total statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ZT2(:)
       Real(kind=wp), allocatable :: MT0(:,:) ! total magnetisation
       Real(kind=wp), allocatable :: MT1(:,:) ! total magnetisation
       Real(kind=wp), allocatable :: ST0(:,:) ! total spin magnetisation,

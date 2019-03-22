@@ -284,7 +284,7 @@ c------
           Call pa_prMat('KE_Exchange:: Pseudospin site 1',ZZ1,N1)
           Call pa_prMat('KE_Exchange:: Pseudospin site 2',ZZ2,N2)
         End If
-        ! rewrite the magnetic moments and spin moments in new local bases:
+!       rewrite the magnetic moments and spin moments in new local bases:
         Do L=1,3
           TMP(:,:)=(0.0_wp,0.0_wp)
           Call ZGEMM_('C','N',N1,N1,N1,(1.0_wp,0.0_wp),

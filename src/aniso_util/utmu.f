@@ -316,7 +316,8 @@ c  local variables:
       Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
 #include "stdalloc.fh"
       Integer, intent(in)            :: EXCH, N
-      Complex(kind=wp), intent(inout):: ML(EXCH,EXCH) ! one projection is done
+!     one projection is done
+      Complex(kind=wp), intent(inout):: ML(EXCH,EXCH)
       Complex(kind=wp), intent(in)   ::  Z(N,N)
 c  local variables:
       Integer          :: I,J,i1,j1

@@ -430,7 +430,7 @@ C LSQ and LWO: scratch areas
           call mh5_put_dset(wfn_occnum,OCC)
 #endif
         Else
-           ! this part (TRACI) need to be changed to "TRAMPS", not yet ! Yingjin
+!          this part (TRACI) need to be changed to "TRAMPS", not yet ! Yingjin
            CALL NEWORB_RASSCF(CMO,WORK(LCMON),FA,WORK(LFTR),WORK(LVEC),
      &                        WORK(LWO),WORK(LSQ),WORK(LCMOX),D,OCC)
 * compute orbital overlap matrix

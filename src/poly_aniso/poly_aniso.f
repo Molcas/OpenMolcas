@@ -21,20 +21,28 @@
 c  definition of the cluster:
 
       Integer                       :: mem,RtoB,CtoB,ItoB
-      Integer                       :: nneq      ! number of non-equivalent sites
-      Integer                       :: neqv      ! number of equivalent sites of each type, neqv = MAXVAL(neq(:))
+!     number of non-equivalent sites
+      Integer                       :: nneq
+!     number of equivalent sites of each type, neqv = MAXVAL(neq(:))
+      Integer                       :: neqv
       Integer                       :: nCenter
       Integer, allocatable          :: neq(:)
 c  definition of the local metal sites
-      Integer                       :: nLoc                           ! number of spin-orbit states. nLoc = MAXVAL(nss(:));
+!     number of spin-orbit states. nLoc = MAXVAL(nss(:));
+      Integer                       :: nLoc
       Integer, allocatable          :: nss(:), nsfs(:)
 c      Integer       :: nsfs(nneq), multiplicity(nneq,nLoc)
-      Real(kind=wp), allocatable    :: gtens_input(:,:)  !gtens_input(3,nneq)
+      Real(kind=wp), allocatable    :: gtens_input(:,:)
+!                                      gtens_input(3,nneq)
       Real(kind=wp), allocatable    :: D_fact(:), EoverD_fact(:)
-      Real(kind=wp), allocatable    :: riso(:,:,:)       ! definition of the main local axes in general coord system
-      Real(kind=wp), allocatable    :: R_LG( :,:,:,:)    !R_LG( nneq,neqv,3,3)
-      Real(kind=wp), allocatable    :: R_ROT(:,:,:,:)    !R_ROT(nneq,neqv,3,3)
-      Real(kind=wp), allocatable    :: eso(:,:)          ! spin orbit energies on individual metal sites
+!     definition of the main local axes in general coord system
+      Real(kind=wp), allocatable    :: riso(:,:,:)
+      Real(kind=wp), allocatable    :: R_LG( :,:,:,:)
+!                                      R_LG( nneq,neqv,3,3)
+      Real(kind=wp), allocatable    :: R_ROT(:,:,:,:)
+!                                      R_ROT(nneq,neqv,3,3)
+!     spin orbit energies on individual metal sites
+      Real(kind=wp), allocatable    :: eso(:,:)
       Complex(kind=wp), allocatable :: dipso(:,:,:,:)
       Complex(kind=wp), allocatable ::  s_so(:,:,:,:)
       Character(1)                  :: itype(nneq)
@@ -42,13 +50,18 @@ c      Integer       :: nsfs(nneq), multiplicity(nneq,nLoc)
       Logical                       :: ifHDF
       Logical                       :: DoPlot
 c  definition of the exchange:
-      Integer                       :: exch                           ! total number of exchange states
-      Integer                       :: nPair                          ! number of metal pairs (number of interactions)
-      Integer                       :: nmax                           ! exchange basis, nmax = MAXVAL(nexch(:))
+!     total number of exchange states
+      Integer                       :: exch
+!     number of metal pairs (number of interactions)
+      Integer                       :: nPair
+!     exchange basis, nmax = MAXVAL(nexch(:))
+      Integer                       :: nmax
       Integer                       :: MxRank1, MxRank2
       Integer, allocatable          :: nexch(:)
-      Integer, allocatable          :: i_pair(:,:)            ! index of the metal site in a given interacting pair
-      Integer, allocatable          :: imaxrank(:,:)          ! index of rank ITOs for JITO exchange definition
+!     index of the metal site in a given interacting pair
+      Integer, allocatable          :: i_pair(:,:)
+!     index of rank ITOs for JITO exchange definition
+      Integer, allocatable          :: imaxrank(:,:)
       Logical                       :: AnisoLines1
       Logical                       :: AnisoLines3
       Logical                       :: AnisoLines9
@@ -56,30 +69,42 @@ c  definition of the exchange:
       Logical                       :: DM_exchange
       Logical                       :: decompose_exchange
       Logical                       :: JITO_exchange
-      Real(kind=wp), allocatable    :: Jex(:)            ! Lines exchange    ( 1 parameter / interacting pair)
-      Real(kind=wp), allocatable    :: JAex(:,:)         ! Anisotropic Lines ( 3 parameter / interacting pair)
-      Real(kind=wp), allocatable    :: JAex9(:,:,:)      ! Anisotropic Lines full ( 9 parameters / interacting pair)
-      Real(kind=wp), allocatable    :: JDMex(:,:)         ! Anisotropic Lines ( 3 parameter / interacting pair)
+!     Lines exchange    ( 1 parameter / interacting pair)
+      Real(kind=wp), allocatable    :: Jex(:)
+!     Anisotropic Lines ( 3 parameter / interacting pair)
+      Real(kind=wp), allocatable    :: JAex(:,:)
+!     Anisotropic Lines full ( 9 parameters / interacting pair)
+      Real(kind=wp), allocatable    :: JAex9(:,:,:)
+!     Anisotropic Lines ( 3 parameter / interacting pair)
+      Real(kind=wp), allocatable    :: JDMex(:,:)
       Real(kind=wp), allocatable    :: JITOexR(:,:,:,:,:)
       Real(kind=wp), allocatable    :: JITOexI(:,:,:,:,:)
-      Real(kind=wp), allocatable    :: W(:)              ! exchange spectrum
-      Complex(kind=wp), allocatable :: Z(:,:)         ! exchange eigenstates
-      Complex(kind=wp), allocatable :: dipexch(:,:,:) ! exchange magnetic moment
-      Complex(kind=wp), allocatable ::  s_exch(:,:,:) ! exchange spin moment
+!     exchange spectrum
+      Real(kind=wp), allocatable    :: W(:)
+!     exchange eigenstates
+      Complex(kind=wp), allocatable :: Z(:,:)
+      Complex(kind=wp), allocatable :: dipexch(:,:,:)
+! exchange magnetic moment
+      Complex(kind=wp), allocatable ::  s_exch(:,:,:)
+! exchange spin moment
       ! options used in connection with KE
       Integer                       :: lant, multLn, KEOPT
       Logical                       :: KE
       Real(kind=wp)                 :: tpar, upar
       ! options used in connection with Dipol-Dipol interaction
-      Real(kind=wp), allocatable    :: MagnCoords(:,:) !MagnCoords(nneq,3)
+      Real(kind=wp), allocatable    :: MagnCoords(:,:)
+!                                      MagnCoords(nneq,3)
 
       Integer                       :: nTempMagn
 c  definition of g and D tensors
       Logical                       :: compute_g_tensors
       Integer                       :: nMult
-      Integer, allocatable          :: nDim(:) ! multiplicity of each multiplet
-      Real(kind=wp), allocatable    :: gtens(:,:) ! gtensor of each multiplet
-      Real(kind=wp), allocatable    :: maxes(:,:,:) ! main axes of each multiplet
+!     multiplicity of each multiplet
+      Integer, allocatable          :: nDim(:)
+!     gtensor of each multiplet
+      Real(kind=wp), allocatable    :: gtens(:,:)
+!     main axes of each multiplet
+      Real(kind=wp), allocatable    :: maxes(:,:,:)
 c  definition of data for susceptibility
       Integer                       :: nT
       Logical                       :: compute_susceptibility
@@ -131,8 +156,10 @@ c  definition of mean field parameter
       Real(kind=wp)                 :: zJ
 c  definintion of the crystal axes:
       Logical                       :: Do_structure_abc
-      Real(kind=wp)                 :: cryst(6) ! a, b, c, alpha, beta, gamma
-      Real(kind=wp)                 :: coord(3) ! Cartesian coordinates of the main metal site, or center
+      Real(kind=wp)                 :: cryst(6)
+! a, b, c, alpha, beta, gamma
+      Real(kind=wp)                 :: coord(3)
+! Cartesian coordinates of the main metal site, or center
 c  definitions for blocking barrier
       Integer                       :: nBlock
       Logical                       :: compute_barrier
@@ -348,7 +375,7 @@ c---------------------------------------------------------------------
         Call mma_allocate(LuZee,nDirZee,'LuZee')
         Call icopy(nDirZee,0,0,LuZee,1)
         mem=mem+nDirZee*ItoB
-        ! directional vectors for the magnetic field, for computing Zeeman states
+!       directional vectors for the magnetic field, for computing Zeeman states
         Call mma_allocate(dir_weight,nDirZee,3,'dir_weight')
         Call dcopy_(3*nDirZee,0.0_wp,0,dir_weight,1)
         mem=mem+3*nDirZee*ItoB
@@ -419,8 +446,8 @@ c---------------------------------------------------------------------
       End If
 
       If((nT+nTempMagn)>0) Then
-        ! -- add nTempMagn points, so that all measurables are computed at once...
-        ! temperature points for which XT will be computed
+!       -- add nTempMagn points, so that all measurables are computed at once...
+!       temperature points for which XT will be computed
         Call mma_allocate(T,(nTempMagn+nT),'Temperature')
         Call dcopy_((nT+nTempMagn),0.0_wp,0,T,1)
         mem=mem+(nT+nTempMagn)*RtoB
@@ -796,7 +823,7 @@ c---------------------------------------------------------------------
 !---------------------------------------------------------------------
 
        If (compute_torque) Then
-         ! set the NM- number of states to be exactly diagonalized in Zeeman Interaction
+!        set the NM- number of states to be exactly diagonalized in Zeeman Interaction
          Call set_nm( exch, ncut, encut_definition, nk, mg,
      &                nTempMagn, hmax, w, encut_rate, TempMagn,
      &                nM, EM, dbg )
@@ -818,7 +845,7 @@ c---------------------------------------------------------------------
 !             MOLAR MAGNETIZATION
 !---------------------------------------------------------------------
       If(compute_magnetization .AND. (nH>0) ) Then
-         ! set the NM- number of states to be exactly diagonalized in Zeeman Interaction
+!        set the NM- number of states to be exactly diagonalized in Zeeman Interaction
          Call set_nm( exch, ncut, encut_definition, nk, mg,
      &                nTempMagn, hmax, w, encut_rate, TempMagn,
      &                nM, EM, dbg )

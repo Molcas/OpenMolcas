@@ -40,9 +40,11 @@ c correction to M from the local excited states:
 c rotation matrices for equivalent sites:
       Real(kind=wp), intent(in)    :: R_ROT(nneq,neqv,3,3)
 c exchange spectum:
-      Real(kind=wp), intent(in)    :: W(exch)  ! exchange energies printed out in the previous part
+!     exchange energies printed out in the previous part
+      Real(kind=wp), intent(in)    :: W(exch)
 c local spin-orbit spectum:
-      Real(kind=wp), intent(in)    :: ESO(nneq,nLoc) ! spin-orbit energies from ANISO files
+!     spin-orbit energies from ANISO files
+      Real(kind=wp), intent(in)    :: ESO(nneq,nLoc)
 c magnetic and spin moments (i.e. the BIG matrices):
       Complex(kind=wp), intent(in) :: DIPEXCH(3,EXCH,EXCH)
       Complex(kind=wp), intent(in) ::  S_EXCH(3,EXCH,EXCH)
@@ -53,31 +55,50 @@ c------------------------------------------------------------
 c         LOCAL VARIABLES:
 c------------------------------------------------------------
 c exchange data:
-      Real(kind=wp), allocatable :: WEX(:)    ! WEX(NM)                ! Zeeman exchange energies
-      Real(kind=wp), allocatable :: ZEX(:)    ! ZEX(nTempMagn)         ! exchange statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: SEX(:,:)  ! SEX(3,nTempMagn)       ! spin magnetisation, from the exchange block;
-      Real(kind=wp), allocatable :: MEX(:,:)  ! MEX(3,nTempMagn)       ! magnetisation, form the exchange block
+      Real(kind=wp), allocatable :: WEX(:)
+!                                   WEX(NM)                ! Zeeman exchange energies
+      Real(kind=wp), allocatable :: ZEX(:)
+!                                   ZEX(nTempMagn)         ! exchange statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: SEX(:,:)
+!                                   SEX(3,nTempMagn)       ! spin magnetisation, from the exchange block;
+      Real(kind=wp), allocatable :: MEX(:,:)
+!                                   MEX(3,nTempMagn)       ! magnetisation, form the exchange block
 c data for individual sites (all states):
-      Real(kind=wp), allocatable :: ZL(:,:)   ! ZL(nneq,nTempMagn)     ! local statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: WL(:,:)   ! WL(nneq,nLoc)          ! Zeeman local energies
-      Real(kind=wp), allocatable :: SL(:,:,:) ! SL(nneq,3,nTempMagn)   ! spin magnetisation, from the local sites, using ALL states ;
-      Real(kind=wp), allocatable :: ML(:,:,:) ! ML(nneq,3,nTempMagn)   ! magnetisation, from local sites, using ALL states;
+      Real(kind=wp), allocatable :: ZL(:,:)
+!                                   ZL(nneq,nTempMagn)     ! local statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: WL(:,:)
+!                                   WL(nneq,nLoc)          ! Zeeman local energies
+      Real(kind=wp), allocatable :: SL(:,:,:)
+!                                   SL(nneq,3,nTempMagn)   ! spin magnetisation, from the local sites, using ALL states ;
+      Real(kind=wp), allocatable :: ML(:,:,:)
+!                                   ML(nneq,3,nTempMagn)   ! magnetisation, from local sites, using ALL states;
 c data for individual sites (only states that enter exchange):
-      Real(kind=wp), allocatable :: ZR(:,:)   ! ZR(nneq,nTempMagn)     ! local statistical sum, Boltzmann distribution, using only NEXCH states
-      Real(kind=wp), allocatable :: WR(:,:)   ! WR(nneq,nLoc)          ! Zeeman local reduced energies, using only NEXCH states;
-      Real(kind=wp), allocatable :: SR(:,:,:) ! SR(nneq,3,nTempMagn)   ! spin magnetisation, from the local sites, using only NEXCH states ;
-      Real(kind=wp), allocatable :: MR(:,:,:) ! MR(nneq,3,nTempMagn)   ! magnetisation, from local sites, using only NEXCH states;
+      Real(kind=wp), allocatable :: ZR(:,:)
+!                                   ZR(nneq,nTempMagn)     ! local statistical sum, Boltzmann distribution, using only NEXCH states
+      Real(kind=wp), allocatable :: WR(:,:)
+!                                   WR(nneq,nLoc)          ! Zeeman local reduced energies, using only NEXCH states;
+      Real(kind=wp), allocatable :: SR(:,:,:)
+!                                   SR(nneq,3,nTempMagn)   ! spin magnetisation, from the local sites, using only NEXCH states ;
+      Real(kind=wp), allocatable :: MR(:,:,:)
+!                                   MR(nneq,3,nTempMagn)   ! magnetisation, from local sites, using only NEXCH states;
 c total vectors in general coordinate system:
       Real(kind=wp), allocatable :: ZRT(:,:)   ! ZRT(nCenter,nTempMagn)
       Real(kind=wp), allocatable :: ZLT(:,:)   ! ZLT(nCenter,nTempMagn)
-      Real(kind=wp), allocatable :: MRT(:,:,:) ! MRT(nCenter,3,nTempMagn)
-      Real(kind=wp), allocatable :: MLT(:,:,:) ! MLT(nCenter,3,nTempMagn)
-      Real(kind=wp), allocatable :: SRT(:,:,:) ! SRT(nCenter,3,nTempMagn)
-      Real(kind=wp), allocatable :: SLT(:,:,:) ! SLT(nCenter,3,nTempMagn)
+      Real(kind=wp), allocatable :: MRT(:,:,:)
+!                                   MRT(nCenter,3,nTempMagn)
+      Real(kind=wp), allocatable :: MLT(:,:,:)
+!                                   MLT(nCenter,3,nTempMagn)
+      Real(kind=wp), allocatable :: SRT(:,:,:)
+!                                   SRT(nCenter,3,nTempMagn)
+      Real(kind=wp), allocatable :: SLT(:,:,:)
+!                                   SLT(nCenter,3,nTempMagn)
 c data for total system:
-      Real(kind=wp), allocatable :: ZT(:)   ! ZT(nTempMagn)        ! total statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ST(:,:) ! ST(3,nTempMagn)      ! total spin magnetisation,
-      Real(kind=wp), allocatable :: MT(:,:) ! MT(3,nTempMagn)      ! total magnetisation
+      Real(kind=wp), allocatable :: ZT(:)
+!                                   ZT(nTempMagn)        ! total statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ST(:,:)
+!                                   ST(3,nTempMagn)      ! total spin magnetisation,
+      Real(kind=wp), allocatable :: MT(:,:)
+!                                   MT(3,nTempMagn)      ! total magnetisation
 c magnetic field strength and orientation data:
       Integer       :: nPlanes
       Real(kind=wp) :: dlth
@@ -88,12 +109,18 @@ c magnetic field strength and orientation data:
       Real(kind=wp), allocatable :: dZ(:,:) ! dZ(nPlanes,AngPoints)
       Real(kind=wp), allocatable :: Ang(:)  ! Ang(AngPoints)
 c magnetic torque
-      Real(kind=wp), allocatable :: tx(:,:,:,:) ! tx(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque, X
-      Real(kind=wp), allocatable :: ty(:,:,:,:) ! ty(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque, Y
-      Real(kind=wp), allocatable :: tz(:,:,:,:) ! tz(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque, Z
-      Real(kind=wp), allocatable :: sx(:,:,:,:) ! sx(nPlanes,AngPoints,nH,nTempMagn) ! spin magnetization torque, X
-      Real(kind=wp), allocatable :: sy(:,:,:,:) ! sy(nPlanes,AngPoints,nH,nTempMagn) ! spin magnetization torque, Y
-      Real(kind=wp), allocatable :: sz(:,:,:,:) ! sz(nPlanes,AngPoints,nH,nTempMagn) ! spin magnetization torque, Z
+      Real(kind=wp), allocatable :: tx(:,:,:,:)
+!                                   tx(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque, X
+      Real(kind=wp), allocatable :: ty(:,:,:,:)
+!                                   ty(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque, Y
+      Real(kind=wp), allocatable :: tz(:,:,:,:)
+!                                   tz(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque, Z
+      Real(kind=wp), allocatable :: sx(:,:,:,:)
+!                                   sx(nPlanes,AngPoints,nH,nTempMagn) ! spin magnetization torque, X
+      Real(kind=wp), allocatable :: sy(:,:,:,:)
+!                                   sy(nPlanes,AngPoints,nH,nTempMagn) ! spin magnetization torque, Y
+      Real(kind=wp), allocatable :: sz(:,:,:,:)
+!                                   sz(nPlanes,AngPoints,nH,nTempMagn) ! spin magnetization torque, Z
       Real(kind=wp) :: cm3tomB
       Integer :: mem_local, RtoB
 c local data:
@@ -234,11 +261,11 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
             Call mma_allocate(ZR,nneq,nTempMagn,'ZR')
             Call dcopy_(nneq*nTempMagn,0.0_wp,0,ZR,1)
             mem_local=mem_local+nneq*nTempMagn*RtoB
-            ! spin magnetisation, from the local sites, using only NEXCH states
+!           spin magnetisation, from the local sites, using only NEXCH states
             Call mma_allocate(SR,nneq,3,nTempMagn,'SR')
             Call dcopy_(nneq*3*nTempMagn,0.0_wp,0,SR,1)
             mem_local=mem_local+nneq*3*nTempMagn*RtoB
-            ! magnetisation, from the local sites, using only NEXCH states
+!           magnetisation, from the local sites, using only NEXCH states
             Call mma_allocate(MR,nneq,3,nTempMagn,'MR')
             Call dcopy_(nneq*3*nTempMagn,0.0_wp,0,MR,1)
             mem_local=mem_local+nneq*3*nTempMagn*RtoB
@@ -464,10 +491,10 @@ c     &           Mex(1,iT)*dX(iM)+Mex(2,iT)*dY(iM)+Mex(3,iT)*dZ(iM)
                            ZLT(isite,iT)=ZL(i,iT)
                            ZRT(isite,iT)=ZR(i,iT)
                         End Do
-                        ! magnetizations:
-                        ! use R_rot matrices, which have determinant +1.
-                        !  >> note that  R_lg matrices may have arbitrary
-                        !  >> sign of the determinant.
+!                       magnetizations:
+!                       use R_rot matrices, which have determinant +1.
+!                        >> note that  R_lg matrices may have arbitrary
+!                        >> sign of the determinant.
                         Do iT=1,nTempMagn
                            Do l=1,3
                               Do n=1,3

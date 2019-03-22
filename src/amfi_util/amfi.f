@@ -243,13 +243,14 @@ cbs    the one-electron spin-orbit integrals
 ! 1/r**3  for normalized functions
       call contandmult(Lhigh,makemean,AIMP,oneonly,numballcart,LUPROP,
      *ifinite,work(icartx),work(icarty),work(icartz),work(ionecontr),
-     *work(ioneoverR3),iCenter) ! multiplies radial integrals with l,m-dependent
+     *work(ioneoverR3),iCenter)
+cbs   multiplies radial integrals with l,m-dependent
+cbs   factors and contraction coefficients
       Call GetMem('coulovlp','free','Real',icoulovlp,icoulovlpdim)
       Call GetMem('powexp','free','Real',ipowexp,ipowexpdim)
       Call GetMem('onecontr','free','Real',ionecontr,ionecontrdim)
       Call GetMem('cartone','free','Real',icartx,3*icartdim)
       Call GetMem('oneoverR3','free','Real',ioneoverR3,ioneoverR3dim)
-cbs                             factors and contraction coefficients
 CBS   write(6,*) '***************************************************'
 CBS   write(6,*) '*******   end of  the 1-electron-part    **********'
 CBS   write(6,*) '***************************************************'

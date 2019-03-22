@@ -14,8 +14,10 @@
       Integer, Parameter :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in) :: N
       Real(kind=wp), intent(in) :: R(3,3) !rotation matrix
-      Complex(kind=wp), intent(in) :: MOM(3,N,N) !initial momentum matrix
-      Complex(kind=wp), intent(out) :: MOMR(3,N,N) ! rotated momentum matrix
+!     initial momentum matrix
+      Complex(kind=wp), intent(in) :: MOM(3,N,N)
+!     rotated momentum matrix
+      Complex(kind=wp), intent(out) :: MOMR(3,N,N)
 c  local variables
       Integer :: i,j,l,k
       Complex(kind=wp) :: RC(3,3)
@@ -52,7 +54,8 @@ c------------------------------------------------------------------------
       Integer, intent(in) :: N
       Real(kind=wp),intent(in) :: R(3,3) !rotation matrix
       Complex(kind=wp),intent(in) :: MOM(3,N,N) !initial momentum matrix
-      Complex(kind=wp),intent(out) :: MOMR(3,N,N) ! rotated momentum matrix
+!     rotated momentum matrix
+      Complex(kind=wp),intent(out) :: MOMR(3,N,N)
 c  local variables
       Integer i,j,l,k
       Complex(kind=wp) :: RC(3,3)

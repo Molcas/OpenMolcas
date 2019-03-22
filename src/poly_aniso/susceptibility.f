@@ -46,33 +46,48 @@ c contributions from local excited states, computed in the XT section:
 #include "stdalloc.fh"
 
 c local variables
-      Real(kind=wp), allocatable ::     chit_tens_l(:,:,:)   !chit_tens_l( nneq,3,3)
-      Real(kind=wp), allocatable :: smu_chit_tens_l(:,:,:)   !smu_chit_tens_l( nneq,3,3)
-      Real(kind=wp), allocatable ::  ss_chit_tens_l(:,:,:)   ! ss_chit_tens_l( nneq,3,3)
-      Real(kind=wp), allocatable ::     chit_tens_lr(:,:,:)  !    chit_tens_lr(nneq,3,3)
-      Real(kind=wp), allocatable :: smu_chit_tens_lr(:,:,:)  !smu_chit_tens_lr(nneq,3,3)
-      Real(kind=wp), allocatable ::  ss_chit_tens_lr(:,:,:)  ! ss_chit_tens_lr(nneq,3,3)
-      Real(kind=wp), allocatable ::     chit_tens_ex(:,:)    !    chit_tens_ex(3,3)
-      Real(kind=wp), allocatable :: smu_chit_tens_ex(:,:)    !smu_chit_tens_ex(3,3)
-      Real(kind=wp), allocatable ::  ss_chit_tens_ex(:,:)    ! ss_chit_tens_ex(3,3)
-      Real(kind=wp), allocatable ::     chit_tens_tot(:,:,:) !    chit_tens_tot(nT+nTempMagn,3,3)
-      Real(kind=wp), allocatable :: smu_chit_tens_tot(:,:)   !smu_chit_tens_tot(3,3)
-      Real(kind=wp), allocatable ::  ss_chit_tens_tot(:,:)   ! ss_chit_tens_tot(3,3)
-      Real(kind=wp), allocatable ::   chit_theta_tens(:,:,:) !  chit_theta_tens(nT+nTempMagn,3,3)
-      Real(kind=wp), allocatable :: zstat_l(:)               !zstat_l( nneq)
-      Real(kind=wp), allocatable :: zstat_lr(:)              !zstat_lr(nneq)
-      Real(kind=wp), allocatable :: zstat_tot(:)             !zstat_tot(nT+nTempMagn)
-      Real(kind=wp), allocatable :: chit(:)                  !chit(nT+nTempMagn)
-      Real(kind=wp), allocatable :: chi_theta_1(:)           !chi_theta_1(nT+nTempMagn)
-      Real(kind=wp), allocatable :: XL(:,:,:)                !XL(nCenter,3,3)
-      Real(kind=wp), allocatable :: ZL(:)                    !ZL(nCenter)
-      Real(kind=wp), allocatable :: XR(:,:,:)                !XR(nCenter,3,3)
-      Real(kind=wp), allocatable :: ZR(:)                    !ZR(nCenter)
-      Real(kind=wp), allocatable :: SMUR(:,:,:)              !SMUR(nCenter,3,3)
-      Real(kind=wp), allocatable :: SMUL(:,:,:)              !SMUL(nCenter,3,3)
-      Real(kind=wp), allocatable :: SSR(:,:,:)               !SSR( nCenter,3,3)
-      Real(kind=wp), allocatable :: SSL(:,:,:)               !SSL( nCenter,3,3)
-      Real(kind=wp), allocatable :: wt(:), zt(:,:)           !wt(3),zt(3,3)
+      Real(kind=wp), allocatable ::     chit_tens_l(:,:,:)
+!                                       chit_tens_l( nneq,3,3)
+      Real(kind=wp), allocatable :: smu_chit_tens_l(:,:,:)
+!                                   smu_chit_tens_l( nneq,3,3)
+      Real(kind=wp), allocatable ::  ss_chit_tens_l(:,:,:)
+!                                    ss_chit_tens_l( nneq,3,3)
+      Real(kind=wp), allocatable ::     chit_tens_lr(:,:,:)
+!                                       chit_tens_lr(nneq,3,3)
+      Real(kind=wp), allocatable :: smu_chit_tens_lr(:,:,:)
+!                                   smu_chit_tens_lr(nneq,3,3)
+      Real(kind=wp), allocatable ::  ss_chit_tens_lr(:,:,:)
+!                                    ss_chit_tens_lr(nneq,3,3)
+      Real(kind=wp), allocatable ::     chit_tens_ex(:,:)
+!                                       chit_tens_ex(3,3)
+      Real(kind=wp), allocatable :: smu_chit_tens_ex(:,:)
+!                                   smu_chit_tens_ex(3,3)
+      Real(kind=wp), allocatable ::  ss_chit_tens_ex(:,:)
+!                                     ss_chit_tens_ex(3,3)
+      Real(kind=wp), allocatable ::     chit_tens_tot(:,:,:)
+!                                       chit_tens_tot(nT+nTempMagn,3,3)
+      Real(kind=wp), allocatable :: smu_chit_tens_tot(:,:)
+!                                   smu_chit_tens_tot(3,3)
+      Real(kind=wp), allocatable ::  ss_chit_tens_tot(:,:)
+!                                    ss_chit_tens_tot(3,3)
+      Real(kind=wp), allocatable ::   chit_theta_tens(:,:,:)
+!                                     chit_theta_tens(nT+nTempMagn,3,3)
+      Real(kind=wp), allocatable :: zstat_l(:)       !zstat_l( nneq)
+      Real(kind=wp), allocatable :: zstat_lr(:)      !zstat_lr(nneq)
+      Real(kind=wp), allocatable :: zstat_tot(:)
+!                                   zstat_tot(nT+nTempMagn)
+      Real(kind=wp), allocatable :: chit(:)          !chit(nT+nTempMagn)
+      Real(kind=wp), allocatable :: chi_theta_1(:)
+!                                   chi_theta_1(nT+nTempMagn)
+      Real(kind=wp), allocatable :: XL(:,:,:)        !XL(nCenter,3,3)
+      Real(kind=wp), allocatable :: ZL(:)            !ZL(nCenter)
+      Real(kind=wp), allocatable :: XR(:,:,:)        !XR(nCenter,3,3)
+      Real(kind=wp), allocatable :: ZR(:)            !ZR(nCenter)
+      Real(kind=wp), allocatable :: SMUR(:,:,:)      !SMUR(nCenter,3,3)
+      Real(kind=wp), allocatable :: SMUL(:,:,:)      !SMUL(nCenter,3,3)
+      Real(kind=wp), allocatable :: SSR(:,:,:)       !SSR( nCenter,3,3)
+      Real(kind=wp), allocatable :: SSL(:,:,:)       !SSL( nCenter,3,3)
+      Real(kind=wp), allocatable :: wt(:), zt(:,:)   !wt(3),zt(3,3)
       Real(kind=wp), allocatable :: A_dir(:,:)               !A_dir(3,3)
       Real(kind=wp), allocatable :: A_inv(:,:)               !A_inv(3,3)
       Real(kind=wp), allocatable :: unity(:,:)               !unity(3,3)
@@ -95,7 +110,8 @@ c local variables
       mem_local=0
       dbg=.false.
       RtoB=8
-      coeff_chi=0.1250486120_wp*3.0_wp         ! = n_a*mu_bohr^2/(k_boltz) in cm^3*k/mol
+!     = n_a*mu_bohr^2/(k_boltz) in cm^3*k/mol
+      coeff_chi=0.1250486120_wp*3.0_wp
       boltz_k=0.69503560_wp                    !   in cm^-1*k-1
 !-----------------------------------------------------------------------
       If(dbg) Then
@@ -441,12 +457,12 @@ c coordinate system:
                isite=isite+1
                ZL(isite)=zstat_l(i)
                ZR(isite)=zstat_lr(i)
-               ! use R_lg matrices, which have arbitrary determinant:  +1  or -1;
-               ! reason:  X_ab is a bi-dimensional tensor.
-               !          We need to rotate twice ==> the sign of R does not
-               !          matter (+1 * +1) = (-1 * -1)
-               !  >> R_rot matrices have determinant strict +1, and are used to
-               !          rotate vectors
+!              use R_lg matrices, which have arbitrary determinant:  +1  or -1;
+!              reason:  X_ab is a bi-dimensional tensor.
+!                       We need to rotate twice ==> the sign of R does not
+!                       matter (+1 * +1) = (-1 * -1)
+!               >> R_rot matrices have determinant strict +1, and are used to
+!                       rotate vectors
                   Do ic=1,3
                      Do jc=1,3
                         Do n1=1,3

@@ -23,7 +23,8 @@
       Real(kind=wp), intent(in)     :: gtens_input(3)
       Real(kind=wp), intent(in)     :: riso(3,3)
       Real(kind=wp), intent(in)     :: D, EoverD ! ZFS factors
-      Real(kind=wp), intent(out)    :: E(nExch)   ! spin-orbit energy states, starting from 0
+      ! spin-orbit energy states, starting from 0
+      Real(kind=wp), intent(out)    :: E(nExch)
       Complex(kind=wp), intent(out) :: M(3,nExch,nExch)
       Complex(kind=wp), intent(out) :: S(3,nExch,nExch)
 
@@ -86,7 +87,7 @@
       If(dbg) Write(6,'(A,2ES22.14)') 'Norms of M and S:', RM, RS
 
       If( (RM>0.0_wp).AND.(RS>0.0_wp) ) Then
-      ! rotate the spin and magnetic moment to the general coordinate system:
+!        rotate the spin and magnetic moment to the general coordinate system:
          Call mma_allocate(MTMP,3,nExch,nExch,'MTMP')
          Call mma_allocate(STMP,3,nExch,nExch,'STMP')
          Call mma_allocate(Z,nExch,nExch,'Z')

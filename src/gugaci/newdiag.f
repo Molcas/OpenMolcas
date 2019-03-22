@@ -141,7 +141,7 @@ c        write(6,"(10(f12.6,1x))") a(i,1:10)
 c      enddo
 c      stop 888
 
-      ! temporay desiable next five line because these code is not used now
+!      temporay desiable next five line because these code is not used now
 c      info = 0
 c subroutine dgetrf in lapack is used
 c      call dgetrf_lapack( n, n, a, n, indx, info )

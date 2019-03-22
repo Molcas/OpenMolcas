@@ -269,7 +269,8 @@ C============== End of variable declarations ==========================
      &                    '-FIELD HAMILTONIAN:'
         Write(6,*)
         Call print_ZFS_naoya('J',Zinit,nDIMcf)
-      End If ! End  the checking of the main values of the initial crystal-field
+!     End  the checking of the main values of the initial crystal-field
+      End If
 
 C  calculating the coeficients of the crystal filed operators Bnm
 C    Akq=(2k+1)/(2J+1) * 1/|< J || O || J >|^2 * Trace{HCF*O(k,-q)}

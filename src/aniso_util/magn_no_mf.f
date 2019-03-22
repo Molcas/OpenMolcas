@@ -57,10 +57,12 @@ c    iT -- labes the temperature points;
 c local variables:
       Integer          :: i, l, iT
       Real(kind=wp)    :: kB, mB, zJ
-      Real(kind=wp), allocatable :: WM(:), ST(:), RWORK(:) !WM(EXCH), ST(3)
+      Real(kind=wp), allocatable :: WM(:), ST(:), RWORK(:)
+!                                   WM(EXCH), ST(3)
       Complex(kind=wp), allocatable :: HZEE(:), WORK(:), W_c(:)
       Complex(kind=wp), allocatable :: ZM(:,:) !ZM(N,N)
-      Complex(kind=wp), allocatable :: SZ(:,:,:), MZ(:,:,:) !SZ(3,EXCH,EXCH), MZ(3,EXCH,EXCH)
+      Complex(kind=wp), allocatable :: SZ(:,:,:), MZ(:,:,:)
+!                                      SZ(3,EXCH,EXCH), MZ(3,EXCH,EXCH)
       Logical          :: DBG
       Call qEnter('MAGN_NO_MF')
       kB=0.6950356000_wp   ! Boltzmann constant,  in cm^-1*K-1

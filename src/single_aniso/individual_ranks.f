@@ -33,8 +33,8 @@
       Real(kind=wp), external     :: dznrm2_
 
       Complex(kind=wp)              :: zf, redME
-      Complex(kind=wp), allocatable :: O(:,:)     !nDIMCF,nDIMCF)! real ITO
-      Complex(kind=wp), allocatable :: W(:,:)     !nDIMCF,nDIMCF)! imag ITO
+      Complex(kind=wp), allocatable :: O(:,:)  !nDIMCF,nDIMCF)! real ITO
+      Complex(kind=wp), allocatable :: W(:,:)  !nDIMCF,nDIMCF)! imag ITO
       Complex(kind=wp), allocatable :: HCF(:,:,:) !nDIMCF,nDIMCF,nDIMCF)
       Complex(kind=wp), allocatable :: HCFS(:,:,:)!nDIMCF,nDIMCF,nDIMCF)
       Complex(kind=wp), allocatable :: Zk(:,:,:)  !nDIMCF,nDIMCF,nDIMCF)
@@ -150,8 +150,8 @@
             zf=cmplx(BC(N,ABS(M)),0.0_wp,wp)
             Call zaxpy_(nDIMcf*nDIMcf,zf,O,1,HKQ,1)
           End If
-          ! find the rank value of each NM operator
-          ! for further estimate the effect of the corresponding CF parameter
+!         find the rank value of each NM operator
+!         for further estimate the effect of the corresponding CF parameter
           RnrmKQ(N,M)=dznrm2_(nDIMcf*nDIMcf,HKQ(:,:),1)
           TnrmKQ=TnrmKQ+RnrmKQ(N,M)
 

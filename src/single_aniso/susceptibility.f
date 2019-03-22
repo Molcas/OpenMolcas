@@ -238,7 +238,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
            ! Scale the tensors by coeff_X factor:
            Call dscal_( 3*3, coeff_X, XMM, 1 )
            Call dscal_( 3*3, coeff_X, XZJ, 1 )
-           ! place the tensors in the corresponding part of the "big" arrays:
+!          place the tensors in the corresponding part of the "big" arrays:
            Call dcopy_( 3*3, XMM, 1, chiT_tens(iT,:,:),1)
            Call dcopy_( 3*3, XZJ, 1, chiT_theta_tens(iT,:,:),1)
            ! compute powder:

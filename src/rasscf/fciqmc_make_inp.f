@@ -35,8 +35,10 @@
      &    max_tau = 0.02d0,
      &    memoryfacpart = 5.0d0,
      &    memoryfacspawn = 10.0d0,
-     &    realspawncutoff = 0.3d0, ! Default value for NECI RealSpawnCutOff
-     &    diagshift = 0.00d0, ! Default value for NECI diagonal shift value
+! Default value for NECI RealSpawnCutOff
+     &    realspawncutoff = 0.3d0,
+! Default value for NECI diagonal shift value
+     &    diagshift = 0.00d0,
      &    shiftdamp = 0.02d0
         save
       contains

@@ -13,8 +13,8 @@
      &                       AnisoLines1, AnisoLines3, AnisoLines9,
      &                       DM_exchange, JITO_exchange,
      &                       HLIN1, HLIN3, HLIN9, HDIP, HDMO, HITO )
-      ! this function prints the parameters of the exchange interaction in an
-      ! accessible format
+!     this function prints the parameters of the exchange interaction in an
+!     accessible format
       Implicit None
 #include "stdalloc.fh"
       Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
@@ -317,8 +317,8 @@ c first rotate the magnetic moments to the general coordinate system:
           J1Cr=0.0_wp
           Call tensor2cart( JB(1,-1:1,1,-1:1), J1C )
 
-          ! rotate cartesian J1C matrix by mg1 and mg2, in order to represent
-          ! the interaction matrix in the original coordinate system:
+!         rotate cartesian J1C matrix by mg1 and mg2, in order to represent
+!         the interaction matrix in the original coordinate system:
           mg1=0.0_wp; mg2=0.0_wp; g1=0.0_wp; g2=0.0_wp;
           Call atens( MM(i1,1:3,1:n1,1:n1), n1, g1, mg1, 2 )
           Call atens( MM(i2,1:3,1:n2,1:n2), n2, g2, mg2, 2 )
@@ -443,8 +443,8 @@ c first rotate the magnetic moments to the general coordinate system:
           ! using Liviu's ITO parameters
           Call tensor2cart( JB( 1,-1:1, 1,-1:1), J1C )
 
-          ! rotate cartesian JLinC1 by mg1 and mg2, in order to represent
-          ! the interaction matrix in the original coordinate system:
+!         rotate cartesian JLinC1 by mg1 and mg2, in order to represent
+!         the interaction matrix in the original coordinate system:
           mg1=0.0_wp;mg2=0.0_wp;g1=0.0_wp; g2=0.0_wp;
           Call atens( MM(i1,1:3,1:n1,1:n1), n1, g1, mg1, 2 )
           Call atens( MM(i2,1:3,1:n2,1:n2), n2, g2, mg2, 2 )
@@ -520,8 +520,8 @@ c first rotate the magnetic moments to the general coordinate system:
           J1Cr=0.0_wp
           Call tensor2cart( JB(1,-1:1, 1,-1:1), J1C)
 
-          ! rotate cartesian JLinC1 by mg1 and mg2, in order to represent
-          ! the interaction matrix in the original coordinate system:
+!         rotate cartesian JLinC1 by mg1 and mg2, in order to represent
+!         the interaction matrix in the original coordinate system:
           mg1=0.0_wp; mg2=0.0_wp; g1=0.0_wp; g2=0.0_wp;
           Call atens( MM(i1,1:3,1:n1,1:n1), n1, g1, mg1, 2 )
           Call atens( MM(i2,1:3,1:n2,1:n2), n2, g2, mg2, 2 )
@@ -596,8 +596,8 @@ c first rotate the magnetic moments to the general coordinate system:
           J1Cr=0.0_wp
           Call tensor2cart( JB(1,-1:1,1,-1:1), J1C(1:3,1:3) )
 
-          ! rotate cartesian JLinC1 by mg1 and mg2, in order to represent
-          ! the interaction matrix in the original coordinate system:
+!         rotate cartesian JLinC1 by mg1 and mg2, in order to represent
+!         the interaction matrix in the original coordinate system:
           mg1=0.0_wp; mg2=0.0_wp; g1=0.0_wp; g2=0.0_wp;
           Call atens( MM(i1,1:3,1:n1,1:n1), n1, g1, mg1, 2 )
           Call atens( MM(i2,1:3,1:n2,1:n2), n2, g2, mg2, 2 )
@@ -670,8 +670,8 @@ c first rotate the magnetic moments to the general coordinate system:
           Call atens( MM(i1,1:3,1:n1,1:n1), n1, g1, mg1, 2 )
           Call atens( MM(i2,1:3,1:n2,1:n2), n2, g2, mg2, 2 )
 
-          ! rotate cartesian JLinC1 by mg1 and mg2, in order to represent
-          ! the interaction matrix in the original coordinate system:
+!         rotate cartesian JLinC1 by mg1 and mg2, in order to represent
+!         the interaction matrix in the original coordinate system:
           Do i=1,3
            Do j=1,3
              Do l=1,3
@@ -741,8 +741,8 @@ c first rotate the magnetic moments to the general coordinate system:
           Call atens( MM(i1,1:3,1:n1,1:n1), n1, g1, mg1, 2 )
           Call atens( MM(i2,1:3,1:n2,1:n2), n2, g2, mg2, 2 )
 
-          ! rotate cartesian JLinC1 by mg1 and mg2, in order to represent
-          ! the interaction matrix in the original coordinate system:
+!         rotate cartesian JLinC1 by mg1 and mg2, in order to represent
+!         the interaction matrix in the original coordinate system:
           J1Cr(1:3,1:3)=0.0_wp
           Do i=1,3
            Do j=1,3
@@ -791,7 +791,7 @@ c first rotate the magnetic moments to the general coordinate system:
 
 
 
-        !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 c        Write(6,'(100A)') ('-',i=1,100)
 c        Write(6,*)

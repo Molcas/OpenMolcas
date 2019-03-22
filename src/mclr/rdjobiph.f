@@ -244,7 +244,8 @@ C
           inum=0
           dv_ci2=0.0d0
           do j=1,nconf
-            if(abs(Work(ipCI+nconf*i+j-1)).lt.0.0d0)then !yma CI-threshold
+!yma        CI-threshold
+            if(abs(Work(ipCI+nconf*i+j-1)).lt.0.0d0)then
               inum=inum+1
               Work(ipCI+nconf*i+j-1)=0.0d0
             else

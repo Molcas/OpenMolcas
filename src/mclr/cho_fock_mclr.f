@@ -207,10 +207,10 @@ C -------------------------------------------------------------
 
                 k = Muld2h(i,JSYM)
 
-                ipLpq(k,1) = ipLF + lChoa       ! Lvb,J
-                ipLpq(k,2) = ipLpq(k,1)         ! Lvi,J i general MO index
+                ipLpq(k,1) = ipLF + lChoa   ! Lvb,J
+                ipLpq(k,2) = ipLpq(k,1)     ! Lvi,J i general MO index
      &                     + nAsh(k)*nBas(i)*JNUM
-                ipLpq(k,3) = ipLpq(k,2)         ! L~vi,J ~ transformed index
+                ipLpq(k,3) = ipLpq(k,2)     ! L~vi,J ~ transformed index
      &                       + nAsh(k)*nBas(i)*JNUM
 
                 lChoa= lChoa + nAsh(k)*nBas(i)*3*JNUM

@@ -690,7 +690,8 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
         Call GetMem('Fcore','FREE','Real',iTmp1,nTot1)
         Call GetMem('PUVX','FREE','Real',LPUVX,NFINT)
         deallocate(PLWO)
-        Call Put_iScalar('PDFT ready',0) !Necessary for analgrad in Alaska.
+!       Necessary for analgrad in Alaska.
+        Call Put_iScalar('PDFT ready',0)
 
 
       End If

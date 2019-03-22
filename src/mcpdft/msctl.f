@@ -881,7 +881,8 @@ cPS         call xflush(6)
       Call Put_dArray('Last energies',Energies,nroots)
       Call Put_cArray('Relax Method','MCPDFT  ',8)
       Call Put_dScalar('Last energy',Energies(iRlxRoot))
-          iSA = 1 !need to do MCLR for gradient runs. (1 to run, 2 to skip)
+          iSA = 1
+       !need to do MCLR for gradient runs. (1 to run, 2 to skip)
        !MUST MODIFY THIS.  I need to check that the calculation is not
        !SA, and if it is, set iSA to -1.
       Call Put_iScalar('SA ready',iSA)
@@ -900,7 +901,8 @@ cPS         call xflush(6)
 
 !Put information needed for geometry optimizations.
       !if (jroot.eq.iRlxRoot) then
-          iSA = 1 !need to do MCLR for gradient runs. (1 to run, 2 to skip)
+          iSA = 1
+       !need to do MCLR for gradient runs. (1 to run, 2 to skip)
        !MUST MODIFY THIS.  I need to check that the calculation is not
        !SA, and if it is, set iSA to -1.
       Call Put_iScalar('SA ready',iSA)

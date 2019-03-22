@@ -9,8 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Lines_Exchange( Jex, N1, N2, S1, S2, HAM )
-      ! this Subroutine calculates the Lines exchange interaction between
-      ! two sites, of the one interacting pair
+!     this Subroutine calculates the Lines exchange interaction between
+!     two sites, of the one interacting pair
       Implicit None
       Integer, parameter            :: wp=SELECTED_REAL_KIND(p=15,r=307)
       ! input variables
@@ -51,8 +51,8 @@
 
 
       Subroutine Aniso_Lines_Exchange3( Jex, N1, N2, S1, S2, HAM )
-      ! this Subroutine calculates the Lines exchange interaction between
-      ! two sites, of the one interacting pair
+!     this Subroutine calculates the Lines exchange interaction between
+!     two sites, of the one interacting pair
       Implicit None
       Integer, parameter            :: wp=SELECTED_REAL_KIND(p=15,r=307)
       ! input variables
@@ -99,8 +99,8 @@
 
 
       Subroutine Aniso_Lines_Exchange9( Jex, N1, N2, S1, S2, HAM )
-      ! this Subroutine calculates the Lines exchange interaction between
-      ! two sites, of the one interacting pair
+!     this Subroutine calculates the Lines exchange interaction between
+!     two sites, of the one interacting pair
       Implicit None
       Integer, parameter            :: wp=SELECTED_REAL_KIND(p=15,r=307)
       ! input variables
@@ -152,8 +152,8 @@
 
 
       Subroutine Dzyaloshinsky_Morya_Exchange(Jex, N1, N2, S1, S2, HAM)
-      ! this Subroutine calculates the Dzyaloshinsky-Morya exchange interaction between
-      ! two sites, of the one interacting pair
+!     this Subroutine calculates the Dzyaloshinsky-Morya exchange interaction between
+!     two sites, of the one interacting pair
       Implicit None
       Integer, parameter            :: wp=SELECTED_REAL_KIND(p=15,r=307)
       ! input variables
@@ -216,8 +216,8 @@
       Subroutine JITO_Exchange_Int( MxR1, MxR2, imaxrank,
      &                              n1, n2, JR, JI, HAM )
 
-      ! this Subroutine calculates the anisotropic exchange interaction between
-      ! two sites, of the one interacting pair on the basis of input ITO parameters
+!     this Subroutine calculates the anisotropic exchange interaction between
+!     two sites, of the one interacting pair on the basis of input ITO parameters
       Implicit None
 #include "stdalloc.fh"
       Integer, parameter            :: wp=SELECTED_REAL_KIND(p=15,r=307)

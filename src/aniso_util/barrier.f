@@ -30,18 +30,30 @@ c  N --  dimension of the barrier
       Character(len=90):: string2
       Character(len=5) :: s1,s2
 
-      Integer, allocatable          :: ibas(:,:) !(nmult,nBlock)
-      Real(kind=wp), allocatable    :: gtens(:)  !3)
-      Real(kind=wp), allocatable    :: maxes(:,:), E(:)  !3,3), E(nmult)
-      Real(kind=wp), allocatable    :: wz(:,:)      ! nmult,nBlock)
-      Complex(kind=wp), allocatable :: dipN(:,:,:)  !3,nBlock,nBlock)
-      Complex(kind=wp), allocatable :: dipN3(:,:,:) !3,ndim(imanifold),ndim(imanifold))
-      Complex(kind=wp), allocatable :: CZ(:,:,:)    !nmult,nBlock,nBlock)
-      Complex(kind=wp), allocatable :: Ztr(:,:)     !nBlock,nBlock)
-      Complex(kind=wp), allocatable :: ML(:,:,:)    !3,nBlock,nBlock)
-      Complex(kind=wp), allocatable :: tmp(:,:)     !nBlock,nBlock)
-      Complex(kind=wp), allocatable :: MM(:)        !3)
-      Complex(kind=wp), allocatable :: dipso5(:,:,:,:,:) !3,nmult,10,nmult,10)
+      Integer, allocatable          :: ibas(:,:)
+!                                          (nmult,nBlock)
+      Real(kind=wp), allocatable    :: gtens(:)
+!                                           (3)
+      Real(kind=wp), allocatable    :: maxes(:,:), E(:)
+!                                           (3,3), E(nmult)
+      Real(kind=wp), allocatable    :: wz(:,:)
+!                                        (nmult,nBlock)
+      Complex(kind=wp), allocatable :: dipN(:,:,:)
+!                                          (3,nBlock,nBlock)
+      Complex(kind=wp), allocatable :: dipN3(:,:,:)
+!                                           (3,ndim(imanifold),ndim(imanifold))
+      Complex(kind=wp), allocatable :: CZ(:,:,:)
+!                                        (nmult,nBlock,nBlock)
+      Complex(kind=wp), allocatable :: Ztr(:,:)
+!                                         (nBlock,nBlock)
+      Complex(kind=wp), allocatable :: ML(:,:,:)
+!                                        (3,nBlock,nBlock)
+      Complex(kind=wp), allocatable :: tmp(:,:)
+!                                         (nBlock,nBlock)
+      Complex(kind=wp), allocatable :: MM(:)
+!                                        (3)
+      Complex(kind=wp), allocatable :: dipso5(:,:,:,:,:)
+!                                            (3,nmult,10,nmult,10)
 !-----------------------------------------------------------------------
       Call qEnter('barrier')
       If((nmult>0).and.(nBlock>0)) Then
@@ -279,7 +291,8 @@ c check the parity of all manIfolds:
       i=1
       Do il=1,nmult
         ipar=ipar + mod(ndim(il),2)
-        If(mod(ndim(il),2).eq.1)  i= i + 1 ! count the number of odd manIfolds
+        If(mod(ndim(il),2).eq.1)  i= i + 1
+!        count the number of odd manifolds
 c        Write(6,'(3(A,i2,2x))') 'il=',il,'ipar=',ipar,'i=',i
       End Do
       If (i.gt.1) Then
@@ -398,7 +411,8 @@ c  multiplets have different parity (even and odd)
      &         '---------------|'
 
            Do il=1,nmult
-             If(mod(ndim(il),2).eq.0) Then  !il = even > the same parity as maxmult
+             If(mod(ndim(il),2).eq.0) Then
+!               il = even > the same parity as maxmult
                 nb=(maxmult-ndim(il))/2
                 If(nb.eq.0) Then !ndim(il) => maxmult
                 Write(string2, '(2(a,i2),a)') '(2x,i2,a,',
@@ -456,7 +470,8 @@ c  multiplets have different parity (even and odd)
      &        '---------------|'
 
             Do il=1,nmult
-             If(mod(ndim(il),2).eq.1) Then  !il = odd,  the parity of il = maxmult
+             If(mod(ndim(il),2).eq.1) Then
+!               il = odd,  the parity of il = maxmult
                 nb=(maxmult-ndim(il))/2
                 If(nb.eq.0) Then !ndim(il) => maxmult
                 Write(string2, '(2(a,i2),a)') '(2x,i2,a,',
@@ -822,7 +837,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       Integer, intent(in)          :: ist
       Character(len=5), intent(in) :: s1, s2
       Complex(kind=wp), intent(in) :: M(3)
-      ! local
+!     local
       Character(len=30) :: fx, fy, fz
       Character(len=40) :: f1, f2
       Real(kind=wp)     :: R

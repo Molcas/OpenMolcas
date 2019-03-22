@@ -20,7 +20,8 @@
       Integer          :: nsites
       Integer          :: nexch(nneq)
       Real(kind=wp)    :: W(N)
-      Real(kind=wp)    :: R_rot(NNEQ,neqv,3,3) ! assuming 10 equivalent magnetic sites, which is too much for many cases
+!     assuming 10 equivalent magnetic sites, which is too much for many cases
+      Real(kind=wp)    :: R_rot(NNEQ,neqv,3,3)
       Complex(kind=wp) :: dipexch(3,N,N)
       Complex(kind=wp) ::  s_exch(3,N,N)
       Complex(kind=wp) :: dipso(nneq,3,NL,NL)

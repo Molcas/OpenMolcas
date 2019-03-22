@@ -38,7 +38,8 @@
       Character*180 Line, Get_Ln
       Integer ipExp(MxShll)
       integer storageSize,LineWords
-      parameter(storageSize = 200, LineWords=storageSize/8) ! LineWords = 25
+      parameter(storageSize = 200, LineWords=storageSize/8)
+!     LineWords = 25
       Character*(storageSize) sBasis
       Real*8 eqBasis(LineWords)
       Equivalence(sBasis,eqBasis)

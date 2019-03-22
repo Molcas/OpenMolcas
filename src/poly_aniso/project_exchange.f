@@ -14,9 +14,12 @@ c  to the local pseuDospin basis
       Implicit None
       Integer, parameter        :: wp=SELECTED_REAL_KIND(p=15,r=307)
       Integer N1,N2
-      Real(kind=wp) ::  E1(N1), E2(N2) ! spin-orbit energies on each site
-      Complex(kind=wp) ::  S1(3,N1,N1),S2(3,N2,N2) !spin matrices on each site
-      Complex(kind=wp) ::  M1(3,N1,N1),M2(3,N2,N2) !magnetic moment matrices on each site
+!     spin-orbit energies on each site
+      Real(kind=wp) ::  E1(N1), E2(N2)
+!     spin matrices on each site
+      Complex(kind=wp) ::  S1(3,N1,N1),S2(3,N2,N2)
+!     magnetic moment matrices on each site
+      Complex(kind=wp) ::  M1(3,N1,N1),M2(3,N2,N2)
       Complex(kind=wp) ::  HEXCH(N1,N1,N2,N2) ! exchange hamiltonian
       Complex(kind=wp) ::  HEXCH2(N1,N1,N2,N2) ! exchange hamiltonian
       Complex(kind=wp) ::  HEXCH3(N1,N1,N2,N2) ! exchange hamiltonian
@@ -49,7 +52,8 @@ c      Call tensor2cart(1,1,Jpar(1,-1:1,1,-1:1),Jc)
 
 
 c determine the pseuDospin on each site (Z1 and Z2):
-      Ethr=0.2_wp ! threshold for determination of the local pseuDospin main anisotropy axis
+!     threshold for determination of the local pseuDospin main anisotropy axis
+      Ethr=0.2_wp
       ns1=0
       ns2=0
       Do is1=1,N1

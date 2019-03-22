@@ -141,7 +141,8 @@ C   No changing about read in orbital information from INPORB yet.
 * Leon: Prepare 4-RDM calculations for (CD)-DMRG-NEVPT2 at the end of the calculation
       DoNEVPT2Prep = .FALSE.
       DoEvaluateRDM = .FALSE.
-      MPSCompressM = 0 ! If this is set to 0, MPS compression is disabled
+!     If this is set to 0, MPS compression is disabled
+      MPSCompressM = 0
 #endif
 * NN.14 Block DMRG flag
       DoBlockDMRG = .false.
@@ -1884,6 +1885,14 @@ C orbitals accordingly
      &'for compiling or use an external NECI.')
 #endif
         end if
+!      Default value for NECI starting to fill RDMs
+       IterFillRDM= 10000
+!      Default value for NECI sampling RDMs
+       IterSampleRDM=1000
+!      Default value for NECI RealSpawnCutOff
+       realspawncutoff=0.3
+!      Default value for NECI diagonal shift value
+       diagshift=0.00
 *--- This is to generate only HUGE dump files. To be used one PMAT does not fit memory --
        if(KeyDMPO) DumpOnly = .true.
 !--- This is to input the non fixed point elements of a permutation
@@ -3163,7 +3172,8 @@ C Test read failed. JOBOLD cannot be used.
 * Combinations don't work for CASVB (at least yet)!
       If (ifvb .ne. 0) iSpeed(1) = 0
 *
-      if(.not.KeyDMRG .and. .not.DoNECI)then ! switch on/off determinants
+!     switch on/off determinants
+      if(.not.KeyDMRG .and. .not.DoNECI)then
 #ifdef _DMRG_
         if(.not.doDMRG)then
 #endif

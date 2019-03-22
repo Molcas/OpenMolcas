@@ -140,10 +140,13 @@ C     Show=Show.and..Not.Primitive_Pass
       Call ICopy(8,0,0,nFCore,1)
 
       Call mma_Allocate(iCI,iBas,label='iCI')       ! Stuff for LoProp
-      Call mma_Allocate(jCI,iBas,label='jCI')       ! Stuff for LocalDKH/X2C/BSS
+      Call mma_Allocate(jCI,iBas,label='jCI')
+!     Stuff for LocalDKH/X2C/BSS
       Call mma_Allocate(iOT,iBas,label='iOT')       ! Stuff for LoProp
-      Call mma_Allocate(LPC,3,mCentr,label='LPC')   ! Stuff (not just) for LoProp
-      Call mma_Allocate(LPQ,mCentr,label='LPQ')     ! Stuff (not just) for LoProp
+      Call mma_Allocate(LPC,3,mCentr,label='LPC')
+!     Stuff (not just) for LoProp
+      Call mma_Allocate(LPQ,mCentr,label='LPQ')
+!     Stuff (not just) for LoProp
       Call mma_Allocate(LPA,mCentr,label='LPA')     ! Stuff for LoProp
       call mma_allocate(basis_ids,4,maxbfn+maxbfn_aux)
       call mma_allocate(desym_basis_ids,4,maxbfn+maxbfn_aux)

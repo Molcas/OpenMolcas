@@ -121,8 +121,9 @@
          iComp=3 ! Why are these here ncomp is passed down?
 *
          nHer = (la + lb + (nOrdOp-2) + 2) / 2
-         Call MltPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P, ! check to see dipole integral
-     &             Array(ipS3),nZeta,iComp,la,lb,A,RB,nHer,    ! sure looks a lot like dipole integrals
+!        check to see dipole integral sure looks a lot like dipole integrals
+         Call MltPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,
+     &             Array(ipS3),nZeta,iComp,la,lb,A,RB,nHer,
      &             Array(ipArr),mArr,TC,nOrdOp-2)
 *
 *        Combine derivatives of dipole integrals to generate the

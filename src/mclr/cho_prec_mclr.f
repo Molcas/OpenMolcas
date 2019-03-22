@@ -98,8 +98,10 @@
           maxpq  =max(npq,nBas(iSymb)**2)
           maxtpq  =max(maxtpq,nAsh(iSyma)*nBas(iSymb)**2)
 
-          nip  =nip + nIsh(iSyma)*(nBas(isymb)+1) ! For inactive half-transformed Cho vector + Lii^J
-          ntp  =ntp + nAsh(iSyma)*(nBas(isymb)+nAsh(iSyma)) ! For active half-transformed Cho vector + Lij^J
+!         For inactive half-transformed Cho vector + Lii^J
+          nip  =nip + nIsh(iSyma)*(nBas(isymb)+1)
+!         For active half-transformed Cho vector + Lij^J
+          ntp  =ntp + nAsh(iSyma)*(nBas(isymb)+nAsh(iSyma))
 
           ntoti=ntoti+nIsh(isymb)
           ntota=ntota+nAsh(isymb)
@@ -137,15 +139,17 @@
 *
 **      First, do we have enough memory at all!
 *
-        memneeded=maxRS+max(nip,ntp)                    ! for 1 Jbatch
-        memneeded=max(memneeded,maxpq)                  ! for MO transform
+        memneeded=maxRS+max(nip,ntp)                  ! for 1 Jbatch
+        memneeded=max(memneeded,maxpq)                ! for MO transform
         If (ntota.gt.0) Then
-           memneeded=memneeded+ maxtpq                  ! for 1 (ta|ub)
+           memneeded=memneeded+ maxtpq                ! for 1 (ta|ub)
+!          for 1 (tu|ab) and 1 reduced set
            If (jsym.eq.1)
-     &        memneeded=memneeded+ ntota*(maxpq+maxRS)    ! for 1 (tu|ab) and 1 reduced set
+     &        memneeded=memneeded+ ntota*(maxpq+maxRS)
         ElseIf (ntoti.gt.0) Then
-           memneeded=memneeded+ maxpq                   ! for 1 (ia|ib)
-           If (jsym.eq.1) memneeded=memneeded+npq+maxRS   ! for 1 (ii|ab) and 1 reduced set
+           memneeded=memneeded+ maxpq                 ! for 1 (ia|ib)
+!          for 1 (ii|ab) and 1 reduced set
+           If (jsym.eq.1) memneeded=memneeded+npq+maxRS
         EndIf
 *
         If (memneeded.gt.lWork) Then

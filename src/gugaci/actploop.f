@@ -810,7 +810,7 @@ c look for partial loops in active space drt and save them into disk
       return
       end
 
-      subroutine lp_head_in_dbl_1_mrpt2()          !for dv,sd,td       !200709
+      subroutine lp_head_in_dbl_1_mrpt2()    !for dv,sd,td       !200709
 
 #include "drt_h.fh"
 #include "intsort_h.fh"

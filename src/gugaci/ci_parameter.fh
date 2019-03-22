@@ -8,8 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      parameter (max_vector= 800000000)            !!!  max_vector=169000
-      parameter (max_ext_int=800000000)             !!!  max_ext_int=9000
+      parameter (max_vector= 800000000)           !!!  max_vector=169000
+      parameter (max_ext_int=800000000)            !!!  max_ext_int=9000
       parameter (lendbl=8,lenintegral=4)
       parameter (maxgdm=8,max_ref=128,max_node=36000,max_wei=208000)
       parameter (max_root=20,max_kspace=40,max_h0=13000,max_iter=100)

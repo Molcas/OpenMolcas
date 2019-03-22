@@ -266,8 +266,8 @@ c
 !         Call Put_DLMO(Work(ipD1),ndim1) ! \bar{D} triangular  ! yma
 !         Call Put_PLMO(Work(ipP1),ndim2) ! \bar{d} triangular  ! yma
 
-         Call Put_DLMO(Work(ipD1),nDLMO) ! \bar{D} triangular ! origional
-         Call Put_PLMO(Work(ipP1),nPLMO) ! \bar{d} triangular ! origional
+         Call Put_DLMO(Work(ipD1),nDLMO) ! \bar{D} triangular ! original
+         Call Put_PLMO(Work(ipP1),nPLMO) ! \bar{d} triangular ! original
 *
        End If
 *
@@ -320,7 +320,8 @@ c Mult all terms that are not diag by 2
 *
 *      Now with active density too, to form the variational density
 *
-       Call OITD(Work(ipK2),1,Work(ipD_K),Work(ipDtmp),.True.) ! gives \tilde{D}
+!      gives \tilde{D}
+       Call OITD(Work(ipK2),1,Work(ipD_K),Work(ipDtmp),.True.)
 *
        Do iS=1,nsym
 c

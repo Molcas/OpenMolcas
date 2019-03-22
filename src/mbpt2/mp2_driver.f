@@ -235,7 +235,8 @@
                Ready=.true.
             End If
          End If
-      Else If (DoCholesky .and. FNOMP2) Then ! CD/DF Frozen Natural Orbital MP2
+!     CD/DF Frozen Natural Orbital MP2
+      Else If (DoCholesky .and. FNOMP2) Then
          Conventional = .false.
          Ready = .false.
          Write(6,'(A)')

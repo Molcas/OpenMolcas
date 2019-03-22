@@ -92,8 +92,10 @@
       Real(kind=wp), allocatable :: MT(:,:,:)     ! MT(3,nH,nTempMagn)
       Real(kind=wp), allocatable :: ST(:,:,:)     ! ST(3,nH,nTempMagn)
       ! magnetization and spin vectors
-      Real(kind=wp), allocatable :: MVEC(:,:,:,:) ! MVEC(nDirTot,nH,nTempMagn,3)
-      Real(kind=wp), allocatable :: SVEC(:,:,:,:) ! SVEC(nDirTot,nH,nTempMagn,3)
+      Real(kind=wp), allocatable :: MVEC(:,:,:,:)
+!                                   MVEC(nDirTot,nH,nTempMagn,3)
+      Real(kind=wp), allocatable :: SVEC(:,:,:,:)
+!                                   SVEC(nDirTot,nH,nTempMagn,3)
       Real(kind=wp), allocatable :: H(:)          ! H(nH)
       ! average powder M and S:
       Real(kind=wp), allocatable :: MAV(:,:) ! MAV(nH,nTempMagn)
@@ -410,8 +412,8 @@ C  ---------------------------------------------------------------------
              End If
           End If !zeeman_energy
 C  ---------------------------------------------------------------------
-          ! computing the AVERAGE MOMENTS calculated at different temperatures
-          ! (TempMagn(i))
+!         computing the AVERAGE MOMENTS calculated at different temperatures
+!         (TempMagn(i))
           Do iT=1,nTempMagn
             Do ic=1,3
               MVEC(iM,iH,iT,ic)=MT(ic,iH,iT)

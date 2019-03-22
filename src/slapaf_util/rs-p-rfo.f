@@ -204,7 +204,8 @@
             Call DaXpY_(nInter,One,Work(ipNStep),1,dq,1)
             dqdq_max=DDot_(nInter,Work(ipNStep),1,Work(ipNStep),1)
 *           write (Lu,*) 'dqdq_max=',dqdq_max
-            EigVal_r=-DDot_(nInter,Work(ipNStep),1,Work(ipNGrad),1) ! Sign
+!           Sign
+            EigVal_r=-DDot_(nInter,Work(ipNStep),1,Work(ipNGrad),1)
             If (iPrint.ge.99) Then
                Call RecPrt('dq_r',' ',Work(ipNStep),1,nInter)
                Call RecPrt(' g_r',' ',Work(ipNGrad),1,nInter)
