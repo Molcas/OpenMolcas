@@ -25,7 +25,7 @@
 #include "WrkSpc.fh"
       DIMENSION PROP(NSTATE,NSTATE,NPROP)
 *
-      IPRNUM=0
+      IPRNUM=-1
 C IFSPIN takes values the values 0,1,2
 C 0 = spin free property
 C 1 = spin operator (S)
@@ -33,20 +33,29 @@ C 2 = spin dependent property, triplet operator
       IFSPIN=0
 
       DO IPROP=1,NPROP
-        IF (PRLBL.EQ.PNAME(IPROP)) THEN
-           IFSPIN=0
-           IF(IPRCMP.EQ.ICOMP(IPROP)) IPRNUM=IPROP
-        ELSE IF (PRLBL(1:4).EQ.'SPIN') THEN
-           IFSPIN=1
-        ELSE IF (PRLBL(1:5).EQ.'TMOS0') THEN
-           IFSPIN=2
-*
-*          Note that the integral is complex. Select the real or the
-*          imaginary component here.
-*
-           IF (PRLBL(1:8).EQ.PNAME(IPROP)) IPRNUM=IPROP
-        END IF
+         IF (PRLBL.EQ.PNAME(IPROP)) THEN
+            IF (PRLBL(1:5).eq.'TMOS0') THEN
+               IFSPIN=2
+               IPRNUM=IPROP
+               EXIT
+            ELSE
+               IFSPIN=0
+               IF (IPRCMP.EQ.ICOMP(IPROP)) THEN
+                  IPRNUM=IPROP
+                  EXIT
+               END IF
+            END IF
+         ELSE IF (PRLBL(1:4).EQ.'SPIN') THEN
+            IFSPIN=1
+            IPRNUM=0
+            EXIT
+         END IF
       END DO
+      IF (IPRNUM.EQ.-1) THEN
+         Write (6,*) 'SMMAT_CHECK, Abend IPRNUM.EQ.-1'
+         Write (6,*) 'SMMAT_CHECK, PRLBL=','>',PRLBL,'<'
+         Call Abend()
+      ENDIF
 C Mapping from spin states to spin-free state and to spin:
       ISS=0
       DO ISTATE=1,NSTATE

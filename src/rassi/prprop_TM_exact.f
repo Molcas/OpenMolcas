@@ -339,7 +339,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *                                                                      *
 ************************************************************************
 *
-               DO IPROP = IPRTMOS_RS-6, IPRTMOS_RS+11
+               DO IPROP = IPRTMOS_RS-2, IPRTMOS_RS+11
                   Call FZero(PROP(1,1,IPROP),NSTATE**2)
                End Do
                ISS = 0
