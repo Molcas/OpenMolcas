@@ -26,6 +26,7 @@
 *
       LOGICAL IPACK
       DIMENSION LREC(MXNTTS),CMOMO(*)
+      DIMENSION IDUMMY(1)
 *
       NTEST = 0
       LBLK  = -1
@@ -70,7 +71,7 @@ C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
             CALL XFLUSH(6)
          END IF
          CALL TODSCN(WORK(KVEC1),NREC,LREC,LBLK,LUC)
-         CALL ITODS(-1,1,LBLK,LUC)
+         CALL ITODS([-1],1,LBLK,LUC)
       END DO
 
 *. MO-MO transformation matrix :

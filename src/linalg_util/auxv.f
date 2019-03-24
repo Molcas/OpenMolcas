@@ -35,22 +35,6 @@
       RETURN
       END
 
-
-      SUBROUTINE FMOVE(IA,IB,N)
-C      INTEGER    N
-C      REAL*8     IA(N),IB(N)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION   IA(*),IB(*)
-#include "SysDef.fh"
-
-C      CALL DCOPY_(N*RtoI,IA,1,IB,1)
-      DO I=1,N*RtoI
-         IB(I)=IA(I)
-      END DO
-
-      RETURN
-      END
-
       SUBROUTINE ADDVEC (A,B,C,N)
       IMPLICIT REAL*8(A-H,O-Z)
       DIMENSION A(N),B(N),C(N)

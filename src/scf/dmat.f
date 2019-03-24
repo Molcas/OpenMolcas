@@ -56,6 +56,7 @@
 #include "mxdm.fh"
 #include "infscf.fh"
 #include "stdalloc.fh"
+#include "interfaces_scf.fh"
 *----------------------------------------------------------------------*
 * Local variables                                                      *
 *----------------------------------------------------------------------*

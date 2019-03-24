@@ -81,6 +81,7 @@
      &          indhss(2,3,2,3,0:7)
       Logical  ifgrd(3,2),JfGrd(3,4),  EQ,
      &         jfhss(4,3,4,3),ifhss(2,3,2,3) ,ifg(4),tr(4)
+      Dimension Dum(1)
 
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 

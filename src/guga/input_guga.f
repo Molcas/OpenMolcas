@@ -10,12 +10,12 @@
 *                                                                      *
 * Copyright (C) 1986, Per E. M. Siegbahn                               *
 ************************************************************************
-      SUBROUTINE INPUT_GUGA(SO,JSYM,JSY,L0,L1,L2,L3,ISPAC)
+      SUBROUTINE INPUT_GUGA(ISO,JSYM,JSY,L0,L1,L2,L3,ISPAC)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "niocr.fh"
 #include "SysDef.fh"
 #include "files_guga.fh"
-      DIMENSION SO(*),JSYM(*),JSY(*),L0(*),L1(*),L2(*),L3(*)
+      DIMENSION ISO(*),JSYM(*),JSY(*),L0(*),L1(*),L2(*),L3(*)
 #include "real_guga.fh"
 #include "integ.fh"
       COMMON/CNSTS/D0,D1,D2
@@ -401,7 +401,7 @@ CPAM97 IFCORE was not set -- assume bug. Following line inserted:
 75    CONTINUE
 * Here with ILIM=2 (FIRST command) or 4 (normal, default).
       CALL CONFIG(NREF,IOCR,nIOCR,L0,L1,L2,L3,JSYM,JSY,INTNUM,LSYM,
-     &            JJS,SO,LV,IFCORE,ICOR,NONE,JONE,JREFX,NFREF)
+     &            JJS,ISO,LV,IFCORE,ICOR,NONE,JONE,JREFX,NFREF)
       IR=JRC(ILIM)
       ISPAC=IR*LNP
       IF(IPRINT.GE.2) WRITE(IW,9)ISPAC,ISPA

@@ -91,7 +91,7 @@
 *---- modify Fock matrix
       call dcopy_(nBT,Fock(1,iD),1,FckM,1)
       If (nnFr.gt.0) then
-        Call ModFck(pFckM,Ovrlp,nBT,CMO(1,iD),nBO,
+        Call ModFck(FckM,Ovrlp,nBT,CMO(1,iD),nBO,
      &              nOcc(1,iD))
       endif
 *

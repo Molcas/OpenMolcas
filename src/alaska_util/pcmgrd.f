@@ -192,9 +192,9 @@ C     Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
             Eta=One
             EInv=One
             Call Rysg1(iAnga,mRys,nZeta,
-     &                 Array(ipA),Array(ipB),One,One,
+     &                 Array(ipA),Array(ipB),[One],[One],
      &                 Zeta,ZInv,nZeta,
-     &                 Eta,EInv,1,
+     &                 [Eta],[EInv],1,
      &                 P,nZeta,TC,1,Coori,Coori,CoorAC,
      &                 Array(nip),nArray,
      &                 TNAI1,Fake,XCff2D,

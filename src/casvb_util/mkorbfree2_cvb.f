@@ -36,7 +36,7 @@
       endif
       call fzero(trprm,nprorb*nprorb)
       call izero(idel,nprorb)
-      call fmove(orbs,orbinv,norb*norb)
+      call fmove_cvb(orbs,orbinv,norb*norb)
       call mxinv_cvb(orbinv,norb)
 
       nc=0
@@ -112,7 +112,7 @@ c  Transform simple constraints to basis of VB orbitals :
       do 900 i=1,norb*(norb-1)
       if(idel(i).ne.1)then
         nfrorb=nfrorb+1
-        call fmove(trprm(1,i),trprm(1,nfrorb),nprorb)
+        call fmove_cvb(trprm(1,i),trprm(1,nfrorb),nprorb)
       endif
 900   continue
       call fzero(trprm(1,nfrorb+1),(nprorb-nfrorb)*nprorb)

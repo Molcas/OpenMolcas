@@ -119,6 +119,7 @@
       Logical ScramNeworb
       Integer iAufOK, Ind(MxOptm)
       Character*128 OrbName
+#include "interfaces_scf.fh"
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -534,7 +535,7 @@
 *---        and transform the Fock matrix into the new MO space,
 *
             Call TraFck(Fock,nBT,CMO,nBO,.FALSE.,FMOMax,
-     &                  EOrb,nnO,Ovrld,nD)
+     &                  EOrb,nnO,Ovrlp,nD)
 *
 *---        update QNR iteration counter
 *
@@ -634,7 +635,7 @@
 *---        and transform the Fock matrix into the new MO space,
 *
             Call TraFck(Fock,nBT,CMO,nBO,.FALSE.,FMOMax,
-     &                  EOrb,nnO,Ovrld,nD)
+     &                  EOrb,nnO,Ovrlp,nD)
 *
 *---        update QNR iteration counter
 *

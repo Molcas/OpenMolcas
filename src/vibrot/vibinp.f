@@ -772,7 +772,7 @@ C
       Rout(ngrid+2)=Rn1
       If(ipot.ne.0)
      *Call POT(Rin,Ein,Rout,PotR,ngrid+2,1,E0,Req,R0p,R1p,dRp,
-     *          nop,Title1,iplotp,Redm,scale,0)
+     *          nop,Title1(1),iplotp,Redm,scale,0)
       iadvib=0
       If(ncase.eq.1) then
 C Store data on Vibwvs (ncase=1)

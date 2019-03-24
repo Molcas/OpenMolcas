@@ -112,7 +112,7 @@ c start calculations:
       If (DBG) Write(6,*) 'Input data: ST()= ', ST(1:3)
       If (DBG) Call prmom('INput data dM:',dM,N)
       If (DBG) Call prmom('INput data sM:',sM,N)
-      If (DBG) Call xFlush
+      If (DBG) Call xFlush(6)
 
       ! Build and diagonalize the Zeeman Hamiltonian
       ! most important output are: WM (energies) and ZM (eigenvectors)
@@ -120,7 +120,7 @@ c start calculations:
      &             sM(1:3,1:N,1:N), ST, zJ, WM(1:N), ZM,
      &             DBG, RWORK, HZEE, WORK, W_c )
       If (DBG) Write(6,*) 'Exit ZEEM::'
-      If (DBG) Call xFlush
+      If (DBG) Call xFlush(6)
 
 
       Call DCOPY_(N, WM(1:N), 1, WZ(1:N), 1)

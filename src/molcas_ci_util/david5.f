@@ -36,6 +36,7 @@
       Dimension HTUTRI(*), GTUVXTRI(*)
       real*8, allocatable :: sgm(:,:), psi(:,:)
       real*8, allocatable :: htu(:,:), gtuvx(:,:,:,:)
+      Dimension Dummy(1)
 *-------------------------------------------------------------------
 *MGD dec 2017 : When optimizing many states, the lowest ones tend to
 *converge much faster than the rest. Changed the code so that the converged states

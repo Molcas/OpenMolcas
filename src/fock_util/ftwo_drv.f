@@ -18,6 +18,7 @@
 #include "WrkSpc.fh"
 #include "real.fh"
 
+      Integer nBas(8), nAsh(8), nSkipX(8)
       Dimension CMO(*) , D1A(*) , DI(*), FA(*)
       Logical DoCholesky,REORD,DECO
       Integer ALGO

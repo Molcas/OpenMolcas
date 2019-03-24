@@ -639,7 +639,7 @@ c      full printing
      &        pz1aa,pz1bb,pz2abab
 c
        end if
-       Call Add_Info('E_CCSD',Energy,1,8)
+       Call Add_Info('E_CCSD',[Energy],1,8)
 c
        niter=niter+1
 c

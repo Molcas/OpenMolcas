@@ -60,7 +60,7 @@
          n2=4
          VrfSum=VrfSum+DDot_(n2,Matrix(ip1),1,Matrix(ip1),1)
          Write (Line,'(A,I5)') Label,iComp
-         Call Add_info(Line,VrfSum,1,8)
+         Call Add_info(Line,[VrfSum],1,8)
  10   Continue
 *
       Return

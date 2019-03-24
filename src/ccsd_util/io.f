@@ -351,7 +351,7 @@ c
 c      Fortran IO
        call molcas_open_ext2(lun,filename(lun),'sequential',
      &  'unformatted',
-     &      ierr,.false.,f_recl,'unknown',is_error)
+     &      ierr,.false.,1,'unknown',is_error)
 c       open (unit=lun,
 c     &       file=filename(lun),
 c     &       status='unknown',
@@ -478,7 +478,7 @@ c
 c      Fortran IO
        call molcas_open_ext2(lun,filename(lun),
      &     'sequential','unformatted',
-     &      ierr,.false.,f_recl,'unknown',is_error)
+     &      ierr,.false.,1,'unknown',is_error)
 c       open (unit=lun,
 c     &       file=filename(lun),
 c     &       status='unknown',

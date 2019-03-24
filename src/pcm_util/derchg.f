@@ -8,11 +8,10 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine DerChg(nAt,nAt3,nTs,nS,Eps,CPCM,IAtm,AtmC,AtmChg,
+      Subroutine DerChg(nAt,nAt3,nTs,nS,Eps,IAtm,AtmC,AtmChg,
      &  DM,DerMat,Tessera,Q,Qtot,QDer,
      $  DerTes,DerPunt,DerCentr,DerRad,Der1,Der2,VDer,Sphere,ISphe)
       Implicit Real*8(A-H,O-Z)
-      Logical CPCM
       Integer IAtm(nAt)
       Dimension AtmC(3,nAt),AtmChg(nAt)
       Dimension Q(2,*),ISphe(*),QTot(*),QDer(3,nAt,*),Der1(*),Der2(*)
@@ -80,7 +79,6 @@ cpcm_solvent end
 c Avoid unused argument warnings
       If (.False.) Then
         Call Unused_integer(nAt3)
-        Call Unused_logical(CPCM)
         Call Unused_integer_array(IAtm)
         Call Unused_real_array(AtmC)
         Call Unused_real_array(AtmChg)

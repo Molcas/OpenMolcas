@@ -32,7 +32,7 @@ c  *********************************************************************
       iform_ci(ivec2)=iform_ci(ivec1)
       call setcnt2_cvb(ivec2,igetcnt2_cvb(ivec1))
       if(iformat.eq.0)then
-        call fmove(w(iaddr_ci(ivec1)),w(iaddr_ci(ivec2)),ndet)
+        call fmove_cvb(w(iaddr_ci(ivec1)),w(iaddr_ci(ivec2)),ndet)
       else
         write(6,*)' Unsupported format in CICOPY :',iformat
         call abend_cvb()

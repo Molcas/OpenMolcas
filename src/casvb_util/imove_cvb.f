@@ -8,23 +8,10 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE FRMDSCN(VEC,NREC,LBLK,LU)
-*
-* Read  VEC as multiple record file, NREC records read
-*
-      IMPLICIT REAL*8(A-H,O-Z)
-      DIMENSION LREC(1)
-*. OUtput
-      DIMENSION VEC(*)
-*
-      IOFF = 1
-      DO IREC = 1, NREC
-        CALL IFRMDS(LREC(1),1,LBLK,LU)
-        CALL FRMDSC(VEC(IOFF),  LREC(1),     LBLK,       LU,   IMZERO,
-     &                IAMPACK)
-        IOFF = IOFF + LREC(1)
-      END DO
-*
-      RETURN
-      END
-C !!! End trace !!!
+      subroutine imove_cvb(iv1,iv2,n)
+      implicit real*8 (a-h,o-z)
+      dimension iv1(n),iv2(n)
+      do 100 i=1,n
+100   iv2(i)=iv1(i)
+      return
+      end

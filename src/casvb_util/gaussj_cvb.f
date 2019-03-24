@@ -20,6 +20,7 @@
 
 #include "malloc_cvb.fh"
       dimension orbs(norb,norb),igjorb(*)
+      dimension ogjorb(norb,norb)
 c  *********************************************************************
 c  *                                                                   *
 c  *  GAUSSJ    := Define sequence of simple updates from orb transf.  *
@@ -30,10 +31,14 @@ c  *********************************************************************
       k2 = mstacki_cvb(norb)
       k3 = mstacki_cvb(norb)
       k4 = mstacki_cvb(norb)
-      call fmove(orbs,w(k1),norb*norb)
+      call fmove_cvb(orbs,w(k1),norb*norb)
       ioff=idbl_cvb(norb*norb)
+!     IFG: Note that originally ogjorb was igjorb.
+!          There's probably a bug somewhere, but for now we just
+!          make the compiler happy with the transfer statement
       call gaussj2_cvb(w(k1),iw(k2),iw(k3),iw(k4),
-     >  igjorb(1+ioff),igjorb(1+norb+ioff),igjorb,norb)
+     >  igjorb(1+ioff),igjorb(1+norb+ioff),ogjorb,norb)
+      igjorb(1:norb*norb)=transfer(ogjorb,igjorb(1),norb*norb)
       call imove_cvb(igjorb(1+ioff),iw(k2),norb)
       do 100 i=1,norb
 100   igjorb(iw(i+k2-1)+ioff)=i

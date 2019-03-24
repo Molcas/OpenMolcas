@@ -110,8 +110,7 @@ C Coords(_,i): X, Y, Z, coordinates (in Angstrom) for atom -i-.
       EndIf
       If (iErr.NE.0) GoTo 9905
       iErr = 0
-      Call ZMatReader(LuRd,LuWr,nAtoms,nXAtoms,nBasis,-1,
-     & iglobal,nxbas,xb_label,xb_bas,iErr)
+      Call ZMatReader(LuRd,LuWr,nAtoms,nXAtoms,nBasis,-1,iErr)
       If (IfTest) then
         Write(LuWr,*)
         Write(LuWr,*) '------------------------------------------------'

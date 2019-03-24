@@ -315,6 +315,7 @@
       Real*8  Tmp1(nX,nX), Tmp2(nX,nX),H(nX,nX),
      &       EVec(2*nX,nX),
      &       EVal(2*nX),mass(*)
+      Logical Slct(nX)
 
 #include "constants2.fh"
 *
@@ -331,11 +332,11 @@
 *
       nAux = 2 * nX
       iOpt=1
-      islct=0
+      Slct=.False.
       If ( nX.gt.0 ) then
         Call Not_DGeEv(iOpt,H,nX,
      &             EVal,EVec,nX,
-     &             iSlct,nX,Tmp2,nAux)
+     &             Slct,nX,Tmp2,nAux)
       End If
 *
 *-----Compute the harmonic frequencies

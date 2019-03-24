@@ -35,7 +35,7 @@ c      field according to Lebedev-Laikov grids using the the given parameters (n
         Write(6,'(A,i4)') 'nDirTot = ', nDirTot
         Write(6,'(A,i4)') 'The rule is :'
         Write(6,'(A   )') 'nDir + nDirZee + nP = nDirTot'
-        Call xFlush()
+        Call xFlush(6)
         Call abend()
       End If
 c intialization

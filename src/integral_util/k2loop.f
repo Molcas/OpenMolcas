@@ -199,8 +199,8 @@
             nT = mZeta*1
             NoSpecial=.True.
             Call Rys(iAnga,nT,
-     &               Zeta(iZeta),ZInv(iZeta),mZeta,One,One,1,
-     &               P(iZeta,1),nZeta,Q,1,Kappab(iZeta),One,
+     &               Zeta(iZeta),ZInv(iZeta),mZeta,[One],[One],1,
+     &               P(iZeta,1),nZeta,Q,1,Kappab(iZeta),[One],
      &               Coori,Coora,CoorAC,
      &               mabMin,mabMax,mcdMin,mcdMax,
      &               Wrk,nWork2,TERIS,ModU2,Cff2DS,

@@ -180,7 +180,7 @@ c  SYMELM
         ip_to=ip_symelm
         do 400 isyme=1,nsyme
         do 500 iorb=1,norb
-        if(ip_from.ne.ip_to)call fmove(w(ip_from),w(ip_to),norb)
+        if(ip_from.ne.ip_to)call fmove_cvb(w(ip_from),w(ip_to),norb)
         ip_from=ip_from+mxorb
 500     ip_to=ip_to+norb
 400     ip_from=ip_from+(mxorb-norb)*mxorb

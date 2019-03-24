@@ -8,25 +8,17 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-c  **************************************
-c  ** General-purpose utility routines shared with rasscf
-c  **************************************
-      subroutine imove_cvb(iv1,iv2,n)
-      implicit real*8 (a-h,o-z)
-      dimension iv1(n),iv2(n)
-      do 100 i=1,n
-100   iv2(i)=iv1(i)
-      return
-      end
+      SUBROUTINE FMOVE_CVB(IA,IB,N)
+C      INTEGER    N
+C      REAL*8     IA(N),IB(N)
+      IMPLICIT REAL*8 (A-H,O-Z)
+      DIMENSION   IA(*),IB(*)
+#include "SysDef.fh"
 
-      function len_trim_cvb(a)
-c  Length of string excluding trailing blanks
-      implicit real*8(a-h,o-z)
-      character*(*) a
+C      CALL DCOPY_(N*RtoI,IA,1,IB,1)
+      DO I=1,N*RtoI
+         IB(I)=IA(I)
+      END DO
 
-      do 100 i=len(a),1,-1
-100   if(a(i:i).ne.' ')goto 200
-      i=0
-200   len_trim_cvb=i
-      return
-      end
+      RETURN
+      END

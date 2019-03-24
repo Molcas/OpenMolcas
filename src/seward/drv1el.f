@@ -88,6 +88,7 @@
       Real*8 Ccoor(3)
       Integer iAtmNr2(mxdbsc), nComp
       Real*8 Charge2(mxdbsc)
+      Dimension dum1(1)
 *
       iRout = 131
       iPrint = nPrint(iRout)
@@ -1861,9 +1862,9 @@ c        Call DCopy_(3,Work(ipPSO),1,CoorO(1+(iComp-1)*3),1)
 *
          Label='FckInt  '
          Call Drv_Fck(Label,ipList,OperI,nComp,
-     &                CoorO,nOrdOp,Zero,rHrmt,OperC,
+     &                CoorO,nOrdOp,[Zero],rHrmt,OperC,
      &                dum,1,dum,idum,0,0,
-     &                dum,1,0,DInf,nDInf)
+     &                dum1,1,0,DInf,nDInf)
 *
          Call Deallocate_Auxiliary()
       End If

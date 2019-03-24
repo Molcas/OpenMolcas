@@ -152,7 +152,7 @@ cpcm_solvent end
 *
       Call PCM_Init(iPrint,ICharg,nAtoms,angstr,
      &              Work(ipCoor),iWork(ipANr),Work(ip_LcCoor),
-     &              iWork(ip_LcANr),iOper,nIrrep,NonEq)
+     &              iWork(ip_LcANr),nIrrep,NonEq)
       If (iPrint.gt.5) Then
          Write (6,*)
          Write (6,*)

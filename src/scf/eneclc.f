@@ -14,7 +14,7 @@
 *               2003, Valera Veryazov                                  *
 ************************************************************************
       SubRoutine EneClc(En1V,En2V,EnerV,Dens,OneHam,TwoHam,mBT,mDens,nD,
-     &                  EDFT,nEDFT,Emb)
+     &                  EDFT,nEDFT)
 ************************************************************************
 *                                                                      *
 * Purpose: Compute one- and two-electron energies                      *
@@ -33,13 +33,16 @@
 * University of Lund, Sweden, 1992                                     *
 *                                                                      *
 ************************************************************************
+#ifdef _FDE_
+      Use SCF_Arrays, Only: Emb
+#endif
       Implicit Real*8 (a-h,o-z)
 *
 * Declaration of procedure parameters
 *
       REAL*8 En1V,En2V,EnerV
       Real*8 Dens(mBT,nD,mDens), OneHam(mBT), TwoHam(mBT,nD,mDens),
-     &       EDFT(nEDFT), Emb(mBT)
+     &       EDFT(nEDFT)
 #include "real.fh"
 
 #include "mxdm.fh"
@@ -75,8 +78,6 @@ c set to Zero for RHF
 #ifdef _FDE_
       ! Embedding
       if (embPot) Eemb = DDot_(nBT*nD,Emb,1,Dens(1,1,iPsLst),1)
-#else
-      If (.False.) Call Unused_real_array(Emb)
 #endif
 *
 *     If just one electron make sure that the two-electron energy

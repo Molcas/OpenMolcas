@@ -27,7 +27,7 @@
       Dimension PertElcInt(MxBas*(MxBas+1)/2),SumOld(MxQCen,10)
       Dimension iCent(MxBas*MxBas)
       Dimension iMME(MxMltp*(MxMltp+1)*(MxMltp+2)/6)
-      Dimension nOcc(MxAt),natyp(MxAt),ForceNuc(MxAt,3)
+      Dimension nOcc(*),natyp(*),ForceNuc(MxAt,3)
 
       Character*4 Kword
       Character*20 MemLab,MemLab1

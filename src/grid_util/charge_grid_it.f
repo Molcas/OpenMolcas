@@ -504,7 +504,7 @@ c      End Do
 *     Just atom label. It's a double of the next one,
 *     but someone could find it usefull in future
 
-      Call Get_LblCnt_All(TLbl)
+c     Call Get_LblCnt_All(TLbl)
 
 *     Atom labels plus symmetry generator
 

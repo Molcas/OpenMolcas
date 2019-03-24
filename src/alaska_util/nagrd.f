@@ -238,8 +238,8 @@ C           If (iPrint.ge.99) Write (6,*) ' mGrad=',mGrad
                   Eta=ExpNuc(kCnttp)
                   EInv=One/Eta
                   Call Rysg1(iAnga,nRys,nZeta,
-     &                       Array(ipA),Array(ipB),One,One,
-     &                       Zeta,ZInv,nZeta,Eta,EInv,1,
+     &                       Array(ipA),Array(ipB),[One],[One],
+     &                       Zeta,ZInv,nZeta,[Eta],[EInv],1,
      &                       P,nZeta,TC,1,Coori,Coori,CoorAC,
      &                       Array(nip),nArray,
      &                       TERI1,ModU2,vCff2D,
@@ -247,8 +247,8 @@ C           If (iPrint.ge.99) Write (6,*) ' mGrad=',mGrad
      &                       JfGrad,JndGrd,lOp,iuvwx)
                Else If (Nuclear_Model.eq.Point_Charge) Then
                   Call Rysg1(iAnga,nRys,nZeta,
-     &                       Array(ipA),Array(ipB),One,One,
-     &                       Zeta,ZInv,nZeta,One,One,1,
+     &                       Array(ipA),Array(ipB),[One],[One],
+     &                       Zeta,ZInv,nZeta,[One],[One],1,
      &                       P,nZeta,TC,1,Coori,Coori,CoorAC,
      &                       Array(nip),nArray,
      &                       TNAI1,Fake,Cff2D,

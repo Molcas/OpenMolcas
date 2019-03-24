@@ -101,7 +101,7 @@ c
          Call GetMem('DENS','FREE','REAL',ipdens,ntdg)
          If (.not.Do_ESPF) Then
             Call AddVec(ptchrg,ptchrg,work(ipnuc),ngrid)
-            Call fMove(work(ipnuc),opnuc,ngrid)
+            Call dCopy_(ngrid,work(ipnuc),1,opnuc,1)
          End If
       Else
         iWork(ip2) = 2**nirrep-1

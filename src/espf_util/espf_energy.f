@@ -23,6 +23,7 @@
       Character*8 Label
       Logical DoTinker,DoGromacs,DynExtPot
       Real*8 h1(nh1)
+      Dimension opnuc(1)
 *
       Call QEnter('espf_energy')
       iPL = iPL_espf()
@@ -110,9 +111,9 @@
       EQC = ExtNuc(ipExt,natom)
       RepNuc = RepNuc + EQC
       If (IsStructure().eq.1) Then
-        Call Add_Info('PotNuc',RepNuc,1,6)
+        Call Add_Info('PotNuc',[RepNuc],1,6)
       Else
-        Call Add_Info('PotNuc',RepNuc,1,12)
+        Call Add_Info('PotNuc',[RepNuc],1,12)
       End If
 *
       Call QExit('espf_energy')

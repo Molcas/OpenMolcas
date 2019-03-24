@@ -43,7 +43,7 @@
       Call Get_dscalar('PotNuc',ENUC)
 
 C Read data from the ONEINT file:
-      CALL GETCNT(NGROUP,IGROUP,NATOMS,ATLBL,COOR)
+      CALL GETCNT(NGROUP,IGROUP,NATOMS,ATLBL)
 
       NSTATE=0
 C Read (and do some checking) the standard input.

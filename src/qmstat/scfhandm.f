@@ -44,7 +44,7 @@
 #include "WrkSpc.fh"
 #include "tratoc.fh"
 
-      Dimension Cmo(MxBas**2),Occu(MxBas),nOcc(MxAt),natyp(MxAt)
+      Dimension Cmo(MxBas**2),Occu(MxBas),nOcc(MxBas),natyp(MxAt)
       Dimension nBas(MxSym),iCent(MxBas*MxBas)
       Dimension iMME(MxMltp*(MxMltp+1)*(MxMltp+2)/6)
       Character MMElab*20,ChCo*2

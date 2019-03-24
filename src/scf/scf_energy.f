@@ -16,6 +16,7 @@
 #include "stdalloc.fh"
       Logical FstItr
       Real*8, Dimension (:), Allocatable :: XCf
+#include "interfaces_scf.fh"
 *
 *
       nD = iUHF + 1
@@ -56,7 +57,7 @@
 *     (3) the energy.
 *
       Call EneClc(E1_,E2_,EV,Dens,OneHam,TwoHam,nBT,nDens,nD,EDFT,
-     &            MxIter,Emb)
+     &            MxIter)
 *
       Return
       End

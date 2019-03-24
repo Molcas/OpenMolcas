@@ -238,9 +238,9 @@
             nDiff=1
             mRys=(la+lb+2+nDiff+iOrdOp)/2
             Call Rysg1(iAnga,mRys,nT,
-     &                 Array(ipA),Array(ipB),One,One,
+     &                 Array(ipA),Array(ipB),[One],[One],
      &                 Zeta,ZInv,nZeta,
-     &                 One,One,1,
+     &                 [One],[One],1,
      &                 P,nZeta,TC,1,Coori,Coori,CoorAC,
      &                 Array(nip),nArray,
      &                 TNAI1,Fake,XCff2D,

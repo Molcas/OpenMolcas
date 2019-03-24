@@ -110,6 +110,7 @@
       Integer nSSh(mxSym), nZero(mxSym)
 #endif
       Integer nFldP
+#include "interfaces_scf.fh"
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *

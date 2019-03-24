@@ -466,7 +466,7 @@
               Labjhr='Add '
               Call AverMEP(Labjhr,Eint,Poli,iCi,SumElcPot
      &                     ,NCountField,PertElcInt,iONE
-     &                     ,iONE,iONE,iONE,iONE)
+     &                     ,iONE,[iONE],[iONE],iONE)
               NCountField=NCountField+1
             Endif
 *******
@@ -574,7 +574,7 @@
               Labjhr='Aver'
               Call AverMEP(Labjhr,Eint,Poli,iCi,SumElcPot
      &                     ,NCountField,PertElcInt,iONE
-     &                     ,iONE,iONE,iONE,iONE)
+     &                     ,iONE,[iONE],[iONE],iONE)
               AverFact=1.0d0/Dble(NCountField)
               Call DaxPy_(iTriBasQ,AverFact,Work(ipAOSum),iONE
      &                   ,PertNElcInt,iONE)

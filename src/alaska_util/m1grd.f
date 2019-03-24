@@ -321,8 +321,8 @@
 *-----------------Compute integrals with the Rys quadrature.
 *
                   Call Rysg1(iAnga,nRys,nZeta,
-     &                       Array(ipA),Array(ipB),One,One,
-     &                       Array(ipZ),Array(ipZI),nZeta,One,One,1,
+     &                       Array(ipA),Array(ipB),[One],[One],
+     &                       Array(ipZ),Array(ipZI),nZeta,[One],[One],1,
      &                       Array(ipPx),nZeta,TC,1,Coori,Coora,
      &                       CoorAC,Array(ip),nArray,
      &                       TNAI1,Fake,Cff2D,

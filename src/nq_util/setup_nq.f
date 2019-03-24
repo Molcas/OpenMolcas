@@ -52,6 +52,7 @@
       Real*8 Alpha(2),rm(2), R_Min(0:nR_Min)
       Integer Maps2p(nShell,0:nSym-1)
       Integer iDCRR(0:7)
+      Dimension Dummy(1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -104,7 +105,7 @@ C     Call QEnter('Setup_NQ')
          Write (6,*) 'nShell.gt.nSkal_iSD'
          Write (6,*) 'nShell=',nShell
          Write (6,*) 'nSkal_iSD=',nSkal_iSD
-         Call Quit()
+         Call AbEnd()
       End If
       Do iShell = 1, nShell
          ipxyz=iSD(8,iShell)

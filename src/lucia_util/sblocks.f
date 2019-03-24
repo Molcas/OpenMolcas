@@ -105,7 +105,7 @@
 *.Scratch
       DIMENSION SB(*),CB(*),C2(*)
       DIMENSION XINT(*),XINT2(*),CSCR(*),SSCR(*)
-      DIMENSION I1(*),I2(*),I3(*),XI1S(*),XI2S(*),XI3S(*)
+      DIMENSION I1(*),I2(*),I3(*),I4(*),XI1S(*),XI2S(*),XI3S(*),XI4S(*)
       INTEGER   LCBLOCK(*),I1CBLOCK(*),ICBLOCK(8,*),LECBLOCK(*)
       DIMENSION ISTRFL(*)
 *. Zero order Hamiltonian

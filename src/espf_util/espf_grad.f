@@ -23,6 +23,7 @@
       Character*180 Get_Ln
       External Get_Ln
       Dimension FX(4)
+      Dimension opnuc(1)
 *
       Call QEnter('espf_grad')
       iPL = iPL_espf()

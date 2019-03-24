@@ -38,6 +38,7 @@
       Integer   Ind(nCntr+mCntr,2), iOper(0:nSym-1), nStab(mxdc),
      &          jStab(0:7,mxdc)
       Logical lWrite, ldB, lWarn
+      Dimension Dummy(1)
 *
       iRout = 50
       iPrint = nPrint(iRout)

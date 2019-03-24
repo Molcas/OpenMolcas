@@ -77,6 +77,7 @@
       Real*8, Dimension(:,:), Allocatable:: DnsS, Temp
       Real*8, Dimension(:,:), Allocatable, Target:: Aux
       Real*8, Dimension(:,:), Pointer:: pTwoHam
+      Dimension Dummy(1),iDummy(1)
 #include "SysDef.fh"
 
 *
@@ -147,7 +148,7 @@
             call dcopy_(nBT,TwoHam(1,1,iPsLst),1,TwoHam(1,2,iPsLst),1)
             If (MxConstr.gt.0 .and. klockan.eq.1) Then
                Call SetUp_iSD()
-               Call Get_Enondyn_dft(nBT,Dumm1,iDumm,'SCF ')
+               Call Get_Enondyn_dft(nBT,Dummy,iDumm,'SCF ')
                Call Free_iSD()
                klockan=24
             EndIf

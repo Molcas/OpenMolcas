@@ -68,6 +68,7 @@
       COMMON/UMMAGUMMA/NSTRIA(4)
 C-jwk-cleanup      INTEGER KELFGRP(MXPNGAS)
       INTEGER KGRP(MXPNGAS)
+      DIMENSION IDUM(1)
 c      COMMON/COMJEP/MXACJ,MXACIJ,MXAADST
 *
 * =======
@@ -242,9 +243,9 @@ C?      WRITE(6,*) ' ADAADA : IIGRP, JJGRP', IIGRP,JJGRP
       IF(NTEST.GE.100) WRITE(6,*) ' NELK = ' , NELK
       IF(KFRST.NE.0) THEN
 *. Generate occupation of K STRINGS
-
+       IDUM(1)=0
        CALL GETSTR2_TOTSM_SPGP(   KGRP,   NGAS,    KSM,   NELK,  NSTRK,
-     &                         iWORK(KLLOC),NOCOB,    0, ISUM, IDUM)
+     &                         iWORK(KLLOC),NOCOB,    0, IDUM, IDUM)
 C     GETSTR2_TOTSM_SPGP(IGRP,NIGRP,ISPGRPSM,NEL,NSTR,ISTR,
 C    &                              NORBT,IDOREO,IZ,IREO)
        NSTRKS(K12) = NSTRK

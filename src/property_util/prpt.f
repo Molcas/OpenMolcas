@@ -294,8 +294,8 @@ c
       Else
 *
 *        Make iadDen to point at the MO vectors
-         ipVec=ip_of_Work(Vec)
-         ipScr=ip_of_Work(Scr)
+         ipVec=ip_of_Work(Vec(1))
+         ipScr=ip_of_Work(Scr(1))
          iadDen=ipVec-ipScr+1
          iadC1=1
          If (iUHF.eq.1) Then
@@ -403,7 +403,7 @@ C     Write (*,*) ' Starting scan of ONEINT for various elec. field integrals'
          iadLab=iadEl +nComp
          If (.Not.Short) Then
             Call GetMem('iadEl2','Allo','Real',iadEl_Work,nComp*mDim)
-            ip_Scr=ip_of_Work(Scr)
+            ip_Scr=ip_of_Work(Scr(1))
             iadEl=iadEl_Work-(ip_Scr-1)
          End If
 *        create vectors to store the sums of electronic and nuclear components over all centers
@@ -501,7 +501,7 @@ C     Write (*,*) ' Starting scan of ONEINT for various contact term integrals'
       iadLab=iadEl +nComp
       If (.Not.Short) Then
          Call GetMem('iadEl2','Allo','Real',iadEl_Work,nComp*mDim)
-         ip_Scr=ip_of_Work(Scr)
+         ip_Scr=ip_of_Work(Scr(1))
          iadEl=iadEl_Work-(ip_Scr-1)
       End If
 *     create vectors to store the sums of electronic and nuclear components over all centers
@@ -595,7 +595,7 @@ c
       iadLab=iadEl +nComp
       If (.Not.Short) Then
          Call GetMem('iadEl3','Allo','Real',iadEl_Work,nComp*mDim)
-         ip_Scr=ip_of_Work(Scr)
+         ip_Scr=ip_of_Work(Scr(1))
          iadEl=iadEl_Work-(ip_Scr-1)
       End If
 c

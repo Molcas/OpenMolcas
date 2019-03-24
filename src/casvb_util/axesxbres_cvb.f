@@ -31,7 +31,7 @@
         write(6,*)' Error in IFOLLOW with direct Fletcher!',ifollow
         call abend_cvb()
       endif
-      call fmove(rhs,res,n)
+      call fmove_cvb(rhs,res,n)
       do 300 i=1,itdav
       if(i.le.nnegeig)then
         alfa=eig_res

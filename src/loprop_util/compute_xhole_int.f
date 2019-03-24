@@ -152,10 +152,12 @@
 *                    purpose and let the value XHOL signify that we
 *                    are computing the xhole dipole.
       Call GetMem('X-Dipole elements','Allo','Real',ip_MatEl,nTri)
-      Call DrvNQ(Do_XHoleDip,Work(ip_MatEl),nFckDim,Func,Dens
-     &          ,Work(ip_Dens),nTri,nD,Do_Gamma,Do_Grad,Dummy
-     &          ,iDummy,Dummy,Dummy,iDummy,On_Top,Do_Tau,Do_MO
-     &          ,Do_TwoEl,DFTFOCK)
+!IFG: The call to DrvNQ below is completely messed up, please fix
+      Call WarningMessage(2,'There is surely a bug here!')
+!     Call DrvNQ(Do_XHoleDip,Work(ip_MatEl),nFckDim,Func,Dens
+!    &          ,Work(ip_Dens),nTri,nD,Do_Gamma,Do_Grad,Dummy
+!    &          ,iDummy,Dummy,Dummy,iDummy,On_Top,Do_Tau,Do_MO
+!    &          ,Do_TwoEl,DFTFOCK)
 *      call get_d1ao(ipD,nDens)
 *      FFF=ddot_(nDens,Work(ipD),1,Work(ip_MatEl),1)
 *      write(6,*)'YYY:',nDens,FFF,Func,ip_MatEl

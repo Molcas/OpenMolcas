@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE TRACI_RPT2(ISTART,NDIM,XMAT,LSYM,NCI,CI)
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION XMAT(NDIM,NDIM)
+      DIMENSION XMAT(NDIM,NDIM),CI(*)
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
 

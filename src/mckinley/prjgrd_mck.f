@@ -82,6 +82,7 @@
      &          indgrd(0:7), JndGrd(3,4,0:7)
       Logical IfGrad(3,2), JfGrad(3,4), EQ,
      &        DiffCnt,tr(4),ifg(4),ifhess_dum(3,4,3,4)
+      Dimension Dum(1)
 *                                                                      *
 ************************************************************************
 *                                                                      *

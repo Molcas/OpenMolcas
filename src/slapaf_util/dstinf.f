@@ -100,7 +100,7 @@
             Write (LOut,*)
      &        ' Geometrical information of the final structure'
             r_Iter=DBLE(Iter)
-            Call Add_Info('GEO_ITER',r_Iter,1,8)
+            Call Add_Info('GEO_ITER',[r_Iter],1,8)
          Else IF (do_printcoords) THEN
             Write (LOut,*)
      &         ' Geometrical information of the new structure'

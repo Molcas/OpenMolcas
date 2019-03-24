@@ -235,8 +235,8 @@
             EInv=One
             nFinal=0
             Call Rysg2(iAnga,mRys,nZeta,
-     &                 Array(ipA),Array(ipB),One,One,
-     &                 Zeta,ZInv,nZeta,Eta,EInv,1,
+     &                 Array(ipA),Array(ipB),[One],[One],
+     &                 Zeta,ZInv,nZeta,[Eta],[EInv],1,
      &                 P,nZeta,TC,1,Coori,Coori,CoorAC,
      &                 Array(nip),nArray,
      &                 TNAI1,Fake,XCff2D,

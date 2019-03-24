@@ -33,7 +33,8 @@
 #include "print.fh"
       Real*8 DInf(nDInf)
 #include "real.fh"
-      Character*180 Line, BLine, Get_Ln
+      Character*80 BLine
+      Character*180 Line, Get_Ln
 *     External Get_Ln
       Integer ipExp(MxShll), ipCff(MxShll), nExp(MxShll), nBasis(MxShll)
       Logical test

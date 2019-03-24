@@ -820,18 +820,23 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           SM1=(0.0_wp,0.0_wp)
           MM2=(0.0_wp,0.0_wp)
           SM2=(0.0_wp,0.0_wp)
-          Call KE_Exchange(n1,n2,
-     &                     M1( 1:3, 1:n1, 1:n1 ),
-     &                     S1( 1:3, 1:n1, 1:n1 ),
-     &                     M2( 1:3, 1:n2, 1:n2 ),
-     &                     S2( 1:3, 1:n2, 1:n2 ),
-     &                     eso(i1,1:n1),eso(i2,1:n2),
-     &                     tpar, upar, lant, KEOPT,
-     &       HKEX(lp,1:n1,1:n1,1:n2,1:n2),
-     &                     MM1(1:3, 1:n1, 1:n1 ),
-     &                     SM1(1:3, 1:n1, 1:n1 ),
-     &                     MM2(1:3, 1:n2, 1:n2 ),
-     &                     SM2(1:3, 1:n2, 1:n2 ) )
+!IFG: this call to KE_Exchange does not match at all its definition, please fix
+          Call WarningMessage(2,'There is surely a bug here')
+          If (.False.) Call Unused_real(tpar)
+          If (.False.) Call Unused_real(upar)
+          If (.False.) Call Unused_integer(lant)
+!         Call KE_Exchange(n1,n2,
+!    &                     M1( 1:3, 1:n1, 1:n1 ),
+!    &                     S1( 1:3, 1:n1, 1:n1 ),
+!    &                     M2( 1:3, 1:n2, 1:n2 ),
+!    &                     S2( 1:3, 1:n2, 1:n2 ),
+!    &                     eso(i1,1:n1),eso(i2,1:n2),
+!    &                     tpar, upar, lant, KEOPT,
+!    &       HKEX(lp,1:n1,1:n1,1:n2,1:n2),
+!    &                     MM1(1:3, 1:n1, 1:n1 ),
+!    &                     SM1(1:3, 1:n1, 1:n1 ),
+!    &                     MM2(1:3, 1:n2, 1:n2 ),
+!    &                     SM2(1:3, 1:n2, 1:n2 ) )
 
           If((KEOPT.eq.1).OR.(KEOPT.eq.2)) Then
             Do is1=1,n2
@@ -969,8 +974,9 @@ cccc----------------------------------------------------------------------------
      &                HDIP(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),
      &               HKEXR(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),
      &                HDMO(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),
+     &                HITO(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),
      &                Dipol, AnisoLines1, AnisoLines3, AnisoLines9, KE,
-     &                DM_exchange )
+     &                DM_exchange, .False. )
           ! diagonalize the Hamiltonian:
           Call pa_diagham( exchR, npair, i_pair, nneq, neq, nexchR,
      &                     nmaxR,
@@ -981,17 +987,20 @@ cccc----------------------------------------------------------------------------
      &                HDIP(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),
      &               HKEXR(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),
      &                HDMO(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),
-     &                Dipol, AnisoLines1, AnisoLines3, AnisoLines9, KE,
+     &                HITO(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),
+     &                Dipol, .False.,
+     &                AnisoLines1, AnisoLines3, AnisoLines9, KE,.False.,
      &                WLIN1(1:exchR), WLIN3(1:exchR), WLIN9(1:exchR),
      &                WLIN(1:exchR), WDIP(1:exchR), WKEX(1:exchR),
-     &                WDMO(1:exchR),
+     &                WDMO(1:exchR), WITO(1:exchR),
      &                  WR(1:exchR), ZR(1:exchR,1:exchR) )
           ! print the resulting eigenstates:
           Call pa_preigen( exchR,  lmax,   ibasR,  Dipol,
      &                     AnisoLines1, AnisoLines3, AnisoLines9, KE,
+     &                     .False., .False.,
      &                     WLIN(1:exchR), WDIP(1:exchR),
-     &                     WKEX(1:exchR),
-     &                     WR(1:exchR), ZR(1:exchR,1:exchR) )
+     &                     WKEX(1:exchR), WDMO(1:exchR), WITO(1:exchR),
+     &                     WR(1:exchR), ZR(1:exchR,1:exchR), 0 )
           ! compute the moments:
           rotR=0.0_wp
           rotR(1,1,1,1)=1.0_wp
@@ -1060,8 +1069,8 @@ cccc----------------------------------------------------------------------------
           ! print the localized moments on sites:
           nsta=exchR
           ! assuming max 10 equivalent magnetic sites
-          Call momloc2(nsta, nmaxR, nneq, neq, rotR(1:nneq,1:10,:,:),
-     &                 lmax, nexchR,
+          Call momloc2(nsta, nmaxR, nneq, neq, neqv,
+     &                rotR(1:nneq,1:10,:,:), lmax, nexchR,
      &                wR(1:nsta),zR(1:nsta,1:nsta),
      &                MR(1:3,1:nsta,1:nsta),
      &                SR(1:3,1:nsta,1:nsta),

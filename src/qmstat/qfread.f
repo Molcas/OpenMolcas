@@ -67,7 +67,7 @@
       Dimension Cmo(MxBas**2),Cmo_S(MxBas**2),Occu(MxBas),Dummy(MxBas)
 
       Dimension nSh(MxAt),nfSh(MxAt,MxAngqNr),nCnC(MxBas),nCnC_C(MxBasC)
-      Dimension nOcc(MxAt),natyp(MxAt),natypC(MxAt),iDumm(MxBas)
+      Dimension nOcc(MxBas),natyp(MxAt),natypC(MxAt),iDumm(MxBas)
       Dimension nBas(MxSym),nBasCC(1),iCon(MxAt,MxPrCon)
       Dimension iC_icon(MxAt,MxPrCon)
 

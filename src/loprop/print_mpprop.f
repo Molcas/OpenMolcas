@@ -20,7 +20,7 @@
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "Molcas.fh"
-      Real*8 rMP(nij,nElem),xrMP(nij,nElem),xnrMP(nij,nElem),
+      Real*8 rMP(nij,nElem),xrMP(nij,nElem),xnrMP(nij,nElem),CoC(3),
      &       EC(3,nij),Polar(6,nij),Polar_M(6),Coor(3,nAtoms)
       Integer iANr(nAtoms),nBas(8), lHeader
       Parameter (lHeader = 144)

@@ -52,7 +52,7 @@
 *
 *---- Derivatives of solvation charges
 *
-      Call DerChg(nAt,nAt3,nTs,nS,Eps,CPCM,IAtm,AtmC,AtmChg,
+      Call DerChg(nAt,nAt3,nTs,nS,Eps,IAtm,AtmC,AtmChg,
      &  DM,DerMat,Tessera,Q,Qtot,QDer,
      &  DerTes,DerPunt,DerCentr,DerRad,Der1,Der2,VDer,Sphere,ISphe)
 cpcm_solvent

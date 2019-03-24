@@ -59,7 +59,7 @@
       fac=svb/sqrt(cnrm)
 
       call cicopy_cvb(civec,citmp)
-      call fmove(orbs,orbinv,norb*norb)
+      call fmove_cvb(orbs,orbinv,norb*norb)
       call mxinv_cvb(orbinv,norb)
       call gaussj_cvb(orbinv,gjorb)
       call applyt_cvb(civec,gjorb)
@@ -80,7 +80,7 @@ c  Chirgwin-Coulson weights
 c  Inverse-overlap weights
       if(.not.mod(iciweights,8).gt.3)goto 4010
       call mxattb_cvb(orbs,orbs,norb,norb,norb,sorbs)
-      call fmove(sorbs,orbinv,norb*norb)
+      call fmove_cvb(sorbs,orbinv,norb*norb)
       call mxinv_cvb(orbinv,norb)
       call gaussj_cvb(orbinv,gjorb)
 c Alpha weight array:

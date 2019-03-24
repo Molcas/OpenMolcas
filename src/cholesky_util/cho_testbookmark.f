@@ -165,8 +165,8 @@
             Else
                Call Cho_MaxAbsDiag(Work(ipDX),1,ErrMx)
             End If
-            Call iZero(DiaMax,nSym)
-            Call iZero(DiaMaxT,nSym)
+            Call FZero(DiaMax,nSym)
+            Call FZero(DiaMaxT,nSym)
             Call GetMem('BkmXDia','Free','Real',ipDX,lDX)
             If (abs(ErrMx-ThrCom).gt.1.0d-12) Then
                irc=irc+1

@@ -90,7 +90,7 @@ C
       Logical, intent(in)         :: Do_structure_abc, GRAD
       ! local variables:
       Integer           :: I, L, M, J, N, I1, I2, nmax, IsFreeUnit,
-     &                     LuDgrad
+     &                     LuDgrad, rc
       Real (kind=wp)    :: ESUM, E0, CHECK_SGN2
       Real (kind=wp)    :: knm(12,0:12)
       Real (kind=wp), allocatable :: ELOC(:)
@@ -156,7 +156,8 @@ c compute the magnetic axes in the crystalographic coordinate system, If request
           Write(6,'(A, 3F12.6)') 'coord = ', (coord(i),i=1,3)
         End If
 
-        CALL abc_axes(cryst, coord, maxes, axes_in_abc, 1, 0 )
+        rc = 0
+        CALL abc_axes(cryst, coord, maxes, axes_in_abc, 1, rc)
 
         Write(6,'(19x,32a,3x,a)') '|',('-',i=1,4),'|',
      &      ('-',i=1,5),' a ',('-',i=1,7),' b ',('-',i=1,7),' c ',

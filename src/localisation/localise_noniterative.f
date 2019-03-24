@@ -35,6 +35,8 @@ C
       Logical Test_OrthoPAO, Normalize
       Parameter (Test_OrthoPAO = .False.)
 
+      Dimension dum(1),idum(1)
+
       irc = 0
       xNrm = 0.0d0
 

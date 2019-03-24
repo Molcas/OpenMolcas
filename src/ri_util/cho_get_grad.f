@@ -108,11 +108,11 @@
 
       Logical   Debug,timings,DoRead,DoExchange,DoCAS,lSA
       Logical   DoScreen,Estimate,Update,BatchWarn
-      Integer   nDen,nChOrb_(8,5),nAorb(8),nnP(8),nIt(5)
+      Integer   nDen,nChOrb_(8,nDen),nAorb(8),nnP(8),nIt(nDen)
       Integer   ipMSQ(nDen),ipAorb(8,*),ipTxy(8,8,2)
-      Integer   kOff(8,5), LuRVec(8,3), ipLpq(8), ipLxy(8), iSkip(8)
-      Integer   ipDrs(5), ipY, ipYQ, ipML, ipSKsh(5)
-      Integer   ipDrs2,ipDLT(5)
+      Integer   kOff(8,nDen), LuRVec(8,3), ipLpq(8), ipLxy(8), iSkip(8)
+      Integer   ipDrs(nDen), ipY, ipYQ, ipML, ipSKsh(5)
+      Integer   ipDrs2,ipDLT(nDen),ipDLT2
       Integer   ipIndx, ipIndik,npos(8,3)
       Integer   iSTSQ(8), iSTLT(8), iSSQ(8,8), nnA(8,8), nInd
       Real*8    tread(2),tcoul(2),tmotr(2),tscrn(2),tcasg(2),tmotr2(2)
@@ -270,7 +270,7 @@ c      Debug=.true.
 *
       nI2t=0
       nItmx=0
-      Do i=1,5
+      Do i=1,nDen
         nIt(i) = 0
       End Do
       Do jDen=nDen,1,-1
@@ -740,7 +740,7 @@ C --- Transform the densities to reduced set storage
      &                              ipDLT,ipDrs,mode,add)
                If(iMp2prpt .eq. 2) Then
                   Call play_casscf_sto(irc,iLoc,nJdens,JSYM,ISTLT,ISSQ,
-     &                              ipDLT2,ipDrs2,mode,add)
+     &                              [ipDLT2],[ipDrs2],mode,add)
                End If
             EndIf
 *
@@ -915,7 +915,7 @@ C --- Transform the densities to reduced set storage
                      add  = .false.
                      nMat = 1
                      Call play_casscf_sto(irc,ired1,nMat,JSYM,ISTLT,
-     &                                    ISSQ,ipDIAH,ipDIAG,mode,add)
+     &                                  ISSQ,[ipDIAH],[ipDIAG],mode,add)
 
                      CALL CWTIME(TCS2,TWS2)
                      tscrn(1) = tscrn(1) + (TCS2 - TCS1)

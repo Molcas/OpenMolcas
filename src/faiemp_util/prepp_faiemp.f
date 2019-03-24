@@ -473,7 +473,7 @@
       Logical EnergyWeight
       Integer iPrint,maxDens,iCnttp,ipFragDensAO,iDpos,ipFragDensSO
       Integer i,j,iCnt,iFpos,iFD,mdc,iIrrep,nBasC
-      Real*8  rDummy
+      Real*8  rDummy(1)
 
       If(nIrrep.ne.1) Then
         write(6,*) 'AddFragDens: Symmetry not implemented yet'

@@ -40,10 +40,10 @@
 * PAM      NCOR=1 000 000
 * PAM      Call GETMEM('SOArr','Allo','Real',LSOArr,NCOR)
 * Replace by: Find max possible allocatable
-      Call GETMEM('SOArr','Max','Real',LDummy,NCOR)
+      Call GETMEM('SOArr','Max','Inte',LDummy,NCOR)
 * Grab almost all of it, but leave a little to be safe:
       NCOR=NCOR-100000
-      Call GETMEM('SOArr','Allo','Real',LSOArr,NCOR)
+      Call GETMEM('SOArr','Allo','Inte',LSOArr,NCOR)
 *     Call SetQue('Trace=On')
       Call qEnter('GUGA')
       CALL SETTIM
@@ -79,7 +79,7 @@ CPAM96: Use variable MCOP, size of buffers:
       D0=0.0d0
       D1=1.0d0
       D2=2.0d0
-      CALL INPUT_GUGA(Work(LSOArr),JSYM,JSY,L0,L1,L2,L3,ISPAC)
+      CALL INPUT_GUGA(iWork(LSOArr),JSYM,JSY,L0,L1,L2,L3,ISPAC)
 *
 *     Main body
 *
@@ -124,14 +124,15 @@ C     ALSO SPACE FOR NTPB WORDS IN EMPTY
          Call QTrace
          Call Abend
       End If
-      CALL DCOPY_(LW1,0.0D0,0,Work(LSOArr),1)
-      CALL CI_SELECT(Work(LSOArr),Work(LSOArr-1+LW1),Work(LSOArr-1+LW2),
+      CALL ICOPY(LW1,0,0,iWork(LSOArr),1)
+      CALL CI_SELECT(iWork(LSOArr),iWork(LSOArr-1+LW1),
+     &               iWork(LSOArr-1+LW2),
      &               L0,L1,L2,L3,KBUF,NTPB,NBINS)
       IADD10=0
       CALL iDAFILE(Lu_10,1,IAD10,9,IADD10)
 *
 *     Epilogue, end
-      Call GETMEM('SOArr','Free','Real',LSOArr,NCOR)
+      Call GETMEM('SOArr','Free','Inte',LSOArr,NCOR)
 *
 *                                                                      *
 ************************************************************************

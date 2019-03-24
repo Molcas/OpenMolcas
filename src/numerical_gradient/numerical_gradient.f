@@ -172,7 +172,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
                   Call Get_I(2,iAtom,1)
                   Call Get_F(3,FX,3)
                   If (iWork(ipIsMM+iAtom-1) .eq. 1)
-     &                Call FMove(FX,Work(ipMMGrd+3*(iAtom-1)),3)
+     &                Call dCopy_(3,FX,Work(ipMMGrd+3*(iAtom-1)))
                End If
             End Do
             Call DScal_(3*nAtoms,Angstrom*ToHartree,Work(ipMMGrd),1)

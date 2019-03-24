@@ -41,6 +41,7 @@
       Integer   Ind(nCntr+mCntr,2), iOper(0:nSym-1), nStab(mxdc),
      &          jStab(0:7,mxdc)
       Logical First, lWrite, ldB, lWarn, lAtom(nAtom)
+      Dimension Dummy(1)
 *
       iRout = 50
       iPrint = nPrint(iRout)

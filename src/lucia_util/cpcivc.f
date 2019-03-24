@@ -50,7 +50,7 @@
 
          CALL todscn(work(c_pointer), nrec, lrec,
      &        -1, ifile)
-         CALL itods(-1,1,-1,ifile)
+         CALL itods([-1],1,-1,ifile)
 *
 *   ==============================
 *      Read CI-vector from disc

@@ -28,13 +28,13 @@
 #include "options.fh"
       Real*8 U1(3),U2(3),V1(3),V2(3)
       Real*8 V1best(3),V2best(3)
-      Real*8 Q(0:3),Vtrans(3)
+      Real*8 Q(0:3)
       Integer ireturn
 
       debug=.false.
       call quaterinit()
 
-      Call RdInput(U1,U2,V1,V2,Vtrans)
+      Call RdInput(U1,U2,V1,V2)
 
       if (debug) then
         Write(6,*) 'Reference axis'

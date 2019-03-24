@@ -27,7 +27,7 @@
       dimension orbs(norb,norb),cvb(nvb)
       dimension civec(ndet),civb(ndet),civbh(ndet)
       dimension cvbdet(ndetvb)
-      dimension gjorb(*)
+      dimension gjorb(*),res(*),resh(*)
       dimension h(2,2),eig(2)
 
       if(ip(3).ge.0)then
@@ -46,7 +46,7 @@
         else
           call cird_cvb(civbh,61001.2d0)
         endif
-        call fmove(orbs,orbinv,norb*norb)
+        call fmove_cvb(orbs,orbinv,norb*norb)
         call mxinv_cvb(orbinv,norb)
         call gaussj_cvb(orbinv,gjorb)
         call applyt_cvb(civbh,gjorb)

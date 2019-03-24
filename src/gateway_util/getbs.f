@@ -573,7 +573,7 @@ culf
          If (iPrint.ge.99)
      &      Write (6,*) ' Start reading PAMs'
          Call GetPAM(lUnit,ipExp,ipCff,nExp,nBasis,MxShll,iShll,Bline,
-     &               ipPAM2xp,ipPAM2cf,nPAM2)
+     &               ipPAM2xp,ipPAM2cf,nPAM2,DInf,nDInf)
 *
          If (inLn3.and. .not.inLn2) Then
             Close(lUnit)

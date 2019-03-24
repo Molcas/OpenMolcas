@@ -464,8 +464,8 @@ C     Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
 * Compute integrals with the Rys quadrature.
 *
       Call Rys(iAnga,nT,Zeta,ZInv,nZeta,
-     &         One,One,1,P,nZeta,
-     &         TC,1,rKappa,One,Coori,Coori,CoorAC,
+     &         [One],[One],1,P,nZeta,
+     &         TC,1,rKappa,[One],Coori,Coori,CoorAC,
      &         mabMin,mabMax,mcdMin,mcdMax,Array(ip1),mArr*nZeta,
      &         TNAI,Fake,XCff2D,XRys2D,NoSpecial)
 *

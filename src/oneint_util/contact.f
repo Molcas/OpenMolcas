@@ -38,7 +38,8 @@
      &       Array(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2),
      &       Axyz(nZeta,3,0:la), Bxyz(nZeta,3,0:lb),
      &       Zeta(nZeta), P(nZeta,3), A(3), RB(3), TC(3)
-      Integer iStabM(0:nStabM-1), iStabO(0:7), iDCRT(0:7), lOper(nComp)
+      Integer iStabM(0:nStabM-1), iStabO(0:7), iDCRT(0:7), lOper(nComp),
+     &       iChO(nComp)
 *                                                                      *
 ************************************************************************
 *                                                                      *

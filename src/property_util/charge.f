@@ -966,7 +966,7 @@ c icase=2 for usual mulliken, =2 for spin population.
            TCh=DDot_(nNuc,One,0,Work(ip_Charge),1)
            Write(6,'(6X,A,F12.6)') 'Total            charge=',
      &                    DDot_(nNuc,One,0,Work(ip_Charge),1)
-         Call xml_dDump('FormalCharge','Total charge','a.u',0,TCh,1,1)
+         Call xml_dDump('FormalCharge','Total charge','a.u',0,[TCh],1,1)
          End If
       End If
       If (iCase.ge.2) Then

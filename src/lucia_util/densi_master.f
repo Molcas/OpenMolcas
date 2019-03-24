@@ -28,6 +28,7 @@
 #include "io_util.fh"
       integer rvec
       logical iPack,tdm
+      dimension dummy(1)
 *
 * Put CI-vector from RASSCF on luc
 *

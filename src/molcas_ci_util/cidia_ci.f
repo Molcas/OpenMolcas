@@ -39,6 +39,7 @@ C
       DIMENSION CSFDIA(*)
       DIMENSION G(*)
       DIMENSION TUVX(*)
+      DIMENSION Dummy(1)
 C
       CALL QENTER('CIDIA')
       Call Timing(Tissot_1,Swatch,Swatch,Swatch)

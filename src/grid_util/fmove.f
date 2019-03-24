@@ -8,23 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE FRMDSCN(VEC,NREC,LBLK,LU)
-*
-* Read  VEC as multiple record file, NREC records read
-*
-      IMPLICIT REAL*8(A-H,O-Z)
-      DIMENSION LREC(1)
-*. OUtput
-      DIMENSION VEC(*)
-*
-      IOFF = 1
-      DO IREC = 1, NREC
-        CALL IFRMDS(LREC(1),1,LBLK,LU)
-        CALL FRMDSC(VEC(IOFF),  LREC(1),     LBLK,       LU,   IMZERO,
-     &                IAMPACK)
-        IOFF = IOFF + LREC(1)
-      END DO
-*
-      RETURN
-      END
-C !!! End trace !!!
+#ifdef _HAVE_GRID_IT_
+*     This should have never been used outside casvb_util
+      Subroutine fmove(ia,ib,n)
+      Integer ia(*),ib(*),n
+      Call fmove_cvb(ia,ib,n)
+      End
+#elif defined (NAGFOR)
+c Some compilers do not like empty files
+      Subroutine empty_fmove
+      End
+#endif

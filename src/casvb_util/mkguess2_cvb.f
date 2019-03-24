@@ -31,7 +31,7 @@ c  (Newly assigned memory => orbs will be zero)
       do 100 iorb=1,norb
       if(dnrm2_(norb,orbs(1,iorb),1).gt.thresh)then
         irdorbs(iorb)=1
-        call fmove(orbs(1,iorb),orbsao(1,iorb),norb)
+        call fmove_cvb(orbs(1,iorb),orbsao(1,iorb),norb)
       endif
 100   continue
 c  -- restore from previous optim --
@@ -78,7 +78,7 @@ c AO basis ...
         if(dnrm2_(nvbinp,w(i1),1).gt.thresh)then
           call rdioff_cvb(3,recinp,ioffs)
           call rdis_cvb(kbasiscvb,1,recinp,ioffs)
-          call fmove(w(i1),w(lv(2)),nvbinp)
+          call fmove_cvb(w(i1),w(lv(2)),nvbinp)
         endif
         call mfreer_cvb(i1)
 
@@ -105,10 +105,10 @@ c  Collect orbitals and transform AO -> MO :
       norb_ao=0
       do iorb=1,norb
       if(irdorbs(iorb).eq.1)then
-        call fmove(orbsao(1,iorb),orbs(1,iorb),norb)
+        call fmove_cvb(orbsao(1,iorb),orbs(1,iorb),norb)
       elseif(irdorbs(iorb).eq.2)then
         norb_ao=norb_ao+1
-        if(norb_ao.ne.iorb)call fmove(orbsao(1,iorb),
+        if(norb_ao.ne.iorb)call fmove_cvb(orbsao(1,iorb),
      >    orbsao(1,norb_ao),nbas_mo)
       endif
       enddo
@@ -118,7 +118,7 @@ c  Collect orbitals and transform AO -> MO :
       do iorb=1,norb
       if(irdorbs(iorb).eq.2)then
         iorb_ao=iorb_ao+1
-        call fmove(w((iorb_ao-1)*norb+i1),orbs(1,iorb),norb)
+        call fmove_cvb(w((iorb_ao-1)*norb+i1),orbs(1,iorb),norb)
       endif
       enddo
       call mfreer_cvb(i1)

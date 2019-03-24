@@ -44,6 +44,7 @@
       Parameter (ExLim=10) !Over how long distance the exchange rep.
                            !is computed, the solv-solv.
       External Ranf
+      Dimension Dum(1)
 
 *----------------------------------------------------------------------*
 * Enter.                                                               *
@@ -202,7 +203,7 @@ c          write(6,*)'ipAOSum',ipAOSum
 58886 Continue
       i9=i9+1
       If(iRead.le.8.and.iRead.ge.6) then
-        Call Get8(Ract,Dum)
+        Call Get8(Ract,Dum(1))
       Elseif(iRead.eq.9) then
         Call Get9(Ract,Coord,info_atom,iQ_Atoms,iDiskSa)
       Else
@@ -459,7 +460,7 @@ c          write(6,*)'ipAOSum',ipAOSum
               Labjhr='Add '
               Call AverMEP(Labjhr,Eint,Poli,iCi,SumElcPot
      &                     ,NCountField,PertElcInt
-     &                     ,iONE,iONE,iONE,iONE,iONE)
+     &                     ,iONE,iONE,[iONE],[iONE],iONE)
               NCountField=NCountField+1
             Endif
 *********
@@ -566,7 +567,7 @@ c          write(6,*)'ipAOSum',ipAOSum
               Labjhr='Aver'
               Call AverMEP(Labjhr,Eint,Poli,iCi,SumElcPot
      &                     ,NCountField,PertElcInt
-     &                     ,iONE,iONE,iONE,iONE,iONE)
+     &                     ,iONE,iONE,[iONE],[iONE],iONE)
 *
               AverFact=1.0d0/Dble(NCountField)
               Call DaxPy_(iTriBasQ,AverFact,Work(ipAOSum),iONE

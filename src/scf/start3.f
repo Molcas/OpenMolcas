@@ -13,7 +13,7 @@
 *               1992, Piotr Borowski                                   *
 *               2017, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine Start3(CMO,TrM,mBB,nD,OneHam,Ovrlp,mBT,Dens)
+      SubRoutine Start3(CMO,TrM,mBB,nD,OneHam,Ovrlp,mBT)
 ************************************************************************
 *                                                                      *
 *     purpose: Get starting orbitals from density matrix read as input.*

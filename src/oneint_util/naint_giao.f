@@ -176,18 +176,18 @@
                   EInv=One/Eta
                   rKappcd=TwoP54/Eta
 *                 Tag on the normalization
-                  rKappacd=rKappacd*(Eta/Pi)**(Three/Two)
+                  rKappcd=rKappcd*(Eta/Pi)**(Three/Two)
                   Call Rys(iAnga_EF,nT,Zeta,ZInv,nZeta,
-     &                     Eta,EInv,1,P,nZeta,TC,1,
-     &                     rKappa,rKappacd,Coori,Coori,CoorAC,
+     &                     [Eta],[EInv],1,P,nZeta,TC,1,
+     &                     rKappa,[rKappcd],Coori,Coori,CoorAC,
      &                     mabMin,mabMax,mcdMin_EF,mcdMax_EF,
      &                     Array(ipRys),mArr*nZeta,
      &                     TERI,MODU2,vCff2D,vRys2D,NoSpecial)
                Else If (Nuclear_Model.eq.Point_Charge) Then
                   NoSpecial=.True.
                   Call Rys(iAnga_EF,nT,Zeta,ZInv,nZeta,
-     &                     One,One,1,P,nZeta,TC,1,
-     &                     rKappa,One,Coori,Coori,CoorAC,
+     &                     [One],[One],1,P,nZeta,TC,1,
+     &                     rKappa,[One],Coori,Coori,CoorAC,
      &                     mabMin,mabMax,mcdMin_EF,mcdMax_EF,
      &                     Array(ipRys),mArr*nZeta,
      &                     TNAI,Fake,XCff2D,XRys2D,NoSpecial)
@@ -228,18 +228,18 @@
                   EInv=One/Eta
                   rKappcd=TwoP54/Eta
 *                 Tag on the normalization
-                  rKappacd=rKappacd*(Eta/Pi)**(Three/Two)
+                  rKappcd=rKappcd*(Eta/Pi)**(Three/Two)
                   Call Rys(iAnga_NA,nT,Zeta,ZInv,nZeta,
-     &                     Eta,EInv,1,P,nZeta,TC,1,
-     &                     rKappa,rKappacd,Coori,Coori,CoorAC,
+     &                     [Eta],[EInv],1,P,nZeta,TC,1,
+     &                     rKappa,[rKappcd],Coori,Coori,CoorAC,
      &                     mabMin,mabMax,0,0,
      &                     Array(ipRys),mArr*nZeta,
      &                     TERI,MODU2,vCff2D,vRys2D,NoSpecial)
                Else If (Nuclear_Model.eq.Point_Charge) Then
                   NoSpecial=.True.
                   Call Rys(iAnga_NA,nT,Zeta,ZInv,nZeta,
-     &                     One,One,1,P,nZeta,TC,1,
-     &                     rKappa,One,Coori,Coori,CoorAC,
+     &                     [One],[One],1,P,nZeta,TC,1,
+     &                     rKappa,[One],Coori,Coori,CoorAC,
      &                     mabMin,mabMax,0,0,
      &                     Array(ipRys),mArr*nZeta,
      &                     TNAI,Fake,XCff2D,XRys2D,NoSpecial)

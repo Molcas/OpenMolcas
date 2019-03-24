@@ -59,6 +59,7 @@ c#include "print.fh"
      &          mOp(4), iuvwx(4),
      &          kndgrd(3,4,0:7),iStabM(0:7)
       Logical JfGrd(3,4),kfgrd(3,4),jfg(4)
+      Dimension Dum(1)
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *

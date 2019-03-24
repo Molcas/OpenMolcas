@@ -231,7 +231,7 @@ C?         write(6,*) ' IDET,X,VEC(IDET) ', IDET,X,VEC(IDET)
         END IF
 *
         IF(LUOUT.GT.0) THEN
-          CALL ITODS(LDET,1,-1,LUOUT)
+          CALL ITODS([LDET],1,-1,LUOUT)
           CALL TODSC(VEC,LDET,-1,LUOUT)
 C?        WRITE(6,*) ' Number of elements transferred to DISC ',
 C?   &    LDET
@@ -242,8 +242,7 @@ C?   &    LDET
       END DO
 *
       IF(LUOUT.GT.0) THEN
-       IONEM = -1
-       CALL ITODS(IONEM,1,-1,LUOUT)
+       CALL ITODS([-1],1,-1,LUOUT)
       END IF
 *
 C?    WRITE(6,*) ' Mission DIATERMS finished '

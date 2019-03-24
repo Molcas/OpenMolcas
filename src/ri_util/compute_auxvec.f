@@ -396,7 +396,7 @@
 *     For parallel run: reordering of the V_k(tilde) vector from
 *     the "node storage" to the Q-vector storage
 *MGD will probably not work for SA-CASSCF
-      If (nProc.gt.1)  Call Reord_Vk(ipVk,nProc,myProc,nV_l,nV_t,1,1)
+      If (nProc.gt.1)  Call Reord_Vk(ipVk,nProc,myProc,nV_l,nV_t,[1],1)
 ************************************************************************
 *                                                                      *
 *     Second step: contract with the Q-vectors to produce V_k          *

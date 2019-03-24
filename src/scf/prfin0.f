@@ -73,6 +73,7 @@
       Character*80 Lines(6), Fmt*60
       Logical Reduce_Prt
       External Reduce_Prt
+      Dimension Dumm1(1)
 
 
 #include "SysDef.fh"

@@ -38,6 +38,7 @@
      &                                       dRVdxyz, Hess
       Real*8, Dimension(:,:,:), Allocatable :: d2RV
       Integer, Dimension(:), Allocatable :: Ind, iDCR
+      Dimension dum(1)
       Data TR_type/'Tx ','Ty ','Tz ','Ryz','Rzx','Rxy'/
       Data iPhase/ 1, 1, 1,   -1, 1, 1,   1,-1, 1,  -1,-1, 1,
      &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/

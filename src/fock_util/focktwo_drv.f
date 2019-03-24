@@ -19,7 +19,7 @@
       Logical DoCholesky,GenInt
       Integer ALGO
       Logical REORD,DECO
-      Real*8 CMO_DUMMY
+      Real*8 CMO_DUMMY(1)
 
       Common /CHORAS / REORD,DECO,ALGO
 *

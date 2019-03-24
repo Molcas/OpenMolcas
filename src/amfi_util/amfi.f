@@ -217,7 +217,7 @@ cbs
       Call GetMem('isgnprod','Allo','Inte',iisgnprod,idim1)
       call angular(Lhigh,keep,keepcart,makemean,bonn,breit,
      *sameorb,ifinite,work(icartx),work(icarty),work(icartz),
-     *work(ipowexp),work(icoulovlp),work(ipreY),work(ipreXZ),
+     *work(ipowexp),work(icoulovlp),work(ipreXZ),work(ipreY),
      *iwork(iicheckxy),iwork(iicheckz),iwork(iinterxyz),
      *iwork(iisgnprod)) ! subroutine for angular part
       Call GetMem('isgnprod','Free','Inte',iisgnprod,idim1)

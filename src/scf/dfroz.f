@@ -42,7 +42,8 @@
 #include "infscf.fh"
 #include "stdalloc.fh"
 *
-      Real*8 Dlt(nDlt),CMO(nCMO),OccNo(*)
+      Real*8 Dlt(nDlt),CMO(nCMO)
+      Integer OccNo(*)
 *
       Real*8, Dimension(:), Allocatable:: NewOcc
 *

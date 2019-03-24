@@ -116,7 +116,7 @@ C     if this block structure is used internally, I didn't optimize this.
         DO ISBLK = I1BATS(JBATS),I1BATS(JBATS)+ LBATS(JBATS)-1
           IOFF = IBATS(6,ISBLK)
           ILEN = IBATS(8,ISBLK)
-          CALL ITODS(ILEN,1,-1,LUHC)
+          CALL ITODS([ILEN],1,-1,LUHC)
 *MGD zero afterwards since it is easier
           I_AM_NOT_WANTED = 0
           DO I = 1, N_ELIMINATED_BATCHES
@@ -134,7 +134,7 @@ C     if this block structure is used internally, I didn't optimize this.
       CALL GETMEM('SBOFF','FREE','INTE',LSBOFF,NBATS)
       CALL GETMEM('SBSIZ','FREE','INTE',LSBSIZ,NBATS)
 
-      CALL ITODS(-1,1,-1,LUHC)
+      CALL ITODS([-1],1,-1,LUHC)
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Final S-vector on disc'
         CALL WRTVCD(SB,LUHC,1,-1)
