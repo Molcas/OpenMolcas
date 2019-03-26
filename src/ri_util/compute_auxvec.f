@@ -221,7 +221,7 @@
                  Do isym=0,nIrrep-1
 *
                    Call dzero(Work(ipChMM),nBas(isym)**2)
-                   call dcopy_(nbas(isym),One,0,Work(ipChMM),
+                   call dcopy_(nbas(isym),[One],0,Work(ipChMM),
      &                  nBas(isym)+1)
                    Call NIdiag(Work(ipTmp+iOffDSQ),Work(ipChMM),
      &                  nBas(isym),nBas(isym),0)

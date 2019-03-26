@@ -19,13 +19,28 @@
 
 #include "cpfmcpf.fh"
       CALL QENTER('DENSCT')
+      CALL DENSCT_INTERNAL(H)
+      CALL QEXIT('DENSCT')
+*
+*     This is to allow type punning without an explicit interface
+      CONTAINS
+      SUBROUTINE DENSCT_INTERNAL(H)
+      USE ISO_C_BINDING
+      REAL*8, TARGET :: H(*)
+      INTEGER, POINTER :: iH1(:),iH2(:),iH3(:),iH34(:)
 C
-      CALL DENS(H(LW(26)),H(LW(62)),H(LW(1)),A)
+      CALL C_F_POINTER(C_LOC(H(LW(1))),iH1,[1])
+      CALL DENS(H(LW(26)),H(LW(62)),iH1,A)
+      NULLIFY(iH1)
 C
 C     MULTIPLY C BY MP
 C
-      CALL NPSET(H(LW(2)),H(LW(3)),H(LW(26)),H(LW(30)),H(LW(31)),
-     *H(LW(72)),H(LW(27)),H(LW(28)),H(LW(32)),H(LW(34)))
+      CALL C_F_POINTER(C_LOC(H(LW(2))),iH2,[1])
+      CALL C_F_POINTER(C_LOC(H(LW(3))),iH3,[1])
+      CALL C_F_POINTER(C_LOC(H(LW(34))),iH34,[1])
+      CALL NPSET(iH2,iH3,H(LW(26)),H(LW(30)),H(LW(31)),
+     *H(LW(72)),H(LW(27)),H(LW(28)),H(LW(32)),iH34)
+      NULLIFY(iH2,iH3,iH34)
 *
       CALL ONECT(H)
       IF(A.GT.D1) THEN
@@ -33,6 +48,6 @@ C
       END IF
       CALL NATCT(H,LIC0)
 *
-      CALL QEXIT('DENSCT')
       RETURN
+      END SUBROUTINE DENSCT_INTERNAL
       END

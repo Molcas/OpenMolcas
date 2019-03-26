@@ -96,16 +96,16 @@ c a few checks, before proceeding:
 
 ! allocate memory:
       Call mma_allocate(WM,exch,'WM')
-      Call dcopy_(exch,0.0_wp,0,WM,1)
+      Call dcopy_(exch,[0.0_wp],0,WM,1)
 
       Call mma_allocate(ZM,exch,exch,'ZM')
-      Call zcopy_(exch*exch,(0.0_wp,0.0_wp),0,ZM,1)
+      Call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,ZM,1)
 
       Call mma_allocate(SZ,3,exch,exch,'SZ')
-      Call zcopy_(3*exch*exch,(0.0_wp,0.0_wp),0,SZ,1)
+      Call zcopy_(3*exch*exch,[(0.0_wp,0.0_wp)],0,SZ,1)
 
       Call mma_allocate(MZ,3,exch,exch,'MZ')
-      Call zcopy_(3*exch*exch,(0.0_wp,0.0_wp),0,MZ,1)
+      Call zcopy_(3*exch*exch,[(0.0_wp,0.0_wp)],0,MZ,1)
 
       ! temporary arrays used in ZEEM_SA:
       Call mma_allocate(RWORK,(3*N-2),'ZEEM_RWORK')
@@ -114,32 +114,32 @@ c a few checks, before proceeding:
       Call mma_allocate(W_c,N,'ZEEM_W_c')
 
       ! zero everything:
-      Call dcopy_(3*N-2,0.0_wp,0,RWORK,1)
-      Call zcopy_(N*(N+1)/2,(0.0_wp,0.0_wp),0,HZEE,1)
-      Call zcopy_(2*N-1,(0.0_wp,0.0_wp),0,WORK,1)
-      Call zcopy_(N,(0.0_wp,0.0_wp),0,W_c,1)
+      Call dcopy_(3*N-2,[0.0_wp],0,RWORK,1)
+      Call zcopy_(N*(N+1)/2,[(0.0_wp,0.0_wp)],0,HZEE,1)
+      Call zcopy_(2*N-1,[(0.0_wp,0.0_wp)],0,WORK,1)
+      Call zcopy_(N,[(0.0_wp,0.0_wp)],0,W_c,1)
 
 c start calculations:
       ! code for the case (zJ .ne. 0 ):
-      Call dcopy_(  nT,0.0_wp,0,ZB,1)
-      Call dcopy_(3*nT,0.0_wp,0,M,1)
-      Call dcopy_(3*nT,0.0_wp,0,S,1)
+      Call dcopy_(  nT,[0.0_wp],0,ZB,1)
+      Call dcopy_(3*nT,[0.0_wp],0,M,1)
+      Call dcopy_(3*nT,[0.0_wp],0,S,1)
 
 
       Do iT=1,nT
          ! determine first the average spin of neighboring
          ! molecules for each temperature point ST(1:3)
          If(m_paranoid) Then
-            Call dcopy_(3,0.0_wp,0,ST,1)
-            Call dcopy_(3,0.0_wp,0,STsave,1)
+            Call dcopy_(3,[0.0_wp],0,ST,1)
+            Call dcopy_(3,[0.0_wp],0,STsave,1)
             Call mean_field( EXCH, N, H, X,Y,Z, zJ, T(iT), W, thrs,
      &                       DM, SM, ST, dbg )
             Call dcopy_(3,ST,1,STsave,1)
          Else
             ! i.e. when m_paranoid=.false.
             If (iT == 1) Then
-               Call dcopy_(3,0.0_wp,0,ST,1)
-               Call dcopy_(3,0.0_wp,0,STsave,1)
+               Call dcopy_(3,[0.0_wp],0,ST,1)
+               Call dcopy_(3,[0.0_wp],0,STsave,1)
                Call mean_field( EXCH, N, H, X,Y,Z, zJ, T(iT), W, thrs,
      &                          DM, SM, ST, dbg )
                Call dcopy_(3,ST,1,STsave,1)
@@ -154,8 +154,8 @@ c start calculations:
          If(DBG) Write(6,'(A,3E13.5)')
      &                 'Average spin finished. ST on entrance to '//
      &                 'last ZEEM:',(ST(i),i=1,3)
-         Call dcopy_(exch,0.0_wp,0,WM,1)
-         Call zcopy_(exch*exch,(0.0_wp,0.0_wp),0,ZM,1)
+         Call dcopy_(exch,[0.0_wp],0,WM,1)
+         Call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,ZM,1)
 
 
          Call ZEEM_SA( N, H, X,Y,Z, W(1:N),
@@ -165,8 +165,8 @@ c start calculations:
 
 
          ! move WM energies to WZ:
-         Call dcopy_(N, 0.0_wp, 0, WZ, 1)
-         Call dcopy_(N,     WM, 1, WZ, 1)
+         Call dcopy_(N, [0.0_wp], 0, WZ, 1)
+         Call dcopy_(N,       WM, 1, WZ, 1)
 c /// calculation of matrix elements of spin momentum in the basis of Zeeman states
         If(N<EXCH) Then
            Do i=N+1,EXCH
@@ -176,8 +176,8 @@ c /// calculation of matrix elements of spin momentum in the basis of Zeeman sta
 
 
         ! transform the momenta
-        Call zcopy_(3*exch*exch, (0.0_wp,0.0_wp), 0, SZ, 1)
-        Call zcopy_(3*exch*exch, (0.0_wp,0.0_wp), 0, MZ, 1)
+        Call zcopy_(3*exch*exch, [(0.0_wp,0.0_wp)], 0, SZ, 1)
+        Call zcopy_(3*exch*exch, [(0.0_wp,0.0_wp)], 0, MZ, 1)
         Call UTMU( EXCH, N, ZM(1:N,1:N), SM, SZ )
         Call UTMU( EXCH, N, ZM(1:N,1:N), DM, MZ )
 

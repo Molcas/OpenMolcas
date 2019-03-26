@@ -75,7 +75,7 @@ C     nPrint(122)=99
 *     Generate a dummy center. This is fine since we will only do
 *     1-center overlap integrals here.
 *
-      call dcopy_(3,Zero,0,A,1)
+      call dcopy_(3,[Zero],0,A,1)
 *
       nOrdOp=2
       iComp = 1
@@ -83,8 +83,8 @@ C     nPrint(122)=99
       nPrp=Max(4,nMltpl)
       nDiff = 0
 *
-      Call ICopy(1+iTabMx,0,0,List   ,1)
-      Call ICopy(1+iTabMx,0,0,List_AE,1)
+      Call ICopy(1+iTabMx,[0],0,List   ,1)
+      Call ICopy(1+iTabMx,[0],0,List_AE,1)
       BasisTypes(1)=0
       BasisTypes(2)=0
       BasisTypes(3)=0
@@ -259,7 +259,7 @@ C     nPrint(122)=99
                ipEVec = ip
                ip = ip + nBF**2
                Call FZero(DInf(ipEVec),nBF**2)
-               Call DCopy_(nBF,1.0D0,0,DInf(ipEVec),nBF+1)
+               Call DCopy_(nBF,[1.0D0],0,DInf(ipEVec),nBF+1)
                Do iBF = 1, nBF
                   Do jBF = 1, iBF
                      ij    =  (jBF-1)*nBF + iBF
@@ -307,7 +307,7 @@ C     nPrint(122)=99
 *              4) Compute C' and the eigenvalues
 *
                Call FZero(DInf(ipEVec),nBF**2)
-               Call DCopy_(nBF,1.0D0,0,DInf(ipEVec),nBF+1)
+               Call DCopy_(nBF,[1.0D0],0,DInf(ipEVec),nBF+1)
                Do iBF = 1, nBF
                   Do jBF = 1, iBF
                      ij    =  (jBF-1)*nBF + iBF
@@ -490,7 +490,7 @@ C     nPrint(122)=99
 *
 *
          Try_Again=.True.
-         Call ICopy(1+iTabMx,0,0,List_Add,1)
+         Call ICopy(1+iTabMx,[0],0,List_Add,1)
  777     Continue
          Test_Charge=Zero
          Do iAng = 0, nVal_Shells(iCnttp)-1

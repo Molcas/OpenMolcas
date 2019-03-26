@@ -82,7 +82,7 @@ CNIKO      Real*8 A(3), B(3), Ccoor(3,nComp), FD(nFD),
       iRout = 112
       iPrint = nPrint(iRout)
 *     Call qEnter('OneEl ')
-      call dcopy_(nGrad,Zero,0,Grad,1)
+      call dcopy_(nGrad,[Zero],0,Grad,1)
 *
       iIrrep = 0
 *

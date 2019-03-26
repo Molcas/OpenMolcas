@@ -44,20 +44,20 @@
 10       ESPFLine = Get_Ln(IPotFl)
          ESPFKey = ESPFLine(1:10)
          If (ESPFKey.eq.'MLTORD    ') Then
-            Call Get_I(2,MltOrd,1)
+            Call Get_I1(2,MltOrd)
             ibla = 0
             Do ii = 0, MltOrd
                ibla = ibla + (ii+2)*(ii+1)/2
             End Do
             MltOrd = ibla
          Else If (ESPFKey.eq.'IRMAX     ') Then
-            Call Get_I(2,iRMax,1)
+            Call Get_I1(2,iRMax)
          Else If (ESPFKey.eq.'DELTAR    ') Then
-            Call Get_F(2,DeltaR,1)
+            Call Get_F1(2,DeltaR)
          Else If (ESPFKey.eq.'GRIDTYPE  ') Then
-            Call Get_I(2,iGrdTyp,1)
+            Call Get_I1(2,iGrdTyp)
          Else If (ESPFKey.eq.'GRID      ') Then
-            Call Get_I(2,nGrdPt,1)
+            Call Get_I1(2,nGrdPt)
          Else If (ESPFKey.eq.'TINKER    ') Then
             DoTinker = .True.
          Else If (ESPFKey.eq.'GROMACS   ') Then
@@ -85,14 +85,14 @@
       IPotFl=IsFreeUnit(IPotFl)
       Call Molcas_Open(IPotFl,'ESPF.EXTPOT')
       ESPFLine = Get_Ln(IPotFl)
-      Call Get_I(1,nChg,1)
+      Call Get_I1(1,nChg)
       If (nChg.ne.0) Then
          Write(6,*) 'ESPF: nChg ne 0 in espf_analysis'
          Call Abend()
       End If
       Do iAt = 1, natom
          ESPFLine = Get_Ln(IPotFl)
-         Call Get_I(1,jAt,1)
+         Call Get_I1(1,jAt)
          Call Get_F(2,Work(ipExt+(jAt-1)*MxExtPotComp),MxExtPotComp)
       End Do
       Close(IPotFl)

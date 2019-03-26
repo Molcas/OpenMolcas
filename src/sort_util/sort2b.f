@@ -157,7 +157,7 @@
          Else
             iDaTwo=mDaTwo
             iOptIO=0
-            Call dDAFILE(LuTwo,iOptIO,Dummy,lStRec,mDaTwo)
+            Call dDAFILE(LuTwo,iOptIO,[0.0d0],lStRec,mDaTwo)
          End If
 #ifdef _DEBUG_
          If ( iPrint.ge.10 ) then

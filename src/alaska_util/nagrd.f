@@ -210,7 +210,7 @@ C     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
                End If
             End Do
 *-----------No derivatives with respect to the fourth center.
-            Call ICopy(3,0,0,JndGrd(1,4),1)
+            Call ICopy(3,[0],0,JndGrd(1,4),1)
             JfGrad(1,4) = .False.
             JfGrad(2,4) = .False.
             JfGrad(3,4) = .False.

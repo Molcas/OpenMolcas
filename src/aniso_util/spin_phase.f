@@ -44,11 +44,11 @@ C
       Call mma_allocate(phs,3,dim,dim,'phs')
       Call mma_allocate(tmp,dim,dim,'tmp')
 ! ------------------------------------------------------------
-      Call zcopy_(3*dim*dim,(0.0_wp,0.0_wp),0,phs,1)
-      Call zcopy_(  dim*dim,(0.0_wp,0.0_wp),0,tmp,1)
-      Call zcopy_(dim,(0.0_wp,0.0_wp),0,r,1)
-      Call dcopy_(dim,0.0_wp,0,rxr,1)
-      Call dcopy_(dim,0.0_wp,0,rxi,1)
+      Call zcopy_(3*dim*dim,[(0.0_wp,0.0_wp)],0,phs,1)
+      Call zcopy_(  dim*dim,[(0.0_wp,0.0_wp)],0,tmp,1)
+      Call zcopy_(dim,[(0.0_wp,0.0_wp)],0,r,1)
+      Call dcopy_(dim,[0.0_wp],0,rxr,1)
+      Call dcopy_(dim,[0.0_wp],0,rxi,1)
       rxr(1)=1.0_wp
       rxi(1)=0.0_wp
 
@@ -89,8 +89,8 @@ C
       End Do ! i
 
 
-      Call zcopy_(3*dim*dim,(0.0_wp,0.0_wp),0,phs,1)
-      Call zcopy_(  dim*dim,(0.0_wp,0.0_wp),0,tmp,1)
+      Call zcopy_(3*dim*dim,[(0.0_wp,0.0_wp)],0,phs,1)
+      Call zcopy_(  dim*dim,[(0.0_wp,0.0_wp)],0,tmp,1)
       Call zgemm_('C','N',  dim,  dim,  dim, (1.0_wp,0.0_wp),
      &            Zout(  1:dim,1:dim), dim,
      &              mm(1,1:dim,1:dim), dim, (0.0_wp,0.0_wp),
@@ -114,9 +114,9 @@ cc    mZ(i,i)   => diagonal
 
       If(dbg) Then
 
-        Call zcopy_(3*dim*dim,(0.0_wp,0.0_wp),0,phs,1)
+        Call zcopy_(3*dim*dim,[(0.0_wp,0.0_wp)],0,phs,1)
         Do l=1,3
-          Call zcopy_(  dim*dim,(0.0_wp,0.0_wp),0,tmp,1)
+          Call zcopy_(  dim*dim,[(0.0_wp,0.0_wp)],0,tmp,1)
           Call zgemm_('C','N',  dim,  dim,  dim, (1.0_wp,0.0_wp),
      &                Zout(  1:dim,1:dim), dim,
      &                  mm(l,1:dim,1:dim), dim, (0.0_wp,0.0_wp),
@@ -201,17 +201,17 @@ C
       Call mma_allocate(phs,3,dim,dim,'phs')
       Call mma_allocate(tmp,dim,dim,'tmp')
 ! ------------------------------------------------------------
-      Call zcopy_(3*dim*dim,(0.0_wp,0.0_wp),0,phs,1)
-      Call zcopy_(  dim*dim,(0.0_wp,0.0_wp),0,tmp,1)
-      Call zcopy_(dim,(0.0_wp,0.0_wp),0,r,1)
-      Call dcopy_(dim,0.0_wp,0,rxr,1)
-      Call dcopy_(dim,0.0_wp,0,rxi,1)
+      Call zcopy_(3*dim*dim,[(0.0_wp,0.0_wp)],0,phs,1)
+      Call zcopy_(  dim*dim,[(0.0_wp,0.0_wp)],0,tmp,1)
+      Call zcopy_(dim,[(0.0_wp,0.0_wp)],0,r,1)
+      Call dcopy_(dim,[0.0_wp],0,rxr,1)
+      Call dcopy_(dim,[0.0_wp],0,rxi,1)
       rxr(1)=1.0_wp
       rxi(1)=0.0_wp
 
       ! compute magnetic moment, X
-      Call zcopy_(3*dim*dim,(0.0_wp,0.0_wp),0,phs,1)
-      Call zcopy_(  dim*dim,(0.0_wp,0.0_wp),0,tmp,1)
+      Call zcopy_(3*dim*dim,[(0.0_wp,0.0_wp)],0,phs,1)
+      Call zcopy_(  dim*dim,[(0.0_wp,0.0_wp)],0,tmp,1)
       Call zgemm_('C','N', dim,  dim,  dim, (1.0_wp,0.0_wp),
      &            Zinp(  1:dim,1:dim), dim,
      &              mm(1,1:dim,1:dim), dim, (0.0_wp,0.0_wp),
@@ -251,8 +251,8 @@ C
       End Do
 
       ! compute the momentum using the ZOUT functions:
-      Call zcopy_(3*dim*dim,(0.0_wp,0.0_wp),0,phs,1)
-      Call zcopy_(  dim*dim,(0.0_wp,0.0_wp),0,tmp,1)
+      Call zcopy_(3*dim*dim,[(0.0_wp,0.0_wp)],0,phs,1)
+      Call zcopy_(  dim*dim,[(0.0_wp,0.0_wp)],0,tmp,1)
       Call zgemm_('C','N',  dim,  dim,  dim, (1.0_wp,0.0_wp),
      &            Zout(  1:dim,1:dim), dim,
      &              mm(1,1:dim,1:dim), dim, (0.0_wp,0.0_wp),
@@ -277,9 +277,9 @@ cc    mZ(i,i)   => diagonal
 
       If(dbg) Then
 
-        Call zcopy_(3*dim*dim,(0.0_wp,0.0_wp),0,phs,1)
+        Call zcopy_(3*dim*dim,[(0.0_wp,0.0_wp)],0,phs,1)
         Do l=1,3
-           Call zcopy_(  dim*dim,(0.0_wp,0.0_wp),0,tmp,1)
+           Call zcopy_(  dim*dim,[(0.0_wp,0.0_wp)],0,tmp,1)
            CALL ZGEMM_('C','N',  dim,  dim,  dim, (1.0_wp,0.0_wp),
      &                 Zout(  1:dim,1:dim), dim,
      &                   mm(l,1:dim,1:dim), dim, (0.0_wp,0.0_wp),

@@ -136,11 +136,11 @@ c                    write(6,'(a11,f20.8)') ' Exponents',rExpi
       CALL GetMem('Revtf   ','ALLO','REAL',iRevtf,LenIntf)
       CALL GetMem('Aaf     ','ALLO','REAL',iAaf,LenIntf1)
       CALL GetMem('Rrf     ','ALLO','REAL',iRrf,LenIntf1)
-      call dcopy_(LenIntf,Zero,0,Work(iEigf),1)
-      call dcopy_(LenIntf,Zero,0,Work(iSinvf),1)
-      call dcopy_(LenIntf,Zero,0,Work(iRevtf),1)
-      call dcopy_(LenIntf1,Zero,0,Work(iAaf),1)
-      call dcopy_(LenIntf1,Zero,0,Work(iRrf),1)
+      call dcopy_(LenIntf,[Zero],0,Work(iEigf),1)
+      call dcopy_(LenIntf,[Zero],0,Work(iSinvf),1)
+      call dcopy_(LenIntf,[Zero],0,Work(iRevtf),1)
+      call dcopy_(LenIntf1,[Zero],0,Work(iAaf),1)
+      call dcopy_(LenIntf1,[Zero],0,Work(iRrf),1)
 *
       VELIT=CLightAU
       iSizep=0
@@ -168,7 +168,7 @@ c                    write(6,'(a11,f20.8)') ' Exponents',rExpi
 c         write(6,'(8f9.4)') (Work(iSS+k),k=0,iSizep-1)
       nComp=1
       ipaddr(1)=iSS
-      If (iPrint.ge.20) Call PrMtrx(Label,lOper,nComp,ipaddr,Work)
+      If (iPrint.ge.20) Call PrMtrx(Label,[lOper],nComp,ipaddr,Work)
       Label='Attract '
       iRC = -1
       Call RdOne(iRC,iOpt,Label,1,Work(iV),lOper)
@@ -373,7 +373,7 @@ CAJS
 *   put zeroes
          Len=4*(iSize+4)+5*(n*n+4)+5*(n+4)
          CALL GetMem('Scratch ','ALLO','REAL',iCr,Len+4)
-         call dcopy_(Len,Zero,0,Work(iCr),1)
+         call dcopy_(Len,[Zero],0,Work(iCr),1)
          CALL GetMem('Scratch ','FREE','REAL',iCr,Len+4)
 *
 *        Allocate
@@ -485,8 +485,8 @@ CAJS
 *
        If (iSyma.eq.iSymb) Then
 *
-       call dcopy_(iSizea,Zero,0,Work(ifa),1)
-       call dcopy_(iSizea,Zero,0,Work(if2a),1)
+       call dcopy_(iSizea,[Zero],0,Work(ifa),1)
+       call dcopy_(iSizea,[Zero],0,Work(if2a),1)
        Do k=0,iSizea-1
        Work(ifa+k)=Work(ip6+ip1+k)
        Work(if2a+k)=Work(ip7+ip1+k)
@@ -499,10 +499,10 @@ CAJS
        Call GetMem('ifVp    ','ALLO','REAL',if2,iSizeab)
        Call GetMem('ScpV    ','ALLO','REAL',iScpV,iSizeab)
        Call GetMem('ScVp    ','ALLO','REAL',iScVp,iSizeab)
-       call dcopy_(iSizeab,Zero,0,Work(if),1)
-       call dcopy_(iSizeab,Zero,0,Work(if2),1)
-       call dcopy_(iSizeab,Zero,0,Work(iScpV),1)
-       call dcopy_(iSizeab,Zero,0,Work(iScVp),1)
+       call dcopy_(iSizeab,[Zero],0,Work(if),1)
+       call dcopy_(iSizeab,[Zero],0,Work(if2),1)
+       call dcopy_(iSizeab,[Zero],0,Work(iScpV),1)
+       call dcopy_(iSizeab,[Zero],0,Work(iScVp),1)
 *
        If (iSyma.gt.iSymb) Then
 
@@ -556,16 +556,16 @@ CAJS
 *
 *
 *
-      call dcopy_(na*nb+4,Zero,0,Work(iBu2),1)
-      call dcopy_(na*nb+4,Zero,0,Work(iBu4),1)
-      call dcopy_(na*na+4,Zero,0,Work(iBu6),1)
-      call dcopy_(na*na+4,Zero,0,Work(iEig4),1)
-      call dcopy_(na+4,Zero,0,Work(iEw4),1)
-      call dcopy_(iSizea+4,Zero,0,Work(iEv4),1)
-      call dcopy_(na*nb+4,Zero,0,Work(iG2),1)
-      call dcopy_(na*nb+4,Zero,0,Work(iAux2),1)
-      call dcopy_(na*nb+4,Zero,0,Work(iCmm1),1)
-      call dcopy_(na*nb+4,Zero,0,Work(iCmm2),1)
+      call dcopy_(na*nb+4,[Zero],0,Work(iBu2),1)
+      call dcopy_(na*nb+4,[Zero],0,Work(iBu4),1)
+      call dcopy_(na*na+4,[Zero],0,Work(iBu6),1)
+      call dcopy_(na*na+4,[Zero],0,Work(iEig4),1)
+      call dcopy_(na+4,[Zero],0,Work(iEw4),1)
+      call dcopy_(iSizea+4,[Zero],0,Work(iEv4),1)
+      call dcopy_(na*nb+4,[Zero],0,Work(iG2),1)
+      call dcopy_(na*nb+4,[Zero],0,Work(iAux2),1)
+      call dcopy_(na*nb+4,[Zero],0,Work(iCmm1),1)
+      call dcopy_(na*nb+4,[Zero],0,Work(iCmm2),1)
 *
 *
 *
@@ -592,12 +592,12 @@ CAJS
 *
 *
 *
-      call dcopy_(na*nb+4,Zero,0,Work(iBu2),1)
-      call dcopy_(na*nb+4,Zero,0,Work(iBu4),1)
-      call dcopy_(na*na+4,Zero,0,Work(iBu6),1)
-      call dcopy_(na*nb+4,Zero,0,Work(iG2),1)
-      call dcopy_(na*nb+4,Zero,0,Work(iAux2),1)
-      call dcopy_(na*na+4,Zero,0,Work(iEig4),1)
+      call dcopy_(na*nb+4,[Zero],0,Work(iBu2),1)
+      call dcopy_(na*nb+4,[Zero],0,Work(iBu4),1)
+      call dcopy_(na*na+4,[Zero],0,Work(iBu6),1)
+      call dcopy_(na*nb+4,[Zero],0,Work(iG2),1)
+      call dcopy_(na*nb+4,[Zero],0,Work(iAux2),1)
+      call dcopy_(na*na+4,[Zero],0,Work(iEig4),1)
 *
 *
 *
@@ -733,7 +733,7 @@ C
 C
 C
 C
-      call dcopy_(4,Zero,0,Work(iH_temp+iSizec),1)
+      call dcopy_(4,[Zero],0,Work(iH_temp+iSizec),1)
       Call repmat(idbg,Work(iV),Work(iH_temp))
 *
 C
@@ -793,7 +793,7 @@ C
       lOper=1
       nComp=1
       ipaddr(1)=iH
-      If (iPrint.ge.20) Call PrMtrx(Label,lOper,nComp,ipaddr,Work)
+      If (iPrint.ge.20) Call PrMtrx(Label,[lOper],nComp,ipaddr,Work)
 *
 *     Replace 1-el Hamiltonian on ONEINT
 *

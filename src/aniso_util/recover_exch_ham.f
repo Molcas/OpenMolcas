@@ -34,7 +34,7 @@
       Call mma_allocate(OW,n1,n1,n2,n2,'operator WO')
       Call mma_allocate(WO,n1,n1,n2,n2,'operator OW')
       Call mma_allocate(WW,n1,n1,n2,n2,'operator WW')
-      Call zcopy_(n1*n1*n2*n2,(0.0_wp,0.0_wp),0,HAM,1)
+      Call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,HAM,1)
       Do k1=1,n1-1
        Do q1=0,k1
         Do k2=1,n2-1
@@ -43,10 +43,10 @@
           Call ITO(n1,k1,q1,C01,O1,W1)
           Call ITO(n2,k2,q2,C02,O2,W2)
           !generate coupled operators:
-          Call zcopy_(n1*n1*n2*n2,(0.0_wp,0.0_wp),0,OO,1)
-          Call zcopy_(n1*n1*n2*n2,(0.0_wp,0.0_wp),0,OW,1)
-          Call zcopy_(n1*n1*n2*n2,(0.0_wp,0.0_wp),0,WO,1)
-          Call zcopy_(n1*n1*n2*n2,(0.0_wp,0.0_wp),0,WW,1)
+          Call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,OO,1)
+          Call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,OW,1)
+          Call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,WO,1)
+          Call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,WW,1)
           Do m1=1,n1
            Do m2=1,n1
             Do l1=1,n2
@@ -122,7 +122,7 @@
       Call mma_allocate(OW,n1,n1,n2,n2,'operator WO')
       Call mma_allocate(WO,n1,n1,n2,n2,'operator OW')
       Call mma_allocate(WW,n1,n1,n2,n2,'operator WW')
-      Call zcopy_(n1*n1*n2*n2,(0.0_wp,0.0_wp),0,HAM,1)
+      Call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,HAM,1)
       Do k1=1,n1-1
        Do q1=0,k1
         Do k2=1,n2-1
@@ -131,10 +131,10 @@
           Call Liviu_ITO(n1,k1,q1,O1,W1,redME1)
           Call Liviu_ITO(n2,k2,q2,O2,W2,redME2)
           !generate coupled operators:
-          Call zcopy_(n1*n1*n2*n2,(0.0_wp,0.0_wp),0,OO,1)
-          Call zcopy_(n1*n1*n2*n2,(0.0_wp,0.0_wp),0,OW,1)
-          Call zcopy_(n1*n1*n2*n2,(0.0_wp,0.0_wp),0,WO,1)
-          Call zcopy_(n1*n1*n2*n2,(0.0_wp,0.0_wp),0,WW,1)
+          Call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,OO,1)
+          Call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,OW,1)
+          Call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,WO,1)
+          Call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,WW,1)
           Do m1=1,n1
            Do m2=1,n1
             Do l1=1,n2
@@ -211,7 +211,7 @@
       Call mma_allocate(OW,n1,n1,n2,n2,'operator WO')
       Call mma_allocate(WO,n1,n1,n2,n2,'operator OW')
       Call mma_allocate(WW,n1,n1,n2,n2,'operator WW')
-      Call zcopy_(n1*n1*n2*n2,(0.0_wp,0.0_wp),0,HAM,1)
+      Call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,HAM,1)
       Do k1=1,n1-1
        Do q1=0,k1
         Do k2=1,n2-1
@@ -220,10 +220,10 @@
           Call ESO(n1,k1,q1,O1,W1,redME1)
           Call ESO(n2,k2,q2,O2,W2,redME2)
           !generate coupled operators:
-          Call zcopy_(n1*n1*n2*n2,(0.0_wp,0.0_wp),0,OO,1)
-          Call zcopy_(n1*n1*n2*n2,(0.0_wp,0.0_wp),0,OW,1)
-          Call zcopy_(n1*n1*n2*n2,(0.0_wp,0.0_wp),0,WO,1)
-          Call zcopy_(n1*n1*n2*n2,(0.0_wp,0.0_wp),0,WW,1)
+          Call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,OO,1)
+          Call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,OW,1)
+          Call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,WO,1)
+          Call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,WW,1)
           Do m1=1,n1
            Do m2=1,n1
             Do l1=1,n2

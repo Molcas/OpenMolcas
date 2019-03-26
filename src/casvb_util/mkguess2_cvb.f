@@ -22,6 +22,7 @@
 #include "mo_cvb.fh"
       dimension orbs(norb,norb),cvb(nvb)
       dimension irdorbs(norb),orbsao(nbas_mo,norb)
+      dimension idum(1),dum(1)
       save thresh
       data thresh/1d-10/
 
@@ -37,7 +38,8 @@ c  (Newly assigned memory => orbs will be zero)
 c  -- restore from previous optim --
       if(.not.up2date_cvb('RESTGS'))then
         if(up2date_cvb('WRITEGS'))then
-          call rdi_cvb(ndetvb1,1,recn_tmp04,0)
+          call rdi_cvb(idum,1,recn_tmp04,0)
+          ndetvb1=idum(1)
           i1=mstacki_cvb(ndetvb1)
           i2=mstackr_cvb(ndetvb1)
           call mkrestgs_cvb(orbsao,irdorbs,cvb,
@@ -77,7 +79,8 @@ c AO basis ...
         call rdrs_cvb(w(i1),nvbinp,recinp,ioffs)
         if(dnrm2_(nvbinp,w(i1),1).gt.thresh)then
           call rdioff_cvb(3,recinp,ioffs)
-          call rdis_cvb(kbasiscvb,1,recinp,ioffs)
+          call rdis_cvb(idum,1,recinp,ioffs)
+          kbasiscvb=idum(1)
           call fmove_cvb(w(i1),w(lv(2)),nvbinp)
         endif
         call mfreer_cvb(i1)
@@ -169,7 +172,8 @@ c  Perfect-pairing spin function(s) :
         call untouch_cvb('TRNSPN')
       endif
 
-      if(ploc)call rtransf_plc(orbs,cvb)
+      !if(ploc)call rtransf_plc(orbs,cvb)
+      if(ploc)call rtransf_plc()
 
       if(ip(1).ge.2.and..not.endvar)then
         write(6,'(/,a)')' Wavefunction guess :'

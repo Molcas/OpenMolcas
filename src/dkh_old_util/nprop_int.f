@@ -14,6 +14,7 @@
       Character*8 Label
       Logical Do_Index
       Integer Index(4,nIndex)
+      Dimension nInt(1)
 *                                                                      *
 ************************************************************************
 *                                                                      *

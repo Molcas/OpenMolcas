@@ -12,6 +12,7 @@
 C      INTEGER    N
 C      REAL*8     IA(N),IB(N)
       IMPLICIT REAL*8 (A-H,O-Z)
+      REAL*8      IA,IB
       DIMENSION   IA(*),IB(*)
 #include "SysDef.fh"
 

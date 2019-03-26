@@ -195,7 +195,7 @@ c Avoid unused argument warnings
       irout = 39
       iprint = nprint(irout)
       If (iPrint.ge.49) Then
-         r1=DDot_(ijkl*nSOInt,SOInt,1,One,0)
+         r1=DDot_(ijkl*nSOInt,SOInt,1,[One],0)
          r2=DDot_(ijkl*nSOInt,SOInt,1,SOInt,1)
          Write (6,*) ' Sum=',r1
          Write (6,*) ' Dot=',r2
@@ -374,7 +374,7 @@ c Avoid unused argument warnings
       k12=0
       k34=0
       If (iPrint.ge.49) Then
-         r1=DDot_(ijkl*nSOInt,SOInt,1,One,0)
+         r1=DDot_(ijkl*nSOInt,SOInt,1,[One],0)
          r2=DDot_(ijkl*nSOInt,SOInt,1,SOInt,1)
          Write (6,*) ' Sum=',r1
          Write (6,*) ' Dot=',r2

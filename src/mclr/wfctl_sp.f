@@ -40,6 +40,7 @@
       Integer iCIDisp(nDisp),iCIsigDisp(nDisp)
       integer opout
       Logical lPrint
+      Dimension rdum(1)
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *

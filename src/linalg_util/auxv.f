@@ -12,7 +12,7 @@
       INTEGER    N
       REAL*8     B(N)
 
-      CALL DCOPY_(N,0.0D0,0,B,1)
+      CALL DCOPY_(N,[0.0D0],0,B,1)
 
       RETURN
       END
@@ -21,7 +21,7 @@
       INTEGER    N
       INTEGER    B(N)
 
-      CALL ICOPY(N,0,0,B,1)
+      CALL ICOPY(N,[0],0,B,1)
 
       RETURN
       END
@@ -30,7 +30,7 @@
       INTEGER    N,INCX
       REAL*8     SX(N),SA
 
-      CALL DCOPY_(N,SA,0,SX,INCX)
+      CALL DCOPY_(N,[SA],0,SX,INCX)
 
       RETURN
       END

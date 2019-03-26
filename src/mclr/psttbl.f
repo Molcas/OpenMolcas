@@ -23,6 +23,7 @@
       DIMENSION IOCOC(NOCTPA,NOCTPB),ICOOSC(NOCTPA,NOCTPB,*)
 *
       DIMENSION SCR(*)
+      DIMENSION ISGVST(IBSM)
 *
 * ======================
 * Write directly to disc

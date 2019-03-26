@@ -26,6 +26,7 @@
 * Orbital information in /ORBINP/
 *
       DIMENSION NRAS1(NIRREP),NRAS2(NIRREP),NRAS3(NIRREP)
+      DIMENSION ITFSO(1)
 *
 #include "detdim.fh"
 #include "orbinp_mclr.fh"

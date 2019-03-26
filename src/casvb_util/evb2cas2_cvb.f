@@ -29,6 +29,7 @@
       dimension cvbdet(ndetvb)
       dimension gjorb(*),res(*),resh(*)
       dimension h(2,2),eig(2)
+      dimension orbinv(norb,norb)
 
       if(ip(3).ge.0)then
         write(6,'(/,a)')' Starting VB2CAS optimization.'

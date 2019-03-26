@@ -73,7 +73,7 @@ C     the 8th element of IBATS. This also computes the total size NSB.
 CSVC: the entire sigma array is zeroed here, because each process will
 C     zero only its own sigma blocks, and we need to do a global sum
 C     operations later to combine blocks before writing.
-      CALL DCOPY_(NSB,0.0D0,0,SB,1)
+      CALL DCOPY_(NSB,[0.0D0],0,SB,1)
 
       DO JBATS=1,NBATS
 *

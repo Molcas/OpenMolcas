@@ -31,7 +31,7 @@
       Call DecideOnCholesky(DoCholesky)
 
       Call GetMem('LWFSQ','Allo','Real',LWFSQ,NBSQT)
-      call dcopy_(NBSQT,Zero,0,Work(LWFSQ),1)
+      call dcopy_(NBSQT,[Zero],0,Work(LWFSQ),1)
 
       if((.not.DoCholesky).or.(GenInt)) then
       Call GetMem('LW2','Allo','Real',LW2,NBMX*NBMX)

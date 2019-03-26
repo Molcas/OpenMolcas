@@ -26,6 +26,7 @@
       Character Label*8
       Logical Forces,Show_espf,StandAlone,DoTinker,DoGromacs,DynExtPot
       Logical lMorok,DoDirect,isNAC_tmp
+      Dimension idum(1)
 *
       Call QEnter('espf')
       iReturn=99
@@ -139,7 +140,8 @@
          iSyLbl = 1
          Label = 'OneHam  '
          iRc = -1
-         Call iRdOne(iRc,1,Label,iComp,nInts,iSyLbl)
+         Call iRdOne(iRc,1,Label,iComp,idum,iSyLbl)
+         nInts=idum(1)
          If (iRc.ne.0) Then
             Write (6,'(A)')' ESPF: Error reading ONEINT'
             Write (6,'(A,A8)')' Label = ',Label

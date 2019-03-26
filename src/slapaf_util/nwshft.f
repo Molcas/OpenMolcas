@@ -48,7 +48,7 @@
 *------- Shifts for the numerical Hessian
 *
          jInter = (nIter+1)/2
-         call dcopy_(nInter,Zero,0,dq(1,nIter),1)
+         call dcopy_(nInter,[Zero],0,dq(1,nIter),1)
          If (Mod(nIter,2).eq.0) Then
             dq(jInter,nIter) = -Two*Delta
          Else
@@ -78,7 +78,7 @@
          End If
 *        Write (*,*) 'kInter, lInter=',kInter,lInter
          kCount=nIter-2*nInter
-         call dcopy_(nInter,Zero,0,dq(1,nIter),1)
+         call dcopy_(nInter,[Zero],0,dq(1,nIter),1)
 *------- Undo last change for numerical Hessian
          If (iCount.eq.1) dq(nInter,nIter)=Delta
          If (Mod(kCount,4).eq.1) Then

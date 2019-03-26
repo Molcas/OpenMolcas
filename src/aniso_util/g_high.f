@@ -185,10 +185,10 @@ c      maxes(3,3)=1.0_wp
         CALL prMom('G_HIGH_1:   S_SO2(l,i,j):', s_so2,dim)
       End If
 
-      Call zcopy_(  dim*dim,(0.0_wp,0.0_wp),0,ZOUT,1)
-      Call zcopy_(3*dim*dim,(0.0_wp,0.0_wp),0,AMS,1)
-      Call zcopy_(3*dim*dim,(0.0_wp,0.0_wp),0,AMSSPIN,1)
-      Call zcopy_(dim*3*dim*dim,(0.0_wp,0.0_wp),0,HCF2,1)
+      Call zcopy_(  dim*dim,[(0.0_wp,0.0_wp)],0,ZOUT,1)
+      Call zcopy_(3*dim*dim,[(0.0_wp,0.0_wp)],0,AMS,1)
+      Call zcopy_(3*dim*dim,[(0.0_wp,0.0_wp)],0,AMSSPIN,1)
+      Call zcopy_(dim*3*dim*dim,[(0.0_wp,0.0_wp)],0,HCF2,1)
 
       CALL mu_order( dim,s_so2,dipso2,gtens,1,HCF2,AMS,AMSSPIN,ZOUT,
      &               iprint)
@@ -238,8 +238,8 @@ C  Obtain the b3m and c3m coefficients:
       B(1:3,1:dim,-dim:dim)=(0.0_wp,0.0_wp)
       Do N=1,dim-1,2
         Do M=0,N
-          Call zcopy_(dim*dim,(0.0_wp,0.0_wp),0,DIP_O,1)
-          Call zcopy_(dim*dim,(0.0_wp,0.0_wp),0,DIP_W,1)
+          Call zcopy_(dim*dim,[(0.0_wp,0.0_wp)],0,DIP_O,1)
+          Call zcopy_(dim*dim,[(0.0_wp,0.0_wp)],0,DIP_W,1)
 
           CALL Stewens_matrixel(N,M,dim,DIP_O,DIP_W,IPRINT)
 
@@ -427,7 +427,7 @@ C  Calculation of the ZFS tensors and the coefficients of the higher order spin-
           ELOC(I)=ESOM(I)-E0
         End Do
 
-        Call zcopy_(dim*dim,(0.0_wp,0.0_wp),0,HZFS,1)
+        Call zcopy_(dim*dim,[(0.0_wp,0.0_wp)],0,HZFS,1)
         Do i1=1,dim
           Do i2=1,dim
             Do i=1,dim
@@ -485,11 +485,11 @@ C  Calculation of the ZFS tensors and the coefficients of the higher order spin-
       C(1:dim,-dim:dim)=(0.0_wp,0.0_wp)
       Do N=2,dim-1,2
         Do M=0,N
-          Call zcopy_(dim*dim,(0.0_wp,0.0_wp),0,DIP_O,1)
-          Call zcopy_(dim*dim,(0.0_wp,0.0_wp),0,DIP_W,1)
-          Call zcopy_(dim*dim,(0.0_wp,0.0_wp),0,HZFS_MONM,1)
-          Call zcopy_(dim*dim,(0.0_wp,0.0_wp),0,HZFS_MWNM,1)
-          Call zcopy_(dim*dim,(0.0_wp,0.0_wp),0,DIP_MOW,1)
+          Call zcopy_(dim*dim,[(0.0_wp,0.0_wp)],0,DIP_O,1)
+          Call zcopy_(dim*dim,[(0.0_wp,0.0_wp)],0,DIP_W,1)
+          Call zcopy_(dim*dim,[(0.0_wp,0.0_wp)],0,HZFS_MONM,1)
+          Call zcopy_(dim*dim,[(0.0_wp,0.0_wp)],0,HZFS_MWNM,1)
+          Call zcopy_(dim*dim,[(0.0_wp,0.0_wp)],0,DIP_MOW,1)
 
           CALL Stewens_matrixel(N,M,dim,DIP_O,DIP_W,IPRINT)
 

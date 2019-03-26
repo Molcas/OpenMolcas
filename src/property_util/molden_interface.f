@@ -57,6 +57,7 @@ c      Parameter (MaxOrb_Molden=400, MaxOrb_Do=100)
      &             'Z'/
       data iRc/0/
       save iRc
+      Dimension iDummy(1)
 *
 *     Statement function
 *
@@ -210,11 +211,11 @@ c      write(6,*) 'we here 0?'
       Call GetMem('ICENTER','ALLO','INTE',ipCent3,nB)
       Call GetMem('CMO2','ALLO','REAL',ipC2,nB**2)
       Call GetMem('VECTOR','ALLO','REAL',ipV,nB**2)
-      call dcopy_(nB**2,Zero,0,Work(ipV),1)
+      call dcopy_(nB**2,[Zero],0,Work(ipV),1)
       If (iUHF.eq.1) Then
          Call GetMem('CMO2','ALLO','REAL',ipC2_ab,nB**2)
          Call GetMem('VECTOR','ALLO','REAL',ipV_ab,nB**2)
-         call dcopy_(nB**2,Zero,0,Work(ipV_ab),1)
+         call dcopy_(nB**2,[Zero],0,Work(ipV_ab),1)
       Else
          ipC2_ab=ip_Dummy
          ipV_ab =ip_Dummy
@@ -765,8 +766,8 @@ C     Write (MF,'(A)') '[DIPOLE]'
 *                   delocalized
 *      ipPhase  --- phase of the AO in the linear combination
 *
-      Call icopy(8*nB,0,0,iWork(ipPhase),1)
-      Call icopy(8*nB,0,0,iWork(ipCent),1)
+      Call icopy(8*nB,[0],0,iWork(ipPhase),1)
+      Call icopy(8*nB,[0],0,iWork(ipCent),1)
       Call SOout(label,iWork(ipCent),iWork(ipPhase))
       ipc=0
       Do iContr=1,nB

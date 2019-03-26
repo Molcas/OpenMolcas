@@ -218,7 +218,7 @@
 #ifdef _PROF_
             nflop = nflop + 2 * ndeta
 #endif
-            call daxpy_(ndeta,f(jb),psi(1,jb),1,sgm(1,ib),1)
+            call daxpy_(ndeta,f(jb),psi(:,jb),1,sgm(:,ib),1)
           end if
         end do
         if (kb > max_ex2b) stop 'exceeded max double excitations'
@@ -280,7 +280,7 @@
 #ifdef _PROF_
             nflop = nflop + 2 * ndeta
 #endif
-            call daxpy_(ndetb,f(ja),psi(1,ja),1,sgm(1,ia),1)
+            call daxpy_(ndetb,f(ja),psi(:,ja),1,sgm(:,ia),1)
           end if
         end do
         if (ka > max_ex2a) stop 'exceeded max double excitations'

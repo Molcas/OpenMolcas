@@ -28,8 +28,8 @@
 *
       Call qEnter('Dissoc')
 *
-      call dcopy_(2,Zero,0,RM,1)
-      call dcopy_(6,Zero,0,R,1)
+      call dcopy_(2,[Zero],0,RM,1)
+      call dcopy_(6,[Zero],0,R,1)
 *
 #ifdef _DEBUG_
       Write (6,*) ' nCntr,mCntr=',nCntr,mCntr

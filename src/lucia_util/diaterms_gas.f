@@ -152,8 +152,9 @@ C?    WRITE(6,*) ' NTEST = ',NTEST
 *
         IMZERO=0
         IF(LUIN.GT.0) THEN
-          CALL IDAFILE(LUIN,2,LDET,1,IDISK(LUIN))
-          CALL IDAFILE(LUIN,2,IDUMMY,1,IDISK(LUIN))
+          CALL IDAFILE(LUIN,2,IDUM_ARR,1,IDISK(LUIN))
+          LDET=IDUM_ARR(1)
+          CALL IDAFILE(LUIN,2,IDUM_ARR,1,IDISK(LUIN))
           IDET = 0
           CALL FRMDSC(   VEC(1),     LDET,       -1,     LUIN,   IMZERO,
      &                  IAMPACK)

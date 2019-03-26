@@ -18,6 +18,15 @@
 c      DIMENSION H(LIC0), iH(RtoI*LIC0)
       DIMENSION H(*), iH(*)
       CALL QENTER('SDCI')
+      CALL SDCI_CPF_INTERNAL(H)
+      CALL QEXIT('SDCI')
+*
+*     This is to allow type punning without an explicit interface
+      CONTAINS
+      SUBROUTINE SDCI_CPF_INTERNAL(H)
+      USE ISO_C_BINDING
+      REAL*8, TARGET :: H(*)
+      INTEGER, POINTER :: iH1(:),iH2(:),iH3(:)
       LIC=LIC0
       IPRINT=5
       IDENS=0
@@ -29,10 +38,17 @@ C INPUT, SORTING AND DIAGONAL ELEMENTS
       ITPUL=1
       IF(IREST.EQ.0)CALL START_CPF(H(LW(26)),JSC(4),IREF0)
       IF(IREST.EQ.1)CALL RESTART_CPFMCPF(H(LW(26)),JSC(4))
-      IF(ICPF.EQ.0.AND.INCPF.EQ.0.AND.ISDCI.EQ.0)CALL THETSET(H(LW(1)),
-     *H(LW(29)),IRC(4))
-100   CALL NPSET(H(LW(2)),H(LW(3)),H(LW(26)),H(LW(30)),H(LW(31)),
-     *H(LW(72)),H(LW(27)),H(LW(28)),H(LW(32)),H(LW(1)))
+      IF(ICPF.EQ.0.AND.INCPF.EQ.0.AND.ISDCI.EQ.0) THEN
+        CALL C_F_POINTER(C_LOC(H(LW(1))),iH1,[1])
+        CALL THETSET(iH1,H(LW(29)),IRC(4))
+        NULLIFY(iH1)
+      END IF
+100   CALL C_F_POINTER(C_LOC(H(LW(1))),iH1,[1])
+      CALL C_F_POINTER(C_LOC(H(LW(2))),iH2,[1])
+      CALL C_F_POINTER(C_LOC(H(LW(3))),iH3,[1])
+      CALL NPSET(iH2,iH3,H(LW(26)),H(LW(30)),H(LW(31)),
+     *H(LW(72)),H(LW(27)),H(LW(28)),H(LW(32)),iH1)
+      NULLIFY(iH1,iH2,iH3)
       CALL TWOCT(H)
       CALL ONECT(H)
       CALL CPFCTL(H)
@@ -53,6 +69,7 @@ C     FIRST ORDER DENSITY MATRIX
          CALL QEXIT('SDCI')
          RETURN
       END IF
-      CALL QEXIT('SDCI')
       RETURN
+      END SUBROUTINE SDCI_CPF_INTERNAL
+*
       END

@@ -75,7 +75,7 @@
            call dcopy_(N,Z(iOff+1),1,Aux,1)
            iOff=(i-1)*2*n
            call dcopy_(N,Aux(1  ),1,Z(iOff+1),2)
-           call dcopy_(N,0.0D0,   0,Z(iOff+2),2)
+           call dcopy_(N,[0.0D0], 0,Z(iOff+2),2)
         End If
         i=i-1
       End Do

@@ -11,7 +11,7 @@
 * Copyright (C) Anders Bernhardsson                                    *
 ************************************************************************
        SubRoutine Read2_2(rMO1,rMO2,FockI,FockA,
-     &                    Temp1,nTemp,Scr,Temp2,Temp3,Temp4,
+     &                    Temp1,nTemp,Temp2,Temp3,Temp4,
      &                    DI13,DI24,DI,
      &                    DA13,DA24,DA,
      &                    rkappa,idsym,
@@ -56,7 +56,7 @@
 #include "WrkSpc.fh"
 #include "intgrl.fh"
       Real*8 rkappa(nDens2),FockA(nDens2),FockI(nDens2),
-     &       Temp1(ntemp),Scr(nTemp),Temp2(nDens2),
+     &       Temp1(ntemp),Temp2(nDens2),
      &       temp3(nDens2),Temp4(nDens2),
      &       rmo1(nMba),rmo2(nmba),
      &       CMO(nCMO),DA(nCMO),DI(nCMO),
@@ -637,7 +637,6 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
-        Call Unused_real_array(Scr)
         Call Unused_real_array(CMO)
       End If
       End

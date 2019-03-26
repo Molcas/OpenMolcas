@@ -44,7 +44,7 @@ C     Call qEnter('PLF2')
       irout = 109
       iprint = nprint(irout)
       If (iPrint.ge.49) Then
-         r1=DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,One,0)
+         r1=DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,[One],0)
          r2=DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1)
          Write (6,*) ' Sum=',r1
          Write (6,*) ' Dot=',r2
@@ -80,7 +80,7 @@ C     Write (*,*) 'nij,mij=',nij,mij
       iAOl=iAO(4)
 *
       ijklCmp=iCmp*jCmp*kCmp*lCmp
-      Call DCopy_(ijkl*2*ijklCmp,DBLE(1),0,work(lwSyB),1)
+      Call DCopy_(ijkl*2*ijklCmp,[One],0,work(lwSyB),1)
 *
       Do 100 i1 = 1, iCmp
          iSOs(1)=iAOtSO(iAOi+i1,kOp(1))+iAOsti

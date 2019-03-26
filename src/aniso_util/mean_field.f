@@ -96,10 +96,10 @@
       Call mma_allocate(W_c,N,'ZEEM_W_c')
 
       ! zero everything:
-      Call dcopy_(3*N-2,0.0_wp,0,RWORK,1)
-      Call zcopy_(N*(N+1)/2,(0.0_wp,0.0_wp),0,HZEE,1)
-      Call zcopy_(2*N-1,(0.0_wp,0.0_wp),0,WORK,1)
-      Call zcopy_(N,(0.0_wp,0.0_wp),0,W_c,1)
+      Call dcopy_(3*N-2,[0.0_wp],0,RWORK,1)
+      Call zcopy_(N*(N+1)/2,[(0.0_wp,0.0_wp)],0,HZEE,1)
+      Call zcopy_(2*N-1,[(0.0_wp,0.0_wp)],0,WORK,1)
+      Call zcopy_(N,[(0.0_wp,0.0_wp)],0,W_c,1)
       ! determine first the average spin of neighboring
       ! molecules for each temperature point
       Do iter=1,mxIter
@@ -232,10 +232,10 @@
       Call mma_allocate(W_c,N,'ZEEM_W_c')
 
       ! zero everything:
-      Call dcopy_(3*N-2,0.0_wp,0,RWORK,1)
-      Call zcopy_(N*(N+1)/2,(0.0_wp,0.0_wp),0,HZEE,1)
-      Call zcopy_(2*N-1,(0.0_wp,0.0_wp),0,WORK,1)
-      Call zcopy_(N,(0.0_wp,0.0_wp),0,W_c,1)
+      Call dcopy_(3*N-2,[0.0_wp],0,RWORK,1)
+      Call zcopy_(N*(N+1)/2,[(0.0_wp,0.0_wp)],0,HZEE,1)
+      Call zcopy_(2*N-1,[(0.0_wp,0.0_wp)],0,WORK,1)
+      Call zcopy_(N,[(0.0_wp,0.0_wp)],0,W_c,1)
       ! determine first the average spin of neighboring
       ! molecules for each temperature point
       Do iter=1,mxIter
@@ -254,7 +254,7 @@
           End If
 
 !         transform the spin momenta to the Zeeman eigenstate basis
-          Call zcopy_(3*EXCH*EXCH,(0.0_wp,0.0_wp),0,SZ,1)
+          Call zcopy_(3*EXCH*EXCH,[(0.0_wp,0.0_wp)],0,SZ,1)
           Call UTMU( EXCH, N, ZM(1:N,1:N), SM, SZ )
 !         compute the spin magnetization vector at this temperature (T):
           If(iter==mxIter) Then

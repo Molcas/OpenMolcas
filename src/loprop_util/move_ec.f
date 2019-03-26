@@ -35,10 +35,10 @@ C      Parameter (mxAtoms=500)
       If (Allocated(ipSph)) Call mma_deallocate(ipSph)
       Call Sphere(lMax)
 *
-      call dcopy_(3*nij,Zero,0,B,1)
+      call dcopy_(3*nij,[Zero],0,B,1)
 *
       iDim = nij*nElem
-      Call dCopy_(nij*nElem,Zero,0,xnrMP,1)
+      Call dCopy_(nij*nElem,[Zero],0,xnrMP,1)
       ij = 0
       Do iAtom = 1, nAtoms
          Do jAtom = 1, iAtom

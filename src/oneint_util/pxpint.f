@@ -56,8 +56,8 @@
       Call qEnter('PXPInt')
 *
       iSize=nZeta*nElem(la)*nElem(lb)*nComp
-      call dcopy_(iSize,Zero,0,Final,1)
-      call dcopy_(nZeta*nArr,Zero,0,Array,1)
+      call dcopy_(iSize,[Zero],0,Final,1)
+      call dcopy_(nZeta*nArr,[Zero],0,Array,1)
       nip = 1
       ipB = nip
       nip = nip + nZeta

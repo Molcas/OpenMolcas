@@ -126,7 +126,7 @@
 *     Write stuff on Molden input file
 *
       mSym=1
-      Call ICopy(8,0,0,mDisp,1)
+      Call ICopy(8,[0],0,mDisp,1)
       mDisp(1)=nInter
       Call Freq_Molden(Work(ipEVal),nModes,Work(ipNMod),lModes,mSym,
      &                 Work(ipIRInt),mDisp,Work(ipRedMas))

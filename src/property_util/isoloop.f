@@ -320,7 +320,7 @@
 #include "constants2.fh"
 *
       iprint=0
-      call dcopy_(nX**2,0.0d0,0,Tmp1,1)
+      call dcopy_(nX**2,[0.0d0],0,Tmp1,1)
       Do i = 1, nX
        ii=(i-1)/3+1
        Do j=1,nX

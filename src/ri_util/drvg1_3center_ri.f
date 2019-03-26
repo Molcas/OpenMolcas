@@ -120,7 +120,7 @@
       PMax=Zero
       idum=0
       idum1=0
-      call dcopy_(nGrad,Zero,0,Temp,1)
+      call dcopy_(nGrad,[Zero],0,Temp,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *

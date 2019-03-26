@@ -72,7 +72,7 @@
       iPrint = nPrint(iRout)
       Call qEnter('EFInt')
 *
-      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,Zero,0,Final,1)
+      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
       call dcopy_(3, A,1,Coori(1,1),1)
       call dcopy_(3,RB,1,Coori(1,2),1)
@@ -144,7 +144,7 @@
          Do 101 kCnt = 1, nCntr(kCnttp)
             kxyz = ipCntr(kCnttp) + (kCnt-1)*3
             call dcopy_(3,Work(kxyz),1,C,1)
-            If (iPrint.ge.99) Call RecPrt('C',' ',1,3)
+            If (iPrint.ge.99) Call RecPrt('C',' ',C,1,3)
 *
 *-----------Find the DCR for M and S
 *

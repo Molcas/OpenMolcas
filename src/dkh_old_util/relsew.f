@@ -122,7 +122,7 @@ C ** TMPC  CONTAINS OVERLAP MATRIX IN FULL
 *
       IF(IRELAE.NE.21.AND.IRELAE.NE.22.AND.IRELAE.NE.23) THEN
 *
-         Call dCopy_(iSize,0.0D0,0,H,1)
+         Call dCopy_(iSize,[0.0D0],0,H,1)
          Do K = 1,N
             IJ = 0
             Do I = 1,N
@@ -134,7 +134,7 @@ C ** TMPC  CONTAINS OVERLAP MATRIX IN FULL
          End Do
 *
       ELSE
-         Call dCopy_(iSize,0.0D0,0,H,1)
+         Call dCopy_(iSize,[0.0D0],0,H,1)
       ENDIF
 C
 C     CALCULATE KINEMATICAL FACTORS
@@ -302,8 +302,8 @@ culf
             ENDDO
          ENDDO
          M=N
-         Call dCopy_(N*N,0.0D0,0,TMPC,1)
-         Call dCopy_(N,1.0D0,0,TMPC,N+1)
+         Call dCopy_(N*N,[0.0D0],0,TMPC,1)
+         Call dCopy_(N,[1.0D0],0,TMPC,N+1)
          Call DGEMM_('N','N',N,N,N,1.0D0,TMPD,M,TMPE,M,1.0D0,TMPC,M)
 * ----- modified overlap is incorporated into PVP
          Call DGEMM_('N','N',N,N,N,1.0D0,TMPA,N,TMPC,N,0.0D0,TMPB,N)
@@ -512,8 +512,8 @@ C***** NAME AddMar
       Call DGEMM_('N','N',n,n,n,1.0D0,Aux,n,Sinv,n,0.0D0,Eig,n)
       Call dGemm_tri('T','N',n,n,n,1.0D0,SINV,n,EIG,n,0.0D0,AUXI,n)
 *
-      Call dCopy_(n*n,0.0D0,0,Eig,1)
-      Call dCopy_(n,1.0D0,0,Eig,n+1)
+      Call dCopy_(n*n,[0.0D0],0,Eig,1)
+      Call dCopy_(n,[1.0D0],0,Eig,n+1)
       Call dCopy_(N*(N+1)/2,AUXI,1,AUX,1)
 C      Call NIDiag(AUXI,EIG,N,N,0)
       Call NIDiag_New(AUXI,EIG,N,N,0)
@@ -553,7 +553,7 @@ culf
       if(idbg.gt.0)CALL PRMAT(IDBG,TT,N,1,'TT      ')
 #endif
       M=N
-      Call dCopy_(N*N,0.0D0,0,AUXH,1)
+      Call dCopy_(N*N,[0.0D0],0,AUXH,1)
       IJ=0
       DO I=1,N
          DO J=1,I
@@ -870,7 +870,7 @@ C
             AUXF(I,J)=0.5D0*AUXH(I,J)
          ENDDO
       ENDDO
-      Call dCopy_(N*N,0.0D0,0,AUXH,1)
+      Call dCopy_(N*N,[0.0D0],0,AUXH,1)
       CALL CpLabr(W1W1,AUXF,N,N,N,M,M,AUXH,M,IE)
       CALL CpLabr(AUXF,W1W1,N,N,N,M,M,AUXH,M,IE)
 C

@@ -103,7 +103,7 @@ c     clean up arrays for new integrals
       ipX=ipInt-1
       ipY=ipX+numboffunct3
       ipZ=ipY+numboffunct3
-      call dcopy_(numboffunct3*3,Zero,0,Work(ipInt),1)
+      call dcopy_(numboffunct3*3,[Zero],0,Work(ipInt),1)
 *
       nSOs=0
       Do iIrrep = 0, nIrrep-1

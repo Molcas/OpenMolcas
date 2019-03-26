@@ -20,6 +20,7 @@
 
       dimension orbs(norb,norb)
       dimension sorbs(norb,norb)
+      dimension dum(1)
       save thresh
       data thresh/1.d-7/
 

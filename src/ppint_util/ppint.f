@@ -55,7 +55,7 @@
       iPrint = nPrint(iRout)
 *     Call qEnter('PPInt')
 *
-      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,Zero,0,Final,1)
+      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -23,6 +23,7 @@
       Integer nDeg(200),ldisp(0:7)
       Integer inddsp(100,0:7)
       logical tf,tstfnc
+      Dimension Coor(*)
       TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
      &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
      &                       nStab(mdc))

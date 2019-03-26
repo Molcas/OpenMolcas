@@ -57,7 +57,7 @@
 *  Read the maximum number of MM atoms + some temporary arrays allocation
 *
                If (Index(Line,'NMM').ne.0) Then
-                  Call Get_I(2,nHidden,1)
+                  Call Get_I1(2,nHidden)
                   If (iPL.gt.3) Write(6,'(A,I5,A)')'Found ',nHidden,
      &                                    ' hidden atoms.'
                   If(nHidden.gt.0) Then
@@ -71,7 +71,7 @@
                            Write(6,*) Line
                            Call Quit_onUserError()
                         End If
-                        Call Get_I(2,iAtNum,1)
+                        Call Get_I1(2,iAtNum)
                         iWork(ip_h_AN+iHidden) = -iAtNum
                         Call Get_F(3,XYZ,3)
                         Work(ip_h_xyz+3*iHidden  ) = XYZ(1)/Angstr
@@ -80,7 +80,7 @@
                      End Do
                   End If
                Else If (Index(Line,'MD ').ne.0) Then
-                  Call Get_I(2,nMDstep,1)
+                  Call Get_I1(2,nMDstep)
                End If
             End Do
             Close (ITkQMMM)

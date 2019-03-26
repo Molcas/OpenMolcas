@@ -62,7 +62,7 @@
       k12=0
       k34=0
       If (jPrint.ge.49) Then
-         r1=DDot_(ijkl*nSOInt,SOInt,1,One,0)
+         r1=DDot_(ijkl*nSOInt,SOInt,1,[One],0)
          r2=DDot_(ijkl*nSOInt,SOInt,1,SOInt,1)
          tr1=tr1+r1
          tr2=tr2+r2

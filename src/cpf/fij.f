@@ -109,8 +109,20 @@ C  876 FORMAT(1X,'FIJ',5F12.6)
 10    CONTINUE
       GO TO 100
 C  200 IF(IDENS.EQ.1)WRITE(6,876)(FC(I),I=1,NOB2)
-200   CALL AI_CPF(JSY,INDEX,C,S,FC,C,C,A,B,FK,DBK,ENP,EPP,0)
+200   CALL dAI_CPF(C)
       IF(ITER.EQ.1)RETURN
       CALL AB(ICASE,JSY,INDEX,C,S,FC,A,B,FK,ENP)
       RETURN
+*
+*     This is to allow type punning without an explicit interface
+      CONTAINS
+      SUBROUTINE dAI_CPF(C)
+      USE ISO_C_BINDING
+      REAL*8, TARGET :: C(*)
+      INTEGER, POINTER :: iC(:)
+      CALL C_F_POINTER(C_LOC(C(1)),iC,[1])
+      CALL AI_CPF(JSY,INDEX,C,S,FC,C,iC,A,B,FK,DBK,ENP,EPP,0)
+      NULLIFY(iC)
+      END SUBROUTINE dAI_CPF
+*
       END

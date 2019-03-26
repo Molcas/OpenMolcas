@@ -14,6 +14,7 @@
       Integer nSym, nBas(nSym), nFro(nSym), nOcc(nSym), nSsh(nSym)
       Real*8 CMO(*), T1amp(*)
       Character*40 OrbTit
+      Dimension Dummy(1), iDummy(1)
 #include "WrkSpc.fh"
 
 C

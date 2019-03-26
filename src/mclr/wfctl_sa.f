@@ -269,7 +269,7 @@
 *
          irc=opOut(ipcid)
 
-         Call DMinvCI_SA(ipST,Work(ipIn(ipS2)),rCHC,isym,work(ipS))
+         Call DMinvCI_SA(ipST,Work(ipIn(ipS2)),rdum,isym,work(ipS))
          irc=opOut(ipci)
          irc=opOut(ipdia)
 
@@ -425,6 +425,7 @@
 #include "Input.fh"
       Integer opOut
       Real*8 Kap(*),KapOut(*)
+      Dimension rdum(1)
 *
       Call GetMem('RMOAA','ALLO','REAL',iprmoaa,n2dens)
       Call GetMem('SCR2','ALLO','REAL',ipSc2,ndens2)

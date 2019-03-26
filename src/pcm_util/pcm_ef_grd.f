@@ -108,8 +108,8 @@
 *
       Call mma_allocate(FactOp,nTs)
       Call mma_allocate(lOper,nTs)
-      Call DCopy_(nTs,One,0,FactOp,1)
-      Call ICopy(nTs,255,0,lOper,1)
+      Call DCopy_(nTs,[One],0,FactOp,1)
+      Call ICopy(nTs,[255],0,lOper,1)
 *
       Call Drv1_PCM(FactOp,nTs,Work(ipD1ao),nDens,
      &              Work(ip_Tess),lOper,

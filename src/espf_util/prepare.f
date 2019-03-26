@@ -70,10 +70,10 @@
 *
 *     Generate symmetry adapted cartesian displacements
 *
-      Call ICopy(mxdc*8,0,0,IndDsp,1)
-      Call ICopy(mxdc*3,0,0,InxDsp,1)
-      call dcopy_(3*MxSym*mxdc,One,0,Disp_Fac,1)
-      Call ICopy(3*mxdc,1,0,mult_Disp,1)
+      Call ICopy(mxdc*8,[0],0,IndDsp,1)
+      Call ICopy(mxdc*3,[0],0,InxDsp,1)
+      call dcopy_(3*MxSym*mxdc,[One],0,Disp_Fac,1)
+      Call ICopy(3*mxdc,[1],0,mult_Disp,1)
       nDisp = 0
       Do iIrrep = 0, nIrrep-1
          lDisp(iIrrep) = 0

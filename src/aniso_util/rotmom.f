@@ -25,7 +25,7 @@ c  local variables
       Call qEnter('rotmom')
 c rotate the matrix
 
-      Call zcopy_(3*N*N,(0.0_wp,0.0_wp),0,MOMR,1)
+      Call zcopy_(3*N*N,[(0.0_wp,0.0_wp)],0,MOMR,1)
 
       Do l=1,3
          Do k=1,3
@@ -62,7 +62,7 @@ c  local variables
 
       Call qEnter('rotmom2')
 c rotate the matrix
-      Call zcopy_(3*N*N,(0.0_wp,0.0_wp),0,MOMR,1)
+      Call zcopy_(3*N*N,[(0.0_wp,0.0_wp)],0,MOMR,1)
 
       Do l=1,3
          Do k=1,3

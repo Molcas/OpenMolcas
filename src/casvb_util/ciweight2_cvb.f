@@ -34,7 +34,6 @@
      >  civec5(ndet)
       dimension orbs(norb,norb),sorbs(norb,norb)
       dimension orbinv(norb,norb),owrk(norb,norb)
-      integer gjorb,gjorb2,gjorb3
       dimension gjorb(*),gjorb2(*),gjorb3(*)
 
       dimension vec1(ndet),vec2(ndet),vec3(ndet),vec4(ndet),vec5(ndet)

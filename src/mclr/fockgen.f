@@ -198,7 +198,7 @@ c                     iij =itri(iAsh+nA(is),jAsh+nA(jS))
         ipFock=ip_of_work(Fock)
 *
         Call cho_fock_mclr(ipDA,ipG2x,ipScr1,ipScr2,ipFock,
-     &                    ipAsh,ipCMO,nIsh,nAsh,LuAChoVec)
+     &                    [ipAsh],ipCMO,nIsh,nAsh,LuAChoVec)
 *
         Call GetMem('Scr','Free','Real',ipScr1,n2*2)
         Call GetMem('Cva','Free','Real',ipAsh,nVB)

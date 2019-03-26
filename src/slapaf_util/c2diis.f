@@ -169,8 +169,8 @@
          End Do
       End Do
       If (iPrint.ge.99) Call TriPrt(' The B Matrix',' ',B,mIter)
-      call dcopy_(mIter**2,Zero,0,Scrt1,1)
-      call dcopy_(mIter,One,0,Scrt1,mIter+1)
+      call dcopy_(mIter**2,[Zero],0,Scrt1,1)
+      call dcopy_(mIter,[One],0,Scrt1,mIter+1)
       Call NIDiag_new(B,Scrt1,mIter,mIter,0)
       If (iPrint.ge.99) Then
          Call TriPrt(' The B Matrix after diagonalization','(9E10.2)',
@@ -292,9 +292,9 @@
 *-----Compute the interpolated parameter vector and
 *     the interpolated gradient vector.
 *
-      call dcopy_(nInter,Zero,0,q(1,nIter+1),1)
-      call dcopy_(nInter,Zero,0,g(1,nIter+1),1)
-      call dcopy_(nInter,Zero,0,Scrt1,1)
+      call dcopy_(nInter,[Zero],0,q(1,nIter+1),1)
+      call dcopy_(nInter,[Zero],0,g(1,nIter+1),1)
+      call dcopy_(nInter,[Zero],0,Scrt1,1)
       Do iIter = 1, mIter
 *
          If (Abs(RHS(iIter)).lt.1.0D-12) Go To 11

@@ -9,13 +9,16 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
 *      SUBROUTINE AI(INTSYM,INDX,C,S,FC,BUFIN,IBUFIN,A,B,FK,DBK,KTYP)
-      SUBROUTINE AI_MRCI(INTSYM,INDX,C,S,FC,BUF,IBUF,A,B,FK,DBK,KTYP)
+*      SUBROUTINE AI_MRCI(INTSYM,INDX,C,S,FC,BUF,IBUF,A,B,FK,DBK,KTYP)
+      SUBROUTINE AI_MRCI(INTSYM,INDX,C,S,FC,A,B,FK,DBK,KTYP)
       IMPLICIT REAL*8 (A-H,O-Z)
+#include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "mrci.fh"
       DIMENSION INTSYM(*),INDX(*),C(*),S(*),
 *     *          FC(*),BUFIN(*),IBUFIN(*),
-     *          FC(*),BUF(NBITM3),IBUF(NBITM3+2),
+*     *          FC(*),BUF(NBITM3),IBUF(NBITM3+2),
+     *          FC(*),
      *          A(*),B(*),FK(*),DBK(*)
       DIMENSION IPOB(9)
       PARAMETER (ONE=1.0D00)
@@ -24,6 +27,9 @@
 *
 C KTYP=0,  (A/I)   INTEGRALS
 C KTYP=1,  (AI/JK) INTEGRALS
+
+      CALL GETMEM('BUF','ALLO','REAL',LBUF,NBITM3)
+      CALL GETMEM('IBUF','ALLO','INTE',LIBUF,NBITM3+2)
 
       INUM=IRC(4)-IRC(3)
       CALL CSCALE(INDX,INTSYM,C,SQ2)
@@ -89,17 +95,17 @@ C NEW INTERNAL PAIR IJ. LOAD A NEW SET OF INTEGRALS INTO FC:
 
 90        CONTINUE
 *PAM04          CALL dDAFILE(Lu_60,2,IBUFIN,NBSIZ3,IADR)
-          CALL iDAFILE(Lu_60,2,IBUF,NBITM3+2,IADR)
-          CALL dDAFILE(Lu_60,2,BUF,NBITM3,IADR)
-          LENGTH=IBUF(NBITM3+1)
-          IADR  =IBUF(NBITM3+2)
+          CALL iDAFILE(Lu_60,2,iWORK(LIBUF),NBITM3+2,IADR)
+          CALL dDAFILE(Lu_60,2,WORK(LBUF),NBITM3,IADR)
+          LENGTH=iWORK(LIBUF+NBITM3)
+          IADR  =iWORK(LIBUF+NBITM3+1)
 *PAM04          LENGTH=IBUFIN(IBBC3)
 *PAM04          IADR=IBUFIN(IBDA3)
           IF(LENGTH.EQ.0)GO TO 91
 *          CALL SCATTER(LENGTH,FC,IBUFIN(IBOFF3+1),BUFIN)
-          do i=1,length
+          do i=0,length-1
 *PAM04            fc(IBUFIN(IBOFF3+i))=bufin(i)
-            fc(IBUF(i))=buf(i)
+            fc(iWORK(LIBUF+i))=WORK(LBUF+i)
           end do
 91        IF(IADR.NE.-1) GO TO 90
         END IF
@@ -194,5 +200,7 @@ C ITYP=1. VALENCE-SINGLES CASE.
 200   CONTINUE
       CALL CSCALE(INDX,INTSYM,C,SQ2INV)
       CALL CSCALE(INDX,INTSYM,S,SQ2)
+      CALL GETMEM('BUF','FREE','REAL',LBUF,NBITM3)
+      CALL GETMEM('IBUF','FREE','INTE',LIBUF,NBITM3+2)
       RETURN
       END

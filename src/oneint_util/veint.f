@@ -90,7 +90,7 @@
          Write (6,*) ' In VeInt: la,lb=',la,lb
       End If
 *
-      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,Zero,0,Final,1)
+      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
 *     Compute the cartesian values of the basis functions angular part
 *

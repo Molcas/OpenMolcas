@@ -32,6 +32,7 @@
       Parameter ( One = 1.0d0 )
       Real*8 rKappa(nDens2),rMO1(nMba),rmo2(*),FockI(nDens2),
      &       FockA(nDens2)
+      Dimension rdum(1)
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
       ndens22=ndens2
       iAM=0

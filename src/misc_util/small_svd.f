@@ -37,9 +37,9 @@
       mnsq=mn**2
       call getmem('bigA','allo','real',labig,mn3)
       call getmem('bigU','allo','real',lubig,mnsq)
-      call dcopy_(mn3,0.0D0,0,work(labig),1)
-      call dcopy_(mnsq,0.0D0,0,work(lubig),1)
-      call dcopy_(mn,sq2,0,work(lubig),mn+1)
+      call dcopy_(mn3,[0.0D0],0,work(labig),1)
+      call dcopy_(mnsq,[0.0D0],0,work(lubig),1)
+      call dcopy_(mn,[sq2],0,work(lubig),mn+1)
       do i=1,m
        do j=1,n
         work(labig-1+((n+i)*(n+i-1))/2+j)=amat(i,j)
@@ -70,14 +70,15 @@
       dimension svals(m)
 #include "WrkSpc.fh"
 
+      sq2=sqrt(2.0D0)
       mn=m+n
       mn3=(mn*(mn+1))/2
       mnsq=mn**2
       call getmem('bigA','allo','real',labig,mn3)
       call getmem('bigU','allo','real',lubig,mnsq)
-      call dcopy_(mn3,0.0D0,0,work(labig),1)
-      call dcopy_(mnsq,0.0D0,0,work(lubig),1)
-      call dcopy_(mn,sq2,0,work(lubig),mn+1)
+      call dcopy_(mn3,[0.0D0],0,work(labig),1)
+      call dcopy_(mnsq,[0.0D0],0,work(lubig),1)
+      call dcopy_(mn,[sq2],0,work(lubig),mn+1)
       do i=1,m
        do j=1,n
         work(labig-1+((n+i)*(n+i-1))/2+j)=amat(i,j)

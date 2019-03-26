@@ -67,7 +67,7 @@
          Call RecPrt(' In EFPrm: Beta',' ',Beta,nBeta,1)
       End If
 *
-      call dcopy_(nZeta*nElem(la)*nElem(lb)*nComp,Zero,0,Final,1)
+      call dcopy_(nZeta*nElem(la)*nElem(lb)*nComp,[Zero],0,Final,1)
 *
       iAnga(1) = la
       iAnga(2) = lb

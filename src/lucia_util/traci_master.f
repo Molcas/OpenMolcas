@@ -94,7 +94,7 @@ C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
 * The input transformation matrix contains a lot of zeros which
 * is expected not to be there in Traci_Lucia, so remove them.
 *
-      CALL DCOPY_(NDIM,0.0D0,0,WORK(KLCMOMO),1)
+      CALL DCOPY_(NDIM,[0.0D0],0,WORK(KLCMOMO),1)
       IOFF = 0
       IADR = 1
       ICOL = 1

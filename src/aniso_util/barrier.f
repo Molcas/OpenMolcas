@@ -60,16 +60,16 @@ c  N --  dimension of the barrier
          Call mma_allocate(ibas,nmult,nBlock,'ibas')
          Call mma_allocate(wz,nmult,nBlock,'wz')
          Call mma_allocate(cz,nmult,nBlock,nBlock,'cz')
-         Call icopy( nmult*nBlock,0,0,ibas,1)
-         Call dcopy_(nmult*nBlock,0.0_wp,0,wz,1)
-         Call zcopy_(nmult*nBlock*nBlock,(0.0_wp,0.0_wp),0,CZ,1)
+         Call icopy( nmult*nBlock,[0],0,ibas,1)
+         Call dcopy_(nmult*nBlock,[0.0_wp],0,wz,1)
+         Call zcopy_(nmult*nBlock*nBlock,[(0.0_wp,0.0_wp)],0,CZ,1)
       End If
 
       If(nmult>0) Then
          Call mma_allocate(E,nmult,'E')
          Call mma_allocate(dipso5,3,nmult,10,nmult,10,'dipso5')
-         Call dcopy_(nmult,0.0_wp,0,E,1)
-         Call zcopy_(3*nmult*10*nmult*10,(0.0_wp,0.0_wp),0,dipso5,1)
+         Call dcopy_(nmult,[0.0_wp],0,E,1)
+         Call zcopy_(3*nmult*10*nmult*10,[(0.0_wp,0.0_wp)],0,dipso5,1)
       End If
 
       If(nBlock>0) Then
@@ -77,24 +77,24 @@ c  N --  dimension of the barrier
          Call mma_allocate(ML,3,nBlock,nBlock,'ML')
          Call mma_allocate(Ztr,nBlock,nBlock,'Ztr')
          Call mma_allocate(tmp,nBlock,nBlock,'tmp')
-         Call zcopy_(3*nBlock*nBlock,(0.0_wp,0.0_wp),0,dipN,1)
-         Call zcopy_(3*nBlock*nBlock,(0.0_wp,0.0_wp),0,ML,1)
-         Call zcopy_(nBlock*nBlock,(0.0_wp,0.0_wp),0,Ztr,1)
-         Call zcopy_(nBlock*nBlock,(0.0_wp,0.0_wp),0,tmp,1)
+         Call zcopy_(3*nBlock*nBlock,[(0.0_wp,0.0_wp)],0,dipN,1)
+         Call zcopy_(3*nBlock*nBlock,[(0.0_wp,0.0_wp)],0,ML,1)
+         Call zcopy_(nBlock*nBlock,[(0.0_wp,0.0_wp)],0,Ztr,1)
+         Call zcopy_(nBlock*nBlock,[(0.0_wp,0.0_wp)],0,tmp,1)
       End If
 
       k=nDim(imanifold)
       If(k>0) Then
          Call mma_allocate(dipN3,3,k,k,'dipN3')
-         Call zcopy_(3*k*k,(0.0_wp,0.0_wp),0, dipN3,1)
+         Call zcopy_(3*k*k,[(0.0_wp,0.0_wp)],0, dipN3,1)
       End If
 
       Call mma_allocate(gtens,3,'gtens')
       Call mma_allocate(MM,3,'MM')
       Call mma_allocate(maxes,3,3,'maxes')
-      Call dcopy_(3,0.0_wp,0,gtens,1)
-      Call dcopy_(3*3,0.0_wp,0,maxes,1)
-      Call zcopy_(3,(0.0_wp,0.0_wp),0,MM,1)
+      Call dcopy_(3,[0.0_wp],0,gtens,1)
+      Call dcopy_(3*3,[0.0_wp],0,maxes,1)
+      Call zcopy_(3,[(0.0_wp,0.0_wp)],0,MM,1)
 
 
 !-----------------------------------------------------------------------
@@ -205,7 +205,7 @@ c  compute the matrix elements between multiplets
         End If
       End Do
 c build the transformation matrix Z(nBlock,nBlock)
-      Call zcopy_(nBlock*nBlock,(0.0_wp,0.0_wp),0,ZTR,1)
+      Call zcopy_(nBlock*nBlock,[(0.0_wp,0.0_wp)],0,ZTR,1)
       Do iMult=1,nmult
         Do j1=1,ndim(iMult)
           Do j2=1,ndim(iMult)
@@ -216,9 +216,9 @@ c build the transformation matrix Z(nBlock,nBlock)
         End Do
       End Do
 
-      Call zcopy_(3*nBlock*nBlock,(0.0_wp,0.0_wp),0,ML,1)
+      Call zcopy_(3*nBlock*nBlock,[(0.0_wp,0.0_wp)],0,ML,1)
       Do L=1,3
-         Call zcopy_(nBlock*nBlock,(0.0_wp,0.0_wp),0,TMP,1)
+         Call zcopy_(nBlock*nBlock,[(0.0_wp,0.0_wp)],0,TMP,1)
          Call ZGEMM_('C','N',nBlock,nBlock,nBlock,(1.0_wp,0.0_wp),
      &                  Ztr,nBlock,
      &          dipN(L,:,:),nBlock,              (0.0_wp,0.0_wp),
@@ -252,7 +252,7 @@ c build the transformation matrix Z(nBlock,nBlock)
         End Do
       End If
 
-      Call zcopy_(3*nmult*10*nmult*10,(0.0_wp,0.0_wp),0,DIPSO5,1)
+      Call zcopy_(3*nmult*10*nmult*10,[(0.0_wp,0.0_wp)],0,DIPSO5,1)
       Do l=1,3
         Do i1=1,nmult
           Do j1=1,ndim(i1)

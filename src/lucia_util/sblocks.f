@@ -121,7 +121,7 @@
 *
       COMMON/H_OCC_CONS/IH_OCC_CONS
 
-      DIMENSION C(1),ICOOSC(1),IPHGAS(*)
+      DIMENSION C(1),ICOOSC(1),IPHGAS(*),iDUMMY(1)
       INTEGER DXSTST(1)
 * IH_OCC_CONS =1 implies that we should employ occupation conserving
 * part of Hamiltonian
@@ -277,7 +277,8 @@ c      END IF
 *. Note in GSTTBL : ICOOSC only used for CI vectors in core,
             ELSE
 *. not relevant
-               CALL IDAFILE(LUC,2,LBL,1,IDISK(LUC))
+               CALL IDAFILE(LUC,2,iDUMMY,1,IDISK(LUC))
+               LBL=iDUMMY(1)
                CALL IDAFILE(LUC,2,iDUMMY,1,IDISK(LUC))
                CALL SKPRCD2(LBL,-1,LUC)
                SCLFAC(JBLOCK) = 0.0D0

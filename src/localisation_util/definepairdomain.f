@@ -79,12 +79,12 @@ C     -----------------------------------------------------------------
 
       nnOcc = nOcc*(nOcc+1)/2
       lT = (nAtom+1)*nnOcc
-      Call iCopy(lT,0,0,iPairDomain,1)
+      Call iCopy(lT,[0],0,iPairDomain,1)
 
       l_Union = nAtom*nOcc
       Call GetMem('Union','Allo','Inte',ip_Union,l_Union)
 
-      Call iCopy(l_Union,0,0,iWork(ip_Union),1)
+      Call iCopy(l_Union,[0],0,iWork(ip_Union),1)
       kOff = ip_Union - 1
       Do i = 1,nOcc
          iOff = kOff + nAtom*(i-1)
@@ -147,7 +147,7 @@ C     RThr(1) < RThr(2) < RThr(3) < ... < RThr(nRThr)
 C     ------------------------------------------------------------------
 
       If (nRThr .gt. 0) Then
-         Call iCopy(nnOcc,nRThr,0,iClass,1)
+         Call iCopy(nnOcc,[nRThr],0,iClass,1)
          Do ij = 1,nnOcc
             i = 0
             Do While (i .lt. nRThr)

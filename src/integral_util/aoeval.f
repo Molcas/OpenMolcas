@@ -206,7 +206,7 @@ C        If (-Exp_Min*R2.lt.Thre) Go To 9898
             End Do
          End Do
       Else
-         call dcopy_(3*nCoor,One,0,xyz(1,1,0),1)
+         call dcopy_(3*nCoor,[One],0,xyz(1,1,0),1)
       End If
 #ifdef _DEBUG_
       If (iPrint.ge.99) Then
@@ -221,7 +221,7 @@ C        If (-Exp_Min*R2.lt.Thre) Go To 9898
 *                                                                      *
 *-----Calculate the angular components of the derivatives
 *
-      Call ICopy(5*nForm*nTerm,0,0,Angular,1)
+      Call ICopy(5*nForm*nTerm,[0],0,Angular,1)
 *
       Do ix = iAng, 0, -1
 *

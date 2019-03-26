@@ -44,7 +44,6 @@
       If (iPrint.ge.99) Then
          Call RecPrt(' In CmbnAC: rKappa',' ',rKappa,1,nZeta)
          Call RecPrt(' In CmbnAC: Alpha ',' ',Alpha ,1,nZeta)
-         Call RecPrt(' In CmbnAC: Beta  ',' ',Beta  ,1,nZeta)
       End If
       Do 10 ixa = 0, la
          iyaMax=la-ixa

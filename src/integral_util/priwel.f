@@ -30,7 +30,7 @@ c.....distribute the integrals into gri
       if (k.eq.0) Go To 99
       Do 10 i=1,k
          ipot3i=ipot3(i)
-         call dcopy_(iPot3i*nz,Zero,0,gri(1,indst+1),1)
+         call dcopy_(iPot3i*nz,[Zero],0,gri(1,indst+1),1)
          Do 11 j=1,ipot3i
             jj=j
             Do 12 l=i,1,-1

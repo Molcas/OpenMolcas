@@ -12,8 +12,7 @@
 ************************************************************************
       SubRoutine SOAdd(SOInt,iBas,jBas,nSOInt,PrpInt,nPrp,lOper,
      &                  iCmp,jCmp,iShell,jShell,
-     &                  AeqB,iAO,jAO,
-     &                  nComp,Label,kOper)
+     &                  AeqB,iAO,jAO)
 ************************************************************************
 *                                                                      *
 * Object:                                                              *
@@ -33,8 +32,6 @@
 #include "print.fh"
 #include "real.fh"
       Real*8 SOInt(iBas*jBas,nSOInt), PrpInt(nPrp)
-      Integer   kOper(nComp)
-      Character Label*8
       Logical AeqB
 *
       iRout = 130
@@ -115,7 +112,5 @@ C     Call qExit('SOAdd')
 c Avoid unused argument warnings
       If (.False.) Then
         Call Unused_logical(AeqB)
-        Call Unused_character(Label)
-        Call Unused_integer_array(kOper)
       End If
       End

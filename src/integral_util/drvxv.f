@@ -50,12 +50,12 @@
 *
       If (First) Then
          Label='PotNuc00'
-         Call Put_Temp(Label,RepNuc,1)
+         Call Put_Temp(Label,[RepNuc],1)
          Label='h1_raw  '
          Call Put_Temp(Label,h1,nh1)
 *
          Label='PotNucXX'
-         Call Put_Temp(Label,RepNuc,1)
+         Call Put_Temp(Label,[RepNuc],1)
          Label='h1    XX'
          Call Put_Temp(Label,h1,nh1)
       End If

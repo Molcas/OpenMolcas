@@ -81,7 +81,7 @@
          Call Put_iArray('Slapaf Info 1',iWork(ipItr),7)
          Call GetMem(' iter','Free','Inte',ipItr,7)
          Call Put_dArray('Slapaf Info 2',Work(ipRlx),Lngth)
-         Call Put_cArray('Slapaf Info 3',Stat,(MaxItr+1)*128)
+         Call Put_cArray('Slapaf Info 3',Stat(0),(MaxItr+1)*128)
          Call Put_dArray('qInt',Work(ipqInt),nqInt)
          Call Put_dArray('dqInt',Work(ipdqInt),nqInt)
       End If

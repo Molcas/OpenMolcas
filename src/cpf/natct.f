@@ -88,7 +88,7 @@
      *            'TOTAL REL. ENERGY    ', ETOT+Erel
       END IF
       CALL XFLUSH(6)
-      CALL PRWF(H(LW(1)),H(LW(2)),H(LW(3)),H(LW(26)))
+      CALL dPRWF(H)
       If (iCPF.eq.1) Then
          Header=' CPF natural orbitals'
       Else If (iSDCI.eq.1) Then
@@ -128,4 +128,18 @@
      & H(LW(87)), H(LW(90)), Dummy, iDummy, Header)
 *
       RETURN
+*
+*     This is to allow type punning without an explicit interface
+      CONTAINS
+      SUBROUTINE dPRWF(H)
+      USE ISO_C_BINDING
+      REAL*8, TARGET :: H(*)
+      INTEGER, POINTER :: iH1(:),iH2(:),iH3(:)
+      CALL C_F_POINTER(C_LOC(H(LW(1))),iH1,[1])
+      CALL C_F_POINTER(C_LOC(H(LW(2))),iH2,[1])
+      CALL C_F_POINTER(C_LOC(H(LW(3))),iH3,[1])
+      CALL PRWF(iH1,iH2,iH3,H(LW(26)))
+      NULLIFY(iH1,iH2,iH3)
+      END SUBROUTINE dPRWF
+*
       END

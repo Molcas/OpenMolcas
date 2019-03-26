@@ -59,7 +59,7 @@
       If (iPrint.ge.99) Then
          Write (6,*) ' In MOEval'
       End If
-      call dcopy_(mAO*nCoor*nMOs,Zero,0,MOValue,1)
+      call dcopy_(mAO*nCoor*nMOs,[Zero],0,MOValue,1)
 *
 *     Loop over shells.
 *
@@ -134,7 +134,7 @@ c      print *,' iAngMx', iAngMx
                nDeg=nIrrep/nStab(mdc+iCnt)
                Call GetMem('AOs','Allo','Real',ipAOs,nAO)
                Call GetMem('SOs','Allo','Real',ipSOs,nSO)
-               call dcopy_(nSO,Zero,0,Work(ipSOs),1)
+               call dcopy_(nSO,[Zero],0,Work(ipSOs),1)
                nxyz=nCoor*3*(iAng+mRad)
                Call GetMem('xyz','Allo','Real',ipxyz,nxyz)
                ntmp=nCoor
@@ -164,7 +164,7 @@ c      print *,' iAngMx', iAngMx
 *
 *---------------- Evaluate AOs at RA
 *
-                  call dcopy_(nAO,Zero,0,Work(ipAOs),1)
+                  call dcopy_(nAO,[Zero],0,Work(ipAOs),1)
                   mTmp=1
                   Call AOEval(iAng,nCoor,CCoor,Work(ipxyz),RA,
      &                        Transf(iShll),

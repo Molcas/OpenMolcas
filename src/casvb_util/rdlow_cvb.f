@@ -14,7 +14,7 @@
       implicit real*8(a-h,o-z)
 #include "io_cvb.fh"
 #include "idbl_cvb.fh"
-      integer vec
+      !integer vec
       dimension vec(n)
       logical newfile,debug
       data debug/.false./

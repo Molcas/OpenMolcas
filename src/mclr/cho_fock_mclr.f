@@ -23,7 +23,7 @@
       Character*13 SECNAM
       Parameter (SECNAM = 'CHO_FOCK_MCLR')
       Integer   ISTLT(8),ISTSQ(8),ISSQ(8,8),kaOff(8),ipLpq(8,3)
-      Integer   ipAsh(2),ipAorb(8,2),LuAChoVec(8)
+      Integer   ipAsh(*),ipAorb(8,2),LuAChoVec(8)
       Integer   nAsh(8),nIsh(8)
 #include "cholesky.fh"
 #include "choptr.fh"

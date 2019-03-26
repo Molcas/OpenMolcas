@@ -27,7 +27,7 @@
 *     the principle axis system.
 *
       Call FZero(O,9)
-      call dcopy_(3,One,0,O,4)
+      call dcopy_(3,[One],0,O,4)
       EVal(1)=M(1,1)
       EVal(2)=M(2,1)
       EVal(3)=M(2,2)

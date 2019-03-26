@@ -79,8 +79,8 @@
 *
 *     Correction to get correct types in subsequent calls
 *
-      ipiPam = ip_of_iWork(Work(ipiPam))
-      ipMap = ip_of_iWork(Work(ipMap))
+      ipiPam = ip_of_iWork_d(Work(ipiPam))
+      ipMap = ip_of_iWork_d(Work(ipMap))
 *                                                                      *
 ************************************************************************
 *                                                                      *

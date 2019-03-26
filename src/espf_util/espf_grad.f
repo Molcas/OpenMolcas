@@ -50,15 +50,15 @@
          If (lMMGrd) Then
             Call Get_dArray('MM Grad',Work(ipMMGrd),6*natom)
             call dcopy_(3*natom,Work(ipMMGrd+3*natom),1,Work(ipMMGrd),1)
-            call dcopy_(3*natom,Zero,0,Work(ipMMGrd+3*natom),1)
+            call dcopy_(3*natom,[Zero],0,Work(ipMMGrd+3*natom),1)
          Else
-            call dcopy_(6*natom,Zero,0,Work(ipMMGrd),1)
+            call dcopy_(6*natom,[Zero],0,Work(ipMMGrd),1)
          End If
       End If
 *
       If (Exist .and. DoTinker .and. .not.isNAC) Then
          Call GetMem('Hess','Allo','Real',ipHC,3*natom*(3*natom+1)/2)
-         call dcopy_((3*natom*(3*natom+1)/2),Zero,0,Work(ipHC),1)
+         call dcopy_((3*natom*(3*natom+1)/2),[Zero],0,Work(ipHC),1)
       End If
 *
       If (Exist .and. DoTinker .and. .not.isNAC) Then
@@ -68,9 +68,9 @@
          Do While (Index(Line,'TheEnd ') .eq. 0)
             Line=Get_Ln(ITkQMMM)
             If (Index(Line,'NMM').ne.0) Then
-               Call Get_I(2,natMM,1)
+               Call Get_I1(2,natMM)
             Else If (Index(Line,'MMGradient').ne.0) Then
-               Call Get_I(2,iAtom,1)
+               Call Get_I1(2,iAtom)
                Call Get_F(3,FX,3)
                Do iXYZ = 0, 2
                   iOff = (iAtom-1)*3+iXYZ
@@ -81,7 +81,7 @@
                EndDo
             Else If (Index(Line,'MMHDiag').ne.0) Then
                lMMHess = .True.
-               Call Get_I(2,iAtom,1)
+               Call Get_I1(2,iAtom)
                Call Get_F(3,FX,3)
                Do iXYZ = 1, 3
                   Work(ipHC+LHR(iXYZ,iAtom,iXYZ,iAtom)-1) = FX(iXYZ)
@@ -89,9 +89,9 @@
                EndDo
             Else If (Index(Line,'MMHOff').ne.0) Then
                lMMHess = .True.
-               Call Get_I(2,iAtom,1)
-               Call Get_I(3,iXYZ,1)
-               Call Get_I(4,iNumb,1)
+               Call Get_I1(2,iAtom)
+               Call Get_I1(3,iXYZ)
+               Call Get_I1(4,iNumb)
 c            Write (6,*) 'HOff read ',iAtom,iXYZ,iNumb
                iCur = 0
                jAtom = iAtom

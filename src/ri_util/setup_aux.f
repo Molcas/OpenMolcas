@@ -188,8 +188,8 @@ C     Call iVcPrt('iSOShl',' ',iSOShl,nSO)
 *
 *     Initialize
 *
-      Call ICopy(3*nIrrep,0,0,iTOffs,1)
-      Call iCopy(nij_Shell*nIrrep**2,0,0,iSSOff,1)
+      Call ICopy(3*nIrrep,[0],0,iTOffs,1)
+      Call iCopy(nij_Shell*nIrrep**2,[0],0,iSSOff,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -202,7 +202,7 @@ C     Call iVcPrt('iSOShl',' ',iSOShl,nSO)
       Do ijShell = 1, nij_Shell
          iShell = iShij(1,ijShell)
          jShell = iShij(2,ijShell)
-         Call ICopy(nIrrep,0,0,iTtmp,1)
+         Call ICopy(nIrrep,[0],0,iTtmp,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *

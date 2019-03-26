@@ -22,6 +22,7 @@
 #include "malloc_cvb.fh"
       dimension trprm(npr1,npr1),iorts(2,nort),irots(2,ndrot)
       dimension sorbs(norb,norb)
+      dimension dum(1)
 
       i1 = mstackrz_cvb(norbprm*max(nc+nort+ndrot,norbprm))
       i1ff=i1-1

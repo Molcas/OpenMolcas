@@ -214,11 +214,11 @@ CFUE  Integer iAnga(4), iChO(nComp), iStb(0:7),
 *------- No derivatives with respect to the third or fourth center.
 *        The positions of the points in the external field are frozen.
 *
-         Call ICopy(3,0,0,JndGrd(1,3),1)
+         Call ICopy(3,[0],0,JndGrd(1,3),1)
          JfGrad(1,3) = .False.
          JfGrad(2,3) = .False.
          JfGrad(3,3) = .False.
-         Call ICopy(3,0,0,JndGrd(1,4),1)
+         Call ICopy(3,[0],0,JndGrd(1,4),1)
          JfGrad(1,4) = .False.
          JfGrad(2,4) = .False.
          JfGrad(3,4) = .False.

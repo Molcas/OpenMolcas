@@ -145,7 +145,7 @@
       ipTmp = ip
       mArray = nArr*nZeta - ip + 1
 *
-      call dcopy_(nZeta*Max(k,nMem),Zero,0,Array(ipAInt),1)
+      call dcopy_(nZeta*Max(k,nMem),[Zero],0,Array(ipAInt),1)
 *
 *-----Loop over nuclear centers.
 *

@@ -15,8 +15,18 @@
 #include "inpmod_cvb.fh"
       dimension arr(nmax)
 
+      call real_cvb_internal(arr)
+*
+*     This is to allow type punning without an explicit interface
+      contains
+      subroutine real_cvb_internal(arr)
+      use iso_c_binding
+      real*8, target :: arr(*)
+      integer, pointer :: iarr(:)
       if(inputmode.eq.2)then
-        call gethr_cvb(arr,nread)
+        call c_f_pointer(c_loc(arr(1)),iarr,[nread])
+        call gethr_cvb(iarr,nread)
+        nullify(iarr)
         return
       endif
       nread=0
@@ -46,7 +56,11 @@ c  Crash if invalid field and IFC +4 :
       call pushfield_cvb()
 2000  continue
       if(inputmode.eq.1)then
-        call sethr_cvb(arr,nread)
+        call c_f_pointer(c_loc(arr(1)),iarr,[nread])
+        call sethr_cvb(iarr,nread)
+        nullify(iarr)
       endif
       return
+      end subroutine real_cvb_internal
+*
       end

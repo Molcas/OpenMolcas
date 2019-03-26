@@ -68,7 +68,7 @@
       iPrint = nPrint(iRout)
 C     Call qEnter('NAInt')
 *
-      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,Zero,0,Final,1)
+      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
       lc=0
       ld=0

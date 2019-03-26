@@ -27,6 +27,7 @@
       dimension trprm(nprorb,nprorb)
       dimension owrk(norb,norb),owrk2(norb,norb)
       dimension orbinv(norb,norb),idel(nprorb)
+      dimension dum(1)
       save thresh
       data thresh/1.d-7/
 

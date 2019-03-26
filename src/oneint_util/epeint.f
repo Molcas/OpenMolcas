@@ -59,7 +59,7 @@
       iPrint = nPrint(iRout)
       Call qEnter('EPEInt')
 *
-      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,Zero,0,Final,1)
+      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
       iAnga(1) = la
       iAnga(2) = lb

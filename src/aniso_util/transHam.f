@@ -58,21 +58,21 @@ c           matrices to the basis of their local pseudospins
       If((n1>0).AND.(n2>0)) Then
          Call mma_allocate(HI,n1,n1,n2,n2,'HI')
       End If
-      Call zcopy_(n1*n1*n2*n2,(0.0_wp,0.0_wp),0,HT,1)
+      Call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,HT,1)
 !-----------------------------------------------------------------------
 
 
       ! rotate the magnetic moments to their general coordinate system
-      Call zcopy_(3*n1*n1,(0.0_wp,0.0_wp),0,M1,1)
-      Call zcopy_(3*n2*n2,(0.0_wp,0.0_wp),0,M2,1)
+      Call zcopy_(3*n1*n1,[(0.0_wp,0.0_wp)],0,M1,1)
+      Call zcopy_(3*n2*n2,[(0.0_wp,0.0_wp)],0,M2,1)
       Call rotmom( MM1, n1, rot1, M1 )
       Call rotmom( MM2, n2, rot2, M2 )
 
       If (iopt.eq.1) Then ! local coordinate system
-         Call dcopy_(3,0.0_wp,0,gt1,1)
-         Call dcopy_(3,0.0_wp,0,gt2,1)
-         Call dcopy_(3*3,0.0_wp,0,ax1,1)
-         Call dcopy_(3*3,0.0_wp,0,ax2,1)
+         Call dcopy_(3,[0.0_wp],0,gt1,1)
+         Call dcopy_(3,[0.0_wp],0,gt2,1)
+         Call dcopy_(3*3,[0.0_wp],0,ax1,1)
+         Call dcopy_(3*3,[0.0_wp],0,ax2,1)
          If(DBG) Then
             Write(6,'(A)') 'TRANSHAM:: local g tensors and axes:'
             Call atens( M1, n1, gt1, ax1, 2)
@@ -83,8 +83,8 @@ c           matrices to the basis of their local pseudospins
          End If
 
       Else If (iopt==2) Then ! general coordinate system
-         Call dcopy_(3*3,0.0_wp,0,ax1,1)
-         Call dcopy_(3*3,0.0_wp,0,ax2,1)
+         Call dcopy_(3*3,[0.0_wp],0,ax1,1)
+         Call dcopy_(3*3,[0.0_wp],0,ax2,1)
          Do i1=1,3
            ax1(i1,i1)=1.0_wp
            ax2(i1,i1)=1.0_wp
@@ -95,8 +95,8 @@ c           matrices to the basis of their local pseudospins
 
 c----------------------------------------------------------------------
       ! rotate magnetic moments to their local magnetic axes:
-      Call zcopy_(3*n1*n1,(0.0_wp,0.0_wp),0,MR1,1)
-      Call zcopy_(3*n2*n2,(0.0_wp,0.0_wp),0,MR2,1)
+      Call zcopy_(3*n1*n1,[(0.0_wp,0.0_wp)],0,MR1,1)
+      Call zcopy_(3*n2*n2,[(0.0_wp,0.0_wp)],0,MR2,1)
       If (  ((typ1.eq.'A').AND.(typ2.eq.'A')) .OR.
      &      ((typ1.eq.'B').AND.(typ2.eq.'B')) .OR.
      &      ((typ1.eq.'B').AND.(typ2.eq.'C')) .OR.
@@ -145,15 +145,15 @@ c----------------------------------------------------------------------
 
 c----------------------------------------------------------------------
       ! find local pseudospin on each site:
-      Call zcopy_(n1*n1,(0.0_wp,0.0_wp),0,Z1,1)
-      Call zcopy_(n2*n2,(0.0_wp,0.0_wp),0,Z2,1)
+      Call zcopy_(n1*n1,[(0.0_wp,0.0_wp)],0,Z1,1)
+      Call zcopy_(n2*n2,[(0.0_wp,0.0_wp)],0,Z2,1)
       Call pseudospin( MR1, n1, Z1, 3,1, 1 )
       Call pseudospin( MR2, n2, Z2, 3,1, 1 )
 
 
       If (DBG) Then
          Call pa_prmat('Matrix Z1',Z1,n1)
-         Call zcopy_(n1*n1,(0.0_wp,0.0_wp),0,TMP1,1)
+         Call zcopy_(n1*n1,[(0.0_wp,0.0_wp)],0,TMP1,1)
          Call zgemm_('C','N', n1, n1, n1, (1.0_wp,0.0_wp),
      &               Z1, n1,
      &               Z1, n1,(0.0_wp,0.0_wp),
@@ -164,7 +164,7 @@ c----------------------------------------------------------------------
      &               'conjg(Z1)*Z1:  (',i,',',i,')=', TMP1(i,i)
          End Do
          Call pa_prmat('Matrix Z2',Z2,n2)
-         Call zcopy_(n2*n2,(0.0_wp,0.0_wp),0,TMP2,1)
+         Call zcopy_(n2*n2,[(0.0_wp,0.0_wp)],0,TMP2,1)
          Call zgemm_('C','N', n2, n2, n2, (1.0_wp,0.0_wp),
      &               Z2, n2,
      &               Z2, n2,(0.0_wp,0.0_wp),
@@ -186,7 +186,7 @@ c----------------------------------------------------------------------
 
 
       ! save a local copy:
-      Call zcopy_(n1*n1*n2*n2,(0.0_wp,0.0_wp),0,HI,1)
+      Call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,HI,1)
       Call zcopy_(n1*n1*n2*n2,H,1,HI,1)
 
       Do i1=1,n1
@@ -205,14 +205,14 @@ c----------------------------------------------------------------------
       ! transform the Hamiltonian to local pseudospins:
       Do i2=1,n2
         Do j2=1,n2
-          Call zcopy_(n1*n1,(0.0_wp,0.0_wp),0,TMP1,1)
+          Call zcopy_(n1*n1,[(0.0_wp,0.0_wp)],0,TMP1,1)
           Call zgemm_('C','N', n1, n1, n1, (1.0_wp,0.0_wp),
      &                Z1, n1,
      &                HI(1:n1,1:n1, i2,j2), n1,(0.0_wp,0.0_wp),
      &                TMP1, n1 )
 
 
-          Call zcopy_(n1*n1,(0.0_wp,0.0_wp),0,HI(1:n1,1:n1, i2,j2),1)
+          Call zcopy_(n1*n1,[(0.0_wp,0.0_wp)],0,HI(1:n1,1:n1, i2,j2),1)
           Call zgemm_('N','N', n1, n1, n1, (1.0_wp,0.0_wp),
      &                TMP1, n1,
      &                Z1, n1, (0.0_wp,0.0_wp),
@@ -222,13 +222,13 @@ c----------------------------------------------------------------------
 
       Do i1=1,n1
         Do j1=1,n1
-          Call zcopy_(n2*n2,(0.0_wp,0.0_wp),0,TMP2,1)
+          Call zcopy_(n2*n2,[(0.0_wp,0.0_wp)],0,TMP2,1)
           Call zgemm_( 'C','N', n2, n2, n2, (1.0_wp,0.0_wp),
      &                Z2, n2,
      &                HI(i1,j1, 1:n2,1:n2), n2, (0.0_wp,0.0_wp),
      &                TMP2, n2 )
 
-          Call zcopy_(n2*n2,(0.0_wp,0.0_wp),0,HI(i1,j1,1:n2,1:n2),1)
+          Call zcopy_(n2*n2,[(0.0_wp,0.0_wp)],0,HI(i1,j1,1:n2,1:n2),1)
           Call zgemm_('N','N', n2, n2, n2, (1.0_wp,0.0_wp),
      &                TMP2, n2,
      &                Z2, n2, (0.0_wp,0.0_wp),
@@ -236,7 +236,7 @@ c----------------------------------------------------------------------
         End Do
       End Do
 
-      Call zcopy_(n1*n1*n2*n2,(0.0_wp,0.0_wp),0,HT,1)
+      Call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,HT,1)
       Call zcopy_(n1*n1*n2*n2,HI,1,HT,1)
 
 

@@ -88,7 +88,7 @@
 *
 *-----Initialize second order density matrix in AO basis
 *
-      call dcopy_(ijkl*iCmp*jCmp*kCmp*lCmp,Zero,0,PAO,1)
+      call dcopy_(ijkl*iCmp*jCmp*kCmp*lCmp,[Zero],0,PAO,1)
 *
 *
 *     Quadruple loop over elements of the basis functions angular

@@ -26,8 +26,8 @@
       ALF=sqrt(A)
       ARG=(BP*ALF)**2
       nT = 1
-      call dcopy_(kMax+1,Zero,0,F,1)
-      Call Auxil(Arg,nT,F,nn-1)
+      call dcopy_(kMax+1,[Zero],0,F,1)
+      Call Auxil([Arg],nT,F,nn-1)
 *     Call RecPrt(' In qRint:Fm',' ',F,nt,nn)
       GINT=Zero
       Dac = -One

@@ -62,6 +62,7 @@
       Real*8 Clock(4)
       Character*72 SLine
       Real*8 res_tmp
+      Dimension rdum(1)
 *
       Call QEnter('WfCtl')
 *----------------------------------------------------------------------*

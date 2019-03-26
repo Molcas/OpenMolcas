@@ -34,6 +34,7 @@
       dimension detvec(*)
       dimension ncix(8)
       logical reord
+      dimension rdum(1)
 
       iwr=0
 
@@ -104,6 +105,7 @@ c      Call GetMem('OCIvec','Allo','Real',ipCI,nConf_j*nroots_j)
       dimension detvec(*)
       dimension ncix(8)
       logical reord
+      dimension rdum(1)
       iwr=1
 
       call getnci_cvb(ncix,nactel_j,ispin_j-1,lsym_j)

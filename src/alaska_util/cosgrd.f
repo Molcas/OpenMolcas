@@ -209,7 +209,7 @@ c             skip 2 center
              JfGrad(iCar+1,3) = .False.
           enddo
 
-         Call ICopy(3,0,0,JndGrd(1,4),1)
+         Call ICopy(3,[0],0,JndGrd(1,4),1)
          JfGrad(1,4) = .False.
          JfGrad(2,4) = .False.
          JfGrad(3,4) = .False.

@@ -24,7 +24,7 @@
       ! local variables:
 #include "stdalloc.fh"
       Integer            :: i, j, l
-      Integer            :: luaniso, idisk
+      Integer            :: luaniso, idisk, idum(1)
       Real(kind=wp)      :: g_e
       Real(kind=wp), allocatable :: tmpR(:,:), tmpI(:,:)
 
@@ -45,8 +45,10 @@
       idisk=0
       ! get the information from binary "$project.aniso" file:
       Call daname(luaniso,'POLYFILE')
-      Call idafile(luaniso,2,nstate,1,idisk)
-      Call idafile(luaniso,2,nss,   1,idisk)
+      Call idafile(luaniso,2,idum,1,idisk)
+      nstate=idum(1)
+      Call idafile(luaniso,2,idum,1,idisk)
+      nss=idum(1)
 
       Call mma_allocate(tmpR,nss,nss,'tmpR')
       Call mma_allocate(tmpI,nss,nss,'tmpI')
@@ -152,8 +154,8 @@
       Call DANAME(LUANISO,'POLYFILE')
       ! writing data to it:
       idisk=0
-      Call idafile(luaniso,1,nstate,1,idisk)
-      Call idafile(luaniso,1,nss,1,idisk)
+      Call idafile(luaniso,1,[nstate],1,idisk)
+      Call idafile(luaniso,1,[nss],1,idisk)
       ! spin multiplicity ofthe spin free states:
       Call idafile(luaniso,1,multiplicity,nstate,idisk)
       ! spin-orbit energies:

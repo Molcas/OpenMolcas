@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine WLBuf
+      Use dEAF
       Implicit Real*8 (a-h,o-z)
 #include "IOBuf.fh"
 #include "SysDef.fh"
@@ -43,16 +44,16 @@ c     Disk_Save=Disk
             Disk_1 = Disk
 *           If (OnDisk) Write (*,*) 'Disk=',Disk,' lBuf*RtoI=',lBuf*RtoI
 c           Write (6,*) 'WLBuf write on disk @',Disk,'iBuf=',iBuf
-            If (OnDisk) Call EAFWrite(LuTmp,Work(jpBuf(1,iBuf)),
+            If (OnDisk) Call dEAFWrite(LuTmp,Work(jpBuf(1,iBuf)),
      &                                lBuf*RtoI,Disk)
 *---------- Put a dummy record at the end
             temp=Disk+DBLE(lBuf*RtoB)
 *           Write (6,*) 'temp,DiskMx_Byte=',temp,DiskMx_Byte
             If (temp.le.DiskMx_Byte.and.OnDisk) Then
 c              Write (6,*) 'WLBuf write on disk @',Disk,'iBuf=',iBuf
-               iZero=0
-               Call ICopy(lBuf*RtoI,iZero,0,Work(jpBuf(1,iBuf)),1)
-               Call EAFWrite(LuTmp,Work(jpBuf(1,iBuf)),lBuf*RtoI,Disk)
+               Zero=0.0D0
+               Call dCopy_(lBuf,[Zero],0,Work(jpBuf(1,iBuf)),1)
+               Call dEAFWrite(LuTmp,Work(jpBuf(1,iBuf)),lBuf*RtoI,Disk)
             End If
          Else
             Call WarningMessage(2,'WLBuf: Disc is full!')

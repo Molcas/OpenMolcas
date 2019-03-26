@@ -157,7 +157,7 @@ c         Call RecPrt(' In FragPInt: Array ',' ',Array,nZeta,nArr)
 c         Call TrcPrt(' In FragPInt: Array ',' ',Array,nZeta,nArr)
       End If
 *
-      Call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,Zero,0,Final,1)
+      Call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *

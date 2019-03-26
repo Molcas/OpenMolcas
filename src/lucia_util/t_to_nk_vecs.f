@@ -94,8 +94,9 @@ C?      WRITE(6,*) ' NIA NIB ', NIA,NIB
         IMZERO = 0
         IF( ICISTR.GE.2 ) THEN
 *. Read in a Type-Type-symmetry block
-          CALL IDAFILE(LUCIN,2,LDET,1,IDISK(LUCIN))
-          CALL IDAFILE(LUCIN,2,IDUMMY,1,IDISK(LUCIN))
+          CALL IDAFILE(LUCIN,2,IDUM,1,IDISK(LUCIN))
+          LDET=IDUM(1)
+          CALL IDAFILE(LUCIN,2,IDUM,1,IDISK(LUCIN))
           CALL FRMDSC(        C,     LDET,       -1,    LUCIN,   IMZERO,
      &                  IAMPACK)
         END IF

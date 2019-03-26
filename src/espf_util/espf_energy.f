@@ -23,7 +23,7 @@
       Character*8 Label
       Logical DoTinker,DoGromacs,DynExtPot
       Real*8 h1(nh1)
-      Dimension opnuc(1)
+      Dimension opnuc(1),idum(1)
 *
       Call QEnter('espf_energy')
       iPL = iPL_espf()
@@ -37,7 +37,7 @@
          Line = ' '
          Do While (Index(Line,'TheEnd ') .eq. 0)
             Line=Get_Ln(ITkQMMM)
-            If (Index(Line,'MMEnergy ').ne.0) Call Get_F(2,TkE,1)
+            If (Index(Line,'MMEnergy ').ne.0) Call Get_F1(2,TkE)
          End Do
          Close (ITkQMMM)
          TkE = TkE * ToHartree
@@ -76,7 +76,8 @@
       iComp = 1
       iSyLbl = 1
       iRc = -1
-      Call iRdOne(iRc,1,Label,iComp,nInts,iSyLbl)
+      Call iRdOne(iRc,1,Label,iComp,idum,iSyLbl)
+      nInts=idum(1)
       If (iRc.ne.0) Then
          Write (6,'(A)')' ESPF: Error reading ONEINT'
          Write (6,'(A,A8)')' Label = ',Label

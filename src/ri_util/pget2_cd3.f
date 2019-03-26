@@ -143,7 +143,7 @@ C     Fac = One / Four
 *------------------all irreps are different and the 2nd order density
 *                  matrix will be identical to zero for a SCF type wave
 *                  function.
-                   call dcopy_(nijkl,Zero,0,PSO(1,MemSO2),1)
+                   call dcopy_(nijkl,[Zero],0,PSO(1,MemSO2),1)
                    Go To 310
                 End If
 *

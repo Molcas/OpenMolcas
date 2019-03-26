@@ -158,7 +158,7 @@
 *
 *------- Compute the gradient
 *
-         call dcopy_(mB,Zero,0,Grad,1)
+         call dcopy_(mB,[Zero],0,Grad,1)
          Do iCent = 1, nCent
             iAtom=Ind(iCent)
 *           Write (6,*) 'iAtom,iCOM=',iAtom,iCOM
@@ -249,7 +249,7 @@ C     Call RecPrt('dRVdXYZ',' ',dRVdXYZ,3,3*nMass)
 *
 *------- Compute the gradient
 *
-         call dcopy_(mB,Zero,0,Grad,1)
+         call dcopy_(mB,[Zero],0,Grad,1)
          call dcopy_(mB,dRVdXYZ(ixyz,1),3,Grad,1)
 C        Call RecPrt('Grad (Rot)',' ',Grad,3,nCent)
 *

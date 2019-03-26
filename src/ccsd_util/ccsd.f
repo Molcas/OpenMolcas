@@ -28,13 +28,13 @@ c     work file declaration
 c
 c     variables
 c
-       integer rc,posst,niter
+       integer rc,posst,niter,idum(1)
        integer lunabij1,lunabij2,lunabij3
        integer lunt2o1,lunt2o2,lunt2o3
        integer lunw3aaaa,lunw3baab,lunw3bbaa,lunw3bbbb,lunw3abba,
      & lunw3aabb
        integer keyext,keyexc,lunrst
-       real*8 scalar,energy,energyold,diff
+       real*8 scalar,energy,energyold,diff,dum(1)
        integer diispointt(1:4)
        integer diispointr(1:4)
        integer lenv,lenn,possabstack,nabstack,nfree,inv4,infree
@@ -216,8 +216,10 @@ c      Fortran IO
 c
        else
 c      MOLCAS IO
-       call ddafile (lunrst,2,energyold,1,daddr(lunrst))
-       call idafile (lunrst,2,niter,1,daddr(lunrst))
+       call ddafile (lunrst,2,dum,1,daddr(lunrst))
+       energyold=dum(1)
+       call idafile (lunrst,2,idum,1,daddr(lunrst))
+       niter=idum(1)
        end if
        goto 98
 c
@@ -681,7 +683,7 @@ c
        ENDIF
 c Export a method and energy to the MOLCAS runfile
        Call Put_cArray('Relax Method','CCSDT   ',8)
-       Call Store_Energies(1,Energy,1)
+       Call Store_Energies(1,[Energy],1)
 c
 c4.0  type 5 maximal elements + euclidian norms in each type of amplitudes
 c

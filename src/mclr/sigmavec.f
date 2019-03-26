@@ -45,7 +45,8 @@
 #include "csmprd.fh"
       Logical allokc,allokc2
       Dimension C(*),HC(*),kic(2)
-      integer sxstsm
+      integer sxstsm(1)
+      dimension idummy(1)
       LUC=0
       LUHC=0
       iprnt=200

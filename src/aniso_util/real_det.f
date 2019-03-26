@@ -33,8 +33,8 @@ c local variables:
       FindDetR=0.0_wp
       Call mma_allocate(w,n,'eigenvalues')
       Call mma_allocate(z,n,n,'engenvectors')
-      Call dcopy_(  n,0.0_wp,0,w,1)
-      Call dcopy_(n*n,0.0_wp,0,z,1)
+      Call dcopy_(  n,[0.0_wp],0,w,1)
+      Call dcopy_(n*n,[0.0_wp],0,z,1)
       ! diagonalize the matrix:
       Call diag_r2(matrix,n,info,w,z)
       If (info.ne.0) then

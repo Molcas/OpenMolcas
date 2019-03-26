@@ -14,6 +14,7 @@
       implicit real*8 (a-h,o-z)
       parameter (nstrin=2,ncmp=4)
       character*8 string(nstrin)
+      dimension dum(1)
       save string
       data string/'WAVE    ','CON    '/
 #include "ext_cvb.fh"
@@ -37,7 +38,8 @@ c 'WAVE'
         nbet_fr(1,nfrag)=0
         i2s_fr(1,nfrag)=-1
 100     Scurr=-one
-        call real_cvb(Scurr,1,nread,1)
+        call real_cvb(dum,1,nread,1)
+        Scurr=dum(1)
         if(Scurr.ne.-one)then
           nS_fr(nfrag)=nS_fr(nfrag)+1
           i2s_fr(nS_fr(nfrag),nfrag)=nint(2d0*Scurr)

@@ -66,7 +66,7 @@ C     nElem(ixyz) = 2*ixyz+1
       iPrint = nPrint(iRout)
 *     Call qEnter('XFdInt')
 *
-      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,Zero,0,Final,1)
+      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
 *---- Loop over charges and dipole moments in the external field
 *

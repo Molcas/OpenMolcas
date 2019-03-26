@@ -16,19 +16,19 @@
       Integer MUL(nMUL), NSH(MxSym), NISH(MxSym), JRC(nJRC),
      &        JJS(nJJS), NVAL(MxSym), IOCR(nIOCR)
 *
-      Call iDaFile(Lu,iOpt,NFREF,    1,iDisk)
-      Call dDaFile(Lu,iOpt,S,        1,iDisk)
-      Call iDaFile(Lu,iOpt,N,        1,iDisk)
-      Call iDaFile(Lu,iOpt,LN,       1,iDisk)
-      Call iDaFile(Lu,iOpt,NSYM,     1,iDisk)
-      Call iDaFile(Lu,iOpt,IR1,      1,iDisk)
-      Call iDaFile(Lu,iOpt,IR2,      1,iDisk)
-      Call iDaFile(Lu,iOpt,IFIRST,   1,iDisk)
-      Call iDaFile(Lu,iOpt,INTNUM,   1,iDisk)
-      Call iDaFile(Lu,iOpt,LSYM,     1,iDisk)
-      Call iDaFile(Lu,iOpt,NREF,     1,iDisk)
-      Call iDaFile(Lu,iOpt,LN1,      1,iDisk)
-      Call iDaFile(Lu,iOpt,NRLN1,    1,iDisk)
+      Call s_iDaFile_guga(Lu,iOpt,NFREF,    1,iDisk)
+      Call s_dDaFile_guga(Lu,iOpt,S,        1,iDisk)
+      Call s_iDaFile_guga(Lu,iOpt,N,        1,iDisk)
+      Call s_iDaFile_guga(Lu,iOpt,LN,       1,iDisk)
+      Call s_iDaFile_guga(Lu,iOpt,NSYM,     1,iDisk)
+      Call s_iDaFile_guga(Lu,iOpt,IR1,      1,iDisk)
+      Call s_iDaFile_guga(Lu,iOpt,IR2,      1,iDisk)
+      Call s_iDaFile_guga(Lu,iOpt,IFIRST,   1,iDisk)
+      Call s_iDaFile_guga(Lu,iOpt,INTNUM,   1,iDisk)
+      Call s_iDaFile_guga(Lu,iOpt,LSYM,     1,iDisk)
+      Call s_iDaFile_guga(Lu,iOpt,NREF,     1,iDisk)
+      Call s_iDaFile_guga(Lu,iOpt,LN1,      1,iDisk)
+      Call s_iDaFile_guga(Lu,iOpt,NRLN1,    1,iDisk)
       Call iDaFile(Lu,iOpt,MUL,   nMUL,iDisk)
       Call iDaFile(Lu,iOpt,NSH,  MxSym,iDisk)
       Call iDaFile(Lu,iOpt,NISH, MxSym,iDisk)
@@ -38,4 +38,26 @@
       Call iDaFile(Lu,iOpt,IOCR, nIOCR,iDisk)
 *
       Return
+*
+*     This is to allow type punning without an explicit interface
+      Contains
+      Subroutine s_iDaFile_guga(Lu,iOpt,Buf,lBuf_,iDisk_)
+      Use Iso_C_Binding
+      Integer Lu, iOpt, lBuf_, iDisk_
+      Integer, Target :: Buf
+      Integer, Pointer :: pBuf(:)
+      Call C_F_Pointer(C_Loc(Buf),pBuf,[1])
+      Call iDaFile(Lu,iOpt,pBuf,lBuf_,iDisk_)
+      Nullify(pBuf)
+      End Subroutine s_iDaFile_guga
+      Subroutine s_dDaFile_guga(Lu,iOpt,Buf,lBuf_,iDisk_)
+      Use Iso_C_Binding
+      Integer Lu, iOpt, lBuf_, iDisk_
+      Real*8, Target :: Buf
+      Real*8, Pointer :: pBuf(:)
+      Call C_F_Pointer(C_Loc(Buf),pBuf,[1])
+      Call dDaFile(Lu,iOpt,pBuf,lBuf_,iDisk_)
+      Nullify(pBuf)
+      End Subroutine s_dDaFile_guga
+*
       End

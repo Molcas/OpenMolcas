@@ -395,7 +395,8 @@ c      Fortran IO
 c
        else
 c      MOLCAS IO
-       call idafile (lun,5,nhelp,1,daddr(lun))
+       nhelp=0
+       call idafile (lun,5,[nhelp],1,daddr(lun))
        end if
 c
 c

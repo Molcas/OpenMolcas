@@ -67,7 +67,7 @@
       IMPLICIT REAL*8(A-H,O-Z)
       Logical TimeDep
 *. General input
-      INTEGER ADSXA(MXPOBS,2*MXPOBS),DXSTST
+      INTEGER ADSXA(MXPOBS,2*MXPOBS),DXSTST(*)
       INTEGER STSTDX(NSMST,NSMST)
       INTEGER SXDXSX(2*MXPOBS,4*MXPOBS)
       INTEGER NTSOB(3,*),IBTSOB(3,*),ITSOB(*)
@@ -94,8 +94,8 @@
         KTYP = KTP(IDXTYP)
         LTYP = LTP(IDXTYP)
 *. Type of intermediate strings
-        CALL NEWTYP_MCLR(IGRP,ICCTP,1,JTYP,1,K1GRP,K1TP)
-        CALL NEWTYP_MCLR(K1GRP,K1TP,1,LTYP,1,K2GRP,K2TP)
+        CALL NEWTYP_MCLR(IGRP,ICCTP,[1],[JTYP],1,K1GRP,K1TP)
+        CALL NEWTYP_MCLR(K1GRP,K1TP,[1],[LTYP],1,K2GRP,K2TP)
         IF(K2TP.LE.0) GOTO 2000
 *. Symmetry of allowed Double excitation,loop over excitations
         DO 1950 IKSM = 1, NSMSX
@@ -292,7 +292,7 @@
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN
-        CALL Unused_integer(DXSTST)
+        CALL Unused_integer_array(DXSTST)
         CALL Unused_integer_array(ITSOB)
         CALL Unused_integer(NSMDX)
       END IF

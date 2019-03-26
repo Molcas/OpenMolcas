@@ -119,7 +119,7 @@
       rZero=1.0d-10
       n3=3*nAtoms
 *
-      call dcopy_((n3*(n3+1)/2),Zero,0,Hess,1)
+      call dcopy_((n3*(n3+1)/2),[Zero],0,Hess,1)
 #ifdef _DEBUG_
       Call TriPrt(' In LNM: Hessian at start','(12f8.3)',
      &               Hess,n3)
