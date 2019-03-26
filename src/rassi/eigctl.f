@@ -225,15 +225,7 @@ C 5. DIAGONALIZE HAMILTONIAN.
       END DO
 
       CALL Jacob(WORK(LHH),WORK(LUU),MSTATE,MSTATE)
-      TEMP=WORK(LHH)
-      DO I=2,MSTATE
-         IJ=I*(I+1)/2
-         IF (WORK(LHH-1+IJ).LT.TEMP) THEN
-            EXIT
-         ELSE
-            TEMP=WORK(LHH-1+IJ)
-         End IF
-      END Do
+      CALL JACORD(WORK(LHH),WORK(LUU),MSTATE,MSTATE)
 
       IDIAG=0
       DO II=1,MSTATE
