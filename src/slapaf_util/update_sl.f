@@ -169,10 +169,11 @@ c Avoid unused argument warnings
          If (Kriging) then
             If (nspAI.lt.iter) then
                !do while (dAIy.lt.dAIyf)
-                  Call Start_Kriging(iter,nInter,qInt,Grad,Energy,anAI,
-     &                            pAI,lbAI,npxAI)
+               Write (6,*) 'iter: ',iter
                write(6,*) 'coord before Update_sl', qInt
                Write (6,*) 'qInt shape: ',shape(qInt)
+               write(6,*) 'Energy before Update_sl', Energy
+               Write (6,*) 'Energy shape: ',shape(Energy)
                write(6,*) 'Grad before Update_sl', Grad
                Write (6,*) 'Grad shape: ',shape(Grad)
             Call Update_sl_(iter,iInt,nFix,nInter,qInt,Shift,
@@ -185,10 +186,17 @@ c Avoid unused argument warnings
      &                   nWndw,Mode,ipMF,
      &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,dMass,
      &                   HrmFrq_Show,CnstWght,Curvilinear,Degen)
+               !Write (6,*) 'iter: ',iter
                write(6,*) 'coord after Update_sl', qInt
                Write (6,*) 'qInt shape: ',shape(qInt)
+               ! write (6,*) 'qInt(iter)',qInt(nInter,iter+1)
+               !Call Loop_Kriging(qInt(nInter,iter+1))
+               write(6,*) 'Energy after Update_sl', Energy
+               Write (6,*) 'Energy shape: ',shape(Energy)
                write(6,*) 'Grad after Update_sl', Grad
                Write (6,*) 'Grad shape: ',shape(Grad)
+               Call Start_Kriging(iter,nInter,qInt,Grad,Energy,anAI,
+     &                            pAI,lbAI,npxAI)
                !End Do
             Else
             Call Update_sl_(iter,iInt,nFix,nInter,qInt,Shift,

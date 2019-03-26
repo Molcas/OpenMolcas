@@ -14,7 +14,7 @@
             use globvar
             real*8 B(m_t,npx,nInter),A(m_t,m_t),tsum,ddottemp(npx),tcv(npx,m_t) !AF contains the factors L and U from the factorization A = P*L*U as computed by DGETRF
             integer IPIV(m_t),INFO,i,j ! ipiv the pivot indices that define the permutation matrix
-            write(6,*) 'Predict'
+            write(6,*) 'Predict: '
             variance=dot_product(Ys,Kv)/m_t
             A=full_R
             B=CV
@@ -25,10 +25,11 @@
                 do i=1,npx
                     if (gh.eq.0) then
                         pred(i) = sb + dot_product(tcv(i,:),Kv)
+                        write(6,*) 'pred:', i, l, pred(i)
                     else
                         pred(i) = dot_product(tcv(i,:),Kv)
+                        write(6,*) 'pred Grad:', i, l, pred(i)
                     endif
-                    write(6,*) 'pred:', i, pred(i)
                 enddo
             enddo
             var=0
@@ -51,6 +52,8 @@
             else
                 ll=variance*exp(log(detr)/m_t)
             endif
+            write(6,*) "Kv: ",Kv
+            write(6,*) "ys: ",Ys
             write(6,*) 'l:',l
             write(6,*) 'variance: ',variance
             write(6,*) 'll: ',ll

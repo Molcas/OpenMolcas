@@ -14,22 +14,25 @@
       Subroutine Start_Kriging(iterT,nInterT,qInt,Grad,Energy,anAIT,pAIT,lbAI,npxAIT)
         use globvar
         Integer npxAIT,nInterT,iterT
-        Real*8 qInt(nInterT,iterT),Grad(nInterT,iterT),Energy(iterT),pAIT,lbAI(3)
+        Real*8 qInt(nInterT,iterT+1),Grad(nInterT,iterT),Energy(iterT),pAIT,lbAI(3)
         Logical anAIT
-        allocate (x(nInterT,iterT),y(iterT),lb(3),dy(nInterT*iterT),nx(iterT),l(nInterT))
+        allocate (x(nInterT,iterT),y(iterT),lb(3),dy(nInterT*iterT),nx(nInterT,1),l(nInterT))
         iter=iterT
         nInter=nInterT
         npxAI=npxAIT
         pAI=pAIT
         anAI=anAIT
+        npx=1 !npxAI
+        nx=qInt(:,iter+1:iter+1)
         Write (6,*) 'Kriging values in Start Kriging'
-        Write (6,*) 'iter:', iter
+        !Write (6,*) 'iter:', iter
         Write (6,*) 'nInter', nInter
         Write (6,*) 'npxAI', npxAI
         Write (6,*) 'Grad: ',Grad
         Write (6,*) 'Grad size: ',size(Grad)
         Write (6,*) 'Grad shape: ',shape(Grad)
         Write (6,*) 'Energy: ',Energy
+        Write (6,*) 'npx: ',npx
         !---------------Testing old data
 
         !--------------------------------
@@ -37,12 +40,16 @@
         !p = pAI
         !NS = iter
         !dims = nInter
-        npx=iter !npxAI
-        do i=1,int(npx)
-          nx(i)=(real(i)-1.0)*4.0/real(npx-1)
-        enddo
+        !parameters comming from the predicted points
+        !nx=x
+        ! do i=1,int(npx)
+        !   nx(1,i)=(real(i)-1.0)*4.0/real(npx-1)
+        ! enddo
         lb=lbAI
-        x = qInt
+        lb(1)=0.1
+        lb(2)=200
+        lb(3)=500
+        x = qInt(1:nInter,1:iter)
         Write (6,*) 'nx: ',nx
         Write (6,*) 'nx size: ',size(nx)
         Write (6,*) 'nx shape: ',shape(nx)

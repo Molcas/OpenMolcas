@@ -25,7 +25,7 @@
                 do i=1,nInter
                     do j=1,iter
                         do k=1,int(npx)
-                            rl(j,k)=(x(i,j)-nx(k))/l(i)
+                            rl(j,k)=(x(i,j)-nx(i,k))/l(i)
                         enddo
                     enddo
                     !write(6,*) 'CV-rl',i,rl
@@ -41,7 +41,7 @@
             do i=1,nInter
                 do j=1,iter
                     do k=1,int(npx)
-                        rl(j,k)=(x(i,j)-nx(k))/l(i)
+                        rl(j,k)=(x(i,j)-nx(i,k))/l(i)
                     enddo
                 enddo
                 dl=rl**2
@@ -71,7 +71,7 @@
                     call matderiv(2,size(dl,1),size(dl,2))
                     tmat2=mat
                     mat=mat*(-4*rl**2/l(i)**2)+tmat*(-2/l(i)**2)
-                    Write (6,*) 'CV - Krig Grad: ',mat
+                    !Write (6,*) 'CV - Krig Grad: ',mat
                 endif
                 if(gh.eq.2) then
 !                    print *,'covar vector calling deriv(3)for Kriging Hessian'
@@ -80,7 +80,7 @@
                     i1=i0+iter-1
                     call matderiv(3,size(dl,1),size(dl,2))
                     mat=mat*8*rl**4/l(i)**3+tmat2*(16*rl**2/l(i)**3 + 4/l(i)**2)+tmat*(4/l(i)**3)
-                    Write (6,*) 'CV - Krig Hessian: ',mat
+                    !Write (6,*) 'CV - Krig Hessian: ',mat
                 endif
                 cv(i0:i1,:,i)=mat
             enddo

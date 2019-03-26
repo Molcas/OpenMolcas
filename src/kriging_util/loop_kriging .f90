@@ -10,13 +10,13 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-      module globvar
-        real*8, allocatable :: x(:,:), y(:), dy(:), rl(:,:), &
-                dl(:,:), mat(:,:), Iden(:,:),full_R(:,:), &
-                nx(:,:),cv(:,:,:),lb(:),Kv(:),pred(:),Ys(:),var(:),Rones(:), &
-                sigma(:),l(:),gpred(:),hpred(:)
-        real*8 pAI,sb,variance,ll,detR !p
-        real*8, parameter :: PI = 4.0 * atan (1.0_8), h=1e-5, eps=1e-6 ! eps avoid to become singular
-        integer iter,nInter,prev_ns,m_t,npx,counttimes,npxAI!,NS
-        logical :: anAI!anamat=.true. !Analitical Matern
-      end module globvar
+
+      Subroutine Loop_Kriging(qIntLast)
+        use globvar
+        Real*8 qIntLast
+        write (6,*) "qIntlast", qIntLast
+        Write (6,*) 'Kriging values in Loop Kriging'
+        Write (6,*) 'iter:', iter
+        Write (6,*) 'nInter', nInter
+        Write (6,*) 'npxAI', npxAI
+      end
