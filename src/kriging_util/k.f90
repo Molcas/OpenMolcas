@@ -10,10 +10,10 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-        SUBROUTINE k()
+        SUBROUTINE k(iter)
             use globvar
             real*8 B(m_t),A(m_t,m_t) !AF contains the factors L and U from the factorization A = P*L*U as computed by DGETRF
-            integer IPIV(m_t),INFO ! ipiv the pivot indices that define the permutation matrix
+            integer IPIV(m_t),INFO,iter ! ipiv the pivot indices that define the permutation matrix
             B=0
             B(1:iter)=1
             A=full_r !in, coefficent matrix A, out factors L and U from factorization A=PLU on AX=B

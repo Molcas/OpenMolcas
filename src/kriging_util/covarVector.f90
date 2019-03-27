@@ -10,9 +10,9 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-        SUBROUTINE covarVector(gh)
+        SUBROUTINE covarVector(gh,iter,nInter)
             use globvar
-            integer i,i0,i1,j,gh,k
+            integer i,i0,i1,j,gh,k,iter,nInter
             real*8 tmat(iter,npx),tmat2(iter,npx)!,c(m_t,npx)
             deallocate (rl,dl,mat)
             allocate (rl(iter,npx),dl(iter,npx),mat(iter,npx))

@@ -10,9 +10,9 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-        SUBROUTINE covarMatrix()
+        SUBROUTINE covarMatrix(iter,nInter)
             use globvar
-            integer i,j,i0,i1,j0,j1,k,kl
+            integer i,j,i0,i1,j0,j1,k,kl,iter,nInter
             real*8 tmat(iter,iter),diffx(iter,iter),diffx0(iter,iter)!,c(iter,iter)
             deallocate (rl,dl,mat)
             allocate (rl(iter,iter),dl(iter,iter), &

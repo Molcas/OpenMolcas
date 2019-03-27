@@ -11,14 +11,15 @@
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
 
-      Subroutine Start_Kriging(iterT,nInterT,qInt,Grad,Energy,anAIT,pAIT,lbAI,npxAIT)
+      Subroutine Start_Kriging(iter,nInter,qInt,Grad,Energy,anAIT,pAIT,lbAI,npxAIT)
         use globvar
-        Integer npxAIT,nInterT,iterT
-        Real*8 qInt(nInterT,iterT+1),Grad(nInterT,iterT),Energy(iterT),pAIT,lbAI(3)
+        Integer npxAIT,nInter,iter
+        Real*8 qInt(nInter,iter+1),Grad(nInter,iter),Energy(iter),pAIT,lbAI(3)
         Logical anAIT
-        allocate (x(nInterT,iterT),y(iterT),lb(3),dy(nInterT*iterT),nx(nInterT,1),l(nInterT))
-        iter=iterT
-        nInter=nInterT
+        allocate (x(nInter,iter),y(iter),lb(3),dy(nInter*iter), &
+                  nx(nInter,1),l(nInter))
+        !iter=iterT
+        !nInter=nInterT
         npxAI=npxAIT
         pAI=pAIT
         anAI=anAIT
@@ -42,13 +43,16 @@
         !dims = nInter
         !parameters comming from the predicted points
         !nx=x
+        lb=lbAI
+        !----for test puorposes
+        lb(1)=0.1
+        lb(2)=6
+        lb(3)=10
+        ! npx=4
         ! do i=1,int(npx)
         !   nx(1,i)=(real(i)-1.0)*4.0/real(npx-1)
         ! enddo
-        lb=lbAI
-        lb(1)=0.1
-        lb(2)=200
-        lb(3)=500
+        !-----------
         x = qInt(1:nInter,1:iter)
         Write (6,*) 'nx: ',nx
         Write (6,*) 'nx size: ',size(nx)
@@ -68,5 +72,6 @@
         Write (6,*) 'dy: ',dy
         Write (6,*) 'dy size: ',size(dy)
         Write (6,*) 'dy shape: ',shape(dy)
-        call kernels()
+        call kernels(iter,nInter)
+        return
       end
