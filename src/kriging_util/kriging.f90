@@ -13,7 +13,7 @@
         SUBROUTINE predict(gh,iter,nInter)
             use globvar
             real*8 B(m_t,npx,nInter),A(m_t,m_t),tsum,ddottemp(npx),tcv(npx,m_t) !AF contains the factors L and U from the factorization A = P*L*U as computed by DGETRF
-            integer IPIV(m_t),INFO,i,j,iter,nInter ! ipiv the pivot indices that define the permutation matrix
+            integer IPIV(m_t),INFO,i,j,iter,nInter,gh ! ipiv the pivot indices that define the permutation matrix
             write(6,*) 'Predict: '
             variance=dot_product(Ys,Kv)/m_t
             A=full_R
