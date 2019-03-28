@@ -42,9 +42,8 @@
       Real*8 P1(3), P2(3), kxe1(3), kxe2(3) !, ZVAL(9) for debug
       INTEGER IOFF(8), SECORD(4)
       CHARACTER*8 LABEL
-      Complex*16 T0(3), TIJ(3), TM1, TM2, E1A, E2A, E1B, E2B,
-     &           IMAGINARY, T1(3)
-*    &           IMAGINARY, T1(3), TMR, TML
+      Complex*16 T0(3), TM1, TM2, E1A, E2A, IMAGINARY
+*    &           IMAGINARY, TMR, TML
       Character*60 FMTLINE
       Real*8 Wavevector(3)
 
