@@ -27,9 +27,6 @@
       SAVE ICALL
       DATA ICALL /0/
 
-
-
-
 C COMBINED SYMMETRY OF STATES:
       JOB1=iWork(lJBNUM+ISTATE-1)
       JOB2=iWork(lJBNUM+JSTATE-1)
@@ -157,8 +154,15 @@ C-------------------------------------------
           iDiskSav=iDisk
           iCall=1
         Endif
-        i=Max(iState,jState)
-        j=Min(iState,jState)
+        If (iState.lt.jState) Then
+*
+*          For the rest of the code to work this can not be violated.
+*
+           Write (6,*) 'Proper: iState.lt.jState'
+           Call Abend()
+        End If
+        i=iState
+        j=jState
         indCall=i*(i-1)/2+j  !Which call this is
         iWork(liToCM+indCall-1)=iDiskSav
         ind=indCall+1

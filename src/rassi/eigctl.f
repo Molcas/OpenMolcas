@@ -2382,7 +2382,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                   IF (PTYPE(IPROP).EQ.'HERMTRIP') ITYPE=3
                   IF (PTYPE(IPROP).EQ.'ANTITRIP') ITYPE=4
                   LABEL=PNAME(IPROP)
-                  Call MK_PROP(PROP,IPROP,I,J,LABEL,ITYPE,
+                  Call MK_PROP(PROP,IPROP,ISTATE,JSTATE,LABEL,ITYPE,
      &                         WORK(LIP),NIP,WORK(LSCR),NSCR,
      &                         MASK,ISY12,IOFF)
                END DO ! IPROP

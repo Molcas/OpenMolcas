@@ -535,8 +535,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *                    Pick up the transition density between the two
 *                    states from disc. Generated in PROPER.
 *
-                     JSTATE=min(ISS,JSS)
                      ISTATE=max(ISS,JSS)
+                     JSTATE=min(ISS,JSS)
                      ij=ISTATE*(ISTATE-1)/2+JSTATE
                      iDisk=iWork(liTocM+ij-1)
                      Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
@@ -551,7 +551,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                         IF (PTYPE(IPROP).EQ.'HERMTRIP') ITYPE=3
                         IF (PTYPE(IPROP).EQ.'ANTITRIP') ITYPE=4
                         LABEL=PNAME(IPROP)
-                        Call MK_PROP(PROP,IPROP,I,J,LABEL,ITYPE,
+                        Call MK_PROP(PROP,IPROP,ISTATE,JSTATE,
+     &                               LABEL,ITYPE,
      &                               WORK(LIP),NIP,WORK(LSCR),NSCR,
      &                               MASK,ISY12,IOFF)
                      END DO
