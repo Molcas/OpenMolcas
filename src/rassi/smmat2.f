@@ -141,6 +141,28 @@ C here and form the inner product
 C (k x e_l)_i V^{AB} . T(i)
 C outside the code.
 C
+*define _TEST_
+#ifdef _TEST_
+                  FACT=1.0D0/SQRT(DBLE(MPLET1))
+                  IF(MPLET1.EQ.MPLET2-2) FACT=-FACT
+                  CGM=FACT*DCLEBS(S2,1.0D0,S1,SM2,-1.0D0,SM1)
+                  CG0=FACT*DCLEBS(S2,1.0D0,S1,SM2, 0.0D0,SM1)
+                  CGP=FACT*DCLEBS(S2,1.0D0,S1,SM2,+0.0D0,SM1)
+                  CGX= SQRT(0.5D0)*(CGM-CGP)
+                  CGY=-SQRT(0.5D0)*(CGM+CGP)
+*
+                  EXPKR=PROP(ISTATE,JSTATE,IPRNUM)
+*
+                  IF (IPRCMP.EQ.1) THEN
+                    EXPKR=EXPKR*CGX
+                  ELSE IF (IPRCMP.EQ.2) THEN
+                    EXPKR=EXPKR*CGY
+                  ELSE IF (IPRCMP.EQ.3) THEN
+                    EXPKR=EXPKR*CG0
+                  END IF
+                  PRMAT(ISS,JSS)= EXPKR
+#else
+C
                   IF(ABS(MPLET1-MPLET2).GT.2) CYCLE
                   IF(ABS(MSPROJ1-MSPROJ2).GT.2) CYCLE
 C
@@ -218,6 +240,7 @@ C
                   ELSE IF (IPRCMP.EQ.3) THEN
                     PRMAT(ISS,JSS)=SZMER * PROP(ISTATE,JSTATE,IPRNUM)
                   END IF
+#endif
           END IF
 
          END DO

@@ -401,7 +401,7 @@ C     Logical Addpot
 #include "property_label.fh"
       Real*8 Array(LenTot)
       Real*8, Dimension(:), Allocatable :: Zeta, ZI, Kappa, PCoor,
-     &                                     SOInt, Final, Scrtch,
+     &                                     SOInt, FArray, Scrtch,
      &                                     ScrSph, Kern
       Integer, Dimension(:,:), Allocatable :: Ind_ij
       Real*8 CCoor(3,nComp), PtChrg(nGrid)
@@ -512,7 +512,7 @@ C     Logical Addpot
          MemKrn=Max(MemKer*iPrim*jPrim,MemKrn)
       End Do
 *
-      Call mma_Allocate(Final,lFinal,label='Final')
+      Call mma_Allocate(FArray,lFinal,label='Final')
       Call mma_allocate(Scrtch,lScrt1,label='Scrtch')
       Call mma_allocate(ScrSph,lScrt2,label='ScrSph')
       Call mma_allocate(Kern,MemKrn,label='Kern')
@@ -560,7 +560,7 @@ C     Logical Addpot
      &                 nOrdOp,iChO,
      &                 iStabO,nStabO,nIC,
      &                 PtChrg,nGrid,iAddPot,SOInt,l_SOInt,
-     &                 Final,lFinal,Scrtch,lScrt1,
+     &                 FArray,lFinal,Scrtch,lScrt1,
      &                 ScrSph,lScrt2,Kern,MemKrn)
          iSOBlk = ipSO
          Do iComp = 1, nComp
@@ -612,7 +612,7 @@ C     Logical Addpot
       Call mma_deallocate(Kern)
       Call mma_deallocate(ScrSph)
       Call mma_deallocate(Scrtch)
-      Call mma_deallocate(Final)
+      Call mma_deallocate(FArray)
       Call mma_deallocate(Ind_ij)
       Call mma_deallocate(PCoor)
       Call mma_deallocate(Kappa)
