@@ -18,13 +18,14 @@
             allocate (full_R(m_t,m_t))
             allocate (rl(iter,iter),dl(iter,iter), &
                       mat(iter,iter),Iden(iter,iter))
-            allocate (kv(m_t),pred(npx),var(npx),sigma(npx),cv(m_t,npx,nInter))
+            allocate (kv(m_t),pred(npx),gpred(npx),hpred(npx),var(npx), &
+                      sigma(npx),cv(m_t,npx,nInter))
             call miden(iter)
             z=int(lb(3))
             Write (6,*) 'Kernels l', z
             do j = 1,nInter
                 do i = 1,z
-                    l((j))=lb(1)+(i-1)*(lb(2)-lb(1))/(lb(3)-1)
+                    l((j))=lb(1)+(i-1)*(lb(2)-lb(1))/(lb(3)-1) !
                     call covarmatrix(iter,nInter)
                     call k(iter)
                     call covarvector(0,iter,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK

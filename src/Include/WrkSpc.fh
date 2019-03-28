@@ -35,13 +35,15 @@
       Real*4       sWork(1:IWORKLEN)
       Integer      iWork(1:IWORKLEN)
       Character*1  cWork(1:2*ICWORKLEN)
-      Integer      mxMem,ip_Dummy,ip_sDummy,ip_iDummy,nspAI,npxAI
+      Integer      mxMem,ip_Dummy,ip_sDummy,ip_iDummy
+      Integer     nspAI,npxAI,miAI
       Logical      Kriging,anAI
 
       Equivalence (Work,sWork)
       Equivalence (Work,iWork)
       Equivalence (Work,cWork)
-      Common /WrkSpc/  Work,mxMem,Kriging,nspAI,pAI,anAI,lbAI,npxAI,dAIy
+      Common /WrkSpc/  Work,mxMem
+      Common /WrkSpc/  Kriging,nspAI,pAI,anAI,lbAI,npxAI,dAIy,miAI
 
       Common /iWrkSpc/ ip_Dummy,ip_sDummy,ip_iDummy
       Integer*1 i1Work(1:IWORKLEN)

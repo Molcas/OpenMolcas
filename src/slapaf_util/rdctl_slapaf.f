@@ -102,6 +102,7 @@ C     Write (Lu,*) iOptC
       If (Char(1:4).eq.'AINX') Go To 103
       If (Char(1:4).eq.'AIP ') Go To 104
       If (Char(1:4).eq.'AISP') Go To 105
+      If (Char(1:4).eq.'AIMI') Go To 106
       If (Char(1:4).eq.'BAKE') Go To 926
       If (Char(1:4).eq.'C1-D') Go To 936
       If (Char(1:4).eq.'C2-D') Go To 937
@@ -490,12 +491,14 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
        lbAI(1) = 0.1
        lbAI(2) = 6.0
        lbAI(3) = 10
+       miAI = 10
        Call WarningMessage(1,'Kriging AI method selected.')
        Write (Lu,*) 'Default number of source points: 3.'
        Write (Lu,*) 'Default analytical Mat`ern derivatives: True*.'
        Write (Lu,*) 'Default width of Mat`ern: 0.1:6 # of steps 100'
        Write (Lu,*) 'Default resolution of the predicted path: 100.'
        Write (Lu,*) 'Default parameter of diff. for Mat`ern (p): 2*.'
+       Write (Lu,*) 'Default number of maximum interations of AI method'
        Write (Lu,*) '*Note: for the analytical Matern the only choices'
        Write (Lu,*) '    for (p) are 1 or 2, however for the numerical'
        Write (Lu,*) '    Mat`ern you can choose between (0->"Inf"),'
@@ -521,6 +524,10 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 105   Char=Get_Ln(LuRd) ! Defining the number of source points for the AI method
       Read (Char,'(I10)') nspAI
       Write (Lu,*) 'Number of source points selected: ', nspAI
+      Go To 999
+106   Char=Get_Ln(LuRd) ! Maximum number of Interations for the AI method
+      Read (Char,'(I10)') miAI
+      Write (Lu,*) 'Maximum interations: ', miAI
       Go To 999
 *                                                                      *
 ****** BAKE ************************************************************

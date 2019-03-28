@@ -73,5 +73,8 @@
         Write (6,*) 'dy size: ',size(dy)
         Write (6,*) 'dy shape: ',shape(dy)
         call kernels(iter,nInter)
+        iter = iter+1
+        Energy(iter)=pred(npx)
+        Grad(:,iter)=gpred
         return
       end
