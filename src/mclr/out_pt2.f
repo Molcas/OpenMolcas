@@ -89,7 +89,12 @@
          Call CIDens_sa(.true.,ipCIp,ipCI,
      &                  State_sym,State_sym,
      &                  Work(ipP_CI),Work(ipD_CI)) ! \bar{d} and \bar{D}
-
+*TRS
+*       write(*,*) 'ipp_ci'
+*       do i=1,ndens2
+*         write(*,*) Work(ipp_ci-1+i)
+*       end do
+*TRS
 ! ===========================================================================
          if(doDMRG)then  ! yma
            call dmrg_dim_change_mclr(LRras2(1:8),ntash,0)
@@ -265,9 +270,23 @@ c
 
 !         Call Put_DLMO(Work(ipD1),ndim1) ! \bar{D} triangular  ! yma
 !         Call Put_PLMO(Work(ipP1),ndim2) ! \bar{d} triangular  ! yma
+!AMSAMS
+!
+!         Call dCopy_(nDLMO,0,0,Work(ipD1),1)
+!         Call dCopy_(nPLMO,0,0,Work(ipP1),1)
+
 
          Call Put_DLMO(Work(ipD1),nDLMO) ! \bar{D} triangular ! origional
          Call Put_PLMO(Work(ipP1),nPLMO) ! \bar{d} triangular ! origional
+*         write(*,*) 'ipp1'
+*         do i=1,nPLMO
+*          write(*,*) Work(ipP1-1+i)
+*         end do
+*         write(*,*) '*****'
+*         do i=1,nDLMO
+*          write(*,*) Work(ipD1-1+i)
+*         end do
+
 *
        End If
 *
@@ -316,6 +335,7 @@ c Mult all terms that are not diag by 2
 *
        Call FOLD2(nsym,nbas,Work(ipDAO),Work(ipK1))
 *
+
        Call Put_DLAO(Work(ipk1),ntot1)
 *
 *      Now with active density too, to form the variational density

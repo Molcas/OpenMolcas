@@ -61,6 +61,7 @@
       Write(Fmt2,'(A,I3.3,A)') '(',left,'X,'
 *----------------------------------------------------------------------*
 
+      debug = .true.
       iDis=0
 *
       fail=.false.
@@ -180,7 +181,12 @@
       Else
         Call RHS_SA(Work(ipTemp4))
       End If
-*
+* 
+      write(*,*) 'RHS'
+      do i=1,ndens2
+      write(*,*) Work(ipTemp4-1+i)
+      end do
+
       irc=opOut(ipci)
 *
       If (lprint) Write(6,*)
@@ -226,6 +232,57 @@
 *
          Call TimesE2(Work(ipdKap),ipCId,1,reco,jspin,ipS2,
      &                Work(ipTemp4),ipS1)
+*TRS
+*
+*First Multiplying the Orbital Part
+         write(*,*) 'Orbital Part'
+         do is=1,ndensc
+           call dcopy_(nConf1*nroots,Zero,0,Work(ipIn(ipCID)),1) 
+           call dcopy_(nDensc,Zero,0,Work(ipdKap),1)
+            Work(ipdKap+is-1) = 1
+            write(*,*) 'At index (',is,') should be a 1'
+            do im=1,ndensc
+               write(*,*) work(ipdkap+im-1)
+            end do
+*Multiplying by Hessian
+            write(*,*) 'Multiplying by Hessian'
+            Call TimesE2(Work(ipdKap),ipCId,1,reco,jspin,
+     &                    ipS2,Work(ipTemp4),ipS1)
+*Uncompress the orbital part
+            write(*,*)'(',is,')th Row of Hessian'
+            do im=1,ndensc
+               write(*,*)work(ipTemp4+im-1)
+            end do
+            do im=1,nroots*nconf1
+               write(*,*) work(ipin(ips1)+im-1)
+            end do
+         end do
+*
+*Now the CI Part
+         write(*,*)'Now the CI Part'
+         do is=1,nroots*nconf1
+            call dcopy_(nDensc,Zero,0,Work(ipdKap),1)
+            call dcopy_(nConf1*nroots,Zero,0,
+     &                 Work(ipIn(ipCID)),1)
+            Work(ipIn(ipCid)+is-1) = 1
+            write(*,*) 'At index (',is,') should be a 1'
+            do im=1, nroots*nconf1
+               write(*,*) work(ipin(ipcid)+im-1)
+            end do
+*Multiplying by Hessian
+            write(*,*) 'Multiplying by Hessian'
+            Call TimesE2(Work(ipdKap),ipCId,1,reco,jspin,
+     &                    ipS2,Work(ipTemp4),ipS1)
+            write(*,*)'(',is,')th Row of Hessian'
+            do im=1,ndensc
+               write(*,*)work(ipTemp4+im-1)
+            end do
+            do im=1,nroots*nconf1
+               write(*,*) work(ipin(ips1)+im-1)
+            end do
+         end do
+*TRS
+*
 *
 *-----------------------------------------------------------------------------
 *
@@ -272,6 +329,7 @@
          Call DMinvCI_SA(ipST,Work(ipIn(ipS2)),rCHC,isym,work(ipS))
          irc=opOut(ipci)
          irc=opOut(ipdia)
+
 
          Call DMInvKap(Work(ipIn(ipPre2)),Work(ipSigma),nDens2+6,
      &                 Work(ipSc2),nDens2+6,Work(ipSc1),nDens2+6,

@@ -1000,6 +1000,8 @@ CBOR.. End modification 001011
         Write(6,*) ' RLXROOT command was given.'
         Write(6,*) ' State for SLAPAF to handle: ',IRLXROOT
        End If
+       write(*,*) 'LROOTS',LROOTS
+       write(*,*) 'iRoot',iRoot(1:LROOTS)
        If (.not.Any(iRoot(1:LROOTS).eq.IRLXROOT)) Then
         Write(6,*) ' The selected root is not among those available.'
         Call AbEnd()

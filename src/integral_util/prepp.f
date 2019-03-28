@@ -63,6 +63,8 @@
 
       iRout = 250
       iPrint = nPrint(iRout)
+*      iprint = 100
+
       lPrint=iPrint.ge.6
       Call qEnter('PrepP')
 #ifdef _CD_TIMING_
@@ -282,10 +284,9 @@ c       close (lgtoc)
          Call Free_Work(ipD1ao)
          endif
 *
-
          Call Get_D1ao_Var(ipD1ao_Var,length)
          call dcopy_(nDens,Work(ipD1ao_Var),1,Work(ipDVar),1)
-*        if (gamma_mrcisd) then
+*        if (gamma_mrcisd) then 
 *         call dcopy_(nDens,Work(ipD1ao_Var),1,Work(ipD0),1)
 *        endif
          Call Free_Work(ipD1ao_Var)
@@ -325,7 +326,6 @@ c       close (lgtoc)
  11      Continue
  10   Continue
       endif
-
       If (iPrint.ge.99) Then
          RlxLbl='D1AO    '
          Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipD0,Work)
@@ -515,8 +515,16 @@ c       close (lgtoc)
 !         Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipD0,Work)
 *
            Call dcopy_(ndens,Work(ipDVar),1,Work(ipD0+1*ndens),1)
+*         write(*,*) 'ipDO1'
+*         do i=1,ndens
+*           write(*,*) Work(ipD0+ndens+i-1)
+*         end do
            If (.not.isNAC) call daxpy_(ndens,-Half,Work(ipD0+0*ndens),1,
      &                                             Work(ipD0+1*ndens),1)
+*         write(*,*) 'ipDO1'
+*         do i=1,ndens
+*           write(*,*) Work(ipD0+ndens+i-1)
+*         end do
 !         RlxLbl='D1COMBO  '
 !         Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipD0+1*ndens,Work)
 *
@@ -550,7 +558,25 @@ c       close (lgtoc)
           call daxpy_(ndens,-Half,Work(ipD0+0*ndens),1,
      &                                             Work(ipD0+1*ndens),1)
           call daxpy_(ndens,-1.0d0,Work(ipD0+2*ndens),1,
-     &                                             Work(ipD0+1*ndens),1)
+     &                                             Work(ipD0+1*ndens),1)         
+*         write(*,*) 'ipDO0'
+*         do i=1,ndens
+*           write(*,*) Work(ipD0+i-1)
+*         end do
+*         write(*,*) 'ipDO1'
+*         do i=1,ndens
+*           write(*,*) Work(ipD0+ndens+i-1)
+*         end do
+*         write(*,*) 'ipDO2'
+*         do i=1,ndens
+*           write(*,*) Work(ipD0+2*ndens+i-1)
+*         end do
+*         write(*,*) 'ipDO3'
+*         do i=1,ndens
+*           write(*,*) Work(ipD0+ndens*3+i-1)
+*         end do
+
+
 !ANDREW - Generate new D5 piece:
           call dcopy_(ndens,0.0d0,0,
      &                                             Work(ipD0+4*ndens),1)
@@ -558,6 +584,10 @@ c       close (lgtoc)
      &                                             Work(ipD0+4*ndens),1)
           call daxpy_(ndens,1.0d0,Work(ipD0+2*ndens),1,
      &                                             Work(ipD0+4*ndens),1)
+*         write(*,*) 'ipDO4'
+*         do i=1,ndens
+*           write(*,*) Work(ipD0+4*ndens+i-1)
+*         end do
           end if
 
 

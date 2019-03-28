@@ -272,6 +272,10 @@ C Local print level (if any)
 !the MO to the AO basis.
 
          Call DDaFile(JOBOLD,2,Work(iD1Act),NACPAR,dmDisk)
+        write(*,*) "D1"
+        do i=1,nacpar
+          write(*,*) Work(id1act-1+i)
+        end do
 
       if(.false.) then
          open(unit=90,File='DMs.out',action='read')
@@ -280,6 +284,17 @@ C Local print level (if any)
          end do
       end if
 
+      if(DoGradPDFT.and.jroot.eq.irlxroot) then
+        Call GetMem('P2t','allo','Real',iP2dt1,NACPR2)
+        Call FZero(Work(ip2dt1),Nacpr2)
+        Call P2_contraction(Work(iD1Act),Work(iP2dt1))
+*        write(*,*) "P2_t"
+*        do i=1,nacpr2
+*          write(*,*) i,Work(ip2dt1-1+i)
+*        end do
+        Call Put_P2MOt(Work(iP2dt1),NACPR2)
+        Call GetMem('P2t','free','Real',iP2dt1,NACPR2)
+      end if
 
       IF(IPRLEV.ge.DEBUG) THEN
         write(6,*) 'd1act'
@@ -292,7 +307,10 @@ C Local print level (if any)
          Call DDaFile(JOBOLD,2,Work(iD1Spin),NACPAR,dmDisk)
          Call DDaFile(JOBOLD,2,Work(iP2d),NACPR2,dmDisk)
          Call Put_P2MO(Work(iP2d),NACPR2)
-
+*        write(*,*) "P2"
+*        do i=1,nacpr2
+*          write(*,*) Work(ip2d-1+i)
+*        end do
          Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,dmDisk)
       IF(IPRLEV.ge.DEBUG) THEN
         write(6,*) 'D2'
@@ -348,6 +366,13 @@ C Local print level (if any)
          Call GetMem('DtmpS','Allo','Real',iTmp7,nTot1)
          Call Fold(nSym,nBas,Work(iD1SpinAO),Work(iTmp7))
          Call Put_D1Sao(Work(iTmp7),nTot1)
+      IF(IPRLEV.ge.DEBUG) THEN
+         write(6,*) 'd1so'
+         do i=1,ntot1
+           write(6,*) work(itmp7-1+i)
+         end do
+         call xflush(6)
+      end if
          Call GetMem('DtmpS','Free','Real',iTmp7,nTot1)
 
 
@@ -399,7 +424,7 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
           NCEH2=1
 
       do_pdftPot=.false.
-      if(DoGradPDFT) then
+      if(DoGradPDFT.and.jroot.eq.irlxroot) then
 
         do_pdftPot=.true.
 
@@ -578,7 +603,8 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
 
          CASDFT_E = ECAS-EVAC+CASDFT_Funct
 
-!         Write(*,*) '**************************************************'
+!         Write(*,*)
+!         '**************************************************'
 !         write(*,*) 'ENERGY REPORT FOR STATE',jroot
         Call Print_MCPDFT_2(CASDFT_E,PotNuc,EMY,ECAS,CASDFT_Funct,
      &         jroot,Ref_Ener)
@@ -597,7 +623,7 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
 *            BUILDING OF THE NEW FOCK MATRIX                           *
 *
 ************************************************************************
-        if(DoGradPDFT) then
+        if(DoGradPDFT.and.jroot.eq.irlxroot) then
 
          Write(LF,*) 'Calculating potentials for analytic gradients...'
 !MCLR requires two sets of things:
@@ -867,19 +893,18 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
       Call Put_cArray('MCLR Root','****************',16)
 
 
-      Call GetMem('P2t','allo','Real',iP2dt1,NACPR2)
-      Call FZero(Work(ip2dt1),Nacpr2)
-      !I need the non-symmetry blocked d1act, hence the read.
-      Call Get_D1MO(iD1Act1,NACPAR)
+!      Call GetMem('P2t','allo','Real',iP2dt1,NACPR2)
+!      Call FZero(Work(ip2dt1),Nacpr2)
+!      !I need the non-symmetry blocked d1act, hence the read.
+!      Call Get_D1MO(iD1Act1,NACPAR)
 !        write(*,*) 'd1act'
 !        do i=1,NACPAR
 !          write(*,*) work(iD1Act1-1+i)
 !        end do
-      Call P2_contraction(Work(iD1Act1),Work(iP2dt1))
-      Call Put_P2MOt(Work(iP2dt1),NACPR2)
-
-      Call GetMem('P2t','free','Real',iP2dt1,NACPR2)
-      Call GetMem('Dens','free','Real',iD1Act1,NACPAR)
+!      Call P2_contraction(Work(iD1Act1),Work(iP2dt1))
+!      Call Put_P2MOt(Work(iP2dt1),NACPR2)
+!      Call GetMem('P2t','free','Real',iP2dt1,NACPR2)
+!      Call GetMem('Dens','free','Real',iD1Act1,NACPAR)
 
 !Put information needed for geometry optimizations.
       !if (jroot.eq.iRlxRoot) then
@@ -888,6 +913,7 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
        !SA, and if it is, set iSA to -1.
       Call Put_iScalar('SA ready',iSA)
       Call Put_cArray('MCLR Root','****************',16)
+      Call Put_iScalar('Relax CASSCF root',irlxroot)
       !end if
 
       end if !DoGradPDFT
@@ -902,8 +928,69 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
 !      end do
       end do !loop over roots
 
+      if(DoGradPDFT) then
+        dmDisk = IADR19(3)
+        do jroot=1,irlxroot-1
+          Call DDaFile(JOBOLD,0,Work(iD1Act),NACPAR,dmDisk)
+          Call DDaFile(JOBOLD,0,Work(iD1Spin),NACPAR,dmDisk)
+          Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,dmDisk)
+          Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,dmDisk)
+        end do
+        Call DDaFile(JOBOLD,2,Work(iD1Act),NACPAR,dmDisk)
+*        Andrew added this line to fix heh2plus
+        Call DDaFile(JOBOLD,2,Work(iD1Spin),NACPAR,dmDisk)
+        Call Put_D1MO(Work(iD1Act),NACPAR)
+*        write(6,*) 'd1Spin'
+*        do i=1,NACPAR
+*          write(6,*) work(iD1spin-1+i)
+*        end do
+*TRS commenting out because we already read over this
+*        Call DDaFile(JOBOLD,0,Work(iD1Spin),NACPAR,dmDisk)
+        Call DDaFile(JOBOLD,2,Work(iP2d),NACPR2,dmDisk)
+        Call Put_P2MO(Work(iP2d),NACPR2)
+*        write(6,*) 'D2'
+*        do i=1,NACPR2
+*          write(6,*) Work(ip2d-1+i)
+*        end do
+
+         If(NASH(1).ne.NAC) Call DBLOCK_m(Work(iD1Act))
+         Call Get_D1A_RASSCF_m(CMO,Work(iD1Act),Work(iD1ActAO))
+
+         Call Fold(nSym,nBas,Work(iD1I),Work(iTmp3))
+         Call Fold(nSym,nBas,Work(iD1ActAO),Work(iTmp4))
+         Call Daxpy_(nTot1,1.0D0,Work(iTmp4),1,Work(iTmp3),1)
+         Call Put_D1ao(Work(iTmp3),nTot1)
+!         write(6,*) 'd1ao'
+!         do i=1,ntot1
+!           write(6,*) work(itmp3-1+i)
+!         end do
+
+!Get the spin density matrix for open shell cases
+***********************************************************
+* Generate spin-density
+***********************************************************
+*TRS ams also commented out this if and endif part of this
+* statement
+         !if(iSpin.eq.1) then
+           Call dcopy_(NACPAR,0.0d0,0,Work(iD1SpinAO),1)
+         !end if
+         IF ( NASH(1).NE.NAC ) CALL DBLOCK_m(Work(iD1Spin))
+         Call Get_D1A_RASSCF_m(CMO,Work(iD1Spin),
+     &                      Work(iD1SpinAO))
+         Call GetMem('DtmpS','Allo','Real',iTmp7,nTot1)
+         Call Fold(nSym,nBas,Work(iD1SpinAO),Work(iTmp7))
+         Call Put_D1Sao(Work(iTmp7),nTot1)
+!         write(6,*) 'd1so'
+!         do i=1,ntot1
+!           write(6,*) work(itmp7-1+i)
+!         end do
+         Call GetMem('DtmpS','Free','Real',iTmp7,nTot1)
 
 
+
+
+        Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,dmDisk)
+      end if
 
 
 
@@ -924,7 +1011,7 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
       Call GetMem('Fcore','Free','Real',iTmp1,nTot1)
       Call GetMem('FockI','FREE','Real',ifocki,ntot1)
       Call GetMem('FockA','FREE','Real',ifocka,ntot1)
-      Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,dmDisk)
+*      Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,dmDisk)
       Call GetMem('P2','Free','Real',iP2d,NACPR2)
       Call GetMem('D1Inact','Free','Real',iD1i,NTOT2)
       call xflush(6)
@@ -944,15 +1031,19 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
       real*8 :: fact
 
       iTrii(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
+*      write(*,*) 'inside p2_contraction'
+      
+
 
       Call GetMem('D1copy','Allo','Real',iD1c,NACPAR)
       Call DCOPY_(NACPAR,D1MO,1,Work(iD1c),1)
-      Call DSCAL_(NACPAR,0.50d0,Work(iD1c),1)
-      do i=1,nac
-         Work(iD1c + iTrii(i,i)-1) =
-     &   work(iD1c + iTrii(i,i)-1)*2
-      end do
-      call xflush(6)
+!      Call DSCAL_(NACPAR,0.50d0,Work(iD1c),1)
+!      do i=1,nac
+!         Work(iD1c + iTrii(i,i)-1) =
+!     &   work(iD1c + iTrii(i,i)-1)*2
+!      end do
+
+
        ijkl=0
        do i=1,nac
          do j=1,i
@@ -975,3 +1066,4 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
        end do
        Call GetMem('D1copy','FREE','Real',iD1c,NACPAR)
       end subroutine
+

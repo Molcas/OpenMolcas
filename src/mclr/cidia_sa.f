@@ -98,6 +98,12 @@
          End Do
         End Do
       End If
+
+*      write(*,*) 'ips'
+*      do i=1,nroots**3
+*        write(*,*) S(i)
+*      end do
+
       RETURN
       END
 
