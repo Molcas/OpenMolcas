@@ -36,6 +36,7 @@
       CHARACTER*8 LABEL
       Complex*16 TM1, TM2, IMAGINARY
       Integer, Dimension(:), Allocatable :: TMOgrp1,TMOgrp2
+      Real*8 wavevector(3)
 
       CALL QENTER(ROUTINE)
 
@@ -127,11 +128,9 @@ C printing threshold
 *     on-the-fly generated property integrals.
 *
       IPRTMOS_RS=-1
-      IPORIG=-1
       DO IPROP=1,NPROP
          IF (PNAME(IPROP).EQ.'TMOS  RS'.AND.IPRTMOS_RS.EQ.-1) THEN
             IPRTMOS_RS=IPROP
-            IPORIG=IPROP
          END IF
       ENDDO
       IF (IPRTMOS_RS.EQ.-1) RETURN
@@ -418,7 +417,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *           The energy difference is used to define the norm of the
 *           wave vector.
 *
-            rkNorm=EDIFF_/(HBAR*SPEED_OF_LIGHT)
+            rkNorm=ABS(EDIFF_)/(HBAR*SPEED_OF_LIGHT)
 *
 *           Iterate over the quadrature points.
 *
@@ -441,34 +440,31 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                ycoor=Work((iQuad-1)*4+1+ipR)
                zcoor=Work((iQuad-1)*4+2+ipR)
 
-               PORIG(1,IPRTMOS_RS)=rkNorm*xcoor
-               PORIG(2,IPRTMOS_RS)=rkNorm*ycoor
-               PORIG(3,IPRTMOS_RS)=rkNorm*zcoor
-               Call DCopy_(3,PORIG(1,IPRTMOS_RS),1,
-     &                       Work(iStorage+ip_kvector),1)
+               wavevector(1)=rkNorm*xcoor
+               wavevector(2)=rkNorm*ycoor
+               wavevector(3)=rkNorm*zcoor
+               Call DCopy_(3,wavevector,1,Work(iStorage+ip_kvector),1)
 *
                Weight=Work((iQuad-1)*4+3+ipR)
                Work(iStorage+ip_w)=Weight
 *
 *              Generate the associated polarization vectors.
 *
-               IF (PORIG(1,IPRTMOS_RS).EQ.0.0D0 .and.
-     &             PORIG(2,IPRTMOS_RS).EQ.0.0D0) Then
+               IF (wavevector(1).EQ.0.0D0 .and.
+     &             wavevector(2).EQ.0.0D0) Then
                   E1(1)=1.0D0
                   E1(2)=0.0D0
                   E1(3)=0.0D0
                ELSE
-                  E1(1)= PORIG(2,IPRTMOS_RS)
-                  E1(2)=-PORIG(1,IPRTMOS_RS)
+                  E1(1)= wavevector(2)
+                  E1(2)=-wavevector(1)
                   E1(3)= 0.0D0
                END IF
                Tmp=1.0D0/SQRT(E1(1)**2+E1(2)**2+E1(3)**2)
                E1(1)=E1(1)*Tmp
                E1(2)=E1(2)*Tmp
                E1(3)=E1(3)*Tmp
-               E2(1)=PORIG(2,IPRTMOS_RS)*E1(3)-E1(2)*PORIG(3,IPRTMOS_RS)
-               E2(2)=PORIG(3,IPRTMOS_RS)*E1(1)-E1(3)*PORIG(1,IPRTMOS_RS)
-               E2(3)=PORIG(1,IPRTMOS_RS)*E1(2)-E1(1)*PORIG(2,IPRTMOS_RS)
+               Call Cross_AB(wavevector,E1,E2)
                Tmp=1.0D0/SQRT(E2(1)**2+E2(2)**2+E2(3)**2)
                E2(1)=E2(1)*Tmp
                E2(2)=E2(2)*Tmp
@@ -478,18 +474,14 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
 *              Compute the vectors (k x e1) and  (k x e2).
 *
-               kxe1(1)=PORIG(2,IPORIG)*E1(3)-PORIG(3,IPORIG)*E1(2)
-               kxe1(2)=PORIG(3,IPORIG)*E1(1)-PORIG(1,IPORIG)*E1(3)
-               kxe1(3)=PORIG(1,IPORIG)*E1(2)-PORIG(2,IPORIG)*E1(1)
-               kxe2(1)=PORIG(2,IPORIG)*E2(3)-PORIG(3,IPORIG)*E2(2)
-               kxe2(2)=PORIG(3,IPORIG)*E2(1)-PORIG(1,IPORIG)*E2(3)
-               kxe2(3)=PORIG(1,IPORIG)*E2(2)-PORIG(2,IPORIG)*E2(1)
+               Call Cross_AB(wavevector,E1,kxe1)
+               Call Cross_AB(wavevector,E2,kxe2)
 *
 *              Generate the property integrals associated with this
 *              direction of the wave vector k.
 *
                iOpt=2
-               Call TMOSInt(PORIG(1,IPRTMOS_RS),iOpt)
+               Call TMOSInt(wavevector,iOpt)
 *
 ************************************************************************
 *                                                                      *
@@ -508,8 +500,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *                 two spin states? Check the corresponding coefficients.
 *
                   DO JSS=JSFstart, JSFend
-                     j=min(ISS,JSS)
-                     i=max(ISS,JSS)
+                     j=JSS
+                     i=ISS
                      JOB1=iWork(lJBNUM+I-1)
                      MPLET1 = MLTPLT(JOB1)
 *
@@ -543,7 +535,9 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *                    Pick up the transition density between the two
 *                    states from disc. Generated in PROPER.
 *
-                     ij=I*(I-1)/2+J
+                     JSTATE=min(ISS,JSS)
+                     ISTATE=max(ISS,JSS)
+                     ij=ISTATE*(ISTATE-1)/2+JSTATE
                      iDisk=iWork(liTocM+ij-1)
                      Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
 *
@@ -600,9 +594,9 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 **   -Imaginary*E1
 *
                 Call DAXPY_(NSS**2,-E1(iCar),WORK(LDXR),1,Work(LTM1I),1)
-                Call DAXPY_(NSS**2,E1(iCar),WORK(LDXI),1,Work(LTM1R),1)
+                Call DAXPY_(NSS**2, E1(iCar),WORK(LDXI),1,Work(LTM1R),1)
                 Call DAXPY_(NSS**2,-E2(iCar),WORK(LDXR),1,Work(LTM2I),1)
-                Call DAXPY_(NSS**2,E2(iCar),WORK(LDXI),1,Work(LTM2R),1)
+                Call DAXPY_(NSS**2, E2(iCar),WORK(LDXI),1,Work(LTM2R),1)
 *
                   CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXR),1)
                   CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXI),1)
@@ -622,9 +616,9 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 **   -Imaginary*E1
 *
                 Call DAXPY_(NSS**2,-E1(iCar),WORK(LDXR),1,Work(LTM1I),1)
-                Call DAXPY_(NSS**2,E1(iCar),WORK(LDXI),1,Work(LTM1R),1)
+                Call DAXPY_(NSS**2, E1(iCar),WORK(LDXI),1,Work(LTM1R),1)
                 Call DAXPY_(NSS**2,-E2(iCar),WORK(LDXR),1,Work(LTM2I),1)
-                Call DAXPY_(NSS**2,E2(iCar),WORK(LDXI),1,Work(LTM2R),1)
+                Call DAXPY_(NSS**2, E2(iCar),WORK(LDXI),1,Work(LTM2R),1)
 *
 *
 *              (2) the spin-dependent part, magnetic
@@ -678,16 +672,21 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                      Call DScal_(NSS**2,-1.0D0,WORK(LDXR),1)
                   End If
                   CALL ZTRNSF(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI))
-                  cst=g_Elec/2.0D0
+*
+*                 For the case the energy difference is negative we
+*                 need to change the sign of the B.s term to get
+*                 consistency.
+*
+                  cst= SIGN(1.0D0,EDIFF_) * g_Elec/2.0D0
 *
 **   +Imaginary*kxe1*g_Elec/2.0d0
 *
-                  Call DAXPY_(NSS**2,kxe1(iCar)*cst,WORK(LDXR),
+                  Call DAXPY_(NSS**2, kxe1(iCar)*cst,WORK(LDXR),
      &                        1,Work(LTM1I),1)
-                  Call DAXPY_(NSS**2,kxe2(iCar)*cst,WORK(LDXR),
-     &                        1,Work(LTM2I),1)
                   Call DAXPY_(NSS**2,-kxe1(iCar)*cst,WORK(LDXI),
      &                        1,Work(LTM1R),1)
+                  Call DAXPY_(NSS**2, kxe2(iCar)*cst,WORK(LDXR),
+     &                        1,Work(LTM2I),1)
                   Call DAXPY_(NSS**2,-kxe2(iCar)*cst,WORK(LDXI),
      &                        1,Work(LTM2R),1)
                End Do
@@ -931,5 +930,13 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 ************************************************************************
 *
       RETURN
-      END
+      Contains
+      Subroutine Cross_AB(A,B,C)
+      Implicit None
+      Real*8 A(3), B(3), C(3)
+      C(1) = A(2)*B(3) - A(3)*B(2)
+      C(2) = A(3)*B(1) - A(1)*B(3)
+      C(3) = A(2)*B(1) - A(1)*B(2)
+      END Subroutine Cross_AB
+      END Subroutine PRPROP_TM_Exact
 
