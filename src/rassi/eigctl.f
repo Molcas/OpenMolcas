@@ -280,7 +280,6 @@ c               lower than 1.0D-4 cm-1
       END DO
 C End of loop over sets.
       END DO
-      Call RecPrt('EigVec',' ',EIGVEC,NSTATE,NSTATE)
 C Morgane Vacher 02/17 - Fix the "arbitrary" sign of
 C the eigenvectors such that the largest coefficient
 C is positive. This is to avoid spurious changes of
@@ -2508,7 +2507,7 @@ C And the same for the Dyson amplitudes
               iend_=igrp
               jstart_=jgrp+jstart-1
               jend_=jgrp+jstart-1
-              EDIFF_=ENERGY(IndexE(jgrp))-ENERGY(IndexE(igrp))
+              EDIFF_=ENERGY(IndexE(jstart_))-ENERGY(IndexE(istart_))
             EndIf
             n12=(iend_-istart_+1)*(jend_-jstart_+1)
             If (ABS(EDIFF_).le.1.0D-8) CYCLE
