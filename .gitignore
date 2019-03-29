@@ -59,6 +59,7 @@ TAGS
 GPATH
 GRTAGS
 GTAGS
+.vscode
 # data
 data/prgms.cntrl
 data/*.prgm

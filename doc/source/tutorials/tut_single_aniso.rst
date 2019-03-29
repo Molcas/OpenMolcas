@@ -4,8 +4,8 @@
 
 .. _TUT\:sec\:single_aniso:
 
-:program:`SINGLE_ANISO` |extramark| --- A Magnetism of Complexes Program
-========================================================================
+:program:`SINGLE_ANISO` --- A Magnetism of Complexes Program
+============================================================
 
 .. warning::
 

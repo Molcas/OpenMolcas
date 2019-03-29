@@ -49,12 +49,7 @@
 *    &                     DDOT_(NDENS,1.0D0,0,DENS(1,3),1)
 *     Write (*,*) 'DENS4=',DDOT_(NDENS,DENS(1,4),1,DENS(1,4),1),
 *    &                     DDOT_(NDENS,1.0D0,0,DENS(1,4),1)
-      If (LABEL(1:5).eq.'TMOS0' .OR.
-     &    LABEL(1:5).eq.'TMOS2') Then
-         IC=1
-      Else
-         IC=ICOMP(IPROP)
-      END IF
+      IC=ICOMP(IPROP)
       IOPT=1
       CALL iRDONE(IRC,IOPT,LABEL,IC,NSIZ,ISCHK)
       IF(MOD(ISCHK/MASK,2).EQ.0) GOTO 300

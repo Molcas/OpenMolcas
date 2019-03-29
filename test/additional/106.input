@@ -1,5 +1,3 @@
-*$ this file belongs to the Molcas repository $
->export MOLCAS_MOLDEN=ON
 *-------------------------------------------------------------------------------
 * Molecule: Stilbene
 * Basis: STO-3G minimal basis
@@ -9,8 +7,9 @@
 * Comments: Test of CASPT2 with Cholesky
 * Cholesky+SCF gives slightly too large differences in multipoles
 * for the verification checks to be satisfied, when run in parallel:
->export MOLCAS_THR=2
 *-------------------------------------------------------------------------------
+>export MOLCAS_MOLDEN=ON
+>export MOLCAS_THR=2
  &SEWARD  &END
 Title
  Stilbene

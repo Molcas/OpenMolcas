@@ -678,6 +678,15 @@ C ------------------------------------------
         Linenr=Linenr+1
         GoTo 100
       Endif
+C ------------------------------------------
+      If(Line(1:4).eq.'TMGR') then
+! Group exact TMOS to reduce computational cost
+! TMGr_thrs is the tolerance in the relative energy (unitless)
+! TMGr_thrs only works with REDL keyword
+        Read(LuIn,*,ERR=997) TMGr_thrs
+        Linenr=Linenr+1
+        GoTo 100
+      Endif
 C--------------------------------------------
       IF(LINE(1:4).EQ.'PRRA')THEN
 ! Print the raw directions for exact semi-classical intensities

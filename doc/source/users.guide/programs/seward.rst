@@ -39,8 +39,8 @@ field calculations.
       H. W. Seward, secretary of State in the Lincoln administration, who suggested and supervised
       the 1867 purchase of Alaska from tzar Russia. Price: 2 cents an acre.
 
-In the following three subsection we will in detail describe the input parameters
-for analytic integration, numerical integration, and reaction fields.
+In the following three subsections we will in detail describe the input parameters
+for analytic integration, numerical integration, and relativistic operators.
 
 .. ..include:: ../integrals.inc
 
@@ -707,6 +707,7 @@ Keywords associated to one-electron integrals
   Following this, one entry for each operator, the order of
   the multipole operator and the coordinates of the center (in au) of
   expansion are specified.
+  The default is the origin for 0th and 1st multipoles, and the center of mass for higher-order multipoles.
 
   .. xmldoc:: <KEYWORD MODULE="SEWARD" KIND="REALS_COMPUTED" NAME="CENT" APPEAR="Multipole moments origins" SIZE="4" LEVEL="ADVANCED">
               %%Keyword: Center <advanced>
@@ -720,7 +721,7 @@ Keywords associated to one-electron integrals
               </KEYWORD>
 
 :kword:`SDIPole`
-  Requests computation of velocity integrals.
+  Requests computation of velocity integrals. This is usually enabled by default
 
   .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="SDIPOLE" APPEAR="Velocity Integrals" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: Sdipole <basic>

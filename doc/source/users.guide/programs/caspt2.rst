@@ -276,6 +276,27 @@ Keywords
               </HELP>
               </KEYWORD>
 
+:kword:`XMULtistate`
+  Perform an extended MS-CASPT2 calculation according to :cite:`Granovsky2011,Shiozaki2011`.
+  Enter number of root states, and a list of which CI vector from
+  the CASSCF calculation to use for each state in the same exact way
+  as done for :kword:`MULTistate`. For example "``2 1 2``"
+  would specify the first and second root.
+  The special value "``all``" can be used if all the states included
+  in the CASSCF orbital optimization (keyword :kword:`CIRoot` in :program:`RASSCF`)
+  are desired.
+  This keyword is mutually exclusive with :kword:`MULTistate`.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="XMULTISTATE" APPEAR="Extended Multi-State" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC">
+              %%Keyword: XMultistate <basic> GUI:list
+              <HELP>
+              Enter the number of states for CASPT2 to compute, and a list of numbers
+              showing which CASSCF state to use as root state for each.
+              Alternatively, enter "all" for all the states included in the CASSCF
+              orbital optimization.
+              </HELP>
+              </KEYWORD>
+
 :kword:`IPEAshift`
   This shift corrects the energies of the active orbitals and is
   specified in atomic units. It will be weighted by a function of the
@@ -568,11 +589,10 @@ Keywords
               </KEYWORD>
 
 :kword:`NOMIx`
-  Normally, a Multi-State CASPT2 calculation produces new jobiph file named
-  :file:`JOBMIX`. It has the same CASSCF wave functions as the original ones, except
-  that those CI vectors that was used in the Multi-State CASPT2 calculation
-  have been mixed, using the eigenvectors of the effective Hamiltonian matrix
-  as transformation coefficients.
+  Normally, an (X)MS-CASPT2 calculation produces a new jobiph file named :file:`JOBMIX`.
+  It has the same CASSCF wave functions as the original ones, except that those CI vectors
+  that were used in the (Extended) Multi-State CASPT2 calculation have been mixed,
+  using the eigenvectors of the effective Hamiltonian matrix as transformation coefficients.
   Keyword :kword:`NOMIX` prevents creation of this :file:`JOBMIX` file.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="NOMIX" APPEAR="No JobMix" KIND="SINGLE" LEVEL="ADVANCED">
@@ -585,10 +605,12 @@ Keywords
 :kword:`NOMUlt`
   This keyword removes the multi-state part of the calculation and only runs a
   series of independent CASPT2 calculations for the roots specified by the
-  :kword:`MULTistate` keyword. Useful when many roots are required, but multi-state is
-  not needed, or desired. Note that a :file:`JOBMIX` file is produced anyway, but the
-  vectors will not be mixed, and the energies will be single-state CASPT2
-  energies.
+  :kword:`MULTistate` or :kword:`XMULtistate` keyword. Useful when many roots are required,
+  but multi-state is not needed, or desired. Note that a :file:`JOBMIX` file is produced
+  anyway, but the vectors will not be mixed, and the energies will be single-state CASPT2
+  energies. If used with the :kword:`XMULtistate' keyword, the zeroth-order Hamiltonian
+  will be constructed with the state-average density and therefore will be the same for
+  all the states.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="NOMULTI" APPEAR="No Multi-State" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: NoMultistate <basic>
@@ -599,56 +621,56 @@ Keywords
               </KEYWORD>
 
 :kword:`ONLY`
-  This keyword requires the :kword:`MULTistate` keyword, and is
-  followed by an integer specifying one of the roots.
-  In a Multistate calculation, it requests to compute the energy of only
-  the specified root. However, the effective Hamiltonian coupling terms
-  between this root and all the others included in the Multistate
-  treatement will be computed and printed out.
-  This output will be used in a subsequent calculation, in conjuction
+  This keyword requires the :kword:`MULTistate` or :kword:`XMULtistate` keyword,
+  and is followed by an integer specifying one of the roots.
+  In a (Extended) Multistate calculation, it requests to compute the energy of
+  only the specified root. However, the effective Hamiltonian coupling terms
+  between this root and all the others included in the (Extended) Multistate
+  treatment will be computed and printed out.
+  This output will be used in a subsequent calculation, in conjunction
   with the :kword:`EFFE` keyword.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="ONLY" APPEAR="Only root" KIND="INT" LEVEL="ADVANCED" REQUIRE="MULTISTATE">
               %%Keyword: ONLY <advanced>
               <HELP>
-              This keyword requires the MULTistate keyword, and is
+              This keyword requires the MULTistate or XMULtistate keyword, and is
               followed by an integer specifying one of the roots.
               In a Multistate calculation, it requests to compute the energy of only
               the specified root. However, the effective Hamiltonian coupling terms
               between this root and all the others included in the Multistate
-              treatement will be computed and printed out.
-              This output will be used in a subsequent calculation, in conjuction
+              treatment will be computed and printed out.
+              This output will be used in a subsequent calculation, in conjunction
               with the EFFE keyword.
               </HELP>
               </KEYWORD>
 
 :kword:`EFFE`
-  This keyword requires the :kword:`MULTistate` keyword. It is followed by
-  the number of states and a matrix of real numbers, specifying the effective Hamiltonian
-  couplings, as provided in a previous calculation using the
-  :kword:`ONLY` keyword.
-  In a Multistate calculation over, e.g., 3 states, 3 separate
+  This keyword requires the :kword:`MULTistate` or :kword:`XMULtistate` keyword.
+  It is followed by the number of states and a matrix of real numbers,
+  specifying the effective Hamiltonian couplings, as provided in a previous
+  calculation using the :kword:`ONLY` keyword.
+  In a (Extended) Multistate calculation over, e.g., 3 states, 3 separate
   calculations with the :kword:`ONLY` keyword will be performed, possibly
   on separate computing nodes, so as to speed up the overall process.
   The three couplings vectors will be given to the :kword:`EFFE`
   keyword in matrix form, i.e. the first column is made by the
   couplings of the first computed root, etc.
-  The program will then quickly compute the Multistate energies.
+  The program will then quickly compute the (Extended) Multistate energies.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="EFFE" APPEAR="Effective Hamiltonian couplings" KIND="STRINGS" LEVEL="ADVANCED" REQUIRE="MULTISTATE">
               %%Keyword: EFFE <advanced>
               <HELP>
-              This keyword requires the MULTistate keyword. It is followed by
-              the number of states and a matrix of real numbers, specifying the effective Hamiltonian
-              couplings, as provided in a previous calculation using the
-              ONLY keyword.
-              In a Multistate calculation over, e.g., 3 states, 3 separate
+              This keyword requires the MULTistate or XMULtistate keyword. It is
+              followed by the number of states and a matrix of real numbers,
+              specifying the effective Hamiltonian couplings, as provided in
+              a previous calculation using the ONLY keyword.
+              In a (Extended) Multistate calculation over, e.g., 3 states, 3 separate
               calculations with the ONLY keyword will be performed, possibly
               on separate computing nodes, so as to speed up the overall process.
               The three couplings vectors will be given to the EFFE
               keyword in matrix form, i.e. the first column is made by the
               couplings of the first computed root, etc.
-              The program will then quickly compute the Multistate energies.
+              The program will then quickly compute the (Extended) Multistate energies.
               </HELP>
               </KEYWORD>
 

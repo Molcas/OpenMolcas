@@ -31,7 +31,9 @@
      &       HAM(NSTATE,NSTATE),EIGVEC(NSTATE,NSTATE),ENERGY(NSTATE),
      &       DYSAMPS(NSTATE,NSTATE)
       REAL*8, ALLOCATABLE :: ESFS(:)
-      Integer, Dimension(:), Allocatable :: IndexE
+      REAL*8, Dimension(:,:), Allocatable :: TDS
+      Logical Get_TDS, Diagonal
+      Integer, Dimension(:), Allocatable :: IndexE,TMOgrp1,TMOgrp2
 * Short array, just for putting transition dipole values
 * into Add_Info, for generating check numbers:
       Real*8 TDIPARR(3)
@@ -40,33 +42,31 @@
       Real*8 P1(3), P2(3), kxe1(3), kxe2(3) !, ZVAL(9) for debug
       INTEGER IOFF(8), SECORD(4)
       CHARACTER*8 LABEL
-      Complex*16 T0(3), TIJ(3), TM1, TM2, E1A, E2A, E1B, E2B,
-     &           IMAGINARY, T1(3)
-*    &           IMAGINARY, T1(3), TMR, TML
+      Complex*16 T0(3), TM1, TM2, E1A, E2A, IMAGINARY
+*    &           IMAGINARY, TMR, TML
       Character*60 FMTLINE
+      Real*8 Wavevector(3)
 
 #ifdef _DEBUG_RASSI_
       logical :: debug_dmrg_rassi_code = .true.
 #else
       logical :: debug_dmrg_rassi_code = .false.
 #endif
+      logical TMOgroup
       REAL*8 COMPARE
 
 
 
       CALL QENTER(ROUTINE)
 C CONSTANTS:
-#ifndef CONV_AU_TO_EV_
-#define CONV_AU_TO_EV_ 27.21138602d0
-#endif
-#ifndef CONV_AU_TO_CM1_
-#define CONV_AU_TO_CM1_ 2.194746313702d5
-#endif
       AU2EV=CONV_AU_TO_EV_
       AU2CM=CONV_AU_TO_CM1_
       DEBYE=CONV_AU_TO_DEBYE_
-      AU2ESUISH=DEBYE**2 * 1.0d4
+      AU2REDR=2.0D2*DEBYE
       IMAGINARY=DCMPLX(0.0D0,1.0D0)
+      HALF=0.5D0
+*
+      DIAGONAL=.TRUE.
 
 #ifdef _DEBUG_RASSI_
       write(6,*) 'BLUBB start of eigctl: debug print of property matrix'
@@ -186,6 +186,19 @@ C 3. SPECTRAL DECOMPOSITION OF OVERLAP MATRIX:
           WORK(LPOS)=X*WORK(LPOS)
         END DO
       END DO
+      IJ=0
+      DO I=1,MSTATE
+        DO J=1,I
+          IJ=IJ+1
+          If (I.NE.J .AND.
+     &    ABS(WORK(LHSQ-1+I+MSTATE*(J-1))).gt.1.0D-9) Then
+            DIAGONAL=.FALSE.
+            go to 11
+          EndIf
+        End Do
+      End Do
+ 11   Continue
+      If (.not.diagonal) Then
 C 4. TRANSFORM HAMILTON MATRIX.
 *        CALL MXMA(WORK(LHSQ),1,MSTATE,
 *     &            WORK(LUU),1,MSTATE,
@@ -211,8 +224,8 @@ C 5. DIAGONALIZE HAMILTONIAN.
         END DO
       END DO
 
-      CALL Jacob(WORK(LHH),WORK(LUU),MSTATE,MSTATE)
-      CALL JACORD(WORK(LHH),WORK(LUU),MSTATE,MSTATE)
+      CALL Jacob (WORK(LHH),WORK(LUU),MSTATE,MSTATE)
+      CALL Jacord(WORK(LHH),WORK(LUU),MSTATE,MSTATE)
 
       IDIAG=0
       DO II=1,MSTATE
@@ -224,6 +237,19 @@ C 5. DIAGONALIZE HAMILTONIAN.
           EIGVEC(I,J)=WORK(LUU-1+II+MSTATE*(JJ-1))
         END DO
       END DO
+*if diagonal
+      Else
+        DO II=1,MSTATE
+          I=IWORK(LSTK-1+II)
+          ENERGY(I)=HAM(I,I)
+          Do JJ=1,MSTATE
+            J=IWORK(LSTK-1+JJ)
+            EIGVEC(I,J)=0.0d0
+          End Do
+          EIGVEC(I,I)=1.0d0
+        End Do
+      EndIf
+
 
 CUNGUR
 c   Correct for diagonal energies in case of orbital degeneracy:
@@ -254,6 +280,7 @@ c               lower than 1.0D-4 cm-1
       END DO
 C End of loop over sets.
       END DO
+      Call RecPrt('EigVec',' ',EIGVEC,NSTATE,NSTATE)
 C Morgane Vacher 02/17 - Fix the "arbitrary" sign of
 C the eigenvectors such that the largest coefficient
 C is positive. This is to avoid spurious changes of
@@ -591,6 +618,10 @@ C And the same for the Dyson amplitudes
         JSTART = 1
       END IF
 *
+      ! AFACTOR = 2*pi*e^2*E_h^2 / eps_0*m_e*c^3*h^2
+      AFACTOR = 2.0D0/CONST_C_IN_AU_**3 ! in a.u. of time^-1
+     &          /CONST_AU_TIME_IN_SI_   ! in s^-1
+*
       IF(IPGLOB.le.SILENT) GOTO 900
 !
 * CALCULATION OF THE DIPOLE TRANSITION STRENGTHS
@@ -624,7 +655,6 @@ C And the same for the Dyson amplitudes
        END DO
 
        IF(IFANYD.NE.0) THEN
-        AFACTOR=32.1299D09
         WRITE(6,*)
         CALL CollapseOutput(1,'Dipole transition strengths '//
      &                        '(spin-free states):')
@@ -653,9 +683,9 @@ C And the same for the Dyson amplitudes
         FMAX=0.0D0
         Two3rds=2.0D0/3.0D0
         DO K_=1,IEND
-         I=IndexE(K_)
+           I=IndexE(K_)
          DO L_=JSTART,NSTATE
-          J=IndexE(L_)
+            J=IndexE(L_)
           IJ=I+NSTATE*(J-1)
           EDIFF=ENERGY(J)-ENERGY(I)
 *
@@ -760,8 +790,10 @@ C And the same for the Dyson amplitudes
 *
         LNCNT=0
         DMAX=0.0D0
-        DO I=1,NSTATE-1
-         DO J=I+1,NSTATE
+        DO K_=1,NSTATE-1
+           I=IndexE(K_)
+         DO L_=I+1,NSTATE
+            J=IndexE(L_)
            DX=0.0D0
            DY=0.0D0
            DZ=0.0D0
@@ -831,7 +863,6 @@ C And the same for the Dyson amplitudes
       END DO
 
       IF (IFANYD.NE.0) THEN
-         AFACTOR=32.1299D09
          WRITE(6,*)
          CALL CollapseOutput(1,'Velocity transition strengths '//
      &                         '(spin-free states):')
@@ -908,7 +939,6 @@ C And the same for the Dyson amplitudes
                   WRITE(6,33) I,J,F,AX,AY,AZ,A
 ! Store dipole oscillator strength
                   WORK(LDV-1+IJ) = F
-
                END IF
                Call Add_Info('TMS(SF,Vel)',F,1,6)
                END IF
@@ -936,7 +966,6 @@ C And the same for the Dyson amplitudes
 !
          WRITE(6,*)
          WRITE(6,*) "--------------------------------------------------"
-         WRITE(6,*)
          WRITE(6,*) "A comparison between the dipole oscillator "//
      &              "strengths in "
          WRITE(6,*) "length and velocity gauge "//
@@ -951,12 +980,11 @@ C And the same for the Dyson amplitudes
          WRITE(6,*) "The tolerance is defined as ABS(1-O_l/O_v) "
          WRITE(6,*) "O_l : dipole oscillator strength in length gauge"
          WRITE(6,*) "O_p : dipole oscillator strength in velocity gauge"
-         WRITE(6,*)
          WRITE(6,*) "--------------------------------------------------"
 !
           I_PRINT_HEADER = 0
           DO K_=1,IEND
-            I=IndexE(K_)
+             I=IndexE(K_)
             DO L_=JSTART,NSTATE
                J=IndexE(L_)
                IJ=I+NSTATE*(J-1)
@@ -977,11 +1005,9 @@ C And the same for the Dyson amplitudes
                  WRITE(6,*)
                  WRITE(6,*) " Problematic transitions have been found"
                  WRITE(6,*)
-                 WRITE(6,*) "     From   To      Difference (%)  "//
-     &                      "Osc. st. (len.) Osc. st. (vel.)"
-                 WRITE(6,*) "     -------------------------------"//
-     &                      "-------------------------------"
-                 WRITE(6,*)
+                 WRITE(6,39) "From","To","Difference (%)",
+     &                       "Osc. st. (len.)","Osc. st. (vel.)"
+                 WRITE(6,40)
                END IF
                IF (COMPARE.GE.0.0D0) THEN
                  WRITE(6,33) I,J,COMPARE*100D0,
@@ -1000,8 +1026,7 @@ C And the same for the Dyson amplitudes
      &                 "the tolerance ", TOLERANCE," have been found"
             WRITE(6,*)
           ELSE
-            WRITE(6,*) "     -------------------------------"//
-     &                 "-------------------------------"
+            WRITE(6,40)
             WRITE(6,*)
             WRITE(6,*) "Number of problematic transitions = ",
      &                  I_PRINT_HEADER
@@ -1042,12 +1067,12 @@ C And the same for the Dyson amplitudes
         IPRDZ=0
 
         IFANYD=0
-        DO ISOPR=1,NPROP
-          IF(SOPRNM(ISOPR).EQ.'ANGMOM  ') THEN
+        DO IPROP=1,NPROP
+          IF(PNAME(IPROP).EQ.'ANGMOM  ') THEN
            IFANYD=1
-           IF(ISOCMP(ISOPR).EQ.1) IPRDX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.2) IPRDY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.3) IPRDZ=ISOPR
+           IF(ICOMP(IPROP).EQ.1) IPRDX=IPROP
+           IF(ICOMP(IPROP).EQ.2) IPRDY=IPROP
+           IF(ICOMP(IPROP).EQ.3) IPRDZ=IPROP
           END IF
         END DO
 
@@ -1076,10 +1101,10 @@ C And the same for the Dyson amplitudes
          DO ISS_=1,IEND
             ISS=IndexE(ISS_)
           DO JSS_=JSTART,NSS
-           JSS=IndexE(JSS_)
+             JSS=IndexE(JSS_)
            EDIFF=ENERGY(JSS)-ENERGY(ISS)
            IF(EDIFF.GT.0.0D0) THEN
-            IJSS=ISS+NSS*(JSS-1)
+            IJSS=JSS+NSS*(ISS-1)
 
             DX2=0.0D0
             DY2=0.0D0
@@ -1148,15 +1173,15 @@ C And the same for the Dyson amplitudes
         IPRDZZ=0
 
         IFANYD=0
-        DO ISOPR=1,NPROP
-          IF(SOPRNM(ISOPR).EQ.'MLTPL  2') THEN
+        DO IPROP=1,NPROP
+          IF(PNAME(IPROP).EQ.'MLTPL  2') THEN
            IFANYD=1
-           IF(ISOCMP(ISOPR).EQ.1) IPRDXX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.2) IPRDXY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.3) IPRDXZ=ISOPR
-           IF(ISOCMP(ISOPR).EQ.4) IPRDYY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.5) IPRDYZ=ISOPR
-           IF(ISOCMP(ISOPR).EQ.6) IPRDZZ=ISOPR
+           IF(ICOMP(IPROP).EQ.1) IPRDXX=IPROP
+           IF(ICOMP(IPROP).EQ.2) IPRDXY=IPROP
+           IF(ICOMP(IPROP).EQ.3) IPRDXZ=IPROP
+           IF(ICOMP(IPROP).EQ.4) IPRDYY=IPROP
+           IF(ICOMP(IPROP).EQ.5) IPRDYZ=IPROP
+           IF(ICOMP(IPROP).EQ.6) IPRDZZ=IPROP
           END IF
         END DO
 
@@ -1179,14 +1204,14 @@ C And the same for the Dyson amplitudes
          ONEOVER30C=ONEOVER10C/3.0D0
 
          DO ISS_=1,IEND
-          ISS=IndexE(ISS_)
+            ISS=IndexE(ISS_)
           DO JSS_=JSTART,NSS
-           JSS=IndexE(JSS_)
+             JSS=IndexE(JSS_)
            EDIFF=ENERGY(JSS)-ENERGY(ISS)
            IF(EDIFF.GT.0.0D0) THEN
 !
             EDIFF3=EDIFF**3
-            IJSS=ISS+NSS*(JSS-1)
+            IJSS=JSS+NSS*(ISS-1)
 
             DXX=0.0D0
             DYY=0.0D0
@@ -1323,23 +1348,23 @@ C And the same for the Dyson amplitudes
 
 
         IFANYD=0
-        DO ISOPR=1,NPROP
-          IF(SOPRNM(ISOPR).EQ.'MLTPL  1') THEN
-           IF(ISOCMP(ISOPR).EQ.1) IPRDX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.2) IPRDY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.3) IPRDZ=ISOPR
-          ELSE IF(SOPRNM(ISOPR).EQ.'MLTPL  3') THEN
+        DO IPROP=1,NPROP
+          IF(PNAME(IPROP).EQ.'MLTPL  1') THEN
+           IF(ICOMP(IPROP).EQ.1) IPRDX=IPROP
+           IF(ICOMP(IPROP).EQ.2) IPRDY=IPROP
+           IF(ICOMP(IPROP).EQ.3) IPRDZ=IPROP
+          ELSE IF(PNAME(IPROP).EQ.'MLTPL  3') THEN
            IFANYD=1
-           IF(ISOCMP(ISOPR).EQ.1) IPRDXXX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.2) IPRDXXY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.3) IPRDXXZ=ISOPR
-           IF(ISOCMP(ISOPR).EQ.4) IPRDYYX=ISOPR ! Changed from XYY
-           IF(ISOCMP(ISOPR).EQ.5) IPRDXYZ=ISOPR
-           IF(ISOCMP(ISOPR).EQ.6) IPRDZZX=ISOPR ! Changed from XZZ
-           IF(ISOCMP(ISOPR).EQ.7) IPRDYYY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.8) IPRDYYZ=ISOPR
-           IF(ISOCMP(ISOPR).EQ.9) IPRDZZY=ISOPR ! Changed from YZZ
-           IF(ISOCMP(ISOPR).EQ.10) IPRDZZZ=ISOPR
+           IF(ICOMP(IPROP).EQ.1) IPRDXXX=IPROP
+           IF(ICOMP(IPROP).EQ.2) IPRDXXY=IPROP
+           IF(ICOMP(IPROP).EQ.3) IPRDXXZ=IPROP
+           IF(ICOMP(IPROP).EQ.4) IPRDYYX=IPROP ! Changed from XYY
+           IF(ICOMP(IPROP).EQ.5) IPRDXYZ=IPROP
+           IF(ICOMP(IPROP).EQ.6) IPRDZZX=IPROP ! Changed from XZZ
+           IF(ICOMP(IPROP).EQ.7) IPRDYYY=IPROP
+           IF(ICOMP(IPROP).EQ.8) IPRDYYZ=IPROP
+           IF(ICOMP(IPROP).EQ.9) IPRDZZY=IPROP ! Changed from YZZ
+           IF(ICOMP(IPROP).EQ.10) IPRDZZZ=IPROP
           END IF
         END DO
 ! Sanity check. Only check that dipole are there
@@ -1379,14 +1404,14 @@ C And the same for the Dyson amplitudes
 
          TWOOVERM45C=-2.0D0/(45.0D0*CONST_C_IN_AU_**2)
          DO ISS_=1,IEND
-          ISS=IndexE(ISS_)
+            ISS=IndexE(ISS_)
           DO JSS_=JSTART,NSS
-           JSS=IndexE(JSS_)
+             JSS=IndexE(JSS_)
            EDIFF=ENERGY(JSS)-ENERGY(ISS)
            IF(EDIFF.GT.0.0D0) THEN
 !
             EDIFF3=EDIFF**3
-            IJSS=ISS+NSS*(JSS-1)
+            IJSS=JSS+NSS*(ISS-1)
 
             DXXXDX=0.0D0
             DYYXDX=0.0D0
@@ -1504,24 +1529,24 @@ C And the same for the Dyson amplitudes
         IPRDZ=0
 
         IFANYD=0
-        DO ISOPR=1,NPROP
-          IF(SOPRNM(ISOPR).EQ.'MLTPL  1') THEN
-           IF(ISOCMP(ISOPR).EQ.1) IPRDX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.2) IPRDY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.3) IPRDZ=ISOPR
-          ELSE IF(SOPRNM(ISOPR).EQ.'OMQ') THEN
+        DO IPROP=1,NPROP
+          IF(PNAME(IPROP).EQ.'MLTPL  1') THEN
+           IF(ICOMP(IPROP).EQ.1) IPRDX=IPROP
+           IF(ICOMP(IPROP).EQ.2) IPRDY=IPROP
+           IF(ICOMP(IPROP).EQ.3) IPRDZ=IPROP
+          ELSE IF(PNAME(IPROP).EQ.'OMQ') THEN
            IFANYD=1
-           IF(ISOCMP(ISOPR).EQ.1) IPRDXX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.2) IPRDXY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.3) IPRDXZ=ISOPR
+           IF(ICOMP(IPROP).EQ.1) IPRDXX=IPROP
+           IF(ICOMP(IPROP).EQ.2) IPRDXY=IPROP
+           IF(ICOMP(IPROP).EQ.3) IPRDXZ=IPROP
 
-           IF(ISOCMP(ISOPR).EQ.4) IPRDYX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.5) IPRDYY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.6) IPRDYZ=ISOPR
+           IF(ICOMP(IPROP).EQ.4) IPRDYX=IPROP
+           IF(ICOMP(IPROP).EQ.5) IPRDYY=IPROP
+           IF(ICOMP(IPROP).EQ.6) IPRDYZ=IPROP
 
-           IF(ISOCMP(ISOPR).EQ.7) IPRDZX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.8) IPRDZY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.9) IPRDZZ=ISOPR
+           IF(ICOMP(IPROP).EQ.7) IPRDZX=IPROP
+           IF(ICOMP(IPROP).EQ.8) IPRDZY=IPROP
+           IF(ICOMP(IPROP).EQ.9) IPRDZZ=IPROP
           END IF
         END DO
 ! Sanity check. Only check that dipole are there
@@ -1563,14 +1588,14 @@ C And the same for the Dyson amplitudes
 
          ONEOVER9C2=1.0D0/(9.0D0*CONST_C_IN_AU_**2)
          DO ISS_=1,IEND
-          ISS=IndexE(ISS_)
+            ISS=IndexE(ISS_)
           DO JSS_=JSTART,NSS
-           JSS=IndexE(JSS_)
+             JSS=IndexE(JSS_)
            EDIFF=ENERGY(JSS)-ENERGY(ISS)
            IF(EDIFF.GT.0.0D0) THEN
 !
             EDIFF2=EDIFF**2
-            IJSS=ISS+NSS*(JSS-1)
+            IJSS=JSS+NSS*(ISS-1)
 !
             DXYDZ=0.0D0
             DYXDZ=0.0D0
@@ -1600,7 +1625,7 @@ C And the same for the Dyson amplitudes
             FZY=-ONEOVER9C2*EDIFF2*(DZYDX)
 
             F =FYX+FXY+FZX+FXZ+FYZ+FZY
-! Add it!to the total
+! Add it to the total
             WORK(LTOT2K-1+IJSS) = WORK(LTOT2K-1+IJSS) + F
 
             IF(ABS(F).GE.OSTHR2) THEN
@@ -1687,14 +1712,14 @@ C And the same for the Dyson amplitudes
          IF(SECORD(4).EQ.0)
      &   WRITE(6,*) 'Electric-Dipole - Magnetic-Quadrupole not included'
          iPrint=0
-         DO ISS_=1,NSS
+         DO ISS_=1,IEND
           ISS=IndexE(ISS_)
-          DO JSS_=1,NSS
+          DO JSS_=JSTART,NSS
            JSS=IndexE(JSS_)
            EDIFF=ENERGY(JSS)-ENERGY(ISS)
            IF(EDIFF.GT.0.0D0) THEN
 !
-            IJSS=ISS+NSS*(JSS-1)
+            IJSS=JSS+NSS*(ISS-1)
             F = WORK(LTOT2K-1+IJSS)
             IF(ABS(F).GE.OSTHR2) THEN
             If (iPrint.eq.0) Then
@@ -1770,53 +1795,40 @@ C And the same for the Dyson amplitudes
      &                  'Electric-Dipole - Magnetic-Dipole '//
      &                  'rotatory strengths (spin-free states):')
           WRITE(6,'(3X,A)')
+     &                  '------------------------------------'//
      &                  '----------------------------------'//
-     &                  '----------------------------------------'
-          IF(OSTHR2.GT.0.0D0) THEN
-            WRITE(6,30) 'for rotatory strength at least',OSTHR2
-            WRITE(6,*)
-          END IF
-          WRITE(6,31) 'From','To','Rotatory strength'
+     &                  '--------------------------------------'
+          WRITE(6,*)
+          WRITE(6,31) 'From','To','Red. rot. str.'
           WRITE(6,35)
 !
-         TWOOVER3C=2.0D0/(3.0D0*CONST_C_IN_AU_)
-
          DO ISS_=1,IEND
             ISS=IndexE(ISS_)
           DO JSS_=JSTART,NSS
-           JSS=IndexE(JSS_)
+             JSS=IndexE(JSS_)
            EDIFF=ENERGY(JSS)-ENERGY(ISS)
            IF(EDIFF.GT.0.0D0) THEN
-            IJSS=ISS+NSS*(JSS-1)
 
-            DX2=0.0D0
-            DY2=0.0D0
-            DZ2=0.0D0
+*           R = e^2*hbar/(2*m^2*E) <J|p|I>.<I|l|J>
+*             = e^2*hbar/(2*m^2*E) -i*hbar*<J|nabla|I>.-i*hbar*<I|r x nabla|J>
+*             = e^2*hbar^3/(2*m^2*E) <J|nabla|I>.<J|r x nabla|I>
+            R=0.0D0
 
             IF((IPRDXM.GT.0).AND.(IPRDXD.GT.0)) THEN
-              DX2=PROP(JSS,ISS,IPRDXM)*PROP(JSS,ISS,IPRDXD)
-C             WRITE(6,*) 'PROP(JSS,ISS,IPRDXM),PROP(JSS,ISS,IPRDXD)'
-C             WRITE(6,*)  PROP(JSS,ISS,IPRDXM),PROP(JSS,ISS,IPRDXD)
+              R=R+PROP(JSS,ISS,IPRDXD)*PROP(JSS,ISS,IPRDXM)
             END IF
             IF((IPRDYM.GT.0).AND.(IPRDYD.GT.0)) THEN
-              DY2=PROP(JSS,ISS,IPRDYM)*PROP(JSS,ISS,IPRDYD)
-C             WRITE(6,*) 'PROP(JSS,ISS,IPRDYM),PROP(JSS,ISS,IPRDYD)'
-C             WRITE(6,*)  PROP(JSS,ISS,IPRDYM),PROP(JSS,ISS,IPRDYD)
+              R=R+PROP(JSS,ISS,IPRDYD)*PROP(JSS,ISS,IPRDYM)
             END IF
             IF((IPRDZM.GT.0).AND.(IPRDZD.GT.0)) THEN
-              DZ2=PROP(JSS,ISS,IPRDZM)*PROP(JSS,ISS,IPRDZD)
-C             WRITE(6,*) 'PROP(JSS,ISS,IPRDZM),PROP(JSS,ISS,IPRDZD)'
-C             WRITE(6,*)  PROP(JSS,ISS,IPRDZM),PROP(JSS,ISS,IPRDZD)
+              R=R+PROP(JSS,ISS,IPRDZD)*PROP(JSS,ISS,IPRDZM)
             END IF
 
-            F = (DX2 + DY2 + DZ2)*TWOOVER3C*AU2ESUISH !EDIFF*ONEOVER6C2
+            R = R*Half/EDIFF*AU2REDR
 
-            WRITE(6,33) ISS,JSS,F
-!           IF(ABS(F).GE.OSTHR2) THEN
-!             WRITE(6,33) ISS,JSS,F
-!           END IF
+            WRITE(6,33) ISS,JSS,R
 !
-            Call Add_Info('CD_V(SF)',F,1,6)
+            Call Add_Info('CD_V(SF)',R,1,6)
            END IF
           END DO
          END DO
@@ -1864,54 +1876,46 @@ C             WRITE(6,*)  PROP(JSS,ISS,IPRDZM),PROP(JSS,ISS,IPRDZD)
      &                  'Circular Dichroism - mixed gauge '//
      &                  'Electric-Dipole - Magnetic-Dipole '//
      &                  'rotatory strengths (spin-free states):')
+          WRITE(6,'(3X,A)')
+     &                  '---------------------------------'//
+     &                  '----------------------------------'//
+     &                  '--------------------------------------'
           WRITE(6,*)
           WRITE(6,*) ' WARNING WARNING WARNING !!! '
           WRITE(6,*)
           WRITE(6,*) ' Circular Dichroism in the mixed gauge '
           WRITE(6,*) ' is NOT origin independent - check your results '
           WRITE(6,*)
-          WRITE(6,'(3X,A)')
-     &                  '----------------------------------'//
-     &                  '----------------------------------------'
-          IF(OSTHR2.GT.0.0D0) THEN
-            WRITE(6,30) 'for rotatory strength at least',OSTHR2
-            WRITE(6,*)
-          END IF
-          WRITE(6,31) 'From','To','Rotatory strength'
+          WRITE(6,31) 'From','To','Red. rot. str.'
           WRITE(6,35)
 !
-         TWOOVER3C=2.0D0/(3.0D0*CONST_C_IN_AU_)
-
          DO ISS_=1,IEND
             ISS=IndexE(ISS_)
           DO JSS_=JSTART,NSS
-           JSS=IndexE(JSS_)
+             JSS=IndexE(JSS_)
            EDIFF=ENERGY(JSS)-ENERGY(ISS)
            IF(EDIFF.GT.0.0D0) THEN
-            IJSS=ISS+NSS*(JSS-1)
 
-            DX2=0.0D0
-            DY2=0.0D0
-            DZ2=0.0D0
+*           R = -i*e^2/(2*m) <J|r|I>.<I|l|J>
+*             = -i*e^2/(2*m) <J|r|I>.-i*hbar*<I|r x nabla|J>
+*             = e^2*hbar/(2*m) <J|r|I>.<J|r x nabla|I>
+            R=0.0D0
 
             IF((IPRDXM.GT.0).AND.(IPRDXD.GT.0)) THEN
-              DX2=PROP(JSS,ISS,IPRDXM)*PROP(JSS,ISS,IPRDXD)
+              R=R+PROP(JSS,ISS,IPRDXD)*PROP(JSS,ISS,IPRDXM)
             END IF
             IF((IPRDYM.GT.0).AND.(IPRDYD.GT.0)) THEN
-              DY2=PROP(JSS,ISS,IPRDYM)*PROP(JSS,ISS,IPRDYD)
+              R=R+PROP(JSS,ISS,IPRDYD)*PROP(JSS,ISS,IPRDYM)
             END IF
             IF((IPRDZM.GT.0).AND.(IPRDZD.GT.0)) THEN
-              DZ2=PROP(JSS,ISS,IPRDZM)*PROP(JSS,ISS,IPRDZD)
+              R=R+PROP(JSS,ISS,IPRDZD)*PROP(JSS,ISS,IPRDZM)
             END IF
 
-            F = (DX2 + DY2 + DZ2)*TWOOVER3C*AU2ESUISH !EDIFF*ONEOVER6C2
+            R = R*Half*AU2REDR
 
-            WRITE(6,33) ISS,JSS,F
-!           IF(ABS(F).GE.OSTHR2) THEN
-!             WRITE(6,33) ISS,JSS,F
-!           END IF
+            WRITE(6,33) ISS,JSS,R
 !
-            Call Add_Info('CD_M(SF)',F,1,6)
+            Call Add_Info('CD_M(SF)',R,1,6)
            END IF
           END DO
          END DO
@@ -1943,8 +1947,10 @@ C             WRITE(6,*)  PROP(JSS,ISS,IPRDZM),PROP(JSS,ISS,IPRDZD)
      &   'BE (eV)       Dyson intensity'
         WRITE(6,32)
         FMAX=0.0D0
-        DO I=1,NSTATE
-         DO J=1,NSTATE
+        DO I_=1,NSTATE
+           I=IndexE(I_)
+         DO J_=1,NSTATE
+            J=IndexE(J_)
           F=DYSAMPS(I,J)*DYSAMPS(I,J)
           EDIFF=AU2EV*(ENERGY(J)-ENERGY(I))
           IF (F.GT.0.00001) THEN
@@ -1962,281 +1968,23 @@ C             WRITE(6,*)  PROP(JSS,ISS,IPRDZM),PROP(JSS,ISS,IPRDZD)
 *                                                                      *
 *     Start of section for transition moments                          *
 *                                                                      *
-*     This section has two parts. (1) for matrix elements computed by  *
-*     Seward, i.e. for a specific wavevector, (2) for the computation  *
-*     of the isotropic oscillator strength.                            *
-*                                                                      *
 ************************************************************************
 *
 *     Find the section of transition moments in the property list.
 *
 *     The operator is split in 4 different component, each with three
 *     elements corresponding to differentiation in the x, y, and z
-*     direction. The four parts are labels as:
-*     EMFR  RS: The symmetric part of the real comp. of the op.
-*     EMFR  RA: The asymmetric part of the real comp. of the op.
-*     EMFR  IS: The symmetric part of the imaginary comp. of the op.
-*     EMFR  IA: The asymmetric part of the imaginary comp. of the op.
+*     direction.
+*     The B.s term is split into 2 component.
 *
 ************************************************************************
 *                                                                      *
-*     Section (1)
-*                                                                      *
-************************************************************************
-*
-*     Find the location of the propetries in the PROP array.
-*
-      IPREMFR_RS=0
-      IPORIG=-1
-      P1(1)=0.0D0
-      P1(2)=0.0D0
-      P1(3)=0.0D0
-      P2(1)=0.0D0
-      P2(2)=0.0D0
-      P2(3)=0.0D0
-      DO IPROP=1,NPROP
-         IF (PNAME(IPROP).EQ.'EMFR  RS'.AND.IPREMFR_RS.EQ.0) THEN
-            IPREMFR_RS=IPROP
-            IPORIG=IPROP
-*
-*           Define two vectors which span the plane in which the
-*           polarization direction lies. Their direction in the plane
-*           is arbitrary.
-*
-            IF (PORIG(1,IPROP).EQ.0.0D0 .and.
-     &          PORIG(2,IPROP).EQ.0.0D0) Then
-               P1(1)=1.0D0
-               P1(2)=0.0D0
-               P1(3)=0.0D0
-            ELSE
-               P1(1)= PORIG(2,IPROP)
-               P1(2)=-PORIG(1,IPROP)
-               P1(3)= 0.0D0
-            END IF
-            Tmp=1.0D0/SQRT(P1(1)**2+P1(2)**2+P1(3)**2)
-            P1(1)=P1(1)*Tmp
-            P1(2)=P1(2)*Tmp
-            P1(3)=P1(3)*Tmp
-            P2(1)= PORIG(2,IPROP)*P1(3)-P1(2)*PORIG(3,IPROP)
-            P2(2)= PORIG(3,IPROP)*P1(1)-P1(3)*PORIG(1,IPROP)
-            P2(3)= PORIG(1,IPROP)*P1(2)-P1(1)*PORIG(2,IPROP)
-            Tmp=1.0D0/SQRT(P2(1)**2+P2(2)**2+P2(3)**2)
-            P2(1)=P2(1)*Tmp
-            P2(2)=P2(2)*Tmp
-            P2(3)=P2(3)*Tmp
-         END IF
-      END DO
-      IF (IPREMFR_RS.EQ.0) GOTO 901
-*
-*     Compute the pointer to the three other blocks
-*
-      IPREMFR_0R=IPREMFR_RS-6
-      IPREMFR_0I=IPREMFR_RS-3
-      IPREMFR_RA=IPREMFR_RS+3
-      IPREMFR_IS=IPREMFR_RS+6
-      IPREMFR_IA=IPREMFR_RS+9
-*
-*     Compute the vectors (k x e1) and  (k x e2).
-*
-      kxe1(1)=PORIG(2,IPORIG)*P1(3)-PORIG(3,IPORIG)*P1(2)
-      kxe1(2)=PORIG(3,IPORIG)*P1(1)-PORIG(1,IPORIG)*P1(3)
-      kxe1(3)=PORIG(1,IPORIG)*P1(2)-PORIG(2,IPORIG)*P1(1)
-      kxe2(1)=PORIG(2,IPORIG)*P2(3)-PORIG(3,IPORIG)*P2(2)
-      kxe2(2)=PORIG(3,IPORIG)*P2(1)-PORIG(1,IPORIG)*P2(3)
-      kxe2(3)=PORIG(1,IPORIG)*P2(2)-PORIG(2,IPORIG)*P2(1)
-*
-      AFACTOR=32.1299D09
-      HALF=0.5D0
-      G_Elec=CONST_ELECTRON_G_FACTOR_
-      iPrint=0
-      DO I_=1, IEND
-         I=IndexE(I_)
-         MPLET_I=MLTPLT(iWork(lJBNUM+I-1))
-         DO J_=JSTART, NSTATE
-            J=IndexE(J_)
-            MPLET_J=MLTPLT(iWork(lJBNUM+J-1))
-*
-            EDIFF=ENERGY(J)-ENERGY(I)
-            IF (EDIFF.LE.0.0D0) CYCLE
-*
-*           (1) the oam part
-*
-*           The contribution to the generalized momentum operator.
-*
-            TMX_R=PROP(I,J,IPREMFR_RS  )+PROP(I,J,IPREMFR_RA  )
-            TMX_I=PROP(I,J,IPREMFR_IS  )+PROP(I,J,IPREMFR_IA  )
-            T0(1)=DCMPLX(TMX_R,TMX_I)
-*
-            TMY_R=PROP(I,J,IPREMFR_RS+1)+PROP(I,J,IPREMFR_RA+1)
-            TMY_I=PROP(I,J,IPREMFR_IS+1)+PROP(I,J,IPREMFR_IA+1)
-            T0(2)=DCMPLX(TMY_R,TMY_I)
-*
-            TMZ_R=PROP(I,J,IPREMFR_RS+2)+PROP(I,J,IPREMFR_RA+2)
-            TMZ_I=PROP(I,J,IPREMFR_IS+2)+PROP(I,J,IPREMFR_IA+2)
-            T0(3)=DCMPLX(TMZ_R,TMZ_I)
-*
-            E1A = P1(1)*T0(1) + P1(2)*T0(2) + P1(3)*T0(3)
-            E2A = P2(1)*T0(1) + P2(2)*T0(2) + P2(3)*T0(3)
-            E1A = - Imaginary * E1A
-            E2A = - Imaginary * E2A
-*
-*           (2) the magnetic-spin part
-*
-*           Pick up the property. This is a bit of over kill
-*           in the spin-free case.
-*
-            TM0_RX=PROP(I,J,iPREMFR_0R  )
-            TM0_RY=PROP(I,J,iPREMFR_0R+1)
-            TM0_RZ=PROP(I,J,iPREMFR_0R+2)
-            TM0_IX=PROP(I,J,iPREMFR_0I  )
-            TM0_IY=PROP(I,J,iPREMFR_0I+1)
-            TM0_IZ=PROP(I,J,iPREMFR_0I+2)
-*
-*                                                  ^
-*           Accumulate all contributions (S_1,MS_1|O|S_2,MS_2)
-*
-            F=0.0D0
-            R=0.0D0
-            r_S1= DBLE(MPLET_I-1)/2.0D0
-            r_S2= DBLE(MPLET_J-1)/2.0D0
-            r_MS1 = - r_S1 - 1.0D0
-            DO MS_1 = 1, MPLET_I
-               r_MS1=r_MS1+1.0D0
-*
-               r_MS2 = - r_S2 - 1.0D0
-               DO MS_2 = 1, MPLET_J
-                  r_MS2=r_MS2+1.0D0
-*
-*                 Only cases for S1=S2
-*
-                  If (ABS(MS_1-MS_2).eq.0) Then
-*
-*                    MS_2 = MS_1
-*
-                     Fact = r_MS1
-                     TIJ(1)=DCMPLX(0.0D0,0.0D0)
-                     TIJ(2)=DCMPLX(0.0D0,0.0D0)
-                     TIJ(3)=DCMPLX(Fact ,0.0D0)
-                  Else If (MS_1-MS_2.eq.1) Then
-*
-*                    MS_2 = MS_1-1
-*
-                     Fact =-Sqrt(
-     &                     ((r_S1+r_MS1)*(r_S1-r_MS1+1.0D0))/2.0D0
-     &                          )
-                     TIJ(1)=DCMPLX(-Fact,0.0D0)
-                     TIJ(2)=DCMPLX(0.0D0,Fact )
-                     TIJ(3)=DCMPLX(0.0D0,0.0D0)
-                  Else If (MS_1-MS_2.eq.-1) Then
-*
-*                    MS_2 = MS_1+1
-*
-                     Fact = Sqrt(
-     &                     ((r_S1-r_MS1)*(r_S1+r_MS1+1.0D0))/2.0D0
-     &                          )
-                     TIJ(1)=DCMPLX(Fact, 0.0D0)
-                     TIJ(2)=DCMPLX(0.0D0,Fact )
-                     TIJ(3)=DCMPLX(0.0D0,0.0D0)
-                  Else
-                     CYCLE
-                  End If
-*
-*                 Evaluate the expectation value of the triplet-
-*                 excitation operator time the property integral.
-*
-                  T1(1)=DCMPLX(TM0_RX,TM0_IX)*TIJ(1)
-                  T1(2)=DCMPLX(TM0_RY,TM0_IY)*TIJ(2)
-                  T1(3)=DCMPLX(TM0_RZ,TM0_IZ)*TIJ(3)
-*
-*                 Trace it against the cross product of the
-*                 wave vector and the polarization direction.
-*
-                  E1B=kxe1(1)*T1(1)+kxe1(2)*T1(2)+kxe1(3)*T1(3)
-                  E2B=kxe2(1)*T1(1)+kxe2(2)*T1(2)+kxe2(3)*T1(3)
-*
-*                 Finally, evaluate the transition moment from the two
-*                 different contributions.
-*
-                  TM1 = E1A + IMAGINARY*(g_Elec/2.0D0)*E1B
-                  TM2 = E2A + IMAGINARY*(g_Elec/2.0D0)*E2B
-*
-*                 Integrate over all directions of the polarization
-*                 vector and divide with the "distance", 2*pi, to get
-*                 the average value.
-*
-                  TM_2 = Half*DBLE(DCONJG(TM1)*TM1 +DCONJG(TM2)*TM2)
-*
-*                 NOW, compute the oscillator strength
-*
-                  F = Max( F, 2.0D0*TM_2/EDIFF )
-*
-*                 Just the magnetic part
-                  TM2 = IMAGINARY*(g_Elec/2.0D0)*E2B
-                  TM1 = IMAGINARY*(g_Elec/2.0D0)*E1B
-                  TM_2 =      DBLE(DCONJG(TM1)*TM1 -DCONJG(TM2)*TM2)
-                  R= Max( R, 2.0D0*TM_2/EDIFF )
-*
-               END DO
-            END DO
-*
-*           Note that the components in the different directions
-*           are not well defined. We set the values to zero here.
-*           Maybe in the future I'll do something smarter.
-*
-            FX=0.0D0
-            FY=0.0D0
-            FZ=0.0D0
-*
-            IF (ABS(F).LT.OSTHR) CYCLE
-            AX=(AFACTOR*EDIFF**2)*FX
-            AY=(AFACTOR*EDIFF**2)*FY
-            AZ=(AFACTOR*EDIFF**2)*FZ
-            A =(AFACTOR*EDIFF**2)*F
-*
-            If (iPrint.eq.0) Then
-               WRITE(6,*)
-               CALL CollapseOutput(1,
-     &              'Transition moment strengths (spin-free states):')
-               WRITE(6,'(3X,A)')
-     &              '-----------------------------------------------'
-               IF (OSTHR.GT.0.0D0) THEN
-                  WRITE(6,30) 'for osc. strength at least',OSTHR
-               END IF
-               WRITE(6,*)
-               WRITE(6,'(4x,a,I4,a)')
-     &               'Integrated over ',nQuad,' directions of the'//
-     &               ' wave vector'
-               WRITE(6,*)
-               WRITE(6,'(4x,a)')
-     &               'Integrated over all directions of the polar'//
-     &               'ization vector'
-               WRITE(6,*)
-               WRITE(6,31) 'From','To','Osc. strength',
-     &               'Einstein coefficients Ax, Ay, Az (sec-1)   ',
-     &               'Total A (sec-1)'
-               WRITE(6,32)
-                iPrint=1
-            END IF
-*
-            WRITE(6,33) I,J,F,AX,AY,AZ,A
-            WRITE(6,'(1X,A,6X,ES16.8)') 'Magnetic only', Fm
-*
-         END DO
-      END DO
-      If (iPrint.EQ.1) THEN
-         CALL CollapseOutput(0,
-     &              'Transition moment strengths (spin-free states):')
-      END IF
-*
- 901  CONTINUE
-*
-************************************************************************
-*                                                                      *
-*     Section (2): Computation of the isotropic oscillator strength.
+*     Computation of the isotropic oscillator strength.                *
 *                                                                      *
 ************************************************************************
 *
       If (.Not.Do_TMOS) Go To 900
+      Call CWTime(TCpu1,TWall1)
 *
 *     Here we will use a Lebedev grid to integrate over all possible
 *     directions of the wave vector, k. The property integrals will be
@@ -2247,18 +1995,18 @@ C             WRITE(6,*)  PROP(JSS,ISS,IPRDZM),PROP(JSS,ISS,IPRDZD)
 *     on-the-fly generated property integrals.
 *
       IPRTMOS_RS=-1
-      IPORIG=-1
       DO IPROP=1,NPROP
          IF (PNAME(IPROP).EQ.'TMOS  RS'.AND.IPRTMOS_RS.EQ.-1) THEN
             IPRTMOS_RS=IPROP
-            IPORIG=IPROP
          END IF
       ENDDO
-      IPRTMOS_0R=IPRTMOS_RS-6
-      IPRTMOS_0I=IPRTMOS_RS-3
+      IF (IPRTMOS_RS.EQ.-1) GOTO 900
       IPRTMOS_RA=IPRTMOS_RS+3
+      IF (PNAME(IPRTMOS_RA).NE.'TMOS  RA') GOTO 900
       IPRTMOS_IS=IPRTMOS_RS+6
+      IF (PNAME(IPRTMOS_IS).NE.'TMOS  IS') GOTO 900
       IPRTMOS_IA=IPRTMOS_RS+9
+      IF (PNAME(IPRTMOS_IA).NE.'TMOS  IA') GOTO 900
 *
 *     Initiate the Seward environment
 *
@@ -2287,11 +2035,73 @@ C             WRITE(6,*)  PROP(JSS,ISS,IPRDZM),PROP(JSS,ISS,IPRDZD)
       CALL GETMEM('IP    ','ALLO','REAL',LIP,NIP)
       NSCR=(NBST*(NBST+1))/2
       CALL GETMEM('TDMSCR','Allo','Real',LSCR,4*NSCR)
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Transform the transition densities to the new basis.
 *
-*     Array for printing contributions from different directions
+*     This procedure is redundant if the Hamiltonian matrix was
+*     diagonal and the energies where in increasing order.
 *
-      CALL GETMEM('RAW   ','ALLO','REAL',LRAW,NQUAD*5)
-      CALL GETMEM('WEIGHT','ALLO','REAL',LWEIGH,NQUAD*5)
+      If (.NOT.DIAGONAL) Then
+*
+      Call mma_Allocate(TDS,4*nSCR,nState*(nState+1)/2,Label='TDS')
+      Call FZero(TDS,4*nSCR*nState*(nState+1)/2)
+*
+*     Loop over all unique TDs and distribute their contributions to the
+*     TDs in the new basis.
+*
+      DO I=1, NSTATE
+         DO J= 1, NSTATE
+            ISTATE=MAX(i,j)
+            JSTATE=MIN(i,j)
+            ij=ISTATE*(ISTATE-1)/2+JSTATE
+            iDisk=iWork(liTocM+ij-1)
+            Get_TDS=.True.
+*
+*           The reading is postponed until it is really needed
+*           (see below).
+*           Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
+*
+*           Loop over the TDs which will be used in the subsequent part
+*           of the code.
+*
+            Do K = JSTART, NSTATE
+               C_ik=EigVec(i,K)
+               Do L = 1, Min(IEND,K)
+                  C_ikjl=C_ik*EigVec(j,L)
+                  If (Abs(C_ikjl).gt.1.0D-14) Then
+                     If (Get_TDS) Then
+                        Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
+                        Get_TDS=.False.
+                     End If
+                     kl=K*(K-1)/2+L
+                     Call DaXpY_(4*NSCR,C_ikjl,Work(LSCR),1,
+     &                                         TDS(1,kl),1)
+                  End If
+               End Do
+            End Do
+*
+         END DO
+      END DO
+*
+*     Replace the old TDs with the new ones on the file.
+*
+      DO I=1, IEND
+         DO J=JSTART, NSTATE
+            ISTATE=MAX(i,j)
+            JSTATE=MIN(i,j)
+            ij=ISTATE*(ISTATE-1)/2+JSTATE
+            iDisk=iWork(liTocM+ij-1)
+            Call dDaFile(LuToM,1,TDS(1,ij),4*NSCR,iDisk)
+         END DO
+      END DO
+      Call mma_DeAllocate(TDS)
+*
+      END IF
+*                                                                      *
+************************************************************************
+*                                                                      *
 *
 *     Allocate vector to store all individual transition moments.
 *     We do this for
@@ -2305,6 +2115,92 @@ C             WRITE(6,*)  PROP(JSS,ISS,IPRDZM),PROP(JSS,ISS,IPRDZD)
       nStorage = nIJ * nQuad * nData
       mStorage = nStorage * nVec
       Call GetMem('STORAGE','Allo','Real',ipStorage,mStorage)
+*MGD ipStorage is not well handled with groups yet
+*MGD create the groups of indices
+*Only with reduce loop to make things easier
+      TMOgroup=.false.
+      ngroup1=IEND
+      ngroup2=NSTATE-JSTART+1
+      nmax2=1
+      IF(REDUCELOOP.and.TMGr_thrs.ge.0.0d0) THEN
+        TMOgroup=.true.
+        THRS=TMGr_thrs
+        i=IndexE(IEND)
+        RefEne=0
+        TAU=-1
+        ngroup2=1
+        Do j_=JSTART,NSTATE
+           j=IndexE(j_)
+           if (ENERGY(J)-Refene.gt.TAU) then
+              NGROUP2=NGROUP2+1
+              Refene=ENERGY(J)
+              ediff=Refene-ENERGY(I)
+              TAU=ediff*THRS
+           EndIf
+        End Do
+        Call mma_Allocate(TMOgrp2,NGROUP2,Label='TMOgrp2')
+        ngroup2=0
+        TAU=-1
+        RefEne=0
+        Do j_=JSTART,NSTATE
+           j=IndexE(j_)
+           if (ENERGY(J)-Refene.gt.TAU) then
+              NGROUP2=NGROUP2+1
+              TMOgrp2(NGROUP2)=J_
+              Refene=ENERGY(J)
+              ediff=Refene-ENERGY(I)
+              TAU=ediff*THRS
+           EndIf
+        End Do
+        TMOgrp2(ngroup2+1)=NSTATE+1
+*
+        j=IndexE(JSTART)
+        Refene=ENERGY(j)
+        TAU=-1
+        ngroup1=1
+        Do i_=IEND,1,-1
+          i=IndexE(i_)
+          if (Refene-ENERGY(i).gt.TAU) then
+            ngroup1=ngroup1+1
+            Refene=energy(i)
+            ediff=energy(j)-Refene
+            Tau=ediff*THRS
+          EndIf
+        End Do
+        Call mma_Allocate(TMOgrp1,NGROUP1,Label='TMOgrp1')
+        Ntmp=Ngroup1
+        Ngroup1=Ngroup1-1
+        Refene=ENERGY(j)
+        TAU=-1
+        Do i_=IEND,1,-1
+          i=IndexE(i_)
+          if (Refene-ENERGY(i).gt.TAU) then
+            TMOgrp1(ntmp)=i_+1
+            ntmp=ntmp-1
+            Refene=energy(i)
+            ediff=energy(j)-Refene
+            Tau=ediff*THRS
+          EndIf
+        End Do
+        TMOgrp1(1)=1
+*       write(6,*) (TMOgrp1(i),i=1,ngroup1+1)
+*       write(6,*) (TMOgrp2(i),i=1,ngroup2+1)
+        maxgrp1=0
+        Do i=1,ngroup1
+          maxgrp1=max(maxgrp1,TMOgrp1(i+1)-TMOgrp1(i))
+        End Do
+        maxgrp2=0
+        Do i=1,ngroup2
+          maxgrp2=max(maxgrp2,TMOgrp2(i+1)-TMOgrp2(i))
+        End Do
+        nmax2=maxgrp1*maxgrp2
+      EndIF
+*
+*     Array for printing contributions from different directions
+*
+      CALL GETMEM('RAW   ','ALLO','REAL',LRAW,NQUAD*5*nmax2)
+      CALL GETMEM('WEIGHT','ALLO','REAL',LWEIGH,NQUAD*5*nmax2)
+      CALL GETMEM('OSCSTR','ALLO','REAL',LF,5*nmax2)
 *
       Do iVec = 1, nVec
 *
@@ -2332,17 +2228,28 @@ C             WRITE(6,*)  PROP(JSS,ISS,IPRDZM),PROP(JSS,ISS,IPRDZD)
       G_Elec=CONST_ELECTRON_G_FACTOR_
       iPrint=0
       IJSO=0
-      DO I_=1, IEND
-         I=IndexE(I_)
-         MPLET_I=MLTPLT(iWork(lJBNUM+I-1))
-         DO J_=JSTART, NSTATE
-            J=IndexE(J_)
-            MPLET_J=MLTPLT(iWork(lJBNUM+J-1))
+      Do igrp=1,ngroup1
+         Do jgrp=1,ngroup2
 *
-            EDIFF=ENERGY(J)-ENERGY(I)
-            If (ABS(EDIFF).le.1.0D-8) CYCLE
+            If (TMOgroup) Then
+              istart_=TMOgrp1(igrp)
+              iend_=TMOgrp1(igrp+1)-1
+              jstart_=TMOgrp2(jgrp)
+              jend_=TMOgrp2(jgrp+1)-1
+              EDIFF_=(ENERGY(IndexE(jstart_))+ENERGY(IndexE(jend_))
+     &              -ENERGY(IndexE(istart_))-ENERGY(IndexE(iend_)))
+     &              *0.5D0
+            Else
+              istart_=igrp
+              iend_=igrp
+              jstart_=jgrp+jstart-1
+              jend_=jgrp+jstart-1
+              EDIFF_=ENERGY(IndexE(jstart_))-ENERGY(IndexE(istart_))
+            EndIf
+            n12=(iend_-istart_+1)*(jend_-jstart_+1)
+            If (ABS(EDIFF_).le.1.0D-8) CYCLE
 *
-            If (JSTART.eq.1 .AND.  EDIFF.LT.0.0D0) CYCLE
+            If (JSTART.eq.1 .AND.  EDIFF_.LT.0.0D0) CYCLE
 *
             IJSO=IJSO+1
             iOff_=(IJSO-1)*nQuad*nData
@@ -2350,56 +2257,19 @@ C             WRITE(6,*)  PROP(JSS,ISS,IPRDZM),PROP(JSS,ISS,IPRDZD)
 *           The energy difference is used to define the norm of the
 *           wave vector.
 *
-            rkNorm=ABS(EDIFF)/(HBAR*SPEED_OF_LIGHT)
-*           rkNorm=1.0D-31
-*
-C COMBINED SYMMETRY OF STATES:
-            JOB1=iWork(lJBNUM+I-1)
-            JOB2=iWork(lJBNUM+J-1)
-            LSYM1=IRREP(JOB1)
-            LSYM2=IRREP(JOB2)
-            ISY12=MUL(LSYM1,LSYM2)
-C THE SYMMETRY CHECK MASK:
-            MASK=2**(ISY12-1)
-C ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
-C FIRST SET UP AN OFFSET TABLE FOR SYMMETRY BLOCKS OF TDMSCR
-            IOF=0
-            Call IZERO(IOFF,8)
-            DO ISY1=1,NSYM
-               ISY2=MUL(ISY1,ISY12)
-               IF (ISY1.LT.ISY2) CYCLE
-               IOFF(ISY1)=IOF
-               IOFF(ISY2)=IOF
-               NB1=NBASF(ISY1)
-               NB2=NBASF(ISY2)
-               NB12=NB1*NB2
-               IF(ISY1.EQ.ISY2) NB12=(NB12+NB1)/2
-               IOF=IOF+NB12
-            END DO
-C CALCULATE THE SYMMETRIC AND ANTISYMMETRIC FOLDED TRANS D MATRICES
-C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
-*
-*           Pick up the transition density between the two states from
-*           disc. Generated in PROPER.
-*
-            ISTATE=MAX(i,j)
-            JSTATE=MIN(i,j)
-            ij=ISTATE*(ISTATE-1)/2+JSTATE
-            iDisk=iWork(liTocM+ij-1)
-            Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
+*           rkNorm=EDIFF_/(HBAR*SPEED_OF_LIGHT)
+            rkNorm=ABS(EDIFF_)/(HBAR*SPEED_OF_LIGHT)
 *
 *           Iterate over the quadrature points.
 *
-            FX=0.0D0
-            FY=0.0D0
-            FZ=0.0D0
-            F =0.0D0
-            R =0.0D0
+            CALL DCOPY_(5*n12,0.0D0,0,WORK(LF),1)
+* 5 elements for FX,FY,FZ,F and R
+* even if X,Y and Z are not actually computed yet
 *
 *           Initialize output arrays
 *
-            CALL DCOPY_(NQUAD*5,0.0D0,0,WORK(LRAW),1)
-            CALL DCOPY_(NQUAD*5,0.0D0,0,WORK(LWEIGH),1)
+            CALL DCOPY_(NQUAD*5*n12,0.0D0,0,WORK(LRAW),1)
+            CALL DCOPY_(NQUAD*5*n12,0.0D0,0,WORK(LWEIGH),1)
 
             Do iQuad = 1, nQuad
                iStorage = iOff_ + (iQuad-1)*nData + ipStorage -1
@@ -2414,34 +2284,31 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                y=Work((iQuad-1)*4+1+ipR)
                z=Work((iQuad-1)*4+2+ipR)
 
-               PORIG(1,IPRTMOS_RS)=rkNorm*x
-               PORIG(2,IPRTMOS_RS)=rkNorm*y
-               PORIG(3,IPRTMOS_RS)=rkNorm*z
-               Call DCopy_(3,PORIG(1,IPRTMOS_RS),1,
-     &                       Work(iStorage+ip_kvector),1)
+               Wavevector(1)=rkNorm*x
+               Wavevector(2)=rkNorm*y
+               Wavevector(3)=rkNorm*z
+               Call DCopy_(3,Wavevector,1,Work(iStorage+ip_kvector),1)
 *
                Weight=Work((iQuad-1)*4+3+ipR)
                Work(iStorage+ip_w)=Weight
 *
 *              Generate the associated polarization vectors.
 *
-               IF (PORIG(1,IPRTMOS_RS).EQ.0.0D0 .and.
-     &             PORIG(2,IPRTMOS_RS).EQ.0.0D0) Then
+               IF (Wavevector(1).EQ.0.0D0 .and.
+     &             Wavevector(2).EQ.0.0D0) Then
                   P1(1)=1.0D0
                   P1(2)=0.0D0
                   P1(3)=0.0D0
                ELSE
-                  P1(1)= PORIG(2,IPRTMOS_RS)
-                  P1(2)=-PORIG(1,IPRTMOS_RS)
+                  P1(1)= Wavevector(2)
+                  P1(2)=-Wavevector(1)
                   P1(3)= 0.0D0
                END IF
                Tmp=1.0D0/SQRT(P1(1)**2+P1(2)**2+P1(3)**2)
                P1(1)=P1(1)*Tmp
                P1(2)=P1(2)*Tmp
                P1(3)=P1(3)*Tmp
-               P2(1)=PORIG(2,IPRTMOS_RS)*P1(3)-P1(2)*PORIG(3,IPRTMOS_RS)
-               P2(2)=PORIG(3,IPRTMOS_RS)*P1(1)-P1(3)*PORIG(1,IPRTMOS_RS)
-               P2(3)=PORIG(1,IPRTMOS_RS)*P1(2)-P1(1)*PORIG(2,IPRTMOS_RS)
+               Call Cross_AB(Wavevector,P1,P2)
                Tmp=1.0D0/SQRT(P2(1)**2+P2(2)**2+P2(3)**2)
                P2(1)=P2(1)*Tmp
                P2(2)=P2(2)*Tmp
@@ -2451,21 +2318,62 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *
 *              Compute the vectors (k x e1) and  (k x e2).
 *
-               kxe1(1)=PORIG(2,IPORIG)*P1(3)-PORIG(3,IPORIG)*P1(2)
-               kxe1(2)=PORIG(3,IPORIG)*P1(1)-PORIG(1,IPORIG)*P1(3)
-               kxe1(3)=PORIG(1,IPORIG)*P1(2)-PORIG(2,IPORIG)*P1(1)
-               kxe2(1)=PORIG(2,IPORIG)*P2(3)-PORIG(3,IPORIG)*P2(2)
-               kxe2(2)=PORIG(3,IPORIG)*P2(1)-PORIG(1,IPORIG)*P2(3)
-               kxe2(3)=PORIG(1,IPORIG)*P2(2)-PORIG(2,IPORIG)*P2(1)
+               Call Cross_AB(Wavevector,P1,kxe1)
+               Call Cross_AB(Wavevector,P2,kxe2)
 *
 *              Generate the property integrals associated with this
 *              direction of the wave vector k.
 *
-               Call TMOSInt(PORIG(1,IPRTMOS_RS))
+               iOpt=1
+               Call TMOSInt(Wavevector,iOpt)
 *
 *              Compute the transition property of the property
 *              integrals between the two states.
 *
+               ij_=0
+               Do i_=istart_,iend_
+                  I=IndexE(I_)
+                  MPLET_I=MLTPLT(iWork(lJBNUM+I-1))
+                  Do j_=jstart_,jend_
+                     J=IndexE(J_)
+                     MPLET_J=MLTPLT(iWork(lJBNUM+J-1))
+                     EDIFF=ENERGY(J)-ENERGY(I)
+                     ij_=ij_+1
+                     LFIJ=LF+(ij_-1)*5
+C COMBINED SYMMETRY OF STATES:
+                     JOB1=iWork(lJBNUM+I-1)
+                     JOB2=iWork(lJBNUM+J-1)
+                     LSYM1=IRREP(JOB1)
+                     LSYM2=IRREP(JOB2)
+                     ISY12=MUL(LSYM1,LSYM2)
+C THE SYMMETRY CHECK MASK:
+                     MASK=2**(ISY12-1)
+C ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
+C FIRST SET UP AN OFFSET TABLE FOR SYMMETRY BLOCKS OF TDMSCR
+                     IOF=0
+                     Call IZERO(IOFF,8)
+                     DO ISY1=1,NSYM
+                       ISY2=MUL(ISY1,ISY12)
+                       IF (ISY1.LT.ISY2) CYCLE
+                       IOFF(ISY1)=IOF
+                       IOFF(ISY2)=IOF
+                       NB1=NBASF(ISY1)
+                       NB2=NBASF(ISY2)
+                       NB12=NB1*NB2
+                       IF(ISY1.EQ.ISY2) NB12=(NB12+NB1)/2
+                       IOF=IOF+NB12
+                     END DO ! ISY1
+C CALCULATE THE SYMMETRIC AND ANTISYMMETRIC FOLDED TRANS D MATRICES
+C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
+*
+*           Pick up the transition density between the two states from
+*           disc. Generated in PROPER.
+*
+                     ISTATE=MAX(i,j)
+                     JSTATE=MIN(i,j)
+                     ij=ISTATE*(ISTATE-1)/2+JSTATE
+                     iDisk=iWork(liTocM+ij-1)
+                     Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
                DO IPROP = IPRTMOS_RS, IPRTMOS_RS+11
                   ITYPE=0
                   IF (PTYPE(IPROP).EQ.'HERMSING') ITYPE=1
@@ -2473,10 +2381,10 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                   IF (PTYPE(IPROP).EQ.'HERMTRIP') ITYPE=3
                   IF (PTYPE(IPROP).EQ.'ANTITRIP') ITYPE=4
                   LABEL=PNAME(IPROP)
-                  Call MK_PROP(PROP,IPROP,I,J,LABEL,ITYPE,
+                  Call MK_PROP(PROP,IPROP,ISTATE,JSTATE,LABEL,ITYPE,
      &                         WORK(LIP),NIP,WORK(LSCR),NSCR,
      &                         MASK,ISY12,IOFF)
-               END DO
+               END DO ! IPROP
 *
 *              (1) the oam part
 *
@@ -2500,263 +2408,198 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                E2A = - Imaginary * E2A
 *
 *              (2) the magnetic-spin part
+C
+C              Well the B.S term is overkill, get ride of it.
+C              Why do it when we don't do the L.S-term!
+C
 *
-*              Pick up the property. This is a bit of overkill
-*              in the spin-free case. Never mind!
+*              Finally, evaluate the transition moment from the two
+*              different contributions.
 *
-               TM0_RX=PROP(I,J,iPRTMOS_0R  )
-               TM0_RY=PROP(I,J,iPRTMOS_0R+1)
-               TM0_RZ=PROP(I,J,iPRTMOS_0R+2)
-               TM0_IX=PROP(I,J,iPRTMOS_0I  )
-               TM0_IY=PROP(I,J,iPRTMOS_0I+1)
-               TM0_IZ=PROP(I,J,iPRTMOS_0I+2)
-*                                                     ^
-*              Accumulate all contributions (S_1,MS_1|O|S_2,MS_2)
+               TM1 = E1A
+               TM2 = E2A
 *
-               F_Temp=0.0D0
-               R_Temp=0.0D0
-               r_S1= DBLE(MPLET_I-1)/2.0D0
-               r_S2= DBLE(MPLET_J-1)/2.0D0
-               r_MS1 = - r_S1 - 1.0D0
-               DO MS_1 = 1, MPLET_I
-                  r_MS1=r_MS1+1.0D0
+               Work(iStorage+ip_TM1R)=DBLE(TM1)
+               Work(iStorage+ip_TM1I)=AIMAG(TM1)
+               Work(iStorage+ip_TM2R)=DBLE(TM2)
+               Work(iStorage+ip_TM2I)=AIMAG(TM2)
 *
-                  r_MS2 = - r_S2 - 1.0D0
-                  DO MS_2 = 1, MPLET_J
-                     r_MS2=r_MS2+1.0D0
+*              Integrate over all directions of the polarization
+*              vector and divide with the "distance", 2*pi, to get
+*              the average value.
 *
-*                    Only cases for S1=S2
-*
-                     If (ABS(MS_1-MS_2).eq.0) Then
-*
-*                       MS_2 = MS_1
-*
-                        Fact = r_MS1
-                        TIJ(1)=DCMPLX(0.0D0,0.0D0)
-                        TIJ(2)=DCMPLX(0.0D0,0.0D0)
-                        TIJ(3)=DCMPLX(Fact ,0.0D0)
-                     Else If (MS_1-MS_2.eq.1) Then
-*
-*                       MS_2 = MS_1-1
-*
-                        Fact =-Sqrt(
-     &                        ((r_S1+r_MS1)*(r_S1-r_MS1+1.0D0))/2.0D0
-     &                          )
-                        TIJ(1)=DCMPLX(-Fact,0.0D0)
-                        TIJ(2)=DCMPLX(0.0D0,Fact )
-                        TIJ(3)=DCMPLX(0.0D0,0.0D0)
-                     Else If (MS_1-MS_2.eq.-1) Then
-*
-*                       MS_2 = MS_1+1
-*
-                        Fact = Sqrt(
-     &                        ((r_S1-r_MS1)*(r_S1+r_MS1+1.0D0))/2.0D0
-     &                             )
-                        TIJ(1)=DCMPLX(Fact, 0.0D0)
-                        TIJ(2)=DCMPLX(0.0D0,Fact )
-                        TIJ(3)=DCMPLX(0.0D0,0.0D0)
-                     Else
-                        CYCLE
-                     End If
-*
-*                    Evaluate the expectation value of the triplet-
-*                    excitation operator time the property integral.
-*
-                     T1(1)=DCMPLX(TM0_RX,TM0_IX)*TIJ(1)
-                     T1(2)=DCMPLX(TM0_RY,TM0_IY)*TIJ(2)
-                     T1(3)=DCMPLX(TM0_RZ,TM0_IZ)*TIJ(3)
-*
-*                    Trace it against the cross product of the
-*                    wave vector and the polarization direction.
-*
-                     E1B=T1(1)*kxe1(1)+T1(2)*kxe1(2)+T1(3)*kxe1(3)
-                     E2B=T1(1)*kxe2(1)+T1(2)*kxe2(2)+T1(3)*kxe2(3)
-*
-*                    Finally, evaluate the transition moment from the two
-*                    different contributions.
-*
-                     TM1 = E1A + IMAGINARY*(g_Elec/2.0D0)*E1B
-                     TM2 = E2A + IMAGINARY*(g_Elec/2.0D0)*E2B
-*
-*                    these statements should be outside the loop!
-*
-                     Work(iStorage+ip_TM1R)=DBLE(TM1)
-                     Work(iStorage+ip_TM1I)=AIMAG(TM1)
-                     Work(iStorage+ip_TM2R)=DBLE(TM2)
-                     Work(iStorage+ip_TM2I)=AIMAG(TM2)
-*
-*                    Integrate over all directions of the polarization
-*                    vector and divide with the "distance", 2*pi, to get
-*                    the average value.
-*
-                     TM_2 = Half*DBLE(DCONJG(TM1)*TM1 +DCONJG(TM2)*TM2)
-*
-*                    Compute the oscillator strength
-*
-                     F_Temp = Max( F_Temp, 2.0D0*TM_2/ABS(EDIFF))
-*
-*                    Compute the rotatory strength
-*
-*                    TMR = (TM1 + IMAGINARY*TM2)/Sqrt(2.0D0)
-*                    TML = (TM1 - IMAGINARY*TM2)/Sqrt(2.0D0)
-*
-*                    TM_2 =      DBLE(DCONJG(TMR)*TMR -DCONJG(TML)*TML)
-                     TM_2 = - 2.0D0*(
-     &                              DBLE(TM1)*AIMAG(TM2)
-     &                             -DBLE(TM2)*AIMAG(TM1)
-     &                              )
-                     If (Abs(R_Temp).lt.Abs(TM_2/ABS(EDIFF)))
-     &                  R_Temp=TM_2/ABS(EDIFF)
-*
-*                    Now let's convert this to the messy unit of the
-*                    rotational strength: 10^-40 esu^2 cm^2.
-*
-                     R_Temp=R_Temp*AU2ESUISH
-*
-                  END DO
-               END DO
-*
-*              Save the raw oscillator strengths in a given direction
-*
-               WORK(LRAW+(IQUAD-1)+0*NQUAD) = F_TEMP
-               WORK(LRAW+(IQUAD-1)+1*NQUAD) = R_TEMP
-               WORK(LRAW+(IQUAD-1)+2*NQUAD) = X
-               WORK(LRAW+(IQUAD-1)+3*NQUAD) = Y
-               WORK(LRAW+(IQUAD-1)+4*NQUAD) = Z
-
+               TM_2 = Half*DBLE(DCONJG(TM1)*TM1 +DCONJG(TM2)*TM2)
 *
 *              Compute the oscillator strength
 *
-               F = F + Weight * F_Temp
-               R = R + Weight * R_Temp
+               F_Temp = 2.0D0*TM_2/EDIFF
+*
+*              Compute the rotatory strength
+*
+*              TMR = (TM1 + IMAGINARY*TM2)/Sqrt(2.0D0)
+*              TML = (TM1 - IMAGINARY*TM2)/Sqrt(2.0D0)
+*
+*              TM_2 =      DBLE(DCONJG(TMR)*TMR -DCONJG(TML)*TML)
+               TM_2 = - 2.0D0*(
+     &                        DBLE(TM1)*AIMAG(TM2)
+     &                        -DBLE(TM2)*AIMAG(TM1)
+     &                        )
+               R_Temp = TM_2
+*
+*              Now let's convert this to reduced rotational strength
+*              (units of 1e-2 debye*Bohr_magneton)
+*
+               R_Temp=R_Temp*SPEED_OF_LIGHT/EDIFF**2/4.0D0*AU2REDR
+*
+*              Save the raw oscillator strengths in a given direction
+*
+               LRAW_=LRAW+5*NQUAD*(ij_-1)
+               WORK(LRAW_+(IQUAD-1)+0*NQUAD) = F_TEMP
+               WORK(LRAW_+(IQUAD-1)+1*NQUAD) = R_TEMP
+               WORK(LRAW_+(IQUAD-1)+2*NQUAD) = X
+               WORK(LRAW_+(IQUAD-1)+3*NQUAD) = Y
+               WORK(LRAW_+(IQUAD-1)+4*NQUAD) = Z
+*
+*              Compute the oscillator strength
+*
+               Work(LFIJ+3) = Work(LFIJ+3) + Weight * F_Temp
+               Work(LFIJ+4) = Work(LFIJ+4) + Weight * R_Temp
 *
 *              Save the weighted oscillator strengths in a given direction
 *
-               WORK(LWEIGH+(IQUAD-1)+0*NQUAD) = F_TEMP*WEIGHT
-               WORK(LWEIGH+(IQUAD-1)+1*NQUAD) = R_TEMP*WEIGHT
-               WORK(LWEIGH+(IQUAD-1)+2*NQUAD) = X
-               WORK(LWEIGH+(IQUAD-1)+3*NQUAD) = Y
-               WORK(LWEIGH+(IQUAD-1)+4*NQUAD) = Z
+               LWEIGH_=LWEIGH+5*NQUAD*(ij_-1)
+               WORK(LWEIGH_+(IQUAD-1)+0*NQUAD) = F_TEMP*WEIGHT
+               WORK(LWEIGH_+(IQUAD-1)+1*NQUAD) = R_TEMP*WEIGHT
+               WORK(LWEIGH_+(IQUAD-1)+2*NQUAD) = X
+               WORK(LWEIGH_+(IQUAD-1)+3*NQUAD) = Y
+               WORK(LWEIGH_+(IQUAD-1)+4*NQUAD) = Z
+                  End Do ! j_
+               End Do ! i_
 *
             End Do ! iQuad
 *
-            Call Add_Info('ITMS(SF)',F,1,6)
-            Call Add_Info('ROTS(SF)',R,1,6)
+            ij_=0
+            Do i_=istart_,iend_
+              I=IndexE(I_)
+              Do j_=jstart_,jend_
+                J=IndexE(J_)
+                ij_=ij_+1
+                LFIJ=LF+(ij_-1)*5
+*
+                F=Work(LFIJ+3)
+                R=Work(LFIJ+4)
+                Call Add_Info('ITMS(SF)',F,1,6)
+                Call Add_Info('ROTS(SF)',R,1,6)
 *
 *           Note that the weights are normalized to integrate to
 *           4*pi over the solid angles.
 *
-            If (.NOT.Do_SK) Then
-               F = F / (4.0D0*PI)
-               R = R / (4.0D0*PI)
-            End If
+                If (.NOT.Do_SK) Then
+                   F = F / (4.0D0*PI)
+                   R = R / (4.0D0*PI)
+                End If
 
-            IF (ABS(F).LT.OSTHR) CYCLE
-            AX=(AFACTOR*EDIFF**2)*FX
-            AY=(AFACTOR*EDIFF**2)*FY
-            AZ=(AFACTOR*EDIFF**2)*FZ
-            A =(AFACTOR*EDIFF**2)*F
+                IF (ABS(F).LT.OSTHR) CYCLE
+                A =(AFACTOR*EDIFF**2)*F
 *
-            If (iPrint.eq.0) Then
-               WRITE(6,*)
-               If (Do_SK) Then
-                  CALL CollapseOutput(1,
-     &                'Transition moment strengths:')
-                  WRITE(6,'(4x,a,3F8.4,a)')
-     &                  'Direction of the k-vector: ',
-     &                   (k_vector(k,iVec),k=1,3),' (au)'
-               Else
-                  CALL CollapseOutput(1,
-     &                'Isotropic transition moment strengths '//
-     &                '(spin-free states):')
-               End If
-               WRITE(6,'(3X,A)')
-     &                '--------------------------------------'//
-     &                '-------------------'
-               IF (OSTHR.GT.0.0D0) THEN
-                  WRITE(6,30) 'for osc. strength at least',OSTHR
-               END IF
-               WRITE(6,*)
-               If (.NOT.Do_SK) Then
-                  WRITE(6,'(4x,a,I4,a)')
-     &                 'Integrated over ',nQuad,' directions of the'//
-     &                 ' wave vector'
-                  WRITE(6,'(4x,a)')
-     &                 'The oscillator strength is '//
-     &                 'integrated over all directions of the polar'//
-     &                 'ization vector'
-               End If
-               WRITE(6,*)
-               WRITE(6,*) ' Units:'
-               WRITE(6,*) ' [Osc. strength] = unitless'
-               WRITE(6,*) ' [Rot. strength] = 1.0D-40 esu**2 cm**2'
-               WRITE(6,*)
-               WRITE(6,39) 'From','To','Osc. strength',
-     &                                 'Rot. strength',
-     &               'Einstein coefficients Ax, Ay, Az (sec-1)   ',
-     &               'Total A (sec-1)'
-               WRITE(6,32)
-               iPrint=1
-            END IF
+                If (iPrint.eq.0) Then
+                   WRITE(6,*)
+                   If (Do_SK) Then
+                      CALL CollapseOutput(1,
+     &             'Transition moment strengths (spin-free states):')
+                      WRITE(6,'(3X,A)')
+     &              '-----------------------------------------------'
+                      WRITE(6,'(4x,a)')
+     &              'The oscillator strength is '//
+     &              'integrated over all directions of the polar'//
+     &              'ization vector'
+                      WRITE(6,'(4x,a,3F8.4,a)')
+     &              'Direction of the k-vector: ',
+     &              (k_vector(k,iVec),k=1,3),' (au)'
+                Else
+                    CALL CollapseOutput(1,
+     &              'Isotropic transition moment strengths '//
+     &              '(spin-free states):')
+                    WRITE(6,'(3X,A)')
+     &              '--------------------------------------'//
+     &              '-------------------'
+                End If
+                IF (OSTHR.GT.0.0D0) THEN
+                    WRITE(6,30) 'for osc. strength at least',OSTHR
+                 END IF
+                 WRITE(6,*)
+                 If (.NOT.Do_SK) Then
+                    WRITE(6,'(4x,a,I4,a)')
+     &                'Integrated over ',nQuad,' directions of the '//
+     &                'wave vector'
+                    WRITE(6,'(4x,a)')
+     &                'The oscillator strength is '//
+     &                'integrated over all directions of the polar'//
+     &                'ization vector'
+                 End If
+                 WRITE(6,*)
+                 WRITE(6,39) 'From','To','Osc. strength',
+     &                   'Red. rot. str.','Total A (sec-1)'
+                 WRITE(6,40)
+                 iPrint=1
+                END IF
 *
 *     Regular print
 *
-            WRITE(6,38) I,J,F,R,AX,AY,AZ,A
+                WRITE(6,33) I,J,F,R,A
 *
 *     Printing raw (unweighted) and direction for every transition
 *
-            IF(PRRAW) THEN
-              WRITE(6,*)
-              WRITE(6,*)
-              WRITE(6,*)"        To  From     Raw Osc. str."//
-     &          "   Mag. cont.       "//
-     &          "   kx,            ky,            kz "
-              WRITE(6,*)
-     &  '        -------------------------------------------'//
-     &  '------------------------------------------------'
-              DO IQUAD = 1, NQUAD
-                WRITE(6,'(5X,2I5,5X,5G16.8)') I,J,
-     &          WORK(LRAW+(IQUAD-1)+0*NQUAD),
-     &          WORK(LRAW+(IQUAD-1)+1*NQUAD),
-     &          WORK(LRAW+(IQUAD-1)+2*NQUAD),
-     &          WORK(LRAW+(IQUAD-1)+3*NQUAD),
-     &          WORK(LRAW+(IQUAD-1)+4*NQUAD)
-              END DO
-              WRITE(6,*)
-              WRITE(6,*)
-            END IF
+                IF(PRRAW) THEN
+                  WRITE(6,*)
+                  WRITE(6,*)
+                  WRITE(6,34) 'From', 'To', 'Raw osc. str.',
+     &                        'Mag. cont.','kx','ky','kz'
+                  WRITE(6,32)
+                  LRAW_=LRAW+5*NQUAD*(ij_-1)
+                  DO IQUAD = 1, NQUAD
+                    WRITE(6,'(5X,2I5,5X,5G16.8)') I,J,
+     &              WORK(LRAW_+(IQUAD-1)+0*NQUAD),
+     &              WORK(LRAW_+(IQUAD-1)+1*NQUAD),
+     &              WORK(LRAW_+(IQUAD-1)+2*NQUAD),
+     &              WORK(LRAW_+(IQUAD-1)+3*NQUAD),
+     &              WORK(LRAW_+(IQUAD-1)+4*NQUAD)
+                  END DO
+                  WRITE(6,32)
+                  WRITE(6,*)
+                END IF
 *
 *     Printing weighted and direction for every transition
 *
-            IF(PRWEIGHT) THEN
-              WRITE(6,*)
-              WRITE(6,*)
-              WRITE(6,*)"        To  From     Wei Osc. str."//
-     &          "   Mag. cont.       "//
-     &          "   kx,            ky,            kz "
-              WRITE(6,*)
-     &  '        -------------------------------------------'//
-     &  '------------------------------------------------'
-              DO IQUAD = 1, NQUAD
-                WRITE(6,'(5X,2I5,5X,5G16.8)') I,J,
-     &          WORK(LWEIGH+(IQUAD-1)+0*NQUAD)/ (4.0D0*PI),
-     &          WORK(LWEIGH+(IQUAD-1)+1*NQUAD)/ (4.0D0*PI),
-     &          WORK(LWEIGH+(IQUAD-1)+2*NQUAD)            ,
-     &          WORK(LWEIGH+(IQUAD-1)+3*NQUAD)            ,
-     &          WORK(LWEIGH+(IQUAD-1)+4*NQUAD)
-              END DO
-              WRITE(6,*)
-              WRITE(6,*)
-            END IF
+                IF(PRWEIGHT) THEN
+                  WRITE(6,*)
+                  WRITE(6,*)
+                  WRITE(6,34) 'From', 'To', 'Weig. osc. str.',
+     &                        'Mag. cont.','kx','ky','kz'
+                  WRITE(6,32)
+                  LWEIGH_=LWEIGH+5*NQUAD*(ij_-1)
+                  DO IQUAD = 1, NQUAD
+                    WRITE(6,'(5X,2I5,5X,5G16.8)') I,J,
+     &              WORK(LWEIGH+(IQUAD-1)+0*NQUAD)/ (4.0D0*PI),
+     &              WORK(LWEIGH+(IQUAD-1)+1*NQUAD)/ (4.0D0*PI),
+     &              WORK(LWEIGH+(IQUAD-1)+2*NQUAD)            ,
+     &              WORK(LWEIGH+(IQUAD-1)+3*NQUAD)            ,
+     &              WORK(LWEIGH+(IQUAD-1)+4*NQUAD)
+                  END DO
+                  WRITE(6,32)
+                  WRITE(6,*)
+                END IF
+              End Do
+            End Do
 *
          END DO
       END DO
 *
       If (iPrint.EQ.1) THEN
-         WRITE(6,32)
+         WRITE(6,40)
          If (Do_SK) Then
             CALL CollapseOutput(0,
-     &                   'Transition moment strengths:')
+     &                'Transition moment strengths (spin-free states):')
          Else
          CALL CollapseOutput(0,
      &                'Isotropic transition moment strengths '//
@@ -2773,10 +2616,17 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *     Deallocate some arrays.
 *
       Call GetMem('STORAGE','FREE','Real',ipStorage,nStorage)
-      CALL GETMEM('RAW   ','FREE','REAL',LRAW,NQUAD*5)
-      CALL GETMEM('WEIGHT','FREE','REAL',LWEIGH,NQUAD*5)
+      CALL GETMEM('RAW   ','FREE','REAL',LRAW,NQUAD*5*nmax2)
+      CALL GETMEM('WEIGHT','FREE','REAL',LWEIGH,NQUAD*5*nmax2)
       CALL GETMEM('TDMSCR','FREE','Real',LSCR,4*NSCR)
       CALL GETMEM('IP    ','FREE','REAL',LIP,NIP)
+      CALL GETMEM('OSCSTR','FREE','REAL',LF,5*nmax2)
+      if (TMOgroup) Then
+        Call mma_DeAllocate(TMOgrp1)
+        Call mma_DeAllocate(TMOgrp2)
+      EndIf
+      Call CWTime(TCpu2,TWall2)
+      write(6,*) 'Time for TMOs : ',TCpu2-TCpu1,TWall2-TWall1
 *
 *     Do some cleanup
 *
@@ -2817,9 +2667,17 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 35    FORMAT (5X,31('-'))
 36    FORMAT (5X,2(1X,I4),6X,15('-'),1X,ES15.8,1X,A15)
 37    FORMAT (5X,2(1X,I4),6X,15('-'),1X,A15,1X,ES15.8)
-38    FORMAT (5X,2(1X,I4),5X,2(1X,F9.6,6X),4(1X,ES15.8))
-39    FORMAT (5X,2(1X,A4),6X,A15,3X,A13,1X,A47,1X,A15)
-      END
+39    FORMAT (5X,2(1X,A4),6X,A15,1X,A15,1X,A15)
+40    FORMAT (5X,63('-'))
+      Contains
+      Subroutine Cross_AB(A,B,C)
+      Implicit None
+      Real*8 A(3), B(3), C(3)
+      C(1) = A(2)*B(3) - A(3)*B(2)
+      C(2) = A(3)*B(1) - A(1)*B(3)
+      C(3) = A(2)*B(1) - A(1)*B(2)
+      END Subroutine Cross_AB
+      END Subroutine EigCTL
       Subroutine Setup_O()
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "nq_info.fh"

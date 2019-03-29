@@ -8,14 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE SMMAT_CHECK(PROP,PRMAT,NSS,PRLBL,IPRCMP,
-     &                       USOR,USOI,ISO,JSO,ThrSparse)
+      SUBROUTINE SMMAT2(PROP,PRMAT,NSS,PRLBL,IPRCMP,IJ)
       IMPLICIT REAL*8 (A-H,O-Z)
       CHARACTER*(*) PRLBL
-      DIMENSION PRMAT(NSS,NSS), USOR(NSS,NSS), USOI(NSS,NSS)
+      DIMENSION PRMAT(NSS,NSS)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='SMMAT')
+      Integer IJ(4)
 #include "SysDef.fh"
 #include "Molcas.fh"
 #include "cntrl.fh"
@@ -25,7 +25,7 @@
 #include "WrkSpc.fh"
       DIMENSION PROP(NSTATE,NSTATE,NPROP)
 *
-      IPRNUM=0
+      IPRNUM=-1
 C IFSPIN takes values the values 0,1,2
 C 0 = spin free property
 C 1 = spin operator (S)
@@ -33,23 +33,37 @@ C 2 = spin dependent property, triplet operator
       IFSPIN=0
 
       DO IPROP=1,NPROP
-        IF (PRLBL.EQ.PNAME(IPROP)) THEN
-           IFSPIN=0
-           IF(IPRCMP.EQ.ICOMP(IPROP)) IPRNUM=IPROP
-        ELSE IF (PRLBL(1:4).EQ.'SPIN') THEN
-           IFSPIN=1
-        ELSE IF (PRLBL(1:5).EQ.'TMOS0') THEN
-           IFSPIN=2
-*
-*          Note that the integral is complex. Select the real or the
-*          imaginary component here.
-*
-           IF (PRLBL(1:8).EQ.PNAME(IPROP)) IPRNUM=IPROP
-        END IF
+         IF (PRLBL.EQ.PNAME(IPROP)) THEN
+            IF (PRLBL(1:5).eq.'TMOS0') THEN
+               IFSPIN=2
+               IPRNUM=IPROP
+               EXIT
+            ELSE
+               IFSPIN=0
+               IF (IPRCMP.EQ.ICOMP(IPROP)) THEN
+                  IPRNUM=IPROP
+                  EXIT
+               END IF
+            END IF
+         ELSE IF (PRLBL(1:4).EQ.'SPIN') THEN
+            IFSPIN=1
+            IPRNUM=0
+            EXIT
+         END IF
       END DO
+      IF (IPRNUM.EQ.-1) THEN
+         Write (6,*) 'SMMAT_CHECK, Abend IPRNUM.EQ.-1'
+         Write (6,*) 'SMMAT_CHECK, PRLBL=','>',PRLBL,'<'
+         Call Abend()
+      ENDIF
 C Mapping from spin states to spin-free state and to spin:
       ISS=0
-      DO ISTATE=1,NSTATE
+      DO ISTATE=1,IJ(3)-1
+        JOB1=iWork(lJBNUM+ISTATE-1)
+        MPLET1=MLTPLT(JOB1)
+        ISS=ISS+MPLET1
+      End Do
+      DO ISTATE=IJ(3),IJ(4)
        JOB1=iWork(lJBNUM+ISTATE-1)
        MPLET1=MLTPLT(JOB1)
        S1=0.5D0*DBLE(MPLET1-1)
@@ -57,16 +71,14 @@ C Mapping from spin states to spin-free state and to spin:
        DO MSPROJ1=-MPLET1+1,MPLET1-1,2
         SM1=0.5D0*DBLE(MSPROJ1)
         ISS=ISS+1
-*
-*       Check if the spin-free state contributes to the spin state
-*
-        temp=USOR(ISS,ISO)**2 + USOI(ISS,ISO)**2
-        temp=Max(temp,USOR(ISS,JSO)**2 + USOI(ISS,JSO)**2)
-        If (temp.le.ThrSparse)  Cycle
 
         JSS=0
-
-        DO JSTATE=1,NSTATE
+        DO JSTATE=1,IJ(1)-1
+         JOB2=iWork(lJBNUM+JSTATE-1)
+         MPLET2=MLTPLT(JOB2)
+         JSS=JSS+MPLET2
+        End Do
+        DO JSTATE=IJ(1),IJ(2)
          JOB2=iWork(lJBNUM+JSTATE-1)
          MPLET2=MLTPLT(JOB2)
          S2=0.5D0*DBLE(MPLET2-1)
@@ -74,12 +86,6 @@ C Mapping from spin states to spin-free state and to spin:
          DO MSPROJ2=-MPLET2+1,MPLET2-1,2
           SM2=0.5D0*DBLE(MSPROJ2)
           JSS=JSS+1
-*
-*         Check if the spin-free state contributes to the spin state
-*
-          temp=USOR(JSS,ISO)**2 + USOI(JSS,ISO)**2
-          temp=Max(temp,USOR(JSS,JSO)**2 + USOI(JSS,JSO)**2)
-          If (temp.le.ThrSparse)  Cycle
 
           IF (IFSPIN.EQ.0 .AND. IPRNUM.NE.0) THEN
                   IF (MPLET1.EQ.MPLET2 .AND. MSPROJ1.EQ.MSPROJ2) THEN
@@ -122,7 +128,7 @@ C see section 3 (Spin_orbit coupling in RASSI) in
 C P A Malmqvist, et. al CPL, 357 (2002) 230-240
 C for details
 C
-C Note that we work on the x,y, and z components at this time.
+C Note that we work on the x, y, and z components at this time.
 C
 C On page 234 we have the notation V^{AB}(x), that is the
 C potential has Cartesian components. Here, however, this is
@@ -135,57 +141,94 @@ C here and form the inner product
 C (k x e_l)_i V^{AB} . T(i)
 C outside the code.
 C
+*define _TEST_
+#ifdef _TEST_
+                  FACT=1.0D0/SQRT(DBLE(MPLET1))
+                  IF(MPLET1.EQ.MPLET2-2) FACT=-FACT
+                  CGM=FACT*DCLEBS(S2,1.0D0,S1,SM2,-1.0D0,SM1)
+                  CG0=FACT*DCLEBS(S2,1.0D0,S1,SM2, 0.0D0,SM1)
+                  CGP=FACT*DCLEBS(S2,1.0D0,S1,SM2,+0.0D0,SM1)
+                  CGX= SQRT(0.5D0)*(CGM-CGP)
+                  CGY=-SQRT(0.5D0)*(CGM+CGP)
+*
+                  EXPKR=PROP(ISTATE,JSTATE,IPRNUM)
+*
+                  IF (IPRCMP.EQ.1) THEN
+                    EXPKR=EXPKR*CGX
+                  ELSE IF (IPRCMP.EQ.2) THEN
+                    EXPKR=EXPKR*CGY
+                  ELSE IF (IPRCMP.EQ.3) THEN
+                    EXPKR=EXPKR*CG0
+                  END IF
+                  PRMAT(ISS,JSS)= EXPKR
+#else
+C
                   IF(ABS(MPLET1-MPLET2).GT.2) CYCLE
                   IF(ABS(MSPROJ1-MSPROJ2).GT.2) CYCLE
 C
-                  SXMER=0.0D0
-                  SYMEI=0.0D0
-                  SZMER=0.0D0
+                  SXMER =0.0D0
+                  SYMEI =0.0D0
+                  SZMER =0.0D0
                   SMINUS=0.0D0
-                  SPLUS=0.0D0
-                  ONE = 1.0D0
-                  TWO = 2.0D0
+                  SPLUS =0.0D0
+                  ONE   =1.0D0
+                  TWO   =2.0D0
 C
                   IF(MPLET1+2.EQ.MPLET2) THEN ! <SM|O|S+1M+?>
 C
+C                   MSPROJ1-MSPROJ2=-2
                     IF (MSPROJ1+2.eq.MSPROJ2) THEN ! <SM|O|S+1M+1>
-                      SPLUS=-0.5D0*SQRT((S1+SM1+ONE)*(S1+SM1+TWO))
-                      SXMER=+SMINUS
-                      SYMEI=+SMINUS
+                      SPLUS =-0.5D0*SQRT((S1+SM1+ONE)*(S1+SM1+TWO))
+                      SXMER =+SPLUS
+                      SYMEI =+SPLUS
+C
+C                   MSPROJ1-MSPROJ2= 0
                     ELSE IF (MSPROJ1.eq.MSPROJ2) THEN ! <SM|O|S+1M>
-                      SZMER=SQRT((S1+ONE)**2-SM1**2)
+                      SZMER =SQRT((S1+ONE)**2-SM1**2)
+C
+C                   MSPROJ1-MSPROJ2=+2
                     ELSE IF (MSPROJ1-2.eq.MSPROJ2) THEN ! <SM|O|S+1M-1>
                       SMINUS=-0.5D0*SQRT((S1-SM1+ONE)*(S1-SM1+TWO))
-                      SXMER=-SPLUS
-                      SYMEI=+SPLUS
+                      SXMER =-SMINUS
+                      SYMEI =+SMINUS
                     END IF
 C
                   ELSE IF(MPLET1.EQ.MPLET2) THEN ! <SM|O|SM+?>
 C
+C                   MSPROJ1-MSPROJ2=-2
                     IF (MSPROJ1+2.eq.MSPROJ2) THEN ! <SM|O|SM+1>
-                      SPLUS= 0.5D0*SQRT((S1-SM1)*(S1+SM1+ONE))
-                      SXMER=+SPLUS
-                      SYMEI=+SPLUS
+                      SPLUS = 0.5D0*SQRT((S1-SM1)*(S1+SM1+ONE))
+                      SXMER =+SPLUS
+                      SYMEI =+SPLUS
+C
+C                   MSPROJ1-MSPROJ2= 0
                     ELSE IF (MSPROJ1.eq.MSPROJ2) THEN ! <SM|O|SM>
-                      SZMER=SM1
+                      SZMER =SM1
+C
+C                   MSPROJ1-MSPROJ2=+2
                     ELSE IF (MSPROJ1-2.eq.MSPROJ2) THEN ! <SM|O|SM-1>
                       SMINUS=-0.5D0*SQRT((S1+SM1)*(S1-SM1+ONE))
-                      SXMER=-SMINUS
-                      SYMEI=+SMINUS
+                      SXMER =-SMINUS
+                      SYMEI =+SMINUS
                     END IF
 C
                   ELSE IF(MPLET1-2.EQ.MPLET2) THEN ! <SM|O|S-1M+?>
 C
-                    IF (MSPROJ1-2.eq.MSPROJ2) THEN ! <SM|O|S-1M-1>
-                      SMINUS=0.5D0*SQRT((S1+SM1)*(S1+SM1-ONE))
-                      SXMER=-SMINUS
-                      SYMEI= SMINUS
+C                   MSPROJ1-MSPROJ2=-2
+                    IF (MSPROJ1+2.eq.MSPROJ2) THEN ! <SM|O|S-1M+1>
+                      SPLUS =0.5D0*SQRT((S1-SM1)*(S1-SM1-ONE))
+                      SXMER = SPLUS
+                      SYMEI = SPLUS
+C
+C                   MSPROJ1-MSPROJ2= 0
                     ELSE IF (MSPROJ1.eq.MSPROJ2) THEN ! <SM|O|S-1M>
-                      SZMER=SQRT(S1**2-SM1**2)
-                    ELSE IF (MSPROJ1+2.eq.MSPROJ2) THEN ! <SM|O|S-1M+1>
-                      SPLUS=0.5D0*SQRT((S1-SM1)*(S1-SM1-ONE))
-                      SXMER= SPLUS
-                      SYMEI= SPLUS
+                      SZMER =SQRT(S1**2-SM1**2)
+C
+C                   MSPROJ1-MSPROJ2=+2
+                    ELSE IF (MSPROJ1-2.eq.MSPROJ2) THEN ! <SM|O|S-1M-1>
+                      SMINUS=0.5D0*SQRT((S1+SM1)*(S1+SM1-ONE))
+                      SXMER =-SMINUS
+                      SYMEI = SMINUS
                     END IF
 C
                   END IF
@@ -197,6 +240,7 @@ C
                   ELSE IF (IPRCMP.EQ.3) THEN
                     PRMAT(ISS,JSS)=SZMER * PROP(ISTATE,JSTATE,IPRNUM)
                   END IF
+#endif
           END IF
 
          END DO

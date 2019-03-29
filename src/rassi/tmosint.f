@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SubRoutine TMOSInt(wavevector)
+      SubRoutine TMOSInt(wavevector,iOpt)
 ************************************************************************
 *                                                                      *
 * Object: driver for computation of TMOS integrals                     *
@@ -24,7 +24,7 @@
 *     OperC: list the character of each component of the operator
 *     CoorO: list of origins of the operator, one for each component
       Integer, Dimension(:), Allocatable :: ipList, OperI, OperC
-      Real*8, Dimension(:), Allocatable :: CoorO
+      Real*8, Dimension(:), Allocatable :: CoorO, Nuc
       Real*8 wavevector(3)
 #include "itmax.fh"
 #include "info.fh"
@@ -44,57 +44,57 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-*     Electromagnetic field radation integrals.                        *
+*     Electromagnetic field radiation integrals.                       *
 *                                                                      *
 *     Note that the integral is not symmetric or antisymmetric!        *
 *                                                                      *
 ************************************************************************
 ************************************************************************
-      rHrmt=-One ! Note used
+      rHrmt=-One ! Not used
 *
 *     B*s Magnetic * Spin
 *
+      If (iOpt.eq.2) Then
       nOrdOp = 0
       Label='TMOS0'
       nComp = 2
       Call Allocate_Auxiliary()
-      Call GetMem('Nuc   ','ALLO','REAL',ipNuc,nComp)
 *     Here we put in the k-vector
       Call FZero(CoorO,3*nComp)
       Call dcopy_(3,wavevector,1,CoorO,1)
 *
 *     The electromagnetic field operator contributes to all
 *     irreducible irreps, hence OperI=255. Since the operator
-*     it self is not symmetry adopted OperC is set to a dummy value.
+*     itself is not symmetry-adapted OperC is set to a dummy value.
 *
       OperI(1   ) = 255
       OperI(1+1 ) = 255
       OperC(1   ) = 0 ! Dummy
       OperC(1+1 ) = 0 ! Dummy
 *
-      Call dcopy_(nComp,Zero,0,Work(ipNuc),1)
+      Call dcopy_(nComp,Zero,0,Nuc,1)
       Call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,
-     &           CoorO,nOrdOp,Work(ipNuc),rHrmt,OperC,
+     &           CoorO,nOrdOp,Nuc,rHrmt,OperC,
      &           dum,1,dum,idum,0,0,
      &           dum,1,0)
 *
-      Call GetMem('Nuc   ','FREE','REAL',ipNuc,nComp)
       Call Deallocate_Auxiliary()
+      End If
 *
 *     A*p
 *
+      If (iOpt.le.2) Then
       nOrdOp = 1
       Label='TMOS'
       nComp = 12
       Call Allocate_Auxiliary()
-      Call GetMem('Nuc   ','ALLO','REAL',ipNuc,nComp)
 *     Here we put in the k-vector
       Call FZero(CoorO,3*nComp)
       Call dcopy_(3,wavevector,1,CoorO,1)
 *
 *     The electromagnetic field operator contributes to all
 *     irreducible irreps, hence OperI=255. Since the operator
-*     it self is not symmetry adapted OperC is set to a dummy value.
+*     itself is not symmetry-adapted OperC is set to a dummy value.
 *
       OperI(1   ) = 255
       OperI(1+1 ) = 255
@@ -121,22 +121,22 @@
       OperC(1+10) = 0 ! Dummy
       OperC(1+11) = 0 ! Dummy
 *
-      Call dcopy_(nComp,Zero,0,Work(ipNuc),1)
+      Call dcopy_(nComp,Zero,0,Nuc,1)
       Call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,
-     &           CoorO,nOrdOp,Work(ipNuc),rHrmt,OperC,
+     &           CoorO,nOrdOp,Nuc,rHrmt,OperC,
      &           dum,1,dum,idum,0,0,
      &           dum,1,0)
 *
-      Call GetMem('Nuc   ','FREE','REAL',ipNuc,nComp)
       Call Deallocate_Auxiliary()
+      End If
 *
 *     The A^2 term
 *
+      If (iOpt.gt.2) Then
       nOrdOp = 0
       Label='TMOS2'
       nComp = 2
       Call Allocate_Auxiliary()
-      Call GetMem('Nuc   ','ALLO','REAL',ipNuc,nComp)
 *     Here we put in the k-vector
       Call FZero(CoorO,3*nComp)
       Call dcopy_(3,wavevector,1,CoorO,1)
@@ -145,21 +145,21 @@
 *
 *     The electromagnetic field operator contributes to all
 *     irreducible irreps, hence OperI=255. Since the operator
-*     it self is not symmetry adopted OperC is set to a dummy value.
+*     itself is not symmetry-adapted OperC is set to a dummy value.
 *
       OperI(1   ) = 255
       OperI(1+1 ) = 255
       OperC(1   ) = 0 ! Dummy
       OperC(1+1 ) = 0 ! Dummy
 *
-      Call dcopy_(nComp,Zero,0,Work(ipNuc),1)
+      Call dcopy_(nComp,Zero,0,Nuc,1)
       Call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,
-     &           CoorO,nOrdOp,Work(ipNuc),rHrmt,OperC,
+     &           CoorO,nOrdOp,Nuc,rHrmt,OperC,
      &           dum,1,dum,idum,0,0,
      &           dum,1,0)
 *
-      Call GetMem('Nuc   ','FREE','REAL',ipNuc,nComp)
       Call Deallocate_Auxiliary()
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -174,10 +174,11 @@
       Implicit None
 #include "stdalloc.fh"
 *
-      Call mma_Allocate(ipList,nComp)
-      Call mma_Allocate(OperI,nComp)
-      Call mma_Allocate(OperC,nComp)
-      Call mma_Allocate(CoorO,3*nComp)
+      Call mma_Allocate(ipList,nComp,Label='ipList')
+      Call mma_Allocate(OperI,nComp,Label='OperI')
+      Call mma_Allocate(OperC,nComp,Label='OperC')
+      Call mma_Allocate(CoorO,3*nComp,Label='CoorO')
+      Call mma_Allocate(Nuc,nComp,Label='Nuc')
 *
       Return
       End Subroutine Allocate_Auxiliary
@@ -189,6 +190,7 @@
       Call mma_Deallocate(OperI)
       Call mma_Deallocate(ipList)
       Call mma_Deallocate(CoorO)
+      Call mma_Deallocate(Nuc)
 *
       Return
       End Subroutine Deallocate_Auxiliary

@@ -82,7 +82,9 @@
       AU2JTM=(AU2J/AU2T)*AVOGADRO
       ALPHA=CONST_AU_VELOCITY_IN_SI_/CONST_C_IN_SI_
       ALPHA2= ALPHA*ALPHA
-      AU2ESUISH=DEBYE**2 *1.0D4
+      DEBYE=CONV_AU_TO_DEBYE_
+      AU2REDR=2.0D2*DEBYE
+      HALF=0.5D0
 
       BOLTZ_K=CONST_BOLTZMANN_*J2CM
       coeff_chi=0.1D0*AVOGADRO/CONST_BOLTZMANN_*
@@ -144,7 +146,7 @@
           WRITE(6,*)
           WRITE(6,'(1X,A,A8,A,I4)')
      *  'PROPERTY: ',PNAME(IPROP),'   COMPONENT:',ICOMP(IPROP)
-          WRITE(6,'(1X,A,3D17.8)')
+          WRITE(6,'(1X,A,3(1X,ES16.9))')
      *'ORIGIN    :',(PORIG(I,IPROP),I=1,3)
           WRITE(6,'(1X,A,I8,4I17)')
      *'STATE     :',(I,I=ISTA,IEND)
@@ -192,7 +194,7 @@
          WRITE(6,*)
          WRITE(6,'(1X,A,A8,A,I4)')
      *   'PROPERTY: ',PNAME(IPROP),'   COMPONENT:',ICOMP(IPROP)
-         WRITE(6,'(1X,A,3D17.8)')
+         WRITE(6,'(1X,A,3(1X,ES16.9))')
      *   'ORIGIN: ',(PORIG(I,IPROP),I=1,3)
          DO ISTA=1,NSTATE,NCOL
            IEND=MIN(NSTATE,ISTA+NCOL-1)
@@ -572,7 +574,7 @@ C printing threshold
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
            IF (ABS(EDIFF).LE.1.0D-8) CYCLE
            IF(EDIFF.GT.0.0D0) THEN
-            IJSS=ISS+NSS*(JSS-1)
+            IJSS=JSS+NSS*(ISS-1)
             If (Do_SK) Then
                T0(1)=DCMPLX(WORK(LDXR-1+IJSS),WORK(LDXI-1+IJSS))
                T0(2)=DCMPLX(WORK(LDYR-1+IJSS),WORK(LDYI-1+IJSS))
@@ -619,13 +621,12 @@ C printing threshold
      &            'The light is assumed to be unpolarized.'
             WRITE(6,*)
          End If
-         WRITE(6,*)"        To  From     Osc. strength"//
-     &    "   Einstein coefficients Ax, Ay, Az (sec-1) "//
-     &    "      Total A (sec-1)  "
-         WRITE(6,*)'        -----------------------------------------'//
-     &    '--------------------------------------------------'
+         WRITE(6,31) 'From','To','Osc. strength',
+     &               'Einstein coefficients Ax, Ay, Az (sec-1)   ',
+     &               'Total A (sec-1)'
+         WRITE(6,32)
                End If
-             WRITE(6,'(5X,2I5,5X,5ES16.8)') ISS,JSS,F,AX,AY,AZ,A
+             WRITE(6,33) ISS,JSS,F,AX,AY,AZ,A
             END IF
             Call Add_Info('TMS(SO,Len)',F,1,6)
            END IF
@@ -640,8 +641,7 @@ C printing threshold
          CALL GETMEM('DZI','FREE','REAL',LDZI,NSS**2)
 
          If (i_Print.eq.1) THEN
-           WRITE(6,*)'        -----------------------------------------'
-     &      //'--------------------------------------------------'
+           WRITE(6,32)
            Call CollapseOutput(0,
      &                     'Dipole transition strengths (SO states):')
            WRITE(6,*)
@@ -678,7 +678,9 @@ C printing threshold
         Do iVec = 1, nVec
 *
          i_Print=0
-         AFACTOR=32.1299D09
+         ! AFACTOR = 2*pi*e^2*E_h^2 / eps_0*m_e*c^3*h^2
+         AFACTOR = 2.0D0/CONST_C_IN_AU_**3 ! in a.u. of time^-1
+     &             /CONST_AU_TIME_IN_SI_   ! in s^-1
 
          CALL GETMEM('DXR','ALLO','REAL',LDXR,NSS**2)
          CALL GETMEM('DXI','ALLO','REAL',LDXI,NSS**2)
@@ -714,7 +716,7 @@ C printing threshold
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
            IF (ABS(EDIFF).LE.1.0D-8) CYCLE
            IF(EDIFF.GT.0.0D0) THEN
-            IJSS=ISS+NSS*(JSS-1)
+            IJSS=JSS+NSS*(ISS-1)
             If (Do_SK) Then
                T0(1)=DCMPLX(WORK(LDXR-1+IJSS),WORK(LDXI-1+IJSS))
                T0(2)=DCMPLX(WORK(LDYR-1+IJSS),WORK(LDYI-1+IJSS))
@@ -761,13 +763,12 @@ C printing threshold
      &            'The light is assumed to be unpolarized.'
             WRITE(6,*)
          End If
-         WRITE(6,*)"        To  From     Osc. strength"//
-     &    "   Einstein coefficients Ax, Ay, Az (sec-1) "//
-     &    "      Total A (sec-1)  "
-         WRITE(6,*)'        -----------------------------------------'//
-     &    '--------------------------------------------------'
+         WRITE(6,31) 'From','To','Osc. strength',
+     &               'Einstein coefficients Ax, Ay, Az (sec-1)   ',
+     &               'Total A (sec-1)'
+         WRITE(6,32)
                END IF
-             WRITE(6,'(5X,2I5,5X,5ES16.8)') ISS,JSS,F,AX,AY,AZ,A
+             WRITE(6,33) ISS,JSS,F,AX,AY,AZ,A
             END IF
             Call Add_Info('TMS(SO,Vel)',F,1,6)
            END IF
@@ -782,8 +783,7 @@ C printing threshold
          CALL GETMEM('DZI','FREE','REAL',LDZI,NSS**2)
 
          If (i_Print.eq.1) THEN
-           WRITE(6,*)'        -----------------------------------------'
-     &     //'--------------------------------------------------'
+           WRITE(6,32)
            Call CollapseOutput(0,
      &                     'Velocity transition strengths (SO states):')
            WRITE(6,*)
@@ -805,7 +805,6 @@ C printing threshold
 !
          WRITE(6,*)
          WRITE(6,*) "--------------------------------------------------"
-         WRITE(6,*)
          WRITE(6,*) "A comparison between the dipole oscillator "//
      &              "strengths in "
          WRITE(6,*) "length and velocity gauge "//
@@ -820,7 +819,6 @@ C printing threshold
          WRITE(6,*) "The tolerance is defined as ABS(1-O_l/O_v) "
          WRITE(6,*) "O_l : dipole oscillator strength in length gauge"
          WRITE(6,*) "O_p : dipole oscillator strength in velocity gauge"
-         WRITE(6,*)
          WRITE(6,*) "--------------------------------------------------"
 !
           I_PRINT_HEADER = 0
@@ -843,11 +841,10 @@ C printing threshold
                IF(I_PRINT_HEADER.EQ.1) THEN
                  WRITE(6,*)
                  WRITE(6,*) " Problematic transitions have been found"
-                 WRITE(6,*) "     From   To      Difference (%)  "//
-     &                      "Osc. st. (len.) Osc. st. (vel.)"
-                 WRITE(6,*) "     -------------------------------"//
-     &                      "-------------------------------"
                  WRITE(6,*)
+                 WRITE(6,39) "From","To","Difference (%)",
+     &                       "Osc. st. (len.)","Osc. st. (vel.)"
+                 WRITE(6,40)
                END IF
                IF (COMPARE.GE.0.0D0) THEN
                  WRITE(6,33) I,J,COMPARE*100D0,
@@ -866,17 +863,13 @@ C printing threshold
      &                 "the tolerance ", TOLERANCE," have been found"
             WRITE(6,*)
           ELSE
-            WRITE(6,*) "     -------------------------------"//
-     &                 "-------------------------------"
+            WRITE(6,40)
             WRITE(6,*)
             WRITE(6,*) "Number of problematic transitions = ",
      &                  I_PRINT_HEADER
             WRITE(6,*)
           END IF
         END IF
-33    FORMAT (5X,2(1X,I4),5X,5(1X,ES15.8))
-36    FORMAT (5X,2(1X,I4),6X,15('-'),1X,ES15.8,1X,A15)
-37    FORMAT (5X,2(1X,I4),6X,15('-'),1X,A15,1X,ES15.8)
 *
 * Free the memory
 *
@@ -956,8 +949,8 @@ C printing threshold
           WRITE(6,*)'   for osc. strength at least ',OSTHR2
           WRITE(6,*)
          END IF
-         WRITE(6,*)"        To  From     Osc. strength"
-         WRITE(6,*)'        --------------------------'
+         WRITE(6,31) 'From','To','Osc. strength'
+         WRITE(6,35)
          END IF
 ! Magnetic-Dipole
          CALL GETMEM('DXR','ALLO','REAL',LDXR,NSS**2)
@@ -1021,7 +1014,7 @@ C printing threshold
           DO JSS=JSTART,NSS
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
            IF(EDIFF.GT.0.0D0) THEN
-            IJSS=ISS+NSS*(JSS-1)
+            IJSS=JSS+NSS*(ISS-1)
 
             DX2=(WORK(LDXR-1+IJSS)+g*WORK(LSXR-1+IJSS))**2
      &         +(WORK(LDXI-1+IJSS)+g*WORK(LSXI-1+IJSS))**2
@@ -1034,7 +1027,7 @@ C printing threshold
 ! Add it to the total
             WORK(LTOT2K-1+IJSS) = WORK(LTOT2K-1+IJSS) + F
             IF(ABS(F).GE.OSTHR2) THEN
-             IF(QIALL) WRITE(6,'(5X,2I5,5X,ES16.8)') ISS,JSS,F
+             IF(QIALL) WRITE(6,33) ISS,JSS,F
             END IF
            END IF
           END DO
@@ -1057,7 +1050,7 @@ C printing threshold
          CALL GETMEM('DZI','FREE','REAL',LSZI,NSS**2)
 
        IF(QIALL) THEN
-         WRITE(6,*)'        --------------------------'
+         WRITE(6,35)
          IF(IFANYD.NE.0.AND.IFANYS.NE.0) THEN
           Call CollapseOutput(0,
      &                  'Magnetic-dipole - magnetic-dipole and '//
@@ -1111,8 +1104,8 @@ C printing threshold
           WRITE(6,*)'   for osc. strength at least ',OSTHR2
           WRITE(6,*)
          END IF
-         WRITE(6,*)"        To  From     Osc. strength"
-         WRITE(6,*)'        ----------------------------'
+         WRITE(6,31) 'From','To','Osc. strength'
+         WRITE(6,35)
          END IF
 
          CALL GETMEM('DXXR','ALLO','REAL',LDXXR,NSS**2)
@@ -1176,7 +1169,7 @@ C printing threshold
 ! D should be purely real since D is a real symmetric matrix
 !
             EDIFF3=EDIFF**3
-            IJSS=ISS+NSS*(JSS-1)
+            IJSS=JSS+NSS*(ISS-1)
 
             DXX2=WORK(LDXXR-1+IJSS)**2+WORK(LDXXI-1+IJSS)**2
             DYY2=WORK(LDYYR-1+IJSS)**2+WORK(LDYYI-1+IJSS)**2
@@ -1207,7 +1200,7 @@ C printing threshold
             WORK(LTOT2K-1+IJSS) = WORK(LTOT2K-1+IJSS) + F
 
             IF(ABS(F).GE.OSTHR2) THEN
-             IF(QIALL) WRITE(6,'(5X,2I5,5X,ES16.8)') ISS,JSS,F
+             IF(QIALL) WRITE(6,33) ISS,JSS,F
             END IF
            END IF
           END DO
@@ -1227,7 +1220,7 @@ C printing threshold
          CALL GETMEM('DZZI','FREE','REAL',LDZZI,NSS**2)
 
         IF(QIALL) THEN
-         WRITE(6,*)'        ----------------------------'
+         WRITE(6,35)
          Call CollapseOutput(0,
      &                 'Quadrupole transition strengths (SO states):')
          WRITE(6,*)
@@ -1332,8 +1325,8 @@ C printing threshold
           WRITE(6,*)'   for osc. strength at least ',OSTHR2
           WRITE(6,*)
          END IF
-         WRITE(6,*)"        To  From     Osc. strength"
-         WRITE(6,*)'        ----------------------------'
+         WRITE(6,31) 'From','To','Osc. strength'
+         WRITE(6,35)
          END IF
 ! Octupole
          CALL GETMEM('DXXXR','ALLO','REAL',LDXXXR,NSS**2)
@@ -1459,7 +1452,7 @@ C printing threshold
            IF(EDIFF.GT.0.0D0) THEN
 !
             EDIFF3=EDIFF**3
-            IJSS=ISS+NSS*(JSS-1)
+            IJSS=JSS+NSS*(ISS-1)
 
             DXXXDX=WORK(LDXXXR-1+IJSS)*WORK(LDXR-1+IJSS)
      &            +WORK(LDXXXI-1+IJSS)*WORK(LDXI-1+IJSS)
@@ -1496,7 +1489,7 @@ C printing threshold
             WORK(LTOT2K-1+IJSS) = WORK(LTOT2K-1+IJSS) + F
 
             IF(ABS(F).GE.OSTHR2) THEN
-             IF(QIALL) WRITE(6,'(5X,2I5,5X,ES16.8)') ISS,JSS,F
+             IF(QIALL) WRITE(6,33) ISS,JSS,F
             END IF
            END IF
           END DO
@@ -1531,7 +1524,7 @@ C printing threshold
          CALL GETMEM('DZI','FREE','REAL',LDZI,NSS**2)
 
         IF(QIALL) THEN
-         WRITE(6,*)'        ----------------------------'
+         WRITE(6,35)
          Call CollapseOutput(0,
      &                     'Electric-dipole - electric-octupole '//
      &                     'transition strengths (SO states):')
@@ -1692,8 +1685,8 @@ C printing threshold
           WRITE(6,*)'   for osc. strength at least ',OSTHR2
           WRITE(6,*)
          END IF
-         WRITE(6,*)"        To  From     Osc. strength"
-         WRITE(6,*)'        ----------------------------'
+         WRITE(6,31) 'From','To','Osc. strength'
+         WRITE(6,35)
          END IF
 ! Magnetic-Quadrupole
          CALL GETMEM('DZXR','ALLO','REAL',LDZXR,NSS**2)
@@ -1825,7 +1818,7 @@ C printing threshold
            IF(EDIFF.GT.0.0D0) THEN
 !
             EDIFF2=EDIFF**2
-            IJSS=ISS+NSS*(JSS-1)
+            IJSS=JSS+NSS*(ISS-1)
 !
 ! Since the Spin-Magnetic-Quadrupole is made from the multiplication of two complex integrals we have
 ! M^s = (a+ib)(c+id) = ac-bd + i(ad+bc) hence the long expressions below
@@ -1893,7 +1886,7 @@ C printing threshold
             WORK(LTOT2K-1+IJSS) = WORK(LTOT2K-1+IJSS) + F
 
             IF(ABS(F).GE.OSTHR2) THEN
-             IF(QIALL) WRITE(6,'(5X,2I5,5X,ES16.8)') ISS,JSS,F
+             IF(QIALL) WRITE(6,33) ISS,JSS,F
             END IF
            END IF
           END DO
@@ -1930,7 +1923,7 @@ C printing threshold
          CALL GETMEM('DZI','FREE','REAL',LDZI,NSS**2)
 
         IF(QIALL) THEN
-         WRITE(6,*)'        ----------------------------'
+         WRITE(6,35)
          IF(IFANYD.NE.0.AND.IFANYS.NE.0) THEN
           Call CollapseOutput(0,
      &                  'Electric-dipole - magnetic-quadrupole and '//
@@ -1977,7 +1970,7 @@ C printing threshold
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
            IF(EDIFF.GT.0.0D0) THEN
 !
-            IJSS=ISS+NSS*(JSS-1)
+            IJSS=JSS+NSS*(ISS-1)
             F = WORK(LTOT2K-1+IJSS)
             IF(ABS(F).GE.OSTHR2) THEN
              IF(i_Print.eq.0) THEN
@@ -1995,15 +1988,16 @@ C printing threshold
                WRITE(6,*)'   for osc. strength at least ',OSTHR2
                WRITE(6,*)
               END IF
-              WRITE(6,*)"        To  From     Osc. strength"
-              WRITE(6,*)'        ----------------------------'
+              WRITE(6,31) 'From','To','Osc. strength'
+              WRITE(6,35)
              END IF
-             WRITE(6,'(5X,2I5,5X,ES16.8)') ISS,JSS,F
+             WRITE(6,33) ISS,JSS,F
             END IF
            END IF
           END DO
          END DO
          If (i_Print.eq.1) THEN
+           WRITE(6,35)
            Call CollapseOutput(0,
      &                  'Total transition strengths ' //
      &                  'for the second-order expansion of the wave '//
@@ -2110,45 +2104,38 @@ C printing threshold
      &                  'Electric-Dipole - Magnetic-Dipole '//
      &                  'rotatory strengths (SO states):')
           WRITE(6,'(3X,A)')
+     &                  '------------------------------------'//
      &                  '----------------------------------'//
-     &                  '----------------------------------------'
-          IF(OSTHR2.GT.0.0D0) THEN
-            WRITE(6,*) 'for rotatory strength at least',OSTHR2
-            WRITE(6,*)
-          END IF
-          WRITE(6,*) 'From ','To ','Rotatory strength'
-          WRITE(6,*)
+     &                  '-------------------------------'
+          WRITE(6,31) 'From','To','Red. rot. str.'
+          WRITE(6,35)
 !
-         TWOOVER3C=2.0D0/(3.0D0*CONST_C_IN_AU_)
-
          DO ISS=1,IEND
           DO JSS=JSTART,NSS
            EDIFF=ENERGY(JSS)-ENERGY(ISS)
            IF(EDIFF.GT.0.0D0) THEN
-            IJSS=ISS+NSS*(JSS-1)
+            IJSS=JSS+NSS*(ISS-1)
 
-            DX2=0.0D0
-            DY2=0.0D0
-            DZ2=0.0D0
+*           R = e^2*hbar/(2*m^2*E) <J|p|I>.<I|l|J>
+*             = e^2*hbar/(2*m^2*E) -i*hbar*<J|nabla|I>.-i*hbar*<I|r x nabla|J>
+*             = e^2*hbar^3/(2*m^2*E) <J|nabla|I>.<J|r x nabla|I>
+            R=0.0D0
 
             IF((IPRDXM.GT.0).AND.(IPRDXD.GT.0)) THEN
-              DX2 = WORK(LDXR-1+IJSS) * WORK(LMDXR-1+IJSS)
+              R = R+WORK(LDXR-1+IJSS) * WORK(LMDXR-1+IJSS)
             END IF
             IF((IPRDYM.GT.0).AND.(IPRDYD.GT.0)) THEN
-              DY2 = WORK(LDYR-1+IJSS) * WORK(LMDYR-1+IJSS)
+              R = R+WORK(LDYR-1+IJSS) * WORK(LMDYR-1+IJSS)
             END IF
             IF((IPRDZM.GT.0).AND.(IPRDZD.GT.0)) THEN
-              DZ2 = WORK(LDZR-1+IJSS) * WORK(LMDZR-1+IJSS)
+              R = R+WORK(LDZR-1+IJSS) * WORK(LMDZR-1+IJSS)
             END IF
 
-            F = (DX2 + DY2 + DZ2)*TWOOVER3C*AU2ESUISH !EDIFF*ONEOVER6C2
+            R = R*Half/EDIFF*AU2REDR
 
-            WRITE(6,33) ISS,JSS,F
-!           IF(ABS(F).GE.OSTHR2) THEN
-!             WRITE(6,33) ISS,JSS,F
-!           END IF
+            WRITE(6,33) ISS,JSS,R
 !
-            Call Add_Info('CD_V(SO)',F,1,6)
+            Call Add_Info('CD_V(SO)',R,1,6)
            END IF
           END DO
          END DO
@@ -2169,7 +2156,7 @@ C printing threshold
          CALL GETMEM('DZR','FREE','REAL',LMDZR,NSS**2)
          CALL GETMEM('DZI','FREE','REAL',LMDZI,NSS**2)
 
-         WRITE(6,*)
+         WRITE(6,35)
 
          Call CollapseOutput(0,
      &                  'Circular Dichroism - velocity gauge '//
@@ -2267,52 +2254,45 @@ C printing threshold
      &                  'Circular Dichroism - mixed gauge '//
      &                  'Electric-Dipole - Magnetic-Dipole '//
      &                  'rotatory strengths (SO states):')
+          WRITE(6,'(3X,A)')
+     &                  '---------------------------------'//
+     &                  '----------------------------------'//
+     &                  '-------------------------------'
           WRITE(6,*)
           WRITE(6,*) ' WARNING WARNING WARNING !!! '
           WRITE(6,*)
           WRITE(6,*) ' Circular Dichroism in the mixed gauge '
           WRITE(6,*) ' is NOT origin independent - check your results '
           WRITE(6,*)
-          WRITE(6,'(3X,A)')
-     &                  '----------------------------------'//
-     &                  '----------------------------------------'
-          IF(OSTHR2.GT.0.0D0) THEN
-            WRITE(6,*) 'for rotatory strength at least',OSTHR2
-            WRITE(6,*)
-          END IF
-          WRITE(6,*) 'From ','To ','Rotatory strength'
-          WRITE(6,*)
+          WRITE(6,31) 'From','To','Rot. strength'
+          WRITE(6,35)
 !
-         TWOOVER3C=2.0D0/(3.0D0*CONST_C_IN_AU_)
-
          DO ISS=1,IEND
           DO JSS=JSTART,NSS
            EDIFF=ENERGY(JSS)-ENERGY(ISS)
            IF(EDIFF.GT.0.0D0) THEN
-            IJSS=ISS+NSS*(JSS-1)
+            IJSS=JSS+NSS*(ISS-1)
 
-            DX2=0.0D0
-            DY2=0.0D0
-            DZ2=0.0D0
+*           R = -i*e^2/(2*m) <J|r|I>.<I|l|J>
+*             = -i*e^2/(2*m) <J|r|I>.-i*hbar*<I|r x nabla|J>
+*             = e^2*hbar/(2*m) <J|r|I>.<J|r x nabla|I>
+            R=0.0D0
 
             IF((IPRDXM.GT.0).AND.(IPRDXD.GT.0)) THEN
-              DX2 = WORK(LDXR-1+IJSS) * WORK(LMDXR-1+IJSS)
+              R = R+WORK(LDXR-1+IJSS) * WORK(LMDXR-1+IJSS)
             END IF
             IF((IPRDYM.GT.0).AND.(IPRDYD.GT.0)) THEN
-              DY2 = WORK(LDYR-1+IJSS) * WORK(LMDYR-1+IJSS)
+              R = R+WORK(LDYR-1+IJSS) * WORK(LMDYR-1+IJSS)
             END IF
             IF((IPRDZM.GT.0).AND.(IPRDZD.GT.0)) THEN
-              DZ2 = WORK(LDZR-1+IJSS) * WORK(LMDZR-1+IJSS)
+              R = R+WORK(LDZR-1+IJSS) * WORK(LMDZR-1+IJSS)
             END IF
 
-            F = (DX2 + DY2 + DZ2)*TWOOVER3C*AU2ESUISH !EDIFF*ONEOVER6C2
+            R = R*Half*AU2REDR
 
-            WRITE(6,33) ISS,JSS,F
-!           IF(ABS(F).GE.OSTHR2) THEN
-!             WRITE(6,33) ISS,JSS,F
-!           END IF
+            WRITE(6,33) ISS,JSS,R
 !
-            Call Add_Info('CD_M(SO)',F,1,6)
+            Call Add_Info('CD_M(SO)',R,1,6)
            END IF
           END DO
          END DO
@@ -2333,7 +2313,7 @@ C printing threshold
          CALL GETMEM('DZR','FREE','REAL',LMDZR,NSS**2)
          CALL GETMEM('DZI','FREE','REAL',LMDZI,NSS**2)
 
-         WRITE(6,*)
+         WRITE(6,35)
 
          Call CollapseOutput(0,
      &                  'Circular Dichroism - mixed gauge '//
@@ -6686,6 +6666,15 @@ C backtransformation in two steps, -phi and -theta
       CALL GETMEM('MZI','FREE','REAL',LMZI,NSS**2)
 
  900  CONTINUE
+
+31    FORMAT (5X,2(1X,A4),6X,A15,1X,A47,1X,A15)
+32    FORMAT (5X,95('-'))
+33    FORMAT (5X,2(1X,I4),5X,5(1X,ES15.8))
+35    FORMAT (5X,31('-'))
+36    FORMAT (5X,2(1X,I4),6X,15('-'),1X,ES15.8,1X,A15)
+37    FORMAT (5X,2(1X,I4),6X,15('-'),1X,A15,1X,ES15.8)
+39    FORMAT (5X,2(1X,A4),6X,A15,1X,A15,1X,A15)
+40    FORMAT (5X,63('-'))
 
       RETURN
       END

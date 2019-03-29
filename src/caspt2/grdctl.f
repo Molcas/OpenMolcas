@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 1998,2006, Per Ake Malmqvist                           *
+*               2019, Stefano Battaglia                                *
 ************************************************************************
 *--------------------------------------------*
 * 1998, 2006, Per Ake Malmqvist              *
@@ -183,10 +184,11 @@ C computing the multi-state coupling elements.
         DO ISTATE=1,NSTATE
           IF(ISTATE.NE.JSTATE) THEN
             CALL DDAFILE(LUCIEX,2,WORK(LBRACI),NCONF,ID)
-            HEFF(ISTATE,JSTATE)=DDOT_(NCONF,WORK(LBRACI),1,WORK(LSGM),1)
+            HEFF(ISTATE,JSTATE)=HEFF(ISTATE,JSTATE) +
+     &      DDOT_(NCONF,WORK(LBRACI),1,WORK(LSGM),1)
           ELSE
             CALL DDAFILE(LUCIEX,0,WORK(LBRACI),NCONF,ID)
-            HEFF(JSTATE,JSTATE)=E2TOT
+            HEFF(JSTATE,JSTATE)=HEFF(JSTATE,JSTATE)+E2CORR
           END IF
         END DO
         CALL GETMEM('BRACI','FREE','REAL',LBRACI,NCONF)

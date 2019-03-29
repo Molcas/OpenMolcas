@@ -60,6 +60,7 @@
   OrbContributions
   EFld = 0
   Multipoles = 3
+  SDipole
 
 &SEWARD
   Symmetry = x y

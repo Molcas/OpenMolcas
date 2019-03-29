@@ -174,15 +174,11 @@ c            Write (6,'(A,4f10.5)') 'HOff read ',(FX(j),j=1,iStep)
 *
 *     Basically, it should work like the following lines ... but it can't now.
 *
-*      opmol = Dum
 *      opnuc = Dum
-*      idirect = 1
-*      isyop = 1
 *      ncmp = 3
 *      iAddPot = -1
 *      Call GetMem('dESPF1','Allo','Real',ipD1,nGrdPt*natom*3)
-*      Call DrvProp('POT',Work(ipGrid),opmol,opnuc,ncmp,idirect,
-*     &             isyop,Work(ipD1),nGrdPt,iAddPot)
+*      Call DrvPot(Work(ipGrid),opnuc,ncmp,Work(ipD1),nGrdPt,iAddPot)
 *      Call GetMem('dESPF1','Free','Real',ipD1,nGrdPt*natom*3)
 *
 *     Now I try another thing, following the way derivatives with respect to point
@@ -203,15 +199,11 @@ c            Write (6,'(A,4f10.5)') 'HOff read ',(FX(j),j=1,iStep)
 *     Here I need the integrals contracted with the density matrix and weighted
 *     by the derivatives of B: dB/dq * Sum_mu,nu P_mu,nu*(<mu|1/R_grid|nu>)
 *
-      opmol = Dum
       opnuc = Dum
-      idirect = 1
-      isyop = 1
       ncmp = 1
       iAddPot = -1
       Call GetMem('dESPF2','Allo','Real',ipD2,nGrdPt)
-      Call DrvProp('POT',Work(ipGrid),opmol,opnuc,ncmp,idirect,
-     &             isyop,Work(ipD2),nGrdPt,iAddPot)
+      Call DrvPot(Work(ipGrid),opnuc,ncmp,Work(ipD2),nGrdPt,iAddPot)
       If (iPL.ge.4) Then
          Write(6,'(/,A,/)') ' PV = '
          Do iPnt = 1, nGrdPt

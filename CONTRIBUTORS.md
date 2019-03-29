@@ -51,6 +51,7 @@ Francesco Aquilante
 Jochen Autschbach  
 Jie J. Bao  
 Maria Barysz  
+Stefano Battaglia  
 Eugeniusz Bednarz  
 Nelson H. F. Beebe  
 Anders Bernhardsson  

@@ -1,4 +1,3 @@
-*$ this file belongs to the Molcas repository $
 *-------------------------------------------------------------------------------
 * Molecule: HCl
 * Basis: ECP
@@ -102,6 +101,7 @@ EFLD
 Multipoles
   3
 NoCD
+SDipole
 End of input
 *-------------------------------------------------------------------------------
  &SEWARD  &END

@@ -1,5 +1,3 @@
-*$ this file belongs to the Molcas repository $
-*
 *This is a clone of test 084 
 *
  &SEWARD &END
@@ -55,7 +53,6 @@ End of input
 
 >> FILE StartOrb
 #INPORB 1.0
-*fordeck test121.ScfOrb $Revision: 7.9 $
 #INFO
 * SCF orbitals                                                                  
   0 4
