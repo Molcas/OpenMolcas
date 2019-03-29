@@ -277,6 +277,9 @@ C     really parallel or not.
       If (Input%DWMS) Then
         NZETA = Input%ZETA
       End If
+      If (Input%SCMS) THEN
+        IFSC = .True.
+      END IF
 * Finally, some sanity checks.
       IF(NSTATE.LE.0.OR.NSTATE.GT.MXROOT) Then
         Call WarningMessage(2,'Number of states is <0 or too large.')

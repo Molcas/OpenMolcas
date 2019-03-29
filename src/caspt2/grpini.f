@@ -260,33 +260,33 @@ c Modify the Fock matrix, if needed:
 * state independently, and we do that in the main caspt2 subroutine
 * when looping over the states in the group.
       IF (IFDW.AND.IFXMS) THEN
-       WRITE(6,*)
-       WRITE(6,'(2x,A,A)')'Transformation to quasi-canonical orbitals',
-     &                   ' will be done in CASPT2 loop'
-       WRITE(6,*)
-       CALL DCOPY_(NFIMO,WORK(LFIMO),1,WORK(LFIMO_CMO),1)
-       CALL DCOPY_(NHONE,WORK(LHONE),1,WORK(LHONE_CMO),1)
+        WRITE(6,*)
+        WRITE(6,'(2x,A,A)')'Transformation to quasi-canonical MOs',
+     &                    ' will be done in CASPT2 loop'
+        WRITE(6,*)
+        CALL DCOPY_(NFIMO,WORK(LFIMO),1,WORK(LFIMO_CMO),1)
+        CALL DCOPY_(NHONE,WORK(LHONE),1,WORK(LHONE_CMO),1)
       ELSE
-      WRITE(6,*)
-      WRITE(6,'(2x,A,A)')'Transformation to quasi-canonical orbitals',
-     &                   ' will be done in GRPINI'
-      WRITE(6,*)
+        WRITE(6,*)
+        WRITE(6,'(2x,A,A)')'Transformation to quasi-canonical MOs',
+     &                    ' will be done in GRPINI'
+        WRITE(6,*)
 
-      CALL ORBCTL(WORK(LCMO))
+        CALL ORBCTL(WORK(LCMO))
 
 * In subroutine stini, the individual RHS, etc, arrays will be computed for
 * the states. If this is a true XMS calculation (NGRP.gt.1) then there is one
 * data set that is in common for these calculations, namely the transformed
 * MO integrals (if conventional), or the transformed Cholesky vectors (if
 * IfChol), so these are computed here:
-      If (IfChol) then
+        IF (IfChol) then
 * TRACHO3 computes MO-transformed Cholesky vectors without computing Fock matrices.
-        CALL TRACHO3(WORK(LCMO))
-      Else
+          CALL TRACHO3(WORK(LCMO))
+        ELSE
 * TRACTL(0) computes transformed 2-body MO integrals.
-        Call TRACTL(0)
-      End If
-      CALL DCOPY_(NCMO,WORK(LCMO),1,WORK(LCMOPT2),1)
+          CALL TRACTL(0)
+        END IF
+        CALL DCOPY_(NCMO,WORK(LCMO),1,WORK(LCMOPT2),1)
 
       END IF
 

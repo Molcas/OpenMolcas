@@ -201,6 +201,7 @@ CSVC: initialize the reference wavefunction data
 #endif
 
       Integer :: I, IAD15, II, IDISK, ID
+      Integer :: J, JSNUM, LHEFF1
 
       Real*8 :: Root_Energies(mxRoot)
       Real*8 :: AEMAX, E
@@ -354,6 +355,20 @@ C table of energies/iteration is the last one with not all zeroes.
       DO I=1,NSTATE
         REFENE(I)=ROOT_ENERGIES(MSTATE(I))
       END DO
+
+* Read HEFF1 from JobMix file
+      IF (IFSC) THEN
+        CALL GETMEM('HEFF1','ALLO','REAL',LHEFF1,NSTATE**2)
+        IAD15=IADR15(17)
+        CALL DDAFILE(refwfn_id,2,WORK(LHEFF1),NSTATE**2,IAD15)
+        DO I=1,NSTATE
+          DO J=1,NSTATE
+            HEFF1(I,J)=WORK(LHEFF1-1+I+NSTATE*(J-1))
+          END DO
+        END DO
+        CALL GETMEM('HEFF1','FREE','REAL',LHEFF1,NSTATE**2)
+      END IF
+
       End Subroutine
 
       End Module

@@ -193,6 +193,37 @@ C Write the present effective Hamiltonian:
       CALL GETMEM('LCI1','FREE','REAL',LCI1,MXCI)
       CALL GETMEM('LCI2','FREE','REAL',LCI2,MXCI)
 
+* Write HEFF[1] in JOBMIX for sc-MS-CASPT2
+      CALL GETMEM('HEFF1','ALLO','REAL',LHEFF1,NSTATE**2)
+      CALL GETMEM('VMAT','ALLO','REAL',LVMAT,NSTATE**2)
+      DO I=1,NSTATE
+        DO J=1,NSTATE
+          WORK(LVMAT-1+I+NSTATE*(J-1))=EIGVEC(I,J)
+        END DO
+      END DO
+* LVMAT and HEFF1 are both good
+* Transform HEFF[1] in the new CIMIX basis
+      CALL TRANSMAT(HEFF1,WORK(LVMAT),NSTATE)
+
+      DO I=1,NSTATE
+        DO J=1,NSTATE
+          WORK(LHEFF1-1+I+NSTATE*(J-1))=HEFF1(I,J)
+        END DO
+      END DO
+
+      IF (IPRGLB.GE.USUAL) THEN
+        WRITE(6,*)' HEFF[1] in CIXMS basis:'
+        DO I=1,NSTATE
+          WRITE(6,'(1x,5f16.8)')(HEFF1(I,J),J=1,NSTATE)
+        END DO
+      END IF
+
+* Write HEFF[1] to JobMix
+      IAD15=IADR15(17)
+      CALL DDAFILE(JOBMIX,1,WORK(LHEFF1),NSTATE**2,IAD15)
+      CALL GETMEM('HEFF1','FREE','REAL',LHEFF1,NSTATE**2)
+      CALL GETMEM('VMAT','FREE','REAL',LVMAT,NSTATE**2)
+
       CALL DACLOS(JOBIPH)
       CALL DACLOS(JOBMIX)
 

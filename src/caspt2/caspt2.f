@@ -90,6 +90,8 @@ C     relative energies
       REAL*8  RELAU,RELEV,RELCM,RELKJ
       INTEGER IDISK
 
+      INTEGER LHEFF1
+
 C     effective hamiltonian
       REAL*8, ALLOCATABLE :: HEFF(:,:), EIGVEC(:,:), H0(:,:)
 
@@ -123,22 +125,30 @@ C proceed to the MS coupling section.
 C Otherwise, put the CASSCF energies on the diagonal, i.e. form the
 C first-order corrected Heff[1] = PHP and later on we will add the
 C second-order correction Heff(2) = PH \Omega_1 P to Heff[1]
-      IF(INPUT%JMS) THEN
+      IF (INPUT%JMS) THEN
         DO I=1,NSTATE
           ENERGY(I)=INPUT%HEFF(I,I)
         END DO
         HEFF=INPUT%HEFF
         GOTO 1000
+      ELSE IF (IFSC) THEN
+        DO I=1,NSTATE
+          REFENE(I) = HEFF1(I,I)
+        END DO
+        CALL DCOPY_(NSTATE**2,HEFF1,1,HEFF,1)
       ELSE
         DO I=1,NSTATE
           HEFF(I,I) = REFENE(I)
+          HEFF1(I,I) = REFENE(I)
         END DO
-        IF (IPRGLB.GE.VERBOSE) THEN
-          WRITE(6,*)' HEFF[1] is initialized to:'
-          DO I=1,NSTATE
-            WRITE(6,'(1x,5f16.8)')(HEFF(I,J),J=1,NSTATE)
-          END DO
-        END IF
+      END IF
+
+      IF (IPRGLB.GE.USUAL) THEN
+        WRITE(6,*)' HEFF[1] is initialized to:'
+        DO I=1,NSTATE
+          WRITE(6,'(1x,5f16.8)')(HEFF(I,J),J=1,NSTATE)
+        END DO
+        WRITE(6,*)
       END IF
 
 * Before entering the long loop over groups and states, precompute
@@ -190,20 +200,12 @@ C of group states for which GRPINI is called.
           CALL DCOPY_(NFIMO,WORK(LFIMO_CMO),1,WORK(LFIMO),1)
           CALL DCOPY_(NHONE,WORK(LHONE_CMO),1,WORK(LHONE),1)
 
-          ! WRITE(6,*)'      INACTIVE FOCK MATRIX IN MO BASIS'
-          ! WRITE(6,'(6X,A,I2)')' SYMMETRY SPECIES:',1
-          ! CALL TRIPRT(' ',' ',WORK(LFIMO),NORB(1))
-
           CALL ORBCTL(WORK(LCMO))
           Call TRACTL(0)
           CALL DCOPY_(NCMO,WORK(LCMO),1,WORK(LCMOPT2),1)
           CALL GETMEM('LCMO','FREE','REAL',LCMO,NCMO)
          END IF
 *************
-
-        ! WRITE(6,*)'      INACTIVE FOCK MATRIX IN MO BASIS'
-        ! WRITE(6,'(6X,A,I2)')' SYMMETRY SPECIES:',1
-        ! CALL TRIPRT(' ',' ',WORK(LFIMO),NORB(1))
 
 C skip this state if we only need 1 state and it isn't this "One"
          IF ((NLYROOT.NE.0).AND.(JSTATE.NE.NLYROOT)) CYCLE
