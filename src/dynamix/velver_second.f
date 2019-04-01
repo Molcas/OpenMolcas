@@ -61,7 +61,7 @@ C
       PARAMETER   (conv=-1.0d0)
 c     PARAMETER   (conv=-CONV_AU_TO_KJ_PER_MOLE_/Angstrom)
       PARAMETER   (kb = CONST_BOLTZMANN_/
-     &             CONV_AU_TO_KJ_*1.0D3)
+     &             (CONV_AU_TO_KJ_*1.0D3))
 
 *
       IF(IPRINT.EQ.INSANE) WRITE(6,*)' Entering ',ROUTINE
@@ -208,7 +208,7 @@ C     Check if the total energy is conserved and scale the velocities
 C     if necessary.
 C
 C        1.0K * k_B
-         tolerance=1.0D-3*CONST_BOLTZMANN_/CONV_AU_TO_KJ_
+         tolerance=1.0D0*kb
          tolerance=1.5D0*natom*tolerance
          IF (ABS(Etot0-Etot).gt.tolerance) THEN
             Ekin_target=Etot0-Epot
