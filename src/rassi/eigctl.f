@@ -280,7 +280,6 @@ c               lower than 1.0D-4 cm-1
       END DO
 C End of loop over sets.
       END DO
-      Call RecPrt('EigVec',' ',EIGVEC,NSTATE,NSTATE)
 C Morgane Vacher 02/17 - Fix the "arbitrary" sign of
 C the eigenvectors such that the largest coefficient
 C is positive. This is to avoid spurious changes of
