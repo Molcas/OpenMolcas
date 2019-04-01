@@ -43,39 +43,23 @@ CIroot=1 1 1
 LumOrb
 rasscf=1 2
 charge=2
-supsym
-1;1 1
-1;1 1
-1;1 1
-0
-1;1 1
-0;0;0
 hexs=1;1
 symmetry=$SYM
 spin=$SPIN
 CIROot=2 2 1
+CIOnly
 
 >>>eval N=$N+1
 >>>copy $Project.JobIph JOB00$N
 >>>End Do
 >>>End Do
-*>>>copy $CurrDir/JOB001 .
-*>>>copy $CurrDir/JOB002 .
-*>>>copy $CurrDir/JOB003 .
-*>>>copy $CurrDir/JOB004 .
-*>>>copy $CurrDir/JOB005 .
-*>>>copy $CurrDir/JOB006 .
-*>>>copy $CurrDir/JOB007 .
 
  &RASSI
 redl=1
-TMOS
 QIPR=0
 DIPR=0
 spin
 ejob
-TMGr=0.005
-/*
 Property
       43
     'Mltpl  1' 1 'Mltpl  1' 2 'Mltpl  1' 3 'Mltpl  2' 1 'Mltpl  2' 2 'M
@@ -87,7 +71,16 @@ Property
       2 'SMQ     ' 3 'SMQ     ' 4 'SMQ     ' 5 'SMQ     ' 6 'SMQ     ' 7 'SMQ     ' 8
     'SMQ     ' 9
 omega
-*/
+
+ &RASSI
+redl=1
+QIPR=0
+DIPR=0
+spin
+ejob
+TMOS
+TMGr=0.007
+
 >>>> FILE $Project.InpOrb 
 #INPORB 2.2
 #INFO
