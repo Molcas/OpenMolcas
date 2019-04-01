@@ -990,15 +990,18 @@ C And the same for the Dyson amplitudes
                IJ=I+NSTATE*(J-1)
                EDIFF=ENERGY(J)-ENERGY(I)
                IF(JSTART.EQ.1.AND.EDIFF.LT.0.0D0) CYCLE
-               COMPARE=0.0D0
-             IF(WORK(LDL-1+IJ).GE.OSTHR.AND.WORK(LDV-1+IJ).GE.OSTHR)
-     &          THEN
+*
+             COMPARE=0.0D0
+             dlt=1.0D-18 ! Add small value to avoid zero divide.
+             IF(WORK(LDL-1+IJ).GE.OSTHR+dlt .AND.
+     &          WORK(LDV-1+IJ).GE.OSTHR+dlt) THEN
                COMPARE = ABS(1-WORK(LDL-1+IJ)/WORK(LDV-1+IJ))
              ELSE IF(WORK(LDL-1+IJ).GE.OSTHR) THEN
                COMPARE = -1.5D0
              ELSE IF(WORK(LDV-1+IJ).GE.OSTHR) THEN
                COMPARE = -2.5D0
              END IF
+
              IF(ABS(COMPARE).GE.TOLERANCE) THEN
                I_PRINT_HEADER = I_PRINT_HEADER + 1
                IF(I_PRINT_HEADER.EQ.1) THEN
@@ -1018,8 +1021,9 @@ C And the same for the Dyson amplitudes
                  WRITE(6,37) I,J,"below threshold",WORK(LDV-1+IJ)
                END IF
              END IF
-            END DO
-          END DO
+*
+            END DO ! L_
+          END DO ! K_
           IF(I_PRINT_HEADER.EQ.0) THEN
             WRITE(6,*)
             WRITE(6,*) "No problematic oscillator strengths above "//

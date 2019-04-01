@@ -827,9 +827,10 @@ C printing threshold
                IJ=I+NSS*(J-1)
                EDIFF=ENSOR(J)-ENSOR(I)
                IF(EDIFF.LT.0.0D0) CYCLE
-               COMPARE=0.0D0
-             IF(WORK(LDL-1+IJ).GE.OSTHR.AND.WORK(LDV-1+IJ).GE.OSTHR)
-     &          THEN
+             COMPARE=0.0D0
+             dlt=1.0D-18 ! Add small value to avoid zero divide.
+             IF(WORK(LDL-1+IJ).GE.OSTHR+dlt .AND.
+     &          WORK(LDV-1+IJ).GE.OSTHR+dlt) THEN
                COMPARE = ABS(1-WORK(LDL-1+IJ)/WORK(LDV-1+IJ))
              ELSE IF(WORK(LDL-1+IJ).GE.OSTHR) THEN
                COMPARE = -1.5D0
