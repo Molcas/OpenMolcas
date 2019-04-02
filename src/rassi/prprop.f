@@ -1569,10 +1569,7 @@ C printing threshold
         IPRDX=0
         IPRDY=0
         IPRDZ=0
-! AMFI
 ! Spin-Magnetic-Quadrupole = M^s_ab = r_b * s_a
-! Will create this integral as the product of
-! the electric-dipole and amfi integral (of course in the length representation)
 ! Will still keep SMQ as keyword since this term could otherwise
 ! be calculated with other inputs!!!
         IPRSX=0
@@ -1587,6 +1584,7 @@ C printing threshold
            IF(ISOCMP(ISOPR).EQ.2) IPRDY=ISOPR
            IF(ISOCMP(ISOPR).EQ.3) IPRDZ=ISOPR
           ELSE IF(SOPRNM(ISOPR).EQ.'AMFI') THEN
+! LKS Should be r*s not AMFI
            IF(ISOCMP(ISOPR).EQ.1) IPRSX=ISOPR
            IF(ISOCMP(ISOPR).EQ.2) IPRSY=ISOPR
            IF(ISOCMP(ISOPR).EQ.3) IPRSZ=ISOPR
