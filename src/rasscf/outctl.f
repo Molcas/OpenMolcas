@@ -545,9 +545,18 @@ C Local print level (if any)
 * Start of if-block D over IPRLEV
       If (OutFmt1.NE.'NOTHING ') then
         If(IPT2.EQ.0) THEN
-           CALL PRIMO_RASSCF('Pseudonatural active'//
+          If(kIvo) Then
+            Call ivogen_rasscf(nSym,nBas,nFro,nIsh,nAsh,nTot2,nTot,
+     &                         CMO,FDIAG)
+            CALL PRIMO_RASSCF('Pseudonatural active'//
+     &       ' orbitals and approximate occupation numbers + IVO,'//
+     &       ' not suitable for CASPT2',
+     &                         FDIAG,OCCN,CMO)
+          Else
+            CALL PRIMO_RASSCF('Pseudonatural active'//
      &                  ' orbitals and approximate occupation numbers',
      &                         FDIAG,OCCN,CMO)
+          End If
         Else
            CALL PRIMO_RASSCF('All orbitals are'//
      &                  ' eigenfunctions of the PT2 Fock matrix',

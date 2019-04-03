@@ -103,6 +103,7 @@ C     Write (Lu,*) iOptC
       If (Char(1:4).eq.'AIP ') Go To 104
       If (Char(1:4).eq.'AISP') Go To 105
       If (Char(1:4).eq.'AIMI') Go To 106
+      If (Char(1:4).eq.'AIME') Go To 107
       If (Char(1:4).eq.'BAKE') Go To 926
       If (Char(1:4).eq.'C1-D') Go To 936
       If (Char(1:4).eq.'C2-D') Go To 937
@@ -492,6 +493,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
        lbAI(2) = 6.0
        lbAI(3) = 10
        miAI = 10
+       meAI = -10e-6
        Call WarningMessage(1,'Kriging AI method selected.')
        Write (Lu,*) 'Default number of source points: 3.'
        Write (Lu,*) 'Default analytical Mat`ern derivatives: True*.'
@@ -525,9 +527,13 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
       Read (Char,'(I10)') nspAI
       Write (Lu,*) 'Number of source points selected: ', nspAI
       Go To 999
-106   Char=Get_Ln(LuRd) ! Maximum number of Interations for the AI method
+106   Char=Get_Ln(LuRd) ! Maximum number of Iterations for the AI method
       Read (Char,'(I10)') miAI
       Write (Lu,*) 'Maximum interations: ', miAI
+      Go To 999
+107   Char=Get_Ln(LuRd) ! Minimum egergy differences of the last two Iterations (loop exit condition)
+      Read (Char,'(I10)') meAI
+      Write (Lu,*) 'Maximum interations: ', meAI
       Go To 999
 *                                                                      *
 ****** BAKE ************************************************************

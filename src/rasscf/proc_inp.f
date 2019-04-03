@@ -681,6 +681,11 @@ C   No changing about read in orbital information from INPORB yet.
        If (DBG) Write(6,*) ' PRSPIN command was used.'
        ISPDEN=1
       End If
+*---  Process IVO command --------------------------------------------*
+      If (KeyIVO) Then
+       If (DBG) Write(6,*) ' IVO command was used.'
+       kIvo=.true.
+      End If
 * ========================================================================
 *  If ORBONLY keyword was used, then the JOBIPH file should be used
 * only to produce orbital files, then the program stops.
@@ -1468,12 +1473,6 @@ CIgorS End
         Write(6,'(1x,8i5)')(NISH(i),i=1,NSYM)
        End If
        IORBDATA=1
-      else
-        if (sum(nIsh(:nSym)) .eq. 0) then
-          call WarningMessage(1,
-     &      'The number of inactive orbitals is zero. '//
-     &      'Do you really want this?')
-        end if
       End If
 *
 *---  Process RAS1 command --------------------------------------------*
@@ -2842,6 +2841,13 @@ c       write(6,*)          '  --------------------------------------'
       End If
 
 *---  All keywords have been processed ------------------------------*
+
+      If (.not.KeyINAC) Then
+        If (Sum(nIsh(:nSym)).eq.0)
+     &    Call WarningMessage(1,
+     &      'The number of inactive orbitals is zero. '//
+     &      'Do you really want this?')
+      End If
 
 ************************************************************************
 * Generate artificial splitting or RAS into GAS for parallel blocking  *

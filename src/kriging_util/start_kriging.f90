@@ -12,6 +12,7 @@
 !***********************************************************************
 
       Subroutine Start_Kriging(iter,nInter,qInt,Grad,Energy,anAIT,pAIT,lbAI,npxAIT)
+!#include "stdalloc.fh"
         use globvar
         Integer npxAIT,nInter,iter
         Real*8 qInt(nInter,iter+1),Grad(nInter,iter),Energy(iter),pAIT,lbAI(3)
@@ -73,8 +74,9 @@
         Write (6,*) 'dy size: ',size(dy)
         Write (6,*) 'dy shape: ',shape(dy)
         call kernels(iter,nInter)
-        iter = iter+1
+        iter = iter + 1
         Energy(iter)=pred(npx)
         Grad(:,iter)=gpred
+        write(6,*) 'New values of Energy and grad', pred(npx), gpred
         return
       end

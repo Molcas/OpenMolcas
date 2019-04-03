@@ -11,6 +11,7 @@
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
       module globvar
+!#include "stdalloc.fh"
         real*8, allocatable :: x(:,:), y(:), dy(:), rl(:,:), &
                 dl(:,:), mat(:,:), Iden(:,:),full_R(:,:), &
                 nx(:,:),cv(:,:,:),lb(:),Kv(:),pred(:),Ys(:),var(:),Rones(:), &

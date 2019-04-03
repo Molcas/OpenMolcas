@@ -39,14 +39,6 @@
                     ! call predict(2)
                 enddo
             enddo
-            ! tpred=pred
-            ! ! call covarvector(1)
-            ! ! call predict(1)
-            ! gpred=pred
-            ! ! call covarvector(2)
-            ! ! call predict(1)
-            ! hpred=pred
-            ! pred=tpred
         END
 
         subroutine miden(iter)

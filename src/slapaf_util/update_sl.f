@@ -84,7 +84,7 @@
       Real*8 qInt(nInter,iter+1), Shift(nInter,iter),
      &       Grad(nInter,iter), GNrm(iter), Energy(iter),
      &       BMx(3*nsAtom,3*nsAtom), rLambda(nLambda,iter+1),
-     &       dMass(nsAtom), Degen(3*nsAtom)
+     &       dMass(nsAtom), Degen(3*nsAtom), dEner
       Integer iOper(0:nSym-1), jStab(0:7,nsAtom), nStab(nsAtom),
      &        iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
@@ -168,7 +168,8 @@ c Avoid unused argument warnings
 *        ------- AI loop begin here
          If (Kriging) then
             If (nspAI.lt.iter) then
-               do while (iter.lt.miAI)
+               dEner = Energy(iter)-Energy(iter-1)
+               do while (iter.lt.miAI.and.dEner.lt.meAI)
                   Write (6,*) 'iter: ',iter
                   write(6,*) 'coord before Update_sl', qInt
                   Write (6,*) 'qInt shape: ',shape(qInt)
@@ -197,7 +198,9 @@ c Avoid unused argument warnings
                   Write (6,*) 'Grad shape: ',shape(Grad)
                   Call Start_Kriging(iter,nInter,qInt,Grad,Energy,anAI,
      &                            pAI,lbAI,npxAI)
+                  write(6,*) 'do new iter',iter
                End Do
+               write(6,*) 'finished do iter',iter
             Else
             Call Update_sl_(iter,iInt,nFix,nInter,qInt,Shift,
      &                   Grad,iOptC,Beta,Lbl,GNrm,Energy,

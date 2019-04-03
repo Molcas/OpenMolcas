@@ -195,6 +195,9 @@
          WRITE(6,*)
       End If
       WRITE(6,*)
+      If (IFXMS.AND.IFMSCOUP) Then
+         WRITE(6,Fmt1) 'This is an XMS-CASPT2 calculation.'
+      End If
       WRITE(6,Fmt2//'A,A)')'Type of Fock operator: ',TRIM(FOCKTYPE)
       WRITE(6,Fmt2//'A,A)')'Type of 0-order Hamiltonian: ',TRIM(HZERO)
       WRITE(6,Fmt2//'A,F9.2)')'  "IP-EA" denominator shift = ',BSHIFT

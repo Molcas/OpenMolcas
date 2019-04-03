@@ -28,9 +28,6 @@
 *             University of Lund, SWEDEN                               *
 *             January 1992                                             *
 *                                                                      *
-* (c) Copyright 1992 R. Lindh, Dept. of Theor. Chem. Univ. of Lund,    *
-* Sweden. All rights reserved.                                         *
-*                                                                      *
 * modified by M.P. Fuelscher                                           *
 * - changed to used communication file                                 *
 ************************************************************************
