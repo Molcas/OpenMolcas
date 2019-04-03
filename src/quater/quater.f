@@ -34,7 +34,7 @@
       debug=.false.
       call quaterinit()
 
-      Call RdInput(U1,U2,V1,V2)
+      Call RdInput_Quater(U1,U2,V1,V2)
 
       if (debug) then
         Write(6,*) 'Reference axis'

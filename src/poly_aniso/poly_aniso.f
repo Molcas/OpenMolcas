@@ -781,7 +781,7 @@ c---------------------------------------------------------------------
      &                chit_exp, Texp, T, XTexp )
 
           ! XT at H=0
-          Call susceptibility( exch, nLoc, nCenter, nneq,
+          Call susceptibility_pa( exch, nLoc, nCenter, nneq,
      &                         neqv, neq, nss, nexch, nTempMagn,
      &                         nT, Tmin, Tmax, XTexp,
      &                         eso, dipso, s_so, W, dipexch,
@@ -828,7 +828,7 @@ c---------------------------------------------------------------------
      &                nTempMagn, hmax, w, encut_rate, TempMagn,
      &                nM, EM, dbg )
 
-         Call torque( nneq, nCenter, neq, neqv, nLoc, exch,
+         Call torque_pa( nneq, nCenter, neq, neqv, nLoc, exch,
      &                nTempMagn, nH, nM, AngPoints, nexch,
      &                iopt, nss, mem,
      &                smagn, m_paranoid, m_accurate,
@@ -850,7 +850,7 @@ c---------------------------------------------------------------------
      &                nTempMagn, hmax, w, encut_rate, TempMagn,
      &                nM, EM, dbg )
 
-         Call magnetization( exch, nLoc, nM, nH, nneq, neq, neqv,
+         Call magnetization_pa( exch, nLoc, nM, nH, nneq, neq, neqv,
      &                       nCenter, nTempMagn, nDir, nDirZee,
      &                       nDirTot, nss, nexch, iopt, LUZee,
      &                       TempMagn, hexp, mexp, hmin, hmax, em,

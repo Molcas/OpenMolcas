@@ -7,14 +7,22 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1986, Per E. M. Siegbahn                               *
 ************************************************************************
-      INTEGER FUNCTION JSUNP(INTSYM,L)
-      DIMENSION INTSYM(*)
-
-      INTW=INTSYM((L+9)/10)
-      IPOW=2**(27-3*MOD(L-1,10))
-      JSUNP=1+MOD(INTW/IPOW,8)
-      RETURN
-      END
+       Subroutine Reorder_GW(A,B,k,l,n,m)
+       Implicit Real*8 (a-h,o-z)
+       Real*8 A(k,l,n,m), B(k,n,l,m)
+*
+       Do ik = 1, k
+          Do il = 1, l
+             Do in = 1, n
+                Do im = 1, m
+*
+                    B(ik,in,il,im) = A(ik,il,in,im)
+*
+                End Do
+             End Do
+          End Do
+       End Do
+*
+       Return
+       End

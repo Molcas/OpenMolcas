@@ -34,7 +34,7 @@
 C CPF, ACPF AND SDCI
       IF(ITER.EQ.1)GO TO 25
       CALL C_F_POINTER(C_LOC(H(LW(2))),iH2,[1])
-      CALL DIAGC(iH2,H(LW(26)),H(LW(27)))
+      CALL DIAGC_CPF(iH2,H(LW(26)),H(LW(27)))
       NULLIFY(iH2)
       IF(IFIRST.NE.0)GO TO 15
       CALL C_F_POINTER(C_LOC(H(LW(2))),iH2,[1])
@@ -46,7 +46,7 @@ C CPF, ACPF AND SDCI
 15    CALL C_F_POINTER(C_LOC(H(LW(2))),iH2,[1])
       CALL C_F_POINTER(C_LOC(H(LW(3))),iH3,[1])
       CALL C_F_POINTER(C_LOC(H(LW(47))),iH47,[1])
-      CALL IJKL(iH2,iH3,H(LW(26)),H(LW(27)),
+      CALL IJKL_CPF(iH2,iH3,H(LW(26)),H(LW(27)),
      *H(LW(46)),H(LW(47)),iH47,H(LW(31)),H(LW(32)))
       NULLIFY(iH2,iH3,iH47)
       IF(IFIRST.NE.0)GO TO 25
@@ -59,7 +59,7 @@ C CPF, ACPF AND SDCI
 25    CALL C_F_POINTER(C_LOC(H(LW(2))),iH2,[1])
       CALL C_F_POINTER(C_LOC(H(LW(3))),iH3,[1])
       CALL C_F_POINTER(C_LOC(H(LW(39))),iH39,[1])
-      CALL FAIBJ(iH2,iH3,H(LW(26)),H(LW(27)),H(LW(36)),
+      CALL FAIBJ_CPF(iH2,iH3,H(LW(26)),H(LW(27)),H(LW(36)),
      *H(LW(37)),H(LW(38)),H(LW(39)),iH39,H(LW(40)),H(LW(41)),
      *H(LW(42)),H(LW(43)),H(LW(31)),H(LW(32)))
       NULLIFY(iH2,iH3,iH39)

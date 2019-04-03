@@ -23,7 +23,7 @@ cpgi$g opt=1
       DIMENSION ICASE(*)
       PARAMETER (IPOW6=2**6, IPOW10=2**10, IPOW19=2**19)
 *
-      JSYM(L)=JSUNP(JSY,L)
+      JSYM(L)=JSUNP_CPF(JSY,L)
 *
       IK = 0 ! dummy initialize
       NOB2=IROW(NORBT+1)

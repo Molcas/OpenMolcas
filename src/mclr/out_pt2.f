@@ -392,7 +392,7 @@ c Note: no inactive part for transition densities
          End Do
          Call Getmem('TMP', 'ALLO','Real',ipT,nBuf/2)
          Call NatOrb(Work(ipD_K),Work(ipCMO),Work(ipCMON),Work(ipO))
-         Call dmat(Work(ipCMON),Work(ipO),Work(ipT))
+         Call dmat_MCLR(Work(ipCMON),Work(ipO),Work(ipT))
          Call Put_D1ao_var(Work(ipT),nTot1)
          Call Getmem('TMP', 'FREE','Real',ipT,nBuf/2)
 *
@@ -474,7 +474,7 @@ c ipCMON eigenvectors (new orb coef)
 c
          Call Getmem('TMP', 'ALLO','Real',ipT,nBuf/2)
          Call NatOrb(Work(ipD_K),Work(ipCMO),Work(ipCMON),Work(ipO))
-         Call dmat(Work(ipCMON),Work(ipO),Work(ipT))
+         Call dmat_MCLR(Work(ipCMON),Work(ipO),Work(ipT))
          Call Put_D1ao_Var(Work(ipT),nTot1)
          Call Getmem('TMP', 'FREE','Real',ipT,nBuf/2)
          Call get_D1MO(ipT,nTot1)
@@ -556,7 +556,7 @@ c ipCMON eigenvectors (new orb coef)
 c
 c      Call NatOrb(Work(ipD_K),Work(ipCMO),Work(ipCMON),Work(ipO))
 c      Call Getmem('TMP', 'ALLO','Real',ipT,nBuf/2)
-c      Call dmat(Work(ipCMON),Work(ipO),Work(ipT))
+c      Call dmat_MCLR(Work(ipCMON),Work(ipO),Work(ipT))
 c      Call Put_D1ao_Var(Work(ipT),nTot1)
 c      Note='var'
 c      LuTmp=50
@@ -568,7 +568,7 @@ c      Call Prpt()
 c
 c Standard routine, ipT effective dens in AO
 c
-*       Call dmat(Work(ipCMON),Work(ipO),Work(ipT))
+*       Call dmat_MCLR(Work(ipCMON),Work(ipO),Work(ipT))
 c
 *       Call Put_D1ao_Var(Work(ipT),nTot1)
 c      Call Getmem('TMP', 'FREE','Real',ipT,nBuf/2)

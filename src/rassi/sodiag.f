@@ -147,7 +147,7 @@ C      CALL ADD_INFO("SODIAG_PROP",PROP,3*SODIAGNSTATE**2,4)
 
 
 c Calculate the atens as in single_aniso
-      CALL ATENS(PROP,N,GTENS,MAXES,IPGLOB)
+      CALL ATENS_RASSI(PROP,N,GTENS,MAXES,IPGLOB)
 
 
       do l=1,3
@@ -162,7 +162,7 @@ c Calculate the atens as in single_aniso
       enddo
 
 
-      call atens(PROP2, N, GTENS, MAXES2, 2)
+      call atens_RASSI(PROP2, N, GTENS, MAXES2, 2)
 
 c Diagonalize along each direction
 C LOOP OVER THE DIRECTIONS
@@ -274,7 +274,7 @@ c      SUBROUTINE SPIN_PHASE(IPGLOB,DIPSO2,GMAIN,DIM,ZIN,ZOUT)
         enddo
       enddo
 
-      call SPIN_PHASE(2,PROP2,GTENS,N,DEIGVEC,ZOUT)
+      call SPIN_PHASE_RASSI(2,PROP2,GTENS,N,DEIGVEC,ZOUT)
 
 
 c EXPAND EIGENVECTORS TO SEPARATE R,I MATRICES AND
@@ -489,7 +489,7 @@ C      CALL ADD_INFO("SODIAG_SMATI",SMATI,9*N*N,4)
 
 
 
-      SUBROUTINE SPIN_PHASE(IPGLOB,DIPSO2,GMAIN,DIM,ZIN,ZOUT)
+      SUBROUTINE SPIN_PHASE_RASSI(IPGLOB,DIPSO2,GMAIN,DIM,ZIN,ZOUT)
 C
 C     The RASSI program gives a random phase to the spin-orbit functions.
 C
@@ -625,7 +625,7 @@ CC Rewrite the Spin m.e. in a new basis:
 
 
 
-      SUBROUTINE ATENS(moment, dim, gtens, maxes, IPGLOB)
+      SUBROUTINE ATENS_RASSI(moment, dim, gtens, maxes, IPGLOB)
 
       IMPLICIT NONE
       INTEGER dim,ic1,ic2,i,j,k,l,IPGLOB,info
@@ -735,7 +735,7 @@ C
       enddo
       info=0
 
-      call DIAG_R2(A_TENS_TERM,3,info,w,z)
+      call DIAG_R2_RASSI(A_TENS_TERM,3,info,w,z)
       if(INFO.NE.0) goto 199
       if((w(1).LT.0.D0).AND.(w(2).LT.0.D0).AND.(w(3).LT.0.D0)) then
       write(6,'(2x,A)') 'ALL EIGENVALUES OF THE A-TENSOR ARE NEGATIVE'
@@ -894,7 +894,7 @@ C      Call Add_Info('GTENS_MAIN',gtens,3,5)
 
 
 
-      Subroutine DIAG_R2(MATRIX,NBTOT,INFO,W1,Z1)
+      Subroutine DIAG_R2_RASSI(MATRIX,NBTOT,INFO,W1,Z1)
 C
 C   THIS ROUTINE PERFORMS THE DIAGONALIZATION OF A REAL SQUARE
 C   MATRIX WITH THE DIMENSION NBTOT. THE EIGENVALUES OF THE DIAGONALIZATION

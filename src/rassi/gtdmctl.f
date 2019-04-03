@@ -163,11 +163,11 @@ C WF parameters for ISTATE and JSTATE
 
 C Pick up orbitals of ket and bra states.
       CALL GETMEM('GTDMCMO1','ALLO','REAL',LCMO1,NCMO)
-      CALL RDCMO(JOB1,WORK(LCMO1))
+      CALL RDCMO_RASSI(JOB1,WORK(LCMO1))
       CALL GETMEM('GTDMCMO2','ALLO','REAL',LCMO2,NCMO)
 
 
-      CALL RDCMO(JOB2,WORK(LCMO2))
+      CALL RDCMO_RASSI(JOB2,WORK(LCMO2))
 C Nr of active spin-orbitals
       NASORB=2*NASHT
       NTDM1=NASHT**2

@@ -142,7 +142,7 @@ CC AOM 04.08        Also added liErr for the same reason
       If (iSort .eq. 1) Then
          Call JacOrd2(EigVal, EigVec, nDim, lDimVec)
       Else If (iSort .eq. -1) Then
-         Call Sort(EigVal, EigVec, nDim, lDimVec)
+         Call SortEig(EigVal, EigVec, nDim, lDimVec)
       End If
       Return
       End

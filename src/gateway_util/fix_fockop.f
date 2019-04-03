@@ -206,7 +206,7 @@ C     nPrint(122)=99
 *
                jp1Hm = ip
                ip = ip + nCntrc_a**2 * iCmp_a**2
-               Call Reorder(DInf(ipNAE),DInf(jp1Hm),
+               Call Reorder_GW(DInf(ipNAE),DInf(jp1Hm),
      &                      nCntrc_a,nCntrc_a,iCmp_a,iCmp_a)
 *                                                                      *
 ************************************************************************
@@ -230,7 +230,7 @@ C     nPrint(122)=99
 *
                jpOvr = ip
                ip = ip + nCntrc_a**2 * iCmp_a**2
-               Call Reorder(DInf(ipOvr),DInf(jpOvr),
+               Call Reorder_GW(DInf(ipOvr),DInf(jpOvr),
      &                      nCntrc_a,nCntrc_a,iCmp_a,iCmp_a)
 *                                                                      *
 ************************************************************************
@@ -346,7 +346,7 @@ C     nPrint(122)=99
                   End Do
                End Do
 *
-               Call Reorder(DInf(jp1Hm),DInf(ipNAE),
+               Call Reorder_GW(DInf(jp1Hm),DInf(ipNAE),
      &                      nCntrc_a,iCmp_a,nCntrc_a,iCmp_a)
 *
 *              Make result isotropic and distribute
@@ -669,7 +669,7 @@ ccjd
 *
             ipS_AA = ip
             ip = ip + nSAA
-            Call Reorder(DInf(ipSAA),DInf(ipS_AA),
+            Call Reorder_GW(DInf(ipSAA),DInf(ipS_AA),
      &                   nCntrc_a,nCntrc_a,iCmp_a,iCmp_a)
 #ifdef _DEBUG_
             Call RecPrt('Reordered SAA',' ',DInf(ipS_AA),
@@ -687,7 +687,7 @@ ccjd
 *           Reorder SAR
             ipS_AR = ip
             ip = ip + nSAR
-            Call Reorder(DInf(ipSAR),DInf(ipS_AR),
+            Call Reorder_GW(DInf(ipSAR),DInf(ipS_AR),
      &                   nCntrc_a,nCntrc_r,iCmp_a,iCmp_r)
 #ifdef _DEBUG_
             Call RecPrt('Reordered SAR',' ',DInf(ipS_AR),
@@ -732,7 +732,7 @@ ccjd
             Call RecPrt('Expanded ER',' ',DInf(ipTmp),
      &                  nCntrc_r*nCntrc_r,iCmp_r*iCmp_r)
 #endif
-            Call Reorder(DInf(ipTmp),DInf(ipE_R),
+            Call Reorder_GW(DInf(ipTmp),DInf(ipE_R),
      &                   nCntrc_r,nCntrc_r,iCmp_r,iCmp_r)
             ip = ip - nSRR ! Release ipTmp
 #ifdef _DEBUG_
@@ -786,7 +786,7 @@ ccjd
 *
             ipTmp3 = ip
             ip = ip + nSRR
-            Call Reorder(DInf(ipSAA),DInf(ipTmp3),
+            Call Reorder_GW(DInf(ipSAA),DInf(ipTmp3),
      &                   nCntrc_a,iCmp_a,nCntrc_a,iCmp_a)
 #ifdef _DEBUG_
             Call RecPrt('Reordered EA',' ',DInf(ipTmp3),

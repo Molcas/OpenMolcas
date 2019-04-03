@@ -34,7 +34,7 @@
 *                                                                      *
 *     called from: WfCtl                                               *
 *                                                                      *
-*     calls to: ModFck, PickUp, Sort                                   *
+*     calls to: ModFck, PickUp, SortEig                                *
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -363,16 +363,19 @@ c         Call TriPrt(' ',' ',FckS,nOrbmF)
 *----------    Sort non-wavelet eigenvalues/eigenvectors
                n2sort=nOccmF-nConstr(iSym)
                If (FckAuf)
-     &         Call Sort(EOrb(jEOr,iD),CMO(iCMO,iD),n2sort,nBas(iSym))
+     &         Call SortEig(EOrb(jEOr,iD),CMO(iCMO,iD),n2sort,
+     &                      nBas(iSym))
                jjEOr=jEOr+nOccmF+nConstr(iSym)
                iiCMO=iCMO+nBas(iSym)*(nOccmF+nConstr(iSym))
                n2sort=nVrt-nConstr(iSym)
                If (FckAuf)
-     &         Call Sort(EOrb(jjEOr,iD),CMO(iiCMO,iD),n2sort,nBas(iSym))
+     &         Call SortEig(EOrb(jjEOr,iD),CMO(iiCMO,iD),n2sort,
+     &                      nBas(iSym))
             Else
 *----------    Sort all eigenvalues and eigenvectors
                If (FckAuf)
-     &         Call Sort(EOrb(jEOr,iD),CMO(iCMO,iD),nOrbmF,nBas(iSym))
+     &         Call SortEig(EOrb(jEOr,iD),CMO(iCMO,iD),nOrbmF,
+     &                      nBas(iSym))
             EndIf
 #ifdef _SPECIAL_DEBUG_
             If (iD.eq.1.and.nD.eq.1) Then

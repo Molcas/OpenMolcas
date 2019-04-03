@@ -8,11 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE MKDAW(NLEV,NVERT,IDRT,IDOWN,IDAW,LTV)
+      SUBROUTINE MKDAW_RASSI(NLEV,NVERT,IDRT,IDOWN,IDAW,LTV)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='MKDAW')
+      PARAMETER (ROUTINE='MKDAW_RASSI')
       DIMENSION IDOWN(NVERT,0:3),IDAW(NVERT,0:4),IDRT(NVERT,5)
       DIMENSION LTV(-1:NLEV)
       PARAMETER (LTAB=1)

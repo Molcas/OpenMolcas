@@ -57,7 +57,7 @@
       nOrdOp = 0
       Label='TMOS0'
       nComp = 2
-      Call Allocate_Auxiliary()
+      Call Allocate_Aux()
       Call GetMem('Nuc   ','ALLO','REAL',ipNuc,nComp)
 *     Here we put in the k-vector
       Call FZero(CoorO,3*nComp)
@@ -79,14 +79,14 @@
      &           dum,1,0)
 *
       Call GetMem('Nuc   ','FREE','REAL',ipNuc,nComp)
-      Call Deallocate_Auxiliary()
+      Call Deallocate_Aux()
 *
 *     A*p
 *
       nOrdOp = 1
       Label='TMOS'
       nComp = 12
-      Call Allocate_Auxiliary()
+      Call Allocate_Aux()
       Call GetMem('Nuc   ','ALLO','REAL',ipNuc,nComp)
 *     Here we put in the k-vector
       Call FZero(CoorO,3*nComp)
@@ -128,14 +128,14 @@
      &           dum,1,0)
 *
       Call GetMem('Nuc   ','FREE','REAL',ipNuc,nComp)
-      Call Deallocate_Auxiliary()
+      Call Deallocate_Aux()
 *
 *     The A^2 term
 *
       nOrdOp = 0
       Label='TMOS2'
       nComp = 2
-      Call Allocate_Auxiliary()
+      Call Allocate_Aux()
       Call GetMem('Nuc   ','ALLO','REAL',ipNuc,nComp)
 *     Here we put in the k-vector
       Call FZero(CoorO,3*nComp)
@@ -159,7 +159,7 @@
      &           dum,1,0)
 *
       Call GetMem('Nuc   ','FREE','REAL',ipNuc,nComp)
-      Call Deallocate_Auxiliary()
+      Call Deallocate_Aux()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -170,7 +170,7 @@
       Return
 *
       Contains
-      Subroutine Allocate_Auxiliary()
+      Subroutine Allocate_Aux()
       Implicit None
 #include "stdalloc.fh"
 *
@@ -180,8 +180,8 @@
       Call mma_Allocate(CoorO,3*nComp)
 *
       Return
-      End Subroutine Allocate_Auxiliary
-      Subroutine Deallocate_Auxiliary()
+      End Subroutine Allocate_Aux
+      Subroutine Deallocate_Aux()
       Implicit None
 #include "stdalloc.fh"
 *
@@ -191,6 +191,6 @@
       Call mma_Deallocate(CoorO)
 *
       Return
-      End Subroutine Deallocate_Auxiliary
+      End Subroutine Deallocate_Aux
 *
       End Subroutine TMOSInt

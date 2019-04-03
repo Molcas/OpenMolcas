@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE FOCK(DINAO,FOCKAO)
+      SUBROUTINE FOCK_RASSI(DINAO,FOCKAO)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rassi.fh"
 #include "WrkSpc.fh"

@@ -110,7 +110,7 @@ C handle different active spaces per JobIph, but this is checked elsewhere
 #endif
 
 * set orbital partitioning data
-      CALL WFNSIZES
+      CALL WFNSIZES_RASSI
 
 C Added by Ungur Liviu on 04.11.2009
 C Addition of NJOB,MSJOB and MLTPLT on RunFile.

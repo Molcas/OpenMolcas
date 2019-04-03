@@ -11,16 +11,16 @@
 * Copyright (C) 1986, Per E. M. Siegbahn                               *
 *               1986, Margareta R. A. Blomberg                         *
 ************************************************************************
-      SUBROUTINE DIAGCT(H)
+      SUBROUTINE DIAGCT_CPF(H)
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "SysDef.fh"
 
 #include "cpfmcpf.fh"
       DIMENSION H(*)
-      CALL QENTER('DIAGCT')
+      CALL QENTER('DIAGCT_CPF')
       CALL DIAGCT_INTERNAL(H)
-      CALL QEXIT('DIAGCT')
+      CALL QEXIT('DIAGCT_CPF')
 *
 *     This is to allow type punning without an explicit interface
       CONTAINS
@@ -36,13 +36,13 @@
 * uninitialized variables does not give false alarms.
       CALL DCOPY_(LW(21)-LW(20),0.0D0,0,H(LW(20)),1)
 * Now H(LW(20)) and up are filled with zeroes.
-* Similar before SORTB and SORT_CPF.
+* Similar before SORTB_CPF and SORT_CPF.
       CALL C_F_POINTER(C_LOC(H(LW(4))),iH4,[1])
       CALL C_F_POINTER(C_LOC(H(LW(20))),iH20,[1])
       CALL C_F_POINTER(C_LOC(H(LW(21))),iH21,[1])
       CALL C_F_POINTER(C_LOC(H(LW(22))),iH22,[1])
       CALL C_F_POINTER(C_LOC(H(LW(25))),iH25,[1])
-      CALL SORTA(H(LW(20)),iH20,iH21,iH22,H(LW(10)),
+      CALL SORTA_CPF(H(LW(20)),iH20,iH21,iH22,H(LW(10)),
      &   iH4,H(LW(25)),iH25,H(LW(23)),H(LW(24)),NINTGR)
       NULLIFY(iH4,iH20,iH21,iH22,iH25)
       IF(IFIRST.EQ.0) THEN
@@ -51,7 +51,7 @@
         CALL C_F_POINTER(C_LOC(H(LW(17))),iH17,[1])
         CALL C_F_POINTER(C_LOC(H(LW(18))),iH18,[1])
         CALL C_F_POINTER(C_LOC(H(LW(19))),iH19,[1])
-        CALL SORTB(H(LW(17)),iH17,iH18,
+        CALL SORTB_CPF(H(LW(17)),iH17,iH18,
      &   iH19,H(LW(10)),H(LW(94)),H(LW(95)),iH4,H(LW(96)))
         NULLIFY(iH4,iH17,iH18,iH19)
       END IF

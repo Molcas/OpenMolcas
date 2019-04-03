@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-       Subroutine susceptibility( exch, nLoc, nCenter, nneq,
+       Subroutine susceptibility_pa( exch, nLoc, nCenter, nneq,
      &                            neqv, neq, nss, nexch, nTempMagn,
      &                            nT, Tmin, Tmax, XTexp,
      &                            eso, dipso, s_so, w, dipexch,

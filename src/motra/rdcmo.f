@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine RdCmo(CMO,Ovlp)
+      Subroutine RdCmo_motra(CMO,Ovlp)
 ************************************************************************
 *                                                                      *
 *     Purpose:                                                         *
@@ -31,12 +31,12 @@
       Integer itemp2((LENIN8*MxOrb)/ItoB)
       Real*8  temp2(MxRoot)
 *
-      Call qEnter('RdCmo')
+      Call qEnter('RdCmo_motra')
 *----------------------------------------------------------------------*
 *     Read MO coefficients from input                                  *
 *----------------------------------------------------------------------*
       If ( iVecTyp.eq.1 ) Then
-        Write (6,*) 'RdCmo: iVecTyp.eq.1'
+        Write (6,*) 'RdCmo_motra: iVecTyp.eq.1'
         Write (6,*) 'This error means someone has put a bug into MOTRA!'
         Call QTrace()
         Call Abend()
@@ -52,7 +52,7 @@
      &          Cmo, Dummy, Dummy, iDummy,
      &          VecTit, 0, iErr)
         Else
-          Write (6,*) 'RdCMO: Error finding MO file'
+          Write (6,*) 'RdCMO_motra: Error finding MO file'
           Call QTrace()
           Call Abend()
         End If
@@ -82,7 +82,7 @@
           Call DaClos(LuJobIph)
           VecTit='JOBIPH'
         Else
-          Write (6,*) 'RdCMO: Error finding JOBIPH file'
+          Write (6,*) 'RdCMO_motra: Error finding JOBIPH file'
           Call QTrace()
           Call Abend()
         End If
@@ -91,6 +91,6 @@
 *     Normal termination                                               *
 *----------------------------------------------------------------------*
       Call Ortho_Motra(nSym,nBas,nDel,Ovlp,Cmo)
-      Call qExit('RdCmo')
+      Call qExit('RdCmo_motra')
       Return
       End

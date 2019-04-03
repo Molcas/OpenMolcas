@@ -157,16 +157,16 @@ c
 c
 c3      Priprava integralov
 c
-        call Reord (Work(iOff),wrksize,
+        call Reord_chcc (Work(iOff),wrksize,
      &              NvGrp,NvSGrp,NchBlk,LunAux)
         if (generkey.eq.1) then
 cmp!          if (printkey.ge.10) then ! uvidime ...
-          write (6,*) ' Generation of integrals (Reord) done'
+          write (6,*) ' Generation of integrals (Reord_chcc) done'
           write (6,*)
 cmp!          end if
         else
-          write (6,*) ' Generation of integrals (Reord) skipped, '//
-     &          'only basic'
+          write (6,*) ' Generation of integrals (Reord_chcc) skipped,'//
+     &          ' only basic'
           write (6,*)
         end if
 cmp

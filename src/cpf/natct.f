@@ -51,7 +51,7 @@
          CALL DCOPY_(NBAS(M),0.0D0,0,H(IOCC),1)
 *        skip orbitals prefrozen in MOTRA
          CALL DCOPY_(NPFRO(M),2.0D0,0,H(IOCC),1)
-         CALL NATORB(H(LW(62)),H(ICMO+NBAS(M)*NPFRO(M)),H(LW(88)),
+         CALL NATORB_CPF(H(LW(62)),H(ICMO+NBAS(M)*NPFRO(M)),H(LW(88)),
      &               H(LW(89)),H(LW(89)),H(IOCC+NPFRO(M)),M)
          CALL DCOPY_(NORB(M)*NBAS(M),H(LW(89)),1,
      &              H(ICMO+NBAS(M)*NPFRO(M)),1)
@@ -138,7 +138,7 @@
       CALL C_F_POINTER(C_LOC(H(LW(1))),iH1,[1])
       CALL C_F_POINTER(C_LOC(H(LW(2))),iH2,[1])
       CALL C_F_POINTER(C_LOC(H(LW(3))),iH3,[1])
-      CALL PRWF(iH1,iH2,iH3,H(LW(26)))
+      CALL PRWF_CPF(iH1,iH2,iH3,H(LW(26)))
       NULLIFY(iH1,iH2,iH3)
       END SUBROUTINE dPRWF
 *

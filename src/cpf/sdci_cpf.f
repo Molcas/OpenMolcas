@@ -32,7 +32,7 @@ c      DIMENSION H(LIC0), iH(RtoI*LIC0)
       IDENS=0
 C INPUT, SORTING AND DIAGONAL ELEMENTS
       CALL READIN_CPF(H,iH)
-      CALL DIAGCT(H)
+      CALL DIAGCT_CPF(H)
       ITER=1
       IF(IREST.EQ.1)ITER=ITER+1
       ITPUL=1
@@ -59,7 +59,7 @@ C INPUT, SORTING AND DIAGONAL ELEMENTS
 C     FIRST ORDER DENSITY MATRIX
 395   IDENS=1
 *
-      CALL DENSCT(H,LIC0)
+      CALL DENSCT_CPF(H,LIC0)
 *
       IF(NREF.GT.1) THEN
          WRITE(6,*) ' This is a single reference program, but more than'

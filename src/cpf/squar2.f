@@ -11,7 +11,7 @@
 * Copyright (C) 1986, Per E. M. Siegbahn                               *
 *               1986, Margareta R. A. Blomberg                         *
 ************************************************************************
-      SUBROUTINE SQUAR2(A,N)
+      SUBROUTINE SQUAR2_CPF(A,N)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION A(N,N)
       DO 10 I=1,N

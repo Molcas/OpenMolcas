@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine magnetization( exch, nLoc, nM, nH, nneq, neq, neqv,
+      Subroutine magnetization_pa( exch, nLoc, nM, nH, nneq, neq, neqv,
      &                          nCenter, nTempMagn, nDir, nDirZee,
      &                          nDirTot, nss, nexch, iopt, LUZee,
      &                          TempMagn, hexp, mexp, hmin, hmax, em,

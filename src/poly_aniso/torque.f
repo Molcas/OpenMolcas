@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine torque( nneq, nCenter, neq, neqv, nLoc, exch,
+      Subroutine torque_pa( nneq, nCenter, neq, neqv, nLoc, exch,
      &                   nTempMagn, nH, nM, AngPoints, nexch,
      &                   iopt, nss, mem,
      &                   smagn, m_paranoid, m_accurate,

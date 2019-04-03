@@ -11,16 +11,16 @@
 * Copyright (C) 1986, Per E. M. Siegbahn                               *
 *               1986, Margareta R. A. Blomberg                         *
 ************************************************************************
-      SUBROUTINE DENSCT(H,LIC0)
+      SUBROUTINE DENSCT_CPF(H,LIC0)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION H(LIC0)
 
 #include "SysDef.fh"
 
 #include "cpfmcpf.fh"
-      CALL QENTER('DENSCT')
+      CALL QENTER('DENSCT_CPF')
       CALL DENSCT_INTERNAL(H)
-      CALL QEXIT('DENSCT')
+      CALL QEXIT('DENSCT_CPF')
 *
 *     This is to allow type punning without an explicit interface
       CONTAINS
@@ -30,7 +30,7 @@
       INTEGER, POINTER :: iH1(:),iH2(:),iH3(:),iH34(:)
 C
       CALL C_F_POINTER(C_LOC(H(LW(1))),iH1,[1])
-      CALL DENS(H(LW(26)),H(LW(62)),iH1,A)
+      CALL DENS_CPF(H(LW(26)),H(LW(62)),iH1,A)
       NULLIFY(iH1)
 C
 C     MULTIPLY C BY MP
@@ -44,7 +44,7 @@ C
 *
       CALL ONECT(H)
       IF(A.GT.D1) THEN
-        WRITE(6,*)'DENSCT Error: A>1.0D0 (See code.)'
+        WRITE(6,*)'DENSCT_CPF Error: A>1.0D0 (See code.)'
       END IF
       CALL NATCT(H,LIC0)
 *

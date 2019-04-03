@@ -11,7 +11,7 @@
 * Copyright (C) 1986, Per E. M. Siegbahn                               *
 *               1986, Margareta R. A. Blomberg                         *
 ************************************************************************
-      SUBROUTINE MTRANS(A,B,N,M)
+      SUBROUTINE MTRANS_CPF(A,B,N,M)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION A(M,N),B(N,M)
       DO 10 I=1,N

@@ -24,7 +24,7 @@ cpgi$g opt=1
       PARAMETER (IPOW6=2**6,IPOW13=2**13,IPOW19=2**19)
       PARAMETER (IPOW10=2**10)
 *
-      JSYM(L)=JSUNP(JSY,L)
+      JSYM(L)=JSUNP_CPF(JSY,L)
 *
       IK = 0 ! dummy initialize
       NOB2=IROW(NORBT+1)

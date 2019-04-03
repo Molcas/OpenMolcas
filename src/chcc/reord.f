@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
 c
-        subroutine Reord (wrk,wrksize,
+        subroutine Reord_chcc (wrk,wrksize,
      c             NaGrpR,NaSGrpR,NchBlk,LunAux)
 c
 c       This routine do:
@@ -144,8 +144,8 @@ c        Distribute memory
         write (6,*) ' Last Value :',PossT,wrksize
         end if
         if (PossT.gt.wrksize) then
-cmp!          write (6,*) ' Nieje dobre - Reord, Dr. Ch. Kokotopuloss',
-        write (6,*) ' Not Enough memory in Reord step!',
+cmp!          write (6,*) ' Nieje dobre - Reord_chcc, Dr. Ch. Kokotopuloss',
+        write (6,*) ' Not Enough memory in Reord_chcc step!',
      & 'Increase large and/or small segmentation ',
      c    (1.0d0*PossT)/(1.0d0*wrksize)
           call abend()
