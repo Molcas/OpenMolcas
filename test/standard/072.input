@@ -27,8 +27,21 @@
 > ENDIF
 
  &Gateway
+* Note that normally Expert & Coord are not needed,
+* but here we want to test that they work as intended
+Expert
+Coord = 8
+Angstrom
+ C       0.0 0.0 0.0
+ O_QM    0.0 0.0 0.0
+ O_QM    0.0 0.0 0.0
+ C       0.0 0.0 0.0
+ H       0.0 0.0 0.0
+ H       0.0 0.0 0.0
+ C_MM    0.0 0.0 0.0
+ H       0.0 0.0 0.0
 Tinker
-Basis = STO-3G
+Basis = STO-3G,O...... / MM,O_QM.STO-3G
 Group = Nosym
 NoCD
 
