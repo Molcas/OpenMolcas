@@ -37,7 +37,7 @@
       set (FDE "ON" CACHE STRING "enable frozen-density-embedding (FDE) interface")
       set (GRID_IT "ON" CACHE STRING "enable public GRID_IT code")
       set (TOOLS "ON" CACHE STRING "compile Tools")
-      #set (MSYM "ON" CACHE STRING "enable libmsym (needs submodule)")
+      set (MSYM "ON" CACHE STRING "enable libmsym (needs submodule)")
       set (WFA "ON" CACHE STRING "enable libwfa (needs submodule)")
     CC: "gcc"
     CXX: "g++"

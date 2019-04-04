@@ -1,4 +1,3 @@
->>> export MOLCAS_NPROCS=1
 **********************************************************************
 * Molecule: CO2                         
 * Basis: SVP    
@@ -9,6 +8,7 @@
 *
 * Responsable person: F. Aquilante 070517
 **********************************************************************
+>>> export MOLCAS_NPROCS=1
  &SEWARD &END
 Title
  CO2 molecule

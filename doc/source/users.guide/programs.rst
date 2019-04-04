@@ -59,6 +59,7 @@ Programs
    programs/single_aniso
    programs/slapaf
    programs/surfacehop
+   programs/symmetrize
    programs/vibrot
    programs/wfa
 

@@ -14,6 +14,6 @@
 #Basis_name Alias(real file)
 #6-31G*    6-31Gp
 #
-6-31G*  6-31Gp
-6-31G** 6-31Gpp
-
+6-31G*   6-31Gp
+6-31G**  6-31Gpp
+6-311G** 6-311Gpp

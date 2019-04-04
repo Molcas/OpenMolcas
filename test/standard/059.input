@@ -1,5 +1,3 @@
->> export MOLCAS_PRINT=VERBOSE
->> export MOLCAS_MEM=512
 *-------------------------------------------------------------------------------
 * Molecule: Water (H2O)
 * Basis: ANO-L-VTZP
@@ -11,6 +9,8 @@
 *           computed gradients must be negligible small (virtually zero) and
 *           'slapaf' must report that the geometry is already converged.
 *-------------------------------------------------------------------------------
+>> export MOLCAS_PRINT=VERBOSE
+>> export MOLCAS_MEM=512
  &SEWARD &END
 Title
 Water, ANO-L-VTZP basis set

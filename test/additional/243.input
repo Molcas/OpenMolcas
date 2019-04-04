@@ -1,4 +1,3 @@
-* $ this file belongs to the Molcas repository $
 >>>>> EXPORT MOLCAS_MAXITER=200
 >>>>> DO WHILE <<<<<
  &SEWARD &END
