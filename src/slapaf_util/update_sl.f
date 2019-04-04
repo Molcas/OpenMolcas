@@ -10,7 +10,8 @@
 *                                                                      *
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Update_sl(iter,NmIter,iInt,nFix,nInter,qInt,Shift,
+      Subroutine Update_sl(iter,MaxItr,NmIter,iInt,nFix,nInter,qInt,
+     &                     Shift,
      &                     Grad,iOptC,Beta,Lbl,GNrm,
      &                     Energy,UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,nSym,iOper,
@@ -27,6 +28,7 @@
 *                                                                      *
 *    Input:                                                            *
 *      iter           : iteration counter                              *
+*      MaxItr         : max number of iteration                        *
 *      NmIter         : number of iteration in numerical approach      *
 *      iInt           : number of internal coordinates to vary         *
 *      nFix           : number of frozen internal coordinates          *
@@ -81,9 +83,9 @@
 #include "WrkSpc.fh"
 #include "print.fh"
 #include "Molcas.fh"
-      Real*8 qInt(nInter,iter+1), Shift(nInter,iter),
-     &       Grad(nInter,iter), GNrm(iter), Energy(iter),
-     &       BMx(3*nsAtom,3*nsAtom), rLambda(nLambda,iter+1),
+      Real*8 qInt(nInter,MaxItr), Shift(nInter,MaxItr),
+     &       Grad(nInter,MaxItr), GNrm(MaxItr), Energy(MaxItr),
+     &       BMx(3*nsAtom,3*nsAtom), rLambda(nLambda,MaxItr),
      &       dMass(nsAtom), Degen(3*nsAtom), dEner
       Integer iOper(0:nSym-1), jStab(0:7,nsAtom), nStab(nsAtom),
      &        iNeg(2)
@@ -92,6 +94,8 @@
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6
+*
+      Logical Kriging_Hessian
 *
       iRout=153
       iPrint=nPrint(iRout)
@@ -129,6 +133,7 @@ c Avoid unused argument warnings
       If (.False.) Call Unused_logical(Redundant)
 #endif
 *
+      Kriging_Hessian =.FALSE.
       If (iter.eq.NmIter.and.NmIter.ne.1) Then
 *
 *------- On the first iteration after a numerical evaluation of the
@@ -151,7 +156,8 @@ c Avoid unused argument warnings
      &                   iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
      &                   nWndw,Mode,ipMF,
      &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,dMass,
-     &                   HrmFrq_Show,CnstWght,Curvilinear,Degen)
+     &                   HrmFrq_Show,CnstWght,Curvilinear,Degen,
+     &                   Kriging_Hessian)
 *
 *------- Move new coordinates to the correct position and compute the
 *        corresponding shift.
@@ -167,17 +173,21 @@ c Avoid unused argument warnings
       Else
 *        ------- AI loop begin here
          If (Kriging) then
-            If (nspAI.lt.iter) then
+            Kriging_Hessian =.TRUE.
+            If (nspAI.le.iter) then
                dEner = Energy(iter)-Energy(iter-1)
-               do while (iter.lt.miAI.and.dEner.lt.meAI)
-                  Write (6,*) 'iter: ',iter
-                  write(6,*) 'coord before Update_sl', qInt
+               iterAI=iter
+               miAI = 6
+               do while (iterAI.lt.miAI.and.dEner.lt.meAI)
+                  kIter_=iterAI
+                  Write (6,*) 'iterAI: ',iterAI
+                  Call RecPrt('qInt',' ',qInt,nInter,iterAI)
                   Write (6,*) 'qInt shape: ',shape(qInt)
-                  write(6,*) 'Energy before Update_sl', Energy
+                  Call RecPrt('Energy',' ',Energy,1,iterAI)
                   Write (6,*) 'Energy shape: ',shape(Energy)
-                  write(6,*) 'Grad before Update_sl', Grad
+                  Call RecPrt('Grad',' ',Grad,nInter,iterAI)
                   Write (6,*) 'Grad shape: ',shape(Grad)
-            Call Update_sl_(iter,iInt,nFix,nInter,qInt,Shift,
+                  Call Update_sl_(iterAI,iInt,nFix,nInter,qInt,Shift,
      &                   Grad,iOptC,Beta,Lbl,GNrm,Energy,
      &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,
      &                   iRow_c,nsAtom,AtomLbl,nSym,iOper,mxdc,jStab,
@@ -185,22 +195,26 @@ c Avoid unused argument warnings
      &                   GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &                   Labels,nLabels,FindTS,TSC,nRowH,
      &                   nWndw,Mode,ipMF,
-     &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,dMass,
-     &                   HrmFrq_Show,CnstWght,Curvilinear,Degen)
-                  !Write (6,*) 'iter: ',iter
-                  write(6,*) 'coord after Update_sl', qInt
+     &                   iOptH,HUpMet,kIter_,GNrm_Threshold,IRC,dMass,
+     &                   HrmFrq_Show,CnstWght,Curvilinear,Degen,
+     &                   Kriging_Hessian)
+*
+*                 Compute the energy and gradient according to the
+*                 surrogate model.
+*
+                  Call Start_Kriging(iterAI,nInter,qInt,Grad,Energy,
+     &                               anAI,pAI,lbAI,npxAI)
+                  iterAI = iterAI + 1
+
+                  Call RecPrt('qInt(x)',' ',qInt,nInter,iterAI)
                   Write (6,*) 'qInt shape: ',shape(qInt)
-                  ! write (6,*) 'qInt(iter)',qInt(nInter,iter+1)
-                  !Call Loop_Kriging(qInt(nInter,iter+1))
-                  write(6,*) 'Energy after Update_sl', Energy
+                  Call RecPrt('Energy(x)',' ',Energy,1,iterAI)
                   Write (6,*) 'Energy shape: ',shape(Energy)
-                  write(6,*) 'Grad after Update_sl', Grad
+                  Call RecPrt('Grad',' ',Grad,nInter,iterAI)
                   Write (6,*) 'Grad shape: ',shape(Grad)
-                  Call Start_Kriging(iter,nInter,qInt,Grad,Energy,anAI,
-     &                            pAI,lbAI,npxAI)
-                  write(6,*) 'do new iter',iter
-               End Do
-               write(6,*) 'finished do iter',iter
+                  write(6,*) 'do new iter',iterAI
+               End Do  ! Do While
+               write(6,*) 'finished do iter',iterAI
             Else
             Call Update_sl_(iter,iInt,nFix,nInter,qInt,Shift,
      &                   Grad,iOptC,Beta,Lbl,GNrm,Energy,
@@ -211,7 +225,8 @@ c Avoid unused argument warnings
      &                   Labels,nLabels,FindTS,TSC,nRowH,
      &                   nWndw,Mode,ipMF,
      &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,dMass,
-     &                   HrmFrq_Show,CnstWght,Curvilinear,Degen)
+     &                   HrmFrq_Show,CnstWght,Curvilinear,Degen,
+     &                   Kriging_Hessian)
             End If
          Else
             Call Update_sl_(iter,iInt,nFix,nInter,qInt,Shift,
@@ -223,7 +238,8 @@ c Avoid unused argument warnings
      &                   Labels,nLabels,FindTS,TSC,nRowH,
      &                   nWndw,Mode,ipMF,
      &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,dMass,
-     &                   HrmFrq_Show,CnstWght,Curvilinear,Degen)
+     &                   HrmFrq_Show,CnstWght,Curvilinear,Degen,
+     &                   Kriging_Hessian)
          End If
 *        ------- AI loop ends here
       End If
@@ -257,7 +273,7 @@ c Avoid unused argument warnings
      &                     nWndw,Mode,ipMF,
      &                     iOptH,HUpMet,mIter,GNrm_Threshold,IRC,
      &                     dMass,HrmFrq_Show,CnstWght,Curvilinear,
-     &                     Degen)
+     &                     Degen,Kriging_Hessian)
 ************************************************************************
 *     Object: to update coordinates                                    *
 *                                                                      *
@@ -323,7 +339,7 @@ c Avoid unused argument warnings
      &        iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
      &        FindTS, TSC, HrmFrq_Show,Found,
-     &        Curvilinear
+     &        Curvilinear, Kriging_Hessian
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6, File1*8, File2*8
@@ -331,6 +347,11 @@ c Avoid unused argument warnings
       iRout=153
       iPrint=nPrint(iRout)
       Lu=6
+      If (iPrint.ge.99) Then
+         Call RecPrt('Update_: qInt',' ',qInt,nInter,kIter)
+         Call RecPrt('Update_: Shift',' ',Shift,nInter,kIter-1)
+         Call RecPrt('Update_: GNrm',' ',GNrm,kIter,1)
+      End If
 *
       GrdMax=Zero
       StpMax=Zero
@@ -353,25 +374,30 @@ c Avoid unused argument warnings
 *     according to some Hessian update method (BFGS, MSP, etc.)
 *
 *
-      Call Mk_Hss_Q()
       Call Allocate_Work(ipH,nInter**2)
-      Call Get_dArray('Hss_Q',Work(ipH),nInter**2)
+      If (Kriging_Hessian) Then
+         Call DCopy_(nInter**2,0.0D0,0,Work(ipH),1)
+         Call DCopy_(nInter,1.0D0,0,Work(ipH),nInter+1)
+      Else
+         Call Mk_Hss_Q()
+         Call Get_dArray('Hss_Q',Work(ipH),nInter**2)
 *
-*     Perform the Hessian update
+*        Perform the Hessian update
 *
-      If (iPrint.ge.6) Then
-         Write (Lu,*)
-         Write (Lu,*)
-         Write (Lu,*) ' *** Updating the molecular Hessian ***'
-         Write (Lu,*)
+         If (iPrint.ge.6) Then
+            Write (Lu,*)
+            Write (Lu,*)
+            Write (Lu,*) ' *** Updating the molecular Hessian ***'
+            Write (Lu,*)
+         End If
+         iRout=154
+         jPrint=nPrint(iRout)
+         Call Update_H(nWndw,Work(ipH),nInter,
+     &                 mIter,iOptC,Mode,ipMF,
+     &                 Shift(1,kIter-mIter+1),Grad(1,kIter-mIter+1),
+     &                 iNeg,iOptH,HUpMet,nRowH,jPrint,GNrm(kIter),
+     &                 GNrm_Threshold,nsAtom,IRC,.True.)
       End If
-      iRout=154
-      jPrint=nPrint(iRout)
-      Call Update_H(nWndw,Work(ipH),nInter,
-     &              mIter,iOptC,Mode,ipMF,
-     &              Shift(1,kIter-mIter+1),Grad(1,kIter-mIter+1),iNeg,
-     &              iOptH,HUpMet,nRowH,jPrint,GNrm(kIter),
-     &              GNrm_Threshold,nsAtom,IRC,.True.)
 *
 *     Save the number of internal coordinates on the runfile.
 *

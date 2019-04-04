@@ -32,20 +32,20 @@
                     ddottemp(j)=dot_product(tcv(j,:),rones)
                     var=var+(1-ddottemp)**2/tsum
                     if (detr<0) then
-                        ll=-variance*exp(log(-detr)/m_t)
+                        lh(j)=-variance*exp(log(-detr)/m_t)
                     else
-                        ll=variance*exp(log(detr)/m_t)
+                        lh(j)=variance*exp(log(detr)/m_t)
                     endif
                     if (gh.eq.0) then
                         pred(j) = sb + dot_product(tcv(j,:),Kv)
                         sigma=1.96*sqrt(abs(var*variance))
                         write(6,*) 'pred:',k,j,l,pred(j),var,variance, &
-                                    sigma, ll
+                                    sigma, lh(j)
                     else
                         pred(j) = dot_product(tcv(j,:),Kv)
                         sigma=1.96*sqrt(2*abs(var*variance))
                         write(6,*) 'pred Grad:',k,j,l,pred(j),var,variance, &
-                                    sigma, ll
+                                    sigma, lh(j)
                     endif
                 enddo
             enddo

@@ -265,8 +265,8 @@
 *---- Compute the shift vector in the basis.
 *
       If (Bset) Then
-         Call GetMem('Shift','Allo','Real',ipShift,nQQ*nIter)
-         Call FZero(Work(ipShift),nQQ*nIter)
+         Call GetMem('Shift','Allo','Real',ipShift,nQQ*MaxItr)
+         Call FZero(Work(ipShift),nQQ*MaxItr)
          Call ShfANM(nQQ,nIter,Work(ip_rInt),Work(ipShift),iPrint)
       Else
          ipShift=ip_Dummy

@@ -392,7 +392,7 @@
          Call GetMem('qInt',  'Free','Real',ipqInt,  nqInt)
       End If
       If (BSet) Then
-         Call GetMem('Shift','Free','Real',ipShf,nQQ*iter)
+         Call Free_Work(ipShf)
       End If
       If (Ref_Geom) Then
          Call GetMem('ipRef',  'Free','Real',ipRef,    3*nsAtom)

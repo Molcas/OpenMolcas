@@ -15,11 +15,16 @@
             integer i,z,j,iter,nInter
             !real*8 tpred(npx)
             m_t=iter*(1+nInter)
-            allocate (full_R(m_t,m_t))
-            allocate (rl(iter,iter),dl(iter,iter), &
-                      mat(iter,iter),Iden(iter,iter))
-            allocate (kv(m_t),pred(npx),gpred(npx),hpred(npx),var(npx), &
-                      sigma(npx),cv(m_t,npx,nInter))
+            If (allocated(full_R)) Then
+               deallocate (full_R,rl,dl,mat,Iden)
+               deallocate (kv,pred,gpred,hpred,var,sigma,cv,lh)
+            Else
+               allocate (full_R(m_t,m_t))
+               allocate (rl(iter,iter),dl(iter,iter), &
+                         mat(iter,iter),Iden(iter,iter))
+               allocate (kv(m_t),pred(npx),gpred(npx),hpred(npx),var(npx), &
+                         sigma(npx),cv(m_t,npx,nInter),lh(int(lb(3))))
+            End If
             call miden(iter)
             z=int(lb(3))
             Write (6,*) 'Kernels l', z
@@ -39,6 +44,8 @@
                     ! call predict(2)
                 enddo
             enddo
+            ll=MaxVal(lh)
+            Write(6,*) 'Maximum Value of the Likelihood function',ll
         END
 
         subroutine miden(iter)
