@@ -167,7 +167,7 @@ RASSI program
      %second part of the output. In general,
 
 * For spin-orbit coupling calculations don't forget to include the CASPT2 energies as input
-  (EJOB or HDIAG keywords) because the results depend on the energy gap. In other cases
+  (:kword:`EJOB` or :kword:`HDIAG` keywords) because the results depend on the energy gap. In other cases
   having the CASPT2 energies as input will help you to get the right oscillator strength and
   Einstein coefficient in the final table.
 * If you have degenerate states be sure that the CASPT2 energies are degenerate. If they

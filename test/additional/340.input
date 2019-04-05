@@ -1,4 +1,3 @@
-* $ this file belongs to the Molcas repository $
 ****SOLVENT ORBITALS****
 >export Molcas_Solvent=$Project.Water
  &SEWARD &END
@@ -139,7 +138,6 @@ End of Input
 
 >> FILE StartOrb.Sol
 #INPORB 1.0         
-*fordeck test156.Water.AveOrb $Revision: 7.9 $
 #INFO
 * SCF orbitals                                                                  
        0       1
@@ -764,7 +762,6 @@ End of Input
 
 >> FILE StartOrb.Ave
 #INPORB 1.0         
-*fordeck test156.AveOrb $Revision: 7.9 $
 #INFO
 *Average Orbitals                                                       
        0       1

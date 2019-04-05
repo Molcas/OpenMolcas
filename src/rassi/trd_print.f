@@ -36,7 +36,7 @@
 ! Other variables
       CHARACTER*3 NUM1,NUM2
       CHARACTER*12 FNM
-      DIMENSION WBUF(5)            
+      DIMENSION WBUF(5)
 ! Subroutine starts
       LU=50
       LU=IsFreeUnit(LU)

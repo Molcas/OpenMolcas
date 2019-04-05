@@ -156,6 +156,14 @@ C Replace the relevant elements:
 C Write the present effective Hamiltonian:
       IAD15=IADR15(17)
       CALL DDAFILE(JOBIPH,1,WORK(LEFFCP),LROOTS**2,IAD15)
+C Write a diagonal Hamiltonian in the JOBMIX:
+      IAD15=IADR15(17)
+      CALL DCOPY_(LROOTS**2,0.0D0,0,WORK(LEFFCP),1)
+      DO ISTATE=1,NSTATE
+       ISNUM=MSTATE(ISTATE)
+       WORK(LEFFCP+(ISNUM-1)*LROOTS+ISNUM-1)=ENERGY(ISTATE)
+      END DO
+      CALL DDAFILE(JOBMIX,1,WORK(LEFFCP),LROOTS**2,IAD15)
       CALL GETMEM('EFFCP','FREE','REAL',LEFFCP,LROOTS**2)
 * Now 'mix' those states that were treated in the multi-state CASPT2
        IF (IPRGLB.GE.USUAL) THEN

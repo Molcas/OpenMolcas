@@ -1558,6 +1558,8 @@ c     Go To 998
 *
  9771 Expert = .True.
       GWInput = Run_Mode.eq.G_Mode
+      Call WarningMessage(1,
+     &   ' EXPERT option is ON!')
       Go To 998
 *                                                                      *
 ****** DIST ************************************************************
@@ -3271,6 +3273,13 @@ c
       ITkQMMM = IsFreeUnit(ITkQMMM)
       Call Molcas_Open (ITkQMMM,'QMMM')
 #ifdef _HAVE_EXTRA_
+      If (Expert) Then
+         If (iCoord.gt.1) Then
+            Call WarningMessage(1,
+     &         'TINKER and COORD keywords cannot be combined '//
+     &         'with molcas_extra')
+         End If
+      End If
       Call XYZread(ITkQMMM,ForceZMAT,nCoord,iErr)
       If (iErr.ne.0) Then
         Key='RdCtl_Seward: Tinker+XYZread failed:'//
@@ -3280,7 +3289,15 @@ c
       End If
       Call XYZcollect(iCoord,nCoord,OrigTrans,OrigRot,nFragment)
 #else
-      Call Read_XYZ(ITkQMMM,OrigRot,OrigTrans)
+      If (Expert) Then
+         If (iCoord.gt.1) Then
+            Call WarningMessage(1,
+     &          'TINKER coordinates replacing COORD')
+         End If
+         Call Read_XYZ(ITkQMMM,OrigRot,OrigTrans,Replace=(iCoord.gt.1))
+      Else
+         Call Read_XYZ(ITkQMMM,OrigRot,OrigTrans)
+      End If
 #endif
       Close(ITkQMMM)
       GWInput = .True.
@@ -3556,6 +3573,13 @@ c
       LuXYZ = isFreeUnit(LuXYZ)
       Call molcas_open(LuXYZ,'GMX.XYZ')
 #ifdef _HAVE_EXTRA_
+      If (Expert) Then
+         If (iCoord.gt.1) Then
+            Call WarningMessage(1,
+     &         'GROMACS and COORD keywords cannot be combined '//
+     &         'with molcas_extra')
+         End If
+      End If
       Call XYZread(LuXYZ,ForceZMAT,nCoord,iErr)
       If (iErr.NE.0) Then
          Message='RdCtl_Seward: XYZread returned non-zero error code'
@@ -3564,7 +3588,15 @@ c
       End If
       Call XYZcollect(iCoord,nCoord,OrigTrans,OrigRot,nFragment)
 #else
-      Call Read_XYZ(LuXYZ,OrigRot,OrigTrans)
+      If (Expert) Then
+         If (iCoord.gt.1) Then
+            Call WarningMessage(1,
+     &          'TINKER coordinates replacing COORD')
+         End If
+         Call Read_XYZ(LuXYZ,OrigRot,OrigTrans,Replace=(iCoord.gt.1))
+      Else
+         Call Read_XYZ(LuXYZ,OrigRot,OrigTrans)
+      End If
 #endif
       Close(LuXYZ)
 #else
@@ -3919,14 +3951,18 @@ c      endif
          Call Quit_OnUserError()
       End If
       If (DoTinker.and.iCoord.gt.1) Then
-         Call WarningMessage(2,
-     &      'TINKER and COORD keywords cannot be used together')
-         Call Quit_OnUserError()
+         If (.Not.Expert) Then
+            Call WarningMessage(2,
+     &         'TINKER and COORD keywords cannot be used together')
+            Call Quit_OnUserError()
+         End If
       End If
       If (DoGromacs.and.iCoord.gt.1) Then
-         Call WarningMessage(2,
-     &      'GROMACS and COORD keywords cannot be used together')
-         Call Quit_OnUserError()
+         If (.Not.Expert) Then
+            Call WarningMessage(2,
+     &         'GROMACS and COORD keywords cannot be used together')
+            Call Quit_OnUserError()
+         End If
       End If
 *
       If (Test) Then
@@ -3940,37 +3976,32 @@ c      endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      if (Expert) then
-         Call WarningMessage(2,
-     &      ';WARNING: EXPERT option is ON!;')
-      endif
-
       IF (BSS.AND..Not.DKroll) Then
          Call WarningMessage(2,
-     &           'ERROR; BSSM GOES ALWAYS WITH DOUGLAS.'//
+     &           ';BSSM GOES ALWAYS WITH DOUGLAS.'//
      &           'THE OPPOSITE IS NOT TRUE')
          Call Abend()
       End If
 *
       If ((lECP.or.lPP).and.DKroll.and..Not.Expert) Then
          Call WarningMessage(2,
-     &               ' ECP option not compatible with Douglas-Kroll!;')
+     &               ' ECP option not compatible with Douglas-Kroll!')
          Call Quit_OnUserError()
       End If
 *
       If (imix.eq.1) Then
          Call WarningMessage(2,
-     &      ';ERROR: input is inconsistent!;'
+     &      ' input is inconsistent!;'
      &    //'SEWARD found basis sets of mixed relativistic'
-     &    //' and non-relativistic types!;')
+     &    //' and non-relativistic types!')
          if(.not.Expert) Call Quit_OnUserError()
       End If
       If (ifnr.eq.1) Then
          If (DKroll) Then
-         Call WarningMessage(2,
-     *    'WARNING: you requested the DK-option for;'
+         Call WarningMessage(1,
+     *    ';you requested the DK-option for;'
      *   //'a non-relativistic basis.;'
-     *   //'This request will be ignored;')
+     *   //'This request will be ignored')
          End If
          If (.Not.Expert) DKroll=.False.
       Else If (ifnr.eq.0) Then
@@ -3988,7 +4019,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *
       If ((lECP.or.lPP).and.lAMFI.and..Not.Expert) Then
          Call WarningMessage(2,
-     &               ' ECP option not compatible with AMFI!;')
+     &               ' ECP option not compatible with AMFI!')
          Call Quit_OnUserError()
       End If
 *                                                                      *

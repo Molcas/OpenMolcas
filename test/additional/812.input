@@ -1,4 +1,3 @@
->> export MOLCAS_PRINT=VERBOSE
 *-------------------------------------------------------------------------------
 * Molecule: Ethylene (C2H4)
 * Basis: ANO-L-VDZP
@@ -8,6 +7,7 @@
 * Comments: SP calculation of analytical gradients at the MBPT2(FULL)/ANO-L-VDZP
 *           level of theory.
 *-------------------------------------------------------------------------------
+>> export MOLCAS_PRINT=VERBOSE
  &Gateway; Title= Ethylene, ANO-L-VDZP basis set
 Coord
 6

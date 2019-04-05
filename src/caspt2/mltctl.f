@@ -113,12 +113,21 @@ C Use a symmetrized matrix, in triangular storage:
       CALL GETMEM('HTRI','FREE','REAL',LHTRI,NHTRI)
 
       IF(IPRGLB.GE.TERSE) THEN
-       WRITE(6,*)
-       WRITE(6,'(6X,A)')' Total MS-CASPT2 energies:'
-       DO I=1,NSTATE
-        Call PrintResult(6,'(6x,A,I3,5X,A,F16.8)',
+       If (IFXMS) Then
+        WRITE(6,*)
+        WRITE(6,'(6X,A)')' Total XMS-CASPT2 energies:'
+        DO I=1,NSTATE
+         Call PrintResult(6,'(6x,A,I3,5X,A,F16.8)',
+     &    'XMS-CASPT2 Root',I,'Total energy:',ENERGY(I),1)
+        END DO
+       Else
+        WRITE(6,*)
+        WRITE(6,'(6X,A)')' Total MS-CASPT2 energies:'
+        DO I=1,NSTATE
+         Call PrintResult(6,'(6x,A,I3,5X,A,F16.8)',
      &    'MS-CASPT2 Root',I,'Total energy:',ENERGY(I),1)
-       END DO
+        END DO
+       End If
       END IF
 
       IF(IPRGLB.GE.USUAL) THEN
