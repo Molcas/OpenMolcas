@@ -831,7 +831,7 @@ c Ind 1 2 3 4 5 100
          Character*80 Str,StrC
          Character*120 StrB
          Allocatable:: Ind(:)
-         Allocate (Ind(n))
+         Allocate (Ind(n+1))
          iStrB=1
          to=A(1)
          Ind(1)=1
@@ -846,7 +846,9 @@ c          if(abs(A(i)).gt.100000000) iA(i)=0
              issame=0
            endif
          enddo
+         If (n.gt.1) Then
          if(abs(A(n)-A(n-1)).lt.10e-5) issame=1
+         End If
 
          Ind(ii)=n+issame
 c Ind 1 2 3 4 5 100
