@@ -399,7 +399,8 @@ c --- backtransform fock matrix to full storage
      &                1.0d0,Work(ipFkA+ISTSQ(iS)),nBas(iS),
      &                Work(ipCMO+ISTSQ(iS)),nBas(iS),0.0d0,
      &                Work(ipJA+ISTSQ(iS)),nBas(jS))
-          call dcopy_(nBas(jS)*nBas(iS),0.0d0,0,Work(ipFkA+ISTSQ(iS)),1)
+          call dcopy_(nBas(jS)*nBas(iS),[0.0d0],0,
+     &                Work(ipFkA+ISTSQ(iS)),1)
           Call DGEMM_('T','N',nBas(jS),nIsh(jS),nBas(iS),
      &                1.0d0,Work(ipJA+ISTSQ(iS)),
      &                nBas(iS),Work(ipCMO+ISTSQ(jS)),nBas(jS),

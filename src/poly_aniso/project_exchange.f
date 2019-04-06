@@ -118,7 +118,7 @@ c reWrite the exchange matrix in the basis of local pseuDospins:
       Jpar=(0.0_wp,0.0_wp)
       Call JKQPar(N1,N2,HEXCH3,Jpar)
       Jc=0.0_wp
-      Call tensor2cart(1,1,Jpar(1,-1:1,1,-1:1),Jc)
+      Call tensor2cart(Jpar(1,-1:1,1,-1:1),Jc)
 
       Call qExit('PA_projexch')
       Return

@@ -261,7 +261,7 @@ C?    write(6,*) ' IDE ', IDE
 * =====================
 *
 *. Loop over types in input order
-      Call iCopy(NR4TP+6,0,0,NOBPT,1)
+      Call iCopy(NR4TP+6,[0],0,NOBPT,1)
       LORB  = 0 ! dummy initialize
       IOTYPE= 0 ! dummy initialize
       DO 2000 ISMOB = 1, NSMOB

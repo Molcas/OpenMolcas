@@ -111,7 +111,7 @@
 *           Trace the one-electron density with the one-electron
 *           Hamiltonian.
 *
-            TrDh(ii,ii,iD)=DDot_(nBT,pDens(1,iD),1,OneHam,1)
+            TrDh(ii,ii,iD)=DDot_(nBT,pDens(:,iD),1,OneHam,1)
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -152,7 +152,7 @@
             Else
                Write(6,'(a)') 'traclc: should not happen!!!'
                TrDP(ii,ii,iD)=0.0d0
-               Call Quit()
+               Call Abend()
             End If
          End Do ! iD
 *
@@ -181,16 +181,16 @@
 *
             Do iD = 1, nD
                TrDP(i,ii,iD) = DDot_(nBT,Dens(1,iD,iPosL),1,
-     &                                   pTwoHam(1,iD),1)
+     &                                   pTwoHam(:,iD),1)
                TrDP(ii,i,iD) = TrDP(i,ii,iD)
                TrDP(i,ii,iD) = TrDP(i,ii,iD)
      &                       + DDot_(nBT,Dens(1,iD,iPosL),1,
-     &                                   pVxc   (1,iD),1)
+     &                                   pVxc   (:,iD),1)
                TrDP(ii,i,iD) = TrDP(ii,i,iD)
      &                       + DDot_(nBT,Vxc (1,iD,iPosL),1,
-     &                                   pDens(1,iD),1)
+     &                                   pDens(:,iD),1)
                TrDD(i,ii,iD) = DDot_(nBT,Dens(1,iD,iPosl),1,
-     &                                   pDens(1,iD),1)
+     &                                   pDens(:,iD),1)
                TrDD(ii,i,iD) = TrDD(i,ii,iD)
 *
             End Do ! iD

@@ -28,6 +28,7 @@
 #include "sa.fh"
 #include "Input.fh"
       Logical DoCholesky
+      Integer AixRm
 *---------------------------------------------------------------------*
 *     Start                                                           *
 *---------------------------------------------------------------------*
@@ -59,7 +60,7 @@
 *        What the...? No control at all on what file is being removed!
 *        call DaEras(LuMck)
          call DaClos(LuMck)
-         call AixRM(FnMck)
+         iRC=AixRM(FnMck)
       Else
          iRc=-1
          iOpt=0

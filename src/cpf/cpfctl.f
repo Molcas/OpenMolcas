@@ -69,11 +69,11 @@ C If more iterations should be done, goto 20.
       CALL XFLUSH(6)
 31    FORMAT(5X,'FINAL CORRELATION ENERGY',F14.8,'  REFERENCE ENERGY',
      *F17.8)
-      If (ISDCI.EQ.1) Call Add_Info('E_SDCI',ETOT,1,8)
-      If (ICPF.EQ.1)  Call Add_Info('E_CPF',ETOT,1,8)
-      If (INCPF.EQ.1) Call Add_Info('E_ACPF',ETOT,1,8)
+      If (ISDCI.EQ.1) Call Add_Info('E_SDCI',[ETOT],1,8)
+      If (ICPF.EQ.1)  Call Add_Info('E_CPF',[ETOT],1,8)
+      If (INCPF.EQ.1) Call Add_Info('E_ACPF',[ETOT],1,8)
       If (ISDCI.EQ.0.AND.ICPF.EQ.0.AND.INCPF.EQ.0)
-     &                Call Add_Info('E_MCPF',ETOT,1,8)
+     &                Call Add_Info('E_MCPF',[ETOT],1,8)
       CALL XFLUSH(6)
       IF(ISDCI.EQ.0)GO TO 21
       EENP=H(LW(31)+IRC(4)-1)

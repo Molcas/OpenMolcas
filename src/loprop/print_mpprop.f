@@ -202,8 +202,8 @@
       Call Allocate_Work(iScratch_ele,nElem)
       Call Allocate_Work(iScratch_nuc,nElem)
       Do iElem = 1, nElem
-         Work(iScratch_ele+iElem-1)  = DDot_(nij,One,0,rMP(1,iElem),1)
-         Work(iScratch_nuc+iElem-1)  = DDot_(nij,One,0,xnrMP(1,iElem),1)
+         Work(iScratch_ele+iElem-1)=DDot_(nij,[One],0,rMP(1,iElem),1)
+         Work(iScratch_nuc+iElem-1)=DDot_(nij,[One],0,xnrMP(1,iElem),1)
       End Do
       iStrt = 1
       Do l = 0, MxMP
@@ -219,12 +219,12 @@
       If (NoField) Then
          Write(iUnit,'(3F20.10)') (Zero,iElem=1,6)
       Else
-         Polar_M(1)=DDot_(nij,One,0,Polar(1,1),6)
-         Polar_M(2)=DDot_(nij,One,0,Polar(2,1),6)
-         Polar_M(3)=DDot_(nij,One,0,Polar(4,1),6)
-         Polar_M(4)=DDot_(nij,One,0,Polar(3,1),6)
-         Polar_M(5)=DDot_(nij,One,0,Polar(5,1),6)
-         Polar_M(6)=DDot_(nij,One,0,Polar(6,1),6)
+         Polar_M(1)=DDot_(nij,[One],0,Polar(1,1),6)
+         Polar_M(2)=DDot_(nij,[One],0,Polar(2,1),6)
+         Polar_M(3)=DDot_(nij,[One],0,Polar(4,1),6)
+         Polar_M(4)=DDot_(nij,[One],0,Polar(3,1),6)
+         Polar_M(5)=DDot_(nij,[One],0,Polar(5,1),6)
+         Polar_M(6)=DDot_(nij,[One],0,Polar(6,1),6)
          Write(iUnit,'(3F20.10)') (Polar_M(iElem),iElem=1,6)
       End If
 *

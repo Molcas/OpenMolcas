@@ -237,8 +237,8 @@ cccc-------------------------------------------------------cccc
       dHY(3)=0.0_wp
       dHZ(3)=1.0_wp
 
-      Call dcopy_(3*3*(nT+nTempMagn),0.0_wp,0,XTtens_MH,1)
-      Call dcopy_(3*3*(nT+nTempMagn),0.0_wp,0,XTtens_dMdH,1)
+      Call dcopy_(3*3*(nT+nTempMagn),[0.0_wp],0,XTtens_MH,1)
+      Call dcopy_(3*3*(nT+nTempMagn),[0.0_wp],0,XTtens_dMdH,1)
 
       hp=0.0001_wp
       Xfield_1=Xfield-3.0_wp*hp
@@ -258,37 +258,37 @@ cccc-------------------------------------------------------cccc
 
 c ///  opening the loop over different directions of the magnetic field
       Do iM=1,nDirX
-         Call dcopy_(nM,0.0_wp,0,WM1,1)
-         Call dcopy_(nM,0.0_wp,0,WM2,1)
-         Call dcopy_(nM,0.0_wp,0,WM3,1)
-         Call dcopy_(nM,0.0_wp,0,WM4,1)
-         Call dcopy_(nM,0.0_wp,0,WM5,1)
-         Call dcopy_(nM,0.0_wp,0,WM6,1)
-         Call dcopy_(nM,0.0_wp,0,WM7,1)
+         Call dcopy_(nM,[0.0_wp],0,WM1,1)
+         Call dcopy_(nM,[0.0_wp],0,WM2,1)
+         Call dcopy_(nM,[0.0_wp],0,WM3,1)
+         Call dcopy_(nM,[0.0_wp],0,WM4,1)
+         Call dcopy_(nM,[0.0_wp],0,WM5,1)
+         Call dcopy_(nM,[0.0_wp],0,WM6,1)
+         Call dcopy_(nM,[0.0_wp],0,WM7,1)
 
-         Call dcopy_(  (nT+nTempMagn),0.0_wp,0,ZT1,1)
-         Call dcopy_(  (nT+nTempMagn),0.0_wp,0,ZT2,1)
-         Call dcopy_(  (nT+nTempMagn),0.0_wp,0,ZT3,1)
-         Call dcopy_(  (nT+nTempMagn),0.0_wp,0,ZT4,1)
-         Call dcopy_(  (nT+nTempMagn),0.0_wp,0,ZT5,1)
-         Call dcopy_(  (nT+nTempMagn),0.0_wp,0,ZT6,1)
-         Call dcopy_(  (nT+nTempMagn),0.0_wp,0,ZT7,1)
+         Call dcopy_(  (nT+nTempMagn),[0.0_wp],0,ZT1,1)
+         Call dcopy_(  (nT+nTempMagn),[0.0_wp],0,ZT2,1)
+         Call dcopy_(  (nT+nTempMagn),[0.0_wp],0,ZT3,1)
+         Call dcopy_(  (nT+nTempMagn),[0.0_wp],0,ZT4,1)
+         Call dcopy_(  (nT+nTempMagn),[0.0_wp],0,ZT5,1)
+         Call dcopy_(  (nT+nTempMagn),[0.0_wp],0,ZT6,1)
+         Call dcopy_(  (nT+nTempMagn),[0.0_wp],0,ZT7,1)
 
-         Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,MT1,1)
-         Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,MT2,1)
-         Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,MT3,1)
-         Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,MT4,1)
-         Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,MT5,1)
-         Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,MT6,1)
-         Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,MT7,1)
+         Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,MT1,1)
+         Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,MT2,1)
+         Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,MT3,1)
+         Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,MT4,1)
+         Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,MT5,1)
+         Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,MT6,1)
+         Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,MT7,1)
 
-         Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,ST1,1)
-         Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,ST2,1)
-         Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,ST3,1)
-         Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,ST4,1)
-         Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,ST5,1)
-         Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,ST6,1)
-         Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,ST7,1)
+         Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,ST1,1)
+         Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,ST2,1)
+         Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,ST3,1)
+         Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,ST4,1)
+         Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,ST5,1)
+         Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,ST6,1)
+         Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,ST7,1)
 
         ! compute magnetization:
         ! seven points numerical field perturbation:

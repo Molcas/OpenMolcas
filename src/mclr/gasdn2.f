@@ -108,6 +108,8 @@
       DIMENSION RHO1(*),RHO2(*)
       DIMENSION RHO1P(*),XNATO(*)
 *
+      DIMENSION ISTRFL(1)
+*
       PLL=0.0D0
       PLR=0.0D0
 *

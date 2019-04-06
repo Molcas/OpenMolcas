@@ -123,49 +123,49 @@
       If(nM>0) Then
          ! Zeeman exchange energy spectrum
          Call mma_allocate(WM,nM,'W')
-         Call dcopy_(nM,0.0_wp,0,WM,1)
+         Call dcopy_(nM,[0.0_wp],0,WM,1)
          mem_local=mem_local+nM*RtoB
       End If
 
       If((nH>0).and.(nTempMagn>0)) Then
          Call mma_allocate(MT,3,nH,nTempMagn,'MT')
-         Call dcopy_(3*nH*nTempMagn,0.0_wp,0,MT,1)
+         Call dcopy_(3*nH*nTempMagn,[0.0_wp],0,MT,1)
          mem_local=mem_local+3*nH*nTempMagn*RtoB
 
          Call mma_allocate(ST,3,nH,nTempMagn,'ST')
-         Call dcopy_(3*nH*nTempMagn,0.0_wp,0,ST,1)
+         Call dcopy_(3*nH*nTempMagn,[0.0_wp],0,ST,1)
          mem_local=mem_local+3*nH*nTempMagn*RtoB
 
          Call mma_allocate(MAV,nH,nTempMagn,'MAV')
-         Call dcopy_(nH*nTempMagn,0.0_wp,0,MAV,1)
+         Call dcopy_(nH*nTempMagn,[0.0_wp],0,MAV,1)
          mem_local=mem_local+nH*nTempMagn*RtoB
 
          Call mma_allocate(SAV,nH,nTempMagn,'SAV')
-         Call dcopy_(nH*nTempMagn,0.0_wp,0,SAV,1)
+         Call dcopy_(nH*nTempMagn,[0.0_wp],0,SAV,1)
          mem_local=mem_local+nH*nTempMagn*RtoB
 
          Call mma_allocate(ZT,nH,nTempMagn,'ZT')
-         Call dcopy_(nH*nTempMagn,0.0_wp,0,ZT,1)
+         Call dcopy_(nH*nTempMagn,[0.0_wp],0,ZT,1)
          mem_local=mem_local+nH*nTempMagn*RtoB
 
          If(nDirTot>0) Then
             Call mma_allocate(MVEC,nDirTot,nH,nTempMagn,3,'MVEC')
             Call mma_allocate(SVEC,nDirTot,nH,nTempMagn,3,'SVEC')
-            Call dcopy_(3*nDirTot*nH*nTempMagn,0.0_wp,0,MVEC,1)
-            Call dcopy_(3*nDirTot*nH*nTempMagn,0.0_wp,0,SVEC,1)
+            Call dcopy_(3*nDirTot*nH*nTempMagn,[0.0_wp],0,MVEC,1)
+            Call dcopy_(3*nDirTot*nH*nTempMagn,[0.0_wp],0,SVEC,1)
             mem_local=mem_local+6*nDirTot*nH*nTempMagn*RtoB
          End If
       End If
 
       If(nH>0) Then
          Call mma_allocate(H,nH,'H')
-         Call dcopy_(nH,0.0_wp,0,H,1)
+         Call dcopy_(nH,[0.0_wp],0,H,1)
          mem_local=mem_local+nH*RtoB
       End If
 
       If((nTempMagn>0).and.hinput) Then
          Call mma_allocate(STDEV,nTempMagn,'H')
-         Call dcopy_(nTempMagn,0.0_wp,0,STDEV,1)
+         Call dcopy_(nTempMagn,[0.0_wp],0,STDEV,1)
          mem_local=mem_local+nTempMagn*RtoB
       End If
 
@@ -174,10 +174,10 @@
             Call mma_allocate(dHY,nDirTot,'dHY')
             Call mma_allocate(dHZ,nDirTot,'dHZ')
             Call mma_allocate(dHW,nDirTot,'dHW')
-            Call dcopy_(nDirTot,0.0_wp,0,dHX,1)
-            Call dcopy_(nDirTot,0.0_wp,0,dHY,1)
-            Call dcopy_(nDirTot,0.0_wp,0,dHZ,1)
-            Call dcopy_(nDirTot,0.0_wp,0,dHW,1)
+            Call dcopy_(nDirTot,[0.0_wp],0,dHX,1)
+            Call dcopy_(nDirTot,[0.0_wp],0,dHY,1)
+            Call dcopy_(nDirTot,[0.0_wp],0,dHZ,1)
+            Call dcopy_(nDirTot,[0.0_wp],0,dHW,1)
             mem_local=mem_local+4*nDirTot*RtoB
       End If
       If(dbg) Write(6,*) 'MAGNETIZATION:  memory allocated (local):'
@@ -358,7 +358,7 @@ c ///  opening the loop over dIfferent directions of the magnetic field
         Do iM=1,NDIRTOT
           MT(1:3,iH,1:nTempMagn)=0.0_wp
           ST(1:3,iH,1:nTempMagn)=0.0_wp
-          Call dcopy_(nM,0.0_wp,0,WM,1)
+          Call dcopy_(nM,[0.0_wp],0,WM,1)
 c         Entry into monitor: Status line
           WRITE(STLNE1,'(A)') 'SINGLE_ANISO:  powder magnetization:'
           WRITE(STLNE2,'(A,I4,A,I4,A,I4,A,I4)')

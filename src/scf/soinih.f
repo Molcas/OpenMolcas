@@ -58,7 +58,7 @@
 *     will remain but should not make any difference. They are actully
 *     needed to make the rs-rfo code work.
 *
-      call DCopy_(nH*nD,1.0D+99,0,HDiag,1)
+      call DCopy_(nH*nD,[1.0D+99],0,HDiag,1)
 *
 *define _DEBUG_
 #ifdef _DEBUG_

@@ -31,6 +31,7 @@
        real*8,allocatable::tmpDe(:,:),tmpP(:),tmpDeM(:,:),tmpPM(:,:,:,:)
        Integer iKapDisp(nDisp),iCiDisp(nDisp)
        Character(Len=16) mstate
+       Dimension rdum(1),idum(7,8)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -369,7 +370,7 @@ c D_eff = D^j + \tilde{D} +\bar{D}
 c ipD_K = (ipG1q + inact) + ipD_K + ipD_CI
 *
 C
-C       call dcopy_(ndens2, Zero, 0, Work(ipD_K), 1)  !DEBUG
+C       call dcopy_(ndens2, [Zero], 0, Work(ipD_K), 1)  !DEBUG
 C
        If (isNAC) Then
 *
@@ -405,7 +406,7 @@ c Note: no inactive part for transition densities
          Call dDaFile(LuDens,2,Work(ipG1q),ng1,iDisk)
          Call DaClos(LuDens)
          Call Getmem('D1ao-','ALLO','Real',ipG1m,ndens2)
-         Call DCopy_(ndens2,Zero,0,Work(ipG1m),1)
+         Call DCopy_(ndens2,[Zero],0,Work(ipG1m),1)
 * Reconstruct the square matrix
          Do is=1,nSym
           Do iA=1,nash(is)
@@ -486,7 +487,7 @@ c
          LuTmp=50
          LuTmp=IsFreeUnit(LuTmp)
          Call WrVec('TMPORB',LuTmp,'O',nSym,nBas,nBas,
-     &            Dum,Work(ipO),Dum,iDum,Note)
+     &            rDum,Work(ipO),rDum,iDum,Note)
          Call Prpt()
 *                                                                     *
 ***********************************************************************
@@ -618,7 +619,7 @@ c
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *
       Call QEnter('OITD')
-      call dcopy_(ndens2,Zero,0,Dtmp,1)
+      call dcopy_(ndens2,[Zero],0,Dtmp,1)
 *
 *     Note: even with NAC we set the inactive block,
 *     because this is the SA density, not the transition density
@@ -682,8 +683,8 @@ C
                ij=ij+1
             End DO
          End DO
-         Call dCopy_(nBas(iS)**2,Zero,0,Work(ipS),1)
-         Call dCopy_(nBas(is),One,0,Work(ipS),nbas(is)+1)
+         Call dCopy_(nBas(iS)**2,[Zero],0,Work(ipS),1)
+         Call dCopy_(nBas(is),[One],0,Work(ipS),nbas(is)+1)
          CALL JACOB(Work(ipS2),Work(ipS),nbas(is),nbas(is))
          ii=0
          DO i=1,nbas(is)

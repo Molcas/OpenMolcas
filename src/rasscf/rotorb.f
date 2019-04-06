@@ -89,7 +89,7 @@ c
 c
 c      Form the quadratic matrix X from the coefficients C
 c
-        call dcopy_(no*no,0.0D0,0,x,1)
+        call dcopy_(no*no,[0.0D0],0,x,1)
         DO nr=1,noc
          DO np=max(nr+1,nio+1),no
           jpr=no*(nr-1)+np
@@ -365,7 +365,7 @@ c used for choosing the reference determinant.
      &              x,no,
      &              0.0d0,Work(iSqFA),no)
 
-        call Fold_Mat(1,no,Work(iSqFA),FA(iOff))
+        call Fold_Mat(1,[no],Work(iSqFA),FA(iOff))
 
         iOff = iOff + (no*no+no)/2
 

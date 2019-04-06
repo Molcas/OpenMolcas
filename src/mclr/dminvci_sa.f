@@ -66,7 +66,7 @@
 
        End Do
       Else
-       call dcopy_(nconf1*nroots,0.0d0,0,rout,1)
+       call dcopy_(nconf1*nroots,[0.0d0],0,rout,1)
       End If
       return
 c Avoid unused argument warnings

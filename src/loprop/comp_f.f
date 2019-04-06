@@ -29,6 +29,7 @@
       Real*8 h0(nInts+4), h0_temp(nInts+4),
      &       Ei(nInts+4), S(nInts+4)
       Character*8 Method, Label
+      Integer mBas(8)
 *
 C     Call QEnter('Comp_F')
       iOpt1=1
@@ -37,7 +38,7 @@ C     Call QEnter('Comp_F')
       Call Get_cArray('Relax Method',Method,8)
       Call Allocate_Work(ipC,1)
       Call Get_iScalar('nSym',i)
-      Call Get_iArray('nBas',nBas,i)
+      Call Get_iArray('nBas',mBas,i)
       nsize=nInts + 4
 *
 *     Add perturbations to h0
@@ -129,5 +130,7 @@ C     Call QExit('Comp_F')
       Write (6,*)
       Call QTrace()
       Call Abend()
+* Avoid unused argument warnings
+      If (.False.) Call Unused_integer(nBas)
 *
       End

@@ -110,7 +110,7 @@ C
      *                   nBas,nOrb,
      *                  iWork(ip_lnFro),iWork(ip_lnOcc),iWork(ip_Zeros),
      *                   iWork(ip_lnVir),iWork(ip_lnDel),
-     *                   BName(iSpin),.false.,.false.)
+     *                   BName(iSpin),.false.,0,.false.)
 
       End Do
 

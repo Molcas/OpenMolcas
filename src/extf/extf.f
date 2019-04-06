@@ -59,13 +59,13 @@ C      call Mem_Info('EXTF')
       linear=.true.
       write(6,*) 'Linear forces between two atoms selected'
       Line = Get_Ln(LuSpool)
-      call Get_I(1, efatom1, 1)
+      call Get_I1(1, efatom1)
       Line = Get_Ln(LuSpool)
-      call Get_I(1, efatom2, 1)
+      call Get_I1(1, efatom2)
       Line = Get_Ln(LuSpool)
-      call Get_F(1, efmodul, 1)
+      call Get_F1(1, efmodul)
       Line = Get_Ln(LuSpool)
-      call Get_I(1, ext, 1)
+      call Get_I1(1, ext)
       write(6,*) 'atom1:', efatom1
       write(6,*) 'atom2:', efatom2
       write(6,*) 'Force:', efmodul, ' nN'

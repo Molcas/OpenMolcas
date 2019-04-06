@@ -108,8 +108,8 @@ c for RHF we will not use nOccAuf_ab
 *
 *---- and fill up the orbitals...
 *
-      Call ICopy(nSym,0,0,nOcc,1)
-      call dcopy_(nOccup*nD,Zero,0,Occup,1)
+      Call ICopy(nSym,[0],0,nOcc,1)
+      call dcopy_(nOccup*nD,[Zero],0,Occup,1)
 *
       If (Teee) then
 *

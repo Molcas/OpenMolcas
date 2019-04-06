@@ -77,7 +77,7 @@
       Real*8, Dimension(:,:), Allocatable:: DnsS, Temp
       Real*8, Dimension(:,:), Allocatable, Target:: Aux
       Real*8, Dimension(:,:), Pointer:: pTwoHam
-      Dimension Dummy(1),iDummy(1)
+      Dimension Dummy(1),iDummy(1),Dumm0(1),Dumm1(1)
 #include "SysDef.fh"
 
 *
@@ -104,7 +104,7 @@
 *
 *---- Add contribution due to external potential
 *
-      Call DCopy_(nBT*nD,Zero,0,TwoHam(1,1,iPsLst),1)
+      Call DCopy_(nBT*nD,[Zero],0,TwoHam(1,1,iPsLst),1)
       iSpin=1
       If (iUHF.eq.1) iSpin=2
       Call Put_iScalar('Multiplicity',iSpin)
@@ -348,7 +348,7 @@
 *
             Do iD = 1, nD
                If (Xcf(iMat,iD).eq.0.0D0) Cycle
-               Call DaXpY_(nBT,Xcf(iMat,iD),pTwoHam(1,iD),1,
+               Call DaXpY_(nBT,Xcf(iMat,iD),pTwoHam(:,iD),1,
      &                              TwoHam(1,iD,iPsLst),1)
             End Do
 *

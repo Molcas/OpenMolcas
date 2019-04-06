@@ -47,9 +47,9 @@
       Call GetMem('TEMP','Allo','Real',ipTEMP,nBas**2)
       Call GetMem('Inv','Allo','Real',iI,nBas**2)
       Call GetMem('RedSq','Allo','Real',iRedSq,nBas**2)
-      call dcopy_(nBas**2,ZERO,iZERO,Work(ipSqD),iONE)
-      call dcopy_(iOrb(1)**2,ZERO,iZERO,Work(ipSqE),iONE)
-      call dcopy_(nBas*iOrb(1),ZERO,iZERO,Work(ipTEMP),iONE)
+      call dcopy_(nBas**2,[ZERO],iZERO,Work(ipSqD),iONE)
+      call dcopy_(iOrb(1)**2,[ZERO],iZERO,Work(ipSqE),iONE)
+      call dcopy_(nBas*iOrb(1),[ZERO],iZERO,Work(ipTEMP),iONE)
 *--- Do not forget the density matrix convention in Molcas.
       Call Dsq(Work(ipDiff),Work(ipSqD),iONE,nBas,nBas)
 *--- Inverse of orbital file and transformation.

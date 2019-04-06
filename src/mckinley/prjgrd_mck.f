@@ -129,10 +129,10 @@
             iuvwx(3) = nStab(kdc+kCnt)
             iuvwx(4) = nStab(kdc+kCnt)
 
-            Call LCopy(12,.false.,0,JFgrad,1)
-            Call LCopy(4 ,.false.,0,iFg,1)
-            Call LCopy(4 ,.false.,0,tr,1)
-            Call ICopy(12*nIrrep,0,0,jndGrd,1)
+            Call LCopy(12,[.false.],0,JFgrad,1)
+            Call LCopy(4 ,[.false.],0,iFg,1)
+            Call LCopy(4 ,[.false.],0,tr,1)
+            Call ICopy(12*nIrrep,[0],0,jndGrd,1)
             Do iCnt = 1, 2
                   JfGrad(iDCar,iCnt) = IfGrad(iDCar,iCnt)
             End Do
@@ -198,7 +198,7 @@
                  call abend()
                  endif
 
-               call dcopy_(nArr,0.0d0,0,Array,1)
+               call dcopy_(nArr,[0.0d0],0,Array,1)
 
 *
                Call Acore(iang,la,ishll,nordop,TC,A,Array(ip),

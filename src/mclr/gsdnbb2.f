@@ -204,8 +204,8 @@
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN
-        Call Unused_integer(DXSTST)
-        Call Unused_integer(STSTDX)
+        Call Unused_integer_array(DXSTST)
+        Call Unused_integer_array(STSTDX)
         Call Unused_integer(IPRNT)
       END IF
       END

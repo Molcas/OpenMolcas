@@ -132,8 +132,8 @@ c Compute the density matrix of the frozen orbitals
 c The DLT matrix contains the same data as DSQ, but
 c with symmetry blocks in lower triangular format, and
 c with non-diagonal elements doubled.
-      CALL DCOPY_(NBTRI,0.0D0,0,WORK(LWDLT),1)
-      CALL DCOPY_(NBSQT,0.0D0,0,WORK(LWDSQ),1)
+      CALL DCOPY_(NBTRI,[0.0D0],0,WORK(LWDLT),1)
+      CALL DCOPY_(NBSQT,[0.0D0],0,WORK(LWDSQ),1)
       ISTMO=1
       ISTSQ=LWDSQ
       ISTLT=LWDLT
@@ -198,8 +198,8 @@ c Allocate FMO, TMP:
       CALL GETMEM('WTMP','ALLO','REAL',LWTMP,NWTMP)
 
 c Transform one-electron effective Hamiltonian:
-      CALL DCOPY_(notri,0.0D0,0,WORK(LWFMO),1)
-      CALL DCOPY_(NWTMP,0.0D0,0,WORK(LWTMP),1)
+      CALL DCOPY_(notri,[0.0D0],0,WORK(LWFMO),1)
+      CALL DCOPY_(NWTMP,[0.0D0],0,WORK(LWTMP),1)
       ICMO=1
       IAO =LWFLT
       IMO =LWFMO

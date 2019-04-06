@@ -37,6 +37,7 @@
 #include "oneswi.fh"
 #include "warnings.fh"
       Character*8 Label
+      Dimension dum(1),idum(1)
 *
       Call Set_Basis_Mode('Valence')
       Call Setup_iSD()
@@ -72,7 +73,7 @@
       OperC(1   ) = 0 ! Dummy
       OperC(1+1 ) = 0 ! Dummy
 *
-      Call dcopy_(nComp,Zero,0,Work(ipNuc),1)
+      Call dcopy_(nComp,[Zero],0,Work(ipNuc),1)
       Call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,
      &           CoorO,nOrdOp,Work(ipNuc),rHrmt,OperC,
      &           dum,1,dum,idum,0,0,
@@ -121,7 +122,7 @@
       OperC(1+10) = 0 ! Dummy
       OperC(1+11) = 0 ! Dummy
 *
-      Call dcopy_(nComp,Zero,0,Work(ipNuc),1)
+      Call dcopy_(nComp,[Zero],0,Work(ipNuc),1)
       Call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,
      &           CoorO,nOrdOp,Work(ipNuc),rHrmt,OperC,
      &           dum,1,dum,idum,0,0,
@@ -152,7 +153,7 @@
       OperC(1   ) = 0 ! Dummy
       OperC(1+1 ) = 0 ! Dummy
 *
-      Call dcopy_(nComp,Zero,0,Work(ipNuc),1)
+      Call dcopy_(nComp,[Zero],0,Work(ipNuc),1)
       Call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,
      &           CoorO,nOrdOp,Work(ipNuc),rHrmt,OperC,
      &           dum,1,dum,idum,0,0,

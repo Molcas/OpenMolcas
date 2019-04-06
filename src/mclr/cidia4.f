@@ -90,7 +90,7 @@
 *
             ZERO = 0.0D0
 *           CALL SETVEC(XB,ZERO,NORB)
-            call dcopy_(NORB,ZERO,0,XB,1)
+            call dcopy_(NORB,[ZERO],0,XB,1)
             HB = 0.0D0
             RJBB = 0.0D0
 *           CALL SETVEC(XB,ZERO,NORB)
@@ -133,7 +133,7 @@
   899     CONTINUE
 *. Yet a RAS block of the diagonal has been constructed
           IF(ICISTR.GE.2) THEN
-            CALL ITODS(IDET,1,-1,LUDIA)
+            CALL ITODS([IDET],1,-1,LUDIA)
             CALL TODSC_MCLR(DIAG,IDET,-1,LUDIA)
             IDET = 0
           END IF
@@ -142,7 +142,7 @@
 *
  1000 CONTINUE
 *
-      IF ( ICISTR.GE.2 ) CALL ITODS(-1,1,-1,LUDIA)
+      IF ( ICISTR.GE.2 ) CALL ITODS([-1],1,-1,LUDIA)
 *
       RETURN
 c Avoid unused argument lines

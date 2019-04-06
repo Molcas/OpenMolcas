@@ -121,8 +121,8 @@ C Mapping from spin states to spin-free state and to spin:
 C Complex hamiltonian matrix elements over spin states:
       CALL GETMEM('HTOTR','ALLO','REAL',LHTOTR,NSS**2)
       CALL GETMEM('HTOTI','ALLO','REAL',LHTOTI,NSS**2)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LHTOTR),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LHTOTI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LHTOTR),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LHTOTI),1)
 
       IF(IPGLOB.GE.TERSE) THEN
        WRITE(6,*)
@@ -275,8 +275,8 @@ C SPIN-ORBIT HAMILTONIAN MATRIX ELEMENTS:
       ! save the Hamiltonian
       call mma_allocate(HAMSOR,NSS,NSS,'HAMSOR')
       call mma_allocate(HAMSOI,NSS,NSS,'HAMSOI')
-      call dcopy_(NSS*NSS,0.d0,0,HAMSOR,1)
-      call dcopy_(NSS*NSS,0.d0,0,HAMSOI,1)
+      call dcopy_(NSS*NSS,[0.d0],0,HAMSOR,1)
+      call dcopy_(NSS*NSS,[0.d0],0,HAMSOI,1)
       call dcopy_(NSS*NSS,WORK(LHTOTR),1,HAMSOR,1)
       call dcopy_(NSS*NSS,WORK(LHTOTI),1,HAMSOI,1)
       call put_darray('HAMSOR_SINGLE',HAMSOR,NSS*NSS)
@@ -392,11 +392,11 @@ C
 C     IF(IAMX.eq.0 .or. IAMY.eq.0 .or. IAMZ.eq.0) GOTO 910
 C Complex matrix elements of Jx, Jy, and/or Jz over spin states:
       CALL GETMEM('LXI','ALLO','REAL',LLXI,NSS**2)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LLXI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLXI),1)
       CALL GETMEM('LYI','ALLO','REAL',LLYI,NSS**2)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LLYI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLYI),1)
       CALL GETMEM('LZI','ALLO','REAL',LLZI,NSS**2)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LLZI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLZI),1)
       IF(IAMX.GT.0)
      &     CALL SMMAT(PROP,WORK(LLXI),NSS,PNAME(IAMX),ICOMP(IAMX))
       IF(IAMY.GT.0)
@@ -406,16 +406,16 @@ C Complex matrix elements of Jx, Jy, and/or Jz over spin states:
 
       CALL GETMEM('JXR','ALLO','REAL',LJXR,NSS**2)
       CALL GETMEM('JXI','ALLO','REAL',LJXI,NSS**2)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LJXR),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LJXI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LJXR),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LJXI),1)
       CALL GETMEM('JYR','ALLO','REAL',LJYR,NSS**2)
       CALL GETMEM('JYI','ALLO','REAL',LJYI,NSS**2)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LJYR),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LJYI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LJYR),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LJYI),1)
       CALL GETMEM('JZR','ALLO','REAL',LJZR,NSS**2)
       CALL GETMEM('JZI','ALLO','REAL',LJZI,NSS**2)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LJZR),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LJZI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LJZR),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LJZI),1)
 
       CALL SMMAT(PROP,WORK(LJXR),NSS,'SPIN    ',1)
       CALL SMMAT(PROP,WORK(LJYI),NSS,'SPIN    ',2)
@@ -432,8 +432,8 @@ C Complex matrix elements of Jx, Jy, and/or Jz over spin states:
       CALL GETMEM('OMGR','ALLO','REAL',LOMGR,NSS**2)
       CALL GETMEM('OMGI','ALLO','REAL',LOMGI,NSS**2)
       lOMG=.True.
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LOMGR),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LOMGI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LOMGR),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LOMGI),1)
 
       CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,WORK(LJZR),NSS,
      &     WORK(LJZR),NSS,0.0D0,WORK(LOMGR),NSS)
@@ -486,7 +486,7 @@ C910  CONTINUE
        DO ISS=1,NSS
        E_tmp=ENSOR(ISS)+EMIN
        Call PrintResult(6, '(6x,A,I5,5X,A,F16.8)',
-     &  'SO-RASSI State',ISS,'Total energy:',E_tmp,1)
+     &  'SO-RASSI State',ISS,'Total energy:',[E_tmp],1)
        END DO
       END IF
 

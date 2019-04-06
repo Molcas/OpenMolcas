@@ -37,7 +37,7 @@ CTEST      end do
 
       ndtemp=nasht**2
       call getmem('dtemp','allo','real',ldtemp,ndtemp)
-      call dcopy_(ndtemp,0.0d0,0,work(ldtemp),1)
+      call dcopy_(ndtemp,[0.0d0],0,work(ldtemp),1)
 CTEST      WRITE(*,*)' Memory list:'
 CTEST      call getmem('Point A','list','real',ldum,ndum)
 CTEST      WRITE(*,*)' Calling TRDACT.'

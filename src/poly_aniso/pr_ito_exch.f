@@ -298,11 +298,11 @@ c first rotate the magnetic moments to the general coordinate system:
 !====================================================================
         If( AnisoLines1.AND.(RL1>0.0_wp) ) Then
 
-          Call zcopy_(nsize,(0.0_wp,0.0_wp),0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
      &            JN(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
-          Call zcopy_(nsize,(0.0_wp,0.0_wp),0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
      &            JB(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
-          Call zcopy_(nsize,(0.0_wp,0.0_wp),0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
      &            JS(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
 
           Call newjkqpar(n1,n2,HLIN1(lp,1:n1,1:n1,1:n2,1:n2),
@@ -375,7 +375,7 @@ c first rotate the magnetic moments to the general coordinate system:
 !      !------------------------------------------------------------------------
 !      ! verify the back transform for HAM!:
 !        Call mma_allocate(HAM,n1,n1,n2,n2,'HAM')
-!        Call zcopy_(n1*n1*n2*n2,(0.0_wp,0.0_wp),0,HAM,1)
+!        Call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,HAM,1)
 !
 !        S1a=( 0.0_wp, 0.0_wp)
 !        S2a=( 0.0_wp, 0.0_wp)
@@ -426,11 +426,11 @@ c first rotate the magnetic moments to the general coordinate system:
 !====================================================================
         If( AnisoLines3.AND.(RL3>0.0_wp) ) Then
 
-          Call zcopy_(nsize,(0.0_wp,0.0_wp),0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
      &            JN(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
-          Call zcopy_(nsize,(0.0_wp,0.0_wp),0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
      &            JB(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
-          Call zcopy_(nsize,(0.0_wp,0.0_wp),0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
      &            JS(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
 
           Call newjkqpar(n1,n2,HLIN3(lp,1:n1,1:n1,1:n2,1:n2),
@@ -503,11 +503,11 @@ c first rotate the magnetic moments to the general coordinate system:
 !====================================================================
         If( AnisoLines9.AND.(RL9>0.0_wp) ) Then
 
-          Call zcopy_(nsize,(0.0_wp,0.0_wp),0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
      &            JN(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
-          Call zcopy_(nsize,(0.0_wp,0.0_wp),0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
      &            JB(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
-          Call zcopy_(nsize,(0.0_wp,0.0_wp),0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
      &            JS(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
 
           Call newjkqpar(n1,n2,HLIN9(lp,1:n1,1:n1,1:n2,1:n2),
@@ -580,11 +580,11 @@ c first rotate the magnetic moments to the general coordinate system:
 
         If (Dipol.AND.(RDI>0.0_wp)) Then
 
-          Call zcopy_(nsize,(0.0_wp,0.0_wp),0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
      &            JN(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
-          Call zcopy_(nsize,(0.0_wp,0.0_wp),0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
      &            JB(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
-          Call zcopy_(nsize,(0.0_wp,0.0_wp),0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
      &            JS(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
 
           Call newjkqpar(n1,n2,HDIP(lp,1:n1,1:n1,1:n2,1:n2),
@@ -650,11 +650,11 @@ c first rotate the magnetic moments to the general coordinate system:
 
         If (DM_exchange.AND.(RDM>0.0_wp)) Then
 
-          Call zcopy_(nsize,(0.0_wp,0.0_wp),0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
      &            JN(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
-          Call zcopy_(nsize,(0.0_wp,0.0_wp),0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
      &            JB(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
-          Call zcopy_(nsize,(0.0_wp,0.0_wp),0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
      &            JS(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
 
           Call newjkqpar(n1,n2,HDMO(lp,1:n1,1:n1,1:n2,1:n2),
@@ -722,11 +722,11 @@ c first rotate the magnetic moments to the general coordinate system:
 
         If (JITO_exchange.AND.(RIT>0.0_wp)) Then
 
-          Call zcopy_(nsize,(0.0_wp,0.0_wp),0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
      &            JN(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
-          Call zcopy_(nsize,(0.0_wp,0.0_wp),0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
      &            JB(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
-          Call zcopy_(nsize,(0.0_wp,0.0_wp),0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
      &            JS(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
 
           Call newjkqpar(n1,n2,HITO(lp,1:n1,1:n1,1:n2,1:n2),

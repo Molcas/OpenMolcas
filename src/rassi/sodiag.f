@@ -86,17 +86,17 @@ C BPTST       Storage for some testing
         WRITE(6,*) IWORK(LSODIAG-1+I)
       END DO
 
-      CALL DCOPY_(9*N**2,0.0d0,0,LMATR,1)
-      CALL DCOPY_(9*N**2,0.0d0,0,LMATI,1)
-      CALL DCOPY_(9*N**2,0.0d0,0,SMATR,1)
-      CALL DCOPY_(9*N**2,0.0d0,0,SMATI,1)
-      CALL DCOPY_(9*N**2,0.0d0,0,MUMAT2R,1)
-      CALL DCOPY_(9*N**2,0.0d0,0,MUMAT2I,1)
+      CALL DCOPY_(9*N**2,[0.0d0],0,LMATR,1)
+      CALL DCOPY_(9*N**2,[0.0d0],0,LMATI,1)
+      CALL DCOPY_(9*N**2,[0.0d0],0,SMATR,1)
+      CALL DCOPY_(9*N**2,[0.0d0],0,SMATI,1)
+      CALL DCOPY_(9*N**2,[0.0d0],0,MUMAT2R,1)
+      CALL DCOPY_(9*N**2,[0.0d0],0,MUMAT2I,1)
 
       CALL GETMEM('DMATTMPA','ALLO','REAL',LDMATTMP,3*(NBST*(NBST+1)))
 
       !> identity mat
-      CALL DCOPY_(3*3,0.0d0,0,IDENTMAT,1)
+      CALL DCOPY_(3*3,[0.0d0],0,IDENTMAT,1)
       IDENTMAT(1,1)=1.0d0; IDENTMAT(2,2)=1.0d0; IDENTMAT(3,3)=1.0d0
 
 C First, we calculate the expectation values of
@@ -282,8 +282,8 @@ c AS A PART OF AN IDENTITY MATRIX
       CALL GETMEM('SODEIGR','ALLO','REAL',LEIGVECR,NSS**2)
       CALL GETMEM('SODEIGI','ALLO','REAL',LEIGVECI,NSS**2)
 
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LEIGVECR),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LEIGVECI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LEIGVECR),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LEIGVECI),1)
 
       DO I=1,NSS
       DO J=1,NSS

@@ -112,7 +112,7 @@ C CALCULATE AN INACTIVE TRANSITION DENSITY MATRIX IN AO BASIS:
 
       NFAO=NBSQ
       Call mma_allocate(FAO,nFAO,Label='FAO')
-      LFAO=ip_of_Work(FAO)
+      LFAO=ip_of_Work(FAO(1))
 
       IF (.not.DoCholesky) THEN
 

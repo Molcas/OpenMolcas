@@ -19,6 +19,6 @@
       DO 20 I=1,N-1
         CALL VNEG(B(I,I+1),N,B(I+1,I),1,N-I)
 20    CONTINUE
-      CALL DCOPY_(N,0.0D00,0,B,N+1)
+      CALL DCOPY_(N,[0.0D00],0,B,N+1)
       RETURN
       END

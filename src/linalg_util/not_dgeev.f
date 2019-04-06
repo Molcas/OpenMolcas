@@ -8,12 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine not_DGeEV(iOpt,a,lda,w,z,ldz,select,n,aux,naux)
+      Subroutine not_DGeEV(iOpt,a,lda,w,z,ldz,n,aux,naux)
       Implicit Real*8 (a-h,o-z)
       Real*8 a(lda,n),w(2,n), z(2*ldz*n), aux(naux)
       parameter(nw1=200)
       Real*8 w1(nw1)
-      Logical select(n)
 *
       If (iOpt.eq.2) Then
          Write (6,*) 'not_DGeEV: iOpt=2 is not implemented yet!'
@@ -81,6 +80,4 @@
       End Do
 *
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_logical_array(select)
       End

@@ -363,9 +363,9 @@ c
 92        format (a17,1x,f15.12)
 cmp! for MOLCAS verify
         Call Get_dScalar('SCF energy',escf)
-        Call Add_Info('CHCCene', e2new, 1, 6)
-        Call Add_Info('E_CHCC', e2new, 1, 6)
-        Call Add_Info('E_HYPE', e2new+escf, 1, 6)
+        Call Add_Info('CHCCene', [e2new], 1, 6)
+        Call Add_Info('E_CHCC', [e2new], 1, 6)
+        Call Add_Info('E_HYPE', [e2new+escf], 1, 6)
 c    for NUMERICAL_GRADIENTS
         Call Put_cArray('Relax Method','CHCC    ',8)
         Call Store_Energies(1,e2new+escf,1)

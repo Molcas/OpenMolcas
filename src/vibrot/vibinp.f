@@ -207,13 +207,13 @@ C
        ist=i+kk
        If (ii.eq.1) Then
 *         Read(line(i:i+kk-1),*) isn1
-          Call Get_I(1,isn1,1)
+          Call Get_I1(1,isn1)
        ElseIf (ii.eq.2) Then
 *         Read(line(i:i+kk-1),'(A)') Atom1(1:kk)
           Call Get_S(2,Atom1(1:kk),1)
        ElseIf (ii.eq.3) Then
 *         Read(line(i:i+kk-1),*) isn2
-          Call Get_I(3,isn2,1)
+          Call Get_I1(3,isn2)
        ElseIf (ii.eq.4) Then
 *         Read(line(i:i+kk-1),'(A)') Atom2(1:kk)
           Call Get_S(4,Atom2(1:kk),1)
@@ -284,7 +284,7 @@ C
 *     If(line(1:1).eq.'*') go to 3
 *     Read(line,*) ngrid
  3    Line=Get_Ln(LuIn)
-      Call Get_I(1,ngrid,1)
+      Call Get_I1(1,ngrid)
       If((ngrid/2)*2.eq.ngrid) ngrid=ngrid-1
 C     ************************************** ngrid should be odd
       If(ngrid.ge.npoint) ngrid=npoint-1
@@ -297,8 +297,8 @@ C
 *     If(line(1:1).eq.'*') go to 4
 *     Read(line,*) Rmin,Rmax
  4    Line=Get_Ln(LuIn)
-      Call Get_F(1,Rmin,1)
-      Call Get_F(2,RMax,1)
+      Call Get_F1(1,Rmin)
+      Call Get_F1(2,RMax)
       Umin=log(Rmin)
       Umax=log(Rmax)
       go to 200
@@ -310,7 +310,7 @@ C
 *     If(line(1:1).eq.'*') go to 5
 *     Read(line,*) nvib
  5    Line=Get_Ln(LuIn)
-      Call Get_I(1,nvib,1)
+      Call Get_I1(1,nvib)
       n0=0
       nvib1=nvib-1
       go to 200
@@ -322,8 +322,8 @@ C
 *     If(line(1:1).eq.'*') go to 6
 *     Read(line,*) J1A,J2A
  6    Line=Get_Ln(LuIn)
-      Call Get_I(1,J1A,1)
-      Call Get_I(2,J2A,1)
+      Call Get_I1(1,J1A)
+      Call Get_I1(2,J2A)
       if(J2A.ge.nRot_Max) Then
         Write(6,*)
         Write(6,*)'********************************'
@@ -342,7 +342,7 @@ C
 *     If(line(1:1).eq.'*') go to 7
 *     Read(line,*) lambda
  7    Line=Get_Ln(LuIn)
-      Call Get_I(1,lambda,1)
+      Call Get_I1(1,lambda)
       go to 200
 C
 C     Read flag for spectroscopic constants
@@ -404,23 +404,23 @@ c    else-  this is a title
       end if
       npobs(iobs)=nobsi
 *     Read(line,*) RinO(nobsi,iobs),Obsin(nobsi,iobs)
-      Call Get_F(1,RinO(nobsi,iobs),1)
-      Call Get_F(2,Obsin(nobsi,iobs),1)
+      Call Get_F1(1,RinO(nobsi,iobs))
+      Call Get_F1(2,Obsin(nobsi,iobs))
       go to 91
 *93   Read(5,'(a)') line
  93   Line=Get_Ln(LuIn)
       If(line(1:1).eq.'*') go to  93
 *     Read(line,*) R0o(iobs),R1o(iobs),dRo(iobs)
-      Call Get_F(1,R0o(iobs),1)
-      Call Get_F(2,R1o(iobs),1)
-      Call Get_F(3,dRo(iobs),1)
+      Call Get_F1(1,R0o(iobs))
+      Call Get_F1(2,R1o(iobs))
+      Call Get_F1(3,dRo(iobs))
       iplot(iobs)=1
       go to 200
 C
 C     Read starting value for step size in eigenvalue search
 C
  10   Line=Get_Ln(LuIn)
-      Call Get_F(1,dE0,1)
+      Call Get_F1(1,dE0)
       go to 200
 C
 C     Read potential
@@ -472,9 +472,9 @@ c      if(Rin(1).gt.Rmax.or.Rin(nop).lt.Rmin) go to 900
 *     If(line(1:1).eq.'*') go to 113
 *     Read(line,*) R0p,R1p,dRp
  113  Line=Get_Ln(LuIn)
-      Call Get_F(1,R0p,1)
-      Call Get_F(2,R1p,1)
-      Call Get_F(3,dRp,1)
+      Call Get_F1(1,R0p)
+      Call Get_F1(2,R1p)
+      Call Get_F1(3,dRp)
       iplotp=1
       if(LuIn1.ne.LuIn) Close(Unit=LuIn1)
 C
@@ -499,7 +499,7 @@ C
 *     Read(line,*) Teas
 *141  Continue
       Line=Get_Ln(LuIn)
-      Call Get_F(1,Teas,1)
+      Call Get_F1(1,Teas)
       go to 200
 C
 15    Continue
@@ -516,7 +516,7 @@ C
 C     TEMPerature
 C     Temperature for vibrational averaging
       Line=Get_Ln(LuIn)
-      Call Get_F(1,Temp,1)
+      Call Get_F1(1,Temp)
       go to 200
 C
 18    Continue

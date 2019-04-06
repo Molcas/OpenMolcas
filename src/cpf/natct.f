@@ -18,6 +18,7 @@
 #include "files_cpf.fh"
       DIMENSION H(LIC0)
       Character*72 Header
+      Dimension Dummy(1),iDummy(7,8)
 *
       NSUM =0
       N2SUM=0
@@ -48,9 +49,9 @@
       ICMO=LW(87)
       DO 10 M=1,NSYM
 *        set occupation number of orbitals prefrozen in MOTRA
-         CALL DCOPY_(NBAS(M),0.0D0,0,H(IOCC),1)
+         CALL DCOPY_(NBAS(M),[0.0D0],0,H(IOCC),1)
 *        skip orbitals prefrozen in MOTRA
-         CALL DCOPY_(NPFRO(M),2.0D0,0,H(IOCC),1)
+         CALL DCOPY_(NPFRO(M),[2.0D0],0,H(IOCC),1)
          CALL NATORB_CPF(H(LW(62)),H(ICMO+NBAS(M)*NPFRO(M)),H(LW(88)),
      &               H(LW(89)),H(LW(89)),H(IOCC+NPFRO(M)),M)
          CALL DCOPY_(NORB(M)*NBAS(M),H(LW(89)),1,
@@ -99,7 +100,7 @@
          Header=' MCPF natural orbitals'
       End If
       Call Primo(Header,.True.,.False.,1.0D-4,dum,nSym,nBas,nBas,
-     *           Name,dum,H(LW(90)),H(LW(87)),-1)
+     *           Name,Dummy,H(LW(90)),H(LW(87)),-1)
 *
 *     Read the overlap matrix in ao basis
       iiRC=-1

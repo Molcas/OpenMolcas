@@ -55,12 +55,12 @@
       Call GetMem('DIR  ','ALLO','REAL',ipDIR,nDens2)
       Call GetMem('FociI','ALLO','REAL',ipFI,ndens2)
 
-      call dcopy_(ndens2,0.0d0,0,FockI,1)
-      call dcopy_(ndens2,0.0d0,0,Work(ipFI),1)
-      call dcopy_(ndens2,0.0d0,0,FockA,1)
-      call dcopy_(ndens2,0.0d0,0,Work(ipDir),1)
-      call dcopy_(ndens2,0.0d0,0,Work(ipDil),1)
-      call dcopy_(ncmo,0.0d0,0,Work(ipDi),1)
+      call dcopy_(ndens2,[0.0d0],0,FockI,1)
+      call dcopy_(ndens2,[0.0d0],0,Work(ipFI),1)
+      call dcopy_(ndens2,[0.0d0],0,FockA,1)
+      call dcopy_(ndens2,[0.0d0],0,Work(ipDir),1)
+      call dcopy_(ndens2,[0.0d0],0,Work(ipDil),1)
+      call dcopy_(ncmo,[0.0d0],0,Work(ipDi),1)
       lFI=.true.
       lFa=.false.
       lMo=.false.
@@ -71,10 +71,10 @@
          Call GetMem('FockA','ALLO','REAL',ipFA,nDens2)
          lFa=.true.
          lMo=.true.
-         call dcopy_(ndens2,0.0d0,0,Work(ipFA),1)
-         call dcopy_(ndens2,0.0d0,0,Work(ipDar),1)
-         call dcopy_(ndens2,0.0d0,0,Work(ipDal),1)
-         call dcopy_(ncmo,0.0d0,0,Work(ipDa),1)
+         call dcopy_(ndens2,[0.0d0],0,Work(ipFA),1)
+         call dcopy_(ndens2,[0.0d0],0,Work(ipDar),1)
+         call dcopy_(ndens2,[0.0d0],0,Work(ipDal),1)
+         call dcopy_(ncmo,[0.0d0],0,Work(ipDa),1)
       Else
          ipDAL = ip_Dummy
          ipDAR = ip_Dummy

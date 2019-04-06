@@ -104,7 +104,7 @@
             Call mma_deallocate(Scratch)
 *
 *---------- Orbital energies are now meaningless; set them to zero
-            call dcopy_(nOrbi,Zero,0,EOrb(iEOr),1)
+            call dcopy_(nOrbi,[Zero],0,EOrb(iEOr),1)
 *
          End If
 *

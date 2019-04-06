@@ -36,7 +36,7 @@ c  compute KE, within various options :
       ! local variables:
       Integer          :: i1,i2,j1,j2,i,info,j,l,is1,is2,iprint
       Real(kind=wp)    :: eloc1(N1)
-      Complex(kind=wp) :: eloc2(N2)
+      Real(kind=wp)    :: eloc2(N2)
       Complex(kind=wp) :: Z1(N1,N1)
       Complex(kind=wp) :: Z2(N2,N2)
       Complex(kind=wp) :: H1(N1,N1)

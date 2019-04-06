@@ -34,7 +34,7 @@
       NCONF=JSC(ILIM)
 * Initialize sorting buffer, so that automatic detection of
 * uninitialized variables does not give false alarms.
-      CALL DCOPY_(LW(21)-LW(20),0.0D0,0,H(LW(20)),1)
+      CALL DCOPY_(LW(21)-LW(20),[0.0D0],0,H(LW(20)),1)
 * Now H(LW(20)) and up are filled with zeroes.
 * Similar before SORTB_CPF and SORT_CPF.
       CALL C_F_POINTER(C_LOC(H(LW(4))),iH4,[1])
@@ -46,7 +46,7 @@
      &   iH4,H(LW(25)),iH25,H(LW(23)),H(LW(24)),NINTGR)
       NULLIFY(iH4,iH20,iH21,iH22,iH25)
       IF(IFIRST.EQ.0) THEN
-        CALL DCOPY_(LW(18)-LW(17),0.0D0,0,H(LW(17)),1)
+        CALL DCOPY_(LW(18)-LW(17),[0.0D0],0,H(LW(17)),1)
         CALL C_F_POINTER(C_LOC(H(LW(4))),iH4,[1])
         CALL C_F_POINTER(C_LOC(H(LW(17))),iH17,[1])
         CALL C_F_POINTER(C_LOC(H(LW(18))),iH18,[1])
@@ -55,7 +55,7 @@
      &   iH19,H(LW(10)),H(LW(94)),H(LW(95)),iH4,H(LW(96)))
         NULLIFY(iH4,iH17,iH18,iH19)
       END IF
-      CALL DCOPY_(LW(12)-LW(11),0.0D0,0,H(LW(11)),1)
+      CALL DCOPY_(LW(12)-LW(11),[0.0D0],0,H(LW(11)),1)
       CALL C_F_POINTER(C_LOC(H(LW(11))),iH11,[1])
       CALL C_F_POINTER(C_LOC(H(LW(12))),iH12,[1])
       CALL C_F_POINTER(C_LOC(H(LW(13))),iH13,[1])

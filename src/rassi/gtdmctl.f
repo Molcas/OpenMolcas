@@ -651,7 +651,7 @@ C Read ISTATE wave function
           ELSE
             WORK(LCI1)=1.0D0
           END IF
-          CALL DCOPY_(NDET1,0.0D0,0,WORK(LDET1),1)
+          CALL DCOPY_(NDET1,[0.0D0],0,WORK(LDET1),1)
           CALL PREPSD(WFTP1,TRORB,ISGSTR1,ICISTR1,IXSTR1,LSYM1,
      &                WORK(LTRA1),IWORK(LCNFTAB1),IWORK(LSPNTAB1),
      &                IWORK(LSSTAB),IWORK(LFSBTAB1),NCONF1,WORK(LCI1),
@@ -686,7 +686,7 @@ C Write out the determinant expansion to disk.
 
       If (DoGSOR) Then
         CALL GETMEM('Theta1','ALLO','REAL',LTheta1,NCONF2)
-        CALL DCOPY_(NCONF2,0.0D0,0,WORK(LTheta1),1)
+        CALL DCOPY_(NCONF2,[0.0D0],0,WORK(LTheta1),1)
       End If
 
 C-------------------------------------------------------------
@@ -706,7 +706,7 @@ C Read JSTATE wave function
           If(DoGSOR) Then
             CALL DCOPY_(NCONF2,Work(LCI2),1,WORK(LCI2_o),1)
           End If
-          CALL DCOPY_(NDET2,0.0D0,0,WORK(LDET2),1)
+          CALL DCOPY_(NDET2,[0.0D0],0,WORK(LDET2),1)
           CALL PREPSD(WFTP2,TRORB,ISGSTR2,ICISTR2,IXSTR2,LSYM2,
      &                WORK(LTRA2),IWORK(LCNFTAB2),IWORK(LSPNTAB2),
      &                IWORK(LSSTAB),IWORK(LFSBTAB2),NCONF2,WORK(LCI2),
@@ -899,11 +899,8 @@ C             Write density 1-matrices in AO basis to disk.
      &                          mstate_1pdens(i,j)%wtdm,1
      &                         )
                     !> overlap
-                    call daxpy_(1,
-     &                          fac1*fac2,
-     &                          sij,0,
-     &                          mstate_1pdens(i,j)%overlap,0
-     &                         )
+                    mstate_1pdens(i,j)%overlap=
+     &                mstate_1pdens(i,j)%overlap+fac1*fac2*sij
                   end do
                 end do
               end if
@@ -1057,7 +1054,7 @@ C             Write density 1-matrices in AO basis to disk.
           JSTATE=ISTAT(JOB2)-1+JST
           CALL READCI(JSTATE,ISGSTR2,ICISTR2,NCONF2,WORK(LCI2))
           Call DCOPY_(NCONF2,Work(LCI2),1,Work(LCI2_o),1)
-          CALL DCOPY_(NDET2,0.0D0,0,WORK(LDET2),1)
+          CALL DCOPY_(NDET2,[0.0D0],0,WORK(LDET2),1)
           CALL PREPSD(WFTP2,TRORB,ISGSTR2,ICISTR2,IXSTR2,LSYM2,
      &              WORK(LTRA2),IWORK(LCNFTAB2),IWORK(LSPNTAB2),
      &          IWORK(LSSTAB),IWORK(LFSBTAB2),NCONF2,WORK(LCI2),
@@ -1078,7 +1075,7 @@ C             Write density 1-matrices in AO basis to disk.
           end if
           CALL GETMEM('ThetaM','ALLO','REAL',LThetaM,NCONF2)
           DO IST=2,JST-1
-            CALL DCOPY_(NCONF2,0.0D0,0,WORK(LThetaM),1)
+            CALL DCOPY_(NCONF2,[0.0D0],0,WORK(LThetaM),1)
             !Read in previous theta vectors
             do i=1,NCONF2
               Read(LUCITH,*) Work(LThetaM-1+i)
@@ -1121,7 +1118,7 @@ C             Write density 1-matrices in AO basis to disk.
         Call IDAFILE(LUIPHn,2,ITOC15,30,IAD)
         IAD=ITOC15(4)
         do i=1,ISTAT(JOB1)-1
-         CALL DCOPY_(NCONF2,0.0D0,0,WORK(LThetaM),1)
+         CALL DCOPY_(NCONF2,[0.0D0],0,WORK(LThetaM),1)
          do j=1,nCONF2
            read(LUCITH,*) Work(LThetaM-1+i)
          end do
@@ -1129,7 +1126,7 @@ C             Write density 1-matrices in AO basis to disk.
         end do
 
        IAD = ITOC15(4)
-       CALL DCOPY_(NCONF2,0.0D0,0,WORK(LThetaM),1)
+       CALL DCOPY_(NCONF2,[0.0D0],0,WORK(LThetaM),1)
        Call DDAFILE(LUIPHn,2,Work(LThetaM),nCONF2,IAD)
        Call DDAFILE(LUIPHn,2,Work(LThetaM),nCONF2,IAD)
 

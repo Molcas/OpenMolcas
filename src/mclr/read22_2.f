@@ -41,8 +41,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      call dcopy_(ndens2,0.0d0,0,focki,1)
-      call dcopy_(ndens2,0.0d0,0,focka,1)
+      call dcopy_(ndens2,[0.0d0],0,focki,1)
+      call dcopy_(ndens2,[0.0d0],0,focka,1)
 *
       nas=0
       Do is=1,nSym
@@ -250,7 +250,7 @@
 *
 **      Construct inactive density matrix
 *
-        call dcopy_(nDens2,0.0d0,0,temp2,1)
+        call dcopy_(nDens2,[0.0d0],0,temp2,1)
         Do is=1,nSym
           Do iB=1,nIsh(is)
             ip=ipCM(iS)+(ib-1)*nOrb(is)+ib-1
@@ -356,31 +356,35 @@
 *
 **      Let's go
 *
-        ipDI    = ip_of_work(Temp2)
+        ipDI    = ip_of_work(Temp2(1))
         ipkappa = ip_Dummy
-        ipJI    = ip_of_work(Temp3)
-        ipKI    = ip_of_work(Scr)
-        ipFockI = ip_of_work(FockI)
-        ipFockA = ip_of_work(FockA)
-        ipMO1   = ip_of_work(MO1)
-        ipQ     = ip_of_work(Q)
+        ipJI    = ip_of_work(Temp3(1))
+        ipKI    = ip_of_work(Scr(1))
+        ipFockI = ip_of_work(FockI(1))
+        ipFockA = ip_of_work(FockA(1))
+        ipMO1   = ip_of_work(MO1(1))
+        ipQ     = ip_of_work(Q(1))
         Call GetMem('ScrJA','Allo','Real',ipJA,nDens2)
         Call GetMem('ScrKA','Allo','Real',ipKA,nDens2)
 *
-        call dcopy_(nDens2,0.0d0,0,Temp3,1)
-        call dcopy_(nDens2,0.0d0,0,Scr,1)
-        call dcopy_(nDens2,0.0d0,0,FockI,1)
-        call dcopy_(nDens2,0.0d0,0,FockA,1)
-        call dcopy_(nDens2,0.0d0,0,Work(ipJA),1)
-        call dcopy_(nDens2,0.0d0,0,Work(ipKA),1)
-        call dcopy_(nDens2,0.0d0,0,Q,1)
+        call dcopy_(nDens2,[0.0d0],0,Temp3,1)
+        call dcopy_(nDens2,[0.0d0],0,Scr,1)
+        call dcopy_(nDens2,[0.0d0],0,FockI,1)
+        call dcopy_(nDens2,[0.0d0],0,FockA,1)
+        call dcopy_(nDens2,[0.0d0],0,Work(ipJA),1)
+        call dcopy_(nDens2,[0.0d0],0,Work(ipKA),1)
+        call dcopy_(nDens2,[0.0d0],0,Q,1)
 *
         istore=1 ! Ask to store the half-transformed vectors
-        Call CHO_LK_MCLR(ipDLT,ipDI,ipDA,ipG2x,ipkappa,
-     &                   ipJI,ipKI,ipJA,ipKA,ipFockI,ipFockA,
-     &                   ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,
-     &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,
-     &                   LuAChoVec,LuIChoVec,istore)
+        Call WarningMessage(2,
+     &     'There is probably a bug here, ipAsh should have two '//
+     &     'elements.')
+        Call Abend()
+!       Call CHO_LK_MCLR(ipDLT,ipDI,ipDA,ipG2x,ipkappa,
+!    &                   ipJI,ipKI,ipJA,ipKA,ipFockI,ipFockA,
+!    &                   ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,
+!    &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,
+!    &                   LuAChoVec,LuIChoVec,istore)
         nAtri=nAct*(nAct+1)/2
         nAtri=nAtri*(nAtri+1)/2
         Call DScal_(nAtri,0.25D0,MO1,1)
@@ -402,7 +406,7 @@
 ************************************************************************
 *
       Call DaXpY_(ndens2,One,Work(kint1),1,FockI,1)
-      call dcopy_(ndens2,0.0d0,0,Fock,1)
+      call dcopy_(ndens2,[0.0d0],0,Fock,1)
 *
       Do iS=1,nSym
          If (nOrb(iS).eq.0) Go To 300
@@ -481,6 +485,4 @@
 ************************************************************************
 *                                                                      *
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_real_array(Temp1)
       End

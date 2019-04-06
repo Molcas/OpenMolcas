@@ -29,7 +29,9 @@
       Real*8 CMO(*), Ovlp(*)
       Logical okay
       Integer itemp2((LENIN8*MxOrb)/ItoB)
+      Character ctemp2(LENIN8*MxOrb)
       Real*8  temp2(MxRoot)
+      Dimension Dummy(1),iDummy(1)
 *
       Call qEnter('RdCmo_motra')
 *----------------------------------------------------------------------*
@@ -68,14 +70,14 @@
           Call iDaFile( LuJobIph,2,TcJobIph,10,iDisk)
           iDisk=TcJobIph(1)
           Call WR_RASSCF_Info(LuJobIph,2,iDisk,
+     &                        itemp2(1),itemp2(1),itemp2(1),itemp2(1),
      &                        itemp2,itemp2,itemp2,itemp2,
-     &                        itemp2,itemp2,itemp2,itemp2,
-     &                        itemp2,mxSym,itemp2,lenin8*mxOrb,
-     &                        itemp2,itemp2,144,
-     &                        itemp2,4*18*mxTit,
-     &                        temp2,itemp2,itemp2,
+     &                        itemp2,mxSym,ctemp2,lenin8*mxOrb,
+     &                        itemp2(1),ctemp2,144,
+     &                        ctemp2,4*18*mxTit,
+     &                        temp2(1),itemp2(1),itemp2(1),
      &                        itemp2,mxRoot,itemp2,itemp2,itemp2,
-     &                        itemp2,itemp2,iPt2,temp2)
+     &                        itemp2(1),itemp2(1),iPt2,temp2)
           iDisk=TcJobIph(2)
           if ( iPt2.ne.0 ) iDisk=TcJobIph(9)
           Call dDaFile(LuJobIph,2,Cmo,nTot2,iDisk)

@@ -199,7 +199,7 @@ C9805EAW     IROUTE = 1
                CALL DCOPY_(NJ*LCJ,SIRES,1,CJRES,1)
              END IF
 *
-             CALL DCOPY_(NIB*NKABTC*NI,ZERO,0,SIRES,1)
+             CALL DCOPY_(NIB*NKABTC*NI,[ZERO],0,SIRES,1)
 
            END IF
 *

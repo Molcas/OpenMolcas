@@ -60,7 +60,7 @@ C CALCULATE THE SYMMETRIC AND ANTISYMMETRIC FOLDED TRANS D MATRICES
 C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
       NSCR=(NBST*(NBST+1))/2
       CALL GETMEM('TDMSCR','Allo','Real',LSCR,4*NSCR)
-      CALL DCOPY_(4*NSCR,0.0D00,0,WORK(LSCR),1)
+      CALL DCOPY_(4*NSCR,[0.0D00],0,WORK(LSCR),1)
 C SPECIAL CASE: DIAGONAL SYMMETRY BLOCKS.
       IF(ISY12.EQ.1) THEN
         IOF=0
@@ -151,7 +151,7 @@ C-------------------------------------------
         Call DaName(LuToM,FnToM)
         If(iCall.eq.0) then  !Make room for table-of-contents
           iDisk=0
-          Call ICOPY(nState*(nState+1)/2,-1,0,iWork(liTocM),1)
+          Call ICOPY(nState*(nState+1)/2,[-1],0,iWork(liTocM),1)
           Call iDaFile(LuToM,1,iWork(liTocM),nState*(nstate+1)/2,iDisk)
           iWork(liTocM)=iDisk
           iDiskSav=iDisk

@@ -19,6 +19,7 @@
 #include "WrkSpc.fh"
       Parameter (ROUTINE='PUTRLX  ')
       Real*8 D(*),DS(*),P(*),DAO(*),C(*)
+      Dimension rdum(1)
 
       IPRLEV=IPRLOC(3)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -79,8 +80,8 @@
      &             Work(ipDA),Work(ipFA),ipr,lsquare,ExFac)
       CALL SGFCIN(C,WORK(ipF),Work(ipFI),Work(ipDI),Work(ipDA),
      &                                              Work(ipDS))
-      call dcopy_(ntot4,0.0d0,0,Work(ipF),1)
-      call dcopy_(ntot4,0.0d0,0,Work(ipB),1)
+      call dcopy_(ntot4,[0.0d0],0,Work(ipF),1)
+      call dcopy_(ntot4,[0.0d0],0,Work(ipB),1)
 *
 *     Prevent FMAT from changing Active fock matrix
 *

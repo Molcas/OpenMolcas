@@ -197,7 +197,7 @@ c         Call TriPrt(' ',' ',FckS,nOrbmF)
               Call mma_deallocate(Scratch)
               n2zero=nOccmF
               If (Do_SpinAV) n2zero=n2zero+nConstr(iSym)
-              Call dCopy_(n2zero*(n2zero+1)/2,Zero,0,FckS,1)
+              Call dCopy_(n2zero*(n2zero+1)/2,[Zero],0,FckS,1)
 *
               iDiag = 0
               Do i = 1, n2zero
@@ -230,7 +230,7 @@ c         Call TriPrt(' ',' ',FckS,nOrbmF)
 *
               If (.NOT.FckAuf) Then
 *
-                 Call FZero(COvrlp,nOccmF,nBas(iSym))
+                 Call FZero(COvrlp,nOccmF*nBas(iSym))
                  Call Square(Ovrlp(ioFckM),Scrt,1,nBas(iSym),
      &                       nBas(iSym))
                  Call DGEMM_('T','N',
@@ -331,7 +331,7 @@ c         Call TriPrt(' ',' ',FckS,nOrbmF)
                     iiScratch=1+nVrt*(j-1)+j-1
                     Scratch(iiScratch)=1.0d0
                  End Do
-                 call dcopy_(nVrt**2,Scratch,1,pEigV,1)
+                 call dcopy_(nVrt**2,Scratch,1,EigV,1)
               EndIf
               Call mma_deallocate(Scratch)
 *------------ rotate MOs to diagonalize virt/virt block

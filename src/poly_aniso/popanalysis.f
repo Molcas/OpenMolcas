@@ -49,7 +49,7 @@ c local variables
          Write(6,'(A,8i3)') '  nexch(i) = ',(nexch(i),i=1,nneq)
       End If
       Call mma_allocate(pop,exch,lmax,nmax,nmax,'pop')
-      Call zcopy_(exch*lmax*nmax*nmax,(0.0_wp,0.0_wp),0,pop,1)
+      Call zcopy_(exch*lmax*nmax*nmax,[(0.0_wp,0.0_wp)],0,pop,1)
 c fill some general arrays:
 c generate the tables:
       nind(:,:)=0

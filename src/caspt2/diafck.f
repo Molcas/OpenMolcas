@@ -38,8 +38,8 @@
        END DO
       END DO
 * Put unit matrix into TSCT:
-      CALL DCOPY_(NSCT**2,0.0D0,0,TSCT,1)
-      CALL DCOPY_(NSCT,1.0D0,0,TSCT,NSCT+1)
+      CALL DCOPY_(NSCT**2,[0.0D0],0,TSCT,1)
+      CALL DCOPY_(NSCT,[1.0D0],0,TSCT,NSCT+1)
 C Diagonalize, and order for best submatrix condition:
       CALL Jacob(WORK(LTMP),TSCT,NSCT,NSCT)
       DO I=IOSTA,IOEND

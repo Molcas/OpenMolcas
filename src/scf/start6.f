@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C): 2017, Roland Lindh                                    *
+* Copyright (C) 2017, Roland Lindh                                     *
 ************************************************************************
       SubRoutine Start6(FName,LuOrb,CMO,mBB,nD,EOrb,OccNo,mmB)
 ************************************************************************
@@ -43,6 +43,7 @@
       Real*8, Dimension(:,:), Allocatable:: Da
       Integer, Dimension(:,:), Allocatable:: Match
       Real*8, Dimension(:), Allocatable:: Corb, SAV, SLT, SQ
+      Dimension Dummy(1)
 ************************************************************************
 *
 *----------------------------------------------------------------------*
@@ -435,7 +436,7 @@
       iOff=1
       Do iSym=1,nSym
          iCMO=iOff+nBas(iSym)*(nFro(iSym)+nOcc(iSym,1))
-         Call Ortho_Orb(CMO(iCMO,1),SQ,nBas,nSsh,2,.true.)
+         Call Ortho_Orb(CMO(iCMO,1),SQ,nBas(iSym),nSsh(iSym),2,.true.)
          iOff=iOff+nBas(iSym)*nOrb(iSym)
       End Do
 c      Call ChkOrt(CMO(1,1),nBB,SLT,nnB,Whatever) ! silent
@@ -452,7 +453,8 @@ c      Call ChkOrt(CMO(1,1),nBB,SLT,nnB,Whatever) ! silent
       iOff=1
       Do iSym=1,nSym
          iCMO=iOff+nBas(iSym)*(nFro(iSym)+nOcc(iSym,2))
-         Call Ortho_Orb(CMO(iCMO,2),SQ,nBas,nSsh_ab,2,.true.)
+         Call Ortho_Orb(CMO(iCMO,2),SQ,nBas(iSym),nSsh_ab(iSym),2,
+     &                  .true.)
          iOff=iOff+nBas(iSym)*nOrb(iSym)
       End Do
 c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
@@ -512,7 +514,7 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
       EndIf
 *
       Call mma_allocate(PLT,nBDT,Label='PLT')
-      ipPLT=ip_of_Work(PLT)
+      ipPLT=ip_of_Work(PLT(1))
       If (DFTX) Then
          Call FZero(PLT,nBDT) ! to exclude Coulomb contrib
       Else
@@ -521,7 +523,7 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
       EndIf
 *
       Call mma_allocate(Porb,nBB,2,Label='Porb')
-      ipPorb(1) = ip_of_Work(Porb)
+      ipPorb(1) = ip_of_Work(Porb(1,1))
       ipPorb(2) = ipPorb(1)+nBB
       Call mma_allocate(Dm,nBB,2,Label='Dm')
       Call UnFold(Dma,nBDT,Dm(1,1),nBB,nSym,nBas)
@@ -560,16 +562,20 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
 *
       Call mma_allocate(FCNO,nBDT,2,Label='FCNO')
       Call FZero(FCNO,2*nBDT)
-      ipFLT(1)=ip_of_Work(FCNO)
+      ipFLT(1)=ip_of_Work(FCNO(1,1))
       ipFLT(2)=ipFLT(1)+nBDT
       Call mma_allocate(KLT,nBDT,2,Label='KLT')
       Call FZero(KLT,2*nBDT)
-      ipKLT(1)=ip_of_Work(KLT)
+      ipKLT(1)=ip_of_Work(KLT(1,1))
       ipKLT(2)=ipKLT(1)+nBDT
 *
       dFmat=0.0d0
-      Call CHO_LK_SCF(irc,nDMat,ipFLT,ipKLT,nForb,nIorb,
-     &                    ipPorb,ipPLT,FactXI,nSCReen,dmpk,dFmat)
+      Call WarningMessage(2,
+     &     'There is probably a bug here, ipPLT should have two '//
+     &     'elements.')
+      Call Abend()
+!     Call CHO_LK_SCF(irc,nDMat,ipFLT,ipKLT,nForb,nIorb,
+!    &                    ipPorb,ipPLT,FactXI,nSCReen,dmpk,dFmat)
       if (irc.ne.0) then
          Call WarningMessage(2,'Start6. Non-zero rc in Cho_LK_scf.')
          CALL Abend

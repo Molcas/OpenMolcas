@@ -289,7 +289,7 @@ c
         integer PossT
 c
 c       help variables
-        integer length,nbas
+        integer length,nbas(1)
 c
 c
 c1.1    Foo file
@@ -320,7 +320,7 @@ c
 c2      OE file
 c
         call Get_iArray('nBas',nBas,1)
-        length=nbas
+        length=nbas(1)
 c
         PossOE=possT
         PossT=PossT+length
@@ -983,7 +983,7 @@ c
 #else
 c Avoid unused argument warnings
         if (.false.) then
-          call Unused_real(wrk)
+          call Unused_real_array(wrk)
           call Unused_integer(PossV1)
           call Unused_integer(PossV2)
           call Unused_integer(NaGrpR)

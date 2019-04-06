@@ -36,7 +36,7 @@
       IF (nDet.eq.1) THEN
 *
       P2Act=DBLE(nP2Act)
-      Call Put_Temp('nP2Act  ',P2Act,1)
+      Call Put_Temp('nP2Act  ',[P2Act],1)
       Call Put_Temp('P2_RAW  ',P2mo,nP2Act)
 *
       Do iIrrep = 0, mIrrep-1

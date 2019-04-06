@@ -114,7 +114,7 @@ C-SVC20100903: during mkfg3, NG3 is set to the actual value
         CALL PT2_PUT(NG3,' GAMMA3',WORK(LG3))
         iLUID=0
         iPad=ItoB-MOD(6*NG3,ItoB)
-        CALL CDAFILE(LUSOLV,1,i1WORK(LidxG3),6*NG3+iPad,iLUID)
+        CALL CDAFILE(LUSOLV,1,cWORK(LidxG3),6*NG3+iPad,iLUID)
         IF(IFF.EQ.1) THEN
           CALL PT2_PUT(NG1,' DELTA1',WORK(LF1))
           CALL PT2_PUT(NG2,' DELTA2',WORK(LF2))

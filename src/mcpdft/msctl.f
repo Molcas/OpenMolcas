@@ -344,7 +344,7 @@ cPS         call xflush(6)
 * Generate spin-density
 ***********************************************************
          if(iSpin.eq.1) then
-           Call dcopy_(NACPAR,0.0d0,0,Work(iD1SpinAO),1)
+           Call dcopy_(NACPAR,[0.0d0],0,Work(iD1SpinAO),1)
          end if
          IF ( NASH(1).NE.NAC ) CALL DBLOCK_m(Work(iD1Spin))
          Call Get_D1A_RASSCF_m(CMO,Work(iD1Spin),
@@ -365,8 +365,8 @@ cPS         call xflush(6)
 *
         Call GetMem('htmp','Allo','Real',iTmp5,nTot1)
         Call GetMem('gtmp','Allo','Real',iTmp6,nTot1)
-        Call dCopy_(nTot1,0.0d0,0,Work(iTmp5),1)
-        Call dCopy_(nTot1,0.0d0,0,Work(iTmp6),1)
+        Call dCopy_(nTot1,[0.0d0],0,Work(iTmp5),1)
+        Call dCopy_(nTot1,[0.0d0],0,Work(iTmp6),1)
 *
         First=.True.
         Dff=.False.
@@ -409,8 +409,8 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
 
         CALL GETMEM('TE_POTG','ALLO','REAL',LTEOTPG,NFINT)
         CALL GETMEM('OE_POT','ALLO','REAL',LOEOTP,NTOT1)
-        Call DCopy_(NTOT1,0.0d0,0,Work(LOEOTP),1)
-        Call DCopy_(NFINT,0.0d0,0,work(LTEOTPG),1)
+        Call DCopy_(NTOT1,[0.0d0],0,Work(LOEOTP),1)
+        Call DCopy_(NFINT,[0.0d0],0,work(LTEOTPG),1)
 
       !preallocate the runfile stuff for inact-containing potentials.
         count_tmp1 = 0
@@ -422,20 +422,20 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
           count_tmp1 = count_tmp1 + nIsh(isym)*(nish(isym)+nAsh(isym))
         end do
         CALL GETMEM('JUNK','ALLO','REAL',ijunk,count_tmp2)
-        Call DCopy_(count_tmp2,0.0d0,0,Work(ijunk),1)
+        Call DCopy_(count_tmp2,[0.0d0],0,Work(ijunk),1)
 !        Call Put_dArray('TEP_I',work(ijunk),count_tmp2)
         CALL GETMEM('JUNK','Free','REAL',ijunk,count_tmp2)
 
         CALL GETMEM('JUNK','ALLO','REAL',ijunk,count_tmp1)
-        Call DCopy_(count_tmp1,0.0d0,0,Work(ijunk),1)
+        Call DCopy_(count_tmp1,[0.0d0],0,Work(ijunk),1)
 !        Call Put_dArray('OEP_I',work(ijunk),count_tmp1)
         CALL GETMEM('JUNK','Free','REAL',ijunk,count_tmp1)
 
         Call Put_dArray('ONTOPO',work(LOEOTP),NTOT1)
         Call Put_dArray('ONTOPT',work(LTEOTPG),NFINT)
 
-        Call DCopy_(NTOT1,0.0d0,0,Work(LOEOTP),1)
-        Call DCopy_(NFINT,0.0d0,0,work(LTEOTPG),1)
+        Call DCopy_(NTOT1,[0.0d0],0,Work(LOEOTP),1)
+        Call DCopy_(NFINT,[0.0d0],0,work(LTEOTPG),1)
 
         Call Put_dArray('FI_V',work(LOEOTP),NTOT1)
         Call Put_dArray('FA_V',work(LOEOTP),NTOT1)
@@ -682,7 +682,7 @@ cPS         call xflush(6)
         end if
 
       Call GetMem('F_ONE','ALLO','Real',iFone,NTOT1)
-      CALL DCOPY_(NTOT1,0.0D0,0,WORK(iFone),1)
+      CALL DCOPY_(NTOT1,[0.0D0],0,WORK(iFone),1)
 
 !I think I need to generate FI, which will contain both the one-electron
 !potential contribution and the V_kkpu contribution.
@@ -756,7 +756,7 @@ cPS         call xflush(6)
 
 
       Call GetMem('ttTUVX','Allo','Real',ittTUVX,NACPR2)
-      CALL DCOPY_(nacpr2,0.0D0,0,WORK(ittTUVX),1)
+      CALL DCOPY_(nacpr2,[0.0D0],0,WORK(ittTUVX),1)
       Call Get_TUVX(Work(ipTmpLTEOTP),Work(ittTUVX))
       !Call Get_TUVX(Work(lpuvx),Work(ittTUVX))
 
@@ -773,8 +773,8 @@ cPS         call xflush(6)
 !This next part is to generate the MC-PDFT generalized fock operator.
 
 
-!      CALL DCOPY_(nFint,0.0D0,0,WORK(ipTmpLTEOTP),1)
-!      CALL DCOPY_(ntot1,0.0D0,0,WORK(ipTmpLOEOTP),1)
+!      CALL DCOPY_(nFint,[0.0D0],0,WORK(ipTmpLTEOTP),1)
+!      CALL DCOPY_(ntot1,[0.0D0],0,WORK(ipTmpLOEOTP),1)
 !        write(6,*) 'ONTOPT'
 !        call wrtmat(Work(ipTmpLTEOTP),1,nFInt,1,nFInt)
 !        write(6,*) 'ONTOPO'
@@ -782,8 +782,8 @@ cPS         call xflush(6)
 
 !Zero out the matrices.  We will be adding the potential-containing
 !terms as a correction to the Focc component already on the runfile.
-      CALL DCOPY_(ntot1,0.0D0,0,WORK(iFocka),1)
-      CALL DCOPY_(ntot1,0.0D0,0,WORK(iFocki),1)
+      CALL DCOPY_(ntot1,[0.0D0],0,WORK(iFocka),1)
+      CALL DCOPY_(ntot1,[0.0D0],0,WORK(iFocki),1)
 
 !The corrections (from the potentials) to FI and FA are built in the NQ
 !part of the code, for efficiency's sake.  It still needs to be
@@ -812,7 +812,7 @@ cPS         call xflush(6)
 
         If ( IPRLEV.ge.DEBUG ) then
       CALL GETMEM('FA_t','ALLO','REAL',ifat,Ntot1)
-      Call dcopy_(ntot1,0.0d0,0,work(ifat),1)
+      Call dcopy_(ntot1,[0.0d0],0,work(ifat),1)
       Call DaXpY_(NTOT1,1.0D0,Work(ipTmpLOEOTP),1,Work(ifat),1)
       Call daxpy_(NTOT1,1.0D0,Work(ifiv),1,Work(ifat),1)
       Call daxpy_(NTOT1,1.0D0,Work(ifav),1,Work(ifat),1)
@@ -846,7 +846,7 @@ cPS         call xflush(6)
 !      Call dcopy_(ISTORP(NSYM+1),Work(LP),1,Work(ip2test),1)
 
        IF(ISTORP(NSYM+1).GT.0) THEN
-      CALL DCOPY_(ISTORP(NSYM+1),0.0D0,0,WORK(LP),1)
+      CALL DCOPY_(ISTORP(NSYM+1),[0.0D0],0,WORK(LP),1)
 !p = work(iP2d)
          CALL PMAT_RASSCF_M(Work(iP2d),WORK(LP))
       END IF

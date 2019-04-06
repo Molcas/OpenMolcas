@@ -122,7 +122,7 @@ C Overlap:
 C General 1-particle transition density matrix:
       NSPD1=NASORB**2
       CALL GETMEM('SPD1','Allo','Real',LSPD1,NSPD1)
-      CALL DCOPY_(NSPD1,0.0D0,0,WORK(LSPD1),1)
+      CALL DCOPY_(NSPD1,[0.0D0],0,WORK(LSPD1),1)
       ISYOP = MUL(LSYM1,LSYM2)
       MS2OP = MSPROJ1-MSPROJ2
 

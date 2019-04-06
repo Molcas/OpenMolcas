@@ -32,6 +32,7 @@ C At position IVEC=IVECW, the RHS array, in contravariant repr.
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
+      DIMENSION DUMMY(1),IDUM(1)
 
       CALL QENTER('EQCTL1')
       IRHS  =1

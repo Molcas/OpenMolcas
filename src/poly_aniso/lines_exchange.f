@@ -25,7 +25,7 @@
       Call qEnter('Lines_Exchange')
 
       If( (N1<=0).OR.(N2<=0) ) Return
-      Call zcopy_(N1*N1*N2*N2,(0.0_wp,0.0_wp),0,HAM,1)
+      Call zcopy_(N1*N1*N2*N2,[(0.0_wp,0.0_wp)],0,HAM,1)
       If (Jex==0.0_wp) Return
 
       ! kind=8, complex double precision
@@ -70,10 +70,10 @@
 
       Call qEnter('Aniso_Lines3')
       If( (N1<=0).OR.(N2<=0) ) Return
-      Call zcopy_(N1*N1*N2*N2,(0.0_wp,0.0_wp),0,HAM,1)
+      Call zcopy_(N1*N1*N2*N2,[(0.0_wp,0.0_wp)],0,HAM,1)
       If ( dnrm2_(3,Jex,1)==0.0_wp) Return
 
-      Call zcopy_(3,(0.0_wp,0.0_wp),0,Jc,1)
+      Call zcopy_(3,[(0.0_wp,0.0_wp)],0,Jc,1)
       Do l=1,3
         Jc(l) = cmplx(-Jex(l),0.0_wp,wp)
       End Do
@@ -118,10 +118,10 @@
 
       Call qEnter('Aniso_Lines9')
       If( (N1<=0).OR.(N2<=0) ) Return
-      Call zcopy_(N1*N1*N2*N2,(0.0_wp,0.0_wp),0,HAM,1)
+      Call zcopy_(N1*N1*N2*N2,[(0.0_wp,0.0_wp)],0,HAM,1)
       If ( dnrm2_(9,Jex,1)==0.0_wp) Return
 
-      Call zcopy_(3*3,(0.0_wp,0.0_wp),0,Jc,1)
+      Call zcopy_(3*3,[(0.0_wp,0.0_wp)],0,Jc,1)
       Do l=1,3
         Do m=1,3
            Jc(l,m)=cmplx(-Jex(l,m),0.0_wp,wp)
@@ -171,7 +171,7 @@
 
       Call qEnter('DM_exchange')
       If( (N1<=0).OR.(N2<=0) ) Return
-      Call zcopy_(N1*N1*N2*N2,(0.0_wp,0.0_wp),0,HAM,1)
+      Call zcopy_(N1*N1*N2*N2,[(0.0_wp,0.0_wp)],0,HAM,1)
       If ( dnrm2_(3,Jex,1)==0.0_wp) Return
 
       Jc=(0.0_wp,0.0_wp)
@@ -251,7 +251,7 @@
       dbg=.false.
 ! ----  initial checks
       If( (n1<=0).OR.(n2<=0) ) Return
-      Call zcopy_(n1*n1*n2*n2,(0.0_wp,0.0_wp),0,HAM,1)
+      Call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,HAM,1)
       ibuf=0
       ibuf=MxR1*(2*MxR1+1)*MxR2*(2*MxR2+1)
       If(ibuf==0) Return
@@ -260,7 +260,7 @@
      &    +dnrm2_(ibuf,JI(1:MxR1,-MxR1:MxR1,1:MxR2,-MxR2:MxR2),1)
       If (jpar==0.0_wp) Return
 ! ---- end initial checks
-      Call zcopy_(ibuf,(0.0_wp,0.0_wp),0,
+      Call zcopy_(ibuf,[(0.0_wp,0.0_wp)],0,
      &                 J(1:MxR1,-MxR1:MxR1,1:MxR2,-MxR2:MxR2),1)
       Do k1=1,MxR1,2
        Do k2=1,MxR2,2
@@ -291,10 +291,10 @@
           Call ITO(n1,k1,q1,C01,O1,W1)
           Call ITO(n2,k2,q2,C02,O2,W2)
           !generate coupled operators:
-          Call zcopy_(n1*n1*n2*n2,(0.0_wp,0.0_wp),0,OO,1)
-          Call zcopy_(n1*n1*n2*n2,(0.0_wp,0.0_wp),0,OW,1)
-          Call zcopy_(n1*n1*n2*n2,(0.0_wp,0.0_wp),0,WO,1)
-          Call zcopy_(n1*n1*n2*n2,(0.0_wp,0.0_wp),0,WW,1)
+          Call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,OO,1)
+          Call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,OW,1)
+          Call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,WO,1)
+          Call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,WW,1)
           Do m1=1,n1
            Do m2=1,n1
             Do l1=1,n2

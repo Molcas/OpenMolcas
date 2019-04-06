@@ -409,7 +409,7 @@ c------------------------------------------------------------------------
       Integer, intent(in)          :: n    ! dimension of the pseudospin
 !     real and imaginary CF parameters
       Real(kind=wp), intent(in)    :: B(n,0:n), C(n,0:n)
-      Logical, intent(in), optional:: print_all
+      Logical, intent(in)          :: print_all
       ! local variables:
       Integer       :: k,q,i
 
@@ -466,7 +466,7 @@ c------------------------------------------------------------------------
       Integer, intent(in)          :: n    ! dimension of the pseudospin
 !     real and imaginary CF parameters
       Real(kind=wp), intent(in)    :: B(n,-n:n)
-      Logical, intent(in), optional:: print_all
+      Logical, intent(in)          :: print_all
       ! local variables:
       Integer       :: k,q,i,kmax,iq
       Real(kind=wp) :: knm(12,0:12), f
@@ -545,7 +545,7 @@ c------------------------------------------------------------------------
       Integer, intent(in)          :: N ! dimension of the pseudospin
 !     complex parameters to print
       Complex(kind=wp), intent(in) :: A( (n-1), -(n-1):(n-1) )
-      Logical, intent(in),optional :: print_all
+      Logical, intent(in)          :: print_all
       ! local variables:
       Integer       :: k,q,i
       Real(kind=wp) :: Ar, Ai
@@ -651,7 +651,7 @@ c------------------------------------------------------------------------
       Integer, intent(in)          :: n    ! dimension of the pseudospin
 !     real and imaginary CF parameters, for x,y,z
       Real(kind=wp), intent(in)    :: B(3,n,-n:n)
-      Logical, intent(in), optional:: print_all
+      Logical, intent(in)          :: print_all
       ! local variables:
       Integer       :: k,q,i,kmax,iq
       Real(kind=wp) :: knm(12,0:12), f

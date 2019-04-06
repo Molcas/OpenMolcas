@@ -29,6 +29,7 @@
 #include "WrkSpc.fh"
 #include "SysDef.fh"
       Character*72 Line
+      Dimension rdum(1)
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 
 *----------------------------------------------------------------------*
@@ -44,19 +45,19 @@
 *----------------------------------------------------------------------*
 *     Read the the system description                                  *
 *----------------------------------------------------------------------*
-      ndum=lenin8*mxorb/itob
-      Call Getmem('TMP','ALLO','INTE',ipdum,ndum)
+      ndum=lenin8*mxorb
+      Call Getmem('TMP','ALLO','CHAR',ipdum,ndum)
       iDisk=iToc(1)
       Call WR_RASSCF_Info(LuJob,2,iDisk,
      &                    nActEl,iSpin,nSym,State_sym,nFro,
      &                    nIsh,nAsh,nDel,
-     &                    nBas,MxSym,iwork(ipdum),LENIN8*mxorb,
+     &                    nBas,MxSym,cwork(ipdum),LENIN8*mxorb,
      &                    nConf,HeaderJP,144,
      &                    TitleJP,4*18*mxTit,PotNuc0,lRoots,
      &                    nRoots,iRoot,mxRoot,
      &                    nRs1,nRs2,nRs3,
      &                    nHole1,nElec3,iPt2,Weight)
-      Call Getmem('TMP','FREE','INTE',ipdum,ndum)
+      Call Getmem('TMP','FREE','CHAR',ipdum,ndum)
 *----------------------------------------------------------------------*
 *     Overwrite the variable lroots if approriate                      *
 *----------------------------------------------------------------------*
@@ -167,7 +168,7 @@
 *-----------------------------------
       nG1 = nAct*(nAct+1)/2
       Call GetMem(' G1 ','Allo','Real',ipG1t,nG1)
-      call dcopy_(nG1, 0.0d0,0,Work(ipG1t),1)
+      call dcopy_(nG1,[0.0d0],0,Work(ipG1t),1)
       ipG1=ipg1t
 *
 *--------------------------------------------------

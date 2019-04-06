@@ -81,7 +81,7 @@
       TIM3=0.0D0
       TIM4=0.0D0
 *
-      call dcopy_(4,0.0d0,0,CLOCK,1)
+      call dcopy_(4,[0.0d0],0,CLOCK,1)
       lPaper=132
       lLine =120
       left=(lPaper-lLine)/2
@@ -306,16 +306,16 @@ C         iDisp=iDisp+1
           Call Getmem('Scr1  ','ALLO','Real',ipSc1  ,nDens2+6)
           Call Getmem('Scr3  ','ALLO','Real',ipSc3  ,nDens2+6)
           Call Getmem('Scr2  ','ALLO','Real',ipSc2  ,nDens2+6)
-          call dcopy_(nDens2,0.0d0,0,Work(ipTemp1),1)
-          call dcopy_(nDens2,0.0d0,0,Work(ipKap),1)
-          call dcopy_(nDens2,0.0d0,0,Work(ipsigma),1)
-          call dcopy_(nDens2,0.0d0,0,Work(ipdKap),1)
+          call dcopy_(nDens2,[0.0d0],0,Work(ipTemp1),1)
+          call dcopy_(nDens2,[0.0d0],0,Work(ipKap),1)
+          call dcopy_(nDens2,[0.0d0],0,Work(ipsigma),1)
+          call dcopy_(nDens2,[0.0d0],0,Work(ipdKap),1)
           If (CI) Then
              Call GetMem('1Dens','ALLO','Real',ipDe,n1dens)
              Call GetMem('2Dens','ALLO','Real',ipP,n2dens)
 *
-             call dcopy_(n1dens,0.0d0,0,Work(ipDe),1)
-             call dcopy_(n2dens,0.0d0,0,Work(ipP),1)
+             call dcopy_(n1dens,[0.0d0],0,Work(ipDe),1)
+             call dcopy_(n2dens,[0.0d0],0,Work(ipP),1)
           End If
           If (iMethod.eq.2) Then
              Call GetMem('RMOAA','ALLO','Real',iprmoaa,n2dens)
@@ -374,7 +374,7 @@ C         iDisp=iDisp+1
           r1=ddot_(ndensc,Work(ipsigma),1,Work(ipsigma),1)
           Call UnCompress(Work(ipSigma),Work(ipTemp4),iSym)
           Call dDaFile(LuTemp,1,Work(ipSigma),iLen,iDis)
-          If (CI) call dcopy_(nConf1,0.0d0,0,Work(ipin(ipCIT)),1)
+          If (CI) call dcopy_(nConf1,[0.0d0],0,Work(ipin(ipCIT)),1)
           irc=ipout(ipCIT)
           If (CI) Then
              ilen=nconf1
@@ -420,7 +420,7 @@ C         iDisp=iDisp+1
              deltaC=0.0d0
           End If
           deltaK=ddot_(nDensC,Work(ipKap),1,Work(ipSigma),1)
-          call dcopy_(nDens,0.0d0,0,Work(ipKap),1)
+          call dcopy_(nDens,[0.0d0],0,Work(ipKap),1)
           delta=deltac+deltaK
 #ifdef _DEBUG_
           If (Abs(DeltaC).lt.1.0D-12) DeltaC=0.0D0

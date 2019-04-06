@@ -131,6 +131,7 @@
       real*8  :: maxtrW
 #include "nevptp.fh"
 #endif
+      Dimension Dummy(1)
 
 * Start the traceback utilities
 *
@@ -320,8 +321,8 @@
            Call GetMem('DSPN','Allo','Real',LDSPN,NACPAR)
            Call GetMem('PMAT','Allo','Real',LPMAT,NACPR2)
            Call GetMem('P2AS','Allo','Real',LPA,NACPR2)
-           call dcopy_(NACPAR,0.0d0,0,Work(LDMAT),1)
-           call dcopy_(NACPAR,0.0d0,0,Work(LDSPN),1)
+           call dcopy_(NACPAR,[0.0d0],0,Work(LDMAT),1)
+           call dcopy_(NACPAR,[0.0d0],0,Work(LDSPN),1)
            ldmat_cvb=ldmat
            ldspn_cvb=ldspn
            lpmat_cvb=lpmat
@@ -377,7 +378,7 @@
 
 * Initialize OCCN array, to prevent false alarms later from
 * automated detection of using uninitialized variables:
-      call dcopy_(NTot,0.0D0,0,Work(lOCCN),1)
+      call dcopy_(NTot,[0.0D0],0,Work(lOCCN),1)
 
 * PAM03: Note that removal of linear dependence may change the nr
 * of secondary/deleted orbitals, affecting some of the global
@@ -659,7 +660,7 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
              KSDFT='SCF'
              ExFac=1.0D0
            end IF
-           Call dcopy_(NTOT2,0.0D0,0,WORK(LD1A),1)
+           Call dcopy_(NTOT2,[0.0D0],0,WORK(LD1A),1)
 
            DoActive = .false.
 
@@ -1184,7 +1185,7 @@ c      call triprt('P-mat 2',' ',WORK(LPMAT),nAc*(nAc+1)/2)
         if(iSpin.eq.1) then
           If ( IPRLEV.ge.DEBUG )
      &        write(6,*) 'running a singlet. LDSPN set to zero!'
-          Call dcopy_(NACPAR,0.0d0,0,Work(LDSPN),1)
+          Call dcopy_(NACPAR,[0.0d0],0,Work(LDSPN),1)
         end if
         CALL GETMEM('TmpDS_DFT' ,'Allo','REAL',ipTmpDS_DFT ,NACPAR)
         CALL GETMEM('TmpD1S_DFT','Allo','REAL',ipTmpD1S_DFT,NTOT2)
@@ -1601,7 +1602,7 @@ cGLM some additional printout for MC-PDFT
          End Do
         End If
         IFINAL=1
-        Call Add_Info('RASSCF_ITER',DBLE(ITER),1,8)
+        Call Add_Info('RASSCF_ITER',[DBLE(ITER)],1,8)
 *    Call Add_Info('RASSCF_THMX',TMXTOT,1,5)
         GOTO 1000
       ELSE

@@ -28,7 +28,7 @@ c local variables
       MB2=0.4329701512063995_wp
 c
       If( (N1<=0).OR.(N2<=0) ) Return
-      Call zcopy_(N1*N1*N2*N2,(0.0_wp,0.0_wp),0,HDIP,1)
+      Call zcopy_(N1*N1*N2*N2,[(0.0_wp,0.0_wp)],0,HDIP,1)
       If(dist.eq.0.0_wp) Then
         Write(6,'(A)') 'DIPOL_EXCHANGE::  dist = 0'
         Write(6,'(A)') 'this is not normal. Stop.'

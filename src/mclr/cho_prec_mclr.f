@@ -227,7 +227,7 @@
           Call GetMem('iirs','Allo','Real',ipiirs,ntotie*maxRS)
         EndIf
         ipiaib=ipiiab+nab*ntotie
-        Call dcopy_(libatch,0.0d0,0,Work(ipiiab),1)
+        Call dcopy_(libatch,[0.0d0],0,Work(ipiiab),1)
 
 *init for compilers
         iptupq=ip_Dummy
@@ -285,7 +285,7 @@
      &          Call GetMem('turs','Allo','Real',ipturs,ntue*maxRS)
            EndIf
            iptpuq=iptupq+nab*ntue
-           call dcopy_(labatch,0.0d0,0,Work(iptupq),1)
+           call dcopy_(labatch,[0.0d0],0,Work(iptupq),1)
            If (taskleft) Then
               write(6,*) 'Batching loop a'
            EndIf
@@ -338,9 +338,9 @@ c         !set index arrays at iLoc
 
           If (jSym.eq.1) Then
             If (ntotie.gt.0)
-     &         call dcopy_(ntotie*nRS,0.0d0,0,Work(ipiirs),1)
+     &         call dcopy_(ntotie*nRS,[0.0d0],0,Work(ipiirs),1)
             If (ntue.gt.0)
-     &         call dcopy_(ntue*nRS,0.0d0,0,Work(ipturs),1)
+     &         call dcopy_(ntue*nRS,[0.0d0],0,Work(ipturs),1)
           EndIf
 
           Call GetMem('MaxM','Max','Real',KDUM,LWORKe)

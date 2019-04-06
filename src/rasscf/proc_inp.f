@@ -121,6 +121,9 @@
       Character*256 myTitle
       Character*8 MaxLab
       Logical, External :: Is_First_Iter
+      Dimension Dummy(1)
+      Character*(LENIN8*mxOrb) lJobH1
+      Character*(2*72) lJobH2
 
 #ifdef _DMRG_
 !     dmrg(QCMaquis)-stuff
@@ -830,7 +833,7 @@ CGG This part will be removed. (PAM 2009: What on earth does he mean??)
        If ( KSDFT(1:3).eq.'PAM') Then
         If ( KSDFT(4:4).eq.'G') PamGen =.True.
         If ( KSDFT(4:4).eq.'G') PamGen1=.False.
-        call dcopy_(nPAMintg,0.0d0,0,CPAM,1)
+        call dcopy_(nPAMintg,[0.0d0],0,CPAM,1)
         ReadStatus=' Failure reading data following KSDF=PAM.'
         Read(LUInput,*,End=9910,Err=9920) nPAM
         ReadStatus=' O.K. after reading data following KSDF=PAM.'
@@ -963,7 +966,7 @@ CBOR.. End modification 001011
          ReadStatus=' Failure reading after CIROOTS keyword.'
          Read(Line,*,Err=9920,End=9920) (IROOT(I),I=1,NROOTS)
          ReadStatus=' O.K.after CIROOTS keyword.'
-         Call dCopy_(mxRoot,0.0D0,0,WEIGHT,1)
+         Call dCopy_(mxRoot,[0.0D0],0,WEIGHT,1)
          If ( NROOTS.eq.1 ) then
            WEIGHT(1)=1.0D0
          Else
@@ -1627,24 +1630,15 @@ CIgorS End
            End If
         End If
         Call IDaFile(JOBOLD,2,IADR19,10,IAD19)
-        lll = 1
-        lll = MAX(lll,mxSym)
-        lll = MAX(lll,mxOrb)
-        lll = MAX(lll,RtoI)
-        lll = MAX(lll,LENIN8*mxOrb/ItoB)
-        lll = MAX(lll,2*72/ItoB)
-        lll = MAX(lll,RtoI*mxRoot)
-        CALL GETMEM('JOBOLD','ALLO','INTEGER',lJobH,lll)
 * PAM Jan 2014 -- do not take POTNUC from JOBIPH; take it directly
 * from runfile, where it was stored by seward.
         iAd19=iAdr19(1)
         CALL WR_RASSCF_Info(JobOld,2,iAd19,NACTEL,ISPIN,NSYM,LSYM,
      &                      NFRO,NISH,NASH,NDEL,NBAS,
-     &                      mxSym,iWork(lJobH),LENIN8*mxOrb,NCONF,
-     &                      iWork(lJobH),2*72,JobTit,4*18*mxTit,
+     &                      mxSym,lJobH1,LENIN8*mxOrb,NCONF,
+     &                      lJobH2,2*72,JobTit,4*18*mxTit,
      &                      POTNUCDUMMY,LROOTS,NROOTS,IROOT,mxRoot,
      &                      NRS1,NRS2,NRS3,NHOLE1,NELEC3,IPT2,WEIGHT)
-        CALL GETMEM('JOBOLD','FREE','INTEGER',lJobH,lll)
        ELSE
         IF(IPRLEV.ge.VERBOSE) Then
          Write(LF,*)' This is not a CIRESTART case, so take them from'

@@ -100,7 +100,7 @@
          End If
          call dcopy_(nBT,Work(ipD1AO),1,Dens(1,2),1)
          Call Free_Work(ipD1AO)
-         Call Quit()
+         Call Abend()
 c now we need to fix interface - actually we read a+b,a-b
          Do i=1,nBT
             ra=Half*(Dens(i,1)+Dens(i,2))

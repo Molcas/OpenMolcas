@@ -24,6 +24,7 @@
       Integer inddsp(100,0:7)
       logical tf,tstfnc
       Dimension Coor(*)
+      Dimension Dummy(1)
       TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
      &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
      &                       nStab(mdc))
@@ -32,7 +33,7 @@
       irec(i,j)=nd*(j-1)+i-1
 *
       idsp=0
-      Call iCOPY(nirrep,0,0,ldisp,1)
+      Call iCOPY(nirrep,[0],0,ldisp,1)
       Do iIrrep=0,nIrrep-1
       mdc=0
        Do iCnttp = 1, nCnttp
@@ -66,7 +67,7 @@
       End Do
       Call GETMEM('TMP','ALLO','REAL',ipT,nd**2)
       Call GETMEM('TMP','ALLO','REAL',ipH,nd**2)
-      call dcopy_(nd**2,0.0d0,0,Work(ipH),1)
+      call dcopy_(nd**2,[0.0d0],0,Work(ipH),1)
       ii=0
       iii=0
       Do iS=1,Nirrep
@@ -151,7 +152,7 @@
       WRITE(LUT,'(A)') Label
       Write(LUT,'(A)') '*BEGIN HESSIAN'
       Write(LUT,'(A,I5)') '*Number of pert. ',nd
-      Call WRH(LUT,1,nd,nd,Work(ipH),Dummy,0,Label)
+      Call WRH(LUT,1,[nd],[nd],Work(ipH),Dummy,0,Label)
       Write(LUT,'(A)') '*END HESSIAN'
 *
       Call Put_dArray('FC-Matrix',Work(ipH),nd**2)

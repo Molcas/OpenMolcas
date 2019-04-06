@@ -103,7 +103,7 @@
                write(6,'(A,I5," jDisp: ",I5," and iSym:",I5)')
      &           "Writing KAPPA and CI in mclr for iDisp:",
      &           iDisp, jDisp, iSym
-               Call WrMCk(iRC,iOpt,Label,ipert,Work(ipKap3),isyml)
+               Call dWrMCk(iRC,iOpt,Label,ipert,Work(ipKap3),isyml)
                if (irc.ne.0) Call SysAbendMsg('outras','Error in wrmck',
      &              'label=KAPPA')
                irc=nconfM
@@ -117,7 +117,7 @@
                If (CI) call Guganew(ipcip1,0,pstate_sym)
                If (imethod.eq.2.and.(.not.CI).and.nconfM.eq.1)
      &              Work(ipcip1)=0.0d0
-               Call WrMCk(iRC,iOpt,Label,ipert,Work(ipcip1),isyml)
+               Call dWrMCk(iRC,iOpt,Label,ipert,Work(ipcip1),isyml)
                if (irc.ne.0) Call SysAbendMsg('outras','Error in wrmck',
      &              ' ')
             End If

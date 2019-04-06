@@ -63,9 +63,9 @@
 *---- This is checked by Molcas verify
 *----------------------------------------------------------------------*
       call add_info('Default number of total walkers',
-     &  dble(totalwalkers), 1, 6)
-      call add_info('Default number of cycles ',dble(nmcyc),1,6)
-      call add_info('Default value for Time  ',dble(Time),1,6)
+     &  [dble(totalwalkers)], 1, 6)
+      call add_info('Default number of cycles ',[dble(nmcyc)],1,6)
+      call add_info('Default value for Time  ',[dble(Time)],1,6)
 
       call qEnter('make_inp')
 

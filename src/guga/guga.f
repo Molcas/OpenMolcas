@@ -124,7 +124,7 @@ C     ALSO SPACE FOR NTPB WORDS IN EMPTY
          Call QTrace
          Call Abend
       End If
-      CALL ICOPY(LW1,0,0,iWork(LSOArr),1)
+      CALL ICOPY(LW1,[0],0,iWork(LSOArr),1)
       CALL CI_SELECT(iWork(LSOArr),iWork(LSOArr-1+LW1),
      &               iWork(LSOArr-1+LW2),
      &               L0,L1,L2,L3,KBUF,NTPB,NBINS)

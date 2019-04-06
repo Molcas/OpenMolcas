@@ -44,7 +44,7 @@ CPAM00 Nr of triangular matrices in previous symmetry blocks
       END DO
       NFTRI=NBTR
       CALL GETMEM('FTRI  ','ALLO','REAL',LFTRI,NFTRI)
-      CALL DCOPY_(NFTRI,0.0D0,0,WORK(LFTRI),1)
+      CALL DCOPY_(NFTRI,[0.0D0],0,WORK(LFTRI),1)
 C FOLD THE D MATRIX:
       IDF=LDTRI
       DO ISYM=1,NSYM

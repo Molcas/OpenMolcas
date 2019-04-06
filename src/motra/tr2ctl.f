@@ -27,7 +27,7 @@
 *
       Real*8 CMO(*)
       DIMENSION NBSX(8),KEEP(8),ISTSQ(8)
-      Logical FoundTwoEls,DoDirect,DoCholesky
+      Logical FoundTwoEls,DoDirect,DoCholesky,ISQUAR
 *
       Call qEnter('Tr2Ctl')
 *
@@ -39,7 +39,7 @@
 *
       CALL DANAME_MF(LUTWOMO,FNTWOMO)
       IAD13=0
-      Call iCopy(nTraToc,0,0,iTraToc,1)
+      Call iCopy(nTraToc,[0],0,iTraToc,1)
       CALL iDAFILE(LUTWOMO,1,iTraToc,nTraToc,IAD13)
 *
 *     Initiate unit LUTWOAO (two-electron integrals in AO basis)

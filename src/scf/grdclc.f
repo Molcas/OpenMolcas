@@ -117,7 +117,7 @@
       Do iOpt = LpStrt, kOptim
          iDT = iter_d - kOptim + iOpt
 *
-         Call dCopy_(nOV*nD,Zero,0,GrdOV,1)
+         Call dCopy_(nOV*nD,[Zero],0,GrdOV,1)
 *
          jDT=MapDns(iDT)
          If (jDT.lt.0) Then

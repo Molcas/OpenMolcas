@@ -78,19 +78,19 @@ c
       Call mma_allocate(W_c,N,'ZEEM_W_c')
 
       ! zero everything:
-      Call dcopy_(N,0.0_wp,0,WM,1)
-      Call dcopy_(nsites*3*N,0.0_wp,0,MM,1)
-      Call dcopy_(nsites*3*N,0.0_wp,0,LM,1)
-      Call dcopy_(nsites*3*N,0.0_wp,0,SM,1)
-      Call dcopy_(nsites*3*N,0.0_wp,0,JM,1)
-      Call zcopy_(N*N,(0.0_wp,0.0_wp),0,ZM,1)
-      Call zcopy_(N*N,(0.0_wp,0.0_wp),0,VL,1)
-      Call zcopy_(N*N,(0.0_wp,0.0_wp),0,TMP,1)
+      Call dcopy_(N,[0.0_wp],0,WM,1)
+      Call dcopy_(nsites*3*N,[0.0_wp],0,MM,1)
+      Call dcopy_(nsites*3*N,[0.0_wp],0,LM,1)
+      Call dcopy_(nsites*3*N,[0.0_wp],0,SM,1)
+      Call dcopy_(nsites*3*N,[0.0_wp],0,JM,1)
+      Call zcopy_(N*N,[(0.0_wp,0.0_wp)],0,ZM,1)
+      Call zcopy_(N*N,[(0.0_wp,0.0_wp)],0,VL,1)
+      Call zcopy_(N*N,[(0.0_wp,0.0_wp)],0,TMP,1)
 
-      Call dcopy_(3*N-2,0.0_wp,0,RWORK,1)
-      Call zcopy_(N*(N+1)/2,(0.0_wp,0.0_wp),0,HZEE,1)
-      Call zcopy_(2*N-1,(0.0_wp,0.0_wp),0,WORK,1)
-      Call zcopy_(N,(0.0_wp,0.0_wp),0,W_c,1)
+      Call dcopy_(3*N-2,[0.0_wp],0,RWORK,1)
+      Call zcopy_(N*(N+1)/2,[(0.0_wp,0.0_wp)],0,HZEE,1)
+      Call zcopy_(2*N-1,[(0.0_wp,0.0_wp)],0,WORK,1)
+      Call zcopy_(N,[(0.0_wp,0.0_wp)],0,W_c,1)
 
 c  initialisations:
       isite=0
@@ -201,7 +201,7 @@ ccc  eigenvectors
 c  generate the exchange basis:
       Do isite=1,nsites
          Do L=1,3
-            Call zcopy_(N*N,(0.0_wp,0.0_wp),0,VL,1)
+            Call zcopy_(N*N,[(0.0_wp,0.0_wp)],0,VL,1)
             Do nb1=1,N
                 Do l_exch=1,nsites
                 icoord(l_exch)=ib(nb1,l_exch)
@@ -220,23 +220,23 @@ c  generate the exchange basis:
                End Do  ! jss1
             End Do  ! nb1
 c rotate this matrix to exchange basis:
-            Call zcopy_(N*N,(0.0_wp,0.0_wp),0,TMP,1)
+            Call zcopy_(N*N,[(0.0_wp,0.0_wp)],0,TMP,1)
             Call ZGEMM_('C','N',N,N,N,
      &                   (1.0_wp,0.0_wp),   Z, N,
      &                                     VL, N,
      &                   (0.0_wp,0.0_wp), TMP, N )
-            Call zcopy_(N*N,(0.0_wp,0.0_wp),0,VL,1)
+            Call zcopy_(N*N,[(0.0_wp,0.0_wp)],0,VL,1)
             Call ZGEMM_('N','N',N,N,N,
      &                   (1.0_wp,0.0_wp),TMP, N,
      &                                     Z, N,
      &                   (0.0_wp,0.0_wp), VL, N )
 c rotate this matrix to Zeeman basis:
-            Call zcopy_(N*N,(0.0_wp,0.0_wp),0,TMP,1)
+            Call zcopy_(N*N,[(0.0_wp,0.0_wp)],0,TMP,1)
             Call ZGEMM_('C','N',N,N,N,(1.0_wp,0.0_wp),
      &                 ZM(1:N,1:N), N,
      &                 VL(1:N,1:N), N, (0.0_wp,0.0_wp),
      &                TMP(1:N,1:N), N )
-            Call zcopy_(N*N,(0.0_wp,0.0_wp),0,VL,1)
+            Call zcopy_(N*N,[(0.0_wp,0.0_wp)],0,VL,1)
             Call ZGEMM_('N','N',N,N,N, (1.0_wp,0.0_wp),
      &                TMP(1:N,1:N), N,
      &                 ZM(1:N,1:N), N, (0.0_wp,0.0_wp),
@@ -245,7 +245,7 @@ c rotate this matrix to Zeeman basis:
                MM(isite,L,i)=dble(VL(i,i))
             End Do
 c spin moment
-            Call zcopy_(N*N,(0.0_wp,0.0_wp),0,VL,1)
+            Call zcopy_(N*N,[(0.0_wp,0.0_wp)],0,VL,1)
             Do nb1=1,N
                 Do l_exch=1,nsites
                 icoord(l_exch)=ib(nb1,l_exch)
@@ -264,22 +264,22 @@ c spin moment
                End Do  ! jss1
             End Do  ! nb1
 c rotate this matrix to exchange basis and to Zeeman basis
-            Call zcopy_(N*N,(0.0_wp,0.0_wp),0,TMP,1)
+            Call zcopy_(N*N,[(0.0_wp,0.0_wp)],0,TMP,1)
             Call ZGEMM_('C','N',N,N,N,  (1.0_wp,0.0_wp),
      &                  Z(1:N,1:N), N,
      &                 VL(1:N,1:N), N, (0.0_wp,0.0_wp),
      &                TMP(1:N,1:N), N )
-            Call zcopy_(N*N,(0.0_wp,0.0_wp),0,VL,1)
+            Call zcopy_(N*N,[(0.0_wp,0.0_wp)],0,VL,1)
             Call ZGEMM_('N','N',N,N,N,  (1.0_wp,0.0_wp),
      &                TMP(1:N,1:N), N,
      &                  Z(1:N,1:N), N, (0.0_wp,0.0_wp),
      &                 VL(1:N,1:N), N )
-            Call zcopy_(N*N,(0.0_wp,0.0_wp),0,TMP,1)
+            Call zcopy_(N*N,[(0.0_wp,0.0_wp)],0,TMP,1)
             Call ZGEMM_('C','N',N,N,N,  (1.0_wp,0.0_wp),
      &                 ZM(1:N,1:N), N,
      &                 VL(1:N,1:N), N, (0.0_wp,0.0_wp),
      &                TMP(1:N,1:N), N )
-            Call zcopy_(N*N,(0.0_wp,0.0_wp),0,VL,1)
+            Call zcopy_(N*N,[(0.0_wp,0.0_wp)],0,VL,1)
             Call ZGEMM_('N','N',N,N,N,  (1.0_wp,0.0_wp),
      &                TMP(1:N,1:N), N,
      &                 ZM(1:N,1:N), N, (0.0_wp,0.0_wp),

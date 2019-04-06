@@ -113,10 +113,10 @@
           Call Getmem('Scr3  ','ALLO','Real',ipSc3  ,nDens2)
           Call Getmem('Scr2  ','ALLO','Real',ipSc2  ,nDens2)
           Call Getmem('PRE  ','ALLO','Real',ipPre2  ,nDensC)
-          call dcopy_(nDens2,0.0d0,0,Work(ipTemp1),1)
-          call dcopy_(nDens2,0.0d0,0,Work(ipKap),1)
-          call dcopy_(nDens2,0.0d0,0,Work(ipsigma),1)
-          call dcopy_(nDens2,0.0d0,0,Work(ipdKap),1)
+          call dcopy_(nDens2,[0.0d0],0,Work(ipTemp1),1)
+          call dcopy_(nDens2,[0.0d0],0,Work(ipKap),1)
+          call dcopy_(nDens2,[0.0d0],0,Work(ipsigma),1)
+          call dcopy_(nDens2,[0.0d0],0,Work(ipdKap),1)
           If (iMethod.eq.2) Then
              Call GetMem('1Dens','ALLO','Real',ipDe,n1dens)
              Call GetMem('2Dens','ALLO','Real',ipP,nna**4)
@@ -133,7 +133,7 @@
           Call Pre_SP(work(ippre2),1)
           Call FockGen_sp(0.0d0,Work(ipG1m),Work(ipG2mp),
      &                   Work(ipFS),Work(ipTemp4),1)
-          call dcopy_(nconf1,0.0d0,0,Work(ipin(ipST)),1)
+          call dcopy_(nconf1,[0.0d0],0,Work(ipin(ipST)),1)
 *
           If (lprint) Write(6,*)
      &      '       Iteration         Delta     Res(kappa) Res(CI)'
@@ -145,7 +145,7 @@
           Call UnCompress(Work(ipSigma),Work(ipTemp4),1)
           Call dDaFile(LuTemp,1,Work(ipSigma),iLen,iDis)
           If (iMethod.eq.2)
-     &    call dcopy_(nConf1,0.0d0,0,Work(ipin(ipCIT)),1)
+     &    call dcopy_(nConf1,[0.0d0],0,Work(ipin(ipCIT)),1)
           irc=ipout(ipcit)
           If (iMethod.eq.2) Then
             ilen=nconf1
@@ -176,7 +176,7 @@
             deltac=0.0d0
           end if
           deltaK=ddot_(nDensC,Work(ipKap),1,Work(ipSigma),1)
-          call dcopy_(nDens,0.0d0,0,Work(ipKap),1)
+          call dcopy_(nDens,[0.0d0],0,Work(ipKap),1)
           delta=deltac+deltaK
 *         If (delta.eq.0) Goto 300
           delta0=delta
@@ -193,11 +193,11 @@
 200       Continue
              Read(5,*)  i1,j1
              If (i1.gt.0) Then
-             call dcopy_(nDens2,0.0d0,0,Work(ipdkap),1)
+             call dcopy_(nDens2,[0.0d0],0,Work(ipdkap),1)
              Work(ipdKap+i1-1)
      &       =1.0d0
              Else
-              call dcopy_(nCONF1,0.0d0,0,Work(ipin(ipCID)),1)
+              call dcopy_(nCONF1,[0.0d0],0,Work(ipin(ipCID)),1)
               Work(ipin(ipCid)-i1-1)=1.0d0
               irc=ipout(ipcid)
              End If
@@ -296,7 +296,7 @@
      &            Work(ipin1(ipS2,nconf1)),1,
      &           Work(ipin1(ipS1,nconf1)),1)
            Else
-             call dcopy_(nconf1,0.0d0,0,Work(ipin1(ipS1,nconf1)),1)
+             call dcopy_(nconf1,[0.0d0],0,Work(ipin1(ipS1,nconf1)),1)
            End If
 
 *-----------------------------------------------------------------------------

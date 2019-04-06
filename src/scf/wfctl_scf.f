@@ -120,6 +120,7 @@
       Integer iAufOK, Ind(MxOptm)
       Character*128 OrbName
 #include "interfaces_scf.fh"
+      Dimension Dummy(1),iDummy(7,8)
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -1094,7 +1095,7 @@
      &               s2uhf)
       End If
 *---
-      Call Add_Info('SCF_ITER',DBLE(Iter),1,8)
+      Call Add_Info('SCF_ITER',[DBLE(Iter)],1,8)
 c     Call Scf_XML(0)
 *
       Call KiLLs

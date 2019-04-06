@@ -43,7 +43,7 @@
 c read natoms
       Line=Get_ln(iLU)
       Call Put_ln(Line)
-      Call Get_I(1,natoms,1)
+      Call Get_I1(1,natoms)
 
       If (natoms.gt.500) Call SysAbendMsg("ReadGeo",
      & "Too many atoms in geom","")

@@ -140,11 +140,11 @@ c     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
             Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
      &               jStab(0,kdc+kCnt),nStab(kdc+kCnt),iDCRT,nDCRT)
             Do 102 lDCRT = 0, nDCRT-1
-               Call ICopy(nIrrep*16*9,0,0,JndHss,1)
-               Call iCopy(nIrrep*4*3,0,0,JndGrd,1)
-               Call LCopy(144,.False.,0,jfHss,1)
-               Call LCopy(4,.False.,0,Tr,1)
-               Call LCopy(12,.False.,0,jfGrd,1)
+               Call ICopy(nIrrep*16*9,[0],0,JndHss,1)
+               Call iCopy(nIrrep*4*3,[0],0,JndGrd,1)
+               Call LCopy(144,[.False.],0,jfHss,1)
+               Call LCopy(4,[.False.],0,Tr,1)
+               Call LCopy(12,[.False.],0,jfGrd,1)
                mOp(3) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
                mOp(4) = mOp(3)
                TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
@@ -283,7 +283,7 @@ c     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
                  End Do
                  End If
                End Do
-               Call lCopy(12,.false.,0,jfgrd,1)
+               Call lCopy(12,[.false.],0,jfgrd,1)
 *
                call M1Kernel(Final,Hess,nHess,DAO,nDAO,
      &                   iAnga,nRys,nZeta,

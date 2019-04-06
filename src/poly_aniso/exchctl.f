@@ -255,13 +255,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         Call mma_allocate(intc,lmax,'intc')
         Call mma_allocate(icoord,lmax,'icoord')
         Call mma_allocate(nind,lmax,2,'nind')
-        Call icopy(lmax,0,0,intc,1)
-        Call icopy(lmax,0,0,icoord,1)
-        Call icopy(2*lmax,0,0,nind,1)
+        Call icopy(lmax,[0],0,intc,1)
+        Call icopy(lmax,[0],0,icoord,1)
+        Call icopy(2*lmax,[0],0,nind,1)
         mem_local=mem_local+4*lmax*ItoB
         If(exch>0) Then
           Call mma_allocate(ibas,exch,lmax,'ibas')
-          Call icopy(exch*lmax,0,0,ibas,1)
+          Call icopy(exch*lmax,[0],0,ibas,1)
           mem_local=mem_local+exch*lmax*ItoB
         End If
       End If
@@ -274,14 +274,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         Call mma_allocate(wkex ,exch,'wkex ')
         Call mma_allocate(wdmo ,exch,'wdmo ')
         Call mma_allocate(wito ,exch,'wito ')
-        Call dcopy_(exch,0.0_wp,0,wlin ,1)
-        Call dcopy_(exch,0.0_wp,0,wlin1,1)
-        Call dcopy_(exch,0.0_wp,0,wlin3,1)
-        Call dcopy_(exch,0.0_wp,0,wlin9,1)
-        Call dcopy_(exch,0.0_wp,0,wdip ,1)
-        Call dcopy_(exch,0.0_wp,0,wkex ,1)
-        Call dcopy_(exch,0.0_wp,0,wdmo ,1)
-        Call dcopy_(exch,0.0_wp,0,wito ,1)
+        Call dcopy_(exch,[0.0_wp],0,wlin ,1)
+        Call dcopy_(exch,[0.0_wp],0,wlin1,1)
+        Call dcopy_(exch,[0.0_wp],0,wlin3,1)
+        Call dcopy_(exch,[0.0_wp],0,wlin9,1)
+        Call dcopy_(exch,[0.0_wp],0,wdip ,1)
+        Call dcopy_(exch,[0.0_wp],0,wkex ,1)
+        Call dcopy_(exch,[0.0_wp],0,wdmo ,1)
+        Call dcopy_(exch,[0.0_wp],0,wito ,1)
         mem_local=mem_local+8*exch*RtoB
       End If
       If(nmax>0) Then
@@ -295,16 +295,16 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         Call mma_allocate(SM2,3,nmax,nmax,'SM2')
         Call mma_allocate(MM1,3,nmax,nmax,'MM1')
         Call mma_allocate(MM2,3,nmax,nmax,'MM2')
-        Call zcopy_(3*nmax*nmax,(0.0_wp,0.0_wp),0, S1,1)
-        Call zcopy_(3*nmax*nmax,(0.0_wp,0.0_wp),0, M1,1)
-        Call zcopy_(3*nmax*nmax,(0.0_wp,0.0_wp),0, S2,1)
-        Call zcopy_(3*nmax*nmax,(0.0_wp,0.0_wp),0, M2,1)
-        Call zcopy_(  nmax*nmax,(0.0_wp,0.0_wp),0, ZA1,1)
-        Call zcopy_(  nmax*nmax,(0.0_wp,0.0_wp),0, ZA2,1)
-        Call zcopy_(3*nmax*nmax,(0.0_wp,0.0_wp),0,SM1,1)
-        Call zcopy_(3*nmax*nmax,(0.0_wp,0.0_wp),0,SM2,1)
-        Call zcopy_(3*nmax*nmax,(0.0_wp,0.0_wp),0,MM1,1)
-        Call zcopy_(3*nmax*nmax,(0.0_wp,0.0_wp),0,MM2,1)
+        Call zcopy_(3*nmax*nmax,[(0.0_wp,0.0_wp)],0, S1,1)
+        Call zcopy_(3*nmax*nmax,[(0.0_wp,0.0_wp)],0, M1,1)
+        Call zcopy_(3*nmax*nmax,[(0.0_wp,0.0_wp)],0, S2,1)
+        Call zcopy_(3*nmax*nmax,[(0.0_wp,0.0_wp)],0, M2,1)
+        Call zcopy_(  nmax*nmax,[(0.0_wp,0.0_wp)],0, ZA1,1)
+        Call zcopy_(  nmax*nmax,[(0.0_wp,0.0_wp)],0, ZA2,1)
+        Call zcopy_(3*nmax*nmax,[(0.0_wp,0.0_wp)],0,SM1,1)
+        Call zcopy_(3*nmax*nmax,[(0.0_wp,0.0_wp)],0,SM2,1)
+        Call zcopy_(3*nmax*nmax,[(0.0_wp,0.0_wp)],0,MM1,1)
+        Call zcopy_(3*nmax*nmax,[(0.0_wp,0.0_wp)],0,MM2,1)
         mem_local=mem_local+8*3*nmax*nmax*CtoB
 
         If(npair>0) Then
@@ -316,38 +316,38 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           Call mma_allocate(HKEX,npair,nmax,nmax,nmax,nmax,'HKEX')
           Call mma_allocate(HDMO,npair,nmax,nmax,nmax,nmax,'HDMO')
           Call mma_allocate(HITO,npair,nmax,nmax,nmax,nmax,'HITO')
-          Call zcopy_(ibuf,(0.0_wp,0.0_wp),0,HLIN1,1)
-          Call zcopy_(ibuf,(0.0_wp,0.0_wp),0,HLIN3,1)
-          Call zcopy_(ibuf,(0.0_wp,0.0_wp),0,HLIN9,1)
-          Call zcopy_(ibuf,(0.0_wp,0.0_wp),0,HDIP,1)
-          Call zcopy_(ibuf,(0.0_wp,0.0_wp),0,HKEX,1)
-          Call zcopy_(ibuf,(0.0_wp,0.0_wp),0,HDMO,1)
-          Call zcopy_(ibuf,(0.0_wp,0.0_wp),0,HITO,1)
+          Call zcopy_(ibuf,[(0.0_wp,0.0_wp)],0,HLIN1,1)
+          Call zcopy_(ibuf,[(0.0_wp,0.0_wp)],0,HLIN3,1)
+          Call zcopy_(ibuf,[(0.0_wp,0.0_wp)],0,HLIN9,1)
+          Call zcopy_(ibuf,[(0.0_wp,0.0_wp)],0,HDIP,1)
+          Call zcopy_(ibuf,[(0.0_wp,0.0_wp)],0,HKEX,1)
+          Call zcopy_(ibuf,[(0.0_wp,0.0_wp)],0,HDMO,1)
+          Call zcopy_(ibuf,[(0.0_wp,0.0_wp)],0,HITO,1)
           mem_local=mem_local+7*ibuf*CtoB
         End If
       End If
 
       If(exch>0) Then
         Call mma_allocate(tmp,exch,exch,'tmp')
-        Call zcopy_(exch*exch,(0.0_wp,0.0_wp),0,tmp,1)
+        Call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,tmp,1)
         mem_local=mem_local+exch*exch*CtoB
       End If
 
 
       If(nneq>0) Then
         Call mma_allocate(nexchR,nneq,'nexchR')
-        Call icopy( nneq,0,0,nexchR,1)
+        Call icopy( nneq,[0],0,nexchR,1)
         mem_local=mem_local+nneq*ItoB
 
         Call mma_allocate(SMR,nneq,3,2,2,'SMR')
         Call mma_allocate(MMR,nneq,3,2,2,'MMR')
-        Call zcopy_(nneq*3*2*2,(0.0_wp,0.0_wp),0,SMR,1)
-        Call zcopy_(nneq*3*2*2,(0.0_wp,0.0_wp),0,MMR,1)
+        Call zcopy_(nneq*3*2*2,[(0.0_wp,0.0_wp)],0,SMR,1)
+        Call zcopy_(nneq*3*2*2,[(0.0_wp,0.0_wp)],0,MMR,1)
         mem_local=mem_local+2*nneq*3*2*2*CtoB
 
         If(neqv>0) Then
           Call mma_allocate(rotR,nneq,neqv,3,3,'rotR')
-          Call dcopy_(nneq*neqv*3*3,0.0_wp,0,rotR,1)
+          Call dcopy_(nneq*neqv*3*3,[0.0_wp],0,rotR,1)
           mem_local=mem_local+nneq*neqv*3*3*RtoB
         End If
       End If
@@ -355,31 +355,31 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       If(exchR>0) Then
         If(lmax>0) Then
           Call mma_allocate(ibasR,nneq,lmax,'ibasR')
-          Call icopy( nneq*lmax,0,0,ibasR,1)
+          Call icopy( nneq*lmax,[0],0,ibasR,1)
           mem_local=mem_local+nneq*lmax*ItoB
         End If
         Call mma_allocate(WR,exchR,'WR')
-        Call dcopy_(exchR,0.0_wp,0,WR,1)
+        Call dcopy_(exchR,[0.0_wp],0,WR,1)
         mem_local=mem_local+exchR*RtoB
 
         Call mma_allocate(ZR,exchR,exchR,'ZR')
         Call mma_allocate(MR,3,exchR,exchR,'MR')
         Call mma_allocate(SR,3,exchR,exchR,'SR')
-        Call zcopy_(  exchR*exchR,(0.0_wp,0.0_wp),0,ZR,1)
-        Call zcopy_(3*exchR*exchR,(0.0_wp,0.0_wp),0,MR,1)
-        Call zcopy_(3*exchR*exchR,(0.0_wp,0.0_wp),0,SR,1)
+        Call zcopy_(  exchR*exchR,[(0.0_wp,0.0_wp)],0,ZR,1)
+        Call zcopy_(3*exchR*exchR,[(0.0_wp,0.0_wp)],0,MR,1)
+        Call zcopy_(3*exchR*exchR,[(0.0_wp,0.0_wp)],0,SR,1)
         mem_local=mem_local+7*exchR*exchR*CtoB
       End If
 
       If(npair>0) Then
         Call mma_allocate(HKEXR,npair,2,2,2,2,'HKEXR')
-        Call zcopy_(npair*2*2*2*2,(0.0_wp,0.0_wp),0,HKEXR,1)
+        Call zcopy_(npair*2*2*2*2,[(0.0_wp,0.0_wp)],0,HKEXR,1)
         mem_local=mem_local+npair*2*2*2*2*CtoB
       End If
 
       If(lmax>0) Then
         Call mma_allocate(intcR,lmax,'intcR')
-        Call icopy(lmax,0,0,intcR,1)
+        Call icopy(lmax,[0],0,intcR,1)
         mem_local=mem_local+lmax*ItoB
       End If
       If(dbg) Write(6,*) 'EXCHCTL:  memory allocated (local):'
@@ -421,7 +421,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ! Lines model of magnetic couping  -- 1 parameter
       If ( AnisoLines1 ) Then
        If(nPair>0) Then
-       Call zcopy_(ibuf,(0.0_wp,0.0_wp),0,HLIN1,1)
+       Call zcopy_(ibuf,[(0.0_wp,0.0_wp)],0,HLIN1,1)
        Do lp=1, npair
         lb1=i_pair(lp,1)
         lb2=i_pair(lp,2)
@@ -485,7 +485,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       ! Jxx, Jyy, Jzz
       If (AnisoLines3 ) Then
        If(nPair>0) Then
-       Call zcopy_(ibuf,(0.0_wp,0.0_wp),0,HLIN3,1)
+       Call zcopy_(ibuf,[(0.0_wp,0.0_wp)],0,HLIN3,1)
        Do lp=1, npair
         lb1=i_pair(lp,1)
         lb2=i_pair(lp,2)
@@ -542,7 +542,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       ! Jxx, Jxy, Jxz, Jyx, Jyy, Jyz, Jzx, Jzy, Jzz
       If ( AnisoLines9 ) Then
        If(nPair>0) Then
-       Call zcopy_(ibuf,(0.0_wp,0.0_wp),0,HLIN9,1)
+       Call zcopy_(ibuf,[(0.0_wp,0.0_wp)],0,HLIN9,1)
        Do lp=1, npair
         lb1=i_pair(lp,1)
         lb2=i_pair(lp,2)
@@ -603,7 +603,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !     dipolar couping
       If(Dipol) Then
        If(nPair>0) Then
-       Call zcopy_(ibuf,(0.0_wp,0.0_wp),0,HDIP,1)
+       Call zcopy_(ibuf,[(0.0_wp,0.0_wp)],0,HDIP,1)
        Do lp=1,npair
         lb1=i_pair(lp,1)
         lb2=i_pair(lp,2)
@@ -667,7 +667,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !     Dzyaloshinsky-Morya antisymmetric couping
       If(DM_exchange) Then
        If(nPair>0) Then
-       Call zcopy_(ibuf,(0.0_wp,0.0_wp),0,HDMO,1)
+       Call zcopy_(ibuf,[(0.0_wp,0.0_wp)],0,HDMO,1)
        Do lp=1,npair
         lb1=i_pair(lp,1)
         lb2=i_pair(lp,2)
@@ -721,7 +721,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       If(JITO_exchange) Then
        If(dbg) Write(6,'(A)') 'EXCHCTL:  Enterring  JITO_exchange'
        If(nPair>0) Then
-       Call zcopy_(ibuf,(0.0_wp,0.0_wp),0,HITO,1)
+       Call zcopy_(ibuf,[(0.0_wp,0.0_wp)],0,HITO,1)
        Do lp=1,npair
         lb1=i_pair(lp,1)
         lb2=i_pair(lp,2)
@@ -800,10 +800,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
           n1=nexch(i1)
           n2=nexch(i2)
-          Call zcopy_(3*n1*n1,(0.0_wp,0.0_wp),0, S1,1)
-          Call zcopy_(3*n2*n2,(0.0_wp,0.0_wp),0, S2,1)
-          Call zcopy_(3*n1*n1,(0.0_wp,0.0_wp),0, M1,1)
-          Call zcopy_(3*n2*n2,(0.0_wp,0.0_wp),0, M2,1)
+          Call zcopy_(3*n1*n1,[(0.0_wp,0.0_wp)],0, S1,1)
+          Call zcopy_(3*n2*n2,[(0.0_wp,0.0_wp)],0, S2,1)
+          Call zcopy_(3*n1*n1,[(0.0_wp,0.0_wp)],0, M1,1)
+          Call zcopy_(3*n2*n2,[(0.0_wp,0.0_wp)],0, M2,1)
           Call rotmom2( MM(i1,1:3,1:n1,1:n1), n1, rot(i1,j1,1:3,1:3),
      &                  M1(1:3,1:n1,1:n1) )
           Call rotmom2( SM(i1,1:3,1:n1,1:n1), n1, rot(i1,j1,1:3,1:3),
@@ -1161,8 +1161,8 @@ c printout the Hamiltonians:
       If(dnrm2_(exch,W,1).gt.1.0d-13)
      &   Call Add_Info('EXCHCTL::     W',W(1:exch),exch,8)
 c compute the moments:
-      Call zcopy_(3*exch*exch,(0.0_wp,0.0_wp),0,M,1)
-      Call zcopy_(3*exch*exch,(0.0_wp,0.0_wp),0,S,1)
+      Call zcopy_(3*exch*exch,[(0.0_wp,0.0_wp)],0,M,1)
+      Call zcopy_(3*exch*exch,[(0.0_wp,0.0_wp)],0,S,1)
       If(dbg) Then
        Write(6,'(A)') 'Magnetic moments before the build of '//
      &                'coupled M and S matrices'
@@ -1213,23 +1213,23 @@ c compute the moments:
         End Do  ! isite
 
         ! magnetic moment
-        Call zcopy_(exch*exch,(0.0_wp,0.0_wp),0,TMP,1)
+        Call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,TMP,1)
         Call zgemm_('C','N',EXCH,EXCH,EXCH,
      &             (1.0_wp,0.0_wp),Z, EXCH,
      &                             M(L,:,:), EXCH,
      &             (0.0_wp,0.0_wp),TMP, EXCH )
-        Call zcopy_(exch*exch,(0.0_wp,0.0_wp),0,M(L,:,:),1)
+        Call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,M(L,:,:),1)
         Call zgemm_('N','N',EXCH,EXCH,EXCH,
      &             (1.0_wp,0.0_wp),TMP,EXCH,
      &                               Z,EXCH,
      &             (0.0_wp,0.0_wp), M(L,:,:), EXCH )
-        Call zcopy_(exch*exch,(0.0_wp,0.0_wp),0,TMP,1)
+        Call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,TMP,1)
         ! spin moment
         Call zgemm_('C','N',EXCH,EXCH,EXCH,
      &             (1.0_wp,0.0_wp),Z,EXCH,
      &                             S(L,:,:), EXCH,
      &             (0.0_wp,0.0_wp),TMP,EXCH )
-        Call zcopy_(exch*exch,(0.0_wp,0.0_wp),0,S(L,:,:),1)
+        Call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,S(L,:,:),1)
         Call zgemm_('N','N',EXCH,EXCH,EXCH,
      &             (1.0_wp,0.0_wp),TMP,EXCH,
      &                               Z,EXCH,
@@ -1419,10 +1419,10 @@ c 199  Continue
       Call mma_allocate(St,3,n,n,'St')
       Call mma_allocate(Z,n,n,'Z')
 
-      Call zcopy_(3*n*n,(0.0_wp,0.0_wp),0,Mt,1)
-      Call zcopy_(3*n*n,(0.0_wp,0.0_wp),0,St,1)
-      Call dcopy_(3  ,0.0_wp,0,  g,1)
-      Call dcopy_(3*3,0.0_wp,0, mg,1)
+      Call zcopy_(3*n*n,[(0.0_wp,0.0_wp)],0,Mt,1)
+      Call zcopy_(3*n*n,[(0.0_wp,0.0_wp)],0,St,1)
+      Call dcopy_(3  ,[0.0_wp],0,  g,1)
+      Call dcopy_(3*3,[0.0_wp],0, mg,1)
       ! make a local backup of the data:
       Call zcopy_(3*n*n,M,1,Mt,1)
       Call zcopy_(3*n*n,S,1,St,1)
@@ -1433,8 +1433,8 @@ c 199  Continue
 
       ! rotate the momentum using the R rotation matrix --
       ! to the local axes for a symmetric compound:
-      Call zcopy_(3*n*n,(0.0_wp,0.0_wp),0,M,1)
-      Call zcopy_(3*n*n,(0.0_wp,0.0_wp),0,S,1)
+      Call zcopy_(3*n*n,[(0.0_wp,0.0_wp)],0,M,1)
+      Call zcopy_(3*n*n,[(0.0_wp,0.0_wp)],0,S,1)
       Call rotmom2( St, n, R, S)
       Call rotmom2( Mt, n, R, M)
       ! back-up again:
@@ -1447,15 +1447,15 @@ c 199  Continue
       Call atens( M, n, g, mg, 2)
       ! rotate the momentum using the  mg  rotation matrix --
       ! to the local magnetic axes:
-      Call zcopy_(3*n*n,(0.0_wp,0.0_wp),0,M,1)
-      Call zcopy_(3*n*n,(0.0_wp,0.0_wp),0,S,1)
+      Call zcopy_(3*n*n,[(0.0_wp,0.0_wp)],0,M,1)
+      Call zcopy_(3*n*n,[(0.0_wp,0.0_wp)],0,S,1)
       Call rotmom2( St, n, mg, S)
       Call rotmom2( Mt, n, mg, M)
 
 
 
       ! find local pseudospin:
-      Call zcopy_(n*n,(0.0_wp,0.0_wp),0,Z,1)
+      Call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,Z,1)
       Call pseudospin( M, n, Z, 3,1, 1)
       If(dbg) Call pa_prmat('PA_prep_mom_exch, Z:',Z,n)
 
@@ -1472,8 +1472,8 @@ c 199  Continue
 
       ! rotate back the moment, so that we preserve the
       ! original coordinate system of the computed molecule
-      Call zcopy_(3*n*n,(0.0_wp,0.0_wp),0,M,1)
-      Call zcopy_(3*n*n,(0.0_wp,0.0_wp),0,S,1)
+      Call zcopy_(3*n*n,[(0.0_wp,0.0_wp)],0,M,1)
+      Call zcopy_(3*n*n,[(0.0_wp,0.0_wp)],0,S,1)
       Call rotmom( St, n, mg, S)
       Call rotmom( Mt, n, mg, M)
 
@@ -1488,8 +1488,8 @@ c 199  Continue
 !-----------------------------------------------------------------------
 ! old preparation of the data for Lines exchange
 !        ! rotate the moments to the general coordinate system
-!        Call zcopy_(3*nmax*nmax,(0.0_wp,0.0_wp),0, S1,1)
-!        Call zcopy_(3*nmax*nmax,(0.0_wp,0.0_wp),0, S2,1)
+!        Call zcopy_(3*nmax*nmax,[(0.0_wp,0.0_wp)],0, S1,1)
+!        Call zcopy_(3*nmax*nmax,[(0.0_wp,0.0_wp)],0, S2,1)
 !
 !        Call rotmom2( SM(i1,1:3,1:n1,1:n1), n1, rot(i1,j1,1:3,1:3),
 !     &                S1(1:3,1:n1,1:n1) )

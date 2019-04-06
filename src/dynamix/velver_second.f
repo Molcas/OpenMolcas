@@ -130,7 +130,7 @@ C Final kinetic energy
          END DO
       END DO
 
-      Call Add_Info('EKin',EKin,1,6)
+      Call Add_Info('EKin',[EKin],1,6)
 C
 
 C

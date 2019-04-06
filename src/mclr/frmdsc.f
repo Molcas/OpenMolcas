@@ -14,15 +14,17 @@ C     TRANSFER ARRAY FROM DISC FILE IFILE
 C
       IMPLICIT REAL*8(A-H,O-Z)
       DIMENSION ARRAY(*)
+      DIMENSION IDUM(1)
 C
       IPACK = 1
       IF(IPACK.NE.0) THEN
 *. Read if ARRAY is zero
-        CALL IFRMDS(IMZERO,1,MBLOCK,IFILE)
+        CALL IFRMDS(IDUM,1,MBLOCK,IFILE)
+        IMZERO=IDUM(1)
         IF(IMZERO.EQ.1) THEN
           ZERO = 0.0D0
 *         CALL SETVEC(ARRAY,ZERO,NDIM)
-          call dcopy_(NDIM,ZERO,0,ARRAY,1)
+          call dcopy_(NDIM,[ZERO],0,ARRAY,1)
           GOTO 1001
         END IF
       END IF

@@ -80,7 +80,7 @@
       iOpt=0
       iOp=2**loper
       Label='OVRGRD  '
-      Call RdMCK(iRC,iOpt,Label,DspVec(iDisp),Temp7,iop)
+      Call dRdMCK(iRC,iOpt,Label,DspVec(iDisp),Temp7,iop)
       If (iRc.ne.0) Goto 992
       ip=1
       Do iS=1,nSym
@@ -134,7 +134,7 @@
       rone=0.0d0
       If (iMethod.eq.2) Then
         Call GetMem('MOOIX','ALLO','REAL',ipMOX,n2dens)
-        call dcopy_(n2dens,0.0d0,0,Work(ipMOX),1)
+        call dcopy_(n2dens,[0.0d0],0,Work(ipMOX),1)
       Else
         ipMOX = ip_Dummy
       End If
@@ -185,8 +185,8 @@
        If (iMethod.eq.2) Then
         Call GetMem('MOOIT','ALLO','REAL',ipMOT ,nmba)
         Call GetMem('MOOIT2','ALLO','REAL',ipMOT2,nmba)
-        call dcopy_(nmba,0.0d0,0,work(ipMOT),1)
-        call dcopy_(nmba,0.0d0,0,work(ipMOT2),1)
+        call dcopy_(nmba,[0.0d0],0,work(ipMOT),1)
+        call dcopy_(nmba,[0.0d0],0,work(ipMOT2),1)
        End If
 *
 *      kappa rmo Fi Fa
@@ -199,7 +199,7 @@
         Call GetMem('MOOIT2','FREE','REAL',ipMOT2,nmba)
        End If
 *----- ix  ix  ~i
-       call dcopy_(ndens2,0.0d0,0,temp7,1)
+       call dcopy_(ndens2,[0.0d0],0,temp7,1)
 *----- F  =F  + F
        Call DaXpY_(nDens2,One,Temp4,1,Work(ipFIX),1)
 *

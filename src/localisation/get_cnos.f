@@ -318,20 +318,24 @@ c      FactXI=1.0d0*ExFac
 *
       Call Cho_X_init(irc,ChFracMem)
       if (irc.ne.0) then
-         Call WarningMessage(2,'Start6. Non-zero rc in Cho_X_init.')
+         Call WarningMessage(2,'Get_CNOs. Non-zero rc in Cho_X_init.')
          Call Abend
       endif
 
-      Call CHO_LK_SCF(irc,nDMat,ipFLT,ipKLT,nForb,nIorb,
-     &                    ipPorb,ipPLT,FactXI,nSCReen,dmpk,dFmat)
+      Call WarningMessage(2,
+     &     'There is probably a bug here, ipPLT should have two '//
+     &     'elements.')
+      Call Abend()
+!     Call CHO_LK_SCF(irc,nDMat,ipFLT,ipKLT,nForb,nIorb,
+!    &                    ipPorb,ipPLT,FactXI,nSCReen,dmpk,dFmat)
       if (irc.ne.0) then
-         Call WarningMessage(2,'Start6. Non-zero rc in Cho_LK_scf.')
+         Call WarningMessage(2,'Get_CNOs. Non-zero rc in Cho_LK_scf.')
          CALL Abend
       endif
 
       Call Cho_X_Final(irc)
       if (irc.ne.0) then
-         Call WarningMessage(2,'Start6. Non-zero rc in Cho_X_Final.')
+         Call WarningMessage(2,'Get_CNOs. Non-zero rc in Cho_X_Final.')
          CALL Abend
       endif
 *

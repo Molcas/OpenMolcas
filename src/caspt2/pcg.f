@@ -235,7 +235,7 @@ CPAM End of insert.
 * in case of Cholesky calculation.
       LAXITY=8
       IF(IfChol) LAXITY=7
-      Call Add_Info('E_CASPT2',E2TOT,1,LAXITY)
+      Call Add_Info('E_CASPT2',[E2TOT],1,LAXITY)
 
       IF(IPRGLB.GE.USUAL) THEN
        WRITE(6,*)

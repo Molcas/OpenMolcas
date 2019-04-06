@@ -122,7 +122,7 @@
 *
       DIMENSION LASM(4),LBSM(4),LATP(4),LBTP(4),LSGN(5),LTRP(5)
 *.
-      DIMENSION C(*),S(*)
+      DIMENSION C(*),S(*),ISTRFL(*)
 *
       ZERO = 0.0D0
       PL=Zero
@@ -180,7 +180,7 @@
           END IF
         End Do
 *       CALL SETVEC(SB,ZERO ,LSBLK)
-        call dcopy_(LSBLK,ZERO ,0,SB,1)
+        call dcopy_(LSBLK,[ZERO],0,SB,1)
 *. Initialize loop over blocks over C vector
         ICENSM = 1
         ICENTA = 1
@@ -373,7 +373,7 @@ C
 *. End of loop over batches of S blocks
 10002 CONTINUE
 ********************************************************************
-      IF(LUHC.GT.0) CALL ITODS(-1,1,LBLK,LUHC)
+      IF(LUHC.GT.0) CALL ITODS([-1],1,LBLK,LUHC)
 
       RETURN
 c Avoid unused argument warnings

@@ -72,8 +72,8 @@ c        Write (*,*) ' In NAGrd: nArr=',nArr
 c     End If
       nGrad=lDisp(0)
       Call GetMem('Grad','Allo','REAL',ipGrad,nGrad)
-      call icopy(144*nirrep,0,0,inddum,1)
-      call lcopy(144,.false.,0,ifdum,1)
+      call icopy(144*nirrep,[0],0,inddum,1)
+      call lcopy(144,[.false.],0,ifdum,1)
 *
       nip = 1
       ipA = nip
@@ -145,8 +145,8 @@ c              Write (*,*) ' Fact=',Fact
 c           End If
             iuvwx(3) = nStab(kdc+kCnt)
             iuvwx(4) = nStab(kdc+kCnt)
-            Call LCopy(12,.false.,0,JFgrd,1)
-            Call ICopy(12*nIrrep,0,0,jndGrd,1)
+            Call LCopy(12,[.false.],0,JFgrd,1)
+            Call ICopy(12*nIrrep,[0],0,jndGrd,1)
             Do iCnt = 1, 2
                   JfGrd(iDCar,iCnt) = IfGrd(iDCar,iCnt)
             End Do

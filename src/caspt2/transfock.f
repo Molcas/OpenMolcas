@@ -45,7 +45,7 @@
         NO=NI+NR1+NR2+NR3+NS
         IF (NO.eq.0) GOTO 99
 * Copy the matrices to square storage: first fill with zeroes.
-        CALL DCOPY_(NO**2,0.0D0,0,WORK(LTSQ),1)
+        CALL DCOPY_(NO**2,[0.0D0],0,WORK(LTSQ),1)
 * Copy inactive TORB block to TSQ
         IOFF=0
         DO I=1,NI

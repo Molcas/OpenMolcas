@@ -66,8 +66,8 @@ C     Call GetMem('AAA','CHECK','REAL',i,i)
       n2=2*n2dens+nnA**4
       Call GetMem('1Dens2','ALLO','Real',ipDe,n1)
       Call GetMem('2Dens2','ALLO','Real',ipP,n2)
-      call dcopy_(n1,Zero,0,Work(ipDe),1)
-      call dcopy_(n2,Zero,0,Work(ipP),1)
+      call dcopy_(n1,[Zero],0,Work(ipDe),1)
+      call dcopy_(n2,[Zero],0,Work(ipP),1)
       nConfL=Max(ncsf(il),nint(xispsm(il,1)))
       nConfR=Max(ncsf(iR),nint(xispsm(iR,1)))
 

@@ -38,6 +38,15 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*
+      Call Prec_dig_internal(rpre)
+*
+*     This is to allow type punning without an explicit interface
+      Contains
+      Subroutine Prec_dig_internal(rpre)
+      Use Iso_C_Binding
+      Real*8, Target :: rpre(*)
+      Integer, Pointer :: ipre(:)
       nmm=0
       nmmm=0
       Do iS=1,nSym
@@ -62,7 +71,7 @@
          Call GetMem('2TEMP2','ALLO','REAL',ipTemp2,ni)
          Call GetMem('3TEMP3','ALLO','REAL',ipTemp3,ni)
          Call GetMem('4TEMP4','ALLO','REAL',ipTemp4,ni)
-         call dcopy_(ni,0.0d0,0,Work(ipTemp4),1)
+         call dcopy_(ni,[0.0d0],0,Work(ipTemp4),1)
          Call GetMem('1Temp1','MAX','Real',ipT1,nTemp)
          nTemp=Min(nmm,nTemp/2)
          Call GetMem('1Temp1','ALLO','Real',ipTemp1,2*nTemp)
@@ -70,7 +79,7 @@
          If (nD.eq.0) Goto 100
 *
          Do iB=1,nIsh(iS)
-            call dcopy_(nD**2,0.0d0,0,Work(ipTemp3),1)
+            call dcopy_(nD**2,[0.0d0],0,Work(ipTemp3),1)
             ibb=nBas(is)*(ib-1)+ib-2
 *
             If (iMethod.eq.iCASSCF) Then
@@ -122,7 +131,9 @@
                Call DGEF(rPre(ip),nD,nD,rpre(ip+nD**2))
 #else
                irc=0
-               call dgetrf_(nd,nd,rpre(ip),nd,rpre(ip+nd**2),irc)
+               call c_f_pointer(c_loc(rpre(ip+nd**2)),ipre,[nd])
+               call dgetrf_(nd,nd,rpre(ip),nd,ipre,irc)
+               nullify(ipre)
                If (irc.ne.0) Then
                   Write(6,*) 'Error in DGETRF called from prec_dig'
                   Call Abend
@@ -141,7 +152,7 @@
          End Do   ! iB, inactive
  100     Continue
 *
-         call dcopy_(ni,0.0d0,0,Work(ipTemp4),1)
+         call dcopy_(ni,[0.0d0],0,Work(ipTemp4),1)
          Do iB=1,nAsh(iS)
             ibb=nBas(is)*(nish(is)+ib-1)+nish(is)+ib-2
             If (ib.le.nRs1(iS)+nRs2(is)+nRs3(is)) iR=3
@@ -151,7 +162,7 @@
             If (ir.eq.2) nD=nBas(js)-nRs2(js)
             If (ir.eq.3) nD=nBas(js)-nRs3(js)
             If (nd.eq.0) Goto 110
-            call dcopy_(nD**2,0.0d0,0,Work(ipTemp3),1)
+            call dcopy_(nD**2,[0.0d0],0,Work(ipTemp3),1)
             If (nish(js).gt.0)
      &         Call Precaii(ib,is,js,nd,ir,Work(ipTemp3),
      &                      nbas(is),nbas(js),
@@ -186,7 +197,9 @@
                Call DGEF(rPre(ip),nD,nd,rpre(ip+nd**2))
 #else
                irc=0
-               call dgetrf_(nd,nd,rpre(ip),nd,rpre(ip+nd**2),irc)
+               call c_f_pointer(c_loc(rpre(ip+nd**2)),ipre,[nd])
+               call dgetrf_(nd,nd,rpre(ip),nd,ipre,irc)
+               nullify(ipre)
                If (irc.ne.0) then
                   Write(6,*) 'Error in DGETRF called from prec_dig'
                   Call Abend
@@ -219,6 +232,8 @@
 ************************************************************************
 *                                                                      *
       Return
+      End Subroutine Prec_dig_internal
+*
       End
 *===============================================================
       subroutine SortOutDiagonal(Matrix,diagonal,nb)

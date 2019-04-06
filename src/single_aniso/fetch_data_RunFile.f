@@ -274,7 +274,7 @@
          tmpI=0.0_wp
          Call get_dArray('HAMSOR_SINGLE',tmpR,nss*nss)
          Call get_dArray('HAMSOI_SINGLE',tmpI,nss*nss)
-         Call zcopy_(nss*nss,(0.0_wp,0.0_wp),0,HSO,1)
+         Call zcopy_(nss*nss,[(0.0_wp,0.0_wp)],0,HSO,1)
          Do i=1,nss
             Do j=1,nss
                HSO(i,j) = cmplx( tmpR(i,j), tmpI(i,j), wp )
@@ -283,8 +283,8 @@
 !-----------------------------------------------------------------------
 !       if HSO is found, proceed to diagonalize it
          Call mma_allocate(W,nss,'W')
-         Call dcopy_(nss,0.0_wp,0,W,1)
-         Call zcopy_(nss*nss,(0.0_wp,0.0_wp),0,U,1)
+         Call dcopy_(nss,[0.0_wp],0,W,1)
+         Call zcopy_(nss*nss,[(0.0_wp,0.0_wp)],0,U,1)
          info=0
          Call diag_c2(hso,nss,info,W,U)
          ! correct for numerical degeneracies:
@@ -325,9 +325,9 @@ c-----
       End Do ! ist
 
 c----- expand the spin free basis to the spin-orbit basis:
-      Call zcopy_(3*nss*nss,(0.0_wp,0.0_wp),0,MM,1)
-      Call zcopy_(3*nss*nss,(0.0_wp,0.0_wp),0,ML,1)
-      Call zcopy_(3*nss*nss,(0.0_wp,0.0_wp),0,MS,1)
+      Call zcopy_(3*nss*nss,[(0.0_wp,0.0_wp)],0,MM,1)
+      Call zcopy_(3*nss*nss,[(0.0_wp,0.0_wp)],0,ML,1)
+      Call zcopy_(3*nss*nss,[(0.0_wp,0.0_wp)],0,MS,1)
       Do Ist=1,nstate
          Mult=Multiplicity(Ist)
          Do I=-(Mult-Ipar)/2,(Mult-Ipar)/2

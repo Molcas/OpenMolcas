@@ -87,6 +87,9 @@ c      Integer StrnLn
       Logical Found
       Logical Changed
       Integer nTmp(8)
+      Dimension Dummy(1),iDummy(1)
+      Character*(LENIN8*mxOrb) lJobH1
+      Character*(2*72) lJobH2
 
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -240,23 +243,22 @@ C Local print level (if any)
         lll = MAX(lll,mxSym)
         lll = MAX(lll,mxOrb)
         lll = MAX(lll,RtoI)
-        lll = MAX(lll,LENIN8*mxOrb/ItoB)
-        lll = MAX(lll,2*72/ItoB)
         lll = MAX(lll,RtoI*mxRoot)
         CALL GETMEM('JOBOLD','ALLO','INTEGER',lJobH,lll)
+        ldJobH=ip_of_Work_i(iWork(lJobH))
         iAd19=iAdr19(1)
         CALL WR_RASSCF_Info(JobOld,2,iAd19,
      &                      iWork(lJobH),iWork(lJobH),iWork(lJobH),
      &                      iWork(lJobH),iWork(lJobH),iWork(lJobH),
      &                      iWork(lJobH),iWork(lJobH),iWork(lJobH),
      &                      mxSym,
-     &                      iWork(lJobH),LENIN8*mxOrb,iWork(lJobH),
-     &                      iWork(lJobH),2*72,JobTit,72*mxTit,
-     &                      iWork(lJobH),iWork(lJobH),
+     &                      lJobH1,LENIN8*mxOrb,iWork(lJobH),
+     &                      lJobH2,2*72,JobTit,72*mxTit,
+     &                      Work(ldJobH),iWork(lJobH),
      &                      iWork(lJobH),iWork(lJobH),mxRoot,
      &                      iWork(lJobH),iWork(lJobH),iWork(lJobH),
      &                      iWork(lJobH),iWork(lJobH),iWork(lJobH),
-     &                      iWork(lJobH))
+     &                      Work(ldJobH))
         IF(IPRLEV.ge.TERSE) THEN
          If (iJOB.eq.1) Then
             Write(LF,'(6X,A)')
@@ -448,7 +450,7 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
 *     print start orbitals
       IF(IPRLEV.GE.DEBUG) THEN
         CALL GETMEM('DumE','Allo','Real',LENE,nTot)
-        CALL DCOPY_(nTot,0.0D0,0,WORK(LENE),1)
+        CALL DCOPY_(nTot,[0.0D0],0,WORK(LENE),1)
         CALL PRIMO_RASSCF_m('Input orbitals',WORK(LENE),OCC,CMO)
         CALL GETMEM('DumE','Free','Real',LENE,nTot)
       END IF

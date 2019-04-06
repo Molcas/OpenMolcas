@@ -25,7 +25,7 @@
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "mrci.fh"
-      CALL DCOPY_(NCONF,0.0D0,0,SGM,1)
+      CALL DCOPY_(NCONF,[0.0D0],0,SGM,1)
 
       CALL CSFTRA(' CSF',CI,AREF)
       SQGP=1.0D00

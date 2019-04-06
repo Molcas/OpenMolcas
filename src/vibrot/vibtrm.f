@@ -460,7 +460,7 @@ CPAM97       End Do
 CPAM97      End Do
 CPAM97      End Do
 CPAM97CPAM97 New code ends
-      Call Add_Info('VIBROT_VIBTRM',ChkSum,1,6)
+      Call Add_Info('VIBROT_VIBTRM',[ChkSum],1,6)
       Call qExit('VibTrm')
       Return
       End

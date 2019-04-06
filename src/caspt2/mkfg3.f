@@ -116,13 +116,13 @@ C>                   to active indices
 C Put in zeroes. Recognize special cases:
       IF(nlev.EQ.0) GOTO 999
 
-      CALL DCOPY_(NG1,0.0D0,0,G1,1)
-      CALL DCOPY_(NG2,0.0D0,0,G2,1)
-      CALL DCOPY_(NG3,0.0D0,0,G3,1)
+      CALL DCOPY_(NG1,[0.0D0],0,G1,1)
+      CALL DCOPY_(NG2,[0.0D0],0,G2,1)
+      CALL DCOPY_(NG3,[0.0D0],0,G3,1)
       IF(IFF.ne.0) THEN
-       CALL DCOPY_(NG1,0.0D0,0,F1,1)
-       CALL DCOPY_(NG2,0.0D0,0,F2,1)
-       CALL DCOPY_(NG3,0.0D0,0,F3,1)
+       CALL DCOPY_(NG1,[0.0D0],0,F1,1)
+       CALL DCOPY_(NG2,[0.0D0],0,F2,1)
+       CALL DCOPY_(NG3,[0.0D0],0,F3,1)
       END IF
 
       IF(NACTEL.EQ.0) GOTO 999
@@ -329,7 +329,7 @@ C-sigma vectors in the buffer.
           ibuf1=ibuf1+1
           ip1_buf(ibuf1)=ip1i
           lto=lbuf1+mxci*(ibuf1-1)
-          call dcopy_(nsgm1,0.0D0,0,work(lto),1)
+          call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
           CALL SIGMA1_CP2(IULEV,ITLEV,1.0D00,LSYM,CI,WORK(LTO),
      &     IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
      &     IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
@@ -388,7 +388,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
       iy=L2ACT(iylev)
       iz=L2ACT(izlev)
       lto=lbuf2
-      call dcopy_(nsgm2,0.0D0,0,work(lto),1)
+      call dcopy_(nsgm2,[0.0D0],0,work(lto),1)
       CALL SIGMA1_CP2(IYLEV,IZLEV,1.0D00,LSYM,CI,WORK(LTO),
      &     IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
      &     IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
@@ -422,7 +422,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
         if(isvx.ne.mul(issg1,issg2)) goto 99
         lfrom=lbuf2
         lto=lbuft
-        call dcopy_(nsgm1,0.0D0,0,work(lto),1)
+        call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
         CALL SIGMA1_CP2(IVLEV,IXLEV,1.0D00,ISSG2,WORK(LFROM),WORK(LTO),
      &       IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
      &       IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),

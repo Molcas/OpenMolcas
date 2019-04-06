@@ -131,7 +131,7 @@
             END IF
             IF(NOPART.EQ.1) THEN
 *             CALL SETVEC(SSCR,ZERO,NKSTREF*NROW*NIK)
-              call dcopy_(NKSTREF*NROW*NIK,ZERO,0,SSCR,1)
+              call dcopy_(NKSTREF*NROW*NIK,[ZERO],0,SSCR,1)
             END If
             DO 1930 JSM = 1, NSMOB
               LSM = ADSXA(JSM,JLSM)

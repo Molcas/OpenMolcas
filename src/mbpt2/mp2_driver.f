@@ -319,14 +319,14 @@
                nIsh(i) = nOrb(i)+nDel(i)
             EndDo
             itmp=0
-            Call ICopy(8,itmp,0,nFro_tra,1)
-            Call ICopy(8,itmp,0,nDel_tra,1)
+            Call ICopy(8,[itmp],0,nFro_tra,1)
+            Call ICopy(8,[itmp],0,nDel_tra,1)
          Else
             Call ICopy(8,nOcc,1,nIsh,1)
          End If
 
          itmp=0
-         Call ICopy(8,itmp,0,nAsh,1)
+         Call ICopy(8,[itmp],0,nAsh,1)
          If(.not.DoDens) Then
 * PAM Jan 2013: Set correct nOrb:
       do i=1,8
@@ -478,7 +478,7 @@ CGG      DoExch2=.True. ! Do generate Exch-2 integrals (not really used).
            ETot=E2BJAI+ESCF
            Write(6,*)
            Call PrintResult(6,'(6X,A,T50,F19.10)',
-     &                      'Total MBPT2 energy',0,'',ETot,1)
+     &                      'Total MBPT2 energy',0,'',[ETot],1)
          End If
          Call xFlush(6)
          If (iPL.ge.2) Write (6,*)
@@ -531,8 +531,8 @@ CGG      DoExch2=.True. ! Do generate Exch-2 integrals (not really used).
 ************************************************************************
 *                                                                      *
       iTol = Cho_X_GetTol(8)
-      Call Add_Info('E_MP2',E2BJAI+ESCF,1,iTol)
-      Call Add_Info('HF ref weight',WREF,1,iTol)
+      Call Add_Info('E_MP2',[E2BJAI+ESCF],1,iTol)
+      Call Add_Info('HF ref weight',[WREF],1,iTol)
 *                                                                      *
 ************************************************************************
 *                                                                      *

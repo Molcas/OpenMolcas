@@ -167,10 +167,10 @@ c     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
 *
 *              Initialize JfGrd, JndGrd, JfHss, and JndHss.
 *
-               Call LCopy(12,.False.,0,JfGrd,1)
-               Call ICopy(nIrrep*4*3,0,0,JndGrd,1)
-               Call LCopy(144,.False.,0,JfHss,1)
-               Call ICopy(nIrrep*16*9,0,0,JndHss,1)
+               Call LCopy(12,[.False.],0,JfGrd,1)
+               Call ICopy(nIrrep*4*3,[0],0,JndGrd,1)
+               Call LCopy(144,[.False.],0,JfHss,1)
+               Call ICopy(nIrrep*16*9,[0],0,JndHss,1)
 *
 *              Overwrite with information in IfGrd, IndGrd, IfHss,
 *              and IndHss.
@@ -228,7 +228,7 @@ c     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
 *              The third center is calculated by translational invariance.
 *              This requires the 2nd derivatives on the other centers.
 *
-               Call LCopy(4,.False.,0,Tr,1)
+               Call LCopy(4,[.False.],0,Tr,1)
                Do iCar=0,2
                   Do jAtom=0,2
                      If (jAtom.eq.2) Then
@@ -290,12 +290,12 @@ c     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
                      End Do
                   End If
                End Do
-               Call lCopy(12,.False.,0,jfgrd,1)
+               Call lCopy(12,[.False.],0,jfgrd,1)
 *
                nFinal = 0
                Call Rysg2(iAnga,nRys,nZeta,
-     &                    Array(ipA),Array(ipB),One,One,
-     &                    Zeta,ZInv,nZeta,One,One,1,
+     &                    Array(ipA),Array(ipB),[One],[One],
+     &                    Zeta,ZInv,nZeta,[One],[One],1,
      &                    P,nZeta,TC,1,Coori,Coori,CoorAC,
      &                    Array(ipArr),nArray,
      &                    TNAI1,Fake,Cff2D,

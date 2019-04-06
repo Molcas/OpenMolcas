@@ -26,6 +26,7 @@
       Character Label*8
       Real*8 CCoor(3,nComp), rNuc(nComp), PtChrg(nGrid)
       Integer ip(nComp), lOper(nComp), iChO(nComp), iStabO(0:7)
+      Dimension opmol(*),opnuc(*),iopadr(*)
       Real*8, Dimension(:), Allocatable :: Int1El
       Integer iTwoj(0:7)
       Data iTwoj/1,2,4,8,16,32,64,128/
@@ -72,7 +73,7 @@
 *     Will just store the unique elements, i.e. low triangular blocks
 *     and lower triangular elements in the diagonal blocks.
 *
-      Call ICopy(nComp,-1,0,ip,1)
+      Call ICopy(nComp,[-1],0,ip,1)
       LenTot=0
       Do iComp = 1, nComp
          LenInt=n2Tri(lOper(iComp))
@@ -80,7 +81,7 @@
       End Do
       Call mma_allocate(Int1El,LenTot)
       ip(1)=1
-      Call DCopy_(LenTot,Zero,0,Int1El(ip(1)),1)
+      Call DCopy_(LenTot,[Zero],0,Int1El(ip(1)),1)
       iadr=ip(1)
       do iComp = 1, nComp
          LenInt=n2Tri(lOper(iComp))
@@ -227,6 +228,7 @@ c        Write(6,*) ' oneel *',Label,'*'
       Integer nOp(2), ip(nComp), lOper(nComp), iChO(nComp),
      &        iDCRR(0:7), iDCRT(0:7), iStabM(0:7), iStabO(0:7)
       Integer iTwoj(0:7)
+      Dimension opmol(*),opnuc(*),iopadr(*)
       Real*8, Dimension(:), Allocatable :: Zeta, ZI, SO, Fnl
       Real*8 Int1El(LenTot)
       Data iTwoj/1,2,4,8,16,32,64,128/
@@ -296,7 +298,7 @@ c        Write(6,*) ' oneel *',Label,'*'
             If (iPrint.ge.29) Write (6,*) ' nSO=',nSO
             If (nSO.eq.0) Go To 131
             Call mma_allocate(SO,nSO*iBas*jBas)
-            Call DCopy_(nSO*iBas*jBas,Zero,0,SO,1)
+            Call DCopy_(nSO*iBas*jBas,[Zero],0,SO,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -310,7 +312,7 @@ c        Write(6,*) ' oneel *',Label,'*'
             lFinal = nIC * MaxPrm(iAng) * MaxPrm(jAng) *
      &               nElem(iAng)*nElem(jAng)
             Call mma_allocate(Fnl,lFinal)
-            Call dCopy_(lFinal,Zero,0,Fnl,1)
+            Call dCopy_(lFinal,[Zero],0,Fnl,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -496,10 +498,10 @@ c Avoid unused argument warnings
          Call Unused_real_array(CCoor)
          Call Unused_integer(nOrdOp)
          Call Unused_integer_array(iChO)
-         Call Unused_real(opmol)
-         Call Unused_real(opnuc)
+         Call Unused_real_array(opmol)
+         Call Unused_real_array(opnuc)
          Call Unused_integer(ipad)
-         Call Unused_integer(iopadr)
+         Call Unused_integer_array(iopadr)
          Call Unused_integer(idirect)
          Call Unused_integer(isyop)
          Call Unused_real_array(PtChrg)

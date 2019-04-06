@@ -20,11 +20,10 @@
       Use Iso_C_Binding
       Real*8, Target :: dData(*)
       Integer, Pointer :: iData(:)
-      Call C_F_Pointer(C_Loc(dData(1)),iData,[1])
+      Call C_F_Pointer(C_Loc(dData),iData,[1])
       Call WrMCK(rc,Option,InLab,iComp,iData,iSymLab)
       Nullify(iData)
       Return
       End Subroutine dWrMCK_Internal
 *
       End
-

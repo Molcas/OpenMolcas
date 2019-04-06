@@ -56,7 +56,7 @@
 *
 *. The story of MV7 : I started out from nothing, absolutely zero,
 *
-      call dcopy_(NSDET,Zero,0,HC,1)
+      call dcopy_(NSDET,[Zero],0,HC,1)
 
 *
 * Info for this internal space
@@ -289,7 +289,7 @@
        LLUC = LUC
        LLUHC = LUHC
       END IF
-      call dcopy_(NSDET,ZERO,0,HC,1)
+      call dcopy_(NSDET,[ZERO],0,HC,1)
 *
       IF(ICISTR.EQ.1) THEN
       CALL RASSG4(C,HC,wORK(KCB),wORK(KSB),wORK(KC2),

@@ -76,7 +76,7 @@
          If(nBas(iSym).le.0) Goto 101
          Call dCopy_(nTri,S(1+iTriOff),1,Smat,1)
          Call FZero(Vect,nSqr)
-         Call dCopy_(nBas(iSym),1.0D0,0,Vect,nBas(iSym)+1)
+         Call dCopy_(nBas(iSym),[1.0D0],0,Vect,nBas(iSym)+1)
          Call NIdiag(Smat,Vect,nBas(iSym),nBas(iSym),0)
          Do i=1,nBas(iSym)
 *           Eige(i)=Smat(+i*(i+1)/2)

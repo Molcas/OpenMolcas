@@ -50,7 +50,7 @@ C Remove any unwanted rotations from C:
        END DO
 
 C Initialize sigma vector to zero.
-       CALL DCOPY_(NROOT+NSXS,0.0D0,0,HC(NST+1),1)
+       CALL DCOPY_(NROOT+NSXS,[0.0D0],0,HC(NST+1),1)
 
        ISTIA=1
        ISTAE=1

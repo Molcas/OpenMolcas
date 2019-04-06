@@ -1575,7 +1575,7 @@ C------ errors ------------------------------
       Write(6,*)' READIN: Unexpected End of input file.'
 
 999   continue
-      Call XFLUSH()
+      Call XFLUSH(6)
       Call ABEnd()
 
 590   continue

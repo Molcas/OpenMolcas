@@ -52,8 +52,8 @@
          Call GetMem('EVec','Allo','Real',ipEVec,mH*mH)
 *
          call dcopy_(mH*(mH+1)/2,Work(ipH),1,Work(ipEVal),1)
-         call dcopy_(mH*mH,Zero,0,Work(ipEVec),1)
-         call dcopy_(mH,One,0,Work(ipEVec),mH+1)
+         call dcopy_(mH*mH,[Zero],0,Work(ipEVec),1)
+         call dcopy_(mH,[One],0,Work(ipEVec),mH+1)
 *
 *------- Compute eigenvalues and eigenvectors
 *
@@ -80,7 +80,7 @@
       iRc=-1
       iOpt=0
       Label='StatHess'
-      Call WrMck(iRC,iOpt,Label,idum,Work(ipTemp),idum)
+      Call dWrMck(iRC,iOpt,Label,idum,Work(ipTemp),idum)
       If (iRc.ne.0) Then
          Write (6,*) 'WrHDsk: Error writing to MCKINT'
          Write (6,'(A,A)') 'Label=',Label

@@ -67,18 +67,18 @@
       Call mma_allocate(Zs,nDIMCF,nDIMCF,nDIMCF,'Zs')
       Call mma_allocate(Zinit,nDIMCF,nDIMCF,'Zinit')
 
-      Call dcopy_(nDIMCF,0.0_wp,0,Rnrm,1)
-      Call dcopy_(nDIMCF,0.0_wp,0,Snrm,1)
+      Call dcopy_(nDIMCF,[0.0_wp],0,Rnrm,1)
+      Call dcopy_(nDIMCF,[0.0_wp],0,Snrm,1)
       Tnrm= 0.0_wp
-      Call dcopy_(nDIMCF*nDIMCF,0.0_wp,0,Wk,1)
-      Call dcopy_(nDIMCF*nDIMCF,0.0_wp,0,Ws,1)
-      Call dcopy_(nDIMCF,0.0_wp,0,Winit,1)
+      Call dcopy_(nDIMCF*nDIMCF,[0.0_wp],0,Wk,1)
+      Call dcopy_(nDIMCF*nDIMCF,[0.0_wp],0,Ws,1)
+      Call dcopy_(nDIMCF,[0.0_wp],0,Winit,1)
 
-      Call zcopy_(nDIMCF*nDIMCF,(0.0_wp,0.0_wp),0,Zinit,1)
-      Call zcopy_(nDIMCF*nDIMCF*nDIMCF,(0.0_wp,0.0_wp),0,HCF,1)
-      Call zcopy_(nDIMCF*nDIMCF*nDIMCF,(0.0_wp,0.0_wp),0,HCFS,1)
-      Call zcopy_(nDIMCF*nDIMCF*nDIMCF,(0.0_wp,0.0_wp),0,Zk,1)
-      Call zcopy_(nDIMCF*nDIMCF*nDIMCF,(0.0_wp,0.0_wp),0,Zs,1)
+      Call zcopy_(nDIMCF*nDIMCF,[(0.0_wp,0.0_wp)],0,Zinit,1)
+      Call zcopy_(nDIMCF*nDIMCF*nDIMCF,[(0.0_wp,0.0_wp)],0,HCF,1)
+      Call zcopy_(nDIMCF*nDIMCF*nDIMCF,[(0.0_wp,0.0_wp)],0,HCFS,1)
+      Call zcopy_(nDIMCF*nDIMCF*nDIMCF,[(0.0_wp,0.0_wp)],0,Zk,1)
+      Call zcopy_(nDIMCF*nDIMCF*nDIMCF,[(0.0_wp,0.0_wp)],0,Zs,1)
 !-----------------------------------------------------------------------
       ! re-construct the  initial CF matrix:
       Do N=2,nDIMcf-1,2
@@ -142,7 +142,7 @@
           ! generate ITO operators:
           Call Liviu_ITO(nDIMcf,N,ABS(M),O,W,redME)
           ! generate HCF for each parameter rank and projection:
-          Call zcopy_(nDIMcf*nDIMcf,(0.0_wp,0.0_wp),0,HKQ,1)
+          Call zcopy_(nDIMcf*nDIMcf,[(0.0_wp,0.0_wp)],0,HKQ,1)
           If (M<0) Then
             zf=cmplx(BS(N,ABS(M)),0.0_wp,wp)
             Call zaxpy_(nDIMcf*nDIMcf,zf,W,1,HKQ,1)
