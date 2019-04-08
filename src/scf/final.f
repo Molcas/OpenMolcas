@@ -336,7 +336,7 @@ c         If (iUHF.eq.1) Call Put_dScalar('Ener_ab',EneV_ab)
 #ifdef _FDE_
       ! Embedding
       if (embPot.and.(embWriteEsp)) then
-         Call embPotOutput(nAtoms,ip_of_Work(Dens))
+         Call embPotOutput(nAtoms,ip_of_Work(Dens(1,1,1)))
       end if
 #endif
 *

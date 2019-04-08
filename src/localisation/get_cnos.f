@@ -322,6 +322,7 @@ c      FactXI=1.0d0*ExFac
          Call Abend
       endif
 
+! BIGOT FIXME
       Call WarningMessage(2,
      &     'There is probably a bug here, ipPLT should have two '//
      &     'elements.')

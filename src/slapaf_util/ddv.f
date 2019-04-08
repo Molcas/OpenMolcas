@@ -1192,8 +1192,8 @@ C                 tij=Max(tij,f_const_Min_)
 *
 *---- Set up a unit matrix
 *
-      call dcopy_(nH*nH,Zero,0,Work(ipEVec),1)
-      call dcopy_(nH,One,0,Work(ipEVec),nH+1)
+      call dcopy_(nH*nH,[Zero],0,Work(ipEVec),1)
+      call dcopy_(nH,[One],0,Work(ipEVec),nH+1)
 *
 *---- Compute eigenvalues and eigenvectors
 *

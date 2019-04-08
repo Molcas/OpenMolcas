@@ -11,7 +11,8 @@
 #ifdef _HAVE_GRID_IT_
 *     This should have never been used outside casvb_util
       Subroutine fmove(ia,ib,n)
-      Integer ia(*),ib(*),n
+      Real*8 ia(*),ib(*)
+      Integer n
       Call fmove_cvb(ia,ib,n)
       End
 #elif defined (NAGFOR)

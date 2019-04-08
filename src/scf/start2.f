@@ -49,6 +49,9 @@
 * Pam 2012 Changed VECSORT arg list, need dummy array:
       Integer NewOrd(2)
       Integer, Dimension(:,:), Allocatable:: IndT
+#ifdef _MSYM_
+      Real*8 msym_ctx
+#endif
       Dimension Dummy(1),iDum(7,8)
 *
 *----------------------------------------------------------------------*

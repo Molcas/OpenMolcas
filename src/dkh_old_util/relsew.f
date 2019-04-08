@@ -32,9 +32,6 @@ C
       DIMENSION TMPF(N,N)
       DIMENSION TWRK4(N*200)
 *
-#ifdef _DEBUG_
-      DIMENSION DET(2)
-#endif
 C
 *     Call qEnter('scfcli')
 c      write(6,*) ' in SCFCLI', N, iSize

@@ -570,6 +570,7 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
       ipKLT(2)=ipKLT(1)+nBDT
 *
       dFmat=0.0d0
+! BIGOT FIXME
       Call WarningMessage(2,
      &     'There is probably a bug here, ipPLT should have two '//
      &     'elements.')

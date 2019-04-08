@@ -119,6 +119,9 @@
       Logical ScramNeworb
       Integer iAufOK, Ind(MxOptm)
       Character*128 OrbName
+#ifdef _MSYM_
+      Real*8 msym_ctx
+#endif
 #include "interfaces_scf.fh"
       Dimension Dummy(1),iDummy(7,8)
 *

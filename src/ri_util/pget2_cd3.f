@@ -60,7 +60,7 @@
       iPrint=99
       If (iPrint.ge.99) Then
          iComp = 1
-         Call PrMtrx(' In PGet2_CD3:DSO ',iD0Lbl,iComp,ipD0,Work)
+         Call PrMtrx(' In PGet2_CD3:DSO ',[iD0Lbl],iComp,[ipD0],Work)
          Call RecPrt('V_K',' ',V_K,1,mV_K)
       End If
 #endif

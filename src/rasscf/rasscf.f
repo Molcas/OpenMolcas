@@ -810,7 +810,7 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
 !             Eemb=embPotEne(Work(LD1I), Work(LD1A), Work(ipEmb),
 !    &                       Work(LCMO), nBasFunc, nFrozenOrbs, .true.)
           Eemb=embPotEneMODensities(Work(LD1I), Work(LD1A), Work(ipEmb),
-     &                    Work(LCMO), nBasFunc, nFrozenOrbs, .true.)
+     &                    nBas, nTot2, nFrozenOrbs, nSym)
                 Write(LF,*) "Energy from embedding potential with the"
                 Write(LF,*) "initial CI vectors: ", Eemb
               end if

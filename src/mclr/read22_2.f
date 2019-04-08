@@ -376,6 +376,7 @@
         call dcopy_(nDens2,[0.0d0],0,Q,1)
 *
         istore=1 ! Ask to store the half-transformed vectors
+! BIGOT FIXME
         Call WarningMessage(2,
      &     'There is probably a bug here, ipAsh should have two '//
      &     'elements.')

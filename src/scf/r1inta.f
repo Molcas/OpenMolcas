@@ -54,7 +54,7 @@
       if (iDummyEmb.eq.1) embPot=.true.
       if (embPot) then
          call mma_allocate(Emb,nBT,Label='Emb')
-         ipEmb=ip_of_Work(Emb)
+         ipEmb=ip_of_Work(Emb(1))
          Call EmbPotRdRun
       end if
 #endif
