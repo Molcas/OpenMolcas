@@ -83,6 +83,7 @@
 #include "WrkSpc.fh"
 #include "print.fh"
 #include "Molcas.fh"
+#include "AI.fh"
       Real*8 qInt(nInter,MaxItr), Shift(nInter,MaxItr),
      &       Grad(nInter,MaxItr), GNrm(MaxItr), Energy(MaxItr),
      &       BMx(3*nsAtom,3*nsAtom), rLambda(nLambda,MaxItr),
@@ -206,11 +207,11 @@ c Avoid unused argument warnings
      &                               anAI,pAI,lbAI,npxAI)
                   iterAI = iterAI + 1
 
-                  Call RecPrt('qInt(x)',' ',qInt,nInter,iterAI)
+                  Call RecPrt('qInt(x):',' ',qInt,nInter,iterAI)
                   Write (6,*) 'qInt shape: ',shape(qInt)
-                  Call RecPrt('Energy(x)',' ',Energy,1,iterAI)
+                  Call RecPrt('Energy(x):',' ',Energy,1,iterAI)
                   Write (6,*) 'Energy shape: ',shape(Energy)
-                  Call RecPrt('Grad',' ',Grad,nInter,iterAI)
+                  Call RecPrt('Grad(x):',' ',Grad,nInter,iterAI)
                   Write (6,*) 'Grad shape: ',shape(Grad)
                   write(6,*) 'do new iter',iterAI
                End Do  ! Do While
@@ -229,6 +230,8 @@ c Avoid unused argument warnings
      &                   Kriging_Hessian)
             End If
          Else
+         Write (6,*) 'iter: ',iter
+         write (6,*) 'kIter', kIter
             Call Update_sl_(iter,iInt,nFix,nInter,qInt,Shift,
      &                   Grad,iOptC,Beta,Lbl,GNrm,Energy,
      &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,

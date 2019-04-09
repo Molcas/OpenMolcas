@@ -32,19 +32,15 @@
 !     PARAMETER (IWORKLEN=552 800 000)
 !     PARAMETER (ICWORKLEN=552 800)
       Real*8       Work(1:IWORKLEN)
-      Real*8       pAI, lbAI(3), dAIy, meAI
       Real*4       sWork(1:IWORKLEN)
       Integer      iWork(1:IWORKLEN)
       Character*1  cWork(1:2*ICWORKLEN)
       Integer      mxMem,ip_Dummy,ip_sDummy,ip_iDummy
-      Integer     nspAI,npxAI,miAI
-      Logical      Kriging,anAI
 
       Equivalence (Work,sWork)
       Equivalence (Work,iWork)
       Equivalence (Work,cWork)
       Common /WrkSpc/  Work,mxMem
-      Common /WrkSpc/  Kriging,nspAI,pAI,anAI,lbAI,npxAI,dAIy,miAI,meAI
 
       Common /iWrkSpc/ ip_Dummy,ip_sDummy,ip_iDummy
       Integer*1 i1Work(1:IWORKLEN)

@@ -17,9 +17,13 @@
         Integer npxAIT,nInter,iter
         Real*8 qInt(nInter,iter+1),Grad(nInter,iter),Energy(iter),pAIT,lbAI(3)
         Logical anAIT
-        allocate (x(nInter,iter),y(iter),lb(3),dy(nInter*iter), &
-                  nx(nInter,1),l(nInter))
-        !iter=iterT
+        ! if (allocated(x)) then
+        !   deallocate (x,y,lb,dy,nx)
+        ! else
+          allocate (x(nInter,iter),y(iter),lb(3),dy(nInter*iter), &
+                    nx(nInter,1))
+        ! endif
+        !iter=iterAI
         !nInter=nInterT
         npxAI=npxAIT
         pAI=pAIT
@@ -31,7 +35,6 @@
         Write (6,*) 'nInter', nInter
         Write (6,*) 'npxAI', npxAI
         Write (6,*) 'Grad: ',Grad
-        Write (6,*) 'Grad size: ',size(Grad)
         Write (6,*) 'Grad shape: ',shape(Grad)
         Write (6,*) 'Energy: ',Energy
         Write (6,*) 'npx: ',npx
@@ -46,9 +49,9 @@
         !nx=x
         lb=lbAI
         !----for test puorposes
-        lb(1)=0.1
-        lb(2)=6
-        lb(3)=10
+        lb(1)=0.00001
+        lb(2)=500
+        lb(3)=1000
         ! npx=4
         ! do i=1,int(npx)
         !   nx(1,i)=(real(i)-1.0)*4.0/real(npx-1)
@@ -78,5 +81,10 @@
         Grad(:,iter+1)=gpred
         write(6,*) 'New values of Energy and grad', pred(npx), gpred
         deallocate (x,y,lb,dy,nx,l)
+        !write (6,*) 'deallo x'
+        deallocate (full_R,rl,dl,mat,Iden)
+        !write (6,*) 'deallo full_R'
+        deallocate (kv,pred,gpred,hpred,var,sigma,cv,ll)
+        !write (6,*) 'deallo kv,pred,gpred,hpred,var,sigma,cv'
         return
       end

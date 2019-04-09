@@ -16,6 +16,7 @@
 #include "nadc.fh"
 #include "weighting.fh"
 #include "print.fh"
+#include "AI.fh"
       Logical Found, Dummy_Call
       Character*8 Command
       Character*180 Get_Ln
@@ -492,7 +493,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
        lbAI(1) = 0.1
        lbAI(2) = 6.0
        lbAI(3) = 10
-       miAI = 10
+       miAI = 100
        meAI = -10e-6
        Call WarningMessage(1,'Kriging AI method selected.')
        Write (Lu,*) 'Default number of source points: 3.'
@@ -520,8 +521,12 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
       Write (Lu,*) 'Resolution of the predicted path: ', npxAI
       Go To 999
 104   Char=Get_Ln(LuRd) ! Parameter of differentiability for Mat`ern function
-      Read (Char,'(I10)') pAI
+      Read (Char,'(F2.2)') pAI
       Write (Lu,*) 'Parameter of differentiability for Mat`ern: ', pAI
+      If(pAI.gt.2.or.pAI.lt.1) then
+            Write (Lu,*) 'Switching to Numerical Mat`ern derivatives'
+            anAI = .False.
+      Endif
       Go To 999
 105   Char=Get_Ln(LuRd) ! Defining the number of source points for the AI method
       Read (Char,'(I10)') nspAI

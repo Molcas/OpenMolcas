@@ -77,9 +77,11 @@
       If (jPrint.ge.99)
      &   Call RecPrt('DrvUpH: Initial Hessian',' ',H,nInter,nInter)
       Do lIter=iSt,nIter
+         Write (6,*) 'newH:', nInter,lIter,dq,g,H,iOptH,HUpMet,nIter
          If (jPrint.ge.99) Write(Lu,*)'DrvUpH: Call NewH, lIter=',lIter
          Call NewH(nInter,lIter,dq,g,H,iOptH,HUpMet,nIter)
       End Do
+      Write (6,*) 'newH final:', lIter
       If (jPrint.ge.99)
      &   Call RecPrt('DrvUpH: Updated Hessian',' ',H,nInter,nInter)
 *                                                                      *
