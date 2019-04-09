@@ -513,7 +513,8 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
       Write (Lu,*) 'Analitical Matern derivatives: ', anAI
       Go To 999
 102   Char=Get_Ln(LuRd) ! Widht limits of the Mat`ern function
-      Read (Char,'(F2.2)') lbAI(1),lbAI(2),lbAI(3)
+      Write (Lu,*) 'Widht of the gaussian (from,to,# steps): ', Char
+      Read (Char,'3(F2.1') lbAI!(1),lbAI(2),lbAI(3)
       Write (Lu,*) 'Widht of the gaussian (from,to,# steps): ', lbAI
       Go To 999
 103   Char=Get_Ln(LuRd) ! The resolution of the predicted path

@@ -230,8 +230,8 @@ c Avoid unused argument warnings
      &                   Kriging_Hessian)
             End If
          Else
-         Write (6,*) 'iter: ',iter
-         write (6,*) 'kIter', kIter
+            Write (6,*) 'iter: ',iter
+            write (6,*) 'kIter', kIter
             Call Update_sl_(iter,iInt,nFix,nInter,qInt,Shift,
      &                   Grad,iOptC,Beta,Lbl,GNrm,Energy,
      &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,
@@ -243,6 +243,13 @@ c Avoid unused argument warnings
      &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,dMass,
      &                   HrmFrq_Show,CnstWght,Curvilinear,Degen,
      &                   Kriging_Hessian)
+            Call RecPrt('qInt(x):',' ',qInt,nInter,iter)
+            Write (6,*) 'qInt shape: ',shape(qInt)
+            Call RecPrt('Energy(x):',' ',Energy,1,iter)
+            Write (6,*) 'Energy shape: ',shape(Energy)
+            Call RecPrt('Grad(x):',' ',Grad,nInter,iter)
+            Write (6,*) 'Grad shape: ',shape(Grad)
+            write(6,*) 'do new iter',iter
          End If
 *        ------- AI loop ends here
       End If

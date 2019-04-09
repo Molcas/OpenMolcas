@@ -83,9 +83,7 @@
       Call mma_allocate(dg,nInter,label="dg")
       Call mma_allocate(gi,nInter,label="gi")
       Call mma_allocate(dq,nInter,nIter,label="dq")
-      write (6,*) 'newh dcopy',nInter*nIter,dq_orig,1,dq,1
       call dcopy_(nInter*nIter,dq_orig,1,dq,1)
-      write (6,*) 'newh dcopy after'
 *                                                                      *
 ************************************************************************
 *                                                                      *

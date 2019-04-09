@@ -49,9 +49,9 @@
         !nx=x
         lb=lbAI
         !----for test puorposes
-        lb(1)=0.00001
-        lb(2)=500
-        lb(3)=1000
+        lb(1)=0.1
+        lb(2)=6
+        lb(3)=100
         ! npx=4
         ! do i=1,int(npx)
         !   nx(1,i)=(real(i)-1.0)*4.0/real(npx-1)

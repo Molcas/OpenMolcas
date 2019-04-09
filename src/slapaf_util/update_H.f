@@ -29,13 +29,9 @@
 *     The anharmonic constants used here is the most recently
 *     updated version.
 *
-      Write (6,*) 'LU32',nWndw,nIter,H,nInter,dq,g,iOptH,HUpMet,nRowH,
-     &            jPrint,IterHess
       Call DrvUpH(nWndw,nIter,H,nInter,dq,g,iOptH,HUpMet,nRowH,
      &            jPrint,IterHess)
-      Write (6,*) 'LU35'
       Call Chk4NAN(nInter*nInter,H,ierr)
-      Write (6,*) 'LU37',ierr,H
       If (ierr.ne.0) Call SysAbendMsg('Update_H','NaNs in Hessian','')
       If (Store) Call Put_dArray('Hss_upd',H,nInter**2)
 *                                                                      *
@@ -46,12 +42,10 @@
 *
       Old_MF=DDot_(3*nAtoms,Work(ipMF),1,Work(ipMF),1).ne.Zero
       Old_MF = Old_MF .and. Mode.ne.0 .and. IRC.eq.0
-      Write (6,*) 'LU48'
       Call Allocate_Work(ipTmp,3*nAtoms)
       If (Old_MF) Then
          If (jPrint.ge.6)
      &      Write (6,*) ' Reading old reaction mode from disk'
-         Write (6,*) 'LU50'
          call dcopy_(3*nAtoms,Work(ipMF),1,Work(ipTmp),1)
          Mode=1  ! any number between 1 and nInter
          iOptC=iOr(iOptC,8192)
