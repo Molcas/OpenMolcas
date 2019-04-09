@@ -52,30 +52,39 @@
         lb(1)=0.00001
         lb(2)=500
         lb(3)=1000
+        lb(1)=0.1
+        lb(2)=6.0
+        lb(3)=100.0
         ! npx=4
         ! do i=1,int(npx)
         !   nx(1,i)=(real(i)-1.0)*4.0/real(npx-1)
         ! enddo
         !-----------
         x = qInt(1:nInter,1:iter)
+#ifdef _NOT_USED_
         Write (6,*) 'nx: ',nx
         Write (6,*) 'nx size: ',size(nx)
         Write (6,*) 'nx shape: ',shape(nx)
         Write (6,*) 'x: ',x
         Write (6,*) 'x size: ',size(x)
         Write (6,*) 'x shape: ',shape(x)
+#endif
         y = Energy
+#ifdef _NOT_USED_
         Write (6,*) 'y: ',y
         Write (6,*) 'y size: ',size(y)
         Write (6,*) 'y shape: ',shape(y)
+#endif
         do i=1,nInter
           do j=1,iter
             dy(j+(i-1)*iter) = Grad(i,j)
           enddo
         enddo
+#ifdef _NOT_USED_
         Write (6,*) 'dy: ',dy
         Write (6,*) 'dy size: ',size(dy)
         Write (6,*) 'dy shape: ',shape(dy)
+#endif
         call kernels(iter,nInter)
         Energy(iter+1)=pred(npx)
         Grad(:,iter+1)=gpred

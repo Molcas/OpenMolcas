@@ -39,13 +39,13 @@
                     if (gh.eq.0) then
                         pred(j) = sb + dot_product(tcv(j,:),Kv)
                         sigma=1.96*sqrt(abs(var*variance))
-                        write(6,*) 'pred:',k,j,l,pred(j),var,variance, &
-                                    sigma, lh
+!                       write(6,*) 'pred:',k,j,l,pred(j),var,variance, &
+!                                   sigma, lh
                     else
                         pred(j) = dot_product(tcv(j,:),Kv)
                         sigma=1.96*sqrt(2*abs(var*variance))
-                        write(6,*) 'pred Grad:',k,j,l,pred(j),var,variance, &
-                                    sigma, lh
+!                       write(6,*) 'pred Grad:',k,j,l,pred(j),var,variance, &
+!                                   sigma, lh
                     endif
                 enddo
             enddo
@@ -62,9 +62,9 @@
             ! enddo
             !write(6,*) "Kv: ",Kv
             !write(6,*) "ys: ",Ys
-            write(6,*) 'l:',l
-            write(6,*) 'var: ',var
-            write(6,*) 'variance: ',variance
-            write(6,*) 'sigma: ',sigma
+!           write(6,*) 'l:',l
+!           write(6,*) 'var: ',var
+!           write(6,*) 'variance: ',variance
+!           write(6,*) 'sigma: ',sigma
             !write(6,*) 'll: ',ll
         END
