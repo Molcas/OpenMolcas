@@ -164,10 +164,10 @@ if (DMRG)
         # Name and e-mail required for downloading QCMaquis
         # Try to get the real name from the system account information
         if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-          set(QCMaquis_NAME_GET_CMD "id -F")
+                set(QCMaquis_NAME_GET_CMD "id -F")
         else()
         # should we distinguish other platforms?
-          set(QCMaquis_NAME_GET_CMD "sh" "-c" "getent passwd $USER | awk -F: '{print \$5}'")
+                set(QCMaquis_NAME_GET_CMD "sh" "-c" "getent passwd $USER | awk -F: '{print \$5}'")
         endif()
         execute_process (
                 COMMAND ${QCMaquis_NAME_GET_CMD}
@@ -198,8 +198,8 @@ if (DMRG)
         list(LENGTH QCMaquis_NAME_LIST qcm_name_len)
         if (qcm_name_len LESS 2)
                 message (FATAL_ERROR
-                  "Your name has been specified as: " ${QCMaquis_NAME} "\n"
-                  "Please specify both name and surname. If you have only one name, please specify it twice.")
+                        "Your name has been specified as: " ${QCMaquis_NAME} "\n"
+                        "Please specify both name and surname. If you have only one name, please specify it twice.")
         endif()
 
         # Separate first name from the last name
@@ -1919,25 +1919,24 @@ endif ()
 
 # GEN1INT interface
 if (GEN1INT)
-         message ("Configuring GEN1INT")
-         add_definitions (-D_GEN1INT_)
+        message ("Configuring GEN1INT")
 
-         set (proj ${PROJECT_SOURCE_DIR}/src/gen1int_util)
-         set (proj_bin ${PROJECT_BINARY_DIR}/External/gen1int_util)
+        set (proj ${PROJECT_SOURCE_DIR}/src/gen1int_util)
+        set (proj_bin ${PROJECT_BINARY_DIR}/External/gen1int_util)
 
-         configure_file(${proj}/CMakeLists.txt.in ${proj_bin}/CMakeLists.txt COPYONLY)
-         add_subdirectory(${proj_bin} ${proj_bin})
+        configure_file(${proj}/CMakeLists.txt.in ${proj_bin}/CMakeLists.txt COPYONLY)
+        add_subdirectory(${proj_bin} ${proj_bin})
 
-         get_directory_property(${GEN1INT_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${GEN1INT_INCLUDE})
-         get_directory_property(${GEN1INT_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${GEN1INT_LIBRARIES})
-         include_directories(${GEN1INT_INCLUDE})
+        get_directory_property(${GEN1INT_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${GEN1INT_INCLUDE})
+        get_directory_property(${GEN1INT_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${GEN1INT_LIBRARIES})
+        include_directories(${GEN1INT_INCLUDE})
 
-         message ("-- GEN1INT_INCLUDE_PATH: ${GEN1INT_INCLUDE}")
-         message ("-- GEN1INT_LIBRARIES:    ${GEN1INT_LIBRARIES}")
+        message ("-- GEN1INT_INCLUDE_PATH: ${GEN1INT_INCLUDE}")
+        message ("-- GEN1INT_LIBRARIES:    ${GEN1INT_LIBRARIES}")
 
-         list (APPEND EXTERNAL_LIBRARIES ${GEN1INT_LIBRARIES})
+        list (APPEND EXTERNAL_LIBRARIES ${GEN1INT_LIBRARIES})
 else ()
-         message ("GEN1INT support DISABLED")
+        message ("GEN1INT support DISABLED")
 endif ()
 
 # libwfa interface
@@ -2250,6 +2249,10 @@ if (LINALG STREQUAL "Runtime")
         list (APPEND ${util}_incs ${internal_linalg})
 endif ()
 
+if (GEN1INT)
+        list (APPEND integral_util_defs "_GEN1INT_")
+endif()
+
 # activate HDF5 wrappers for I/O
 if (HDF5 AND HDF5_FOUND)
         set (util hdf5_util)
@@ -2360,6 +2363,10 @@ endif ()
 if (WFA AND WFA_FOUND)
         list (APPEND wfa_defs "_WFA_")
 endif ()
+
+if (GEN1INT)
+        list (APPEND seward_defs "_GEN1INT_")
+endif()
 
 # programs doing HDF5 calls
 if (HDF5 AND HDF5_FOUND)
