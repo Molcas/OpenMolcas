@@ -11,17 +11,15 @@
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
 
-      Subroutine Start_Kriging(iter,nInter,qInt,Grad,Energy,anAIT,pAIT,lbAI)
+      Subroutine Start_Kriging(iter,nInter,qInt,Grad,Energy,pAIT,lbAI)
         use globvar
         Integer nInter,iter
         Real*8 qInt(nInter,iter+1),Grad(nInter,iter),Energy(iter),pAIT,lbAI(3)
-        Logical anAIT
 !
         allocate (x(nInter,iter),y(iter),lb(3),dy(nInter*iter), &
                     nx(nInter,1))
 !
         pAI=pAIT
-        anAI=anAIT
         npx=1 !npxAI
         nx=qInt(:,iter+1:iter+1)
         lb=lbAI
