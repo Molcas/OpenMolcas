@@ -10,35 +10,13 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-
-      Subroutine Start_Kriging(iter,nInter,qInt,Grad,Energy,lbAI)
-        use globvar
-        Integer nInter,iter
-        Real*8 qInt(nInter,iter+1),Grad(nInter,iter),Energy(iter),lbAI(3)
-!
-        allocate (x(nInter,iter),y(iter),lb(3),dy(nInter*iter), &
-                    nx(nInter,1))
-!
-        npx=1 !npxAI
-        nx=qInt(:,iter+1:iter+1)
-        lb=lbAI
-        x = qInt(1:nInter,1:iter)
-        y = Energy
-        do i=1,nInter
-          do j=1,iter
-            dy(j+(i-1)*iter) = Grad(i,j)
-          enddo
-        enddo
-!
-        call kernels(iter,nInter)
-!
-        Energy(iter+1)=pred(npx)
-        Grad(:,iter+1)=gpred
-
-        write(6,*) 'New values of Energy and grad', pred(npx), gpred
-        deallocate (x,y,lb,dy,nx,l)
-        deallocate (full_R,rl,dl,mat,Iden)
-        deallocate (kv,pred,gpred,hpred,var,sigma,cv,ll)
-!
-        return
-      end
+      module globvar
+        use AI, only: npxAI, anAI, pAI
+        real*8, allocatable :: x(:,:), y(:), dy(:), rl(:,:), &
+                dl(:,:), mat(:,:), Iden(:,:),full_R(:,:), &
+                nx(:,:),cv(:,:,:),lb(:),Kv(:),pred(:),Ys(:),var(:),Rones(:), &
+                sigma(:),l(:),gpred(:),hpred(:),ll(:,:)
+        real*8  sb,variance,detR,lh !p
+        real*8, parameter :: PI = 4.0 * atan (1.0_8), h=1e-5, eps=1e-6 ! eps avoid to become singular
+        integer prev_ns,m_t,npx,counttimes
+      end module globvar
