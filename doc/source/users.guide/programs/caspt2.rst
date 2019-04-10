@@ -608,7 +608,7 @@ Keywords
   :kword:`MULTistate` or :kword:`XMULtistate` keyword. Useful when many roots are required,
   but multi-state is not needed, or desired. Note that a :file:`JOBMIX` file is produced
   anyway, but the vectors will not be mixed, and the energies will be single-state CASPT2
-  energies. If used with the :kword:`XMULtistate' keyword, the zeroth-order Hamiltonian
+  energies. If used with the :kword:`XMULtistate` keyword, the zeroth-order Hamiltonian
   will be constructed with the state-average density and therefore will be the same for
   all the states.
 

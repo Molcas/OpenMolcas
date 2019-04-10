@@ -8,6 +8,6 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Parameter(nTraToc=106,nTraBuf=9600)
-      Integer iTraToc(nTraToc)
+      integer, parameter :: nTraToc=106, nTraBuf=9600
+      integer :: iTraToc(nTraToc)
       Common /TraToc/ iTraToc

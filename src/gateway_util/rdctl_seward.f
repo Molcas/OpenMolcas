@@ -13,6 +13,7 @@
       use Period
       use MpmC
       use EFP_Module
+      use fortran_strings, only : str
 #ifndef _HAVE_EXTRA_
       use XYZ
 #endif
@@ -72,7 +73,7 @@
      &                       mIsot(:)
       Integer, Allocatable :: ITmp(:), nIsot(:,:)
       Character*180 STDINP(mxAtom*2)
-      Character Basis_lib*256, INT2CHAR*4, CHAR4*4
+      Character Basis_lib*256, CHAR4*4
       Character*256 Project, GeoDir, temp1, temp2
 *
       Integer StrnLn
@@ -1430,12 +1431,11 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
                      Call WarningMessage(2,' Too many atoms in Seward')
                      Call Quit_OnUserError()
                   Else
-                     If(ii.LT.1000) Then
-                        CHAR4 = INT2CHAR(ii,3)
-                        CHAR4 ='_'//CHAR4(1:3)
-                     Else
-                        CHAR4 = INT2CHAR(ii,4)
-                     End If
+                    if (ii .LT. 1000) then
+                        CHAR4 = '_'//str(ii)
+                    else
+                        CHAR4 = str(ii)
+                    end if
                   End If
 
                   nCnt = nCnt + 1

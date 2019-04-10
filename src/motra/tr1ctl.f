@@ -18,10 +18,8 @@
 #ifdef _HDF5_QCM_
       use hdf5_utils
 #endif
-
       IMPLICIT REAL*8 (A-H,O-Z)
 *
-#include "fciqmc.fh"
 #include "motra_global.fh"
 #include "trafo_motra.fh"
 #include "files_motra.fh"
@@ -32,7 +30,6 @@
 #endif
 *
       Real*8 Ovlp(*), HOne(*), Kine(*), CMO(*)
-      logical okay
 *
       Call qEnter('Tr1Ctl')
 *
@@ -93,61 +90,6 @@
           END IF
         END DO
       END IF
-
-      if(iDoNECI) then
-c write one-electron integrals into FCIDMP file
-        iorboff = 0
-        korboff = 0
-        lorboff = 0
-        ioff    = 0
-        infroff = 0
-        do ISYM=1,NSYM
-          infroff = infroff + nfro(isym)
-          IF ( NORB(ISYM).GT.0 ) THEN
-            do iorb = iorboff+1,iorboff+norb(isym)
-             do jorb = iorboff+1, iorb
-c              if(abs(WORK(LWFMO+ioff)).ge.1.0d-10)
-       write(LuFCI,'(1X,G20.12,4I5)') WORK(LWFMO+ioff),
-     & iorb,jorb,korboff,lorboff
-              ioff = ioff + 1
-             enddo
-            enddo
-          END IF
-          iorboff = iorb - 1
-        end do
-c read orbital energies from INPORB file
-        call f_Inquire (FnInpOrb,okay)
-        If ( okay ) Then
-          itotnbas = 0
-          do i = 1, nsym
-            itotnbas= itotnbas + nbas(i)
-          end do
-          call getmem('EORB','Allo','Real',ipEOrb,itotnbas)
-          Call RdVec(FnInpOrb,LuInpOrb,'E',nSym,nBas,nBas,
-     &          Dummy, Dummy, work(ipEOrb), iDummy,
-     &          VecTit, 0, iErr)
-        Else
-          Write (6,*) 'RdCMO: Error finding MO file'
-          Call QTrace()
-          Call Abend()
-        End If
-c write orbital energies into FCIDUMP file
-        ioff   = 0
-        icount = 0
-        do ISYM=1,NSYM
-          IF ( NORB(ISYM).GT.0 ) THEN
-            do i = 1,norb(isym)
-             write(LuFCI,'(1X,G20.12,4I5)') WORK(ipEOrb+ioff+nfro(isym)+
-     &                                   i-1),i+icount,0,0,0
-            enddo
-          END IF
-          ioff   = ioff + nbas(isym)
-          icount = icount + norb(isym)
-        end do
-        call getmem('EORB','Free','Real',ipEOrb,itotnbas)
-c write core energy into FCIDMP file
-        write(LuFCI,'(1X,G20.12,4I5)') ECOR, 0, 0, 0, 0
-      end if
 
 #ifdef _HDF5_QCM_
       if(ihdf5 == 1)then

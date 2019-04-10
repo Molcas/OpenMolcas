@@ -26,6 +26,9 @@ endif ()
 if (POLICY CMP0045)
         cmake_policy(SET CMP0045 NEW)
 endif ()
+if (POLICY CMP0074)
+        cmake_policy(SET CMP0074 NEW)
+endif ()
 
 # Prevent in-source builds
 # If an in-source build is attempted, you will still need to clean up a few files manually.
@@ -253,7 +256,7 @@ if (DMRG)
 elseif (WFA)
         project (Molcas Fortran C CXX)
 else ()
-        project (Molcas Fortran C    )
+        project (Molcas Fortran C)
 endif ()
 
 add_definitions (-D_MOLCAS_)
@@ -1831,19 +1834,23 @@ endif ()
 
 # NECI Full-CI Quantum Monte-Carlo
 if (NECI)
+        if (NOT MPI)
+            message (FATAL_ERROR "NECI requires MPI (-DMPI=ON).")
+        endif()
         message ("Configuring NECI support:")
-        list (APPEND rasscf_defs "_NECI_")
         set (proj ${extprojsdir}/NECI)
         set (proj_bin ${PROJECT_BINARY_DIR}/External/NECI)
         if (EXISTS ${proj}/CMakeLists.txt)
                 # set default NECI options when built from Molcas
                 # and hide them from the Molcas CMake GUI
-                set (MOLCAS ON CACHE INTERNAL "Enable Molcas interface.")
-                set (PARALLEL ${MPI} CACHE INTERNAL "Enable parallel build (MPI).")
-                set (HDF ON CACHE INTERNAL "Enable HDF5 popsfiles.")
+                set (ENABLE_MOLCAS ON CACHE INTERNAL "Enable Molcas interface.")
+                set (ENABLE_HDF5 ON CACHE INTERNAL "Enable HDF5 popsfiles.")
                 set (WARNINGS OFF CACHE INTERNAL "Enable lots of compile warnings.")
-                set (SHARED_MEM ON CACHE INTERNAL "Enable shared memory.")
+                set (ENABLE_SHARED_MEMORY ON CACHE INTERNAL "Enable shared memory.")
+                set (ENABLE_SHARED ON CACHE INTERNAL "Enable shared libraries.")
+                # set (ENABLE_BUILD_HDF5 OFF CACHE INTERNAL "Provide precompiled HDF5.")
 
+                list (APPEND rasscf_defs "_NECI_")
                 add_subdirectory (${proj} ${proj_bin} EXCLUDE_FROM_ALL)
                 set (NECI_LIBRARIES libdneci)
 
@@ -1852,12 +1859,9 @@ if (NECI)
 
                 list (APPEND EXTERNAL_LIBRARIES ${NECI_LIBRARIES})
         else ()
-                list (APPEND rasscf_defs "_EXTNECI_")
                 message ("-- Internal NECI ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
                 message ("   An externally configured NECI can still be used")
-                message ("   Please use ExNEci command in your molcas input")
         endif ()
-
 else ()
         message ("NECI interface DISABLED")
 endif ()
@@ -2023,6 +2027,9 @@ endif ()
 
 # Add the "bigot" flags after processing the external projects, so they are not affected
 if (BIGOT)
+        if (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
+                message (FATAL_ERROR "BIGOT and Intel compilers are mutually exclusive.")
+        endif ()
         set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXXFLAGS_${CXXCID}_BIGOT}")
         set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CFLAGS_${CCID}_BIGOT}")
         set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${FFLAGS_${FCID}_BIGOT}")
