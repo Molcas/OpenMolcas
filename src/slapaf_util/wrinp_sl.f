@@ -14,6 +14,7 @@
 #include "WrkSpc.fh"
 #include "info_slapaf.fh"
 #include "print.fh"
+#include "AI.fh"
 *
       iRout=3
       iPrint=nPrint(iRout)
@@ -56,6 +57,27 @@
       Write (Lu,'(A,E9.2)')
      &    ' Max change of an internal coordinate:    ',Beta
       Write (Lu,*)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      If (Kriging) Then
+       Write (Lu,*)
+       Write (Lu,*) 'Kriging activated with parameters:'
+       Write (Lu,*)
+       Write (Lu,*) 'Number of source points:',nspAI
+       Write (Lu,*) 'Analytical Mat`ern derivatives:',anAI
+       Write (Lu,*) 'Width of Mat`ern: 0.1:6 # of steps:',lbAI
+       Write (Lu,*) 'Resolution of the predicted path:',npxAI
+       Write (Lu,*) 'Parameter of diff. for Mat`ern (p):',pAI
+       Write (Lu,*) 'Number of maximum interations of AI method:',miAI
+       Write (Lu,*) 'Minimum egergy differences at convergence;',meAI
+       Write (Lu,*)
+       Write (Lu,*) '*Note: for the analytical Matern the only choices'
+       Write (Lu,*) '    for (p) are 1 or 2, however for the numerical'
+       Write (Lu,*) '    Mat`ern you can choose between (0->"Inf"),'
+       Write (Lu,*) '    being in the limit of "Inf" the Gaussian case.'
+       Write (Lu,*)
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *

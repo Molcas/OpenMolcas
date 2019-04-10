@@ -488,17 +488,8 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 100   Char=Get_Ln(LuRd)
       If (Char.eq.'Kriging'.or.Char.eq.'kriging') then
        Kriging = .True.
-       Call WarningMessage(1,'Kriging AI method selected.')
-       Write (Lu,*) 'Default number of source points: 3.'
-       Write (Lu,*) 'Default analytical Mat`ern derivatives: True*.'
-       Write (Lu,*) 'Default width of Mat`ern: 0.1:6 # of steps 100'
-       Write (Lu,*) 'Default resolution of the predicted path: 100.'
-       Write (Lu,*) 'Default parameter of diff. for Mat`ern (p): 2*.'
-       Write (Lu,*) 'Default number of maximum interations of AI method'
-       Write (Lu,*) '*Note: for the analytical Matern the only choices'
-       Write (Lu,*) '    for (p) are 1 or 2, however for the numerical'
-       Write (Lu,*) '    Mat`ern you can choose between (0->"Inf"),'
-       Write (Lu,*) '    being in the limit of "Inf" the Gaussian case.'
+      Else
+       Call WarningMessage(1,'Illegal AI method selected.')
       EndIf
       Go To 999
 *                                                                      *
@@ -508,7 +499,6 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *
 101   Char=Get_Ln(LuRd)
       If (Char.eq.'False'.or.Char.eq.'false') anAI = .False.
-      Write (Lu,*) 'Analitical Matern derivatives: ', anAI
       Go To 999
 *                                                                      *
 ****** AIL  ************************************************************
@@ -517,7 +507,6 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *
 102   Char=Get_Ln(LuRd)
       Call Get_F(1,lbAI,3)
-      Write (Lu,*) 'Widht of the gaussian (from,to,# steps): ', lbAI
       Go To 999
 *                                                                      *
 ****** AINX ************************************************************
@@ -525,8 +514,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *     The resolution of the predicted path
 *
 103   Char=Get_Ln(LuRd)
-      Call Get_I(1,npxAO,1)
-      Write (Lu,*) 'Resolution of the predicted path: ', npxAI
+      Call Get_I(1,npxAI,1)
       Go To 999
 *                                                                      *
 ****** AIP  ************************************************************
@@ -535,11 +523,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *
 104   Char=Get_Ln(LuRd)
       Call Get_F(1,pAI,1)
-      Write (Lu,*) 'Parameter of differentiability for Mat`ern: ', pAI
-      If(pAI.gt.2.or.pAI.lt.1) then
-            Write (Lu,*) 'Switching to Numerical Mat`ern derivatives'
-            anAI = .False.
-      Endif
+      If(pAI.gt.2.or.pAI.lt.1) anAI = .False.
       Go To 999
 *                                                                      *
 ****** AISP ************************************************************
@@ -548,7 +532,6 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *
 105   Char=Get_Ln(LuRd)
       Call Get_I(1,nspAI,1)
-      Write (Lu,*) 'Number of source points selected: ', nspAI
       Go To 999
 *                                                                      *
 ****** AIMI ************************************************************
@@ -557,7 +540,6 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *
 106   Char=Get_Ln(LuRd)
       Call Get_I(1,miAI,1)
-      Write (Lu,*) 'Maximum interations: ', miAI
       Go To 999
 *                                                                      *
 ****** AIME ************************************************************
@@ -567,7 +549,6 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *
 107   Char=Get_Ln(LuRd)
       Call Get_I(1,meAI,1)
-      Write (Lu,*) 'Maximum interations: ', meAI
       Go To 999
 *                                                                      *
 ****** BAKE ************************************************************
