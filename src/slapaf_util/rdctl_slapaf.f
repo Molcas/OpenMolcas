@@ -483,7 +483,9 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *                                                                      *
 ****** AI   ************************************************************
 *                                                                      *
-100   Char=Get_Ln(LuRd) ! Defining the AI method
+*     Activate Kriging
+*
+100   Char=Get_Ln(LuRd)
       If (Char.eq.'Kriging'.or.Char.eq.'kriging') then
        Kriging = .True.
        Call WarningMessage(1,'Kriging AI method selected.')
@@ -499,19 +501,39 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
        Write (Lu,*) '    being in the limit of "Inf" the Gaussian case.'
       EndIf
       Go To 999
-101   Char=Get_Ln(LuRd) ! Analitical or numerical Mat'ern derivatives
+*                                                                      *
+****** AIAM ************************************************************
+*                                                                      *
+*      Analitical or numerical Mat'ern derivatives
+*
+101   Char=Get_Ln(LuRd)
       If (Char.eq.'False'.or.Char.eq.'false') anAI = .False.
       Write (Lu,*) 'Analitical Matern derivatives: ', anAI
       Go To 999
-102   Char=Get_Ln(LuRd) ! Widht limits of the Mat`ern function
+*                                                                      *
+****** AIL  ************************************************************
+*                                                                      *
+*     Widht limits of the Mat`ern function
+*
+102   Char=Get_Ln(LuRd)
       Call Get_F(1,lbAI,3)
       Write (Lu,*) 'Widht of the gaussian (from,to,# steps): ', lbAI
       Go To 999
-103   Char=Get_Ln(LuRd) ! The resolution of the predicted path
+*                                                                      *
+****** AINX ************************************************************
+*                                                                      *
+*     The resolution of the predicted path
+*
+103   Char=Get_Ln(LuRd)
       Call Get_I(1,npxAO,1)
       Write (Lu,*) 'Resolution of the predicted path: ', npxAI
       Go To 999
-104   Char=Get_Ln(LuRd) ! Parameter of differentiability for Mat`ern function
+*                                                                      *
+****** AIP  ************************************************************
+*                                                                      *
+*     Parameter of differentiability for Mat`ern function
+*
+104   Char=Get_Ln(LuRd)
       Call Get_F(1,pAI,1)
       Write (Lu,*) 'Parameter of differentiability for Mat`ern: ', pAI
       If(pAI.gt.2.or.pAI.lt.1) then
@@ -519,15 +541,31 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
             anAI = .False.
       Endif
       Go To 999
-105   Char=Get_Ln(LuRd) ! Defining the number of source points for the AI method
+*                                                                      *
+****** AISP ************************************************************
+*                                                                      *
+*     Defining the number of source points for the AI method
+*
+105   Char=Get_Ln(LuRd)
       Call Get_I(1,nspAI,1)
       Write (Lu,*) 'Number of source points selected: ', nspAI
       Go To 999
-106   Char=Get_Ln(LuRd) ! Maximum number of Iterations for the AI method
+*                                                                      *
+****** AIMI ************************************************************
+*                                                                      *
+*     Maximum number of Iterations for the AI method
+*
+106   Char=Get_Ln(LuRd)
       Call Get_I(1,miAI,1)
       Write (Lu,*) 'Maximum interations: ', miAI
       Go To 999
-107   Char=Get_Ln(LuRd) ! Minimum egergy differences of the last two Iterations (loop exit condition)
+*                                                                      *
+****** AIME ************************************************************
+*                                                                      *
+*     Minimum egergy differences of the last two Iterations
+*     (loop exit condition)
+*
+107   Char=Get_Ln(LuRd)
       Call Get_I(1,meAI,1)
       Write (Lu,*) 'Maximum interations: ', meAI
       Go To 999
