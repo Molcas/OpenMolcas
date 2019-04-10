@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine RdCtl_Slapaf(iRow,iInt,nFix,LuSpool,Dummy_Call)
+      use AI
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -16,7 +17,6 @@
 #include "nadc.fh"
 #include "weighting.fh"
 #include "print.fh"
-#include "AI.fh"
       Logical Found, Dummy_Call
       Character*8 Command
       Character*180 Get_Ln

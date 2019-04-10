@@ -9,12 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine WrInp_sl(iRow)
+      use AI
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "info_slapaf.fh"
 #include "print.fh"
-#include "AI.fh"
 *
       iRout=3
       iPrint=nPrint(iRout)

@@ -10,8 +10,8 @@
 *                                                                      *
 * Copyright (C) 2019, Gerardo Raggi                                    *
 ************************************************************************
-      Integer      nspAI,npxAI,miAI
-      Real*8       pAI, lbAI(3), dAIy, meAI
-      Logical      Kriging,anAI
-
-      Common /AI/  Kriging,nspAI,pAI,anAI,lbAI,npxAI,dAIy,miAI,meAI
+      Module AI
+         Integer      nspAI,npxAI,miAI
+         Real*8       pAI, lbAI(3), dAIy, meAI
+         Logical      Kriging,anAI
+      End Module AI

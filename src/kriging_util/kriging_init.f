@@ -9,8 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Kriging_Init()
+      use AI
       Implicit Real*8 (a-h,o-z)
-#include "AI.fh"
 C
 C     Initiate Kriging parameters.
 C
