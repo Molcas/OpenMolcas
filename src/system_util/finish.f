@@ -11,9 +11,6 @@
 * Copyright (C) 2001-2016, Valera Veryazov                             *
 ************************************************************************
       subroutine finish(rc)
-#ifndef _HAVE_EXTRA_
-      Use Prgm
-#endif
 C     Gracefully shuts down a program module.
 C     After everything is closed properly, xquit is
 C     called to do the actual termination.
