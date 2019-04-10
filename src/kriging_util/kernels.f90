@@ -19,7 +19,7 @@
             !    deallocate (full_R,rl,dl,mat,Iden)
             !    deallocate (kv,pred,gpred,hpred,var,sigma,cv,lh,l)
             ! Else
-            write(6,*) 'Allocating Kernels'
+            ! write(6,*) 'Allocating Kernels'
                 allocate (full_R(m_t,m_t))
                 allocate (rl(iter,iter),dl(iter,iter), &
                             mat(iter,iter),Iden(iter,iter))
@@ -29,7 +29,7 @@
             ! Endif
             call miden(iter)
             z=int(lb(3))
-            Write (6,*) 'Kernels l', z
+            ! Write (6,*) 'Kernels l', z
             ! do j = 1,nInter
             !     do i = 1,z
             !         l(j)=lb(1)+(i-1)*(lb(2)-lb(1))/(lb(3)-1) !
@@ -41,12 +41,12 @@
                     call covarmatrix(iter,nInter)
                     call k(iter)
                     call covarvector(0,iter,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
-                    write(6,*) "Predicted GEK "
+                    ! write(6,*) "Predicted GEK "
                     call predict(0,iter,nInter)
                     ll(1,i)=lh
                     tpgh(1,i)=pred(npx)
                     call covarvector(1,iter,nInter)
-                    write(6,*) "Predicted Gradient of GEK"
+                    ! write(6,*) "Predicted Gradient of GEK"
                     call predict(1,iter,nInter)
                     ll(2,i)=lh
                     tpgh(2,i)=pred(npx)

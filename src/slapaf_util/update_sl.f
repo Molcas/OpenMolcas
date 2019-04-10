@@ -173,65 +173,50 @@ c Avoid unused argument warnings
 *
       Else
 *        ------- AI loop begin here
-         If (Kriging) then
+         If (Kriging .AND. iter.ge.nspAI) then
+            Write (6,*) 'Kriging=',Kriging
             Kriging_Hessian =.TRUE.
-            If (nspAI.le.iter) then
-               dEner = Energy(iter)-Energy(iter-1)
-               iterAI=iter
-               miAI = 6
-               do while (iterAI.lt.miAI.and.dEner.lt.meAI)
-                  kIter_=iterAI
-                  Write (6,*) 'iterAI: ',iterAI
-                  Call RecPrt('qInt',' ',qInt,nInter,iterAI)
-                  Write (6,*) 'qInt shape: ',shape(qInt)
-                  Call RecPrt('Energy',' ',Energy,1,iterAI)
-                  Write (6,*) 'Energy shape: ',shape(Energy)
-                  Call RecPrt('Grad',' ',Grad,nInter,iterAI)
-                  Write (6,*) 'Grad shape: ',shape(Grad)
-                  Call Update_sl_(iterAI,iInt,nFix,nInter,qInt,Shift,
-     &                   Grad,iOptC,Beta,Lbl,GNrm,Energy,
-     &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,
-     &                   iRow_c,nsAtom,AtomLbl,nSym,iOper,mxdc,jStab,
-     &                   nStab,BMx,Smmtrc,nDimBC,rLambda,ipCx,
-     &                   GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
-     &                   Labels,nLabels,FindTS,TSC,nRowH,
-     &                   nWndw,Mode,ipMF,
-     &                   iOptH,HUpMet,kIter_,GNrm_Threshold,IRC,dMass,
-     &                   HrmFrq_Show,CnstWght,Curvilinear,Degen,
-     &                   Kriging_Hessian)
-*
-*                 Compute the energy and gradient according to the
-*                 surrogate model.
-*
-                  Call Start_Kriging(iterAI,nInter,qInt,Grad,Energy,
-     &                               anAI,pAI,lbAI,npxAI)
-                  iterAI = iterAI + 1
+            dEner = Energy(iter)-Energy(iter-1)
+            iterAI=iter
+            miAI = 10
+            iterK=0
+            dEner=meAI
+            do while (iterK.lt.miAI.and.Abs(dEner).ge.meAI)
+               kIter_=iterAI
+               Write (6,*) 'iterAI: ',iterAI
+               Call RecPrt('qInt',' ',qInt,nInter,iterAI)
+               Call RecPrt('Energy',' ',Energy,1,iterAI)
+               Call RecPrt('Grad',' ',Grad,nInter,iterAI)
+               Call Update_sl_(iterAI,iInt,nFix,nInter,qInt,Shift,
+     &                Grad,iOptC,Beta,Lbl,GNrm,Energy,
+     &                UpMeth,ed,Line_Search,Step_Trunc,nLambda,
+     &                iRow_c,nsAtom,AtomLbl,nSym,iOper,mxdc,jStab,
+     &                nStab,BMx,Smmtrc,nDimBC,rLambda,ipCx,
+     &                GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
+     &                Labels,nLabels,FindTS,TSC,nRowH,
+     &                nWndw,Mode,ipMF,
+     &                iOptH,HUpMet,kIter_,GNrm_Threshold,IRC,dMass,
+     &                HrmFrq_Show,CnstWght,Curvilinear,Degen,
+     &                Kriging_Hessian)
+               UpMeth=' GPR  '
 
-                  Call RecPrt('qInt(x):',' ',qInt,nInter,iterAI)
-                  Write (6,*) 'qInt shape: ',shape(qInt)
-                  Call RecPrt('Energy(x):',' ',Energy,1,iterAI)
-                  Write (6,*) 'Energy shape: ',shape(Energy)
-                  Call RecPrt('Grad(x):',' ',Grad,nInter,iterAI)
-                  Write (6,*) 'Grad shape: ',shape(Grad)
-                  write(6,*) 'do new iter',iterAI
-               End Do  ! Do While
-               write(6,*) 'finished do iter',iterAI
-            Else
-            Call Update_sl_(iter,iInt,nFix,nInter,qInt,Shift,
-     &                   Grad,iOptC,Beta,Lbl,GNrm,Energy,
-     &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,
-     &                   iRow_c,nsAtom,AtomLbl,nSym,iOper,mxdc,jStab,
-     &                   nStab,BMx,Smmtrc,nDimBC,rLambda,ipCx,
-     &                   GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
-     &                   Labels,nLabels,FindTS,TSC,nRowH,
-     &                   nWndw,Mode,ipMF,
-     &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,dMass,
-     &                   HrmFrq_Show,CnstWght,Curvilinear,Degen,
-     &                   Kriging_Hessian)
-            End If
+*              Compute the energy and gradient according to the
+*              surrogate model.
+*
+               Call Start_Kriging(iterAI,nInter,qInt,Grad,Energy,
+     &                               anAI,pAI,lbAI,npxAI)
+               iterK  = iterK  + 1
+               iterAI = iterAI + 1
+               dEner = Energy(iterAI) - Energy(iterAI-1)
+
+               Call RecPrt('qInt(x):',' ',qInt,nInter,iterAI)
+               Call RecPrt('Energy(x):',' ',Energy,1,iterAI)
+               Call RecPrt('Grad(x):',' ',Grad,nInter,iterAI)
+               write(6,*) 'do new iter',iterAI
+            End Do  ! Do While
+            write(6,*) 'finished do iter',iterAI
          Else
-            Write (6,*) 'iter: ',iter
-            write (6,*) 'kIter', kIter
+            Kriging_Hessian =.FALSE.
             Call Update_sl_(iter,iInt,nFix,nInter,qInt,Shift,
      &                   Grad,iOptC,Beta,Lbl,GNrm,Energy,
      &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,
@@ -386,8 +371,14 @@ c Avoid unused argument warnings
 *
       Call Allocate_Work(ipH,nInter**2)
       If (Kriging_Hessian) Then
+*
+*        Temporary code until we have the 2nd derivatives from the
+*        kriging code.
+*
          Call DCopy_(nInter**2,0.0D0,0,Work(ipH),1)
          Call DCopy_(nInter,1.0D0,0,Work(ipH),nInter+1)
+         iNeg(1)=0
+         iNeg(2)=0
       Else
          Call Mk_Hss_Q()
          Call Get_dArray('Hss_Q',Work(ipH),nInter**2)

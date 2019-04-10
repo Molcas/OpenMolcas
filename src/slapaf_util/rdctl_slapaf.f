@@ -513,16 +513,15 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
       Write (Lu,*) 'Analitical Matern derivatives: ', anAI
       Go To 999
 102   Char=Get_Ln(LuRd) ! Widht limits of the Mat`ern function
-      Write (Lu,*) 'Widht of the gaussian (from,to,# steps): ', Char
-      Read (Char,'3(F2.1') lbAI!(1),lbAI(2),lbAI(3)
+      Call Get_F(1,lbAI,3)
       Write (Lu,*) 'Widht of the gaussian (from,to,# steps): ', lbAI
       Go To 999
 103   Char=Get_Ln(LuRd) ! The resolution of the predicted path
-      Read (Char,'(I10)') npxAI
+      Call Get_I(1,npxAO,1)
       Write (Lu,*) 'Resolution of the predicted path: ', npxAI
       Go To 999
 104   Char=Get_Ln(LuRd) ! Parameter of differentiability for Mat`ern function
-      Read (Char,'(F2.2)') pAI
+      Call Get_F(1,pAI,1)
       Write (Lu,*) 'Parameter of differentiability for Mat`ern: ', pAI
       If(pAI.gt.2.or.pAI.lt.1) then
             Write (Lu,*) 'Switching to Numerical Mat`ern derivatives'
@@ -530,15 +529,15 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
       Endif
       Go To 999
 105   Char=Get_Ln(LuRd) ! Defining the number of source points for the AI method
-      Read (Char,'(I10)') nspAI
+      Call Get_I(1,nspAI,1)
       Write (Lu,*) 'Number of source points selected: ', nspAI
       Go To 999
 106   Char=Get_Ln(LuRd) ! Maximum number of Iterations for the AI method
-      Read (Char,'(I10)') miAI
+      Call Get_I(1,miAI,1)
       Write (Lu,*) 'Maximum interations: ', miAI
       Go To 999
 107   Char=Get_Ln(LuRd) ! Minimum egergy differences of the last two Iterations (loop exit condition)
-      Read (Char,'(I10)') meAI
+      Call Get_I(1,meAI,1)
       Write (Lu,*) 'Maximum interations: ', meAI
       Go To 999
 *                                                                      *

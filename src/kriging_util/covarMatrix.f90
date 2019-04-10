@@ -17,7 +17,7 @@
             deallocate (rl,dl,mat)
             allocate (rl(iter,iter),dl(iter,iter), &
                      mat(iter,iter))
-            Write (6,*) 'Covar Matrix'
+            ! Write (6,*) 'Covar Matrix'
             full_R=0
             !c=exp(-sqrt((2.0*p+1.0)*dl))
             tmat=0
