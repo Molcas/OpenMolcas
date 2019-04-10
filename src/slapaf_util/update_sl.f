@@ -78,7 +78,7 @@
 *             2000                                                     *
 ************************************************************************
       Use NewH_mod
-      Use AI
+      Use AI, only: Kriging, miAI, meAI
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
