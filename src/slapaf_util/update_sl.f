@@ -204,7 +204,7 @@ c Avoid unused argument warnings
 *              surrogate model.
 *
                Call Start_Kriging(iterAI,nInter,qInt,Grad,Energy,
-     &                               anAI,pAI,lbAI,npxAI)
+     &                               anAI,pAI,lbAI)
                iterK  = iterK  + 1
                iterAI = iterAI + 1
                dEner = Energy(iterAI) - Energy(iterAI-1)

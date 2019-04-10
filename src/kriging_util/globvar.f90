@@ -11,13 +11,13 @@
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
       module globvar
-!#include "stdalloc.fh"
+        use AI, only: npxAI
         real*8, allocatable :: x(:,:), y(:), dy(:), rl(:,:), &
                 dl(:,:), mat(:,:), Iden(:,:),full_R(:,:), &
                 nx(:,:),cv(:,:,:),lb(:),Kv(:),pred(:),Ys(:),var(:),Rones(:), &
                 sigma(:),l(:),gpred(:),hpred(:),ll(:,:)
         real*8 pAI,sb,variance,detR,lh !p
         real*8, parameter :: PI = 4.0 * atan (1.0_8), h=1e-5, eps=1e-6 ! eps avoid to become singular
-        integer prev_ns,m_t,npx,counttimes,npxAI!,NS, iter,nInter,
+        integer prev_ns,m_t,npx,counttimes
         logical :: anAI!anamat=.true. !Analitical Matern
       end module globvar
