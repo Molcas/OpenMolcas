@@ -12,6 +12,6 @@
 ************************************************************************
       Module AI
          Integer      nspAI,npxAI,miAI
-         Real*8       pAI, lbAI(3), dAIy, meAI
+         Real*8       pAI, lb(3), dAIy, meAI
          Logical      Kriging, anAI
       End Module AI

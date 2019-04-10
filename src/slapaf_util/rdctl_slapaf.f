@@ -506,7 +506,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *     Widht limits of the Mat`ern function
 *
 102   Char=Get_Ln(LuRd)
-      Call Get_F(1,lbAI,3)
+      Call Get_F(1,lb,3)
       Go To 999
 *                                                                      *
 ****** AINX ************************************************************

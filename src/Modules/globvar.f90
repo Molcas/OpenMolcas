@@ -11,10 +11,10 @@
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
       module globvar
-        use AI, only: npxAI, anAI, pAI, lbAI
+        use AI, only: npxAI, anAI, pAI, lb
         real*8, allocatable :: x(:,:), y(:), dy(:), rl(:,:), &
                 dl(:,:), mat(:,:), Iden(:,:),full_R(:,:), &
-                nx(:,:),cv(:,:,:),lb(:),Kv(:),pred(:),Ys(:),var(:),Rones(:), &
+                nx(:,:),cv(:,:,:),Kv(:),pred(:),Ys(:),var(:),Rones(:), &
                 sigma(:),l(:),gpred(:),hpred(:),ll(:,:)
         real*8  sb,variance,detR,lh !p
         real*8, parameter :: PI = 4.0 * atan (1.0_8), h=1e-5, eps=1e-6 ! eps avoid to become singular

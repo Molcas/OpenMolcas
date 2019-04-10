@@ -66,7 +66,7 @@
        Write (Lu,*)
        Write (Lu,*) 'Number of source points:',nspAI
        Write (Lu,*) 'Analytical Mat`ern derivatives:',anAI
-       Write (Lu,*) 'Width of Mat`ern: 0.1:6 # of steps:',lbAI
+       Write (Lu,*) 'Width of Mat`ern: 0.1:6 # of steps:',lb
        Write (Lu,*) 'Resolution of the predicted path:',npxAI
        Write (Lu,*) 'Parameter of diff. for Mat`ern (p):',pAI
        Write (Lu,*) 'Number of maximum interations of AI method:',miAI

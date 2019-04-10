@@ -16,12 +16,11 @@
         Integer nInter,iter
         Real*8 qInt(nInter,iter+1),Grad(nInter,iter),Energy(iter)
 !
-        allocate (x(nInter,iter),y(iter),lb(3),dy(nInter*iter), &
+        allocate (x(nInter,iter),y(iter),dy(nInter*iter), &
                     nx(nInter,1))
 !
         npx=1 !npxAI
         nx=qInt(:,iter+1:iter+1)
-        lb=lbAI
         x = qInt(1:nInter,1:iter)
         y = Energy
         do i=1,nInter
@@ -36,7 +35,7 @@
         Grad(:,iter+1)=gpred
 
         write(6,*) 'New values of Energy and grad', pred(npx), gpred
-        deallocate (x,y,lb,dy,nx,l)
+        deallocate (x,y,dy,nx,l)
         deallocate (full_R,rl,dl,mat,Iden)
         deallocate (kv,pred,gpred,hpred,var,sigma,cv,ll)
 !
