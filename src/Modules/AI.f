@@ -11,7 +11,7 @@
 * Copyright (C) 2019, Gerardo Raggi                                    *
 ************************************************************************
       Module AI
-         Integer      nspAI,npxAI,miAI
+         Integer      nspAI,npxAI,miAI, lm_save
          Real*8       pAI, lb(3), dAIy, meAI
-         Logical      Kriging, anAI
+         Logical      Kriging, anAI, make_parameters
       End Module AI

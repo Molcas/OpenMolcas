@@ -24,6 +24,8 @@ C
       lb(3) = 10
       miAI = 10
       meAI = 1.0D-6
+      Make_parameters = .True.
+      lm_save = -99
 *
       Return
       End
