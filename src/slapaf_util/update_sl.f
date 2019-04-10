@@ -178,7 +178,6 @@ c Avoid unused argument warnings
             Kriging_Hessian =.TRUE.
             dEner = Energy(iter)-Energy(iter-1)
             iterAI=iter
-            miAI = 10
             iterK=0
             dEner=meAI
             do while (iterK.lt.miAI.and.Abs(dEner).ge.meAI)
@@ -203,8 +202,8 @@ c Avoid unused argument warnings
 *              Compute the energy and gradient according to the
 *              surrogate model.
 *
-               Call Start_Kriging(iterAI,nInter,qInt,Grad,Energy,
-     &                            lbAI)
+               Call Start_Kriging(iterAI,nInter,qInt,Grad,Energy)
+*
                iterK  = iterK  + 1
                iterAI = iterAI + 1
                dEner = Energy(iterAI) - Energy(iterAI-1)

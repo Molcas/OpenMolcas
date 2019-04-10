@@ -23,7 +23,7 @@ C
       lbAI(2) = 6.0
       lbAI(3) = 10
       miAI = 100
-      meAI = -10e-6
+      meAI = 1.0D-6
 *
       Return
       End

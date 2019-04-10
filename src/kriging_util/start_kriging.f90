@@ -11,10 +11,10 @@
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
 
-      Subroutine Start_Kriging(iter,nInter,qInt,Grad,Energy,lbAI)
+      Subroutine Start_Kriging(iter,nInter,qInt,Grad,Energy)
         use globvar
         Integer nInter,iter
-        Real*8 qInt(nInter,iter+1),Grad(nInter,iter),Energy(iter),lbAI(3)
+        Real*8 qInt(nInter,iter+1),Grad(nInter,iter),Energy(iter)
 !
         allocate (x(nInter,iter),y(iter),lb(3),dy(nInter*iter), &
                     nx(nInter,1))

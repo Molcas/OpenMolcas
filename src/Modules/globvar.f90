@@ -11,7 +11,7 @@
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
       module globvar
-        use AI, only: npxAI, anAI, pAI
+        use AI, only: npxAI, anAI, pAI, lbAI
         real*8, allocatable :: x(:,:), y(:), dy(:), rl(:,:), &
                 dl(:,:), mat(:,:), Iden(:,:),full_R(:,:), &
                 nx(:,:),cv(:,:,:),lb(:),Kv(:),pred(:),Ys(:),var(:),Rones(:), &
