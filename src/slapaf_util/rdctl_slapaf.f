@@ -486,15 +486,6 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 100   Char=Get_Ln(LuRd) ! Defining the AI method
       If (Char.eq.'Kriging'.or.Char.eq.'kriging') then
        Kriging = .True.
-       nspAI = 3
-       anAI = .True.
-       pAI = 2
-       npxAI = 100
-       lbAI(1) = 0.1
-       lbAI(2) = 6.0
-       lbAI(3) = 10
-       miAI = 100
-       meAI = -10e-6
        Call WarningMessage(1,'Kriging AI method selected.')
        Write (Lu,*) 'Default number of source points: 3.'
        Write (Lu,*) 'Default analytical Mat`ern derivatives: True*.'
