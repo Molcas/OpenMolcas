@@ -26,11 +26,19 @@
 !
             If (make_parameters) Then
 !
+!              Construct the covariance matrix and compute the inverse matrix.
+!
                call covarmatrix(iter,nInter)
                call k(iter)
-            do j = 1,nInter
+!
+!               Brute force code to optimize the kriging parameters. Too be
+!               replaced.
+!
                 do i = 1,z
+!
+                  Do j = 1,nInter
                     l(j)=lb(1)+(i-1)*(lb(2)-lb(1))/(lb(3)-1)
+                  End Do
                     call covarvector(0,iter,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
                     call predict(0,iter,nInter)
                     ll(1,i)=lh
@@ -40,7 +48,6 @@
                     ll(2,i)=lh
                     tpgh(2,i)=pred(npx)
                 enddo
-            enddo
 !
             lm=MaxLoc(abs(ll(1,:)),dim=nInter)
             pred(npx)=tpgh(1,lm)
@@ -53,11 +60,10 @@
 !
             Else
 !
-            do j = 1,nInter
                 i = lm_save
+                do j = 1,nInter
                     l(j)=lb(1)+(i-1)*(lb(2)-lb(1))/(lb(3)-1)
-!                   call covarmatrix(iter,nInter)
-!                   call k(iter)
+                enddo
                     call covarvector(0,iter,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
                     call predict(0,iter,nInter)
                     ll(1,i)=lh
@@ -66,11 +72,8 @@
                     call predict(1,iter,nInter)
                     ll(2,i)=lh
                     tpgh(2,i)=pred(npx)
-            enddo
-!           lm=MaxLoc(abs(ll(1,:)),dim=nInter)
             pred(npx)=tpgh(1,lm_save)
             Write(6,*) 'Likelihood function pred',lm_save,pred(npx)
-!           lm=MaxLoc(abs(ll(2,:)),dim=nInter)
             gpred(npx)=tpgh(2,lm_save)
             Write(6,*) 'Likelihood function gpred',lm_save,gpred(npx)
             make_parameters=.False.
