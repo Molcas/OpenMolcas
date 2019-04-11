@@ -78,7 +78,7 @@
 *             2000                                                     *
 ************************************************************************
       Use NewH_mod
-      Use AI, only: Kriging, miAI, meAI
+      Use AI, only: Kriging, miAI, meAI, nspAI
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -173,21 +173,26 @@ c Avoid unused argument warnings
 *
       Else
 *        ------- AI loop begin here
+         Write (6,*)'iter,nspAI=',iter,nspAI
          If (Kriging .AND. iter.ge.nspAI) then
             Write (6,*) 'Kriging=',Kriging
             Kriging_Hessian =.TRUE.
             dEner = Energy(iter)-Energy(iter-1)
             iterAI=iter
-            iterK=0
             dEner=meAI
+            nRaw=Min(iter,nWndw)
+            iFirst = iter - nRaw + 1
+            iterK=0
+            Write (6,*) 'iFirst,nRaw=',iFirst,nRaw
+            Call RecPrt('qInt(0)',  ' ',qInt(1,iFirst),nInter,nRaw)
+            Call RecPrt('Energy(0)',' ',Energy(iFirst),1,nRaw)
+            Call RecPrt('Grad(0)',  ' ',Grad(1,iFirst),nInter,nRaw)
             do while (iterK.lt.miAI.and.Abs(dEner).ge.meAI)
                kIter_=iterAI
                Write (6,*) 'iterAI: ',iterAI
-               Call RecPrt('qInt',' ',qInt,nInter,iterAI)
-               Call RecPrt('Energy',' ',Energy,1,iterAI)
-               Call RecPrt('Grad',' ',Grad,nInter,iterAI)
-               Call Update_sl_(iterAI,iInt,nFix,nInter,qInt,Shift,
-     &                Grad,iOptC,Beta,Lbl,GNrm,Energy,
+               Call Update_sl_(iterAI,iInt,nFix,nInter,
+     &                qInt,Shift,Grad,
+     &                iOptC,Beta,Lbl,GNrm,Energy,
      &                UpMeth,ed,Line_Search,Step_Trunc,nLambda,
      &                iRow_c,nsAtom,AtomLbl,nSym,iOper,mxdc,jStab,
      &                nStab,BMx,Smmtrc,nDimBC,rLambda,ipCx,
@@ -197,12 +202,16 @@ c Avoid unused argument warnings
      &                iOptH,HUpMet,kIter_,GNrm_Threshold,IRC,dMass,
      &                HrmFrq_Show,CnstWght,Curvilinear,Degen,
      &                Kriging_Hessian)
-               UpMeth=' GPR  '
+               UpMeth='GPR   '
+               Write (UpMeth(4:6),'(I3)') iterK+1
 
 *              Compute the energy and gradient according to the
-*              surrogate model.
+*              surrogate model for the new coordinates.
 *
-               Call Start_Kriging(iterAI,nInter,qInt,Grad,Energy)
+               Call Start_Kriging(nRaw,nInter,
+     &                            qInt(1,iFirst),
+     &                            Grad(1,iFirst),
+     &                            Energy(iFirst))
 *
                iterK  = iterK  + 1
                iterAI = iterAI + 1
@@ -213,9 +222,14 @@ c Avoid unused argument warnings
                Call RecPrt('Grad(x):',' ',Grad,nInter,iterAI)
                write(6,*) 'do new iter',iterAI
             End Do  ! Do While
+*
+*           Save the optimized kriging coordinates as the coordinates
+*           for the next macro iteration.
+*
+            Call DCopy_(nInter,qInt(1,iterAI),1,qInt(1,iter+1),1)
+*
             write(6,*) 'finished do iter',iterAI
          Else
-            Kriging_Hessian =.FALSE.
             Call Update_sl_(iter,iInt,nFix,nInter,qInt,Shift,
      &                   Grad,iOptC,Beta,Lbl,GNrm,Energy,
      &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,
