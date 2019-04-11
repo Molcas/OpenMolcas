@@ -48,6 +48,7 @@ CC-PWCV5Z-DK     CCC   AE_   DK2
 DEF-SVP          SEG   AE_   NRH
 DEF2-SVP         SEG   AE_   NRH
 DEF2-TZVP        SEG   AE_   NRH
+DEF2-TZVPP       SEG   AE_   NRH
 DZ               SEG   AE_   NRH
 DZP              SEG   AE_   NRH
 ECP              RAF   NAE   RCP
