@@ -3,7 +3,7 @@
 * The list of basis functions is generated with the following script:
 ************************************************************************
 * #!/bin/sh
-* 
+*
 * for basis in $MOLCAS/basis_library/* ; do
 *   # skip directories
 *   test -d $basis && continue
@@ -7710,6 +7710,46 @@
   Basis
     I.DEF2-TZVP..11s10p8d2f.6s5p3d2f.ecp28.
     I 0.0 0.0 0.0
+  End of Basis
+  OneOnly
+  NoGuess
+
+&SEWARD
+  Basis
+    H.DEF2-TZVPP..5s2p1d.3s2p1d.
+    H 0.0 0.0 0.0
+  End of Basis
+  OneOnly
+  NoGuess
+
+&SEWARD
+  Basis
+    C.DEF2-TZVPP..11s6p2d1f.5s3p2d1f.
+    C 0.0 0.0 0.0
+  End of Basis
+  OneOnly
+  NoGuess
+
+&SEWARD
+  Basis
+    N.DEF2-TZVPP..11s6p2d1f.5s3p2d1f.
+    N 0.0 0.0 0.0
+  End of Basis
+  OneOnly
+  NoGuess
+
+&SEWARD
+  Basis
+    O.DEF2-TZVPP..11s6p2d1f.5s3p2d1f.
+    O 0.0 0.0 0.0
+  End of Basis
+  OneOnly
+  NoGuess
+
+&SEWARD
+  Basis
+    Co.DEF2-TZVPP..17s12p7d2f1g.6s5p4d2f1g.
+    Co 0.0 0.0 0.0
   End of Basis
   OneOnly
   NoGuess
