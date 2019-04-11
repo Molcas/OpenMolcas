@@ -1,7 +1,7 @@
 .. _UG\:sec\:symmetrize:
 
 :program:`symmetrize`
-==============
+=====================
 
 .. only:: html
 

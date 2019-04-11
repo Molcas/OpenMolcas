@@ -7,10 +7,6 @@
 :program:`SINGLE_ANISO` --- A Magnetism of Complexes Program
 ============================================================
 
-.. warning::
-
-   This program is not available in OpenMolcas
-
 The program :program:`SINGLE_ANISO` calculates nonperturbatively the temperature- and field-dependent magnetic
 properties (Van Vleck susceptibility tensor and function, molar magnetization vector and function) and the
 pseudospin Hamiltonians for Zeeman interaction (the :math:`g` tensor and higher rank tensorial components) and the

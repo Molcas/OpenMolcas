@@ -8,11 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Common /Trafo/ nTot,nTot1,nTot2,n2max,nOrbt,nOrbtt,
-     *               ISP,ISQ,ISR,ISS,
-     *               NBP,NBQ,NBR,NBS,
-     *               NOP,NOQ,NOR,NOS,
-     *               LMOP,LMOQ,LMOR,LMOS,
-     *               NBPQ,NBRS,NOVX,
-     *               INCORE,MEMX,
-     *               LTUVX,IAD13
+
+! This is just an encapsulation of the common block in
+! src/Include/gugx.fh
+! into a data module
+
+      module gugx_data
+      implicit none
+#include "gugx.fh"
+      save
+      end module gugx_data
