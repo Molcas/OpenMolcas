@@ -26,11 +26,11 @@
 !
             If (make_parameters) Then
 !
+               call covarmatrix(iter,nInter)
+               call k(iter)
             do j = 1,nInter
                 do i = 1,z
                     l(j)=lb(1)+(i-1)*(lb(2)-lb(1))/(lb(3)-1)
-                    call covarmatrix(iter,nInter)
-                    call k(iter)
                     call covarvector(0,iter,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
                     call predict(0,iter,nInter)
                     ll(1,i)=lh
@@ -41,6 +41,7 @@
                     tpgh(2,i)=pred(npx)
                 enddo
             enddo
+!
             lm=MaxLoc(abs(ll(1,:)),dim=nInter)
             pred(npx)=tpgh(1,lm)
             Write(6,*) 'Likelihood function pred',lm,pred(npx)
@@ -55,8 +56,8 @@
             do j = 1,nInter
                 i = lm_save
                     l(j)=lb(1)+(i-1)*(lb(2)-lb(1))/(lb(3)-1)
-                    call covarmatrix(iter,nInter)
-                    call k(iter)
+!                   call covarmatrix(iter,nInter)
+!                   call k(iter)
                     call covarvector(0,iter,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
                     call predict(0,iter,nInter)
                     ll(1,i)=lh
