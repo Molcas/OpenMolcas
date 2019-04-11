@@ -105,7 +105,7 @@
       real(kind=8), allocatable :: TmpD1S(:), TmpDS(:), CICtl1(:),
      &  DTMP(:), DStmp(:), Ptmp(:), PAtmp(:)
       integer :: err
-      character(1024) :: path
+      character(1024) :: WorkDir
 
       parameter(ROUTINE = 'FCIQMC_clt')
 !      integer :: IDXCI(mxAct), IDXSX(mxAct)
@@ -254,18 +254,16 @@ c      end if
      &'for compiling or use an external NECI.')
 #endif
       else
-        call getcwd_(path, err)
+        call getcwd_(WorkDir, err)
         if (err /= 0) write(6, *) strerror_(get_errno_())
-        write(6,'(A)')'(1) Run NECI externally using '//
+        write(6,'(A)')'Run NECI externally using '//
      & '$Project.FciDmp or $Project.FciDmp.h5 and $Project.FciInp '//
-     & 'which can be found in'//trim(path)//'.'
-        write(6,'(A)')'(2) cp TwoRDM_aaaa.1 into $WorkDir'
-        write(6,'(A)')'(3) cp TwoRDM_abab.1 into $WorkDir'
-        write(6,'(A)')'(4) cp TwoRDM_abba.1 into $WorkDir'
-        write(6,'(A)')'(2) cp TwoRDM_bbbb.1 into $WorkDir'
-        write(6,'(A)')'(3) cp TwoRDM_baba.1 into $WorkDir'
-        write(6,'(A)')'(4) cp TwoRDM_baab.1 into $WorkDir'
-        write(6,'(A)')'(6) Type: echo ''your_RDM_Energy'' > NEWCYCLE'
+     & 'which can be found in '//trim(WorkDir)
+        write(6,'(A)') "When finished do:"
+        write(6,'(A)')
+     &  '>>> cp TwoRDM_aaaa.1 TwoRDM_abab.1 TwoRDM_abba.1 '//
+     &  'TwoRDM_bbbb.1 TwoRDM_baba.1 TwoRDM_baab.1 '//trim(WorkDir)
+        write(6,'(A)')'>>> echo $your_RDM_Energy > NEWCYCLE'
         call xflush(6)
         waitForNECI = .false.
         do while(.not. waitForNECI)
