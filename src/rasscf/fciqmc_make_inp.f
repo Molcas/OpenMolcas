@@ -25,7 +25,7 @@
      &    stepsshift = 10,
      &    addtoinitiator = 3,
      &    maxwalkerbloom = 1,
-     &    semi_stochastic = 1000,
+     &    semi_stochastic = 500,
      &    highlypopwrite = 50,
      &    calcrdmonfly(3) = [3, 500, 500]
         integer, allocatable ::
