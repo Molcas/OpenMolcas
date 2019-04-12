@@ -151,15 +151,11 @@
       Filename=BasLoc(1:iLast_JR)//'/'//TmpString(1:iLast2)
       TmpString=Author
       Call Upcase(TmpString)
-      If (Type.eq.'ECP' .and. (TmpString.eq.'DOLG'
-     &                  .or.   TmpString.eq.'HAY-WADT'
-     &                  .or.   TmpString.eq.'STOLL'
-     &                  .or.   TmpString.eq.'HW'
-     &                  .or.   TmpString.eq.'PETERSON')) Then
-         iLast4=StrnLn(Filename)
-         iLast2=StrnLn(TmpString)
-         Filename=Filename(1:iLast4)//'.'//TmpString(1:iLast2)
-      End If
+      iLast4=StrnLn(Filename)
+      iLast2=StrnLn(TmpString)
+      TmpString=Filename(1:iLast4)//'.'//TmpString(1:iLast2)
+      Call f_Inquire(TmpString,Exist)
+      If (Exist) Filename=TmpString
       iLast3=StrnLn(Filename)
       If (IfTest) Write (6,'(A,A)') 'Filename=',Filename
       Call f_Inquire(Filename,Exist)

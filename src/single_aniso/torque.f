@@ -10,7 +10,6 @@
 ************************************************************************
       Subroutine torque(Nss,NM,AngPoints,EM,eso,dipm,sm,zJ,thrs,mem,
      &                  m_paranoid,smagn,H_torq,T_torq,ma,dbg)
-
       Implicit None
       Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
 #include "cntrl.fh"

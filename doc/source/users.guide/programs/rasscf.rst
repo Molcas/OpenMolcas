@@ -303,23 +303,28 @@ Two input keywords are strictly required in the :program:`RASSCF` module for act
 :kword:`NECI`
   This keyword is needed to enable the Stochastic-CASSCF method.
 
+  Additional keywords like ``totalwalkers`` have the same meaning as in NECI
+  and are just passed on.
+
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="NECI" KIND="SINGLE" LEVEL="ADVANCED" EXCLUSIVE="DMRG">
               %%Keyword: NECI <advanced>
               <HELP>
               This keyword is used to enable Stochastic-CASSSCF
               calculations and features related to it (such as produce a FCIDUMP file).
+              Additional keywords like "totalwalkers" have the
+              same meaning as in NECI and are just passed on.
               </HELP>
               </KEYWORD>
 
-:kword:`EXNE`
-  This keyword enables the decoupled version of the Stochastic-CASSCF where |molcas| and :program:`NECI` are installed and run independently.
+:kword:`EMBD`
+  This keyword enables the embedded version of the Stochastic-CASSCF where :program:`NECI` runs as subroutine of |molcas|.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="EXNE" APPEAR="External NECI" KIND="SINGLE" LEVEL="ADVANCED" REQUIRE="NECI">
-              %%Keyword: EXNE <advanced>
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="EMBD" APPEAR="Embedded NECI" KIND="SINGLE" LEVEL="ADVANCED" REQUIRE="NECI">
+              %%Keyword: EMBD <advanced>
               <HELP>
               This keyword is used jointly to the NECI keyword in the context of the Stochastic-CASSCF method,
-              to enable the decoupled Stochastic-CASSSCF
-              calculations, where Molcas and NECI are installed and run independently.
+              to enable the embedded Stochastic-CASSSCF
+              calculations, where NECI runs as subroutine of Molcas.
               </HELP>
               </KEYWORD>
 
@@ -357,6 +362,57 @@ Optional important keywords are:
               to provide the FCIQMC algorithm with an initial guess for the reference Slater determinant.
               It is followed (new line) by a string of integers representing spin-orbitals in the order
               given in the INPORB file.
+              </HELP>
+              </KEYWORD>
+
+
+:kword:`REOR`
+  This keyword is used to reorder the active orbitals for compacting
+  the wavefunction when using CSFs.
+  The user can input a permutation by specifying the number of non
+  fixed point elements, followed by the order of the non fixed point elements.
+
+  .. compound::
+
+     If the total number of active orbitals is e.g. 6
+     the following example of the :kword:`REOR` keyword::
+
+          REOR
+            3
+            4 5 1
+
+     leads to an order of ``[4 2 3 5 1 6]``.
+
+  .. compound::
+
+     If GAS is used one can specify -1 as flag::
+
+          REOR
+            -1
+
+     to follow the order of GAS spaces.
+     This means that the orbitals are ordered by GAS space first
+     and by symmetry second.
+     First all orbitals of GAS1 and within it orbitals of Irrep 1 come first,
+     Irrep 2 next...
+     Once all orbitals of GAS1 are exhausted we continue with orbitals of GAS2
+     and so on.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="REOR" Appear="Reordering orbitals" KIND="STRING" LEVEL="ADVANCED" REQUIRE="NECI">
+              %%Keyword: REOR <advanced>
+              <HELP>
+              This keyword is used to reorder the active orbitals for compacting
+              the wavefunction when using CSFs.
+              The user can input a permutation by specifying the number of non
+              fixed point elements, followed by the order of the non fixed point elements.
+              If the total number of active orbitals is e.g. 6
+              the following example of the REOR keyword
+              ||
+              ||  REOR
+              ||    3
+              ||    4 5 1
+              ||
+               leads to an order of [4 2 3 5 1 6].
               </HELP>
               </KEYWORD>
 
@@ -557,10 +613,10 @@ it is important to know the difference between the sets:
 #. **Improved virtual orbitals:**
    This refers only to virtual orbitals, when the :kword:`IVO` keyword is employed
    in the input. In this case, the virtual orbitals are those which diagonalize
-   the core Hamiltonian. Since the energies of virtual orbitals become thus undefined, 
-   the obtained :file:`RASORB` and :file:`JOBIPH` files can **not** be used for CASPT2 or MRCI or any correlated 
+   the core Hamiltonian. Since the energies of virtual orbitals become thus undefined,
+   the obtained :file:`RASORB` and :file:`JOBIPH` files can **not** be used for CASPT2 or MRCI or any correlated
    calculations. The printed virtual orbitals are quite localized and could be used only to
-   decide which ones should be included in an (enlarged) active space in a subsequest 
+   decide which ones should be included in an (enlarged) active space in a subsequest
    :program:`RASSCF` calculation.
 
 .. _UG\:sec\:rasscf_dependencies:
@@ -1758,22 +1814,22 @@ A list of these keywords is given below:
               </KEYWORD>
 
 :kword:`IVO`
-  The :program:`RASSCF` program will diagonalize the core Hamiltonian in the space of virtual orbitals, 
+  The :program:`RASSCF` program will diagonalize the core Hamiltonian in the space of virtual orbitals,
   before printing them in the output. The resulting orbitals are only suitable to select which ones
-  should enter the active space in a subsequent :program:`RASSCF` calculation. The :program:`RASSCF` wave function and 
-  orbitals are not suitable for CASPT2, MRCI or any other correlated methods, because the energies 
+  should enter the active space in a subsequent :program:`RASSCF` calculation. The :program:`RASSCF` wave function and
+  orbitals are not suitable for CASPT2, MRCI or any other correlated methods, because the energies
   of the virtual orbitals are undefined.
-  This keyword is equivalent to the :kword:`IVO` keyword of the :program:`SCF` program. 
+  This keyword is equivalent to the :kword:`IVO` keyword of the :program:`SCF` program.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="IVO" APPEAR="Improved Virtual Orbitals" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: IVO <basic>
               <HELP>
-              The RASSCF program will diagonalize the core Hamiltonian in the space of virtual orbitals, 
+              The RASSCF program will diagonalize the core Hamiltonian in the space of virtual orbitals,
               before printing them in the output. The resulting orbitals are only suitable to select which ones
-              should enter the active space in a subsequent RASSCF calculation. The RASSCF wave function and 
-              orbitals are not suitable for CASPT2, MRCI or any other correlated methods, because the energies 
+              should enter the active space in a subsequent RASSCF calculation. The RASSCF wave function and
+              orbitals are not suitable for CASPT2, MRCI or any other correlated methods, because the energies
               of the virtual orbitals are undefined.
-              This keyword is equivalent to the IVO keyword of the SCF program. 
+              This keyword is equivalent to the IVO keyword of the SCF program.
               </HELP>
               </KEYWORD>
 

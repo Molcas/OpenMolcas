@@ -8,47 +8,69 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2015, Ignacio Fdez. Galvan                             *
+* Copyright (C) 2019, Oskar Weser                                      *
 ***********************************************************************/
-/* C wrappers to be called from Fortran (newdir.f) */
 
 #define _XOPEN_SOURCE 500
 #include <ftw.h>
+#include <string.h>
+#include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include "molcastype.h"
 
-/* Method to create a directory
-   (uses int* instead of mode_t as argument, because mode_t not portable with Fortran) */
-INT mkdir_for_f(const char *pathname, INT *mode)
+/* C_SIZE_T (or in general unsigned ints) is not supported by FORTRAN */
+/* Implicit cast to c_int */
+INT strlen_wrapper(char **str)
 {
-    INT rv = mkdir(pathname, *mode);
-    return rv;
+  return strlen(*str);
 }
 
-/* Method to get the current directory
-   (uses int* instead of size_t as argument, because size_t not portable with Fortran) */
-char *getcwd_for_f(char *buf, INT *size)
+void getcwd_wrapper(char *path, INT *n, INT *err)
 {
-    char *cwd = getcwd(buf, *size);
-    return cwd;
+  if (getcwd(path, *n) == path) {
+    *err = 0;
+    INT i = -1;
+/* This is necessary for FORTRAN trim() to work correctly.*/
+    while (path[++i] != '\0');
+    for (; i < *n; i++) {
+      path[i] = ' ';
+    }
+  } else {
+    *err = 1;
+  }
 }
 
-/* Method to change directory
-   (for consistency) */
-INT chdir_for_f(const char *path)
+void chdir_wrapper(char *path, INT *err)
 {
-    INT rv = chdir(path);
-    return rv;
+  *err = chdir(path);
 }
+
+void symlink_wrapper(char *to, char *from, INT *err)
+{
+  *err = symlink(to, from);
+}
+
+/* MODE_T (or in general unsigned ints) is not supported by FORTRAN */
+/* Implicit cast to c_int */
+void mkdir_wrapper(const char *path, INT *mode, INT *err)
+{
+    *err = mkdir(path, *mode);
+}
+
+INT get_errno() {
+  return errno;
+}
+
 
 /* Method to recursively remove a directory and its contents
    (from a stackoverflow.com answer) */
 
 /* private method to be used as argument for rmrf */
-static int unlink_cb(const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftwbuf)
+static int unlink_cb(const char *fpath, const struct stat *sb,
+                     int typeflag, struct FTW *ftwbuf)
 {
     int rv = remove(fpath);
 
@@ -62,7 +84,7 @@ static int unlink_cb(const char *fpath, const struct stat *sb, int typeflag, str
     return rv;
 }
 
-INT rmrf(char *path)
+void remove_wrapper(char *path, INT *err)
 {
-    return nftw(path, unlink_cb, 64, FTW_DEPTH | FTW_PHYS);
+    *err = (INT) nftw(path, unlink_cb, 64, FTW_DEPTH | FTW_PHYS);
 }

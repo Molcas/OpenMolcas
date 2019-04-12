@@ -58,6 +58,7 @@
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
 #endif
+      use fciqmc, only : DoNECI
       Implicit Real*8 (A-H,O-Z)
 
       Dimension CMO(*),OCC(*),D(*),P(*),PA(*),FI(*),FA(*),D1A(*)
@@ -70,7 +71,6 @@
       Parameter (ROUTINE='SXCTL   ')
 #include "WrkSpc.fh"
 #include "wadr.fh"
-#include "fciqmc.fh"
 #include "raswfn.fh"
       Character*4 Word
 * PAM 2008 IndType, VecTyp added, see below at call to WrVec
@@ -340,7 +340,7 @@ cGLM      end if
         Call GetMem('EDUM','ALLO','REAL',LEDUM,NTOT)
         call dcopy_(NTOT,0.0D0,0,WORK(LEDUM),1)
 
-        IF (iDoNECI) THEN
+        IF (DoNECI) THEN
           write(6,*)'For NECI orbital energies are approximated'
           write(6,*)'to the diagonal value of the Fock matrix (SXCTL)'
           write(6,*)'These values are going to the temporary RasOrb'
@@ -448,7 +448,7 @@ c           IF (NACTEL.GT.0) THEN
                call mpsrot(work(lsmat),nac,nrs2,nsym)
 #endif
 #endif
-             else if(doBlockDMRG .or. iDoNECI)then
+             else if(doBlockDMRG .or. DoNECI)then
              else !CI
                IDISK=IADR15(4)
                CALL LUCIA_UTIL('TRACI',IDISK,JOBIPH,WORK(LSMAT))
