@@ -28,8 +28,6 @@
  (file)  FCIDMP  "$WorkDir/$Project."FciDmp       rwst
  (file)  H5FCIDMP  "$WorkDir/$Project."FciDmp.h5  rws
  (file)  FCINP  "$WorkDir/$Project."FciInp       rwst
- (file) ONERDM  "$WorkDir/$Project."OneRDM      rw*st
- (file) NEWCYCLE "$CurrDir/"NEWCYCLE         rw
 #include "chemps2files.inc"
 #include "espffiles.inc"
 #include "geodata.inc"
