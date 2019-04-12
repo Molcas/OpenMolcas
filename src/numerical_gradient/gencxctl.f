@@ -93,6 +93,20 @@
 *                                                                      *
       Call Put_dArray('BMtrx',Work(ipB),3*nsAtom*mInt)
       Call Put_iScalar('No of Internal coordinates',mInt)
+*
+*     Too many constraints?
+*
+      If (nLambda.gt.mInt) Then
+         Call WarningMessage(2,'Error in GenCxCTL')
+         Write (Lu,*)
+         Write (Lu,*) '********************************************'
+         Write (Lu,*) ' ERROR: nLambda.gt.mInt'
+         Write (Lu,*) ' nLambda=',nLambda
+         Write (Lu,*) ' mInt=',mInt
+         Write (Lu,*) ' There are more constraints than coordinates'
+         Write (Lu,*) '********************************************'
+         Call Quit_OnUserError()
+      End If
 *                                                                      *
 ************************************************************************
 ************************************************************************

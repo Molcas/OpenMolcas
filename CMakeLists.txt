@@ -26,6 +26,9 @@ endif ()
 if (POLICY CMP0045)
         cmake_policy(SET CMP0045 NEW)
 endif ()
+if (POLICY CMP0074)
+        cmake_policy(SET CMP0074 NEW)
+endif ()
 
 # Prevent in-source builds
 # If an in-source build is attempted, you will still need to clean up a few files manually.
@@ -161,10 +164,10 @@ if (DMRG)
         # Name and e-mail required for downloading QCMaquis
         # Try to get the real name from the system account information
         if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-          set(QCMaquis_NAME_GET_CMD "id -F")
+                set(QCMaquis_NAME_GET_CMD "id -F")
         else()
         # should we distinguish other platforms?
-          set(QCMaquis_NAME_GET_CMD "sh" "-c" "getent passwd $USER | awk -F: '{print \$5}'")
+                set(QCMaquis_NAME_GET_CMD "sh" "-c" "getent passwd $USER | awk -F: '{print \$5}'")
         endif()
         execute_process (
                 COMMAND ${QCMaquis_NAME_GET_CMD}
@@ -195,8 +198,8 @@ if (DMRG)
         list(LENGTH QCMaquis_NAME_LIST qcm_name_len)
         if (qcm_name_len LESS 2)
                 message (FATAL_ERROR
-                  "Your name has been specified as: " ${QCMaquis_NAME} "\n"
-                  "Please specify both name and surname. If you have only one name, please specify it twice.")
+                        "Your name has been specified as: " ${QCMaquis_NAME} "\n"
+                        "Please specify both name and surname. If you have only one name, please specify it twice.")
         endif()
 
         # Separate first name from the last name
@@ -253,7 +256,7 @@ if (DMRG)
 elseif (WFA)
         project (Molcas Fortran C CXX)
 else ()
-        project (Molcas Fortran C    )
+        project (Molcas Fortran C)
 endif ()
 
 add_definitions (-D_MOLCAS_)
@@ -1831,19 +1834,23 @@ endif ()
 
 # NECI Full-CI Quantum Monte-Carlo
 if (NECI)
+        if (NOT MPI)
+            message (FATAL_ERROR "NECI requires MPI (-DMPI=ON).")
+        endif()
         message ("Configuring NECI support:")
-        list (APPEND rasscf_defs "_NECI_")
         set (proj ${extprojsdir}/NECI)
         set (proj_bin ${PROJECT_BINARY_DIR}/External/NECI)
         if (EXISTS ${proj}/CMakeLists.txt)
                 # set default NECI options when built from Molcas
                 # and hide them from the Molcas CMake GUI
-                set (MOLCAS ON CACHE INTERNAL "Enable Molcas interface.")
-                set (PARALLEL ${MPI} CACHE INTERNAL "Enable parallel build (MPI).")
-                set (HDF ON CACHE INTERNAL "Enable HDF5 popsfiles.")
+                set (ENABLE_MOLCAS ON CACHE INTERNAL "Enable Molcas interface.")
+                set (ENABLE_HDF5 ON CACHE INTERNAL "Enable HDF5 popsfiles.")
                 set (WARNINGS OFF CACHE INTERNAL "Enable lots of compile warnings.")
-                set (SHARED_MEM ON CACHE INTERNAL "Enable shared memory.")
+                set (ENABLE_SHARED_MEMORY ON CACHE INTERNAL "Enable shared memory.")
+                set (ENABLE_SHARED ON CACHE INTERNAL "Enable shared libraries.")
+                # set (ENABLE_BUILD_HDF5 OFF CACHE INTERNAL "Provide precompiled HDF5.")
 
+                list (APPEND rasscf_defs "_NECI_")
                 add_subdirectory (${proj} ${proj_bin} EXCLUDE_FROM_ALL)
                 set (NECI_LIBRARIES libdneci)
 
@@ -1852,12 +1859,9 @@ if (NECI)
 
                 list (APPEND EXTERNAL_LIBRARIES ${NECI_LIBRARIES})
         else ()
-                list (APPEND rasscf_defs "_EXTNECI_")
                 message ("-- Internal NECI ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
                 message ("   An externally configured NECI can still be used")
-                message ("   Please use ExNEci command in your molcas input")
         endif ()
-
 else ()
         message ("NECI interface DISABLED")
 endif ()
@@ -1915,25 +1919,24 @@ endif ()
 
 # GEN1INT interface
 if (GEN1INT)
-         message ("Configuring GEN1INT")
-         add_definitions (-D_GEN1INT_)
+        message ("Configuring GEN1INT")
 
-         set (proj ${PROJECT_SOURCE_DIR}/src/gen1int_util)
-         set (proj_bin ${PROJECT_BINARY_DIR}/External/gen1int_util)
+        set (proj ${PROJECT_SOURCE_DIR}/src/gen1int_util)
+        set (proj_bin ${PROJECT_BINARY_DIR}/External/gen1int_util)
 
-         configure_file(${proj}/CMakeLists.txt.in ${proj_bin}/CMakeLists.txt COPYONLY)
-         add_subdirectory(${proj_bin} ${proj_bin})
+        configure_file(${proj}/CMakeLists.txt.in ${proj_bin}/CMakeLists.txt COPYONLY)
+        add_subdirectory(${proj_bin} ${proj_bin})
 
-         get_directory_property(${GEN1INT_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${GEN1INT_INCLUDE})
-         get_directory_property(${GEN1INT_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${GEN1INT_LIBRARIES})
-         include_directories(${GEN1INT_INCLUDE})
+        get_directory_property(${GEN1INT_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${GEN1INT_INCLUDE})
+        get_directory_property(${GEN1INT_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${GEN1INT_LIBRARIES})
+        include_directories(${GEN1INT_INCLUDE})
 
-         message ("-- GEN1INT_INCLUDE_PATH: ${GEN1INT_INCLUDE}")
-         message ("-- GEN1INT_LIBRARIES:    ${GEN1INT_LIBRARIES}")
+        message ("-- GEN1INT_INCLUDE_PATH: ${GEN1INT_INCLUDE}")
+        message ("-- GEN1INT_LIBRARIES:    ${GEN1INT_LIBRARIES}")
 
-         list (APPEND EXTERNAL_LIBRARIES ${GEN1INT_LIBRARIES})
+        list (APPEND EXTERNAL_LIBRARIES ${GEN1INT_LIBRARIES})
 else ()
-         message ("GEN1INT support DISABLED")
+        message ("GEN1INT support DISABLED")
 endif ()
 
 # libwfa interface
@@ -2023,6 +2026,9 @@ endif ()
 
 # Add the "bigot" flags after processing the external projects, so they are not affected
 if (BIGOT)
+        if (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
+                message (FATAL_ERROR "BIGOT and Intel compilers are mutually exclusive.")
+        endif ()
         set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXXFLAGS_${CXXCID}_BIGOT}")
         set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CFLAGS_${CCID}_BIGOT}")
         set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${FFLAGS_${FCID}_BIGOT}")
@@ -2243,6 +2249,10 @@ if (LINALG STREQUAL "Runtime")
         list (APPEND ${util}_incs ${internal_linalg})
 endif ()
 
+if (GEN1INT)
+        list (APPEND integral_util_defs "_GEN1INT_")
+endif()
+
 # activate HDF5 wrappers for I/O
 if (HDF5 AND HDF5_FOUND)
         set (util hdf5_util)
@@ -2353,6 +2363,10 @@ endif ()
 if (WFA AND WFA_FOUND)
         list (APPEND wfa_defs "_WFA_")
 endif ()
+
+if (GEN1INT)
+        list (APPEND seward_defs "_GEN1INT_")
+endif()
 
 # programs doing HDF5 calls
 if (HDF5 AND HDF5_FOUND)

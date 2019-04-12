@@ -11,13 +11,22 @@
 *
 *     Data for rasscf potencial calculations
 *
-      Parameter(nPAMintg=1000)
-      Logical PamGen,PamGen1
-      Dimension CPAM(nPAMintg)
-      Dimension iOccCS(8)
-      Dimension ipPAM(nPAMintg)
+      integer, parameter :: nPAMintg = 1000
+      logical :: PamGen, PamGen1
+      real(kind=8) :: CPAM(nPAMintg)
+      integer :: iOccCS(8), ipPAM(nPAMintg)
+      integer :: nPam, n_unit, nR_unit, nP_unit
+      real(kind=8) :: Acoef, Bcoef, Ccoef, Dcoef, qCS, aCS
+
+
       Common /iPAMint/ nPAM,ipPAM,n_unit,nR_unit,nP_unit
+
       Common /rPAMint/ CPAM, Acoef,Bcoef,Ccoef,Dcoef
+
       Common /lPAMint/ PamGen,PamGen1
+
       Common /iCS/ iOccCS
+
       Common /rCS/ qCS,aCS
+
+

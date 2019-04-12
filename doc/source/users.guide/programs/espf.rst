@@ -60,18 +60,9 @@ The current patched version of :program:`TINKER`\ [#fn1]_ is **6.3.3**.
 
 The most convenient way to define (i) the QM and MM subsystems and (ii) which atoms are to be known by |molcas| (all the QM ones and some MM ones, see below) requires to simply add the keyword :kword:`TINKER` in :program:`GATEWAY`. This way, :program:`GATEWAY` will ask :program:`TINKER` to pass it all information needed.
 
-.. compound::
+Alternatively, the normal coordinate input in :program:`GATEWAY` can be used. For MM atoms that are to be known by |molcas|, if the atomic symbol is Xx, specify ``Xx...... / MM`` or ``Xx_MM`` in native or XYZ format, respectively. In this case you should make sure there is no mismatch between the |molcas| and :program:`TINKER` coordinates.
 
-  Alternatively, an *old* input style can be used in :program:`GATEWAY`, using the following syntax: ::
-
-    Basis set
-    X..... / MM
-      name  x  y  z  Angstrom
-    Charge
-      q
-    End of basis
-
-  where ``q`` gives its MM point charge value, name is its name and ``x``, ``y``, ``z`` are its coordinates given in au or in Å if the :kword:`ANGSTROM` keyword is given. This way, a MM atom is simply a QM atom without basis functions and with a non-integer atomic charge. Usually only MM atoms needed to define some constrained link atoms (see below) positions are included, however this is not mandatory.
+A final option is specifying :kword:`COORD`, with the atom labels to be used |molcas| and some dummy coordinates; and then :kword:`TINKER`, which will pick up the :program:`TINKER` coordinates, but keep the |molcas| labels. In order to use this combination, the :kword:`Expert` keyword must be specified before :kword:`TINKER` too.
 
 Using |molcas| together with :program:`Gromacs`
 ...............................................

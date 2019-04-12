@@ -9,12 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
 
-      Integer       LuFCI,LuFCINP,nTWlk,iTime,nmCyc
-      Integer       IterFillRDM,IterSampleRDM,ipDet
-      Real          realspawncutoff,diagshift
-      Logical       iDoNECI, iDoExtNECI,definedet,iDumpOnly
+      module mh5
+      implicit none
+#include "mh5.fh"
+      save
+      contains
 
-      Common /NECI_stuff/ LuFCI,LuFCINP,iDoNECI, NECI_E,nTWlk,iTime,
-     &                    nmCyc,IterFillRDM,IterSampleRDM,diagshift,
-     &                    realspawncutoff,ipDet, definedet,iDoExtNECI,
-     &                    iDumpOnly
+      end module mh5

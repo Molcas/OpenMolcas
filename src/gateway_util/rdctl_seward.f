@@ -13,6 +13,7 @@
       use Period
       use MpmC
       use EFP_Module
+      use fortran_strings, only : str
 #ifndef _HAVE_EXTRA_
       use XYZ
 #endif
@@ -72,7 +73,7 @@
      &                       mIsot(:)
       Integer, Allocatable :: ITmp(:), nIsot(:,:)
       Character*180 STDINP(mxAtom*2)
-      Character Basis_lib*256, INT2CHAR*4, CHAR4*4
+      Character Basis_lib*256, CHAR4*4
       Character*256 Project, GeoDir, temp1, temp2
 *
       Integer StrnLn
@@ -1430,12 +1431,11 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
                      Call WarningMessage(2,' Too many atoms in Seward')
                      Call Quit_OnUserError()
                   Else
-                     If(ii.LT.1000) Then
-                        CHAR4 = INT2CHAR(ii,3)
-                        CHAR4 ='_'//CHAR4(1:3)
-                     Else
-                        CHAR4 = INT2CHAR(ii,4)
-                     End If
+                    if (ii .LT. 1000) then
+                        CHAR4 = '_'//str(ii)
+                    else
+                        CHAR4 = str(ii)
+                    end if
                   End If
 
                   nCnt = nCnt + 1
@@ -1558,6 +1558,8 @@ c     Go To 998
 *
  9771 Expert = .True.
       GWInput = Run_Mode.eq.G_Mode
+      Call WarningMessage(1,
+     &   ' EXPERT option is ON!')
       Go To 998
 *                                                                      *
 ****** DIST ************************************************************
@@ -3271,6 +3273,13 @@ c
       ITkQMMM = IsFreeUnit(ITkQMMM)
       Call Molcas_Open (ITkQMMM,'QMMM')
 #ifdef _HAVE_EXTRA_
+      If (Expert) Then
+         If (iCoord.gt.1) Then
+            Call WarningMessage(1,
+     &         'TINKER and COORD keywords cannot be combined '//
+     &         'with molcas_extra')
+         End If
+      End If
       Call XYZread(ITkQMMM,ForceZMAT,nCoord,iErr)
       If (iErr.ne.0) Then
         Key='RdCtl_Seward: Tinker+XYZread failed:'//
@@ -3280,7 +3289,15 @@ c
       End If
       Call XYZcollect(iCoord,nCoord,OrigTrans,OrigRot,nFragment)
 #else
-      Call Read_XYZ(ITkQMMM,OrigRot,OrigTrans)
+      If (Expert) Then
+         If (iCoord.gt.1) Then
+            Call WarningMessage(1,
+     &          'TINKER coordinates replacing COORD')
+         End If
+         Call Read_XYZ(ITkQMMM,OrigRot,OrigTrans,Replace=(iCoord.gt.1))
+      Else
+         Call Read_XYZ(ITkQMMM,OrigRot,OrigTrans)
+      End If
 #endif
       Close(ITkQMMM)
       GWInput = .True.
@@ -3556,6 +3573,13 @@ c
       LuXYZ = isFreeUnit(LuXYZ)
       Call molcas_open(LuXYZ,'GMX.XYZ')
 #ifdef _HAVE_EXTRA_
+      If (Expert) Then
+         If (iCoord.gt.1) Then
+            Call WarningMessage(1,
+     &         'GROMACS and COORD keywords cannot be combined '//
+     &         'with molcas_extra')
+         End If
+      End If
       Call XYZread(LuXYZ,ForceZMAT,nCoord,iErr)
       If (iErr.NE.0) Then
          Message='RdCtl_Seward: XYZread returned non-zero error code'
@@ -3564,7 +3588,15 @@ c
       End If
       Call XYZcollect(iCoord,nCoord,OrigTrans,OrigRot,nFragment)
 #else
-      Call Read_XYZ(LuXYZ,OrigRot,OrigTrans)
+      If (Expert) Then
+         If (iCoord.gt.1) Then
+            Call WarningMessage(1,
+     &          'TINKER coordinates replacing COORD')
+         End If
+         Call Read_XYZ(LuXYZ,OrigRot,OrigTrans,Replace=(iCoord.gt.1))
+      Else
+         Call Read_XYZ(LuXYZ,OrigRot,OrigTrans)
+      End If
 #endif
       Close(LuXYZ)
 #else
@@ -3919,14 +3951,18 @@ c      endif
          Call Quit_OnUserError()
       End If
       If (DoTinker.and.iCoord.gt.1) Then
-         Call WarningMessage(2,
-     &      'TINKER and COORD keywords cannot be used together')
-         Call Quit_OnUserError()
+         If (.Not.Expert) Then
+            Call WarningMessage(2,
+     &         'TINKER and COORD keywords cannot be used together')
+            Call Quit_OnUserError()
+         End If
       End If
       If (DoGromacs.and.iCoord.gt.1) Then
-         Call WarningMessage(2,
-     &      'GROMACS and COORD keywords cannot be used together')
-         Call Quit_OnUserError()
+         If (.Not.Expert) Then
+            Call WarningMessage(2,
+     &         'GROMACS and COORD keywords cannot be used together')
+            Call Quit_OnUserError()
+         End If
       End If
 *
       If (Test) Then
@@ -3940,11 +3976,6 @@ c      endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      if (Expert) then
-         Call WarningMessage(1,
-     &      ' EXPERT option is ON!')
-      endif
-
       IF (BSS.AND..Not.DKroll) Then
          Call WarningMessage(2,
      &           ';BSSM GOES ALWAYS WITH DOUGLAS.'//

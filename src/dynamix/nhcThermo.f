@@ -41,7 +41,7 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       INTEGER     natom,natom3,i,j
       REAL*8      Ekin,kb
       PARAMETER   (kb = CONST_BOLTZMANN_/
-     &             CONV_AU_TO_KJ_*1.0D3)
+     &             (CONV_AU_TO_KJ_*1.0D3))
       REAL*8      NHC(nh), vel(*)
       CHARACTER, ALLOCATABLE ::   atom(:)*2
       REAL*8, ALLOCATABLE ::      Mass(:)
@@ -51,7 +51,7 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 * NHC = Q1,Q2,X1,X2,VX1,VX2,Scale
 *
 C
-C    The parameter kb is the Boltzmann constant in a.u
+C    The parameter kb is the Boltzmann constant in E_h/K
 
 C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 
