@@ -14,21 +14,18 @@
             use globvar
             integer i,z,j,iter,nInter,lm
             real*8 tpgh(3,int(lb(3)))
-            m_t=iter*(1+nInter)
-                allocate (full_R(m_t,m_t))
-                allocate (rl(iter,iter),dl(iter,iter), &
-                            mat(iter,iter),Iden(iter,iter))
-                allocate (kv(m_t),pred(npx),gpred(npx),hpred(npx),var(npx), &
-                        sigma(npx),cv(m_t,npx,nInter), &
-                        l(nInter),ll(3,int(lb(3))))
+!
             call miden(iter)
             z=int(lb(3))
 !
             If (make_parameters) Then
 !
-            do j = 1,nInter
+                do j = 1,nInter
+                    do i = 1,z
+                     l(j)=lb(1)+(i-1)*(lb(2)-lb(1))/(lb(3)-1)
+                    enddo
+                enddo
                 do i = 1,z
-                    l(j)=lb(1)+(i-1)*(lb(2)-lb(1))/(lb(3)-1)
                     call covarmatrix(iter,nInter)
                     call k(iter)
                     call covarvector(0,iter,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
@@ -40,15 +37,14 @@
                     ll(2,i)=lh
                     tpgh(2,i)=pred(npx)
                 enddo
-            enddo
-            lm=MaxLoc(abs(ll(1,:)),dim=nInter)
-            pred(npx)=tpgh(1,lm)
-            Write(6,*) 'Likelihood function pred',lm,pred(npx)
-!           lm=MaxLoc(abs(ll(2,:)),dim=nInter)
-            gpred(npx)=tpgh(2,lm)
-            Write(6,*) 'Likelihood function gpred',lm,gpred(npx)
-            make_parameters=.False.
-            lm_save = lm
+                lm=MaxLoc(abs(ll(1,:)),dim=nInter)
+                pred(npx)=tpgh(1,lm)
+                Write(6,*) 'Likelihood function pred',lm,pred(npx)
+    !           lm=MaxLoc(abs(ll(2,:)),dim=nInter)
+                gpred(npx)=tpgh(2,lm)
+                Write(6,*) 'Likelihood function gpred',lm,gpred(npx)
+                make_parameters=.False.
+                lm_save = lm
 !
             Else
 !

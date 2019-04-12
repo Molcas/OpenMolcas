@@ -211,7 +211,8 @@ c Avoid unused argument warnings
                Call Start_Kriging(nRaw,nInter,
      &                            qInt(1,iFirst),
      &                            Grad(1,iFirst),
-     &                            Energy(iFirst))
+     &                            Energy(iFirst),
+     &                            qInt(1,iterAI))
 *
                iterK  = iterK  + 1
                iterAI = iterAI + 1
@@ -229,6 +230,8 @@ c Avoid unused argument warnings
             Call DCopy_(nInter,qInt(1,iterAI),1,qInt(1,iter+1),1)
 *
             write(6,*) 'finished do iter',iterAI
+*           De allocating memory used by Kriging
+            Call Finish_Kriging()
          Else
             Call Update_sl_(iter,iInt,nFix,nInter,qInt,Shift,
      &                   Grad,iOptC,Beta,Lbl,GNrm,Energy,
