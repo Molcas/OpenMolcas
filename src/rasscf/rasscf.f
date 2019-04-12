@@ -760,39 +760,18 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
         Call Timing(Swatch,Swatch,Zenith_1,Swatch)
 
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
-            If(DoBlockDMRG) Then
-              CALL DMRGCTL(WORK(LCMO),
+        If(DoBlockDMRG) Then
+          CALL DMRGCTL(WORK(LCMO),
      &                 WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
      &                 WORK(LFI),WORK(LD1I),WORK(LD1A),
      &                 WORK(LTUVX),IFINAL,0)
-            Else
+        Else
 #endif
-        If(DoNECI) then
-          call FCIQMC_ctl(WORK(LCMO),WORK(LDIAF),
-     &             WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
-     &             WORK(LFI),WORK(LD1I),WORK(LD1A),
-     &             WORK(LTUVX))
-
-         if(DumpOnly)then
-          write(6,*) " FCIDUMP file generated. Here for serving you!"
-          goto 2010
-         end if
-
-         If ( IPRLEV.ge.DEBUG ) then
-         Write(LF,*)
-         Write(LF,*) ' D1A in AO basis in RASSCF after FCIQMC_ctl 1'
-         Write(LF,*) ' ---------------------'
-         Write(LF,*)
-         iOff=1
-         Do iSym = 1,nSym
-          iBas = nBas(iSym)
-          call wrtmat(Work(lD1A+ioff-1),iBas,iBas, iBas, iBas)
-          iOff = iOff + iBas*iBas
-         End Do
-         End if
-        else
-* ------^ End first NECI run
-
+          if (DoNECI .and. DumpOnly) then
+             write(6,*) "FCIDMP file generated. Here for serving you!"
+             goto 2010
+          end if
+          if (.not. DoNECI) then
               CALL CICTL(WORK(LCMO),
      &                 WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
      &                 WORK(LFI),WORK(LD1I),WORK(LD1A),

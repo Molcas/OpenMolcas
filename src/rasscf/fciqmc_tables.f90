@@ -116,7 +116,7 @@ contains
     integer, parameter :: max_test = 20
     integer :: l_orb_test
 
-    if (iter .eq. 1) then
+    if (iter == 1) then
       itotnbas = sum(nBas(:nSym))
       call f_Inquire(FnInpOrb,okay)
       if (okay) then
@@ -239,7 +239,7 @@ contains
     cutoff_ = merge(cutoff, cutoff_default, present(cutoff))
 
 
-    if (nActEl .ne. 0) then
+    if (nActEl /= 0) then
       Emyn = Emy / dble(nActEl)
     else
       Emyn = 0.0d0

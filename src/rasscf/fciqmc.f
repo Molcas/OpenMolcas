@@ -65,18 +65,13 @@
 #endif
       use filesystem, only : chdir_, getcwd_, get_errno_, strerror_
       use fortran_strings, only : str
-      use fciqmc_tables, only : OrbitalTable, FockTable, TwoElIntTable,
-     &    fill_orbitals, fill_fock, fill_2ElInt, reorder,
-! The different names for the overloaded procedure is necessary because
-! of the stupid PGI compiler.
-!     &    table_alloc => mma_allocate, table_dealloc => mma_deallocate,
-     &    mma_allocate, mma_deallocate,
-     &    get_P_GAS, get_P_inp
-      use fciqmc_dump, only : dump_ascii, dump_hdf5
+      use fciqmc_tables, only : get_P_GAS, get_P_inp
+      use fciqmc_dump, only : make_fcidumps
       use fciqmc_make_inp, only : make_inp
       use rasscf_data, only : iter, lRoots, nRoots, S, KSDFT, NAC, EMY,
      &    rotmax, ener, iAdr15, iRoot, Weight, nacpr2, nacpar
       use fciqmc_read_RDM, only : read_neci_RDM
+      use stdalloc, only : mma_allocate, mma_deallocate
       use general_data, only : nSym, nBas, iSpin, nAsh, LuInta, nactel,
      &    jobIph, ntot, ntot1, ntot2
       use gugx_data, only : IfCAS
@@ -95,21 +90,19 @@
       real(kind=8), intent(out) :: DMAT(nAcpar), DSPN(nAcpar),
      & PSMAT(nAcpr2), PAMAT(nAcpr2)
       real(kind=8), intent(inout) :: F_IN(nTot1), D1I(nTot2), D1A(nTot2)
-      type(OrbitalTable) :: orbital_table
-      type(FockTable) :: fock_table
-      type(TwoElIntTable) :: two_el_table
+!      type(OrbitalTable) :: orbital_table
+!      type(FockTable) :: fock_table
+!      type(TwoElIntTable) :: two_el_table
       logical :: Do_ESPF, WaitForNECI
       real(kind=8) :: NECIen, Scal
       integer :: LuNewC, iPRLEV, iOff, iSym, iBas, i, j,
      & jRoot, iDisk, jDisk, kRoot, permutation(sum(nAsh(:nSym)))
       real(kind=8), allocatable :: TmpD1S(:), TmpDS(:), CICtl1(:),
      &  DTMP(:), DStmp(:), Ptmp(:), PAtmp(:)
-      integer :: err
-      character(1024) :: WorkDir
+      integer :: err, L
+      character(1024) :: h5fcidmp, fcidmp, fcinp, newcycle, WorkDir
 
       parameter(ROUTINE = 'FCIQMC_clt')
-!      integer :: IDXCI(mxAct), IDXSX(mxAct)
-!      common /IDSXCI/ IDXCI, IDXSX
       call qEnter(routine)
 
 C Local print level (if any)
@@ -197,34 +190,20 @@ c      end if
 **************************************************************************************
 *****************              Produce a working FCIDUMP file       ******************
 **************************************************************************************
-      call mma_allocate(fock_table, nacpar)
-      call mma_allocate(two_el_table, size(TUVX))
-      call mma_allocate(orbital_table, sum(nAsh))
-
-      call fill_orbitals(orbital_table, DIAF, iter)
-      call fill_fock(fock_table, CICtl1, EMY)
-      call fill_2ElInt(two_el_table, TUVX)
-
-      if (ReOrFlag /= 0) then
-        if (ReOrFlag >= 2) then
+      select case (ReOrFlag)
+        case (2:)
           permutation = get_P_inp(ReOrInp)
           call mma_deallocate(ReOrInp)
-          call reorder(orbital_table, fock_table,
-     &               two_el_table, permutation)
-        else if (ReOrFlag == -1) then
+        case (-1)
           permutation = get_P_GAS(nGSSH)
-          call reorder(orbital_table, fock_table,
-     &               two_el_table, permutation)
-        end if
+      end select
+
+      if (ReOrFlag /= 0) then
+        call make_fcidumps(iter, nacpar, nAsh, TUVX, DIAF, CICtl1, EMY,
+     &                      permutation)
+      else
+        call make_fcidumps(iter, nacpar, nAsh, TUVX, DIAF, CICtl1, EMY)
       end if
-
-      call dump_ascii(EMY, orbital_table, fock_table, two_el_table)
-      call dump_hdf5(EMY, orbital_table, fock_table, two_el_table)
-
-      call mma_deallocate(fock_table)
-      call mma_deallocate(two_el_table)
-      call mma_deallocate(orbital_table)
-
 **************************************************************************************
 *****************              Produce an INPUT file for NECI       ******************
 **************************************************************************************
@@ -233,8 +212,8 @@ c      end if
 *****************      Run NECI                                     ******************
 **************************************************************************************
 * In case we wish to dump the FCIDUMP file only we do not need to wait for NECI run.
-      if(DumpOnly) goto 999
-          call Timing(Rado_1, Swatch, Swatch, Swatch)
+      if (DumpOnly) goto 999
+      call Timing(Rado_1, Swatch, Swatch, Swatch)
 #ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
         call MPI_Barrier(MPI_COMM_WORLD, ierror)
@@ -254,17 +233,31 @@ c      end if
      &'for compiling or use an external NECI.')
 #endif
       else
-        call getcwd_(WorkDir, err)
-        if (err /= 0) write(6, *) strerror_(get_errno_())
-        write(6,'(A)')'Run NECI externally using '//
-     & '$Project.FciDmp or $Project.FciDmp.h5 and $Project.FciInp '//
-     & 'which can be found in '//trim(WorkDir)
-        write(6,'(A)') "When finished do:"
-        write(6,'(A)')
-     &  '>>> cp TwoRDM_aaaa.1 TwoRDM_abab.1 TwoRDM_abba.1 '//
+        if (myrank == 0) then
+          call getcwd_(WorkDir, err)
+          if (err /= 0) write(6, *) strerror_(get_errno_())
+          call prgmtranslate_master('H5FCIDMP', h5fcidmp, L)
+          call prgmtranslate_master('FCIDMP', fcidmp, L)
+          call prgmtranslate_master('FCINP', fcinp, L)
+          call prgmtranslate_master('NEWCYCLE', newcycle, L)
+          write(6,'(A)')'Run NECI externally.'
+          write(6,'(A)')'Get the (example) NECI input:'
+          write(6,'(4x, A, 1x, A, 1x,  A)')
+     &      'cp', trim(fcinp), '$NECI_RUN_DIR'
+          write(6,'(A)')'Get the ASCII formatted FCIDUMP:'
+          write(6,'(4x, A, 1x, A, 1x,  A)')
+     &      'cp', trim(fcidmp), '$NECI_RUN_DIR/FCIDUMP'
+          write(6,'(A)')'Or the HDF5 FCIDUMP:'
+          write(6,'(4x, A, 1x, A, 1x,  A)')
+     &      'cp', trim(h5fcidmp), '$NECI_RUN_DIR'
+          write(6, *)
+          write(6,'(A)') "When finished do:"
+          write(6,'(4x, A)')
+     &  'cp TwoRDM_aaaa.1 TwoRDM_abab.1 TwoRDM_abba.1 '//
      &  'TwoRDM_bbbb.1 TwoRDM_baba.1 TwoRDM_baab.1 '//trim(WorkDir)
-        write(6,'(A)')'>>> echo $your_RDM_Energy > NEWCYCLE'
-        call xflush(6)
+          write(6,'(4x, A)')'echo $your_RDM_Energy > '//trim(newcycle)
+          call xflush(6)
+        end if
         waitForNECI = .false.
         do while(.not. waitForNECI)
           call sleep(1)
@@ -299,9 +292,7 @@ c      end if
       call mma_allocate(PAtmp, nAcPr2, label='PAtmp')
 
 #ifdef _MOLCAS_MPP_
-      IF (Is_Real_Par()) THEN
-        call MPI_Barrier(MPI_COMM_WORLD,ierror)
-      END IF
+      if (Is_Real_Par()) call MPI_Barrier(MPI_COMM_WORLD, ierror)
 #endif
 
       if (DoNECI) then
