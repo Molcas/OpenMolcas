@@ -10,13 +10,23 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-      module globvar
-        use AI, only: npxAI, anAI, pAI, lb, make_parameters, lm_save
-        real*8, allocatable :: x(:,:), y(:), dy(:), rl(:,:), &
-                dl(:,:), mat(:,:), Iden(:,:),full_R(:,:), &
-                nx(:,:),cv(:,:,:),Kv(:),pred(:),Ys(:),var(:),Rones(:), &
-                sigma(:),l(:),gpred(:),hpred(:),ll(:)
-        real*8  sb,variance,detR,lh !p
-        real*8, parameter :: PI = 4.0 * atan (1.0_8), h=1e-5, eps=1e-6 ! eps avoid to become singular
-        integer prev_ns,m_t,npx,counttimes
-      end module globvar
+
+      Subroutine Loop_Kriging(LastqInt)
+        use globvar
+        Integer nInter,iter
+        Real*8 LastqInt(nInter,1),Grad(nInter,iter),Energy(iter)
+!
+!nx is the n-dimensional vector of the last iteration cumputed in update_sl
+! subroutine
+        nx = LastqInt(:,1)
+!
+        ! make_parameters=.False.
+        call covarvector(0,iter,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+        call predict(0,iter,nInter)
+!
+        ! Energy(iter+1)=pred(npx)
+        ! Grad(:,iter+1)=gpred
+        write(6,*) 'New values of Energy and grad', pred(npx), gpred
+!
+        return
+      end

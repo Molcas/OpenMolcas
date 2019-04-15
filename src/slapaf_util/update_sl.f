@@ -187,6 +187,10 @@ c Avoid unused argument warnings
             Call RecPrt('qInt(0)',  ' ',qInt(1,iFirst),nInter,nRaw)
             Call RecPrt('Energy(0)',' ',Energy(iFirst),1,nRaw)
             Call RecPrt('Grad(0)',  ' ',Grad(1,iFirst),nInter,nRaw)
+            Call Start_Kriging(nRaw,nInter,
+     &                            qInt(1,iFirst),
+     &                            Grad(1,iFirst),
+     &                            Energy(iFirst))
             do while (iterK.lt.miAI.and.Abs(dEner).ge.meAI)
                kIter_=iterAI
                Write (6,*) 'iterAI: ',iterAI
@@ -208,11 +212,8 @@ c Avoid unused argument warnings
 *              Compute the energy and gradient according to the
 *              surrogate model for the new coordinates.
 *
-               Call Start_Kriging(nRaw,nInter,
-     &                            qInt(1,iFirst),
-     &                            Grad(1,iFirst),
-     &                            Energy(iFirst),
-     &                            qInt(1,iterAI))
+               write (6,*) 'qInt(1,iterAI)', qInt(1,iterAI))
+               Call Loop_Kriging(qInt(1,iterAI))
 *
                iterK  = iterK  + 1
                iterAI = iterAI + 1

@@ -31,5 +31,12 @@
             CALL DGESV_(size(A,1), size(shape(B)),A,size(A,2),&
                     IPIV,B,size(B,1),INFO )
             Kv=b !Kv=K
+!Likelihood function
+            variance=dot_product(Ys,Kv)/m_t
+            if (detr<0) then
+                lh=-variance*exp(log(-detr)/m_t)
+            else
+                lh=variance*exp(log(detr)/m_t)
+            endif
         !     Write (6,*) 'K',Kv
         END SUBROUTINE k

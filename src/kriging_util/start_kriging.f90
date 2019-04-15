@@ -11,12 +11,12 @@
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
 
-      Subroutine Start_Kriging(iter,nInter,qInt,Grad,Energy)
+      Subroutine Start_Kriging(iter,nInter,x,temp_dy,y)
         use globvar
         Integer nInter,iter
-        Real*8 qInt(nInter,iter+1),Grad(nInter,iter),Energy(iter)
+        Real*8 x(nInter,iter),temp_dy(nInter,iter),y(iter),dy(nInter*iter)
 !
-        if (.NOT. allocated(x)) then
+!       if (.NOT. allocated(x)) then
           allocate (x(nInter,iter),y(iter),dy(nInter*iter), &
                     nx(nInter,1))
 !m_t is the dimentionality of the square correlation matrix Gradient-Psi
@@ -38,7 +38,7 @@
 ! the energy with respect to the internal coordinates
           do i=1,nInter
             do j=1,iter
-              dy(j+(i-1)*iter) = Grad(i,j)
+              dy(j+(i-1)*iter) = temp_dy(i,j)
             enddo
           enddo
 !rl and dl are temporary matrices for the contruction of Psi which is inside of
@@ -68,16 +68,16 @@
           allocate (kv(m_t),pred(npx),gpred(npx),hpred(npx),var(npx), &
           sigma(npx),cv(m_t,npx,nInter), l(nInter),ll(3,int(lb(3))))
           make_parameters=.True.
-        else
-          nx = qInt(:,iter+1:iter+1)
-          make_parameters=.False.
-        endif
+        ! else
+        !   nx = qInt(:,iter+1:iter+1)
+        !   make_parameters=.False.
+        ! endif
 !
         call kernels(iter,nInter)
 !
-        Energy(iter+1)=pred(npx)
-        Grad(:,iter+1)=gpred
-        write(6,*) 'New values of Energy and grad', pred(npx), gpred
-!
+!         Energy(iter+1)=pred(npx)
+!         Grad(:,iter+1)=gpred
+!         write(6,*) 'New values of Energy and grad', pred(npx), gpred
+! !
         return
       end
