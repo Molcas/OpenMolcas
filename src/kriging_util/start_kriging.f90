@@ -11,14 +11,13 @@
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
 
-      Subroutine Start_Kriging(iter,nInter,x,temp_dy,y)
+      Subroutine Start_Kriging(iter,nInter,x_,dy_,y_)
         use globvar
         Integer nInter,iter
-        Real*8 x(nInter,iter),temp_dy(nInter,iter),y(iter),dy(nInter*iter)
+        Real*8 x_(nInter,iter),dy_(nInter,iter),y_(iter)
 !
 !       if (.NOT. allocated(x)) then
-          allocate (x(nInter,iter),y(iter),dy(nInter*iter), &
-                    nx(nInter,1))
+          allocate (x(nInter,iter),y(iter),dy(nInter*iter),nx(nInter,1))
 !m_t is the dimentionality of the square correlation matrix Gradient-Psi
 ! (equation (2) DOI 10.1007/s00366-015-0397-y)
           m_t=iter*(1+nInter)
@@ -29,16 +28,15 @@
           allocate (full_R(m_t,m_t))
 !nx is the n-dimensional vector of the last iteration cumputed in update_sl
 ! subroutine
-          nx = qInt(:,iter+1:iter+1)
 !x is the n-dimensional internal coordinates
-          x = qInt(1:nInter,1:iter)
+          x = x_
 !y is the energy
-          y = Energy
+          y = y_
 !dy it's a vector of Grad-y (eq. (5)  DOI 10.1007/s00366-015-0397-y) gradients of
 ! the energy with respect to the internal coordinates
           do i=1,nInter
             do j=1,iter
-              dy(j+(i-1)*iter) = temp_dy(i,j)
+              dy((i-1)*iter+j) = dy_(i,j)
             enddo
           enddo
 !rl and dl are temporary matrices for the contruction of Psi which is inside of
@@ -66,7 +64,7 @@
 !l is a n-dimensional vector of the width of the Mat'ern function.
 !ll is the likelihood function.
           allocate (kv(m_t),pred(npx),gpred(npx),hpred(npx),var(npx), &
-          sigma(npx),cv(m_t,npx,nInter), l(nInter),ll(3,int(lb(3))))
+          sigma(npx),cv(m_t,npx,nInter), l(nInter),ll(int(lb(3))))
           make_parameters=.True.
         ! else
         !   nx = qInt(:,iter+1:iter+1)

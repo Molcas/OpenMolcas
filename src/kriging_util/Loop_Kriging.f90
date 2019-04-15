@@ -11,21 +11,26 @@
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
 
-      Subroutine Loop_Kriging(LastqInt)
+      Subroutine Loop_Kriging(x_,y_,dy_,ndimx)
         use globvar
         Integer nInter,iter
-        Real*8 LastqInt(nInter,1),Grad(nInter,iter),Energy(iter)
+        Real*8 x_(ndimx,1),dy_(ndimx),y_
 !
-!nx is the n-dimensional vector of the last iteration cumputed in update_sl
+        npx=1
+!nx is the n-dimensional vector of the last iteration computed in update_sl
 ! subroutine
-        nx = LastqInt(:,1)
+        nx = x_
 !
-        ! make_parameters=.False.
+        Write (6,*) 'crap1'
         call covarvector(0,iter,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
         call predict(0,iter,nInter)
+        y_=pred(npx)
 !
-        ! Energy(iter+1)=pred(npx)
-        ! Grad(:,iter+1)=gpred
+        Write (6,*) 'crap2'
+        call covarvector(1,iter,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+        call predict(1,iter,nInter)
+        y_=pred(npx)
+        dy_=gpred
         write(6,*) 'New values of Energy and grad', pred(npx), gpred
 !
         return
