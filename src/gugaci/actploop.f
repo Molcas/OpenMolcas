@@ -1460,8 +1460,8 @@ c      print*, "in save_lp, linelp",line,idisk_lp,mh,mtype
         jhyr=jphy(jph)
         in=ihyl(jhyl)
         call idafile(luloop,1,[in],1,idisk_lp)
-        call idafile(luloop,1,ihyl(jhyl+1:),in,idisk_lp)
-        call idafile(luloop,1,ihy(jhyr+1:),in,idisk_lp)
+        call idafile(luloop,1,ihyl(jhyl+1:jhyl+in),in,idisk_lp)
+        call idafile(luloop,1,ihy(jhyr+1:jhyr+in),in,idisk_lp)
 c        write(20)in,ihyl(jhyl+1:jhyl+in),ihy(jhyr+1:jhyr+in)
       enddo
 100   if(line.ne.1.and.line.ne.13) return
@@ -1469,7 +1469,8 @@ c      print*, "in read_lp, write coe",idisk_lp,norb_inn-norb_dz
 !coe_record
       lenw=norb_inn-norb_dz
       do m=1,mh
-        call idafile(luloop,1,lpnew_coe(norb_dz+1:,m),lenw,idisk_lp)
+        call idafile(luloop,1,lpnew_coe(norb_dz+1:norb_inn,m),lenw,
+     &               idisk_lp)
       enddo
       return
       end
@@ -1508,8 +1509,8 @@ c      print*, "in read_lp, write coe",idisk_lp,norb_inn-norb_dz
         jphy(m)=ihypos
         call idafile(luloop,2,info,1,idisk_lp)
         ndim=info(1)
-        call idafile(luloop,2,ihyl(ihypos+1:),ndim,idisk_lp)
-        call idafile(luloop,2,ihy(ihypos+1:),ndim,idisk_lp)
+        call idafile(luloop,2,ihyl(ihypos+1:ihypos+ndim),ndim,idisk_lp)
+        call idafile(luloop,2,ihy(ihypos+1:ihypos+ndim),ndim,idisk_lp)
         ihy(ihypos)=ndim
         ihypos=ihypos+ndim+1
       enddo
@@ -1518,7 +1519,8 @@ c      print*, "in read_lp, read coe",idisk_lp,norb_inn-norb_dz
 !coe_read
       lenr=norb_inn-norb_dz
       do m=1,mhlp
-        call idafile(luloop,2,lpnew_coe(norb_dz+1:,m),lenr,idisk_lp)
+        call idafile(luloop,2,lpnew_coe(norb_dz+1:norb_inn,m),lenr,
+     &               idisk_lp)
       enddo
       return
       end

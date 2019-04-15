@@ -750,9 +750,9 @@ set (FFLAGS_Intel_BASIC "-headerpad_max_install_names ${FFLAGS_Intel_BASIC}")
 endif ()
 
 #note that "declarations" means "implicit none", which we don't want (yet)
-set (CXXFLAGS_Intel_BIGOT "-w3 -Werror -diag-disable=remark")
-set (CFLAGS_Intel_BIGOT "-w3 -Werror -diag-disable=remark")
-set (FFLAGS_Intel_BIGOT "-warn all,nodeclarations -warn errors -diag-disable=remark")
+set (CXXFLAGS_Intel_BIGOT "-w3 -Werror -diag-disable remark")
+set (CFLAGS_Intel_BIGOT "-w3 -Werror -diag-disable remark")
+set (FFLAGS_Intel_BIGOT "-warn all,nodeclarations -warn errors -diag-disable remark")
 set (Intel_TRAP "-fpe0")
 
 #======================================#

@@ -114,7 +114,7 @@
       write(file_id,'("startsinglepart 10")')
       write(file_id, I_fmt) 'semi-stochastic', semi_stochastic
       write(file_id, '("pops-core 10000")')
-      write(file_id, I_fmt), 'rdmsamplingiters', rdmsamplingiters
+      write(file_id, I_fmt) 'rdmsamplingiters', rdmsamplingiters
 !      if(KeyTRIA) write(file_id, I_fmt)
 !     & 'trial-wavefunction', trial_wavefunction
 !      write(file_id, I_fmt) 'pops-trial', pops_trial
