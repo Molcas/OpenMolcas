@@ -144,7 +144,7 @@ c----------------------------------------------------------------------
       use Real_Spherical
       use iSD_data
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
+#include "angtp.fh"
 #include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"

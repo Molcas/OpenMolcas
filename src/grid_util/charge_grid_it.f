@@ -111,7 +111,7 @@ c         Write(6,*) 'Label = ',Label
       SUBROUTINE One_CHARGE(NSYM,NBAS,NAME,CMO,OCCN,SMAT,iCase,FullMlk,
      &                       MXTYP,QQ,nNuc)
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "itmax.fh"
+#include "angtp.fh"
 #include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"

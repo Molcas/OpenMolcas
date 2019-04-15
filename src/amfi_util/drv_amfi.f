@@ -13,7 +13,7 @@
       use iSD_data
       Implicit Real*8 (a-h,o-z)
       External Rsv_Tsk
-#include "itmax.fh"
+#include "angtp.fh"
 #include "info.fh"
 #include "real.fh"
 #include "stdalloc.fh"

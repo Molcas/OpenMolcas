@@ -29,7 +29,7 @@
       use iSD_data
       Implicit Real*8 (a-h,o-z)
       External Kernel, KrnlMm
-#include "itmax.fh"
+#include "angtp.fh"
 #include "info.fh"
 #include "real.fh"
 #include "rmat_option.fh"

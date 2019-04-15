@@ -90,7 +90,7 @@ c a temporary clone for CHARGE util
       SUBROUTINE CHARGE_(NSYM,NBAS,NAME,CMO,OCCN,SMAT,iCase,FullMlk,
      & lSave,MXTYP,QQ,nNuc)
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "itmax.fh"
+#include "angtp.fh"
 #include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"

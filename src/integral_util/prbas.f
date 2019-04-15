@@ -27,7 +27,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
-#include "itmax.fh"
+#include "angtp.fh"
 #include "info.fh"
 #include "WrkSpc.fh"
       Character*80 Lines(10)
