@@ -45,13 +45,15 @@
 
 ! Read an XYZ file with molcas extensions
 ! Rot and Trans are transformations to apply to all coordinates in this file
-      Subroutine Read_XYZ(Lu,Rot,Trans)
+! If Replace=.T., the coordinates will replace existing ones, but labels will not be changed
+      Subroutine Read_XYZ(Lu,Rot,Trans,Replace)
       Integer, Intent(In) :: Lu
       Real*8, Dimension(:,:,:), Allocatable, Intent(In) :: Rot
       Real*8, Dimension(:,:), Allocatable, Intent(In) :: Trans
+      Logical, Optional, Intent(In) :: Replace
       Character (Len=MAXLEN) :: Line, FName, CurrDir, Dum
       Integer :: Error, NumAt, i, Lxyz, Idx
-      Logical :: Found
+      Logical :: Found, Rep
       Integer, External :: IsFreeUnit
       Type(XYZAtom), Dimension(:), Allocatable :: ThisGeom, TmpGeom
       Real*8, Dimension(3,5) :: Mat
@@ -249,15 +251,28 @@
       Mat(:,5) = Mat(:,5)*Factor
       Call TransformGeom(ThisGeom,Mat)
 
-      ! Append the just read geometry to the general one
+      Rep = .False.
+      If (Present(Replace)) Rep = Replace
+
       If (Allocated(Geom)) Then
-        Call Move_Alloc(Geom, TmpGeom)
-        NumAt = Size(TmpGeom)+Size(ThisGeom)
-        Allocate(Geom(NumAt))
-        Geom(1:Size(TmpGeom)) = TmpGeom(:)
-        Geom(Size(TmpGeom)+1:) = ThisGeom(:)
-        Deallocate(TmpGeom)
-        Deallocate(ThisGeom)
+        If (Rep) Then
+          If (Size(ThisGeom) .ne. Size(Geom)) Then
+            Write(6,*) 'New system size does not match previous one'
+            Call Quit_OnUserError()
+          End If
+          Do i=1,Size(Geom)
+            Geom(i)%Coord = ThisGeom(i)%Coord
+          End Do
+        Else
+          ! Append the just read geometry to the general one
+          Call Move_Alloc(Geom, TmpGeom)
+          NumAt = Size(TmpGeom)+Size(ThisGeom)
+          Allocate(Geom(NumAt))
+          Geom(1:Size(TmpGeom)) = TmpGeom(:)
+          Geom(Size(TmpGeom)+1:) = ThisGeom(:)
+          Deallocate(TmpGeom)
+          Deallocate(ThisGeom)
+        End If
       Else
         Call Move_Alloc(ThisGeom, Geom)
       End If

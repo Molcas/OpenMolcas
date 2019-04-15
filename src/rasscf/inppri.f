@@ -31,6 +31,7 @@
       use qcmaquis_interface_cfg
       use qcmaquis_interface_environment, only: print_dmrg_info
 #endif
+      use fciqmc, only : DoNECI
 
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -43,7 +44,6 @@
 #include "rctfld.fh"
 #include "WrkSpc.fh"
 #include "splitcas.fh"
-#include "fciqmc.fh"
 #include "lucia_ini.fh"
 #include "ksdft.fh"
       Character*8   Fmt1,Fmt2,Label
@@ -452,7 +452,7 @@ C.. for GAS
 * NN.14 FIXME: in DMRG-CASSCF, skip this check for the time
 *              since Block DMRG code will check this internally
 *     If (NROOTS .GT. NCSASM(LSYM)) Then
-      If (.not.iDoNeci .and. .not.doDMRG
+      If (.not.DoNECI .and. .not.doDMRG
      &    .and. .not.doBlockDMRG .and. NROOTS .GT. NCSASM(LSYM)) Then
          Write(LF,*) '************ ERROR ***********'
          Write(LF,*) ' You can''t ask for more roots'
