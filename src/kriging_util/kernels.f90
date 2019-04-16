@@ -28,14 +28,17 @@
 !To be change for the optmization of the l's (the right width of the Mat'ern function)
             do i = 1,z
 !In this particullary case the l(j) it does not depend on the dimensionality
-!is the sameone
+!It is the same.
 !Could be the case that depends on the dimesionality then for every dimension the
 !l changes
                 do j = 1,nInter
                     l(j)=lb(1)+(i-1)*(lb(2)-lb(1))/(lb(3)-1)
+                    ! write (6,*) 'l:',l(j)
                 enddo
                 call covarmatrix(iter,nInter)
+                !Call RecPrt('Full_R:',' ',full_r,m_t,m_t)
                 call k(iter)
+                ! write (6,*) 'lh, variance:',lh, variance
                 ! call covarvector(0,iter,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
                 ! call predict(0,iter,nInter)
                 ll(i)=lh
@@ -51,8 +54,11 @@
             do j = 1,nInter
                 l(j)=lb(1)+(lm-1)*(lb(2)-lb(1))/(lb(3)-1)
             enddo
+            Call covarmatrix(iter,nInter)
+            Call RecPrt('Full_R:',' ',full_r,m_t,m_t)
+            call k(iter)
             ! pred(npx)=tpgh(1,lm)
-            Write(6,*) 'Likelihood function pred index',lm,l
+            Write(6,*) 'Likelihood function pred index lm,l,ll(lm),variance',lm,ll(lm),l,variance
 !           lm=MaxLoc(abs(ll(2,:)),dim=nInter)
             ! gpred(npx)=tpgh(2,lm)
             ! Write(6,*) 'Likelihood function gpred',lm,gpred(npx)

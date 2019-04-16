@@ -15,12 +15,12 @@
             real*8 B(m_t,npx,nInter),A(m_t,m_t),tsum,ddottemp(npx),tcv(npx,m_t) !AF contains the factors L and U from the factorization A = P*L*U as computed by DGETRF
             integer IPIV(m_t),INFO,i,j,iter,nInter,gh ! ipiv the pivot indices that define the permutation matrix
             ! write(6,*) 'Predict: '
-            variance=dot_product(Ys,Kv)/m_t
-            if (detr<0) then
-                lh=-variance*exp(log(-detr)/m_t)
-            else
-                lh=variance*exp(log(detr)/m_t)
-            endif
+            ! variance=dot_product(Ys,Kv)/m_t
+            ! if (detr<0) then
+            !     lh=-variance*exp(log(-detr)/m_t)
+            ! else
+            !     lh=variance*exp(log(detr)/m_t)
+            ! endif
             A=full_R
             B=CV
             tsum=sum(rones(1:iter))

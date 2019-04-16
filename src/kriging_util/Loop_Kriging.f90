@@ -27,10 +27,8 @@
         call covarvector(0,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
         call predict(0,nPoints,nInter)
         y_=pred(npx)
-!
         call covarvector(1,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
         call predict(1,nPoints,nInter)
-        y_=pred(npx)
         dy_=gpred
         write(6,*) 'New values of Energy and grad', pred(npx), gpred
 !

@@ -49,5 +49,7 @@
             else
                 lh=variance*exp(log(detr)/m_t)
             endif
-        !     Write (6,*) 'K',Kv
+            Write (6,*) 'sb',sb
+            Write (6,*) 'Ys',Ys
+            Write (6,*) 'K',Kv
         END SUBROUTINE k

@@ -20,13 +20,11 @@
             tmat=0
             tmat2=0
             dl=0
-            Write (6,*) 'crap1.1', gh
 ! Covariant Vector in kriging
             if (gh.eq.0) then
                 do i=1,nInter
                     do j=1,iter
                         do k=1,int(npx)
-                            Write (6,*) 'crap1.2', i,j
                             rl(j,k)=(x(i,j)-nx(i,k))/l(i)
                         enddo
                     enddo
@@ -36,9 +34,7 @@
                     !write(6,*) 'CV-Mat',i,mat
                     !tmat=tmat+mat
                 enddo
-                Write (6,*) 'crap1.2'
                 call matern(dl,size(dl,1),size(dl,2))
-                Write (6,*) 'crap1.3'
                 cv(1:iter,:,1)=mat
             endif
 ! Covariant vector in Gradient Enhanced Kriging
