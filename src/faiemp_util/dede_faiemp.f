@@ -36,7 +36,7 @@
       Call mma_allocate(ipOffD,nField,nIndij,label='ipOffD')
       Call GetMem('DeDe2','Allo','Real',ipDeDe,nDeDe+MaxDe*MaxDCR)
       ipD00=ipDeDe+nDeDe
-      call dcopy_(MaxDe*MaxDCR,Zero,0,Work(ipD00),1)
+      call dcopy_(MaxDe*MaxDCR,[Zero],0,Work(ipD00),1)
 *
       Special_NoSym=.True.
       DFT_Storage=.False.

@@ -107,10 +107,10 @@
       Call GetMem('TraScr3','Allo','Real',lBuf3,nBuf3)
 *
       Call GetMem('TraScr4','Allo','Real',ipPQVX,nPQVX)
-      call dcopy_(nPQVX,Zero,0,Work(ipPQVX),1)
+      call dcopy_(nPQVX,[Zero],0,Work(ipPQVX),1)
       If (nTURS.gt.0) Then
          Call GetMem('TraScr6','Allo','Real',ipTURS,nTURS)
-         call dcopy_(nTURS,Zero,0,Work(ipTURS),1)
+         call dcopy_(nTURS,[Zero],0,Work(ipTURS),1)
       End If
 *
       Call GetMem('TraScr5','Max ','Real',ipInBuf,nInBuf)

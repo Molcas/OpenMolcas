@@ -45,6 +45,7 @@
       Parameter (ExLim=10) !Over how long distance the exchange rep.
                            !is computed, the solv-solv.
       External Ranf
+      Dimension iDum(1)
 
 *
 *-- Enter eqras.
@@ -149,7 +150,7 @@
         Call DaName(iLuSaUt,SaFilUt)
         iDisk=0 !Put some dummy on the sampfile so we have space for
                 !the real number later.
-        Call iDaFile(iLuSaUt,1,iHowMSampUT,1,iDisk)
+        Call iDaFile(iLuSaUt,1,[iHowMSampUT],1,iDisk)
         !Below we make a check for extreme cases. Our algorithm to
         !select sampling configurations sets this limit.
         iProdMax=(2**30-1)*2
@@ -168,7 +169,8 @@
         Call NiceOutPut('SSS',Gam,Gamma,BetaBol)
         Call DaName(iLuSaIn,SaFilIn)
         iDiskSa=0
-        Call iDaFile(iLuSaIn,2,iHowMSampIN,1,iDiskSa)
+        Call iDaFile(iLuSaIn,2,iDum,1,iDiskSa)
+        iHowMSampIN=iDum(1)
         iLuExtr=54
         iLuExtr=IsFreeUnit(iLuExtr)
         Call OpnFl(SimEx,iLuExtr,Exist)
@@ -193,9 +195,9 @@
           NCountField=0
 
           iTriMaxBasQ=MxBas*(MxBas+1)/2
-          call dcopy_(iTriMaxBasQ,ZERO,iZERO,PertNElcInt,iONE)
+          call dcopy_(iTriMaxBasQ,[ZERO],iZERO,PertNElcInt,iONE)
           Call GetMem('SumOvlAOQ','Allo','Real',ipAOSum,iTriBasQ)
-          call dcopy_(iTriBasQ,ZERO,iZERO,Work(ipAOSum),iONE)
+          call dcopy_(iTriBasQ,[ZERO],iZERO,Work(ipAOSum),iONE)
         Endif
 **********
       Else
@@ -466,7 +468,7 @@
               Labjhr='Add '
               Call AverMEP(Labjhr,Eint,Poli,iCi,SumElcPot
      &                     ,NCountField,PertElcInt,iONE
-     &                     ,iONE,iONE,iONE,iONE)
+     &                     ,iONE,[iONE],[iONE],iONE)
               NCountField=NCountField+1
             Endif
 *******
@@ -574,7 +576,7 @@
               Labjhr='Aver'
               Call AverMEP(Labjhr,Eint,Poli,iCi,SumElcPot
      &                     ,NCountField,PertElcInt,iONE
-     &                     ,iONE,iONE,iONE,iONE)
+     &                     ,iONE,[iONE],[iONE],iONE)
               AverFact=1.0d0/Dble(NCountField)
               Call DaxPy_(iTriBasQ,AverFact,Work(ipAOSum),iONE
      &                   ,PertNElcInt,iONE)
@@ -620,21 +622,21 @@
 *----------------------------------------------------------------------*
 * Put some things on info-file. Used to make tests.                    *
 *----------------------------------------------------------------------*
-      Call Add_Info('Total Energy',Etot,1,6)
-      Call Add_Info('Induction of system',Sum1,1,6)
-      Call Add_Info('React. field int.',s90um,1,6)
-      Call Add_Info('Solv-Solu Disp.',EEdisp,1,6)
-      Call Add_Info('QM-region Energy',Energy,1,6)
+      Call Add_Info('Total Energy',[Etot],1,6)
+      Call Add_Info('Induction of system',[Sum1],1,6)
+      Call Add_Info('React. field int.',[s90um],1,6)
+      Call Add_Info('Solv-Solu Disp.',[EEdisp],1,6)
+      Call Add_Info('QM-region Energy',[Energy],1,6)
       Call Add_Info('QM-region dipole',xyzMyQ,3,5)
       RRRnVarv=dble(nVarv)
-      Call Add_Info('Pol.Iterations',RRRnVarv,1,8)
+      Call Add_Info('Pol.Iterations',[RRRnVarv],1,8)
 *----------------------------------------------------------------------*
 * Close some external files.                                           *
 *----------------------------------------------------------------------*
 58887 Continue
       If(QmProd.and.iRead.ne.9) then
         iDisk=0
-        Call iDaFile(iLuSaUt,1,iHowMSampUT,1,iDisk)
+        Call iDaFile(iLuSaUt,1,[iHowMSampUT],1,iDisk)
         Call DaClos(iLuSaUt)
       Endif
 *--------------------------------------------------------------------------*

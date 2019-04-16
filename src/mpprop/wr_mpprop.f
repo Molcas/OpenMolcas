@@ -17,7 +17,8 @@
 #include "MolProp.fh"
 
       Parameter (mxComp=(mxMltPl+1)*(mxMltPl+2)/2)
-      Character*16 MltPlLab, MltPlLabs(0:mxMltpl,mxComp) ! "0:" added by EB
+!     "0:" added by EB
+      Character*16 MltPlLab, MltPlLabs(0:mxMltpl,mxComp)
       Character*16 String(0:16), PolString
       Real*8 MolPol(6)
 

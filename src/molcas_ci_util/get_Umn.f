@@ -116,11 +116,13 @@ C      -  -  -  -  -  -  - ...
 *     ^ Loop over alpha
         Call FZero(Work(KLAUXD),MXCSFC*MXCSFC)
 *        write(6,*)'iAlpha = ', iAlpha
-        CALL GETCNF_LUCIA(Work(KACONF),IATYP,IPCNF(iAlpha),
+        iKACONF=ip_of_iWork_d(Work(KACONF))
+        CALL GETCNF_LUCIA(iWork(iKACONF),IATYP,IPCNF(iAlpha),
      &                    ICONF,IREFSM,NEL)
         NCSFA = NCSFTP(IATYP)
 *        write(6,*)'NCSFA = ', NCSFA
-        CALL CNHCN(Work(KACONF),IATYP,Work(KACONF),
+        iKACONF=ip_of_iWork_d(Work(KACONF))
+        CALL CNHCN(iWork(iKACONF),IATYP,iWork(iKACONF),
      &             IATYP,Work(KLAUXD),Work(KLFREE),
      &             NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX,
      &             NTEST,ExFac,IREOTS)
@@ -140,11 +142,14 @@ C      -  -  -  -  -  -  - ...
 *       ^ Loop over AB-Block
           Call FZero(Work(KLAUXD),MXCSFC*MXCSFC)
 *          write(6,*)'Mindex',Mindex
-          CALL GETCNF_LUCIA(Work(KLCONF),ILTYP,IPCNF(Mindex),
+          iKLCONF=ip_of_iWork_d(Work(KLCONF))
+          CALL GETCNF_LUCIA(iWork(iKLCONF),ILTYP,IPCNF(Mindex),
      &                      ICONF,IREFSM,NEL)
           NCSFL = NCSFTP(ILTYP)
 *          write(6,*)'NCSFL = ', NCSFL
-          CALL CNHCN(Work(KACONF),IATYP,Work(KLCONF),
+          iKACONF=ip_of_iWork_d(Work(KACONF))
+          iKLCONF=ip_of_iWork_d(Work(KLCONF))
+          CALL CNHCN(iWork(iKACONF),IATYP,iWork(iKLCONF),
      &               ILTYP,Work(KLAUXD),Work(KLFREE),
      &               NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX,
      &               NTEST,ExFac,IREOTS)
@@ -198,7 +203,8 @@ C      -  -  -  -  -  -  - ...
 *     ^ Loop over the AA-block (vertical index)
         IF( NTEST.GE.30 ) write(6,*)'Nindex',Nindex
 *       write(6,*)'IILB',IILB
-        CALL GETCNF_LUCIA(Work(KLCONF),ILTYP,IPCNF(Nindex),ICONF,
+        iKLCONF=ip_of_iWork_d(Work(KLCONF))
+        CALL GETCNF_LUCIA(iWork(iKLCONF),ILTYP,IPCNF(Nindex),ICONF,
      &                    IREFSM,NEL)
         NCSFL = NCSFTP(ILTYP)
 *        write(6,*)'NCSFL = ', NCSFL
@@ -208,11 +214,14 @@ C      -  -  -  -  -  -  - ...
 *       ^ Loop over the AA-block (horizontal index)
           Call FZero(Work(KLPHPS),MXCSFC*MXCSFC)
 *          write(6,*)'Nindex,Mindex', Nindex,Mindex
-          CALL GETCNF_LUCIA(Work(KRCONF),IRTYP,IPCNF(Mindex),
+          iKRCONF=ip_of_iWork_d(Work(KRCONF))
+          CALL GETCNF_LUCIA(iWork(iKRCONF),IRTYP,IPCNF(Mindex),
      &                      ICONF,IREFSM,NEL)
           NCSFR = NCSFTP(IRTYP)
 *          write(6,*)'NCSFR = ', NCSFR
-          CALL CNHCN(Work(KLCONF),ILTYP,Work(KRCONF),IRTYP,
+          iKLCONF=ip_of_iWork_d(Work(KLCONF))
+          iKRCONF=ip_of_iWork_d(Work(KRCONF))
+          CALL CNHCN(iWork(iKLCONF),ILTYP,iWork(iKRCONF),IRTYP,
      &               Work(KLPHPS),Work(KLFREE),NAEL,NBEL,
      &               ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX,NTEST,
      &               ExFac,IREOTS)

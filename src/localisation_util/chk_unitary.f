@@ -36,7 +36,7 @@ C
       lUTU = n2
       Call GetMem('UTU','Allo','Real',ipUTU,lUTU)
 
-      Call dCopy_(n2,0.0d0,0,Work(ipUTU),1)
+      Call dCopy_(n2,[0.0d0],0,Work(ipUTU),1)
       ip0 = ipUTU - 1
       Do i = 1,n
          Work(ip0+n*(i-1)+i) = 1.0d0

@@ -127,8 +127,8 @@
             call icopy(12*12*nirrep,indhss,1,jndhss,1)
 
             Call Rysg2(iAng,nRys,nZeta,
-     &                 Alpha,Beta,One,One,
-     &                 Array(ipZ),Array(ipZI),nZeta,One,One,1,
+     &                 Alpha,Beta,[One],[One],
+     &                 Array(ipZ),Array(ipZI),nZeta,[One],[One],1,
      &                 Array(ipPx),nZeta,TC,1,Coori,Coor,CoorAC,
      &                 Array(ip),nArray-ip+1,
      &                 TNAI1,Fake,Cff2D,

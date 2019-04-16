@@ -18,6 +18,7 @@
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
+      dimension Dummy(1)
 
 c  ICODE=0 standard casvb calculation
 c  ICODE=1 variational calculation

@@ -81,7 +81,7 @@
      &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
      &                       nStab(mdc))
 *
-      call dcopy_(nGrad,Zero,0,Hess,1)
+      call dcopy_(nGrad,[Zero],0,Hess,1)
 *
 *     Auxiliary memory allocation.
 *
@@ -222,8 +222,8 @@ C        Do jS = 1, iS
             If (nSO.eq.0) Go To 131
             Call GetMem('DSOpr ','ALLO','REAL',ipDSOp,nSO*iPrim*jPrim)
             Call GetMem('DSO ','ALLO','REAL',ipDSO,nSO*iPrim*jPrim)
-            call dcopy_(nSO*iPrim*jPrim,Zero,0,Work(ipDSO),1)
-            call dcopy_(nSO*iPrim*jPrim,Zero,0,Work(ipDSOp),1)
+            call dcopy_(nSO*iPrim*jPrim,[Zero],0,Work(ipDSO),1)
+            call dcopy_(nSO*iPrim*jPrim,[Zero],0,Work(ipDSOp),1)
 *
 *           Gather the elements from 1st order density / Fock matrix.
 *
@@ -315,7 +315,7 @@ C        Do jS = 1, iS
      &                     A,RB,Work(iKappa),Work(iPCoor),Work(ipZI))
 *
 *
-               Call Icopy(18*nirrep,0,0,IndGrd,1)
+               Call Icopy(18*nirrep,[0],0,IndGrd,1)
                kk=0
                Do jIrrep=0,nirrep-1
                Do Jcar=1,3

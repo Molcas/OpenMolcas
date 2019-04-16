@@ -19,14 +19,14 @@ C
 #include "stdalloc.fh"
       CHARACTER JL,JR
       INTEGER NW
-      REAL*8 TMP
+      REAL*8 TMP(1)
       REAL*8, DIMENSION(:), ALLOCATABLE :: WRK
       JL='N'
       JR='N'
       IF (NVEC.NE.0) JR='V'
       IERR=0
       CALL DGEEV_(JL,JR,N,A,NA,EVR,EVI,VECS,NA,VECS,NA,TMP,-1,IERR)
-      NW=INT(TMP)
+      NW=INT(TMP(1))
       CALL mma_allocate(WRK,NW)
       CALL DGEEV_(JL,JR,N,A,NA,EVR,EVI,VECS,NA,VECS,NA,WRK,NW,IERR)
       CALL mma_deallocate(WRK)

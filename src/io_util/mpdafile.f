@@ -169,7 +169,7 @@ cvv         LuName(Lu_Mod)    = tmp
 *
          p_Buf     = 1
          n_Copy    = lBuf
-         CALL DAFILE(LU_mod,iOpt,Buf(p_Buf),n_Copy,iDisk_mod)
+         CALL CHDAFILE(LU_mod,iOpt,Buf(p_Buf),n_Copy,iDisk_mod)
       Else
 *
 *------- The record must be split over several files.
@@ -224,7 +224,7 @@ cvv               LuName(Lu_Mod)    = tmp
                MBL(Lu_Mod)     = MBL(Lu)
 *
             End If
-            CALL DAFILE(LU_mod,iOpt,Buf(p_Buf),n_Copy,iDisk_mod)
+            CALL CHDAFILE(LU_mod,iOpt,Buf(p_Buf),n_Copy,iDisk_mod)
             p_Buf     = p_Buf+n_Copy
             n_Save    = n_Save-n_Copy
             n_Copy    = Min(max_Bytes,n_Save)

@@ -38,7 +38,8 @@
       Character*180 Line, Get_Ln
       Integer ipExp(MxShll)
       integer storageSize,LineWords
-      parameter(storageSize = 200, LineWords=storageSize/8) ! LineWords = 25
+      parameter(storageSize = 200, LineWords=storageSize/8)
+!     LineWords = 25
       Character*(storageSize) sBasis
       Real*8 eqBasis(LineWords)
       Equivalence(sBasis,eqBasis)
@@ -65,7 +66,7 @@
       Endif
 
       Line = Get_Ln(lUnit)
-      Call Get_i(1,nFragType,1)
+      Call Get_i1(1,nFragType)
       ipFragType = iStart
       if(iPrint.ge.99) write(6,*) 'number of LBASIS = ',nFragType
 
@@ -91,7 +92,7 @@
       Endif
 
       Line = Get_Ln(lUnit)
-      Call Get_i(1,nFragCoor,1)
+      Call Get_i1(1,nFragCoor)
       ipFragCoor = iStart
       if(iPrint.ge.99) write(6,*) 'number of RELCOORDS = ',nFragCoor
 *
@@ -99,7 +100,7 @@
 *
       do i = 1,nFragCoor
         Line = Get_Ln(lUnit)
-        Call Get_i(1,iBasis,1)
+        Call Get_i1(1,iBasis)
         DInf(iStart) = dble(iBasis)
         Call Get_f(2,DInf(iStart+1),3)
         If (Index(Line,'ANGSTROM').ne.0) Then
@@ -122,7 +123,7 @@
       Endif
 
       Line = Get_Ln(lUnit)
-      Call Get_i(1,nFragEner,1)
+      Call Get_i1(1,nFragEner)
       ipFragEner = iStart
 
       Call Read_v(lUnit,DInf,iStart,iStart+nFragEner-1,1,ierr)
@@ -146,7 +147,7 @@
       Endif
 
       Line=Get_Ln(lUnit)
-      Call Get_i(1,nFragDens,1)
+      Call Get_i1(1,nFragDens)
       ipFragCoef = iStart
       Call Read_v(lUnit,DInf,ipFragCoef,
      &            ipFragCoef+nFragDens*nFragEner-1,1,ierr)

@@ -128,7 +128,7 @@
          Call Info2Runfile(DInf,nDInf)
          Call Gen_RelPointers(Info-1)
       End If
-      Call Put_cArray('Unique Basis Names',Mamn,(LENIN8)*nDim)
+      Call Put_cArray('Unique Basis Names',Mamn(1),(LENIN8)*nDim)
       Call Put_iArray('nBas',nBas,nIrrep)
 *                                                                      *
 ************************************************************************

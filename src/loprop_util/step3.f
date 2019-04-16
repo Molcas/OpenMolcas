@@ -22,8 +22,8 @@
 clg   write (*,*) 'Step 3', nDim
 clg   Call RecPrt('T before GS 3',' ',TMatrix,nDim,nDim)
 clg   write (*,*)
-      call dcopy_(nDim**2,Zero,0,TMatrix,1)
-      call dcopy_(nDim,One,0,TMatrix,nDim+1)
+      call dcopy_(nDim**2,[Zero],0,TMatrix,1)
+      call dcopy_(nDim,[One],0,TMatrix,nDim+1)
       Call GramSchmidt(SMatrix,TMatrix,nDim,iType,iCenter,1)
 *
       Return

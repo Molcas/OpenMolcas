@@ -82,7 +82,7 @@
       If ( iOpt.eq.1 ) then
         iDisk1=TocTwo(isDAdr+iBatch-1)
         jOpt=2
-        Call dDAFILE(LuTwo,jOpt,Buf1,lStRec,iDisk1)
+        Call cdDAFILE(LuTwo,jOpt,Buf1,lStRec,iDisk1)
 *---------------------------------------------------------------------*
 *                                                                     *
 *       Note:                                                         *
@@ -101,7 +101,7 @@
 *     the current buffer transfer data                                *
 *---------------------------------------------------------------------*
       If ( lBuf0.le.lBuf1 ) then
-        Call UPKR8(kOpt,lBuf0,nByte,Buf1(isBuf1),Buf0)
+        Call cUPKR8(kOpt,lBuf0,nByte,Buf1(isBuf1),Buf0)
         isBuf1=isBuf1+nByte
         lBuf1=lBuf1-lBuf0
 *---------------------------------------------------------------------*
@@ -110,12 +110,12 @@
 *     read as many subsequent buffers as needed                       *
 *---------------------------------------------------------------------*
       Else
-        Call UPKR8(kOpt,lBuf1,nByte,Buf1(isBuf1),Buf0)
+        Call cUPKR8(kOpt,lBuf1,nByte,Buf1(isBuf1),Buf0)
         isBuf0=lBuf1+1
         nleft=lBuf0-lBuf1
         Do while ( nleft.gt.0 )
           jOpt=2
-          Call dDAFILE(LuTwo,jOpt,Buf1,lStRec,iDisk1)
+          Call cdDAFILE(LuTwo,jOpt,Buf1,lStRec,iDisk1)
 *---------------------------------------------------------------------*
 *                                                                     *
 *         Note:                                                       *
@@ -129,7 +129,7 @@
           ncopy=min(nleft,lBuf1)
           kOpt=nint(C2R8(Buf1(25)))
           isBuf1=lTop*RtoB+1
-          Call UPKR8(kOpt,ncopy,nByte,Buf1(isBuf1),Buf0(isBuf0))
+          Call cUPKR8(kOpt,ncopy,nByte,Buf1(isBuf1),Buf0(isBuf0))
           isBuf0=isBuf0+ncopy
           isBuf1=lTop*RtoB+1+nByte
           lBuf1=lBuf1-ncopy
@@ -147,4 +147,27 @@
 *---------------------------------------------------------------------*
 *     Call qExit('OrdIn1')
       Return
+*
+*     This is to allow type punning without an explicit interface
+      Contains
+      SubRoutine cdDAFILE(Lu,iOpt,Buf,lBuf_,iDisk_)
+      Use Iso_C_Binding
+      Integer Lu, iOpt, lBuf_, iDisk_
+      Character, Target :: Buf(*)
+      Real*8, Pointer :: pBuf(:)
+      Call C_F_Pointer(C_Loc(Buf(1)),pBuf,[lBuf_])
+      Call dDAFILE(Lu,iOpt,pBuf,lBuf_,iDisk_)
+      Nullify(pBuf)
+      End SubRoutine cdDAFILE
+      Subroutine cUPKR8(iOpt,nData,nByte,InBuf,OutBuf)
+      Use Iso_C_Binding
+      Integer :: iOpt,nData,nByte
+      Character, Target :: InBuf(*)
+      Real*8 :: OutBuf(*)
+      Real*8, Pointer :: dBuf(:)
+      Call C_F_Pointer(C_Loc(InBuf(1)),dBuf,[nData])
+      Call UPKR8(iOpt,nData,nByte,dBuf,OutBuf)
+      Nullify(dBuf)
+      End Subroutine cUPKR8
+*
       End

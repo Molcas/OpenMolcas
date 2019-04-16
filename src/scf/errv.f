@@ -8,8 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C): Martin Schuetz                                        *
-*                2017, Roland Lindh                                    *
+* Copyright (C) Martin Schuetz                                         *
+*               2017, Roland Lindh                                     *
 ************************************************************************
       Subroutine ErrV(lvec,ivec,QNRstp,ErrVec,HDiag)
 ************************************************************************

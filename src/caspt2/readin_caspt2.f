@@ -25,143 +25,143 @@ C are not supported with stdalloc. Hence, the infraction.
       End Type
 
       Type InputTable
-      ! TITL      one line with a descriptive name
+!     TITL      one line with a descriptive name
       Character(Len=128) :: Title = ' '
-      ! FILE      file to read CAS/RAS reference from
+!     FILE      file to read CAS/RAS reference from
       Character(Len=128) :: File = 'JOBIPH'
-      ! MULT      the number of states, followed by the ID of each state
+!     MULT      the number of states, followed by the ID of each state
       Logical :: MULT = .False.
       Integer :: nMultState = 0
       Type(States) :: MultGroup
       Logical :: AllMult = .False.
-      ! XMUL      extended multi-state caspt2
+!     XMUL      extended multi-state caspt2
       Logical :: XMUL = .False.
       Integer :: nXMulState = 0
       Type(States) :: XMulGroup
       Logical :: AllXMult = .False.
-      ! LROO      compute only a single root, mutually exclusive
-      !           with both MULT or XMUL
+!     LROO      compute only a single root, mutually exclusive
+!               with both MULT or XMUL
       Logical :: LROO = .False.
       Integer :: SingleRoot = 0
-      ! RLXR      root for which the gradient is computed
+!     RLXR      root for which the gradient is computed
       Integer :: RlxRoot = -1
 
-      ! IPEA      sets the IP-EA shift
+!     IPEA      sets the IP-EA shift
       Logical :: IPEA = .False.
       Real*8 :: BSHIFT = 0.0d0
 
-      ! IMAG      size of extra 'imaginary' denominator shift
+!     IMAG      size of extra 'imaginary' denominator shift
       Real*8 :: ShiftI = 0.0d0
-      ! SHIF      size of extra denominator shift
+!     SHIF      size of extra denominator shift
       Real*8 :: Shift = 0.0d0
 
-      ! several freeze-delete schemes, each of these should active
-      ! the general flag below, to indicate additional conversion is
-      ! needed on the input orbitals
+!     several freeze-delete schemes, each of these should active
+!     the general flag below, to indicate additional conversion is
+!     needed on the input orbitals
       Logical :: modify_correlating_MOs = .False.
-      ! AFRE      freeze orbitals that do not have sufficient density
-      !           on specified 'active' atoms
+!     AFRE      freeze orbitals that do not have sufficient density
+!               on specified 'active' atoms
       Logical :: aFreeze = .False.
       Integer :: lnFro = 0
       Real*8 :: ThrFr = 0.0d0, ThrDe = 0.0d0
       Character(Len=4), Allocatable :: NamFro(:)
-      ! LOVC      freeze orbitals that are not localized no the active
-      !           site
+!     LOVC      freeze orbitals that are not localized no the active
+!               site
       Logical :: LovCASPT2 = .False.
       Real*8 :: Thr_Atm = 0.0d0
-      ! FNOC      delete a fraction of virtual orbitals
+!     FNOC      delete a fraction of virtual orbitals
       Logical :: FnoCASPT2 = .False.
       Real*8 :: VFrac = 0.0d0
-      ! DOMP
+!     DOMP
       Logical :: DoMP2 = .False.
-      ! DOEN
+!     DOEN
       Logical :: DoEnv = .False.
-      ! VIRA
+!     VIRA
       Logical :: VIRA = .False.
-      ! GHOS      excludes ghost orbitals from the PT2 treatment
+!     GHOS      excludes ghost orbitals from the PT2 treatment
       Logical :: GhostDelete = .False.
       Real*8 :: ThrGD = 0.0d0
 
-      ! FROZ      number of frozen orbitals in each irrep
+!     FROZ      number of frozen orbitals in each irrep
       Logical :: FROZ = .False.
       Integer, Allocatable :: nFro(:)
-      ! DELE      number of deleted orbitals in each irrep
+!     DELE      number of deleted orbitals in each irrep
       Logical :: DELE = .False.
       Integer, Allocatable :: nDel(:)
-      ! DENS      computes full density matrix from the 1st-order
-      !           wavefunction
+!     DENS      computes full density matrix from the 1st-order
+!               wavefunction
       Logical :: DENS = .False.
-      ! RFPE      make a perturbative reaction field calculation
+!     RFPE      make a perturbative reaction field calculation
       Logical :: RFPert = .False.
-      ! THRE      thresholds for removal of:
-      !   ThrsHN    zero-norm components in the first-order perturbed
-      !             wave function
-      !   ThrsHS    linear dependencies between components of the first-
-      !             order perturbed wave function
+!     THRE      thresholds for removal of:
+!       ThrsHN    zero-norm components in the first-order perturbed
+!                 wave function
+!       ThrsHS    linear dependencies between components of the first-
+!                 order perturbed wave function
       Logical :: THRE = .False.
       Real*8 :: ThrsHN = 1.0d-10, ThrsHS = 1.0d-8
-      ! MAXI      maximum number of iterations for solving a system of
-      !           linear equations, default 20. A 0 indicates: use of
-      !           the diagonal zeroth order hamiltonian
+!     MAXI      maximum number of iterations for solving a system of
+!               linear equations, default 20. A 0 indicates: use of
+!               the diagonal zeroth order hamiltonian
       Integer :: maxIter = 20
-      ! Conv      convergence criteria for solving a system of linear
-      !           equations
+!     Conv      convergence criteria for solving a system of linear
+!               equations
       Real*8 :: ThrConv = 1.0d-6
-      ! NOMI      do not create an PM-CAS wavefunction file (JobMix)
+!     NOMI      do not create an PM-CAS wavefunction file (JobMix)
       Logical :: NoMix = .False.
-      ! NOMU      do not perform a multistate interaction
+!     NOMU      do not perform a multistate interaction
       Logical :: noMult = .False.
-      ! ONLY      in a MS calculation, compute a single root with
-      !           couplings to the other roots
+!     ONLY      in a MS calculation, compute a single root with
+!               couplings to the other roots
       Integer :: OnlyRoot = 0
-      ! EFFE      read HEff coupling terms from the input and perform
-      !           only the multistate part
+!     EFFE      read HEff coupling terms from the input and perform
+!               only the multistate part
       Logical :: JMS = .False.
       Real*8, Allocatable :: HEff(:,:)
-      ! NOOR      do not print orbitals
+!     NOOR      do not print orbitals
       Logical :: PrOrb = .True.
-      ! PROP      compute properties
-      ! NOPR      do not compute properties
+!     PROP      compute properties
+!     NOPR      do not compute properties
       Logical :: Properties = .False.
-      ! transformation of reference (input) orbitals
-      ! NOTR      do not transform to quasi-canonical orbitals,
-      !           regardless of the state of the reference orbitals
-      ! TRAN      transform to quasi-canonical orbitals, regardless
-      !           of the state of the reference orbitals
-      ! the default is to use transformation, unless the PT2 keyword
-      ! was used in the rasscf program and the fock matrix is standard
+!     transformation of reference (input) orbitals
+!     NOTR      do not transform to quasi-canonical orbitals,
+!               regardless of the state of the reference orbitals
+!     TRAN      transform to quasi-canonical orbitals, regardless
+!               of the state of the reference orbitals
+!     the default is to use transformation, unless the PT2 keyword
+!     was used in the rasscf program and the fock matrix is standard
       Character(Len=8) :: ORBIN = 'TRANSFOR'
-      ! OFEM      add orbital-free embedding potential to the hamiltonian
+!     OFEM      add orbital-free embedding potential to the hamiltonian
       Logical :: OFEmbedding = .False.
-      ! OUTP      control extent of orbital printing
+!     OUTP      control extent of orbital printing
       Character(Len=8) :: OutFormat = 'DEFAULT '
-      ! PRWF      print the CI coefficients above this threshold
+!     PRWF      print the CI coefficients above this threshold
       Real*8 :: PrWF = 0.05d0
-      ! PRSD      print the determinant expansion of CSFs
+!     PRSD      print the determinant expansion of CSFs
       Logical :: PRSD = .False.
-      ! NOOR      do not print any orbitals
+!     NOOR      do not print any orbitals
       Logical :: NoOrb = .False.
 
-      ! UNDOCUMENTED KEYWORDS
-      ! CHOL
+!     UNDOCUMENTED KEYWORDS
+!     CHOL
       Logical :: CHOL = .False.
-      ! CHOI
+!     CHOI
       Logical :: CHOI = .False.
-      ! WTHR      thresholds for writing large components in the
-      !           first-order perturbed wave function, 3 values that
-      !           are for denominator, coefficient, and energy
+!     WTHR      thresholds for writing large components in the
+!               first-order perturbed wave function, 3 values that
+!               are for denominator, coefficient, and energy
       Real*8 :: DNMTHR = 0.3d0, CMPTHR = 0.025d0, CNTTHR = 0.005d0
-      ! FOCK      string representing the type of Fock matrix
+!     FOCK      string representing the type of Fock matrix
       Character(Len=8) :: FockType = 'STANDARD'
-      ! HZER      string representing the type of 0-order hamiltonian
+!     HZER      string representing the type of 0-order hamiltonian
       Character(Len=8) :: HZero = 'STANDARD'
-      ! G1SE      include secondary/inactive elements of the exchange
-      !           matrix in the g1 modification to the fock matrix
+!     G1SE      include secondary/inactive elements of the exchange
+!               matrix in the g1 modification to the fock matrix
       Logical :: G1SecIn = .False.
-      ! RHSD      use the RHS-ondemand algorithm for the calculation of
-      !           the right-hand side
+!     RHSD      use the RHS-ondemand algorithm for the calculation of
+!               the right-hand side
       Logical :: RHSD = .False.
-      ! CUMU
+!     CUMU
       Logical :: DoCumulant = .False.
       End Type
 

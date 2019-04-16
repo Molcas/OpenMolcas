@@ -98,8 +98,10 @@ c mean field parameter
       Real(kind=wp), intent(out) :: zJ
 c  definintion of the crystal axes:
       Logical, intent(out)       :: Do_structure_abc
-      Real(kind=wp), intent(out) :: cryst(6) ! a, b, c, alpha, beta, gamma
-      Real(kind=wp), intent(out) :: coord(3) ! Cartesian coordinates of the main metal site, or center
+!     a, b, c, alpha, beta, gamma
+      Real(kind=wp), intent(out) :: cryst(6)
+!     Cartesian coordinates of the main metal site, or center
+      Real(kind=wp), intent(out) :: coord(3)
 cc  definitions for blocking barrier
       Integer, intent(out)       :: nBlock
       Logical, intent(out)       :: compute_barrier
@@ -177,7 +179,8 @@ c-----------------------------------------------------------------------
       m_accurate            = .true.
       m_paranoid            = .true.
       smagn                 = .false.
-      THRS                  = 1.D-10       ! threshold for convergence of average spin when zJ .ne. 0.0
+!     threshold for convergence of average spin when zJ .ne. 0.0
+      THRS                  = 1.D-10
       iopt                  = 1
       dltH0                 =  0.001_wp     ! the non-zero field point
       NK                    = 50

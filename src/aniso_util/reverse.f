@@ -24,9 +24,9 @@ C
       External       :: FindDetR
 
       det=0.0_wp
-      Call dcopy_(3*3,0.0_wp,0,A,1)
-      Call dcopy_(3*3,0.0_wp,0,B,1)
-      Call dcopy_(3*3,0.0_wp,0,A_inv,1)
+      Call dcopy_(3*3,[0.0_wp],0,A,1)
+      Call dcopy_(3*3,[0.0_wp],0,B,1)
+      Call dcopy_(3*3,[0.0_wp],0,A_inv,1)
       Call dcopy_(3*3,A_dir,1,A,1)
 
       det=FindDetR(A,3)

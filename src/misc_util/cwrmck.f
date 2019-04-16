@@ -11,6 +11,18 @@
       Subroutine cWrMCK(rc,Option,InLab,iComp,cData,iSymLab)
       Implicit Integer (A-Z)
       Character*(*) InLab, cData
-      Call WrMCK(rc,Option,InLab,iComp,cData,iSymLab)
+      Call cWrMCK_Internal(cData)
+*
+*     This is to allow type punning without an explicit interface
+      Contains
+      Subroutine cWrMCK_Internal(cData)
+      Use Iso_C_Binding
+      Character, Target :: cData(*)
+      Integer, Pointer :: iData(:)
+      Call C_F_Pointer(C_Loc(cData(1)),iData,[1])
+      Call WrMCK(rc,Option,InLab,iComp,iData,iSymLab)
+      Nullify(iData)
       Return
+      End Subroutine cWrMCK_Internal
+*
       End

@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Yannick Carissan                                       *
 ************************************************************************
-*  RdInput
+*  RdInput_Quater
 *
 *> @brief
 *>   Reads the input of the quater program
@@ -24,7 +24,7 @@
 *> @details
 *> Reads the input of the quater program.
 ************************************************************************
-      Subroutine RdInput(U1,U2,V1,V2)
+      Subroutine RdInput_Quater(U1,U2,V1,V2)
       Implicit none
 #include "WrkSpc.fh"
 #include "debug.fh"
@@ -106,7 +106,7 @@ c      Do
         else if (key(1:4).eq.'END ') then
           GoTo 999
         else
-          Call SysAbendMsg("RdInput",
+          Call SysAbendMsg("RdInput_Quater",
      &          "Keyword not relevant : ",key)
         endif
       goto 666
@@ -114,13 +114,13 @@ c      Do
 999   continue
       if (.not.AxisSet) then
         if (.not.XYZ1Set) then
-          Call SysAbendMsg("RdInput",
+          Call SysAbendMsg("RdInput_Quater",
      &      "Reference Axis not set",
      &      "AXIS or XYZ1 Keyword mandatory")
         end if
       else
         if (XYZ1Set) then
-          Call SysAbendMsg("RdInput",
+          Call SysAbendMsg("RdInput_Quater",
      &      "Reference Axis not set properly",
      &      "AXIS and XYZ1 Keywords are exclusive")
         end if
@@ -128,31 +128,31 @@ c      Do
 
       if (.not.NewAxisSet) then
         if (.not.XYZ2Set) then
-          Call SysAbendMsg("RdInput",
+          Call SysAbendMsg("RdInput_Quater",
      &      "New Axis not set :","NEWAXIS or XYZ2 Keyword mandatory")
         end if
       else
         if (XYZ2Set) then
-          Call SysAbendMsg("RdInput",
+          Call SysAbendMsg("RdInput_Quater",
      &      "New Axis not set properly",
      &      "NEWAXIS and XYZ2 Keywords are exclusive")
         end if
       end if
 
       if (XYZ1Set.and..not.GEO1Set) then
-          Call SysAbendMsg("RdInput",
+          Call SysAbendMsg("RdInput_Quater",
      &      "XYZ1 keyword requires GEO1 definition",
      &      "")
       end if
 
       if (XYZ2Set.and..not.GEO2Set) then
-          Call SysAbendMsg("RdInput",
+          Call SysAbendMsg("RdInput_Quater",
      &      "XYZ2 keyword requires GEO2 definition",
      &      "")
       end if
 
       if (translate.and..not.(XYZ1Set.and.XYZ2Set)) then
-          Call SysAbendMsg("RdInput",
+          Call SysAbendMsg("RdInput_Quater",
      &      "Translation cannot be done if both",
      &      "XYZ1 and XYZ2 are not set")
       end if

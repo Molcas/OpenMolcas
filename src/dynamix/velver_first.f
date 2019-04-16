@@ -149,7 +149,7 @@ C-------------------------------------------
         END DO
       END DO
 
-      Call Add_Info('EKin',EKin,1,6)
+      Call Add_Info('EKin',[EKin],1,6)
 
       RMS=SQRT(RMS/natom)
 C

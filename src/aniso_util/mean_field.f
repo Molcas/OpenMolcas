@@ -59,9 +59,9 @@
 
       Subroutine mean_field_exch( N, H, X,Y,Z, zJ, T, thrs, W,
      &                               dM, sM, ST )
-      ! this Subroutine computes the mean field of neighboring spins ST(3)
-      ! for zJ .ne. 0.0_wp
-      ! using ONLY Zeeman basis (N)
+!     this Subroutine computes the mean field of neighboring spins ST(3)
+!     for zJ .ne. 0.0_wp
+!     using ONLY Zeeman basis (N)
 
       Implicit None
       Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
@@ -96,10 +96,10 @@
       Call mma_allocate(W_c,N,'ZEEM_W_c')
 
       ! zero everything:
-      Call dcopy_(3*N-2,0.0_wp,0,RWORK,1)
-      Call zcopy_(N*(N+1)/2,(0.0_wp,0.0_wp),0,HZEE,1)
-      Call zcopy_(2*N-1,(0.0_wp,0.0_wp),0,WORK,1)
-      Call zcopy_(N,(0.0_wp,0.0_wp),0,W_c,1)
+      Call dcopy_(3*N-2,[0.0_wp],0,RWORK,1)
+      Call zcopy_(N*(N+1)/2,[(0.0_wp,0.0_wp)],0,HZEE,1)
+      Call zcopy_(2*N-1,[(0.0_wp,0.0_wp)],0,WORK,1)
+      Call zcopy_(N,[(0.0_wp,0.0_wp)],0,W_c,1)
       ! determine first the average spin of neighboring
       ! molecules for each temperature point
       Do iter=1,mxIter
@@ -117,7 +117,7 @@
           SZ(1:3,1:N,1:N)=(0.0_wp,0.0_wp)
           Call UTMU( N, N, ZM(1:N,1:N), SM(1:3,1:N,1:N),
      &                                  SZ(1:3,1:N,1:N) )
-          ! compute the spin magnetization vector at this temperature (T):
+!         compute the spin magnetization vector at this temperature (T):
           If(iter==mxIter) Then
             SL=0.0_wp
             SL(1)=S(1)
@@ -195,9 +195,9 @@
 
       Subroutine mean_field_all( EXCH, N, H, X,Y,Z, zJ, T, thrs, W,
      &                           dM, SM, ST)
-      ! this Subroutine computes the mean field of neighboring spins ST(3)
-      ! for zJ .ne. 0.0_wp
-      ! using ONLY Zeeman basis (N)
+!     this Subroutine computes the mean field of neighboring spins ST(3)
+!     for zJ .ne. 0.0_wp
+!     using ONLY Zeeman basis (N)
 
       Implicit None
       Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
@@ -232,10 +232,10 @@
       Call mma_allocate(W_c,N,'ZEEM_W_c')
 
       ! zero everything:
-      Call dcopy_(3*N-2,0.0_wp,0,RWORK,1)
-      Call zcopy_(N*(N+1)/2,(0.0_wp,0.0_wp),0,HZEE,1)
-      Call zcopy_(2*N-1,(0.0_wp,0.0_wp),0,WORK,1)
-      Call zcopy_(N,(0.0_wp,0.0_wp),0,W_c,1)
+      Call dcopy_(3*N-2,[0.0_wp],0,RWORK,1)
+      Call zcopy_(N*(N+1)/2,[(0.0_wp,0.0_wp)],0,HZEE,1)
+      Call zcopy_(2*N-1,[(0.0_wp,0.0_wp)],0,WORK,1)
+      Call zcopy_(N,[(0.0_wp,0.0_wp)],0,W_c,1)
       ! determine first the average spin of neighboring
       ! molecules for each temperature point
       Do iter=1,mxIter
@@ -253,10 +253,10 @@
             End Do
           End If
 
-          ! transform the spin momenta to the Zeeman eigenstate basis
-          Call zcopy_(3*EXCH*EXCH,(0.0_wp,0.0_wp),0,SZ,1)
+!         transform the spin momenta to the Zeeman eigenstate basis
+          Call zcopy_(3*EXCH*EXCH,[(0.0_wp,0.0_wp)],0,SZ,1)
           Call UTMU( EXCH, N, ZM(1:N,1:N), SM, SZ )
-          ! compute the spin magnetization vector at this temperature (T):
+!         compute the spin magnetization vector at this temperature (T):
           If(iter==mxIter) Then
             SL=0.0_wp
             SL(1)=S(1)

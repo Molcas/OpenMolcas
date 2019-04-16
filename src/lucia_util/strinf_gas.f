@@ -264,7 +264,7 @@ C     DIMENSION IOCTYP(MXPNGAS)
           WRITE(6,*)
      &    ' Number of strings per sym (row) and supergroup(column)',
      &    ' for type = ', ITP
-          CALL IWRTMA(WORK(KNSTSO(ITP)),NSMST,NSPGPFTP(ITP),
+          CALL IWRTMA(iWORK(KNSTSO(ITP)),NSMST,NSPGPFTP(ITP),
      &                NSMST,NSPGPFTP(ITP))
           WRITE(6,'(A,3I6)') ' NSMCLS,NSMCLSE,NSMCLSE1=',
      &                         NSMCLS,NSMCLSE,NSMCLSE1

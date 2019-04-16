@@ -41,7 +41,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      call dcopy_(nDens2,Zero,0,Fock,1)
+      call dcopy_(nDens2,[Zero],0,Fock,1)
 *
       n1=0
       Do iS = 1, nSym
@@ -192,13 +192,13 @@ c                     iij =itri(iAsh+nA(is),jAsh+nA(jS))
 
 *
         Call GetMem('Scr','Allo','Real',ipScr1,n2*2)
-        call dcopy_(n2*2,Zero,0,Work(ipScr1),1)
+        call dcopy_(n2*2,[Zero],0,Work(ipScr1),1)
         ipScr2=ipScr1+n2
-        ipDA=ip_of_work(rdens1)
-        ipFock=ip_of_work(Fock)
+        ipDA=ip_of_work(rdens1(1,1))
+        ipFock=ip_of_work(Fock(1))
 *
         Call cho_fock_mclr(ipDA,ipG2x,ipScr1,ipScr2,ipFock,
-     &                    ipAsh,ipCMO,nIsh,nAsh,LuAChoVec)
+     &                    [ipAsh],ipCMO,nIsh,nAsh,LuAChoVec)
 *
         Call GetMem('Scr','Free','Real',ipScr1,n2*2)
         Call GetMem('Cva','Free','Real',ipAsh,nVB)

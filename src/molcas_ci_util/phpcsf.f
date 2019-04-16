@@ -55,6 +55,15 @@ C
       DIMENSION ONEBOD(*),SCR(*)
       DIMENSION TUVX(*), IREOTS(*)
 *
+      CALL PHPCSF_INTERNAL(SCR)
+*
+*     This is to allow type punning without an explicit interface
+      CONTAINS
+      SUBROUTINE PHPCSF_INTERNAL(SCR)
+      USE ISO_C_BINDING
+      REAL*8, TARGET :: SCR(*)
+      INTEGER, POINTER :: iSCRl(:),iSCRr(:)
+*
 *     Assumed machine accuray (give and take)
 *
       Acc=1.0D-13
@@ -169,17 +178,24 @@ C
 *
       IILB = 1
       DO ICNL = 1, NPCNF
-        CALL GETCNF_LUCIA(SCR(KLCONF),ILTYP,IPCNF(ICNL),ICONF,IREFSM,
+        CALL C_F_POINTER(C_LOC(SCR(KLCONF)),iSCRl,[1])
+        CALL GETCNF_LUCIA(iSCRl,ILTYP,IPCNF(ICNL),ICONF,IREFSM,
      &                    NEL)
+        NULLIFY(iSCRl)
         NCSFL = NCSFTP(ILTYP)
         IIRB = 1
         DO ICNR = 1, ICNL
-          CALL GETCNF_LUCIA(SCR(KRCONF),IRTYP,IPCNF(ICNR),ICONF,IREFSM,
+          CALL C_F_POINTER(C_LOC(SCR(KRCONF)),iSCRr,[1])
+          CALL GETCNF_LUCIA(iSCRr,IRTYP,IPCNF(ICNR),ICONF,IREFSM,
      &                      NEL)
+          NULLIFY(iSCRr)
           NCSFR = NCSFTP(IRTYP)
-          CALL CNHCN(SCR(KLCONF),ILTYP,SCR(KRCONF),IRTYP,SCR(KLPHPS),
+          CALL C_F_POINTER(C_LOC(SCR(KLCONF)),iSCRl,[1])
+          CALL C_F_POINTER(C_LOC(SCR(KRCONF)),iSCRr,[1])
+          CALL CNHCN(iSCRl,ILTYP,iSCRr,IRTYP,SCR(KLPHPS),
      &               SCR(KLFREE),NAEL,NBEL,ECORE,
      &               ONEBOD,IPRODT,DTOC,NACTOB,TUVX,NTEST,ExFac,IREOTS)
+          NULLIFY(iSCRl,iSCRr)
           DO IIL = 1, NCSFL
             IF(IILB.EQ.IIRB) THEN
               IIRMAX = IIL
@@ -200,4 +216,6 @@ C
       END DO
 *
       RETURN
+      END SUBROUTINE PHPCSF_INTERNAL
+*
       END

@@ -11,7 +11,7 @@
 * Copyright (C) 1986, Per E. M. Siegbahn                               *
 *               1986, Margareta R. A. Blomberg                         *
 ************************************************************************
-      SUBROUTINE INDMAT(JSY,INDEX,ISAB,ISMAX,JREFX)
+      SUBROUTINE INDMAT_CPF(JSY,INDEX,ISAB,ISMAX,JREFX)
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "SysDef.fh"
@@ -23,7 +23,7 @@ CPAM97      EXTERNAL UNPACK
 CPAM97      INTEGER UNPACK
 CRL   JSYM(L)=IAND(ISHFT(JSY((L+19)/20),-3*((L+19)/20*20-L)),7)+1
 CPAM96      JSYM(L)=UNPACK(JSY((L+9)/10),3*MOD(L-1,10)+1,3)+1
-      JSYM(L)=JSUNP(JSY,L)
+      JSYM(L)=JSUNP_CPF(JSY,L)
 C
 C     DETERMINE REFERENCE STATE
       JCONF=ISC(1)

@@ -42,9 +42,9 @@
 *
 *     Set some constants
 *
-      Call ICopy(mOVX,-1,0,iDsk(1,1),3)
-      Call ICopy(mOVX, 0,0,iDsk(2,1),3)
-      Call ICopy(mOVX, 1,0,iDsk(3,1),3)
+      Call ICopy(mOVX,[-1],0,iDsk(1,1),3)
+      Call ICopy(mOVX, [0],0,iDsk(2,1),3)
+      Call ICopy(mOVX, [1],0,iDsk(3,1),3)
 
 #ifdef _HDF5_QCM_
       if(ihdf5 == 1)then
@@ -287,7 +287,7 @@
              IF(NT.EQ.NV) IX1=1+NBP*(NX-1)
              IF ( LOQ.GT.0 ) THEN
                IF ( NBP.EQ.0 ) THEN
-                 CALL DCOPY_(LOQ,0.0D0,0,X2(IX2),1)
+                 CALL DCOPY_(LOQ,[0.0D0],0,X2(IX2),1)
                ELSE
                  CALL DGEMM_('T','N',
      &                       LOQ,1,NBP,

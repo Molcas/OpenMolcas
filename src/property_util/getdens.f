@@ -39,6 +39,7 @@
       Character Line*80
       Character*(*) FName
       Logical Density
+      Dimension Dummy(1),iDummy(1)
 *
       nDen=n2Tri(1)
       nVec=n2Tot
@@ -79,7 +80,7 @@
 *
 *        Build the density matrix.
 *
-         call dcopy_(nDen,Zero,0,Den,1)
+         call dcopy_(nDen,[Zero],0,Den,1)
 *
          ictv=iadVec
          icto=iadOcc
@@ -108,7 +109,8 @@
          iadOcc=iadDen
          nOcc = nDen
          nVec = nDen
-         If (iPrint.ge.10) Call PrMtrx(' Density matrix',1,1,iadDen,Den)
+         If (iPrint.ge.10) Call PrMtrx(' Density matrix',[1],1,
+     &                                 [iadDen],Den)
 *
       End If
 *

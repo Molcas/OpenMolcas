@@ -28,7 +28,7 @@ C
 C
       IF ( ITRNSP.EQ.0 ) THEN
         IF ( IZERO.EQ.1 ) THEN
-          CALL DCOPY_(NCROW*NCCOL,0.0D0,0,C,1)
+          CALL DCOPY_(NCROW*NCCOL,[0.0D0],0,C,1)
           DO J = 1,NCCOL
             DO K = 1,NBROW
               BKJ = B(K,J)
@@ -62,7 +62,7 @@ C
 C
       IF ( ITRNSP.EQ.2 ) THEN
         IF ( IZERO.EQ.1 ) THEN
-          CALL DCOPY_(NCROW*NCCOL,0.0D0,0,C,1)
+          CALL DCOPY_(NCROW*NCCOL,[0.0D0],0,C,1)
           DO J = 1,NCCOL
             DO K = 1,NBCOL
               BJK = B(J,K)

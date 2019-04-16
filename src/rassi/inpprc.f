@@ -29,6 +29,7 @@
       Character*3 lIrrep(8)
       INTEGER ICMPLST(MXPROP)
       LOGICAL JOBMATCH
+      DIMENSION DUMMY(1),IDUM(1)
 * Analysing and post-processing the input that was read in readin_rassi.
 
       CALL QENTER(ROUTINE)
@@ -132,7 +133,8 @@ C (IPUSED will be set later, set it to zero now.)
       IRC=-1
       IOPT=15
       LABEL='UNDEF'
-      CALL iRDONE(IRC,IOPT,LABEL,ICMP,NSIZ,ISYLAB)
+      CALL iRDONE(IRC,IOPT,LABEL,ICMP,IDUM,ISYLAB)
+      NSIZ=IDUM(1)
       IF(IRC.NE.0) GOTO 110
       IPRP=1
       CALL UPCASE(LABEL)
@@ -143,7 +145,8 @@ C (IPUSED will be set later, set it to zero now.)
         IF(IPRP.GE.MXPROP) GOTO 110
         IRC=-1
         IOPT=23
-        CALL iRDONE(IRC,IOPT,LABEL,ICMP,NSIZ,ISYLAB)
+        CALL iRDONE(IRC,IOPT,LABEL,ICMP,IDUM,ISYLAB)
+        NSIZ=IDUM(1)
         IF(IRC.NE.0) GOTO 110
         IPRP=IPRP+1
         CALL UPCASE(LABEL)

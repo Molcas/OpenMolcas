@@ -75,7 +75,7 @@ C ordinal number of each active orbital.
         IF(ISCF.EQ.0) THEN
 C The general case:
 C Compute SGM1:=E(IY,IZ) PSI
-          CALL DCOPY_(NSGM1,0.0D0,0,WORK(LSGM1),1)
+          CALL DCOPY_(NSGM1,[0.0D0],0,WORK(LSGM1),1)
           LEVY=IATOG(IY)
           LEVZ=IATOG(IZ)
           CALL SIGMA1_CP2(LEVY,LEVZ,1.0D00,ISYCI,CI,WORK(LSGM1),
@@ -112,7 +112,7 @@ C Closed-shell or hi-spin case:
           IF(ISCF.EQ.0) THEN
 C The general case:
 C Compute SGM2:=E(IV,IX) SGM1
-            CALL DCOPY_(NSGM2,0.0D0,0,WORK(LSGM2),1)
+            CALL DCOPY_(NSGM2,[0.0D0],0,WORK(LSGM2),1)
             LEVV=IATOG(IV)
             LEVX=IATOG(IX)
             CALL SIGMA1_CP2(LEVV,LEVX,1.0D00,ISYM1,WORK(LSGM1),

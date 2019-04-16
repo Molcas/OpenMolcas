@@ -204,7 +204,8 @@ c      stop 888
 c write converged cm into file 7
           do mt=mtsta0,mtsta-1
             mtidx=indx(mt-mtsta0+1)
-            call write_ml(lucivec,1,vector2(mtidx+1),nci_dim,mt)
+            call write_ml(lucivec,1,vector2(mtidx+1:mtidx+nci_dim),
+     &                    nci_dim,mt)
           enddo
           nd=(mroot-mtsta0+1)*nci_dim
           vector2(1:nd)=vector1(1:nd)
@@ -233,7 +234,8 @@ c
 !          rewind 7
           do mt=1,mtsta-1
             mtidx=indx(mt)
-            call read_ml(lucivec,1,vector1(mtidx+1),nci_dim,mt)
+            call read_ml(lucivec,1,vector1(mtidx+1:mtidx+nci_dim),
+     &                   nci_dim,mt)
 !            read(7) vector1(mtidx+1:mtidx+nci_dim)
           enddo
 
@@ -1002,7 +1004,7 @@ c****************************************************************
         nc=1
         do i=1,mtsta0-1
           mtidx=indx(i)
-          call read_ml(lucivec,1,vector1(nc),nci_dim,i)
+          call read_ml(lucivec,1,vector1(nc:nc+nci_dim-1),nci_dim,i)
           nc=nc+nci_dim
         enddo
         vector1(nc:nc+nd-1)=vector2(1:nd)
@@ -1011,7 +1013,7 @@ c****************************************************************
 c  write eigenvector into fort7
         nc=1
         do i=1,mroot
-          call write_ml(lucivec,1,vector1(nc),nci_dim,i)
+          call write_ml(lucivec,1,vector1(nc:nc+nci_dim-1),nci_dim,i)
           nc=nc+nci_dim
         enddo
 !        print*, "xxx cof"
@@ -1319,7 +1321,7 @@ c   iiter - iiter+1
 
 c     normalization of vector msta
       vsum=dzero
-      call norm_a(nci_dim,vector1(1))
+      call norm_a(nci_dim,vector1)
       kval=kval+1
 
       do mt=msta+1,mroot
@@ -1335,7 +1337,7 @@ c     normalization of vector msta
      *                      -vsum*vector1(ntidx+l)
           enddo
         enddo
-        call norm_a(nci_dim,vector1(mtidx+1))
+        call norm_a(nci_dim,vector1(mtidx+1:mtidx+nci_dim))
         kval=kval+1
       enddo
 

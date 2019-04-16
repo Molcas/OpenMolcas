@@ -11,14 +11,14 @@
 * Copyright (C) 2014, Steven Vancoillie                                *
 ************************************************************************
       module faroald
-      ! written by Steven Vancoillie, summer 2014
-      !
-      ! The faroald module handles sigma updates as the result of acting
-      ! with the hamiltonian operator on a CI vector: s = H c, where s and c
-      ! are CI expansions in determinant basis.
-      !
-      ! The implementation follows the minimum operation count algorithm
-      ! published by Olsen & Co in J. Chem. Phys. 89, 2185 (1988).
+!     written by Steven Vancoillie, summer 2014
+!
+!     The faroald module handles sigma updates as the result of acting
+!     with the hamiltonian operator on a CI vector: s = H c, where s and c
+!     are CI expansions in determinant basis.
+!
+!     The implementation follows the minimum operation count algorithm
+!     published by Olsen & Co in J. Chem. Phys. 89, 2185 (1988).
 
       implicit none
       save
@@ -110,18 +110,18 @@
         end do
       end do
 
-      ! Second, for sigma2 and sigma3, we are better off with the transpose
-      ! of sgm and/or psi, so allocate and assign them here.
+!     Second, for sigma2 and sigma3, we are better off with the transpose
+!     of sgm and/or psi, so allocate and assign them here.
       allocate(psiT(ndetb,ndeta), stat=ierr)
       if (ierr /= 0) stop 'sigma_update: could not allocate psiT'
       call dtrans(ndeta,ndetb,psi,ndeta,psiT,ndetb)
 
-      ! Now the actual contributions to sigma are computed. For a singlet
-      ! (mult = 1), sigma2 is not computed and sigma3 will only do half the
-      ! work.  But at the end, the transpose of sigma has to be added to
-      ! sigma. This should be more efficient than computing everything, but
-      ! note that the transpose operation is also included in the timings
-      ! used to compute the flop efficiency.
+!     Now the actual contributions to sigma are computed. For a singlet
+!     (mult = 1), sigma2 is not computed and sigma3 will only do half the
+!     work.  But at the end, the transpose of sigma has to be added to
+!     sigma. This should be more efficient than computing everything, but
+!     note that the transpose operation is also included in the timings
+!     used to compute the flop efficiency.
 
       call sigma1(k,g,sgm,psi,ibsta,ibend)
 
@@ -167,8 +167,8 @@
       end subroutine
 
       subroutine sigma1(k,g,sgm,psi,ibsta,ibend)
-      ! sigma1 = sum_jb sum_tu <jb|E_tu|ib> (h_kl - 1/2 sum_v <tv|vx>) C(ia,jb)
-      !    + 1/2 sum_jb sum_tuvx <jb|E_tu E_vx|ib> g_tuvx C(ia,jb)
+!     sigma1 = sum_jb sum_tu <jb|E_tu|ib> (h_kl - 1/2 sum_v <tv|vx>) C(ia,jb)
+!        + 1/2 sum_jb sum_tuvx <jb|E_tu E_vx|ib> g_tuvx C(ia,jb)
 
       implicit none
 
@@ -218,7 +218,7 @@
 #ifdef _PROF_
             nflop = nflop + 2 * ndeta
 #endif
-            call daxpy_(ndeta,f(jb),psi(1,jb),1,sgm(1,ib),1)
+            call daxpy_(ndeta,f(jb),psi(:,jb),1,sgm(:,ib),1)
           end if
         end do
         if (kb > max_ex2b) stop 'exceeded max double excitations'
@@ -229,8 +229,8 @@
       end subroutine
 
       subroutine sigma2(k,g,sgm,psi,iasta,iaend)
-      ! sigma2 = sum_ja sum_tu <ja|E_tu|ia> (h_kl - 1/2 sum_v <tv|vx>) C(ja,ib)
-      !    + 1/2 sum_ja sum_tuvx <ja|E_tu E_vx|ia> g_tuvx C(ja,ib)
+!     sigma2 = sum_ja sum_tu <ja|E_tu|ia> (h_kl - 1/2 sum_v <tv|vx>) C(ja,ib)
+!        + 1/2 sum_ja sum_tuvx <ja|E_tu E_vx|ia> g_tuvx C(ja,ib)
 
       implicit none
 
@@ -280,7 +280,7 @@
 #ifdef _PROF_
             nflop = nflop + 2 * ndeta
 #endif
-            call daxpy_(ndetb,f(ja),psi(1,ja),1,sgm(1,ia),1)
+            call daxpy_(ndetb,f(ja),psi(:,ja),1,sgm(:,ia),1)
           end if
         end do
         if (ka > max_ex2a) stop 'exceeded max double excitations'
@@ -291,7 +291,7 @@
       end subroutine
 
       subroutine sigma3(g,sgm,psi,ibsta,ibend)
-      ! sigma3(ia,ib) = sum_ja,jb sum_tu,vx <jb|E_tu|ib> <ja|E_vx|ia> g_tuvx C(ja,jb)
+!     sigma3(ia,ib) = sum_ja,jb sum_tu,vx <jb|E_tu|ib> <ja|E_vx|ia> g_tuvx C(ja,jb)
 
       implicit none
 

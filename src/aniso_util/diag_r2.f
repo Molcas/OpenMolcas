@@ -34,17 +34,17 @@ C initializations
       INFO=0
       If(N<1) Return
 
-      Call dcopy_(        N,0.0_wp,0,  W ,1)
-      Call dcopy_(      N*N,0.0_wp,0,  Z ,1)
+      Call dcopy_(        N,[0.0_wp],0,  W ,1)
+      Call dcopy_(      N*N,[0.0_wp],0,  Z ,1)
 
       Call mma_allocate(AP,(N*(N+1)/2), 'AP')
       Call mma_allocate(WORK,3*N,'WORK')
       Call mma_allocate(W1,N,'W1')
       Call mma_allocate(Z1,N,N,'Z1')
-      Call dcopy_(N*(N+1)/2, 0.0_wp,0,  AP,1)
-      Call dcopy_(      3*N, 0.0_wp,0,WORK,1)
-      Call dcopy_(        N, 0.0_wp,0,  W1,1)
-      Call dcopy_(      N*N, 0.0_wp,0,  Z1,1)
+      Call dcopy_(N*(N+1)/2, [0.0_wp],0,  AP,1)
+      Call dcopy_(      3*N, [0.0_wp],0,WORK,1)
+      Call dcopy_(        N, [0.0_wp],0,  W1,1)
+      Call dcopy_(      N*N, [0.0_wp],0,  Z1,1)
 
       Do j=1,N
         Do i=1,j

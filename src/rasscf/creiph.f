@@ -78,6 +78,7 @@ C
 #include "WrkSpc.fh"
 #include "general.fh"
       Common /IDSXCI/ IDXCI(mxAct),IDXSX(mxAct)
+      Dimension Dum(1)
 
       Call qEnter('CREIPH')
 

@@ -10,7 +10,6 @@
 ************************************************************************
       subroutine genprexyz15a(icheckxy,icheckz,interxyz)
       implicit real*8(a-h,o-z)
-      logical icheckxy,icheckz
       dimension icheckxy(*),icheckz(*),interxyz(16,*)
 #include "para.fh"
 #include "Molcas.fh"
@@ -25,7 +24,7 @@ cbs   type 1 (++++) and ending with type 16 (-++-)
       do M2=0,Lmax
       do M1=0,Lmax
       irun=0
-      if (icheckxy(ilauf).or.icheckz(ilauf)) then
+      if (icheckxy(ilauf)+icheckz(ilauf).gt.0) then
           if (iabs(m1+m2-m3-m4).le.1) then
           irun=irun+1
           interxyz(irun,ilauf)=1          ! + + + +

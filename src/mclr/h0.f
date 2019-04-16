@@ -77,7 +77,7 @@
       CALL GetMem('EXPH0','ALLO','REAL',KH0,LH0)
       CALL GetMem('KSBCNF','ALLO','INTE',KSBCNF,NSBDET)
       Call GETMEM('KH0SCR','ALLO','REAL',KH0SCR,LH0SCR)
-      iKH0SCR=ip_of_iWork(Work(KH0SCR))
+      iKH0SCR=ip_of_iWork_d(Work(KH0SCR))
       Call GetMem('KVEC2','ALLO','REAL',KVEC2,lvec2)
 *
       Call H0MAT_MCLR(Work(KH0),

@@ -481,7 +481,7 @@ c      Call GetMem('tmpB','Allo','Real',ip_tmpB,nGridMax)
          nTmpPUVX=iStack
 *
          Call GetMem('TmpPUVX','Allo','Real',ipTmpPUVX,nTmpPUVX)
-         Call dCopy_(nTmpPUVX,0.0d0,0,Work(ipTmpPUVX),1)
+         Call dCopy_(nTmpPUVX,[0.0d0],0,Work(ipTmpPUVX),1)
       End If
 *
       If (Functional_Type.eq.CASDFT_Type) Then
@@ -534,8 +534,9 @@ cGLM          write(6,*) (Work(ipP2mo+i), i=0,NQNACPR2-1)
      &               nP2_ontop*nGridMax)
          Call GetMem('dF_dP2ontop','Allo','Real',ipdF_dP2ontop,
      &               ndF_dP2ontop*nGridMax)
-        Call dCopy_(nP2_ontop*nGridMax,0.0d0,0,Work(ipp2_ontop),1)
-        Call dCopy_(ndF_dP2ontop*nGridMax,0.0d0,0,Work(ipdF_dP2ontop),1)
+        Call dCopy_(nP2_ontop*nGridMax,[0.0d0],0,Work(ipp2_ontop),1)
+        Call dCopy_(ndF_dP2ontop*nGridMax,[0.0d0],0,
+     &                                    Work(ipdF_dP2ontop),1)
 
       end if
 
@@ -606,10 +607,10 @@ c      Call GetMem('tmpB','Free','Real',ip_tmpB,nGridMax)
       End If
 *
       Do iNQ = 1, nNQ
-         ip_iRx=ip_of_iWork(Work(ip_R_Quad(iNQ)))
+         ip_iRx=ip_of_iWork_d(Work(ip_R_Quad(iNQ)))
          ip_Rx=iWork(ip_iRx)
          Call GetMem('Radial','Free','Real',ip_Rx,iDum)
-         ip_iA=ip_of_iWork(Work(ip_Angular(iNQ)))
+         ip_iA=ip_of_iWork_d(Work(ip_Angular(iNQ)))
          ip_A=iWork(ip_iA)
          Call GetMem('ip_Angular','Free','Inte',ip_A,iDum)
       End Do

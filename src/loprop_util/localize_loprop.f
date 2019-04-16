@@ -72,8 +72,8 @@
 *                                                                      *
 *     Step 1. GS S0 ->S1
 *
-      call dcopy_(nBas**2,Zero,0,Work(ip_T1),1)
-      call dcopy_(nBas,One,0,Work(ip_T1),nBas+1)
+      call dcopy_(nBas**2,[Zero],0,Work(ip_T1),1)
+      call dcopy_(nBas,[One],0,Work(ip_T1),nBas+1)
 *
       Call Step1(iCenter,Work(ip_S),nBas,Work(ip_T1),iType,
      &           SMatrix,Work(ip_tmp))
@@ -83,8 +83,8 @@
 *     Step 2. LO S1 ->S2
 *
       call dcopy_(nBas**2,Work(ip_S),1,Work(ip_Save),1)
-      call dcopy_(nBas**2,Zero,0,Work(ip_T2),1)
-      call dcopy_(nBas,One,0,Work(ip_T2),nBas+1)
+      call dcopy_(nBas**2,[Zero],0,Work(ip_T2),1)
+      call dcopy_(nBas,[One],0,Work(ip_T2),nBas+1)
 *
       Call Step2(iCenter,Work(ip_S),nBas,Work(ip_T2),iType,
      &           Work(ip_Save),Work(ip_tmp))
@@ -172,10 +172,10 @@ C     Call RecPrt('New S',' ',SMatrix,nBas,nBas)
       iUHF=0
       nSym=1
       Note='LoProp localized orbitals'
-      Call WrVec_(OrbName,LuOut,'COEI',iUHF,nSym,nBas,nBas,
-     &            TTot,Dummy,
-     &            Work(ipE),Dummy,
-     &            Work(ipE),Dummy,IndType,Note,0)
+      Call WrVec_(OrbName,LuOut,'COEI',iUHF,nSym,[nBas],[nBas],
+     &            TTot,[0.0d0],
+     &            Work(ipE),[0.0d0],
+     &            Work(ipE),[0.0d0],IndType,Note,0)
       Call Free_Work(ipE)
 *                                                                      *
 ************************************************************************

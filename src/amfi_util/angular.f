@@ -10,7 +10,8 @@
 ************************************************************************
       subroutine angular(Lhigh,keep,keepcart,makemean,bonn,
      *breit,sameorb,ifinite,onecartx,onecarty,onecartz,powexp,coulovlp,
-     *preXZ,preY,icheckxy,icheckz,interxyz)
+     *preXZ,preY,icheckxy,icheckz,interxyz,isgnprod)
+
 c
 cbs   COMBINES THE RADIAL INTEGRALS WITH THE ANGULAR FACTORS
 c
@@ -29,7 +30,7 @@ cbs   integrals are thrown away after each l,l,l,l-block
 #include "Molcas.fh"
 #include "WrkSpc.fh"
       logical keep,keepcart,makemean,bonn,
-     *breiT,sameorb,cleaner,NFINI,icheckxy,icheckz
+     *breiT,sameorb,cleaner,NFINI
 cbs   NFINI means not finite nucleus
       dimension l2block(0:Lmax,0:Lmax,0:Lmax,0:Lmax),
      *onecartX(mxcontL,MxcontL,
@@ -414,7 +415,7 @@ C++++++++++++++++      SIGMA X      ++++++++++++++++++++++++++++++++++++++++++++
 C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         if (indx.eq.0.and.indy.eq.1.and.indz.eq.1.and.
-     *  icheckxy(iabs(m1),iabs(m2),iabs(m3),iabs(m4))) then
+     *  icheckxy(iabs(m1),iabs(m2),iabs(m3),iabs(m4)).gt.0) then
 ! Y*Z ->  transforms like  L_x (B1)
 cbs     integrals for sigma_x
         mblockx=mblockx+1
@@ -519,7 +520,7 @@ C++++++++++++++++      SIGMA Y      ++++++++++++++++++++++++++++++++++++++++++++
 C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         elseif (indx.eq.1.and.indy.eq.0.and.indz.eq.1.and.
-     *  icheckxy(iabs(m1),iabs(m2),iabs(m3),iabs(m4))) then
+     *  icheckxy(iabs(m1),iabs(m2),iabs(m3),iabs(m4)).gt.0) then
 ! X*Z transforms like L_y  (B2)
 cbs     integrals for sigma_y
         mblocky=mblocky+1
@@ -620,7 +621,7 @@ C++++++++++++++++      SIGMA Z      ++++++++++++++++++++++++++++++++++++++++++++
 C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         elseif (indx.eq.1.and.indy.eq.1.and.indz.eq.0.and.
-     *  icheckz(iabs(m1),iabs(m2),iabs(m3),iabs(m4))) then
+     *  icheckz(iabs(m1),iabs(m2),iabs(m3),iabs(m4)).gt.0) then
 ! X*Y transforms like L_z  (A2)
 cbs     integrals for sigma_z
         mblockz=mblockz+1

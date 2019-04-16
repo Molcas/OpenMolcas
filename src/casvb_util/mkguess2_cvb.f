@@ -22,6 +22,7 @@
 #include "mo_cvb.fh"
       dimension orbs(norb,norb),cvb(nvb)
       dimension irdorbs(norb),orbsao(nbas_mo,norb)
+      dimension idum(1),dum(1)
       save thresh
       data thresh/1d-10/
 
@@ -31,13 +32,14 @@ c  (Newly assigned memory => orbs will be zero)
       do 100 iorb=1,norb
       if(dnrm2_(norb,orbs(1,iorb),1).gt.thresh)then
         irdorbs(iorb)=1
-        call fmove(orbs(1,iorb),orbsao(1,iorb),norb)
+        call fmove_cvb(orbs(1,iorb),orbsao(1,iorb),norb)
       endif
 100   continue
 c  -- restore from previous optim --
       if(.not.up2date_cvb('RESTGS'))then
         if(up2date_cvb('WRITEGS'))then
-          call rdi_cvb(ndetvb1,1,recn_tmp04,0)
+          call rdi_cvb(idum,1,recn_tmp04,0)
+          ndetvb1=idum(1)
           i1=mstacki_cvb(ndetvb1)
           i2=mstackr_cvb(ndetvb1)
           call mkrestgs_cvb(orbsao,irdorbs,cvb,
@@ -77,8 +79,9 @@ c AO basis ...
         call rdrs_cvb(w(i1),nvbinp,recinp,ioffs)
         if(dnrm2_(nvbinp,w(i1),1).gt.thresh)then
           call rdioff_cvb(3,recinp,ioffs)
-          call rdis_cvb(kbasiscvb,1,recinp,ioffs)
-          call fmove(w(i1),w(lv(2)),nvbinp)
+          call rdis_cvb(idum,1,recinp,ioffs)
+          kbasiscvb=idum(1)
+          call fmove_cvb(w(i1),w(lv(2)),nvbinp)
         endif
         call mfreer_cvb(i1)
 
@@ -105,10 +108,10 @@ c  Collect orbitals and transform AO -> MO :
       norb_ao=0
       do iorb=1,norb
       if(irdorbs(iorb).eq.1)then
-        call fmove(orbsao(1,iorb),orbs(1,iorb),norb)
+        call fmove_cvb(orbsao(1,iorb),orbs(1,iorb),norb)
       elseif(irdorbs(iorb).eq.2)then
         norb_ao=norb_ao+1
-        if(norb_ao.ne.iorb)call fmove(orbsao(1,iorb),
+        if(norb_ao.ne.iorb)call fmove_cvb(orbsao(1,iorb),
      >    orbsao(1,norb_ao),nbas_mo)
       endif
       enddo
@@ -118,7 +121,7 @@ c  Collect orbitals and transform AO -> MO :
       do iorb=1,norb
       if(irdorbs(iorb).eq.2)then
         iorb_ao=iorb_ao+1
-        call fmove(w((iorb_ao-1)*norb+i1),orbs(1,iorb),norb)
+        call fmove_cvb(w((iorb_ao-1)*norb+i1),orbs(1,iorb),norb)
       endif
       enddo
       call mfreer_cvb(i1)
@@ -169,7 +172,8 @@ c  Perfect-pairing spin function(s) :
         call untouch_cvb('TRNSPN')
       endif
 
-      if(ploc)call rtransf_plc(orbs,cvb)
+      !if(ploc)call rtransf_plc(orbs,cvb)
+      if(ploc)call rtransf_plc()
 
       if(ip(1).ge.2.and..not.endvar)then
         write(6,'(/,a)')' Wavefunction guess :'

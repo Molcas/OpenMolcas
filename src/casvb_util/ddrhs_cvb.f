@@ -26,7 +26,7 @@
         call abend_cvb()
       endif
       call fzero(w(idd(ivrhs)+(nvrhs-1)*nparm),ioffs)
-      call fmove(vec,w(ioffs+idd(ivrhs)+(nvrhs-1)*nparm),ndim)
+      call fmove_cvb(vec,w(ioffs+idd(ivrhs)+(nvrhs-1)*nparm),ndim)
       call fzero(w(ndim+ioffs+idd(ivrhs)+(nvrhs-1)*nparm),
      >  nparm-ioffs-ndim)
       return

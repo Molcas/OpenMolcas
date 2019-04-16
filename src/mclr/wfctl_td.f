@@ -59,7 +59,7 @@
       TIM3=0.0D0
       TIM4=0.0D0
 *
-      call dcopy_(4,0.0d0,0,CLOCK,1)
+      call dcopy_(4,[0.0d0],0,CLOCK,1)
       lPaper=132
       lLine =120
       left=(lPaper-lLine)/2
@@ -170,7 +170,7 @@ C
 *
 *
         Call GetMem('DigPrec','Allo','Real',ipDigPrec,nDensC)
-        call dcopy_(nDensC,0.0d0,0,Work(ipDigPrec),1)
+        call dcopy_(nDensC,[0.0d0],0,Work(ipDigPrec),1)
         Call Prec_td(Work(ipin(ipPre2)),Work(ipDigPrec),isym)
 *
 *
@@ -211,17 +211,17 @@ c
           Call Getmem('Scr1  ','ALLO','Real',ipSc1  ,nDens2+6)
           Call Getmem('Scr3  ','ALLO','Real',ipSc3  ,nDens2+6)
           Call Getmem('Scr2  ','ALLO','Real',ipSc2  ,nDens2+6)
-          call dcopy_(nDens2,0.0d0,0,Work(ipTemp1),1)
-          call dcopy_(nDens2,0.0d0,0,Work(ipKap),1)
-          call dcopy_(nDens2,0.0d0,0,Work(ipsigma),1)
-          call dcopy_(nDens2,0.0d0,0,Work(ipdKap),1)
+          call dcopy_(nDens2,[0.0d0],0,Work(ipTemp1),1)
+          call dcopy_(nDens2,[0.0d0],0,Work(ipKap),1)
+          call dcopy_(nDens2,[0.0d0],0,Work(ipsigma),1)
+          call dcopy_(nDens2,[0.0d0],0,Work(ipdKap),1)
           If (CI) Then
              Call GetMem('1Dens','ALLO','Real',ipDe,n1dens)
              Call GetMem('2Dens','ALLO','Real',ipP,n2dens)
              Call GetMem('2Dens','ALLO','Real',iprmoaa,n2dens)
-             call dcopy_(n1dens,0.0d0,0,Work(ipDe),1)
-             call dcopy_(n2dens,0.0d0,0,Work(ipP),1)
-             call dcopy_(n2dens,0.0d0,0,Work(iprmoaa),1)
+             call dcopy_(n1dens,[0.0d0],0,Work(ipDe),1)
+             call dcopy_(n2dens,[0.0d0],0,Work(ipP),1)
+             call dcopy_(n2dens,[0.0d0],0,Work(iprmoaa),1)
           End If
 *
 *-----------------------------------------------------------------------------
@@ -269,7 +269,7 @@ C
 *          Call RECPRT('IpSigma',' ',Work(ipSigma),nDensC,1)
           Call dDaFile(LuTemp,1,Work(ipSigma),iLen,iDis)
           If (CI)
-     &    call dcopy_(2*nConf1,0.0d0,0,Work(ipin(ipCIT)),1)
+     &    call dcopy_(2*nConf1,[0.0d0],0,Work(ipin(ipCIT)),1)
           irc=ipout(ipcit)
           If (CI) Then
             ilen=2*nconf1
@@ -322,7 +322,7 @@ C
             deltac=0.0d0
           End If
           deltaK= 0.50d0*ddot_(nDensC,Work(ipKap),1,Work(ipSigma),1)
-          call dcopy_(nDens,0.0d0,0,Work(ipKap),1)
+          call dcopy_(nDens,[0.0d0],0,Work(ipKap),1)
           delta=deltac+deltaK
 C         Write(6,*) 'delta',delta
 
@@ -572,7 +572,7 @@ c
 c S1 + S2 --> S1
 c
 C
-*           call dcopy_(2*nconf1,0.0d0,0, !Work(ipin1(ipS2,2*nconf1)),1,
+*           call dcopy_(2*nconf1,[0.0d0],0, !Work(ipin1(ipS2,2*nconf1)),1,
 *     %                Work(ipin1(ipS1,2*nconf1)),1)
 C
            If (CI) Then  !If (.false.) then

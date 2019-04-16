@@ -56,16 +56,16 @@
       nMem = (MaxHer*MaxHer+MaxHer)/2
       Call mma_Allocate(HerR,nMem,label='HerR')
       iHerR(1)=1
-      Call dCopy_(nMem,0.0d0,0,HerR,1)
+      Call dCopy_(nMem,[0.0d0],0,HerR,1)
       Call mma_allocate(HerW,nMem,label='HerW')
       iHerW(1)=1
-      Call dCopy_(nMem,0.0d0,0,HerW,1)
+      Call dCopy_(nMem,[0.0d0],0,HerW,1)
       Call mma_allocate(Beta,MaxHer,label='Beta')
-      Call dCopy_(MaxHer,0.0d0,0,Beta,1)
+      Call dCopy_(MaxHer,[0.0d0],0,Beta,1)
       Call mma_allocate(BInv,MaxHer,label='BInv')
-      Call dCopy_(MaxHer,0.0d0,0,BInv,1)
+      Call dCopy_(MaxHer,[0.0d0],0,BInv,1)
       Call mma_allocate(Herm,MaxHer+1,label='Herm')
-      Call dCopy_(MaxHer+1,0.0d0,0,Herm,1)
+      Call dCopy_(MaxHer+1,[0.0d0],0,Herm,1)
       DO 10 K=1,MaxHer
         b_1111 = HALF*DBLE(K)
         B=SQRT(b_1111)

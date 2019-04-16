@@ -47,7 +47,7 @@ c  Find CIVBS & CIVBH :
         if(strucopt)then
           call ddguess_cvb(w(lv(2)),nvb,nprorb)
         else
-          call ddguess_cvb(one,1,0)
+          call ddguess_cvb([one],1,0)
         endif
       endif
       call str2vbc_cvb(w(lv(2)),w(lw(9)))

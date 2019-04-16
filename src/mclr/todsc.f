@@ -28,7 +28,7 @@ C?    write(6,*) ' entering TODSC '
 C?      WRITE(6,*) ' I am going to call ITODS'
         MMBLOCK = MBLOCK
         IF(MMBLOCK.GT.1) MMBLOCK = 1
-        CALL ITODS(IMZERO,1,MMBLOCK,IFIL)
+        CALL ITODS([IMZERO],1,MMBLOCK,IFIL)
 C?      WRITE(6,*) ' back from ITODS '
         IF(IMZERO.EQ.1) GOTO 1001
       END IF

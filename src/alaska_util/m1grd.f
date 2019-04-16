@@ -263,7 +263,7 @@
                      End If
  220              Continue
 *-----------------No derivatives with respect to the fourth center.
-                  Call ICopy(3,0,0,JndGrd(1,4),1)
+                  Call ICopy(3,[0],0,JndGrd(1,4),1)
                   JfGrad(1,4) = .False.
                   JfGrad(2,4) = .False.
                   JfGrad(3,4) = .False.
@@ -321,8 +321,8 @@
 *-----------------Compute integrals with the Rys quadrature.
 *
                   Call Rysg1(iAnga,nRys,nZeta,
-     &                       Array(ipA),Array(ipB),One,One,
-     &                       Array(ipZ),Array(ipZI),nZeta,One,One,1,
+     &                       Array(ipA),Array(ipB),[One],[One],
+     &                       Array(ipZ),Array(ipZI),nZeta,[One],[One],1,
      &                       Array(ipPx),nZeta,TC,1,Coori,Coora,
      &                       CoorAC,Array(ip),nArray,
      &                       TNAI1,Fake,Cff2D,

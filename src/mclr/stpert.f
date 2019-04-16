@@ -27,7 +27,7 @@
          nLen=nLen+lDisp(is)*(lDisp(is)+1)/2
       End Do
       Call GetMem('CONN','Allo','Real',ipHss,nLen)
-      call dcopy_(nLen,0.0d0,0,Work(ipHss),1)
+      call dcopy_(nLen,[0.0d0],0,Work(ipHss),1)
 *
       If (.Not.Mckinley) Then
          irc=-1
@@ -43,7 +43,7 @@
          LABEL='SEWARD'
          If (PT2) LABEL='PT2LAG'
          MckLbl='PERT    '
-         Call WrMck(iRC,iOpt,MckLbl,1,LABEL,iDummer)
+         Call cWrMck(iRC,iOpt,MckLbl,1,LABEL,iDummer)
          If (irc.ne.0) Then
              Write (6,*) 'StPert: Error writing to MCKINT'
              Write (6,'(A,A)') 'MckLbl=',MckLbl
@@ -53,7 +53,7 @@
          irc=-1
          iopt=0
          MckLbl='NDISP   '
-         Call WrMck(iRC,iOpt,MckLbl,1,ndisp,iDummer)
+         Call WrMck(iRC,iOpt,MckLbl,1,[ndisp],iDummer)
          If (irc.ne.0) Then
              Write (6,*) 'StPert: Error writing to MCKINT'
              Write (6,'(A,A)') 'MckLbl=',MckLbl
@@ -73,7 +73,7 @@
          irc=-1
          iopt=0
          MckLbl='Title'
-         Call WrMck(iRC,iOpt,MckLbl,1,Header,iDummer)
+         Call cWrMck(iRC,iOpt,MckLbl,1,Header,iDummer)
          If (irc.ne.0) Then
              Write (6,*) 'StPert: Error writing to MCKINT'
              Write (6,'(A,A)') 'MckLbl=',MckLbl
@@ -83,7 +83,7 @@
          irc=-1
          iopt=0
          MckLbl='nSym'
-         Call WrMck(iRC,iOpt,MckLbl,1,nSym,iDummer)
+         Call WrMck(iRC,iOpt,MckLbl,1,[nSym],iDummer)
          If (irc.ne.0) Then
              Write (6,*) 'StPert: Error writing to MCKINT'
              Write (6,'(A,A)') 'MckLbl=',MckLbl
@@ -113,7 +113,7 @@
          irc=-1
          iopt=0
          MckLbl='chdisp'
-         Call WrMck(iRC,iOpt,MckLbl,1,swlbl,iDummer)
+         Call cWrMck(iRC,iOpt,MckLbl,1,swlbl(1),iDummer)
          If (irc.ne.0) Then
              Write (6,*) 'StPert: Error writing to MCKINT'
              Write (6,'(A,A)') 'MckLbl=',MckLbl

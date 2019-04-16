@@ -145,7 +145,7 @@
       ipTmp = ip
       mArray = nArr*nZeta - ip + 1
 *
-      call dcopy_(nZeta*Max(k,nMem),Zero,0,Array(ipAInt),1)
+      call dcopy_(nZeta*Max(k,nMem),[Zero],0,Array(ipAInt),1)
 *
 *-----Loop over nuclear centers.
 *
@@ -207,8 +207,8 @@
                   nT = nZeta
                   NoSpecial=.True.
                   Call Rys(iAnga,nT,Array(ipZ),Array(ipZI),nZeta,
-     &                     One,One,1,Array(ipPx),nZeta,TC,1,
-     &                     Array(ipK),One,Coori,Coora,CoorAC,
+     &                     [One],[One],1,Array(ipPx),nZeta,TC,1,
+     &                     Array(ipK),[One],Coori,Coora,CoorAC,
      &                     mabmin,mabmax,0,0,Array(ipTmp),mArray,
      &                     TNAI,Fake,Cff2D,XRys2D,NoSpecial)
 *

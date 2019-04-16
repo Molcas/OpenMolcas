@@ -40,12 +40,13 @@
       DIMENSION XA(NORB),XB(NORB),SCR(2*NORB)
       DIMENSION IASTR(NAEL,*),IBSTR(NBEL,*)
       DIMENSION RJKAA(*)
+      DIMENSION IDUM(1)
 *. Output
       DIMENSION SVEC(*)
 *
       NTEST =  00
       NTEST = MAX(NTEST,IPRNT)
-      IDUM = 0
+      IDUM(1) = 0
       I12 = 2
 c      IF(LUIN.GT.0) REWIND LUIN
 c      IF(LUOUT.GT.0) REWIND LUOUT

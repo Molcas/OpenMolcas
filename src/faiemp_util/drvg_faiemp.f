@@ -213,7 +213,7 @@ cend
       Call Init_PPList
       Call Init_GTList
       iOpt=0
-      call dcopy_(nGrad,Zero,0,Temp,1)
+      call dcopy_(nGrad,[Zero],0,Temp,1)
       If (iPrint.ge.15) Call PrGrad(' In Drvg_FAIEMP: Total Grad (1)',
      &                              Grad,nGrad,lIrrep,ChDisp,iprint)
 *                                                                      *

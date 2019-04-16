@@ -63,7 +63,7 @@
          ip=ip_base + n_tot
          n_tot = n_tot + n
       Else If (Type.eq.'INTE') Then
-         ip=ip_of_iWork(Work(ip_base + n_tot))
+         ip=ip_of_iWork_d(Work(ip_base + n_tot))
          n_tot = n_tot + (n-1)/RtoI + 1
       Else
          Write (6,*) 'Get_a_chunk: invalid type!'

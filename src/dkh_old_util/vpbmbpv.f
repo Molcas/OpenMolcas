@@ -64,8 +64,8 @@ C
       VPA(I,J) = CMM2(I,J)
       ENDDO
       ENDDO
-      CALL DCOPY_(NA*NB,ZERO,0,CMM1,1)
-      CALL DCOPY_(NA*NB,ZERO,0,CMM2,1)
+      CALL DCOPY_(NA*NB,[ZERO],0,CMM1,1)
+      CALL DCOPY_(NA*NB,[ZERO],0,CMM2,1)
 C
       ENDIF
 C
@@ -77,8 +77,8 @@ C
       CALL TrSmrN(G2,EIGA,EIGB,BU2,NA,NB,AUX2,CMM1)
 *
 *
-      call dcopy_(na*nb,Zero,0,G2,1)
-      call dcopy_(na*nb,Zero,0,Aux2,1)
+      call dcopy_(na*nb,[Zero],0,G2,1)
+      call dcopy_(na*nb,[Zero],0,Aux2,1)
 *
 C    TRANSFORM Vp TO T-BASIS
 *
@@ -87,9 +87,9 @@ C    TRANSFORM Vp TO T-BASIS
 *
 *
 C
-      call dcopy_(na*nb,Zero,0,G2,1)
-      call dcopy_(na*nb,Zero,0,Aux2,1)
-      call dcopy_(na*nb,Zero,0,Cmm1,1)
+      call dcopy_(na*nb,[Zero],0,G2,1)
+      call dcopy_(na*nb,[Zero],0,Aux2,1)
+      call dcopy_(na*nb,[Zero],0,Cmm1,1)
 C
 C     Multiply
 C
@@ -140,7 +140,7 @@ C
       ENDDO
       ENDDO
 C
-      call dcopy_(na*nb,Zero,0,Cmm1,1)
+      call dcopy_(na*nb,[Zero],0,Cmm1,1)
 C
 *     write(*,*)
 *     write(*,*) 'CMM2  MATRX FINAL'

@@ -172,7 +172,7 @@
 *
 *------- Compute the derivative of the WDC matrix.
 *
-         call dcopy_(12**2, .9D1,0,dBt,1)
+         call dcopy_(12**2, [.9D1],0,dBt,1)
          Do ix = 1, 3
             iy = Mod(ix+1, 4)+(ix+1)/4
             iz = Mod(iy+1, 4)+(iy+1)/4

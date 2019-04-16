@@ -79,8 +79,8 @@
 *
 *     Correction to get correct types in subsequent calls
 *
-      ipiPam = ip_of_iWork(Work(ipiPam))
-      ipMap = ip_of_iWork(Work(ipMap))
+      ipiPam = ip_of_iWork_d(Work(ipiPam))
+      ipMap = ip_of_iWork_d(Work(ipMap))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -240,7 +240,8 @@
      &                              Work(ip_V_K),Work(ip_U_K),nV_K,
      &                              Work(ip_Z_p_k),nnP(0),
      &                              Work(ip_Thpkl),
-     &                              jBas*kBas*lBas*iCmp(3)*iCmp(4),nSA)
+     &                              jBas*kBas*lBas*iCmp(3)*iCmp(4),nSA,
+     &                              nAsh)
                   Else
                      Call PGet1_CD3(PSO,ijkl,nPSO,iCmp,
      &                              iShell,iAO,iAOst,Shijij,
@@ -303,7 +304,8 @@
      &                              Shijij, iAO, iAOst, ijkl, PSO, nPSO,
      &                              Work(ipD0),Work(ipDS),nDens,ExFac,
      &                              CoulFac,PMax,Work(ip_V_K),nV_K,
-     &                              Work(ip_Z_p_k),Work(ip_Thpkl),nSA)
+     &                              Work(ip_Z_p_k),Work(ip_Thpkl),nSA,
+     &                              nAsh)
                   Else
                      Call PGet2_CD3(iCmp,iShell,
      &                              iBas,jBas,kBas,lBas,

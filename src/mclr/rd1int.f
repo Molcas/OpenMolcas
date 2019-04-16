@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Rd1Int
+      Subroutine Rd1Int_MCLR
 ************************************************************************
 *                                                                      *
 *     Read header and matrices from the one-electron integral file     *
@@ -27,7 +27,7 @@
 #include "WrkSpc.fh"
       Character*8 Method
 *
-      Call QEnter('Rd1Int')
+      Call QEnter('Rd1Int_MCLR')
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
@@ -80,6 +80,6 @@
 *----------------------------------------------------------------------*
 *     Exit                                                             *
 *----------------------------------------------------------------------*
-      Call QExit('Rd1Int')
+      Call QExit('Rd1Int_MCLR')
       Return
       End

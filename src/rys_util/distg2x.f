@@ -53,7 +53,7 @@ c     rc=0
 c     Call qEnter('Distg2')
 *
 
-      call dcopy_(78,0.0d0,0,g2,1)
+      call dcopy_(78,[0.0d0],0,g2,1)
       Call dGeMV_('T',nT,mvec,
      &           One,Final,nT,
 CBS  &           PAO,1,                PAO was not declared above .. typo??

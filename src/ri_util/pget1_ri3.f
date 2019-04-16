@@ -69,7 +69,7 @@
       iPrint=99
       If (iPrint.ge.99) Then
          iComp = 1
-         Call PrMtrx('DSO     ',iD0Lbl,iComp,ipD0,Work)
+         Call PrMtrx('DSO     ',[iD0Lbl],iComp,[ipD0],Work)
       End If
       Write (6,*)
       Write (6,*) 'Distribution of Ymnij'
@@ -124,7 +124,8 @@
 *
 *        If all included skip presceening.
 *
-           If (-nj(iSO).eq.NumOrb(iSO)) Then ! trick for skipping unnecessary overhead
+!          trick for skipping unnecessary overhead
+           If (-nj(iSO).eq.NumOrb(iSO)) Then
               jSkip(iSO)=1
               nj(iSO)=NumOrb(iSO)
            EndIf

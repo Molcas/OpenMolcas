@@ -19,7 +19,7 @@
       Special_NoSym=.False.
       DFT_Storage=.False.
       nr_of_Densities=1
-      jpDeDe=ip_of_Work(DDen)
+      jpDeDe=ip_of_Work(DDen(1))
       ipD00=jpDeDe
       Call DeDe(FD,nFD,nr_of_Densities,ipOffD,nOffD,jpDeDe,ipD00,MaxDe,
      &          mDeDe,mIndij,Special_NoSym,DFT_Storage,Work,1)

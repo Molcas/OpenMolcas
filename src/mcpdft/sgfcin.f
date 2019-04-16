@@ -45,6 +45,7 @@
       COMMON  / OFembed_I / ipFMaux, ip_NDSD, l_NDSD
 *
       Parameter ( Zero=0.0d0 , One=1.0d0 )
+      Dimension Dumm(1)
 
 !      iprlev=debug
       Call qEnter('SGFCIN')
@@ -154,8 +155,8 @@ C Local print level (if any)
 *
 *     modify the one electron Hamiltonian for reaction
 *     field calculations
-      ERFX = 0.0d0
-      ERFhi = 0.0d0
+      ERFX = Zero
+      ERFhi = Zero
       iCharge=Int(Tot_Charge)
       Call DecideOnESPF(Do_ESPF)
       If ( Do_ESPF .or. lRF .or. KSDFT.ne.'SCF'
@@ -190,8 +191,8 @@ C Local print level (if any)
 *
         Call GetMem('htmp','Allo','Real',iTmp5,nTot1)
         Call GetMem('gtmp','Allo','Real',iTmp6,nTot1)
-        Call dCopy_(nTot1,0.0d0,0,Work(iTmp5),1)
-        Call dCopy_(nTot1,0.0d0,0,Work(iTmp6),1)
+        Call dCopy_(nTot1,[Zero],0,Work(iTmp5),1)
+        Call dCopy_(nTot1,[Zero],0,Work(iTmp6),1)
 *
         First=.True.
         Dff=.False.
@@ -224,7 +225,7 @@ C Local print level (if any)
         Rado_2 = Rado_2 - Rado_1
         Rado_3 = Rado_3 + Rado_2
 
-        ERF1=0.0D0
+        ERF1=Zero
         ERF2=dDot_(nTot1,Work(iTmp6),1,Work(iTmp4),1)
         ERFX= ERF1-0.5d0*ERF2
         Call Daxpy_(nTot1,1.0d0,Work(iTmp5),1,Work(iTmp1),1)
@@ -236,7 +237,7 @@ C Local print level (if any)
           Call GetMem('gtmp1','Allo','Real',iTmp8,nTot1)
           Do iPAM=1,nPAM
              Write(PAMlbl,'(A,I3.3)') 'PAM  ',ipPam(iPAM)
-             Call dCopy_(nTot1,0.0d0,0,Work(iTmp8),1)
+             Call dCopy_(nTot1,[Zero],0,Work(iTmp8),1)
           iComp=1
              Call RdOne(iRc,iOpt,PAMlbl,iComp,Work(iTmp8),iSyLbl)
              Call Daxpy_(nTot1,CPAM(iPAM),Work(iTmp8),1,Work(iTmp1),1)
@@ -312,7 +313,7 @@ C Local print level (if any)
       Etwo = dDot_(nTot1,Work(iTmp2),1,FI,1)
       Call GetMem('DoneI','Free','Real',iTmp2,nTot1)
       EMY  = PotNuc_Ref+Eone+0.5d0*Etwo+ERFX
-      CASDFT_Funct = 0.0D0
+      CASDFT_Funct = Zero
       If(KSDFT(1:3).ne.'SCF'.and.KSDFT(1:3).ne.'PAM')
      &      Call Get_dScalar('CASDFT energy',CASDFT_Funct)
 c GLMJ testing: print these energies
@@ -416,7 +417,7 @@ c GLMJ end testing
       CALL MOTRAC(CMO,WORK(LX1),WORK(LX2),WORK(LX3))
       CALL GETMEM('XXX3','FREE','REAL',LX3,MXNB*MXNA)
       CALL GETMEM('XXX2','FREE','REAL',LX2,MXNB*MXNB)
-      CALL DCOPY_(NACPAR,ZERO,0,F,1)
+      CALL DCOPY_(NACPAR,[ZERO],0,F,1)
       NTU=0
       ITU=0
       IADD=0
@@ -424,7 +425,7 @@ Cbjp
       IF (NACTEL.NE.0) THEN
          EMYN=EMY/DBLE(NACTEL)
       ELSE
-         EMYN=0.0d0
+         EMYN=Zero
       ENDIF
       DO NST=1,NSYM
         NAT=NASH(NST)

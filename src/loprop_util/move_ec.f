@@ -35,10 +35,10 @@ C      Parameter (mxAtoms=500)
       If (Allocated(ipSph)) Call mma_deallocate(ipSph)
       Call Sphere(lMax)
 *
-      call dcopy_(3*nij,Zero,0,B,1)
+      call dcopy_(3*nij,[Zero],0,B,1)
 *
       iDim = nij*nElem
-      Call dCopy_(nij*nElem,Zero,0,xnrMP,1)
+      Call dCopy_(nij*nElem,[Zero],0,xnrMP,1)
       ij = 0
       Do iAtom = 1, nAtoms
          Do jAtom = 1, iAtom
@@ -93,7 +93,7 @@ C??               End If
      &                          R_A,R_B)
 *
                      Call Find_Dipole_Center(rMP(ii,0,0),rMP(jj,0,0),
-     &                        ipole_Rot_A,Dipole_Rot_B,xnrMP(ii,1),
+     &                        Dipole_Rot_A,Dipole_Rot_B,xnrMP(ii,1),
      &                        xnrMP(jj,1),R_A,R_B,EC(1,ii),EC(1,jj),
      &                        EC(1,ij),T_Values(ij),iPlot)
 *

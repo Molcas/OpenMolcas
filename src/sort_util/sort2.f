@@ -228,7 +228,7 @@ C     Common /SRT3/ nStk,IOStk
 *
       Call GETMEM('Scratch','ALLO','REAL',isScr,lStRec)
       Zero=0.0D0
-      call dcopy_(lStRec,Zero,0,work(isScr),1)
+      call dcopy_(lStRec,[Zero],0,work(isScr),1)
       Do iStk=1,nStk
         iOrd=iOrd+1
         iDisk=iWork(ip_IOStk-1+iStk)

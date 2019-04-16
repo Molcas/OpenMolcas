@@ -100,9 +100,9 @@ CONTAINS
 
 ! Avoid unused argument warnings
       IF (.FALSE.) THEN
-         CALL Unused_real(LHS) !not really real, but well...
-         CALL Unused_real(RHS) !not really real, but well...
-         CALL Unused_real(id)  !not really real, but well...
+         CALL Unused_integer_array(LHS%raw_paras%id)
+         CALL Unused_integer_array(RHS%raw_paras%id)
+         CALL Unused_integer(id%LHS)
       END IF
    END FUNCTION fmm_test_pass
 

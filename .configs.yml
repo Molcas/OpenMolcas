@@ -77,8 +77,15 @@
       set (CMAKE_BUILD_TYPE "Release" CACHE STRING "opt, no debug info" )
       set (HDF5 "ON" CACHE STRING "turn on HDF5")
       set (LINALG "MKL" CACHE STRING "enable MKL")
+      set (BIGOT "ON" CACHE STRING "do not allow any warning")
+      set (DEBUG_DEFS "_BIGOT_" CACHE STRING "stricter runtime checks")
+      # with -fsyntax-only and only_objs we create all interface files
+      set (EXTRA_FFLAGS "-fsyntax-only" CACHE STRING "extra fortran flags")
     pre_compile_script: |
       . /opt/intel/composerxe/linux/bin/compilervars.sh intel64
+    pre_make_script: |
+      make only_objs
+      cmake -D EXTRA_FFLAGS="" .
     pre_run_script: |
       . /opt/intel/composerxe/linux/bin/compilervars.sh intel64
     CC: "icc"
@@ -93,10 +100,18 @@
       set (CMAKE_BUILD_TYPE "Release" CACHE STRING "opt, no debug info" )
       set (HDF5 "OFF" CACHE STRING "turn off HDF5")
       set (LINALG "MKL" CACHE STRING "enable MKL")
+      set (BIGOT "ON" CACHE STRING "do not allow any warning")
+      set (DEBUG_DEFS "_BIGOT_" CACHE STRING "stricter runtime checks")
+      # with -fsyntax-only and only_objs we create all interface files
+      set (EXTRA_FFLAGS "-fsyntax-only -warn notruncated_source" CACHE STRING "extra fortran flags")
     pre_compile_script: |
       . /usr/license/intel/composer_xe_2013.1.117/bin/compilervars.sh intel64
       export PATH=$${PWD}:$${PATH}
       touch pymolcas
+    pre_make_script: |
+      make only_objs
+      # notruncated_source to work around intel13 bug, which includes full path of #include'd files and then reports truncated lines
+      cmake -D EXTRA_FFLAGS="-warn notruncated_source" .
     pre_run_script: |
       . /usr/license/intel/composer_xe_2013.1.117/bin/compilervars.sh intel64
       export PATH=$${PWD}:$${PATH}

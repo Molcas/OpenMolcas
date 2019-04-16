@@ -32,9 +32,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       Call mma_allocate(W,dim,'W')
       Call mma_allocate(Z1,dim,dim,'Z1')
       dbg=iprint.ge.3
-      Call dcopy_(dim,0.0_wp,0,W,1)
-      Call zcopy_(dim*dim,(0.0_wp,0.0_wp),0,Z,1)
-      Call zcopy_(dim*dim,(0.0_wp,0.0_wp),0,Z1,1)
+      Call dcopy_(dim,[0.0_wp],0,W,1)
+      Call zcopy_(dim*dim,[(0.0_wp,0.0_wp)],0,Z,1)
+      Call zcopy_(dim*dim,[(0.0_wp,0.0_wp)],0,Z1,1)
       info=0
       Call diag_c2(M(iDir,1:dim,1:dim),dim,info,w,z1)
       If(dbg) Then

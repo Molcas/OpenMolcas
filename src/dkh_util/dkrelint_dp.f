@@ -43,6 +43,7 @@
       integer relmethod,dkhorder,xorder,dkhparam
       logical delflag,DoFullLT
       integer stdout
+      Dimension idum(1)
 
       If(IRFLAG1.eq.1)then
         Call DKRelint
@@ -218,7 +219,7 @@ c                   write(stdout,'(a11,f20.8)') ' Exponents',rExpi
       End If
       nComp=1
       ipaddr(1)=iSS
-      If (iPrint.ge.20) Call PrMtrx(Label,lOper,nComp,ipaddr,Work)
+      If (iPrint.ge.20) Call PrMtrx(Label,[lOper],nComp,ipaddr,Work)
       Label='Attract '
       iRC = -1
       Call RdOne(iRC,iOpt,Label,1,Work(iV),lOper)
@@ -434,7 +435,8 @@ C           Write (6,*)
             iOpt=1
             iRC = -1
             lOper=-1
-            Call iRdOne(iRC,iOpt,Label,iComp,nInt,lOper)
+            Call iRdOne(iRC,iOpt,Label,iComp,idum,lOper)
+            nInt=idum(1)
 C           Write (6,*) 'lOper=',lOper
             CALL GetMem('X       ','ALLO','REAL',iX,nInt+4)
             iRC = -1
@@ -462,7 +464,8 @@ C           Write (6,*) 'lOper=',lOper
             End If
             iOpt=1
             iRC = -1
-            Call iRdOne(iRC,iOpt,pXpLbl,iComp,nInt,lOper)
+            Call iRdOne(iRC,iOpt,pXpLbl,iComp,idum,lOper)
+            nInt=idum(1)
             CALL GetMem('pXp     ','ALLO','REAL',ipXp,nInt+4)
             iOpt=0
             iRC = -1
@@ -478,7 +481,7 @@ C           Write (6,*) 'lOper=',lOper
             iOpt=0
             Call ClsOne(iRC,iOpt)
 *
-            Call GetMem('Core','Max','Real',iDum,Mem_Available)
+            Call GetMem('Core','Max','Real',iDum(1),Mem_Available)
 C           Write (6,*) 'Mem_Available=',Mem_Available
             delflag=.FALSE.
             k=0
@@ -531,7 +534,8 @@ C           Write (6,*) 'Mem_Available=',Mem_Available
             iOpt=1
             iRC = -1
             lOper=-1
-            Call iRdOne(iRC,iOpt,Label,iComp,nInt,lOper)
+            Call iRdOne(iRC,iOpt,Label,iComp,idum,lOper)
+            nInt=idum(1)
             CALL GetMem('Y       ','ALLO','REAL',iY,nInt+4)
             iRC = -1
             iOpt=0
@@ -733,11 +737,11 @@ c... reset contracted basis size
       Call DaXpY_(iSizep+4,One,Work(iSS),1,Work(iV),1)
       If (iPrint.ge.20) Then
          Call iSwap(8,nBas,1,nBas_Prim,1)
-         Call PrMtrx('Attract+Kinetic (prim)',lOper,nComp,iV,Work)
-         Call PrMtrx('Kinetic (prim)',lOper,nComp,iSS,Work)
+         Call PrMtrx('Attract+Kinetic (prim)',[lOper],nComp,[iV],Work)
+         Call PrMtrx('Kinetic (prim)',[lOper],nComp,[iSS],Work)
          Call iSwap(8,nBas,1,nBas_Prim,1)
       End If
-      call dcopy_(4,Zero,0,Work(iH_Temp+iSizec),1)
+      call dcopy_(4,[Zero],0,Work(iH_Temp+iSizec),1)
 *     Contract and store in iH_temp
       Call repmat(idbg,Work(iV),Work(iH_temp))
 *
@@ -758,7 +762,7 @@ c... reset contracted basis size
 *
       If (iPrint.ge.20) Then
          Call iSwap(8,nBas,1,nBas_Cont,1)
-         Call PrMtrx('iH_temp (cont)',lOper,nComp,iH_temp,Work)
+         Call PrMtrx('iH_temp (cont)',[lOper],nComp,[iH_temp],Work)
          Call iSwap(8,nBas,1,nBas_Cont,1)
       End If
 *
@@ -766,13 +770,13 @@ c... reset contracted basis size
 *
       If (iPrint.ge.20) Then
          Call iSwap(8,nBas,1,nBas_Prim,1)
-         Call PrMtrx('iK (prim)',lOper,nComp,iK,Work)
+         Call PrMtrx('iK (prim)',[lOper],nComp,[iK],Work)
          Call iSwap(8,nBas,1,nBas_Prim,1)
       End If
       Call repmat(idbg,Work(iK),Work(iH))
       If (iPrint.ge.20) Then
          Call iSwap(8,nBas,1,nBas_Cont,1)
-         Call PrMtrx('iH (cont)',lOper,nComp,iH,Work)
+         Call PrMtrx('iH (cont)',[lOper],nComp,[iH],Work)
          Call iSwap(8,nBas,1,nBas_Cont,1)
       End If
 *
@@ -805,7 +809,7 @@ c... reset contracted basis size
       lOper=1
       nComp=1
       ipaddr(1)=iH
-      If (iPrint.ge.20) Call PrMtrx(Label,lOper,nComp,ipaddr,Work)
+      If (iPrint.ge.20) Call PrMtrx(Label,[lOper],nComp,ipaddr,Work)
 *
 *     Replace 1-el Hamiltonian on ONEINT
 *

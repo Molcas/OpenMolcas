@@ -18,6 +18,12 @@
       use qcmaquis_interface_cfg
 #endif
       use active_space_solver_cfg
+      use fciqmc, only : DoEmbdNECI, DumpOnly, ReOrFlag, ReOrInp,
+     &  DoNECI
+      use fciqmc_make_inp, only : trial_wavefunction, pops_trial,
+     & calcrdmonfly, rdmsamplingiters,
+     & totalwalkers, Time, nmCyc, memoryfacspawn,
+     & realspawncutoff, diagshift, definedet, semi_stochastic
 
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
@@ -42,7 +48,6 @@
 #include "spinfo.fh"
 #include "lucia_ini.fh"
 * FCIQMC stuff:
-#include "fciqmc.fh"
 #include "rasscf_lucia.fh"
 *^ needed for passing kint1_pointer
 #include "stdalloc.fh"
@@ -116,6 +121,9 @@
       Character*256 myTitle
       Character*8 MaxLab
       Logical, External :: Is_First_Iter
+      Dimension Dummy(1)
+      Character*(LENIN8*mxOrb) lJobH1
+      Character*(2*72) lJobH2
 
 #ifdef _DMRG_
 !     dmrg(QCMaquis)-stuff
@@ -136,7 +144,8 @@ C   No changing about read in orbital information from INPORB yet.
 * Leon: Prepare 4-RDM calculations for (CD)-DMRG-NEVPT2 at the end of the calculation
       DoNEVPT2Prep = .FALSE.
       DoEvaluateRDM = .FALSE.
-      MPSCompressM = 0 ! If this is set to 0, MPS compression is disabled
+!     If this is set to 0, MPS compression is disabled
+      MPSCompressM = 0
 #endif
 * NN.14 Block DMRG flag
       DoBlockDMRG = .false.
@@ -193,8 +202,7 @@ C   No changing about read in orbital information from INPORB yet.
       iDoGas = .false.
 
 *    NECI flag, means that the CI eigensolver is FCIQMC
-      iDoNECI = .false.
-      DefineDet=.false.
+      DoNECI = .false.
 *     The compiler thinks NASHT could be undefined later (after 100)
       NASHT=0
 
@@ -825,7 +833,7 @@ CGG This part will be removed. (PAM 2009: What on earth does he mean??)
        If ( KSDFT(1:3).eq.'PAM') Then
         If ( KSDFT(4:4).eq.'G') PamGen =.True.
         If ( KSDFT(4:4).eq.'G') PamGen1=.False.
-        call dcopy_(nPAMintg,0.0d0,0,CPAM,1)
+        call dcopy_(nPAMintg,[0.0d0],0,CPAM,1)
         ReadStatus=' Failure reading data following KSDF=PAM.'
         Read(LUInput,*,End=9910,Err=9920) nPAM
         ReadStatus=' O.K. after reading data following KSDF=PAM.'
@@ -958,7 +966,7 @@ CBOR.. End modification 001011
          ReadStatus=' Failure reading after CIROOTS keyword.'
          Read(Line,*,Err=9920,End=9920) (IROOT(I),I=1,NROOTS)
          ReadStatus=' O.K.after CIROOTS keyword.'
-         Call dCopy_(mxRoot,0.0D0,0,WEIGHT,1)
+         Call dCopy_(mxRoot,[0.0D0],0,WEIGHT,1)
          If ( NROOTS.eq.1 ) then
            WEIGHT(1)=1.0D0
          Else
@@ -1473,12 +1481,6 @@ CIgorS End
         Write(6,'(1x,8i5)')(NISH(i),i=1,NSYM)
        End If
        IORBDATA=1
-      else
-        if (sum(nIsh(:nSym)) .eq. 0) then
-          call WarningMessage(1,
-     &      'The number of inactive orbitals is zero. '//
-     &      'Do you really want this?')
-        end if
       End If
 *
 *---  Process RAS1 command --------------------------------------------*
@@ -1628,24 +1630,15 @@ CIgorS End
            End If
         End If
         Call IDaFile(JOBOLD,2,IADR19,10,IAD19)
-        lll = 1
-        lll = MAX(lll,mxSym)
-        lll = MAX(lll,mxOrb)
-        lll = MAX(lll,RtoI)
-        lll = MAX(lll,LENIN8*mxOrb/ItoB)
-        lll = MAX(lll,2*72/ItoB)
-        lll = MAX(lll,RtoI*mxRoot)
-        CALL GETMEM('JOBOLD','ALLO','INTEGER',lJobH,lll)
 * PAM Jan 2014 -- do not take POTNUC from JOBIPH; take it directly
 * from runfile, where it was stored by seward.
         iAd19=iAdr19(1)
         CALL WR_RASSCF_Info(JobOld,2,iAd19,NACTEL,ISPIN,NSYM,LSYM,
      &                      NFRO,NISH,NASH,NDEL,NBAS,
-     &                      mxSym,iWork(lJobH),LENIN8*mxOrb,NCONF,
-     &                      iWork(lJobH),2*72,JobTit,4*18*mxTit,
+     &                      mxSym,lJobH1,LENIN8*mxOrb,NCONF,
+     &                      lJobH2,2*72,JobTit,4*18*mxTit,
      &                      POTNUCDUMMY,LROOTS,NROOTS,IROOT,mxRoot,
      &                      NRS1,NRS2,NRS3,NHOLE1,NELEC3,IPT2,WEIGHT)
-        CALL GETMEM('JOBOLD','FREE','INTEGER',lJobH,lll)
        ELSE
         IF(IPRLEV.ge.VERBOSE) Then
          Write(LF,*)' This is not a CIRESTART case, so take them from'
@@ -1874,68 +1867,119 @@ C orbitals accordingly
 * =======================================================================
 *---  Process NECI commands -------------------------------------------*
       If (KeyNECI) Then
-       if(DBG) write(6,*) 'NECI is actived'
-       iDoNECI = .true.
-       iDoExtNECI = .false. ! This flag is .true. when NECI run externally
-       iDumpOnly = .false. ! This flag is .true. when one wants to generate a dumpfile only without allocating memory for PMAT.
-       nTWlk=500000 ! Default value for number of walkers
-       iTime=200 ! Default value for time per NECI run
-       nmCyc=50000 ! Default value for total NECI cycles
-       IterFillRDM= 10000 ! Default value for NECI starting to fill RDMs
-       IterSampleRDM=1000 ! Default value for NECI sampling RDMs
-       realspawncutoff=0.3 ! Default value for NECI RealSpawnCutOff
-       diagshift=0.00 ! Default value for NECI diagonal shift value
-*--- The code will stop and wait for RDMs generated from Externally run NECI job --------
-*--- This is necessary when FCIQMC cannot converge by standard ways! --------------------
-       if(KeyEXNE) iDoExtNECI = .true.
+        if(DBG) write(6,*) 'NECI is actived'
+        DoNECI = .true.
+*----------------------------------------------------------------------------------------
+        if(KeyEMBD) then
+          DoEmbdNECI = .true.
+#ifndef _NECI_
+          call WarningMessage(2, 'EmbdNECI is given in input, '//
+     &'so the embedded NECI should be used. Unfortunately MOLCAS was '//
+     &'not compiled with embedded NECI. Please use -DNECI=ON '//
+     &'for compiling or use an external NECI.')
+#endif
+        end if
+!      Default value for NECI starting to fill RDMs
+       IterFillRDM= 10000
+!      Default value for NECI sampling RDMs
+       IterSampleRDM=1000
+!      Default value for NECI RealSpawnCutOff
+       realspawncutoff=0.3
+!      Default value for NECI diagonal shift value
+       diagshift=0.00
 *--- This is to generate only HUGE dump files. To be used one PMAT does not fit memory --
-       if(KeyDMPO) iDumpOnly = .true.
-
+       if(KeyDMPO) DumpOnly = .true.
+!--- This is to input the non fixed point elements of a permutation
+!        to reorder the orbitals.
+!    If no permutation is specified, information from GAS is taken.
+      if (KeyReOr) then
+        if(DBG) write(6,*) 'Orbital Reordering (REOR) is activated'
+        call setpos(luinput, 'REOR', line, irc)
+        if(irc /= _RC_ALL_IS_WELL_) goto 9810
+        ReadStatus=' Failure reading ReOrFlag after REOR keyword.'
+        read(luinput,*,end=9910,err=9920) ReOrFlag
+        ReadStatus=' O.K. reading ReOrFlag after REOR keyword.'
+        if (ReOrFlag < -1 .OR. ReOrFlag == 1) then
+          call WarningMessage(2, 'Invalid flag for reordering. '//
+     &"n==0: Don't reorder. "//
+     &"n>=2: User defined permutation with n changed elements. "//
+     &"n==-1: Use GAS sorting scheme. ")
+          GoTo 9930
+        else if (ReOrFlag >= 2) then
+          call mma_allocate(ReOrInp, ReOrFlag)
+          ReadStatus=' Failure reading ReOrInp after REOR keyword.'
+          read(luinput,*,end=9910,Err=9920)(ReOrInp(i),i=1,ReOrFlag)
+          ReadStatus=' O.K. reading ReOrInp after REOR keyword.'
+        else if ((ReOrFlag .eq. -1) .and. (.not. KeyGASS)) then
+          call WarningMessage(2, 'If GAS is not used, a permutation '//
+     & 'for orbital reordering has to be specified.')
+          GoTo 9930
+        end if
+      end if
 *--- This block is to process the DEFINEDET -------------------
-       if(KeyDEFD) then
-         DefineDet=.true.
-         Call GetMem('DetOrb','Allo','Inte',ipDet,nActel)
-         call setpos(luinput,'DEFD',line,irc)
+       if(KeyDEFI) then
+         call mma_allocate(definedet, nActel)
+         call setpos(luinput,'DEFI',line,irc)
          if(irc.ne._RC_ALL_IS_WELL_) goto 9810
-         Read(luinput,*,end=9910,Err=9920)(iWork(ipDet+i-1),i=1,nActEl)
+         Read(luinput,*,end=9910,Err=9920)(definedet(i), i = 1, nActEl)
          write(6,*)'definedet read in proc_inp of size:', nactel
-         write(6,*)(iWork(ipDet+i-1),i=1,nActEl)
-* Array iWork(ipDet) must be release (FREE) after it has been written to NECI input
+         write(6,*)(definedet(i), i = 1, nActEl)
+* definedet must be deallocated after it has been written to NECI input
        end if
-       if(KeyDISH) then
-         call setpos(luinput,'DISH',line,irc)
+       if(KeyDIAG) then
+         call setpos(luinput,'DIAG',line,irc)
          if(irc.ne._RC_ALL_IS_WELL_) goto 9810
          read(luinput,*,end=9910,err=9920) diagshift
        end if
-       if(KeyNWAL) then
-         call setpos(luinput,'NWAL',line,irc)
+       if(KeyTOTA) then
+         call setpos(luinput,'TOTA',line,irc)
          if(irc.ne._RC_ALL_IS_WELL_) goto 9810
-         read(luinput,*,end=9910,err=9920) nTWlk
+         read(luinput,*,end=9910,err=9920) totalwalkers
        end if
        if(KeyTIME) then
          call setpos(luinput,'TIME',line,irc)
          if(irc.ne._RC_ALL_IS_WELL_) goto 9810
-         read(luinput,*,end=9910,err=9920) iTime
+         read(luinput,*,end=9910,err=9920) Time
        end if
-       if(KeyCYCL) then
-         call setpos(luinput,'CYCL',line,irc)
+       if(KeyNMCY) then
+         call setpos(luinput,'NMCY',line,irc)
          if(irc.ne._RC_ALL_IS_WELL_) goto 9810
          read(luinput,*,end=9910,err=9920) nmCyc
+       end if
+       if(KeyCALC) then
+         call setpos(luinput,'CALC',line,irc)
+         if(irc.ne._RC_ALL_IS_WELL_) goto 9810
+         read(luinput,*,end=9910,err=9920) (calcrdmonfly(i),i=1,3)
        end if
        if(KeyRDMS) then
          call setpos(luinput,'RDMS',line,irc)
          if(irc.ne._RC_ALL_IS_WELL_) goto 9810
-         read(luinput,*,end=9910,err=9920) IterFillRDM
+         read(luinput,*,end=9910,err=9920) rdmsamplingiters
        end if
-       if(KeyRDMP) then
-         call setpos(luinput,'RDMP',line,irc)
-         if(irc.ne._RC_ALL_IS_WELL_) goto 9810
-         read(luinput,*,end=9910,err=9920) IterSampleRDM
-       end if
-       if(KeyRSPC) then
-         call setpos(luinput,'RSPC',line,irc)
+       if(KeyREAL) then
+         call setpos(luinput,'REAL',line,irc)
          if(irc.ne._RC_ALL_IS_WELL_) goto 9810
          read(luinput,*,end=9910,err=9920) realspawncutoff
+       end if
+       if(KeyTRIA) then
+         call setpos(luinput,'TRIA',line,irc)
+         if(irc.ne._RC_ALL_IS_WELL_) goto 9810
+         read(luinput,*,end=9910,err=9920) trial_wavefunction
+       end if
+       if(KeyPOPS) then
+         call setpos(luinput,'POPS',line,irc)
+         if(irc.ne._RC_ALL_IS_WELL_) goto 9810
+         read(luinput,*,end=9910,err=9920) pops_trial
+       end if
+       if(KeySEMI) then
+         call setpos(luinput,'SEMI',line,irc)
+         if(irc.ne._RC_ALL_IS_WELL_) goto 9810
+         read(luinput,*,end=9910,err=9920) semi_stochastic
+       end if
+       if(KeyMEMO) then
+         call setpos(luinput,'MEMO',line,irc)
+         if(irc.ne._RC_ALL_IS_WELL_) goto 9810
+         read(luinput,*,end=9910,err=9920) memoryfacspawn
        end if
 
       end if
@@ -2848,6 +2892,13 @@ c       write(6,*)          '  --------------------------------------'
 
 *---  All keywords have been processed ------------------------------*
 
+      If (.not.KeyINAC) Then
+        If (Sum(nIsh(:nSym)).eq.0)
+     &    Call WarningMessage(1,
+     &      'The number of inactive orbitals is zero. '//
+     &      'Do you really want this?')
+      End If
+
 ************************************************************************
 * Generate artificial splitting or RAS into GAS for parallel blocking  *
 ************************************************************************
@@ -3056,7 +3107,7 @@ C Test read failed. JOBOLD cannot be used.
 *
 *     Construct the Guga tables
 *
-      IF(.not.IDoNECI) THEN
+      IF(.not.DoNECI) THEN
 *  right now skip most part of gugactl for GAS, but only call mknsm.
         if(.not.iDoGas) then
 ! DMRG calculation no need the GugaCtl subroutine
@@ -3115,7 +3166,8 @@ C Test read failed. JOBOLD cannot be used.
 * Combinations don't work for CASVB (at least yet)!
       If (ifvb .ne. 0) iSpeed(1) = 0
 *
-      if(.not.KeyDMRG .and. .not.IDoNECI)then ! switch on/off determinants
+!     switch on/off determinants
+      if(.not.KeyDMRG .and. .not.DoNECI)then
 #ifdef _DMRG_
         if(.not.doDMRG)then
 #endif
@@ -3132,7 +3184,7 @@ C Test read failed. JOBOLD cannot be used.
 #endif
       end if
 
-      IF(iDoNECI) THEN
+      IF(DoNECI) THEN
 *     ^ For NECI only orbital related arrays are allowed to be stored.
 *     ! Arrays of nConf size need to be avoided
         CALL GETMEM('INT1  ','ALLO','REAL',KINT1,NASHT**2)

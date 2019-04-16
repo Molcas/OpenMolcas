@@ -509,7 +509,7 @@ C -- ADDRESSES NOT USED
       LW(10)=LW(9)
 C -- LIMIT FOR PERMANENT VECTORS
       LPERMA=LW(10)
-      CALL INDMAT(H(LW(2)),H(LW(3)),H(LW(4)),ISMAX,H(LW(5)))
+      CALL dINDMAT(H)
       CALL ALLOC_CPF(ISMAX,LPERMA)
       RETURN
 *
@@ -521,4 +521,19 @@ C -- LIMIT FOR PERMANENT VECTORS
       WRITE(6,*)'The line that could not be read is:'
       WRITE(6,*) Line
       Call Quit_OnUserError()
+*
+*     This is to allow type punning without an explicit interface
+      CONTAINS
+      SUBROUTINE dINDMAT(H)
+      USE ISO_C_BINDING
+      REAL*8, TARGET :: H(*)
+      INTEGER, POINTER :: iH2(:),iH3(:),iH4(:),iH5(:)
+      CALL C_F_POINTER(C_LOC(H(LW(2))),iH2,[1])
+      CALL C_F_POINTER(C_LOC(H(LW(3))),iH3,[1])
+      CALL C_F_POINTER(C_LOC(H(LW(4))),iH4,[1])
+      CALL C_F_POINTER(C_LOC(H(LW(5))),iH5,[1])
+      CALL INDMAT_CPF(iH2,iH3,iH4,ISMAX,iH5)
+      NULLIFY(iH2,iH3,iH4,iH5)
+      END SUBROUTINE dINDMAT
+*
       END

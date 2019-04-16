@@ -216,9 +216,9 @@ C
                      End Do
                   End Do
                End Do
-               ! loop over vector blocks to compute
-               ! X(J,K) = sum_ai L(ai,J)*L(ai,K)*exp(-(e(a)-a(i))*t(q)/2)
-               ! Eq += w(q)*sum_JK [X(J,K)]**2
+!              loop over vector blocks to compute
+!              X(J,K) = sum_ai L(ai,J)*L(ai,K)*exp(-(e(a)-a(i))*t(q)/2)
+!              Eq += w(q)*sum_JK [X(J,K)]**2
                Do jBlock=1,nBlock
                   ipj=ip_SV+Nai*Laplace_BlockSize*(jBlock-1)
                   If (jBlock.eq.nBlock) Then

@@ -51,7 +51,7 @@
          Call RecPrt(' In DesymD: DSO',' ',DSO,iBas*jBas,nDSO)
       End If
 *
-      call dcopy_(iBas*jBas*iCmp*jCmp,Zero,0,DAO,1)
+      call dcopy_(iBas*jBas*iCmp*jCmp,[Zero],0,DAO,1)
       lSO = 1
       ii = iAng*(iAng+1)*(iAng+2)/6
       jj = jAng*(jAng+1)*(jAng+2)/6

@@ -26,6 +26,9 @@ endif ()
 if (POLICY CMP0045)
         cmake_policy(SET CMP0045 NEW)
 endif ()
+if (POLICY CMP0074)
+        cmake_policy(SET CMP0074 NEW)
+endif ()
 
 # Prevent in-source builds
 # If an in-source build is attempted, you will still need to clean up a few files manually.
@@ -123,16 +126,16 @@ option (EXPERT "Show advanced CMake cache entries in GUI)." OFF)
 
 option (BIGOT "Do not allow any compiler warning (treat them as errors)." OFF)
 
-set (LINALG_OPTIONS "Choose linear algebra library, options: Internal (default), Runtime, MKL, ACML, OpenBLAS, Accelerate.")
+set (LINALG_OPTIONS "Choose linear algebra library, options: Internal (default), Runtime, MKL, OpenBLAS, ACML, Accelerate.")
 if (DEFINED LINALG)
         set (LINALG "${LINALG}" CACHE STRING "${LINALG_OPTIONS}")
-        if (NOT ";Internal;Runtime;MKL;ACML;OpenBLAS;Accelerate;" MATCHES ";${LINALG};")
+        if (NOT ";Internal;Runtime;MKL;OpenBLAS;ACML;Accelerate;" MATCHES ";${LINALG};")
                 message (FATAL_ERROR "Unsuported LINALG: ${LINALG}")
         endif ()
 else ()
         set (LINALG "Internal"  CACHE STRING "${LINALG_OPTIONS}")
 endif ()
-set_property (CACHE LINALG PROPERTY STRINGS Internal Runtime MKL ACML OpenBLAS Accelerate)
+set_property (CACHE LINALG PROPERTY STRINGS Internal Runtime MKL OpenBLAS ACML Accelerate)
 
 option (CUBLAS "Enable CUDA BLAS library." OFF)
 option (NVBLAS "Enable NVidia BLAS library." OFF)
@@ -161,10 +164,10 @@ if (DMRG)
         # Name and e-mail required for downloading QCMaquis
         # Try to get the real name from the system account information
         if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-          set(QCMaquis_NAME_GET_CMD "id -F")
+                set(QCMaquis_NAME_GET_CMD "id -F")
         else()
         # should we distinguish other platforms?
-          set(QCMaquis_NAME_GET_CMD "sh" "-c" "getent passwd $USER | awk -F: '{print \$5}'")
+                set(QCMaquis_NAME_GET_CMD "sh" "-c" "getent passwd $USER | awk -F: '{print \$5}'")
         endif()
         execute_process (
                 COMMAND ${QCMaquis_NAME_GET_CMD}
@@ -195,8 +198,8 @@ if (DMRG)
         list(LENGTH QCMaquis_NAME_LIST qcm_name_len)
         if (qcm_name_len LESS 2)
                 message (FATAL_ERROR
-                  "Your name has been specified as: " ${QCMaquis_NAME} "\n"
-                  "Please specify both name and surname. If you have only one name, please specify it twice.")
+                        "Your name has been specified as: " ${QCMaquis_NAME} "\n"
+                        "Please specify both name and surname. If you have only one name, please specify it twice.")
         endif()
 
         # Separate first name from the last name
@@ -236,6 +239,9 @@ set (ENV{CMAKE_SESSION} "OpenMolcas")
 #=====================================
 message ("Configuring compilers:")
 
+if (EFPLIB)
+        cmake_minimum_required (VERSION 3.0.2)
+endif ()
 if (DMRG)
         project (Molcas Fortran C CXX)
         cmake_minimum_required (VERSION 3.2.0)
@@ -250,11 +256,11 @@ if (DMRG)
 elseif (WFA)
         project (Molcas Fortran C CXX)
 else ()
-        project (Molcas Fortran C    )
+        project (Molcas Fortran C)
 endif ()
-if (EFPLIB)
-        cmake_minimum_required (VERSION 3.0.2)
-endif ()
+
+#avoid using CXX compiler for linking
+set (CMAKE_CXX_LINKER_PREFERENCE_PROPAGATES FALSE)
 
 add_definitions (-D_MOLCAS_)
 
@@ -504,7 +510,6 @@ if (DEFINED EXTRA_VERSION)
         message ("-- EXTRA_VERSION: ${EXTRA_VERSION}")
         set (MOLCAS_VERSION "${OPENMOLCAS_VERSION} & ${EXTRA_VERSION}")
 endif ()
-configure_file (${OPENMOLCAS_DIR}/src/Include/molcasversion.h.in include/molcasversion.h)
 
 # set location of libraries and executables
 #==========================================
@@ -515,13 +520,15 @@ set (EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 # global include directory
 #=========================
 
+set (MAIN_INCLUDE_DIR ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/include)
+configure_file (${OPENMOLCAS_DIR}/src/Include/molcasversion.h.in ${MAIN_INCLUDE_DIR}/molcasversion.h)
+
 foreach (BASE_DIR ${basedirs})
         if (EXISTS "${BASE_DIR}/src/Include")
                 include_directories (${BASE_DIR}/src/Include)
         endif ()
 endforeach ()
-include_directories (${PROJECT_BINARY_DIR}/include)
-include_directories (${PROJECT_BINARY_DIR}/mod)
+include_directories (${MAIN_INCLUDE_DIR})
 
 # system information
 #===================
@@ -694,9 +701,9 @@ list (APPEND SUPPORTED_CXX_COMPILERS "Intel")
 set (CXXFLAGS_Intel_BASIC "")
 set (CXXFLAGS_Intel_OPENMP "-qopenmp")
 # build targets
-set (CXXFLAGS_Intel_DEBUG "-debug -Wall")
-set (CXXFLAGS_Intel_GARBLE "-O2 -debug -Wall")
-set (CXXFLAGS_Intel_RELWITHDEBINFO "-O2 -debug -Wall")
+set (CXXFLAGS_Intel_DEBUG "-debug -w3")
+set (CXXFLAGS_Intel_GARBLE "-O2 -debug -w3")
+set (CXXFLAGS_Intel_RELWITHDEBINFO "-O2 -debug -w3")
 set (CXXFLAGS_Intel_RELEASE "-O2")
 set (CXXFLAGS_Intel_FAST "-O2")
 # C compiler
@@ -704,9 +711,9 @@ list (APPEND SUPPORTED_C_COMPILERS "Intel")
 set (CFLAGS_Intel_BASIC "-std=gnu99")
 set (CFLAGS_Intel_OPENMP "-qopenmp")
 # build targets
-set (CFLAGS_Intel_DEBUG "-debug -Wall")
-set (CFLAGS_Intel_GARBLE "-O2 -debug -Wall")
-set (CFLAGS_Intel_RELWITHDEBINFO "-O2 -debug -Wall")
+set (CFLAGS_Intel_DEBUG "-debug -w3")
+set (CFLAGS_Intel_GARBLE "-O2 -debug -w3")
+set (CFLAGS_Intel_RELWITHDEBINFO "-O2 -debug -w3")
 set (CFLAGS_Intel_RELEASE "-O2")
 set (CFLAGS_Intel_FAST "-O2")
 # Fortran compiler
@@ -715,9 +722,9 @@ set (FFLAGS_Intel_BASIC "-fpp")
 set (FFLAGS_Intel_OPENMP "-qopenmp")
 set (FFLAGS_Intel_ILP64 "-i8 -r8 -heap-arrays")
 # build targets
-set (FFLAGS_Intel_DEBUG "-debug -traceback -warn all,nointerfaces,nodeclarations")
-set (FFLAGS_Intel_GARBLE "-O2 -debug -traceback -warn all,nointerfaces,nodeclarations")
-set (FFLAGS_Intel_RELWITHDEBINFO "-O2 -debug -traceback -warn all,nointerfaces,nodeclarations")
+set (FFLAGS_Intel_DEBUG "-debug -traceback -warn all,nodeclarations")
+set (FFLAGS_Intel_GARBLE "-O2 -debug -traceback -warn all,nodeclarations")
+set (FFLAGS_Intel_RELWITHDEBINFO "-O2 -debug -traceback -warn all,nodeclarations")
 set (FFLAGS_Intel_RELEASE "-O2 -traceback")
 set (FFLAGS_Intel_FAST "-fast")
 
@@ -742,9 +749,10 @@ set (CFLAGS_Intel_BASIC "-headerpad_max_install_names ${CFLAGS_Intel_BASIC}")
 set (FFLAGS_Intel_BASIC "-headerpad_max_install_names ${FFLAGS_Intel_BASIC}")
 endif ()
 
-set (CXXFLAGS_Intel_BIGOT "-Wall -Werror")
-set (CFLAGS_Intel_BIGOT "-Wall -Werror")
-set (FFLAGS_Intel_BIGOT "-warn all -warn errors")
+#note that "declarations" means "implicit none", which we don't want (yet)
+set (CXXFLAGS_Intel_BIGOT "-w3 -Werror -diag-disable remark")
+set (CFLAGS_Intel_BIGOT "-w3 -Werror -diag-disable remark")
+set (FFLAGS_Intel_BIGOT "-warn all,nodeclarations -warn errors -diag-disable remark")
 set (Intel_TRAP "-fpe0")
 
 #======================================#
@@ -1035,6 +1043,17 @@ if (BOUNDS)
         set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CFLAGS_${CCID}_BOUNDS}")
         set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${FFLAGS_${FCID}_BOUNDS}")
         add_definitions (-D_MALLOC_INTERCEPT_)
+endif ()
+
+# Allow user-specified modifications
+if (EXTRA_CXXFLAGS)
+        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_CXXFLAGS}")
+endif ()
+if (EXTRA_CFLAGS)
+        set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS}")
+endif ()
+if (EXTRA_FFLAGS)
+        set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${EXTRA_FFLAGS}")
 endif ()
 
 ################################################################################
@@ -1831,19 +1850,23 @@ endif ()
 
 # NECI Full-CI Quantum Monte-Carlo
 if (NECI)
+        if (NOT MPI)
+            message (FATAL_ERROR "NECI requires MPI (-DMPI=ON).")
+        endif()
         message ("Configuring NECI support:")
-        list (APPEND rasscf_defs "_NECI_")
         set (proj ${extprojsdir}/NECI)
         set (proj_bin ${PROJECT_BINARY_DIR}/External/NECI)
         if (EXISTS ${proj}/CMakeLists.txt)
                 # set default NECI options when built from Molcas
                 # and hide them from the Molcas CMake GUI
-                set (MOLCAS ON CACHE INTERNAL "Enable Molcas interface.")
-                set (PARALLEL ${MPI} CACHE INTERNAL "Enable parallel build (MPI).")
-                set (HDF ON CACHE INTERNAL "Enable HDF5 popsfiles.")
+                set (ENABLE_MOLCAS ON CACHE INTERNAL "Enable Molcas interface.")
+                set (ENABLE_HDF5 ON CACHE INTERNAL "Enable HDF5 popsfiles.")
                 set (WARNINGS OFF CACHE INTERNAL "Enable lots of compile warnings.")
-                set (SHARED_MEM ON CACHE INTERNAL "Enable shared memory.")
+                set (ENABLE_SHARED_MEMORY ON CACHE INTERNAL "Enable shared memory.")
+                set (ENABLE_SHARED ON CACHE INTERNAL "Enable shared libraries.")
+                # set (ENABLE_BUILD_HDF5 OFF CACHE INTERNAL "Provide precompiled HDF5.")
 
+                list (APPEND rasscf_defs "_NECI_")
                 add_subdirectory (${proj} ${proj_bin} EXCLUDE_FROM_ALL)
                 set (NECI_LIBRARIES libdneci)
 
@@ -1852,12 +1875,9 @@ if (NECI)
 
                 list (APPEND EXTERNAL_LIBRARIES ${NECI_LIBRARIES})
         else ()
-                list (APPEND rasscf_defs "_EXTNECI_")
                 message ("-- Internal NECI ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
                 message ("   An externally configured NECI can still be used")
-                message ("   Please use ExNEci command in your molcas input")
         endif ()
-
 else ()
         message ("NECI interface DISABLED")
 endif ()
@@ -1915,25 +1935,24 @@ endif ()
 
 # GEN1INT interface
 if (GEN1INT)
-         message ("Configuring GEN1INT")
-         add_definitions (-D_GEN1INT_)
+        message ("Configuring GEN1INT")
 
-         set (proj ${PROJECT_SOURCE_DIR}/src/gen1int_util)
-         set (proj_bin ${PROJECT_BINARY_DIR}/External/gen1int_util)
+        set (proj ${PROJECT_SOURCE_DIR}/src/gen1int_util)
+        set (proj_bin ${PROJECT_BINARY_DIR}/External/gen1int_util)
 
-         configure_file(${proj}/CMakeLists.txt.in ${proj_bin}/CMakeLists.txt COPYONLY)
-         add_subdirectory(${proj_bin} ${proj_bin})
+        configure_file(${proj}/CMakeLists.txt.in ${proj_bin}/CMakeLists.txt COPYONLY)
+        add_subdirectory(${proj_bin} ${proj_bin})
 
-         get_directory_property(${GEN1INT_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${GEN1INT_INCLUDE})
-         get_directory_property(${GEN1INT_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${GEN1INT_LIBRARIES})
-         include_directories(${GEN1INT_INCLUDE})
+        get_directory_property(${GEN1INT_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${GEN1INT_INCLUDE})
+        get_directory_property(${GEN1INT_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${GEN1INT_LIBRARIES})
+        include_directories(${GEN1INT_INCLUDE})
 
-         message ("-- GEN1INT_INCLUDE_PATH: ${GEN1INT_INCLUDE}")
-         message ("-- GEN1INT_LIBRARIES:    ${GEN1INT_LIBRARIES}")
+        message ("-- GEN1INT_INCLUDE_PATH: ${GEN1INT_INCLUDE}")
+        message ("-- GEN1INT_LIBRARIES:    ${GEN1INT_LIBRARIES}")
 
-         list (APPEND EXTERNAL_LIBRARIES ${GEN1INT_LIBRARIES})
+        list (APPEND EXTERNAL_LIBRARIES ${GEN1INT_LIBRARIES})
 else ()
-         message ("GEN1INT support DISABLED")
+        message ("GEN1INT support DISABLED")
 endif ()
 
 # libwfa interface
@@ -2023,9 +2042,25 @@ endif ()
 
 # Add the "bigot" flags after processing the external projects, so they are not affected
 if (BIGOT)
-        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXXFLAGS_${CXXCID}_BIGOT}")
-        set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CFLAGS_${CCID}_BIGOT}")
-        set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${FFLAGS_${FCID}_BIGOT}")
+        # Modify the "BUILD_TARGET" flags because we want them at the end
+        string (TOUPPER ${CMAKE_BUILD_TYPE} BUILD_TARGET)
+        set (CMAKE_CXX_FLAGS_${BUILD_TARGET} "${CMAKE_CXX_FLAGS_${BUILD_TARGET}} ${CXXFLAGS_${CXXCID}_BIGOT}")
+        set (CMAKE_C_FLAGS_${BUILD_TARGET} "${CMAKE_C_FLAGS_${BUILD_TARGET}} ${CFLAGS_${CCID}_BIGOT}")
+        set (CMAKE_Fortran_FLAGS_${BUILD_TARGET} "${CMAKE_Fortran_FLAGS_${BUILD_TARGET}} ${FFLAGS_${FCID}_BIGOT}")
+        # The Intel compiler can generate automatic interfaces, in that case we want to keep them all in a single place
+        if (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
+                set(SINGLE_MOD_DIR "1")
+        endif ()
+endif ()
+
+# global module directory
+#========================
+
+set (MAIN_MOD_DIR ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/mod)
+if (SINGLE_MOD_DIR)
+        include_directories (${MAIN_MOD_DIR}/_single)
+else ()
+        include_directories (${MAIN_MOD_DIR})
 endif ()
 
 ################################################################################
@@ -2243,6 +2278,10 @@ if (LINALG STREQUAL "Runtime")
         list (APPEND ${util}_incs ${internal_linalg})
 endif ()
 
+if (GEN1INT)
+        list (APPEND integral_util_defs "_GEN1INT_")
+endif()
+
 # activate HDF5 wrappers for I/O
 if (HDF5 AND HDF5_FOUND)
         set (util hdf5_util)
@@ -2354,6 +2393,10 @@ if (WFA AND WFA_FOUND)
         list (APPEND wfa_defs "_WFA_")
 endif ()
 
+if (GEN1INT)
+        list (APPEND seward_defs "_GEN1INT_")
+endif()
+
 # programs doing HDF5 calls
 if (HDF5 AND HDF5_FOUND)
         foreach (prog
@@ -2384,11 +2427,11 @@ endif ()
 # activate grid_it
 if (GRID_IT AND GRID_IT_FOUND)
         # Some additional files and configuration needed if using external grid_it
-        configure_file (${grid_util_src}/grid.fh.in include/grid.fh)
+        configure_file (${grid_util_src}/grid.fh.in ${MAIN_INCLUDE_DIR}/grid.fh)
         list (APPEND external_prgm "${grid_util_src}/grid_it.prgm.src")
         list (APPEND grid_util_defs "_EXTERNAL_GRID_IT_")
 else ()
-        file (REMOVE include/grid.fh)
+        file (REMOVE ${MAIN_INCLUDE_DIR}/grid.fh)
 endif ()
 # grid_it could be external or from molcas_extra
 if (DEFINED grid_it_src)
@@ -2454,21 +2497,31 @@ endif ()
 #                                                                              #
 #################################################################################
 # netlib blas/lapack produces warnings
+# some external codes (grid_it) too
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
         set (netlib_nowarn_flags " -w")
+        set (ext_nowarn_flags " -w")
 elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
         set (netlib_nowarn_flags " -w")
+        set (ext_nowarn_flags " -w")
 elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "SunPro")
         set (netlib_nowarn_flags " -erroff=%all")
+        set (ext_nowarn_flags " -erroff=%all")
 elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "PGI")
         set (netlib_nowarn_flags " -Kieee -w")
+        set (ext_nowarn_flags " -w")
 elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "NAG")
         set (netlib_nowarn_flags " -w")
+        set (ext_nowarn_flags " -w")
 endif ()
 find_source(LinAlg_internal)
 if (netlib_nowarn_flags)
         file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${LinAlg_internal_src}/*.f ${delayed_util_src}/*.f)
         set_property (SOURCE ${source} APPEND_STRING PROPERTY COMPILE_FLAGS ${netlib_nowarn_flags})
+endif ()
+if (ext_nowarn_flags)
+        file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${grid_it_src}/*.f)
+        set_property (SOURCE ${source} APPEND_STRING PROPERTY COMPILE_FLAGS ${ext_nowarn_flags})
 endif ()
 
 ################################################################################
@@ -2530,8 +2583,13 @@ if (BUILD_SHARED_LIBS)
                 POSITION_INDEPENDENT_CODE "TRUE"
         )
 endif ()
-set_target_properties (mods_obj PROPERTIES
-        Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/mod)
+if (SINGLE_MOD_DIR)
+        set_target_properties (mods_obj PROPERTIES
+                Fortran_MODULE_DIRECTORY ${MAIN_MOD_DIR}/_single)
+else ()
+        set_target_properties (mods_obj PROPERTIES
+                Fortran_MODULE_DIRECTORY ${MAIN_MOD_DIR})
+endif ()
 target_include_directories (mods_obj PRIVATE
         ${OPENMOLCAS_DIR}/src/${util}
         )
@@ -2549,15 +2607,20 @@ foreach (util ${utils})
                         set_target_properties (${util}_obj PROPERTIES
                                 POSITION_INDEPENDENT_CODE "TRUE")
                 endif ()
-                set_target_properties (${util}_obj PROPERTIES
-                        Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/mod/${util})
+                if (SINGLE_MOD_DIR)
+                        set_target_properties (${util}_obj PROPERTIES
+                                Fortran_MODULE_DIRECTORY ${MAIN_MOD_DIR}/_single)
+                else ()
+                        set_target_properties (${util}_obj PROPERTIES
+                                Fortran_MODULE_DIRECTORY ${MAIN_MOD_DIR}/${util})
+                endif ()
 
                 # utility-specific compile definitions
                 if (DEFINED ${util}_defs)
                         set_target_properties (${util}_obj PROPERTIES COMPILE_DEFINITIONS "${${util}_defs}")
                 endif ()
                 # utility-specific include directories
-                list (APPEND ${util}_incs ${PROJECT_SOURCE_DIR}/${${util}_src} ${PROJECT_BINARY_DIR}/mod/${util})
+                list (APPEND ${util}_incs ${PROJECT_SOURCE_DIR}/${${util}_src})
                 foreach (inc ${${util}_incs})
                         target_include_directories (${util}_obj PRIVATE ${inc})
                 endforeach ()
@@ -2617,6 +2680,10 @@ endif ()
 #                                                                              #
 ################################################################################
 
+add_custom_target(only_objs
+        DEPENDS ${utils_obj}
+        )
+
 foreach (prog ${progs})
         file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${${prog}_src}/*.f ${${prog}_src}/*.f90 ${${prog}_src}/*.F90 ${${prog}_src}/*.c)
         list (APPEND ALL_SOURCES ${source})
@@ -2637,8 +2704,13 @@ foreach (prog ${progs})
 
                 if (NOT "${source}" STREQUAL "")
                         add_library (${prog} OBJECT ${source})
-                        set_target_properties (${prog} PROPERTIES
-                                Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/mod/${prog})
+                        if (SINGLE_MOD_DIR)
+                                set_target_properties (${prog} PROPERTIES
+                                        Fortran_MODULE_DIRECTORY ${MAIN_MOD_DIR}/_single)
+                        else ()
+                                set_target_properties (${prog} PROPERTIES
+                                        Fortran_MODULE_DIRECTORY ${MAIN_MOD_DIR}/${prog})
+                        endif ()
                         # programs in "proglib" have their libraries compiled as utils
                         if (BUILD_SHARED_LIBS AND ";${proglib};" MATCHES ";${prog};")
                                 set_target_properties (${prog} PROPERTIES
@@ -2650,12 +2722,13 @@ foreach (prog ${progs})
                                 set_target_properties (${prog} PROPERTIES COMPILE_DEFINITIONS "${${prog}_defs}")
                         endif ()
                         # program-specific include directories
-                        list (APPEND ${prog}_incs ${PROJECT_SOURCE_DIR}/${${prog}_src} ${PROJECT_BINARY_DIR}/mod/${prog})
+                        list (APPEND ${prog}_incs ${PROJECT_SOURCE_DIR}/${${prog}_src})
                         foreach (inc ${${prog}_incs})
                                 target_include_directories (${prog} PRIVATE ${inc})
                         endforeach ()
 
                         add_dependencies (${prog} ${utils_obj})
+                        add_dependencies (only_objs ${prog})
                 endif ()
         endif ()
 endforeach ()
@@ -2679,8 +2752,13 @@ foreach (prog ${progs})
         endif ()
         add_executable (${prog}.exe ${${prog}_main} ${${prog}_deps})
         list (APPEND progs_exe ${prog}.exe)
-        set_target_properties (${prog}.exe PROPERTIES
-                Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/mod/${prog})
+        if (SINGLE_MOD_DIR)
+                set_target_properties (${prog}.exe PROPERTIES
+                        Fortran_MODULE_DIRECTORY ${MAIN_MOD_DIR}/_single)
+        else ()
+                set_target_properties (${prog}.exe PROPERTIES
+                        Fortran_MODULE_DIRECTORY ${MAIN_MOD_DIR}/${prog})
+        endif ()
         foreach (inc ${${prog}_incs})
                 target_include_directories (${prog}.exe PRIVATE ${inc})
         endforeach ()
@@ -2693,8 +2771,6 @@ foreach (prog ${progs})
 
         if (CUBLAS)
                 set_target_properties (${prog}.exe PROPERTIES LINKER_LANGUAGE "CXX")
-        else ()
-                set_target_properties (${prog}.exe PROPERTIES LINKER_LANGUAGE "Fortran")
         endif ()
 
         list (APPEND PROGRAM_EXECUTABLES ${prog}.exe)

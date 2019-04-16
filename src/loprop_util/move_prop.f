@@ -59,7 +59,7 @@
 *
 * Set local properties to zero
 *
-                  Call dCopy_(nElem,Zero,0,rMP(ij,0,iPert),nij)
+                  Call dCopy_(nElem,[Zero],0,rMP(ij,0,iPert),nij)
                End Do
             End If
          End Do

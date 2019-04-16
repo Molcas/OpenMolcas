@@ -46,7 +46,7 @@
       NTEST0 = 0
       NTEST = MAX(NTEST0,IPRNT)
 *
-      Call iCopy(NOCTYP*NSMST,0,0,LSTASO,1)
+      Call iCopy(NOCTYP*NSMST,[0],0,LSTASO,1)
       NSTRIN = 0
       IORB1F = 1
       IORB1L = IORB1F+NORB1-1

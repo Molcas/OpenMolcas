@@ -351,7 +351,7 @@ c
 c      Fortran IO
        call molcas_open_ext2(lun,filename(lun),'sequential',
      &  'unformatted',
-     &      ierr,.false.,f_recl,'unknown',is_error)
+     &      ierr,.false.,1,'unknown',is_error)
 c       open (unit=lun,
 c     &       file=filename(lun),
 c     &       status='unknown',
@@ -395,7 +395,8 @@ c      Fortran IO
 c
        else
 c      MOLCAS IO
-       call idafile (lun,5,nhelp,1,daddr(lun))
+       nhelp=0
+       call idafile (lun,5,[nhelp],1,daddr(lun))
        end if
 c
 c
@@ -478,7 +479,7 @@ c
 c      Fortran IO
        call molcas_open_ext2(lun,filename(lun),
      &     'sequential','unformatted',
-     &      ierr,.false.,f_recl,'unknown',is_error)
+     &      ierr,.false.,1,'unknown',is_error)
 c       open (unit=lun,
 c     &       file=filename(lun),
 c     &       status='unknown',

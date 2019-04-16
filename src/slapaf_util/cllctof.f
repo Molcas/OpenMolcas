@@ -38,6 +38,7 @@
       Integer   Ind(nCntr+mCntr,2), iOper(0:nSym-1), nStab(mxdc),
      &          jStab(0:7,mxdc)
       Logical lWrite, ldB, lWarn
+      Dimension Dummy(1)
 *
       iRout = 50
       iPrint = nPrint(iRout)
@@ -138,21 +139,21 @@
 *
       If (Type.eq.'X     ') Then
          Value = xyz(1,1)
-         call dcopy_(3,Zero,0,Temp,1)
+         call dcopy_(3,[Zero],0,Temp,1)
          Temp(1,1) = One
          If (lWrite) Write (6,'(1X,A,A,2X,F10.4,A)') Lbl,
      &          ' : x-component=',Value,'/ bohr'
          Deg=D_Cart(Ind,nStab,jStab,mxdc,nSym)
       Else If (Type.eq.'Y     ') Then
          Value = xyz(2,1)
-         call dcopy_(3,Zero,0,Temp,1)
+         call dcopy_(3,[Zero],0,Temp,1)
          Temp(2,1) = One
          If (lWrite) Write (6,'(1X,A,A,2X,F10.4,A)') Lbl,
      &          ' : y-component=',Value,'/ bohr'
          Deg=D_Cart(Ind,nStab,jStab,mxdc,nSym)
       Else If (Type.eq.'Z     ') Then
          Value = xyz(3,1)
-         call dcopy_(3,Zero,0,Temp,1)
+         call dcopy_(3,[Zero],0,Temp,1)
          Temp(3,1) = One
          If (lWrite) Write (6,'(1X,A,A,2X,F10.4,A)') Lbl,
      &          ' : z-component=',Value,'/ bohr'

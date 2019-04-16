@@ -20,6 +20,7 @@
       dimension locca(nel), lnocca(nel)
       dimension xspin((nel+1)*(nalf+1))
       dimension ialfs(nalf),ibets(nbet),ianti(ifns)
+      dimension dum(1)
 
 c
 c Serber spin functions

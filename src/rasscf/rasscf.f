@@ -56,6 +56,7 @@
       use qcmaquis_interface_environment, only:
      &    finalize_dmrg, dump_dmrg_info
 #endif
+      use fciqmc, only : FCIQMC_ctl, DumpOnly, DoNECI
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -84,7 +85,6 @@
 #include "qnctl.fh"
 #include "orthonormalize.fh"
 #include "ciinfo.fh"
-#include "fciqmc.fh"
 #ifdef _FDE_
 #include "embpotdata.fh"
 #endif
@@ -131,6 +131,7 @@
       real*8  :: maxtrW
 #include "nevptp.fh"
 #endif
+      Dimension Dummy(1)
 
 * Start the traceback utilities
 *
@@ -299,14 +300,14 @@
       LPMAT=1
       LPA  =1
 
-      If (iCIRST.eq.1.and.iDumpOnly) then
+      If (iCIRST.eq.1.and.DumpOnly) then
         write(6,*) 'ICIRST and DumpOnly flags are not compatible!'
         write(6,*) 'Choose only one.'
         Call QTrace
         Call Abend
       end if
 
-      If(iDumpOnly) then
+      If(DumpOnly) then
         write(6,*) 'Dumping integrals for a FCIQMC job.'
         write(6,*) 'Nothing else will be done'
       end if
@@ -315,13 +316,13 @@
          Call GetMem('TUVX','Allo','Real',LTUVX,NACPR2)
          Call FZero(Work(LTUVX),NACPR2)
          ltuvx_cvb=ltuvx
-         if(.not.iDumpOnly) then
+         if(.not.DumpOnly) then
            Call GetMem('DMAT','Allo','Real',LDMAT,NACPAR)
            Call GetMem('DSPN','Allo','Real',LDSPN,NACPAR)
            Call GetMem('PMAT','Allo','Real',LPMAT,NACPR2)
            Call GetMem('P2AS','Allo','Real',LPA,NACPR2)
-           call dcopy_(NACPAR,0.0d0,0,Work(LDMAT),1)
-           call dcopy_(NACPAR,0.0d0,0,Work(LDSPN),1)
+           call dcopy_(NACPAR,[0.0d0],0,Work(LDMAT),1)
+           call dcopy_(NACPAR,[0.0d0],0,Work(LDSPN),1)
            ldmat_cvb=ldmat
            ldspn_cvb=ldspn
            lpmat_cvb=lpmat
@@ -377,7 +378,7 @@
 
 * Initialize OCCN array, to prevent false alarms later from
 * automated detection of using uninitialized variables:
-      call dcopy_(NTot,0.0D0,0,Work(lOCCN),1)
+      call dcopy_(NTot,[0.0D0],0,Work(lOCCN),1)
 
 * PAM03: Note that removal of linear dependence may change the nr
 * of secondary/deleted orbitals, affecting some of the global
@@ -415,7 +416,7 @@ CGG03 Aug 03
       If(NAlter.gt.0) Call Alter_MO(Work(LCMO))
 
 c At this point all is ready to potentially dump MO integrals... just do it if required.
-      If(iDumpOnly) goto 20
+      If(DumpOnly) goto 20
       if(ifvb.eq.2)goto 20
 
       if(dofcidump)then
@@ -659,7 +660,7 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
              KSDFT='SCF'
              ExFac=1.0D0
            end IF
-           Call dcopy_(NTOT2,0.0D0,0,WORK(LD1A),1)
+           Call dcopy_(NTOT2,[0.0D0],0,WORK(LD1A),1)
 
            DoActive = .false.
 
@@ -767,14 +768,13 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
      &                 WORK(LTUVX),IFINAL,0)
             Else
 #endif
-#ifdef _NECI_
-        If(iDoNECI) then
+        If(DoNECI) then
           call FCIQMC_ctl(WORK(LCMO),WORK(LDIAF),
      &             WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
      &             WORK(LFI),WORK(LD1I),WORK(LD1A),
      &             WORK(LTUVX))
 
-         if(iDumpOnly)then
+         if(DumpOnly)then
           write(6,*) " FCIDUMP file generated. Here for serving you!"
           goto 2010
          end if
@@ -793,7 +793,6 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
          End if
         else
 * ------^ End first NECI run
-#endif
 
               CALL CICTL(WORK(LCMO),
      &                 WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
@@ -811,7 +810,7 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
 !             Eemb=embPotEne(Work(LD1I), Work(LD1A), Work(ipEmb),
 !    &                       Work(LCMO), nBasFunc, nFrozenOrbs, .true.)
           Eemb=embPotEneMODensities(Work(LD1I), Work(LD1A), Work(ipEmb),
-     &                    Work(LCMO), nBasFunc, nFrozenOrbs, .true.)
+     &                    nBas, nTot2, nFrozenOrbs, nSym)
                 Write(LF,*) "Energy from embedding potential with the"
                 Write(LF,*) "initial CI vectors: ", Eemb
               end if
@@ -822,9 +821,7 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
              write(6,'(a,i4)')' Nr of preliminary CI iterations:',ITERCI
           End If
 
-#ifdef _NECI_
         end if
-#endif
 
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
             End If
@@ -1065,8 +1062,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
      &           WORK(LTUVX),IFINAL,1)
         Else
 #endif
-#ifdef _NECI_
-        if(iDoNECI) then
+        if(DoNECI) then
           call FCIQMC_ctl(WORK(LCMO),WORK(LDIAF),
      &             work(ldmat),work(ldspn),work(lpmat),work(lpa),
      &             work(lfi),work(ld1i),work(ld1a),
@@ -1085,14 +1081,11 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
            End Do
           end if
         else
-#endif
         CALL CICTL(WORK(LCMO),
      &           WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
      &           WORK(LFI),WORK(LD1I),WORK(LD1A),
      &           WORK(LTUVX),IFINAL)
-#ifdef _NECI_
       end if
-#endif
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
       End If
 #endif
@@ -1192,7 +1185,7 @@ c      call triprt('P-mat 2',' ',WORK(LPMAT),nAc*(nAc+1)/2)
         if(iSpin.eq.1) then
           If ( IPRLEV.ge.DEBUG )
      &        write(6,*) 'running a singlet. LDSPN set to zero!'
-          Call dcopy_(NACPAR,0.0d0,0,Work(LDSPN),1)
+          Call dcopy_(NACPAR,[0.0d0],0,Work(LDSPN),1)
         end if
         CALL GETMEM('TmpDS_DFT' ,'Allo','REAL',ipTmpDS_DFT ,NACPAR)
         CALL GETMEM('TmpD1S_DFT','Allo','REAL',ipTmpD1S_DFT,NTOT2)
@@ -1267,7 +1260,7 @@ c      Call rasscf_xml(Iter)
         iOff = iOff + (iBas*iBas+iBas)/2
        End Do
       End If
-        IF (iDoNECI) THEN
+        IF (DoNECI) THEN
           write(6,*)'RASSCF: For NECI orbital energies are approximated'
           write(6,*)'to the diagonal value of the Fock matrix properly'
           write(6,*)'transformed accordingly to e(X) rotation matrix'
@@ -1609,7 +1602,7 @@ cGLM some additional printout for MC-PDFT
          End Do
         End If
         IFINAL=1
-        Call Add_Info('RASSCF_ITER',DBLE(ITER),1,8)
+        Call Add_Info('RASSCF_ITER',[DBLE(ITER)],1,8)
 *    Call Add_Info('RASSCF_THMX',TMXTOT,1,5)
         GOTO 1000
       ELSE
@@ -1715,14 +1708,12 @@ c Clean-close as much as you can the CASDFT stuff...
      &           WORK(LTUVX),IFINAL,1)
       Else
 #endif
-#ifdef _NECI_
-      if(iDoNECI) then
+      if(DoNECI) then
         call FCIQMC_ctl(WORK(LCMO),WORK(LDIAF),
      &             work(ldmat),work(ldspn),work(lpmat),work(lpa),
      &             work(lfi),work(ld1i),work(ld1a),
      &             work(ltuvx))
       else
-#endif
 ! Leon 27/11/2017: Skip the final CI iteration if we're using DMRGCI
 ! and CIOnly. It's enabled only for DMRGCI with QCMaquis now
 ! (to exclude potential side effects)
@@ -1737,9 +1728,7 @@ c Clean-close as much as you can the CASDFT stuff...
 #ifdef _DMRG_
       end if
 #endif
-#ifdef _NECI_
       end if
-#endif
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
       End If
 #endif
@@ -1923,18 +1912,13 @@ c  i_root>0 gives natural spin orbitals for that root
 c deallocating TUVX memory...
       IF(NAC.GT.0) THEN
          Call GetMem('TUVX','Free','Real',LTUVX,NACPR2)
-         if(.not.iDumpOnly) Then
+         if(.not.DumpOnly) Then
             Call GetMem('P2AS','Free','Real',LPA,NACPR2)
             Call GetMem('PMAT','Free','Real',LPMAT,NACPR2)
             Call GetMem('DMAT','Free','Real',LDMAT,NACPAR)
             Call GetMem('DSPN','Free','Real',LDSPN,NACPAR)
          endif
       END IF
-*
-c deallocating detorb... allocated in proc_inp.f used throughout the iterations
-        If(iDoNECI.and.definedet)
-     &            Call GetMem('DetOrb','Free','Inte',ipDet,nActel)
-
 *
 * release SEWARD
       Call ClsSew
@@ -1971,14 +1955,14 @@ c deallocating detorb... allocated in proc_inp.f used throughout the iterations
 
 *
 * Skip Lucia stuff if NECI or BLOCK-DMRG is on
-      If(.not.(iDoNECI.or.doDMRG.or.doBlockDMRG)) then
+      If(.not.(DoNECI.or.doDMRG.or.doBlockDMRG)) then
           Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
        end if
-       if(iDoNECI) then
+       if(DoNECI) then
          CALL GETMEM('INT1  ','FREE','REAL',kint1_pointer,NAC**2)
        end if
 * We better deallocate before it is too late...
-c       if(iDoNECI) then
+c       if(DoNECI) then
 c         CALL GETMEM('INT1  ','FREE','REAL',kint1_pointer,NAC**2)
 c       end if
 *
@@ -2024,7 +2008,7 @@ c      End If
          EndIf
       EndIf
 
-      if(.not.(iDoGas.or.doDMRG.or.doBlockDMRG.or.iDoNeci)) then
+      if(.not.(iDoGas.or.doDMRG.or.doBlockDMRG.or.DoNECI)) then
         Call MKGUGA_FREE
       end if
 

@@ -1,15 +1,16 @@
-!***********************************************************************
-! This file is part of OpenMolcas.                                     *
-!                                                                      *
-! OpenMolcas is free software; you can redistribute it and/or modify   *
-! it under the terms of the GNU Lesser General Public License, v. 2.1. *
-! OpenMolcas is distributed in the hope that it will be useful, but it *
-! is provided "as is" and without any express or implied warranties.   *
-! For more details see the full text of the license in the file        *
-! LICENSE or in <http://www.gnu.org/licenses/>.                        *
-!                                                                      *
-! Copyright (C) 2017, Stefan Knecht                                    *
-!***********************************************************************
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2016, Steven Vancoillie                                *
+*               2017, Stefan Knecht                                    *
+************************************************************************
 ! author: S. Knecht (modified version of pt2wfn.f in CASPT2 written by
 !                    S. Vancoillie)
 !***********************************************************************
@@ -27,7 +28,7 @@
 
       subroutine nevpt2wfn_init(create_h5)
 !     Create a wavefunction file and replace any existing .wfn file
-      use refwfn !use this module from caspt2
+      use refwfn
       use nevpt2_cfg
       use info_state_energy  ! energies, effective Hamiltonian
       use info_orbital_space ! orbital specifications read from JobIph

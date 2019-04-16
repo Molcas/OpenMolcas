@@ -11,10 +11,10 @@
 * Copyright (C) 1986, Per E. M. Siegbahn                               *
 *               1986, Margareta R. A. Blomberg                         *
 ************************************************************************
-      SUBROUTINE SORTA(BUFOUT,INDOUT,ICAD,IBUFL,TIBUF,ISAB,BUFBI,INDBI,
-     *BIAC,BICA,NINTGR)
+      SUBROUTINE SORTA_CPF(BUFOUT,INDOUT,ICAD,IBUFL,TIBUF,ISAB,BUFBI,
+     *INDBI,BIAC,BICA,NINTGR)
       IMPLICIT REAL*8 (A-H,O-Z)
-      EXTERNAL COUNT
+      EXTERNAL COUNT_CPF
 #include "SysDef.fh"
 #include "cpfmcpf.fh"
 #include "files_cpf.fh"
@@ -26,8 +26,8 @@ C     FOR FIXED B,I ALL A,C
 C     FIRST CHAIN FOR IJKL
       DIMENSION NORB0(9)
 *
-      CALL QENTER('SORTA')
-      CALL COUNT(NINTGR,NSYM,NORB,MUL)
+      CALL QENTER('SORTA_CPF')
+      CALL COUNT_CPF(NINTGR,NSYM,NORB,MUL)
       IF (IPRINT.GE.2) THEN
         WRITE(6,*)' NUMBER OF TWO-ELECTRON INTEGRALS:',NINTGR
       END IF
@@ -198,7 +198,7 @@ C
 C     EMPTY LAST BUFFERS
 CFUE Start of insertion
       If ( NOV.gt.mAdr ) then
-        WRITE(6,*)'SORTA Error: NOV > MADR (See code).'
+        WRITE(6,*)'SORTA_CPF Error: NOV > MADR (See code).'
         CALL Abend
       End If
 CFUE End of insertion
@@ -310,10 +310,10 @@ C
       IF(LEN.GE.0)GO TO 100
 C     EMPTY LAST BUFFER
       IF ( INSOUT.EQ.0 ) THEN
-        CALL QEXIT('SORTA')
+        CALL QEXIT('SORTA_CPF')
         RETURN
       END IF
       CALL dDAFILE(Lu_TiABCI,1,BUFBI,KBUFF1,IAD15)
-      CALL QEXIT('SORTA')
+      CALL QEXIT('SORTA_CPF')
       RETURN
       END

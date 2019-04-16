@@ -28,6 +28,7 @@
       dimension ihlp(norb),ihlp2(norb),ihlp3(norb)
       dimension iprev(norb),jprev(norb)
       dimension updi(norb),updj(norb)
+      dimension dum(1)
       save four,hund,thresh
       data four/4d0/,hund/100d0/,thresh/1d-10/
 

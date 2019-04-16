@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine dWBuf(Array,nArray)
+      Use dEAF
       Implicit Real*8 (a-h,o-z)
 #include "IOBuf.fh"
 #include "SysDef.fh"
@@ -28,7 +29,7 @@
       mArray=nArray
 10       Left = lBuf-iPos+1
          If (mArray.gt.Left) Then
-            Call iCopy(Left*RtoI,Array(iArray),1,
+            Call dCopy_(Left,Array(iArray),1,
      &                 Work(jpBuf(iPos,iBuf)),1)
             iArray=iArray+Left
             mArray=mArray-Left
@@ -52,7 +53,7 @@
 c              Write (6,*) 'WBuf write on disk @',Disk,'iBuf=',iBuf
                If (OnDisk) Then
 *                 Write (6,*) 'In dwbuf'
-                  Call EAFAWrite(LuTmp,Work(jpBuf(1,iBuf)),
+                  Call dEAFAWrite(LuTmp,Work(jpBuf(1,iBuf)),
      &                                    lBuf*RtoI,Disk,id)
                End If
                If (iBuf.eq.1) Then
@@ -66,7 +67,7 @@ c              Write (6,*) 'WBuf write on disk @',Disk,'iBuf=',iBuf
             End If
          Else
 *           Write (6,*) ' Add ',mArray,'elements to buffer',iPos,ibuf
-            Call ICopy(RtoI*mArray,Array(iArray),1,
+            Call dCopy_(mArray,Array(iArray),1,
      &                 Work(jpBuf(iPos,iBuf)),1)
             iPos=iPos+mArray
             mArray=0

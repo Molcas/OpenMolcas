@@ -9,13 +9,14 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine ParentWorkDir
-      Use NewDir
+      use subdirs, only : f_setsubdir, Sub, OldWorkDir, NewWorkDir
+      use filesystem, only : remove_, chdir_
       Implicit None
       Integer :: i
 
       Sub=''
       Call f_setsubdir(Sub)
-      Call f_chdir(OldWorkDir)
+      Call chdir_(OldWorkDir)
 
 *     Remove the subdirectory,
 *     try to make sure it is indeed a subdirectory
@@ -24,7 +25,7 @@
         If ((Len_Trim(NewWorkDir) .ge. i+2) .and.
      &      (NewWorkDir(i+1:i+1) .eq. '/') .and.
      &      (NewWorkDir(i+2:i+2) .ne. '/')) Then
-          Call f_rmrf(NewWorkDir)
+          Call remove_(NewWorkDir)
         End If
       End If
 

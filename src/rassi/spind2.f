@@ -48,7 +48,7 @@ C Annihilate a single spin orbital, ISORB:
        ND1=IWORK(LFSBANN1+4)
        COEFF=1.0D0
        CALL GETMEM('ANN1','Allo','Real',LANN1,ND1)
-       CALL DCOPY_(ND1,0.0D0,0,WORK(LANN1),1)
+       CALL DCOPY_(ND1,[0.0D0],0,WORK(LANN1),1)
        CALL PRIMSGM(IMODE,ISORB,IORBTAB,ISSTAB,IWORK(LFSBANN1),
      &                   IFSBTAB1,COEFF,WORK(LANN1),PSI1)
 CTEST       WRITE(*,*)' The ANN1 wave function, with ISORB=',ISORB
@@ -65,7 +65,7 @@ C Annihilate once more, the spin orbital JSORB:
         LFSBANN2=FSBOP(IMODE,JSORB,IORBTAB,ISSTAB,IWORK(LFSBANN1))
         ND2=IWORK(LFSBANN2+4)
         CALL GETMEM('ANN2','Allo','Real',LANN2,ND2)
-        CALL DCOPY_(ND2,0.0D0,0,WORK(LANN2),1)
+        CALL DCOPY_(ND2,[0.0D0],0,WORK(LANN2),1)
         CALL PRIMSGM(IMODE,JSORB,IORBTAB,ISSTAB,IWORK(LFSBANN2),
      &                IWORK(LFSBANN1),COEFF,WORK(LANN2),WORK(LANN1))
 CTEST       WRITE(*,*)' The ANN2 wave function, with JSORB=',JSORB
@@ -84,7 +84,7 @@ C Annihilate a single spin orbital, LSORB:
          ND4=IWORK(LFSBANN4+4)
          COEFF=1.0D0
          CALL GETMEM('ANN4','Allo','Real',LANN4,ND4)
-         CALL DCOPY_(ND4,0.0D0,0,WORK(LANN4),1)
+         CALL DCOPY_(ND4,[0.0D0],0,WORK(LANN4),1)
          CALL PRIMSGM(IMODE,LSORB,IORBTAB,ISSTAB,IWORK(LFSBANN4),
      &                   IFSBTAB4,COEFF,WORK(LANN4),PSI4)
 CTEST       WRITE(*,*)' The ANN4 wave function, with LSORB=',LSORB
@@ -104,7 +104,7 @@ C Annihilate once more, the spin orbital KSORB:
           LFSBANN3=FSBOP(IMODE,KSORB,IORBTAB,ISSTAB,IWORK(LFSBANN4))
           ND3=IWORK(LFSBANN3+4)
           CALL GETMEM('ANN3','Allo','Real',LANN3,ND3)
-          CALL DCOPY_(ND3,0.0D0,0,WORK(LANN3),1)
+          CALL DCOPY_(ND3,[0.0D0],0,WORK(LANN3),1)
           CALL PRIMSGM(IMODE,KSORB,IORBTAB,ISSTAB,IWORK(LFSBANN3),
      &                IWORK(LFSBANN4),COEFF,WORK(LANN3),WORK(LANN4))
 CTEST       WRITE(*,*)' The ANN3 wave function, with KSORB=',KSORB

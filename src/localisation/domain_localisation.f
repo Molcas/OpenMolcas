@@ -213,7 +213,7 @@ C     ----------------------------------------------
       If (AnaDomain) Then
          Call Analysis_Domain(iWork(ip_iDomain),Work(ip_QD),Work(ip_f),
      &                        Work(ip_Coord),Name,
-     &                        iWork(ip_nBas_Start),nAtom,nBas,nOcc)
+     &                        iWork(ip_nBas_Start),nAtom,nBasT,nOcc)
       End If
 
 C     Deallocations.

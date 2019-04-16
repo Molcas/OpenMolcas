@@ -20,6 +20,7 @@
 
 #include "malloc_cvb.fh"
       dimension civec(*)
+      dimension dum(mxirrep)
 c  *********************************************************************
 c  *                                                                   *
 c  *  PSYM      := Project CASSCF vector onto irrep(s).                *

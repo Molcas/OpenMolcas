@@ -150,7 +150,7 @@
       END IF
   100 CONTINUE
 *. Write end of vector mark
-      IF(LUDIA.GT.0) CALL ITODS(-1,1,0,LUDIA)
+      IF(LUDIA.GT.0) CALL ITODS([-1],1,0,LUDIA)
   200 CONTINUE
 
 *

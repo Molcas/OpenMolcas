@@ -226,8 +226,8 @@ c set the main Z axis:
          maxes(2,2)=maxes(1,1)*maxes(3,3)-maxes(1,3)*maxes(3,1)
          maxes(3,2)=maxes(1,3)*maxes(2,1)-maxes(1,1)*maxes(2,3)
       Else !( diff23==diff12)
-         ! this special case is isotropic:
-         ! therefore assign main axes as close as to be to the cartesian xyz
+!        this special case is isotropic:
+!        therefore assign main axes as close as to be to the cartesian xyz
          Do i=1,3
             gtens(i)=MAIN(i)
             maxes(i,i)=1.0_wp

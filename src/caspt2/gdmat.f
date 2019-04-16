@@ -47,7 +47,7 @@
       DO ISYM=1,NSYM
        NB=NBAS(ISYM)
        IF (NB.GT.0) THEN
-         CALL DCOPY_( (NB*(NB+1))/2,0.0D0,0,GDAO(IDAB+1),1)
+         CALL DCOPY_( (NB*(NB+1))/2,[0.0D0],0,GDAO(IDAB+1),1)
          NW=NUSE(ISYM)
          IF(NW.GT.0) THEN
           IW1=ISTART(ISYM)

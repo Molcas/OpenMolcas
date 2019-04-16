@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine Make_Labels(LblCbs,LblSbs,MxFnc,iAngMx)
       Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
+#include "angtp.fh"
       Character*8 LblCBs(MxFnc), LblSBs(MxFnc)
       Character Sgn*3
 *

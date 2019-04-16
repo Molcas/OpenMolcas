@@ -214,9 +214,9 @@ C
      &                              Work(jD),nSsh(iSym),
      &                        0.0d0,Work(kto),nBas(iSym))
            iOff=iOff+nSsh(iSym)**2
-           TrDF(iSym)=ddot_(nSsh(iSym),Work(ip_Z),1,1.0d0,0)
+           TrDF(iSym)=ddot_(nSsh(iSym),Work(ip_Z),1,[1.0d0],0)
            ns_V(iSym)=int(vfrac*nSsh(iSym))
-           TrDP(iSym)=ddot_(ns_V(iSym),Work(ip_Z),1,1.0d0,0)
+           TrDP(iSym)=ddot_(ns_V(iSym),Work(ip_Z),1,[1.0d0],0)
          endif
          jOff=jOff+nBas(iSym)**2
       End Do

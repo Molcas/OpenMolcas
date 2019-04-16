@@ -115,8 +115,8 @@
      &                OHTr,nOF,nBas(iSym))
 *
 *---------- Put a unit matrix into the eigenvector matrix
-            call dcopy_(nOF*nOF,Zero,0,EiVe,      1)
-            call dcopy_(nOF,    One, 0,EiVe,nOF + 1)
+            call dcopy_(nOF*nOF,[Zero],0,EiVe,      1)
+            call dcopy_(nOF,    [One], 0,EiVe,nOF + 1)
 *
 *---------- Add small random number to the one-electron Hamiltonian
 *           Not done here anymore, done in routine scram called

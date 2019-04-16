@@ -26,10 +26,10 @@ c  ************************************
       nfinal=nfinal+1
 
       if((.not.variat).and.up2date_cvb('SVB'))then
-        call add_info('SVB',abs(svb),1,7)
+        call add_info('SVB',[abs(svb)],1,7)
       endif
       if((.not.variat).and.up2date_cvb('EVB'))then
-        call add_info('EVB',evb,1,7)
+        call add_info('EVB',[evb],1,7)
       endif
       return
       entry finalresult_init_cvb()

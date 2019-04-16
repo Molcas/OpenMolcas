@@ -22,7 +22,7 @@
 #include "Input.fh"
 #include "Pointers.fh"
 #include "negpre.fh"
-      Integer iSM(1),LSPC(1),iSPC(1)
+      Integer iSM(1),LSPC(1),iSPC(1),IDUM(1)
 *
 *     This is just a interface to hide Jeppe from the rest of the world
 *     we dont want to let world see the work of the danish

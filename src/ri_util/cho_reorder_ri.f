@@ -35,7 +35,7 @@ C     -----------------------------------------------
 
       liF2RS = nBasT*(nBasT+1)/2
       Call GetMem('CR_RI_F2RS','Allo','Inte',ipiF2RS,liF2RS)
-      Call iCopy(liF2RS,0,0,iWork(ipiF2RS),1)
+      Call iCopy(liF2RS,[0],0,iWork(ipiF2RS),1)
       Do iRS = 1,nnBstR(iSym,1)
          iRS_tot = iiBstR(iSym,1) + iRS
          na = iRS2F(1,iRS_tot)

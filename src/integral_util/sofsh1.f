@@ -40,6 +40,7 @@
       Integer nShBF(0:nSym-1,nSkal), iShOff(0:nSym-1,nSkal),
      &        iSh2Sh(0:nSym-1,nSkal), iSO2Sh(nSOs), iSD(0:nSD,nSkal),
      &        nShIrp(0:nSym-1),nShOff(0:7),icntr(nSkal)
+      Dimension iTmp(1)
 *
 *     Call QEnter('SOFSh1')
 *

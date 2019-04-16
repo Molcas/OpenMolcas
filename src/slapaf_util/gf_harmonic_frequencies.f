@@ -21,7 +21,7 @@
 *     Compute eigenvectors and eigenfunctions
 *
       Call FZero(Tmp1,mInter**2)
-      call dcopy_(nX,One,0,Tmp1,mInter+1)
+      call dcopy_(nX,[One],0,Tmp1,mInter+1)
       Call NIDiag_new(Tmp2,Tmp1,mInter,mInter,0)
 *
       Call FZero(EVal,2*mInter)

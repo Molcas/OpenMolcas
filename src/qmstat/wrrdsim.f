@@ -15,14 +15,27 @@
      &,Radie,nPart,Gamma,Gam,Esav)
       Implicit Real*8 (a-h,o-z)
       Dimension iTcSim(nTcSim)
+      Dimension Dum(1),iDum(1)
 
       Call iDaFile(iLu,iOpt,iTcSim,nTcSim,iDisk)
-      Call dDaFile(iLu,iOpt,Etot,1,iDisk)
-      Call dDaFile(iLu,iOpt,Radie,1,iDisk)
-      Call iDaFile(iLu,iOpt,nPart,1,iDisk)
-      Call dDaFile(iLu,iOpt,Gamma,1,iDisk)
-      Call dDaFile(iLu,iOpt,Gam,1,iDisk)
-      Call dDaFile(iLu,iOpt,Esav,1,iDisk)
+      Dum(1)=Etot
+      Call dDaFile(iLu,iOpt,Dum,1,iDisk)
+      Etot=Dum(1)
+      Dum(1)=Radie
+      Call dDaFile(iLu,iOpt,Dum,1,iDisk)
+      Radie=Dum(1)
+      iDum(1)=nPart
+      Call iDaFile(iLu,iOpt,iDum,1,iDisk)
+      nPart=iDum(1)
+      Dum(1)=Gamma
+      Call dDaFile(iLu,iOpt,Dum,1,iDisk)
+      Gamma=Dum(1)
+      Dum(1)=Gam
+      Call dDaFile(iLu,iOpt,Dum,1,iDisk)
+      Gam=Dum(1)
+      Dum(1)=Esav
+      Call dDaFile(iLu,iOpt,Dum,1,iDisk)
+      Esav=Dum(1)
 
       Return
       End

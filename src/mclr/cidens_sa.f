@@ -69,8 +69,8 @@
 
       Call GetMem('1Dens2','ALLO','Real',ipDe,n1dens)
       Call GetMem('2Dens2','ALLO','Real',ipP,n2dens)
-      call dcopy_(n1dens,0.0d0,0,rD,1)
-      call dcopy_(n2dens,0.0d0,0,rP,1)
+      call dcopy_(n1dens,[0.0d0],0,rD,1)
+      call dcopy_(n2dens,[0.0d0],0,rP,1)
 *
       nConfL=Max(ncsf(il),nint(xispsm(il,1)))
       nConfR=Max(ncsf(iR),nint(xispsm(iR,1)))

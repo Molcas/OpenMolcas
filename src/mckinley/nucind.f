@@ -45,11 +45,11 @@ c     iRout = 150
 c     iPrint = nPrint(iRout)
 c     Call qEnter('NAHSS')
 *
-      Call ICopy(nIrrep*16*9,0,0,JndHss,1)
-      Call iCopy(nIrrep*4*3,0,0,JndGrd,1)
-      Call LCopy(144,.False.,0,jfHss,1)
-      Call LCopy(4,.False.,0,Tr,1)
-      Call LCopy(12,.False.,0,jfGrd,1)
+      Call ICopy(nIrrep*16*9,[0],0,JndHss,1)
+      Call iCopy(nIrrep*4*3,[0],0,JndGrd,1)
+      Call LCopy(144,[.False.],0,jfHss,1)
+      Call LCopy(4,[.False.],0,Tr,1)
+      Call LCopy(12,[.False.],0,jfGrd,1)
 *
 *     COPY CNTLR MATRIXES
 *

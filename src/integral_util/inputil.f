@@ -206,6 +206,13 @@ c
           Call WarningMessage(2,'Error in Get_F')
           Call Quit_OnUserError()
       end
+*
+      subroutine Get_F1(icol,val)
+      implicit real*8 (a-h,o-z)
+      dimension dum(1)
+      call Get_F(icol,dum,1)
+      val=dum(1)
+      end
 
       subroutine Get_I(icol,ival,n)
       implicit real*8 (a-h,o-z)
@@ -242,6 +249,13 @@ c
 600       Call FindErrorLine
           Call WarningMessage(2,'Error in Get_I')
           Call Quit_OnUserError()
+      end
+*
+      subroutine Get_I1(icol,ival)
+      implicit real*8 (a-h,o-z)
+      dimension idum(1)
+      call Get_I(icol,idum,1)
+      ival=idum(1)
       end
 *
       Subroutine Get_S(icol,str,n)

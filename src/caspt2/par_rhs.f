@@ -30,6 +30,7 @@
 #include "caspt2.fh"
 #include "output.fh"
 #include "WrkSpc.fh"
+      DIMENSION DUMMY(1)
 
 C-SVC: loop over symmetry/cases, get local patch of RHS, write, and then
 C update the disk address in IOFFRHS
@@ -787,7 +788,7 @@ C          CALL GA_Fill (lg_W,0.0D0)
         END IF
       ELSE
         IF(FACT.EQ.0.0D00) THEN
-            CALL DCOPY_(NAS*NIS,0.0D0,0,WORK(lg_W),1)
+            CALL DCOPY_(NAS*NIS,[0.0D0],0,WORK(lg_W),1)
         ELSE
           IF(FACT.NE.1.0D00) THEN
             CALL DSCAL_(NAS*NIS,FACT,WORK(lg_W),1)
@@ -796,7 +797,7 @@ C          CALL GA_Fill (lg_W,0.0D0)
       END IF
 #else
       IF(FACT.EQ.0.0D00) THEN
-          CALL DCOPY_(NAS*NIS,0.0D0,0,WORK(lg_W),1)
+          CALL DCOPY_(NAS*NIS,[0.0D0],0,WORK(lg_W),1)
       ELSE
         IF(FACT.NE.1.0D00) THEN
           CALL DSCAL_(NAS*NIS,FACT,WORK(lg_W),1)

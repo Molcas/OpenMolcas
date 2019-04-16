@@ -42,9 +42,12 @@
 #include "mgrid.fh"
 
       Integer, intent(in)       :: iPrint
-      Integer, intent(in)       :: nneq      ! number of non-equivalent sites
-      Integer, intent(in)       :: neq(nneq), neqv ! number of equivalent sites of each type, neqv = MAXVAL(neq(:))
-      Integer, intent(in)       :: nexch(nneq), nmax ! number of equivalent sites of each type, neqv = MAXVAL(neq(:))
+!     number of non-equivalent sites
+      Integer, intent(in)       :: nneq
+!     number of equivalent sites of each type, neqv = MAXVAL(neq(:))
+      Integer, intent(in)       :: neq(nneq), neqv
+!     number of equivalent sites of each type, neqv = MAXVAL(neq(:))
+      Integer, intent(in)       :: nexch(nneq), nmax
       Character(1), intent(in)  :: itype(nneq)
       Integer, intent(in)       :: nCenter
       Integer, intent(in)       :: nLoc
@@ -54,17 +57,25 @@
       Integer, intent(in)       :: nss(nneq), nsfs(nneq)
       Character(180), intent(in) :: namefile_aniso(nneq)
 c  definition of the exchange:
-      Integer, intent(in)       :: exch                           ! total number of exchange states
-      Integer, intent(inout)    :: nPair                          ! number of metal pairs (number of interactions)
-      Integer, intent(inout)    :: i_pair(nPair,2)                ! index of the metal site in a given interacting pair
-      Integer, intent(in)       :: imaxrank(nPair,2)              ! index of the ITO ranks for each pair
+!     total number of exchange states
+      Integer, intent(in)       :: exch
+!     number of metal pairs (number of interactions)
+      Integer, intent(inout)    :: nPair
+!     index of the metal site in a given interacting pair
+      Integer, intent(inout)    :: i_pair(nPair,2)
+!     index of the ITO ranks for each pair
+      Integer, intent(in)       :: imaxrank(nPair,2)
       Integer, intent(in)       :: MxRank1, MxRank2
       Logical, intent(in)       :: Lines, AnisoLines3, AnisoLines9
       Logical, intent(in)       :: Dipol, DM_exchange, JITO_exchange
-      Real(kind=wp), intent(in) :: Jex(nPair)                     ! Lines exchange    ( 1 parameter / interacting pair)
-      Real(kind=wp), intent(in) :: JAex(nPair,3)                  ! Anisotropic Lines ( 3 parameter / interacting pair)
-      Real(kind=wp), intent(in) :: JAex9(nPair,3,3)               ! Anisotropic Lines full ( 9 parameters / interacting pair)
-      Real(kind=wp), intent(in) :: JDMex(nPair,3)                 ! Dzyaloshinsky-Morya exchange
+!     Lines exchange    ( 1 parameter / interacting pair)
+      Real(kind=wp), intent(in) :: Jex(nPair)
+!     Anisotropic Lines ( 3 parameter / interacting pair)
+      Real(kind=wp), intent(in) :: JAex(nPair,3)
+!     Anisotropic Lines full ( 9 parameters / interacting pair)
+      Real(kind=wp), intent(in) :: JAex9(nPair,3,3)
+!     Dzyaloshinsky-Morya exchange
+      Real(kind=wp), intent(in) :: JDMex(nPair,3)
       Real(kind=wp), intent(in) ::
      &                          JITOexR(nPair,MxRank1,-MxRank1:MxRank1,
      &                                        MxRank2,-MxRank2:MxRank2),
@@ -122,8 +133,10 @@ c  definition of mean field parameter
       Real(kind=wp), intent(in) :: zJ
 c  definintion of the crystal axes:
       Logical, intent(in)       :: Do_structure_abc
-      Real(kind=wp), intent(in) :: cryst(6) ! a, b, c, alpha, beta, gamma
-      Real(kind=wp), intent(in) :: coord(3) ! Cartesian coordinates of the main metal site, or center
+!     a, b, c, alpha, beta, gamma
+      Real(kind=wp), intent(in) :: cryst(6)
+!     Cartesian coordinates of the main metal site, or center
+      Real(kind=wp), intent(in) :: coord(3)
 c  definitions for blocking barrier
       Integer, intent(inout)    :: nBlock
       Logical, intent(inout)    :: compute_barrier

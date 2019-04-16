@@ -20,6 +20,7 @@
       Character*(LENIN) CName(MxAtom)
       Save Axis
       Character*3 Axis(3)
+      Dimension opnuc(1)
       Data Axis/' x ',' y ',' z '/
 *
       Call QEnter('espf_mltp')

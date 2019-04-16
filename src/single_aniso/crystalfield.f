@@ -48,8 +48,8 @@
 
       Call mma_allocate(gtens,3,'gtens')
       Call mma_allocate(zmagn,3,3,'zmagn')
-      Call dcopy_(  3,0.0_wp,0,gtens,1)
-      Call dcopy_(3*3,0.0_wp,0,zmagn,1)
+      Call dcopy_(  3,[0.0_wp],0,gtens,1)
+      Call dcopy_(3*3,[0.0_wp],0,zmagn,1)
       If(iopt.eq.1) Then
 c  coordinate system for decomposition of the CF matrix identic to the coordinate system
 c  of the main magnetic axes of the ground multiplet (NDIM(1))
@@ -99,8 +99,8 @@ c  of the main magnetic axes of the ground multiplet (NDIM(1))
       ! rotate the momentum:
       Call mma_allocate(DIPJ,3,nDIMcf,nDIMcf,'DIPJ')
       Call mma_allocate(SJ,3,nDIMcf,nDIMcf,'SJ')
-      Call zcopy_(3*nDIMcf*nDIMcf,(0.0_wp,0.0_wp),0,DIPJ,1)
-      Call zcopy_(3*nDIMcf*nDIMcf,(0.0_wp,0.0_wp),0,  SJ,1)
+      Call zcopy_(3*nDIMcf*nDIMcf,[(0.0_wp,0.0_wp)],0,DIPJ,1)
+      Call zcopy_(3*nDIMcf*nDIMcf,[(0.0_wp,0.0_wp)],0,  SJ,1)
       CALL rotmom2( DIPSO, nDIMCF, ZMAGN, DIPJ )
       CALL rotmom2(  S_SO, nDIMCF, ZMAGN,   SJ )
 
@@ -221,12 +221,12 @@ C============== End of variable declarations ==========================
       Call mma_allocate(HCF,nDIMcf,nDIMcf,'HCF')
 
       info=0
-      Call dcopy_(nDIMcf,0.0_wp,0,Winit,1)
-      Call dcopy_(nDIMcf,0.0_wp,0,Eloc,1)
-      Call dcopy_(6,0.0_wp,0,A,1)
-      Call zcopy_(nDIMcf*nDIMcf,(0.0_wp,0.0_wp),0,Zinit,1)
-      Call zcopy_(nDIMcf*nDIMcf,(0.0_wp,0.0_wp),0,Z,1)
-      Call zcopy_(nDIMcf*nDIMcf,(0.0_wp,0.0_wp),0,HCF,1)
+      Call dcopy_(nDIMcf,[0.0_wp],0,Winit,1)
+      Call dcopy_(nDIMcf,[0.0_wp],0,Eloc,1)
+      Call dcopy_(6,[0.0_wp],0,A,1)
+      Call zcopy_(nDIMcf*nDIMcf,[(0.0_wp,0.0_wp)],0,Zinit,1)
+      Call zcopy_(nDIMcf*nDIMcf,[(0.0_wp,0.0_wp)],0,Z,1)
+      Call zcopy_(nDIMcf*nDIMcf,[(0.0_wp,0.0_wp)],0,HCF,1)
 
       ! find the J-pseudospin:
       !iDir=3
@@ -269,7 +269,8 @@ C============== End of variable declarations ==========================
      &                    '-FIELD HAMILTONIAN:'
         Write(6,*)
         Call print_ZFS_naoya('J',Zinit,nDIMcf)
-      End If ! End  the checking of the main values of the initial crystal-field
+!     End  the checking of the main values of the initial crystal-field
+      End If
 
 C  calculating the coeficients of the crystal filed operators Bnm
 C    Akq=(2k+1)/(2J+1) * 1/|< J || O || J >|^2 * Trace{HCF*O(k,-q)}
@@ -310,9 +311,9 @@ c-----------------------------------------------------------------------
       Call individual_ranks(nDIMCF,BNC,BNS,HCF,'J',iprint)
 c-----------------------------------------------------------------------
 C  saving some information for tests:
-      CALL Add_Info('CRYS_BNMC_20',DBLE(BNC(2,0)),1,4)
-      CALL Add_Info('CRYS_BNMC_40',DBLE(BNC(4,0)),1,4)
-      CALL Add_Info('CRYS_BNMC_60',DBLE(BNC(6,0)),1,4)
+      CALL Add_Info('CRYS_BNMC_20',[DBLE(BNC(2,0))],1,4)
+      CALL Add_Info('CRYS_BNMC_40',[DBLE(BNC(4,0))],1,4)
+      CALL Add_Info('CRYS_BNMC_60',[DBLE(BNC(6,0))],1,4)
 c-----------------------------------------------------------------------
       ! for the interface related to CF gradient calculation:
       If (GRAD) Then
@@ -477,7 +478,7 @@ c-----------------------------------------------------------------------
 !==================================================================
       Write(6,'(A,ES20.10)') 'recover from Akq parameters'
       tdiff=0.0_wp
-      Call zcopy_(n*n,(0.0_wp,0.0_wp),0,HCF,1)
+      Call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,HCF,1)
       Do k=1,n-1
         Do q=0,k
           ! generate the operator matrix K=ik, Q=iq, dimension=na
@@ -516,7 +517,7 @@ c-----------------------------------------------------------------------
 !==================================================================
       Write(6,'(A,ES20.10)') 'recover from B and C parameters'
       tdiff=0.0_wp
-      Call zcopy_(n*n,(0.0_wp,0.0_wp),0,HCF,1)
+      Call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,HCF,1)
       Do k=1,n-1
         Do q=0,k
           Call Liviu_ESO(n,k,q,O,W,redME)
@@ -557,7 +558,7 @@ c-----------------------------------------------------------------------
 !==================================================================
       Write(6,'(A,ES20.10)') 'recover from Bstev'
       tdiff=0.0_wp
-      Call zcopy_(n*n,(0.0_wp,0.0_wp),0,HCF,1)
+      Call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,HCF,1)
       Do k=1,n-1
         Do q=0,k
           Call ESO(n,k,q,O,W,redME)

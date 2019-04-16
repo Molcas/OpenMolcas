@@ -33,7 +33,7 @@
       Fact=1.0d0
       If (dsym.lt.0) Fact=-Fact
       dsym=abs(dsym)
-      call dcopy_(nDens,0.0d0,0,ArrayOut,1)
+      call dcopy_(nDens,[0.0d0],0,ArrayOut,1)
       jT=0 ! dummy initialize
       i1=0 ! dummy initialize
       j1=0 ! dummy initialize

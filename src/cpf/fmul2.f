@@ -11,7 +11,7 @@
 * Copyright (C) 1986, Per E. M. Siegbahn                               *
 *               1986, Margareta R. A. Blomberg                         *
 ************************************************************************
-      SUBROUTINE FMUL2(A,B,C,NROW,NCOL,N)
+      SUBROUTINE FMUL2_CPF(A,B,C,NROW,NCOL,N)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION A(NROW,N),B(NCOL,N),CJ(200)
       DIMENSION C(NROW,NCOL)
@@ -19,7 +19,7 @@
       If ( nRow.gt.200 ) then
          WRITE(6,*)
       CALL XFLUSH(6)
-         WRITE(6,*) ' *** Error in Subroutine FMUL2 ***'
+         WRITE(6,*) ' *** Error in Subroutine FMUL2_CPF ***'
       CALL XFLUSH(6)
          WRITE(6,*) ' row dimension exceeds local buffer size'
       CALL XFLUSH(6)

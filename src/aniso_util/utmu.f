@@ -67,12 +67,12 @@ c  local variables:
 
 
       Call mma_allocate(TMP,EXCH,EXCH,'TMP')
-      Call zcopy_(3*EXCH*EXCH,(0.0_wp,0.0_wp),0,M2,1)
+      Call zcopy_(3*EXCH*EXCH,[(0.0_wp,0.0_wp)],0,M2,1)
 
       If(N.eq.EXCH) Then
 
          Do L=1,3
-            Call zcopy_( EXCH*EXCH,(0.0_wp,0.0_wp),0,TMP,1)
+            Call zcopy_( EXCH*EXCH,[(0.0_wp,0.0_wp)],0,TMP,1)
             Call ZGEMM_('C', 'N', EXCH, EXCH, EXCH, (1.0_wp,0.0_wp),
      &                        Z, EXCH,
      &                M1(L,:,:), EXCH,             (0.0_wp,0.0_wp),
@@ -86,7 +86,7 @@ c  local variables:
       Else
 
          Do L=1,3
-           Call zcopy_( EXCH*EXCH,(0.0_wp,0.0_wp),0,TMP,1)
+           Call zcopy_( EXCH*EXCH,[(0.0_wp,0.0_wp)],0,TMP,1)
            Call ZGEMM_('C', 'N',   N,   N,   N, (1.0_wp,0.0_wp),
      &              Z(1:N,1:N),   N,
      &           M1(L,1:N,1:N),   N,            (0.0_wp,0.0_wp),
@@ -96,7 +96,7 @@ c  local variables:
      &              Z(1:N,1:N),   N,            (0.0_wp,0.0_wp),
      &           M2(L,1:N,1:N),   N )
 
-           Call zcopy_( EXCH*EXCH,(0.0_wp,0.0_wp),0,TMP,1)
+           Call zcopy_( EXCH*EXCH,[(0.0_wp,0.0_wp)],0,TMP,1)
            Call ZGEMM_('C', 'N',   N, EXCH,   N, (1.0_wp,0.0_wp),
      &              Z(1:N,1:N),   N,
      &        M1(L,1:N,1:EXCH),   N,            (0.0_wp,0.0_wp),
@@ -228,12 +228,12 @@ c  local variables:
       if(n==exch) then
 
          do l=1,3
-            call zcopy_( exch*exch,(0.0_wp,0.0_wp),0,tmp,1)
+            call zcopy_( exch*exch,[(0.0_wp,0.0_wp)],0,tmp,1)
             call zgemm_('c', 'n', exch, exch, exch, (1.0_wp,0.0_wp),
      &                        z, exch,
      &                 m(l,:,:), exch,             (0.0_wp,0.0_wp),
      &                      tmp, exch )
-            call zcopy_(exch*exch,(0.0_wp,0.0_wp),0,m(l,:,:),1)
+            call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,m(l,:,:),1)
             call zgemm_('n', 'n', exch, exch, exch, (1.0_wp,0.0_wp),
      &                      tmp, exch,
      &                        z, exch,             (0.0_wp,0.0_wp),
@@ -243,19 +243,19 @@ c  local variables:
       else
 
          do l=1,3
-           call zcopy_( exch*exch,(0.0_wp,0.0_wp),0,tmp,1)
+           call zcopy_( exch*exch,[(0.0_wp,0.0_wp)],0,tmp,1)
            call zgemm_('c', 'n',   n,   n,   n, (1.0_wp,0.0_wp),
      &              z(1:n,1:n),   n,
      &            m(l,1:n,1:n),   n,            (0.0_wp,0.0_wp),
      &                     tmp,   n )
-            call zcopy_(n*n,(0.0_wp,0.0_wp),0,m(l,1:n,1:n),1)
+            call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,m(l,1:n,1:n),1)
 
            call zgemm_('n', 'n',   n,    n,   n, (1.0_wp,0.0_wp),
      &                     tmp,   n,
      &              z(1:n,1:n),   n,            (0.0_wp,0.0_wp),
      &            m(l,1:n,1:n),   n )
 
-           call zcopy_( exch*exch,(0.0_wp,0.0_wp),0,tmp,1)
+           call zcopy_( exch*exch,[(0.0_wp,0.0_wp)],0,tmp,1)
            call zgemm_('c', 'n',   n, exch,   n, (1.0_wp,0.0_wp),
      &              z(1:n,1:n),   n,
      &         m(l,1:n,1:exch),   n,            (0.0_wp,0.0_wp),
@@ -316,7 +316,8 @@ c  local variables:
       Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
 #include "stdalloc.fh"
       Integer, intent(in)            :: EXCH, N
-      Complex(kind=wp), intent(inout):: ML(EXCH,EXCH) ! one projection is done
+!     one projection is done
+      Complex(kind=wp), intent(inout):: ML(EXCH,EXCH)
       Complex(kind=wp), intent(in)   ::  Z(N,N)
 c  local variables:
       Integer          :: I,J,i1,j1
@@ -380,12 +381,12 @@ c  local variables:
 
 
       If(N==EXCH) Then
-         Call zcopy_( EXCH*EXCH,(0.0_wp,0.0_wp),0,TMP,1)
+         Call zcopy_( EXCH*EXCH,[(0.0_wp,0.0_wp)],0,TMP,1)
          Call zgemm_('C', 'N', EXCH, EXCH, EXCH, (1.0_wp,0.0_wp),
      &                     Z, EXCH,
      &                    ML, EXCH,             (0.0_wp,0.0_wp),
      &                   TMP, EXCH )
-         Call zcopy_(EXCH*EXCH,(0.0_wp,0.0_wp),0,ML(:,:),1)
+         Call zcopy_(EXCH*EXCH,[(0.0_wp,0.0_wp)],0,ML(:,:),1)
          Call zgemm_('N', 'N', EXCH, EXCH, EXCH, (1.0_wp,0.0_wp),
      &                   TMP, EXCH,
      &                     Z, EXCH,             (0.0_wp,0.0_wp),
@@ -393,19 +394,19 @@ c  local variables:
 
       Else
 
-         Call zcopy_( EXCH*EXCH,(0.0_wp,0.0_wp),0,TMP,1)
+         Call zcopy_( EXCH*EXCH,[(0.0_wp,0.0_wp)],0,TMP,1)
          Call ZGEMM_('C', 'N',   N,   N,   N, (1.0_wp,0.0_wp),
      &            Z(1:N,1:N),   N,
      &           ML(1:N,1:N),   N,            (0.0_wp,0.0_wp),
      &                   TMP,   N )
-         Call zcopy_(N*N,(0.0_wp,0.0_wp),0,ML(1:N,1:N),1)
+         Call zcopy_(N*N,[(0.0_wp,0.0_wp)],0,ML(1:N,1:N),1)
 
          Call ZGEMM_('N', 'N',   N,    N,   N, (1.0_wp,0.0_wp),
      &                   TMP,   N,
      &            Z(1:N,1:N),   N,            (0.0_wp,0.0_wp),
      &          ML(1:N,1:N),   N )
 
-         Call zcopy_( EXCH*EXCH,(0.0_wp,0.0_wp),0,TMP,1)
+         Call zcopy_( EXCH*EXCH,[(0.0_wp,0.0_wp)],0,TMP,1)
          Call ZGEMM_('C', 'N',   N, EXCH,   N, (1.0_wp,0.0_wp),
      &            Z(1:N,1:N),   N,
      &        ML(1:N,1:EXCH),   N,            (0.0_wp,0.0_wp),

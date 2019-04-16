@@ -22,7 +22,7 @@
 #include "exterm.fh"
 #include "chomp2g_alaska.fh"
 #include "WrkSpc.fh"
-      Real*8  Ajk,Fac_ij, Fac_kl
+      Real*8  Ajk,Fac_ij, Fac_kl, dum(1)
 
       Character*16 SECNAM
       Parameter (SECNAM = 'Compute_A_jk_mp2')
@@ -31,7 +31,8 @@
       If(imp2prpt .eq. 2) Then
          lTot = 1
          iAdrA = nVec*(kVec-1) + jVec
-         Call dDaFile(LuAVector(iOpt),2,Ajk_mp2,lTot,iAdrA)
+         Call dDaFile(LuAVector(iOpt),2,dum,lTot,iAdrA)
+         Ajk_mp2=dum(1)
          Ajk = Ajk + (Ajk_mp2*Fac_kl*Fac_ij)
       End If
 

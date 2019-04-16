@@ -559,10 +559,10 @@ c      nprint(26)=99
          Write (LuWr,*)
       End If
 *
-      Call ICopy(mxdc*8,0,0,IndDsp,1)
-      Call ICopy(mxdc*3,0,0,InxDsp,1)
-      call dcopy_(3*MxSym*mxdc,One,0,Disp_Fac,1)
-      Call ICopy(3*mxdc,1,0,mult_Disp,1)
+      Call ICopy(mxdc*8,[0],0,IndDsp,1)
+      Call ICopy(mxdc*3,[0],0,InxDsp,1)
+      call dcopy_(3*MxSym*mxdc,[One],0,Disp_Fac,1)
+      Call ICopy(3*mxdc,[1],0,mult_Disp,1)
       nDisp = 0
       Do iIrrep = 0, nIrrep-1
          lDisp(iIrrep) = 0
@@ -677,8 +677,8 @@ c      nprint(26)=99
          Call GetMem('Coor ','Allo','Real',ipC,lDisp(0)*4)
          Call GetMem('Car  ','Allo','Inte',ipCar,lDisp(0))
 *
-         call dcopy_(nTR*lDisp(0),Zero,0,Work(ipAm),1)
-         call dcopy_(4*lDisp(0),Zero,0,Work(ipC),1)
+         call dcopy_(nTR*lDisp(0),[Zero],0,Work(ipAm),1)
+         call dcopy_(4*lDisp(0),[Zero],0,Work(ipC),1)
 *
 *        Generate temporary information of the symmetrical
 *        displacements.
@@ -833,7 +833,7 @@ c      nprint(26)=99
             ipNew = ipAm + nTR*(iTemp(iTR)-1)
             ipIn  = ipTmp + nTR*(iTR-1)
             call dcopy_(nTR,Work(ipNew),1,Work(ipIn),1)
-            call dcopy_(nTR,Zero,0,Work(ipNew),1)
+            call dcopy_(nTR,[Zero],0,Work(ipNew),1)
          End Do
          If (iPrint.ge.99) Then
             Call RecPrt(' The A matrix',' ',Work(ipAm),nTR,lDisp(0))
@@ -858,8 +858,8 @@ c      nprint(26)=99
      &               0.0d0,Work(ipScr),nTR)
          If (IPrint.ge.99)
      &      Call RecPrt(' A-1*A',' ',Work(ipScr),nTR,lDisp(0))
-         call dcopy_(lDisp(0)**2,Zero,0,Work(ipAm),1)
-         call dcopy_(lDisp(0),One,0,Work(ipAm),lDisp(0)+1)
+         call dcopy_(lDisp(0)**2,[Zero],0,Work(ipAm),1)
+         call dcopy_(lDisp(0),[One],0,Work(ipAm),lDisp(0)+1)
          Do 1250 iTR = 1, nTR
             ldsp = iTemp(iTR)
             ipOut = ipScr + iTR - 1

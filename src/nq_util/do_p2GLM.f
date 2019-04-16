@@ -715,7 +715,7 @@ C            Write(6,'(A,1f28.20)') 'P2(4)   =',P2_ontop(4,iGrid)
 
                     do g_eff=1,nGrad_eff
                       dRhoA(1,iGrid,g_eff) = dRhoA(1,iGrid,g_eff) +
-     &                D1mo(kl)*dTabMO(1,k,g_eff,iGrid)*TabMO(1,iGrid,l)!+
+     &                D1mo(kl)*dTabMO(1,k,g_eff,iGrid)*TabMO(1,iGrid,l)
 
 
 !******************ADD STUFF FOR FTPBE HERE***************

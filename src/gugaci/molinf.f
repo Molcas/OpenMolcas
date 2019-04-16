@@ -188,6 +188,7 @@ c set the default convergence threshhold
       common /thresh/ vthreen,vthrealp,vthreresid
       common /mcorb/ lsmorb(max_orb),noidx(8)
       dimension lsmtmp(maxgdm)
+      dimension idum(1)
 
 c      open(nf1,file="drt.inp")
 c      read(nf1,*)
@@ -204,17 +205,23 @@ c write date into cidrt for ci calculation
       idisk=0
       call idafile(ludrt,2,noidx,2,idisk)
 ! group symmetry
-      call idafile(ludrt,2,ng_sm,1,idisk)
+      call idafile(ludrt,2,idum,1,idisk)
+      ng_sm=idum(1)
 ! state symmetry
-      call idafile(ludrt,2,ns_sm,1,idisk)
+      call idafile(ludrt,2,idum,1,idisk)
+      ns_sm=idum(1)
 ! number of roots to be cal
-      call idafile(ludrt,2,nroot,1,idisk)
+      call idafile(ludrt,2,idum,1,idisk)
+      nroot=idum(1)
 ! number of corelation electrons
-      call idafile(ludrt,2,n_electron,1,idisk)
+      call idafile(ludrt,2,idum,1,idisk)
+      n_electron=idum(1)
 ! number of active electrons
-      call idafile(ludrt,2,nactel,1,idisk)
+      call idafile(ludrt,2,idum,1,idisk)
+      nactel=idum(1)
 ! spin symmetry of the state, 2s+1
-      call idafile(ludrt,2,ispin,1,idisk)
+      call idafile(ludrt,2,idum,1,idisk)
+      ispin=idum(1)
 ! dbl orb
       call idafile(ludrt,2,nlsm_dbl,8,idisk)
 ! act orb
@@ -336,10 +343,12 @@ c write date into cidrt for ci calculation
       logic_mrelcas=.false.
       logic_assign_actorb=.false.
 
-      call idafile(ludrt,2,imrcas_case,1,idisk)
+      call idafile(ludrt,2,idum,1,idisk)
+      imrcas_case=idum(1)
       if(imrcas_case.eq.2) then
         logic_mr=.true.
-        call idafile(ludrt,2,n_ref,1,idisk)
+        call idafile(ludrt,2,idum,1,idisk)
+        n_ref=idum(1)
         do i=1,n_ref
           call idafile(ludrt,2,iref_occ(1,i),norb_inn,idisk)
         enddo

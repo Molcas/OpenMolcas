@@ -28,7 +28,7 @@
       data thresh/1.d-8/
 
       if(nzeta.gt.0)then
-        call fmove(orbs,orbinv,norb*norb)
+        call fmove_cvb(orbs,orbinv,norb*norb)
         call mxinv_cvb(orbinv,norb)
       endif
 

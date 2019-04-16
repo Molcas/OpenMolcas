@@ -23,8 +23,8 @@
             Work(iOff)=S(i,j)
          End Do
       End Do
-      call dcopy_(nDim**2,Zero,0,Work(ip_B),1)
-      call dcopy_(nDim,One,0,Work(ip_B),nDim+1)
+      call dcopy_(nDim**2,[Zero],0,Work(ip_B),1)
+      call dcopy_(nDim,[One],0,Work(ip_B),nDim+1)
 *
       Call Lowdin_(S,Work(ip_S),C,nDim,nDim,Work(ip_B))
 *

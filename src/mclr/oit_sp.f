@@ -40,11 +40,11 @@
       Call GetMem('FTemp','ALLO','REAL',ipFock,ndens2)
       Call GetMem('QTemp','ALLO','REAL',ipq,ndens2)
       Call GetMem('QTemp','ALLO','REAL',ipq1,ndens2)
-      call dcopy_(nmba,0.0d0,0,rm1,1)
-      call dcopy_(nmba,0.0d0,0,rm2,1)
-      call dcopy_(ndens2,0.0d0,0,Focki,1)
-      call dcopy_(ndens2,0.0d0,0,Work(ipQ),1)
-      call dcopy_(ndens2,0.0d0,0,Work(ipQ1),1)
+      call dcopy_(nmba,[0.0d0],0,rm1,1)
+      call dcopy_(nmba,[0.0d0],0,rm2,1)
+      call dcopy_(ndens2,[0.0d0],0,Focki,1)
+      call dcopy_(ndens2,[0.0d0],0,Work(ipQ),1)
+      call dcopy_(ndens2,[0.0d0],0,Work(ipQ1),1)
       Call Unc(rkappa,Work(ipK),isym,r1)
 
       Call R2ElInt_SP(Work(ipK),rm1,rm2,
@@ -53,7 +53,7 @@
 *
 *
 *
-      call dcopy_(ndens2,0.0d0,0,Work(ipFock),1)
+      call dcopy_(ndens2,[0.0d0],0,Work(ipFock),1)
 *
 *
 *     Q  = sum(jkl)=(pj|kl)d(ijkl)

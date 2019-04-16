@@ -37,11 +37,11 @@ c local variables:
 
       ! initialization
 
-c      Call dcopy_(     N       ,  0.0_wp        , 0,    WM, 1)
-c      Call dcopy_(  (3*N-2)    ,  0.0_wp        , 0, RWORK, 1)
-c      Call zcopy_(   N**2      , (0.0_wp,0.0_wp), 0,    ZM, 1)
-c      Call zcopy_(  (N*(N+1)/2), (0.0_wp,0.0_wp), 0,  HZEE, 1)
-c      Call zcopy_(  (2*N-1)    , (0.0_wp,0.0_wp), 0,  WORK, 1)
+c      Call dcopy_(     N       ,  [0.0_wp]        , 0,    WM, 1)
+c      Call dcopy_(  (3*N-2)    ,  [0.0_wp]        , 0, RWORK, 1)
+c      Call zcopy_(   N**2      , [(0.0_wp,0.0_wp)], 0,    ZM, 1)
+c      Call zcopy_(  (N*(N+1)/2), [(0.0_wp,0.0_wp)], 0,  HZEE, 1)
+c      Call zcopy_(  (2*N-1)    , [(0.0_wp,0.0_wp)], 0,  WORK, 1)
          WM=0.0_wp
       RWORK=0.0_wp
         ZM=(0.0_wp,0.0_wp)
@@ -62,8 +62,8 @@ c      Call zcopy_(  (2*N-1)    , (0.0_wp,0.0_wp), 0,  WORK, 1)
       dZ_c=CMPLX(dZ,0.0_wp,wp)
       zJ_c=CMPLX(zJ,0.0_wp,wp)
       mB_c=CMPLX(mB,0.0_wp,wp)
-      Call zcopy_(N, (0.0_wp,0.0_wp), 0,  W_c, 1)
-      Call zcopy_(3, (0.0_wp,0.0_wp), 0,  S_c, 1)
+      Call zcopy_(N, [(0.0_wp,0.0_wp)], 0,  W_c, 1)
+      Call zcopy_(3, [(0.0_wp,0.0_wp)], 0,  S_c, 1)
       Do i=1,N
          W_c(i)=CMPLX(W(i),0.0_wp,wp)
       End Do
