@@ -87,8 +87,8 @@
           Work(ij)=Inrt(i,j)
         End Do
       End Do
-      call dcopy_(3*3,Zero,0,Work(ipEVec),1)
-      call dcopy_(3,One,0,Work(ipEVec),3+1)
+      call dcopy_(3*3,[Zero],0,Work(ipEVec),1)
+      call dcopy_(3,[One],0,Work(ipEVec),3+1)
       Call Jacob (Work(ipEVal),Work(ipEVec),3,3)
       Call Jacord(Work(ipEVal),Work(ipEVec),3,3)
       Do i = 1, 3

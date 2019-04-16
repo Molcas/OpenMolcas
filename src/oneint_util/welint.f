@@ -129,7 +129,7 @@ c Avoid unused argument warnings
          Call Unused_real_array(ZInv)
          Call Unused_integer(nHer)
          Call Unused_real_array(Ccoor)
-         Call Unused_real_array(nOrdOp)
+         Call Unused_integer(nOrdOp)
          Call Unused_integer_array(lOper)
          Call Unused_integer_array(iChO)
          Call Unused_integer_array(iStabM)

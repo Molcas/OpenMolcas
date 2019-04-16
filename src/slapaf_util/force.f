@@ -17,6 +17,7 @@
       Real*8 GrdX(3*nAtom), BMx(3*nAtom,3*nAtom),
      &       Grad(nInter,Iter), Degen(3*nAtom)
       Character Name(nAtom)*(LENIN), Lbl(nInter)*8
+      Dimension Dummy(1)
 *
 #ifdef _DEBUG_
       Call RecPrt('In Force:BMx ',' ',BMx ,3*nAtom,nInter)

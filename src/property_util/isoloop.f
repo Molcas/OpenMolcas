@@ -319,7 +319,7 @@
 #include "constants2.fh"
 *
       iprint=0
-      call dcopy_(nX**2,0.0d0,0,Tmp1,1)
+      call dcopy_(nX**2,[0.0d0],0,Tmp1,1)
       Do i = 1, nX
        ii=(i-1)/3+1
        Do j=1,nX
@@ -331,11 +331,10 @@
 *
       nAux = 2 * nX
       iOpt=1
-      islct=0
       If ( nX.gt.0 ) then
         Call Not_DGeEv(iOpt,H,nX,
      &             EVal,EVec,nX,
-     &             iSlct,nX,Tmp2,nAux)
+     &             nX,Tmp2,nAux)
       End If
 *
 *-----Compute the harmonic frequencies

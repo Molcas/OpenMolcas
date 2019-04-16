@@ -22,7 +22,8 @@
       Logical, intent(in)          :: smagn
       Logical, intent(in)          :: m_paranoid
 c ab initio data:
-      Real(kind=wp), intent(in)    :: ESO(nss)  ! exchange energies printed out in the previous part
+!     exchange energies printed out in the previous part
+      Real(kind=wp), intent(in)    :: ESO(nss)
       Real(kind=wp), intent(in)    :: EM, zJ, thrs
       Real(kind=wp), intent(in)    :: H_torq, T_torq
       Real(kind=wp), intent(in)    :: ma(3,3) ! main magnetic axes
@@ -34,9 +35,12 @@ c magnetic field strength and orientation data:
       Integer       :: nPlanes
       Parameter (nPlanes=1)
 !      Real(kind=wp) :: dlth
-      Real(kind=wp), allocatable :: W(:)    ! W(NM) ! Zeeman exchange energies
-      Real(kind=wp)              :: ZT    ! ZT ! total statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ST(:) ! ST(3) ! total spin magnetisation,
+      Real(kind=wp), allocatable :: W(:)
+!                                   W(NM) ! Zeeman exchange energies
+      Real(kind=wp)              :: ZT(1)!
+!                                   ZT ! total statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ST(:)
+!                                   ST(3) ! total spin magnetisation,
       Real(kind=wp), allocatable :: MT(:) ! MT(3) ! total magnetisation
       Real(kind=wp), allocatable :: dX(:) ! dX(AngPoints)
       Real(kind=wp), allocatable :: dY(:) ! dY(AngPoints)
@@ -45,9 +49,10 @@ c magnetic field strength and orientation data:
       Complex(kind=wp), allocatable :: M(:,:,:)
       Complex(kind=wp), allocatable :: S(:,:,:)
 c magnetic torque
-      !Real(kind=wp), allocatable :: tx(:,:) ! tx(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque
-      Real(kind=wp), allocatable :: ty(:) ! ty(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque
-      !Real(kind=wp), allocatable :: tz(:,:) ! tz(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque
+!     Real(kind=wp), allocatable :: tx(:,:) ! tx(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque
+      Real(kind=wp), allocatable :: ty(:)
+!                                   ty(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque
+!     Real(kind=wp), allocatable :: tz(:,:) ! tz(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque
 c magnetic and spin moments (i.e. the BIG matrices):
       Character(len=99):: STLNE1, STLNE2
       Real(kind=wp)    :: cm3tomB, g(3),mg(3,3)!,ma_inv(3,3)!,det
@@ -116,43 +121,43 @@ c      End If
       If(nM>0) Then
          ! Zeeman exchange energy spectrum
          Call mma_allocate(W,nM,'W')
-         Call dcopy_(nM,0.0_wp,0,W,1)
+         Call dcopy_(nM,[0.0_wp],0,W,1)
          mem_local=mem_local+nM*RtoB
       End If
 
       Call mma_allocate(ST,3,'ST')
-      Call dcopy_(3,0.0_wp,0,ST,1)
+      Call dcopy_(3,[0.0_wp],0,ST,1)
       mem_local=mem_local+3*RtoB
 
       Call mma_allocate(MT,3,'MT')
-      Call dcopy_(3,0.0_wp,0,MT,1)
+      Call dcopy_(3,[0.0_wp],0,MT,1)
       mem_local=mem_local+3*RtoB
 
       If(AngPoints>0) Then
          Call mma_allocate(dX,AngPoints,'dX')
          Call mma_allocate(dY,AngPoints,'dY')
          Call mma_allocate(dZ,AngPoints,'dZ')
-         Call dcopy_(AngPoints,0.0_wp,0,dX,1)
-         Call dcopy_(AngPoints,0.0_wp,0,dY,1)
-         Call dcopy_(AngPoints,0.0_wp,0,dZ,1)
+         Call dcopy_(AngPoints,[0.0_wp],0,dX,1)
+         Call dcopy_(AngPoints,[0.0_wp],0,dY,1)
+         Call dcopy_(AngPoints,[0.0_wp],0,dZ,1)
          mem_local=mem_local+3*AngPoints*RtoB
 
          Call mma_allocate(Ang,AngPoints,'Ang')
-         Call dcopy_(AngPoints,0.0_wp,0,Ang,1)
+         Call dcopy_(AngPoints,[0.0_wp],0,Ang,1)
          mem_local=mem_local+AngPoints*RtoB
       End If
 
       If( (nPlanes>0).and.(AngPoints>0) ) Then
          Call mma_allocate(ty,AngPoints,'ty')
-         Call dcopy_(AngPoints,0.0_wp,0,ty,1)
+         Call dcopy_(AngPoints,[0.0_wp],0,ty,1)
          mem_local=mem_local+AngPoints*RtoB
       End If
 
       If (nss>0) Then
          Call mma_allocate(M,3,nss,nss,'Mrot')
          Call mma_allocate(S,3,nss,nss,'Srot')
-         Call zcopy_(3*nss*nss,(0.0_wp,0.0_wp),0,M,1)
-         Call zcopy_(3*nss*nss,(0.0_wp,0.0_wp),0,S,1)
+         Call zcopy_(3*nss*nss,[(0.0_wp,0.0_wp)],0,M,1)
+         Call zcopy_(3*nss*nss,[(0.0_wp,0.0_wp)],0,S,1)
          mem_local=mem_local+2*3*nss*nss*CtoB
       End If
 
@@ -173,10 +178,10 @@ c      End If
           mg=0.0_wp
           Call atens( M(1:3,1:2,1:2), 2, g, mg, 2)
 !-----------------------------------------------------------------------
-      Call dcopy_(AngPoints,0.0_wp,0,dX,1)
-      Call dcopy_(AngPoints,0.0_wp,0,dY,1)
-      Call dcopy_(AngPoints,0.0_wp,0,dZ,1)
-      Call dcopy_(AngPoints,0.0_wp,0,Ang,1)
+      Call dcopy_(AngPoints,[0.0_wp],0,dX,1)
+      Call dcopy_(AngPoints,[0.0_wp],0,dY,1)
+      Call dcopy_(AngPoints,[0.0_wp],0,dZ,1)
+      Call dcopy_(AngPoints,[0.0_wp],0,Ang,1)
       !Call hdir2(AngPoints,2,dX(:),dY(:),dZ(:),Ang,2)
       AngStep=0.0_wp
       AngRad =0.0_wp
@@ -205,16 +210,16 @@ c      End If
          WRITE(STLNE2,'(A,I3)') 'Magnetization at point ',IM
          Call StatusLine(STLNE1,STLNE2)
          ZT=0.0_wp
-         Call dcopy_(nM,0.0_wp,0,W,1)
-         Call dcopy_(3,0.0_wp,0,MT,1)
-         Call dcopy_(3,0.0_wp,0,ST,1)
+         Call dcopy_(nM,[0.0_wp],0,W,1)
+         Call dcopy_(3,[0.0_wp],0,MT,1)
+         Call dcopy_(3,[0.0_wp],0,ST,1)
 c exchange magnetization:
          Call MAGN( nss, NM, dX(iM), dY(iM), dZ(iM),
      &              H_torq,
      &              eso, zJ, THRS,
      &              M, !DIPM,
      &              S, !  SM,
-     &              nT_torq, T_torq, smagn,
+     &              nT_torq, [T_torq], smagn,
      &              W,
      &              ZT,
      &              ST,

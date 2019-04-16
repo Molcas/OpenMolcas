@@ -22,6 +22,7 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       REAL*8, ALLOCATABLE :: Mass(:)
 #endif
       LOGICAL lHop
+      CHARACTER Title*72
 
 C
 C     Define local variables
@@ -71,7 +72,7 @@ C
 *>>>>>>>>>>>>>>>>>>>> PRIN <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1101 CONTINUE
       Line = Get_Ln(LuSpool)
-      CALL Get_I(1,iPrint,1)
+      CALL Get_I1(1,iPrint)
 *>>>>>>>>>>>>>>>>>>>> VV_First <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1102 CONTINUE
       WRITE(6,*) ' VV_First 1'
@@ -95,7 +96,7 @@ C
       WRITE(6,*) ' Dynamix starts reading THERMO.'
 #endif
       Line = Get_Ln(LuSpool)
-      CALL Get_I(1,THERMO,1)
+      CALL Get_I1(1,THERMO)
 #ifdef _DEBUG_
       WRITE(6,*) ' Dynamix ends reading THERMO.'
 #endif
@@ -106,7 +107,7 @@ C
       WRITE(6,*) ' Dynamix starts reading VELO.'
 #endif
       Line = Get_Ln(LuSpool)
-      CALL Get_I(1,VELO,1)
+      CALL Get_I1(1,VELO)
 #ifdef _DEBUG_
       WRITE(6,*) ' Dynamix ends reading VELO.'
 #endif
@@ -117,7 +118,7 @@ C
       WRITE(6,*) ' Dynamix starts reading DT.'
 #endif
       Line = Get_Ln(LuSpool)
-      CALL Get_F(1,DT,1)
+      CALL Get_F1(1,DT)
       CALL Put_dScalar('Timestep',DT)
 #ifdef _HDF5_
       call mh5_put_dset(dyn_dt,DT)
@@ -134,7 +135,7 @@ C
 *>>>>>>>>>>>>>>>>>>>> TIME <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1109 CONTINUE
       Line = Get_Ln(LuSpool)
-      CALL Get_F(1,TIME,1)
+      CALL Get_F1(1,TIME)
       GOTO 999
 *>>>>>>>>>>>>>>>>>>>> VelVer <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1110 CONTINUE
@@ -145,7 +146,7 @@ C     This is the keyword for Velocity Verlet algorithm
 *>>>>>>>>>>>>>>>>>>>> Hop    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1111 CONTINUE
       Line = Get_Ln(LuSpool)
-      CALL Get_I(1,maxHop,1)
+      CALL Get_I1(1,maxHop)
       lHop=.FALSE.
       CALL qpg_iScalar('MaxHops',lHop)
       IF (.NOT.lHop) THEN
@@ -161,7 +162,7 @@ C     This is the keyword for Velocity Verlet algorithm
 #ifdef _DEBUG_
       WRITE(6,*) ' Dynamix starts reading RESTART.'
 #endif
-      CALL Get_F(1,RESTART,1)
+      CALL Get_F1(1,RESTART)
       GOTO 999
 #ifdef _DEBUG_
       WRITE(6,*) ' Dynamix ends reading RESTART.'
@@ -173,7 +174,7 @@ C     This is the keyword for Velocity Verlet algorithm
       WRITE(6,*) ' Dynamix starts reading Temperature.'
 #endif
       Line = Get_Ln(LuSpool)
-      CALL Get_F(1,TEMP,1)
+      CALL Get_F1(1,TEMP)
 #ifdef _DEBUG_
       WRITE(6,*) ' Dynamix ends reading Temperature.'
 #endif

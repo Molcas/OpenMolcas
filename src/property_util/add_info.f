@@ -45,7 +45,7 @@ c     Logical is_error
       Character*15 Energy_File
       Character*13 GeoDataF
       Integer iGeoData,iuGeoData
-      Integer nIntCoord
+      Integer nIntCoord,iDum(1)
 #include "para_info.fh"
 *------------------------------------------------
 c If this is a fake parallel run (e.g. inside the parallel loop of CASPT2_gradient,
@@ -142,7 +142,8 @@ c666   Continue
             iuGeoData = 10
             iuGeoData = isFreeUnit(iuGeoData)
             Call DaName_WA(iuGeoData,GeoDataF)
-            Call iDaFile(iuGeoData,2,nIntCoord,1,iGeoData)
+            Call iDaFile(iuGeoData,2,iDum,1,iGeoData)
+            nIntCoord=iDum(1)
             iGeoData=iGeoInfo(2)*(nIntCoord+1)+1
             Call dDaFile(iuGeoData,1,Array(nArray),1,iGeoData)
             Call DaClos(iuGeoData)

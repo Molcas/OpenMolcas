@@ -12,7 +12,7 @@
 *               1992, Markus P. Fuelscher                              *
 *               1992, Piotr Borowski                                   *
 ************************************************************************
-      SubRoutine Sort(EVal,EVec,n,nB)
+      SubRoutine SortEig(EVal,EVec,n,nB)
 ************************************************************************
 *                                                                      *
 *     purpose: Sort the set of eigenvalues and eigenvectors            *

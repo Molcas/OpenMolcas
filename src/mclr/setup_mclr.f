@@ -29,7 +29,7 @@
 ************************************************************************
 *                                                                      *
       ip=1
-      Call ICopy(8**3,0,0,ipMO,1)
+      Call ICopy(8**3,[0],0,ipMO,1)
 *
       nn=0
       nbmx=0
@@ -68,10 +68,10 @@
       nDensLT=0
       nCMO=0
       nDensC=0
-      Call iCopy(8**2,0,0,ipMat,1)
-      Call iCopy(8**2,0,0,ipMC,1)
-      Call iCopy(8**2,0,0,ipMatLT,1)
-      Call iCopy(8,0,0,ipCM,1)
+      Call iCopy(8**2,[0],0,ipMat,1)
+      Call iCopy(8**2,[0],0,ipMC,1)
+      Call iCopy(8**2,[0],0,ipMatLT,1)
+      Call iCopy(8,[0],0,ipCM,1)
 
       Do jS=1,nSym
          Do iS=1,js

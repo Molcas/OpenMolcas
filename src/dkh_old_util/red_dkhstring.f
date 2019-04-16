@@ -56,8 +56,8 @@ c
      *                 xdoperators(maxoperators),dwops(maxuops)
 #if defined(_MOLCAS_) || defined(MOLPRO)
 #include "WrkSpc.fh"
+      character operators(*),xoperators(*)
       character*(maxlength) opstring,xopstring
-      integer operators(*),xoperators(*)
 #else
       character*(maxlength) operators(maxoperators),
      *                      xoperators(maxoperators)
@@ -187,7 +187,7 @@ c
             idum2=0
             do 70 k=1,termcounter
 #if defined(_MOLCAS_) || defined(MOLPRO)
-              Call get_dkoperators(k,termstr,iwork(term))
+              Call get_dkoperators_i(k,termstr,iwork(term))
               Call removeB1 (termleng(k),dtcoeff(k),termstr)
               Call removeB2 (termleng(k),termstr)
               Call insert_ri (termleng(k),termstr)
@@ -199,7 +199,7 @@ c
               Call calc_orders (dkhscfflg,termleng(k),termorder(k,1),
      *                          termorder(k,2),termorder(k,3),termstr,
      *                          sorder,uorder)
-              Call put_dkoperators(k,termstr,iwork(term))
+              Call put_dkoperators_i(k,termstr,iwork(term))
 #else
               Call removeB1 (termleng(k),dtcoeff(k),term(k))
               Call removeB2 (termleng(k),term(k))
@@ -244,7 +244,7 @@ c
                   evenodd(j+idum4-1)=evenodd(j)
                   doperators(j+idum4-1)=dtcoeff(k)
 #if defined(_MOLCAS_) || defined(MOLPRO)
-                  Call copy_dkoperators(k,iwork(term),j+idum4-1,
+                  Call copy_dkoperators_ic(k,iwork(term),j+idum4-1,
      *                                  operators)
 #else
               operators(j+idum4-1)=term(k)
@@ -261,7 +261,7 @@ c
                   evenodd(j+idum4-1)=evenodd(j)
                   doperators(j+idum4-1)=dtcoeff(k)
 #if defined(_MOLCAS_) || defined(MOLPRO)
-                  Call copy_dkoperators(k,iwork(term),j+idum4-1,
+                  Call copy_dkoperators_ic(k,iwork(term),j+idum4-1,
      *                                  operators)
 #else
               operators(j+idum4-1)=term(k)
@@ -284,7 +284,7 @@ c
                 doperators(k)=doperators(k+1)
 #if defined(_MOLCAS_) || defined(MOLPRO)
 CMR Does this work?? Was adapted from above
-C               Call copy_dkoperators(k+1,iwork(term),k,operators)
+C               Call copy_dkoperators_ic(k+1,iwork(term),k,operators)
                 Call copy_dkoperators(k+1,operators,k,operators)
 #else
                 operators(k)=operators(k+1)
@@ -423,7 +423,7 @@ c
      *               abs(dtcoeff(k)).lt.dkhzerothrsh(i))  idum2=idum2+1
 c
 #if defined(_MOLCAS_) || defined(MOLPRO)
-              Call get_dkoperators(k,termstr,iwork(term))
+              Call get_dkoperators_i(k,termstr,iwork(term))
               Call removeB1 (termleng(k),dtcoeff(k),termstr)
               Call removeB2 (termleng(k),termstr)
               Call insert_ri (termleng(k),termstr)
@@ -431,7 +431,7 @@ c
               Call finalize (termleng(k),termstr,stimes,ttimes,t)
               Call finalize2 (termleng(k),termstr,uused,utimes,u,
      *                        uscrleng,uscrchar)
-              Call put_dkoperators(k,termstr,iwork(term))
+              Call put_dkoperators_i(k,termstr,iwork(term))
 #else
                 Call removeB1 (termleng(k),dtcoeff(k),term(k))
                 Call removeB2 (termleng(k),term(k))
@@ -468,7 +468,7 @@ c
                     xevenodd(j+idum4-1)=xevenodd(j)
                     xdoperators(j+idum4-1)=dtcoeff(k)
 #if defined(_MOLCAS_) || defined(MOLPRO)
-                    Call copy_dkoperators(k,iwork(term),j+idum4-1,
+                    Call copy_dkoperators_ic(k,iwork(term),j+idum4-1,
      *                                    xoperators)
 #else
                   xoperators(j+idum4-1)=term(k)
@@ -482,7 +482,7 @@ c
                     xevenodd(j+idum4-1)=xevenodd(j)
                     xdoperators(j+idum4-1)=dtcoeff(k)
 #if defined(_MOLCAS_) || defined(MOLPRO)
-                    Call copy_dkoperators(k,iwork(term),j+idum4-1,
+                    Call copy_dkoperators_ic(k,iwork(term),j+idum4-1,
      *                                    xoperators)
 #else
                   xoperators(j+idum4-1)=term(k)

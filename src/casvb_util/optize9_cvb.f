@@ -15,16 +15,17 @@
       implicit real*8 (a-h,o-z)
 #include "formats_cvb.fh"
       dimension hessdx(nparm),grad(nparm),dx(nparm)
+      dimension dum(1)
       save zero,tenth,half,one
       data zero/0d0/,tenth/1d-1/,half/.5d0/,one/1d0/
 
       call grad_cvb(grad)
 
-      dum=rand_cvb(.777d0)
+      dum(1)=rand_cvb(.777d0)
       do 100 iparm=1,nparm
 100   dx(iparm)=rand_cvb(zero)-half
       call nize_cvb(dx,1,dum,nparm,0,0)
-      call fmove(dx,hessdx,nparm)
+      call fmove_cvb(dx,hessdx,nparm)
       call hess_cvb(hessdx)
 
       write(6,'(2a)')' Simple check of gradient and Hessian using ',

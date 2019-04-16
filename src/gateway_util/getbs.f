@@ -255,8 +255,8 @@ C              Write(6,*) 'Fock operator is included'
         Call Get_iNumber(Words(2),lAng,iErr)    ! CGGn
         If (iErr.NE.0) Call Abend()             ! CGGn
       else                                      ! CGGn
-        call get_f(1,Charge,1)
-        if (inLn1) call get_i(2,lAng,1)
+        call get_f1(1,Charge)
+        if (inLn1) call get_i1(2,lAng)
       EndIf                                     ! CGGn
       If (iPrint.ge.99) Then
          Write (6,*) 'lAng, Charge=',lAng, Charge
@@ -294,9 +294,9 @@ C              Write(6,*) 'Fock operator is included'
            mCGTO(iAng)=0                                ! CGGn
          else                                           ! CGGn
            Line = Get_Ln(lUnit)
-           Call Get_i(1,nPrim,1)
+           Call Get_i1(1,nPrim)
            If (inLn1) then
-              Call Get_i(2,nCntrc,1)
+              Call Get_i1(2,nCntrc)
               nCGTO(iAng)=0
               mCGTO(iAng)=0
            Else
@@ -356,7 +356,7 @@ culf
             If (IfTest) Write (6,*) ' Standard case'
             Call FZero(DInf(iStrt),nPrim*nDntrc)
             If (UnContracted) Then
-               Call DCopy_(nPrim,One,0,DInf(iStrt),nPrim+1)
+               Call DCopy_(nPrim,[One],0,DInf(iStrt),nPrim+1)
             Else
                Do iPrim = 0, nPrim-1
                   Call Read_v(lUnit,DInf,iStrt+iPrim,iEndc,nPrim,Ierr)
@@ -469,8 +469,8 @@ culf
 *        Decontract if integrals required in the primitive basis
 *
          If (nPrim.eq.0) Go To 777
-         Call DCopy_(nPrim*nPrim,Zero,0,DInf(ipCff_p),1)
-         Call DCopy_(nPrim,One,0,DInf(ipCff_p),nPrim+1)
+         Call DCopy_(nPrim*nPrim,[Zero],0,DInf(ipCff_p),1)
+         Call DCopy_(nPrim,[One],0,DInf(ipCff_p),nPrim+1)
 *
 *------- Save the contraction coefficients once more after the coefficients.
 *        The second set will not be normalized!
@@ -516,7 +516,7 @@ culf
          If (isFock) Then
             FockOp=FockOp .and. .True.
             Line=Get_Ln(lUnit)
-            Call Get_i(1,nEorb,1)
+            Call Get_i1(1,nEorb)
             Do i=1,nEorb
                Line=Get_Ln(lUnit)
                Call Get_F(1,DInf(iEorb+(i-1)*nCntrc),nEorb)
@@ -527,7 +527,7 @@ culf
          Else If(isEorb) Then
             FockOp=FockOp .and. .True.
             Line=Get_Ln(lUnit)
-            Call Get_i(1,nEorb,1)
+            Call Get_i1(1,nEorb)
             If(nEorb.gt.0) Then
                Line=Get_Ln(lUnit)
                Call Get_F(1,DInf(iEorb),nEorb)
@@ -573,7 +573,7 @@ culf
          If (iPrint.ge.99)
      &      Write (6,*) ' Start reading PAMs'
          Call GetPAM(lUnit,ipExp,ipCff,nExp,nBasis,MxShll,iShll,Bline,
-     &               ipPAM2xp,ipPAM2cf,nPAM2)
+     &               ipPAM2xp,ipPAM2cf,nPAM2,DInf,nDInf)
 *
          If (inLn3.and. .not.inLn2) Then
             Close(lUnit)
@@ -704,7 +704,7 @@ culf
             iEnd = iStrt + 2*nExp(iShll)**2 -1
             ipAkl(iShll) = iStrt
 *---------- Dummy call to fill in the A matrix
-            Call DCopy_(nExp(iShll)**2,0.D+00,0,DInf(iStrt),1)
+            Call DCopy_(nExp(iShll)**2,[0.D+00],0,DInf(iStrt),1)
             If (iShll.lt.MxShll) ipExp(iShll+1) = iEnd + 1
          End Do
          Go To 9988
@@ -738,7 +738,7 @@ culf
             iEnd = iStrt + 2*nExp(iShll)**2 -1
             ipAkl(iShll) = iStrt
 *---------- Dummy call to fill in the A matrix
-            Call DCopy_(nExp(iShll)**2,0.0d+00,0,DInf(iStrt),1)
+            Call DCopy_(nExp(iShll)**2,[0.0d+00],0,DInf(iStrt),1)
             If (iShll.lt.MxShll) ipExp(iShll+1) = iEnd + 1
          End Do
          Go To 9988
@@ -753,7 +753,7 @@ culf
          End If
 *        Line = GetLn(lUnit)
          Line = Get_Ln(lUnit)
-         Call Get_i(1,nAIMP,1)
+         Call Get_i1(1,nAIMP)
          nSRO=nAIMP+1
          ipSRO_=iShll+1
          Do iAIMP = 0, nAIMP
@@ -765,7 +765,7 @@ culf
                Call Abend()
             End If
             Line = Get_Ln(lUnit)
-            Call Get_i(1,nPrim,1)
+            Call Get_i1(1,nPrim)
             iStrt = ipExp(iShll)
             nExp(iShll) = nPrim
             nBasis(iShll) = 0
@@ -785,7 +785,7 @@ culf
             iEnd = iStrt + 2*nExp(iShll)**2
             ipAkl(iShll) = iStrt
 *---------- Dummy call to fill in the A matrix
-            Call DCopy_(nExp(iShll)**2,0.0d+00,0,DInf(iStrt),1)
+            Call DCopy_(nExp(iShll)**2,[0.0d+00],0,DInf(iStrt),1)
             If (iShll.lt.MxShll) ipExp(iShll+1) = iEnd + 1
          End Do
          Go To 9988
@@ -807,7 +807,7 @@ culf
 *           will be removed)
 
          Line = Get_Ln(lUnit)
-         Call Get_F(1,RatioThres,1)
+         Call Get_F1(1,RatioThres)
 *
          nAIMP  = lAng
          ipSRO_=iShll+1
@@ -854,7 +854,7 @@ culf
             iEnd  = iStrt + 2*nExp(iShll)**2
             ipAkl(iShll) = iStrt
 *---------- Dummy call to fill in the A matrix
-            Call DCopy_(nExp(iShll)**2,0.0d+00,0,DInf(iStrt),1)
+            Call DCopy_(nExp(iShll)**2,[0.0d+00],0,DInf(iStrt),1)
             If (iShll.lt.MxShll) ipExp(iShll+1) = iEnd + 1
          End Do
          Go To 9988
@@ -871,7 +871,7 @@ culf
 *
       ipSoc_=iShll+1
       Line = Get_Ln(lUnit)
-      Call Get_I(1,mSOC,1)
+      Call Get_I1(1,mSOC)
       nSOC=mSOC+1
       IF (IfTest) Write(6,'(A,I4)') 'nSOC =',nSOC
       If (mSOC.lt.0) Go To 990
@@ -884,9 +884,9 @@ culf
             Call Quit_OnUserError()
          End If
          Line = Get_Ln(lUnit)
-         Call Get_I(1,nPrim,1)
-         Call Get_I(2,nCntrc,1)
-         Call Get_I(3,mDel,1)
+         Call Get_I1(1,nPrim)
+         Call Get_I1(2,nCntrc)
+         Call Get_I1(3,mDel)
          nDel(iAng)=mDel
          If (IfTest) Write(6,*) 'nPrim = ',nPrim,' nCntrc = ',nCntrc
          If (IfTest) Write(6,*) 'nDeleted = ', mDel

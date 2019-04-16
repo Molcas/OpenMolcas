@@ -129,7 +129,7 @@
           B(k1, q1, k2,-q2) = J(k1, q1, k2,-q2)*cc1*cc2
           B(k1, q1, k2, q2) = J(k1, q1, k2, q2)*cc1*cc2
 
-          ! generate real parameters for Extended Stevens Operators formalism:
+!         generate real parameters for Extended Stevens Operators formalism:
           If((q1>0).and.(q2>0)) Then
 ! BB = (Jmm + (-1)^q2 Jmp + (-1)^q1 Jpm + (-1)^(q1 + q2) Jpp);
                S(k1, q1, k2, q2) =        B( k1,-q1, k2,-q2)

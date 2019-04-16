@@ -150,7 +150,7 @@
       n8=.true.
       Int_Direct=.true.
 *
-      call dcopy_(nHess,Zero,0,Hess,1)
+      call dcopy_(nHess,[Zero],0,Hess,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -256,7 +256,7 @@
 *
       ipDTemp=ip_Dummy
       ipDIN=ip_Dummy
-      call dcopy_(nInt,Zero,0,Work(ipInt),1)
+      call dcopy_(nInt,[Zero],0,Work(ipInt),1)
       If (New_Fock) Then
          If (nmethod.ne.RASSCF) Then
             Call Get_D1ao_Var(ipDTemp,Length)
@@ -495,7 +495,7 @@ C        Do jS = 1, iS
                   Call QTrace()
                   Call Abend()
                End If
-               call dcopy_(iMemb,0.0d0,0,Work(ipMem),1)
+               call dcopy_(iMemb,[Zero],0,Work(ipMem),1)
             Else
                iMemb=0
             End If

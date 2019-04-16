@@ -364,7 +364,8 @@ C              Write (6,*) 'xBeta=',xBeta
      &                  dy,nLambda,
      &                  0.0d0,Work(ipTmp3),nInter)
             Call Free_Work(ipTmp2)
-            Call DaXpY_(nInter,-One,Work(ipTmp3),1,Work(ipTmp1),1) ! Sign
+!           Sign
+            Call DaXpY_(nInter,-One,Work(ipTmp3),1,Work(ipTmp1),1)
 *
             Call Free_Work(ipTmp3)
             Call FZero(dEdx(1,iIter),nInter-nLambda)

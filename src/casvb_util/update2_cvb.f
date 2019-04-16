@@ -24,6 +24,7 @@
       dimension dxorg(npr),dx(npr)
       dimension iorts(2,nort)
       dimension sorbsinv(norb,norb)
+      dimension dum(1)
       save zero
       data zero/0d0/
 
@@ -33,8 +34,8 @@
         call vecprint_cvb(dx,npr)
       endif
 
-      call fmove(orbsp,orbs,norb*norb)
-      call fmove(cvbp,cvb,nvb)
+      call fmove_cvb(orbsp,orbs,norb*norb)
+      call fmove_cvb(cvbp,cvb,nvb)
 
       if(orbopt)then
         call mxattb_cvb(orbsp,orbsp,norb,norb,norb,sorbs)
@@ -50,7 +51,7 @@
 200     continue
 
 c  2nd-order correction for orthogonality constraints:
-        call fmove(sorbs,sorbsinv,norb*norb)
+        call fmove_cvb(sorbs,sorbsinv,norb*norb)
         call mxinv_cvb(sorbsinv,norb)
         do 500 iort=1,nort
         iorb=iorts(1,iort)

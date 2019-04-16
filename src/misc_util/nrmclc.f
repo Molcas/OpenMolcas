@@ -41,7 +41,7 @@
       Character SubNam*(*), MatNam*(*)
 *
       R = DDot_(lth,Vec,1,Vec,1)
-      Q = DDot_(lth,1.0D0,0,Vec,1)
+      Q = DDot_(lth,[1.0D0],0,Vec,1)
       S = 0.0D0
       Do i = 1, lth
          S = S + Vec(i)*DBLE(i)

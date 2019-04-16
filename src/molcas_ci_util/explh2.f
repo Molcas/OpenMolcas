@@ -114,7 +114,7 @@
 *
 *     If ( nSel.eq.nConf ) then
       If ( .true. ) then
-        CALL DCOPY_(MXXSEL*MXXSEL,0.0D0,0,EXPLV,1)
+        CALL DCOPY_(MXXSEL*MXXSEL,[0.0D0],0,EXPLV,1)
         DO 10 I=1,NSEL
           II=I+NSEL*(I-1)
           EXPLV(II)=1.0D00

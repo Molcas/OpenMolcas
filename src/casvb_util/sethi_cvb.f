@@ -14,14 +14,15 @@
       implicit real*8(a-h,o-z)
       dimension iarr(n)
 
-      call seth_cvb(n,1)
+      call seth_cvb([n],1)
       call seth_cvb(iarr,n)
       return
       end
       subroutine gethi_cvb(iarr,n)
       implicit real*8(a-h,o-z)
-      dimension iarr(n)
-      call geth_cvb(n,1)
+      dimension iarr(n), iaux(1)
+      call geth_cvb(iaux,1)
+      n=iaux(1)
       call geth_cvb(iarr,n)
       return
       end

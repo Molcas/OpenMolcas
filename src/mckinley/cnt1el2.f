@@ -98,7 +98,7 @@ c#include "print.fh"
 *
 *
       Call FZero(CCoor,3)
-      Call iCopy(nIrrep,0,0,IndGrd,1)
+      Call iCopy(nIrrep,[0],0,IndGrd,1)
       loper=0
       ii=1
       Do i=0,nirrep-1
@@ -124,13 +124,13 @@ c#include "print.fh"
       End Do
       nIC=0
       If (loper.eq.0) Return
-      Call ICopy(nIrrep,0,0,ip,1)
+      Call ICopy(nIrrep,[0],0,ip,1)
       Do iIrrep =0,nIrrep-1
          If (iAnd(2**iIrrep,loper).ne.0) Then
             LenInt=nFck(iIrrep)
             nIc=nIC+1
             Call GetMem(Label,'ALLO','REAL',ip(NIC),LenInt)
-            call dcopy_(LenInt,Zero,0,Work(ip(nIC)),1)
+            call dcopy_(LenInt,[Zero],0,Work(ip(nIC)),1)
          End If
       End Do
       Call SOS(iStabO,nStabO,1)
@@ -223,8 +223,8 @@ c#include "print.fh"
             If ((.not.DiffCnt).and.(.not.DiffOp)) Goto 131
             call dcopy_(3,Work(jxyz),1,B,1)
             AeqB = iS.eq.jS
-            Call lCopy(6,.false.,0,IfGrd,1)
-            Call lCopy(2,.false.,0,trans,1)
+            Call lCopy(6,[.false.],0,IfGrd,1)
+            Call lCopy(2,[.false.],0,trans,1)
             If (mdci.eq.iDCnt) Then
                 IfGrd(idCar,1)=.true.
             End If
@@ -252,7 +252,7 @@ c#include "print.fh"
 c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
             If (nSO.eq.0) Go To 131
             Call GetMem(' SO ','ALLO','REAL',ipSO,nSO*iBas*jBas)
-            call dcopy_(nSO*iBas*jBas,Zero,0,Work(ipSO),1)
+            call dcopy_(nSO*iBas*jBas,[Zero],0,Work(ipSO),1)
 *
 *           Find the DCR for A and B
 *
@@ -453,7 +453,8 @@ c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
             If (iadd.ne.0) Then
                irc=-1
                iopt=0
-               call rdmck(irc,iOpt,Lab_dsk,jdisp,work(ipscr),koper)
+               iipscr=ip_of_iWork_d(work(ipscr))
+               call rdmck(irc,iOpt,Lab_dsk,jdisp,iwork(iipscr),koper)
                If (irc.ne.0)
      & Call SysAbendMsg('cnt1el2','error during read in rdmck',' ')
                call daxpy_(nfck(iirrep),one,

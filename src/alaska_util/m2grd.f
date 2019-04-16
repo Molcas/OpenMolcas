@@ -220,7 +220,7 @@
                      End If
  220              Continue
 *-----------------No derivatives with respect to the fourth center.
-                  Call ICopy(3,0,0,JndGrd(1,4),1)
+                  Call ICopy(3,[0],0,JndGrd(1,4),1)
                   JfGrad(1,4) = .False.
                   JfGrad(2,4) = .False.
                   JfGrad(3,4) = .False.

@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE CI_SELECT(NREF,AREF,PLEN,NSEL,CISEL,NRROOT,IROOT)
+      SUBROUTINE CI_SELECT_MRCI(NREF,AREF,PLEN,NSEL,CISEL,NRROOT,IROOT)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION AREF(NREF,NREF),CISEL(NREF,*),IROOT(NRROOT)
       DIMENSION PLEN(NREF)

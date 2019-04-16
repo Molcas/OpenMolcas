@@ -64,6 +64,26 @@
      &       Wk002(m002),Wk003(m003),Wk004(m004), Con(nAlpha*nBeta)
       Integer iDCRR(0:7), iAnga(4), iCmpa(4), mStb(2)
 *
+      Call k2Loop_mck_internal(Data)
+c Avoid unused argument warnings
+      If (.False.) Then
+         Call Unused_real_array(Con)
+         Call Unused_real_array(Wk004)
+         Call Unused_integer(ipTmp1)
+         Call Unused_integer(ipTmp2)
+         Call Unused_integer(ipTmp3)
+         Call Unused_integer(ipKnew)
+         Call Unused_integer(ipLnew)
+         Call Unused_integer(ipPnew)
+         Call Unused_integer(ipQnew)
+      End If
+*
+*     This is to allow type punning without an explicit interface
+      Contains
+      SubRoutine k2Loop_mck_internal(Data)
+      Use Iso_C_Binding
+      Real*8, Target :: Data(nAlpha*nBeta*nDArray+nDScalar,nDCRR)
+      Integer, Pointer :: iData(:)
       nZeta = nAlpha*nBeta
       mStb(1) = iStb
       mStb(2) = jStb
@@ -81,6 +101,8 @@
 *
 *--------Compute Zeta, P and kappa.
 *
+         Call C_F_Pointer(C_Loc(Data(ip_IndZ(1,nZeta),lDCRR+1)),
+     &                    iData,[nAlpha*nBeta+1])
          Call DoZeta(Alpha,nAlpha,Beta,nBeta,
      &               CoorM(1,1),CoorM(1,2),
      &               Data(ip_PCoor(1,nZeta),lDCRR+1),
@@ -89,7 +111,8 @@
      &               Data(ip_ZInv (1,nZeta),lDCRR+1),
      &               Data(ip_Alpha(1,nZeta,1),lDCRR+1),
      &               Data(ip_Beta (1,nZeta,2),lDCRR+1),
-     &               Data(ip_IndZ (1,nZeta),lDCRR+1))
+     &               iData)
+         Nullify(iData)
 *
          Call SchInt_mck(CoorM,iAnga,iCmpa,nAlpha,nBeta,nMemab,
      &                   Data(ip_Z(1,nZeta),lDCRR+1),
@@ -106,6 +129,8 @@
 *                                                                      *
 *        Estimate the largest contracted integral.
 *
+         Call C_F_Pointer(C_Loc(Data(ip_IndZ(1,nZeta),lDCRR+1)),
+     &                    iData,[nAlpha*nBeta+1])
          Data(ip_EstI(nZeta),lDCRR+1) =
      &                      EstI(Data(ip_Z(1,nZeta),lDCRR+1),
      &                           Data(ip_Kappa(1,nZeta),lDCRR+1),
@@ -114,7 +139,7 @@
      &                           Data(ip_ab   (1,nZeta),lDCRR+1),
      &                           iCmpa(1)*iCmpa(2),
      &                           Wk002,m002,
-     &                           Data(ip_IndZ(1,nZeta),lDCRR+1))
+     &                           iData)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -142,16 +167,6 @@
  100  Continue
 *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_real_array(Con)
-         Call Unused_real_array(Wk004)
-         Call Unused_integer(ipTmp1)
-         Call Unused_integer(ipTmp2)
-         Call Unused_integer(ipTmp3)
-         Call Unused_integer(ipKnew)
-         Call Unused_integer(ipLnew)
-         Call Unused_integer(ipPnew)
-         Call Unused_integer(ipQnew)
-      End If
+      End SubRoutine k2Loop_mck_internal
+*
       End

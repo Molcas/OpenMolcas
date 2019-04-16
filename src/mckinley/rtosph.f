@@ -28,6 +28,7 @@
 #include "itmax.fh"
 #include "info.fh"
 #include "WrkSpc.fh"
+      Dimension F(*)
 
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 

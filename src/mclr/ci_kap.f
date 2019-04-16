@@ -112,8 +112,8 @@
 
 *      call projecter(Work(ipin(ipCID)),Work(ipin(ipci)),
 *     * Work(ipDe),Work(ipp))
-        call dcopy_(ndens2,0.0d0,0,Fock,1)
-        call dcopy_(ndens2,0.0d0,0,FockOut,1)
+        call dcopy_(ndens2,[0.0d0],0,Fock,1)
+        call dcopy_(ndens2,[0.0d0],0,FockOut,1)
         d0=0.0d0
 
         Call FockGen(d0,tmpDe,tmpP,Fock,FockOut,isym) ! yma modified
@@ -122,8 +122,8 @@
 
 *     call projecter(Work(ipin(ipCID)),Work(ipin(ipci)),
 *    *  Work(ipDe),Work(ipp))
-        call dcopy_(ndens2,0.0d0,0,Fock,1)
-        call dcopy_(ndens2,0.0d0,0,FockOut,1)
+        call dcopy_(ndens2,[0.0d0],0,Fock,1)
+        call dcopy_(ndens2,[0.0d0],0,FockOut,1)
         d0=0.0d0
         Call FockGen(d0,Work(ipDe),Work(ipP),Fock,FockOut,isym)
       end if

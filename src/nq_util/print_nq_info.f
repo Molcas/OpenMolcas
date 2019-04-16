@@ -45,8 +45,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Add_Info('DFT_Energy',Energy_integrated,1,6)
-      Call Add_Info('NQ_Density',Dens_I,1,8)
+      Call Add_Info('DFT_Energy',[Energy_integrated],1,6)
+      Call Add_Info('NQ_Density',[Dens_I],1,8)
 *                                                                      *
 ************************************************************************
 *                                                                      *

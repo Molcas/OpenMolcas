@@ -367,7 +367,7 @@ C     Write (6,*) 'Reduction=',DBLE(nAOs_Eff**2)/DBLE(nAOs**2)
 *
       nGrad_Eff=0
       If (Do_Grad) Then
-         Call ICopy(3*nShell*nSym,0,0,List_G,1)
+         Call ICopy(3*nShell*nSym,[0],0,List_G,1)
          lCar(1)=.False.
          lCar(2)=.False.
          lCar(3)=.False.
@@ -469,7 +469,7 @@ C     Write (6,*) 'Reduction=',DBLE(nAOs_Eff**2)/DBLE(nAOs**2)
       End If
       If (Do_Grad.and.nGrad_Eff.eq.0) Go To 998
       If (Grid_Status.eq.Use_Old) Go To 997
-         Call ICopy(3*nBatch_Max,0,0,iBatchInfo,1)
+         Call ICopy(3*nBatch_Max,[0],0,iBatchInfo,1)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -493,7 +493,7 @@ C     Write (6,*) 'Reduction=',DBLE(nAOs_Eff**2)/DBLE(nAOs**2)
 *        do not compute any contibution.
 *
          If (Do_Grad) Then
-            Call ICopy(nGrad_Eff,On,0,iTab(2,1),4)
+            Call ICopy(nGrad_Eff,[On],0,iTab(2,1),4)
             If (Grid_Type.eq.Moving_Grid) Then
                Do iGrad = 1, nGrad_Eff
                   jNQ = iTab(3,iGrad)
@@ -605,7 +605,7 @@ c        translational invariance on the atomic contributions to the
 c        gradient.
 c
          nTotGP_Save = nTotGP
-         ip_iA=ip_of_iWork(Work(ip_Angular(iNQ)))
+         ip_iA=ip_of_iWork_d(Work(ip_Angular(iNQ)))
          ip_A=iWork(ip_iA)
          nR_Eff=iWork(ip_nR_eff-1+iNQ)
          Call Subblock(iNQ,x_NQ,y_NQ,z_NQ,InBox(iNQ),
@@ -675,7 +675,7 @@ c
 *        process.
 *
          If (Do_Grad) Then
-            Call ICopy(nGrad_Eff,On,0,iTab(2,1),4)
+            Call ICopy(nGrad_Eff,[On],0,iTab(2,1),4)
             If (Grid_Type.eq.Moving_Grid) Then
                Do iGrad = 1, nGrad_Eff
                   jNQ = iTab(3,iGrad)

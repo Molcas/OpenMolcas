@@ -41,11 +41,11 @@
       pB=0.0_wp
       dE=0.0_wp
       Z =0.0_wp
-      Call dcopy_(3*3,0.0_wp,0,X,1)
+      Call dcopy_(3*3,[0.0_wp],0,X,1)
 
       Do iS=1,N
       ! first loop over all states
-         Call dcopy_(3*3,0.0_wp,0,c2,1)
+         Call dcopy_(3*3,[0.0_wp],0,c2,1)
          ! pB = statistical sum for state iS at temperature T
          pB = exp( -E(iS)/ boltz_k / T )
          ! accumulate the total statistical sum Z

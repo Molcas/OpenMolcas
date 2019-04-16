@@ -48,7 +48,7 @@
       End If
 *
       Rewind(LuSpool)
-      Call RdNLst_(LuSpool,'ALASKA',No_Input_OK)
+      Call RdNLst(LuSpool,'ALASKA')
       KWord=' &ALASKA'
  998  Read (LuSpool,'(A72)',END=997,ERR=988) Key
       KWord = Key
@@ -58,12 +58,12 @@
          Goto 998
       Else If (KWord(1:4) .eq. 'ROOT') Then
          Key = Get_Ln(LuSpool)
-         Call Get_I(1,iRoot,1)
+         Call Get_I1(1,iRoot)
          DefRoot = .False.
          Goto 998
       Else If (KWord(1:4) .eq. 'DELT') Then
          Key = Get_Ln(LuSpool)
-         Call Get_F(1,rDelta,1)
+         Call Get_F1(1,rDelta)
          Goto 998
       Else If (KWord(1:4) .eq. 'NAC ') Then
          Key = Get_Ln(LuSpool)

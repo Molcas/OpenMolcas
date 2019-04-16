@@ -69,7 +69,7 @@ c fock matrices added -- R L 921008.
 * NOTE: FOCC is nowadays allocated already in RASSCF.
 * Disk address ipFocc is in /WADR/
 *      Call GetMem('FOcc','ALLO','REAL',ipFocc,nTot1)
-      call dcopy_(nTot1,0.0D0,0,Work(ipFocc),1)
+      call dcopy_(nTot1,[0.0D0],0,Work(ipFocc),1)
 #ifdef _DEBUG_
       Write(LF,*) 'nTot1=',nTot1
 #endif

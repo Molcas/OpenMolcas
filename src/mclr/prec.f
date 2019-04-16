@@ -37,7 +37,14 @@
 #include "machine.fh"
       Real*8 rpre(*)
 *
-
+      Call Prec_internal(rpre)
+*
+*     This is to allow type punning without an explicit interface
+      Contains
+      Subroutine Prec_internal(rpre)
+      Use Iso_C_Binding
+      Real*8, Target :: rpre(*)
+      Integer, Pointer :: ipre(:)
       nmm=0
       nmmm=0
       Do iS=1,nSym
@@ -70,7 +77,7 @@
          ipScr=ipTemp1+nTemp
          If (nd.eq.0) Goto 100
          Do iB=1,nIsh(iS)
-            call dcopy_(nD**2,0.0d0,0,Work(ipTemp3),1)
+            call dcopy_(nD**2,[0.0d0],0,Work(ipTemp3),1)
             ibb=nOrb(is)*(ib-1)+ib-2
 *
 **          Cholesky code
@@ -156,7 +163,9 @@
 !            end do
 
             irc=0
-            call dgetrf_(nd,nd,rpre(ip),nd,rpre(ip+nd**2),irc)
+            call c_f_pointer(c_loc(rpre(ip+nd**2)),ipre,[nd])
+            call dgetrf_(nd,nd,rpre(ip),nd,ipre,irc)
+            nullify(ipre)
             If (irc.ne.0) then
                Write(6,*) 'Error in DGETRF called from prec'
                Call Abend
@@ -178,7 +187,7 @@
             If (ir.eq.2) nD=nOrb(js)-nRs2(js)
             If (ir.eq.3) nD=nOrb(js)-nRs3(js)
             If (nd.eq.0) Goto 110
-            call dcopy_(nD**2,0.0d0,0,Work(ipTemp3),1)
+            call dcopy_(nD**2,[0.0d0],0,Work(ipTemp3),1)
             ndtri=nd*(nd+1)/2
 *
 **  New Cholesky code
@@ -228,7 +237,9 @@
 
             Call SQM(Work(ipTemp3),rpre(ip),nD)
             irc=0
-            call dgetrf_(nd,nd,rpre(ip),nd,rpre(ip+nd**2),irc)
+            call c_f_pointer(c_loc(rpre(ip+nd**2)),ipre,[nd])
+            call dgetrf_(nd,nd,rpre(ip),nd,ipre,irc)
+            nullify(ipre)
             If (irc.ne.0) then
                Write(6,*) 'Error in DGETRF called from prec'
                Call Abend
@@ -251,4 +262,6 @@
 ************************************************************************
 *                                                                      *
       Return
+      End Subroutine Prec_internal
+*
       End

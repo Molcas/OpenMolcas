@@ -37,7 +37,7 @@
        LABEL='PERT'
        iRc=-1
        iOpt=0
-       Call RdMck(iRC,iOpt,Label,idum,Perturbation,idum)
+       Call cRdMck(iRC,iOpt,Label,idum,Perturbation,idum)
        If (iRC.ne.0) Then
           Write (6,*) 'RdAB: Error reading MCKINT'
           Write (6,'(A,A)') 'Label=',Label
@@ -88,7 +88,7 @@
             Label='Chdisp  '
             iRc=-1
             iOpt=0
-            Call Rdmck(iRc,iOpt,label,idum,ChDisp,idum)
+            Call cRdmck(iRc,iOpt,label,idum,ChDisp(1),idum)
             If (iRC.ne.0) Then
                Write (6,*) 'RdAB: Error reading MCKINT'
                Write (6,'(A,A)') 'Label=',Label
@@ -99,7 +99,7 @@
       End If
 *
       If (PT2) Then
-         Call icopy(nsym,0,0,ldisp,1)
+         Call icopy(nsym,[0],0,ldisp,1)
          ldisp(1)=1
       End If
 *

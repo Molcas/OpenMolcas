@@ -11,7 +11,7 @@
 * Copyright (C) 1986, Per E. M. Siegbahn                               *
 *               1986, Margareta R. A. Blomberg                         *
 ************************************************************************
-      SUBROUTINE IIJJ(ICASE,JSY,HDIAG,FC,FIJ,FJI)
+      SUBROUTINE IIJJ_CPF(ICASE,JSY,HDIAG,FC,FIJ,FJI)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "cpfmcpf.fh"
@@ -21,9 +21,9 @@
       DIMENSION IOC(55)
 *
       JO(L)=ICUNP(ICASE,L)
-      JSYM(L)=JSUNP(JSY,L)
+      JSYM(L)=JSUNP_CPF(JSY,L)
 *
-      CALL QENTER('IIJJ')
+      CALL QENTER('IIJJ_CPF')
       IAD27=0
       ILIM=4
       IF(IFIRST.NE.0)ILIM=2
@@ -108,6 +108,6 @@ C IR=IRC(2)+1 ... IRC(ILIM)
         END DO
         IF(IND.GT.0)CALL dDAFILE(Lu_27,1,HDIAG,IND,IAD27)
 100   CONTINUE
-      CALL QEXIT('IIJJ')
+      CALL QEXIT('IIJJ_CPF')
       RETURN
       END

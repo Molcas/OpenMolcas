@@ -492,7 +492,7 @@
 !it.
       Call wrtmat(F,1,ntot1,1,ntot1)
 
-      call dcopy_(ntot1,0.0d0,0,F,1)
+      call dcopy_(ntot1,[0.0d0],0,F,1)
 
       CALL GETMEM('OEPOTS','ALLO','REAL',iTMPP,ntot1)
       Call Get_dArray('ONTOPO',work(iTMPP),NTOT1)

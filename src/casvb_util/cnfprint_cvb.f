@@ -22,15 +22,19 @@
 #include "frag_cvb.fh"
 #include "malloc_cvb.fh"
       logical recinpcmp_cvb
+      dimension idum(1)
 
       if(recinpcmp_cvb(4))call touch_cvb('CNFPRINT')
 
       if(ip(1).ge.0.and.(.not.up2date_cvb('CNFPRINT')))then
         i1 = mstacki_cvb(max(noe,noe*nconf))
         call rdioff_cvb(1,recinp,ioffs)
-        call rdis_cvb(noe1,1,recinp,ioffs)
-        call rdis_cvb(nconf1,1,recinp,ioffs)
-        call rdis_cvb(kbasiscvb1,1,recinp,ioffs)
+        call rdis_cvb(idum,1,recinp,ioffs)
+        noe1=idum(1)
+        call rdis_cvb(idum,1,recinp,ioffs)
+        nconf1=idum(1)
+        call rdis_cvb(idum,1,recinp,ioffs)
+        kbasiscvb1=idum(1)
         call rdis_cvb(iw(i1),noe*nconf,recinp,ioffs)
         if(nconf.eq.0)then
           do 225 i=1,min(nel,norb)

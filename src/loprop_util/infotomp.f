@@ -18,6 +18,7 @@
       Character*40 VTitle
       Character*6 FName
       Logical UserDen,Restart
+      Dimension iDum(1)
 *                                                                      *
 ************************************************************************
 *                                                                      *

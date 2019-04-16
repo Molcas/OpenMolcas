@@ -28,7 +28,7 @@
 *. General input
       DIMENSION IPRODT(*),DTOC(*)
 *. Scratch
-      DIMENSION SCR(*)
+      DIMENSION SCR(*),IDUMMY(1)
 *. Output
       DIMENSION CNHCNM(*)
 *. Interface to LUCIA common blocks in order to access strings
@@ -38,8 +38,23 @@
 *
 #include "spinfo_mclr.fh"
 #include "cicisp_mclr.fh"
-
-
+*
+      CALL CNHCN2_INTERNAL(SCR)
+      RETURN
+c Avoid unused argument warnings
+      IF (.FALSE.) THEN
+        CALL Unused_integer(NINOC)
+        CALL Unused_real(ECORE)
+        CALL Unused_integer(NTERMS)
+      END IF
+*
+*     This is to allow type punning without an explicit interface
+      CONTAINS
+      SUBROUTINE CNHCN2_INTERNAL(SCR)
+      USE ISO_C_BINDING
+      REAL*8, TARGET :: SCR(*)
+      INTEGER, POINTER :: iSCR(:),iSCRa(:),iSCRb(:),iSCRar(:),iSCRbr(:),
+     &                    iSCRn(:),iSCRnn(:)
 *
 * Length of SCR : 6 * NDET + NDET**2 + NDET*NCSF +
 *                 MAX((NDET*NEL + 2*NEL),4*NORB + 2*NEL)
@@ -97,31 +112,41 @@
 *
 *. Prescreen for CNFs that do not interact
 *
-      CALL CMP2CN(ICNL,ICLL,IOPL,ICNR,ICLR,IOPR,SCR,NORB,NDIFF,
+      CALL C_F_POINTER(C_LOC(SCR(1)),iSCR,[1])
+      CALL CMP2CN(ICNL,ICLL,IOPL,ICNR,ICLR,IOPR,iSCR,NORB,NDIFF,
      &            NTEST)
+      NULLIFY(iSCR)
 *
       IF(NDIFF .LE. 2 ) THEN
 *. Strings for determinants of these configurations
-        CALL CNFSTR_MCLR(ICNL,ITPL,SCR(KLDTLA),SCR(KLDTLB),
+        CALL C_F_POINTER(C_LOC(SCR(KLROU)),iSCR,[1])
+        CALL C_F_POINTER(C_LOC(SCR(KLDTLA)),iSCRa,[1])
+        CALL C_F_POINTER(C_LOC(SCR(KLDTLB)),iSCRb,[1])
+        CALL CNFSTR_MCLR(ICNL,ITPL,iSCRa,iSCRb,
      &              NORB,NAEL,NBEL,NDETL,IPRODT,IAGRP,IBGRP,
-     &              SCR(KLROU ),SCR(KLISL),NTEST)
-        CALL CNFSTR_MCLR(ICNR,ITPR,SCR(KLDTRA),SCR(KLDTRB),
+     &              iSCR,SCR(KLISL),NTEST)
+        CALL C_F_POINTER(C_LOC(SCR(KLDTRA)),iSCRar,[1])
+        CALL C_F_POINTER(C_LOC(SCR(KLDTRB)),iSCRbr,[1])
+        CALL CNFSTR_MCLR(ICNR,ITPR,iSCRar,iSCRbr,
      &              NORB,NAEL,NBEL,NDETR,IPRODT,IAGRP,IBGRP,
-     &              SCR(KLROU ),SCR(KLISR),NTEST)
+     &              iSCR,SCR(KLISR),NTEST)
 *
 ** Hamiltonian matrix over determinants of the configurations
 *
         NTESTP = MAX(0,NTEST-5)
         isym=0       ! eaw
         ecorep=0.0d0 ! eaw
-        CALL DIHDJ2_MCLR(SCR(KLDTLA),SCR(KLDTLB),NDETL,
-     &              SCR(KLDTRA),SCR(KLDTRB),NDETR,
-     &              NAEL,NBEL,SCR(KLROU+2*NEL),LWORK,NORB,
+        CALL C_F_POINTER(C_LOC(SCR(KLROU+NEL)),iSCRn,[1])
+        CALL C_F_POINTER(C_LOC(SCR(KLROU+2*NEL)),iSCRnn,[1])
+        CALL DIHDJ2_MCLR(iSCRa,iSCRb,NDETL,
+     &              iSCRar,iSCRbr,NDETR,
+     &              NAEL,NBEL,iSCRnn,LWORK,NORB,
      &              SCR(KLDHD),ISYM,0,ECOREP,ICOMBI,PSSIGN,
      &              iWORK(KOCSTR(IAGRP)),iWORK(KOCSTR(IBGRP)),
      &              iWORK(KOCSTR(IAGRP)),iWORK(KOCSTR(IBGRP)),
-     &              0,IDUMMY,IDUMMY,IDUMMY,IDUMMY,SCR(KLROU),
-     &              SCR(KLROU+NEL),NDIF0,NDIF1,NDIF2,NTEST)
+     &              0,IDUMMY,IDUMMY,IDUMMY,IDUMMY,iSCR,
+     &              iSCRn,NDIF0,NDIF1,NDIF2,NTEST)
+        NULLIFY(iSCR,iSCRa,iSCRb,iSCRar,iSCRbr,iSCRn,iSCRnn)
 *
 ** Transform matrix to CSF basis
 *
@@ -156,10 +181,6 @@
 *
 *
       RETURN
-c Avoid unused argument warnings
-      IF (.FALSE.) THEN
-        CALL Unused_integer(NINOC)
-        CALL Unused_real(ECORE)
-        CALL Unused_integer(NTERMS)
-      END IF
+      END SUBROUTINE CNHCN2_INTERNAL
+*
       END

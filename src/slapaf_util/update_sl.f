@@ -457,7 +457,8 @@ C           Write (*,*) 'tBeta=',tBeta
 *
 *---------- Set shift vector to zero for frozen internal coordinates.
 *
-           If (nFix.gt.0) call dcopy_(nFix,Zero,0,Shift(iInt+1,kIter),1)
+           If (nFix.gt.0)
+     &        call dcopy_(nFix,[Zero],0,Shift(iInt+1,kIter),1)
 *
 *           Rough conversion to Cartesians
 *
@@ -574,8 +575,8 @@ C           Write (*,*) 'tBeta=',tBeta
             LudRdX=30
             Call DaName(LudRdX,'dRdX')
             iAd=0
-            Call iDaFile(LudRdX,1,nLambda,1,iAd)
-            Call iDaFile(LudRdX,1,3*nsAtom,1,iAd)
+            Call iDaFile(LudRdX,1,[nLambda],1,iAd)
+            Call iDaFile(LudRdX,1,[3*nsAtom],1,iAd)
             Call dDaFile(LudRdX,1,Work(ipBMx),nLambda*3*nsAtom,iAd)
             Call DaClos(LudRdX)
             Call Eq_Solver('N',M,N,NRHS,BMx,Curvilinear,Degen,

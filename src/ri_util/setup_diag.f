@@ -118,7 +118,7 @@
       Do ijShell = 1, nij_Shell
          iShell = iShij(1,ijShell)
          jShell = iShij(2,ijShell)
-         Call ICopy(nIrrep,0,0,iTtmp,1)
+         Call ICopy(nIrrep,[0],0,iTtmp,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -29,7 +29,7 @@
       use iSD_data
       Implicit Real*8 (a-h,o-z)
       External Kernel, KrnlMm
-#include "itmax.fh"
+#include "angtp.fh"
 #include "info.fh"
 #include "real.fh"
 #include "rmat_option.fh"
@@ -75,7 +75,7 @@
      &                        'OneEl_IJ: insufficient SOInt dimension!')
          Call Abend()
       End If
-      Call dCopy_(nSO*iBas*jBas,Zero,0,SOInt,1)
+      Call dCopy_(nSO*iBas*jBas,[Zero],0,SOInt,1)
       iShll  = iSD( 0,iS)
       iAng   = iSD( 1,iS)
       iCff   = iSD( 4,iS)
@@ -107,7 +107,7 @@
          Call WarningMessage(2,'lFinal.gt.nFinal')
          Call Abend()
       End If
-      Call dCopy_(lFinal,Zero,0,Final,1)
+      Call dCopy_(lFinal,[Zero],0,Final,1)
       Call DCR(LmbdR,iOper,nIrrep,jStab(0,mdci),
      &         nStab(mdci),jStab(0,mdcj),
      &         nStab(mdcj),iDCRR,nDCRR)
@@ -216,7 +216,7 @@
      &                        'OneEl_IJ: insufficient SOInt dimension!')
          Call Abend()
       End If
-      Call dCopy_(nSO*iBas*jBas,Zero,0,SOInt,1)
+      Call dCopy_(nSO*iBas*jBas,[Zero],0,SOInt,1)
 *
 *---- Shell info
 *
@@ -303,7 +303,7 @@
          Write (6,*) 'nKern=',nKern
          Call Abend()
       End If
-      Call dCopy_(MemKrn,Zero,0,Kern,1)
+      Call dCopy_(MemKrn,[Zero],0,Kern,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -315,7 +315,7 @@
          Call WarningMessage(2,'lFinal.gt.nFinal')
          Call Abend()
       End If
-      Call dCopy_(lFinal,Zero,0,Final,1)
+      Call dCopy_(lFinal,[Zero],0,Final,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *

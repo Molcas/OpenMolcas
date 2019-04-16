@@ -89,8 +89,7 @@ CONTAINS
 
 ! Avoid unused argument warnings
       IF (.FALSE.) THEN
-         CALL Unused_real(W_contractor)
-         CALL Unused_real(W_pair) ! not really real, but well...
+         CALL W_contractor(W_pair)
       END IF
    END SUBROUTINE fmm_skip_W_buffer
 

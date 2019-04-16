@@ -28,14 +28,14 @@
       Call GetMem('iGri',Que,'Real',iGri,nSize**2)
 
       If(Que(1:4).eq.'Allo') then
-        call dcopy_(nSize**2,ZERO,iZERO,Work(ixx),iONE)
-        call dcopy_(nSize**2,ZERO,iZERO,Work(iyy),iONE)
-        call dcopy_(nSize**2,ZERO,iZERO,Work(izz),iONE)
-        call dcopy_(nSize**2,ZERO,iZERO,Work(ixxi),iONE)
-        call dcopy_(nSize**2,ZERO,iZERO,Work(iyyi),iONE)
-        call dcopy_(nSize**2,ZERO,iZERO,Work(izzi),iONE)
-        call dcopy_(nSize**2,ZERO,iZERO,Work(irr3),iONE)
-        call dcopy_(nSize**2,ZERO,iZERO,Work(iGri),iONE)
+        call dcopy_(nSize**2,[ZERO],iZERO,Work(ixx),iONE)
+        call dcopy_(nSize**2,[ZERO],iZERO,Work(iyy),iONE)
+        call dcopy_(nSize**2,[ZERO],iZERO,Work(izz),iONE)
+        call dcopy_(nSize**2,[ZERO],iZERO,Work(ixxi),iONE)
+        call dcopy_(nSize**2,[ZERO],iZERO,Work(iyyi),iONE)
+        call dcopy_(nSize**2,[ZERO],iZERO,Work(izzi),iONE)
+        call dcopy_(nSize**2,[ZERO],iZERO,Work(irr3),iONE)
+        call dcopy_(nSize**2,[ZERO],iZERO,Work(iGri),iONE)
       Endif
 
       Return

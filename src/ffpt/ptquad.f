@@ -30,6 +30,7 @@
       Data    DiComp/1,4,6/
       Logical Debug,Exec,Orig,Diag
       Data    Debug/.false./
+      Dimension idum(1)
 *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -121,7 +122,8 @@ c        End Do
           iOpt2=0
           iSyLbl=0
           iComp=DiComp(iDiag)
-          Call iRdOne(iRc,iOpt1,Label,iComp,nInts,iSyLbl)
+          Call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
+          nInts=idum(1)
           If ( iRc.ne.0 ) Goto 991
           Call RdOne(iRc,iOpt2,Label,iComp,Temp,iSyLbl)
           Call CmpInt(Temp,nInts,nBas,nSym,iSyLbl)
@@ -135,7 +137,7 @@ c        End Do
              Call Abend()
           End If
           If ( iComp.eq.1 ) Then
-             call dcopy_(nInts,0.0D0,0,RR,1)
+             call dcopy_(nInts,[0.0D0],0,RR,1)
              RR(nInts+4)=0.0D0
           End If
           Alpha=-0.5D0
@@ -167,7 +169,8 @@ c        End Do
           iOpt1=1
           iOpt2=0
           iSyLbl=0
-          Call iRdOne(iRc,iOpt1,Label,iComp,nInts,iSyLbl)
+          Call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
+          nInts=idum(1)
           If ( iRc.ne.0 ) Goto 991
           Call RdOne(iRc,iOpt2,Label,iComp,Temp,iSyLbl)
           Call CmpInt(Temp,nInts,nBas,nSym,iSyLbl)

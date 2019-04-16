@@ -51,7 +51,7 @@ c#include "print.fh"
 *define _DEBUG_
 c     iRout = 248
 c     iPrint = nPrint(iRout)
-      call dcopy_(78,Zero,0,g2,1)
+      call dcopy_(78,[Zero],0,g2,1)
 #ifdef _DEBUG_
       Call RecPrt('Assg2: g2(0)',' ',g2,1,78)
 #endif

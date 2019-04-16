@@ -47,7 +47,7 @@
       End If
 *
 *
-      call dcopy_(3*nZeta*(la+1)*(lb+1)*(lr+1),Zero,0,
+      call dcopy_(3*nZeta*(la+1)*(lb+1)*(lr+1),[Zero],0,
      &           Rnxyz,1)
       Do 100 ia = 0, la
          Do 110 ib = 0, lb

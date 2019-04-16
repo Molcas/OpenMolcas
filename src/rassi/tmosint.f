@@ -37,6 +37,7 @@
 #include "oneswi.fh"
 #include "warnings.fh"
       Character*8 Label
+      Dimension dum(1),idum(1)
 *
       Call Set_Basis_Mode('Valence')
       Call Setup_iSD()
@@ -58,7 +59,7 @@
       nOrdOp = 0
       Label='TMOS0'
       nComp = 2
-      Call Allocate_Auxiliary()
+      Call Allocate_Aux()
 *     Here we put in the k-vector
       Call FZero(CoorO,3*nComp)
       Call dcopy_(3,wavevector,1,CoorO,1)
@@ -78,7 +79,7 @@
      &           dum,1,dum,idum,0,0,
      &           dum,1,0)
 *
-      Call Deallocate_Auxiliary()
+      Call Deallocate_Aux()
       End If
 *
 *     A*p
@@ -87,7 +88,7 @@
       nOrdOp = 1
       Label='TMOS'
       nComp = 12
-      Call Allocate_Auxiliary()
+      Call Allocate_Aux()
 *     Here we put in the k-vector
       Call FZero(CoorO,3*nComp)
       Call dcopy_(3,wavevector,1,CoorO,1)
@@ -127,7 +128,7 @@
      &           dum,1,dum,idum,0,0,
      &           dum,1,0)
 *
-      Call Deallocate_Auxiliary()
+      Call Deallocate_Aux()
       End If
 *
 *     The A^2 term
@@ -136,7 +137,7 @@
       nOrdOp = 0
       Label='TMOS2'
       nComp = 2
-      Call Allocate_Auxiliary()
+      Call Allocate_Aux()
 *     Here we put in the k-vector
       Call FZero(CoorO,3*nComp)
       Call dcopy_(3,wavevector,1,CoorO,1)
@@ -158,7 +159,7 @@
      &           dum,1,dum,idum,0,0,
      &           dum,1,0)
 *
-      Call Deallocate_Auxiliary()
+      Call Deallocate_Aux()
       End If
 *                                                                      *
 ************************************************************************
@@ -170,7 +171,7 @@
       Return
 *
       Contains
-      Subroutine Allocate_Auxiliary()
+      Subroutine Allocate_Aux()
       Implicit None
 #include "stdalloc.fh"
 *
@@ -181,8 +182,8 @@
       Call mma_Allocate(Nuc,nComp,Label='Nuc')
 *
       Return
-      End Subroutine Allocate_Auxiliary
-      Subroutine Deallocate_Auxiliary()
+      End Subroutine Allocate_Aux
+      Subroutine Deallocate_Aux()
       Implicit None
 #include "stdalloc.fh"
 *
@@ -193,6 +194,6 @@
       Call mma_Deallocate(Nuc)
 *
       Return
-      End Subroutine Deallocate_Auxiliary
+      End Subroutine Deallocate_Aux
 *
       End Subroutine TMOSInt

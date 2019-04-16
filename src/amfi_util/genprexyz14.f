@@ -13,7 +13,7 @@
 #include "para.fh"
 #include "Molcas.fh"
 #include "WrkSpc.fh"
-      logical mcheckz,icheckz
+      integer mcheckz
       dimension icheckz(0:Lmax,0:Lmax,0:Lmax,0:Lmax),
      *interxyz(16,0:Lmax,0:Lmax,0:Lmax,0:Lmax)
 cbs #####################################################################

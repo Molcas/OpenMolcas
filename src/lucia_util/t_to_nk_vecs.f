@@ -34,6 +34,7 @@
 *. Specific input
       DIMENSION IBLOCK(8,NBLOCK)
       DIMENSION IBLTP(*)
+      DIMENSION IDUM(1)
 *
       IDISK(LUCIN)=0
       IDISK(LUCOUT)=0
@@ -46,7 +47,7 @@
         IBSM = IBLOCK(4,JBLOCK)
 C?      WRITE(6,*) ' IATP IBTP IASM IBSM ', IATP,IBTP,IASM,IBSM
 *. Obtain alpha strings of sym IASM and type IATP
-        IDUM = 0
+        IDUM(1) = 0
         CALL GETSTR_TOTSM_SPGP(      1,   IATP,   IASM,   NAEL, NASTR1,
      &                           IASTR,   NORB,      0,   IDUM,   IDUM)
 *. Occupation of orb KORB
@@ -62,7 +63,7 @@ C?      CALL IWRTMA(IKAOCC,1,NASTR1,1,NASTR1)
 
 
 *. Obtain Beta  strings of sym IBSM and type IBTP
-        IDUM = 0
+        IDUM(1) = 0
         CALL GETSTR_TOTSM_SPGP(      2,   IBTP,   IBSM,   NBEL, NBSTR1,
      &                           IBSTR,   NORB,      0,   IDUM,   IDUM)
 C?      WRITE(6,*) ' After GETSTR, NBSTR1=',NBSTR1
@@ -93,8 +94,9 @@ C?      WRITE(6,*) ' NIA NIB ', NIA,NIB
         IMZERO = 0
         IF( ICISTR.GE.2 ) THEN
 *. Read in a Type-Type-symmetry block
-          CALL IDAFILE(LUCIN,2,LDET,1,IDISK(LUCIN))
-          CALL IDAFILE(LUCIN,2,IDUMMY,1,IDISK(LUCIN))
+          CALL IDAFILE(LUCIN,2,IDUM,1,IDISK(LUCIN))
+          LDET=IDUM(1)
+          CALL IDAFILE(LUCIN,2,IDUM,1,IDISK(LUCIN))
           CALL FRMDSC(        C,     LDET,       -1,    LUCIN,   IMZERO,
      &                  IAMPACK)
         END IF
@@ -125,12 +127,12 @@ C?            WRITE(6,*) ' IA IB IDET',IA,IB,IDET
         END IF
 *       ^ End of if statement for nonvanishing blocks
 *. Save result on LUCOUT
-        CALL ITODS(LDET,1,-1,LUCOUT)
+        CALL ITODS([LDET],1,-1,LUCOUT)
         CALL TODSC(C,LDET,-1,LUCOUT)
       END DO
 *     ^ End of loop over blocks
 *. This is the end, the end of every file my friend, the end
-       CALL ITODS(-1,1,-1,LUCOUT)
+       CALL ITODS([-1],1,-1,LUCOUT)
 
       RETURN
       END

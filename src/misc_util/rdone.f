@@ -11,7 +11,7 @@
 * Copyright (C) 1993, Per-Olof Widmark                                 *
 *               1993, Markus P. Fuelscher                              *
 ************************************************************************
-      Subroutine RdOne(rc,Option,InLab,Comp,Data,SymLab)
+      Subroutine iRdOne(rc,Option,InLab,Comp,Data,SymLab)
 ************************************************************************
 *                                                                      *
 *     Purpose: Read data from one-electron integral file               *
@@ -245,7 +245,7 @@
            nCopy  = MAX(0,MIN(lBuf,Len+4-i))
            nSave  = MAX(0,MIN(lBuf,Len-i))
            Call dDaFile(LuOne,2,TmpBuf,nCopy,iDisk)
-           Call dCopy_(nSave,TmpBuf,1,Data(IndDta+1),1)
+           Call idCopy(nSave,TmpBuf,1,Data(IndDta+1),1)
            IndDta = IndDta+RtoI*nSave
            Do j = nSave+1,nCopy
              IndAux = IndAux+1
@@ -254,10 +254,10 @@
            End Do
          End Do
          If(iAnd(sNoOri,option).eq.0) Then
-            Call dCopy_(3,AuxBuf,1,Data(IndDta+1),1)
+            Call idCopy(3,AuxBuf,1,Data(IndDta+1),1)
          End If
          If(iAnd(sNoNuc,option).eq.0) Then
-            Call dCopy_(1,AuxBuf(4),1,Data(IndDta+RtoI*3+1),1)
+            Call idCopy(1,AuxBuf(4),1,Data(IndDta+RtoI*3+1),1)
          End If
       End If
 *
@@ -277,14 +277,40 @@
 *----------------------------------------------------------------------*
 *     Call qExit('RdOne')
       Return
+*
+*     This is to allow type punning without an explicit interface
+      Contains
+      Subroutine idCopy(n,Src,n1,Dst,n2)
+      Use iso_c_binding
+      Integer, Target :: Dst(*)
+      Real*8, Pointer :: dDst(:)
+      Real*8 :: Src(*)
+      Integer :: n,n1,n2
+      Call c_f_pointer(c_loc(Dst),dDst,[n])
+      Call dCopy_(n,Src,n1,dDst,n2)
+      Nullify(dDst)
+      End Subroutine idCopy
+*
       End
 
-      Subroutine iRdOne(rc,Option,InLab,Comp,iData,SymLab)
+      Subroutine RdOne(rc,Option,InLab,Comp,Data,SymLab)
       Implicit Integer (A-Z)
 *
       Character*(*) InLab
-      Dimension iData(*)
+      Real*8 Data(*)
 *
-      Call RdOne(rc,Option,InLab,Comp,iData,SymLab)
+      Call RdOne_Internal(Data)
+*
+*     This is to allow type punning without an explicit interface
+      Contains
+      Subroutine RdOne_Internal(Data)
+      Use Iso_C_Binding
+      Real*8, Target :: Data(*)
+      Integer, Pointer :: iData(:)
+      Call C_F_Pointer(C_Loc(Data(1)),iData,[1])
+      Call iRdOne(rc,Option,InLab,Comp,iData,SymLab)
+      Nullify(iData)
       return
+      End Subroutine RdOne_Internal
+*
       end

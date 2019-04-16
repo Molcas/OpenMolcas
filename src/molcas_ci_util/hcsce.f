@@ -77,8 +77,8 @@
       Call Square(H,Work(lw2),1,N,N)
 
 *     Schmidt orthogonalization
-      call dcopy_(N*N,0.0d0,0,C,1)
-      call dcopy_(N,1.0d0,0,C,N+1)
+      call dcopy_(N*N,[0.0d0],0,C,1)
+      call dcopy_(N,[1.0d0],0,C,N+1)
 
 *      write(6,*)' HCSCE calling Schmidt.'
 *      Call Schmidt(N,Work(lw1),C,Work(lw4),M)
@@ -174,7 +174,7 @@
        X=S(i,i)
        If(X.lt.1.0D-6) Goto 90
        Y=1.0D0/sqrt(X)
-       call dcopy_(N,0.0D0,0,C(1,M+1),1)
+       call dcopy_(N,[0.0D0],0,C(1,M+1),1)
        C(i,M+1)=Y
        call dcopy_(N,S(1,i),1,Temp,1)
        Call DSCAL_(N,Y,Temp,1)

@@ -577,8 +577,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                CALL DCOPY_(NSS**2,0.0D0,0,WORK(LTM2I),1)
                Do iCar = 1, 3
 *
-                  CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXR),1)
-                  CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXI),1)
+                  CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXR),1)
+                  CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXI),1)
 *
 *                 The electric (symmetric) part
 *
@@ -599,8 +599,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                 Call DAXPY_(NSS**2,-E2(iCar),WORK(LDXR),1,Work(LTM2I),1)
                 Call DAXPY_(NSS**2, E2(iCar),WORK(LDXI),1,Work(LTM2R),1)
 *
-                  CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXR),1)
-                  CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXI),1)
+                  CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXR),1)
+                  CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXI),1)
 *
 *                 The magnetic (antisymmetric) part
 *
@@ -653,8 +653,6 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *              see the equations on page 234 in Per Ake's paper. Hence,
 *              the y-component is treated slightly differently.
 *
-                  CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXR),1)
-                  CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXI),1)
                   If (iCar.eq.1.or.iCar.eq.3) Then
 *
 *                    pick up the real component
@@ -866,8 +864,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
               WRITE(6,*)
             END IF
 *
-            Call Add_Info('ITMS(SO)',F,1,6)
-            Call Add_Info('ROTS(SO)',R,1,6)
+            Call Add_Info('ITMS(SO)',[F],1,6)
+            Call Add_Info('ROTS(SO)',[R],1,6)
 *
                End Do
             End Do

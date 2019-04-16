@@ -37,6 +37,14 @@
 * Local variables                                                      *
 *----------------------------------------------------------------------*
       Character*64  ErrMsg
+      Call dxWrRun_Internal(Data)
+*
+*     This is to allow type punning without an explicit interface
+      Contains
+      Subroutine dxWrRun_Internal(Data)
+      Use Iso_C_Binding
+      Real*8, Target :: Data(*)
+      Character, Pointer :: cData(:)
 *----------------------------------------------------------------------*
 * Check that arguments are ok.                                         *
 *----------------------------------------------------------------------*
@@ -48,9 +56,13 @@
 *----------------------------------------------------------------------*
 * Call generic writing routine.                                        *
 *----------------------------------------------------------------------*
-      Call gxWrRun(iRc,Label, Data,nData, iOpt, TypDbl)
+      Call C_F_Pointer(C_Loc(Data(1)),cData,[nData])
+      Call gxWrRun(iRc,Label, cData,nData, iOpt, TypDbl)
+      Nullify(cData)
 *----------------------------------------------------------------------*
 *                                                                      *
 *----------------------------------------------------------------------*
       Return
+      End Subroutine dxWrRun_Internal
+*
       End

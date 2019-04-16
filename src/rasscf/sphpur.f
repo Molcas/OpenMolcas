@@ -20,8 +20,8 @@
 #include "general.fh"
 * rasscf.fh defines NAME:
 #include "rasscf.fh"
-* itmax.fh defines ITABMX,ANGTP
-#include "itmax.fh"
+* angtp.fh defines ITABMX,ANGTP
+#include "angtp.fh"
 
 #include "WrkSpc.fh"
 

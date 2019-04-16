@@ -134,18 +134,18 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
             Else If (Index(Line,'DIRECT ') .ne. 0) Then
               DoDirect = .True.
             Else If (Index(Line,'MLTORD ') .ne. 0) Then
-              Call Get_I(2,MltOrd,1)
+              Call Get_I1(2,MltOrd)
               ibla = 0
               Do ii = 0, MltOrd
                  ibla = ibla + (ii+2)*(ii+1)/2
               End Do
               MltOrd = ibla
             Else If (Index(Line,'MULTIPOLE ') .ne. 0) Then
-              Call Get_I(2,nMult,1)
+              Call Get_I1(2,nMult)
               Call Allocate_Work(ipMltp,nMult)
               Do iMlt = 1, nMult, MltOrd
                 Line = Get_Ln(IPotFl)
-                Call Get_I(1,iAt,1)
+                Call Get_I1(1,iAt)
                 Call Get_F(2,Work(ipMltp+iMlt-1),MltOrd)
               End Do
             End If
@@ -169,10 +169,10 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
             Do While (Index(Line,'TheEnd') .eq. 0)
                Line = Get_Ln(ITkQMMM)
                If (Index(Line,'MMGradient') .ne. 0) Then
-                  Call Get_I(2,iAtom,1)
+                  Call Get_I1(2,iAtom)
                   Call Get_F(3,FX,3)
                   If (iWork(ipIsMM+iAtom-1) .eq. 1)
-     &                Call FMove(FX,Work(ipMMGrd+3*(iAtom-1)),3)
+     &                Call dCopy_(3,FX,1,Work(ipMMGrd+3*(iAtom-1)),1)
                End If
             End Do
             Call DScal_(3*nAtoms,Angstrom*ToHartree,Work(ipMMGrd),1)
@@ -210,9 +210,9 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
          Call GetMem('BMtrx','Allo','Real',ip_BMtrx,nBMtrx)
          Call GetMem('TMtrx','Allo','Real',ip_TMtrx,mInt**2)
          Call FZero(Work(ip_BMtrx),nBMtrx)
-         call dcopy_(3*nAtoms,One,0,Work(ip_BMtrx),3*nAtoms+1)
+         call dcopy_(3*nAtoms,[One],0,Work(ip_BMtrx),3*nAtoms+1)
          Call FZero(Work(ip_TMtrx),mInt**2)
-         call dcopy_(mInt,One,0,Work(ip_TMtrx),mInt+1)
+         call dcopy_(mInt,[One],0,Work(ip_TMtrx),mInt+1)
       End If
 *                                                                      *
 ************************************************************************
@@ -501,7 +501,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
          If (ESPFKey.ne.'MULTIPOLE ') Then
             Write(iSave,'(A132)') Line
          Else
-            Call Get_I(2,nMult,1)
+            Call Get_I1(2,nMult)
             Do iMlt = 1, nMult
                Line = Get_Ln(iData)
             End Do

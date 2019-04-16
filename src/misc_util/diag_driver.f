@@ -24,7 +24,7 @@
       Real*8 Tollerance
       Integer iMethod, nDim2, iSize, lWork, liWork,liW(2),liErr(2)
 * Scratch and pointers to scratch arrays
-      Real*8 Work_L
+      Real*8 Work_L(1)
       Integer lScr, liScr, iSuppZ
 * External Functions ..
       Logical            lSame
@@ -58,8 +58,8 @@
 * Use the QL algorithm (dSyevR)
 *
          Call Square(Triangular,Aux,lDimAux,1,nDim)
-         Call dCopy_(nDim2,0.0D0,0,EigVec,1)
-         Call dCopy_(nDim,1.0D0,0,EigVec,nDim+1)
+         Call dCopy_(nDim2,[0.0D0],0,EigVec,1)
+         Call dCopy_(nDim,[1.0D0],0,EigVec,nDim+1)
 *
 * Determine safe tollerance for dSyevR
 *
@@ -75,8 +75,8 @@ CC AOM 04.08        Also added liErr for the same reason
          call dsyevr_(JobZ, Range, UpLo, nDim, Aux, lDimAux, vLower,
      &               vUpper, iLower, iUpper, Tollerance, nFound, EigVal,
      &               EigVec, lDimVec, iWork(iSuppZ), Work_L, lWork,
-     &               liW, liWork, liErr)
-         lWork = Int(Work_L)
+     &               liW, liWork, liErr(1))
+         lWork = Int(Work_L(1))
          liWork = liW(1)
 *
 * Allocate scratch arrays
@@ -89,7 +89,7 @@ CC AOM 04.08        Also added liErr for the same reason
          call dsyevr_(JobZ, Range, UpLo, nDim, Aux, lDimAux, vLower,
      &               vUpper, iLower, iUpper, Tollerance, nFound, EigVal,
      &               EigVec, lDimVec, iWork(iSuppZ), Work(lScr), lWork,
-     &               iWork(liScr), liWork, liErr)
+     &               iWork(liScr), liWork, liErr(1))
          iErr=liErr(1)
 *
 * Free scratch
@@ -130,8 +130,8 @@ CC AOM 04.08        Also added liErr for the same reason
 *
          Call dCopy_(iSize,Triangular,1,Aux,1)
          If (iUnit_Matrix .eq. 1) Then
-            Call dCopy_(nDim2,0.0D0,0,EigVec,1)
-            Call dCopy_(nDim,1.0D0,0,EigVec,nDim+1)
+            Call dCopy_(nDim2,[0.0D0],0,EigVec,1)
+            Call dCopy_(nDim,[1.0D0],0,EigVec,nDim+1)
          End If
          Call Jacob(Aux,EigVec,nDim,lDimVec)
          Call vEig(nDim,Aux,EigVal)
@@ -142,7 +142,7 @@ CC AOM 04.08        Also added liErr for the same reason
       If (iSort .eq. 1) Then
          Call JacOrd2(EigVal, EigVec, nDim, lDimVec)
       Else If (iSort .eq. -1) Then
-         Call Sort(EigVal, EigVec, nDim, lDimVec)
+         Call SortEig(EigVal, EigVec, nDim, lDimVec)
       End If
       Return
       End

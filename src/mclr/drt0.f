@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE DRT0(A0,B0,C0,NVERT,DRT,DOWN,NTMP,TMP)
+      SUBROUTINE DRT0_MCLR(A0,B0,C0,NVERT,DRT,DOWN,NTMP,TMP)
 C
 C     PURPOSE: CONSTRUCT THE UNRESTRICTED GUGA TABLE
 C
@@ -19,7 +19,7 @@ C
       DIMENSION DA(0:3),DB(0:3),DC(0:3)
       DATA DA /0,0,1,1/, DB /0,1,-1,0/, DC /1,0,1,0/
 C
-*     Call qEnter('Drt0')
+*     Call qEnter('Drt0_MCLR')
 C
 C     SET UP TOP ROW
 C
@@ -106,7 +106,7 @@ C
         DRT(VERT,LTAB)=DRT(VERT,ATAB)+DRT(VERT,BTAB)+DRT(VERT,CTAB)
 130     DRT(VERT,NTAB)=2*DRT(VERT,ATAB)+DRT(VERT,BTAB)
 C
-*     Call qExit ('Drt0')
+*     Call qExit ('Drt0_MCLR')
 C
 C     EXIT
 C

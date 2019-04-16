@@ -172,8 +172,8 @@
 *-----Compute the interpolated parameter vector and
 *     the interpolated gradient vector.
 *
-      call dcopy_(nInter,Zero,0,q(1,nIter+1),1)
-      call dcopy_(nInter,Zero,0,g(1,nIter+1),1)
+      call dcopy_(nInter,[Zero],0,q(1,nIter+1),1)
+      call dcopy_(nInter,[Zero],0,g(1,nIter+1),1)
       Do 200 jIter = 1, mIter
          Call DaXpY_(nInter,RHS(jIter),q(1,iP(jIter+iOff)),1,
      &              q(1,nIter+1),1)

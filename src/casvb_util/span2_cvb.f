@@ -18,7 +18,7 @@
 
       if(nvtot.ne.0)then
         call span_cvb(w(iaddr),nvtot,nvtot,s,n,metr)
-        call fmove(w(iaddr),c,n*nvtot)
+        call fmove_cvb(w(iaddr),c,n*nvtot)
       endif
       nvec=nvtot
       call mfreer_cvb(iaddr)

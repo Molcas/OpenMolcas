@@ -111,7 +111,7 @@ C INDDSP(IDCNT,IIRREP) is the number of displacements in
 C earlier center/irrep. Thus it is an offset.
 *
       nOrdOp=0
-      Call iCopy(nIrrep,0,0,IndGrd,1)
+      Call iCopy(nIrrep,[0],0,IndGrd,1)
       loper=0
 #ifdef _DEBUG_
       iprint=99
@@ -153,13 +153,13 @@ C will then contain the ordering number of the displacement.
 C Allocate one integral array for each of these irreps.
 C The address is kept in array IP().
        nIC=0
-      Call ICopy(nIrrep,0,0,ip,1)
+      Call ICopy(nIrrep,[0],0,ip,1)
       Do iIrrep =0,nIrrep-1
          If (iAnd(2**iIrrep,loper).ne.0) Then
             LenInt=nFck(iIrrep)
             nIc=nIC+1
             Call GetMem(Label,'ALLO','REAL',ip(NIC),LenInt)
-            call dcopy_(LenInt,Zero,0,Work(ip(nIC)),1)
+            call dcopy_(LenInt,[Zero],0,Work(ip(nIC)),1)
          End If
       End Do
 C Obtain ISTABO, the stabilizer of the totally symmetric irrep(!)
@@ -255,12 +255,12 @@ C But then ISTABO will be the whole group!? and NSTABO=NIRREP?!
             If ((.not.DiffCnt).and.(.not.DiffOp)) Goto 131
             call dcopy_(3,Work(jxyz),1,B,1)
             AeqB = iS.eq.jS
-            Call lCopy(6,.false.,0,IfGrd,1)
+            Call lCopy(6,[.false.],0,IfGrd,1)
 C Logical trans(2)
 C trans(iCnt) is true means there will be a sign shift in the SYMADO
 C routine for the contribution to the integral from the
 C differentiation wrt center iCnt
-            Call lCopy(2,.false.,0,trans,1)
+            Call lCopy(2,[.false.],0,trans,1)
             If (mdci.eq.iDCnt) Then
                 IfGrd(idCar,1)=.true.
             End If
@@ -291,7 +291,7 @@ C differentiation wrt center iCnt
 #endif
             If (nSO.eq.0) Go To 131
             Call GetMem(' SO ','ALLO','REAL',ipSO,nSO*iBas*jBas)
-            call dcopy_(nSO*iBas*jBas,Zero,0,Work(ipSO),1)
+            call dcopy_(nSO*iBas*jBas,[Zero],0,Work(ipSO),1)
 *
 *           Find the DCR for A and B
 *
@@ -338,7 +338,7 @@ C differentiation wrt center iCnt
 *            Compute AO integrals.
 *            for easy implementation of NA integrals.
 *
-             call dcopy_(lFinal,0.0d0,0,Work(ipFnl),1)
+             call dcopy_(lFinal,[0.0d0],0,Work(ipFnl),1)
              Call Kernel(Work(iExp),iPrim,Work(jExp),jPrim,
      &                   Work(iZeta),Work(ipZI),
      &                   Work(iKappa),Work(iPCoor),
@@ -506,7 +506,8 @@ C differentiation wrt center iCnt
             If (iadd.ne.0) Then
                irc=-1
                iopt=0
-               call RdMck(irc,iOpt,Lab_dsk,jdisp,work(ipscr),koper)
+               iipscr=ip_of_iWork_d(work(ipscr))
+               call RdMck(irc,iOpt,Lab_dsk,jdisp,iwork(iipscr),koper)
                If (irc.ne.0) Call SysAbendMsg('cnt1el',
      &                            'error during read in rdmck',' ')
                Call DaXpY_(nfck(iIrrep),one,

@@ -298,11 +298,11 @@
                 call quicksort(idx(j + 1 : ), increasing)
               end if
             else
-              call naive_sort(idx, increasing)
+              call own_naive_sort(idx, increasing)
             end if
           end subroutine own_quicksort
 
-          subroutine naive_sort(idx, increasing)
+          subroutine own_naive_sort(idx, increasing)
             implicit none
             integer, intent(inout) :: idx(:)
             logical, intent(in) :: increasing
@@ -329,7 +329,7 @@
                 idx(j) = t
               end do
             end if
-          end subroutine naive_sort
+          end subroutine own_naive_sort
       end function I_argsort
 
       function R_argsort(A, increasing) result(idx)
@@ -381,11 +381,11 @@
                 call quicksort(idx(j + 1 : ), increasing)
               end if
             else
-              call naive_sort(idx, increasing)
+              call own_naive_sort(idx, increasing)
             end if
           end subroutine own_quicksort
 
-          subroutine naive_sort(idx, increasing)
+          subroutine own_naive_sort(idx, increasing)
             implicit none
             integer, intent(inout) :: idx(:)
             logical, intent(in) :: increasing
@@ -412,6 +412,6 @@
                 idx(j) = t
               end do
             end if
-          end subroutine naive_sort
+          end subroutine own_naive_sort
       end function R_argsort
       end module

@@ -24,7 +24,7 @@
       Call UpCase(myNorm)
 
       If (iOpt .eq. 1) Then
-         Call dCopy_(nAtoms*m,0.0d0,0,XAt,1)
+         Call dCopy_(nAtoms*m,[0.0d0],0,XAt,1)
          If (myNorm .eq. 'MAX') Then
             Do j = 1,m
                Do iAt = 1,nAtoms
@@ -52,7 +52,7 @@
             Call SysAbendMsg('GetAt_Localisation','Fatal error',
      &                       'm != nBas')
          End If
-         Call dCopy_(nAtoms*nAtoms,0.0d0,0,XAt,1)
+         Call dCopy_(nAtoms*nAtoms,[0.0d0],0,XAt,1)
          If (myNorm .eq. 'MAX') Then
             Do jAt = 1,nAtoms
                j1 = nBas_Start(jAt)

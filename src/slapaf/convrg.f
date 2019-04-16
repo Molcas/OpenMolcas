@@ -463,7 +463,7 @@ c      End If
                call dcopy_(3*nAtom,Work(ipTmp+3*nAtom),1,
      &                    Work(ipC+(iSaddle-1)*3*nAtom),1)
             End If
-            call dcopy_(3*nAtom,Zero,0,
+            call dcopy_(3*nAtom,[Zero],0,
      &                 Work(ipG+(iSaddle-1)*3*nAtom),1)
 *
          Else
@@ -648,7 +648,7 @@ C              Write (6,*) 'SubProject=.Prod'
             Call NameRun('RUNFILE')
             Call Free_Work(ipTmp)
             nSaddle=0
-            Call Put_dArray('Saddle',Dummy,nSaddle)
+            Call Put_dArray('Saddle',[Zero],nSaddle)
             Call Put_iScalar('nMEP',nSaddle)
          End If
 *
@@ -972,7 +972,7 @@ C              Write (6,*) 'SubProject=.Prod'
 *
 *         Restore data
 *
-          Call Put_dScalar('Last Energy',Energy)
+          Call Put_dScalar('Last Energy',Energy(1))
           Call Put_Grad(Gx,3*nAtom)
           Call Put_dArray('Unique Coordinates',Cx,3*nAtom)
           Call Put_Coord_New(Cx,nAtom)

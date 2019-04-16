@@ -26,6 +26,7 @@
       Dimension Inside(MxAt,3)
       Character Snack*30,BsLbl*(LENIN8*MxBasC)
       Logical PrEne,PrOcc,Inside
+      Dimension Dummy(1)
 
 *--------------------------------------------------------------------------*
 * Call Transrot. There we compute the rotation matrix for the classical    *
@@ -71,7 +72,7 @@
 525     Continue
         Call NameRun('WRUNFIL')
         Call Get_cArray('Unique Basis Names',BsLbl,LENIN8*nBaseC)
-        Call Primo(Snack,PrOcc,PrEne,Dummy,Dummy,1,nBaseC
+        Call Primo(Snack,PrOcc,PrEne,Dummy(1),Dummy(1),1,[nBaseC]
      &         ,iOrb(2),BsLbl,Dummy,Dummy,Work(ipPPP),3)
         Call GetMem('PrCMO','Free','Real',ipPPP,nBaseC*iOrb(2))
       Endif

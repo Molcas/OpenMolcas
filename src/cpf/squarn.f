@@ -11,12 +11,12 @@
 * Copyright (C) 1986, Per E. M. Siegbahn                               *
 *               1986, Margareta R. A. Blomberg                         *
 ************************************************************************
-      SUBROUTINE SQUARN(A,B,N)
+      SUBROUTINE SQUARN_CPF(A,B,N)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION A(*),B(N,N)
       IN=1
       DO 10 I=1,N
-      CALL VNEG(A(IN),1,B(I,1),N,I)
+      CALL VNEG_CPF(A(IN),1,B(I,1),N,I)
       CALL DCOPY_(I,A(IN),1,B(1,I),1)
       IN=IN+I
 10    CONTINUE

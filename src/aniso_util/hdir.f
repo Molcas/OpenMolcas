@@ -35,18 +35,18 @@ c      field according to Lebedev-Laikov grids using the the given parameters (n
         Write(6,'(A,i4)') 'nDirTot = ', nDirTot
         Write(6,'(A,i4)') 'The rule is :'
         Write(6,'(A   )') 'nDir + nDirZee + nP = nDirTot'
-        Call xFlush()
+        Call xFlush(6)
         Call abend()
       End If
 c intialization
-      Call dcopy_(nDirTot, 0.0_wp, 0, dHX(1), 1)
-      Call dcopy_(nDirTot, 0.0_wp, 0, dHY(1), 1)
-      Call dcopy_(nDirTot, 0.0_wp, 0, dHZ(1), 1)
-      Call dcopy_(nDirTot, 0.0_wp, 0, dHW(1), 1)
-      Call dcopy_(     nP, 0.0_wp, 0,   X(1), 1)
-      Call dcopy_(     nP, 0.0_wp, 0,   Y(1), 1)
-      Call dcopy_(     nP, 0.0_wp, 0,   Z(1), 1)
-      Call dcopy_(     nP, 0.0_wp, 0,   W(1), 1)
+      Call dcopy_(nDirTot, [0.0_wp], 0, dHX(1), 1)
+      Call dcopy_(nDirTot, [0.0_wp], 0, dHY(1), 1)
+      Call dcopy_(nDirTot, [0.0_wp], 0, dHZ(1), 1)
+      Call dcopy_(nDirTot, [0.0_wp], 0, dHW(1), 1)
+      Call dcopy_(     nP, [0.0_wp], 0,   X(1), 1)
+      Call dcopy_(     nP, [0.0_wp], 0,   Y(1), 1)
+      Call dcopy_(     nP, [0.0_wp], 0,   Z(1), 1)
+      Call dcopy_(     nP, [0.0_wp], 0,   W(1), 1)
 
 c      If ( nDir.gt.0) then
 c        Call DCOPY_(   nDir, dirX, 1, dHX(1), 1)

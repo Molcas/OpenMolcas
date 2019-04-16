@@ -32,8 +32,8 @@
       Write (6,*) 'Initialize iTabAtoms'
 #endif
 *
-      Call ICopy(nBondMax*3,0,0,iTabBonds,1)
-      Call ICopy(2*(nMax+1)*nAtoms,0,0,iTabAtoms,1)
+      Call ICopy(nBondMax*3,[0],0,iTabBonds,1)
+      Call ICopy(2*(nMax+1)*nAtoms,[0],0,iTabAtoms,1)
       nBonds = 0
 *                                                                      *
 ************************************************************************

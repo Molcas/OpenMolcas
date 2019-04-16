@@ -123,8 +123,8 @@ c     Fact = DBLE(nStabM) / DBLE(LmbdT)
 *              Compute integrals with the Rys quadrature.
 *
                Call Rys(iAnga,nT,Zeta,ZInv,nZeta,
-     &                  One,One,1,P,nZeta,
-     &                  TC,1,rKappa,One,Coori,Coora,CoorAC,
+     &                  [One],[One],1,P,nZeta,
+     &                  TC,1,rKappa,[One],Coori,Coora,CoorAC,
      &                  mabmin,mabmax,0,0,Array,nArr*nZeta,
      &                  TNAI,Fake,XCff2D,XRys2D,NoSpecial)
 *

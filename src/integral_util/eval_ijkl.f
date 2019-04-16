@@ -483,7 +483,8 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &Work(ipEta), Work(ipEI),iWork(ipiEta),Work(ipKcd),Work(ipQ),nEta,
      & Work(ipMem1),nSO,Work(ipMem2),Mem2,
      & Shijij,W2Disc,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
-     & DoIntegrals,DoFock,FckNoClmb,FckNoExch,Work(ipAux),nAux,ExFac)
+     & DoIntegrals,DoFock,FckNoClmb(1),FckNoExch(1),Work(ipAux),nAux,
+     & ExFac(1))
 *
                   Else
 *
@@ -511,7 +512,8 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
      &Work(ipEta), Work(ipEI),iWork(ipiEta),Work(ipKcd),Work(ipQ),nEta,
      & Work(ipMem1),nSO,Work(ipMem2),Mem2,
      & Shijij,W2Disc,PreSch,Quad_ijkl,nHRRAB,nHRRCD,
-     & DoIntegrals,DoFock,FckNoClmb,FckNoExch,Work(ipAux),nAux,ExFac)
+     & DoIntegrals,DoFock,FckNoClmb(1),FckNoExch(1),Work(ipAux),nAux,
+     & ExFac(1))
 *
                   End If
 *                                                                      *

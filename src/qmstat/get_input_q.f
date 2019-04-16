@@ -114,63 +114,63 @@
 *---<<<RADIe>>>
       If(Kword(1:4).eq.'RADI') then
         Key=Get_Ln(LuRd)
-        Call Get_F(1,Rstart,1)
+        Call Get_F1(1,Rstart)
         Go To 103
 *---<<<PERMitivity>>>
       Elseif(Kword(1:4).eq.'PERM') then
         Key=Get_Ln(LuRd)
-        Call Get_F(1,Diel,1)
+        Call Get_F1(1,Diel)
         Go To 103
 *---<<<TEMPerature>>>
       Elseif(Kword(1:4).eq.'TEMP') then
         Key=Get_Ln(LuRd)
-        Call Get_F(1,Temp,1)
+        Call Get_F1(1,Temp)
         Go To 103
 *---<<<PRESsure>>>
       Elseif(Kword(1:4).eq.'PRES') then
         Key=Get_Ln(LuRd)
-        Call Get_F(1,Pres,1)
+        Call Get_F1(1,Pres)
         Go To 103
 *---<<<SURFace>>>
       Elseif(Kword(1:4).eq.'SURF') then
         Key=Get_Ln(LuRd)
-        Call Get_F(1,Surf,1)
+        Call Get_F1(1,Surf)
         Go To 103
 *---<<<TRANslation>>>
       Elseif(Kword(1:4).eq.'TRAN') then
         Key=Get_Ln(LuRd)
-        Call Get_F(1,DelX,1)
+        Call Get_F1(1,DelX)
         Go To 103
 *---<<<ROTAtion>>>
       Elseif(Kword(1:4).eq.'ROTA') then
         Key=Get_Ln(LuRd)
-        Call Get_F(1,DelFi,1)
+        Call Get_F1(1,DelFi)
         Go To 103
 *---<<<CAVIty>>>
       Elseif(Kword(1:4).eq.'CAVI') then
         Key=Get_Ln(LuRd)
-        Call Get_F(1,DelR,1)
+        Call Get_F1(1,DelR)
         Go To 103
 *---<<<FORCe>>>
       Elseif(Kword(1:4).eq.'FORC') then
         Key=Get_Ln(LuRd)
-        Call Get_F(1,Forcek,1)
+        Call Get_F1(1,Forcek)
         Go To 103
 *---<<<BREPulsion>>>
       Elseif(Kword(1:4).eq.'BREP') then
         Key=Get_Ln(LuRd)
-        Call Get_F(1,dLJRep,1)
+        Call Get_F1(1,dLJRep)
         Go To 103
 *---<<<SEED>>>
       Elseif(Kword(1:4).eq.'SEED') then
         Key=Get_Ln(LuRd)
-        Call Get_I(1,iSeed,1)
+        Call Get_I1(1,iSeed)
         Go To 103
 *---<<<PARAlleltemp>>>
       Elseif(Kword(1:4).eq.'PARA') then
         ParallelT=.true.
         Key=Get_Ln(LuRd)
-        Call Get_I(1,nTemp,1)
+        Call Get_I1(1,nTemp)
         Key=Get_Ln(LuRd)
         Call Get_I(1,nStFilT,nTemp)
         Key=Get_Ln(LuRd)
@@ -191,9 +191,9 @@
 *
 104   Continue
       Key=Get_Ln(LuRd)
-      Call Get_F(1,Pollim,1)
-      Call Get_F(2,Enelim,1)
-      Call Get_I(3,itMax,1)
+      Call Get_F1(1,Pollim)
+      Call Get_F1(2,Enelim)
+      Call Get_I1(3,itMax)
       Go To 1000
 
 *
@@ -201,8 +201,8 @@
 *
 105   Continue
       Key=Get_Ln(LuRd)
-      Call Get_I(1,NMacro,1)
-      Call Get_I(2,NMicro,1)
+      Call Get_I1(1,NMacro)
+      Call Get_I1(2,NMicro)
       Go To 1000
 
 *
@@ -233,7 +233,7 @@
 *
 107   Continue
       Key=Get_Ln(LuRd)
-      Call Get_I(1,iPrint,1)
+      Call Get_I1(1,iPrint)
       Go To 1000
 
 *
@@ -243,7 +243,7 @@
 108   Continue
       AddExt=.true.
       Key=Get_Ln(LuRd)
-      Call Get_I(1,nExtAddOns,1)
+      Call Get_I1(1,nExtAddOns)
       If(nExtAddOns.gt.MxExtAddOn) then
         Write(6,*)
         Write(6,*)'Too many external perturbations asked for.'
@@ -267,20 +267,20 @@
       If(Kword(1:4).eq.'DELE') then
         DelOrAdd(1)=.true.
         Key=Get_Ln(LuRd)
-        Call Get_I(1,NrStarti,1)
-        Call Get_I(2,NrStartu,1)
+        Call Get_I1(1,NrStarti)
+        Call Get_I1(2,NrStartu)
         Key=Get_Ln(LuRd)
-        Call Get_I(1,nDel,1)
+        Call Get_I1(1,nDel)
         Go To 109
       Endif
 *----<<<ADD >>>    Add solvent molecules.
       If(Kword(1:4).eq.'ADD ') then
         DelOrAdd(2)=.true.
         Key=Get_Ln(LuRd)
-        Call Get_I(1,NrStarti,1)
-        Call Get_I(2,NrStartu,1)
+        Call Get_I1(1,NrStarti)
+        Call Get_I1(2,NrStartu)
         Key=Get_Ln(LuRd)
-        Call Get_I(1,nAdd,1)
+        Call Get_I1(1,nAdd)
         Go To 109
       Endif
 *----<<<QMDElete>>>   Substitute all slots with non-water coordinates
@@ -288,8 +288,8 @@
       If(Kword(1:4).eq.'QMDE') then
         DelOrAdd(3)=.true.
         Key=Get_Ln(LuRd)
-        Call Get_I(1,NrStarti,1)
-        Call Get_I(2,NrStartu,1)
+        Call Get_I1(1,NrStarti)
+        Call Get_I1(2,NrStartu)
         Go To 109
       Endif
 *----<<<DUMP coordinates>>>  Dump coordinates in a way suitable for
@@ -300,7 +300,7 @@
         Call UpCase(Key)
         cDumpForm=Key(1:4)
         Key=Get_Ln(LuRd)
-        Call Get_I(1,NrStarti,1)
+        Call Get_I1(1,NrStarti)
         Go To 109
       Endif
 *----<<<END editstartfile>>>
@@ -327,7 +327,7 @@
 *---<<<ADD >>>  How many to add at random.
       If(Kword(1:4).eq.'ADD ') then
         Key=Get_Ln(LuRd)
-        Call Get_I(1,iExtra,1)
+        Call Get_I1(1,iExtra)
         If(iExtra.gt.MxPut) then
           Write(6,*)
           Write(6,*)'The present limit of explicit solvent molecules i'
@@ -348,21 +348,21 @@
 *---------<<<SCRAtch>>> Just put QM as given on RUNFILE.
           If(Kword(1:4).eq.'SCRA') then
             Key=Get_Ln(LuRd)
-            Call Get_I(1,iNrIn,1)
-            Call Get_I(2,iNrUt,1)
+            Call Get_I1(1,iNrIn)
+            Call Get_I1(2,iNrUt)
             iRead=8
 *---------<<<COPY>>> Collect place of QM from startfile. WARNING!
 *                    You must use consistent startfile and RUNFILE!
           Elseif(Kword(1:4).eq.'COPY') then
             Key=Get_Ln(LuRd)
-            Call Get_I(1,iNrIn,1)
-            Call Get_I(2,iNrUt,1)
+            Call Get_I1(1,iNrIn)
+            Call Get_I1(2,iNrUt)
             iRead=7
 *---------<<<CM  >>> Put QM in CM of QM-place on startfile.
           Elseif(Kword(1:2).eq.'CM') then
             Key=Get_Ln(LuRd)
-            Call Get_I(1,iNrIn,1)
-            Call Get_I(2,iNrUt,1)
+            Call Get_I1(1,iNrIn)
+            Call Get_I1(2,iNrUt)
             iRead=6
           Else
             Write(6,*)
@@ -373,8 +373,8 @@
 *                      the extracted information in iNrExtr.
         Elseif(Kword(1:4).eq.'SAMP') then
           Key=Get_Ln(LuRd)
-          Call Get_I(1,iNrIn,1)
-          Call Get_I(2,iNrExtr,1)
+          Call Get_I1(1,iNrIn)
+          Call Get_I1(2,iNrExtr)
           iRead=9
           Write(SimEx(6:6),'(i1.1)')iNrExtr
           YesNo(9)=.true.
@@ -396,7 +396,7 @@
 *                in the solvent section.
       Elseif(Kword(1:4).eq.'INPU') then
         Key=Get_Ln(LuRd)
-        Call Get_I(1,iNrUt,1)
+        Call Get_I1(1,iNrUt)
         iLuStUt=16+iNrUt
         YesNo(5)=.true.  !User will give coord:s in input.
         Go To 110
@@ -439,8 +439,8 @@
 *                        exponents to not be consider the same value.
         If(Kword(1:4).eq.'THRE') then
           Key=Get_Ln(LuRd)
-          Call Get_F(1,Cut_Elc,1)
-          Call Get_F(2,DifSlExp,1)
+          Call Get_F1(1,Cut_Elc)
+          Call Get_F1(2,DifSlExp)
           Go To 1131
         Endif
 *-----<<<NOPEnetration>>>  Electrostatic Penetration Not Computed
@@ -470,25 +470,25 @@
 *------<<<S2  >>>  The S2 parameter
         If(Kword(1:4).eq.'S2  ') then
           Key=Get_Ln(LuRd)
-          Call Get_F(1,Exrep2,1)
+          Call Get_F1(1,Exrep2)
           Go To 1112
         Endif
 *------<<<S4  >>>  The S4 parameter
         If(Kword(1:4).eq.'S4  ') then
           Key=Get_Ln(LuRd)
-          Call Get_F(1,Exrep4,1)
+          Call Get_F1(1,Exrep4)
           Go To 1112
         Endif
 *------<<<S6  >>>  The S6 parameter
         If(Kword(1:4).eq.'S6  ') then
           Key=Get_Ln(LuRd)
-          Call Get_F(1,Exrep6,1)
+          Call Get_F1(1,Exrep6)
           Go To 1112
         Endif
 *------<<<S10 >>>  The S10 parameter
         If(Kword(1:4).eq.'S10 ') then
           Key=Get_Ln(LuRd)
-          Call Get_F(1,Exrep10,1)
+          Call Get_F1(1,Exrep10)
           Go To 1112
         Endif
 *------<<<CUTOff>>> The cut-off radii for repulsion. The first is
@@ -496,8 +496,8 @@
 *                   the second is a EX=infinity if R.lt.Cut_Ex2.
         If(Kword(1:4).eq.'CUTO') then
           Key=Get_Ln(LuRd)
-          Call Get_F(1,Cut_Ex1,1)
-          Call Get_F(2,Cut_Ex2,1)
+          Call Get_F1(1,Cut_Ex1)
+          Call Get_F1(2,Cut_Ex2)
           Go To 1112
         Endif
 *------<<<END xparameters>>>
@@ -543,9 +543,9 @@
         Elseif(Kword(1:4).eq.'FIEL') then
           Fielddamp=.true.
           Key=Get_Ln(LuRd)
-          Call Get_F(1,CAFieldG,1)
-          Call Get_F(2,CBFieldG,1)
-          Call Get_F(3,CFExp,1)
+          Call Get_F1(1,CAFieldG)
+          Call Get_F1(2,CBFieldG)
+          Call Get_F1(3,CFExp)
           Go To 1119
 *------<<<END damping>>>
         Elseif(Kword(1:4).eq.'END ') then
@@ -603,7 +603,7 @@
       If(Kword(1:4).eq.'COOR') then
         YesNo(6)=.true.  !Signify that user gives coordinates.
         Key=Get_Ln(LuRd)
-        Call Get_I(1,nPart,1)
+        Call Get_I1(1,nPart)
         kaunt=0
         Do 1101, i=1,nPart
           Do 1102, j=1,nAtom
@@ -634,8 +634,8 @@
 *                       cavity boundary.
       If(Kword(1:4).eq.'CAVR') then
         Key=Get_Ln(LuRd)
-        Call Get_F(1,Exdtal,1)
-        Call Get_F(2,Exdt1,1)
+        Call Get_F1(1,Exdtal)
+        Call Get_F1(2,Exdt1)
         Go To 112
       Endif
 *---<<<OCORbitals>>>  Occupied Orbitals for the solvent molecule
@@ -649,11 +649,11 @@
 * Jose               Slater Sites
       If(Kword(1:4).eq.'ATCE') then
         Key=Get_Ln(LuRd)
-        Call Get_I(1,nAtom,1)
-        Call Get_I(2,nCent,1)
-        Call Get_I(3,nCha,1)
-        Call Get_I(4,nPol,1)
-        Call Get_I(5,nSlSiteC,1)
+        Call Get_I1(1,nAtom)
+        Call Get_I1(2,nCent)
+        Call Get_I1(3,nCha)
+        Call Get_I1(4,nPol)
+        Call Get_I1(5,nSlSiteC)
         Go To 112
       Endif
 *---<<<CHARge>>>  Magnitude of the charges.
@@ -672,7 +672,7 @@
 *---<<<SLATer>>> Magnitude of Slater PreFactors and Exponents.
       If(Kword(1:4).eq.'SLAT') then
         Key=Get_Ln(LuRd)
-        Call Get_I(1,lMltSlC,1)
+        Call Get_I1(1,lMltSlC)
         If(lMltSlC.gt.1) then
           Write(6,*)
           Write(6,*)'Too high order of multipole in classical system'
@@ -684,7 +684,7 @@
             nS=j*(j+1)*(j+2)/6
             nT=(j+1)*(j+2)*(j+3)/6
             Key=Get_Ln(LuRd)
-            Call Get_F(1,SlExpTemp,1)
+            Call Get_F1(1,SlExpTemp)
             SlExpC(j+1,i)=SlExpTemp
             njhr=nT-nS
             Key=Get_Ln(LuRd)
@@ -723,7 +723,7 @@
 *---<<<JOBFiles>>>  How many jobfiles and how many states in them.
       If(Kword(1:4).eq.'JOBF') then
         Key=Get_Ln(LuRd)
-        Call Get_I(1,NrFiles,1)
+        Call Get_I1(1,NrFiles)
         Key=Get_Ln(LuRd)
         Call Get_I(1,NrStates,NrFiles)
         Go To 113
@@ -731,27 +731,27 @@
 *---<<<EQSTate>>> Which state is to be equilibrated.
       If(Kword(1:4).eq.'EQST') then
         Key=Get_Ln(LuRd)
-        Call Get_I(1,nEqState,1)
+        Call Get_I1(1,nEqState)
         Go To 113
       Endif
 *---<<<MOREduce>>> Work in reduced MO-basis.
       If(Kword(1:4).eq.'MORE') then
         Key=Get_Ln(LuRd)
-        Call Get_F(1,ThrsRedOcc,1)
+        Call Get_F1(1,ThrsRedOcc)
         MoAveRed=.true.
         Go To 113
       Endif
 *---<<<CONTract>>> Contract the RASSI state basis.
       If(Kword(1:4).eq.'CONT') then
         Key=Get_Ln(LuRd)
-        Call Get_F(1,ThrsCont,1)
+        Call Get_F1(1,ThrsCont)
         ContrStateB=.true.
         Go To 113
       Endif
 *---<<<LEVElshift>>> Introduce levelshift of RASSI states.
       If(Kword(1:4).eq.'LEVE') then
         Key=Get_Ln(LuRd)
-        Call Get_I(1,nLvlShift,1)
+        Call Get_I1(1,nLvlShift)
         Key=Get_Ln(LuRd)
         Call Get_I(1,iLvlShift,nLvlShift)
         Key=Get_Ln(LuRd)
@@ -777,7 +777,7 @@
       If(Kword(1:4).eq.'CISE') then
         lCiSelect=.true.
         Key=Get_Ln(LuRd)
-        Call Get_I(1,nCIRef,1)
+        Call Get_I1(1,nCIRef)
         Key=Get_Ln(LuRd)
         Call Get_I(1,iCIInd,nCIRef)
         Key=Get_Ln(LuRd)
@@ -808,7 +808,7 @@
       If(Kword(1:4).eq.'ORBI') then
         Key=Get_Ln(LuRd)
         Call Get_I(1,iOrb(1),1)
-        Call Get_I(2,iOcc1,1)
+        Call Get_I1(2,iOcc1)
         If(iOrb(1).gt.MxOrb) then
           Write(6,*)
           Write(6,*)'The parameter MxOrb is set too low, or your '
@@ -876,7 +876,7 @@
       If(Kword(1:4).eq.'EIGE') then
         lExtr(4)=.true.
         Key=Get_Ln(LuRd)
-        Call Get_I(1,iExtr_Eig,1)
+        Call Get_I1(1,iExtr_Eig)
         Call Get_S(2,VecsQue,1)
         Call UpCase(VecsQue)
         If(VecsQue(1:3).eq.'YES') lExtr(5)=.true.
@@ -891,7 +891,7 @@
       If(Kword(1:4).eq.'ELOC') then
         lExtr(7)=.true.
         Key=Get_Ln(LuRd)
-        Call Get_I(1,NExtr_Atm,1)
+        Call Get_I1(1,NExtr_Atm)
         Key=Get_Ln(LuRd)
         Call Get_I(1,iExtr_Atm,NExtr_Atm)
         Go To 117

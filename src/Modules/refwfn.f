@@ -146,8 +146,8 @@ CSVC: initialize the reference wavefunction info
      $          nfro,nish,nras1,nras2,nras3,nssh,ndel)
         nash = nras1 + nras2 + nras3
         call mma_deallocate (typestring)
-        ! Leon 14/6/2017 -- do not read CI vectors if NEVPT2 is attempted
-        ! because for now we only support DMRG-NEVPT2
+!       Leon 14/6/2017 -- do not read CI vectors if NEVPT2 is attempted
+!       because for now we only support DMRG-NEVPT2
         if (ProgName(1:6).eq.'caspt2') then
           If (.not.mh5_exists_dset(refwfn_id, 'CI_VECTORS')) Then
           Write(6,'(1X,A)') 'The HDF5 file does not contain CI vectors,'
@@ -254,8 +254,8 @@ CSVC: initialize the reference wavefunction data
 C IDCIEX: Present EOF on LUCIEX.
       ID=IDCIEX
 C Skip when using cumulant reconstruction of (3-,) 4-RDM
-      ! Leon 14/6/2017 -- do not read CI vectors if NEVPT2 is attempted
-      ! because for now we only support DMRG-NEVPT2
+!     Leon 14/6/2017 -- do not read CI vectors if NEVPT2 is attempted
+!     because for now we only support DMRG-NEVPT2
       if (ProgName(1:6).eq.'caspt2') then
         IF((.Not.DoCumulant).AND.(ISCF.EQ.0)) THEN
           CALL GETMEM('LCI','ALLO','REAL',LCI,NCONF)
@@ -373,18 +373,18 @@ C table of energies/iteration is the last one with not all zeroes.
 #ifdef _HDF5_
       End If
 #endif
-      ! Leon: MSTATE(I) is initialised only in caspt2
-      ! if it's initialised somewhere else, feel free to change the line below
+!     Leon: MSTATE(I) is initialised only in caspt2
+!     if it's initialised somewhere else, feel free to change the line below
       if (ProgName(1:6).eq.'caspt2') then
         DO I=1,NSTATE
           REFENE(I)=ROOT_ENERGIES(MSTATE(I))
         END DO
       else
-        ! since it isn't initialised, we just assume that we need the states in the
-        ! same order as they're written on JobIph
-        ! Apparently, nstates is also initialised in caspt2 only, but nroots is
-        ! available from here, so we use nroots
-        !> stknecht: initialize nstate here nevertheless - can be used in nevpt2 initialization as well
+!       since it isn't initialised, we just assume that we need the states in the
+!       same order as they're written on JobIph
+!       Apparently, nstates is also initialised in caspt2 only, but nroots is
+!       available from here, so we use nroots
+!       > stknecht: initialize nstate here nevertheless - can be used in nevpt2 initialization as well
         nstate = nroots
         refene(1:nroots)=ROOT_ENERGIES(1:nroots)
       end if

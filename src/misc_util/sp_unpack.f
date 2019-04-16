@@ -31,7 +31,7 @@
       REAL*8 Sp(*), A(n,n)
 #include "real.fh"
 
-      CALL DZero(n*n,A)
+      CALL FZero(A,n*n)
       IF (Sp(n+1).GT.Zero) THEN
         DO i=1,n
           A(i,i)=Sp(i)

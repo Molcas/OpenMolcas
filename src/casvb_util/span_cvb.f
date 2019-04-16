@@ -31,7 +31,7 @@ c               Vectors will be orthonormal on exit
       cnrm=dnrm2_(n,a(1,i),1)
       if(cnrm.gt.thresh)then
         nlin=nlin+1
-        call fmove(a(1,i),a(1,nlin),n)
+        call fmove_cvb(a(1,i),a(1,nlin),n)
       endif
 100   continue
       ierr=1

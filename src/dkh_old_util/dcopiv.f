@@ -102,10 +102,19 @@ C SOURCE MODULE: SYS3.SYMLIB.FORTRAN(DCOPIV)
 C
 C**********************************************************************
 C
-      SUBROUTINE   DCOPIV(A,B,N,M,iD,EPS,DET,iEX,iCTR,iS)
+      SUBROUTINE   DCOPIV(A,B,N,M,iD,EPS,DET,iEX,iCTR,S)
       implicit real*8(a-h,o-z)
-      DIMENSION    A(iD,N),B(iD,M),iS(N)
+      DIMENSION    A(iD,N),B(iD,M),S(N)
 C
+      CALL DCOPIV_INTERNAL(S)
+*
+*     This is to allow type punning without an explicit interface
+      CONTAINS
+      SUBROUTINE DCOPIV_INTERNAL(S)
+      USE ISO_C_BINDING
+      REAL*8, TARGET :: S(*)
+      INTEGER, POINTER :: iS(:)
+      CALL C_F_POINTER(C_LOC(S(1)),iS,[N])
       IF (N .LT. 1 .OR. M .LT. 1) GO TO 7
       iEX = 0
       DET = 1.0D0
@@ -209,10 +218,15 @@ C
          END IF
    25 CONTINUE
     5 iCTR = 0
+      NULLIFY(iS)
       RETURN
     1 DET = 0.0D0
       iCTR = 1
+      NULLIFY(iS)
       RETURN
     7 iCTR = -1
+      NULLIFY(iS)
       RETURN
+      END SUBROUTINE DCOPIV_INTERNAL
+*
       END

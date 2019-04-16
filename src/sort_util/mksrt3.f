@@ -148,7 +148,7 @@ C                  Write (6,*) 'nBatch(iSyBlk)=',nBatch(iSyBlk)
 *
 *     Init integrals
 *
-                   Call dCopy_(lBuf,0.0d0,0,RAMD_ints(iOff),1)
+                   Call dCopy_(lBuf,[0.0d0],0,RAMD_ints(iOff),1)
 *
 *     update pointers
 *

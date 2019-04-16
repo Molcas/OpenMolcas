@@ -179,10 +179,10 @@
       ThrCons = 1.0D10
       Delta  = 1.0D-2
       nWndw = 5
-      Call ICopy(mxdc,0,0,nStab,1)
-      Call ICopy(8*mxdc,0,0,iCoSet,1)
-      Call ICopy(8*mxdc,0,0,jStab,1)
-      call dcopy_(3*mxdc,Zero,0,Degen,1)
+      Call ICopy(mxdc,[0],0,nStab,1)
+      Call ICopy(8*mxdc,[0],0,iCoSet,1)
+      Call ICopy(8*mxdc,[0],0,jStab,1)
+      call dcopy_(3*mxdc,[Zero],0,Degen,1)
       do 180 i = 1, 3*mxdc
          Smmtrc(i) = .False.
  180  Continue
@@ -313,7 +313,7 @@ C           NADC= .False. ! for debugging
          Call Qpg_iScalar('Number of roots',Found)
          nRoots = 1
          If (Found) Call Get_iScalar('Number of roots',nRoots)
-         Call iCopy(MxRoot,0,0,RootMap,1)
+         Call iCopy(MxRoot,[0],0,RootMap,1)
          Do i=1,nRoots
             RootMap(i)=i
          End Do
@@ -335,7 +335,7 @@ C           NADC= .False. ! for debugging
 *                                                                      *
 *---  Set up of symmetry and degeneracy
 *
-      Call ICopy(3,0,0,iSym,1)
+      Call ICopy(3,[0],0,iSym,1)
       Do 600 iIrrep = 1, Min(4,nSym-1)
          jIrrep = iIrrep
          If (iIrrep.eq.3) jIrrep = 4
@@ -393,7 +393,7 @@ C           NADC= .False. ! for debugging
          End If
          Do 611 i = 1, 3
             iComp = 2**(i-1)
-            Call ICopy(nCoSet,0,0,iAdd,1)
+            Call ICopy(nCoSet,[0],0,iAdd,1)
             Do 640 iIrrep = 0, nSym-1
 *...           find the stabilizer index
                iTest=iAnd(iChxyz,iOper(iIrrep))

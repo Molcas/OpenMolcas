@@ -136,7 +136,7 @@ CTEST      write(*,'(1x,20i3)')(IWORK(LLIST-1+I),I=1,NSTATE)
       CALL GETMEM('SS','ALLO','REAL',LSS,NHH)
       CALL GETMEM('UU','ALLO','REAL',LUU,NSTATE**2)
       CALL GETMEM('SCR','ALLO','REAL',LSCR,NSTATE**2)
-      CALL DCOPY_(NSTATE**2,0.0D0,0,WORK(LSCR),1)
+      CALL DCOPY_(NSTATE**2,[0.0D0],0,WORK(LSCR),1)
       CALL GETMEM('STACK','ALLO','INTE',LSTK,NSTATE)
 C Loop over the sets:
       DO ISET=1,NSETS
@@ -155,11 +155,11 @@ C Stack up the states belonging to this set:
        end if
 
 C 1. PUT UNIT MATRIX INTO UU
-      CALL DCOPY_(MSTATE**2,0.0D0,0,WORK(LUU),1)
-      CALL DCOPY_(MSTATE   ,1.0D0,0,WORK(LUU),MSTATE+1)
+      CALL DCOPY_(MSTATE**2,[0.0D0],0,WORK(LUU),1)
+      CALL DCOPY_(MSTATE   ,[1.0D0],0,WORK(LUU),MSTATE+1)
 C 2. COPY OVERLAP MATRIX INTO TRIANGULAR STORAGE,
 C    and Hamiltonian into square storage:
-      CALL DCOPY_(NSTATE**2,0.0D0,0,WORK(LHSQ),1)
+      CALL DCOPY_(NSTATE**2,[0.0D0],0,WORK(LHSQ),1)
       IJ=0
       DO II=1,MSTATE
         I=IWORK(LSTK-1+II)
@@ -631,8 +631,8 @@ C And the same for the Dyson amplitudes
 !
       CALL GETMEM('DL   ','ALLO','REAL',LDL,NSTATE**2)
       CALL GETMEM('DV   ','ALLO','REAL',LDV,NSTATE**2)
-      CALL DCOPY_(NSTATE**2,0.0D0,0,WORK(LDL),1)
-      CALL DCOPY_(NSTATE**2,0.0D0,0,WORK(LDV),1)
+      CALL DCOPY_(NSTATE**2,[0.0D0],0,WORK(LDL),1)
+      CALL DCOPY_(NSTATE**2,[0.0D0],0,WORK(LDV),1)
       I_HAVE_DL = 0
       I_HAVE_DV = 0
 !
@@ -747,7 +747,7 @@ C And the same for the Dyson amplitudes
               k=INT(LOG10(F))+1
               F=F/(10.0D0)**k
            End If
-           Call Add_Info('TMS(SF,Len)',F,1,6)
+           Call Add_Info('TMS(SF,Len)',[F],1,6)
           END IF
          END DO
         END DO
@@ -939,7 +939,7 @@ C And the same for the Dyson amplitudes
 ! Store dipole oscillator strength
                   WORK(LDV-1+IJ) = F
                END IF
-               Call Add_Info('TMS(SF,Vel)',F,1,6)
+               Call Add_Info('TMS(SF,Vel)',[F],1,6)
                END IF
             END DO
          END DO
@@ -1053,7 +1053,7 @@ C And the same for the Dyson amplitudes
 ! We will first allocate a matrix for the total of the second order wave vector
 !
       CALL GETMEM('TOT2K','ALLO','REAL',LTOT2K,NSS**2)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LTOT2K),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LTOT2K),1)
 
 * Magnetic-Dipole - Magnetic-Dipole transitions
 !
@@ -2491,8 +2491,8 @@ C
 *
                 F=Work(LFIJ+3)
                 R=Work(LFIJ+4)
-                Call Add_Info('ITMS(SF)',F,1,6)
-                Call Add_Info('ROTS(SF)',R,1,6)
+                Call Add_Info('ITMS(SF)',[F],1,6)
+                Call Add_Info('ROTS(SF)',[R],1,6)
 *
 *           Note that the weights are normalized to integrate to
 *           4*pi over the solid angles.
@@ -2686,8 +2686,8 @@ C
 #include "nq_info.fh"
 #include "WrkSpc.fh"
       Call GetMem('ip_O','ALLO','REAL',ip_O,9)
-      Call DCOPY_(9,0.0d0,0,Work(ip_O),1)
-      Call DCOPY_(3,1.0D0,0,Work(ip_O),4)
+      Call DCOPY_(9,[0.0d0],0,Work(ip_O),1)
+      Call DCOPY_(3,[1.0D0],0,Work(ip_O),4)
       Return
       End
       Subroutine Free_O()

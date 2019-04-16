@@ -46,7 +46,26 @@
       Integer lOper(nComp), iStabM(0:nStabM-1), iChO(nComp),
      &        iStabO(0:7), iDCRT(0:7)
 *
-
+      Call EMFInt_Internal(Array)
+      Return
+c Avoid unused argument warnings
+      If (.False.) Then
+         Call Unused_real_array(ZInv)
+         Call Unused_integer(nOrdOp)
+         Call Unused_integer_array(lOper)
+         Call Unused_integer_array(iChO)
+         Call Unused_integer_array(iStabM)
+         Call Unused_real(PtChrg)
+         Call Unused_integer(nGrid)
+         Call Unused_integer(iAddPot)
+      End If
+*
+*     This is to allow type punning without an explicit interface
+      Contains
+      SubRoutine EMFInt_Internal(Array)
+      Use Iso_C_Binding
+      Real*8, Target :: Array(*)
+      Complex*16, Pointer :: zAxyz(:),zBxyz(:),zQxyz(:),zVxyz(:)
 *
 *     Statement function for Cartesian index
 *
@@ -96,23 +115,35 @@
          Write (6,*) ' In EMFInt: la,lb=',la,lb
       End If
 *
-      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,Zero,0,Final,1)
+      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
 *     Compute the cartesian values of the basis functions angular part
 *     Note that these arrays are complex.
 *
-      Call CCrtCmp(Zeta,P,nZeta,A,Array(ipAxyz),
+      Call C_F_Pointer(C_Loc(Array(ipAxyz)),zAxyz,
+     &                  [nZeta*3*nHer*(la+nOrdOp+1)])
+      Call CCrtCmp(Zeta,P,nZeta,A,zAxyz,
      &               la+nOrdOp,HerR(iHerR(nHer)),nHer,ABeq,CCoor)
-      Call CCrtCmp(Zeta,P,nZeta,RB,Array(ipBxyz),
+      Call C_F_Pointer(C_Loc(Array(ipBxyz)),zBxyz,
+     &                  [nZeta*3*nHer*(lb+nOrdOp+1)])
+      Call CCrtCmp(Zeta,P,nZeta,RB,zBxyz,
      &               lb+nOrdOp,HerR(iHerR(nHer)),nHer,ABeq,CCoor)
+      Nullify(zAxyz,zBxyz)
 *
 *     Compute the cartesian components for the multipole moment
 *     integrals. The integrals are factorized into components.
 *
-      Call CAssmbl(Array(ipQxyz),
-     &             Array(ipAxyz),la+nOrdOp,
-     &             Array(ipBxyz),lb+nOrdOp,
+      Call C_F_Pointer(C_Loc(Array(ipAxyz)),zAxyz,
+     &                  [nZeta*3*nHer*(la+nOrdOp+1)])
+      Call C_F_Pointer(C_Loc(Array(ipQxyz)),zQxyz,
+     &                  [nZeta*3*(la+nOrdOp+1)*(lb+nOrdOp+1)])
+      Call C_F_Pointer(C_Loc(Array(ipBxyz)),zBxyz,
+     &                  [nZeta*3*nHer*(lb+nOrdOp+1)])
+      Call CAssmbl(zQxyz,
+     &             zAxyz,la+nOrdOp,
+     &             zBxyz,lb+nOrdOp,
      &             nZeta,HerW(iHerW(nHer)),nHer)
+      Nullify(zAxyz,zBxyz,zQxyz)
 *
 *     Compute the cartesian components for the velocity integrals.
 *     The velocity components are linear combinations of overlap
@@ -131,16 +162,28 @@
             ipBOff = ipBOff + 1
          End Do
 *
-         Call CVelInt(Array(ipVxyz),Array(ipQxyz),la,lb,
+         Call C_F_Pointer(C_Loc(Array(ipVxyz)),zVxyz,
+     &                     [nZeta*3*(la+1)*(lb+1)])
+         Call C_F_Pointer(C_Loc(Array(ipQxyz)),zQxyz,
+     &                     [nZeta*3*(la+1)*(lb+1)])
+         Call CVelInt(zVxyz,zQxyz,la,lb,
      &                Array(ipA),Array(ipB),nZeta)
+         Nullify(zVxyz,zQxyz)
 *
 *     Combine the cartesian components to the full one electron
 *     integral.
 *
-         Call CCmbnVe(Array(ipQxyz),nZeta,la,lb,Zeta,rKappa,
-     &                Array(ipRes),nComp,Array(ipVxyz),CCoor)
+         Call C_F_Pointer(C_Loc(Array(ipQxyz)),zQxyz,
+     &                     [nZeta*3*(la+1)*(lb+1)])
+         Call C_F_Pointer(C_Loc(Array(ipVxyz)),zVxyz,
+     &                     [nZeta*3*(la+1)*(lb+1)*2])
+         Call CCmbnVe(zQxyz,nZeta,la,lb,Zeta,rKappa,
+     &                Array(ipRes),nComp,zVxyz,CCoor)
+         Nullify(zQxyz,zVxyz)
       Else
-         Call CCmbnMP(Array(ipQxyz),nZeta,la,lb,nOrdOp,Zeta,
+         Call C_F_Pointer(C_Loc(Array(ipQxyz)),zQxyz,
+     &                     [nZeta*3*(la+1)*(lb+1)*(nOrdOp+1)])
+         Call CCmbnMP(zQxyz,nZeta,la,lb,nOrdOp,Zeta,
      &                rKappa,Array(ipRes),nComp)
       End If
 *
@@ -163,15 +206,6 @@
       End Do
 *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_real_array(ZInv)
-         Call Unused_integer(nOrdOp)
-         Call Unused_integer_array(lOper)
-         Call Unused_integer_array(iChO)
-         Call Unused_integer_array(iStabM)
-         Call Unused_real(PtChrg)
-         Call Unused_integer(nGrid)
-         Call Unused_integer(iAddPot)
-      End If
+      End SubRoutine EMFInt_internal
+*
       End

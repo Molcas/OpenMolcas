@@ -42,7 +42,7 @@
 *
 *     calculate the center of mass
 *
-      call dcopy_(3,Zero,0,cMass,1)
+      call dcopy_(3,[Zero],0,cMass,1)
 *-----Loop over the unique centers
       Do i = 1, nsAtom
          Do j = 1, 3

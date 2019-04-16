@@ -51,7 +51,7 @@ c --------     vtint(*)-->vint_ci(*)    ------------
       call idafile(luciint,1,idx,4,idisk)
       idx(1)=idisk
       numb=numb-1
-      call idafile(luciint,1,numb,1,idisk)
+      call idafile(luciint,1,[numb],1,idisk)
       call ddafile(luciint,1,vint_ci,numb,idisk)
       write(6,902) numb
       maxintseg=numb
@@ -62,7 +62,7 @@ c --------     vtint(*)-->vint_ci(*)    ------------
       call int_sort_inn_3(numb)       !_ext_1    (ijka)
       idx(2)=idisk
       numb=numb-1
-      call idafile(luciint,1,numb,1,idisk)
+      call idafile(luciint,1,[numb],1,idisk)
       call ddafile(luciint,1,vint_ci,numb,idisk)
       write(6,903) numb
       if(numb.gt.maxintseg) then
@@ -92,7 +92,7 @@ c  sum over iaqq
       call int_sort_inn_2(numb)   !_ext_2_1  (ijcc, ijab, abkk)
       idx(3)=idisk
       numb=numb-1
-      call idafile(luciint,1,numb,1,idisk)
+      call idafile(luciint,1,[numb],1,idisk)
       call ddafile(luciint,1,vint_ci,numb,idisk)
       write(6,904) numb
       if(numb.gt.maxintseg) then
@@ -117,7 +117,7 @@ c  sum over (abkk)
       call int_sort_ext(numb)         !_ext_4_3_2  (abcd,abcc,aabb)
       idx(4)=idisk
       numb=numb-1
-      call idafile(luciint,1,numb,1,idisk)
+      call idafile(luciint,1,[numb],1,idisk)
       call ddafile(luciint,1,vint_ci,numb,idisk)
       write(6,905) numb
       if(numb.gt.maxintseg) then

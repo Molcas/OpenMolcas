@@ -44,7 +44,7 @@ c
       character*(maxlength) wops(maxuops),odd(maxuops)
 #if defined(_MOLCAS_) || defined(MOLPRO)
       character*(maxlength) opstring
-      integer operators(*)
+      character operators(*)
 #else
       character*(maxlength) operators(maxoperators)
 #endif

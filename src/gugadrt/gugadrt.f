@@ -31,7 +31,7 @@
       call gugadrt_ext_downwalk()       ! add by wyb 01.9.5
       call gugadrt_active_drt()        ! add by wyb 01.9.5
 
-      call add_info("CI_DIM",dble(nci_dim),1,1)
+      call add_info("CI_DIM",[dble(nci_dim)],1,1)
       call gugadrt_gugafinalize()
       ireturn=0
 

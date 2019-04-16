@@ -75,8 +75,8 @@
          Write (6,*) 'nSOs=',nSOs
          Write (6,*) 'iSO2Sh=',iSO2Sh
          iComp = 1
-         Call PrMtrx(' In PGet2:DSO ',iD0Lbl,iComp,ipD0)
-         Call PrMtrx(' In PGet2:DSO_Var ',iD0Lbl,iComp,ipDVar)
+         Call PrMtrx(' In PGet2:DSO ',[iD0Lbl],iComp,[ipD0],Work)
+         Call PrMtrx(' In PGet2:DSO_Var ',[iD0Lbl],iComp,[ipDVar],Work)
       End If
 #endif
       lOper = 1

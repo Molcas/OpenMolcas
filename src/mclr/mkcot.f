@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE MKCOT
+      SUBROUTINE MKCOT_MCLR
      &           (NSYM,NLEV,NVERT,MIDLEV,NMIDV,MIDV1,MIDV2,NWALK,NIPWLK,
      &            ISM,IDOWN,NOW,IOW,NCSF,IOCSF,NOCSF,ISCR,IPRINT)
 C

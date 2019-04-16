@@ -134,7 +134,7 @@
      &    ,nBaseQ,Work(ipAOint),nBaseQ,ZERO,Work(iInte),iOrb(1))
         Call Dgemm_('N','N',iOrb(1),iOrb(2),nBaseC,ONE,Work(iInte)
      &    ,iOrb(1),Work(iV2),nBaseC,ZERO,Work(iOvlMO),iOrb(1))
-        call dcopy_(nOrbSize,ZERO,iZERO,Work(iOvlMOE),iONE)
+        call dcopy_(nOrbSize,[ZERO],iZERO,Work(iOvlMOE),iONE)
         Do 5751, i=1,iOrb(2)
           ind=iOrb(1)*(i-1)
           Call DaxPy_(iOrb(1),c_orbene(i),Work(iOvlMO+ind),iONE
@@ -145,7 +145,7 @@
       If(lExtr(8)) then
         Call Dgemm_('N','N',nBaseQ,iOrb(2),nBaseC,ONE,Work(ipAOint)
      &    ,nBaseQ,Work(iV2),nBaseC,ZERO,Work(iAOMOOvl),nBaseQ)
-        call dcopy_(nAOqMOcl,ZERO,iZERO,Work(iAOMOOvlE),iONE)
+        call dcopy_(nAOqMOcl,[ZERO],iZERO,Work(iAOMOOvlE),iONE)
         Do 5761, i=1,iOrb(2)
           ind=nBaseQ*(i-1)
           Call DaxPy_(nBaseQ,c_orbene(i),Work(iAOMOOvl+ind),iONE

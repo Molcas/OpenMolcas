@@ -84,10 +84,10 @@ C     P  = nSkal*(nSkal+1)/2
       if(Alloc) then
         ntasks_alloc=ntasks
         Call GetMem('TskMap','ALLO','Real',ipTskM,2*nTasks)
-        call dcopy_(2*nTasks,Zero,0,Work(ipTskM),1)
+        call dcopy_(2*nTasks,[Zero],0,Work(ipTskM),1)
         Call GetMem('TskQ','ALLO','Real',ipTskQ,2*nTasks)
 c       Write (*,*) 'init_tlist ipTskQ @ ',ipTskQ,' nTasks=',nTasks
-        call dcopy_(2*nTasks,Not_Used,0,Work(ipTskQ),1)
+        call dcopy_(2*nTasks,[Not_Used],0,Work(ipTskQ),1)
         Call GetMem('TskLst','ALLO','INTE',ipTskL,nTasks*2)
         Return
       end if

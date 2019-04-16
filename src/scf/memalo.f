@@ -60,7 +60,7 @@
 *     Produce pointers to work for codes that still use GetMem and
 *     (i)Work.
 *
-      mAdCMO    = ip_of_Work(CMO)
+      mAdCMO    = ip_of_Work(CMO(1,1))
       mAdCMO_ab = mAdCMO + (nD-1)*nBB
 *
       Call mma_allocate(Fock,nBT,nD,Label='Fock')
@@ -71,7 +71,7 @@
       Call mma_allocate(EOrb,nnB,nD,Label='EOrb')
       Call FZero(EOrb,nnB*nD)
       Call mma_allocate(OrbType,nnB,nD,Label='OrbType')
-      Call ICopy(nnB*nD,0,0,OrbType,1)
+      Call ICopy(nnB*nD,[0],0,OrbType,1)
 
       nIt0=0
       Mx_nIter=Max(nIter(0),nIter(1)+nIt0)

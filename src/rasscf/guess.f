@@ -83,8 +83,8 @@
       i2 = 1
       Do iSym = 1,nSym
         iBas = nBas(iSym)
-        Call dCopy_(iBas*iBas,zero,0,CMO(i2),1)
-        Call dCopy_(iBas,one,0,CMO(i2),iBas+1)
+        Call dCopy_(iBas*iBas,[zero],0,CMO(i2),1)
+        Call dCopy_(iBas,[one],0,CMO(i2),iBas+1)
         Call Jacob(Work(i1),CMO(i2),iBas,iBas)
         Call JacOrd(Work(i1),CMO(i2),iBas,iBas)
         i1 = i1+(iBas*iBas+iBas)/2

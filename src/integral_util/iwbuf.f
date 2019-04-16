@@ -13,7 +13,20 @@
 #include "SysDef.fh"
       Integer Array(nArray)
 *
-      Call dWBuf(Array,nArray/RtoI)
+      Call idWBuf(Array,nArray/RtoI)
 *
       Return
+*
+*     This is to allow type punning without an explicit interface
+      Contains
+      Subroutine idWBuf(Array,nArray)
+      Use Iso_C_Binding
+      Integer :: nArray
+      Integer, Target :: Array(nArray)
+      Real*8, Pointer :: dArray(:)
+      Call C_F_Pointer(C_Loc(Array(1)),dArray,[nArray])
+      Call dWBuf(dArray,nArray)
+      Nullify(dArray)
+      End Subroutine idWBuf
+*
       End

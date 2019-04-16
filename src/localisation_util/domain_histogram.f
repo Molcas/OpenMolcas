@@ -63,7 +63,7 @@ C
       Integer iDomain(0:nAtom,nOcc), iCount(*)
 
       nC = i_max - i_min + 1
-      Call iCopy(nC,0,0,iCount,1)
+      Call iCopy(nC,[0],0,iCount,1)
 
       Do i = 1,nOcc
          iC = iDomain(0,i) - i_min + 1

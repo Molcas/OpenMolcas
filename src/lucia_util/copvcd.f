@@ -22,7 +22,7 @@ C LBLK DEFINES STRUCTURE OF FILE
 C Type of file LUOUT is inherited from LUIN
       IMPLICIT REAL*8(A-H,O-Z)
 #include "io_util.fh"
-      DIMENSION SEGMNT(*)
+      DIMENSION SEGMNT(*),LBL(1),IDUMMY(1)
 C
       IF( IREW .NE. 0 ) THEN
         IDISK(LUIN)=0
@@ -35,41 +35,41 @@ C
 C?      write(6,*) ' COPVCD LBLK : ', LBLK
  1000 CONTINUE
         IF(LBLK .GT. 0 ) THEN
-          LBL = LBLK
+          LBL(1) = LBLK
         ELSE IF ( LBLK .EQ. 0 ) THEN
           CALL IDAFILE(LUIN,2,LBL,1,IDISK(LUIN))
           CALL IDAFILE(LUOUT,1,LBL,1,IDISK(LUOUT))
-C?        write(6,*) ' COPVCD LBL : ', LBL
+C?        write(6,*) ' COPVCD LBL : ', LBL(1)
         ELSE IF  (LBLK .LT. 0 ) THEN
           CALL IDAFILE(LUIN,2,LBL,1,IDISK(LUIN))
           CALL IDAFILE(LUIN,2,IDUMMY,1,IDISK(LUIN))
           CALL IDAFILE(LUOUT,1,LBL,1,IDISK(LUOUT))
-          CALL IDAFILE(LUOUT,1,-1,1,IDISK(LUOUT))
+          CALL IDAFILE(LUOUT,1,[-1],1,IDISK(LUOUT))
         END IF
-        IF( LBL .GE. 0 ) THEN
+        IF( LBL(1) .GE. 0 ) THEN
           IF(LBLK .GE.0 ) THEN
-            KBLK = LBL
+            KBLK = LBL(1)
           ELSE
             KBLK = -1
           END IF
-C?        write(6,*) ' LBL and KBLK ', LBL,KBLK
+C?        write(6,*) ' LBL and KBLK ', LBL(1),KBLK
           NO_ZEROING = 1
-          CALL FRMDSC2(  SEGMNT,     LBL,    KBLK,    LUIN,  IMZERO,
+          CALL FRMDSC2(  SEGMNT,  LBL(1),    KBLK,    LUIN,  IMZERO,
      &                  IAMPACK,NO_ZEROING)
           IF(IAMPACK.NE.0) THEN
 C?          WRITE(6,*) ' COPVCD, IAMPACK,FILE = ', IAMPACK,LUIN
           END IF
           IF(IMZERO.EQ.0) THEN
             IF(IAMPACK.EQ.0) THEN
-              CALL TODSC (SEGMNT,LBL,KBLK,LUOUT)
+              CALL TODSC (SEGMNT,LBL(1),KBLK,LUOUT)
             ELSE
-              CALL TODSCP(SEGMNT,LBL,KBLK,LUOUT)
+              CALL TODSCP(SEGMNT,LBL(1),KBLK,LUOUT)
             END IF
           ELSE
-            CALL ZERORC(LBL,LUOUT,IAMPACK)
+            CALL ZERORC(LBL(1),LUOUT,IAMPACK)
           END IF
         END IF
-      IF( LBL .GE. 0 .AND. LBLK .LE. 0 ) GOTO 1000
+      IF( LBL(1) .GE. 0 .AND. LBLK .LE. 0 ) GOTO 1000
 C
       RETURN
       END

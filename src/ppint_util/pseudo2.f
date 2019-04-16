@@ -24,6 +24,14 @@ c
       data      a0   ,a4     /        0.0d0,      4.0d0       /
 *     data eps1,a0,a1,a4,a50 /1.0d-15,0.0d0,1.0d0,4.0d0,50.0d0/
 
+      call pseud2_molcas_internal(a)
+*
+*     This is to allow type punning without an explicit interface
+      contains
+      subroutine pseud2_molcas_internal(a)
+      use iso_c_binding
+      real*8, target :: a(*)
+      integer, pointer :: ia1(:),ia13(:),ia14(:),ia15(:),ia16(:),ia17(:)
       tol=20.*log(10.d0)
       fctr2=a4
       itl=llt(lit,1)
@@ -126,17 +134,33 @@ c  compute angular integrals and combine with radial integrals
 c
       ijt=0
       do 84 it=itl,itu
+      call c_f_pointer(c_loc(a(ipt(1))),ia1,[1])
+      call c_f_pointer(c_loc(a(ipt(1))),ia1,[1])
+      call c_f_pointer(c_loc(a(ipt(13))),ia13,[1])
+      call c_f_pointer(c_loc(a(ipt(14))),ia14,[1])
+      call c_f_pointer(c_loc(a(ipt(15))),ia15,[1])
+      call c_f_pointer(c_loc(a(ipt(16))),ia16,[1])
+      call c_f_pointer(c_loc(a(ipt(17))),ia17,[1])
       call ang2_molcas(anga,a(ipt(12)),crda,a(ipt(11)),it,
      &  l,lit,lmalo,lmahi,
-     &  a(ipt(13)),a(ipt(14)),a(ipt(15)),a(ipt(16)),a(ipt(17)),
-     &  a(ipt(1)),mproju,xka,yka,zka,a(ipt(18)))
+     &  ia13,ia14,ia15,ia16,ia17,
+     &  ia1,mproju,xka,yka,zka,a(ipt(18)))
+      nullify(ia1,ia13,ia14,ia15,ia16,ia17)
       do 80 jt=jtl,jtu
       ijt=ijt+1
       s=a0
+      call c_f_pointer(c_loc(a(ipt(1))),ia1,[1])
+      call c_f_pointer(c_loc(a(ipt(1))),ia1,[1])
+      call c_f_pointer(c_loc(a(ipt(13))),ia13,[1])
+      call c_f_pointer(c_loc(a(ipt(14))),ia14,[1])
+      call c_f_pointer(c_loc(a(ipt(15))),ia15,[1])
+      call c_f_pointer(c_loc(a(ipt(16))),ia16,[1])
+      call c_f_pointer(c_loc(a(ipt(17))),ia17,[1])
       call ang2_molcas(angb,a(ipt(12)),crdb,a(ipt(11)),jt,
      &  l,ljt,lmblo,lmbhi,
-     &  a(ipt(13)),a(ipt(14)),a(ipt(15)),a(ipt(16)),a(ipt(17)),
-     &  a(ipt(1)),mproju,xkb,ykb,zkb,a(ipt(18)))
+     &  ia13,ia14,ia15,ia16,ia17,
+     &  ia1,mproju,xkb,ykb,zkb,a(ipt(18)))
+      nullify(ia1,ia13,ia14,ia15,ia16,ia17)
       do 76 lama=lmalo,lmahi
         ldifa1=abs(l-lama)+1
         nlmau=lit-mod(lit-ldifa1,2)
@@ -163,4 +187,6 @@ c
    84 continue
    88 continue
       return
+      end subroutine pseud2_molcas_internal
+*
       end

@@ -106,7 +106,7 @@ C     -------------
 C     Compute atomic contributions to Mulliken charges.
 C     -------------------------------------------------
 
-      Call dCopy_(l_Q,0.0d0,0,Work(ip_Q),1)
+      Call dCopy_(l_Q,[0.0d0],0,Work(ip_Q),1)
       iOff0 = ip_T - 1
       jOff0 = ip_Q - 1
       Do i = 1,nOcc

@@ -203,13 +203,13 @@ C        ICIRST=1 ! to be activated!
       LROOTS=1
 * sequence numbers for roots in CI counted from
 * lowest energy.
-      Call iCopy(mxRoot,0,0,iRoot,1)
+      Call iCopy(mxRoot,[0],0,iRoot,1)
       IROOT(1)=1
 * weights used for average energy calculations
-      Call dCopy_(mxRoot,0.0D0,0,WEIGHT,1)
+      Call dCopy_(mxRoot,[0.0D0],0,WEIGHT,1)
       WEIGHT(1)=1.0D0
 * iteration energies
-      Call dCopy_(mxRoot*(mxIter+2),0.0D0,0,ENER,1)
+      Call dCopy_(mxRoot*(mxIter+2),[0.0D0],0,ENER,1)
 *
       ICICH=0
 * if flag is active (ICICH=1) CI roots will be selected

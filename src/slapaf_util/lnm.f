@@ -139,7 +139,7 @@ cnf
             NTT = 3*nAtoms*(3*nAtoms+1)/2
             Fact = One/Dble(nMDstep)
             Call Allocate_Work(ipHtmp,NTT)
-            Call dCopy_(NTT,Zero,0,Work(ipHtmp),1)
+            Call dCopy_(NTT,[Zero],0,Work(ipHtmp),1)
             iMDsnap = IsFreeUnit(1)
             Call Molcas_Open(iMDsnap,'snap.hess')
             Line = Get_Ln(iMDsnap)
@@ -147,7 +147,7 @@ cnf
                Write(6,'(A)') 'LNM: Cannot find NMM in snap.hess'
                Call Quit_OnUserError()
             Else
-               Call Get_I(2,nMMtot,1)
+               Call Get_I1(2,nMMtot)
             End If
             Do iSnap = 1, nMDstep
                iHidden = 0

@@ -136,8 +136,8 @@ C     Call qEnter('NAPrm')
          mcdMin=0
          mcdMax=0
          Call Rys(iAnga,nT,Zeta,ZInv,nZeta,
-     &            Eta,EInv,1,P,nZeta,
-     &            C,1,rKappa,rKappcd,Coori,Coora,CoorAC,
+     &            [Eta],[EInv],1,P,nZeta,
+     &            C,1,rKappa,[rKappcd],Coori,Coora,CoorAC,
      &            mabmin,mabmax,mcdMin,mcdMax,
      &            Array,nArr*nZeta,
      &            TERI,ModU2,vCff2D,vRys2D,NoSpecial)
@@ -159,8 +159,8 @@ C     Call qEnter('NAPrm')
          mcdMin=0
          mcdMax=0
          Call Rys(iAnga,nT,Zeta,ZInv,nZeta,
-     &            Eta,EInv,1,P,nZeta,
-     &            C,1,rKappa,rKappcd,Coori,Coora,CoorAC,
+     &            [Eta],[EInv],1,P,nZeta,
+     &            C,1,rKappa,[rKappcd],Coori,Coora,CoorAC,
      &            mabmin,mabmax,mcdMin,mcdMax,
      &            Array,nArr*nZeta,
      &            TERI,ModU2,vCff2D,vRys2D,NoSpecial)
@@ -176,8 +176,8 @@ C     Call qEnter('NAPrm')
      &            * (lb+1)*(lb+2)/2
             mArr = nArr - (la+1)*(la+2)/2*(lb+1)*(lb+2)/2
             Call Rys(iAnga,nT,Zeta,ZInv,nZeta,
-     &               Eta,EInv,1,P,nZeta,
-     &               C,1,rKappa,rKappcd,Coori,Coora,CoorAC,
+     &               [Eta],[EInv],1,P,nZeta,
+     &               C,1,rKappa,[rKappcd],Coori,Coora,CoorAC,
      &               mabMin,mabMax,mcdMin,mcdMax,
      &               Array(ipOff),mArr*nZeta,
      &               TERI,ModU2,vCff2D,vRys2D,NoSpecial)
@@ -202,8 +202,8 @@ C     Call qEnter('NAPrm')
          mcdMin=0
          mcdMax=0
          Call Rys(iAnga,nT,Zeta,ZInv,nZeta,
-     &            Eta,EInv,1,P,nZeta,
-     &            C,1,rKappa,rKappcd,Coori,Coora,CoorAC,
+     &            [Eta],[EInv],1,P,nZeta,
+     &            C,1,rKappa,[rKappcd],Coori,Coora,CoorAC,
      &            mabMin,mabMax,mcdMin,mcdMax,
      &            Array,nArr*nZeta,
      &            TNAI,Fake,XCff2D,XRys2D,NoSpecial)

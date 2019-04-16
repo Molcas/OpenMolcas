@@ -64,7 +64,7 @@ C Get temporary buffer to read data by RDMCK calls
       CALL GETMEM('RDMCCI','ALLO','REAL',LTEMP,NTEMP)
 C Read 1-electron integral derivatives:
       IRC=NTEMP
-      CALL  RDMCK(IRC,IOPT,LABEL,IDISP,WORK(LTEMP),ISCODE)
+      CALL dRDMCK(IRC,IOPT,LABEL,IDISP,WORK(LTEMP),ISCODE)
       IF(IRC.NE.0) THEN
         WRITE(6,*)'RDMCCI: RDMCCI failed to read '//MINAME(JOB)
         WRITE(6,*)'  Displacement IDISP=',IDISP

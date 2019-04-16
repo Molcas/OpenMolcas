@@ -92,8 +92,8 @@
       Line=Get_Ln(LuSpool)
       Line(178:180)='5.0'
       Call Put_Ln(Line)
-      Call Get_I(1,itmp,1)
-      Call Get_F(2,PrThr,1)
+      Call Get_I1(1,itmp)
+      Call Get_F1(2,PrThr)
       If(itmp.ge.4) Then
          PrintMOs=.true.
          PrintEor=.true.
@@ -126,21 +126,21 @@
 *----------------------------------------------------------------------*
  1300 Continue
       Line=Get_Ln(LuSpool)
-      Call Get_F(1,SThr,1)
+      Call Get_F1(1,SThr)
       Go To 999
 *----------------------------------------------------------------------*
 * TTHReshold: threshold for removing linear dependence, from T         *
 *----------------------------------------------------------------------*
  1400 Continue
       Line=Get_Ln(LuSpool)
-      Call Get_F(1,TThr,1)
+      Call Get_F1(1,TThr)
       Go To 999
 *----------------------------------------------------------------------*
 * GapThr: threshold for homo-lumo gap.                                 *
 *----------------------------------------------------------------------*
  1500 Continue
       Line=Get_Ln(LuSpool)
-      Call Get_F(1,GapThr,1)
+      Call Get_F1(1,GapThr)
       Go To 999
 *----------------------------------------------------------------------*
 *                                                                      *

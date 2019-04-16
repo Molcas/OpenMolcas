@@ -36,7 +36,14 @@ C      (NFLAG1=1) ORBITALS AS  BASIS
 C
 C
 C
-c
+      CALL OEISG_INTERNAL(REL)
+*
+*     This is to allow type punning without an explicit interface
+      CONTAINS
+      SUBROUTINE OEISG_INTERNAL(REL)
+      USE ISO_C_BINDING
+      REAL*8, TARGET :: REL(*)
+      INTEGER, POINTER :: iREL(:)
 c     initialize
       CALL RELOP
 c     coefficients
@@ -127,10 +134,11 @@ C
       NBSZ5=5*NBSZ
       NBSQ=NBAS1*NBAS1
       NBSQ5=5*NBSQ
+      CALL C_F_POINTER(C_LOC(REL(NBSZ+1)),iREL,[NBSZ])
       CALL AT34R(NBAS1,NBSZ  ,ZN,
      *SREL,UREL,TREL,REL(1),
 C     OVERLAP    POTENTIAL  KIN.ENERGY PVP
-     *REL(NBSZ+1),REL(2*NBSZ+1),REL(3*NBSZ+1),REL(4*NBSZ+1),
+     *iREL,REL(2*NBSZ+1),REL(3*NBSZ+1),REL(4*NBSZ+1),
 C     MULT      BU          P           G
      *REL(NBSZ5+1),REL(NBSZ5+NBSQ+1),REL(NBSZ5+2*NBSQ+1),
 C     EIG            SINV                REVT
@@ -141,6 +149,7 @@ C     E                         AA
      *REL(NBSZ5+NBSQ5+3*MX100+1),REL(NBSZ5+NBSQ5+4*MX100+1),iprint,
 C    RR                         TT
      *VEXTT,PVPT,EVN1,EVN2,RE1R,AUXI,W1W1,W1E0W1)
+      NULLIFY(iREL)
       K=NBAS1*(NBAS1+1)/2
 C
 C     TRANSFER RELATIVISTIC KINETIC ENERGY AND POTENTIAL INTEGRALS
@@ -176,4 +185,6 @@ C
       endif
  12   format(4f18.14)
       RETURN
+      END SUBROUTINE OEISG_INTERNAL
+*
       END

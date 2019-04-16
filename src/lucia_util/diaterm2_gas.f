@@ -99,7 +99,7 @@ C     END IF
 *. Space for blocks of strings
       CALL GETMEM('KLASTR','ALLO','INTE',KLASTR,MXNSTR*NAEL)
       CALL GETMEM('KLBSTR','ALLO','INTE',KLBSTR,MXNSTR*NAEL)
-      MAXA = IMNMX(WORK(KNSTSO(IATP)),NSMST*NOCTPA,2)
+      MAXA = IMNMX(IWORK(KNSTSO(IATP)),NSMST*NOCTPA,2)
       CALL GETMEM('KLRJKA','ALLO','REAL',KLRJKA,MAXA)
 *. Diagonal of one-body integrals and coulomb and exchange integrals
 *. Integrals assumed in place so :
@@ -112,12 +112,12 @@ C!    IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KFI),WORK(KINT1),NINT1)
       ECOREP = 0.0D0
       SHIFT = ECORE_ORIG-ECORE
       FACTORX = FACTOR + SHIFT
-      CALL DIATERMS_GAS(NAEL,WORK(KLASTR),NBEL,WORK(KLBSTR),
+      CALL DIATERMS_GAS(NAEL,IWORK(KLASTR),NBEL,IWORK(KLBSTR),
      &                  NACOB,VEC,NSMST,
      &                  WORK(KLH1D),JDC,WORK(KLXB),WORK(KLJ),WORK(KLK),
      &                  iWORK(KNSTSO(IATP)),iWORK(KNSTSO(IBTP)),
      &                  ECOREP,0,0,IPRDIA,NTOOB,WORK(KLRJKA),J12,
-     &                  IBLOCK(1,IOFF),NBLOCK,ITASK, FACTORX,0,0)
+     &                  IBLOCK(1,IOFF),NBLOCK,ITASK, FACTORX,0,[0])
 *
 C    &                  IBLOCK,NBLOCK,ITASK,FACTOR,I0CHK,I0BLK)
 *.Flush local memory

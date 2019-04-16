@@ -74,6 +74,10 @@ include:
         echo 'set (EXTRA "$ENV{extra}" CACHE PATH "location of molcas-extra")' >> flags.cmake
       fi
     - cmake -C flags.cmake ..
+    - |
+      if [ -n "${pre_make_script}" ] ; then
+        eval "${pre_make_script}"
+      fi
     - make #VERBOSE=1
     - pymolcas verify 000 -k
     # some clean up to reduce artifact size

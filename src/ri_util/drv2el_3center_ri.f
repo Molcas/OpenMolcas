@@ -489,9 +489,9 @@ C      End Do    ! klS
 *     a gradient calculation.
 *
       Call GetMem('TmpList','Allo','Inte',ip_tmp,nSkal2)
-      Call ICopy(nSkal2,0,0,iWork(ip_tmp),1)
+      Call ICopy(nSkal2,[0],0,iWork(ip_tmp),1)
       Call GetMem('LBList','Allo','Inte',ip_LB,nSkal2)
-      Call ICopy(nSkal2,-1,0,iWork(ip_LB),1)
+      Call ICopy(nSkal2,[-1],0,iWork(ip_LB),1)
       Do iTask = 1, nTask
          klS = iWork(ip_iRv-1+iTask)
          iWork(ip_tmp-1+klS) = 1

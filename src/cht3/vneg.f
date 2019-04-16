@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE VNEG(VEC1,IST1,VEC2,IST2,NS)
+      SUBROUTINE VNEG_CHT3(VEC1,IST1,VEC2,IST2,NS)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION VEC1(*),VEC2(*)
       IF(IST1.EQ.1.AND.IST2.EQ.1)THEN

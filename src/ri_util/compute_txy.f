@@ -141,7 +141,7 @@
 **       Diagonalize DM2
 *
            Call Cho_DZero(Txy(Txy_sta2,iVec),nkl**2)
-           call dcopy_(nkl,One,0,Txy(Txy_sta2,iVec),nkl+1)
+           call dcopy_(nkl,[One],0,Txy(Txy_sta2,iVec),nkl+1)
 *
            Call NIdiag(DMTmp,Txy(Txy_sta2,iVec),nkl,nkl,0)
 *

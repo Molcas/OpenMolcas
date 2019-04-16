@@ -66,7 +66,7 @@ c==============================================================
       if(iterat.eq.200) then
         write(6,*) " h0 space fail to converged"
         write(6,*) " program stop"
-        call qexit()
+        call abend()
       endif
       eeval(1:mroot)=eval(1:mroot)
       call hotred(minspace,kval,vp,vd,ve,vu)

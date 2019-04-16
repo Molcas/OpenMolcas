@@ -27,6 +27,7 @@
       dimension orbs(norb,norb),gjorb(*),gjorb2(*),gjorb3(*)
       dimension cvbdet(ndetvb)
       dimension vec_all(npr)
+      dimension cvb(nvb)
       save iter,ipp
 
       iter=iter+1

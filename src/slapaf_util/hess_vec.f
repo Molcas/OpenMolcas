@@ -16,15 +16,15 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*---- Compute the eigenvalues and the eigenvector of the Hessian
+*---- Compute the eigenvalues and the eigenvectors of the Hessian
 *
 *define _DEBUG_
 *
 *---- Set up a unit matrix
 *
       nQ = nDim
-      call dcopy_(nQ*nQ,Zero,0,EVec,1)
-      call dcopy_(nQ,One,0,EVec,nQ+1)
+      call dcopy_(nQ*nQ,[Zero],0,EVec,1)
+      call dcopy_(nQ,[One],0,EVec,nQ+1)
 *
 *---- Compute eigenvalues and eigenvectors
 *

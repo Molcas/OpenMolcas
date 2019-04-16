@@ -27,9 +27,9 @@
       IMPLICIT REAL*8(A-H,O-Z)
       DIMENSION IEL1(*),IEL3(*),IEL123(3,*),IACTIV(*)
 *
-      Call iCopy(NOCTYP,0,0,IACTIV,1)
-      Call iCopy(NOCTYP,0,0,IEL1,1)
-      Call iCopy(NOCTYP,0,0,IEL3,1)
+      Call iCopy(NOCTYP,[0],0,IACTIV,1)
+      Call iCopy(NOCTYP,[0],0,IEL1,1)
+      Call iCopy(NOCTYP,[0],0,IEL3,1)
       DO 300 KEL3 = MNRS3,MXRS3
         DO 100 KEL1 = MNRS1,MXRS1
           ITYP = (MXRS1-KEL1) * (MXRS3-MNRS3+1 )

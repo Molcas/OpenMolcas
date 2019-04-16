@@ -12,7 +12,7 @@
 *               1986, Margareta R. A. Blomberg                         *
 ************************************************************************
 C
-      SUBROUTINE TRADD(A,B,N)
+      SUBROUTINE TRADD_CPF(A,B,N)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION A(N,N),B(*)
       IN=0

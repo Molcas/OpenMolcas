@@ -66,7 +66,7 @@
          idum=0
          iOpt=0
          Label='SYMOP'
-         call RdMck(irc,iopt,Label,idum,chirr,idum)
+         call cRdMck(irc,iopt,Label,idum,chirr(1),idum)
          If ( iRc.ne.0 ) Then
             Write (6,*) 'OpnFls: Error reading MCKINT'
             Write (6,'(A,A)') 'Label=',Label

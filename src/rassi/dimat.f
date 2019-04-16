@@ -21,7 +21,7 @@
       DIMENSION CMO1(NCMO),CMO2(NCMO),DINAO(NBSQ)
 #include "rassi.fh"
 #include "symmul.fh"
-      CALL DCOPY_(NBSQ,0.0D0,0,DINAO,1)
+      CALL DCOPY_(NBSQ,[0.0D0],0,DINAO,1)
       ISTC=1
       ISTD=1
       DO ISYM=1,NSYM

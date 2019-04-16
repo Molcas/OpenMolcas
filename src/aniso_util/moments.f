@@ -37,14 +37,14 @@
       Call mma_allocate(Sf,3,3,'Sf')
       Call mma_allocate(Lf,3,3,'Lf')
 !-----------------------------------------------------------------------
-      Call zcopy_(3*3,(0.0_wp,0.0_wp),0,Lf,1)
-      Call zcopy_(3*3,(0.0_wp,0.0_wp),0,Mf,1)
-      Call zcopy_(3*3,(0.0_wp,0.0_wp),0,Sf,1)
+      Call zcopy_(3*3,[(0.0_wp,0.0_wp)],0,Lf,1)
+      Call zcopy_(3*3,[(0.0_wp,0.0_wp)],0,Mf,1)
+      Call zcopy_(3*3,[(0.0_wp,0.0_wp)],0,Sf,1)
       Do iDir=1,3
-        Call zcopy_(N*N,(0.0_wp,0.0_wp),0,Z,1)
-        Call zcopy_(3*N*N,(0.0_wp,0.0_wp),0,AMM,1)
-        Call zcopy_(3*N*N,(0.0_wp,0.0_wp),0,AML,1)
-        Call zcopy_(3*N*N,(0.0_wp,0.0_wp),0,AMS,1)
+        Call zcopy_(N*N,[(0.0_wp,0.0_wp)],0,Z,1)
+        Call zcopy_(3*N*N,[(0.0_wp,0.0_wp)],0,AMM,1)
+        Call zcopy_(3*N*N,[(0.0_wp,0.0_wp)],0,AML,1)
+        Call zcopy_(3*N*N,[(0.0_wp,0.0_wp)],0,AMS,1)
 
         Call pseudospin(MM,N,Z,iDir,1,1)
 

@@ -242,13 +242,13 @@
  10   Continue
       If (iPrint.ge.99) Then
          RlxLbl='D1AO    '
-         Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipD0,Work)
+         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[ipD0],Work)
          RlxLbl='D1AO-Var'
-         Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipDVar,Work)
+         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[ipDVar],Work)
          RlxLbl='DSAO    '
-         Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipDS,Work)
+         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[ipDS],Work)
          RlxLbl='DSAO-Var'
-         Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipDSVar,Work)
+         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[ipDSVar],Work)
       End If
 *
 *...  Get the MO-coefficients
@@ -391,7 +391,7 @@
      &                               Work(ipD0+1*ndens),1)
            If (.not.isNAC) call daxpy_(ndens,-Half,Work(ipD0+0*ndens),1,
      &                                             Work(ipD0+1*ndens),1)
-           If (iprint.gt.90)  Call PrMtrx('D0',iD0Lbl,iComp,ipD0,Work)
+           If (iprint.gt.90)Call PrMtrx('D0',[iD0Lbl],iComp,[ipD0],Work)
 *
 *   This is necessary for the kap-lag
 *
@@ -449,7 +449,7 @@
 * move the data
         call dcopy_(nBas_Valence(iIrrep), Array(indexSmall), 1,
      &                                   Array(indexLarge), 1)
-        call dcopy_(nBas_Valence(iIrrep), Zero, 0, Array(indexSmall), 1)
+        call dcopy_(nBas_Valence(iIrrep),[Zero],0,Array(indexSmall),1)
       End Do
       Return
       End
@@ -473,7 +473,7 @@
       Logical EnergyWeight
       Integer iPrint,maxDens,iCnttp,ipFragDensAO,iDpos,ipFragDensSO
       Integer i,j,iCnt,iFpos,iFD,mdc,iIrrep,nBasC
-      Real*8  rDummy
+      Real*8  rDummy(1)
 
       If(nIrrep.ne.1) Then
         write(6,*) 'AddFragDens: Symmetry not implemented yet'
