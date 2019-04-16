@@ -123,14 +123,6 @@ c Modify the Fock matrix, if needed:
           WORK(LFOPXMS + (J1-1) + (NGRP*(J2-1))) = FOPEL
         END DO
 
-* Save f_pq(D) into shared memory LFIFA_ALL, required for
-* DW-XMS later on in the loop over states to obtain quasi-canonical
-* orbitals for each state independently
-        WRITE(6,'(2x,A,I1,A)')'Saving F(D_',JSTATE,
-     &                      ') into shared memory LFIFA_ALL...'
-        CALL DCOPY_(NFIFA,WORK(LFIFA),1,WORK(LFIFA_ALL+
-     &                                ((J2-1)*NFIFA)),1)
-
       END DO
 * End of loop over states
 
@@ -152,7 +144,7 @@ c Modify the Fock matrix, if needed:
         END DO
       END DO
 
-      IF(IPRGLB.GE.VERBOSE) THEN
+      IF(IPRGLB.GE.USUAL) THEN
         WRITE(6,*)
         WRITE(6,*)' FOPXMS (Symmetric):'
         DO I=1,NGRP
@@ -167,6 +159,25 @@ c Modify the Fock matrix, if needed:
         END DO
       END DO
 
+! Form average Fock matrix for DW-XMS before states are rotated
+      IF (IFDW.AND.IFXMS) THEN
+! Zero out the density matrix
+        CALL DCOPY_(NDREF,0.0d0,0,WORK(LDREF),1)
+! Compute the SA density matrix on the spot
+        SCL = 1.0d0/NGRP
+        DO J=1,NGRP
+          CALL DAXPY_(NDREF,SCL,WORK(LDMIX+(J-1)*NDREF),1,WORK(LDREF),1)
+        END DO
+! Compute Fock matrix
+        If (IfChol) then
+          IF_TRNSF=.FALSE.
+          CALL INTCTL2(IF_TRNSF)
+        Else
+          CALL INTCTL1(WORK(LCMO))
+          CALL DCOPY_(NCMO,WORK(LCMO),1,WORK(LCMOPT2),1)
+        End If
+      END IF
+
 * Transform the CI arrays of this group of states, to make the FOP matrix diagonal.
 * Note that the Fock matrix, etc are still assumed to be valid -- this seems
 * illogical, but is the way XMS is defined -- else we would need to repeat the
@@ -174,18 +185,16 @@ c Modify the Fock matrix, if needed:
       IF(NGRP.GT.1.AND.IFXMS) THEN
 
         CALL GETMEM('EVEC','ALLO','REAL',LEVEC,NGRP**2)
-        NSCR=(NGRP*(NGRP+1))/2
-        CALL GETMEM('SCR','ALLO','REAL',LSCR,NSCR)
-        CALL DIAFOP(NGRP,WORK(LFOPXMS),WORK(LSCR),WORK(LEVEC))
-        CALL GETMEM('SCR','FREE','REAL',LSCR,NSCR)
+        CALL DIAFOP(NGRP,WORK(LFOPXMS),WORK(LEVEC))
 
 * Transform H0 (= FOPXMS) and HEFF (which at this stage corresponds to the 1st-order
 * corrected effective Hamiltonian) in the new basis that diagonalize FOPXMS
         CALL TRANSMAT(H0,WORK(LEVEC),NGRP)
         CALL TRANSMAT(HEFF,WORK(LEVEC),NGRP)
 
-        IF(IPRGLB.GE.DEBUG) THEN
-          WRITE(6,*) ' HEFF IN THE NEW "XMS" BASIS:'
+        IF(IPRGLB.GE.USUAL) THEN
+          WRITE(6,*)
+          WRITE(6,*)' HEFF[1] in the XMS basis is:'
           DO J1=1,NSTATE
             WRITE(6,'(1x,5F16.8)')(HEFF(J1,J2),J2=1,NSTATE)
           END DO
@@ -255,40 +264,21 @@ c Modify the Fock matrix, if needed:
 * represent the XMS root functions, using the new orbitals.
 * Also, the matrices FIFA, etc, are themselves transformed:
 
-* This transformations are done here for all cases but DW-XMS.
-* In that case, we need to obtain quasi-canonical orbitals for
-* state independently, and we do that in the main caspt2 subroutine
-* when looping over the states in the group.
-      IF (IFDW.AND.IFXMS) THEN
-        WRITE(6,*)
-        WRITE(6,'(2x,A,A)')'Transformation to quasi-canonical MOs',
-     &                    ' will be done in CASPT2 loop'
-        WRITE(6,*)
-        CALL DCOPY_(NFIMO,WORK(LFIMO),1,WORK(LFIMO_CMO),1)
-        CALL DCOPY_(NHONE,WORK(LHONE),1,WORK(LHONE_CMO),1)
-      ELSE
-        WRITE(6,*)
-        WRITE(6,'(2x,A,A)')'Transformation to quasi-canonical MOs',
-     &                    ' will be done in GRPINI'
-        WRITE(6,*)
-
-        CALL ORBCTL(WORK(LCMO))
+      CALL ORBCTL(WORK(LCMO))
 
 * In subroutine stini, the individual RHS, etc, arrays will be computed for
 * the states. If this is a true XMS calculation (NGRP.gt.1) then there is one
 * data set that is in common for these calculations, namely the transformed
 * MO integrals (if conventional), or the transformed Cholesky vectors (if
 * IfChol), so these are computed here:
-        IF (IfChol) then
+      IF (IfChol) then
 * TRACHO3 computes MO-transformed Cholesky vectors without computing Fock matrices.
-          CALL TRACHO3(WORK(LCMO))
-        ELSE
+        CALL TRACHO3(WORK(LCMO))
+      ELSE
 * TRACTL(0) computes transformed 2-body MO integrals.
-          CALL TRACTL(0)
-        END IF
-        CALL DCOPY_(NCMO,WORK(LCMO),1,WORK(LCMOPT2),1)
-
+        CALL TRACTL(0)
       END IF
+      CALL DCOPY_(NCMO,WORK(LCMO),1,WORK(LCMOPT2),1)
 
       CALL GETMEM('LCMO','FREE','REAL',LCMO,NCMO)
 

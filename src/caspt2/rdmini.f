@@ -46,7 +46,7 @@
 
       DO ISTATE=1,NSTATE
 
-        IF(ISCF.NE.0) THEN
+        IF (ISCF.NE.0) THEN
 * Then we still need the "CI array": It is used in subroutine calls
           WORK(LCI)=1.0D0
         ELSE IF(DoCumulant) THEN
@@ -60,7 +60,7 @@
           CALL DDAFILE(LUCIEX,2,WORK(LCI),NCONF,ID)
         END IF
 
-        IF(IPRGLB.GE.VERBOSE) THEN
+        IF (IPRGLB.GE.VERBOSE) THEN
           WRITE(6,*)
           WRITE(6,*)' CI array of CASSCF state nr. ',MSTATE(ISTATE)
           CALL PRWF_CP2(LSYM,NCONF,WORK(LCI),CITHR)
@@ -85,7 +85,8 @@
           II = NSTATE*(ISTATE-1)
           CALL DCOPY_(NSTATE,1.0D0/NSTATE,0,WORK(LWGT+II),1)
         ELSE
-* It is a normal MS-CASPT2 and the weight vectors are the standard e_1, e_2, ...
+* It is a normal MS-CASPT2 and the weight vectors are the simply the
+* standard Cartesian basis vectors e_1, e_2, ...
           WORK(LWGT + (NSTATE*(ISTATE-1)) + (ISTATE-1)) = 1.0D0
         END IF
 
@@ -95,7 +96,7 @@
         CALL GETDREF(WORK(LDREF))
         ! CALL GETDREF(WORK(LDMIX+NDREF*(ISTATE-1)))
 
-* Averaging the density
+* Average the density
         DO JSTATE=1,NSTATE
           SCL = WORK(LWGT + (NSTATE*(ISTATE-1)) + (JSTATE-1))
           JOFF = NDREF*(JSTATE-1)
