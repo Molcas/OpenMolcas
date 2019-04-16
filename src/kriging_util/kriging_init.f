@@ -27,5 +27,8 @@ C
       Make_parameters = .True.
       lm_save = -99
 *
+      nInter_save=-1
+      nPoints_save=-1
+*
       Return
       End
