@@ -23,6 +23,7 @@
 !
         Write (6,*) 'crap1'
         call covarvector(0,iter,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+        Write (6,*) 'crap1.5'
         call predict(0,iter,nInter)
         y_=pred(npx)
 !
