@@ -214,7 +214,6 @@ c Avoid unused argument warnings
 *              Compute the energy and gradient according to the
 *              surrogate model for the new coordinates.
 *
-               Call RecPrt('qInt(x):',' ',qInt,nInter,iterAI+1)
                Call Loop_Kriging(qInt(1,iterAI+1),Energy(iterAI+1),
      &                           Grad(1,iterAI+1),nInter)
 *
@@ -222,7 +221,7 @@ c Avoid unused argument warnings
                iterAI = iterAI + 1
                dEner = Energy(iterAI) - Energy(iterAI-1)
 
-               Call RecPrt('qInt(x):',' ',qInt,nInter,iterAI)
+               Call RecPrt('qInt(2):',' ',qInt,nInter,iterAI)
                Call RecPrt('Energy(x):',' ',Energy,1,iterAI)
                Call RecPrt('Grad(x):',' ',Grad,nInter,iterAI)
                write(6,*) 'do new iter',iterAI
@@ -236,6 +235,7 @@ c Avoid unused argument warnings
             write(6,*) 'finished do iter',iterAI
 *           De allocating memory used by Kriging
             Call Finish_Kriging()
+*        ------- AI loop ends here
          Else
             Call Update_sl_(iter,iInt,nFix,nInter,qInt,Shift,
      &                   Grad,iOptC,Beta,Lbl,GNrm,Energy,
@@ -249,7 +249,6 @@ c Avoid unused argument warnings
      &                   HrmFrq_Show,CnstWght,Curvilinear,Degen,
      &                   Kriging_Hessian)
          End If
-*        ------- AI loop ends here
       End If
 *
 *-----Write out the shift in internal coordinates basis.

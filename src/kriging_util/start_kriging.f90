@@ -66,19 +66,10 @@
 ! (eq. 4 DOI 10.1007/s00366-015-0397).
 !l is a n-dimensional vector of the width of the Mat'ern function.
 !ll is the likelihood function.
-          allocate (kv(m_t),pred(npx),gpred(npx),hpred(npx),var(npx), &
+          allocate (kv(m_t),pred(npx),gpred(npx,nInter),hpred(npx,nInter),var(npx), &
           sigma(npx),cv(m_t,npx,nInter), l(nInter),ll(int(lb(3))))
-          make_parameters=.True.
-        ! else
-        !   nx = qInt(:,iter+1:iter+1)
-        !   make_parameters=.False.
-        ! endif
 !
         call kernels(nPoints,nInter)
 !
-!         Energy(iter+1)=pred(npx)
-!         Grad(:,iter+1)=gpred
-!         write(6,*) 'New values of Energy and grad', pred(npx), gpred
-! !
         return
       end

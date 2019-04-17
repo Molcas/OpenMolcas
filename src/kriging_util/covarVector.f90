@@ -28,14 +28,15 @@
                             rl(j,k)=(x(i,j)-nx(i,k))/l(i)
                         enddo
                     enddo
-                    !write(6,*) 'CV-rl',i,rl
+                    ! write(6,*) 'CV-rl',i,rl
                     dl=dl+rl**2
-                    !write(6,*) 'CV-dl',i,dl
+                    ! write(6,*) 'CV-dl',i,dl
                     !write(6,*) 'CV-Mat',i,mat
                     !tmat=tmat+mat
                 enddo
                 call matern(dl,size(dl,1),size(dl,2))
                 cv(1:iter,:,1)=mat
+                ! write (6,*) 'CV-mat',cv
             endif
 ! Covariant vector in Gradient Enhanced Kriging
             do i=1,nInter

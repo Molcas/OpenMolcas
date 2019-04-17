@@ -13,5 +13,5 @@
       Module AI
          Integer      nspAI,npxAI,miAI, lm_save
          Real*8       pAI, lb(3), dAIy, meAI
-         Logical      Kriging, anAI, make_parameters
+         Logical      Kriging, anAI
       End Module AI
