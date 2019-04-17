@@ -73,7 +73,7 @@
       OperC(1   ) = 0 ! Dummy
       OperC(1+1 ) = 0 ! Dummy
 *
-      Call dcopy_(nComp,Zero,0,Nuc,1)
+      Call dcopy_(nComp,[Zero],0,Nuc,1)
       Call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,
      &           CoorO,nOrdOp,Nuc,rHrmt,OperC,
      &           dum,1,dum,idum,0,0,
@@ -122,7 +122,7 @@
       OperC(1+10) = 0 ! Dummy
       OperC(1+11) = 0 ! Dummy
 *
-      Call dcopy_(nComp,Zero,0,Nuc,1)
+      Call dcopy_(nComp,[Zero],0,Nuc,1)
       Call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,
      &           CoorO,nOrdOp,Nuc,rHrmt,OperC,
      &           dum,1,dum,idum,0,0,
@@ -153,7 +153,7 @@
       OperC(1   ) = 0 ! Dummy
       OperC(1+1 ) = 0 ! Dummy
 *
-      Call dcopy_(nComp,Zero,0,Nuc,1)
+      Call dcopy_(nComp,[Zero],0,Nuc,1)
       Call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,
      &           CoorO,nOrdOp,Nuc,rHrmt,OperC,
      &           dum,1,dum,idum,0,0,

@@ -618,8 +618,9 @@ C And the same for the Dyson amplitudes
       END IF
 *
       ! AFACTOR = 2*pi*e^2*E_h^2 / eps_0*m_e*c^3*h^2
-      AFACTOR = 2.0D0/CONST_C_IN_AU_**3 ! in a.u. of time^-1
-     &          /CONST_AU_TIME_IN_SI_   ! in s^-1
+      ! 1/c^3 (in a.u. of time ^ -1)
+      AFACTOR = 2.0D0/CONST_C_IN_AU_**3
+     &          /CONST_AU_TIME_IN_SI_
 *
       IF(IPGLOB.le.SILENT) GOTO 900
 !
@@ -1831,7 +1832,7 @@ C And the same for the Dyson amplitudes
 
             WRITE(6,33) ISS,JSS,R
 !
-            Call Add_Info('CD_V(SF)',R,1,6)
+            Call Add_Info('CD_V(SF)',[R],1,6)
            END IF
           END DO
          END DO
@@ -1918,7 +1919,7 @@ C And the same for the Dyson amplitudes
 
             WRITE(6,33) ISS,JSS,R
 !
-            Call Add_Info('CD_M(SF)',R,1,6)
+            Call Add_Info('CD_M(SF)',[R],1,6)
            END IF
           END DO
          END DO
@@ -2265,14 +2266,14 @@ C And the same for the Dyson amplitudes
 *
 *           Iterate over the quadrature points.
 *
-            CALL DCOPY_(5*n12,0.0D0,0,WORK(LF),1)
+            CALL DCOPY_(5*n12,[0.0D0],0,WORK(LF),1)
 * 5 elements for FX,FY,FZ,F and R
 * even if X,Y and Z are not actually computed yet
 *
 *           Initialize output arrays
 *
-            CALL DCOPY_(NQUAD*5*n12,0.0D0,0,WORK(LRAW),1)
-            CALL DCOPY_(NQUAD*5*n12,0.0D0,0,WORK(LWEIGH),1)
+            CALL DCOPY_(NQUAD*5*n12,[0.0D0],0,WORK(LRAW),1)
+            CALL DCOPY_(NQUAD*5*n12,[0.0D0],0,WORK(LWEIGH),1)
 
             Do iQuad = 1, nQuad
                iStorage = iOff_ + (iQuad-1)*nData + ipStorage -1

@@ -47,8 +47,9 @@
       AU2REDR=2.0D2*DEBYE
       IMAGINARY=DCMPLX(0.0D0,1.0D0)
       ! AFACTOR = 2*pi*e^2*E_h^2 / eps_0*m_e*c^3*h^2
-      AFACTOR = 2.0D0/CONST_C_IN_AU_**3 ! in a.u. of time^-1
-     &          /CONST_AU_TIME_IN_SI_   ! in s^-1
+      ! 1/c^3 (in a.u. of time ^ -1)
+      AFACTOR = 2.0D0/CONST_C_IN_AU_**3
+     &          /CONST_AU_TIME_IN_SI_
       HALF=0.5D0
       PI= CONST_PI_
       HBAR=1.0D0 ! in a.u.
@@ -421,13 +422,13 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
 *           Iterate over the quadrature points.
 *
-            CALL DCOPY_(5*n12,0.0D0,0,WORK(LF),1)
+            CALL DCOPY_(5*n12,[0.0D0],0,WORK(LF),1)
 *
 *           Initialize output arrays
 *
-            CALL DCOPY_(5*n12,0.0D0,0,WORK(LF),1)
-            CALL DCOPY_(NQUAD*5*n12,0.0D0,0,WORK(LRAW),1)
-            CALL DCOPY_(NQUAD*5*n12,0.0D0,0,WORK(LWEIGH),1)
+            CALL DCOPY_(5*n12,[0.0D0],0,WORK(LF),1)
+            CALL DCOPY_(NQUAD*5*n12,[0.0D0],0,WORK(LRAW),1)
+            CALL DCOPY_(NQUAD*5*n12,[0.0D0],0,WORK(LWEIGH),1)
 
             Do iQuad = 1, nQuad
                iStorage = iOff_+ (iQuad-1)*nData + ipStorage - 1
@@ -571,10 +572,10 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *              as we assemble to transition momentum we have to
 *              remember to put in a factor of -i.
 *
-               CALL DCOPY_(NSS**2,0.0D0,0,WORK(LTM1R),1)
-               CALL DCOPY_(NSS**2,0.0D0,0,WORK(LTM1I),1)
-               CALL DCOPY_(NSS**2,0.0D0,0,WORK(LTM2R),1)
-               CALL DCOPY_(NSS**2,0.0D0,0,WORK(LTM2I),1)
+               CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LTM1R),1)
+               CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LTM1I),1)
+               CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LTM2R),1)
+               CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LTM2I),1)
                Do iCar = 1, 3
 *
                   CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXR),1)

@@ -679,8 +679,9 @@ C printing threshold
 *
          i_Print=0
          ! AFACTOR = 2*pi*e^2*E_h^2 / eps_0*m_e*c^3*h^2
-         AFACTOR = 2.0D0/CONST_C_IN_AU_**3 ! in a.u. of time^-1
-     &             /CONST_AU_TIME_IN_SI_   ! in s^-1
+         ! 1/c^3 (in a.u. of time ^ -1)
+         AFACTOR = 2.0D0/CONST_C_IN_AU_**3
+     &             /CONST_AU_TIME_IN_SI_
 
          CALL GETMEM('DXR','ALLO','REAL',LDXR,NSS**2)
          CALL GETMEM('DXI','ALLO','REAL',LDXI,NSS**2)
@@ -2044,16 +2045,16 @@ C printing threshold
 ! Electric dipole
          CALL GETMEM('DXR','ALLO','REAL',LDXR,NSS**2)
          CALL GETMEM('DXI','ALLO','REAL',LDXI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXI),1)
          CALL GETMEM('DYR','ALLO','REAL',LDYR,NSS**2)
          CALL GETMEM('DYI','ALLO','REAL',LDYI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDYR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDYI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDYR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDYI),1)
          CALL GETMEM('DZR','ALLO','REAL',LDZR,NSS**2)
          CALL GETMEM('DZI','ALLO','REAL',LDZI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDZR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDZI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDZR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDZI),1)
 
          IF(IPRDXD.GT.0) THEN
           CALL SMMAT(PROP,WORK(LDXR),NSS,SOPRNM(IPRDXD),ISOCMP(IPRDXD))
@@ -2071,16 +2072,16 @@ C printing threshold
 ! Magnetic-Dipole
          CALL GETMEM('DXR','ALLO','REAL',LMDXR,NSS**2)
          CALL GETMEM('DXI','ALLO','REAL',LMDXI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LMDXR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LMDXI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMDXR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMDXI),1)
          CALL GETMEM('DYR','ALLO','REAL',LMDYR,NSS**2)
          CALL GETMEM('DYI','ALLO','REAL',LMDYI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LMDYR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LMDYI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMDYR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMDYI),1)
          CALL GETMEM('DZR','ALLO','REAL',LMDZR,NSS**2)
          CALL GETMEM('DZI','ALLO','REAL',LMDZI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LMDZR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LMDZI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMDZR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMDZI),1)
 
          IF(IPRDXM.GT.0) THEN
           CALL SMMAT(PROP,WORK(LMDXR),NSS,SOPRNM(IPRDXM),ISOCMP(IPRDXM))
@@ -2136,7 +2137,7 @@ C printing threshold
 
             WRITE(6,33) ISS,JSS,R
 !
-            Call Add_Info('CD_V(SO)',R,1,6)
+            Call Add_Info('CD_V(SO)',[R],1,6)
            END IF
           END DO
          END DO
@@ -2195,16 +2196,16 @@ C printing threshold
 ! Electric dipole
          CALL GETMEM('DXR','ALLO','REAL',LDXR,NSS**2)
          CALL GETMEM('DXI','ALLO','REAL',LDXI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXI),1)
          CALL GETMEM('DYR','ALLO','REAL',LDYR,NSS**2)
          CALL GETMEM('DYI','ALLO','REAL',LDYI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDYR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDYI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDYR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDYI),1)
          CALL GETMEM('DZR','ALLO','REAL',LDZR,NSS**2)
          CALL GETMEM('DZI','ALLO','REAL',LDZI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDZR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDZI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDZR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDZI),1)
 
          IF(IPRDXD.GT.0) THEN
           CALL SMMAT(PROP,WORK(LDXR),NSS,SOPRNM(IPRDXD),ISOCMP(IPRDXD))
@@ -2222,16 +2223,16 @@ C printing threshold
 ! Magnetic-Dipole
          CALL GETMEM('DXR','ALLO','REAL',LMDXR,NSS**2)
          CALL GETMEM('DXI','ALLO','REAL',LMDXI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LMDXR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LMDXI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMDXR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMDXI),1)
          CALL GETMEM('DYR','ALLO','REAL',LMDYR,NSS**2)
          CALL GETMEM('DYI','ALLO','REAL',LMDYI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LMDYR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LMDYI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMDYR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMDYI),1)
          CALL GETMEM('DZR','ALLO','REAL',LMDZR,NSS**2)
          CALL GETMEM('DZI','ALLO','REAL',LMDZI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LMDZR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LMDZI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMDZR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMDZI),1)
 
          IF(IPRDXM.GT.0) THEN
           CALL SMMAT(PROP,WORK(LMDXR),NSS,SOPRNM(IPRDXM),ISOCMP(IPRDXM))
@@ -2293,7 +2294,7 @@ C printing threshold
 
             WRITE(6,33) ISS,JSS,R
 !
-            Call Add_Info('CD_M(SO)',R,1,6)
+            Call Add_Info('CD_M(SO)',[R],1,6)
            END IF
           END DO
          END DO
