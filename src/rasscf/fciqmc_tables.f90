@@ -222,36 +222,42 @@ contains
 !>  @param[in] EMY
 !>  @param[in] cutoff Optional parameter that is set by default to
 !>    fciqmc_tables::cutoff_default.
-  subroutine fill_fock(fock_table, CMO, DSPN, F_IN, D1I, D1A, cutoff)
+  subroutine fill_fock(fock_table, CMO, F_IN, D1I_MO, cutoff)
     use general_data, only : nActEl, nAsh, ntot, ntot1, ntot2
-    use rasscf_data, only : nAcPar, Emy
+    use rasscf_data, only : nAcPar, core_energy => Emy
     implicit none
-    real(8), intent(in) :: CMO(:), DSPN(:), F_IN(:), D1I(:), D1A(:)
+    real(8), intent(in) :: CMO(nTot2), F_IN(nTot1), D1I_MO(nTot2)
     type(FockTable), intent(inout) :: fock_table
     real(8), optional, intent(in) :: cutoff
-
-    real(8), allocatable :: transformed_fock(:), TmpD1S(:), TMPDS(:)
+    real(8), allocatable :: &
+! transformed fock
+        transformed_fock(:),&
+! active one-body density matrix in AO-space
+        D1A_AO(:),&
+! active one-body density matrix in MO-space
+        D1A_MO(:)
     integer :: i, n, iOrb, jOrb, l_fock_test
     integer, parameter :: max_test = 20
-    real(8) :: Emyn, cutoff_
+    real(8) :: core_E_per_act_el, cutoff_
 
     cutoff_ = merge(cutoff, cutoff_default, present(cutoff))
 
-    call mma_allocate(transformed_fock, size(DSPN))
-    call mma_allocate(TmpD1S, size(D1I))
-    call mma_allocate(TmpDS, size(DSPN))
+    call mma_allocate(transformed_fock, nAcPar)
+    call mma_allocate(D1A_AO, nTot2)
+    call mma_allocate(D1A_MO, nTot2)
     ! TODO(Giovanni, Oskar): I think this is not necessary?
-    ! TmpDS(:) = DSPN(:)
-    if (nAsh(1) /= sum(nAsh)) call DBLOCK(TmpDS)
-    call Get_D1A_RASSCF(CMO, TmpDS, TmpD1S)
-    call SGFCIN(CMO, transformed_fock, F_In, D1I, D1A, TmpD1S)
-    call mma_deallocate(TmpDS)
-    call mma_deallocate(TmpD1S)
+    ! D1A_MO(:) = DSPN(:)
+    if (nAsh(1) /= sum(nAsh)) call DBLOCK(D1A_MO)
+    call Get_D1A_RASSCF(CMO, D1A_MO, D1A_AO)
+    ! SGFCIN has side effects and EMY/core_energy is set in this routine.
+    call SGFCIN(CMO, transformed_fock, F_In, D1I_MO, D1A_MO, D1A_AO)
+    call mma_deallocate(D1A_MO)
+    call mma_deallocate(D1A_AO)
 
     if (nActEl /= 0) then
-      Emyn = Emy / dble(nActEl)
+      core_E_per_act_el = core_energy / dble(nActEl)
     else
-      Emyn = 0.0d0
+      core_E_per_act_el = 0.0d0
     end if
 
     n = 0
@@ -262,7 +268,7 @@ contains
         jOrb = i - (iOrb - 1) * iOrb / 2
         fock_table%index(:, n) = [iOrb, jOrb]
         if (iOrb == jOrb) then
-          fock_table%values(n) = transformed_Fock(i) - Emyn
+          fock_table%values(n) = transformed_Fock(i) - core_E_per_act_el
         else
           fock_table%values(n) = transformed_Fock(i)
         end if

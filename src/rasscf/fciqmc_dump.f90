@@ -222,7 +222,7 @@ contains
     call mma_allocate(orbital_table, sum(nAsh))
 
     call fill_orbitals(orbital_table, DIAF, iter)
-    call fill_fock(fock_table, CMO=CMO, DSPN=DSPN, F_IN=F_IN, D1I=D1I, D1A=D1A)
+    call fill_fock(fock_table, CMO=CMO, F_IN=F_IN, D1I_MO=D1I)
     call fill_2ElInt(two_el_table, TUVX)
 
     if (present(permutation)) then
