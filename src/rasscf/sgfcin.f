@@ -31,21 +31,22 @@
 !     module dependencies
       use qcmaquis_interface_cfg
 #endif
-
-      Implicit Real*8 (A-H,O-Z)
-*
+      use rasscf_data, only : Emy, KSDFT, dftfock, exfac, nac, nacpar,
+     &    noneq, potnuc, rfpert,
+     &    tot_charge, tot_el_charge, tot_nuc_charge
+      implicit none
 #include "rasdim.fh"
 #include "general.fh"
 #include "output_ras.fh"
       Parameter (ROUTINE='SGFCIN  ')
-#include "rasscf.fh"
 #include "WrkSpc.fh"
 #include "rctfld.fh"
 #include "pamint.fh"
 #include "timers.fh"
 #include "SysDef.fh"
 *
-      Dimension CMO(*) , F(*) , FI(*) , D1I(*) , D1A(*), D1S(*)
+      real(8), intent(in) :: CMO(*), D1I(*), D1A(*)
+      real(8), intent(inout) :: FI(*), D1S(*), F(*)
       Character*8 Label
       Character*8 PAMlbl
       Logical First, Dff, Do_DFT, Found
@@ -58,7 +59,18 @@
      &                      V_Nuc_AB,V_Nuc_BA,V_emb
       COMMON  / OFembed_I / ipFMaux, ip_NDSD, l_NDSD
 *
-      Parameter ( Zero=0.0d0 , One=1.0d0 )
+!      Parameter ( Zero=0.0d0 , One=1.0d0 )
+      real(8), parameter ::  Zero=0.0d0, One=1.0d0
+      real(8) :: CASDFT_Funct, dumm, Emyn, energy_nad, Eone,
+     &  Erf1, Erf2, Erfhi, Erfx, Etwo, func_a, func_ab, func_b,
+     &  potnuc_ref, rep_en, v_emb, v_nuc_ab, v_nuc_ba, dDot_
+      integer :: i, iadd, ibas, icharge, iComp,
+     &  ioff, iopt, ip_ndsd,
+     &  ipam, ipfmaux, iprlev, iptmpfcki, ntmpfck,
+     &  irc, iSyLbl,
+     &  iSym, iTmp0, iTmp1, iTmp2, iTmp3, iTmp4, iTmp5, iTmp6, iTmp7,
+     &  iTmp8, iTmpx, iTmpz, iTu, j, l_ndsd, lx0, lx1, lx2, lx3,
+     &  mxna, mxnb, nAt, nst, nt, ntu, nu, nvxc
 
       Call qEnter(ROUTINE)
 C Local print level (if any)
