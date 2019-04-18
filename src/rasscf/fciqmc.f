@@ -39,9 +39,9 @@
 *        \Argument{DSPN}{Average spin 1-dens matrix}{Real*8 array (NACPAR)}..........{out}
 *        \Argument{PSMAT}{Average symm. 2-dens matrix}{Real*8 array (NACPR2)}........{out}
 *        \Argument{PAMAT}{Average antisymm. 2-dens matrix}{Real*8 array (NACPR2)}....{out}
-*        \Argument{F_IN}{Fock matrix from inactive density}{Real*8 array (NTOT1)}....{in/out}
-*        \Argument{D1I}{Inactive 1-dens matrix}{Real*8 array (NTOT2)}................{inout}
-*        \Argument{D1A}{Active 1-dens matrix}{Real*8 array (NTOT2)}..................{inout}
+*        \Argument{F_IN}{Fock matrix from inactive density}{Real*8 array (NTOT1)}....{in}
+*        \Argument{D1I}{Inactive 1-dens matrix}{Real*8 array (NTOT2)}................{in}
+*        \Argument{D1A}{Active 1-dens matrix}{Real*8 array (NTOT2)}..................{in}
 *        \Argument{TUVX}{Active 2-el integrals}{Real*8 array (NACPR2)}...............{in}
 *      </Arguments>
 *
@@ -86,63 +86,59 @@
 #include "mafdecls.fh"
       integer(kind=4) :: ierror
 #endif
-      real(kind=8), intent(in) :: CMO(nTot2), DIAF(nTot), TUVX(nAcpr2)
-      real(kind=8), intent(out) :: DMAT(nAcpar), DSPN(nAcpar),
-     & PSMAT(nAcpr2), PAMAT(nAcpr2)
-      real(kind=8), intent(inout) :: F_IN(nTot1), D1I(nTot2), D1A(nTot2)
-!      type(OrbitalTable) :: orbital_table
-!      type(FockTable) :: fock_table
-!      type(TwoElIntTable) :: two_el_table
+      real(kind=8), intent(in) :: CMO(nTot2), DIAF(nTot), TUVX(nAcpr2),
+     &    F_In(nTot1), D1I(nTot2), D1A(nTot2)
+      real(kind=8), intent(inout) :: DMAT(nAcpar), DSPN(nAcpar),
+     &    PSMAT(nAcpr2), PAMAT(nAcpr2)
       logical :: Do_ESPF, WaitForNECI
       real(kind=8) :: NECIen, Scal
       integer :: LuNewC, iPRLEV, iOff, iSym, iBas, i, j,
      & jRoot, iDisk, jDisk, kRoot, permutation(sum(nAsh(:nSym)))
-      real(kind=8), allocatable :: TmpD1S(:), TmpDS(:), CICtl1(:),
-     &  DTMP(:), DStmp(:), Ptmp(:), PAtmp(:)
+      real(kind=8), allocatable :: DTMP(:), Ptmp(:), PAtmp(:), DStmp(:)
       integer :: err, L
       character(1024) :: h5fcidmp, fcidmp, fcinp, newcycle, WorkDir
 
       parameter(ROUTINE = 'FCIQMC_clt')
       call qEnter(routine)
 
-C Local print level (if any)
-      IPRLEV = IPRLOC(1)
-      IF(IPRLEV.ge.DEBUG) THEN
-        Write(LF,*)
-        Write(LF,*) ' ===================='
-        WRITE(LF,*) ' Entering FCIQMC_Ctl'
-        Write(LF,*) ' ===================='
-        Write(LF,*)
-        Write(LF,*) ' iteration count =',ITER
-        Write(LF,*) ' IFCAS value     =',IFCAS
-        Write(LF,*) ' lroots,nroots   =',lroots,nroots
-        Write(LF,*)
-      END IF
+! Local print level (if any)
+      iprlev = iprloc(1)
+      if(iprlev.ge.debug) then
+        write(lf,*)
+        write(lf,*) ' ===================='
+        write(lf,*) ' Entering FCIQMC_Ctl'
+        write(lf,*) ' ===================='
+        write(lf,*)
+        write(lf,*) ' iteration count =', ITER
+        write(lf,*) ' IFCAS value     =', IFCAS
+        write(lf,*) ' lroots,nroots   =', lroots,nroots
+        write(lf,*)
+      end if
 * set up flag 'IFCAS' for GAS option, which is set up in gugatcl originally.
 * IFCAS = 0: This is a CAS calculation
 * IFCAS = 1: This is a RAS calculation
 * IFCAS = 2: This is a GAS calculation
-      IF(IPRLEV.ge.DEBUG) THEN
-        Write(LF,*)
-        Write(LF,*) ' CMO in FCIQMC_CTL'
-        Write(LF,*) ' ---------------------'
-        Write(LF,*)
+      if(iprlev.ge.debug) then
+        write(lf,*)
+        write(lf,*) ' CMO in FCIQMC_CTL'
+        write(lf,*) ' ---------------------'
+        write(lf,*)
         ioff=1
-        Do iSym = 1,nSym
-          iBas = nBas(iSym)
-          if(iBas.ne.0) then
-            write(6,*) 'Sym =', iSym
-            do i= 1,iBas
-              write(6,*) (CMO(ioff+iBas*(i-1)+j),j=0,iBas-1)
+        do isym = 1,nsym
+          ibas = nbas(isym)
+          if(ibas.ne.0) then
+            write(6,*) 'Sym =', isym
+            do i= 1,ibas
+              write(6,*) (cmo(ioff+ibas*(i-1)+j),j=0,ibas-1)
             end do
-            iOff = iOff + (iBas*iBas)
+            ioff = ioff + (ibas*ibas)
           end if
-        End Do
-      END IF
+        end do
+      end if
 
 * SOME DIRTY SETUPS
 *
-      S=0.5D0*DBLE(ISPIN-1)
+      S = 0.5D0 * DBLE(ISPIN-1)
 *
 **************************************************************************************
 **************** FCIQMC not interfaced to State Average CAS         ******************
@@ -171,22 +167,10 @@ c      end if
         write(6,*)' See you later ;)'
         call QTrace()
         call Abend()
-      else
+      end if
 **************************************************************************************
 ****************                     Normal Case                    ******************
 **************************************************************************************
-* LW1 : Inactive Fock MATRIX IN MO-BASIS computed via SGFCIN containing both one and two-electron contribution.
-* F_In: Inactive Fock MATRIX IN AO-BASIS containing both one and two-electron contribution (latest computed in TRA_CTL2)
-        call mma_allocate(CICtl1, nAcPar)
-        call mma_allocate(TmpD1S, nTot2)
-        call mma_allocate(TmpDS, nAcPar)
-        TmpDS(:) = DSPN(:)
-        if (NASH(1) /= NAC ) call DBLOCK(TmpDS)
-        call Get_D1A_RASSCF(CMO, TmpDS, TmpD1S)
-        call SGFCIN(CMO, CICtl1, F_In, D1I, D1A, TmpD1S)
-        call mma_deallocate(TmpDS)
-        call mma_deallocate(TmpD1S)
-      end if
 **************************************************************************************
 *****************              Produce a working FCIDUMP file       ******************
 **************************************************************************************
@@ -199,10 +183,11 @@ c      end if
       end select
 
       if (ReOrFlag /= 0) then
-        call make_fcidumps(iter, nacpar, nAsh, TUVX, DIAF, CICtl1, EMY,
-     &                      permutation)
+        call make_fcidumps(iter, nacpar, nAsh, TUVX, DIAF, CMO, DSPN,
+     &                     F_IN, D1I, D1A, EMY, permutation)
       else
-        call make_fcidumps(iter, nacpar, nAsh, TUVX, DIAF, CICtl1, EMY)
+        call make_fcidumps(iter, nacpar, nAsh, TUVX, DIAF, CMO, DSPN,
+     &                     F_IN, D1I, D1A, EMY)
       end if
 **************************************************************************************
 *****************              Produce an INPUT file for NECI       ******************
@@ -212,7 +197,6 @@ c      end if
 *****************      Run NECI                                     ******************
 **************************************************************************************
 * In case we wish to dump the FCIDUMP file only we do not need to wait for NECI run.
-      if (DumpOnly) goto 999
       call Timing(Rado_1, Swatch, Swatch, Swatch)
 #ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
@@ -294,10 +278,7 @@ c      end if
 #ifdef _MOLCAS_MPP_
       if (Is_Real_Par()) call MPI_Barrier(MPI_COMM_WORLD, ierror)
 #endif
-
-      if (DoNECI) then
-        call read_neci_RDM(DTMP, DStmp, Ptmp, PAtmp)
-      end if
+      call read_neci_RDM(DTMP, DStmp, Ptmp, PAtmp)
 #ifdef _MOLCAS_MPP_
       if (Is_Real_Par()) call MPI_Barrier(MPI_COMM_WORLD, ierror)
 #endif
@@ -340,16 +321,13 @@ c      end if
      &              ' ',PAMAT,NACPAR)
       end if
 c
-      IF (NASH(1) /= NAC) call DBLOCK(DMAT)
+      if (nAsh(1) /= nac) call dblock(dmat)
       call Timing(Rado_2, Swatch, Swatch, Swatch)
       Rado_2 = Rado_2 - Rado_1
       Rado_3 = Rado_3 + Rado_2
 **************************************************************
 **************************************************************
 
-999   continue
-      call mma_deallocate(CICtl1)
-*
       call qExit('FCIQMC_CTL')
       Return
       end subroutine fciqmc_ctl

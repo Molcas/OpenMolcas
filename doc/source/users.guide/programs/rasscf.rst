@@ -367,8 +367,6 @@ Optional important keywords are:
 
 
 :kword:`REOR`
-  This keyword is used to reorder the active orbitals for compacting
-  the wavefunction when using CSFs.
   The user can input a permutation by specifying the number of non
   fixed point elements, followed by the order of the non fixed point elements.
 
@@ -401,8 +399,6 @@ Optional important keywords are:
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="REOR" Appear="Reordering orbitals" KIND="STRING" LEVEL="ADVANCED" REQUIRE="NECI">
               %%Keyword: REOR <advanced>
               <HELP>
-              This keyword is used to reorder the active orbitals for compacting
-              the wavefunction when using CSFs.
               The user can input a permutation by specifying the number of non
               fixed point elements, followed by the order of the non fixed point elements.
               If the total number of active orbitals is e.g. 6

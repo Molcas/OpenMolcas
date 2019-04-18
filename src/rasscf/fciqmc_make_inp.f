@@ -14,20 +14,21 @@
 
       module fciqmc_make_inp
         integer ::
-     &    totalwalkers = 500000,
+! No default value on purpose
+     &    totalwalkers,
+     &    calcrdmonfly(3),
+     &    rdmsamplingiters,
 ! Default value for time per NECI run
      &    Time = 200,
 ! Practically this means no trial_wavefunction by default
      &    trial_wavefunction = 1000000000,
      &    nmcyc = 50000,
      &    pops_trial = 1000,
-     &    rdmsamplingiters =  25000,
      &    stepsshift = 10,
      &    addtoinitiator = 3,
      &    maxwalkerbloom = 1,
      &    semi_stochastic = 500,
-     &    highlypopwrite = 50,
-     &    calcrdmonfly(3) = [3, 500, 500]
+     &    highlypopwrite = 50
         integer, allocatable ::
      &    definedet(:)
         real(kind=8) ::

@@ -205,10 +205,13 @@ contains
 #endif
   end subroutine dump_hdf5
 
-  subroutine make_fcidumps(iter, nacpar, nAsh, TUVX, DIAF, CICtl1, EMY, permutation)
+
+  subroutine make_fcidumps(iter, nacpar, nAsh, TUVX, DIAF, &
+        CMO, DSPN, F_IN, D1I, D1A, EMY, permutation)
     implicit none
     integer, intent(in) :: iter, nacpar, nAsh(:)
-    real(8), intent(in) :: TUVX(:), DIAF(:), CICtl1(:), EMY
+    real(8), intent(in) :: TUVX(:), DIAF(:), EMY, &
+      CMO(:), DSPN(:), F_IN(:), D1I(:), D1A(:)
     integer, intent(in), optional :: permutation(:)
     type(OrbitalTable) :: orbital_table
     type(FockTable) :: fock_table
@@ -219,7 +222,7 @@ contains
     call mma_allocate(orbital_table, sum(nAsh))
 
     call fill_orbitals(orbital_table, DIAF, iter)
-    call fill_fock(fock_table, CICtl1, EMY)
+    call fill_fock(fock_table, CMO=CMO, DSPN=DSPN, F_IN=F_IN, D1I=D1I, D1A=D1A)
     call fill_2ElInt(two_el_table, TUVX)
 
     if (present(permutation)) then

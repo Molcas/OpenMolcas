@@ -384,7 +384,7 @@ C Acceptable, only if it is very close to zero. Else, quit.
          Write(LF,*)' This is possible only for some severe malfunction'
          Write(LF,*)' of the rasscf program. Please issue a bug report.'
          Write(LF,*)
-         if(.not. DoNECI) then
+         if (.not. DoNECI) then
            Call qTrace
            Call Quit(_RC_GENERAL_ERROR_)
          else

@@ -39,7 +39,7 @@
       implicit none
 #include "para_info.fh"
 #include "output_ras.fh"
-      real(kind=8), intent(out) :: DMAT(:), DSPN(:), PSMAT(:),PAMAT(:)
+      real(kind=8), intent(inout) :: DMAT(:), DSPN(:), PSMAT(:),PAMAT(:)
       integer :: iUnit, isfreeunit, p, q, r, s, pq, rs, ps, rq, psrq,
      &  pqrs, iread, Nalpha, norb, iprlev
       logical :: tExist, switch

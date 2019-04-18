@@ -93,74 +93,73 @@ contains
 !>  @author Oskar Weser
 !>
 !>  @details
-!>  The orbitals table gets filled with the orbital energies.
+!>  The orbitals table gets filled with the orbital energies from DIAF.
+!>  If it is the first iteration (iter == 1) then the one electron
+!>  energies are read from the InpOrb.
 !>
 !>  @param[in,out] orbitals Core
 !>  @param[in] DIAF
 !>  @param[in] iter
-  subroutine fill_orbitals(orbitals, DIAF, iter)
+  subroutine fill_orbitals(table, DIAF, iter)
     use general_data, only : nBas, nSym, nAsh, nFro, nIsh
-    use rasscf_data, only : FDIAG
-
     implicit none
-    type(OrbitalTable), intent(inout) :: orbitals
+    type(OrbitalTable), intent(inout) :: table
     integer, intent(in) :: iter
-    real(kind=8), intent(in) :: DIAF(:)
-    real(kind=8), allocatable :: EOrb(:)
-    integer :: i, n, iSym, ioff, iDummy, itotnbas, Dummy, iErr
-    character(*), parameter ::  FnInpOrb = 'INPORB'
-    character(80) :: VecTit
-    integer :: LuInpOrb = 10
-    logical :: okay
+    real(kind=8), intent(in), target :: DIAF(:)
+    real(kind=8), allocatable, target :: EOrb(:)
+    real(kind=8), pointer :: orbital_energies(:)
+    integer :: i, n, iSym, iOff
 
     integer, parameter :: max_test = 20
     integer :: l_orb_test
 
     if (iter == 1) then
-      itotnbas = sum(nBas(:nSym))
-      call f_Inquire(FnInpOrb,okay)
+      call mma_allocate(EOrb, sum(nBas(:nSym)))
+      call read_orbital_energies(nSym, nBas, EOrb)
+      orbital_energies => EOrb
+    else
+      orbital_energies => DIAF
+    end if
+
+    iOff = 0
+    n = 1
+    do iSym = 1, nSym
+      if (nAsh(iSym) > 0) then
+        do i = 1, nAsh(isym)
+          table%index(n) = n
+          table%values(n) = orbital_energies(ioff + nFro(iSym) + nIsh(iSym) + i)
+          n = n + 1
+        enddo
+      end if
+      iOff   = iOff + nBas(iSym)
+    end do
+    if (allocated(EOrb)) call mma_deallocate(EOrb)
+! ========== For testing purposes FROM HERE =============
+    l_orb_test = min(max_test, length(table))
+    call Add_Info('Orbital Energy Input', &
+      table%values(:l_orb_test), l_orb_test, 8)
+! ========== For testing purposes TO HERE ===============
+  contains
+    subroutine read_orbital_energies(nSym, nBas, orbital_energies)
+      implicit none
+      integer, intent(in) :: nSym, nBas(:)
+      real(kind=8), intent(inout) :: orbital_energies(:)
+      real(kind=8) :: Dummy
+      integer :: LuInpOrb = 10, iDummy, err
+      character(*), parameter ::  FnInpOrb = 'INPORB'
+      character(80) :: VecTit
+      logical :: okay
+      call f_Inquire(FnInpOrb, okay)
       if (okay) then
-        call mma_allocate(EOrb, itotnbas)
         call RdVec(FnInpOrb,LuInpOrb,'E',nSym,nBas,nBas, &
-          Dummy, Dummy, EOrb, iDummy, &
-          VecTit, 0, iErr)
+          Dummy, Dummy, orbital_energies, iDummy, &
+          VecTit, 0, err)
       else
         Write (6,*) 'RdCMO: Error finding MO file'
         call QTrace()
         call Abend()
       end if
-
-      iOff = 0
-      n = 1
-      do iSym = 1, nSym
-        if (nAsh(iSym) .gt. 0) then
-          do i = 1, nAsh(isym)
-            orbitals%index(n) = n
-            orbitals%values(n) = EOrb(ioff + nFro(iSym) + nIsh(iSym) + i)
-            n = n + 1
-          enddo
-        end if
-        iOff   = iOff + nBas(iSym)
-      end do
-      call mma_deallocate(EOrb)
-    else
-      ioff = 0
-      n = 1
-      do iSym = 1, nSym
-        do i = 1, nAsh(iSym)
-          orbitals%index(n) = n
-          orbitals%values(n) = DIAF(ioff + nFro(iSym) + nIsh(iSym) + i)
-          n = n + 1
-        end do
-        ioff = ioff + nBas(iSym)
-      end do
-    end if
-
-! ========== For testing purposes FROM HERE =============
-    l_orb_test = min(max_test, length(orbitals))
-    call Add_Info('Orbital Energy Input', &
-      orbitals%values(:l_orb_test), l_orb_test, 8)
-! ========== For testing purposes TO HERE ===============
+    end subroutine read_orbital_energies
   end subroutine fill_orbitals
 
   subroutine OrbitalTable_reorder(orbitals, P)
@@ -223,21 +222,31 @@ contains
 !>  @param[in] EMY
 !>  @param[in] cutoff Optional parameter that is set by default to
 !>    fciqmc_tables::cutoff_default.
-  subroutine fill_fock(fock_table, Fock, Emy, cutoff)
-    use general_data, only : nActEl
+  subroutine fill_fock(fock_table, CMO, DSPN, F_IN, D1I, D1A, cutoff)
+    use general_data, only : nActEl, nAsh, ntot, ntot1, ntot2
+    use rasscf_data, only : nAcPar, Emy
     implicit none
-    real(kind=8), intent(in) :: Fock(:), Emy
+    real(8), intent(in) :: CMO(:), DSPN(:), F_IN(:), D1I(:), D1A(:)
     type(FockTable), intent(inout) :: fock_table
-    integer :: i, n, iOrb, jOrb
-    real(kind=8) :: Emyn
-    real(kind=8), optional :: cutoff
-    real(kind=8) :: cutoff_
+    real(8), optional, intent(in) :: cutoff
 
+    real(8), allocatable :: transformed_fock(:), TmpD1S(:), TMPDS(:)
+    integer :: i, n, iOrb, jOrb, l_fock_test
     integer, parameter :: max_test = 20
-    integer :: l_fock_test
+    real(8) :: Emyn, cutoff_
 
     cutoff_ = merge(cutoff, cutoff_default, present(cutoff))
 
+    call mma_allocate(transformed_fock, size(DSPN))
+    call mma_allocate(TmpD1S, size(D1I))
+    call mma_allocate(TmpDS, size(DSPN))
+    ! TODO(Giovanni, Oskar): I think this is not necessary?
+    ! TmpDS(:) = DSPN(:)
+    if (nAsh(1) /= sum(nAsh)) call DBLOCK(TmpDS)
+    call Get_D1A_RASSCF(CMO, TmpDS, TmpD1S)
+    call SGFCIN(CMO, transformed_fock, F_In, D1I, D1A, TmpD1S)
+    call mma_deallocate(TmpDS)
+    call mma_deallocate(TmpD1S)
 
     if (nActEl /= 0) then
       Emyn = Emy / dble(nActEl)
@@ -246,29 +255,30 @@ contains
     end if
 
     n = 0
-    do i = 1, size(Fock)
-      if (abs(Fock(i)) .ge. cutoff_) then
+    do i = 1, size(transformed_fock)
+      if (abs(transformed_Fock(i)) >= cutoff_) then
         n = n + 1
         iOrb = ceiling(-0.5d0 + sqrt(2.0d0 * i))
         jOrb = i - (iOrb - 1) * iOrb / 2
         fock_table%index(:, n) = [iOrb, jOrb]
-        if (iOrb .eq. jOrb) then
-          fock_table%values(n) = Fock(i) - Emyn
+        if (iOrb == jOrb) then
+          fock_table%values(n) = transformed_Fock(i) - Emyn
         else
-          fock_table%values(n) = Fock(i)
+          fock_table%values(n) = transformed_Fock(i)
         end if
       end if
     end do
     fock_table%length = n
     fock_table%cutoff = cutoff_
-
 ! ========== For testing purposes FROM HERE =============
     l_fock_test = min(max_test, length(fock_table))
-    call Add_Info('Fock element Input', Fock(:l_fock_test), l_fock_test, 8)
+    call Add_Info('Fock element Input', transformed_Fock(:l_fock_test), l_fock_test, 8)
 ! ========== For testing purposes TO HERE ===============
+    call mma_deallocate(transformed_Fock)
   end subroutine fill_fock
 
   subroutine FockTable_reorder(fock, P)
+    implicit none
     type(FockTable), intent(inout) :: fock
     integer, intent(in) :: P(:)
     integer :: i, j
@@ -280,6 +290,7 @@ contains
   end subroutine
 
   pure integer function FockTable_length(table)
+    implicit none
     type(FockTable), intent(in) :: table
     FockTable_length = table%length
   end function FockTable_length
@@ -344,7 +355,7 @@ contains
 
     n = 0
     do i = 1, size(TUVX)
-      if (abs(TUVX(i)) .ge. cutoff_) then
+      if (abs(TUVX(i)) >= cutoff_) then
         n = n + 1
         ijidx = ceiling(-0.5d0 + sqrt(2.0d0 * i))
         klidx = i - (ijidx - 1) * ijidx / 2

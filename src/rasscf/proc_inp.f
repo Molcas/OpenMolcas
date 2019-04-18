@@ -132,6 +132,7 @@
 #endif
 
       Intrinsic INDEX,NINT,DBLE,SQRT
+
 C...Dongxia note for GAS:
 C   No changing about read in orbital information from INPORB yet.
 
@@ -1870,22 +1871,7 @@ C orbitals accordingly
         ISPDEN=0
       END IF
 * =======================================================================
-*---  Process NECI commands -------------------------------------------*
-      If (KeyNECI) Then
-        if(DBG) write(6,*) 'NECI is actived'
-        DoNECI = .true.
-*----------------------------------------------------------------------------------------
-        if(KeyEMBD) then
-          DoEmbdNECI = .true.
-#ifndef _NECI_
-          call WarningMessage(2, 'EmbdNECI is given in input, '//
-     &'so the embedded NECI should be used. Unfortunately MOLCAS was '//
-     &'not compiled with embedded NECI. Please use -DNECI=ON '//
-     &'for compiling or use an external NECI.')
-#endif
-        end if
-*--- This is to generate only HUGE dump files. To be used one PMAT does not fit memory --
-       if(KeyDMPO) DumpOnly = .true.
+      if (KeyDMPO) DumpOnly = .true.
 !--- This is to input the non fixed point elements of a permutation
 !        to reorder the orbitals.
 !    If no permutation is specified, information from GAS is taken.
@@ -1898,9 +1884,9 @@ C orbitals accordingly
         ReadStatus=' O.K. reading ReOrFlag after REOR keyword.'
         if (ReOrFlag < -1 .OR. ReOrFlag == 1) then
           call WarningMessage(2, 'Invalid flag for reordering. '//
-     &"n==0: Don't reorder. "//
-     &"n>=2: User defined permutation with n changed elements. "//
-     &"n==-1: Use GAS sorting scheme. ")
+     &      "n==0: Don't reorder. "//
+     &      "n>=2: User defined permutation with n changed elements. "//
+     &      "n==-1: Use GAS sorting scheme. ")
           GoTo 9930
         else if (ReOrFlag >= 2) then
           call mma_allocate(ReOrInp, ReOrFlag)
@@ -1913,72 +1899,97 @@ C orbitals accordingly
           GoTo 9930
         end if
       end if
+*---  Process NECI commands -------------------------------------------*
+      if (KeyNECI) then
+        if(DBG) write(6,*) 'NECI is actived'
+        DoNECI = .true.
+*----------------------------------------------------------------------------------------
+        if(KeyEMBD) then
+          DoEmbdNECI = .true.
+#ifndef _NECI_
+          call WarningMessage(2, 'EmbdNECI is given in input, '//
+     &'so the embedded NECI should be used. Unfortunately MOLCAS was '//
+     &'not compiled with embedded NECI. Please use -DNECI=ON '//
+     &'for compiling or use an external NECI.')
+#endif
+        end if
 *--- This block is to process the DEFINEDET -------------------
-       if(KeyDEFI) then
-         call mma_allocate(definedet, nActel)
-         call setpos(luinput,'DEFI',line,irc)
-         if(irc.ne._RC_ALL_IS_WELL_) goto 9810
-         Read(luinput,*,end=9910,Err=9920)(definedet(i), i = 1, nActEl)
-         write(6,*)'definedet read in proc_inp of size:', nactel
-         write(6,*)(definedet(i), i = 1, nActEl)
-* definedet must be deallocated after it has been written to NECI input
-       end if
-       if(KeyDIAG) then
-         call setpos(luinput,'DIAG',line,irc)
-         if(irc.ne._RC_ALL_IS_WELL_) goto 9810
-         read(luinput,*,end=9910,err=9920) diagshift
-       end if
-       if(KeyTOTA) then
-         call setpos(luinput,'TOTA',line,irc)
-         if(irc.ne._RC_ALL_IS_WELL_) goto 9810
-         read(luinput,*,end=9910,err=9920) totalwalkers
-       end if
-       if(KeyTIME) then
-         call setpos(luinput,'TIME',line,irc)
-         if(irc.ne._RC_ALL_IS_WELL_) goto 9810
-         read(luinput,*,end=9910,err=9920) Time
-       end if
-       if(KeyNMCY) then
-         call setpos(luinput,'NMCY',line,irc)
-         if(irc.ne._RC_ALL_IS_WELL_) goto 9810
-         read(luinput,*,end=9910,err=9920) nmCyc
-       end if
-       if(KeyCALC) then
-         call setpos(luinput,'CALC',line,irc)
-         if(irc.ne._RC_ALL_IS_WELL_) goto 9810
-         read(luinput,*,end=9910,err=9920) (calcrdmonfly(i),i=1,3)
-       end if
-       if(KeyRDMS) then
-         call setpos(luinput,'RDMS',line,irc)
-         if(irc.ne._RC_ALL_IS_WELL_) goto 9810
-         read(luinput,*,end=9910,err=9920) rdmsamplingiters
-       end if
-       if(KeyREAL) then
-         call setpos(luinput,'REAL',line,irc)
-         if(irc.ne._RC_ALL_IS_WELL_) goto 9810
-         read(luinput,*,end=9910,err=9920) realspawncutoff
-       end if
-       if(KeyTRIA) then
-         call setpos(luinput,'TRIA',line,irc)
-         if(irc.ne._RC_ALL_IS_WELL_) goto 9810
-         read(luinput,*,end=9910,err=9920) trial_wavefunction
-       end if
-       if(KeyPOPS) then
-         call setpos(luinput,'POPS',line,irc)
-         if(irc.ne._RC_ALL_IS_WELL_) goto 9810
-         read(luinput,*,end=9910,err=9920) pops_trial
-       end if
-       if(KeySEMI) then
-         call setpos(luinput,'SEMI',line,irc)
-         if(irc.ne._RC_ALL_IS_WELL_) goto 9810
-         read(luinput,*,end=9910,err=9920) semi_stochastic
-       end if
-       if(KeyMEMO) then
-         call setpos(luinput,'MEMO',line,irc)
-         if(irc.ne._RC_ALL_IS_WELL_) goto 9810
-         read(luinput,*,end=9910,err=9920) memoryfacspawn
-       end if
-
+        if(KeyDEFI) then
+          call mma_allocate(definedet, nActel)
+          call setpos(luinput,'DEFI',line,irc)
+          if(irc.ne._RC_ALL_IS_WELL_) goto 9810
+          ReadStatus = ' Failure reading Definedet.'
+          Read(luinput,*,end=9910,Err=9920)(definedet(i), i = 1, nActEl)
+          ReadStatus = ' O.K. reading Definedet.'
+          write(6,*)'definedet read in proc_inp of size:', nactel
+          write(6,*)(definedet(i), i = 1, nActEl)
+        end if
+        if(KeyTOTA) then
+          call setpos(luinput,'TOTA',line,irc)
+          if(irc.ne._RC_ALL_IS_WELL_) goto 9810
+          ReadStatus = ' Failure reading totalwalkers.'
+          read(luinput,*,end=9910,err=9920) totalwalkers
+          ReadStatus = ' O.K. reading totalwalkers.'
+        else
+          call WarningMessage(2, 'TOTAlwalkers required for NECI.')
+          goto 9930
+        end if
+        if(KeyRDMS) then
+          call setpos(luinput,'RDMS',line,irc)
+          if(irc.ne._RC_ALL_IS_WELL_) goto 9810
+          read(luinput,*,end=9910,err=9920) rdmsamplingiters
+        else
+          call WarningMessage(2, 'RDMSamplingiters required for NECI.')
+          goto 9930
+        end if
+        if(KeyCALC) then
+          call setpos(luinput,'CALC',line,irc)
+          if(irc.ne._RC_ALL_IS_WELL_) goto 9810
+          read(luinput,*,end=9910,err=9920) (calcrdmonfly(i),i=1,3)
+        else
+          call WarningMessage(2, 'CALCrdmonfly required for NECI.')
+          goto 9930
+        end if
+        if(KeyDIAG) then
+          call setpos(luinput,'DIAG',line,irc)
+          if(irc.ne._RC_ALL_IS_WELL_) goto 9810
+          read(luinput,*,end=9910,err=9920) diagshift
+        end if
+        if(KeyTIME) then
+          call setpos(luinput,'TIME',line,irc)
+          if(irc.ne._RC_ALL_IS_WELL_) goto 9810
+          read(luinput,*,end=9910,err=9920) Time
+        end if
+        if(KeyNMCY) then
+          call setpos(luinput,'NMCY',line,irc)
+          if(irc.ne._RC_ALL_IS_WELL_) goto 9810
+          read(luinput,*,end=9910,err=9920) nmCyc
+        end if
+        if(KeyREAL) then
+          call setpos(luinput,'REAL',line,irc)
+          if(irc.ne._RC_ALL_IS_WELL_) goto 9810
+          read(luinput,*,end=9910,err=9920) realspawncutoff
+        end if
+        if(KeyTRIA) then
+          call setpos(luinput,'TRIA',line,irc)
+          if(irc.ne._RC_ALL_IS_WELL_) goto 9810
+          read(luinput,*,end=9910,err=9920) trial_wavefunction
+        end if
+        if(KeyPOPS) then
+          call setpos(luinput,'POPS',line,irc)
+          if(irc.ne._RC_ALL_IS_WELL_) goto 9810
+          read(luinput,*,end=9910,err=9920) pops_trial
+        end if
+        if(KeySEMI) then
+          call setpos(luinput,'SEMI',line,irc)
+          if(irc.ne._RC_ALL_IS_WELL_) goto 9810
+          read(luinput,*,end=9910,err=9920) semi_stochastic
+        end if
+        if(KeyMEMO) then
+          call setpos(luinput,'MEMO',line,irc)
+          if(irc.ne._RC_ALL_IS_WELL_) goto 9810
+          read(luinput,*,end=9910,err=9920) memoryfacspawn
+        end if
       end if
 *
 * =======================================================================
@@ -3104,9 +3115,9 @@ C Test read failed. JOBOLD cannot be used.
 *
 *     Construct the Guga tables
 *
-      IF(.not.DoNECI) THEN
+      if (.not. (DoNECI .or. DumpOnly)) THEN
 *  right now skip most part of gugactl for GAS, but only call mknsm.
-        if(.not.iDoGas) then
+        if (.not.iDoGas) then
 ! DMRG calculation no need the GugaCtl subroutine
 #ifdef _DMRG_
           if(KeyDMRG .or. doDMRG)then
@@ -3163,7 +3174,8 @@ C Test read failed. JOBOLD cannot be used.
 * Combinations don't work for CASVB (at least yet)!
       If (ifvb .ne. 0) iSpeed(1) = 0
 *
-      if(.not.KeyDMRG .and. .not.DoNECI)then ! switch on/off determinants
+      if(.not. (KeyDMRG .or. DoNECI .or. DumpOnly)) then
+! switch on/off determinants
 #ifdef _DMRG_
         if(.not.doDMRG)then
 #endif
