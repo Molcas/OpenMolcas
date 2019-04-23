@@ -34,7 +34,7 @@
       Character(Len=80) Label
       External OvrGrd, OvrMmG
 
-      Call DCopy_(nGrad,Zero,0,Grad,1)
+      Call DCopy_(nGrad,[Zero],0,Grad,1)
 
       nB=nBas(0)
       Call Qpg_dArray('D1ao-',Found,nD)
@@ -46,7 +46,7 @@
 *    Inner product of S[x] and D^A (antisymmetric component of transition density matrix)
 *    This is the same as the product of S[x]^A and D
       isCSF=.True.
-      Call DCopy_(3,Zero,0,CCoor,1)
+      Call DCopy_(3,[Zero],0,CCoor,1)
       lOper(1)=1
       Label='The CSF Contribution'
       Call OneEl_g(OvrGrd,OvrMmG,Grad,nGrad,.False.,CCoor,

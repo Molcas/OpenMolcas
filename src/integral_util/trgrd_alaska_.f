@@ -38,7 +38,7 @@
       mdc=0
       iIrrep=0
 *
-      call dcopy_(3*MxAtom,Zero,0,CGrad,1)
+      call dcopy_(3*MxAtom,[Zero],0,CGrad,1)
       iCen=0
 *     nCnttp_Valence=0
 *     Do iCnttp = 1, nCnttp

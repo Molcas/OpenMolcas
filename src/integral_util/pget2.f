@@ -56,7 +56,7 @@
       Call qEnter('PGet2')
       If (iPrint.ge.99) Then
          iComp = 1
-         Call PrMtrx(' In PGet2:DSO ',iD0Lbl,iComp,ipD0,Work)
+         Call PrMtrx(' In PGet2:DSO ',[iD0Lbl],iComp,[ipD0],Work)
       End If
 #endif
       lOper=1
@@ -134,7 +134,7 @@
 *------------------all irreps are different and the 2nd order density
 *                  matrix will be identical to zero for a SCF type wave
 *                  function.
-                   call dcopy_(nijkl,Zero,0,PSO(1,MemSO2),1)
+                   call dcopy_(nijkl,[Zero],0,PSO(1,MemSO2),1)
                    Go To 310
                 End If
 *

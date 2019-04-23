@@ -95,10 +95,38 @@
 #endif
       Data Copy/.True./, NoCopy/.False./, jOp/0,0,0,0,0,0/
 #include "SysDef.fh"
+      External EQ, lEmpty
+      Interface
+      Integer Function iGet(A,n)
+      Integer :: n
+      Real*8, Target :: A(*)
+      End Function iGet
+      End Interface
 *
 *     Declaration of statement functions to compute canonical index
 *
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
+*
+      Call TwoEl_Sym_New_Internal(Data1,Data2)
+*
+      Return
+c Avoid unused argument warnings
+      If (.False.) Then
+         Call Unused_integer(iS_)
+         Call Unused_integer(jS_)
+         Call Unused_integer(kS_)
+         Call Unused_integer(lS_)
+         Call Unused_integer(iPrInc)
+         Call Unused_integer(kPrInc)
+         Call Unused_real_array(Dens)
+      End If
+*
+*     This is to allow type punning without an explicit interface
+      Contains
+      Subroutine TwoEl_Sym_New_Internal(Data1,Data2)
+      Use Iso_C_Binding
+      Real*8, Target :: Data1(mData1,nData1),Data2(mData2,nData2)
+      Integer, Pointer :: iData1(:),iData2(:)
 *
       iRout = 12
 *
@@ -579,14 +607,18 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
                   mEta=Min(IncEta,nEta_Tot-iEta+1)
                   If (lEmpty(Coeff4,nDelta,nDelta,lBasl)) Cycle
 *
+                  Call C_F_Pointer(C_Loc(Data1(ip_IndZ(1,nZeta),lDCR1)),
+     &                             iData1,[nZeta])
+                  Call C_F_Pointer(C_Loc(Data2(ip_IndZ(1,nEta ),lDCR2)),
+     &                             iData2,[nEta])
                   Call DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,
      &                        nZeta_Tot,nEta_Tot,
      &                        Data1(1,lDCR1),mData1,
      &                        Data2(1,lDCR2),mData2,
      &                        nAlpha,nBeta,nGamma,nDelta,
-     &                        Data1(ip_IndZ(1,nZeta),lDCR1),
+     &                        iData1,
      &                        Zeta,ZInv,P,KappAB,IndZet,
-     &                        Data2(ip_IndZ(1,nEta ),lDCR2),
+     &                        iData2,
      &                        Eta,EInv,Q,KappCD,IndEta,
      &                        ix1,iy1,iz1,ix2,iy2,iz2,ThrInt,CutInt,
      &                        vij,vkl,vik,vil,vjk,vjl,
@@ -602,6 +634,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
      &                        Do_TnsCtl,kabcd,
      &                        Coeff1,iBasi,Coeff2,jBasj,
      &                        Coeff3,kBask,Coeff4,lBasl)
+                  Nullify(iData1,iData2)
 *
                End Do
                End Do
@@ -757,18 +790,8 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
  300        Continue
  200     Continue
  100  Continue
+      End Subroutine TwoEl_Sym_New_Internal
 *
-      Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(iS_)
-         Call Unused_integer(jS_)
-         Call Unused_integer(kS_)
-         Call Unused_integer(lS_)
-         Call Unused_integer(iPrInc)
-         Call Unused_integer(kPrInc)
-         Call Unused_real_array(Dens)
-      End If
       End
       SubRoutine TwoEl_NoSym_New(iS_,jS_,kS_,lS_,
      &           Coor,
@@ -845,6 +868,13 @@ c Avoid unused argument warnings
      &        IntOnly, DoIntegrals,DoFock,FckNoClmb, FckNoExch, NoInts
       Data Copy/.True./, NoCopy/.False./
 #include "SysDef.fh"
+      External EQ, lEmpty
+      Interface
+      Integer Function iGet(A,n)
+      Integer :: n
+      Real*8, Target :: A(*)
+      End Function iGet
+      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -856,6 +886,33 @@ c Avoid unused argument warnings
 *     Declaration of statement functions to compute canonical index
 *
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
+*
+      Call TwoEl_NoSym_New_Internal(Data1,Data2)
+*
+      Return
+c Avoid unused argument warnings
+      If (.False.) Then
+         Call Unused_integer(iStb)
+         Call Unused_integer(jStb)
+         Call Unused_integer(kStb)
+         Call Unused_integer(lStb)
+         Call Unused_integer(iPrInc)
+         Call Unused_integer(kPrInc)
+         Call Unused_integer(nData1)
+         Call Unused_integer(nData2)
+         Call Unused_real_array(FckTmp)
+         Call Unused_real_array(SoInt)
+         Call Unused_integer(nHRRAB)
+         Call Unused_integer(nHRRCD)
+         Call Unused_real_array(Aux)
+      End If
+*
+*     This is to allow type punning without an explicit interface
+      Contains
+      Subroutine TwoEl_NoSym_New_Internal(Data1,Data2)
+      Use Iso_C_Binding
+      Real*8, Target :: Data1(*),Data2(*)
+      Integer, Pointer :: iData1(:),iData2(:)
 *
       iRout = 12
       iPrint = nPrint(iRout)
@@ -1064,14 +1121,18 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
             mEta=Min(IncEta,nEta_Tot-iEta+1)
             If (lEmpty(Coeff4,nDelta,nDelta,lBasl)) Cycle
 *
+            Call C_F_Pointer(C_Loc(Data1(ip_IndZ(1,nZeta))),
+     &                             iData1,[nZeta])
+            Call C_F_Pointer(C_Loc(Data2(ip_IndZ(1,nEta))),
+     &                             iData2,[nEta])
             Call DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,
      &                  nZeta_Tot,nEta_Tot,
      &                  Data1,mData1,
      &                  Data2,mData2,
      &                  nAlpha,nBeta,nGamma,nDelta,
-     &                  Data1(ip_IndZ(1,nZeta)),
+     &                  iData1,
      &                  Zeta,ZInv,P,KappAB,IndZet,
-     &                  Data2(ip_IndZ(1,nEta )),
+     &                  iData2,
      &                  Eta,EInv,Q,KappCD,IndEta,
      &                  1,1,1,1,1,1,ThrInt,CutInt,
      &                  vij,vkl,vik,vil,vjk,vjl,
@@ -1087,6 +1148,7 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
      &                  Dij(1,1),mDij,Dkl(1,1),mDkl,Do_TnsCtl,kabcd,
      &                  Coeff1,iBasi,Coeff2,jBasj,
      &                  Coeff3,kBask,Coeff4,lBasl)
+            Nullify(iData1,iData2)
 *
          End Do
       End Do
@@ -1227,22 +1289,6 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
      &                            *iCmp(3)*iCmp(4),q4,Wrk(iW2),1)
       End If
   99  Continue
+      End Subroutine TwoEl_NoSym_New_Internal
 *
-      Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(iStb)
-         Call Unused_integer(jStb)
-         Call Unused_integer(kStb)
-         Call Unused_integer(lStb)
-         Call Unused_integer(iPrInc)
-         Call Unused_integer(kPrInc)
-         Call Unused_integer(nData1)
-         Call Unused_integer(nData2)
-         Call Unused_real_array(FckTmp)
-         Call Unused_real_array(SoInt)
-         Call Unused_integer(nHRRAB)
-         Call Unused_integer(nHRRCD)
-         Call Unused_real_array(Aux)
-      End If
       End

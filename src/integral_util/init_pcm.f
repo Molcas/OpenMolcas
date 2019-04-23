@@ -152,7 +152,7 @@ cpcm_solvent end
 *
       Call PCM_Init(iPrint,ICharg,nAtoms,angstr,
      &              Work(ipCoor),iWork(ipANr),Work(ip_LcCoor),
-     &              iWork(ip_LcANr),iOper,nIrrep,NonEq)
+     &              iWork(ip_LcANr),nIrrep,NonEq)
       If (iPrint.gt.5) Then
          Write (6,*)
          Write (6,*)
@@ -167,28 +167,7 @@ cpcm_solvent end
 *                                                                      *
 *---- Put the dynamic arrays on COMFILE
 *
-      Call Put_iScalar('PCM info length',nPCM_info)
-      Call Put_dArray('PCM Info',Work(ip_Sph),nPCM_Info)
-      iCharge_ref=iCharg
-      NonEq_ref=NonEq
-*
-*---- Put the reaction field common blocks on disk again!
-*
-      Len = ilLoc(lRFEnd)-ilLoc(lRFStrt)
-      Len = (Len+nByte_i)/nByte_i
-      Call Put_iArray('RFlInfo',lRFStrt,Len)
-*
-      Len = idLoc(rRFEnd)-idLoc(rRFStrt)
-      Len = (Len+nByte_r)/nByte_r
-      Call Put_dArray('RFrInfo',rRFStrt,Len)
-*
-      Len = iiLoc(iRFEnd)-iiLoc(iRFStrt)
-      Len = (Len+nByte_i)/nByte_i
-      Call Put_iArray('RFiInfo',iRFStrt,Len)
-*
-      Len = iiLoc(cRFEnd)-iiLoc(cRFStrt)
-      Len = (Len+nByte_i)/nByte_i
-      Call Put_iArray('RFcInfo',cRFStrt,Len)
+      Call Save_PCM_Info(cRFStrt,iRFStrt,lRFStrt,rRFStrt)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -198,5 +177,45 @@ cpcm_solvent end
  999    Continue
        Call qExit('Init_PCM')
       Return
+*
+*     This is to allow type punning without an explicit interface
+      Contains
+      SubRoutine Save_PCM_Info(cRFStrt,iRFStrt,lRFStrt,rRFStrt)
+      Use Iso_C_Binding
+      Integer, Target :: cRFStrt,iRFStrt,lRFStrt
+      Real*8, Target :: rRFStrt
+      Integer, Pointer :: p_cRF(:),p_iRF(:),p_lRF(:)
+      Real*8, Pointer :: p_rRF(:)
+*
+      Call Put_iScalar('PCM info length',nPCM_info)
+      Call Put_dArray('PCM Info',Work(ip_Sph),nPCM_Info)
+      iCharge_ref=iCharg
+      NonEq_ref=NonEq
+*
+*---- Put the reaction field common blocks on disk again!
+*
+      Len = ilLoc(lRFEnd)-ilLoc(lRFStrt)
+      Len = (Len+nByte_i)/nByte_i
+      Call C_F_Pointer(C_Loc(lRFStrt),p_lRF,[Len])
+      Call Put_iArray('RFlInfo',p_lRF,Len)
+*
+      Len = idLoc(rRFEnd)-idLoc(rRFStrt)
+      Len = (Len+nByte_r)/nByte_r
+      Call C_F_Pointer(C_Loc(rRFStrt),p_rRF,[Len])
+      Call Put_dArray('RFrInfo',p_rRF,Len)
+*
+      Len = iiLoc(iRFEnd)-iiLoc(iRFStrt)
+      Len = (Len+nByte_i)/nByte_i
+      Call C_F_Pointer(C_Loc(iRFStrt),p_iRF,[Len])
+      Call Put_iArray('RFiInfo',p_iRF,Len)
+*
+      Len = iiLoc(cRFEnd)-iiLoc(cRFStrt)
+      Len = (Len+nByte_i)/nByte_i
+      Call C_F_Pointer(C_Loc(cRFStrt),p_cRF,[Len])
+      Call Put_iArray('RFcInfo',p_cRF,Len)
+*
+      Nullify(p_lRF,p_rRF,p_iRF,p_cRF)
+*
+      End SubRoutine Save_PCM_Info
 *
       End

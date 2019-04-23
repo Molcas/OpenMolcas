@@ -154,7 +154,7 @@
       call dcopy_(nxOrb,EVir,1,Work(kEVir),1)
 
       Call GetMem('Saa','Allo','Real',ipSaa,nxOrb)
-      call dcopy_(nxOrb,1.0d0,0,Work(ipSaa),1)
+      call dcopy_(nxOrb,[1.0d0],0,Work(ipSaa),1)
 
 
 *     Occupied orbital selection                                       *
@@ -331,7 +331,8 @@
           Endif
           iV=ip_X
           Do iSym=1,nSym
-            TrF(iSym)=ddot_(lnVir(iSym),Work(iV),1+lnVir(iSym),1.0d0,0)
+            TrF(iSym)=ddot_(lnVir(iSym),Work(iV),1+lnVir(iSym),
+     &                      [1.0d0],0)
             iV=iV+lnVir(iSym)**2
           End Do
           Call GetMem('Dmat','Free','Real',ip_X,nVV+nOA)
@@ -439,7 +440,7 @@
          Endif
          iV=ip_X
          Do iSym=1,nSym
-           TrA(iSym)=ddot_(nExt(iSym),Work(iV),1+nExt(iSym),1.0d0,0)
+           TrA(iSym)=ddot_(nExt(iSym),Work(iV),1+nExt(iSym),[1.0d0],0)
            iV=iV+nExt(iSym)**2
          End Do
          Call GetMem('Dmat','Free','Real',ip_X,nVV+nOA)
@@ -488,7 +489,7 @@
          joff=joff+nExt(iSym)
          koff=koff+nBas(iSym)
       End Do
-      Call Put_dArray('OrbE',Work(kEOcc),nOrb)
+      Call Put_dArray('OrbE',Work(kEOcc),nxOrb)
       Call Put_dArray('Last orbitals',CMO,nSQ)
 *
       Call GetMem('LCMO','Free','Real',iCMO,3*nSQ)
@@ -655,7 +656,7 @@ C
 *
       iV=ip_X
       Do iSym=1,nSym
-        TrD(iSym)=ddot_(lnVir(iSym),Work(iV),1+lnVir(iSym),1.0d0,0)
+        TrD(iSym)=ddot_(lnVir(iSym),Work(iV),1+lnVir(iSym),[1.0d0],0)
         iV=iV+lnVir(iSym)**2
       End Do
       Call GetMem('Dmat','Free','Real',ip_X,nVV+nOA)

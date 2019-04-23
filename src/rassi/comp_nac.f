@@ -61,7 +61,7 @@ C***********************************************************************C
 *
       NTEMP = 3 * nAlCnt
       CALL GETMEM('NACS','ALLO','REAL',NNACS,NTEMP)
-      CALL DCOPY_(NTEMP, 0.D0, 0, WORK(NNACS), 1)
+      CALL DCOPY_(NTEMP, [0.D0], 0, WORK(NNACS), 1)
       idcnt = 0
       Nprop = 0
       Job   = Jstate
@@ -77,7 +77,7 @@ C***********************************************************************C
 * Derivative wrt component IDCAR=1,2,3 (d/dx,d/dy,d/dz)
 * INDDSP(IDCNT,IIRREP) is the number of displacements in
 * earlier center/irrep. Thus it is an offset.
-               Call iCopy(nIrrep,0,0,IndGrd,1)
+               Call iCopy(nIrrep,[0],0,IndGrd,1)
                lOper=0
                Do iIrrep=0,nIrrep-1
                   nDisp = IndDsp(iDcnt,iIrrep)

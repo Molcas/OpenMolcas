@@ -20,6 +20,7 @@
 
 #include "malloc_cvb.fh"
       dimension tconstr(nvb,nvb)
+      dimension dum(1)
 
       iconstruc_kp=iconstruc
       iconstruc=1

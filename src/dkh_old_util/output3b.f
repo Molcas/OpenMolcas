@@ -35,7 +35,7 @@ c
      *        xoporder(maxoperators),xevenodd(maxoperators)
       REAL*8 xdoperators(maxoperators)
 #if defined(_MOLCAS_) || defined(MOLPRO)
-      integer xoperators(*)
+      character xoperators(*)
       character*(maxlength) xopstr
 #else
       character*(maxlength) xoperators(maxoperators)

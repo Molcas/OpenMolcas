@@ -140,7 +140,7 @@
                ipfb2 = ip
                ip = ip + nexp(iShll)*nBeta*nElem(iAng)*nElem(lb)*6
 
-               call dcopy_(narr,0.0d0,0,Array,1)
+               call dcopy_(narr,[Zero],0,Array,1)
 *              <a|c>, <a'|c>, <a",c>
                Call Acore(iang,la,ishll,nordop,TC,A,Array(ip),
      &                     narr-ip+1,Alpha,nalpha,Array(ipFA1),
@@ -170,7 +170,7 @@
 *              contract density
                nt=nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
                mvec=21
-               call dcopy_(78,0.0d0,0,g2,1)
+               call dcopy_(78,[Zero],0,g2,1)
                Call dGeMV_('T',nT,21,
      &                    One,Array(ipFin),nT,
      &                    DAO,1,

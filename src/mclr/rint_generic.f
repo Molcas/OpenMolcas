@@ -48,13 +48,13 @@
 *
       Fact=-1.0d0
       One=1.0d0
-      call dcopy_(ndens2,0.0d0,0,Fock,1)
+      call dcopy_(ndens2,[0.0d0],0,Fock,1)
 *
       If (.not.newCho) Then
         Call GetMem('MOTemp2','ALLO','REAL',ipMT1,nmba)
         Call GetMem('MOTemp1','ALLO','REAL',ipMT2,nmba)
-        call dcopy_(nmba,0.0d0,0,Work(ipMT1),1)
-        call dcopy_(nmba,0.0d0,0,Work(ipMT2),1)
+        call dcopy_(nmba,[0.0d0],0,Work(ipMT1),1)
+        call dcopy_(nmba,[0.0d0],0,Work(ipMT2),1)
 
         Call R2ElInt(rkappa,work(ipMT1),work(ipMT2),
      &               focki,focka,
@@ -91,16 +91,16 @@
         Fake_CMO2=.false.
         DoAct=.true.
 *
-        ipkappa  =ip_of_work(rkappa)
-        ipFockI  =ip_of_work(FockI)
-        ipFockA  =ip_of_work(FockA)
-        ipMO1    =ip_of_work(rmos)
-        ipQ      =ip_of_work(Q)
+        ipkappa  =ip_of_work(rkappa(1))
+        ipFockI  =ip_of_work(FockI(1))
+        ipFockA  =ip_of_work(FockA(1))
+        ipMO1    =ip_of_work(rmos(1))
+        ipQ      =ip_of_work(Q(1))
 *
 **      Form inactive density
 *
         Call GetMem('DI ','ALLO','REAL',ipDI,nDens2)
-        call dcopy_(nDens2,0.0d0,0,Work(ipDI),1)
+        call dcopy_(nDens2,[0.0d0],0,Work(ipDI),1)
 
         Do iS=1,nsym
          Do iB=1,nIsh(iS)
@@ -235,10 +235,10 @@
         ipKI=ipJI+nDens2
         ipJA=ipKI+nDens2
         ipKA=ipJA+nDens2
-        call dcopy_(ndens2*4,0.0d0,0,Work(ipJI),1)
-        call dcopy_(ndens2,0.0d0,0,FockA,1)
-        call dcopy_(ndens2,0.0d0,0,FockI,1)
-        call dcopy_(nATri,0.0d0,0,Work(ipMO1),1)
+        call dcopy_(ndens2*4,[0.0d0],0,Work(ipJI),1)
+        call dcopy_(ndens2,[0.0d0],0,FockA,1)
+        call dcopy_(ndens2,[0.0d0],0,FockI,1)
+        call dcopy_(nATri,[0.0d0],0,Work(ipMO1),1)
 *
 **      Compute the whole thing
 *

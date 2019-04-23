@@ -35,8 +35,10 @@
      &    max_tau = 0.02d0,
      &    memoryfacpart = 5.0d0,
      &    memoryfacspawn = 10.0d0,
-     &    realspawncutoff = 0.3d0, ! Default value for NECI RealSpawnCutOff
-     &    diagshift = 0.00d0, ! Default value for NECI diagonal shift value
+! Default value for NECI RealSpawnCutOff
+     &    realspawncutoff = 0.3d0,
+! Default value for NECI diagonal shift value
+     &    diagshift = 0.00d0,
      &    shiftdamp = 0.02d0
         save
       contains
@@ -61,9 +63,9 @@
 *---- This is checked by Molcas verify
 *----------------------------------------------------------------------*
       call add_info('Default number of total walkers',
-     &  dble(totalwalkers), 1, 6)
-      call add_info('Default number of cycles ',dble(nmcyc),1,6)
-      call add_info('Default value for Time  ',dble(Time),1,6)
+     &  [dble(totalwalkers)], 1, 6)
+      call add_info('Default number of cycles ',[dble(nmcyc)],1,6)
+      call add_info('Default value for Time  ',[dble(Time)],1,6)
 
       call qEnter('make_inp')
 
@@ -112,7 +114,7 @@
       write(file_id,'("startsinglepart 10")')
       write(file_id, I_fmt) 'semi-stochastic', semi_stochastic
       write(file_id, '("pops-core 10000")')
-      write(file_id, I_fmt), 'rdmsamplingiters', rdmsamplingiters
+      write(file_id, I_fmt) 'rdmsamplingiters', rdmsamplingiters
 !      if(KeyTRIA) write(file_id, I_fmt)
 !     & 'trial-wavefunction', trial_wavefunction
 !      write(file_id, I_fmt) 'pops-trial', pops_trial

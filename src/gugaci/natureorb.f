@@ -42,6 +42,7 @@
 !      close(200)
 
 
+      val=0
       cno=cmo
       nc0=1
       nc1=1
@@ -120,8 +121,8 @@
 !        nc0=nc0+nsbas(im)
 !      enddo
 
-      call primo(Header,1,0,pror,0.d0,ngsm,nsbas,nsbas,bsbl,
-     *           val,occ,cno,-1)
+      call primo(Header,.true.,.false.,pror,0.d0,ngsm,nsbas,nsbas,
+     *           bsbl,[val],occ,cno,-1)
 
       return
       end

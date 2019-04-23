@@ -174,6 +174,8 @@ C10    Continue
 ************************************************************************
       Implicit Integer (A-Z)
 #include "fio.fh"
+      Character*16 TheName
+      Data TheName/'DaFile_checkarg'/
 *2012
 *VpV: a lot of checking is here.
 *     Check arguments

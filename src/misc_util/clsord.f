@@ -77,5 +77,5 @@
 *     Call qExit('ClsOrd')
       Return
 c Avoid unused argument warnings
-      If (.False.) Call Unused_real(option)
+      If (.False.) Call Unused_integer(option)
       End

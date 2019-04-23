@@ -20,7 +20,7 @@
 *     CI control section                                               *
 *                                                                      *
 *     calling arguments:                                               *
-*     LW1     : Memory pointer to active Fock matrix                   *
+*     LW1     : active Fock matrix                                     *
 *               array of real*8                                        *
 *     TUVX    : array of real*8                                        *
 *               two-electron integrals (tu!vx)                         *
@@ -49,6 +49,7 @@
 
       Implicit Real*8 (A-H,O-Z)
 
+      Real*8 LW1
       Dimension LW1(*), TUVX(*)
 
 #include "rasdim.fh"
@@ -246,7 +247,6 @@ C
 #include "rasscf_lucia.fh"
 
       Character*8 Label
-      Real*8 Dum
 
       Call qEnter('Ini_David')
 
@@ -399,26 +399,26 @@ CFUE  End If
         iDisk  = 0
         H_diag_RecNo = RecNo((1),(1))
         disk_address(H_diag_RecNo) = iDisk
-        Call DDafile(LuDavid,0,Dum,nConf,iDisk)
+        Call DDafile(LuDavid,0,[0.0d0],nConf,iDisk)
         Do iRoot = 1,nkeep
           CI_vec_RecNo = RecNo((2),iRoot)
           disk_address(CI_vec_RecNo) = iDisk
-          Call DDafile(LuDavid,0,Dum,nConf,iDisk)
+          Call DDafile(LuDavid,0,[0.0d0],nConf,iDisk)
         End Do
         Do iRoot = 1,nKeep
           Sig_vec_RecNo = RecNo((3),iRoot)
           disk_address(Sig_vec_RecNo) = iDisk
-          Call DDaFile(LuDavid,0,Dum,nConf,iDisk)
+          Call DDaFile(LuDavid,0,[0.0d0],nConf,iDisk)
         End Do
         Do iRoot = 1,nRoots
           tmp_CI_vec_RecNo = RecNo((4),iRoot)
           disk_address(tmp_CI_vec_RecNo) = iDisk
-          Call DDaFile(LuDavid,0,Dum,nConf,iDisk)
+          Call DDaFile(LuDavid,0,[0.0d0],nConf,iDisk)
         End Do
         Do iRoot = 1,nRoots
           tmp_Sig_vec_RecNo = RecNo((5),iRoot)
           disk_address(tmp_Sig_vec_RecNo) = iDisk
-          Call DDaFile(LuDavid,0,Dum,nConf,iDisk)
+          Call DDaFile(LuDavid,0,[0.0d0],nConf,iDisk)
         End Do
       End If
 
@@ -434,7 +434,7 @@ CFUE  End If
         iDisk = 0
         Do nStk = 1,mxDiskStk
           disk_address(nStk) = iDisk
-          Call DDaFile(LuDavid,0,Dum,nConf,iDisk)
+          Call DDaFile(LuDavid,0,[0.0d0],nConf,iDisk)
         End Do
         Do nStk = 1,(mxMemStk+mxDiskStk)
           LblStk(nStk) = '                '
@@ -515,9 +515,9 @@ CFUE  End If
 *     also the overlap elemtents with the test vectors
       If ( ICICH.eq.1 ) then
         Call GetMem('CIovlp1','Allo','Real',lOvlp1,lRoots*lRoots)
-        Call dCopy_(lRoots*lRoots,0.0d0, 0,Work(lOvlp1),(1))
+        Call dCopy_(lRoots*lRoots,[0.0d0], 0,Work(lOvlp1),(1))
         Call GetMem('CIovlp2','Allo','Real',lOvlp2,lRoots*lRoots)
-        Call dCopy_(lRoots*lRoots,0.0d0, 0,Work(lOvlp2),(1))
+        Call dCopy_(lRoots*lRoots,[0.0d0], 0,Work(lOvlp2),(1))
       End If
       Do iRoot = 1,lRoots
         Call Load_tmp_CI_vec(iRoot,nConf,Vector,LuDavid)

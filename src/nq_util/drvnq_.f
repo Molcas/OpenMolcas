@@ -63,7 +63,7 @@
      &       dF_dP2ontop(ndF_dp2ontop,mGrid)
       Real*8 TmpPUVX(nTmpPUVX)
       Logical Check, Do_Grad, Rsv_Tsk
-      Logical Do_Mo,Do_TwoEl,l_Xhol,l_casdft
+      Logical Do_Mo,Do_TwoEl,l_Xhol,l_casdft,Exist
       Character*4 DFTFOCK
 *                                                                      *
 ************************************************************************
@@ -152,10 +152,10 @@
         Call GETMEM('FI_V','ALLO','REAL',ifiv,nFckInt)
         Call GETMEM('FI_A','ALLO','REAL',ifav,nFckInt)
 
-        CALL DCOPY_(nFckInt,0.0D0,0,WORK(LOE_DB),1)!NTOT1
-        CALL DCOPY_(nTmpPUVX,0.0D0,0,WORK(LTEG_DB),1)
-        CALL DCOPY_(nFckInt,0.0D0,0,WORK(ifiv),1)
-        CALL DCOPY_(nFckInt,0.0D0,0,WORK(ifav),1)
+        CALL DCOPY_(nFckInt,[0.0D0],0,WORK(LOE_DB),1)!NTOT1
+        CALL DCOPY_(nTmpPUVX,[0.0D0],0,WORK(LTEG_DB),1)
+        CALL DCOPY_(nFckInt,[0.0D0],0,WORK(ifiv),1)
+        CALL DCOPY_(nFckInt,[0.0D0],0,WORK(ifav),1)
       Else
         LOE_DB = ip_dummy
         LTEG_DB = ip_dummy

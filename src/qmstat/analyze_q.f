@@ -21,6 +21,7 @@
       Dimension iCo(3)
       Dimension gR(MxAt,3,iHUltraMax)
       Data Dum/0.0d0/
+      Dimension iDum(1)
 
 *----------------------------------------------------------------------*
 * Some numbers and defaults.                                           *
@@ -38,7 +39,8 @@
 *----------------------------------------------------------------------*
       Call DaName(iLuSaIn,SaFilIn)
       iDiskSa=0
-      Call iDaFile(iLuSaIn,2,iHowMSamp,1,iDiskSa)
+      Call iDaFile(iLuSaIn,2,iDum,1,iDiskSa)
+      iHowMSamp=iDum(1)
       iDiskTemp=iDiskSa
       Call WrRdSim(iLuSaIn,2,iDiskSa,iTCSim,64,Etot,Ract,nPart,Dum,Dum
      &            ,Dum)

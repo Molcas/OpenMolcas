@@ -14,6 +14,6 @@
       Real*8 Arr(n)
       Character*(*) Label
       Write (6,*) Label, DDot_(n,Arr,1,Arr,1),
-     &                   DDot_(n,Arr,1,One,0),n
+     &                   DDot_(n,Arr,1,[One],0),n
       Return
       End

@@ -128,8 +128,8 @@
             Write (6,*) 'AeqB,CeqD=',AeqB,CeqD
             Call Abend()
          Else
-            call dcopy_(3*nRys*nT,Zero,0,PAQP,1)
-            call dcopy_(3*nRys*nT,Zero,0,QCPQ,1)
+            call dcopy_(3*nRys*nT,[Zero],0,PAQP,1)
+            call dcopy_(3*nRys*nT,[Zero],0,QCPQ,1)
          End If
       Else If (la+lb.ne.0) Then
          Call WarningMessage(2,'Cff2DS: la+lb.ne.0')

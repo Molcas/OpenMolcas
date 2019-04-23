@@ -744,8 +744,8 @@ c      Fortran IO
 c
        else
 c      MOLCAS IO
-       call ddafile (lunrst,1,energy,1,daddr)
-       call idafile (lunrst,1,niter,1,daddr)
+       call ddafile (lunrst,1,[energy],1,daddr)
+       call idafile (lunrst,1,[niter],1,daddr)
        end if
 c
        return

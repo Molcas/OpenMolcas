@@ -26,6 +26,7 @@ c  ********************************
 
 #include "malloc_cvb.fh"
       dimension cvec(*)
+      dimension idum(1)
 c  *********************************************************************
 c  *                                                                   *
 c  *  CIRD   := Read CI vector.                                        *
@@ -36,7 +37,8 @@ c  *********************************************************************
       iformat=iform_ci(ivec)
       if(iformat.eq.0)then
         ioffs=0
-        call rdis_cvb(iformat,1,recn,ioffs)
+        call rdis_cvb(idum,1,recn,ioffs)
+        iformat=idum(1)
         if(iformat.ne.iform_ci(ivec))then
           write(6,*)' Incompatible vector format on file.'
           write(6,*)' Read :',iformat,' present :',iform_ci(ivec)

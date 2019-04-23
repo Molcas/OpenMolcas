@@ -28,7 +28,7 @@
 
       subroutine nevpt2wfn_init(create_h5)
 !     Create a wavefunction file and replace any existing .wfn file
-      use refwfn !use this module from caspt2
+      use refwfn
       use nevpt2_cfg
       use info_state_energy  ! energies, effective Hamiltonian
       use info_orbital_space ! orbital specifications read from JobIph

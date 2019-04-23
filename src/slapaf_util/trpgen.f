@@ -48,7 +48,7 @@
 *     K g        (nTR x mTR)
 *
       Call GetMem('uMtrx','Allo','Real',ipu,nDim)
-      call dcopy_(nDim,One,0,Work(ipu),1)
+      call dcopy_(nDim,[One],0,Work(ipu),1)
       i=0
       Do iX = 1, 3*nAtom
          If (Smmtrc(iX)) Then

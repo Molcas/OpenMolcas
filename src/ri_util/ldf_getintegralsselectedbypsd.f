@@ -54,6 +54,7 @@ C
       Character*29 SecNam
       Parameter (SecNam='LDF_getIntegralsSelectedByPSD')
 
+      Real*8 Dummy
       Integer iDummy
       Parameter (iDummy=-1234567)
 
@@ -391,7 +392,7 @@ C
          nFound=0
          iErr=0
          Call Diag_Driver('V','A','L',nTot,Work(ip_LDFInt),Work(ip_Aux),
-     &                    nTot,iDummy,iDummy,iDummy,iDummy,
+     &                    nTot,Dummy,Dummy,iDummy,iDummy,
      &                    Work(ip_EigVal),Work(ip_EigVec),nTot,1,
      &                    1,'A',nFound,iErr)
          iErr=0

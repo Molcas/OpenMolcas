@@ -57,10 +57,12 @@ c    iT -- labes the temperature points;
 c local variables:
       Integer          :: i, l, iT
       Real(kind=wp)    :: kB, mB, zJ
-      Real(kind=wp), allocatable :: WM(:), ST(:), RWORK(:) !WM(EXCH), ST(3)
+      Real(kind=wp), allocatable :: WM(:), ST(:), RWORK(:)
+!                                   WM(EXCH), ST(3)
       Complex(kind=wp), allocatable :: HZEE(:), WORK(:), W_c(:)
       Complex(kind=wp), allocatable :: ZM(:,:) !ZM(N,N)
-      Complex(kind=wp), allocatable :: SZ(:,:,:), MZ(:,:,:) !SZ(3,EXCH,EXCH), MZ(3,EXCH,EXCH)
+      Complex(kind=wp), allocatable :: SZ(:,:,:), MZ(:,:,:)
+!                                      SZ(3,EXCH,EXCH), MZ(3,EXCH,EXCH)
       Logical          :: DBG
       Call qEnter('MAGN_NO_MF')
       kB=0.6950356000_wp   ! Boltzmann constant,  in cm^-1*K-1
@@ -87,17 +89,17 @@ c initialization:
       Call mma_allocate(W_c,N,'ZEEM_W_c')
 
       ! zero everything:
-      Call dcopy_(3*N-2,0.0_wp,0,RWORK,1)
-      Call zcopy_(N*(N+1)/2,(0.0_wp,0.0_wp),0,HZEE,1)
-      Call zcopy_(2*N-1,(0.0_wp,0.0_wp),0,WORK,1)
-      Call zcopy_(N,(0.0_wp,0.0_wp),0,W_c,1)
+      Call dcopy_(3*N-2,[0.0_wp],0,RWORK,1)
+      Call zcopy_(N*(N+1)/2,[(0.0_wp,0.0_wp)],0,HZEE,1)
+      Call zcopy_(2*N-1,[(0.0_wp,0.0_wp)],0,WORK,1)
+      Call zcopy_(N,[(0.0_wp,0.0_wp)],0,W_c,1)
 
-      Call dcopy_(   3,0.0_wp,0,ST,1)
-      Call dcopy_(   N,0.0_wp,0,WZ,1)
-      Call dcopy_(exch,0.0_wp,0,WM,1)
-      Call zcopy_(  exch*exch,(0.0_wp,0.0_wp),0,ZM,1)
-      Call zcopy_(3*exch*exch,(0.0_wp,0.0_wp),0,SZ,1)
-      Call zcopy_(3*exch*exch,(0.0_wp,0.0_wp),0,MZ,1)
+      Call dcopy_(   3,[0.0_wp],0,ST,1)
+      Call dcopy_(   N,[0.0_wp],0,WZ,1)
+      Call dcopy_(exch,[0.0_wp],0,WM,1)
+      Call zcopy_(  exch*exch,[(0.0_wp,0.0_wp)],0,ZM,1)
+      Call zcopy_(3*exch*exch,[(0.0_wp,0.0_wp)],0,SZ,1)
+      Call zcopy_(3*exch*exch,[(0.0_wp,0.0_wp)],0,MZ,1)
 c start calculations:
       If (DBG) Write(6,*) 'Enter ZEEM::'
       If (DBG) Write(6,*) 'Input data:   N = ', N
@@ -110,7 +112,7 @@ c start calculations:
       If (DBG) Write(6,*) 'Input data: ST()= ', ST(1:3)
       If (DBG) Call prmom('INput data dM:',dM,N)
       If (DBG) Call prmom('INput data sM:',sM,N)
-      If (DBG) Call xFlush
+      If (DBG) Call xFlush(6)
 
       ! Build and diagonalize the Zeeman Hamiltonian
       ! most important output are: WM (energies) and ZM (eigenvectors)
@@ -118,7 +120,7 @@ c start calculations:
      &             sM(1:3,1:N,1:N), ST, zJ, WM(1:N), ZM,
      &             DBG, RWORK, HZEE, WORK, W_c )
       If (DBG) Write(6,*) 'Exit ZEEM::'
-      If (DBG) Call xFlush
+      If (DBG) Call xFlush(6)
 
 
       Call DCOPY_(N, WM(1:N), 1, WZ(1:N), 1)
@@ -135,9 +137,9 @@ c start calculations:
 
 
       ! compute magnetization at different temperatures:
-      Call dcopy_(  nT,0.0_wp,0,ZB,1)
-      Call dcopy_(3*nT,0.0_wp,0,M,1)
-      Call dcopy_(3*nT,0.0_wp,0,S,1)
+      Call dcopy_(  nT,[0.0_wp],0,ZB,1)
+      Call dcopy_(3*nT,[0.0_wp],0,M,1)
+      Call dcopy_(3*nT,[0.0_wp],0,S,1)
 
       If (N==EXCH) Then
         Do iT=1,nT

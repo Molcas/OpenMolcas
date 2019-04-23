@@ -51,7 +51,7 @@
          If (ictl.ne.0) Then
             Label='Intensity:'
             Write(Format,'(A,I3,A)') '(5X,A,1x,',Jnc,'ES10.3)'
-            call dcopy_(Jnc,0.0d0,0,Tmp,1)
+            call dcopy_(Jnc,[0.0d0],0,Tmp,1)
             Do k=1,Jnc
               Do l=1,iel
                Tmp(k)=tmp(k)+dDipM(k+iHarm-1,l)**2
@@ -91,13 +91,14 @@
             Work(ipT+ij)=Evec(1,j,i)
          End Do
       End Do
-      Call WRH(Lu_10,1,nX,nDim,Work(ipT),EVAL,1,'*FREQUENCIES')
+      Call WRH(Lu_10,1,[nX],[nDim],Work(ipT),EVAL,1,'*FREQUENCIES')
       Call GetMem('Temp','FREE','REAL',ipT,nDim*nX)
 *
       If (ictl.ne.0) Then
 *        Write(Lu_10,*) '*BEGIN PROJECTED DIPOLE TRANSITIONS'
+         rdum=Zero
          Do j=1,iel
-            Call WRH(Lu_10,1,ndim,ndim,rdum,dDipM(1,j),2,
+            Call WRH(Lu_10,1,[ndim],[ndim],[rdum],dDipM(1,j),2,
      &               '*DIPOLE TRANSITIONS')
          End Do
 *        Write(Lu_10,*) '*END PROJECTED DIPOLE TRANSITIONS'

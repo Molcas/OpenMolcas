@@ -26,6 +26,7 @@
      &       Bf3(3,3)
       Logical lWrite, lWarn, ldB
       Character*8 Label
+      Dimension Dum(1)
 *
 *     Call qEnter('Trsn')
       mCent=2

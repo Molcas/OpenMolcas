@@ -108,7 +108,7 @@
 *     Make a unit Matrix
 *
       Call FZero(Evec, nH**2)
-      call dcopy_(nH,1.0d0,0,Evec,nH+1)
+      call dcopy_(nH,[1.0d0],0,Evec,nH+1)
 *
 *     Get the eigenvalues and eigenvectors
 *

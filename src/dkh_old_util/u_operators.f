@@ -52,7 +52,7 @@ c
       character*(maxlength) uops(maxuops)
 #if defined(_MOLCAS_) || defined(MOLPRO)
       character*(maxlength) opstring,opstring1,xopstring,xopstring1
-      integer operators(*),xoperators(*)
+      character operators(*),xoperators(*)
 #else
       character*(maxlength) operators(maxoperators),
      *         xoperators(maxoperators)

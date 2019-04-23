@@ -21,6 +21,7 @@ c
 #include "Pointers.fh"
 #include "WrkSpc.fh"
       Real*8 P(*),D(*),F(*),Kappa(*)
+      Dimension dum(1)
 *
       Call QEnter('Make_Conn')
       Call GetMem('MO','ALLO','REAL',ipT1,n2dens)

@@ -37,6 +37,14 @@
 * Local variables                                                      *
 *----------------------------------------------------------------------*
       Character*64  ErrMsg
+      Call dxRdRun_Internal(Data)
+*
+*     This is to allow type punning without an explicit interface
+      Contains
+      Subroutine dxRdRun_Internal(Data)
+      Use Iso_C_Binding
+      Real*8, Target :: Data(*)
+      Character, Pointer :: cData(:)
 *----------------------------------------------------------------------*
 * Check that arguments are ok.                                         *
 *----------------------------------------------------------------------*
@@ -48,9 +56,13 @@
 *----------------------------------------------------------------------*
 * Call generic reading routine.                                        *
 *----------------------------------------------------------------------*
-      Call gxRdRun(iRc,Label, Data,nData, iOpt, TypDbl)
+      Call C_F_Pointer(C_Loc(Data(1)),cData,[nData])
+      Call gxRdRun(iRc,Label, cData,nData, iOpt, TypDbl)
+      Nullify(cData)
 *----------------------------------------------------------------------*
 *                                                                      *
 *----------------------------------------------------------------------*
       Return
+      End Subroutine dxRdRun_Internal
+*
       End

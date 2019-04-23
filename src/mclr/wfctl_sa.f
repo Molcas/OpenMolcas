@@ -153,9 +153,9 @@
       Call Getmem('Scr2  ','ALLO','Real',ipSc2  ,nDens2+6)
 *
       do iDisp=1,nDisp
-      call dcopy_(nDens2,Zero,0,Work(ipKap),1)
-      call dcopy_(nDens2,Zero,0,Work(ipSigma),1)
-      call dcopy_(nDens2,Zero,0,Work(ipdKap),1)
+      call dcopy_(nDens2,[Zero],0,Work(ipKap),1)
+      call dcopy_(nDens2,[Zero],0,Work(ipSigma),1)
+      call dcopy_(nDens2,[Zero],0,Work(ipdKap),1)
 *
 *-----------------------------------------------------------------------------
 *
@@ -194,9 +194,9 @@
       If(debug)Write(6,*) 'Hi how about r1',r1
       Call dDaFile(LuTemp,1,Work(ipSigma),iLen,iDis)
 *
-      call dcopy_(nConf1*nroots,Zero,0,Work(ipIn(ipCIT)),1)
-      call dcopy_(nConf1*nroots,Zero,0,Work(ipIn(ipST)),1)
-      call dcopy_(nConf1*nroots,Zero,0,Work(ipIn(ipCID)),1)
+      call dcopy_(nConf1*nroots,[Zero],0,Work(ipIn(ipCIT)),1)
+      call dcopy_(nConf1*nroots,[Zero],0,Work(ipIn(ipST)),1)
+      call dcopy_(nConf1*nroots,[Zero],0,Work(ipIn(ipCID)),1)
       irc=ipOut(ipCIT)
       Call DSCAL_(nDensC,-One,Work(ipSigma),1)
 *
@@ -215,7 +215,7 @@
       deltaC=Zero
       irc=ipOut(ipcid)
       deltaK=ddot_(nDensC,Work(ipKap),1,Work(ipSigma),1)
-      call dcopy_(nDens,Zero,0,Work(ipKap),1)
+      call dcopy_(nDens,[Zero],0,Work(ipKap),1)
       delta=deltac+deltaK
       delta0=delta
       iter=1
@@ -269,7 +269,7 @@
 *
          irc=opOut(ipcid)
 
-         Call DMinvCI_SA(ipST,Work(ipIn(ipS2)),rCHC,isym,work(ipS))
+         Call DMinvCI_SA(ipST,Work(ipIn(ipS2)),rdum,isym,work(ipS))
          irc=opOut(ipci)
          irc=opOut(ipdia)
 
@@ -425,6 +425,7 @@
 #include "Input.fh"
       Integer opOut
       Real*8 Kap(*),KapOut(*)
+      Dimension rdum(1)
 *
       Call GetMem('RMOAA','ALLO','REAL',iprmoaa,n2dens)
       Call GetMem('SCR2','ALLO','REAL',ipSc2,ndens2)

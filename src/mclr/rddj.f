@@ -28,6 +28,7 @@
 #include "Files_mclr.fh"
 #include "sa.fh"
       Real*8 G1r(*), G1Q(*),G2r(*)
+      Dimension rdum(1)
 *
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 

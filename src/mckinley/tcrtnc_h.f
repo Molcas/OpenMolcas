@@ -165,7 +165,7 @@
       Do iiVec = 1, nVec, IncVec
          mVec = Min(IncVec,nVec-iiVec+1)
 *--------Set intermediate matrix to zero
-         call dcopy_(nCntr2*mVec*nPrm1,Zero,0,A2,1)
+         call dcopy_(nCntr2*mVec*nPrm1,[Zero],0,A2,1)
 *
          If (Seg1) Then
 *

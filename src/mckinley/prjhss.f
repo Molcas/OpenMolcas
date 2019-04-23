@@ -81,6 +81,7 @@
      &          indhss(2,3,2,3,0:7)
       Logical  ifgrd(3,2),JfGrd(3,4),  EQ,
      &         jfhss(4,3,4,3),ifhss(2,3,2,3) ,ifg(4),tr(4)
+      Dimension Dum(1)
 
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
@@ -145,7 +146,7 @@
                ipFB2 = ip
                ip = ip + nExp(iShll)*nBeta*nElem(iAng)*nElem(lb)*6
 
-               call dcopy_(nArr,0.0d0,0,Array,1)
+               call dcopy_(nArr,[0.0d0],0,Array,1)
 *              <a|c>,<a'|c>,<a"|c>
                Call Acore(iang,la,ishll,nordop,TC,A,Array(ip),
      &                     narr-ip+1,Alpha,nalpha,Array(ipFA1),
@@ -171,7 +172,7 @@
 
 *              contract density
                nt=nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
-               call dcopy_(78,0.0d0,0,g2,1)
+               call dcopy_(78,[0.0d0],0,g2,1)
                Call dGeMV_('T',nT,21,
      &                    One,Array(ipFin),nT,
      &                    DAO,1,

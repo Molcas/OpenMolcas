@@ -28,7 +28,7 @@ C
       ENDDO
       IF(NSP.LT.0)THEN
          DO I=1,LI
-            CALL VNEG(ARR2(1,1,I),1,ARR2(1,1,I),1,IDM*I)
+            CALL VNEG_CHT3(ARR2(1,1,I),1,ARR2(1,1,I),1,IDM*I)
          enddo
       ENDIF
       RETURN

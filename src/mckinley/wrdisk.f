@@ -76,9 +76,9 @@
       Call GetMem('TEMP1','ALLO','REAL',ipY,nIn2)
       Call GetMem('TEMP2','ALLO','REAL',ipX,nIn2)
 *
-      call dcopy_(nIn2,0.0d0,0,Work(ipAct),1)
-      call dcopy_(nIn2,0.0d0,0,Work(ipIN),1)
-      call dcopy_(nIn2,0.0d0,0,Work(ipOut1),1)
+      call dcopy_(nIn2,[0.0d0],0,Work(ipAct),1)
+      call dcopy_(nIn2,[0.0d0],0,Work(ipIN),1)
+      call dcopy_(nIn2,[0.0d0],0,Work(ipOut1),1)
 *                                                                      *
 ************************************************************************
 *                                                                      *

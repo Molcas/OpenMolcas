@@ -80,6 +80,7 @@
      &       OneHam(mBT), OCMO(mBB,nD), Ovrlp(mBT), Vxc(mBT,nD,mDens)
       Real*8, Dimension(:,:), Allocatable:: GrdOO,GrdOV,AuxD,AuxT,AuxV
       Character What*3
+#include "interfaces_scf.fh"
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -116,7 +117,7 @@
       Do iOpt = LpStrt, kOptim
          iDT = iter_d - kOptim + iOpt
 *
-         Call dCopy_(nOV*nD,Zero,0,GrdOV,1)
+         Call dCopy_(nOV*nD,[Zero],0,GrdOV,1)
 *
          jDT=MapDns(iDT)
          If (jDT.lt.0) Then

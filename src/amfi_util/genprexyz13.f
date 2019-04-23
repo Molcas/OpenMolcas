@@ -13,7 +13,7 @@
 #include "para.fh"
 #include "Molcas.fh"
 #include "WrkSpc.fh"
-      logical mcheckxy,icheckxy
+      integer mcheckxy
       dimension icheckxy(0:Lmax,0:Lmax,0:Lmax,0:Lmax)
 cbs #####################################################################
 cbs   some quick decision for interaction

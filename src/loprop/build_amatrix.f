@@ -65,7 +65,7 @@ c      Call RecPrt('A-matrix','(5G12.5)',AMatrix,nAtoms,nAtoms)
       End Do
       Shift=Two*Shift
 C     Write (*,*) 'Shift=',Shift
-      Call DaXpY_(nAtoms**2,Shift,One,0,AMatrix,1)
+      Call DaXpY_(nAtoms**2,Shift,[One],0,AMatrix,1)
 c      Call RecPrt('A-matrix(Shifted)','(5G12.5)',AMatrix,nAtoms, nAtoms)
 *                                                                      *
 ************************************************************************

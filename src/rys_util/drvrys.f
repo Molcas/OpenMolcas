@@ -78,7 +78,7 @@
      &        Zeta(nZeta), ZInv(nZeta), P(nZeta,3), KappAB(nZeta),
      &         Eta(nEta),  EInv(nEta),  Q(nEta, 3), KappCD(nEta),
      &        ThrInt,CutInt,vij,vkl,vik,vil,vjk,vjl,
-     &        Coor(3,4), CoorAC(3,4), Wrk(nWork2),
+     &        Coor(3,4), CoorAC(3,2), Wrk(nWork2),
      &        HMtrxAB(*), HMtrxCD(*), Dij(mDij), Dkl(mDkl),
      &        Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj),
      &        Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl)

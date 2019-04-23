@@ -36,6 +36,7 @@
       Dimension HTUTRI(*), GTUVXTRI(*)
       real*8, allocatable :: sgm(:,:), psi(:,:)
       real*8, allocatable :: htu(:,:), gtuvx(:,:,:,:)
+      Dimension Dummy(1)
 *-------------------------------------------------------------------
 *MGD dec 2017 : When optimizing many states, the lowest ones tend to
 *converge much faster than the rest. Changed the code so that the converged states
@@ -152,7 +153,7 @@ C Trying to avoid writing out of bound in CSDTVC :::: JESPER :::: CHEAT
               allocate(sgm(ndeta,ndetb))
               allocate(psi(ndeta,ndetb))
 
-              CALL DCOPY_(NCONF, 0.0D0, 0, WORK(IVECSVC), 1)
+              CALL DCOPY_(NCONF, [0.0D0], 0, WORK(IVECSVC), 1)
               CALL REORD2(MY_NORB,NACTEL,1,0,
      &                    IWORK(KICONF(1)),IWORK(KCFTP),
      &                    WORK(IVEC1),WORK(IVECSVC),IWORK(IVKCNF))
@@ -177,10 +178,10 @@ C Trying to avoid writing out of bound in CSDTVC :::: JESPER :::: CHEAT
             Else
 C     Convert the CI-vector from CSF to Det. basis
               call dcopy_(nconf, work(ivec1), 1, work(kctemp),1)
-              call dcopy_(ndet, 0.0d0, 0, work(ksigtemp), 1)
+              call dcopy_(ndet, [0.0d0], 0, work(ksigtemp), 1)
               CALL csdtvc(work(kctemp), work(ksigtemp), 1, work(kdtoc)
      &           ,iwork(kicts(1)), LSym, 1)
-              call dcopy_(ndet, 0.0d0, 0, work(ksigtemp), 1)
+              call dcopy_(ndet, [0.0d0], 0, work(ksigtemp), 1)
               c_pointer = kctemp
 C     Calling Lucia to determine the sigma vector
               CALL Lucia_Util('Sigma',iDummy,iDummy,Dummy)
@@ -275,8 +276,8 @@ C Timings on generation of the sigma vector
 * residual vector is saved in Work(iVec3)
          Do mRoot=1,lRoots
 *...      initialize 'best' CI and sigma vector
-            Call dCopy_(nConf,0.0d0,0,Work(iVec1),1)
-            Call dCopy_(nConf,0.0d0,0,Work(iVec2),1)
+            Call dCopy_(nConf,[0.0d0],0,Work(iVec1),1)
+            Call dCopy_(nConf,[0.0d0],0,Work(iVec2),1)
 *...      accumulate contributions
             jtrial = 0
             Do jRoot=1,nvec

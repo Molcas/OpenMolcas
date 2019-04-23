@@ -68,7 +68,7 @@ C
           Call DDaFile(JOBIPH,0,SCR1,NACPR2,jDisk)
           Call DBLOCK(SCR1)
 
-          Call dCopy_(NTOT,(0.0d0),0,OCCN,1)
+          Call dCopy_(NTOT,[0.0d0],0,OCCN,1)
           Call dCopy_(NTOT2,CMOO,1,CMON,1)
 
           ID=0
@@ -85,13 +85,13 @@ C
 C
 C  set occupation number of frozen and inactive orbitals
 C
-            Call dCopy_(NFI,(2.0d0),0,OCCN(IB+1),1)
+            Call dCopy_(NFI,[2.0d0],0,OCCN(IB+1),1)
 C
 C  Diagonalize the density matrix and transform orbitals
 C
             IF(NAO.GT.0) THEN
-              Call dCopy_(NAO*NAO,(0.0d0),0,SCR2,1)
-              Call dCopy_(NAO,(1.0d0),0,SCR2,NAO+1)
+              Call dCopy_(NAO*NAO,[0.0d0],0,SCR2,1)
+              Call dCopy_(NAO,[1.0d0],0,SCR2,NAO+1)
               CALL JACOB(SCR1(ID+1),SCR2,NAO,NAO)
               II=0
               DO I=1,NAO
@@ -174,7 +174,7 @@ C
         Call DDaFile(JOBIPH,0,SCR1,NACPR2,jDisk)
         Call DBLOCK(SCR1)
 
-        Call dCopy_(NTOT,(0.0d0),0,OCCN,1)
+        Call dCopy_(NTOT,[0.0d0],0,OCCN,1)
         Call dCopy_(NTOT2,CMOO,1,CMON,1)
 
         ID=0
@@ -191,13 +191,13 @@ C
 C
 C  set occupation number of frozen and inactive orbitals
 C
-          Call dCopy_(NFI,(2.0d0),0,OCCN(IB+1),1)
+          Call dCopy_(NFI,[2.0d0],0,OCCN(IB+1),1)
 C
 C  Diagonalize the density matrix and transform orbitals
 C
           IF(NAO.GT.0) THEN
-            Call dCopy_(NAO*NAO,(0.0d0),0,SCR2,1)
-            Call dCopy_(NAO,(1.0d0),0,SCR2,NAO+1)
+            Call dCopy_(NAO*NAO,[0.0d0],0,SCR2,1)
+            Call dCopy_(NAO,[1.0d0],0,SCR2,NAO+1)
             CALL JACOB(SCR1(ID+1),SCR2,NAO,NAO)
             II=0
             DO I=1,NAO

@@ -48,7 +48,7 @@ c
       REAL*8 duops(maxuops)
       character*(maxlength) uops(maxuops)
 #if defined(_MOLCAS_) || defined(MOLPRO)
-      integer operators(*),xoperators(*)
+      character operators(*),xoperators(*)
       character*(maxlength) opstring,opstring1,xopstring,xopstring1
 #else
       character*(maxlength) operators(maxoperators)

@@ -1999,7 +1999,6 @@ XFIELD
 End of Input
 
 >> COPY StartOrb INPORB
->>export MOLCAS_MEM=2000
 &RASSCF
 LUMORB
 Symmetry

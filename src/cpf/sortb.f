@@ -11,8 +11,8 @@
 * Copyright (C) 1986, Per E. M. Siegbahn                               *
 *               1986, Margareta R. A. Blomberg                         *
 ************************************************************************
-      SUBROUTINE SORTB(BUFOUT,INDOUT,ICAD,IBUFL,TIBUF,ACBDS,ACBDT,ISAB,
-     *BUFACBD)
+      SUBROUTINE SORTB_CPF(BUFOUT,INDOUT,ICAD,IBUFL,TIBUF,ACBDS,ACBDT,
+     *ISAB,BUFACBD)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "cpfmcpf.fh"
@@ -24,7 +24,7 @@
       PARAMETER (IPOW8=2**8)
 C SORTS INTEGRALS (AB/CD) FOR FIXED A,C ALL B,D
 *
-      CALL QENTER('SORTB')
+      CALL QENTER('SORTB_CPF')
       KBUFF1=2*9600
       NVT=IROW(NVIRT+1)
       NOV=(NVT-1)/IPASS+1
@@ -167,7 +167,7 @@ CPAM97      INDOUT(ICPP)=IOR(NB,ISHFT(ND,8))
 C     EMPTY LAST BUFFERS
       NOVM=IACMAX-IACMIN+1
       If ( (NOVST+IACMIN-1+NOVM).gt.mAdr ) then
-        WRITE(6,*)'SORTB Error: NOVST+IACMIN-1+NOVM > MADR'
+        WRITE(6,*)'SORTB_CPF Error: NOVST+IACMIN-1+NOVM > MADR'
         WRITE(6,*)'  (See code).'
         CALL Abend
       End If
@@ -240,10 +240,10 @@ C     EMPTY LAST BUFFERS
 50    CONTINUE
 C     EMPTY LAST BUFFER
       IF(INSOUT.EQ.0) THEN
-         CALL QEXIT('SORTB')
+         CALL QEXIT('SORTB_CPF')
          RETURN
       END IF
       CALL dDAFILE(Lu_TiABCD,1,BUFACBD,KBUFF1,IAD16)
-      CALL QEXIT('SORTB')
+      CALL QEXIT('SORTB_CPF')
       RETURN
       END

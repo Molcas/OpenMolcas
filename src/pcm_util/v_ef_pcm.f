@@ -80,8 +80,8 @@ c----------------------------------------------------------------------
 *
       Call Allocate_Work(ipFactOp,nTs)
       Call Allocate_iWork(iplOper,nTs)
-      call dcopy_(nTs,One,0,Work(ipFactOp),1)
-      Call ICopy(nTs,255,0,iWork(iplOper),1)
+      call dcopy_(nTs,[One],0,Work(ipFactOp),1)
+      Call ICopy(nTs,[255],0,iWork(iplOper),1)
 *
       Call drv_ef_PCM(Work(ipFactOp),nTs,Work(ipD1ao),nDens,
      &              Tessera,iWork(iplOper),
@@ -144,7 +144,7 @@ c----------------------------------------------------------------------
       use Real_Spherical
       use iSD_data
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
+#include "angtp.fh"
 #include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"

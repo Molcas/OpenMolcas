@@ -86,11 +86,11 @@
          Write (6,*) 'iShll=',iShll
          Write (6,*) 'iAng=',iAng
          Write (6,*) DoCoul,DoExch,Shijij
-         Write (6,*) 'FMAT,DMAT=',DDot_(nDens,FMat,1,One,0),
-     &                            DDot_(nDens,DMat,1,One,0)
+         Write (6,*) 'FMAT,DMAT=',DDot_(nDens,FMat,1,[One],0),
+     &                            DDot_(nDens,DMat,1,[One],0)
          Write (6,*) ' FckAcc:AOIn',DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,
      &               AOInt,1,AOInt,1), DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,
-     &               AOInt,1,One,0)
+     &               AOInt,1,[One],0)
       End If
 #endif
 *

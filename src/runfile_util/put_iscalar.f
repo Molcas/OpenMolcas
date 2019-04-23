@@ -144,7 +144,8 @@
          RecLab( 38)='Rotational Symme' !try Number
          RecLab( 39)='Saddle Iter     '
          RecLab( 40)='iMass           '
-         RecLab( 41)='mp2prpt         ' ! True(=1) if mbpt2 was run with prpt
+!        True(=1) if mbpt2 was run with prpt
+         RecLab( 41)='mp2prpt         '
          RecLab( 42)='NJOB_SINGLE     '
          RecLab( 43)='MXJOB_SINGLE    '
          RecLab( 44)='NSS_SINGLE      '
@@ -168,15 +169,18 @@ c         RecLab( 58)='GEO_nConnect    '
          RecLab( 61)='hopped          '
          RecLab( 62)='Invert constrain' !ts
          RecLab( 63)='Keep old gradien' !t
-         RecLab( 64)='embpot          ' ! Flag whether an embedding potential is present
+!        Flag whether an embedding potential is present
+         RecLab( 64)='embpot          '
          RecLab( 65)='nPrim           '
          RecLab( 66)='Seed            '
          RecLab( 67)='Track Done      '
          RecLab( 68)='MaxHopsTully    '
-         RecLab( 69)='EFP             ' ! Flag Effective fragment potentials
+!        Flag Effective fragment potentials
+         RecLab( 69)='EFP             '
          RecLab( 70)='nEFP_fragments  '
          RecLab( 71)='Coor_Type       ' ! EFP fragment coordinate format
-         RecLab( 72)='nEFP_Coor       ' ! Associated number of coordinates per fragment
+!        Associated number of coordinates per fragment
+         RecLab( 72)='nEFP_Coor       '
          RecLab( 72)='Relax Original r' !oot
 *                     1234567890123456
 *

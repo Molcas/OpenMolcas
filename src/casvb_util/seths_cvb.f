@@ -14,22 +14,25 @@
       implicit real*8(a-h,o-z)
       character*(*) arr(n)
 
-      call seth_cvb(n,1)
+      call seth_cvb([n],1)
       lenarr=len(arr(1))
       do 100 i=1,n
       do 100 j=1,lenarr
-100   call seth_cvb(ichar(arr(i)(j:j)),1)
+100   call seth_cvb([ichar(arr(i)(j:j))],1)
       return
       end
 
       subroutine geths_cvb(arr,n)
       implicit real*8(a-h,o-z)
       character*(*) arr(n)
-      call geth_cvb(n,1)
+      dimension iaux(1)
+      call geth_cvb(iaux,1)
+      n=iaux(1)
       lenarr=len(arr(1))
       do 200 i=1,n
       do 200 j=1,lenarr
-      call geth_cvb(iret,1)
+      call geth_cvb(iaux,1)
+      iret=iaux(1)
 200   arr(i)(j:j)=char(iret)
       return
       end

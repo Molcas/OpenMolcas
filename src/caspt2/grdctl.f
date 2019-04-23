@@ -58,7 +58,7 @@ C This is an ordinary CASSCF or RASSCF calculation.
 
       IF(ORBIN.EQ.'TRANSFOR') THEN
 C Read, and transpose, the active orbital transformation matrices
-        CALL DCOPY_(NTAT,0.0D0,0,WORK(LTAT),1)
+        CALL DCOPY_(NTAT,[0.0D0],0,WORK(LTAT),1)
         IOFF1=0
         IOFF2=0
         DO ISYM=1,NSYM
@@ -108,7 +108,7 @@ C Read, and transpose, the active orbital transformation matrices
       NSG=NCONF
       CALL GETMEM('GRDSGM','ALLO','REAL',LSGM,NSG)
 C Compute (Proj_CAS)*(Ham)*(Wave op) acting on Psi_0:
-      CALL DCOPY_(NCONF,0.0D0,0,WORK(LSGM),1)
+      CALL DCOPY_(NCONF,[0.0D0],0,WORK(LSGM),1)
       IF(ISCF.EQ.0) THEN
        CALL W1TW2(IVECW,IVECC,WORK(LCI),WORK(LSGM))
       ELSE
@@ -196,7 +196,7 @@ C computing the multi-state coupling elements.
 C-End of Multi-State insert -----------------------------------------
 
 C Similar, but (Proj_CAS)*((Wave op)**(dagger))*(Ham) | Psi_0 >.
-      CALL DCOPY_(NCONF,0.0D0,0,WORK(LSGM),1)
+      CALL DCOPY_(NCONF,[0.0D0],0,WORK(LSGM),1)
       IF(ISCF.EQ.0) THEN
        CALL W1TW2(IVECC,IVECW,WORK(LCI),WORK(LSGM))
       ELSE

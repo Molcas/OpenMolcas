@@ -46,8 +46,8 @@ c#include "print.fh"
       kc=(lc+1)*(lc+2)/2
       kd=(ld+1)*(ld+2)/2
       nG1=nT*9*ka*kb*kc*kd
-      call dcopy_(nG1,Zero,0,G1,1)
-      Call ICOPY(12,0,0,Index2,1)
+      call dcopy_(nG1,[Zero],0,G1,1)
+      Call ICOPY(12,[0],0,Index2,1)
 *
       ii = la*(la+1)*(la+2)/6
       jj = lb*(lb+1)*(lb+2)/6

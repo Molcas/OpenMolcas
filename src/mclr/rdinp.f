@@ -43,6 +43,7 @@
      &            'RASS','DISO','CASI','SALA','NODE',
      &            'ESTE','MOUT','MASS','NAC ','$$$$',
      &            'THER','NEWC'/
+      Dimension idum(1)
 *----------------------------------------------------------------------*
 *     Locate "start of input"                                          *
 *----------------------------------------------------------------------*
@@ -52,7 +53,7 @@
 *----------------------------------------------------------------------*
       debug=.False.
       Epsilon_Undef=.True.
-      Call Get_info_Static(iDum)
+      Call Get_info_Static(iDum(1))
       istate=1     ! State for which the Lagrangian is calc.
       override=.false.
       If (debug) write(6,*) 'Got info.fh'
@@ -81,7 +82,7 @@
       newpre=.true.
       save=.false.
       isotop=.true.
-      Call lCopy(mxAtm*3+3,.true.,0,lCalc,1)
+      Call lCopy(mxAtm*3+3,[.true.],0,lCalc,1)
       Do i=1,nDisp
        DspVec(i)=i
       End Do
@@ -420,7 +421,7 @@
 *     Put the Info on the run file.
 
       Call Put_iScalar('iMass',iMass)
-      Call Put_cArray('cmass',cmass,3*iMass)
+      Call Put_cArray('cmass',cmass(1),3*iMass)
       Call Put_dArray('umass',umass,iMass)
 *
       Goto 100

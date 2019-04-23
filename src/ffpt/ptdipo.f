@@ -27,6 +27,7 @@
       Character*20 PriLbl
       Logical Debug,Exec
       Data    Debug/.False./
+      Dimension idum(1)
 *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -59,7 +60,8 @@
           iOpt2=2
           iSyLbl=0
           Alpha=-ComVal(2,1,1,iComp)
-          Call iRdOne(iRc,iOpt1,Label,iComp,nInts,iSyLbl)
+          Call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
+          nInts=idum(1)
           If ( iRc.ne.0 ) Goto 991
           Call RdOne(iRc,iOpt2,Label,iComp,Temp,iSyLbl)
           If ( iRc.ne.0 ) Goto 991

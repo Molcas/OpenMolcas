@@ -74,7 +74,7 @@
       ipArr = nip
       mArr = nZeta*nArr - nip + 1
 *
-      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,Zero,0,Final,1)
+      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
       iComp = 1
       llOper = lOper(1)

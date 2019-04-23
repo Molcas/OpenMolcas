@@ -37,7 +37,7 @@
       iPrint=nPrint(iRout)
       If (iPrint.ge.99) Then
          Call RecPrt(' In NewCar: q',' ',Work(ip_qInt),nInter,kIter+1)
-         Call RecPrt(' In NewCar: g',' ',grdn,nInter,kIter)
+         Call RecPrt(' In NewCar: g',' ',Work(ip_dqInt),nInter,kIter)
          Call RecPrt(' In NewCar: Shift',' ',Shift,nInter,kIter)
       End If
 *

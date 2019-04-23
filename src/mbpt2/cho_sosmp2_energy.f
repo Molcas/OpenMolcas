@@ -112,7 +112,8 @@ C           -------------------------------------------
             If (NKVec.gt.0) Then
 
                Call GetMem('Yai_k','Allo','Real',ip_Y,nOV*NKVec)
-               call dcopy_(nOV,one,0,Work(ip_Y),1) ! init to one the 1st col
+!              init to one the 1st col
+               call dcopy_(nOV,[one],0,Work(ip_Y),1)
 
                Call CHO_GET_OED_cd(.true.,nOV,Work(ip_W),NKVec,
      &                             iWork(ID_bj),1,Work(ip_Y),Work(ip_Y))

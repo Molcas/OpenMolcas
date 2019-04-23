@@ -44,9 +44,9 @@ c local variables
       ZLT=1.0_wp
       ZRT=1.0_wp
       Z=0.0_wp
-      Call dcopy_(3*3,0.0_wp,0,XRT,1)
-      Call dcopy_(3*3,0.0_wp,0,XLT,1)
-      Call dcopy_(3*3,0.0_wp,0,X,1)
+      Call dcopy_(3*3,[0.0_wp],0,XRT,1)
+      Call dcopy_(3*3,[0.0_wp],0,XLT,1)
+      Call dcopy_(3*3,[0.0_wp],0,X,1)
       ! compute the total ZT
       If ( iopt == 1 ) Then
         ! my formula (simple):

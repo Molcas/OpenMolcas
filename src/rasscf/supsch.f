@@ -84,6 +84,7 @@ C
       DIMENSION Temp1(nOrbMX*nOrbMX),Temp2(nOrbMX*nOrbMX)
       INTEGER IxSym2(nOrb_tot)
       Integer pSij
+      DIMENSION DUM(1)
 C
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
@@ -117,9 +118,9 @@ C
 C
        If(IPRLEV.GE.DEBUG) then
          CALL PRIMO_RASSCF('Testing old orb for supersymmetry',
-     &               FDIAG,OCCN,CMOO)
+     &               FDIAG,DUM,CMOO)
          CALL PRIMO_RASSCF('Testing new orb for supersymmetry',
-     &               FDIAG,OCCN,CMON)
+     &               FDIAG,DUM,CMON)
        End if
 C
        kOrb=0

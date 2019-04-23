@@ -31,7 +31,7 @@
         elseif(np-nprorb.lt.nvb)then
           i1 = mstackrz_cvb(nvb)
           call vb2strg_cvb(dvbdet,w(i1))
-          call fmove(w(i1),w(lv(5)),np-nprorb)
+          call fmove_cvb(w(i1),w(lv(5)),np-nprorb)
           call mfreer_cvb(i1)
         else
           write(6,*)' Error in mkgrd - np-nprorb > nvb :',np,nprorb,nvb

@@ -50,42 +50,71 @@ cccc local variables ccc
 
       Real(kind=wp), allocatable :: WEX0(:)
       Real(kind=wp), allocatable :: WEX1(:)
-      Real(kind=wp), allocatable :: WEX2(:)           ! Zeeman exchange energies
+      Real(kind=wp), allocatable :: WEX2(:)   ! Zeeman exchange energies
       Real(kind=wp), allocatable :: WL0(:,:)    ! Zeeman local energies
       Real(kind=wp), allocatable :: WL1(:,:)
       Real(kind=wp), allocatable :: WL2(:,:)    ! Zeeman local energies
-      Real(kind=wp), allocatable :: WR0(:,:)    ! Zeeman local reduced energies, using only NEXCH states;
+!     Zeeman local reduced energies, using only NEXCH states;
+      Real(kind=wp), allocatable :: WR0(:,:)
       Real(kind=wp), allocatable :: WR1(:,:)
-      Real(kind=wp), allocatable :: WR2(:,:)    ! Zeeman local reduced energies, using only NEXCH states;
+!     Zeeman local reduced energies, using only NEXCH states;
+      Real(kind=wp), allocatable :: WR2(:,:)
 
-      Real(kind=wp), allocatable :: ZL0(:,:) ! local statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ZR0(:,:) ! local statistical sum, Boltzmann distribution, using only NEXCH states
-      Real(kind=wp), allocatable :: ZL1(:,:) ! local statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ZR1(:,:) ! local statistical sum, Boltzmann distribution, using only NEXCH states
-      Real(kind=wp), allocatable :: ZL2(:,:) ! local statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ZR2(:,:) ! local statistical sum, Boltzmann distribution, using only NEXCH states
-      Real(kind=wp), allocatable :: SL0(:,:,:) ! spin magnetisation, from the local sites, using ALL states ;
-      Real(kind=wp), allocatable :: SR0(:,:,:) ! spin magnetisation, from the local sites, using only NEXCH states ;
-      Real(kind=wp), allocatable :: SL1(:,:,:) ! spin magnetisation, from the local sites, using ALL states ;
-      Real(kind=wp), allocatable :: SR1(:,:,:) ! spin magnetisation, from the local sites, using only NEXCH states ;
-      Real(kind=wp), allocatable :: SL2(:,:,:) ! spin magnetisation, from the local sites, using ALL states ;
-      Real(kind=wp), allocatable :: SR2(:,:,:) ! spin magnetisation, from the local sites, using only NEXCH states ;
-      Real(kind=wp), allocatable :: ML0(:,:,:) ! magnetisation, from local sites, using ALL states;
-      Real(kind=wp), allocatable :: MR0(:,:,:) ! magnetisation, from local sites, using only NEXCH states;
-      Real(kind=wp), allocatable :: ML1(:,:,:) ! magnetisation, from local sites, using ALL states;
-      Real(kind=wp), allocatable :: MR1(:,:,:) ! magnetisation, from local sites, using only NEXCH states;
-      Real(kind=wp), allocatable :: ML2(:,:,:) ! magnetisation, from local sites, using ALL states;
-      Real(kind=wp), allocatable :: MR2(:,:,:) ! magnetisation, from local sites, using only NEXCH states;
+!     local statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ZL0(:,:)
+!     local statistical sum, Boltzmann distribution, using only NEXCH states
+      Real(kind=wp), allocatable :: ZR0(:,:)
+!     local statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ZL1(:,:)
+!     local statistical sum, Boltzmann distribution, using only NEXCH states
+      Real(kind=wp), allocatable :: ZR1(:,:)
+!     local statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ZL2(:,:)
+!     local statistical sum, Boltzmann distribution, using only NEXCH states
+      Real(kind=wp), allocatable :: ZR2(:,:)
+!     spin magnetisation, from the local sites, using ALL states ;
+      Real(kind=wp), allocatable :: SL0(:,:,:)
+!     spin magnetisation, from the local sites, using only NEXCH states ;
+      Real(kind=wp), allocatable :: SR0(:,:,:)
+!     spin magnetisation, from the local sites, using ALL states ;
+      Real(kind=wp), allocatable :: SL1(:,:,:)
+!     spin magnetisation, from the local sites, using only NEXCH states ;
+      Real(kind=wp), allocatable :: SR1(:,:,:)
+!     spin magnetisation, from the local sites, using ALL states ;
+      Real(kind=wp), allocatable :: SL2(:,:,:)
+!     spin magnetisation, from the local sites, using only NEXCH states ;
+      Real(kind=wp), allocatable :: SR2(:,:,:)
+!     magnetisation, from local sites, using ALL states;
+      Real(kind=wp), allocatable :: ML0(:,:,:)
+!     magnetisation, from local sites, using only NEXCH states;
+      Real(kind=wp), allocatable :: MR0(:,:,:)
+!     magnetisation, from local sites, using ALL states;
+      Real(kind=wp), allocatable :: ML1(:,:,:)
+!     magnetisation, from local sites, using only NEXCH states;
+      Real(kind=wp), allocatable :: MR1(:,:,:)
+!     magnetisation, from local sites, using ALL states;
+      Real(kind=wp), allocatable :: ML2(:,:,:)
+!     magnetisation, from local sites, using only NEXCH states;
+      Real(kind=wp), allocatable :: MR2(:,:,:)
 
-      Real(kind=wp), allocatable :: SEX0(:,:) ! spin magnetisation, from the exchange block;
-      Real(kind=wp), allocatable :: SEX1(:,:) ! spin magnetisation, from the exchange block;
-      Real(kind=wp), allocatable :: SEX2(:,:) ! spin magnetisation, from the exchange block;
-      Real(kind=wp), allocatable :: MEX0(:,:) ! magnetisation, form the exchange block
-      Real(kind=wp), allocatable :: MEX1(:,:) ! magnetisation, form the exchange block
-      Real(kind=wp), allocatable :: MEX2(:,:) ! magnetisation, form the exchange block
-      Real(kind=wp), allocatable :: ZEX0(:) ! exchange statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ZEX1(:) ! exchange statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ZEX2(:) ! exchange statistical sum, Boltzmann distribution
+!     spin magnetisation, from the exchange block;
+      Real(kind=wp), allocatable :: SEX0(:,:)
+!     spin magnetisation, from the exchange block;
+      Real(kind=wp), allocatable :: SEX1(:,:)
+!     spin magnetisation, from the exchange block;
+      Real(kind=wp), allocatable :: SEX2(:,:)
+!     magnetisation, form the exchange block
+      Real(kind=wp), allocatable :: MEX0(:,:)
+!     magnetisation, form the exchange block
+      Real(kind=wp), allocatable :: MEX1(:,:)
+!     magnetisation, form the exchange block
+      Real(kind=wp), allocatable :: MEX2(:,:)
+!     exchange statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ZEX0(:)
+!     exchange statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ZEX1(:)
+!     exchange statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ZEX2(:)
 c total vectors in general coordinate system:
       Real(kind=wp), allocatable :: ZRT0(:,:)
       Real(kind=wp), allocatable :: ZLT0(:,:)
@@ -106,9 +135,12 @@ c total vectors in general coordinate system:
       Real(kind=wp), allocatable :: SRT2(:,:,:)
       Real(kind=wp), allocatable :: SLT2(:,:,:)
 c data for total system:
-      Real(kind=wp), allocatable :: ZT0(:) ! total statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ZT1(:) ! total statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ZT2(:) ! total statistical sum, Boltzmann distribution
+! total statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ZT0(:)
+! total statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ZT1(:)
+! total statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ZT2(:)
       Real(kind=wp), allocatable :: MT0(:,:) ! total magnetisation
       Real(kind=wp), allocatable :: MT1(:,:) ! total magnetisation
       Real(kind=wp), allocatable :: ST0(:,:) ! total spin magnetisation,
@@ -237,9 +269,9 @@ cccc-------------------------------------------------------cccc
         Call mma_allocate(WEX0,nM,'WEX0')
         Call mma_allocate(WEX1,nM,'WEX1')
         Call mma_allocate(WEX2,nM,'WEX2')
-        Call dcopy_(nM,0.0_wp,0,WEX0,1)
-        Call dcopy_(nM,0.0_wp,0,WEX1,1)
-        Call dcopy_(nM,0.0_wp,0,WEX2,1)
+        Call dcopy_(nM,[0.0_wp],0,WEX0,1)
+        Call dcopy_(nM,[0.0_wp],0,WEX1,1)
+        Call dcopy_(nM,[0.0_wp],0,WEX2,1)
         mem_local=mem_local+3*nM*RtoB
       End If
       If((nneq>0).and.(nLoc>0)) Then
@@ -249,12 +281,12 @@ cccc-------------------------------------------------------cccc
         Call mma_allocate(WR0,nneq,nLoc,'WR0')
         Call mma_allocate(WR1,nneq,nLoc,'WR1')
         Call mma_allocate(WR2,nneq,nLoc,'WR2')
-        Call dcopy_(nneq*nLoc,0.0_wp,0,WL0,1)
-        Call dcopy_(nneq*nLoc,0.0_wp,0,WL1,1)
-        Call dcopy_(nneq*nLoc,0.0_wp,0,WL2,1)
-        Call dcopy_(nneq*nLoc,0.0_wp,0,WR0,1)
-        Call dcopy_(nneq*nLoc,0.0_wp,0,WR1,1)
-        Call dcopy_(nneq*nLoc,0.0_wp,0,WR2,1)
+        Call dcopy_(nneq*nLoc,[0.0_wp],0,WL0,1)
+        Call dcopy_(nneq*nLoc,[0.0_wp],0,WL1,1)
+        Call dcopy_(nneq*nLoc,[0.0_wp],0,WL2,1)
+        Call dcopy_(nneq*nLoc,[0.0_wp],0,WR0,1)
+        Call dcopy_(nneq*nLoc,[0.0_wp],0,WR1,1)
+        Call dcopy_(nneq*nLoc,[0.0_wp],0,WR2,1)
         mem_local=mem_local+6*nneq*nLoc*RtoB
       End If
 
@@ -265,12 +297,12 @@ cccc-------------------------------------------------------cccc
         Call mma_allocate(ZR1,nneq,(nT+nTempMagn),'ZR1')
         Call mma_allocate(ZL2,nneq,(nT+nTempMagn),'ZL2')
         Call mma_allocate(ZR2,nneq,(nT+nTempMagn),'ZR2')
-        Call dcopy_(nneq*(nT+nTempMagn),0.0_wp,0,ZL0,1)
-        Call dcopy_(nneq*(nT+nTempMagn),0.0_wp,0,ZR0,1)
-        Call dcopy_(nneq*(nT+nTempMagn),0.0_wp,0,ZL1,1)
-        Call dcopy_(nneq*(nT+nTempMagn),0.0_wp,0,ZR1,1)
-        Call dcopy_(nneq*(nT+nTempMagn),0.0_wp,0,ZL2,1)
-        Call dcopy_(nneq*(nT+nTempMagn),0.0_wp,0,ZR2,1)
+        Call dcopy_(nneq*(nT+nTempMagn),[0.0_wp],0,ZL0,1)
+        Call dcopy_(nneq*(nT+nTempMagn),[0.0_wp],0,ZR0,1)
+        Call dcopy_(nneq*(nT+nTempMagn),[0.0_wp],0,ZL1,1)
+        Call dcopy_(nneq*(nT+nTempMagn),[0.0_wp],0,ZR1,1)
+        Call dcopy_(nneq*(nT+nTempMagn),[0.0_wp],0,ZL2,1)
+        Call dcopy_(nneq*(nT+nTempMagn),[0.0_wp],0,ZR2,1)
         mem_local=mem_local+6*nneq*(nT+nTempMagn)*RtoB
 
         Call mma_allocate(SL0,nneq,3,(nT+nTempMagn),'SL0')
@@ -285,18 +317,18 @@ cccc-------------------------------------------------------cccc
         Call mma_allocate(MR1,nneq,3,(nT+nTempMagn),'MR1')
         Call mma_allocate(ML2,nneq,3,(nT+nTempMagn),'ML2')
         Call mma_allocate(MR2,nneq,3,(nT+nTempMagn),'MR2')
-        Call dcopy_(3*nneq*(nT+nTempMagn),0.0_wp,0,SL0,1)
-        Call dcopy_(3*nneq*(nT+nTempMagn),0.0_wp,0,SR0,1)
-        Call dcopy_(3*nneq*(nT+nTempMagn),0.0_wp,0,SL1,1)
-        Call dcopy_(3*nneq*(nT+nTempMagn),0.0_wp,0,SR1,1)
-        Call dcopy_(3*nneq*(nT+nTempMagn),0.0_wp,0,SL2,1)
-        Call dcopy_(3*nneq*(nT+nTempMagn),0.0_wp,0,SR2,1)
-        Call dcopy_(3*nneq*(nT+nTempMagn),0.0_wp,0,ML0,1)
-        Call dcopy_(3*nneq*(nT+nTempMagn),0.0_wp,0,MR0,1)
-        Call dcopy_(3*nneq*(nT+nTempMagn),0.0_wp,0,ML1,1)
-        Call dcopy_(3*nneq*(nT+nTempMagn),0.0_wp,0,MR1,1)
-        Call dcopy_(3*nneq*(nT+nTempMagn),0.0_wp,0,ML2,1)
-        Call dcopy_(3*nneq*(nT+nTempMagn),0.0_wp,0,MR2,1)
+        Call dcopy_(3*nneq*(nT+nTempMagn),[0.0_wp],0,SL0,1)
+        Call dcopy_(3*nneq*(nT+nTempMagn),[0.0_wp],0,SR0,1)
+        Call dcopy_(3*nneq*(nT+nTempMagn),[0.0_wp],0,SL1,1)
+        Call dcopy_(3*nneq*(nT+nTempMagn),[0.0_wp],0,SR1,1)
+        Call dcopy_(3*nneq*(nT+nTempMagn),[0.0_wp],0,SL2,1)
+        Call dcopy_(3*nneq*(nT+nTempMagn),[0.0_wp],0,SR2,1)
+        Call dcopy_(3*nneq*(nT+nTempMagn),[0.0_wp],0,ML0,1)
+        Call dcopy_(3*nneq*(nT+nTempMagn),[0.0_wp],0,MR0,1)
+        Call dcopy_(3*nneq*(nT+nTempMagn),[0.0_wp],0,ML1,1)
+        Call dcopy_(3*nneq*(nT+nTempMagn),[0.0_wp],0,MR1,1)
+        Call dcopy_(3*nneq*(nT+nTempMagn),[0.0_wp],0,ML2,1)
+        Call dcopy_(3*nneq*(nT+nTempMagn),[0.0_wp],0,MR2,1)
         mem_local=mem_local+12*3*nneq*(nT+nTempMagn)*RtoB
       End If
 
@@ -304,17 +336,17 @@ cccc-------------------------------------------------------cccc
         Call mma_allocate(ZEX0,(nT+nTempMagn),'ZEX0')
         Call mma_allocate(ZEX1,(nT+nTempMagn),'ZEX1')
         Call mma_allocate(ZEX2,(nT+nTempMagn),'ZEX2')
-        Call dcopy_((nT+nTempMagn),0.0_wp,0,ZEX0,1)
-        Call dcopy_((nT+nTempMagn),0.0_wp,0,ZEX1,1)
-        Call dcopy_((nT+nTempMagn),0.0_wp,0,ZEX2,1)
+        Call dcopy_((nT+nTempMagn),[0.0_wp],0,ZEX0,1)
+        Call dcopy_((nT+nTempMagn),[0.0_wp],0,ZEX1,1)
+        Call dcopy_((nT+nTempMagn),[0.0_wp],0,ZEX2,1)
         mem_local=mem_local+3*(nT+nTempMagn)*RtoB
 
         Call mma_allocate(ZT0,(nT+nTempMagn),'ZT0')
         Call mma_allocate(ZT1,(nT+nTempMagn),'ZT1')
         Call mma_allocate(ZT2,(nT+nTempMagn),'ZT2')
-        Call dcopy_((nT+nTempMagn),0.0_wp,0,ZEX0,1)
-        Call dcopy_((nT+nTempMagn),0.0_wp,0,ZEX1,1)
-        Call dcopy_((nT+nTempMagn),0.0_wp,0,ZEX2,1)
+        Call dcopy_((nT+nTempMagn),[0.0_wp],0,ZEX0,1)
+        Call dcopy_((nT+nTempMagn),[0.0_wp],0,ZEX1,1)
+        Call dcopy_((nT+nTempMagn),[0.0_wp],0,ZEX2,1)
         mem_local=mem_local+3*(nT+nTempMagn)*RtoB
 
         Call mma_allocate(SEX0,3,(nT+nTempMagn),'SEX0')
@@ -323,12 +355,12 @@ cccc-------------------------------------------------------cccc
         Call mma_allocate(MEX0,3,(nT+nTempMagn),'MEX0')
         Call mma_allocate(MEX1,3,(nT+nTempMagn),'MEX1')
         Call mma_allocate(MEX2,3,(nT+nTempMagn),'MEX2')
-        Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,SEX0,1)
-        Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,SEX1,1)
-        Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,SEX2,1)
-        Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,MEX0,1)
-        Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,MEX1,1)
-        Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,MEX2,1)
+        Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,SEX0,1)
+        Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,SEX1,1)
+        Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,SEX2,1)
+        Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,MEX0,1)
+        Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,MEX1,1)
+        Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,MEX2,1)
         mem_local=mem_local+6*3*(nT+nTempMagn)*RtoB
 
         Call mma_allocate(ST0,3,(nT+nTempMagn),'ST0')
@@ -337,22 +369,22 @@ cccc-------------------------------------------------------cccc
         Call mma_allocate(MT0,3,(nT+nTempMagn),'MT0')
         Call mma_allocate(MT1,3,(nT+nTempMagn),'MT1')
         Call mma_allocate(MT2,3,(nT+nTempMagn),'MT2')
-        Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,ST0,1)
-        Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,ST1,1)
-        Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,ST2,1)
-        Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,MT0,1)
-        Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,MT1,1)
-        Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,MT2,1)
+        Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,ST0,1)
+        Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,ST1,1)
+        Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,ST2,1)
+        Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,MT0,1)
+        Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,MT1,1)
+        Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,MT2,1)
         mem_local=mem_local+6*3*(nT+nTempMagn)*RtoB
 
         Call mma_allocate(XTM_MH  ,(nT+nTempMagn),'XTM_MH')
         Call mma_allocate(XTM_dMdH,(nT+nTempMagn),'XTM_dMdH')
         Call mma_allocate(XTtens_MH  ,3,3,(nT+nTempMagn),'XTtens_MH')
         Call mma_allocate(XTtens_dMdH,3,3,(nT+nTempMagn),'XTtens_dMdH')
-        Call dcopy_((nT+nTempMagn),0.0_wp,0,XTM_MH,1)
-        Call dcopy_((nT+nTempMagn),0.0_wp,0,XTM_dMdH,1)
-        Call dcopy_(3*3*(nT+nTempMagn),0.0_wp,0,XTtens_MH,1)
-        Call dcopy_(3*3*(nT+nTempMagn),0.0_wp,0,XTtens_dMdH,1)
+        Call dcopy_((nT+nTempMagn),[0.0_wp],0,XTM_MH,1)
+        Call dcopy_((nT+nTempMagn),[0.0_wp],0,XTM_dMdH,1)
+        Call dcopy_(3*3*(nT+nTempMagn),[0.0_wp],0,XTtens_MH,1)
+        Call dcopy_(3*3*(nT+nTempMagn),[0.0_wp],0,XTtens_dMdH,1)
         mem_local=mem_local+20*(nT+nTempMagn)*RtoB
       End If
 
@@ -363,12 +395,12 @@ cccc-------------------------------------------------------cccc
         Call mma_allocate(ZLT1,nCenter,(nT+nTempMagn),'ZLT1')
         Call mma_allocate(ZRT2,nCenter,(nT+nTempMagn),'ZRT2')
         Call mma_allocate(ZLT2,nCenter,(nT+nTempMagn),'ZLT2')
-        Call dcopy_(nCenter*(nT+nTempMagn),0.0_wp,0,ZRT0,1)
-        Call dcopy_(nCenter*(nT+nTempMagn),0.0_wp,0,ZLT0,1)
-        Call dcopy_(nCenter*(nT+nTempMagn),0.0_wp,0,ZRT1,1)
-        Call dcopy_(nCenter*(nT+nTempMagn),0.0_wp,0,ZLT1,1)
-        Call dcopy_(nCenter*(nT+nTempMagn),0.0_wp,0,ZRT2,1)
-        Call dcopy_(nCenter*(nT+nTempMagn),0.0_wp,0,ZLT2,1)
+        Call dcopy_(nCenter*(nT+nTempMagn),[0.0_wp],0,ZRT0,1)
+        Call dcopy_(nCenter*(nT+nTempMagn),[0.0_wp],0,ZLT0,1)
+        Call dcopy_(nCenter*(nT+nTempMagn),[0.0_wp],0,ZRT1,1)
+        Call dcopy_(nCenter*(nT+nTempMagn),[0.0_wp],0,ZLT1,1)
+        Call dcopy_(nCenter*(nT+nTempMagn),[0.0_wp],0,ZRT2,1)
+        Call dcopy_(nCenter*(nT+nTempMagn),[0.0_wp],0,ZLT2,1)
         mem_local=mem_local+6*3*nCenter*(nT+nTempMagn)*RtoB
 
         Call mma_allocate(MRT0,nCenter,3,(nT+nTempMagn),'MRT0')
@@ -383,18 +415,18 @@ cccc-------------------------------------------------------cccc
         Call mma_allocate(MLT2,nCenter,3,(nT+nTempMagn),'MLT2')
         Call mma_allocate(SRT2,nCenter,3,(nT+nTempMagn),'SRT2')
         Call mma_allocate(SLT2,nCenter,3,(nT+nTempMagn),'SLT2')
-        Call dcopy_(3*nCenter*(nT+nTempMagn),0.0_wp,0,MRT0,1)
-        Call dcopy_(3*nCenter*(nT+nTempMagn),0.0_wp,0,MLT0,1)
-        Call dcopy_(3*nCenter*(nT+nTempMagn),0.0_wp,0,SRT0,1)
-        Call dcopy_(3*nCenter*(nT+nTempMagn),0.0_wp,0,SLT0,1)
-        Call dcopy_(3*nCenter*(nT+nTempMagn),0.0_wp,0,MRT1,1)
-        Call dcopy_(3*nCenter*(nT+nTempMagn),0.0_wp,0,MLT1,1)
-        Call dcopy_(3*nCenter*(nT+nTempMagn),0.0_wp,0,SRT1,1)
-        Call dcopy_(3*nCenter*(nT+nTempMagn),0.0_wp,0,SLT1,1)
-        Call dcopy_(3*nCenter*(nT+nTempMagn),0.0_wp,0,MRT2,1)
-        Call dcopy_(3*nCenter*(nT+nTempMagn),0.0_wp,0,MLT2,1)
-        Call dcopy_(3*nCenter*(nT+nTempMagn),0.0_wp,0,SRT2,1)
-        Call dcopy_(3*nCenter*(nT+nTempMagn),0.0_wp,0,SLT2,1)
+        Call dcopy_(3*nCenter*(nT+nTempMagn),[0.0_wp],0,MRT0,1)
+        Call dcopy_(3*nCenter*(nT+nTempMagn),[0.0_wp],0,MLT0,1)
+        Call dcopy_(3*nCenter*(nT+nTempMagn),[0.0_wp],0,SRT0,1)
+        Call dcopy_(3*nCenter*(nT+nTempMagn),[0.0_wp],0,SLT0,1)
+        Call dcopy_(3*nCenter*(nT+nTempMagn),[0.0_wp],0,MRT1,1)
+        Call dcopy_(3*nCenter*(nT+nTempMagn),[0.0_wp],0,MLT1,1)
+        Call dcopy_(3*nCenter*(nT+nTempMagn),[0.0_wp],0,SRT1,1)
+        Call dcopy_(3*nCenter*(nT+nTempMagn),[0.0_wp],0,SLT1,1)
+        Call dcopy_(3*nCenter*(nT+nTempMagn),[0.0_wp],0,MRT2,1)
+        Call dcopy_(3*nCenter*(nT+nTempMagn),[0.0_wp],0,MLT2,1)
+        Call dcopy_(3*nCenter*(nT+nTempMagn),[0.0_wp],0,SRT2,1)
+        Call dcopy_(3*nCenter*(nT+nTempMagn),[0.0_wp],0,SLT2,1)
         mem_local=mem_local+12*3*nCenter*(nT+nTempMagn)*RtoB
       End If
 
@@ -434,61 +466,61 @@ cccc-------------------------------------------------------cccc
 
 c ///  opening the loop over different directions of the magnetic field
       Do iM=1,nDirX
-        Call dcopy_(nM,0.0_wp,0,WEX0,1)
-        Call dcopy_(nM,0.0_wp,0,WEX1,1)
-        Call dcopy_(nM,0.0_wp,0,WEX2,1)
-        Call dcopy_((nT+nTempMagn),0.0_wp,0,ZEX0,1)
-        Call dcopy_((nT+nTempMagn),0.0_wp,0,ZEX1,1)
-        Call dcopy_((nT+nTempMagn),0.0_wp,0,ZEX2,1)
-        Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,SEX0,1)
-        Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,SEX1,1)
-        Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,SEX2,1)
-        Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,MEX0,1)
-        Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,MEX1,1)
-        Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,MEX2,1)
-        Call dcopy_(nneq*nLoc,0.0_wp,0,WL0,1)
-        Call dcopy_(nneq*nLoc,0.0_wp,0,WL1,1)
-        Call dcopy_(nneq*nLoc,0.0_wp,0,WL2,1)
-        Call dcopy_(nneq*nLoc,0.0_wp,0,WR0,1)
-        Call dcopy_(nneq*nLoc,0.0_wp,0,WR1,1)
-        Call dcopy_(nneq*nLoc,0.0_wp,0,WR2,1)
-        Call dcopy_(nneq*(nT+nTempMagn),0.0_wp,0,ZL0,1)
-        Call dcopy_(nneq*(nT+nTempMagn),0.0_wp,0,ZR0,1)
-        Call dcopy_(nneq*(nT+nTempMagn),0.0_wp,0,ZL1,1)
-        Call dcopy_(nneq*(nT+nTempMagn),0.0_wp,0,ZR1,1)
-        Call dcopy_(nneq*(nT+nTempMagn),0.0_wp,0,ZL2,1)
-        Call dcopy_(nneq*(nT+nTempMagn),0.0_wp,0,ZR2,1)
-        Call dcopy_(3*nneq*(nT+nTempMagn),0.0_wp,0,SL0,1)
-        Call dcopy_(3*nneq*(nT+nTempMagn),0.0_wp,0,SR0,1)
-        Call dcopy_(3*nneq*(nT+nTempMagn),0.0_wp,0,SL1,1)
-        Call dcopy_(3*nneq*(nT+nTempMagn),0.0_wp,0,SR1,1)
-        Call dcopy_(3*nneq*(nT+nTempMagn),0.0_wp,0,SL2,1)
-        Call dcopy_(3*nneq*(nT+nTempMagn),0.0_wp,0,SR2,1)
-        Call dcopy_(3*nneq*(nT+nTempMagn),0.0_wp,0,ML0,1)
-        Call dcopy_(3*nneq*(nT+nTempMagn),0.0_wp,0,MR0,1)
-        Call dcopy_(3*nneq*(nT+nTempMagn),0.0_wp,0,ML1,1)
-        Call dcopy_(3*nneq*(nT+nTempMagn),0.0_wp,0,MR1,1)
-        Call dcopy_(3*nneq*(nT+nTempMagn),0.0_wp,0,ML2,1)
-        Call dcopy_(3*nneq*(nT+nTempMagn),0.0_wp,0,MR2,1)
+        Call dcopy_(nM,[0.0_wp],0,WEX0,1)
+        Call dcopy_(nM,[0.0_wp],0,WEX1,1)
+        Call dcopy_(nM,[0.0_wp],0,WEX2,1)
+        Call dcopy_((nT+nTempMagn),[0.0_wp],0,ZEX0,1)
+        Call dcopy_((nT+nTempMagn),[0.0_wp],0,ZEX1,1)
+        Call dcopy_((nT+nTempMagn),[0.0_wp],0,ZEX2,1)
+        Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,SEX0,1)
+        Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,SEX1,1)
+        Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,SEX2,1)
+        Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,MEX0,1)
+        Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,MEX1,1)
+        Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,MEX2,1)
+        Call dcopy_(nneq*nLoc,[0.0_wp],0,WL0,1)
+        Call dcopy_(nneq*nLoc,[0.0_wp],0,WL1,1)
+        Call dcopy_(nneq*nLoc,[0.0_wp],0,WL2,1)
+        Call dcopy_(nneq*nLoc,[0.0_wp],0,WR0,1)
+        Call dcopy_(nneq*nLoc,[0.0_wp],0,WR1,1)
+        Call dcopy_(nneq*nLoc,[0.0_wp],0,WR2,1)
+        Call dcopy_(nneq*(nT+nTempMagn),[0.0_wp],0,ZL0,1)
+        Call dcopy_(nneq*(nT+nTempMagn),[0.0_wp],0,ZR0,1)
+        Call dcopy_(nneq*(nT+nTempMagn),[0.0_wp],0,ZL1,1)
+        Call dcopy_(nneq*(nT+nTempMagn),[0.0_wp],0,ZR1,1)
+        Call dcopy_(nneq*(nT+nTempMagn),[0.0_wp],0,ZL2,1)
+        Call dcopy_(nneq*(nT+nTempMagn),[0.0_wp],0,ZR2,1)
+        Call dcopy_(3*nneq*(nT+nTempMagn),[0.0_wp],0,SL0,1)
+        Call dcopy_(3*nneq*(nT+nTempMagn),[0.0_wp],0,SR0,1)
+        Call dcopy_(3*nneq*(nT+nTempMagn),[0.0_wp],0,SL1,1)
+        Call dcopy_(3*nneq*(nT+nTempMagn),[0.0_wp],0,SR1,1)
+        Call dcopy_(3*nneq*(nT+nTempMagn),[0.0_wp],0,SL2,1)
+        Call dcopy_(3*nneq*(nT+nTempMagn),[0.0_wp],0,SR2,1)
+        Call dcopy_(3*nneq*(nT+nTempMagn),[0.0_wp],0,ML0,1)
+        Call dcopy_(3*nneq*(nT+nTempMagn),[0.0_wp],0,MR0,1)
+        Call dcopy_(3*nneq*(nT+nTempMagn),[0.0_wp],0,ML1,1)
+        Call dcopy_(3*nneq*(nT+nTempMagn),[0.0_wp],0,MR1,1)
+        Call dcopy_(3*nneq*(nT+nTempMagn),[0.0_wp],0,ML2,1)
+        Call dcopy_(3*nneq*(nT+nTempMagn),[0.0_wp],0,MR2,1)
 
-        Call dcopy_(nCenter*(nT+nTempMagn),0.0_wp,0,ZRT0,1)
-        Call dcopy_(nCenter*(nT+nTempMagn),0.0_wp,0,ZLT0,1)
-        Call dcopy_(nCenter*(nT+nTempMagn),0.0_wp,0,ZRT1,1)
-        Call dcopy_(nCenter*(nT+nTempMagn),0.0_wp,0,ZLT1,1)
-        Call dcopy_(nCenter*(nT+nTempMagn),0.0_wp,0,ZRT2,1)
-        Call dcopy_(nCenter*(nT+nTempMagn),0.0_wp,0,ZLT2,1)
-        Call dcopy_(3*nCenter*(nT+nTempMagn),0.0_wp,0,MRT0,1)
-        Call dcopy_(3*nCenter*(nT+nTempMagn),0.0_wp,0,MLT0,1)
-        Call dcopy_(3*nCenter*(nT+nTempMagn),0.0_wp,0,SRT0,1)
-        Call dcopy_(3*nCenter*(nT+nTempMagn),0.0_wp,0,SLT0,1)
-        Call dcopy_(3*nCenter*(nT+nTempMagn),0.0_wp,0,MRT1,1)
-        Call dcopy_(3*nCenter*(nT+nTempMagn),0.0_wp,0,MLT1,1)
-        Call dcopy_(3*nCenter*(nT+nTempMagn),0.0_wp,0,SRT1,1)
-        Call dcopy_(3*nCenter*(nT+nTempMagn),0.0_wp,0,SLT1,1)
-        Call dcopy_(3*nCenter*(nT+nTempMagn),0.0_wp,0,MRT2,1)
-        Call dcopy_(3*nCenter*(nT+nTempMagn),0.0_wp,0,MLT2,1)
-        Call dcopy_(3*nCenter*(nT+nTempMagn),0.0_wp,0,SRT2,1)
-        Call dcopy_(3*nCenter*(nT+nTempMagn),0.0_wp,0,SLT2,1)
+        Call dcopy_(nCenter*(nT+nTempMagn),[0.0_wp],0,ZRT0,1)
+        Call dcopy_(nCenter*(nT+nTempMagn),[0.0_wp],0,ZLT0,1)
+        Call dcopy_(nCenter*(nT+nTempMagn),[0.0_wp],0,ZRT1,1)
+        Call dcopy_(nCenter*(nT+nTempMagn),[0.0_wp],0,ZLT1,1)
+        Call dcopy_(nCenter*(nT+nTempMagn),[0.0_wp],0,ZRT2,1)
+        Call dcopy_(nCenter*(nT+nTempMagn),[0.0_wp],0,ZLT2,1)
+        Call dcopy_(3*nCenter*(nT+nTempMagn),[0.0_wp],0,MRT0,1)
+        Call dcopy_(3*nCenter*(nT+nTempMagn),[0.0_wp],0,MLT0,1)
+        Call dcopy_(3*nCenter*(nT+nTempMagn),[0.0_wp],0,SRT0,1)
+        Call dcopy_(3*nCenter*(nT+nTempMagn),[0.0_wp],0,SLT0,1)
+        Call dcopy_(3*nCenter*(nT+nTempMagn),[0.0_wp],0,MRT1,1)
+        Call dcopy_(3*nCenter*(nT+nTempMagn),[0.0_wp],0,MLT1,1)
+        Call dcopy_(3*nCenter*(nT+nTempMagn),[0.0_wp],0,SRT1,1)
+        Call dcopy_(3*nCenter*(nT+nTempMagn),[0.0_wp],0,SLT1,1)
+        Call dcopy_(3*nCenter*(nT+nTempMagn),[0.0_wp],0,MRT2,1)
+        Call dcopy_(3*nCenter*(nT+nTempMagn),[0.0_wp],0,MLT2,1)
+        Call dcopy_(3*nCenter*(nT+nTempMagn),[0.0_wp],0,SRT2,1)
+        Call dcopy_(3*nCenter*(nT+nTempMagn),[0.0_wp],0,SLT2,1)
 c exchange magnetization:
          Call MAGN( EXCH, NM, dHX(iM), dHY(iM), dHZ(iM),
      &              XField, W, zJ, THRS,
@@ -533,20 +565,20 @@ c exchange magnetization:
         End Do
       End If !DBG
 
-       Call Add_Info('dM/dH   Mex0',dnrm2_(3*nTempTotal,Mex0,1),1,8)
-       Call Add_Info('dM/dH   Sex0',dnrm2_(3*nTempTotal,Sex0,1),1,8)
-       Call Add_Info('dM/dH   Zex0',dnrm2_(  nTempTotal,Zex0,1),1,8)
-       Call Add_Info('dM/dH   Wex0',dnrm2_(          nM,Wex0,1),1,8)
+       Call Add_Info('dM/dH   Mex0',[dnrm2_(3*nTempTotal,Mex0,1)],1,8)
+       Call Add_Info('dM/dH   Sex0',[dnrm2_(3*nTempTotal,Sex0,1)],1,8)
+       Call Add_Info('dM/dH   Zex0',[dnrm2_(  nTempTotal,Zex0,1)],1,8)
+       Call Add_Info('dM/dH   Wex0',[dnrm2_(          nM,Wex0,1)],1,8)
 
-       Call Add_Info('dM/dH   Mex1',dnrm2_(3*nTempTotal,Mex1,1),1,8)
-       Call Add_Info('dM/dH   Sex1',dnrm2_(3*nTempTotal,Sex1,1),1,8)
-       Call Add_Info('dM/dH   Zex1',dnrm2_(  nTempTotal,Zex1,1),1,8)
-       Call Add_Info('dM/dH   Wex1',dnrm2_(          nM,Wex1,1),1,8)
+       Call Add_Info('dM/dH   Mex1',[dnrm2_(3*nTempTotal,Mex1,1)],1,8)
+       Call Add_Info('dM/dH   Sex1',[dnrm2_(3*nTempTotal,Sex1,1)],1,8)
+       Call Add_Info('dM/dH   Zex1',[dnrm2_(  nTempTotal,Zex1,1)],1,8)
+       Call Add_Info('dM/dH   Wex1',[dnrm2_(          nM,Wex1,1)],1,8)
 
-       Call Add_Info('dM/dH   Mex2',dnrm2_(3*nTempTotal,Mex2,1),1,8)
-       Call Add_Info('dM/dH   Sex2',dnrm2_(3*nTempTotal,Sex2,1),1,8)
-       Call Add_Info('dM/dH   Zex2',dnrm2_(  nTempTotal,Zex2,1),1,8)
-       Call Add_Info('dM/dH   Wex2',dnrm2_(          nM,Wex2,1),1,8)
+       Call Add_Info('dM/dH   Mex2',[dnrm2_(3*nTempTotal,Mex2,1)],1,8)
+       Call Add_Info('dM/dH   Sex2',[dnrm2_(3*nTempTotal,Sex2,1)],1,8)
+       Call Add_Info('dM/dH   Zex2',[dnrm2_(  nTempTotal,Zex2,1)],1,8)
+       Call Add_Info('dM/dH   Wex2',[dnrm2_(          nM,Wex2,1)],1,8)
 
 c compute local magnetizations:
          If(m_accurate) Then
@@ -599,7 +631,8 @@ c only local "exchange states":
      &                       WR0(i,1:Nexch(i)),
      &                       ZR0(i,1:(nT+nTempMagn)),
      &                       SR0(i,1:3,1:(nT+nTempMagn)),
-     &                       MR0(i,1:3,1:(nT+nTempMagn)), m_paranoid )
+     &                       MR0(i,1:3,1:(nT+nTempMagn)),
+     &                       m_paranoid, DBG )
 
                   Call MAGN( NEXCH(i), NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),
      &                       XField_1,
@@ -640,35 +673,35 @@ c only local "exchange states":
 
        ibuf1=nTempTotal*nneq
        ibuf3=3*ibuf1
-       Call Add_Info('dM/dH    ML0',dnrm2_(  ibuf3,ML0,1),1,8)
-       Call Add_Info('dM/dH    SL0',dnrm2_(  ibuf3,SL0,1),1,8)
-       Call Add_Info('dM/dH    ZL0',dnrm2_(  ibuf1,ZL0,1),1,8)
-       Call Add_Info('dM/dH    WL0',dnrm2_(nM*nneq,WL0,1),1,8)
+       Call Add_Info('dM/dH    ML0',[dnrm2_(  ibuf3,ML0,1)],1,8)
+       Call Add_Info('dM/dH    SL0',[dnrm2_(  ibuf3,SL0,1)],1,8)
+       Call Add_Info('dM/dH    ZL0',[dnrm2_(  ibuf1,ZL0,1)],1,8)
+       Call Add_Info('dM/dH    WL0',[dnrm2_(nM*nneq,WL0,1)],1,8)
 
-       Call Add_Info('dM/dH    MR0',dnrm2_(  ibuf3,MR0,1),1,8)
-       Call Add_Info('dM/dH    SR0',dnrm2_(  ibuf3,SR0,1),1,8)
-       Call Add_Info('dM/dH    ZR0',dnrm2_(  ibuf1,ZR0,1),1,8)
-       Call Add_Info('dM/dH    WR0',dnrm2_(nM*nneq,WR0,1),1,8)
+       Call Add_Info('dM/dH    MR0',[dnrm2_(  ibuf3,MR0,1)],1,8)
+       Call Add_Info('dM/dH    SR0',[dnrm2_(  ibuf3,SR0,1)],1,8)
+       Call Add_Info('dM/dH    ZR0',[dnrm2_(  ibuf1,ZR0,1)],1,8)
+       Call Add_Info('dM/dH    WR0',[dnrm2_(nM*nneq,WR0,1)],1,8)
 
-       Call Add_Info('dM/dH    ML1',dnrm2_(  ibuf3,ML1,1),1,8)
-       Call Add_Info('dM/dH    SL1',dnrm2_(  ibuf3,SL1,1),1,8)
-       Call Add_Info('dM/dH    ZL1',dnrm2_(  ibuf1,ZL1,1),1,8)
-       Call Add_Info('dM/dH    WL1',dnrm2_(nM*nneq,WL1,1),1,8)
+       Call Add_Info('dM/dH    ML1',[dnrm2_(  ibuf3,ML1,1)],1,8)
+       Call Add_Info('dM/dH    SL1',[dnrm2_(  ibuf3,SL1,1)],1,8)
+       Call Add_Info('dM/dH    ZL1',[dnrm2_(  ibuf1,ZL1,1)],1,8)
+       Call Add_Info('dM/dH    WL1',[dnrm2_(nM*nneq,WL1,1)],1,8)
 
-       Call Add_Info('dM/dH    MR1',dnrm2_(  ibuf3,MR1,1),1,8)
-       Call Add_Info('dM/dH    SR1',dnrm2_(  ibuf3,SR1,1),1,8)
-       Call Add_Info('dM/dH    ZR1',dnrm2_(  ibuf1,ZR1,1),1,8)
-       Call Add_Info('dM/dH    WR1',dnrm2_(nM*nneq,WR1,1),1,8)
+       Call Add_Info('dM/dH    MR1',[dnrm2_(  ibuf3,MR1,1)],1,8)
+       Call Add_Info('dM/dH    SR1',[dnrm2_(  ibuf3,SR1,1)],1,8)
+       Call Add_Info('dM/dH    ZR1',[dnrm2_(  ibuf1,ZR1,1)],1,8)
+       Call Add_Info('dM/dH    WR1',[dnrm2_(nM*nneq,WR1,1)],1,8)
 
-       Call Add_Info('dM/dH    ML2',dnrm2_(  ibuf3,ML2,1),1,8)
-       Call Add_Info('dM/dH    SL2',dnrm2_(  ibuf3,SL2,1),1,8)
-       Call Add_Info('dM/dH    ZL2',dnrm2_(  ibuf1,ZL2,1),1,8)
-       Call Add_Info('dM/dH    WL2',dnrm2_(nM*nneq,WL2,1),1,8)
+       Call Add_Info('dM/dH    ML2',[dnrm2_(  ibuf3,ML2,1)],1,8)
+       Call Add_Info('dM/dH    SL2',[dnrm2_(  ibuf3,SL2,1)],1,8)
+       Call Add_Info('dM/dH    ZL2',[dnrm2_(  ibuf1,ZL2,1)],1,8)
+       Call Add_Info('dM/dH    WL2',[dnrm2_(nM*nneq,WL2,1)],1,8)
 
-       Call Add_Info('dM/dH    MR2',dnrm2_(  ibuf3,MR2,1),1,8)
-       Call Add_Info('dM/dH    SR2',dnrm2_(  ibuf3,SR2,1),1,8)
-       Call Add_Info('dM/dH    ZR2',dnrm2_(  ibuf1,ZR2,1),1,8)
-       Call Add_Info('dM/dH    WR2',dnrm2_(nM*nneq,WR2,1),1,8)
+       Call Add_Info('dM/dH    MR2',[dnrm2_(  ibuf3,MR2,1)],1,8)
+       Call Add_Info('dM/dH    SR2',[dnrm2_(  ibuf3,SR2,1)],1,8)
+       Call Add_Info('dM/dH    ZR2',[dnrm2_(  ibuf1,ZR2,1)],1,8)
+       Call Add_Info('dM/dH    WR2',[dnrm2_(nM*nneq,WR2,1)],1,8)
 
 c expand the basis and rotate local vectors to the general
 c coordinate system:
@@ -714,20 +747,20 @@ c  note that  R_lg matrices have arbitrary determinant.
             End Do ! i, nneq
             ibuf=0
             ibuf=3*(nT+nTempMagn)*nCenter
-            Call Add_Info('dM/dH    MLT0',dnrm2_(ibuf,MLT0,1),1,8)
-            Call Add_Info('dM/dH    SLT0',dnrm2_(ibuf,SLT0,1),1,8)
-            Call Add_Info('dM/dH    MRT0',dnrm2_(ibuf,MRT0,1),1,8)
-            Call Add_Info('dM/dH    SRT0',dnrm2_(ibuf,SRT0,1),1,8)
+            Call Add_Info('dM/dH    MLT0',[dnrm2_(ibuf,MLT0,1)],1,8)
+            Call Add_Info('dM/dH    SLT0',[dnrm2_(ibuf,SLT0,1)],1,8)
+            Call Add_Info('dM/dH    MRT0',[dnrm2_(ibuf,MRT0,1)],1,8)
+            Call Add_Info('dM/dH    SRT0',[dnrm2_(ibuf,SRT0,1)],1,8)
             !
-            Call Add_Info('dM/dH    MLT1',dnrm2_(ibuf,MLT1,1),1,8)
-            Call Add_Info('dM/dH    SLT1',dnrm2_(ibuf,SLT1,1),1,8)
-            Call Add_Info('dM/dH    MRT1',dnrm2_(ibuf,MRT1,1),1,8)
-            Call Add_Info('dM/dH    SRT1',dnrm2_(ibuf,SRT1,1),1,8)
+            Call Add_Info('dM/dH    MLT1',[dnrm2_(ibuf,MLT1,1)],1,8)
+            Call Add_Info('dM/dH    SLT1',[dnrm2_(ibuf,SLT1,1)],1,8)
+            Call Add_Info('dM/dH    MRT1',[dnrm2_(ibuf,MRT1,1)],1,8)
+            Call Add_Info('dM/dH    SRT1',[dnrm2_(ibuf,SRT1,1)],1,8)
             !
-            Call Add_Info('dM/dH    MLT2',dnrm2_(ibuf,MLT2,1),1,8)
-            Call Add_Info('dM/dH    SLT2',dnrm2_(ibuf,SLT2,1),1,8)
-            Call Add_Info('dM/dH    MRT2',dnrm2_(ibuf,MRT2,1),1,8)
-            Call Add_Info('dM/dH    SRT2',dnrm2_(ibuf,SRT2,1),1,8)
+            Call Add_Info('dM/dH    MLT2',[dnrm2_(ibuf,MLT2,1)],1,8)
+            Call Add_Info('dM/dH    SLT2',[dnrm2_(ibuf,SLT2,1)],1,8)
+            Call Add_Info('dM/dH    MRT2',[dnrm2_(ibuf,MRT2,1)],1,8)
+            Call Add_Info('dM/dH    SRT2',[dnrm2_(ibuf,SRT2,1)],1,8)
 c compute the total magnetizations according to the derived formulas:
             If(dbg) Write(6,*) 'check point MLT0'
             Do iT=1,nTempTotal

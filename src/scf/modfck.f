@@ -85,8 +85,8 @@
      &                  0.0d0,Aux1,nBas(iSym))
 *
 *---------- Put unit matrix to memory ascribed for overlap and compute 1 - S*D(f)
-            call dcopy_(nBas(iSym)**2,Zero,0,OvSq,1)
-            call dcopy_(nBas(iSym)   ,One ,0,OvSq,nBas(iSym) + 1)
+            call dcopy_(nBas(iSym)**2,[Zero],0,OvSq,1)
+            call dcopy_(nBas(iSym)   ,[One] ,0,OvSq,nBas(iSym) + 1)
             call daxpy_(nBas(iSym)**2,-One,Aux1,1,OvSq,1)
 *
 *---------- Square Fock matrix and store in memory ascribed for density

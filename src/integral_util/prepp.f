@@ -280,7 +280,7 @@ c       close (lgtoc)
          If ( Method.eq.'MCPDFT  ') nsa=4
 !AMS modification: add a fifth density slot
          Call GetMem('D0   ','Allo','Real',ipD0,nDens*nsa+nDens)
-         call dcopy_(nDens*nsa+nDens,0.0d0,0,Work(ipD0),1)
+         call dcopy_(nDens*nsa+nDens,[0.0d0],0,Work(ipD0),1)
          Call GetMem('DVar ','Allo','Real',ipDVar,nDens*nsa)
          if (.not.gamma_mrcisd) then
          Call Get_D1ao(ipD1ao,length)
@@ -340,13 +340,13 @@ c       close (lgtoc)
 
       If (iPrint.ge.99) Then
          RlxLbl='D1AO    '
-         Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipD0,Work)
+         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[ipD0],Work)
          RlxLbl='D1AO-Var'
-         Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipDVar,Work)
+         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[ipDVar],Work)
          RlxLbl='DSAO    '
-         Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipDS,Work)
+         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[ipDS],Work)
          RlxLbl='DSAO-Var'
-         Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipDSVar,Work)
+         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[ipDSVar],Work)
       End If
 
 *
@@ -564,7 +564,7 @@ c       close (lgtoc)
           call daxpy_(ndens,-1.0d0,Work(ipD0+2*ndens),1,
      &                                             Work(ipD0+1*ndens),1)
 !ANDREW - Generate new D5 piece:
-          call dcopy_(ndens,0.0d0,0,
+          call dcopy_(ndens,[0.0d0],0,
      &                                             Work(ipD0+4*ndens),1)
           call daxpy_(ndens,0.5d0,Work(ipD0+0*ndens),1,
      &                                             Work(ipD0+4*ndens),1)
@@ -661,7 +661,7 @@ c       close (lgtoc)
         iBas = nBas(iSym)
         iAsh = nAsh(iSym)
         iIsh = nIsh(iSym)
-        Call dCopy_(iBas*iBas,Zero,0,Work(ip1-1+iOff3),1)
+        Call dCopy_(iBas*iBas,[Zero],0,Work(ip1-1+iOff3),1)
         If ( iAsh.ne.0 ) then
           Call GetMem('Scr1','Allo','Real',iTmp1,iAsh*iAsh)
           Call GetMem('Scr2','Allo','Real',iTmp2,iAsh*iBas)

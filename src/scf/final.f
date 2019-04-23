@@ -110,6 +110,8 @@
       Integer nSSh(mxSym), nZero(mxSym)
 #endif
       Integer nFldP
+#include "interfaces_scf.fh"
+      Dimension Dummy(1)
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -217,7 +219,7 @@ c
                Do iVirt = 1, nOrb(iSym)-nOcc(iSym,iD)
                   jVirt = 1 + nOcc(iSym,iD)*nOrb(iSym) + nOcc(iSym,iD) +
      &                    (iVirt-1)*nOrb(iSym)
-                  call dcopy_(nOrb(iSym)-nOcc(iSym,iD),0.0D0,0,
+                  call dcopy_(nOrb(iSym)-nOcc(iSym,iD),[Zero],0,
      &                                             Scrt1(jVirt,iD),1)
                End Do
 *----------    Now project back to the SO basis
@@ -263,7 +265,7 @@ c
          If (KSDFT.ne.'SCF') Method='KS-DFT  '
          Call Put_cArray('Relax Method',Method,8)
 *        Call Put_Energy(EneV)
-         Call Store_Energies(1,EneV,1)
+         Call Store_Energies(1,[EneV],1)
          Call Put_dScalar('SCF energy',EneV)
 c         If (iUHF.eq.1) Call Put_dScalar('Ener_ab',EneV_ab)
          Call Put_iArray('nIsh',nOcc(1,1),nSym)
@@ -334,7 +336,7 @@ c         If (iUHF.eq.1) Call Put_dScalar('Ener_ab',EneV_ab)
 #ifdef _FDE_
       ! Embedding
       if (embPot.and.(embWriteEsp)) then
-         Call embPotOutput(nAtoms,ip_of_Work(Dens))
+         Call embPotOutput(nAtoms,ip_of_Work(Dens(1,1,1)))
       end if
 #endif
 *

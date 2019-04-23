@@ -21,7 +21,7 @@
 ************************************************************************
 *                                                                      *
 *
-      Call ICopy((nMax+1)*nx*ny*nz,0,0,iTab,1)
+      Call ICopy((nMax+1)*nx*ny*nz,[0],0,iTab,1)
 *
       Do iAtom = 1, nAtoms
 *

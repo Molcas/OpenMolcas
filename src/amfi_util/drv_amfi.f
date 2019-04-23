@@ -13,7 +13,7 @@
       use iSD_data
       Implicit Real*8 (a-h,o-z)
       External Rsv_Tsk
-#include "itmax.fh"
+#include "angtp.fh"
 #include "info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
@@ -59,7 +59,7 @@
 *     Will just store the unique elements, i.e. low triangular blocks
 *     and lower triangular elements in the diagonal blocks.
 *
-      Call ICopy(nComp,-1,0,ip,1)
+      Call ICopy(nComp,[-1],0,ip,1)
       LenTot=0
       Do iComp = 1, nComp
          ip(iComp)=1+LenTot
@@ -67,7 +67,7 @@
          LenTot=LenTot+LenInt+4
       End Do
       Call mma_allocate(SOInt,LenTot,label='SOInt')
-      Call DCopy_(LenTot,Zero,0,SOInt,1)
+      Call DCopy_(LenTot,[Zero],0,SOInt,1)
 *
 *---- Generate list of shell information
 *

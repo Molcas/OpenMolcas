@@ -37,7 +37,7 @@
 * In case anyone would wonder: basis set path fixed to 100 char max,
 * (but no problem in increasing this later on) JR 2005
       Character*256 BasLoc
-#include "itmax.fh"
+#include "angtp.fh"
       Character*1 kAng(0:iTabMx),Str16*16, FileName*256, TmpString*256
       Integer StrnLn
       External StrnLn

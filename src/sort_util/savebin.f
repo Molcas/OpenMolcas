@@ -191,10 +191,10 @@ C     Call QEnter('Savebin')
          iDaTwo=mDaTwo
          Zero=0.0d0
 *
-         Call ICopy(lStRec,0,0,iScr,1)
+         Call ICopy(lStRec,[0],0,iScr,1)
          Call iDAFILE(LuTmp,iOptIO,iScr,(lStRec/idiv),mDaTmp)
 *
-         call dcopy_(lStRec,Zero,0,Scr,1)
+         call dcopy_(lStRec,[Zero],0,Scr,1)
          Call dDAFILE(LuTwo,iOptIO,Scr,lStRec,mDaTwo)
 *
          iDIBin(2,iBin)=iDaTmp

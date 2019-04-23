@@ -11,11 +11,11 @@
 * Copyright (C) 1986, Per E. M. Siegbahn                               *
 *               1986, Margareta R. A. Blomberg                         *
 ************************************************************************
-      INTEGER FUNCTION JSUNP(INTSYM,L)
+      INTEGER FUNCTION JSUNP_CPF(INTSYM,L)
       DIMENSION INTSYM(*)
 
       INTW=INTSYM((L+9)/10)
       IPOW=2**(27-3*MOD(L-1,10))
-      JSUNP=1+MOD(INTW/IPOW,8)
+      JSUNP_CPF=1+MOD(INTW/IPOW,8)
       RETURN
       END

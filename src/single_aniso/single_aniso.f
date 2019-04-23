@@ -167,6 +167,7 @@ c      Real(kind=wp) :: F, Fx,Fy,Fz, AT, Ax,Ay,Az, AF, dnrm, dE
       Logical :: DoPlot
       Logical :: DBG
       Integer :: l
+      Integer                   :: nss2,nstate2
 
       Call qEnter('SA_main1')
       DBG=.false.
@@ -197,23 +198,23 @@ c---------------------------------------------------------------------
       If(nstate>0) Then
          ! spin free energies
          Call mma_allocate(esfs,nstate,'esfs')
-         Call dcopy_(nstate,0.0_wp,0,ESFS,1)
+         Call dcopy_(nstate,[0.0_wp],0,ESFS,1)
          mem=mem+nstate*RtoB
          ! angular momentum
          Call mma_allocate(ANGMOM,3,nstate,nstate,'angmom')
-         Call dcopy_(3*nstate*nstate,0.0_wp,0,ANGMOM,1)
+         Call dcopy_(3*nstate*nstate,[0.0_wp],0,ANGMOM,1)
          mem=mem+3*nstate*nstate*RtoB
          ! electric dipole moment
          Call mma_allocate( EDMOM,3,nstate,nstate,'edmom')
-         Call dcopy_(3*nstate*nstate,0.0_wp,0, EDMOM,1)
+         Call dcopy_(3*nstate*nstate,[0.0_wp],0, EDMOM,1)
          mem=mem+3*nstate*nstate*RtoB
          ! amfi integrals
          Call mma_allocate( AMFI,3,nstate,nstate,'amfi')
-         Call dcopy_(3*nstate*nstate,0.0_wp,0, AMFI,1)
+         Call dcopy_(3*nstate*nstate,[0.0_wp],0, AMFI,1)
          mem=mem+3*nstate*nstate*RtoB
          ! multiplicity of each state
          Call mma_allocate(multiplicity,nstate,'multiplicity')
-         Call icopy(nstate,0,0,multiplicity,1)
+         Call icopy(nstate,[0],0,multiplicity,1)
          mem=mem+nstate*ItoB
          ! allocated memory counter
          If(dbg) Write(6,'(A,I16)') 'mem 1 =',mem
@@ -222,31 +223,31 @@ c---------------------------------------------------------------------
       If(nss>0) Then
          ! spin orbit energies
          Call mma_allocate(eso,nss,'eso')
-         Call dcopy_(nss,0.0_wp,0,eso,1)
+         Call dcopy_(nss,[0.0_wp],0,eso,1)
          mem=mem+nss*RtoB
          ! spin orbit eigenstates
          Call mma_allocate(U,nss,nss,'U')
-         Call zcopy_(nss*nss,(0.0_wp,0.0_wp),0,U,1)
+         Call zcopy_(nss*nss,[(0.0_wp,0.0_wp)],0,U,1)
          mem=mem+nss*nss*CtoB
          ! spin orbit hamiltonian
          Call mma_allocate(HSO,nss,nss,'HSO')
-         Call zcopy_(nss*nss,(0.0_wp,0.0_wp),0,HSO,1)
+         Call zcopy_(nss*nss,[(0.0_wp,0.0_wp)],0,HSO,1)
          mem=mem+nss*nss*CtoB
          ! magnetic moment
          Call mma_allocate(MM,3,nss,nss,'MM')
-         Call zcopy_(3*nss*nss,(0.0_wp,0.0_wp),0,MM,1)
+         Call zcopy_(3*nss*nss,[(0.0_wp,0.0_wp)],0,MM,1)
          mem=mem+3*nss*nss*CtoB
          ! spin moment
          Call mma_allocate(MS,3,nss,nss,'MS')
-         Call zcopy_(3*nss*nss,(0.0_wp,0.0_wp),0,MS,1)
+         Call zcopy_(3*nss*nss,[(0.0_wp,0.0_wp)],0,MS,1)
          mem=mem+3*nss*nss*CtoB
          ! orbital mooment
          Call mma_allocate(ML,3,nss,nss,'ML')
-         Call zcopy_(3*nss*nss,(0.0_wp,0.0_wp),0,ML,1)
+         Call zcopy_(3*nss*nss,[(0.0_wp,0.0_wp)],0,ML,1)
          mem=mem+3*nss*nss*CtoB
          ! electric dipole moment
          Call mma_allocate(DM,3,nss,nss,'DM')
-         Call zcopy_(3*nss*nss,(0.0_wp,0.0_wp),0,DM,1)
+         Call zcopy_(3*nss*nss,[(0.0_wp,0.0_wp)],0,DM,1)
          mem=mem+3*nss*nss*CtoB
          ! allocated memory counter
          If(dbg) Write(6,'(A,I16)') 'mem 2 =',mem
@@ -255,15 +256,15 @@ c---------------------------------------------------------------------
       If( (nH>0).and.(nTempMagn>0) ) Then
          ! experimental magnetic field points
          Call mma_allocate(Hexp,nH,'Hexp')
-         Call dcopy_(nH,0.0_wp,0,Hexp,1)
+         Call dcopy_(nH,[0.0_wp],0,Hexp,1)
          mem=mem+nH*RtoB
          ! experiemental magnetization
          Call mma_allocate(magn_exp,nH,nTempMagn,'magn_exp')
-         Call dcopy_(nH*nTempMagn,0.0_wp,0,magn_exp,1)
+         Call dcopy_(nH*nTempMagn,[0.0_wp],0,magn_exp,1)
          mem=mem+nH*nTempMagn*RtoB
          ! temperature points for magnetization
          Call mma_allocate(TempMagn,nTempMagn,'TempMagn')
-         Call dcopy_(nTempMagn,0.0_wp,0,TempMagn,1)
+         Call dcopy_(nTempMagn,[0.0_wp],0,TempMagn,1)
          mem=mem+nTempMagn*RtoB
          ! allocated memory counter
          If(dbg) Write(6,'(A,I16)') 'mem 3 =',mem
@@ -272,15 +273,15 @@ c---------------------------------------------------------------------
       If(nMult>0) Then
          ! dimensions of pseudospins
          Call mma_allocate(ndim,nMult,'ndim')
-         Call icopy(nMult,0,0,ndim,1)
+         Call icopy(nMult,[0],0,ndim,1)
          mem=mem+nMult*ItoB
          ! temperature points for magnetization
          Call mma_allocate(gtens,nMult,3,'gtens')
-         Call dcopy_(3*nMult,0.0_wp,0,gtens,1)
+         Call dcopy_(3*nMult,[0.0_wp],0,gtens,1)
          mem=mem+3*nMult*RtoB
          ! temperature points for magnetization
          Call mma_allocate(maxes,nMult,3,3,'maxes')
-         Call dcopy_(3*3*nMult,0.0_wp,0,maxes,1)
+         Call dcopy_(3*3*nMult,[0.0_wp],0,maxes,1)
          mem=mem+3*3*nMult*RtoB
          ! allocated memory counter
          If(dbg) Write(6,'(A,I16)') 'mem 4 =',mem
@@ -288,13 +289,13 @@ c---------------------------------------------------------------------
 
       If((nT+nTempMagn)>0) Then
          Call mma_allocate(T,(nT+nTempMagn),'Temperature')
-         Call dcopy_((nT+nTempMagn),0.0_wp,0,T,1)
+         Call dcopy_((nT+nTempMagn),[0.0_wp],0,T,1)
          mem=mem+(nT+nTempMagn)*RtoB
          Call mma_allocate(XTexp,(nT+nTempMagn),'XTexp')
-         Call dcopy_((nT+nTempMagn),0.0_wp,0,XTexp,1)
+         Call dcopy_((nT+nTempMagn),[0.0_wp],0,XTexp,1)
          mem=mem+(nT+nTempMagn)*RtoB
          Call mma_allocate(XT_no_field,(nT+nTempMagn),'XT_no_field')
-         Call dcopy_((nT+nTempMagn),0.0_wp,0,XT_no_field,1)
+         Call dcopy_((nT+nTempMagn),[0.0_wp],0,XT_no_field,1)
          mem=mem+(nT+nTempMagn)*RtoB
          ! allocated memory counter
          If(dbg) Write(6,'(A,I16)') 'mem 5 =',mem
@@ -303,11 +304,11 @@ c---------------------------------------------------------------------
       If(nDirZee>0) Then
          ! unit numbers for the files with Zeeman energies
          Call mma_allocate(LuZee,nDirZee,'LUZee')
-         Call icopy(nDirZee,0,0,LuZee,1)
+         Call icopy(nDirZee,[0],0,LuZee,1)
          mem=mem+nDirZee*ItoB
          ! directions for applied field for Zeeman states
          Call mma_allocate(dir_weight,nDirZee,3,'dir_weight')
-         Call dcopy_(3*nDirZee,0.0_wp,0,dir_weight,1)
+         Call dcopy_(3*nDirZee,[0.0_wp],0,dir_weight,1)
          mem=mem+3*nDirZee*RtoB
          ! allocated memory counter
          If(dbg) Write(6,'(A,I16)') 'mem 6 =',mem
@@ -319,9 +320,9 @@ c---------------------------------------------------------------------
          Call mma_allocate(dirY,nDir,'dirY')
          Call mma_allocate(dirZ,nDir,'dirZ')
          mem=mem+3*nDir*RtoB
-         Call dcopy_(nDir,0.0_wp,0,dirX,1)
-         Call dcopy_(nDir,0.0_wp,0,dirY,1)
-         Call dcopy_(nDir,0.0_wp,0,dirZ,1)
+         Call dcopy_(nDir,[0.0_wp],0,dirX,1)
+         Call dcopy_(nDir,[0.0_wp],0,dirY,1)
+         Call dcopy_(nDir,[0.0_wp],0,dirZ,1)
          ! allocated memory counter
          If(dbg) Write(6,'(A,I16)') 'mem 7 =',mem
       End If
@@ -329,11 +330,11 @@ c---------------------------------------------------------------------
       If(nT>0) Then
         ! T expeirimental given by user in the input
         Call mma_allocate(Texp,nT,'Texp')
-        Call dcopy_(nT,0.0_wp,0,Texp,1)
+        Call dcopy_(nT,[0.0_wp],0,Texp,1)
         mem=mem+nT*RtoB
         ! XT expeirimental given by user in the input
         Call mma_allocate(chit_exp,nT,'chit_exp')
-        Call dcopy_(nT,0.0_wp,0,chit_exp,1)
+        Call dcopy_(nT,[0.0_wp],0,chit_exp,1)
         mem=mem+nT*RtoB
          ! allocated memory counter
          If(dbg) Write(6,'(A,I16)') 'mem 8 =',mem
@@ -384,7 +385,9 @@ C  read the input
             IF(DBG) Write(6,*) 'SINGLE_ANISO2::  Enter '//
      &                         'read_formatted_aniso'
             IF(DBG) Write(6,*) 'SA:',input_file_name
-            Call read_formatted_aniso( input_file_name, nss, nstate,
+            nss2=nss
+            nstate2=nstate
+            Call read_formatted_aniso( input_file_name, nss2, nstate2,
      &                                 multiplicity, eso, esfs, U, MM,
      &                                 MS, ML, DM, ANGMOM, EDMOM )
             IF(DBG) Write(6,*) 'SINGLE_ANISO2::  Exit  '//
@@ -407,7 +410,9 @@ C  read the input
          Else If ( input_to_read .eq. 4 ) Then
             IF(DBG) Write(6,*) 'SA:',input_file_name
             ! get the information from formatted aniso.input file:
-            Call read_formatted_aniso_old( input_file_name, nss, nstate,
+            nss2=nss
+            nstate2=nstate
+            Call read_formatted_aniso_old( input_file_name,nss2,nstate2,
      &                                multiplicity, eso, MM, MS, ML )
          End If ! input_to_read
 

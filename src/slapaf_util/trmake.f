@@ -29,7 +29,7 @@
          Write (6,*) ' nDim=',nDim
       End If
 *
-      call dcopy_(6*3*nAtoms,Zero,0,TRVec,1)
+      call dcopy_(6*3*nAtoms,[Zero],0,TRVec,1)
       TransVar=iAnd(iSBS,2**7).eq. 2**7
       RotVar  =iAnd(iSBS,2**8).eq. 2**8
       nTR = 0
@@ -43,7 +43,7 @@
          iCmp=2**(i-1)
          If (SymDsp(iOper,nSym,iCmp)) Then
             nTR = nTR + 1
-            call dcopy_(nAtoms,One,0,TRVec(nTR,i),18)
+            call dcopy_(nAtoms,[One],0,TRVec(nTR,i),18)
          End If
       End Do
  100  Continue
@@ -110,7 +110,7 @@ C     Write (6,*) 'TrMake CM=',CM
          If(rii.gt.1.d-15) Then
            Call DScal_(3*nAtoms,One/Sqrt(rii),TRVec(i,1),6)
          Else
-           call dcopy_(3*nAtoms,Zero,0,TRVec(i,1),6)
+           call dcopy_(3*nAtoms,[Zero],0,TRVec(i,1),6)
          End If
       End Do
 *                                                                      *

@@ -25,6 +25,7 @@
       Integer nR_Eff(nNQ)
       Real*8 Alpha(2), rm(2)
       Logical Process
+      Dimension Dum(2,1)
 ************************************************************************
 *                                                                      *
 *     Statement functions                                              *
@@ -73,9 +74,9 @@ C     Write (6,*)
          mR=nR-1
          Call GetMem('Radial','Allo','Real',ip_Rx,2*mR)
          Call FZero(Work(ip_Rx),2*mR)
-         ip_iRx=ip_of_iWork(Work(ip_R_Quad(iNQ)))
+         ip_iRx=ip_of_iWork_d(Work(ip_R_Quad(iNQ)))
          iWork(ip_iRx)=ip_Rx
-         Call GenRadQuad_MHL(Work(ip_Rx),nR,nR_Eff(iNQ),Alpha)
+         Call GenRadQuad_MHL(Work(ip_Rx),nR,nR_Eff(iNQ),Alpha(1))
          Call Truncate_Grid(Work(ip_Rx),mR,nR_Eff(iNQ),Radius_Max)
          mR=nR_Eff(iNQ)
          Work(ip_R_Max(iNQ))=Work(ip_Rx-1+(mR-1)*2+1)
@@ -100,9 +101,10 @@ C     Write (6,*)
      &       iANr.eq.88    ) Alpha(1)=Seven
          mR=nR-1
          Call GetMem('Radial','Allo','Real',ip_Rx,2*mR)
-         ip_iRx=ip_of_iWork(Work(ip_R_Quad(iNQ)))
+         ip_iRx=ip_of_iWork_d(Work(ip_R_Quad(iNQ)))
          iWork(ip_iRx)=ip_Rx
-         Call GenRadQuad_MK(Work(ip_Rx),nR,nR_Eff(iNQ),rm,Alpha,iNQ)
+         Call GenRadQuad_MK(Work(ip_Rx),nR,nR_Eff(iNQ),rm(1),Alpha(1),
+     &                      iNQ)
          Call Truncate_Grid(Work(ip_Rx),mR,nR_Eff(iNQ),Radius_Max)
          mR=nR_Eff(iNQ)
          Work(ip_R_Max(iNQ))=Work(ip_Rx-1+(mR-1)*2+1)
@@ -118,9 +120,9 @@ C     Write (6,*)
          End If
          mR=nR-1
          Call GetMem('Radial','Allo','Real',ip_Rx,2*mR)
-         ip_iRx=ip_of_iWork(Work(ip_R_Quad(iNQ)))
+         ip_iRx=ip_of_iWork_d(Work(ip_R_Quad(iNQ)))
          iWork(ip_iRx)=ip_Rx
-         Call GenRadQuad_B(Work(ip_Rx),nR,nR_Eff(iNQ),Alpha)
+         Call GenRadQuad_B(Work(ip_Rx),nR,nR_Eff(iNQ),Alpha(1))
          Call Truncate_Grid(Work(ip_Rx),mR,nR_Eff(iNQ),Radius_Max)
          mR=nR_Eff(iNQ)
          Work(ip_R_Max(iNQ))=Work(ip_Rx-1+(mR-1)*2+1)
@@ -208,9 +210,9 @@ C     Write (6,*)
          End If
          mR=nR-1
          Call GetMem('Radial','Allo','Real',ip_Rx,2*mR)
-         ip_iRx=ip_of_iWork(Work(ip_R_Quad(iNQ)))
+         ip_iRx=ip_of_iWork_d(Work(ip_R_Quad(iNQ)))
          iWork(ip_iRx)=ip_Rx
-         Call GenRadQuad_TA(Work(ip_Rx),nR,nR_Eff(iNQ),Alpha)
+         Call GenRadQuad_TA(Work(ip_Rx),nR,nR_Eff(iNQ),Alpha(1))
          Call Truncate_Grid(Work(ip_Rx),mR,nR_Eff(iNQ),Radius_Max)
          mR=nR_Eff(iNQ)
          Work(ip_R_Max(iNQ))=Work(ip_Rx-1+(mR-1)*2+1)
@@ -225,15 +227,15 @@ C     Write (6,*)
 *
          nR=1     ! Dummy size on the first call.
          Process=.False.
-         Call GenRadQuad_PAM(iNQ,nR_Eff(iNQ),rm,Alpha,
+         Call GenRadQuad_PAM(iNQ,nR_Eff(iNQ),rm,Alpha(1),
      &                       Process,Dum,nR)
 *
          nR=nR_Eff(iNQ)
          Call GetMem('Radial','Allo','Real',ip_Rx,2*nR)
-         ip_iRx=ip_of_iWork(Work(ip_R_Quad(iNQ)))
+         ip_iRx=ip_of_iWork_d(Work(ip_R_Quad(iNQ)))
          iWork(ip_iRx)=ip_Rx
          Process=.True.
-         Call GenRadQuad_PAM(iNQ,nR_Eff(iNQ),rm,Alpha,
+         Call GenRadQuad_PAM(iNQ,nR_Eff(iNQ),rm,Alpha(1),
      &                       Process,Work(ip_Rx),nR)
          Work(ip_R_Max(iNQ))=Work(ip_Rx-1+(nR-1)*2+1)
 *                                                                      *

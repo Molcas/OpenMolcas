@@ -97,8 +97,8 @@
       nPUVX=iStack
 *
 *     Init Fock matrices
-      Call dCopy_(nTot1,Zero,0,FI,1)
-      Call dCopy_(nTot1,Zero,0,FA,1)
+      Call dCopy_(nTot1,[Zero],0,FI,1)
+      Call dCopy_(nTot1,[Zero],0,FA,1)
 *
 *     start transformation section
 *

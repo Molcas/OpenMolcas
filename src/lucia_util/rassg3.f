@@ -73,7 +73,7 @@ C     the 8th element of IBATS. This also computes the total size NSB.
 CSVC: the entire sigma array is zeroed here, because each process will
 C     zero only its own sigma blocks, and we need to do a global sum
 C     operations later to combine blocks before writing.
-      CALL DCOPY_(NSB,0.0D0,0,SB,1)
+      CALL DCOPY_(NSB,[0.0D0],0,SB,1)
 
       DO JBATS=1,NBATS
 *
@@ -116,7 +116,7 @@ C     if this block structure is used internally, I didn't optimize this.
         DO ISBLK = I1BATS(JBATS),I1BATS(JBATS)+ LBATS(JBATS)-1
           IOFF = IBATS(6,ISBLK)
           ILEN = IBATS(8,ISBLK)
-          CALL ITODS(ILEN,1,-1,LUHC)
+          CALL ITODS([ILEN],1,-1,LUHC)
 *MGD zero afterwards since it is easier
           I_AM_NOT_WANTED = 0
           DO I = 1, N_ELIMINATED_BATCHES
@@ -134,7 +134,7 @@ C     if this block structure is used internally, I didn't optimize this.
       CALL GETMEM('SBOFF','FREE','INTE',LSBOFF,NBATS)
       CALL GETMEM('SBSIZ','FREE','INTE',LSBSIZ,NBATS)
 
-      CALL ITODS(-1,1,-1,LUHC)
+      CALL ITODS([-1],1,-1,LUHC)
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Final S-vector on disc'
         CALL WRTVCD(SB,LUHC,1,-1)

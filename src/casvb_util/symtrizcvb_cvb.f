@@ -20,6 +20,7 @@
 
 #include "malloc_cvb.fh"
       dimension vecstr(nvb)
+      dimension dum(1)
 
       if(iconstruc.eq.0)then
         return

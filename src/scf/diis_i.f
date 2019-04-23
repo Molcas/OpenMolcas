@@ -340,7 +340,7 @@
       If (Sqrt(r2).gt.h) Then
          Write (6,*) 'Apply optimization with step restriction'
          Write (6,*) 'r,h =', Sqrt(r2),h
-         Call Quit()
+         Call Abend()
          Call Optim2(E_Pred,Eline,Equad,DD,CInter(1,1),kOptim,kOptim,
      &               n_min,n1,r2)
          EPred(iter+1)=E_Pred

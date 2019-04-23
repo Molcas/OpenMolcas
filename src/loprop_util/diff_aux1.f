@@ -15,6 +15,7 @@
 #include "warnings.fh"
 
       Character*10 Label,OneFile
+      Dimension nInt(1)
 
 *
 *-- Open One-electron file.
@@ -47,9 +48,9 @@
         iopt=0
         iSmLbl=0
         Call RdOne(irc,iopt,label,1,Work(idiot),iSmLbl)
-        Work(iTmp+(i-1)*3+0)=Work(idiot+nInt+0)
-        Work(iTmp+(i-1)*3+1)=Work(idiot+nInt+1)
-        Work(iTmp+(i-1)*3+2)=Work(idiot+nInt+2)
+        Work(iTmp+(i-1)*3+0)=Work(idiot+nInt(1)+0)
+        Work(iTmp+(i-1)*3+1)=Work(idiot+nInt(1)+1)
+        Work(iTmp+(i-1)*3+2)=Work(idiot+nInt(1)+2)
         nEPotPoints=nEPotPoints+1
       Enddo
 9901  Continue

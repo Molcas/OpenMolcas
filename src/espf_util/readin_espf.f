@@ -93,24 +93,24 @@
 10       Line = Get_Ln(IPotFl)
          ESPFKey = Line(1:10)
          If (ESPFKey.eq.'MLTORD    ') Then
-            Call Get_I(2,MltOrd_old,1)
+            Call Get_I1(2,MltOrd_old)
             ibla = 0
             Do ii = 0, MltOrd_old
                ibla = ibla + (ii+2)*(ii+1)/2
             End Do
             MltOrd_old = ibla
          Else If (ESPFKey.eq.'IRMAX     ') Then
-            Call Get_I(2,iRMax_old,1)
+            Call Get_I1(2,iRMax_old)
          Else If (ESPFKey.eq.'DELTAR    ') Then
-            Call Get_F(2,DeltaR_old,1)
+            Call Get_F1(2,DeltaR_old)
          Else If (ESPFKey.eq.'GRIDTYPE  ') Then
-            Call Get_I(2,iGrdTyp_old,1)
+            Call Get_I1(2,iGrdTyp_old)
          Else If (ESPFKey.eq.'MULTIPOLE ') Then
-            Call Get_I(2,nMult,1)
+            Call Get_I1(2,nMult)
             Call GetMem('ESPFMltp','ALLO','REAL',ipMltp,nMult)
             Do iMlt = 1, nMult, MltOrd_old
                Line = Get_Ln(IPotFl)
-               Call Get_I(1,iAt,1)
+               Call Get_I1(1,iAt)
                Call Get_F(2,Work(ipMltp+iMlt-1),MltOrd_old)
             End Do
          Else If (ESPFKey.eq.'TINKER    ') Then
@@ -167,7 +167,7 @@
 *>>>>>>>>>>>>> MULT <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1000 Continue
       Key = Get_Ln(LuSpool)
-      Call Get_I(1,MltOrd,1)
+      Call Get_I1(1,MltOrd)
       If (MltOrd.lt.0) Then
          Write(6,'(A)')' Error in espf/readin: MltOrd < 0!'
          Call Quit_OnUserError()
@@ -232,7 +232,7 @@
          Else
             Do iAt = 1, natom
                Key = Get_Ln(LuSpool)
-               Call Get_I(1,jAt,1)
+               Call Get_I1(1,jAt)
                If ((jAt.lt.1).or.(jAt.gt.natom)) Then
                   Write(6,'(A)')
      &               ' Error in espf/readin: atom out of range.'
@@ -294,19 +294,19 @@ ctmp
       Call Upcase(Key)
       If (Index(Key,'GEPOL').ne.0) Then
          iGrdTyp = 2
-         Call Get_I(2,iRMax,1)
+         Call Get_I1(2,iRMax)
          If(iRMax.le.0 .or. iRMax.gt.4) Then
            Write(6,'(A)')'Error in readin_espf: 1 <= iRMax <= 4 !!!'
            Call Quit_OnUserError()
          End If
       Else If(Index(Key,'PNT').ne.0) Then
          iGrdTyp = 1
-         Call Get_I(2,iRMax,1)
+         Call Get_I1(2,iRMax)
          If(iRMax.le.0) Then
            Write(6,'(A)')'Error in espf/readin: iRMax < 1 !!!'
            Call Quit_OnUserError()
          End If
-         Call Get_F(3,DeltaR,1)
+         Call Get_F1(3,DeltaR)
          If(DeltaR.le.Zero) Then
            Write(6,'(A)')'Error in espf/readin: DeltaR < 0.0 !!!'
            Call Quit_OnUserError()
@@ -357,13 +357,13 @@ ctmp
          Call Quit_OnUserError()
       End If
       Line = Get_Ln(LuSpool)
-      Call Get_I(1,MMIterMax,1)
+      Call Get_I1(1,MMIterMax)
       GoTo 999
 *
 *>>>>>>>>>>>>> MMCO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1007 Continue
       Line = Get_Ln(LuSpool)
-      Call Get_F(1,ConvF,1)
+      Call Get_F1(1,ConvF)
       ConvF = ConvF*AuToKjPerMolNm
       GoTo 999
 *
@@ -395,10 +395,10 @@ ctmp
          IPotFl = IsFreeUnit(IPotFl)
          Call Molcas_Open(IPotFl,'ESPF.EXTPOT')
          Line = Get_Ln(IPotFl)
-         Call Get_I(1,nChg,1)
+         Call Get_I1(1,nChg)
          Do iAt = 1, natom
             Line = Get_Ln(IPotFl)
-            Call Get_I(1,jAt,1)
+            Call Get_I1(1,jAt)
             Call Get_F(2,Work(ipExt+(jAt-1)*MxExtPotComp),MxExtPotComp)
          End Do
          Close(IPotFl)
@@ -426,12 +426,12 @@ ctmp
          Key = Get_Ln(LuSpool)
          UpKey = Key
          Call Upcase(UpKey)
-         Call Get_I(1,nChg,1)
+         Call Get_I1(1,nChg)
          If (nChg .lt. 0) Then
             Write(6,*) 'Error in readin_espf: nChg < 0!'
             Call Quit_OnUserError()
          Else If (nChg.gt.0) Then
-            Call Get_I(2,nOrd_ext,1)
+            Call Get_I1(2,nOrd_ext)
             iShift = 4+3*nOrd_ext
             Convert = (Index(UpKey,'ANGSTROM').ne.0)
             Call GetMem('PtChg','ALLO','REAL',ipPC,nChg*iShift)
@@ -455,7 +455,7 @@ ctmp
          Else
             Do iAt = 1, natom
                Key = Get_Ln(LuSpool)
-               Call Get_I(1,jAt,1)
+               Call Get_I1(1,jAt)
                If ((jAt.lt.1).or.(jAt.gt.natom)) Then
                   Write(6,'(A)')
      &               ' Error in espf/readin: atom out of range.'

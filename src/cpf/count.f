@@ -11,7 +11,7 @@
 * Copyright (C) 1986, Per E. M. Siegbahn                               *
 *               1986, Margareta R. A. Blomberg                         *
 ************************************************************************
-      SUBROUTINE COUNT(NINTGR,NSYM,NORB,MUL)
+      SUBROUTINE COUNT_CPF(NINTGR,NSYM,NORB,MUL)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION NORB(*),MUL(8,8)
 C     COUNT TWO-ELECTRON INTEGRALS

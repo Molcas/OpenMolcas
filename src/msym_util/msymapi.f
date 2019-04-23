@@ -11,11 +11,12 @@
 * Copyright (C) 2015, Marcus Johansson                                 *
 ************************************************************************
       Subroutine fmsym_create_context(ctx)
+      Implicit Real*8 (a-h,o-z)
       Integer ret
 *     INT cmsym_create_context(msym_context *pctx, int *err)
       call cmsym_create_context(ctx,ret)
       if (ret.ne.0) then
-         Call WarningMessage(2,'Faile to create symmetry context')
+         Call WarningMessage(2,'Failed to create symmetry context')
          Call Abend()
       end if
       Return
@@ -91,6 +92,7 @@
       End
 
       Subroutine fmsym_find_symmetry(ctx)
+      Implicit Real*8 (a-h,o-z)
       Character*6 PGName
       Integer ret
 *     INT cmsym_find_symmetry(msym_context *pctx, char pgname[6], int *err)
@@ -108,6 +110,7 @@
       End
 
       Subroutine fmsym_symmetrize_molecule(ctx)
+      Implicit Real*8 (a-h,o-z)
       Character*256 FN
       Integer ret
       Call PrgmTranslate('MSYMOUT',FN,lFN)
@@ -138,6 +141,7 @@
       Character(8), allocatable :: irrep_strings(:)
       Integer ret
       Dimension nBas(mxSym)
+      Dimension Dummy(1)
 
       Call Get_iScalar('nSym',nSym)
       Call Get_iArray('nBas',nBas,nSym)
@@ -175,7 +179,7 @@
       LuOrb=50
       LuOrb=isfreeunit(LuOrb)
       Call WrVec('MSYMAORB',LuOrb,'CO',nSym,nBas,nBas,Work(ipCAO),
-     &     Work(ipOcc),Dymmy,iWork(ipIrrInd),Title)
+     &     Work(ipOcc),Dummy,iWork(ipIrrInd),Title)
 #ifdef _HDF5_
       fileid = mh5_create_file('MSYMH5')
       call run2h5_molinfo(fileid)

@@ -19,9 +19,9 @@
       Call qEnter('Binte')
 *     Call RecPrt(' In Binte: Alfa',' ',alfa,nz,1)
 *     Call RecPrt(' In Binte: A   ',' ',a   ,nz,1)
-      call dcopy_(nz*(k+1)*(k/2+1)*(k/4+1),Zero,0,ggrin,1)
+      call dcopy_(nz*(k+1)*(k/2+1)*(k/4+1),[Zero],0,ggrin,1)
       Do 110 iz=1,nz
-         call dcopy_((kMax+1)*kMax,Zero,0,grint,1)
+         call dcopy_((kMax+1)*kMax,[Zero],0,grint,1)
          Call rrint(k,alfa(iz),a(iz),beta,r0,grint,kmax)
          Do 10 i=0,k
             Do 11 j=0,i,2

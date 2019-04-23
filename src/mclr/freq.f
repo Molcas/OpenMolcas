@@ -50,11 +50,10 @@
 *
       nAux = 2 * nX
       iOpt=1
-      islct=0
       If ( nX.gt.0 ) then
         Call Not_DGeEv(iOpt,Tmp3,nX,
      &             EVal,EVec,nX,
-     &             iSlct,nX,TmpAux,nAux)
+     &             nX,TmpAux,nAux)
       End If
 *
 *-----Compute the harmonic frequencies

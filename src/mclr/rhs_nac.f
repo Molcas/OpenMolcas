@@ -38,8 +38,8 @@
       Call Getmem('ONED-','ALLO','REAL',ipG1m,ng1)
       Call Allocate_Work(ipG1r,n1dens)
       Call Allocate_Work(ipG2r,n2dens)
-      Call dcopy_(n1dens,zero,0,work(ipG1r),1)
-      Call dcopy_(n2dens,zero,0,work(ipG2r),1)
+      Call dcopy_(n1dens,[zero],0,work(ipG1r),1)
+      Call dcopy_(n2dens,[zero],0,work(ipG2r),1)
 *
 **    Calculate one- and two-particle transition matrices
 **    from the CI vectors of the two NAC states

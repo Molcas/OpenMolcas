@@ -25,7 +25,7 @@
          nElem = (m+1)*(m+2)/2
 *        Call RecPrt('Car-->Sph',' ',RSph(ipSph(m)),nElem,nElem)
          If (CarSph) Then
-            call dcopy_(2*m+1,Zero,0,Cavsph(iOff2),1)
+            call dcopy_(2*m+1,[Zero],0,Cavsph(iOff2),1)
 *           Call RecPrt('Cartesian',' ',Cavxyz(iOff1),1,nElem)
             Call dGeMV_('T',nElem,2*m+1,
      &                 One,RSph(ipSph(m)),nElem,
@@ -33,7 +33,7 @@
      &                 Zero,CavSph(iOff2),1)
 *           Call RecPrt('Spherical',' ',Cavsph(iOff2),1,2*m+1)
          Else
-            call dcopy_(nElem,Zero,0,Cavxyz(iOff1),1)
+            call dcopy_(nElem,[Zero],0,Cavxyz(iOff1),1)
 *           Call RecPrt('Spherical',' ',Cavsph(iOff2),1,2*m+1)
             Call dGeMV_('N',nElem,2*m+1,
      &                 One,RSph(ipSph(m)),nElem,

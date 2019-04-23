@@ -237,7 +237,7 @@
      &               nStab,jStab,Curvilinear,Numerical,
      &               DDV_Schlegel,HWRS, Analytic_Hessian,
      &               iOptC,PrQ,mxdc,iCoSet,rHidden,ipRef,
-     &               Redundant,nqInt,MaxItr,nWndw)
+     &               Redundant,nqInt,MaxItr)
 *
          ip_To   = ipCList + (iDisp-1)*3*nsAtom
 *

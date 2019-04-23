@@ -40,6 +40,7 @@
      &       Cord(3,MaxAto), Z_Nuc(MaxAto),xfEF(4,nGrid_)
       Logical Save_tmp
       Character*8 Label
+      Dimension FactOp(1), lOper(1)
 *                                                                      *
 ************************************************************************
 *                                                                      *

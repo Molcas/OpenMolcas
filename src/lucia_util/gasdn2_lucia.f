@@ -106,6 +106,7 @@
       INTEGER NOBPTS(MXPNGAS,NSMOB),IOBPTS(MXPNGAS,NSMOB)
       INTEGER NELFSPGP(MXPNGAS,*)
       LOGICAL IPACK
+      DIMENSION IPHGAS(*),SRHO1(*)
 *. Info on batches and blocks
       INTEGER  LBATL(NBATCHL),LEBATL(NBATCHL),I1BATL(NBATCHL),
      &         IBLOCKL(8,*)
@@ -120,6 +121,7 @@
       DIMENSION X(*)
       DIMENSION RHO1S(*)
       DIMENSION SCLFAC_L(*),SCLFAC_R(*)
+      DIMENSION ICOOSC(NOCTPA,NOCTPB),ISOOSC(NOCTPA,NOCTPB)
 *.
       INTEGER LASM(4),LBSM(4),LATP(4),LBTP(4),LSGN(5),LTRP(5)
       INTEGER RASM(4),RBSM(4),RATP(4),RBTP(4),RSGN(5),RTRP(5)
@@ -130,7 +132,7 @@ C-jwk-cleanup      REAL * 8 INPROD,L
       DIMENSION RHO1(*),RHO2(*),RHO2S(*),RHO2A(*)
       DIMENSION RHO1P(*),XNATO(*)
 
-      DIMENSION ISTRFL(1)
+      DIMENSION ISTRFL(1),LBL(1),IDUMMY(1)
       INTEGER SXSTST(1),DXSTST(1)
 * Some dummy initializations
       INTERACT = 0 ! jwk-cleanup
@@ -249,7 +251,7 @@ C             WRITE(6,*) ' TTSS for C block skipped  '
 C             CALL IWRTMA(IBLOCKR(1,IR),4,1,4,1)
                  CALL IDAFILE(LUR,2,LBL,1,IDISK(LUR))
                  CALL IDAFILE(LUR,2,IDUMMY,1,IDISK(LUR))
-                 CALL SKPRCD2(LBL,-1,LUR)
+                 CALL SKPRCD2(LBL(1),-1,LUR)
                  SCLFAC_R(IR) = 0.0D0
               END IF
 *

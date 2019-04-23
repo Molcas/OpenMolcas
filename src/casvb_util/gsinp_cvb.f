@@ -21,6 +21,7 @@
       external firsttime_cvb
       dimension guess(ngs)
       dimension orbs(mxaobf,mxorb),irdorbs(mxorb)
+      dimension idum(1)
       save guess
       data guess/ 'ORB     ','STRUC   ','READ    ','AOBASIS ',
      >            'MOBASIS ','END     ','ENDGUESS'/
@@ -30,7 +31,8 @@
 3000  call fstring_cvb(guess,ngs,istr,ncmp,2)
       if(istr.eq.1)then
 c 'ORB'
-        call int_cvb(iorb,1,nread,0)
+        call int_cvb(idum,1,nread,0)
+        iorb=idum(1)
         if(iorb.le.0.or.iorb.gt.mxorb)then
           write(6,*)' Illegal orbital number read :',iorb
           call abend_cvb()
@@ -58,14 +60,16 @@ c        if(istr2.eq.1)then
 cc 'ORB'
 c          iorb1=0
 c          iorb2=0
-c          call int_cvb(iorb1,1,nread,0)
+c          call int_cvb(idum,1,nread,0)
+c          iorb1=idum(1)
 c          if(nread.eq.0)then
 c            write(6,*)' No orbital number in READ,ORB keyword!'
 c            call abend_cvb()
 c          endif
 c          call fstring_cvb('TO      ',1,jstr,ncmp,1)
 c          if(jstr.ne.0)then
-c            call int_cvb(iorb2,1,nread,0)
+c            call int_cvb(idum,1,nread,0)
+c            iorb2=idum(1)
 c            if(nread.eq.0)then
 c              write(6,*)' No orbital number after READ,...,TO, !'
 c              call abend_cvb()
@@ -85,14 +89,16 @@ c              write(6,*)' No identifier after READ,...,FROM, !'
 c              call abend_cvb()
 c            endif
 c          elseif(istr3.eq.2)then
-c            call int_cvb(jorb1,1,nread,0)
+c            call int_cvb(idum,1,nread,0)
+c            jorb1=idum(1)
 c            if(nread.eq.0)then
 c              write(6,*)' No orbital number after READ,...,AS, !'
 c              call abend_cvb()
 c            endif
 c            call fstring_cvb('TO      ',1,jstr,ncmp,1)
 c            if(jstr.ne.0)then
-c              call int_cvb(jorb2,1,nread,0)
+c              call int_cvb(idum,1,nread,0)
+c              jorb2=idum(1)
 c              if(nread.eq.0)then
 c                write(6,*)' No orbital number after READ,...,TO, !'
 c                call abend_cvb()
@@ -108,14 +114,16 @@ c        elseif(istr2.eq.2)then
 cc      'STRUC'
 c          istruc1=0
 c          istruc2=0
-c          call int_cvb(istruc1,1,nread,0)
+c          call int_cvb(idum,1,nread,0)
+c          istruc1=idum(1)
 c          if(nread.eq.0)then
 c            write(6,*)' No structure number in READ,STRUC keyword!'
 c            call abend_cvb()
 c          endif
 c          call fstring_cvb('TO      ',1,jstr,ncmp,1)
 c          if(jstr.ne.0)then
-c            call int_cvb(istruc2,1,nread,0)
+c            call int_cvb(idum,1,nread,0)
+c            istruc2=idum(1)
 c            if(nread.eq.0)then
 c              write(6,*)' No structure number after READ,...,TO, !'
 c              call abend_cvb()
@@ -135,14 +143,16 @@ c              write(6,*)' No identifier after READ,...,FROM, !'
 c              call abend_cvb()
 c            endif
 c          elseif(istr3.eq.2)then
-c            call int_cvb(jstruc1,1,nread,0)
+c            call int_cvb(idum,1,nread,0)
+c            jstruc1=idum(1)
 c            if(nread.eq.0)then
 c              write(6,*)' No structure number after READ,...,AS, !'
 c              call abend_cvb()
 c            endif
 c            call fstring_cvb('TO      ',1,jstr,ncmp,1)
 c            if(jstr.ne.0)then
-c              call int_cvb(jstruc2,1,nread,0)
+c              call int_cvb(idum,1,nread,0)
+c              jstruc2=idum(1)
 c              if(nread.eq.0)then
 c                write(6,*)' No structure number after READ,...,TO, !'
 c                call abend_cvb()

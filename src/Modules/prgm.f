@@ -45,7 +45,7 @@
       Call ReadPrgmFile(ModName)
       Call ReadPrgmFile('global')
       Return
-      ! Avoid unused argument warnings
+!     Avoid unused argument warnings
       If (.False.) Call Unused_integer(l)
       End Subroutine PrgmInitC
 
@@ -85,8 +85,8 @@
           Write(6,*) 'File ', Trim(Input), ' found in table: ',
      &               Trim(FileTable(Num)%Filename)
 #endif
-          ! the value of $WorkDir will depend on some attributes,
-          ! pass it to the ExpandVars function
+!         the value of $WorkDir will depend on some attributes,
+!         pass it to the ExpandVars function
           Attr = FileTable(Num)%Attributes
           If (Index(Attr, 'f') .gt. 0) WD = FastDir
 #ifdef MOLCAS_LUSTRE
@@ -95,7 +95,7 @@
           If ((Par .eq. 1) .and. (.not. Lustre)) WD = Trim(WD)//SlaveDir
           OutStr = FileTable(Num)%Filename
           OutStr = ExpandVars(OutStr, Trim(WD)//SubDir)
-          ! add "extension" to multi files
+!         add "extension" to multi files
           If (Index(Attr, '*') .gt. 0) Then
             Ext = Input(Len_Trim(FileTable(Num)%Shortname)+1:)
             OutStr = Trim(OutStr)//Ext
@@ -117,7 +117,7 @@
       Write(6,*) 'Output: ', Trim(OutStr)
 #endif
       Return
-      ! Avoid unused argument warnings
+!     Avoid unused argument warnings
       If (.False.) Call Unused_integer(l1)
       End Subroutine PrgmTranslate_Mod
 
@@ -130,9 +130,9 @@
       Function IsInMem(Filename)
       Character (Len=*), Intent(In) :: Filename
       Integer :: IsInMem
-      ! since FiM is not in OpenMolcas, always return 0
+!     since FiM is not in OpenMolcas, always return 0
       IsInMem = 0
-      ! Avoid unused argument warnings
+!     Avoid unused argument warnings
       If (.False.) Call Unused_character(Filename)
       End Function IsInMem
 #endif
@@ -155,8 +155,8 @@
       Write(6,*) 'ModName: '//Trim(ModName)
 #endif
 
-      ! If other locations are enabled, pymolcas should be changed too
-      ! Or this should be revamped so that pymolcas writes a pre-parsed file
+!     ! If other locations are enabled, pymolcas should be changed too
+!     ! Or this should be revamped so that pymolcas writes a pre-parsed file
       Call GetEnvF('MOLCAS', Dir)
       Dir = Trim(Dir)//'/data'
       FileName = Trim(Dir)//'/'//Trim(ModName)//'.prgm'
@@ -184,7 +184,7 @@
           If (Index(Line, '(prgm)') .ne. 0) Cycle
           If (Index(Line, '(file)') .eq. 0) Cycle
           Num = Num+1
-          !Strip quotes and tabs
+!         Strip quotes and tabs
           Line = Strip(Line, '"'//Char(9))
           Line = AdjustL(Line(Index(Line,' '):))
           TempTable(Num)%Shortname = Line(:Index(Line,' '))
@@ -193,11 +193,11 @@
           Line = AdjustL(Line(Index(Line,' '):))
           TempTable(Num)%Attributes = Line(:Index(Line,' '))
         End Do
-        ! Make sure leftover entries are blanked
+!       Make sure leftover entries are blanked
         Do i=Num+1,Size(TempTable)
           TempTable(i)%Shortname = ''
         End Do
-        ! Count new unique entries
+!       Count new unique entries
         j = 0
         Do i=1,Num
           If (FindFile(TempTable(i)%Shortname,
@@ -207,7 +207,7 @@
           j = j+1
         End Do
         Num = j
-        ! Merge and update FileTable
+!       Merge and update FileTable
         Allocate(NewTable(Size(FileTable)+Num))
         NewTable(1:Size(FileTable)) = FileTable
         k = Size(FileTable)
@@ -229,7 +229,7 @@
       Call ReportPrgm()
 #endif
       Return
-      ! Avoid unused argument warnings
+!     Avoid unused argument warnings
       If (.False.) Call ReportPrgm()
       End Subroutine ReadPrgmFile
 
@@ -288,8 +288,8 @@
         FindExact = .False.
       End If
       Do i=1,Size(Table)
-        ! an entry matches not only if it's equal, also if
-        ! the beginning matches and it is a "multi" file
+!       an entry matches not only if it's equal, also if
+!       the beginning matches and it is a "multi" file
         If (FindExact) Then
           If (Trim(Short) .eq. Trim(Table(i)%Shortname)) Then
             FindFile=i
@@ -321,17 +321,17 @@
 #endif
       Character (Len=MAXSTR) :: Var, Val
       Integer :: i, j, Ini, Fin
-      ! start with a copy of the string, this copy will be modified on the fly
+!     start with a copy of the string, this copy will be modified on the fly
       ExpandVars = String
       Ini = 0
       i = 0
-      ! scan the string, not using a fixed loop because the length and index
-      ! will change as replacements are done
+!     scan the string, not using a fixed loop because the length and index
+!     will change as replacements are done
       Do
         i = i+1
         If (i .gt. LEV) Exit
-        ! the $ marks the start of the variable, find the end
-        ! (by default the end of the string)
+!       the $ marks the start of the variable, find the end
+!       (by default the end of the string)
         If (ExpandVars(i:i) .eq. '$') Then
           Ini = i
           Fin = LEV
@@ -341,7 +341,7 @@
               Exit
             End If
           End Do
-          ! get the value of the variable and replace it in the string
+!         get the value of the variable and replace it in the string
           Var = ExpandVars(Ini+1:Fin)
           Select Case (Var)
             Case ('Project')
@@ -355,7 +355,7 @@
               End If
           End Select
           ExpandVars = ReplaceSubstr(ExpandVars, Ini, Fin, Trim(Val))
-          ! update the index to continue
+!         update the index to continue
           i = Ini + Len_Trim(Val) - 1
         End If
       End Do
@@ -371,7 +371,7 @@
       Character (Len=MAXSTR) :: ReplaceSubstr
 #endif
       Integer :: i,j
-      ! make sure the indices are within limits
+!     make sure the indices are within limits
       i = Min(Max(1,Ini),Len(String))
       j = Min(Max(1,Fin),Len(String))
       j = Max(i,j)

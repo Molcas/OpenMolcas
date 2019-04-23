@@ -284,8 +284,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
 *           Initialize output arrays
 *
-            CALL DCOPY_(NQUAD*5,0.0D0,0,WORK(LRAW),1)
-            CALL DCOPY_(NQUAD*5,0.0D0,0,WORK(LWEIGH),1)
+            CALL DCOPY_(NQUAD*5,[0.0D0],0,WORK(LRAW),1)
+            CALL DCOPY_(NQUAD*5,[0.0D0],0,WORK(LWEIGH),1)
 
             Do iQuad = 1, nQuad
                iStorage = iOff_+ (iQuad-1)*nData + ipStorage - 1
@@ -452,9 +452,9 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
                Do iCar = 1, 3
 *
-                  CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXR),1)
-                  CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXI),1)
-                  CALL DCOPY_(NSS**2,0.0D0,0,WORK(LTMP),1)
+                  CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXR),1)
+                  CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXI),1)
+                  CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LTMP),1)
 *
 *                 The electric (symmetric) part
 *
@@ -471,9 +471,9 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                   CALL ZTRNSF_IJ(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI),
      &                           WORK(LTMP),T0_e(iCar),ISO,JSO)
 *
-                  CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXR),1)
-                  CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXI),1)
-                  CALL DCOPY_(NSS**2,0.0D0,0,WORK(LTMP),1)
+                  CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXR),1)
+                  CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXI),1)
+                  CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LTMP),1)
 *
 *                 The magnetic (antisymmetric) part
 *
@@ -519,8 +519,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *              iCar=3: Sz
 *
                Do iCar = 1, 3
-                  CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXR),1)
-                  CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXI),1)
+                  CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXR),1)
+                  CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXI),1)
                   If (iCar.eq.1.or.iCar.eq.3) Then
 *                    pick up the real component
                      CALL SMMAT_CHECK(PROP,WORK(LDXR),NSS,'TMOS0  R',
@@ -707,8 +707,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
               WRITE(6,*)
             END IF
 *
-            Call Add_Info('ITMS(SO)',F,1,6)
-            Call Add_Info('ROTS(SO)',R,1,6)
+            Call Add_Info('ITMS(SO)',[F],1,6)
+            Call Add_Info('ROTS(SO)',[R],1,6)
 *
          END DO
       END DO

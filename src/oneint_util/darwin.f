@@ -53,7 +53,7 @@
          Call RecPrt(' In Darwin: P',' ',P,nZeta,3)
       End If
 *
-      call dcopy_(nZeta*nElem(la)*nElem(lb)*nComp,Zero,0,Final,1)
+      call dcopy_(nZeta*nElem(la)*nElem(lb)*nComp,[Zero],0,Final,1)
 *
       kdc = 0
       Do 500 kCnttp = 1, nCnttp
@@ -73,7 +73,7 @@
 *--------------Compute the value of the angular components associated
 *              to the basis functions centered on the first center.
 *
-               call dcopy_(nZeta*3,One,0,Axyz(1,1,0),1)
+               call dcopy_(nZeta*3,[One],0,Axyz(1,1,0),1)
                If (la.eq.0) Go To 60
 *
                Do 20 iCar = 1, 3
@@ -95,7 +95,7 @@
 *--------------Compute the value of the angular components associated to
 *              the basis functions centered on the second center.
 *
-               call dcopy_(nZeta*3,One,0,Bxyz(1,1,0),1)
+               call dcopy_(nZeta*3,[One],0,Bxyz(1,1,0),1)
 *
 *--------------Modify z-component to carry the charge and the exponetial
 *              contribution.

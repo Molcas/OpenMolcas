@@ -287,5 +287,5 @@ c     Call QEnter('CmbnT1')
 c     Call QExit('CmbnT1')
       Return
 c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(iChBas)
+      If (.False.) Call Unused_integer_array(iChBas)
       End

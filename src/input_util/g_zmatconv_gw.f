@@ -50,7 +50,7 @@
       EndIf
 
       Call Put_iScalar('N ZMAT',nAtoms+nXAtoms)
-      Call Put_cArray('Symbol ZMAT',Symbols,(nAtoms+nXAtoms)*5)
+      Call Put_cArray('Symbol ZMAT',Symbols(1),(nAtoms+nXAtoms)*5)
       Call Put_iArray('Index ZMAT',iZmat,MaxAtoms*3)
       Call Put_iArray('NAT ZMAT',NAT,nAtoms+nXAtoms)
 

@@ -65,8 +65,8 @@
 *     Reset error code,open flag and unit number. Close file.          *
 *----------------------------------------------------------------------*
       Call DaClos(LuOne)
-      Call iCopy(lAux,NaN,0,AuxOne,1)
-      Call iCopy(lToc,NaN,0,TocOne,1)
+      Call iCopy(lAux,[NaN],0,AuxOne,1)
+      Call iCopy(lToc,[NaN],0,TocOne,1)
 *----------------------------------------------------------------------*
 *     Terminate procedure                                              *
 *----------------------------------------------------------------------*

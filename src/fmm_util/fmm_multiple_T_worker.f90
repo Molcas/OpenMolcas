@@ -384,7 +384,7 @@ CONTAINS
         qloop: DO q = qmin, qmax
 
            DO s = q, p
-           CALL DAXPY_(ndim,vect(s),T_mats(1,s,q),1,fmm_contract_multi_Tq(1,q),1)
+           CALL DAXPY_(ndim,vect(s),T_mats(1,s,q:),1,fmm_contract_multi_Tq(1,q),1)
            END DO
 
            fac = vect(q)

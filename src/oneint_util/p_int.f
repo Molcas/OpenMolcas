@@ -63,7 +63,7 @@
 *
 *---- Observe that this code does not make any sense in case of symmetry!
 *
-      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,Zero,0,Final,1)
+      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
       If (iPrint.ge.99) Then
          Write (6,*) ' Result in P_Int'

@@ -39,7 +39,7 @@
       if(iwr.eq.0)then
         do 1100 istate=1,nstats_d(istsym_d)
         if(abs(weight_d(istate,istsym_d)).gt.1.d-20)then
-          call fmove(vec(1+icioffs),w(lcim),nci)
+          call fmove_cvb(vec(1+icioffs),w(lcim),nci)
           icioffs=icioffs+nci
           fac=sqrt(weight_d(istate,istsym_d))
           call mol2vbma_cvb(w(iaddr_ci(icivec)),w(lcim),isyml,fac)
@@ -49,7 +49,7 @@
         do 1200 istate=1,nstats_d(istsym_d)
         if(abs(weight_d(istate,istsym_d)).gt.1.d-20)then
           call vb2mol_cvb(w(iaddr_ci(icivec)),w(lcim),isyml)
-          call fmove(w(lcim),vec(1+icioffs),nci)
+          call fmove_cvb(w(lcim),vec(1+icioffs),nci)
           icioffs=icioffs+nci
         endif
 1200    continue
@@ -86,7 +86,7 @@
       if(iwr.eq.0)then
         do 1100 istate=1,nstats_d(istsym_d)
         if(abs(weight_d(istate,istsym_d)).gt.1.d-20)then
-          call fmove(vec(1+icioffs),w(lcim),nci)
+          call fmove_cvb(vec(1+icioffs),w(lcim),nci)
           icioffs=icioffs+nci
           fac=sqrt(weight_d(istate,istsym_d))
           call mol2vbma_cvb(w(iaddr_ci(icivec)),w(lcim),isyml,fac)
@@ -96,7 +96,7 @@
         do 1200 istate=1,nstats_d(istsym_d)
         if(abs(weight_d(istate,istsym_d)).gt.1.d-20)then
           call vb2mol_cvb(w(iaddr_ci(icivec)),w(lcim),isyml)
-          call fmove(w(lcim),vec(1+icioffs),nci)
+          call fmove_cvb(w(lcim),vec(1+icioffs),nci)
           icioffs=icioffs+nci
         endif
 1200    continue

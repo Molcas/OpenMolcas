@@ -204,11 +204,11 @@
 *
  700  Key=Get_Ln(LuSpool)
       KWord=Key
-      Call Get_I(1,n,1)
+      Call Get_I1(1,n)
       Do i = 1, n
          KWord=Get_Ln(LuSpool)
-         Call Get_I(1,jRout,1)
-         Call Get_I(2,iPrint,1)
+         Call Get_I1(1,jRout)
+         Call Get_I1(2,iPrint)
          nPrint(jRout)=iPrint
       End Do
       Go To 1000

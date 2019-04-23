@@ -24,6 +24,7 @@ c  Find update for IORB as projection of JORB on allowed space
       dimension upd(norb)
       dimension iprev(niprev),orbs(norb,norb)
       dimension north(norb),corth(norb,niorth)
+      dimension dum(1)
 
       i1 = mstackr_cvb(norb*norb)
       noffort=0
@@ -39,7 +40,7 @@ c  Collect all constraints and find span :
       call span2_cvb(w(i1),ncon,dum,norb,0)
 
 c  Orthogonalise update to all remaining constraints
-      call fmove(orbs(1,jorb),upd,norb)
+      call fmove_cvb(orbs(1,jorb),upd,norb)
       call schmidtd_cvb(w(i1),ncon,upd,1,dum,norb,0)
       call mfreer_cvb(i1)
       return

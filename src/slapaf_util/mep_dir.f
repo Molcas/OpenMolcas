@@ -41,6 +41,7 @@
       Real*8 Cx(3*nAtom,iter+1),Gx(3*nAtom,iter+1)
       Logical IRCRestart
       Parameter ( RadToDeg=180.0D0/Pi )
+      Dimension iDum(1)
 *
       Call QEnter('MEP_dir')
 *                                                                      *
@@ -258,8 +259,10 @@
         LudRdX=30
         Call DaName(LudRdX,'dRdX')
         iAd=0
-        Call iDaFile(LudRdX,2,nLambda_,1,iAd)
-        Call iDaFile(LudRdX,2,nCoor_,1,iAd)
+        Call iDaFile(LudRdX,2,iDum,1,iAd)
+        nLambda_=iDum(1)
+        Call iDaFile(LudRdX,2,iDum,1,iAd)
+        nCoor_=iDum(1)
         Call Allocate_Work(ipdrdx,nLambda_*nCoor_)
         Call dDaFile(LudRdX,2,Work(ipdrdx),nLambda_*nCoor_,iAd)
         Call DaClos(LudRdX)

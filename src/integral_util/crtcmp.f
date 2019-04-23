@@ -50,7 +50,7 @@ C     Call qEnter('CrtCmp')
       Call RecPrt(' In CrtCmp: A   ',' ',A   ,1    ,3)
       Call RecPrt(' In CrtCmp: P   ',' ',P   ,nZeta,3)
 #endif
-      call dcopy_(nZeta*3*nHer,One,0,Axyz(1,1,1,0),1)
+      call dcopy_(nZeta*3*nHer,[One],0,Axyz(1,1,1,0),1)
       If (na.eq.0) then
 C        Call qExit('CrtCmp')
          Return

@@ -47,7 +47,6 @@
       End Do
       imem=nDens22
       Call GetMem('Temp1','ALLO','REAL',ipT1,imem)
-      Call GetMem('Scr  ','ALLO','REAL',ipScr,imem)
       Call GetMem('Temp2','ALLO','REAL',ipTmp2,nDens22)
       Call GetMem('Temp3','ALLO','REAL',ipT3,nDens22)
       Call GetMem('Temp4','ALLO','REAL',ipT4,nDens22)
@@ -56,12 +55,12 @@
       Call GetMem('DIR  ','ALLO','REAL',ipDIR,nDens2)
       Call GetMem('FociI','ALLO','REAL',ipFI,ndens2)
 
-      call dcopy_(ndens2,0.0d0,0,FockI,1)
-      call dcopy_(ndens2,0.0d0,0,Work(ipFI),1)
-      call dcopy_(ndens2,0.0d0,0,FockA,1)
-      call dcopy_(ndens2,0.0d0,0,Work(ipDir),1)
-      call dcopy_(ndens2,0.0d0,0,Work(ipDil),1)
-      call dcopy_(ncmo,0.0d0,0,Work(ipDi),1)
+      call dcopy_(ndens2,[0.0d0],0,FockI,1)
+      call dcopy_(ndens2,[0.0d0],0,Work(ipFI),1)
+      call dcopy_(ndens2,[0.0d0],0,FockA,1)
+      call dcopy_(ndens2,[0.0d0],0,Work(ipDir),1)
+      call dcopy_(ndens2,[0.0d0],0,Work(ipDil),1)
+      call dcopy_(ncmo,[0.0d0],0,Work(ipDi),1)
       lFI=.true.
       lFa=.false.
       lMo=.false.
@@ -72,10 +71,10 @@
          Call GetMem('FockA','ALLO','REAL',ipFA,nDens2)
          lFa=.true.
          lMo=.true.
-         call dcopy_(ndens2,0.0d0,0,Work(ipFA),1)
-         call dcopy_(ndens2,0.0d0,0,Work(ipDar),1)
-         call dcopy_(ndens2,0.0d0,0,Work(ipDal),1)
-         call dcopy_(ncmo,0.0d0,0,Work(ipDa),1)
+         call dcopy_(ndens2,[0.0d0],0,Work(ipFA),1)
+         call dcopy_(ndens2,[0.0d0],0,Work(ipDar),1)
+         call dcopy_(ndens2,[0.0d0],0,Work(ipDal),1)
+         call dcopy_(ncmo,[0.0d0],0,Work(ipDa),1)
       Else
          ipDAL = ip_Dummy
          ipDAR = ip_Dummy
@@ -109,7 +108,7 @@
       FacR=Fact
       Call Read2_2(rmo1,rmo2,
      &         FockI,FockA,
-     &         Work(ipT1),imem,Work(ipScr),
+     &         Work(ipT1),imem,
      &         Work(ipTmp2),
      &         Work(ipT3),Work(ipT4),
      &         Work(ipDIR),Work(ipDIL),
@@ -177,7 +176,6 @@
       Call GetMem('Temp4','FREE','REAL',ipT4,nDens2)
       Call GetMem('Temp3','FREE','REAL',ipT3,nDens2)
       Call GetMem('Temp2','FREE','REAL',ipTmp2,nDens2)
-      Call GetMem('Scr  ','FREE','REAL',ipScr,imem)
       Call GetMem('Temp1','FREE','REAL',ipT1,imem)
       Return
       End

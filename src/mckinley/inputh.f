@@ -82,7 +82,7 @@ c      EndIf
       CutInt = 1.0D-07
       ipert=2
       iCntrl=1
-      Call lCopy(mxpert,.true.,0,lPert,1)
+      Call lCopy(mxpert,[.true.],0,lPert,1)
       sIrrep=.false.
       iprint=0
       Do 109 i = 1, 3*mxdc
@@ -217,7 +217,7 @@ c      EndIf
 *
  960  Continue
       slct=.true.
-      Call lCopy(mxpert,.false.,0,lPert,1)
+      Call lCopy(mxpert,[.false.],0,lPert,1)
 *962  Continue
       Read(5,*) nslct
 *     If (KWord(1:1).eq.'*') Go To 962
@@ -396,8 +396,8 @@ c      EndIf
      &           '********************************************'
       Write (6,*)
       End If
-      Call ICopy(mxdc*8,0,0,IndDsp,1)
-      Call ICopy(mxdc*3,0,0,InxDsp,1)
+      Call ICopy(mxdc*8,[0],0,IndDsp,1)
+      Call ICopy(mxdc*3,[0],0,InxDsp,1)
       Call GetMem('ATDISP','ALLO','INTE',ipad,mdisp)
       Call GetMem('DEGDISP','ALLO','INTE',ipdd,mdisp)
       nDisp = 0
@@ -474,11 +474,11 @@ c      EndIf
          End Do
       End If
       Call GetMem('TDISP','Allo','INTE',ipTD,ndisp)
-      Call ICopy(nDisp,30,0,iWork(ipTD),1)
+      Call ICopy(nDisp,[30],0,iWork(ipTD),1)
       iOpt = 0
       iRC = -1
       labelOp='ndisp   '
-      Call iWrMck(iRC,iOpt,labelop,1,ndisp,iDummer)
+      Call iWrMck(iRC,iOpt,labelop,1,[ndisp],iDummer)
       If (iRC.ne.0) Then
          Write (6,*) 'InputH: Error writing to MCKINT'
          Write (6,'(A,A)') 'labelOp=',labelOp
@@ -579,8 +579,8 @@ c      EndIf
          Call GetMem('Coor ','Allo','Real',ipC,lDisp(0)*4)
          Call GetMem('Car  ','Allo','Inte',ipCar,lDisp(0))
 *
-         call dcopy_(nTR*lDisp(0),Zero,0,Work(ipAm),1)
-         call dcopy_(4*lDisp(0),Zero,0,Work(ipC),1)
+         call dcopy_(nTR*lDisp(0),[Zero],0,Work(ipAm),1)
+         call dcopy_(4*lDisp(0),[Zero],0,Work(ipC),1)
 *
 *        Generate temporary information of the symmetrical
 *        displacements.
@@ -725,7 +725,7 @@ c      EndIf
             ipNew = ipAm + nTR*(iTemp(iTR)-1)
             ipIn  = ipTmp + nTR*(iTR-1)
             call dcopy_(nTR,Work(ipNew),1,Work(ipIn),1)
-            call dcopy_(nTR,Zero,0,Work(ipNew),1)
+            call dcopy_(nTR,[Zero],0,Work(ipNew),1)
  1234    Continue
          If (iPrint.ge.99) Then
             Call RecPrt(' The A matrix',' ',Work(ipAm),nTR,lDisp(0))
@@ -750,8 +750,8 @@ c      EndIf
      &               0.0d0,Work(ipScr),nTR)
          If (IPrint.ge.99)
      &      Call RecPrt(' A-1*A',' ',Work(ipScr),nTR,lDisp(0))
-         call dcopy_(lDisp(0)**2,Zero,0,Work(ipAm),1)
-         call dcopy_(lDisp(0),One,0,Work(ipAm),lDisp(0)+1)
+         call dcopy_(lDisp(0)**2,[Zero],0,Work(ipAm),1)
+         call dcopy_(lDisp(0),[One],0,Work(ipAm),lDisp(0)+1)
          Do 1250 iTR = 1, nTR
             ldsp = iTemp(iTR)
             ipOut = ipScr + iTR - 1
@@ -820,7 +820,7 @@ c      EndIf
         Call Abend
 
  888  Continue
-      Call ICopy(nIrrep,0,0,nFck,1)
+      Call ICopy(nIrrep,[0],0,nFck,1)
       Do iIrrep=0,nIrrep-1
         If (iIrrep.ne.0) Then
           Do jIrrep=0,nIrrep-1

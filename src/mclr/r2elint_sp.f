@@ -54,12 +54,12 @@
       Call GetMem('DI   ','ALLO','REAL',ipDI,nCMO)
       Call GetMem('DIR  ','ALLO','REAL',ipDIR,nDens2)
       Call GetMem('FociI','ALLO','REAL',ipFI,ndens2)
-      call dcopy_(ndens2,0.0d0,0,FockI,1)
-      call dcopy_(ndens2,0.0d0,0,Work(ipFI),1)
+      call dcopy_(ndens2,[0.0d0],0,FockI,1)
+      call dcopy_(ndens2,[0.0d0],0,Work(ipFI),1)
 C     Call GetMem('FockI','CHECK','REAL',ipFI,ndens2)
-      call dcopy_(ndens2,0.0d0,0,FockA,1)
-      call dcopy_(ndens2,0.0d0,0,Work(ipDir),1)
-      call dcopy_(ndens2,0.0d0,0,Work(ipDil),1)
+      call dcopy_(ndens2,[0.0d0],0,FockA,1)
+      call dcopy_(ndens2,[0.0d0],0,Work(ipDir),1)
+      call dcopy_(ndens2,[0.0d0],0,Work(ipDil),1)
 C     Call GetMem('FockI','CHECK','REAL',ipFI,ndens2)
       lFI=.true.
       lFa=.false.

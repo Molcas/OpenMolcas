@@ -57,6 +57,7 @@
 #include "frag_cvb.fh"
 #include "malloc_cvb.fh"
       dimension civec(nda,ndb),cvbdet(ndetvb)
+      dimension evbdet(*)
       icivec=nint(civec(1,1))
       if(nfrag.le.1)then
         call fzero(evbdet,ndetvb)

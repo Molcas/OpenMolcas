@@ -103,7 +103,7 @@
      &                  Ovl(ipOvl(iSym)),nBas(iSym))
          End If
          Call FZero(Vec,nBas(iSym)**2)
-         Call DCopy_(nBas(iSym),1.0D0,0,Vec,nBas(iSym)+1)
+         Call DCopy_(nBas(iSym),[1.0D0],0,Vec,nBas(iSym)+1)
          Call NIdiag_New(Ovl(ipOvl(iSym)),Vec,nBas(iSym),nbas(iSym),0)
 *
          Do iBas = 1, nBas(iSym)

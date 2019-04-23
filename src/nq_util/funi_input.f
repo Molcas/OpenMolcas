@@ -78,7 +78,7 @@
 *     Read the radial threshold
 *
  100  KWord = Get_Ln(LuRd)
-      Call Get_F(1,Threshold,1)
+      Call Get_F1(1,Threshold)
       Threshold = Abs(Threshold)
       Go To 999
 *                                                                      *
@@ -128,7 +128,7 @@
 *     Read angular grid size
 *
  102  KWord = Get_Ln(LuRd)
-      Call Get_I(1,L_Quad,1)
+      Call Get_I1(1,L_Quad)
       Go To 999
 *                                                                      *
 ****** RQUA ************************************************************
@@ -145,7 +145,7 @@
 *     Read number of radial grid points
 *
  104  KWord = Get_Ln(LuRd)
-      Call Get_I(1,nR,1)
+      Call Get_I1(1,nR)
       Go To 999
 *                                                                      *
 ****** NGRI ************************************************************
@@ -153,7 +153,7 @@
 *     Read max number of grid points to process at one instance
 *
  105  KWord = Get_Ln(LuRd)
-      Call Get_I(1,nGridMax,1)
+      Call Get_I1(1,nGridMax)
       Go To 999
 *                                                                      *
 ****** LOBA ************************************************************
@@ -204,7 +204,7 @@
 *     Read the crowding factor
 *
  112  KWord = Get_Ln(LuRd)
-      Call Get_F(1,Crowding,1)
+      Call Get_F1(1,Crowding)
       Go To 999
 *                                                                      *
 ****** LEBE ************************************************************
@@ -242,7 +242,7 @@
 *     Obsolete command!
 *
  117  KWord = Get_Ln(LuRd)
-      Call Get_F(1,Dummy,1)
+      Call Get_F1(1,Dummy)
       Go To 999
 *                                                                      *
 ****** T_X  ************************************************************
@@ -250,7 +250,7 @@
 *     Screening threshold for density computation.
 *
  118  KWord = Get_Ln(LuRd)
-      Call Get_F(1,T_X,1)
+      Call Get_F1(1,T_X)
       Go To 999
 *                                                                      *
 ****** NOSC ************************************************************
@@ -268,7 +268,7 @@
 *     Screening threshold for integral computation.
 *
  120  KWord = Get_Ln(LuRd)
-      Call Get_F(1,T_Y,1)
+      Call Get_F1(1,T_Y)
       Go To 999
 *                                                                      *
 ****** NQDI ************************************************************
@@ -283,7 +283,7 @@
 *     Fading factor for angular pruning.
 *
  122  KWord = Get_Ln(LuRd)
-      Call Get_F(1,Fade,1)
+      Call Get_F1(1,Fade)
       Go To 999
 *                                                                      *
 ****** MOSS ************************************************************

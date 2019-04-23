@@ -57,9 +57,9 @@
 * Allocate memory for eigenvectors and new DMAT
       Call GetMem('EVC','Allo','Real',LEVC,NAC**2)
 * Initialize eigenvectors
-      Call dCopy_(NAC**2,(0.0d0),0,Work(LEVC),1)
+      Call dCopy_(NAC**2,[0.0d0],0,Work(LEVC),1)
 * set eigenvector array to identity for this version of JACOB
-      Call dCopy_(NAC,1.0d0,0,Work(LEVC),NAC+1)
+      Call dCopy_(NAC,[1.0d0],0,Work(LEVC),NAC+1)
 
 * Step 1: Diagonalize MAT. Eigenvalues are stored in diagonal of MAT
       trace = 0.0d0
@@ -94,8 +94,8 @@
 * blas routine for square*triangular operation
       Call GetMem('Scr','Allo','Real',iTmp,nac*nac)
       Call GetMem('Scr2','Allo','Real',iTmp2,nac*nac)
-      Call dCopy_(nac*nac,0.0d0,0,Work(iTmp),1)
-      Call dCopy_(nac*nac,0.0d0,0,Work(iTmp2),1)
+      Call dCopy_(nac*nac,[0.0d0],0,Work(iTmp),1)
+      Call dCopy_(nac*nac,[0.0d0],0,Work(iTmp2),1)
 c     call DTRMM('R','L','N','n',nac,nac,1.0d0,MAT,nac,Work(iTmp))
       do i = 0, nac-1
           do j = 0, nac-1

@@ -47,7 +47,7 @@ C  part of the three-electron density matrix G3:
         iPad=ItoB-MOD(6*NG3,ItoB)
         CALL GETMEM('idxG3','ALLO','CHAR',LidxG3,6*NG3+iPad)
         iLUID=0
-        CALL CDAFILE(LUSOLV,2,i1WORK(LidxG3),6*NG3+iPad,iLUID)
+        CALL CDAFILE(LUSOLV,2,cWORK(LidxG3),6*NG3+iPad,iLUID)
 
         CALL MKSA(WORK(LDREF),WORK(LPREF),
      &            NG3,WORK(LG3),i1WORK(LidxG3))
@@ -73,7 +73,7 @@ C looping, etc in the rest  of the routines.
           NIN=NINDEP(ISYM,ICASE)
           IF(NIN.GT.0) THEN
             IDISK=IDSMAT(ISYM,ICASE)
-            CALL DDAFILE(LUSBT,1,1.0D00,RtoI,IDISK)
+            CALL DDAFILE(LUSBT,1,[1.0D00],1,IDISK)
           END IF
         END DO
       END DO

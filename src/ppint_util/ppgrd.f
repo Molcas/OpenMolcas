@@ -216,7 +216,7 @@ C        Write (*,*) 'nkcru',(nkcru(i,1),i=1,iSh)
                   JndGrd(iCar+1,3) = 0
                End If
             End Do
-            Call ICopy(3,0,0,JndGrd(1,4),1)
+            Call ICopy(3,[0],0,JndGrd(1,4),1)
             JfGrad(1,4) = .False.
             JfGrad(2,4) = .False.
             JfGrad(3,4) = .False.

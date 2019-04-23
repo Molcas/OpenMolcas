@@ -102,11 +102,11 @@ c local variables
         Call mma_allocate(h2,exch,'h2')
         Call mma_allocate(h3,exch,'h3')
         Call mma_allocate(h4,exch,'h4')
-        Call zcopy_(exch,(0.0_wp,0.0_wp),0,htot,1)
-        Call zcopy_(exch,(0.0_wp,0.0_wp),0,h1,1)
-        Call zcopy_(exch,(0.0_wp,0.0_wp),0,h2,1)
-        Call zcopy_(exch,(0.0_wp,0.0_wp),0,h3,1)
-        Call zcopy_(exch,(0.0_wp,0.0_wp),0,h4,1)
+        Call zcopy_(exch,[(0.0_wp,0.0_wp)],0,htot,1)
+        Call zcopy_(exch,[(0.0_wp,0.0_wp)],0,h1,1)
+        Call zcopy_(exch,[(0.0_wp,0.0_wp)],0,h2,1)
+        Call zcopy_(exch,[(0.0_wp,0.0_wp)],0,h3,1)
+        Call zcopy_(exch,[(0.0_wp,0.0_wp)],0,h4,1)
         mem_local=mem_local+5*exch*CtoB
       End If
 
@@ -266,11 +266,11 @@ c
      & ('|-----  Real  ---------  Imaginary  --| ',i=1,lpr)
 
       Do nb1 = 1,exch
-        Call zcopy_(exch,(0.0_wp,0.0_wp),0,  H1,1)
-        Call zcopy_(exch,(0.0_wp,0.0_wp),0,  H2,1)
-        Call zcopy_(exch,(0.0_wp,0.0_wp),0,  H3,1)
-        Call zcopy_(exch,(0.0_wp,0.0_wp),0,  H4,1)
-        Call zcopy_(exch,(0.0_wp,0.0_wp),0,HTOT,1)
+        Call zcopy_(exch,[(0.0_wp,0.0_wp)],0,  H1,1)
+        Call zcopy_(exch,[(0.0_wp,0.0_wp)],0,  H2,1)
+        Call zcopy_(exch,[(0.0_wp,0.0_wp)],0,  H3,1)
+        Call zcopy_(exch,[(0.0_wp,0.0_wp)],0,  H4,1)
+        Call zcopy_(exch,[(0.0_wp,0.0_wp)],0,HTOT,1)
         Do lp = 1,npair
           icoord(:)=0
           Do i = 1,lmax

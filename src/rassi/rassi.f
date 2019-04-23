@@ -84,7 +84,7 @@ C Number of basis functions
        LSFDYS=0
        CALL GETMEM('SFDYS','ALLO','REAL',LSFDYS,NZ*NSTATE*NSTATE)
       END IF
-      CALL DCOPY_(NPROPSZ,0.0D0,0,WORK(LPROP),1)
+      CALL DCOPY_(NPROPSZ,[0.0D0],0,WORK(LPROP),1)
 C Loop over jobiphs JOB1:
       DO JOB1=1,NJOB
         DO JOB2=1,JOB1
@@ -199,10 +199,10 @@ C Nr of spin states and division of loops:
       CALL GETMEM('UTOTR','ALLO','REAL',LUTOTR,NSS**2)
       CALL GETMEM('UTOTI','ALLO','REAL',LUTOTI,NSS**2)
       CALL GETMEM('SOENE','ALLO','REAL',LSOENE,NSS)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LUTOTR),1)
-      CALL DCOPY_(NSS   ,1.0D0,0,WORK(LUTOTR),NSS+1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LUTOTI),1)
-      CALL DCOPY_(NSS   ,0.0D0,0,WORK(LSOENE),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LUTOTR),1)
+      CALL DCOPY_(NSS   ,[1.0D0],0,WORK(LUTOTR),NSS+1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LUTOTI),1)
+      CALL DCOPY_(NSS   ,[0.0D0],0,WORK(LSOENE),1)
 
       IF(IFSO) THEN
         Call StatusLine('RASSI:','Computing SO Hamiltonian.')
@@ -305,7 +305,7 @@ CIgorS End------------------------------------------------------------C
         call qcmaquis_info_deinit
       end if
 #endif
-      !> free memory (if allocated at all - currently only for QD-NEVPT2 as ref wfn)
+!     > free memory (if allocated at all - currently only for QD-NEVPT2 as ref wfn)
       call deinit_mspt2_eigenvectors()
 *                                                                      *
 ************************************************************************

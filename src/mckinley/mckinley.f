@@ -70,7 +70,7 @@ c      Parameter (nLines=17)
       Call CWTime(TCpu1,TWall1)
       Call qEnter('McKinley')
       iRout=1
-      call dcopy_(9,0.0d0,0,CpuStat,1)
+      call dcopy_(9,[0.0d0],0,CpuStat,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -157,8 +157,8 @@ C     End If
 *
       Call GetMem('Hess','Allo','Real',ipHess,nHess)
       Call GetMem('Temp','Allo','Real',ipTemp,nHess)
-      call dcopy_(nHess,Zero,0,Work(ipHess),1)
-      call dcopy_(nHess,Zero,0,Work(ipTemp),1)
+      call dcopy_(nHess,[Zero],0,Work(ipHess),1)
+      call dcopy_(nHess,[Zero],0,Work(ipTemp),1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -236,10 +236,10 @@ C     End If
       CPUStat(nOneel)=CPUStat(nOneel)+Time
       If (.Not.Onenly) Then
           Call GetMem('Grad','ALLO','Real',ipGrad,nGrad)
-          call dcopy_(nGrad,Zero,0,Work(ipGrad),1)
+          call dcopy_(nGrad,[Zero],0,Work(ipGrad),1)
 *
-          Call ICopy(8,0,0,nISh,1)
-          Call ICopy(8,0,0,nASh,1)
+          Call ICopy(8,[0],0,nISh,1)
+          Call ICopy(8,[0],0,nASh,1)
 *
           Call PrepP
 *

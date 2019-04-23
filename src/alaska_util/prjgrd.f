@@ -155,7 +155,7 @@
                   JndGrd(iCar+1,3) = 0
                End If
  220        Continue
-            Call ICopy(3,0,0,JndGrd(1,4),1)
+            Call ICopy(3,[0],0,JndGrd(1,4),1)
             JfGrad(1,4) = .False.
             JfGrad(2,4) = .False.
             JfGrad(3,4) = .False.
@@ -489,7 +489,7 @@
 *                End loop C
 *              End Loop b and a
 *
-               call dcopy_(nZeta*nElem(la)*nElem(lb)*6,Zero,0,Final,1)
+               call dcopy_(nZeta*nElem(la)*nElem(lb)*6,[Zero],0,Final,1)
 *
                mVec = 0
                mVecAC = 1

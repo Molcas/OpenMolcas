@@ -33,7 +33,7 @@
 *
  1    Continue
       Not_Defined=-1
-      Call ICopy(nAtoms,Not_Defined,0,nSet,1)
+      Call ICopy(nAtoms,[Not_Defined],0,nSet,1)
 *
       iX = 0
       nStack=1
@@ -151,7 +151,7 @@
 *     Find the shortest distance between every two sets
 *
       Call Allocate_Work(ipSetDist,iSet*iSet)
-      call dcopy_(iSet*iSet,1.0D6,0,Work(ipSetDist),1)
+      call dcopy_(iSet*iSet,[1.0D6],0,Work(ipSetDist),1)
       Do kAtom = 1, nAtoms
          kSet = nSet(kAtom)
          Do lAtom = kAtom+1, nAtoms

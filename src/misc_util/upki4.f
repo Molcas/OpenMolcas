@@ -36,15 +36,27 @@
 *                                                                      *
 ************************************************************************
 *
-      Character*1 InBuf(*)
+      Integer InBuf(*)
       Integer OutBuf(nData)
+      Call cUPKI4(InBuf)
+*
+*     This is to allow type punning without an explicit interface
+      Contains
+      Subroutine cUPKI4(InBuf)
+      Use Iso_C_Binding
+      Integer, Target :: InBuf(*)
+      Character, Pointer :: cInBuf(:)
 *
 *----------------------------------------------------------------------*
 *
       iOpt = 1
-      Call iunzip(iOpt,nData,nByte,InBuf,OutBuf)
+      Call C_F_Pointer(C_Loc(InBuf(1)),cInBuf,[1])
+      Call iunzip(iOpt,nData,nByte,cInBuf,OutBuf)
+      Nullify(cInBuf)
 *
 *----------------------------------------------------------------------*
 *
       Return
+      End Subroutine cUPKI4
+*
       End

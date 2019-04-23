@@ -46,7 +46,7 @@
         NO=NI+NA+NS
         IF (NO.eq.0) GOTO 99
 * Copy the matrices to square storage: first fill with zeroes.
-        CALL DCOPY_(NA**2,0.0D0,0,WORK(LTSQ),1)
+        CALL DCOPY_(NA**2,[0.0D0],0,WORK(LTSQ),1)
         IOFF=0
         ITOFF=ITOFF+NI**2
         DO I=1,NR1

@@ -1,0 +1,22 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*     This defines the highest angular momentum quantum number which
+*     Seward will be able to treat.
+#include "itmax.fh"
+      Character AngTp(0:iTabMx)
+#ifndef _DEMO_
+      Data Angtp/'s','p','d','f','g',
+     &           'h','i','k','l','m',
+     &           'n','o','q','r','t',
+     &           'u'/
+#else
+      Data Angtp/'s','p','d'/
+#endif

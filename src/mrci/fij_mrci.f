@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE FIJ_MRCI(ICSPCK,INTSYM,INDX,C,S,FC,A,B,FK,DBK)
       IMPLICIT REAL*8 (A-H,O-Z)
+#include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "mrci.fh"
       DIMENSION ICSPCK(*),INTSYM(*),INDX(*),
@@ -69,7 +70,7 @@
 10    CONTINUE
       GO TO 100
 200   IF(ITER.EQ.0)RETURN
-      CALL AI_MRCI(INTSYM,INDX,C,S,FC,C,C,A,B,FK,DBK,0)
+      CALL AI_MRCI(INTSYM,INDX,C,S,FC,A,B,FK,DBK,0)
       IF(ITER.EQ.1 .AND. IREST.EQ.0)RETURN
       CALL AB_MRCI(ICSPCK,INTSYM,INDX,C,S,FC,A,B,FK)
       RETURN

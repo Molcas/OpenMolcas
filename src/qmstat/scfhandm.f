@@ -44,7 +44,7 @@
 #include "WrkSpc.fh"
 #include "tratoc.fh"
 
-      Dimension Cmo(MxBas**2),Occu(MxBas),nOcc(MxAt),natyp(MxAt)
+      Dimension Cmo(MxBas**2),Occu(MxBas),nOcc(MxBas),natyp(MxAt)
       Dimension nBas(MxSym),iCent(MxBas*MxBas)
       Dimension iMME(MxMltp*(MxMltp+1)*(MxMltp+2)/6)
       Character MMElab*20,ChCo*2
@@ -186,7 +186,7 @@
       dToz=0
       Call GetMem('TotMME','Allo','Real',iMtot
      &           ,10*iQ_Atoms*(iQ_Atoms+1)/2)
-      Call dCopy_(10*iQ_Atoms*(iQ_Atoms+1)/2,0.0D0,0,Work(iMtot),1)
+      Call dCopy_(10*iQ_Atoms*(iQ_Atoms+1)/2,[0.0D0],0,Work(iMtot),1)
       Do 110, ii=1,iOrb(1)
         i=ii*(ii+1)/2
         Do 111, j=1,iQ_Atoms*(iQ_Atoms+1)/2

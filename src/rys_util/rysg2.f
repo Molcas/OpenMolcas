@@ -109,8 +109,8 @@
       nElem(i) = (i+1)*(i+2)/2
 *
 
-      Call LCopy(12,.false.,0,JfGrd,1)
-      Call LCopy(12,.false.,0,KfGrd,1)
+      Call LCopy(12,[.false.],0,JfGrd,1)
+      Call LCopy(12,[.false.],0,KfGrd,1)
       lOp(1) = iOper(nOp(1))
       lOp(2) = iOper(nOp(2))
       lOp(3) = iOper(nOp(3))

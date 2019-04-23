@@ -71,7 +71,7 @@
       IACTI(1) = 1
       NICISP = ICI
 * EAW Just zero order
-      Call iCopy(3*49,0,0,irci,1)
+      Call iCopy(3*49,[0],0,irci,1)
 * EAW
 *. Number and distribution of electrons in each space
       DO 100 IEX = 1, 3

@@ -406,7 +406,8 @@ C                                                                      C
       do i=1,NSTATE
         do j=1,NSTATE
          if(i.eq.j) then
-          Bmatrix(i,j)=2*aimag(CONJG(Amatrix(i,j))*V(i,j)) ! B(i,i) not used
+!         B(i,i) not used
+          Bmatrix(i,j)=2*aimag(CONJG(Amatrix(i,j))*V(i,j))
          else
           Bmatrix(i,j)=-2*real(CONJG(Amatrix(i,j))*Dmatrix(i,j))
          endif

@@ -19,6 +19,7 @@ C
       REAL*8 INPROD
       DIMENSION VEC1(*),VEC2(*)
       LOGICAL DIFVEC
+      DIMENSION IDUMMY(1)
 C
       X = 0.0D0
       IF( LU1 .NE. LU2 ) THEN
@@ -45,13 +46,19 @@ C
           NBL1 = LBLK
           NBL2 = LBLK
         ELSE IF ( LBLK .EQ. 0 ) THEN
-          CALL IDAFILE(LU1,2,NBL1,1,IDISK(LU1))
-          IF( DIFVEC) CALL IDAFILE(LU2,2,NBL2,1,IDISK(LU2))
+          CALL IDAFILE(LU1,2,IDUMMY,1,IDISK(LU1))
+          NBL1=IDUMMY(1)
+          IF( DIFVEC) THEN
+            CALL IDAFILE(LU2,2,IDUMMY,1,IDISK(LU2))
+            NBL2=IDUMMY(1)
+          END IF
         ELSE IF ( LBLK .LT. 0 ) THEN
-          CALL IDAFILE(LU1,2,NBL1,1,IDISK(LU1))
+          CALL IDAFILE(LU1,2,IDUMMY,1,IDISK(LU1))
+          NBL1=IDUMMY(1)
           CALL IDAFILE(LU1,2,IDUMMY,1,IDISK(LU1))
           IF( DIFVEC) THEN
-            CALL IDAFILE(LU2,2,NBL2,1,IDISK(LU2))
+            CALL IDAFILE(LU2,2,IDUMMY,1,IDISK(LU2))
+            NBL2=IDUMMY(1)
             CALL IDAFILE(LU2,2,IDUMMY,1,IDISK(LU2))
           END IF
         END IF

@@ -11,7 +11,7 @@
 * Copyright (C) 1986, Per E. M. Siegbahn                               *
 *               1986, Margareta R. A. Blomberg                         *
 ************************************************************************
-      SUBROUTINE ORDER(C,D,N)
+      SUBROUTINE ORDER_CPF(C,D,N)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION C(*),D(*)
       IF(N.EQ.1)RETURN
