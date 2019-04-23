@@ -41,12 +41,14 @@
       CALL GETMEM('LWGT','ALLO','REAL',LWGT,NSTATE**2)
       CALL DCOPY_(NSTATE**2,0.0D0,0,WORK(LWGT),1)
 
+* Initialize array of 1-RDMs with zeros
+      CALL DCOPY_(NSTATE*NDREF,0.0D0,0,WORK(LDMIX),1)
 * Initialize array for temporary storage of DMIX
       ! CALL GETMEM('LDTMP','ALLO','REAL',LDTMP,NDREF*NSTATE)
 
       DO ISTATE=1,NSTATE
 
-        IF (ISCF.NE.0) THEN
+        IF(ISCF.NE.0) THEN
 * Then we still need the "CI array": It is used in subroutine calls
           WORK(LCI)=1.0D0
         ELSE IF(DoCumulant) THEN
@@ -60,7 +62,7 @@
           CALL DDAFILE(LUCIEX,2,WORK(LCI),NCONF,ID)
         END IF
 
-        IF (IPRGLB.GE.VERBOSE) THEN
+        IF(IPRGLB.GE.VERBOSE) THEN
           WRITE(6,*)
           WRITE(6,*)' CI array of CASSCF state nr. ',MSTATE(ISTATE)
           CALL PRWF_CP2(LSYM,NCONF,WORK(LCI),CITHR)
@@ -85,8 +87,7 @@
           II = NSTATE*(ISTATE-1)
           CALL DCOPY_(NSTATE,1.0D0/NSTATE,0,WORK(LWGT+II),1)
         ELSE
-* It is a normal MS-CASPT2 and the weight vectors are the simply the
-* standard Cartesian basis vectors e_1, e_2, ...
+* It is a normal MS-CASPT2 and the weight vectors are the standard e_1, e_2, ...
           WORK(LWGT + (NSTATE*(ISTATE-1)) + (ISTATE-1)) = 1.0D0
         END IF
 
@@ -96,27 +97,35 @@
         CALL GETDREF(WORK(LDREF))
         ! CALL GETDREF(WORK(LDMIX+NDREF*(ISTATE-1)))
 
-* Average the density
+        IFTEST = 1
+        IF ( IFTEST.NE.0 ) THEN
+          WRITE(6,*)' DREF for state nr. ',MSTATE(ISTATE)
+          DO I=1,NASHT
+            WRITE(6,'(1x,14f10.6)')(WORK(LDREF+(I*(I-1))/2+J-1),J=1,I)
+          END DO
+          WRITE(6,*)
+        END IF
+
+* Averaging the density
         DO JSTATE=1,NSTATE
           SCL = WORK(LWGT + (NSTATE*(ISTATE-1)) + (JSTATE-1))
           JOFF = NDREF*(JSTATE-1)
           CALL DAXPY_(NDREF,SCL,WORK(LDREF),1,WORK(LDMIX+JOFF),1)
 
-          IFTEST = 0
+          IFTEST = 1
           IF ( IFTEST.NE.0 ) THEN
+            JJOFF = LDMIX+JOFF
             WRITE(6,*)' DMIX for state nr. ',MSTATE(JSTATE)
             DO I=1,NASHT
-              IOFF = LDMIX + NDREF*(JSTATE-1) - 1
-              WRITE(6,'(1x,10f8.4)')(WORK(IOFF + (I*(I-1))/2+J),J=1,I)
+              WRITE(6,'(1x,14f10.6)')(WORK(JJOFF+(I*(I-1))/2+J-1),J=1,I)
             END DO
             WRITE(6,*)
           END IF
-
         END DO
 
       END DO
 
-      IFTEST = 0
+      IFTEST = 1
       IF ( IFTEST.NE.0 ) THEN
         WRITE(6,*)
         DO I=1,NSTATE
