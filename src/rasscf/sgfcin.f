@@ -31,12 +31,13 @@
 !     module dependencies
       use qcmaquis_interface_cfg
 #endif
-      use rasscf_data, only : Emy, KSDFT, dftfock, exfac, nac, nacpar,
+      use rasscf_data, only : EMY, KSDFT, dftfock, exfac, nac, nacpar,
      &    noneq, potnuc, rfpert,
      &    tot_charge, tot_el_charge, tot_nuc_charge
+      use general_data, only : iSpin, nActEl, nSym, nTot1,
+     &    nBas, nIsh, nAsh, nFro
       implicit none
 #include "rasdim.fh"
-#include "general.fh"
 #include "output_ras.fh"
       Parameter (ROUTINE='SGFCIN  ')
 #include "WrkSpc.fh"

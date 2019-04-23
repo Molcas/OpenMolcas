@@ -11,11 +11,11 @@
 ! Copyright (C) 2014, Giovanni Li Manni                                *
 !               2019, Oskar Weser                                      *
 !***********************************************************************
-module fciqmc_dump
-  use fciqmc_tables
+module fcidump_dump
+  use fcidump_tables
   implicit none
   private
-  public :: dump_ascii, dump_hdf5, make_fcidumps
+  public :: dump_ascii, dump_hdf5
   save
 contains
 !>  @brief
@@ -103,8 +103,6 @@ contains
 !>  @param[in] two_el_table
   subroutine dump_hdf5(EMY, orbital_table, fock_table, two_el_table)
     use general_data, only : nSym, nActEl, multiplicity => iSpin, lSym, nAsh
-    use fciqmc_tables, only : FockTable, TwoElIntTable, OrbitalTable, &
-      length, unused
     use gas_data, only : iDoGAS
     use gugx_data, only : IfCAS
 #ifdef _HDF5_
@@ -204,36 +202,4 @@ contains
     end if
 #endif
   end subroutine dump_hdf5
-
-
-  subroutine make_fcidumps(iter, nacpar, nAsh, TUVX, DIAF, &
-        CMO, DSPN, F_IN, D1I, D1A, EMY, permutation)
-    implicit none
-    integer, intent(in) :: iter, nacpar, nAsh(:)
-    real(8), intent(in) :: TUVX(:), DIAF(:), EMY, &
-      CMO(:), DSPN(:), F_IN(:), D1I(:), D1A(:)
-    integer, intent(in), optional :: permutation(:)
-    type(OrbitalTable) :: orbital_table
-    type(FockTable) :: fock_table
-    type(TwoElIntTable) :: two_el_table
-
-    call mma_allocate(fock_table, nacpar)
-    call mma_allocate(two_el_table, size(TUVX))
-    call mma_allocate(orbital_table, sum(nAsh))
-
-    call fill_orbitals(orbital_table, DIAF, iter)
-    call fill_fock(fock_table, CMO=CMO, F_IN=F_IN, D1I_MO=D1I)
-    call fill_2ElInt(two_el_table, TUVX)
-
-    if (present(permutation)) then
-      call reorder(orbital_table, fock_table, two_el_table, permutation)
-    end if
-
-    call dump_ascii(EMY, orbital_table, fock_table, two_el_table)
-    call dump_hdf5(EMY, orbital_table, fock_table, two_el_table)
-
-    call mma_deallocate(fock_table)
-    call mma_deallocate(two_el_table)
-    call mma_deallocate(orbital_table)
-  end subroutine make_fcidumps
-end module fciqmc_dump
+end module fcidump_dump

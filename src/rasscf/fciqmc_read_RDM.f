@@ -36,6 +36,7 @@
 *   In that case only a reordering following Molcas convention is necessary.
 * </Description>
       use general_data, only : iSpin, nActEl
+!      use index_symmetry, only : two_el_idx_flatten
       implicit none
 #include "para_info.fh"
 #include "output_ras.fh"

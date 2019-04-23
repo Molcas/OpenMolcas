@@ -58,7 +58,7 @@
 #endif
       use stdalloc
       use fciqmc, only : FCIQMC_ctl, DumpOnly, DoNECI
-      use fciqmc_dump, only : make_fcidumps
+      use fcidump, only : make_fcidumps
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -769,11 +769,11 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
      &                       TUVX=work(ltuvx : ltuvx + nAcPr2 - 1),
      &                       DIAF=work(LDIAF : LDiaf + nTot - 1),
      &                       CMO=work(LCMO : LCMO + nTot2 - 1),
-     &                       DSPN=work(ldspn : ldspn + nAcPar - 1),
+!     &                       DSPN=work(ldspn : ldspn + nAcPar - 1),
      &                       F_IN=work(lfi : lfi + nTot1 - 1),
-     &                       D1I=work(ld1i : ld1i + nTot2 - 1),
-     &                       D1A=work(ld1a : ld1a + nTot2 - 1),
-     &                       EMY=EMY)
+     &                       D1I_MO=work(ld1i : ld1i + nTot2 - 1),
+!     &                       D1A=work(ld1a : ld1a + nTot2 - 1),
+     &                       core_energy=EMY)
           write(6,*) "FCIDMP file generated. Here for serving you!"
           goto 2010
         end if
@@ -1066,7 +1066,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
      &                    PAMAT=work(lpa : lpa + nAcPr2 - 1),
      &                    F_IN=work(lfi : lfi + nTot1 - 1),
      &                    D1I=work(ld1i : ld1i + nTot2 - 1),
-     &                    D1A=work(ld1a : ld1a + nTot2 - 1),
+!     &                    D1A=work(ld1a : ld1a + nTot2 - 1),
      &                    TUVX=work(ltuvx : ltuvx + nAcPr2 - 1))
 
           If ( IPRLEV.ge.DEBUG ) then
@@ -1718,7 +1718,7 @@ c Clean-close as much as you can the CASDFT stuff...
      &                    PAMAT=work(lpa : lpa + nAcPr2 - 1),
      &                    F_IN=work(lfi : lfi + nTot1 - 1),
      &                    D1I=work(ld1i : ld1i + nTot2 - 1),
-     &                    D1A=work(ld1a : ld1a + nTot2 - 1),
+!     &                    D1A=work(ld1a : ld1a + nTot2 - 1),
      &                    TUVX=work(ltuvx : ltuvx + nAcPr2 - 1))
       else
 ! Leon 27/11/2017: Skip the final CI iteration if we're using DMRGCI

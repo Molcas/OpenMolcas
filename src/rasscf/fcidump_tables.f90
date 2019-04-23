@@ -11,13 +11,15 @@
 ! Copyright (C) 2014, Giovanni Li Manni                                *
 !               2019, Oskar Weser                                      *
 !***********************************************************************
-module fciqmc_tables
+module fcidump_tables
   use stdalloc, only : mma_allocate, mma_deallocate
+  use index_symmetry, only : one_el_idx, two_el_idx
   implicit none
   private
   public :: FockTable, TwoElIntTable, OrbitalTable, mma_allocate, &
     mma_deallocate, length, print, fill_orbitals, fill_fock, fill_2ElInt, &
-    cutoff_default, reorder, get_P_GAS, get_P_inp, unused
+    cutoff_default, unused
+  save
 
   type :: FockTable
     sequence
@@ -53,11 +55,6 @@ module fciqmc_tables
       OrbitalTable_deallocate
   end interface
 
-  interface reorder
-    module procedure FockTable_reorder, TwoElIntTable_reorder, &
-      OrbitalTable_reorder, ALL_reorder
-  end interface
-
   interface length
     module procedure FockTable_length, TwoElIntTable_length, &
       OrbitalTable_length
@@ -70,8 +67,9 @@ module fciqmc_tables
   interface unused
     module procedure FockTable_unused, TwoElIntTable_unused, OrbitalTable_unused
   end interface
-  save
+
 contains
+
   subroutine OrbitalTable_allocate(orbital_table, n)
     implicit none
     integer, intent(in) :: n
@@ -100,26 +98,15 @@ contains
 !>  @param[in,out] orbitals Core
 !>  @param[in] DIAF
 !>  @param[in] iter
-  subroutine fill_orbitals(table, DIAF, iter)
+  subroutine fill_orbitals(table, orbital_energies)
     use general_data, only : nBas, nSym, nAsh, nFro, nIsh
     implicit none
     type(OrbitalTable), intent(inout) :: table
-    integer, intent(in) :: iter
-    real(kind=8), intent(in), target :: DIAF(:)
-    real(kind=8), allocatable, target :: EOrb(:)
-    real(kind=8), pointer :: orbital_energies(:)
+    real(kind=8), intent(in) :: orbital_energies(:)
     integer :: i, n, iSym, iOff
 
     integer, parameter :: max_test = 20
     integer :: l_orb_test
-
-    if (iter == 1) then
-      call mma_allocate(EOrb, sum(nBas(:nSym)))
-      call read_orbital_energies(nSym, nBas, EOrb)
-      orbital_energies => EOrb
-    else
-      orbital_energies => DIAF
-    end if
 
     iOff = 0
     n = 1
@@ -133,43 +120,12 @@ contains
       end if
       iOff   = iOff + nBas(iSym)
     end do
-    if (allocated(EOrb)) call mma_deallocate(EOrb)
 ! ========== For testing purposes FROM HERE =============
     l_orb_test = min(max_test, length(table))
     call Add_Info('Orbital Energy Input', &
       table%values(:l_orb_test), l_orb_test, 8)
 ! ========== For testing purposes TO HERE ===============
-  contains
-    subroutine read_orbital_energies(nSym, nBas, orbital_energies)
-      implicit none
-      integer, intent(in) :: nSym, nBas(:)
-      real(kind=8), intent(inout) :: orbital_energies(:)
-      real(kind=8) :: Dummy
-      integer :: LuInpOrb = 10, iDummy, err
-      character(*), parameter ::  FnInpOrb = 'INPORB'
-      character(80) :: VecTit
-      logical :: okay
-      call f_Inquire(FnInpOrb, okay)
-      if (okay) then
-        call RdVec(FnInpOrb,LuInpOrb,'E',nSym,nBas,nBas, &
-          Dummy, Dummy, orbital_energies, iDummy, &
-          VecTit, 0, err)
-      else
-        Write (6,*) 'RdCMO: Error finding MO file'
-        call QTrace()
-        call Abend()
-      end if
-    end subroutine read_orbital_energies
   end subroutine fill_orbitals
-
-  subroutine OrbitalTable_reorder(orbitals, P)
-    type(OrbitalTable), intent(inout) :: orbitals
-    integer, intent(in) :: P(:)
-    integer :: i
-    do i = 1, length(orbitals)
-      orbitals%index(i) = P(orbitals%index(i))
-    end do
-  end subroutine
 
   pure integer function OrbitalTable_length(table)
     type(OrbitalTable), intent(in) :: table
@@ -218,82 +174,41 @@ contains
 !>  The index is given by i and j.
 !>
 !>  @param[in,out] fock_table
-!>  @param[in] Fock
-!>  @param[in] EMY
+!>  @param[in] CMO The occupation number vector in MO-space.
+!>  @param[in] F_In
+!>    \f[\sum_{\sigma\rho} {In}^D_{\sigma\rho} (g_{\mu\nu\sigma\rho})  \f]
+!>  @param[in] D1I_MO The inactive one-body density matrix in MO-space
 !>  @param[in] cutoff Optional parameter that is set by default to
 !>    fciqmc_tables::cutoff_default.
-  subroutine fill_fock(fock_table, CMO, F_IN, D1I_MO, cutoff)
+  subroutine fill_fock(fock_table, Fock, cutoff)
     use general_data, only : nActEl, nAsh, ntot, ntot1, ntot2
-    use rasscf_data, only : nAcPar, core_energy => Emy
+    use rasscf_data, only : nAcPar
     implicit none
-    real(8), intent(in) :: CMO(nTot2), F_IN(nTot1), D1I_MO(nTot2)
+    real(8), intent(in) :: Fock(:)
     type(FockTable), intent(inout) :: fock_table
     real(8), optional, intent(in) :: cutoff
-    real(8), allocatable :: &
-! transformed fock
-        transformed_fock(:),&
-! active one-body density matrix in AO-space
-        D1A_AO(:),&
-! active one-body density matrix in MO-space
-        D1A_MO(:)
-    integer :: i, n, iOrb, jOrb, l_fock_test
+
+    integer :: i, n, l_fock_test
     integer, parameter :: max_test = 20
-    real(8) :: core_E_per_act_el, cutoff_
+    real(8) :: cutoff_
 
     cutoff_ = merge(cutoff, cutoff_default, present(cutoff))
 
-    call mma_allocate(transformed_fock, nAcPar)
-    call mma_allocate(D1A_AO, nTot2)
-    call mma_allocate(D1A_MO, nTot2)
-    ! TODO(Giovanni, Oskar): I think this is not necessary?
-    ! D1A_MO(:) = DSPN(:)
-    if (nAsh(1) /= sum(nAsh)) call DBLOCK(D1A_MO)
-    call Get_D1A_RASSCF(CMO, D1A_MO, D1A_AO)
-    ! SGFCIN has side effects and EMY/core_energy is set in this routine.
-    call SGFCIN(CMO, transformed_fock, F_In, D1I_MO, D1A_MO, D1A_AO)
-    call mma_deallocate(D1A_MO)
-    call mma_deallocate(D1A_AO)
-
-    if (nActEl /= 0) then
-      core_E_per_act_el = core_energy / dble(nActEl)
-    else
-      core_E_per_act_el = 0.0d0
-    end if
-
     n = 0
-    do i = 1, size(transformed_fock)
-      if (abs(transformed_Fock(i)) >= cutoff_) then
+    do i = 1, size(Fock)
+      if (abs(Fock(i)) >= cutoff_) then
         n = n + 1
-        iOrb = ceiling(-0.5d0 + sqrt(2.0d0 * i))
-        jOrb = i - (iOrb - 1) * iOrb / 2
-        fock_table%index(:, n) = [iOrb, jOrb]
-        if (iOrb == jOrb) then
-          fock_table%values(n) = transformed_Fock(i) - core_E_per_act_el
-        else
-          fock_table%values(n) = transformed_Fock(i)
-        end if
+        fock_table%index(:, n) = one_el_idx(i)
+        fock_table%values(n) = Fock(i)
       end if
     end do
     fock_table%length = n
     fock_table%cutoff = cutoff_
 ! ========== For testing purposes FROM HERE =============
     l_fock_test = min(max_test, length(fock_table))
-    call Add_Info('Fock element Input', transformed_Fock(:l_fock_test), l_fock_test, 8)
+    call Add_Info('Fock element Input', Fock(:l_fock_test), l_fock_test, 8)
 ! ========== For testing purposes TO HERE ===============
-    call mma_deallocate(transformed_Fock)
   end subroutine fill_fock
-
-  subroutine FockTable_reorder(fock, P)
-    implicit none
-    type(FockTable), intent(inout) :: fock
-    integer, intent(in) :: P(:)
-    integer :: i, j
-    do j = 1, length(fock)
-      do i = 1, 2
-        fock%index(i, j) = P(fock%index(i, j))
-      end do
-    end do
-  end subroutine
 
   pure integer function FockTable_length(table)
     implicit none
@@ -350,7 +265,7 @@ contains
     implicit none
     real(kind=8), intent(in) :: TUVX(:)
     type(TwoElIntTable), intent(inout) :: two_el_table
-    integer :: i, n, ijidx, klidx, iorb, jorb, korb, lorb
+    integer :: i, n
     real(kind=8), optional :: cutoff
     real(kind=8) :: cutoff_
 
@@ -363,13 +278,7 @@ contains
     do i = 1, size(TUVX)
       if (abs(TUVX(i)) >= cutoff_) then
         n = n + 1
-        ijidx = ceiling(-0.5d0 + sqrt(2.0d0 * i))
-        klidx = i - (ijidx - 1) * ijidx / 2
-        iorb = ceiling(-0.5d0 + sqrt(2.0d0 * ijidx))
-        jorb = ijidx - (iorb - 1) * iorb / 2
-        korb = ceiling(-0.5d0 + sqrt(2.0d0 * klidx))
-        lorb = klidx - (korb - 1) * korb / 2
-        two_el_table%index(:, n) = [iorb, jorb, korb, lorb]
+        two_el_table%index(:, n) = two_el_idx(i)
         two_el_table%values(n) = TUVX(i)
       end if
     end do
@@ -382,17 +291,6 @@ contains
       TUVX(:l_twoel_test), l_twoel_test, 8)
 ! ========== For testing purposes TO HERE ===============
   end subroutine fill_2ElInt
-
-  subroutine TwoElIntTable_reorder(two_el_table, P)
-    type(TwoElIntTable), intent(inout) :: two_el_table
-    integer, intent(in) :: P(:)
-    integer :: i, j
-    do j = 1, length(two_el_table)
-      do i = 1, 4
-        two_el_table%index(i, j) = P(two_el_table%index(i, j))
-      end do
-    end do
-  end subroutine
 
   pure integer function TwoElIntTable_length(table)
     type(TwoElIntTable), intent(in) :: table
@@ -413,44 +311,4 @@ contains
     integer :: n
     if (.false.) n = length(table)
   end subroutine TwoElIntTable_unused
-
-  function get_P_GAS(ngssh) result(P)
-    use sorting, only : argsort
-    implicit none
-    integer, intent(in) :: ngssh(:, :)
-    integer :: P(sum(ngssh)), X(sum(ngssh))
-    integer :: iGAS, iSym, iOrb, bounds(2)
-    bounds = shape(ngssh)
-    iOrb = 1
-    do iSym = 1, bounds(2)
-      do iGAS = 1, bounds(1)
-        X(iOrb : iOrb + ngssh(iGAS, iSym)) = iGAS
-        iOrb = iOrb + ngssh(iGAS, iSym) + 1
-      end do
-    end do
-    P = argsort(X)
-  end function
-
-  function get_P_inp(ReOrInp) result(P)
-    use sorting, only : sort
-    use general_data, only : nAsh
-    implicit none
-    integer, intent(in) :: ReOrInp(:)
-    integer :: P(sum(nAsh)), change_idx(size(ReOrInp)), i
-    P = [(i, i = 1, size(P))]
-    change_idx = ReOrInp
-    call sort(change_idx)
-    P(change_idx) = ReOrInp
-  end function
-
-  subroutine ALL_reorder(orbitals, fock, two_el_table, P)
-    type(OrbitalTable), intent(inout) :: orbitals
-    type(FockTable), intent(inout) :: fock
-    type(TwoElIntTable), intent(inout) :: two_el_table
-    integer, intent(in) :: P(:)
-
-    call reorder(orbitals, P)
-    call reorder(fock, P)
-    call reorder(two_el_table, P)
-  end subroutine
-end module fciqmc_tables
+end module fcidump_tables
