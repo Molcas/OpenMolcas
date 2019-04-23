@@ -2603,16 +2603,16 @@ foreach (util ${utils})
         # ignore empty directories
         if (NOT "${source}" STREQUAL "")
                 add_library (${util}_obj OBJECT ${source})
+                if (SINGLE_MOD_DIR)
+                        set (mod_dir ${MAIN_MOD_DIR}/_single)
+                else ()
+                        set (mod_dir ${MAIN_MOD_DIR}/${util})
+                endif ()
+                set_target_properties (${util}_obj PROPERTIES Fortran_MODULE_DIRECTORY ${mod_dir})
+
                 if (BUILD_SHARED_LIBS)
                         set_target_properties (${util}_obj PROPERTIES
                                 POSITION_INDEPENDENT_CODE "TRUE")
-                endif ()
-                if (SINGLE_MOD_DIR)
-                        set_target_properties (${util}_obj PROPERTIES
-                                Fortran_MODULE_DIRECTORY ${MAIN_MOD_DIR}/_single)
-                else ()
-                        set_target_properties (${util}_obj PROPERTIES
-                                Fortran_MODULE_DIRECTORY ${MAIN_MOD_DIR}/${util})
                 endif ()
 
                 # utility-specific compile definitions
@@ -2620,7 +2620,7 @@ foreach (util ${utils})
                         set_target_properties (${util}_obj PROPERTIES COMPILE_DEFINITIONS "${${util}_defs}")
                 endif ()
                 # utility-specific include directories
-                list (APPEND ${util}_incs ${PROJECT_SOURCE_DIR}/${${util}_src})
+                list (APPEND ${util}_incs ${PROJECT_SOURCE_DIR}/${${util}_src} ${mod_dir})
                 foreach (inc ${${util}_incs})
                         target_include_directories (${util}_obj PRIVATE ${inc})
                 endforeach ()
@@ -2705,12 +2705,12 @@ foreach (prog ${progs})
                 if (NOT "${source}" STREQUAL "")
                         add_library (${prog} OBJECT ${source})
                         if (SINGLE_MOD_DIR)
-                                set_target_properties (${prog} PROPERTIES
-                                        Fortran_MODULE_DIRECTORY ${MAIN_MOD_DIR}/_single)
+                                set (mod_dir ${MAIN_MOD_DIR}/_single)
                         else ()
-                                set_target_properties (${prog} PROPERTIES
-                                        Fortran_MODULE_DIRECTORY ${MAIN_MOD_DIR}/${prog})
+                                set (mod_dir ${MAIN_MOD_DIR}/${prog})
                         endif ()
+                        set_target_properties (${prog} PROPERTIES Fortran_MODULE_DIRECTORY ${mod_dir})
+
                         # programs in "proglib" have their libraries compiled as utils
                         if (BUILD_SHARED_LIBS AND ";${proglib};" MATCHES ";${prog};")
                                 set_target_properties (${prog} PROPERTIES
@@ -2722,7 +2722,7 @@ foreach (prog ${progs})
                                 set_target_properties (${prog} PROPERTIES COMPILE_DEFINITIONS "${${prog}_defs}")
                         endif ()
                         # program-specific include directories
-                        list (APPEND ${prog}_incs ${PROJECT_SOURCE_DIR}/${${prog}_src})
+                        list (APPEND ${prog}_incs ${PROJECT_SOURCE_DIR}/${${prog}_src} ${mod_dir})
                         foreach (inc ${${prog}_incs})
                                 target_include_directories (${prog} PRIVATE ${inc})
                         endforeach ()
