@@ -144,7 +144,7 @@ c Modify the Fock matrix, if needed:
         END DO
       END DO
 
-      IF(IPRGLB.GE.USUAL) THEN
+      IF(IPRGLB.GE.VERBOSE) THEN
         WRITE(6,*)
         WRITE(6,*)' FOPXMS (Symmetric):'
         DO I=1,NGRP
@@ -192,7 +192,7 @@ c Modify the Fock matrix, if needed:
         CALL TRANSMAT(H0,WORK(LEVEC),NGRP)
         CALL TRANSMAT(HEFF,WORK(LEVEC),NGRP)
 
-        IF(IPRGLB.GE.USUAL) THEN
+        IF(IPRGLB.GE.VERBOSE) THEN
           WRITE(6,*)
           WRITE(6,*)' HEFF[1] in the XMS basis is:'
           DO J1=1,NSTATE
@@ -200,7 +200,7 @@ c Modify the Fock matrix, if needed:
           END DO
         END IF
 
-        IF(IPRGLB.GE.USUAL) THEN
+        IF(IPRGLB.GE.VERBOSE) THEN
           WRITE(6,*)
           WRITE(6,'(6X,A)')' Eigenvectors:'
           DO ISTA=1,NSTATE,5

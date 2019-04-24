@@ -133,14 +133,13 @@ C second-order correction Heff(2) = PH \Omega_1 P to Heff[1]
         DO I=1,NSTATE
           HEFF(I,I) = REFENE(I)
         END DO
-      END IF
-
-      IF (IPRGLB.GE.VERBOSE) THEN
-        WRITE(6,*)' HEFF[1] is initialized to:'
-        DO I=1,NSTATE
-          WRITE(6,'(1x,5f16.8)')(HEFF(I,J),J=1,NSTATE)
-        END DO
-        WRITE(6,*)
+        IF (IPRGLB.GE.VERBOSE) THEN
+          WRITE(6,*)' HEFF[1] is initialized to:'
+          DO I=1,NSTATE
+            WRITE(6,'(1x,5f16.8)')(HEFF(I,J),J=1,NSTATE)
+          END DO
+          WRITE(6,*)
+        END IF
       END IF
 
 * Before entering the long loop over groups and states, precompute

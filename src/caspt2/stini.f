@@ -28,6 +28,8 @@ C     indices
       INTEGER I,J
       INTEGER IDCI
 
+      real*8 EISUM
+
       CALL QENTER('STINI')
       Write(STLNE2,'(A,I4)')
      &                ' Compute H0 matrices for state ',MSTATE(JSTATE)
@@ -79,24 +81,26 @@ C     indices
 * With new DREF, recompute EASUM:
       EASUM=0.0D0
       DO I=1,NASHT
-       EASUM=EASUM+EPSA(I)*WORK(LDREF-1+(I*(I+1))/2)
+        EASUM=EASUM+EPSA(I)*WORK(LDREF-1+(I*(I+1))/2)
       END DO
+      IF (IFDW.AND.IFXMS) THEN
+* Contribution from inactive part
+        EISUM=0.0D0
+        DO I=1,NISHT
+          EISUM=EISUM+EPSI(I)*2.0D0
+        END DO
+* E0 energy computed with the SA Fock matrix
+        ! write(6,*)' EISUM  = ',EISUM
+        ! write(6,*)' EASUM  = ',EASUM
+        WRITE(6,*)' E0(SA)  = ',EASUM+EISUM
+        WRITE(6,*)' E0(DW)  = ',-DWSHIFT
+        DWSHIFT=DWSHIFT+EASUM+EISUM
+        IF (ABS(DWSHIFT) .LT. 1.0E-12) THEN
+          DWSHIFT = 0.0D0
+        END IF
+        WRITE(6,*)' DWSHIFT = ',DWSHIFT
+      END IF
 
-* PAM March 2015: Do not recompute/modify FIFA. It is unchanged since GRPINI.
-*     If (.not.IfChol) then
-* Do we want this call at all any longer??
-*      CALL CORRMAT()
-*     End If
-*c Modify the Fock matrix:
-*      IF(FOCKTYPE.NE.'STANDARD') THEN
-*        IF(IPRGLB.GE.DEBUG) THEN
-*         WRITE(6,*)' STINI calling NEWFOCK...'
-*        END IF
-*        CALL NEWFOCK(WORK(LFIFA))
-*        IF(IPRGLB.GE.DEBUG) THEN
-*         WRITE(6,*)' STINI back from NEWFOCK.'
-*        END IF
-*      END IF
 
       IF(IPRGLB.GE.DEBUG) THEN
        WRITE(6,*)' STINI calling POLY3...'

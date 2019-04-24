@@ -1254,17 +1254,19 @@ C-SVC: get the local vertical stripes of the lg_W vector
           NROW=iHi-iLo+1
           NCOL=jHi-jLo+1
           CALL GA_Access (lg_W,iLo,iHi,jLo,jHi,mW,LDW)
-          CALL RESDIA(NROW,NCOL,DBL_MB(mW),LDW,
-     &                DIN(iLo),DIS(jLo),SHIFT,SHIFTI,DOVL)
+          CALL RESDIA(NROW,NCOL,DBL_MB(mW),LDW,DIN(iLo),
+     &                DIS(jLo),SHIFT,SHIFTI,DWSHIFT,DOVL)
           CALL GA_Release_Update (lg_W,iLo,iHi,jLo,jHi)
         END IF
         CALL GA_Sync()
         CALL GAdSUM_SCAL(DOVL)
       ELSE
-        CALL RESDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,SHIFT,SHIFTI,DOVL)
+        CALL RESDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,
+     &                   SHIFT,SHIFTI,DWSHIFT,DOVL)
       END IF
 #else
-      CALL RESDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,SHIFT,SHIFTI,DOVL)
+      CALL RESDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,
+     &                 SHIFT,SHIFTI,DWSHIFT,DOVL)
 #endif
 
       END
@@ -1304,16 +1306,17 @@ C-SVC: get the local vertical stripes of the lg_W vector
         END IF
         CALL GA_Sync()
       ELSE
-        CALL SGMDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,SHIFT,SHIFTI)
+        CALL SGMDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,SHIFT,SHIFTI,DWSHIFT)
       END IF
 #else
-      CALL SGMDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,SHIFT,SHIFTI)
+      CALL SGMDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,SHIFT,SHIFTI,DWSHIFT)
 #endif
 
       END
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      SUBROUTINE RESDIA(NROW,NCOL,W,LDW,DIN,DIS,SHIFT,SHIFTI,DOVL)
+      SUBROUTINE RESDIA(NROW,NCOL,W,LDW,DIN,DIS,
+     &                  SHIFT,SHIFTI,DWSHIFT,DOVL)
       IMPLICIT REAL*8 (A-H,O-Z)
 
       DIMENSION W(LDW,*),DIN(*),DIS(*)
@@ -1321,7 +1324,8 @@ C-SVC: get the local vertical stripes of the lg_W vector
       DOVL=0.0D0
       DO J=1,NCOL
         DO I=1,NROW
-        DELTA=SHIFT+DIN(I)+DIS(J)
+! SB 2019 DWSHIFT for DW-XMS-CASPT2
+        DELTA=SHIFT+DIN(I)+DIS(J)+DWSHIFT
         DELINV=DELTA/(DELTA**2+SHIFTI**2)
         TMP=DELINV*W(I,J)
         DOVL=DOVL+TMP*W(I,J)
@@ -1331,14 +1335,15 @@ C-SVC: get the local vertical stripes of the lg_W vector
       END
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      SUBROUTINE SGMDIA(NROW,NCOL,W,LDW,DIN,DIS,SHIFT,SHIFTI)
+      SUBROUTINE SGMDIA(NROW,NCOL,W,LDW,DIN,DIS,SHIFT,SHIFTI,DWSHIFT)
       IMPLICIT REAL*8 (A-H,O-Z)
 
       DIMENSION W(LDW,*),DIN(*),DIS(*)
 
       DO J=1,NCOL
         DO I=1,NROW
-        DELTA=SHIFT+DIN(I)+DIS(J)
+! SB 2019 DWSHIFT for DW-XMS-CASPT2
+        DELTA=SHIFT+DIN(I)+DIS(J)+DWSHIFT
         DELINV=DELTA+SHIFTI**2/DELTA
         W(I,J)=DELINV*W(I,J)
         END DO
