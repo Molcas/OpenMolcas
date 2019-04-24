@@ -187,6 +187,7 @@ c Avoid unused argument warnings
             Call RecPrt('qInt(0)',  ' ',qInt(1,iFirst),nInter,nRaw)
             Call RecPrt('Energy(0)',' ',Energy(iFirst),1,nRaw)
             Call RecPrt('Grad(0)',  ' ',Grad(1,iFirst),nInter,nRaw)
+            Call RecPrt('Shift',  ' ',Shift(1,iFirst),nInter,nRaw)
 *
             Call DScal_(nInter*nRaw,-1.0D0,Grad(1,iFirst),1)
             Call Start_Kriging(nRaw,nInter,
@@ -234,6 +235,10 @@ c Avoid unused argument warnings
 *           for the next macro iteration.
 *
             Call DCopy_(nInter,qInt(1,iterAI),1,qInt(1,iter+1),1)
+            Call DCopy_(nInter,qInt(1,iter+1),1,Shift(1,iter),1)
+            Call DaXpY_(nInter,-1.0D0,qInt(1,iter),1,Shift(1,iter),1)
+            Call RecPrt('qInt(3):',' ',qInt,nInter,iter+1)
+            Call RecPrt('Shift(3):',' ',Shift,nInter,iter)
 *
             write(6,*) 'finished do iter',iterAI
 *           De allocating memory used by Kriging
