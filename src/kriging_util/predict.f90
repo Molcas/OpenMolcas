@@ -32,13 +32,13 @@
                     if (gh.eq.0) then
                         pred(j) = sb + dot_product(tcv(j,:),Kv)
                         sigma=1.96*sqrt(abs(var*variance))
-!                       write(6,*) 'pred:',k,j,l,pred(j),var,variance, &
-!                                   sigma, lh
+                      write(6,*) 'pred:',k,j,l,pred(j),var,variance, &
+                                  sigma, lh
                     else
                         gpred(j,k) = dot_product(tcv(j,:),Kv)
                         sigma=1.96*sqrt(2*abs(var*variance))
-!                       write(6,*) 'pred Grad:',k,j,l,pred(j),var,variance, &
-!                                   sigma, lh
+                      write(6,*) 'pred Grad:',k,j,l,gpred(j,k),var,variance, &
+                                  sigma, lh
                     endif
                 enddo
             enddo
