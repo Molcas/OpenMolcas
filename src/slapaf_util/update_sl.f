@@ -217,8 +217,10 @@ c Avoid unused argument warnings
 *              Compute the energy and gradient according to the
 *              surrogate model for the new coordinates.
 *
-               Call Loop_Kriging(qInt(1,iterAI+1),Energy(iterAI+1),
-     &                           Grad(1,iterAI+1),nInter)
+               Call Energy_Kriging(qInt(1,iterAI+1),Energy(iterAI+1),
+     &                             nInter)
+               Call Gradient_Kriging(qInt(1,iterAI+1),Grad(1,iterAI+1),
+     &                               nInter)
                Call DScal_(nInter,-1.0D0,Grad(1,iterAI+1),1)
 *
                iterK  = iterK  + 1
@@ -395,6 +397,7 @@ c Avoid unused argument warnings
 *        Temporary code until we have the 2nd derivatives from the
 *        kriging code.
 *
+*        Call Hessian_Kriging(qInt(1,kIter),Work(ipH),nInter)
          Call DCopy_(nInter**2,0.0D0,0,Work(ipH),1)
          Call DCopy_(nInter,1.0D-2,0,Work(ipH),nInter+1)
          iNeg(1)=0

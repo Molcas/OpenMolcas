@@ -10,11 +10,10 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-
-      Subroutine Loop_Kriging(x_,y_,dy_,ndimx)
+      Subroutine Energy_Kriging(x_,y_,ndimx)
         use globvar
         Integer nInter,nPoints
-        Real*8 x_(ndimx,1),y_,dy_(ndimx),ddy_(ndimx)
+        Real*8 x_(ndimx,1),y_
 !
         nPoints=nPoints_save
         nInter=nInter_save
@@ -28,15 +27,47 @@
         call covarvector(0,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
         call predict(0,nPoints,nInter)
         y_=pred(npx)
+!
+        return
+      end
+      Subroutine Gradient_Kriging(x_,dy_,ndimx)
+        use globvar
+        Integer nInter,nPoints
+        Real*8 x_(ndimx,1),dy_(ndimx)
+!
+        nPoints=nPoints_save
+        nInter=nInter_save
+!
+        npx=1
+!nx is the n-dimensional vector of the last iteration computed in update_sl
+! subroutine
+        nx = x_
+!
         ! Write(6,*) 'Entro grad'
         call covarvector(1,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
         call predict(1,nPoints,nInter)
         dy_=gpred(npx,:)
-        ! Write(6,*) 'Entro hess'
-        call covarvector(2,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
-        call predict(2,nPoints,nInter)
-        ddy_=hpred(npx,:)
-        write(6,*) 'New values of Coord, Energy, Grad and Hess', x_, y_, dy_,ddy_
 !
         return
       end
+      Subroutine Hessian_Kriging(x_,ddy_,ndimx)
+        use globvar
+        Integer nInter,nPoints
+        Real*8 x_(ndimx,1),ddy_(ndimx,ndimx)
+!
+        nPoints=nPoints_save
+        nInter=nInter_save
+!
+        npx=1
+!nx is the n-dimensional vector of the last iteration computed in update_sl
+! subroutine
+        nx = x_
+!
+        ! Write(6,*) 'Entro hess'
+        call covarvector(2,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+        call predict(2,nPoints,nInter)
+!       ddy_=hpred(npx,:)
+!
+        return
+      end
+
