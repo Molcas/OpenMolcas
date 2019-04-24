@@ -91,22 +91,17 @@
           idx = tuple_2el_idx(n, iorb, jorb, korb, lorb )
         end function
 
-        pure function array_2el_idx_flatten(idx) result(n)
+        function array_2el_idx_flatten(idx) result(n)
           integer, intent(in) :: idx(4)
           integer :: n
           n = tuple_2el_idx_flatten(idx(1), idx(2), idx(3), idx(4))
         end function
 
-        pure function tuple_2el_idx_flatten(p, q, r, s) result(pqrs)
+        function tuple_2el_idx_flatten(p, q, r, s) result(pqrs)
           integer, intent(in) :: p, q, r, s
           integer :: pqrs
           integer :: pq, rs
-          if (p >= q) pq = p * (p - 1) / 2 + q
-          if (p < q) pq = q * (q - 1) / 2 + p
-          if (r >= s) rs = r * (r - 1) / 2 + s
-          if (r < s) rs = s * (s - 1) / 2 + r
-          if (pq >= rs) pqrs = pq * (pq - 1) / 2 + rs
-          if (pq < rs) pqrs = rs * (rs - 1) / 2 + pq
+          pqrs = tuple_2el_idx_flatten_2(p, q, r, s, pq, rs)
         end function
 
         function tuple_2el_idx_flatten_2(p, q, r, s, pq, rs)result(pqrs)

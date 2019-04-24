@@ -36,7 +36,8 @@
 *   In that case only a reordering following Molcas convention is necessary.
 * </Description>
       use general_data, only : iSpin, nActEl
-!      use index_symmetry, only : two_el_idx_flatten
+! Note that two_el_idx_flatten has also out parameters.
+      use index_symmetry, only : two_el_idx_flatten
       implicit none
 #include "para_info.fh"
 #include "output_ras.fh"
@@ -46,7 +47,7 @@
       logical :: tExist, switch
       real(kind=8) :: fac, RDMval, fcalpha, fcbeta, fcnacte
       real(kind=8) :: D_alpha(size(DMAT)), D_beta(size(DMAT))
-      parameter(routine = 'neci2molcas_dens')
+      parameter(routine = 'read_neci_RDM')
 
       Call qEnter(routine)
 
@@ -117,7 +118,7 @@
 **************************************************************
         read(iUnit, "(4I6,G25.17)", iostat=iread) s, q, r, p, RDMval
         if(iread /= 0) exit
-        call get_indices(p, q, r, s, pq, rs, pqrs)
+        pqrs = two_el_idx_flatten(p, q, r, s, pq, rs)
 ******* Contribution to PSMAT and PAMAT:
         PSMAT(pqrs) = PSMAT(pqrs) + fac * RDMval
         if (r /= s.and.p == q) PSMAT(pqrs) = PSMAT(pqrs) + fac * RDMval
@@ -132,7 +133,8 @@
         if (r == s) D_alpha(pq) = D_alpha(pq) + RDMval
 ******************* processing as PSRQ ***********************
 **************************************************************
-        call get_indices(p, s, r, q, ps, rq, psrq)
+        psrq = two_el_idx_flatten(p, s, r, q, ps, rq)
+        psrq = two_el_idx_flatten(p, s, r, q, ps, rq)
 ******* Contribution to PSMAT and PAMAT:
         if (r <= q) then
           PSMAT(psrq) = PSMAT(psrq) - fac * RDMval
@@ -171,7 +173,7 @@
 **************************************************************
           read(iUnit,"(4I6,G25.17)",iostat=iread) s, q, r, p, RDMval
           if(iread /= 0) exit
-          call get_indices(p, q, r, s, pq, rs, pqrs)
+          pqrs = two_el_idx_flatten(p, q, r, s, pq, rs)
 ******* Contribution to PSMAT and PAMAT:
           PSMAT(pqrs) = PSMAT(pqrs) + fac * RDMval
           if(r /= s.and.p == q) PSMAT(pqrs) = PSMAT(pqrs) + fac*RDMval
@@ -186,7 +188,7 @@
           if (r == s) D_beta(pq) = D_beta(pq) + RDMval
 ******************* processing as PSRQ ***********************
 **************************************************************
-          call get_indices(p, s, r, q, ps, rq, psrq)
+          psrq = two_el_idx_flatten(p, s, r, q, ps, rq)
 ******* Contribution to PSMAT and PAMAT:
           if(r <= q) then
             PSMAT(psrq) = PSMAT(psrq) - fac*RDMval
@@ -220,7 +222,7 @@
       do
         read(iUnit,"(4I6,G25.17)",iostat=iread) s,q,r,p,RDMval
         if(iread /= 0) exit
-        call get_indices(p, q, r, s, pq, rs, pqrs)
+        pqrs = two_el_idx_flatten(p, q, r, s, pq, rs)
 ******* Contribution to PSMAT and PAMAT:
         PSMAT(pqrs) = PSMAT(pqrs) + fac*RDMval
         if(r > s.and.p /= q) PAMAT(pqrs) = PAMAT(pqrs) + fac*RDMval
@@ -254,7 +256,7 @@
         do
           read(iUnit,"(4I6,G25.17)",iostat=iread) s,q,r,p,RDMval
           if(iread /= 0) exit
-          call get_indices(p, q, r, s, pq, rs, pqrs)
+          pqrs = two_el_idx_flatten(p, q, r, s, pq, rs)
 ******* Contribution to PSMAT and PAMAT:
           PSMAT(pqrs) = PSMAT(pqrs) + fac * RDMval
           if(r > s.and.p /= q) PAMAT(pqrs) = PAMAT(pqrs) + fac*RDMval
@@ -282,7 +284,7 @@
       do
         read(iUnit,"(4I6,G25.17)",iostat=iread) q,s,r,p,RDMval
         if(iread /= 0) exit
-        call get_indices(p, q, r, s, pq, rs, pqrs)
+        pqrs = two_el_idx_flatten(p, q, r, s, pq, rs)
 ******* Contribution to PSMAT and PAMAT:
         PSMAT(pqrs) = PSMAT(pqrs) - fac*RDMval
         if(r < s) then
@@ -317,7 +319,7 @@
         do
           read(iUnit,"(4I6,G25.17)",iostat=iread) q,s,r,p,RDMval
           if(iread /= 0) exit
-          call get_indices(p, q, r, s, pq, rs, pqrs)
+          pqrs = two_el_idx_flatten(p, q, r, s, pq, rs)
 ******* Contribution to PSMAT and PAMAT:
           PSMAT(pqrs) = PSMAT(pqrs) - fac*RDMval
           if(r < s) then
@@ -355,7 +357,7 @@
        call triprt('DMAT in neci2molcas',' ',DMAT,norb)
        call triprt('DSPN in neci2molcas',' ',DSPN,norb)
       END IF
-      Call qExit('neci2molcas')
+      Call qExit(routine)
       Return
 
 123   continue
@@ -376,17 +378,6 @@
         call symlink_(trim(master), trim(InFile), err)
         if (err == 0) write(6, *) strerror_(get_errno_())
       end subroutine bcast_2RDM
-
-      pure subroutine get_indices(p, q, r, s, pq, rs, pqrs)
-        integer, intent(in) :: p, q, r, s
-        integer, intent(out) :: pq, rs, pqrs
-        if (p >= q) pq = p * (p - 1) / 2 + q
-        if (p < q) pq = q * (q - 1) / 2 + p
-        if (r >= s) rs = r * (r - 1) / 2 + s
-        if (r < s) rs = s * (s - 1) / 2 + r
-        if (pq >= rs) pqrs = pq * (pq - 1) / 2 + rs
-        if (pq < rs) pqrs = rs * (rs - 1) / 2 + pq
-      end subroutine get_indices
 
       Subroutine CleanMat(MAT)
 ************* by G. Li Manni Stuttgart April 2016 *************
