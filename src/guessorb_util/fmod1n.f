@@ -68,7 +68,7 @@
       Real*8  eps
       real*8  sum
       Integer Lu
-      Integer iDummy
+      Integer iDummy(7,8)
       Integer RC
       Character*80 Title
 *----------------------------------------------------------------------*
@@ -113,7 +113,7 @@
       Do iSym=1,nSym-1
          ipFock(iSym+1)=ipFock(iSym)+nBas(iSym)*(nBas(iSym)+1)/2
       End Do
-      Call dCopy_(nTriTot,0.0d0,0,Fock,1)
+      Call dCopy_(nTriTot,[0.0d0],0,Fock,1)
 *----------------------------------------------------------------------*
 * Create model Fock operator.                                          *
 *----------------------------------------------------------------------*

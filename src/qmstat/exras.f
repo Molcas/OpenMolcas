@@ -58,8 +58,8 @@
       Call GetMem('AccumulateT','Allo','Real',ipACCt,nGross)
       Call GetMem('AccumulateTP','Allo','Real',ipACCtp,nGross)
       Call GetMem('TEMP','Allo','Real',iTEMP,nRedMO*iOrb(2))
-      call dcopy_(nBaseQ**2,ZERO,iZERO,Work(ipACC),iONE)
-      call dcopy_(nBaseQ**2,ZERO,iZERO,Work(ipACCp),iONE)
+      call dcopy_(nBaseQ**2,[ZERO],iZERO,Work(ipACC),iONE)
+      call dcopy_(nBaseQ**2,[ZERO],iZERO,Work(ipACCp),iONE)
 *Jose****************************************************************
       If(lExtr(8)) then
          Call GetMem('qAOclMOOvl','Allo','Real',iAOMOOvl,nHalf)
@@ -155,7 +155,7 @@
 *Jose***************************************************************
         If(lExtr(8)) then
           call dcopy_(nHalf,Work(iHalf),iONE,Work(iAOMOOvl),iONE)
-          call dcopy_(nHalf,ZERO,iZERO,Work(iAOMOOvlE),iONE)
+          call dcopy_(nHalf,[ZERO],iZERO,Work(iAOMOOvlE),iONE)
           Do 5731, k=1,iOrb(2)
               ind=nBaseQ*(k-1)
               Call DaxPy_(nBaseQ,c_orbene(k),Work(iAOMOOvl+ind),iONE
@@ -179,7 +179,7 @@
 *
 *-- Hook on the orbital energy.
 *
-        call dcopy_(nDimP,ZERO,iZERO,Work(iHalfE),iONE)
+        call dcopy_(nDimP,[ZERO],iZERO,Work(iHalfE),iONE)
         Do 5751, k=1,iOrb(2)
           ind=nDim1*(k-1)
           Call DaxPy_(nDim1,c_orbene(k),Work(iHalf+ind),iONE

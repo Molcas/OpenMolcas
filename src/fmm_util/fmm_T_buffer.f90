@@ -75,7 +75,7 @@ CONTAINS
       fmm_lock_T_con = .FALSE.
 
 ! Avoid unused argument warnings
-      IF (.FALSE.) CALL Unused_real(scheme) ! not really real, but well...
+      IF (.FALSE.) CALL Unused_integer(scheme%phase)
    END SUBROUTINE fmm_close_T_buffer
 
 !-------------------------------------------------------------------------------
@@ -105,8 +105,7 @@ CONTAINS
 
 ! Avoid unused argument warnings
       IF (.FALSE.) THEN
-         CALL Unused_real(T_contractor)
-         CALL Unused_real(T_pair) ! not really real, but well...
+         CALL T_contractor(T_pair)
       END IF
    END SUBROUTINE fmm_skip_T_buffer
 

@@ -112,7 +112,7 @@ C CALCULATE AN INACTIVE TRANSITION DENSITY MATRIX IN AO BASIS:
 
       NFAO=NBSQ
       Call mma_allocate(FAO,nFAO,Label='FAO')
-      LFAO=ip_of_Work(FAO)
+      LFAO=ip_of_Work(FAO(1))
 
       IF (.not.DoCholesky) THEN
 
@@ -134,7 +134,7 @@ C ADD IN THE TWO-ELECTRON CONTRIBUTIONS TO THE FOCKAO MATRIX:
 *
          Call Allocate_Work(ipTemp,nFAO)
          Call FZero(Work(ipTemp),nFAO)
-         CALL FOCK(DINAO,WORK(ipTemp))
+         CALL FOCK_RASSI(DINAO,WORK(ipTemp))
 
 c --- FAO already contains the one-electron part
          Call DaXpY_(nFAO,1.0D+0,Work(ipTemp),1,FAO,1)

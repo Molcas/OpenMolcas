@@ -8,21 +8,15 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-       Subroutine Reorder(A,B,k,l,n,m)
-       Implicit Real*8 (a-h,o-z)
-       Real*8 A(k,l,n,m), B(k,n,l,m)
-*
-       Do ik = 1, k
-          Do il = 1, l
-             Do in = 1, n
-                Do im = 1, m
-*
-                    B(ik,in,il,im) = A(ik,il,in,im)
-*
-                End Do
-             End Do
-          End Do
-       End Do
-*
-       Return
-       End
+#ifdef _HAVE_GRID_IT_
+*     This should have never been used outside casvb_util
+      Subroutine fmove(ia,ib,n)
+      Real*8 ia(*),ib(*)
+      Integer n
+      Call fmove_cvb(ia,ib,n)
+      End
+#elif defined (NAGFOR)
+c Some compilers do not like empty files
+      Subroutine empty_fmove
+      End
+#endif

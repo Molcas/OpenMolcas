@@ -120,6 +120,7 @@
 !
       real*8, allocatable :: PLWO(:)
       integer ivkcnf
+      Dimension Dummy(1)
 * Start the traceback utilities
 *
       Call QENTER(ROUTINE)
@@ -285,8 +286,8 @@
          Call GetMem('DSPN','Allo','Real',LDSPN,NACPAR)
          Call GetMem('PMAT','Allo','Real',LPMAT,NACPR2)
          Call GetMem('P2AS','Allo','Real',LPA,NACPR2)
-         call dcopy_(NACPAR,0.0d0,0,Work(LDMAT),1)
-         call dcopy_(NACPAR,0.0d0,0,Work(LDSPN),1)
+         call dcopy_(NACPAR,[0.0d0],0,Work(LDMAT),1)
+         call dcopy_(NACPAR,[0.0d0],0,Work(LDSPN),1)
       Else
          LTUVX = ip_Dummy
          ltuvx_cvb=ltuvx
@@ -300,7 +301,7 @@
 
 * Initialize OCCN array, to prevent false alarms later from
 * automated detection of using uninitialized variables:
-      call dcopy_(NTot,0.0D0,0,Work(lOCCN),1)
+      call dcopy_(NTot,[0.0D0],0,Work(lOCCN),1)
 
 * PAM03: Note that removal of linear dependence may change the nr
 * of secondary/deleted orbitals, affecting some of the global
@@ -401,7 +402,7 @@ CGG03 Aug 03
             KSDFT='SCF'
             ExFac=1.0D0
            end IF
-           Call dcopy_(NTOT2,0.0D0,0,WORK(LD1A),1)
+           Call dcopy_(NTOT2,[0.0D0],0,WORK(LD1A),1)
            DoActive = .false.
         End If
         DoQmat=.false.
@@ -555,10 +556,10 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
           CALL GETMEM('PAtmp','ALLO','REAL',LW9,NACPR2)
           CALL GETMEM('Pscr','ALLO','REAL',LW10,NACPR2)
 
-          call dcopy_(NACPAR,0.0D0,0,WORK(LW6),1)
-          call dcopy_(NACPAR,0.0D0,0,WORK(LW7),1)
-          call dcopy_(NACPR2,0.0D0,0,WORK(LW8),1)
-          call dcopy_(NCONF,0.0D0,0,WORK(LW4),1)
+          call dcopy_(NACPAR,[0.0D0],0,WORK(LW6),1)
+          call dcopy_(NACPAR,[0.0D0],0,WORK(LW7),1)
+          call dcopy_(NACPR2,[0.0D0],0,WORK(LW8),1)
+          call dcopy_(NCONF,[0.0D0],0,WORK(LW4),1)
           iDisk = IADR19(4)
           jDisk = IADR19(3)
 
@@ -690,7 +691,8 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
         Call GetMem('Fcore','FREE','Real',iTmp1,nTot1)
         Call GetMem('PUVX','FREE','Real',LPUVX,NFINT)
         deallocate(PLWO)
-        Call Put_iScalar('PDFT ready',0) !Necessary for analgrad in Alaska.
+!       Necessary for analgrad in Alaska.
+        Call Put_iScalar('PDFT ready',0)
 
 
       End If

@@ -33,7 +33,7 @@
 * Dielectric model:
 *
 * S and D* matrices
-      call dcopy_(nTs*nTs,Zero,0,DMat,1)
+      call dcopy_(nTs*nTs,[Zero],0,DMat,1)
       Do 1000 ITs = 1, NTs
         XI = Tessera(1,iTs)
         YI = Tessera(2,iTs)
@@ -58,7 +58,7 @@
  1000 Continue
 *
 * S*A*D matrix
-      call dcopy_(nTs*nTs,Zero,0,SDMat,1)
+      call dcopy_(nTs*nTs,[Zero],0,SDMat,1)
       Do 1500 ITs = 1, NTs
         Do 1500 JTs = 1, NTs
           Do 1500 KTs = 1, NTs
@@ -102,7 +102,7 @@
 *
 * S matrix
       EpsFac = Eps / (Eps - One)
-      call dcopy_(nTs*nTs,Zero,0,SMat,1)
+      call dcopy_(nTs*nTs,[Zero],0,SMat,1)
       Do 1010 ITs = 1, NTs
         XI = Tessera(1,iTs)
         YI = Tessera(2,iTs)

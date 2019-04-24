@@ -17,11 +17,11 @@
       dimension a(n12,n2),w(n2),u(n12,n2),v(n12,n2),rv1(n2),indx(n2)
 
       if(n12.eq.n1)then
-        call fmove(ainp,a,n1*n2)
+        call fmove_cvb(ainp,a,n1*n2)
       else
         call fzero(a,n12*n2)
         do 100 i=1,n2
-100     call fmove(ainp(1,i),a(1,i),n1)
+100     call fmove_cvb(ainp(1,i),a(1,i),n1)
       endif
       ierr=0
       call svd(n12,n1,n2,a,w,.true.,u,.true.,v,ierr,rv1)
@@ -36,11 +36,11 @@ c  from v :
 
 c  First recreate a :
       if(n12.eq.n1)then
-        call fmove(ainp,a,n1*n2)
+        call fmove_cvb(ainp,a,n1*n2)
       else
         call fzero(a,n12*n2)
         do 200 i=1,n2
-200     call fmove(ainp(1,i),a(1,i),n1)
+200     call fmove_cvb(ainp(1,i),a(1,i),n1)
       endif
 
       do 300 i=1,n2
@@ -51,8 +51,8 @@ c  Sort singular values in ascending order:
       call sortindxr_cvb(n2,w,indx)
       do 400 i=1,n2
       val(i)=w(indx(i))
-      call fmove(v(1,indx(i)),vmat(1,i),n2)
-400   call fmove(u(1,indx(i)),vec(1,i),n1)
+      call fmove_cvb(v(1,indx(i)),vmat(1,i),n2)
+400   call fmove_cvb(u(1,indx(i)),vec(1,i),n1)
       return
       end
       function detm_cvb(a,n)
@@ -75,7 +75,7 @@ cend
       i1 = mstackr_cvb(n*n)
       i2 = mstacki_cvb(n)
       ierr=0
-      call fmove(a,w(i1),n*n)
+      call fmove_cvb(a,w(i1),n*n)
       call dgetrf_(n,n,w(i1),n,iw(i2),ierr)
 cstart linpack_determinant
 c      call dgefa(w(i1),n,n,iw(i2),ierr)

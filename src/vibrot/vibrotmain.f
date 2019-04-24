@@ -45,7 +45,7 @@ C  where it will be redefined as Vibwvs1 or Vibwvs2:
         Call Vibrot(ngrid,nvib,Umin,Umax,R,PotR,E0,dE0,
      *              Redm,Req,scale,temp)
         If(IfPrWf.gt.0) then
-          Call PrWf(ngrid,R)
+          Call PrWf_VibRot(ngrid,R)
         End If
       Else If ( ncase.eq.2 ) then
         Write(6,*) iallrot

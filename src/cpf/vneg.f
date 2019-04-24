@@ -11,7 +11,7 @@
 * Copyright (C) 1986, Per E. M. Siegbahn                               *
 *               1986, Margareta R. A. Blomberg                         *
 ************************************************************************
-      SUBROUTINE VNEG(A,IA,B,IB,IAB)
+      SUBROUTINE VNEG_CPF(A,IA,B,IB,IAB)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION A(*),B(*)
       DO 10 I=0,IAB-1

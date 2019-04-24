@@ -34,6 +34,7 @@
       Dimension ENE(*)
       Dimension CMO(*)
       Dimension OCC(*)
+      Dimension idum(7,8)
 *                                                                      *
 
 ************************************************************************
@@ -52,8 +53,8 @@
       Note='Temporary orbital file for the MOLDEN interface.'
       LuTmp=50
       LuTmp=IsFreeUnit(LuTmp)
-      Call WrVec(orbfile,LuTmp,'COE',1,NZ,NZ,
-     &     CMO,OCC,ENE,5,Note)
+      Call WrVec(orbfile,LuTmp,'COE',1,[NZ],[NZ],
+     &     CMO,OCC,ENE,idum,Note)
 
 * Parameter number 4 should in principle give the symmetry of the
 * orbital. For now we will put them all in the same symmetry 1.

@@ -88,7 +88,8 @@
           Write(6,'(a)') 'ngrid can take Integer values from 1 till 32.'
         End If
 
-      Else If( nsymm .eq. 2 ) Then  ! C2 symm axis:  grid on a 4th-of-a-sphere;
+      Else If( nsymm .eq. 2 ) Then
+!       C2 symm axis:  grid on a 4th-of-a-sphere;
         If(     ngrid .eq.  1 ) Then
           Call LD4_0004(X,Y,Z,W,N)
         Else If( ngrid .eq.  2 ) Then
@@ -158,7 +159,8 @@
           Write(6,'(a)') 'ngrid can take Integer values from 1 till 32.'
         End If
 
-      Else If( nsymm .eq. 3 ) Then  ! S4 Symm axis:  grid on a 8th-of-a-sphere;
+      Else If( nsymm .eq. 3 ) Then
+!       S4 Symm axis:  grid on a 8th-of-a-sphere;
         If(     ngrid .eq.  1 ) Then
           Call LD8_0003(X,Y,Z,W,N)
         Else If( ngrid .eq.  2 ) Then

@@ -119,6 +119,11 @@
       Logical ScramNeworb
       Integer iAufOK, Ind(MxOptm)
       Character*128 OrbName
+#ifdef _MSYM_
+      Real*8 msym_ctx
+#endif
+#include "interfaces_scf.fh"
+      Dimension Dummy(1),iDummy(7,8)
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -534,7 +539,7 @@
 *---        and transform the Fock matrix into the new MO space,
 *
             Call TraFck(Fock,nBT,CMO,nBO,.FALSE.,FMOMax,
-     &                  EOrb,nnO,Ovrld,nD)
+     &                  EOrb,nnO,Ovrlp,nD)
 *
 *---        update QNR iteration counter
 *
@@ -634,7 +639,7 @@
 *---        and transform the Fock matrix into the new MO space,
 *
             Call TraFck(Fock,nBT,CMO,nBO,.FALSE.,FMOMax,
-     &                  EOrb,nnO,Ovrld,nD)
+     &                  EOrb,nnO,Ovrlp,nD)
 *
 *---        update QNR iteration counter
 *
@@ -1093,7 +1098,7 @@
      &               s2uhf)
       End If
 *---
-      Call Add_Info('SCF_ITER',DBLE(Iter),1,8)
+      Call Add_Info('SCF_ITER',[DBLE(Iter)],1,8)
 c     Call Scf_XML(0)
 *
       Call KiLLs

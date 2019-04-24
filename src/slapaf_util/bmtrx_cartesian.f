@@ -49,7 +49,7 @@
          End If
          Call Allocate_Work(ipEVec,nDim**2)
          Call FZero(Work(ipEVec),nDim**2)
-         call dcopy_(nDim,One,0,Work(ipEVec),nDim+1)
+         call dcopy_(nDim,[One],0,Work(ipEVec),nDim+1)
 *                                                                      *
 ************************************************************************
 *                                                                      *

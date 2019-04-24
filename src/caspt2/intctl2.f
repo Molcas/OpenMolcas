@@ -42,9 +42,9 @@
 * Transform them to MO basis:
 
 * Transform them to MO basis:
-          CALL DCOPY_(notri,0.00D00,0,WORK(LHONE),1)
-          CALL DCOPY_(notri,0.00D00,0,WORK(LFIMO),1)
-          CALL DCOPY_(notri,0.00D00,0,WORK(LFAMO),1)
+          CALL DCOPY_(notri,[0.00D00],0,WORK(LHONE),1)
+          CALL DCOPY_(notri,[0.00D00],0,WORK(LFIMO),1)
+          CALL DCOPY_(notri,[0.00D00],0,WORK(LFAMO),1)
 c Compute FIMO, FAMO, ...  to workspace:
           Call FMat_Cho(Work(LCMO),Work(LFFAO),Work(LFIAO),Work(LFAAO),
      &                  Work(LHONE),Work(LFIMO),Work(LFAMO))

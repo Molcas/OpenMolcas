@@ -72,7 +72,7 @@
       iPrint = nPrint(iRout)
       Call qEnter('EFInt')
 *
-      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,Zero,0,Final,1)
+      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
       call dcopy_(3, A,1,Coori(1,1),1)
       call dcopy_(3,RB,1,Coori(1,2),1)
@@ -144,7 +144,7 @@
          Do 101 kCnt = 1, nCntr(kCnttp)
             kxyz = ipCntr(kCnttp) + (kCnt-1)*3
             call dcopy_(3,Work(kxyz),1,C,1)
-            If (iPrint.ge.99) Call RecPrt('C',' ',1,3)
+            If (iPrint.ge.99) Call RecPrt('C',' ',C,1,3)
 *
 *-----------Find the DCR for M and S
 *
@@ -176,18 +176,18 @@
                   EInv=One/Eta
                   rKappcd=TwoP54/Eta
 *                 Tag on the normalization
-                  rKappacd=rKappacd*(Eta/Pi)**(Three/Two)
+                  rKappcd=rKappcd*(Eta/Pi)**(Three/Two)
                   Call Rys(iAnga_EF,nT,Zeta,ZInv,nZeta,
-     &                     Eta,EInv,1,P,nZeta,TC,1,
-     &                     rKappa,rKappacd,Coori,Coori,CoorAC,
+     &                     [Eta],[EInv],1,P,nZeta,TC,1,
+     &                     rKappa,[rKappcd],Coori,Coori,CoorAC,
      &                     mabMin,mabMax,mcdMin_EF,mcdMax_EF,
      &                     Array(ipRys),mArr*nZeta,
      &                     TERI,MODU2,vCff2D,vRys2D,NoSpecial)
                Else If (Nuclear_Model.eq.Point_Charge) Then
                   NoSpecial=.True.
                   Call Rys(iAnga_EF,nT,Zeta,ZInv,nZeta,
-     &                     One,One,1,P,nZeta,TC,1,
-     &                     rKappa,One,Coori,Coori,CoorAC,
+     &                     [One],[One],1,P,nZeta,TC,1,
+     &                     rKappa,[One],Coori,Coori,CoorAC,
      &                     mabMin,mabMax,mcdMin_EF,mcdMax_EF,
      &                     Array(ipRys),mArr*nZeta,
      &                     TNAI,Fake,XCff2D,XRys2D,NoSpecial)
@@ -228,18 +228,18 @@
                   EInv=One/Eta
                   rKappcd=TwoP54/Eta
 *                 Tag on the normalization
-                  rKappacd=rKappacd*(Eta/Pi)**(Three/Two)
+                  rKappcd=rKappcd*(Eta/Pi)**(Three/Two)
                   Call Rys(iAnga_NA,nT,Zeta,ZInv,nZeta,
-     &                     Eta,EInv,1,P,nZeta,TC,1,
-     &                     rKappa,rKappacd,Coori,Coori,CoorAC,
+     &                     [Eta],[EInv],1,P,nZeta,TC,1,
+     &                     rKappa,[rKappcd],Coori,Coori,CoorAC,
      &                     mabMin,mabMax,0,0,
      &                     Array(ipRys),mArr*nZeta,
      &                     TERI,MODU2,vCff2D,vRys2D,NoSpecial)
                Else If (Nuclear_Model.eq.Point_Charge) Then
                   NoSpecial=.True.
                   Call Rys(iAnga_NA,nT,Zeta,ZInv,nZeta,
-     &                     One,One,1,P,nZeta,TC,1,
-     &                     rKappa,One,Coori,Coori,CoorAC,
+     &                     [One],[One],1,P,nZeta,TC,1,
+     &                     rKappa,[One],Coori,Coori,CoorAC,
      &                     mabMin,mabMax,0,0,
      &                     Array(ipRys),mArr*nZeta,
      &                     TNAI,Fake,XCff2D,XRys2D,NoSpecial)

@@ -24,8 +24,9 @@ c***********************************************************************
       Dimension IndType(56)
       Integer nBas(mxSym),nFro(mxSym),nDel(mxSym),nAsh(mxSym)
       Integer nIsh(mxSym),nRs1(mxSym),nRs2(mxSym),nRs3(mxSym)
+      Dimension E2act(1)
 
-      Call qEnter('ORBFILES')
+      Call qEnter(routine)
 * This routine is used at normal end of a RASSCF optimization, or
 * when using the OrbOnly keyword to create orbital files.
 *-------------------------------------------------------------------
@@ -115,7 +116,7 @@ c***********************************************************************
      &   filename(:mylen(filename)),' file'
          Write(VecTyp,'(A)')
      &   '* RASSCF canonical orbitals for CASPT2'
-         call dcopy_(ntot,1.0D0,0,Work(ipOcc),1)
+         call dcopy_(ntot,[1.0D0],0,Work(ipOcc),1)
       End If
 *----------------------------------------------------------------------*
 *     Write  orbitals                                                  *
@@ -174,7 +175,7 @@ c     & Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
         LuvvVec=50
         LuvvVec=isfreeunit(LuvvVec)
         Call WrVec(filename,LuvvVec,'COE',nSym,nBas,nBas,
-     &    Work(lCMO), Work(ipOcc), FDIAG, iDummy,VecTyp)
+     &    Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
         Call WrVec(filename,LuvvVec,'AI',NSYM,NBAS,NBAS,
      &   Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
       END DO
@@ -184,7 +185,7 @@ c     & Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
 *----------------------------------------------------------------------*
       iDisk=iToc(14)
       Call GetMem('EDummy','Allo','Real',LEDum,NTot)
-      call dcopy_(NTot,0.0D0,0,Work(LEDum),1)
+      call dcopy_(NTot,[0.0D0],0,Work(LEDum),1)
       DO IRT=1,MIN(MAXORBOUT,LROOTS,999)
         IF(IRT.LE.9) THEN
           Write(filename,'(A7,I1)') 'SPDORB.',IRT
@@ -208,7 +209,7 @@ c     & Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
         LuvvVec=50
         LuvvVec=isfreeunit(LuvvVec)
         Call WrVec(filename,LuvvVec,'CEO',nSym,nBas,nBas,
-     &    Work(lCMO), Work(ipOcc), Work(LEDum), iDummy,VecTyp)
+     &    Work(lCMO), Work(ipOcc), Work(LEDum), IndType,VecTyp)
         Call WrVec(filename,LuvvVec,'AI',NSYM,NBAS,NBAS,
      &   Work(lCMO), Work(ipOcc), Work(LEDum), IndType,VecTyp)
       END DO
@@ -219,6 +220,6 @@ c     & Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
       call getmem('CMO','free','real',LCMO,ntot2)
       call getmem('Occ','free','real',ipOcc,ntot)
 
-      Call qExit('ORBFILES')
+      Call qExit(routine)
       Return
       End

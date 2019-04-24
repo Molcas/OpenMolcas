@@ -33,7 +33,7 @@ C      write(6,*) (NSTTPI(I),I=1,NTPSTI)
       DO IOBTP = 1, NOBTP
         DO ISTTP = 1, NTPSTI
 *. Type of resulting string
-          CALL NEWTYP_MCLR(ICLSI,ISTTP,IAC,IOBTP,1,ICLSO,ITPO)
+          CALL NEWTYP_MCLR(ICLSI,ISTTP,[IAC],[IOBTP],1,ICLSO,ITPO)
 C?        WRITE(6,*) ' IOBTP ISTTP => ITPO, ICLSO '
 C?        WRITE(6,*)   IOBTP,ISTTP,ITPO,ICLSO
 C          write(6,*) ' IELPTP = ',IELPTP(IOBTP,ISTTP)

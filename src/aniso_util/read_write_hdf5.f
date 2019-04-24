@@ -120,7 +120,8 @@
       Complex(kind=wp), intent(out) :: MM(3,nss,nss)
       Complex(kind=wp), intent(out) :: MS(3,nss,nss)
       Complex(kind=wp), intent(out) :: ML(3,nss,nss)
-      Complex(kind=wp), intent(out) :: DM(3,nss,nss) ! electric dipole moment
+!     electric dipole moment
+      Complex(kind=wp), intent(out) :: DM(3,nss,nss)
       Complex(kind=wp), intent(out) :: U(nss,nss)
       Complex(kind=wp), intent(out) :: HSO(nss,nss)
 
@@ -190,7 +191,7 @@ c      END IF
 !----------------------------------------------------------------------|
       ! read the spin free energies (cm-1)
       Call mma_allocate(etmp,nstate,'etmp)')
-      Call dcopy_(nstate,0.0_wp,0,etmp,1)
+      Call dcopy_(nstate,[0.0_wp],0,etmp,1)
       IF (mh5_exists_dset(fileid,'SFS_ENERGIES')) THEN
          found_esfs=.true.
          Call mh5_fetch_dset_array_real(fileid,'SFS_ENERGIES',etmp)
@@ -222,7 +223,7 @@ c      END IF
 !----------------------------------------------------------------------|
       ! read the spin-orbit energies (cm-1)
       Call mma_allocate(etmp,nss,'tmp)')
-      Call dcopy_(nss,0.0_wp,0,etmp,1)
+      Call dcopy_(nss,[0.0_wp],0,etmp,1)
       IF (mh5_exists_dset(fileid,'SOS_ENERGIES')) THEN
          found_eso=.true.
          Call mh5_fetch_dset_array_real(fileid,'SOS_ENERGIES',etmp)
@@ -255,8 +256,8 @@ c      END IF
       ! read the spin-orbit mixing coefficient matrix:
       Call mma_allocate(RR,nss,nss,'RR')
       Call mma_allocate(RI,nss,nss,'RI')
-      Call dcopy_(nss*nss,0.0_wp,0,RR,1)
-      Call dcopy_(nss*nss,0.0_wp,0,RI,1)
+      Call dcopy_(nss*nss,[0.0_wp],0,RR,1)
+      Call dcopy_(nss*nss,[0.0_wp],0,RI,1)
 
       IF ( mh5_exists_dset(fileid,'SOS_COEFFICIENTS_REAL').and.
      &     mh5_exists_dset(fileid,'SOS_COEFFICIENTS_IMAG') ) THEN
@@ -297,7 +298,7 @@ c      END IF
 !----------------------------------------------------------------------|
       ! read the angular momentum integrals (L):
       Call mma_allocate(AL,nstate,nstate,3,'AL')
-      Call dcopy_(nstate*nstate*3,0.0_wp,0,AL,1)
+      Call dcopy_(nstate*nstate*3,[0.0_wp],0,AL,1)
       IF (mh5_exists_dset(fileid,'SFS_ANGMOM')) THEN
          found_angmom=.true.
          Call mh5_fetch_dset_array_real(fileid,'SFS_ANGMOM',AL)
@@ -334,7 +335,7 @@ c      END IF
 !----------------------------------------------------------------------|
       ! read the electric dipole momentum integrals (EDMOM):
       Call mma_allocate(AL,nstate,nstate,3,'AL')
-      Call dcopy_(nstate*nstate*3,0.0_wp,0,AL,1)
+      Call dcopy_(nstate*nstate*3,[0.0_wp],0,AL,1)
       IF (mh5_exists_dset(fileid,'SFS_EDIPMOM')) THEN
          found_edmom=.true.
          Call mh5_fetch_dset_array_real(fileid,'SFS_EDIPMOM',AL)
@@ -371,7 +372,7 @@ c      END IF
 !----------------------------------------------------------------------|
       ! read the spin-orbit integrals (AMFI):
       Call mma_allocate(AL,nstate,nstate,3,'AL')
-      Call dcopy_(nstate*nstate*3,0.0_wp,0,AL,1)
+      Call dcopy_(nstate*nstate*3,[0.0_wp],0,AL,1)
       IF (mh5_exists_dset(fileid,'SFS_AMFIINT')) THEN
          found_amfi=.true.
          Call mh5_fetch_dset_array_real(fileid,'SFS_AMFIINT',AL)
@@ -412,8 +413,8 @@ c      END IF
       ! read the RASSI SOS Hamiltonian (SOS_HAM):
       Call mma_allocate(RR,nss,nss,'RR')
       Call mma_allocate(RI,nss,nss,'RI')
-      Call dcopy_(nss*nss,0.0_wp,0,RR,1)
-      Call dcopy_(nss*nss,0.0_wp,0,RI,1)
+      Call dcopy_(nss*nss,[0.0_wp],0,RR,1)
+      Call dcopy_(nss*nss,[0.0_wp],0,RI,1)
 
       IF ( mh5_exists_dset(fileid,'HSO_MATRIX_REAL').and.
      &     mh5_exists_dset(fileid,'HSO_MATRIX_IMAG') ) THEN
@@ -670,7 +671,7 @@ c      END IF
 !----------------------------------------------------------------------|
 !      ! read the spin free energies (cm-1)
 !      Call mma_allocate(etmp,nstate,'etmp)')
-!      Call dcopy_(nstate,0.0_wp,0,etmp,1)
+!      Call dcopy_(nstate,[0.0_wp],0,etmp,1)
 !      IF (mh5_exists_dset(fileid,'SFS_ENERGIES')) THEN
 !         found_esfs=.true.
 !         Call mh5_fetch_dset_array_real(fileid,'SFS_ENERGIES',etmp)
@@ -702,7 +703,7 @@ c      END IF
 !----------------------------------------------------------------------|
       ! read the spin-orbit energies (cm-1)
       Call mma_allocate(etmp,nss,'tmp)')
-      Call dcopy_(nss,0.0_wp,0,etmp,1)
+      Call dcopy_(nss,[0.0_wp],0,etmp,1)
       IF (mh5_exists_dset(fileid,'SOS_ENERGIES')) THEN
          found_eso=.true.
          Call mh5_fetch_dset_array_real(fileid,'SOS_ENERGIES',etmp)
@@ -736,9 +737,9 @@ c      END IF
       Call mma_allocate(RR,nss,nss,'RR')
       Call mma_allocate(RI,nss,nss,'RI')
       Call mma_allocate(U,nss,nss,'U')
-      Call dcopy_(nss*nss,0.0_wp,0,RR,1)
-      Call dcopy_(nss*nss,0.0_wp,0,RI,1)
-      Call zcopy_(nss*nss,(0.0_wp,0.0_wp),0,U,1)
+      Call dcopy_(nss*nss,[0.0_wp],0,RR,1)
+      Call dcopy_(nss*nss,[0.0_wp],0,RI,1)
+      Call zcopy_(nss*nss,[(0.0_wp,0.0_wp)],0,U,1)
 
       IF ( mh5_exists_dset(fileid,'SOS_COEFFICIENTS_REAL').and.
      &     mh5_exists_dset(fileid,'SOS_COEFFICIENTS_IMAG') ) THEN
@@ -779,7 +780,7 @@ c      END IF
 !----------------------------------------------------------------------|
       ! read the angular momentum integrals (L):
       Call mma_allocate(AL,nstate,nstate,3,'AL')
-      Call dcopy_(nstate*nstate*3,0.0_wp,0,AL,1)
+      Call dcopy_(nstate*nstate*3,[0.0_wp],0,AL,1)
       IF (mh5_exists_dset(fileid,'SFS_ANGMOM')) THEN
          found_angmom=.true.
          Call mh5_fetch_dset_array_real(fileid,'SFS_ANGMOM',AL)
@@ -818,7 +819,7 @@ c      END IF
 !----------------------------------------------------------------------|
 !      ! read the electric dipole momentum integrals (EDMOM):
 !      Call mma_allocate(AL,nstate,nstate,3,'AL')
-!      Call dcopy_(nstate*nstate*3,0.0_wp,0,AL,1)
+!      Call dcopy_(nstate*nstate*3,[0.0_wp],0,AL,1)
 !      IF (mh5_exists_dset(fileid,'SFS_EDIPMOM')) THEN
 !         found_edmom=.true.
 !         Call mh5_fetch_dset_array_real(fileid,'SFS_EDIPMOM',AL)
@@ -855,7 +856,7 @@ c      END IF
 !----------------------------------------------------------------------|
 !      ! read the spin-orbit integrals (AMFI):
 !      Call mma_allocate(AL,nstate,nstate,3,'AL')
-!      Call dcopy_(nstate*nstate*3,0.0_wp,0,AL,1)
+!      Call dcopy_(nstate*nstate*3,[0.0_wp],0,AL,1)
 !      IF (mh5_exists_dset(fileid,'SFS_AMFIINT')) THEN
 !         found_amfi=.true.
 !         Call mh5_fetch_dset_array_real(fileid,'SFS_AMFIINT',AL)
@@ -896,8 +897,8 @@ c      END IF
 !      ! read the RASSI SOS Hamiltonian (SOS_HAM):
 !      Call mma_allocate(RR,nss,nss,'RR')
 !      Call mma_allocate(RI,nss,nss,'RI')
-!      Call dcopy_(nss*nss,0.0_wp,0,RR,1)
-!      Call dcopy_(nss*nss,0.0_wp,0,RI,1)
+!      Call dcopy_(nss*nss,[0.0_wp],0,RR,1)
+!      Call dcopy_(nss*nss,[0.0_wp],0,RI,1)
 !
 !      IF ( mh5_exists_dset(fileid,'HSO_MATRIX_REAL').and.
 !     &     mh5_exists_dset(fileid,'HSO_MATRIX_IMAG') ) THEN

@@ -46,7 +46,7 @@
       iRout = 248
       iPrint = nPrint(iRout)
 *
-      call dcopy_(9,Zero,0,Temp,1)
+      call dcopy_(9,[Zero],0,Temp,1)
 *
       ii = la*(la+1)*(la+2)/6
       jj = lb*(lb+1)*(lb+2)/6

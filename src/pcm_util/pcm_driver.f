@@ -17,7 +17,7 @@
 *     potential on each tessera.
 *     Modifies nuclear repulsion, one-electron and two electron terms.
 *
-      call dcopy_(2*nTs,Zero,0,Q,1)
+      call dcopy_(2*nTs,[Zero],0,Q,1)
       Do iTs = 1, nTs
         Do jTs = 1, nTs
            tmp=DMat(iTs,jTs)+DMat(jTs,iTs)

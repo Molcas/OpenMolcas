@@ -97,8 +97,8 @@
 *     New toc                                                          *
 *----------------------------------------------------------------------*
        Else If (NewToc) Then
-         Call iCopy(lAux,NaN,0,AuxOne,1)
-         Call iCopy(lToc,NaN,0,TocOne,1)
+         Call iCopy(lAux,[NaN],0,AuxOne,1)
+         Call iCopy(lToc,[NaN],0,TocOne,1)
          Call DaName_MF(LuOne,FnOne)
          TocOne(pFID)=IDrlx
          TocOne(pVersN)=VNrlx

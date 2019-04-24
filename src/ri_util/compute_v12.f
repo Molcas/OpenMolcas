@@ -37,7 +37,7 @@
      &       Vec(nDim,nDim)
 *
       Call FZero(Vec,nDim**2)
-      call dcopy_(nDim,One,0,Vec,nDim+1)
+      call dcopy_(nDim,[One],0,Vec,nDim+1)
 *
       Do i = 1, nDim
          Do j = 1, i

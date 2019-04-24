@@ -20,11 +20,12 @@
 
       dimension orbs(norb,norb)
       dimension sorbs(norb,norb)
+      dimension dum(1)
       save thresh
       data thresh/1.d-7/
 
       if(sym)then
-        call fmove(orbs,sorbs,norb*norb)
+        call fmove_cvb(orbs,sorbs,norb*norb)
         nconstr_kp=nconstr
         nconstr=0
         call symtrizorbs_cvb(orbs)

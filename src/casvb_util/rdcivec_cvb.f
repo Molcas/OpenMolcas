@@ -34,6 +34,7 @@
       dimension detvec(*)
       dimension ncix(8)
       logical reord
+      dimension rdum(1)
 
       iwr=0
 
@@ -59,7 +60,7 @@ c      Call GetMem('OCIvec','Allo','Real',ipCI,nConf_j*nroots_j)
         if(reord)then
           Call GetMem('ipci2','Allo','Real',ipCI2,nConf_j)
           call reord2_cvb(work(ipci),work(ipci2),1)
-          call fmove(work(ipci2),work(ipci),nconf_j)
+          call fmove_cvb(work(ipci2),work(ipci),nconf_j)
           Call GetMem('ipci2','Free','Real',ipCI2,idum)
         endif
 
@@ -70,7 +71,7 @@ c      Call GetMem('OCIvec','Allo','Real',ipCI,nConf_j*nroots_j)
         if(reord)then
           Call GetMem('ipci2','Allo','Real',ipCI2,nConf_j)
           call reord2_cvb(work(ipci),work(ipci2),0)
-          call fmove(work(ipci2),work(ipci),nconf_j)
+          call fmove_cvb(work(ipci2),work(ipci),nconf_j)
           Call GetMem('ipci2','Free','Real',ipCI2,idum)
         endif
 
@@ -104,6 +105,7 @@ c      Call GetMem('OCIvec','Allo','Real',ipCI,nConf_j*nroots_j)
       dimension detvec(*)
       dimension ncix(8)
       logical reord
+      dimension rdum(1)
       iwr=1
 
       call getnci_cvb(ncix,nactel_j,ispin_j-1,lsym_j)
@@ -128,7 +130,7 @@ c      Call GetMem('OCIvec','Allo','Real',ipCI,nConf_j*nroots_j)
         if(reord)then
           Call GetMem('ipci2','Allo','Real',ipCI2,nConf_j)
           call reord2_cvb(work(ipci),work(ipci2),1)
-          call fmove(work(ipci2),work(ipci),nconf_j)
+          call fmove_cvb(work(ipci2),work(ipci),nconf_j)
           Call GetMem('ipci2','Free','Real',ipCI2,idum)
         endif
 
@@ -139,7 +141,7 @@ c      Call GetMem('OCIvec','Allo','Real',ipCI,nConf_j*nroots_j)
         if(reord)then
           Call GetMem('ipci2','Allo','Real',ipCI2,nConf_j)
           call reord2_cvb(work(ipci),work(ipci2),0)
-          call fmove(work(ipci2),work(ipci),nconf_j)
+          call fmove_cvb(work(ipci2),work(ipci),nconf_j)
           Call GetMem('ipci2','Free','Real',ipCI2,idum)
         endif
 

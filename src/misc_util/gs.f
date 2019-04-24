@@ -62,7 +62,7 @@ C        Write (6,*) 'i,XX=',i,XX
 *
       Call FZero(T,nInter**2)
 *
-      call dcopy_(nInter,One,0,T,1+nInter)
+      call dcopy_(nInter,[One],0,T,1+nInter)
 #ifdef _DEBUG_
       Call RecPrt('T(orig)',' ',T,nInter,nInter)
 #endif

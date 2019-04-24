@@ -21,6 +21,8 @@
 
 #include "malloc_cvb.fh"
 
+      dimension cvb(*)
+
       call ppgs2_cvb(cvb,w(lv(5)),iw(lb(4)))
       return
       end

@@ -47,7 +47,7 @@
          Call RecPrt(' In Desym1: DSO',' ',DSO,iBas*jBas,nDSO)
       End If
 *
-      call dcopy_(iBas*jBas*iCmp*jCmp,Zero,0,DAO,1)
+      call dcopy_(iBas*jBas*iCmp*jCmp,[Zero],0,DAO,1)
 *
 *     D(P,Q)_ij = Sum(iSym,jSym) X(iSym,P) X(jSym,Q) D(iSym,jSym)_ij
 *

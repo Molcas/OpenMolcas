@@ -17,7 +17,7 @@
 * Object: to entities for the two-electron integrals which are used in *
 *         in the Rys quadrature to evaluate these integrals.           *
 *                                                                      *
-*         OBSEREVE that the prefactor is only partial!!!               *
+*         OBSERVE that the prefactor is only partial!!!                *
 *                                                                      *
 * Called from: Rys                                                     *
 *                                                                      *

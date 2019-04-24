@@ -49,7 +49,7 @@
          Call Abend()
       End If
 *     Write(*,*) Ddot_(ndens,Work(ipD0),1,Work(ipD0),1)
-      call dcopy_(3,0.0d0,0,CCOOR,1)
+      call dcopy_(3,[0.0d0],0,CCOOR,1)
       ncomp=1
       loper=0
       Call GetMem('ELEGRD','ALLO','REAL',ipEG,3*ngrad)
@@ -60,7 +60,7 @@
       Call GetMem('D0  ','FREE','Real',ipD0,nDens)
       Call GetMem('TEMP','ALLO','Real',ipTemp,3*ngrad)
       Call GetMem('TEMP','CHEC','Real',ipTemp,3*ngrad)
-      call dcopy_(3*ngrad,0.0d0,0,Work(ipTemp),1)
+      call dcopy_(3*ngrad,[0.0d0],0,Work(ipTemp),1)
       Call Drvel1(Work(ipTemp))
       Call DaXpY_(3*ngrad,1.0d0,Work(ipTemp),1,Work(ipEG),1)
       Lbl='NUCELGR'

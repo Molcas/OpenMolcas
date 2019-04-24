@@ -112,7 +112,7 @@ c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer(fileid)
          Call Unused_character(Label)
-         Call Unused_integer_array(nSym)
+         Call Unused_integer(nSym)
          Call Unused_integer_array(nBas)
          Call Unused_real_array(CMO)
          Call Unused_real_array(Occ)

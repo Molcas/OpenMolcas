@@ -39,8 +39,8 @@
       Real(kind=wp) :: rm1, rm2, rS, rK, rQ, CGp, CGm, fct
       External      :: fct
 
-      Call zcopy_(n*n,(0.0_wp,0.0_wp),0,Cp,1)
-      Call zcopy_(n*n,(0.0_wp,0.0_wp),0,Cm,1)
+      Call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,Cp,1)
+      Call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,Cm,1)
 
       rS=dble(n-1)/2.0_wp
       rK=dble(k)
@@ -72,8 +72,8 @@
       ! local
       Real(kind=wp) :: CR, C0
 
-      Call zcopy_(n*n,(0.0_wp,0.0_wp),0,O,1)
-      Call zcopy_(n*n,(0.0_wp,0.0_wp),0,W,1)
+      Call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,O,1)
+      Call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,W,1)
       CR=0.0_wp
       C0=0.0_wp
       redME=(0.0_wp,0.0_wp)
@@ -98,8 +98,8 @@
       ! local
       Real(kind=wp) :: F, knm(12,0:12)
 
-      Call zcopy_(n*n,(0.0_wp,0.0_wp),0,O,1)
-      Call zcopy_(n*n,(0.0_wp,0.0_wp),0,W,1)
+      Call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,O,1)
+      Call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,W,1)
       redME=(0.0_wp,0.0_wp)
       If((k>12).or.(q>12)) Return
 
@@ -127,15 +127,15 @@
       Complex(kind=wp)             :: mQ, HALF_R, FALF_I
       Complex(kind=wp), allocatable:: Cp(:,:), Cm(:,:)
 
-      Call zcopy_(n*n,(0.0_wp,0.0_wp),0,O,1)
-      Call zcopy_(n*n,(0.0_wp,0.0_wp),0,W,1)
+      Call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,O,1)
+      Call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,W,1)
       redME=(0.0_wp,0.0_wp)
       If((k>12).OR.(q>12)) Return ! not available in MATLAB
 
       Call mma_allocate(Cp,n,n,'Cp')
       Call mma_allocate(Cm,n,n,'Cm')
-      Call zcopy_(n*n,(0.0_wp,0.0_wp),0,Cp,1)
-      Call zcopy_(n*n,(0.0_wp,0.0_wp),0,Cm,1)
+      Call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,Cp,1)
+      Call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,Cm,1)
 
       Call set_knm( knm )
       Call coeff_redus_sub(n,k,CR)
@@ -177,8 +177,8 @@
 
       Call mma_allocate(Cp,n,n,'Cp')
       Call mma_allocate(Cm,n,n,'Cm')
-      Call zcopy_(n*n,(0.0_wp,0.0_wp),0,Cp,1)
-      Call zcopy_(n*n,(0.0_wp,0.0_wp),0,Cm,1)
+      Call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,Cp,1)
+      Call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,Cm,1)
 
       Call coeff_redus_sub(n,k,CR)
       Call ITO(n,k,q,C0,Cp,Cm)

@@ -34,7 +34,7 @@
 
       do 100 ivec=1,nvec
       axc(1,ivec)=ddot_(nprm-1,w(igrad),1,c(2,ivec),1)
-      call fmove(c(2,ivec),axc(2,ivec),nprm-1)
+      call fmove_cvb(c(2,ivec),axc(2,ivec),nprm-1)
 c  Save Hessian application (& DNRM2 call) whenever possible :
 c  (C assumed to be normalized)
       if(abs(abs(c(1,ivec))-one).gt.thresh)then

@@ -86,7 +86,7 @@ c     Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
      &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
      &                       nStab(mdc))
 *
-      call dcopy_(nHess,Zero,0,Hess,1)
+      call dcopy_(nHess,[Zero],0,Hess,1)
 *
 *     Auxiliary memory allocation.
 *
@@ -231,7 +231,7 @@ c    &         ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
  435         Continue
  439         Continue
              nCoM=nIrrep/nStabM
-             Call LCopy(36,.false.,0,IfHss,1)
+             Call LCopy(36,[.false.],0,IfHss,1)
              Do 400 iAtom=0,1
                Do 410 iCar=0,2
                  Do 420 jAtom=0,iAtom
@@ -253,8 +253,8 @@ c    &         ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
  420          Continue
  410        Continue
  400       Continue
-           Call ICopy(nirrep*36,0,0,Indhss(0,0,0,0,0),1)
-           Call ICopy(nirrep*6,0,0,indgrd,1)
+           Call ICopy(nirrep*36,[0],0,Indhss(0,0,0,0,0),1)
+           Call ICopy(nirrep*6,[0],0,indgrd,1)
 *
 *          Determine which displacement in all IR's, each center is associated with
 *
@@ -343,8 +343,8 @@ c    &         ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
             If (nSO.eq.0) Go To 131
             Call GetMem('DSOpr ','ALLO','REAL',ipDSOp,nSO*iPrim*jPrim)
             Call GetMem('DSO ','ALLO','REAL',ipDSO,nSO*iPrim*jPrim)
-            call dcopy_(nSO*iPrim*jPrim,Zero,0,Work(ipDSO),1)
-            call dcopy_(nSO*iPrim*jPrim,Zero,0,Work(ipDSOp),1)
+            call dcopy_(nSO*iPrim*jPrim,[Zero],0,Work(ipDSO),1)
+            call dcopy_(nSO*iPrim*jPrim,[Zero],0,Work(ipDSOp),1)
 *
 *           Gather the elements from 1st order density / Fock matrix.
 *

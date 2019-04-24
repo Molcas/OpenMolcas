@@ -116,7 +116,7 @@
 *
       If (iPrint.ge.49) Then
          Call RecPrt(' In PAM2Int: A',' ',A,1,3)
-         Call RecPrt(' In PAM2Int: B',' ',B,1,3)
+         Call RecPrt(' In PAM2Int: RB',' ',RB,1,3)
          Call RecPrt(' In PAM2Int: Ccoor',' ',Ccoor,1,3)
          Call RecPrt(' In PAM2Int: Kappa',' ',rKappa,nAlpha,nBeta)
          Call RecPrt(' In PAM2Int: Zeta',' ',Zeta,nAlpha,nBeta)
@@ -124,7 +124,7 @@
          Write (6,*) ' In PAM2Int: la,lb,nHer=',la,lb,nHer
       End If
 *
-      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,Zero,0,Final,1)
+      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
 *-----Loop over nuclear centers
 *
@@ -157,7 +157,7 @@ c      Do 100 kCnttp = 1, nCnttp
                   Call GetMem(' Scr','ALLO','REAL',ipScr,
      &                       nZeta*nElem(la)*nElem(lb)*nComp)
                   call dcopy_(nZeta*nElem(la)*nElem(lb)*nComp,
-     &                       Zero,0,Work(ipScr),1)
+     &                       [Zero],0,Work(ipScr),1)
                Do 1011 iM2xp = 0, iPAMPrim - 1
                   Gamma = Work(ipPAMexp+ iM2xp)
 

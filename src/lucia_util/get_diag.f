@@ -16,11 +16,13 @@
 #include "io_util.fh"
       dimension diag(*)
 #include "clunit.fh"
+      dimension idummy(1)
 *
       ndet = 0
       IDISK(LUDIA)=0
  100  CONTINUE
-      CALL IDAFILE(LUDIA,2,IDET,1,IDISK(LUDIA))
+      CALL IDAFILE(LUDIA,2,IDUMMY,1,IDISK(LUDIA))
+      IDET=IDUMMY(1)
       CALL IDAFILE(LUDIA,2,IDUMMY,1,IDISK(LUDIA))
       IF (idet.eq.-1) GOTO 200
       CALL frmdsc(diag(ndet+1), idet, -1, ludia,

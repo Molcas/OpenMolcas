@@ -85,7 +85,7 @@
          Write (6,*) 'nIrrep=',nIrrep
          Call Abend()
       End If
-      Call ICopy(8**2,0,0,iChTab,1)
+      Call ICopy(8**2,[0],0,iChTab,1)
 *
 *     Go through the functions x, y, and z, and the dyadic functions.
 *

@@ -68,7 +68,7 @@
       real*8                :: fac1, fac2
 
 #ifdef _DMRG_
-      ! strings for conversion of the qcmaquis h5 checkpoint names from 2u1 to su2u1
+!     strings for conversion of the qcmaquis h5 checkpoint names from 2u1 to su2u1
       character(len=3) :: mplet1s, msproj1s
       ! new checkpoint names
       character(len=2300) :: checkpoint1_2u1,checkpoint2_2u1
@@ -163,11 +163,11 @@ C WF parameters for ISTATE and JSTATE
 
 C Pick up orbitals of ket and bra states.
       CALL GETMEM('GTDMCMO1','ALLO','REAL',LCMO1,NCMO)
-      CALL RDCMO(JOB1,WORK(LCMO1))
+      CALL RDCMO_RASSI(JOB1,WORK(LCMO1))
       CALL GETMEM('GTDMCMO2','ALLO','REAL',LCMO2,NCMO)
 
 
-      CALL RDCMO(JOB2,WORK(LCMO2))
+      CALL RDCMO_RASSI(JOB2,WORK(LCMO2))
 C Nr of active spin-orbitals
       NASORB=2*NASHT
       NTDM1=NASHT**2
@@ -257,9 +257,9 @@ C Transform to biorthonormal orbital system
         TRORB = .false.
       end if
 
-      !> check whether we do RASSI with an effective multi-state PT2 Hamiltonian
-      !> whose eigenvectors are stored in Heff_evc
-      !> i.e., we do not use mixed CI coefficients / MPS wave functions but rather mix the TDMs
+!     > check whether we do RASSI with an effective multi-state PT2 Hamiltonian
+!     > whose eigenvectors are stored in Heff_evc
+!     > i.e., we do not use mixed CI coefficients / MPS wave functions but rather mix the TDMs
 
       mstate_dens = job1.eq.job2.and.
      &              (allocated(Heff_evc(job1)%pc).or.
@@ -651,7 +651,7 @@ C Read ISTATE wave function
           ELSE
             WORK(LCI1)=1.0D0
           END IF
-          CALL DCOPY_(NDET1,0.0D0,0,WORK(LDET1),1)
+          CALL DCOPY_(NDET1,[0.0D0],0,WORK(LDET1),1)
           CALL PREPSD(WFTP1,TRORB,ISGSTR1,ICISTR1,IXSTR1,LSYM1,
      &                WORK(LTRA1),IWORK(LCNFTAB1),IWORK(LSPNTAB1),
      &                IWORK(LSSTAB),IWORK(LFSBTAB1),NCONF1,WORK(LCI1),
@@ -686,7 +686,7 @@ C Write out the determinant expansion to disk.
 
       If (DoGSOR) Then
         CALL GETMEM('Theta1','ALLO','REAL',LTheta1,NCONF2)
-        CALL DCOPY_(NCONF2,0.0D0,0,WORK(LTheta1),1)
+        CALL DCOPY_(NCONF2,[0.0D0],0,WORK(LTheta1),1)
       End If
 
 C-------------------------------------------------------------
@@ -706,7 +706,7 @@ C Read JSTATE wave function
           If(DoGSOR) Then
             CALL DCOPY_(NCONF2,Work(LCI2),1,WORK(LCI2_o),1)
           End If
-          CALL DCOPY_(NDET2,0.0D0,0,WORK(LDET2),1)
+          CALL DCOPY_(NDET2,[0.0D0],0,WORK(LDET2),1)
           CALL PREPSD(WFTP2,TRORB,ISGSTR2,ICISTR2,IXSTR2,LSYM2,
      &                WORK(LTRA2),IWORK(LCNFTAB2),IWORK(LSPNTAB2),
      &                IWORK(LSSTAB),IWORK(LFSBTAB2),NCONF2,WORK(LCI2),
@@ -865,8 +865,8 @@ C             Write density 1-matrices in AO basis to disk.
      &                      WORK(LTDMZZ),WORK(LWDMZZ))
               else
 
-                !> scale rdm elements with eigenvector coefficients of Heff of a multi-state (PT2) Hamiltonian
-                !> accumulate data first and run PROPER and other utility routines later
+!               > scale rdm elements with eigenvector coefficients of Heff of a multi-state (PT2) Hamiltonian
+!               > accumulate data first and run PROPER and other utility routines later
                 do i = 1, nstat(job1)
                   do j = 1, nstat(job2)
 
@@ -899,11 +899,8 @@ C             Write density 1-matrices in AO basis to disk.
      &                          mstate_1pdens(i,j)%wtdm,1
      &                         )
                     !> overlap
-                    call daxpy_(1,
-     &                          fac1*fac2,
-     &                          sij,0,
-     &                          mstate_1pdens(i,j)%overlap,0
-     &                         )
+                    mstate_1pdens(i,j)%overlap=
+     &                mstate_1pdens(i,j)%overlap+fac1*fac2*sij
                   end do
                 end do
               end if
@@ -950,7 +947,7 @@ C             Write density 1-matrices in AO basis to disk.
      &                                     )
                   end if
                 else
-                  !> Leon: TODO: Add possibility to calculate overlap of rotated MPS without using checkpoint names
+!                 > Leon: TODO: Add possibility to calculate overlap of rotated MPS without using checkpoint names
                   call dmrg_interface_ctl(
      &                               task   = 'overlap ',
      &                               energy = sij,
@@ -976,7 +973,7 @@ C             Write density 1-matrices in AO basis to disk.
      &                  WORK(LDET1),WORK(LDET2),NTDM2,WORK(LTDM2),
      &                  ISTATE,JSTATE,lLROOT,job1,job2,ist,jst)
 
-            !> Compute 2-electron contribution to Hamiltonian matrix element:
+!           > Compute 2-electron contribution to Hamiltonian matrix element:
             IF(IFTWO.AND.(MPLET1.EQ.MPLET2))
      &      HTWO=DDOT_(NTDM2,WORK(LTDM2),1,WORK(LTUVX),1)
 
@@ -1057,7 +1054,7 @@ C             Write density 1-matrices in AO basis to disk.
           JSTATE=ISTAT(JOB2)-1+JST
           CALL READCI(JSTATE,ISGSTR2,ICISTR2,NCONF2,WORK(LCI2))
           Call DCOPY_(NCONF2,Work(LCI2),1,Work(LCI2_o),1)
-          CALL DCOPY_(NDET2,0.0D0,0,WORK(LDET2),1)
+          CALL DCOPY_(NDET2,[0.0D0],0,WORK(LDET2),1)
           CALL PREPSD(WFTP2,TRORB,ISGSTR2,ICISTR2,IXSTR2,LSYM2,
      &              WORK(LTRA2),IWORK(LCNFTAB2),IWORK(LSPNTAB2),
      &          IWORK(LSSTAB),IWORK(LFSBTAB2),NCONF2,WORK(LCI2),
@@ -1078,7 +1075,7 @@ C             Write density 1-matrices in AO basis to disk.
           end if
           CALL GETMEM('ThetaM','ALLO','REAL',LThetaM,NCONF2)
           DO IST=2,JST-1
-            CALL DCOPY_(NCONF2,0.0D0,0,WORK(LThetaM),1)
+            CALL DCOPY_(NCONF2,[0.0D0],0,WORK(LThetaM),1)
             !Read in previous theta vectors
             do i=1,NCONF2
               Read(LUCITH,*) Work(LThetaM-1+i)
@@ -1121,7 +1118,7 @@ C             Write density 1-matrices in AO basis to disk.
         Call IDAFILE(LUIPHn,2,ITOC15,30,IAD)
         IAD=ITOC15(4)
         do i=1,ISTAT(JOB1)-1
-         CALL DCOPY_(NCONF2,0.0D0,0,WORK(LThetaM),1)
+         CALL DCOPY_(NCONF2,[0.0D0],0,WORK(LThetaM),1)
          do j=1,nCONF2
            read(LUCITH,*) Work(LThetaM-1+i)
          end do
@@ -1129,7 +1126,7 @@ C             Write density 1-matrices in AO basis to disk.
         end do
 
        IAD = ITOC15(4)
-       CALL DCOPY_(NCONF2,0.0D0,0,WORK(LThetaM),1)
+       CALL DCOPY_(NCONF2,[0.0D0],0,WORK(LThetaM),1)
        Call DDAFILE(LUIPHn,2,Work(LThetaM),nCONF2,IAD)
        Call DDAFILE(LUIPHn,2,Work(LThetaM),nCONF2,IAD)
 
@@ -1151,7 +1148,7 @@ C             Write density 1-matrices in AO basis to disk.
       END IF
 #endif
 
-      !> create actual property data and put everything to file (if requested) in case of using eigenvectors of a multi-state (PT2) Hamiltonian
+!     > create actual property data and put everything to file (if requested) in case of using eigenvectors of a multi-state (PT2) Hamiltonian
       if(mstate_dens)then
         DO JST=1,NSTAT(JOB2)
           JSTATE=ISTAT(JOB2)-1+JST

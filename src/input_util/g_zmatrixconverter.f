@@ -110,8 +110,7 @@ C Coords(_,i): X, Y, Z, coordinates (in Angstrom) for atom -i-.
       EndIf
       If (iErr.NE.0) GoTo 9905
       iErr = 0
-      Call ZMatReader(LuRd,LuWr,nAtoms,nXAtoms,nBasis,-1,
-     & iglobal,nxbas,xb_label,xb_bas,iErr)
+      Call ZMatReader(LuRd,LuWr,nAtoms,nXAtoms,nBasis,-1,iErr)
       If (IfTest) then
         Write(LuWr,*)
         Write(LuWr,*) '------------------------------------------------'
@@ -149,7 +148,7 @@ C Coords(_,i): X, Y, Z, coordinates (in Angstrom) for atom -i-.
       EndIf
 
       Call Put_iScalar('N ZMAT',nAtoms+nXAtoms)
-      Call Put_cArray('Symbol ZMAT',Symbols,(nAtoms+nXAtoms)*5)
+      Call Put_cArray('Symbol ZMAT',Symbols(1),(nAtoms+nXAtoms)*5)
       Call Put_iArray('Index ZMAT',iZmat,MaxAtoms*3)
       Call Put_iArray('NAT ZMAT',NAT,nAtoms+nXAtoms)
 

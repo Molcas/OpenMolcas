@@ -98,7 +98,7 @@
          IF (nUse(iSymp).ne.0) THEN
             iSymb = muld2h(JSYM,iSymp)
             nElem=nUse(iSymp)*nBas(iSymb)*NUMV
-            Call dCopy_(nElem,0.0D0,0,Work(ipChoT(iSymp)),1)
+            Call dCopy_(nElem,[0.0D0],0,Work(ipChoT(iSymp)),1)
          ENDIF
       End Do
 

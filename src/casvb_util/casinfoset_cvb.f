@@ -82,7 +82,7 @@ c  Ensure no negative number of orbitals :
         call imove_cvb(istnel_c,istnel_d,mxstsy_ci)
         call imove_cvb(istsy_c,istsy_d,mxstsy_ci)
         call imove_cvb(istms2_c,istms2_d,mxstsy_ci)
-        call fmove(weight_c,weight_d,mxstt_ci*mxstsy_ci)
+        call fmove_cvb(weight_c,weight_d,mxstt_ci*mxstsy_ci)
         if(mcore_d.ne.mcore_c)then
 c  Different number of core orbitals input -> assume NELTOT the same :
           do 400 i=1,mxstsy_ci

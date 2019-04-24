@@ -32,7 +32,7 @@
       Call GetMem('DeDe2','Allo','Real',ipDeDe,nDeDe+MaxDe*MaxDCR)
 *     D00 is a null matrix, which should simplify the logic.
       ipD00 = ipDeDe + nDeDe
-      call dcopy_(MaxDe*MaxDCR,Zero,0,Work(ipD00),1)
+      call dcopy_(MaxDe*MaxDCR,[Zero],0,Work(ipD00),1)
 *
       Special_NoSym=.True.
       DFT_Storage=.False.

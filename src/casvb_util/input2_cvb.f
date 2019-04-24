@@ -180,7 +180,7 @@ c  SYMELM
         ip_to=ip_symelm
         do 400 isyme=1,nsyme
         do 500 iorb=1,norb
-        if(ip_from.ne.ip_to)call fmove(w(ip_from),w(ip_to),norb)
+        if(ip_from.ne.ip_to)call fmove_cvb(w(ip_from),w(ip_to),norb)
         ip_from=ip_from+mxorb
 500     ip_to=ip_to+norb
 400     ip_from=ip_from+(mxorb-norb)*mxorb
@@ -267,11 +267,11 @@ c Try for new record
         call reserv_cvb(need,recinp)
         call rdioff1_cvb(ioffs)
         call wrioff_cvb(1,recinp,ioffs)
-        call wris_cvb(noe,1,recinp,ioffs)
+        call wris_cvb([noe],1,recinp,ioffs)
         call wrioff_cvb(2,recinp,ioffs)
-        call wris_cvb(nconf,1,recinp,ioffs)
+        call wris_cvb([nconf],1,recinp,ioffs)
         call wrioff_cvb(3,recinp,ioffs)
-        call wris_cvb(kbasiscvb_inp,1,recinp,ioffs)
+        call wris_cvb([kbasiscvb_inp],1,recinp,ioffs)
         call wrioff_cvb(4,recinp,ioffs)
         call wris_cvb(iw(ip_iconfs),noe*nconf,recinp,ioffs)
         call wrioff_cvb(5,recinp,ioffs)

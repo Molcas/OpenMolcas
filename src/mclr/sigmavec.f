@@ -45,7 +45,8 @@
 #include "csmprd.fh"
       Logical allokc,allokc2
       Dimension C(*),HC(*),kic(2)
-      integer sxstsm
+      integer sxstsm(1)
+      dimension idummy(1)
       LUC=0
       LUHC=0
       iprnt=200
@@ -55,7 +56,7 @@
 *
 *. The story of MV7 : I started out from nothing, absolutely zero,
 *
-      call dcopy_(NSDET,Zero,0,HC,1)
+      call dcopy_(NSDET,[Zero],0,HC,1)
 
 *
 * Info for this internal space
@@ -288,7 +289,7 @@
        LLUC = LUC
        LLUHC = LUHC
       END IF
-      call dcopy_(NSDET,ZERO,0,HC,1)
+      call dcopy_(NSDET,[ZERO],0,HC,1)
 *
       IF(ICISTR.EQ.1) THEN
       CALL RASSG4(C,HC,wORK(KCB),wORK(KSB),wORK(KC2),

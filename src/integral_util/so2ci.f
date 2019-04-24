@@ -17,7 +17,7 @@
 *-----Set up table SO to contigues index over the shell
 *
 *     Write (*,*) 'Enter SO2cI'
-      Call ICopy(2*nSOs,0,0,iSO2Block,1)
+      Call ICopy(2*nSOs,[0],0,iSO2Block,1)
       Call Nr_Shells(nShell)
       Do iShell = 1, nShell
 *

@@ -61,8 +61,8 @@
 
       nZeta = nAlpha*nBeta
       call dcopy_(nZeta*nElem(la)*nElem(lb)*6,
-     &                    Zero,0,Final,1)
-      Call iCopy(12,0,0,Index,1)
+     &                    [Zero],0,Final,1)
+      Call iCopy(12,[0],0,Index,1)
 
       mVec = 0
       Do iCent = 1, 2

@@ -99,7 +99,7 @@ C     Call View(H,nInter,print)
 *     iOptC=0100   : C2-DIIS
 *     iOptC=1000   : Rational Function
 *
-      call dcopy_(nInter,Zero,0,Scrt1,1)
+      call dcopy_(nInter,[Zero],0,Scrt1,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *

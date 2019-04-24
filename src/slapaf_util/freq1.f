@@ -33,14 +33,13 @@
 *
       If (iPrint.ge.99) Then
          Write(6,*)' [Freq1] nInter, nIter, Delta =',nInter,nIter,Delta
-         Call RecPrt('Current H:','(10F9.6)',H,nInter,nInter)
          Call RecPrt('Initial dq:','(10F9.6)',dq,nInter,nIter)
          Call RecPrt('Initial  q:','(10F9.6)', q,nInter,nIter+1)
       EndIf
 *
 *-----Compute the new shift
 *
-      call dcopy_(nInter,Zero,0,dq(1,nIter),1)
+      call dcopy_(nInter,[Zero],0,dq(1,nIter),1)
       If (nIter.le.nRowH) then
          kInter = mRowH(nIter)
          dq(kInter,nIter) = Delta

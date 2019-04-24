@@ -23,7 +23,7 @@
 *
 *
 *
-      Call iCopy(NSMST*NOCTYP,0,0,NSTASO,1)
+      Call iCopy(NSMST*NOCTYP,[0],0,NSTASO,1)
       NSTRIN = 0
       IORB1F = 1
       IORB1L = IORB1F+NORB1-1

@@ -140,7 +140,7 @@
          RecLab( 31)='Timestep        '
          RecLab( 32)='MD_Etot         '
          RecLab( 33)='Max error       '
-         RecLab( 34)='Total Charge    ' ! stores the total number of electrons in the computed system.
+         RecLab( 34)='Total Charge    ' ! total number of electrons
          RecLab( 35)='DFT exch coeff  '
          RecLab( 36)='DFT corr coeff  '
 *                     1234567890123456

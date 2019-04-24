@@ -38,8 +38,8 @@ c  TRY quantities only up2date if SVB/EVB ok :
      >  ic,
      >  norb,nvb,nprorb,npr,orbopt,strucopt,sym,
      >  w(lp(6)),iw(ls(11)),nort,w(i3))
-      call fmove(w(i1),w(lv(1)),norb*norb)
-      call fmove(w(i2),w(lv(2)),nvb)
+      call fmove_cvb(w(i1),w(lv(1)),norb*norb)
+      call fmove_cvb(w(i2),w(lv(2)),nvb)
       call str2vbc_cvb(w(lv(2)),w(lv(5)))
       call mfreer_cvb(i1)
       return

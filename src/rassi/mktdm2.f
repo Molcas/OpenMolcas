@@ -54,7 +54,7 @@ C Pick out nr of active orbitals from orbital table:
       NASGEM=(NASORB*(NASORB-1))/2
       NSPD2=NASGEM**2
       CALL GETMEM('SPD2','Allo','Real',LSPD2,NSPD2)
-      CALL DCOPY_(NSPD2,0.0D0,0,WORK(LSPD2),1)
+      CALL DCOPY_(NSPD2,[0.0D0],0,WORK(LSPD2),1)
       ISYOP   = MUL(LSYM1,LSYM2)
       MS2OP   = MSPROJ1-MSPROJ2
       MPLETD =  MPLET1 - MPLET2

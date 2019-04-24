@@ -61,7 +61,8 @@ c
 *
                Do jAng = 0, nVal_Shells(jCnttp)-1
                jShll = ipVal(jCnttp) + jAng
-               If (nExp(jShll).eq.0 .or. nBasis(jShll).eq.0) cycle !Go To 1976
+               If (nExp(jShll).eq.0 .or. nBasis(jShll).eq.0) cycle
+!              Go To 1976
 *
                ip =  2 * maxDensSize
               nac =  4 * nElem(la) * nElem(iAng)

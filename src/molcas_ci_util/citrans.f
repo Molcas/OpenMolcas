@@ -11,60 +11,60 @@
 * Copyright (C) 2014, Steven Vancoillie                                *
 ************************************************************************
       module citrans
-      ! written by Steven Vancoillie, summer 2014.
-      !
-      ! This module implements operations that are performed on a CI vector
-      ! in order to transform it from one basis to another, in particular
-      ! from CSFs (GUGA ordering) to determinants and back. In order to
-      ! efficiently do this, all CSFs/determinants are grouped by
-      ! configurations, i.e., a fixed set of doubly+singly occupied
-      ! orbitals.
-      !
-      ! The configurations are grouped by the number of double/single
-      ! occupied orbitals.  Consider e.g. the case of 7in6, mult = 2.  We
-      ! have n = 6 (#orbitals), N = 7 (#electrons), a = 4 (#alpha), b = 3
-      ! (#beta). The number of doubly occupied orbitals (d) varies from 1 to
-      ! 3, the singly occupied orbitals (s) from 5 to 1. The orbitals are
-      ! represented here in descending order such that the lexicographical
-      ! lowest rank has the lowest orbitals occupied.
-      !
-      !                                                  / n \
-      ! I used the notation nCk for binomial coefficient |   |
-      !                                                  \ k /
-      !
-      !       do configs  so configs  determinants  CSFs
-      ! d s   nCd         n-dCs       sCa-d         sCa-d - sCa-d+1
-      ! 1 5   1   000002  5C5 xxxxx
-      !       2   000020  5C5 xxxxx
-      !       ...
-      !       6C1 200000  5C5 xxxxx
-      !
-      ! 2 3   1   000022  1    0xxx
-      !                   2    x0xx
-      !                   ...
-      !                   4C3  xxx0
-      !       2   000202  1    0xxx
-      !                   ...
-      !       ...         ...
-      !       6C2 220000  1    0xxx
-      !                   ...
-      !                   4C3  xxx0
-      ! 3 1   1   000222  1     00x
-      !                   ...
-      !                   3C1   x00
-      !       ...         ...
-      !       6C3 222000  1     00x
-      !                   ...
-      !                   3C1   x00
-      !
-      ! So, a specific group d,s has a fixed number of doubly occupied
-      ! strings and a fixed number of singly occupied strings per doubly
-      ! occupied string. Each configuration is identified by its group,
-      ! its doubly occupied rank, and its singly occupied rank. The ordering
-      ! within a group is done by traversing the singly occupied strings
-      ! first, i.e., the index of a configurations is given by the formula
-      ! nsoc*(rankdo-1)+rankso, with nsoc the number of singly occupied
-      ! strings per doubly occupied string in a group, i.e., n-dCs.
+!     written by Steven Vancoillie, summer 2014.
+!
+!     This module implements operations that are performed on a CI vector
+!     in order to transform it from one basis to another, in particular
+!     from CSFs (GUGA ordering) to determinants and back. In order to
+!     efficiently do this, all CSFs/determinants are grouped by
+!     configurations, i.e., a fixed set of doubly+singly occupied
+!     orbitals.
+!
+!     The configurations are grouped by the number of double/single
+!     occupied orbitals.  Consider e.g. the case of 7in6, mult = 2.  We
+!     have n = 6 (#orbitals), N = 7 (#electrons), a = 4 (#alpha), b = 3
+!     (#beta). The number of doubly occupied orbitals (d) varies from 1 to
+!     3, the singly occupied orbitals (s) from 5 to 1. The orbitals are
+!     represented here in descending order such that the lexicographical
+!     lowest rank has the lowest orbitals occupied.
+!
+!                                                      / n \
+!     I used the notation nCk for binomial coefficient |   |
+!                                                      \ k /
+!
+!           do configs  so configs  determinants  CSFs
+!     d s   nCd         n-dCs       sCa-d         sCa-d - sCa-d+1
+!     1 5   1   000002  5C5 xxxxx
+!           2   000020  5C5 xxxxx
+!           ...
+!           6C1 200000  5C5 xxxxx
+!
+!     2 3   1   000022  1    0xxx
+!                       2    x0xx
+!                       ...
+!                       4C3  xxx0
+!           2   000202  1    0xxx
+!                       ...
+!           ...         ...
+!           6C2 220000  1    0xxx
+!                       ...
+!                       4C3  xxx0
+!     3 1   1   000222  1     00x
+!                       ...
+!                       3C1   x00
+!           ...         ...
+!           6C3 222000  1     00x
+!                       ...
+!                       3C1   x00
+!
+!     So, a specific group d,s has a fixed number of doubly occupied
+!     strings and a fixed number of singly occupied strings per doubly
+!     occupied string. Each configuration is identified by its group,
+!     its doubly occupied rank, and its singly occupied rank. The ordering
+!     within a group is done by traversing the singly occupied strings
+!     first, i.e., the index of a configurations is given by the formula
+!     nsoc*(rankdo-1)+rankso, with nsoc the number of singly occupied
+!     strings per doubly occupied string in a group, i.e., n-dCs.
 
       implicit none
       save
@@ -98,7 +98,8 @@
       real*8, intent(in)  :: ciold(*)
       real*8, intent(out) :: cinew(*)
 
-      character :: mode ! 'C' for configuration order, 'O' for original order
+!     'C' for configuration order, 'O' for original order
+      character :: mode
 
       ! array with coupling coefficients
       !real*8, intent(out) :: coef(*)
@@ -126,7 +127,7 @@
       integer :: idown, ndown
       real*8 :: wtab(0:maxorb,maxdown)
 
-      ! Compute offsets for addressing into the reordering and coefficient arrays.
+!     Compute offsets for addressing into the reordering and coefficient arrays.
       allocate (csf_offset(ndo_min:ndo_max))
 
 #ifdef _DEBUG_
@@ -146,19 +147,19 @@
         ncsf = ncsf + ndoc * nsoc * ncsf_group(ido)
       end do
 
-      ! The algorithm loops over CSFs (stepvectors) in an order determined
-      ! by an external function, so that we do not need to know how that
-      ! is done. Each time, we get a specific stepvector, e.g. 2u20du. We
-      ! compute rankdo using the lexrank() function on the bitpattern 000101,
-      ! and similarly rankso by applying the lexrank() function on the pattern
-      ! 1101 (ignoring the doubly occupied orbitals), remembering that for
-      ! bitpatterns we use the reverse orbital ordering. So our stepvector
-      ! 2u20du (normal orbital ordering) has 000202 and xx0x as do and so
-      ! strings, i.e. bitstrings 101 and 1101 respectively.
-      !
-      ! Once the configuration rank is found, we put in the coefficient of
-      ! that CSF and when the loop is ended we have now a reordered set of
-      ! CSF coefficients.
+!     The algorithm loops over CSFs (stepvectors) in an order determined
+!     by an external function, so that we do not need to know how that
+!     is done. Each time, we get a specific stepvector, e.g. 2u20du. We
+!     compute rankdo using the lexrank() function on the bitpattern 000101,
+!     and similarly rankso by applying the lexrank() function on the pattern
+!     1101 (ignoring the doubly occupied orbitals), remembering that for
+!     bitpatterns we use the reverse orbital ordering. So our stepvector
+!     2u20du (normal orbital ordering) has 000202 and xx0x as do and so
+!     strings, i.e. bitstrings 101 and 1101 respectively.
+!
+!     Once the configuration rank is found, we put in the coefficient of
+!     that CSF and when the loop is ended we have now a reordered set of
+!     CSF coefficients.
 
       ! set up table to compute CSF ranks
       call mkwtab(maxorb,maxdown,wtab)
@@ -194,9 +195,9 @@
           case (3)
             doub = ibset(doub,iorb-1)
             ido = ido + 1
-            ! Each time we encounter a '2', we determine the phase change
-            ! needed to put it in front of the string, i.e., (-1)^n, with n
-            ! the number of singly occupied orbitals already encountered.
+!           Each time we encounter a '2', we determine the phase change
+!           needed to put it in front of the string, i.e., (-1)^n, with n
+!           the number of singly occupied orbitals already encountered.
             if (mod(iso,2).eq.1) iphase = -iphase
           end select
         end do
@@ -209,8 +210,8 @@
         ioff_csf = csf_offset(ido) +
      &   (nsoc*(rankdo-1) + rankso - 1) * ncsf_group(ido)
 
-        ! CSF offset within this configuration, use per-ake's magical wtab
-        ! to get the rank of a ud string within its set.
+!       CSF offset within this configuration, use per-ake's magical wtab
+!       to get the rank of a ud string within its set.
         do idown=1,ndown
           ioff_csf = ioff_csf +
      &     nint(wtab(downvector(idown)-2*idown,idown))
@@ -244,11 +245,11 @@
 
       integer, allocatable :: stepvector(:)
 
-      ! Loop through the do,so configuration groups. For each group, load
-      ! the spin table. Loop through the configurations and perform a matrix
-      ! multiplication of the coefficient array with the spin table and get
-      ! the determinant coefficients. Then, loop through each configuration
-      ! and put the determinants in the correct place with the right phase.
+!     Loop through the do,so configuration groups. For each group, load
+!     the spin table. Loop through the configurations and perform a matrix
+!     multiplication of the coefficient array with the spin table and get
+!     the determinant coefficients. Then, loop through each configuration
+!     and put the determinants in the correct place with the right phase.
 
       allocate(stepvector(my_norb))
 
@@ -262,15 +263,15 @@
 
         allocate(tmp(ndet,nconf))
 
-        ! Compute the determinant coefficients from the CSF coefficients.
+!       Compute the determinant coefficients from the CSF coefficients.
         call dgemm_('N','N',ndet,nconf,ncsf,
      &              1.0d0,spintabs(ido)%coef,ndet,
      &                    ci(ioff_csf+1),    ncsf,
      &              0.0d0,tmp,               ndet)
 
-        ! Store the determinant coefficients with the right phase factor in
-        ! the correct place in the determinant matrix. The loops runs over
-        ! the determinants in the order they are stored in the tmp array.
+!       Store the determinant coefficients with the right phase factor in
+!       the correct place in the determinant matrix. The loops runs over
+!       the determinants in the order they are stored in the tmp array.
 
         iso = my_nel - 2 * ido
         isoa = nela - ido
@@ -315,11 +316,11 @@
 
       integer, allocatable :: stepvector(:)
 
-      ! Loop through the do,so configuration groups. For each group, load
-      ! the spin table. Loop through the configurations and perform a matrix
-      ! multiplication of the coefficient array with the spin table and get
-      ! the determinant coefficients. Then, loop through each configuration
-      ! and put the determinants in the correct place with the right phase.
+!     Loop through the do,so configuration groups. For each group, load
+!     the spin table. Loop through the configurations and perform a matrix
+!     multiplication of the coefficient array with the spin table and get
+!     the determinant coefficients. Then, loop through each configuration
+!     and put the determinants in the correct place with the right phase.
 
       allocate(stepvector(my_norb))
 
@@ -333,9 +334,9 @@
 
         allocate(tmp(ndet,nconf))
 
-        ! Collect the determinant coefficients with the right phase factor
-        ! from the correct place in the determinant matrix. The loops runs
-        ! over the determinants in the order they should end up in tmp.
+!       Collect the determinant coefficients with the right phase factor
+!       from the correct place in the determinant matrix. The loops runs
+!       over the determinants in the order they should end up in tmp.
 
         iso = my_nel - 2 * ido
         isoa = nela - ido
@@ -358,7 +359,7 @@
           doub = lex_next(doub)
         end do
 
-        ! Compute the determinant coefficients from the CSF coefficients.
+!       Compute the determinant coefficients from the CSF coefficients.
         call dgemm_('T','N',ncsf,nconf,ndet,
      &              1.0d0,spintabs(ido)%coef,ndet,
      &                    tmp,               ndet,
@@ -370,16 +371,16 @@
       end subroutine
 
       subroutine spintable_create(nso,ndown,spintab)
-      ! given a number of singly occupied orbitals and down couplings,
-      ! construct the table of CSFs and determinant transformation matrices.
+!     given a number of singly occupied orbitals and down couplings,
+!     construct the table of CSFs and determinant transformation matrices.
 
-      ! example: given 3 nso and 1 ndown, the matrix constructed is:
-      !     aab aba baa
-      ! udu ..
-      ! uud
+!     example: given 3 nso and 1 ndown, the matrix constructed is:
+!         aab aba baa
+!     udu ..
+!     uud
 
-      ! for now, just print the matrix for testing, later put it in some
-      ! memory location to be used by the conversion routine
+!     for now, just print the matrix for testing, later put it in some
+!     memory location to be used by the conversion routine
 
       use second_quantization
       implicit none
@@ -398,9 +399,9 @@
 
       allocate(spintab%coef(ndet,ncsf))
 
-      ! The CSFs here are generated in order of ascending rank that matches
-      ! wtab, the ranking table used to sort the CSFs. The most alternating
-      ! udud...ud string comes first, and the u..ud...d string last.
+!     The CSFs here are generated in order of ascending rank that matches
+!     wtab, the ranking table used to sort the CSFs. The most alternating
+!     udud...ud string comes first, and the u..ud...d string last.
 
       call csf_init(nso,ndown,down_orb)
       do icsf=1,ncsf
@@ -417,15 +418,15 @@
       end subroutine
 
       subroutine ud2det (udvec, coef)
-      ! A stepvector in this case is represented by a series of integers 1,2
-      ! for each singly-occupied orbital and corresponds to the steps u, d.
-      ! As such it is actually a limited stepvector, since doubly occupied
-      ! or empty orbitals are omitted. The reason is that we only generate
-      ! the stepvectors for a general configuration case, and then modify
-      ! the phase factors later when doing the actual transformation.
+!     A stepvector in this case is represented by a series of integers 1,2
+!     for each singly-occupied orbital and corresponds to the steps u, d.
+!     As such it is actually a limited stepvector, since doubly occupied
+!     or empty orbitals are omitted. The reason is that we only generate
+!     the stepvectors for a general configuration case, and then modify
+!     the phase factors later when doing the actual transformation.
 
-      ! The determinants are traversed in lexicographic order, with all alpha
-      ! orbitals the lowest orbitals.
+!     The determinants are traversed in lexicographic order, with all alpha
+!     orbitals the lowest orbitals.
 
       use second_quantization
       implicit none
@@ -509,9 +510,9 @@
           end select
         end do
 
-        ! Compute the determinant coefficient and position and add the value
-        ! into the determinant array for this configuration. Not that the
-        ! determinant coefficients are stored in lexicographic bit-order.
+!       Compute the determinant coefficient and position and add the value
+!       into the determinant array for this configuration. Not that the
+!       determinant coefficients are stored in lexicographic bit-order.
         coef(idet) = phase * sqrt(nom/den)
 
         deta = lex_next(deta)
@@ -520,19 +521,19 @@
 
       integer function ds2ab(doub,sing,alfa,beta,deta,detb)
      & result(phase)
-      ! convert a determinant characterized by a doubly occupied, singly
-      ! occupied, and alpha/beta substrings to an alpha and beta string.
+!     convert a determinant characterized by a doubly occupied, singly
+!     occupied, and alpha/beta substrings to an alpha and beta string.
 
-      ! A doubly occupied string identifies the doubly occupied orbitals
-      ! with a one-bit. A singly occupied string identifies the singly
-      ! occupied orbitals with a one-bit within the non-doubly occupied
-      ! orbitals. Finally, an alpha substring identifies the alpha orbitals
-      ! within the singly occupied orbital space.
+!     A doubly occupied string identifies the doubly occupied orbitals
+!     with a one-bit. A singly occupied string identifies the singly
+!     occupied orbitals with a one-bit within the non-doubly occupied
+!     orbitals. Finally, an alpha substring identifies the alpha orbitals
+!     within the singly occupied orbital space.
 
-      ! example: 6in6, singlet, determinant 2a20ba would be represented as:
-      !     <-    <-   <-                  <-      <-
-      ! 000101, 1101, 101 (dsa) and as 100111, 010101 (ab)
-      ! as usual counting orbitals from the right with bits (lower-most bit)
+!     example: 6in6, singlet, determinant 2a20ba would be represented as:
+!         <-    <-   <-                  <-      <-
+!     000101, 1101, 101 (dsa) and as 100111, 010101 (ab)
+!     as usual counting orbitals from the right with bits (lower-most bit)
 
 #include "compiler_features.h"
       use second_quantization
@@ -547,12 +548,12 @@
       integer :: mask, pos
       logical :: switch
 
-      ! First, we have to get the a/b singly occupied orbitals. This can be
-      ! easily done using successive bit scattering operations on the alpha
-      ! and beta substrings, which apparently are present in e.g. Intel's
-      ! Haswell architecture, called pext/pdep. Here, I implemented the bit
-      ! scattering operation as a function pdep: res = pdep(val,mask), which
-      ! scatters the bits of 'val' according to 'mask' into 'res'.
+!     First, we have to get the a/b singly occupied orbitals. This can be
+!     easily done using successive bit scattering operations on the alpha
+!     and beta substrings, which apparently are present in e.g. Intel's
+!     Haswell architecture, called pext/pdep. Here, I implemented the bit
+!     scattering operation as a function pdep: res = pdep(val,mask), which
+!     scatters the bits of 'val' according to 'mask' into 'res'.
 
       not_doub = ibits(not(doub),0,my_norb)
       deta = pdep(pdep(alfa,sing),not_doub)
@@ -562,16 +563,16 @@
       deta = ior(deta,doub)
       detb = ior(detb,doub)
 
-      ! Finally, determine the phase of the determinant. The coupling
-      ! coefficients were constructed for an orbital ordering where alpha
-      ! and beta alternate, e.g. 2a20ab -> 11'233'56'. However, we order alpha
-      ! first then beta, so we have 1235|1'3'6'. In order to account for the
-      ! change in phase, we should build our determinant by creating the
-      ! electrons of the alternating-order determinant in reverse, i.e., 6'
-      ! first, then 5, then 3', and so on. If we do this for the split-order
-      ! determinant, each time we add a beta electron we should count the
-      ! alpha electrons already added and change the phase if that number is
-      ! odd.
+!     Finally, determine the phase of the determinant. The coupling
+!     coefficients were constructed for an orbital ordering where alpha
+!     and beta alternate, e.g. 2a20ab -> 11'233'56'. However, we order alpha
+!     first then beta, so we have 1235|1'3'6'. In order to account for the
+!     change in phase, we should build our determinant by creating the
+!     electrons of the alternating-order determinant in reverse, i.e., 6'
+!     first, then 5, then 3', and so on. If we do this for the split-order
+!     determinant, each time we add a beta electron we should count the
+!     alpha electrons already added and change the phase if that number is
+!     odd.
 
       mask = 0
       switch = .false.
@@ -584,9 +585,9 @@
 #ifdef BINARY_PARITY
       phase = 1 - 2 * poppar(iand(deta,mask))
 #else
-      ! poppar is an intrinsic to determine the bit parity, but it's only
-      ! supported with some compiler versions, so we still use our own,
-      ! possibly slower implementation here as a fallback:
+!     poppar is an intrinsic to determine the bit parity, but it's only
+!     supported with some compiler versions, so we still use our own,
+!     possibly slower implementation here as a fallback:
       mask = iand(deta,mask)
       mask = ieor(mask,ishft(mask,-16))
       mask = ieor(mask,ishft(mask,-8))
@@ -656,8 +657,8 @@ c Avoid unused argument warnings
       end if
       end subroutine
 
-      ! an CSF is a CSF consisting of singly occupied orbitals and is given
-      ! by its down_orb string, that is the orbitals which are down coupled.
+!     an CSF is a CSF consisting of singly occupied orbitals and is given
+!     by its down_orb string, that is the orbitals which are down coupled.
 
       subroutine csf_init (nso, ndown, down_orb)
       implicit none

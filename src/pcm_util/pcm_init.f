@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine PCM_Init(iPrint,ICharg,NAtm,ToAng,
-     $                    AtmC,IAtm,LcAtmC,LcIAtm,iOper,nIrrep,NonEq)
+     $                    AtmC,IAtm,LcAtmC,LcIAtm,nIrrep,NonEq)
       Implicit Real*8 (a-h,o-z)
 #include "WrkSpc.fh"
 #include "rctfld.fh"
@@ -17,6 +17,7 @@
       Real*8 AtmC(3,NAtm),LcAtmC(3,NAtm)
       Integer IAtm(NAtm),LcIAtm(NAtm)
       Logical NonEq
+      Dimension RJunk(1)
 *
 *     Build the cavity.
 *     Write the input file for GeomView.
@@ -132,7 +133,6 @@ c     LenScr = 2 * nTs
       Return
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_integer(iOper)
          Call Unused_integer(nIrrep)
       End If
       End

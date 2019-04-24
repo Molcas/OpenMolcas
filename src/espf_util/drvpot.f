@@ -36,6 +36,7 @@
       Real*8 Ccoor(3),opnuc(*),ptchrg(*)
       Real*8, Allocatable :: Centr(:,:)
       Logical Do_ESPF
+      Dimension dummy(1),iopadr(1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -101,13 +102,13 @@ c
          Call GetMem('DENS','FREE','REAL',ipdens,ntdg)
          If (.not.Do_ESPF) Then
             Call AddVec(ptchrg,ptchrg,work(ipnuc),ngrid)
-            Call fMove(work(ipnuc),opnuc,ngrid)
+            Call dCopy_(ngrid,work(ipnuc),1,opnuc,1)
          End If
       Else
         iWork(ip2) = 2**nirrep-1
         Call OneEl(PotInt,NAMem,Label,iWork(ip1),iWork(ip2),ncmp,
      &             Ccoor,nOrdOp,work(ipnuc),rHrmt,iWork(ip3),
-     &             dum,1,opnuc,iopadr,1,1,
+     &             dummy,1,opnuc,iopadr,1,1,
      &             ptchrg,ngrid,iaddpot)
          If (iaddpot.eq.0.and..not.Do_ESPF)
      &      opnuc(1)=work(ipnuc)

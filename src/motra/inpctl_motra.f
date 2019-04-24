@@ -44,7 +44,7 @@
 *     Read the MO coefficients and occupations                         *
 *----------------------------------------------------------------------*
       Call GetMem('CMO','Allo','Real',ipCMO,nTot2)
-      Call RdCmo(Work(ipCMO),Work(ipOvlp))
+      Call RdCmo_motra(Work(ipCMO),Work(ipOvlp))
 *----------------------------------------------------------------------*
 *     Delete orbitals with occupations samller than a given value      *
 *----------------------------------------------------------------------*

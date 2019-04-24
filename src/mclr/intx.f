@@ -49,7 +49,7 @@
         iop=2**loper
         irc=-1
         iopt=0
-        Call RdMck(iRC,iOpt,Label,jDisp,Fock,iop)
+        Call dRdMck(iRC,iOpt,Label,jDisp,Fock,iop)
         If (iRc.ne.0) Then
            Write (6,*) 'IntX: Error reading MCKINT'
            Write (6,'(A,A)') 'Label=',Label
@@ -62,7 +62,7 @@
         iop=2**loper
         irc=-1
         iopt=0
-        Call RdMck(iRC,iOpt,Label,jDisp,Focki,iop)
+        Call dRdMck(iRC,iOpt,Label,jDisp,Focki,iop)
         If (iRc.ne.0) Then
            Write (6,*) 'IntX: Error reading MCKINT'
            Write (6,'(A,A)') 'Label=',Label
@@ -75,7 +75,7 @@
         iop=2**loper
         iopt=0
         irc=-1
-        Call RdMck(iRC,iOpt,Label,jDisp,rMO,iop)
+        Call dRdMck(iRC,iOpt,Label,jDisp,rMO,iop)
         If (iRc.ne.0) Then
            Write (6,*) 'IntX: Error reading MCKINT'
            Write (6,'(A,A)') 'Label=',Label
@@ -94,14 +94,14 @@
        iop=2**loper
        irc=-1
        iopt=0
-       Call RdMck(iRC,iOpt,Label,jDisp,Focki,iop)
+       Call dRdMck(iRC,iOpt,Label,jDisp,Focki,iop)
        If (iRc.ne.0) Then
           Write (6,*) 'IntX: Error reading MCKINT'
           Write (6,'(A,A)') 'Label=',Label
           Call QTrace
           Call Abend()
        End If
-       call dcopy_(ndens2,0.0d0,0,fock,1)
+       call dcopy_(ndens2,[0.0d0],0,fock,1)
        Do iS=1,nSym
         js=iEOR(is-1,loper)+1
         Call Dyax(nOrb(is)*nIsh(js),2.0d0,
@@ -124,7 +124,7 @@
        Label='ONEGRD'
        iopt=0
        irc=-1
-       Call RdMck(iRC,iOpt,Label,jDisp,Temp1,iop)
+       Call dRdMck(iRC,iOpt,Label,jDisp,Temp1,iop)
        If (iRc.ne.0) Then
           Write (6,*) 'IntX: Error reading MCKINT'
           Write (6,'(A,A)') 'Label=',Label
@@ -146,7 +146,7 @@
       End If
       End If
 *
-      call dcopy_(nDens,0.0d0,0,Temp2,1)
+      call dcopy_(nDens,[0.0d0],0,Temp2,1)
       ip=1
       Do iS=1,nSym
        Do jS=1,is
@@ -190,7 +190,7 @@
       End Do
 
 *
-       call dcopy_(ndens2,0.0d0,0,Temp3,1)
+       call dcopy_(ndens2,[0.0d0],0,Temp3,1)
        Do iS=1,nSym
         js=iEOR(is-1,loper)+1
         Do j=1,nAsh(is)+nish(is)

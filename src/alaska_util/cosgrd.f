@@ -209,7 +209,7 @@ c             skip 2 center
              JfGrad(iCar+1,3) = .False.
           enddo
 
-         Call ICopy(3,0,0,JndGrd(1,4),1)
+         Call ICopy(3,[0],0,JndGrd(1,4),1)
          JfGrad(1,4) = .False.
          JfGrad(2,4) = .False.
          JfGrad(3,4) = .False.
@@ -242,9 +242,9 @@ c             skip 2 center
             mRys=nRys
 
             Call Rysg1(iAnga,mRys,nT,
-     &                 Array(ipA),Array(ipB),One,One,
+     &                 Array(ipA),Array(ipB),[One],[One],
      &                 Zeta,ZInv,nZeta,
-     &                 One,One,1,
+     &                 [One],[One],1,
      &                 P,nZeta,TC,1,Coori,Coori,CoorAC,
      &                 Array(nip),nArray,
      &                 TNAI1,Fake,Cff2D,

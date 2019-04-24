@@ -8,17 +8,24 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      subroutine put_dkoperators(i,string,iarray)
+      subroutine put_dkoperators(i,string,carray)
 c----------------------------------------------------------------------
       implicit real*8 (a-h,o-z)
-#include "dkhparameters.fh"
       character*(*) string
-      dimension iarray(*)
+      character carray(*)
 *
-      lwop=8/intrea()
-      nwop=(maxlength-1)/lwop+1
-      koff=(i-1)*nwop
+      call put_dkoperators_internal(carray)
 *
-      Call ByteCopy(String,iArray(koff+1),MaxLength)
+*     This is to allow type punning without an explicit interface
+      contains
+      subroutine put_dkoperators_internal(carray)
+      use iso_c_binding
+      character, target :: carray(*)
+      integer, pointer :: iarray(:)
+      call c_f_pointer(c_loc(carray(1)),iarray,[1])
+      call put_dkoperators_i(i,string,iarray)
+      nullify(iarray)
       return
+      end subroutine put_dkoperators_internal
+*
       end

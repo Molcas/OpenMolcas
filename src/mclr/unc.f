@@ -26,7 +26,7 @@
       Fact=1.0d0
       If (dsym.lt.0) Fact=-Fact
       dsym=abs(dsym)
-      call dcopy_(nDens2,0.0d0,0,ArrayOut,1)
+      call dcopy_(nDens2,[0.0d0],0,ArrayOut,1)
       Do iSym=1,nSym
        Do jSym=1,nSym
         If (iEOr(iSym-1,jSym-1)+1.eq.dSym) Then

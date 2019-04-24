@@ -135,12 +135,21 @@ cAOM      if ( ipt(51) .gt. iptmax ) stop 'work space too small'
       Do I=1,50
         ipt(i)=ipt(i)+mWrk-1
       Enddo
-      call lmnvgn_molcas(lmn1u,Work(ipt(1)))
+      ipt1=ip_of_iWork_d(Work(ipt(1)))
+      call lmnvgn_molcas(lmn1u,iWork(ipt1))
       eps = 1.0d-12
+      ipt1=ip_of_iWork_d(Work(ipt(1)))
+      ipt13=ip_of_iWork_d(Work(ipt(13)))
+      ipt14=ip_of_iWork_d(Work(ipt(14)))
+      ipt15=ip_of_iWork_d(Work(ipt(15)))
+      ipt16=ip_of_iWork_d(Work(ipt(16)))
+      ipt17=ip_of_iWork_d(Work(ipt(17)))
+      ipt20=ip_of_iWork_d(Work(ipt(20)))
+      ipt21=ip_of_iWork_d(Work(ipt(21)))
       call cortab_molcas(Work(ipt(12)),Work(ipt(11)),eps,Work(ipt(19)),
-     &      Work(ipt(9)),Work(ipt(10)),Work(ipt(13)),Work(ipt(14)),
-     &      Work(ipt(15)),Work(ipt(16)),Work(ipt(17)),lmax,lmn1u,lproju,
-     &      Work(ipt(20)),Work(ipt(21)),ndfac,Work(ipt(18)))
+     &      Work(ipt(9)),Work(ipt(10)),iWork(ipt13),iWork(ipt14),
+     &      iWork(ipt15),iWork(ipt16),iWork(ipt17),lmax,lmn1u,lproju,
+     &      iWork(ipt20),iWork(ipt21),ndfac,Work(ipt(18)))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -148,7 +157,7 @@ cAOM      if ( ipt(51) .gt. iptmax ) stop 'work space too small'
 *
       lproju1=lproju+1
       call pseud1_molcas(Work,Work(ipt(31)),ccr,gout,ipt,
-     &        Work(ipt(1)),ltot1,ncr,nkcrl,nkcru,Work(ipt(33)),
+     &        iWork(ipt1),ltot1,ncr,nkcrl,nkcru,Work(ipt(33)),
      &        Work(ipt(34)),Work(ipt(35)),Work(ipt(36)),zcr,lit,ljt,
      &        ai,aj,xi,yi,zi,xj,yj,zj,xc,yc,zc,kcrs,lproju1,crda,crdb)
 *                                                                      *

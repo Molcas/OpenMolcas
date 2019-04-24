@@ -29,9 +29,9 @@
       do 100 iorb=1,norb
       jorb=abs(iorbprm(iorb))
       sgn=dble(sign(1,iorbprm(iorb)))
-      call fmove(orbs(1,jorb),owrk(1,iorb),norb)
+      call fmove_cvb(orbs(1,jorb),owrk(1,iorb),norb)
 100   call dscal_(norb,sgn,owrk(1,iorb),1)
-      call fmove(owrk,orbs,norb*norb)
+      call fmove_cvb(owrk,orbs,norb*norb)
       call str2vbc_cvb(cvb,cvbdet)
       call permvb_cvb(cvbdet,iorbprm)
       call vb2strc_cvb(cvbdet,cvb)

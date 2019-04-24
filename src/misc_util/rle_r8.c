@@ -68,6 +68,7 @@ void rle_r8(double in[], INT *n_in, double out[], INT *n_out, double *thr) {
    INT i,k,n,skip;
 
    if(0) {
+      ptr_64=(unsigned long long int *)out;
       n=0;
       count=0;
       for(k=0; k<*n_in; k++) {

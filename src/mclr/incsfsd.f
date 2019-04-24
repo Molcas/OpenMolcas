@@ -18,6 +18,7 @@
 #include "csfbas_mclr.fh"
       Logical GUGA
       Integer State_sym
+      Dimension idum(1)
 *
 #include "csfsd.fh"
 

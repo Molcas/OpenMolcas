@@ -103,7 +103,7 @@
       Pget_Wall = 0.0d0
 #endif
       Call QEnter('Drvg1')
-      call dcopy_(nGrad,Zero,0,Temp,1)
+      call dcopy_(nGrad,[Zero],0,Temp,1)
 *
       Call StatusLine(' Alaska:',' Computing 2-electron gradients')
 *                                                                      *
@@ -220,7 +220,7 @@
 *        If (nPrint(1).ge.15)
 *    &   Call PrGrad(' Gradient excluding two-electron contribution',
 *    &               Grad,lDisp(0),lIrrep,ChDisp,5)
-         call dcopy_(nGrad,Zero,0,Temp,1)
+         call dcopy_(nGrad,[Zero],0,Temp,1)
       End If
 *                                                                      *
 ************************************************************************

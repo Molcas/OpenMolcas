@@ -47,7 +47,7 @@
 *     tensor, ESIT.
 *
       nComp=nElem(nOrdOp)
-      call dcopy_(nComp,Zero,0,ESIT,1)
+      call dcopy_(nComp,[Zero],0,ESIT,1)
 *
       nTot=(nOrdOp+1)**6
       Call GetMem('ESIT','Allo','Inte',ipC,nTot)

@@ -33,8 +33,9 @@
       Integer :: nGrad,iRoot,iNAC,jNAC
       Real*8 :: Grad(nGrad)
       Integer, Dimension(5) :: TOC
+      Integer, Dimension(1) :: Length
       Integer, Dimension(:), Allocatable :: i_grad,i_nac
-      Integer :: nRoots,nCoup,LuGrad,iAd,Length,iSt,jSt,idx
+      Integer :: nRoots,nCoup,LuGrad,iAd,iSt,jSt,idx
       Integer, External :: AixRm
       Logical :: Found, BadFile
       Character(Len=5) :: Filename
@@ -57,10 +58,10 @@
       Call iDaFile(LuGrad,2,TOC,Size(TOC),iAd)
       iAd=TOC(1)
       Call iDaFile(LuGrad,2,Length,1,iAd)
-      If (Length.ne.nRoots) BadFile=.True.
+      If (Length(1).ne.nRoots) BadFile=.True.
       iAd=TOC(2)
       Call iDaFile(LuGrad,2,Length,1,iAd)
-      If (Length.ne.nGrad) BadFile=.True.
+      If (Length(1).ne.nGrad) BadFile=.True.
       If (BadFile) Then
         Call DaClos(LuGrad)
         If (AixRm('GRADS').ne.0) Call Abend()

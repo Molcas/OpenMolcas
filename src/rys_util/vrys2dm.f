@@ -65,7 +65,7 @@
 *     Compute 2D integrals with index (0,0). Observe that the z
 *     component already contains the weight factor.
 *
-      call dcopy_(2*nArg*lRys,One,0,xyz2D(1,1,0,0),1)
+      call dcopy_(2*nArg*lRys,[One],0,xyz2D(1,1,0,0),1)
 *
 *     Compute 2D integrals with index (i,0)
 *

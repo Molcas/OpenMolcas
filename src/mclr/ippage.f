@@ -48,10 +48,10 @@
 *         n  : Length of CI-vector
 *         ida: disk address
 *
-          Call ICopy(Max_CI_Vectors+1, 0,0,n,1)
-          Call ICopy(Max_CI_Vectors+1,-1,0,ida,1)
-          Call ICopy(Max_CI_Vectors+1,ip_Dummy,0,ip_Mem,1)
-          Call ICopy(Max_CI_Vectors+1,Null_Vector,0,Status,1)
+          Call ICopy(Max_CI_Vectors+1,[0],0,n,1)
+          Call ICopy(Max_CI_Vectors+1,[-1],0,ida,1)
+          Call ICopy(Max_CI_Vectors+1,[ip_Dummy],0,ip_Mem,1)
+          Call ICopy(Max_CI_Vectors+1,[Null_Vector],0,Status,1)
 *
 *         iDisk_Addr_End: next free disk address
 *         n_CI_Vectors : number of CI-vectors
@@ -76,7 +76,7 @@
        Integer Function ipclose(ia)
 #include "ippage.fh"
 #include "WrkSpc.fh"
-       Real*8 rdum
+       Real*8 rdum(1)
 *
        If (ia.gt.Max_CI_Vectors) Then
           Write (6,*) 'ipclose: ia.gt.Max_CI_Vectors'

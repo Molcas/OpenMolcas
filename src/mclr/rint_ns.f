@@ -45,8 +45,8 @@ c Fact controls the sign of H(k)
       One=1.0d0
       Call GetMem('MOTemp1','ALLO','REAL',ipMT1,nmba)
       Call GetMem('MOTemp2','ALLO','REAL',ipMT2,nmba)
-      call dcopy_(nmba,0.0d0,0,Work(ipMT1),1)
-      call dcopy_(nmba,0.0d0,0,Work(ipMT2),1)
+      call dcopy_(nmba,[0.0d0],0,Work(ipMT1),1)
+      call dcopy_(nmba,[0.0d0],0,Work(ipMT2),1)
 
 *      Call GetMem('MOTemp2','CHEC','REAL',ipMT2,nmba)
       Call R2ElInt_ns(rkappa,work(ipMT1),work(ipMT2),
@@ -73,7 +73,7 @@ C
 *
 *
 *
-      call dcopy_(ndens2,0.0d0,0,Fock,1)
+      call dcopy_(ndens2,[0.0d0],0,Fock,1)
 *
 *
 *     Q  = sum(jkl)=(pj|kl)d(ijkl)
@@ -173,7 +173,7 @@ c
       End If
 * Transpose ipsc2
 *     Call GetMem('Temp','ALLO','REAL',ipT,nbas(is)*nbas(jS))
-*     call dcopy_(nbas(is)*nbas(jS),0.0d0,0,Work(ipT),1)
+*     call dcopy_(nbas(is)*nbas(jS),[0.0d0],0,Work(ipT),1)
 *     Call DGETMO(Fock(ipmat(is,js)),nbas(is),
 *    &                nbas(is),nbas(js),Work(ipT),
 *    &                nbas(js))

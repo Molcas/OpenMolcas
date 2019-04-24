@@ -92,10 +92,11 @@
       Call GetMem('DRT0','ALLO','INTEGER',LDRT0,NDRT0)
       Call GetMem('DOWN','ALLO','INTEGER',LDOWN0,NDOWN0)
       Call GetMem('LTMP','ALLO','INTEGER',LTMP,NTMP)
-      Call DRT0
+      Call DRT0_MCLR
      &     (A0,B0,C0,NVERT0,iWork(LDRT0),iWork(LDOWN0),
      &      NTMP,IWORK(LTMP))
-      If ( iPrint.ge.5 ) Call PRDRT(NVERT0,iWork(LDRT0),iWork(LDOWN0))
+      If ( iPrint.ge.5 )
+     &   Call PRDRT_MCLR(NVERT0,iWork(LDRT0),iWork(LDOWN0))
       Call GetMem('LTMP','FREE','INTEGER',LTMP,NTMP)
 *
       LV1RAS=ntRas1
@@ -103,7 +104,7 @@
       LM1RAS=2*LV1RAS-nHole1
       LM3RAS=nActEl-nElec3
       Call GetMem('LV11','ALLO','INTEGER',LV,NVERT0)
-      Call RESTR
+      Call RESTR_MCLR
      &     (NVERT0,iWork(LDRT0),iWork(LDOWN0),iWork(LV),
      &      LV1RAS,LV3RAS,LM1RAS,LM3RAS,NVERT)
 *
@@ -111,29 +112,29 @@
       NDOWN=4*NVERT
       Call GetMem('DRT1','ALLO','INTEGER',LDRT,NDRT)
       Call GetMem('DWN1','ALLO','INTEGER',LDOWN,NDOWN)
-      Call DRT
+      Call DRT_MCLR
      &     (NVERT0,NVERT,iWork(LDRT0),iWork(LDOWN0),iWork(LV),
      &      iWork(LDRT),iWork(LDOWN))
-      If ( iPrint.ge.5 ) Call PRDRT(NVERT,iWork(LDRT),iWork(LDOWN))
+      If ( iPrint.ge.5 ) Call PRDRT_MCLR(NVERT,iWork(LDRT),iWork(LDOWN))
       Call GetMem('LV11','FREE','INTEGER',LV,NVERT0)
       Call GetMem('DRT0','FREE','INTEGER',LDRT0,NDRT0)
       Call GetMem('DOWN','FREE','INTEGER',LDOWN0,NDOWN0)
 *
       NDAW=5*NVERT
       Call GetMem('DAW1','ALLO','INTEGER',LDAW,NDAW)
-      Call MKDAW(NVERT,iWork(LDOWN),iWork(LDAW),iPrint)
+      Call MKDAW_MCLR(NVERT,iWork(LDOWN),iWork(LDAW),iPrint)
 *
       NUP=4*NVERT
       NRAW=5*NVERT
       Call GetMem('LUP1','ALLO','INTEGER',LUP,NUP)
       Call GetMem('RAW1','ALLO','INTEGER',LRAW,NRAW)
-      Call MKRAW
+      Call MKRAW_MCLR
      &     (NVERT,iWork(LDOWN),iWork(LDAW),iWork(LUP),iWork(LRAW),
      &           iPrint)
 *
       NLTV=NLEV+2
       Call GetMem('LTV1','ALLO','INTEGER',LLTV,NLTV)
-      Call MKMID
+      Call MKMID_MCLR
      &     (NVERT,NLEV,iWork(LDRT),
      &      iWork(LDOWN),iWork(LDAW),iWork(LUP),iWork(LRAW),
      &      iWork(LLTV),
@@ -153,7 +154,7 @@
       Call GetMem('ICSF','ALLO','INTEGER',LIOCSF,NIOCSF)
       Call GetMem('SCR1','ALLO','INTEGER',LSCR,NSCR)
 *     Call GetMem('NCSF','ALLO','INTEGER',LNCSF,nSym)
-      Call MKCOT
+      Call MKCOT_MCLR
      &     (nSym,NLEV,NVERT,MIDLEV,NMIDV,MIDV1,MIDV2,NWALK,NIPWLK,
      &      OrbSym,iWork(LDOWN),iWork(LNOW),iWork(LIOW),
      &      NCSF,iWork(LIOCSF),iWork(LNOCSF),
@@ -182,7 +183,7 @@
       NLSGN=MXDWN*NMIDV
       Call GetMem('IUSG','ALLO','INTEG',LUSGN,NUSGN)
       Call GetMem('ILSG','ALLO','INTEG',LLSGN,NLSGN)
-      Call MKSGNUM
+      Call MKSGNUM_MCLR
      &     (ksym,nSym,NLEV,
      &       NVERT,MIDLEV,NMIDV,MXUP,MXDWN,NICASE,NIPWLK,
      &      iWork(LDOWN),iWork(LUP),iWork(LDAW),iWork(LRAW),
@@ -199,7 +200,7 @@
      &         6X,100(1H-),/)
       WRITE(6,102) PRWTHR
 102   FORMAT(6X,'printout of CI-coefficients larger than',F6.2)
-      Call SGPRWF
+      Call SGPRWF_MCLR
      &     (ksym,PRWTHR,
      &      nSym,NLEV,NCONF,MIDLEV,NMIDV,NIPWLK,NICASE,
      &      OrbSym,iWork(LNOCSF),iWork(LIOCSF),
@@ -226,7 +227,7 @@
      &      iWork(KCFTP),NCNATS(1,kSym),NCPCNT,
      &      Work(ipCIL),Work(ipCInew),minop)
       If (imode.eq.0.and.iAnd(kprint,8).eq.8)
-     &Call SGPRWF
+     &Call SGPRWF_MCLR
      &     (ksym,PRWTHR,
      &      nSym,NLEV,NCONF,MIDLEV,NMIDV,NIPWLK,NICASE,
      &      OrbSym,iWork(LNOCSF),iWork(LIOCSF),

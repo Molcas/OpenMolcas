@@ -22,7 +22,8 @@
       Complex(kind=wp), intent(out) :: MM(3,nss,nss)
       Complex(kind=wp), intent(out) :: MS(3,nss,nss)
       Complex(kind=wp), intent(out) :: ML(3,nss,nss)
-      Complex(kind=wp), intent(out) :: DM(3,nss,nss) ! electric dipole moment
+!     electric dipole moment
+      Complex(kind=wp), intent(out) :: DM(3,nss,nss)
       Complex(kind=wp), intent(out) :: U(nss,nss)
       Character(180)                :: input_file_name
       ! local variables:
@@ -476,7 +477,7 @@ c compatibility with the present version: of aniso_i.input file
       read(LuAniso,*) nstate_local, nss_local
 !---------------------------------------------------------
       Call mma_allocate(tmp,nss_local,'tmp')
-      Call dcopy_(nss_local,0.0_wp,0,tmp,1)
+      Call dcopy_(nss_local,[0.0_wp],0,tmp,1)
       ! local spin-orbit energy
       read(LuAniso,*) (tmp(j),j=1,nss_local)
       ! copy the lowest nss states to eso:

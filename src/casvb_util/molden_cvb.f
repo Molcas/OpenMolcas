@@ -17,6 +17,8 @@
 #include "general.fh"
 #include "rctfld.fh"
 
+      dimension Dummy(1)
+
       call daname_cvb(JOBIPH,'JOBIPH')
       idisk=0
       call idafile(JOBIPH,2,iadr15,15,idisk)

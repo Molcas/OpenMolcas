@@ -8,13 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine GetCnt(NGROUP,IGROUP,NATOMS,ATLBL,COOR)
+      Subroutine GetCnt(NGROUP,IGROUP,NATOMS,ATLBL)
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "WrkSpc.fh"
       Dimension IGROUP(8)
       Character*(LENIN) ATLBL(*)
-      Real*8 COOR(3,*)
 C Purpose: Read data from ONEINT
 
 C Read NGROUP
@@ -30,7 +29,7 @@ C Read ATLBL, an array of atom labels
       Call Get_cArray('Unique Atom Names',ATLBL,LENIN*NATOMS)
 
 C Read COOR, cartesian coordinates of each atom
-      Call Get_dArray('Unique Coordinates',COOR,3*nAtoms)
+!     Call Get_dArray('Unique Coordinates',COOR,3*nAtoms)
 
       Return
       End

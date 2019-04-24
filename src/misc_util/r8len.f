@@ -53,7 +53,7 @@
 *----------------------------------------------------------------------*
 *
       If (.not.Pack) Then
-         Call ICOPY(nData,RtoB,0,iLen,1)
+         Call ICOPY(nData,[RtoB],0,iLen,1)
       Else
 *        Call ERIlen(nData,PkThrs,Buf,iLen)
          Kase=iAnd(iOpt,15)
@@ -62,7 +62,7 @@
             Init_do_setup_l=0
          Else
             iZero=8
-            call iCopy(nData,8,0,iLen,1)
+            call iCopy(nData,[8],0,iLen,1)
             Do i=1,nData
                If(Abs(Buf(i)).lt.PkThrs) Then
                   iLen(i)=iZero

@@ -25,6 +25,7 @@
       dimension vec(nparm1)
       dimension cvb(nvb),civec(*),civecp(*),civb(*),cvbdet(*)
       dimension vec_all(nparm1)
+      dimension orbs(*),gjorb(*),gjorb2(*),gjorb3(*)
 
       call makegjorbs_cvb(orbs,gjorb,gjorb2,gjorb3)
 

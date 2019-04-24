@@ -25,7 +25,7 @@
       Integer dsym
       Real*8  ArrayIn(nDens),ArrayOut(nDensC)
       indexC=0
-      call dcopy_(nDensC,0.0d0,0,ArrayOut,1)
+      call dcopy_(nDensC,[0.0d0],0,ArrayOut,1)
       Do iSym=1,nSym
        Do jSym=1,nSym
         If (iEOr(iSym-1,jSym-1)+1.eq.abs(dSym)) Then

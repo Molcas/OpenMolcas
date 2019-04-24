@@ -22,6 +22,14 @@ c
      &  nkcru(lproju1,*),qsum(ltot1,*),xab(*),yab(*),zab(*),zcr(*)
       data llt /1,2,5,11,21,36,57,1,4,10,20,35,56,84/
 
+      call pseud1_molcas_internal(a)
+*
+*     This is to allow type punning without an explicit interface
+      contains
+      subroutine pseud1_molcas_internal(a)
+      use iso_c_binding
+      real*8, target :: a(*)
+      integer, pointer :: ia13(:),ia14(:),ia15(:),ia16(:),ia17(:)
       tol=20.*log(10.d0)
       fctr2=a4
       itl=llt(lit,1)
@@ -114,9 +122,15 @@ c
           call facab(a(ipt(12)),na1,nb1,crda(1,1),crdb(1,1),xab)
           call facab(a(ipt(12)),la1,lb1,crda(1,2),crdb(1,2),yab)
           call facab(a(ipt(12)),ma1,mb1,crda(1,3),crdb(1,3),zab)
+          call c_f_pointer(c_loc(a(ipt(13))),ia13,[1])
+          call c_f_pointer(c_loc(a(ipt(14))),ia14,[1])
+          call c_f_pointer(c_loc(a(ipt(15))),ia15,[1])
+          call c_f_pointer(c_loc(a(ipt(16))),ia16,[1])
+          call c_f_pointer(c_loc(a(ipt(17))),ia17,[1])
           call ang1(ang,a(ipt(11)),na1+nb1-1,la1+lb1-1,ma1+mb1-1,lamu,
-     &      a(ipt(13)),a(ipt(14)),a(ipt(15)),a(ipt(16)),a(ipt(17)),
+     &      ia13,ia14,ia15,ia16,ia17,
      &      ltot1,xab,yab,zab,xk,yk,zk,a(ipt(18)))
+          nullify(ia13,ia14,ia15,ia16,ia17)
 c
 c  combine angular and radial integrals
 c
@@ -130,4 +144,6 @@ c
    80   continue
    90 continue
       return
+      end subroutine pseud1_molcas_internal
+*
       end

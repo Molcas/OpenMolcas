@@ -66,7 +66,7 @@
   210       CONTINUE
             DO 300 IOBTP = 1, NTPOB
 *. type of K string obtained by removing one elec of type IOPBTP from IATP
-              CALL NEWTYP_MCLR(IACLS,IATP,1,IOBTP,1,KACLS,KATP)
+              CALL NEWTYP_MCLR(IACLS,IATP,[1],[IOBTP],1,KACLS,KATP)
               IF(KATP.GT.0) THEN
                 MXKA = 0
                 DO 310 KSM = 1, NSMST
@@ -99,7 +99,7 @@
   211       CONTINUE
             DO 301 IOBTP = 1, NTPOB
 *. type of K string obtained by removing one elec of type IOPBTP from IBTP
-              CALL NEWTYP_MCLR(IBCLS,IBTP,1,IOBTP,1,KBCLS,KBTP)
+              CALL NEWTYP_MCLR(IBCLS,IBTP,[1],[IOBTP],1,KBCLS,KBTP)
               IF(KBTP.GT.0) THEN
                 MXKB = 0
                 DO 311 KSM = 1, NSMST
@@ -139,7 +139,7 @@
             IF(MXIB.GT.MXPKA.AND.MXPKA.GT.0) MXIB = MXPKA
             DO  IOBTP = 1, NTPOB
 *. type of K string obtained by removing one elec of type IOPBTP from IATP
-              CALL NEWTYP_MCLR(IACLS,IATP,1,IOBTP,1,K1ACLS,K1ATP)
+              CALL NEWTYP_MCLR(IACLS,IATP,[1],[IOBTP],1,K1ACLS,K1ATP)
               IF(K1ATP.GT.0) THEN
                 MXISOB = 0
                 DO ISMOB = 1, NSMOB
@@ -147,7 +147,8 @@
                 END DO
                 DO JOBTP = 1, NTPOB
 *  type of K string obtained by removing one elec of type JOPBTP from K1ATP
-                  CALL NEWTYP_MCLR(K1ACLS,K1ATP,1,JOBTP,1,KACLS,KATP)
+                  CALL NEWTYP_MCLR(K1ACLS,K1ATP,[1],[JOBTP],1,KACLS,
+     &                             KATP)
                   IF(KATP.GT.0) THEN
                     MXKA = 0
                     DO KSM = 1, NSMST
@@ -192,7 +193,7 @@
             IF(MXIA.GT.MXPKA.AND.MXPKA.GT.0) MXIA = MXPKA
             DO  IOBTP = 1, NTPOB
 *. type of K string obtained by removing one elec of type IOPBTP from IBTP
-              CALL NEWTYP_MCLR(IBCLS,IBTP,1,IOBTP,1,K1BCLS,K1BTP)
+              CALL NEWTYP_MCLR(IBCLS,IBTP,[1],[IOBTP],1,K1BCLS,K1BTP)
               IF(K1BTP.GT.0) THEN
                 MXISOB = 0
                 DO ISMOB = 1, NSMOB
@@ -200,7 +201,8 @@
                 END DO
                 DO JOBTP = 1, NTPOB
 *  type of K string obtained by removing one elec of type JOPBTP from K1ATP
-                  CALL NEWTYP_MCLR(K1BCLS,K1BTP,1,JOBTP,1,KBCLS,KBTP)
+                  CALL NEWTYP_MCLR(K1BCLS,K1BTP,[1],[JOBTP],1,KBCLS,
+     &                             KBTP)
                   IF(KBTP.GT.0) THEN
                     MXKB = 0
                     DO KSM = 1, NSMST
@@ -238,7 +240,7 @@
           IF(IAB(IATP,IBTP).NE.0) THEN
             DO  IOBTP = 1, NTPOB
 *. type of Ka string obtained by removing one elec of type IOPBTP from IATP
-              CALL NEWTYP_MCLR(IACLS,IATP,1,IOBTP,1,KACLS,KATP)
+              CALL NEWTYP_MCLR(IACLS,IATP,[1],[IOBTP],1,KACLS,KATP)
               IF(KATP.GT.0) THEN
                 MXKA = 0
                 DO KSM = 1, NSMST
@@ -251,7 +253,7 @@
                 END DO
                 DO JOBTP = 1, NTPOB
 *  type of K string obtained by removing one elec of type JOPBTP from IBTP
-                  CALL NEWTYP_MCLR(IBCLS,IBTP,1,JOBTP,1,KBCLS,KBTP)
+                  CALL NEWTYP_MCLR(IBCLS,IBTP,[1],[JOBTP],1,KBCLS,KBTP)
                   IF(KBTP.GT.0) THEN
                     MXKB = 0
                     DO KSM = 1, NSMST
@@ -288,7 +290,7 @@
 *. Orbitals to be removed
         DO  JOBTP = 1, NTPOB
 *. Is this removal allowed ??
-          CALL NEWTYP_MCLR(IACLS,IATP,1,JOBTP,1,KACLS,KATP)
+          CALL NEWTYP_MCLR(IACLS,IATP,[1],[JOBTP],1,KACLS,KATP)
           IF(KATP.GT.0) THEN
 *. Number of possible choices of J orbitals
             MXJOB = 0
@@ -299,7 +301,7 @@
 *. Then  : add an electron
             DO IOBTP = 1, NTPOB
 *  Allowed ?
-              CALL NEWTYP_MCLR(KACLS,KATP,2,IOBTP,1,JACLS,JATP)
+              CALL NEWTYP_MCLR(KACLS,KATP,[2],[IOBTP],1,JACLS,JATP)
               IF(JATP.GT.0) THEN
                 MXIOB = 0
                 DO ISMOB = 1, NSMOB
@@ -322,7 +324,7 @@
 *. Orbitals to be removed
         DO  JOBTP = 1, NTPOB
 *. Is this removal allowed ??
-          CALL NEWTYP_MCLR(IBCLS,IBTP,1,JOBTP,1,KBCLS,KBTP)
+          CALL NEWTYP_MCLR(IBCLS,IBTP,[1],[JOBTP],1,KBCLS,KBTP)
           IF(KBTP.GT.0) THEN
 *. Number of possible choices of J orbitals
             MXJOB = 0
@@ -333,7 +335,7 @@
 *. Then  : add an electron
             DO IOBTP = 1, NTPOB
 *  Allowed ?
-              CALL NEWTYP_MCLR(KBCLS,KBTP,2,IOBTP,1,JBCLS,JBTP)
+              CALL NEWTYP_MCLR(KBCLS,KBTP,[2],[IOBTP],1,JBCLS,JBTP)
               IF(JATP.GT.0) THEN
                 MXIOB = 0
                 DO ISMOB = 1, NSMOB

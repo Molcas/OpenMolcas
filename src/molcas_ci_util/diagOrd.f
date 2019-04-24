@@ -64,6 +64,14 @@ C      DIMENSION IPCSF(*),IPCNF(*)
       DIMENSION ONEBOD(*),SCR(*)
       DIMENSION TUVX(*), IREOTS(*)
 
+      CALL DIAGORD_INTERNAL(SCR)
+*
+*     This is to allow type punning without an explicit interface
+      CONTAINS
+      SUBROUTINE DIAGORD_INTERNAL(SCR)
+      USE ISO_C_BINDING
+      REAL*8, TARGET :: SCR(*)
+      INTEGER, POINTER :: iSCR(:)
       ICSFMN = 0 ! dummy initialize to avoid warning
 
 * construct the diagonal array out of the Hamiltonian matrix
@@ -90,16 +98,20 @@ C      DIMENSION IPCSF(*),IPCNF(*)
       IILB = 1
       DO ICNL = 1, NCONF
 *       write(*,*) 'IILB', IILB
-        CALL GETCNF_LUCIA(SCR(KLCONF),ILTYP,ICNL,ICONF,IREFSM,
+        CALL C_F_POINTER(C_LOC(SCR(KLCONF)),iSCR,[1])
+        CALL GETCNF_LUCIA(iSCR,ILTYP,ICNL,ICONF,IREFSM,
      &                    NEL)
+        NULLIFY(iSCR)
 *        CALL GETCNF_LUCIA(SCR(KLCONF),ILTYP,IPCNF(ICNL),ICONF,IREFSM,
 *     &                    NEL)
         NCSFL = NCSFTP(ILTYP)
 *       write(*,*)'NCSFL = ', NCSFL
 *       call xflush(6)
-        CALL CNHCN(SCR(KLCONF),ILTYP,SCR(KLCONF),ILTYP,SCR(KLPHPS),
+        CALL C_F_POINTER(C_LOC(SCR(KLCONF)),iSCR,[1])
+        CALL CNHCN(iSCR,ILTYP,iSCR,ILTYP,SCR(KLPHPS),
      &             SCR(KLFREE),NAEL,NBEL,ECORE,
      &             ONEBOD,IPRODT,DTOC,NACTOB,TUVX,NTEST,ExFac,IREOTS)
+        NULLIFY(iSCR)
         DO IIL = 1, NCSFL
           IILACT = IILB-1+IIL
           ILRI = IIL*IIL
@@ -234,4 +246,6 @@ C          write(6,*) PHPCNF(i)
 C        end do
 
       RETURN
+      END SUBROUTINE DIAGORD_INTERNAL
+*
       END

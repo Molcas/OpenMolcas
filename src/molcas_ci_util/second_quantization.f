@@ -11,18 +11,18 @@
 * Copyright (C) 2013, Steven Vancoillie                                *
 ************************************************************************
       module second_quantization
-      ! Implements determinants of k electrons in n (spin)orbitals as combinations
-      ! (k,n) represented as bitstrings, using 32-bit integers.  Combinations are
-      ! represented in lexicographic ordering, and their rank can be computed using
-      ! a binomial table. The 32st bit is used for to indicate sign. all-one-bits
-      ! are used to indicate annihilation (destroyed state). Excitation operators
-      ! can be applied to the determinants and return the resulting determinant.
+!     Implements determinants of k electrons in n (spin)orbitals as combinations
+!     (k,n) represented as bitstrings, using 32-bit integers.  Combinations are
+!     represented in lexicographic ordering, and their rank can be computed using
+!     a binomial table. The 32st bit is used for to indicate sign. all-one-bits
+!     are used to indicate annihilation (destroyed state). Excitation operators
+!     can be applied to the determinants and return the resulting determinant.
 
-      ! Additionally, a wavefunction is represtented by a structure (derived type)
-      ! consisting of determinant coefficients resulting from the direct product of
-      ! separate alpha and beta determinants.
+!     Additionally, a wavefunction is represtented by a structure (derived type)
+!     consisting of determinant coefficients resulting from the direct product of
+!     separate alpha and beta determinants.
 
-      ! Steven Vancoillie, November 2013, Lund
+!     Steven Vancoillie, November 2013, Lund
 
       implicit none
       integer, save :: onebits(0:255), ranktbl(0:255,64)

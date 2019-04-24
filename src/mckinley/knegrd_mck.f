@@ -149,7 +149,7 @@ c     End If
      &            iChBas,MxFnc)
 *
 *?
-      call dcopy_(nElem(la)*nElem(lb)*nZeta*NrOp,Zero,0,Final,1)
+      call dcopy_(nElem(la)*nElem(lb)*nZeta*NrOp,[Zero],0,Final,1)
 *
 *
 *     Symmetry adopt the gradient operator

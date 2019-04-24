@@ -89,7 +89,7 @@ C           Write (6,*) 'iPP,nPP=',iPP,nPP
 *---------- Pick up the number of terms in the shell
             Line=Get_Ln(lUnit)
 C           Write (6,*) 'Line=',Line
-            Call Get_i(1,kcr,1)
+            Call Get_i1(1,kcr)
 C           Write (6,*) 'kcr,iShll=',kcr,iShll
             nExp(iShll) = kcr
             ipExp(iShll) = iStrt
@@ -97,15 +97,15 @@ C           Write (6,*) 'kcr,iShll=',kcr,iShll
             Do jcr = 1, kcr
                Line=Get_Ln(lUnit)
 *
-               Call Get_I(1,ncr,1)
+               Call Get_I1(1,ncr)
 C              Write (6,*) 'ncr=',ncr
                DInf(iStrt)=DBLE(ncr)
                iStrt=iStrt+1
-               Call Get_F(2,zcr,1)
+               Call Get_F1(2,zcr)
 C              Write (6,*) 'zcr=',zcr
                DInf(iStrt)=zcr
                iStrt=iStrt+1
-               Call Get_F(3,ccr,1)
+               Call Get_F1(3,ccr)
 C              Write (6,*) 'ccr=',ccr
                DInf(iStrt)=ccr
                iStrt=iStrt+1
@@ -124,7 +124,7 @@ C           Write (6,*) 'iPP,nPP=',iPP,nPP
 *---------- Pick up the number of terms in the shell
             Line=Get_Ln(lUnit)
 C           Write (6,*) 'Line=',Line
-            Call Get_i(1,kcr,1)
+            Call Get_i1(1,kcr)
 C           Write (6,*) 'kcr,iShll=',kcr,iShll
             nExp(iShll) = kcr
             ipExp(iShll) = iStrt
@@ -132,16 +132,16 @@ C           Write (6,*) 'kcr,iShll=',kcr,iShll
             Do jcr = 1, kcr
                Line=Get_Ln(lUnit)
 *
-               Call Get_I(1,ncr,1)
+               Call Get_I1(1,ncr)
 C              Write (6,*) 'ncr=',ncr
                ncr=ncr+1000
                DInf(iStrt)=DBLE(ncr)
                iStrt=iStrt+1
-               Call Get_F(2,zcr,1)
+               Call Get_F1(2,zcr)
 C              Write (6,*) 'zcr=',zcr
                DInf(iStrt)=zcr
                iStrt=iStrt+1
-               Call Get_F(3,ccr,1)
+               Call Get_F1(3,ccr)
 C              Write (6,*) 'ccr=',ccr
                DInf(iStrt)=ccr
                iStrt=iStrt+1
@@ -166,7 +166,7 @@ C        Write (6,*) 'Done'
       Endif
 *     Read(Line,*)nM1
       Line=Get_Ln(lUnit)
-      Call Get_i(1,nM1,1)
+      Call Get_i1(1,nM1)
 *     Write (*,*) ' nM1=',nM1
       ipM1xp=iStrt
       iEnd = iStrt+nM1-1
@@ -192,7 +192,7 @@ C        Write (6,*) 'Done'
       Endif
 *     Read(Line,*)nM2
       Line=Get_Ln(lUnit)
-      Call Get_i(1,nM2,1)
+      Call Get_i1(1,nM2)
 *     Write (*,*) ' nM2=',nM2
       ipM2xp=iStrt
       iEnd = iStrt+nM2-1
@@ -220,7 +220,7 @@ C        Write (6,*) 'Done'
       Endif
 *     Read(Line,*)CrRep
       Line=Get_Ln(lUnit)
-      Call Get_F(1,CrRep,1)
+      Call Get_F1(1,CrRep)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -240,7 +240,7 @@ C        Write (6,*) 'Done'
 *     The ECP is assumed to contain s,p,d and f functions,
 *     Read(Line,*,Err=993) nProj
       Line = Get_Ln(lUnit)
-      Call Get_I(1,nProj,1)
+      Call Get_I1(1,nProj)
 *
       If (nProj.lt.0) Go To 999
       Do 10 iAng = 0, nProj
@@ -254,8 +254,8 @@ C        Write (6,*) 'Done'
          End If
 *        Read (Line,*,Err=993) nPrim, nCntrc
          Line = Get_Ln(lUnit)
-         Call Get_I(1,nPrim,1)
-         Call Get_i(2,nCntrc,1)
+         Call Get_I1(1,nPrim)
+         Call Get_i1(2,nCntrc)
 *
          nExp(iShll) = nPrim
          nBasis(iShll) = nCntrc
@@ -271,7 +271,7 @@ C        Write (6,*) 'Done'
          Call NxtWrd(Line,iSS,iEE)
          If (iEE.gt.0) Then
             Do i = 1, nCntrc
-               Call Get_i(2+i,n_Occ,1)
+               Call Get_i1(2+i,n_Occ)
                DInf(iStrt)=DBLE(n_Occ)/DBLE(n_Elec)
                iStrt=iStrt+1
 *              Write (*,*) 'n_Occ=',n_Occ

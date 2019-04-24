@@ -67,7 +67,7 @@
       Call qEnter('EFInt')
 *
 *
-      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,Zero,0,Final,1)
+      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
       iAnga(1) = la
       iAnga(2) = lb
@@ -125,9 +125,9 @@
          nT=nZeta
          NoSpecial=.True.
          Call Rys(iAnga,nT,
-     &            Zeta,ZInv,nZeta,One,One,1,
+     &            Zeta,ZInv,nZeta,[One],[One],1,
      &            P,nZeta,TC,1,
-     &            rKappa,One,Coori,Coori,CoorAC,
+     &            rKappa,[One],Coori,Coori,CoorAC,
      &            mabMin,mabMax,mcdMin,mcdMax,Array(ip1),mArr*nZeta,
      &            TNAI,Fake,XCff2D,XRys2D,NoSpecial)
 *

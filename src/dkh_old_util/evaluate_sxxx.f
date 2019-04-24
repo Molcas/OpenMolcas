@@ -162,7 +162,7 @@ c
   37        continue
 c
 #if defined(_MOLCAS_) || defined(MOLPRO)
-            call get_dkoperators(k,termstr,iwork(term))
+            call get_dkoperators_i(k,termstr,iwork(term))
             call removeB1 (termleng(k),dtcoeff(k),termstr)
             call removeB2 (termleng(k),termstr)
             call insert_ri (termleng(k),termstr)
@@ -174,7 +174,7 @@ c
             call calc_orders (dkhscfflg,termleng(k),termorder(k,1),
      *                        termorder(k,2),termorder(k,3),termstr,
      *                        sorder,uorder)
-            call put_dkoperators(k,termstr,iwork(term))
+            call put_dkoperators_i(k,termstr,iwork(term))
 #else
             call removeB1 (termleng(k),dtcoeff(k),term(k))
             call removeB2 (termleng(k),term(k))
@@ -199,7 +199,7 @@ CMR ISN'T IT POSSIBLE TO DO THIS PRIOR TO ALL THESE CALCULATIONS ?? -> CHECK AGA
                 dtcoeff(l)=dtcoeff(l+1)
 #if defined(_MOLCAS_) || defined(MOLPRO)
 CMR das funktioniert hier so vielleicht nicht, weil iwork(term) nicht da ist, sondern term
-                call copy_dkoperators(l+1,iwork(term),l,iwork(term))
+                call copy_dkoperators_i(l+1,iwork(term),l,iwork(term))
 #else
                 term(l)=term(l+1)
 #endif

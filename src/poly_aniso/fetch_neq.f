@@ -42,12 +42,15 @@ C=========== End of default settings====================================
       If(LINE(1:3).eq.'END') Go To 210 !End
 
       If (LINE(1:4).eq.'NNEQ') Then
-         READ(Input,*,ERR=997)  NNEQ, ab_initio_all      ! number of non-equivalent centers; type of all centers
+!        number of non-equivalent centers; type of all centers
+         READ(Input,*,ERR=997)  NNEQ, ab_initio_all
          If(DBG) Write(6,'(A,i4,A,L2)') 'NNEQ=', NNEQ,
      &                          ' ab_initio_all=',ab_initio_all
-         READ(Input,*,ERR=997) (NEQ(i)  ,i=1,Nneq)       ! number of equivalent centers of type "i"
+!        number of equivalent centers of type "i"
+         READ(Input,*,ERR=997) (NEQ(i)  ,i=1,Nneq)
          If(DBG) Write(6,'(A,100I4)') 'NEQ(I)=',(NEQ(i),i=1,nneq)
-         READ(Input,*,ERR=997) (Nexch(i),i=1,Nneq)       ! number of RASSI wf for exchange
+!        number of RASSI wf for exchange
+         READ(Input,*,ERR=997) (Nexch(i),i=1,Nneq)
          If(DBG) Write(6,'(A,100I4)') 'NExch(I)=',(NExch(i),i=1,nneq)
          Go To 210
       End If

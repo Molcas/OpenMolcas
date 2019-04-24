@@ -170,6 +170,7 @@ c
 #include "files_gugaci.fh"
       dimension vintrd(*)
       dimension idx(4)
+      dimension idum(1)
 
       idx=0
       idisk=0
@@ -177,23 +178,27 @@ c
       select case (ntyp)
         case (1)
           idisk=idx(1)
-          call idafile(luciint,2,lenint,1,idisk)
+          call idafile(luciint,2,idum,1,idisk)
+          lenint=idum(1)
           call ddafile(luciint,2,vintrd(2),lenint,idisk)
         case (2)
 c internal external space 1 and 3 index integrals
           idisk=idx(2)
-          call idafile(luciint,2,lenint,1,idisk)
+          call idafile(luciint,2,idum,1,idisk)
+          lenint=idum(1)
           call ddafile(luciint,2,vintrd(2),lenint,idisk)
           !write(6,*) vintrd(1:lenint)
         case (3)
 c interner external space 2 index integrals
           idisk=idx(3)
-          call idafile(luciint,2,lenint,1,idisk)
+          call idafile(luciint,2,idum,1,idisk)
+          lenint=idum(1)
           call ddafile(luciint,2,vintrd(2),lenint,idisk)
         case (4)
 c external space intergrals
           idisk=idx(4)
-          call idafile(luciint,2,lenint,1,idisk)
+          call idafile(luciint,2,idum,1,idisk)
+          lenint=idum(1)
           call ddafile(luciint,2,vintrd(2),lenint,idisk)
       endselect
 

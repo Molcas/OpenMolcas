@@ -16,6 +16,7 @@
       external tstfile_cvb
 #include "bufio_cvb.fh"
 #include "idbl_cvb.fh"
+      dimension dnbuf(1)
 
       file_id=file_id1
       ibuf=0
@@ -25,7 +26,7 @@
         call wrlow_cvb(dnbuf,1,file_id,0)
       else
         call rdlow_cvb(dnbuf,1,file_id,0)
-        nbuf=nint(dnbuf)
+        nbuf=nint(dnbuf(1))
       endif
       nword=lbuf/idbl
       call izero(izbuffer,lbuf)

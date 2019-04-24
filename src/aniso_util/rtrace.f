@@ -19,7 +19,7 @@
       Integer       :: i
       Real(kind=wp) :: AS
       AS=0.0_wp
-      Call dcopy_(N,0.0_wp,0, B,1)
+      Call dcopy_(N,[0.0_wp],0, B,1)
       !compute the equal-weighted average
       Do i=1,N
         AS=AS+A(i)/dble(N)

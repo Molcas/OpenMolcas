@@ -11,7 +11,7 @@
 * Copyright (C) 1986, Per E. M. Siegbahn                               *
 *               1986, Margareta R. A. Blomberg                         *
 ************************************************************************
-      SUBROUTINE DENS(C,D,ICASE,A)
+      SUBROUTINE DENS_CPF(C,D,ICASE,A)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION C(*),D(*)
       DIMENSION ICASE(*)

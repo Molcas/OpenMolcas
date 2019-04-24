@@ -418,7 +418,7 @@
 #include "general.fh"
 * NACPAR = NAC*(NAC+1)/2 with NAC total number of active orbitals
       integer rc,LEVC,j,i,iTmp,iTmp2
-      real(8) :: MAT(:), trace
+      real(8) :: MAT(NacPar), trace
       Character*12 routine
       Parameter (routine = 'CleanMat')
 

@@ -25,7 +25,7 @@
       save one
       data one/1d0/
 
-      call fmove(grad,dx,nparm)
+      call fmove_cvb(grad,dx,nparm)
       if(.not.maxize)call dscal_(nparm,-one,dx,1)
       dxnrm=dnrm2_(nparm,dx,1)
       if(.not.close2conv)then

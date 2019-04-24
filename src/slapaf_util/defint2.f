@@ -78,7 +78,7 @@
       iPrint = nPrint(iRout)
       Call qEnter('DefInt2')
       Start=lIter.eq.1
-      Call ICopy(nBVct,Flip,0,iFlip,1)
+      Call ICopy(nBVct,[Flip],0,iFlip,1)
 *
       nTemp=Len(Temp)
       Write (Format,'(A,I3.3,A)') '(F',nTemp,'.0)'
@@ -89,7 +89,7 @@
 c      Open(Lu_UDC,File=filnam,Form='FORMATTED',Status='OLD')
       Rewind (Lu_UDC)
 *
-      call dcopy_(nBVct**2,Zero,0,rMult,1)
+      call dcopy_(nBVct**2,[Zero],0,rMult,1)
       If (iPrint.ge.99) lWrite = .True.
       If (iPrint.ge.99 .or. lWrite) Then
           Write (Lu,*)
@@ -473,8 +473,8 @@ C              Write (Lu,*) 'Flip Sign for ',Labels(iBVct)
 *
 *-----------A linear combination of vectors
 *
-            call dcopy_(3*nAtom,Zero,0,BMtrx(1,iBMtrx),1)
-            call dcopy_((3*nAtom)**2,Zero,0,dBMtrx(1,1,iBMtrx),1)
+            call dcopy_(3*nAtom,[Zero],0,BMtrx(1,iBMtrx),1)
+            call dcopy_((3*nAtom)**2,[Zero],0,dBMtrx(1,1,iBMtrx),1)
             iFrst = 1
             Sgn=One
 *

@@ -22,7 +22,7 @@
         write(6,*)' Fatal error in SPAN_CVB!',nvmove,nvremain
         call abend_cvb()
       endif
-      call fmove(c(1,1+nvec-nvremain),w(nvtot*n+iaddr),n*nvmove)
+      call fmove_cvb(c(1,1+nvec-nvremain),w(nvtot*n+iaddr),n*nvmove)
       nvtot=nvtot+nvmove
       if(nvtot.eq.nvecmx)call span_cvb(w(iaddr),nvtot,nvtot,s,n,metr)
       nvremain=nvremain-nvmove

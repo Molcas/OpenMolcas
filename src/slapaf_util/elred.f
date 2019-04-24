@@ -73,8 +73,8 @@
 *
 *---- Set up a unit matrix
 *
-      call dcopy_(nq*nq,Zero,0,EVec,1)
-      call dcopy_(nq,One,0,EVec,nq+1)
+      call dcopy_(nq*nq,[Zero],0,EVec,1)
+      call dcopy_(nq,[One],0,EVec,nq+1)
 *
 *---- Set up the Hessian in lower triangular form, the elements
 *     are symmetrized.
@@ -231,8 +231,8 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
 *
 *---- Set up a unit matrix
 *
-      call dcopy_(nq*nq,Zero,0,EVec,1)
-      call dcopy_(nq,One,0,EVec,nq+1)
+      call dcopy_(nq*nq,[Zero],0,EVec,1)
+      call dcopy_(nq,[One],0,EVec,nq+1)
 *
 *---- Set up the Hessian in lower triangular form, the elements
 *     are symmetrized.

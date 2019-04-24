@@ -23,6 +23,7 @@
       dimension c(nprm),sxc(nprm)
       dimension civb(ndet),civbs(ndet)
       dimension cvbdet(ndetvb),cvb(nvb),vec_all(npr)
+      dimension dum(1)
 
 c  If no optimization of structure coefficients we are doing
 c  "Augmented" calc:
@@ -43,7 +44,7 @@ c  "Augmented" calc:
       call all2free_cvb(vec_all,sxc(ic1),1)
       if(.not.strucopt)sxc(1)=ddot_(nvb,cvb,1,vec_all(nprorb+1),1)
       call fzero(vec_all,nprorb)
-      call fmove(cvb,vec_all(nprorb+1),nvb)
+      call fmove_cvb(cvb,vec_all(nprorb+1),nvb)
       call all2free_cvb(vec_all,c(ic1),1)
       if(.not.strucopt)c(1)=ddot_(nvb,cvb,1,vec_all(nprorb+1),1)
       cnrm=ddot_(nprm,c,1,sxc,1)

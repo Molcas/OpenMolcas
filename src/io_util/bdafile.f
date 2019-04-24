@@ -98,7 +98,7 @@ C*     Dummy write. No I/O is made. Disk address is updated.
          Addr(Lu)    = jDisk+lBuf
          iDisk       = Addr(Lu)
       Else
-         Call DaFile(Lu,iOpt,Buf,lBuf,iDisk)
+         Call ChDaFile(Lu,iOpt,Buf,lBuf,iDisk)
       End If
 
 1100  Continue

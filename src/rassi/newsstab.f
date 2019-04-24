@@ -140,7 +140,7 @@ C Size of table, and offsets:
       KSBSCRE=KSBSANN + NSBSTOT*MORSBITS
       NTAB   =KSBSCRE + NSBSTOT*MORSBITS -1
       CALL GETMEM('SbStrTab','Allo','Inte',LTAB,NTAB)
-      CALL ICOPY(NTAB,0,0,IWORK(LTAB),1)
+      CALL ICOPY(NTAB,[0],0,IWORK(LTAB),1)
 C The header data
       IWORK(LTAB+ 0)=NTAB
       IWORK(LTAB+ 1)=ITYPE

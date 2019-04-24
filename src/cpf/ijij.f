@@ -11,16 +11,16 @@
 * Copyright (C) 1986, Per E. M. Siegbahn                               *
 *               1986, Margareta R. A. Blomberg                         *
 ************************************************************************
-      SUBROUTINE IJIJ(JSY,HDIAG,FJI)
+      SUBROUTINE IJIJ_CPF(JSY,HDIAG,FJI)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "cpfmcpf.fh"
 #include "files_cpf.fh"
       DIMENSION JSY(*),HDIAG(*),FJI(*)
       DIMENSION HCOUT(nCOP)
-      JSYM(L)=JSUNP(JSY,L)
+      JSYM(L)=JSUNP_CPF(JSY,L)
 *
-      CALL QENTER('IJIJ')
+      CALL QENTER('IJIJ_CPF')
 *
       ICOUP = 0 ! dummy initialize
       IVL   = 0 ! dummy initialize
@@ -29,7 +29,7 @@
       IADD25=IAD25S
       IAD27=0
       IF(IREF0.GT.nCOP) THEN
-        WRITE(6,*)'IJIJ Error: IREF0>nCOP (See code.)'
+        WRITE(6,*)'IJIJ_CPF Error: IREF0>nCOP (See code.)'
       END IF
       CALL dDAFILE(Lu_27,2,HDIAG,IRC(1),IAD27)
 
@@ -193,6 +193,6 @@ C One last write of the HCOUT buffer:
        WRITE(6,50)POTNUC
       CALL XFLUSH(6)
 50    FORMAT(/,6X,'REFERENCE ENERGY',F18.8)
-      CALL QEXIT('IJIJ')
+      CALL QEXIT('IJIJ_CPF')
       RETURN
       END

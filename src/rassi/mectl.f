@@ -257,8 +257,8 @@ cnf
          Call Allocate_Work(iDerCpl,3*natom*nST)
          Call AppDerCpl(natom,nST,Work(iNucChg),Prop,
      &                  Work(iDerCpl),HAM)
-         Call Free_Work(iDerCpl,3*natom*nST)
-         Call Free_Work(iNucChg,natom)
+         Call Free_Work(iDerCpl)
+         Call Free_Work(iNucChg)
       End If
 cnf
 

@@ -48,8 +48,8 @@ contains
       implicit none
       integer, intent(in) :: nSym, nBas(:)
       real(kind=8), intent(inout) :: orbital_energies(:)
-      real(kind=8) :: Dummy
-      integer :: LuInpOrb = 10, iDummy, err
+      real(kind=8) :: Dummy(1)
+      integer :: LuInpOrb = 10, iDummy(1), err
       character(*), parameter ::  FnInpOrb = 'INPORB'
       character(80) :: VecTit
       logical :: okay

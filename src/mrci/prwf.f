@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE PRWF(ICSPCK,INTSYM,INDX,C,JREFX)
+      SUBROUTINE PRWF_MRCI(ICSPCK,INTSYM,INDX,C,JREFX)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION C(*),INDX(*),ICSPCK(*),
      *          INTSYM(*),JREFX(*)

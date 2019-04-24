@@ -80,7 +80,7 @@
 c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
       Rewind(Lu_UDIC)
 *
-      call dcopy_(nBVct,Zero,0,rMult,1)
+      call dcopy_(nBVct,[Zero],0,rMult,1)
       If (iPrint.eq.99) First = .True.
       If (lWrite) Then
          Write (6,*)
@@ -352,7 +352,7 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
 *
 *-----------A linear combination of vectors
 *
-            call dcopy_(3*nAtom,Zero,0,BMtrx(1,iBMtrx),1)
+            call dcopy_(3*nAtom,[Zero],0,BMtrx(1,iBMtrx),1)
             iFrst = neq + 1
             Sgn=One
 *

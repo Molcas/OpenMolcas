@@ -312,7 +312,7 @@ C
        if (idishelp.gt.INDMAX) then
 CFUE     - all integrals in the reord were processed, hence
 CFUE       update the disk address by a dummy I/O
-         Call dDaFile(LUINTM,0,rubbish,INDMAX,idistemp)
+         Call dDaFile(LUINTM,0,[0.0d0],INDMAX,idistemp)
 CFUE     idistemp=idistemp+idisadd
          idishelp=1
        end if
@@ -327,7 +327,7 @@ C
        if (idishelp.gt.0) then
 CFUE     - all integrals in the reord were processed, hence
 CFUE       update the disk address by a dummy I/O
-         Call dDaFile(LUINTM,0,rubbish,INDMAX,idistemp)
+         Call dDaFile(LUINTM,0,[0.0d0],INDMAX,idistemp)
 CFUE   idistemp=idistemp+idisadd
        end if
 C

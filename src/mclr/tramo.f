@@ -50,6 +50,16 @@
       Integer IDAHLF2(LIOTAB),IRLHLF2(LIOTAB),
      &        IDAHLF3(LIOTAB),IRLHLF3(LIOTAB)
 *
+      Call TRAMO_MCLR_INTERNAL(Buffer)
+c Avoid unused argument warnings
+      IF (.FALSE.) CALL Unused_integer_array(len)
+*
+*     This is to allow type punning without an explicit interface
+      Contains
+      Subroutine TRAMO_MCLR_INTERNAL(Buffer)
+      Use Iso_C_Binding
+      Real*8, Target :: Buffer(*)
+      Integer, Pointer :: iBuffer(:)
       ione=1
       if (nofile) ione=0
 *
@@ -263,7 +273,10 @@
                   IRLHLF2(iBUF2)=LPKREC
 *                 Save the address of this record
                   IDAHLF2(iBUF2)=iAD2
-                  CALL iDAFILE(LUHLF2,1,Buffer(ip2+IST2-1),LPKREC,IAD2)
+                  Call C_F_Pointer(C_Loc(Buffer(ip2+IST2-1)),iBuffer,
+     &                             [LPKREC])
+                  CALL iDAFILE(LUHLF2,1,iBuffer,LPKREC,IAD2)
+                  Nullify(iBuffer)
                   iST2=iST2+iMax
                End Do
              End If
@@ -298,7 +311,10 @@
                 LPKREC=(NBYTES+itob-1)/itob
                 IRLHLF3(IBUF3)=LPKREC
                 IDAHLF3(IBUF3)=IAD3
-                CALL iDAFILE(LUHLF3,1,Buffer(ip3+IST3-1),LPKREC,IAD3)
+                Call C_F_Pointer(C_Loc(Buffer(ip3+IST3-1)),iBuffer,
+     &                           [LPKREC])
+                CALL iDAFILE(LUHLF3,1,iBuffer,LPKREC,IAD3)
+                Nullify(iBuffer)
                 IST3=IST3+iMax
 34             CONTINUE
             End If
@@ -361,7 +377,9 @@
           LPKREC=(NBYTES+itob-1)/ItoB
           IDAHLF2(IBUF2)=IAD2
           IRLHLF2(IBUF2)=LPKREC
-          CALL iDAFILE(LUHLF2,1,Buffer(ip2+IST-1),LPKREC,IAD2)
+          Call C_F_Pointer(C_Loc(Buffer(ip2+IST-1)),iBuffer,[LPKREC])
+          CALL iDAFILE(LUHLF2,1,iBuffer,LPKREC,IAD2)
+          Nullify(iBuffer)
           IST=IST+IMAX
  61     CONTINUE
         If (iSS.ne.iSR) Then
@@ -378,7 +396,9 @@
           LPKREC=(NBYTES+itob-1)/itob
           IDAHLF3(IBUF3)=IAD3
           IRLHLF3(IBUF3)=LPKREC
-          CALL iDAFILE(LUHLF3,1,Buffer(ip3+IST-1),LPKREC,IAD3)
+          Call C_F_Pointer(C_Loc(Buffer(ip3+IST-1)),iBuffer,[LPKREC])
+          CALL iDAFILE(LUHLF3,1,iBuffer,LPKREC,IAD3)
+          Nullify(iBuffer)
           IST=IST+IMAX
 71       CONTINUE
         End If
@@ -470,7 +490,9 @@
 112        CONTINUE
            IAD2=IDAHLF2(IBUF)
            LPKREC=IRLHLF2(IBUF)
-           CALL iDAFILE(LUHLF2,2,Buffer(ip5),LPKREC,IAD2)
+           Call C_F_Pointer(C_Loc(Buffer(ip5)),iBuffer,[LPKREC])
+           CALL iDAFILE(LUHLF2,2,iBuffer,LPKREC,IAD2)
+           Nullify(iBuffer)
            CALL UPKR8(0,iMax,NBYTES,Buffer(ip5),Buffer(ip2+IPQ-1))
            IPQ=IPQ+iMax
            iBuf=iBuf+nAS*nBR
@@ -616,7 +638,9 @@
 212        CONTINUE
            IAD3=IDAHLF3(IBUF)
            LPKREC=IRLHLF3(IBUF)
-           CALL iDAFILE(LUHLF3,2,Buffer(ip5),LPKREC,IAD3)
+           Call C_F_Pointer(C_Loc(Buffer(ip5)),iBuffer,[LPKREC])
+           CALL iDAFILE(LUHLF3,2,iBuffer,LPKREC,IAD3)
+           Nullify(iBuffer)
            CALL UPKR8(0,iMax,NBYTES,Buffer(ip5),Buffer(ip3+IPQ-1))
            IPQ=IPQ+iMax
            iBuf=iBuf+nAR*nBS
@@ -725,6 +749,6 @@
       END IF
 *
       RETURN
-c Avoid unused argument warnings
-      IF (.FALSE.) CALL Unused_integer_array(len)
+      End Subroutine TRAMO_MCLR_INTERNAL
+*
       END

@@ -48,7 +48,7 @@
         Call GS(CT,nLambda,TMx,mInt,.False.,.True.)
       Else
         Call FZero(TMx,mInt**2)
-        Call dCopy_(mInt,One,0,TMx,mInt+1)
+        Call dCopy_(mInt,[One],0,TMx,mInt+1)
       End If
 *
 *     If NG constraints are to be inverted, combine the complement
@@ -66,7 +66,7 @@
           Call GS(CT,nLambda,TMx,mInt,.False.,.True.)
         Else
           Call FZero(TMx,mInt**2)
-          Call dCopy_(mInt,One,0,TMx,mInt+1)
+          Call dCopy_(mInt,[One],0,TMx,mInt+1)
         End If
       End If
 *

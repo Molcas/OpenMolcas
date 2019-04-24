@@ -90,7 +90,7 @@ C Temporaries:
 *
 *     Body
 *
-      iMemOff=ip_of_iWork(Work(MemOff))
+      iMemOff=ip_of_iWork_d(Work(MemOff))
       CALL SDCI_CPF(Work(MemOff),iWork(iMemOff),MEMORY)
 *
 *     Deallocate the workspace

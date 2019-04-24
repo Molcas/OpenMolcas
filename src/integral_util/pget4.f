@@ -68,7 +68,7 @@
 *     with number of basis functions in each irrep in nPam.
 *     Observe that the SO index is only within a given irrep.
 *
-      Call ICopy(4*8,0,0,nPam,1)
+      Call ICopy(4*8,[0],0,nPam,1)
       in1 = 0
       Do 9 jPam = 1, 4
          in2 = 0

@@ -77,8 +77,8 @@ c     Call qEnter('vpint')
          Call Abend()
       End If
 *
-      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,Zero,0,Final,1)
-      call dcopy_(nZeta*nArr,Zero,0,Array,1)
+      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
+      call dcopy_(nZeta*nArr,[Zero],0,Array,1)
 *     Compute contribution from a,b+1
 *
       kRys = ((la+1)+lb+2)/2

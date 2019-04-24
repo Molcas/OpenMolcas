@@ -35,22 +35,22 @@
              tullyL=.true.
         case('DECO')
              Line = Get_Ln(LuSpool)
-             CALL Get_F(1,DECO,1)
+             CALL Get_F1(1,DECO)
              decoherence=.true.
         case('SUBS')
              Line = Get_Ln(LuSpool)
-             CALL Get_I(1,NSUBSTEPS,1)
+             CALL Get_I1(1,NSUBSTEPS)
         case('ETHR')
              Line = Get_Ln(LuSpool)
-             CALL Get_F(1,Ethreshold,1)
+             CALL Get_F1(1,Ethreshold)
         case('RTHR')
              Line = Get_Ln(LuSpool)
-             CALL Get_F(1,RandThreshold,1)
+             CALL Get_F1(1,RandThreshold)
         case('PSUB')
              tullySubVerb=.true.
         case('DMTX')
              Line = Get_Ln(LuSpool)
-             CALL Get_I(1,NSTATE,1)
+             CALL Get_I1(1,NSTATE)
              do i=1, NSTATE
                 Line = Get_Ln(LuSpool)
                 CALL Get_F(1,temp,NSTATE)
@@ -76,15 +76,15 @@
              end if
         case('FRAN')
              Line = Get_Ln(LuSpool)
-             CALL Get_F(1,FixedRand,1)
+             CALL Get_F1(1,FixedRand)
              fixedrandL=.true.
         case('ISEE') ! initial seed number
              Line = Get_Ln(LuSpool)
-             CALL Get_I(1,InitSeed,1)
+             CALL Get_I1(1,InitSeed)
              iseedL=.true.
         case('MAXH')
              Line = Get_Ln(LuSpool)
-             CALL Get_I(1,maxHop,1)
+             CALL Get_I1(1,maxHop)
              CALL Put_iScalar('MaxHopsTully',maxHop)
 C             Write (6,*) 'MaxHops set to ', maxHop
         case('H5RE')

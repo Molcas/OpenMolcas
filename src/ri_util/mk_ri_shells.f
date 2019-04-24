@@ -309,8 +309,8 @@ C        Fixed(nCnttp)=.False.
                Write(6,*) 'nSet=',nSet
                Write(6,*) 'Line=',Line
             End If
-            Call Get_I(2,lAng,1)
-            If (nSet.eq.-1) Call Get_I(3,nSet,1)
+            Call Get_I1(2,lAng)
+            If (nSet.eq.-1) Call Get_I1(3,nSet)
             If (IfTest) Write(6,*) 'lAng,nSet=',lAng,nSet
 *
             Line=Get_Ln(Lu_lib)
@@ -340,9 +340,9 @@ C        Fixed(nCnttp)=.False.
             Do iAng = 0, lAng
                iShll=iShll+1
                Line=Get_Ln(Lu_lib)
-               Call Get_I(1,nPrim,1)
-               Call Get_I(2,nCntrc,1)
-               Call Get_I(3,iSph,1)
+               Call Get_I1(1,nPrim)
+               Call Get_I1(2,nCntrc)
+               Call Get_I1(3,iSph)
                If (IfTest) Then
                   Write (6,*) 'iAng=',iAng
                   Write (6,*) 'nPrim=',nPrim
@@ -415,8 +415,8 @@ C        Fixed(nCnttp)=.False.
 *
 *              Put in unit matrix of uncontracted set
 *
-               Call DCopy_(nPrim*nPrim,Zero,0,Work(ipCff_p),1)
-               Call DCopy_(nPrim,One,0,Work(ipCff_p),nPrim+1)
+               Call DCopy_(nPrim*nPrim,[Zero],0,Work(ipCff_p),1)
+               Call DCopy_(nPrim,[One],0,Work(ipCff_p),nPrim+1)
 *
                iOff = nPrim*nPrim
                Call DCopy_(nPrim*nPrim ,Work(ipCff_p),1,
