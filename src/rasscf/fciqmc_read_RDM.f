@@ -347,8 +347,9 @@
 
 ******* Clean evil non-positive semi-definite matrices. DMAT is input and output.
       call cleanMat(DMAT)
+
       IF(IPRLEV >= DEBUG) THEN
-       norb  = (int(sqrt(real(1 + 8 * size(DMAT))))-1)/2
+       norb  = (int(sqrt(real(1 + 8 * size(DMAT), kind=8))) - 1) / 2
        call triprt('D_alpha in neci2molcas',' ',D_alpha,norb)
        call triprt('D_beta  in neci2molcas',' ',D_beta ,norb)
        call triprt('DMAT in neci2molcas',' ',DMAT,norb)

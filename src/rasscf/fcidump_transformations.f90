@@ -110,7 +110,9 @@ contains
 ! SGFCIN has side effects and EMY/core_energy is set in this routine.
 ! Besides F_In will contain the one electron contribution afterwards,
 ! for this reason it is copied.
-    call SGFCIN(CMO, folded_fock, F_In_copy, D1I_MO, D1A_MO, D1A_AO)
+
+! SGFCIN has to be called once with F_In
+    call SGFCIN(CMO, folded_fock, F_In, D1I_MO, D1A_MO, D1A_AO)
     call mma_deallocate(F_In_copy)
     call mma_deallocate(D1A_MO)
     call mma_deallocate(D1A_AO)
