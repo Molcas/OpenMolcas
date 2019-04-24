@@ -66,7 +66,7 @@
 *-----Set up table with SO indices in iPam and a table
 *     with the number of basis functions in nPam.
 *
-      Call ICopy(4,0,0,nPam,1)
+      Call ICopy(4,[0],0,nPam,1)
       in1 = 0
       Do 9 jPam = 1, 4
          in2 = 0

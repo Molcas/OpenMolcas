@@ -50,7 +50,7 @@ c  Apply s_mu x s_nu to the wavefunction
 200   iperm(i)=i
       iperm(mu)=nu
       iperm(nu)=mu
-      call fmove(cvbdet,wvbdet,ndetvb)
+      call fmove_cvb(cvbdet,wvbdet,ndetvb)
       call permvb_cvb(wvbdet,iperm)
       sum=one-ddot_(ndetvb,wvbdet,1,dvbdet,1)*snorm
       ssum=one-ddot_(ndetvb,wvbdet,1,evbdet,1)*ssnorm

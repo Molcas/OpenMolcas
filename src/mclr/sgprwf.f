@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE SGPRWF
+      SUBROUTINE SGPRWF_MCLR
      &           (LSYM,PRWTHR,
      &            NSYM,NLEV,NCONF,MIDLEV,NMIDV,NIPWLK,NICASE,
      &            NSM,NOCSF,IOCSF,NOW,IOW,ICASE,CI)

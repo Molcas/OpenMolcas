@@ -56,7 +56,7 @@ C
        KINT2a=ipint2a
 C      If (nt.eq.'T') Then
        If (.false.) Then
-       call dcopy_(n2dens,0.0d0,0,Work(KINT2),1)
+       call dcopy_(n2dens,[0.0d0],0,Work(KINT2),1)
        Write(6,*) 'INTEGRAL CHANGE'
        Read(*,*) i,j,k,l
        ij=i+(j-1)*ntash
@@ -81,7 +81,7 @@ C      If (nt.eq.'T') Then
        End If
        If (ipint1.eq.0) Then
           Call GetMem('TEMP1INT','ALLO','REAL',ipT1Int,ndens2)
-          call dcopy_(ndens2,0.0d0,0,Work(ipT1Int),1)
+          call dcopy_(ndens2,[0.0d0],0,Work(ipT1Int),1)
 c One el int pointer
           KAIN1=ipT1Int
        End If

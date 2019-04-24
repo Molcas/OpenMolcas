@@ -30,9 +30,9 @@ C expansions of the product (Op in IVEC conjugated)(Op in JVEC)
 C as operating on the CASSCF space.
 
       OP0=0.0D0
-      CALL DCOPY_(NASHT**2,0.0D0,0,OP1,1)
-      CALL DCOPY_(NOP2,0.0D0,0,OP2,1)
-      CALL DCOPY_(NOP3,0.0D0,0,OP3,1)
+      CALL DCOPY_(NASHT**2,[0.0D0],0,OP1,1)
+      CALL DCOPY_(NOP2,[0.0D0],0,OP2,1)
+      CALL DCOPY_(NOP3,[0.0D0],0,OP3,1)
       CALL MKWWOPA(IVEC,JVEC,OP1,NOP2,OP2,NOP3,OP3)
       CALL MKWWOPB(IVEC,JVEC,OP0,OP1,NOP2,OP2)
       CALL MKWWOPC(IVEC,JVEC,OP1,NOP2,OP2,NOP3,OP3)
@@ -125,7 +125,7 @@ C Multiply WProd = (W1 sect )*(W2 sect transpose)
 *     &                  WORK(LW2A),NAS,
 *     &                  0.0d0,WORK(LWPROD),NWSCT)
 * Replaced, due to sectioning over inactives:
-            CALL DCOPY_(NWPROD,0.0D0,0,WORK(LWPROD),1)
+            CALL DCOPY_(NWPROD,[0.0D0],0,WORK(LWPROD),1)
             CALL DGEMM_('N','T',
      &                  MWS1,MWS2,NCOL,
      &                  1.0d0,WORK(LW1A),NAS,
@@ -307,7 +307,7 @@ C Pick up a symmetry block of W1 and W2
         NWPROD=NAS**2
 C Allocate space for the contraction:
         CALL GETMEM('WWPROD','ALLO','REAL',LWPROD,NWPROD)
-        CALL DCOPY_(NWPROD,0.0D0,0,WORK(LWPROD),1)
+        CALL DCOPY_(NWPROD,[0.0D0],0,WORK(LWPROD),1)
 * Loop over sections:
         ISCT=0
         DO IISTA=1,NIS,MDVEC
@@ -404,7 +404,7 @@ C Allocate space for one section of excitation amplitudes:
         NWPROD=NAS**2
 C Allocate space for the contraction:
         CALL GETMEM('WWPROD','ALLO','REAL',LWPROD,NWPROD)
-        CALL DCOPY_(NWPROD,0.0D0,0,WORK(LWPROD),1)
+        CALL DCOPY_(NWPROD,[0.0D0],0,WORK(LWPROD),1)
 * Sectioning loop added:
         ISCT=0
         DO IISTA=1,NIS,MDVEC
@@ -545,7 +545,7 @@ C Loop over sections of WW1 and WW2:
             LW2A=LW2-1+IXYZSTA
             MWS2=IXYZEND+1-IXYZSTA
 C Multiply WProd = (W1 sect )*(W2 sect transpose)
-            CALL DCOPY_(NWPROD,0.0D0,0,WORK(LWPROD),1)
+            CALL DCOPY_(NWPROD,[0.0D0],0,WORK(LWPROD),1)
             CALL DGEMM_('N','T',
      &                  MWS1,MWS2,NCOL,
      &                  1.0d0,WORK(LW1A),NAS,
@@ -701,7 +701,7 @@ C Allocate space for one section of excitation amplitudes:
         NWPROD=NAS**2
 C Allocate space for the contraction:
         CALL GETMEM('WWPROD','ALLO','REAL',LWPROD,NWPROD)
-        CALL DCOPY_(NWPROD,0.0D0,0,WORK(LWPROD),1)
+        CALL DCOPY_(NWPROD,[0.0D0],0,WORK(LWPROD),1)
 * Sectioning loop added:
         ISCT=0
         DO IISTA=1,NIS,MDVEC
@@ -817,7 +817,7 @@ C Allocate space for one section of excitation amplitudes:
         NWPROD=NAS**2
 C Allocate space for the contraction:
         CALL GETMEM('WWPROD','ALLO','REAL',LWPROD,NWPROD)
-        CALL DCOPY_(NWPROD,0.0D0,0,WORK(LWPROD),1)
+        CALL DCOPY_(NWPROD,[0.0D0],0,WORK(LWPROD),1)
 * Sectioning loop added:
         ISCT=0
         DO IISTA=1,NIS,MDVEC
@@ -907,7 +907,7 @@ C Pick up a symmetry block of W1 and W2
         NWPROD=NAS**2
 C Allocate space for the contraction:
         CALL GETMEM('WWPROD','ALLO','REAL',LWPROD,NWPROD)
-        CALL DCOPY_(NWPROD,0.0D0,0,WORK(LWPROD),1)
+        CALL DCOPY_(NWPROD,[0.0D0],0,WORK(LWPROD),1)
 * Sectioning loop added:
         ISCT=0
         DO IISTA=1,NIS,MDVEC
@@ -987,7 +987,7 @@ C Pick up a symmetry block of W1 and W2
         NWPROD=NAS**2
 C Allocate space for the contraction:
         CALL GETMEM('WWPROD','ALLO','REAL',LWPROD,NWPROD)
-        CALL DCOPY_(NWPROD,0.0D0,0,WORK(LWPROD),1)
+        CALL DCOPY_(NWPROD,[0.0D0],0,WORK(LWPROD),1)
 * Sectioning loop added:
         ISCT=0
         DO IISTA=1,NIS,MDVEC
@@ -1087,7 +1087,7 @@ C Allocate space for one section of excitation amplitudes:
         NWPROD=NAS**2
 C Allocate space for the contraction:
         CALL GETMEM('WWPROD','ALLO','REAL',LWPROD,NWPROD)
-        CALL DCOPY_(NWPROD,0.0D0,0,WORK(LWPROD),1)
+        CALL DCOPY_(NWPROD,[0.0D0],0,WORK(LWPROD),1)
 * Sectioning loop added:
         ISCT=0
         DO IISTA=1,NIS,MDVEC

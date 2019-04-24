@@ -11,7 +11,7 @@
 * Copyright (C) 1986, Per E. M. Siegbahn                               *
 *               1986, Margareta R. A. Blomberg                         *
 ************************************************************************
-      SUBROUTINE NATORB(D,CM,CMO,DSYM,CAO,OCC,M)
+      SUBROUTINE NATORB_CPF(D,CM,CMO,DSYM,CAO,OCC,M)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION D(*),CM(*),CMO(*),DSYM(*),CAO(*),OCC(*)
 
@@ -61,7 +61,7 @@ C     DIAGONALIZE
       DO 80 I=1,NORBM
       OCC(I)=-OCC(I)
 80    CONTINUE
-      CALL ORDER(CMO,OCC,NORBM)
+      CALL ORDER_CPF(CMO,OCC,NORBM)
       IF(IPRINT.GE.15)WRITE(6,30)
 30    FORMAT(//,5X,'NATURAL ORBITALS IN MO-BASIS',//,
      *7X,'OCCUPATION NUMBER',5X,'COEFFICIENTS')

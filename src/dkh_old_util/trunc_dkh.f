@@ -43,6 +43,7 @@ c
 c
 C     integer i,j,ij
       integer i,j
+      real*8 dum(1)
 c
 c
       write (stdout,1001) truncthrsh
@@ -62,7 +63,8 @@ c
       call mat_triang (scr8(1,1),nbas,vv)
 c
       do 10 i=0,3*maxorder
-        call diagr (scr8(1,1),nbas,tran,scr9(1,1),sinv,scr5(1,1,3),1)
+        dum=1.0
+        call diagr (scr8(1,1),nbas,tran,scr9(1,1),sinv,scr5(1,1,3),dum)
         do 20 j=1,nbas
           scr9(j,1)=scr9(j,1)*scaling
   20    continue

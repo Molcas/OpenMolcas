@@ -14,7 +14,21 @@
 #include "SysDef.fh"
       Integer Array(nArray)
 *
-      Call dRBuf(Array,nArray/RtoI,Copy)
+      Call idRBuf(Array,nArray/RtoI,Copy)
 *
       Return
+*
+*     This is to allow type punning without an explicit interface
+      Contains
+      Subroutine idRBuf(Array,nArray,Copy)
+      Use Iso_C_Binding
+      Integer :: nArray
+      Logical :: Copy
+      Integer, Target :: Array(nArray)
+      Real*8, Pointer :: dArray(:)
+      Call C_F_Pointer(C_Loc(Array(1)),dArray,[nArray])
+      Call dRBuf(dArray,nArray,Copy)
+      Nullify(dArray)
+      End Subroutine idRBuf
+*
       End

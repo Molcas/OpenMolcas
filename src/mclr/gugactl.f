@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine GugaCtl(ipCIL,imode)
+      Subroutine GugaCtl_MCLR(ipCIL,imode)
 *
 
       Implicit Real*8 (A-H,O-Z)
@@ -24,7 +24,7 @@
       Integer OrbSym(2*mxBas)
       Parameter (iPrint=0)
 *
-*     Call qEnter('GugaCtl')
+*     Call qEnter('GugaCtl_MCLR')
 *
       ntRas1=0
       ntRas2=0
@@ -40,25 +40,25 @@
       C0=ntASh-A0-B0
       If ( (2*A0+B0).ne.nActEl ) then
          Write (6,*)
-         Write (6,*) ' *** Error in subroutine GUGACTL ***'
+         Write (6,*) ' *** Error in subroutine GUGACTL_MCLR ***'
          Write (6,*) ' 2*A0+B0.ne.nActEl '
          Write (6,*)
       End If
       If ( A0.lt.0 ) then
          Write (6,*)
-         Write (6,*) ' *** Error in subroutine GUGACTL ***'
+         Write (6,*) ' *** Error in subroutine GUGACTL_MCLR ***'
          Write (6,*) ' A0.lt.0'
          Write (6,*)
       End If
       If ( B0.lt.0 ) then
          Write (6,*)
-         Write (6,*) ' *** Error in subroutine GUGACTL ***'
+         Write (6,*) ' *** Error in subroutine GUGACTL_MCLR ***'
          Write (6,*) ' B0.lt.0'
          Write (6,*)
       End If
       If ( C0.lt.0 ) then
          Write (6,*)
-         Write (6,*) ' *** Error in subroutine GUGACTL ***'
+         Write (6,*) ' *** Error in subroutine GUGACTL_MCLR ***'
          Write (6,*) ' C0.lt.0'
          Write (6,*)
       End If
@@ -92,10 +92,11 @@
       Call GetMem('DRT0','ALLO','INTEGER',LDRT0,NDRT0)
       Call GetMem('DOWN','ALLO','INTEGER',LDOWN0,NDOWN0)
       Call GetMem('LTMP','ALLO','INTEGER',LTMP,NTMP)
-      Call DRT0  ! Set up the guga table
+      Call DRT0_MCLR  ! Set up the guga table
      &     (A0,B0,C0,NVERT0,iWork(LDRT0),iWork(LDOWN0),
      &      NTMP,IWORK(LTMP))
-      If ( iPrint.ge.5 ) Call PRDRT(NVERT0,iWork(LDRT0),iWork(LDOWN0))
+      If ( iPrint.ge.5 )
+     &   Call PRDRT_MCLR(NVERT0,iWork(LDRT0),iWork(LDOWN0))
       Call GetMem('LTMP','FREE','INTEGER',LTMP,NTMP)
 *
       LV1RAS=ntRas1
@@ -103,7 +104,7 @@
       LM1RAS=2*LV1RAS-nHole1
       LM3RAS=nActEl-nElec3
       Call GetMem('LV11','ALLO','INTEGER',LV,NVERT0)
-      Call RESTR   ! PUT THE RAS CONSTSRAINT TO THE DRT TABLE
+      Call RESTR_MCLR   ! PUT THE RAS CONSTRAINT TO THE DRT TABLE
      &     (NVERT0,iWork(LDRT0),iWork(LDOWN0),iWork(LV),
      &      LV1RAS,LV3RAS,LM1RAS,LM3RAS,NVERT)
 *
@@ -111,29 +112,29 @@
       NDOWN=4*NVERT
       Call GetMem('DRT1','ALLO','INTEGER',LDRT,NDRT)
       Call GetMem('DWN1','ALLO','INTEGER',LDOWN,NDOWN)
-      Call DRT  ! Set up the DRT table used in calculation
+      Call DRT_MCLR  ! Set up the DRT table used in calculation
      &     (NVERT0,NVERT,iWork(LDRT0),iWork(LDOWN0),iWork(LV),
      &      iWork(LDRT),iWork(LDOWN))
-!      If ( iPrint.ge.0 ) Call PRDRT(NVERT,iWork(LDRT),iWork(LDOWN)) !yma    5
+!      If ( iPrint.ge.0 ) Call PRDRT_MCLR(NVERT,iWork(LDRT),iWork(LDOWN)) !yma    5
       Call GetMem('LV11','FREE','INTEGER',LV,NVERT0)
       Call GetMem('DRT0','FREE','INTEGER',LDRT0,NDRT0)
       Call GetMem('DOWN','FREE','INTEGER',LDOWN0,NDOWN0)
 *
       NDAW=5*NVERT
       Call GetMem('DAW1','ALLO','INTEGER',LDAW,NDAW)
-      Call MKDAW(NVERT,iWork(LDOWN),iWork(LDAW),iPrint)
+      Call MKDAW_MCLR(NVERT,iWork(LDOWN),iWork(LDAW),iPrint)
 *
       NUP=4*NVERT
       NRAW=5*NVERT
       Call GetMem('LUP1','ALLO','INTEGER',LUP,NUP)
       Call GetMem('RAW1','ALLO','INTEGER',LRAW,NRAW)
-      Call MKRAW
+      Call MKRAW_MCLR
      &     (NVERT,iWork(LDOWN),iWork(LDAW),iWork(LUP),iWork(LRAW),
      &           iPrint)
 *
       NLTV=NLEV+2
       Call GetMem('LTV1','ALLO','INTEGER',LLTV,NLTV)
-      Call MKMID
+      Call MKMID_MCLR
      &     (NVERT,NLEV,iWork(LDRT),
      &      iWork(LDOWN),iWork(LDAW),iWork(LUP),iWork(LRAW),
      &      iWork(LLTV),
@@ -153,7 +154,7 @@
       Call GetMem('ICSF','ALLO','INTEGER',LIOCSF,NIOCSF)
       Call GetMem('SCR1','ALLO','INTEGER',LSCR,NSCR)
 *     Call GetMem('NCSF','ALLO','INTEGER',LNCSF,nSym)
-      Call MKCOT
+      Call MKCOT_MCLR
      &     (nSym,NLEV,NVERT,MIDLEV,NMIDV,MIDV1,MIDV2,NWALK,NIPWLK,
      &      OrbSym,iWork(LDOWN),iWork(LNOW),iWork(LIOW),
      &      NCSF,iWork(LIOCSF),iWork(LNOCSF),
@@ -161,7 +162,7 @@
 *
       If ( nConf.ne.NCSF(state_sym).and.(nConf.ne.1) ) then
          Write (6,*)
-         Write (6,*) ' *** Error in subroutine GUGACTL ***'
+         Write (6,*) ' *** Error in subroutine GUGACTL_MCLR ***'
          Write (6,*) ' Inconsistent, number of configurations'
          Write (6,*) nConf, NCSF(state_sym),state_sym
          Write (6,*)
@@ -184,7 +185,7 @@
       NLSGN=MXDWN*NMIDV
       Call GetMem('IUSG','ALLO','INTEG',LUSGN,NUSGN)
       Call GetMem('ILSG','ALLO','INTEG',LLSGN,NLSGN)
-      Call MKSGNUM
+      Call MKSGNUM_MCLR
      &     (State_sym,nSym,NLEV,
      &       NVERT,MIDLEV,NMIDV,MXUP,MXDWN,NICASE,NIPWLK,
      &      iWork(LDOWN),iWork(LUP),iWork(LDAW),iWork(LRAW),
@@ -202,7 +203,7 @@
       WRITE(6,102) PRWTHR
 102   FORMAT(6X,'printout of CI-coefficients larger than',F6.2)
 
-      Call SGPRWF
+      Call SGPRWF_MCLR
      &     (State_sym,PRWTHR,
      &      nSym,NLEV,NCONF,MIDLEV,NMIDV,NIPWLK,NICASE,
      &      OrbSym,iWork(LNOCSF),iWork(LIOCSF),
@@ -243,7 +244,7 @@ CEAW970812     &      Work(ipCIL),Work(ipCInew))
       Call GetMem('DWN1','FREE','INTEGER',LDOWN,NDOWN)
       Call GetMem('DRT1','FREE','INTEGER',LDRT,NDRT)
 *
-*     Call qExit('GugaCtl')
+*     Call qExit('GugaCtl_MCLR')
 *
       Return
       End

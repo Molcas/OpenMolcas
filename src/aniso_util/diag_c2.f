@@ -33,8 +33,8 @@ c
 
       Call qEnter('diag_c2')
       info=0
-      Call zcopy_(       N*N,(0.0_wp,0.0_wp),0,   Z ,1)
-      Call dcopy_(         N,        0.0_wp ,0,   W ,1)
+      Call zcopy_(       N*N,[(0.0_wp,0.0_wp)],0,   Z ,1)
+      Call dcopy_(         N,        [0.0_wp] ,0,   W ,1)
 
       RM=0.0_wp
       RM=dznrm2_(n*n,matrix,1)
@@ -43,14 +43,14 @@ c
          Call mma_allocate(ap   ,(n*(n+1)/2),'ap'   )
          Call mma_allocate(work ,    (2*n-1),'work' )
          Call mma_allocate(z1   ,        n,n,'work' )
-         Call zcopy_( N*(N+1)/2,(0.0_wp,0.0_wp),0,   AP,1)
-         Call zcopy_(     2*N-1,(0.0_wp,0.0_wp),0, work,1)
-         Call zcopy_(       N*N,(0.0_wp,0.0_wp),0,   Z1,1)
+         Call zcopy_( N*(N+1)/2,[(0.0_wp,0.0_wp)],0,   AP,1)
+         Call zcopy_(     2*N-1,[(0.0_wp,0.0_wp)],0, work,1)
+         Call zcopy_(       N*N,[(0.0_wp,0.0_wp)],0,   Z1,1)
 
          Call mma_allocate(rwork,(3*n-2)    ,'rwork')
          Call mma_allocate(w1   ,          n,'w1'   )
-         Call dcopy_(     3*N-2,        0.0_wp ,0,rwork,1)
-         Call dcopy_(         N,        0.0_wp ,0,   W1,1)
+         Call dcopy_(     3*N-2,        [0.0_wp] ,0,rwork,1)
+         Call dcopy_(         N,        [0.0_wp] ,0,   W1,1)
 
          Do j=1,n
             Do i=1,j

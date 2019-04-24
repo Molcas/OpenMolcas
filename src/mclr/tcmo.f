@@ -27,8 +27,9 @@
         Call GetMem('CMOINV','ALLO','REAL',ip(iS),
      &              nBas(is)**2+nbas(is))
         call dcopy_(nbas(is)**2,Work(ipCMO+ipcm(is)-1),1,Work(ip(is)),1)
+        iip=ip_of_iWork_d(Work(ip(is)+nbas(is)**2))
         call dgetrf_(nBas(is),nBas(is),Work(ip(is)),
-     &              nBas(is),Work(ip(is)+nbas(is)**2),irc)
+     &              nBas(is),iWork(iip),irc)
         If (irc.ne.0)
      &         Call SysAbendMsg('tcmo','DGETRF returns non zero', ' ')
         end if
@@ -36,18 +37,20 @@
         Do iS=1,nSym
          js=ieor(is-1,isym-1)+1
         If (nbas(is)*nbas(js).ne.0) Then
+         iip=ip_of_iWork_d(Work(ip(is)+nbas(is)**2))
          call dgetrs_('T',nbas(is),nbas(js),
      &                Work(ip(is)),nBas(is),
-     &                work(ip(is)+nbas(is)**2),
+     &                iWork(iip),
      &                A(ipMat(is,js)),nBas(is),irc)
          if (irc.ne.0)
      &         Call SysAbendMsg('tcmo','DGETRS returns non zero', ' ')
          Call DGETMO(A(ipMat(is,js)),nBas(is),
      &                    nbas(is),nbas(js),
      &                    Work(ipT),nbas(js))
+         iip=ip_of_iWork_d(Work(ip(js)+nbas(js)**2))
          call dgetrs_('T',nbas(js),nbas(is),
      &                Work(ip(js)),nBas(js),
-     &                work(ip(js)+nbas(js)**2),
+     &                iWork(iip),
      &                Work(ipT),nBas(js),irc)
          if (irc.ne.0)
      &         Call SysAbendMsg('tcmo','DGETRS returns non zero', ' ')

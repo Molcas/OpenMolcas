@@ -103,6 +103,7 @@
       Integer ip(nComp), lOper(nComp), iChO(nComp), iStabO(0:7)
       Integer iTwoj(0:7)
       Data iTwoj/1,2,4,8,16,32,64,128/
+      Dimension dum(1),idum(1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -149,7 +150,7 @@
 *     Will just store the unique elements, i.e. low triangular blocks
 *     and lower triangular elements in the diagonal blocks.
 *
-      Call ICopy(nComp,-1,0,ip,1)
+      Call ICopy(nComp,[-1],0,ip,1)
       LenTot=0
       Do iComp = 1, nComp
          ip(1)=1+LenTot
@@ -157,7 +158,7 @@
          LenTot=LenTot+LenInt+4
       End Do
       Call GetMem(Label,'ALLO','REAL',ibase,LenTot)
-      call dcopy_(LenTot,Zero,0,Work(ibase),1)
+      call dcopy_(LenTot,[Zero],0,Work(ibase),1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -165,7 +166,7 @@
 *
       Call OneEl_(Kernel,KrnlMm,Label,ip,lOper,nComp,CCoor,
      &            nOrdOp,rHrmt,iChO,
-     &            dum,1,dum,idum,0,0,
+     &            dum,dum,1,idum,0,0,
      &            iStabO,nStabO,nIC,
      &            Dum,1,0,Work(ibase),LenTot)
 *

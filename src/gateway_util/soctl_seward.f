@@ -100,14 +100,14 @@ C     write(6,*) ' lval',k,(MxAng+1)**2
       mval(2)=1
       mval(3)=-1
       mval(4)=0
-      Call ICopy(MxAO,-99,0,iCent,1)
-      Call ICopy(MxAO,-99,0,lnAng,1)
+      Call ICopy(MxAO,[-99],0,iCent,1)
+      Call ICopy(MxAO,[-99],0,lnAng,1)
 C     write(6,'(20i4)') (lval(i),i=1,k)
 C     write(6,*) ' lval',k
 C     write(6,'(20i4)') (mval(i),i=1,k)
 *
-      Call ICopy(1+iTabMx,0,0,List   ,1)
-      Call ICopy(1+iTabMx,0,0,List_AE,1)
+      Call ICopy(1+iTabMx,[0],0,List   ,1)
+      Call ICopy(1+iTabMx,[0],0,List_AE,1)
 *
       isymunit=isfreeunit(58)
       call molcas_open(isymunit,'SYMINFO')
@@ -137,13 +137,16 @@ C     Show=Show.and..Not.Primitive_Pass
       iAO=0
       lSkip=.False.
 *
-      Call ICopy(8,0,0,nFCore,1)
+      Call ICopy(8,[0],0,nFCore,1)
 
       Call mma_Allocate(iCI,iBas,label='iCI')       ! Stuff for LoProp
-      Call mma_Allocate(jCI,iBas,label='jCI')       ! Stuff for LocalDKH/X2C/BSS
+      Call mma_Allocate(jCI,iBas,label='jCI')
+!     Stuff for LocalDKH/X2C/BSS
       Call mma_Allocate(iOT,iBas,label='iOT')       ! Stuff for LoProp
-      Call mma_Allocate(LPC,3,mCentr,label='LPC')   ! Stuff (not just) for LoProp
-      Call mma_Allocate(LPQ,mCentr,label='LPQ')     ! Stuff (not just) for LoProp
+      Call mma_Allocate(LPC,3,mCentr,label='LPC')
+!     Stuff (not just) for LoProp
+      Call mma_Allocate(LPQ,mCentr,label='LPQ')
+!     Stuff (not just) for LoProp
       Call mma_Allocate(LPA,mCentr,label='LPA')     ! Stuff for LoProp
       call mma_allocate(basis_ids,4,maxbfn+maxbfn_aux)
       call mma_allocate(desym_basis_ids,4,maxbfn+maxbfn_aux)
@@ -176,8 +179,8 @@ C     Show=Show.and..Not.Primitive_Pass
 *
       Call mma_allocate(Index,5*iBas,label='Index')
       Call mma_allocate(Index2,5*iBas,label='Index2')
-      Call ICopy(5*iBas,0,0,Index,1)
-      Call ICopy(5*iBas,0,0,Index2,1)
+      Call ICopy(5*iBas,[0],0,Index,1)
+      Call ICopy(5*iBas,[0],0,Index2,1)
       iCounter=0
       jCounter=0
       Call mma_Allocate(SM,iBas,iBas,label='SM')
@@ -247,7 +250,7 @@ C     Show=Show.and..Not.Primitive_Pass
 *
 *              No core to freeze!
 *
-               Call ICopy(lMax+1,0,0,nCore_Sh,1)
+               Call ICopy(lMax+1,[0],0,nCore_Sh,1)
             Else
 *
 *              Non-ECP case
@@ -635,7 +638,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
             Call OrbType(iAtmNr(iCnttp),List_AE,31)
             If (kECP) Then
                Call ECP_Shells(iAtmNr(iCnttp),list)
-               Call ICopy(lmax+1,0,0,nCore_Sh,1)
+               Call ICopy(lmax+1,[0],0,nCore_Sh,1)
             Else
                Call ICopy(1+iTabMx,List_AE,1,List,1)
                If (Charge(iCnttp).ne.Zero) Then
@@ -948,7 +951,7 @@ CSVC: basis IDs of non-symmetric case
 *---- Write info (not just) for LoProp
 *
       If (.Not.Primitive_Pass) Then
-         Call Put_cArray('LP_L',LP_Names,(LENIN4)*mCentr)
+         Call Put_cArray('LP_L',LP_Names(1),(LENIN4)*mCentr)
          Call Put_iArray('LP_A',LPA,mCentr)
          Call Put_dArray('LP_Q',LPQ,mCentr)
          Call Put_dArray('LP_Coor',LPC,3*mCentr)

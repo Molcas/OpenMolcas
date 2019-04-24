@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine decomp(A,Jiso,Jsym,Jantisym,dbg)
+      Subroutine decomp_aniso(A,Jiso,Jsym,Jantisym,dbg)
       Implicit None
       Integer, Parameter        :: wp=selected_real_kind(p=15,r=307)
       Real(kind=wp), intent(in) :: A(3,3)
@@ -66,4 +66,4 @@
          End Do
       End If
 
-      End subroutine decomp
+      End subroutine decomp_aniso

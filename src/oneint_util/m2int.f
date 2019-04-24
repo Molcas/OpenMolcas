@@ -117,7 +117,7 @@
 *
       If (iPrint.ge.49) Then
          Call RecPrt(' In M2Int: A',' ',A,1,3)
-         Call RecPrt(' In M2Int: B',' ',B,1,3)
+         Call RecPrt(' In M2Int: RB',' ',RB,1,3)
          Call RecPrt(' In M2Int: Ccoor',' ',Ccoor,1,3)
          Call RecPrt(' In M2Int: Kappa',' ',rKappa,nAlpha,nBeta)
          Call RecPrt(' In M2Int: Zeta',' ',Zeta,nAlpha,nBeta)
@@ -125,7 +125,7 @@
          Write (6,*) ' In M2Int: la,lb,nHer=',la,lb,nHer
       End If
 *
-      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,Zero,0,Final,1)
+      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
 *-----Loop over nuclear centers
 *

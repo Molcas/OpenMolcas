@@ -11,7 +11,7 @@
 * Copyright (C) Yannick Carissan                                       *
 *               2005, Thomas Bondo Pedersen                            *
 ************************************************************************
-      Subroutine RotateOrb(Ovlp,cMO,PACol,nBasis,nAtoms,iTab_ptr,
+      Subroutine RotateOrb(cMO,PACol,nBasis,nAtoms,iTab_ptr,
      &                     Maximisation,nOrb2loc,Name,
      &                     nBas_per_Atom,nBas_Start,ThrRot,PctSkp,
      &                     Debug)
@@ -36,7 +36,6 @@ c
       If (Debug) Then
          Write(6,*) 'RotateOrb[Debug]: nBas_per_Atom: ',
      &              (nBas_per_Atom(i),i=1,nAtoms)
-         Write(6,*) 'RotateOrb[Debug]: Ovlp: ',Ovlp
          iCouple=0
       End If
       Do iMO1=1,nOrb2Loc-1

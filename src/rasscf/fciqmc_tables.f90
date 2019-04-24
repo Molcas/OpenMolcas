@@ -107,7 +107,8 @@ contains
     integer, intent(in) :: iter
     real(kind=8), intent(in) :: DIAF(:)
     real(kind=8), allocatable :: EOrb(:)
-    integer :: i, n, iSym, ioff, iDummy, itotnbas, Dummy, iErr
+    integer :: i, n, iSym, ioff, iDummy(1), itotnbas, iErr
+    real(kind=8) :: Dummy(1)
     character(*), parameter ::  FnInpOrb = 'INPORB'
     character(80) :: VecTit
     integer :: LuInpOrb = 10

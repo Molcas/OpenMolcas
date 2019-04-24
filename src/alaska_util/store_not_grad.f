@@ -32,8 +32,9 @@
 #include "stdalloc.fh"
       Integer :: nGrad,iRoot,iNAC,jNAC
       Integer, Dimension(5) :: TOC
+      Integer, Dimension(1) :: Length
       Integer, Dimension(:), Allocatable :: i_grad,i_nac
-      Integer :: nRoots,nCoup,LuGrad,iAd,Length,iSt,jSt,idx
+      Integer :: nRoots,nCoup,LuGrad,iAd,iSt,jSt,idx
       Logical :: Found
       Character(Len=5) :: Filename
 *
@@ -53,12 +54,12 @@
       iAd=0
       Call iDaFile(LuGrad,2,TOC,Size(TOC),iAd)
       Call iDaFile(LuGrad,2,Length,1,iAd)
-      If (Length.ne.nRoots) Then
+      If (Length(1).ne.nRoots) Then
         Call WarningMessage(2,'Bad number of roots in GRADS file')
         Call Abend()
       End If
       Call iDaFile(LuGrad,2,Length,1,iAd)
-      If (Length.ne.nGrad) Then
+      If (Length(1).ne.nGrad) Then
         Call WarningMessage(2,'Bad length in GRADS file')
         Call Abend()
       End If

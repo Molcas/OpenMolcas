@@ -90,7 +90,7 @@ c a temporary clone for CHARGE util
       SUBROUTINE CHARGE_(NSYM,NBAS,NAME,CMO,OCCN,SMAT,iCase,FullMlk,
      & lSave,MXTYP,QQ,nNuc)
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "itmax.fh"
+#include "angtp.fh"
 #include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -213,7 +213,7 @@ c      Character*(LENIN) LblCnt(MxAtom)
 *----------------------------------------------------------------------*
 *
       NXTYP=0
-      Call ICopy(nBAST,0,0,ITYP,1)
+      Call ICopy(nBAST,[0],0,ITYP,1)
       Do I=1,NBAST
         If (ICNT(I).lt.0) Go To 99  ! skip pseudo center
         Do J=1,NXTYP
@@ -669,9 +669,9 @@ C        End Do
 C     Call RecPrt('Density Matrix = ', ' ', Work(ipD), NBAST, NBAST)
 C     Call RecPrt('Overlap Matrix = ', ' ', Work(ipS), NBAST, NBAST)
       Write (6,*) 'Dens=',DDot_(nBast**2,Work(ipD),1,Work(ipD),1),
-     &                    DDot_(nBast**2,Work(ipD),1,One,0)
+     &                    DDot_(nBast**2,Work(ipD),1,[One],0)
       Write (6,*) 'Ovrl=',DDot_(nBast**2,Work(ipS),1,Work(ipS),1),
-     &                    DDot_(nBast**2,Work(ipS),1,One,0)
+     &                    DDot_(nBast**2,Work(ipS),1,[One],0)
       Write (6,*) 'DO  =',DDot_(nBast**2,Work(ipS),1,Work(ipD),1)
       E=Zero
       Do I=1, NBAST
@@ -899,10 +899,10 @@ c second call, make a real print out
          End Do
          Write(6,*)
          Write(6,'(6X,A,F12.6)') 'Total electronic charge=',
-     &                 DDot_(nNuc,One,0,QSum_TOT,1)
+     &                 DDot_(nNuc,[One],0,QSum_TOT,1)
          Write(6,*)
          Write(6,'(6X,A,F12.6)') 'Total            charge=',
-     &                 DDot_(nNuc,One,0,Work(ip_Charge),1)
+     &                 DDot_(nNuc,[One],0,Work(ip_Charge),1)
 *
       End If
       If (iCase.eq.1) Then
@@ -957,16 +957,16 @@ c icase=2 for usual mulliken, =2 for spin population.
          if(iCase.eq.3) then
            Write(6,*)
            Write(6,'(6X,A,F12.6)') 'Total electronic spin=',
-     &                 DDot_(nNuc,One,0,QSum,1)
+     &                 DDot_(nNuc,[One],0,QSum,1)
          else
            Write(6,*)
            Write(6,'(6X,A,F12.6)') 'Total electronic charge=',
-     &                 DDot_(nNuc,One,0,QSum,1)
+     &                 DDot_(nNuc,[One],0,QSum,1)
            Write(6,*)
-           TCh=DDot_(nNuc,One,0,Work(ip_Charge),1)
+           TCh=DDot_(nNuc,[One],0,Work(ip_Charge),1)
            Write(6,'(6X,A,F12.6)') 'Total            charge=',
-     &                    DDot_(nNuc,One,0,Work(ip_Charge),1)
-         Call xml_dDump('FormalCharge','Total charge','a.u',0,TCh,1,1)
+     &                    DDot_(nNuc,[One],0,Work(ip_Charge),1)
+         Call xml_dDump('FormalCharge','Total charge','a.u',0,[TCh],1,1)
          End If
       End If
       If (iCase.ge.2) Then

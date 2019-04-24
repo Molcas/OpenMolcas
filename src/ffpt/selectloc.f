@@ -38,6 +38,7 @@
       Logical Debug,OneOrNot1,OneOrNot2,OneOrNot3,OneOrNot4,OneOrNot
       Logical CrazySet
       Data Debug /.false./
+      Dimension idum(1)
 
 *
 *-- Commence!
@@ -90,7 +91,8 @@
       Label='MltPl  0'
       iRc=-1
       iSymLbl=1
-      Call iRdOne(iRc,iOpt1,Label,1,nInts,iSymLbl)
+      Call iRdOne(iRc,iOpt1,Label,1,idum,iSymLbl)
+      nInts=idum(1)
       Call GetMem('SMatTr','Allo','Real',ipSTr,nInts+4)
       Call RdOne(iRc,iOpt0,Label,1,Work(ipSTr),iSymLbl)
       If(iRc.ne.0) then

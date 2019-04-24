@@ -41,7 +41,7 @@
          jArray = Ind(iArray)
          If (jArray.le.0) Then
 *           Set column iArray to zero
-            call dcopy_(lArray,Zero,0,Array(1,iArray),1)
+            call dcopy_(lArray,[Zero],0,Array(1,iArray),1)
          Else If (jArray.lt.iArray) Then
 *           Copy row jArray to position iArray
             call dcopy_(lArray,Array(1,jArray),1,Array(1,iArray),1)

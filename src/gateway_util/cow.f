@@ -54,7 +54,7 @@
  20   Continue
       If (iPrint.ge.99) Then
          Call RecPrt(' In CoW: CoF',' ',CoF,1,3)
-         Call RecPrt(' In CoW: T',' ',T,1,1)
+         Call RecPrt(' In CoW: T',' ',[T],1,1)
       End If
 *
 *     Call qExit('CoW   ')

@@ -175,7 +175,7 @@ c
          TmpDoIt(k) = 1
       End Do
 *
-      call dcopy_(nCMO,0.0d0,0,TmpCMOs,1)
+      call dcopy_(nCMO,[0.0d0],0,TmpCMOs,1)
 *
       iOff=0
       Do i=0,nIrrep-1

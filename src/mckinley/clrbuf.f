@@ -161,7 +161,7 @@
 *
         Do iCent=1,4
          Do iCar=1,3
-            Call lCopy(8,.false.,0,pert,1)
+            Call lCopy(8,[.false.],0,pert,1)
 *
 *           Too which irreps does this derivative contribute ?
 *
@@ -228,7 +228,7 @@
 *
 *
           Else If (Index(iCar,iCent).lt.0) Then
-             call dcopy_(nabcd*nijkl,Zero,0,Temp,1)
+             call dcopy_(nabcd*nijkl,[Zero],0,Temp,1)
              Do iCnt=1,4
                 iGr=Index(iCar,iCnt)
                 If (iGr.gt.0)Then

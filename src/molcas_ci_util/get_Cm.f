@@ -154,14 +154,16 @@ C          |
 C       Call FZero(Work(KLAUXD),MXCSFC*MXCSFC)
         call cwtime(C_computeH_AB1,W_computeH_AB1)
         IF( NTEST.GE.30 )  write(6,*)'iAlpha = ', iAlpha
-        CALL GETCNF_LUCIA(Work(KACONF),IATYP,IPCNF(iAlpha),
+        iKACONF=ip_of_iWork_d(Work(KACONF))
+        CALL GETCNF_LUCIA(iWork(iKACONF),IATYP,IPCNF(iAlpha),
      &                    ICONF,IREFSM,NEL)
         NCSFA = NCSFTP(IATYP)
         IF( NTEST.GE.30 ) write(6,*)'NCSFA = ', NCSFA
 ************************************************************************
 *                        BB-Block DIAGONAL Elements                    *
 ************************************************************************
-        CALL CNHCN(Work(KACONF),IATYP,Work(KACONF),
+        iKACONF=ip_of_iWork_d(Work(KACONF))
+        CALL CNHCN(iWork(iKACONF),IATYP,iWork(iKACONF),
      &             IATYP,Work(KLAUXD),Work(KLFREE),
      &             NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX,
      &             NTEST,ExFac,IREOTS)
@@ -185,11 +187,14 @@ C         Call FZero(Work(KLAUXD),MXCSFC*MXCSFC)
           IF( NTEST.GE.30 ) then
             write(6,*)'Mindex in AB-Block',Mindex
           End if
-          CALL GETCNF_LUCIA(Work(KLCONF),ILTYP,IPCNF(Mindex),
+          iKLCONF=ip_of_iWork_d(Work(KLCONF))
+          CALL GETCNF_LUCIA(iWork(iKLCONF),ILTYP,IPCNF(Mindex),
      &                      ICONF,IREFSM,NEL)
           NCSFL = NCSFTP(ILTYP)
           IF( NTEST.GE.30 ) write(6,*)'NCSFL = ', NCSFL
-          CALL CNHCN(Work(KACONF),IATYP,Work(KLCONF),
+          iKACONF=ip_of_iWork_d(Work(KACONF))
+          iKLCONF=ip_of_iWork_d(Work(KLCONF))
+          CALL CNHCN(iWork(iKACONF),IATYP,iWork(iKLCONF),
      &               ILTYP,Work(KLAUXD),Work(KLFREE),
      &               NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX,
      &               NTEST,ExFac,IREOTS)
@@ -409,14 +414,16 @@ C          |
 C       Call FZero(Work(KLAUXD),MXCSFC*MXCSFC)
         call cwtime(C_computeH_AB1,W_computeH_AB1)
         IF( NTEST.GE.30 )  write(6,*)'iAlpha = ', iAlpha
-        CALL GETCNF_LUCIA(Work(KACONF),IATYP,IPCNF(iAlpha),
+        iKACONF=ip_of_iWork_d(Work(KACONF))
+        CALL GETCNF_LUCIA(iWork(iKACONF),IATYP,IPCNF(iAlpha),
      &                    ICONF,IREFSM,NEL)
         NCSFA = NCSFTP(IATYP)
         IF( NTEST.GE.30 ) write(6,*)'NCSFA = ', NCSFA
 ************************************************************************
 *                        BB-Block DIAGONAL Elements                    *
 ************************************************************************
-        CALL CNHCN(Work(KACONF),IATYP,Work(KACONF),
+        iKACONF=ip_of_iWork_d(Work(KACONF))
+        CALL CNHCN(iWork(iKACONF),IATYP,iWork(iKACONF),
      &             IATYP,Work(KLAUXD),Work(KLFREE),
      &             NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX,
      &             NTEST,ExFac,IREOTS)
@@ -440,11 +447,14 @@ C         Call FZero(Work(KLAUXD),MXCSFC*MXCSFC)
           IF( NTEST.GE.30 ) then
             write(6,*)'Mindex in AB-Block',Mindex
           End if
-          CALL GETCNF_LUCIA(Work(KLCONF),ILTYP,IPCNF(Mindex),
+          iKLCONF=ip_of_iWork_d(Work(KLCONF))
+          CALL GETCNF_LUCIA(iWork(iKLCONF),ILTYP,IPCNF(Mindex),
      &                      ICONF,IREFSM,NEL)
           NCSFL = NCSFTP(ILTYP)
           IF( NTEST.GE.30 ) write(6,*)'NCSFL = ', NCSFL
-          CALL CNHCN(Work(KACONF),IATYP,Work(KLCONF),
+          iKACONF=ip_of_iWork_d(Work(KACONF))
+          iKLCONF=ip_of_iWork_d(Work(KLCONF))
+          CALL CNHCN(iWork(iKACONF),IATYP,iWork(iKLCONF),
      &               ILTYP,Work(KLAUXD),Work(KLFREE),
      &               NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX,
      &               NTEST,ExFac,IREOTS)
@@ -516,11 +526,14 @@ C         Call FZero(Work(KLAUXD),MXCSFC*MXCSFC)
 *         ^ Loop over BB-Block
 C           Call FZero(Work(KLAUXD),MXCSFC*MXCSFC)
 *           IF( NTEST.GE.30 ) write(6,*)'Mindex in BB-Block',Mindex
-            CALL GETCNF_LUCIA(Work(KLCONF),ILTYP,IPCNF(Mindex),
+            iKLCONF=ip_of_iWork_d(Work(KLCONF))
+            CALL GETCNF_LUCIA(iWork(iKLCONF),ILTYP,IPCNF(Mindex),
      &                        ICONF,IREFSM,NEL)
             NCSFL = NCSFTP(ILTYP)
 *           IF( NTEST.GE.30 ) write(6,*)'NCSFL = ', NCSFL
-            CALL CNHCN(Work(KACONF),IATYP,Work(KLCONF),
+            iKACONF=ip_of_iWork_d(Work(KACONF))
+            iKLCONF=ip_of_iWork_d(Work(KLCONF))
+            CALL CNHCN(iWork(iKACONF),IATYP,iWork(iKLCONF),
      &                 ILTYP,Work(KLAUXD),Work(KLFREE),
      &                 NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX,
      &                 NTEST,ExFac,IREOTS)
@@ -615,11 +628,13 @@ C           Call FZero(Work(KLAUXD),MXCSFC*MXCSFC)
       Do Mindex = NPCNF+1,NCONF
 C       Call FZero(Work(KLAUXD),MXCSFC*MXCSFC)
         IF( NTEST.GE.30 ) write(6,*)'Mindex last do loop = ', Mindex
-        CALL GETCNF_LUCIA(Work(KACONF),IATYP,IPCNF(Mindex),
+        iKACONF=ip_of_iWork_d(Work(KACONF))
+        CALL GETCNF_LUCIA(iWork(iKACONF),IATYP,IPCNF(Mindex),
      &                    ICONF,IREFSM,NEL)
         NCSFA = NCSFTP(IATYP)
         IF( NTEST.GE.30 ) write(6,*)'NCSFA = ', NCSFA
-        CALL CNHCN(Work(KACONF),IATYP,Work(KACONF),
+        iKACONF=ip_of_iWork_d(Work(KACONF))
+        CALL CNHCN(iWork(iKACONF),IATYP,iWork(iKACONF),
      &             IATYP,Work(KLAUXD),Work(KLFREE),
      &             NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX,
      &             NTEST,ExFac,IREOTS)

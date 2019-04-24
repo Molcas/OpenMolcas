@@ -40,6 +40,20 @@
       nbyte_i = iiloc(iix(2)) - iiloc(iix(1))
       nbyte_r = idloc(rix(2)) - idloc(rix(1))
 *
+      Call Get_Info_Static_Internal(cxStrt,ixStrt,lxStrt,rxStrt)
+      Return
+c Avoid unused argument warnings
+      If (.False.) Call Unused_integer(ioffr)
+*
+*     This is to allow type punning without an explicit interface
+      Contains
+      SubRoutine Get_Info_Static_Internal(cxStrt,ixStrt,lxStrt,rxStrt)
+      Use Iso_C_Binding
+      Integer, Target :: cxStrt,ixStrt,lxStrt
+      Real*8, Target :: rxStrt
+      Integer, Pointer :: p_cx(:),p_ix(:),p_lx(:)
+      Real*8, Pointer :: p_rx(:)
+*
 *     Prologue
 *
 *     Call qEnter('GetInfo')
@@ -48,7 +62,8 @@
 *
       Len = iiLoc(ixEnd)-iiLoc(ixStrt)
       Len = (Len+nbyte_i)/nbyte_i
-      Call Get_iArray('SewIInfo',ixStrt,Len) ! temporarely deactivated
+      Call C_F_Pointer(C_Loc(ixStrt),p_ix,[Len])
+      Call Get_iArray('SewIInfo',p_ix,Len) ! temporarely deactivated
       Call Get_iArray('nExp',nExp,Mx_Shll)
       Call Get_iArray('nBasis',nBasis,Mx_Shll)
       Call Get_iArray('nBasis_Cntrct',nBasis_Cntrct,Mx_Shll)
@@ -63,7 +78,7 @@
       Call Get_iArray('nOpt',nOpt,nCnttp)
       Call Get_iArray('iCoSet',iCoSet,64*Mx_mdc)
       Call Get_iArray('iSOInf',iSOInf,3*4*MxAO)
-      Call ICopy(MxUnq,1,0,IrrCmp,1)
+      Call ICopy(MxUnq,[1],0,IrrCmp,1)
       Call Get_iArray('IrrCmp',IrrCmp,Mx_Unq)
       Call Get_iArray('ipFockOp',ipFockOp,Mx_Shll)
 *
@@ -84,7 +99,8 @@
 *
       Len = iiLoc(lxEnd)-iiLoc(lxStrt)
       Len = (Len+nbyte_i)/nbyte_i
-      Call Get_iArray('SewLInfo',lxStrt,Len)
+      Call C_F_Pointer(C_Loc(lxStrt),p_lx,[Len])
+      Call Get_iArray('SewLInfo',p_lx,Len)
       Len = ilLoc(Prjct(Mx_Shll))-ilLoc(Prjct(1))
       Len = (Len+nByte_i)/nByte_i
       Call Get_lArray('Prjct',Prjct,Len)
@@ -96,7 +112,8 @@
 *
       Len = idLoc(rxEnd)-idLoc(rxStrt)
       Len = (Len+nByte_r)/nByte_r
-      Call Get_dArray('SewRInfo',rxStrt,Len)
+      Call C_F_Pointer(C_Loc(rxStrt),p_rx,[Len])
+      Call Get_dArray('SewRInfo',p_rx,Len)
       Len = idLoc(RMax_Shll(Mx_Shll))-idLoc(RMax_Shll(1))
       Len = (Len+nByte_r)/nByte_r
       Call Get_dArray('RMax_Shll',RMax_Shll,Len)
@@ -106,12 +123,15 @@
 *
       Len = icLoc(cxEnd)-icLoc(cxStrt)
       Len = (Len+nByte_i)/nByte_i
-      Call Get_iArray('SewCInfo',cxStrt,Len)
+      Call C_F_Pointer(C_Loc(cxStrt),p_cx,[Len])
+      Call Get_iArray('SewCInfo',p_cx,Len)
+*
+      Nullify(p_ix,p_lx,p_rx,p_cx)
 *
 *     Epilogue, end
 *
 *     Call qExit('GetInfo')
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(ioffr)
+      End SubRoutine Get_Info_Static_Internal
+*
       End

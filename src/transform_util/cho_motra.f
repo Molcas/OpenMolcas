@@ -736,6 +736,8 @@ C --- free memory
       CAll QExit(SECNAM)
 
       Return
+#ifndef _HDF5_QCM_
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(ihdf5)
+#endif
       END

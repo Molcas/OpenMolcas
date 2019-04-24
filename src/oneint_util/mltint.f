@@ -69,7 +69,7 @@
       iPrint = nPrint(iRout)
 *     Call qEnter('MltInt')
 *
-      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,Zero,0,Final,1)
+      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
 *     Call GetMem(' Enter MltInt','LIST','REAL',iDum,iDum)
       ABeq(1) = A(1).eq.RB(1)
@@ -78,7 +78,7 @@
 *     switch (only single center overlap matrix...)
       If (NDDO.AND.
      &    .NOT.(ABeq(1).AND.ABeq(2).AND.ABeq(3))) Then
-        call dcopy_(nZeta*nIC*nElem(la)*nElem(lb),Zero,0,Final,1)
+        call dcopy_(nZeta*nIC*nElem(la)*nElem(lb),[Zero],0,Final,1)
 *       Call qExit('MltInt')
         Return
       End If

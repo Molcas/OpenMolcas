@@ -13,15 +13,16 @@
 * Read  VEC as multiple record file, NREC records read
 *
       IMPLICIT REAL*8(A-H,O-Z)
+      DIMENSION LREC(1)
 *. OUtput
       DIMENSION VEC(*)
 *
       IOFF = 1
       DO IREC = 1, NREC
-        CALL IFRMDS(LREC,1,LBLK,LU)
-        CALL FRMDSC(VEC(IOFF),     LREC,     LBLK,       LU,   IMZERO,
+        CALL IFRMDS(LREC(1),1,LBLK,LU)
+        CALL FRMDSC(VEC(IOFF),  LREC(1),     LBLK,       LU,   IMZERO,
      &                IAMPACK)
-        IOFF = IOFF + LREC
+        IOFF = IOFF + LREC(1)
       END DO
 *
       RETURN

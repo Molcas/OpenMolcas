@@ -341,7 +341,7 @@ c      KSIPA = 1 ! jwk-cleanup
       END IF
 *
       IF(LUCBLK.GT.0) THEN
-        CALL ITODS(-1,1,-1,LUCBLK)
+        CALL ITODS([-1],1,-1,LUCBLK)
       END IF
 *. Eliminate local memory
       IDUM = 0

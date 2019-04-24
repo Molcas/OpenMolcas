@@ -18,6 +18,7 @@
 #include "WrkSpc.fh"
 #include "Files_mclr.fh"
       Real*8 D1(nd1),d2(nd2)
+      Dimension rdum(1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -25,11 +26,11 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      call dcopy_(nd1,0.0d0,0,d1,1)
+      call dcopy_(nd1,[0.0d0],0,d1,1)
       Call Getmem('TDEND','ALLO','REAL',ipG2tt,nd2)
       Call Getmem('TDEND','ALLO','REAL',ipD2,nd2)
       Call Getmem('TDEND','ALLO','REAL',ipD1,nd1)
-      call dcopy_(nd2,0.0d0,0,Work(ipg2tt),1)
+      call dcopy_(nd2,[0.0d0],0,Work(ipg2tt),1)
       jDisk = ITOC(3)
       Do i=1,lroots
          W=0.0d0

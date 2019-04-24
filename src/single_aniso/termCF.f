@@ -94,20 +94,20 @@ c
       Call mma_allocate(tmp,ldimcf,ldimcf,'tmp')
       Call mma_allocate(HCF,ldimcf,ldimcf,'HCF')
 
-      Call dcopy_(3,0.0_wp,0,gtens,1)
-      Call dcopy_(3*3,0.0_wp,0,maxes,1)
-      Call dcopy_(lDIMcf,0.0_wp,0,eloc,1)
-      Call dcopy_(lDIMcf,0.0_wp,0,Winit,1)
+      Call dcopy_(3,[0.0_wp],0,gtens,1)
+      Call dcopy_(3*3,[0.0_wp],0,maxes,1)
+      Call dcopy_(lDIMcf,[0.0_wp],0,eloc,1)
+      Call dcopy_(lDIMcf,[0.0_wp],0,Winit,1)
 
-      Call zcopy_(3*ldimcf*ldimcf,(0.0_wp,0.0_wp),0,Angm,1)
-      Call zcopy_(3*ldimcf*ldimcf,(0.0_wp,0.0_wp),0,dipso,1)
-      Call zcopy_(3*ldimcf*ldimcf,(0.0_wp,0.0_wp),0,amfi_c,1)
-      Call zcopy_(3*ldimcf*ldimcf,(0.0_wp,0.0_wp),0,amfi2,1)
-      Call zcopy_(3*ldimcf*ldimcf,(0.0_wp,0.0_wp),0,amfi_l,1)
-      Call zcopy_(  ldimcf*ldimcf,(0.0_wp,0.0_wp),0,Z,1)
-      Call zcopy_(  ldimcf*ldimcf,(0.0_wp,0.0_wp),0,Zinit,1)
-      Call zcopy_(  ldimcf*ldimcf,(0.0_wp,0.0_wp),0,tmp,1)
-      Call zcopy_(  ldimcf*ldimcf,(0.0_wp,0.0_wp),0,HCF,1)
+      Call zcopy_(3*ldimcf*ldimcf,[(0.0_wp,0.0_wp)],0,Angm,1)
+      Call zcopy_(3*ldimcf*ldimcf,[(0.0_wp,0.0_wp)],0,dipso,1)
+      Call zcopy_(3*ldimcf*ldimcf,[(0.0_wp,0.0_wp)],0,amfi_c,1)
+      Call zcopy_(3*ldimcf*ldimcf,[(0.0_wp,0.0_wp)],0,amfi2,1)
+      Call zcopy_(3*ldimcf*ldimcf,[(0.0_wp,0.0_wp)],0,amfi_l,1)
+      Call zcopy_(  ldimcf*ldimcf,[(0.0_wp,0.0_wp)],0,Z,1)
+      Call zcopy_(  ldimcf*ldimcf,[(0.0_wp,0.0_wp)],0,Zinit,1)
+      Call zcopy_(  ldimcf*ldimcf,[(0.0_wp,0.0_wp)],0,tmp,1)
+      Call zcopy_(  ldimcf*ldimcf,[(0.0_wp,0.0_wp)],0,HCF,1)
 !----------------------------------------------------------------------
       Write(6,'(/)')
       Write(6,'(100A)') ('%',i=1,95)
@@ -241,8 +241,8 @@ c                   iopt = 4   -- maxes is the unity matrix ( original Z is the 
 
 
 !  rotate the angular momentum to the new axes, using "maxes"
-      Call zcopy_(3*ldimcf*ldimcf,(0.0_wp,0.0_wp),0,amfi2,1)
-      Call zcopy_(3*ldimcf*ldimcf,(0.0_wp,0.0_wp),0,angm,1)
+      Call zcopy_(3*ldimcf*ldimcf,[(0.0_wp,0.0_wp)],0,amfi2,1)
+      Call zcopy_(3*ldimcf*ldimcf,[(0.0_wp,0.0_wp)],0,angm,1)
       Call rotmom2( dipso(1:3,1:ldimcf,1:ldimcf), ldimcf,
      &              maxes, angm )
       Call rotmom2( amfi_c(1:3,1:ldimcf,1:ldimcf), ldimcf,
@@ -278,9 +278,9 @@ c  decompose the orbital moment AMSL in ITOs
 C  transform AMFI integrals to pseudo-L basis:
       ! calculate the matrix elements of the spin and magnetic moment
       ! in the spin-orbit basis:
-      Call zcopy_(3*ldimcf*ldimcf,(0.0_wp,0.0_wp),0,amfi_l,1)
+      Call zcopy_(3*ldimcf*ldimcf,[(0.0_wp,0.0_wp)],0,amfi_l,1)
       Do L=1,3
-         Call zcopy_(  ldimcf*ldimcf,(0.0_wp,0.0_wp),0,tmp,1)
+         Call zcopy_(  ldimcf*ldimcf,[(0.0_wp,0.0_wp)],0,tmp,1)
          ! amfi:
          Call ZGEMM_('C', 'N', lDIMcf, lDIMcf, lDIMcf, (1.0_wp,0.0_wp),
      &                     Z, lDIMcf,
@@ -298,9 +298,9 @@ C  transform AMFI integrals to pseudo-L basis:
 
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !c  calculate the RASSI Crystal Field matrix
-      Call dcopy_(lDIMcf,0.0_wp,0,eloc,1)
+      Call dcopy_(lDIMcf,[0.0_wp],0,eloc,1)
       Call rtrace(lDIMcf,ESFS,ELOC)
-      Call zcopy_(ldimcf*ldimcf,(0.0_wp,0.0_wp),0,HCF,1)
+      Call zcopy_(ldimcf*ldimcf,[(0.0_wp,0.0_wp)],0,HCF,1)
       Do i=1,lDIMcf
         Do I1=1,lDIMcf
           Do I2=1,lDIMcf
@@ -310,8 +310,8 @@ C  transform AMFI integrals to pseudo-L basis:
       End Do
 
       info=0
-      Call dcopy_(lDIMcf,0.0_wp,0,Winit,1)
-      Call zcopy_(lDIMcf*lDIMcf,(0.0_wp,0.0_wp),0,Zinit,1)
+      Call dcopy_(lDIMcf,[0.0_wp],0,Winit,1)
+      Call zcopy_(lDIMcf*lDIMcf,[(0.0_wp,0.0_wp)],0,Zinit,1)
       Call DIAG_C2( HCF,lDIMcf,info,Winit,Zinit)
       Call print_ZFS('Ab Initio Calculated Crystal-Field Splitting '//
      &               'Matrix written in the basis of Pseudo-L '//

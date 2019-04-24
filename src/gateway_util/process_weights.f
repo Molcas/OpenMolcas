@@ -52,7 +52,7 @@
       CALL mma_allocate(W,nAt,label='W')
 *
 *---- By default, all weights are 1
-      call dcopy_(nAt,One,0,W,1)
+      call dcopy_(nAt,[One],0,W,1)
 *
       IF (Align_Weights(1:4).EQ.'MASS') Then
 *---- Set the weights to the mass of each atom

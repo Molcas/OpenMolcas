@@ -30,7 +30,7 @@
 
       Real*8 Cavxyz(nCavxyz_),Tmom(nCavxyz_),Org(3)
 
-      Real*8 Tco(3)
+      Real*8 Tco(3),A(3)
       Integer iStb(0:7), jCoSet(0:7,0:7)
 
       If(nOrd_XF.lt.0) Return
@@ -44,7 +44,7 @@
       Call FZero(Org,3)
       do i=1,nXF
 *
-*------------- Generate Stabilazor of C
+*------------- Generate Stabilizer of C
 *
          If (nIrrep.eq.8) Then
             nOper=3
@@ -55,6 +55,8 @@
          Else
             nOper=0
          End If
+! IFG: "A" was undefined, is this the right point?
+         call dcopy_(3,Work(ipXF+(i-1)*Inc),1,A,1)
          iChxyz=iChAtm(A,iOper,nOper,iChBas(2))
          iDum=0
          Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)

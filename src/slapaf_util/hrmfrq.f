@@ -117,7 +117,7 @@
 *     Write stuff on Molden input file
 *
       nSym=1
-      Call ICopy(8,0,0,mDisp,1)
+      Call ICopy(8,[0],0,mDisp,1)
       mDisp(1)=nInter
 !      If (nIrrep.eq.1) Then
          Call Print_Mode_Components(Work(ipNMod),Work(ipEVal),

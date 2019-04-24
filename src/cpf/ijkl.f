@@ -12,7 +12,7 @@
 *               1986, Margareta R. A. Blomberg                         *
 ************************************************************************
 cpgi$g opt=1
-      SUBROUTINE IJKL(JSY,INDEX,C,S,FIJKL,BUFIN,IBUFIN,
+      SUBROUTINE IJKL_CPF(JSY,INDEX,C,S,FIJKL,BUFIN,IBUFIN,
      *ENP,EPP)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
@@ -23,7 +23,7 @@ cpgi$g opt=1
       PARAMETER(IPOW8=2**8,IPOW16=2**16,IPOW24=2**24)
       PARAMETER(IPOW6=2**6,IPOW13=2**13,IPOW19=2**19)
 *
-      JSYM(L)=JSUNP(JSY,L)
+      JSYM(L)=JSUNP_CPF(JSY,L)
 *
       FINI=0.0D0 ! dummy initialize
       NCONF=JSC(4)

@@ -23,7 +23,8 @@
       Real(kind=wp), intent(in)     :: gtens_input(3)
       Real(kind=wp), intent(in)     :: riso(3,3)
       Real(kind=wp), intent(in)     :: D, EoverD ! ZFS factors
-      Real(kind=wp), intent(out)    :: E(nExch)   ! spin-orbit energy states, starting from 0
+      ! spin-orbit energy states, starting from 0
+      Real(kind=wp), intent(out)    :: E(nExch)
       Complex(kind=wp), intent(out) :: M(3,nExch,nExch)
       Complex(kind=wp), intent(out) :: S(3,nExch,nExch)
 
@@ -66,8 +67,8 @@
          E(i)=0.0_wp
       End Do
 
-      Call zcopy_(3*nExch*nExch,(0.0_wp,0.0_wp),0,S,1)
-      Call zcopy_(3*nExch*nExch,(0.0_wp,0.0_wp),0,M,1)
+      Call zcopy_(3*nExch*nExch,[(0.0_wp,0.0_wp)],0,S,1)
+      Call zcopy_(3*nExch*nExch,[(0.0_wp,0.0_wp)],0,M,1)
 
       Call mma_allocate(Wc,nss,nss,'Wc')
       Call ESO(nss,1,1,S(1,1:nss,1:nss),S(2,1:nss,1:nss),redME)
@@ -86,20 +87,20 @@
       If(dbg) Write(6,'(A,2ES22.14)') 'Norms of M and S:', RM, RS
 
       If( (RM>0.0_wp).AND.(RS>0.0_wp) ) Then
-      ! rotate the spin and magnetic moment to the general coordinate system:
+!        rotate the spin and magnetic moment to the general coordinate system:
          Call mma_allocate(MTMP,3,nExch,nExch,'MTMP')
          Call mma_allocate(STMP,3,nExch,nExch,'STMP')
          Call mma_allocate(Z,nExch,nExch,'Z')
          Call mma_allocate(tmp,nExch,nExch,'tmp')
 
-         Call zcopy_(3*nExch*nExch,(0.0_wp,0.0_wp),0,MTMP,1)
-         Call zcopy_(3*nExch*nExch,(0.0_wp,0.0_wp),0,STMP,1)
+         Call zcopy_(3*nExch*nExch,[(0.0_wp,0.0_wp)],0,MTMP,1)
+         Call zcopy_(3*nExch*nExch,[(0.0_wp,0.0_wp)],0,STMP,1)
 
          Call zcopy_(3*nExch*nExch,M,1,MTMP,1)
          Call zcopy_(3*nExch*nExch,S,1,STMP,1)
-         Call zcopy_(3*nExch*nExch,(0.0_wp,0.0_wp),0,M,1)
-         Call zcopy_(3*nExch*nExch,(0.0_wp,0.0_wp),0,S,1)
-         Call zcopy_(nExch*nExch,(0.0_wp,0.0_wp),0,Z,1)
+         Call zcopy_(3*nExch*nExch,[(0.0_wp,0.0_wp)],0,M,1)
+         Call zcopy_(3*nExch*nExch,[(0.0_wp,0.0_wp)],0,S,1)
+         Call zcopy_(nExch*nExch,[(0.0_wp,0.0_wp)],0,Z,1)
 
 
          If(dbg) Write(6,'(A,ES20.10)') 'GENERATE_SITE: Norm of riso:',
@@ -114,8 +115,8 @@
          If(dbg) Then
             Call mma_allocate(gtens,3,'gtens')
             Call mma_allocate(maxes,3,3,'maxes')
-            Call dcopy_(3,0.0_wp,0,gtens,1)
-            Call dcopy_(3*3,0.0_wp,0,maxes,1)
+            Call dcopy_(3,[0.0_wp],0,gtens,1)
+            Call dcopy_(3*3,[0.0_wp],0,maxes,1)
             Call atens(M, nExch, gtens, maxes, 2)
             Call mma_deallocate(gtens)
             Call mma_deallocate(maxes)
@@ -130,12 +131,12 @@
             Call mma_allocate(S2,nExch,nExch,'S2')
             Call mma_allocate(W,nExch,'W')
 
-            Call zcopy_(nExch*nExch,(0.0_wp,0.0_wp),0,HZFS,1)
-            Call zcopy_(nExch*nExch,(0.0_wp,0.0_wp),0,SX2,1)
-            Call zcopy_(nExch*nExch,(0.0_wp,0.0_wp),0,SY2,1)
-            Call zcopy_(nExch*nExch,(0.0_wp,0.0_wp),0,SZ2,1)
-            Call zcopy_(nExch*nExch,(0.0_wp,0.0_wp),0,S2,1)
-            Call dcopy_(nExch     , 0.0_wp,        0,W,1)
+            Call zcopy_(nExch*nExch,[(0.0_wp,0.0_wp)],0,HZFS,1)
+            Call zcopy_(nExch*nExch,[(0.0_wp,0.0_wp)],0,SX2,1)
+            Call zcopy_(nExch*nExch,[(0.0_wp,0.0_wp)],0,SY2,1)
+            Call zcopy_(nExch*nExch,[(0.0_wp,0.0_wp)],0,SZ2,1)
+            Call zcopy_(nExch*nExch,[(0.0_wp,0.0_wp)],0,S2,1)
+            Call dcopy_(nExch     , [0.0_wp],        0,W,1)
 
             SX2(:,:)=MATMUL(S(1,:,:),S(1,:,:))
             SY2(:,:)=MATMUL(S(2,:,:),S(2,:,:))
@@ -167,23 +168,23 @@
             ! rotate the spin and magnetic moment:
 
             Do L=1,3
-              Call zcopy_(nexch*nexch,(0.0_wp,0.0_wp),0,TMP,1)
+              Call zcopy_(nexch*nexch,[(0.0_wp,0.0_wp)],0,TMP,1)
               Call zgemm_('C','N',nEXCH,nEXCH,nEXCH,
      &                   (1.0_wp,0.0_wp),Z, nEXCH,
      &                                   M(L,:,:), nEXCH,
      &                   (0.0_wp,0.0_wp),TMP, nEXCH )
-              Call zcopy_(nexch*nexch,(0.0_wp,0.0_wp),0,M(L,:,:),1)
+              Call zcopy_(nexch*nexch,[(0.0_wp,0.0_wp)],0,M(L,:,:),1)
               Call zgemm_('N','N',nEXCH,nEXCH,nEXCH,
      &                   (1.0_wp,0.0_wp),TMP,nEXCH,
      &                                     Z,nEXCH,
      &                   (0.0_wp,0.0_wp), M(L,:,:), nEXCH )
 
-              Call zcopy_(nexch*nexch,(0.0_wp,0.0_wp),0,TMP,1)
+              Call zcopy_(nexch*nexch,[(0.0_wp,0.0_wp)],0,TMP,1)
               Call zgemm_('C','N',nEXCH,nEXCH,nEXCH,
      &                   (1.0_wp,0.0_wp),Z,nEXCH,
      &                                   S(L,:,:), nEXCH,
      &                   (0.0_wp,0.0_wp),TMP,nEXCH )
-              Call zcopy_(nexch*nexch,(0.0_wp,0.0_wp),0,S(L,:,:),1)
+              Call zcopy_(nexch*nexch,[(0.0_wp,0.0_wp)],0,S(L,:,:),1)
               Call zgemm_('N','N',nEXCH,nEXCH,nEXCH,
      &                   (1.0_wp,0.0_wp),TMP,nEXCH,
      &                                     Z,nEXCH,

@@ -28,7 +28,7 @@
       subroutine rotategeom(Q, nat, Geom1, Geom2)
       implicit none
       Integer iat,nat
-      Real*8 Q(0:4)
+      Real*8 Q(0:3)
       Real*8 V(3)
       Real*8 Geom1(3,nat),Geom2(3,nat)
 

@@ -36,9 +36,9 @@
      &                       nStab(mdc))
 *
        nnIrrep=nIrrep
-       Call lCopy(12,.false.,0,ifgrd,1)
+       Call lCopy(12,[.false.],0,ifgrd,1)
        If (sIrrep) nnIrrep=1
-*                                                                      *
+*
       Do 3000 iIrrep=0,nnIrrep-1
          nDisp = IndDsp(mdci,iIrrep)
          Do 3001 iCar = 0, 2
@@ -105,10 +105,10 @@
       iCo(2)=mdcj
       iCo(3)=mdck
       iCo(4)=mdcl
-      Call iCopy(144*nirrep,0,0,IndHss,1)
-      Call iCopy(144*nirrep,0,0,jndHss,1)
-      Call lCopy(144,.false.,0,IfHss,1)
-      Call lCopy(144,.false.,0,JfHss,1)
+      Call iCopy(144*nirrep,[0],0,IndHss,1)
+      Call iCopy(144*nirrep,[0],0,jndHss,1)
+      Call lCopy(144,[.false.],0,IfHss,1)
+      Call lCopy(144,[.false.],0,JfHss,1)
       if (.not.ldot) Return
 *
       Do iAtom=1,4
@@ -213,7 +213,7 @@
 *
 *              Scramble the control array for the hessian
 *
-      Call LCopy(4,.true.,0,Ifg,1)
+      Call LCopy(4,[.true.],0,Ifg,1)
       Do iAtom=1,4
          JfG(iAtom)=IfG(iAtom)
          Do jAtom=1,iAtom

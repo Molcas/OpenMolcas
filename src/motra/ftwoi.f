@@ -18,7 +18,7 @@
 *
       DIMENSION FSQ(*),FLT(nFLT),DSQ(*),DLT(*),X1(*),X2(*)
       DIMENSION NBSX(8),KEEP(8)
-      Logical FoundTwoEls
+      Logical FoundTwoEls,ISQUAR
 *
       Call qEnter('FTWOI')
 *

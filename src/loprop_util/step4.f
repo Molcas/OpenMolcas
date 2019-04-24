@@ -34,8 +34,8 @@ clg   write (*,*)
       End Do
 clg   Call RecPrt('S before LW 4',' ',SMatrix,nDim,nDim)
 
-      call dcopy_(nDim**2,Zero,0,TMatrix,1)
-      call dcopy_(nDim,One,0,TMatrix,nDim+1)
+      call dcopy_(nDim**2,[Zero],0,TMatrix,1)
+      call dcopy_(nDim,[One],0,TMatrix,nDim+1)
       Call Lowdin(SMatrix,TMatrix,nDim)
 *
       Return

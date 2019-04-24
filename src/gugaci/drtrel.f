@@ -195,12 +195,13 @@ c      call get_ivy()
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
+#include "files_gugaci.fh"
 !      common/casrst/ja(max_node),jb(max_node),jm(0:max_node)
 !     :    ,jj(4,0:max_node),kk(0:max_node),no(0:max_innorb)
 !     :    ,jv,jd(8),jt(8),js(8)
       write(6,*)' '
       write(6,*) ' now reading distinct row tableau'
-      call readdrt()
+      call readdrt(ludrt)
 c      open(21,file="fort.drt",form="unformatted")
 c      read(21) id
 c      write(6,*) " id=",id
@@ -326,12 +327,13 @@ c Avoid unused argument warnings
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
+#include "files_gugaci.fh"
 !      common/casrst/ja(max_node),jb(max_node),jm(0:max_node)
 !     :    ,jj(4,0:max_node),kk(0:max_node),no(0:max_innorb)
 !     :    ,jv,jd(8),jt(8),js(8)
       write(6,*)' '
       write(6,*) ' now reading distinct row tableau'
-      call readdrt()
+      call readdrt(ludrt)
 
 !      print*, "bbs debug rcas,kk(27)",kk(27)
 

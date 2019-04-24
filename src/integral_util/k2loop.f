@@ -72,8 +72,24 @@
       Integer   iDCRR(0:7), iAnga(4), iCmpa(4), mStb(2),
      &          iShll(2), IndP(nZeta)
       Integer isave(1024)
-      Logical AeqB, EQ, NoSpecial, TF, TstFnc,
+      Logical AeqB, EQ, NoSpecial,
      &        DoFock, DoGrad
+      External EQ
+      Dimension Dummy(1)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Call k2loop_internal(Data)
+*
+*     This is to allow type punning without an explicit interface
+      Contains
+      Subroutine k2loop_internal(Data)
+      Use Iso_C_Binding
+      Real*8, Target :: Data((nZeta*(nDArray+2*ijCmp)+nDScalar+nHm),
+     &                       nDCRR)
+      Integer, Pointer :: iData(:)
+      Logical TF, TstFnc
+      External TstFnc
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -89,9 +105,9 @@
       iRout = 241
       iPrint = nPrint(iRout)
 *     Call QEnter('k2Loop')
-      call dcopy_(3,One,0,Q,1)
+      call dcopy_(3,[One],0,Q,1)
       nData=nZeta*(nDArray+2*ijCmp)+nDScalar+nHm
-      call dcopy_(nData*nDCRR,Zero,0,Data,1)
+      call dcopy_(nData*nDCRR,[Zero],0,Data,1)
       mStb(1) = iStb
       mStb(2) = jStb
       la = iAnga(1)
@@ -111,7 +127,7 @@
       Do 100 lDCRR = 0, nDCRR-1
 *
          Call ICopy(1024,nPrint,1,iSave,1)
-         Call ICopy(1024,5,0,nPrint,1)
+         Call ICopy(1024,[5],0,nPrint,1)
          iR = iDCRR(lDCRR)
 *
          CoorM(1,2) = DBLE(iPhase(1,iDCRR(lDCRR)))*Coor(1,2)
@@ -199,8 +215,8 @@
             nT = mZeta*1
             NoSpecial=.True.
             Call Rys(iAnga,nT,
-     &               Zeta(iZeta),ZInv(iZeta),mZeta,One,One,1,
-     &               P(iZeta,1),nZeta,Q,1,Kappab(iZeta),One,
+     &               Zeta(iZeta),ZInv(iZeta),mZeta,[One],[One],1,
+     &               P(iZeta,1),nZeta,Q,1,Kappab(iZeta),[One],
      &               Coori,Coora,CoorAC,
      &               mabMin,mabMax,mcdMin,mcdMax,
      &               Wrk,nWork2,TERIS,ModU2,Cff2DS,
@@ -257,6 +273,8 @@
 *                                                                      *
 *        Estimate the largest contracted integral.
 *
+         Call C_F_Pointer(C_Loc(Data(ip_IndZ(1,nZeta),lDCRR+1)),iData,
+     &                    [nAlpha*nBeta+1])
          Data(ip_EstI(nZeta),lDCRR+1) =
      &                      EstI(Data(ip_Z(1,nZeta),lDCRR+1),
      &                           Data(ip_Kappa(1,nZeta),lDCRR+1),
@@ -265,7 +283,8 @@
      &                           Data(ip_ab   (1,nZeta),lDCRR+1),
      &                           iCmpa_*jCmpb_,
      &                           Wrk,nWork2,
-     &                           Data(ip_IndZ(1,nZeta),lDCRR+1))
+     &                           iData)
+         Nullify(iData)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -343,9 +362,9 @@
             Delta = 1.0D-03
             iOff_g=ip_abG(nZeta,nHm)+ijCmp*nZeta
             Call FZero(Data(iOff_g,lDCRR+1),nZeta*ijCmp)
-            call dcopy_(nZeta*ijCmp,Zero,0,Work(ipTmp1),1)
-            call dcopy_(nZeta*ijCmp,Zero,0,Work(ipTmp2),1)
-            call dcopy_(nZeta*ijCmp,Zero,0,Work(ipTmp3),1)
+            call dcopy_(nZeta*ijCmp,[Zero],0,Work(ipTmp1),1)
+            call dcopy_(nZeta*ijCmp,[Zero],0,Work(ipTmp2),1)
+            call dcopy_(nZeta*ijCmp,[Zero],0,Work(ipTmp3),1)
 
 *
 *---------- Loop over center A and B.
@@ -518,4 +537,6 @@
 *     Call GetMem(' Exit k2Loop','CHECK','REAL',iDum,iDum)
 *     Call QExit('k2Loop')
       Return
+      End Subroutine k2loop_internal
+*
       End

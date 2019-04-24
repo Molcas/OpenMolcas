@@ -40,6 +40,7 @@
       End If
 #elif defined(__INTEL_COMPILER) || defined(NAGFOR)
        Return
+       If (.False.) Call Unused_integer(Lu)
 #elif defined(_SOLARIS_) || defined(_IRIX64_) || defined(_HP_UX_)
       Call Flush(Lu)
 #elif defined(_PRIMEPOWER_) || defined(_LINUX_)

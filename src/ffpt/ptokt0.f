@@ -28,6 +28,7 @@
       Dimension Cntr(3)
       Logical Debug,Exec,Orig
       Data    Debug/.False./
+      Dimension idum(1)
 *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -115,7 +116,8 @@
           iOpt1=1
           iOpt2=0
           iSyLbl=0
-          Call iRdOne(iRc,iOpt1,Label,iComp,nInts,iSyLbl)
+          Call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
+          nInts=idum(1)
           If ( iRc.ne.0 ) Goto 991
           Call RdOne(iRc,iOpt2,Label,iComp,Temp,iSyLbl)
           If ( iRc.ne.0 ) Goto 991

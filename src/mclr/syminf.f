@@ -43,11 +43,11 @@
       ITSDX = 1
       ITSXT = 1
 *
-      Call iCopy(MXPOBS*MXPOBS,0,0,ADASX,1)
-      Call iCopy(MXPOBS*2*MXPOBS,0,0,ADSXA,1)
-      Call iCopy(MXPOBS*2*MXPOBS,0,0,ASXAD,1)
-      Call iCopy(2*MXPOBS*2*MXPOBS,0,0,SXSXDX,1)
-      Call iCopy(2*MXPOBS*4*MXPOBS,0,0,SXDXSX,1)
+      Call iCopy(MXPOBS*MXPOBS,[0],0,ADASX,1)
+      Call iCopy(MXPOBS*2*MXPOBS,[0],0,ADSXA,1)
+      Call iCopy(MXPOBS*2*MXPOBS,[0],0,ASXAD,1)
+      Call iCopy(2*MXPOBS*2*MXPOBS,[0],0,SXSXDX,1)
+      Call iCopy(2*MXPOBS*4*MXPOBS,[0],0,SXDXSX,1)
       DO 10 ISYM=1,8
          DO 20 JSYM=1,8
             IJSYM=1+IEOR(ISYM-1,JSYM-1)

@@ -43,7 +43,7 @@
       NTEST = 0000
       NTEST = MAX(NTEST,IPRNT)
 *
-      Call iCopy(nOctPA*nOctPB,0,0,iococ,1)
+      Call iCopy(nOctPA*nOctPB,[0],0,iococ,1)
       DO 100 IATP = 1,NOCTPA
          IAEL1 = NEL1A(IATP)
          IAEL3 = NEL3A(IATP)

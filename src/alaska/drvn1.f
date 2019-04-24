@@ -58,7 +58,7 @@
 *                                                                      *
 ************************************************************************
 *
-      call dcopy_(nGrad,Zero,0,Temp,1)
+      call dcopy_(nGrad,[Zero],0,Temp,1)
 *
       mdc = 0
 *-----Loop over centers with the same charge
@@ -262,7 +262,7 @@
       End Do
       If (iXPolType.gt.0) Inc = Inc + 6
 
-      call dcopy_(nGrad,Zero,0,Temp,1)
+      call dcopy_(nGrad,[Zero],0,Temp,1)
 *
       ip = ipXF - 1
       iDum=0
@@ -412,7 +412,7 @@
          If (iPrint.ge.99) Call RecPrt('Total Electric Field',
      &                                 ' ',Work(ipEF),1,nCav)
 *
-      call dcopy_(nGrad,Zero,0,Temp,1)
+      call dcopy_(nGrad,[Zero],0,Temp,1)
 *
       ip = ipMM + nCav -1
       Do ir = 0, lMax
@@ -521,7 +521,7 @@
 *                                                                      *
 ************************************************************************
 *
-      call dcopy_(nGrad,Zero,0,Temp,1)
+      call dcopy_(nGrad,[Zero],0,Temp,1)
 *
 *---- Loop over tiles
 *

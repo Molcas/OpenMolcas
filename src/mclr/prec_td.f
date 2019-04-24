@@ -32,12 +32,12 @@
          nBasTot = nBasTot + nBas(iS)*nBas(iS)
       End Do
       Call GetMem('densmat','Allo','Real',ipDens,nBasTot)
-      call dcopy_(nBasTot,0.0d0,0,Work(ipDens),1)
+      call dcopy_(nBasTot,[0.0d0],0,Work(ipDens),1)
 *
       ip3 = 0
       Do iS=1,nSym
           inc = nBas(iS)+1
-          call dcopy_(nIsh(iS),2.0d0,0,Work(ipDens+ip3),inc)
+          call dcopy_(nIsh(iS),[2.0d0],0,Work(ipDens+ip3),inc)
           ip3 = ip3 + nBas(iS)*nBas(iS)
       End Do
 *
@@ -72,7 +72,7 @@ C
 *-------------------------------------------------------------------
 *
       Call GetMem('prectd','Allo','Real',ipPreTd,nDens2)
-      call dcopy_(nDens2,0.0d0,0,Work(ipPreTd),1)
+      call dcopy_(nDens2,[0.0d0],0,Work(ipPreTd),1)
       ip1 = 0
       ip2 = 1
       ipsave = 0
@@ -114,11 +114,11 @@ C
 * Symmetrize ipPreTd
 *-----------------------------------------------------------
       Call GetMem('temptd','Allo','Real',ipTempTd,nDens2)
-      call dcopy_(nDens2,0.0d0,0,Work(ipTempTd),1)
+      call dcopy_(nDens2,[0.0d0],0,Work(ipTempTd),1)
 *
       Do iS=1,nSym
          jS=iEOr(iS-1,iSym-1)+1
-         call dcopy_(nDens2,0.0d0,0,Work(ipTempTd),1)
+         call dcopy_(nDens2,[0.0d0],0,Work(ipTempTd),1)
          Call Trans(Work(ipPreTd+ipMat(jS,iS)-1),nBas(iS),
      &               nBas(jS),Work(ipTempTd))
          nD = nBas(iS)*nBas(jS)
@@ -162,7 +162,7 @@ C
 * as required by compress.
 *-----------------------------------------------------------------------------
 *
-      call dcopy_(nDens2,0.0d0,0,Work(ipTempTd),1)
+      call dcopy_(nDens2,[0.0d0],0,Work(ipTempTd),1)
 *
       Do iS=1,nSym
          jS=iEOr(iS-1,iSym-1)+1

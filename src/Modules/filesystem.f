@@ -56,7 +56,7 @@
       function strerror_c(errno) bind(C, name="strerror")
           use, intrinsic :: iso_c_binding
           implicit none
-          integer(MOLCAS_C_INT), value :: errno
+          integer(C_INT), value :: errno
           type(c_ptr) :: strerror_c
       end function
 
@@ -123,7 +123,7 @@
         implicit none
         character(:), allocatable :: res
         integer, intent(in) :: errnum
-        res = str(strerror_c(int(errnum, MOLCAS_C_INT)))
+        res = str(strerror_c(int(errnum, C_INT)))
       end function
 
       subroutine remove_(path, err)

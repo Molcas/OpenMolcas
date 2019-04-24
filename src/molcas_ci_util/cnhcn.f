@@ -30,6 +30,15 @@ C
       DIMENSION TUVX(*)
       INTEGER IREOTS(*)
 C
+      CALL CNHCN_INTERNAL(SCR)
+*
+*     This is to allow type punning without an explicit interface
+      CONTAINS
+      SUBROUTINE CNHCN_INTERNAL(SCR)
+      USE ISO_C_BINDING
+      REAL*8, TARGET :: SCR(*)
+      INTEGER, POINTER :: iSCRla(:),iSCRlb(:),iSCRra(:),iSCRrb(:),
+     &                    iSCRf(:)
       NTEST = 0
 *
 ** 1 : Obtain determints corresponding to configurations
@@ -60,22 +69,36 @@ C
       KLISR  = KLFREE
       KLFREE = KLFREE + NDETR
 *
-      CALL CNFSTR(ICNL,ITPL,SCR(KLDTLA),SCR(KLDTLB),
-     *            NORB,NAEL,NBEL,NDETL,IPRODT,SCR(KLFREE),
+      CALL C_F_POINTER(C_LOC(SCR(KLDTLA)),iSCRla,[1])
+      CALL C_F_POINTER(C_LOC(SCR(KLDTLB)),iSCRlb,[1])
+      CALL C_F_POINTER(C_LOC(SCR(KLFREE)),iSCRf,[1])
+      CALL CNFSTR(ICNL,ITPL,iSCRla,iSCRlb,
+     *            NORB,NAEL,NBEL,NDETL,IPRODT,iSCRf,
      *            SCR(KLISL),IPREXH)
-      CALL CNFSTR(ICNR,ITPR,SCR(KLDTRA),SCR(KLDTRB),
-     *            NORB,NAEL,NBEL,NDETR,IPRODT,SCR(KLFREE),
+      NULLIFY(iSCRla,iSCRlb,iSCRf)
+      CALL C_F_POINTER(C_LOC(SCR(KLDTRA)),iSCRra,[1])
+      CALL C_F_POINTER(C_LOC(SCR(KLDTRB)),iSCRrb,[1])
+      CALL C_F_POINTER(C_LOC(SCR(KLFREE)),iSCRf,[1])
+      CALL CNFSTR(ICNR,ITPR,iSCRra,iSCRrb,
+     *            NORB,NAEL,NBEL,NDETR,IPRODT,iSCRf,
      *            SCR(KLISR),IPREXH)
+      NULLIFY(iSCRra,iSCRrb,iSCRf)
 *
 ** Hamiltonin matrix over determinants of ths configuration
 *
       KLDHD = KLFREE
       KLFREE = KLFREE + NDETL*NDETR
       CALL COMBINATIONS(ICOMBI,PSIGN)
-      CALL DIHDJ_MOLCAS(SCR(KLDTLA),SCR(KLDTLB),NDETL,
-     *           SCR(KLDTRA),SCR(KLDTRB),NDETR,
-     *           NAEL,NBEL,SCR(KLFREE),NORB,ONEBOD,
+      CALL C_F_POINTER(C_LOC(SCR(KLDTLA)),iSCRla,[1])
+      CALL C_F_POINTER(C_LOC(SCR(KLDTLB)),iSCRlb,[1])
+      CALL C_F_POINTER(C_LOC(SCR(KLDTRA)),iSCRra,[1])
+      CALL C_F_POINTER(C_LOC(SCR(KLDTRB)),iSCRrb,[1])
+      CALL C_F_POINTER(C_LOC(SCR(KLFREE)),iSCRf,[1])
+      CALL DIHDJ_MOLCAS(iSCRla,iSCRlb,NDETL,
+     *           iSCRra,iSCRrb,NDETR,
+     *           NAEL,NBEL,iSCRf,NORB,ONEBOD,
      *           SCR(KLDHD),0,0,ECORE,ICOMBI,PSIGN,0,TUVX,ExFac,IREOTS)
+      NULLIFY(iSCRla,iSCRlb,iSCRra,iSCRrb,iSCRf)
 *
 ** Transform matrix to CSF basis
 *
@@ -113,4 +136,6 @@ C
       END IF
 *
       RETURN
+      END SUBROUTINE CNHCN_INTERNAL
+*
       END

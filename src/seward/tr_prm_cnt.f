@@ -145,7 +145,7 @@
          nSize=nSize+nBas_Cont(iSym)*nBas_Prim(iSym-1)
       End Do
       Call mma_allocate(Tr,nSize,label='Tr')
-      Call DCopy_(nSize,Zero,0,Tr,1)
+      Call DCopy_(nSize,[Zero],0,Tr,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE DRT(NVERT0,IDRT0,IDOWN0,NWVER,NVERT,IDRT,IDOWN)
+      SUBROUTINE DRT_RASSI(NVERT0,IDRT0,IDOWN0,NWVER,NVERT,IDRT,IDOWN)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION IDRT0(NVERT0,5),IDOWN0(NVERT0,0:3)
       DIMENSION NWVER(NVERT0)

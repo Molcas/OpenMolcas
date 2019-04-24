@@ -38,8 +38,8 @@
        NTEST = 0
        NTEST = MAX(NTEST,IPRNT)
 *
-      Call iCopy((NEL+1)*(NORB+1),0,0,W,1)
-      Call iCopy(NEL*NORB,0,0,Y,1)
+      Call iCopy((NEL+1)*(NORB+1),[0],0,W,1)
+      Call iCopy(NEL*NORB,[0],0,Y,1)
 *
 *================
 *  Vertex weights

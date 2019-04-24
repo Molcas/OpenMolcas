@@ -38,6 +38,7 @@
      &                                       dRVdxyz, Hess
       Real*8, Dimension(:,:,:), Allocatable :: d2RV
       Integer, Dimension(:), Allocatable :: Ind, iDCR
+      Dimension dum(1)
       Data TR_type/'Tx ','Ty ','Tz ','Ryz','Rzx','Rxy'/
       Data iPhase/ 1, 1, 1,   -1, 1, 1,   1,-1, 1,  -1,-1, 1,
      &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
@@ -157,7 +158,7 @@
 *
 *------- Compute the gradient
 *
-         call dcopy_(mB,Zero,0,Grad,1)
+         call dcopy_(mB,[Zero],0,Grad,1)
          Do iCent = 1, nCent
             iAtom=Ind(iCent)
 *           Write (6,*) 'iAtom,iCOM=',iAtom,iCOM
@@ -248,7 +249,7 @@ C     Call RecPrt('dRVdXYZ',' ',dRVdXYZ,3,3*nMass)
 *
 *------- Compute the gradient
 *
-         call dcopy_(mB,Zero,0,Grad,1)
+         call dcopy_(mB,[Zero],0,Grad,1)
          call dcopy_(mB,dRVdXYZ(ixyz,1),3,Grad,1)
 C        Call RecPrt('Grad (Rot)',' ',Grad,3,nCent)
 *

@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C): 2017, Roland Lindh                                    *
+* Copyright (C) 2017, Roland Lindh                                     *
 ************************************************************************
       SubRoutine PrFin2(Ovlp,nDT,OccNo,nEO,CMO,nCMO,note)
       Implicit Real*8 (a-h,o-z)

@@ -490,6 +490,8 @@ c
        parameter (constj=1048576)
        integer constk
        parameter (constk=1024)
+       integer f_iostat
+       logical is_error
 c
 c*     pack indexes
 c
@@ -519,7 +521,7 @@ c        file was alredy used in expansion of this block, it must
 c        be opened whith the pointer at the end of the file
 c@#ifdef _DECAXP_
        call molcas_open_ext2(lunpublic,tmpnam(i1),'append',
-     &   'unformatted',f_iostat,.false.,f_recl,'unknown',is_error)
+     &   'unformatted',f_iostat,.false.,1,'unknown',is_error)
 cvv         open (unit=lunpublic,
 cvv     &         file=tmpnam(i1),
 cvv     &         form='unformatted',
@@ -637,7 +639,7 @@ c        file was alredy used in expansion of this block, it must
 c        be opened whith the pointer at the end of the file
 #ifdef _DECAXP_
          call molcas_open_ext2(lunpublic,tmpnam(i1),'append',
-     &   'unformatted',f_iostat,.false.,f_recl,'unknown',is_error)
+     &   'unformatted',f_iostat,.false.,1,'unknown',is_error)
 
 c         open (unit=lunpublic,
 c     &         file=tmpnam(i1),

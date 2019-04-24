@@ -79,6 +79,7 @@
       Save nCall
       Logical DoActive,DoQmat,DoCholesky,TraOnly,l_casdft
       Integer ALGO
+      Dimension P2act(1),CIDUMMY(1)
 
       COMMON /CHOTODO /DoActive,DoQmat,ipQmat
       COMMON /CHLCAS /DoCholesky,ALGO
@@ -246,13 +247,13 @@ C --------------------------------------
             CALL GETMEM('P2_reo','ALLO','REAL',
      &                               ipP2reo,ISTORP(NSYM+1))
             Call Get_Temp('nP2Act  ',P2Act,1)
-            nP2Act=Int(P2Act)
+            nP2Act=Int(P2Act(1))
             CALL GETMEM('P2RAW','ALLO','REAL',ipP2_RAW,nP2Act)
             Call Get_Temp('P2_RAW  ',Work(ipP2_RAW),nP2Act)
             CALL PMAT_RASSCF(Work(ipP2_RAW),WORK(ipP2reo))
             CALL GETMEM('P2RAW','FREE','REAL',ipP2_RAW,nP2Act)
             P2reo=DBLE(ISTORP(NSYM+1))
-            Call Put_Temp('nP2reo  ',P2reo,1)
+            Call Put_Temp('nP2reo  ',[P2reo],1)
             Call Put_Temp('P2_reo  ',Work(ipP2reo),ISTORP(NSYM+1))
             CALL GETMEM('P2_reo','FREE','REAL',
      &                               ipP2reo,ISTORP(NSYM+1))
@@ -338,7 +339,7 @@ cGLM      end if
 * There is an array with occupation numbers, so use it, even if
 * possibly irrelevant. But put zeroes as orbital energies:
         Call GetMem('EDUM','ALLO','REAL',LEDUM,NTOT)
-        call dcopy_(NTOT,0.0D0,0,WORK(LEDUM),1)
+        call dcopy_(NTOT,[0.0D0],0,WORK(LEDUM),1)
 
         IF (DoNECI) THEN
           write(6,*)'For NECI orbital energies are approximated'
@@ -430,7 +431,7 @@ C LSQ and LWO: scratch areas
           call mh5_put_dset(wfn_occnum,OCC)
 #endif
         Else
-           ! this part (TRACI) need to be changed to "TRAMPS", not yet ! Yingjin
+!          this part (TRACI) need to be changed to "TRAMPS", not yet ! Yingjin
            CALL NEWORB_RASSCF(CMO,WORK(LCMON),FA,WORK(LFTR),WORK(LVEC),
      &                        WORK(LWO),WORK(LSQ),WORK(LCMOX),D,OCC)
 * compute orbital overlap matrix

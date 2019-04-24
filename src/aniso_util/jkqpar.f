@@ -66,10 +66,10 @@ c eq.40 in DoI:10.1103/PhysRevB.91.174438
         Do k2=1,N2-1
         Do q2=0,k2
 
-        Call zcopy_(N1*N1,(0.0_wp,0.0_wp),0,O1,1)
-        Call zcopy_(N2*N2,(0.0_wp,0.0_wp),0,O2,1)
-        Call zcopy_(N1*N1,(0.0_wp,0.0_wp),0,W1,1)
-        Call zcopy_(N2*N2,(0.0_wp,0.0_wp),0,W2,1)
+        Call zcopy_(N1*N1,[(0.0_wp,0.0_wp)],0,O1,1)
+        Call zcopy_(N2*N2,[(0.0_wp,0.0_wp)],0,O2,1)
+        Call zcopy_(N1*N1,[(0.0_wp,0.0_wp)],0,W1,1)
+        Call zcopy_(N2*N2,[(0.0_wp,0.0_wp)],0,W2,1)
         ! get the ITOs for each site:
         Call Stewens_matrixel(k1,q1, N1, O1,W1, ipr)
         Call Stewens_matrixel(k2,q2, N2, O2,W2, ipr)
@@ -120,10 +120,10 @@ c      End If
       ! O1-W2
       ! W1-O2
       ! W1-W2
-      Call zcopy_(N1*N1*N2*N2,(0.0_wp,0.0_wp),0,O1_O2,1)
-      Call zcopy_(N1*N1*N2*N2,(0.0_wp,0.0_wp),0,O1_W2,1)
-      Call zcopy_(N1*N1*N2*N2,(0.0_wp,0.0_wp),0,W1_O2,1)
-      Call zcopy_(N1*N1*N2*N2,(0.0_wp,0.0_wp),0,W1_W2,1)
+      Call zcopy_(N1*N1*N2*N2,[(0.0_wp,0.0_wp)],0,O1_O2,1)
+      Call zcopy_(N1*N1*N2*N2,[(0.0_wp,0.0_wp)],0,O1_W2,1)
+      Call zcopy_(N1*N1*N2*N2,[(0.0_wp,0.0_wp)],0,W1_O2,1)
+      Call zcopy_(N1*N1*N2*N2,[(0.0_wp,0.0_wp)],0,W1_W2,1)
       Do i1=1,N1
         Do j1=1,N1
           Do i2=1,N2

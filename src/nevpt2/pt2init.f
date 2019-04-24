@@ -19,7 +19,7 @@
 #ifdef _HDF5_QCM_
       use hdf5_utils
 #endif
-      use refwfn !use this module from caspt2
+      use refwfn
       use nevpt2_cfg
       use info_state_energy  ! energies
       use info_orbital_space ! orbital specifications read from JobIph

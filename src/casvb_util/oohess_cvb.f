@@ -43,7 +43,7 @@ c  Evaluate "cheap" orbital <-> orbital part of hessian :
      >    oaa2_use,aa1_use,gradx,grad2)
 
         call mxattb_cvb(orbs,orbs,norb,norb,norb,sorbs)
-        call fmove(sorbs,orbinv,norb*norb)
+        call fmove_cvb(sorbs,orbinv,norb*norb)
         call mxinv_cvb(orbinv,norb)
 
         do 100 jorb=1,norb

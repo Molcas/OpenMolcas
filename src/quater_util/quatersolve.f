@@ -70,7 +70,7 @@
         if ( C.lt.thrs ) then
           Call getKandC(U2,V2,U3,V3,K,C)
           if ( C.lt.thrs ) then
-            call dcopy_(4,Zero,0,Q,1)
+            call dcopy_(4,[Zero],0,Q,1)
             Q(0)=One
             Go To 999
           end if

@@ -36,9 +36,9 @@
       integer ishell(4),na(0:7),ipp(0:7)
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 
-      call dcopy_(Naco**4,0.0d0,0,Temp2,1)
-      call dcopy_(nACO*ICMP*IBAS,0.0d0,0,Temp4,1)
-      call dcopy_(nACO*JCMP*JBAS,0.0d0,0,Temp5,1)
+      call dcopy_(Naco**4,[0.0d0],0,Temp2,1)
+      call dcopy_(nACO*ICMP*IBAS,[0.0d0],0,Temp4,1)
+      call dcopy_(nACO*JCMP*JBAS,[0.0d0],0,Temp5,1)
       nnA=0
       Do iS=0,nIrrep-1
        nA(iS)=nNA

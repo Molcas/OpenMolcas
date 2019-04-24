@@ -28,6 +28,7 @@
       Logical :: Exists
       Integer :: nRoots,nGrad
       Integer, Dimension(5) :: TOC
+      Integer, Dimension(1) :: iDum
       Integer :: LuGrad,iAd
       Logical :: Found
       Character(Len=5) :: Filename
@@ -45,8 +46,10 @@
       Call DaName(LuGrad,Filename)
       iAd=0
       Call iDaFile(LuGrad,2,TOC,Size(TOC),iAd)
-      Call iDaFile(LuGrad,2,nRoots,1,iAd)
-      Call iDaFile(LuGrad,2,nGrad,1,iAd)
+      Call iDaFile(LuGrad,2,iDum,1,iAd)
+      nRoots=iDum(1)
+      Call iDaFile(LuGrad,2,iDum,1,iAd)
+      nGrad=iDum(1)
       Call DaClos(LuGrad)
 *
       End Subroutine Query_Grads

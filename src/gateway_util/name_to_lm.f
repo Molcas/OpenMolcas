@@ -41,7 +41,7 @@
       Integer, Intent(Out) :: l, m
       Character :: Letter
       Integer :: i, lx, ly, lz
-#include "itmax.fh"
+#include "angtp.fh"
 *
       Letter = BName(3:3)
       Call LoCase(Letter)

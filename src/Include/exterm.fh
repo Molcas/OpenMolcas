@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
 
-      Integer nChOrb(0:7,4), ipChM(4)
+      Integer nChOrb(0:7,5), ipChM(5)
       Integer nIJ1(8,8,2),nIJR(8,8,2)
       Integer ip_CMOi(5),lCMOi(5),iOff_CMOi(8,5)
       Integer iAdrCVec(8,8,2),LuCVector(8,2)

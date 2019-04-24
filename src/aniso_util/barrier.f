@@ -30,34 +30,46 @@ c  N --  dimension of the barrier
       Character(len=90):: string2
       Character(len=5) :: s1,s2
 
-      Integer, allocatable          :: ibas(:,:) !(nmult,nBlock)
-      Real(kind=wp), allocatable    :: gtens(:)  !3)
-      Real(kind=wp), allocatable    :: maxes(:,:), E(:)  !3,3), E(nmult)
-      Real(kind=wp), allocatable    :: wz(:,:)      ! nmult,nBlock)
-      Complex(kind=wp), allocatable :: dipN(:,:,:)  !3,nBlock,nBlock)
-      Complex(kind=wp), allocatable :: dipN3(:,:,:) !3,ndim(imanifold),ndim(imanifold))
-      Complex(kind=wp), allocatable :: CZ(:,:,:)    !nmult,nBlock,nBlock)
-      Complex(kind=wp), allocatable :: Ztr(:,:)     !nBlock,nBlock)
-      Complex(kind=wp), allocatable :: ML(:,:,:)    !3,nBlock,nBlock)
-      Complex(kind=wp), allocatable :: tmp(:,:)     !nBlock,nBlock)
-      Complex(kind=wp), allocatable :: MM(:)        !3)
-      Complex(kind=wp), allocatable :: dipso5(:,:,:,:,:) !3,nmult,10,nmult,10)
+      Integer, allocatable          :: ibas(:,:)
+!                                          (nmult,nBlock)
+      Real(kind=wp), allocatable    :: gtens(:)
+!                                           (3)
+      Real(kind=wp), allocatable    :: maxes(:,:), E(:)
+!                                           (3,3), E(nmult)
+      Real(kind=wp), allocatable    :: wz(:,:)
+!                                        (nmult,nBlock)
+      Complex(kind=wp), allocatable :: dipN(:,:,:)
+!                                          (3,nBlock,nBlock)
+      Complex(kind=wp), allocatable :: dipN3(:,:,:)
+!                                           (3,ndim(imanifold),ndim(imanifold))
+      Complex(kind=wp), allocatable :: CZ(:,:,:)
+!                                        (nmult,nBlock,nBlock)
+      Complex(kind=wp), allocatable :: Ztr(:,:)
+!                                         (nBlock,nBlock)
+      Complex(kind=wp), allocatable :: ML(:,:,:)
+!                                        (3,nBlock,nBlock)
+      Complex(kind=wp), allocatable :: tmp(:,:)
+!                                         (nBlock,nBlock)
+      Complex(kind=wp), allocatable :: MM(:)
+!                                        (3)
+      Complex(kind=wp), allocatable :: dipso5(:,:,:,:,:)
+!                                            (3,nmult,10,nmult,10)
 !-----------------------------------------------------------------------
       Call qEnter('barrier')
       If((nmult>0).and.(nBlock>0)) Then
          Call mma_allocate(ibas,nmult,nBlock,'ibas')
          Call mma_allocate(wz,nmult,nBlock,'wz')
          Call mma_allocate(cz,nmult,nBlock,nBlock,'cz')
-         Call icopy( nmult*nBlock,0,0,ibas,1)
-         Call dcopy_(nmult*nBlock,0.0_wp,0,wz,1)
-         Call zcopy_(nmult*nBlock*nBlock,(0.0_wp,0.0_wp),0,CZ,1)
+         Call icopy( nmult*nBlock,[0],0,ibas,1)
+         Call dcopy_(nmult*nBlock,[0.0_wp],0,wz,1)
+         Call zcopy_(nmult*nBlock*nBlock,[(0.0_wp,0.0_wp)],0,CZ,1)
       End If
 
       If(nmult>0) Then
          Call mma_allocate(E,nmult,'E')
          Call mma_allocate(dipso5,3,nmult,10,nmult,10,'dipso5')
-         Call dcopy_(nmult,0.0_wp,0,E,1)
-         Call zcopy_(3*nmult*10*nmult*10,(0.0_wp,0.0_wp),0,dipso5,1)
+         Call dcopy_(nmult,[0.0_wp],0,E,1)
+         Call zcopy_(3*nmult*10*nmult*10,[(0.0_wp,0.0_wp)],0,dipso5,1)
       End If
 
       If(nBlock>0) Then
@@ -65,24 +77,24 @@ c  N --  dimension of the barrier
          Call mma_allocate(ML,3,nBlock,nBlock,'ML')
          Call mma_allocate(Ztr,nBlock,nBlock,'Ztr')
          Call mma_allocate(tmp,nBlock,nBlock,'tmp')
-         Call zcopy_(3*nBlock*nBlock,(0.0_wp,0.0_wp),0,dipN,1)
-         Call zcopy_(3*nBlock*nBlock,(0.0_wp,0.0_wp),0,ML,1)
-         Call zcopy_(nBlock*nBlock,(0.0_wp,0.0_wp),0,Ztr,1)
-         Call zcopy_(nBlock*nBlock,(0.0_wp,0.0_wp),0,tmp,1)
+         Call zcopy_(3*nBlock*nBlock,[(0.0_wp,0.0_wp)],0,dipN,1)
+         Call zcopy_(3*nBlock*nBlock,[(0.0_wp,0.0_wp)],0,ML,1)
+         Call zcopy_(nBlock*nBlock,[(0.0_wp,0.0_wp)],0,Ztr,1)
+         Call zcopy_(nBlock*nBlock,[(0.0_wp,0.0_wp)],0,tmp,1)
       End If
 
       k=nDim(imanifold)
       If(k>0) Then
          Call mma_allocate(dipN3,3,k,k,'dipN3')
-         Call zcopy_(3*k*k,(0.0_wp,0.0_wp),0, dipN3,1)
+         Call zcopy_(3*k*k,[(0.0_wp,0.0_wp)],0, dipN3,1)
       End If
 
       Call mma_allocate(gtens,3,'gtens')
       Call mma_allocate(MM,3,'MM')
       Call mma_allocate(maxes,3,3,'maxes')
-      Call dcopy_(3,0.0_wp,0,gtens,1)
-      Call dcopy_(3*3,0.0_wp,0,maxes,1)
-      Call zcopy_(3,(0.0_wp,0.0_wp),0,MM,1)
+      Call dcopy_(3,[0.0_wp],0,gtens,1)
+      Call dcopy_(3*3,[0.0_wp],0,maxes,1)
+      Call zcopy_(3,[(0.0_wp,0.0_wp)],0,MM,1)
 
 
 !-----------------------------------------------------------------------
@@ -193,7 +205,7 @@ c  compute the matrix elements between multiplets
         End If
       End Do
 c build the transformation matrix Z(nBlock,nBlock)
-      Call zcopy_(nBlock*nBlock,(0.0_wp,0.0_wp),0,ZTR,1)
+      Call zcopy_(nBlock*nBlock,[(0.0_wp,0.0_wp)],0,ZTR,1)
       Do iMult=1,nmult
         Do j1=1,ndim(iMult)
           Do j2=1,ndim(iMult)
@@ -204,9 +216,9 @@ c build the transformation matrix Z(nBlock,nBlock)
         End Do
       End Do
 
-      Call zcopy_(3*nBlock*nBlock,(0.0_wp,0.0_wp),0,ML,1)
+      Call zcopy_(3*nBlock*nBlock,[(0.0_wp,0.0_wp)],0,ML,1)
       Do L=1,3
-         Call zcopy_(nBlock*nBlock,(0.0_wp,0.0_wp),0,TMP,1)
+         Call zcopy_(nBlock*nBlock,[(0.0_wp,0.0_wp)],0,TMP,1)
          Call ZGEMM_('C','N',nBlock,nBlock,nBlock,(1.0_wp,0.0_wp),
      &                  Ztr,nBlock,
      &          dipN(L,:,:),nBlock,              (0.0_wp,0.0_wp),
@@ -240,7 +252,7 @@ c build the transformation matrix Z(nBlock,nBlock)
         End Do
       End If
 
-      Call zcopy_(3*nmult*10*nmult*10,(0.0_wp,0.0_wp),0,DIPSO5,1)
+      Call zcopy_(3*nmult*10*nmult*10,[(0.0_wp,0.0_wp)],0,DIPSO5,1)
       Do l=1,3
         Do i1=1,nmult
           Do j1=1,ndim(i1)
@@ -279,7 +291,8 @@ c check the parity of all manIfolds:
       i=1
       Do il=1,nmult
         ipar=ipar + mod(ndim(il),2)
-        If(mod(ndim(il),2).eq.1)  i= i + 1 ! count the number of odd manIfolds
+        If(mod(ndim(il),2).eq.1)  i= i + 1
+!        count the number of odd manifolds
 c        Write(6,'(3(A,i2,2x))') 'il=',il,'ipar=',ipar,'i=',i
       End Do
       If (i.gt.1) Then
@@ -398,7 +411,8 @@ c  multiplets have different parity (even and odd)
      &         '---------------|'
 
            Do il=1,nmult
-             If(mod(ndim(il),2).eq.0) Then  !il = even > the same parity as maxmult
+             If(mod(ndim(il),2).eq.0) Then
+!               il = even > the same parity as maxmult
                 nb=(maxmult-ndim(il))/2
                 If(nb.eq.0) Then !ndim(il) => maxmult
                 Write(string2, '(2(a,i2),a)') '(2x,i2,a,',
@@ -456,7 +470,8 @@ c  multiplets have different parity (even and odd)
      &        '---------------|'
 
             Do il=1,nmult
-             If(mod(ndim(il),2).eq.1) Then  !il = odd,  the parity of il = maxmult
+             If(mod(ndim(il),2).eq.1) Then
+!               il = odd,  the parity of il = maxmult
                 nb=(maxmult-ndim(il))/2
                 If(nb.eq.0) Then !ndim(il) => maxmult
                 Write(string2, '(2(a,i2),a)') '(2x,i2,a,',
@@ -822,7 +837,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       Integer, intent(in)          :: ist
       Character(len=5), intent(in) :: s1, s2
       Complex(kind=wp), intent(in) :: M(3)
-      ! local
+!     local
       Character(len=30) :: fx, fy, fz
       Character(len=40) :: f1, f2
       Real(kind=wp)     :: R

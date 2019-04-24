@@ -102,7 +102,7 @@
       PMax=Zero
       idum=0
       idum1=0
-      call dcopy_(nGrad,Zero,0,Temp,1)
+      call dcopy_(nGrad,[Zero],0,Temp,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -294,7 +294,7 @@
 *        If (nPrint(1).ge.15)
 *    &   Call PrGrad(' Gradient excluding two-electron contribution',
 *    &               Grad,lDisp(0),lIrrep,ChDisp,iPrint)
-         call dcopy_(nGrad,Zero,0,Temp,1)
+         call dcopy_(nGrad,[Zero],0,Temp,1)
          If (Do_RI) Then
             Call Set_Basis_Mode('Auxiliary')
             Call Setup_iSD()

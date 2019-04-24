@@ -91,11 +91,12 @@
       Call GetMem('DRT0','ALLO','INTEGER',LDRT0,NDRT0)
       Call GetMem('DOWN','ALLO','INTEGER',LDOWN0,NDOWN0)
       Call GetMem('LTMP','ALLO','INTEGER',LTMP,NTMP)
-      Call DRT0  ! Set up the guga table
+      Call DRT0_MCLR  ! Set up the guga table
      &     (A0,B0,C0,NVERT0,iWork(LDRT0),iWork(LDOWN0),
      &      NTMP,IWORK(LTMP))
 
-      If ( iPrint.ge.5 ) Call PRDRT(NVERT0,iWork(LDRT0),iWork(LDOWN0))
+      If ( iPrint.ge.5 )
+     &   Call PRDRT_MCLR(NVERT0,iWork(LDRT0),iWork(LDOWN0))
       Call GetMem('LTMP','FREE','INTEGER',LTMP,NTMP)
 *
       LV1RAS=ntRas1
@@ -103,7 +104,7 @@
       LM1RAS=2*LV1RAS-nHole1
       LM3RAS=nActEl-nElec3
       Call GetMem('LV11','ALLO','INTEGER',LV,NVERT0)
-      Call RESTR   ! PUT THE RAS CONSTSRAINT TO THE DRT TABLE
+      Call RESTR_MCLR   ! PUT THE RAS CONSTRAINT TO THE DRT TABLE
      &     (NVERT0,iWork(LDRT0),iWork(LDOWN0),iWork(LV),
      &      LV1RAS,LV3RAS,LM1RAS,LM3RAS,NVERT)
 *
@@ -112,7 +113,7 @@
       NDOWN=4*NVERT
       Call GetMem('DRT1','ALLO','INTEGER',LDRT,NDRT)
       Call GetMem('DWN1','ALLO','INTEGER',LDOWN,NDOWN)
-      Call DRT  ! Set up the DRT table used in calculation
+      Call DRT_MCLR  ! Set up the DRT table used in calculation
      &     (NVERT0,NVERT,iWork(LDRT0),iWork(LDOWN0),iWork(LV),
      &      iWork(LDRT),iWork(LDOWN))
       Call GetMem('LV11','FREE','INTEGER',LV,NVERT0)
@@ -121,19 +122,19 @@
 *
       NDAW=5*NVERT
       Call GetMem('DAW1','ALLO','INTEGER',LDAW,NDAW)
-      Call MKDAW(NVERT,iWork(LDOWN),iWork(LDAW),iPrint)
+      Call MKDAW_MCLR(NVERT,iWork(LDOWN),iWork(LDAW),iPrint)
 *
       NUP=4*NVERT
       NRAW=5*NVERT
       Call GetMem('LUP1','ALLO','INTEGER',LUP,NUP)
       Call GetMem('RAW1','ALLO','INTEGER',LRAW,NRAW)
-      Call MKRAW
+      Call MKRAW_MCLR
      &     (NVERT,iWork(LDOWN),iWork(LDAW),iWork(LUP),iWork(LRAW),
      &           iPrint)
 *
       NLTV=NLEV+2
       Call GetMem('LTV1','ALLO','INTEGER',LLTV,NLTV)
-      Call MKMID
+      Call MKMID_MCLR
      &     (NVERT,NLEV,iWork(LDRT),
      &      iWork(LDOWN),iWork(LDAW),iWork(LUP),iWork(LRAW),
      &      iWork(LLTV),
@@ -153,7 +154,7 @@
       Call GetMem('ICSF','ALLO','INTEGER',LIOCSF,NIOCSF)
       Call GetMem('SCR1','ALLO','INTEGER',LSCR,NSCR)
 *     Call GetMem('NCSF','ALLO','INTEGER',LNCSF,nSym)
-      Call MKCOT
+      Call MKCOT_MCLR
      &     (nSym,NLEV,NVERT,MIDLEV,NMIDV,MIDV1,MIDV2,NWALK,NIPWLK,
      &      OrbSym,iWork(LDOWN),iWork(LNOW),iWork(LIOW),
      &      NCSF,iWork(LIOCSF),iWork(LNOCSF),

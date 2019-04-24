@@ -366,8 +366,8 @@ cc      Open(Lu_UDIC,File=FilNam,Form='FORMATTED',Status='UNKNOWN')
 *     read the gradient threshold
 *
  908  Char=Get_Ln(LuRd)
-      Call Get_F(1,ThrEne,1)
-      Call Get_F(2,ThrGrd,1)
+      Call Get_F1(1,ThrEne)
+      Call Get_F1(2,ThrGrd)
       ThrInp=.True.
       Go To 999
 *                                                                      *
@@ -376,7 +376,7 @@ cc      Open(Lu_UDIC,File=FilNam,Form='FORMATTED',Status='UNKNOWN')
 *     read the constraints threshold
 *
  909  Char=Get_Ln(LuRd)
-      Call Get_F(1,ThrCons,1)
+      Call Get_F1(1,ThrCons)
       ThrCons=Abs(ThrCons)
       Go To 999
 *                                                                      *
@@ -390,7 +390,7 @@ cc      Open(Lu_UDIC,File=FilNam,Form='FORMATTED',Status='UNKNOWN')
 *
  911  LSup = .True.
       Char=Get_Ln(LuRd)
-      Call Get_I(1,nSupSy,1)
+      Call Get_I1(1,nSupSy)
       Call GetMem(' NSup ','Allo','Inte',ipNSup,NSUPSY)
       Call GetMem('iAtom ','Allo','Inte',ipAtom,nsAtom)
       iStrt = ipAtom
@@ -441,7 +441,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
  915  Char=Get_Ln(LuRd)
       If (Char.eq.BLine) Go To 915
       If (Char(1:1).eq.'*') Go To 915
-      Call Get_F(1,Beta,1)
+      Call Get_F1(1,Beta)
       Go To 999
 *                                                                      *
 ****** PRIN ************************************************************
@@ -450,14 +450,14 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
       Call UpCase(Char)
       If (Char.eq.BLine) Go To 920
       If (Char(1:1).eq.'*') Go To 920
-      Call Get_I(1,mPrint,1)
+      Call Get_I1(1,mPrint)
       Do 921 i = 1, mPrint
  922     Char=Get_Ln(LuRd)
          Call UpCase(Char)
          If (Char.eq.BLine) Go To 922
          If (Char(1:1).eq.'*') Go To 922
-         Call Get_I(1,iRout,1)
-         Call Get_I(2,kPrint,1)
+         Call Get_I1(1,iRout)
+         Call Get_I1(2,kPrint)
          nPrint(iRout)=kPrint
  921  Continue
       Go To 999
@@ -477,7 +477,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *     read max iterations
 *
  925  Char=Get_Ln(LuRd)
-      Call Get_I(1,iTmp,1)
+      Call Get_I1(1,iTmp)
       MxItr=Min(iTmp,MxItr)
       Go To 999
 *                                                                      *
@@ -602,7 +602,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
       Call UpCase(Char)
       If (Char.eq.BLine) Go To 934
       If (Char(1:1).eq.'*') Go To 934
-      Call Get_I(1,nWndw,1)
+      Call Get_I1(1,nWndw)
       Go To 999
 *                                                                      *
 ****** NEWT ************************************************************
@@ -662,7 +662,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
       Char=Get_Ln(LuRd)
       If (Char.eq.BLine) Go To 942
       If (Char(1:1).eq.'*') Go To 942
-      Call Get_I(1,mode,1)
+      Call Get_I1(1,mode)
       Go To 999
 *                                                                      *
 ****** NUME ************************************************************
@@ -675,9 +675,9 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 9451  lNmHss = .True.
       lTherm = .True.
       Char=Get_Ln(LuRd)
-      Call Get_I(1,nsRot,1)
+      Call Get_I1(1,nsRot)
       Char=Get_Ln(LuRd)
-      Call Get_F(1,UserP,1)
+      Call Get_F1(1,UserP)
 9454  Char=Get_Ln(LuRd)
       Call UpCase(Char)
       If (Char(1:4).eq.'END ') then
@@ -688,7 +688,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
          Go To 999
       EndIf
       nUserPT=nUserPT+1
-      Call Get_F(1,UserT(nUserPT),1)
+      Call Get_F1(1,UserT(nUserPT))
       Go To 9454
 *                                                                      *
 ****** DISO ************************************************************
@@ -704,7 +704,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 ****** DELT ************************************************************
 *                                                                      *
  946  Char=Get_Ln(LuRd)
-      Call Get_F(1,Delta,1)
+      Call Get_F1(1,Delta)
       Go To 999
 *                                                                      *
 ****** TS   ************************************************************
@@ -730,8 +730,8 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *                                                                      *
  962  Char = Get_Ln(LuRd)
       Call UpCase(Char)
-      Call Get_I(1,Max_Center,1)
-      Call Get_F(2,rtrnc,1)
+      Call Get_I1(1,Max_Center)
+      Call Get_F1(2,rtrnc)
       If (Index(Char,'ANGSTROM').ne.0) Rtrnc = Rtrnc/angstr
       Go To 999
 *                                                                      *
@@ -759,7 +759,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *                                                                      *
  123  Char = Get_Ln(LuRd)
       Call UpCase(Char)
-      Call Get_F(1,rFuzz,1)
+      Call Get_F1(1,rFuzz)
       If (Index(Char,'ANGSTROM').ne.0) rFuzz = rFuzz/angstr
       rFuzz=Max(rFuzz,1.0D-3)
       Go To 999
@@ -773,7 +773,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 ****** NMEP/NIRC *******************************************************
 *                                                                      *
  965  Char=Get_Ln(LuRd)
-      Call Get_I(1,nMEP,1)
+      Call Get_I1(1,nMEP)
       nMEP=Min(Max(nMEP,1),MaxItr)
       Go To 999
 *                                                                      *
@@ -838,7 +838,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 ****** GNRM ************************************************************
 *                                                                      *
  968  Char = Get_Ln(LuRd)
-      Call Get_F(1,GNrm_Threshold,1)
+      Call Get_F1(1,GNrm_Threshold)
       Go To 999
 *                                                                      *
 ****** GRAD ************************************************************
@@ -871,7 +871,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *                                                                      *
  988  Line = Get_Ln(LuRd)
       Call UpCase(Line)
-      Call Get_F(1,rHidden,1)
+      Call Get_F1(1,rHidden)
       If (rHidden.lt.Zero) Then
          Call WarningMessage(2,'Error in RdCtl_Slapaf')
          Write (Lu,*)
@@ -900,7 +900,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *                                                                      *
  9971 Char=Get_Ln(LuRd)
       Call UpCase(Char)
-      Call Get_F(1,dMEPStep,1)
+      Call Get_F1(1,dMEPStep)
 *
 *     Note that according to the Gonzalez-Schlegel method, only half
 *     this step is used in the constraint
@@ -931,7 +931,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 ****** CNWE ************************************************************
 *                                                                      *
  990  Char=Get_Ln(LuRd)
-      Call Get_F(1,CnstWght,1)
+      Call Get_F1(1,CnstWght)
       Go To 999
 *                                                                      *
 ****** NOEM ************************************************************

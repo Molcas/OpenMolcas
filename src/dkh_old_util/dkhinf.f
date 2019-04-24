@@ -151,7 +151,7 @@ c
      *                 dodd(maxuops)
       character*(maxlength) wops(maxuops),odd(maxuops)
 #if defined(_MOLCAS_) || defined(MOLPRO)
-      integer operators(*)
+      character operators(*)
       character*(maxlength) opstring
 #else
       character*(maxlength) operators(maxoperators)
@@ -988,7 +988,7 @@ c
       smult=0
       do 100 k=1,termcounter
 #if defined(_MOLCAS_) || defined(MOLPRO)
-        call get_dkoperators(k,termstr,term)
+        call get_dkoperators_i(k,termstr,term)
 #endif
         do 200 l=1,termleng(k)
 #if defined(_MOLCAS_) || defined(MOLPRO)

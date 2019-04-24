@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE MKSGNUM
+      SUBROUTINE MKSGNUM_MCLR
      &           (LSYM,NSYM,NLEV,NVERT,MIDLEV,NMIDV,
      &            MXUP,MXDWN,NICASE,NIPWLK,
      &            IDOWN,IUP,IDAW,IRAW,NOW,IOW,
@@ -116,13 +116,13 @@ C
 
       IF( IPRINT.GT.5 ) THEN
         WRITE(6,*)
-        WRITE(6,*)' ILSGNUM IN SUBROUTINE MKSGNUM'
+        WRITE(6,*)' ILSGNUM IN SUBROUTINE MKSGNUM_MCLR'
         DO 400 MIDV=1,NMIDV
           WRITE(6,'(1X,''MIDV='',I3,/,(20I6))')MIDV,
      *         (ILSGNUM(J,MIDV),J=1,MXDWN)
 400     CONTINUE
         WRITE(6,*)
-        WRITE(6,*)' IUSGNUM IN SUBROUTINE MKSGNUM'
+        WRITE(6,*)' IUSGNUM IN SUBROUTINE MKSGNUM_MCLR'
         DO 410 MIDV=1,NMIDV
           WRITE(6,'(1X,''MIDV='',I3,/,(20I6))')MIDV,
      *          (IUSGNUM(J,MIDV),J=1,MXUP)
@@ -138,7 +138,7 @@ C
 1234  FORMAT('  MV=',I2,'    UPPER WALKS:',8I6)
 1235  FORMAT('           LOWER WALKS:',8I6)
 810     CONTINUE
-        WRITE(6,*)' OFFSETS IN MKSGNUM'
+        WRITE(6,*)' OFFSETS IN MKSGNUM_MCLR'
         WRITE(6,*)' BY MIDVERTEX AND SYMMETRY.'
         DO 820 MV=1,NMIDV
           WRITE(6,*)

@@ -48,9 +48,9 @@ C Put in zeroes. Recognize special cases:
       OVL=1.0D0
       IF(NASHT.EQ.0) GOTO 999
       IF(LSYM1.NE.LSYM2) OVL=0.0D0
-      CALL DCOPY_(NASHT**2,0.0D0,0,TG1,1)
-      CALL DCOPY_(NASHT**4,0.0D0,0,TG2,1)
-      CALL DCOPY_(NTG3,0.0D0,0,TG3,1)
+      CALL DCOPY_(NASHT**2,[0.0D0],0,TG1,1)
+      CALL DCOPY_(NASHT**4,[0.0D0],0,TG2,1)
+      CALL DCOPY_(NTG3,[0.0D0],0,TG3,1)
       IF(NACTEL.EQ.0) GOTO 999
 
       IF(ISCF.EQ.0) GOTO 100
@@ -209,7 +209,7 @@ C Translate to levels in the SGUGA coupling order:
         IYS=IASYM(IY)
         IZS=IASYM(IZ)
         ISSG2=MUL(MUL(IYS,IZS),LSYM2)
-        CALL DCOPY_(MXCI,0.0D0,0,WORK(LTO),1)
+        CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTO),1)
 C LTO is first element of Sigma2 = E(YZ) Psi2
         CALL SIGMA1_CP2(IL,JL,1.0D00,LSYM2,CI2,WORK(LTO),
      &    IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
@@ -234,7 +234,7 @@ C Translate to levels:
          ITS=IASYM(IT)
          IUS=IASYM(IU)
          ISSG1=MUL(MUL(ITS,IUS),LSYM1)
-         CALL DCOPY_(MXCI,0.0D0,0,WORK(LTO),1)
+         CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTO),1)
          CALL SIGMA1_CP2(IL,JL,1.0D00,LSYM1,CI1,WORK(LTO),
      &    IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
      &    IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
@@ -261,7 +261,7 @@ C LFROM will be start element of Sigma2=E(YZ) Psi2
           IXS=IASYM(IX)
           ISTAU=MUL(MUL(IVS,IXS),ISSG2)
           NTAU=NCSF(ISTAU)
-          CALL DCOPY_(MXCI,0.0D0,0,WORK(LTAU),1)
+          CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTAU),1)
 C LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
           CALL SIGMA1_CP2(IL,JL,1.0D00,ISSG2,WORK(LFROM),WORK(LTAU),
      &     IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),

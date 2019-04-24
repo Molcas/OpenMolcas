@@ -45,7 +45,7 @@
       End If
 *
       mZeta=IndZ(nAlpha*nBeta+1)
-      call dcopy_(niBas*njBas,Zero,0,Scrt,1)
+      call dcopy_(niBas*njBas,[Zero],0,Scrt,1)
       Do iZeta = 1, mZeta
          iBeta = (IndZ(iZeta)-1)/nAlpha + 1
          iAlpha = IndZ(iZeta) - (iBeta-1)*nAlpha

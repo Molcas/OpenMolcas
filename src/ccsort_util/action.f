@@ -47,7 +47,7 @@ c     help variables
 c
        integer symp,symq,symr,syms,sympq,sympqr
        integer ndimv1,ndimv2,ndimv3,ndimvi
-       integer p,a
+       integer p,a,posst,rc
        integer keyred,vsize,freespace,ickey,iOff_Vic,iOff
        integer t3help1,t3help2,t3help3,t3help4
        integer ipAMMAP,ipABMAP,ipJN,ipKN,ipLN,iOff_valn

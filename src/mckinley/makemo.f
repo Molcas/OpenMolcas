@@ -134,8 +134,8 @@
       Do iCent=1,4
        lc=.false.
        Do iCar=1,3
-        Call ICopy(nIrrep,0,0,ipPert,1)
-        Call lCopy(nIrrep,.false.,0,pert,1)
+        Call ICopy(nIrrep,[0],0,ipPert,1)
+        Call lCopy(nIrrep,[.false.],0,pert,1)
         lc=.false.
         Do iIrrep=0,nIrrep-1
          If (indgrd(icar,icent,iIrrep).ne.0) Then
@@ -161,7 +161,7 @@
      &           nBasis(ishll(1)),nBasis(ishll(2)),icmpa(1),icmpa(2))
 *
         Else If (Index(iCar,iCent).lt.0) Then
-         call dcopy_(nabcd*nijkl,Zero,0,Temp(ip5),1)
+         call dcopy_(nabcd*nijkl,[Zero],0,Temp(ip5),1)
          Do iCnt=1,4
            iGr=Index(iCar,iCnt)
            If (iGr.gt.0)Then

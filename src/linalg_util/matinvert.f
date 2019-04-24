@@ -18,11 +18,11 @@ C
       Integer :: n,err,nw
       Integer, Dimension(:), Allocatable :: ipiv
       Real*8, Dimension(:), Allocatable :: wrk
-      Real*8 :: dum
+      Real*8 :: dum(1)
       Call mma_allocate(ipiv,n)
       Call dGeTRF_(n,n,A,n,ipiv,       err)
       Call dGeTRI_(n,  A,n,ipiv,dum,-1,err)
-      nw=Int(dum)
+      nw=Int(dum(1))
       Call mma_allocate(wrk,nw)
       Call dGeTRI_(n,  A,n,ipiv,wrk,nw,err)
       Call mma_deallocate(ipiv)

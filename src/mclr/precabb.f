@@ -60,7 +60,7 @@
       i1=(nAsh(js)+nish(js))*nbas(js)
       ip=iTri1(i2,i2)
       rF=sign*Fockti
-      call dcopy_(nBa**2,0.0d0,0,Temp2,1)
+      call dcopy_(nBa**2,[0.0d0],0,Temp2,1)
 *
       Do kS=1,nSym
          If (nBas(js)*nash(ks).gt.0) Then

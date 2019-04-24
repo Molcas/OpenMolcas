@@ -38,7 +38,7 @@
 *                    fx = u  B  fq
 *
       Call GetMem('uInv','Allo','Real',ipuInv,nDim**2)
-      call dcopy_(nDim**2, Zero,0,Work(ipuInv),1)
+      call dcopy_(nDim**2, [Zero],0,Work(ipuInv),1)
       Do i = 1, nDim
          ii=(i-1)*nDim + i
           Work(ipuInv+ii-1)=One/u(i)

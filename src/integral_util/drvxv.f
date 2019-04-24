@@ -22,6 +22,7 @@
       Real*8 h1(nh1), TwoHam(nh1), D(nh1,2)
       Real*8 D1I(nD1),D1A(nD1)
       Logical First, Dff, lRF, NonEq, Do_Grad, Do_DFT
+      Dimension Grad(1),RN(1)
 *
       Logical Do_OFemb,KEonly,OFE_first
       COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
@@ -49,12 +50,12 @@
 *
       If (First) Then
          Label='PotNuc00'
-         Call Put_Temp(Label,RepNuc,1)
+         Call Put_Temp(Label,[RepNuc],1)
          Label='h1_raw  '
          Call Put_Temp(Label,h1,nh1)
 *
          Label='PotNucXX'
-         Call Put_Temp(Label,RepNuc,1)
+         Call Put_Temp(Label,[RepNuc],1)
          Label='h1    XX'
          Call Put_Temp(Label,h1,nh1)
       End If
@@ -65,7 +66,8 @@
 *     codes through the action of the subroutine rctfld.
 *
       Label='PotNuc00'
-      Call Get_Temp(Label,RepNuc,1)
+      Call Get_Temp(Label,RN,1)
+      RepNuc=RN(1)
       Label='h1_raw  '
       Call Get_Temp(Label,h1,nh1)
 cnf

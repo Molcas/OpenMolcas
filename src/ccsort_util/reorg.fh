@@ -92,7 +92,7 @@ c
 c
        common /workcom2/ mapdri,mapiri,possri0
 c
-c7    lun for files, where sorted integrals are strored 21-25
+c7    lun for files, where sorted integrals are stored 21-25
 c
 c7.1  lun for INTSTA foka,fokb,
 c     <kl||ij>aaaa,<kl||ij>bbbb,<kl| ij>abab

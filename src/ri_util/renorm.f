@@ -13,7 +13,7 @@
       Subroutine ReNorm()
 #include "wrj12.fh"
 *
-      Call ICopy(4*8,0,0,iOffA,1)
+      Call ICopy(4*8,[0],0,iOffA,1)
       Do ire_do = 1, 2
 *
          Call ReNorm_()
@@ -269,7 +269,7 @@
       Subroutine ReNorm2(iCnttp)
 #include "wrj12.fh"
 *
-      Call ICopy(4*8,0,0,iOffA,1)
+      Call ICopy(4*8,[0],0,iOffA,1)
       Do ire_do = 1, 2
 *
          Call ReNorm2_(iCnttp)

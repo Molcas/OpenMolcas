@@ -29,7 +29,7 @@
 *----------------------------------------------------------------------*
       Integer       iRc
       Character*(*) Label
-      Real*8        Data(*)
+      Character     Data(*)
       Integer       nData
       Integer       iOpt
       Integer       RecTyp

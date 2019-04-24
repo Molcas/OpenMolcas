@@ -59,6 +59,7 @@
       Integer iAnga(4), iDCRT(0:7), iChO(nComp)
       Character ChOper(0:7)*3
       Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
+      Dimension jStab_(0:0)
 *
 *     Statement function for Cartesian index
 *
@@ -69,7 +70,7 @@
       iPrint = nPrint(iRout)
 *     Call qEnter('PCMInt')
 *
-      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,Zero,0,Final,1)
+      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
       iAnga(1) = la
       iAnga(2) = lb
@@ -141,8 +142,8 @@
             nT = nZeta
             NoSpecial=.True.
             Call Rys(iAnga,nT,Zeta,ZInv,nZeta,
-     &               One,One,1,P,nZeta,
-     &               TC,1,rKappa,One,Coori,Coora,CoorAC,
+     &               [One],[One],1,P,nZeta,
+     &               TC,1,rKappa,[One],Coori,Coora,CoorAC,
      &               mabmin,mabmax,0,0,Array,nArr*nZeta,
      &               TNAI,Fake,XCff2D,XRys2D,NoSpecial)
 *

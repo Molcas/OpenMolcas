@@ -35,6 +35,14 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call DMInvKap_Internal(rMFact)
+*
+*     This is to allow type punning without an explicit interface
+      Contains
+      Subroutine DMInvKap_Internal(rMFact)
+      Use Iso_C_Binding
+      Real*8, Target :: rMFact(*)
+      Integer, Pointer :: iMFact(:)
       ip1=1
 *
       if(doDMRG)then  ! yma
@@ -61,8 +69,10 @@
             If (nd.ne.0) Then
                ip2=ipMat(is,js)+nOrb(is)*(iI-1)
                irc=0
+               call c_f_pointer(c_loc(rMFact(ip1+nd**2)),iMFact,[ND])
                call dgetrs_('N',ND,1,rMFact(ip1),nd,
-     &                       rmfact(ip1+nd**2),rtemp(ip2),nd,irc)
+     &                       iMFact,rtemp(ip2),nd,irc)
+               nullify(iMFact)
                If (irc.ne.0) then
                    Write(6,*) 'Error in DGETRS called from dminvkap'
                    Call Abend
@@ -84,8 +94,10 @@
             If (nd.ne.0) Then
                ip2=ipMat(is,js)+nOrb(is)*(iI-1+nIsh(js))
                irc=0
+               call c_f_pointer(c_loc(rMFact(ip1+nd**2)),iMFact,[ND])
                call dgetrs_('N',ND,1,rMFact(ip1),nd,
-     &                      rmfact(ip1+nd**2),rtemp(ip2),nd,irc)
+     &                      iMFact,rtemp(ip2),nd,irc)
+               nullify(iMFact)
                If (irc.ne.0) then
                    Write(6,*) 'Error in DGETRS called from dminvkap'
                    Call Abend
@@ -129,4 +141,6 @@
 ************************************************************************
 *                                                                      *
       Return
+      End Subroutine DMInvKap_Internal
+*
       end

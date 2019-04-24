@@ -39,8 +39,8 @@ CBOR 000906     DIMENSION ALPHA(MXVEC),BETA(MXVEC)
        NVEC = 0
 * NLS: Nr of consecutive line searches.
        NLS=0
-       CALL DCOPY_(mxiter+2,0.0d0,0,ALPHA,1)
-       CALL DCOPY_(mxiter+2,0.0d0,0,BETA,1)
+       CALL DCOPY_(mxiter+2,[0.0d0],0,ALPHA,1)
+       CALL DCOPY_(mxiter+2,[0.0d0],0,BETA,1)
        IAD=0
        CALL DDAFILE(LUQUNE,1,BK,NDIM,IAD)
        CALL DDAFILE(LUQUNE,1,XSX,NDIM,IAD)

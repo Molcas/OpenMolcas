@@ -213,10 +213,17 @@ C=========== End of default settings====================================
      &                       CHAR(48+mod( int( i     ),10)),'.input'
                 End If
 
+#ifdef _HDF5_
                 Call read_hdf5_init( NAMEFILE_ANISO,sfs_check(I),
      &                               sos_check(I))
                 If (DBG) Write(6,*) ' sfs(I) ',sfs_check(I),
      &                              ' sos(I) ',sos_check(I)
+#else
+                Call WarningMessage(2,'File '//trim(NAMEFILE_ANISO)//
+     &                               ' cannot be opened. Molcas was'//
+     &                               ' compiled without HDF5 option.')
+                Call Quit_OnUserError()
+#endif
              Else
                 ! generating the name of the "aniso_input file for
                 ! each center. Maxmimum 10 centers. CHAR(48)=0 (zero)

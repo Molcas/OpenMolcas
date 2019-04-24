@@ -49,7 +49,7 @@ c
      *                 xdoperators(maxoperators)
 #if defined(_MOLCAS_) || defined(MOLPRO)
 #include "WrkSpc.fh"
-      integer operators(*),xoperators(*)
+      character operators(*),xoperators(*)
       REAL*8 dwops(maxuops)
       character*(maxlength) wops(maxuops)
       integer wordercounter(maxorder),wopscounter,wopsleng(maxuops),
@@ -84,12 +84,12 @@ CMR1017  format (5X,'|',70('-'),'|',/5X,'|',6X,'STEP 1: Symbolic ',
 CMR     *        'high-level evaluation of DKH Hamiltonians',
 CMR     *        6X,'|',/5X,'|',70('-'),'|')
 c
-      Call GetMem('odd','Allo','Inte',odd,maxuops*maxlength)
+      Call GetMem('odd','Allo','Char',odd,maxuops*maxlength)
       Call GetMem('oddleng','Allo','Inte',oddleng,maxuops)
       Call GetMem('oddorder','Allo','Inte',oddorder,maxuops*3)
       Call GetMem('eoodd','Allo','Inte',eoodd,maxuops)
       Call GetMem('dodd','Allo','Real',dodd,maxuops)
-      Call GetMem('uops','Allo','Inte',uops,maxuops*maxlength)
+      Call GetMem('uops','Allo','Char',uops,maxuops*maxlength)
       Call GetMem('uopsleng','Allo','Inte',uopsleng,maxuops)
       Call GetMem('uoporder','Allo','Inte',uoporder,maxuops)
       Call GetMem('eouops','Allo','Inte',eouops,maxuops)
@@ -102,7 +102,7 @@ c
      *         xoporder,xevenodd,xdoperators,xoperators,wordercounter,
      *         wopscounter,wopsleng,woporder,eowops,dwops,wops,
      *         oddcounter,iWork(oddleng),iWork(oddorder),iWork(eoodd),
-     &         Work(dodd),iWork(odd),ducoeffs,
+     &         Work(dodd),cWork(odd),ducoeffs,
      *         dkhzerothrsh)
       if (dkhscfflg) then
         uniorder = INT(DBLE(dkhorder)/2.0d0)
@@ -124,25 +124,24 @@ CMR     *            34('-'))
 CMR        endif
         call build_U (i,uniorder,dkhorder,xorder,dkhscfflg,ucounter,
      *             iwork(uopsleng),iWork(uoporder),iWork(eouops),
-     &             Work(duops),iWork(puop),iWork(uops),opcounter,
+     &             Work(duops),iWork(puop),cWork(uops),opcounter,
      *             operleng,oporder,evenodd,doperators,operators,
      *             wordercounter,wopscounter,wopsleng,woporder,eowops,
      *             dwops,wops,oddcounter,iWork(oddleng),iWork(oddorder),
      &             iWork(eoodd),Work(dodd),
-     *             iWork(odd),ducoeffs)
-
+     *             cWork(odd),ducoeffs)
         call U_operators (i,dkhorder,xorder,dkhscfflg,
      *               ordercounter,opcounter,operleng,oporder,evenodd,
      *               doperators,operators,xordercounter,xopcounter,
      *               xoperleng,xoporder,xevenodd,xdoperators,xoperators,
      *               ucounter,iwork(uopsleng),iWork(uoporder),
-     &               iWork(eouops),Work(duops),iWork(uops))
+     &               iWork(eouops),Work(duops),cWork(uops))
         call operators_U (i,uniorder,dkhorder,xorder,dkhscfflg,
      *               ordercounter,opcounter,operleng,oporder,evenodd,
      *               doperators,operators,xordercounter,xopcounter,
      *               xoperleng,xoporder,xevenodd,xdoperators,xoperators,
      *               ucounter,iwork(uopsleng),iWork(uoporder),
-     &               iWork(eouops),iWork(puop),Work(duops),iWork(uops))
+     &               iWork(eouops),iWork(puop),Work(duops),cWork(uops))
         call simplify1 (i,uniorder,dkhorder,xorder,dkhscfflg,
      *               ordercounter,opcounter,operleng,oporder,evenodd,
      *               doperators,operators,xordercounter,xopcounter,
@@ -151,7 +150,7 @@ CMR        endif
      *               operleng,oporder,evenodd,doperators,operators,
      *               wordercounter,wopsleng,woporder,eowops,dwops,wops,
      *               oddcounter,iWork(oddleng),iWork(oddorder),
-     &               iWork(eoodd),Work(dodd),iWork(odd))
+     &               iWork(eoodd),Work(dodd),cWork(odd))
         call simplify3 (i,uniorder,dkhorder,xorder,dkhscfflg,
      *               ordercounter,opcounter,operleng,oporder,evenodd,
      *               doperators,operators,xordercounter,xopcounter,
@@ -221,12 +220,12 @@ c
       Call GetMem('eouops','Free','Inte',eouops,maxuops)
       Call GetMem('uoporder','Free','Inte',uoporder,maxuops)
       Call GetMem('uopsleng','Free','Inte',uopsleng,maxuops)
-      Call GetMem('uops','Free','Inte',uops,maxuops*maxlength)
+      Call GetMem('uops','Free','Char',uops,maxuops*maxlength)
       call getmem('dodd','Free','Real',dodd,maxuops)
       call getmem('eoodd','Free','Inte',eoodd,maxuops)
       call getmem('oddorder','Free','Inte',oddorder,maxuops*3)
       call getmem('oddleng','Free','Inte',oddleng,maxuops)
-      call getmem('odd','Free','Inte',odd,maxuops)
+      call getmem('odd','Free','Char',odd,maxuops)
 c
       return
       end

@@ -181,7 +181,7 @@ c  --  VB analysis Lowdin and Inverse  - begin  --
      >      ' Inverse-overlap weights of structures :'
           write(6,'(a)')
      >      ' ---------------------------------------'
-          call fmove(sstruc,sstruc2,nvb*nvb)
+          call fmove_cvb(sstruc,sstruc2,nvb*nvb)
           call mxinv_cvb(sstruc2,nvb)
 c  Use DVBDET for weights :
           sum=zero
@@ -198,10 +198,10 @@ c  Use DVBDET for weights :
      >      ' Weights of Lowdin-orthogonalized structures :'
           write(6,'(a)')
      >      ' ---------------------------------------------'
-          call fmove(sstruc,sstruc2,nvb*nvb)
+          call fmove_cvb(sstruc,sstruc2,nvb*nvb)
 c  Normalise overlap matrix before square root :
 c  Use CVBDET for normalized structure coefficients :
-          call fmove(cvb,cvbdet,nvb)
+          call fmove_cvb(cvb,cvbdet,nvb)
           do 7400 k=1,nvb
           fac=sqrt(sstruc2(k,k))
           cvbdet(k)=fac*cvbdet(k)

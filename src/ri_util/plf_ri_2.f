@@ -55,7 +55,7 @@
       iPrint = nPrint(irout)
       iPrint=99
       If (iPrint.ge.49) Then
-         r1=DDot_(ijkl*jCmp*lCmp,AOInt,1,One,0)
+         r1=DDot_(ijkl*jCmp*lCmp,AOInt,1,[One],0)
          r2=DDot_(ijkl*jCmp*lCmp,AOInt,1,AOInt,1)
          Write (6,*) ' Sum=',r1
          Write (6,*) ' Dot=',r2

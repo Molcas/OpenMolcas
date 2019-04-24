@@ -73,7 +73,7 @@ C     -----------
       Converged = .False.
       Do While (nIter.lt.nMxIter .and. .not.Converged)
          If (.not.Silent) Call CWTime(C1,W1)
-         Call RotateOrb(Ovlp,CMO,Work(ip_PACol),
+         Call RotateOrb(CMO,Work(ip_PACol),
      &                  nBasis,nAtoms,iTab_Ptr,
      &                  Maximisation,nOrb2Loc,Name,nBas_per_Atom,
      &                  nBas_Start,ThrRot,PctSkp,

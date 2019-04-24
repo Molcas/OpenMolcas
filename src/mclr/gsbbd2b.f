@@ -81,6 +81,7 @@
       DIMENSION I3(*),XI3S(*),I4(*),XI4S(*)
       DIMENSION X(*)
       DIMENSION CJRES(*),SIRES(*)
+      DIMENSION IAOC(*),IBOC(*),JAOC(*),JBOC(*)
 *.Local arrays
       DIMENSION ITP(3 ),JTP(3 ),KTP(3 ),LTP(3 )
 *

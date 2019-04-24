@@ -53,12 +53,12 @@
       If (norm_g.gt.1.0D-12) Then
         Call dScal_(n,One/norm_g,g,1)
       Else
-        Call dCopy_(n,Zero,0,g,1)
+        Call dCopy_(n,[Zero],0,g,1)
       End If
       If (norm_h.gt.1.0D-12) Then
         Call dScal_(n,One/norm_h,h,1)
       Else
-        Call dCopy_(n,Zero,0,h,1)
+        Call dCopy_(n,[Zero],0,h,1)
       End If
 *     Ensure that the asymmetry will be positive
 *     this fixes which vector is x and which is y

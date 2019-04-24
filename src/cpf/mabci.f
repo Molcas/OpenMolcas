@@ -22,7 +22,7 @@ cpgi$g opt=1
      &          BIAC(*),BICA(*),BUFIN(*),W(*),THET(NII,NII),ENP(*)
       PARAMETER (IPOW6=2**6,IPOW13=2**13,IPOW19=2**19)
 *
-      JSYM(L)=JSUNP(JSY,L)
+      JSYM(L)=JSUNP_CPF(JSY,L)
 *
       INUM=IRC(4)-IRC(3)
       CALL MPSQ2(C,S,W,MUL,INDEX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)

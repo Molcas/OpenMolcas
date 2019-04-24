@@ -22,7 +22,7 @@
       ijG=0
       ijP=0
       iii=0
-      Call icopy(3,0,0,iel,1)
+      Call icopy(3,[0],0,iel,1)
       Do iSym=1,nsym
        Do idisp=1,ldisp(isym)
         geomi=iand(ntpert(idisp+iii),16).eq.16

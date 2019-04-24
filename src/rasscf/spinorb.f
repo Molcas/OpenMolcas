@@ -44,8 +44,8 @@ C Local print level (if any)
           IF ( NA.NE.0 ) THEN
             CALL GETMEM('SPORB1','ALLO','REAL',LW1,NA*NA)
             CALL GETMEM('SPORB2','ALLO','REAL',LW2,NA*NB)
-            CALL DCOPY_(NA*NA,0.0D0,0,WORK(LW1),1)
-            CALL DCOPY_(NA,1.0D0,0,WORK(LW1),NA+1)
+            CALL DCOPY_(NA*NA,[0.0D0],0,WORK(LW1),1)
+            CALL DCOPY_(NA,[1.0D0],0,WORK(LW1),NA+1)
             CALL Jacob(D(IPDEN),WORK(LW1),NA,NA)
             IDIAG=0
             DO I=1,NA

@@ -31,7 +31,7 @@
 *      INTEGER NTORB, LTORB
       INTEGER I1,I2,LORBE
       INTEGER IDISK
-      REAL*8  OCC_DUM
+      REAL*8  OCC_DUM(1)
 
 C Calculate transformation matrix to PT2 orbitals, defined as those
 C that have standard Fock matrix FIFA diagonal within inactive,
@@ -93,7 +93,7 @@ c Print new orbitals. First, form array of orbital energies.
       I2=1
       DO ISYM=1,NSYM
         IF(NFRO(ISYM).GT.0) THEN
-          CALL DCOPY_(NFRO(ISYM),0.0D00,0,WORK(LORBE-1+I2),1)
+          CALL DCOPY_(NFRO(ISYM),[0.0D00],0,WORK(LORBE-1+I2),1)
           I2=I2+NFRO(ISYM)
         END IF
         IF(NORB(ISYM).GT.0) THEN
@@ -102,7 +102,7 @@ c Print new orbitals. First, form array of orbital energies.
           I2=I2+NORB(ISYM)
         END IF
         IF(NDEL(ISYM).GT.0) THEN
-          CALL DCOPY_(NDEL(ISYM),0.0D00,0,WORK(LORBE-1+I2),1)
+          CALL DCOPY_(NDEL(ISYM),[0.0D00],0,WORK(LORBE-1+I2),1)
           I2=I2+NDEL(ISYM)
         END IF
       END DO

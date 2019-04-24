@@ -45,18 +45,18 @@
 10       Line = Get_Ln(IPotFl)
          ESPFKey = Line(1:10)
          If (ESPFKey.eq.'MLTORD    ') Then
-            Call Get_I(2,MltOrd,1)
+            Call Get_I1(2,MltOrd)
             ibla = 0
             Do ii = 0, MltOrd
                ibla = ibla + (ii+2)*(ii+1)/2
             End Do
             MltOrd = ibla
          Else If (ESPFKey.eq.'IRMAX     ') Then
-            Call Get_I(2,iRMax,1)
+            Call Get_I1(2,iRMax)
          Else If (ESPFKey.eq.'DELTAR    ') Then
-            Call Get_F(2,DeltaR,1)
+            Call Get_F1(2,DeltaR)
          Else If (ESPFKey.eq.'GRIDTYPE  ') Then
-            Call Get_I(2,iGrdTyp,1)
+            Call Get_I1(2,iGrdTyp)
          Else If (ESPFKey.eq.'TINKER    ') Then
             DoTinker = .True.
          Else If (ESPFKey.eq.'GROMACS   ') Then
@@ -66,11 +66,11 @@
          Else If (ESPFKey.eq.'DIRECT    ') Then
             DoDirect = .True.
          Else If (ESPFKey.eq.'MULTIPOLE ') Then
-            Call Get_I(2,nMult,1)
+            Call Get_I1(2,nMult)
             Call Allocate_Work(ipOldMltp,nMult)
             Do iMlt = 1, nMult, MltOrd
                Line = Get_Ln(IPotFl)
-               Call Get_I(1,iAt,1)
+               Call Get_I1(1,iAt)
                Call Get_F(2,Work(ipOldMltp+iMlt-1),MltOrd)
             End Do
          Else If (ESPFKey.eq.'ENDOFESPF ') Then
@@ -150,14 +150,14 @@
       IPotFl=IsFreeUnit(IPotFl)
       Call Molcas_Open(IPotFl,'ESPF.EXTPOT')
       Line = Get_Ln(IPotFl)
-      Call Get_I(1,nChg,1)
+      Call Get_I1(1,nChg)
       If (nChg .ne. 0) Then
          Write(6,*) 'ESPF: nChg ne 0 in h1_espf'
          Call Abend()
       End If
       Do iAt = 1, natom
          Line = Get_Ln(IPotFl)
-         Call Get_I(1,jAt,1)
+         Call Get_I1(1,jAt)
          Call Get_F(2,Work(ipExt+(jAt-1)*MxExtPotComp),MxExtPotComp)
       End Do
       Close(IPotFl)
@@ -208,14 +208,14 @@
       IPotFl=IsFreeUnit(IPotFl)
       Call Molcas_Open(IPotFl,'ESPF.EXTPOT')
       Line = Get_Ln(IPotFl)
-      Call Get_I(1,nChg,1)
+      Call Get_I1(1,nChg)
       If (nChg .ne. 0) Then
          Write(6,*) 'ESPF: nChg ne 0 in h1_espf'
          Call Abend()
       End If
       Do iAt = 1, natom
          Line = Get_Ln(IPotFl)
-         Call Get_I(1,jAt,1)
+         Call Get_I1(1,jAt)
          Call Get_F(2,Work(ipExt+(jAt-1)*MxExtPotComp),MxExtPotComp)
       End Do
       Close(IPotFl)
@@ -236,10 +236,10 @@
 * Save the modified h1 matrix
 *
       Call Put_Temp('h1    XX',h1,nh1)
-      Call Put_Temp('PotNucXX',RepNuc,1)
+      Call Put_Temp('PotNucXX',[RepNuc],1)
       If (.not.DynExtPot) Then
          Call Put_Temp('h1_raw  ',h1,nh1)
-         Call Put_Temp('PotNuc00',RepNuc,1)
+         Call Put_Temp('PotNuc00',[RepNuc],1)
       End If
 *
 * Save data in the ESPF.DATA file

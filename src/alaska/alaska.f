@@ -118,7 +118,7 @@
       If (iPrint.ge.99) Call GetMem(' LIST ','LIST','REAL',iDum,iDum)
       Call GetMem('Grad','Allo','Real',ipGrad,lDisp(0))
       Call GetMem('Temp','Allo','Real',ipTemp,lDisp(0))
-      call dcopy_(lDisp(0),Zero,0,Work(ipGrad),1)
+      call dcopy_(lDisp(0),[Zero],0,Work(ipGrad),1)
 *
 *     remove LuSpool
 *

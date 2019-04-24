@@ -159,8 +159,8 @@ C?    write(6,*) ' JOBSM,KSM,JKSM ',JOBSM,KSM,JKSM
       END IF
       If (NKDim.gt.0) Then
          DO IJ = 1, NIJ
-            Call ICopy(NKDIM,0,0,I1(1,IJ),1)
-            call dcopy_(NKDIM,0.0d0,0,XI1S(1,IJ),1)
+            Call ICopy(NKDIM,[0],0,I1(1,IJ),1)
+            call dcopy_(NKDIM,[0.0d0],0,XI1S(1,IJ),1)
          END DO
       End If
 *

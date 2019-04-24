@@ -158,7 +158,7 @@ c      Open(Unit=17,File='ANO',Form='FORMATTED')
       Call CollapseOutput(0,'   Contraction coefficients')
       Write(6,*)
 c      Write(6,'(a,f12.6)') 'Check sum is',ChkSum
-      Call Add_Info('GENANO_CHKSUM',ChkSum,1,5)
+      Call Add_Info('GENANO_CHKSUM',[ChkSum],1,5)
       Close(Unit=17)
       call molcas_open(18,'FIG')
 c      Open(Unit=18,File='FIG',Form='FORMATTED')

@@ -16,6 +16,7 @@
       Real*8 B(M,*),Degen(M),dSS(*),DFC(*)
       Logical Curvilinear
       Character*1 Mode
+      Dimension Temp(1)
 *define _DEBUG_
 *                                                                      *
 ************************************************************************
@@ -84,7 +85,7 @@
       call dgels_(Mode,M,N,NRHS,Work(ipA),LDA,Work(ipB),LDB,
      &           Temp,LWork,INFO)
 *     Write (6,*) 'Temp,INFO=',Temp,INFO
-      LWork=INT(Temp)
+      LWork=INT(Temp(1))
       Call Allocate_Work(ipWork,LWork)
       call dgels_(Mode,M,N,NRHS,Work(ipA),LDA,Work(ipB),LDB,
      &           Work(ipWork),LWork,INFO)

@@ -156,7 +156,7 @@ C Loop over types and symmetry block of sigma vector:
           IF(NSGM2.EQ.0) GOTO 300
 
           CALL GETMEM('SGM2','ALLO','REAL',LSGM2,NSGM2)
-          CALL DCOPY_(NSGM2,0.0D00,0,WORK(LSGM2),1)
+          CALL DCOPY_(NSGM2,[0.0D00],0,WORK(LSGM2),1)
 
           NSGM1=0
           LSGM1=1
@@ -169,7 +169,7 @@ C Loop over types and symmetry block of sigma vector:
           END IF
           IF(NSGM1.GT.0) THEN
             CALL GETMEM('SGM1','ALLO','REAL',LSGM1,NSGM1)
-            CALL DCOPY_(NSGM1,0.0D00,0,WORK(LSGM1),1)
+            CALL DCOPY_(NSGM1,[0.0D00],0,WORK(LSGM1),1)
           END IF
 
           IMLTOP=0
@@ -372,7 +372,7 @@ CPAM Sanity check:
             ND1=NASH(ISYM1)*NISH(ISYM1)
             IF(ND1.GT.0) THEN
               CALL GETMEM('D1','ALLO','REAL',LD1,ND1)
-              CALL DCOPY_(ND1,0.0D00,0,WORK(LD1),1)
+              CALL DCOPY_(ND1,[0.0D00],0,WORK(LD1),1)
               CALL SPEC1A(IMLTOP,FACT,ISYM1,WORK(LD2),
      &                    WORK(LD1))
             END IF
@@ -380,7 +380,7 @@ CPAM Sanity check:
             ND1=NASH(ISYM1)*NSSH(ISYM1)
             IF(ND1.GT.0) THEN
               CALL GETMEM('D1','ALLO','REAL',LD1,ND1)
-              CALL DCOPY_(ND1,0.0D00,0,WORK(LD1),1)
+              CALL DCOPY_(ND1,[0.0D00],0,WORK(LD1),1)
               CALL SPEC1C(IMLTOP,FACT,ISYM1,WORK(LD2),
      &                    WORK(LD1))
             END IF
@@ -388,7 +388,7 @@ CPAM Sanity check:
             ND1=NIS1
             IF(ND1.GT.0) THEN
               CALL GETMEM('D1','ALLO','REAL',LD1,ND1)
-              CALL DCOPY_(ND1,0.0D00,0,WORK(LD1),1)
+              CALL DCOPY_(ND1,[0.0D00],0,WORK(LD1),1)
               CALL SPEC1D(IMLTOP,FACT,WORK(LD2),WORK(LD1))
             END IF
           END IF
@@ -419,7 +419,7 @@ CPAM Sanity check:
                 LSGMX=lg_SGMX
               ELSE
                 CALL GETMEM('SGMX','ALLO','REAL',LSGMX,NSGMX)
-                CALL DCOPY_(NSGMX,0.0D00,0,WORK(LSGMX),1)
+                CALL DCOPY_(NSGMX,[0.0D00],0,WORK(LSGMX),1)
               END IF
 
 * SVC: this array is just zero....

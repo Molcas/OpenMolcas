@@ -22,8 +22,8 @@
         v1dot=ddot_(3,V1best,1,V1,1)
         v2dot=ddot_(3,V2best,1,V2,1)
 c
-        Call Add_Info("V1_dot_product",v1dot,1,8)
-        Call Add_Info("V2_dot_product",v2dot,1,8)
+        Call Add_Info("V1_dot_product",[v1dot],1,8)
+        Call Add_Info("V2_dot_product",[v2dot],1,8)
 c
         Write(6,*) "V1best.V1 = ",v1dot
         Write(6,*) "V2best.V2 = ",v2dot

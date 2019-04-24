@@ -22,7 +22,7 @@
       Dimension Eint(MxQCen,10),Poli(MxQCen,10)
       Dimension SumElcPot(MxQCen,10)
       Dimension PertElcInt(MxBas*(MxBas+1)/2)
-      Dimension nOcc(MxAt),natyp(MxAt)
+      Dimension nOcc(MxBas),natyp(MxAt)
       Character Labjhr*4
 ****************
       Logical  Is_Real_Par

@@ -71,7 +71,7 @@ c write one electron fock matrix into voint
               lrcii=lrt
             endif
             voint(lrcii,lrcij)=xfock(nc+nidx)
-            !write(6,'(1x,i3,1x,i3,1x,f18.9)') lrcii,lrcij,xfock(nc+nidx)
+!           write(6,'(1x,i3,1x,i3,1x,f18.9)') lrcii,lrcij,xfock(nc+nidx)
           enddo
         enddo
         nidx=nidx+nsmint
@@ -263,7 +263,7 @@ c write one electron fock matrix into voint
               lrcii=lrt
             endif
             voint(lrcii,lrcij)=xfock(nc+nidx)
-            !write(6,'(1x,i3,1x,i3,1x,f18.9)') lrcii,lrcij,xfock(nc+nidx)
+!           write(6,'(1x,i3,1x,i3,1x,f18.9)') lrcii,lrcij,xfock(nc+nidx)
           enddo
         enddo
         nidx=nidx+nsmint
@@ -400,12 +400,15 @@ c....end of readtwoeint
      *          ndel(8)
       dimension indx_idisk(64)
       character bsbl(maxmolcasorb)*(lenin8)
+      dimension dum(1),idum(1)
 
       indx_idisk=0
       idisk=0
       call idafile(nft,2,ncone,64,idisk)
-      call ddafile(nft,2,ecor,1,idisk)
-      call idafile(nft,2,nsym,1,idisk)
+      call ddafile(nft,2,dum,1,idisk)
+      ecor=dum(1)
+      call idafile(nft,2,idum,1,idisk)
+      nsym=idum(1)
       call idafile(nft,2,nbas,8,idisk)
       call idafile(nft,2,norb,8,idisk)
       call idafile(nft,2,nfro,8,idisk)

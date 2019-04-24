@@ -486,7 +486,7 @@ c---------------------------------------------------
 #include "WrkSpc.fh"
 #include "SysDef.fh"
       Integer ipSph(0:MxAng)
-      Common /Sph/ ipSph
+*     Common /Sph/ ipSph
       Integer iix(2)
       Real*8 rix(2)
       Logical Found
@@ -619,7 +619,7 @@ c     call pack_me(LU,iCoSet,64*Mx_mdc)
 
 
 cc      Call Get_iArray('iSOInf',iSOInf,3*4*MxAO)
-      Call ICopy(Mx_Unq,1,0,IrrCmp,1)
+      Call ICopy(Mx_Unq,[1],0,IrrCmp,1)
       Call Get_iArray('IrrCmp',IrrCmp,Mx_Unq)
 
       iWork(iivv+Icurr)=Mx_Unq

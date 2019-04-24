@@ -313,7 +313,7 @@ C           -----------------------------
 
     1       CONTINUE
                LINE = GET_LN(LUNIT)
-               CALL GET_F(1,THRCOM,1)
+               CALL GET_F1(1,THRCOM)
             GO TO 1000
 
 C           Read print level.
@@ -321,7 +321,7 @@ C           -----------------
 
     2       CONTINUE
                LINE = GET_LN(LUNIT)
-               CALL GET_I(1,IPRINT,1)
+               CALL GET_I1(1,IPRINT)
             GO TO 1000
 
 C           Read buffer length for diagonal calculation.
@@ -329,7 +329,7 @@ C           --------------------------------------------
 
     3       CONTINUE
                LINE = GET_LN(LUNIT)
-               CALL GET_I(1,LBUF,1)
+               CALL GET_I1(1,LBUF)
             GO TO 1000
 
 C           Read threshold for discarding initial diagonal elements.
@@ -337,7 +337,7 @@ C           --------------------------------------------------------
 
     4       CONTINUE
                LINE = GET_LN(LUNIT)
-               CALL GET_F(1,THRDIAG,1)
+               CALL GET_F1(1,THRDIAG)
             GO TO 1000
 
 C           Read damping factor for 1st reduced set.
@@ -345,7 +345,7 @@ C           ----------------------------------------
 
     5       CONTINUE
                LINE = GET_LN(LUNIT)
-               CALL GET_F(1,DAMP(1),1)
+               CALL GET_F1(1,DAMP(1))
             GO TO 1000
 
 C           Read damping factor for later reduced set.
@@ -353,7 +353,7 @@ C           ------------------------------------------
 
     6       CONTINUE
                LINE = GET_LN(LUNIT)
-               CALL GET_F(1,DAMP(2),1)
+               CALL GET_F1(1,DAMP(2))
             GO TO 1000
 
 C           Read span factor.
@@ -361,7 +361,7 @@ C           -----------------
 
     7       CONTINUE
                LINE = GET_LN(LUNIT)
-               CALL GET_F(1,SPAN,1)
+               CALL GET_F1(1,SPAN)
                SPAN=MIN(ABS(SPAN),1.0d0)
             GO TO 1000
 
@@ -370,7 +370,7 @@ C           ----------------------------------------------------
 
     8       CONTINUE
                LINE = GET_LN(LUNIT)
-               CALL GET_I(1,MINQUAL,1)
+               CALL GET_I1(1,MINQUAL)
             GO TO 1000
 
 C           Read maximum number of shell pair distributions that should
@@ -379,7 +379,7 @@ C           -----------------------------------------------------------
 
     9       CONTINUE
                LINE = GET_LN(LUNIT)
-               CALL GET_I(1,MXSHPR,1)
+               CALL GET_I1(1,MXSHPR)
             GO TO 1000
 
 C           Turn on screening.
@@ -403,7 +403,7 @@ C           ----------------------------------------------
 
    12       CONTINUE
                LINE = GET_LN(LUNIT)
-               CALL GET_I(1,IALQUA,1)
+               CALL GET_I1(1,IALQUA)
             GO TO 1000
 
 C           Read threshold for zeroing (small) negative diagonals.
@@ -412,7 +412,7 @@ C           ------------------------------------------------------
 
    13       CONTINUE
                LINE = GET_LN(LUNIT)
-               CALL GET_F(1,THRNEG,1)
+               CALL GET_F1(1,THRNEG)
             GO TO 1000
 
 C           Read threshold for warning about negative diagonals.
@@ -421,7 +421,7 @@ C           ----------------------------------------------------
 
    14       CONTINUE
                LINE = GET_LN(LUNIT)
-               CALL GET_F(1,WARNEG,1)
+               CALL GET_F1(1,WARNEG)
             GO TO 1000
 
 C           Read threshold for shutdown due to negative diagonals.
@@ -430,7 +430,7 @@ C           ------------------------------------------------------
 
    15       CONTINUE
                LINE = GET_LN(LUNIT)
-               CALL GET_F(1,TOONEG,1)
+               CALL GET_F1(1,TOONEG)
             GO TO 1000
 
 C           Check configuration only.
@@ -472,7 +472,7 @@ C           -----------------------------------
    20       CONTINUE
                RSTCHO = .TRUE.
                LINE = GET_LN(LUNIT)
-               CALL GET_I(1,MODRST,1)
+               CALL GET_I1(1,MODRST)
                IF (MODRST .LT. 0) THEN
                   MODRST = -1  ! use configuration from restart file
                ELSE IF (MODRST .GT. 0) THEN
@@ -485,7 +485,7 @@ C           -----------------------------------
 
    21       CONTINUE
                LINE = GET_LN(LUNIT)
-               CALL GET_I(1,MAXQUAL,1)
+               CALL GET_I1(1,MAXQUAL)
             GO TO 1000
 
 C           Read max. #Cholesky vectors per symmetry.
@@ -493,7 +493,7 @@ C           -----------------------------------------
 
    22       CONTINUE
                LINE = GET_LN(LUNIT)
-               CALL GET_I(1,MAXVEC,1)
+               CALL GET_I1(1,MAXVEC)
             GO TO 1000
 
 C           Read max. #reduced sets.
@@ -501,7 +501,7 @@ C           ------------------------
 
    23       CONTINUE
                LINE = GET_LN(LUNIT)
-               CALL GET_I(1,MAXRED,1)
+               CALL GET_I1(1,MAXRED)
             GO TO 1000
 
 C           Read number of integral columns to check.
@@ -511,7 +511,7 @@ C           -----------------------------------------
                CHO_INTCHK = .TRUE.
                CHO_MINCHK = .FALSE.
                LINE = GET_LN(LUNIT)
-               CALL GET_I(1,NCOL_CHK,1)
+               CALL GET_I1(1,NCOL_CHK)
             GO TO 1000
 
 C           Minimal integral check.
@@ -548,7 +548,7 @@ C           -------------------------------------------------
 
    29       CONTINUE
                LINE = GET_LN(LUNIT)
-               CALL GET_I(1,CHO_IOVEC,1)
+               CALL GET_I1(1,CHO_IOVEC)
             GO TO 1000
 
 C           Set vector reordering.
@@ -591,7 +591,7 @@ C           --------------------------------------------------
 
    34       CONTINUE
                LINE = GET_LN(LUNIT)
-               CALL GET_I(1,N_SUBTR,1)
+               CALL GET_I1(1,N_SUBTR)
             GO TO 1000
 
 C           Set address mode for vector I/O: WA (=1) or DA (=2).
@@ -599,7 +599,7 @@ C           ----------------------------------------------------
 
    35       CONTINUE
                LINE = GET_LN(LUNIT)
-               CALL GET_I(1,CHO_ADRVEC,1)
+               CALL GET_I1(1,CHO_ADRVEC)
             GO TO 1000
 
 C           Set model used to interface to integral code.
@@ -607,7 +607,7 @@ C           ---------------------------------------------
 
    36       CONTINUE
                LINE = GET_LN(LUNIT)
-               CALL GET_I(1,IFCSEW,1)
+               CALL GET_I1(1,IFCSEW)
                IF (IFCSEW .LT. 1) THEN
                   IFCSEW = 1
                ELSE IF (IFCSEW .GT. 2) THEN
@@ -645,7 +645,7 @@ C           -------------------------------------------
 
    40       CONTINUE
                LINE = GET_LN(LUNIT)
-               CALL GET_F(1,FRAC_CHVBUF,1)
+               CALL GET_F1(1,FRAC_CHVBUF)
             GO TO 1000
 
 C           Turn on diagonal checking of qualified columns both before
@@ -656,7 +656,7 @@ C           -----------------------------------------------------------
    41       CONTINUE
                CHO_DIACHK = .TRUE.
                LINE = GET_LN(LUNIT)
-               CALL GET_F(1,TOL_DIACHK,1)
+               CALL GET_F1(1,TOL_DIACHK)
             GO TO 1000
 
 C           Test vector subtraction screening.
@@ -685,7 +685,7 @@ C           ----------------------------------------------
 
    45       CONTINUE
                LINE = GET_LN(LUNIT)
-               CALL GET_F(1,SSTAU,1)
+               CALL GET_F1(1,SSTAU)
             GO TO 1000
 
 C           Threshold for screening in vector subtraction.
@@ -733,7 +733,7 @@ C           ------------------------------------
    51       CONTINUE
                CHO_PRESCREEN = .TRUE.
                LINE = GET_LN(LUNIT)
-               CALL GET_F(1,THR_PRESCREEN,1)
+               CALL GET_F1(1,THR_PRESCREEN)
             GO TO 1000
 
 C           Use "parallel" decomposition algorithm.
@@ -760,7 +760,7 @@ C           -----------------------------------------------------
                CHO_SIMRI = .TRUE.
                CHO_1CENTER = .TRUE.
                LINE = GET_LN(LUNIT)
-               CALL GET_F(1,THR_SIMRI,1)
+               CALL GET_F1(1,THR_SIMRI)
             GO TO 1000
 
 C           Activate fake parallel:
@@ -786,7 +786,7 @@ C           ---------------------------
 
    57       CONTINUE
                 LINE = GET_LN(LUNIT)
-                CALL GET_I(1,BLOCKSIZE,1)
+                CALL GET_I1(1,BLOCKSIZE)
             GO TO 1000
 
 C           Turn on tracing of idle nodes.

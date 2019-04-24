@@ -81,20 +81,20 @@ c allocate memory and initialize variables:
          Call mma_allocate(intc,lmax,'intc')
          Call mma_allocate(icoord,lmax,'icoord')
       End If
-      Call zcopy_(exch*exch, (0.0_wp,0.0_wp),0,Z,1)
-      Call dcopy_(exch,0.0_wp,0,w,1)
-      Call dcopy_(exch,0.0_wp,0,wlin,1)
-      Call dcopy_(exch,0.0_wp,0,wlin1,1)
-      Call dcopy_(exch,0.0_wp,0,wlin3,1)
-      Call dcopy_(exch,0.0_wp,0,wlin9,1)
-      Call dcopy_(exch,0.0_wp,0,wdip,1)
-      Call dcopy_(exch,0.0_wp,0,wkex,1)
-      Call dcopy_(exch,0.0_wp,0,wdmo,1)
-      Call dcopy_(exch,0.0_wp,0,wito,1)
+      Call zcopy_(exch*exch, [(0.0_wp,0.0_wp)],0,Z,1)
+      Call dcopy_(exch,[0.0_wp],0,w,1)
+      Call dcopy_(exch,[0.0_wp],0,wlin,1)
+      Call dcopy_(exch,[0.0_wp],0,wlin1,1)
+      Call dcopy_(exch,[0.0_wp],0,wlin3,1)
+      Call dcopy_(exch,[0.0_wp],0,wlin9,1)
+      Call dcopy_(exch,[0.0_wp],0,wdip,1)
+      Call dcopy_(exch,[0.0_wp],0,wkex,1)
+      Call dcopy_(exch,[0.0_wp],0,wdmo,1)
+      Call dcopy_(exch,[0.0_wp],0,wito,1)
 
 c generate the tables:
       l=0
-      Call icopy(2*lmax,0,0,nind,1)
+      Call icopy(2*lmax,[0],0,nind,1)
       Do i=1,nneq
         Do j=1,neq(i)
           l=l+1
@@ -103,7 +103,7 @@ c generate the tables:
         End Do
       End Do
 
-      Call icopy(lmax,0,0,intc,1)
+      Call icopy(lmax,[0],0,intc,1)
       intc(1)=1
       If (lmax.gt.1) Then
         Do i=2,lmax
@@ -112,7 +112,7 @@ c generate the tables:
         End Do
       End If
 
-      Call icopy(exch*lmax,0,0,ibas,1)
+      Call icopy(exch*lmax,[0],0,ibas,1)
       Do nb=1,exch
         nb1=nb-1
         Do i=1,lmax
@@ -123,10 +123,10 @@ c generate the tables:
 c build the interaction Hamiltonians
 !----------------------------------------------------------------------!
       If( AnisoLines1 ) Then
-        Call zcopy_(exch*exch, (0.0_wp,0.0_wp),0,HTOT,1)
+        Call zcopy_(exch*exch, [(0.0_wp,0.0_wp)],0,HTOT,1)
         Do nb1 = 1,exch
           Do lp = 1,npair
-            Call icopy(lmax,0,0,icoord,1)
+            Call icopy(lmax,[0],0,icoord,1)
             Do i = 1,lmax
               icoord(i) = ibas(nb1,i)
             End Do
@@ -164,8 +164,8 @@ c build the interaction Hamiltonians
         info=0
         lwork=0
         lwork=2*exch-1
-        Call dcopy_((3*exch-2),0.0_wp,0,rwork,1)
-        Call zcopy_((2*exch-1),(0.0_wp,0.0_wp),0,WORK,1)
+        Call dcopy_((3*exch-2),[0.0_wp],0,rwork,1)
+        Call zcopy_((2*exch-1),[(0.0_wp,0.0_wp)],0,WORK,1)
         Call zheev('n','u',exch,htot,exch,wlin1,work,lwork,rwork,info)
       End If
 
@@ -173,10 +173,10 @@ c build the interaction Hamiltonians
 
 !----------------------------------------------------------------------!
       If( AnisoLines3 ) Then
-        Call zcopy_(exch*exch, (0.0_wp,0.0_wp),0,HTOT,1)
+        Call zcopy_(exch*exch, [(0.0_wp,0.0_wp)],0,HTOT,1)
         Do nb1 = 1,exch
           Do lp = 1,npair
-            Call icopy(lmax,0,0,icoord,1)
+            Call icopy(lmax,[0],0,icoord,1)
             Do i = 1,lmax
               icoord(i) = ibas(nb1,i)
             End Do
@@ -214,8 +214,8 @@ c build the interaction Hamiltonians
         info=0
         lwork=0
         lwork=2*exch-1
-        Call dcopy_((3*exch-2),0.0_wp,0,rwork,1)
-        Call zcopy_((2*exch-1),(0.0_wp,0.0_wp),0,WORK,1)
+        Call dcopy_((3*exch-2),[0.0_wp],0,rwork,1)
+        Call zcopy_((2*exch-1),[(0.0_wp,0.0_wp)],0,WORK,1)
         Call zheev('n','u',exch,htot,exch,wlin3,work,lwork,rwork,info)
       End If
 
@@ -223,10 +223,10 @@ c build the interaction Hamiltonians
 
 !----------------------------------------------------------------------!
       If( AnisoLines9 ) Then
-        Call zcopy_(exch*exch, (0.0_wp,0.0_wp),0,HTOT,1)
+        Call zcopy_(exch*exch, [(0.0_wp,0.0_wp)],0,HTOT,1)
         Do nb1 = 1,exch
           Do lp = 1,npair
-            Call icopy(lmax,0,0,icoord,1)
+            Call icopy(lmax,[0],0,icoord,1)
             Do i = 1,lmax
               icoord(i) = ibas(nb1,i)
             End Do
@@ -264,8 +264,8 @@ c build the interaction Hamiltonians
         info=0
         lwork=0
         lwork=2*exch-1
-        Call dcopy_((3*exch-2),0.0_wp,0,rwork,1)
-        Call zcopy_((2*exch-1),(0.0_wp,0.0_wp),0,WORK,1)
+        Call dcopy_((3*exch-2),[0.0_wp],0,rwork,1)
+        Call zcopy_((2*exch-1),[(0.0_wp,0.0_wp)],0,WORK,1)
         Call zheev('n','u',exch,htot,exch,wlin9,work,lwork,rwork,info)
       End If
 
@@ -273,10 +273,10 @@ c build the interaction Hamiltonians
 
 !----------------------------------------------------------------------!
       If( AnisoLines1.OR.AnisoLines3.OR.AnisoLines9 ) Then
-        Call zcopy_(exch*exch, (0.0_wp,0.0_wp),0,HTOT,1)
+        Call zcopy_(exch*exch, [(0.0_wp,0.0_wp)],0,HTOT,1)
         Do nb1 = 1,exch
           Do lp = 1,npair
-            Call icopy(lmax,0,0,icoord,1)
+            Call icopy(lmax,[0],0,icoord,1)
             Do i = 1,lmax
               icoord(i) = ibas(nb1,i)
             End Do
@@ -316,8 +316,8 @@ c build the interaction Hamiltonians
         info=0
         lwork=0
         lwork=2*exch-1
-        Call dcopy_((3*exch-2),0.0_wp,0,rwork,1)
-        Call zcopy_((2*exch-1),(0.0_wp,0.0_wp),0,WORK,1)
+        Call dcopy_((3*exch-2),[0.0_wp],0,rwork,1)
+        Call zcopy_((2*exch-1),[(0.0_wp,0.0_wp)],0,WORK,1)
         Call zheev('n','u',exch,htot,exch,wlin,work,lwork,rwork,info)
       End If
 
@@ -325,10 +325,10 @@ c build the interaction Hamiltonians
 
 !----------------------------------------------------------------------!
       If(Dipol) Then
-        Call zcopy_(exch*exch,(0.0_wp,0.0_wp),0,HTOT,1)
+        Call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,HTOT,1)
         Do nb1 = 1,exch
           Do lp = 1,npair
-            Call icopy(lmax,0,0,icoord,1)
+            Call icopy(lmax,[0],0,icoord,1)
             Do i = 1,lmax
               icoord(i) = ibas(nb1,i)
             End Do
@@ -366,8 +366,8 @@ c build the interaction Hamiltonians
         info=0
         lwork=0
         lwork=2*exch-1
-        Call dcopy_((3*exch-2),0.0_wp,0,rwork,1)
-        Call zcopy_((2*exch-1),(0.0_wp,0.0_wp),0,WORK,1)
+        Call dcopy_((3*exch-2),[0.0_wp],0,rwork,1)
+        Call zcopy_((2*exch-1),[(0.0_wp,0.0_wp)],0,WORK,1)
         Call zheev('n','u',exch,htot,exch,wdip,work,lwork,rwork,info)
       End If
 
@@ -375,10 +375,10 @@ c build the interaction Hamiltonians
 
 !----------------------------------------------------------------------!
       If( DM_exchange ) Then
-        Call zcopy_(exch*exch, (0.0_wp,0.0_wp),0,HTOT,1)
+        Call zcopy_(exch*exch, [(0.0_wp,0.0_wp)],0,HTOT,1)
         Do nb1 = 1,exch
           Do lp = 1,npair
-            Call icopy(lmax,0,0,icoord,1)
+            Call icopy(lmax,[0],0,icoord,1)
             Do i = 1,lmax
               icoord(i) = ibas(nb1,i)
             End Do
@@ -416,8 +416,8 @@ c build the interaction Hamiltonians
         info=0
         lwork=0
         lwork=2*exch-1
-        Call dcopy_((3*exch-2),0.0_wp,0,rwork,1)
-        Call zcopy_((2*exch-1),(0.0_wp,0.0_wp),0,WORK,1)
+        Call dcopy_((3*exch-2),[0.0_wp],0,rwork,1)
+        Call zcopy_((2*exch-1),[(0.0_wp,0.0_wp)],0,WORK,1)
         Call zheev('n','u',exch,htot,exch,wdmo,work,lwork,rwork,info)
       End If
 
@@ -425,10 +425,10 @@ c build the interaction Hamiltonians
 
 !----------------------------------------------------------------------!
       If(KE) Then
-        Call zcopy_(exch*exch,(0.0_wp,0.0_wp),0,HTOT,1)
+        Call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,HTOT,1)
         Do nb1 = 1,exch
           Do lp = 1,npair
-            Call icopy(lmax,0,0,icoord,1)
+            Call icopy(lmax,[0],0,icoord,1)
             Do i = 1,lmax
               icoord(i) = ibas(nb1,i)
             End Do
@@ -453,8 +453,8 @@ c build the interaction Hamiltonians
         info=0
         lwork=0
         lwork=2*exch-1
-        Call dcopy_((3*exch-2),0.0_wp,0,rwork,1)
-        Call zcopy_((2*exch-1),(0.0_wp,0.0_wp),0,WORK,1)
+        Call dcopy_((3*exch-2),[0.0_wp],0,rwork,1)
+        Call zcopy_((2*exch-1),[(0.0_wp,0.0_wp)],0,WORK,1)
         Call zheev('n','u',exch,htot,exch,wkex,work,lwork,rwork,info)
       End If
 
@@ -462,10 +462,10 @@ c build the interaction Hamiltonians
 
 !----------------------------------------------------------------------!
       If(JITO_exchange) Then
-        Call zcopy_(exch*exch,(0.0_wp,0.0_wp),0,HTOT,1)
+        Call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,HTOT,1)
         Do nb1 = 1,exch
           Do lp = 1,npair
-            Call icopy(lmax,0,0,icoord,1)
+            Call icopy(lmax,[0],0,icoord,1)
             Do i = 1,lmax
               icoord(i) = ibas(nb1,i)
             End Do
@@ -490,8 +490,8 @@ c build the interaction Hamiltonians
         info=0
         lwork=0
         lwork=2*exch-1
-        Call dcopy_((3*exch-2),0.0_wp,0,rwork,1)
-        Call zcopy_((2*exch-1),(0.0_wp,0.0_wp),0,WORK,1)
+        Call dcopy_((3*exch-2),[0.0_wp],0,rwork,1)
+        Call zcopy_((2*exch-1),[(0.0_wp,0.0_wp)],0,WORK,1)
         Call zheev('n','u',exch,htot,exch,wito,work,lwork,rwork,info)
       End If
 
@@ -499,10 +499,10 @@ c build the interaction Hamiltonians
 
 !----------------------------------------------------------------------!
       !cccccccc  total Hamiltonian cccccccc
-      Call zcopy_(exch*exch,(0.0_wp,0.0_wp),0,HTOT,1)
+      Call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,HTOT,1)
       Do nb1 = 1,exch
         Do lp = 1,npair
-          Call icopy(lmax,0,0,icoord,1)
+          Call icopy(lmax,[0],0,icoord,1)
           Do i = 1,lmax
             icoord(i) = ibas(nb1,i)
           End Do
@@ -550,8 +550,8 @@ c diagonalize
       info =0
       lwork=0
       lwork=2*exch-1
-      Call dcopy_((3*exch-2),0.0_wp,0,rwork,1)
-      Call zcopy_((2*exch-1),(0.0_wp,0.0_wp),0,WORK,1)
+      Call dcopy_((3*exch-2),[0.0_wp],0,rwork,1)
+      Call zcopy_((2*exch-1),[(0.0_wp,0.0_wp)],0,WORK,1)
       Call zheev('v','u',exch,htot,exch,w,work,lwork,rwork,info)
       If (info.eq.0) Then
          Call zcopy_(exch*exch,htot,1,Z,1)

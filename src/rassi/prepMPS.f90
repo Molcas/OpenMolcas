@@ -213,7 +213,7 @@
     call unused_integer_array(nish)
     call unused_integer_array(nash)
     call unused_integer_array(nosh)
-    call unused_integer(trorb)
+    call unused_logical(trorb)
   end if
 #endif
   end subroutine prepMPS

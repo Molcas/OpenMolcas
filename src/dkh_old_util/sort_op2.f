@@ -39,7 +39,7 @@ c
 #include "WrkSpc.fh"
       integer operleng2,oporder2,evenodd2,doperators2,operators2
       integer intrea,nwop,lwop
-      integer operators(*)
+      character operators(*)
 #else
       integer operleng2(maxoperators),oporder2(maxoperators,3),
      *        evenodd2(maxoperators)
@@ -68,7 +68,7 @@ c
             iwork(evenodd2+opcounter2)=evenodd(l)
             work(doperators2+opcounter2)=doperators(l)
             opcounter2=opcounter2+1
-            call copy_dkoperators(l,operators,
+            call copy_dkoperators_ci(l,operators,
      *             opcounter2,iwork(operators2))
           endif
         end do
@@ -112,7 +112,7 @@ c
         oporder(l)=iwork(oporder2-1+l)
         evenodd(l)=iwork(evenodd2-1+l)
         doperators(l)=work(doperators2-1+l)
-        call copy_dkoperators(l,iwork(operators2),l,operators)
+        call copy_dkoperators_ic(l,iwork(operators2),l,operators)
       end do
       call getmem('evenodd2','Free','Inte',evenodd2,maxoperators)
       call getmem('oporder2','Free','Inte',oporder2,maxoperators)

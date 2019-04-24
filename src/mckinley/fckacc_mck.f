@@ -166,7 +166,7 @@ c     Logical Qij, Qkl
       ipFjk = ipFil + nFil
       nFjk  = jBas*kBas*iCmpa(2)*iCmpa(3)
 *
-      call dcopy_(nFij+nFkl+nFik+nFjl+nFil+nFjk,Zero,0,FT(ipFij),1)
+      call dcopy_(nFij+nFkl+nFik+nFjl+nFil+nFjk,[Zero],0,FT(ipFij),1)
 *
 *     Quadruple loop over elements of the basis functions angular
 *     description. Loops are reduced to just produce unique SO integrals

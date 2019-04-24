@@ -22,11 +22,12 @@
 #include "malloc_cvb.fh"
       dimension trprm(npr1,npr1),iorts(2,nort),irots(2,ndrot)
       dimension sorbs(norb,norb)
+      dimension dum(1)
 
       i1 = mstackrz_cvb(norbprm*max(nc+nort+ndrot,norbprm))
       i1ff=i1-1
       do 100 i=1,nc
-100   call fmove(trprm(1,i),w(1+(i-1)*norbprm+i1ff),norbprm)
+100   call fmove_cvb(trprm(1,i),w(1+(i-1)*norbprm+i1ff),norbprm)
       do 200 iort=1,nort
       iorb=iorts(1,iort)
       jorb=iorts(2,iort)
@@ -54,7 +55,7 @@
 
       call fzero(trprm,npr1*npr1)
       do 400 i=1,norbprm
-400   call fmove(w(1+(i-1)*norbprm+i1ff),trprm(1,i),norbprm)
+400   call fmove_cvb(w(1+(i-1)*norbprm+i1ff),trprm(1,i),norbprm)
 
       call mfreer_cvb(i1)
       return

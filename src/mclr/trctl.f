@@ -40,9 +40,9 @@
       CALL DANAME_wa(LUTRI3,FNTRI3)
       CALL DANAME_wa(LUTRI4,FNTRI4)
       CALL DANAME_wa(LUTRI5,FNTRI5)
-      Call iCopy(8**3,-1,0,toca,1)
-      Call iCopy(8*36,-1,0,tocb,1)
-      Call iCopy(8*36,-1,0,tocc,1)
+      Call iCopy(8**3,[-1],0,toca,1)
+      Call iCopy(8*36,[-1],0,tocb,1)
+      Call iCopy(8*36,[-1],0,tocc,1)
       IAD14=0
       IAD13=0
       IAD23=0

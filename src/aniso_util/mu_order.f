@@ -17,10 +17,14 @@ C This Subroutine receives the moment matrix dipso(3,dim,dim) and Returns the ma
       Integer, parameter       :: wp=SELECTED_REAL_KIND(p=15,r=307)
       Integer, intent(in)      :: dim, order, iprint
       Real(kind=wp), intent(out) :: gtens(3)
-      Complex(kind=wp), intent(in)  ::  MM(3,dim,dim) !initial magnetic moment
-      Complex(kind=wp), intent(in)  ::  MS(3,dim,dim) !initial spin moment
-      Complex(kind=wp), intent(out) :: AMM(3,dim,dim) ! transformed magnetic moment
-      Complex(kind=wp), intent(out) :: AMS(3,dim,dim) ! transformed spin moment
+!     initial magnetic moment
+      Complex(kind=wp), intent(in)  ::  MM(3,dim,dim)
+!     initial spin moment
+      Complex(kind=wp), intent(in)  ::  MS(3,dim,dim)
+!     transformed magnetic moment
+      Complex(kind=wp), intent(out) :: AMM(3,dim,dim)
+!     transformed spin moment
+      Complex(kind=wp), intent(out) :: AMS(3,dim,dim)
       Complex(kind=wp), intent(out) :: Z(dim,dim)
       Complex(kind=wp), intent(out) :: HCF2(dim,3,dim,dim)
 

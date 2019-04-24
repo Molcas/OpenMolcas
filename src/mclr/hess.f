@@ -30,7 +30,7 @@
       Character*8 Label
 *
       idum=1
-      call dcopy_(ndens2,0.0d0,0,Temp3,1)
+      call dcopy_(ndens2,[0.0d0],0,Temp3,1)
       If (iAnd(ntpert(idisp),2**3).eq.8) Then
        Do iS=1,nSym
         js=iEOr(is-1,idSym-1)+1
@@ -72,7 +72,7 @@
          iOpt=0
          Label='OvrGrd'
          iOp=2**idSym
-         Call RdMck(iRC,iOpt,Label,DspVec(mDisp),Temp1,iop)
+         Call dRdMck(iRC,iOpt,Label,DspVec(mDisp),Temp1,iop)
          If (iRc.ne.0) Then
             Write (6,*) 'Hess: Error reading MCKINT'
             Write (6,'(A,A)') 'Label=',Label
@@ -100,7 +100,7 @@
      &                    1.0d0,Work(ipCMO+ipCM(iS)-1),nBas(iS),
      &                    Temp2(ipMat(iS,jS)),nBas(iS),
      &                    0.0d0,Temp4,nOrb(is))
-              call dcopy_(nBas(is)*nBas(js),0.0d0,0,
+              call dcopy_(nBas(is)*nBas(js),[0.0d0],0,
      &                    temp2(ipMat(is,js)),1)
               Call DGEMM_('N','N',
      &                    nOrb(iS),nOrb(jS),nBas(jS),
@@ -109,7 +109,7 @@
      &                    0.0d0,Temp2(ipMat(iS,jS)),nOrb(iS))
 *    &                    nOrb(iS),nBas(jS),nB(jS))
               if (is.ne.js) Then
-              call dcopy_(nBas(is)*nBas(js),0.0d0,0,
+              call dcopy_(nBas(is)*nBas(js),[0.0d0],0,
      &                   temp2(ipMat(js,is)),1)
               Call DGEMM_('T','T',
      &                    nOrb(js),nOrb(iS),nBas(js),

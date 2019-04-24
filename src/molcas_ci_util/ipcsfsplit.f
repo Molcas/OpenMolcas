@@ -57,6 +57,15 @@ C
       DIMENSION ONEBOD(*),SCR(*)
       DIMENSION TUVX(*), IREOTS(*)
 *
+      CALL IPCSFSPLIT_INTERNAL(SCR)
+*
+*     This is to allow type punning without an explicit interface
+      CONTAINS
+      SUBROUTINE IPCSFSPLIT_INTERNAL(SCR)
+      USE ISO_C_BINDING
+      REAL*8, TARGET :: SCR(*)
+      INTEGER, POINTER :: iSCR(:)
+*
 *     Assumed machine accuracy (give and take)
 *
       Acc=1.0D-13
@@ -167,13 +176,17 @@ C      KLFREE = KLFREE+MXCSFC
       IILB = 1
       DO ICNL = 1, NCONF
 *       write(*,*) 'IILB', IILB
-        CALL GETCNF_LUCIA(SCR(KLCONF),ILTYP,IPCNF(ICNL),ICONF,IREFSM,
+        CALL C_F_POINTER(C_LOC(SCR(KLCONF)),iSCR,[1])
+        CALL GETCNF_LUCIA(iSCR,ILTYP,IPCNF(ICNL),ICONF,IREFSM,
      &                    NEL)
+        NULLIFY(iSCR)
         NCSFL = NCSFTP(ILTYP)
 *       write(*,*)'NCSFL = ', NCSFL
-        CALL CNHCN(SCR(KLCONF),ILTYP,SCR(KLCONF),ILTYP,SCR(KLPHPS),
+        CALL C_F_POINTER(C_LOC(SCR(KLCONF)),iSCR,[1])
+        CALL CNHCN(iSCR,ILTYP,iSCR,ILTYP,SCR(KLPHPS),
      &             SCR(KLFREE),NAEL,NBEL,ECORE,
      &             ONEBOD,IPRODT,DTOC,NACTOB,TUVX,NTEST,ExFac,IREOTS)
+        NULLIFY(iSCR)
         DO IIL = 1, NCSFL
           IILACT = IILB-1+IIL
           ILRI = IIL*IIL
@@ -191,4 +204,6 @@ C        write(*,*)'PHPCNF(IILACT)', PHPCNF(ICNL)
       RETURN
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(MXPDIM)
+      END SUBROUTINE IPCSFSPLIT_INTERNAL
+*
       END

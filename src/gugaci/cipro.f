@@ -23,6 +23,7 @@
       character*8 pname(maxpro),ptyp(maxpro)
       dimension pnuc(maxpro)
       dimension pgauge(3,maxpro)
+      dimension idummy(1)
 
 ! mrci nature orbital
       idisk=0
@@ -71,7 +72,7 @@
       idisk=idx_idisk0(3)
       call ddafile(lucimo,2,cmo,nc0,idisk)
 ! read overlap matirx
-      call rdone(irec,6,"MLTPL  0",1,omat,idummy)
+      call rdone(irec,6,"MLTPL  0",1,omat,idummy(1))
       idisk=0
       call idafile(luciden,2,idx_idisk1,max_root+1,idisk)
 
@@ -159,7 +160,8 @@ c write expectation values:
       do i=1,npro
         if(pname(i)(1:4).ne."AMFI") cycle
         omat=0.d0
-        call irdone(irtc,1,pname(i),ipcom(i),nsiz,isymlb)
+        call irdone(irtc,1,pname(i),ipcom(i),idummy,isymlb)
+        nsiz=idummy(1)
         call rdone(irtc,0,pname(i),ipcom(i),omat,isymlb)
         if(nsiz.gt.nc2) then
           write(6,*) "in subroutine cipro, read so int error"
@@ -194,6 +196,7 @@ c          stop 1999
       integer i,j,im,nc,nc0,nc1,irtc,isymlb
       real*8 pint(nsi+4)
       real*8 val,sgn,ddot_
+      integer idummy(1)
 
 ! we have two kind of densitry matrix, symm or anti-symm
 ! compress density matrix
@@ -230,7 +233,8 @@ c          stop 1999
       nsiz=nsi
 ! read property int and calculated property
       do i=1,npro
-        call irdone(irtc,1,pname(i),ipcom(i),nsiz,isymlb)
+        call irdone(irtc,1,pname(i),ipcom(i),idummy,isymlb)
+        nsiz=idummy(1)
         call rdone(irtc,0,pname(i),ipcom(i),pint,isymlb)
 C        print*, "nsiz",nsiz
         if(icall.eq.0) then
