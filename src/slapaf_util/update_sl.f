@@ -188,10 +188,12 @@ c Avoid unused argument warnings
             Call RecPrt('Energy(0)',' ',Energy(iFirst),1,nRaw)
             Call RecPrt('Grad(0)',  ' ',Grad(1,iFirst),nInter,nRaw)
 *
+            Call DScal_(nInter*nRaw,-1.0D0,Grad(1,iFirst),1)
             Call Start_Kriging(nRaw,nInter,
      &                            qInt(1,iFirst),
      &                            Grad(1,iFirst),
      &                            Energy(iFirst))
+            Call DScal_(nInter*nRaw,-1.0D0,Grad(1,iFirst),1)
 *
             do while (iterK.lt.miAI.and.Abs(dEner).ge.meAI)
                kIter_=iterAI
@@ -216,6 +218,7 @@ c Avoid unused argument warnings
 *
                Call Loop_Kriging(qInt(1,iterAI+1),Energy(iterAI+1),
      &                           Grad(1,iterAI+1),nInter)
+               Call DScal_(nInter,-1.0D0,Grad(1,iterAI+1),1)
 *
                iterK  = iterK  + 1
                iterAI = iterAI + 1
@@ -388,7 +391,7 @@ c Avoid unused argument warnings
 *        kriging code.
 *
          Call DCopy_(nInter**2,0.0D0,0,Work(ipH),1)
-         Call DCopy_(nInter,1.0D0,0,Work(ipH),nInter+1)
+         Call DCopy_(nInter,1.0D-2,0,Work(ipH),nInter+1)
          iNeg(1)=0
          iNeg(2)=0
       Else
