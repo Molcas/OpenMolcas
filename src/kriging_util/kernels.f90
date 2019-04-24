@@ -30,6 +30,13 @@
                 call covarmatrix(iter,nInter)
                 call k(iter)
                 ll(i)=lh
+                !------testing
+                ! write (6,*) 'di i:',i
+                ! call covarvector(0,iter,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+                ! call predict(0,iter,nInter)
+                ! call covarvector(1,iter,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+                ! call predict(1,iter,nInter)
+            !----------
             enddo
 !
             lm = MaxLoc(ll,dim=nInter)

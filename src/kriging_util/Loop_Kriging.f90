@@ -14,7 +14,7 @@
       Subroutine Loop_Kriging(x_,y_,dy_,ndimx)
         use globvar
         Integer nInter,nPoints
-        Real*8 x_(ndimx,1),dy_(ndimx),y_
+        Real*8 x_(ndimx,1),y_,dy_(ndimx),ddy_(ndimx)
 !
         nPoints=nPoints_save
         nInter=nInter_save
@@ -32,7 +32,11 @@
         call covarvector(1,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
         call predict(1,nPoints,nInter)
         dy_=gpred(npx,:)
-        write(6,*) 'New values of Coord, Energy and Grad', x_, y_, dy_
+        Write(6,*) 'Entro hess'
+        call covarvector(2,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+        call predict(2,nPoints,nInter)
+        ddy_=gpred(npx,:)
+        write(6,*) 'New values of Coord, Energy, Grad and Hess', x_, y_, dy_,ddy_
 !
         return
       end
