@@ -90,8 +90,6 @@ C     relative energies
       REAL*8  RELAU,RELEV,RELCM,RELKJ
       INTEGER IDISK
 
-      INTEGER LHEFF1
-
 C     effective hamiltonian
       REAL*8, ALLOCATABLE :: HEFF(:,:), EIGVEC(:,:), H0(:,:)
 
@@ -131,19 +129,13 @@ C second-order correction Heff(2) = PH \Omega_1 P to Heff[1]
         END DO
         HEFF=INPUT%HEFF
         GOTO 1000
-      ELSE IF (IFSC) THEN
-        DO I=1,NSTATE
-          REFENE(I) = HEFF1(I,I)
-        END DO
-        CALL DCOPY_(NSTATE**2,HEFF1,1,HEFF,1)
       ELSE
         DO I=1,NSTATE
           HEFF(I,I) = REFENE(I)
-          HEFF1(I,I) = REFENE(I)
         END DO
       END IF
 
-      IF (IPRGLB.GE.USUAL) THEN
+      IF (IPRGLB.GE.VERBOSE) THEN
         WRITE(6,*)' HEFF[1] is initialized to:'
         DO I=1,NSTATE
           WRITE(6,'(1x,5f16.8)')(HEFF(I,J),J=1,NSTATE)
@@ -178,34 +170,10 @@ C of group states for which GRPINI is called.
        DO ISTATE=1,NGROUPSTATE(IGROUP)
          JSTATE = JSTATE_OFF + ISTATE
 
-* Because of DW-XMS, every state in the XMS group requires a
-* different set of quasi-canonical orbitals, thus we do the
-* transofmration here instead than in GROUPINI
-* To do that, we need to get the DW density and Fock matrix for each state
+* Initialize the shift for DW-XMS-CASPT2
          IF (IFDW.AND.IFXMS) THEN
-* ---------------------------------------------------------------------
-* GET ORIGINAL CASSCF CMO COEFFICIENTS.
-           CALL GETMEM('LCMO','ALLO','REAL',LCMO,NCMO)
-           IDISK=IAD1M(1)
-           CALL DDAFILE(LUONEM,2,WORK(LCMO),NCMO,IDISK)
-* ---------------------------------------------------------------------
-* Look for the right f_pq(delta) matrix in LFIFA_ALL and copy it to
-* LFIFA, so that ORBCTL diagonalizes the MOs for the right state
-          WRITE(6,*)
-          WRITE(6,'(2x,A,I1,A)')'Fetching F(D_',JSTATE,
-     &                          ') for orbital transformation...'
-          WRITE(6,*)
-          CALL DCOPY_(NFIFA,WORK(LFIFA_ALL+(ISTATE-1)*NFIFA),
-     &                1,WORK(LFIFA),1)
-          CALL DCOPY_(NFIMO,WORK(LFIMO_CMO),1,WORK(LFIMO),1)
-          CALL DCOPY_(NHONE,WORK(LHONE_CMO),1,WORK(LHONE),1)
-
-          CALL ORBCTL(WORK(LCMO))
-          Call TRACTL(0)
-          CALL DCOPY_(NCMO,WORK(LCMO),1,WORK(LCMOPT2),1)
-          CALL GETMEM('LCMO','FREE','REAL',LCMO,NCMO)
+           DWSHIFT=-H0(ISTATE,ISTATE)
          END IF
-*************
 
 C skip this state if we only need 1 state and it isn't this "One"
          IF ((NLYROOT.NE.0).AND.(JSTATE.NE.NLYROOT)) CYCLE

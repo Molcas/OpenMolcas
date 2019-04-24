@@ -276,10 +276,8 @@ C     really parallel or not.
 * Set exponent for DWMS
       If (Input%DWMS) Then
         NZETA = Input%ZETA
+        DWSHIFT = 0.0D0
       End If
-      If (Input%SCMS) THEN
-        IFSC = .True.
-      END IF
 * Finally, some sanity checks.
       IF(NSTATE.LE.0.OR.NSTATE.GT.MXROOT) Then
         Call WarningMessage(2,'Number of states is <0 or too large.')
