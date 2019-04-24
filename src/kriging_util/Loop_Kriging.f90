@@ -24,18 +24,18 @@
 ! subroutine
         nx = x_
 !
-        Write(6,*) 'Entro predict'
+        ! Write(6,*) 'Entro predict'
         call covarvector(0,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
         call predict(0,nPoints,nInter)
         y_=pred(npx)
-        Write(6,*) 'Entro grad'
+        ! Write(6,*) 'Entro grad'
         call covarvector(1,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
         call predict(1,nPoints,nInter)
         dy_=gpred(npx,:)
-        Write(6,*) 'Entro hess'
+        ! Write(6,*) 'Entro hess'
         call covarvector(2,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
         call predict(2,nPoints,nInter)
-        ddy_=gpred(npx,:)
+        ddy_=hpred(npx,:)
         write(6,*) 'New values of Coord, Energy, Grad and Hess', x_, y_, dy_,ddy_
 !
         return
