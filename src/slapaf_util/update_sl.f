@@ -348,6 +348,7 @@ c Avoid unused argument warnings
 #include "WrkSpc.fh"
 #include "print.fh"
 #include "Molcas.fh"
+#include "stdalloc.fh"
       Real*8 qInt(nInter,kIter+1), Shift(nInter,kIter),
      &       Grad(nInter,kIter), GNrm(kIter), Energy(kIter),
      &       dMass(nsAtom), BMx(3*nsAtom,3*nsAtom),
@@ -360,6 +361,11 @@ c Avoid unused argument warnings
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6, File1*8, File2*8
+      Real*8, Allocatable:: Hessian(:,:)
+#define _NUM_HESS_
+#ifdef _NUM_HESS_
+      Real*8, Allocatable:: dqp(:), dqm(:)
+#endif
 *
       iRout=153
       iPrint=nPrint(iRout)
@@ -391,20 +397,45 @@ c Avoid unused argument warnings
 *     according to some Hessian update method (BFGS, MSP, etc.)
 *
 *
-      Call Allocate_Work(ipH,nInter**2)
+      Call mma_Allocate(Hessian,nInter,nInter,Label='Hessian')
+      ipH=ip_of_Work(Hessian)
       If (Kriging_Hessian) Then
 *
 *        Temporary code until we have the 2nd derivatives from the
 *        kriging code.
 *
-*        Call Hessian_Kriging(qInt(1,kIter),Work(ipH),nInter)
-         Call DCopy_(nInter**2,0.0D0,0,Work(ipH),1)
-         Call DCopy_(nInter,1.0D-2,0,Work(ipH),nInter+1)
+         Call DCopy_(nInter**2,0.0D0,0,Hessian,1)
+#ifdef _NUM_HESS_
+         Call mma_Allocate(dqp,nInter,Label='dqp')
+         Call mma_Allocate(dqm,nInter,Label='dqm')
+         Scale=0.01D0
+         Do iInter = 1, nInter
+            qInt_Save= qInt(1,kIter)
+            Delta = Abs(qInt_Save)*Scale
+*
+            qInt(1,kIter)=qInt_Save+Delta
+            Call Gradient_Kriging(qInt(1,kIter),dqp,nInter)
+            qInt(1,kIter)=qInt_Save-Delta
+            Call Gradient_Kriging(qInt(1,kIter),dqm,nInter)
+*
+            Do jInter = 1, nInter
+               Hessian(iInter,jInter) = Hessian(iInter,jInter)
+     &                + (dqp(jInter)-dqm(jInter))/(4.0D0*Delta)
+            End Do
+*
+            qInt(1,kIter)=qInt_Save
+         End Do
+         Call mma_Deallocate(dqp)
+         Call mma_Deallocate(dqm)
+#else
+         Call DCopy_(nInter,1.0D-2,0,Hessian,nInter+1)
+*        Call Hessian_Kriging(qInt(1,kIter),Hessian,nInter)
+#endif
          iNeg(1)=0
          iNeg(2)=0
       Else
          Call Mk_Hss_Q()
-         Call Get_dArray('Hss_Q',Work(ipH),nInter**2)
+         Call Get_dArray('Hss_Q',Hessian,nInter**2)
 *
 *        Perform the Hessian update
 *
@@ -416,7 +447,7 @@ c Avoid unused argument warnings
          End If
          iRout=154
          jPrint=nPrint(iRout)
-         Call Update_H(nWndw,Work(ipH),nInter,
+         Call Update_H(nWndw,Hessian,nInter,
      &                 mIter,iOptC,Mode,ipMF,
      &                 Shift(1,kIter-mIter+1),Grad(1,kIter-mIter+1),
      &                 iNeg,iOptH,HUpMet,nRowH,jPrint,GNrm(kIter),
@@ -429,7 +460,7 @@ c Avoid unused argument warnings
 *
 *     Save the force constant matrix on the runfile.
 *
-      Call Put_dArray('Hess',Work(ipH),mInter**2)
+      Call Put_dArray('Hess',Hessian,mInter**2)
 *
 *     Optional frequency analysis
 *
@@ -546,7 +577,7 @@ C           Write (*,*) 'tBeta=',tBeta
 *                                                                      *
 *----------... Compute updated geometry in Internal coordinates
 *
-            Call Newq(qInt,mInter,kIter,Shift,Work(ipH),Grad,
+            Call Newq(qInt,mInter,kIter,Shift,Hessian,Grad,
      &                Work(ipErr),Work(ipEMx),Work(ipRHS),iWork(iPvt),
      &                Work(ipdg),Work(ipA),nA,
      &                ed,iOptC,fCart*tBeta,nFix,iWork(ip),UpMeth,
@@ -824,7 +855,7 @@ C           Write (*,*) 'tBeta=',tBeta
      &                rLambda,qInt,Shift,Work(ipdy),Work(ipdx),
      &                Work(ipdEdq_),Work(ipdu),Work(ipx),Work(ipdEdx),
      &                Work(ipW),GNrm(kIter),
-     &                nWndw,Work(ipH),nInter,kIter,
+     &                nWndw,Hessian,nInter,kIter,
      &                iOptC,Mode_,ipMF,iOptH,HUpMet,jPrint,
      &                Work(ipEnergy),nLambda,mIter,nRowH,
      &                Work(ipErr),Work(ipEMx),Work(ipRHS),iWork(iPvt),
@@ -876,7 +907,7 @@ C           Write (*,*) 'tBeta=',tBeta
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Free_Work(ipH)
+      Call mma_Deallocate(Hessian)
       Call GetMem('RHS   ','Free','Real',ipRHS,kIter+1)
       Call GetMem('EMtrx ','Free','Real',ipEMx,(kIter+1)**2)
       Call GetMem('ErrVec','Free','Real',ipErr,mInter*(kIter+1))
