@@ -239,6 +239,8 @@ c Avoid unused argument warnings
             Call DCopy_(nInter,qInt(1,iterAI),1,qInt(1,iter+1),1)
             Call DCopy_(nInter,qInt(1,iter+1),1,Shift(1,iter),1)
             Call DaXpY_(nInter,-1.0D0,qInt(1,iter),1,Shift(1,iter),1)
+            Call MxLbls(GrdMax,StpMax,GrdLbl,StpLbl,nInter,
+     &                  Grad(1,iter),Shift(1,iter),Lbl)
             Call RecPrt('qInt(3):',' ',qInt,nInter,iter+1)
             Call RecPrt('Shift(3):',' ',Shift,nInter,iter)
 *
