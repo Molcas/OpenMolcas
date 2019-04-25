@@ -22,14 +22,10 @@ module fcidump
   save
 contains
 
-  subroutine make_fcidumps(iter, nacpar, nAsh, TUVX, DIAF, &
-        CMO, F_IN, D1I_MO, core_energy, permutation)
+  subroutine make_fcidumps(orbital_energies, folded_Fock, TUVX, core_energy, permutation)
     implicit none
-    integer, intent(in) :: iter, nacpar, nAsh(:)
-    real(8), intent(in) :: TUVX(:), DIAF(:), core_energy, &
-      CMO(:), F_IN(:), D1I_MO(:)
+    real(8), intent(in) :: orbital_energies, folded_Fock, TUVX(:), core_energy
     integer, intent(in), optional :: permutation(:)
-    real(8), allocatable :: orbital_energies(:), folded_Fock(:)
     type(OrbitalTable) :: orbital_table
     type(FockTable) :: fock_table
     type(TwoElIntTable) :: two_el_table
@@ -38,16 +34,8 @@ contains
     call mma_allocate(two_el_table, size(TUVX))
     call mma_allocate(orbital_table, sum(nAsh))
 
-    call mma_allocate(orbital_energies, size(DIAF))
-    call get_orbital_E(iter, DIAF, orbital_energies)
     call fill_orbitals(orbital_table, orbital_energies)
-    call mma_deallocate(orbital_energies)
-
-    call mma_allocate(folded_Fock, nAcPar)
-    call get_folded_Fock(CMO, F_In, D1I_MO, folded_Fock)
     call fill_fock(fock_table, folded_Fock)
-    call mma_deallocate(folded_Fock)
-
     call fill_2ElInt(two_el_table, TUVX)
 
     if (present(permutation)) then
@@ -60,5 +48,24 @@ contains
     call mma_deallocate(fock_table)
     call mma_deallocate(two_el_table)
     call mma_deallocate(orbital_table)
+  end subroutine make_fcidumps
+
+
+
+  subroutine transform(iter, DIAF, CMO, D1I_MO, F_IN, orbital_E, folded_Fock)
+    implicit none
+    integer, intent(in) :: iter
+    real(8), intent(in) :: DIAF(:), CMO(:), D1I_MO(:)
+    real(8), intent(inout) :: F_IN(:)
+    real(8), intent(out) :: orbital_E(:), folded_Fock(:)
+    integer, intent(in), optional :: permutation(:)
+    type(OrbitalTable) :: orbital_table
+    type(FockTable) :: fock_table
+    type(TwoElIntTable) :: two_el_table
+
+    call mma_allocate(orbital_energies, size(DIAF))
+    call mma_allocate(folded_Fock, nAcPar)
+    call get_orbital_E(iter, DIAF, orbital_energies)
+    call get_folded_Fock(CMO, F_In, D1I_MO, folded_Fock)
   end subroutine make_fcidumps
 end module fcidump
