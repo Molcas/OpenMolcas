@@ -16,8 +16,14 @@ module fcidump_reorder
   use fcidump_tables, only :  FockTable, TwoElIntTable, OrbitalTable,&
     mma_allocate, mma_deallocate, length
   implicit none
+! n==0: Don't reorder.
+! n>=2: User defined permutation with n non-fixed point elements.
+! n==-1: Use GAS sorting scheme.
+  integer ::  ReOrFlag = 0
+  integer, allocatable :: ReOrInp(:)
+
   private
-  public :: reorder, get_P_GAS, get_P_inp
+  public :: reorder, get_P_GAS, get_P_inp, ReOrFlag, ReOrInp
   save
 
   interface reorder

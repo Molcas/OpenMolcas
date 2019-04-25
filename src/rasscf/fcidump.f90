@@ -12,53 +12,57 @@
 !               2019, Oskar Weser                                      *
 !***********************************************************************
 module fcidump
-  use fcidump_tables
-  use fcidump_transformations
-  use fcidump_reorder
-  use fcidump_dump
+  use stdalloc, only : mma_allocate, mma_deallocate
+
+  use general_data, only : nSym, nAsh, ntot, ntot1, ntot2
+  use rasscf_data, only : core_energy => EMY, nAcPr2, nAcPar
+  use gas_data, only : ngssh
+
+  use fcidump_transformations, only : get_orbital_E, fold_Fock
+  use fcidump_reorder, only : get_P_GAS, get_P_inp, ReOrInp, ReOrFlag
+  use fcidump_dump, only : make_fcidumps
+
   implicit none
+  logical :: DumpOnly = .false.
   private
-  public :: make_fcidumps
+  public :: transform_and_dump, DumpOnly
   save
+
 contains
 
-  subroutine make_fcidumps(iter, nacpar, nAsh, TUVX, DIAF, &
-        CMO, F_IN, D1I_MO, core_energy, permutation)
+  subroutine transform_and_dump(iter, CMO, DIAF, D1I_MO, TUVX, F_IN)
     implicit none
-    integer, intent(in) :: iter, nacpar, nAsh(:)
-    real(8), intent(in) :: TUVX(:), DIAF(:), core_energy, &
-      CMO(:), F_IN(:), D1I_MO(:)
-    integer, intent(in), optional :: permutation(:)
-    real(8), allocatable :: orbital_energies(:), folded_Fock(:)
-    type(OrbitalTable) :: orbital_table
-    type(FockTable) :: fock_table
-    type(TwoElIntTable) :: two_el_table
+    integer, intent(in) :: iter
+    real(kind=8), intent(in) :: CMO(nTot2), DIAF(nTot), TUVX(nAcpr2),&
+        D1I_MO(nTot2)
+    real(kind=8), intent(inout) :: F_In(nTot1)
 
-    call mma_allocate(fock_table, nacpar)
-    call mma_allocate(two_el_table, size(TUVX))
-    call mma_allocate(orbital_table, sum(nAsh))
+    real(kind=8), allocatable ::  folded_Fock(:), orbital_E(:)
+    integer :: permutation(sum(nAsh(:nSym)))
 
-    call mma_allocate(orbital_energies, size(DIAF))
-    call get_orbital_E(iter, DIAF, orbital_energies)
-    call fill_orbitals(orbital_table, orbital_energies)
-    call mma_deallocate(orbital_energies)
+    select case (ReOrFlag)
+      case (2:)
+        permutation = get_P_inp(ReOrInp)
+        call mma_deallocate(ReOrInp)
+      case (-1)
+        permutation = get_P_GAS(nGSSH)
+    end select
+
+    call mma_allocate(orbital_E, size(DIAF))
+    call get_orbital_E(iter, DIAF, orbital_E)
 
     call mma_allocate(folded_Fock, nAcPar)
-    call get_folded_Fock(CMO, F_In, D1I_MO, folded_Fock)
-    call fill_fock(fock_table, folded_Fock)
-    call mma_deallocate(folded_Fock)
+! fold_fock works inplace on F_In
+    call fold_Fock(CMO, F_In, D1I_MO, folded_Fock)
 
-    call fill_2ElInt(two_el_table, TUVX)
-
-    if (present(permutation)) then
-      call reorder(orbital_table, fock_table, two_el_table, permutation)
+    if (ReOrFlag /= 0) then
+      call make_fcidumps(orbital_E, folded_Fock, TUVX, core_energy, permutation)
+    else
+      call make_fcidumps(orbital_E, folded_Fock, TUVX, core_energy)
     end if
 
-    call dump_ascii(core_energy, orbital_table, fock_table, two_el_table)
-    call dump_hdf5(core_energy, orbital_table, fock_table, two_el_table)
+    call mma_deallocate(orbital_E)
+    call mma_deallocate(folded_Fock)
+  end subroutine transform_and_dump
 
-    call mma_deallocate(fock_table)
-    call mma_deallocate(two_el_table)
-    call mma_deallocate(orbital_table)
-  end subroutine make_fcidumps
 end module fcidump

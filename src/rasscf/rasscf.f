@@ -57,8 +57,8 @@
      &    finalize_dmrg, dump_dmrg_info
 #endif
       use stdalloc
-      use fciqmc, only : FCIQMC_ctl, DumpOnly, DoNECI
-      use fcidump, only : make_fcidumps
+      use fciqmc, only : FCIQMC_ctl, DoNECI
+      use fcidump, only : transform_and_dump, DumpOnly
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -766,15 +766,12 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
         Call Timing(Swatch,Swatch,Zenith_1,Swatch)
 
         if (DumpOnly) then
-          call make_fcidumps(iter, nacpar, nAsh,
-     &                       TUVX=work(ltuvx : ltuvx + nAcPr2 - 1),
-     &                       DIAF=work(LDIAF : LDiaf + nTot - 1),
+          call transform_and_dump(iter,
      &                       CMO=work(LCMO : LCMO + nTot2 - 1),
-!     &                       DSPN=work(ldspn : ldspn + nAcPar - 1),
-     &                       F_IN=work(lfi : lfi + nTot1 - 1),
+     &                       DIAF=work(LDIAF : LDiaf + nTot - 1),
      &                       D1I_MO=work(ld1i : ld1i + nTot2 - 1),
-!     &                       D1A=work(ld1a : ld1a + nTot2 - 1),
-     &                       core_energy=EMY)
+     &                       TUVX=work(ltuvx : ltuvx + nAcPr2 - 1),
+     &                       F_IN=work(lfi : lfi + nTot1 - 1))
           write(6,*) "FCIDMP file generated. Here for serving you!"
           goto 2010
         end if
@@ -1058,17 +1055,15 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
 #endif
 
         if (DoNECI) then
-          call FCIQMC_ctl(
-     &                    CMO=WORK(LCMO : LCMO + nTot2 - 1),
+          call FCIQMC_ctl(CMO=WORK(LCMO : LCMO + nTot2 - 1),
      &                    DIAF=WORK(LDIAF : LDiaf + nTot - 1),
+     &                    F_IN=work(lfi : lfi + nTot1 - 1),
+     &                    D1I_MO=work(ld1i : ld1i + nTot2 - 1),
+     &                    TUVX=work(ltuvx : ltuvx + nAcPr2 - 1),
      &                    DMAT=work(lDMAT : lDMAT + nAcPar - 1),
      &                    DSPN=work(ldspn : ldspn + nAcPar - 1),
      &                    PSMAT=work(lpmat : lPMat + nAcpr2 - 1),
-     &                    PAMAT=work(lpa : lpa + nAcPr2 - 1),
-     &                    F_IN=work(lfi : lfi + nTot1 - 1),
-     &                    D1I=work(ld1i : ld1i + nTot2 - 1),
-!     &                    D1A=work(ld1a : ld1a + nTot2 - 1),
-     &                    TUVX=work(ltuvx : ltuvx + nAcPr2 - 1))
+     &                    PAMAT=work(lpa : lpa + nAcPr2 - 1))
 
           If ( IPRLEV.ge.DEBUG ) then
            Write(LF,*)
@@ -1713,14 +1708,13 @@ c Clean-close as much as you can the CASDFT stuff...
       if(DoNECI) then
           call FCIQMC_ctl(CMO=WORK(LCMO : LCMO + nTot2 - 1),
      &                    DIAF=WORK(LDIAF : LDiaf + nTot - 1),
+     &                    F_IN=work(lfi : lfi + nTot1 - 1),
+     &                    D1I_MO=work(ld1i : ld1i + nTot2 - 1),
+     &                    TUVX=work(ltuvx : ltuvx + nAcPr2 - 1),
      &                    DMAT=work(lDMAT : lDMAT + nAcPar - 1),
      &                    DSPN=work(ldspn : ldspn + nAcPar - 1),
      &                    PSMAT=work(lpmat : lPMat + nAcpr2 - 1),
-     &                    PAMAT=work(lpa : lpa + nAcPr2 - 1),
-     &                    F_IN=work(lfi : lfi + nTot1 - 1),
-     &                    D1I=work(ld1i : ld1i + nTot2 - 1),
-!     &                    D1A=work(ld1a : ld1a + nTot2 - 1),
-     &                    TUVX=work(ltuvx : ltuvx + nAcPr2 - 1))
+     &                    PAMAT=work(lpa : lpa + nAcPr2 - 1))
       else
 ! Leon 27/11/2017: Skip the final CI iteration if we're using DMRGCI
 ! and CIOnly. It's enabled only for DMRGCI with QCMaquis now

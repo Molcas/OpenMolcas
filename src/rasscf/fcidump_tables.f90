@@ -120,6 +120,7 @@ contains
       end if
       iOff   = iOff + nBas(iSym)
     end do
+
 ! ========== For testing purposes FROM HERE =============
     l_orb_test = min(max_test, length(table))
     call Add_Info('Orbital Energy Input', &
