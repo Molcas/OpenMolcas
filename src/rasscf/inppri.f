@@ -31,8 +31,7 @@
       use qcmaquis_interface_cfg
       use qcmaquis_interface_environment, only: print_dmrg_info
 #endif
-      use fciqmc, only : DoNECI
-      use fcidump, only : DumpOnly
+      use fciqmc, only : DoNECI, DumpOnly
 
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"

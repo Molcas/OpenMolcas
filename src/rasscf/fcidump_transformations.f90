@@ -15,7 +15,7 @@ module fcidump_transformations
   use stdalloc, only : mma_allocate, mma_deallocate
   implicit none
   private
-  public :: get_orbital_E, fold_Fock
+  public :: get_orbital_E, get_folded_Fock
 contains
 
 !>  @brief
@@ -79,34 +79,41 @@ contains
 !>  \f[ < i | F | j > \f]
 !>  The index is given by i and j.
 !>
+!>  @param[in,out] fock_table
 !>  @param[in] CMO The occupation number vector in MO-space.
-!>  @param[inout] F_In
+!>  @param[in] F_In
 !>    \f[\sum_{\sigma\rho} {In}^D_{\sigma\rho} (g_{\mu\nu\sigma\rho})  \f]
 !>  @param[in] D1I_MO The inactive one-body density matrix in MO-space
-!>  @param[out] folded_Fock
 !>  @param[in] cutoff Optional parameter that is set by default to
 !>    fciqmc_tables::cutoff_default.
-  subroutine fold_Fock(CMO, F_In, D1I_MO, folded_Fock)
-    use general_data, only : nActEl, ntot, ntot1, ntot2
+  subroutine get_folded_Fock(CMO, F_In, D1I_MO, folded_Fock)
+    use general_data, only : nActEl, nAsh, ntot, ntot1, ntot2
     use rasscf_data, only : nAcPar, core_energy => Emy
     use index_symmetry, only : one_el_idx_flatten
     implicit none
-    real(8), intent(in) :: CMO(nTot2), D1I_MO(nTot2)
-    real(8), intent(inout) :: F_In(nTot1)
-    real(8), intent(out) :: folded_Fock(:)
+    real(8), intent(in) :: CMO(nTot2), F_In(nTot1), D1I_MO(nTot2)
+    real(8), intent(inout) :: folded_Fock(:)
     integer :: i, n
     real(8) :: core_E_per_act_el
     real(8), allocatable :: &
 ! active one-body density matrix in AO-space
         D1A_AO(:),&
 ! active one-body density matrix in MO-space
-        D1A_MO(:)
+        D1A_MO(:),&
+        F_In_copy(:)
 
     call mma_allocate(D1A_AO, nTot2)
     call mma_allocate(D1A_MO, nTot2)
+    call mma_allocate(F_In_copy, size(F_In))
+    F_In_copy(:) = F_In(:)
     call get_D1A_RASSCF(CMO, D1A_MO, D1A_AO)
 ! SGFCIN has side effects and EMY/core_energy is set in this routine.
+! Besides F_In will contain the one electron contribution afterwards,
+! for this reason it is copied.
+
+! SGFCIN has to be called once with F_In
     call SGFCIN(CMO, folded_fock, F_In, D1I_MO, D1A_MO, D1A_AO)
+    call mma_deallocate(F_In_copy)
     call mma_deallocate(D1A_MO)
     call mma_deallocate(D1A_AO)
 
@@ -117,10 +124,10 @@ contains
       core_E_per_act_el = 0.0d0
     end if
 
-    do i = 1, size(folded_fock)
+    do i = 1, sum(nAsh)
       n = one_el_idx_flatten(i, i)
       folded_Fock(n) = folded_Fock(n) - core_E_per_act_el
     end do
-  end subroutine fold_Fock
+  end subroutine get_folded_Fock
 
 end module fcidump_transformations

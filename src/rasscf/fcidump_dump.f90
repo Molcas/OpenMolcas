@@ -12,16 +12,12 @@
 !               2019, Oskar Weser                                      *
 !***********************************************************************
 module fcidump_dump
-  use fcidump_tables, only : OrbitalTable, FockTable, TwoElIntTable, length,&
-      mma_allocate, mma_deallocate,&
-      fill_orbitals, fill_fock, fill_2ElInt
+  use fcidump_tables
   implicit none
   private
-  public :: dump_ascii, dump_hdf5, make_fcidumps
+  public :: dump_ascii, dump_hdf5
   save
-
 contains
-
 !>  @brief
 !>    Create FCIDUMP file
 !>
@@ -33,14 +29,14 @@ contains
 !>  Contains information about \p nAsh, \p nSym, \p nActEl,
 !>  \p iSpin, and \p lSym.
 !>
-!>  @param[in] core_energy
+!>  @param[in] EMY Core energy
 !>  @param[in] orbital_table Orbital energies with index
 !>  @param[in] fock_table
 !>  @param[in] two_el_table
-  subroutine dump_ascii(core_energy, orbital_table, fock_table, two_el_table)
+  subroutine dump_ascii(EMY, orbital_table, fock_table, two_el_table)
     use general_data, only : nSym, nActEl, iSpin, lSym, nAsh
     implicit none
-    real(kind=8), intent(in) :: core_energy
+    real(kind=8), intent(in) :: EMY
     type(OrbitalTable), intent(in) :: orbital_table
     type(FockTable), intent(in) :: fock_table
     type(TwoElIntTable), intent(in) :: two_el_table
@@ -73,12 +69,12 @@ contains
         orbital_table%values(j), orbital_table%index(j), 0, 0, 0
     end do
 
-    write(LuFCI,'(1X,G20.11,4I5)') core_energy, 0, 0, 0, 0
+    write(LuFCI,'(1X,G20.11,4I5)') EMY, 0, 0, 0, 0
 
     close(LuFCI)
 
 ! ========== For testing purposes FROM HERE =============
-    call Add_Info('core energy', [core_energy], 1, 8)
+    call Add_Info('core energy', [EMY], 1, 8)
     call Add_Info('Orbital Energy', orbital_table%values(1), 1, 8)
     call Add_Info('Fock element', fock_table%values(1), 1, 8)
     call Add_Info('TwoEl Integral element', two_el_table%values(1), 1, 8)
@@ -101,11 +97,11 @@ contains
 !>  Contains information about \p nAsh, \p nSym, \p nActEl,
 !>  \p iSpin, and \p lSym.
 !>
-!>  @param[in] core_energy Core energy
+!>  @param[in] EMY Core energy
 !>  @param[in] orbital_table Orbital energies with index
 !>  @param[in] fock_table
 !>  @param[in] two_el_table
-  subroutine dump_hdf5(core_energy, orbital_table, fock_table, two_el_table)
+  subroutine dump_hdf5(EMY, orbital_table, fock_table, two_el_table)
     use general_data, only : nSym, nActEl, multiplicity => iSpin, lSym, nAsh
     use gas_data, only : iDoGAS
     use gugx_data, only : IfCAS
@@ -113,7 +109,7 @@ contains
     use mh5
 #endif
     implicit none
-    real(kind=8), intent(in) :: core_energy
+    real(kind=8), intent(in) :: EMY
     type(OrbitalTable), intent(in) :: orbital_table
     type(FockTable), intent(in) :: fock_table
     type(TwoElIntTable), intent(in) :: two_el_table
@@ -132,7 +128,7 @@ contains
     call mh5_init_attr(file_id, 'ORBSYM', 1, [nSym], nAsh)
     call mh5_init_attr(file_id, 'NORB', sum(nAsh(:nSym)))
 
-!   Set wavefunction type
+    ! Set wavefunction type
     if (iDoGAS) then
       call mh5_init_attr(file_id, 'CI_TYPE', 'GAS')
     else if (IfCAS .eq. 0) then
@@ -142,7 +138,7 @@ contains
     end if
 
     call mh5_init_attr(file_id, 'MOLCAS_MODULE', 'RASSCF')
-    call mh5_init_attr(file_id, 'CORE_ENERGY', core_energy)
+    call mh5_init_attr(file_id, 'CORE_ENERGY', EMY)
     call mh5_init_attr(file_id, 'NELEC', nActEl)
     call mh5_init_attr(file_id, 'MULTIPLICITY', multiplicity)
     call mh5_init_attr(file_id, 'ISYM', lSym - 1)
@@ -199,41 +195,11 @@ contains
 #else
 ! Avoid unused argument warnings
     if (.false.) then
-      call unused_real(core_energy)
+      call unused_real(EMY)
       call unused(orbital_table)
       call unused(fock_table)
       call unused(two_el_table)
     end if
 #endif
   end subroutine dump_hdf5
-
-  subroutine make_fcidumps(orbital_E, folded_Fock, TUVX, core_energy, permutation)
-    use fcidump_reorder, only : reorder
-    use general_data, only : nAsh
-    implicit none
-    real(8), intent(in) :: orbital_E(:), folded_Fock(:), TUVX(:), core_energy
-    integer, intent(in), optional :: permutation(:)
-    type(OrbitalTable) :: orbital_table
-    type(FockTable) :: fock_table
-    type(TwoElIntTable) :: two_el_table
-
-    call mma_allocate(orbital_table, sum(nAsh))
-    call mma_allocate(fock_table, size(folded_Fock))
-    call mma_allocate(two_el_table, size(TUVX))
-
-    call fill_orbitals(orbital_table, orbital_E)
-    call fill_fock(fock_table, folded_Fock)
-    call fill_2ElInt(two_el_table, TUVX)
-
-    if (present(permutation)) then
-      call reorder(orbital_table, fock_table, two_el_table, permutation)
-    end if
-
-    call dump_ascii(core_energy, orbital_table, fock_table, two_el_table)
-    call dump_hdf5(core_energy, orbital_table, fock_table, two_el_table)
-
-    call mma_deallocate(fock_table)
-    call mma_deallocate(two_el_table)
-    call mma_deallocate(orbital_table)
-  end subroutine make_fcidumps
 end module fcidump_dump

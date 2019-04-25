@@ -18,9 +18,8 @@
       use qcmaquis_interface_cfg
 #endif
       use active_space_solver_cfg
-      use fcidump_reorder, only : ReOrFlag, ReOrInp
-      use fcidump, only : DumpOnly
-      use fciqmc, only : DoEmbdNECI, DoNECI
+      use fciqmc, only : DoEmbdNECI, DumpOnly, ReOrFlag, ReOrInp,
+     &  DoNECI
       use fciqmc_make_inp, only : trial_wavefunction, pops_trial,
      & calcrdmonfly, rdmsamplingiters,
      & totalwalkers, Time, nmCyc, memoryfacspawn,

@@ -14,10 +14,18 @@
       module fciqmc
       implicit none
       private
-      public :: FCIQMC_CTL, DoNECI, DoEmbdNECI
+      public :: FCIQMC_CTL, DoNECI, DoEmbdNECI, DumpOnly, ReOrFlag,
+     &  ReOrInp
       logical ::
      &  DoEmbdNECI = .false.,
-     &  DoNECI = .false.
+     &  DoNECI = .false.,
+     &  DumpOnly = .false.
+      integer ::
+! n==0: Don't reorder.
+! n>=2: User defined permutation with n non-fixed point elements.
+! n==-1: Use GAS sorting scheme.
+     &  ReOrFlag = 0
+      integer, allocatable :: ReOrInp(:)
       save
       contains
 
@@ -39,40 +47,34 @@
 !>  only two-electron terms as computed in TRA_CTL2.
 !>  In output it contains also the one-electron contribution
 !>
-!>  @paramin[in]  CMO MO coefficients
+!>  @paramin[in] CMO MO coefficients
 !>  @paramin[in]  DIAF DIAGONAL of Fock matrix useful for NECI
-!>  @paramin[inout]  F_In Fock matrix from inactive density
-!>  @paramin[in]  D1I_MO Inactive 1-dens matrix
-!>  @paramin[in]  D1A Active 1-dens matrix
-!>  @paramin[in]  TUVX Active 2-el integrals
 !>  @paramin[out] DMAT Average 1 body density matrix
 !>  @paramin[out] DSPN Average spin 1-dens matrix
 !>  @paramin[out] PSMAT Average symm. 2-dens matrix
 !>  @paramin[out] PAMAT Average antisymm. 2-dens matrix
-      subroutine FCIQMC_Ctl(CMO, DIAF, F_IN, D1I_MO, TUVX,
-     &                      DMAT, DSPN, PSMAT, PAMAT)
+!>  @paramin[in]  F_In Fock matrix from inactive density
+!>  @paramin[in]  D1I Inactive 1-dens matrix
+!>  @paramin[in]  D1A Active 1-dens matrix
+!>  @paramin[in]  TUVX Active 2-el integrals
+      subroutine FCIQMC_Ctl(CMO,DIAF,DMAT,DSPN,PSMAT,PAMAT,F_IN,D1I,
+     &                      TUVX)
 #ifdef _MOLCAS_MPP_
       use MPI
 #endif
-      use fortran_strings, only : str
       use filesystem, only : chdir_, getcwd_, get_errno_, strerror_
-      use stdalloc, only : mma_allocate, mma_deallocate
-
+      use fortran_strings, only : str
+      use fcidump_reorder, only : get_P_GAS, get_P_inp
+      use fcidump, only : make_fcidumps
+      use fciqmc_make_inp, only : make_inp
       use rasscf_data, only : iter, lRoots, nRoots, S, KSDFT, NAC, EMY,
      &    rotmax, ener, iAdr15, iRoot, Weight, nacpr2, nacpar
+      use fciqmc_read_RDM, only : read_neci_RDM
+      use stdalloc, only : mma_allocate, mma_deallocate
       use general_data, only : nSym, nBas, iSpin, nAsh, LuInta, nactel,
      &    jobIph, ntot, ntot1, ntot2
       use gugx_data, only : IfCAS
       use gas_data, only : ngssh, iDoGas
-
-      use fcidump_transformations, only : get_orbital_E, fold_Fock
-      use fcidump_reorder, only : get_P_GAS, get_P_inp,
-     &    ReOrInp, ReOrFlag
-      use fcidump_dump, only : make_fcidumps
-
-      use fciqmc_make_inp, only : make_inp
-      use fciqmc_read_RDM, only : read_neci_RDM
-
       implicit none
 #include "output_ras.fh"
 #include "rctfld.fh"
@@ -84,16 +86,14 @@
       integer(kind=4) :: ierror
 #endif
       real(kind=8), intent(in) :: CMO(nTot2), DIAF(nTot), TUVX(nAcpr2),
-     &    D1I_MO(nTot2)
-      real(kind=8), intent(inout) :: F_In(nTot1)
-      real(kind=8), intent(out) :: DMAT(nAcpar), DSPN(nAcpar),
+     &    F_In(nTot1), D1I(nTot2)
+      real(kind=8), intent(inout) :: DMAT(nAcpar), DSPN(nAcpar),
      &    PSMAT(nAcpr2), PAMAT(nAcpr2)
       logical :: Do_ESPF, WaitForNECI
       real(kind=8) :: NECIen, Scal
       integer :: LuNewC, iPRLEV, iOff, iSym, iBas, i, j,
-     &    jRoot, iDisk, jDisk, kRoot, permutation(sum(nAsh(:nSym)))
-      real(kind=8), allocatable :: DTMP(:), Ptmp(:), PAtmp(:), DStmp(:),
-     &    folded_Fock(:), orbital_E(:)
+     & jRoot, iDisk, jDisk, kRoot, permutation(sum(nAsh(:nSym)))
+      real(kind=8), allocatable :: DTMP(:), Ptmp(:), PAtmp(:), DStmp(:)
       integer :: err, L
       character(1024) :: h5fcidmp, fcidmp, fcinp, newcycle, WorkDir
 
@@ -179,21 +179,15 @@ c      end if
           permutation = get_P_GAS(nGSSH)
       end select
 
-      call mma_allocate(orbital_E, size(DIAF))
-      call get_orbital_E(iter, DIAF, orbital_E)
-
-      call mma_allocate(folded_Fock, nAcPar)
-      call fold_Fock(CMO, F_In, D1I_MO, folded_Fock)
-
       if (ReOrFlag /= 0) then
-        call make_fcidumps(orbital_E, folded_Fock, TUVX, EMY,
-     &                     permutation)
+!        call make_fcidumps(iter, nacpar, nAsh, TUVX, DIAF, CMO, DSPN,
+!     &                     F_IN, D1I, D1A, EMY, permutation)
+        call make_fcidumps(iter, nacpar, nAsh, TUVX, DIAF, CMO,
+     &                     F_IN, D1I, EMY, permutation)
       else
-        call make_fcidumps(orbital_E, folded_Fock, TUVX, EMY)
+        call make_fcidumps(iter, nacpar, nAsh, TUVX, DIAF, CMO,
+     &                     F_IN, D1I, EMY)
       end if
-
-      call mma_deallocate(orbital_E)
-      call mma_deallocate(folded_Fock)
 **************************************************************************************
 *****************              Produce an INPUT file for NECI       ******************
 **************************************************************************************
