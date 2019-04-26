@@ -39,12 +39,12 @@
                             gpred(j,k) = dot_product(tcv(j,:),Kv)
                             sigma=1.96*sqrt(2*abs(var*variance))
                             write(6,*) 'pred Grad:',k,j,l,gpred(j,k), &
-                                var,variance,sigma, lh
+                                var,variance,sigma, lh,tcv
                         else
                             hpred(j,k) = dot_product(tcv(j,:),Kv)
                             sigma=1.96*sqrt(2*abs(var*variance))
                             write(6,*) 'pred Hess:',k,j,l,hpred(j,k), &
-                                var,variance,sigma, lh
+                                var,variance,sigma, lh, tcv
                         endif
                     endif
                 enddo

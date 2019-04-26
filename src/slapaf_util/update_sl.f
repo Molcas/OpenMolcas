@@ -226,10 +226,13 @@ c Avoid unused argument warnings
                iterK  = iterK  + 1
                iterAI = iterAI + 1
                dEner = Energy(iterAI) - Energy(iterAI-1)
-
-               Call RecPrt('qInt(2):',' ',qInt,nInter,iterAI)
-               Call RecPrt('Energy(x):',' ',Energy,1,iterAI)
+*
+               Call RecPrt('qInt(x):',' ',qInt,nInter,iterAI)
+               write (6,*) 'qInt(xx):',qInt(1:nInter,1:iterAI)
+               Call RecPrt('Ener(x):',' ',Energy,1,iterAI)
+               write (6,*) 'Energy(xx):',Energy(1:iterAI)
                Call RecPrt('Grad(x):',' ',Grad,nInter,iterAI)
+               write (6,*) 'Grad(xx):',Grad(1:nInter,1:iterAI)
                write(6,*) 'do new iter',iterAI
             End Do  ! Do While
 *
