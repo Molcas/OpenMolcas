@@ -8,9 +8,13 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2014, Giovanni Li Manni                                *
-!               2019, Oskar Weser                                      *
+! Copyright (C) 2019, Oskar Weser                                      *
 !***********************************************************************
+
+
+
+!>  @brief
+!>    Master module for fcidump.
 module fcidump
   use fcidump_tables, only : OrbitalTable, FockTable, TwoElIntTable,&
     mma_allocate, mma_deallocate, fill_orbitals, fill_fock, fill_2ElInt
@@ -64,6 +68,6 @@ contains
     real(8), intent(out) :: orbital_E(:), folded_Fock(:)
 !
     call get_orbital_E(iter, DIAF, orbital_E)
-    call fold_Fock(CMO, F_In, D1I_MO, folded_Fock)
+    call fold_Fock(CMO, D1I_MO, F_In, folded_Fock)
   end subroutine transform
 end module fcidump

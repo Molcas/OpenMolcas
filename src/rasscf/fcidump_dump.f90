@@ -18,6 +18,7 @@ module fcidump_dump
   public :: dump_ascii, dump_hdf5
   save
 contains
+
 !>  @brief
 !>    Create FCIDUMP file
 !>

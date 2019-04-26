@@ -13,31 +13,33 @@
 ************************************************************************
 
       module fciqmc_read_RDM
-      private
-      public :: read_neci_RDM
-
-
-      contains
-      subroutine read_neci_RDM(DMAT, DSPN, PSMAT, PAMAT)
-* <Arguments>
-*   \Argument{DMAT}{Average 1-dens matrix}{Real*8 array (NACPAR)}...............{out}
-*   \Argument{DSPN}{Average spin 1-dens matrix}{Real*8 array (NACPAR)}..........{out}
-*   \Argument{PSMAT}{Average symm. 2-dens matrix}{Real*8 array (NACPR2)}........{out}
-*   \Argument{PAMAT}{Average antisymm. 2-dens matrix}{Real*8 array (NACPR2)}....{out}
-* </Arguments>
-*
-* <Description>
-*   Read TwoRDM files written by NECI and transfer them to Molcas.
-*   Neci can have some intermediate spin-resolved/spin-free RDMs where basically aaaa contains
-*   average of aaaa and bbbb, abab contains average of abab and baba...
-*   This is ok for CASSCF but not ok for spin-resolved properties, in which case the completely
-*   spin-resolved RDMs need to be read-in.
-*   In principle, NECI could also evaluate and store completely spin-free matrices.
-*   In that case only a reordering following Molcas convention is necessary.
-* </Description>
       use general_data, only : iSpin, nActEl
+      use rasscf_data, only : nAc, nAcPar
 ! Note that two_el_idx_flatten has also out parameters.
       use index_symmetry, only : two_el_idx_flatten
+      private
+      public :: read_neci_RDM
+      contains
+
+!>  @brief
+!>    Start and control FCIQMC.
+!>
+!>  @author Giovanni Li Manni, Oskar Weser
+!>
+!>  @details
+!>  Read TwoRDM files written by NECI and transfer them to Molcas.
+!>  Neci can have some intermediate spin-resolved/spin-free RDMs where basically aaaa contains
+!>  average of aaaa and bbbb, abab contains average of abab and baba...
+!>  This is ok for CASSCF but not ok for spin-resolved properties, in which case the completely
+!>  spin-resolved RDMs need to be read-in.
+!>  In principle, NECI could also evaluate and store completely spin-free matrices.
+!>  In that case only a reordering following Molcas convention is necessary.
+!>
+!>  @paramin[out] DMAT Average 1 body density matrix
+!>  @paramin[out] DSPN Average spin 1-dens matrix
+!>  @paramin[out] PSMAT Average symm. 2-dens matrix
+!>  @paramin[out] PAMAT Average antisymm. 2-dens matrix
+      subroutine read_neci_RDM(DMAT, DSPN, PSMAT, PAMAT)
       implicit none
 #include "para_info.fh"
 #include "output_ras.fh"
@@ -405,12 +407,10 @@
 
       implicit none
 #include "WrkSpc.fh"
-#include "rasdim.fh"
-#include "rasscf.fh"
-#include "general.fh"
 * NACPAR = NAC*(NAC+1)/2 with NAC total number of active orbitals
+      real(8), intent(inout) :: MAT(NacPar)
       integer rc,LEVC,j,i,iTmp,iTmp2
-      real(8) :: MAT(NacPar), trace
+      real(8) :: trace
       Character*12 routine
       Parameter (routine = 'CleanMat')
 
@@ -426,9 +426,9 @@
 * Allocate memory for eigenvectors and new DMAT
       Call GetMem('EVC','Allo','Real',LEVC,NAC**2)
 * Initialize eigenvectors
-      Call dCopy_(NAC**2,(0.0d0),0,Work(LEVC),1)
+      Call dCopy_(NAC**2,[0.0d0],0,Work(LEVC),1)
 * set eigenvector array to identity for this version of JACOB
-      Call dCopy_(NAC,1.0d0,0,Work(LEVC),NAC+1)
+      Call dCopy_(NAC,[1.0d0],0,Work(LEVC),NAC+1)
 
 * Step 1: Diagonalize MAT. Eigenvalues are stored in diagonal of MAT
       trace = 0.0d0
