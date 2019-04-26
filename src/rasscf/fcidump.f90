@@ -12,19 +12,23 @@
 !               2019, Oskar Weser                                      *
 !***********************************************************************
 module fcidump
-  use fcidump_tables
-  use fcidump_transformations
-  use fcidump_reorder
-  use fcidump_dump
+  use fcidump_tables, only : OrbitalTable, FockTable, TwoElIntTable,&
+    mma_allocate, mma_deallocate, fill_orbitals, fill_fock, fill_2ElInt
+  use fcidump_transformations, only : get_orbital_E, fold_Fock
+  use fcidump_reorder, only : reorder
+  use fcidump_dump, only : dump_ascii, dump_hdf5
   implicit none
   private
-  public :: make_fcidumps
+  public :: make_fcidumps, transform, DumpOnly
+  logical :: DumpOnly = .false.
   save
 contains
 
   subroutine make_fcidumps(orbital_energies, folded_Fock, TUVX, core_energy, permutation)
+    use rasscf_data, only : nacpar
+    use general_data, only : nAsh
     implicit none
-    real(8), intent(in) :: orbital_energies, folded_Fock, TUVX(:), core_energy
+    real(8), intent(in) :: orbital_energies(:), folded_Fock(:), TUVX(:), core_energy
     integer, intent(in), optional :: permutation(:)
     type(OrbitalTable) :: orbital_table
     type(FockTable) :: fock_table
@@ -52,20 +56,14 @@ contains
 
 
 
-  subroutine transform(iter, DIAF, CMO, D1I_MO, F_IN, orbital_E, folded_Fock)
+  subroutine transform(iter, CMO, DIAF, D1I_MO, F_IN, orbital_E, folded_Fock)
     implicit none
     integer, intent(in) :: iter
     real(8), intent(in) :: DIAF(:), CMO(:), D1I_MO(:)
     real(8), intent(inout) :: F_IN(:)
     real(8), intent(out) :: orbital_E(:), folded_Fock(:)
-    integer, intent(in), optional :: permutation(:)
-    type(OrbitalTable) :: orbital_table
-    type(FockTable) :: fock_table
-    type(TwoElIntTable) :: two_el_table
-
-    call mma_allocate(orbital_energies, size(DIAF))
-    call mma_allocate(folded_Fock, nAcPar)
-    call get_orbital_E(iter, DIAF, orbital_energies)
-    call get_folded_Fock(CMO, F_In, D1I_MO, folded_Fock)
-  end subroutine make_fcidumps
+!
+    call get_orbital_E(iter, DIAF, orbital_E)
+    call fold_Fock(CMO, F_In, D1I_MO, folded_Fock)
+  end subroutine transform
 end module fcidump

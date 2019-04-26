@@ -12,20 +12,30 @@
 *               2019, Oskar Weser                                      *
 ************************************************************************
       module fciqmc
+#ifdef _MOLCAS_MPP_
+      use MPI
+#endif
+      use filesystem, only : chdir_, getcwd_, get_errno_, strerror_
+      use fortran_strings, only : str
+      use stdalloc, only : mma_allocate, mma_deallocate
+
+      use rasscf_data, only : iter, lRoots, nRoots, S, KSDFT, NAC, EMY,
+     &    rotmax, ener, iAdr15, iRoot, Weight, nacpr2, nacpar
+      use general_data, only : nSym, nBas, iSpin, nAsh, LuInta, nactel,
+     &    jobIph, ntot, ntot1, ntot2
+      use gugx_data, only : IfCAS
+      use gas_data, only : ngssh, iDoGas
+
+      use fcidump_reorder, only : get_P_GAS, get_P_inp,ReOrFlag,ReOrInp
+      use fcidump, only : make_fcidumps, transform
+      use fciqmc_make_inp, only : make_inp
+      use fciqmc_read_RDM, only : read_neci_RDM
       implicit none
       private
-      public :: FCIQMC_CTL, DoNECI, DoEmbdNECI, DumpOnly, ReOrFlag,
-     &  ReOrInp
+      public :: FCIQMC_CTL, DoNECI, DoEmbdNECI
       logical ::
      &  DoEmbdNECI = .false.,
-     &  DoNECI = .false.,
-     &  DumpOnly = .false.
-      integer ::
-! n==0: Don't reorder.
-! n>=2: User defined permutation with n non-fixed point elements.
-! n==-1: Use GAS sorting scheme.
-     &  ReOrFlag = 0
-      integer, allocatable :: ReOrInp(:)
+     &  DoNECI = .false.
       save
       contains
 
@@ -47,34 +57,17 @@
 !>  only two-electron terms as computed in TRA_CTL2.
 !>  In output it contains also the one-electron contribution
 !>
-!>  @paramin[in] CMO MO coefficients
+!>  @paramin[in]  CMO MO coefficients
 !>  @paramin[in]  DIAF DIAGONAL of Fock matrix useful for NECI
+!>  @paramin[in]  D1I_MO Inactive 1-dens matrix
+!>  @paramin[in]  TUVX Active 2-el integrals
+!>  @paramin[inout] F_In Fock matrix from inactive density
 !>  @paramin[out] DMAT Average 1 body density matrix
 !>  @paramin[out] DSPN Average spin 1-dens matrix
 !>  @paramin[out] PSMAT Average symm. 2-dens matrix
 !>  @paramin[out] PAMAT Average antisymm. 2-dens matrix
-!>  @paramin[in]  F_In Fock matrix from inactive density
-!>  @paramin[in]  D1I Inactive 1-dens matrix
-!>  @paramin[in]  D1A Active 1-dens matrix
-!>  @paramin[in]  TUVX Active 2-el integrals
-      subroutine FCIQMC_Ctl(CMO,DIAF,DMAT,DSPN,PSMAT,PAMAT,F_IN,D1I,
-     &                      TUVX)
-#ifdef _MOLCAS_MPP_
-      use MPI
-#endif
-      use filesystem, only : chdir_, getcwd_, get_errno_, strerror_
-      use fortran_strings, only : str
-      use fcidump_reorder, only : get_P_GAS, get_P_inp
-      use fcidump, only : make_fcidumps
-      use fciqmc_make_inp, only : make_inp
-      use rasscf_data, only : iter, lRoots, nRoots, S, KSDFT, NAC, EMY,
-     &    rotmax, ener, iAdr15, iRoot, Weight, nacpr2, nacpar
-      use fciqmc_read_RDM, only : read_neci_RDM
-      use stdalloc, only : mma_allocate, mma_deallocate
-      use general_data, only : nSym, nBas, iSpin, nAsh, LuInta, nactel,
-     &    jobIph, ntot, ntot1, ntot2
-      use gugx_data, only : IfCAS
-      use gas_data, only : ngssh, iDoGas
+      subroutine FCIQMC_Ctl(CMO, DIAF, D1I_MO, TUVX, F_IN,
+     &                      DMAT, DSPN,PSMAT,PAMAT)
       implicit none
 #include "output_ras.fh"
 #include "rctfld.fh"
@@ -85,15 +78,17 @@
 #include "mafdecls.fh"
       integer(kind=4) :: ierror
 #endif
-      real(kind=8), intent(in) :: CMO(nTot2), DIAF(nTot), TUVX(nAcpr2),
-     &    F_In(nTot1), D1I(nTot2)
-      real(kind=8), intent(inout) :: DMAT(nAcpar), DSPN(nAcpar),
+      real(kind=8), intent(in) ::
+     &    CMO(nTot2), DIAF(nTot), TUVX(nAcpr2), D1I_MO(nTot2)
+      real(kind=8), intent(inout) :: F_In(nTot1)
+      real(kind=8), intent(out) :: DMAT(nAcpar), DSPN(nAcpar),
      &    PSMAT(nAcpr2), PAMAT(nAcpr2)
       logical :: Do_ESPF, WaitForNECI
       real(kind=8) :: NECIen, Scal
       integer :: LuNewC, iPRLEV, iOff, iSym, iBas, i, j,
-     & jRoot, iDisk, jDisk, kRoot, permutation(sum(nAsh(:nSym)))
-      real(kind=8), allocatable :: DTMP(:), Ptmp(:), PAtmp(:), DStmp(:)
+     &    jRoot, iDisk, jDisk, kRoot, permutation(sum(nAsh(:nSym)))
+      real(kind=8), allocatable :: DTMP(:), Ptmp(:), PAtmp(:), DStmp(:),
+     &    orbital_E(:), folded_Fock(:)
       integer :: err, L
       character(1024) :: h5fcidmp, fcidmp, fcinp, newcycle, WorkDir
 
@@ -166,9 +161,6 @@ c      end if
         call Abend()
       end if
 **************************************************************************************
-****************                     Normal Case                    ******************
-**************************************************************************************
-**************************************************************************************
 *****************              Produce a working FCIDUMP file       ******************
 **************************************************************************************
       select case (ReOrFlag)
@@ -179,15 +171,21 @@ c      end if
           permutation = get_P_GAS(nGSSH)
       end select
 
+      call mma_allocate(orbital_E, size(DIAF))
+      call mma_allocate(folded_Fock, nAcPar)
+! This call is not side effect free and sets EMY
+      call transform(iter, CMO, DIAF, D1I_MO, F_IN,
+     &                orbital_E, folded_Fock)
+     &
+
       if (ReOrFlag /= 0) then
-!        call make_fcidumps(iter, nacpar, nAsh, TUVX, DIAF, CMO, DSPN,
-!     &                     F_IN, D1I, D1A, EMY, permutation)
-        call make_fcidumps(iter, nacpar, nAsh, TUVX, DIAF, CMO,
-     &                     F_IN, D1I, EMY, permutation)
+        call make_fcidumps(orbital_E, folded_Fock, TUVX, EMY,
+     &                      permutation)
       else
-        call make_fcidumps(iter, nacpar, nAsh, TUVX, DIAF, CMO,
-     &                     F_IN, D1I, EMY)
+        call make_fcidumps(orbital_E, folded_Fock, TUVX, EMY)
       end if
+      call mma_deallocate(orbital_E)
+      call mma_deallocate(folded_Fock)
 **************************************************************************************
 *****************              Produce an INPUT file for NECI       ******************
 **************************************************************************************
@@ -223,23 +221,8 @@ c      end if
           call prgmtranslate_master('FCIDMP', fcidmp, L)
           call prgmtranslate_master('FCINP', fcinp, L)
           call prgmtranslate_master('NEWCYCLE', newcycle, L)
-          write(6,'(A)')'Run NECI externally.'
-          write(6,'(A)')'Get the (example) NECI input:'
-          write(6,'(4x, A, 1x, A, 1x,  A)')
-     &      'cp', trim(fcinp), '$NECI_RUN_DIR'
-          write(6,'(A)')'Get the ASCII formatted FCIDUMP:'
-          write(6,'(4x, A, 1x, A, 1x,  A)')
-     &      'cp', trim(fcidmp), '$NECI_RUN_DIR/FCIDUMP'
-          write(6,'(A)')'Or the HDF5 FCIDUMP:'
-          write(6,'(4x, A, 1x, A, 1x,  A)')
-     &      'cp', trim(h5fcidmp), '$NECI_RUN_DIR'
-          write(6, *)
-          write(6,'(A)') "When finished do:"
-          write(6,'(4x, A)')
-     &  'cp TwoRDM_aaaa.1 TwoRDM_abab.1 TwoRDM_abba.1 '//
-     &  'TwoRDM_bbbb.1 TwoRDM_baba.1 TwoRDM_baab.1 '//trim(WorkDir)
-          write(6,'(4x, A)')'echo $your_RDM_Energy > '//trim(newcycle)
-          call xflush(6)
+          call write_ExNECI_message(
+     &        fcinp, fcidmp, h5fcidmp, WorkDir, newcycle)
         end if
         waitForNECI = .false.
         do while(.not. waitForNECI)
@@ -328,5 +311,30 @@ c
 **************************************************************
 
       call qExit('FCIQMC_CTL')
+
+      contains
+
+      subroutine write_ExNECI_message(fcinp, fcidmp, h5fcidmp,
+     &          WorkDir, newcycle)
+        character(*), intent(in) :: fcinp, fcidmp, h5fcidmp,
+     &    WorkDir, newcycle
+        write(6,'(A)')'Run NECI externally.'
+        write(6,'(A)')'Get the (example) NECI input:'
+        write(6,'(4x, A, 1x, A, 1x,  A)')
+     &    'cp', trim(fcinp), '$NECI_RUN_DIR'
+        write(6,'(A)')'Get the ASCII formatted FCIDUMP:'
+        write(6,'(4x, A, 1x, A, 1x,  A)')
+     &    'cp', trim(fcidmp), '$NECI_RUN_DIR/FCIDUMP'
+        write(6,'(A)')'Or the HDF5 FCIDUMP:'
+        write(6,'(4x, A, 1x, A, 1x,  A)')
+     &    'cp', trim(h5fcidmp), '$NECI_RUN_DIR'
+        write(6, *)
+        write(6,'(A)') "When finished do:"
+        write(6,'(4x, A)')
+     &    'cp TwoRDM_aaaa.1 TwoRDM_abab.1 TwoRDM_abba.1 '//
+     &    'TwoRDM_bbbb.1 TwoRDM_baba.1 TwoRDM_baab.1 '//trim(WorkDir)
+        write(6,'(4x, A)')'echo $your_RDM_Energy > '//trim(newcycle)
+        call xflush(6)
+      end subroutine
       end subroutine fciqmc_ctl
       end module fciqmc

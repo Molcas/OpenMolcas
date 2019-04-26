@@ -57,8 +57,8 @@
      &    finalize_dmrg, dump_dmrg_info
 #endif
       use stdalloc
-      use fciqmc, only : FCIQMC_ctl, DumpOnly, DoNECI
-      use fcidump, only : make_fcidumps
+      use fciqmc, only : FCIQMC_ctl, DoNECI
+      use fcidump, only : make_fcidumps, transform, DumpOnly
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -116,6 +116,9 @@
       COMMON  / OFembed_I / ipFMaux, ip_NDSD, l_NDSD
       Character*8 EMILOOP
 * --------- End Orbital-Free Embedding stuff
+* --------- FCIDUMP stuff:
+      real(8), allocatable :: orbital_E(:), folded_Fock(:)
+* --------- End FCIDUMP stuff:
 
       Common /IDSXCI/ IDXCI(mxAct),IDXSX(mxAct)
 
@@ -766,15 +769,20 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
         Call Timing(Swatch,Swatch,Zenith_1,Swatch)
 
         if (DumpOnly) then
-          call make_fcidumps(iter, nacpar, nAsh,
-     &                       TUVX=work(ltuvx : ltuvx + nAcPr2 - 1),
-     &                       DIAF=work(LDIAF : LDiaf + nTot - 1),
-     &                       CMO=work(LCMO : LCMO + nTot2 - 1),
-!     &                       DSPN=work(ldspn : ldspn + nAcPar - 1),
-     &                       F_IN=work(lfi : lfi + nTot1 - 1),
-     &                       D1I_MO=work(ld1i : ld1i + nTot2 - 1),
-!     &                       D1A=work(ld1a : ld1a + nTot2 - 1),
-     &                       core_energy=EMY)
+          call mma_allocate(orbital_E, nTot)
+          call mma_allocate(folded_Fock, nAcPar)
+          call transform(iter,
+     &                    CMO=work(LCMO : LCMO + nTot2 - 1),
+     &                    DIAF=work(LDIAF : LDiaf + nTot - 1),
+     &                    D1I_MO=work(ld1i : ld1i + nTot2 - 1),
+     &                    F_IN=work(lfi : lfi + nTot1 - 1),
+     &                    orbital_E=orbital_E,
+     &                    folded_Fock=folded_Fock)
+          call make_fcidumps(orbital_E, folded_Fock,
+     &                    TUVX=work(ltuvx : ltuvx + nAcPr2 - 1),
+     &                    core_energy=EMY)
+          call mma_deallocate(orbital_E)
+          call mma_deallocate(folded_Fock)
           write(6,*) "FCIDMP file generated. Here for serving you!"
           goto 2010
         end if
@@ -1066,7 +1074,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
      &                    PSMAT=work(lpmat : lPMat + nAcpr2 - 1),
      &                    PAMAT=work(lpa : lpa + nAcPr2 - 1),
      &                    F_IN=work(lfi : lfi + nTot1 - 1),
-     &                    D1I=work(ld1i : ld1i + nTot2 - 1),
+     &                    D1I_MO=work(ld1i : ld1i + nTot2 - 1),
 !     &                    D1A=work(ld1a : ld1a + nTot2 - 1),
      &                    TUVX=work(ltuvx : ltuvx + nAcPr2 - 1))
 
@@ -1718,7 +1726,7 @@ c Clean-close as much as you can the CASDFT stuff...
      &                    PSMAT=work(lpmat : lPMat + nAcpr2 - 1),
      &                    PAMAT=work(lpa : lpa + nAcPr2 - 1),
      &                    F_IN=work(lfi : lfi + nTot1 - 1),
-     &                    D1I=work(ld1i : ld1i + nTot2 - 1),
+     &                    D1I_MO=work(ld1i : ld1i + nTot2 - 1),
 !     &                    D1A=work(ld1a : ld1a + nTot2 - 1),
      &                    TUVX=work(ltuvx : ltuvx + nAcPr2 - 1))
       else

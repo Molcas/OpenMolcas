@@ -15,7 +15,7 @@ module fcidump_transformations
   use stdalloc, only : mma_allocate, mma_deallocate
   implicit none
   private
-  public :: get_orbital_E, get_folded_Fock
+  public :: get_orbital_E, fold_Fock
 contains
 
 !>  @brief
@@ -86,7 +86,7 @@ contains
 !>  @param[in] D1I_MO The inactive one-body density matrix in MO-space
 !>  @param[in] cutoff Optional parameter that is set by default to
 !>    fciqmc_tables::cutoff_default.
-  subroutine get_folded_Fock(CMO, F_In, D1I_MO, folded_Fock)
+  subroutine fold_Fock(CMO, F_In, D1I_MO, folded_Fock)
     use general_data, only : nActEl, nAsh, ntot, ntot1, ntot2
     use rasscf_data, only : nAcPar, core_energy => Emy
     use index_symmetry, only : one_el_idx_flatten
@@ -128,6 +128,6 @@ contains
       n = one_el_idx_flatten(i, i)
       folded_Fock(n) = folded_Fock(n) - core_E_per_act_el
     end do
-  end subroutine get_folded_Fock
+  end subroutine fold_Fock
 
 end module fcidump_transformations
