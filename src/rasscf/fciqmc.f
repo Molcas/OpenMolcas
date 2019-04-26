@@ -176,7 +176,6 @@ c      end if
 ! This call is not side effect free and sets EMY
       call transform(iter, CMO, DIAF, D1I_MO, F_IN,
      &                orbital_E, folded_Fock)
-     &
 
       if (ReOrFlag /= 0) then
         call make_fcidumps(orbital_E, folded_Fock, TUVX, EMY,

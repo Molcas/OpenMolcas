@@ -463,8 +463,8 @@
 * blas routine for square*triangular operation
       Call GetMem('Scr','Allo','Real',iTmp,nac*nac)
       Call GetMem('Scr2','Allo','Real',iTmp2,nac*nac)
-      Call dCopy_(nac*nac,0.0d0,0,Work(iTmp),1)
-      Call dCopy_(nac*nac,0.0d0,0,Work(iTmp2),1)
+      Call dCopy_(nac*nac,[0.0d0],0,Work(iTmp),1)
+      Call dCopy_(nac*nac,[0.0d0],0,Work(iTmp2),1)
 c     call DTRMM('R','L','N','n',nac,nac,1.0d0,MAT,nac,Work(iTmp))
       do i = 0, nac-1
           do j = 0, nac-1
