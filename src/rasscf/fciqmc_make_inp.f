@@ -127,7 +127,7 @@ c      end if
       write(file_id,'(A7)') 'logging'
       write(file_id, I_fmt) 'Highlypopwrite', Highlypopwrite
       write(file_id,'(A24)') 'Print-Spin-Resolved-RDMS'
-      write(file_id,'(A10)') 'binarypops'
+      write(file_id,'(A)') 'hdf5-pops'
       write(file_id,'(A11)') 'printonerdm'
       write(file_id, '("diagflyonerdm")')
       write(file_id,'(A,1x,I0,1x,I0,1x,I0)')
