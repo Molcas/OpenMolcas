@@ -38,20 +38,20 @@
                 detR=detR*A(i,i)
             enddo
             B=[y-sb,dy]
-            write (6,*) 'sb:',sb
-            write (6,*) 'y',y
-            write (6,*) 'dy:',dy
+            ! write (6,*) 'sb:',sb
+            ! write (6,*) 'y',y
+            ! write (6,*) 'dy:',dy
             Ys=B
             A=full_r
             CALL DGESV_(m_t,1,A,m_t,IPIV,B,m_t,INFO )
             Kv=b !Kv=K
 !Likelihood function
-            write(6,*) 'full_R',full_r
+            ! write(6,*) 'full_R',full_r
             variance=dot_product(Ys,Kv)/m_t
-            write(6,*) 'detR',detR
-            write(6,*) 'Ys:',Ys
-            write(6,*) 'Kv:',Kv
-            write(6,*) 'Variance:',variance
+            ! write(6,*) 'detR',detR
+            ! write(6,*) 'Ys:',Ys
+            ! write(6,*) 'Kv:',Kv
+            ! write(6,*) 'Variance:',variance
             lh=variance*exp(log(abs(detr))/m_t)
             ! if (detr<0) then
             !     lh=variance*exp(log(-detr)/m_t)
