@@ -24,6 +24,7 @@
 #include "Files.fh"
 #include "WrkSpc.fh"
       DIMENSION PROP(NSTATE,NSTATE,NPROP)
+      REAL*8, EXTERNAL :: DCLEBS
 *
       IPRNUM=-1
 C IFSPIN takes values the values 0,1,2
@@ -141,13 +142,15 @@ C here and form the inner product
 C (k x e_l)_i V^{AB} . T(i)
 C outside the code.
 C
-*define _TEST_
-#ifdef _TEST_
+C
+C Note that this code stricktly follows the code of soeig.f where
+C the term L.S is added to the Hamiltonian.
+C
                   FACT=1.0D0/SQRT(DBLE(MPLET1))
                   IF(MPLET1.EQ.MPLET2-2) FACT=-FACT
                   CGM=FACT*DCLEBS(S2,1.0D0,S1,SM2,-1.0D0,SM1)
                   CG0=FACT*DCLEBS(S2,1.0D0,S1,SM2, 0.0D0,SM1)
-                  CGP=FACT*DCLEBS(S2,1.0D0,S1,SM2,+0.0D0,SM1)
+                  CGP=FACT*DCLEBS(S2,1.0D0,S1,SM2,+1.0D0,SM1)
                   CGX= SQRT(0.5D0)*(CGM-CGP)
                   CGY=-SQRT(0.5D0)*(CGM+CGP)
 *
@@ -161,86 +164,6 @@ C
                     EXPKR=EXPKR*CG0
                   END IF
                   PRMAT(ISS,JSS)= EXPKR
-#else
-C
-                  IF(ABS(MPLET1-MPLET2).GT.2) CYCLE
-                  IF(ABS(MSPROJ1-MSPROJ2).GT.2) CYCLE
-C
-                  SXMER =0.0D0
-                  SYMEI =0.0D0
-                  SZMER =0.0D0
-                  SMINUS=0.0D0
-                  SPLUS =0.0D0
-                  ONE   =1.0D0
-                  TWO   =2.0D0
-C
-                  IF(MPLET1+2.EQ.MPLET2) THEN ! <SM|O|S+1M+?>
-C
-C                   MSPROJ1-MSPROJ2=-2
-                    IF (MSPROJ1+2.eq.MSPROJ2) THEN ! <SM|O|S+1M+1>
-                      SPLUS =-0.5D0*SQRT((S1+SM1+ONE)*(S1+SM1+TWO))
-                      SXMER =+SPLUS
-                      SYMEI =+SPLUS
-C
-C                   MSPROJ1-MSPROJ2= 0
-                    ELSE IF (MSPROJ1.eq.MSPROJ2) THEN ! <SM|O|S+1M>
-                      SZMER =SQRT((S1+ONE)**2-SM1**2)
-C
-C                   MSPROJ1-MSPROJ2=+2
-                    ELSE IF (MSPROJ1-2.eq.MSPROJ2) THEN ! <SM|O|S+1M-1>
-                      SMINUS=-0.5D0*SQRT((S1-SM1+ONE)*(S1-SM1+TWO))
-                      SXMER =-SMINUS
-                      SYMEI =+SMINUS
-                    END IF
-C
-                  ELSE IF(MPLET1.EQ.MPLET2) THEN ! <SM|O|SM+?>
-C
-C                   MSPROJ1-MSPROJ2=-2
-                    IF (MSPROJ1+2.eq.MSPROJ2) THEN ! <SM|O|SM+1>
-                      SPLUS = 0.5D0*SQRT((S1-SM1)*(S1+SM1+ONE))
-                      SXMER =+SPLUS
-                      SYMEI =+SPLUS
-C
-C                   MSPROJ1-MSPROJ2= 0
-                    ELSE IF (MSPROJ1.eq.MSPROJ2) THEN ! <SM|O|SM>
-                      SZMER =SM1
-C
-C                   MSPROJ1-MSPROJ2=+2
-                    ELSE IF (MSPROJ1-2.eq.MSPROJ2) THEN ! <SM|O|SM-1>
-                      SMINUS=-0.5D0*SQRT((S1+SM1)*(S1-SM1+ONE))
-                      SXMER =-SMINUS
-                      SYMEI =+SMINUS
-                    END IF
-C
-                  ELSE IF(MPLET1-2.EQ.MPLET2) THEN ! <SM|O|S-1M+?>
-C
-C                   MSPROJ1-MSPROJ2=-2
-                    IF (MSPROJ1+2.eq.MSPROJ2) THEN ! <SM|O|S-1M+1>
-                      SPLUS =0.5D0*SQRT((S1-SM1)*(S1-SM1-ONE))
-                      SXMER = SPLUS
-                      SYMEI = SPLUS
-C
-C                   MSPROJ1-MSPROJ2= 0
-                    ELSE IF (MSPROJ1.eq.MSPROJ2) THEN ! <SM|O|S-1M>
-                      SZMER =SQRT(S1**2-SM1**2)
-C
-C                   MSPROJ1-MSPROJ2=+2
-                    ELSE IF (MSPROJ1-2.eq.MSPROJ2) THEN ! <SM|O|S-1M-1>
-                      SMINUS=0.5D0*SQRT((S1+SM1)*(S1+SM1-ONE))
-                      SXMER =-SMINUS
-                      SYMEI = SMINUS
-                    END IF
-C
-                  END IF
-C
-                  IF (IPRCMP.EQ.1) THEN
-                    PRMAT(ISS,JSS)=SXMER * PROP(ISTATE,JSTATE,IPRNUM)
-                  ELSE IF (IPRCMP.EQ.2) THEN
-                    PRMAT(ISS,JSS)=SYMEI * PROP(ISTATE,JSTATE,IPRNUM)
-                  ELSE IF (IPRCMP.EQ.3) THEN
-                    PRMAT(ISS,JSS)=SZMER * PROP(ISTATE,JSTATE,IPRNUM)
-                  END IF
-#endif
           END IF
 
          END DO
