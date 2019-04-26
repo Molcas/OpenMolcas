@@ -99,13 +99,10 @@ contains
 ! active one-body density matrix in AO-space
         D1A_AO(:),&
 ! active one-body density matrix in MO-space
-        D1A_MO(:),&
-        F_In_copy(:)
+        D1A_MO(:)
 
     call mma_allocate(D1A_AO, nTot2)
     call mma_allocate(D1A_MO, nTot2)
-    call mma_allocate(F_In_copy, size(F_In))
-    F_In_copy(:) = F_In(:)
     call get_D1A_RASSCF(CMO, D1A_MO, D1A_AO)
 ! SGFCIN has side effects and EMY/core_energy is set in this routine.
 ! Besides F_In will contain the one electron contribution afterwards,
@@ -113,7 +110,6 @@ contains
 
 ! SGFCIN has to be called once with F_In
     call SGFCIN(CMO, folded_fock, F_In, D1I_MO, D1A_MO, D1A_AO)
-    call mma_deallocate(F_In_copy)
     call mma_deallocate(D1A_MO)
     call mma_deallocate(D1A_AO)
 
