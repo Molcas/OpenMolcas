@@ -80,11 +80,10 @@
      &           KSDFT(1:6).eq.'FTLSDA'  .or.
      &           KSDFT(1:6).eq.'FTBLYP'
 
-      Call Get_iScalar('System BitSwitch',iDFT)
       If( l_casdft ) then
         DFTFOCK='ROKS'
-        iDFT=iOr(iDFT,2**6)
-        Call Put_iScalar('System BitSwitch',iDFT)
+        iOpt=iOr(iOpt,2**6)
+        Call Put_iScalar('System BitSwitch',iOpt)
       End IF
 
       Call Get_iScalar('System BitSwitch',iDFT)

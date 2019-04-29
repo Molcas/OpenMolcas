@@ -61,7 +61,6 @@
       Write(Fmt2,'(A,I3.3,A)') '(',left,'X,'
 *----------------------------------------------------------------------*
 
-      debug = .true.
       iDis=0
 *
       fail=.false.
@@ -181,12 +180,7 @@
       Else
         Call RHS_SA(Work(ipTemp4))
       End If
-* 
-      write(*,*) 'RHS'
-      do i=1,ndens2
-      write(*,*) Work(ipTemp4-1+i)
-      end do
-
+*
       irc=opOut(ipci)
 *
       If (lprint) Write(6,*)
@@ -233,7 +227,6 @@
          Call TimesE2(Work(ipdKap),ipCId,1,reco,jspin,ipS2,
      &                Work(ipTemp4),ipS1)
 *
-*
 *-----------------------------------------------------------------------------
 *
 *                   delta
@@ -279,7 +272,6 @@
          Call DMinvCI_SA(ipST,Work(ipIn(ipS2)),rCHC,isym,work(ipS))
          irc=opOut(ipci)
          irc=opOut(ipdia)
-
 
          Call DMInvKap(Work(ipIn(ipPre2)),Work(ipSigma),nDens2+6,
      &                 Work(ipSc2),nDens2+6,Work(ipSc1),nDens2+6,

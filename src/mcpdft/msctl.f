@@ -253,10 +253,15 @@ C Local print level (if any)
 !       do d_off=1,1!100!,43!33,33!1,43
 
        !Load a fresh FockI and FockA
+        if(jroot.eq.irlxroot) then
          Call dcopy_(ntot1,FI,1,Work(ifocki),1)
-         Call dcopy_(ntot1,FA,1,Work(ifocka),1)
-
-
+*         Call dcopy_(ntot1,FA,1,Work(ifocka),1)
+        end if
+       write(6,*) 'FA fresh'
+        call wrtmat(Work(ifocka),1,ntot1,1,ntot1)
+        write(6,*) 'FI fresh'
+        call wrtmat(Work(ifocki),1,ntot1,1,ntot1)
+*
 !Read in the density matrices for <jroot>.
 !         Call Fzero(Work(ijVec),nConf)
          Call Fzero(Work(iD1Act),NACPAR)
@@ -541,10 +546,93 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
 ************************************************************************
 
       If (.not.DoCholesky .or. ALGO.eq.1) Then
+      If (jroot.eq.irlxroot) Then
+*TRS
+        dmDisk = IADR19(3)
+        do lil_loop=1,irlxroot-1
+          Call DDaFile(JOBOLD,0,Work(iD1Act),NACPAR,dmDisk)
+          Call DDaFile(JOBOLD,0,Work(iD1Spin),NACPAR,dmDisk)
+          Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,dmDisk)
+          Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,dmDisk)
+        end do
+        Call DDaFile(JOBOLD,2,Work(iD1Act),NACPAR,dmDisk)
+        Call Get_D1A_RASSCF_m(CMO,Work(iD1Act),Work(iD1ActAO))
+*****
+        Call GetMem('lcmo','ALLO','Real',lcmo,ntot2)
+        CALL DCOPY_(NTOT2,CMO,1,WORK(LCMO),1)
+        if(iprlev.ge.debug) then 
+            write(6,*) 'cmo after before fmat'
+            do i=1,ntot2
+              write(*,*) work(lcmo-1+i)
+            end do
+            write(6,*) 'lpuvx after before fmat'
+            do i=1,nfint
+              write(*,*) work(lpuvx-1+i)
+            end do
+            write(6,*) 'id1act after before fmat'
+            do i=1,nacpar
+              write(*,*) work(id1act-1+i)
+            end do
+            write(6,*) 'id1actao after before fmat'
+            do i=1,ntot2
+              write(*,*) work(id1actao-1+i)
+            end do
+        end if
+        Call GetMem('FockI_save','ALLO','Real',ifocki_save,ntot1)
+        if(iprlev.ge.debug) then
+            write(6,*) 'ifocki after before fmat'
+            do i=1,ntot1
+              write(*,*) work(ifocki-1+i)
+            end do
+        end if
+*
+        call  dcopy_(ntot1,work(ifocki),1,work(ifocki_save),1) 
+*
+        if (iprlev.ge.debug) then
+             write(6,*) 'ifocki_save after before fmat'
+             do i=1,ntot1
+               write(*,*) work(ifocki_save-1+i)
+             end do
+*
+             write(6,*) 'ifocka after before fmat'
+             do i=1,ntot1
+               write(*,*) work(ifocka-1+i)
+             end do
+         end if
+*
+         do i=1,nacpr2
+         call dcopy_(nacpr2,0.0d0,1,Work(ltuvx_tmp-1+i),1)
+         end do
+*
+*         CALL DCOPY_(NTOT2,CMO,1,WORK(LCMO),1)
+*
+         do i=1,nfint
+         Call dcopy_(nfint,0.0D0,1,WORK(lpuvx_tmp-1+i),1)
+         end do
+*
+*
+         CALL TRA_CTL2(WORK(lcmo),
+     &          WORK(LPUVX_tmp),WORK(LTUVX_tmp),WORK(id1actao)
+     &         ,WORK(ifocka),WORK(id1i),WORK(ifocki),IPR,lSquare,ExFac)
+*
+
+*
          Call Fmat_m(CMO,Work(lPUVX),Work(iD1Act),Work(iD1ActAO),
-     &             Work(iFockI),Work(iFockA))
+     &             Work(iFockI_save),Work(iFockA))
+        call  dcopy_(ntot1,work(ifocki_save),1,work(ifocki),1)
+        Call GetMem('FockI_Save','Free','Real',ifocki_save,ntot1)
+        Call GetMem('lcmo','Free','Real',lcmo,ntot2)
 !
 !
+        if (iprlev.ge.debug) then
+             write(6,*) 'FA after fmat 1'
+             call wrtmat(Work(ifocka),1,ntot1,1,ntot1)
+             write(6,*) 'FI after fmat 1'
+             call wrtmat(Work(ifocki),1,ntot1,1,ntot1)
+        end if
+      end if
+*TRS
+ 
         If ( IPRLEV.ge.DEBUG ) then
         write(6,*) 'FA_old'
         call wrtmat(Work(ifocka),1,ntot1,1,ntot1)
@@ -668,17 +756,73 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
           end if
         end do
         end if
+*
+*         do i=1,nacpr2
+*         call dcopy_(nacpr2,0.0d0,1,Work(ltuvx_tmp-1+i),1)
+*         end do
+*
+*         CALL DCOPY_(NTOT2,CMO,1,WORK(LCMO),1)
+*
+*         do i=1,nfint
+*         Call dcopy_(nfint,0.0D0,1,WORK(lpuvx_tmp-1+i),1)
+*         end do
+*
+*
+*         CALL TRA_CTL2_(WORK(lcmo),
+*     &          WORK(LPUVX_tmp),WORK(LTUVX_tmp),WORK(id1actao)
+*     &         ,WORK(ifocka),WORK(id1i),WORK(ifocki),IPR,lSquare,ExFac)
+*
+*         write(6,*) 'cmo after before fmat 2'
+*         do i=1,ntot2
+*           write(*,*) work(lcmo-1+i)
+*         end do
+*        write(6,*) 'lpuvx after before fmat 2'
+*         do i=1,nfint
+*           write(*,*) work(lpuvx-1+i)
+*         end do
+*        write(6,*) 'id1act after before fmat 2'
+*         do i=1,nacpar
+*           write(*,*) work(id1act-1+i)
+*         end do
+*        write(6,*) 'id1actao after before fmat 2'
+*         do i=1,ntot2
+*           write(*,*) work(id1actao-1+i)
+*         end do
+*        
+*         write(6,*) 'ifocki_save after before fmat 2'
+*         do i=1,ntot1
+*           write(*,*) work(ifocki_save-1+i)
+*         end do
+*        write(6,*) 'ifocka after before fmat 2'
+*         do i=1,ntot1
+*           write(*,*) work(ifocka-1+i)
+*         end do
+*
+         
+*        Call Fmat_m(CMO,Work(lPUVX),Work(iD1Act),Work(iD1ActAO),
+*     &             Work(iFockI_save),Work(iFockA))
+*       call  dcopy_(ntot1,work(ifocki_save),1,work(ifocki),1)
+*
+*        Call GetMem('FockI_Save','Free','Real',ifocki_save,ntot1)
+*        Call GetMem('lcmo','Free','Real',lcmo,ntot2)
+*
+        write(6,*) 'FA msctl after fmat 2'
+        call wrtmat(Work(ifocka),1,ntot1,1,ntot1)
+        write(6,*) 'FI msctl after fmat 2'
+        call wrtmat(Work(ifocki),1,ntot1,1,ntot1)
+
+!
 
 !______________________________________________________
 !Grab the active-active part of the FI+FA matrix (currently held in the
 !FA matrix) and place it in an array of size NACPAR.  Add the oeotp to
 !it.  Write to file.
-        If ( IPRLEV.ge.DEBUG ) then
+*        If ( IPRLEV.ge.DEBUG ) then
       write(6,*) "FA+FI to send to MCLR"
       do i=1,Ntot1
         write(6,*) Work(ifocka-1+i)
       end do
-        end if
+*        end if
 
       Call GetMem('F_ONE','ALLO','Real',iFone,NTOT1)
       CALL DCOPY_(NTOT1,0.0D0,0,WORK(iFone),1)
@@ -691,6 +835,10 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
       CALL GETMEM('FI_V','ALLO','REAL',ifiv,Ntot1)
       Call Get_dArray('FI_V',work(ifiv),NTOT1)
 !         Call Dscal_(nTOT1,4.0d0,Work(ifiv),1)
+         write(6,*) 'fiv after tractl'
+         do i=1,ntot1
+           write(*,*) work(ifiv-1+i)
+         end do
 
       !Call daxpy_(ntot1,0.5d0,Work(ifiv),1,Work(iFocka),1)
       Call daxpy_(ntot1,1.0d0,Work(ifiv),1,Work(iFocka),1)
@@ -723,12 +871,12 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
           end do
         end do
       end do
-        If ( IPRLEV.ge.DEBUG ) then
+*        If ( IPRLEV.ge.DEBUG ) then
       write(6,*) 'F1 to send'
       do i=1,NTOT1
         write(6,*) work(iFone-1+i)
       end do
-        end if
+*        end if
 
       !Add the V_kktu contribution to Fone_tu?
 !STILL MUST DO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1039,11 +1187,11 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
 
       Call GetMem('D1copy','Allo','Real',iD1c,NACPAR)
       Call DCOPY_(NACPAR,D1MO,1,Work(iD1c),1)
-*      Call DSCAL_(NACPAR,0.50d0,Work(iD1c),1)
-*      do i=1,nac
-*         Work(iD1c + iTrii(i,i)-1) =
-*     &   work(iD1c + iTrii(i,i)-1)*2
-*      end do
+!      Call DSCAL_(NACPAR,0.50d0,Work(iD1c),1)
+!      do i=1,nac
+!         Work(iD1c + iTrii(i,i)-1) =
+!     &   work(iD1c + iTrii(i,i)-1)*2
+!      end do
 
 
        ijkl=0

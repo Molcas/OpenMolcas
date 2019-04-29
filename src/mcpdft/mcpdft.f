@@ -162,17 +162,12 @@
 !      write(*,*) 'KSDFT: ',KSDFT
 *
 !      write(*,*) LUINPUT, IRC
-* Make a copy, upper-cased, left-adjusted, of the input between and
-* including
-* the '&MCPDFT' and the 'End of input' markers, skipping all lines
-* beginning
-* with '*' or '!' or ' '  when left-adjusted, and replacing any
-* rightmost
+* Make a copy, upper-cased, left-adjusted, of the input between and including
+* the '&MCPDFT' and the 'End of input' markers, skipping all lines beginning
+* with '*' or '!' or ' '  when left-adjusted, and replacing any rightmost
 * substring beginning with '!' with blanks.
-* That copy will be in file 'CleanInput', and its unit number is
-* returned
-* as LUInput in common (included file input_ras.fh) by the following
-* call:
+* That copy will be in file 'CleanInput', and its unit number is returned
+* as LUInput in common (included file input_ras.fh) by the following call:
       LUSpool = 5
       Call cpinp_(LUInput,iRc)
 !      write(*,*) LUINPUT, IRC
@@ -192,8 +187,7 @@
       If (iRc.ne._RC_ALL_IS_WELL_) Then
        If (IPRLOC(1).GE.TERSE) Then
         Call WarningMessage(2,'Scanning input file failed.')
-* Calling again, now with iRc indicating an error, will echo the
-* keywords:
+* Calling again, now with iRc indicating an error, will echo the keywords:
         Call Scan_Inp_m(iRc)
        End If
        IRETURN=_RC_INPUT_ERROR_
@@ -522,9 +516,15 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
        IF(IPRLOC(2).EQ.4) IPR=5
        IF(IPRLOC(2).EQ.5) IPR=10
 
-
        CALL TRACTL2(WORK(LCMO),WORK(LPUVX),WORK(LTUVX),WORK(LD1I),
      &              WORK(LFI),WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
+*       If ( IPRLEV.ge.DEBUG ) then
+        write(6,*) 'FA_old'
+        call wrtmat(Work(lfa),1,ntot1,1,ntot1)
+        write(6,*) 'FI_old'
+        call wrtmat(Work(lfi),1,ntot1,1,ntot1)
+*        End if
+
        Call Put_CMO(Work(LCMO),ntot2)
 
 
@@ -579,8 +579,7 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
       IFINAL=2
       ICICH=0
 *****************************************************************************************
-***************************           Closing up MC-PDFT
-****************************
+***************************           Closing up MC-PDFT      ***************************
 *****************************************************************************************
 
 ************************************************************************
@@ -592,6 +591,7 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
           Call GetMem('PUVX','Allo','Real',LPUVX,NFINT)
           Call FZero(Work(LPUVX),NFINT)
         EndIf
+
         CALL TRACTL2(WORK(LCMO),WORK(LPUVX),WORK(LTUVX),WORK(LD1I),
      &             WORK(LFI),WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
 
@@ -620,8 +620,7 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
         Call GetMem('Fcore','FREE','Real',iTmp1,nTot1)
         Call GetMem('PUVX','FREE','Real',LPUVX,NFINT)
         deallocate(PLWO)
-        Call Put_iScalar('PDFT ready',0) !Necessary for analgrad in
-C       Alaska.
+        Call Put_iScalar('PDFT ready',0) !Necessary for analgrad in Alaska.
 
 
       End If
@@ -631,8 +630,7 @@ C       Alaska.
 * release SEWARD
 *
       Call ClsSew
-* ClsSew is needed for releasing memory used by integral_util, rys...
-* which is allocated when MC-PDFT run is performed.
+* ClsSew is needed for releasing memory used by integral_util, rys... which is allocated when MC-PDFT run is performed.
 
 *---  Finalize Cholesky information if initialized
       if (DoCholesky)then
@@ -744,3 +742,4 @@ C Close the one-electron integral file:
       Call qExit(ROUTINE)
       return
       End
+
