@@ -18,13 +18,12 @@ C
       nspAI = 3
       anAI = .True.
       pAI = 2
-      npxAI = 100
+      npxAI = 1
       lb(1) = 0.1
       lb(2) = 6.0
       lb(3) = 10
       miAI = 10
       meAI = 1.0D-6
-      lm_save = -99
 *
       nInter_save=-1
       nPoints_save=-1

@@ -18,7 +18,7 @@
         nPoints=nPoints_save
         nInter=nInter_save
 !
-        npx=1
+        npx = npxAI
 !nx is the n-dimensional vector of the last iteration computed in update_sl
 ! subroutine
         nx = x_
@@ -38,7 +38,7 @@
         nPoints=nPoints_save
         nInter=nInter_save
 !
-        npx=1
+        npx = npxAI
 !nx is the n-dimensional vector of the last iteration computed in update_sl
 ! subroutine
         nx = x_
@@ -58,7 +58,7 @@
 !         nPoints=nPoints_save
 !         nInter=nInter_save
 ! !
-!         npx=1
+!         npx = npxAI
 ! !nx is the n-dimensional vector of the last iteration computed in update_sl
 ! ! subroutine
 !         nx = x_
