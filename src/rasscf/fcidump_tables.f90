@@ -105,9 +105,6 @@ contains
     real(kind=8), intent(in) :: orbital_energies(:)
     integer :: i, n, iSym, iOff
 
-    integer, parameter :: max_test = 20
-    integer :: l_orb_test
-
     iOff = 0
     n = 1
     do iSym = 1, nSym
@@ -120,11 +117,6 @@ contains
       end if
       iOff   = iOff + nBas(iSym)
     end do
-! ========== For testing purposes FROM HERE =============
-    l_orb_test = min(max_test, length(table))
-    call Add_Info('Orbital Energy Input', &
-      table%values(:l_orb_test), l_orb_test, 8)
-! ========== For testing purposes TO HERE ===============
   end subroutine fill_orbitals
 
   pure integer function OrbitalTable_length(table)
@@ -188,8 +180,7 @@ contains
     type(FockTable), intent(inout) :: fock_table
     real(8), optional, intent(in) :: cutoff
 
-    integer :: i, n, l_fock_test
-    integer, parameter :: max_test = 20
+    integer :: i, n
     real(8) :: cutoff_
 
     cutoff_ = merge(cutoff, cutoff_default, present(cutoff))
@@ -204,10 +195,6 @@ contains
     end do
     fock_table%length = n
     fock_table%cutoff = cutoff_
-! ========== For testing purposes FROM HERE =============
-    l_fock_test = min(max_test, length(fock_table))
-    call Add_Info('Fock element Input', Fock(:l_fock_test), l_fock_test, 8)
-! ========== For testing purposes TO HERE ===============
   end subroutine fill_fock
 
   pure integer function FockTable_length(table)

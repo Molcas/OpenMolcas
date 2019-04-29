@@ -12,6 +12,7 @@
 ************************************************************************
       Subroutine Proc_Inp(DSCF,Info,lOPTO,iRc)
 
+      use stdalloc, only : mma_allocate, mma_deallocate
 #ifdef _DMRG_
 ! module dependencies
       use qcmaquis_interface_environment, only: initialize_dmrg
@@ -51,7 +52,6 @@
 * FCIQMC stuff:
 #include "rasscf_lucia.fh"
 *^ needed for passing kint1_pointer
-#include "stdalloc.fh"
 #ifdef _HDF5_
 #  include "mh5.fh"
 #endif
