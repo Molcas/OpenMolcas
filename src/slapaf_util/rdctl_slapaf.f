@@ -514,7 +514,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *     The resolution of the predicted path
 *
 103   Char=Get_Ln(LuRd)
-      Call Get_I(1,npxAI)
+      Call Get_I(1,npxAI,1)
       Go To 999
 *                                                                      *
 ****** AIP  ************************************************************
@@ -522,7 +522,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *     Parameter of differentiability for Mat`ern function
 *
 104   Char=Get_Ln(LuRd)
-      Call Get_F(1,pAI)
+      Call Get_F(1,pAI,1)
       If(pAI.gt.2.or.pAI.lt.1) anAI = .False.
       Go To 999
 *                                                                      *
@@ -531,7 +531,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *     Defining the number of source points for the AI method
 *
 105   Char=Get_Ln(LuRd)
-      Call Get_I(1,nspAI)
+      Call Get_I(1,nspAI,1)
       Go To 999
 *                                                                      *
 ****** AIMI ************************************************************
@@ -539,7 +539,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *     Maximum number of Iterations for the AI method
 *
 106   Char=Get_Ln(LuRd)
-      Call Get_I(1,miAI)
+      Call Get_I(1,miAI,1)
       Go To 999
 *                                                                      *
 ****** AIME ************************************************************
@@ -548,7 +548,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *     (loop exit condition)
 *
 107   Char=Get_Ln(LuRd)
-      Call Get_I(1,meAI)
+      Call Get_I(1,meAI,1)
       Go To 999
 *                                                                      *
 ****** BAKE ************************************************************
