@@ -282,40 +282,21 @@
 *            write(6,*) Work(ipin(ipST)-1+iS)
 *          end do
 
-
+*TRS
       troot = (irlxroot - 1)
-      write(*,*) 'troot',troot
       Do i=0,nroots-1
         if (i.eq.troot) then
-!        if (.true.) then
           Call Dscal_(nconf1,(1/weight(i+1)),
      &            Work(ipin(ipST)+i*nconf1),1)
-          write(*,*) "weight", weight(i+1)
-          write(*,*) 'root-1=',i
-
           rE=ddot_(nconf1,Work(ipin(ipST)+i*nconf1),1,
      &         Work(ipin(ipci)+i*nconf1),1)
-
-*          write(*,*) 'E_0 energy', rE
-
-*          write(6,*) 'CI VECTOR', irlxroot
-*          do iS=1,nconf1
-*            write(6,*) Work(ipin(ipCI)+i*nconf1-1+iS)
-*          end do
-
-          Call Daxpy_(nconf1,-rE,Work(ipin(ipCI)+i*nconf1),1,
+         Call Daxpy_(nconf1,-rE,Work(ipin(ipCI)+i*nconf1),1,
      &              Work(ipin(ipST)+i*nconf1),1)
-         
-*         write(6,*) 'RHS CI part:'
-*          do iS=1,nconf1*nroots
-*            write(6,*) Work(ipin(ipST)-1+iS)
-*          end do
         else 
         call dcopy_(nConf1,Zero,0,Work(ipIn(ipst)+i*nconf1),1)
         end if
       Enddo
-
-*      call dcopy_(nConf1,Zero,0,Work(ipIn(ipst)),1)
+*TRS
 
       Call DSCAL_(nconf1*nroots,-2.0d0,Work(ipin(ipST)),1)
       if (debug) then
@@ -336,6 +317,12 @@
       call dcopy_(nDens2,Zero,0,Work(ipFT99),1)
       call dcopy_(nDens2+6,Zero,0,Work(ipTemp5),1)
       Call get_dArray('Fock_PDFT',Work(ipFT99),nDens2)
+*Printing out Fxy components
+      write(6,*) 'RHS orb part:'
+      do iS=1,nDens2
+        write(6,*) Work(ipFT99-1+iS)
+      end do
+*
       Do iS=1,nSym
          jS=iEOR(iS-1,0)+1
          If (nBas(is)*nBas(jS).ne.0) then
@@ -403,17 +390,16 @@
 *      do iS=1,nDens2
 *      end do
       Call Compress(Work(ipTemp4),Work(ipSigma),iSym)
-*
+*TRS
       write(*,*) 'ipsigma'
       do iS=1,ndensc
         write(*,*) Work(ipsigma-1+iS)
       end do
-*
+*TRS
       r1=ddot_(nDensc,Work(ipSigma),1,Work(ipSigma),1)
       If(debug)Write(6,*) 'Hi how about r1',r1
       Call dDaFile(LuTemp,1,Work(ipSigma),iLen,iDis)
 *
-*     call dcopy_(nConf1*nroots,Zero,0,Work(ipIn(ipst)),1)
       call dcopy_(nConf1*nroots,Zero,0,Work(ipIn(ipCIT)),1)
       call dcopy_(nConf1*nroots,Zero,0,Work(ipIn(ipCID)),1)
       irc=ipOut(ipCIT)
@@ -422,11 +408,7 @@
       Call DMInvKap(Work(ipIn(ipPre2)),Work(ipSigma),nDens2+6,
      &              Work(ipKap),nDens2+6,work(ipTemp3),nDens2+6,
      &              isym,iter)
-*
-*REMOVING ORB PRECONDITIONER
-*      Call dcopy_(ndensc,Work(ipsigma),1,
-*     &   Work(ipkap),1)
-*
+* 
       irc=opOut(ippre2)
       r2=ddot_(ndensc,Work(ipKap),1,Work(ipKap),1)
       If(debug)Write(6,*) 'In that case I think that r2 should be:',r2
@@ -439,23 +421,9 @@
 !AMS _________________________________________________________
 !I need to read in the CI portion of the RHS here.
       If (CI) Call DMinvCI_sa(ipST,Work(ipIn(ipS2)),rCHC,isym,work(ipS))
-*REMOVING CI PREC
-         Call dcopy_(nconf1*nroots,Work(ipin(ipst)),1,
+      Call dcopy_(nconf1*nroots,Work(ipin(ips2)),1,
      &   Work(ipin(ips2)),1)
-!         write(*,*) 'ips'
-!         do i=1,nroots**3
-!           write(*,*) Work (ips -1 +i)
-!         end do
-*REMOV PREC CI with IPST put back with ips2
-!???
-      Call dcopy_(nconf1*nroots,Work(ipin(ipst)),1,
-     &   Work(ipin(ipCId)),1)
-      write(*,*) 'ipst'
-      do i=1,nconf1*nroots
-        write(*,*) Work(ipin(ipst)-1+i)
-      end do
-*
-*
+ 
       If (CI) Then
         deltaC=ddot_(nConf1*nroots,Work(ipin(ipST)),
      &   1,Work(ipin(ipCId)),1)
@@ -467,16 +435,13 @@
 
       irc=ipOut(ipcid)
       deltaK=ddot_(nDensC,Work(ipKap),1,Work(ipSigma),1)
-*REMOVING ORB PART
       call dcopy_(nDens,Zero,0,Work(ipKap),1)
 *
-*
       delta=deltac+deltaK
-*         write(*,*)'deltac and deltak', deltac,deltak
       delta0=delta
       iter=1
       If (delta.eq.Zero) Goto 300
-
+*
 *-----------------------------------------------------------------------------
 *
 200   Continue
@@ -484,15 +449,6 @@
          Call TimesE2_(Work(ipdKap),ipCId,1,reco,jspin,ipS2,
      &                Work(ipTemp4),ipS1)
 
-*        write(*,*) 'ips1 after TimesE2'
-*        do i=1,nconf3*nroots
-*        write(*,*) Work(ipIn(ips1)-1+i)
-*        end do
-*TRS commenting this line out because we don't want this to be zero for
-*the other roots
-* 
-*        call dcopy_(nconf3*(nroots-1),Zero,0,Work(ipIn(ips1)+nconf3),1)
-*TRS
 *-----------------------------------------------------------------------------
 *
 *                   delta
@@ -538,9 +494,6 @@
          irc=opOut(ipcid)
 *
          Call DMinvCI_sa(ipST,Work(ipIn(ipS2)),rCHC,isym,work(ipS))
-*REMOVING CI PREC
-         Call dcopy_(nconf1*nroots,Work(ipin(ipst)),1,
-     &   Work(ipin(ips2)),1)
 *
          irc=opOut(ipci)
          irc=opOut(ipdia)
@@ -550,9 +503,6 @@
      &                 iSym,iter)
          irc=opOut(ippre2)
 *
-*REMOVE ORB PRECONDITIONER
-*         Call dcopy_(ndensc,Work(ipsigma),1,
-*     &   Work(ipsc2),1)
 *
 *
 *-------------------------------------------------------------------*
@@ -566,9 +516,6 @@
 *
          deltaC=ddot_(nConf1*nroots,Work(ipIn(ipST)),1,
      &                             Work(ipIn(ipS2)),1)
-*
-*         write(*,*) 'ipst and ips2'
-
 *
          irc=ipOut(ipST)
 *
@@ -650,8 +597,6 @@
        do i=1,ndens2
          write(6,*) Work(ipKap-1+i)
        end do
-!ANDREW - TEMPORARILY TURN OFF LAGMULT:
-!         Call dcopy_(nconf1*nroots,0.0d0,0,Work(ipin(ipCIT)),1)
        write(6,*) 'cit'
        do i=1,nconf1*nroots
          write(6,*) Work(ipin(ipCIT)-1+i)
@@ -747,7 +692,6 @@
 
       Call Kap_CI(ipTemp4,iprmoaa,ipCIOUT)
       Call Ci_Ci(ipcid,ipS2)
-*REMOVING ORB PART
       Call CI_KAP(ipCid,Work(ipSc1),Work(ipSc3),isym)
 
       Call DZaXpY(nDens,One,Work(ipSc2),1,

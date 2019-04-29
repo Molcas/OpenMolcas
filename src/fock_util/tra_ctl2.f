@@ -48,6 +48,7 @@
 *
       Call qEnter('Tra_Ctl2')
 *
+          IPR=0
       If ( IPR.gt.1 ) then
         Write(6,*)
         Write(6,*) ' Enter transformation section'

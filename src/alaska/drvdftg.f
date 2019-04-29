@@ -81,17 +81,13 @@
      &           KSDFT(1:6).eq.'FTBLYP'
 
       Call Get_iScalar('System BitSwitch',iDFT)
-      write (*,*) 'iDFT before conditional block: ',iDFT
       If( l_casdft ) then
         DFTFOCK='ROKS'
-        write (*,*) 'iDFT before switching inside cond: ',iDFT
         iDFT=iOr(iDFT,2**6)
-        write (*,*) 'iDFT after switching inside cond: ',iDFT
         Call Put_iScalar('System BitSwitch',iDFT)
       End IF
 
       Call Get_iScalar('System BitSwitch',iDFT)
-      write (*,*) 'iDFT after conditional block: ',iDFT
       If (iAnd(iDFT,2**6).ne.0) Then
 *
          Call StatusLine(' Alaska:',' Computing DFT gradients')

@@ -886,7 +886,8 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
       Call Put_dArray('Last energies',Energies,nroots)
       Call Put_cArray('Relax Method','MCPDFT  ',8)
       Call Put_dScalar('Last energy',Energies(iRlxRoot))
-          iSA = 1 !need to do MCLR for gradient runs. (1 to run, 2 to skip)
+          iSA = 1 !need to do MCLR for gradient runs. (1 to run, 2 to
+*skip)
        !MUST MODIFY THIS.  I need to check that the calculation is not
        !SA, and if it is, set iSA to -1.
       Call Put_iScalar('SA ready',iSA)
@@ -908,7 +909,8 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
 
 !Put information needed for geometry optimizations.
       !if (jroot.eq.iRlxRoot) then
-          iSA = 1 !need to do MCLR for gradient runs. (1 to run, 2 to skip)
+          iSA = 1 !need to do MCLR for gradient runs. (1 to run, 2 to
+*skip)
        !MUST MODIFY THIS.  I need to check that the calculation is not
        !SA, and if it is, set iSA to -1.
       Call Put_iScalar('SA ready',iSA)
@@ -1037,11 +1039,11 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
 
       Call GetMem('D1copy','Allo','Real',iD1c,NACPAR)
       Call DCOPY_(NACPAR,D1MO,1,Work(iD1c),1)
-!      Call DSCAL_(NACPAR,0.50d0,Work(iD1c),1)
-!      do i=1,nac
-!         Work(iD1c + iTrii(i,i)-1) =
-!     &   work(iD1c + iTrii(i,i)-1)*2
-!      end do
+*      Call DSCAL_(NACPAR,0.50d0,Work(iD1c),1)
+*      do i=1,nac
+*         Work(iD1c + iTrii(i,i)-1) =
+*     &   work(iD1c + iTrii(i,i)-1)*2
+*      end do
 
 
        ijkl=0
@@ -1066,4 +1068,5 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
        end do
        Call GetMem('D1copy','FREE','Real',iD1c,NACPAR)
       end subroutine
+
 
