@@ -37,12 +37,6 @@ End Of Input
   RAS2
     0  0  0  0  2  1  2  1
   DMPOnly
-  NECI
-    totalwalkers = 500000
-    nmcyc = 50000
-    time = 200
-    rdmsamplingiters = 500
-    calcrdmonfly = 3 500 500
 End of Input
 
 >>FILE checkfile
