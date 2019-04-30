@@ -403,7 +403,7 @@ c        End If
       If (NewFock.eq.1) Call Upd_FA_m(PUVX,FA,D,ExFac)
 
 *     print FI and FA
-*      If ( iPrLev.ge.DEBUG ) then
+      If ( iPrLev.ge.DEBUG ) then
         Write(LF,*)
         Write(LF,*) ' FI in MO-basis in fmat'
         Write(LF,*) ' --------------'
@@ -424,7 +424,7 @@ c        End If
           Call TriPrt(' ',' ',FA(iOff),iOrb)
           iOff = iOff + (iOrb*iOrb+iOrb)/2
         End Do
-*      End If
+      End If
 
       Call qExit('Fmat')
 

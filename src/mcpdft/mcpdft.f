@@ -519,10 +519,10 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
        CALL TRACTL2(WORK(LCMO),WORK(LPUVX),WORK(LTUVX),WORK(LD1I),
      &              WORK(LFI),WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
 *       If ( IPRLEV.ge.DEBUG ) then
-        write(6,*) 'FA_old'
-        call wrtmat(Work(lfa),1,ntot1,1,ntot1)
-        write(6,*) 'FI_old'
-        call wrtmat(Work(lfi),1,ntot1,1,ntot1)
+*        write(6,*) 'FA_old'
+*        call wrtmat(Work(lfa),1,ntot1,1,ntot1)
+*        write(6,*) 'FI_old'
+*        call wrtmat(Work(lfi),1,ntot1,1,ntot1)
 *        End if
 
        Call Put_CMO(Work(LCMO),ntot2)

@@ -81,8 +81,8 @@
 ***********************************************************
 C Local print level (if any)
 ***********************************************************
-      IPRLEV=IPRLOC(3)
-
+*      IPRLEV=IPRLOC(3)
+      iprlev=debug
 
 ***********************************************************
 * Load the nuclear repulsion energy
@@ -253,14 +253,14 @@ C Local print level (if any)
 !       do d_off=1,1!100!,43!33,33!1,43
 
        !Load a fresh FockI and FockA
-        if(jroot.eq.irlxroot) then
+*        if(jroot.eq.irlxroot) then
          Call dcopy_(ntot1,FI,1,Work(ifocki),1)
-*         Call dcopy_(ntot1,FA,1,Work(ifocka),1)
-        end if
-       write(6,*) 'FA fresh'
-        call wrtmat(Work(ifocka),1,ntot1,1,ntot1)
-        write(6,*) 'FI fresh'
-        call wrtmat(Work(ifocki),1,ntot1,1,ntot1)
+         Call dcopy_(ntot1,FA,1,Work(ifocka),1)
+*        end if
+*       write(6,*) 'FA fresh'
+*        call wrtmat(Work(ifocka),1,ntot1,1,ntot1)
+*        write(6,*) 'FI fresh'
+*        call wrtmat(Work(ifocki),1,ntot1,1,ntot1)
 *
 !Read in the density matrices for <jroot>.
 !         Call Fzero(Work(ijVec),nConf)
@@ -277,10 +277,10 @@ C Local print level (if any)
 !the MO to the AO basis.
 
          Call DDaFile(JOBOLD,2,Work(iD1Act),NACPAR,dmDisk)
-        write(*,*) "D1"
-        do i=1,nacpar
-          write(*,*) Work(id1act-1+i)
-        end do
+*        write(*,*) "D1"
+*        do i=1,nacpar
+*          write(*,*) Work(id1act-1+i)
+*        end do
 
       if(.false.) then
          open(unit=90,File='DMs.out',action='read')
@@ -546,7 +546,7 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
 ************************************************************************
 
       If (.not.DoCholesky .or. ALGO.eq.1) Then
-      If (jroot.eq.irlxroot) Then
+*      If (jroot.eq.irlxroot) Then
 *TRS
         dmDisk = IADR19(3)
         do lil_loop=1,irlxroot-1
@@ -630,7 +630,7 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
              write(6,*) 'FI after fmat 1'
              call wrtmat(Work(ifocki),1,ntot1,1,ntot1)
         end if
-      end if
+*      end if
 *TRS
  
         If ( IPRLEV.ge.DEBUG ) then
@@ -806,10 +806,10 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
 *        Call GetMem('FockI_Save','Free','Real',ifocki_save,ntot1)
 *        Call GetMem('lcmo','Free','Real',lcmo,ntot2)
 *
-        write(6,*) 'FA msctl after fmat 2'
-        call wrtmat(Work(ifocka),1,ntot1,1,ntot1)
-        write(6,*) 'FI msctl after fmat 2'
-        call wrtmat(Work(ifocki),1,ntot1,1,ntot1)
+*        write(6,*) 'FA msctl after fmat 2'
+*        call wrtmat(Work(ifocka),1,ntot1,1,ntot1)
+*        write(6,*) 'FI msctl after fmat 2'
+*        call wrtmat(Work(ifocki),1,ntot1,1,ntot1)
 
 !
 
@@ -817,12 +817,12 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
 !Grab the active-active part of the FI+FA matrix (currently held in the
 !FA matrix) and place it in an array of size NACPAR.  Add the oeotp to
 !it.  Write to file.
-*        If ( IPRLEV.ge.DEBUG ) then
+        If ( IPRLEV.ge.DEBUG ) then
       write(6,*) "FA+FI to send to MCLR"
       do i=1,Ntot1
         write(6,*) Work(ifocka-1+i)
       end do
-*        end if
+        end if
 
       Call GetMem('F_ONE','ALLO','Real',iFone,NTOT1)
       CALL DCOPY_(NTOT1,0.0D0,0,WORK(iFone),1)
@@ -835,10 +835,10 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
       CALL GETMEM('FI_V','ALLO','REAL',ifiv,Ntot1)
       Call Get_dArray('FI_V',work(ifiv),NTOT1)
 !         Call Dscal_(nTOT1,4.0d0,Work(ifiv),1)
-         write(6,*) 'fiv after tractl'
-         do i=1,ntot1
-           write(*,*) work(ifiv-1+i)
-         end do
+*         write(6,*) 'fiv after tractl'
+*         do i=1,ntot1
+*           write(*,*) work(ifiv-1+i)
+*         end do
 
       !Call daxpy_(ntot1,0.5d0,Work(ifiv),1,Work(iFocka),1)
       Call daxpy_(ntot1,1.0d0,Work(ifiv),1,Work(iFocka),1)
@@ -871,12 +871,12 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
           end do
         end do
       end do
-*        If ( IPRLEV.ge.DEBUG ) then
+        If ( IPRLEV.ge.DEBUG ) then
       write(6,*) 'F1 to send'
       do i=1,NTOT1
         write(6,*) work(iFone-1+i)
       end do
-*        end if
+        end if
 
       !Add the V_kktu contribution to Fone_tu?
 !STILL MUST DO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
