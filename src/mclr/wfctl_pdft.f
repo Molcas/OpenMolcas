@@ -295,7 +295,7 @@
 *
       if (debug) then
       write(6,*) 'CI VECTOR'
-      do iS=1,nconf1
+      do iS=1,nconf1*nroots
         write(6,*) Work(ipin(ipCI)-1+iS)
       end do
       end if
