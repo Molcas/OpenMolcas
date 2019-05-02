@@ -10,20 +10,16 @@
 *                                                                      *
 * Copyright (C) 1996, Markus P. Fuelscher                              *
 ************************************************************************
+!>  @brief
+!>    Transform the active one-body density from MO to AO basis
+!>
+!>  @author
+!>    Markus P. Fuelscher
+!>
+!>  @param[in] CMO The occupation number vector in MO-space.
+!>  @param[in] D1A_MO The active one-body density matrix in MO-space
+!>  @param[out] D1A_AO The active one-body density matrix in AO-space
       Subroutine Get_D1A_RASSCF(CMO,D1A_MO,D1A_AO)
-************************************************************************
-*                                                                      *
-*     purpose:                                                         *
-*     Compute the active one-body density                              *
-*                                                                      *
-*     calling arguments:                                               *
-*     CMO     : input, array of real*8                                 *
-*               MO-coefficients                                        *
-*     D1A_MO  : output, array of real*8                                *
-*               active one-body density in MO-space                    *
-*     D1A_AO  : output, array of real*8                                *
-*               active one-body density in AO-space                    *
-*                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
 *     written by:                                                      *
@@ -35,18 +31,17 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-
-      Implicit Real*8 (A-H,O-Z)
-
-      Dimension CMO(*) , D1A_MO(*) , D1A_AO(*)
-
+      implicit none
 #include "rasdim.fh"
 #include "general.fh"
 #include "WrkSpc.fh"
+      real(8), intent(in) :: CMO(*) , D1A_MO(*)
+      real(8), intent(out) :: D1A_AO(*)
+      real(8), parameter :: Zero = 0.0d0
+      integer :: iOff1, iOff2, iOff3, iSym, iBas, iAsh, iIsh, iFro,
+     &    iTmp1, iTmp2
 
       Call qEnter('Get_D1A')
-
-      Zero = 0.0d0
 
       iOff1 = 1
       iOff2 = 1
