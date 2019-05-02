@@ -155,8 +155,8 @@ c      end if
 **************************************************************************************
       call DecideOnESPF(Do_ESPF)
       if ( lRf .or. KSDFT /= 'SCF' .or. Do_ESPF) then
-        write(6,*)' FCIQMC does not support Reaction Field yet!'
-        write(6,*)' See you later ;)'
+        write(6,*) ' FCIQMC does not support Reaction Field yet!'
+        write(6,*) ' See you later ;).'
         call QTrace()
         call Abend()
       end if

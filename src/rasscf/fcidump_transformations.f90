@@ -82,7 +82,7 @@ contains
 !>  \f[ < i | F | j > \f]
 !>  The index is given by i and j.
 !>
-!>  @param[in] CMO The occupation number vector in MO-space.
+!>  @param[in] CMO The MO coefficients.
 !>  @param[in] D1I_MO The inactive one-body density matrix in MO-space
 !>  @param[inout] F_In
 !>  @param[out] folded_Fock
@@ -99,17 +99,25 @@ contains
 ! active one-body density matrix in AO-space
         D1A_AO(:),&
 ! active one-body density matrix in MO-space
-        D1A_MO(:)
+        D1A_MO(:),&
+        D1I(:)
 
     call mma_allocate(D1A_AO, nTot2)
     call mma_allocate(D1A_MO, nTot2)
-    call get_D1A_RASSCF(CMO, D1A_MO, D1A_AO)
+    call mma_allocate(D1I, ntot2)
+!    D1A_MO(:) = 10.0d0
+!    D1A_AO(:) = 10.0d0
+!    call get_D1A_RASSCF(CMO, D1A_MO, D1A_AO)
+! The D1* matrices have no effect on the result
+    D1A_MO(:) = 10.0d0
+    D1A_AO(:) = 10.0d0
+    D1I(:) = 10.0d0
 ! SGFCIN has side effects and EMY/core_energy is set in this routine.
 ! Besides F_In will contain the one electron contribution afterwards,
 ! for this reason it is copied.
 
 ! SGFCIN has to be called once with F_In
-    call SGFCIN(CMO, folded_fock, F_In, D1I_MO, D1A_MO, D1A_AO)
+    call SGFCIN(CMO, folded_fock, F_In, D1I, D1A_MO, D1A_AO)
     call mma_deallocate(D1A_MO)
     call mma_deallocate(D1A_AO)
 

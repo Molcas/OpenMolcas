@@ -10,16 +10,21 @@
 *                                                                      *
 * Copyright (C) 1996, Markus P. Fuelscher                              *
 ************************************************************************
+
 !>  @brief
 !>    Transform the active one-body density from MO to AO basis
 !>
 !>  @author
 !>    Markus P. Fuelscher
 !>
-!>  @param[in] CMO The occupation number vector in MO-space.
+!>  @details
+!>    The basic equation is:
+!>    \f[ D^{\text{AO}} = C^T D C \f]
+!>
+!>  @param[in] CMO The MO-coefficients
 !>  @param[in] D1A_MO The active one-body density matrix in MO-space
 !>  @param[out] D1A_AO The active one-body density matrix in AO-space
-      Subroutine Get_D1A_RASSCF(CMO,D1A_MO,D1A_AO)
+      subroutine Get_D1A_RASSCF(CMO,D1A_MO,D1A_AO)
 *----------------------------------------------------------------------*
 *                                                                      *
 *     written by:                                                      *
@@ -31,9 +36,8 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use general_data, only : nBas, nSym, nFro, nIsh, nAsh
       implicit none
-#include "rasdim.fh"
-#include "general.fh"
 #include "WrkSpc.fh"
       real(8), intent(in) :: CMO(*) , D1A_MO(*)
       real(8), intent(out) :: D1A_AO(*)
