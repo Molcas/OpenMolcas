@@ -343,8 +343,18 @@ C Local print level (if any)
 !           write,*) Work(iD1ActAO-1+i)
 !         end do
 
+!ANDREW _ RIGHT HERE
+      if(DoGradPDFT.and.jroot.eq.irlxroot) then
+        Call GetMem('DtmpA_g','Allo','Real',iTmp_grd,nTot1)
+        Call Fold_pdft(nSym,nBas,Work(iD1ActAO),Work(iTmp_grd))
+        Call put_darray('d1actao',Work(iTmp_grd),ntot1)
+        Call GetMem('DtmpA_g','Free','Real',iTmp_grd,nTot1)
+      end if
+!END _RIGHT HERE
+
          Call Fold(nSym,nBas,Work(iD1I),Work(iTmp3))
          Call Fold(nSym,nBas,Work(iD1ActAO),Work(iTmp4))
+
          Call Daxpy_(nTot1,1.0D0,Work(iTmp4),1,Work(iTmp3),1)
 !Maybe I can write all of these matrices to file, then modify stuff in
 !the nq code to read in the needed density.  In other words, I need to
@@ -1263,3 +1273,26 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
       end subroutine
 
 
+      Subroutine Fold_pdft(nSym,nBas,A,B)
+
+      Implicit Real*8 (A-H,O-Z)
+
+      Dimension nBas(*) , A(*) , B(*)
+
+      iOff1 = 0
+      iOff2 = 0
+      Do iSym = 1, nSym
+        mBas = nBas(iSym)
+        Do iBas= 1, mBas
+          Do jBas = 1 , iBas-1
+            B(iOff2+jBas) =   A(iOff1+jBas)
+          End Do
+          B(iOff2+iBas) =  A(iOff1+iBas)
+          iOff1 = iOff1 + mBas
+          iOff2 = iOff2 + iBas
+        End Do
+      End Do
+
+      Return
+      end
+************ columbus interface ****************************************

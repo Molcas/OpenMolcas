@@ -47,6 +47,7 @@ c Triangular addressing without symmetry:
 *
       iRout = 251
       iPrint = nPrint(iRout)
+!      iprint = 99
 c Offsets into the ipam array:
       nnpam1=0
       nnpam2=0
@@ -147,6 +148,7 @@ c Pick up matrix elements and put in a full symmetry block:
               if(itu.lt.ivx .and. it.eq.iu) fact=2.0d00
               scrP(ind)=fact*scrP(ind)
             end if
+!       scrP(ind)=0
             if(isym.eq.lsym) then
               itx=i3adr(it,ix)
               ivu=i3adr(iv,iu)
@@ -236,11 +238,14 @@ c  scr5(i,jkl)= sum cmo(pi,t)*scr4(jkl,t)
      &            1.0d0,Cred,nskip2,
      &            Scr2,njkl,
      &            0.0d0,Scr1,nskip2)
+*        Iprint=99
+*        write(*,*) 'SA'
       If (iPrint.ge.99) Call RecPrt('G2(SO1)',' ',
      &                              Scr1,
      &                              nPam(1,iSym)*nPam(2,jSym),
      &                              nPam(3,kSym)*nPam(4,lSym))
 
+        Iprint=0
 
 *======================================================================*
 c
@@ -282,6 +287,7 @@ c Put results into correct positions in PSOPam:
               if(itu.lt.ivx .and. it.eq.iu) fact=2.0d00
               scr1(ind)=fact*scr1(ind)
             end if
+!        scr1(ind)=0.0d0
             if(isym.eq.lsym) then
               itx=i3adr(it,ix)
               ivu=i3adr(iv,iu)
@@ -369,11 +375,14 @@ c  scr5(i,jkl)= sum cmo(pi,t)*scr4(jkl,t)
      &            1.0d0,Cred,nskip2,
      &            Scr2,njkl,
      &            0.0d0,Scr1,nskip2)
+!        Iprint=99
+!        write(*,*) 'SS'
       If (iPrint.ge.99) Call RecPrt('G2(SO2)',' ',
      &                              Scr1,
      &                              nPam(1,iSym)*nPam(2,jSym),
      &                              nPam(3,kSym)*nPam(4,lSym))
 
+        Iprint=00
 
       If (iPrint.ge.89) Call RecPrt('PSOPam 0',' ',PSOPam,
      &                     nnPam1*nnPam2,nnPam3*nnPam4)
@@ -449,6 +458,8 @@ C   FOR RAMAN SPECTRA
      &        -Quart*DSO(ioDs+ips,2)*DSO(ioDr+irq,1)
      &        -Quart*DSO(ioDs+ips,3)*DSO(ioDr+irq,4)
      &        -Quart*DSO(ioDs+ips,4)*DSO(ioDr+irq,3)
+!     &        -Quart*DSO(ioDs+ips,1)*DSO(ioDr+irq,5)
+!     &        -Quart*DSO(ioDs+ips,5)*DSO(ioDr+irq,1)
           end if
           if(isym.eq.ksym) then
            ipr=i3adr(ip,ir)
@@ -458,6 +469,8 @@ C   FOR RAMAN SPECTRA
      &        -Quart*DSO(ioDr+ipr,2)*DSO(ioDs+isq,1)
      &        -Quart*DSO(ioDr+ipr,3)*DSO(ioDs+isq,4)
      &        -Quart*DSO(ioDr+ipr,4)*DSO(ioDs+isq,3)
+!     &        -Quart*DSO(ioDr+ipr,1)*DSO(ioDs+isq,5)
+!     &        -Quart*DSO(ioDr+ipr,5)*DSO(ioDs+isq,1)
           end if
           if(isym.eq.jsym) then
            PSOPam(ipso)=PSOPam(ipso)

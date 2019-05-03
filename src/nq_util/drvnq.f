@@ -91,6 +91,7 @@ C     Call QEnter('DrvNQ')
       Call GetMem('s2p','Allo','Inte',ips2p,nShell*nIrrep)
       Call GetMem('R_Min','Allo','Real',ipR_Min,LMax_NQ+1)
 *
+        NQ_Status=Inactive
       Call Setup_NQ(iWork(ips2p),nShell,nIrrep,nNQ,Do_Grad,Do_MO,nD,
      &              PThr,PMode,Work(ipR_Min),LMax_NQ)
 *
