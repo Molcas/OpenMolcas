@@ -97,7 +97,7 @@
         CALL GETDREF(WORK(LDREF))
         ! CALL GETDREF(WORK(LDMIX+NDREF*(ISTATE-1)))
 
-        IFTEST = 1
+        IFTEST = 0
         IF ( IFTEST.NE.0 ) THEN
           WRITE(6,*)' DREF for state nr. ',MSTATE(ISTATE)
           DO I=1,NASHT
@@ -106,13 +106,13 @@
           WRITE(6,*)
         END IF
 
-* Averaging the density
+* Average the density
         DO JSTATE=1,NSTATE
           SCL = WORK(LWGT + (NSTATE*(ISTATE-1)) + (JSTATE-1))
           JOFF = NDREF*(JSTATE-1)
           CALL DAXPY_(NDREF,SCL,WORK(LDREF),1,WORK(LDMIX+JOFF),1)
 
-          IFTEST = 1
+          IFTEST = 0
           IF ( IFTEST.NE.0 ) THEN
             JJOFF = LDMIX+JOFF
             WRITE(6,*)' DMIX for state nr. ',MSTATE(JSTATE)
@@ -125,13 +125,14 @@
 
       END DO
 
-      IFTEST = 1
-      IF ( IFTEST.NE.0 ) THEN
+      IF (IFDW) THEN
         WRITE(6,*)
+        WRITE(6,*)' Matrix of density weights:'
         DO I=1,NSTATE
           WRITE(6,'(1x,10f8.4)')(WORK(LWGT + (NSTATE*(I-1)) + (J-1)),
      &    J=1,NSTATE)
         END DO
+        WRITE(6,*)
       END IF
 
       CALL GETMEM('LCMO','FREE','REAL',LCMO,NCMO)

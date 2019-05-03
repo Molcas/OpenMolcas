@@ -339,7 +339,7 @@ C End of long loop over groups
 
       IF (IRETURN.NE.0) GOTO 9000
 
-      IF(IPRGLB.GE.USUAL) THEN
+      IF (IPRGLB.GE.VERBOSE) THEN
         WRITE(6,*)' H0 energies:'
         DO I=1,NSTATE
           CALL PrintResult(6,'(6x,A,I3,5X,A,F16.8)',
@@ -364,7 +364,7 @@ C End of long loop over groups
        END IF
        WRITE(6,*)
       END IF
-      IF(IPRGLB.GE.VERBOSE.AND.(NLYROOT.EQ.0)) THEN
+      IF(IPRGLB.GE.USUAL.AND.(NLYROOT.EQ.0)) THEN
        WRITE(6,*)' Relative CASPT2 energies:'
        WRITE(6,'(1X,A4,4X,A12,1X,A10,1X,A10,1X,A10)')
      &   'Root', '(a.u.)', '(eV)', '(cm^-1)', '(kJ/mol)'
@@ -388,6 +388,21 @@ C End of long loop over groups
       IF(IFMSCOUP) THEN
         Call StatusLine('CASPT2:','Effective Hamiltonian')
         CALL MLTCTL(HEFF,EIGVEC)
+      END IF
+
+      IF(IPRGLB.GE.USUAL.AND.(NLYROOT.EQ.0)) THEN
+       WRITE(6,*)' Relative (X)MS-CASPT2 energies:'
+       WRITE(6,'(1X,A4,4X,A12,1X,A10,1X,A10,1X,A10)')
+     &   'Root', '(a.u.)', '(eV)', '(cm^-1)', '(kJ/mol)'
+       DO I=1,NSTATE
+        RELAU = ENERGY(I)-ENERGY(1)
+        RELEV = RELAU * CONV_AU_TO_EV_
+        RELCM = RELAU * CONV_AU_TO_CM1_
+        RELKJ = RELAU * CONV_AU_TO_KJ_PER_MOLE_
+        WRITE(6,'(1X,I4,4X,F12.8,1X,F10.2,1X,F10.1,1X,F10.2)')
+     &   I, RELAU, RELEV, RELCM, RELKJ
+       END DO
+       WRITE(6,*)
       END IF
 
 * create a JobMix file

@@ -102,7 +102,7 @@
         End If
 
 c Modify the Fock matrix, if needed:
-        IF(FOCKTYPE.NE.'STANDARD') THEN
+        IF (FOCKTYPE.NE.'STANDARD') THEN
            CALL NEWFOCK(WORK(LFIFA))
         END IF
 
@@ -126,9 +126,9 @@ c Modify the Fock matrix, if needed:
       END DO
 * End of loop over states
 
-      IF(IPRGLB.GE.VERBOSE) THEN
+      IF (IPRGLB.GE.VERBOSE.AND.IFDW.AND.IFXMS) THEN
         WRITE(6,*)
-        WRITE(6,*)' FOPXMS (Asymmetric):'
+        WRITE(6,*)' H0 (Asymmetric):'
         DO I=1,NGRP
           WRITE(6,'(1x,5F16.8)')(WORK(LFOPXMS-1+I+NGRP*(J-1)),J=1,NGRP)
         END DO
@@ -144,13 +144,28 @@ c Modify the Fock matrix, if needed:
         END DO
       END DO
 
-      IF(IPRGLB.GE.VERBOSE) THEN
+      IF (IPRGLB.GE.USUAL.AND.(NGRP.GT.1)) THEN
         WRITE(6,*)
-        WRITE(6,*)' FOPXMS (Symmetric):'
-        DO I=1,NGRP
-          WRITE(6,'(1x,5F16.8)')(WORK(LFOPXMS+I-1+NGRP*(J-1)),J=1,NGRP)
+        WRITE(6,*)' Zeroth-order Hamiltonian matrix (H0):'
+        DO ISTA=1,NGRP,5
+          IEND=MIN(ISTA+4,NGRP)
+          WRITE(6,*)
+          WRITE(6,'(1x,5I16)')(I,I=ISTA,IEND)
+          DO I=ISTA,NGRP
+            II0=(I*(I-1))/2
+            WRITE(6,'(1x,I3,2X,5F16.8)')
+     &            I,(WORK(LFOPXMS+I-1+NGRP*(J-1)),J=ISTA,IEND)
+          END DO
         END DO
       END IF
+
+      ! IF (IPRGLB.GE.USUAL.AND.(NLYROOT.EQ.0)) THEN
+      !   WRITE(6,*)
+      !   WRITE(6,*)' FOPXMS (Symmetric):'
+      !   DO I=1,NGRP
+      !     WRITE(6,'(1x,5F16.8)')(WORK(LFOPXMS+I-1+NGRP*(J-1)),J=1,NGRP)
+      !   END DO
+      ! END IF
 
 * Store zeroth order energies
       DO I=1,NGRP
@@ -182,7 +197,7 @@ c Modify the Fock matrix, if needed:
 * Note that the Fock matrix, etc are still assumed to be valid -- this seems
 * illogical, but is the way XMS is defined -- else we would need to repeat the
 * whole thing iteratively.
-      IF(NGRP.GT.1.AND.IFXMS) THEN
+      IF (NGRP.GT.1.AND.IFXMS) THEN
 
         CALL GETMEM('EVEC','ALLO','REAL',LEVEC,NGRP**2)
         CALL DIAFOP(NGRP,WORK(LFOPXMS),WORK(LEVEC))
@@ -192,17 +207,9 @@ c Modify the Fock matrix, if needed:
         CALL TRANSMAT(H0,WORK(LEVEC),NGRP)
         CALL TRANSMAT(HEFF,WORK(LEVEC),NGRP)
 
-        IF(IPRGLB.GE.VERBOSE) THEN
+        IF (IPRGLB.GE.USUAL) THEN
           WRITE(6,*)
-          WRITE(6,*)' HEFF[1] in the XMS basis is:'
-          DO J1=1,NSTATE
-            WRITE(6,'(1x,5F16.8)')(HEFF(J1,J2),J2=1,NSTATE)
-          END DO
-        END IF
-
-        IF(IPRGLB.GE.VERBOSE) THEN
-          WRITE(6,*)
-          WRITE(6,'(6X,A)')' Eigenvectors:'
+          WRITE(6,'(6X,A)')' H0 eigenvectors:'
           DO ISTA=1,NSTATE,5
             IEND=MIN(ISTA+4,NSTATE)
             DO J1=0,NSTATE-1
@@ -213,11 +220,19 @@ c Modify the Fock matrix, if needed:
           END DO
         END IF
 
+        IF (IPRGLB.GE.VERBOSE) THEN
+          WRITE(6,*)
+          WRITE(6,*)' Heff[1] in H0 basis:'
+          DO J1=1,NSTATE
+            WRITE(6,'(1x,5F16.8)')(HEFF(J1,J2),J2=1,NSTATE)
+          END DO
+        END IF
+
 * And then, transform the CI arrays. Assume we can put all the
 * original ones in memory, but put the resulting vectors one by
 * one in a buffer.
         WRITE(6,*)
-        WRITE(6,*)' Mixing the CASSCF states according to FOPXMS...'
+        WRITE(6,*)' Mixing the CASSCF states according to H0...'
         WRITE(6,*)
         CALL GETMEM('CIREF','ALLO','REAL',LCIREF,NGRP*NCONF)
         DO J=1,NGRP
