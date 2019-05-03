@@ -50,7 +50,7 @@ C
       Call DIAG_R2(DMATR,3,INFO,WD,ZD)
 
 c  calculate the rotation matrix:
-      Call dcopy_(3*3,0.0_wp,0,Unity,1)
+      Call dcopy_(3*3,[0.0_wp],0,Unity,1)
       Do i=1,3
         Unity(i,i)=1.0_wp
       End Do

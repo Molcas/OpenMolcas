@@ -80,7 +80,7 @@
             write(6,*)
             write(6,*)'      ... but Cholesky vectors will be MoTRA.'
             write(6,*)
-            ! Cholesky vectors in HDF5 must be stored as KPQ format (for now)
+!           Cholesky vectors in HDF5 must be stored as KPQ format (for now)
             Do_int=.false.
             If (iDoInt.eq.1) Do_int=.true.
             Call Cho_MOtra(Work(ipCMO),nTot2,Do_int,ihdf5)

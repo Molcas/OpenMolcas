@@ -51,7 +51,7 @@ c  If projcas and iPvb=0 we asume the normal density/1-ex. is required:
         endif
         ivij2=mstackr_cvb(nvij)
         if(idens.eq.0)then
-          call fmove(vij,w(ivij2),nvij)
+          call fmove_cvb(vij,w(ivij2),nvij)
           call dscal_(nvij,-1d0,w(ivij2),1)
         else
           call fzero(w(ivij2),nvij)
@@ -106,7 +106,7 @@ c  If projcas and iPvb=0 we asume the normal density/1-ex. is required:
         endif
         ivij2=mstackr_cvb(nvij)
         if(idens.eq.0)then
-          call fmove(vij,w(ivij2),nvij)
+          call fmove_cvb(vij,w(ivij2),nvij)
           call dscal_(nvij,-1d0,w(ivij2),1)
         else
           call fzero(w(ivij2),nvij)

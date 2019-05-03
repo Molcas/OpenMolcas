@@ -65,8 +65,8 @@
          Write (6,*)
       End If
 *
-      call dcopy_(9,Zero,0,PAx,1)
-      call dcopy_(3,One,0,PAx,4)
+      call dcopy_(9,[Zero],0,PAx,1)
+      call dcopy_(3,[One],0,PAx,4)
       If (TMass.eq.Zero) Go To 99
       Linear=.False.
       If (iPrint.ge.99) Then
@@ -280,9 +280,9 @@ C     Call Put_dArray('PAX',Pax,9)
       Do 80 j = 0, jMax
          mDim = 2*j+1
          nTri = mDim*(mDim+1)/2
-         call dcopy_(nTri,Zero,0,Hess,1)
-         call dcopy_(mDim**2,Zero,0,Vec,1)
-         call dcopy_(mDim,One,0,Vec,mDim+1)
+         call dcopy_(nTri,[Zero],0,Hess,1)
+         call dcopy_(mDim**2,[Zero],0,Vec,1)
+         call dcopy_(mDim,[One],0,Vec,mDim+1)
          If (iPrint.ge.99)
      &       Call RecPrt(' Vec',' ',Vec,mDim,mDim)
          k1 = 1

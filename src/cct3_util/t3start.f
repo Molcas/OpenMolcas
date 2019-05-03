@@ -1326,7 +1326,7 @@ c
 #include "t32.fh"
 #include "wrk.fh"
 c
-       real*8 eccsd
+       real*8 eccsd,dum(1)
 c
 c     help parameters
 c
@@ -1374,7 +1374,8 @@ c      Fortran IO
        else
 c
 c      MOLCAS IO
-       call ddafile (lunrst,2,eccsd,1,daddr(lunrst))
+       call ddafile (lunrst,2,dum,1,daddr(lunrst))
+       eccsd=dum(1)
        end if
 c
        goto 999

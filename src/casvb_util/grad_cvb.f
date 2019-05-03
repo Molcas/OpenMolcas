@@ -21,6 +21,8 @@
 #include "fx_cvb.fh"
 #include "malloc_cvb.fh"
 
+      dimension grad(*)
+
       call touch_cvb('OOHESS')
       if(dxmove.and.memplenty)then
         call cicopy_cvb(w(lc(6)),w(lc(2)))

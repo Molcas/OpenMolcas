@@ -47,7 +47,7 @@
 *
 *-----Initilize
 *
-      call dcopy_(nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2,Zero,0,AB,1)
+      call dcopy_(nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2,[Zero],0,AB,1)
 *
 *-----Remove redundant elements in GInt. This is done in place.
 *

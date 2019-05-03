@@ -46,6 +46,7 @@
       Character filnam*32
       Character*(LENIN) Name(nAtoms)
       Character*14 cDum
+      Dimension Dum(1)
       Save g12K
       Data g12K/.False./
 *                                                                      *
@@ -133,6 +134,7 @@
      &           iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,
      &           mB_Tot,mdB_Tot,Dum,Dum,iDum,iDum,1,1,
      &           iDum)
+
       Rewind(LuIC)
 *
       If (nq.eq.0) Then
@@ -284,7 +286,8 @@
          Call GetMem('EVal','Allo','Real',ipEVal,nq*(nq+1)/2)
          Call ElRed2(nq,ndim,Work(ipG),Work(ipEVal),Work(ipK),nK,Proj,
      &               g12K,Thr_ElRed,Work(ip_B),iWork(ip_iB),mB_Tot,
-     &               iWork(ip_nqB),TRVec,mTR)
+     &               iWork(ip_nqB))
+
          If (nK.gt.nQQ) Then
             Call Remove_TR(nq,ndim,nQQ,Work(ipK),nK,TRVec,mTR,
      &                     Work(ip_B),iWork(ip_iB),iWork(ip_nqB),mB_Tot)

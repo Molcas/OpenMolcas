@@ -80,7 +80,7 @@
 * and then the zeroth-order Hamiltonian elements between states.
 
       CALL GETMEM('FOPXMS','ALLO','REAL',LFOPXMS,NGRP**2)
-      CALL DCOPY_(NGRP**2,0.0D0,0,WORK(LFOPXMS),1)
+      CALL DCOPY_(NGRP**2,[0.0D0],0,WORK(LFOPXMS),1)
 
 * Loop over all states in group
       DO J2=1,NGRP
@@ -177,7 +177,7 @@ c Modify the Fock matrix, if needed:
 ! Form average Fock matrix for DW-XMS before states are rotated
       IF (IFDW.AND.IFXMS) THEN
 ! Zero out the density matrix
-        CALL DCOPY_(NDREF,0.0d0,0,WORK(LDREF),1)
+        CALL DCOPY_(NDREF,[0.0D0],0,WORK(LDREF),1)
 ! Compute the SA density matrix on the spot
         SCL = 1.0d0/NGRP
         DO J=1,NGRP

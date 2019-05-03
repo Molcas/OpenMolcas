@@ -8,11 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE RDCMO(JOB,CMO)
+      SUBROUTINE RDCMO_RASSI(JOB,CMO)
       IMPLICIT NONE
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='RDCMO')
+      PARAMETER (ROUTINE='RDCMO_RASSI')
 #include "rasdim.fh"
 #include "cntrl.fh"
 #include "Files.fh"
@@ -33,12 +33,12 @@
       CALL QENTER(ROUTINE)
 
       IF(JOB.LT.1 .OR. JOB.GT.NJOB) THEN
-        WRITE(6,*)' RDCMO: Invalid JOB parameter.'
+        WRITE(6,*)' RDCMO_RASSI: Invalid JOB parameter.'
         WRITE(6,*)' JOB, NJOB:',JOB,NJOB
         CALL ABEND()
       END IF
       IF(IPGLOB.GE.DEBUG) THEN
-        WRITE(6,*)' RDCMO called for file '//TRIM(JBNAME(JOB))
+        WRITE(6,*)' RDCMO_RASSI called for file '//TRIM(JBNAME(JOB))
       END IF
 C READ ORBITAL COEFFICIENTS FROM INTERFACE. ORIGINALLY ALL
 C CMO COEFFS, INCLUDING VIRTUALS, WERE WRITTEN CONTIGUOUSLY.

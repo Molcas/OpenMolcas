@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine Print_Basis2(DInf,nDInf)
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
+#include "angtp.fh"
 #include "info.fh"
 #include "print.fh"
       Logical output

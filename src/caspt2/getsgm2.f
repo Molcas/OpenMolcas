@@ -45,7 +45,7 @@ C!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       ISSG=MUL(IJS,ISYCI)
       NSGM=NCSF(ISSG)
       IF(NSGM.EQ.0) RETURN
-      CALL DCOPY_(NSGM,0.0D0,0,SGM,1)
+      CALL DCOPY_(NSGM,[0.0D0],0,SGM,1)
       CALL SIGMA1_CP2(ILEV,JLEV,1.0D00,ISYCI,CI,SGM,
      &      IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
      &      IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),

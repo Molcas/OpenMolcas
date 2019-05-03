@@ -36,8 +36,9 @@
       Integer :: Read_Grad,nGrad,iRoot,iNAC,jNAC
       Real*8 :: Grad(nGrad)
       Integer, Dimension(5) :: TOC
+      Integer, Dimension(1) :: iDum
       Integer, Dimension(:), Allocatable :: i_grad,i_nac
-      Integer :: nRoots,nCoup,LuGrad,iAd,Length,iSt,jSt,idx
+      Integer :: nRoots,nCoup,LuGrad,iAd,iSt,jSt,idx
       Logical :: Found
       Character(Len=5) :: Filename
 *
@@ -55,13 +56,14 @@
         Call DaName(LuGrad,Filename)
         iAd=0
         Call iDaFile(LuGrad,2,TOC,Size(TOC),iAd)
-        Call iDaFile(LuGrad,2,nRoots,1,iAd)
+        Call iDaFile(LuGrad,2,iDum,1,iAd)
+        nRoots=iDum(1)
         If (Max(iRoot,iNAC,jNAC).gt.nRoots) Then
           Call WarningMessage(2,'Bad number of roots in GRADS file')
           Call Abend()
         End If
-        Call iDaFile(LuGrad,2,Length,1,iAd)
-        If (Length.ne.nGrad) Then
+        Call iDaFile(LuGrad,2,iDum,1,iAd)
+        If (iDum(1).ne.nGrad) Then
           Call WarningMessage(2,'Bad length in GRADS file')
           Call Abend()
         End If

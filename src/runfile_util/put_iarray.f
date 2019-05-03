@@ -140,8 +140,8 @@
          RecLab( 35)='iCoSet          '
          RecLab( 36)='LP_A            '
          RecLab( 37)='NumCho          ' ! Number of Cholesky vectors.
-         RecLab( 38)='nFroPT          ' ! Total Number of Frozen for PT methods
-         RecLab( 39)='nDelPT          ' ! Total Number of Deleted for PT methods
+         RecLab( 38)='nFroPT          ' ! Number of Frozen for PT
+         RecLab( 39)='nDelPT          ' ! Number of Deleted for PT
          RecLab( 40)='BasType         '
          RecLab( 41)='Spread of Coord.'
          RecLab( 42)='Unit Cell Atoms '

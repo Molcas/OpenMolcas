@@ -77,6 +77,7 @@
       Real*8, Dimension(:,:), Allocatable:: DnsS, Temp
       Real*8, Dimension(:,:), Allocatable, Target:: Aux
       Real*8, Dimension(:,:), Pointer:: pTwoHam
+      Dimension Dummy(1),iDummy(1),Dumm0(1),Dumm1(1)
 #include "SysDef.fh"
 
 *
@@ -103,7 +104,7 @@
 *
 *---- Add contribution due to external potential
 *
-      Call DCopy_(nBT*nD,Zero,0,TwoHam(1,1,iPsLst),1)
+      Call DCopy_(nBT*nD,[Zero],0,TwoHam(1,1,iPsLst),1)
       iSpin=1
       If (iUHF.eq.1) iSpin=2
       Call Put_iScalar('Multiplicity',iSpin)
@@ -147,7 +148,7 @@
             call dcopy_(nBT,TwoHam(1,1,iPsLst),1,TwoHam(1,2,iPsLst),1)
             If (MxConstr.gt.0 .and. klockan.eq.1) Then
                Call SetUp_iSD()
-               Call Get_Enondyn_dft(nBT,Dumm1,iDumm,'SCF ')
+               Call Get_Enondyn_dft(nBT,Dummy,iDumm,'SCF ')
                Call Free_iSD()
                klockan=24
             EndIf
@@ -347,7 +348,7 @@
 *
             Do iD = 1, nD
                If (Xcf(iMat,iD).eq.0.0D0) Cycle
-               Call DaXpY_(nBT,Xcf(iMat,iD),pTwoHam(1,iD),1,
+               Call DaXpY_(nBT,Xcf(iMat,iD),pTwoHam(:,iD),1,
      &                              TwoHam(1,iD,iPsLst),1)
             End Do
 *

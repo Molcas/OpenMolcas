@@ -32,7 +32,7 @@
 *                                                                      *
 *     called from: WfCtl                                               *
 *                                                                      *
-*     calls to: ModFck, PickUp, Sort, ChkOrt                           *
+*     calls to: ModFck, PickUp, SortEig, ChkOrt                        *
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -571,7 +571,8 @@ c    &                 '(20F10.4)',TraF,nOrbmF)
                   iConstr=jEOr-1+kConstr
                   EOrb(iConstr,iD)=0.666d6*dble(kConstr)
                End Do
-               Call Sort(EOrb(jEOr,iD),CMO(iCMO,iD),nOccmF,nBas(iSym))
+               Call SortEig(EOrb(jEOr,iD),CMO(iCMO,iD),nOccmF,
+     &                      nBas(iSym))
                iConstr=1
                Do kConstr=nConstr(iSym),1,-1
                   lConstr=jEOr+nOccmF-kConstr
@@ -585,7 +586,8 @@ c    &                 '(20F10.4)',TraF,nOrbmF)
                   End Do
                   kCMO = iCMO + nOccmF*nBas(iSym)
                   kEOr = jEOr + nOccmF
-                  Call Sort(EOrb(kEOr,iD),CMO(kCMO,iD),nVrt,nBas(iSym))
+                  Call SortEig(EOrb(kEOr,iD),CMO(kCMO,iD),nVrt,
+     &                     nBas(iSym))
                   iConstr=nConstr(iSym)+1
                   Do kConstr=1,nConstr(iSym)
                      lConstr=kEOr+kConstr

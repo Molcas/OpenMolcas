@@ -16,6 +16,6 @@
 
       call bufio_wrbuf_cvb()
       dnbuf=DBLE(nbuf)
-      call wrlow_cvb(dnbuf,1,file_id,0)
+      call wrlow_cvb([dnbuf],1,file_id,0)
       return
       end

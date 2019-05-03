@@ -63,6 +63,7 @@ C
 #include "mxdm.fh"
 #include "infscf.fh"
 #include "chomp2_cfg.fh"
+      Dimension Grad(1)
 
       DoDens_= DoDens
       DoDens = .false.
@@ -253,7 +254,7 @@ C
 c           write(6,*) ' Occ    : ',(Work(jOcc+j),j=0,nOA-1)
 c           write(6,*) ' Sum    : ',ddot_(nOA,1.0d0,0,Work(jOcc),1)
       call dscal_(nOA,2.0d0,Work(jOcc),1)
-      Call daxpy_(nOA,2.0d0,1.0d0,0,Work(jOcc),1)
+      Call daxpy_(nOA,2.0d0,[1.0d0],0,Work(jOcc),1)
 *
       iOff=0
       jOff=0

@@ -96,6 +96,7 @@
       logical             :: rfh5DMRG
       logical             :: twordm_qcm
 #endif
+      Dimension rdum(1)
 
 *PAM05      SymProd(i,j)=1+iEor(i-1,j-1)
       Call qEnter('CICTL')
@@ -193,7 +194,7 @@ C Local print level (if any)
 * Get the spin density in MOs
 *
            IF (NACTEL.EQ.0) THEN
-             CALL DCOPY_(NTOT2,0.0D0,0,WORK(LRCT_FS),1)
+             CALL DCOPY_(NTOT2,[0.0D0],0,WORK(LRCT_FS),1)
            ELSE
              CALL GETMEM('D1S_RCT','ALLO','REAL',LRCT_S,NACPAR)
              Call DDafile(JOBIPH,2,Work(LRCT_S),NACPAR,jDisk)
@@ -246,9 +247,9 @@ C Local print level (if any)
            If ( NAC.ge.1 ) Then
 
               If (NACTEL.eq.0) THEN
-                 call dcopy_(NACPAR,0.0D0,0,WORK(LW6),1)
-                 call dcopy_(NACPAR,0.0D0,0,WORK(LW7),1)
-                 call dcopy_(NACPR2,0.0D0,0,WORK(LW8),1)
+                 call dcopy_(NACPAR,[0.0D0],0,WORK(LW6),1)
+                 call dcopy_(NACPAR,[0.0D0],0,WORK(LW7),1)
+                 call dcopy_(NACPR2,[0.0D0],0,WORK(LW8),1)
               Else
 
                 if(doDMRG)then
@@ -265,7 +266,7 @@ C Local print level (if any)
      &                                 )
 
                 !> import 1p-spin density
-                call dcopy_(NACPAR,Zero,0,work(lw7),1)
+                call dcopy_(NACPAR,[0.0D0],0,work(lw7),1)
                 call dmrg_interface_ctl(
      &                                  task  = 'imp spdX',
      &                                  x1    = work(lw7:lw7+NACPAR-1),
@@ -278,7 +279,7 @@ C Local print level (if any)
                  Call GetMem('PAtmp','ALLO','REAL',LW9,NACPR2)
                  Call GetMem('Pscr','ALLO','REAL',LW10,NACPR2)
                  C_Pointer = Lw4
-                 CALL Lucia_Util('Densi',0,iDummy,Dummy)
+                 CALL Lucia_Util('Densi',0,iDummy,rdum)
                  If (IFCAS.GT.2 .OR. iDoGAS) Then
                    Call CISX(IDXSX,Work(LW6),Work(LW7),Work(LW8),
      &                     Work(LW9),Work(LW10))
@@ -289,9 +290,9 @@ C Local print level (if any)
 
              End If
            Else
-              call dcopy_(NACPAR,0.0D0,0,WORK(LW6),1)
-              call dcopy_(NACPAR,0.0D0,0,WORK(LW7),1)
-              call dcopy_(NACPR2,0.0D0,0,WORK(LW8),1)
+              call dcopy_(NACPAR,[0.0D0],0,WORK(LW6),1)
+              call dcopy_(NACPAR,[0.0D0],0,WORK(LW7),1)
+              call dcopy_(NACPR2,[0.0D0],0,WORK(LW8),1)
            End If
 * Modify the symmetric 2-particle density if only partial
 * "exact exchange" is included.
@@ -387,7 +388,7 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
           nTmpPUVX=nFint
           Call GetMem('TmpPUVX','Allo','Real',ipTmpPUVX,nTmpPUVX)
           Call GetMem('TmpTUVX','Allo','Real',ipTmpTUVX,NACPR2)
-          Call dCopy_(NACPR2,0.0d0,0,Work(ipTmpTUVX),1)
+          Call dCopy_(NACPR2,[0.0d0],0,Work(ipTmpTUVX),1)
           Call Get_dArray('DFT_TwoEl',Work(ipTmpPUVX),nTmpPUVX)
           Call Get_TUVX(Work(ipTmpPUVX),Work(ipTmpTUVX))
           Call DaXpY_(NACPR2,1.0d0,TUVX,1,Work(ipTmpTUVX),1)
@@ -480,11 +481,10 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
 * LW9: ANTISYMMETRIC TWO-BODY DENSITY
 *
       Call Timing(Rado_1,Swatch,Swatch,Swatch)
-      Zero = 0.0d0
-      Call dCopy_(NACPAR,Zero,0,D,1)
-      Call dCopy_(NACPAR,Zero,0,DS,1)
-      Call dCopy_(NACPR2,Zero,0,P,1)
-      Call dCopy_(NACPR2,Zero,0,PA,1)
+      Call dCopy_(NACPAR,[0.0D0],0,D,1)
+      Call dCopy_(NACPAR,[0.0D0],0,DS,1)
+      Call dCopy_(NACPR2,[0.0D0],0,P,1)
+      Call dCopy_(NACPR2,[0.0D0],0,PA,1)
       CALL GETMEM('CIVEC','ALLO','REAL',LW4,NCONF)
       CALL GETMEM('Dtmp ','ALLO','REAL',LW6,NACPAR)
       CALL GETMEM('DStmp','ALLO','REAL',LW7,NACPAR)
@@ -510,7 +510,7 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
          If ( NAC.ge.1 ) Then
            C_Pointer = Lw4
            if(.not.(doDMRG))
-     &       CALL Lucia_Util('Densi',0,iDummy,Dummy)
+     &       CALL Lucia_Util('Densi',0,iDummy,rdum)
            IF ( IPRLEV.GE.INSANE  ) THEN
              write(6,*) 'At root number =', jroot
              CALL TRIPRT('D after lucia  ',' ',Work(LW6),NAC)
@@ -537,7 +537,7 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
      &                            )
 
            !> import 1p-spin density
-           call dcopy_(NACPAR,Zero,0,work(lw7),1)
+           call dcopy_(NACPAR,[0.0D0],0,work(lw7),1)
            call dmrg_interface_ctl(
      &                             task  = 'imp spdX',
      &                             x1    = work(lw7:lw7+NACPAR-1),
@@ -550,7 +550,7 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
            write(6,*)"  Set all elems in anti-symmetric 2-RDM to zero"
            write(6,*)"==============================================="
 #endif
-           call dcopy_(NACPR2,Zero,0,work(lw9),1)
+           call dcopy_(NACPR2,[0.0D0],0,work(lw9),1)
 
            IF ( IPRLEV.GE.INSANE  ) THEN
              CALL TRIPRT('D after  DMRG',' ',Work(LW6),NAC)
@@ -624,7 +624,7 @@ C and for now don't bother with 2-electron active density matrices
 * compute density matrices
         If ( NAC.ge.1 ) Then
            C_Pointer = Lw4
-           CALL Lucia_Util('Densi',0,iDummy,Dummy)
+           CALL Lucia_Util('Densi',0,iDummy,rdum)
            IF ( IPRLEV.GE.INSANE  ) THEN
              CALL TRIPRT('D after lucia',' ',Work(LW6),NAC)
              CALL TRIPRT('DS after lucia',' ',Work(LW7),NAC)
@@ -699,7 +699,7 @@ c
      &     'has been made, which may change the order of the CSFs.'
        END IF
        Call GetMem('PrSel','Allo','Inte',LW12,nConf)
-       Call iCopy(nConf,0,0,iWork(LW12),1)
+       Call iCopy(nConf,[0],0,iWork(LW12),1)
        Call GetMem('CIVtmp','Allo','Real',LW11,nConf)
        iDisk = IADR15(4)
 

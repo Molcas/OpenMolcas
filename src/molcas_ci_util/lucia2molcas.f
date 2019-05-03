@@ -155,8 +155,8 @@ C     Memory needed to store ICONF array
       NOCTPA = (NORB1 - NEL1MNA + 1) * (NEL3MX + 1)
       NOCTPB = (NORB1 - NEL1MNB + 1) * (NEL3MX + 1)
 *
-      KDFTP = ip_of_iwork(iWork(KDFTP_LUCIA))
-      KCFTP = ip_of_iwork(iWork(KCFTP_LUCIA))
+      KDFTP = KDFTP_LUCIA
+      KCFTP = KCFTP_LUCIA
       KDTOC = KDTOC_LUCIA
 *
       RETURN

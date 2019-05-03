@@ -194,18 +194,8 @@ C     really parallel or not.
           NGROUPSTATE(1:NGROUP) = 1
         End If
       End If
-* Legacy method, left for the moment for compatibility
-      If (Input%XMUL) Then
-        If (NLYROOT.ne.0) Then
-          Call WarningMessage(2,'Keyword XMULtistate cannot be used '//
-     &                          'together with keyword ONLY.')
-          Call Quit_OnUserError
-        End If
-        If (JMS) Then
-          Call WarningMessage(2,'Keyword XMULtistate cannot be used '//
-     &                          'together with keyword EFFE.')
-          Call Quit_OnUserError
-        End If
+      IOFF=NSTATE
+      If(Input%XMUL) Then
         If (Input%MULT) Then
           Call WarningMessage(2,'Keyword XMULtistate cannot be used '//
      &                          'together with keyword MULTistate.')

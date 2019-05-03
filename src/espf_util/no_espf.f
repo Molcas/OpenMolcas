@@ -46,7 +46,7 @@
          Line = ' '
          Do While (Index(Line,'TheEnd ') .eq. 0)
             Line=Get_Ln(ITkQMMM)
-            If (Index(Line,'MMEnergy ').ne.0) Call Get_F(2,TkE,1)
+            If (Index(Line,'MMEnergy ').ne.0) Call Get_F1(2,TkE)
          End Do
          Close (ITkQMMM)
          TkE = TkE * ToHartree

@@ -11,7 +11,7 @@
 * Copyright (C) 2010, Giovanni Li Manni                                *
 ************************************************************************
 
-      Subroutine ChkSplit(ircWar)
+      Subroutine ChkSplit()
 ************************************************************************
 *     SplitCAS Check for obvious errors or violation  of limits        *
 *----------------------------------------------------------------------*
@@ -105,6 +105,4 @@
 
       Call qExit('ChkSplit')
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(ircWar)
       End

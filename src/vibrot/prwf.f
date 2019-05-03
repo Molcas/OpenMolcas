@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine prwf(ndim,R)
+      Subroutine prwf_vibrot(ndim,R)
       Implicit Real*8 (A-H,O-Z)
 C Print the value of (unnormalized) vibrational wave functions.
 CPAM97 For MOLCAS-4
@@ -19,7 +19,7 @@ C
       Dimension Vib(lwork)
       Dimension R(*)
 *
-      Call qEnter('PrWf')
+      Call qEnter('PrWf_VibRot')
 
       write(6,*)
       Call CollapseOutput(1,'PRINTOUT OF VIBRATIONAL WAVE FUNCTIONS')
@@ -30,19 +30,19 @@ C
       nwork=ne1*ndim1
       ierr=0
       If(nwork.gt.lwork) then
-        write(6,*)' PRWF: Local work space too small.'
+        write(6,*)' PRWF_VibRot: Local work space too small.'
         write(6,*)' Please increase LWORK and recompile.'
         write(6,*)' Need at least:',nwork
         ierr=ierr+1
       End If
       If(ne1.gt.nemax) then
-        write(6,*)' PRWF: Local work space too small.'
+        write(6,*)' PRWF_VibRot: Local work space too small.'
         write(6,*)' Please increase NEMAX and recompile.'
         write(6,*)' Need at least:',ne1
         ierr=ierr+1
       End If
       If(ndim1.gt.ndimmx) then
-        write(6,*)' PRWF: Local work space too small.'
+        write(6,*)' PRWF_VibRot: Local work space too small.'
         write(6,*)' Please increase NDIMMX and recompile.'
         write(6,*)' Need at least:',ndim1
         ierr=ierr+1
@@ -78,6 +78,6 @@ C End of loop over J1.
       end do
       Call CollapseOutput(0,'PRINTOUT OF VIBRATIONAL WAVE FUNCTIONS')
       write(6,*)
-      Call qExit('PrWf')
+      Call qExit('PrWf_VibRot')
       return
       end

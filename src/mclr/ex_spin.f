@@ -16,7 +16,7 @@
       Real*8 rD(*),Fock(*),Temp1(*),Temp2(*)
 *
 *
-      call dcopy_(ndens2,0.0d0,0,Temp2,1)
+      call dcopy_(ndens2,[0.0d0],0,Temp2,1)
       Do jS=1,nSym
          Call FZero(Fock(ipCm(js)),nbas(js)**2)
          Do kS=1,nsym

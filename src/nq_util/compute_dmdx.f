@@ -19,7 +19,7 @@
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUG_
-      Z_Tot=DDot_(nAtoms,One,0,ZA,1)
+      Z_Tot=DDot_(nAtoms,[One],0,ZA,1)
       delta=1.0D-4
       temp = RA(iCar,iAtom)
 *

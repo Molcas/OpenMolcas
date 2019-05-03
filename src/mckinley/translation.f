@@ -117,8 +117,8 @@
       If (.not.Alike) Then
          IfG(4)=.false.
          Tr(4)=.true.
-         Call lCopy(12,.true.,0,JFGRD,1)
-*     Call lCopy(144,.true.,0,JFHss,1)
+         Call lCopy(12,[.true.],0,JFGRD,1)
+*     Call lCopy(144,[.true.],0,JFHss,1)
          Do iiC=1,4
             Do jjC=1,iiC
                Do iiCar=1,3

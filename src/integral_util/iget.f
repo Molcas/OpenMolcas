@@ -8,8 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Integer Function iGet(iA,n)
-      Integer iA(n)
+      Integer Function iGet(A,n)
+      Use Iso_C_Binding
+      Real*8, Target :: A(*)
+      Integer, Pointer :: iA(:)
+      Call C_F_Pointer(C_Loc(A),iA,[n])
       iGet=iA(n)
+      Nullify(iA)
       Return
       End

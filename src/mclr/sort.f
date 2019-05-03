@@ -20,7 +20,7 @@
       ijG=0
       ijD=0
       iii=0
-      Call icopy(nsym,0,0,ldisp1,1)
+      Call icopy(nsym,[0],0,ldisp1,1)
       Do iSym=1,nsym
        iG=0
        Do idisp=1,ldisp(isym)

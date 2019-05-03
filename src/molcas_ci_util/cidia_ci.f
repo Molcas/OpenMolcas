@@ -39,6 +39,7 @@ C
       DIMENSION CSFDIA(*)
       DIMENSION G(*)
       DIMENSION TUVX(*)
+      DIMENSION Dummy(1)
 C
       CALL QENTER('CIDIA')
       Call Timing(Tissot_1,Swatch,Swatch,Swatch)
@@ -74,7 +75,7 @@ C
      *     NTYP,iWork(KICTS(1)),NDTFTP,NCSFTP,IPRINT)
       One       = 1.0d0
       eCore_Hex = Get_eCore()
-      CALL DAXPY_(NCONF,eCore_Hex,One,0,CSFDIA,1)
+      CALL DAXPY_(NCONF,eCore_Hex,[One],0,CSFDIA,1)
 C
 C     DEALLOCATE LOCAL MEMORY
 C

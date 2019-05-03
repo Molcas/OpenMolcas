@@ -186,7 +186,7 @@
          Write(6,*)
       End If
       Call GetMem('PotInESPF','Allo','Real',iESPF,natom*MxExtPotComp)
-      Call DCopy_(MxExtPotComp*natom,Zero,0,Work(iESPF),1)
+      Call DCopy_(MxExtPotComp*natom,[Zero],0,Work(iESPF),1)
       ITkQMMM = IsFreeUnit(ITkQMMM)
       Call Molcas_Open (ITkQMMM,'QMMM')
       Line = Get_Ln(ITkQMMM)
@@ -197,20 +197,20 @@
       Do While (Index(Line,'TheEnd ') .eq. 0)
          Line=Get_Ln(ITkQMMM)
          If (Index(Line,'NMM ').ne.0) Then
-            Call Get_I(2,nAtMM,1)
+            Call Get_I1(2,nAtMM)
          Else If (Index(Line,'ESPF1 ').ne.0) Then
-            Call Get_I(2,iAtom,1)
+            Call Get_I1(2,iAtom)
             Call Get_F(3,Work(iESPF+(iAtom-1)*MxExtPotComp),4)
          Else If (Index(Line,'ESPF21 ').ne.0) Then
-            Call Get_I(2,iAtom,1)
+            Call Get_I1(2,iAtom)
             Call Get_F(3,Work(iESPF+(iAtom-1)*MxExtPotComp+4),3)
          Else If (Index(Line,'ESPF22 ').ne.0) Then
-            Call Get_I(2,iAtom,1)
+            Call Get_I1(2,iAtom)
             Call Get_F(3,Work(iESPF+(iAtom-1)*MxExtPotComp+7),3)
          Else If (Index(Line,'FullCoupling ').ne.0) Then
             DynExtPot = .True.
          Else If (Index(Line,'MMq ').ne.0) Then
-            Call Get_I(2,nMMq,1)
+            Call Get_I1(2,nMMq)
             Call GetMem('MMq_coord','Allo','Real',iMMqx,4*nMMq)
             Do iq = 1, nMMq
                Line=Get_Ln(ITkQMMM)

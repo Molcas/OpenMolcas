@@ -67,12 +67,13 @@
       Dimension Cmo(MxBas**2),Cmo_S(MxBas**2),Occu(MxBas),Dummy(MxBas)
 
       Dimension nSh(MxAt),nfSh(MxAt,MxAngqNr),nCnC(MxBas),nCnC_C(MxBasC)
-      Dimension nOcc(MxAt),natyp(MxAt),natypC(MxAt),iDumm(MxBas)
+      Dimension nOcc(MxBas),natyp(MxAt),natypC(MxAt),iDumm(MxBas)
       Dimension nBas(MxSym),nBasCC(1),iCon(MxAt,MxPrCon)
       Dimension iC_icon(MxAt,MxPrCon)
 
       Character Line*120,BlLine*120,Title*100,OrbName*100,WhatGet*10
       Character StLine*120
+      Dimension iDummy(1)
 
 *-----------------------------------------------------------------------*
 * Enter                                                                 *
@@ -306,13 +307,13 @@
       Write(OrbName,'(A)')'SOLORB'
       Write(WhatGet,'(A)')'CE'
       iWarn=1
-      Call GetMem('OrbitalEnergy','Allo','Real',iOe,nBasCC)
+      Call GetMem('OrbitalEnergy','Allo','Real',iOe,Sum(nBasCC))
       Call RdVec(OrbName,iLu,WhatGet,nSymCC,nBasCC,nBasCC,Cmo_S
      &,Dummy,Work(iOe),iDummy,Title,iWarn,iErr)
       Do 22, i=1,iOrb(2)
         c_orbene(i)=Work(iOe+i-1)
 22    Continue
-      Call GetMem('OrbitalEnergy','Free','Real',iOe,nBasCC)
+      Call GetMem('OrbitalEnergy','Free','Real',iOe,Sum(nBasCC))
 
 *
 *--- We should not need two solvent orbital vectors, so this should

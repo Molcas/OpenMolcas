@@ -4,12 +4,8 @@
 
 .. _TUT\:sec\:poly_aniso:
 
-:program:`POLY_ANISO` |extramark| --- Semi-*ab initio* Electronic Structure and Magnetism of Polynuclear Complexes Program
-==========================================================================================================================
-
-.. warning::
-
-   This program is not available in OpenMolcas
+:program:`POLY_ANISO` --- Semi-*ab initio* Electronic Structure and Magnetism of Polynuclear Complexes Program
+===============================================================================================================
 
 The program :program:`POLY_ANISO` calculates nonperturbatively the temperature- and field- dependent magnetic
 properties (Van Vleck susceptibility tensor and function, molar magnetization vector and function) and the

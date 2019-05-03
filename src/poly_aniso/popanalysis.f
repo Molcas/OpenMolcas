@@ -31,7 +31,8 @@ c local variables
       Integer          :: i,j,l,isite,i1,i2,nb1,nb2,nb3,tmp,il,nb
       Integer          :: nind(lmax,2),intc(lmax)
       Integer          :: ibas(exch,lmax)
-      Complex(kind=wp), allocatable :: pop(:,:,:,:) !pop(exch,lmax,nmax,nmax)
+!     pop(exch,lmax,nmax,nmax)
+      Complex(kind=wp), allocatable :: pop(:,:,:,:)
       Character(len=50):: fmtline
       Logical          :: DBG
       Call qEnter('PA_popanalysis')
@@ -48,7 +49,7 @@ c local variables
          Write(6,'(A,8i3)') '  nexch(i) = ',(nexch(i),i=1,nneq)
       End If
       Call mma_allocate(pop,exch,lmax,nmax,nmax,'pop')
-      Call zcopy_(exch*lmax*nmax*nmax,(0.0_wp,0.0_wp),0,pop,1)
+      Call zcopy_(exch*lmax*nmax*nmax,[(0.0_wp,0.0_wp)],0,pop,1)
 c fill some general arrays:
 c generate the tables:
       nind(:,:)=0
@@ -104,8 +105,9 @@ c
       Write(6,fmtline) '--------|-----|',
      & ('------------|',i=1,lmax)
 
-      Do nb1=1,NmaxPop ! loop over all states for which we want density matrices and
-c                      expectation values to be calculated
+!     loop over all states for which we want density matrices and
+!     expectation values to be calculated
+      Do nb1=1,NmaxPop
          Do l=1,lmax
          isite=nind(l,1)
             Do i1=1,nexch(isite)

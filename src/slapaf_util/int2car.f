@@ -41,7 +41,7 @@
       Integer   iOper(0:7), iSym(3), iANr(nAtom),
      &          nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)
       Logical Smmtrc(3,nAtom), BSet, HSet, User_Def,
-     &        Curvilinear, Numerical, DDV_Schlegel,
+     &        Curvilinear, Numerical, DDV_Schlegel, Redundant,
      &        HWRS, Analytic_Hessian, PrQ, lOld
       Save        BSet, HSet, lOld
 *

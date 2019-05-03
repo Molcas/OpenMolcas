@@ -17,6 +17,7 @@
       Integer iCenter(nBas1), iType(nBas1), nBas(nSym)
       Character*8 Label
       Logical Found,Restart
+      Dimension idum(1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -51,7 +52,8 @@
          Call Free_Work(ip_all_ints)
          Call Free_iWork(ip_restart)
       Else
-         Call iRdOne(iRc,iOpt1,Label,1,nInts,iSyLbl)
+         Call iRdOne(iRc,iOpt1,Label,1,idum,iSyLbl)
+         nInts=idum(1)
          Call GetMem('Tmp','Allo','Real',ip_SSym,nInts+4)
          If ( iRc.ne.0 ) Then
             Write (6,*) 'Polar: error reading length of mu!'

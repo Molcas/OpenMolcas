@@ -18,8 +18,8 @@
          Call Put_iScalar('nEFP_fragments',nEFP_fragments)
          CoorType=Coor_Type
          Call Put_iScalar('Coor_Type',CoorType)
-         Call Put_cArray('FRAG_Type',FRAG_Type,180*nEFP_fragments)
-         Call Put_cArray('ABC',ABC,3*180*nEFP_fragments)
+         Call Put_cArray('FRAG_Type',FRAG_Type(1),180*nEFP_fragments)
+         Call Put_cArray('ABC',ABC(1,1),3*180*nEFP_fragments)
          Call Put_iScalar('nEFP_Coor',nEFP_Coor)
          Call Put_dArray('EFP_COORS',EFP_COORS,nEFP_Coor*nEFP_fragments)
       End If

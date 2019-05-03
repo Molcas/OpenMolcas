@@ -48,7 +48,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &                               unity(:,:), a_dir(:,:), a_inv(:,:)
       ! main values and axes of XT tensors:
       Real (kind=wp), allocatable :: WT(:), ZT(:,:)
-      Real (kind=wp) :: rdummy
+      Real (kind=wp) :: rdummy(1)
       Call qEnter('SUSCEPTIBILITY')
 c constants used in this subrutine
       RtoB=8
@@ -127,11 +127,11 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       Call mma_allocate(chiT_tens,  (nT+nTempMagn),3,3,'chiT_tens')
       Call mma_allocate(wt,3,'wt')
       Call mma_allocate(zt,3,3,'zt')
-      Call dcopy_(     (nT+nTempMagn), 0.0_wp, 0, chiT,1)
-      Call dcopy_(     (nT+nTempMagn), 0.0_wp, 0, chiT_theta,1)
-      Call dcopy_(     (nT+nTempMagn), 0.0_wp, 0, Zstat1,1)
-      Call dcopy_(     (nT+nTempMagn), 0.0_wp, 0, chi_theta_1,1)
-      Call dcopy_( 3*3*(nT+nTempMagn), 0.0_wp, 0, chiT_tens,1)
+      Call dcopy_(     (nT+nTempMagn), [0.0_wp], 0, chiT,1)
+      Call dcopy_(     (nT+nTempMagn), [0.0_wp], 0, chiT_theta,1)
+      Call dcopy_(     (nT+nTempMagn), [0.0_wp], 0, Zstat1,1)
+      Call dcopy_(     (nT+nTempMagn), [0.0_wp], 0, chi_theta_1,1)
+      Call dcopy_( 3*3*(nT+nTempMagn), [0.0_wp], 0, chiT_tens,1)
       mem_local=mem_local+4*(nT+nTempMagn)*RtoB+3*3*(nT+nTempMagn)*RtoB
 
       If(zJ.eq.0) Then
@@ -146,7 +146,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
          Do iT=1,nT+nTempMagn
            Zst=0.0_wp
-           Call dcopy_(3*3,0.0_wp, 0, XMM,1)
+           Call dcopy_(3*3,[0.0_wp], 0, XMM,1)
            ! compute XT tensor for this temperature:
            Call chi( DipSO, DipSO, Eso, Nss, T(iT), Zst, XMM)
            If(dbg) Write(6,'(A,9F12.6)') 'XMM:', XMM(1:3,1:3)
@@ -180,9 +180,9 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
          Call mma_allocate(SS_chiT_tens   ,3,3,(nT+nTempMagn),'SS_')
          Call mma_allocate(chiT_theta_tens,3,3,(nT+nTempMagn),'XTT')
          ! initialize:
-         Call dcopy_( 3*3*(nT+nTempMagn), 0.0_wp, 0, Smu_chiT_tens,1)
-         Call dcopy_( 3*3*(nT+nTempMagn), 0.0_wp, 0, SS_chiT_tens,1)
-         Call dcopy_( 3*3*(nT+nTempMagn), 0.0_wp, 0, chiT_theta_tens,1)
+         Call dcopy_( 3*3*(nT+nTempMagn),[0.0_wp], 0, Smu_chiT_tens,1)
+         Call dcopy_( 3*3*(nT+nTempMagn),[0.0_wp], 0, SS_chiT_tens,1)
+         Call dcopy_( 3*3*(nT+nTempMagn),[0.0_wp], 0, chiT_theta_tens,1)
          Call mma_allocate(XMM,3,3,'XMM')
          Call mma_allocate(XSM,3,3,'XSM')
          Call mma_allocate(XSS,3,3,'XSS')
@@ -198,13 +198,13 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
          Do iT=1,nT+nTempMagn
            ! initialize temporary matrices:
-           Call dcopy_(3*3,0.0_wp, 0, XMM,1)
-           Call dcopy_(3*3,0.0_wp, 0, XSM,1)
-           Call dcopy_(3*3,0.0_wp, 0, XSS,1)
-           Call dcopy_(3*3,0.0_wp, 0, XZJ,1)
-           Call dcopy_(3*3,0.0_wp, 0, A_dir,1)
-           Call dcopy_(3*3,0.0_wp, 0, A_inv,1)
-           Call dcopy_(3*3,0.0_wp, 0, Unity,1)
+           Call dcopy_(3*3,[0.0_wp], 0, XMM,1)
+           Call dcopy_(3*3,[0.0_wp], 0, XSM,1)
+           Call dcopy_(3*3,[0.0_wp], 0, XSS,1)
+           Call dcopy_(3*3,[0.0_wp], 0, XZJ,1)
+           Call dcopy_(3*3,[0.0_wp], 0, A_dir,1)
+           Call dcopy_(3*3,[0.0_wp], 0, A_inv,1)
+           Call dcopy_(3*3,[0.0_wp], 0, Unity,1)
            Unity(1,1)=1.0_wp
            Unity(2,2)=1.0_wp
            Unity(3,3)=1.0_wp
@@ -238,7 +238,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
            ! Scale the tensors by coeff_X factor:
            Call dscal_( 3*3, coeff_X, XMM, 1 )
            Call dscal_( 3*3, coeff_X, XZJ, 1 )
-           ! place the tensors in the corresponding part of the "big" arrays:
+!          place the tensors in the corresponding part of the "big" arrays:
            Call dcopy_( 3*3, XMM, 1, chiT_tens(iT,:,:),1)
            Call dcopy_( 3*3, XZJ, 1, chiT_theta_tens(iT,:,:),1)
            ! compute powder:
@@ -344,8 +344,8 @@ c print out the main VAN VLECK SUSCEPTIBILITY TENSOR, its main values and main a
         Do iT=1,nT
           jT=iT+nTempMagn
           info=0
-          Call dcopy_(  3, 0.0_wp, 0, wt,1)
-          Call dcopy_(3*3, 0.0_wp, 0, zt,1)
+          Call dcopy_(  3, [0.0_wp], 0, wt,1)
+          Call dcopy_(3*3, [0.0_wp], 0, zt,1)
           Call DIAG_R2( chiT_tens(jT,:,:) ,3,info,wt,zt)
           Write(6,'(A)') '------------|---'//
      &                   '|------- x --------- y --------- z ---'//
@@ -377,8 +377,8 @@ c print out the main VAN VLECK SUSCEPTIBILITY TENSOR, its main values and main a
         Do iT=1,nT
           jT=iT+nTempMagn
           info=0
-          Call dcopy_(  3, 0.0_wp, 0, wt,1)
-          Call dcopy_(3*3, 0.0_wp, 0, zt,1)
+          Call dcopy_(  3, [0.0_wp], 0, wt,1)
+          Call dcopy_(3*3, [0.0_wp], 0, zt,1)
           Call DIAG_R2( chiT_theta_tens(jT,:,:) ,3,info,wt,zt)
           Write(6,'(A)') '------------|---'//
      &                   '|------- x --------- y --------- z ---'//

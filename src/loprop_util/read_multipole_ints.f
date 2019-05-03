@@ -19,6 +19,7 @@
       Character*8 Label
       Character*16 RunFile_dLabel, RunFile_iLabel, RunFile_iLabel2
       Logical Restart, Found, Utility
+      Dimension idum(1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -54,6 +55,7 @@
          Call Get_iArray(RunFile_iLabel,iWork(ip_nComp),nElem)
          Call Get_iArray(RunFile_iLabel2,iWork(ip_iSyLbl),nElem)
       End If
+      nInts=0
       iOpt0=0
       iOpt1=1
       Label='Mltpl  X'
@@ -77,7 +79,8 @@
             Else
                iRc=-1
                iSyLbl=0
-               Call iRdOne(iRc,iOpt1,Label,iComp,nInts,iSyLbl)
+               Call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
+               nInts=idum(1)
                Call Allocate_Work(ip_mu(mu),nInts+4)
                If ( iRc.ne.0 ) Then
                   Write (6,*) 'Polar: error reading length of mu!'

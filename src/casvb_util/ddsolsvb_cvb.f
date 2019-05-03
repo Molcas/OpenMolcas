@@ -18,11 +18,11 @@
       save one
       data one/1d0/
 
-      call fmove(rhsp,solp,itdav)
+      call fmove_cvb(rhsp,solp,itdav)
       eig=dnrm2_(itdav,solp,1)
       call dscal_(itdav,one/eig,solp,1)
       eig_res=eig
-      call fmove(solp,solp_res,itdav)
+      call fmove_cvb(solp,solp_res,itdav)
       return
       entry ddinitsvb_cvb(ifollow1,isaddle1,ip1)
       ifollow=ifollow1

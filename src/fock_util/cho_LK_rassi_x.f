@@ -272,7 +272,7 @@ c --- allocate memory for the Index arrays
 
 c --- allocate memory for ipLab
       Call GetMem('ip_Lab','Allo','Inte',ip_Lab,nDen*nShell)
-      Call ICopy(nDen*nShell,-1,0,iWork(ip_Lab),1)
+      Call ICopy(nDen*nShell,[-1],0,iWork(ip_Lab),1)
 
 c --- allocate memory for kOffSh
       Call GetMem('ip_kOffSh','Allo','Inte',ip_kOffSh,nShell*nSym)

@@ -52,6 +52,7 @@
       Real*8 Alpha(2),rm(2), R_Min(0:nR_Min)
       Integer Maps2p(nShell,0:nSym-1)
       Integer iDCRR(0:7)
+      Dimension Dummy(1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -71,7 +72,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call ICopy(nShell*nSym,-99999999,0,Maps2p,1)
+      Call ICopy(nShell*nSym,[-99999999],0,Maps2p,1)
 *define _DEBUG_
 *                                                                      *
 ************************************************************************
@@ -104,7 +105,7 @@ C     Call QEnter('Setup_NQ')
          Write (6,*) 'nShell.gt.nSkal_iSD'
          Write (6,*) 'nShell=',nShell
          Write (6,*) 'nSkal_iSD=',nSkal_iSD
-         Call Quit()
+         Call AbEnd()
       End If
       Do iShell = 1, nShell
          ipxyz=iSD(8,iShell)
@@ -397,7 +398,7 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
 *                                                                      *
       If (Rotational_Invariance.eq.Off) Then
          Call FZero(Work(ip_O),9)
-         call dcopy_(3,One,0,Work(ip_O),4)
+         call dcopy_(3,[One],0,Work(ip_O),4)
          Do iNQ = 1, nNQ
             Do iCar = 1, 3
                Call FZero(Work(ip_dOdx(iNQ,iCar)),9)
@@ -418,9 +419,9 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
 *
          nR_Eff=iWork(ip_nR_eff-1+iNQ)
          Call GetMem('ip_Angular','Allo','Inte',ip_A,nR_Eff)
-         ip_iA=ip_of_iWork(Work(ip_Angular(iNQ)))
+         ip_iA=ip_of_iWork_d(Work(ip_Angular(iNQ)))
          iWork(ip_iA)=ip_A
-         Call ICopy(nR_Eff,nAngularGrids,0,iWork(ip_A),1)
+         Call ICopy(nR_Eff,[nAngularGrids],0,iWork(ip_A),1)
 *
 *        Prune the angular grid
 *
@@ -460,7 +461,7 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
                End If
             End Do
 *
-            ip_iRx=ip_of_iWork(Work(ip_R_Quad(iNQ)))
+            ip_iRx=ip_of_iWork_d(Work(ip_R_Quad(iNQ)))
             ip_Rx=iWork(ip_iRx)
             R_BS = Work(ip_R_RS(iNQ))
 *
@@ -764,7 +765,7 @@ c         nMem=Max(nMem,nxyz+nAngular+nRad+nRadial+nSO)
       If (Grid_Status.eq.Regenerate) Then
 C        Write (6,*) 'Grid_Status.eq.Regenerate'
          Grid_Status=Regenerate
-         Call ICopy(2*number_of_subblocks,0,0,iWork(ip_GridInfo),1)
+         Call ICopy(2*number_of_subblocks,[0],0,iWork(ip_GridInfo),1)
          Call iDaFile(Lu_Grid,1,iWork(ip_GridInfo),
      &                2*number_of_subblocks,iDisk_Grid)
          Old_Functional_Type=Functional_Type

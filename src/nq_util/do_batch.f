@@ -161,8 +161,8 @@
       If (mRho.ne.-1) Then
          Call GetMem('Rho_I','Allo','Real',ipRhoI,mGrid*mRho)
          Call GetMem('Rho_A','Allo','Real',ipRhoA,mGrid*mRho)
-         call dcopy_(mGrid*mRho,Zero,0 ,Work(ipRhoI), 1)
-         call dcopy_(mGrid*mRho,Zero,0 ,Work(ipRhoA), 1)
+         call dcopy_(mGrid*mRho,[Zero],0 ,Work(ipRhoI), 1)
+         call dcopy_(mGrid*mRho,[Zero],0 ,Work(ipRhoA), 1)
       Else
          ipRhoI = ip_Dummy
          ipRhoA = ip_Dummy
@@ -239,7 +239,7 @@ C        Call RecPrt('TabAO from disk',' ',TabAO,1,mTabAO)
             nRadial  = iBas_Eff*mGrid*mRad
             ipRadial = ipxyz + nxyz
             ipAng_   = ipRadial + nRadial
-            ipAng    = ip_of_iWork(Work(ipAng_))
+            ipAng    = ip_of_iWork_d(Work(ipAng_))
 *
             iR=list_s(2,ilist_s)
 *

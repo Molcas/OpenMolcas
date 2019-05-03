@@ -9,24 +9,18 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine ZMatReader(iZMUnit,LuWr,nAtoms,nXAtoms,nBasis,
-     & nAskAtoms,iglobal,nxbas,xb_label,xb_bas,iErr)
+     & nAskAtoms,iErr)
       Implicit Integer (i-n)
       Implicit Real*8 (a-h,o-z)
 #include "g_zmatconv.fh"
       Character*80 Line, Blank
       Character*3  Command
       Character*24 Words(7)
-        character *(*) xb_label(*)
-        character *(*) xb_bas(*)
 * nAtoms : Total number of real atoms. Include X dummy atoms: NAT(i)= 0
 * nXAtoms: Total number of ghost (Z) atoms:                   NAT(i)=-1
 * nBasis : Nummer of atom types requiring Basis Set
 C  ***  nAskAtoms.EQ.-1  =>  Seward ZMAT input  => Use "End of"
 C  ***  nAskAtoms.NE.-1  =>  GateWay ZMAT input => Use nAskAtoms
-      xb_label(1)=' '
-      xb_bas(1)=' '
-      iglobal=0
-      nxbas=1
       iErr = 0
       Blank = ' '
       nAtoms  = 0

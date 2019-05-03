@@ -39,6 +39,7 @@ C             SC scratch area
 C
 C ********** IBM-3090 Release 88 09 08 *****
 C
+      use fciqmc, only : DoNECI
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "warnings.fh"
@@ -46,7 +47,6 @@ C
 #include "WrkSpc.fh"
 #include "wadr.fh"
 #include "output_ras.fh"
-#include "fciqmc.fh"
       Parameter (ROUTINE='DAVCRE  ')
       CHARACTER*4 IOUTW,IOUTX
       DIMENSION C(*),HC(*),HH(*),CC(*),E(*),SC(*),
@@ -384,7 +384,7 @@ C Acceptable, only if it is very close to zero. Else, quit.
          Write(LF,*)' This is possible only for some severe malfunction'
          Write(LF,*)' of the rasscf program. Please issue a bug report.'
          Write(LF,*)
-         if(.not.iDoNECI) then
+         if(.not. DoNECI) then
            Call qTrace
            Call Quit(_RC_GENERAL_ERROR_)
          else

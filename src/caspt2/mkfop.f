@@ -31,7 +31,7 @@
 
       CALL QENTER('MKFOP')
 
-      CALL DCOPY_(NGRP**2,0.0D0,0,FOPXMS,1)
+      CALL DCOPY_(NGRP**2,[0.0D0],0,FOPXMS,1)
 
 * Loop over bra functions:
       DO J1=1,NGRP

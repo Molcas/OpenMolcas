@@ -24,7 +24,7 @@
 #include "Pointers.fh"
 #include "negpre.fh"
 #include "sa.fh"
-      Integer iSM(1),LSPC(1),iSPC(1)
+      Integer iSM(1),LSPC(1),iSPC(1),IDUM(1)
       Real*8 ralp(*),S(*)
 *
 *     This is just a interface to hide Jeppe from the rest of the world

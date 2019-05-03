@@ -99,16 +99,16 @@
       If (C(n0).gt.1.0D0) C(n0) = -(A/2.0D0) - Sqrt((A/2.0D0)**2-B)
       If (C(n0).lt.0.0D0) Then
          Write (6,*) 'C(n0).lt.0.0D0'
-         Call Quit()
+         Call Abend()
       End If
       C(n1)=1.0D0-C(n0)
       If (C(n1).gt.1.0D0) Then
          Write (6,*) 'C(n1).gt.1.0D0'
-         Call Quit()
+         Call Abend()
       End If
       If (C(n1).lt.0.0D0) Then
          Write (6,*) 'C(n1).lt.0.0D0'
-         Call Quit()
+         Call Abend()
       End If
 *
 *     At this point we have a set of Cs which fulfil the two contraints.
@@ -141,7 +141,7 @@
       Step=0.10d0
       Eminus=1.0D0
       Eplus =1.0D0
-      Call Quit()
+      Call Abend()
 *
 *     Below we explore changes to all triplets that are consistent with
 *     that the constrains are not broken.

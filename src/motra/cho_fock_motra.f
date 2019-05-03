@@ -96,8 +96,8 @@
       ipFLT = ip_of_Work(FLT(1))
       ipFSQ = ip_of_Work(FSQ(1))  ! not needed on exit
 
-      CALL CHO_LK_SCF(irc,nDen,ipFLT,ipFSQ,nXorb,nFro,
-     &                ipMOs,ipDLT,0.5d0*ExFac,NScreen,dmpk,dFKmat)
+      CALL CHO_LK_SCF(irc,nDen,[ipFLT],[ipFSQ],nXorb,nFro,
+     &                [ipMOs],[ipDLT],0.5d0*ExFac,NScreen,dmpk,dFKmat)
       if (irc.ne.0) then
          write(6,*)'Cho_Fock_Motra: Cho_LK_scf returns error code ',irc
          Call AbEnd()

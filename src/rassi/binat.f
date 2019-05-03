@@ -74,8 +74,8 @@ C DIAGONALIZE EACH SYMMETRY BLOCK OF THE OVERLAP MATRIX.
       LE=LSEV
       DO ISYM=1,NSYM
         NB=NBASF(ISYM)
-        CALL DCOPY_(NB**2,0.0D0,0,WORK(LV),1)
-        CALL DCOPY_(NB,1.0D0,0,WORK(LV),NB+1)
+        CALL DCOPY_(NB**2,[0.0D0],0,WORK(LV),1)
+        CALL DCOPY_(NB,[1.0D0],0,WORK(LV),NB+1)
         CALL JACOB(WORK(LS),WORK(LV),NB,NB)
 C SORT IN ORDER OF DECREASING EIGENVALUES.
         LS1=LS
@@ -114,7 +114,7 @@ C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
            X=1.0D00/SQRT(SEV)
            CALL DSCAL_(NB,X,WORK(LV1),1)
           ELSE
-           CALL DCOPY_(NB,0.0D0,0,WORK(LV1),1)
+           CALL DCOPY_(NB,[0.0D0],0,WORK(LV1),1)
           END IF
           LS1=LS1+I+1
           LV1=LV1+NB
@@ -175,7 +175,7 @@ C needed for the singular values and for the TDM.
         ITD=ITD+NBASF(ISYM1)*NBASF(ISYM2)
         ISV=ISV+NBASF(ISYM1)
        END DO
-       CALL DCOPY_(NBSQ,0.0D0,0,WORK(LTDMAT),1)
+       CALL DCOPY_(NBSQ,[0.0D0],0,WORK(LTDMAT),1)
 C DOUBLE LOOP OVER RASSCF WAVE FUNCTIONS
        DO I=1,NSTATE
         IF (IRREP(iWork(lJBNUM+I-1)).NE.LSYM_BRA) GOTO 92
@@ -226,8 +226,8 @@ C tables of offsets:
         IV=IV+NBASF(ISYM)**2
         IE=IE+NBASF(ISYM)
        END DO
-       CALL DCOPY_(NBST,0.0D0,0,WORK(LSNGV1),1)
-       CALL DCOPY_(NBST,0.0D0,0,WORK(LSNGV2),1)
+       CALL DCOPY_(NBST,[0.0D0],0,WORK(LSNGV1),1)
+       CALL DCOPY_(NBST,[0.0D0],0,WORK(LSNGV2),1)
        ITD=0
        DO ISYM1=1,NSYM
         ISYM2=MUL(ISYM1,LSYM12)
@@ -312,8 +312,8 @@ C and the singular values will be written as "occupation numbers".
      &     DUMMY, DUMMY, IDUMMY,
      &     '* Binatural orbitals from transition '//TRIM(TXT), 0 )
         CLOSE(LUNIT)
-        SUMSNG=DDOT_(NBASF,WORK(LSNGV1),1,WORK(LSNGV2),1)
-        CALL ADD_INFO("BINAT",SUMSNG,1,5)
+        SUMSNG=DDOT_(SUM(NBASF),WORK(LSNGV1),1,WORK(LSNGV2),1)
+        CALL ADD_INFO("BINAT",[SUMSNG],1,5)
 
 C End of very long loop over eigenstate pairs.
       END DO

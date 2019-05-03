@@ -19,7 +19,8 @@ c this function prints the energies and eigenvectors of the interaction Hamilton
       Integer, intent(in)          :: lmax
       Integer, intent(in)          :: iPrint
       Integer, intent(in)          :: ibas(exch,lmax)
-      Real(kind=wp), intent(in)    :: WLIN(exch) ! eigenstates of all Lines interactions: 1+3+9
+!     eigenstates of all Lines interactions: 1+3+9
+      Real(kind=wp), intent(in)    :: WLIN(exch)
       Real(kind=wp), intent(in)    :: WDIP(exch)
       Real(kind=wp), intent(in)    :: WKEX(exch)
       Real(kind=wp), intent(in)    :: WDMO(exch)

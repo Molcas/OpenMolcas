@@ -24,6 +24,7 @@
 #include "common.fh"
       Character*6 OneInt,NatOrb,RunFile
       Character*72 line
+      Dimension Dummy(1),iDummy(1)
 *----------------------------------------------------------------------*
       If(isUHF.eq.1) Then
          Call dCopy_(MxCmo, Cmo2,1, Cmo,1)

@@ -34,7 +34,7 @@
 *                                                                      *
 *     called from: WfCtl                                               *
 *                                                                      *
-*     calls to: ModFck, PickUp, Sort                                   *
+*     calls to: ModFck, PickUp, SortEig                                *
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -91,7 +91,7 @@
 *---- modify Fock matrix
       call dcopy_(nBT,Fock(1,iD),1,FckM,1)
       If (nnFr.gt.0) then
-        Call ModFck(pFckM,Ovrlp,nBT,CMO(1,iD),nBO,
+        Call ModFck(FckM,Ovrlp,nBT,CMO(1,iD),nBO,
      &              nOcc(1,iD))
       endif
 *
@@ -197,7 +197,7 @@ c         Call TriPrt(' ',' ',FckS,nOrbmF)
               Call mma_deallocate(Scratch)
               n2zero=nOccmF
               If (Do_SpinAV) n2zero=n2zero+nConstr(iSym)
-              Call dCopy_(n2zero*(n2zero+1)/2,Zero,0,FckS,1)
+              Call dCopy_(n2zero*(n2zero+1)/2,[Zero],0,FckS,1)
 *
               iDiag = 0
               Do i = 1, n2zero
@@ -230,7 +230,7 @@ c         Call TriPrt(' ',' ',FckS,nOrbmF)
 *
               If (.NOT.FckAuf) Then
 *
-                 Call FZero(COvrlp,nOccmF,nBas(iSym))
+                 Call FZero(COvrlp,nOccmF*nBas(iSym))
                  Call Square(Ovrlp(ioFckM),Scrt,1,nBas(iSym),
      &                       nBas(iSym))
                  Call DGEMM_('T','N',
@@ -331,7 +331,7 @@ c         Call TriPrt(' ',' ',FckS,nOrbmF)
                     iiScratch=1+nVrt*(j-1)+j-1
                     Scratch(iiScratch)=1.0d0
                  End Do
-                 call dcopy_(nVrt**2,Scratch,1,pEigV,1)
+                 call dcopy_(nVrt**2,Scratch,1,EigV,1)
               EndIf
               Call mma_deallocate(Scratch)
 *------------ rotate MOs to diagonalize virt/virt block
@@ -363,16 +363,19 @@ c         Call TriPrt(' ',' ',FckS,nOrbmF)
 *----------    Sort non-wavelet eigenvalues/eigenvectors
                n2sort=nOccmF-nConstr(iSym)
                If (FckAuf)
-     &         Call Sort(EOrb(jEOr,iD),CMO(iCMO,iD),n2sort,nBas(iSym))
+     &         Call SortEig(EOrb(jEOr,iD),CMO(iCMO,iD),n2sort,
+     &                      nBas(iSym))
                jjEOr=jEOr+nOccmF+nConstr(iSym)
                iiCMO=iCMO+nBas(iSym)*(nOccmF+nConstr(iSym))
                n2sort=nVrt-nConstr(iSym)
                If (FckAuf)
-     &         Call Sort(EOrb(jjEOr,iD),CMO(iiCMO,iD),n2sort,nBas(iSym))
+     &         Call SortEig(EOrb(jjEOr,iD),CMO(iiCMO,iD),n2sort,
+     &                      nBas(iSym))
             Else
 *----------    Sort all eigenvalues and eigenvectors
                If (FckAuf)
-     &         Call Sort(EOrb(jEOr,iD),CMO(iCMO,iD),nOrbmF,nBas(iSym))
+     &         Call SortEig(EOrb(jEOr,iD),CMO(iCMO,iD),nOrbmF,
+     &                      nBas(iSym))
             EndIf
 #ifdef _SPECIAL_DEBUG_
             If (iD.eq.1.and.nD.eq.1) Then

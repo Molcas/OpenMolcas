@@ -49,7 +49,7 @@
  20      Continue
  10   Continue
       Else
-        call dcopy_(nPrim*mPrim,One,0,rKappa,1)
+        call dcopy_(nPrim*mPrim,[One],0,rKappa,1)
         call dcopy_(nPrim*mPrim,A(1),0,Pcoor(1,1,1),1)
         call dcopy_(nPrim*mPrim,A(2),0,Pcoor(1,1,2),1)
         call dcopy_(nPrim*mPrim,A(3),0,Pcoor(1,1,3),1)

@@ -16,7 +16,7 @@ C LBLK DEFINES STRUCTURE OF FILES :
 C
       IMPLICIT REAL*8(A-H,O-Z)
 #include "io_util.fh"
-      DIMENSION SEGMNT(*)
+      DIMENSION SEGMNT(*),IDUMMY(1)
 C
       IF( IREW .NE. 0 ) THEN
         IF( LBLK .GE. 0 ) THEN
@@ -32,9 +32,11 @@ C
         IF ( LBLK .GT. 0 ) THEN
           LBL = LBLK
         ELSE IF ( LBLK .EQ. 0 ) THEN
-          CALL IDAFILE(LU,2,LBL,1,IDISK(LU))
+          CALL IDAFILE(LU,2,IDUMMY,1,IDISK(LU))
+          LBL=IDUMMY(1)
         ELSE
-          CALL IDAFILE(LU,2,LBL,1,IDISK(LU))
+          CALL IDAFILE(LU,2,IDUMMY,1,IDISK(LU))
+          LBL=IDUMMY(1)
           CALL IDAFILE(LU,2,IDUMMY,1,IDISK(LU))
         END IF
         IBLK = IBLK + 1

@@ -45,13 +45,15 @@
       Parameter(nTInt=1,mDens=1)
       Real*8 Dens(mDens), Fock(mDens), TInt(nTInt)
       Integer iTOffs(8,8,8),
-     &        nShi(8), nShj(8), nShk(8), nShl(8)
+     &        nShi(8), nShj(8), nShk(8), nShl(8),
+     &        nShOffi(8), nShOffj(8), nShOffk(8), nShOffl(8)
       Logical Verbose, Indexation, FreeK2,
      &        W2Disc, PreSch, DoIntegrals, DoFock, DoGrad,
      &        FckNoClmb, FckNoExch, Rsv_GTList, Triangular
       Character*72 SLine
       Real*8, Dimension(:,:), Allocatable :: TMax
       Integer, Dimension(:,:), Allocatable :: Pair_Index
+      Dimension ExFac(1),Ind(1,1,2),FckNoClmb(1),FckNoExch(1)
 *                                                                      *
 ************************************************************************
 *                                                                      *

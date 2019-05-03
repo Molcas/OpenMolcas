@@ -112,7 +112,7 @@
       Integer   ipMSQ(nDen),ipAorb(8,*),ipTxy(8,8,2)
       Integer   kOff(8,5), LuRVec(8,3), ipLpq(8), ipLxy(8), iSkip(8)
       Integer   ipDrs(5), ipY, ipYQ, ipML, ipSKsh(5)
-      Integer   ipDrs2,ipDLT(5)
+      Integer   ipDrs2,ipDLT(5),ipDLT2
       Integer   ipIndx, ipIndik,npos(8,3)
       Integer   iSTSQ(8), iSTLT(8), iSSQ(8,8), nnA(8,8), nInd
       Real*8    tread(2),tcoul(2),tmotr(2),tscrn(2),tcasg(2),tmotr2(2)
@@ -317,7 +317,8 @@ c      Debug=.true.
          End Do
       End Do
 
-      Call GetMem('ip_iShp_rs','Allo','Inte',ip_iShp_rs,nnShl_tot) ! iShp_rs
+!     iShp_rs
+      Call GetMem('ip_iShp_rs','Allo','Inte',ip_iShp_rs,nnShl_tot)
 
 ************************************************************************
 *                                                                      *
@@ -367,7 +368,8 @@ c      Debug=.true.
 
          NumVT=NumChT
          Call GAIGOP_SCAL(NumVT,'+')
-         thrv = ( sqrt(ThrCom/DBLE(Max(1,nItmx)*NumVT)) )*dmpK ! Vector MO transformation screening thresholds
+!        Vector MO transformation screening thresholds
+         thrv = ( sqrt(ThrCom/DBLE(Max(1,nItmx)*NumVT)) )*dmpK
 
 #if defined (_MOLCAS_MPP_)
          If (Is_Real_Par() .and. Update) Then
@@ -389,7 +391,8 @@ c      Debug=.true.
 *
 ** Allocate memory
 *
-         CALL GETMEM('diahI','Allo','Real',ipDIAH,NNBSQ) ! sqrt(D(a,b)) stored in full (squared) dim
+!        sqrt(D(a,b)) stored in full (squared) dim
+         CALL GETMEM('diahI','Allo','Real',ipDIAH,NNBSQ)
          CALL FZERO(Work(ipDIAH),NNBSQ)
 
          Call GetMem('absc','Allo','Real',ipAbs,MaxB) ! abs(C(l)[k])
@@ -399,11 +402,13 @@ c      Debug=.true.
          Call GetMem('yq','Allo','Real',ipYQ,nItmx**2) ! Yi[k] vectors
 
 *used to be nShell*something
-         Call GetMem('MLk1','Allo','Real',ipML,nShell) ! ML[k] lists of largest elements in significant shells
+!        ML[k] lists of largest elements in significant shells
+         Call GetMem('MLk1','Allo','Real',ipML,nShell)
 
-         Call GetMem('SKsh','Allo','Real',ipSKsh(1),nShell*nI2t) ! list of S:= sum_l abs(C(l)[k])
+!        list of S:= sum_l abs(C(l)[k])
+         Call GetMem('SKsh','Allo','Real',ipSKsh(1),nShell*nI2t)
          Do i=2,5
-           ipSKsh(i)=ipSKsh(i-1)+nShell*nIt(i-1)                 ! for each shell
+           ipSKsh(i)=ipSKsh(i-1)+nShell*nIt(i-1)    ! for each shell
          End Do
 
 *
@@ -416,16 +421,19 @@ c      Debug=.true.
            End Do
          End Do
 
-         Call GetMem('Indx','Allo','Inte',ipIndx,(nShell+1)*nInd) ! Index array
+!        Index array
+         Call GetMem('Indx','Allo','Inte',ipIndx,(nShell+1)*nInd)
 
          Call GetMem('Indik','Allo','Inte',ipIndik,
      &               ((nItmx+1)*nItmx+1)*nInd)  !Yi[k] Index array
 
          Call GetMem('ip_Lab','Allo','Inte',ip_Lab,nShell) ! ipLab
 
-         Call GetMem('ip_kOffSh','Allo','Inte',ip_kOffSh,nShell*nSym) ! kOffSh
+!        kOffSh
+         Call GetMem('ip_kOffSh','Allo','Inte',ip_kOffSh,nShell*nSym)
 
-         Call GetMem('ip_SvShp','Allo','Real',ip_SvShp,2*nnShl) ! shell-pair Frobenius norm of the vectors
+!        shell-pair Frobenius norm of the vectors
+         Call GetMem('ip_SvShp','Allo','Real',ip_SvShp,2*nnShl)
 
 *
 ** Jonas - June 2010:
@@ -732,7 +740,7 @@ C --- Transform the densities to reduced set storage
      &                              ipDLT,ipDrs,mode,add)
                If(iMp2prpt .eq. 2) Then
                   Call play_casscf_sto(irc,iLoc,nJdens,JSYM,ISTLT,ISSQ,
-     &                              ipDLT2,ipDrs2,mode,add)
+     &                              [ipDLT2],[ipDrs2],mode,add)
                End If
             EndIf
 *
@@ -907,7 +915,7 @@ C --- Transform the densities to reduced set storage
                      add  = .false.
                      nMat = 1
                      Call play_casscf_sto(irc,ired1,nMat,JSYM,ISTLT,
-     &                                    ISSQ,ipDIAH,ipDIAG,mode,add)
+     &                                  ISSQ,[ipDIAH],[ipDIAG],mode,add)
 
                      CALL CWTIME(TCS2,TWS2)
                      tscrn(1) = tscrn(1) + (TCS2 - TCS1)

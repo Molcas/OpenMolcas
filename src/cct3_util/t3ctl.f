@@ -32,7 +32,7 @@ c     work file declaration
 c
 c     variables
 c
-       real*8 eccsd,eaaa,eaab,eabb,ebbb,ec
+       real*8 eccsd,eaaa(1),eaab(1),eabb(1),ebbb(1),ec
        integer i,j,k,i3,j3,k3,symi,symj,symk,symi3,symj3,symk3
        integer symijk,symij
        integer nsg,keyyes,rc1,jup,ilow,posst,ssl1,ssl2,ssm1,ssm2
@@ -1514,7 +1514,7 @@ c      in paralell run are too dangerous to use separately
 c      so their printout is supressed.
 c
        if (nProcs.eq.1) then
-         call t3wresult (symi,symj,i,j,eaaa,eaab,eabb,ebbb)
+         call t3wresult (symi,symj,i,j,eaaa(1),eaab(1),eabb(1),ebbb(1))
          if (fullprint.gt.1) then
            write(6,*) ' Eaaa =',eaaa
            write(6,*) ' Eaab =',eaab

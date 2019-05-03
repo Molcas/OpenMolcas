@@ -13,6 +13,7 @@
       use Period
       use MpmC
       use EFP_Module
+      use fortran_strings, only : str
 #ifndef _HAVE_EXTRA_
       use XYZ
 #endif
@@ -20,7 +21,7 @@
       External NucExp
 #include "para_info.fh"
 *
-#include "itmax.fh"
+#include "angtp.fh"
 #include "info.fh"
 #include "constants.fh"
 #include "constants2.fh"
@@ -65,14 +66,13 @@
       Parameter (Cho_CutInt = 1.0D-40, Cho_ThrInt = 1.0D-40,
      &           Cho_MolWgh = 2)
 *
-      Real*8 NucExp, WellCff(3),WellExp(3), WellRad(3), CholeskyThr(1)
-      Real*8 spanCD(1)
+      Real*8 NucExp, WellCff(3),WellExp(3), WellRad(3)
       Real*8, Allocatable :: RTmp(:,:), EFt(:,:), OAMt(:), OMQt(:),
      &                       DMSt(:,:), OrigTrans(:,:), OrigRot(:,:,:),
      &                       mIsot(:)
       Integer, Allocatable :: ITmp(:), nIsot(:,:)
       Character*180 STDINP(mxAtom*2)
-      Character Basis_lib*256, INT2CHAR*4, CHAR4*4
+      Character Basis_lib*256, CHAR4*4
       Character*256 Project, GeoDir, temp1, temp2
 *
       Integer StrnLn
@@ -169,7 +169,7 @@
       iOpt_XYZ=-1
 *
       isXfield=0
-      CholeskyThr(1)=-9.99d9
+      CholeskyThr=-9.99d9
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -186,7 +186,7 @@
 *
       CholeskyWasSet=.False.
       do1CCD=.false.
-      spanCD(1)=-9.9d9
+      spanCD=-9.9d9
       lTtl = .False.
       RF_read=.False.
       lSkip=.False.
@@ -736,7 +736,7 @@ c     Call Abend()
 *     Change default for non-zero occupation numbers
 *
  907  KWord = Get_Ln(LuRd)
-      Call Get_F(1,Thrs,1)
+      Call Get_F1(1,Thrs)
       Thrs = Abs(Thrs)
       Go To 998
 *                                                                      *
@@ -999,12 +999,12 @@ c Simplistic validity check for value
       goto 998
 7071  continue
       KWord = Get_Ln(LuRd)
-      Call Get_F(1,sDel,1)
+      Call Get_F1(1,sDel)
       Call Put_dScalar('S delete thr',sDel)
       goto 998
 7072  continue
       KWord = Get_Ln(LuRd)
-      Call Get_F(1,tDel,1)
+      Call Get_F1(1,tDel)
       Call Put_dScalar('T delete thr',tDel)
       goto 998
 7700  continue
@@ -1277,7 +1277,7 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
       End If
       If (KWord(1:4).eq.'ACDT') Then
          KWord = Get_Ln(LuRd)
-         Call Get_F(1,aCD_Thr(nCnttp),1)
+         Call Get_F1(1,aCD_Thr(nCnttp))
          Go To 777
       End If
       If (KWord(1:4).eq.'MUON') Then
@@ -1287,7 +1287,7 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
       End If
       If (KWord(1:4).eq.'NUCL') Then
          KWord = Get_Ln(LuRd)
-         Call Get_F(1,ExpNuc(nCnttp),1)
+         Call Get_F1(1,ExpNuc(nCnttp))
          Go To 777
       End If
       If (KWord(1:4).eq.'FIXE') Then
@@ -1351,7 +1351,7 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
       If (KWord(1:4).eq.'CHAR') Then
          KWord = Get_Ln(LuRd)
          Call UpCase(KWord)
-         Call Get_F(1,Charge(nCnttp),1)
+         Call Get_F1(1,Charge(nCnttp))
          ist = index(KWord,' ')
          If (IsMM(nCnttp).ne.0) Then
             Call WarningMessage(1,
@@ -1431,10 +1431,9 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
                      Call Quit_OnUserError()
                   Else
                      If(ii.LT.1000) Then
-                        CHAR4 = INT2CHAR(ii,3)
-                        CHAR4 ='_'//CHAR4(1:3)
+                        CHAR4 = '_'//str(ii)
                      Else
-                        CHAR4 = INT2CHAR(ii,4)
+                        CHAR4 = str(ii)
                      End If
                   End If
 
@@ -1478,11 +1477,11 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
 *
  930  KWord = Get_Ln(LuRd)
       GWInput = Run_Mode.eq.G_Mode
-      Call Get_I(1,n,1)
+      Call Get_I1(1,n)
       Do i = 1, n
          KWord = Get_Ln(LuRd)
-         Call Get_I(1,jRout,1)
-         Call Get_I(2,iPrint,1)
+         Call Get_I1(1,jRout)
+         Call Get_I1(2,iPrint)
          nPrint(jRout)=iPrint
       End Do
       Go To 998
@@ -1499,7 +1498,7 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
 *     Threshold for writing integrals to disk
 *
  941  KWord = Get_Ln(LuRd)
-      Call Get_F(1,ThrInt,1)
+      Call Get_F1(1,ThrInt)
       ThrInt = Abs(ThrInt)
       ThrInt_UsrDef = .True.
       Go To 998
@@ -1509,7 +1508,7 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
 *     Cutoff for computing primitive integrals [a0|c0]
 *
  942  KWord = Get_Ln(LuRd)
-      Call Get_F(1,CutInt,1)
+      Call Get_F1(1,CutInt)
       CutInt = Abs(CutInt)
       CutInt_UsrDef = .True.
       Go To 998
@@ -1521,8 +1520,8 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
 *
  950  KWord = Get_Ln(LuRd)
       Call Upcase(KWord)
-      Call Get_I(1,Max_Center,1)
-      Call Get_F(2,rtrnc,1)
+      Call Get_I1(1,Max_Center)
+      Call Get_F1(2,rtrnc)
       If (Index(KWord,'ANGSTROM').ne.0)
      &    Rtrnc = Rtrnc/angstr
       GWInput=.True.
@@ -1533,7 +1532,7 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
 *     Screen off memory
 *
 c951  KWord = Get_Ln(LuRd)
-c     Call Get_I(1,memhid,1)
+c     Call Get_I1(1,memhid)
 c     If (MemHid.le.0) MemHid = 1
 c     Go To 998
 *                                                                      *
@@ -1558,6 +1557,8 @@ c     Go To 998
 *
  9771 Expert = .True.
       GWInput = Run_Mode.eq.G_Mode
+      Call WarningMessage(1,
+     &   ' EXPERT option is ON!')
       Go To 998
 *                                                                      *
 ****** DIST ************************************************************
@@ -1615,7 +1616,7 @@ c     Go To 998
 *     Change max j quantum number for the rigid rotor analysis
 *
  971  KWord = Get_Ln(LuRd)
-      Call Get_I(1,jMax,1)
+      Call Get_I1(1,jMax)
       Go To 998
 *                                                                      *
 ****** MULT ************************************************************
@@ -1623,7 +1624,7 @@ c     Go To 998
 *     Read order of highest multipole to be computed
 *
  972  KWord = Get_Ln(LuRd)
-      Call Get_I(1,nMltpl,1)
+      Call Get_I1(1,nMltpl)
       Go To 998
 *                                                                      *
 ****** CENT ************************************************************
@@ -1631,7 +1632,7 @@ c     Go To 998
 *     User specified centers of multipole moment operators.
 *
  973  KWord = Get_Ln(LuRd)
-      Call Get_I(1,nTemp,1)
+      Call Get_I1(1,nTemp)
       If (lMltpl) Then
          Call WarningMessage(2,
      &               ' Abend: User specified centers already defined;'
@@ -1645,7 +1646,7 @@ c     Go To 998
       Call mma_allocate(ITmp,nTemp,label='ITmp')
       Do 1502 i = 1, nTemp
          KWord = Get_Ln(LuRd)
-         Call Get_I(1,iMltpl,1)
+         Call Get_I1(1,iMltpl)
          Call Get_F(2,RTmp(1,i),3)
          If (Index(KWord,'ANGSTROM').ne.0)
      &       Call DScal_(3,One/angstr,RTmp(1,i),1)
@@ -1691,7 +1692,7 @@ c     Go To 998
       write(LuWr,*)'Reading external field from file: ',
      &        filename(1:(Index(filename,' ')-1))
       KWord = Get_Ln(LuRd)
-9752  Call Get_I(1,nXF,1)
+9752  Call Get_I1(1,nXF)
       Convert=.False.
       Call Upcase(kWord)
       If (Index(KWord,'ANGSTROM').ne.0) Then
@@ -1702,10 +1703,10 @@ c     Go To 998
 *
       KWord(170:180)='-2 -2 -2 -2'
       Call Put_Ln(KWord)
-      Call Get_I(2,nOrd_XF,1)
-      Call Get_I(3,iXPolType,1)
-      Call Get_I(4,nXMolnr,1)
-      Call Get_I(5,nReadEle,1)
+      Call Get_I1(2,nOrd_XF)
+      Call Get_I1(3,iXPolType)
+      Call Get_I1(4,nXMolnr)
+      Call Get_I1(5,nReadEle)
 
 *     Set defaults: ch+dip, no polarisabilities,
 *                   exclude only its own multipole,
@@ -1765,8 +1766,8 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
       ipExp(iShll+1)=ipXEle_r+lenXEle
       nInfo = nInfo + lenXF + lenXMolnr + lenXEle
 *
-      ipXMolnr=ip_of_iWork(Work(ipXMolnr_r))
-      ipXEle=ip_of_iWork(Work(ipXEle_r))
+      ipXMolnr=ip_of_iWork_d(Work(ipXMolnr_r))
+      ipXEle=ip_of_iWork_d(Work(ipXEle_r))
 *
       Call Upcase(KWord)
 *
@@ -2023,7 +2024,7 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
 *
  986  KWord = Get_Ln(LuRd)
       GWInput=.True.
-      Call Get_I(1,nWel,1)
+      Call Get_I1(1,nWel)
 *---- Get pointer to the next free space in dynamic memory
       ipWel=ipExp(iShll+1)
       ipW = ipWel
@@ -2040,9 +2041,9 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
          Do iWel = 1, nWel
 *---------- Read the Coefficient, Exponent, and Radius
             KWord = Get_Ln(LuRd)
-            call Get_F(1,Work(ipW+2),1)
-            call Get_F(2,Work(ipW+1),1)
-            call Get_F(3,Work(ipW  ),1)
+            call Get_F1(1,Work(ipW+2))
+            call Get_F1(2,Work(ipW+1))
+            call Get_F1(3,Work(ipW  ))
             If (Index(KWord,'ANGSTROM').ne.0) Then
                Work(ipW)=Work(ipW)/angstr
                Work(ipW+1)=Work(ipW+1)*angstr
@@ -2131,7 +2132,7 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
       Go To 9931
 *
  9931 KWord = Get_Ln(LuRd)
-      Call Get_I(1,nEF,1)
+      Call Get_I1(1,nEF)
       If (nEF.lt.0) nEF = 0
       If (nEF.eq.0) Go To 998
       Call mma_allocate(EFt,3,nEF,label='nEF')
@@ -2240,7 +2241,7 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
       KWord = Get_Ln(LuRd)
       Call Get_F(1,Dxyz,3)
       KWord = Get_Ln(LuRd)
-      Call Get_I(1,nDMS,1)
+      Call Get_I1(1,nDMS)
       If (nDMS.lt.0) nDMS = 0
       If (nDMS.eq.0) Go To 998
       Call mma_allocate(DMSt,3,nDMS,label='DMSt')
@@ -2292,7 +2293,7 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
 *     Note      : this flag is only active if iWRopt=0
 *
  9940 KWord = Get_Ln(LuRd)
-      Call Get_F(1,PkAcc,1)
+      Call Get_F1(1,PkAcc)
       PkAcc = Abs(PkAcc)
       Go To 998
 *                                                                      *
@@ -2351,7 +2352,7 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
 *     Speed of light (in au)
 *
  9000 KWord = Get_Ln(LuRd)
-      Call Get_F(1,CLightAU,1)
+      Call Get_F1(1,CLightAU)
       CLightAU = Abs(CLightAU)
       write(LuWr,*)'The speed of light in this calculation =', CLightAU
       Go To 998
@@ -2367,7 +2368,7 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
 *     RmatR    : radius of the R-matrix sphere (bohr)
 *
  880  KWord = Get_Ln(LuRd)
-      Call Get_F(1,RMatR,1)
+      Call Get_F1(1,RMatR)
       Go To 998
 *                                                                      *
 ***** RMEA *************************************************************
@@ -2375,7 +2376,7 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
 *     Epsabs   : absolute precision of numerical radial integration
 *
  881  KWord = Get_Ln(LuRd)
-      Call Get_F(1,Epsabs,1)
+      Call Get_F1(1,Epsabs)
       Go To 998
 *                                                                      *
 ***** RMER *************************************************************
@@ -2383,7 +2384,7 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
 *     Epsrel   : relative precision of numerical radial integration
 *
  882  KWord = Get_Ln(LuRd)
-      Call Get_F(1,Epsrel,1)
+      Call Get_F1(1,Epsrel)
       Go To 998
 *                                                                      *
 ***** RMQC *************************************************************
@@ -2391,7 +2392,7 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
 *     qCoul    : effective charge of the target molecule
 *
  883  KWord = Get_Ln(LuRd)
-      Call Get_F(1,qCoul,1)
+      Call Get_F1(1,qCoul)
       Go To 998
 *                                                                      *
 ***** RMDI *************************************************************
@@ -2408,7 +2409,7 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
 *     epsq     : minimal value of qCoul and/or dipol1 to be considered
 *
  885  KWord = Get_Ln(LuRd)
-      Call Get_F(1,epsq,1)
+      Call Get_F1(1,epsq)
       Go To 998
 *                                                                      *
 ***** RMBP *************************************************************
@@ -2416,7 +2417,7 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
 *     bParm    : Bloch term parameter
 *
  886  KWord = Get_Ln(LuRd)
-      Call Get_F(1,bParm,1)
+      Call Get_F1(1,bParm)
       Go To 998
 *                                                                      *
 ***** GIAO *************************************************************
@@ -2465,7 +2466,7 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
 *
  9021 Continue
       KWord=Get_Ln(LuRd)
-      Call Get_F(1,CholeskyThr,1)
+      Call Get_F1(1,CholeskyThr)
       Go To 998
 *                                                                      *
 ***** 1CCD *************************************************************
@@ -2539,11 +2540,11 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
       nInfo=nInfo + 2*nRP
       ipExp(iShll+1)=ipRP1 + 2*nRP
       KWord = Get_Ln(LuRd)
-      Call Get_F(1,E1,1)
+      Call Get_F1(1,E1)
       Call Read_v(LuRd,Work(ipRP1),1,nRP,1,iErr)
       Call DScal_(nRP,Fact,Work(ipRP1    ),1)
       KWord = Get_Ln(LuRd)
-      Call Get_F(1,E2,1)
+      Call Get_F1(1,E2)
       Call Read_v(LuRd,Work(ipRP1+nRP),1,nRP,1,iErr)
       Call DScal_(nRP,Fact,Work(ipRP1+nRP),1)
       GWInput = Run_Mode.eq.G_Mode
@@ -2663,7 +2664,7 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
 *                                                                      *
 *     Saddle options
  9081 Key = Get_Ln(LuRd)
-      Call Get_F(1,SadStep,1)
+      Call Get_F1(1,SadStep)
       GWInput = Run_Mode.eq.G_Mode
       Go To 998
 *                                                                      *
@@ -2692,8 +2693,8 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
 *
  890  Continue
       KWord = Get_Ln(LuRd)
-      Call Get_F(1,spanCD,1)
-      spanCD(1)=abs(spanCD(1))
+      Call Get_F1(1,spanCD)
+      spanCD=abs(spanCD)
       Go To 998
 *                                                                      *
 ***** SPREAD ***********************************************************
@@ -2933,7 +2934,7 @@ CDP      If (nCtrLD.eq.0) radiLD=0.0d0
 *     Threshold for CD to generate RICD auxiliary basis sets
 *
  8001 Key = Get_Ln(LuRd)
-      Call Get_F(1,Thrshld_CD,1)
+      Call Get_F1(1,Thrshld_CD)
       GWInput=.True.
       Go To 998
 *                                                                      *
@@ -2997,7 +2998,7 @@ CDP      If (nCtrLD.eq.0) radiLD=0.0d0
 *     Set RPQMin for FMM option
 *
  8008 Key = Get_Ln(LuRd)
-      Call Get_F(1,RPQMin,1)
+      Call Get_F1(1,RPQMin)
       Go To 998
 *                                                                      *
 ***** CONS *************************************************************
@@ -3072,7 +3073,7 @@ CDP      If (nCtrLD.eq.0) radiLD=0.0d0
 *
    37 Continue
          Key=Get_Ln(LuRd)
-         Call Get_F(1,Target_Accuracy,1)
+         Call Get_F1(1,Target_Accuracy)
          Call LDF_SetThrs(Target_Accuracy)
          LocalDF=.True.
          Call LDF_SetLDF2(.True.)
@@ -3086,7 +3087,7 @@ CDP      If (nCtrLD.eq.0) radiLD=0.0d0
 *
    38 Continue
          Key=Get_Ln(LuRd)
-         Call Get_F(1,APThr,1)
+         Call Get_F1(1,APThr)
          Call LDF_SetPrescreen(APThr)
          LocalDF=.True.
          APThr_UsrDef=.True.
@@ -3128,7 +3129,7 @@ CDP      If (nCtrLD.eq.0) radiLD=0.0d0
 *
    42 Continue
          Key=Get_Ln(LuRd)
-         Call Get_I(1,iCLDF,1)
+         Call Get_I1(1,iCLDF)
          Call LDF_AddConstraint(iCLDF)
          GWInput=.False. ! Only in Seward
       Go To 998
@@ -3271,6 +3272,13 @@ c
       ITkQMMM = IsFreeUnit(ITkQMMM)
       Call Molcas_Open (ITkQMMM,'QMMM')
 #ifdef _HAVE_EXTRA_
+      If (Expert) Then
+         If (iCoord.gt.1) Then
+            Call WarningMessage(1,
+     &         'TINKER and COORD keywords cannot be combined '//
+     &         'with molcas_extra')
+         End If
+      End If
       Call XYZread(ITkQMMM,ForceZMAT,nCoord,iErr)
       If (iErr.ne.0) Then
         Key='RdCtl_Seward: Tinker+XYZread failed:'//
@@ -3280,7 +3288,15 @@ c
       End If
       Call XYZcollect(iCoord,nCoord,OrigTrans,OrigRot,nFragment)
 #else
-      Call Read_XYZ(ITkQMMM,OrigRot,OrigTrans)
+      If (Expert) Then
+         If (iCoord.gt.1) Then
+            Call WarningMessage(1,
+     &          'TINKER coordinates replacing COORD')
+         End If
+         Call Read_XYZ(ITkQMMM,OrigRot,OrigTrans,Replace=(iCoord.gt.1))
+      Else
+         Call Read_XYZ(ITkQMMM,OrigRot,OrigTrans)
+      End If
 #endif
       Close(ITkQMMM)
       GWInput = .True.
@@ -3329,7 +3345,7 @@ c
 ***** SCAL *************************************************************
 *                                                                      *
  8018 KWord = Get_Ln(LuRd)
-      Call Get_F(1,ScaleFactor,1)
+      Call Get_F1(1,ScaleFactor)
       GWinput = .True.
       if(.not.CoordSet) then
          Call WarningMessage(2,'Scale can be used only with xyz input')
@@ -3345,7 +3361,7 @@ c
 ***** GEOE *************************************************************
 *                                                                      *
  8020 Kword = Get_Ln(LuRd)
-      Call Get_I(1,iGeoInfo(2),1)
+      Call Get_I1(1,iGeoInfo(2))
       GWinput = .True.
       iGeoInfo(1) = 1
       Call Put_iArray('GeoInfo',iGeoInfo,2)
@@ -3361,12 +3377,12 @@ c
 *                                                                      *
  8022 GWinput = .True.
       Kword = Get_Ln(LuRd)
-      Call Get_I(1,iOptimType,1)
+      Call Get_I1(1,iOptimType)
       Kword = Get_Ln(LuRd)
-      Call Get_F(1,StepFac1,1)
+      Call Get_F1(1,StepFac1)
       if(iOptimType .eq. 2) Then
          KWord = Get_Ln(LuRd)
-         Call Get_F(1,gradLim,1)
+         Call Get_F1(1,gradLim)
       end if
       Go To 998
 *                                                                      *
@@ -3418,7 +3434,7 @@ c
          FragSet = .True.
       End If
       Kword = Get_Ln(LuRd)
-      Call Get_I(1,iFrag,1)
+      Call Get_I1(1,iFrag)
       Go To 998
 *                                                                      *
 ***** TRAN *************************************************************
@@ -3480,7 +3496,7 @@ c
       GWinput = .True.
       KWord = Get_Ln(LuRd)
       Call Upcase(KWord)
-      Call Get_F(1,Shake,1)
+      Call Get_F1(1,Shake)
       If (Index(KWord,'ANGSTROM').ne.0) Shake = Shake/angstr
 *---- Simple way of changing the seed: add zeros or spaces to the line
       Do i=1,Len(KWord)
@@ -3494,7 +3510,7 @@ c
 *
  8060 KWord = Get_Ln(LuRd)
       nPAMFI=nPAMFI+1
-      Call Get_I(1,iPAMFI(nPAMFI),1)
+      Call Get_I1(1,iPAMFI(nPAMFI))
       Go To 998
 *                                                                      *
 ******* GROM ***********************************************************
@@ -3556,6 +3572,13 @@ c
       LuXYZ = isFreeUnit(LuXYZ)
       Call molcas_open(LuXYZ,'GMX.XYZ')
 #ifdef _HAVE_EXTRA_
+      If (Expert) Then
+         If (iCoord.gt.1) Then
+            Call WarningMessage(1,
+     &         'GROMACS and COORD keywords cannot be combined '//
+     &         'with molcas_extra')
+         End If
+      End If
       Call XYZread(LuXYZ,ForceZMAT,nCoord,iErr)
       If (iErr.NE.0) Then
          Message='RdCtl_Seward: XYZread returned non-zero error code'
@@ -3564,7 +3587,15 @@ c
       End If
       Call XYZcollect(iCoord,nCoord,OrigTrans,OrigRot,nFragment)
 #else
-      Call Read_XYZ(LuXYZ,OrigRot,OrigTrans)
+      If (Expert) Then
+         If (iCoord.gt.1) Then
+            Call WarningMessage(1,
+     &          'TINKER coordinates replacing COORD')
+         End If
+         Call Read_XYZ(LuXYZ,OrigRot,OrigTrans,Replace=(iCoord.gt.1))
+      Else
+         Call Read_XYZ(LuXYZ,OrigRot,OrigTrans)
+      End If
 #endif
       Close(LuXYZ)
 #else
@@ -3637,7 +3668,7 @@ c
       KVector(2)=KVector(2)/Temp
       KVector(3)=KVector(3)/Temp
 *     Get the wavelength in atomic units.
-      Call Get_F(4,Lambda,1)
+      Call Get_F1(4,Lambda)
       If (Index(KWord,'ANGSTROM').ne.0) Lambda  = Lambda/angstr
       If (Index(KWord,'NANOMETER').ne.0) Then
          Lambda  = Ten*Lambda/angstr
@@ -3669,20 +3700,20 @@ c
  7654 GWinput = .True.
       KWord = Get_Ln(LuRd)
       Call Upcase(KWord)
-      Call Get_I(1,nIsotopes,1)
+      Call Get_I1(1,nIsotopes)
       Call mma_allocate(nIsot,nIsotopes,2)
       Call mma_allocate(mIsot,nIsotopes)
       Do i=1,nIsotopes
          KWord = Get_Ln(LuRd)
          Call Upcase(KWord)
-         Call Get_I(1,iAt,1)
+         Call Get_I1(1,iAt)
          nIsot(i,1)=iAt
          If (Index(KWord,'DALTON').ne.0) Then
-            Call Get_F(2,dMass,1)
+            Call Get_F1(2,dMass)
             nIsot(i,2) = -1
             mIsot(i) = dMass*UToAU
          Else
-            Call Get_I(2,iIso,1)
+            Call Get_I1(2,iIso)
             nIsot(i,2) = iIso
             mIsot(i) = -One
          End If
@@ -3693,7 +3724,7 @@ c
 *                                                                      *
  9088 GWinput = .True.
       Kword = Get_Ln(LuRd)
-      Call Get_I(1,nEFP_fragments,1)
+      Call Get_I1(1,nEFP_fragments)
       Allocate(FRAG_TYPE(nEFP_fragments))
       Allocate(ABC(3,nEFP_fragments))
       Kword = Get_Ln(LuRd)
@@ -3919,14 +3950,18 @@ c      endif
          Call Quit_OnUserError()
       End If
       If (DoTinker.and.iCoord.gt.1) Then
-         Call WarningMessage(2,
-     &      'TINKER and COORD keywords cannot be used together')
-         Call Quit_OnUserError()
+         If (.Not.Expert) Then
+            Call WarningMessage(2,
+     &         'TINKER and COORD keywords cannot be used together')
+            Call Quit_OnUserError()
+         End If
       End If
       If (DoGromacs.and.iCoord.gt.1) Then
-         Call WarningMessage(2,
-     &      'GROMACS and COORD keywords cannot be used together')
-         Call Quit_OnUserError()
+         If (.Not.Expert) Then
+            Call WarningMessage(2,
+     &         'GROMACS and COORD keywords cannot be used together')
+            Call Quit_OnUserError()
+         End If
       End If
 *
       If (Test) Then
@@ -3940,11 +3975,6 @@ c      endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      if (Expert) then
-         Call WarningMessage(1,
-     &      ' EXPERT option is ON!')
-      endif
-
       IF (BSS.AND..Not.DKroll) Then
          Call WarningMessage(2,
      &           ';BSSM GOES ALWAYS WITH DOUGLAS.'//
@@ -4068,13 +4098,13 @@ C           If (iRELAE.eq.-1) IRELAE=201022
             Else If (iWrOpt.ne.0 .and. iWrOpt.ne.3) Then
                iWrOpt = 0
             End If
-            If (CholeskyThr(1).ge.0.0d0) Then
-               Thrshld_CD=CholeskyThr(1)
+            If (CholeskyThr.ge.0.0d0) Then
+               Thrshld_CD=CholeskyThr
                Call Cho_SetDecompositionThreshold(Thrshld_CD)
                Call Put_Thr_Cho(Thrshld_CD)
             End If
-            If (spanCD(1).ge.0.0d0) Then
-               v=min(spanCD(1),1.0d0)
+            If (spanCD.ge.0.0d0) Then
+               v=min(spanCD,1.0d0)
                Call Cho_SetSpan(v)
             End If
          End If

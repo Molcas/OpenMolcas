@@ -130,7 +130,7 @@
         Ene=0.0D0
         Line='Input orbitals after orthogonalization'
         Call PRIMO(Line,PrOcc,PrEne,ThrOcc,ThrEne,
-     *             nSym,nBas,nBas,BsLbl,Ene,Occ,Cmo,-1)
+     *             nSym,nBas,nBas,BsLbl,[Ene],Occ,Cmo,-1)
       End If
 *----------------------------------------------------------------------*
 *     Normal termination                                               *

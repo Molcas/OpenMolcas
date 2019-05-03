@@ -13,13 +13,8 @@
       Integer iTabMx
 #ifndef _DEMO_
       Parameter (iTabMx=15)
-      Character AngTp(0:iTabMx)
-      Data Angtp/'s','p','d','f','g',
-     &           'h','i','k','l','m',
-     &           'n','o','q','r','t',
-     &           'u'/
+*     See angtp.fh too
 #else
       Parameter (iTabMx=2)
-      Character AngTp(0:iTabMx)
-      Data Angtp/'s','p','d'/
+*     See angtp.fh too
 #endif

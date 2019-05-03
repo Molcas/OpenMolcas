@@ -98,7 +98,7 @@
       End If
 *
       Call Put_iScalar('nChDisp',iDisp)
-      Call Put_cArray('ChDisp',ChDisp,(LENIN6)*iDisp)
+      Call Put_cArray('ChDisp',ChDisp(1),(LENIN6)*iDisp)
       Call Put_iArray('nDisp',nDisp,nIrrep)
       Call Put_iArray('DegDisp',DegDisp,iDisp)
 *                                                                      *

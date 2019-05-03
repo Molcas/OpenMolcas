@@ -209,10 +209,10 @@
 *-----Read reaction field parameters
 *
  900  KWord=Get_Ln(LuSpool)
-      Call Get_F(1,Eps,1)
-      Call Get_F(2,rds,1)
-      Call Get_I(3,lmax,1)
-      If (nToken(KWord).gt.3) Call Get_F(4,EpsInf,1)
+      Call Get_F1(1,Eps)
+      Call Get_F1(2,rds)
+      Call Get_I1(3,lmax)
+      If (nToken(KWord).gt.3) Call Get_F1(4,EpsInf)
 *
       lRF = .True.
       lRFCav = .True.
@@ -227,11 +227,11 @@
 *-----Print level
 *
  910  KWord=Get_Ln(LuSpool)
-      Call Get_I(1,n,1)
+      Call Get_I1(1,n)
       Do i = 1, n
          KWord=Get_Ln(LuSpool)
-         Call Get_I(1,jRout,1)
-         Call Get_I(2,iPrint,1)
+         Call Get_I1(1,jRout)
+         Call Get_I1(2,iPrint)
          nPrint(jRout)=iPrint
       End Do
       Go To 998
@@ -239,9 +239,9 @@
 ****** LANG ************************************************************
 *                                                                      *
  911  KWord=Get_Ln(LuSpool)
-      Call Get_F(1,scala,1)
-      Call Get_F(2,scalb,1)
-      Call Get_F(3,scalc,1)
+      Call Get_F1(1,scala)
+      Call Get_F1(2,scalb)
+      Call Get_F1(3,scalc)
       lLangevin = .True.
       lRF = .True.
       Go To 998
@@ -249,7 +249,7 @@
 ****** GITT ************************************************************
 *                                                                      *
  912  KWord=Get_Ln(LuSpool)
-      Call Get_I(1,latato,1)
+      Call Get_I1(1,latato)
       Do i = 1, latato
          KWord=Get_Ln(LuSpool)
          Call Get_F(1,Cordsi(1,i),3)
@@ -259,37 +259,37 @@
 ****** POLA ************************************************************
 *                                                                      *
  913  KWord=Get_Ln(LuSpool)
-      Call Get_F(1,polsi,1)
+      Call Get_F1(1,polsi)
       Go To 998
 *                                                                      *
 ****** DIPO ************************************************************
 *                                                                      *
  914  KWord=Get_Ln(LuSpool)
-      Call Get_F(1,dipsi,1)
+      Call Get_F1(1,dipsi)
       Go To 998
 *                                                                      *
 ****** OSCA ************************************************************
 *                                                                      *
  915  KWord=Get_Ln(LuSpool)
-      Call Get_F(1,scaaa,1)
+      Call Get_F1(1,scaaa)
       Go To 998
 *                                                                      *
 ****** DIED ************************************************************
 *                                                                      *
  916  KWord=Get_Ln(LuSpool)
-      Call Get_F(1,diedel,1)
+      Call Get_F1(1,diedel)
       Go To 998
 *                                                                      *
 ****** MXLX ************************************************************
 *                                                                      *
  917  KWord=Get_Ln(LuSpool)
-      Call Get_F(1,radlat,1)
+      Call Get_F1(1,radlat)
       Go To 998
 *                                                                      *
 ****** AFAC ************************************************************
 *                                                                      *
  918  KWord=Get_Ln(LuSpool)
-      Call Get_F(1,afac,1)
+      Call Get_F1(1,afac)
       If (afac.ge.One) Then
          Call WarningMessage(2,'InpRct: afac invalid value!;'//
      &               '        afac >= 1.0 !')
@@ -321,8 +321,8 @@ C%      Go To 998
 *
 *
  922  KWord=Get_Ln(LuSpool)
-      Call Get_F(1,Eps_User,1)
-      If (nToken(KWord).gt.1) Call Get_F(2,EpsInf_User,1)
+      Call Get_F1(1,Eps_User)
+      If (nToken(KWord).gt.1) Call Get_F1(2,EpsInf_User)
       Go To 998
 *                                                                      *
 ****** COND ************************************************************
@@ -334,14 +334,14 @@ C%      Go To 998
 ****** AARE ************************************************************
 *                                                                      *
  925  KWord=Get_Ln(LuSpool)
-      Call Get_F(1,aArea,1)
+      Call Get_F1(1,aArea)
       RSlPar(7) = aArea
       Go To 998
 *                                                                      *
 ****** RMIN ************************************************************
 *                                                                      *
  926  KWord=Get_Ln(LuSpool)
-      Call Get_F(1,r_min_Sphere,1)
+      Call Get_F1(1,r_min_Sphere)
       RSlPar(3) = r_min_Sphere
       Go To 998
 *                                                                      *
@@ -354,8 +354,8 @@ C%      Go To 998
 ****** SPHE ************************************************************
 *                                                                      *
  928  KWord=Get_Ln(LuSpool)
-      Call Get_I(1,I_Sph,1)
-      Call Get_F(2,Radius,1)
+      Call Get_I1(1,I_Sph)
+      Call Get_F1(2,Radius)
       ITypRad = 3
       ISlPar(9) = ITypRad
       i_sph_inp = i_sph_inp + 1
@@ -368,7 +368,7 @@ C%      Go To 998
 *                                                                      *
 *     Temperature for Langevin model
  929  KWord=Get_Ln(LuSpool)
-      Call Get_F(1,Temp,1)
+      Call Get_F1(1,Temp)
       tK=3.1668D-6*Temp
       Go To 998
 *                                                                      *
@@ -376,7 +376,7 @@ C%      Go To 998
 *                                                                      *
 *     Simultaneous scaling of all radii
  930  KWord=Get_Ln(LuSpool)
-      Call Get_F(1,rsca,1)
+      Call Get_F1(1,rsca)
       Go To 998
 
 *                                                                      *
@@ -384,9 +384,9 @@ C%      Go To 998
 *                                                                      *
 *     Rotation of the grid with Euler angles alpha, beta, gamma (degrees)
  931  KWord=Get_Ln(LuSpool)
-      Call Get_F(1,rotAlpha,1)
-      Call Get_F(2,rotBeta,1)
-      Call Get_F(3,rotGamma,1)
+      Call Get_F1(1,rotAlpha)
+      Call Get_F1(2,rotBeta)
+      Call Get_F1(3,rotGamma)
 
       rotAlpha=rotAlpha/180.0D0*3.1415926535897932D0
       rotBeta=rotBeta/180.0D0*3.1415926535897932D0
@@ -399,8 +399,8 @@ C%      Go To 998
 *     Use sparse grid outside a distance distSparse from all atoms
  932  KWord=Get_Ln(LuSpool)
       LSparse = .True.
-      Call Get_I(1,nSparse,1)
-      Call Get_F(2,distSparse,1)
+      Call Get_I1(1,nSparse)
+      Call Get_F1(2,distSparse)
       Go To 998
 
 *                                                                      *
@@ -409,7 +409,7 @@ C%      Go To 998
 *     change dampIter
 
  933  KWord=Get_Ln(LuSpool)
-      Call Get_F(1,dampIter,1)
+      Call Get_F1(1,dampIter)
       Go To 998
 
 *                                                                      *
@@ -422,8 +422,8 @@ C%      Go To 998
 
  934  KWord=Get_Ln(LuSpool)
       LGridAverage=.True.
-      Call Get_I(1,nGridAverage,1)
-      Call Get_I(2,nGridSeed,1)
+      Call Get_I1(1,nGridAverage)
+      Call Get_I1(2,nGridSeed)
       Go To 998
 
 *                                                                      *
@@ -432,7 +432,7 @@ C%      Go To 998
 *     Change convergence threshold
 
  935  KWord=Get_Ln(LuSpool)
-      Call Get_F(1,clim,1)
+      Call Get_F1(1,clim)
       Go To 998
 
 *                                                                      *
@@ -441,7 +441,7 @@ C%      Go To 998
 *     Set minimal distance for dipole-dipole interactions
 
  936  KWord=Get_Ln(LuSpool)
-      Call Get_F(1,dipCutoff,1)
+      Call Get_F1(1,dipCutoff)
       Go To 998
 *                                                                      *
 ****** NODA ************************************************************
@@ -481,7 +481,7 @@ c      write(6,*)'COVR',ii,val
 
  940  Continue
       KWord=Get_Ln(LuSpool)
-      Call Get_F(1,scal14,1)
+      Call Get_F1(1,scal14)
 
       Go To 998
 

@@ -109,7 +109,7 @@ CBS   now it looks comparable to acore.f
       ABeq(2) = .False.
       ABeq(3) = .False.
       Call CrtCmp(Array(ipZ2),Array(ipP2),nExp(iShll)*nBeta,
-     &            Ccoor,Array(ipRxyz),nOrdOp,HerR(iHerR(nHer)),
+     &            TC,Array(ipRxyz),nOrdOp,HerR(iHerR(nHer)),
      &            nHer,ABeq)
       If (debug) Then
             Write (6,*) ' nbeta  = ',nbeta ,' nExp(',ishll,')=',

@@ -83,7 +83,7 @@
 *
 101   Continue
       Key=Get_Ln(LuRd)
-      Call Get_I(1,Nset,1)
+      Call Get_I1(1,Nset)
       Key=Get_Ln(LuRd)
       Call Get_F(1,Wset,Nset)
       Go To 1000
@@ -92,7 +92,7 @@
 *
 102   Continue
       Key=Get_Ln(LuRd)
-      Call Get_I(1,iPrint,1)
+      Call Get_I1(1,iPrint)
       Go To 1000
 *
 *-- Title
@@ -113,7 +113,7 @@
 *
 105   Continue
       Key=Get_Ln(LuRd)
-      Call Get_F(1,ThrOcc,1)
+      Call Get_F1(1,ThrOcc)
       Go To 1000
 
 *

@@ -16,7 +16,7 @@
       implicit real*8 (a-h,o-z)
       logical opth,skipupd,first_time
       logical iter_is_1,close2conv_begin
-      logical close2conv,converged,wrongstat
+      logical close2conv,converged,wrongstat,scalesmall1
 #include "opt_cvb.fh"
 #include "locopt1_cvb.fh"
 #include "locopt2_cvb.fh"
@@ -46,7 +46,7 @@ c  << Now trust region control >>
       opth=.false.
       iopth=0
 100   call trust_cvb(iopth,opth,maxize,fx,fxbest,exp,
-     >  hh,dxnrm,ioptc,scalesmall,close2conv,converged,skipupd)
+     >  hh,dxnrm,ioptc,scalesmall1,close2conv,converged,skipupd)
       if(ioptc.eq.-2)return
 
 c    << Make update >>

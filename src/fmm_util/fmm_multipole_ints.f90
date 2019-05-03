@@ -468,7 +468,7 @@ CONTAINS
 
 ! Avoid unused argument warnings
       IF (.FALSE.) THEN
-         CALL Unused_real_array(batch) ! not really real, but well...
+         CALL Unused_real_array(batch(1)%P)
          CALL Unused_integer(NPrim)
       END IF
    END SUBROUTINE fmm_store_SphMpole

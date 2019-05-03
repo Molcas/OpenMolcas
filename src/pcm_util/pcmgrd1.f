@@ -186,11 +186,11 @@ cpcm_solvent end
 *------- No derivatives with respect to the third or fourth center.
 *        The positions of the points in the external field are frozen.
 *
-         Call ICopy(3,0,0,JndGrd(1,3),1)
+         Call ICopy(3,[0],0,JndGrd(1,3),1)
          JfGrad(1,3) = .False.
          JfGrad(2,3) = .False.
          JfGrad(3,3) = .False.
-         Call ICopy(3,0,0,JndGrd(1,4),1)
+         Call ICopy(3,[0],0,JndGrd(1,4),1)
          JfGrad(1,4) = .False.
          JfGrad(2,4) = .False.
          JfGrad(3,4) = .False.
@@ -221,9 +221,9 @@ cpcm_solvent end
             nDiff=1
             mRys=(la+lb+2+nDiff+nOrdOp)/2
             Call Rysg1(iAnga,mRys,nT,
-     &                 Array(ipA),Array(ipB),One,One,
+     &                 Array(ipA),Array(ipB),[One],[One],
      &                 Zeta,ZInv,nZeta,
-     &                 One,One,1,
+     &                 [One],[One],1,
      &                 P,nZeta,TC,1,Coori,Coori,CoorAC,
      &                 Array(nip),nArray,
      &                 TNAI1,Fake,XCff2D,

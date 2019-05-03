@@ -18,10 +18,8 @@
 #ifdef _HDF5_QCM_
       use hdf5_utils
 #endif
-
       IMPLICIT REAL*8 (A-H,O-Z)
 *
-#include "fciqmc.fh"
 #include "motra_global.fh"
 #include "trafo_motra.fh"
 #include "files_motra.fh"
@@ -32,7 +30,6 @@
 #endif
 *
       Real*8 Ovlp(*), HOne(*), Kine(*), CMO(*)
-      logical okay
 *
       Call qEnter('Tr1Ctl')
 *
@@ -60,9 +57,9 @@
       CALL GETMEM('FSQ','ALLO','REAL',LWFSQ,NTOT2)
       CALL GETMEM('DSQ','ALLO','REAL',LWDSQ,NTOT2)
       CALL DCOPY_(NTOT1,HONE,1,WORK(LWFLT),1)
-      CALL DCOPY_(NTOT2,0.0D0,0,WORK(LWFSQ),1)
-      CALL DCOPY_(NTOT1,0.0D0,0,WORK(LWDLT),1)
-      CALL DCOPY_(NTOT2,0.0D0,0,WORK(LWDSQ),1)
+      CALL DCOPY_(NTOT2,[0.0D0],0,WORK(LWFSQ),1)
+      CALL DCOPY_(NTOT1,[0.0D0],0,WORK(LWDLT),1)
+      CALL DCOPY_(NTOT2,[0.0D0],0,WORK(LWDSQ),1)
       ECOR=0.0D0
       CALL FCIN(WORK(LWFLT),NTOT1,WORK(LWDLT),
      &          WORK(LWFSQ),WORK(LWDSQ),ECOR,CMO)
@@ -79,8 +76,8 @@
 *
       CALL GETMEM('FMO','ALLO','REAL',LWFMO,NORBTT)
       CALL GETMEM('TMP','ALLO','REAL',LWTMP,2*N2MAX)
-      CALL DCOPY_(NORBTT,0.0D0,0,WORK(LWFMO),1)
-      CALL DCOPY_(2*N2MAX,0.0D0,0,WORK(LWTMP),1)
+      CALL DCOPY_(NORBTT,[0.0D0],0,WORK(LWFMO),1)
+      CALL DCOPY_(2*N2MAX,[0.0D0],0,WORK(LWTMP),1)
       CALL TRAONE_MOTRA(WORK(LWFLT),WORK(LWFMO),WORK(LWTMP),CMO)
       IF ( IPRINT.GE.5 .OR. DEBUG.NE.0 ) THEN
         WRITE(6,'(6X,A)') 'Fock matrix in MO basis'
@@ -93,61 +90,6 @@
           END IF
         END DO
       END IF
-
-      if(iDoNECI) then
-c write one-electron integrals into FCIDMP file
-        iorboff = 0
-        korboff = 0
-        lorboff = 0
-        ioff    = 0
-        infroff = 0
-        do ISYM=1,NSYM
-          infroff = infroff + nfro(isym)
-          IF ( NORB(ISYM).GT.0 ) THEN
-            do iorb = iorboff+1,iorboff+norb(isym)
-             do jorb = iorboff+1, iorb
-c              if(abs(WORK(LWFMO+ioff)).ge.1.0d-10)
-       write(LuFCI,'(1X,G20.12,4I5)') WORK(LWFMO+ioff),
-     & iorb,jorb,korboff,lorboff
-              ioff = ioff + 1
-             enddo
-            enddo
-          END IF
-          iorboff = iorb - 1
-        end do
-c read orbital energies from INPORB file
-        call f_Inquire (FnInpOrb,okay)
-        If ( okay ) Then
-          itotnbas = 0
-          do i = 1, nsym
-            itotnbas= itotnbas + nbas(i)
-          end do
-          call getmem('EORB','Allo','Real',ipEOrb,itotnbas)
-          Call RdVec(FnInpOrb,LuInpOrb,'E',nSym,nBas,nBas,
-     &          Dummy, Dummy, work(ipEOrb), iDummy,
-     &          VecTit, 0, iErr)
-        Else
-          Write (6,*) 'RdCMO: Error finding MO file'
-          Call QTrace()
-          Call Abend()
-        End If
-c write orbital energies into FCIDUMP file
-        ioff   = 0
-        icount = 0
-        do ISYM=1,NSYM
-          IF ( NORB(ISYM).GT.0 ) THEN
-            do i = 1,norb(isym)
-             write(LuFCI,'(1X,G20.12,4I5)') WORK(ipEOrb+ioff+nfro(isym)+
-     &                                   i-1),i+icount,0,0,0
-            enddo
-          END IF
-          ioff   = ioff + nbas(isym)
-          icount = icount + norb(isym)
-        end do
-        call getmem('EORB','Free','Real',ipEOrb,itotnbas)
-c write core energy into FCIDMP file
-        write(LuFCI,'(1X,G20.12,4I5)') ECOR, 0, 0, 0, 0
-      end if
 
 #ifdef _HDF5_QCM_
       if(ihdf5 == 1)then
@@ -186,8 +128,8 @@ c write core energy into FCIDMP file
       CALL GETMEM('KAO','ALLO','REAL',LWKAO,NTOT1)
       CALL GETMEM('KMO','ALLO','REAL',LWKMO,NORBTT)
       CALL GETMEM('TMP','ALLO','REAL',LWTMP,2*N2MAX)
-      CALL DCOPY_(NORBTT,0.0D0,0,WORK(LWKMO),1)
-      CALL DCOPY_(2*N2MAX,0.0D0,0,WORK(LWTMP),1)
+      CALL DCOPY_(NORBTT,[0.0D0],0,WORK(LWKMO),1)
+      CALL DCOPY_(2*N2MAX,[0.0D0],0,WORK(LWTMP),1)
       CALL DCOPY_(NTOT1,KINE,1,WORK(LWKAO),1)
       CALL TRAONE_MOTRA(WORK(LWKAO),WORK(LWKMO),WORK(LWTMP),CMO)
       IF ( IPRINT.GE.5 .OR. DEBUG.NE.0 ) THEN

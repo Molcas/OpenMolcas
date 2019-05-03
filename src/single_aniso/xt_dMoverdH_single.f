@@ -37,25 +37,32 @@ cccc local variables ccc
      &                              WM5(:), WM6(:), WM7(:)
       !WM0(nm), WM1(nm), WM2(nm) ! Zeeman exchange energies
 c data for total system:
-      Real(kind=wp), allocatable :: ZT1(:)   ! total statistical sum, Boltzmann distribution
+!total statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ZT1(:)
       Real(kind=wp), allocatable :: ST1(:,:) ! total spin magnetisation,
       Real(kind=wp), allocatable :: MT1(:,:) ! total magnetisation
-      Real(kind=wp), allocatable :: ZT2(:)   ! total statistical sum, Boltzmann distribution
+!total statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ZT2(:)
       Real(kind=wp), allocatable :: ST2(:,:) ! total spin magnetisation,
       Real(kind=wp), allocatable :: MT2(:,:) ! total magnetisation
-      Real(kind=wp), allocatable :: ZT3(:)   ! total statistical sum, Boltzmann distribution
+!total statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ZT3(:)
       Real(kind=wp), allocatable :: ST3(:,:) ! total spin magnetisation,
       Real(kind=wp), allocatable :: MT3(:,:) ! total magnetisation
-      Real(kind=wp), allocatable :: ZT4(:)   ! total statistical sum, Boltzmann distribution
+!total statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ZT4(:)
       Real(kind=wp), allocatable :: ST4(:,:) ! total spin magnetisation,
       Real(kind=wp), allocatable :: MT4(:,:) ! total magnetisation
-      Real(kind=wp), allocatable :: ZT5(:)   ! total statistical sum, Boltzmann distribution
+!total statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ZT5(:)
       Real(kind=wp), allocatable :: ST5(:,:) ! total spin magnetisation,
       Real(kind=wp), allocatable :: MT5(:,:) ! total magnetisation
-      Real(kind=wp), allocatable :: ZT6(:)   ! total statistical sum, Boltzmann distribution
+!total statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ZT6(:)
       Real(kind=wp), allocatable :: ST6(:,:) ! total spin magnetisation,
       Real(kind=wp), allocatable :: MT6(:,:) ! total magnetisation
-      Real(kind=wp), allocatable :: ZT7(:)   ! total statistical sum, Boltzmann distribution
+!total statistical sum, Boltzmann distribution
+      Real(kind=wp), allocatable :: ZT7(:)
       Real(kind=wp), allocatable :: ST7(:,:) ! total spin magnetisation,
       Real(kind=wp), allocatable :: MT7(:,:) ! total magnetisation
 c standard deviation data:
@@ -63,8 +70,10 @@ c standard deviation data:
       external dev
       Real(kind=wp), allocatable :: XTM_MH(:) !XTM_MH(  nT+nTempMagn)
       Real(kind=wp), allocatable :: XTM_dMdH(:) !XTM_dMdH(nT+nTempMagn)
-      Real(kind=wp), allocatable :: XTtens_MH(:,:,:) !XTtens_MH(  3,3,nT+nTempMagn)
-      Real(kind=wp), allocatable :: XTtens_dMdH(:,:,:) !XTtens_dMdH(3,3,nT+nTempMagn)
+      Real(kind=wp), allocatable :: XTtens_MH(:,:,:)
+!                                   XTtens_MH(  3,3,nT+nTempMagn)
+      Real(kind=wp), allocatable :: XTtens_dMdH(:,:,:)
+!                                   XTtens_dMdH(3,3,nT+nTempMagn)
 
       Integer       :: nTempTotal
       Real(kind=wp) :: Xfield_1, Xfield_2, Xfield_3, Xfield_4, Xfield_5,
@@ -87,7 +96,8 @@ c standard deviation data:
       DBG=.false.
       m_paranoid=.true.!.false.
       cm3tomB=0.5584938904_wp   !   in cm3 * mol-1 * T
-      THRS=1.d-13 !threshold for convergence of average spin, in case (zJ .ne. 0)
+!     threshold for convergence of average spin, in case (zJ .ne. 0)
+      THRS=1.d-13
       RtoB=8
       mem_local=0
 
@@ -227,8 +237,8 @@ cccc-------------------------------------------------------cccc
       dHY(3)=0.0_wp
       dHZ(3)=1.0_wp
 
-      Call dcopy_(3*3*(nT+nTempMagn),0.0_wp,0,XTtens_MH,1)
-      Call dcopy_(3*3*(nT+nTempMagn),0.0_wp,0,XTtens_dMdH,1)
+      Call dcopy_(3*3*(nT+nTempMagn),[0.0_wp],0,XTtens_MH,1)
+      Call dcopy_(3*3*(nT+nTempMagn),[0.0_wp],0,XTtens_dMdH,1)
 
       hp=0.0001_wp
       Xfield_1=Xfield-3.0_wp*hp
@@ -248,37 +258,37 @@ cccc-------------------------------------------------------cccc
 
 c ///  opening the loop over different directions of the magnetic field
       Do iM=1,nDirX
-         Call dcopy_(nM,0.0_wp,0,WM1,1)
-         Call dcopy_(nM,0.0_wp,0,WM2,1)
-         Call dcopy_(nM,0.0_wp,0,WM3,1)
-         Call dcopy_(nM,0.0_wp,0,WM4,1)
-         Call dcopy_(nM,0.0_wp,0,WM5,1)
-         Call dcopy_(nM,0.0_wp,0,WM6,1)
-         Call dcopy_(nM,0.0_wp,0,WM7,1)
+         Call dcopy_(nM,[0.0_wp],0,WM1,1)
+         Call dcopy_(nM,[0.0_wp],0,WM2,1)
+         Call dcopy_(nM,[0.0_wp],0,WM3,1)
+         Call dcopy_(nM,[0.0_wp],0,WM4,1)
+         Call dcopy_(nM,[0.0_wp],0,WM5,1)
+         Call dcopy_(nM,[0.0_wp],0,WM6,1)
+         Call dcopy_(nM,[0.0_wp],0,WM7,1)
 
-         Call dcopy_(  (nT+nTempMagn),0.0_wp,0,ZT1,1)
-         Call dcopy_(  (nT+nTempMagn),0.0_wp,0,ZT2,1)
-         Call dcopy_(  (nT+nTempMagn),0.0_wp,0,ZT3,1)
-         Call dcopy_(  (nT+nTempMagn),0.0_wp,0,ZT4,1)
-         Call dcopy_(  (nT+nTempMagn),0.0_wp,0,ZT5,1)
-         Call dcopy_(  (nT+nTempMagn),0.0_wp,0,ZT6,1)
-         Call dcopy_(  (nT+nTempMagn),0.0_wp,0,ZT7,1)
+         Call dcopy_(  (nT+nTempMagn),[0.0_wp],0,ZT1,1)
+         Call dcopy_(  (nT+nTempMagn),[0.0_wp],0,ZT2,1)
+         Call dcopy_(  (nT+nTempMagn),[0.0_wp],0,ZT3,1)
+         Call dcopy_(  (nT+nTempMagn),[0.0_wp],0,ZT4,1)
+         Call dcopy_(  (nT+nTempMagn),[0.0_wp],0,ZT5,1)
+         Call dcopy_(  (nT+nTempMagn),[0.0_wp],0,ZT6,1)
+         Call dcopy_(  (nT+nTempMagn),[0.0_wp],0,ZT7,1)
 
-         Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,MT1,1)
-         Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,MT2,1)
-         Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,MT3,1)
-         Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,MT4,1)
-         Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,MT5,1)
-         Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,MT6,1)
-         Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,MT7,1)
+         Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,MT1,1)
+         Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,MT2,1)
+         Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,MT3,1)
+         Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,MT4,1)
+         Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,MT5,1)
+         Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,MT6,1)
+         Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,MT7,1)
 
-         Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,ST1,1)
-         Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,ST2,1)
-         Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,ST3,1)
-         Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,ST4,1)
-         Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,ST5,1)
-         Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,ST6,1)
-         Call dcopy_(3*(nT+nTempMagn),0.0_wp,0,ST7,1)
+         Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,ST1,1)
+         Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,ST2,1)
+         Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,ST3,1)
+         Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,ST4,1)
+         Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,ST5,1)
+         Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,ST6,1)
+         Call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,ST7,1)
 
         ! compute magnetization:
         ! seven points numerical field perturbation:
@@ -338,7 +348,7 @@ c ///  opening the loop over different directions of the magnetic field
      &                                (MT7(l,iT)-MT1(l,iT),l=1,3)
         End Do
       End If !DBG
-         ! computing the AVERAGE MOMENTS calculated at different temperatures (T(i))
+!        computing the AVERAGE MOMENTS calculated at different temperatures (T(i))
          Do iT=1,nTempTotal
 
             ! dM/dH model

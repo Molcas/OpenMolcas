@@ -27,7 +27,7 @@ c  (If KBASIS<=2 then AIKCOF=BIKCOF and they (probably) share memory)
         call mxinv_cvb(sovr,ifns)
         call mxatb_cvb(bikcof,sovr,ndet,ifns,ifns,aikcof)
       elseif(.not.share)then
-        call fmove(bikcof,aikcof,ndet*ifns)
+        call fmove_cvb(bikcof,aikcof,ndet*ifns)
       endif
       return
       end

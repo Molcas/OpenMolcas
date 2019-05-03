@@ -82,6 +82,7 @@
      &          indgrd(0:7), JndGrd(3,4,0:7)
       Logical IfGrad(3,2), JfGrad(3,4), EQ,
      &        DiffCnt,tr(4),ifg(4),ifhess_dum(3,4,3,4)
+      Dimension Dum(1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -128,10 +129,10 @@
             iuvwx(3) = nStab(kdc+kCnt)
             iuvwx(4) = nStab(kdc+kCnt)
 
-            Call LCopy(12,.false.,0,JFgrad,1)
-            Call LCopy(4 ,.false.,0,iFg,1)
-            Call LCopy(4 ,.false.,0,tr,1)
-            Call ICopy(12*nIrrep,0,0,jndGrd,1)
+            Call LCopy(12,[.false.],0,JFgrad,1)
+            Call LCopy(4 ,[.false.],0,iFg,1)
+            Call LCopy(4 ,[.false.],0,tr,1)
+            Call ICopy(12*nIrrep,[0],0,jndGrd,1)
             Do iCnt = 1, 2
                   JfGrad(iDCar,iCnt) = IfGrad(iDCar,iCnt)
             End Do
@@ -197,7 +198,7 @@
                  call abend()
                  endif
 
-               call dcopy_(nArr,0.0d0,0,Array,1)
+               call dcopy_(nArr,[0.0d0],0,Array,1)
 
 *
                Call Acore(iang,la,ishll,nordop,TC,A,Array(ip),

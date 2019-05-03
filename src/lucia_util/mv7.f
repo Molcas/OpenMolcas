@@ -20,6 +20,7 @@
 * =====
 *.Input
 * =====
+      DIMENSION C(*),HC(*)
 *
 *.Definition of c and sigma
       COMMON/CANDS/ICSM,ISSM,ICSPC,ISSPC
@@ -70,7 +71,7 @@
 *. Arrays for additional symmetry operation
       IF(IDC.EQ.3.OR.IDC.EQ.4) THEN
         CALL GETMEM('SVST  ','ALLO','INTE',KSVST,NSMST)
-        CALL SIGVST(WORK(KSVST),NSMST)
+        CALL SIGVST(IWORK(KSVST),NSMST)
       ELSE
          KSVST = 1
       END IF

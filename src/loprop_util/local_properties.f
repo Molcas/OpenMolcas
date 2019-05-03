@@ -252,9 +252,9 @@ C           Write (6,*) 'End step 2'
       Call Allocate_Work(iT_values,nij)
       Call Allocate_iWork(iT_sets,nij)
       Call Allocate_iWork(iWarnings,nij)
-      Call iCopy(nij,0,0,iWork(iWarnings),1)
-      Call iCopy(nij,0,0,iWork(iT_Sets),1)
-      Call dCopy_(nij,Zero,0,Work(iT_Values),1)
+      Call iCopy(nij,[0],0,iWork(iWarnings),1)
+      Call iCopy(nij,[0],0,iWork(iT_Sets),1)
+      Call dCopy_(nij,[Zero],0,Work(iT_Values),1)
       If (.Not. Standard) Then
          Call Allocate_Work(iScratch_1,nij*(2*lMax+1))
          Call Allocate_Work(iScratch_2,nij*(2*lMax+1))

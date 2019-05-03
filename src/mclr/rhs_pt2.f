@@ -71,7 +71,7 @@ c Avoid unused argument warnings
 *
 *    CASPT2 mode (split graph)
 *
-      Call Gugactl(ipT,1)
+      Call Gugactl_MCLR(ipT,1)
 #else
 *
 * lucia mode (Symmetric group)

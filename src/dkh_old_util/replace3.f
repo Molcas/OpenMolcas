@@ -86,8 +86,8 @@ c
         termleng2(j)=0
         dtcoeff2(j)=0.0d0
 #if defined(_MOLCAS_) || defined(MOLPRO)
-        call put_dkoperators(j,termstr,iwork(term2))
-        call put_dkoperators(j,termstr,term)
+        call put_dkoperators_i(j,termstr,iwork(term2))
+        call put_dkoperators_i(j,termstr,term)
 #else
         do 30 k=1,maxlength
           term(j)(k:k)=' '
@@ -98,7 +98,7 @@ c
       termleng(1)=length
       dtcoeff(1)=coeff
 #if defined(_MOLCAS_) || defined(MOLPRO)
-      call put_dkoperators(1,operator,term)
+      call put_dkoperators_i(1,operator,term)
 #else
       term(1)(1:termleng(1))=operator(1:length)
 #endif
@@ -109,7 +109,7 @@ c
       do 200 j=1,termcounter
         poss=0
 #if defined(_MOLCAS_) || defined(MOLPRO)
-        call get_dkoperators(j,termstr,term)
+        call get_dkoperators_i(j,termstr,term)
         poss=index(termstr(1:termleng(j)),'S')
 #else
         poss=0
@@ -121,7 +121,7 @@ c
           idum=dkh_char2int(dummyleng,termstr(poss+1:poss+3))
           call replace_Sxxx (idum,poss,termleng(j),termstr,scrleng,
      *                       scrchar)
-          call put_dkoperators(j,termstr,term)
+          call put_dkoperators_i(j,termstr,term)
 #else
           idum=dkh_char2int(dummyleng,term(j)(poss+1:poss+3))
           call replace_Sxxx (idum,poss,termleng(j),term(j),scrleng,
@@ -160,7 +160,7 @@ c
           termleng2(termcounter2)=termleng(j)
           dtcoeff2(termcounter2)=dtcoeff(j)
 #if defined(_MOLCAS_) || defined(MOLPRO)
-          call put_dkoperators(termcounter2,termstr,iwork(term2))
+          call put_dkoperators_i(termcounter2,termstr,iwork(term2))
 #else
           term2(termcounter2)(1:termleng2(termcounter2))
      *      =term(j)(1:termleng(j))
@@ -199,7 +199,7 @@ c
      *                        wopsleng(k+wstart-1),
      *                        wops(k+wstart-1)(1:wopsleng(k+wstart-1)),
      *                        reslengr,rescharr)
-            call put_dkoperators(termcounter2,termstr,iwork(term2))
+            call put_dkoperators_i(termcounter2,termstr,iwork(term2))
 #else
             call concatenate (termleng2(termcounter2),
      *                        term2(termcounter2),reslengl,rescharl,
@@ -214,7 +214,7 @@ c
         termleng(j)=termleng2(j)
         dtcoeff(j)=dtcoeff2(j)
 #if defined(_MOLCAS_) || defined(MOLPRO)
-        call copy_dkoperators(j,iwork(term2),j,term)
+        call copy_dkoperators_i(j,iwork(term2),j,term)
 #else
         term(j)(1:termleng(j))=term2(j)(1:termleng2(j))
 #endif
@@ -228,7 +228,7 @@ c
       do 1200 j=1,termcounter
         pos=0
 #if defined(_MOLCAS_) || defined(MOLPRO)
-        call get_dkoperators(j,termstr,term)
+        call get_dkoperators_i(j,termstr,term)
         pos=index(termstr(1:termleng(j)),'O01')
 #else
         pos=0
@@ -240,7 +240,7 @@ c
           termleng2(termcounter2)=termleng(j)
           dtcoeff2(termcounter2)=dtcoeff(j)
 #if defined(_MOLCAS_) || defined(MOLPRO)
-          call copy_dkoperators(j,term,termcounter2,iwork(term2))
+          call copy_dkoperators_i(j,term,termcounter2,iwork(term2))
 #else
           term2(termcounter2)(1:termleng2(termcounter2))
      *      =term(j)(1:termleng(j))
@@ -264,7 +264,7 @@ c
           call concatenate (termleng2(termcounter2),termstr,
      *                      reslengl,rescharl,dummyleng,
      *                      dummychar(1:dummyleng),reslengr,rescharr)
-          call put_dkoperators(termcounter2,termstr,iwork(term2))
+          call put_dkoperators_i(termcounter2,termstr,iwork(term2))
 #else
           call concatenate (termleng2(termcounter2),term2(termcounter2),
      *                      reslengl,rescharl,dummyleng,
@@ -278,7 +278,7 @@ c
           call concatenate (termleng2(termcounter2),termstr,
      *                      reslengl,rescharl,dummyleng,
      *                      dummychar(1:dummyleng),reslengr,rescharr)
-          call put_dkoperators(termcounter2,termstr,iwork(term2))
+          call put_dkoperators_i(termcounter2,termstr,iwork(term2))
 #else
           call concatenate (termleng2(termcounter2),term2(termcounter2),
      *                      reslengl,rescharl,dummyleng,
@@ -290,7 +290,7 @@ c
         termleng(j)=termleng2(j)
         dtcoeff(j)=dtcoeff2(j)
 #if defined(_MOLCAS_) || defined(MOLPRO)
-        call copy_dkoperators(j,iwork(term2),j,term)
+        call copy_dkoperators_i(j,iwork(term2),j,term)
 #else
         term(j)(1:termleng(j))=term2(j)(1:termleng2(j))
 #endif
@@ -305,7 +305,7 @@ c
       do 1270 i=1,termcounter
         pos=0
 #if defined(_MOLCAS_) || defined(MOLPRO)
-        call get_dkoperators(i,termstr,term)
+        call get_dkoperators_i(i,termstr,term)
         pos=index(termstr(1:termleng(i)),'CO0')
 #else
         pos=index(term(i)(1:termleng(i)),'CO0')
@@ -316,7 +316,7 @@ c
           termleng2(termcounter2)=termleng(i)
           dtcoeff2(termcounter2)=dtcoeff(i)
 #if defined(_MOLCAS_) || defined(MOLPRO)
-          call put_dkoperators(termcounter2,termstr,iwork(term2))
+          call put_dkoperators_i(termcounter2,termstr,iwork(term2))
 #else
           term2(termcounter2)(1:termleng2(termcounter2))
      *      =term(i)(1:termleng(i))
@@ -340,7 +340,7 @@ c
           call concatenate (termleng2(termcounter2),termstr,
      *                      reslengl,rescharl,dummyleng,
      *                      dummychar(1:dummyleng),reslengr,rescharr)
-          call put_dkoperators(termcounter2,termstr,iwork(term2))
+          call put_dkoperators_i(termcounter2,termstr,iwork(term2))
 #else
           call concatenate (termleng2(termcounter2),term2(termcounter2),
      *                      reslengl,rescharl,dummyleng,
@@ -354,7 +354,7 @@ c
           call concatenate (termleng2(termcounter2),termstr,
      *                      reslengl,rescharl,dummyleng,
      *                      dummychar(1:dummyleng),reslengr,rescharr)
-          call put_dkoperators(termcounter2,termstr,iwork(term2))
+          call put_dkoperators_i(termcounter2,termstr,iwork(term2))
 #else
           call concatenate (termleng2(termcounter2),term2(termcounter2),
      *                      reslengl,rescharl,dummyleng,
@@ -366,7 +366,7 @@ c
         termleng(i)=termleng2(i)
         dtcoeff(i)=dtcoeff2(i)
 #if defined(_MOLCAS_) || defined(MOLPRO)
-        call copy_dkoperators(i,iwork(term2),i,term)
+        call copy_dkoperators_i(i,iwork(term2),i,term)
 #else
         term(i)(1:termleng(i))=term2(i)(1:termleng2(i))
 #endif
@@ -384,6 +384,6 @@ c Avoid unused argument warnings
         call Unused_integer_array(ttimes)
         call Unused_character(t)
         call Unused_character(tscrchar)
-        call Unused_integer(tscrleng)
+        call Unused_integer_array(tscrleng)
       end if
       end

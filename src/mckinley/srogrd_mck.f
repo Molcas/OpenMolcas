@@ -130,10 +130,10 @@
             iuvwx(3) = nStab(kdc+kCnt)
             iuvwx(4) = nStab(kdc+kCnt)
 
-            Call LCopy(12,.false.,0,JFgrad,1)
-            Call LCopy(4,.false.,0,tr,1)
-            Call LCopy(4,.false.,0,ifg,1)
-            Call ICopy(12*nIrrep,0,0,jndGrd,1)
+            Call LCopy(12,[.false.],0,JFgrad,1)
+            Call LCopy(4,[.false.],0,tr,1)
+            Call LCopy(4,[.false.],0,ifg,1)
+            Call ICopy(12*nIrrep,[0],0,jndGrd,1)
 
             Do iCnt = 1, 2
               JfGrad(iDCar,iCnt) = IfGrad(iDCar,iCnt)
@@ -201,7 +201,7 @@
 
                ipFB2 = ip ! Not in use for 1st derivatives
 
-               call dcopy_(nArr,0.0d0,0,Array,1)
+               call dcopy_(nArr,[Zero],0,Array,1)
 
                Call Acore(iang,la,ishll,nordop,TC,A,Array(ip),
      &                     narr-ip+1,Alpha,nalpha,Array(ipFA1),
@@ -212,7 +212,7 @@
 
 
                call dcopy_(nBeta*nExp(iShll)*nElem(lb)*nElem(iAng)*2,
-     &                    0.0d0,0,Array(ipFB1),1)
+     &                    [Zero],0,Array(ipFB1),1)
                Call coreB(iang,lb,ishll,nordop,TC,RB,Array(ip),
      &                    narr-ip+1,Beta,nbeta,Array(ipFB1),
      &                    array(ipFB2),jfgrad(1,2),ifhess_dum,1,

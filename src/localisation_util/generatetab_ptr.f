@@ -27,7 +27,7 @@ c
         If (Debug) Write(6,*) 'Atom : ',iAt
         PALbl='PA__'//Name(nBas_Start(iAt))(1:LENIN)
         Call GetMem(PALbl,'Allo','Real',ip,nSize)
-        Call dCopy_(nSize,0.0d0,0,Work(ip),1)
+        Call dCopy_(nSize,[0.0d0],0,Work(ip),1)
         iTab_ptr(iAt)=ip
         If (Debug) Write(6,*) 'gen Atom ip',iAt,ip
       End Do

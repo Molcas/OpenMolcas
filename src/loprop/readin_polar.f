@@ -17,7 +17,7 @@
       Implicit Real*8 (a-h,o-z)
       Logical NoField, Standard, UserDen, PrintDen, SubtractDen
       Logical TDensity, XHole, Diffuse(3)
-      Logical LIonize
+      Logical LIonize,Restart
       Character*12  Opt_Method
       Dimension dLimmo(2)
 *

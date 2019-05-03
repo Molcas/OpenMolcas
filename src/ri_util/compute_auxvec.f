@@ -221,7 +221,7 @@
                  Do isym=0,nIrrep-1
 *
                    Call dzero(Work(ipChMM),nBas(isym)**2)
-                   call dcopy_(nbas(isym),One,0,Work(ipChMM),
+                   call dcopy_(nbas(isym),[One],0,Work(ipChMM),
      &                  nBas(isym)+1)
                    Call NIdiag(Work(ipTmp+iOffDSQ),Work(ipChMM),
      &                  nBas(isym),nBas(isym),0)
@@ -396,7 +396,7 @@
 *     For parallel run: reordering of the V_k(tilde) vector from
 *     the "node storage" to the Q-vector storage
 *MGD will probably not work for SA-CASSCF
-      If (nProc.gt.1)  Call Reord_Vk(ipVk,nProc,myProc,nV_l,nV_t,1,1)
+      If (nProc.gt.1)  Call Reord_Vk(ipVk,nProc,myProc,nV_l,nV_t,[1],1)
 ************************************************************************
 *                                                                      *
 *     Second step: contract with the Q-vectors to produce V_k          *

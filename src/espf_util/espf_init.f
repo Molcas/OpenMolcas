@@ -27,7 +27,7 @@
       Call MMCount(natom,nAtMM,ipIsMM)
       nAtQM = natom - nAtMM
       Call GetMem('ExtPot','ALLO','REAL',ipExt,natom*MxExtPotComp)
-      call dcopy_(MxExtPotComp*natom,Zero,0,Work(ipExt),1)
+      call dcopy_(MxExtPotComp*natom,[Zero],0,Work(ipExt),1)
 *
       Call QExit('espf_init')
       iReturn=0

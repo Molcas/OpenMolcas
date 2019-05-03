@@ -63,7 +63,7 @@
       Real*8 Cart(3,nAtoms),rij(3),rjk(3),rkl(3),
      &       Hess((3*nAtoms)*(3*nAtoms+1)/2),si(3),sj(3),sk(3),
      &       sl(3),sm(3),x(2),y(2),z(2),
-     &       xyz(3,4), C(3,4), Dum,
+     &       xyz(3,4), C(3,4), Dum(1),
      &       ril(3), rik(3)
       Integer   iANr(nAtoms), iTabBonds(3,nBonds),
      &          iTabAtoms(2,0:nMax,nAtoms), iOper(0:7)
@@ -119,7 +119,7 @@
       rZero=1.0d-10
       n3=3*nAtoms
 *
-      call dcopy_((n3*(n3+1)/2),Zero,0,Hess,1)
+      call dcopy_((n3*(n3+1)/2),[Zero],0,Hess,1)
 #ifdef _DEBUG_
       Call TriPrt(' In LNM: Hessian at start','(12f8.3)',
      &               Hess,n3)
@@ -1192,8 +1192,8 @@ C                 tij=Max(tij,f_const_Min_)
 *
 *---- Set up a unit matrix
 *
-      call dcopy_(nH*nH,Zero,0,Work(ipEVec),1)
-      call dcopy_(nH,One,0,Work(ipEVec),nH+1)
+      call dcopy_(nH*nH,[Zero],0,Work(ipEVec),1)
+      call dcopy_(nH,[One],0,Work(ipEVec),nH+1)
 *
 *---- Compute eigenvalues and eigenvectors
 *

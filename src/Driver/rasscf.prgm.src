@@ -25,15 +25,10 @@
  (file)  GV.off   "$WorkDir/$Project$SubProject."GV.off    rw
  (file)  GV1.off   "$WorkDir/$Project$SubProject."GV1.off    rw
  (file)  TRAONE  "$WorkDir/$Project."TraOne       rw*st
- (file)  FCIDMP  "$WorkDir/$Project."FciDmp       rw*sti
- (file)  FCINP  "$WorkDir/$Project."FciInp       rw*sti
+ (file)  FCIDMP  "$WorkDir/$Project."FciDmp       rwst
+ (file)  H5FCIDMP  "$WorkDir/$Project."FciDmp.h5  rws
+ (file)  FCINP  "$WorkDir/$Project."FciInp       rwst
  (file) ONERDM  "$WorkDir/$Project."OneRDM      rw*st
- (file) TWORDM1 "$WorkDir/$Project."TwoRDM_aaaa rw*st
- (file) TWORDM2 "$WorkDir/$Project."TwoRDM_abab rw*st
- (file) TWORDM3 "$WorkDir/$Project."TwoRDM_abba rw*st
- (file) TWORDM4 "$WorkDir/$Project."TwoRDM_bbbb rw*st
- (file) TWORDM5 "$WorkDir/$Project."TwoRDM_baba rw*st
- (file) TWORDM6 "$WorkDir/$Project."TwoRDM_baab rw*st
  (file) NEWCYCLE "$CurrDir/"NEWCYCLE         rw
 #include "chemps2files.inc"
 #include "espffiles.inc"

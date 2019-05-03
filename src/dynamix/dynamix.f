@@ -34,7 +34,7 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       INTEGER     VelVer, VV_First, VV_Second, Gromacs, VV_Dump
       PARAMETER   (au_time = CONST_AU_TIME_IN_SI_*1.0D15)
       PARAMETER   (kb = CONST_BOLTZMANN_/
-     &             CONV_AU_TO_KJ_*1.0D3)
+     &             (CONV_AU_TO_KJ_*1.0D3))
       PARAMETER  (VelVer=1,VV_First=2,VV_Second=3,Gromacs=4,VV_Dump=5)
       PARAMETER  (iQ1=1,iQ2=2,iX1=3,iX2=4,iVx1=5,iVx2=6)
       CHARACTER, ALLOCATABLE :: atom(:)*2

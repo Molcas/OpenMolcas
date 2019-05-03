@@ -13,16 +13,16 @@
       logical :: doMCLR
       logical :: doDMRG
 
-      integer :: ndets_RGLR              ! number of Slater deternimants
-      integer :: ncsfs_RGLR              ! number of CSFs
+      integer :: ndets_RGLR          ! number of Slater deternimants
+      integer :: ncsfs_RGLR          ! number of CSFs
 
       integer ::    nele_RGLR
       integer ::     MS2_RGLR
 
-      integer :: LRras2(1:20)            ! CI space when solving LR equation
-      integer :: RGras2(1:20)            ! CI space when solving LR equation
+      integer :: LRras2(1:20)        ! CI space when solving LR equation
+      integer :: RGras2(1:20)        ! CI space when solving LR equation
 
-      integer :: nstates_RGLR            ! number of states
+      integer :: nstates_RGLR        ! number of states
 
       Common /DMRG_info_1/ doMCLR,doDMRG,ndets_RGLR,ncsfs_RGLR,
      &                     nele_RGLR,MS2_RGLR

@@ -76,7 +76,7 @@
 *     Will just store the unique elements, i.e. low triangular blocks
 *     and lower triangular elements in the diagonal blocks.
 *
-      Call ICopy(nComp,-1,0,ip,1)
+      Call ICopy(nComp,[-1],0,ip,1)
       LenTot=0
       Do iComp = 1, nComp
          LenInt=n2Tri(lOper(iComp))
@@ -84,7 +84,7 @@
       End Do
       Call mma_allocate(Array,LenTot,label='Array')
       ip(1)=1
-      call dcopy_(LenTot,Zero,0,Array(ip(1)),1)
+      call dcopy_(LenTot,[Zero],0,Array(ip(1)),1)
       iadr=ip(1)
       do iComp = 1, nComp
          LenInt=n2Tri(lOper(iComp))
@@ -141,10 +141,10 @@
                End If
                call mma_allocate(Out,mDim*nComp,label='Out')
                ipOut=1
-               call dcopy_(mDim*nComp,Zero,0,Out,1)
+               call dcopy_(mDim*nComp,[Zero],0,Out,1)
                call mma_allocate(Nuc,nComp,label='Nuc')
                ipNuc=1
-               call dcopy_(nComp,Zero,0,Nuc,1)
+               call dcopy_(nComp,[Zero],0,Nuc,1)
             End If
             nInt=n2Tri(iSmLbl)
             If (nInt.ne.0)
@@ -551,7 +551,7 @@ C     Logical Addpot
          l_SOInt=iBas*jBas*nSO
          Call mma_allocate(SOInt,l_SOInt,label='SOInt')
          ipSO=1
-         Call dCopy_(l_SOInt,Zero,0,SOInt,1)
+         Call dCopy_(l_SOInt,[Zero],0,SOInt,1)
          Call OneEl_IJ(iS,jS,iPrint,Do_PGamma,
      &                 Zeta,ZI,Kappa,PCoor,
      &                 Kernel,KrnlMm,Label,lOper,nComp,CCoor,

@@ -37,6 +37,7 @@
       Logical PrOcc,PrEne,DensityBased
       Character Title*72, Fname*7,OLabel*10,Titorb*40,OrbFile*128
       Character BsLbl*4000,PLab*3
+      Dimension Dummy(1),iDummy(7,8)
 
 
 *
@@ -48,7 +49,7 @@
 *-- Define defaults and initialize.
 *
       Call Init_ave(Title,iPrint,Wset,Wsum,PrOcc,PrEne,DensityBased
-     &         ,ThrOcc,Dummy,iDummy)
+     &         ,ThrOcc,Dummy(1),iDummy(1,1))
 
 *
 *-- Read input.
@@ -119,7 +120,7 @@
 *
 
       Call GetMem('Density','Allo','Real',iDao,ntot2)
-      call dcopy_(ntot2,Zero,0,Work(iDao),1)
+      call dcopy_(ntot2,[Zero],0,Work(iDao),1)
       If(.not.DensityBased) then
         Luinp=10
         Call GetMem('Orbitals','Allo','Real',iCMO,ntot2)
@@ -153,7 +154,7 @@
 *------- Print print print.
           If(iPrint.ge.5) then
             ThrO=1d-5
-            Call Primo(Titorb,PrOcc,PrEne,ThrO,Dummy,nSym,nBas,nBas
+            Call Primo(Titorb,PrOcc,PrEne,ThrO,Dummy(1),nSym,nBas,nBas
      &                ,BsLbl,Dummy,Work(iOcc),Work(iCMO),-1)
           Endif
 90      Continue
@@ -161,7 +162,7 @@
         Call GetMem('Occ','Free','Real',iOcc,ntot)
       Else
         Call GetMem('DensityT','Allo','Real',iDtemp,lsmat)
-        call dcopy_(lsmat,Zero,0,Work(iDtemp),1)
+        call dcopy_(lsmat,[Zero],0,Work(iDtemp),1)
         Do 95, iset=1,Nset
           Fname='RUN001'
           Write(Fname(4:6),'(I3.3)') iset
@@ -206,8 +207,8 @@
         Call GetMem('OrthoDensS','Allo','Real',iOrtoD,nBS)
         Call GetMem('OrthoDensT','Allo','Real',iOrtoDt,nBT)
         Call GetMem('Occs','Allo','Real',iOccNat,nBas(iSym))
-        call dcopy_(nBT,Zero,0,Work(iSt),1)
-        call dcopy_(nBT,Zero,0,Work(iSi),1)
+        call dcopy_(nBT,[Zero],0,Work(iSt),1)
+        call dcopy_(nBT,[Zero],0,Work(iSi),1)
         kaunter=0
         Do 2011, iB1=1,nBas(iSym)
           Do 2012, iB2=1,nBas(iSym)
@@ -317,7 +318,7 @@
      &//'compatability reasons.'
       Write(6,*)'    They have no physical meaning.'
       Call GetMem('Zeros','Allo','Real',iZero,ntot)
-      call dcopy_(ntot,Zero,0,Work(iZero),1)
+      call dcopy_(ntot,[Zero],0,Work(iZero),1)
       LuOut=65
       LuOut=IsFreeUnit(LuOut)
       Title='Average Orbitals'

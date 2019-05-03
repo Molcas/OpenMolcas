@@ -49,6 +49,19 @@
       nbyte_i = iiloc(iix(2)) - iiloc(iix(1))
       nbyte_r = idloc(rix(2)) - idloc(rix(1))
 *
+      Call GetInf_Internal(cRFStrt,iRFStrt,lRFStrt,rRFStrt,
+     &                     cQStrt,iQStrt,rQStrt)
+*
+*     This is to allow type punning without an explicit interface
+      Contains
+      SubRoutine GetInf_Internal(cRFStrt,iRFStrt,lRFStrt,rRFStrt,
+     &                           cQStrt,iQStrt,rQStrt)
+      Use Iso_C_Binding
+      Integer, Target :: cRFStrt,iRFStrt,lRFStrt,cQStrt,iQStrt
+      Real*8, Target :: rRFStrt,rQStrt
+      Integer, Pointer :: p_cRF(:),p_iRF(:),p_lRF(:),p_cQ(:),p_iQ(:)
+      Real*8, Pointer :: p_rRF(:),p_rQ(:)
+*
 *     Prologue
 *
 *     Call qEnter('GetInf')
@@ -69,19 +82,25 @@
 *
       Len = ilLoc(lRFEnd)-ilLoc(lRFStrt)
       Len = (Len+nByte_i)/nByte_i
-      Call Get_iArray('RFlInfo',lRFStrt,Len)
+      Call C_F_Pointer(C_Loc(lRFStrt),p_lRF,[Len])
+      Call Get_iArray('RFlInfo',p_lRF,Len)
 *
       Len = idLoc(rRFEnd)-idLoc(rRFStrt)
       Len = (Len+nByte_r)/nByte_r
-      Call Get_dArray('RFrInfo',rRFStrt,Len)
+      Call C_F_Pointer(C_Loc(rRFStrt),p_rRF,[Len])
+      Call Get_dArray('RFrInfo',p_rRF,Len)
 *
       Len = iiLoc(iRFEnd)-iiLoc(iRFStrt)
       Len = (Len+nByte_i)/nByte_i
-      Call Get_iArray('RFiInfo',iRFStrt,Len)
+      Call C_F_Pointer(C_Loc(iRFStrt),p_iRF,[Len])
+      Call Get_iArray('RFiInfo',p_iRF,Len)
 *
       Len = iiLoc(cRFEnd)-iiLoc(cRFStrt)
       Len = (Len+nByte_i)/nByte_i
-      Call Get_iArray('RFcInfo',cRFStrt,Len)
+      Call C_F_Pointer(C_Loc(cRFStrt),p_cRF,[Len])
+      Call Get_iArray('RFcInfo',p_cRF,Len)
+*
+      Nullify(p_lRF,p_rRF,p_iRF,p_cRF)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -89,15 +108,20 @@
 *
       Len = idLoc(rQEnd)-idLoc(rQStrt)
       Len = (Len+nByte_r)/nByte_r
-      Call Get_dArray('Quad_r',rQStrt,Len)
+      Call C_F_Pointer(C_Loc(rQStrt),p_rQ,[Len])
+      Call Get_dArray('Quad_r',p_rQ,Len)
 *
       Len = iiLoc(iQEnd)-iiLoc(iQStrt)
       Len = (Len+nByte_i)/nByte_i
-      Call Get_iArray('Quad_i',iQStrt,Len)
+      Call C_F_Pointer(C_Loc(iQStrt),p_iQ,[Len])
+      Call Get_iArray('Quad_i',p_iQ,Len)
 *
       Len = iiLoc(cQEnd)-iiLoc(cQStrt)
       Len = (Len+nByte_i)/nByte_i
-      Call Get_iArray('Quad_c',cQStrt,Len)
+      Call C_F_Pointer(C_Loc(cQStrt),p_cQ,[Len])
+      Call Get_iArray('Quad_c',p_cQ,Len)
+*
+      Nullify(p_rQ,p_iQ,p_cQ)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -159,4 +183,6 @@
 *
 *     Call qExit('GetInf')
       Return
+      End SubRoutine GetInf_Internal
+*
       End

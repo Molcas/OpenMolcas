@@ -47,10 +47,10 @@
 *
       ip1=1
       ip2=1
-      If (Mode.eq.'F') call dcopy_(nTot**2,Zero,0,COEFF,1)
+      If (Mode.eq.'F') call dcopy_(nTot**2,[Zero],0,COEFF,1)
 C     Call RecPrt('COEFF',' ',Coeff,nTot,nTot)
       Do iS=0,nIrrep-1
-         If (Mode.eq.'B') call dcopy_(nbas(is)**2,Zero,0,CMO(ip1),1)
+         If (Mode.eq.'B') call dcopy_(nbas(is)**2,[Zero],0,CMO(ip1),1)
 C        Call RecPrt('CMO',' ',CMO(ip1),nbas(is),nbas(is))
          Do i=1,nbas(is)
             If (Mode.eq.'F') call dcopy_(nbas(is),CMO(ip1),  1,

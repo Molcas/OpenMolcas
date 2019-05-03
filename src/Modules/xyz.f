@@ -45,13 +45,15 @@
 
 ! Read an XYZ file with molcas extensions
 ! Rot and Trans are transformations to apply to all coordinates in this file
-      Subroutine Read_XYZ(Lu,Rot,Trans)
+! If Replace=.T., the coordinates will replace existing ones, but labels will not be changed
+      Subroutine Read_XYZ(Lu,Rot,Trans,Replace)
       Integer, Intent(In) :: Lu
       Real*8, Dimension(:,:,:), Allocatable, Intent(In) :: Rot
       Real*8, Dimension(:,:), Allocatable, Intent(In) :: Trans
+      Logical, Optional, Intent(In) :: Replace
       Character (Len=MAXLEN) :: Line, FName, CurrDir, Dum
       Integer :: Error, NumAt, i, Lxyz, Idx
-      Logical :: Found
+      Logical :: Found, Rep
       Integer, External :: IsFreeUnit
       Type(XYZAtom), Dimension(:), Allocatable :: ThisGeom, TmpGeom
       Real*8, Dimension(3,5) :: Mat
@@ -73,12 +75,12 @@
       Read(Lu,'(A)') Line
       Line = AdjustL(Line)
 
-      ! Try to read a number, if it fails, try to open a file
-      ! Note that the slash means end-of-line in list-directed input
+!     Try to read a number, if it fails, try to open a file
+!     Note that the slash means end-of-line in list-directed input
       NumAt = -1
       Read(Line,*,IOStat=Error) NumAt
-      ! And make sure there's nothing but numbers in the first word
-      ! (the above is not 100% reliable in some compilers)
+!     And make sure there's nothing but numbers in the first word
+!     (the above is not 100% reliable in some compilers)
       Do i=1,Len(Line)
         If (Line(i:i) .eq. ' ') Exit
         Idx = IChar(Line(i:i))
@@ -122,8 +124,8 @@
           Call Quit_OnUserError()
         End If
       End If
-      ! Each atom has a field indicating the sequential number of the
-      ! file it belongs to
+!     Each atom has a field indicating the sequential number of the
+!     file it belongs to
       FileNum = FileNum+1
 
 #ifdef _HDF5_
@@ -133,9 +135,9 @@
       If (isH5) Then
         Write(6,*) 'Reading xyz coordinates from h5 file '//Trim(FName)
         Coord_id = mh5_open_file_r(Trim(FName))
-        ! check if symmetry was used
+!       check if symmetry was used
         Call mh5_fetch_attr(Coord_id,'NSYM',nSym)
-        ! read numbers of atoms
+!       read numbers of atoms
         If (nSym .gt. 1) Then
           Attr_id = mh5_open_attr(Coord_id,'NATOMS_ALL')
         Else
@@ -144,7 +146,7 @@
         Call mh5_get_attr_scalar_int(Attr_id,NumAt)
         Allocate(ThisGeom(NumAt))
         Allocate(Labels(NumAt),Coords(3,NumAt))
-        ! read atom labels
+!       read atom labels
         If (nSym .gt. 1) then
           Allocate(Labels4(NumAt))
           Call mh5_fetch_dset_array_str(Coord_id,'DESYM_CENTER_LABELS',
@@ -157,9 +159,9 @@
           Call mh5_fetch_dset_array_str(Coord_id,'CENTER_LABELS',
      &                                   Labels)
         End If
-        ! remove numbers from labels
-        ! (otherwise there will be problems when symmetric structures
-        ! are used without symmetry)
+!       remove numbers from labels
+!       (otherwise there will be problems when symmetric structures
+!       are used without symmetry)
         Do i=1,NumAt
           Do j=1,LenIn
             c = IChar(Labels(i)(j:j))
@@ -168,7 +170,7 @@
             End If
           End Do
         End Do
-        ! read atom coordinates
+!       read atom coordinates
         If (nSym .gt. 1) then
           Call mh5_fetch_dset_array_real(Coord_id,
      &         'DESYM_CENTER_COORDINATES',Coords)
@@ -177,7 +179,7 @@
      &         'CENTER_COORDINATES',Coords)
         End If
         Call mh5_close_file(Coord_id)
-        ! store data
+!       store data
         Do i=1,NumAt
           ThisGeom(i)%Lab = Labels(i)
           ThisGeom(i)%Coord(:) = Coords(:,i)
@@ -196,7 +198,7 @@
           Call Quit_OnUserError()
         End If
         Call UpCase(Line)
-        ! Units of the coordinates (default angstrom)
+!       Units of the coordinates (default angstrom)
         If (Max(Index(Line,'BOHR'),Index(Line,'A.U.')) .le. 0) Then
           Factor = One/Angstrom
         End If
@@ -214,7 +216,7 @@
       End If
 #endif
 
-      ! Obtain/read transformation matrix and transform the geometry in this file
+!     Obtain/read transformation matrix and transform the geometry in this file
       Mat = Reshape([One, One,  One,
      &               One, Zero, Zero,
      &               Zero, One, Zero,
@@ -237,8 +239,8 @@
       If (Idx .gt. 0) Read(Line(Idx:),*,IOStat=Error) Dum, Mat(:,2:4)
       Idx = Index(' '//Line, ' TRANS ')
       If (Idx .gt. 0) Read(Line(Idx:),*,IOStat=Error) Dum, Mat(:,5)
-      ! If Rot and Trans are given in the input, they override
-      ! the inline transformations
+!     If Rot and Trans are given in the input, they override
+!     the inline transformations
       If (Allocated(Rot)) Then
         Mat(:,2:4) = Rot(:,:,FileNum)
       End If
@@ -249,15 +251,28 @@
       Mat(:,5) = Mat(:,5)*Factor
       Call TransformGeom(ThisGeom,Mat)
 
-      ! Append the just read geometry to the general one
+      Rep = .False.
+      If (Present(Replace)) Rep = Replace
+
       If (Allocated(Geom)) Then
-        Call Move_Alloc(Geom, TmpGeom)
-        NumAt = Size(TmpGeom)+Size(ThisGeom)
-        Allocate(Geom(NumAt))
-        Geom(1:Size(TmpGeom)) = TmpGeom(:)
-        Geom(Size(TmpGeom)+1:) = ThisGeom(:)
-        Deallocate(TmpGeom)
-        Deallocate(ThisGeom)
+        If (Rep) Then
+          If (Size(ThisGeom) .ne. Size(Geom)) Then
+            Write(6,*) 'New system size does not match previous one'
+            Call Quit_OnUserError()
+          End If
+          Do i=1,Size(Geom)
+            Geom(i)%Coord = ThisGeom(i)%Coord
+          End Do
+        Else
+!         Append the just read geometry to the general one
+          Call Move_Alloc(Geom, TmpGeom)
+          NumAt = Size(TmpGeom)+Size(ThisGeom)
+          Allocate(Geom(NumAt))
+          Geom(1:Size(TmpGeom)) = TmpGeom(:)
+          Geom(Size(TmpGeom)+1:) = ThisGeom(:)
+          Deallocate(TmpGeom)
+          Deallocate(ThisGeom)
+        End If
       Else
         Call Move_Alloc(ThisGeom, Geom)
       End If
@@ -286,20 +301,20 @@
       Lu = 10
       Lu = IsFreeUnit(Lu)
       Call Molcas_Open(Lu, FName)
-      ! Write symmetry
+!     Write symmetry
       If (Symmetry .ne. '') Write(Lu,40) 'Symmetry', Trim(Symmetry)
-      ! Write the atoms, skipping symmetry-superfluous atoms
+!     Write the atoms, skipping symmetry-superfluous atoms
       Old = ''
       j = 0
       Do i=1,Size(Geom)
         If (Geom(i)%FileNum .eq. 0) Cycle
         j = j+1
         Call SplitLabel(Geom(i)%Lab, Sym, Num, Lab, Bas)
-        ! Build an identifier for the basis
+!       Build an identifier for the basis
         New = Trim(Sym)//Trim(Lab)//Bas
         Ghost = Any(GhostFiles .eq. Geom(i)%FileNum)
         If (Ghost) New = Trim(New)//' *'
-        ! If there is a change of basis, write the basis
+!       If there is a change of basis, write the basis
         If (New .ne. Old) Then
           If (i .gt. 1) Write(Lu,10) 'End of Basis'
           Write(Lu,10) 'Basis Set'
@@ -307,7 +322,7 @@
           If (Ghost) Write(Lu,30) 'Charge', 0.0
           Old = New
         End If
-        ! Add a sequential number if the label had none
+!       Add a sequential number if the label had none
         If (Num .eq. 0) Num = j
         Write(Lu,20) Trim(Sym), Num, Geom(i)%Coord(:)
       End Do
@@ -344,13 +359,13 @@
       Character (Len=*), Intent(In) :: Basis
       Integer :: Num, Idx, IdxDot, Next, i
 
-      ! Count number of commas
+!     Count number of commas
       Num = Count(Transfer(Basis, 'x', Len_Trim(Basis)) .eq. ",") + 1
       BasisAll = ''
       If (Allocated(BasisSets)) Deallocate(BasisSets)
       Allocate(BasisSets(2,Num))
-      ! For each comma-separated word, split it at the first dot
-      ! If the first part is empty, use it as a general basis set
+!     For each comma-separated word, split it at the first dot
+!     If the first part is empty, use it as a general basis set
       Idx = 0
       Do i=1,Num
         Next = Idx+Index(Basis(Idx+1:), ',')
@@ -392,25 +407,25 @@
       End If
       Gen = ''
       Read(Symmetry,*,IOStat=Error) Gen
-      ! Encode generators
+!     Encode generators
       Oper = 0
       Do i=1,3
         If (Index(Gen(i),'X') .gt. 0) Oper(i)=Oper(i)+iX
         If (Index(Gen(i),'Y') .gt. 0) Oper(i)=Oper(i)+iY
         If (Index(Gen(i),'Z') .gt. 0) Oper(i)=Oper(i)+iZ
       End Do
-      ! Create all combinations
+!     Create all combinations
       Oper(4) = iEOR(Oper(1),Oper(2))
       Oper(5) = iEOR(Oper(1),Oper(3))
       Oper(6) = iEOR(Oper(2),Oper(3))
       Oper(7) = iEOR(Oper(3),Oper(4))
-      ! Remove duplicates
+!     Remove duplicates
       Do i=1,7
         Do j=i+1,7
           If (Oper(j) .eq. Oper(i)) Oper(j) = 0
         End Do
       End Do
-      ! Sort descending
+!     Sort descending
       Do i=1,7
         Do j=i+1,7
           If (Oper(j) .ge. Oper(i)) Then
@@ -420,7 +435,7 @@
           End If
         End Do
       End Do
-      ! Check and adapt the symmetry
+!     Check and adapt the symmetry
       Call AdaptSym(Thr)
 
       End Subroutine Parse_Group
@@ -440,7 +455,7 @@
       Op(iZ) = CheckOp(iZ, Thr)
       Symmetry = ''
       Select Case (Count(Op))
-        ! Two or three reflections: all is known
+!       Two or three reflections: all is known
         Case (3, 2)
           Op(iXY) = Op(iX) .And. Op(iY)
           Op(iXZ) = Op(iX) .And. Op(iZ)
@@ -453,7 +468,7 @@
             If (Op(iXZ)) Symmetry = 'xz z'
             If (Op(iYZ)) Symmetry = 'yz z'
           End If
-        ! One reflection: possibly inversion and complementary rotation
+!       One reflection: possibly inversion and complementary rotation
         Case (1)
           Op(iXYZ) = CheckOp(iXYZ, Thr)
           If (Op(iXYZ)) Then
@@ -468,17 +483,17 @@
             If (Op(iY)) Symmetry = 'y'
             If (Op(iZ)) Symmetry = 'z'
           End If
-        ! No reflection: check rotations (only two initially)
+!       No reflection: check rotations (only two initially)
         Case (0)
           Op(iXY) = CheckOp(iXY, Thr)
           Op(iXZ) = CheckOp(iXZ, Thr)
           If (Op(iXY)) Symmetry = 'xy'
           If (Op(iXZ)) Symmetry = Trim(Symmetry)//' xz'
           Select Case (Count(Op))
-            ! Two or one rotation: the third is known
+!           Two or one rotation: the third is known
             Case (2, 1)
               Op(iYZ) = Op(iXY) .And. Op(iXZ)
-            ! No rotation: check the third, and inversion if necessary
+!           No rotation: check the third, and inversion if necessary
             Case (0)
               Op(iYZ) = CheckOp(iYZ, Thr)
               If (.Not. Op(iYZ)) Op(iXYZ) = CheckOp(iXYZ, Thr)
@@ -504,8 +519,8 @@
       Integer :: Num, i, j
 #include "constants2.fh"
       Done = .False.
-      ! For each atom, check if any of the following atoms (including itself)
-      ! matches the result of the symmetry operation
+!     For each atom, check if any of the following atoms (including itself)
+!     matches the result of the symmetry operation
       Do i=1,Size(Geom)
         If (Done(i)) Cycle
         Call SplitLabel(Geom(i)%Lab, Sym, Num, Lab, Bas)
@@ -548,9 +563,9 @@
 #include "constants2.fh"
 #include "real.fh"
       Moved = .False.
-      ! Count the non-trivial operations
+!     Count the non-trivial operations
       nOp = Count(Oper .ne. 0)+1
-      ! For each atom, find all symmetric images to average
+!     For each atom, find all symmetric images to average
       Do i=1,Size(Geom)
         If (Geom(i)%FileNum .eq. 0) Cycle
         Call SplitLabel(Geom(i)%Lab, Sym, Num, Lab, Bas)
@@ -614,7 +629,7 @@
       Character :: c
       Integer :: Idx, i, j, k
       String = At
-      ! Get the Bas part
+!     Get the Bas part
       Idx = Index(String, '.')
       If (Idx .eq. 0) Then
         Idx = Len_Trim(String)+1
@@ -623,7 +638,7 @@
         Bas = String(Idx:)
       End If
       String = String(1:Idx-1)
-      ! Get the Lab part
+!     Get the Lab part
       Idx = Index(String, '_')
       If (Idx .eq. 0) Then
         Idx = Len_Trim(String)+1
@@ -634,7 +649,7 @@
       Sym = String(1:Idx-1)
       Num = 0
       k = 0
-      ! Remove digits and compute Num
+!     Remove digits and compute Num
       Do i = Len_Trim(Sym),1,-1
         c = Sym(i:i)
         If ((IChar(c) .ge. IChar('0')) .and.
@@ -658,29 +673,29 @@
       Character (Len=Len(AtSym)) :: UpSym
       Character (Len=Len(AtLab)) :: UpLab
       Integer :: i
-      ! Prepare for case-insensitive comparisons
+!     Prepare for case-insensitive comparisons
       UpSym = AtSym
       Call UpCase(UpSym)
       UpLab = AtLab
       Call UpCase(UpLab)
-      ! Special case: if the Label is "MM", no basis
+!     Special case: if the Label is "MM", no basis
       If (UpLab .eq. '_MM') Then
         FindBasis = Trim(AtSym)//'...... / MM'
         Return
       End If
-      ! If the atoms has a basis specified, nothing else to do
+!     If the atoms has a basis specified, nothing else to do
       If (AtBas .ne.  '') Then
         FindBasis = Trim(AtSym)//Trim(AtBas)
         Return
       End If
-      ! Otherwise, find the basis set that matches the symbol and label
+!     Otherwise, find the basis set that matches the symbol and label
       Do i=1,Size(BasisSets,2)
         If (Trim(UpSym)//UpLab .eq. BasisSets(1,i)) Then
           FindBasis = Trim(AtSym)//'.'//Trim(BasisSets(2,i))
           Return
         End If
       End Do
-      ! If none found, use the general basis
+!     If none found, use the general basis
       If (BasisAll .eq. '') Then
         Write(6,*) 'No basis found for '//Trim(AtSym)//Trim(AtLab)
         Call Quit_OnUserError()
@@ -695,7 +710,7 @@
       Real*8, Dimension(3) :: Old
       Real*8, External :: DDot_
       Integer :: i, j
-      ! The matrix has 5 colums: scale (1), rotate (2-4), translate (5)
+!     The matrix has 5 colums: scale (1), rotate (2-4), translate (5)
       Do i=1,Size(G)
         Old(:) = M(:,1)*G(i)%Coord(:)
         Do j=1,3

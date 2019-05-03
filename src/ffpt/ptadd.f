@@ -25,6 +25,7 @@
       Character*8 Label
       Logical Debug
       Data Debug /.False./
+      Dimension idum(1)
 *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -51,7 +52,8 @@
          Label='OneHam 0'
       EndIf
       iRc=-1
-      Call iRdOne(iRc,iOpt1,Label,iComp,nInts,iSyLbl)
+      Call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
+      nInts=idum(1)
       If ( iRc.ne.0 ) Then
          Write (6,*) 'PtAdd: Error reading ONEINT'
          Write (6,'(A,A)') 'Label=',Label

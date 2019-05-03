@@ -8,10 +8,10 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE RESTR(NVERT0,IDRT0,IDOWN0,IVER,
+      SUBROUTINE RESTR_MCLR(NVERT0,IDRT0,IDOWN0,IVER,
      &                 LV1RAS,LV3RAS,LM1RAS,LM3RAS,NVERT)
 C
-C     PURPOSE: PUT THE RAS CONSTSRAINT TO THE DRT TABLE BY
+C     PURPOSE: PUT THE RAS CONSTRAINT TO THE DRT TABLE BY
 C              CREATING A MASK
 C
       IMPLICIT REAL*8 (A-H,O-Z)

@@ -18,6 +18,7 @@
 #include "WrkSpc.fh"
 #include "real.fh"
 
+      Integer nBas(8), nAsh(8), nSkipX(8)
       Dimension CMO(*) , D1A(*) , DI(*), FA(*)
       Logical DoCholesky,REORD,DECO
       Integer ALGO
@@ -32,7 +33,7 @@
 * vectors
 *
          Call GetMem('LWFSQ','Allo','Real',LWFSQ,nTot2)
-         call dcopy_(nTot2,Zero,0,Work(LWFSQ),1)
+         call dcopy_(nTot2,[Zero],0,Work(LWFSQ),1)
 
          Call Allocate_Work(ipTemp,nTot1)
          Call FZero(Work(ipTemp),nTot1)

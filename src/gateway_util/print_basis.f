@@ -25,7 +25,7 @@
 *             September '06                                            *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
+#include "angtp.fh"
 #include "info.fh"
 #include "relmp.fh"
 #include "real.fh"

@@ -61,7 +61,7 @@ C
           CALL WRTMAT(CSFVEC,1,NCSF,1,NCSF)
           WRITE(6,*)
         END IF
-        CALL DCOPY_(NDET,0.0d0,0,DETVEC,1)
+        CALL DCOPY_(NDET,[0.0d0],0,DETVEC,1)
         DO ITYP = 1,NTYP
           IDET = NDTFTP(ITYP)
           ICSF = NCSFTP(ITYP)

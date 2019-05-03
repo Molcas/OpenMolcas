@@ -50,7 +50,7 @@
      &                iTwoj(iIrrep)).ne.0) Then
                      call dcopy_(nBs(iCnt),Work(ip1),1,COUT(ip2),1)
                   Else
-                     call dcopy_(nBs(iCnt),0.0d0,0,COUT(ip2),1)
+                     call dcopy_(nBs(iCnt),[0.0d0],0,COUT(ip2),1)
                   End If
                   ip2=ip2+nBs(iCnt)
                End Do

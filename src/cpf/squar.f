@@ -12,7 +12,7 @@
 *               1986, Margareta R. A. Blomberg                         *
 ************************************************************************
 cpgi$g opt=1
-      SUBROUTINE SQUAR(A,B,N)
+      SUBROUTINE SQUAR_CPF(A,B,N)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION A(*),B(N,N)
       IN=1

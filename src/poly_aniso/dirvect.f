@@ -14,8 +14,10 @@ c this Subroutine computes the directional vector of the origins of two points P
       Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
       Real(kind=wp), intent(in)  :: P1(3) ! coords of the first point
       Real(kind=wp), intent(in)  :: P2(3) ! coords of the second point
-      Real(kind=wp), intent(in)  :: R1(3,3) ! rot. matrix of the  first point to the general coordinate system
-      Real(kind=wp), intent(in)  :: R2(3,3) ! rot. matrix of the second point to the general coordinate system
+!     rot. matrix of the  first point to the general coordinate system
+      Real(kind=wp), intent(in)  :: R1(3,3)
+!     rot. matrix of the second point to the general coordinate system
+      Real(kind=wp), intent(in)  :: R2(3,3)
       Real(kind=wp), intent(out) :: vec(3)
       Real(kind=wp), intent(out) :: dist
 c local variables

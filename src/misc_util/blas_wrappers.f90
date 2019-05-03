@@ -151,7 +151,7 @@ end subroutine
 subroutine scopy_(n_,sx,incx_,sy,incy_)
   implicit none
   integer n_, incx_, incy_
-  real*4 sx(*), sy(*)
+  real sx(*), sy(*)
 #ifdef MOLCAS_TO_BLAS_INT
   BLASINT n,  incx,  incy
   n=n_

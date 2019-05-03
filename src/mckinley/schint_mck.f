@@ -61,7 +61,7 @@
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
       nElem(i)    = (i+1)*(i+2)/2
 *
-      call dcopy_(3,One,0,Q,1)
+      call dcopy_(3,[One],0,Q,1)
       la = iAnga(1)
       lb = iAnga(2)
       iCmpa = iCmp(1)
@@ -102,8 +102,8 @@
       nT = mZeta*1
       NoSpecial=.True.
       Call Rys(iAnga,nT,
-     &               Zeta,ZInv,              mZeta,One,One,1,
-     &               P,         nZeta,Q,1,rKapab,      One,
+     &               Zeta,ZInv,              mZeta,[One],[One],1,
+     &               P,         nZeta,Q,1,rKapab,      [One],
      &               CoorM,CoorM,CoorAC,
      &               mabMin,mabMax,mcdMin,mcdMax,
      &               Work2,nWork2,TERIS,ModU2,Cff2DS,

@@ -116,7 +116,7 @@ C     ------------------------------
       Do ia=0,lDiag-1
          Work(ipDiag+ia)=Work(ipDiag+ia)**2
       End Do
-      If (set_cd_thr) ThrMP2=ddot_(lDiag,1.0d0,0,
+      If (set_cd_thr) ThrMP2=ddot_(lDiag,[1.0d0],0,
      &                                  Work(ipDiag),1)/(5.0d0*lDiag)
 
       If (Verbose) Then

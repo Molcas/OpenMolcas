@@ -82,10 +82,10 @@ c
          Do While (Index(Line,'TheEnd ') .eq. 0)
             Line=Get_Ln(ITkQMMM)
             If (Index(Line,'LAH').ne.0) Then
-               Call Get_I(2,iLA,1)
-               Call Get_I(3,iMM,1)
-               Call Get_I(4,iQM,1)
-               Call Get_F(5,Fact,1)
+               Call Get_I1(2,iLA)
+               Call Get_I1(3,iMM)
+               Call Get_I1(4,iQM)
+               Call Get_F1(5,Fact)
                If (iMM.lt.1 .or. iQM.lt.1) Then
                   Write (6,*) 'LA_Morok: link atoms badly defined'
                   Write (6,*) '          check each LA connectivity'

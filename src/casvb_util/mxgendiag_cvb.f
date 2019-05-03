@@ -14,11 +14,12 @@
       implicit real*8 (a-h,o-z)
 #include "malloc_cvb.fh"
       dimension a(n,n),s(n,n),eigval(n)
+      dimension wrk(1)
 
       info=0
       lwrk=-1
       call dsygv_(1,'V','U',n,a,n,s,n,eigval,wrk,lwrk,info)
-      lwrk=nint(wrk)
+      lwrk=nint(wrk(1))
       i1 = mstackr_cvb(lwrk)
       call dsygv_(1,'V','U',n,a,n,s,n,eigval,w(i1),lwrk,info)
       call mfreer_cvb(i1)

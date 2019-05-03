@@ -22,6 +22,7 @@
       Character*8 Label
       Real*8 RepNuc_Temp
       Save RepNuc_Temp
+      Dimension RepNucXX(1)
 *
       iRout = 1
       iPrint = nPrint(iRout)
@@ -109,7 +110,7 @@
 *
       Label='PotNucXX'
       Call Get_Temp(Label,RepNucXX,1)
-      RepNuc_RF=RepNuc-RepNucXX
+      RepNuc_RF=RepNuc-RepNucXX(1)
 *
       Call GetMem('h1_RF','Allo','Real',ip_h1_RF,nh1+4)
       Call GetMem('h1_XX','Allo','Real',ip_h1_XX,nh1)

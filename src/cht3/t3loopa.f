@@ -187,7 +187,7 @@ cmp
 c Avoid unused argument warnings
       if (.false.) then
         call Unused_logical(lastcall)
-        call Unused_logical(jjj)
+        call Unused_integer(jjj)
       end if
       end
 

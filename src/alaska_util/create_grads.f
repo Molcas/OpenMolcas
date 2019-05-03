@@ -48,18 +48,18 @@
       nCoup=Max(1,nRoots*(nRoots-1)/2)
       Call mma_Allocate(i_grad,nRoots)
       Call mma_Allocate(i_nac,nCoup)
-      Call iCopy(Size(TOC),0,0,TOC,1)
-      Call iCopy(nRoots,0,0,i_grad,1)
-      Call iCopy(nCoup,0,0,i_nac,1)
+      Call iCopy(Size(TOC),[0],0,TOC,1)
+      Call iCopy(nRoots,[0],0,i_grad,1)
+      Call iCopy(nCoup,[0],0,i_nac,1)
 *
       Lu=20
       Call DaName(Lu,Trim(FN))
       iAd=0
       Call iDaFile(Lu,1,TOC,SIZE(TOC),iAd)
       TOC(1)=iAd
-      Call iDaFile(Lu,1,nRoots,1,iAd)
+      Call iDaFile(Lu,1,[nRoots],1,iAd)
       TOC(2)=iAd
-      Call iDaFile(Lu,1,nGrad,1,iAd)
+      Call iDaFile(Lu,1,[nGrad],1,iAd)
       TOC(3)=iAd
       Call iDaFile(Lu,1,i_grad,nRoots,iAd)
       TOC(4)=iAd

@@ -25,14 +25,18 @@ c
         real*8  FracMem
         Logical timings
         COMMON /CHOTIME /timings
+        integer idum(1)
 c
 c.1 - get the info on  nBas, nOrb, nOcc. Use nFro from input
 c
 c# nbas = nfro + nocc + nvirt + ndel
 c
-         Call Get_iArray('nBas',nBas,1)
-         Call Get_iArray('nOrb',nOrb,1)
-         Call Get_iArray('nIsh',nOcc,1) ! in general > no
+         Call Get_iArray('nBas',idum,1)
+         nBas=idum(1)
+         Call Get_iArray('nOrb',idum,1)
+         nOrb=idum(1)
+         Call Get_iArray('nIsh',idum,1) ! in general > no
+         nOcc=idum(1)
 
          ndel=nbas-no-nv-nfro
 

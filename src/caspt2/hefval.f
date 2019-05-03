@@ -32,7 +32,7 @@ C the same for all the root states.
       INTEGER I
       INTEGER NTG1,NTG2,NTG3,LTG1,LTG2,LTG3
       INTEGER IDCI,LCI1,LCI2
-      REAL*8 OVL,DUMMY
+      REAL*8 OVL,DUMMY(1)
 
       CALL QENTER('HEFVAL')
 C We evaluate the effective Hamiltonian matrix element in two steps.

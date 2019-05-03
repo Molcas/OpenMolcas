@@ -258,7 +258,7 @@ C      iPrint=99
 *     all purpose aCD/acCD auxiliary basis sets.
 *
       Call mma_allocate(Wg,nTInt_c,label='Wg')
-      call dcopy_(nTInt_c,1.0D0,0,Wg,1)
+      call dcopy_(nTInt_c,[1.0D0],0,Wg,1)
 *
       If (In_Core) Then
 #ifdef _DEBUG_
@@ -966,7 +966,7 @@ C                    iPrint=99
                         Call mma_allocate(U,nTri,label='U')
                         call dcopy_(nTri,A,1,H,1)
                         Call FZero(U,nTheta**2)
-                        call dcopy_(nTheta,One,0,U,nTheta+1)
+                        call dcopy_(nTheta,[One],0,U,nTheta+1)
                         Call Jacob(H,U,nTheta,nTheta)
                         Call TriPrt('H','(10G20.10)',H,nTheta)
                         Call RecPrt('U',' ',U,nTheta,nTheta)
@@ -1275,8 +1275,8 @@ C                          Thrs= 1.0D-12
 *
 *                    Put in unit matrix of uncontracted set
 *
-                     call dcopy_(nPrim*nPrim,Zero,0,Work(ipCff_p),1)
-                     call dcopy_(nPrim,One,0,Work(ipCff_p),nPrim+1)
+                     call dcopy_(nPrim*nPrim,[Zero],0,Work(ipCff_p),1)
+                     call dcopy_(nPrim,[One],0,Work(ipCff_p),nPrim+1)
 *
                      iOff = nPrim*nPrim
                      call dcopy_(nPrim*nPrim ,Work(ipCff_p),1,

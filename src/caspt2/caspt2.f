@@ -112,7 +112,7 @@ C     effective hamiltonian
 *======================================================================*
 
       CALL MMA_ALLOCATE(HEFF,NSTATE,NSTATE)
-      CALL DCOPY_(NSTATE**2,0.D0,0,HEFF,1)
+      CALL DCOPY_(NSTATE**2,[0.D0],0,HEFF,1)
 
       CALL MMA_ALLOCATE(H0,NSTATE,NSTATE)
       CALL DCOPY_(NSTATE**2,0.D0,0,H0,1)

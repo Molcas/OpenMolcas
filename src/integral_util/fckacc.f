@@ -164,7 +164,7 @@ C     Call RecPrt('AOInt',' ',AOInt,nijkl,iCmp*jCmp*kCmp*lCmp)
       ipFjk = ipFil + nFil
       nFjk  = jBas*kBas*iCmpa(2)*iCmpa(3)
 *
-      call dcopy_(nFij+nFkl+nFik+nFjl+nFil+nFjk,Zero,0,FT(ipFij),1)
+      call dcopy_(nFij+nFkl+nFik+nFjl+nFil+nFjk,[Zero],0,FT(ipFij),1)
 *
       ipDij = 1
       ipDkl = 1

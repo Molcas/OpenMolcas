@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE FOCK(DINAO,FOCKAO)
+      SUBROUTINE FOCK_RASSI(DINAO,FOCKAO)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rassi.fh"
 #include "WrkSpc.fh"
@@ -44,7 +44,7 @@ CPAM00 Nr of triangular matrices in previous symmetry blocks
       END DO
       NFTRI=NBTR
       CALL GETMEM('FTRI  ','ALLO','REAL',LFTRI,NFTRI)
-      CALL DCOPY_(NFTRI,0.0D0,0,WORK(LFTRI),1)
+      CALL DCOPY_(NFTRI,[0.0D0],0,WORK(LFTRI),1)
 C FOLD THE D MATRIX:
       IDF=LDTRI
       DO ISYM=1,NSYM

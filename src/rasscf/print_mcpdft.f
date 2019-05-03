@@ -56,15 +56,15 @@
       write(6,'(6X,80A)') ('*',i=1,80)
       write(6,'(6X,80A)')
 
-      Call Add_Info('dens_tt',Dens_I,1,6)
-      Call Add_Info('dens_a1',Dens_a1,1,6)
-      Call Add_Info('dens_b1',Dens_b1,1,6)
-      Call Add_Info('dens_a2',Dens_a2,1,6)
-      Call Add_Info('dens_b2',Dens_b2,1,6)
-      Call Add_Info('excha_a',Funcaa,1,6)
-      Call Add_Info('excha_b',Funcbb,1,6)
-      Call Add_Info('corr_e', Funccc,1,6)
-      Call Add_Info('CASDFTE',CASDFT_E,1,8)
+      Call Add_Info('dens_tt',[Dens_I],1,6)
+      Call Add_Info('dens_a1',[Dens_a1],1,6)
+      Call Add_Info('dens_b1',[Dens_b1],1,6)
+      Call Add_Info('dens_a2',[Dens_a2],1,6)
+      Call Add_Info('dens_b2',[Dens_b2],1,6)
+      Call Add_Info('excha_a',[Funcaa],1,6)
+      Call Add_Info('excha_b',[Funcbb],1,6)
+      Call Add_Info('corr_e', [Funccc],1,6)
+      Call Add_Info('CASDFTE',[CASDFT_E],1,8)
 
       RETURN
       END

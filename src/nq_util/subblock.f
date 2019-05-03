@@ -69,7 +69,7 @@
 *                                                                      *
 *---- Start loop over the atomic grid
 *
-      ip_iRx=ip_of_iWork(Work(ip_R_Quad(iNQ)))
+      ip_iRx=ip_of_iWork_d(Work(ip_R_Quad(iNQ)))
       ip_Rx=iWork(ip_iRx)
 #ifdef _DEBUG_
       If (Debug) Then

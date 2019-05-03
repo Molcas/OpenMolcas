@@ -32,6 +32,7 @@
       Parameter ( One = 1.0d0 )
       Real*8 rKappa(nDens2),rMO1(nMba),rmo2(*),FockI(nDens2),
      &       FockA(nDens2)
+      Dimension rdum(1)
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
       ndens22=ndens2
       iAM=0
@@ -56,14 +57,14 @@
       Call GetMem('FociI','ALLO','REAL',ipFI1,ndens2)
       Call GetMem('kappa','ALLO','REAL',ipK1,ndens2)
 
-      call dcopy_(ndens2,0.0d0,0,FockI,1)
-      call dcopy_(ndens2,0.0d0,0,Work(ipFI),1)
-      call dcopy_(ndens2,0.0d0,0,Work(ipFI1),1)
-      call dcopy_(ndens2,0.0d0,0,Work(ipK1),1)
-      call dcopy_(ndens2,0.0d0,0,FockA,1)
-      call dcopy_(ndens2,0.0d0,0,Work(ipDir),1)
-      call dcopy_(ndens2,0.0d0,0,Work(ipDil),1)
-      call dcopy_(nCMO,0.0d0,0,Work(ipDi),1)
+      call dcopy_(ndens2,[0.0d0],0,FockI,1)
+      call dcopy_(ndens2,[0.0d0],0,Work(ipFI),1)
+      call dcopy_(ndens2,[0.0d0],0,Work(ipFI1),1)
+      call dcopy_(ndens2,[0.0d0],0,Work(ipK1),1)
+      call dcopy_(ndens2,[0.0d0],0,FockA,1)
+      call dcopy_(ndens2,[0.0d0],0,Work(ipDir),1)
+      call dcopy_(ndens2,[0.0d0],0,Work(ipDil),1)
+      call dcopy_(nCMO,[0.0d0],0,Work(ipDi),1)
       lFI=.true.
       lFa=.false.
       lMo=.false.
@@ -75,11 +76,11 @@
          Call GetMem('FockA','ALLO','REAL',ipFA1,nDens2)
          lFa=.true.
          lMo=.true.
-         call dcopy_(ndens2,0.0d0,0,Work(ipFA),1)
-         call dcopy_(ndens2,0.0d0,0,Work(ipFA1),1)
-         call dcopy_(ndens2,0.0d0,0,Work(ipDar),1)
-         call dcopy_(ndens2,0.0d0,0,Work(ipDal),1)
-         call dcopy_(nCMO,0.0d0,0,Work(ipDa),1)
+         call dcopy_(ndens2,[0.0d0],0,Work(ipFA),1)
+         call dcopy_(ndens2,[0.0d0],0,Work(ipFA1),1)
+         call dcopy_(ndens2,[0.0d0],0,Work(ipDar),1)
+         call dcopy_(ndens2,[0.0d0],0,Work(ipDal),1)
+         call dcopy_(nCMO,[0.0d0],0,Work(ipDa),1)
       Else
          ipDAL = ip_Dummy
          ipDAR = ip_Dummy
@@ -141,11 +142,11 @@ c THIS IS THE ENTIRE DENSITY FOR MULTICONF
      &            Work(ipK1-1+ipmat(js,is)),nbas(js))
       End Do
       Call DSCAL_(ndens2,-1.0d0,Work(ipK1),1)
-      call dcopy_(ndens2,0.0d0,0,Work(ipDir),1)
-      call dcopy_(ndens2,0.0d0,0,Work(ipDil),1)
+      call dcopy_(ndens2,[0.0d0],0,Work(ipDir),1)
+      call dcopy_(ndens2,[0.0d0],0,Work(ipDil),1)
       If (imethod.eq.2) Then
-      call dcopy_(ndens2,0.0d0,0,Work(ipDar),1)
-      call dcopy_(ndens2,0.0d0,0,Work(ipDal),1)
+      call dcopy_(ndens2,[0.0d0],0,Work(ipDar),1)
+      call dcopy_(ndens2,[0.0d0],0,Work(ipDal),1)
       End If
       Call Read2_ns(rdum,rdum,
      &           Work(ipFi1),Work(ipFA1),

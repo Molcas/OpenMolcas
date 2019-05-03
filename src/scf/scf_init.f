@@ -59,19 +59,19 @@
 *----------------------------------------------------------------------*
       Call Peek_iScalar('nSym',nSym)
       nAtoms = 0
-      Call ICopy(MxSym,0,0,nBas,1)
-      Call ICopy(MxSym,0,0,nOrb,1)
-      Call ICopy(MxSym*2,0,0,nOcc,1)
+      Call ICopy(MxSym,[0],0,nBas,1)
+      Call ICopy(MxSym,[0],0,nOrb,1)
+      Call ICopy(MxSym*2,[0],0,nOcc,1)
       If(iUHF.eq.0) Then
          Call Put_iArray('nIsh',nOcc(1,1),nSym)
       Else
          Call Put_iArray('nIsh',nOcc(1,1),nSym)
          Call Put_iArray('nIsh beta',nOcc(1,2),nSym)
       Endif
-      Call ICopy(MxSym,0,0,nFro,1)
+      Call ICopy(MxSym,[0],0,nFro,1)
       Call Put_iArray('nFro',nFro,nSym)
-      Call ICopy(MxSym,0,0,nFrz,1)
-      Call ICopy(MxSym,0,0,nDel,1)
+      Call ICopy(MxSym,[0],0,nFrz,1)
+      Call ICopy(MxSym,[0],0,nDel,1)
       Call qpg_iarray('nDel',Found,ndata)
       If (.not.Found) Then
          Call Put_iArray('nDel',nDel,nSym)
@@ -145,9 +145,9 @@ C     FThr   =  0.5d-6
       AccCon = '         '
       nDisc  =  2000
       nCore = 512
-      Call ICopy(MxOptm,-1,0,kDisk,1)
-      Call ICopy(MxDDsk,-1,0,iDisk,1)
-      Call ICopy(MxKeep,0,0,MapDns,1)
+      Call ICopy(MxOptm,[-1],0,kDisk,1)
+      Call ICopy(MxDDsk,[-1],0,iDisk,1)
+      Call ICopy(MxKeep,[0],0,MapDns,1)
       FrstDs = .True.
       FrstDa = .True.
       PreSch = .False.
@@ -160,7 +160,7 @@ C     FThr   =  0.5d-6
       PmTime = .False.
       EmConv = .False.
       AddFragments = .False.
-      call dcopy_(nFld,0.0d0,0,TimFld,1)
+      call dcopy_(nFld,[0.0d0],0,TimFld,1)
       NamFld( 1)='1) Input processing                         :'
       NamFld( 2)='2) Wave function optimization               :'
       NamFld( 3)='     Line Search Iterations    (QNR steps)  :'

@@ -29,7 +29,7 @@
 *----------------------------------------------------------------------*
       Integer       Lu
       Integer       icXX
-      Character*(*) Data
+      Character     Data(*)
       Integer       nData
       Integer       iDisk
       Integer       RecTyp
@@ -37,9 +37,9 @@
 * Read/write data from/to runfile.                                     *
 *----------------------------------------------------------------------*
       If(RecTyp.eq.TypInt) Then
-         Call iDaFile(Lu,icXX,Data,nData,iDisk)
+         Call c_iDaFile(Lu,icXX,Data,nData,iDisk)
       Else If(RecTyp.eq.TypDbl) Then
-         Call dDaFile(Lu,icXX,Data,nData,iDisk)
+         Call c_dDaFile(Lu,icXX,Data,nData,iDisk)
       Else If(RecTyp.eq.TypStr) Then
          Call cDaFile(Lu,icXX,Data,nData,iDisk)
       Else If(RecTyp.eq.TypLgl) Then
@@ -55,4 +55,26 @@
 *                                                                      *
 *----------------------------------------------------------------------*
       Return
+*
+*     This is to allow type punning without an explicit interface
+      Contains
+      SubRoutine c_iDaFile(Lu,iOpt,Buf,lBuf_,iDisk_)
+      Use Iso_C_Binding
+      Integer Lu, iOpt, lBuf_, iDisk_
+      Character, Target :: Buf(*)
+      Integer, Pointer :: pBuf(:)
+      Call C_F_Pointer(C_Loc(Buf(1)),pBuf,[lBuf_])
+      Call iDaFile(Lu,iOpt,pBuf,lBuf_,iDisk_)
+      Nullify(pBuf)
+      End SubRoutine c_iDaFile
+      SubRoutine c_dDaFile(Lu,iOpt,Buf,lBuf_,iDisk_)
+      Use Iso_C_Binding
+      Integer Lu, iOpt, lBuf_, iDisk_
+      Character, Target :: Buf(*)
+      Real*8, Pointer :: pBuf(:)
+      Call C_F_Pointer(C_Loc(Buf(1)),pBuf,[lBuf_])
+      Call dDaFile(Lu,iOpt,pBuf,lBuf_,iDisk_)
+      Nullify(pBuf)
+      End SubRoutine c_dDaFile
+*
       End

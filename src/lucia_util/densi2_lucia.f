@@ -77,6 +77,7 @@ c      REAL*8 INPRDD
 #include "clunit.fh"
 *. Scratch for string information
       COMMON/HIDSCR/KLOCSTR(4),KLREO(4),KLZ(4),KLZSCR
+      INTEGER SXSTSM(1)
 *. Specific input
       REAL*8 L
       DIMENSION L(*),R(*)

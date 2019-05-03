@@ -43,7 +43,7 @@
       Call Get_dscalar('PotNuc',ENUC)
 
 C Read data from the ONEINT file:
-      CALL GETCNT(NGROUP,IGROUP,NATOMS,ATLBL,COOR)
+      CALL GETCNT(NGROUP,IGROUP,NATOMS,ATLBL)
 
       NSTATE=0
 C Read (and do some checking) the standard input.
@@ -110,7 +110,7 @@ C handle different active spaces per JobIph, but this is checked elsewhere
 #endif
 
 * set orbital partitioning data
-      CALL WFNSIZES
+      CALL WFNSIZES_RASSI
 
 C Added by Ungur Liviu on 04.11.2009
 C Addition of NJOB,MSJOB and MLTPLT on RunFile.

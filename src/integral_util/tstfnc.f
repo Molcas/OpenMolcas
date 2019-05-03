@@ -34,7 +34,7 @@
 #include "print.fh"
 #include "real.fh"
       TstFnc = .True.
-      Call iCopy(nCoSet,0,0,iAcc,1)
+      Call iCopy(nCoSet,[0],0,iAcc,1)
 *
 *     Call qEnter('TstFnc')
 *

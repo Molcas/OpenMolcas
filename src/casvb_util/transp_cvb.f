@@ -22,7 +22,7 @@ c  Transposes matrix A; A and B may share memory.
       iskip=iskip+n2
       do 100 j=1,n2
 100   w(j+iskip)=a(i,j)
-      call fmove(w(i1),b,n2*n1)
+      call fmove_cvb(w(i1),b,n2*n1)
       call mfreer_cvb(i1)
       return
       end

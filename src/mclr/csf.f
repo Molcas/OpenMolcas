@@ -1013,10 +1013,10 @@ c Avoid unused argument warnings
       NCNF = 0
 
 *
-      CALL iCOPY(MXPCSM*MXPCNT,0,0,NCNATS,1)
-      CALL iCOPY(MXPCSM,0,0,NCSASM,1)
-      CALL iCOPY(MXPCSM,0,0,NDTASM,1)
-      CALL iCOPY(MXPCSM,0,0,NCNASM,1)
+      CALL iCOPY(MXPCSM*MXPCNT,[0],0,NCNATS,1)
+      CALL iCOPY(MXPCSM,[0],0,NCSASM,1)
+      CALL iCOPY(MXPCSM,[0],0,NDTASM,1)
+      CALL iCOPY(MXPCSM,[0],0,NCNASM,1)
 
 *
       IORB1F = 1
@@ -1039,7 +1039,7 @@ c Avoid unused argument warnings
         IF( NTEST .GE. 10 )
      &  WRITE(6,*) ' NOP NCL ITYPE',NOP,NCL,ITYPE
 C. first combination of double occupied orbitals
-        CALL iCOPY(NORB,0,0,IIOC,1)
+        CALL iCOPY(NORB,[0],0,IIOC,1)
         DO 10 ICL = 1, NCL
           IICL(ICL) = ICL
           IIOC(ICL) = 2
@@ -1647,7 +1647,7 @@ C
      &  WRITE(6,*) ' NOP NCL ITYPE',NOP,NCL,ITYPE
 C
 C. first combination of double occupied orbitals
-        CALL iCOPY(NORB,0,0,IIOC,1)
+        CALL iCOPY(NORB,[0],0,IIOC,1)
         DO 10 ICL = 1, NCL
           IICL(ICL) = ICL
           IIOC(ICL) = 2

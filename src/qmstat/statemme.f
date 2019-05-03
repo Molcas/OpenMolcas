@@ -253,7 +253,7 @@ c Avoid unused argument warnings
 *        construction with iCent used above, can not be used here.
           Do 203, iCentre=1,iCi
             Do 2031, i=1,nTyp
-              Call dCopy_(nSizeA,ZERO,iZERO,Work(iAcc(i)),iONE)
+              Call dCopy_(nSizeA,[ZERO],iZERO,Work(iAcc(i)),iONE)
 2031        Continue
             kaunta=0
 *--------- Loop over AO-basis pairs.

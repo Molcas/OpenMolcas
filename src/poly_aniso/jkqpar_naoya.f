@@ -37,9 +37,11 @@ c eq.40 in DoI:10.1103/PhysRevB.91.174438
         Do q1=-k1,k1
           Do k2=0,J2
             Do q2=-k2,k2
-              If( mod(k1,2).ne.1) Go To 104 ! the rank of individual spins must be even
-              If( mod(k2,2).ne.1) Go To 104 ! the rank of individual spins must be even
-              ! If the total rank is odd, Then it is a local ZFS contribution; ==> to be Done later
+!             the rank of individual spins must be even
+              If( mod(k1,2).ne.1) Go To 104
+!             the rank of individual spins must be even
+              If( mod(k2,2).ne.1) Go To 104
+!             If the total rank is odd, Then it is a local ZFS contribution; ==> to be Done later
               QMAT=0.0_wp
               ! compute the qmat:
               ! projections q and q' are with opposite sign:

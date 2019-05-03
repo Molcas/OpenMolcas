@@ -20,7 +20,7 @@
 *. Output
       DIMENSION BLK_A(*)
 *. Scratch
-      DIMENSION SEGMNT(*)
+      DIMENSION SEGMNT(*),LBL(1),IDUMMY(1)
 *
       IDISK(LUIN)=0
 *
@@ -30,21 +30,21 @@
  1000 CONTINUE
         IBLK = IBLK + 1
         IF(LBLK .GT. 0 ) THEN
-          LBL = LBLK
+          LBL(1) = LBLK
         ELSE IF ( LBLK .EQ. 0 ) THEN
           CALL IDAFILE(LUIN,2,LBL,1,IDISK(LUIN))
         ELSE IF  (LBLK .LT. 0 ) THEN
           CALL IDAFILE(LUIN,2,LBL,1,IDISK(LUIN))
           CALL IDAFILE(LUIN,2,IDUMMY,1,IDISK(LUIN))
         END IF
-        IF( LBL .GE. 0 ) THEN
+        IF( LBL(1) .GE. 0 ) THEN
           IF(LBLK .GE.0 ) THEN
-            KBLK = LBL
+            KBLK = LBL(1)
           ELSE
             KBLK = -1
           END IF
           NO_ZEROING = 1
-          CALL FRMDSC2(  SEGMNT,     LBL,    KBLK,    LUIN,  IMZERO,
+          CALL FRMDSC2(  SEGMNT,  LBL(1),    KBLK,    LUIN,  IMZERO,
      &                  IAMPACK,NO_ZEROING)
           IF(IMZERO.EQ.0) THEN
            NBLK_A = NBLK_A + 1
@@ -53,7 +53,7 @@
            BLK_A(IBLK) = 0.0D0
           END IF
         END IF
-      IF( LBL .GE. 0 .AND. LBLK .LE. 0 ) GOTO 1000
+      IF( LBL(1) .GE. 0 .AND. LBLK .LE. 0 ) GOTO 1000
       NBLK =  IBLK-1
 *
       NTEST = 0

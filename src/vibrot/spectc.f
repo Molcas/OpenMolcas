@@ -378,7 +378,7 @@ c
       Call GetMem('VecTvj','Free','Real',indexTvj,ndim)
       Call GetMem('VecT','Free','Real',indexT,ndim)
 c
-      Call Add_Info('VIBROT_SPECTC',ChkSum,1,2)
+      Call Add_Info('VIBROT_SPECTC',[ChkSum],1,2)
 *     Write(*,*) 'Spectc: ChkSum',ChkSum
       Call qExit('Spectc')
       Return

@@ -138,7 +138,7 @@
          Call Abend
       End If
 *
-      Call iCopy(lMax+1,0,0,nShell,1)
+      Call iCopy(lMax+1,[0],0,nShell,1)
 *
       Do i = 0, Min(lMax,3)
          nShell(i)=iDefaults(i,iAnr)

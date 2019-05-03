@@ -11,14 +11,14 @@
 * Copyright (C) 1986, Per E. M. Siegbahn                               *
 *               1986, Margareta R. A. Blomberg                         *
 ************************************************************************
-      SUBROUTINE DIAGC(JSY,C,S)
+      SUBROUTINE DIAGC_CPF(JSY,C,S)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "cpfmcpf.fh"
 #include "files_cpf.fh"
       DIMENSION JSY(*),C(*),S(*)
 *
-      JSYM(L)=JSUNP(JSY,L)
+      JSYM(L)=JSUNP_CPF(JSY,L)
       IADD25=IAD25S
       CALL dDAFILE(Lu_25,2,COP,nCOP,IADD25)
       IIC=0

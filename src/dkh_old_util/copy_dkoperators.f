@@ -8,22 +8,62 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      subroutine copy_dkoperators(i,iarray1,j,iarray2)
+      subroutine copy_dkoperators(i,carray1,j,carray2)
 c----------------------------------------------------------------------
       implicit real*8 (a-h,o-z)
-#include "dkhparameters.fh"
-      parameter(maxscr=int(dble(maxlength-1)/4+1))
-      dimension iarray1(*),iarray2(*)
-      dimension iscr(maxscr)
-      lwop=8/intrea()
-      nwop=(maxlength-1)/lwop+1
-      koff=(i-1)*nwop
-      loff=(j-1)*nwop
-      do k=1,nwop
-        iscr(k)=iarray1(koff+k)
-      end do
-      do k=1,nwop
-       iarray2(loff+k)=iscr(k)
-      end do
-      Return
-      End
+      character carray1(*),carray2(*)
+      call copy_dkoperators_internal(carray1,carray2)
+*
+*     This is to allow type punning without an explicit interface
+      contains
+      subroutine copy_dkoperators_internal(carray1,carray2)
+      use iso_c_binding
+      character, target :: carray1(*),carray2(*)
+      integer, pointer :: iarray1(:),iarray2(:)
+      call c_f_pointer(c_loc(carray1(1)),iarray1,[1])
+      call c_f_pointer(c_loc(carray2(1)),iarray2,[1])
+      call copy_dkoperators_i(i,iarray1,j,iarray2)
+      nullify(iarray1,iarray2)
+      end subroutine copy_dkoperators_internal
+*
+      end
+*
+      subroutine copy_dkoperators_ic(i,iarray1,j,carray2)
+c----------------------------------------------------------------------
+      implicit real*8 (a-h,o-z)
+      dimension iarray1(*)
+      character carray2(*)
+      call copy_dkoperators_ic_internal(carray2)
+*
+*     This is to allow type punning without an explicit interface
+      contains
+      subroutine copy_dkoperators_ic_internal(carray2)
+      use iso_c_binding
+      character, target :: carray2(*)
+      integer, pointer :: iarray2(:)
+      call c_f_pointer(c_loc(carray2(1)),iarray2,[1])
+      call copy_dkoperators_i(i,iarray1,j,iarray2)
+      nullify(iarray2)
+      end subroutine copy_dkoperators_ic_internal
+*
+      end
+*
+      subroutine copy_dkoperators_ci(i,carray1,j,iarray2)
+c----------------------------------------------------------------------
+      implicit real*8 (a-h,o-z)
+      character carray1(*)
+      dimension iarray2(*)
+      call copy_dkoperators_ci_internal(carray1)
+*
+*     This is to allow type punning without an explicit interface
+      contains
+      subroutine copy_dkoperators_ci_internal(carray1)
+      use iso_c_binding
+      character, target :: carray1(*)
+      integer, pointer :: iarray1(:)
+      call c_f_pointer(c_loc(carray1(1)),iarray1,[1])
+      call copy_dkoperators_i(i,iarray1,j,iarray2)
+      nullify(iarray1)
+      end subroutine copy_dkoperators_ci_internal
+*
+      end

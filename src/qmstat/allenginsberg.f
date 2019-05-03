@@ -98,8 +98,8 @@
 *
       Call GetMem('VelPart','Allo','Real',iVelP,nDim*(nDim+1)/2)
       Call GetMem('VpoPart','Allo','Real',iVpoP,nDim*(nDim+1)/2)
-      call dcopy_(nDim*(nDim+1)/2,ZERO,iZERO,Work(iVelP),iONE)
-      call dcopy_(nDim*(nDim+1)/2,ZERO,iZERO,Work(iVpoP),iONE)
+      call dcopy_(nDim*(nDim+1)/2,[ZERO],iZERO,Work(iVelP),iONE)
+      call dcopy_(nDim*(nDim+1)/2,[ZERO],iZERO,Work(iVpoP),iONE)
       kk=0
       Do 911, i=1,nDim
         Do 912, j=1,i

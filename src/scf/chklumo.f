@@ -41,6 +41,7 @@
       Character*512 FNAME
       Logical      Idem
       Real*8, Dimension(:,:), Allocatable:: OccVec, EpsVec
+      Dimension Dummy(1),iDummy(1)
 *----------------------------------------------------------------------*
 * Setup                                                                *
 *----------------------------------------------------------------------*
@@ -64,7 +65,7 @@
       If(iUHF.eq.0) Then
          If (isHDF5) Then
             Call RdVec_HDF5(fileorb_id,'OE',nSym,nBas,
-     &                      Dummy,OccVec(1,1),EpsVec(1,1),Dummy)
+     &                      Dummy,OccVec(1,1),EpsVec(1,1),iDummy)
          Else
             Call RdVec_(FNAME,Lu,'OE',iUHF,nSym,nBas,nOrb,Dummy,Dummy,
      &         OccVec(1,1),Dummy,EpsVec(1,1),Dummy,
@@ -81,9 +82,9 @@
          If(isUHF.eq.1) Then
             If (isHDF5) Then
                Call RdVec_HDF5(fileorb_id,'OEA',nSym,nBas,
-     &                         Dummy,OccVec(1,1),EpsVec(1,1),Dummy)
+     &                         Dummy,OccVec(1,1),EpsVec(1,1),iDummy)
                Call RdVec_HDF5(fileorb_id,'OEB',nSym,nBas,
-     &                         Dummy,OccVec(1,2),EpsVec(1,2),Dummy)
+     &                         Dummy,OccVec(1,2),EpsVec(1,2),iDummy)
             Else
                Call RdVec_(FNAME,Lu,'OE',iUHF,nSym,nBas,nOrb,Dummy,
      &            Dummy,OccVec(1,1),OccVec(1,2),EpsVec(1,1),EpsVec(1,2),
@@ -92,7 +93,7 @@
          Else
             If (isHDF5) Then
                Call RdVec_HDF5(fileorb_id,'OE',nSym,nBas,
-     &                         Dummy,OccVec(1,1),EpsVec(1,1),Dummy)
+     &                         Dummy,OccVec(1,1),EpsVec(1,1),iDummy)
             Else
                Call RdVec_(FNAME,Lu,'OE',0,nSym,nBas,nOrb,Dummy,Dummy,
      &            OccVec(1,1),Dummy,EpsVec(1,1),Dummy,

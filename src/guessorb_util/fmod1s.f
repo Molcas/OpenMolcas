@@ -67,7 +67,7 @@
       Real*8  sum
       Real*8  eps
       Integer Lu
-      Integer iDummy
+      Integer iDummy(7,8)
       Integer RC
       Character*80 Title
       Real*8, Dimension(:), Allocatable :: SmTr, DeTr, Esym, Edes, Smat,
@@ -156,7 +156,7 @@
       Call mma_allocate(Ovl,nTriTot)
       iSymlb=1
       Call RdOne(irc,2,'Mltpl  0',1,Ovl,iSymlb)
-      Call dCopy_(n2Full, 0.0d0,0, Smat,1)
+      Call dCopy_(n2Full, [0.0d0],0, Smat,1)
       ipTmp1=1
       ipTmp2=1
       Do iSym=1,nSym

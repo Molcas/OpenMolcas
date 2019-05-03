@@ -9,7 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SubWorkDir
-      Use NewDir
+      use subdirs, only : f_setsubdir, Sub, OldWorkDir, NewWorkDir
+      use filesystem, only : getcwd_, chdir_, mkdir_
       Implicit None
       Integer :: i,Length,iErr
       Integer, Parameter :: nFiles=21
@@ -47,10 +48,10 @@
       End Do
 
 *     Create the new directory and switch to it
-      Call f_getcwd(OldWorkDir)
+      Call getcwd_(OldWorkDir)
       NewWorkDir=Trim(OldWorkDir)//'/'//Trim(Sub)
-      Call f_mkdir(NewWorkDir)
-      Call f_chdir(NewWorkDir)
+      Call mkdir_(NewWorkDir)
+      Call chdir_(NewWorkDir)
       Call f_setsubdir(Sub)
 
 *     Get real target filenames

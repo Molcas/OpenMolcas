@@ -11,7 +11,8 @@
       Complex*16 Function trace( n, A, B )
       Implicit None
       Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
-      Integer, intent(in)          :: n ! size of the square matrices A(n,n) and B(n,n)
+!     size of the square matrices A(n,n) and B(n,n)
+      Integer, intent(in)          :: n
       Complex(kind=wp), intent(in) :: A(n,n), B(n,n)
       ! local variables
       Integer :: i, k
@@ -30,7 +31,8 @@
       Complex*16 Function trace2( n, A, B )
       Implicit None
       Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
-      Integer, intent(in)          :: n ! size of the square matrices A(n,n) and B(n,n)
+!     size of the square matrices A(n,n) and B(n,n)
+      Integer, intent(in)          :: n
       Complex(kind=wp), intent(in) :: A(n,n), B(n,n)
       ! local variables
       Integer :: i, k
@@ -48,7 +50,8 @@
       Real*8 Function real_1_trace2( n, A )
       Implicit None
       Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
-      Integer, intent(in)          :: n ! size of the square matrices A(n,n)
+!     size of the square matrices A(n,n)
+      Integer, intent(in)          :: n
       Real(kind=wp), intent(in)    :: A(n,n)
       ! local variables
       Integer :: i
@@ -64,7 +67,8 @@
       Complex*16 Function complex_1_trace2( n, A )
       Implicit None
       Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
-      Integer, intent(in)          :: n ! size of the square matrices A(n,n)
+!     size of the square matrices A(n,n)
+      Integer, intent(in)          :: n
       Complex(kind=wp), intent(in)    :: A(n,n)
 
       ! local variables
@@ -83,7 +87,8 @@
       Complex*16 Function trace_exch( n1, n2, A, B )
       Implicit None
       Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
-      Integer, intent(in)          :: n1, n2 ! size of the square matrices A(n1,n1,n2,n2) and B(n1,n1,n2,n2)
+!     size of the square matrices A(n1,n1,n2,n2) and B(n1,n1,n2,n2)
+      Integer, intent(in)          :: n1, n2
       Complex(kind=wp), intent(in) :: A(n1,n1,n2,n2), B(n1,n1,n2,n2)
       ! local variables
       Integer :: i1, i2, k1, k2
@@ -107,7 +112,8 @@
       Complex*16 Function trace_exch2( n1, n2, A, O1, O2 )
       Implicit None
       Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
-      Integer, intent(in)          :: n1, n2 ! size of the square matrices A(n1,n1,n2,n2) and B(n1,n1,n2,n2)
+!     size of the square matrices A(n1,n1,n2,n2) and B(n1,n1,n2,n2)
+      Integer, intent(in)          :: n1, n2
       Complex(kind=wp), intent(in) :: A(n1,n1,n2,n2)
       Complex(kind=wp), intent(in) :: O1(n1,n1), O2(n2,n2)
       ! local variables

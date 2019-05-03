@@ -93,7 +93,7 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
      &                  ' diagonalizing the explicit Hamiltonian'
         iDisk = IADR15(4)
         Do i = 1,lRoots
-          Call dCopy_(nConf,0.0D0,0,C,1)
+          Call dCopy_(nConf,[0.0D0],0,C,1)
           Do j = 1,nSel
             k = iSel(j)
             C(k) = ExplV(j+(i-1)*nSel)
@@ -202,7 +202,7 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
      &            ' Initial CI-vectors are obtained by',
      &            ' diagonalizing the explicit Hamiltonian'
           Do i = 1,lRoots
-            Call dCopy_(nConf,0.0d0,0,C,1)
+            Call dCopy_(nConf,[0.0d0],0,C,1)
             Do j = 1,nSel
               k = iSel(j)
               C(k) = ExplV(j+(i-1)*nSel)
@@ -244,7 +244,7 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
 *MGD simple guess for missing ones : explV
 *dangerous if linear dependence with converged states
         Do i= lRoots-hRoots+1,lRoots
-           Call dCopy_(nConf,0.0d0,0,C,1)
+           Call dCopy_(nConf,[0.0d0],0,C,1)
            Do j = 1,nSel
              k = iSel(j)
              C(k) = ExplV(j+(i-1)*nSel)

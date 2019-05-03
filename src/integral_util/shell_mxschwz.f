@@ -36,7 +36,7 @@ c----------------------------------------------------------------------
 *
 c     Call GetMem('_scf','List','Real',iDum,iDum)
 *     loop over shell pair...
-      call dcopy_(nSkal*nSkal,Zero,0,Schwz_Shl,1)
+      call dcopy_(nSkal*nSkal,[Zero],0,Schwz_Shl,1)
       nSDp1=nSD+1
       Do iS = 1, nSkal
         iShll= iSD( 0,iS)

@@ -14,6 +14,7 @@
 #include "WrkSpc.fh"
 #include "rasscf_lucia.fh"
       DIMENSION C(NCI),HC(NCI)
+      DIMENSION DUMMY(1)
 C
 C Export arguments to be used in sigma_master_cvb
 C

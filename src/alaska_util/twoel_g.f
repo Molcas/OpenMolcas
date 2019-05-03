@@ -490,8 +490,8 @@
                iy2 = iPhase(2,iDCRT(lDCRT))
                iz2 = iPhase(3,iDCRT(lDCRT))
 *
-               ipIndZ=ip_of_iWork(Data1(ip_IndZ(1,nZeta),lDCR1))-1
-               ipIndE=ip_of_iWork(Data2(ip_IndZ(1,nEta ),lDCR2))-1
+               ipIndZ=ip_of_iWork_d(Data1(ip_IndZ(1,nZeta),lDCR1))-1
+               ipIndE=ip_of_iWork_d(Data2(ip_IndZ(1,nEta ),lDCR2))-1
                nZeta_Tot=iWork(ipIndZ+nZeta+1)
                nEta_Tot =iWork(ipIndE+nEta+1)
 *

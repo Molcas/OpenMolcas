@@ -290,7 +290,7 @@ C     IndRed(jRS,1): address (without symmetry) in shell-pair of element
 C                    jRS of first reduced set.
 C     ------------------------------------------------------------------
 
-      Call iCopy(nSym*nnShl,0,0,nnBstRSh(1,1,1),1)
+      Call iCopy(nSym*nnShl,[0],0,nnBstRSh(1,1,1),1)
       Call iCopy(nSym,iiBstR(1,1),1,iRS,1)
       Do iSh_ij= 1,nShij
          iShla=iShij(1,iSh_ij)

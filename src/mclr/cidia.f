@@ -23,7 +23,7 @@
 #include "Input.fh"
 #include "Pointers.fh"
 #include "negpre.fh"
-      Integer iSM(1),LSPC(1),iSPC(1)
+      Integer iSM(1),LSPC(1),iSPC(1),IDUM(1)
 *
 *     This is just a interface to hide Jeppe from the rest of the world
 *     we dont want to let world see the work of the danish
@@ -104,7 +104,7 @@
 *     ralp=<0|(H-E) |0>
 *
       Call GetMem('TMP','ALLO','REAL',ipq,nD)
-      call dcopy_(nD,0.0d0,0,Work(ipq),1)
+      call dcopy_(nD,[0.0d0],0,Work(ipq),1)
       Call ExpHinvv(work(ipin(ipdiai)),Work(ipin(ipCI)),
      &          Work(ipQ),0.0d0,1.0d0)
       ralp=DDOT_(nD,Work(ipin(ipCI)),1,Work(ipQ),1)

@@ -34,7 +34,7 @@
       Character(128) FILENAME,MDNAME
       Character(80) Note
       Integer IndType(56)
-      Real*8 Dummy(2)
+      Real*8 Dummy(2),DUM(1)
 
       CALL QENTER('PRPCTL')
 
@@ -91,7 +91,7 @@ C This density matrix may be approximated in several ways, see DENS.
         NOCC=NOCC+NBAS(ISYM)
       END DO
       CALL GETMEM('DMAT','ALLO','REAL',LDMAT,NDMAT)
-      CALL DCOPY_(NDMAT,0.0D0,0,WORK(LDMAT),1)
+      CALL DCOPY_(NDMAT,[0.0D0],0,WORK(LDMAT),1)
       CALL GETMEM('LISTS','ALLO','INTE',LLISTS,NLSTOT)
       CALL MKLIST(iWORK(LLISTS))
       CALL DENS(IVECX,WORK(LDMAT))

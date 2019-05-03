@@ -11,7 +11,7 @@
 * Copyright (C) 1986, Per E. M. Siegbahn                               *
 *               1986, Margareta R. A. Blomberg                         *
 ************************************************************************
-      SUBROUTINE IPO(IPOA,NVIR,MUL,NSYM,KLS,IFT)
+      SUBROUTINE IPO_CPF(IPOA,NVIR,MUL,NSYM,KLS,IFT)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION IPOA(*),NVIR(*),MUL(8,8)
       NSUM=0
