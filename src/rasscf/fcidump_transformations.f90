@@ -15,7 +15,7 @@ module fcidump_transformations
   use stdalloc, only : mma_allocate, mma_deallocate
 
   use general_data, only : nActEl, nAsh, ntot, ntot1, ntot2, nBas, nSym
-  use rasscf_data, only : nAcPar, core_energy => Emy
+  use rasscf_data, only : nAcPar, core_energy => Emy, nAc
   use index_symmetry, only : one_el_idx_flatten
   implicit none
   private
@@ -71,7 +71,7 @@ contains
 
 
 !>  @brief
-!>    Fold the Fock-Matrix
+!>    Generate inactive Fock-matrix in active MO space
 !>
 !>  @author Oskar Weser
 !>
@@ -109,7 +109,7 @@ contains
         D1S_MO_blocked(nAcPar)
 
     D1S_MO_blocked(:nAcPar) = D1S_MO(:nAcPar)
-    IF (nAsh(1) /= sum(nAsh(:nSym))) call DBlock(D1S_MO_blocked)
+    IF (nAsh(1) /= nAc) call DBlock(D1S_MO_blocked)
     call get_D1A_RASSCF(CMO, D1S_MO_blocked, D1S_AO)
 ! SGFCIN has side effects and EMY/core_energy is set in this routine.
 ! Besides F_In will contain the one electron contribution afterwards.

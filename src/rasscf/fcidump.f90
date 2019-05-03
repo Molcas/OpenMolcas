@@ -58,8 +58,6 @@ contains
     call mma_deallocate(orbital_table)
   end subroutine make_fcidumps
 
-
-
   subroutine transform(iter, CMO, DIAF, D1I_AO, D1A_AO, D1S_MO, F_IN, orbital_E, folded_Fock)
     implicit none
     integer, intent(in) :: iter
