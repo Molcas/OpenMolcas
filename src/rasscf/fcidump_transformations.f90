@@ -76,42 +76,46 @@ contains
 !>  @author Oskar Weser
 !>
 !>  @details
-!>  The fock_table gets filled with the Fock matrix elements
-!>  whose absolute value is larger than cutoff.
-!>  The values are given by
-!>  \f[ < i | F | j > \f]
-!>  The index is given by i and j.
+!>  Generate the Fock-matrix for the frozen and inactive orbitals.
+!>  in the basis of the active MOs as obtained from ::SGFCIN.
+!>  Has the sideeffect of setting ::EMY to the core energy.
 !>
 !>  @param[in] CMO The MO coefficients.
-!>  @param[in] D1I_MO The inactive one-body density matrix in MO-space
-!>  @param[inout] F_In
-!>  @param[out] folded_Fock
-!>    \f[\sum_{\sigma\rho} {In}^D_{\sigma\rho} (g_{\mu\nu\sigma\rho})  \f]
-! TODO(Oskar): write LaTeX
-  subroutine fold_Fock(CMO, D1A_MO, F_In, folded_Fock)
+!>  @param[in] D1I_AO The inactive one-body density matrix in AO-space
+!>    \f[D^{\text{AO}, I} = 2 C (C^I)^\dagger \f]
+!>    See ::get_D1I_rasscf.
+!>  @param[in] D1A_AO The active one-body density matrix in AO-space
+!>    \f[ D^{\text{AO}, A} = C^A D^A (C^A)^\dagger \f]
+!>    See ::get_D1A_rasscf.
+!>  @param[in] D1S_MO The active spin density matrix in MO-space
+!>    \f[ D^A_\alpha - D^A_\beta \f]
+!>  @param[inout] FI The inactive Fock matrix in AO-space
+!>    \f[\sum_{\sigma\rho} D^I_{\sigma\rho}(g_{\mu\nu\sigma\rho} - \frac{1}{2} g_{\mu\sigma\rho\nu})\f]
+!>    In output FI contains also the core energy added to
+!>    the diagonal elements.
+!>    \f[\sum_{\sigma\rho} D^I_{\sigma\rho}(g_{\mu\nu\sigma\rho} - \frac{1}{2} g_{\mu\sigma\rho\nu}) + \frac{E^{(0)}}{n_el} \delta_{\mu\nu} \f]
+!>  @param[out] folded_Fock The inactive Fock matrix
+!>    in the basis of the active MOs as obtained from ::SGFCIN.
+  subroutine fold_Fock(CMO, D1I_AO, D1A_AO, D1S_MO, F_In, folded_Fock)
     implicit none
-    real(8), intent(in) :: CMO(nTot2), D1A_MO(nTot2)
+    real(8), intent(in) :: CMO(nTot2), D1A_AO(nTot2), D1I_AO(nTot2), D1S_MO(nAcPar)
     real(8), intent(inout) :: F_In(nTot1)
-    real(8), intent(out) :: folded_Fock(:)
+    real(8), intent(out) :: folded_Fock(nAcPar)
     integer :: i, n
-    real(8) :: core_E_per_act_el
-    real(8), allocatable :: &
-! active one-body density matrix in AO-space
-        D1A_AO(:),&
-! inactive one-body density matrix in AO-space
-        D1I_AO(:)
+    real(8) :: core_E_per_act_el,&
+! one-body spin density matrix in AO-space
+        D1S_AO(nTot2),&
+! blocked one-body spin density matrix in MO-space
+        D1S_MO_blocked(nAcPar)
 
-    call mma_allocate(D1A_AO, nTot2)
-    call get_D1A_RASSCF(CMO, D1A_MO, D1A_AO)
-    call mma_allocate(D1I_AO, ntot2)
-    call get_D1A_RASSCF(CMO, D1I_AO)
+    D1S_MO_blocked(:nAcPar) = D1S_MO(:nAcPar)
+    IF (nAsh(1) /= sum(nAsh(:nSym))) call DBlock(D1S_MO_blocked)
+    call get_D1A_RASSCF(CMO, D1S_MO_blocked, D1S_AO)
 ! SGFCIN has side effects and EMY/core_energy is set in this routine.
 ! Besides F_In will contain the one electron contribution afterwards.
-    call SGFCIN(CMO, folded_fock, F_In, D1I_AO, D1A_AO, D1A_AO)
-    call mma_deallocate(D1A_AO)
-    call mma_deallocate(D1I_AO)
+    call SGFCIN(CMO, folded_fock, F_In, D1I_AO, D1A_AO, D1S_AO)
 
-! Remove the one electron contribution in the diagonal elements.
+! Remove the core energy in the diagonal elements.
     if (nActEl /= 0) then
       core_E_per_act_el = core_energy / dble(nActEl)
     else

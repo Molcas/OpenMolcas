@@ -62,12 +62,12 @@
 !>  @paramin[in]  D1I_MO Inactive 1-dens matrix
 !>  @paramin[in]  TUVX Active 2-el integrals
 !>  @paramin[inout] F_In Fock matrix from inactive density
+!>  @paramin[inout] D1S_MO Average spin 1-dens matrix
 !>  @paramin[out] DMAT Average 1 body density matrix
-!>  @paramin[out] DSPN Average spin 1-dens matrix
 !>  @paramin[out] PSMAT Average symm. 2-dens matrix
 !>  @paramin[out] PAMAT Average antisymm. 2-dens matrix
-      subroutine FCIQMC_Ctl(CMO, DIAF, D1I_MO, TUVX, F_IN,
-     &                      DMAT, DSPN,PSMAT,PAMAT)
+      subroutine FCIQMC_Ctl(CMO, DIAF, D1I_AO, D1A_AO, TUVX, F_IN,
+     &                      D1S_MO, DMAT, PSMAT, PAMAT)
       implicit none
 #include "output_ras.fh"
 #include "rctfld.fh"
@@ -79,16 +79,17 @@
       integer(kind=4) :: ierror
 #endif
       real(kind=8), intent(in) ::
-     &    CMO(nTot2), DIAF(nTot), TUVX(nAcpr2), D1I_MO(nTot2)
-      real(kind=8), intent(inout) :: F_In(nTot1)
-      real(kind=8), intent(out) :: DMAT(nAcpar), DSPN(nAcpar),
+     &    CMO(nTot2), DIAF(nTot),
+     &    D1I_AO(nTot2), D1A_AO(nTot2), TUVX(nAcpr2)
+      real(kind=8), intent(inout) :: F_In(nTot1), D1S_MO(nAcPar)
+      real(kind=8), intent(out) :: DMAT(nAcpar),
      &    PSMAT(nAcpr2), PAMAT(nAcpr2)
       logical :: Do_ESPF, WaitForNECI
       real(kind=8) :: NECIen, Scal
       integer :: LuNewC, iPRLEV, iOff, iSym, iBas, i, j,
      &    jRoot, iDisk, jDisk, kRoot, permutation(sum(nAsh(:nSym)))
-      real(kind=8), allocatable :: DTMP(:), Ptmp(:), PAtmp(:), DStmp(:),
-     &    orbital_E(:), folded_Fock(:)
+      real(kind=8) :: orbital_E(nTot), folded_Fock(nAcPar)
+      real(kind=8), allocatable :: DTMP(:), Ptmp(:), PAtmp(:), DStmp(:)
       integer :: err, L
       character(1024) :: h5fcidmp, fcidmp, fcinp, newcycle, WorkDir
 
@@ -171,11 +172,9 @@ c      end if
           permutation = get_P_GAS(nGSSH)
       end select
 
-      call mma_allocate(orbital_E, size(DIAF))
-      call mma_allocate(folded_Fock, nAcPar)
 ! This call is not side effect free and sets EMY
-      call transform(iter, CMO, DIAF, D1I_MO, F_IN,
-     &                orbital_E, folded_Fock)
+      call transform(iter, CMO, DIAF, D1I_AO, D1A_AO, D1S_MO,
+     &      F_IN, orbital_E, folded_Fock)
 
       if (ReOrFlag /= 0) then
         call make_fcidumps(orbital_E, folded_Fock, TUVX, EMY,
@@ -183,8 +182,6 @@ c      end if
       else
         call make_fcidumps(orbital_E, folded_Fock, TUVX, EMY)
       end if
-      call mma_deallocate(orbital_E)
-      call mma_deallocate(folded_Fock)
 **************************************************************************************
 *****************              Produce an INPUT file for NECI       ******************
 **************************************************************************************
@@ -270,7 +267,7 @@ c      end if
           if (iRoot(kRoot) == jRoot) Scal = Weight(kRoot)
         end do
         DMAT(:) = SCAL * DTMP(:)
-        DSPN(:) = SCAL * PSMAT(:)
+        D1S_MO(:) = SCAL * PSMAT(:)
         PSMAT(:) = SCAL * Ptmp(:)
         PAMAT(:) = SCAL * PAtmp(:)
 ! Put it on the RUNFILE
@@ -295,7 +292,7 @@ c      end if
         call TRIPRT('Averaged one-body density matrix, DMAT',
      &              ' ',DMAT,NAC)
         call TRIPRT('Averaged one-body spin density matrix, DS',
-     &              ' ',DSPN,NAC)
+     &              ' ',D1S_MO,NAC)
         call TRIPRT('Averaged two-body density matrix, P',
      &              ' ',PSMAT,NACPAR)
         call TRIPRT('Averaged antisymmetric two-body density matrix,PA',

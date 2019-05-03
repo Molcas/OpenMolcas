@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2017, Giovanni Li Manni                                *
+* Copyright (C) 2016,2017, Giovanni Li Manni                                *
 *               2019, Oskar Weser                                      *
 ************************************************************************
 

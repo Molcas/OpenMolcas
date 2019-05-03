@@ -41,10 +41,9 @@
 !>  @param[in] D1A The active one-body density matrix in AO-space
 !>    \f[ D^{\text{AO}, A} = C^A D^A (C^A)^\dagger \f]
 !>    See ::get_D1A_rasscf.
-!>  @param[in] D1S
+!>  @param[in] D1S The active spin density matrix in AO-space
+!>    \f[ D^{\text{AO}, A}_S = C^A (D^A_\alpha - D^A_\beta) (C^A)^\dagger \f]
       Subroutine SGFCIN(CMO, F, FI, D1I, D1A, D1S)
-! TODO: @Ignacio, @Giovanni: What is D1S?
-! TODO: @Ignacio: Is there infrastructure for citing books set up for doxygen?
 #ifdef _DMRG_
 !     module dependencies
       use qcmaquis_interface_cfg
