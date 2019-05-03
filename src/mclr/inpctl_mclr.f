@@ -64,7 +64,6 @@
 
       ldisk  =ipopen(0,.True.)
 *
-      write(*,*) "iMethod:",iMethod,iCASSCF
       If (iMethod.eq.iCASSCF) Then
          If (TimeDep) Then
             Call RdJobIph_td

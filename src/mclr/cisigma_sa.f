@@ -44,11 +44,7 @@
 *
 *      Two electron integrals
 *      symmetric in perticle one and two
-       if (ipint1.eq.ipfimo) then
-        Call icopy(nsym,nbas,1,nbb,1)
-       Else
-         Call icopy(nsym,norb,1,nbb,1)
-       End if
+*
 *
        KINT2=ipint2s
 *
