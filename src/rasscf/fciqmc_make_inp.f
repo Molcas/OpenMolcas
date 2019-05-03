@@ -45,7 +45,7 @@
       contains
 
 !>  @brief
-!>    generate a standardized Input for NECI
+!>    Generate a standardized Input for NECI
 !>
 !>  @author
 !>    G. Li Manni, Oskar Weser
