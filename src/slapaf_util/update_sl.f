@@ -97,6 +97,10 @@
      &          HUpMet*6
 *
       Logical Kriging_Hessian
+#define _TEST_KRIGING_
+#ifdef _TEST_KRIGING_
+      Real*8, Allocatable:: dq(:)
+#endif
 *
       iRout=153
       iPrint=nPrint(iRout)
@@ -173,7 +177,7 @@ c Avoid unused argument warnings
 *
       Else
 *        ------- AI loop begin here
-*define _DEBUG_
+#define _DEBUG_
          If (Kriging .AND. iter.ge.nspAI) then
             Kriging_Hessian =.TRUE.
             dEner = Energy(iter)-Energy(iter-1)
@@ -198,6 +202,17 @@ c Avoid unused argument warnings
      &                            Grad(1,iFirst),
      &                            Energy(iFirst))
             Call DScal_(nInter*nRaw,-1.0D0,Grad(1,iFirst),1)
+#ifdef _TEST_KRIGING_
+            Call mma_Allocate(dq,nInter,Label='dq')
+            Do i = iFirst, iFirst+nRaw-1
+               Call Energy_Kriging(qInt(1,i),E_test,nInter)
+               Write (6,*) 'Energy=',E_test
+               Call Gradient_Kriging(qInt(1,i),dq,nInter)
+               Call DScal_(nInter,-1.0D0,dq,1)
+               Call RecPrt('dq',' ',dq,1,nInter)
+            End Do
+            Call mma_DeAllocate(dq)
+#endif
 *
             do while ((iterK.lt.miAI.and.Abs(dEner).ge.meAI).and.
      &                dqdq.lt.qBeta**2)
@@ -240,8 +255,8 @@ c Avoid unused argument warnings
      &                 -qInt(iInter,iFirst+nRaw-1))**2
                End Do
                If (iterK.eq.0.and.Step_trunc.eq.'*') dqdq=qBeta**2
-*              Write (6,*) 'dqdq=',dqdq
-*              Write (6,*) 'qBeta**2=',qBeta**2
+               Write (6,*) 'dqdq=',dqdq
+               Write (6,*) 'qBeta**2=',qBeta**2
                If (iterK.gt.0.and.dqdq.gt.qBeta**2) Then
 *
                   sh2=0.0D0
@@ -277,7 +292,7 @@ c Avoid unused argument warnings
 *
                   dqdq=qBeta**2
                   Step_trunc='*'
-*                 Write (6,*) ' Step has been scaled'
+                  Write (6,*) ' Step has been scaled'
                End If
 
 *              Compute the energy and gradient according to the
@@ -329,7 +344,6 @@ c Avoid unused argument warnings
      &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,dMass,
      &                   HrmFrq_Show,CnstWght,Curvilinear,Degen,
      &                   Kriging_Hessian,qBeta)
-            Write (6,*) 'qBeta=',qBeta
          End If
       End If
 *
@@ -482,21 +496,28 @@ c Avoid unused argument warnings
          Call mma_Allocate(dqp,nInter,Label='dqp')
          Call mma_Allocate(dqm,nInter,Label='dqm')
          Scale=0.01D0
+         Call RecPrt('qInt',' ',qInt(1,kIter),nInter,1)
+         Call RecPrt('Grad',' ',Grad(1,kIter),nInter,1)
          Do iInter = 1, nInter
-            qInt_Save= qInt(1,kIter)
+            qInt_Save= qInt(iInter,kIter)
             Delta = Abs(qInt_Save)*Scale
+            Write (6,*) 'iInter,Delta=',iInter,Delta
 *
-            qInt(1,kIter)=qInt_Save+Delta
             Call Gradient_Kriging(qInt(1,kIter),dqp,nInter)
-            qInt(1,kIter)=qInt_Save-Delta
+            Call RecPrt('dq0',' ',dqp,nInter,1)
+            qInt(iInter,kIter)=qInt_Save+Delta
+            Call Gradient_Kriging(qInt(1,kIter),dqp,nInter)
+            Call RecPrt('dqp',' ',dqp,nInter,1)
+            qInt(iInter,kIter)=qInt_Save-Delta
             Call Gradient_Kriging(qInt(1,kIter),dqm,nInter)
+            Call RecPrt('dqm',' ',dqm,nInter,1)
 *
             Do jInter = 1, nInter
                Hessian(iInter,jInter) = Hessian(iInter,jInter)
      &                + (dqp(jInter)-dqm(jInter))/(2.0D0*Delta)
             End Do
 *
-            qInt(1,kIter)=qInt_Save
+            qInt(iInter,kIter)=qInt_Save
          End Do
          Call mma_Deallocate(dqp)
          Call mma_Deallocate(dqm)
