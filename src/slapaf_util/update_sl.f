@@ -173,9 +173,8 @@ c Avoid unused argument warnings
 *
       Else
 *        ------- AI loop begin here
-         Write (6,*)'iter,nspAI=',iter,nspAI
+*define _DEBUG_
          If (Kriging .AND. iter.ge.nspAI) then
-            Write (6,*) 'Kriging=',Kriging
             Kriging_Hessian =.TRUE.
             dEner = Energy(iter)-Energy(iter-1)
             iterAI=iter
@@ -185,11 +184,13 @@ c Avoid unused argument warnings
             iterK=0
             dqdq=0.0D0
             qBeta=Beta
+#ifdef _DEBUG_
             Write (6,*) 'iFirst,nRaw=',iFirst,nRaw
             Call RecPrt('qInt(0)',  ' ',qInt(1,iFirst),nInter,nRaw)
             Call RecPrt('Energy(0)',' ',Energy(iFirst),1,nRaw)
             Call RecPrt('Grad(0)',  ' ',Grad(1,iFirst),nInter,nRaw)
             Call RecPrt('Shift',  ' ',Shift(1,iFirst),nInter,nRaw)
+#endif
 *
             Call DScal_(nInter*nRaw,-1.0D0,Grad(1,iFirst),1)
             Call Start_Kriging(nRaw,nInter,
@@ -201,8 +202,10 @@ c Avoid unused argument warnings
             do while ((iterK.lt.miAI.and.Abs(dEner).ge.meAI).and.
      &                dqdq.lt.qBeta**2)
                kIter_=iterAI
+#ifdef _DEBUG_
                Write (6,*)
                Write (6,*) 'Do iterAI: ',iterAI
+#endif
                Call Update_sl_(iterAI,iInt,nFix,nInter,
      &                qInt,Shift,Grad,
      &                iOptC,Beta,Lbl,GNrm,Energy,
@@ -290,9 +293,11 @@ c Avoid unused argument warnings
                iterAI = iterAI + 1
                dEner = Energy(iterAI) - Energy(iterAI-1)
 *
+#ifdef _DEBUG_
                Call RecPrt('qInt(x):',' ',qInt,nInter,iterAI)
                Call RecPrt('Ener(x):',' ',Energy,1,iterAI)
                Call RecPrt('Grad(x):',' ',Grad,nInter,iterAI)
+#endif
             End Do  ! Do While
 *
 *           Save the optimized kriging coordinates as the coordinates
@@ -303,10 +308,12 @@ c Avoid unused argument warnings
             Call DaXpY_(nInter,-1.0D0,qInt(1,iter),1,Shift(1,iter),1)
             Call MxLbls(GrdMax,StpMax,GrdLbl,StpLbl,nInter,
      &                  Grad(1,iter),Shift(1,iter),Lbl)
+#ifdef _DEBUG_
             Call RecPrt('qInt(3):',' ',qInt,nInter,iter+1)
             Call RecPrt('Shift(3):',' ',Shift,nInter,iter)
+#endif
 *
-            write(6,*) 'finished do iter',iterAI
+*           write(6,*) 'finished do iter',iterAI
 *           De allocating memory used by Kriging
             Call Finish_Kriging()
 *        ------- AI loop ends here

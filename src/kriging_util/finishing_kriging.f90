@@ -14,7 +14,7 @@
       Subroutine Finish_Kriging()
         use globvar
 !
-        write(6,*) 'Deallocating all kriging variables'
+!       write(6,*) 'Deallocating all kriging variables'
         deallocate (x,y,dy,nx,l)
         deallocate (Rones)
         deallocate (full_R,rl,dl,mat,Iden)
