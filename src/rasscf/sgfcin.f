@@ -34,7 +34,7 @@
 !>    \f[\sum_{\sigma\rho} D^I_{\sigma\rho}(g_{\mu\nu\sigma\rho} - \frac{1}{2} g_{\mu\sigma\rho\nu})\f]
 !>    In output FI contains also the core energy added to
 !>    the diagonal elements.
-!>    \f[\sum_{\sigma\rho} D^I_{\sigma\rho}(g_{\mu\nu\sigma\rho} - \frac{1}{2} g_{\mu\sigma\rho\nu}) + \frac{E^(0)}{n_el} \delta_{\mu\nu} \f]
+!>    \f[\sum_{\sigma\rho} D^I_{\sigma\rho}(g_{\mu\nu\sigma\rho} - \frac{1}{2} g_{\mu\sigma\rho\nu}) + \frac{E^{(0)}}{n_el} \delta_{\mu\nu} \f]
 !>  @param[in] D1I The inactive one-body density matrix in AO-space
 !>    \f[D^{\text{AO}, I} = 2 C (C^I)^\dagger \f]
 !>    See ::get_D1I_rasscf.
@@ -42,7 +42,7 @@
 !>    \f[ D^{\text{AO}, A} = C^A D^A (C^A)^\dagger \f]
 !>    See ::get_D1A_rasscf.
 !>  @param[in] D1S
-      Subroutine SGFCIN(CMO,F,FI,D1I,D1A,D1S)
+      Subroutine SGFCIN(CMO, F, FI, D1I, D1A, D1S)
 ! TODO: @Ignacio, @Giovanni: What is D1S?
 ! TODO: @Ignacio: Is there infrastructure for citing books set up for doxygen?
 #ifdef _DMRG_
