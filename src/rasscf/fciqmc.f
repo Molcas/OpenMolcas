@@ -107,10 +107,10 @@
         write(lf,*) ' lroots,nroots   =', lroots,nroots
         write(lf,*)
       end if
-* set up flag 'IFCAS' for GAS option, which is set up in gugatcl originally.
-* IFCAS = 0: This is a CAS calculation
-* IFCAS = 1: This is a RAS calculation
-* IFCAS = 2: This is a GAS calculation
+! set up flag 'IFCAS' for GAS option, which is set up in gugatcl originally.
+! IFCAS = 0: This is a CAS calculation
+! IFCAS = 1: This is a RAS calculation
+! IFCAS = 2: This is a GAS calculation
       if(iprlev.ge.debug) then
         write(lf,*)
         write(lf,*) ' CMO in FCIQMC_CTL'
@@ -129,29 +129,18 @@
         end do
       end if
 
-* SOME DIRTY SETUPS
+! SOME DIRTY SETUPS
       S = 0.5D0 * DBLE(ISPIN-1)
-**************************************************************************************
-**************** FCIQMC not interfaced to State Average CAS         ******************
-**************************************************************************************
+
+! FCIQMC not interfaced to State Average CAS
       if (lroots > 1) then
         write(6,*)' FCIQMC does not support State Average yet!'
         write(6,*)' See you later ;)'
         call QTrace()
         call Abend()
       end if
-**************************************************************************************
-**************** FCIQMC not interfaced to RAS or GAS for now        ******************
-**************************************************************************************
-c      IF(IFCAS.ge.1) then
-c       write(6,*)' FCIQMC does not support RAS or GAS wf yet!'
-c       write(6,*)' See you later ;)'
-c       call QTrace()
-c       call Abend()
-c      end if
-**************************************************************************************
-****************             Reaction Field calculation             ******************
-**************************************************************************************
+
+! Reaction Field calculation
       call DecideOnESPF(Do_ESPF)
       if ( lRf .or. KSDFT /= 'SCF' .or. Do_ESPF) then
         write(6,*) ' FCIQMC does not support Reaction Field yet!'
@@ -159,9 +148,8 @@ c      end if
         call QTrace()
         call Abend()
       end if
-**************************************************************************************
-*****************              Produce a working FCIDUMP file       ******************
-**************************************************************************************
+
+! Produce a working FCIDUMP file
       select case (ReOrFlag)
         case (2:)
           permutation = get_P_inp(ReOrInp)
@@ -180,14 +168,11 @@ c      end if
       else
         call make_fcidumps(orbital_E, folded_Fock, TUVX, EMY)
       end if
-**************************************************************************************
-*****************              Produce an INPUT file for NECI       ******************
-**************************************************************************************
-      call make_inp()
-**************************************************************************************
-*****************      Run NECI                                     ******************
-**************************************************************************************
-* In case we wish to dump the FCIDUMP file only we do not need to wait for NECI run.
+
+! Produce an INPUT file for NECI
+       call make_inp()
+
+! Run NECI
       call Timing(Rado_1, Swatch, Swatch, Swatch)
 #ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
@@ -231,17 +216,16 @@ c      end if
         write(6,*) NECIen
         close (LuNewC, status='delete')
       end if
-* NECIen so far is only the energy for the GS. Next step it will be an array containing energies
-* for all the optimized states.
+! NECIen so far is only the energy for the GS.
+! Next step it will be an array containing energies for all the optimized states.
       do jRoot = 1, lRoots
         ENER(jRoot, ITER) = NECIen
       end do
-**************************************************************************************
-*****************        Generate density matrices for Molcas       ******************
-**************************************************************************************
-* Neci density matrices are stored in Files TwoRDM_**** (in spacial orbital basis).
-* I will be reading them from those formatted files for the time being.
-* Next it will be nice if NECI prints them out already in Molcas format.
+
+! Generate density matrices for Molcas
+!   Neci density matrices are stored in Files TwoRDM_**** (in spacial orbital basis).
+!   I will be reading them from those formatted files for the time being.
+!   Next it will be nice if NECI prints them out already in Molcas format.
 ! ONE-BODY DENSITY
       call mma_allocate(DTMP, nAcPar, label='Dtmp ')
 ! ONE-BODY SPIN DENSITY
@@ -258,7 +242,7 @@ c      end if
 #ifdef _MOLCAS_MPP_
       if (Is_Real_Par()) call MPI_Barrier(MPI_COMM_WORLD, ierror)
 #endif
-* COMPUTE AVERAGE DENSITY MATRICES
+! COMPUTE AVERAGE DENSITY MATRICES
       do jRoot = 1, lRoots
         Scal = 0.0d0
         do kRoot = 1, nRoots
@@ -285,7 +269,7 @@ c      end if
       call mma_deallocate(Ptmp)
       call mma_deallocate(PAtmp)
 
-* print matrices
+! print matrices
       if (IPRLEV >= DEBUG) then
         call TRIPRT('Averaged one-body density matrix, DMAT',
      &              ' ',DMAT,NAC)
@@ -296,13 +280,11 @@ c      end if
         call TRIPRT('Averaged antisymmetric two-body density matrix,PA',
      &              ' ',PAMAT,NACPAR)
       end if
-c
+
       if (nAsh(1) /= nac) call dblock(dmat)
       call Timing(Rado_2, Swatch, Swatch, Swatch)
       Rado_2 = Rado_2 - Rado_1
       Rado_3 = Rado_3 + Rado_2
-**************************************************************
-**************************************************************
 
       call qExit('FCIQMC_CTL')
 
