@@ -88,9 +88,9 @@ contains
 !>  @param[out] folded_Fock
 !>    \f[\sum_{\sigma\rho} {In}^D_{\sigma\rho} (g_{\mu\nu\sigma\rho})  \f]
 ! TODO(Oskar): write LaTeX
-  subroutine fold_Fock(CMO, D1I_MO, F_In, folded_Fock)
+  subroutine fold_Fock(CMO, D1A_MO, F_In, folded_Fock)
     implicit none
-    real(8), intent(in) :: CMO(nTot2), D1I_MO(nTot2)
+    real(8), intent(in) :: CMO(nTot2), D1A_MO(nTot2)
     real(8), intent(inout) :: F_In(nTot1)
     real(8), intent(out) :: folded_Fock(:)
     integer :: i, n
@@ -98,28 +98,18 @@ contains
     real(8), allocatable :: &
 ! active one-body density matrix in AO-space
         D1A_AO(:),&
-! active one-body density matrix in MO-space
-        D1A_MO(:),&
-        D1I(:)
+! inactive one-body density matrix in AO-space
+        D1I_AO(:)
 
     call mma_allocate(D1A_AO, nTot2)
-    call mma_allocate(D1A_MO, nTot2)
-    call mma_allocate(D1I, ntot2)
-!    D1A_MO(:) = 10.0d0
-!    D1A_AO(:) = 10.0d0
-!    call get_D1A_RASSCF(CMO, D1A_MO, D1A_AO)
-! The D1* matrices have no effect on the result
-    D1A_MO(:) = 10.0d0
-    D1A_AO(:) = 10.0d0
-    D1I(:) = 10.0d0
+    call get_D1A_RASSCF(CMO, D1A_MO, D1A_AO)
+    call mma_allocate(D1I_AO, ntot2)
+    call get_D1A_RASSCF(CMO, D1I_AO)
 ! SGFCIN has side effects and EMY/core_energy is set in this routine.
-! Besides F_In will contain the one electron contribution afterwards,
-! for this reason it is copied.
-
-! SGFCIN has to be called once with F_In
-    call SGFCIN(CMO, folded_fock, F_In, D1I, D1A_MO, D1A_AO)
-    call mma_deallocate(D1A_MO)
+! Besides F_In will contain the one electron contribution afterwards.
+    call SGFCIN(CMO, folded_fock, F_In, D1I_AO, D1A_AO, D1A_AO)
     call mma_deallocate(D1A_AO)
+    call mma_deallocate(D1I_AO)
 
 ! Remove the one electron contribution in the diagonal elements.
     if (nActEl /= 0) then
