@@ -23,7 +23,7 @@
 !>  Compute also the core energy and write to global variable EMY.
 !>  Finally, transform the generated Fock-matrix
 !>  into the basis of the active orbitals.
-!>  Look into chapters 10.8.3 and 10.8.4 of the purple book.
+!>  Look into chapters 10.8.3 and 10.8.4 of \cite purple_book.
 !>  The one body density matrices are required for e.g. reaction field
 !>  or DFT calculations. In this case they are used to create a modified
 !>  Fock Matrix.
