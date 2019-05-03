@@ -231,8 +231,8 @@ c Avoid unused argument warnings
 *              Write (6,*) 'iterAI+1=',iterAI+1
 *              Write (6,*) 'iFirst+nRaw-1=',iFirst+nRaw-1
                Do iInter=1,nInter
-                  Write (6,*) qInt(iInter,iterAI+1)
-     &                 ,qInt(iInter,iFirst+nRaw-1)
+*                 Write (6,*) qInt(iInter,iterAI+1)
+*    &                 ,qInt(iInter,iFirst+nRaw-1)
                   dqdq=(qInt(iInter,iterAI+1)
      &                 -qInt(iInter,iFirst+nRaw-1))**2
                End Do
@@ -291,11 +291,8 @@ c Avoid unused argument warnings
                dEner = Energy(iterAI) - Energy(iterAI-1)
 *
                Call RecPrt('qInt(x):',' ',qInt,nInter,iterAI)
-               write (6,*) 'qInt(xx):',qInt(1:nInter,1:iterAI)
                Call RecPrt('Ener(x):',' ',Energy,1,iterAI)
-               write (6,*) 'Energy(xx):',Energy(1:iterAI)
                Call RecPrt('Grad(x):',' ',Grad,nInter,iterAI)
-               write (6,*) 'Grad(xx):',Grad(1:nInter,1:iterAI)
             End Do  ! Do While
 *
 *           Save the optimized kriging coordinates as the coordinates
@@ -489,7 +486,7 @@ c Avoid unused argument warnings
 *
             Do jInter = 1, nInter
                Hessian(iInter,jInter) = Hessian(iInter,jInter)
-     &                + (dqp(jInter)-dqm(jInter))/(4.0D0*Delta)
+     &                + (dqp(jInter)-dqm(jInter))/(2.0D0*Delta)
             End Do
 *
             qInt(1,kIter)=qInt_Save
