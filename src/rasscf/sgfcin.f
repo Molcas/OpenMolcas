@@ -19,24 +19,32 @@
 !>    Markus P. Fuelscher
 !>
 !>  @details
-!>    Generate the Fock-matrix for the frozen and inactive orbitals.
-!>    Compute also the core energy and write to global variable EMY.
-!>    Finally, transform the generated Fock-matrix
-!>    into the basis of the active orbitals.
-!>    Look into chapters 10.8.3 and 10.8.4 of the purple book.
+!>  Generate the Fock-matrix for the frozen and inactive orbitals.
+!>  Compute also the core energy and write to global variable EMY.
+!>  Finally, transform the generated Fock-matrix
+!>  into the basis of the active orbitals.
+!>  Look into chapters 10.8.3 and 10.8.4 of the purple book.
+!>  The one body density matrices are required for e.g. reaction field
+!>  or DFT calculations. In this case they are used to create a modified
+!>  Fock Matrix.
 !>
 !>  @param[in] CMO The MO-coefficients
-!>  @param[out] The inactive Fock matrix in the basis of the active MO
-!>  @param[inout] FI The
-!>   \f[ sum_{\sigma\rho}{{In}^D_{\sigma\rho}(g_{\mu\nu\sigma\rho} - half*g_{\mu\sigma\rho\nu})} \f]
-!>    In output FI contains also the one-electron contribution
+!>  @param[out] F The inactive Fock matrix in the basis of the active MO
+!>  @param[inout] FI The inactive Fock matrix in AO-space
+!>    \f[\sum_{\sigma\rho} D^I_{\sigma\rho}(g_{\mu\nu\sigma\rho} - \frac{1}{2} g_{\mu\sigma\rho\nu})\f]
+!>    In output FI contains also the core energy added to
+!>    the diagonal elements.
+!>    \f[\sum_{\sigma\rho} D^I_{\sigma\rho}(g_{\mu\nu\sigma\rho} - \frac{1}{2} g_{\mu\sigma\rho\nu}) + \frac{E^(0)}{n_el} \delta_{\mu\nu} \f]
 !>  @param[in] D1I The inactive one-body density matrix in AO-space
+!>    \f[D^{\text{AO}, I} = 2 C (C^I)^\dagger \f]
+!>    See ::get_D1I_rasscf.
 !>  @param[in] D1A The active one-body density matrix in AO-space
+!>    \f[ D^{\text{AO}, A} = C^A D^A (C^A)^\dagger \f]
+!>    See ::get_D1A_rasscf.
 !>  @param[in] D1S
-! TODO: @Ignacio: What is D1S?
-! TODO: @Ignacio: Is there infrastructure for citing books set up for
-!                     doxygen?
       Subroutine SGFCIN(CMO,F,FI,D1I,D1A,D1S)
+! TODO: @Ignacio, @Giovanni: What is D1S?
+! TODO: @Ignacio: Is there infrastructure for citing books set up for doxygen?
 #ifdef _DMRG_
 !     module dependencies
       use qcmaquis_interface_cfg

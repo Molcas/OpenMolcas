@@ -18,8 +18,11 @@
 !>    Markus P. Fuelscher
 !>
 !>  @details
-!>    The basic equation is:
-!>    \f[ D^{\text{AO}} = C^T D C \f]
+!>  The underlying equation is the basis transformatin:
+!>  \f[ D^{\text{AO}} = C D C^\dagger \f]
+!>  For the aktive orbitals this becomes:
+!>  \f[ D^{\text{AO}, A} = C^A D^A (C^A)^\dagger \f]
+!>  Where (\f$ C^A, D^A \f$) are the coefficients and densities of the active MOs.
 !>
 !>  @param[in] CMO The MO-coefficients
 !>  @param[in] D1A_MO The active one-body density matrix in MO-space

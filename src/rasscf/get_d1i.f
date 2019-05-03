@@ -18,10 +18,11 @@
 !>  Markus P. Fuelscher
 !>
 !>  @details
-!>  The basic equation is:
-!>  \f[ D^{\text{AO}} = C^T D C \f]
+!>  The underlying equation is the basis transformatin:
+!>  \f[ D^{\text{AO}} = C D C^\dagger \f]
 !>  For inactive orbitals it simplifies to:
-!>  \f[D^{\text{AO}, I} = C^T D^{\text{I}} C = 2 C^T \mathbf{1} C = 2 C^T C \f]
+!>  \f[D^{\text{AO}, I} = C^I D^I (C^I)^\dagger = 2 C^I \mathbf{1} (C^I)^\dagger = 2 C (C^I)^\dagger \f]
+!>  Where (\f$ C^I, D^I \f$) are the coefficients and densities of the inactive MOs.
 !>
 !>  @param[in] CMO The MO-coefficients
 !>  @param[out] D1I_AO The inactive one-body density matrix in AO-space
