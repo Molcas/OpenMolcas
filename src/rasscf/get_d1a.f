@@ -11,22 +11,22 @@
 * Copyright (C) 1996, Markus P. Fuelscher                              *
 ************************************************************************
 
-!>  @brief
-!>    Transform the active one-body density from MO to AO basis
-!>
-!>  @author
-!>    Markus P. Fuelscher
-!>
-!>  @details
-!>  The underlying equation is the basis transformatin:
-!>  \f[ D^{\text{AO}} = C D C^\dagger \f]
-!>  For the aktive orbitals this becomes:
-!>  \f[ D^{\text{AO}, A} = C^A D^A (C^A)^\dagger \f]
-!>  Where (\f$ C^A, D^A \f$) are the coefficients and densities of the active MOs.
-!>
-!>  @param[in] CMO The MO-coefficients
-!>  @param[in] D1A_MO The active one-body density matrix in MO-space
-!>  @param[out] D1A_AO The active one-body density matrix in AO-space
+*>  @brief
+*>    Transform the active one-body density from MO to AO basis
+*>
+*>  @author
+*>    Markus P. Fuelscher
+*>
+*>  @details
+*>  The underlying equation is the basis transformatin:
+*>  \f[ D^{\text{AO}} = C D C^\dagger \f]
+*>  For the aktive orbitals this becomes:
+*>  \f[ D^{\text{AO}, A} = C^A D^A (C^A)^\dagger \f]
+*>  Where (\f$ C^A, D^A \f$) are the coefficients and densities of the active MOs.
+*>
+*>  @param[in] CMO The MO-coefficients
+*>  @param[in] D1A_MO The active one-body density matrix in MO-space
+*>  @param[out] D1A_AO The active one-body density matrix in AO-space
       subroutine Get_D1A_RASSCF(CMO,D1A_MO,D1A_AO)
 *----------------------------------------------------------------------*
 *                                                                      *

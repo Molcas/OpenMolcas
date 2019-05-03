@@ -11,21 +11,21 @@
 * Copyright (C) 1996, Markus P. Fuelscher                              *
 ************************************************************************
 
-!>  @brief
-!>  Transform the inactive one-body density from MO to AO basis
-!>
-!>  @author
-!>  Markus P. Fuelscher
-!>
-!>  @details
-!>  The underlying equation is the basis transformatin:
-!>  \f[ D^{\text{AO}} = C D C^\dagger \f]
-!>  For inactive orbitals it simplifies to:
-!>  \f[D^{\text{AO}, I} = C^I D^I (C^I)^\dagger = 2 C^I \mathbf{1} (C^I)^\dagger = 2 C (C^I)^\dagger \f]
-!>  Where (\f$ C^I, D^I \f$) are the coefficients and densities of the inactive MOs.
-!>
-!>  @param[in] CMO The MO-coefficients
-!>  @param[out] D1I_AO The inactive one-body density matrix in AO-space
+*>  @brief
+*>  Transform the inactive one-body density from MO to AO basis
+*>
+*>  @author
+*>  Markus P. Fuelscher
+*>
+*>  @details
+*>  The underlying equation is the basis transformatin:
+*>  \f[ D^{\text{AO}} = C D C^\dagger \f]
+*>  For inactive orbitals it simplifies to:
+*>  \f[D^{\text{AO}, I} = C^I D^I (C^I)^\dagger = 2 C^I \mathbf{1} (C^I)^\dagger = 2 C (C^I)^\dagger \f]
+*>  Where (\f$ C^I, D^I \f$) are the coefficients and densities of the inactive MOs.
+*>
+*>  @param[in] CMO The MO-coefficients
+*>  @param[out] D1I_AO The inactive one-body density matrix in AO-space
       Subroutine Get_D1I_RASSCF(CMO, D1I_AO)
 *----------------------------------------------------------------------*
 *                                                                      *
