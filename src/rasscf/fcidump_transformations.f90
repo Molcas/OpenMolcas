@@ -38,8 +38,8 @@ contains
   subroutine get_orbital_E(iter, DIAF, orbital_energies)
     implicit none
     integer, intent(in) :: iter
-    real(kind=8), intent(in) :: DIAF(:)
-    real(kind=8), intent(inout) :: orbital_energies(:)
+    real*8, intent(in) :: DIAF(:)
+    real*8, intent(inout) :: orbital_energies(:)
 
     if (iter == 1) then
       call read_orbital_energies(nSym, nBas, orbital_energies)
@@ -50,8 +50,8 @@ contains
     subroutine read_orbital_energies(nSym, nBas, orbital_energies)
       implicit none
       integer, intent(in) :: nSym, nBas(:)
-      real(kind=8), intent(inout) :: orbital_energies(:)
-      real(kind=8) :: Dummy(1)
+      real*8, intent(inout) :: orbital_energies(:)
+      real*8 :: Dummy(1)
       integer :: LuInpOrb = 10, iDummy(1), err
       character(*), parameter ::  FnInpOrb = 'INPORB'
       character(80) :: VecTit
@@ -98,11 +98,11 @@ contains
 !>    in the basis of the active MOs as obtained from ::SGFCIN.
   subroutine fold_Fock(CMO, D1I_AO, D1A_AO, D1S_MO, F_In, folded_Fock)
     implicit none
-    real(8), intent(in) :: CMO(nTot2), D1A_AO(nTot2), D1I_AO(nTot2), D1S_MO(nAcPar)
-    real(8), intent(inout) :: F_In(nTot1)
-    real(8), intent(out) :: folded_Fock(nAcPar)
+    real*8, intent(in) :: CMO(nTot2), D1A_AO(nTot2), D1I_AO(nTot2), D1S_MO(nAcPar)
+    real*8, intent(inout) :: F_In(nTot1)
+    real*8, intent(out) :: folded_Fock(nAcPar)
     integer :: i, n
-    real(8) :: core_E_per_act_el,&
+    real*8 :: core_E_per_act_el,&
 ! one-body spin density matrix in AO-space
         D1S_AO(nTot2),&
 ! blocked one-body spin density matrix in MO-space

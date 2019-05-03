@@ -40,9 +40,9 @@
 ************************************************************************
       use general_data, only : nBas, nSym, nFro, nIsh
       implicit none
-      real(8), intent(in) :: CMO(*)
-      real(8), intent(out) :: D1I_AO(*)
-      real(8), parameter :: Zero = 0.0d0, Two = 2.0d0
+      real*8, intent(in) :: CMO(*)
+      real*8, intent(out) :: D1I_AO(*)
+      real*8, parameter :: Zero = 0.0d0, Two = 2.0d0
       integer :: ista, iSym, nb, nbsq, nfi
 
       Call qEnter('Get_D1I')

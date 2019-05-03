@@ -43,12 +43,12 @@
       implicit none
 #include "para_info.fh"
 #include "output_ras.fh"
-      real(kind=8), intent(inout) :: DMAT(:), DSPN(:), PSMAT(:),PAMAT(:)
+      real*8, intent(inout) :: DMAT(:), DSPN(:), PSMAT(:),PAMAT(:)
       integer :: iUnit, isfreeunit, p, q, r, s, pq, rs, ps, rq, psrq,
      &  pqrs, iread, Nalpha, norb, iprlev
       logical :: tExist, switch
-      real(kind=8) :: fac, RDMval, fcalpha, fcbeta, fcnacte
-      real(kind=8) :: D_alpha(size(DMAT)), D_beta(size(DMAT))
+      real*8 :: fac, RDMval, fcalpha, fcbeta, fcnacte
+      real*8 :: D_alpha(size(DMAT)), D_beta(size(DMAT))
       parameter(routine = 'read_neci_RDM')
 
       Call qEnter(routine)
@@ -353,7 +353,7 @@
       call cleanMat(DMAT)
 
       IF(IPRLEV >= DEBUG) THEN
-       norb  = (int(sqrt(real(1 + 8 * size(DMAT), kind=8))) - 1) / 2
+       norb  = (int(sqrt(dble(1 + 8 * size(DMAT)))) - 1) / 2
        call triprt('D_alpha in neci2molcas',' ',D_alpha,norb)
        call triprt('D_beta  in neci2molcas',' ',D_beta ,norb)
        call triprt('DMAT in neci2molcas',' ',DMAT,norb)
@@ -408,9 +408,9 @@
       implicit none
 #include "WrkSpc.fh"
 * NACPAR = NAC*(NAC+1)/2 with NAC total number of active orbitals
-      real(8), intent(inout) :: MAT(NacPar)
+      real*8, intent(inout) :: MAT(NacPar)
       integer rc,LEVC,j,i,iTmp,iTmp2
-      real(8) :: trace
+      real*8 :: trace
       Character*12 routine
       Parameter (routine = 'CleanMat')
 

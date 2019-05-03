@@ -23,27 +23,27 @@ module fcidump_tables
 
   type :: FockTable
     sequence
-    real(kind=8), allocatable, dimension(:) :: values ! <i | F | j >
+    real*8, allocatable, dimension(:) :: values ! <i | F | j >
     integer, allocatable, dimension(:, :) :: index ! i, j
-    real(kind=8) :: cutoff
+    real*8 :: cutoff
     integer :: length
   end type FockTable
 
   type :: TwoElIntTable
     sequence
-    real(kind=8), allocatable, dimension(:) :: values ! <ij| 1/r_{12} |kl>
+    real*8, allocatable, dimension(:) :: values ! <ij| 1/r_{12} |kl>
     integer, allocatable, dimension(:, :) :: index ! i, j, k, l
-    real(kind=8) :: cutoff
+    real*8 :: cutoff
     integer :: length
   end type TwoElIntTable
 
   type :: OrbitalTable
     sequence
-    real(kind=8), allocatable, dimension(:) :: values ! <i| F |i>
+    real*8, allocatable, dimension(:) :: values ! <i| F |i>
     integer, allocatable, dimension(:) :: index ! i
   end type OrbitalTable
 
-  real(kind=8), parameter :: cutoff_default = 1.0d-11
+  real*8, parameter :: cutoff_default = 1.0d-11
 
   interface mma_allocate
     module procedure FockTable_allocate, TwoElIntTable_allocate, &
@@ -102,7 +102,7 @@ contains
     use general_data, only : nBas, nSym, nAsh, nFro, nIsh
     implicit none
     type(OrbitalTable), intent(inout) :: table
-    real(kind=8), intent(in) :: orbital_energies(:)
+    real*8, intent(in) :: orbital_energies(:)
     integer :: i, n, iSym, iOff
 
     iOff = 0
@@ -176,12 +176,12 @@ contains
     use general_data, only : nActEl, nAsh, ntot, ntot1, ntot2
     use rasscf_data, only : nAcPar
     implicit none
-    real(8), intent(in) :: Fock(:)
+    real*8, intent(in) :: Fock(:)
     type(FockTable), intent(inout) :: fock_table
-    real(8), optional, intent(in) :: cutoff
+    real*8, optional, intent(in) :: cutoff
 
     integer :: i, n
-    real(8) :: cutoff_
+    real*8 :: cutoff_
 
     cutoff_ = merge(cutoff, cutoff_default, present(cutoff))
 
@@ -250,11 +250,11 @@ contains
 !>    fciqmc_tables::cutoff_default.
   subroutine fill_2ElInt(two_el_table, TUVX, cutoff)
     implicit none
-    real(kind=8), intent(in) :: TUVX(:)
+    real*8, intent(in) :: TUVX(:)
     type(TwoElIntTable), intent(inout) :: two_el_table
     integer :: i, n
-    real(kind=8), optional :: cutoff
-    real(kind=8) :: cutoff_
+    real*8, optional :: cutoff
+    real*8 :: cutoff_
 
     integer, parameter :: max_test = 20
     integer :: l_twoel_test

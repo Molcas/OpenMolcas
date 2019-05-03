@@ -78,18 +78,18 @@
 #include "mafdecls.fh"
       integer(kind=4) :: ierror
 #endif
-      real(kind=8), intent(in) ::
+      real*8, intent(in) ::
      &    CMO(nTot2), DIAF(nTot),
      &    D1I_AO(nTot2), D1A_AO(nTot2), TUVX(nAcpr2)
-      real(kind=8), intent(inout) :: F_In(nTot1), D1S_MO(nAcPar)
-      real(kind=8), intent(out) :: DMAT(nAcpar),
+      real*8, intent(inout) :: F_In(nTot1), D1S_MO(nAcPar)
+      real*8, intent(out) :: DMAT(nAcpar),
      &    PSMAT(nAcpr2), PAMAT(nAcpr2)
       logical :: Do_ESPF, WaitForNECI
-      real(kind=8) :: NECIen, Scal
+      real*8 :: NECIen, Scal
       integer :: LuNewC, iPRLEV, iOff, iSym, iBas, i, j,
      &    jRoot, iDisk, jDisk, kRoot, permutation(sum(nAsh(:nSym)))
-      real(kind=8) :: orbital_E(nTot), folded_Fock(nAcPar)
-      real(kind=8), allocatable :: DTMP(:), Ptmp(:), PAtmp(:), DStmp(:)
+      real*8 :: orbital_E(nTot), folded_Fock(nAcPar)
+      real*8, allocatable :: DTMP(:), Ptmp(:), PAtmp(:), DStmp(:)
       integer :: err, L
       character(1024) :: h5fcidmp, fcidmp, fcinp, newcycle, WorkDir
 

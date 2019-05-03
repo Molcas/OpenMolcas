@@ -31,7 +31,7 @@
      &    highlypopwrite = 50
         integer, allocatable ::
      &    definedet(:)
-        real(kind=8) ::
+        real*8 ::
      &    proje_changeref = 1.2d0,
      &    max_tau = 0.02d0,
      &    memoryfacpart = 5.0d0,

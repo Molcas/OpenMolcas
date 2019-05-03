@@ -32,7 +32,7 @@ contains
 
   subroutine make_fcidumps(orbital_energies, folded_Fock, TUVX, core_energy, permutation)
     implicit none
-    real(8), intent(in) :: orbital_energies(:), folded_Fock(:), TUVX(:), core_energy
+    real*8, intent(in) :: orbital_energies(:), folded_Fock(:), TUVX(:), core_energy
     integer, intent(in), optional :: permutation(:)
     type(OrbitalTable) :: orbital_table
     type(FockTable) :: fock_table
@@ -61,13 +61,13 @@ contains
   subroutine transform(iter, CMO, DIAF, D1I_AO, D1A_AO, D1S_MO, F_IN, orbital_E, folded_Fock)
     implicit none
     integer, intent(in) :: iter
-    real(8), intent(in) :: DIAF(nTot),&
+    real*8, intent(in) :: DIAF(nTot),&
       CMO(nTot2),&
       D1I_AO(nTot2),&
       D1A_AO(nTot2),&
       D1S_MO(nAcPar)
-    real(8), intent(inout) :: F_IN(nTot1)
-    real(8), intent(out) :: orbital_E(nTot), folded_Fock(nAcPar)
+    real*8, intent(inout) :: F_IN(nTot1)
+    real*8, intent(out) :: orbital_E(nTot), folded_Fock(nAcPar)
 
     call get_orbital_E(iter, DIAF, orbital_E)
     call fold_Fock(CMO, D1I_AO, D1A_AO, D1S_MO, F_In, folded_Fock)

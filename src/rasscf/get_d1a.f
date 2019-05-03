@@ -42,9 +42,9 @@
       use general_data, only : nBas, nSym, nFro, nIsh, nAsh
       implicit none
 #include "WrkSpc.fh"
-      real(8), intent(in) :: CMO(*) , D1A_MO(*)
-      real(8), intent(out) :: D1A_AO(*)
-      real(8), parameter :: Zero = 0.0d0
+      real*8, intent(in) :: CMO(*) , D1A_MO(*)
+      real*8, intent(out) :: D1A_AO(*)
+      real*8, parameter :: Zero = 0.0d0
       integer :: iOff1, iOff2, iOff3, iSym, iBas, iAsh, iIsh, iFro,
      &    iTmp1, iTmp2
 

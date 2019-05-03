@@ -37,7 +37,7 @@ contains
   subroutine dump_ascii(EMY, orbital_table, fock_table, two_el_table)
     use general_data, only : nSym, nActEl, iSpin, lSym, nAsh
     implicit none
-    real(kind=8), intent(in) :: EMY
+    real*8, intent(in) :: EMY
     type(OrbitalTable), intent(in) :: orbital_table
     type(FockTable), intent(in) :: fock_table
     type(TwoElIntTable), intent(in) :: two_el_table
@@ -110,7 +110,7 @@ contains
     use mh5
 #endif
     implicit none
-    real(kind=8), intent(in) :: EMY
+    real*8, intent(in) :: EMY
     type(OrbitalTable), intent(in) :: orbital_table
     type(FockTable), intent(in) :: fock_table
     type(TwoElIntTable), intent(in) :: two_el_table

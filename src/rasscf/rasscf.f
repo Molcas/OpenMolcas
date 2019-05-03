@@ -117,7 +117,7 @@
       Character*8 EMILOOP
 * --------- End Orbital-Free Embedding stuff
 * --------- FCIDUMP stuff:
-      real(8), allocatable :: orbital_E(:), folded_Fock(:)
+      real*8, allocatable :: orbital_E(:), folded_Fock(:)
 * --------- End FCIDUMP stuff:
 
       Common /IDSXCI/ IDXCI(mxAct),IDXSX(mxAct)
