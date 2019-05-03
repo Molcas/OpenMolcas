@@ -1,9 +1,9 @@
 * Molecule: Benzene
-* Basis: 6-31G
-* RASSCF: conventional
+* Basis: ano-rcc-VDZ
+* RASSCF: stochastic
 *
 * Check if the FCIDUMP for NECI communication works.
-*
+
 &GATEWAY
   coord
     12
