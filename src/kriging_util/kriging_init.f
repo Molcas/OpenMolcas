@@ -23,7 +23,7 @@ C
       lb(2) = 6.0
       lb(3) = 10
       miAI = 10
-      meAI = 1.0D-6
+      meAI = 1.0D-8
 *
       nInter_save=-1
       nPoints_save=-1

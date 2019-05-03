@@ -158,7 +158,7 @@ c Avoid unused argument warnings
      &                   nWndw,Mode,ipMF,
      &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,dMass,
      &                   HrmFrq_Show,CnstWght,Curvilinear,Degen,
-     &                   Kriging_Hessian)
+     &                   Kriging_Hessian,qBeta)
 *
 *------- Move new coordinates to the correct position and compute the
 *        corresponding shift.
@@ -183,6 +183,8 @@ c Avoid unused argument warnings
             nRaw=Min(iter,nWndw)
             iFirst = iter - nRaw + 1
             iterK=0
+            dqdq=0.0D0
+            qBeta=Beta
             Write (6,*) 'iFirst,nRaw=',iFirst,nRaw
             Call RecPrt('qInt(0)',  ' ',qInt(1,iFirst),nInter,nRaw)
             Call RecPrt('Energy(0)',' ',Energy(iFirst),1,nRaw)
@@ -196,9 +198,11 @@ c Avoid unused argument warnings
      &                            Energy(iFirst))
             Call DScal_(nInter*nRaw,-1.0D0,Grad(1,iFirst),1)
 *
-            do while (iterK.lt.miAI.and.Abs(dEner).ge.meAI)
+            do while ((iterK.lt.miAI.and.Abs(dEner).ge.meAI).and.
+     &                dqdq.lt.qBeta**2)
                kIter_=iterAI
-               Write (6,*) 'iterAI: ',iterAI
+               Write (6,*)
+               Write (6,*) 'Do iterAI: ',iterAI
                Call Update_sl_(iterAI,iInt,nFix,nInter,
      &                qInt,Shift,Grad,
      &                iOptC,Beta,Lbl,GNrm,Energy,
@@ -210,9 +214,68 @@ c Avoid unused argument warnings
      &                nWndw,Mode,ipMF,
      &                iOptH,HUpMet,kIter_,GNrm_Threshold,IRC,dMass,
      &                HrmFrq_Show,CnstWght,Curvilinear,Degen,
-     &                Kriging_Hessian)
-               UpMeth='GPR   '
-               Write (UpMeth(4:6),'(I3)') iterK+1
+     &                Kriging_Hessian,qBeta)
+*
+*              Change lable of updating method if kriging points has
+*              been used.
+*
+               If (iterK.gt.0) Then
+                  UpMeth='GPR   '
+                  Write (UpMeth(4:6),'(I3)') iterK
+               End If
+*
+*              Compute the step length from the last ab inito point
+*              to the most recent krining point.
+*
+               dqdq=0.0D0
+*              Write (6,*) 'iterAI+1=',iterAI+1
+*              Write (6,*) 'iFirst+nRaw-1=',iFirst+nRaw-1
+               Do iInter=1,nInter
+                  Write (6,*) qInt(iInter,iterAI+1)
+     &                 ,qInt(iInter,iFirst+nRaw-1)
+                  dqdq=(qInt(iInter,iterAI+1)
+     &                 -qInt(iInter,iFirst+nRaw-1))**2
+               End Do
+               If (iterK.eq.0.and.Step_trunc.eq.'*') dqdq=qBeta**2
+*              Write (6,*) 'dqdq=',dqdq
+*              Write (6,*) 'qBeta**2=',qBeta**2
+               If (iterK.gt.0.and.dqdq.gt.qBeta**2) Then
+*
+                  sh2=0.0D0
+                  D2 =0.0D0
+                  shD=0.0D0
+                  Do iInter=1,nInter
+                     sh2=sh2 + Shift(iInter,iterAI)**2
+                     D2 =D2 + (qInt(iInter,iterAI)-
+     &                         qInt(iInter,iFirst+nRaw-1))**2
+                     shD=shD + Shift(iInter,iterAI)
+     &                       *(qInt(iInter,iterAI)-
+     &                         qInt(iInter,iFirst+nRaw-1))
+                  End Do
+*                 Write (6,*) 'Sh2,shD,D2=',sh2,shD,D2
+                  D2 = D2 - qBeta**2
+                  shD=2.0D0*shD
+                  D2=D2/sh2
+                  shD=shD/sh2
+*                 Write (6,*) 'shD,D2=',shD,D2
+*
+*                 compute the scaling factor
+*
+                  alpha=-shD/2.0D0 + Sqrt((shD/2.0D0)**2 - D2)
+*                 Write (6,*) 'alpha=',Alpha
+*
+*                 rescale the step
+*
+                  Do iInter=1,nInter
+                     Shift(iInter,iterAI) = alpha*Shift(iInter,iterAI)
+                     qInt(iInter,iterAI+1) = qInt(iInter,iterAI)
+     &                                      + Shift(iInter,iterAI)
+                  End Do
+*
+                  dqdq=qBeta**2
+                  Step_trunc='*'
+*                 Write (6,*) ' Step has been scaled'
+               End If
 
 *              Compute the energy and gradient according to the
 *              surrogate model for the new coordinates.
@@ -233,7 +296,6 @@ c Avoid unused argument warnings
                write (6,*) 'Energy(xx):',Energy(1:iterAI)
                Call RecPrt('Grad(x):',' ',Grad,nInter,iterAI)
                write (6,*) 'Grad(xx):',Grad(1:nInter,1:iterAI)
-               write(6,*) 'do new iter',iterAI
             End Do  ! Do While
 *
 *           Save the optimized kriging coordinates as the coordinates
@@ -262,7 +324,8 @@ c Avoid unused argument warnings
      &                   nWndw,Mode,ipMF,
      &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,dMass,
      &                   HrmFrq_Show,CnstWght,Curvilinear,Degen,
-     &                   Kriging_Hessian)
+     &                   Kriging_Hessian,qBeta)
+            Write (6,*) 'qBeta=',qBeta
          End If
       End If
 *
@@ -295,7 +358,7 @@ c Avoid unused argument warnings
      &                     nWndw,Mode,ipMF,
      &                     iOptH,HUpMet,mIter,GNrm_Threshold,IRC,
      &                     dMass,HrmFrq_Show,CnstWght,Curvilinear,
-     &                     Degen,Kriging_Hessian)
+     &                     Degen,Kriging_Hessian,qBeta)
 ************************************************************************
 *     Object: to update coordinates                                    *
 *                                                                      *
@@ -383,6 +446,7 @@ c Avoid unused argument warnings
 *
       GrdMax=Zero
       StpMax=Zero
+      qBeta=Beta
 *
       mInter=nInter
       nA = (Max(mInter,kIter)+1)**2
@@ -576,6 +640,7 @@ C                 gBeta=gBeta*Sf
 *
             End Do
             tBeta= Max(Beta*Min(xBeta,gBeta),Beta/Ten)
+            qBeta=fCart*tBeta
 C           Write (*,*) 'tBeta=',tBeta
 *                                                                      *
 ************************************************************************
