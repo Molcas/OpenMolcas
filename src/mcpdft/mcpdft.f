@@ -514,10 +514,41 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
 
        IPR=0
        IF(IPRLOC(2).EQ.4) IPR=5
-       IF(IPRLOC(2).EQ.5) IPR=10
+*
+           write(6,*) 'cmo before tractl mcpdft'
+            do i=1,ntot2
+              write(*,*) work(lcmo-1+i)
+            end do
+            write(6,*) 'lpuvx before tractl mcpdft'
+            do i=1,nfint
+              write(*,*) work(lpuvx-1+i)
+            end do
+            write(6,*) 'id1a before tractl mcpdft'
+            do i=1,ntot2
+              write(*,*) work(ld1a-1+i)
+            end do
+            write(6,*) 'id1i before tractl mcpdft'
+            do i=1,ntot2
+              write(*,*) work(ld1i-1+i)
+            end do
+            write(6,*) 'lfa before tractl mcpdft'
+            do i=1,ntot2
+              write(*,*) work(lfa-1+i)
+            end do
+            write(6,*) 'lfi before tractl mcpdft'
+            do i=1,ntot2
+              write(*,*) work(lfi-1+i)
+            end do
 
+*
        CALL TRACTL2(WORK(LCMO),WORK(LPUVX),WORK(LTUVX),WORK(LD1I),
      &              WORK(LFI),WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
+*       If ( IPRLEV.ge.DEBUG ) then
+        write(6,*) 'FA_old'
+        call wrtmat(Work(lfa),1,ntot1,1,ntot1)
+        write(6,*) 'FI_old'
+        call wrtmat(Work(lfi),1,ntot1,1,ntot1)
+*        End if
 
        Call Put_CMO(Work(LCMO),ntot2)
 
