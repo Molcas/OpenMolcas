@@ -217,6 +217,41 @@ The program will do this automatically with the use of the
 input keyword :kword:`LINEAR`. Similarly, for single atoms, spherical
 symmetry can be enforced by the keyword :kword:`ATOM`.
 
+.. _UG\:sec\:core-hole:
+
+States with a core hole
+-----------------------
+
+.. compound::
+
+  For stable calculation of states with a deep hole, e.g. for X-ray transitions, one needs to compute
+  a (number of) states with a core hole, and a (number of) states without the core hole, with quite
+  different orbitals, and then presumably combine these states in a RASSI calculation. The core-hole
+  state(s) cannot be computed in the same calculation as the full-core states, since they will be very highly excited states
+  compared to the states without that hole. There is also the problem of preventing orbital optimization
+  from filling the core hole. In order to make the calculation in a way that is stable, also across
+  calculations with changing geometry, there is a special input to :program:`RASSCF`.
+  The option :kword:`CRPR` stands for "core projection", and is followed by two numbers, e.g. as ::
+
+      CRPR
+        1   33.0
+
+  which has the effect of selecting one orbital, in this case orbital nr. 1, from the starting orbitals.
+  This orbital should be in symmetry 1, a non-degenerate orbital, doubly occupied in the state without
+  core hole. A projection operator is constructed from the AO basis set, and in the subsequent
+  CI calculations, in each new iteration of the orbital optimizer, this operator is multiplied with
+  a shift, in this case 33.0 a.u., and added to the Hamiltonian. Regardless of the changing
+  orbitals, this operator is defined by the stable AO basis, and any configuration where the core
+  orbital is doubly occupied is shifted upwards in energy, above the core hole states, and are
+  prevented from playing any role in the calculation. The converged solution(s) are used in a
+  subsequent RASSI, for instance (then with the unperturbed Hamiltonian, of course), where it is
+  combined with states without core hole, for energies and transition properties.
+
+The perturbation on the core hole states by the projection shift is small, provided that the
+basis set is able to to include the core relaxation effect, and the subsequent RASSI is
+helpful in correcting for any effects of the perturbation since it will anyway compute
+eigenstates which are non-interacting and orthogonal by state mixing.
+
 .. _UG\:sec\:StochasticCAS:
 
 Stochastic-CASSCF method
@@ -896,6 +931,26 @@ A list of these keywords is given below:
               nRef, where nRef at most 5.
               The second line gives nRef reference configuration indices.
               The third line gives estimates of CI coefficients for these CSF's.
+              </HELP>
+              </KEYWORD>
+
+:kword:`CRPRoject`
+  This keyword is followed by two numbers, which define a Hamiltonian shift by a
+  projection operator times a scalar number. For choosing these numbers, please
+  read the section about core hole states above.
+  The shift acts to raise the energy of any configuration where the selected
+  orbital is doubly occupied so the lie far enough above the target core hole
+  states for the duration of the calculation. The purpose is to obtain RASSCF
+  states that are properly optimized, yet with no risk of collapsing the core
+  hole, for use in subsequent RASSI calculations.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CRPR" LEVEL="ADVANCED" APPEAR="Core project" KIND="STRING">
+              %%Keyword: CRPRoject <advanced>
+              <HELP>
+              This keyword is followed by two numbers, which define a Hamiltonian shift by a
+              projection operator times a scalar number. For choosing these numbers (integer
+              and real), please read the section about core hole states in the manual for
+              the RASSCF program.
               </HELP>
               </KEYWORD>
 
