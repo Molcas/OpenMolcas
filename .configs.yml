@@ -51,11 +51,12 @@
 .pgi:
   image: ${CI_REGISTRY}/molcas/dockerfiles/pgi:latest
   variables:
-    cache_file: ""
-    # Add -tp=x64 flag to make the result more portable
-    CC: "pgcc '-tp=x64'"
-    CXX: "pgc++ '-tp=x64'"
-    FC: "pgfortran '-tp=x64'"
+    cache_file: |
+      set (DEFMOLCASMEM "1536" CACHE STRING "reduce memory")
+    # Add -tp=px flag to make the result more portable
+    CC: "pgcc '-tp=px'"
+    CXX: "pgc++ '-tp=px'"
+    FC: "pgfortran '-tp=px'"
   tags:
     - docker
 
