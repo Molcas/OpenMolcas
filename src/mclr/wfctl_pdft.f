@@ -441,8 +441,8 @@
 !I need to read in the CI portion of the RHS here.
       If (CI) Call DMinvCI_sa(ipST,Work(ipIn(ipS2)),rCHC,isym,work(ipS))
 *REMOVING CI PREC
-         Call dcopy_(nconf1*nroots,Work(ipin(ipst)),1,
-     &   Work(ipin(ips2)),1)
+*         Call dcopy_(nconf1*nroots,Work(ipin(ipst)),1,
+*     &   Work(ipin(ips2)),1)
 !         write(*,*) 'ips'
 !         do i=1,nroots**3
 !           write(*,*) Work (ips -1 +i)
@@ -644,8 +644,8 @@
 *
  310  Continue
       If (iPL.ge.2) Write(6,*)
-!      if (debug) then
-      if (.true.) then
+      if (debug) then
+*      if (.true.) then
        write(6,*) 'outputs'
        write(6,*) 'kappa'
        do i=1,ndens2

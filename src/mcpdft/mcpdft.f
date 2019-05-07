@@ -514,7 +514,7 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
 
        IPR=0
        IF(IPRLOC(2).EQ.4) IPR=5
-*
+       If (IPRLOC(1).GE.DEBUG) Then
            write(6,*) 'cmo before tractl mcpdft'
             do i=1,ntot2
               write(*,*) work(lcmo-1+i)
@@ -539,20 +539,18 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
             do i=1,ntot2
               write(*,*) work(lfi-1+i)
             end do
-
+        end if
 *
        CALL TRACTL2(WORK(LCMO),WORK(LPUVX),WORK(LTUVX),WORK(LD1I),
      &              WORK(LFI),WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
-*       If ( IPRLEV.ge.DEBUG ) then
-        write(6,*) 'FA_old'
-        call wrtmat(Work(lfa),1,ntot1,1,ntot1)
-        write(6,*) 'FI_old'
-        call wrtmat(Work(lfi),1,ntot1,1,ntot1)
-*        End if
 
        Call Put_CMO(Work(LCMO),ntot2)
-
-
+*        if (iprlev.ge.debug) then
+             write(6,*) 'FA tractl mcpdft'
+             call wrtmat(Work(lfa),1,ntot1,1,ntot1)
+             write(6,*) 'FI tractl mcpdft'
+             call wrtmat(Work(lfi),1,ntot1,1,ntot1)
+*        end if
 !      write(*,*) "two ints",Work(LPUVX:LPUVX+NACPR2-1)
 !      write(*,*) "LCMO",Work(LCMO:LCMO+NTOT2-1)
       If (.not.DoCholesky .or. ALGO.eq.1) Then
