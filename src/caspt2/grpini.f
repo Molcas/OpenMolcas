@@ -126,7 +126,7 @@ c Modify the Fock matrix, if needed:
       END DO
 * End of loop over states
 
-      IF (IPRGLB.GE.VERBOSE.AND.IFDW.AND.IFXMS) THEN
+      IF (IPRGLB.GE.VERBOSE.AND.IFFDW.AND.IFXMS) THEN
         WRITE(6,*)
         WRITE(6,*)' H0 (Asymmetric):'
         DO I=1,NGRP
@@ -159,14 +159,6 @@ c Modify the Fock matrix, if needed:
         END DO
       END IF
 
-      ! IF (IPRGLB.GE.USUAL.AND.(NLYROOT.EQ.0)) THEN
-      !   WRITE(6,*)
-      !   WRITE(6,*)' FOPXMS (Symmetric):'
-      !   DO I=1,NGRP
-      !     WRITE(6,'(1x,5F16.8)')(WORK(LFOPXMS+I-1+NGRP*(J-1)),J=1,NGRP)
-      !   END DO
-      ! END IF
-
 * Store zeroth order energies
       DO I=1,NGRP
         DO J=1,NGRP
@@ -175,7 +167,7 @@ c Modify the Fock matrix, if needed:
       END DO
 
 ! Form average Fock matrix for DW-XMS before states are rotated
-      IF (IFDW.AND.IFXMS) THEN
+      IF (IFFDW.AND.IFXMS) THEN
 ! Zero out the density matrix
         CALL DCOPY_(NDREF,[0.0D0],0,WORK(LDREF),1)
 ! Compute the SA density matrix on the spot

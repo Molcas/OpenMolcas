@@ -25,10 +25,8 @@ C     timers
       REAL*8 CPU0,CPU1,CPU,
      &       TIO0,TIO1,TIO
 C     indices
-      INTEGER I,J
-      INTEGER IDCI
-
-      real*8 EISUM
+      INTEGER I,J,IFTEST
+      ! INTEGER IDCI
 
       CALL QENTER('STINI')
       Write(STLNE2,'(A,I4)')
@@ -46,36 +44,58 @@ C     indices
 * LUSOLV, LUSBT and LUDMAT will be reused in TRACTL.
 
 * WITH NEW CI, RECOMPUTE 1- AND 2-DENSITY FOR ROOT STATE JSTATE:
-      CALL GETMEM('LCI','ALLO','REAL',LCI,NCONF)
-      IF(.NOT.DoCumulant.AND.ISCF.EQ.0) THEN
-        IDCI=IDTCEX
-        DO J=1,JSTATE-1
-          CALL DDAFILE(LUCIEX,0,WORK(LCI),NCONF,IDCI)
-        END DO
-        CALL DDAFILE(LUCIEX,2,WORK(LCI),NCONF,IDCI)
-        IF(IPRGLB.GE.VERBOSE) THEN
-          WRITE(6,*)
-          IF(NSTATE.GT.1) THEN
-            WRITE(6,'(A,I4)')
-     &      ' With new orbitals, the CI array of state ',MSTATE(JSTATE)
-          ELSE
-            WRITE(6,*)' With new orbitals, the CI array is:'
-          END IF
-          CALL PRWF_CP2(LSYM,NCONF,WORK(LCI),CITHR)
-        ENDIF
-      ELSE
-        WORK(LCI)=1.0D0
+    !   CALL GETMEM('LCI','ALLO','REAL',LCI,NCONF)
+    !   IF(.NOT.DoCumulant.AND.ISCF.EQ.0) THEN
+    !     IDCI=IDTCEX
+    !     DO J=1,JSTATE-1
+    !       CALL DDAFILE(LUCIEX,0,WORK(LCI),NCONF,IDCI)
+    !     END DO
+    !     CALL DDAFILE(LUCIEX,2,WORK(LCI),NCONF,IDCI)
+    !     IF(IPRGLB.GE.VERBOSE) THEN
+    !       WRITE(6,*)
+    !       IF(NSTATE.GT.1) THEN
+    !         WRITE(6,'(A,I4)')
+    !  &      ' With new orbitals, the CI array of state ',MSTATE(JSTATE)
+    !       ELSE
+    !         WRITE(6,*)' With new orbitals, the CI array is:'
+    !       END IF
+    !       CALL PRWF_CP2(LSYM,NCONF,WORK(LCI),CITHR)
+    !     ENDIF
+    !   ELSE
+    !     WORK(LCI)=1.0D0
+    !   END IF
+
+      IF (IPRGLB.GE.DEBUG) THEN
+        WRITE(6,*)' STINI calling POLY3...'
+      END IF
+      CALL TIMING(CPU0,CPU,TIO0,TIO)
+      CALL POLY3(1)
+      CALL TIMING(CPU1,CPU,TIO1,TIO)
+      CPUFG3=CPU1-CPU0
+      TIOFG3=TIO1-TIO0
+      IF (IPRGLB.GE.DEBUG) THEN
+        WRITE(6,*)' STINI back from POLY3.'
       END IF
 
-      IF(IPRGLB.GE.DEBUG) THEN
-        WRITE(6,*)' STINI calling POLY2...'
-      END IF
-      CALL POLY2(WORK(LCI))
+      ! IF(IPRGLB.GE.DEBUG) THEN
+      !   WRITE(6,*)' STINI calling POLY2...'
+      ! END IF
+      ! CALL POLY2(WORK(LCI))
 * GETDPREF: Restructure GAMMA1 and GAMMA2, as DREF and PREF arrays.
       CALL GETDPREF(WORK(LDREF),WORK(LPREF))
-      IF(IPRGLB.GE.DEBUG) THEN
-        WRITE(6,*)' STINI back from POLY2.'
+      ! IF(IPRGLB.GE.DEBUG) THEN
+      !   WRITE(6,*)' STINI back from POLY2.'
+      ! END IF
+
+      IFTEST = 0
+      IF ( IFTEST.NE.0 ) THEN
+        WRITE(6,*)' DREF for state nr. ',MSTATE(JSTATE)
+        DO I=1,NASHT
+          WRITE(6,'(1x,14f10.6)')(WORK(LDREF+(I*(I-1))/2+J-1),J=1,I)
+        END DO
+        WRITE(6,*)
       END IF
+
 
       EREF=REFENE(JSTATE)
 * With new DREF, recompute EASUM:
@@ -83,37 +103,7 @@ C     indices
       DO I=1,NASHT
         EASUM=EASUM+EPSA(I)*WORK(LDREF-1+(I*(I+1))/2)
       END DO
-      IF (IFDW.AND.IFXMS) THEN
-* Contribution from inactive part
-        EISUM=0.0D0
-        DO I=1,NISHT
-          EISUM=EISUM+EPSI(I)*2.0D0
-        END DO
-* E0 energy computed with the SA Fock matrix
-        ! write(6,*)' EISUM  = ',EISUM
-        ! write(6,*)' EASUM  = ',EASUM
-        WRITE(6,*)' E0(SA)  = ',EASUM+EISUM
-        WRITE(6,*)' E0(DW)  = ',-DWSHIFT
-        DWSHIFT=DWSHIFT+EASUM+EISUM
-        IF (ABS(DWSHIFT) .LT. 1.0E-12) THEN
-          DWSHIFT = 0.0D0
-        END IF
-        WRITE(6,*)' DWSHIFT = ',DWSHIFT
-      END IF
 
-
-      IF(IPRGLB.GE.DEBUG) THEN
-       WRITE(6,*)' STINI calling POLY3...'
-      END IF
-      CALL TIMING(CPU0,CPU,TIO0,TIO)
-      CALL POLY3(1,WORK(LCI))
-      CALL TIMING(CPU1,CPU,TIO1,TIO)
-      CPUFG3=CPU1-CPU0
-      TIOFG3=TIO1-TIO0
-      IF(IPRGLB.GE.DEBUG) THEN
-       WRITE(6,*)' STINI back from POLY3.'
-      END IF
-      CALL GETMEM('LCI','FREE','REAL',LCI,NCONF)
 
       IF(IPRGLB.GE.USUAL) THEN
        WRITE(6,'(20A4)')('----',I=1,20)

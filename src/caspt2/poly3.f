@@ -16,7 +16,7 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE POLY3(IFF,CI)
+      SUBROUTINE POLY3(IFF)
       IMPLICIT NONE
 C  IBM TEST VERSION 0, 1988-06-23.
 C  NEW VERSION 1991-02-23, FOR USE WITH RASSCF IN MOLCAS PACKAGE.
@@ -44,68 +44,151 @@ C PROGRAM ASSUMES THE JOBIPH IS PRODUCED BY THE RASSCF PROGRAM.
 #include "SysDef.fh"
 
       INTEGER IFF
-      REAL*8 CI(NCONF)
 
       INTEGER ILEV
       INTEGER NG3MAX,IPAD,LIDXG3
       INTEGER ILUID
 
+      INTEGER LG1_AVE,LG2_AVE,LG3_AVE
+      INTEGER LF1_AVE,LF2_AVE,LF3_AVE
+
+      INTEGER IDCI
+      INTEGER J,KSTATE
+
+      REAL*8 SCL
+
       INTEGER IPARDIV
 
       CALL QENTER('POLY3')
 
-      IF(IFF.EQ.1) THEN
+      IF (IFF.EQ.1) THEN
 C ORBITAL ENERGIES IN CI-COUPLING ORDER:
         DO ILEV=1,NLEV
           ETA(ILEV)=EPSA(L2ACT(ILEV))
         END DO
       END IF
 
-      CALL GETMEM('G1','ALLO','REAL',LG1,NG1)
-      CALL GETMEM('G2','ALLO','REAL',LG2,NG2)
-
 C-SVC20100831: recompute approximate max NG3 size needed
       NG3MAX=iPARDIV(NG3TOT,NG2)
 
-C-SVC20100831: allocate local G3 matrices
+      CALL GETMEM('G1','ALLO','REAL',LG1,NG1)
+      CALL GETMEM('G2','ALLO','REAL',LG2,NG2)
       CALL GETMEM('G3','ALLO','REAL',LG3,NG3MAX)
+      CALL GETMEM('G1_AVE','ALLO','REAL',LG1_AVE,NG1)
+      CALL GETMEM('G2_AVE','ALLO','REAL',LG2_AVE,NG2)
+      CALL GETMEM('G3_AVE','ALLO','REAL',LG3_AVE,NG3MAX)
+
+C-SVC20100831: allocate local G3 matrices
       iPad=ItoB-MOD(6*NG3MAX,ItoB)
       CALL GETMEM('idxG3','ALLO','CHAR',LidxG3,6*NG3MAX+iPad)
 
-      WORK(LG1)=0.0D0
-      WORK(LG2)=0.0D0
-      WORK(LG3)=0.0D0
-
 C ALLOCATE SPACE FOR CORRESPONDING COMBINATIONS WITH H0:
-      IF(IFF.EQ.1) THEN
+      IF (IFF.EQ.1) THEN
         CALL GETMEM('LF1','ALLO','REAL',LF1,NG1)
         CALL GETMEM('LF2','ALLO','REAL',LF2,NG2)
         CALL GETMEM('LF3','ALLO','REAL',LF3,NG3MAX)
+        CALL GETMEM('F1_AVE','ALLO','REAL',LF1_AVE,NG1)
+        CALL GETMEM('F2_AVE','ALLO','REAL',LF2_AVE,NG2)
+        CALL GETMEM('F3_AVE','ALLO','REAL',LF3_AVE,NG3MAX)
       ELSE
         LF1=LG1
         LF2=LG2
         LF3=LG3
       END IF
 
-      NG3=NG3MAX
+* Initialize averaged densitites
+* No need to init the state specific: it's done in MKFG3
+      CALL DCOPY_(NG1,[0.0D0],0,WORK(LG1_AVE),1)
+      CALL DCOPY_(NG2,[0.0D0],0,WORK(LG2_AVE),1)
+      CALL DCOPY_(NG3MAX,[0.0D0],0,WORK(LG3_AVE),1)
 
-      IF(ISCF.NE.0.AND.NACTEL.NE.0) THEN
-        CALL SPECIAL( WORK(LG1),WORK(LG2),WORK(LG3),
-     &                WORK(LF1),WORK(LF2),WORK(LF3),
-     &                i1WORK(LidxG3))
-      ELSE IF (ISCF.EQ.0) THEN
+      IF (IFF.EQ.1) THEN
+        CALL DCOPY_(NG1,[0.0D0],0,WORK(LF1_AVE),1)
+        CALL DCOPY_(NG2,[0.0D0],0,WORK(LF2_AVE),1)
+        CALL DCOPY_(NG3MAX,[0.0D0],0,WORK(LF3_AVE),1)
+      END IF
+
+      CALL GETMEM('LCI','ALLO','REAL',LCI,NCONF)
+
+* Loop over all states for DW-CASPT2
+      DO KSTATE=1,NSTATE
+
+* If it is not a DW calculation, we don't need averaging
+        IF ((.NOT.IFVDW).AND.(KSTATE.NE.JSTATE)) THEN
+          CYCLE
+        END IF
+
+* NG3 will change inside subroutine MKFG3 to the actual
+* number of nonzero elements, that is why here we allocate
+* with NG3MAX, but we only store (PT2_PUT) the first NG3
+* elements of the G3 and F3
+        NG3=NG3MAX
+
+        IF (.NOT.DoCumulant.AND.ISCF.EQ.0) THEN
+          IDCI=IDTCEX
+          DO J=1,KSTATE-1
+            CALL DDAFILE(LUCIEX,0,WORK(LCI),NCONF,IDCI)
+          END DO
+          CALL DDAFILE(LUCIEX,2,WORK(LCI),NCONF,IDCI)
+          IF (IPRGLB.GE.VERBOSE) THEN
+            WRITE(6,*)
+            IF (NSTATE.GT.1) THEN
+              WRITE(6,'(A,I4)')
+     &      ' With new orbitals, the CI array of state ',MSTATE(KSTATE)
+            ELSE
+              WRITE(6,*)' With new orbitals, the CI array is:'
+            END IF
+            CALL PRWF_CP2(LSYM,NCONF,WORK(LCI),CITHR)
+          END IF
+        ELSE
+          WORK(LCI)=1.0D0
+        END IF
+
+        IF (ISCF.NE.0.AND.NACTEL.NE.0) THEN
+          CALL SPECIAL( WORK(LG1),WORK(LG2),WORK(LG3),
+     &                  WORK(LF1),WORK(LF2),WORK(LF3),
+     &                  i1WORK(LidxG3))
+        ELSE IF (ISCF.EQ.0) THEN
 C-SVC20100903: during mkfg3, NG3 is set to the actual value
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
-        IF(.NOT.DoCumulant) THEN
+          IF (.NOT.DoCumulant) THEN
 #endif
-          CALL MKFG3(IFF,CI,WORK(LG1),WORK(LF1),WORK(LG2),WORK(LF2),
-     &                      WORK(LG3),WORK(LF3),i1WORK(LidxG3))
+            CALL MKFG3(IFF,WORK(LCI),WORK(LG1),WORK(LF1),WORK(LG2),
+     &                 WORK(LF2),WORK(LG3),WORK(LF3),i1WORK(LidxG3))
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
-        ELSE
-          CALL MKFG3DM(IFF,WORK(LG1),WORK(LF1),WORK(LG2),WORK(LF2),
-     &                      WORK(LG3),WORK(LF3),i1WORK(LidxG3))
-        END IF
+          ELSE
+            CALL MKFG3DM(IFF,WORK(LG1),WORK(LF1),WORK(LG2),WORK(LF2),
+     &                       WORK(LG3),WORK(LF3),i1WORK(LidxG3))
+          END IF
 #endif
+        END IF
+
+
+        SCL = WORK(LVWGT+(KSTATE-1)+NSTATE*(JSTATE-1))
+
+        CALL DAXPY_(NG1,SCL,WORK(LG1),1,WORK(LG1_AVE),1)
+        CALL DAXPY_(NG2,SCL,WORK(LG2),1,WORK(LG2_AVE),1)
+        CALL DAXPY_(NG3MAX,SCL,WORK(LG3),1,WORK(LG3_AVE),1)
+
+        IF (IFF.EQ.1) THEN
+          CALL DAXPY_(NG1,SCL,WORK(LF1),1,WORK(LF1_AVE),1)
+          CALL DAXPY_(NG2,SCL,WORK(LF2),1,WORK(LF2_AVE),1)
+          CALL DAXPY_(NG3MAX,SCL,WORK(LF3),1,WORK(LF3_AVE),1)
+        END IF
+
+      END DO
+
+      CALL GETMEM('LCI','FREE','REAL',LCI,NCONF)
+
+      CALL DCOPY_(NG1,WORK(LG1_AVE),1,WORK(LG1),1)
+      CALL DCOPY_(NG2,WORK(LG2_AVE),1,WORK(LG2),1)
+      CALL DCOPY_(NG3MAX,WORK(LG3_AVE),1,WORK(LG3),1)
+
+
+      IF (IFF.EQ.1) THEN
+        CALL DCOPY_(NG1,WORK(LF1_AVE),1,WORK(LF1),1)
+        CALL DCOPY_(NG2,WORK(LF2_AVE),1,WORK(LF2),1)
+        CALL DCOPY_(NG3MAX,WORK(LF3_AVE),1,WORK(LF3),1)
       END IF
 
       IF(NLEV.GT.0) THEN
@@ -126,12 +209,18 @@ C-SVC20100903: during mkfg3, NG3 is set to the actual value
         CALL GETMEM('LG1','FREE','REAL',LG1,NG1)
         CALL GETMEM('LG2','FREE','REAL',LG2,NG2)
         CALL GETMEM('LG3','FREE','REAL',LG3,NG3MAX)
+        CALL GETMEM('LG1_AVE','FREE','REAL',LG1_AVE,NG1)
+        CALL GETMEM('LG2_AVE','FREE','REAL',LG2_AVE,NG2)
+        CALL GETMEM('LG3_AVE','FREE','REAL',LG3_AVE,NG3MAX)
         iPad=ItoB-MOD(6*NG3MAX,ItoB)
         CALL GETMEM('idxG3','FREE','CHAR',LidxG3,6*NG3MAX+iPad)
         IF(IFF.EQ.1) THEN
           CALL GETMEM('LF1','FREE','REAL',LF1,NG1)
           CALL GETMEM('LF2','FREE','REAL',LF2,NG2)
           CALL GETMEM('LF3','FREE','REAL',LF3,NG3MAX)
+          CALL GETMEM('LF1_AVE','FREE','REAL',LF1_AVE,NG1)
+          CALL GETMEM('LF2_AVE','FREE','REAL',LF2_AVE,NG2)
+          CALL GETMEM('LF3_AVE','FREE','REAL',LF3_AVE,NG3MAX)
         END IF
       END IF
 

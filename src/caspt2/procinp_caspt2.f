@@ -263,10 +263,14 @@ C     really parallel or not.
           IOFF=IOFF+NGROUPSTATE(IGROUP)
         End Do
       End If
+* Set exponent for DWH0
+      If (Input%DWH0) Then
+        ZETAF = Input%ZETAF
+        DWSHIFT = 0.0D0
+      End If
 * Set exponent for DWMS
       If (Input%DWMS) Then
-        NZETA = Input%ZETA
-        DWSHIFT = 0.0D0
+        ZETAV = Input%ZETAV
       End If
 * Finally, some sanity checks.
       IF(NSTATE.LE.0.OR.NSTATE.GT.MXROOT) Then
@@ -379,7 +383,8 @@ C     really parallel or not.
       IFMIX = .NOT.Input % NoMix
       IFMSCOUP = (Input % MULT .OR. Input % XMUL)
      &           .AND.(.NOT.Input % NoMult)
-      IFDW  = Input%DWMS
+      IFFDW  = Input%DWH0
+      IFVDW  = Input%DWMS
 
 * Choice? of preprocessing route
       ORBIN='TRANSFOR'

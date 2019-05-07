@@ -41,9 +41,12 @@ C are not supported with stdalloc. Hence, the infraction.
       Logical :: AllXMult = .False.
       ! FXMS      extended multi-state caspt2
       Logical :: FXMS = .False.
-      ! DWMS      dynamically-weight MS-CASPT2
-      Logical :: DWMS = .False.
-      Integer :: ZETA = 50
+      ! DWH0      dynamically-weighted H0 in MS-CASPT2
+      Logical :: DWH0  = .False.
+      Integer :: ZETAF = 0
+      ! DWMS      dynamically-weighted (X)MS-CASPT2
+      Logical :: DWMS  = .False.
+      Integer :: ZETAV = 0
       ! LROO      compute only a single root, mutually exclusive
       !           with both MULT or XMUL
       Logical :: LROO = .False.
@@ -311,10 +314,15 @@ C end of input
       Case('FXMS')
       Input % FXMS = .True.
 
+      Case('DWH0')
+      Input % DWH0 = .True.
+      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
+      Read(Line,*,Err=9920,End=9920) Input % ZETAF
+
       Case('DWMS')
       Input % DWMS = .True.
       If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
-      Read(Line,*,Err=9920,End=9920) Input % ZETA
+      Read(Line,*,Err=9920,End=9920) Input % ZETAV
 
       Case('LROO')
       Input % LROO = .True.

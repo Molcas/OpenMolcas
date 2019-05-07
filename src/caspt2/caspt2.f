@@ -112,10 +112,10 @@ C     effective hamiltonian
 *======================================================================*
 
       CALL MMA_ALLOCATE(HEFF,NSTATE,NSTATE)
-      CALL DCOPY_(NSTATE**2,[0.D0],0,HEFF,1)
+      CALL DCOPY_(NSTATE**2,[0.0D0],0,HEFF,1)
 
       CALL MMA_ALLOCATE(H0,NSTATE,NSTATE)
-      CALL DCOPY_(NSTATE**2,0.D0,0,H0,1)
+      CALL DCOPY_(NSTATE**2,[0.0D0],0,H0,1)
 
 C If the EFFE keyword has been used, we already have the multi state
 C coupling Hamiltonian effective matrix, just copy the energies and
@@ -134,13 +134,16 @@ C second-order correction Heff(2) = PH \Omega_1 P to Heff[1]
           HEFF(I,I) = REFENE(I)
         END DO
         IF (IPRGLB.GE.VERBOSE) THEN
-          WRITE(6,*)' HEFF[1] is initialized to:'
+          WRITE(6,*)' Heff[1] is initialized to:'
           DO I=1,NSTATE
             WRITE(6,'(1x,5f16.8)')(HEFF(I,J),J=1,NSTATE)
           END DO
           WRITE(6,*)
         END IF
       END IF
+
+* Weights init
+      CALL WGTINI
 
 * Before entering the long loop over groups and states, precompute
 * the 1-RDMs for all states and mix them according to the type of
@@ -170,9 +173,9 @@ C of group states for which GRPINI is called.
          JSTATE = JSTATE_OFF + ISTATE
 
 * Initialize the shift for DW-XMS-CASPT2
-         IF (IFDW.AND.IFXMS) THEN
-           DWSHIFT=-H0(ISTATE,ISTATE)
-         END IF
+        !  IF (IFDW.AND.IFXMS) THEN
+        !    DWSHIFT=-H0(ISTATE,ISTATE)
+        !  END IF
 
 C skip this state if we only need 1 state and it isn't this "One"
          IF ((NLYROOT.NE.0).AND.(JSTATE.NE.NLYROOT)) CYCLE
