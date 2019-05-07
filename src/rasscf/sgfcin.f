@@ -50,7 +50,8 @@
 #endif
       use rasscf_data, only : EMY, KSDFT, dftfock, exfac, nac, nacpar,
      &    noneq, potnuc, rfpert,
-     &    tot_charge, tot_el_charge, tot_nuc_charge
+     &    tot_charge, tot_el_charge, tot_nuc_charge,
+     &    doBlockDMRG
       use general_data, only : iSpin, nActEl, nSym, nTot1,
      &    nBas, nIsh, nAsh, nFro
       implicit none
