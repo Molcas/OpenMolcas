@@ -34,7 +34,8 @@
      &                ECAS,CMAX,WEIGHT(mxRoot),DE,CBLBM,
      &                THREN,THFACT,TMIN,PRETHR,PROTHR,
      &                Tot_Charge,Tot_Nuc_Charge,Tot_El_Charge,
-     &                ExFac,VIA_DFT,HALFQ,VIA,HALFQ1,E2act
+     &                ExFac,VIA_DFT,HALFQ,VIA,HALFQ1,E2act,
+     &                CoreShift
 #ifdef _ENABLE_CHEMPS2_DMRG_
      &                ,davidson_tol,chemps2_blb,chemps2_noise
 #endif
@@ -42,7 +43,8 @@
      &                ECAS,CMAX,WEIGHT,DE,CBLBM,
      &                THREN,THFACT,TMIN,PRETHR,PROTHR,
      &                Tot_Charge,Tot_Nuc_Charge,Tot_El_Charge,
-     &                ExFac,VIA_DFT,HALFQ,VIA,HALFQ1,E2act
+     &                ExFac,VIA_DFT,HALFQ,VIA,HALFQ1,E2act,
+     &                CoreShift
 #ifdef _ENABLE_CHEMPS2_DMRG_
      &                ,davidson_tol,chemps2_blb,chemps2_noise
 #endif
@@ -56,8 +58,8 @@
      &                ITMAX,IPT2,ISPDEN,LOWMS,
      &                ISUPSM,IORDEM,IFORDE,IPCMROOT,ICIRFROOT,
      &                iRlxRoot,n_Det,iAlphaBeta,
-     &                MxDMRG,INOCALC,ISAVE_EXP,IEXPAND,hRoots,
-     &                n_keep,hfocc(mxact)
+     &                MxDMRG,INOCALC,ISAVE_EXP,IEXPAND,ITCORE,
+     &                hRoots,n_keep,hfocc(mxact)
 #ifdef _ENABLE_CHEMPS2_DMRG_
      &                ,max_sweep,chemps2_lrestart,max_canonical
 #endif
@@ -70,15 +72,15 @@
      &                ITMAX,IPT2,ISPDEN,LOWMS,
      &                ISUPSM,IORDEM,IFORDE,IPCMROOT,ICIRFROOT,
      &                iRlxRoot,n_Det,iAlphaBeta,
-     &                MxDMRG,INOCALC,ISAVE_EXP,IEXPAND,hRoots,
-     &                n_keep,hfocc
+     &                MxDMRG,INOCALC,ISAVE_EXP,IEXPAND,ITCORE,
+     &                hRoots,n_keep,hfocc
 #ifdef _ENABLE_CHEMPS2_DMRG_
      &                ,max_sweep,chemps2_lrestart,max_canonical
 #endif
 *
       Logical         RFpert,lSquare, Start_Vectors, NonEq, DoFaro
      &                ,DOFCIDUMP,DoBlockDMRG,DoGradPDFT,DoNOGRAD,
-     &                DoGSOR, kIvo
+     &                DoGSOR, kIvo, IfCRPR
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
      &                , Do3RDM
 #endif
@@ -87,7 +89,7 @@
 #endif
       COMMON/LOGINP/  RFpert,lSquare, Start_Vectors, NonEq, DoFaro
      &                ,DOFCIDUMP,DoBlockDMRG,DoGradPDFT,DoNOGRAD,
-     &                DoGSOR, kIvo
+     &                DoGSOR, kIvo, IfCRPR
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
      &                , Do3RDM
 #endif

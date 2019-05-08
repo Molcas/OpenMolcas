@@ -14,23 +14,24 @@
 
       module fciqmc_make_inp
         integer ::
-     &    totalwalkers = 500000,
+! No default value on purpose
+     &    totalwalkers,
+     &    calcrdmonfly(3),
+     &    rdmsamplingiters,
 ! Default value for time per NECI run
      &    Time = 200,
 ! Practically this means no trial_wavefunction by default
      &    trial_wavefunction = 1000000000,
      &    nmcyc = 50000,
      &    pops_trial = 1000,
-     &    rdmsamplingiters =  25000,
      &    stepsshift = 10,
      &    addtoinitiator = 3,
      &    maxwalkerbloom = 1,
-     &    semi_stochastic = 1000,
-     &    highlypopwrite = 50,
-     &    calcrdmonfly(3) = [3, 500, 500]
+     &    semi_stochastic = 500,
+     &    highlypopwrite = 50
         integer, allocatable ::
      &    definedet(:)
-        real(kind=8) ::
+        real*8 ::
      &    proje_changeref = 1.2d0,
      &    max_tau = 0.02d0,
      &    memoryfacpart = 5.0d0,
@@ -44,7 +45,7 @@
       contains
 
 !>  @brief
-!>    generate a standardized Input for NECI
+!>    Generate a standardized Input for NECI
 !>
 !>  @author
 !>    G. Li Manni, Oskar Weser
@@ -126,7 +127,7 @@ c      end if
       write(file_id,'(A7)') 'logging'
       write(file_id, I_fmt) 'Highlypopwrite', Highlypopwrite
       write(file_id,'(A24)') 'Print-Spin-Resolved-RDMS'
-      write(file_id,'(A10)') 'binarypops'
+      write(file_id,'(A)') 'hdf5-pops'
       write(file_id,'(A11)') 'printonerdm'
       write(file_id, '("diagflyonerdm")')
       write(file_id,'(A,1x,I0,1x,I0,1x,I0)')

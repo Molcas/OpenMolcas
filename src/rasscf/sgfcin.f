@@ -10,42 +10,62 @@
 *                                                                      *
 * Copyright (C) 1990, Markus P. Fuelscher                              *
 ************************************************************************
-      Subroutine SGFCIN(CMO,F,FI,D1I,D1A,D1S)
-*
-*     Generate the Fock-matrix for the frozen and inactive orbitals.
-*     Compute also the core energy. Finally, transform the Fock-matrix
-*     into the basis of the active orbitals.
 
-****************************************************************************
-* CMO = list of MO coeff including In, Act, Virt orbitals (input)
-* D1I = 2*\sum_{i}(C_{\mu,i}C^{\dagger}_{\nu,i}) with i = Inactive (input)
-* D1A = 2*\sum_{v}(C_{\mu,v}C^{\dagger}_{\nu,v}) with v =  Active (input)
-* FI  = sum_{\sigma\rho}{{In}^D_{\sigma\rho}(g_{\mu\nu\sigma\rho} - half*g_{\mu\sigma\rho\nu})}   (input/output)
-* In output FI contains also the one-electron contribution
-* F   = Inactive Fock matrix in the basis of the active MO (out)
-****************************************************************************
-*
-*     M.P. Fuelscher, Lund, July 1990
-*
+*>  @brief
+*>    Generate the Fock-Matrix for frozen and inactive orbitals in
+*>      the basis of active orbitals.
+*>
+*>  @author
+*>    Markus P. Fuelscher
+*>
+*>  @details
+*>  Generate the Fock-matrix for the frozen and inactive orbitals.
+*>  Compute also the core energy and write to global variable EMY.
+*>  Finally, transform the generated Fock-matrix
+*>  into the basis of the active orbitals.
+*>  Look into chapters 10.8.3 and 10.8.4 of \cite purple_book.
+*>  The one body density matrices are required for e.g. reaction field
+*>  or DFT calculations. In this case they are used to create a modified
+*>  Fock Matrix.
+*>
+*>  @param[in] CMO The MO-coefficients
+*>  @param[out] F The inactive Fock matrix in the basis of the active MO
+*>  @param[inout] FI The inactive Fock matrix in AO-space
+*>    \f[\sum_{\sigma\rho} D^I_{\sigma\rho}(g_{\mu\nu\sigma\rho} - \frac{1}{2} g_{\mu\sigma\rho\nu})\f]
+*>    In output FI contains also the core energy added to
+*>    the diagonal elements.
+*>    \f[\sum_{\sigma\rho} D^I_{\sigma\rho}(g_{\mu\nu\sigma\rho} - \frac{1}{2} g_{\mu\sigma\rho\nu}) + \frac{E^{(0)}}{n_{el}} \delta_{\mu\nu} \f]
+*>  @param[in] D1I The inactive one-body density matrix in AO-space
+*>    \f[D^{\text{AO}, I} = 2 C (C^I)^\dagger \f]
+*>    See ::get_D1I_rasscf.
+*>  @param[in] D1A The active one-body density matrix in AO-space
+*>    \f[ D^{\text{AO}, A} = C^A D^A (C^A)^\dagger \f]
+*>    See ::get_D1A_rasscf.
+*>  @param[in] D1S The active spin density matrix in AO-space
+*>    \f[ D^{\text{AO}, A}_S = C^A (D^A_\alpha - D^A_\beta) (C^A)^\dagger \f]
+      Subroutine SGFCIN(CMO, F, FI, D1I, D1A, D1S)
 #ifdef _DMRG_
 !     module dependencies
       use qcmaquis_interface_cfg
 #endif
-
-      Implicit Real*8 (A-H,O-Z)
-*
+      use rasscf_data, only : EMY, KSDFT, dftfock, exfac, nac, nacpar,
+     &    noneq, potnuc, rfpert,
+     &    tot_charge, tot_el_charge, tot_nuc_charge,
+     &    doBlockDMRG
+      use general_data, only : iSpin, nActEl, nSym, nTot1,
+     &    nBas, nIsh, nAsh, nFro
+      implicit none
 #include "rasdim.fh"
-#include "general.fh"
 #include "output_ras.fh"
       Parameter (ROUTINE='SGFCIN  ')
-#include "rasscf.fh"
 #include "WrkSpc.fh"
 #include "rctfld.fh"
 #include "pamint.fh"
 #include "timers.fh"
 #include "SysDef.fh"
 *
-      Dimension CMO(*) , F(*) , FI(*) , D1I(*) , D1A(*), D1S(*)
+      real*8, intent(in) :: CMO(*), D1I(*), D1A(*)
+      real*8, intent(inout) :: FI(*), D1S(*), F(*)
       Character*8 Label
       Character*8 PAMlbl
       Logical First, Dff, Do_DFT, Found
@@ -58,8 +78,17 @@
      &                      V_Nuc_AB,V_Nuc_BA,V_emb
       COMMON  / OFembed_I / ipFMaux, ip_NDSD, l_NDSD
 *
-      Parameter ( Zero=0.0d0 , One=1.0d0 )
-      Dimension Dumm(1)
+      real*8, parameter ::  Zero=0.0d0, One=1.0d0
+      real*8 :: CASDFT_Funct, dumm(1), Emyn, energy_nad, Eone,
+     &  Erf1, Erf2, Erfhi, Erfx, Etwo, func_a, func_ab, func_b,
+     &  potnuc_ref, rep_en, v_emb, v_nuc_ab, v_nuc_ba, dDot_
+      integer :: i, iadd, ibas, icharge, iComp,
+     &  ioff, iopt, ip_ndsd,
+     &  ipam, ipfmaux, iprlev, iptmpfcki, ntmpfck,
+     &  irc, iSyLbl,
+     &  iSym, iTmp0, iTmp1, iTmp2, iTmp3, iTmp4, iTmp5, iTmp6, iTmp7,
+     &  iTmp8, iTmpx, iTmpz, iTu, j, l_ndsd, lx0, lx1, lx2, lx3,
+     &  mxna, mxnb, nAt, nst, nt, ntu, nu, nvxc
 
       Call qEnter(ROUTINE)
 C Local print level (if any)
