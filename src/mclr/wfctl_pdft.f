@@ -449,7 +449,7 @@
 !         end do
 *REMOV PREC CI with IPST put back with ips2
 !???
-      Call dcopy_(nconf1*nroots,Work(ipin(ipst)),1,
+      Call dcopy_(nconf1*nroots,Work(ipin(ips2)),1,
      &   Work(ipin(ipCId)),1)
 *      write(*,*) 'ipst,ipcid'
 *      do i=1,nconf1*nroots
@@ -540,8 +540,8 @@
 *
          Call DMinvCI_sa(ipST,Work(ipIn(ipS2)),rCHC,isym,work(ipS))
 *REMOVING CI PREC
-         Call dcopy_(nconf1*nroots,Work(ipin(ipst)),1,
-     &   Work(ipin(ips2)),1)
+*         Call dcopy_(nconf1*nroots,Work(ipin(ipst)),1,
+*     &   Work(ipin(ips2)),1)
 *
          irc=opOut(ipci)
          irc=opOut(ipdia)

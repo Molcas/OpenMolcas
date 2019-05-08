@@ -255,7 +255,7 @@ C Local print level (if any)
        !Load a fresh FockI and FockA
 *        if(jroot.eq.irlxroot) then
          Call dcopy_(ntot1,FI,1,Work(ifocki),1)
-*         Call dcopy_(ntot1,FA,1,Work(ifocka),1)
+         Call dcopy_(ntot1,FA,1,Work(ifocka),1)
 *        end if
 *
 !Read in the density matrices for <jroot>.
@@ -691,10 +691,12 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
             do i=1,nacpar
               write(*,*) work(id1act-1+i)
             end do
+        end if 
             write(6,*) 'id1actao after tractl'
             do i=1,ntot2
               write(*,*) work(id1actao-1+i)
             end do
+         if(iprlev.ge.debug) then
             write(6,*) 'id1i before tractl'
             do i=1,ntot2
               write(*,*) work(id1i-1+i)
@@ -720,6 +722,10 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
              end do
          end  if
 *
+*        if (jroot.ne.irlxroot) then 
+*        Call dcopy_(ntot1,FI,1,Work(ifocki),1)
+*        Call dcopy_(ntot1,FA,1,Work(ifocka),1)
+*        end if 
 *
          Call Fmat_m(CMO,Work(lPUVX),Work(iD1Act),Work(iD1ActAO),
      &             Work(iFockI_save),Work(iFockA))
