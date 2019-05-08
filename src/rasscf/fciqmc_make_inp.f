@@ -16,7 +16,7 @@
         integer ::
 ! No default value on purpose
      &    totalwalkers,
-     &    calcrdmonfly(3),
+     &    calcrdmonfly(2),
      &    rdmsamplingiters,
 ! Default value for time per NECI run
      &    Time = 200,
@@ -27,7 +27,7 @@
      &    stepsshift = 10,
      &    addtoinitiator = 3,
      &    maxwalkerbloom = 1,
-     &    semi_stochastic = 500,
+     &    semi_stochastic = 1000,
      &    highlypopwrite = 50
         integer, allocatable ::
      &    definedet(:)
@@ -131,7 +131,7 @@ c      end if
       write(file_id,'(A11)') 'printonerdm'
       write(file_id, '("diagflyonerdm")')
       write(file_id,'(A,1x,I0,1x,I0,1x,I0)')
-     &     'calcrdmonfly', (calcrdmonfly(i), i=1,3)
+     &     'calcrdmonfly', 3, (calcrdmonfly(i), i=1,2)
       write(file_id,'(A6)') 'endlog'
       write(file_id,'(A3)') 'end'
 
