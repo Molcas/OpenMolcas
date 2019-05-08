@@ -11,12 +11,14 @@
 ! Copyright (C) 2014, Giovanni Li Manni                                *
 !               2019, Oskar Weser                                      *
 !***********************************************************************
-module fciqmc_dump
+module fcidump_dump
+  use fcidump_tables
   implicit none
   private
   public :: dump_ascii, dump_hdf5
   save
 contains
+
 !>  @brief
 !>    Create FCIDUMP file
 !>
@@ -34,9 +36,8 @@ contains
 !>  @param[in] two_el_table
   subroutine dump_ascii(EMY, orbital_table, fock_table, two_el_table)
     use general_data, only : nSym, nActEl, iSpin, lSym, nAsh
-    use fciqmc_tables, only : FockTable, TwoElIntTable, OrbitalTable, length
     implicit none
-    real(kind=8), intent(in) :: EMY
+    real*8, intent(in) :: EMY
     type(OrbitalTable), intent(in) :: orbital_table
     type(FockTable), intent(in) :: fock_table
     type(TwoElIntTable), intent(in) :: two_el_table
@@ -103,15 +104,13 @@ contains
 !>  @param[in] two_el_table
   subroutine dump_hdf5(EMY, orbital_table, fock_table, two_el_table)
     use general_data, only : nSym, nActEl, multiplicity => iSpin, lSym, nAsh
-    use fciqmc_tables, only : FockTable, TwoElIntTable, OrbitalTable, &
-      length, unused
     use gas_data, only : iDoGAS
     use gugx_data, only : IfCAS
 #ifdef _HDF5_
     use mh5
 #endif
     implicit none
-    real(kind=8), intent(in) :: EMY
+    real*8, intent(in) :: EMY
     type(OrbitalTable), intent(in) :: orbital_table
     type(FockTable), intent(in) :: fock_table
     type(TwoElIntTable), intent(in) :: two_el_table
@@ -204,4 +203,4 @@ contains
     end if
 #endif
   end subroutine dump_hdf5
-end module fciqmc_dump
+end module fcidump_dump

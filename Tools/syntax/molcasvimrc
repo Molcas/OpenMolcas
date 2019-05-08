@@ -52,7 +52,7 @@ function! MolcasHelp()
         "restore the original value and show help
         let &l:iskeyword=l:oldiskeyword
         if match(l:keyword,'^[a-z,A-Z,0-9,_]')+1
-                silent execute "split | enew | setlocal buftype=nowrite | r !molcas help -b \"" . l:args . "\""
+                silent execute "split | enew | setlocal buftype=nowrite | r !pymolcas help_doc " . l:args
                 normal! ggdd
         endif
 endfunction

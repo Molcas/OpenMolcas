@@ -18,12 +18,6 @@
       use XYZ
 #endif
       Implicit Real*8 (a-h,o-z)
-      Interface
-        Function INT2CHAR(n,iBase)
-          Integer :: n,iBase
-          Character(Len=iBase) :: INT2CHAR
-        End Function INT2CHAR
-      End Interface
       External NucExp
 #include "para_info.fh"
 *
@@ -1436,11 +1430,11 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
                      Call WarningMessage(2,' Too many atoms in Seward')
                      Call Quit_OnUserError()
                   Else
-                    if (ii .LT. 1000) then
+                     If(ii.LT.1000) Then
                         CHAR4 = '_'//str(ii)
-                    else
+                     Else
                         CHAR4 = str(ii)
-                    end if
+                     End If
                   End If
 
                   nCnt = nCnt + 1
