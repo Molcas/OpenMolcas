@@ -51,7 +51,7 @@
 
         function R_to_str(x) result(str)
           character(:), allocatable :: str
-          real(kind=8), intent(in) :: x
+          real*8, intent(in) :: x
           character(range(x) + 2) :: tmp
           write(tmp, '(I0)') x
           str = trim(tmp)

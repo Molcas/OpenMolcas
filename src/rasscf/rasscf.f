@@ -56,7 +56,9 @@
       use qcmaquis_interface_environment, only:
      &    finalize_dmrg, dump_dmrg_info
 #endif
-      use fciqmc, only : FCIQMC_ctl, DumpOnly, DoNECI
+      use stdalloc
+      use fciqmc, only : FCIQMC_ctl, DoNECI
+      use fcidump, only : make_fcidumps, transform, DumpOnly
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -114,6 +116,9 @@
       COMMON  / OFembed_I / ipFMaux, ip_NDSD, l_NDSD
       Character*8 EMILOOP
 * --------- End Orbital-Free Embedding stuff
+* --------- FCIDUMP stuff:
+      real*8, allocatable :: orbital_E(:), folded_Fock(:)
+* --------- End FCIDUMP stuff:
 
       Common /IDSXCI/ IDXCI(mxAct),IDXSX(mxAct)
 
@@ -139,6 +144,7 @@
 
 * Set status line for monitor:
       Call StatusLine('RASSCF:',' Just started.')
+
 * Set the return code(s)
       ITERM  = 0
       IRETURN=_RC_ALL_IS_WELL_
@@ -236,8 +242,10 @@
        GOTO 9990
       End If
 
+
 * Local print level may have changed:
       IPRLEV=IPRLOC(1)
+
 
       Call InpPri(lOpto)
 
@@ -308,8 +316,8 @@
       end if
 
       If(DumpOnly) then
-        write(6,*) 'Dumping integrals for a FCIQMC job.'
-        write(6,*) 'Nothing else will be done'
+        write(6,*) 'Dumping integrals.'
+        write(6,*) 'Nothing else will be done.'
       end if
 
         If ( NAC.GT.0 ) then
@@ -699,6 +707,12 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
         CALL TRACTL2(WORK(LCMO),WORK(LPUVX),WORK(LTUVX),WORK(LD1I),
      &               WORK(LFI),WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
 
+c         Write(6,*) ' TUVX after TRACTL2'
+c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
+        IF (ITER.eq.1 .and. IfCRPR) Then
+* Core shift applied to projection of WF with doubly occupied core
+          Call MkCRVEC(Work(LCMO),Work(LCRVEC))
+        END IF
 
         If ( IPRLEV.ge.DEBUG ) then
          Write(LF,*)
@@ -739,7 +753,7 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
 
         If ( IPRLEV.ge.DEBUG ) then
          Write(LF,*)
-         Write(LF,*) ' CMO in RASSCF bf firt call to CICTL'
+         Write(LF,*) ' CMO in RASSCF bf first call to CICTL'
          Write(LF,*) ' ---------------------'
          Write(LF,*)
          ioff=1
@@ -760,40 +774,36 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
 *
         Call Timing(Swatch,Swatch,Zenith_1,Swatch)
 
+        if (DumpOnly) then
+          call mma_allocate(orbital_E, nTot)
+          call mma_allocate(folded_Fock, nAcPar)
+          call transform(iter,
+     &                    CMO=work(LCMO : LCMO + nTot2 - 1),
+     &                    DIAF=work(LDIAF : LDiaf + nTot - 1),
+     &                    D1I_AO=work(lD1I : lD1I + nTot2 - 1),
+     &                    D1A_AO=work(lD1A : lD1A + nTot2 - 1),
+     &                    D1S_MO=work(lDSPN : lDSPN + nAcPar - 1),
+     &                    F_IN=work(lFI : lFI + nTot1 - 1),
+     &                    orbital_E=orbital_E,
+     &                    folded_Fock=folded_Fock)
+          call make_fcidumps(orbital_E, folded_Fock,
+     &                       TUVX=work(ltuvx : ltuvx + nAcPr2 - 1),
+     &                       core_energy=EMY)
+          call mma_deallocate(orbital_E)
+          call mma_deallocate(folded_Fock)
+          write(6,*) "FCIDMP file generated. Here for serving you!"
+          goto 2010
+        end if
+
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
-            If(DoBlockDMRG) Then
-              CALL DMRGCTL(WORK(LCMO),
+        If(DoBlockDMRG) Then
+          CALL DMRGCTL(WORK(LCMO),
      &                 WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
      &                 WORK(LFI),WORK(LD1I),WORK(LD1A),
      &                 WORK(LTUVX),IFINAL,0)
-            Else
+        Else
 #endif
-        If(DoNECI) then
-          call FCIQMC_ctl(WORK(LCMO),WORK(LDIAF),
-     &             WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
-     &             WORK(LFI),WORK(LD1I),WORK(LD1A),
-     &             WORK(LTUVX))
-
-         if(DumpOnly)then
-          write(6,*) " FCIDUMP file generated. Here for serving you!"
-          goto 2010
-         end if
-
-         If ( IPRLEV.ge.DEBUG ) then
-         Write(LF,*)
-         Write(LF,*) ' D1A in AO basis in RASSCF after FCIQMC_ctl 1'
-         Write(LF,*) ' ---------------------'
-         Write(LF,*)
-         iOff=1
-         Do iSym = 1,nSym
-          iBas = nBas(iSym)
-          call wrtmat(Work(lD1A+ioff-1),iBas,iBas, iBas, iBas)
-          iOff = iOff + iBas*iBas
-         End Do
-         End if
-        else
-* ------^ End first NECI run
-
+          if (.not. (DoNECI .or. DumpOnly)) then
               CALL CICTL(WORK(LCMO),
      &                 WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
      &                 WORK(LFI),WORK(LD1I),WORK(LD1A),
@@ -1062,11 +1072,18 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
      &           WORK(LTUVX),IFINAL,1)
         Else
 #endif
-        if(DoNECI) then
-          call FCIQMC_ctl(WORK(LCMO),WORK(LDIAF),
-     &             work(ldmat),work(ldspn),work(lpmat),work(lpa),
-     &             work(lfi),work(ld1i),work(ld1a),
-     &             work(ltuvx))
+
+        if (DoNECI) then
+          call FCIQMC_ctl(CMO=work(LCMO : LCMO + nTot2 - 1),
+     &                    DIAF=work(LDIAF : LDiaf + nTot - 1),
+     &                    D1I_AO=work(lD1I : lD1I + nTot2 - 1),
+     &                    D1A_AO=work(lD1A : lD1A + nTot2 - 1),
+     &                    TUVX=work(ltuvx : ltuvx + nAcPr2 - 1),
+     &                    F_IN=work(lFI : lFI + nTot1 - 1),
+     &                    D1S_MO=work(lDSPN : lDSPN + nAcPar - 1),
+     &                    DMAT=work(lDMAT : lDMAT + nAcPar - 1),
+     &                    PSMAT=work(lpmat : lPMat + nAcpr2 - 1),
+     &                    PAMAT=work(lpa : lpa + nAcPr2 - 1))
 
           If ( IPRLEV.ge.DEBUG ) then
            Write(LF,*)
@@ -1709,10 +1726,16 @@ c Clean-close as much as you can the CASDFT stuff...
       Else
 #endif
       if(DoNECI) then
-        call FCIQMC_ctl(WORK(LCMO),WORK(LDIAF),
-     &             work(ldmat),work(ldspn),work(lpmat),work(lpa),
-     &             work(lfi),work(ld1i),work(ld1a),
-     &             work(ltuvx))
+          call FCIQMC_ctl(CMO=work(LCMO : LCMO + nTot2 - 1),
+     &                    DIAF=work(LDIAF : LDiaf + nTot - 1),
+     &                    D1I_AO=work(lD1I : lD1I + nTot2 - 1),
+     &                    D1A_AO=work(lD1A : lD1A + nTot2 - 1),
+     &                    TUVX=work(ltuvx : ltuvx + nAcPr2 - 1),
+     &                    F_IN=work(lFI : lFI + nTot1 - 1),
+     &                    D1S_MO=work(lDSPN : lDSPN + nAcPar - 1),
+     &                    DMAT=work(lDMAT : lDMAT + nAcPar - 1),
+     &                    PSMAT=work(lpmat : lPMat + nAcpr2 - 1),
+     &                    PAMAT=work(lpa : lpa + nAcPr2 - 1))
       else
 ! Leon 27/11/2017: Skip the final CI iteration if we're using DMRGCI
 ! and CIOnly. It's enabled only for DMRGCI with QCMaquis now
@@ -1744,6 +1767,11 @@ c Clean-close as much as you can the CASDFT stuff...
        END DO
       end if
       IF(NAC.EQ.0) EAV=ECAS
+      IF(NCRVEC.gt.0) then
+* Core shift has been used
+        Call GetMem('CRVEC','Free','Real',LCRVEC,NCRVEC)
+        Call GetMem('CRPROJ','Free','Real',LCRPROJ,NCRPROJ)
+      END IF
       Call Timing(Swatch,Swatch,Zenith_2,Swatch)
       Zenith_2 = Zenith_2 - Zenith_1
       Zenith_3 = Zenith_3 + Zenith_2
@@ -1955,7 +1983,7 @@ c deallocating TUVX memory...
 
 *
 * Skip Lucia stuff if NECI or BLOCK-DMRG is on
-      If(.not.(DoNECI.or.doDMRG.or.doBlockDMRG)) then
+      If(.not.(DoNECI.or.DumpOnly.or.doDMRG.or.doBlockDMRG)) then
           Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
        end if
        if(DoNECI) then
@@ -2008,7 +2036,8 @@ c      End If
          EndIf
       EndIf
 
-      if(.not.(iDoGas.or.doDMRG.or.doBlockDMRG.or.DoNECI)) then
+      if (.not. (iDoGas .or. doDMRG .or. doBlockDMRG
+     &          .or. DoNECI .or. DumpOnly)) then
         Call MKGUGA_FREE
       end if
 

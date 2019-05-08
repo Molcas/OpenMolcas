@@ -168,6 +168,12 @@ C        ICIRST=1 ! to be activated!
 * Default thresholds used to determine convergence in CI
       THREN=1.0D-04
       THFACT=1.0D-03
+* PAM 2017, Additional shift for douby occupied core states
+* in order to compute core hole states. The core orbital is
+* specified as one particular orbital in the input orbital set.
+      CORESHIFT=0.0D0
+      ITCORE=0
+      IFCRPR=.false.
 * PAM 2009, new default value for LVSHFT
 * level shift parameter
       LVSHFT=0.5D00

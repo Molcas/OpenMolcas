@@ -24,8 +24,8 @@
             computed also for the non-interacting linear combinations of states,
             i.e., doing a limited CI using the RASSCF states as a non-orthogonal basis.
             RASSI is extensively used for computing dipole oscillator strengths.
-            Finally, it can also compute Spin-Orbit interaction matrix elements
-            and e.g. transition dipole moments for spin-orbit eigenstates.
+            Finally, it can also compute e.g. spin-orbit interaction matrix elements,
+            transition dipole moments, (bi-)natural orbitals and other quantities.
             </HELP>
 
 The
@@ -276,9 +276,11 @@ Output files
   A number of files containing natural orbitals, (numbered sequentially as
   :file:`SIORB01`, :file:`SIORB02`, etc.)
 
-:file:`BRAORBnnmm`, :file:`KETORBnnmm`
+:file:`BIORBnnmm`
   A number of files containing binatural orbitals for the transition between
-  states nn and mm.
+  states ``nn`` and ``mm``. Each such file contains pairs of orbitals, in the same format
+  as the :math:`\alpha` and :math:`\beta` components of UHF orbitals. The file for transition
+  to state ``nn``\ =2 from state ``mm``\ =1 will be named :file:`BIORB.2_1`.
 
 :file:`TOFILE`
   This output is only created if :kword:`TOFIle` is given in the input.
@@ -697,18 +699,18 @@ Keywords
 :kword:`BINAtorb`
   The next entry gives the number of transitions for which binatural
   orbitals will be computed. Then a line should follow for each transition,
-  with the two states involved. The binatural orbitals will be written, formatted, commented,
-  and followed by singular values, on two files for each transition.
-  For file names, see the Files section.
-  The format allows their use as standard orbital input files to
-  other |molcas| programs.
+  with the two states involved. The orbitals and singular values provide a
+  singular value decomposition of a transition density matrix \cite{Malmqvist:2012}.
+  The bra and ket orbitals are written followed by the singular values in the
+  usual UHF format used by other |molcas| programs.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="BINATORB" APPEAR="Binatural Orbitals" KIND="INTS_COMPUTED" SIZE="2" LEVEL="BASIC">
               %%Keyword: BiNatOrb <basic>
               <HELP>
-              Enter the number of eigenstates, for which binatural orbitals should
-              be computed and written to file. These will be written together with
-              the singular values in the usual format used by MOLCAS.
+              Enter the number of transitions, for which binatural orbitals should
+              be computed and written to file. Then a line should follow with the two
+              states for each transition. The ket and the bra orbitals are written
+              followed by the singular values in the the usual format used by MOLCAS.
               </HELP>
               </KEYWORD>
 

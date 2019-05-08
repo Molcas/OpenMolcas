@@ -81,8 +81,8 @@
       end subroutine
 
       subroutine R_swap(a, b)
-        real(kind=8), intent(inout) :: a, b
-        real(kind=8) :: t
+        real*8, intent(inout) :: a, b
+        real*8 :: t
         t = a; a = b; b = t
       end subroutine
 
@@ -118,8 +118,8 @@
 
       subroutine R_naive_sort(V, increasing)
         implicit none
-        real(kind=8), intent(inout) :: V(:)
-        real(kind=8) :: t
+        real*8, intent(inout) :: V(:)
+        real*8 :: t
         logical, intent(in) :: increasing
         integer :: i, j
 
@@ -190,8 +190,8 @@
 
       recursive subroutine R_quicksort(V, increasing)
       implicit none
-      real(kind=8), intent(inout) :: V(:)
-      real(kind=8) :: pivot
+      real*8, intent(inout) :: V(:)
+      real*8 :: pivot
       logical, intent(in) :: increasing
       integer :: first, last, i, j
 
@@ -242,7 +242,7 @@
 
       subroutine R_sort(V, increasing)
         implicit none
-        real(kind=8), intent(inout):: V(:)
+        real*8, intent(inout):: V(:)
         logical, optional :: increasing
         logical :: increasing_
         increasing_ = merge(increasing, .true., present(increasing))
@@ -334,7 +334,7 @@
 
       function R_argsort(A, increasing) result(idx)
         implicit none
-        real(kind=8), intent(inout) :: A(:)
+        real*8, intent(inout) :: A(:)
         logical, optional :: increasing
         logical :: increasing_
         integer :: idx(size(A)), i
@@ -345,7 +345,7 @@
           recursive subroutine own_quicksort(idx, increasing)
             implicit none
             integer, intent(inout) :: idx(:)
-            real(kind=8) :: pivot
+            real*8 :: pivot
 
             logical, intent(in) :: increasing
             integer :: i, j
