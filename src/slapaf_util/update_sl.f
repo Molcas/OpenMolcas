@@ -205,6 +205,7 @@ c Avoid unused argument warnings
 #ifdef _TEST_KRIGING_
             Call mma_Allocate(dq,nInter,Label='dq')
             Do i = iFirst, iFirst+nRaw-1
+               Write (6,*) 'before sending',qInt(1,i)
                Call Energy_Kriging(qInt(1,i),E_test,nInter)
                Write (6,*) 'Energy=',E_test
                Call Gradient_Kriging(qInt(1,i),dq,nInter)

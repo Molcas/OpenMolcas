@@ -17,8 +17,9 @@
 !       write(6,*) 'Deallocating all kriging variables'
         deallocate (x,y,dy,nx,l)
         deallocate (Rones)
-        deallocate (full_R,rl,dl,mat,Iden)
+        deallocate (full_R,Iden)
         deallocate (kv,pred,gpred,hpred,var,sigma,cv,ll)
+        deallocate (cvMatFder,cvMatSder,cvMatTder)
 !
         return
       end
