@@ -37,7 +37,7 @@ C 2 = spin dependent property, triplet operator
            IF(IPRCMP.EQ.ICOMP(IPROP)) IPRNUM=IPROP
         ELSE IF (PRLBL(1:4).EQ.'SPIN') THEN
            IFSPIN=1
-        ELSE IF (PRLBL(1:5).EQ.'TMOS0') THEN
+        ELSE IF (PRLBL(1:5).EQ.'TMOM0') THEN
            IFSPIN=2
 *
 *          Note that the integral is complex. Select the real or the

@@ -33,7 +33,7 @@
 *     Write (*,*) 'MK_PROP:',LABEL,ITYPE
 *     Write (*,*) 'IOFF=',IOFF
 *     Write (*,*) 'MASK,ISY12=',MASK,ISY12
-*     IF (LABEL(1:4).EQ.'TMOS') THEN
+*     IF (LABEL(1:4).EQ.'TMOM') THEN
 *        PORIG(1,IPROP)=0.0D0
 *        PORIG(2,IPROP)=0.0D0
 *        PORIG(3,IPROP)=0.0D0
@@ -60,7 +60,7 @@
 *     Write (*,*) 'NBUFF,NSIZ=',NBUFF,NSIZ
 *     Write (*,*) 'Int=',DDOT_(NSIZ,BUFF,1,BUFF,1),
 *    &                   DDOT_(NSIZ,1.0D0,0,BUFF,1)
-      IF ( IRC.NE.0.AND.LABEL(1:4).NE.'TMOS' ) THEN
+      IF ( IRC.NE.0.AND.LABEL(1:4).NE.'TMOM' ) THEN
          WRITE(6,*)
          WRITE(6,'(6X,A)')'*** ERROR IN SUBROUTINE MK_PROP ***'
          WRITE(6,'(6X,A)')'  FAILED IN READING FROM  ONEINT'

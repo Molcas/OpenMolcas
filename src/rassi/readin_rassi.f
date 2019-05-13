@@ -668,21 +668,21 @@ C ------------------------------------------
         GOTO 100
       END IF
 C ------------------------------------------
-      If(Line(1:4).eq.'TMOS') then
+      If(Line(1:4).eq.'TINT') then
 ! Calculate exact isotropically averaged semi-classical intensities
-! Activate integration of transition moment oscillator strengths
+! Activate integration of transition intensities
 ! based on the exact non-relativistic Hamiltonian in the weak field
 ! approximation.
-        Do_TMOS=.TRUE.
+        Do_TMOM=.TRUE.
         ToFile=.TRUE.
         Linenr=Linenr+1
         GoTo 100
       Endif
 C ------------------------------------------
-      If(Line(1:4).eq.'TMGR') then
-! Group exact TMOS to reduce computational cost
+      If(Line(1:4).eq.'TIGR') then
+! Group exact TINT to reduce computational cost
 ! TMGr_thrs is the tolerance in the relative energy (unitless)
-! TMGr_thrs only works with REDL keyword
+! TMGr_thrs only works with SUBS keyword
         Read(LuIn,*,ERR=997) TMGr_thrs
         Linenr=Linenr+1
         GoTo 100
@@ -711,7 +711,7 @@ C ------------------------------------------
         GOTO 100
       END IF
 C ------------------------------------------
-      IF(LINE(1:4).EQ.'REDL')THEN
+      IF(LINE(1:4).EQ.'SUBS')THEN
 ! Reduce looping in intensities. Set limit for the inner and outer loop
         REDUCELOOP=.TRUE.
         Read(LuIn,*,ERR=997) LOOPDIVIDE
@@ -719,17 +719,17 @@ C ------------------------------------------
         GOTO 100
       END IF
 C ------------------------------------------
-      If(Line(1:4).eq.'L-EF') then
+      If(Line(1:4).eq.'IIOR') then
 ! Set the order of the Lebedev polynomials used for the numerical
-! integration over solid angles. Current default 5.
+! isotropic integration. Current default 5.
         Read(LuIn,*,ERR=997) L_Eff
         Linenr=Linenr+1
         GoTo 100
       Endif
 C--------------------------------------------
-      If(Line(1:4).eq.'KVEC') then
+      If(Line(1:4).eq.'DIRE') then
 ! Set a specific direction of the incident light when computing
-! the transition moment and oscillator stength in the use of
+! the transition intensities in the use of
 ! the vector field (A) in the non-relativistic Hamiltonian.
         Do_SK=.TRUE.
         Read(LuIn,*,ERR=997) nk_Vector

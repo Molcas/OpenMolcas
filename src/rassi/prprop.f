@@ -1011,8 +1011,7 @@ C printing threshold
          END IF
 
          ONEOVER6C2=1.0D0/(6.0D0*CONST_C_IN_AU_**2)
-!        Well I assume that the g-factor for the electron is 2
-         g = 2.0D0
+         g = FEGVAL
          DO ISS=1,IEND
           DO JSS=JSTART,NSS
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
@@ -2370,7 +2369,7 @@ C printing threshold
 *                                                                      *
 ************************************************************************
 *
-      If (Do_TMOS)
+      If (Do_TMOM)
      &   Call PRPROP_TM_Exact(PROP,USOR,USOI,ENSOR,NSS,OVLP,ENERGY,
      &                        JBNUM)
 *

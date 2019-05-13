@@ -2,7 +2,7 @@
 * Molecule: 2-chloropropionitrile
 * Basis: ANO-RCC-MB
 * Symmetry: No symmetry
-* Keywords tested: REDL, KVEC, and TMOS
+* Keywords tested: SUBS, DIRE, and TINT
 * Responsible person: Roland Lindh (180210)
 * Comments: tests 414 and 415 are identical apart from that the molecule is
 *           the chiral partner - rotatory strength should have the same value
@@ -44,9 +44,9 @@ RICD
    Nr of JobIph files:
       1 6
       1 2 3 4 5 6
-   TMOS
-   REDL=1
-   kVectors=2; 1.0 0.0 0.0; 0.0 1.0 0.0
+   TINT
+   SUBS=1
+   Directions=2; 1.0 0.0 0.0; 0.0 1.0 0.0
    SpinOrbit
 
 >>> File $Project.xyz

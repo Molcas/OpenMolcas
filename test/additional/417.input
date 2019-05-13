@@ -61,11 +61,11 @@ spin=$SPIN
  &RASSI
 spin
 ejob
-redl=1
+subs=1
 QIPR=0
 DIPR=0
-TMOS
-TMGr=0.005
+TINT
+TIGr=0.005
 
 
 >>>> FILE FileOrb

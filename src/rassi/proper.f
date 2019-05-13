@@ -190,7 +190,7 @@ c the EF2 term without the nuclear contribution
           !write(6,*)"EF2---->ASD Here"
         END IF
         IF(LABEL(1:3).EQ.'SMQ') CYCLE
-        IF(LABEL(1:4).EQ.'TMOS') CYCLE
+        IF(LABEL(1:4).EQ.'TMOM') CYCLE
 
         IF(LABEL(1:4).EQ.'PSOP') THEN
           LABEL(1:4) = 'PSOI'

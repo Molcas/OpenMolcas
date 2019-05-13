@@ -35,7 +35,7 @@ C 2 = spin dependent property, triplet operator
 
       DO IPROP=1,NPROP
          IF (PRLBL.EQ.PNAME(IPROP)) THEN
-            IF (PRLBL(1:5).eq.'TMOS0') THEN
+            IF (PRLBL(1:5).eq.'TMOM0') THEN
                IFSPIN=2
                IPRNUM=IPROP
                EXIT

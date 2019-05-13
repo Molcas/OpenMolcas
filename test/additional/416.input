@@ -2,7 +2,7 @@
 * Molecule: Butadiene
 * Basis: ANO-RCC-VDZP
 * Symmetry: No symmetry
-* Keywords tested: REDL and TMOS
+* Keywords tested: SUBS, TINT and IIOR
 * Responsible person: Roland Lindh (180210)
 * Comments: This test that the exact operator is computed correctly in the case
 *           that the SFS Hamiltonian is not diagonal or if the states are    
@@ -35,8 +35,9 @@
 &RASSI
   NrOfJob = 1 all
   EJob
-  TMOS
-  RedL = 1
+  TINT
+  IIOR = 11
+  SUBS = 1
   SpinOrbit
 
 >>>> FILE C4H6.xyz

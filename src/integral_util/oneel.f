@@ -266,32 +266,32 @@ c               Close(28)
                Else If ((iComp+2)/3.eq.4) Then
                   L_Temp='EMFR  IA'
                End If
-             Else If (Label(1:5).eq.'TMOS0') Then
+             Else If (Label(1:5).eq.'TMOM0') Then
                If (iComp.eq.1) Then
-                  L_Temp='TMOS0  R'
+                  L_Temp='TMOM0  R'
                   iComp_=1
                Else
-                  L_Temp='TMOS0  I'
+                  L_Temp='TMOM0  I'
                   iComp_=1
                End If
-             Else If (Label(1:5).eq.'TMOS2') Then
+             Else If (Label(1:5).eq.'TMOM2') Then
                If (iComp.eq.1) Then
-                  L_Temp='TMOS2  R'
+                  L_Temp='TMOM2  R'
                   iComp_=1
                Else
-                  L_Temp='TMOS2  I'
+                  L_Temp='TMOM2  I'
                   iComp_=1
                End If
-            Else If (Label(1:5).eq.'TMOS ') Then
+            Else If (Label(1:5).eq.'TMOM ') Then
                iComp_=MOD(iComp+2,3)+1
                If ((iComp+2)/3.eq.1) Then
-                  L_Temp='TMOS  RS'
+                  L_Temp='TMOM  RS'
                Else If ((iComp+2)/3.eq.2) Then
-                  L_Temp='TMOS  RA'
+                  L_Temp='TMOM  RA'
                Else If ((iComp+2)/3.eq.3) Then
-                  L_Temp='TMOS  IS'
+                  L_Temp='TMOM  IS'
                Else If ((iComp+2)/3.eq.4) Then
-                  L_Temp='TMOS  IA'
+                  L_Temp='TMOM  IA'
                End If
             Else
                L_Temp=Label
@@ -576,14 +576,14 @@ C     Logical Addpot
 *
             rHrmt_Save=rHrmt
 
-            If (Label(1:5).eq.'EMFR '.or.Label(1:5).eq.'TMOS ') Then
+            If (Label(1:5).eq.'EMFR '.or.Label(1:5).eq.'TMOM ') Then
                If (MOD((iComp+5),6).lt.3) Then
                   rHrmt= One
                Else
                   rHrmt=-One
                End If
             Else If (Label(1:5).eq.'EMFR0'.or.
-     &               Label(1:5).eq.'TMOS0') Then
+     &               Label(1:5).eq.'TMOM0') Then
                If (iComp.eq.1) Then
                   rHrmt= One
                Else

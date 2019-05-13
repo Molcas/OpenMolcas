@@ -2,7 +2,7 @@
 * Molecule: Water (H2O)
 * Basis: ANO-RCC-VDZP
 * Symmetry: C2v
-* Keywords tested: hexs, redl
+* Keywords tested: hexs, subs
 * Responsible person: M.G. Delcey
 * Comments:
 *-------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ charge=1
 
  &RASSI
 ejob
-redl=3
+subs=3
 
 >>> FILE StartOrb
 #INPORB 2.2

@@ -585,9 +585,6 @@ cperiod
 c977  Call WarningMessage(2,' Premature end of input file.')
 c     Call Quit_OnUserError()
 *
-c988  Call WarningMessage(2,' Error while reading input file.;'//
-c    &                ' Last read was:'//KWord)
-c     Call Abend()
 #ifdef _FDE_
 *                                                                      *
 ****** EMBE ************************************************************

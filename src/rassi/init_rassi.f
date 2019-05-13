@@ -157,7 +157,7 @@ C DEFAULT FLAGS:
       DYSO=.FALSE.
       DYSEXPORT=.FALSE.
 * Exact operator
-      Do_TMOS=.FALSE.
+      Do_TMOM=.FALSE.
       PRRAW=.FALSE.
       PRWEIGHT=.FALSE.
       NEW_TOLERANCE=.FALSE.
@@ -238,7 +238,7 @@ c BP - Hyperfine tensor and SONATORB initialization
         WRITE(6,*)'     ONLY_OVERLAPS:',ONLY_OVERLAPS
         WRITE(6,*)'     IfDCpl:',IfDCpl
         WRITE(6,*)'     IFCURD:',IFCURD
-        WRITE(6,*)'     Do_TMOS:',Do_TMOS
+        WRITE(6,*)'     Do_TMOM:',Do_TMOM
         WRITE(6,*)'     Do_SK:',Do_SK
         WRITE(6,*)'     L_Eff:',L_Eff
         WRITE(6,*)'     CD:',DOCD

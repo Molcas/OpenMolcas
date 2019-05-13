@@ -108,10 +108,10 @@ C printing threshold
 *     The operator is split in 4 different component, each with three
 *     elements corresponding to differentiation in the x, y, and z
 *     direction. The four parts are labels as:
-*     TMOS  RS: The symmetric part of the real comp. of the op.
-*     TMOS  RA: The asymmetric part of the real comp. of the op.
-*     TMOS  IS: The symmetric part of the imaginary comp. of the op.
-*     TMOS  IA: The asymmetric part of the imaginary comp. of the op.
+*     TMOM  RS: The symmetric part of the real comp. of the op.
+*     TMOM  RA: The asymmetric part of the real comp. of the op.
+*     TMOM  IS: The symmetric part of the imaginary comp. of the op.
+*     TMOM  IA: The asymmetric part of the imaginary comp. of the op.
 *
 ************************************************************************
 *                                                                      *
@@ -128,23 +128,23 @@ C printing threshold
 *     Find the slot on the one-electron file where we will store the
 *     on-the-fly generated property integrals.
 *
-      IPRTMOS_RS=-1
+      IPRTMOM_RS=-1
       DO IPROP=1,NPROP
-         IF (PNAME(IPROP).EQ.'TMOS  RS'.AND.IPRTMOS_RS.EQ.-1) THEN
-            IPRTMOS_RS=IPROP
+         IF (PNAME(IPROP).EQ.'TMOM  RS'.AND.IPRTMOM_RS.EQ.-1) THEN
+            IPRTMOM_RS=IPROP
          END IF
       ENDDO
-      IF (IPRTMOS_RS.EQ.-1) RETURN
-      IPRTMOS_0R=IPRTMOS_RS-2
-      IF (PNAME(IPRTMOS_0R).NE.'TMOS0  R') RETURN
-      IPRTMOS_0I=IPRTMOS_RS-1
-      IF (PNAME(IPRTMOS_0I).NE.'TMOS0  I') RETURN
-      IPRTMOS_RA=IPRTMOS_RS+3
-      IF (PNAME(IPRTMOS_RA).NE.'TMOS  RA') RETURN
-      IPRTMOS_IS=IPRTMOS_RS+6
-      IF (PNAME(IPRTMOS_IS).NE.'TMOS  IS') RETURN
-      IPRTMOS_IA=IPRTMOS_RS+9
-      IF (PNAME(IPRTMOS_IA).NE.'TMOS  IA') RETURN
+      IF (IPRTMOM_RS.EQ.-1) RETURN
+      IPRTMOM_0R=IPRTMOM_RS-2
+      IF (PNAME(IPRTMOM_0R).NE.'TMOM0  R') RETURN
+      IPRTMOM_0I=IPRTMOM_RS-1
+      IF (PNAME(IPRTMOM_0I).NE.'TMOM0  I') RETURN
+      IPRTMOM_RA=IPRTMOM_RS+3
+      IF (PNAME(IPRTMOM_RA).NE.'TMOM  RA') RETURN
+      IPRTMOM_IS=IPRTMOM_RS+6
+      IF (PNAME(IPRTMOM_IS).NE.'TMOM  IS') RETURN
+      IPRTMOM_IA=IPRTMOM_RS+9
+      IF (PNAME(IPRTMOM_IA).NE.'TMOM  IA') RETURN
 *
 *     Initiate the Seward environment
 *
@@ -482,7 +482,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *              direction of the wave vector k.
 *
                iOpt=2
-               Call TMOSInt(wavevector,iOpt)
+               Call TMOMInt(wavevector,iOpt)
 *
 ************************************************************************
 *                                                                      *
@@ -491,7 +491,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *                                                                      *
 ************************************************************************
 *
-               DO IPROP = IPRTMOS_RS-2, IPRTMOS_RS+11
+               DO IPROP = IPRTMOM_RS-2, IPRTMOM_RS+11
                   Call FZero(PROP(1,1,IPROP),NSTATE**2)
                End Do
 
@@ -545,7 +545,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *                    Compute the transition property of the property
 *                    integrals between the two states.
 *
-                     DO IPROP = IPRTMOS_RS-2, IPRTMOS_RS+11
+                     DO IPROP = IPRTMOM_RS-2, IPRTMOM_RS+11
                         ITYPE=0
                         IF (PTYPE(IPROP).EQ.'HERMSING') ITYPE=1
                         IF (PTYPE(IPROP).EQ.'ANTISING') ITYPE=2
@@ -584,10 +584,10 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *                 The electric (symmetric) part
 *
 *                 the real symmetric part
-                  CALL SMMAT2(PROP,WORK(LDXR),NSS,'TMOS  RS',iCar,IJSF)
+                  CALL SMMAT2(PROP,WORK(LDXR),NSS,'TMOM  RS',iCar,IJSF)
 *
 *                 the imaginary symmetric part
-                  CALL SMMAT2(PROP,WORK(LDXI),NSS,'TMOS  IS',iCar,IJSF)
+                  CALL SMMAT2(PROP,WORK(LDXI),NSS,'TMOM  IS',iCar,IJSF)
 *
 *                 Transform properties to the spin-orbit basis
 *                 and pick up correct element
@@ -606,10 +606,10 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *                 The magnetic (antisymmetric) part
 *
 *                 the real anti-symmetric part
-                  CALL SMMAT2(PROP,WORK(LDXR),NSS,'TMOS  RA',iCar,IJSF)
+                  CALL SMMAT2(PROP,WORK(LDXR),NSS,'TMOM  RA',iCar,IJSF)
 *
 *                 the imaginary anti-symmetric part
-                  CALL SMMAT2(PROP,WORK(LDXI),NSS,'TMOS  IA',iCar,IJSF)
+                  CALL SMMAT2(PROP,WORK(LDXI),NSS,'TMOM  IA',iCar,IJSF)
 *
 *                 Transform properties to the spin-orbit basis
 *                 and pick up correct element
@@ -657,18 +657,18 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                   If (iCar.eq.1.or.iCar.eq.3) Then
 *
 *                    pick up the real component
-                   CALL SMMAT2(PROP,WORK(LDXR),NSS,'TMOS0  R',iCar,IJSF)
+                   CALL SMMAT2(PROP,WORK(LDXR),NSS,'TMOM0  R',iCar,IJSF)
 *                    pick up the imaginary component
-                   CALL SMMAT2(PROP,WORK(LDXI),NSS,'TMOS0  I',iCar,IJSF)
+                   CALL SMMAT2(PROP,WORK(LDXI),NSS,'TMOM0  I',iCar,IJSF)
                   Else
 *                    For the y-component we have to interchange the real and
 *                    the imaginary components. The real component gets a
 *                    minus sign due to the product ixi=-1
 *
 *                    pick up the real component
-                   CALL SMMAT2(PROP,WORK(LDXI),NSS,'TMOS0  R',iCar,IJSF)
+                   CALL SMMAT2(PROP,WORK(LDXI),NSS,'TMOM0  R',iCar,IJSF)
 *                    pick up the imaginary component
-                   CALL SMMAT2(PROP,WORK(LDXR),NSS,'TMOS0  I',iCar,IJSF)
+                   CALL SMMAT2(PROP,WORK(LDXR),NSS,'TMOM0  I',iCar,IJSF)
                      Call DScal_(NSS**2,-1.0D0,WORK(LDXR),1)
                   End If
                   CALL ZTRNSF(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI))
@@ -727,7 +727,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
      &                               DBLE(TM1)*AIMAG(TM2)
      &                              -DBLE(TM2)*AIMAG(TM1)
      &                               )
-                   R_Temp= TM_2*SPEED_OF_LIGHT/EDIFF**2/4.0D0*AU2REDR
+                   R_Temp=0.75D0*SPEED_OF_LIGHT/EDIFF**2*TM_2
+                   R_Temp=R_Temp*AU2REDR
 *
 *              Save the raw oscillator strengths in a given direction
 *
@@ -887,7 +888,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
       End Do ! iVec
       Call CWTime(TCpu2,TWall2)
-      write(6,*) 'Time for TMOS : ',TCpu2-TCpu1,TWall2-TWall1
+      write(6,*) 'Time for TMOM : ',TCpu2-TCpu1,TWall2-TWall1
 *
 #ifdef _HDF5_
       Call mh5_put_dset(wfn_sos_tm,Work(ipStorage))

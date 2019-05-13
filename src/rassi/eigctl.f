@@ -1987,7 +1987,7 @@ C And the same for the Dyson amplitudes
 *                                                                      *
 ************************************************************************
 *
-      If (.Not.Do_TMOS) Go To 900
+      If (.Not.Do_TMOM) Go To 900
       Call CWTime(TCpu1,TWall1)
 *
 *     Here we will use a Lebedev grid to integrate over all possible
@@ -1998,19 +1998,19 @@ C And the same for the Dyson amplitudes
 *     Find the slot on the one-electron file where we will store the
 *     on-the-fly generated property integrals.
 *
-      IPRTMOS_RS=-1
+      IPRTMOM_RS=-1
       DO IPROP=1,NPROP
-         IF (PNAME(IPROP).EQ.'TMOS  RS'.AND.IPRTMOS_RS.EQ.-1) THEN
-            IPRTMOS_RS=IPROP
+         IF (PNAME(IPROP).EQ.'TMOM  RS'.AND.IPRTMOM_RS.EQ.-1) THEN
+            IPRTMOM_RS=IPROP
          END IF
       ENDDO
-      IF (IPRTMOS_RS.EQ.-1) GOTO 900
-      IPRTMOS_RA=IPRTMOS_RS+3
-      IF (PNAME(IPRTMOS_RA).NE.'TMOS  RA') GOTO 900
-      IPRTMOS_IS=IPRTMOS_RS+6
-      IF (PNAME(IPRTMOS_IS).NE.'TMOS  IS') GOTO 900
-      IPRTMOS_IA=IPRTMOS_RS+9
-      IF (PNAME(IPRTMOS_IA).NE.'TMOS  IA') GOTO 900
+      IF (IPRTMOM_RS.EQ.-1) GOTO 900
+      IPRTMOM_RA=IPRTMOM_RS+3
+      IF (PNAME(IPRTMOM_RA).NE.'TMOM  RA') GOTO 900
+      IPRTMOM_IS=IPRTMOM_RS+6
+      IF (PNAME(IPRTMOM_IS).NE.'TMOM  IS') GOTO 900
+      IPRTMOM_IA=IPRTMOM_RS+9
+      IF (PNAME(IPRTMOM_IA).NE.'TMOM  IA') GOTO 900
 *
 *     Initiate the Seward environment
 *
@@ -2329,7 +2329,7 @@ C And the same for the Dyson amplitudes
 *              direction of the wave vector k.
 *
                iOpt=1
-               Call TMOSInt(Wavevector,iOpt)
+               Call TMOMInt(Wavevector,iOpt)
 *
 *              Compute the transition property of the property
 *              integrals between the two states.
@@ -2378,7 +2378,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                      ij=ISTATE*(ISTATE-1)/2+JSTATE
                      iDisk=iWork(liTocM+ij-1)
                      Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
-               DO IPROP = IPRTMOS_RS, IPRTMOS_RS+11
+               DO IPROP = IPRTMOM_RS, IPRTMOM_RS+11
                   ITYPE=0
                   IF (PTYPE(IPROP).EQ.'HERMSING') ITYPE=1
                   IF (PTYPE(IPROP).EQ.'ANTISING') ITYPE=2
@@ -2394,16 +2394,16 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *
 *              The contribution to the generalized momentum operator.
 *
-               TMX_R=PROP(I,J,IPRTMOS_RS  )+PROP(I,J,IPRTMOS_RA  )
-               TMX_I=PROP(I,J,IPRTMOS_IS  )+PROP(I,J,IPRTMOS_IA  )
+               TMX_R=PROP(I,J,IPRTMOM_RS  )+PROP(I,J,IPRTMOM_RA  )
+               TMX_I=PROP(I,J,IPRTMOM_IS  )+PROP(I,J,IPRTMOM_IA  )
                T0(1)=DCMPLX(TMX_R,TMX_I)
 *
-               TMY_R=PROP(I,J,IPRTMOS_RS+1)+PROP(I,J,IPRTMOS_RA+1)
-               TMY_I=PROP(I,J,IPRTMOS_IS+1)+PROP(I,J,IPRTMOS_IA+1)
+               TMY_R=PROP(I,J,IPRTMOM_RS+1)+PROP(I,J,IPRTMOM_RA+1)
+               TMY_I=PROP(I,J,IPRTMOM_IS+1)+PROP(I,J,IPRTMOM_IA+1)
                T0(2)=DCMPLX(TMY_R,TMY_I)
 *
-               TMZ_R=PROP(I,J,IPRTMOS_RS+2)+PROP(I,J,IPRTMOS_RA+2)
-               TMZ_I=PROP(I,J,IPRTMOS_IS+2)+PROP(I,J,IPRTMOS_IA+2)
+               TMZ_R=PROP(I,J,IPRTMOM_RS+2)+PROP(I,J,IPRTMOM_RA+2)
+               TMZ_I=PROP(I,J,IPRTMOM_IS+2)+PROP(I,J,IPRTMOM_IA+2)
                T0(3)=DCMPLX(TMZ_R,TMZ_I)
 *
                E1A = P1(1)*T0(1) + P1(2)*T0(2) + P1(3)*T0(3)
@@ -2445,15 +2445,18 @@ C
 *
 *              TM_2 =      DBLE(DCONJG(TMR)*TMR -DCONJG(TML)*TML)
                TM_2 = - 2.0D0*(
-     &                        DBLE(TM1)*AIMAG(TM2)
+     &                         DBLE(TM1)*AIMAG(TM2)
      &                        -DBLE(TM2)*AIMAG(TM1)
      &                        )
-               R_Temp = TM_2
+*
+*              R = 3/4 * c*hbar^2/DeltaE^2 * (|T^L|^2 - |T^R|^2)
+*
+               R_Temp=0.75D0*SPEED_OF_LIGHT/EDIFF**2*TM_2
 *
 *              Now let's convert this to reduced rotational strength
 *              (units of 1e-2 debye*Bohr_magneton)
 *
-               R_Temp=R_Temp*SPEED_OF_LIGHT/EDIFF**2/4.0D0*AU2REDR
+               R_Temp=R_Temp*AU2REDR
 *
 *              Save the raw oscillator strengths in a given direction
 *
@@ -2630,7 +2633,7 @@ C
         Call mma_DeAllocate(TMOgrp2)
       EndIf
       Call CWTime(TCpu2,TWall2)
-      write(6,*) 'Time for TMOs : ',TCpu2-TCpu1,TWall2-TWall1
+      write(6,*) 'Time for TMOM : ',TCpu2-TCpu1,TWall2-TWall1
 *
 *     Do some cleanup
 *

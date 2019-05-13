@@ -8,10 +8,10 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SubRoutine TMOSInt(wavevector,iOpt)
+      SubRoutine TMOMInt(wavevector,iOpt)
 ************************************************************************
 *                                                                      *
-* Object: driver for computation of TMOS integrals                     *
+* Object: driver for computation of TMOM integrals                     *
 *                                                                      *
 ************************************************************************
       Use MpmC
@@ -57,7 +57,7 @@
 *
       If (iOpt.eq.2) Then
       nOrdOp = 0
-      Label='TMOS0'
+      Label='TMOM0'
       nComp = 2
       Call Allocate_Aux()
 *     Here we put in the k-vector
@@ -86,7 +86,7 @@
 *
       If (iOpt.le.2) Then
       nOrdOp = 1
-      Label='TMOS'
+      Label='TMOM'
       nComp = 12
       Call Allocate_Aux()
 *     Here we put in the k-vector
@@ -135,7 +135,7 @@
 *
       If (iOpt.gt.2) Then
       nOrdOp = 0
-      Label='TMOS2'
+      Label='TMOM2'
       nComp = 2
       Call Allocate_Aux()
 *     Here we put in the k-vector
@@ -196,4 +196,4 @@
       Return
       End Subroutine Deallocate_Aux
 *
-      End Subroutine TMOSInt
+      End Subroutine TMOMInt

@@ -204,91 +204,91 @@ C End dirty fix
 *     of these labels will already be available on the file and need
 *     not to be added to the list.
 *
-      IF (Do_TMOS.AND.PRPLST(IPRP)(1:4).NE.'TMOS') THEN
-         PRPLST(IPRP+ 1)='TMOS0  R'
+      IF (Do_TMOM.AND.PRPLST(IPRP)(1:4).NE.'TMOM') THEN
+         PRPLST(IPRP+ 1)='TMOM0  R'
          ICMPLST(IPRP+ 1)=1
          IPUSED(IPRP+ 1)=0
-         PRPLST(IPRP+ 2)='TMOS0  I'
+         PRPLST(IPRP+ 2)='TMOM0  I'
          ICMPLST(IPRP+ 2)=1
          IPUSED(IPRP+ 2)=0
          IPRP=IPRP+2
 *
-         PRPLST(IPRP+ 1)='TMOS  RS'
+         PRPLST(IPRP+ 1)='TMOM  RS'
          ICMPLST(IPRP+ 1)=1
          IPUSED(IPRP+ 1)=0
-         PRPLST(IPRP+ 2)='TMOS  RS'
+         PRPLST(IPRP+ 2)='TMOM  RS'
          ICMPLST(IPRP+ 2)=2
          IPUSED(IPRP+ 2)=0
-         PRPLST(IPRP+ 3)='TMOS  RS'
+         PRPLST(IPRP+ 3)='TMOM  RS'
          ICMPLST(IPRP+ 3)=3
          IPUSED(IPRP+ 3)=0
-         PRPLST(IPRP+ 4)='TMOS  RA'
+         PRPLST(IPRP+ 4)='TMOM  RA'
          ICMPLST(IPRP+ 4)=1
          IPUSED(IPRP+ 4)=0
-         PRPLST(IPRP+ 5)='TMOS  RA'
+         PRPLST(IPRP+ 5)='TMOM  RA'
          ICMPLST(IPRP+ 5)=2
          IPUSED(IPRP+ 5)=0
-         PRPLST(IPRP+ 6)='TMOS  RA'
+         PRPLST(IPRP+ 6)='TMOM  RA'
          ICMPLST(IPRP+ 6)=3
          IPUSED(IPRP+ 6)=0
-         PRPLST(IPRP+ 7)='TMOS  IS'
+         PRPLST(IPRP+ 7)='TMOM  IS'
          ICMPLST(IPRP+ 7)=1
          IPUSED(IPRP+ 7)=0
-         PRPLST(IPRP+ 8)='TMOS  IS'
+         PRPLST(IPRP+ 8)='TMOM  IS'
          ICMPLST(IPRP+ 8)=2
          IPUSED(IPRP+ 8)=0
-         PRPLST(IPRP+ 9)='TMOS  IS'
+         PRPLST(IPRP+ 9)='TMOM  IS'
          ICMPLST(IPRP+ 9)=3
          IPUSED(IPRP+ 9)=0
-         PRPLST(IPRP+10)='TMOS  IA'
+         PRPLST(IPRP+10)='TMOM  IA'
          ICMPLST(IPRP+10)=1
          IPUSED(IPRP+10)=0
-         PRPLST(IPRP+11)='TMOS  IA'
+         PRPLST(IPRP+11)='TMOM  IA'
          ICMPLST(IPRP+11)=2
          IPUSED(IPRP+11)=0
-         PRPLST(IPRP+12)='TMOS  IA'
+         PRPLST(IPRP+12)='TMOM  IA'
          ICMPLST(IPRP+12)=3
          IPUSED(IPRP+12)=0
          IPRP=IPRP+12
 *
-C        PRPLST(IPRP+ 1)='TMOS2  R'
+C        PRPLST(IPRP+ 1)='TMOM2  R'
 C        ICMPLST(IPRP+ 1)=1
 C        IPUSED(IPRP+ 1)=0
-C        PRPLST(IPRP+ 2)='TMOS2  R'
+C        PRPLST(IPRP+ 2)='TMOM2  R'
 C        ICMPLST(IPRP+ 2)=2
 C        IPUSED(IPRP+ 2)=0
-C        PRPLST(IPRP+ 3)='TMOS2  R'
+C        PRPLST(IPRP+ 3)='TMOM2  R'
 C        ICMPLST(IPRP+ 3)=3
 C        IPUSED(IPRP+ 3)=0
-C        PRPLST(IPRP+ 4)='TMOS2  I'
+C        PRPLST(IPRP+ 4)='TMOM2  I'
 C        ICMPLST(IPRP+ 4)=1
 C        IPUSED(IPRP+ 4)=0
-C        PRPLST(IPRP+ 5)='TMOS2  I'
+C        PRPLST(IPRP+ 5)='TMOM2  I'
 C        ICMPLST(IPRP+ 5)=2
 C        IPUSED(IPRP+ 5)=0
-C        PRPLST(IPRP+ 6)='TMOS2  I'
+C        PRPLST(IPRP+ 6)='TMOM2  I'
 C        ICMPLST(IPRP+ 6)=3
 C        IPUSED(IPRP+ 6)=0
 C        IPRP=IPRP+6
-      Else IF (Do_TMOS) Then
-         PRPLST(IPRP+ 1)='TMOS0  R'
+      Else IF (Do_TMOM) Then
+         PRPLST(IPRP+ 1)='TMOM0  R'
          ICMPLST(IPRP+ 1)=1
          IPUSED(IPRP+ 1)=0
-         PRPLST(IPRP+ 2)='TMOS0  I'
+         PRPLST(IPRP+ 2)='TMOM0  I'
          ICMPLST(IPRP+ 2)=1
          IPUSED(IPRP+ 2)=0
          IPRP=IPRP+2
 *
-C        PRPLST(IPRP+ 1)='TMOS2  R'
+C        PRPLST(IPRP+ 1)='TMOM2  R'
 C        ICMPLST(IPRP+ 1)=2
 C        IPUSED(IPRP+ 1)=0
-C        PRPLST(IPRP+ 2)='TMOS2  R'
+C        PRPLST(IPRP+ 2)='TMOM2  R'
 C        ICMPLST(IPRP+ 2)=3
 C        IPUSED(IPRP+ 2)=0
-C        PRPLST(IPRP+ 3)='TMOS2  I'
+C        PRPLST(IPRP+ 3)='TMOM2  I'
 C        ICMPLST(IPRP+ 3)=2
 C        IPUSED(IPRP+ 3)=0
-C        PRPLST(IPRP+ 4)='TMOS2  I'
+C        PRPLST(IPRP+ 4)='TMOM2  I'
 C        ICMPLST(IPRP+ 4)=3
 C        IPUSED(IPRP+ 4)=0
 C        IPRP=IPRP+4
@@ -300,9 +300,9 @@ C Add some property names by defaults, if no input:
 C If no input at all, use this selection:
             DO IPRP=1,NPRPLST
                IF (PRPLST(IPRP).eq.'MLTPL  1' .or.
-     &             PRPLST(IPRP).eq.'MLTPL  2'.or.
-     &             PRPLST(IPRP).eq.'ANGMOM'.or.
-     &             PRPLST(IPRP)(1:4).eq.'TMOS'.or.
+     &             PRPLST(IPRP).eq.'MLTPL  2' .or.
+     &             PRPLST(IPRP).eq.'ANGMOM' .or.
+     &             PRPLST(IPRP)(1:4).eq.'TMOM' .or.
      &             PRPLST(IPRP).eq.'VELOCITY' .or.
      &             PRPLST(IPRP)(1:4).eq.'EMFR') THEN
                   NSOPR=NSOPR+1
@@ -609,12 +609,12 @@ C to zero.
        IF(PNAME(IPROP)(1:6).EQ.'DMP   ') PTYPE(IPROP)='HERMSING'
        IF(PNAME(IPROP).EQ.'EMFR  RA')PTYPE(IPROP)='ANTISING'
        IF(PNAME(IPROP).EQ.'EMFR  IA')PTYPE(IPROP)='ANTISING'
-       IF(PNAME(IPROP).EQ.'TMOS  RA')PTYPE(IPROP)='ANTISING'
-       IF(PNAME(IPROP).EQ.'TMOS  IA')PTYPE(IPROP)='ANTISING'
+       IF(PNAME(IPROP).EQ.'TMOM  RA')PTYPE(IPROP)='ANTISING'
+       IF(PNAME(IPROP).EQ.'TMOM  IA')PTYPE(IPROP)='ANTISING'
        IF(PNAME(IPROP).EQ.'EMFR0  I')PTYPE(IPROP)='ANTITRIP'
-       IF(PNAME(IPROP).EQ.'TMOS0  R')PTYPE(IPROP)='HERMTRIP'
-       IF(PNAME(IPROP).EQ.'TMOS0  I')PTYPE(IPROP)='ANTITRIP'
-       IF(PNAME(IPROP).EQ.'TMOS2  I')PTYPE(IPROP)='ANTISING'
+       IF(PNAME(IPROP).EQ.'TMOM0  R')PTYPE(IPROP)='HERMTRIP'
+       IF(PNAME(IPROP).EQ.'TMOM0  I')PTYPE(IPROP)='ANTITRIP'
+       IF(PNAME(IPROP).EQ.'TMOM2  I')PTYPE(IPROP)='ANTISING'
        END DO
 
       DO ISOPR=1,NSOPR
@@ -628,12 +628,12 @@ C to zero.
        IF(SOPRNM(ISOPR)(1:6).EQ.'DMP   ') SOPRTP(ISOPR)='HERMSING'
        IF(SOPRNM(ISOPR).EQ.'EMFR  RA')SOPRTP(ISOPR)='ANTISING'
        IF(SOPRNM(ISOPR).EQ.'EMFR  IA')SOPRTP(ISOPR)='ANTISING'
-       IF(SOPRNM(ISOPR).EQ.'TMOS  RA')SOPRTP(ISOPR)='ANTISING'
-       IF(SOPRNM(ISOPR).EQ.'TMOS  IA')SOPRTP(ISOPR)='ANTISING'
+       IF(SOPRNM(ISOPR).EQ.'TMOM  RA')SOPRTP(ISOPR)='ANTISING'
+       IF(SOPRNM(ISOPR).EQ.'TMOM  IA')SOPRTP(ISOPR)='ANTISING'
        IF(SOPRNM(ISOPR).EQ.'EMFR0  I')SOPRTP(ISOPR)='ANTITRIP'
-       IF(SOPRNM(ISOPR).EQ.'TMOS0  R')SOPRTP(ISOPR)='HERMTRIP'
-       IF(SOPRNM(ISOPR).EQ.'TMOS0  I')SOPRTP(ISOPR)='ANTITRIP'
-       IF(SOPRNM(ISOPR).EQ.'TMOS2  I')SOPRTP(ISOPR)='ANTISING'
+       IF(SOPRNM(ISOPR).EQ.'TMOM0  R')SOPRTP(ISOPR)='HERMTRIP'
+       IF(SOPRNM(ISOPR).EQ.'TMOM0  I')SOPRTP(ISOPR)='ANTITRIP'
+       IF(SOPRNM(ISOPR).EQ.'TMOM2  I')SOPRTP(ISOPR)='ANTISING'
       END DO
 
 C Write out various input data:

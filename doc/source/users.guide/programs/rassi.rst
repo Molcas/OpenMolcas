@@ -511,13 +511,13 @@ Keywords
 :kword:`SOPRoperty`
   Enter a user-supplied selection of one-electron operators, for which
   matrix elements and expectation values are to be calculated over the
-  spin--orbital eigenstates. This keyword has no effect unless the
+  spin--orbit eigenstates. This keyword has no effect unless the
   :kword:`SPIN` keyword has been used. Format: see :kword:`PROP` keyword.
 
   .. xmldoc:: %%Keyword: SOProperty <basic>
               Enter a selection of one-electron operators, for which
               matrix elements and expectation values are to be calculated over the
-              spin-orbital eigenstates. This keyword has no effect unless the
+              spin-orbit eigenstates. This keyword has no effect unless the
               SPIN keyword has been used. Format: see PROP keyword.
 
 :kword:`SPINorbit`
@@ -606,17 +606,17 @@ Keywords
               </KEYWORD>
 
 
-:kword:`REDL`
+:kword:`SUBSets`
   In many cases, RASSI is used to compute the transition moments between
   a set of initial states (for example the ground state) and a set of final states.
-  "Reduced loop" allows to restrict the computation of transition moments between the two sets
+  This keyword allows to restrict the computation of transition moments between the two sets
   and not within each set, thus saving time and reducing the output size.
   The keyword is followed by the index where the two sets split (assuming energy ordering).
-  For a calculation between one ground state and several excited states, REDL should be 1.
+  For a calculation between one ground state and several excited states, :kword:`SUBSets` should be 1.
   Default is to compute the transition moments between all states.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="REDL" APPEAR="Reduced loop" KIND="INT" SIZE="1" LEVEL="BASIC">
-              %%Keyword: Redl <basic>
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="SUBSETS" APPEAR="Subsets" KIND="INT" LEVEL="BASIC">
+              %%Keyword: Subsets <basic>
               <HELP>
               Restricts the computation of transition moments to be only between
               two sets of states, and not also within each set.
@@ -700,7 +700,7 @@ Keywords
   The next entry gives the number of transitions for which binatural
   orbitals will be computed. Then a line should follow for each transition,
   with the two states involved. The orbitals and singular values provide a
-  singular value decomposition of a transition density matrix \cite{Malmqvist:2012}.
+  singular value decomposition of a transition density matrix :cite:`Malmqvist:2012`.
   The bra and ket orbitals are written followed by the singular values in the
   usual UHF format used by other |molcas| programs.
 
@@ -791,65 +791,65 @@ Keywords
               </HELP>
               </KEYWORD>
 
-:kword:`TMOS`
-  Activate the computation of oscillator strengths and rotatory strengths using the
+:kword:`TINTensities`
+  Activate the computation of transition intensities (oscillator strengths and rotatory strengths) using the
   non-relativistic Hamiltonian with the explicit Coulomb-field vector operator (:math:`A`) in
   the weak field approximation.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="TMOS" APPEAR="Transition moments - oscillator strength" KIND="SINGLE" LEVEL="ADVANCED">
-              %%Keyword: TMOS <advanced>
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="TINT" APPEAR="Transition intensities (exponential)" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: TINTensities <advanced>
               <HELP>
-              Activate the computation of oscillators strengths rotatory strengths using the
+              Activate the computation of transition intensities (oscillator strengths and rotatory strengths) using the
               non-relativistic Hamiltonian with the explicit Coulomb-field vector operator (A) in
               the weak field approximation.
               </HELP>
               </KEYWORD>
 
-:kword:`L-EFfective`
-  Set the order of the Lebedev grids used in the interpolation of the solid angles
-  in association with the :kword:`TMOS` option. Default value is 5.
+:kword:`IIORder`
+  Set the order of the Lebedev grids used in the isotropic integration of transition intensities
+  in association with the :kword:`TINT` option. Default value is 5.
   Other allowed values are: 7, 11, 17, 23, 29, 35, 41, 47, 53, and 59.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="L-EFF" APPEAR="Order of Lebedev integration" KIND="INT" MIN_VALUE="0" DEFAULT_VALUE="5" LEVEL="ADVANCED">
-              %%Keyword: L-Eff <advanced>
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="IIORDER" APPEAR="Isotropic integration order" KIND="INT" MIN_VALUE="5" DEFAULT_VALUE="5" LEVEL="ADVANCED">
+              %%Keyword: IIORder <advanced>
               <HELP>
-              Set the order of the Lebedev grids used in the interpolation of the solid angles
-              in association with the TMOS option. Default value is 5.
+              Set the order of the Lebedev grids used in the isotropic integration of transition intensities
+              in association with the TINT option. Default value is 5.
               Other allowed values are: 7, 11, 17, 23, 29, 35, 41, 47, 53, and 59.
               </HELP>
               </KEYWORD>
 
 :kword:`PRRAw`
-  Print the raw directions for the exact semi-classical intensities (see the :kword:`TMOS` keyword).
+  Print the raw directions for the exact semi-classical intensities (see the :kword:`TINT` keyword).
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="PRRA" APPEAR="Print raw directions" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: PRRAw <advanced>
               <HELP>
               Print the raw directions for the exact semi-classical intensities
               </HELP>
-              (see the TMOS keyword).
+              (see the TINT keyword).
               </KEYWORD>
 
 :kword:`PRWEighted`
-  Print the weighted directions for the exact semi-classical intensities (see the :kword:`TMOS` keyword).
+  Print the weighted directions for the exact semi-classical intensities (see the :kword:`TINT` keyword).
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="PRWE" APPEAR="Print weighted directions" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: PRWEighted <advanced>
               <HELP>
               Print the weighted directions for the exact semi-classical intensities
               </HELP>
-              (see the TMOS keyword).
+              (see the TINT keyword).
               </KEYWORD>
 
-:kword:`KVECtor`
+:kword:`DIREction`
   Define the direction of the incident light for which we will
   compute transition moments and oscillator strengths. The keyword
   is followed by an integer :math:`n`, the number of directions,
   and then :math:`n` lines with three real numbers each specifying the direction. The values
   do not need to be normalized.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="KVECTOR" APPEAR="The wave k-vector" KIND="REALS_COMPUTED" SIZE="3" LEVEL="ADVANCED">
-              %%Keyword: kVector <advanced>
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="DIRECTION" APPEAR="Direction of propagation" KIND="REALS_COMPUTED" SIZE="3" LEVEL="ADVANCED">
+              %%Keyword: DIREction <advanced>
               <HELP>
               Define the direction of the incident light for which we will
               compute transition moments and oscillator strengths. The keyword
