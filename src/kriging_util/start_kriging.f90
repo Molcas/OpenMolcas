@@ -33,10 +33,10 @@
 ! subroutine
 !x is the n-dimensional internal coordinates
           x = x_
-          write(6,*) 'x',x
+          ! write(6,*) 'x',x
 !y is the energy
           y = y_
-          write(6,*) 'y',y
+          ! write(6,*) 'y',y
 !dy it's a vector of Grad-y (eq. (5)  ref. gradients of
 ! the energy with respect to the internal coordinates
           do i=1,nInter
@@ -44,7 +44,7 @@
               dy((i-1)*nPoints+j) = dy_(i,j)
             enddo
           enddo
-          write(6,*) 'dy',dy
+          ! write(6,*) 'dy',dy
 !rl and dl are temporary matrices for the contruction of Psi which is inside of
 ! Grad-Psi (eq.(2) ref.) dl=rl^2=Sum[i] [(x_i-x0_i)/l)^2]
 ! more inoformation is given in subsequen files.
@@ -53,7 +53,7 @@
 ! ref.).
 !Iden is just an identity matrix necesary to avoid that the Grad-Psi becomes
 ! Singular
-          allocate (rl(nPoints,npx,nInter), Iden(nPoints,nPoints)) !dl(nPoints,nPoints), mat(nPoints,nPoints),
+          allocate (rl(nPoints,npx,nInter), dl(nPoints,npx), Iden(nPoints,nPoints)) !dl(nPoints,nPoints), mat(nPoints,nPoints),
 !
           allocate(Rones(m_t))
 !kv is the vector that contains the dot product of the inverse of Grad-Psi and

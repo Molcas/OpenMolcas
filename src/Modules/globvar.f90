@@ -12,14 +12,16 @@
 !***********************************************************************
       module globvar
         use AI, only: npxAI, anAI, pAI, lb
-        real*8, allocatable :: x(:,:), y(:), dy(:), rl(:,:,:), &
+        real*8, allocatable :: x(:,:), y(:), dy(:), &
+                rl(:,:,:), dl(:,:), &
                 Iden(:,:), full_R(:,:), nx(:,:), Kv(:), &
                 cv(:,:,:,:), cvg(:,:,:),cvh(:,:,:,:), &
                 Ys(:), var(:), Rones(:), sigma(:), l(:), &
                 pred(:), gpred(:,:), hpred(:,:,:), ll(:), &
                 cvMatFder(:,:), cvMatSder(:,:), cvMatTder(:,:)
         real*8  sb,variance,detR,lh !p
-        real*8, parameter :: PI = 4.0 * atan (1.0_8), h=1e-5, eps=1e-10 ! eps avoid to become singular
+        real*8, parameter :: PI = 4.0 * atan (1.0_8), h=1e-5, eps=1e-14 ! eps avoid to become singular
         integer prev_ns, m_t, npx, counttimes
         Integer nInter_save, nPoints_save
+        Logical isdefdlrl
       end module globvar

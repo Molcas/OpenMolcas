@@ -501,7 +501,7 @@ c Avoid unused argument warnings
          Call RecPrt('Grad',' ',Grad(1,kIter),nInter,1)
          Do iInter = 1, nInter
             qInt_Save= qInt(iInter,kIter)
-            Delta = Max(Abs(qInt_Save),1.0D-5)*Scale
+            Delta = Max(Abs(qInt_Save),1.0D-2)*Scale
             Write (6,*) 'iInter,Delta=',iInter,Delta
 *
             Call RecPrt('qInt0',' ',qInt(1,kIter),nInter,1)
