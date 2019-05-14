@@ -571,6 +571,7 @@ c       close (lgtoc)
          Call GetMem('newtry','free','Real',iptnew,nDens)
          end if
 !!!!!!!!!!!!!!!!!!!!!!
+       Call GetMem('newtry','free','Real',iptnew,nDens)
          If ( Method.eq.'MCPDFT  ') then
 !         If (.false.) then
 
@@ -580,7 +581,7 @@ c       close (lgtoc)
          do i=1,ndens
            write(*,*) Work(ipD0+2*ndens+i-1)
          end do
-         Call get_darray('d1actao',Work(ipD0+2*ndens),ndens)
+         Call get_darray('d1activeao',Work(ipD0+2*ndens),ndens)
          write(*,*) 'ipDO2 after (root of interest)'
          do i=1,ndens
            write(*,*) Work(ipD0+2*ndens+i-1)

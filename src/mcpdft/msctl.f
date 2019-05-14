@@ -334,23 +334,23 @@ C Local print level (if any)
         end do
       end if
          Call Get_D1A_RASSCF_m(CMO,Work(iD1Act),Work(iD1ActAO))
-!         write(6,*) "is this it?",ntot2
-!         do i=1,ntot2
-!           write,*) Work(iD1ActAO-1+i)
-!         end do
+         write(6,*) "is this it?",ntot2
+         do i=1,ntot2
+           write(*,*) Work(iD1ActAO-1+i)
+         end do
 
 !ANDREW _ RIGHT HERE
       if(DoGradPDFT.and.jroot.eq.irlxroot) then
         Call GetMem('DtmpA_g','Allo','Real',iTmp_grd,nTot1)
         Call Fold_pdft(nSym,nBas,Work(iD1ActAO),Work(iTmp_grd))
-        Call put_darray('d1actao',Work(iTmp_grd),ntot1)
+        Call put_darray('d1activeao',Work(iTmp_grd),ntot1)
         Call GetMem('DtmpA_g','Free','Real',iTmp_grd,nTot1)
       end if
 !END _RIGHT HERE
-
+*
          Call Fold(nSym,nBas,Work(iD1I),Work(iTmp3))
          Call Fold(nSym,nBas,Work(iD1ActAO),Work(iTmp4))
-
+*
          Call Daxpy_(nTot1,1.0D0,Work(iTmp4),1,Work(iTmp3),1)
 !Maybe I can write all of these matrices to file, then modify stuff in
 !the nq code to read in the needed density.  In other words, I need to
@@ -653,9 +653,10 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
       end if
 *
 *
-         CALL TRA_CTL2(WORK(lcmo),
+         CALL TRACTL2(WORK(lcmo),
      &          WORK(LPUVX_tmp),WORK(LTUVX_tmp),WORK(id1actao_FA)
      &         ,WORK(ifocka),WORK(id1i),WORK(ifocki),IPR,lSquare,ExFac)
+*        Call dcopy_(ntot1,FA,1,Work(ifocka),1)
 *        if (iprlev.ge.debug) then
              write(6,*) 'FA tractl msctl'
              call wrtmat(Work(ifocka),1,ntot1,1,ntot1)
