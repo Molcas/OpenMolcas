@@ -441,15 +441,15 @@
 !I need to read in the CI portion of the RHS here.
       If (CI) Call DMinvCI_sa(ipST,Work(ipIn(ipS2)),rCHC,isym,work(ipS))
 *REMOVING CI PREC
-*         Call dcopy_(nconf1*nroots,Work(ipin(ipst)),1,
-*     &   Work(ipin(ips2)),1)
+         Call dcopy_(nconf1*nroots,Work(ipin(ipst)),1,
+     &   Work(ipin(ips2)),1)
 !         write(*,*) 'ips'
 !         do i=1,nroots**3
 !           write(*,*) Work (ips -1 +i)
 !         end do
 *REMOV PREC CI with IPST put back with ips2
 !???
-      Call dcopy_(nconf1*nroots,Work(ipin(ips2)),1,
+      Call dcopy_(nconf1*nroots,Work(ipin(ipst)),1,
      &   Work(ipin(ipCId)),1)
 *      write(*,*) 'ipst,ipcid'
 *      do i=1,nconf1*nroots
@@ -540,8 +540,8 @@
 *
          Call DMinvCI_sa(ipST,Work(ipIn(ipS2)),rCHC,isym,work(ipS))
 *REMOVING CI PREC
-*         Call dcopy_(nconf1*nroots,Work(ipin(ipst)),1,
-*     &   Work(ipin(ips2)),1)
+         Call dcopy_(nconf1*nroots,Work(ipin(ipst)),1,
+     &   Work(ipin(ips2)),1)
 *
          irc=opOut(ipci)
          irc=opOut(ipdia)
@@ -644,15 +644,15 @@
 *
  310  Continue
       If (iPL.ge.2) Write(6,*)
-      if (debug) then
-*      if (.true.) then
+!      if (debug) then
+      if (.false.) then
        write(6,*) 'outputs'
        write(6,*) 'kappa'
        do i=1,ndens2
          write(6,*) Work(ipKap-1+i)
        end do
 !ANDREW - TEMPORARILY TURN OFF LAGMULT:
-!         Call dcopy_(nconf1*nroots,0.0d0,0,Work(ipin(ipCIT)),1)
+         Call dcopy_(nconf1*nroots,0.0d0,0,Work(ipin(ipCIT)),1)
        write(6,*) 'cit'
        do i=1,nconf1*nroots
          write(6,*) Work(ipin(ipCIT)-1+i)

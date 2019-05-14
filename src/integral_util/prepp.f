@@ -63,8 +63,6 @@
 
       iRout = 250
       iPrint = nPrint(iRout)
-*      iprint = 100
-
       lPrint=iPrint.ge.6
       Call qEnter('PrepP')
 #ifdef _CD_TIMING_
@@ -281,10 +279,6 @@ c       close (lgtoc)
             Call Abend()
          End If
          call dcopy_(nDens,Work(ipD1ao),1,Work(ipD0),1)
-!!!!!!!!!!!!!!!!!!!!!
-         Call GetMem('newtry','Allo','Real',iptnew,nDens)
-         call dcopy_(nDens,Work(ipD1ao),1,Work(iptnew),1)
-!!!!!!!!!!!!!!!!!!!!!
          Call Free_Work(ipD1ao)
          endif
 *
@@ -454,7 +448,6 @@ c       close (lgtoc)
 *   P1=<i|e_pqrs|i> + sum_i <i|e_pqrs|i>+<i|e_pqrs|i>
 *   P2=sum_i <i|e_pqrs|i>
 *
-      iprint = 99
            Call Get_PLMO(ipPLMO,Length)
            call dcopy_(Length,Work(ipPLMO),1,Work(ipG2+ng2),1)
            ndim1=0
@@ -517,22 +510,13 @@ c       close (lgtoc)
      &                  nish,nbas,nIrrep)
            Call Getmem('TMP','FREE','REAL',ipT,2*ndens)
 
-!         write(*,*) nish,nbas
 !************************
          RlxLbl='D1AO    '
 !         Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipD0,Work)
 *
            Call dcopy_(ndens,Work(ipDVar),1,Work(ipD0+1*ndens),1)
-         write(*,*) 'ipDVar'
-         do i=1,ndens
-           write(*,*) Work(ipD0+ndens+i-1)
-         end do
            If (.not.isNAC) call daxpy_(ndens,-Half,Work(ipD0+0*ndens),1,
      &                                             Work(ipD0+1*ndens),1)
-*         write(*,*) 'ipDO1'
-*         do i=1,ndens
-*           write(*,*) Work(ipD0+ndens+i-1)
-*         end do
 !         RlxLbl='D1COMBO  '
 !         Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipD0+1*ndens,Work)
 *
@@ -561,83 +545,40 @@ c       close (lgtoc)
            call dcopy_(Length,Work(ipDLAO),1,Work(ipD0+3*ndens),1)
 
 !ANDREW - modify D2: should contain only the correction pieces
-!!!!!!!!!!!!!!!!!!!!!!
-         if (.false.) then
-          call daxpy_(ndens,1.0d0,Work(ipD0+0*ndens),1,
-     &                                             Work(ipD0+1*ndens),1)
-           call dcopy_(Length,Work(ipD0),1,Work(ipD0+2*ndens),1)
-          call daxpy_(ndens,1.0d0,Work(iptnew),1,
-     &                                             Work(ipD0+2*ndens),1)
-         Call GetMem('newtry','free','Real',iptnew,nDens)
-         end if
-!!!!!!!!!!!!!!!!!!!!!!
-       Call GetMem('newtry','free','Real',iptnew,nDens)
+
          If ( Method.eq.'MCPDFT  ') then
-!         If (.false.) then
+!Get the D_theta piece
+         Call Get_D1ao(ipD1ao,ndens)
+      ij = -1
+      Do  iIrrep = 0, nIrrep-1
+         Do iBas = 1, nBas(iIrrep)
+            Do jBas = 1, iBas-1
+               ij = ij + 1
+               Work(ipD1ao+ij) = Half*Work(ipD1ao+ij)
+            end do
+            ij = ij + 1
+          end do
+      end do
+          call daxpy_(ndens,-1d0,Work(ipD0+0*ndens),1,
+     &                                             Work(ipD1ao),1)
+!          write(*,*) 'do they match?'
+!          do i=1,ndens
+!            write(*,*) Work(ipd1ao-1+i),Work(ipD0+2*ndens+i-1)
+!          end do
 
-
-!ANDREW_NOW
-         write(*,*) 'ipDO2 before (avg)'
-         do i=1,ndens
-           write(*,*) Work(ipD0+2*ndens+i-1)
-         end do
-         Call get_darray('d1activeao',Work(ipD0+2*ndens),ndens)
-         write(*,*) 'ipDO2 after (root of interest)'
-         do i=1,ndens
-           write(*,*) Work(ipD0+2*ndens+i-1)
-         end do
-!END NOW
-
-         write(*,*) 'ipDO1'
-         do i=1,ndens
-           write(*,*) Work(ipD0+1*ndens+i-1)
-         end do
           call daxpy_(ndens,-Half,Work(ipD0+0*ndens),1,
      &                                             Work(ipD0+1*ndens),1)
-          call daxpy_(ndens,-1.0d0,Work(ipD0+2*ndens),1,
+          call daxpy_(ndens,-1.0d0,Work(ipD1ao),1,
      &                                             Work(ipD0+1*ndens),1)
-
-         write(*,*) 'ipDO0'
-         do i=1,ndens
-           write(*,*) Work(ipD0+i-1)
-         end do
-         write(*,*) 'ipDO1'
-         do i=1,ndens
-           write(*,*) Work(ipD0+ndens+i-1)
-         end do
-         write(*,*) 'ipDO2'
-         do i=1,ndens
-           write(*,*) Work(ipD0+2*ndens+i-1)
-         end do
-         write(*,*) 'ipDO3'
-         do i=1,ndens
-           write(*,*) Work(ipD0+ndens*3+i-1)
-         end do
-
-
-
 !ANDREW - Generate new D5 piece:
           call dcopy_(ndens,0.0d0,0,
      &                                             Work(ipD0+4*ndens),1)
           call daxpy_(ndens,0.5d0,Work(ipD0+0*ndens),1,
      &                                             Work(ipD0+4*ndens),1)
-          call daxpy_(ndens,1.0d0,Work(ipD0+2*ndens),1,
+          call daxpy_(ndens,1.0d0,Work(ipD1ao),1,
      &                                             Work(ipD0+4*ndens),1)
-
-
-!           Call dscal_(ndens,2.0d0,Work(ipD0+3*ndens),1)
-!          call dcopy_(ndens,0.0d0,0,
-!     &                                             Work(ipD0+2*ndens),1)
-!          call dcopy_(ndens,0.0d0,0,
-!     &                                             Work(ipD0+3*ndens),1)
-
-
-
-         write(*,*) 'ipDO4'
-         do i=1,ndens
-           write(*,*) Work(ipD0+4*ndens+i-1)
-         end do
-         end if
+         Call Free_Work(ipD1ao)
+          end if
 
 
 !          call dcopy_(ndens*5,0.0d0,0,

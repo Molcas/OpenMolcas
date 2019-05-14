@@ -66,7 +66,7 @@
       Call qEnter ('Fmat')
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
-      iPrLev=DEBUG
+      !iPrLev=DEBUG-1
       If ( iPrLev.ge.DEBUG ) then
         write(6,*) ('*',i=1,65)
         write(6,*) 'Entering FMAT routine called by MSCTL!'
