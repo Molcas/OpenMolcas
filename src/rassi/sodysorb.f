@@ -240,7 +240,7 @@ C SO Dyson orbitals
           SODYSAMPS(ISTATE,JSTATE)=AMPLITUDE
 
           ! Export Re and Im part of the coefficients
-          IF (DYSAMPS(JSTATE,ISTATE).GT.1.0D-5) THEN
+          IF (AMPLITUDE.GT.1.0D-5) THEN
            DO NDUM=1,NZ
               SODYSCIND=SODYSCIND+1
               SODYSCMOR(SODYSCIND)=SODYSCOFSR(NDUM)
