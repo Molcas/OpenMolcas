@@ -2413,7 +2413,7 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *
 *              (2) the magnetic-spin part
 C
-C              Well the B.S term is overkill, get ride of it.
+C              Well the B.S term is overkill, get rid of it.
 C              Why do it when we don't do the L.S-term!
 C
 *

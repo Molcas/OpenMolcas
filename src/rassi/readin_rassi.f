@@ -758,6 +758,32 @@ C--------------------------------------------
         goto 100
       end if
 #endif
+C These errors could eventually be removed
+C--------------------------------------------
+      if (Line(1:4).eq.'TMOS') then
+        write(6,*)' Keyword TMOS is deprecated, use TINT instead.'
+        goto 999
+      end if
+C--------------------------------------------
+      if (Line(1:4).eq.'KVEC') then
+        write(6,*)' Keyword KVEC is deprecated, use DIRE instead.'
+        goto 999
+      end if
+C--------------------------------------------
+      if (Line(1:4).eq.'L-EF') then
+        write(6,*)' Keyword L-EF is deprecated, use IIOR instead.'
+        goto 999
+      end if
+C--------------------------------------------
+      if (Line(1:4).eq.'REDL') then
+        write(6,*)' Keyword REDL is deprecated, use SUBS instead.'
+        goto 999
+      end if
+C--------------------------------------------
+      if (Line(1:4).eq.'TMGR') then
+        write(6,*)' Keyword TMGR is deprecated, use TIGR instead.'
+        goto 999
+      end if
 C--------------------------------------------
 *
       WRITE(6,*)' The following input line was not understood:'
