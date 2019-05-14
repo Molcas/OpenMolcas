@@ -256,8 +256,8 @@ c Avoid unused argument warnings
      &                 -qInt(iInter,iFirst+nRaw-1))**2
                End Do
                If (iterK.eq.0.and.Step_trunc.eq.'*') dqdq=qBeta**2
-               Write (6,*) 'dqdq=',dqdq
-               Write (6,*) 'qBeta**2=',qBeta**2
+*              Write (6,*) 'dqdq=',dqdq
+*              Write (6,*) 'qBeta**2=',qBeta**2
                If (iterK.gt.0.and.dqdq.gt.qBeta**2) Then
 *
                   sh2=0.0D0
@@ -501,15 +501,26 @@ c Avoid unused argument warnings
          Call RecPrt('Grad',' ',Grad(1,kIter),nInter,1)
          Do iInter = 1, nInter
             qInt_Save= qInt(iInter,kIter)
-            Delta = Abs(qInt_Save)*Scale
+            Delta = Max(Abs(qInt_Save),1.0D-5)*Scale
             Write (6,*) 'iInter,Delta=',iInter,Delta
 *
+            Call RecPrt('qInt0',' ',qInt(1,kIter),nInter,1)
+*           Call Energy_Kriging(qInt(1,kIter),E_test,nInter)
+*           Write (6,*) 'Energy=',E_test
             Call Gradient_Kriging(qInt(1,kIter),dqp,nInter)
             Call RecPrt('dq0',' ',dqp,nInter,1)
+*
             qInt(iInter,kIter)=qInt_Save+Delta
+            Call RecPrt('qIntp',' ',qInt(1,kIter),nInter,1)
+*           Call Energy_Kriging(qInt(1,kIter),E_test,nInter)
+*           Write (6,*) 'Energy=',E_test
             Call Gradient_Kriging(qInt(1,kIter),dqp,nInter)
             Call RecPrt('dqp',' ',dqp,nInter,1)
+
             qInt(iInter,kIter)=qInt_Save-Delta
+            Call RecPrt('qIntm',' ',qInt(1,kIter),nInter,1)
+*           Call Energy_Kriging(qInt(1,kIter),E_test,nInter)
+*           Write (6,*) 'Energy=',E_test
             Call Gradient_Kriging(qInt(1,kIter),dqm,nInter)
             Call RecPrt('dqm',' ',dqm,nInter,1)
 *
@@ -520,6 +531,7 @@ c Avoid unused argument warnings
 *
             qInt(iInter,kIter)=qInt_Save
          End Do
+         Call RecPrt('Hessian',' ',Hessian,nInter,nInter)
          Call mma_Deallocate(dqp)
          Call mma_Deallocate(dqm)
 #else

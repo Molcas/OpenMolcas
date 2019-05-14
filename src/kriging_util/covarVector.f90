@@ -19,8 +19,8 @@
             ! deallocate (dl,mat)
             ! allocate (dl(iter,npx),mat(iter,npx))
             cv = 0
-            write(6,*) 'x: ',x
-            write(6,*) 'nx: ',nx
+!           write(6,*) 'x: ',x
+!           write(6,*) 'nx: ',nx
 ! Covariant Vector in kriging - First part of eq (4) in ref.
             if (gh.eq.0) then
                 ! tmat=0 ! to be removed
@@ -37,11 +37,11 @@
                     !write(6,*) 'CV-Mat',i,mat
                     !tmat=tmat+mat
                 enddo
-                write(6,*) 'CV-rl',rl
-                write(6,*) 'CV-d',dl
+!               write(6,*) 'CV-rl',rl
+!               write(6,*) 'CV-d',dl
                 call matern(dl, m, iter, npx)
                 cv(1:iter,:,1,1) = m
-                write (6,*) 'cv-gh,m',gh,m
+!               write (6,*) 'cv-gh,m',gh,m
                 call matderiv(1, dl, m, iter, npx)
                 cvMatFder = m
                 call matderiv(2, dl, m, iter, npx)
@@ -70,14 +70,14 @@
                         diffx = 2.0*rl(:,:,i)/l(i)
                         i0 = i*iter + 1
                         i1 = i0 + iter - 1
-                        write (6,*) 'i,i0,i1',i,i0,i1
+!                       write (6,*) 'i,i0,i1',i,i0,i1
                         !call matderiv(1, dl, m, iter, npx)
                         !tmat = m
                         m = cvMatFder * diffx
                         cv(i0:i1,:,1,1) = m
                         !write(6,*) 'tmat',tmat
-                        write(6,*) 'gh,m',gh,m
-                        write(6,*) 'cv',cv(:,:,1,1)
+!                       write(6,*) 'gh,m',gh,m
+!                       write(6,*) 'cv',cv(:,:,1,1)
                     enddo
                 ! else
                 !     i0 = (i-1)*iter + 1
@@ -103,15 +103,15 @@
                             if (j.eq.1) cv(1:iter,:,i,1) = -cvMatFder * diffx
                             j0 = j*iter + 1
                             j1 = j0+iter - 1
-                            write(6,*) 'i,j',i,j
+!                           write(6,*) 'i,j',i,j
                             diffx0 = -2.0*rl(:,:,j)/l(j)
-                            write(6,*) 'diffx',diffx
-                            write(6,*) 'diffx0',diffx0
+!                           write(6,*) 'diffx',diffx
+!                           write(6,*) 'diffx0',diffx0
                             m = cvMatSder * diffx*diffx0
                             if (i.eq.j) m = m - cvMatFder*(2/(l(i)*l(j)))
                             cv(j0:j1,:,i,1) = m
-                            Write (6,*) 'm - Krig Grad: ',m
-                            write (6,*) 'CV',cv(:,:,:,1)
+!                           Write (6,*) 'm - Krig Grad: ',m
+!                           write (6,*) 'CV',cv(:,:,:,1)
                         enddo
                     enddo
                     !Write (6,*) 'CV - Krig Grad: ',cv
