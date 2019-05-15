@@ -8,8 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE PRPROP_TM_Exact(PROP,USOR,USOI,ENSOR,NSS,OVLP,ENERGY,
-     &                           JBNUM)
+      SUBROUTINE PRPROP_TM_Exact(PROP,USOR,USOI,ENSOR,NSS,JBNUM)
       USE kVectors
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
@@ -26,33 +25,26 @@
 #include "WrkSpc.fh"
 #include "constants.fh"
 #include "stdalloc.fh"
-      DIMENSION PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
-     &          ENERGY(NSTATE),JBNUM(NSTATE)
+      DIMENSION PROP(NSTATE,NSTATE,NPROP),JBNUM(NSTATE)
 #include "SysDef.fh"
 #include "rassiwfn.fh"
       LOGICAL TMOgroup
-      Real*8 E1(3), E2(3), kxe1(3), kxe2(3)
       INTEGER IOFF(8),IJSF(4)
       CHARACTER*8 LABEL
-      Complex*16 TM1, TM2, IMAGINARY
       Integer, Dimension(:), Allocatable :: TMOgrp1,TMOgrp2
-      Real*8 wavevector(3)
+      Real*8 TM_R(3), TM_I(3), TM_C(3)
+      Real*8 wavevector(3), UK(3)
 
       CALL QENTER(ROUTINE)
 
-      Dummy=Energy(1)
-      Dummy=OVLP(1,1)
-*
       DEBYE=CONV_AU_TO_DEBYE_
       AU2REDR=2.0D2*DEBYE
-      IMAGINARY=DCMPLX(0.0D0,1.0D0)
       ! AFACTOR = 2*pi*e^2*E_h^2 / eps_0*m_e*c^3*h^2
       ! 1/c^3 (in a.u. of time ^ -1)
       AFACTOR = 2.0D0/CONST_C_IN_AU_**3
      &          /CONST_AU_TIME_IN_SI_
       HALF=0.5D0
       PI= CONST_PI_
-      HBAR=1.0D0 ! in a.u.
       SPEED_OF_LIGHT=CONST_C_IN_AU_
       G_Elec=CONST_ELECTRON_G_FACTOR_
 
@@ -174,10 +166,8 @@ C printing threshold
 *
       CALL GETMEM('DXR','ALLO','REAL',LDXR,NSS**2)
       CALL GETMEM('DXI','ALLO','REAL',LDXI,NSS**2)
-      CALL GETMEM('TM1R','ALLO','REAL',LTM1R,NSS**2)
-      CALL GETMEM('TM1I','ALLO','REAL',LTM1I,NSS**2)
-      CALL GETMEM('TM2R','ALLO','REAL',LTM2R,NSS**2)
-      CALL GETMEM('TM2I','ALLO','REAL',LTM2I,NSS**2)
+      CALL GETMEM('TMR','ALLO','REAL',LTMR,3*NSS**2)
+      CALL GETMEM('TMI','ALLO','REAL',LTMI,3*NSS**2)
 *
 C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       NIP=4+(NBST*(NBST+1))/2
@@ -188,12 +178,14 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *     Allocate vector to store all individual transition moments.
 *     We do this for
 *     all unique pairs ISO-JSO, iSO=/=JSO (NSS*(NSS-1)/2)
-*         all k-vectors (3*nQuad)
-*             all polarization directions (2*3)
-*                 we store the transition moment (a complex number) (2*2)
+*         all k-vectors (nQuad or nVec)
+*             we store:
+*                 the weight (1)
+*                 the k-vector (3)
+*                 we projected transition vector (real and imaginary parts) (2*3)
 *
       nIJ=nSS*(nSS-1)/2
-      nData= 1 + 3 + 2*3 + 2*2
+      nData= 1 + 3 + 2*3
       nStorage = nIJ * nQuad * nData
       mStorage = nStorage * nVec
 *MGD Storage is not well handled with groups yet
@@ -279,16 +271,12 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       CALL GETMEM('WEIGHT','ALLO','REAL',LWEIGH,NQUAD*5*nmax2)
       CALL GETMEM('OSCSTR','ALLO','REAL',LF,5*nmax2)
 *
-      Do iVec = 1, nVec
+      ip_w       = 1
+      ip_kvector = ip_w + 1
+      ip_TMR     = ip_kvector + 3
+      ip_TMI     = ip_TMR + 3
 *
-         ip_w      = 1
-         ip_kvector= ip_w + 1
-         ip_e1     = ip_kvector + 3
-         ip_e2     = ip_e1 + 3
-         ip_TM1R   = ip_e2 + 3
-         ip_TM1I   = ip_TM1R + 1
-         ip_TM2R   = ip_TM1I + 1
-         ip_TM2I   = ip_TM2R + 1
+      Do iVec = 1, nVec
 *
          If (Do_SK) Then
             Work(ipR  )=k_Vector(1,iVec)
@@ -418,18 +406,22 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *           The energy difference is used to define the norm of the
 *           wave vector.
 *
-            rkNorm=ABS(EDIFF_)/(HBAR*SPEED_OF_LIGHT)
+            rkNorm=ABS(EDIFF_)/SPEED_OF_LIGHT
+*
+*           For the case the energy difference is negative we
+*           need to change the sign of the B.s term to get
+*           consistency.
+*
+            cst=SIGN(Half,EDIFF_)*g_Elec
 *
 *           Iterate over the quadrature points.
-*
-            CALL DCOPY_(5*n12,[0.0D0],0,WORK(LF),1)
 *
 *           Initialize output arrays
 *
             CALL DCOPY_(5*n12,[0.0D0],0,WORK(LF),1)
             CALL DCOPY_(NQUAD*5*n12,[0.0D0],0,WORK(LRAW),1)
             CALL DCOPY_(NQUAD*5*n12,[0.0D0],0,WORK(LWEIGH),1)
-
+*
             Do iQuad = 1, nQuad
                iStorage = iOff_+ (iQuad-1)*nData + ipStorage - 1
      &                  + (iVec-1)*nStorage
@@ -437,46 +429,15 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *              Generate the wavevector associated with this quadrature
 *              point and pick up the associated quadrature weight.
 *
-               xcoor=Work((iQuad-1)*4  +ipR)
-               ycoor=Work((iQuad-1)*4+1+ipR)
-               zcoor=Work((iQuad-1)*4+2+ipR)
+               UK(1)=Work((iQuad-1)*4  +ipR)
+               UK(2)=Work((iQuad-1)*4+1+ipR)
+               UK(3)=Work((iQuad-1)*4+2+ipR)
 
-               wavevector(1)=rkNorm*xcoor
-               wavevector(2)=rkNorm*ycoor
-               wavevector(3)=rkNorm*zcoor
+               wavevector(:)=rkNorm*UK(:)
                Call DCopy_(3,wavevector,1,Work(iStorage+ip_kvector),1)
 *
                Weight=Work((iQuad-1)*4+3+ipR)
                Work(iStorage+ip_w)=Weight
-*
-*              Generate the associated polarization vectors.
-*
-               IF (wavevector(1).EQ.0.0D0 .and.
-     &             wavevector(2).EQ.0.0D0) Then
-                  E1(1)=1.0D0
-                  E1(2)=0.0D0
-                  E1(3)=0.0D0
-               ELSE
-                  E1(1)= wavevector(2)
-                  E1(2)=-wavevector(1)
-                  E1(3)= 0.0D0
-               END IF
-               Tmp=1.0D0/SQRT(E1(1)**2+E1(2)**2+E1(3)**2)
-               E1(1)=E1(1)*Tmp
-               E1(2)=E1(2)*Tmp
-               E1(3)=E1(3)*Tmp
-               Call Cross_AB(wavevector,E1,E2)
-               Tmp=1.0D0/SQRT(E2(1)**2+E2(2)**2+E2(3)**2)
-               E2(1)=E2(1)*Tmp
-               E2(2)=E2(2)*Tmp
-               E2(3)=E2(3)*Tmp
-               Call DCopy_(3,E1,1,Work(iStorage+ip_e1),1)
-               Call DCopy_(3,E2,1,Work(iStorage+ip_e2),1)
-*
-*              Compute the vectors (k x e1) and  (k x e2).
-*
-               Call Cross_AB(wavevector,E1,kxe1)
-               Call Cross_AB(wavevector,E2,kxe2)
 *
 *              Generate the property integrals associated with this
 *              direction of the wave vector k.
@@ -572,16 +533,14 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *              as we assemble to transition momentum we have to
 *              remember to put in a factor of -i.
 *
-               CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LTM1R),1)
-               CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LTM1I),1)
-               CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LTM2R),1)
-               CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LTM2I),1)
+               CALL DCOPY_(3*NSS**2,[0.0D0],0,WORK(LTMR),1)
+               CALL DCOPY_(3*NSS**2,[0.0D0],0,WORK(LTMI),1)
                Do iCar = 1, 3
+*
+*                 The electric (symmetric) part
 *
                   CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXR),1)
                   CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXI),1)
-*
-*                 The electric (symmetric) part
 *
 *                 the real symmetric part
                   CALL SMMAT2(PROP,WORK(LDXR),NSS,'TMOM  RS',iCar,IJSF)
@@ -593,17 +552,15 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *                 and pick up correct element
                   Call ZTRNSF(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI))
 *
-**   -Imaginary*E1
+                  Call DAXPY_(NSS**2, 1.0D0,WORK(LDXI),1,
+     &                                      Work(LTMR+iCar-1),3)
+                  Call DAXPY_(NSS**2,-1.0D0,WORK(LDXR),1,
+     &                                      Work(LTMI+iCar-1),3)
 *
-                Call DAXPY_(NSS**2,-E1(iCar),WORK(LDXR),1,Work(LTM1I),1)
-                Call DAXPY_(NSS**2, E1(iCar),WORK(LDXI),1,Work(LTM1R),1)
-                Call DAXPY_(NSS**2,-E2(iCar),WORK(LDXR),1,Work(LTM2I),1)
-                Call DAXPY_(NSS**2, E2(iCar),WORK(LDXI),1,Work(LTM2R),1)
+*                 The magnetic (antisymmetric) part
 *
                   CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXR),1)
                   CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXI),1)
-*
-*                 The magnetic (antisymmetric) part
 *
 *                 the real anti-symmetric part
                   CALL SMMAT2(PROP,WORK(LDXR),NSS,'TMOM  RA',iCar,IJSF)
@@ -615,12 +572,10 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *                 and pick up correct element
                   CALL ZTRNSF(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI))
 *
-**   -Imaginary*E1
-*
-                Call DAXPY_(NSS**2,-E1(iCar),WORK(LDXR),1,Work(LTM1I),1)
-                Call DAXPY_(NSS**2, E1(iCar),WORK(LDXI),1,Work(LTM1R),1)
-                Call DAXPY_(NSS**2,-E2(iCar),WORK(LDXR),1,Work(LTM2I),1)
-                Call DAXPY_(NSS**2, E2(iCar),WORK(LDXI),1,Work(LTM2R),1)
+                  Call DAXPY_(NSS**2, 1.0D0,WORK(LDXI),1,
+     &                                      Work(LTMR+iCar-1),3)
+                  Call DAXPY_(NSS**2,-1.0D0,WORK(LDXR),1,
+     &                                      Work(LTMI+iCar-1),3)
 *
 *
 *              (2) the spin-dependent part, magnetic
@@ -669,26 +624,42 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                    CALL SMMAT2(PROP,WORK(LDXI),NSS,'TMOM0  R',iCar,IJSF)
 *                    pick up the imaginary component
                    CALL SMMAT2(PROP,WORK(LDXR),NSS,'TMOM0  I',iCar,IJSF)
-                     Call DScal_(NSS**2,-1.0D0,WORK(LDXR),1)
+                   Call DScal_(NSS**2,-1.0D0,WORK(LDXR),1)
                   End If
                   CALL ZTRNSF(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI))
 *
-*                 For the case the energy difference is negative we
-*                 need to change the sign of the B.s term to get
-*                 consistency.
+*                 i*g/2*(s_y*k_z-s_z*k_y) -> T_x
+*                 i*g/2*(s_z*k_x-s_x*k_z) -> T_y
+*                 i*g/2*(s_x*k_y-s_y*k_x) -> T_z
 *
-                  cst= SIGN(1.0D0,EDIFF_) * g_Elec/2.0D0
-*
-**   +Imaginary*kxe1*g_Elec/2.0d0
-*
-                  Call DAXPY_(NSS**2, kxe1(iCar)*cst,WORK(LDXR),
-     &                        1,Work(LTM1I),1)
-                  Call DAXPY_(NSS**2,-kxe1(iCar)*cst,WORK(LDXI),
-     &                        1,Work(LTM1R),1)
-                  Call DAXPY_(NSS**2, kxe2(iCar)*cst,WORK(LDXR),
-     &                        1,Work(LTM2I),1)
-                  Call DAXPY_(NSS**2,-kxe2(iCar)*cst,WORK(LDXI),
-     &                        1,Work(LTM2R),1)
+                  If (iCar.eq.1) Then
+                     Call DAXPY_(NSS**2,-wavevector(2)*cst,
+     &                           WORK(LDXI),1,Work(LTMR+2),3)
+                     Call DAXPY_(NSS**2, wavevector(2)*cst,
+     &                           WORK(LDXR),1,Work(LTMI+2),3)
+                     Call DAXPY_(NSS**2, wavevector(3)*cst,
+     &                           WORK(LDXI),1,Work(LTMR+1),3)
+                     Call DAXPY_(NSS**2,-wavevector(3)*cst,
+     &                           WORK(LDXR),1,Work(LTMI+1),3)
+                  Else If (iCar.eq.2) Then
+                     Call DAXPY_(NSS**2,-wavevector(3)*cst,
+     &                           WORK(LDXI),1,Work(LTMR+0),3)
+                     Call DAXPY_(NSS**2, wavevector(3)*cst,
+     &                           WORK(LDXR),1,Work(LTMI+0),3)
+                     Call DAXPY_(NSS**2, wavevector(1)*cst,
+     &                           WORK(LDXI),1,Work(LTMR+2),3)
+                     Call DAXPY_(NSS**2,-wavevector(1)*cst,
+     &                           WORK(LDXR),1,Work(LTMI+2),3)
+                  Else If (iCar.eq.3) Then
+                     Call DAXPY_(NSS**2,-wavevector(1)*cst,
+     &                           WORK(LDXI),1,Work(LTMR+1),3)
+                     Call DAXPY_(NSS**2, wavevector(1)*cst,
+     &                           WORK(LDXR),1,Work(LTMI+1),3)
+                     Call DAXPY_(NSS**2, wavevector(2)*cst,
+     &                           WORK(LDXI),1,Work(LTMR+0),3)
+                     Call DAXPY_(NSS**2,-wavevector(2)*cst,
+     &                           WORK(LDXR),1,Work(LTMI+0),3)
+                  End If
                End Do
 *
                IJ_=0
@@ -698,20 +669,25 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                    IJ_=IJ_+1
                    LFIJ=LF+(ij_-1)*5
                    EDIFF=ENSOR(JSO)-ENSOR(ISO)
-                   TM1=DCMPLX(Work(LTM1R+IJ),Work(LTM1I+IJ))
-                   TM2=DCMPLX(Work(LTM2R+IJ),Work(LTM2I+IJ))
+*
+*                  Project out the k direction from the real and imaginary components
+*
+                   Call DCopy_(3,Work(LTMR+IJ*3),1,TM_R,1)
+                   Call DCopy_(3,Work(LTMI+IJ*3),1,TM_I,1)
+                   Call DaXpY_(3,-DDot_(3,TM_R,1,UK,1),UK,1,TM_R,1)
+                   Call DaXpY_(3,-DDot_(3,TM_I,1,UK,1),UK,1,TM_I,1)
 
 *MGD not stored yet
-               Work(iStorage+ip_TM1R)=DBLE(TM1)
-               Work(iStorage+ip_TM1I)=AIMAG(TM1)
-               Work(iStorage+ip_TM2R)=DBLE(TM2)
-               Work(iStorage+ip_TM2I)=AIMAG(TM2)
+                   Call DCopy_(3,TM_R,1,Work(iStorage+ip_TMR),1)
+                   Call DCopy_(3,TM_I,1,Work(iStorage+ip_TMI),1)
 *
 *              Integrate over all directions of the polarization
 *              vector and divide with the "distance", 2*pi, to get
 *              the average value.
 *
-                   TM_2 = Half*DBLE(DCONJG(TM1)*TM1 + DCONJG(TM2)*TM2)
+                   TM1 = DDot_(3,TM_R,1,TM_R,1)
+                   TM2 = DDot_(3,TM_I,1,TM_I,1)
+                   TM_2 = Half*(TM1+TM2)
 *
 *              Compute the oscillator strength
 *
@@ -719,25 +695,22 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
 *              Compute the rotatory strength
 *
-*              TMR = (TM1 + IMAGINARY*TM2)/Sqrt(2.0D0)
-*              TML = (TM1 - IMAGINARY*TM2)/Sqrt(2.0D0)
-*
-*              TM_2 = DBLE(DCONJG(TMR)*TMR - DCONJG(TML)*TML)
-                   TM_2 = - 2.0D0*(
-     &                               DBLE(TM1)*AIMAG(TM2)
-     &                              -DBLE(TM2)*AIMAG(TM1)
-     &                               )
+                   TM_C(1) = TM_R(2)*TM_I(3)-TM_R(3)*TM_I(2)
+                   TM_C(2) = TM_R(3)*TM_I(1)-TM_R(1)*TM_I(3)
+                   TM_C(3) = TM_R(1)*TM_I(2)-TM_R(2)*TM_I(1)
+                   TM_2 = -2.0D0*SQRT(DDot_(3,TM_C,1,TM_C,1))*
+     &                           SIGN(1.0D0,DDot_(3,TM_C,1,UK,1))
                    R_Temp=0.75D0*SPEED_OF_LIGHT/EDIFF**2*TM_2
                    R_Temp=R_Temp*AU2REDR
 *
 *              Save the raw oscillator strengths in a given direction
 *
                    LRAW_=LRAW+5*NQUAD*(ij_-1)
-                   WORK(LRAW_+(IQUAD-1)+0*NQUAD) = F_TEMP
-                   WORK(LRAW_+(IQUAD-1)+1*NQUAD) = R_TEMP
-                   WORK(LRAW_+(IQUAD-1)+2*NQUAD) = XCOOR
-                   WORK(LRAW_+(IQUAD-1)+3*NQUAD) = YCOOR
-                   WORK(LRAW_+(IQUAD-1)+4*NQUAD) = ZCOOR
+                   WORK(LRAW_+(IQUAD-1)+0*NQUAD) = F_Temp
+                   WORK(LRAW_+(IQUAD-1)+1*NQUAD) = R_Temp
+                   WORK(LRAW_+(IQUAD-1)+2*NQUAD) = UK(1)
+                   WORK(LRAW_+(IQUAD-1)+3*NQUAD) = UK(2)
+                   WORK(LRAW_+(IQUAD-1)+4*NQUAD) = UK(3)
 *
 *              Accumulate to the isotropic oscillator strength
 *
@@ -751,11 +724,11 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *              given direction k.
 *
                    LWEIGH_=LWEIGH+5*NQUAD*(ij_-1)
-                   WORK(LWEIGH_+(IQUAD-1)+0*NQUAD) = F_TEMP*WEIGHT
-                   WORK(LWEIGH_+(IQUAD-1)+1*NQUAD) = R_TEMP*WEIGHT
-                   WORK(LWEIGH_+(IQUAD-1)+2*NQUAD) = XCOOR
-                   WORK(LWEIGH_+(IQUAD-1)+3*NQUAD) = YCOOR
-                   WORK(LWEIGH_+(IQUAD-1)+4*NQUAD) = ZCOOR
+                   WORK(LWEIGH_+(IQUAD-1)+0*NQUAD) = F_Temp*WEIGHT
+                   WORK(LWEIGH_+(IQUAD-1)+1*NQUAD) = R_Temp*WEIGHT
+                   WORK(LWEIGH_+(IQUAD-1)+2*NQUAD) = UK(1)
+                   WORK(LWEIGH_+(IQUAD-1)+3*NQUAD) = UK(2)
+                   WORK(LWEIGH_+(IQUAD-1)+4*NQUAD) = UK(3)
                  End Do
                End Do
 
@@ -907,10 +880,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
         Call mma_DeAllocate(TMOgrp1)
         Call mma_DeAllocate(TMOgrp2)
       EndIf
-      CALL GETMEM('TM1R','FREE','REAL',LTM1R,NSS**2)
-      CALL GETMEM('TM1I','FREE','REAL',LTM1I,NSS**2)
-      CALL GETMEM('TM2R','FREE','REAL',LTM2R,NSS**2)
-      CALL GETMEM('TM2I','FREE','REAL',LTM2I,NSS**2)
+      CALL GETMEM('TMR','FREE','REAL',LTMR,3*NSS**2)
+      CALL GETMEM('TMI','FREE','REAL',LTMI,3*NSS**2)
       CALL GETMEM('OSCSTR','FREE','REAL',LF,5*nmax2)
 *
       Call DaClos(LuToM)
@@ -931,13 +902,5 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 ************************************************************************
 *
       RETURN
-      Contains
-      Subroutine Cross_AB(A,B,C)
-      Implicit None
-      Real*8 A(3), B(3), C(3)
-      C(1) = A(2)*B(3) - A(3)*B(2)
-      C(2) = A(3)*B(1) - A(1)*B(3)
-      C(3) = A(2)*B(1) - A(1)*B(2)
-      END Subroutine Cross_AB
       END Subroutine PRPROP_TM_Exact
 

@@ -39,13 +39,11 @@
       Real*8 TDIPARR(3)
       Integer  cho_x_gettol
       External cho_x_gettol
-      Real*8 P1(3), P2(3), kxe1(3), kxe2(3) !, ZVAL(9) for debug
       INTEGER IOFF(8), SECORD(4)
       CHARACTER*8 LABEL
-      Complex*16 T0(3), TM1, TM2, E1A, E2A, IMAGINARY
-*    &           IMAGINARY, TMR, TML
+      Real*8 TM_R(3), TM_I(3), TM_C(3)
       Character*60 FMTLINE
-      Real*8 Wavevector(3)
+      Real*8 Wavevector(3), UK(3)
 
 #ifdef _DEBUG_RASSI_
       logical :: debug_dmrg_rassi_code = .true.
@@ -63,8 +61,9 @@ C CONSTANTS:
       AU2CM=CONV_AU_TO_CM1_
       DEBYE=CONV_AU_TO_DEBYE_
       AU2REDR=2.0D2*DEBYE
-      IMAGINARY=DCMPLX(0.0D0,1.0D0)
+      SPEED_OF_LIGHT=CONST_C_IN_AU_
       HALF=0.5D0
+      PI= CONST_PI_
 *
       DIAGONAL=.TRUE.
 
@@ -2110,12 +2109,14 @@ C And the same for the Dyson amplitudes
 *     Allocate vector to store all individual transition moments.
 *     We do this for
 *     all unique pairs ISO-JSO, iSO=/=JSO (NSS*(NSS-1)/2)
-*         all k-vectors (3*nQuad)
-*             all polarization directions (2*3)
-*                 we store the transition moment (a complex number) (2*2)
+*         all k-vectors (nQuad or nVec)
+*             we store:
+*                 the weight (1)
+*                 the k-vector (3)
+*                 the projected transition vector (real and imaginary parts) (2*3)
 *
       nIJ=nState*(nState-1)/2
-      nData= 1 + 3 + 2*3 + 2*2
+      nData= 1 + 3 + 2*3
       nStorage = nIJ * nQuad * nData
       mStorage = nStorage * nVec
       Call GetMem('STORAGE','Allo','Real',ipStorage,mStorage)
@@ -2206,17 +2207,12 @@ C And the same for the Dyson amplitudes
       CALL GETMEM('WEIGHT','ALLO','REAL',LWEIGH,NQUAD*5*nmax2)
       CALL GETMEM('OSCSTR','ALLO','REAL',LF,5*nmax2)
 *
+      ip_w       = 1
+      ip_kvector = ip_w + 1
+      ip_TMR     = ip_kvector + 3
+      ip_TMI     = ip_TMR + 3
+*
       Do iVec = 1, nVec
-*
-         ip_w      = 1
-         ip_kvector= ip_w + 1
-         ip_e1     = ip_kvector + 3
-         ip_e2     = ip_e1 + 3
-         ip_TM1R   = ip_e2 + 3
-         ip_TM1I   = ip_TM1R + 1
-         ip_TM2R   = ip_TM1I + 1
-         ip_TM2I   = ip_TM2R + 1
-*
          If (Do_SK) Then
             Work(ipR  )=k_Vector(1,iVec)
             Work(ipR+1)=k_Vector(2,iVec)
@@ -2224,12 +2220,6 @@ C And the same for the Dyson amplitudes
             Work(ipR+3)=1.0D0   ! Dummy weight
          End If
 *
-      AFACTOR=32.1299D09
-      HALF=0.5D0
-      PI= CONST_PI_
-      HBAR=1.0D0 ! in a.u.
-      SPEED_OF_LIGHT=CONST_C_IN_AU_
-      G_Elec=CONST_ELECTRON_G_FACTOR_
       iPrint=0
       IJSO=0
       Do igrp=1,ngroup1
@@ -2261,14 +2251,13 @@ C And the same for the Dyson amplitudes
 *           The energy difference is used to define the norm of the
 *           wave vector.
 *
-*           rkNorm=EDIFF_/(HBAR*SPEED_OF_LIGHT)
-            rkNorm=ABS(EDIFF_)/(HBAR*SPEED_OF_LIGHT)
+            rkNorm=ABS(EDIFF_)/SPEED_OF_LIGHT
 *
 *           Iterate over the quadrature points.
 *
             CALL DCOPY_(5*n12,[0.0D0],0,WORK(LF),1)
 * 5 elements for FX,FY,FZ,F and R
-* even if X,Y and Z are not actually computed yet
+* even if X, Y and Z are not actually computed yet
 *
 *           Initialize output arrays
 *
@@ -2284,47 +2273,15 @@ C And the same for the Dyson amplitudes
 *              Generate the wavevector associated with this quadrature
 *              point and pick up the associated quadrature weight.
 *
-               x=Work((iQuad-1)*4  +ipR)
-               y=Work((iQuad-1)*4+1+ipR)
-               z=Work((iQuad-1)*4+2+ipR)
-
-               Wavevector(1)=rkNorm*x
-               Wavevector(2)=rkNorm*y
-               Wavevector(3)=rkNorm*z
+               UK(1)=Work((iQuad-1)*4  +ipR)
+               UK(2)=Work((iQuad-1)*4+1+ipR)
+               UK(3)=Work((iQuad-1)*4+2+ipR)
+*
+               Wavevector(:)=rkNorm*UK(:)
                Call DCopy_(3,Wavevector,1,Work(iStorage+ip_kvector),1)
 *
                Weight=Work((iQuad-1)*4+3+ipR)
                Work(iStorage+ip_w)=Weight
-*
-*              Generate the associated polarization vectors.
-*
-               IF (Wavevector(1).EQ.0.0D0 .and.
-     &             Wavevector(2).EQ.0.0D0) Then
-                  P1(1)=1.0D0
-                  P1(2)=0.0D0
-                  P1(3)=0.0D0
-               ELSE
-                  P1(1)= Wavevector(2)
-                  P1(2)=-Wavevector(1)
-                  P1(3)= 0.0D0
-               END IF
-               Tmp=1.0D0/SQRT(P1(1)**2+P1(2)**2+P1(3)**2)
-               P1(1)=P1(1)*Tmp
-               P1(2)=P1(2)*Tmp
-               P1(3)=P1(3)*Tmp
-               Call Cross_AB(Wavevector,P1,P2)
-               Tmp=1.0D0/SQRT(P2(1)**2+P2(2)**2+P2(3)**2)
-               P2(1)=P2(1)*Tmp
-               P2(2)=P2(2)*Tmp
-               P2(3)=P2(3)*Tmp
-               Call DCopy_(3,P1,1,Work(iStorage+ip_e1),1)
-               Call DCopy_(3,P2,1,Work(iStorage+ip_e2),1)
-*
-*              Compute the vectors (k x e1) and  (k x e2).
-*
-               Call Cross_AB(Wavevector,P1,kxe1)
-               Call Cross_AB(Wavevector,P2,kxe2)
-*
 *              Generate the property integrals associated with this
 *              direction of the wave vector k.
 *
@@ -2394,45 +2351,36 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 *
 *              The contribution to the generalized momentum operator.
 *
-               TMX_R=PROP(I,J,IPRTMOM_RS  )+PROP(I,J,IPRTMOM_RA  )
-               TMX_I=PROP(I,J,IPRTMOM_IS  )+PROP(I,J,IPRTMOM_IA  )
-               T0(1)=DCMPLX(TMX_R,TMX_I)
+               DO iCar=1,3
+                  TM_R(iCar)=PROP(I,J,IPRTMOM_RS+iCar-1)+
+     &                       PROP(I,J,IPRTMOM_RA+iCar-1)
+                  TM_I(iCar)=PROP(I,J,IPRTMOM_IS+iCar-1)+
+     &                       PROP(I,J,IPRTMOM_IA+iCar-1)
+               END DO
 *
-               TMY_R=PROP(I,J,IPRTMOM_RS+1)+PROP(I,J,IPRTMOM_RA+1)
-               TMY_I=PROP(I,J,IPRTMOM_IS+1)+PROP(I,J,IPRTMOM_IA+1)
-               T0(2)=DCMPLX(TMY_R,TMY_I)
+*              Project out the k direction from the real and imaginary components
 *
-               TMZ_R=PROP(I,J,IPRTMOM_RS+2)+PROP(I,J,IPRTMOM_RA+2)
-               TMZ_I=PROP(I,J,IPRTMOM_IS+2)+PROP(I,J,IPRTMOM_IA+2)
-               T0(3)=DCMPLX(TMZ_R,TMZ_I)
+               Call DaXpY_(3,-DDot_(3,TM_R,1,UK,1),UK,1,TM_R,1)
+               Call DaXpY_(3,-DDot_(3,TM_I,1,UK,1),UK,1,TM_I,1)
 *
-               E1A = P1(1)*T0(1) + P1(2)*T0(2) + P1(3)*T0(3)
-               E2A = P2(1)*T0(1) + P2(2)*T0(2) + P2(3)*T0(3)
-               E1A = - Imaginary * E1A
-               E2A = - Imaginary * E2A
+               Call DCopy_(3,TM_R,1,Work(iStorage+ip_TMR),1)
+               Call DCopy_(3,TM_I,1,Work(iStorage+ip_TMI),1)
 *
 *              (2) the magnetic-spin part
-C
-C              Well the B.S term is overkill, get rid of it.
-C              Why do it when we don't do the L.S-term!
-C
+*
+C                 Well the B.S term is overkill, get ride of it.
+C                 Why do it when we don't do the L.S-term!
 *
 *              Finally, evaluate the transition moment from the two
 *              different contributions.
-*
-               TM1 = E1A
-               TM2 = E2A
-*
-               Work(iStorage+ip_TM1R)=DBLE(TM1)
-               Work(iStorage+ip_TM1I)=AIMAG(TM1)
-               Work(iStorage+ip_TM2R)=DBLE(TM2)
-               Work(iStorage+ip_TM2I)=AIMAG(TM2)
 *
 *              Integrate over all directions of the polarization
 *              vector and divide with the "distance", 2*pi, to get
 *              the average value.
 *
-               TM_2 = Half*DBLE(DCONJG(TM1)*TM1 +DCONJG(TM2)*TM2)
+               TM1 = DDot_(3,TM_R,1,TM_R,1)
+               TM2 = DDot_(3,TM_I,1,TM_I,1)
+               TM_2 = Half*(TM1+TM2)
 *
 *              Compute the oscillator strength
 *
@@ -2440,14 +2388,11 @@ C
 *
 *              Compute the rotatory strength
 *
-*              TMR = (TM1 + IMAGINARY*TM2)/Sqrt(2.0D0)
-*              TML = (TM1 - IMAGINARY*TM2)/Sqrt(2.0D0)
-*
-*              TM_2 =      DBLE(DCONJG(TMR)*TMR -DCONJG(TML)*TML)
-               TM_2 = - 2.0D0*(
-     &                         DBLE(TM1)*AIMAG(TM2)
-     &                        -DBLE(TM2)*AIMAG(TM1)
-     &                        )
+               TM_C(1) = TM_R(2)*TM_I(3)-TM_R(3)*TM_I(2)
+               TM_C(2) = TM_R(3)*TM_I(1)-TM_R(1)*TM_I(3)
+               TM_C(3) = TM_R(1)*TM_I(2)-TM_R(2)*TM_I(1)
+               TM_2 = -2.0D0*SQRT(DDot_(3,TM_C,1,TM_C,1))*
+     &                       SIGN(1.0D0,DDot_(3,TM_C,1,UK,1))
 *
 *              R = 3/4 * c*hbar^2/DeltaE^2 * (|T^L|^2 - |T^R|^2)
 *
@@ -2461,11 +2406,11 @@ C
 *              Save the raw oscillator strengths in a given direction
 *
                LRAW_=LRAW+5*NQUAD*(ij_-1)
-               WORK(LRAW_+(IQUAD-1)+0*NQUAD) = F_TEMP
-               WORK(LRAW_+(IQUAD-1)+1*NQUAD) = R_TEMP
-               WORK(LRAW_+(IQUAD-1)+2*NQUAD) = X
-               WORK(LRAW_+(IQUAD-1)+3*NQUAD) = Y
-               WORK(LRAW_+(IQUAD-1)+4*NQUAD) = Z
+               WORK(LRAW_+(IQUAD-1)+0*NQUAD) = F_Temp
+               WORK(LRAW_+(IQUAD-1)+1*NQUAD) = R_Temp
+               WORK(LRAW_+(IQUAD-1)+2*NQUAD) = UK(1)
+               WORK(LRAW_+(IQUAD-1)+3*NQUAD) = UK(2)
+               WORK(LRAW_+(IQUAD-1)+4*NQUAD) = UK(3)
 *
 *              Compute the oscillator strength
 *
@@ -2475,11 +2420,11 @@ C
 *              Save the weighted oscillator strengths in a given direction
 *
                LWEIGH_=LWEIGH+5*NQUAD*(ij_-1)
-               WORK(LWEIGH_+(IQUAD-1)+0*NQUAD) = F_TEMP*WEIGHT
-               WORK(LWEIGH_+(IQUAD-1)+1*NQUAD) = R_TEMP*WEIGHT
-               WORK(LWEIGH_+(IQUAD-1)+2*NQUAD) = X
-               WORK(LWEIGH_+(IQUAD-1)+3*NQUAD) = Y
-               WORK(LWEIGH_+(IQUAD-1)+4*NQUAD) = Z
+               WORK(LWEIGH_+(IQUAD-1)+0*NQUAD) = F_Temp*WEIGHT
+               WORK(LWEIGH_+(IQUAD-1)+1*NQUAD) = R_Temp*WEIGHT
+               WORK(LWEIGH_+(IQUAD-1)+2*NQUAD) = UK(1)
+               WORK(LWEIGH_+(IQUAD-1)+3*NQUAD) = UK(2)
+               WORK(LWEIGH_+(IQUAD-1)+4*NQUAD) = UK(3)
                   End Do ! j_
                End Do ! i_
 *
@@ -2676,15 +2621,7 @@ C
 37    FORMAT (5X,2(1X,I4),6X,15('-'),1X,A15,1X,ES15.8)
 39    FORMAT (5X,2(1X,A4),6X,A15,1X,A15,1X,A15)
 40    FORMAT (5X,63('-'))
-      Contains
-      Subroutine Cross_AB(A,B,C)
-      Implicit None
-      Real*8 A(3), B(3), C(3)
-      C(1) = A(2)*B(3) - A(3)*B(2)
-      C(2) = A(3)*B(1) - A(1)*B(3)
-      C(3) = A(2)*B(1) - A(1)*B(2)
-      END Subroutine Cross_AB
-      END Subroutine EigCTL
+      END Subroutine EigCtl
       Subroutine Setup_O()
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "nq_info.fh"

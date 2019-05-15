@@ -2370,8 +2370,7 @@ C printing threshold
 ************************************************************************
 *
       If (Do_TMOM)
-     &   Call PRPROP_TM_Exact(PROP,USOR,USOI,ENSOR,NSS,OVLP,ENERGY,
-     &                        JBNUM)
+     &   Call PRPROP_TM_Exact(PROP,USOR,USOI,ENSOR,NSS,JBNUM)
 *
  500  CONTINUE
 

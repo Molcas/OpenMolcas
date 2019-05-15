@@ -199,32 +199,34 @@
      $        'matrix of size [NBAST,NSTATE,NSTATE], where NBAST '//
      $        'is of size [NBAS(I)**2] for I=1,NSYM')
 
-*     SFS intermediate transition moments
+*     SFS intermediate transition vectors
       nIJ=NSTATE*(NSTATE-1)/2
-      nData= 1 + 3 + 2*3 + 2*2
+      nData= 1 + 3 + 2*3
       wfn_sfs_tm = mh5_create_dset_real(wfn_fileid,
-     $        'SFS_TRANSITION_MOMENTS', 4, [nk_Vector,nIJ,nQuad,nData])
+     $        'SFS_TRANSITION_VECTORS', 4, [nk_Vector,nIJ,nQuad,nData])
       call mh5_init_attr(wfn_sfs_tm, 'description',
-     $        'SFS intermediate transition moments (x2x2), '//
-     $        'k-vectors (nQuad*nVec), '//
-     $        'polarization vectors (x2), weights, for each, '//
-     $        'unique pairs of SF states, '//
-     $        'excluding self-pairs (nIJ), '//
-     $        'and k-vector stored as a, '//
-     $        'matrix of size [nVec,nIJ,nQuad,nData]')
+     $        'SFS intermediate transition vectors '//
+     $        'for nVec specific k-vectors, '//
+     $        'nIJ unique pairs of SF states, '//
+     $        'and nQuad quadrature k-vectors; '//
+     $        'stored as weight, k-vector (3 components), '//
+     $        'real transition vector (3 components), '//
+     $        'and imaginary transition vector (3 components), '//
+     $        'giving a matrix of size [nVec,nIJ,nQuad,nData]')
 
-*     SOS intermediate transition moments
+*     SOS intermediate transition vectors
       nIJ=NSS*(NSS-1)/2
-      nData= 1 + 3 + 2*3 + 2*2
+      nData= 1 + 3 + 2*3
       wfn_sos_tm = mh5_create_dset_real(wfn_fileid,
-     $        'SOS_TRANSITION_MOMENTS', 4, [nk_Vector,nIJ,nQuad,nData])
+     $        'SOS_TRANSITION_VECTORS', 4, [nk_Vector,nIJ,nQuad,nData])
       call mh5_init_attr(wfn_sos_tm, 'description',
-     $        'SOS intermediate transition moments (x2x2), '//
-     $        'k-vectors (nQuad*nVec), '//
-     $        'polarization vectors (x2), weights, for each, '//
-     $        'unique pairs of SO states, '//
-     $        'excluding self-pairs (nIJ), '//
-     $        'and k-vector stored as a, '//
-     $        'matrix of size [nVec,nIJ,nQuad,nData]')
+     $        'SOS intermediate transition vectors '//
+     $        'for nVec specific k-vectors, '//
+     $        'nIJ unique pairs of SF states, '//
+     $        'and nQuad quadrature k-vectors; '//
+     $        'stored as weight, k-vector (3 components), '//
+     $        'real transition vector (3 components), '//
+     $        'and imaginary transition vector (3 components), '//
+     $        'giving a matrix of size [nVec,nIJ,nQuad,nData]')
 #endif
       end
