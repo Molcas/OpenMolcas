@@ -203,14 +203,31 @@ c Avoid unused argument warnings
      &                            Energy(iFirst))
             Call DScal_(nInter*nRaw,-1.0D0,Grad(1,iFirst),1)
 #ifdef _TEST_KRIGING_
+*
+*           Activate code to check that the kriging is doing an exaxt
+*           interpolation.
+*
             Call mma_Allocate(dq,nInter,Label='dq')
+            ThrT=1.0D-8
             Do i = iFirst, iFirst+nRaw-1
-               Write (6,*) 'before sending',qInt(1,i)
                Call Energy_Kriging(qInt(1,i),E_test,nInter)
-               Write (6,*) 'Energy=',E_test
+               Test=Abs(E_test-Energy(i))
+               If (Test.gt.ThrT) Then
+                  Write (6,*) 'Kriging error in energy'
+                  Write (6,*) E_test,Energy(i)
+                  Call Abend()
+               End If
                Call Gradient_Kriging(qInt(1,i),dq,nInter)
                Call DScal_(nInter,-1.0D0,dq,1)
-               Call RecPrt('dq',' ',dq,1,nInter)
+               Do iInter = 1, nInter
+                  Test=Abs(dq(iInter)-Grad(iInter,i))
+                  If (Test.gt.ThrT) Then
+                     Write (6,*) 'Kriging error in gradient'
+                     Write (6,*) dq(iInter),Grad(iInter,i)
+                     Call Abend()
+                  End If
+               End Do
+               Call DScal_(nInter,-1.0D0,dq,1)
             End Do
             Call mma_DeAllocate(dq)
 #endif
