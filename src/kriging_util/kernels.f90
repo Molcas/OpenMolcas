@@ -45,6 +45,10 @@
             !   call predict(1,iter,nInter)
             !   temp_gpred(:,:,i)=gpred
             !   write(6,*) 'gpred',gpred
+            !   call covarvector(2,iter,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+            !   call predict(2,iter,nInter)
+              !temp_hpred(:,:,i)=gpred
+            !   write(6,*) 'hpred',hpred
             !   write (6,*) '------------------------'
             !----------
             enddo

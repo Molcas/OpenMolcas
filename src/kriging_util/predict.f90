@@ -35,10 +35,10 @@
 !                               sigma, lh
                 else
                     if (gh.eq.1) then
+                        sigma=1.96*sqrt(2*abs(var*variance))
                         do k=1,nInter
                             tcv=transpose(cv(:,:,k,1))
                             gpred(j,k) = dot_product(tcv(j,:),Kv)
-                            sigma=1.96*sqrt(2*abs(var*variance))
                             ! write(6,*) 'pred Grad:',k,j,l,gpred(j,k), &
                             !     var,variance,sigma, lh,tcv
                         enddo
@@ -46,11 +46,11 @@
 !                       write(6,*) 'final Kv',kv
 !                       write (6,*) 'pred grad:',gpred
                     else
+                        sigma=1.96*sqrt(2*abs(var*variance))
                         do k=1,nInter
                             do i=1,nInter
                                 tcv=transpose(cv(:,:,k,i))
                                 hpred(j,k,i) = dot_product(tcv(j,:),Kv)
-                                sigma=1.96*sqrt(2*abs(var*variance))
                                 ! write(6,*) 'pred Hess:',k,j,l,hpred(j,k), &
                                 !     var,variance,sigma, lh, tcv
                             enddo

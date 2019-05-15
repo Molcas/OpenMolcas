@@ -56,24 +56,24 @@
         return
       end
 !
-!       Subroutine Hessian_Kriging(x_,ddy_,ndimx)
-!         use globvar
-!         Integer nInter,nPoints
-!         Real*8 x_(ndimx,1),ddy_(ndimx,ndimx)
-! !
-!         nPoints=nPoints_save
-!         nInter=nInter_save
-! !
-!         npx = npxAI
-! !nx is the n-dimensional vector of the last iteration computed in update_sl
-! ! subroutine
-!         nx = x_
-! !
-!         ! Write(6,*) 'Entro hess'
-!         call covarvector(2,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
-!         call predict(2,nPoints,nInter)
-! !       ddy_=hpred(npx,:)
-! !
-!         return
-!       end
+      Subroutine Hessian_Kriging(x_,ddy_,ndimx)
+        use globvar
+        Integer nInter,nPoints
+        Real*8 x_(ndimx,1),ddy_(ndimx,ndimx)
+!
+        nPoints=nPoints_save
+        nInter=nInter_save
+!
+        npx = npxAI
+!nx is the n-dimensional vector of the last iteration computed in update_sl
+! subroutine
+        nx = x_
+!
+        ! Write(6,*) 'Entro hess'
+        call covarvector(2,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+        call predict(2,nPoints,nInter)
+        ddy_=hpred(npx,:,:)
+!
+        return
+      end
 

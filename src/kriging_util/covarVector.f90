@@ -33,10 +33,10 @@
 !               write (6,*) 'cv-gh,m',gh,m
                 call matderiv(1, dl, m, iter, npx)
                 cvMatFder = m
-                call matderiv(2, dl, m, iter, npx)
-                cvMatSder = m
-                call matderiv(3, dl, m, iter, npx)
-                cvMatTder = m
+                ! call matderiv(2, dl, m, iter, npx)
+                ! cvMatSder = m
+                ! call matderiv(3, dl, m, iter, npx)
+                ! cvMatTder = m
                 do i=1,nInter
 !       1st derivatives second part of eq. (4)
                     diffx = 2.0*rl(:,:,i)/l(i)
@@ -51,7 +51,6 @@
             if(gh.ge.1) then
 !                    print *,'covar vector calling deriv(2) for Kriging Gradients'
                 !if (.NOT. isdefdlrl) then
-
                 call defdlrl(iter,nInter)
                 call matderiv(1, dl, m, iter, npx)
                 cvMatFder = m
@@ -78,13 +77,32 @@
                 !Write (6,*) 'CV - Krig Grad: ',cv
             endif
             if(gh.eq.2) then
-!                    print *,'covar vector calling deriv(3)for Kriging Hessian'
-                cv(i0:i1,:,i,i) = m
-                i0 = i*iter + 1
-                i1 = i0+iter - 1
+!                    print *,'covar vector calling deriv(3) for Kriging Hessian'
+                call defdlrl(iter,nInter)
+                call matderiv(1, dl, m, iter, npx)
+                cvMatFder = m
+                call matderiv(2, dl, m, iter, npx)
+                cvMatSder = m
                 call matderiv(3, dl, m, iter, npx)
-                m = cvMatTder * diffx*diffx0**2 + cvMatSder*(4*diffx**2/l(i) + &
-                    4/l(i)**2) + cvMatFder*(4/l(i)**3)
+                cvMatTder = m
+                do i = 1, nInter
+                    diffx = 2.0*rl(:,:,i)/l(i)
+                    do j = 1, nInter
+                        diffx0 = -2.0*rl(:,:,j)/l(j)
+                        m = cvMatSder * diffx*diffx0
+                        if (i.eq.j) m = m - cvMatFder*2/(l(i)*l(j))
+                        cv(1:iter,:,i,j) = m
+                        do k = 1, nInter
+                            k0 = k*iter + 1
+                            k1 = k0+iter - 1
+                            m = cvMatTder*diffx*diffx0**2
+                            if (j.eq.k) m = m + 2*cvMatSder*diffx0/(l(j)*l(k))
+                            ! m = cvMatTder * diffx*diffx0**2 + cvMatSder*(4*diffx**2/l(i) + &
+                            !     4/l(i)**2) + cvMatFder*(4/l(i)**3)
+                            cv(k0:k1,:,i,j) = m
+                        enddo
+                    enddo
+                enddo
                 !Write (6,*) 'CV - Krig Hessian: ',mat
             endif
         ! enddo
