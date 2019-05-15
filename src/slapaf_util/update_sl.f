@@ -542,13 +542,16 @@ c Avoid unused argument warnings
             Call RecPrt('dqm',' ',dqm,nInter,1)
 *
             Do jInter = 1, nInter
+               Fact = 0.5D0
+               If (iInter.eq.jInter) Fact = 1.0D0
                Hessian(iInter,jInter) = Hessian(iInter,jInter)
-     &                + (dqp(jInter)-dqm(jInter))/(2.0D0*Delta)
+     &                + Fact*(dqp(jInter)-dqm(jInter))/(2.0D0*Delta)
+               Hessian(jInter,iInter) = Hessian(jInter,iInter)
+     &                + Fact*(dqp(jInter)-dqm(jInter))/(2.0D0*Delta)
             End Do
 *
             qInt(iInter,kIter)=qInt_Save
          End Do
-         Call RecPrt('Hessian',' ',Hessian,nInter,nInter)
          Call mma_Deallocate(dqp)
          Call mma_Deallocate(dqm)
 #else
@@ -577,6 +580,7 @@ c Avoid unused argument warnings
      &                 iNeg,iOptH,HUpMet,nRowH,jPrint,GNrm(kIter),
      &                 GNrm_Threshold,nsAtom,IRC,.True.)
       End If
+      Call RecPrt('Hessian',' ',Hessian,nInter,nInter)
 *
 *     Save the number of internal coordinates on the runfile.
 *
