@@ -734,7 +734,8 @@ c      End If
 
           Do iGTO=1,nB ! Find matching Gaussian (GTO)
 
-            If (gtolabel(iGTO).eq.label(iBtot)//number(iCount)) Then ! GTO Found
+            If (gtolabel(iGTO).eq.label(iBtot)//number(iCount)) Then
+                ! GTO Found
                 idx1=8*(iBtot-1)+iSymcent
                 idx2=(iBtot-1)
                 coeff=DBLE(iWork(ipPhase+idx1))*r_Norm(iGTO)
