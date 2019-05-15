@@ -334,10 +334,10 @@ C Local print level (if any)
         end do
       end if
          Call Get_D1A_RASSCF_m(CMO,Work(iD1Act),Work(iD1ActAO))
-         write(6,*) "is this it?",ntot2
-         do i=1,ntot2
-           write(*,*) Work(iD1ActAO-1+i)
-         end do
+*         write(6,*) "is this it?",ntot2
+*         do i=1,ntot2
+*           write(*,*) Work(iD1ActAO-1+i)
+*         end do
 
 !ANDREW _ RIGHT HERE
       if(DoGradPDFT.and.jroot.eq.irlxroot) then
@@ -565,12 +565,15 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
         Call GetMem('id1actao_FA','ALLO','Real',id1actao_FA,ntot2)
 *
         itsDisk = IADR19(3)
-        do i=1,irlxroot-1
+          write(*,*) 'irlxroot'
+        do i=1, irlxroot-1
+          write(*,*) 'hello'
           Call DDaFile(JOBOLD,0,Work(iD1Act_FA),NACPAR,itsDisk)
           Call DDaFile(JOBOLD,0,Work(iD1Spin),NACPAR,itsDisk)
           Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,itsDisk)
           Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,itsDisk)
         end do
+        write(*,*) 'HELLO'
         Call DDaFile(JOBOLD,2,Work(iD1Act_FA),NACPAR,itsDisk)
         Call Get_D1A_RASSCF_m(CMO,Work(iD1Act_FA),Work(iD1ActAO_FA))
 *****
@@ -657,12 +660,12 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
      &          WORK(LPUVX_tmp),WORK(LTUVX_tmp),WORK(id1actao_FA)
      &         ,WORK(ifocka),WORK(id1i),WORK(ifocki),IPR,lSquare,ExFac)
 *        Call dcopy_(ntot1,FA,1,Work(ifocka),1)
-*        if (iprlev.ge.debug) then
+        if (iprlev.ge.debug) then
              write(6,*) 'FA tractl msctl'
              call wrtmat(Work(ifocka),1,ntot1,1,ntot1)
              write(6,*) 'FI tractl msctl'
              call wrtmat(Work(ifocki),1,ntot1,1,ntot1)
-*        end if
+        end if
 *
       Call GetMem('ltuvx_tmp','Free','Real',ltuvx_tmp,nacpr2)
       Call GetMem('lpuvx_tmp','Free','Real',lpuvx_tmp,nfint)
@@ -692,12 +695,10 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
             do i=1,nacpar
               write(*,*) work(id1act-1+i)
             end do
-        end if 
             write(6,*) 'id1actao after tractl'
             do i=1,ntot2
               write(*,*) work(id1actao-1+i)
             end do
-         if(iprlev.ge.debug) then
             write(6,*) 'id1i before tractl'
             do i=1,ntot2
               write(*,*) work(id1i-1+i)
@@ -810,7 +811,7 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
 !         '**************************************************'
 !         write(*,*) 'ENERGY REPORT FOR STATE',jroot
 *TRS
-          write(*,*) 'ECAS', ECAS
+*          write(*,*) 'ECAS', ECAS
 
 *TRS
         Call Print_MCPDFT_2(CASDFT_E,PotNuc,EMY,ECAS,CASDFT_Funct,
