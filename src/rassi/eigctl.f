@@ -39,7 +39,7 @@
       Real*8 TDIPARR(3)
       Integer  cho_x_gettol
       External cho_x_gettol
-      INTEGER IOFF(8), SECORD(4)
+      INTEGER IOFF(8), SECORD(4), IPRTMOM(12)
       CHARACTER*8 LABEL
       Real*8 TM_R(3), TM_I(3), TM_C(3)
       Character*60 FMTLINE
@@ -733,7 +733,7 @@ C And the same for the Dyson amplitudes
      &                   'Total A (sec-1)'
                  WRITE(6,32)
                  WRITE(losc_strength,34) 'From','To','Osc. strength',
-     &                   'Fx','Fy','Fz','(A.U.)'
+     &                   'Fx','Fy','Fz','(a.u.)'
                  WRITE(losc_strength,32)
               END IF
               LNCNT=LNCNT+1
@@ -816,7 +816,7 @@ C And the same for the Dyson amplitudes
            DMAX=MAX(DSZ,DMAX)
            IF(DSZ.ge.TDIPMIN) THEN
             IF(LNCNT.EQ.0) THEN
-             WRITE(6,34) 'From','To','Dx','Dy','Dz','Total D','(au)'
+             WRITE(6,34) 'From','To','Dx','Dy','Dz','Total D','(a.u.)'
              WRITE(6,32)
             END IF
             LNCNT=LNCNT+1
@@ -995,9 +995,11 @@ C And the same for the Dyson amplitudes
              IF(WORK(LDL-1+IJ).GE.OSTHR+dlt .AND.
      &          WORK(LDV-1+IJ).GE.OSTHR+dlt) THEN
                COMPARE = ABS(1-WORK(LDL-1+IJ)/WORK(LDV-1+IJ))
-             ELSE IF(WORK(LDL-1+IJ).GE.OSTHR) THEN
+             ELSE IF((WORK(LDL-1+IJ).GE.OSTHR).AND.
+     &               (WORK(LDL-1+IJ).GT.0.0D0)) THEN
                COMPARE = -1.5D0
-             ELSE IF(WORK(LDV-1+IJ).GE.OSTHR) THEN
+             ELSE IF((WORK(LDV-1+IJ).GE.OSTHR).AND.
+     &               (WORK(LDV-1+IJ).GT.0.0D0)) THEN
                COMPARE = -2.5D0
              END IF
 
@@ -1707,13 +1709,14 @@ C And the same for the Dyson amplitudes
       END DO
        IF(I2TOT.GE.1) THEN
          IF(SECORD(1).EQ.0)
-     &   WRITE(6,*) 'Magnetic-dipole - Magnetic-dipole not included'
+     &   WRITE(6,*) 'Magnetic-dipole - magnetic-dipole not included'
          IF(SECORD(2).EQ.0)
-     &   WRITE(6,*) 'Electric-Quadrupole - Electric-Quadrupole not in'
+     &   WRITE(6,*) 'Electric-quadrupole - electric-quadrupole not '//
+     &              'included'
          IF(SECORD(3).EQ.0)
-     &   WRITE(6,*) 'Electric-Dipole - Electric-Octupole not included'
+     &   WRITE(6,*) 'Electric-dipole - electric-octupole not included'
          IF(SECORD(4).EQ.0)
-     &   WRITE(6,*) 'Electric-Dipole - Magnetic-Quadrupole not included'
+     &   WRITE(6,*) 'Electric-dipole - magnetic-quadrupole not included'
          iPrint=0
          DO ISS_=1,IEND
           ISS=IndexE(ISS_)
@@ -1758,7 +1761,7 @@ C And the same for the Dyson amplitudes
          End If
        END IF
 ! release the memory again
-         CALL GETMEM('TOT2K','FREE','REAL',LTOT2K,NSS**2)
+       CALL GETMEM('TOT2K','FREE','REAL',LTOT2K,NSS**2)
 !
 !
       IF(DOCD) THEN
@@ -1997,19 +2000,26 @@ C And the same for the Dyson amplitudes
 *     Find the slot on the one-electron file where we will store the
 *     on-the-fly generated property integrals.
 *
-      IPRTMOM_RS=-1
+      IPRTMOM(:)=-1
       DO IPROP=1,NPROP
-         IF (PNAME(IPROP).EQ.'TMOM  RS'.AND.IPRTMOM_RS.EQ.-1) THEN
-            IPRTMOM_RS=IPROP
+         IF (PNAME(IPROP).EQ.'TMOM  RS') THEN
+            IF (IPRTMOM(0+ICOMP(IPROP)).EQ.-1)
+     &          IPRTMOM(0+ICOMP(IPROP))=IPROP
+         END IF
+         IF (PNAME(IPROP).EQ.'TMOM  IS') THEN
+            IF (IPRTMOM(3+ICOMP(IPROP)).EQ.-1)
+     &          IPRTMOM(3+ICOMP(IPROP))=IPROP
+         END IF
+         IF (PNAME(IPROP).EQ.'TMOM  RA') THEN
+            IF (IPRTMOM(6+ICOMP(IPROP)).EQ.-1)
+     &          IPRTMOM(6+ICOMP(IPROP))=IPROP
+         END IF
+         IF (PNAME(IPROP).EQ.'TMOM  IA') THEN
+            IF (IPRTMOM(9+ICOMP(IPROP)).EQ.-1)
+     &          IPRTMOM(9+ICOMP(IPROP))=IPROP
          END IF
       ENDDO
-      IF (IPRTMOM_RS.EQ.-1) GOTO 900
-      IPRTMOM_RA=IPRTMOM_RS+3
-      IF (PNAME(IPRTMOM_RA).NE.'TMOM  RA') GOTO 900
-      IPRTMOM_IS=IPRTMOM_RS+6
-      IF (PNAME(IPRTMOM_IS).NE.'TMOM  IS') GOTO 900
-      IPRTMOM_IA=IPRTMOM_RS+9
-      IF (PNAME(IPRTMOM_IA).NE.'TMOM  IA') GOTO 900
+      IF (ANY(IPRTMOM.EQ.-1)) RETURN
 *
 *     Initiate the Seward environment
 *
@@ -2205,7 +2215,7 @@ C And the same for the Dyson amplitudes
 *
       CALL GETMEM('RAW   ','ALLO','REAL',LRAW,NQUAD*5*nmax2)
       CALL GETMEM('WEIGHT','ALLO','REAL',LWEIGH,NQUAD*5*nmax2)
-      CALL GETMEM('OSCSTR','ALLO','REAL',LF,5*nmax2)
+      CALL GETMEM('OSCSTR','ALLO','REAL',LF,2*nmax2)
 *
       ip_w       = 1
       ip_kvector = ip_w + 1
@@ -2255,7 +2265,7 @@ C And the same for the Dyson amplitudes
 *
 *           Iterate over the quadrature points.
 *
-            CALL DCOPY_(5*n12,[0.0D0],0,WORK(LF),1)
+            CALL DCOPY_(2*n12,[0.0D0],0,WORK(LF),1)
 * 5 elements for FX,FY,FZ,F and R
 * even if X, Y and Z are not actually computed yet
 *
@@ -2300,7 +2310,7 @@ C And the same for the Dyson amplitudes
                      MPLET_J=MLTPLT(iWork(lJBNUM+J-1))
                      EDIFF=ENERGY(J)-ENERGY(I)
                      ij_=ij_+1
-                     LFIJ=LF+(ij_-1)*5
+                     LFIJ=LF+(ij_-1)*2
 C COMBINED SYMMETRY OF STATES:
                      JOB1=iWork(lJBNUM+I-1)
                      JOB2=iWork(lJBNUM+J-1)
@@ -2335,7 +2345,8 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                      ij=ISTATE*(ISTATE-1)/2+JSTATE
                      iDisk=iWork(liTocM+ij-1)
                      Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
-               DO IPROP = IPRTMOM_RS, IPRTMOM_RS+11
+               DO IPRP = 1,12
+                  IPROP=IPRTMOM(IPRP)
                   ITYPE=0
                   IF (PTYPE(IPROP).EQ.'HERMSING') ITYPE=1
                   IF (PTYPE(IPROP).EQ.'ANTISING') ITYPE=2
@@ -2345,17 +2356,19 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                   Call MK_PROP(PROP,IPROP,ISTATE,JSTATE,LABEL,ITYPE,
      &                         WORK(LIP),NIP,WORK(LSCR),NSCR,
      &                         MASK,ISY12,IOFF)
-               END DO ! IPROP
+               END DO ! IPRP
 *
 *              (1) the oam part
 *
 *              The contribution to the generalized momentum operator.
+*              Note that the integrals contain nabla, but we need p,
+*              so we multiply by -i
 *
                DO iCar=1,3
-                  TM_R(iCar)=PROP(I,J,IPRTMOM_RS+iCar-1)+
-     &                       PROP(I,J,IPRTMOM_RA+iCar-1)
-                  TM_I(iCar)=PROP(I,J,IPRTMOM_IS+iCar-1)+
-     &                       PROP(I,J,IPRTMOM_IA+iCar-1)
+                  TM_R(iCar)=+PROP(I,J,IPRTMOM(3+iCar)) ! IS
+     &                       +PROP(I,J,IPRTMOM(9+iCar)) ! IA
+                  TM_I(iCar)=-PROP(I,J,IPRTMOM(0+iCar)) ! RS
+     &                       -PROP(I,J,IPRTMOM(6+iCar)) ! RA
                END DO
 *
 *              Project out the k direction from the real and imaginary components
@@ -2412,10 +2425,10 @@ C                 Why do it when we don't do the L.S-term!
                WORK(LRAW_+(IQUAD-1)+3*NQUAD) = UK(2)
                WORK(LRAW_+(IQUAD-1)+4*NQUAD) = UK(3)
 *
-*              Compute the oscillator strength
+*              Compute the oscillator and rotatory strength
 *
-               Work(LFIJ+3) = Work(LFIJ+3) + Weight * F_Temp
-               Work(LFIJ+4) = Work(LFIJ+4) + Weight * R_Temp
+               Work(LFIJ  ) = Work(LFIJ  ) + Weight * F_Temp
+               Work(LFIJ+1) = Work(LFIJ+1) + Weight * R_Temp
 *
 *              Save the weighted oscillator strengths in a given direction
 *
@@ -2436,10 +2449,10 @@ C                 Why do it when we don't do the L.S-term!
               Do j_=jstart_,jend_
                 J=IndexE(J_)
                 ij_=ij_+1
-                LFIJ=LF+(ij_-1)*5
+                LFIJ=LF+(ij_-1)*2
 *
-                F=Work(LFIJ+3)
-                R=Work(LFIJ+4)
+                F=Work(LFIJ)
+                R=Work(LFIJ+1)
                 Call Add_Info('ITMS(SF)',[F],1,6)
                 Call Add_Info('ROTS(SF)',[R],1,6)
 *
@@ -2505,8 +2518,8 @@ C                 Why do it when we don't do the L.S-term!
                 IF(PRRAW) THEN
                   WRITE(6,*)
                   WRITE(6,*)
-                  WRITE(6,34) 'From', 'To', 'Raw osc. str.',
-     &                        'Mag. cont.','kx','ky','kz'
+                  WRITE(6,41) 'From', 'To', 'Raw osc. str.',
+     &                        'Rot str.','kx','ky','kz'
                   WRITE(6,32)
                   LRAW_=LRAW+5*NQUAD*(ij_-1)
                   DO IQUAD = 1, NQUAD
@@ -2526,8 +2539,8 @@ C                 Why do it when we don't do the L.S-term!
                 IF(PRWEIGHT) THEN
                   WRITE(6,*)
                   WRITE(6,*)
-                  WRITE(6,34) 'From', 'To', 'Weig. osc. str.',
-     &                        'Mag. cont.','kx','ky','kz'
+                  WRITE(6,41) 'From', 'To', 'Weig. osc. str.',
+     &                        'Rot str.','kx','ky','kz'
                   WRITE(6,32)
                   LWEIGH_=LWEIGH+5*NQUAD*(ij_-1)
                   DO IQUAD = 1, NQUAD
@@ -2572,7 +2585,7 @@ C                 Why do it when we don't do the L.S-term!
       CALL GETMEM('WEIGHT','FREE','REAL',LWEIGH,NQUAD*5*nmax2)
       CALL GETMEM('TDMSCR','FREE','Real',LSCR,4*NSCR)
       CALL GETMEM('IP    ','FREE','REAL',LIP,NIP)
-      CALL GETMEM('OSCSTR','FREE','REAL',LF,5*nmax2)
+      CALL GETMEM('OSCSTR','FREE','REAL',LF,2*nmax2)
       if (TMOgroup) Then
         Call mma_DeAllocate(TMOgrp1)
         Call mma_DeAllocate(TMOgrp2)
@@ -2619,8 +2632,9 @@ C                 Why do it when we don't do the L.S-term!
 35    FORMAT (5X,31('-'))
 36    FORMAT (5X,2(1X,I4),6X,15('-'),1X,ES15.8,1X,A15)
 37    FORMAT (5X,2(1X,I4),6X,15('-'),1X,A15,1X,ES15.8)
-39    FORMAT (5X,2(1X,A4),6X,A15,1X,A15,1X,A15)
+39    FORMAT (5X,2(1X,A4),5X,3(1X,A15))
 40    FORMAT (5X,63('-'))
+41    FORMAT (5X,2(1X,A4),5X,5(1X,A15))
       END Subroutine EigCtl
       Subroutine Setup_O()
       IMPLICIT REAL*8 (A-H,O-Z)

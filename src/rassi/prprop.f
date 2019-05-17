@@ -616,7 +616,7 @@ C printing threshold
             WRITE(6,*)
             WRITE(6,'(4x,a,3F8.4,a)')
      &            'Direction of the k-vector: ',
-     &             (k_vector(k,iVec),k=1,3),' (au)'
+     &             (k_vector(k,iVec),k=1,3),' (a.u.)'
             WRITE(6,'(4x,a)')
      &            'The light is assumed to be unpolarized.'
             WRITE(6,*)
@@ -759,7 +759,7 @@ C printing threshold
             WRITE(6,*)
             WRITE(6,'(4x,a,3F8.4,a)')
      &            'Direction of the k-vector: ',
-     &             (k_vector(k,iVec),k=1,3),' (au)'
+     &             (k_vector(k,iVec),k=1,3),' (a.u.)'
             WRITE(6,'(4x,a)')
      &            'The light is assumed to be unpolarized.'
             WRITE(6,*)
@@ -833,9 +833,11 @@ C printing threshold
              IF(WORK(LDL-1+IJ).GE.OSTHR+dlt .AND.
      &          WORK(LDV-1+IJ).GE.OSTHR+dlt) THEN
                COMPARE = ABS(1-WORK(LDL-1+IJ)/WORK(LDV-1+IJ))
-             ELSE IF(WORK(LDL-1+IJ).GE.OSTHR) THEN
+             ELSE IF((WORK(LDL-1+IJ).GE.OSTHR).AND.
+     &               (WORK(LDL-1+IJ).GT.0.0D0)) THEN
                COMPARE = -1.5D0
-             ELSE IF(WORK(LDV-1+IJ).GE.OSTHR) THEN
+             ELSE IF((WORK(LDV-1+IJ).GE.OSTHR).AND.
+     &               (WORK(LDV-1+IJ).GT.0.0D0)) THEN
                COMPARE = -2.5D0
              END IF
              IF(ABS(COMPARE).GE.TOLERANCE) THEN
@@ -851,7 +853,7 @@ C printing threshold
                IF (COMPARE.GE.0.0D0) THEN
                  WRITE(6,33) I,J,COMPARE*100D0,
      &                    WORK(LDL-1+IJ),WORK(LDV-1+IJ)
-               ELSE IF (COMPARE.GE.2.0D0) THEN
+               ELSE IF (COMPARE.GE.-2.0D0) THEN
                  WRITE(6,36) I,J,WORK(LDL-1+IJ),"below threshold"
                ELSE
                  WRITE(6,37) I,J,"below threshold",WORK(LDV-1+IJ)
@@ -1958,13 +1960,14 @@ C printing threshold
       END DO
        IF(I2TOT.GE.1) THEN
          IF(SECORD(1).EQ.0)
-     &   WRITE(6,*) 'Magnetic-dipole - Magnetic-dipole not included'
+     &   WRITE(6,*) 'Magnetic-dipole - magnetic-dipole not included'
          IF(SECORD(2).EQ.0)
-     &   WRITE(6,*) 'Electric-Quadrupole - Electric-Quadrupole not in'
+     &   WRITE(6,*) 'Electric-quadrupole - electric-quadrupole not '//
+     &              'included'
          IF(SECORD(3).EQ.0)
-     &   WRITE(6,*) 'Electric-Dipole - Electric-Octupole not included'
+     &   WRITE(6,*) 'Electric-dipole - electric-octupole not included'
          IF(SECORD(4).EQ.0)
-     &   WRITE(6,*) 'Electric-Dipole - Magnetic-Quadrupole not included'
+     &   WRITE(6,*) 'Electric-dipole - magnetic-quadrupole not included'
          i_Print=0
          DO ISS=1,IEND
           DO JSS=JSTART,NSS
@@ -2007,7 +2010,7 @@ C printing threshold
          END IF
        END IF
 ! release the memory again
-         CALL GETMEM('TOT2K','FREE','REAL',LTOT2K,NSS**2)
+       CALL GETMEM('TOT2K','FREE','REAL',LTOT2K,NSS**2)
 
       END IF
 !

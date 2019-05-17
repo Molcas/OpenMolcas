@@ -29,7 +29,7 @@
 #include "SysDef.fh"
 #include "rassiwfn.fh"
       LOGICAL TMOgroup
-      INTEGER IOFF(8),IJSF(4)
+      INTEGER IOFF(8),IJSF(4),IPRTMOM(14)
       CHARACTER*8 LABEL
       Integer, Dimension(:), Allocatable :: TMOgrp1,TMOgrp2
       Real*8 TM_R(3), TM_I(3), TM_C(3)
@@ -120,23 +120,32 @@ C printing threshold
 *     Find the slot on the one-electron file where we will store the
 *     on-the-fly generated property integrals.
 *
-      IPRTMOM_RS=-1
+      IPRTMOM(:)=-1
       DO IPROP=1,NPROP
-         IF (PNAME(IPROP).EQ.'TMOM  RS'.AND.IPRTMOM_RS.EQ.-1) THEN
-            IPRTMOM_RS=IPROP
+         IF (PNAME(IPROP).EQ.'TMOM  RS') THEN
+            IF (IPRTMOM(0+ICOMP(IPROP)).EQ.-1)
+     &          IPRTMOM(0+ICOMP(IPROP))=IPROP
+         END IF
+         IF (PNAME(IPROP).EQ.'TMOM  IS') THEN
+            IF (IPRTMOM(3+ICOMP(IPROP)).EQ.-1)
+     &          IPRTMOM(3+ICOMP(IPROP))=IPROP
+         END IF
+         IF (PNAME(IPROP).EQ.'TMOM  RA') THEN
+            IF (IPRTMOM(6+ICOMP(IPROP)).EQ.-1)
+     &          IPRTMOM(6+ICOMP(IPROP))=IPROP
+         END IF
+         IF (PNAME(IPROP).EQ.'TMOM  IA') THEN
+            IF (IPRTMOM(9+ICOMP(IPROP)).EQ.-1)
+     &          IPRTMOM(9+ICOMP(IPROP))=IPROP
+         END IF
+         IF (PNAME(IPROP).EQ.'TMOM0  R') THEN
+            IF (IPRTMOM(13).EQ.-1) IPRTMOM(13)=IPROP
+         END IF
+         IF (PNAME(IPROP).EQ.'TMOM0  I') THEN
+            IF (IPRTMOM(14).EQ.-1) IPRTMOM(14)=IPROP
          END IF
       ENDDO
-      IF (IPRTMOM_RS.EQ.-1) RETURN
-      IPRTMOM_0R=IPRTMOM_RS-2
-      IF (PNAME(IPRTMOM_0R).NE.'TMOM0  R') RETURN
-      IPRTMOM_0I=IPRTMOM_RS-1
-      IF (PNAME(IPRTMOM_0I).NE.'TMOM0  I') RETURN
-      IPRTMOM_RA=IPRTMOM_RS+3
-      IF (PNAME(IPRTMOM_RA).NE.'TMOM  RA') RETURN
-      IPRTMOM_IS=IPRTMOM_RS+6
-      IF (PNAME(IPRTMOM_IS).NE.'TMOM  IS') RETURN
-      IPRTMOM_IA=IPRTMOM_RS+9
-      IF (PNAME(IPRTMOM_IA).NE.'TMOM  IA') RETURN
+      IF (ANY(IPRTMOM.EQ.-1)) RETURN
 *
 *     Initiate the Seward environment
 *
@@ -269,7 +278,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
       CALL GETMEM('RAW   ','ALLO','REAL',LRAW,NQUAD*5*nmax2)
       CALL GETMEM('WEIGHT','ALLO','REAL',LWEIGH,NQUAD*5*nmax2)
-      CALL GETMEM('OSCSTR','ALLO','REAL',LF,5*nmax2)
+      CALL GETMEM('OSCSTR','ALLO','REAL',LF,2*nmax2)
 *
       ip_w       = 1
       ip_kvector = ip_w + 1
@@ -418,7 +427,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
 *           Initialize output arrays
 *
-            CALL DCOPY_(5*n12,[0.0D0],0,WORK(LF),1)
+            CALL DCOPY_(2*n12,[0.0D0],0,WORK(LF),1)
             CALL DCOPY_(NQUAD*5*n12,[0.0D0],0,WORK(LRAW),1)
             CALL DCOPY_(NQUAD*5*n12,[0.0D0],0,WORK(LWEIGH),1)
 *
@@ -452,7 +461,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *                                                                      *
 ************************************************************************
 *
-               DO IPROP = IPRTMOM_RS-2, IPRTMOM_RS+11
+               Do IPRP = 1,14
+                  IPROP = IPRTMOM(IPRP)
                   Call FZero(PROP(1,1,IPROP),NSTATE**2)
                End Do
 
@@ -506,7 +516,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *                    Compute the transition property of the property
 *                    integrals between the two states.
 *
-                     DO IPROP = IPRTMOM_RS-2, IPRTMOM_RS+11
+                     DO IPRP = 1,14
+                        IPROP = IPRTMOM(IPRP)
                         ITYPE=0
                         IF (PTYPE(IPROP).EQ.'HERMSING') ITYPE=1
                         IF (PTYPE(IPROP).EQ.'ANTISING') ITYPE=2
@@ -542,10 +553,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                   CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXR),1)
                   CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXI),1)
 *
-*                 the real symmetric part
+*                 the real and imaginary symmetric parts
                   CALL SMMAT2(PROP,WORK(LDXR),NSS,'TMOM  RS',iCar,IJSF)
-*
-*                 the imaginary symmetric part
                   CALL SMMAT2(PROP,WORK(LDXI),NSS,'TMOM  IS',iCar,IJSF)
 *
 *                 Transform properties to the spin-orbit basis
@@ -562,10 +571,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                   CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXR),1)
                   CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXI),1)
 *
-*                 the real anti-symmetric part
+*                 the real and imaginary anti-symmetric parts
                   CALL SMMAT2(PROP,WORK(LDXR),NSS,'TMOM  RA',iCar,IJSF)
-*
-*                 the imaginary anti-symmetric part
                   CALL SMMAT2(PROP,WORK(LDXI),NSS,'TMOM  IA',iCar,IJSF)
 *
 *                 Transform properties to the spin-orbit basis
@@ -667,7 +674,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                  Do JSO=jstart_,jend_
                    IJ=(JSO-1)*NSS+ISO-1
                    IJ_=IJ_+1
-                   LFIJ=LF+(ij_-1)*5
+                   LFIJ=LF+(ij_-1)*2
                    EDIFF=ENSOR(JSO)-ENSOR(ISO)
 *
 *                  Project out the k direction from the real and imaginary components
@@ -714,11 +721,11 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
 *              Accumulate to the isotropic oscillator strength
 *
-                   Work(LFIJ+3)=Work(LFIJ+3) + Weight * F_Temp
+                   Work(LFIJ  )=Work(LFIJ  ) + Weight * F_Temp
 *
 *              Accumulate to the isotropic rotatory strength
 *
-                   Work(LFIJ+4)=Work(LFIJ+4) + Weight * R_Temp
+                   Work(LFIJ+1)=Work(LFIJ+1) + Weight * R_Temp
 *
 *              Save the weighted oscillator and rotatory strengths in a
 *              given direction k.
@@ -742,10 +749,10 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
               Do JSO=jstart_,jend_
                  IJ=(ISO-1)*NSS+JSO-1
                  IJ_=IJ_+1
-                 LFIJ=LF+(ij_-1)*5
+                 LFIJ=LF+(ij_-1)*2
                  EDIFF=ENSOR(JSO)-ENSOR(ISO)
-                 F=Work(LFIJ+3)
-                 R=Work(LFIJ+4)
+                 F=Work(LFIJ)
+                 R=Work(LFIJ+1)
 *
             If (.NOT.Do_SK) Then
                F = F / (4.0D0*PI)
@@ -767,7 +774,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
      &            'ization vector'
                   WRITE(6,'(4x,a,3F8.4,a)')
      &                  'Direction of the k-vector: ',
-     &                   (Work(ipR+k),k=0,2),' (au)'
+     &                   (Work(ipR+k),k=0,2),' (a.u.)'
                Else
                   CALL CollapseOutput(1,
      &            'Isotropic transition moment strengths (SO states):')
@@ -803,7 +810,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
               WRITE(6,*)
               WRITE(6,*)
               WRITE(6,34) 'From', 'To', 'Raw osc. str.',
-     &                    'Mag. cont.','kx','ky','kz'
+     &                    'Rot. str.','kx','ky','kz'
               WRITE(6,35)
               LRAW_=LRAW+5*NQUAD*(ij_-1)
               DO IQUAD = 1, NQUAD
@@ -824,7 +831,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
               WRITE(6,*)
               WRITE(6,*)
               WRITE(6,34) 'From', 'To', 'Weig. osc. str.',
-     &                    'Mag. cont.','kx','ky','kz'
+     &                    'Rot. str.','kx','ky','kz'
               WRITE(6,35)
               LWEIGH_=LWEIGH+5*NQUAD*(ij_-1)
               DO IQUAD = 1, NQUAD
@@ -882,17 +889,17 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       EndIf
       CALL GETMEM('TMR','FREE','REAL',LTMR,3*NSS**2)
       CALL GETMEM('TMI','FREE','REAL',LTMI,3*NSS**2)
-      CALL GETMEM('OSCSTR','FREE','REAL',LF,5*nmax2)
+      CALL GETMEM('OSCSTR','FREE','REAL',LF,2*nmax2)
 *
       Call DaClos(LuToM)
       If (.NOT.Do_SK) Call Free_O()
       Call Free_Work(ipR)
       Call ClsSew()
 *
-31    FORMAT (5X,2(1X,A4),6X,A15,1X,A15,1X,A15)
+31    FORMAT (5X,2(1X,A4),4X,3(1X,A15))
 32    FORMAT (5X,63('-'))
 33    FORMAT (5X,2(1X,I4),5X,5(1X,ES15.8))
-34    FORMAT (5X,2(1X,A4),6X,A15,1X,A15,1X,A15,1X,A15,1X,A15)
+34    FORMAT (5X,2(1X,A4),5X,5(1X,A15))
 35    FORMAT (5X,95('-'))
 *
 ************************************************************************
