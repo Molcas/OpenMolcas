@@ -32,7 +32,7 @@
   CHARACTER(LEN=100):: gnuplot_CMD, datafile, plotfile
 
   StdOut=6
-  dbg=.true.
+  dbg=.false.
   tmin=0.0_wp
   tmax=0.0_wp
   XTmin_exp=0.0_wp
@@ -299,7 +299,7 @@
   CHARACTER(LEN=100):: gnuplot_CMD, datafile, plotfile
 
   StdOut=6
-  dbg=.true.
+  dbg=.false.
   tmin=0.0_wp
   tmax=0.0_wp
   XTmin_calc=0.0_wp

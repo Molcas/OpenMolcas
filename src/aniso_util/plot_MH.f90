@@ -56,7 +56,7 @@
   color(106)="#7f7f7f"; color(107)="#999999"; color(108)="#b3b3b3"; color(109)="#cccccc"; color(110)="#e5e5e5"
   color(111)="#ffffff"
 
-  dbg=.true.
+  dbg=.false.
   StdOut=6
   hmin=0.0_wp
   hmax=0.0_wp
@@ -357,7 +357,7 @@
   color(106)="#7f7f7f"; color(107)="#999999"; color(108)="#b3b3b3"; color(109)="#cccccc"; color(110)="#e5e5e5"
   color(111)="#ffffff"
 
-  dbg=.true.
+  dbg=.false.
   StdOut=6
   hmin=0.0_wp
   hmax=0.0_wp
@@ -624,11 +624,6 @@
       WRITE (StdOut,'(A,i0,A)') 'File "MH.png" was created in Working directory.'
     END IF
   END IF
-
-
-  dbg=.false.
-
-
 
   RETURN
   END SUBROUTINE plot_MH_no_Exp
