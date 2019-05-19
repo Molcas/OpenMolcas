@@ -858,7 +858,8 @@ c---------------------------------------------------------------------
      &                       w, dipexch, s_exch, dipso, s_so, eso,
      &                       hinput, r_rot, XLM, ZLM, XRM, ZRM,
      &                       zeeman_energy, compute_Mdir_vector,
-     &                       m_paranoid, m_accurate, smagn, mem )
+     &                       m_paranoid, m_accurate, smagn, mem,
+     &                       doplot )
       Else
          Write(6,'(A)') 'Computation of the molar magnetization ... '//
      &                  'skipped by the user'

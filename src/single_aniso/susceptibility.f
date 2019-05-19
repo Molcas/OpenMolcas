@@ -49,6 +49,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       ! main values and axes of XT tensors:
       Real (kind=wp), allocatable :: WT(:), ZT(:,:)
       Real (kind=wp) :: rdummy(1)
+      Character(len=50) :: label
       Call qEnter('SUSCEPTIBILITY')
 c constants used in this subrutine
       RtoB=8
@@ -305,26 +306,38 @@ C
 
       End If
 
-
-
 !-------------------------  PLOTs -------------------------------------!
-      If ( doplot ) Then
-         If ( tinput ) Then
+!      If ( doplot ) Then
+!         If ( tinput ) Then
+!
+!            Call plot_XT( nT,        T( (1+nTempMagn):(nT) ),
+!     &                      chit_theta( (1+nTempMagn):(nT) ),
+!     &                           XTexp( (1+nTempMagn):(nT) ),
+!     &                    zJ )
+!
+!         Else
+!
+!            Call plot_XT( nT,        T( (1+nTempMagn):(nT) ),
+!     &                      chit_theta( (1+nTempMagn):(nT) ),
+!     &                          rdummy,
+!     &                    zJ )
+!
+!         End If
+!      End If
 
-            Call plot_XT( nT,        T( (1+nTempMagn):(nT) ),
-     &                      chit_theta( (1+nTempMagn):(nT) ),
-     &                           XTexp( (1+nTempMagn):(nT) ),
-     &                    zJ )
-
-         Else
-
-            Call plot_XT( nT,        T( (1+nTempMagn):(nT) ),
-     &                      chit_theta( (1+nTempMagn):(nT) ),
-     &                          rdummy,
-     &                    zJ )
-
-         End If
-      End If
+      WRITE(label,'(A)') "no_field"
+      IF ( DoPlot ) THEN
+         IF ( tinput ) THEN
+            Call plot_XT_with_Exp(label, nT-nTempMagn,
+     &                                     T((1+nTempMagn):(nT) ),
+     &                            chit_theta((1+nTempMagn):(nT) ),
+     &                                 XTexp((1+nTempMagn):(nT) ), zJ )
+         ELSE
+            Call plot_XT_no_Exp( label, nT-nTempMagn,
+     &                                    T((1+nTempMagn):(nT) ),
+     &                           chit_theta((1+nTempMagn):(nT) ), zJ )
+         END IF
+      END IF
 !------------------------- END PLOTs -------------------------------------!
 
 
