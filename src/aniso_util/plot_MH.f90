@@ -139,7 +139,8 @@
       IF (dbg) WRITE (StdOut,'(A)') 'new file  "lineOUT"  exists in WorkDir'
 
       file_number=453
-      OPEN (UNIT=file_number, FILE="lineOUT", STATUS='old', ACTION='read', FORM='formatted',ACCESS='sequential',IOSTAT=istat)
+!      OPEN (UNIT=file_number, FILE="lineOUT", STATUS='old', ACTION='read', FORM='formatted',ACCESS='sequential',IOSTAT=istat)
+      Call molcas_open(file_number,'lineOUT')
 
       READ (file_number,'(A)') line1
 
@@ -172,7 +173,8 @@
     IF (dbg) WRITE (StdOut,'(A,A)') 'gnuplot_CMD=',gnuplot_CMD
     CALL execute_command_line ( gnuplot_CMD )
     file_number=452
-    OPEN (UNIT=file_number, FILE="lineOUT", STATUS='old', ACTION='read', FORM='formatted',ACCESS='sequential',IOSTAT=istat)
+    !OPEN (UNIT=file_number, FILE="lineOUT", STATUS='old', ACTION='read', FORM='formatted',ACCESS='sequential',IOSTAT=istat)
+    Call molcas_open(file_number,'lineOUT')
     READ (file_number,*) cdummy, gnuplot_version
     IF (dbg) WRITE (StdOut,'(A,F4.1)') 'gnuplot_version = ', gnuplot_version
     IF (abs(gnuplot_version)<0.1_wp) execute_gnuplot_cmd =.false.
@@ -191,7 +193,8 @@
      INQUIRE(FILE=filedat,EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
      IF(file_exist) CALL execute_command_line ( "rm -rf "//trim(filedat) );
      LuData=554+iTempMagn
-     OPEN (UNIT=LuData, FILE=filedat, STATUS='new', ACTION='write', FORM='formatted',ACCESS='sequential',IOSTAT=istat)
+     !OPEN (UNIT=LuData, FILE=filedat, STATUS='new', ACTION='write', FORM='formatted',ACCESS='sequential',IOSTAT=istat)
+     Call molcas_open(LuData,filedat)
      IF (dbg) WRITE (StdOut,*) 'Opening'//trim(filedat)//' file'
      DO iH=1,nH
         WRITE (LuData,'(3ES24.14)') H(iH), MHexp(iH,iTempMagn), MHcalc(iH,iTempMagn)
@@ -208,7 +211,8 @@
      INQUIRE(FILE=fileplt,EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
      IF(file_exist) CALL execute_command_line ( "rm -rf "//trim(fileplt) );
      LuPlt=455+iTempMagn
-     OPEN (UNIT=LuPlt, FILE=fileplt, STATUS='new', ACTION='write', FORM='formatted',ACCESS='sequential',IOSTAT=istat)
+     !OPEN (UNIT=LuPlt, FILE=fileplt, STATUS='new', ACTION='write', FORM='formatted',ACCESS='sequential',IOSTAT=istat)
+     Call molcas_open(LuPlt,fileplt)
      IF (dbg) WRITE (StdOut,*) 'Opening '//trim(fileplt)//' file'
 
 
@@ -430,7 +434,8 @@
       IF (dbg) WRITE (StdOut,'(A)') 'new file  "lineOUT"  exists in WorkDir'
 
       file_number=453
-      OPEN (UNIT=file_number, FILE="lineOUT", STATUS='old', ACTION='read', FORM='formatted',ACCESS='sequential',IOSTAT=istat)
+      !OPEN (UNIT=file_number, FILE="lineOUT", STATUS='old', ACTION='read', FORM='formatted',ACCESS='sequential',IOSTAT=istat)
+      Call molcas_open(file_number,"lineOUT")
 
       READ (file_number,'(A)') line1
 
@@ -464,7 +469,8 @@
     IF (dbg) WRITE (StdOut,'(A,A)') 'gnuplot_CMD=',gnuplot_CMD
     CALL execute_command_line ( gnuplot_CMD )
     file_number=452
-    OPEN (UNIT=file_number, FILE="lineOUT", STATUS='old', ACTION='read', FORM='formatted',ACCESS='sequential',IOSTAT=istat)
+    !OPEN (UNIT=file_number, FILE="lineOUT", STATUS='old', ACTION='read', FORM='formatted',ACCESS='sequential',IOSTAT=istat)
+    Call molcas_open(file_number,"lineOUT")
     READ (file_number,*) cdummy, gnuplot_version
     IF (dbg) WRITE (StdOut,'(A,F4.1)') 'gnuplot_version = ', gnuplot_version
     IF (abs(gnuplot_version)<0.1_wp) execute_gnuplot_cmd =.false.
@@ -479,7 +485,8 @@
   INQUIRE(FILE="MH.dat",EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
   IF(file_exist) CALL execute_command_line ( "rm -rf  MH.dat" );
   LuData=454
-  OPEN (UNIT=LuData, FILE="MH.dat", STATUS='new', ACTION='write', FORM='formatted',ACCESS='sequential',IOSTAT=istat)
+  !OPEN (UNIT=LuData, FILE="MH.dat", STATUS='new', ACTION='write', FORM='formatted',ACCESS='sequential',IOSTAT=istat)
+  Call molcas_open(LuData,"MH.dat")
   IF (dbg) WRITE (StdOut,*) 'Opening "MH.dat" file'
   write(fmtline,'(A,i0,A)') '(',nTempMagn+1,'ES24.14)'
   DO iH=1,nH
@@ -494,7 +501,8 @@
   INQUIRE(FILE="MH.plt",EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
   IF(file_exist) CALL execute_command_line ( "rm -rf  MH.plt" );
   LuPlt=455
-  OPEN (UNIT=LuPlt, FILE="MH.plt", STATUS='new', ACTION='write', FORM='formatted',ACCESS='sequential',IOSTAT=istat)
+  !OPEN (UNIT=LuPlt, FILE="MH.plt", STATUS='new', ACTION='write', FORM='formatted',ACCESS='sequential',IOSTAT=istat)
+  Call molcas_open(LuPlt,"MH.plt")
   IF (dbg) WRITE (StdOut,*) 'Opening "MH.plt" file'
 
 
