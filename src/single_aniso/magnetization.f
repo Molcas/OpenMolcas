@@ -643,7 +643,15 @@ c /// -------------------------------------------------------------------
 
 
       If(DoPlot) Then
-        Write(6,'(A)') 'Subroutine plot_M to be finalized yet'
+        IF ( hinput ) THEN
+           Call plot_MH_with_Exp( nH, H, nTempMagn, TempMagn, MAV,
+     &                            magn_exp, zJ )
+        ELSE
+           Call plot_MH_no_Exp( nH, H, nTempMagn, TempMagn, MAV, zJ )
+        END IF
+!        IF ( zeeman_energy ) THEN
+!           Call plot_zeeman( nH, nM, nDirZee, H, LuZee )
+!        END IF
       End If
 
 

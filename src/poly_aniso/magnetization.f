@@ -16,10 +16,11 @@
      &                          w, dipexch, s_exch, dipso, s_so, eso,
      &                          hinput, r_rot, XLM, ZLM, XRM, ZRM,
      &                          zeeman_energy, compute_Mdir_vector,
-     &                          m_paranoid, m_accurate, smagn, mem )
+     &                          m_paranoid, m_accurate, smagn, mem,
+     &                          doplot )
 
       Implicit None
-      Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=SELECTED_REAL_KIND(p=15,r=307)
 #include "mgrid.fh"
 #include "stdalloc.fh"
 c constants defining the sizes
@@ -36,10 +37,11 @@ c constants defining the sizes
       Logical, intent(in)       :: m_paranoid
       Logical, intent(in)       :: m_accurate
       Logical, intent(in)       :: smagn
+      Logical, intent(in)       :: doplot
 
       Real(kind=wp), intent(in) :: R_ROT(nneq,neqv,3,3)
       Real(kind=wp), intent(in) :: W(exch)
- ! exchange energies printed out in the previous part
+! exchange energies printed out in the previous part
       Real(kind=wp), intent(in) :: ESO(nneq,nLoc)
 ! spin-orbit energies from ANISO files
       Real(kind=wp), intent(in) :: Hexp(nH), Mexp(nH,nTempMagn)
@@ -844,6 +846,21 @@ c      End If
          Call Add_Info(lbl_Y,[dnrm2_(ibuf,MVEC(:,iH,:,2),1)],1,8)
          Call Add_Info(lbl_Z,[dnrm2_(ibuf,MVEC(:,iH,:,3),1)],1,8)
       End Do
+
+!-------------------------  PLOTs -------------------------------------!
+      IF ( DoPlot ) THEN
+         IF ( hinput ) THEN
+            Call plot_MH_with_Exp( nH, H, nTempMagn, TempMagn, MAV,
+     &                             Mexp, zJ )
+         ELSE
+            Call plot_MH_no_Exp( nH, H, nTempMagn, TempMagn, MAV, zJ )
+         END IF
+
+!         IF ( zeeman_energy ) THEN
+!            Call plot_zeeman( nH, nM, nDirZee, H, LuZee )
+!         END IF
+      END IF
+!------------------------- END PLOTs -------------------------------------!
 
 
 

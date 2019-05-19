@@ -96,13 +96,14 @@ c local variables
       Real(kind=wp) :: boltz_k,coeff_chi
       Real(kind=wp) :: det
       Real(kind=wp) :: dev
-      Real(kind=wp) :: rdummy(1) !, gtens(3),maxes(3,3)
+!      Real(kind=wp) :: rdummy(1) !, gtens(3),maxes(3,3)
       external dev
       Character(25) :: lbl_XT
       Integer       :: i,iT,jT,ic,jc
       Integer       :: j,n1,n2,im,jm
       Integer       :: isite,info,mem_local,RtoB
       Logical       :: dbg
+      Character(len=50) :: label
 
 
       Call qEnter('PA_suscept')
@@ -647,24 +648,38 @@ c  calcualtion of the standard deviation:
 
 
 !-------------------------  PLOTs -------------------------------------!
-      If ( doplot ) Then
-         If ( tinput ) Then
+!      If ( doplot ) Then
+!         If ( tinput ) Then
+!
+!            Call plot_XT( nT,        T( (1+nTempMagn):(nT) ),
+!     &                      chit_theta( (1+nTempMagn):(nT) ),
+!     &                           XTexp( (1+nTempMagn):(nT) ),
+!     &                    zJ )
+!
+!         Else
+!!
+!            Call plot_XT( nT,        T( (1+nTempMagn):(nT) ),
+!     &                      chit_theta( (1+nTempMagn):(nT) ),
+!     &                          rdummy,
+!     &                    zJ )
+!
+!         End If
+!       End If
 
-            Call plot_XT( nT,        T( (1+nTempMagn):(nT) ),
-     &                      chit_theta( (1+nTempMagn):(nT) ),
-     &                           XTexp( (1+nTempMagn):(nT) ),
-     &                    zJ )
-
-         Else
-
-            Call plot_XT( nT,        T( (1+nTempMagn):(nT) ),
-     &                      chit_theta( (1+nTempMagn):(nT) ),
-     &                          rdummy,
-     &                    zJ )
-
-         End If
-      End If
-!------------------------- END PLOTs -------------------------------------!
+      WRITE(label,'(A)') "no_field"
+      IF ( DoPlot ) THEN
+         IF ( tinput ) THEN
+            Call plot_XT_with_Exp(label, nT-nTempMagn,
+     &                                 T((1+nTempMagn):(nT) ),
+     &                        chit_theta((1+nTempMagn):(nT) ),
+     &                             XTexp((1+nTempMagn):(nT)), zJ )
+         ELSE
+            Call plot_XT_no_Exp( label, nT-nTempMagn,
+     &                                 T((1+nTempMagn):(nT) ),
+     &                        chit_theta((1+nTempMagn):(nT) ), zJ )
+         END IF
+      END IF
+! ------------------------- END PLOTs -------------------------------------!
 
 
 
