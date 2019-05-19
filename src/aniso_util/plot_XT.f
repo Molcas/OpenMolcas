@@ -89,7 +89,7 @@
          ! delete the file
          If(dbg) Write(6,'(A)') 'deleting the file...'
 
-         Call system ( "rm -rf lineOUT" )
+         Call execute_command_line ( "rm -rf lineOUT" )
 
       Else
          If(dbg) Write(6,'(A)') 'file  "lineOUT" does not exist in '//
@@ -100,7 +100,7 @@
       ! find the gnuplot
       If(dbg) Write(6,'(A)') 'inquire which GNUPLOT'
 
-      Call system ( "which gnuplot >> lineOUT" )
+      Call execute_command_line ( "which gnuplot >> lineOUT" )
 
       Inquire(FILE="lineOUT",EXIST=file_exist,OPENED=is_file_open,
      &         NUMBER=file_number)
@@ -129,7 +129,7 @@
          Write(6,'(A)') 'file  "lineOUT" does not exist in WorkDir'
       End If
       ! remove file "lineOUT"
-      Call system ( "rm -rf lineOUT" )
+      Call execute_command_line ( "rm -rf lineOUT" )
 
 !  generate the file "XT.dat":
       LuData=IsFreeUnit(54)
@@ -193,7 +193,7 @@
       If(dbg) Write(6,'(A,A)') 'gnuplot_CMD=',gnuplot_CMD
       Close(LuPlt)
 
-      Call system ( gnuplot_CMD )
+      Call execute_command_line ( gnuplot_CMD )
 
       Call qExit('plot_XT')
       Return
