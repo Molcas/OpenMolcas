@@ -593,18 +593,17 @@ C  read the input
           IF(DBG) Write(6,*) 'SINGLE_ANISO2::  Enter barrier',nBlock
           Call  BARRIER( nBlock, MM(1:3,1:nBlock,1:nBlock),
      &                   eso(1:nBlock), imanIfold, nMult, nDim,
-     &                   iPrint )
+     &                   doplot, iPrint )
           IF(DBG) Write(6,*) 'SINGLE_ANISO2::  Exit barrier',nBlock
 
         Else
            Write(6,'(A)') 'nBlock parameter is not defined. '
            Write(6,'(A)') 'Did you specify the MLTP keyword in the '//
      &                    'input?'
-           Write(6,'(A)') 'If the problem persists,please, '//
+           Write(6,'(A)') 'If the problem persists, please, '//
      &                    'submit a bug report.'
         End If
       End If
-
 
 !----------------------------------------------------------------------|
 
