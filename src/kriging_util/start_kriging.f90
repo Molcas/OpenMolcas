@@ -45,6 +45,8 @@
             enddo
           enddo
           ! write(6,*) 'dy',dy
+!
+          If (mblAI) sbmev = y(maxloc(y,dim=1))
 !rl and dl are temporary matrices for the contruction of Psi which is inside of
 ! Grad-Psi (eq.(2) ref.) dl=rl^2=Sum[i] [(x_i-x0_i)/l)^2]
 ! more inoformation is given in subsequen files.

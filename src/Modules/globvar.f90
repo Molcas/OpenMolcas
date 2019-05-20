@@ -11,7 +11,7 @@
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
       module globvar
-        use AI, only: npxAI, anAI, pAI, lb, blAI, blvAI
+        use AI, only: npxAI, anAI, pAI, lb, blAI, blvAI, mblAI, blaAI, blavAI
         real*8, allocatable :: x(:,:), y(:), dy(:), &
                 rl(:,:,:), dl(:,:), &
                 Iden(:,:), full_R(:,:), nx(:,:), Kv(:), &
@@ -19,7 +19,7 @@
                 Ys(:), var(:), Rones(:), sigma(:), l(:), &
                 pred(:), gpred(:,:), hpred(:,:,:), ll(:), &
                 cvMatFder(:,:), cvMatSder(:,:), cvMatTder(:,:)
-        real*8  sb,variance,detR,lh,sbO !p
+        real*8  sb,variance,detR,lh,sbO,sbmev !p
         real*8, parameter :: PI = 4.0 * atan (1.0_8), h=1e-5, eps=1e-14 ! eps avoid to become singular
         integer prev_ns, m_t, npx, counttimes
         Integer nInter_save, nPoints_save

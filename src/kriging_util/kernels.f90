@@ -59,10 +59,24 @@
             enddo
             Call covarmatrix(iter,nInter)
             Call k(iter)
-            if (blAI) then
-!    Trend Function eq (7) in ref.
-                write (6,*) 'Baseline or Trend Function changed to value: ', sb
+            if (blaAI) then
+                write (6,*) ''
+                write (6,*) 'Baseline (Trend Function) has been added with: ', blavAI
+                write (6,*) 'to the value: ',sb
                 write (6,*) '(the ordinary value is: ', sbO, ')'
+            else
+                if (mblAI) then
+                    write (6,*) ''
+                    write (6,*) 'Baseline (Trend Function) changed to the maximum value of the energy: ', sb
+                    write (6,*) '(the ordinary value is: ', sbO, ')'
+                else
+                    if (blAI) then
+        !    Trend Function eq (7) in ref.
+                        write (6,*) ''
+                        write (6,*) 'Baseline (Trend Function) changed to value: ', sb
+                        write (6,*) '(the ordinary value is: ', sbO, ')'
+                    endif
+                endif
             endif
             !--------testing---------
             ! nx(1,1) = 0.0000000000006019
