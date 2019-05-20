@@ -24,6 +24,7 @@ C
       lb(3) = 10
       miAI = 10
       meAI = 1.0D-8
+      blAI = .False.
 *
       nInter_save=-1
       nPoints_save=-1

@@ -32,7 +32,14 @@
             End If
 !
             rones=B
-            sb=dot_product(y,B(1:iter))/sum(B(1:iter))
+!Trend Function (baseline)
+            if (blAI) Then
+                sb = blvAI
+                sbO = dot_product(y,B(1:iter))/sum(B(1:iter))
+            else
+                sb = dot_product(y,B(1:iter))/sum(B(1:iter))
+            endif
+            ! sb = dot_product(y,B(1:iter))/sum(B(1:iter))
             detR=A(1,1)
             do i=2,m_t
                 detR=detR*A(i,i)
