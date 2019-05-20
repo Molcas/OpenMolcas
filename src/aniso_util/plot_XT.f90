@@ -92,7 +92,8 @@
      END IF
      ! delete the file
      IF (dbg) WRITE (StdOut,'(A)') 'deleting the file...'
-     CALL execute_command_line ( "rm -rf lineOUT" )
+     !CALL execute_command_line ( "rm -rf lineOUT" )
+     CALL system ( "rm -rf lineOUT" )
   ELSE
      IF (dbg) WRITE (StdOut,'(A)') 'file  "lineOUT" does not exist in WorkDir'
   END IF
@@ -100,7 +101,8 @@
   ! find the gnuplot
   IF (dbg) WRITE (StdOut,'(A)') 'inquire which GNUPLOT'
 
-  CALL execute_command_line ( "which gnuplot >> lineOUT" )
+  !CALL execute_command_line ( "which gnuplot >> lineOUT" )
+  CALL system ( "which gnuplot >> lineOUT" )
 
   INQUIRE(FILE="lineOUT",EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number,SIZE=file_size)
 
@@ -137,7 +139,8 @@
      WRITE (StdOut,'(A)') 'file  "lineOUT" does not exist in WorkDir'
   END IF
   ! remove file "lineOUT"
-  CALL execute_command_line ( "rm -rf lineOUT" )
+  !CALL execute_command_line ( "rm -rf lineOUT" )
+  CALL system ( "rm -rf lineOUT" )
 !--------------------------------------------------------------------------------------------
 
 
@@ -147,7 +150,8 @@
     ! attempt to execute the script
     WRITE (gnuplot_CMD,'(2A)') trim(line2),' --version > lineOUT'
     IF (dbg) WRITE (StdOut,'(A,A)') 'gnuplot_CMD=',gnuplot_CMD
-    CALL execute_command_line ( gnuplot_CMD )
+    !CALL execute_command_line ( gnuplot_CMD )
+    CALL system ( gnuplot_CMD )
     file_number=452
     !OPEN (UNIT=file_number, FILE="lineOUT", STATUS='old', ACTION='read', FORM='formatted',ACCESS='sequential',IOSTAT=istat)
     Call molcas_open(file_number,"lineOUT")
@@ -156,7 +160,8 @@
     IF (abs(gnuplot_version)<0.1_wp) execute_gnuplot_cmd =.false.
     CLOSE (file_number)
     ! remove file "lineOUT"
-    CALL execute_command_line ( "rm -rf lineOUT" )
+    !CALL execute_command_line ( "rm -rf lineOUT" )
+    CALL system ( "rm -rf lineOUT" )
   END IF
 !--------------------------------------------------------------------------------------------
 
@@ -165,7 +170,8 @@
 ! generate the file "XT.dat":
   WRITE(datafile,'(A)') 'XT_'//trim(label)//'.dat'
   INQUIRE(FILE=datafile,EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
-  IF(file_exist) CALL execute_command_line ( "rm -rf "//trim(datafile) );
+  !IF(file_exist) CALL execute_command_line ( "rm -rf "//trim(datafile) );
+  IF(file_exist) CALL system ( "rm -rf "//trim(datafile) );
   LuData=454
   !OPEN (UNIT=LuData, FILE=datafile, STATUS='new', ACTION='write', FORM='formatted',ACCESS='sequential',IOSTAT=istat)
   Call molcas_open(LuData,datafile)
@@ -182,7 +188,8 @@
   ! generate the GNUPLOT script in the $WorkDir
   WRITE(plotfile,'(A)') 'XT_'//trim(label)//'.plt'
   INQUIRE(FILE=plotfile,EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
-  IF(file_exist) CALL execute_command_line ( "rm -rf "//trim(plotfile) );
+  !IF(file_exist) CALL execute_command_line ( "rm -rf "//trim(plotfile) );
+  IF(file_exist) CALL system ( "rm -rf "//trim(plotfile) );
   LuPlt=455
 !  OPEN (UNIT=LuPlt, FILE=plotfile, STATUS='new', ACTION='write', FORM='formatted',ACCESS='sequential',IOSTAT=istat)
   Call molcas_open(LuPlt,plotfile)
@@ -260,7 +267,8 @@
     ! attempt to execute the script
     WRITE (gnuplot_CMD,'(5A)') trim(line2),' ',trim(plotfile)
     IF (dbg) WRITE (StdOut,'(A,A)') 'gnuplot_CMD=',gnuplot_CMD
-    CALL execute_command_line ( gnuplot_CMD )
+    !CALL execute_command_line ( gnuplot_CMD )
+    CALL system ( gnuplot_CMD )
     IF ( gnuplot_version < 5.0_wp ) Then
       WRITE (StdOut,'(A,i0,A)') 'File "XT'//trim(label)//'.eps" was created in Working directory.'
     ELSE
@@ -353,7 +361,8 @@
      END IF
      ! delete the file
      IF (dbg) WRITE (StdOut,'(A)') 'deleting the file...'
-     CALL execute_command_line ( "rm -rf lineOUT" )
+     !CALL execute_command_line ( "rm -rf lineOUT" )
+     CALL system ( "rm -rf lineOUT" )
   ELSE
      IF (dbg) WRITE (StdOut,'(A)') 'file  "lineOUT" does not exist in WorkDir'
   END IF
@@ -362,7 +371,8 @@
   ! find the gnuplot
   IF (dbg) WRITE (StdOut,'(A)') 'inquire which GNUPLOT'
 
-  CALL execute_command_line ( "which gnuplot >> lineOUT" )
+  !CALL execute_command_line ( "which gnuplot >> lineOUT" )
+  CALL system ( "which gnuplot >> lineOUT" )
 
   INQUIRE(FILE="lineOUT",EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number,SIZE=file_size)
 
@@ -395,7 +405,8 @@
       WRITE (StdOut,'(A)') 'file  "lineOUT" does not exist in WorkDir'
   END IF
   ! remove file "lineOUT"
-  CALL execute_command_line ( "rm -rf lineOUT" )
+  !CALL execute_command_line ( "rm -rf lineOUT" )
+  CALL system ( "rm -rf lineOUT" )
 !--------------------------------------------------------------------------------------------
 
 
@@ -405,7 +416,8 @@
     ! attempt to execute the script
     WRITE (gnuplot_CMD,'(2A)') trim(line2),' --version > lineOUT'
     IF (dbg) WRITE (StdOut,'(A,A)') 'gnuplot_CMD=',gnuplot_CMD
-    CALL execute_command_line ( gnuplot_CMD )
+    !CALL execute_command_line ( gnuplot_CMD )
+    CALL system ( gnuplot_CMD )
     file_number=452
     !OPEN (UNIT=file_number, FILE="lineOUT", STATUS='old', ACTION='read', FORM='formatted',ACCESS='sequential',IOSTAT=istat)
     Call molcas_open(file_number,"lineOUT")
@@ -414,7 +426,8 @@
     IF (abs(gnuplot_version)<0.1_wp) execute_gnuplot_cmd =.false.
     CLOSE (file_number)
     ! remove file "lineOUT"
-    CALL execute_command_line ( "rm -rf lineOUT" )
+    !CALL execute_command_line ( "rm -rf lineOUT" )
+    CALL system ( "rm -rf lineOUT" )
   END IF
 !--------------------------------------------------------------------------------------------
 
@@ -423,7 +436,8 @@
 ! create the file "XT.dat"a
   WRITE(datafile,'(3A)')  'XT_'//trim(label)//'.dat'
   INQUIRE(FILE=datafile,EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
-  IF(file_exist) CALL execute_command_line ( "rm -rf "//trim(datafile) );
+  !IF(file_exist) CALL execute_command_line ( "rm -rf "//trim(datafile) );
+  IF(file_exist) CALL system ( "rm -rf "//trim(datafile) );
   LuData=454
   !OPEN (UNIT=LuData, FILE=datafile, STATUS='new', ACTION='write', FORM='formatted',ACCESS='sequential',IOSTAT=istat)
   Call molcas_open(LuData,datafile)
@@ -442,7 +456,8 @@
   ! generate the GNUPLOT script in the $WorkDir
   WRITE(plotfile,'(A)') 'XT_'//trim(label)//'.plt'
   INQUIRE(FILE=plotfile,EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
-  IF(file_exist) CALL execute_command_line ( "rm -rf "//trim(plotfile) );
+  !IF(file_exist) CALL execute_command_line ( "rm -rf "//trim(plotfile) );
+  IF(file_exist) CALL system ( "rm -rf "//trim(plotfile) );
   LuPlt=455
   !OPEN (UNIT=LuPlt, FILE=plotfile, STATUS='new', ACTION='write', FORM='formatted',ACCESS='sequential',IOSTAT=istat)
   Call molcas_open(LuPlt,plotfile)
@@ -518,7 +533,8 @@
     ! attempt to execute the script
     WRITE (gnuplot_CMD,'(5A)') trim(line2),' ',trim(plotfile)
     IF (dbg) WRITE (StdOut,'(A,A)') 'gnuplot_CMD=',gnuplot_CMD
-    CALL execute_command_line ( gnuplot_CMD )
+    !CALL execute_command_line ( gnuplot_CMD )
+    CALL system ( gnuplot_CMD )
     IF ( gnuplot_version < 5.0_wp ) Then
       WRITE (StdOut,'(A,i0,A)') 'File "XT'//trim(label)//'.eps" was created in Working directory.'
     ELSE
