@@ -21,7 +21,7 @@
      &                     nWndw,Mode,ipMF,
      &                     iOptH,HUpMet,kIter,GNrm_Threshold,IRC,
      &                     dMass,HrmFrq_Show,CnstWght,Curvilinear,
-     &                     Redundant,Degen)
+     &                     Redundant,Degen,ThrEne,ThrGrd)
 ************************************************************************
 *                                                                      *
 *     Object: to update coordinates                                    *
@@ -96,7 +96,7 @@
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6
 *
-      Logical Kriging_Hessian
+      Logical Kriging_Hessian, Not_Converged
 *define _TEST_KRIGING_
 #ifdef _TEST_KRIGING_
       Real*8, Allocatable:: dq(:)
@@ -180,7 +180,6 @@ c Avoid unused argument warnings
 *define _DEBUG_
          If (Kriging .AND. iter.ge.nspAI) then
             Kriging_Hessian =.TRUE.
-            dEner = Energy(iter)-Energy(iter-1)
             iterAI=iter
             dEner=meAI
             nRaw=Min(iter,nWndw)
@@ -232,8 +231,10 @@ c Avoid unused argument warnings
             Call mma_DeAllocate(dq)
 #endif
 *
-            do while ((iterK.lt.miAI.and.Abs(dEner).ge.meAI).and.
-     &                dqdq.lt.qBeta**2)
+*           Start the Kriging loop.
+*
+            Not_Converged = .True.
+            do while (Not_Converged)
                kIter_=iterAI
 *ifdef _DEBUG_
                Write (6,*)
@@ -331,6 +332,34 @@ c Avoid unused argument warnings
                Call RecPrt('Ener(x):',' ',Energy,1,iterAI)
                Call RecPrt('Grad(x):',' ',Grad,nInter,iterAI)
 #endif
+*              Write (*,*) 'ThrEne,ThrGrd',ThrEne,ThrGrd
+               If (TheEne.gt.0.0D0) Then
+                  Not_Converged = Abs(dEner).ge.ThrEne
+                  Not_Converged = Not_Converged .and. iterK.lt.miAI
+                  Not_Converged = Not_Converged .and. dqdq.lt.qBeta**2
+               Else
+                  FAbs=Sqrt(DDot_(nInter,Grad(1,iterAI),1,
+     &                                  Grad(1,iterAI),1)/DBLE(nInter))
+                  RMS =Sqrt(DDot_(nInter,Shift(1,iterAI-1),1,
+     &                                Shift(1,iterAI-1),1)/DBLE(nInter))
+                  GrdMx=0.0D0
+                  RMSMx=0.0D0
+                  Do iInter = 1, nInter
+                     GrdMx=Max(GrdMx,Abs(Grad(iInter,iterAI)))
+                     RMSMx=Max(RMSMx,Abs(Shift(iInter,iterAI-1)))
+                  End Do
+*
+                  Not_Converged = FAbs.gt.ThrGrd
+                  Not_Converged = Not_Converged .or.
+     &                            GrdMx.gt.ThrGrd*1.5D0
+                  Not_Converged = Not_Converged .or.
+     &                            RMS.gt.ThrGrd*4.0D0
+                  Not_Converged = Not_Converged .or.
+     &                            RMSMx.gt.ThrGrd*6.0D0
+*                 Write (*,*) 'FAbs,GrdMx,RMS,RMSMx:',
+*    &                         FAbs,GrdMx,RMS,RMSMx
+                  Not_Converged = iterK.ge.miAI
+               End If
             End Do  ! Do While
 *
 *           Save the optimized kriging coordinates as the coordinates
@@ -575,7 +604,7 @@ c Avoid unused argument warnings
 #endif
          iNeg(1)=0
          iNeg(2)=0
-         HUpMet='GPR'
+         HUpMet=' GPR'
       Else
          Call Mk_Hss_Q()
          Call Get_dArray('Hss_Q',Hessian,nInter**2)
@@ -596,7 +625,7 @@ c Avoid unused argument warnings
      &                 iNeg,iOptH,HUpMet,nRowH,jPrint,GNrm(kIter),
      &                 GNrm_Threshold,nsAtom,IRC,.True.)
       End If
-#define _PRINT_HESSIAN_
+*define _PRINT_HESSIAN_
 #ifdef _PRINT_HESSIAN_
       Call RecPrt('Hessian',' ',Hessian,nInter,nInter)
 #endif

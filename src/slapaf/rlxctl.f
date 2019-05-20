@@ -236,7 +236,8 @@
      &               nWndw,Mode,ipMF,
      &               iOptH,HUpMet,kIter,GNrm_Threshold,
      &               IRC,Work(ipCM),HrmFrq_Show,
-     &               CnstWght,Curvilinear,Redundant,Degen)
+     &               CnstWght,Curvilinear,Redundant,Degen,
+     &               ThrEne,ThrGrd)
 *
  666  Continue
 *                                                                      *
