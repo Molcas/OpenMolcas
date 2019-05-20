@@ -115,7 +115,8 @@
          END IF
          ! delete the file
          IF (dbg) WRITE (StdOut,'(A)') 'deleting the file...'
-         CALL execute_command_line ( "rm -rf lineOUT" )
+         !CALL execute_command_line ( "rm -rf lineOUT" )
+         CALL system ( "rm -rf lineOUT" )
       ELSE
          IF (dbg) WRITE (StdOut,'(A)') 'file "lineOUT" does not exist'//
      &                                 ' in WorkDir'
@@ -125,7 +126,8 @@
       ! find the gnuplot
       IF (dbg) WRITE (StdOut,'(A)') 'inquire which GNUPLOT'
 
-      CALL execute_command_line ( "which gnuplot >> lineOUT" )
+      !CALL execute_command_line ( "which gnuplot >> lineOUT" )
+      CALL system ( "which gnuplot >> lineOUT" )
 
       INQUIRE(FILE="lineOUT",EXIST=file_exist,OPENED=is_file_open,
      &        NUMBER=file_number,SIZE=file_size)
@@ -170,7 +172,8 @@
          WRITE (StdOut,'(A)') 'file "lineOUT" does not exist in WorkDir'
       END IF
       ! remove file "lineOUT"
-      CALL execute_command_line ( "rm -rf lineOUT" )
+      !CALL execute_command_line ( "rm -rf lineOUT" )
+      CALL system ( "rm -rf lineOUT" )
 !!!!!--------------------------------------------------------------------------------------------
 
 
@@ -181,7 +184,8 @@
         ! attempt to execute the script
         WRITE (gnuplot_CMD,'(2A)') trim(line2),' --version > lineOUT'
         IF (dbg) WRITE (StdOut,'(A,A)') 'gnuplot_CMD=',gnuplot_CMD
-        CALL execute_command_line ( gnuplot_CMD )
+        !CALL execute_command_line ( gnuplot_CMD )
+        CALL system ( gnuplot_CMD )
 
         file_number=IsFreeUnit(452)
         Call molcas_open(file_number,'lineOUT')
@@ -195,7 +199,8 @@
         IF (abs(gnuplot_version)<0.1_wp) execute_gnuplot_cmd =.false.
         CLOSE (file_number)
         ! remove file "lineOUT"
-        CALL execute_command_line ( "rm -rf lineOUT" )
+        !CALL execute_command_line ( "rm -rf lineOUT" )
+        CALL system ( "rm -rf lineOUT" )
       END IF
 !!!!!--------------------------------------------------------------------------------------------
 
@@ -207,8 +212,10 @@
       WRITE(datafile,'(A)') 'BARRIER_ENE.dat'
       INQUIRE(FILE=datafile,EXIST=file_exist,OPENED=is_file_open,
      &        NUMBER=file_number)
+!      IF(file_exist)
+!     &         CALL execute_command_line ( "rm -rf "//trim(datafile) );
       IF(file_exist)
-     &         CALL execute_command_line ( "rm -rf "//trim(datafile) );
+     &         CALL system ( "rm -rf "//trim(datafile) );
       LuData=IsFreeUnit(785)
       Call molcas_open(LuData,datafile)
 !      LuData=785
@@ -241,8 +248,10 @@
       WRITE(datafile,'(A)') 'BARRIER_TME.dat'
       INQUIRE(FILE=datafile,EXIST=file_exist,OPENED=is_file_open,
      &        NUMBER=file_number)
+!      IF(file_exist)
+!     &         CALL execute_command_line ( "rm -rf "//trim(datafile) );
       IF(file_exist)
-     &         CALL execute_command_line ( "rm -rf "//trim(datafile) );
+     &         CALL system ( "rm -rf "//trim(datafile) );
       LuData=IsFreeUnit(786)
       Call molcas_open(LuData,datafile)
 !      LuData=786
@@ -298,8 +307,10 @@
       WRITE(plotfile,'(A)') 'BARRIER.plt'
       INQUIRE(FILE=plotfile,EXIST=file_exist,OPENED=is_file_open,
      &        NUMBER=file_number)
+!      IF(file_exist)
+!     &        CALL execute_command_line ( "rm -rf "//trim(plotfile) );
       IF(file_exist)
-     &        CALL execute_command_line ( "rm -rf "//trim(plotfile) );
+     &        CALL system ( "rm -rf "//trim(plotfile) );
       LuPlt=IsFreeUnit(855)
       Call molcas_open(LuPlt,plotfile)
 !      LuPlt=855
@@ -446,7 +457,8 @@
         ! attempt to execute the script
         WRITE (gnuplot_CMD,'(5A)') trim(line2),' ',trim(plotfile)
         IF (dbg) WRITE (StdOut,'(A,A)') 'gnuplot_CMD=',gnuplot_CMD
-        CALL execute_command_line ( gnuplot_CMD )
+        !CALL execute_command_line ( gnuplot_CMD )
+        CALL system ( gnuplot_CMD )
         IF ( gnuplot_version < 5.0_wp ) Then
           WRITE (StdOut,'(A,i0,A)') 'File "BARRIER.eps" was created '//
      &                              'in Working directory.'
