@@ -97,7 +97,7 @@
      &          HUpMet*6
 *
       Logical Kriging_Hessian
-#define _TEST_KRIGING_
+*define _TEST_KRIGING_
 #ifdef _TEST_KRIGING_
       Real*8, Allocatable:: dq(:)
 #endif
@@ -177,7 +177,7 @@ c Avoid unused argument warnings
 *
       Else
 *        ------- AI loop begin here
-#define _DEBUG_
+*define _DEBUG_
          If (Kriging .AND. iter.ge.nspAI) then
             Kriging_Hessian =.TRUE.
             dEner = Energy(iter)-Energy(iter-1)
@@ -235,10 +235,10 @@ c Avoid unused argument warnings
             do while ((iterK.lt.miAI.and.Abs(dEner).ge.meAI).and.
      &                dqdq.lt.qBeta**2)
                kIter_=iterAI
-#ifdef _DEBUG_
+*ifdef _DEBUG_
                Write (6,*)
                Write (6,*) 'Do iterAI: ',iterAI
-#endif
+*endif
                Call Update_sl_(iterAI,iInt,nFix,nInter,
      &                qInt,Shift,Grad,
      &                iOptC,Beta,Lbl,GNrm,Energy,
@@ -514,32 +514,47 @@ c Avoid unused argument warnings
          Call mma_Allocate(dqp,nInter,Label='dqp')
          Call mma_Allocate(dqm,nInter,Label='dqm')
          Scale=0.01D0
+*define _PRINT_
+#ifdef _PRINT_
          Call RecPrt('qInt',' ',qInt(1,kIter),nInter,1)
          Call RecPrt('Grad',' ',Grad(1,kIter),nInter,1)
+#endif
          Do iInter = 1, nInter
             qInt_Save= qInt(iInter,kIter)
             Delta = Max(Abs(qInt_Save),1.0D-5)*Scale
+#ifdef _PRINT_
             Write (6,*) 'iInter,Delta=',iInter,Delta
 *
             Call RecPrt('qInt0',' ',qInt(1,kIter),nInter,1)
+#endif
 *           Call Energy_Kriging(qInt(1,kIter),E_test,nInter)
 *           Write (6,*) 'Energy=',E_test
             Call Gradient_Kriging(qInt(1,kIter),dqp,nInter)
+#ifdef _PRINT_
             Call RecPrt('dq0',' ',dqp,nInter,1)
+#endif
 *
             qInt(iInter,kIter)=qInt_Save+Delta
+#ifdef _PRINT_
             Call RecPrt('qIntp',' ',qInt(1,kIter),nInter,1)
+#endif
 *           Call Energy_Kriging(qInt(1,kIter),E_test,nInter)
 *           Write (6,*) 'Energy=',E_test
             Call Gradient_Kriging(qInt(1,kIter),dqp,nInter)
+#ifdef _PRINT_
             Call RecPrt('dqp',' ',dqp,nInter,1)
+#endif
 
             qInt(iInter,kIter)=qInt_Save-Delta
+#ifdef _PRINT_
             Call RecPrt('qIntm',' ',qInt(1,kIter),nInter,1)
+#endif
 *           Call Energy_Kriging(qInt(1,kIter),E_test,nInter)
 *           Write (6,*) 'Energy=',E_test
             Call Gradient_Kriging(qInt(1,kIter),dqm,nInter)
+#ifdef _PRINT_
             Call RecPrt('dqm',' ',dqm,nInter,1)
+#endif
 *
             Do jInter = 1, nInter
                Fact = 0.5D0
@@ -556,10 +571,11 @@ c Avoid unused argument warnings
          Call mma_Deallocate(dqm)
 #else
          Call DCopy_(nInter,1.0D-2,0,Hessian,nInter+1)
-*        Call Hessian_Kriging(qInt(1,kIter),Hessian,nInter)
+         Call Hessian_Kriging(qInt(1,kIter),Hessian,nInter)
 #endif
          iNeg(1)=0
          iNeg(2)=0
+         HUpMet='GPR'
       Else
          Call Mk_Hss_Q()
          Call Get_dArray('Hss_Q',Hessian,nInter**2)
@@ -580,7 +596,10 @@ c Avoid unused argument warnings
      &                 iNeg,iOptH,HUpMet,nRowH,jPrint,GNrm(kIter),
      &                 GNrm_Threshold,nsAtom,IRC,.True.)
       End If
+#define _PRINT_HESSIAN_
+#ifdef _PRINT_HESSIAN_
       Call RecPrt('Hessian',' ',Hessian,nInter,nInter)
+#endif
 *
 *     Save the number of internal coordinates on the runfile.
 *
