@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2013, Ignacio Fdez. Galvan                             *
+* Copyright (C) 2013,2019, Ignacio Fdez. Galvan                        *
 *               2016, Roland Lindh                                     *
 ************************************************************************
 *
@@ -46,6 +46,7 @@
 *                                                                      *
 *  Update to the "2010 CODATA recommended values".  R. Lindh           *
 *  Update to the "2014 CODATA recommended values".  I. Fdez. Galvan    *
+*  Update to the "2018 CODATA recommended values".  I. Fdez. Galvan    *
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -83,13 +84,28 @@
 ************************************************************************
 *
 * Select a set of physical constants, valid values are:
-* 2010, 2014
+* 2010, 2014, 2018
 *
-#define CODATA_SET 2014
+#define CODATA_SET 2018
 *
 * Constants
 *
-#if CODATA_SET == 2014
+#if CODATA_SET == 2018
+* CONST_AVOGADRO_, CONST_BOLTZMANN_, CONST_ELEMENTARY_CHARGE_IN_SI_, CONST_PLANCK_ are now exact
+#  define CONST_AMU_IN_SI_ 1.66053906660d-27
+#  define CONST_AU_TIME_IN_SI_ 2.4188843265857d-17
+#  define CONST_AU_VELOCITY_IN_SI_ 2.18769126364d6
+#  define CONST_AVOGADRO_ 6.02214076e23
+#  define CONST_BOHR_RADIUS_IN_SI_ 0.529177210903d-10
+#  define CONST_ELECTRON_MASS_IN_SI_ 9.1093837015d-31
+#  define CONST_MUON_MASS_IN_SI_ 1.883531627d-28
+#  define CONST_BOLTZMANN_ 1.380649d-23
+#  define CONST_ELEMENTARY_CHARGE_IN_SI_ 1.602176634d-19
+#  define CONST_PLANCK_ 6.62607015d-34
+#  define CONST_DIELECTRIC_IN_SI_ 8.8541878128d-12
+#  define CONST_ELECTRON_G_FACTOR_ -2.00231930436256
+#  define CONST_BOHR_MAGNETON_IN_SI_ 9.2740100783d-24
+#elif CODATA_SET == 2014
 #  define CONST_AMU_IN_SI_ 1.660539040d-27
 #  define CONST_AU_TIME_IN_SI_ 2.418884326509d-17
 #  define CONST_AU_VELOCITY_IN_SI_ 2.18769126277d6
@@ -124,13 +140,23 @@
 * Derived constants
 *
 #define CONST_C_IN_AU_ (CONST_C_IN_SI_/CONST_AU_VELOCITY_IN_SI_)
-#define CONST_BOLTZMANN_ (CONST_MOLAR_GAS_/CONST_AVOGADRO_)
+#if CODATA_SET == 2018
+#  define CONST_MOLAR_GAS_ (CONST_AVOGADRO_*CONST_BOLTZMANN_)
+#else
+#  define CONST_BOLTZMANN_ (CONST_MOLAR_GAS_/CONST_AVOGADRO_)
+#endif
 #define CONST_DIPOLE_IN_SI_ (CONST_ELEMENTARY_CHARGE_IN_SI_*CONST_BOHR_RADIUS_IN_SI_)
 #define CONST_DIPOLE_IN_ESU_ (1.0D-21/CONST_C_IN_SI_)
 *
 * Conversion factors
 *
-#if CODATA_SET == 2014
+#if CODATA_SET == 2018
+#  define CONV_AU_TO_EV_ 27.211386245988d0
+#  define CONV_AU_TO_CM1_ 2.1947463136320d5
+#  define CONV_AU_TO_KJ_ 4.3597447222071d-21
+#  define CONV_AU_TO_HZ_ 6.579683920502d15
+#  define CONV_AU_TO_T_ 2.35051756758d5
+#elif CODATA_SET == 2014
 #  define CONV_AU_TO_EV_ 27.21138602d0
 #  define CONV_AU_TO_CM1_ 2.194746313702d5
 #  define CONV_AU_TO_KJ_ 4.359744650d-21
