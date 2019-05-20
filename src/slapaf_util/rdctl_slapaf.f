@@ -105,6 +105,7 @@ C     Write (Lu,*) iOptC
       If (Char(1:4).eq.'AISP') Go To 105
       If (Char(1:4).eq.'AIMI') Go To 106
       If (Char(1:4).eq.'AIME') Go To 107
+      If (Char(1:4).eq.'AIBL') Go To 108
       If (Char(1:4).eq.'BAKE') Go To 926
       If (Char(1:4).eq.'C1-D') Go To 936
       If (Char(1:4).eq.'C2-D') Go To 937
@@ -549,6 +550,16 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *
 107   Char=Get_Ln(LuRd)
       Call Get_I(1,meAI,1)
+      Go To 999
+*                                                                      *
+****** AIBL ************************************************************
+*                                                                      *
+*     Base line modification value to not ordinary
+*     (Trend Function on GEK)
+*
+108   Char=Get_Ln(LuRd)
+      Call Get_F(1,blvAI,1)
+      blAI = .True.
       Go To 999
 *                                                                      *
 ****** BAKE ************************************************************

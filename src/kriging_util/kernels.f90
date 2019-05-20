@@ -59,6 +59,20 @@
             enddo
             Call covarmatrix(iter,nInter)
             Call k(iter)
+            if (blAI) then
+!    Trend Function eq (7) in ref.
+                write (6,*) 'Baseline or Trend Function changed to value: ', sb
+                write (6,*) '(the ordinary value is: ', sbO, ')'
+            endif
+            !--------testing---------
+            ! nx(1,1) = 0.0000000000006019
+            ! nx(2,1) = 1.5477663075629295
+            ! nx(3,1) = 2.7651245913505389
+            ! call covarvector(2,iter,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+            ! call predict(2,iter,nInter)
+            ! write(6,*) 'hpred',hpred
+            ! Call RecPrt('Update_: hpred',' ',hpred(1,:,:),nInter,nInter)
+            !-------------------------
             ! Write(6,*) 'optimazed lh: ',lm,ll(lm)
             ! write(6,*) 'all ll:',ll
             ! write(6,*) 'all Ener:',temp_pred

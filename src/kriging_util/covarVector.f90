@@ -14,7 +14,8 @@
             use globvar
             integer i,i0,i1,j,gh,iter,nInter
             ! real*8 tmat(iter,npx),tmat2(iter,npx), &
-            real*8 m(iter,npx),diffx(iter,npx),diffx0(iter,npx)!, & dl(iter,npx)
+            real*8 m(iter,npx),diffx(iter,npx),diffx0(iter,npx), &
+                diffxk(iter,npx),sdiffx,sdiffx0!, & dl(iter,npx)
             ! deallocate (dl,mat)
             ! allocate (dl(iter,npx),mat(iter,npx))
             cv = 0
@@ -87,27 +88,50 @@
                 cvMatTder = m
                 do i = 1, nInter
                     diffx = 2.0*rl(:,:,i)/l(i)
+                    sdiffx = 2.0/l(i)**2
                     do j = 1, nInter
                         diffx0 = -2.0*rl(:,:,j)/l(j)
+                        sdiffx0 = 2/l(j)**2
                         m = cvMatSder * diffx*diffx0
                         if (i.eq.j) m = m - cvMatFder*2/(l(i)*l(j))
                         cv(1:iter,:,i,j) = m
                         do k = 1, nInter
+                            diffxk = -2.0*rl(:,:,k)/l(k)
                             k0 = k*iter + 1
                             k1 = k0+iter - 1
-                            m = cvMatTder*diffx*diffx0**2
-                            if (j.eq.k) m = m + 2*cvMatSder*diffx0/(l(j)*l(k))
+                            if (i.eq.j.and.j.eq.k) then
+                                m = cvMatTder*diffx0**3 + 3*cvMatSder*diffx0*sdiffx0
+                                write(6,*) 'i=j=k',i,j,k
+                            else
+                                if (i.eq.j) then
+                                    m = cvMatTder*diffx0**3 + cvMatSder*diffx0*sdiffx
+                                    write(6,*) 'i=j!=k',i,j,k
+                                else
+                                    if (i.eq.k) then
+                                        m = cvMatTder*diffxk**3 + cvMatSder*diffxk*sdiffx
+                                        write(6,*) 'i=K!=J',i,j,k
+                                    else
+                                        if (j.eq.k) then
+                                            m = cvMatTder*diffx0**3 + cvMatSder*diffx0*sdiffx0
+                                            write(6,*) 'i=j!=k',i,j,k
+                                        else
+                                            m = cvMatTder*diffx*diffx0*diffxk
+                                            write(6,*) 'i!=j!=k',i,j,k56
+                                        endif
+                                    endif
+                                endif
+                            endif
+                            write(6,*) 'm',m
                             ! m = cvMatTder * diffx*diffx0**2 + cvMatSder*(4*diffx**2/l(i) + &
                             !     4/l(i)**2) + cvMatFder*(4/l(i)**3)
                             cv(k0:k1,:,i,j) = m
                         enddo
                     enddo
                 enddo
-                !Write (6,*) 'CV - Krig Hessian: ',mat
+                Write (6,*) 'CV - Krig Hessian: ',cv
             endif
-        ! enddo
-        ! Write (6,*) 'CV shape: ',shape(CV)
-        ! write (6,*) 'CV: ',CV
+            ! Write (6,*) 'CV shape: ',shape(CV)
+            ! write (6,*) 'CV: ',CV
         END
 !
         SUBROUTINE defdlrl(iter,nInter)
