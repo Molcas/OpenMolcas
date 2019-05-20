@@ -236,10 +236,10 @@ c Avoid unused argument warnings
             Not_Converged = .True.
             do while (Not_Converged)
                kIter_=iterAI
-*ifdef _DEBUG_
+#ifdef _DEBUG_
                Write (6,*)
                Write (6,*) 'Do iterAI: ',iterAI
-*endif
+#endif
                Call Update_sl_(iterAI,iInt,nFix,nInter,
      &                qInt,Shift,Grad,
      &                iOptC,Beta,Lbl,GNrm,Energy,
