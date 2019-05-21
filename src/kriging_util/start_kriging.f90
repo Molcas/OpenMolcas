@@ -80,6 +80,7 @@
           allocate (cvMatFder(nPoints,npx), cvMatSder(nPoints,npx), &
                     cvMatTder(nPoints,npx))
 !
+        jones=0 !temp erase later
         call kernels(nPoints,nInter)
 !
         return

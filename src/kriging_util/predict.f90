@@ -47,7 +47,6 @@
 !                       write (6,*) 'pred grad:',gpred
                     else
                         sigma=1.96*sqrt(2*abs(var*variance))
-                        write(6,*) 'final Kv',kv
                         do k=1,nInter
                             do i=1,nInter
                                 tcv=transpose(cv(:,:,k,i))

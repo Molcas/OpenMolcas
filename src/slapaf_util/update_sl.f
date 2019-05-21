@@ -333,7 +333,7 @@ c Avoid unused argument warnings
                Call RecPrt('Grad(x):',' ',Grad,nInter,iterAI)
 #endif
 *              Write (*,*) 'ThrEne,ThrGrd',ThrEne,ThrGrd
-               If (TheEne.gt.0.0D0) Then
+               If (ThrEne.gt.0.0D0) Then
                   Not_Converged = Abs(dEner).ge.ThrEne
                   Not_Converged = Not_Converged .and. iterK.lt.miAI
                   Not_Converged = Not_Converged .and. dqdq.lt.qBeta**2

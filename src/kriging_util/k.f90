@@ -13,7 +13,7 @@
         SUBROUTINE k(iter)
             use globvar
             real*8 B(m_t),A(m_t,m_t) !AF contains the factors L and U from the factorization A = P*L*U as computed by DGETRF
-            integer IPIV(m_t),INFO,iter ! ipiv the pivot indices that define the permutation matrix
+            integer IPIV(m_t),INFO,iter,sign ! ipiv the pivot indices that define the permutation matrix
 !
 !           Initate B according to Eq. (6)
             B=0.0D0
@@ -49,11 +49,21 @@
                     endif
                 endif
             endif
-            ! sb = dot_product(y,B(1:iter))/sum(B(1:iter))
-            detR=A(1,1)
-            do i=2,m_t
-                detR=detR*A(i,i)
+            sign = 1
+            detR = 0
+            do i = 1,m_t
+                if (A(i,i) < 0) then
+                    sign = sign * (-1)
+                    detR = detR + log(-A(i,i))
+                else
+                    detR = detR + log(A(i,i))
+                endif
+                ! write(6,*) 'detr(i)',i, detr
+                ! write(6,*) 'a(i,i)',a(i,i)
             enddo
+!
+            detR = sign*detR
+!
             B=[y-sb,dy]
             ! write (6,*) 'sb:',sb
             ! write (6,*) 'y',y
@@ -63,16 +73,20 @@
             CALL DGESV_(m_t,1,A,m_t,IPIV,B,m_t,INFO )
             Kv=b !Kv=K
 !Likelihood function
-            ! write(6,*) 'full_R',full_r
-            variance=dot_product(Ys,Kv)/m_t
+            variance = dot_product(Ys,Kv)/m_t
             ! write(6,*) 'detR',detR
+            ! if ((detR+1).eq.detR.and.jones.eq.0) then
+            !     Call RecPrt('full_r',  ' ',full_r,m_t,m_t)
+            !     jones=jones+1
+            ! endif
             ! write(6,*) 'Ys:',Ys
             ! write(6,*) 'Kv:',Kv
             ! write(6,*) 'Variance:',variance
-            lh=variance*exp(log(abs(detr))/m_t)
+            ! write(6,*) 'm_t',m_t
+            lh = variance*exp(detR/m_t)
             ! if (detr<0) then
-            !     lh=variance*exp(log(-detr)/m_t)
+            !     lh = variance*exp(log(-detR)/m_t)
             ! else
-            !     lh=variance*exp(log(detr)/m_t)
+            !     lh = variance*exp(log(detR)/m_t)
             ! endif
         END SUBROUTINE k
