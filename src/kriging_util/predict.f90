@@ -51,10 +51,10 @@
                         do k=1,nInter
                             do i=1,nInter
                                 tcv=transpose(cv(:,:,k,i))
-                                write(6,*) 'tcv', i,k,shape(tcv)
-                                Call RecPrt('Update_: tcv',' ',tcv,npx,m_t)
+                                !write(6,*) 'tcv', i,k,shape(tcv)
+                                !Call RecPrt('Update_: tcv',' ',tcv,npx,m_t)
                                 hpred(j,k,i) = dot_product(tcv(j,:),Kv)
-                                write (6,*) 'partial hpred',hpred(j,k,i)
+                                !write (6,*) 'partial hpred',hpred(j,k,i)
                                 ! write(6,*) 'pred Hess:',k,j,l,hpred(j,k), &
                                 !     var,variance,sigma, lh, tcv
                             enddo

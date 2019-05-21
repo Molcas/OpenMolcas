@@ -61,6 +61,7 @@
                                     m = c*5.0/4.0
                                 case (3)
                                     m = merge(-5.0/8.0*t/dh,dh,dh.ne.0)*c
+                                    ! write (6,*) '3th der dh',dh
                             end select
                     end select
                 endif
