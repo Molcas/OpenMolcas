@@ -86,7 +86,9 @@
 * Select a set of physical constants, valid values are:
 * 2010, 2014, 2018
 *
+#ifndef CODATA_SET
 #define CODATA_SET 2018
+#endif
 *
 * Constants
 *
@@ -140,7 +142,7 @@
 * Derived constants
 *
 #define CONST_C_IN_AU_ (CONST_C_IN_SI_/CONST_AU_VELOCITY_IN_SI_)
-#if CODATA_SET == 2018
+#if CODATA_SET >= 2018
 #  define CONST_MOLAR_GAS_ (CONST_AVOGADRO_*CONST_BOLTZMANN_)
 #else
 #  define CONST_BOLTZMANN_ (CONST_MOLAR_GAS_/CONST_AVOGADRO_)
