@@ -25,6 +25,7 @@
         !   write (6,*) 'x',x
         !   write (6,*) 'y',y
         !   write (6,*) 'dy',dy
+        !   write (6,*) 'nx',nx
 !To be change for the optmization of the l's (the right width of the Mat'ern function)
             do i = 1,z
 !In this particullary case the l(j) it does not depend on the dimensionality
