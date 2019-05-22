@@ -187,13 +187,13 @@ c Avoid unused argument warnings
             iterK=0
             dqdq=0.0D0
             qBeta=Beta
-#ifdef _DEBUG_
+*#ifdef _DEBUG_
             Write (6,*) 'iFirst,nRaw=',iFirst,nRaw
             Call RecPrt('qInt(0)',  ' ',qInt(1,iFirst),nInter,nRaw)
             Call RecPrt('Energy(0)',' ',Energy(iFirst),1,nRaw)
             Call RecPrt('Grad(0)',  ' ',Grad(1,iFirst),nInter,nRaw)
             Call RecPrt('Shift',  ' ',Shift(1,iFirst),nInter,nRaw)
-#endif
+*#endif
 *
             Call DScal_(nInter*nRaw,-1.0D0,Grad(1,iFirst),1)
             Call Start_Kriging(nRaw,nInter,
@@ -371,8 +371,8 @@ c Avoid unused argument warnings
                Call RecPrt('Ener(x):',' ',Energy,1,iterAI)
                Call RecPrt('Grad(x):',' ',Grad,nInter,iterAI)
 #endif
-               Write (6,*) 'ThrEne,ThrGrd',ThrEne,ThrGrd
-               Write (6,*) 'dEner=',dEner
+*              Write (6,*) 'ThrEne,ThrGrd',ThrEne,ThrGrd
+*              Write (6,*) 'dEner=',dEner
                If (ThrEne.gt.0.0D0) Then
                   Not_Converged = Abs(dEner).ge.ThrEne
                   Not_Converged = Not_Converged .and. iterK.lt.miAI
@@ -389,23 +389,23 @@ c Avoid unused argument warnings
                      RMSMx=Max(RMSMx,Abs(Shift(iInter,iterAI-1)))
                   End Do
 *
-                  Write (6,*) 'FAbs,GrdMx,RMS,RMSMx:',
-     &                         FAbs,GrdMx,RMS,RMSMx
+*                 Write (6,*) 'FAbs,GrdMx,RMS,RMSMx:',
+*    &                         FAbs,GrdMx,RMS,RMSMx
                   Not_Converged = FAbs.gt.ThrGrd
-                  Write (6,*) FAbs.gt.ThrGrd
+*                 Write (6,*) FAbs.gt.ThrGrd
                   Not_Converged = Not_Converged .or.
      &                            GrdMx.gt.ThrGrd*1.5D0
-                  Write (6,*)     GrdMx.gt.ThrGrd*1.5D0
+*                 Write (6,*)     GrdMx.gt.ThrGrd*1.5D0
                   Not_Converged = Not_Converged .or.
      &                            RMS.gt.ThrGrd*4.0D0
-                  Write (6,*)     RMS.gt.ThrGrd*4.0D0
+*                 Write (6,*)     RMS.gt.ThrGrd*4.0D0
                   Not_Converged = Not_Converged .or.
      &                            RMSMx.gt.ThrGrd*6.0D0
-                  Write (6,*)     RMSMx.gt.ThrGrd*6.0D0
+*                 Write (6,*)     RMSMx.gt.ThrGrd*6.0D0
                   Not_Converged = Not_Converged .and. iterK.le.miAI
-                  Write (6,*)     iterK,miAI
-                  Write (6,*)     iterK.le.miAI
-                  Write (6,*)     'Not_Converged=',Not_Converged
+*                 Write (6,*)     iterK,miAI
+*                 Write (6,*)     iterK.le.miAI
+*                 Write (6,*)     'Not_Converged=',Not_Converged
                End If
             End Do  ! Do While
 *

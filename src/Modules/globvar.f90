@@ -21,7 +21,7 @@
                 cvMatFder(:,:), cvMatSder(:,:), cvMatTder(:,:)
         real*8  sb,variance,detR,lh,sbO,sbmev !p
         real*8, parameter :: PI = 4.0 * atan (1.0_8), h=1e-5, eps=1e-14 ! eps avoid to become singular
-        integer prev_ns, m_t, npx, counttimes
+        integer prev_ns, m_t, npx, counttimes,jones
         Integer nInter_save, nPoints_save
         Logical isdefdlrl
       end module globvar
