@@ -99,7 +99,7 @@
       Logical Kriging_Hessian, Not_Converged
 *define _TEST_KRIGING_
 #ifdef _TEST_KRIGING_
-      Real*8, Allocatable:: dq(:)
+      Real*8, Allocatable:: dq(:), dqvalue(:,:)
 #endif
 *
       iRout=153
@@ -228,7 +228,44 @@ c Avoid unused argument warnings
                End Do
                Call DScal_(nInter,-1.0D0,dq,1)
             End Do
+*
+*           Test of gradient
+*
+            iNext=iFirst+nRaw
+            Call DCopy_(nInter,0.0D0,0,qInt(1,iNext),1)
+            Call Gradient_Kriging(qInt(1,iNext),dq,nInter)
+            Delta = 1.0D-4
+            Do i = 1, nInter
+               q_save=qInt(1,i)
+               qInt(1,i)=q_save+Delta
+               Call Energy_Kriging(qInt(1,i),Ep,nInter)
+               qInt(1,i)=q_save-Delta
+               Call Energy_Kriging(qInt(1,i),Em,nInter)
+               dEdq=(Ep-Em)/(2.0D0*Delta)
+               If (Abs(dEdq-dq(i)).gt.ThrT) Then
+                  If (Test.gt.ThrT) Then
+                     Write (6,*) 'Kriging error in exp. gradient'
+                     Write (6,*) dq(i),dEdq
+                     Call Abend()
+                  End If
+               End If
+               qInt(1,i)=q_save
+            End Do
+*
             Call mma_DeAllocate(dq)
+*
+            If (Iter-1.gt.0) Then
+               mIter=Iter-1
+               Call mma_Allocate(dqvalue,mIter,mIter,Label='dqvalue')
+               Do i = 1, mIter
+                  Do j = 1, mIter
+                     dqvalue(i,j) =
+     &                DDot_(nInter,Shift(1,i),1,Shift(1,j),1)
+                  End Do
+               End Do
+               Call RecPrt('dqValue',' ',dqvalue,mIter,mIter)
+               Call mma_DeAllocate(dqvalue)
+            End If
 #endif
 *
 *           Start the Kriging loop.
@@ -276,6 +313,7 @@ c Avoid unused argument warnings
                If (iterK.eq.0.and.Step_trunc.eq.'*') dqdq=qBeta**2
 *              Write (6,*) 'dqdq=',dqdq
 *              Write (6,*) 'qBeta**2=',qBeta**2
+#ifdef _TEST1_
                If (iterK.gt.0.and.dqdq.gt.qBeta**2) Then
 *
                   sh2=0.0D0
@@ -313,6 +351,7 @@ c Avoid unused argument warnings
                   Step_trunc='*'
                   Write (6,*) ' Step has been scaled'
                End If
+#endif
 
 *              Compute the energy and gradient according to the
 *              surrogate model for the new coordinates.
@@ -332,7 +371,8 @@ c Avoid unused argument warnings
                Call RecPrt('Ener(x):',' ',Energy,1,iterAI)
                Call RecPrt('Grad(x):',' ',Grad,nInter,iterAI)
 #endif
-*              Write (*,*) 'ThrEne,ThrGrd',ThrEne,ThrGrd
+*              Write (6,*) 'ThrEne,ThrGrd',ThrEne,ThrGrd
+*              Write (6,*) 'dEner=',dEner
                If (ThrEne.gt.0.0D0) Then
                   Not_Converged = Abs(dEner).ge.ThrEne
                   Not_Converged = Not_Converged .and. iterK.lt.miAI
@@ -349,16 +389,23 @@ c Avoid unused argument warnings
                      RMSMx=Max(RMSMx,Abs(Shift(iInter,iterAI-1)))
                   End Do
 *
+*                 Write (6,*) 'FAbs,GrdMx,RMS,RMSMx:',
+*    &                         FAbs,GrdMx,RMS,RMSMx
                   Not_Converged = FAbs.gt.ThrGrd
+*                 Write (6,*) FAbs.gt.ThrGrd
                   Not_Converged = Not_Converged .or.
      &                            GrdMx.gt.ThrGrd*1.5D0
+*                 Write (6,*)     GrdMx.gt.ThrGrd*1.5D0
                   Not_Converged = Not_Converged .or.
      &                            RMS.gt.ThrGrd*4.0D0
+*                 Write (6,*)     RMS.gt.ThrGrd*4.0D0
                   Not_Converged = Not_Converged .or.
      &                            RMSMx.gt.ThrGrd*6.0D0
-*                 Write (*,*) 'FAbs,GrdMx,RMS,RMSMx:',
-*    &                         FAbs,GrdMx,RMS,RMSMx
-                  Not_Converged = iterK.ge.miAI
+*                 Write (6,*)     RMSMx.gt.ThrGrd*6.0D0
+                  Not_Converged = Not_Converged .and. iterK.le.miAI
+*                 Write (6,*)     iterK,miAI
+*                 Write (6,*)     iterK.le.miAI
+*                 Write (6,*)     'Not_Converged=',Not_Converged
                End If
             End Do  ! Do While
 *
@@ -627,7 +674,7 @@ c Avoid unused argument warnings
       End If
 *define _PRINT_HESSIAN_
 #ifdef _PRINT_HESSIAN_
-      Call RecPrt('Hessian',' ',Hessian,nInter,nInter)
+      Call RecPrt('Hessian','(6F10.4)',Hessian,nInter,nInter)
 #endif
 *
 *     Save the number of internal coordinates on the runfile.
