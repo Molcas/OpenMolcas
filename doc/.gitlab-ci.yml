@@ -1,7 +1,7 @@
 # A special job for building the documentation,
 doc:
   stage: build
-  image: ${CI_REGISTRY}/molcas/dockerfiles/doc:latest
+  image: ${CI_REGISTRY}/molcas/dockerfiles/doc:testing
   script:
     # First build sphinx doc
     - git submodule update --init External/lapack
