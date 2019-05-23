@@ -47,6 +47,8 @@ class RasOrb:
                 print(line, file=f)
             for line in self._write_MO_occ():
                 print(line, file=f)
+            for line in self._write_MO_E():
+                print(line, file=f)
             for line in self._write_CAS_idx():
                 print(line, file=f)
 
@@ -105,7 +107,7 @@ class RasOrb:
 
 
 def _forward(f, n):
-    for i in range(n):
+    for _ in range(n):
         line = f.readline()
     return line
 
@@ -116,7 +118,7 @@ def _read_coeffs(f, orbs, cols):
         rows = (n_orbs + cols - 1) // cols
         for orb in range(n_orbs):
             values = []
-            for row in range(rows):
+            for _ in range(rows):
                 line = f.readline()
                 values.extend([float(x) for x in line.split()])
             MO_coeff[irrep][:, orb] = values
@@ -129,7 +131,7 @@ def _read_orb_property(f, orbs, cols):
     for irrep, n_orbs in enumerate(orbs):
         rows = (n_orbs + cols - 1) // cols
         values = []
-        for row in range(rows):
+        for _ in range(rows):
             line = f.readline()
             values.extend([float(x) for x in line.split()])
         MO_v[irrep][:] = values
@@ -138,11 +140,11 @@ def _read_orb_property(f, orbs, cols):
 
 def _read_CAS_idx(f, orbs, cols):
     idx = []
-    for irrep, n_orbs in enumerate(orbs):
+    for n_orbs in orbs:
         rows = (n_orbs + cols - 1) // cols
         values = []
         next(f)
-        for row in range(rows):
+        for _ in range(rows):
             line = f.readline()
             values.extend(line.strip()[2:])
         idx.append(values)
@@ -155,25 +157,16 @@ def _read_orbfile(path):
         line = f.readline()
         orbs = [int(irrep) for irrep in line.split()]
 
-        line = f.readline()
-        while 'ORBITAL' not in line:
+        while line:
             line = f.readline()
-        MO_coeff = _read_coeffs(f, orbs, 5)
-
-        line = f.readline()
-        while 'OCCUPATION NUMBERS' not in line:
-            line = f.readline()
-        MO_occ = _read_orb_property(f, orbs, 5)
-
-        line = f.readline()
-        while 'ONE ELECTRON ENERGIES' not in line:
-            line = f.readline()
-        MO_E = _read_orb_property(f, orbs, 10)
-
-        line = f.readline()
-        while 'INDEX' not in line:
-            line = f.readline()
-        idx = _read_CAS_idx(f, orbs, 10)
+            if 'ORBITAL' in line:
+                MO_coeff = _read_coeffs(f, orbs, 5)
+            if 'OCCUPATION NUMBERS' in line and 'HUMAN-READABLE' not in line:
+                MO_occ = _read_orb_property(f, orbs, 5)
+            if 'ONE ELECTRON ENERGIES' in line:
+                MO_E = _read_orb_property(f, orbs, 10)
+            if 'INDEX' in line:
+                idx = _read_CAS_idx(f, orbs, 10)
     return MO_coeff, MO_occ, MO_E, idx
 
 
