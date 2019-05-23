@@ -84,7 +84,7 @@
 
             Call covarmatrix(iter,nInter)
             Call k(iter)
-            ! write (6,*) 'optimazed l, lh:',l(1),ll(lm)
+            write (6,*) 'optimazed l, lh:', l(1), ll(lm)
             if (blaAI) then
                 write (6,*) ''
                 write (6,*) 'Baseline (Trend Function) has been added with: ', blavAI
@@ -130,7 +130,7 @@
             enddo
             call covarmatrix(iter,nInter)
             call k(iter)
-            write (6,*) 'set l value, lh:',l(1),ll(lm)
+            write (6,*) 'set l value, lh:',l(1)
         END
 
         subroutine miden(iter)
