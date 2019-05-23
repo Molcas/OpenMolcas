@@ -17,7 +17,6 @@
             real*8 value
 !
             call miden(iter)
-#ifdef _REDUNDANT_
             z=int(lb(3))
 !
             !temp nx for testing
@@ -86,7 +85,6 @@
             Call covarmatrix(iter,nInter)
             Call k(iter)
             write (6,*) 'optimazed l, lh:',l(1),ll(lm)
-#endif
             if (blaAI) then
                 write (6,*) ''
                 write (6,*) 'Baseline (Trend Function) has been added with: ', blavAI
