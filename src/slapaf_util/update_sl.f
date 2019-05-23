@@ -187,13 +187,13 @@ c Avoid unused argument warnings
             iterK=0
             dqdq=0.0D0
             qBeta=Beta
-*#ifdef _DEBUG_
+#ifdef _DEBUG_
             Write (6,*) 'iFirst,nRaw=',iFirst,nRaw
             Call RecPrt('qInt(0)',  ' ',qInt(1,iFirst),nInter,nRaw)
             Call RecPrt('Energy(0)',' ',Energy(iFirst),1,nRaw)
             Call RecPrt('Grad(0)',  ' ',Grad(1,iFirst),nInter,nRaw)
             Call RecPrt('Shift',  ' ',Shift(1,iFirst),nInter,nRaw)
-*#endif
+#endif
 *
             Call DScal_(nInter*nRaw,-1.0D0,Grad(1,iFirst),1)
             Call Start_Kriging(nRaw,nInter,
@@ -406,6 +406,7 @@ c Avoid unused argument warnings
 *                 Write (6,*)     iterK,miAI
 *                 Write (6,*)     iterK.le.miAI
 *                 Write (6,*)     'Not_Converged=',Not_Converged
+                  If (Step_trunc.eq.'*') Not_Converged=.False.
                End If
             End Do  ! Do While
 *
