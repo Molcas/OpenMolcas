@@ -40,7 +40,7 @@
                 call k(iter)
                 ll(i)=lh
                 !------testing
-              write (6,*) 'di i,l,lh:',i,l(1),ll(i)
+            !   write (6,*) 'di i,l,lh:',i,l(1),ll(i)
             !   call covarvector(0,iter,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
             !   call predict(0,iter,nInter)
             ! !   temp_pred(:,i)=pred
@@ -58,7 +58,7 @@
             !----------
             enddo
 !
-            lm = MinLoc(ll,dim=nInter)
+            lm = MinLoc(ll,dim = 1)
             do j = 1,nInter
                 l(j)=lb(1)+(lm-1)*(lb(2)-lb(1))/(lb(3)-1)
             enddo

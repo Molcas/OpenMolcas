@@ -26,16 +26,16 @@
                     do i=1,m_t
                         var(j)=var(j)+B(i,j,1,1)*CV(i,j,1,1)
                     enddo
-                    var=1-var
+                    var(j)=1-var(j)
                     ddottemp(j)=dot_product(tcv(j,:),rones)
-                    var=var+(1-ddottemp)**2/tsum
+                    var(j)=var(j)+(1-ddottemp(j))**2/tsum
                     pred(j) = sb + dot_product(tcv(j,:),Kv)
-                    sigma=1.96*sqrt(abs(var*variance))
-!                   write(6,*) 'pred:',k,j,l,pred(j),var,variance, &
-!                               sigma, lh
+                    sigma(j)=1.96*sqrt(abs(var(j)*variance))
+                !   write(6,*) 'pred:',k,j,l,pred(j),var,variance, &
+                !               sigma, lh
                 else
                     if (gh.eq.1) then
-                        sigma=1.96*sqrt(2*abs(var*variance))
+                        ! sigma(j)=1.96*sqrt(2*abs(var*variance))
                         do k=1,nInter
                             tcv=transpose(cv(:,:,k,1))
                             gpred(j,k) = dot_product(tcv(j,:),Kv)
@@ -46,7 +46,7 @@
 !                       write(6,*) 'final Kv',kv
 !                       write (6,*) 'pred grad:',gpred
                     else
-                        sigma=1.96*sqrt(2*abs(var*variance))
+                        ! sigma(j)=1.96*sqrt(2*abs(var*variance))
                         do k=1,nInter
                             do i=1,nInter
                                 tcv=transpose(cv(:,:,k,i))
@@ -62,3 +62,4 @@
                 endif
             enddo
         END
+

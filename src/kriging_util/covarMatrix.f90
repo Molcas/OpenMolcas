@@ -72,7 +72,7 @@
                     if (i.ne.j) then
                         full_R(j0:j1,i0:i1) = transpose(m)
                     else
-                        full_R(i0:i1,j0:j1) = full_R(i0:i1,j0:j1) + iden*eps
+                        full_R(i0:i1,j0:j1) = full_R(i0:i1,j0:j1) + iden*eps2
                     endif
                 enddo
             enddo
