@@ -201,6 +201,8 @@ c Avoid unused argument warnings
      &                            Grad(1,iFirst),
      &                            Energy(iFirst))
             Call DScal_(nInter*nRaw,-1.0D0,Grad(1,iFirst),1)
+            Value_l=20.D0
+            Call setlkriging(Value_l,nRaw,nInter)
 #ifdef _TEST_KRIGING_
 *
 *           Activate code to check that the kriging is doing an exaxt

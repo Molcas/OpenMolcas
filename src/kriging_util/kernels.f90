@@ -14,8 +14,10 @@
             use globvar
             integer i,z,j,iter,nInter,lm
             ! real*8 temp_pred(npx,int(lb(3))),temp_gpred(npx,nInter,int(lb(3)))
+            real*8 value
 !
             call miden(iter)
+#ifdef _REDUNDANT_
             z=int(lb(3))
 !
             !temp nx for testing
@@ -27,14 +29,22 @@
         !   write (6,*) 'dy',dy
         !   write (6,*) 'nx',nx
 !To be change for the optmization of the l's (the right width of the Mat'ern function)
+            lm=-1
+            value=1.0D99
             do i = 1,z
 !In this particullary case the l(j) it does not depend on the dimensionality
 !It is the same.
 !Could be the case that depends on the dimesionality then for every dimension the
 !l changes
-                do j = 1,nInter
-                    l(j)=lb(1)+(i-1)*(lb(2)-lb(1))/(lb(3)-1)
-                enddo
+                if (z.ne.1) Then
+                   do j = 1,nInter
+                       l(j)=lb(1)+(i-1)*(lb(2)-lb(1))/(lb(3)-1)
+                   enddo
+                else if (z.eq.1) Then
+                   do j = 1,nInter
+                       l(j)=lb(1)
+                   enddo
+                endif
 !
                 call covarmatrix(iter,nInter)
                 call k(iter)
@@ -56,15 +66,27 @@
             !   Call RecPrt('hpred',  ' ',hpred(npx,:,:),nInter,nInter)
             !   write (6,*) '------------------------'
             !----------
+               if (lh.lt.value) Then
+                  value = lh
+                  lm = i
+               End If
             enddo
 !
-            lm = MinLoc(ll,dim=nInter)
-            do j = 1,nInter
-                l(j)=lb(1)+(lm-1)*(lb(2)-lb(1))/(lb(3)-1)
-            enddo
+!           lm = MinLoc(ll,dim=1)
+            if (z.ne.1) Then
+               do j = 1,nInter
+                   l(j)=lb(1)+(lm-1)*(lb(2)-lb(1))/(lb(3)-1)
+               enddo
+            else if (z.eq.1) Then
+               do j = 1,nInter
+                  l(j)=lb(i)
+               enddo
+            endif
+
             Call covarmatrix(iter,nInter)
             Call k(iter)
             write (6,*) 'optimazed l, lh:',l(1),ll(lm)
+#endif
             if (blaAI) then
                 write (6,*) ''
                 write (6,*) 'Baseline (Trend Function) has been added with: ', blavAI
@@ -84,6 +106,7 @@
                     endif
                 endif
             endif
+#ifdef _REDUNDANT_
             !--------testing---------
             ! nx(1,1) = 0.0000000000006019
             ! nx(2,1) = 1.5477663075629295
@@ -97,6 +120,7 @@
             ! write(6,*) 'all ll:',ll
             ! write(6,*) 'all Ener:',temp_pred
             ! write(6,*) 'all Grad:',temp_gpred
+#endif
         END
 
         SUBROUTINE setlkriging(lv,iter,nInter)
