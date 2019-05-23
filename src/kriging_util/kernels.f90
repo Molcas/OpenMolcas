@@ -64,6 +64,7 @@
             enddo
             Call covarmatrix(iter,nInter)
             Call k(iter)
+            write (6,*) 'optimazed l, lh:',l(1),ll(lm)
             if (blaAI) then
                 write (6,*) ''
                 write (6,*) 'Baseline (Trend Function) has been added with: ', blavAI
@@ -96,6 +97,17 @@
             ! write(6,*) 'all ll:',ll
             ! write(6,*) 'all Ener:',temp_pred
             ! write(6,*) 'all Grad:',temp_gpred
+        END
+
+        SUBROUTINE setlkriging(lv,iter,nInter)
+            use globvar
+            integer iter,nInter,i
+            real*8 lv
+            do i = 1,nInter
+                l(i)=lv
+            enddo
+            call covarmatrix(iter,nInter)
+            call k(iter)
         END
 
         subroutine miden(iter)
