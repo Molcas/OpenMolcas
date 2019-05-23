@@ -130,6 +130,7 @@
             enddo
             call covarmatrix(iter,nInter)
             call k(iter)
+            write (6,*) 'set l value, lh:',l(1),ll(lm)
         END
 
         subroutine miden(iter)
