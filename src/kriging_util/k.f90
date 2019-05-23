@@ -13,7 +13,7 @@
         SUBROUTINE k(iter)
             use globvar
             real*8 B(m_t),A(m_t,m_t),diagA(m_t)
-            integer IPIV(m_t),INFO,iter!,sign ! ipiv the pivot indices that define the permutation matrix
+            integer IPIV(m_t),INFO,iter,sign ! ipiv the pivot indices that define the permutation matrix
 !
 ! Initate B according to Eq. (6) of ref.
             B=0.0D0
@@ -82,22 +82,25 @@
             Kv=b !Kv=K
 !Likelihood function
             variance = dot_product(Ys,Kv)/m_t
-            if (maxval(diagA).le.10.0) then
-                detR = 1!A(1,1)
-                do i=1,m_t
-                    detR=detR*diagA(i)
-                    ! write(6,*) 'A',A(i,i)
-                enddo
-                lh=variance*abs(detR)**(DBLE(1.0D0/DBLE(m_t)))
-                !write(6,*) 'detR',detR
-            else
+            ! if (maxval(diagA).le.10.0) then
+            !     detR = 1!A(1,1)
+            !     do i=1,m_t
+            !         detR=detR*diagA(i)
+            !         write(6,*) 'A, detR:',i, diagA(i), detR
+            !     enddo
+            !     lh=variance*abs(detR)**(DBLE(1.0D0/DBLE(m_t)))
+            ! else
                 detR = 0
+                sign = 1
                 do i=1,m_t
+                    if (diagA(i).le.0) sign=sign*(-1)
                     detR = detR + log(abs(diagA(i)))
+                    ! write(6,*) 'A, log(detR):',i, diagA(i), detR
                 enddo
-                lh = variance*exp(detR/m_t)
-                !write(6,*) 'detR',exp(detR)
-            endif
+                ! write(6,*) 'detR/m_t', detR/dble(m_t)
+                ! write(6,*) 'exp(detR/m_t)', exp(detR/dble(m_t))
+                lh = variance*exp(detR/dble(m_t))
+            ! endif
             ! write(6,*) 'detR',detR
             ! if ((detR+1).eq.detR.and.jones.eq.0) then
             !     Call RecPrt('full_r',  ' ',full_r,m_t,m_t)
@@ -107,7 +110,6 @@
             ! write(6,*) 'Kv:',Kv
             ! write(6,*) 'Variance:',variance
             ! write(6,*) 'm_t',m_t
-            !write(6,*) 'exp(detR)',exp(detR)
             ! lh = variance*exp(detR/m_t)
             !lh=variance*exp(log(detr)/m_t)
             !lh=variance*detR**(DBLE(1.0D0/DBLE(m_t)))
