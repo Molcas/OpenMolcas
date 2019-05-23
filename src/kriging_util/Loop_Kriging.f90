@@ -78,7 +78,7 @@
         return
       end
 !
-      Subroutine Disperssion_Kriging(x_,y_,ndimx)
+      Subroutine Dispersion_Kriging(x_,y_,ndimx)
         use globvar
         Integer nInter,nPoints
         Real*8 x_(ndimx,1),y_(npxAI)
