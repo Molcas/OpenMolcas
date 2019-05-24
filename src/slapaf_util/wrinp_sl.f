@@ -80,6 +80,9 @@
 *      Write (Lu,*) '    Mat`ern you can choose between (0->"Inf"),'
 *      Write (Lu,*) '    being in the limit of "Inf" the Gaussian case.'
 *      Write (Lu,*)
+       Call Get_dScalar('Value_l',Value_l)
+       Write (Lu,*) '  Characteristic length scale, l:            ',
+     &              Value_l
        If (blaAI) then
           write (6,*) '  Baseline is last energy plus: ',blavAI
        Else

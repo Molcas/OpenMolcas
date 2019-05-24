@@ -196,15 +196,28 @@ c Avoid unused argument warnings
             Call RecPrt('Shift',  ' ',Shift(1,iFirst),nInter,nRaw)
 #endif
 *
+*           Pass the data point to the GEK routine. Remember to
+*           change the sign of the gradients.
+*
             Call DScal_(nInter*nRaw,-1.0D0,Grad(1,iFirst),1)
             Call Start_Kriging(nRaw,nInter,
      &                            qInt(1,iFirst),
      &                            Grad(1,iFirst),
      &                            Energy(iFirst))
             Call DScal_(nInter*nRaw,-1.0D0,Grad(1,iFirst),1)
-            Value_l=20.D0
+*
+*           Update the l value dynamically.
+*
+            Call Get_dScalar('Value_l',Value_l)
+            If (iter.gt.nspAI) Then
+               iOld=iFirst+nRaw-2
+               xxx=DDot_(nInter,Grad(1,iOld),1,Grad(1,iOld),1)
+               iNew=iFirst+nRaw-1
+               yyy=DDot_(nInter,Grad(1,iNew),1,Grad(1,iNew),1)
+               If (yyy.gt.xxx) Value_l=Value_l * 0.95D0
+            End If
             Call setlkriging(Value_l)
-*           Call Recprt('xxx',' ',Grad(1,MaxItr),nInter,1)
+            Call Put_dScalar('Value_l',Value_l)
 #ifdef _TEST_KRIGING_
 *
 *           Activate code to check that the kriging is doing an exaxt
@@ -426,10 +439,6 @@ c Avoid unused argument warnings
             Call RecPrt('qInt(3):',' ',qInt,nInter,iter+1)
             Call RecPrt('Shift(3):',' ',Shift,nInter,iter)
 #endif
-*
-*           Stash away the predicted gradient'
-*
-            Call DCopy_(nInter,Grad(1,iterAI),1,Grad(1,MaxItr),1)
 *
 *           write(6,*) 'finished do iter',iterAI
 *           De allocating memory used by Kriging
