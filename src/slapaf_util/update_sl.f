@@ -204,6 +204,7 @@ c Avoid unused argument warnings
             Call DScal_(nInter*nRaw,-1.0D0,Grad(1,iFirst),1)
             Value_l=20.D0
             Call setlkriging(Value_l)
+*           Call Recprt('xxx',' ',Grad(1,MaxItr),nInter,1)
 #ifdef _TEST_KRIGING_
 *
 *           Activate code to check that the kriging is doing an exaxt
@@ -425,6 +426,10 @@ c Avoid unused argument warnings
             Call RecPrt('qInt(3):',' ',qInt,nInter,iter+1)
             Call RecPrt('Shift(3):',' ',Shift,nInter,iter)
 #endif
+*
+*           Stash away the predicted gradient'
+*
+            Call DCopy_(nInter,Grad(1,iterAI),1,Grad(1,MaxItr),1)
 *
 *           write(6,*) 'finished do iter',iterAI
 *           De allocating memory used by Kriging

@@ -20,7 +20,7 @@
             enddo
             call covarmatrix(nPoints_Save,nInter_save)
             call k(nPoints_save)
-            write (6,*) 'set l value, lh:',l(1)
+!           write (6,*) 'set l value, lh:',l(1)
         END SUBROUTINE setlkriging
 
         subroutine miden()
