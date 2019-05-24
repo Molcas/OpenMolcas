@@ -1947,7 +1947,7 @@ C orbitals accordingly
         if(KeyCALC) then
           call setpos(luinput,'CALC',line,irc)
           if(irc.ne._RC_ALL_IS_WELL_) goto 9810
-          read(luinput,*,end=9910,err=9920) (calcrdmonfly(i),i=1,3)
+          read(luinput,*,end=9910,err=9920) (calcrdmonfly(i),i=1,2)
         else
           call WarningMessage(2, 'CALCrdmonfly required for NECI.')
           goto 9930
