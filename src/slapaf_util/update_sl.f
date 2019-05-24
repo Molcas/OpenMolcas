@@ -179,7 +179,8 @@ c Avoid unused argument warnings
 *        ------- AI loop begin here
 *define _DEBUG_
          If (Kriging .AND. iter.ge.nspAI) then
-            Kriging_Hessian =.TRUE.
+*           Kriging_Hessian =.TRUE.
+            Kriging_Hessian =.False.
             iterAI=iter
             dEner=meAI
             nRaw=Min(iter,nWndw)
