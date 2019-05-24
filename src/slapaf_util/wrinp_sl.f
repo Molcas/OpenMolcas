@@ -62,21 +62,36 @@
 *                                                                      *
       If (Kriging) Then
        Write (Lu,*)
-       Write (Lu,*) 'Kriging activated with parameters:'
+       Write (Lu,*) '-GEK activated with parameters:'
+       Write (Lu,*) '  GEK starts at iteration:                   ',
+     &               nspAI
+       Write (Lu,*) '  Max number of data sets used in GEK:       ',
+     &               nWndw
+*      Write (Lu,*) '  Analytical Mat`ern derivatives:            ',anAI
+*      Write (Lu,*) '  Width of Mat`ern: 0.1:6 # of steps:',lb
+       Write (Lu,*) '  Resolution of the predicted path:          ',
+     &               npxAI
+       Write (Lu,*) '  Parameter of diff. for Mat`ern (p):        ',pAI
+       Write (Lu,*) '  Max inter. for opt on surrogate model:     ',miAI
+*      Write (Lu,*) 'Minimum egergy differences at convergence;',meAI
+*      Write (Lu,*)
+*      Write (Lu,*) '*Note: for the analytical Matern the only choices'
+*      Write (Lu,*) '    for (p) are 1 or 2, however for the numerical'
+*      Write (Lu,*) '    Mat`ern you can choose between (0->"Inf"),'
+*      Write (Lu,*) '    being in the limit of "Inf" the Gaussian case.'
+*      Write (Lu,*)
+       If (blaAI) then
+          write (6,*) '  Baseline is last energy plus: ',blavAI
+       Else
+          if (mblAI) then
+             write (6,*) '  Baseline set to maximum value of the energy'
+          else if (blAI) then
+             write (6,*) '  Baseline (Trend Function) changed to value:'
+     &                   , sb
+          endif
+       Endif
        Write (Lu,*)
-       Write (Lu,*) 'Number of source points:',nspAI
-       Write (Lu,*) 'Analytical Mat`ern derivatives:',anAI
-       Write (Lu,*) 'Width of Mat`ern: 0.1:6 # of steps:',lb
-       Write (Lu,*) 'Resolution of the predicted path:',npxAI
-       Write (Lu,*) 'Parameter of diff. for Mat`ern (p):',pAI
-       Write (Lu,*) 'Number of maximum interations of AI method:',miAI
-       Write (Lu,*) 'Minimum egergy differences at convergence;',meAI
-       Write (Lu,*)
-       Write (Lu,*) '*Note: for the analytical Matern the only choices'
-       Write (Lu,*) '    for (p) are 1 or 2, however for the numerical'
-       Write (Lu,*) '    Mat`ern you can choose between (0->"Inf"),'
-       Write (Lu,*) '    being in the limit of "Inf" the Gaussian case.'
-       Write (Lu,*)
+
       End If
 *                                                                      *
 ************************************************************************

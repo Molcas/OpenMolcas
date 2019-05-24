@@ -80,7 +80,7 @@
           allocate (cvMatFder(nPoints,npx), cvMatSder(nPoints,npx), &
                     cvMatTder(nPoints,npx))
 !
-        call kernels(nPoints,nInter)
+!       call kernels(nPoints,nInter)
 !
         return
       end

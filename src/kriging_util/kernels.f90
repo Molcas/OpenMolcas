@@ -23,6 +23,7 @@
             use globvar
             integer iter,nInter,i
             real*8 lv
+            call miden(iter)
             do i = 1,nInter
                 l(i)=lv
             enddo
