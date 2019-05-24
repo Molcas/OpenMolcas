@@ -18,8 +18,7 @@
         nInter_save=nInter
         nPoints_save=nPoints
 !
-!       if (.NOT. allocated(x)) then
-          allocate (x(nInter,nPoints),y(nPoints),dy(nInter*nPoints),nx(nInter,1))
+        allocate (x(nInter,nPoints),y(nPoints),dy(nInter*nPoints),nx(nInter,1))
 !m_t is the dimentionality of the square correlation matrix Gradient-Psi
 ! (equation (2) on:
 !-------- ref. = DOI 10.1007/s00366-015-0397-y)-------
@@ -79,8 +78,6 @@
             !cvh(m_t,npx,nInter,nInter))
           allocate (cvMatFder(nPoints,npx), cvMatSder(nPoints,npx), &
                     cvMatTder(nPoints,npx))
-!
-!       call kernels(nPoints,nInter)
 !
         return
       end

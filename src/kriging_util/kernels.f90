@@ -10,31 +10,22 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-        SUBROUTINE kernels(iter,nInter)
+        SUBROUTINE setlkriging(lv)
             use globvar
-            integer i,z,j,iter,nInter,lm
-            real*8 value
-!
-            call miden(iter)
-!
-        END
-
-        SUBROUTINE setlkriging(lv,iter,nInter)
-            use globvar
-            integer iter,nInter,i
+            integer i
             real*8 lv
-            call miden(iter)
-            do i = 1,nInter
+            call miden()
+            do i = 1,nInter_save
                 l(i)=lv
             enddo
-            call covarmatrix(iter,nInter)
-            call k(iter)
+            call covarmatrix(nPoints_Save,nInter_save)
+            call k(nPoints_save)
             write (6,*) 'set l value, lh:',l(1)
-        END
+        END SUBROUTINE setlkriging
 
-        subroutine miden(iter)
+        subroutine miden()
             use globvar
-            integer j,iter
+            integer j
             iden=0
-            forall(j=1:iter) iden(j,j)=1
+            forall(j=1:nPoints_save) iden(j,j)=1
         end subroutine
