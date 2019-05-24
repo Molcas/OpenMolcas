@@ -25,6 +25,8 @@ C
       miAI = 10
       meAI = 1.0D-8
       blAI = .False.
+      blaAI = .True.
+      blavAI=10.0D0
 *
       nInter_save=-1
       nPoints_save=-1
