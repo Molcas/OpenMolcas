@@ -28,7 +28,7 @@
         !   write (6,*) 'dy',dy
         !   write (6,*) 'nx',nx
 !To be change for the optmization of the l's (the right width of the Mat'ern function)
-            lm=-1
+            lm = -1
             value=1.0D99
             do i = 1,z
 !In this particullary case the l(j) it does not depend on the dimensionality
@@ -47,9 +47,9 @@
 !
                 call covarmatrix(iter,nInter)
                 call k(iter)
-                ll(i)=lh
+                ll(i) = lh
                 !------testing
-              write (6,*) 'di i,l,lh:',i,l(1),ll(i)
+            !   write (6,*) 'di i,l,lh:',i,l(1),ll(i)
             !   call covarvector(0,iter,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
             !   call predict(0,iter,nInter)
             ! !   temp_pred(:,i)=pred
@@ -84,7 +84,7 @@
 
             Call covarmatrix(iter,nInter)
             Call k(iter)
-            write (6,*) 'optimazed l, lh:',l(1),ll(lm)
+            write (6,*) 'optimazed l, lh:', l(1), ll(lm)
             if (blaAI) then
                 write (6,*) ''
                 write (6,*) 'Baseline (Trend Function) has been added with: ', blavAI
@@ -130,7 +130,7 @@
             enddo
             call covarmatrix(iter,nInter)
             call k(iter)
-            write (6,*) 'set l value, lh:',l(1),ll(lm)
+            write (6,*) 'set l value, lh:',l(1)
         END
 
         subroutine miden(iter)

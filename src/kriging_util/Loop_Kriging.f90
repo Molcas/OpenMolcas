@@ -77,4 +77,27 @@
 !
         return
       end
+!
+      Subroutine Dispersion_Kriging(x_,y_,ndimx)
+        use globvar
+        Integer nInter,nPoints
+        Real*8 x_(ndimx,1),y_(npxAI)
+!
+        nPoints=nPoints_save
+        nInter=nInter_save
+!
+        npx = npxAI
+!nx is the n-dimensional vector of the last iteration computed in update_sl
+! subroutine
+        nx = x_
+!
+!       Write(6,*) 'Entro predict x_', x_
+!       Write(6,*) 'nx', nx
+!       Write(6,*) 'ndimx', ndimx
 
+        call covarvector(0,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+        call predict(0,nPoints,nInter)
+        y_ = sigma
+!
+        return
+      end

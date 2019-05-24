@@ -102,10 +102,6 @@
                 lh = variance*exp(detR/dble(m_t))
             ! endif
             ! write(6,*) 'detR',detR
-            ! if ((detR+1).eq.detR.and.jones.eq.0) then
-            !     Call RecPrt('full_r',  ' ',full_r,m_t,m_t)
-            !     jones=jones+1
-            ! endif
             ! write(6,*) 'Ys:',Ys
             ! write(6,*) 'Kv:',Kv
             ! write(6,*) 'Variance:',variance
