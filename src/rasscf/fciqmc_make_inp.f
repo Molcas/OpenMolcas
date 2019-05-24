@@ -28,7 +28,9 @@
      &    addtoinitiator = 3,
      &    maxwalkerbloom = 1,
      &    semi_stochastic = 1000,
-     &    highlypopwrite = 50
+     &    highlypopwrite = 50,
+     &    startsinglepart = 10,
+     &    pops_core =  10000
         integer, allocatable ::
      &    definedet(:)
         real*8 ::
@@ -52,12 +54,11 @@
       subroutine make_inp
       use general_data, only : nActEl, iSpin
       use stdalloc, only : mma_deallocate
+      use fortran_strings, only : str
       implicit none
-      integer :: i, isFreeUnit, file_id
+      integer :: i, isFreeUnit, file_id, indent
+      integer, parameter :: indentstep = 4
       character(len=10) :: formt
-      character(*), parameter ::
-     &    I_fmt = '(A, 1x, I0)',
-     &    R_fmt = '(A, 1x, F0.2)'
 
 *----------------------------------------------------------------------*
 *---- Check that RunTime variables are passed correctly
@@ -73,72 +74,111 @@
       file_id = isFreeUnit(39)
       call Molcas_Open(file_id,'FCINP')
 
-      write(file_id,'(A5)') 'Title'
-      write(file_id,'(A1)') ''
-      write(file_id,'(A11)') 'System read'
-      write(file_id,'(A10,I3)') 'electrons ', nActEl
-      write(file_id,'("nonuniformrandexcits 4ind-weighted-2")')
-      write(file_id,'(A18)') 'nobrillouintheorem'
-      if(iSpin .ne. 1) write(file_id, I_fmt) 'spin-restrict', iSpin - 1
-      write(file_id,'(A10)') 'freeformat'
-      write(file_id,'(A6)') 'endsys'
-      write(file_id,'(A1)') ''
-      write(file_id,'(A4)') 'calc'
-      if (allocated(DefineDet)) then
-        write(formt,'(I5)') nActEl
-        formt='(A,('//trim(adjustl(formt))//'I5))'
-        write(file_id,formt) 'definedet', (definedet(i), i = 1, nActEl)
-        call mma_deallocate(definedet)
-      end if
-      write(file_id,'(A1)') ''
-      write(file_id,'(A7)') 'methods'
-      write(file_id,'(A19)') 'method vertex fcimc'
-      write(file_id,'(A10)') 'endmethods'
-      write(file_id,'(A1)') ' '
-      write(file_id, I_fmt) 'totalwalkers', totalwalkers
-      write(file_id, R_fmt) 'diagshift', diagshift
-      write(file_id, R_fmt) 'shiftdamp', shiftdamp
-      write(file_id, I_fmt) 'nmcyc', nmcyc
-      write(file_id, I_fmt) 'stepsshift', stepsshift
-      write(file_id, R_fmt) 'proje-changeref', proje_changeref
-      write(file_id,'(A14)') 'truncinitiator'
-      write(file_id, I_fmt) 'addtoinitiator ', addtoinitiator
-      write(file_id,'(A12)') 'allrealcoeff'
-      write(file_id, R_fmt) 'realspawncutoff', realspawncutoff
-      write(file_id,'(A10)') 'jump-shift'
-      write(file_id,'(A15)') 'tau 0.01 search'
-      write(file_id, R_fmt) 'max-tau', max_tau
-      write(file_id, I_fmt) 'maxwalkerbloom', maxwalkerbloom
-      write(file_id, R_fmt) 'memoryfacspawn', memoryfacspawn
-      write(file_id, R_fmt) 'memoryfacpart', memoryfacpart
-      write(file_id,'(A, 1x, I4)') 'time', time
-      write(file_id,'("startsinglepart 10")')
-      write(file_id, I_fmt) 'semi-stochastic', semi_stochastic
-      write(file_id, '("pops-core 10000")')
-      write(file_id, I_fmt) 'rdmsamplingiters', rdmsamplingiters
-!      if(KeyTRIA) write(file_id, I_fmt)
-!     & 'trial-wavefunction', trial_wavefunction
-!      write(file_id, I_fmt) 'pops-trial', pops_trial
-c      if(abs(rotmax).le.1.0d-1.and.iter.ne.1) then
-c          write(file_id,'(A)') 'readpops'
-c      end if
-      write(file_id,'(A7)') 'endcalc'
-      write(file_id,'(A1)') ' '
-      write(file_id,'(A7)') 'logging'
-      write(file_id, I_fmt) 'Highlypopwrite', Highlypopwrite
-      write(file_id,'(A24)') 'Print-Spin-Resolved-RDMS'
-      write(file_id,'(A)') 'hdf5-pops'
-      write(file_id,'(A11)') 'printonerdm'
-      write(file_id, '("diagflyonerdm")')
-      write(file_id,'(A,1x,I0,1x,I0,1x,I0)')
+      indent = 0
+      write(file_id, A_fmt()) 'Title'
+      write(file_id, A_fmt()) ''
+      write(file_id, A_fmt()) 'System read'
+      indent = indent + indentstep
+        write(file_id, I_fmt()) 'electrons ', nActEl
+        write(file_id,A_fmt()) 'nonuniformrandexcits 4ind-weighted-2'
+        write(file_id,A_fmt()) 'nobrillouintheorem'
+        if(iSpin /= 1) then
+          write(file_id, I_fmt()) 'spin-restrict', iSpin - 1
+        end if
+        write(file_id, A_fmt()) 'freeformat'
+      indent = indent - indentstep
+      write(file_id, A_fmt()) 'endsys'
+      write(file_id, A_fmt()) ''
+      write(file_id, A_fmt()) 'calc'
+      indent = indent + indentstep
+        if (allocated(DefineDet)) then
+          write(formt,I_fmt()) nActEl
+          formt='(A,('//trim(adjustl(formt))//'I5))'
+          write(file_id,formt) 'definedet', (definedet(i), i = 1,nActEl)
+          call mma_deallocate(definedet)
+          write(file_id, A_fmt()) ''
+        end if
+        write(file_id, A_fmt()) 'methods'
+        indent = indent + indentstep
+          write(file_id, A_fmt()) 'method vertex fcimc'
+        indent = indent - indentstep
+        write(file_id, A_fmt()) 'endmethods'
+        write(file_id, A_fmt()) ' '
+        write(file_id, I_fmt()) 'totalwalkers', totalwalkers
+        write(file_id, R_fmt()) 'diagshift', diagshift
+        write(file_id, R_fmt()) 'shiftdamp', shiftdamp
+        write(file_id, I_fmt()) 'nmcyc', nmcyc
+        write(file_id, I_fmt()) 'stepsshift', stepsshift
+        write(file_id, R_fmt()) 'proje-changeref', proje_changeref
+        write(file_id, A_fmt()) 'truncinitiator'
+        write(file_id, I_fmt()) 'addtoinitiator ', addtoinitiator
+        write(file_id, A_fmt()) 'allrealcoeff'
+        write(file_id, R_fmt()) 'realspawncutoff', realspawncutoff
+        write(file_id, A_fmt()) 'jump-shift'
+        write(file_id, A_fmt()) 'tau 0.01 search'
+        write(file_id, R_fmt()) 'max-tau', max_tau
+        write(file_id, I_fmt()) 'maxwalkerbloom', maxwalkerbloom
+        write(file_id, R_fmt()) 'memoryfacspawn', memoryfacspawn
+        write(file_id, R_fmt()) 'memoryfacpart', memoryfacpart
+        write(file_id, I_fmt()) 'time', time
+        write(file_id, I_fmt()) 'startsinglepart', startsinglepart
+        write(file_id, I_fmt()) 'semi-stochastic', semi_stochastic
+        write(file_id, I_fmt()) 'pops-core', pops_core
+        write(file_id, I_fmt()) 'rdmsamplingiters', rdmsamplingiters
+      indent = indent - indentstep
+      write(file_id, A_fmt()) 'endcalc'
+      write(file_id, A_fmt()) ' '
+      write(file_id, A_fmt()) 'logging'
+      indent = indent + indentstep
+        write(file_id, I_fmt()) 'Highlypopwrite', Highlypopwrite
+        write(file_id, A_fmt()) 'Print-Spin-Resolved-RDMS'
+        write(file_id, A_fmt()) 'hdf5-pops'
+        write(file_id, A_fmt()) 'printonerdm'
+        write(file_id, A_fmt()) '(diagflyonerdm'
+        write(file_id,'('//str(indent)//'x, A,1x,I0,1x,I0,1x,I0)')
      &     'calcrdmonfly', 3, (calcrdmonfly(i), i=1,2)
-      write(file_id,'(A6)') 'endlog'
-      write(file_id,'(A3)') 'end'
+      indent = indent - indentstep
+      write(file_id, A_fmt()) 'endlog'
+      write(file_id, A_fmt()) 'end'
 
 
       close(file_id)
       call qExit('make_inp')
 
       return
+
+      contains
+
+        function I_fmt() result(res)
+          implicit none
+          character(:), allocatable :: res
+          if (indent /= 0) then
+            res = '('//str(indent)//'x, A, 1x, I0)'
+          else
+            res = '(A, 1x, I0)'
+          end if
+        end function
+
+        function R_fmt() result(res)
+          implicit none
+          character(:), allocatable :: res
+          if (indent /= 0) then
+            res = '('//str(indent)//'x, A, 1x, F0.2)'
+          else
+            res = '(A, 1x, F0.2)'
+          end if
+        end function
+
+        function A_fmt() result(res)
+          implicit none
+          character(:), allocatable :: res
+          if (indent /= 0) then
+            res = '('//str(indent)//'x, A)'
+          else
+            res = '(A)'
+          end if
+        end function
       end subroutine make_inp
+
+
       end module fciqmc_make_inp
