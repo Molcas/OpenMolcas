@@ -19,9 +19,9 @@ C
       anAI = .True.
       pAI = 2
       npxAI = 1
-      lb(1) = 0.1
-      lb(2) = 6.0
-      lb(3) = 10
+      lb(1) = 20.0
+      lb(2) = 20.0
+      lb(3) = 1
       miAI = 10
       meAI = 1.0D-8
       blAI = .False.

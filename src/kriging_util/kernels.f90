@@ -27,6 +27,7 @@
         !   write (6,*) 'y',y
         !   write (6,*) 'dy',dy
         !   write (6,*) 'nx',nx
+#ifdef _REDUNDANT_
 !To be change for the optmization of the l's (the right width of the Mat'ern function)
             lm = -1
             value=1.0D99
@@ -85,6 +86,7 @@
             Call covarmatrix(iter,nInter)
             Call k(iter)
             write (6,*) 'optimazed l, lh:', l(1), ll(lm)
+#endif
             if (blaAI) then
                 write (6,*) ''
                 write (6,*) 'Baseline (Trend Function) has been added with: ', blavAI
