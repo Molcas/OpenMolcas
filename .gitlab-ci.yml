@@ -176,7 +176,7 @@ include:
 
 tinker:
   stage: build
-  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-7:testing
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-7:latest
   variables:
     # A patch to the tinker patch to make it work in low memory conditions
     patch_to_patch: |
