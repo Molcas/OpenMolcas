@@ -255,26 +255,26 @@ c Avoid unused argument warnings
 *
 *           Test of gradient
 *
+#ifdef _NOT_TESTED_YET_
             iNext=iFirst+nRaw
             Call DCopy_(nInter,0.0D0,0,qInt(1,iNext),1)
             Call Gradient_Kriging(qInt(1,iNext),dq,nInter)
             Delta = 1.0D-4
             Do i = 1, nInter
-               q_save=qInt(1,i)
-               qInt(1,i)=q_save+Delta
-               Call Energy_Kriging(qInt(1,i),Ep,nInter)
-               qInt(1,i)=q_save-Delta
-               Call Energy_Kriging(qInt(1,i),Em,nInter)
+               q_save=qInt(i,iNext)
+               qInt(i,iNext)=q_save+Delta
+               Call Energy_Kriging(qInt(1,iNext),Ep,nInter)
+               qInt(i,iNext)=q_save-Delta
+               Call Energy_Kriging(qInt(1,iNext),Em,nInter)
                dEdq=(Ep-Em)/(2.0D0*Delta)
                If (Abs(dEdq-dq(i)).gt.ThrT) Then
-                  If (Test.gt.ThrT) Then
-                     Write (6,*) 'Kriging error in exp. gradient'
-                     Write (6,*) dq(i),dEdq
-                     Call Abend()
-                  End If
+                  Write (6,*) 'Kriging error in exp. gradient'
+                  Write (6,*) dq(i),dEdq
+                  Call Abend()
                End If
-               qInt(1,i)=q_save
+               qInt(i,iNext)=q_save
             End Do
+#endif
 *
             Call mma_DeAllocate(dq)
 *
