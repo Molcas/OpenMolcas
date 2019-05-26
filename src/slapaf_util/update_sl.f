@@ -97,7 +97,7 @@
      &          HUpMet*6
 *
       Logical Kriging_Hessian, Not_Converged
-*define _TEST_KRIGING_
+#define _TEST_KRIGING_
 #ifdef _TEST_KRIGING_
       Real*8, Allocatable:: dq(:), dqvalue(:,:)
 #endif
@@ -177,7 +177,7 @@ c Avoid unused argument warnings
 *
       Else
 *        ------- AI loop begin here
-*define _DEBUG_
+#define _DEBUG_
          If (Kriging .AND. iter.ge.nspAI) then
 *           Kriging_Hessian =.TRUE.
             Kriging_Hessian =.False.
@@ -231,6 +231,13 @@ c Avoid unused argument warnings
                If (Test.gt.ThrT) Then
                   Write (6,*) 'Kriging error in energy'
                   Write (6,*) E_test,Energy(i)
+                  Call Abend()
+               End If
+               Call Dispersion_Kriging(qInt(1,i),E_disp,nInter)
+               Write (6,*) 'E_Disp=',E_disp
+               If (E_disp.gt.1.0D-8) Then
+                  Write (6,*) 'Kriging error in dispersion'
+                  Write (6,*) E_Disp
                   Call Abend()
                End If
                Call Gradient_Kriging(qInt(1,i),dq,nInter)
