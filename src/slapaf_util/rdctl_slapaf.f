@@ -551,7 +551,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *     (loop exit condition)
 *
 107   Char=Get_Ln(LuRd)
-      Call Get_I(1,meAI,1)
+      Call Get_F(1,meAI,1)
       Go To 999
 *                                                                      *
 ****** AIBL ************************************************************
