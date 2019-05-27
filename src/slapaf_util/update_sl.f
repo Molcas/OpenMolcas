@@ -97,7 +97,7 @@
      &          HUpMet*6
 *
       Logical Kriging_Hessian, Not_Converged
-#define _TEST_KRIGING_
+*define _TEST_KRIGING_
 #ifdef _TEST_KRIGING_
       Real*8, Allocatable:: dq(:), dqvalue(:,:)
 #endif
@@ -177,7 +177,7 @@ c Avoid unused argument warnings
 *
       Else
 *        ------- AI loop begin here
-#define _DEBUG_
+*define _DEBUG_
          If (Kriging .AND. iter.ge.nspAI) then
 *           Kriging_Hessian =.TRUE.
             Kriging_Hessian =.False.
@@ -224,18 +224,19 @@ c Avoid unused argument warnings
 *           interpolation.
 *
             Call mma_Allocate(dq,nInter,Label='dq')
-            ThrT=1.0D-8
+            ThrT=1.0D-5
             Do i = iFirst, iFirst+nRaw-1
                Call Energy_Kriging(qInt(1,i),E_test,nInter)
                Test=Abs(E_test-Energy(i))
+*              Write (*,*) 'Test=',Test
                If (Test.gt.ThrT) Then
                   Write (6,*) 'Kriging error in energy'
                   Write (6,*) E_test,Energy(i)
                   Call Abend()
                End If
                Call Dispersion_Kriging(qInt(1,i),E_disp,nInter)
-               Write (6,*) 'E_Disp=',E_disp
-               If (E_disp.gt.1.0D-8) Then
+*              Write (6,*) 'E_Disp=',E_disp
+               If (E_disp.gt.ThrT) Then
                   Write (6,*) 'Kriging error in dispersion'
                   Write (6,*) E_Disp
                   Call Abend()
@@ -244,6 +245,7 @@ c Avoid unused argument warnings
                Call DScal_(nInter,-1.0D0,dq,1)
                Do iInter = 1, nInter
                   Test=Abs(dq(iInter)-Grad(iInter,i))
+*                 Write (*,*) 'Test(grad)=',Test
                   If (Test.gt.ThrT) Then
                      Write (6,*) 'Kriging error in gradient'
                      Write (6,*) dq(iInter),Grad(iInter,i)
@@ -382,6 +384,8 @@ c Avoid unused argument warnings
 *
                Call Energy_Kriging(qInt(1,iterAI+1),Energy(iterAI+1),
      &                             nInter)
+               Call Dispersion_Kriging(qInt(1,iterAI+1),E_disp,nInter)
+*              Write (6,*) 'E_Disp=',E_disp
                Call Gradient_Kriging(qInt(1,iterAI+1),Grad(1,iterAI+1),
      &                               nInter)
                Call DScal_(nInter,-1.0D0,Grad(1,iterAI+1),1)
