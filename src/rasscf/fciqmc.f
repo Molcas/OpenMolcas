@@ -82,7 +82,7 @@
       real*8, intent(inout) :: F_In(nTot1), D1S_MO(nAcPar)
       real*8, intent(out) :: DMAT(nAcpar),
      &    PSMAT(nAcpr2), PAMAT(nAcpr2)
-      logical :: Do_ESPF, WaitForNECI
+      logical :: Do_ESPF, newcycle_found
       real*8 :: NECIen, Scal
       integer :: LuNewC, iPRLEV, iOff, iSym, iBas, i, j,
      &    jRoot, iDisk, jDisk, kRoot, permutation(sum(nAsh(:nSym)))
@@ -202,26 +202,27 @@
           call prgmtranslate_master('NEWCYCLE', newcycle, L)
           call write_ExNECI_message(
      &        fcinp, fcidmp, h5fcidmp, WorkDir, newcycle)
+          newcycle_found = .false.
+          do while(.not. newcycle_found)
+            call sleep(1)
+            call f_Inquire('NEWCYCLE', newcycle_found)
+          end do
+          write(6, *) 'NEWCYCLE file found. Proceding with SuperCI'
+          LuNewC = 12
+          call molcas_open(LuNewC, 'NEWCYCLE')
+            read(LuNewC,*) NECIen
+            write(6,*) 'I read the following energy:', NECIen
+          close(LuNewC, status='delete')
         end if
-        waitForNECI = .false.
-        do while(.not. waitForNECI)
-          call sleep(1)
-          call f_Inquire('NEWCYCLE', waitForNECI)
-        end do
-        write(6, *) 'NEWCYCLE file found. Proceding with SuperCI'
-        LuNewC = 12
-        call molcas_open(LuNewC, 'NEWCYCLE')
-        read(LuNewC,*) NECIen
-        write(6,*) 'I read the following energy:'
-        write(6,*) NECIen
-        close (LuNewC, status='delete')
+          call MPI_Bcast(NECIen, 1, MPI_DOUBLE_PRECISION, 0,
+     &                   MPI_COMM_WORLD, ierror)
       end if
 ! NECIen so far is only the energy for the GS.
 ! Next step it will be an array containing energies for all the optimized states.
+
       do jRoot = 1, lRoots
         ENER(jRoot, ITER) = NECIen
       end do
-
 ! Generate density matrices for Molcas
 !   Neci density matrices are stored in Files TwoRDM_**** (in spacial orbital basis).
 !   I will be reading them from those formatted files for the time being.
@@ -236,11 +237,11 @@
       call mma_allocate(PAtmp, nAcPr2, label='PAtmp')
 
 #ifdef _MOLCAS_MPP_
-      if (Is_Real_Par()) call MPI_Barrier(MPI_COMM_WORLD, ierror)
+      if (is_real_par()) call MPI_Barrier(MPI_COMM_WORLD, ierror)
 #endif
       call read_neci_RDM(DTMP, DStmp, Ptmp, PAtmp)
 #ifdef _MOLCAS_MPP_
-      if (Is_Real_Par()) call MPI_Barrier(MPI_COMM_WORLD, ierror)
+      if (is_real_par()) call MPI_Barrier(MPI_COMM_WORLD, ierror)
 #endif
 ! COMPUTE AVERAGE DENSITY MATRICES
       do jRoot = 1, lRoots
