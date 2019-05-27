@@ -88,7 +88,6 @@
         write(formt,'(I5)') nActEl
         formt='(A,('//trim(adjustl(formt))//'I5))'
         write(file_id,formt) 'definedet', (definedet(i), i = 1, nActEl)
-        call mma_deallocate(definedet)
       end if
       write(file_id,'(A1)') ''
       write(file_id,'(A7)') 'methods'

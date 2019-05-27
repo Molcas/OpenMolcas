@@ -13,7 +13,7 @@
 ************************************************************************
       module fciqmc
 #ifdef _MOLCAS_MPP_
-      use MPI
+      use mpi
 #endif
       use filesystem, only : chdir_, getcwd_, get_errno_, strerror_
       use fortran_strings, only : str
@@ -32,7 +32,7 @@
       use fciqmc_read_RDM, only : read_neci_RDM
       implicit none
       private
-      public :: FCIQMC_CTL, DoNECI, DoEmbdNECI
+      public :: fciqmc_ctl, DoNECI, DoEmbdNECI, cleanup
       logical ::
      &  DoEmbdNECI = .false.,
      &  DoNECI = .false.
@@ -64,7 +64,7 @@
 !>  @paramin[out] DMAT Average 1 body density matrix
 !>  @paramin[out] PSMAT Average symm. 2-dens matrix
 !>  @paramin[out] PAMAT Average antisymm. 2-dens matrix
-      subroutine FCIQMC_Ctl(CMO, DIAF, D1I_AO, D1A_AO, TUVX, F_IN,
+      subroutine fciqmc_ctl(CMO, DIAF, D1I_AO, D1A_AO, TUVX, F_IN,
      &                      D1S_MO, DMAT, PSMAT, PAMAT)
       implicit none
 #include "output_ras.fh"
@@ -312,6 +312,13 @@
      &    'TwoRDM_bbbb.1 TwoRDM_baba.1 TwoRDM_baab.1 '//trim(WorkDir)
         write(6,'(4x, A)')'echo $your_RDM_Energy > '//trim(newcycle)
         call xflush(6)
-      end subroutine
+      end subroutine write_ExNECI_message
       end subroutine fciqmc_ctl
+
+      subroutine cleanup()
+        use fciqmc_make_inp, only : definedet
+
+        if (allocated(definedet)) mma_deallocate(definedet)
+      end subroutine cleanup
+
       end module fciqmc
