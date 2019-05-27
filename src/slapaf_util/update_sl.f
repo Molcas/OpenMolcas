@@ -437,6 +437,11 @@ c Avoid unused argument warnings
                   If (Step_trunc.eq.'*') Not_Converged=.False.
                End If
             End Do  ! Do While
+            If (Step_trunc.eq.'*') Then
+               Call Get_dScalar('Value_l',Value_l)
+               Value_l=Value_l * 0.95D0
+               Call Put_dScalar('Value_l',Value_l)
+            End If
 *
 *           Save the optimized kriging coordinates as the coordinates
 *           for the next macro iteration.
