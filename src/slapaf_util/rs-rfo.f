@@ -11,7 +11,7 @@
 * Copyright (C) 1994,2004,2014,2017, Roland Lindh                      *
 *               2014,2018, Ignacio Fdez. Galvan                        *
 ************************************************************************
-      Subroutine RS_RFO(H,g,nInter,dq,UpMeth,dqHdq,StepMax,Step_Trunc)
+      Subroutine RS_RFO(H,q,g,nInter,dq,UpMeth,dqHdq,StepMax,Step_Trunc)
 ************************************************************************
 *                                                                      *
 *     Object: Automatic restricted-step rational functional            *
@@ -31,7 +31,7 @@
 #include "real.fh"
 #include "stdalloc.fh"
       Integer nInter
-      Real*8 H(nInter,nInter), g(nInter), dq(nInter)
+      Real*8 H(nInter,nInter), g(nInter), q(Inter), dq(nInter)
       Character UpMeth*6, Step_Trunc*1
       Real*8 StepMax
 *

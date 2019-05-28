@@ -172,13 +172,13 @@ C     Call View(H,nInter,print)
 *
 *------------- Restricted Step Partitioned RFO
 *
-               Call RS_P_RFO(H,g(1,nIter),nInter,dq(1,nIter),
+               Call RS_P_RFO(H,q(1,nIter),g(1,nIter),nInter,dq(1,nIter),
      &                       UpMeth,dqHdq,Beta,Step_Trunc)
             Else
 *
 *------------- Restricted Step Image RFO
 *
-               Call RS_I_RFO(H,g(1,nIter),nInter,dq(1,nIter),
+               Call RS_I_RFO(H,q(1,nIter),g(1,nIter),nInter,dq(1,nIter),
      &                       UpMeth,dqHdq,Beta,Step_Trunc)
             End If
 *
@@ -187,7 +187,7 @@ C     Call View(H,nInter,print)
 *---------- Restricted Step RFO
 *
 *
-            Call RS_RFO(H,g(1,nIter),nInter,dq(1,nIter),
+            Call RS_RFO(H,q(1,nIter),g(1,nIter),nInter,dq(1,nIter),
      &                  UpMeth,dqHdq,Beta,Step_Trunc)
 *
          End If
