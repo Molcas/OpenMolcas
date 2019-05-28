@@ -40,6 +40,8 @@
 *             Removed full diagonalizations, April '14, I. Fdez. Galvan*
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
+      External Restriction_Step
+      Real*8 Restriction_Step
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
@@ -203,7 +205,7 @@
      &                                     Work(ipNVec),1,
      &                                 Zero,Work(ipNStep),1)
             Call DaXpY_(nInter,One,Work(ipNStep),1,dq,1)
-            dqdq_max=DDot_(nInter,Work(ipNStep),1,Work(ipNStep),1)
+            dqdq_max=Restriction_Step(q,Work(ipNStep),nInter)
 *           write (Lu,*) 'dqdq_max=',dqdq_max
 !           Sign
             EigVal_r=-DDot_(nInter,Work(ipNStep),1,Work(ipNGrad),1)
@@ -274,6 +276,7 @@
      &                     Work(ipPStep),1)
          Call DaXpY_(nInter,One,Work(ipPStep),1,dq,1)
          dqdq_min=DDot_(nInter,Work(ipPStep),1,Work(ipPStep),1)
+         dqdq_min=Restriction_Step(q,Work(ipPStep),nInter)
 *        write (Lu,*) 'dqdq_min=',dqdq_min
          EigVal_t=-DDot_(nInter,Work(ipPStep),1,Work(ipPGrad),1) ! Sign
          If (iPrint.ge.99) Then
@@ -289,7 +292,7 @@
          End If
 *
       Lambda = EigVal_t + EigVal_r
-      dqdq=DDot_(nInter,dq,1,dq,1)
+      dqdq=Restriction_Step(q,dq,nInter)
 *
       If (iPrint.ge.6)
      &  Write (Lu,'(I5,5F10.5)') Iter,A_RFO,Sqrt(dqdq),StepMax,

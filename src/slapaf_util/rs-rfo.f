@@ -28,6 +28,8 @@
 *     Remove references to work, Roland Lindh                          *
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
+      External Restriction_Step
+      Real*8 Restriction_Step
 #include "real.fh"
 #include "stdalloc.fh"
       Integer nInter
@@ -143,7 +145,7 @@
 *
 *        Compute R^2 according to Eq. (8c)
 *
-         dqdq=DDot_(nInter,dq,1,dq,1)
+         dqdq=Restriction_Step(q,dq,nInter)
 *        Write (Lu,*) 'dqdq=',dqdq
 #ifdef _DEBUG_
          Write (Lu,'(I5,4F10.5)') Iter,A_RFO,Sqrt(dqdq),StepMax,EigVal
