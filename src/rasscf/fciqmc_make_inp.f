@@ -109,7 +109,11 @@
           write(file_id, A_fmt()) 'method vertex fcimc'
         call dedent()
         write(file_id, A_fmt()) 'endmethods'
-        write(file_id, A_fmt()) ' '
+        write(file_id, A_fmt()) ''
+        if (readpops_) write(file_id, A_fmt()) 'readpops'
+        if (readpops_) write(file_id, A_fmt()) 'walkcontgrow'
+        write(file_id, I_fmt()) 'semi-stochastic', semi_stochastic
+        write(file_id, A_fmt()) ''
         write(file_id, I_fmt()) 'totalwalkers', totalwalkers
         write(file_id, R_fmt()) 'diagshift', diagshift
         write(file_id, R_fmt()) 'shiftdamp', shiftdamp
@@ -128,11 +132,8 @@
         write(file_id, R_fmt()) 'memoryfacpart', memoryfacpart
         write(file_id, I_fmt()) 'time', time
         write(file_id, I_fmt()) 'startsinglepart', startsinglepart
-        write(file_id, I_fmt()) 'semi-stochastic', semi_stochastic
         write(file_id, I_fmt()) 'pops-core', pops_core
         write(file_id, I_fmt()) 'rdmsamplingiters', rdmsamplingiters
-        if (readpops_) write(6, A_fmt()) 'readpops'
-        ! if (readpops_) write(file_id, A_fmt()) 'readpops'
       call dedent()
       write(file_id, A_fmt()) 'endcalc'
       write(file_id, A_fmt()) ' '
