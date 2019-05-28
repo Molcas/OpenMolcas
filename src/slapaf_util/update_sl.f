@@ -140,6 +140,7 @@ c Avoid unused argument warnings
       If (.False.) Call Unused_logical(Redundant)
 #endif
 *
+      iOpt_RS=0
       Kriging_Hessian =.FALSE.
       If (iter.eq.NmIter.and.NmIter.ne.1) Then
 *
@@ -164,7 +165,8 @@ c Avoid unused argument warnings
      &                   nWndw,Mode,ipMF,
      &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,dMass,
      &                   HrmFrq_Show,CnstWght,Curvilinear,Degen,
-     &                   Kriging_Hessian,qBeta,Restriction_step)
+     &                   Kriging_Hessian,qBeta,Restriction_step,
+     &                   iOpt_RS)
 *
 *------- Move new coordinates to the correct position and compute the
 *        corresponding shift.
@@ -316,7 +318,8 @@ c Avoid unused argument warnings
      &                nWndw,Mode,ipMF,
      &                iOptH,HUpMet,kIter_,GNrm_Threshold,IRC,dMass,
      &                HrmFrq_Show,CnstWght,Curvilinear,Degen,
-     &                Kriging_Hessian,qBeta,Restriction_step)
+     &                Kriging_Hessian,qBeta,Restriction_step,
+     &                iOpt_RS)
 *
 *              Change lable of updating method if kriging points has
 *              been used.
@@ -473,7 +476,8 @@ c Avoid unused argument warnings
      &                   nWndw,Mode,ipMF,
      &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,dMass,
      &                   HrmFrq_Show,CnstWght,Curvilinear,Degen,
-     &                   Kriging_Hessian,qBeta,Restriction_step)
+     &                   Kriging_Hessian,qBeta,Restriction_step,
+     &                   iOpt_RS)
          End If
       End If
 *
@@ -506,7 +510,8 @@ c Avoid unused argument warnings
      &                     nWndw,Mode,ipMF,
      &                     iOptH,HUpMet,mIter,GNrm_Threshold,IRC,
      &                     dMass,HrmFrq_Show,CnstWght,Curvilinear,
-     &                     Degen,Kriging_Hessian,qBeta,Restriction)
+     &                     Degen,Kriging_Hessian,qBeta,Restriction,
+     &                     iOpt_RS)
 ************************************************************************
 *     Object: to update coordinates                                    *
 *                                                                      *
@@ -839,6 +844,11 @@ C           Write (*,*) 'tBeta=',tBeta
 *                                                                      *
 *----------... Compute updated geometry in Internal coordinates
 *
+            If (iOpt_RS.eq.0) Then
+               qBeta=fCart*tBeta
+            Else
+               qBeta=Beta
+            End If
             Call Newq(qInt,mInter,kIter,Shift,Hessian,Grad,
      &                Work(ipErr),Work(ipEMx),Work(ipRHS),iWork(iPvt),
      &                Work(ipdg),Work(ipA),nA,
@@ -1126,7 +1136,7 @@ C           Write (*,*) 'tBeta=',tBeta
      &                iWork(iP),UpMeth,Line_Search,Step_Trunc,Lbl,
      &                GrdLbl,StpLbl,GrdMax,StpMax,Work(ipd2L),nsAtom,
      &                IRC,CnstWght,
-     &                Restriction)
+     &                Restriction,iOpt_RS)
 *
 *           Rough conversion to Cartesians
 *

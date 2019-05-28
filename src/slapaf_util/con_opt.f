@@ -18,7 +18,7 @@
      &                   Beta,nFix,iP,UpMeth,
      &                   Line_Search,Step_Trunc,Lbl,GrdLbl,StpLbl,
      &                   GrdMax,StpMax,d2rdq2,nsAtom,IRC,CnstWght,
-     &                   Restriction)
+     &                   Restriction,iOpt_RS)
 ************************************************************************
 *                                                                      *
 *     Object: to perform an constrained optimization. The constraints  *
@@ -617,7 +617,15 @@ C        Write (6,*) 'yBeta=',yBeta
 C        Write (6,*) 'yBeta=',yBeta
 C        Write (6,*) 'gBeta=',gBeta
 C        Write (6,*) 'xBeta=',xBeta
-         tBeta= Max(Beta*yBeta*Min(xBeta,gBeta),Beta/Ten)
+*
+*        Set threshold depending on if restriction is w.r.t. step size
+*        or variance.
+*
+         If (iOpt_RS.eq.0) Then
+            tBeta= Max(Beta*yBeta*Min(xBeta,gBeta),Beta/Ten)
+         Else
+            tBeta=Beta
+         End If
 C        Write (6,*) 'tBeta=',tBeta
          Call Newq(x,nInter-nLambda,nIter,dx,W,dEdx,Err,EMx,
      &             RHS,iPvt,dg,A,nA,ed,iOptC,tBeta,
