@@ -51,14 +51,20 @@
 !>
 !>  @author
 !>    G. Li Manni, Oskar Weser
-      subroutine make_inp
+!>
+!>  @paramin[in] readpops  If true the readpops option for NECI is set.
+      subroutine make_inp(readpops)
       use general_data, only : nActEl, iSpin
       use stdalloc, only : mma_deallocate
       use fortran_strings, only : str
       implicit none
-      integer :: i, isFreeUnit, file_id, indent
+      logical, intent(in), optional :: readpops
+      logical :: readpops_
+      integer :: i, isFreeUnit, file_id, indentlevel
       integer, parameter :: indentstep = 4
       character(len=10) :: formt
+
+      readpops_ = merge(readpops, .false., present(readpops))
 
 *----------------------------------------------------------------------*
 *---- Check that RunTime variables are passed correctly
@@ -74,11 +80,11 @@
       file_id = isFreeUnit(39)
       call Molcas_Open(file_id,'FCINP')
 
-      indent = 0
+      indentlevel = 0
       write(file_id, A_fmt()) 'Title'
       write(file_id, A_fmt()) ''
       write(file_id, A_fmt()) 'System read'
-      indent = indent + indentstep
+      call indent()
         write(file_id, I_fmt()) 'electrons ', nActEl
         write(file_id,A_fmt()) 'nonuniformrandexcits 4ind-weighted-2'
         write(file_id,A_fmt()) 'nobrillouintheorem'
@@ -86,11 +92,11 @@
           write(file_id, I_fmt()) 'spin-restrict', iSpin - 1
         end if
         write(file_id, A_fmt()) 'freeformat'
-      indent = indent - indentstep
+      call dedent()
       write(file_id, A_fmt()) 'endsys'
       write(file_id, A_fmt()) ''
       write(file_id, A_fmt()) 'calc'
-      indent = indent + indentstep
+      call indent()
         if (allocated(DefineDet)) then
           write(formt,I_fmt()) nActEl
           formt='(A,('//trim(adjustl(formt))//'I5))'
@@ -99,9 +105,9 @@
           write(file_id, A_fmt()) ''
         end if
         write(file_id, A_fmt()) 'methods'
-        indent = indent + indentstep
+        call indent()
           write(file_id, A_fmt()) 'method vertex fcimc'
-        indent = indent - indentstep
+        call dedent()
         write(file_id, A_fmt()) 'endmethods'
         write(file_id, A_fmt()) ' '
         write(file_id, I_fmt()) 'totalwalkers', totalwalkers
@@ -125,22 +131,21 @@
         write(file_id, I_fmt()) 'semi-stochastic', semi_stochastic
         write(file_id, I_fmt()) 'pops-core', pops_core
         write(file_id, I_fmt()) 'rdmsamplingiters', rdmsamplingiters
-      indent = indent - indentstep
-!      if(abs(rotmax).le.1.0d-1.and.iter.ne.1) then
-!          write(file_id,'(A)') 'readpops'
-!      end if
+        if (readpops_) write(6, A_fmt()) 'readpops'
+        ! if (readpops_) write(file_id, A_fmt()) 'readpops'
+      call dedent()
       write(file_id, A_fmt()) 'endcalc'
       write(file_id, A_fmt()) ' '
       write(file_id, A_fmt()) 'logging'
-      indent = indent + indentstep
+      call indent()
         write(file_id, I_fmt()) 'Highlypopwrite', Highlypopwrite
         write(file_id, A_fmt()) 'Print-Spin-Resolved-RDMS'
         write(file_id, A_fmt()) 'hdf5-pops'
         write(file_id, A_fmt()) 'printonerdm'
         write(file_id, A_fmt()) '(diagflyonerdm'
-        write(file_id,'('//str(indent)//'x, A,1x,I0,1x,I0,1x,I0)')
+        write(file_id,'('//str(indentlevel)//'x, A,1x,I0,1x,I0,1x,I0)')
      &     'calcrdmonfly', 3, (calcrdmonfly(i), i=1,2)
-      indent = indent - indentstep
+      call dedent()
       write(file_id, A_fmt()) 'endlog'
       write(file_id, A_fmt()) 'end'
 
@@ -148,15 +153,13 @@
       close(file_id)
       call qExit('make_inp')
 
-      return
-
       contains
 
         function I_fmt() result(res)
           implicit none
           character(:), allocatable :: res
-          if (indent /= 0) then
-            res = '('//str(indent)//'x, A, 1x, I0)'
+          if (indentlevel /= 0) then
+            res = '('//str(indentlevel)//'x, A, 1x, I0)'
           else
             res = '(A, 1x, I0)'
           end if
@@ -165,8 +168,8 @@
         function R_fmt() result(res)
           implicit none
           character(:), allocatable :: res
-          if (indent /= 0) then
-            res = '('//str(indent)//'x, A, 1x, F0.2)'
+          if (indentlevel /= 0) then
+            res = '('//str(indentlevel)//'x, A, 1x, F0.2)'
           else
             res = '(A, 1x, F0.2)'
           end if
@@ -175,13 +178,22 @@
         function A_fmt() result(res)
           implicit none
           character(:), allocatable :: res
-          if (indent /= 0) then
-            res = '('//str(indent)//'x, A)'
+          if (indentlevel /= 0) then
+            res = '('//str(indentlevel)//'x, A)'
           else
             res = '(A)'
           end if
         end function
-      end subroutine make_inp
 
+        subroutine indent()
+          implicit none
+          indentlevel = indentlevel + indentstep
+        end subroutine
+
+        subroutine dedent()
+          implicit none
+          indentlevel = indentlevel - indentstep
+        end subroutine
+      end subroutine make_inp
 
       end module fciqmc_make_inp

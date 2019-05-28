@@ -64,11 +64,11 @@
 !>  @paramin[out] DMAT Average 1 body density matrix
 !>  @paramin[out] PSMAT Average symm. 2-dens matrix
 !>  @paramin[out] PAMAT Average antisymm. 2-dens matrix
-!>  @paramin[in] return_previous Optional parameter. If true the NECI
-!>    run is not performed.
+!>  @paramin[in] fake_run  If true the NECI run is not performed, but
+!>    the RDMs are read from previous runs.
       subroutine fciqmc_ctl(CMO, DIAF, D1I_AO, D1A_AO, TUVX, F_IN,
      &                      D1S_MO, DMAT, PSMAT, PAMAT,
-     &                      return_previous)
+     &                      fake_run)
       implicit none
 #include "output_ras.fh"
 #include "rctfld.fh"
@@ -85,21 +85,19 @@
       real*8, intent(inout) :: F_In(nTot1), D1S_MO(nAcPar)
       real*8, intent(out) :: DMAT(nAcpar),
      &    PSMAT(nAcpr2), PAMAT(nAcpr2)
-      logical, intent(in), optional :: return_previous
-      logical :: Do_ESPF, newcycle_found, return_previous_
+      logical, intent(in), optional :: fake_run
+      logical :: fake_run_
       real*8, save :: NECIen
-      integer :: LuNewC, iPRLEV, iOff, iSym, iBas, i, j,
+      integer :: iPRLEV, iOff, iSym, iBas, i, j,
      &    jRoot, iDisk, jDisk, kRoot, permutation(sum(nAsh(:nSym)))
       real*8 :: orbital_E(nTot), folded_Fock(nAcPar), Scal
       real*8, allocatable :: DTMP(:), Ptmp(:), PAtmp(:), DStmp(:)
-      integer :: err, L
-      character(1024) :: h5fcidmp, fcidmp, fcinp, newcycle, WorkDir
 
       parameter(ROUTINE = 'FCIQMC_clt')
+
       call qEnter(routine)
 
-      return_previous_ = merge(
-     &    return_previous, .false., present(return_previous))
+      fake_run_ = merge(fake_run, .false., present(fake_run))
 
 ! Local print level (if any)
       iprlev = iprloc(1)
@@ -139,22 +137,7 @@
 ! SOME DIRTY SETUPS
       S = 0.5D0 * DBLE(ISPIN-1)
 
-! FCIQMC not interfaced to State Average CAS
-      if (lroots > 1) then
-        write(6,*)' FCIQMC does not support State Average yet!'
-        write(6,*)' See you later ;)'
-        call QTrace()
-        call Abend()
-      end if
-
-! Reaction Field calculation
-      call DecideOnESPF(Do_ESPF)
-      if ( lRf .or. KSDFT /= 'SCF' .or. Do_ESPF) then
-        write(6,*) ' FCIQMC does not support Reaction Field yet!'
-        write(6,*) ' See you later ;).'
-        call QTrace()
-        call Abend()
-      end if
+      call check_option_compatibility(lroots, lRf, KSDFT)
 
 ! Produce a working FCIDUMP file
       select case (ReOrFlag)
@@ -176,16 +159,15 @@
         call make_fcidumps(orbital_E, folded_Fock, TUVX, EMY)
       end if
 
-! Produce an INPUT file for NECI
-      call make_inp()
 
 ! Run NECI
       call Timing(Rado_1, Swatch, Swatch, Swatch)
 #ifdef _MOLCAS_MPP_
       if (is_real_par()) call MPI_Barrier(MPI_COMM_WORLD, ierror)
 #endif
-      if (.not. return_previous_) then
-        if(DoEmbdNECI) then
+      if (.not. fake_run_) then
+        if (DoEmbdNECI) then
+          call make_inp(readpops=iter >= 5 .and. abs(rotmax) < 1d-2)
 #ifdef _NECI_
           write(6,*) 'NECI called automatically within Molcas!'
           if (myrank /= 0) call chdir_('..')
@@ -198,27 +180,11 @@
      &'for compiling or use an external NECI.')
 #endif
         else
+          call make_inp()
           if (myrank == 0) then
-            call getcwd_(WorkDir, err)
-            if (err /= 0) write(6, *) strerror_(get_errno_())
-            call prgmtranslate_master('H5FCIDMP', h5fcidmp, L)
-            call prgmtranslate_master('FCIDMP', fcidmp, L)
-            call prgmtranslate_master('FCINP', fcinp, L)
-            call prgmtranslate_master('NEWCYCLE', newcycle, L)
-            call write_ExNECI_message(
-     &        fcinp, fcidmp, h5fcidmp, WorkDir, newcycle)
-
-            newcycle_found = .false.
-            do while(.not. newcycle_found)
-              call sleep(1)
-              call f_Inquire('NEWCYCLE', newcycle_found)
-            end do
-            write(6, *) 'NEWCYCLE file found. Proceding with SuperCI'
-            LuNewC = 12
-            call molcas_open(LuNewC, 'NEWCYCLE')
-              read(LuNewC,*) NECIen
-              write(6,*) 'I read the following energy:', NECIen
-            close(LuNewC, status='delete')
+            call write_ExNECI_message()
+            call wait_and_read(NECIen)
+            write(6,*) 'I read the following energy:', NECIen
           end if
 #ifdef _MOLCAS_MPP_
           call MPI_Bcast(NECIen, 1, MPI_DOUBLE_PRECISION, 0,
@@ -292,6 +258,8 @@
       end if
 
       if (nAsh(1) /= nac) call dblock(dmat)
+
+
       call Timing(Rado_2, Swatch, Swatch, Swatch)
       Rado_2 = Rado_2 - Rado_1
       Rado_3 = Rado_3 + Rado_2
@@ -300,33 +268,83 @@
 
       contains
 
-      subroutine write_ExNECI_message(fcinp, fcidmp, h5fcidmp,
-     &          WorkDir, newcycle)
-        character(*), intent(in) :: fcinp, fcidmp, h5fcidmp,
-     &    WorkDir, newcycle
-        write(6,'(A)')'Run NECI externally.'
-        write(6,'(A)')'Get the (example) NECI input:'
-        write(6,'(4x, A, 1x, A, 1x,  A)')
-     &    'cp', trim(fcinp), '$NECI_RUN_DIR'
-        write(6,'(A)')'Get the ASCII formatted FCIDUMP:'
-        write(6,'(4x, A, 1x, A, 1x,  A)')
-     &    'cp', trim(fcidmp), '$NECI_RUN_DIR/FCIDUMP'
-        write(6,'(A)')'Or the HDF5 FCIDUMP:'
-        write(6,'(4x, A, 1x, A, 1x,  A)')
-     &    'cp', trim(h5fcidmp), '$NECI_RUN_DIR'
-        write(6, *)
-        write(6,'(A)') "When finished do:"
-        write(6,'(4x, A)')
-     &    'cp TwoRDM_aaaa.1 TwoRDM_abab.1 TwoRDM_abba.1 '//
-     &    'TwoRDM_bbbb.1 TwoRDM_baba.1 TwoRDM_baab.1 '//trim(WorkDir)
-        write(6,'(4x, A)')'echo $your_RDM_Energy > '//trim(newcycle)
-        call xflush(6)
-      end subroutine write_ExNECI_message
+      subroutine write_ExNECI_message()
+          implicit none
+          character(1024) :: h5fcidmp, fcidmp, fcinp, newcycle, WorkDir
+          integer :: L, err
+
+          call getcwd_(WorkDir, err)
+          if (err /= 0) write(6, *) strerror_(get_errno_())
+          call prgmtranslate_master('H5FCIDMP', h5fcidmp, L)
+          call prgmtranslate_master('FCIDMP', fcidmp, L)
+          call prgmtranslate_master('FCINP', fcinp, L)
+          call prgmtranslate_master('NEWCYCLE', newcycle, L)
+
+
+          write(6,'(A)')'Run NECI externally.'
+          write(6,'(A)')'Get the (example) NECI input:'
+          write(6,'(4x, A, 1x, A, 1x,  A)')
+     &      'cp', trim(fcinp), '$NECI_RUN_DIR'
+          write(6,'(A)')'Get the ASCII formatted FCIDUMP:'
+          write(6,'(4x, A, 1x, A, 1x,  A)')
+     &      'cp', trim(fcidmp), '$NECI_RUN_DIR/FCIDUMP'
+          write(6,'(A)')'Or the HDF5 FCIDUMP:'
+          write(6,'(4x, A, 1x, A, 1x,  A)')
+     &      'cp', trim(h5fcidmp), '$NECI_RUN_DIR'
+          write(6, *)
+          write(6,'(A)') "When finished do:"
+          write(6,'(4x, A)')
+     &      'cp TwoRDM_aaaa.1 TwoRDM_abab.1 TwoRDM_abba.1 '//
+     &      'TwoRDM_bbbb.1 TwoRDM_baba.1 TwoRDM_baab.1 '//trim(WorkDir)
+          write(6,'(4x, A)')'echo $your_RDM_Energy > '//trim(newcycle)
+          call xflush(6)
+        end subroutine write_ExNECI_message
+
+        subroutine check_option_compatibility(lroots, lRf, KSDFT)
+          implicit none
+          integer, intent(in) :: lroots
+          logical, intent(in) :: lRf
+          character(*), intent(in) :: KSDFT
+          logical :: Do_ESPF
+! FCIQMC not interfaced to State Average CAS
+          if (lroots > 1) then
+            write(6,*)' FCIQMC does not support State Average yet!'
+            write(6,*)' See you later ;)'
+            call QTrace()
+            call Abend()
+          end if
+! Reaction Field calculation
+          call DecideOnESPF(Do_ESPF)
+          if ( lRf .or. KSDFT /= 'SCF' .or. Do_ESPF) then
+            write(6,*) ' FCIQMC does not support Reaction Field yet!'
+            write(6,*) ' See you later ;).'
+            call QTrace()
+            call Abend()
+          end if
+        end subroutine check_option_compatibility
+
+        subroutine wait_and_read(NECIen)
+          implicit none
+          real*8, intent(out) :: NECIen
+          logical :: newcycle_found
+          integer :: LuNewC
+          newcycle_found = .false.
+          do while(.not. newcycle_found)
+            call sleep(1)
+            call f_Inquire('NEWCYCLE', newcycle_found)
+          end do
+          write(6, *) 'NEWCYCLE file found. Proceding with SuperCI'
+          LuNewC = 12
+          call molcas_open(LuNewC, 'NEWCYCLE')
+            read(LuNewC,*) NECIen
+          close(LuNewC, status='delete')
+        end subroutine wait_and_read
+
       end subroutine fciqmc_ctl
 
       subroutine cleanup()
         use fciqmc_make_inp, only : definedet
-
+        implicit none
         if (allocated(definedet)) call mma_deallocate(definedet)
       end subroutine cleanup
 

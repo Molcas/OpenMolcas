@@ -376,7 +376,7 @@
      &                'Drv1El: Error reading ONEINT;'
      &              //'Label='//Label)
          Call Quit(_RC_IO_ERROR_READ_)
-        End If
+        end if
        end if
       end if
 #endif
@@ -1090,7 +1090,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
      &                    DMAT=work(lDMAT : lDMAT + nAcPar - 1),
      &                    PSMAT=work(lpmat : lPMat + nAcpr2 - 1),
      &                    PAMAT=work(lpa : lpa + nAcPr2 - 1),
-     &                    return_previous=(iter == 1))
+     &                    fake_run=(iter == 1))
         else
           CALL CICTL(WORK(LCMO),
      &            WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
