@@ -558,6 +558,8 @@ c Avoid unused argument warnings
 *             2000                                                     *
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
+      External Restriction_Step
+      Real*8 Restriction_Step
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
@@ -839,7 +841,8 @@ C           Write (*,*) 'tBeta=',tBeta
      &                Work(ipErr),Work(ipEMx),Work(ipRHS),iWork(iPvt),
      &                Work(ipdg),Work(ipA),nA,
      &                ed,iOptC,fCart*tBeta,nFix,iWork(ip),UpMeth,
-     &                Energy,Line_Search,Step_Trunc)
+     &                Energy,Line_Search,Step_Trunc,
+     &                Restriction_Step)
             Call MxLbls(GrdMax,StpMax,GrdLbl,StpLbl,mInter,
      &                  Grad(1,kIter),Shift(1,kIter),Lbl)
 *
@@ -1120,7 +1123,8 @@ C           Write (*,*) 'tBeta=',tBeta
      &                Work(ipdg),Work(ipA),nA,ed,fCart*Beta,nFix,
      &                iWork(iP),UpMeth,Line_Search,Step_Trunc,Lbl,
      &                GrdLbl,StpLbl,GrdMax,StpMax,Work(ipd2L),nsAtom,
-     &                IRC,CnstWght)
+     &                IRC,CnstWght,
+     &                Restriction_Step)
 *
 *           Rough conversion to Cartesians
 *

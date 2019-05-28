@@ -11,7 +11,8 @@
 * Copyright (C) 1994,2004,2014,2017, Roland Lindh                      *
 *               2014,2018, Ignacio Fdez. Galvan                        *
 ************************************************************************
-      Subroutine RS_RFO(H,q,g,nInter,dq,UpMeth,dqHdq,StepMax,Step_Trunc)
+      Subroutine RS_RFO(H,q,g,nInter,dq,UpMeth,dqHdq,StepMax,Step_Trunc,
+     &                  Restriction)
 ************************************************************************
 *                                                                      *
 *     Object: Automatic restricted-step rational functional            *
@@ -28,12 +29,12 @@
 *     Remove references to work, Roland Lindh                          *
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
-      External Restriction_Step
-      Real*8 Restriction_Step
+      External Restriction
+      Real*8 Restriction
 #include "real.fh"
 #include "stdalloc.fh"
       Integer nInter
-      Real*8 H(nInter,nInter), g(nInter), q(Inter), dq(nInter)
+      Real*8 H(nInter,nInter), g(nInter), q(nInter), dq(nInter)
       Character UpMeth*6, Step_Trunc*1
       Real*8 StepMax
 *
@@ -48,6 +49,7 @@
 #ifdef _DEBUG_
       Call RecPrt(' In RS_RFO: H',' ',H,nInter,nInter)
       Call RecPrt(' In RS_RFO: g',' ', g,nInter,1)
+      Call RecPrt(' In RS_RFO: q',' ', q,nInter,1)
 *
       Write (Lu,*)
       Write (Lu,*) 'RS-RF Optimization'
@@ -145,7 +147,7 @@
 *
 *        Compute R^2 according to Eq. (8c)
 *
-         dqdq=Restriction_Step(q,dq,nInter)
+         dqdq=Restriction(q,dq,nInter)
 *        Write (Lu,*) 'dqdq=',dqdq
 #ifdef _DEBUG_
          Write (Lu,'(I5,4F10.5)') Iter,A_RFO,Sqrt(dqdq),StepMax,EigVal

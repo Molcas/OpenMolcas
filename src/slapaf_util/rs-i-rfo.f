@@ -11,7 +11,7 @@
 * Copyright (C) 1994,1997, Roland Lindh                                *
 ************************************************************************
       Subroutine RS_I_RFO(H,q,g,nInter,dq,UpMeth,dqHdq,StepMax,
-     &                    Step_Trunc)
+     &                    Step_Trunc,Restriction)
 ************************************************************************
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
@@ -36,6 +36,8 @@
 *             number, June '97, R. Lindh                               *
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
+      External Restriction
+      Real*8 Restriction
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
@@ -135,7 +137,8 @@
       Call GetMem('Vector','Free','Real',ipVec,nInter*NumVal)
       Call GetMem('Values','Free','Real',ipVal,NumVal)
 *
-      Call RS_RFO(H,q,g,nInter,dq,UpMeth,dqHdq,StepMax,Step_Trunc)
+      Call RS_RFO(H,q,g,nInter,dq,UpMeth,dqHdq,StepMax,Step_Trunc,
+     &            Restriction)
 *
 *     Restore the original gradient
 *

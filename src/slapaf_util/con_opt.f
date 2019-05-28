@@ -17,7 +17,8 @@
      &                   mIter,nRowH,Err,EMx,RHS,iPvt,dg,A,nA,ed,
      &                   Beta,nFix,iP,UpMeth,
      &                   Line_Search,Step_Trunc,Lbl,GrdLbl,StpLbl,
-     &                   GrdMax,StpMax,d2rdq2,nsAtom,IRC,CnstWght)
+     &                   GrdMax,StpMax,d2rdq2,nsAtom,IRC,CnstWght,
+     &                   Restriction)
 ************************************************************************
 *                                                                      *
 *     Object: to perform an constrained optimization. The constraints  *
@@ -43,6 +44,8 @@
 *             July '03                                                 *
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
+      External Restriction
+      Real*8 Restriction
 #include "real.fh"
 #include "WrkSpc.fh"
       Real*8 r(nLambda,nIter), drdq(nInter,nLambda,nIter),
@@ -618,7 +621,8 @@ C        Write (6,*) 'xBeta=',xBeta
 C        Write (6,*) 'tBeta=',tBeta
          Call Newq(x,nInter-nLambda,nIter,dx,W,dEdx,Err,EMx,
      &             RHS,iPvt,dg,A,nA,ed,iOptC,tBeta,
-     &             nFix,ip,UpMeth,Energy,Line_Search,Step_Trunc)
+     &             nFix,ip,UpMeth,Energy,Line_Search,Step_Trunc,
+     &             Restriction)
          GNrm=
      &    Sqrt(DDot_(nInter-nLambda,dEdx(1,nIter),1,dEdx(1,nIter),1))
 *
