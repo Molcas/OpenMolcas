@@ -64,8 +64,11 @@
 !>  @paramin[out] DMAT Average 1 body density matrix
 !>  @paramin[out] PSMAT Average symm. 2-dens matrix
 !>  @paramin[out] PAMAT Average antisymm. 2-dens matrix
+!>  @paramin[in] return_previous Optional parameter. If true the NECI
+!>    run is not performed.
       subroutine fciqmc_ctl(CMO, DIAF, D1I_AO, D1A_AO, TUVX, F_IN,
-     &                      D1S_MO, DMAT, PSMAT, PAMAT)
+     &                      D1S_MO, DMAT, PSMAT, PAMAT,
+     &                      return_previous)
       implicit none
 #include "output_ras.fh"
 #include "rctfld.fh"
@@ -82,17 +85,21 @@
       real*8, intent(inout) :: F_In(nTot1), D1S_MO(nAcPar)
       real*8, intent(out) :: DMAT(nAcpar),
      &    PSMAT(nAcpr2), PAMAT(nAcpr2)
-      logical :: Do_ESPF, newcycle_found
-      real*8 :: NECIen, Scal
+      logical, intent(in), optional :: return_previous
+      logical :: Do_ESPF, newcycle_found, return_previous_
+      real*8, save :: NECIen
       integer :: LuNewC, iPRLEV, iOff, iSym, iBas, i, j,
      &    jRoot, iDisk, jDisk, kRoot, permutation(sum(nAsh(:nSym)))
-      real*8 :: orbital_E(nTot), folded_Fock(nAcPar)
+      real*8 :: orbital_E(nTot), folded_Fock(nAcPar), Scal
       real*8, allocatable :: DTMP(:), Ptmp(:), PAtmp(:), DStmp(:)
       integer :: err, L
       character(1024) :: h5fcidmp, fcidmp, fcinp, newcycle, WorkDir
 
       parameter(ROUTINE = 'FCIQMC_clt')
       call qEnter(routine)
+
+      return_previous_ = merge(
+     &    return_previous, .false., present(return_previous))
 
 ! Local print level (if any)
       iprlev = iprloc(1)
@@ -160,66 +167,68 @@
 
 ! This call is not side effect free and sets EMY
       call transform(iter, CMO, DIAF, D1I_AO, D1A_AO, D1S_MO,
-     &      F_IN, orbital_E, folded_Fock)
+     &        F_IN, orbital_E, folded_Fock)
 
       if (ReOrFlag /= 0) then
         call make_fcidumps(orbital_E, folded_Fock, TUVX, EMY,
-     &                      permutation)
+     &                        permutation)
       else
         call make_fcidumps(orbital_E, folded_Fock, TUVX, EMY)
       end if
 
 ! Produce an INPUT file for NECI
-       call make_inp()
+      call make_inp()
 
 ! Run NECI
       call Timing(Rado_1, Swatch, Swatch, Swatch)
 #ifdef _MOLCAS_MPP_
-      IF (Is_Real_Par()) THEN
-        call MPI_Barrier(MPI_COMM_WORLD, ierror)
-      END IF
+      if (is_real_par()) call MPI_Barrier(MPI_COMM_WORLD, ierror)
 #endif
-
-      if(DoEmbdNECI) then
+      if (.not. return_previous_) then
+        if(DoEmbdNECI) then
 #ifdef _NECI_
-        write(6,*) 'NECI called automatically within Molcas!'
-        if (myrank /= 0) call chdir_('..')
-        call necimain(NECIen)
-        if (myrank /= 0) call chdir_('tmp_'//str(myrank))
+          write(6,*) 'NECI called automatically within Molcas!'
+          if (myrank /= 0) call chdir_('..')
+          call necimain(NECIen)
+          if (myrank /= 0) call chdir_('tmp_'//str(myrank))
 #else
-        call WarningMessage(2, 'EmbdNECI is given in input, '//
+          call WarningMessage(2, 'EmbdNECI is given in input, '//
      &'so the embedded NECI should be used. Unfortunately MOLCAS was '//
      &'not compiled with embedded NECI. Please use -DNECI=ON '//
      &'for compiling or use an external NECI.')
 #endif
-      else
-        if (myrank == 0) then
-          call getcwd_(WorkDir, err)
-          if (err /= 0) write(6, *) strerror_(get_errno_())
-          call prgmtranslate_master('H5FCIDMP', h5fcidmp, L)
-          call prgmtranslate_master('FCIDMP', fcidmp, L)
-          call prgmtranslate_master('FCINP', fcinp, L)
-          call prgmtranslate_master('NEWCYCLE', newcycle, L)
-          call write_ExNECI_message(
+        else
+          if (myrank == 0) then
+            call getcwd_(WorkDir, err)
+            if (err /= 0) write(6, *) strerror_(get_errno_())
+            call prgmtranslate_master('H5FCIDMP', h5fcidmp, L)
+            call prgmtranslate_master('FCIDMP', fcidmp, L)
+            call prgmtranslate_master('FCINP', fcinp, L)
+            call prgmtranslate_master('NEWCYCLE', newcycle, L)
+            call write_ExNECI_message(
      &        fcinp, fcidmp, h5fcidmp, WorkDir, newcycle)
-          newcycle_found = .false.
-          do while(.not. newcycle_found)
-            call sleep(1)
-            call f_Inquire('NEWCYCLE', newcycle_found)
-          end do
-          write(6, *) 'NEWCYCLE file found. Proceding with SuperCI'
-          LuNewC = 12
-          call molcas_open(LuNewC, 'NEWCYCLE')
-            read(LuNewC,*) NECIen
-            write(6,*) 'I read the following energy:', NECIen
-          close(LuNewC, status='delete')
-        end if
+
+            newcycle_found = .false.
+            do while(.not. newcycle_found)
+              call sleep(1)
+              call f_Inquire('NEWCYCLE', newcycle_found)
+            end do
+            write(6, *) 'NEWCYCLE file found. Proceding with SuperCI'
+            LuNewC = 12
+            call molcas_open(LuNewC, 'NEWCYCLE')
+              read(LuNewC,*) NECIen
+              write(6,*) 'I read the following energy:', NECIen
+            close(LuNewC, status='delete')
+          end if
+#ifdef _MOLCAS_MPP_
           call MPI_Bcast(NECIen, 1, MPI_DOUBLE_PRECISION, 0,
      &                   MPI_COMM_WORLD, ierror)
+#endif
+        end if
       end if
+
 ! NECIen so far is only the energy for the GS.
 ! Next step it will be an array containing energies for all the optimized states.
-
       do jRoot = 1, lRoots
         ENER(jRoot, ITER) = NECIen
       end do

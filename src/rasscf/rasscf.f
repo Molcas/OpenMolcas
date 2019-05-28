@@ -1089,7 +1089,8 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
      &                    D1S_MO=work(lDSPN : lDSPN + nAcPar - 1),
      &                    DMAT=work(lDMAT : lDMAT + nAcPar - 1),
      &                    PSMAT=work(lpmat : lPMat + nAcpr2 - 1),
-     &                    PAMAT=work(lpa : lpa + nAcPr2 - 1))
+     &                    PAMAT=work(lpa : lpa + nAcPr2 - 1),
+     &                    return_previous=(iter == 1))
         else
           CALL CICTL(WORK(LCMO),
      &            WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
