@@ -34,6 +34,7 @@
       End Do
       Restriction_Dispersion=0.0D0
       Call Dispersion_Kriging(qNext,Restriction_Dispersion,nInter)
+      Restriction_Dispersion=Restriction_Dispersion**2
       Call mma_Deallocate(qNext)
 *
       Return

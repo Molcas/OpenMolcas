@@ -54,7 +54,7 @@
       iRout = 113
       iPrint = nPrint(iRout)
       If (iPrint.ge.99) Then
-         Write (Lu,*) ' Newq: nIter=',nIter
+         Write (Lu,*) ' Newq: nIter,Beta=',nIter,Beta
          Call RecPrt(' Newq: q',' ',q,nInter,nIter+1)
          Call RecPrt(' Newq: dq',' ',dq,nInter,nIter)
          Call RecPrt(' Newq: g',' ',g,nInter,nIter)

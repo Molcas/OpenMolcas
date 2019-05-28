@@ -80,8 +80,8 @@
       Use NewH_mod
       Use AI, only: Kriging, miAI, meAI, nspAI
       Implicit Real*8 (a-h,o-z)
-      External Restriction_Step
-      Real*8 Restriction_Step
+      External Restriction_Step, Restriction_Dispersion
+      Real*8 Restriction_Step, Restriction_Dispersion
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
@@ -185,6 +185,8 @@ c Avoid unused argument warnings
          If (Kriging .AND. iter.ge.nspAI) then
 *           Kriging_Hessian =.TRUE.
             Kriging_Hessian =.False.
+            iOpt_RS=1   ! Activate restricted variance.
+            Beta_Disp=5.0D-4
             iterAI=iter
             dEner=meAI
             nRaw=Min(iter,nWndw)
@@ -219,6 +221,7 @@ c Avoid unused argument warnings
                iNew=iFirst+nRaw-1
                yyy=DDot_(nInter,Grad(1,iNew),1,Grad(1,iNew),1)
                If (yyy.gt.xxx) Value_l=Value_l * 0.95D0
+               Beta_Disp=Abs(Energy(iNew)-Energy(iOld))
             End If
             Call setlkriging(Value_l)
             Call Put_dScalar('Value_l',Value_l)
@@ -309,7 +312,7 @@ c Avoid unused argument warnings
 #endif
                Call Update_sl_(iterAI,iInt,nFix,nInter,
      &                qInt,Shift,Grad,
-     &                iOptC,Beta,Lbl,GNrm,Energy,
+     &                iOptC,Beta_Disp,Lbl,GNrm,Energy,
      &                UpMeth,ed,Line_Search,Step_Trunc,nLambda,
      &                iRow_c,nsAtom,AtomLbl,nSym,iOper,mxdc,jStab,
      &                nStab,BMx,Smmtrc,nDimBC,rLambda,ipCx,
@@ -318,7 +321,7 @@ c Avoid unused argument warnings
      &                nWndw,Mode,ipMF,
      &                iOptH,HUpMet,kIter_,GNrm_Threshold,IRC,dMass,
      &                HrmFrq_Show,CnstWght,Curvilinear,Degen,
-     &                Kriging_Hessian,qBeta,Restriction_step,
+     &                Kriging_Hessian,qBeta,Restriction_dispersion,
      &                iOpt_RS)
 *
 *              Change lable of updating method if kriging points has
@@ -594,6 +597,7 @@ c Avoid unused argument warnings
       iPrint=nPrint(iRout)
       Lu=6
       If (iPrint.ge.99) Then
+         Write (Lu,*)'Update_:iOpt_RS,Beta=',iOpt_RS,Beta
          Call RecPrt('Update_: qInt',' ',qInt,nInter,kIter)
          Call RecPrt('Update_: Shift',' ',Shift,nInter,kIter-1)
          Call RecPrt('Update_: GNrm',' ',GNrm,kIter,1)
@@ -852,7 +856,7 @@ C           Write (*,*) 'tBeta=',tBeta
             Call Newq(qInt,mInter,kIter,Shift,Hessian,Grad,
      &                Work(ipErr),Work(ipEMx),Work(ipRHS),iWork(iPvt),
      &                Work(ipdg),Work(ipA),nA,
-     &                ed,iOptC,fCart*tBeta,nFix,iWork(ip),UpMeth,
+     &                ed,iOptC,qBeta,nFix,iWork(ip),UpMeth,
      &                Energy,Line_Search,Step_Trunc,
      &                Restriction)
             Call MxLbls(GrdMax,StpMax,GrdLbl,StpLbl,mInter,

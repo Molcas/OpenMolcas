@@ -50,13 +50,13 @@
       Call RecPrt(' In RS_RFO: H',' ',H,nInter,nInter)
       Call RecPrt(' In RS_RFO: g',' ', g,nInter,1)
       Call RecPrt(' In RS_RFO: q',' ', q,nInter,1)
+      Write (Lu,*) 'Trust radius=',StepMax
 *
       Write (Lu,*)
       Write (Lu,*) 'RS-RF Optimization'
       Write (Lu,*) ' Iter   alpha   Sqrt(dqdq) StepMax   EigVal'
 #endif
 *
-*     Write (Lu,*) 'Trust radius=',StepMax
       A_RFO=One   ! Initial seed of alpha
       IterMx=25
       Iter=0
@@ -150,7 +150,7 @@
          dqdq=Restriction(q,dq,nInter)
 *        Write (Lu,*) 'dqdq=',dqdq
 #ifdef _DEBUG_
-         Write (Lu,'(I5,4F10.5)') Iter,A_RFO,Sqrt(dqdq),StepMax,EigVal
+         Write (Lu,'(I5,4E10.5)') Iter,A_RFO,Sqrt(dqdq),StepMax,EigVal
 #endif
 *                                                                      *
 ************************************************************************
