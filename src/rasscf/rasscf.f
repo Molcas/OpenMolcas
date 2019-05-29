@@ -1242,7 +1242,7 @@ c      Call rasscf_xml(Iter)
 *
       Call Timing(Swatch,Swatch,Gucci_1,Swatch)
 
-       If ( IPRLEV.ge.DEBUG ) then
+      If ( IPRLEV.ge.DEBUG ) then
         Write(LF,*) ' In RASSCF bf SXCTL'
         CALL TRIPRT('Averaged one-body density matrix, D, in RASSCF',
      &              ' ',Work(LDMAT),NAC)
@@ -1250,7 +1250,7 @@ c      Call rasscf_xml(Iter)
      &              ' ',WORK(LPMAT),NACPAR)
         CALL TRIPRT('Averaged antisym 2-body density matrix PA RASSCF',
      &              ' ',WORK(LPA),NACPAR)
-       end if
+      end if
       CALL SXCTL(WORK(LCMO),WORK(LOCCN),
      &           WORK(LDMAT),WORK(LPMAT),WORK(LPA),
      &           WORK(LFI),WORK(LFA),WORK(LD1A),THMAX,IFINAL)
@@ -1266,27 +1266,27 @@ c      Call rasscf_xml(Iter)
         iOff = iOff + (iBas*iBas+iBas)/2
        End Do
       End If
-        IF (DoNECI) THEN
-          write(6,*)'RASSCF: For NECI orbital energies are approximated'
-          write(6,*)'to the diagonal value of the Fock matrix properly'
-          write(6,*)'transformed accordingly to e(X) rotation matrix'
+      IF (DoNECI) THEN
+        write(6,*)'RASSCF: For NECI orbital energies are approximated'
+        write(6,*)'to the diagonal value of the Fock matrix properly'
+        write(6,*)'transformed accordingly to e(X) rotation matrix'
 c This is of course not true other than for special cases ... but some might find it beneficial!
-          iOff  = 0
-          iOff2 = 0
-          Do iSym = 1,nSym
-            iBas = nBas(iSym)
-            if(iBas.gt.0) then
-             do iDiag = 1,iBas
-               WORK(LDIAF+iDiag-1+iOff)=
+        iOff  = 0
+        iOff2 = 0
+        Do iSym = 1,nSym
+          iBas = nBas(iSym)
+          if(iBas.gt.0) then
+           do iDiag = 1,iBas
+             WORK(LDIAF+iDiag-1+iOff)=
      &            WORK(LFA+(iDiag*(iDiag+1)/2)+iOff2-1)
-             end do
-             write(6,*) 'OrbEn in line for sym = ',iSym
-             write(6,*) (Work(LDIAF+i+ioff), i = 0,iBas-1)
-             iOff  = iOff + iBas
-             iOff2 = iOff2 + (iBas*iBas+iBas)/2
-            end if
-          End Do
-        END IF
+           end do
+           write(6,*) 'OrbEn in line for sym = ',iSym
+           write(6,*) (Work(LDIAF+i+ioff), i = 0,iBas-1)
+           iOff  = iOff + iBas
+           iOff2 = iOff2 + (iBas*iBas+iBas)/2
+          end if
+        End Do
+      END IF
 cGLM   write(6,*) 'ECAS in RASSCF after call to SXCTL', ECAS
       If (DoCholesky.and.ALGO.eq.2) Then
          Call GetMem('Q-mat','Free','Real',ipQmat,NTav)
@@ -1706,46 +1706,37 @@ c Clean-close as much as you can the CASDFT stuff...
 *
       Call Timing(Swatch,Swatch,Zenith_1,Swatch)
 
+      if (DoBlockDMRG) then
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
-      If(DoBlockDMRG) Then
         CALL DMRGCTL(WORK(LCMO),
      &           WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
      &           WORK(LFI),WORK(LD1I),WORK(LD1A),
      &           WORK(LTUVX),IFINAL,1)
-      Else
 #endif
-      if(DoNECI) then
-          call FCIQMC_ctl(CMO=work(LCMO : LCMO + nTot2 - 1),
-     &                    DIAF=work(LDIAF : LDiaf + nTot - 1),
-     &                    D1I_AO=work(lD1I : lD1I + nTot2 - 1),
-     &                    D1A_AO=work(lD1A : lD1A + nTot2 - 1),
-     &                    TUVX=work(ltuvx : ltuvx + nAcPr2 - 1),
-     &                    F_IN=work(lFI : lFI + nTot1 - 1),
-     &                    D1S_MO=work(lDSPN : lDSPN + nAcPar - 1),
-     &                    DMAT=work(lDMAT : lDMAT + nAcPar - 1),
-     &                    PSMAT=work(lpmat : lPMat + nAcpr2 - 1),
-     &                    PAMAT=work(lpa : lpa + nAcPr2 - 1))
-      else
+      else if (DoNECI) then
+        call FCIQMC_ctl(CMO=work(LCMO : LCMO + nTot2 - 1),
+     &                  DIAF=work(LDIAF : LDiaf + nTot - 1),
+     &                  D1I_AO=work(lD1I : lD1I + nTot2 - 1),
+     &                  D1A_AO=work(lD1A : lD1A + nTot2 - 1),
+     &                  TUVX=work(ltuvx : ltuvx + nAcPr2 - 1),
+     &                  F_IN=work(lFI : lFI + nTot1 - 1),
+     &                  D1S_MO=work(lDSPN : lDSPN + nAcPar - 1),
+     &                  DMAT=work(lDMAT : lDMAT + nAcPar - 1),
+     &                  PSMAT=work(lpmat : lPMat + nAcpr2 - 1),
+     &                  PAMAT=work(lpa : lpa + nAcPr2 - 1))
+#ifdef _DMRG_
 ! Leon 27/11/2017: Skip the final CI iteration if we're using DMRGCI
 ! and CIOnly. It's enabled only for DMRGCI with QCMaquis now
 ! (to exclude potential side effects)
 ! but consider extending it to other cases!
-#ifdef _DMRG_
-      if (.not.(doDMRG.and.(ICIONLY.NE.0))) then
+      else if (.not.(doDMRG.and.(ICIONLY.NE.0))) then
 #endif
+      else
         CALL CICTL(WORK(LCMO),
      &           WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
      &           WORK(LFI),WORK(LD1I),WORK(LD1A),
      &           WORK(LTUVX),IFINAL)
-#ifdef _DMRG_
-      end if
-#endif
-      end if
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
       End If
-#endif
-! Now disable it at least for DMRG
-!      end if !doDMRG in general (Zurich interface)
 
       EAV=0.0d0
       If(DoSplitCAS) then
@@ -1765,7 +1756,6 @@ c Clean-close as much as you can the CASDFT stuff...
       Zenith_2 = Zenith_2 - Zenith_1
       Zenith_3 = Zenith_3 + Zenith_2
       Call Timing(Swatch,Swatch,Ebel_2,Swatch)
-*
 * Calculation of natural orbitals. These orbitals are stored on
 * JOBIPH in IADR15(12), followed by the occupation numbers.
 * Usage: Only for one-electron properties
