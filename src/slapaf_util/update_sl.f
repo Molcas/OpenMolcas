@@ -633,7 +633,7 @@ c Avoid unused argument warnings
 *        Temporary code until we have the 2nd derivatives from the
 *        kriging code.
 *
-         Call DCopy_(nInter**2,[Zero],Hessian,1)
+         Call DCopy_(nInter**2,[Zero],0,Hessian,1)
 #ifdef _NUM_HESS_
          Call mma_Allocate(dqp,nInter,Label='dqp')
          Call mma_Allocate(dqm,nInter,Label='dqm')
