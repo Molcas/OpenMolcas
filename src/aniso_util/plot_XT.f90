@@ -102,7 +102,6 @@
   ! find the gnuplot
   IF (dbg) WRITE (StdOut,'(A)') 'inquire which GNUPLOT'
 
-  !CALL execute_command_line ( "which gnuplot >> lineOUT" )
   CALL systemf ( "which gnuplot >> lineOUT", iErr )
 
   INQUIRE(FILE="lineOUT",EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number,SIZE=file_size)

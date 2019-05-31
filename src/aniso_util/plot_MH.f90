@@ -420,7 +420,6 @@
   IF (dbg) WRITE (StdOut,'(A)') 'inquire which GNUPLOT'
 
   CALL systemf ( "which gnuplot >> lineOUT", iErr )
-
   INQUIRE(FILE="lineOUT",EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number,SIZE=file_size)
 
   IF (dbg) WRITE (StdOut,*) 'File_number =',file_number

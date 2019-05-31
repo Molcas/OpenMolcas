@@ -124,7 +124,6 @@
       ! find the gnuplot
       IF (dbg) WRITE (StdOut,'(A)') 'inquire which GNUPLOT'
 
-      !CALL execute_command_line ( "which gnuplot >> lineOUT" )
       CALL systemf ( "which gnuplot >> lineOUT", iErr )
 
       INQUIRE(FILE="lineOUT",EXIST=file_exist,OPENED=is_file_open,
@@ -141,13 +140,8 @@
           IF (dbg) WRITE (StdOut,'(A)') 'new file  "lineOUT"  exists'//
      &                                  ' in WorkDir'
 
-         file_number=IsFreeUnit(453)
-         Call molcas_open(file_number,'lineOUT')
-!
-!          file_number=453
-!          OPEN (UNIT=file_number, FILE="lineOUT", STATUS='old',
-!     &          ACTION='read', FORM='formatted',ACCESS='sequential',
-!     &          IOSTAT=istat)
+          file_number=IsFreeUnit(453)
+          Call molcas_open(file_number,'lineOUT')
 
           READ (file_number,'(A)') line1
 
@@ -171,7 +165,6 @@
       END IF
       ! remove file "lineOUT"
       iErr=AixRm("lineOUT")
-!!!!!------------------------------------------------------------------
 
 
 !!!!! check the version of the gnuplot:
@@ -193,12 +186,7 @@
         ! remove file "lineOUT"
         iErr=AixRm("lineOUT")
       END IF
-!!!!!-----------------------------------------------------------------
 
-
-
-
-!!!!!=================================================================
 !!!!! prepare the energy data file:
       WRITE(datafile,'(A)') 'BARRIER_ENE.dat'
       INQUIRE(FILE=datafile,EXIST=file_exist,OPENED=is_file_open,
