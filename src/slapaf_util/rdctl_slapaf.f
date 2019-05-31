@@ -108,6 +108,7 @@ C     Write (Lu,*) iOptC
       If (Char(1:4).eq.'AIBL') Go To 108
       If (Char(1:4).eq.'AIMB') Go To 109
       If (Char(1:4).eq.'AIAB') Go To 110
+      If (Char(1:4).eq.'L-VA') Go To 112
       If (Char(1:4).eq.'BAKE') Go To 926
       If (Char(1:4).eq.'C1-D') Go To 936
       If (Char(1:4).eq.'C2-D') Go To 937
@@ -581,6 +582,16 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 110   Char=Get_Ln(LuRd)
       Call Get_F1(1,blavAI)
       blaAI = .True.
+      Go To 999
+*                                                                      *
+****** L-VA ************************************************************
+*                                                                      *
+*     Change the l value of the GEK.
+*
+112   Char=Get_Ln(LuRd)
+      Call Get_F1(1,Value_l)
+      Call Qpg_dScalar('Value_l',Found)
+      If (.Not.Found) Call Put_dScalar('Value_l',Value_l)
       Go To 999
 *                                                                      *
 ****** BAKE ************************************************************

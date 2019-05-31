@@ -99,9 +99,6 @@
       Request_RASSI=.False.
 *
       Call Kriging_Init()
-      Value_l=20.0D0
-      Call Qpg_dScalar('Value_l',Found)
-      If (.Not.Found) Call Put_dScalar('Value_l',Value_l)
 *                                                                      *
 ************************************************************************
 *                                                                      *
