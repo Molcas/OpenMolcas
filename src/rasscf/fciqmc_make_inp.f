@@ -157,7 +157,7 @@
           else
             res = ''
           end if
-        end
+        end function
 
         function kw_fmt(value_fmt) result(res)
           implicit none
