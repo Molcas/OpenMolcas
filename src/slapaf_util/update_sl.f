@@ -89,7 +89,7 @@
       Real*8 qInt(nInter,MaxItr), Shift(nInter,MaxItr),
      &       Grad(nInter,MaxItr), GNrm(MaxItr), Energy(MaxItr),
      &       BMx(3*nsAtom,3*nsAtom), rLambda(nLambda,MaxItr),
-     &       dMass(nsAtom), Degen(3*nsAtom), dEner
+     &       dMass(nsAtom), Degen(3*nsAtom), dEner, Dummy(1)
       Integer iOper(0:nSym-1), jStab(0:7,nsAtom), nStab(nsAtom),
      &        iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
@@ -192,7 +192,7 @@ c Avoid unused argument warnings
             nRaw=Min(iter,nWndw)
             iFirst = iter - nRaw + 1
             iterK=0
-            dqdq=0.0D0
+            dqdq=Zero
             qBeta=Beta
 #ifdef _DEBUG_
             Write (6,*) 'iFirst,nRaw=',iFirst,nRaw
@@ -205,12 +205,12 @@ c Avoid unused argument warnings
 *           Pass the data point to the GEK routine. Remember to
 *           change the sign of the gradients.
 *
-            Call DScal_(nInter*nRaw,-1.0D0,Grad(1,iFirst),1)
+            Call DScal_(nInter*nRaw,-One,Grad(1,iFirst),1)
             Call Start_Kriging(nRaw,nInter,
      &                            qInt(1,iFirst),
      &                            Grad(1,iFirst),
      &                            Energy(iFirst))
-            Call DScal_(nInter*nRaw,-1.0D0,Grad(1,iFirst),1)
+            Call DScal_(nInter*nRaw,-One,Grad(1,iFirst),1)
 *
 *           Update the l value dynamically.
 *
@@ -242,7 +242,8 @@ c Avoid unused argument warnings
                   Write (6,*) E_test,Energy(i)
                   Call Abend()
                End If
-               Call Dispersion_Kriging(qInt(1,i),E_disp,nInter)
+               Call Dispersion_Kriging(qInt(1,i),Dummy,nInter)
+               E_Disp = Dummy(1)
 *              Write (6,*) 'E_Disp=',E_disp
                If (E_disp.gt.ThrT) Then
                   Write (6,*) 'Kriging error in dispersion'
@@ -250,7 +251,7 @@ c Avoid unused argument warnings
                   Call Abend()
                End If
                Call Gradient_Kriging(qInt(1,i),dq,nInter)
-               Call DScal_(nInter,-1.0D0,dq,1)
+               Call DScal_(nInter,-One,dq,1)
                Do iInter = 1, nInter
                   Test=Abs(dq(iInter)-Grad(iInter,i))
 *                 Write (*,*) 'Test(grad)=',Test
@@ -260,14 +261,14 @@ c Avoid unused argument warnings
                      Call Abend()
                   End If
                End Do
-               Call DScal_(nInter,-1.0D0,dq,1)
+               Call DScal_(nInter,-One,dq,1)
             End Do
 *
 *           Test of gradient
 *
 #ifdef _NOT_TESTED_YET_
             iNext=iFirst+nRaw
-            Call DCopy_(nInter,0.0D0,0,qInt(1,iNext),1)
+            Call DCopy_(nInter,[Zero],0,qInt(1,iNext),1)
             Call Gradient_Kriging(qInt(1,iNext),dq,nInter)
             Delta = 1.0D-4
             Do i = 1, nInter
@@ -276,7 +277,7 @@ c Avoid unused argument warnings
                Call Energy_Kriging(qInt(1,iNext),Ep,nInter)
                qInt(i,iNext)=q_save-Delta
                Call Energy_Kriging(qInt(1,iNext),Em,nInter)
-               dEdq=(Ep-Em)/(2.0D0*Delta)
+               dEdq=(Ep-Em)/(Two*Delta)
                If (Abs(dEdq-dq(i)).gt.ThrT) Then
                   Write (6,*) 'Kriging error in exp. gradient'
                   Write (6,*) dq(i),dEdq
@@ -336,7 +337,7 @@ c Avoid unused argument warnings
 *              Compute the step length from the last ab inito point
 *              to the most recent krining point.
 *
-               dqdq=0.0D0
+               dqdq=Zero
 *              Write (6,*) 'iterAI+1=',iterAI+1
 *              Write (6,*) 'iFirst+nRaw-1=',iFirst+nRaw-1
                Do iInter=1,nInter
@@ -351,9 +352,9 @@ c Avoid unused argument warnings
 #ifdef _TEST1_
                If (iterK.gt.0.and.dqdq.gt.qBeta**2) Then
 *
-                  sh2=0.0D0
-                  D2 =0.0D0
-                  shD=0.0D0
+                  sh2=Zero
+                  D2 =Zero
+                  shD=Zero
                   Do iInter=1,nInter
                      sh2=sh2 + Shift(iInter,iterAI)**2
                      D2 =D2 + (qInt(iInter,iterAI)-
@@ -364,14 +365,14 @@ c Avoid unused argument warnings
                   End Do
 *                 Write (6,*) 'Sh2,shD,D2=',sh2,shD,D2
                   D2 = D2 - qBeta**2
-                  shD=2.0D0*shD
+                  shD=Two*shD
                   D2=D2/sh2
                   shD=shD/sh2
 *                 Write (6,*) 'shD,D2=',shD,D2
 *
 *                 compute the scaling factor
 *
-                  alpha=-shD/2.0D0 + Sqrt((shD/2.0D0)**2 - D2)
+                  alpha=-shD/Two + Sqrt((shD/Two)**2 - D2)
 *                 Write (6,*) 'alpha=',Alpha
 *
 *                 rescale the step
@@ -393,11 +394,12 @@ c Avoid unused argument warnings
 *
                Call Energy_Kriging(qInt(1,iterAI+1),Energy(iterAI+1),
      &                             nInter)
-               Call Dispersion_Kriging(qInt(1,iterAI+1),E_disp,nInter)
+               Call Dispersion_Kriging(qInt(1,iterAI+1),Dummy,nInter)
+               E_Disp = Dummy(1)
 *              Write (6,*) 'E_Disp=',E_disp
                Call Gradient_Kriging(qInt(1,iterAI+1),Grad(1,iterAI+1),
      &                               nInter)
-               Call DScal_(nInter,-1.0D0,Grad(1,iterAI+1),1)
+               Call DScal_(nInter,-One,Grad(1,iterAI+1),1)
 *
                iterK  = iterK  + 1
                iterAI = iterAI + 1
@@ -410,7 +412,7 @@ c Avoid unused argument warnings
 #endif
 *              Write (6,*) 'ThrEne,ThrGrd',ThrEne,ThrGrd
 *              Write (6,*) 'dEner=',dEner
-               If (ThrEne.gt.0.0D0) Then
+               If (ThrEne.gt.Zero) Then
                   Not_Converged = Abs(dEner).ge.ThrEne
                   Not_Converged = Not_Converged .and. iterK.lt.miAI
                   Not_Converged = Not_Converged .and. dqdq.lt.qBeta**2
@@ -419,8 +421,8 @@ c Avoid unused argument warnings
      &                                  Grad(1,iterAI),1)/DBLE(nInter))
                   RMS =Sqrt(DDot_(nInter,Shift(1,iterAI-1),1,
      &                                Shift(1,iterAI-1),1)/DBLE(nInter))
-                  GrdMx=0.0D0
-                  RMSMx=0.0D0
+                  GrdMx=Zero
+                  RMSMx=Zero
                   Do iInter = 1, nInter
                      GrdMx=Max(GrdMx,Abs(Grad(iInter,iterAI)))
                      RMSMx=Max(RMSMx,Abs(Shift(iInter,iterAI-1)))
@@ -431,14 +433,14 @@ c Avoid unused argument warnings
                   Not_Converged = FAbs.gt.ThrGrd
 *                 Write (6,*) FAbs.gt.ThrGrd
                   Not_Converged = Not_Converged .or.
-     &                            GrdMx.gt.ThrGrd*1.5D0
-*                 Write (6,*)     GrdMx.gt.ThrGrd*1.5D0
+     &                            GrdMx.gt.ThrGrd*OneHalf
+*                 Write (6,*)     GrdMx.gt.ThrGrd*OneHalf
                   Not_Converged = Not_Converged .or.
-     &                            RMS.gt.ThrGrd*4.0D0
-*                 Write (6,*)     RMS.gt.ThrGrd*4.0D0
+     &                            RMS.gt.ThrGrd*Four
+*                 Write (6,*)     RMS.gt.ThrGrd*Four
                   Not_Converged = Not_Converged .or.
-     &                            RMSMx.gt.ThrGrd*6.0D0
-*                 Write (6,*)     RMSMx.gt.ThrGrd*6.0D0
+     &                            RMSMx.gt.ThrGrd*Six
+*                 Write (6,*)     RMSMx.gt.ThrGrd*Six
                   Not_Converged = Not_Converged .and. iterK.le.miAI
 *                 Write (6,*)     iterK,miAI
 *                 Write (6,*)     iterK.le.miAI
@@ -457,7 +459,7 @@ c Avoid unused argument warnings
 *
             Call DCopy_(nInter,qInt(1,iterAI),1,qInt(1,iter+1),1)
             Call DCopy_(nInter,qInt(1,iter+1),1,Shift(1,iter),1)
-            Call DaXpY_(nInter,-1.0D0,qInt(1,iter),1,Shift(1,iter),1)
+            Call DaXpY_(nInter,-One,qInt(1,iter),1,Shift(1,iter),1)
             Call MxLbls(GrdMax,StpMax,GrdLbl,StpLbl,nInter,
      &                  Grad(1,iter),Shift(1,iter),Lbl)
 #ifdef _DEBUG_
@@ -627,13 +629,12 @@ c Avoid unused argument warnings
 *
 *
       Call mma_Allocate(Hessian,nInter,nInter,Label='Hessian')
-      ipH=ip_of_Work(Hessian)
       If (Kriging_Hessian) Then
 *
 *        Temporary code until we have the 2nd derivatives from the
 *        kriging code.
 *
-         Call DCopy_(nInter**2,0.0D0,0,Hessian,1)
+         Call DCopy_(nInter**2,[Zero],0,Hessian,1)
 #ifdef _NUM_HESS_
          Call mma_Allocate(dqp,nInter,Label='dqp')
          Call mma_Allocate(dqm,nInter,Label='dqm')
@@ -681,12 +682,12 @@ c Avoid unused argument warnings
 #endif
 *
             Do jInter = 1, nInter
-               Fact = 0.5D0
-               If (iInter.eq.jInter) Fact = 1.0D0
+               Fact = Half
+               If (iInter.eq.jInter) Fact = One
                Hessian(iInter,jInter) = Hessian(iInter,jInter)
-     &                + Fact*(dqp(jInter)-dqm(jInter))/(2.0D0*Delta)
+     &                + Fact*(dqp(jInter)-dqm(jInter))/(Two*Delta)
                Hessian(jInter,iInter) = Hessian(jInter,iInter)
-     &                + Fact*(dqp(jInter)-dqm(jInter))/(2.0D0*Delta)
+     &                + Fact*(dqp(jInter)-dqm(jInter))/(Two*Delta)
             End Do
 *
             qInt(iInter,kIter)=qInt_Save
@@ -1162,7 +1163,7 @@ C           Write (*,*) 'tBeta=',tBeta
             Write (Lu,*) '* Lagrange multipliers for the constraints *'
             Write (Lu,*) '********************************************'
             Write (Lu,'(1X,A,2X,ES13.6)')
-     &          (Lbl(nInter+iInt),-1.0d0*rLambda(iInt,mIter),
+     &          (Lbl(nInter+iInt),-One*rLambda(iInt,mIter),
      &           iInt=1,nLambda)
             Write (Lu,*)
          End If

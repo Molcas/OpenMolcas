@@ -24,7 +24,7 @@
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
       Integer nInter
-      Real*8 q(Inter), dq(nInter)
+      Real*8 q(nInter), dq(nInter)
 *
       Restriction_Step=DDot_(nInter,dq,1,dq,1)
 *
