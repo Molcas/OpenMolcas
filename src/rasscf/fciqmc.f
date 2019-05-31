@@ -77,7 +77,7 @@
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-      integer(kind=4) :: ierror
+      integer*4 :: error
 #endif
       real*8, intent(in) ::
      &    CMO(nTot2), DIAF(nTot),
@@ -163,7 +163,7 @@
 ! Run NECI
       call Timing(Rado_1, Swatch, Swatch, Swatch)
 #ifdef _MOLCAS_MPP_
-      if (is_real_par()) call MPI_Barrier(MPI_COMM_WORLD, ierror)
+      if (is_real_par()) call MPI_Barrier(MPI_COMM_WORLD, error)
 #endif
       if (.not. fake_run_) then
         if (DoEmbdNECI) then
@@ -187,8 +187,7 @@
             write(6,*) 'I read the following energy:', NECIen
           end if
 #ifdef _MOLCAS_MPP_
-          call MPI_Bcast(NECIen, 1, MPI_DOUBLE_PRECISION, 0,
-     &                   MPI_COMM_WORLD, ierror)
+          call MPI_Bcast(NECIen, 1, MPI_REAL8, 0, MPI_COMM_WORLD, error)
 #endif
         end if
       end if
@@ -211,13 +210,8 @@
 ! ANTISYMMETRIC TWO-BODY DENSITY
       call mma_allocate(PAtmp, nAcPr2, label='PAtmp')
 
-#ifdef _MOLCAS_MPP_
-      if (is_real_par()) call MPI_Barrier(MPI_COMM_WORLD, ierror)
-#endif
       call read_neci_RDM(DTMP, DStmp, Ptmp, PAtmp)
-#ifdef _MOLCAS_MPP_
-      if (is_real_par()) call MPI_Barrier(MPI_COMM_WORLD, ierror)
-#endif
+
 ! COMPUTE AVERAGE DENSITY MATRICES
       do jRoot = 1, lRoots
         Scal = 0.0d0

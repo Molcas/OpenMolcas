@@ -47,7 +47,7 @@
       contains
 
 !>  @brief
-!>    Generate a standardized Input for NECI
+!>    Generate an Input for NECI
 !>
 !>  @author
 !>    G. Li Manni, Oskar Weser
@@ -62,14 +62,9 @@
       logical :: readpops_
       integer :: i, isFreeUnit, file_id, indentlevel
       integer, parameter :: indentstep = 4
-      character(len=10) :: formt
 
       readpops_ = merge(readpops, .false., present(readpops))
 
-*----------------------------------------------------------------------*
-*---- Check that RunTime variables are passed correctly
-*---- This is checked by Molcas verify
-*----------------------------------------------------------------------*
       call add_info('Default number of total walkers',
      &  [dble(totalwalkers)], 1, 6)
       call add_info('Default number of cycles ',[dble(nmcyc)],1,6)
@@ -82,7 +77,7 @@
 
       indentlevel = 0
       write(file_id, A_fmt()) 'Title'
-      write(file_id, A_fmt()) ''
+      write(file_id, *)
       write(file_id, A_fmt()) 'System read'
       call indent()
         write(file_id, I_fmt()) 'electrons ', nActEl
@@ -94,14 +89,12 @@
         write(file_id, A_fmt()) 'freeformat'
       call dedent()
       write(file_id, A_fmt()) 'endsys'
-      write(file_id, A_fmt()) ''
+      write(file_id, *)
       write(file_id, A_fmt()) 'calc'
       call indent()
         if (allocated(DefineDet)) then
-          write(formt,I_fmt()) nActEl
-          formt='(A,('//trim(adjustl(formt))//'I5))'
-          write(file_id,formt) 'definedet', (definedet(i), i = 1,nActEl)
-          call mma_deallocate(definedet)
+          write(file_id, kw_fmt('('//str(nActEl)//'I5)'))
+     &        'definedet', (definedet(i), i = 1,nActEl)
           write(file_id, A_fmt()) ''
         end if
         write(file_id, A_fmt()) 'methods'
@@ -109,11 +102,11 @@
           write(file_id, A_fmt()) 'method vertex fcimc'
         call dedent()
         write(file_id, A_fmt()) 'endmethods'
-        write(file_id, A_fmt()) ''
+        write(file_id, *)
         if (readpops_) write(file_id, A_fmt()) 'readpops'
         if (readpops_) write(file_id, A_fmt()) 'walkcontgrow'
         write(file_id, I_fmt()) 'semi-stochastic', semi_stochastic
-        write(file_id, A_fmt()) ''
+        write(file_id, *)
         write(file_id, I_fmt()) 'totalwalkers', totalwalkers
         write(file_id, R_fmt()) 'diagshift', diagshift
         write(file_id, R_fmt()) 'shiftdamp', shiftdamp
@@ -136,7 +129,7 @@
         write(file_id, I_fmt()) 'rdmsamplingiters', rdmsamplingiters
       call dedent()
       write(file_id, A_fmt()) 'endcalc'
-      write(file_id, A_fmt()) ' '
+      write(file_id, *)
       write(file_id, A_fmt()) 'logging'
       call indent()
         write(file_id, I_fmt()) 'Highlypopwrite', Highlypopwrite
@@ -156,34 +149,39 @@
 
       contains
 
-        function I_fmt() result(res)
+        function indent_fmt() result(res)
           implicit none
           character(:), allocatable :: res
           if (indentlevel /= 0) then
-            res = '('//str(indentlevel)//'x, A, 1x, I0)'
+            res = str(indentlevel)//'x, '
           else
-            res = '(A, 1x, I0)'
+            res = ''
           end if
+        end
+
+        function kw_fmt(value_fmt) result(res)
+          implicit none
+          character(*), intent(in) :: value_fmt
+          character(:), allocatable :: res
+          res = '('//indent_fmt()//', A, 1x, '//value_fmt//')'
+        end function
+
+        function I_fmt() result(res)
+          implicit none
+          character(:), allocatable :: res
+          res = kw_fmt('I0')
         end function
 
         function R_fmt() result(res)
           implicit none
           character(:), allocatable :: res
-          if (indentlevel /= 0) then
-            res = '('//str(indentlevel)//'x, A, 1x, F0.2)'
-          else
-            res = '(A, 1x, F0.2)'
-          end if
+          res = kw_fmt('F0.2')
         end function
 
         function A_fmt() result(res)
           implicit none
           character(:), allocatable :: res
-          if (indentlevel /= 0) then
-            res = '('//str(indentlevel)//'x, A)'
-          else
-            res = '(A)'
-          end if
+          res = kw_fmt('A')
         end function
 
         subroutine indent()
