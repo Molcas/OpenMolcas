@@ -126,7 +126,7 @@ INT cmsym_find_symmetry(msym_context *pctx, char pgname[6], INT *err){
     if(MSYM_SUCCESS != (ret = msymFindSymmetry(ctx))) goto err;
     if(MSYM_SUCCESS != (ret = msymGetPointGroupName(ctx, sizeof(char[6]), buf))) goto err;
 
-    snprintf(pgname,6,"%s      ",buf);
+    snprintf(pgname,6,"%s     ",buf);
     pgname[5] = ' ';
 
     *err = ret;
@@ -190,6 +190,7 @@ INT cmsym_generate_orbital_subspaces(msym_context *pctx, INT *l, double c[*l][*l
     msym_basis_function_t *mbfs = NULL;
     const msym_character_table_t *mct = NULL;
     const msym_subrepresentation_space_t *mss = NULL;
+    char tmp[18];
 
     //msym_point_group_type_t type = MSYM_POINT_GROUP_TYPE_Kh;
     //int n = 0;
@@ -224,7 +225,10 @@ INT cmsym_generate_orbital_subspaces(msym_context *pctx, INT *l, double c[*l][*l
                     c[row+l][index] = pf[l][k];
                     irrep_ids[row+l] = mss[i].s;
                     irrep_ind[row+l] = sym + l;
-                    if(mct->s[mss[i].s].d > 1) snprintf(lbl[sym+l], 8, "%d%s",l,mct->s[mss[i].s].name);
+                    if(mct->s[mss[i].s].d > 1){
+                        snprintf(tmp, 18, "%d%s",l,mct->s[mss[i].s].name);
+                        snprintf(lbl[sym+l], 8, "%s",tmp);
+                    }
                     else snprintf(lbl[sym+l], 8, "%s",mct->s[mss[i].s].name);
                     lbl[sym+l][strlen(lbl[sym+l])] = ' ';
                 }

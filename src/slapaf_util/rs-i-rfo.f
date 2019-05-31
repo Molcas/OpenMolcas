@@ -54,7 +54,7 @@
          Call RecPrt(' In RS_I_RFO:dq','(10f10.6)',dq,nInter,1)
       End If
 *
-      NumVal=2
+      NumVal=Min(2,nInter)
       nVStep=2
       Found=.False.
       Thr=1.0D-6
@@ -86,7 +86,7 @@
           call dcopy_(NumVal*nInter,Work(ipVec),1,Work(ipTmp),1)
           Call GetMem('Vector','Free','Real',ipVec,nInter*NumVal)
           Call GetMem('Values','Free','Real',ipVal,NumVal)
-          NumVal=NumVal+nVStep
+          NumVal=Min(NumVal+nVStep,nInter)
           Call GetMem('Vector','Allo','Real',ipVec,nInter*NumVal)
           Call GetMem('Values','Allo','Real',ipVal,NumVal)
          call dcopy_((NumVal-nVStep)*nInter,Work(ipTmp),1,Work(ipVec),1)
