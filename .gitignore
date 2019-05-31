@@ -109,10 +109,15 @@ lib/
 # Test/
 test/sonatorb/
 test/sonatorb
+#Python
+*__pycache__*
 # pymolcas
 Tools/pymolcas/pymolcas
 Tools/pymolcas/pymolcas.exe
 Tools/pymolcas/pymolcas.whl
+Tools/pymolcas/build
+Tools/pymolcas/*.egg-info
+# pymolcas_lib
 Tools/pymolcas/build
 Tools/pymolcas/*.egg-info
 # build products
