@@ -16,7 +16,8 @@
 #include "real.fh"
       Real*8 ToHartree,Angstrom2,Angstrom3,Dum
       Integer MxExtPotComp
-      Parameter (ToHartree = CONV_CAL_TO_J_ / CONV_AU_TO_KJ_PER_MOLE_)
+      Parameter (ToHartree = CONV_CAL_TO_J_ /
+     &           CONV_AU_TO_KJ_PER_MOLE_)
       Parameter (Angstrom2 = Angstrom * Angstrom)
       Parameter (Angstrom3 = Angstrom * Angstrom * Angstrom)
       Parameter (Dum = Zero)

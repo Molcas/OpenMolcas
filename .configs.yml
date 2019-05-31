@@ -25,7 +25,7 @@
     - docker
 
 .options:
-  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-5.4:latest
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-7:latest
   variables:
     cache_file: |
       set (CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "opt, debug info")
@@ -145,7 +145,7 @@
     - nag
 
 .garble:
-  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-5.4:latest
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-7:latest
   variables:
     cache_file: |
       set (CMAKE_BUILD_TYPE "Garble" CACHE STRING "garble installation" )
@@ -160,7 +160,7 @@
     - docker
 
 .bounds:
-  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-5.4:latest
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-7:latest
   variables:
     cache_file: |
       set (CMAKE_BUILD_TYPE "Release" CACHE STRING "opt, no debug info" )
@@ -173,7 +173,7 @@
     - docker
 
 .debug:
-  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-5.4:latest
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-7:latest
   variables:
     cache_file: |
       set (CMAKE_BUILD_TYPE "Debug" CACHE STRING "no opt, debug info")

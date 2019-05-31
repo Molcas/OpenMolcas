@@ -79,7 +79,8 @@ c      Call zcopy_(  (2*N-1)    , [(0.0_wp,0.0_wp)], 0,  WORK, 1)
       If(DBG) Write(6,*)'mB_c = ',mB_c
 
       ! build the Zeeman Hamiltonian
-      If ( zJ==0.0_wp ) Then
+      If ( abs(zJ) .lt.  tiny(0.0_wp) ) Then
+        ! zJ = 0
 
         Do i=1,N
           Do j=1,i

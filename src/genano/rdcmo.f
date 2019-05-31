@@ -65,14 +65,14 @@
 *----------------------------------------------------------------------*
 * hack to fix Rolands inconsistent labels
       Do i=1,nDim
-         If(Name(i)(LENIN2:LENIN2).eq.'s') Name(i)(LENIN1:LENIN2)='1s'
-         If(Name(i)(LENIN2:LENIN2).eq.'p') Name(i)(LENIN1:LENIN2)='2p'
-         If(Name(i)(LENIN2:LENIN2).eq.'d') Name(i)(LENIN1:LENIN2)='3d'
-         If(Name(i)(LENIN2:LENIN2).eq.'f') Name(i)(LENIN1:LENIN2)='4f'
-         If(Name(i)(LENIN2:LENIN2).eq.'g') Name(i)(LENIN1:LENIN2)='5g'
-         If(Name(i)(LENIN2:LENIN2).eq.'h') Name(i)(LENIN1:LENIN2)='6h'
-         If(Name(i)(LENIN2:LENIN2).eq.'i') Name(i)(LENIN1:LENIN2)='7i'
-         If(Name(i)(LENIN2:LENIN2).eq.'k') Name(i)(LENIN1:LENIN2)='8k'
+         If(Name(i)(LENIN3:LENIN3).eq.'s') Name(i)(LENIN1:LENIN3)='01s'
+         If(Name(i)(LENIN3:LENIN3).eq.'p') Name(i)(LENIN1:LENIN3)='02p'
+         If(Name(i)(LENIN3:LENIN3).eq.'d') Name(i)(LENIN1:LENIN3)='03d'
+         If(Name(i)(LENIN3:LENIN3).eq.'f') Name(i)(LENIN1:LENIN3)='04f'
+         If(Name(i)(LENIN3:LENIN3).eq.'g') Name(i)(LENIN1:LENIN3)='05g'
+         If(Name(i)(LENIN3:LENIN3).eq.'h') Name(i)(LENIN1:LENIN3)='06h'
+         If(Name(i)(LENIN3:LENIN3).eq.'i') Name(i)(LENIN1:LENIN3)='07i'
+         If(Name(i)(LENIN3:LENIN3).eq.'k') Name(i)(LENIN1:LENIN3)='08k'
       End Do
 *     Write(6,'(a,1x,a)') (Name(1,i),Name(2,i),i=1,nDim)
 *----------------------------------------------------------------------*

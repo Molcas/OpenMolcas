@@ -584,6 +584,23 @@ Optional general keywords to control the input
               </HELP>
               </KEYWORD>
 
+:kword:`PLOT`
+  This keyword will generate a few plots (png or eps format) via an interface to the linux program *gnuplot*. 
+  The interface generates a datafile, a gnuplot script and attempts execution of the script for generation of the image. 
+  The plots are generated only if the respective function is invoked. The magnetic susceptibility, molar magnetisation and blocking barrier (UBAR) plots are generated.
+  The files are named: `XT.dat`, `XT.plt`, `XT.png`, `MH.dat`, `MH.plt`, `MH.png`, `BARRIER_TME.dat`, `BARRIER_ENE.dat`, `BARRIER.plt` and `BARRIER.png`.
+
+
+  .. xmldoc:: <KEYWORD MODULE="SINGLE_ANISO" NAME="PLOT" KIND="STRING" LEVEL="BASIC">
+              %%Keyword: UBAR <basic>
+              <HELP>
+              This keyword will generate a few plots (png or eps format) via an interface to the linux program "gnuplot".
+              The interface generates a datafile, a gnuplot script and attempts execution of the script for generation of the image.
+              The plots are generated only if the respective function is invoked. The magnetic susceptibility, molar magnetisation and blocking barrier (UBAR) plots are generated.
+              The files are named: `XT.dat`, `XT.plt`, `XT.png`, `MH.dat`, `MH.plt`, `MH.png`, `BARRIER_TME.dat`, `BARRIER_ENE.dat`, `BARRIER.plt` and `BARRIER.png`.
+              </HELP>
+              </KEYWORD>
+
 An input example
 ................
 
@@ -603,10 +620,6 @@ An input example
   0.0  330.0  331
   MAVE
   1  12
-  MVEC
-  3
-  0.0000  0.0000   0.1000
-  1.5707  0.0000   0.5000
-  1.5707  1.5707   1.0000
+  PLOT
 
 .. xmldoc:: </MODULE>

@@ -47,7 +47,8 @@
       Real*8, Allocatable, Dimension(:) :: Grad, GNew
       Integer rc, Read_Grad
       External Read_Grad
-      Parameter (ToHartree = CONV_CAL_TO_J_ / CONV_AU_TO_KJ_PER_MOLE_)
+      Parameter (ToHartree = CONV_CAL_TO_J_ /
+     &           CONV_AU_TO_KJ_PER_MOLE_)
 *                                                                      *
 ************************************************************************
 *                                                                      *
