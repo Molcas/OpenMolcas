@@ -19,25 +19,24 @@
       Integer, parameter    :: wp=SELECTED_REAL_KIND(p=15,r=307)
       INTEGER, INTENT(in)   :: nBlock, nMult
       INTEGER, INTENT(in)   :: nDIM(nMult)
-      ! COMPLEX (wp), INTENT(in) :: M(3,nBlock,nBlock) ! magnetic moment, original, exchange basis
       COMPLEX (wp), INTENT(in) :: M(3,nMult,10,nMult,10)
-      REAL (wp), INTENT(in) :: E(nBlock) ! original exchange energies
-      ! CHARACTER(LEN=50), intent(in) :: label
+      REAL (wp), INTENT(in) :: E(nBlock)
       ! local variables
       REAL (wp)         :: xstart, xend, dlt, xmin, xmax, emin, emax,
      &                     fact, F, ystart, yend, X, Y, Z, RAVE,
      &                     RAVEMIN, RAVEMAX, color_step
       REAL (wp)         :: gnuplot_version
       INTEGER           :: file_number, istat, i, l, j, i1, j1, k
-      INTEGER           :: LuPlt, LuData, file_size, StdOut
+      INTEGER           :: LuPlt, LuData, file_size, StdOut, iErr
       LOGICAL           :: file_exist, is_file_open, execute_gnuplot_cmd
       CHARACTER(LEN=100):: line1, line2, fmtx, cdummy
       CHARACTER(LEN=100):: gnuplot_CMD, datafile, plotfile
       LOGICAL           :: dbg
-      Integer, external :: IsFreeUnit
+      Integer, external :: IsFreeUnit, AixRm
 
       dbg=.false.
       StdOut = 6
+      iErr=0
       Call qEnter('plot_barrier')
 
       xmin=        MINVAL(DBLE( M(3,1:nMult,:,1:nMult,:) )) -
@@ -115,8 +114,7 @@
          END IF
          ! delete the file
          IF (dbg) WRITE (StdOut,'(A)') 'deleting the file...'
-         !CALL execute_command_line ( "rm -rf lineOUT" )
-         CALL system ( "rm -rf lineOUT" )
+         iErr=AixRm("lineOUT")
       ELSE
          IF (dbg) WRITE (StdOut,'(A)') 'file "lineOUT" does not exist'//
      &                                 ' in WorkDir'
@@ -127,7 +125,7 @@
       IF (dbg) WRITE (StdOut,'(A)') 'inquire which GNUPLOT'
 
       !CALL execute_command_line ( "which gnuplot >> lineOUT" )
-      CALL system ( "which gnuplot >> lineOUT" )
+      CALL systemf ( "which gnuplot >> lineOUT", iErr )
 
       INQUIRE(FILE="lineOUT",EXIST=file_exist,OPENED=is_file_open,
      &        NUMBER=file_number,SIZE=file_size)
@@ -172,9 +170,8 @@
          WRITE (StdOut,'(A)') 'file "lineOUT" does not exist in WorkDir'
       END IF
       ! remove file "lineOUT"
-      !CALL execute_command_line ( "rm -rf lineOUT" )
-      CALL system ( "rm -rf lineOUT" )
-!!!!!--------------------------------------------------------------------------------------------
+      iErr=AixRm("lineOUT")
+!!!!!------------------------------------------------------------------
 
 
 !!!!! check the version of the gnuplot:
@@ -184,46 +181,34 @@
         ! attempt to execute the script
         WRITE (gnuplot_CMD,'(2A)') trim(line2),' --version > lineOUT'
         IF (dbg) WRITE (StdOut,'(A,A)') 'gnuplot_CMD=',gnuplot_CMD
-        !CALL execute_command_line ( gnuplot_CMD )
-        CALL system ( gnuplot_CMD )
+        CALL systemf ( gnuplot_CMD, iErr )
 
         file_number=IsFreeUnit(452)
         Call molcas_open(file_number,'lineOUT')
-!        file_number=452
-!        OPEN (UNIT=file_number, FILE="lineOUT", STATUS='old',
-!     &        ACTION='read', FORM='formatted',ACCESS='sequential',
-!     &        IOSTAT=istat)
         READ (file_number,*) cdummy, gnuplot_version
         IF (dbg) WRITE (StdOut,'(A,F4.1)') 'gnuplot_version = ',
      &           gnuplot_version
         IF (abs(gnuplot_version)<0.1_wp) execute_gnuplot_cmd =.false.
         CLOSE (file_number)
         ! remove file "lineOUT"
-        !CALL execute_command_line ( "rm -rf lineOUT" )
-        CALL system ( "rm -rf lineOUT" )
+        iErr=AixRm("lineOUT")
       END IF
-!!!!!--------------------------------------------------------------------------------------------
+!!!!!-----------------------------------------------------------------
 
 
 
 
-!!!!!========================================================================================
+!!!!!=================================================================
 !!!!! prepare the energy data file:
       WRITE(datafile,'(A)') 'BARRIER_ENE.dat'
       INQUIRE(FILE=datafile,EXIST=file_exist,OPENED=is_file_open,
      &        NUMBER=file_number)
-!      IF(file_exist)
-!     &         CALL execute_command_line ( "rm -rf "//trim(datafile) );
-      IF(file_exist)
-     &         CALL system ( "rm -rf "//trim(datafile) );
+      IF(file_exist)  iErr=AixRm(trim(datafile))
       LuData=IsFreeUnit(785)
       Call molcas_open(LuData,datafile)
-!      LuData=785
-!      OPEN (UNIT=LuData, FILE=datafile, STATUS='new', ACTION='write',
-!     &      FORM='formatted',ACCESS='sequential',IOSTAT=istat)
       IF (dbg) WRITE (StdOut,*) 'Opening "'//trim(datafile)//'" file'
       FLUSH(StdOut)
-      ! write energies,
+      ! write energies
       l=0
       DO i=1,nMult
         DO i1=1,ndim(i)
@@ -243,20 +228,14 @@
      &                           //'" file'
       FLUSH (StdOut)
 
-!!!!!========================================================================================
+!!!!!================================================================
 !!!!! prepare the transition matrix elements file:
       WRITE(datafile,'(A)') 'BARRIER_TME.dat'
       INQUIRE(FILE=datafile,EXIST=file_exist,OPENED=is_file_open,
      &        NUMBER=file_number)
-!      IF(file_exist)
-!     &         CALL execute_command_line ( "rm -rf "//trim(datafile) );
-      IF(file_exist)
-     &         CALL system ( "rm -rf "//trim(datafile) );
+      IF(file_exist)  iErr=AixRm(trim(datafile))
       LuData=IsFreeUnit(786)
       Call molcas_open(LuData,datafile)
-!      LuData=786
-!      OPEN (UNIT=LuData, FILE=datafile, STATUS='new', ACTION='write',
-!     &      FORM='formatted',ACCESS='sequential',IOSTAT=istat)
       IF (dbg) WRITE (StdOut,*) 'Opening "'//trim(datafile)//'" file'
       FLUSH(StdOut)
       ! write energies,
@@ -299,7 +278,7 @@
      &                           //'" file'
       FLUSH (StdOut)
 
-!!!!!========================================================================================
+!!!!!===============================================================
 !!!!! generate the GNUPLOT script in the $WorkDir
 
 
@@ -307,18 +286,10 @@
       WRITE(plotfile,'(A)') 'BARRIER.plt'
       INQUIRE(FILE=plotfile,EXIST=file_exist,OPENED=is_file_open,
      &        NUMBER=file_number)
-!      IF(file_exist)
-!     &        CALL execute_command_line ( "rm -rf "//trim(plotfile) );
-      IF(file_exist)
-     &        CALL system ( "rm -rf "//trim(plotfile) );
+      IF(file_exist) iErr=AixRm(trim(plotfile))
       LuPlt=IsFreeUnit(855)
       Call molcas_open(LuPlt,plotfile)
-!      LuPlt=855
-!      OPEN (UNIT=LuPlt, FILE=plotfile, STATUS='new', ACTION='write',
-!     &      FORM='formatted',ACCESS='sequential',IOSTAT=istat)
       IF (dbg) WRITE (StdOut,*) 'Opening "'//trim(plotfile)//'" file'
-
-
 
       IF ( gnuplot_version < 5.0_wp ) Then
       !===  GNUPLOT VERSION 4 and below ==>>  generate EPS
@@ -457,8 +428,7 @@
         ! attempt to execute the script
         WRITE (gnuplot_CMD,'(5A)') trim(line2),' ',trim(plotfile)
         IF (dbg) WRITE (StdOut,'(A,A)') 'gnuplot_CMD=',gnuplot_CMD
-        !CALL execute_command_line ( gnuplot_CMD )
-        CALL system ( gnuplot_CMD )
+        CALL systemf ( gnuplot_CMD, iErr )
         IF ( gnuplot_version < 5.0_wp ) Then
           WRITE (StdOut,'(A,i0,A)') 'File "BARRIER.eps" was created '//
      &                              'in Working directory.'

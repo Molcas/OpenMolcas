@@ -76,7 +76,7 @@ c local variables:
       ! check for T=0 values and replace them
       ! with a definite nonzero value:
       Do i=1,nT+nTempMagn
-        If( T(i) == 0.0_wp ) Then
+        If( abs(T(i)) .le. tiny(0.0_wp) ) Then
             T(i) = 0.0001_wp
         End If
       End Do

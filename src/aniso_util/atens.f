@@ -43,7 +43,7 @@ c local variables
       dnorm=0.0_wp
       dnorm =  dznrm2(3*dim*dim, moment, 1 )
 
-      If ( dnorm.eq.0._wp ) Then
+      If ( dnorm.le.tiny(0.0_wp) ) Then
          Write(6,'(A)') 'Norm of the magnetic moment is zero.'
          Write(6,'(A)') 'Returning the default (dummy) values'
          gtens=0.0_wp
