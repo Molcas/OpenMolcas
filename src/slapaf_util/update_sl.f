@@ -221,7 +221,8 @@ c Avoid unused argument warnings
                iNew=iFirst+nRaw-1
                yyy=DDot_(nInter,Grad(1,iNew),1,Grad(1,iNew),1)
                If (yyy.gt.xxx) Value_l=Value_l * 0.95D0
-               Beta_Disp=Abs(Energy(iNew)-Energy(iOld))
+               Beta_Disp=Max(Abs(Energy(iNew)-Energy(iOld)),
+     &                       1.0D-6)
             End If
             Call setlkriging(Value_l)
             Call Put_dScalar('Value_l',Value_l)
