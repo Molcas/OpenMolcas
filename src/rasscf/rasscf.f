@@ -57,7 +57,7 @@
      &    finalize_dmrg, dump_dmrg_info
 #endif
       use stdalloc
-      use fciqmc, only : FCIQMC_ctl, DoNECI
+      use fciqmc, only : FCIQMC_ctl, DoNECI, fciqmc_cleanup => cleanup
       use fcidump, only : make_fcidumps, transform, DumpOnly
 
       Implicit Real*8 (A-H,O-Z)
@@ -1993,14 +1993,16 @@ c deallocating TUVX memory...
       Call GetMem('LCMO','Free','Real',LCMO,NTOT2)
       If (iClean.eq.1) Call Free_iWork(ipCleanMask)
 
+
 *
 * Skip Lucia stuff if NECI or BLOCK-DMRG is on
       If(.not.(DoNECI.or.DumpOnly.or.doDMRG.or.doBlockDMRG)) then
           Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
-       end if
-       if(DoNECI) then
+      end if
+      if(DoNECI) then
          CALL GETMEM('INT1  ','FREE','REAL',kint1_pointer,NAC**2)
-       end if
+      end if
+      call fciqmc_cleanup()
 * We better deallocate before it is too late...
 c       if(DoNECI) then
 c         CALL GETMEM('INT1  ','FREE','REAL',kint1_pointer,NAC**2)
