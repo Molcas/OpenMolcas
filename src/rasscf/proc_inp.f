@@ -23,7 +23,7 @@
       use fcidump_reorder, only : ReOrInp, ReOrFlag
       use fciqmc, only : DoEmbdNECI, DoNECI
       use fciqmc_make_inp, only : trial_wavefunction, pops_trial,
-     & calcrdmonfly, rdmsamplingiters,
+     & t_RDMsampling, RDMsampling, linspace,
      & totalwalkers, Time, nmCyc, memoryfacspawn,
      & realspawncutoff, diagshift, definedet, semi_stochastic
 
@@ -125,6 +125,8 @@
       Dimension Dummy(1)
       Character*(LENIN8*mxOrb) lJobH1
       Character*(2*72) lJobH2
+
+      integer :: start, step, n_samples, length
 
 #ifdef _DMRG_
 !     dmrg(QCMaquis)-stuff
@@ -1936,21 +1938,30 @@ C orbitals accordingly
           call WarningMessage(2, 'TOTAlwalkers required for NECI.')
           goto 9930
         end if
-        if(KeyRDMS) then
+        if(count([KeyRDMI, KeyRDML, (KeyRDMS .and. KeyCALC)]) /= 1)then
+          call WarningMessage(2, 'RDMIterations, RDMLinspace, '//
+     &      'and (RDMSamplingiters + CALCrdmonfly) '//
+     &      'are mutually exclusive, but one is required.')
+          goto 9930
+        else if (KeyRDMI) then
+          call setpos(luinput,'RDMI',line,irc)
+          if(irc.ne._RC_ALL_IS_WELL_) goto 9810
+          read(luinput,*,end=9910,err=9920)
+     &      RDMsampling%start, RDMsampling%stop, RDMsampling%step
+        else if (KeyRDML) then
+          call setpos(luinput,'RDML',line,irc)
+          if(irc.ne._RC_ALL_IS_WELL_) goto 9810
+          read(luinput,*,end=9910,err=9920) start, n_samples, step
+          RDMsampling = linspace(start, n_samples, step)
+        else if (KeyRDMS .and. KeyCALC) then
           call setpos(luinput,'RDMS',line,irc)
           if(irc.ne._RC_ALL_IS_WELL_) goto 9810
-          read(luinput,*,end=9910,err=9920) rdmsamplingiters
-        else
-          call WarningMessage(2, 'RDMSamplingiters required for NECI.')
-          goto 9930
-        end if
-        if(KeyCALC) then
+          read(luinput,*,end=9910,err=9920) start
+
           call setpos(luinput,'CALC',line,irc)
           if(irc.ne._RC_ALL_IS_WELL_) goto 9810
-          read(luinput,*,end=9910,err=9920) (calcrdmonfly(i),i=1,2)
-        else
-          call WarningMessage(2, 'CALCrdmonfly required for NECI.')
-          goto 9930
+          read(luinput,*,end=9910,err=9920) length, step
+          RDMsampling = t_RDMsampling(start, start + length, step)
         end if
         if(KeyDIAG) then
           call setpos(luinput,'DIAG',line,irc)

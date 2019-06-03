@@ -15,12 +15,12 @@
       module fciqmc_make_inp
         use stdalloc, only : mma_deallocate
         private
-        public :: make_inp, cleanup
+        public :: make_inp, cleanup, linspace
         integer, public ::
 ! No default value on purpose
      &    totalwalkers,
-     &    calcrdmonfly(2),
-     &    rdmsamplingiters,
+! &    calcrdmonfly(2),
+! &    rdmsamplingiters,
 ! Default value for time per NECI run
      &    Time = 200,
 ! Practically this means no trial_wavefunction by default
@@ -46,6 +46,13 @@
 ! Default value for NECI diagonal shift value
      &    diagshift = 0.00d0,
      &    shiftdamp = 0.02d0
+
+        type, public :: t_RDMsampling
+          sequence
+          integer :: start, stop, step
+        end type t_RDMsampling
+
+        type(t_RDMsampling), public :: RDMsampling
         save
       contains
 
@@ -129,7 +136,7 @@
         write(file_id, I_fmt()) 'time', time
         write(file_id, I_fmt()) 'startsinglepart', startsinglepart
         write(file_id, I_fmt()) 'pops-core', pops_core
-        write(file_id, I_fmt()) 'rdmsamplingiters', rdmsamplingiters
+        write(file_id, I_fmt()) 'rdmsamplingiters', RDMsampling%start
       call dedent()
       write(file_id, A_fmt()) 'endcalc'
       write(file_id, *)
@@ -140,7 +147,8 @@
         write(file_id, A_fmt()) 'hdf5-pops'
         write(file_id, A_fmt()) 'printonerdm'
         write(file_id,'('//str(indentlevel)//'x, A,1x,I0,1x,I0,1x,I0)')
-     &     'calcrdmonfly', 3, (calcrdmonfly(i), i=1,2)
+     &     'calcrdmonfly',
+     &      3, RDMsampling%stop - RDMsampling%start, RDMsampling%step
       call dedent()
       write(file_id, A_fmt()) 'endlog'
       write(file_id, A_fmt()) 'end'
@@ -197,6 +205,14 @@
         end subroutine
       end subroutine make_inp
 
+
+      function linspace(start, n_samples, step) result(RDMsampling)
+        integer, intent(in) :: start, n_samples, step
+        type(t_RDMsampling) :: RDMsampling
+        integer :: stop
+        stop = start + (n_samples - 1) * step
+        RDMsampling = t_RDMsampling(start, stop, step)
+      end function
 
       subroutine cleanup()
         implicit none
