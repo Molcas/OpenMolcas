@@ -10,11 +10,6 @@
 !***********************************************************************
   Subroutine plot_MH_with_Exp( nH, H, nTempMagn, TempMagn, MHcalc, MHexp, zJ )
 
-#ifdef NAGFOR
-      use f90_unix_env
-      use f90_unix_proc
-#endif
-
   IMPLICIT NONE
 
   Integer, parameter    :: wp=SELECTED_REAL_KIND(p=15,r=307)
@@ -309,10 +304,6 @@
 
 
   Subroutine plot_MH_no_Exp( nH, H, nTempMagn, TempMagn, MHcalc, zJ )
-#ifdef NAGFOR
-      use f90_unix_env
-      use f90_unix_proc
-#endif
 
   IMPLICIT NONE
 
