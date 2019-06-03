@@ -135,11 +135,10 @@
       write(file_id, *)
       write(file_id, A_fmt()) 'logging'
       call indent()
-        write(file_id, I_fmt()) 'Highlypopwrite', Highlypopwrite
-        write(file_id, A_fmt()) 'Print-Spin-Resolved-RDMS'
+        write(file_id, I_fmt()) 'highlypopwrite', Highlypopwrite
+        write(file_id, A_fmt()) 'print-spin-resolved-RDMs'
         write(file_id, A_fmt()) 'hdf5-pops'
         write(file_id, A_fmt()) 'printonerdm'
-        write(file_id, A_fmt()) '(diagflyonerdm'
         write(file_id,'('//str(indentlevel)//'x, A,1x,I0,1x,I0,1x,I0)')
      &     'calcrdmonfly', 3, (calcrdmonfly(i), i=1,2)
       call dedent()
