@@ -337,9 +337,11 @@
       end subroutine fciqmc_ctl
 
       subroutine cleanup()
-        use fciqmc_make_inp, only : definedet
+        use fciqmc_make_inp, only : make_inp_cleanup => cleanup
+        use fciqmc_read_RDM, only : read_RDM_cleanup => cleanup
         implicit none
-        if (allocated(definedet)) call mma_deallocate(definedet)
+        call make_inp_cleanup()
+        call read_RDM_cleanup()
       end subroutine cleanup
 
       end module fciqmc

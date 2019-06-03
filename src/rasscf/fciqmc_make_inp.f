@@ -13,7 +13,10 @@
 ************************************************************************
 
       module fciqmc_make_inp
-        integer ::
+        use stdalloc, only : mma_deallocate
+        private
+        public :: make_inp, cleanup
+        integer, public ::
 ! No default value on purpose
      &    totalwalkers,
      &    calcrdmonfly(2),
@@ -31,9 +34,9 @@
      &    highlypopwrite = 50,
      &    startsinglepart = 10,
      &    pops_core =  10000
-        integer, allocatable ::
+        integer, allocatable, public ::
      &    definedet(:)
-        real*8 ::
+        real*8, public ::
      &    proje_changeref = 1.2d0,
      &    max_tau = 0.02d0,
      &    memoryfacpart = 5.0d0,
@@ -194,5 +197,11 @@
           indentlevel = indentlevel - indentstep
         end subroutine
       end subroutine make_inp
+
+
+      subroutine cleanup()
+        implicit none
+        if (allocated(definedet)) call mma_deallocate(definedet)
+      end subroutine cleanup
 
       end module fciqmc_make_inp
