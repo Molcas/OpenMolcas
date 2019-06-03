@@ -660,6 +660,16 @@ if (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND
         set (FFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
 endif ()
 
+# Add runtime checks
+# (No boundary checks because of the Work arrays)
+if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+        if (CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "6")
+                set (FFLAGS_GNU_GARBLE "${FFLAGS_GNU_GARBLE} -fcheck=array-temps,do,mem,pointer,recursion")
+        else ()
+                set (FFLAGS_GNU_GARBLE "${FFLAGS_GNU_GARBLE} -fcheck=all,no-bounds")
+        endif ()
+endif ()
+
 set (CXXFLAGS_GNU_BIGOT "-Wall -Wextra -Wpedantic -Werror")
 set (CFLAGS_GNU_BIGOT "-Wall -Wextra -Wpedantic -Werror")
 set (FFLAGS_GNU_BIGOT "-Wall -Wrealloc-lhs -Werror")
@@ -725,7 +735,7 @@ set (FFLAGS_Intel_OPENMP "-qopenmp")
 set (FFLAGS_Intel_ILP64 "-i8 -r8 -heap-arrays")
 # build targets
 set (FFLAGS_Intel_DEBUG "-debug -traceback -warn all,nodeclarations")
-set (FFLAGS_Intel_GARBLE "-O2 -debug -traceback -warn all,nodeclarations")
+set (FFLAGS_Intel_GARBLE "-O2 -debug -traceback -warn all,nodeclarations -check all,nobounds,noarg_temp_created")
 set (FFLAGS_Intel_RELWITHDEBINFO "-O2 -debug -traceback -warn all,nodeclarations")
 set (FFLAGS_Intel_RELEASE "-O2 -traceback")
 set (FFLAGS_Intel_FAST "-fast")
