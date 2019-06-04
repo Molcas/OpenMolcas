@@ -118,7 +118,7 @@ c      End If
       mem_local=0
       RtoB=8
       CtoB=16
-      If(nM>0) Then
+      If(nM>=0) Then
          ! Zeeman exchange energy spectrum
          Call mma_allocate(W,nM,'W')
          Call dcopy_(nM,[0.0_wp],0,W,1)
@@ -133,7 +133,7 @@ c      End If
       Call dcopy_(3,[0.0_wp],0,MT,1)
       mem_local=mem_local+3*RtoB
 
-      If(AngPoints>0) Then
+      If(AngPoints>=0) Then
          Call mma_allocate(dX,AngPoints,'dX')
          Call mma_allocate(dY,AngPoints,'dY')
          Call mma_allocate(dZ,AngPoints,'dZ')
@@ -147,13 +147,13 @@ c      End If
          mem_local=mem_local+AngPoints*RtoB
       End If
 
-      If( (nPlanes>0).and.(AngPoints>0) ) Then
+      If( (nPlanes>=0).and.(AngPoints>=0) ) Then
          Call mma_allocate(ty,AngPoints,'ty')
          Call dcopy_(AngPoints,[0.0_wp],0,ty,1)
          mem_local=mem_local+AngPoints*RtoB
       End If
 
-      If (nss>0) Then
+      If (nss>=0) Then
          Call mma_allocate(M,3,nss,nss,'Mrot')
          Call mma_allocate(S,3,nss,nss,'Srot')
          Call zcopy_(3*nss*nss,[(0.0_wp,0.0_wp)],0,M,1)

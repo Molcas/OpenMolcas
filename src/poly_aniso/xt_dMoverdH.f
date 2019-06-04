@@ -265,7 +265,7 @@ cccc-------------------------------------------------------cccc
 !=======================================================================
       mem_local=0
       RtoB=8
-      If(nM>0) Then
+      If(nM>=0) Then
         Call mma_allocate(WEX0,nM,'WEX0')
         Call mma_allocate(WEX1,nM,'WEX1')
         Call mma_allocate(WEX2,nM,'WEX2')
@@ -274,7 +274,7 @@ cccc-------------------------------------------------------cccc
         Call dcopy_(nM,[0.0_wp],0,WEX2,1)
         mem_local=mem_local+3*nM*RtoB
       End If
-      If((nneq>0).and.(nLoc>0)) Then
+      If((nneq>=0).and.(nLoc>=0)) Then
         Call mma_allocate(WL0,nneq,nLoc,'WL0')
         Call mma_allocate(WL1,nneq,nLoc,'WL1')
         Call mma_allocate(WL2,nneq,nLoc,'WL2')
@@ -290,7 +290,7 @@ cccc-------------------------------------------------------cccc
         mem_local=mem_local+6*nneq*nLoc*RtoB
       End If
 
-      If((nneq>0).and.((nT+nTempMagn)>0)) Then
+      If((nneq>=0).and.((nT+nTempMagn)>=0)) Then
         Call mma_allocate(ZL0,nneq,(nT+nTempMagn),'ZL0')
         Call mma_allocate(ZR0,nneq,(nT+nTempMagn),'ZR0')
         Call mma_allocate(ZL1,nneq,(nT+nTempMagn),'ZL1')
@@ -332,7 +332,7 @@ cccc-------------------------------------------------------cccc
         mem_local=mem_local+12*3*nneq*(nT+nTempMagn)*RtoB
       End If
 
-      If((nT+nTempMagn)>0) Then
+      If((nT+nTempMagn)>=0) Then
         Call mma_allocate(ZEX0,(nT+nTempMagn),'ZEX0')
         Call mma_allocate(ZEX1,(nT+nTempMagn),'ZEX1')
         Call mma_allocate(ZEX2,(nT+nTempMagn),'ZEX2')
@@ -388,7 +388,7 @@ cccc-------------------------------------------------------cccc
         mem_local=mem_local+20*(nT+nTempMagn)*RtoB
       End If
 
-      If((nCenter>0).and.((nT+nTempMagn)>0)) Then
+      If((nCenter>=0).and.((nT+nTempMagn)>=0)) Then
         Call mma_allocate(ZRT0,nCenter,(nT+nTempMagn),'ZRT0')
         Call mma_allocate(ZLT0,nCenter,(nT+nTempMagn),'ZLT0')
         Call mma_allocate(ZRT1,nCenter,(nT+nTempMagn),'ZRT1')
@@ -962,12 +962,12 @@ c print out the main VAN VLECK SUSCEPTIBILITY TENSOR, its main values and main a
 
 
 !=======================================================================
-      If(nM>0) Then
+      If(nM>=0) Then
         Call mma_deallocate(WEX0)
         Call mma_deallocate(WEX1)
         Call mma_deallocate(WEX2)
       End If
-      If((nneq>0).and.(nLoc>0)) Then
+      If((nneq>=0).and.(nLoc>=0)) Then
         Call mma_deallocate(WL0)
         Call mma_deallocate(WL1)
         Call mma_deallocate(WL2)
@@ -976,7 +976,7 @@ c print out the main VAN VLECK SUSCEPTIBILITY TENSOR, its main values and main a
         Call mma_deallocate(WR2)
       End If
 
-      If((nneq>0).and.((nT+nTempMagn)>0)) Then
+      If((nneq>=0).and.((nT+nTempMagn)>=0)) Then
         Call mma_deallocate(ZL0)
         Call mma_deallocate(ZR0)
         Call mma_deallocate(ZL1)
@@ -997,7 +997,7 @@ c print out the main VAN VLECK SUSCEPTIBILITY TENSOR, its main values and main a
         Call mma_deallocate(MR2)
       End If
 
-      If((nT+nTempMagn)>0) Then
+      If((nT+nTempMagn)>=0) Then
         Call mma_deallocate(ZEX0)
         Call mma_deallocate(ZEX1)
         Call mma_deallocate(ZEX2)
@@ -1022,7 +1022,7 @@ c print out the main VAN VLECK SUSCEPTIBILITY TENSOR, its main values and main a
         Call mma_deallocate(XTtens_dMdH)
       End If
 
-      If((nCenter>0).and.((nT+nTempMagn)>0)) Then
+      If((nCenter>=0).and.((nT+nTempMagn)>=0)) Then
         Call mma_deallocate(ZRT0)
         Call mma_deallocate(ZLT0)
         Call mma_deallocate(ZRT1)

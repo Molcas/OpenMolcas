@@ -145,14 +145,14 @@ c----------------------------------------------------------------------
       If(dbg) Write(6,*) 'MAGN:      nLoc=',nLoc
       If(dbg) Write(6,*) 'MAGN: nTempMagn=',nTempMagn
 
-      If(nM>0) Then
+      If(nM>=0) Then
         ! Zeeman exchange energy spectrum
         Call mma_allocate(Wex,nM,'Wex')
         Call dcopy_(nM,[0.0_wp],0,Wex,1)
         mem_local=mem_local+nM*RtoB
       End If
 
-      If(nTempMagn>0) Then
+      If(nTempMagn>=0) Then
         ! exchange statistical sum, Boltzmann distribution
         Call mma_allocate(Zex,nTempMagn,'Zex')
         Call dcopy_(nTempMagn,[0.0_wp],0,Zex,1)
@@ -166,7 +166,7 @@ c----------------------------------------------------------------------
         Call dcopy_(3*nTempMagn,[0.0_wp],0,Mex,1)
         mem_local=mem_local+3*nTempMagn*RtoB
 
-        If(nneq>0) Then
+        If(nneq>=0) Then
           ! local statistical sum, Boltzmann distribution
           Call mma_allocate(ZL,nneq,nTempMagn,'ZL')
           Call dcopy_(nneq*nTempMagn,[0.0_wp],0,ZL,1)
@@ -194,7 +194,7 @@ c----------------------------------------------------------------------
           mem_local=mem_local+3*nneq*nTempMagn*RtoB
         End If
 
-        If(nLoc>0) Then
+        If(nLoc>=0) Then
           ! Zeeman local energies
           Call mma_allocate(WL,nneq,nLoc,'WL')
           Call dcopy_(nneq*nLoc,[0.0_wp],0,WL,1)
@@ -205,7 +205,7 @@ c----------------------------------------------------------------------
           mem_local=mem_local+nneq*nLoc*RtoB
         End If
 
-        If(nCenter>0) Then
+        If(nCenter>=0) Then
           ! ZRT(nCenter,nTempMagn)
           Call mma_allocate(ZRT,nCenter,nTempMagn,'ZRT')
           Call dcopy_(nCenter*nTempMagn,[0.0_wp],0,ZRT,1)
@@ -232,7 +232,7 @@ c----------------------------------------------------------------------
           mem_local=mem_local+3*nCenter*nTempMagn*RtoB
         End If
 
-        If(nH>0) Then
+        If(nH>=0) Then
           ! total statistical sum, Boltzmann distribution
           Call mma_allocate(ZT,nH,nTempMagn,'ZT')
           Call dcopy_(nH*nTempMagn,[0.0_wp],0,ZT,1)
@@ -253,7 +253,7 @@ c----------------------------------------------------------------------
           Call mma_allocate(MAV,nH,nTempMagn,'MAV')
           Call dcopy_(nH*nTempMagn,[0.0_wp],0,MAV,1)
           mem_local=mem_local+nH*nTempMagn*RtoB
-          If(nDirTot>0) Then
+          If(nDirTot>=0) Then
             ! total spin magnetisation vector
             Call mma_allocate(SVEC,nDirTot,nH,nTempMagn,3,'SVEC')
             Call dcopy_(nDirTot*nH*nTempMagn*3,[0.0_wp],0,SVEC,1)
@@ -267,7 +267,7 @@ c----------------------------------------------------------------------
         End If
       End If
 
-      If(nDirTot>0) Then
+      If(nDirTot>=0) Then
          ! orientation of the field
          Call mma_allocate(dHX,nDirTot,'dHX')
          Call mma_allocate(dHY,nDirTot,'dHY')
@@ -280,7 +280,7 @@ c----------------------------------------------------------------------
          mem_local=mem_local+4*nDirTot*RtoB
       End If
 
-      If(nH>0) Then
+      If(nH>=0) Then
          Call mma_allocate(H,nH,'H  field')
          Call dcopy_(nH,[0.0_wp],0,H,1)
          mem_local=mem_local+nH*RtoB
@@ -868,15 +868,15 @@ c      End If
 
 
 c----------------------------------------------------------------------
-      If(nM>0) Then
+      If(nM>=0) Then
         Call mma_deallocate(Wex)
       End If
 
-      If(nTempMagn>0) Then
+      If(nTempMagn>=0) Then
         Call mma_deallocate(Zex)
         Call mma_deallocate(Sex)
         Call mma_deallocate(Mex)
-        If(nneq>0) Then
+        If(nneq>=0) Then
           Call mma_deallocate(ZL)
           Call mma_deallocate(SL)
           Call mma_deallocate(ML)
@@ -885,12 +885,12 @@ c----------------------------------------------------------------------
           Call mma_deallocate(MR)
         End If
 
-        If(nLoc>0) Then
+        If(nLoc>=0) Then
           Call mma_deallocate(WL)
           Call mma_deallocate(WR)
         End If
 
-        If(nCenter>0) Then
+        If(nCenter>=0) Then
           Call mma_deallocate(ZRT)
           Call mma_deallocate(ZLT)
           Call mma_deallocate(MRT)
@@ -899,27 +899,27 @@ c----------------------------------------------------------------------
           Call mma_deallocate(SLT)
         End If
 
-        If(nH>0) Then
+        If(nH>=0) Then
           Call mma_deallocate(ZT)
           Call mma_deallocate(ST)
           Call mma_deallocate(MT)
           Call mma_deallocate(SAV)
           Call mma_deallocate(MAV)
-          If(nDirTot>0) Then
+          If(nDirTot>=0) Then
             Call mma_deallocate(SVEC)
             Call mma_deallocate(MVEC)
           End If
         End If
       End If
 
-      If(nDirTot>0) Then
+      If(nDirTot>=0) Then
          Call mma_deallocate(dHX)
          Call mma_deallocate(dHY)
          Call mma_deallocate(dHZ)
          Call mma_deallocate(dHW)
       End If
 
-      If(nH>0) Then
+      If(nH>=0) Then
          Call mma_deallocate(H)
       End If
 

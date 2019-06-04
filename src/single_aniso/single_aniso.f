@@ -195,7 +195,7 @@ c---------------------------------------------------------------------
       CtoB=16
       ItoB=8
 
-      If(nstate>0) Then
+      If(nstate>=0) Then
          ! spin free energies
          Call mma_allocate(esfs,nstate,'esfs')
          Call dcopy_(nstate,[0.0_wp],0,ESFS,1)
@@ -220,7 +220,7 @@ c---------------------------------------------------------------------
          If(dbg) Write(6,'(A,I16)') 'mem 1 =',mem
       End If
 
-      If(nss>0) Then
+      If(nss>=0) Then
          ! spin orbit energies
          Call mma_allocate(eso,nss,'eso')
          Call dcopy_(nss,[0.0_wp],0,eso,1)
@@ -253,7 +253,7 @@ c---------------------------------------------------------------------
          If(dbg) Write(6,'(A,I16)') 'mem 2 =',mem
       End If
 
-      If( (nH>0).and.(nTempMagn>0) ) Then
+      If( (nH>=0).and.(nTempMagn>=0) ) Then
          ! experimental magnetic field points
          Call mma_allocate(Hexp,nH,'Hexp')
          Call dcopy_(nH,[0.0_wp],0,Hexp,1)
@@ -270,7 +270,7 @@ c---------------------------------------------------------------------
          If(dbg) Write(6,'(A,I16)') 'mem 3 =',mem
       End If
 
-      If(nMult>0) Then
+      If(nMult>=0) Then
          ! dimensions of pseudospins
          Call mma_allocate(ndim,nMult,'ndim')
          Call icopy(nMult,[0],0,ndim,1)
@@ -301,7 +301,7 @@ c---------------------------------------------------------------------
          If(dbg) Write(6,'(A,I16)') 'mem 5 =',mem
       End If
 
-      If(nDirZee>0) Then
+      If(nDirZee>=0) Then
          ! unit numbers for the files with Zeeman energies
          Call mma_allocate(LuZee,nDirZee,'LUZee')
          Call icopy(nDirZee,[0],0,LuZee,1)
@@ -314,7 +314,7 @@ c---------------------------------------------------------------------
          If(dbg) Write(6,'(A,I16)') 'mem 6 =',mem
       End If
 
-      If(nDir>0) Then
+      If(nDir>=0) Then
          ! magnetization vectors
          Call mma_allocate(dirX,nDir,'dirX')
          Call mma_allocate(dirY,nDir,'dirY')
@@ -327,7 +327,7 @@ c---------------------------------------------------------------------
          If(dbg) Write(6,'(A,I16)') 'mem 7 =',mem
       End If
 
-      If(nT>0) Then
+      If(nT>=0) Then
         ! T expeirimental given by user in the input
         Call mma_allocate(Texp,nT,'Texp')
         Call dcopy_(nT,[0.0_wp],0,Texp,1)
@@ -674,7 +674,7 @@ C  read the input
 c---------------------------------------------------------------------
       ! Deallocate memory for all arrays:
 c---------------------------------------------------------------------
-      If(nstate>0) Then
+      If(nstate>=0) Then
          Call mma_deallocate(esfs)
          Call mma_deallocate(ANGMOM)
          Call mma_deallocate( EDMOM)
@@ -682,7 +682,7 @@ c---------------------------------------------------------------------
          Call mma_deallocate(multiplicity)
       End If
 
-      If(nss>0) Then
+      If(nss>=0) Then
          Call mma_deallocate(eso)
          Call mma_deallocate(U)
          Call mma_deallocate(HSO)
@@ -692,36 +692,36 @@ c---------------------------------------------------------------------
          Call mma_deallocate(DM)
       End If
 
-      If( (nH>0).and.(nTempMagn>0) ) Then
+      If( (nH>=0).and.(nTempMagn>=0) ) Then
          Call mma_deallocate(Hexp)
          Call mma_deallocate(magn_exp)
          Call mma_deallocate(TempMagn)
       End If
 
-      If(nMult>0) Then
+      If(nMult>=0) Then
          Call mma_deallocate(ndim)
          Call mma_deallocate(gtens)
          Call mma_deallocate(maxes)
       End If
 
-      If((nT+nTempMagn)>0) Then
+      If((nT+nTempMagn)>=0) Then
          Call mma_deallocate(T)
          Call mma_deallocate(XTexp)
          Call mma_deallocate(XT_no_field)
       End If
 
-      If(nDirZee>0) Then
+      If(nDirZee>=0) Then
          Call mma_deallocate(LuZee)
          Call mma_deallocate(dir_weight)
       End If
 
-      If(nDir>0) Then
+      If(nDir>=0) Then
          Call mma_deallocate(dirX)
          Call mma_deallocate(dirY)
          Call mma_deallocate(dirZ)
       End If
 
-      If(nT>0) Then
+      If(nT>=0) Then
          Call mma_deallocate(Texp)
          Call mma_deallocate(chit_exp)
       End If

@@ -206,7 +206,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 ! Allocate memory for this calculation:
       mem_local=0
       RtoB=8
-      If(nM>0) Then
+      If(nM>=0) Then
          ! Zeeman exchange energy spectrum
          Call mma_allocate(Wex,nM,'Wex')
          Call dcopy_(nM,[0.0_wp],0,Wex,1)
@@ -215,7 +215,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
       If(dbg) Write(6,*) 'mem_local 1 = ', mem_local
 
-      If(nTempMagn>0) Then
+      If(nTempMagn>=0) Then
          ! exchange statistical sum, Boltzmann distribution
          Call mma_allocate(Zex,nTempMagn,'Zex')
          Call dcopy_(nTempMagn,[0.0_wp],0,Zex,1)
@@ -243,7 +243,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
          mem_local=mem_local+3*nTempMagn*RtoB
 
       if(dbg) Write(6,*) 'mem_local 2 = ', mem_local
-         If(nneq>0) Then
+         If(nneq>=0) Then
             ! local statistical sum, Boltzmann distribution
             Call mma_allocate(ZL,nneq,nTempMagn,'ZL')
             Call dcopy_(nneq*nTempMagn,[0.0_wp],0,ZL,1)
@@ -272,7 +272,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
          End If
 
       if(dbg) Write(6,*) 'mem_local 3 = ', mem_local
-         If(nCenter>0) Then
+         If(nCenter>=0) Then
             ! ZRT(nCenter,nTempMagn)
             Call mma_allocate(ZRT,nCenter,nTempMagn,'ZRT')
             Call dcopy_(nCenter*nTempMagn,[0.0_wp],0,ZRT,1)
@@ -301,8 +301,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
          If(dbg) Write(6,*) 'mem_local 4 = ', mem_local
 c magnetic torque
-         If( (nPlanes>0).and.(AngPoints>0).and.(nH>0)
-     &                                    .and.(nTempMagn>0) ) Then
+         If( (nPlanes>=0).and.(AngPoints>=0).and.(nH>=0)
+     &                                    .and.(nTempMagn>=0) ) Then
             Call mma_allocate(tx,nPlanes,AngPoints,nH,nTempMagn,'tx')
             Call mma_allocate(ty,nPlanes,AngPoints,nH,nTempMagn,'ty')
             Call mma_allocate(tz,nPlanes,AngPoints,nH,nTempMagn,'tz')
@@ -320,7 +320,7 @@ c magnetic torque
       End If
       if(dbg) Write(6,*) 'mem_local 5 = ', mem_local
 
-      If((nLoc>0).and.(nneq>0)) Then
+      If((nLoc>=0).and.(nneq>=0)) Then
          ! Zeeman local energies
          Call mma_allocate(WL,nneq,nLoc,'WL')
          Call dcopy_(nneq*nLoc,[0.0_wp],0,WL,1)
@@ -332,11 +332,11 @@ c magnetic torque
       End If
       if(dbg) Write(6,*) 'mem_local 6 = ', mem_local
 
-      If(AngPoints>0) Then
+      If(AngPoints>=0) Then
          Call mma_allocate(Ang,AngPoints,'Ang')
          Call dcopy_(AngPoints,[0.0_wp],0,Ang,1)
          mem_local=mem_local+AngPoints*RtoB
-         If(nPlanes>0) Then
+         If(nPlanes>=0) Then
             Call mma_allocate(dX,nPlanes,AngPoints,'dX')
             Call mma_allocate(dY,nPlanes,AngPoints,'dY')
             Call mma_allocate(dZ,nPlanes,AngPoints,'dZ')
@@ -348,7 +348,7 @@ c magnetic torque
       End If
       if(dbg) Write(6,*) 'mem_local 7 = ', mem_local
 
-      If(nH>0) Then
+      If(nH>=0) Then
          Call mma_allocate(H,nH,'H')
          Call dcopy_(nH,[0.0_wp],0,H,1)
          mem_local=mem_local+nH*RtoB
@@ -720,11 +720,11 @@ C -------------------------------------------------------------------
 ! 199  Continue
 !-----------------------------------------------------------------------
 ! Deallocate memory for this calculation:
-      If(nM>0) Then
+      If(nM>=0) Then
          Call mma_deallocate(Wex)
       End If
 
-      If(nTempMagn>0) Then
+      If(nTempMagn>=0) Then
          Call mma_deallocate(Zex)
          Call mma_deallocate(SEX)
          Call mma_deallocate(MEX)
@@ -732,7 +732,7 @@ C -------------------------------------------------------------------
          Call mma_deallocate(ST)
          Call mma_deallocate(MT)
 
-         If(nneq>0) Then
+         If(nneq>=0) Then
             Call mma_deallocate(ZL)
             Call mma_deallocate(SL)
             Call mma_deallocate(ML)
@@ -741,7 +741,7 @@ C -------------------------------------------------------------------
             Call mma_deallocate(MR)
          End If
 
-         If(nCenter>0) Then
+         If(nCenter>=0) Then
             Call mma_deallocate(ZRT)
             Call mma_deallocate(ZLT)
             Call mma_deallocate(MRT)
@@ -750,7 +750,7 @@ C -------------------------------------------------------------------
             Call mma_deallocate(SLT)
          End If
 
-         If( (nPlanes>0).and.(AngPoints>0).and.(nH>0) ) Then
+         If( (nPlanes>=0).and.(AngPoints>=0).and.(nH>=0) ) Then
             Call mma_deallocate(tx)
             Call mma_deallocate(ty)
             Call mma_deallocate(tz)
@@ -760,21 +760,21 @@ C -------------------------------------------------------------------
          End If
       End If
 
-      If((nLoc>0).and.(nneq>0)) Then
+      If((nLoc>=0).and.(nneq>=0)) Then
          Call mma_deallocate(WL)
          Call mma_deallocate(WR)
       End If
 
-      If(AngPoints>0) Then
+      If(AngPoints>=0) Then
          Call mma_deallocate(Ang)
-         If(nPlanes>0) Then
+         If(nPlanes>=0) Then
             Call mma_deallocate(dX)
             Call mma_deallocate(dY)
             Call mma_deallocate(dZ)
          End If
       End If
 
-      If(nH>0) Then
+      If(nH>=0) Then
          Call mma_deallocate(H)
       End If
 
