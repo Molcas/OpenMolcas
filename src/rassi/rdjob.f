@@ -148,10 +148,10 @@
           iWork(lJBNUM+ISTAT(JOB)-1+I)=JOB
         END DO
       end if
+      LROT1=ref_nroots
       DO I=0,NSTAT(JOB)-1
-        IF (iWork(lLROOT+ISTAT(JOB)+I).GT.ref_nstates) THEN
-          NROOT0=iWork(lLROOT+ISTAT(JOB)+I)
-          NROOT1=ref_nstates
+        NROOT0=iWork(lLROOT+ISTAT(JOB)-1+I)
+        IF (NROOT0.GT.LROT1) THEN
           GOTO 9002
         END IF
       END DO
@@ -381,8 +381,8 @@ C is added in GETH1.
         End If
       END IF
       DO I=0,NSTAT(JOB)-1
-        IF (iWork(lLROOT+ISTAT(JOB)+I).GT.NROOT1) THEN
-          NROOT0=iWork(lLROOT+ISTAT(JOB)+I)
+        NROOT0=iWork(lLROOT+ISTAT(JOB)-1+I)
+        IF (NROOT0.GT.LROT1) THEN
           GOTO 9002
         END IF
       END DO
@@ -588,8 +588,8 @@ C Where is the CMO data set stored?
       WRITE(6,*) ' NSYM1:',NSYM1,'NSYM :',NSYM
       GOTO 9010
 9002  WRITE(6,*) ' ROOT NOT AVAILABLE.'
-      WRITE(6,*) '                        REQUESTED ROOT:',NROOT0
-      WRITE(6,*) '          NUMBER OF ROOTS IN THIS FILE:',NROOT1
+      WRITE(6,*) '             REQUESTED ROOT:',NROOT0
+      WRITE(6,*) '  MAXIMUM ROOT IN THIS FILE:',LROT1
       GOTO 9010
 9003  WRITE(6,*) ' RAS SPECIFICATIONS DIFFER.'
       WRITE(6,*) '     THIS STATE: MAX NR OF RAS-1 HOLES:',NHOL11
