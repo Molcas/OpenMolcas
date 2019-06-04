@@ -126,7 +126,7 @@
       Character*(LENIN8*mxOrb) lJobH1
       Character*(2*72) lJobH2
 
-      integer :: start, step, n_samples, length
+      integer :: start, step, length
 
 #ifdef _DMRG_
 !     dmrg(QCMaquis)-stuff
@@ -1897,7 +1897,7 @@ C orbitals accordingly
       end if
 *---  Process NECI commands -------------------------------------------*
       if (KeyNECI) then
-        if(DBG) write(6,*) 'NECI is actived'
+        if(DBG) write(6, *) 'NECI is actived'
         DoNECI = .true.
 *----------------------------------------------------------------------------------------
         if(KeyEMBD) then
@@ -1909,14 +1909,6 @@ C orbitals accordingly
      &'for compiling or use an external NECI.')
 #endif
         end if
-!       Default value for NECI starting to fill RDMs
-        IterFillRDM = 10000
-!       Default value for NECI sampling RDMs
-        IterSampleRDM = 1000
-!       Default value for NECI RealSpawnCutOff
-        realspawncutoff = 0.3
-!       Default value for NECI diagonal shift value
-        diagshift = 0.00
 *--- This block is to process the DEFINEDET -------------------
         if(KeyDEFI) then
           call mma_allocate(definedet, nActel)
@@ -1946,12 +1938,12 @@ C orbitals accordingly
         else if (KeyRDML) then
           call setpos(luinput,'RDML',line,irc)
           if(irc.ne._RC_ALL_IS_WELL_) goto 9810
-          read(luinput,*,end=9910,err=9920) start, n_samples, step
-          RDMsampling = linspace(start, n_samples, step)
+          read(luinput,*,end=9910,err=9920)
+     &      RDMsampling%start, RDMsampling%n_samples, RDMsampling%step
         else if (KeyRDMS .or. KeyCALC) then
           if (.not. (KeyRDMS .and. KeyCALC)) then
-            call WarningMessage(2, 'RDMSamplingiters and CALCrdmonfly '//
-     &        'are both required together. ')
+            call WarningMessage(2, 'RDMSamplingiters '//
+     &        'and CALCrdmonfly are both required.')
             goto 9930
           end if
           call setpos(luinput,'RDMS',line,irc)
@@ -1961,7 +1953,7 @@ C orbitals accordingly
           call setpos(luinput,'CALC',line,irc)
           if(irc.ne._RC_ALL_IS_WELL_) goto 9810
           read(luinput,*,end=9910,err=9920) length, step
-          RDMsampling = t_RDMsampling(start, start + length, step)
+          RDMsampling = t_RDMsampling(start, length / step, step)
         end if
         if(KeyDIAG) then
           call setpos(luinput,'DIAG',line,irc)
@@ -2003,6 +1995,7 @@ C orbitals accordingly
           if(irc.ne._RC_ALL_IS_WELL_) goto 9810
           read(luinput,*,end=9910,err=9920) memoryfacspawn
         end if
+        ! call fciqmc_option_check(iDoGas, nGSSH, iGSOCCX)
       end if
 *
 * =======================================================================
@@ -3327,4 +3320,4 @@ C Test read failed. JOBOLD cannot be used.
       Call qExit('Proc_Inp')
       Return
 
-      End
+      end subroutine proc_inp

@@ -49,7 +49,7 @@
 
         type, public :: t_RDMsampling
           sequence
-          integer :: start, stop, step
+          integer :: start, n_samples, step
         end type t_RDMsampling
 
         type(t_RDMsampling), public :: RDMsampling
@@ -146,9 +146,13 @@
         write(file_id, A_fmt()) 'print-spin-resolved-RDMs'
         write(file_id, A_fmt()) 'hdf5-pops'
         write(file_id, A_fmt()) 'printonerdm'
+! TODO(Oskar): As soon as RDMlinspace is widely used in NECI uncomment.
+!        write(file_id,'('//str(indentlevel)//'x, A,1x,I0,1x,I0,1x,I0)')
+!     &     'RDMlinspace',
+!     &      RDMsampling%start, RDMsampling%n_samples, RDMsampling%step
         write(file_id,'('//str(indentlevel)//'x, A,1x,I0,1x,I0,1x,I0)')
-     &     'calcrdmonfly',
-     &      3, RDMsampling%stop - RDMsampling%start, RDMsampling%step
+     &    'calcrdmonfly', 3,
+     &    RDMsampling%n_samples * RDMsampling%start, RDMsampling%step
       call dedent()
       write(file_id, A_fmt()) 'endlog'
       write(file_id, A_fmt()) 'end'
@@ -204,15 +208,6 @@
           indentlevel = indentlevel - indentstep
         end subroutine
       end subroutine make_inp
-
-
-      function linspace(start, n_samples, step) result(RDMsampling)
-        integer, intent(in) :: start, n_samples, step
-        type(t_RDMsampling) :: RDMsampling
-        integer :: stop
-        stop = start + (n_samples - 1) * step
-        RDMsampling = t_RDMsampling(start, stop, step)
-      end function
 
       subroutine cleanup()
         implicit none
