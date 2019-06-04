@@ -1,4 +1,4 @@
-# Then can only be a single "include" per file
+# There can only be a single "include" per file
 include:
   # Configurations defined in an external file
   - "/.configs.yml"
@@ -13,6 +13,7 @@ include:
 .template: &sources
   changes:
     - .gitlab-ci.yml
+    - .configs.yml
     - .gitmodules
     - basis_library/**/*
     - CMakeLists.txt
@@ -225,6 +226,19 @@ tinker:
   except:
     - tags
     - master@Molcas/OpenMolcas
+
+# Dummy "test" job for when there were no source code changes
+
+test:dummy:
+  stage: test
+  script:
+    - >
+      echo "No source code changes"
+  except:
+    refs:
+      - tags
+      - master@Molcas/OpenMolcas
+    <<: *sources
 
 # Define the actual jobs, each job has a "build" and a "test" stage,
 # the latter depends on the former.
