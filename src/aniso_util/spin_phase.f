@@ -193,7 +193,7 @@ C
       Logical :: dbg
 
       Call qEnter('s_phase')
-      dbg=.true.
+      dbg=.false.
 
       Call mma_allocate(rxr,dim,'rxr')
       Call mma_allocate(rxi,dim,'rxi')

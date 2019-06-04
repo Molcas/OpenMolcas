@@ -165,7 +165,7 @@ cccc-------------------------------------------------------cccc
      &                           tmax,' K.'
       End If
 ! allocate memory:
-      If ( nM > 0 ) Then
+      If ( nM >= 0 ) Then
          Call mma_allocate(WM1,nM,'WM1')
          Call mma_allocate(WM2,nM,'WM2')
          Call mma_allocate(WM3,nM,'WM3')
@@ -175,7 +175,7 @@ cccc-------------------------------------------------------cccc
          Call mma_allocate(WM7,nM,'WM7')
          mem_local=mem_local+7*nM*RtoB
       End If
-      If ( (nT+nTempMagn) > 0 ) Then
+      If ( (nT+nTempMagn) >= 0 ) Then
          Call mma_allocate(ZT1,(nT+nTempMagn),'ZT1')
          Call mma_allocate(ZT2,(nT+nTempMagn),'ZT2')
          Call mma_allocate(ZT3,(nT+nTempMagn),'ZT3')
@@ -534,7 +534,7 @@ c print out the main VAN VLECK SUSCEPTIBILITY TENSOR, its main values and main a
       Write(6,'(111A)') ('-',i=1,110),'|'
 
 
-      If ( nM > 0 ) Then
+      If ( nM >= 0 ) Then
          Call mma_deallocate(WM1)
          Call mma_deallocate(WM2)
          Call mma_deallocate(WM3)
@@ -543,7 +543,7 @@ c print out the main VAN VLECK SUSCEPTIBILITY TENSOR, its main values and main a
          Call mma_deallocate(WM6)
          Call mma_deallocate(WM7)
       End If
-      If ( nT+nTempMagn > 0 ) Then
+      If ( nT+nTempMagn >= 0 ) Then
          Call mma_deallocate(ZT1)
          Call mma_deallocate(ZT2)
          Call mma_deallocate(ZT3)

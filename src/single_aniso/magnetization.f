@@ -120,14 +120,14 @@
       mem_local=0
       RtoB=8
 
-      If(nM>0) Then
+      If(nM>=0) Then
          ! Zeeman exchange energy spectrum
          Call mma_allocate(WM,nM,'W')
          Call dcopy_(nM,[0.0_wp],0,WM,1)
          mem_local=mem_local+nM*RtoB
       End If
 
-      If((nH>0).and.(nTempMagn>0)) Then
+      If((nH>=0).and.(nTempMagn>=0)) Then
          Call mma_allocate(MT,3,nH,nTempMagn,'MT')
          Call dcopy_(3*nH*nTempMagn,[0.0_wp],0,MT,1)
          mem_local=mem_local+3*nH*nTempMagn*RtoB
@@ -148,7 +148,7 @@
          Call dcopy_(nH*nTempMagn,[0.0_wp],0,ZT,1)
          mem_local=mem_local+nH*nTempMagn*RtoB
 
-         If(nDirTot>0) Then
+         If(nDirTot>=0) Then
             Call mma_allocate(MVEC,nDirTot,nH,nTempMagn,3,'MVEC')
             Call mma_allocate(SVEC,nDirTot,nH,nTempMagn,3,'SVEC')
             Call dcopy_(3*nDirTot*nH*nTempMagn,[0.0_wp],0,MVEC,1)
@@ -157,19 +157,19 @@
          End If
       End If
 
-      If(nH>0) Then
+      If(nH>=0) Then
          Call mma_allocate(H,nH,'H')
          Call dcopy_(nH,[0.0_wp],0,H,1)
          mem_local=mem_local+nH*RtoB
       End If
 
-      If((nTempMagn>0).and.hinput) Then
+      If((nTempMagn>=0).and.hinput) Then
          Call mma_allocate(STDEV,nTempMagn,'H')
          Call dcopy_(nTempMagn,[0.0_wp],0,STDEV,1)
          mem_local=mem_local+nTempMagn*RtoB
       End If
 
-      If(nDirTot>0) Then
+      If(nDirTot>=0) Then
             Call mma_allocate(dHX,nDirTot,'dHX')
             Call mma_allocate(dHY,nDirTot,'dHY')
             Call mma_allocate(dHZ,nDirTot,'dHZ')
@@ -679,31 +679,31 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 !-----------------------------------------------------------------------
 ! Allocate necessary memory
-      If(nM>0) Then
+      If(nM>=0) Then
          Call mma_deallocate(WM)
       End If
 
-      If((nH>0).and.(nTempMagn>0)) Then
+      If((nH>=0).and.(nTempMagn>=0)) Then
          Call mma_deallocate(MT)
          Call mma_deallocate(ST)
          Call mma_deallocate(MAV)
          Call mma_deallocate(SAV)
          Call mma_deallocate(ZT)
-         If(nDirTot>0) Then
+         If(nDirTot>=0) Then
             Call mma_deallocate(MVEC)
             Call mma_deallocate(SVEC)
          End If
       End If
 
-      If(nH>0) Then
+      If(nH>=0) Then
          Call mma_deallocate(H)
       End If
 
-      If((nTempMagn>0).and.hinput) Then
+      If((nTempMagn>=0).and.hinput) Then
          Call mma_deallocate(STDEV)
       End If
 
-      If(nDirTot>0) Then
+      If(nDirTot>=0) Then
             Call mma_deallocate(dHX)
             Call mma_deallocate(dHY)
             Call mma_deallocate(dHZ)
