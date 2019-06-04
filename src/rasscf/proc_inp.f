@@ -1938,22 +1938,22 @@ C orbitals accordingly
           call WarningMessage(2, 'TOTAlwalkers required for NECI.')
           goto 9930
         end if
-        if(count([KeyRDMI, KeyRDML, (KeyRDMS .and. KeyCALC)]) /= 1)then
-          call WarningMessage(2, 'RDMIterations, RDMLinspace, '//
+        if(count([KeyRDML, (KeyRDMS .and. KeyCALC)]) /= 1)then
+          call WarningMessage(2, 'RDMLinspace, '//
      &      'and (RDMSamplingiters + CALCrdmonfly) '//
      &      'are mutually exclusive, but one is required.')
           goto 9930
-        else if (KeyRDMI) then
-          call setpos(luinput,'RDMI',line,irc)
-          if(irc.ne._RC_ALL_IS_WELL_) goto 9810
-          read(luinput,*,end=9910,err=9920)
-     &      RDMsampling%start, RDMsampling%stop, RDMsampling%step
         else if (KeyRDML) then
           call setpos(luinput,'RDML',line,irc)
           if(irc.ne._RC_ALL_IS_WELL_) goto 9810
           read(luinput,*,end=9910,err=9920) start, n_samples, step
           RDMsampling = linspace(start, n_samples, step)
-        else if (KeyRDMS .and. KeyCALC) then
+        else if (KeyRDMS .or. KeyCALC) then
+          if (.not. (KeyRDMS .and. KeyCALC)) then
+            call WarningMessage(2, 'RDMSamplingiters and CALCrdmonfly '//
+     &        'are both required together. ')
+            goto 9930
+          end if
           call setpos(luinput,'RDMS',line,irc)
           if(irc.ne._RC_ALL_IS_WELL_) goto 9810
           read(luinput,*,end=9910,err=9920) start
