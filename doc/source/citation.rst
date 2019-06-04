@@ -9,13 +9,17 @@ M. Garavelli, A. Giussani, C. E. Hoyer, G. Li Manni, H. Lischka, D. Ma, P. Å. M
 T. Müller, A. Nenov, M. Olivucci, T. B. Pedersen, D. Peng, F. Plasser, B. Pritchard,
 M. Reiher, I. Rivalta, I. Schapiro, J. Segarra-Martí, M. Stenrup, D. G. Truhlar,
 L. Ungur, A. Valentini, S. Vancoillie, V. Veryazov, V. P. Vysotskiy, O. Weingart,
-F. Zapata, R. Lindh, *Journal of Computational Chemistry*, **37**, 506, (2016).
+F. Zapata, R. Lindh, *Journal of Computational Chemistry*, **37**, 506 (2016).
 DOI: `10.1002/jcc.24221 <https://doi.org/10.1002/jcc.24221>`_
+
+**Cholesky infrastructure:** F. Aquilante, T. B. Pedersen, V. Veryazov, R. Lindh,
+*Wiley Interdiscip. Rev. Comput. Mol. Sci.*, **3**, 143 (2013).
+DOI: `10.1002/wcms.1117 <https://doi.org/10.1002/wcms.1117>`_
 
 **Molcas 7:** F. Aquilante, L. De Vico, N. Ferré, G. Ghigo,
 P.-Å. Malmqvist, P. Neogrády, T. B. Pedersen, M. Pitoňák, M. Reiher,
 B. O. Roos, L. Serrano-Andrés, M. Urban, V. Veryazov, R. Lindh,
-*Journal of Computational Chemistry*, **31**, 224, (2010).
+*Journal of Computational Chemistry*, **31**, 224 (2010).
 DOI: `10.1002/jcc.21318 <https://doi.org/10.1002/jcc.21318>`_
 
 **Code development:** V. Veryazov, P.-O. Widmark, L. Serrano-Andrés, R. Lindh, B. O. Roos,
