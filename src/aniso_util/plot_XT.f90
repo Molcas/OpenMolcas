@@ -9,10 +9,6 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
   Subroutine plot_XT_with_Exp(label, nT, T, XTcalc, XTexp, zJ )
-#ifdef NAGFOR
-      use f90_unix_env
-      use f90_unix_proc
-#endif
 
   IMPLICIT NONE
 
@@ -275,10 +271,6 @@
 
 
   Subroutine plot_XT_no_Exp(label, nT, T, XTcalc, zJ )
-#ifdef NAGFOR
-      use f90_unix_env
-      use f90_unix_proc
-#endif
 
   IMPLICIT NONE
 

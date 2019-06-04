@@ -9,10 +9,6 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine plot_barrier(nBlock,nMult,nDIM,E,M)
-#ifdef NAGFOR
-      use f90_unix_env
-      use f90_unix_proc
-#endif
 
       IMPLICIT NONE
 
