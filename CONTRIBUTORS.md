@@ -34,6 +34,7 @@ General citations
   *Comput. Mat. Sci.* **28** (2003) 222-239. DOI: [10.1016/S0927-0256(03)00109-5](https://doi.org/10.1016/S0927-0256(03)00109-5)
 
 * **Code development**:
+  *Wiley Interdiscip. Rev. Comput. Mol. Sci.* **3** (2013) 143-149. DOI: [10.1002/wcms.1117](https://doi.org/10.1002/wcms.1117);
   *Int. J. Quantum Chem.* **100** (2004) 626-635. DOI: [10.1002/qua.20166](https://doi.org/10.1002/qua.20166)
 
 
