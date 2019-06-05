@@ -234,13 +234,18 @@ c Avoid unused argument warnings
 *    &                       1.0D-6)
             End If
 *
-            Single_l_value=.True.
+*           Single_l_value=.True.
+            Single_l_value=.False.
             If (Single_l_value) Then
                Call setlkriging(Value_l,1)
             Else
                Call mma_Allocate(Array_l,nInter,Label='Array_l')
-               Call DCopy_(nInter,[1.0D0],0,Array_l,1)
-               Call DScal_(nInter,Value_l,Arrary_l,1)
+*              Call DCopy_(nInter,[1.0D0],0,Array_l,1)
+               Call Set_l_Array(Array_l,nInter)
+*              Call RecPrt('l values',' ',Array_l,nInter,1)
+*              Write (6,*) 'Value_l=',Value_l
+               Call DScal_(nInter,Value_l,Array_l,1)
+*              Call RecPrt('l values',' ',Array_l,nInter,1)
                Call setlkriging(Array_l,nInter)
                Call mma_DeAllocate(Array_l)
             End If

@@ -10,14 +10,23 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-        SUBROUTINE setlkriging(lv)
+        SUBROUTINE setlkriging(lv,nInter)
             use globvar
-            integer i
-            real*8 lv
+            integer i, nInter
+            real*8 lv(nInter)
             call miden()
-            do i = 1,nInter_save
-                l(i)=lv
-            enddo
+            If (nInter.eq.nInter_Save) Then
+               do i = 1,nInter_save
+                l(i)=lv(i)
+               enddo
+            Else If (nInter.eq.1) Then
+               do i = 1,nInter_save
+                l(i)=lv(1)
+               enddo
+            Else
+               Write (6,*) "setlkriging: illegal nInter value."
+               Call Abend()
+            End If
             call covarmatrix(nPoints_Save,nInter_save)
             call k(nPoints_save)
 !           write (6,*) 'set l value, lh:',l(1)
