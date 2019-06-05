@@ -15,7 +15,7 @@
       module fciqmc_make_inp
         use stdalloc, only : mma_deallocate
         private
-        public :: make_inp, cleanup, linspace
+        public :: make_inp, cleanup
         integer, public ::
 ! No default value on purpose
      &    totalwalkers,

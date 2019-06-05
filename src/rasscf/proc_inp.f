@@ -23,9 +23,9 @@
       use fcidump_reorder, only : ReOrInp, ReOrFlag
       use fciqmc, only : DoEmbdNECI, DoNECI
       use fciqmc_make_inp, only : trial_wavefunction, pops_trial,
-     & t_RDMsampling, RDMsampling, linspace,
-     & totalwalkers, Time, nmCyc, memoryfacspawn,
-     & realspawncutoff, diagshift, definedet, semi_stochastic
+     &  t_RDMsampling, RDMsampling,
+     &  totalwalkers, Time, nmCyc, memoryfacspawn,
+     &  realspawncutoff, diagshift, definedet, semi_stochastic
 
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"

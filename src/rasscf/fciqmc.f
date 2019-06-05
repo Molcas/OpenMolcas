@@ -88,10 +88,9 @@
       logical, intent(in), optional :: fake_run
       logical :: fake_run_
       real*8, save :: NECIen
-      integer :: iPRLEV, iOff, iSym, iBas, i, j,
-     &    jRoot, iDisk, jDisk, kRoot, permutation(sum(nAsh(:nSym)))
-      real*8 :: orbital_E(nTot), folded_Fock(nAcPar), Scal
-      real*8, allocatable :: DTMP(:), Ptmp(:), PAtmp(:), DStmp(:)
+      integer :: iPRLEV, iOff, iSym, iBas, i, j, jRoot,
+     &    permutation(sum(nAsh(:nSym)))
+      real*8 :: orbital_E(nTot), folded_Fock(nAcPar)
 
       parameter(ROUTINE = 'FCIQMC_clt')
 
@@ -138,10 +137,10 @@
 ! TODO(Giovanni): No dirty setups
       S = 0.5D0 * DBLE(ISPIN-1)
 
-      call check_options(
-     &    lRoots, lRf, KSDFT, iDoGAS, nGSSH, iGSOCCX, nGAS)
+      call check_options(lRoots, lRf, KSDFT, iDoGAS, iGSOCCX, nGAS)
 
 ! Produce a working FCIDUMP file
+! TODO: permutation has to be applied at more places
       select case (ReOrFlag)
         case (2:)
           permutation = get_P_inp(ReOrInp)
@@ -160,6 +159,8 @@
         call make_fcidumps(orbital_E, folded_Fock, TUVX, EMY)
       end if
 
+      call write_GASORB(ngssh)
+
 ! Run NECI
       call Timing(Rado_1, Swatch, Swatch, Swatch)
 #ifdef _MOLCAS_MPP_
@@ -172,47 +173,8 @@
         ENER(jRoot, ITER) = NECIen
       end do
 
-! Generate density matrices for Molcas
-!   Neci density matrices are stored in Files TwoRDM_**** (in spacial orbital basis).
-!   I will be reading them from those formatted files for the time being.
-!   Next it will be nice if NECI prints them out already in Molcas format.
-! ONE-BODY DENSITY
-      call mma_allocate(DTMP, nAcPar, label='Dtmp ')
-! ONE-BODY SPIN DENSITY
-      call mma_allocate(DStmp, nAcPar, label='DStmp')
-! SYMMETRIC TWO-BODY DENSITY
-      call mma_allocate(Ptmp, nAcPr2, label='Ptmp ')
-! ANTISYMMETRIC TWO-BODY DENSITY
-      call mma_allocate(PAtmp, nAcPr2, label='PAtmp')
 
-      call read_neci_RDM(DTMP, DStmp, Ptmp, PAtmp)
-
-! COMPUTE AVERAGE DENSITY MATRICES
-      do jRoot = 1, lRoots
-        Scal = 0.0d0
-        do kRoot = 1, nRoots
-          if (iRoot(kRoot) == jRoot) Scal = Weight(kRoot)
-        end do
-        DMAT(:) = SCAL * DTMP(:)
-        D1S_MO(:) = SCAL * PSMAT(:)
-        PSMAT(:) = SCAL * Ptmp(:)
-        PAMAT(:) = SCAL * PAtmp(:)
-! Put it on the RUNFILE
-        call Put_D1MO(DTMP,NACPAR)
-        call Put_P2MO(Ptmp,NACPR2)
-! Save density matrices on disk
-        iDisk = IADR15(4)
-        jDisk = IADR15(3)
-        call DDafile(JOBIPH, 1, DTMP, NACPAR, jDisk)
-        call DDafile(JOBIPH, 1, DStmp, NACPAR, jDisk)
-        call DDafile(JOBIPH, 1, Ptmp, NACPR2, jDisk)
-        call DDafile(JOBIPH, 1, PAtmp, NACPR2, jDisk)
-      end do
-
-      call mma_deallocate(DTMP)
-      call mma_deallocate(DStmp)
-      call mma_deallocate(Ptmp)
-      call mma_deallocate(PAtmp)
+      call get_neci_RDM(D1S_MO, DMAT, PSMAT, PAMAT)
 
 ! print matrices
       if (IPRLEV >= DEBUG) then
@@ -233,12 +195,12 @@
       Rado_2 = Rado_2 - Rado_1
       Rado_3 = Rado_3 + Rado_2
 
-      call qExit('FCIQMC_CTL')
-
+      call qExit(routine)
       end subroutine fciqmc_ctl
 
 
       subroutine run_neci(DoEmbdNECI, NECien)
+        implicit none
         logical, intent(in) :: DoEmbdNECI
         real*8, intent(out) :: NECIen
         if (DoEmbdNECI) then
@@ -286,7 +248,7 @@
       end subroutine wait_and_read
 
 
-      subroutine abort(message)
+      subroutine abort_(message)
         implicit none
         character(*), intent(in) :: message
         call WarningMessage(2, message)
@@ -307,22 +269,22 @@
 
 
       subroutine check_options(lroots, lRf, KSDFT,
-     &      DoGAS, nGSSH, iGSOCCX, nGAS)
+     &      DoGAS, iGSOCCX, nGAS)
         implicit none
-        integer, intent(in) :: lroots, nGSSH(:, :), iGSOCCX(:, :),nGAS
+        integer, intent(in) :: lroots, iGSOCCX(:, :),nGAS
         logical, intent(in) :: lRf, DoGAS
         character(*), intent(in) :: KSDFT
         logical :: Do_ESPF
         if (lroots > 1) then
-          call abort('FCIQMC does not support State Average yet!')
+          call abort_('FCIQMC does not support State Average yet!')
         end if
         call DecideOnESPF(Do_ESPF)
         if ( lRf .or. KSDFT /= 'SCF' .or. Do_ESPF) then
-          call abort('FCIQMC does not support Reaction Field yet!')
+          call abort_('FCIQMC does not support Reaction Field yet!')
         end if
         if (DoGAS) then
           if (.not. all(iGSOCCX(:nGAS, 1) == iGSOCCX(:nGAS, 2))) then
-            call abort('Only disconnected GAS spaces are '//
+            call abort_('Only disconnected GAS spaces are '//
      &        'currently supported in FCIQMC.')
           end if
         end if
@@ -360,4 +322,58 @@
         write(6,'(4x, A)')'echo $your_RDM_Energy > '//trim(newcycle)
         call xflush(6)
       end subroutine write_ExNECI_message
+
+!> Generate density matrices for Molcas
+!>   Neci density matrices are stored in Files TwoRDM_**** (in spacial orbital basis).
+!>   I will be reading them from those formatted files for the time being.
+!>   Next it will be nice if NECI prints them out already in Molcas format.
+      subroutine get_neci_RDM(D1S_MO, DMAT, PSMAT, PAMAT)
+      real*8, intent(out) :: D1S_MO(nAcPar), DMAT(nAcpar),
+     &    PSMAT(nAcpr2), PAMAT(nAcpr2)
+      real*8, allocatable ::
+!> ONE-BODY DENSITY
+     &  DTMP(:),
+!> SYMMETRIC TWO-BODY DENSITY
+     &  Ptmp(:),
+!> ANTISYMMETRIC TWO-BODY DENSITY
+     &  PAtmp(:),
+!> ONE-BODY SPIN DENSITY
+     &  DStmp(:)
+      real*8 :: Scal
+      integer :: jRoot, kRoot, iDisk, jDisk
+
+      call mma_allocate(DTMP, nAcPar, label='Dtmp ')
+      call mma_allocate(DStmp, nAcPar, label='DStmp')
+      call mma_allocate(Ptmp, nAcPr2, label='Ptmp ')
+      call mma_allocate(PAtmp, nAcPr2, label='PAtmp')
+
+      call read_neci_RDM(DTMP, DStmp, Ptmp, PAtmp)
+
+! COMPUTE AVERAGE DENSITY MATRICES
+      do jRoot = 1, lRoots
+        Scal = 0.0d0
+        do kRoot = 1, nRoots
+          if (iRoot(kRoot) == jRoot) Scal = Weight(kRoot)
+        end do
+        DMAT(:) = SCAL * DTMP(:)
+        D1S_MO(:) = SCAL * PSMAT(:)
+        PSMAT(:) = SCAL * Ptmp(:)
+        PAMAT(:) = SCAL * PAtmp(:)
+! Put it on the RUNFILE
+        call Put_D1MO(DTMP,NACPAR)
+        call Put_P2MO(Ptmp,NACPR2)
+! Save density matrices on disk
+         iDisk = IADR15(4)
+         jDisk = IADR15(3)
+         call DDafile(JOBIPH, 1, DTMP, NACPAR, jDisk)
+         call DDafile(JOBIPH, 1, DStmp, NACPAR, jDisk)
+         call DDafile(JOBIPH, 1, Ptmp, NACPR2, jDisk)
+         call DDafile(JOBIPH, 1, PAtmp, NACPR2, jDisk)
+       end do
+
+       call mma_deallocate(DTMP)
+       call mma_deallocate(DStmp)
+       call mma_deallocate(Ptmp)
+       call mma_deallocate(PAtmp)
+       end subroutine get_neci_RDM
       end module fciqmc
