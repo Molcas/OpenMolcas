@@ -1899,6 +1899,12 @@ C orbitals accordingly
       if (KeyNECI) then
         if(DBG) write(6, *) 'NECI is actived'
         DoNECI = .true.
+
+        if (KeyDMPO) then
+          call WarningMessage(2, 'NECI and DMPOnly are mutually '//
+     &        'exclusive.')
+          GoTo 9930
+        end if
 *----------------------------------------------------------------------------------------
         if(KeyEMBD) then
           DoEmbdNECI = .true.
