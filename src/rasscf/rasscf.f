@@ -2001,12 +2001,12 @@ c deallocating TUVX memory...
       end if
       if(DoNECI) then
          CALL GETMEM('INT1  ','FREE','REAL',kint1_pointer,NAC**2)
+          call fciqmc_cleanup()
       end if
-      call fciqmc_cleanup()
 * We better deallocate before it is too late...
-c       if(DoNECI) then
-c         CALL GETMEM('INT1  ','FREE','REAL',kint1_pointer,NAC**2)
-c       end if
+c     if(DoNECI) then
+c       CALL GETMEM('INT1  ','FREE','REAL',kint1_pointer,NAC**2)
+c     end if
 *
 *
 
