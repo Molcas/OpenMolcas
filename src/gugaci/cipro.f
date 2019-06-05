@@ -161,7 +161,7 @@ c write expectation values:
         if(pname(i)(1:4).ne."AMFI") cycle
         omat=0.d0
         call irdone(irtc,1,pname(i),ipcom(i),idummy,isymlb)
-        nsiz=idummy(1)
+        if (irtc.eq.0) nsiz=idummy(1)
         call rdone(irtc,0,pname(i),ipcom(i),omat,isymlb)
         if(nsiz.gt.nc2) then
           write(6,*) "in subroutine cipro, read so int error"
@@ -234,7 +234,7 @@ c          stop 1999
 ! read property int and calculated property
       do i=1,npro
         call irdone(irtc,1,pname(i),ipcom(i),idummy,isymlb)
-        nsiz=idummy(1)
+        if (irtc.eq.0) nsiz=idummy(1)
         call rdone(irtc,0,pname(i),ipcom(i),pint,isymlb)
 C        print*, "nsiz",nsiz
         if(icall.eq.0) then

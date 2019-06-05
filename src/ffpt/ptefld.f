@@ -102,8 +102,8 @@
           iSyLbl=0
           Do iComp=1,3
             Call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
-            nInts=idum(1)
             If ( iRc.eq.0 ) Then
+              nInts=idum(1)
               Call RdOne(iRc,iOpt2,Label,iComp,Temp,iSyLbl)
               X=Temp(nInts+1)
               Y=Temp(nInts+2)
