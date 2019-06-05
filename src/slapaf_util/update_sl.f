@@ -98,9 +98,14 @@
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6
 *
+<<<<<<< HEAD
       Logical Kriging_Hessian, Not_Converged, Single_l_value
       Real*8, Allocatable:: Array_l(:)
 *define _TEST_KRIGING_
+=======
+      Logical Kriging_Hessian, Kriging_HessianT, Not_Converged
+#define _TEST_KRIGING_
+>>>>>>> af655eae3728e6e6bd827b810268076477ee6915
 #ifdef _TEST_KRIGING_
       Real*8, Allocatable:: dq(:), dqvalue(:,:)
 #endif
@@ -143,6 +148,7 @@ c Avoid unused argument warnings
 *
       iOpt_RS=0
       Kriging_Hessian =.FALSE.
+      Kriging_HessianT =.FALSE.
       If (iter.eq.NmIter.and.NmIter.ne.1) Then
 *
 *------- On the first iteration after a numerical evaluation of the
@@ -167,7 +173,7 @@ c Avoid unused argument warnings
      &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,dMass,
      &                   HrmFrq_Show,CnstWght,Curvilinear,Degen,
      &                   Kriging_Hessian,qBeta,Restriction_step,
-     &                   iOpt_RS)
+     &                   iOpt_RS,Kriging_HessianT)
 *
 *------- Move new coordinates to the correct position and compute the
 *        corresponding shift.
@@ -182,10 +188,10 @@ c Avoid unused argument warnings
 *
       Else
 *        ------- AI loop begin here
-*define _DEBUG_
+#define _DEBUG_
          If (Kriging .AND. iter.ge.nspAI) then
-*           Kriging_Hessian =.TRUE.
-            Kriging_Hessian =.False.
+            Kriging_Hessian =.TRUE.
+            Kriging_HessianT =.TRUE.
             iOpt_RS=1   ! Activate restricted variance.
 *           The threshold for restricted variance optimization.
             Beta_Disp=5.0D-4
@@ -349,7 +355,7 @@ c Avoid unused argument warnings
      &                iOptH,HUpMet,kIter_,GNrm_Threshold,IRC,dMass,
      &                HrmFrq_Show,CnstWght,Curvilinear,Degen,
      &                Kriging_Hessian,qBeta,Restriction_dispersion,
-     &                iOpt_RS)
+     &                iOpt_RS,Kriging_HessianT)
 *
 *              Change lable of updating method if kriging points has
 *              been used.
@@ -510,7 +516,7 @@ c Avoid unused argument warnings
      &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,dMass,
      &                   HrmFrq_Show,CnstWght,Curvilinear,Degen,
      &                   Kriging_Hessian,qBeta,Restriction_step,
-     &                   iOpt_RS)
+     &                   iOpt_RS,Kriging_HessianT)
          End If
       End If
 *
@@ -544,7 +550,7 @@ c Avoid unused argument warnings
      &                     iOptH,HUpMet,mIter,GNrm_Threshold,IRC,
      &                     dMass,HrmFrq_Show,CnstWght,Curvilinear,
      &                     Degen,Kriging_Hessian,qBeta,Restriction,
-     &                     iOpt_RS)
+     &                     iOpt_RS,Kriging_HessianT)
 ************************************************************************
 *     Object: to update coordinates                                    *
 *                                                                      *
@@ -613,16 +619,17 @@ c Avoid unused argument warnings
      &        iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
      &        FindTS, TSC, HrmFrq_Show,Found,
-     &        Curvilinear, Kriging_Hessian
+     &        Curvilinear, Kriging_Hessian, Kriging_HessianT
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6, File1*8, File2*8
-      Real*8, Allocatable:: Hessian(:,:)
+      Real*8, Allocatable:: Hessian(:,:), difH(:,:)
+      Character Hess_type*8
 #define _NUM_HESS_
 #ifdef _NUM_HESS_
       Real*8, Allocatable:: dqp(:), dqm(:)
+      Hess_Type = 'Num_Hess'
 #endif
-*
       iRout=153
       iPrint=nPrint(iRout)
       Lu=6
@@ -656,6 +663,7 @@ c Avoid unused argument warnings
 *
 *
       Call mma_Allocate(Hessian,nInter,nInter,Label='Hessian')
+      Call mma_Allocate(difH,nInter,nInter,Label='difH')
       If (Kriging_Hessian) Then
 *
 *        Temporary code until we have the 2nd derivatives from the
@@ -663,10 +671,11 @@ c Avoid unused argument warnings
 *
          Call DCopy_(nInter**2,[Zero],0,Hessian,1)
 #ifdef _NUM_HESS_
+         Hess_Type='numHess'
          Call mma_Allocate(dqp,nInter,Label='dqp')
          Call mma_Allocate(dqm,nInter,Label='dqm')
          Scale=0.01D0
-*define _PRINT_
+#define _PRINT_
 #ifdef _PRINT_
          Call RecPrt('qInt',' ',qInt(1,kIter),nInter,1)
          Call RecPrt('Grad',' ',Grad(1,kIter),nInter,1)
@@ -722,6 +731,7 @@ c Avoid unused argument warnings
          Call mma_Deallocate(dqp)
          Call mma_Deallocate(dqm)
 #else
+         Hess_Type='AnalHess'
          Call DCopy_(nInter,1.0D-2,0,Hessian,nInter+1)
          Call Hessian_Kriging(qInt(1,kIter),Hessian,nInter)
 #endif
@@ -748,9 +758,15 @@ c Avoid unused argument warnings
      &                 iNeg,iOptH,HUpMet,nRowH,jPrint,GNrm(kIter),
      &                 GNrm_Threshold,nsAtom,IRC,.True.)
       End If
-*define _PRINT_HESSIAN_
+#define _PRINT_HESSIAN_
 #ifdef _PRINT_HESSIAN_
-      Call RecPrt('Hessian','(6F10.4)',Hessian,nInter,nInter)
+         if (Kriging_HessianT) then
+            Call RecPrt(Hess_Type,'(6F10.4)',Hessian,nInter,nInter)
+            Call Hessian_Kriging(qInt(1,kIter),difH,nInter)
+            Call RecPrt('Hessian Kriging','(6F10.4)',difH,nInter,nInter)
+            difH = difH - Hessian
+            Call RecPrt('Dif Hessians','(6F10.4)',difH,nInter,nInter)
+         endif
 #endif
 *
 *     Save the number of internal coordinates on the runfile.

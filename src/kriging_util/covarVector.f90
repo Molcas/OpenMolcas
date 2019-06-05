@@ -60,8 +60,9 @@
                 !endif
                 do i=1,nInter
                     diffx = 2.0*rl(:,:,i)/l(i)
+                    cv(1:iter,:,i,1) = -cvMatFder * diffx
                     do j = 1,nInter
-                        if (j.eq.1) cv(1:iter,:,i,1) = -cvMatFder * diffx
+                        ! if (j.eq.1) cv(1:iter,:,i,1) = -cvMatFder * diffx
                         j0 = j*iter + 1
                         j1 = j0+iter - 1
 !                           write(6,*) 'i,j',i,j
@@ -71,7 +72,7 @@
                         m = cvMatSder * diffx*diffx0
                         if (i.eq.j) m = m - cvMatFder*(2/(l(i)*l(j)))
                         cv(j0:j1,:,i,1) = m
-!                           Write (6,*) 'm - Krig Grad: ',m
+                        ! Write (6,*) 'cvMatSder - Krig Grad: ',cvMatSder
 !                           write (6,*) 'CV',cv(:,:,:,1)
                     enddo
                 enddo
@@ -84,6 +85,7 @@
                 cvMatFder = m
                 call matderiv(2, dl, m, iter, npx)
                 cvMatSder = m
+                Write (6,*) 'cvMatSder - Krig Grad(hess): ',cvMatSder
                 call matderiv(3, dl, m, iter, npx)
                 cvMatTder = m
                 ! write (6,*) 'dl',dl
@@ -103,7 +105,8 @@
                             k1 = k0+iter - 1
                             if (i.eq.j.and.j.eq.k) then
                                 m = cvMatTder*diffx0**3 + 3*cvMatSder*diffx0*sdiffx0
-                                !write(6,*) 'i=j=k',i,j,k
+                                ! write(6,*) 'i=j=k',i,j,k
+                                ! write(6,*) 'cvMatTder*diffx0**3',cvMatTder*diffx0**3
                             else
                                 if (i.eq.j) then
                                     m = cvMatTder*diffx0**3 + cvMatSder*diffx0*sdiffx
@@ -114,11 +117,12 @@
                                         !write(6,*) 'i=K!=J',i,j,k
                                     else
                                         if (j.eq.k) then
-                                            m = cvMatTder*diffx0**3 + cvMatSder*diffx0*sdiffx0
+                                            m = cvMatTder*diffx0**3 + cvMatSder*diffxk*sdiffx0
                                             !write(6,*) 'i=j!=k',i,j,k
                                         else
-                                            m = cvMatTder*diffx*diffx0*diffxk
-                                            !write(6,*) 'i!=j!=k',i,j,k
+                                            m = -cvMatTder*diffx*diffx0*diffxk
+                                            ! write(6,*) 'i!=j!=k',i,j,k
+                                            ! write (6,*) m
                                         endif
                                     endif
                                 endif

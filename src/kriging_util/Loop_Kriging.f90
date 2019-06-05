@@ -73,7 +73,7 @@
         call covarvector(2,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
         call predict(2,nPoints,nInter)
         ddy_=hpred(npx,:,:)
-        write(6,*) 'Kriging Hessian', ddy_
+        ! write(6,*) 'Kriging Hessian', ddy_
 !
         return
       end
