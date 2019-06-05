@@ -98,7 +98,8 @@
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6
 *
-      Logical Kriging_Hessian, Not_Converged
+      Logical Kriging_Hessian, Not_Converged, Single_l_value
+      Real*8, Allocatable:: Array_l(:)
 *define _TEST_KRIGING_
 #ifdef _TEST_KRIGING_
       Real*8, Allocatable:: dq(:), dqvalue(:,:)
@@ -186,6 +187,7 @@ c Avoid unused argument warnings
 *           Kriging_Hessian =.TRUE.
             Kriging_Hessian =.False.
             iOpt_RS=1   ! Activate restricted variance.
+*           The threshold for restricted variance optimization.
             Beta_Disp=5.0D-4
             iterAI=iter
             dEner=meAI
@@ -205,6 +207,9 @@ c Avoid unused argument warnings
 *           Pass the data point to the GEK routine. Remember to
 *           change the sign of the gradients.
 *
+*           Note that we could have some kind of sorting here if we
+*           like!
+*
             Call DScal_(nInter*nRaw,-One,Grad(1,iFirst),1)
             Call Start_Kriging(nRaw,nInter,
      &                            qInt(1,iFirst),
@@ -212,7 +217,8 @@ c Avoid unused argument warnings
      &                            Energy(iFirst))
             Call DScal_(nInter*nRaw,-One,Grad(1,iFirst),1)
 *
-*           Update the l value dynamically.
+*           Update the l value dynamically. Here we compare the actual,
+*           ab inito value with the GEK prediction of the gradient.
 *
             Call Get_dScalar('Value_l',Value_l)
             If (iter.gt.nspAI) Then
@@ -221,11 +227,25 @@ c Avoid unused argument warnings
                iNew=iFirst+nRaw-1
                yyy=DDot_(nInter,Grad(1,iNew),1,Grad(1,iNew),1)
                If (yyy.gt.xxx) Value_l=Value_l * 0.95D0
+*
+*              Update the restricted variance threshold.
+*
 *              Beta_Disp=Max(Abs(Energy(iNew)-Energy(iOld)),
 *    &                       1.0D-6)
             End If
-            Call setlkriging(Value_l)
+*
+            Single_l_value=.True.
+            If (Single_l_value) Then
+               Call setlkriging(Value_l,1)
+            Else
+               Call mma_Allocate(Array_l,nInter,Label='Array_l')
+               Call DCopy_(nInter,[1.0D0],0,Array_l,1)
+               Call DScal_(nInter,Value_l,Arrary_l,1)
+               Call setlkriging(Array_l,nInter)
+               Call mma_DeAllocate(Array_l)
+            End If
             Call Put_dScalar('Value_l',Value_l)
+*
 #ifdef _TEST_KRIGING_
 *
 *           Activate code to check that the kriging is doing an exaxt
