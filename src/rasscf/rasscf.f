@@ -1068,22 +1068,13 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
 *
 * Compute the CI vectors and density matrices
 *
-      IF(.not.l_casdft ) THEN !the following is skipped in CASDFT-GLM
+      IF (.not. l_casdft) THEN !the following is skipped in CASDFT-GLM
 
-         If(KSDFT.ne.'SCF'.and.KSDFT.ne.'PAM') Then
-           Call Put_CMO(WORK(LCMO),ntot2)
-         End If
+        If(KSDFT.ne.'SCF'.and.KSDFT.ne.'PAM') Then
+          Call Put_CMO(WORK(LCMO),ntot2)
+        End If
 
         Call Timing(Swatch,Swatch,Zenith_1,Swatch)
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
-        If(DoBlockDMRG) Then
-          CALL DMRGCTL(WORK(LCMO),
-     &           WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
-     &           WORK(LFI),WORK(LD1I),WORK(LD1A),
-     &           WORK(LTUVX),IFINAL,1)
-        Else
-#endif
-
         if (DoNECI) then
           call FCIQMC_ctl(CMO=work(LCMO : LCMO + nTot2 - 1),
      &                    DIAF=work(LDIAF : LDiaf + nTot - 1),
@@ -1096,130 +1087,134 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
      &                    PSMAT=work(lpmat : lPMat + nAcpr2 - 1),
      &                    PAMAT=work(lpa : lpa + nAcPr2 - 1),
      &                    fake_run=(iter==1))
-
           If ( IPRLEV.ge.DEBUG ) then
-           Write(LF,*)
-           Write(LF,*) ' D1A in AO basis in RASSCF af FCIQMC_ctl 2'
-           Write(LF,*) ' ---------------------'
-           Write(LF,*)
-           iOff=1
-           Do iSym = 1,nSym
-            iBas = nBas(iSym)
-            call wrtmat(Work(lD1A+ioff-1),iBas,iBas, iBas, iBas)
-            iOff = iOff + iBas*iBas
-           End Do
+            Write(LF,*)
+            Write(LF,*) ' D1A in AO basis in RASSCF af FCIQMC_ctl 2'
+            Write(LF,*) ' ---------------------'
+            Write(LF,*)
+            iOff=1
+            Do iSym = 1,nSym
+              iBas = nBas(iSym)
+              call wrtmat(Work(lD1A+ioff-1),iBas,iBas, iBas, iBas)
+              iOff = iOff + iBas*iBas
+            End Do
           end if
-        else
-        CALL CICTL(WORK(LCMO),
-     &           WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
-     &           WORK(LFI),WORK(LD1I),WORK(LD1A),
-     &           WORK(LTUVX),IFINAL)
-      end if
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
-      End If
+        else If(DoBlockDMRG) Then
+            CALL DMRGCTL(WORK(LCMO),
+     &             WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
+     &             WORK(LFI),WORK(LD1I),WORK(LD1A),
+     &             WORK(LTUVX),IFINAL,1)
 #endif
+        else
+          CALL CICTL(WORK(LCMO),
+     &               WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
+     &               WORK(LFI),WORK(LD1I),WORK(LD1A),
+     &               WORK(LTUVX),IFINAL)
+        end if
 c      call triprt('twxy',' ',WORK(LTUVX),nAc*(nAc+1)/2)
 c      call triprt('P-mat 2',' ',WORK(LPMAT),nAc*(nAc+1)/2)
 
-      EAV=0.0d0
-      If(DoSplitCAS) Then
-        EAV = ENER(lRootSplit,ITER)
-      Else
-       DO KROOT=1,NROOTS
-         EAV=EAV+ENER(IROOT(KROOT),ITER)*WEIGHT(KROOT)
-       END DO
-      End If
+        EAV=0.0d0
+        If (DoSplitCAS) Then
+          EAV = ENER(lRootSplit,ITER)
+        Else
+         DO KROOT=1,NROOTS
+           EAV=EAV+ENER(IROOT(KROOT),ITER)*WEIGHT(KROOT)
+         END DO
+        End If
 
-       IF(IPRLEV.ge.DEBUG) THEN
-        write(6,*) 'EAV value in RASSCF after second call to CICTL:'
-        write(6,*) EAV
+        IF (IPRLEV.ge.DEBUG) THEN
+          write(6,*) 'EAV value in RASSCF after second call to CICTL:'
+          write(6,*) EAV
 
-         write(6,*) 'Printing matrices in RASSCF'
-         Write(LF,*)
-         Write(LF,*) ' CMO in RASSCF'
-         Write(LF,*) ' ---------------------'
-         Write(LF,*)
-         ioff=1
-         Do iSym = 1,nSym
-          iBas = nBas(iSym)
-          if(iBas.ne.0) then
-            write(6,*) 'Sym =', iSym
-            do i= 1,iBas
-              write(6,*) (Work(LCMO+ioff-1+iBas*(i-1)+j),j=0,iBas-1)
-            end do
-            iOff = iOff + (iBas*iBas)
-          end if
-         End Do
+          write(6,*) 'Printing matrices in RASSCF'
+          Write(LF,*)
+          Write(LF,*) ' CMO in RASSCF'
+          Write(LF,*) ' ---------------------'
+          Write(LF,*)
+          ioff=1
+          Do iSym = 1,nSym
+            iBas = nBas(iSym)
+            if(iBas.ne.0) then
+              write(6,*) 'Sym =', iSym
+              do i= 1,iBas
+                write(6,*) (Work(LCMO+ioff-1+iBas*(i-1)+j),j=0,iBas-1)
+              end do
+              iOff = iOff + (iBas*iBas)
+            end if
+          End Do
 
-        Write(LF,*)
-        Write(LF,*) ' D1I in AO basis in RASSCF'
-        Write(LF,*) ' ---------------------'
-        Write(LF,*)
-        iOff=1
-        Do iSym = 1,nSym
-         iBas = nBas(iSym)
-         call wrtmat(Work(lD1I+ioff-1),iBas,iBas, iBas, iBas)
-         iOff = iOff + iBas*iBas
-        End Do
-        write(6,*)
-        write(6,*) 'Total Charge :', Tot_Charge
+          Write(LF,*)
+          Write(LF,*) ' D1I in AO basis in RASSCF'
+          Write(LF,*) ' ---------------------'
+          Write(LF,*)
+          iOff=1
+          Do iSym = 1,nSym
+            iBas = nBas(iSym)
+            call wrtmat(Work(lD1I+ioff-1),iBas,iBas, iBas, iBas)
+            iOff = iOff + iBas*iBas
+          End Do
+          write(6,*)
+          write(6,*) 'Total Charge :', Tot_Charge
 
-         Call GetMem('Fcore','Allo','Real',iTmp1,nTot1)
-         iComp  =  1
-         iSyLbl =  1
-         iRc    = -1
-         iOpt   =  6
-         Call RdOne(iRc,iOpt,'OneHam',iComp,Work(iTmp1),iSyLbl)
-         If ( iRc.ne.0 ) then
-          Write(LF,*) 'SGFCIN: iRc from Call RdOne not 0'
-          Write(LF,*) 'Label = ',Label
-          Write(LF,*) 'iRc = ',iRc
-          Call QTrace
-          Call Abend
-         Endif
+          Call GetMem('Fcore','Allo','Real',iTmp1,nTot1)
+          iComp  =  1
+          iSyLbl =  1
+          iRc    = -1
+          iOpt   =  6
+          Call RdOne(iRc,iOpt,'OneHam',iComp,Work(iTmp1),iSyLbl)
+          If ( iRc.ne.0 ) then
+           Write(LF,*) 'SGFCIN: iRc from Call RdOne not 0'
+           Write(LF,*) 'Label = ',Label
+           Write(LF,*) 'iRc = ',iRc
+           Call QTrace
+           Call Abend
+          End if
 
-         Write(LF,*)
-         Write(LF,*) ' OneHam in AO basis in RASSCF'
-         Write(LF,*) ' ---------------------'
-         Write(LF,*)
-         iOff=0
-         Do iSym = 1,nSym
-          iBas = nBas(iSym)
-          Call TriPrt(' ','(5G17.11)',Work(iTmp1+iOff),iBas)
-          iOff = iOff + (iBas*iBas+iBas)/2
-         End Do
+          Write(LF,*)
+          Write(LF,*) ' OneHam in AO basis in RASSCF'
+          Write(LF,*) ' ---------------------'
+          Write(LF,*)
+          iOff=0
+          Do iSym = 1,nSym
+            iBas = nBas(iSym)
+            Call TriPrt(' ','(5G17.11)',Work(iTmp1+iOff),iBas)
+            iOff = iOff + (iBas*iBas+iBas)/2
+          End Do
 
-         Call GetMem('Fcore','Free','Real',iTmp1,nTot1)
-         Call Get_dScalar('PotNuc',potNuc)
+          Call GetMem('Fcore','Free','Real',iTmp1,nTot1)
+          Call Get_dScalar('PotNuc',potNuc)
 
-         write(6,*)
-         write(6,*) 'PotNuc :', PotNuc
+          write(6,*)
+          write(6,*) 'PotNuc :', PotNuc
 
-         Write(LF,*)
-         Write(LF,*) ' D1A in AO basis in RASSCF'
-         Write(LF,*) ' ---------------------'
-         Write(LF,*)
-         iOff=1
-         Do iSym = 1,nSym
-          iBas = nBas(iSym)
-          call wrtmat(Work(lD1A+ioff-1),iBas,iBas, iBas, iBas)
-          iOff = iOff + iBas*iBas
-         End Do
-       End if
-      END IF
-
-      IF( l_casdft ) THEN
+          Write(LF,*)
+          Write(LF,*) ' D1A in AO basis in RASSCF'
+          Write(LF,*) ' ---------------------'
+          Write(LF,*)
+          iOff=1
+          Do iSym = 1,nSym
+            iBas = nBas(iSym)
+            call wrtmat(Work(lD1A+ioff-1),iBas,iBas, iBas, iBas)
+            iOff = iOff + iBas*iBas
+          End Do
+        End if
+      else
         CALL GETMEM('CASDFT_Fock','ALLO','REAL',LFOCK,NACPAR)
 * To fix the DS bug... I forgot to transform it to the AO basis... Agrrrrhhh!
         if(iSpin.eq.1) then
-          If ( IPRLEV.ge.DEBUG )
-     &        write(6,*) 'running a singlet. LDSPN set to zero!'
+          If ( IPRLEV.ge.DEBUG ) then
+            write(6,*) 'running a singlet. LDSPN set to zero!'
+          end if
           Call dcopy_(NACPAR,[0.0d0],0,Work(LDSPN),1)
         end if
         CALL GETMEM('TmpDS_DFT' ,'Allo','REAL',ipTmpDS_DFT ,NACPAR)
         CALL GETMEM('TmpD1S_DFT','Allo','REAL',ipTmpD1S_DFT,NTOT2)
         Call dcopy_(NACPAR,Work(LDSPN),1,Work(ipTmpDS_DFT),1)
-        IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(ipTmpDS_DFT))
+        IF ( NASH(1).NE.NAC ) then
+          CALL DBLOCK(Work(ipTmpDS_DFT))
+        end if
         Call Get_D1A_RASSCF(Work(LCMO),Work(ipTmpDS_DFT),
      &                      Work(ipTmpD1S_DFT))
         CALL GETMEM('TmpDS_DFT' ,'Free','REAL',ipTmpDS_DFT ,NACPAR)
@@ -1229,7 +1224,7 @@ c      call triprt('P-mat 2',' ',WORK(LPMAT),nAc*(nAc+1)/2)
         CALL GETMEM('CASDFT_Fock','FREE','REAL',LFOCK,NACPAR)
 * to fix complains from garble option on borr machines... initialize THMAX to zero.
         THMAX = 0.0d0
-      END IF
+      end if
 
 c        CALL TRIPRT('Averaged one-body density matrix, D, in RASSCF',
 c     &              ' ',Work(LDMAT),NAC)
