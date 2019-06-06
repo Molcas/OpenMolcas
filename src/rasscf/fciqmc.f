@@ -159,8 +159,6 @@
         call make_fcidumps(orbital_E, folded_Fock, TUVX, EMY)
       end if
 
-      call write_GASORB(ngssh)
-
 ! Run NECI
       call Timing(Rado_1, Swatch, Swatch, Swatch)
 #ifdef _MOLCAS_MPP_
