@@ -1724,14 +1724,6 @@ c Clean-close as much as you can the CASDFT stuff...
 *
       Call Timing(Swatch,Swatch,Zenith_1,Swatch)
 
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
-      If(DoBlockDMRG) Then
-        CALL DMRGCTL(WORK(LCMO),
-     &           WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
-     &           WORK(LFI),WORK(LD1I),WORK(LD1A),
-     &           WORK(LTUVX),IFINAL,1)
-      Else
-#endif
       if(DoNECI) then
           call FCIQMC_ctl(CMO=work(LCMO : LCMO + nTot2 - 1),
      &                    DIAF=work(LDIAF : LDiaf + nTot - 1),
@@ -1743,27 +1735,27 @@ c Clean-close as much as you can the CASDFT stuff...
      &                    DMAT=work(lDMAT : lDMAT + nAcPar - 1),
      &                    PSMAT=work(lpmat : lPMat + nAcpr2 - 1),
      &                    PAMAT=work(lpa : lpa + nAcPr2 - 1))
-      else
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
+      else If(DoBlockDMRG) Then
+        CALL DMRGCTL(WORK(LCMO),
+     &           WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
+     &           WORK(LFI),WORK(LD1I),WORK(LD1A),
+     &           WORK(LTUVX),IFINAL,1)
+#endif
+#ifdef _DMRG_
 ! Leon 27/11/2017: Skip the final CI iteration if we're using DMRGCI
 ! and CIOnly. It's enabled only for DMRGCI with QCMaquis now
 ! (to exclude potential side effects)
 ! but consider extending it to other cases!
-#ifdef _DMRG_
-      if (.not.(doDMRG.and.(ICIONLY.NE.0))) then
+      else if (doDMRG .and. (ICIONLY.NE.0))) then
+        continue
 #endif
+      else
         CALL CICTL(WORK(LCMO),
      &           WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
      &           WORK(LFI),WORK(LD1I),WORK(LD1A),
      &           WORK(LTUVX),IFINAL)
-#ifdef _DMRG_
       end if
-#endif
-      end if
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
-      End If
-#endif
-! Now disable it at least for DMRG
-!      end if !doDMRG in general (Zurich interface)
 
       EAV=0.0d0
       If(DoSplitCAS) then
