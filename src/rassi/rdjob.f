@@ -52,7 +52,7 @@
       Integer ISY, IT
       Integer I, J, ISTATE, JSTATE, ISNUM, JSNUM, iAdr
       Integer LEJOB, LHEFF, NEJOB, NHEFF, NIS, NIS1, NTIT1, NMAYBE
-      INTEGER JOB
+      INTEGER JOB, NROOT0
       LOGICAL READ_STATES
 #ifdef _HDF5_
       character(len=16) :: molcas_module
@@ -148,7 +148,13 @@
           iWork(lJBNUM+ISTAT(JOB)-1+I)=JOB
         END DO
       end if
-
+      LROT1=ref_nroots
+      DO I=0,NSTAT(JOB)-1
+        NROOT0=iWork(lLROOT+ISTAT(JOB)-1+I)
+        IF (NROOT0.GT.LROT1) THEN
+          GOTO 9002
+        END IF
+      END DO
 
       if(qdpt2sc.and.(trim(molcas_module(1:6)).eq.'NEVPT2'))then
         heff_string     = 'H_EFF_SC'
@@ -374,6 +380,12 @@ C is added in GETH1.
           End DO
         End If
       END IF
+      DO I=0,NSTAT(JOB)-1
+        NROOT0=iWork(lLROOT+ISTAT(JOB)-1+I)
+        IF (NROOT0.GT.LROT1) THEN
+          GOTO 9002
+        END IF
+      END DO
 
 C Using energy data from JobIph?
       IF(IFEJOB) THEN
@@ -575,6 +587,10 @@ C Where is the CMO data set stored?
 9001  WRITE(6,*) ' SYMMETRY GROUPS MUST BE EQUAL.'
       WRITE(6,*) ' NSYM1:',NSYM1,'NSYM :',NSYM
       GOTO 9010
+9002  WRITE(6,*) ' ROOT NOT AVAILABLE.'
+      WRITE(6,*) '             REQUESTED ROOT:',NROOT0
+      WRITE(6,*) '  MAXIMUM ROOT IN THIS FILE:',LROT1
+      GOTO 9010
 9003  WRITE(6,*) ' RAS SPECIFICATIONS DIFFER.'
       WRITE(6,*) '     THIS STATE: MAX NR OF RAS-1 HOLES:',NHOL11
       WRITE(6,*) '             MAX NR OF RAS-3 ELECTRONS:',NELE31
@@ -599,7 +615,7 @@ C Where is the CMO data set stored?
       WRITE(6,'(A,8I4)')' THIS JOBIPH:',(NBAS1(I),I=1,NSYM1)
       WRITE(6,'(A,8I4)')'    PREVIOUS:',(NBASF(I),I=1,NSYM )
 9010  CONTINUE
-      WRITE(6,*)' DATA IN JOBIPH FILE NAMED ',JBNAME(JOB),' WERE'
+      WRITE(6,*)' DATA IN JOBIPH FILE NAMED ',TRIM(JBNAME(JOB)),' WERE'
       WRITE(6,*)' INCONSISTENT WITH EARLIER DATA. PROGRAM STOPS.'
       WRITE(6,*)
       WRITE(6,*)' Errors occured in RASSI/RDJOB.'

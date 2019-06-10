@@ -52,8 +52,9 @@
 *    &                     DDOT_(NDENS,1.0D0,0,DENS(1,4),1)
       IC=ICOMP(IPROP)
       IOPT=1
+      NSIZ=0
       CALL iRDONE(IRC,IOPT,LABEL,IC,IDUM,ISCHK)
-      NSIZ=IDUM(1)
+      IF(IRC.eq.0) NSIZ=IDUM(1)
       IF(MOD(ISCHK/MASK,2).EQ.0) GOTO 300
       IOPT=0
       CALL RDONE(IRC,IOPT,LABEL,IC,BUFF,ISCHK)

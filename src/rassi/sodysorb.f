@@ -22,11 +22,14 @@
 #include "prgm.fh"
 #include "symmul.fh"
 #include "Files.fh"
+
+      ! Arrays, bounds, and indices
       INTEGER   SOTOT,SFTOT,SO2SFNUM
       INTEGER   NZ,LSZZ,ORBNUM
       INTEGER   SODYSCIND
       INTEGER   INDJ,INDI,SFI,SFJ,ZI,ZJ,NSZZ,NDUM
 
+      ! Arrays for calculation of amplitudes
       DIMENSION DYSAMPS(NSTATE,NSTATE)
       DIMENSION SFDYS(NZ,NSTATE,NSTATE)
       DIMENSION SODYSAMPS(NSS,NSS)
@@ -35,24 +38,26 @@
       DIMENSION SODYSCOFSR(NZ),SODYSCOFSI(NZ)
       DIMENSION SZZFULL(NZ,NZ)
 
-      ! Joel
-      DIMENSION SODYSCMOR(NZ*NZ)
-      DIMENSION SODYSCMOI(NZ*NZ)
-      DIMENSION SOENE(NZ)
-      DIMENSION DYSEN(NZ)
-      DIMENSION AMPS(NZ)
-      INTEGER   IFILE
+      ! Arrays for orbital export
+      DIMENSION SODYSCMOR(NZ*NSS)
+      DIMENSION SODYSCMOI(NZ*NSS)
+      DIMENSION SOENE(NSS)
+      DIMENSION DYSEN(NSS)
+      DIMENSION AMPS(NSS)
+      Character*30 Filename
 
 ! +++ J.Norell 2018
 
 C Calculates spin-orbit Dyson orbitals
 C The routine was in some part adapted from DO_SONATORB
 
-C 1. (Fast): Compute the SO dysamps from the SF dysamps and the
-C      SO eigenvectors (approximation)
-C 2. (Slower): Export Dyson orbitals in Molden and .DysOrb format
-C      for all the requested initial states
-C      The corresponding exact amplituds will be calculated.
+C Computes SO Dyson amplitudes by expanding the SF results with
+C the SO eigenvectors (of the complex Hamiltonian)
+C 1. (Fast): Compute the SO amplitudes directly from the SF amplitudes
+C    (approximation) for all states
+C 2. (Slower): Compute the full SO Dyson orbitals for the requested
+C    initial states and export them to .molden format. SO amplitudes
+C    are correctly calculated for these states.
 
 ! ****************************************************************
 
@@ -136,8 +141,8 @@ C Compute the magnitude of the complex amplitudes as an approximation
         CALL ABEND()
       ENDIF
 
-! SZZ is originally given in triangular form, lets make it a full
-! matrix for convenience
+! SZZ is originally given in symmetry-blocked triangular form,
+! lets make it a full matrix for convenience
       SZZFULL=0.0D0
       NDUM=0
       NOFF=0
@@ -153,42 +158,36 @@ C Compute the magnitude of the complex amplitudes as an approximation
        NOFF=NOFF+NB
       END DO
       CALL GETMEM('SZZ   ','FREE','REAL',LSZZ,NSZZ)
-!      WRITE(*,*)"---SZZ---"
-!      WRITE(*,*)SZZFULL
 
 ! ****************************************************************
+
+C Multiply together with the SO eigenvector coefficients with the SF
+C Dyson orbital coefficients in the atomic basis to obtain the full
+C SO Dyson orbitals
 
 C Multiply together with the SO eigenvector coefficients with the SF
 C Dyson orbital coefficients in the atomic basis to obtain
 C SO Dyson orbitals
 
-      IF (NSYM.GT.1) THEN
-       WRITE(6,*)""
-       WRITE(6,*)"! Molden export of Dyson orbitals is "//
-     & "currently not supported for calculations with symmetry !"
-      END IF
-
-      SODYSCIND=0 ! Orbital coeff. index
-      ORBNUM=0 ! Dysorb index for given JSTATE
-      SODYSCMOR=0.0D0
-      SODYSCMOI=0.0D0
-      DYSEN=0.0D0
-      AMPS=0.0D0
       SODYSAMPS=0.0D0
-
       ! For all requested initial states J and all final states I
       DO JSTATE=1,DYSEXPSO
+
+!     For each initial state JSTATE up to DYSEXPSFSO we will gather all the obtained Dysorbs
+!     and export to a shared .molden file
+         IFILE=1
+         SODYSCIND=0 ! Orbital coeff. index
+         ORBNUM=0 ! Dysorb index for given JSTATE
+         SODYSCMOR=0.0D0 ! Real orbital coefficients
+         SODYSCMOI=0.0D0 ! Imaginary orbital coefficients
+         DYSEN=0.0D0 ! Orbital energies
+         AMPS=0.0D0 ! Transition amplitudes (shown as occupations)
+
          DO ISTATE=JSTATE+1,NSS
-      ! This loop nestling order is for some reason the reverse
-      ! of what is done in GTDMCTL
-!        WRITE(*,*)"------------------"
-!        WRITE(*,*)"I,J=",ISTATE,JSTATE
 
         ! Reset values for next state combination
-        DO NDUM=1,NZ
-         SODYSCOFSR(NDUM)=0.0D0
-         SODYSCOFSI(NDUM)=0.0D0
-        END DO
+        SODYSCOFSR=0.0D0
+        SODYSCOFSI=0.0D0
 
         ! Iterate over the eigenvector components of both states
         DO JEIG=1,NSS
@@ -209,15 +208,10 @@ C SO Dyson orbitals
           ! Find the corresponding SF states
           SFI=IWORK(SO2SFNUM+IEIG-1)
 
-          IF (DYSAMPS(SFJ,SFI).GT.1.0D-6) THEN
+          IF (DYSAMPS(SFJ,SFI).GT.1.0D-5) THEN
            ! Multiply together coefficients
            CREAL=CJR*CIR+CJI*CII
            CIMAG=CJR*CII-CJI*CIR
-!           WRITE(*,*)""
-!           WRITE(*,*)"SFJ,SFI",SFJ,SFI
-!           WRITE(*,*)"CRE,CIM",CREAL,CIMAG
-!           WRITE(*,*)"SFDYSCOF=",SFDYS(:,SFJ,SFI)
-!           WRITE(*,*)"SFDYSCOF=",SFDYS(:,SFI,SFJ)
            ! Multiply with the corresponding SF Dyson orbital
            SODYSCOFSR=SODYSCOFSR+CREAL*SFDYS(:,SFJ,SFI)
            SODYSCOFSI=SODYSCOFSI+CIMAG*SFDYS(:,SFJ,SFI)
@@ -237,74 +231,35 @@ C SO Dyson orbitals
      &            +SODYSCOFSI(ZJ)*SODYSCOFSI(ZI)
             AMPI=SODYSCOFSI(ZJ)*SODYSCOFSR(ZI)
      &            -SODYSCOFSR(ZJ)*SODYSCOFSI(ZI)
-!            WRITE(*,*)"AMPR,AMPI",AMPR,AMPI
-!            WRITE(*,*)"SZZ_JI",SZZFULL(ZJ,ZI)
             AMPLITUDE=AMPLITUDE+(AMPR+AMPI)*SZZFULL(ZJ,ZI)
            END DO ! ZI
           END DO ! ZJ
 
           AMPLITUDE=SQRT(AMPLITUDE)
-!          WRITE(*,*)"AMPLITUDE=",AMPLITUDE
           SODYSAMPS(JSTATE,ISTATE)=AMPLITUDE
           SODYSAMPS(ISTATE,JSTATE)=AMPLITUDE
 
-!+++  J. Creutzberg, J. Norell  - 2018 (.DysOrb and .molden export )
-!     For each requested initial state JSTATE we will gather all the
-!     obtained Dysorbs and export to a shared .DysOrb file and .molden
-!     file.
-!     Each file can however only contain NZ numbe of orbitals, so we
-!     might have to split into several files IFILE
-          IF ( ISTATE.EQ.(JSTATE+1) ) THEN
-              IFILE=1
-              SODYSCIND=0 ! Orbital coeff. index
-              ORBNUM=0 ! Dysorb index for given JSTATE
-              SODYSCMOR=0.0D0
-              SODYSCMOI=0.0D0
-              DYSEN=0.0D0
-              AMPS=0.0D0
-          END IF
-
           ! Export Re and Im part of the coefficients
-          DO NDUM=1,NZ
-             SODYSCIND=SODYSCIND+1
-             SODYSCMOR(SODYSCIND)=SODYSCOFSR(NDUM)
-             SODYSCMOI(SODYSCIND)=SODYSCOFSI(NDUM)
-          END DO
-          ORBNUM=ORBNUM+1
-          DYSEN(ORBNUM)=SOENE(ISTATE)-SOENE(JSTATE)
-          AMPS(ORBNUM)=AMPLITUDE*AMPLITUDE
-
-! Write the Dysorbs from JSTATE to .DysOrb and .molden file
-! (Enough to fill one file)
-         IF(ORBNUM.EQ.NZ) THEN
-          IF(NSYM.LT.2) THEN
-           Call Dys_Interf(1,JSTATE,IFILE,NZ,SODYSCMOR,
-     &         DYSEN,AMPS)
-           Call Dys_Interf(2,JSTATE,IFILE,NZ,SODYSCMOI,
-     &         DYSEN,AMPS)
+          IF (AMPLITUDE.GT.1.0D-5) THEN
+           DO NDUM=1,NZ
+              SODYSCIND=SODYSCIND+1
+              SODYSCMOR(SODYSCIND)=SODYSCOFSR(NDUM)
+              SODYSCMOI(SODYSCIND)=SODYSCOFSI(NDUM)
+           END DO
+           ORBNUM=ORBNUM+1
+           DYSEN(ORBNUM)=SOENE(ISTATE)-SOENE(JSTATE)
+           AMPS(ORBNUM)=AMPLITUDE*AMPLITUDE
           END IF
-          IFILE=IFILE+1
-          SODYSCIND=0 ! Orbital coeff. index
-          ORBNUM=0 ! Dysorb index for given JSTATE
-          SODYSCMOR=0.0D0
-          SODYSCMOI=0.0D0
-          DYSEN=0.0D0
-          AMPS=0.0D0
-         END IF
-! +++
 
         END DO ! ISTATE
 
-! +++ J. Creutzberg, J. Norell - 2018
-! Write the Dysorbs from JSTATE to .DysOrb and .molden file
-! (All remaining, if any)
-        IF((ORBNUM.GT.0).AND.(NSYM.LT.2)) THEN
-        Call Dys_Interf(1,JSTATE,IFILE,NZ,SODYSCMOR,
-     &        DYSEN,AMPS)
-        Call Dys_Interf(2,JSTATE,IFILE,NZ,SODYSCMOI,
-     &        DYSEN,AMPS)
+! If at least one orbital was found, export it/them
+        IF(ORBNUM.GT.0) THEN
+         Write(filename,'(A16,I0,A3)') 'Dyson.SO.molden.',JSTATE,'.Re'
+         Call Molden_DysOrb(0,filename,DYSEN,AMPS,SODYSCMOR,ORBNUM,NZ)
+         Write(filename,'(A16,I0,A3)') 'Dyson.SO.molden.',JSTATE,'.Im'
+         Call Molden_DysOrb(0,filename,DYSEN,AMPS,SODYSCMOI,ORBNUM,NZ)
         END IF
-! +++
 
        END DO ! JSTATE
 
