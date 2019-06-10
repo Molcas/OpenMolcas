@@ -53,7 +53,7 @@
 ! passed through the Mat'ern correlation function (ISBN 0-486-61272-4 & eq. (11-12)
 ! ref.).
 !Iden is just an identity matrix necesary to avoid that the Grad-Psi becomes
-! Singular
+! Singular after been multiplied by EPS factor
           allocate (rl(nPoints,npx,nInter), dl(nPoints,npx), Iden(nPoints,nPoints)) !dl(nPoints,nPoints), mat(nPoints,nPoints),
 !
           allocate(Rones(m_t))

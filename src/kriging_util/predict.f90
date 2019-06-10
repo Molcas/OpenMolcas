@@ -47,12 +47,13 @@
 !                       write (6,*) 'pred grad:',gpred
                     else
                         ! sigma(j)=1.96*sqrt(2*abs(var*variance))
+                        ! write(6,*) 'kv: ',kv
                         do k=1,nInter
                             do i=1,nInter
-                                tcv=transpose(cv(:,:,k,i))
-                                !write(6,*) 'tcv', i,k,shape(tcv)
+                                tcv=transpose(cv(:,:,i,k))
+                                ! write(6,*) 'tcv', i,k,tcv
                                 !Call RecPrt('Update_: tcv',' ',tcv,npx,m_t)
-                                hpred(j,k,i) = dot_product(tcv(j,:),Kv)
+                                hpred(j,k,i) = dot_product(tcv(j,:), Kv)
                                 !write (6,*) 'partial hpred',hpred(j,k,i)
                                 ! write(6,*) 'pred Hess:',k,j,l,hpred(j,k), &
                                 !     var,variance,sigma, lh, tcv

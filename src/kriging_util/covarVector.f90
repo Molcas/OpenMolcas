@@ -81,11 +81,12 @@
             if(gh.eq.2) then
 !                    print *,'covar vector calling deriv(3) for Kriging Hessian'
                 call defdlrl(iter,nInter)
+                ! anAI = .False.
                 call matderiv(1, dl, m, iter, npx)
                 cvMatFder = m
                 call matderiv(2, dl, m, iter, npx)
                 cvMatSder = m
-                Write (6,*) 'cvMatSder - Krig Grad(hess): ',cvMatSder
+                ! Write (6,*) 'cvMatSder - Krig Grad(hess): ',cvMatSder
                 call matderiv(3, dl, m, iter, npx)
                 cvMatTder = m
                 ! write (6,*) 'dl',dl
@@ -100,11 +101,11 @@
                         if (i.eq.j) m = m - cvMatFder*2/(l(i)*l(j))
                         cv(1:iter,:,i,j) = m
                         do k = 1, nInter
-                            diffxk = -2.0*rl(:,:,k)/l(k)
+                            diffxk = - 2.0*rl(:,:,k)/l(k)
                             k0 = k*iter + 1
                             k1 = k0+iter - 1
                             if (i.eq.j.and.j.eq.k) then
-                                m = cvMatTder*diffx0**3 + 3*cvMatSder*diffx0*sdiffx0
+                                m = (cvMatTder*diffx0**3 + 3*cvMatSder*diffx0*sdiffx0)
                                 ! write(6,*) 'i=j=k',i,j,k
                                 ! write(6,*) 'cvMatTder*diffx0**3',cvMatTder*diffx0**3
                             else
@@ -120,7 +121,7 @@
                                             m = cvMatTder*diffx0**3 + cvMatSder*diffxk*sdiffx0
                                             !write(6,*) 'i=j!=k',i,j,k
                                         else
-                                            m = -cvMatTder*diffx*diffx0*diffxk
+                                            m = cvMatTder*diffx*diffx0*diffxk
                                             ! write(6,*) 'i!=j!=k',i,j,k
                                             ! write (6,*) m
                                         endif

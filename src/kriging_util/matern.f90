@@ -31,9 +31,8 @@
 
         SUBROUTINE matderiv(nd, d, m, d1, d2)
             use globvar
-            integer nd,d1,d2,p0
+            integer nd,d1,d2,p0,k
             real*8 nr,kr,a,b(d1,d2),dh(d1,d2),d(d1,d2),m(d1,d2),c(d1,d2),t
-            nr=real(nd)
             m = 0
             if (anAI) then
                 p0=int(pAI)
@@ -66,9 +65,10 @@
                     end select
                 endif
             else
+                nr = real(nd)
                 a = Gamma(nr+1.0)/h**nd
                 b = 0.0
-                do k=0,nd
+                do k = 0, nd
                     kr = real(k)
                     dh = d + kr*h
                     call matern(dh, m, size(dh,1), size(dh,2))
