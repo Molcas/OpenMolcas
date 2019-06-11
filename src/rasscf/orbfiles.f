@@ -30,7 +30,7 @@
       integer, intent(in) :: JobIph, iPrlev
 
       integer :: iDisk, iRt, iSym, lCMO, iShift, iNDT, iNDType(56),
-     &    lUVVVec, isfreeunit, lEdum, nGast, ipEne,ipOcc
+     &    lUVVVec, lEdum, nGast, ipEne,ipOcc
       real*8 :: Energy, PotNucDummy
 
       character(len=80) :: VecTyp
@@ -38,6 +38,11 @@
 #ifndef _DMRG_
       logical :: doDMRG = .false.
 #endif
+      interface
+        integer function isfreeunit(iseed)
+          integer, intent(in) :: iseed
+        end function
+      end interface
 
       call qEnter(routine)
 * This routine is used at normal end of a RASSCF optimization, or
@@ -133,11 +138,14 @@
 *----------------------------------------------------------------------*
 *     Write  orbitals                                                  *
 *----------------------------------------------------------------------*
-      LuvvVec = 50
-      LuvvVec = isfreeunit(LuvvVec)
-      call my_WrVec_('COET')
-      call my_WrVec_('AIT')
-
+        LuvvVec=50
+        LuvvVec=isfreeunit(LuvvVec)
+!        call partial_WrVec_('COE')
+!        call partial_WrVec_('AI')
+        Call WrVec(filename,LuvvVec,'COET',nSym,nBas,nBas,
+     &    Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
+        Call WrVec(filename,LuvvVec,'AIT',NSYM,NBAS,NBAS,
+     &   Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
 *----------------------------------------------------------------------*
 *     Second, write natural orbitals
 *----------------------------------------------------------------------*
@@ -212,10 +220,7 @@
       contains
         subroutine partial_WrVec_(label)
           character(*), intent(in) :: label
-          Call WrVec_(filename,LuvvVec,label,0,nSym,nBas,nBas,
-     &            Work(lCMO),Work(lCMO),
-     &            Work(ipOcc),Work(ipOcc),
-     &            FDIAG,E2act,
-     &            indType,VecTyp,0)
+          Call WrVec(filename,LuvvVec,label,nSym,nBas,nBas,
+     &      Work(lCMO), Work(ipOcc), Work(LEDum), IndType,VecTyp)
         end subroutine
       End subroutine
