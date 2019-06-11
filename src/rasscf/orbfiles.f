@@ -138,14 +138,22 @@
 *----------------------------------------------------------------------*
 *     Write  orbitals                                                  *
 *----------------------------------------------------------------------*
-        LuvvVec=50
-        LuvvVec=isfreeunit(LuvvVec)
-!        call partial_WrVec_('COE')
-!        call partial_WrVec_('AI')
-        Call WrVec(filename,LuvvVec,'COET',nSym,nBas,nBas,
-     &    Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
-        Call WrVec(filename,LuvvVec,'AIT',NSYM,NBAS,NBAS,
-     &   Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
+      LuvvVec=50
+      LuvvVec=isfreeunit(LuvvVec)
+c      Call WrVec(filename,LuvvVec,'COE',nSym,nBas,nBas,
+c     &  Work(lCMO), Work(ipOcc), FDIAG, iDummy,VecTyp)
+      Call WrVec_(filename,LuvvVec,'COET',0,nSym,nBas,nBas,
+     &            Work(lCMO),Work(lCMO),
+     &            Work(ipOcc),Work(ipOcc),
+     &            FDIAG,E2act,
+     &            indType,VecTyp,0)
+c      Call WrVec(filename,LuvvVec,'AI',NSYM,NBAS,NBAS,
+c     & Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
+      Call WrVec_(filename,LuvvVec,'AIT',0,nSym,nBas,nBas,
+     &            Work(lCMO),Work(lCMO),
+     &            Work(ipOcc),Work(ipOcc),
+     &            FDIAG,E2act,
+     &            indType,VecTyp,0)
 *----------------------------------------------------------------------*
 *     Second, write natural orbitals
 *----------------------------------------------------------------------*
