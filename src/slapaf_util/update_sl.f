@@ -236,7 +236,7 @@ c Avoid unused argument warnings
 *           Single_l_value=.True.
             Single_l_value=.False.
             If (Single_l_value) Then
-               Call setlkriging(Value_l,1)
+               Call setlkriging([Value_l],1)
             Else
                Call mma_Allocate(Array_l,nInter,Label='Array_l')
 *              Call DCopy_(nInter,[1.0D0],0,Array_l,1)
