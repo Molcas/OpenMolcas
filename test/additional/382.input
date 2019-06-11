@@ -8,7 +8,7 @@
 *-------------------------------------------------------------------------------
 >export MOLCAS_THR=1
 >export MOLCAS_PRINT=Verbose
->export MOLCAS_NOCHECK=MOLDEN_ENERGY,MOLDEN_OCCUPATION,MOLDEN_CMO,MLTPL
+>export MOLCAS_NOCHECK=MLTPL
 
 >COPY lif.xyz .
 

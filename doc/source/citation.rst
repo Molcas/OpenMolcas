@@ -13,7 +13,7 @@ F. Zapata, R. Lindh, *Journal of Computational Chemistry*, **37**, 506 (2016).
 DOI: `10.1002/jcc.24221 <https://doi.org/10.1002/jcc.24221>`_
 
 **Cholesky infrastructure:** F. Aquilante, T. B. Pedersen, V. Veryazov, R. Lindh,
-*Wiley Interdiscip. Rev. Comput. Mol. Sci.*, **3**, 143 (2013).
+*Wiley Interdisciplinary Reviews: Computational Molecular Science*, **3**, 143 (2013).
 DOI: `10.1002/wcms.1117 <https://doi.org/10.1002/wcms.1117>`_
 
 **Molcas 7:** F. Aquilante, L. De Vico, N. Ferré, G. Ghigo,

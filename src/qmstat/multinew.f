@@ -83,7 +83,7 @@
           iOpt=1
           iSmLbl=1
           Call iRdOne(irc,iOpt,integrals(iMlt),iComp,iDum,iSmLbl)
-          nSize=iDum(1)
+          If(irc.eq.0) nSize=iDum(1)
           If(irc.ne.0) then
             If(iComp.ne.1) then
               Write(6,*)

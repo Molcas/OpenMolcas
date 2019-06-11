@@ -92,7 +92,7 @@
       iRc=-1
       iSymLbl=1
       Call iRdOne(iRc,iOpt1,Label,1,idum,iSymLbl)
-      nInts=idum(1)
+      If (iRc.eq.0) nInts=idum(1)
       Call GetMem('SMatTr','Allo','Real',ipSTr,nInts+4)
       Call RdOne(iRc,iOpt0,Label,1,Work(ipSTr),iSymLbl)
       If(iRc.ne.0) then

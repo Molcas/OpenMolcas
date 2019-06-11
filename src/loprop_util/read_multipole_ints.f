@@ -80,14 +80,14 @@
                iRc=-1
                iSyLbl=0
                Call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
-               nInts=idum(1)
-               Call Allocate_Work(ip_mu(mu),nInts+4)
                If ( iRc.ne.0 ) Then
                   Write (6,*) 'Polar: error reading length of mu!'
                   Write (6,*) 'Mu=',mu
                   Call QTrace
                   Call Abend()
                End If
+               nInts=idum(1)
+               Call Allocate_Work(ip_mu(mu),nInts+4)
                Call RdOne(iRc,iOpt0,Label,iComp,Work(ip_mu(mu)),iSyLbl)
                If ( iRc.ne.0 ) Then
                   Write (6,*) 'Polar: error reading mu!'

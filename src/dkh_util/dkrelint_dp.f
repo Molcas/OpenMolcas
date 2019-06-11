@@ -436,7 +436,7 @@ C           Write (6,*)
             iRC = -1
             lOper=-1
             Call iRdOne(iRC,iOpt,Label,iComp,idum,lOper)
-            nInt=idum(1)
+            If (iRC.eq.0) nInt=idum(1)
 C           Write (6,*) 'lOper=',lOper
             CALL GetMem('X       ','ALLO','REAL',iX,nInt+4)
             iRC = -1
@@ -465,7 +465,7 @@ C           Write (6,*) 'lOper=',lOper
             iOpt=1
             iRC = -1
             Call iRdOne(iRC,iOpt,pXpLbl,iComp,idum,lOper)
-            nInt=idum(1)
+            If (iRC.eq.0) nInt=idum(1)
             CALL GetMem('pXp     ','ALLO','REAL',ipXp,nInt+4)
             iOpt=0
             iRC = -1
@@ -535,7 +535,7 @@ C           Write (6,*) 'Mem_Available=',Mem_Available
             iRC = -1
             lOper=-1
             Call iRdOne(iRC,iOpt,Label,iComp,idum,lOper)
-            nInt=idum(1)
+            If (iRC.eq.0) nInt=idum(1)
             CALL GetMem('Y       ','ALLO','REAL',iY,nInt+4)
             iRC = -1
             iOpt=0
