@@ -8,31 +8,38 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine OrbFiles(JOBIPH,IPRLEV)
+      Subroutine OrbFiles(JOBIPH, IPRLEV)
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
 #endif
-      Implicit Real*8 (a-h,o-z)
-#include "rasdim.fh"
+      use fortran_strings, only : str
+
+      use rasscf_data, only : iToc, name, header, title, lRoots, nRoots,
+     &  iRoot, LENIN8, mXORB, mxTit, mXroot, iPt2, Weight, iOrbTyp,
+     &  FDiag, E2Act, mxiter, maxorbout
+      use general_data, only : nActel, iSpin, nSym, lSym, mXSym,
+     &  nFro, nIsh, nAsh, nDel, nBas, nRs1, nRs2, nRs3, nHole1, nElec3,
+     &  nTot, nTot2, nConf
+      use gugx_data, only : ifCas
+      use gas_data, only : nGssh, iDoGas, nGas
+
+      implicit none
 #include "output_ras.fh"
       Parameter (ROUTINE='ORBFILES')
-#include "rasscf.fh"
-#include "gas.fh"
 #include "WrkSpc.fh"
-c***********************************************************************
-      Real*8 Energy
-      Integer ipEne,ipOcc
-      Character*80 VecTyp
-      Character*128 Filename
-      Dimension IndType(56)
-      Integer nBas(mxSym),nFro(mxSym),nDel(mxSym),nAsh(mxSym)
-      Integer nIsh(mxSym),nRs1(mxSym),nRs2(mxSym),nRs3(mxSym)
+      integer, intent(in) :: JobIph, iPrlev
+
+      integer :: iDisk, iRt, iSym, lCMO, iShift, iNDT, iNDType(56),
+     &    lUVVVec, isfreeunit, lEdum, nGast, ipEne,ipOcc
+      real*8 :: Energy, PotNucDummy
+
+      character(len=80) :: VecTyp
+      character(len=128) :: Filename
 #ifndef _DMRG_
       logical :: doDMRG = .false.
 #endif
-      Dimension E2act(1)
 
-      Call qEnter(routine)
+      call qEnter(routine)
 * This routine is used at normal end of a RASSCF optimization, or
 * when using the OrbOnly keyword to create orbital files.
 *-------------------------------------------------------------------
@@ -49,9 +56,9 @@ c***********************************************************************
 *----------------------------------------------------------------------*
 * PAM Jan 2014 -- do not take POTNUC from JOBIPH; take it directly
 * from runfile, where it was stored by seward.
-      iDisk=0
+      iDisk = 0
       Call iDaFile(JobIph,2,iToc,15,iDisk)
-      iDisk=iToc(1)
+      iDisk = iToc(1)
       Call WR_RASSCF_Info(JobIph,2,iDisk,
      &                    nActEl,iSpin,nSym,lSym,
      &                    nFro,nIsh,nAsh,nDel,
@@ -60,12 +67,8 @@ c***********************************************************************
      &                    lRoots,nRoots,iRoot,mxRoot,
      &                    nRs1,nRs2,nRs3,
      &                    nHole1,nElec3,iPt2,Weight)
-      ntot=0
-      ntot2=0
-      Do iSym=1,nSym
-         ntot=ntot+nBas(iSym)
-         ntot2=ntot2+nBas(iSym)*nBas(iSym)
-      End Do
+      ntot = sum(nBas(:nSym))
+      ntot2 = sum(nBas(:nSym)**2)
 *----------------------------------------------------------------------*
 *     Allocate CMO array                                               *
 *----------------------------------------------------------------------*
@@ -82,18 +85,18 @@ c***********************************************************************
         IndType(2+iShift)= NISH(ISYM)
         IndT=IndT+NISH(ISYM)
         If (.not. iDoGas) Then
-         IndType(3+iShift)= NRS1(ISYM)
-         IndT=IndT+NRS1(ISYM)
-         IndType(4+iShift)= NRS2(ISYM)
-         IndT=IndT+NRS2(ISYM)
-         IndType(5+iShift)= NRS3(ISYM)
-         IndT=IndT+NRS3(ISYM)
+          IndType(3+iShift)= NRS1(ISYM)
+          IndT=IndT+NRS1(ISYM)
+          IndType(4+iShift)= NRS2(ISYM)
+          IndT=IndT+NRS2(ISYM)
+          IndType(5+iShift)= NRS3(ISYM)
+          IndT=IndT+NRS3(ISYM)
         Else
-         IndType(3+iShift)=0
-         NGAST=SUM(NGSSH(1:NGAS,ISYM))
-         IndType(4+iShift)=ngast
-         IndT=IndT+ngast
-         IndType(5+iShift)=0
+          IndType(3+iShift)=0
+          NGAST=SUM(NGSSH(1:NGAS,ISYM))
+          IndType(4+iShift)=ngast
+          IndT=IndT+ngast
+          IndType(5+iShift)=0
         End If
         IndType(7+iShift)= NDEL(ISYM)
         IndT=IndT+NDEL(ISYM)
@@ -107,69 +110,42 @@ c***********************************************************************
 * IORBTYP=3 for 'Natural' orbitals... in this case the number of roots need to be specified
 * IORBTYP=4 for 'Spin' orbitals... in this case the number of roots need to be specified
 *----------------------------------------------------------------------*
-      If ( iOrbTyp.ne.2 ) then
-      iDisk=iToc(2)
-      filename='RASORB'
-      Call dDaFile(JobIph,2,Work(lCMO),ntot2,iDisk)
-         IF(IPRLEV.GE.USUAL)
-     &      Write(LF,'(6X,3A)') 'Average orbitals are written to the ',
-     &                          filename(:mylen(filename)),' file'
-         Write(VecTyp,'(A)')
-     &   '* RASSCF average (pseudo-natural) orbitals'
-         Call dDaFile(JobIph,2,Work(ipOcc),ntot,iDisk)
+      filename = 'RASORB'
+      If (iOrbTyp .ne. 2) then
+        iDisk=iToc(2)
+        Call dDaFile(JobIph,2,Work(lCMO),ntot2,iDisk)
+        IF(IPRLEV.GE.USUAL) then
+          Write(LF,'(6X,3A)') 'Average orbitals are written to the ',
+     &                          trim(filename),' file'
+        end if
+        VecTyp = '* RASSCF average (pseudo-natural) orbitals'
+        Call dDaFile(JobIph,2,Work(ipOcc),ntot,iDisk)
       Else
-      iDisk=iToc(9)
-      filename='RASORB'
-      Call dDaFile(JobIph,2,Work(lCMO),ntot2,iDisk)
-         IF(IPRLEV.GE.USUAL)Write(LF,'(6X,3A)')
-     &   'Canonical orbitals are written to the ',
-     &   filename(:mylen(filename)),' file'
-         Write(VecTyp,'(A)')
-     &   '* RASSCF canonical orbitals for CASPT2'
-         call dcopy_(ntot,[1.0D0],0,Work(ipOcc),1)
+        iDisk=iToc(9)
+        Call dDaFile(JobIph,2,Work(lCMO),ntot2,iDisk)
+        IF(IPRLEV.GE.USUAL) then
+          Write(LF,'(6X,3A)') 'Canonical orbitals are written to the ',
+     &          trim(filename),' file'
+        end if
+        VecTyp = '* RASSCF canonical orbitals for CASPT2'
+        call dcopy_(ntot,[1.0D0],0,Work(ipOcc),1)
       End If
 *----------------------------------------------------------------------*
 *     Write  orbitals                                                  *
 *----------------------------------------------------------------------*
-      LuvvVec=50
-      LuvvVec=isfreeunit(LuvvVec)
-c      Call WrVec(filename,LuvvVec,'COE',nSym,nBas,nBas,
-c     &  Work(lCMO), Work(ipOcc), FDIAG, iDummy,VecTyp)
-      Call WrVec_(filename,LuvvVec,'COET',0,nSym,nBas,nBas,
-     &            Work(lCMO),Work(lCMO),
-     &            Work(ipOcc),Work(ipOcc),
-     &            FDIAG,E2act,
-     &            indType,VecTyp,0)
-c      Call WrVec(filename,LuvvVec,'AI',NSYM,NBAS,NBAS,
-c     & Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
-      Call WrVec_(filename,LuvvVec,'AIT',0,nSym,nBas,nBas,
-     &            Work(lCMO),Work(lCMO),
-     &            Work(ipOcc),Work(ipOcc),
-     &            FDIAG,E2act,
-     &            indType,VecTyp,0)
+      LuvvVec = 50
+      LuvvVec = isfreeunit(LuvvVec)
+      call my_WrVec_('COET')
+      call my_WrVec_('AIT')
+
 *----------------------------------------------------------------------*
 *     Second, write natural orbitals
 *----------------------------------------------------------------------*
-      iDisk=iToc(6)
       Call GetMem('Ene','Allo','Real',ipEne,mxRoot*mxIter)
-* GLM I changed the ddafile from iToc(6) with get_dArray as the latter contains correct values.
-c      Call dDaFile(JobIph,2,Work(ipEne),mxRoot*mxIter,iDisk)
-c      write(6,*) 'root energies:'
-c      do i=0,lroots-1
-c          write(6,*) Work(ipEne+i)
-c      end do
       Call Get_dArray('Last energies',Work(ipEne),lRoots)
-c      write(6,*) 'root energies:'
-c      do i=0,lroots-1
-c          write(6,*) Work(ipEne+i)
-c      end do
 
       iDisk=iToc(12)
-      DO IRT=1,MIN(MAXORBOUT,LROOTS,999)
-* Next do-loop has been replaced with correct assignment of Energy(root)... important to have it printed out in the RasOrb.xxx files.
-c        Do i=1,mxIter
-c          Energy = Work(ipEne+(i-1)*mxRoot+IRT-1)
-c        End Do
+      DO IRT=1, MIN(MAXORBOUT, LROOTS, 999)
         energy=Work(ipEne+IRT-1)
 
         if(doDMRG)then
@@ -177,21 +153,14 @@ c        End Do
           energy = dmrg_energy%dmrg_state_specific(irt)
 #endif
         end if
-        IF(IRT.LE.9) THEN
-          Write(filename,'(A7,I1)') 'RASORB.',IRT
-        ELSE IF(IRT.LE.99) THEN
-          Write(filename,'(A7,I2)') 'RASORB.',IRT
-        ELSE IF(IRT.LE.999) THEN
-          Write(filename,'(A7,I3)') 'RASORB.',IRT
-        ELSE
-          filename = 'RASORB.x'
-        END IF
+        filename = 'RASORB.'//merge(str(IRT), 'x', irt < 999)
         Call dDaFile(JobIph,2,Work(lCMO),ntot2,iDisk)
         Call dDaFile(JobIph,2,Work(ipOcc),ntot,iDisk)
-        IF(IPRLEV.GE.USUAL)Write(LF,'(6X,A,I3,3A)')
-     &   'Natural orbitals for root ',IRT,
-     &   ' are written to the ',filename(:mylen(filename)),' file'
-         Write(VecTyp,'(A41,I3,A3,f22.12)')
+        IF(IPRLEV.GE.USUAL) then
+          Write(LF,'(6X,A,I3,3A)') 'Natural orbitals for root ', IRT,
+     &    ' are written to the ', trim(filename), ' file'
+        end if
+        Write(VecTyp,'(A41,I3,A3,f22.12)')
      &   '* RASSCF natural orbitals for root number',IRT,
      &   ' E=',Energy
 *----------------------------------------------------------------------*
@@ -212,27 +181,20 @@ c        End Do
       Call GetMem('EDummy','Allo','Real',LEDum,NTot)
       call dcopy_(NTot,[0.0D0],0,Work(LEDum),1)
       DO IRT=1,MIN(MAXORBOUT,LROOTS,999)
-        IF(IRT.LE.9) THEN
-          Write(filename,'(A7,I1)') 'SPDORB.',IRT
-        ELSE IF(IRT.LE.99) THEN
-          Write(filename,'(A7,I2)') 'SPDORB.',IRT
-        ELSE IF(IRT.LE.999) THEN
-          Write(filename,'(A7,I3)') 'SPDORB.',IRT
-        ELSE
-          filename = 'SPDORB.x'
-        END IF
+        filename = 'SPDORB.'//merge(str(IRT), 'x', irt < 999)
         Call dDaFile(JobIph,2,Work(lCMO),ntot2,iDisk)
         Call dDaFile(JobIph,2,Work(ipOcc),ntot,iDisk)
-        IF(IPRLEV.GE.USUAL)Write(LF,'(6X,A,I3,3A)')
-     &   'Spin density orbitals for root ',IRT,
-     &   ' are written to the ',filename(:mylen(filename)),' file'
+        IF (IPRLEV.GE.USUAL) then
+          Write(LF,'(6X,A,I3,3A)')'Spin density orbitals for root ',
+     &      irt, ' are written to the ',trim(filename),' file'
+        end if
         Write(VecTyp,'(A,I3)')
      &   '* RASSCF spin density orbitals for root number',IRT
 *----------------------------------------------------------------------*
 *     Write  orbitals                                                  *
 *----------------------------------------------------------------------*
-        LuvvVec=50
-        LuvvVec=isfreeunit(LuvvVec)
+        LuvvVec = 50
+        LuvvVec = isfreeunit(LuvvVec)
         Call WrVec(filename,LuvvVec,'CEO',nSym,nBas,nBas,
      &    Work(lCMO), Work(ipOcc), Work(LEDum), IndType,VecTyp)
         Call WrVec(filename,LuvvVec,'AI',NSYM,NBAS,NBAS,
@@ -247,4 +209,13 @@ c        End Do
 
       Call qExit(routine)
       Return
-      End
+      contains
+        subroutine partial_WrVec_(label)
+          character(*), intent(in) :: label
+          Call WrVec_(filename,LuvvVec,label,0,nSym,nBas,nBas,
+     &            Work(lCMO),Work(lCMO),
+     &            Work(ipOcc),Work(ipOcc),
+     &            FDIAG,E2act,
+     &            indType,VecTyp,0)
+        end subroutine
+      End subroutine
