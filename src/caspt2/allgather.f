@@ -13,9 +13,9 @@
       use mpi
       IMPLICIT REAL*8 (A-H,O-Z)
 ************************************************************************
-* ALLGATHER_REAL: gathers local buffers SEND of size NSEND on
-*                 each process into a buffer RECV of size NRECV.
-*                 The receiving buffer is allocated by this subroutine.
+* ALLGATHER: gathers local buffers SEND of size NSEND on
+*            each process into a buffer RECV of size NRECV.
+*            The receiving buffer is allocated by this subroutine.
 ************************************************************************
 #include "warnings.fh"
 #include "WrkSpc.fh"
@@ -26,7 +26,7 @@
       CHARACTER SEND(*), RECV(*)
       CHARACTER*(4) CTYPE
 
-      INTEGER*4 NSEND4
+      INTEGER*4 NSEND4(1)
       INTEGER*4, ALLOCATABLE :: NRECV4(:),IDISP4(:)
       INTEGER*4 ITYPE4
       INTEGER*4 IERROR4
@@ -68,7 +68,7 @@
       ALLOCATE(IDISP4(0:NPROCS-1))
 
 ! first, gather the sendbuffer size of each process in NRECV4
-      NSEND4=INT(NSEND,KIND(NSEND4))
+      NSEND4(1)=INT(NSEND,KIND(NSEND4))
       CALL MPI_ALLGATHER(NSEND4,ONE4,MPI_INTEGER4,
      &                   NRECV4,ONE4,MPI_INTEGER4,
      &                   MPI_COMM_WORLD, IERROR4)
@@ -94,7 +94,7 @@
       END DO
 
 ! gather the local send buffers into the receive buffer
-      CALL MPI_ALLGATHERV(SEND,NSEND4,ITYPE4,
+      CALL MPI_ALLGATHERV(SEND,NSEND4(1),ITYPE4,
      &                    RECV,NRECV4,IDISP4,ITYPE4,
      &                    MPI_COMM_WORLD,IERROR4)
       IF (IERROR4.NE.0) THEN

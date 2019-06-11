@@ -9,13 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine TRPGen(nDim,nAtom,Coor,Degen,nSym,iOper,
-     &                  Smmtrc,mTR,rMass,CofM,TRVec)
+     &                  Smmtrc,mTR,dMass,CofM,TRVec)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
       Real*8 Coor(3,nAtom), Degen(3*nAtom),
-     &       rMass(nAtom), TRVec(3*nAtom*6)
+     &       dMass(nAtom), TRVec(3*nAtom*6)
       Integer   iOper(0:nSym-1)
       Logical Smmtrc(3*nAtom), CofM
       Logical g12K
@@ -33,7 +33,7 @@
 *      tr
 *
       Call TRMake(Work(ipTR),Coor,nAtom,nTR,Degen,iOper,nSym,
-     &            Smmtrc,nDim,rMass,CofM)
+     &            Smmtrc,nDim,dMass,CofM)
 *
       call dcopy_(nTR*nDim,Work(ipTR),1,TRVec,1)
 *
@@ -48,7 +48,7 @@
 *     K g        (nTR x mTR)
 *
       Call GetMem('uMtrx','Allo','Real',ipu,nDim)
-      call dcopy_(nDim,One,0,Work(ipu),1)
+      call dcopy_(nDim,[One],0,Work(ipu),1)
       i=0
       Do iX = 1, 3*nAtom
          If (Smmtrc(iX)) Then

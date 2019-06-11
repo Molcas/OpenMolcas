@@ -26,7 +26,7 @@
 *                                                                      *
 *     called from: WfCtl                                               *
 *                                                                      *
-*     calls to: GrdClc, SOrUpV, Gauss, OptClc                          *
+*     calls to: GrdClc, Gauss, OptClc                                  *
 *               uses SubRoutines and Functions from Module lnklst.f    *
 *               -linked list implementation to store series of vectors *
 *                                                                      *
@@ -199,8 +199,8 @@
          Call mma_allocate(EVector,kOptim,kOptim)
          Call mma_allocate(EValue,kOptim)
 *
-         call dcopy_(kOptim**2,Zero,0,EVector,       1)
-         call dcopy_(kOptim,   One, 0,EVector,kOptim+1)
+         call dcopy_(kOptim**2,[Zero],0,EVector,       1)
+         call dcopy_(kOptim,   [One], 0,EVector,kOptim+1)
 *
 *------- Form a triangular B-matrix
 *
@@ -240,7 +240,7 @@
      &                    nFound,iErr)
 *
          Call mma_deallocate(Scratch)
-         Call dCopy_(kOptim*(kOptim+1)/2,Zero,0,BijTri,1)
+         Call dCopy_(kOptim*(kOptim+1)/2,[Zero],0,BijTri,1)
 *
          iDiag = 0
          Do i = 1,kOptim

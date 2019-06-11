@@ -26,11 +26,13 @@
 
       Character Header*50,BsLbl*1
 
-      Dimension BsLbl(LENIN4*MxBas)
+      Dimension BsLbl(LENIN8*MxBas)
 
       Logical LindMOs(MxBas),First
 
       Data First /.true./
+
+      Dimension Dummy(1)
 
 *
 *--- A word of welcome.
@@ -45,7 +47,7 @@
       weight=ONE/dble(nState)
       Call GetMem('DenM','Allo','Real',iDin,nSize)
       Call GetMem('DenA','Allo','Real',iDav,nSize)
-      call dcopy_(nSize,ZERO,iZERO,Work(iDav),iONE)
+      call dcopy_(nSize,[ZERO],iZERO,Work(iDav),iONE)
       Do 201, iS1=1,nState
         Do 202, iS2=1,iS1
           index=(iS1*(iS1-1)/2+iS2-1)*nSize
@@ -101,8 +103,8 @@
       icomp=1
       Call RdOne(irc,iopt,'Mltpl  0',icomp,Work(iS),iSmLbl)
       Call Jacob(Work(iS),Work(iVecs),nBas(1),nBas(1))
-      call dcopy_(nSize,ZERO,iZERO,Work(iSx),iONE)
-      call dcopy_(nSize,ZERO,iZERO,Work(iSt),iONE)
+      call dcopy_(nSize,[ZERO],iZERO,Work(iSx),iONE)
+      call dcopy_(nSize,[ZERO],iZERO,Work(iSt),iONE)
       Do 221, i=1,nBas(1)
         Sqroot=sqrt(Work(iS+i*(i+1)/2-1))
         Work(iSx+i*(i+1)/2-1)=ONE/Sqroot
@@ -158,7 +160,7 @@
         TraceFull=TraceFull+Work(iOcc+i-1)
 233   Continue
       If(iPrint.ge.10) then
-        Call Get_cArray('Unique Basis Names',BsLbl,LENIN4*nBas(1))
+        Call Get_cArray('Unique Basis Names',BsLbl,LENIN8*nBas(1))
         Write(Header,'(A)')'All average transition density orbitals'
         ThrOcc=-1D-0
         Call Primo(Header,.true.,.false.,ThrOcc,Dum,iONE,nBas(1),nBas(1)
@@ -224,11 +226,11 @@
         Write(6,*)'You should consider lowering the threshold!'
       Endif
       If(iPrint.ge.5) then
-        Call Get_cArray('Unique Basis Names',BsLbl,LENIN4*nBas(1))
+        Call Get_cArray('Unique Basis Names',BsLbl,LENIN8*nBas(1))
         Write(Header,'(A)')'Reduced average orbitals'
         ThrOcc=-1D-0
         Call Primo(Header,.true.,.false.,ThrOcc,Dum,iONE,nBas(1)
-     &            ,MOsToKeep,BsLbl,Dummy,Work(iNewOcc)
+     &            ,[MOsToKeep],BsLbl,Dummy,Work(iNewOcc)
      &            ,Work(ipAvRedMO),-1)
         Write(6,*)
         Write(6,*)'  Trace = ',TraceRed,MOsToKeep

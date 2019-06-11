@@ -7,6 +7,9 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2016, Steven Vancoillie                                *
+*               2018, Ignacio Fdez. Galvan                             *
 ************************************************************************
       module pt2wfn
       integer :: pt2wfn_id
@@ -15,6 +18,7 @@
       integer :: pt2wfn_mocoef, pt2wfn_occnum, pt2wfn_orbene
       integer :: pt2wfn_cicoef
       integer :: pt2wfn_heff
+      integer :: pt2wfn_dens
       save
 
       contains
@@ -32,7 +36,7 @@
 #ifdef _HDF5_
 #  include "mh5.fh"
 
-      integer :: dsetid
+      integer :: dsetid, ndmat, i
       character(1), allocatable :: typestring(:)
 #endif
 
@@ -47,6 +51,8 @@
         pt2wfn_is_h5 = .True.
 *     create a new wavefunction file!
         pt2wfn_id = mh5_create_file('PT2WFN')
+*     no JOBMIX for HDF5 files
+        ifmix = .False.
 
 *     set module type
         call mh5_init_attr (pt2wfn_id,'MOLCAS_MODULE', 'CASPT2')
@@ -101,14 +107,14 @@
      $        'STATE_REFWF_ENERGIES', 1, [NSTATE])
         call mh5_init_attr(pt2wfn_refene, 'description',
      $        'Reference energy for each state, '//
-     $        'arranged as array of [NSTATE]')
+     $        'arranged as array of [NSTATES]')
 
-*     reference energy (for each CI root)
+*     PT2 energy (for each CI root)
         pt2wfn_energy = mh5_create_dset_real (pt2wfn_id,
      $        'STATE_PT2_ENERGIES', 1, [NSTATE])
         call mh5_init_attr(pt2wfn_energy, 'description',
      $        'PT2 energy for each state, '//
-     $        'arranged as array of [NSTATE]')
+     $        'arranged as array of [NSTATES]')
 
 *     molecular orbital coefficients
         pt2wfn_mocoef = mh5_create_dset_real(pt2wfn_id,
@@ -118,6 +124,7 @@
      $        'arranged as blocks of size [NBAS(i)**2], i=1,#irreps')
 
 *     molecular orbital occupation numbers
+*     (most probably empty, but left for compatibility)
         pt2wfn_occnum = mh5_create_dset_real(pt2wfn_id,
      $        'MO_OCCUPATIONS', 1, [NBAST])
         call mh5_init_attr(pt2wfn_occnum, 'description',
@@ -125,6 +132,7 @@
      $        'arranged as blocks of size [NBAS(i)], i=1,#irreps')
 
 *     molecular orbital energies
+*     (most probably empty, but left for compatibility)
         pt2wfn_orbene = mh5_create_dset_real(pt2wfn_id,
      $        'MO_ENERGIES', 1, [NBAST])
         call mh5_init_attr(pt2wfn_orbene, 'description',
@@ -137,14 +145,32 @@
         call mh5_init_attr(pt2wfn_cicoef, 'description',
      $        'Coefficients of configuration state functions '//
      $        'in Split-GUGA ordering for each STATE, '//
-     $        'arranged as matrix of size [NCONF,NSTATE]')
+     $        'arranged as matrix of size [NCONF,NSTATES]')
 
-*     molecular orbital coefficients
-        pt2wfn_heff = mh5_create_dset_real(pt2wfn_id,
+*     effective Hamiltonian coefficients
+        If (IFMSCOUP) Then
+          pt2wfn_heff = mh5_create_dset_real(pt2wfn_id,
      $        'H_EFF', 2, [NSTATE, NSTATE])
-        call mh5_init_attr(pt2wfn_heff, 'description',
-     $        'Effective (X)MS-CASPT2 hamiltonian, '//
-     $        'arranged as matrix of size [NSTATE,NSTATE]')
+          call mh5_init_attr(pt2wfn_heff, 'description',
+     $        'Effective (X)MS-CASPT2 Hamiltonian, '//
+     $        'arranged as matrix of size [NSTATES,NSTATES]')
+        End If
+
+*     density matrices
+        If (IFPROP) Then
+          ndmat=0
+          Do i=1,NSYM
+            ndmat=ndmat+(NORB(i)**2+NORB(i))/2
+          End Do
+
+          pt2wfn_dens = mh5_create_dset_real(pt2wfn_id,
+     $        'DENSITY_MATRIX', 2, [ndmat, NSTATE])
+          call mh5_init_attr(pt2wfn_dens, 'description',
+     $        '1-body density matrix, arranged as blocks of size '//
+     $        'NDMAT=sum([NORB(i)*(NORB(i)+1)/2], i=1,#irreps), '//
+     $        'where NORB excludes frozen and deleted orbitals, '//
+     $        'for each state: [NDMAT,NSTATES].')
+        End If
 
       Else
 #endif
@@ -206,11 +232,32 @@ c Avoid unused argument warnings
 #endif
       end subroutine
 
+      subroutine pt2wfn_densstore(Dmat,nDmat)
+      use refwfn
+      implicit none
+#include "rasdim.fh"
+#include "caspt2.fh"
+      integer :: nDmat
+      real*8 :: Dmat(nDmat)
+#ifdef _HDF5_
+#  include "mh5.fh"
+      If (pt2wfn_is_h5) Then
+        call mh5_put_dset_array_real(pt2wfn_dens, Dmat,
+     $                               [nDmat, 1], [0, JSTATE-1])
+      End If
+#else
+      Return
+c Avoid unused argument warnings
+      If (.False.) Call Unused_real_array(Dmat)
+#endif
+      end subroutine
+
       subroutine pt2wfn_close
 #ifdef _HDF5_
       if (pt2wfn_is_h5) then
         call mh5_close_file(pt2wfn_id)
       end if
+      pt2wfn_id = -1
 #endif
       end subroutine
       end module

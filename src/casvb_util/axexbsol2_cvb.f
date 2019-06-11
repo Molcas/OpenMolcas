@@ -26,7 +26,7 @@ c  Solve linear equation in Davidson subspace.
       data zero/0d0/,one/1d0/
 
       do 100 it=1,itdav
-100   call fmove(ap(1,it),eigvec(1,it),itdav)
+100   call fmove_cvb(ap(1,it),eigvec(1,it),itdav)
 
       if(ip.ge.3)then
         write(6,*)' AP matrix :'
@@ -97,7 +97,7 @@ c  Solve linear equation in Davidson subspace.
      >  .false.,nnegeig,.false.,alfastart,eig)
 
       eig_res=eig
-      call fmove(solp,solp_res,itdav)
+      call fmove_cvb(solp,solp_res,itdav)
       if(ip.ge.2)then
         write(6,'(a,f15.8)')' Eigenvalue :',eig
         write(6,'(a)')' Solution vector :'

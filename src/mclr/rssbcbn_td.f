@@ -83,7 +83,8 @@
 * Jeppe Olsen , Winter of 1991
 *
       IMPLICIT REAL*8(A-H,O-Z)
-      INTEGER  ADSXA,SXSTST,STSTSX,DXSTST,STSTDX,SXDXSX
+      INTEGER  ADSXA(*),SXSTST(*)
+      INTEGER  STSTSX(*),DXSTST(*),STSTDX(*),SXDXSX(*)
       Logical TimeDep
 *. Output
       DIMENSION CB(*),SB(*)
@@ -91,7 +92,8 @@
       DIMENSION SSCR(*),CSCR(*)
       DIMENSION I1(MAXK,*),XI1S(MAXK,*),I2(MAXK,*),XI2S(MAXK,*),
      &          I3(MAXK,*),XI3S(MAXK,*),I4(MAXK,*),XI4S(MAXK,*)
-      DIMENSION C2(*),CJRES(*),SIRES(*)
+      DIMENSION C2(*),CJRES(*),SIRES(*),XINT(*)
+      DIMENSION NTSOB(*),IBTSOB(*),ITSOB(*)
 *
       NTEST =  0
       NTEST = MAX(NTEST,IPRNT)

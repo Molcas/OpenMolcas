@@ -35,7 +35,7 @@
 *
       call dcopy_(3,Axis,      1,uVec(1,1),1)
       call dcopy_(3,Perp_Axis1,1,uVec(1,2),1)
-      call dcopy_(3,Zero,0,uVec(1,3),1)
+      call dcopy_(3,[Zero],0,uVec(1,3),1)
 *
 *---- Project the coordinates to the plane
 *
@@ -98,7 +98,7 @@
      &            ' : Projected Angle=', dFir,'/degree, ',Fir,'/rad'
       End If
 *
-      call dcopy_(9,Zero,0,uMtrx,1)
+      call dcopy_(9,[Zero],0,uMtrx,1)
       If (Linear) Then
          uMtrx(2,1)=-One/Rij1
       Else
@@ -115,7 +115,7 @@
       Bf(2,1)=Scr2(2,1)
       Bf(3,1)=Scr2(3,1)
 *
-      call dcopy_(9,Zero,0,uMtrx,1)
+      call dcopy_(9,[Zero],0,uMtrx,1)
       If (Linear) Then
          uMtrx(2,1)=-One/Rjk1
       Else
@@ -143,7 +143,7 @@
 *
 *........ 1,1 Block
 *
-         call dcopy_(9,Zero,0,uMtrx,1)
+         call dcopy_(9,[Zero],0,uMtrx,1)
          If (Linear) Then
             uMtrx(1,2)=-One/Rij1**2
             uMtrx(2,1)=uMtrx(1,2)
@@ -186,7 +186,7 @@
             dBf(3,1,2,3)=Zero
             dBf(3,1,3,3)=Zero
          Else
-            call dcopy_(9,Zero,0,uMtrx,1)
+            call dcopy_(9,[Zero],0,uMtrx,1)
             Do i = 1, 2
                Bfi1=(Co*BRij(i,1)-BRjk(i,2))/(Si*Rij1)
                Do j = 1, 2
@@ -225,7 +225,7 @@
             dBf(3,3,2,1)=Zero
             dBf(3,3,3,1)=Zero
          Else
-            call dcopy_(9,Zero,0,uMtrx,1)
+            call dcopy_(9,[Zero],0,uMtrx,1)
             Do i = 1, 2
                Bfi3= (Co*BRjk(i,2)-BRij(i,1))/(Si*Rjk1)
                Do j = 1, 2
@@ -256,7 +256,7 @@
 *
 *....... 3,3 Block
 *
-         call dcopy_(9,Zero,0,uMtrx,1)
+         call dcopy_(9,[Zero],0,uMtrx,1)
          If (Linear) Then
             uMtrx(1,2)= One/Rjk1**2
             uMtrx(2,1)= uMtrx(1,2)

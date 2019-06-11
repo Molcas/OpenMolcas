@@ -33,7 +33,6 @@
 #include "wadr.fh"
 #include "general.fh"
 #include "rasscf.fh"
-#include "fciqmc.fh"
 #include "WrkSpc.fh"
 C ************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
@@ -340,14 +339,10 @@ C ---  Decompose the active density  -----------------------------
         nTvec = 0
         Do i=1,nSym
            if(nAorb(i).gt.0)then
-c               if(.not.iDoNeci) then
-             CALL CD_InCore(Work(ipd),nBas(i),Work(ipV),nBas(i),
+! NOTE(Giovanni): CD will proceed with approx. decompos for QMC
+!                 This will avoid warnings for negative-definit
+             call CD_InCore(Work(ipd),nBas(i),Work(ipV),nBas(i),
      &                      NumV,Thr,rc)
-c               else
-c             write(6,*) ' CD will proceed with approx. decompos for QMC'
-c             write(6,*) ' This will avoid warnings for negative-definit'
-c             call DecoMat(Work(ipd),nBas(i),Work(ipV),NumV,rc)
-c               end if
              If (rc.ne.0) Then
                 write(6,*)SECNAM//': ill-defined dens decomp for active'
                 write(6,*) 'rc value produced = ', rc

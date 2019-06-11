@@ -33,6 +33,12 @@ C energies.
 
 C Not called, if .NOT.IFMIX, then only the new CI coefficients are
 C printed, no JOBMIX file is created.
+      IF (IFMSCOUP.AND.(ISCF.EQ.0)) THEN
+        IF (.NOT.IFMIX) THEN
+          IF (IPRGLB.GE.USUAL) CALL PRINT_CI_MIX(EIGVEC)
+          RETURN
+        END IF
+      END IF
       IF (DOCUMULANT .OR. (.NOT.IFMIX)) RETURN
 
       IF(IFMSCOUP) THEN
@@ -65,16 +71,16 @@ C to JOBMIX, we use the same TOC array, IADR15.
       IAD15=IADR15(1)
 * Initialize WEIGHT() (which is unused) just so detection
 * of uninitialized memory does not get its knickers twisted
-      CALL DCOPY_(MXROOT,0.0D0,0,WEIGHT,1)
+      CALL DCOPY_(MXROOT,[0.0D0],0,WEIGHT,1)
       CALL WR_RASSCF_INFO(JOBMIX,1,iAd15,
      &                    NACTEL,ISPIN,NSYM,LSYM,
      &                    NFRO,NISH,NASH,NDEL,NBAS,8,
-     &                    NAME,4*2*MXORB,NCONF,HEADER,144,
+     &                    NAME,LENIN8*MXORB,NCONF,HEADER,144,
      &                    TITLE,4*18*MXTIT,POTNUC,
      &                    LROOTS,NROOTS,IROOT,MXROOT,NRAS1,
      &                    NRAS2,NRAS3,NHOLE1,NELE3,IFQCAN,
      &                    Weight)
-* Copy  MO coefficients from JOBIPH to JOBMIX
+* Copy MO coefficients from JOBIPH to JOBMIX
       NCMO=NBSQT
       CALL GETMEM('LCMO','ALLO','REAL',LCMO,NCMO)
       IAD15=IADR15(9)
@@ -99,7 +105,7 @@ C to JOBMIX, we use the same TOC array, IADR15.
 * Replace old energy array with (MS-)CASPT2 energy values:
       NOLDE=MXROOT*MXITER
       CALL GETMEM('OLDE','ALLO','REAL',LOLDE,NOLDE)
-      CALL DCOPY_(NOLDE,0.0D0,0,WORK(LOLDE),1)
+      CALL DCOPY_(NOLDE,[0.0D0],0,WORK(LOLDE),1)
 *      CALL DCOPY_(NSTATE,ENERGY,1,WORK(LOLDE),1)
       DO ISTATE=1,NSTATE
        ISNUM=MSTATE(ISTATE)
@@ -150,15 +156,23 @@ C Replace the relevant elements:
 C Write the present effective Hamiltonian:
       IAD15=IADR15(17)
       CALL DDAFILE(JOBIPH,1,WORK(LEFFCP),LROOTS**2,IAD15)
+C Write a diagonal Hamiltonian in the JOBMIX:
+      IAD15=IADR15(17)
+      CALL DCOPY_(LROOTS**2,[0.0D0],0,WORK(LEFFCP),1)
+      DO ISTATE=1,NSTATE
+       ISNUM=MSTATE(ISTATE)
+       WORK(LEFFCP+(ISNUM-1)*LROOTS+ISNUM-1)=ENERGY(ISTATE)
+      END DO
+      CALL DDAFILE(JOBMIX,1,WORK(LEFFCP),LROOTS**2,IAD15)
       CALL GETMEM('EFFCP','FREE','REAL',LEFFCP,LROOTS**2)
-* Now 'mix' those states that was treated in the multi-state CASPT2
+* Now 'mix' those states that were treated in the multi-state CASPT2
        IF (IPRGLB.GE.USUAL) THEN
          WRITE(6,*)
          CALL CollapseOutput(1,'Mixed CI coefficients:')
        END IF
        DO ISTATE=1,NSTATE
          ISNUM=MSTATE(ISTATE)
-         CALL DCOPY_(MXCI,0.0D0,0,WORK(LCI2),1)
+         CALL DCOPY_(MXCI,[0.0D0],0,WORK(LCI2),1)
          DO JSTATE=1,NSTATE
            JSNUM=MSTATE(JSTATE)
 *PAM07           IDISK=IADR15(4)+iPosFile(NCONF)*(JSNUM-1)

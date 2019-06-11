@@ -36,10 +36,10 @@
       iSkutt=0
       iDisk=0
       Call DaName(LuIn,RassiM)
-      Call iDaFile(LuIn,2,iTocBig,MxStOT,iDisk)
+      nTriSP=nStatePrim*(nStatePrim+1)/2
+      Call iDaFile(LuIn,2,iTocBig,nTriSP,iDisk)
       nSize=nB*(nB+1)/2
       nTriS=nState*(nState+1)/2
-      nTriSP=nStatePrim*(nStatePrim+1)/2
       nSizeBig=nSize*nTriS
       nSizeBigPrim=nSize*nTriSP
       Call GetMem('HOWMUCH','Max','Real',ipMAX,MEMMAX)
@@ -67,7 +67,7 @@
         Call GetMem('Square1','Allo','Real',iSnt1,nStatePrim**2)
         Call GetMem('Square2','Allo','Real',iSnt2,nState*nStatePrim)
         Call GetMem('Square3','Allo','Real',iSnt3,nState**2)
-        call dcopy_(nSizeBig,ZERO,iZERO,Work(iBigT),iONE)
+        call dcopy_(nSizeBig,[ZERO],iZERO,Work(iBigT),iONE)
         kaunt=0
         Do 78, i=1,nStatePrim
           Do 79, j=1,i
@@ -122,7 +122,7 @@
       Else
         Call GetMem('ALLES','Allo','Real',iBigT,nSizeBig)
         Call GetMem('AOGamma','Allo','Real',ipAOG,nSize)
-        call dcopy_(nSizeBig,ZERO,iZERO,Work(iBigT),iONE)
+        call dcopy_(nSizeBig,[ZERO],iZERO,Work(iBigT),iONE)
         Do 11001, iiS=1,nStatePrim
           Do 11002, jjS=1,nStatePrim
             If(iiS.le.jjS) then

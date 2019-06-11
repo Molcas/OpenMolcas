@@ -30,6 +30,7 @@
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
+#include "ksdft.fh"
       Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
@@ -42,14 +43,17 @@ C     Call QEnter('M06HF ')
 ************************************************************************
 *                                                                      *
       ijzy=2
-      CoeffA=1.0D0
+      CoeffA=One*CoefX
       Call XM06(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
      &          CoeffA,iSpin,F_xc,T_X,ijzy)
+      CoeffA=One*CoefX
       Call XVS98(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
      &           CoeffA,iSpin,F_xc,T_X,ijzy+1)
 
+      CoeffA=One*CoefR
       Call CM06(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
      &          CoeffA,iSpin,F_xc,T_X,ijzy)
+      CoeffA=One*CoefR
       Call CVS98(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
      &           CoeffA,iSpin,F_xc,T_X,ijzy+1)
 *                                                                      *

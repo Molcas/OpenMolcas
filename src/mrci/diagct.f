@@ -25,8 +25,8 @@
       CALL GETMEM('BUFBI','Allo','Real',LBUFBI,NBUFBI)
       CALL GETMEM('BIAC1','Allo','Real',LBIAC1,ISMAX)
       CALL GETMEM('BICA1','Allo','Real',LBICA1,ISMAX)
-      CALL DCOPY_(NBUFS,0.0D0,0,Work(LBUFS),1)
-      CALL ICOPY(NINDS,0,0,IWork(LINDS),1)
+      CALL DCOPY_(NBUFS,[0.0D0],0,Work(LBUFS),1)
+      CALL ICOPY(NINDS,[0],0,IWork(LINDS),1)
       CALL SORTA (Work(LBUFS),IWork(LINDS),IWork(LISAB),
      *            Work(LBUFBI),Work(LBIAC1),Work(LBICA1),NINTGR)
       CALL GETMEM('BIAC1','Free','Real',LBIAC1,ISMAX)
@@ -44,8 +44,8 @@
       CALL GETMEM('BACBD','Allo','Real',LBACBD,KBUFF1)
       CALL GETMEM('ACBDT','Allo','Real',LACBDT,ISMAX)
       CALL GETMEM('ACBDS','Allo','Real',LACBDS,ISMAX)
-      CALL DCOPY_(NBUFS,0.0D0,0,Work(LBUFS),1)
-      CALL ICOPY(NINDS,0,0,IWork(LINDS),1)
+      CALL DCOPY_(NBUFS,[0.0D0],0,Work(LBUFS),1)
+      CALL ICOPY(NINDS,[0],0,IWork(LINDS),1)
       CALL SORTB (Work(LBUFS),IWork(LINDS),
      *            Work(LACBDS),Work(LACBDT),IWork(LISAB),
      *            Work(LBACBD),NINTGR)
@@ -62,8 +62,8 @@
       CALL GETMEM('Inds','Allo','Inte',LINDS,NINDS)
       CALL GETMEM('FIIJJ','Allo','Real',LIIJJ,NBTRI)
       CALL GETMEM('FIJIJ','Allo','Real',LIJIJ,NBTRI)
-      CALL DCOPY_(NBUFS,0.0D0,0,Work(LBUFS),1)
-      CALL ICOPY(NINDS,0,0,IWork(LINDS),1)
+      CALL DCOPY_(NBUFS,[0.0D0],0,Work(LBUFS),1)
+      CALL ICOPY(NINDS,[0],0,IWork(LINDS),1)
       CALL SORT_MRCI (Work(LBUFS),IWork(LINDS),Work(LFOCK),Work(LIIJJ),
      *           Work(LIJIJ),NINTGR)
       CALL GETMEM('Bufs','Free','Real',LBUFS,NBUFS)

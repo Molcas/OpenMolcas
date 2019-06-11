@@ -87,6 +87,7 @@
       COMMON  / ADDcorr_L   / Do_Addc
       Logical Do_Tw
       COMMON  / Tw_corr_L   / Do_Tw
+      Common /Sagit/ isSagit
 #ifdef _EFP_
       Logical EFP_On
 #endif
@@ -98,6 +99,8 @@
       Character*128 OrbName
       Logical RF_On,Langevin_On,PCM_On
       Character*80 Note
+      Character*8 What
+      Character*16 Value
       Integer IndType(7,8)
       Real*8, Dimension(:), Allocatable:: Temp, CMOn, Etan, Epsn
       Real*8, Dimension(:,:), Allocatable:: GVFck, Scrt1, Scrt2, DMat,
@@ -107,6 +110,8 @@
       Integer nSSh(mxSym), nZero(mxSym)
 #endif
       Integer nFldP
+#include "interfaces_scf.fh"
+      Dimension Dummy(1)
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -117,6 +122,15 @@
       Call qEnter('Final')
 #endif
 *
+         call getenvf('MOLCAS_SAGIT',Value)
+         if(Value(1:1).eq.'Y'.or.Value(1:1).eq.'y') iSagit=1
+c
+         if(iSagit.eq.1) then
+             What='COEKBI'
+         Else
+             What='COEI'
+         endif
+
       Call SorbCMOs(CMO,mBB,nD,EOrb,OccNo,mmB,nBas,nOrb,nSym)
 *
       Call Put_darray('SCF orbitals',CMO(1,1),mBB)
@@ -205,7 +219,7 @@
                Do iVirt = 1, nOrb(iSym)-nOcc(iSym,iD)
                   jVirt = 1 + nOcc(iSym,iD)*nOrb(iSym) + nOcc(iSym,iD) +
      &                    (iVirt-1)*nOrb(iSym)
-                  call dcopy_(nOrb(iSym)-nOcc(iSym,iD),0.0D0,0,
+                  call dcopy_(nOrb(iSym)-nOcc(iSym,iD),[Zero],0,
      &                                             Scrt1(jVirt,iD),1)
                End Do
 *----------    Now project back to the SO basis
@@ -251,7 +265,7 @@
          If (KSDFT.ne.'SCF') Method='KS-DFT  '
          Call Put_cArray('Relax Method',Method,8)
 *        Call Put_Energy(EneV)
-         Call Store_Energies(1,EneV,1)
+         Call Store_Energies(1,[EneV],1)
          Call Put_dScalar('SCF energy',EneV)
 c         If (iUHF.eq.1) Call Put_dScalar('Ener_ab',EneV_ab)
          Call Put_iArray('nIsh',nOcc(1,1),nSym)
@@ -322,7 +336,7 @@ c         If (iUHF.eq.1) Call Put_dScalar('Ener_ab',EneV_ab)
 #ifdef _FDE_
       ! Embedding
       if (embPot.and.(embWriteEsp)) then
-         Call embPotOutput(nAtoms,ip_of_Work(Dens))
+         Call embPotOutput(nAtoms,ip_of_Work(Dens(1,1,1)))
       end if
 #endif
 *
@@ -421,7 +435,7 @@ c make a fix for energies for deleted orbitals
             Note=Trim(Note)//' / '//Trim(KSDFT)
             iWFtype=3
          End If
-         Call WrVec_(OrbName,LuOut,'COEI',iUHF,nSym,nBas,nBas,
+         Call WrVec_(OrbName,LuOut,What,iUHF,nSym,nBas,nBas,
      &             CMO(1,1),Dummy, OccNo(1,1),Dummy,EOr(1,1),
      &     Dummy,IndType,Note,iWFtype)
 #ifdef _HDF5_
@@ -447,7 +461,7 @@ c make a fix for energies for deleted orbitals
             Note=Trim(Note)//' / '//Trim(KSDFT)
             iWFtype=5
          End If
-         Call WrVec_(OrbName,LuOut,'COEI',iUHF,nSym,nBas,nBas,
+         Call WrVec_(OrbName,LuOut,What,iUHF,nSym,nBas,nBas,
      &               CMO(1,1),CMO(1,2), OccNo(1,1),OccNo(1,2),
      &               EOr(1,1),EOr(1,2), IndType, Note,iWFtype)
 #ifdef _HDF5_
@@ -459,32 +473,29 @@ c make a fix for energies for deleted orbitals
          call orb2tpstr(NSYM,NBAS,
      $           NFRO,NOCC(1,1),NZERO,NZERO,NZERO,NSSH,NDEL,
      $           typestring)
-         call mh5_put_dset(wfn_tpidx, typestring)
+         call mh5_put_dset(wfn_tpidx_a, typestring)
          Do i = 1, nSym
          nSSh(i) = nBas(i) - nFro(i) - nOcc(i,2) - nDel(i)
          End Do
          call orb2tpstr(NSYM,NBAS,
      $           NFRO,NOCC(1,2),NZERO,NZERO,NZERO,NSSH,NDEL,
      $           typestring)
-         call mh5_put_dset(wfn_tpidx_ab, typestring)
-         call mma_deallocate(typestring)
-         call mh5_put_dset(wfn_mocoef, CMO(1,1))
-         call mh5_put_dset(wfn_occnum, OccNo(1,1))
-         call mh5_put_dset(wfn_orbene, EOrb(1,1))
-         call mh5_put_dset(wfn_mocoef_ab, CMO(1,2))
-         call mh5_put_dset(wfn_occnum_ab, OccNo(1,2))
-         call mh5_put_dset(wfn_orbene_ab, EOrb(1,2))
+         call mh5_put_dset(wfn_tpidx_b, typestring)
+         call mh5_put_dset(wfn_mocoef_a, CMO(1,1))
+         call mh5_put_dset(wfn_occnum_a, OccNo(1,1))
+         call mh5_put_dset(wfn_orbene_a, EOrb(1,1))
+         call mh5_put_dset(wfn_mocoef_b, CMO(1,2))
+         call mh5_put_dset(wfn_occnum_b, OccNo(1,2))
+         call mh5_put_dset(wfn_orbene_b, EOrb(1,2))
 #endif
-      End If
-      If(iUHF.eq.1) Then
          iBas=0
          Do iSym=1,nSym
-            IndType(1,iSym)=0
+            IndType(1,iSym)=nFro(iSym)
             IndType(2,iSym)=0
             IndType(3,iSym)=0
             IndType(4,iSym)=0
             IndType(5,iSym)=0
-            IndType(6,iSym)=nOrb(iSym)-nDel(iSym)
+            IndType(6,iSym)=nOrb(iSym)-nFro(iSym)-nDel(iSym)
             IndType(7,iSym)=nDel(iSym)
             Do kBas=1,nBas(iSym)
                iBas=iBas+1
@@ -504,9 +515,19 @@ c make a fix for energies for deleted orbitals
          Else
             iWFtype=7
          End If
-         Call WrVec_(OrbName,LuOut,'COEI',0,nSym,nBas,nBas,
+         Call WrVec_(OrbName,LuOut,What,0,nSym,nBas,nBas,
      &               CMOn,Dummy,Etan,Dummy,Epsn,
      &               Dummy,IndType, Note,iWFtype)
+#ifdef _HDF5_
+         call orb2tpstr(NSYM,NBAS,
+     $           NFRO,IndType(2,:),NZERO,IndType(4,:),NZERO,
+     $           IndType(6,:),NDEL,typestring)
+         call mh5_put_dset(wfn_tpidx, typestring)
+         call mma_deallocate(typestring)
+         call mh5_put_dset(wfn_mocoef, CMOn)
+         call mh5_put_dset(wfn_occnum, Etan)
+         call mh5_put_dset(wfn_orbene, Epsn)
+#endif
          Call mma_deallocate(Epsn)
          Call mma_deallocate(Etan)
          Call mma_deallocate(CMOn)

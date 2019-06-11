@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine BMtrx_Cartesian(
      &                 nLines,ipBMx,nAtom,nInter,ip_rInt,Coor,nDim,
-     &                 rMass,Name,nSym,iOper,Smmtrc,Degen,BSet,HSet,
+     &                 dMass,Name,nSym,iOper,Smmtrc,Degen,BSet,HSet,
      &                 nIter,ip_drInt,Gx,Cx,mTtAtm,iAnr,nStab,jStab,
      &                 Numerical,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
      &                 iCoSet,lOld,nFix,mTR,TRVec,ipEVal,ip_Hss_x,
@@ -20,7 +20,7 @@
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
-      Real*8 Coor(3,nAtom), rMass(nAtom), Degen(3*nAtom),
+      Real*8 Coor(3,nAtom), dMass(nAtom), Degen(3*nAtom),
      &       Gx(3*nAtom,nIter), Cx(3*nAtom,nIter), TRVec(nDim,mTR)
       Character Name(nAtom)*(LENIN)
       Integer   iOper(0:nSym-1), iAnr(nAtom),
@@ -49,7 +49,7 @@
          End If
          Call Allocate_Work(ipEVec,nDim**2)
          Call FZero(Work(ipEVec),nDim**2)
-         call dcopy_(nDim,One,0,Work(ipEVec),nDim+1)
+         call dcopy_(nDim,[One],0,Work(ipEVec),nDim+1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -351,7 +351,7 @@ c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer(nLines)
          Call Unused_real_array(Coor)
-         Call Unused_real_array(rMass)
+         Call Unused_real_array(dMass)
          Call Unused_integer_array(iOper)
          Call Unused_integer_array(iAnr)
          Call Unused_integer_array(nStab)

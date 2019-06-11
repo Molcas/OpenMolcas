@@ -27,6 +27,7 @@
       Character*20 PriLbl
       Logical Debug,Exec
       Data    Debug/.false./
+      Dimension idum(1)
 *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -54,7 +55,7 @@
          iComp=gLblC(iLbl)
          Alpha=gLblW(iLbl)
          If ( Debug ) Then
-           Write(6,'(6X,5A,I2,2A,G8.2)')
+           Write(6,'(6X,5A,I2,2A,G9.2)')
      &     'GLBL    ',
      &     'label  ="',gLblN(iLbl),'",',
      &     'comp   =',gLblC(iLbl),',',
@@ -64,7 +65,8 @@
          iOpt1=1
          iOpt2=2
          iSyLbl=0
-         Call iRdOne(iRc,iOpt1,Label,iComp,nInts,iSyLbl)
+         Call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
+         nInts=idum(1)
          If ( iRc.ne.0 ) Goto 991
          Call RdOne(iRc,iOpt2,Label,iComp,Temp,iSyLbl)
          If ( iRc.ne.0 ) Goto 991

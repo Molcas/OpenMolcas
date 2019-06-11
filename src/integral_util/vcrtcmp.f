@@ -46,7 +46,7 @@
          Call RecPrt(' In vCrtCmp: A   ',' ',A   ,1    ,3)
          Call RecPrt(' In vCrtCmp: P   ',' ',P   ,nZeta,3)
       End If
-      call dcopy_(nZeta*3*nHer,One,0,Axyz(1,1,1,0),1)
+      call dcopy_(nZeta*3*nHer,[One],0,Axyz(1,1,1,0),1)
       If (na.eq.0) Go To 999
 *
       Do 10 iHer = 1, nHer

@@ -96,6 +96,6 @@ c Avoid unused argument warnings
       If (.False.) Then
         Call Unused_integer(IKSM)
         Call Unused_integer(JLSM)
-        Call Unused_integer(IJKLOF)
+        Call Unused_integer_array(IJKLOF)
       End If
       End

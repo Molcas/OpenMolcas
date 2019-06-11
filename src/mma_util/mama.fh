@@ -9,6 +9,6 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
 * iofint,iofdbl : offsets of Work and iWork relative to MOLCAS anchor
-* iofsgl,iofchar: offsets of sWork and cWork to MOLCAS anchor
+* iofsgl,iofchar: offsets of sWork and cWork relative to MOLCAS anchor
       Integer iofint,iofdbl,iofsgl,iofchr
       Common /MMA/ iofint,iofdbl,iofsgl,iofchr

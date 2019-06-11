@@ -9,10 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SubWorkDir
-      Use NewDir
+      use subdirs, only : f_setsubdir, Sub, OldWorkDir, NewWorkDir
+      use filesystem, only : getcwd_, chdir_, mkdir_
       Implicit None
       Integer :: i,Length,iErr
-      Integer, Parameter :: nFiles=17
+      Integer, Parameter :: nFiles=21
       Character(Len=1024) :: Names(nFiles),
      &                       OldFile(nFiles),NewFile(nFiles)
       Logical :: Found
@@ -36,6 +37,10 @@
       Names(15)='TINKER.XYZ'
       Names(16)='TINKER.KEY'
       Names(17)='MCPDFINP'
+      Names(18)='CHEMNATFIE'
+      Names(19)='CHEMCANFIE'
+      Names(20)='CHEMNATMPS0'
+      Names(21)='CHEMCANMPS0'
 
 *     Get real filenames to copy
       Do i=1,nFiles
@@ -43,10 +48,10 @@
       End Do
 
 *     Create the new directory and switch to it
-      Call f_getcwd(OldWorkDir)
+      Call getcwd_(OldWorkDir)
       NewWorkDir=Trim(OldWorkDir)//'/'//Trim(Sub)
-      Call f_mkdir(NewWorkDir)
-      Call f_chdir(NewWorkDir)
+      Call mkdir_(NewWorkDir)
+      Call chdir_(NewWorkDir)
       Call f_setsubdir(Sub)
 
 *     Get real target filenames

@@ -8,19 +8,19 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE FAIBJ(INTSYM,INDX,C,S,ABIJ,AIBJ,AJBI,BUF,
-     *      IBUF,A,B,F,FSEC)
+      SUBROUTINE FAIBJ(INTSYM,INDX,C,S,ABIJ,AIBJ,AJBI,A,B,F,FSEC)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "mrci.fh"
 #include "WrkSpc.fh"
       DIMENSION INTSYM(*),INDX(*),C(*),S(*),
      *          ABIJ(*),AIBJ(*),AJBI(*),
-     *          BUF(NBITM3),IBUF(NBITM3+2),
      *          A(*),B(*),F(*),FSEC(*)
       DIMENSION IPOF(9),IPOA(9),IPOB(9)
       External JSUNP
 *------
+      CALL GETMEM('BUF','ALLO','REAL',LBUF,NBITM3)
+      CALL GETMEM('IBUF','ALLO','INTE',LIBUF,NBITM3+2)
 c
 cvv this code is a real compiler killer!
 c
@@ -70,9 +70,9 @@ c      call getmem('test','chec','real',ldum,ndum)
          IJ1=IROW(NI)+NJ
          ILIM=IPOF(NSYM+1)
 * Clear matrices ABIJ, AIBJ, and AJBI.
-         CALL VCLR(ABIJ,1,ILIM)
-         CALL VCLR(AIBJ,1,ILIM)
-         CALL VCLR(AJBI,1,ILIM)
+         CALL FZERO(ABIJ,ILIM)
+         CALL FZERO(AIBJ,ILIM)
+         CALL FZERO(AJBI,ILIM)
          IF(ITER.EQ.1 .AND. IREST.EQ.0)GO TO 207
 *
 *     READ (AB/IJ) INTEGRALS
@@ -81,11 +81,11 @@ c      call getmem('test','chec','real',ldum,ndum)
          JTURN=0
  201     CONTINUE
 
-         CALL iDAFILE(Lu_60,2,IBUF,NBITM3+2,IADR)
-         CALL dDAFILE(Lu_60,2,BUF,NBITM3,IADR)
-         LENBUF=IBUF(NBITM3+1)
-         IADR=IBUF(NBITM3+2)
-         call faibj5(LENBUF,JTURN,IBUF,BUF, AIBJ,ABIJ)
+         CALL iDAFILE(Lu_60,2,iWORK(LIBUF),NBITM3+2,IADR)
+         CALL dDAFILE(Lu_60,2,WORK(LBUF),NBITM3,IADR)
+         LENBUF=iWORK(LIBUF+NBITM3)
+         IADR=iWORK(LIBUF+NBITM3+1)
+         call faibj5(LENBUF,JTURN,iWORK(LIBUF),WORK(LBUF), AIBJ,ABIJ)
 
          IF(IADR.NE.-1) GO TO 201
          IF(JTURN.EQ.1)GO TO 360
@@ -200,8 +200,8 @@ C TRIPLET-SINGLET, SINGLET-TRIPLET,
 C TRIPLET-TRIPLET AND SINGLET-SINGLET INTERACTIONS
 71    CONTINUE
 
-      call loop70(INTSYM,INDX,C,S,ABIJ,AIBJ,AJBI,BUF,
-     *      IBUF,A,B,F,FSEC,IPOF,IPOA,IPOB,
+      call loop70(INTSYM,INDX,C,S,ABIJ,AIBJ,AJBI,WORK(LBUF),
+     *      iWORK(LIBUF),A,B,F,FSEC,IPOF,IPOA,IPOB,
      * MYL,NYL,INDA,INDB,INMY,INNY,IFTB,IFTA,FACS,
      * IAB,CPL,CPLA, NVIRA,NVIRC,NVIRB)
 
@@ -212,6 +212,8 @@ C TRIPLET-TRIPLET AND SINGLET-SINGLET INTERACTIONS
 350   CONTINUE
       CALL CSCALE(INDX,INTSYM,C,SQ2INV)
       CALL CSCALE(INDX,INTSYM,S,SQ2)
+      CALL GETMEM('BUF','FREE','REAL',LBUF,NBITM3)
+      CALL GETMEM('IBUF','FREE','INTE',LIBUF,NBITM3+2)
 
       RETURN
       END

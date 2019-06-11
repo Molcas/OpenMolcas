@@ -17,7 +17,7 @@
      &                ITER,MAXIT,NROOTS,IROOT(mxRoot),NAC,
      &                ITRI(ITRIM),IADR15(30),
      &                IBLBM,JBLBM,ISYMBB,ISCF,NQUNE
-      CHARACTER(LENIN4) NAME(mxOrb)
+      CHARACTER(LENIN8) NAME(mxOrb)
       CHARACTER(2) HEADER(72)
       CHARACTER(2) QNSTEP
       CHARACTER(3) QNUPDT
@@ -34,7 +34,8 @@
      &                ECAS,CMAX,WEIGHT(mxRoot),DE,CBLBM,
      &                THREN,THFACT,TMIN,PRETHR,PROTHR,
      &                Tot_Charge,Tot_Nuc_Charge,Tot_El_Charge,
-     &                ExFac,VIA_DFT,HALFQ,VIA,HALFQ1,E2act
+     &                ExFac,VIA_DFT,HALFQ,VIA,HALFQ1,E2act,
+     &                CoreShift
 #ifdef _ENABLE_CHEMPS2_DMRG_
      &                ,davidson_tol,chemps2_blb,chemps2_noise
 #endif
@@ -42,7 +43,8 @@
      &                ECAS,CMAX,WEIGHT,DE,CBLBM,
      &                THREN,THFACT,TMIN,PRETHR,PROTHR,
      &                Tot_Charge,Tot_Nuc_Charge,Tot_El_Charge,
-     &                ExFac,VIA_DFT,HALFQ,VIA,HALFQ1,E2act
+     &                ExFac,VIA_DFT,HALFQ,VIA,HALFQ1,E2act,
+     &                CoreShift
 #ifdef _ENABLE_CHEMPS2_DMRG_
      &                ,davidson_tol,chemps2_blb,chemps2_noise
 #endif
@@ -56,7 +58,8 @@
      &                ITMAX,IPT2,ISPDEN,LOWMS,
      &                ISUPSM,IORDEM,IFORDE,IPCMROOT,ICIRFROOT,
      &                iRlxRoot,n_Det,iAlphaBeta,
-     &                MxDMRG,INOCALC,ISAVE_EXP,IEXPAND
+     &                MxDMRG,INOCALC,ISAVE_EXP,IEXPAND,ITCORE,
+     &                hRoots,n_keep,hfocc(mxact)
 #ifdef _ENABLE_CHEMPS2_DMRG_
      &                ,max_sweep,chemps2_lrestart,max_canonical
 #endif
@@ -69,13 +72,15 @@
      &                ITMAX,IPT2,ISPDEN,LOWMS,
      &                ISUPSM,IORDEM,IFORDE,IPCMROOT,ICIRFROOT,
      &                iRlxRoot,n_Det,iAlphaBeta,
-     &                MxDMRG,INOCALC,ISAVE_EXP,IEXPAND
+     &                MxDMRG,INOCALC,ISAVE_EXP,IEXPAND,ITCORE,
+     &                hRoots,n_keep,hfocc
 #ifdef _ENABLE_CHEMPS2_DMRG_
      &                ,max_sweep,chemps2_lrestart,max_canonical
 #endif
 *
       Logical         RFpert,lSquare, Start_Vectors, NonEq, DoFaro
-     &                ,DOFCIDUMP,DoBlockDMRG,DoGradPDFT
+     &                ,DOFCIDUMP,DoBlockDMRG,DoGradPDFT,DoNOGRAD,
+     &                DoGSOR, kIvo, IfCRPR
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
      &                , Do3RDM
 #endif
@@ -83,7 +88,8 @@
      &                , chemps2_restart
 #endif
       COMMON/LOGINP/  RFpert,lSquare, Start_Vectors, NonEq, DoFaro
-     &                ,DOFCIDUMP,DoBlockDMRG,DoGradPDFT
+     &                ,DOFCIDUMP,DoBlockDMRG,DoGradPDFT,DoNOGRAD,
+     &                DoGSOR, kIvo, IfCRPR
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
      &                , Do3RDM
 #endif
@@ -99,6 +105,7 @@
 *
       Character(8)    IPHNAME,OutFmt1,OutFmt2,SXSEL,PURIFY
       COMMON/CHRINP/  IPHNAME,OutFmt1,OutFmt2,SXSEL,PURIFY
+
 *
       INTEGER         iCIonly,NSM(mxOrb),KTIGHT
       COMMON/INTCI/   iCIonly,NSM,KTIGHT

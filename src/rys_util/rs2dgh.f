@@ -58,8 +58,8 @@
       mx=0
       my=0
       mz=0
-      Call ICopy(12,0,0,Index1,1)
-      Call ICopy(48,0,0,Index2,1)
+      Call ICopy(12,[0],0,Index1,1)
+      Call ICopy(48,[0],0,Index2,1)
 *
 *     Differentiate with respect to the first center
 *

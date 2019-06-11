@@ -116,7 +116,7 @@
      &                    'Too many atoms, increase MxAtom')
       End If
       Call get_carray('Unique Atom Names',Name,LENIN*nNuc)
-      Call get_carray('Unique Basis Names',Label,(LENIN4)*nBasTot)
+      Call get_carray('Unique Basis Names',Label,(LENIN8)*nBasTot)
       Call get_darray('Nuclear Charge',xCharge,nNuc)
       If(Debug) Then
          Write(6,'(a,8i5)')    'initgo: nNuc',nNuc
@@ -126,7 +126,7 @@
          Write(6,'(a)') 'initgo: Basis functions'
          Do iBas=1,nBasTot
             Write(6,'(2a)') Label(iBas)(1:LENIN),
-     &                      Label(iBas)(LENIN1:LENIN4)
+     &                      Label(iBas)(LENIN1:LENIN8)
          End Do
       End If
 *----------------------------------------------------------------------*

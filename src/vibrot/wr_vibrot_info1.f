@@ -13,22 +13,53 @@
      &                           nvib1,Redm,Umax,Umin,ngrid,
      &                           isn1,isn2,Req,xMass1,xMass2)
       Implicit Real*8 (a-h,o-z)
+      Dimension dum(1),idum(1)
 *
-      Call iDaFile(Lu,iOpt,ntit1, 1,iDisk)
-      Call iDaFile(Lu,iOpt,J1A,   1,iDisk)
-      Call iDaFile(Lu,iOpt,J2A,   1,iDisk)
-      Call iDaFile(Lu,iOpt,lambda,1,iDisk)
-      Call iDaFile(Lu,iOpt,n0,    1,iDisk)
-      Call iDaFile(Lu,iOpt,nvib1, 1,iDisk)
-      Call dDaFile(Lu,iOpt,Redm,  1,iDisk)
-      Call dDaFile(Lu,iOpt,Umax,  1,iDisk)
-      Call dDaFile(Lu,iOpt,Umin,  1,iDisk)
-      Call iDaFile(Lu,iOpt,ngrid, 1,iDisk)
-      Call iDaFile(Lu,iOpt,isn1,  1,iDisk)
-      Call iDaFile(Lu,iOpt,isn2,  1,iDisk)
-      Call dDaFile(Lu,iOpt,Req,   1,iDisk)
-      Call dDaFile(Lu,iOpt,xMass1,1,iDisk)
-      Call dDaFile(Lu,iOpt,xMass2,1,iDisk)
+      idum(1)=ntit1
+      Call iDaFile(Lu,iOpt,idum,1,iDisk)
+      ntit1=idum(1)
+      idum(1)=J1A
+      Call iDaFile(Lu,iOpt,idum,1,iDisk)
+      J1A=idum(1)
+      idum(1)=J2A
+      Call iDaFile(Lu,iOpt,idum,1,iDisk)
+      J2A=idum(1)
+      idum(1)=lambda
+      Call iDaFile(Lu,iOpt,idum,1,iDisk)
+      lambda=idum(1)
+      idum(1)=n0
+      Call iDaFile(Lu,iOpt,idum,1,iDisk)
+      n0=idum(1)
+      idum(1)=nvib1
+      Call iDaFile(Lu,iOpt,idum,1,iDisk)
+      nvib1=idum(1)
+      dum(1)=Redm
+      Call dDaFile(Lu,iOpt,dum,1,iDisk)
+      Redm=dum(1)
+      dum(1)=Umax
+      Call dDaFile(Lu,iOpt,dum,1,iDisk)
+      Umax=dum(1)
+      dum(1)=Umin
+      Call dDaFile(Lu,iOpt,dum,1,iDisk)
+      Umin=dum(1)
+      idum(1)=ngrid
+      Call iDaFile(Lu,iOpt,idum,1,iDisk)
+      ngrid=idum(1)
+      idum(1)=isn1
+      Call iDaFile(Lu,iOpt,idum,1,iDisk)
+      isn1=idum(1)
+      idum(1)=isn2
+      Call iDaFile(Lu,iOpt,idum,1,iDisk)
+      isn2=idum(1)
+      dum(1)=Req
+      Call dDaFile(Lu,iOpt,dum,1,iDisk)
+      Req=dum(1)
+      dum(1)=xMass1
+      Call dDaFile(Lu,iOpt,dum,1,iDisk)
+      xMass1=dum(1)
+      dum(1)=xMass2
+      Call dDaFile(Lu,iOpt,dum,1,iDisk)
+      xMass2=dum(1)
 *
       Return
       End

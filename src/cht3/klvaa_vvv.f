@@ -223,7 +223,7 @@ cmpn
                         !!KADT=(R-2)*(R-1)/2+K
                         !!KADT=(KADT-1)*NNUAB(ISP)
                         !!KADT=KADT+(a-1)*(a-2)/2 +B1 +IT -1
-                        !!call vneg(G(KADT),1,G(IJS),1,NSTEP)
+                        !!call vneg_cht3(G(KADT),1,G(IJS),1,NSTEP)
 
 cmpn      KADT=(k-1)*noab(1)*NNUAB(3)+(r-1)*nnUab(3)+(a-1)*nuab(1)+B1+IT-1
 cmpn      AADT=(r-1)*noab(1)*NNUAB(3)+(k-1)*nnUab(3)+(a-1)*nuab(1)+B1+IT-1

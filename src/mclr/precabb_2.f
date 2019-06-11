@@ -59,7 +59,7 @@
       i2=nD-jVert+1
       ip=iTri1(i2,i2)
       rF=sign*Fockti
-      call dcopy_(nBa**2,0.0d0,0,Temp2,1)
+      call dcopy_(nBa**2,[0.0d0],0,Temp2,1)
 *
       Do kS=1,nSym
         iOpt=1

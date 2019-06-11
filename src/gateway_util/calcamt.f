@@ -54,7 +54,7 @@ C...  working variables (change this)
       PI=2D0*ACOS(0D0)
       iprint=0
       Call Agin
-      call dcopy_(2*MaxPrim**2,0.0D0,0,Corek,1)
+      call dcopy_(2*MaxPrim**2,[0.0D0],0,Corek,1)
 c
 c     calculate relativistic integrals if needed
       lpq=0
@@ -95,7 +95,7 @@ c     calculate relativistic integrals if needed
         LAM=lP1
         If (nP.le.0) Go To 1000
 C
-        call dcopy_(nRel,0.0D0,0,Rel,1)
+        call dcopy_(nRel,[0.0D0],0,Rel,1)
         If (iAnd(iOpt,iMVPot).ne.0 .and.
      &      iAnd(iOpt,iDWPot).ne.0 ) Then
 C...      Mass-velocity and/or Darwin potentials
@@ -119,7 +119,7 @@ C
             write(6,12) (hcorr(i),i=1,nmat)
  12      format(4d19.12)
          endif
-         call dcopy_(nRel,0.0D0,0,Rel,1)
+         call dcopy_(nRel,[0.0D0],0,Rel,1)
       endif
 C
 C...    Overlap and, if neccesary, exchange.

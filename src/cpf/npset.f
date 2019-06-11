@@ -19,7 +19,7 @@
 #include "cpfmcpf.fh"
 #include "files_cpf.fh"
 *
-      JSYM(L)=JSUNP(JSY,L)
+      JSYM(L)=JSUNP_CPF(JSY,L)
 C
       IF(IDENS.EQ.1)GO TO 65
       IF(ITPUL.NE.1)GO TO 60

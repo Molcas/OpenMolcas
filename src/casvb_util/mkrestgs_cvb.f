@@ -23,12 +23,17 @@
       dimension orbsao(nbas_mo,norb),irdorbs(norb),cvb(nvb)
       dimension cvbdet(ndetvb),iapr(ndetvb),ixapr(nda+1)
       dimension iabind(*),cvbdet1(*)
+      dimension idum(1)
 
       ioffs=0
-      call rdis_cvb(ndetvb1,1,recn_tmp04,ioffs)
-      call rdis_cvb(norb1,1,recn_tmp04,ioffs)
-      call rdis_cvb(nalf1,1,recn_tmp04,ioffs)
-      call rdis_cvb(nbet1,1,recn_tmp04,ioffs)
+      call rdis_cvb(idum,1,recn_tmp04,ioffs)
+      ndetvb1=idum(1)
+      call rdis_cvb(idum,1,recn_tmp04,ioffs)
+      norb1=idum(1)
+      call rdis_cvb(idum,1,recn_tmp04,ioffs)
+      nalf1=idum(1)
+      call rdis_cvb(idum,1,recn_tmp04,ioffs)
+      nbet1=idum(1)
       if(norb1.ne.norb.or.nalf1.ne.nalf.or.nbet1.ne.nbet)then
         write(6,'(2a)')' Inconsistency between previous and current',
      >    ' VB wavefunction definitions.'

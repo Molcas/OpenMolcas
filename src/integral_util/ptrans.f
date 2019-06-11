@@ -65,7 +65,7 @@ c Offsets into the ipam array:
         nnpam4=nnpam4+npam(4,isym)
   10  continue
       nPSOP=nnpam1*nnpam2*nnpam3*nnpam4
-      call dcopy_(nPSOP,Zero,0,PSOPam,1)
+      call dcopy_(nPSOP,[Zero],0,PSOPam,1)
       iopam1=0
       iopam2=nnpam1
       iopam3=iopam2+nnpam2

@@ -124,17 +124,17 @@ c
 #if defined(_MOLCAS_) || defined(MOLPRO)
       lwop=8/intrea()
       nwop=(maxlength-1)/lwop+1
-      call getmem('operators','Allo','Inte',operators,maxoperators*nwop)
+      call getmem('operators','Allo','Char',operators,maxoperators*nwop)
       call getmem('doperators','Allo','Real',doperators,maxoperators)
       call getmem('operleng','Allo','Inte',operleng,maxoperators)
       call getmem('oporder','Allo','Inte',oporder,maxoperators*3)
       call getmem('evenodd','Allo','Inte',evenodd,maxoperators)
       call getmem('dwops','Allo','Real',dwops,maxuops)
-      call getmem('wops','Allo','Inte',wops,maxuops*maxlength) !fix this
+      call getmem('wops','Allo','Char',wops,maxuops*maxlength) !fix this
       call getmem('wopsleng','Allo','Inte',wopsleng,maxuops)
       call getmem('woporder','Allo','Inte',woporder,maxuops*3)
       call getmem('eowops','Allo','Inte',eowops,maxuops)
-      call getmem('xoperators','Allo','Inte',xoperators,
+      call getmem('xoperators','Allo','Char',xoperators,
      *            maxoperators*nwop)
       call getmem('xdoperators','Allo','Real',xdoperators,maxoperators)
       call getmem('xoperleng','Allo','Inte',xoperleng,maxoperators)
@@ -151,21 +151,21 @@ c
 c
       call get_dkhstring (dkhorder,xorder,paramtype,dkhscfflg,
      *          ordercounter,opcounter,iwork(operleng),iwork(oporder),
-     *          iwork(evenodd),work(doperators),iwork(operators),
+     *          iwork(evenodd),work(doperators),cwork(operators),
      *          xordercounter,xopcounter,iwork(xoperleng),
      *          iwork(xoporder),iwork(xevenodd),work(xdoperators),
-     *          iwork(xoperators),wordercounter,
+     *          cwork(xoperators),wordercounter,
      *          wopscounter,iWork(wopsleng),iWork(woporder),
-     *          iWork(eowops),Work(dwops),iWork(wops),dkhzerothrsh)
+     *          iWork(eowops),Work(dwops),cWork(wops),dkhzerothrsh)
 c
       call subs_dkhstring (dkhorder,xorder,dkhscfflg,ordercounter,
      *          opcounter,iwork(operleng),iwork(oporder),iwork(evenodd),
-     *          work(doperators),iwork(operators),
+     *          work(doperators),cwork(operators),
      *          xordercounter,xopcounter,iwork(xoperleng),
      *          iwork(xoporder),iwork(xevenodd),work(xdoperators),
-     *          iwork(xoperators),wordercounter,wopscounter,
+     *          cwork(xoperators),wordercounter,wopscounter,
      *          iWork(wopsleng),iWork(woporder),iWork(eowops),
-     *          Work(dwops),iWork(wops),sused,snumber,scounter,stimes,
+     *          Work(dwops),cWork(wops),sused,snumber,scounter,stimes,
      *          wstimes,sorder,smult,s,scrchar,scrleng,stimestot,
      *          tnumber,tcounter,ttimes,tmult,t,tscrchar,tscrleng,
      *          ttimestot,no_s)
@@ -173,12 +173,12 @@ c
       call red_dkhstring (dkhorder,xorder,paramtype,dkhscfflg,
      *             ordercounter,opcounter,iwork(operleng),
      *             iwork(oporder),iwork(evenodd),
-     *             work(doperators),iwork(operators),xordercounter,
+     *             work(doperators),cwork(operators),xordercounter,
      *             xopcounter,iwork(xoperleng),iwork(xoporder),
-     *             iwork(xevenodd),work(xdoperators),iwork(xoperators),
+     *             iwork(xevenodd),work(xdoperators),cwork(xoperators),
      *             wordercounter,wopscounter,iWork(wopsleng),
      *             iWork(woporder),iWork(eowops),Work(dwops),
-     *             iWork(wops),
+     *             cWork(wops),
      *             iwork(termleng),iwork(termleng2),iwork(termorder),
      *             work(dtcoeff),work(dtcoeff2),
      *             sused,snumber,scounter,stimes,wstimes,
@@ -189,7 +189,7 @@ c
 c
       call evaluate_Sxxx (dkhorder,xorder,paramtype,dkhscfflg,
      *             wordercounter,iWork(wopsleng),iWork(woporder),
-     *             iWork(eowops),Work(dwops),iWork(wops),
+     *             iWork(eowops),Work(dwops),cWork(wops),
      *             iwork(termleng),iwork(termleng2),iwork(termorder),
      *             work(dtcoeff),work(dtcoeff2),
      *             sused,snumber,scounter,stimes,wstimes,sorder,smult,s,
@@ -200,7 +200,7 @@ c
 c
       call evaluate_Txxx (dkhorder,xorder,paramtype,dkhscfflg,
      *             wordercounter,iWork(wopsleng),iWork(woporder),
-     *             iWork(eowops),Work(dwops),iWork(wops),
+     *             iWork(eowops),Work(dwops),cWork(wops),
      *             iwork(termleng),iwork(termleng2),iwork(termorder),
      *             work(dtcoeff),work(dtcoeff2),
      *             sused,snumber,scounter,stimes,wstimes,sorder,s,
@@ -225,18 +225,18 @@ c
       call getmem('xoporder','Free','Inte',xoporder,maxoperators)
       call getmem('xoperleng','Free','Inte',xoperleng,maxoperators)
       call getmem('xdoperators','Free','Real',xdoperators,maxoperators)
-      call getmem('xoperators','Free','Inte',xoperators,maxoperators*
+      call getmem('xoperators','Free','Char',xoperators,maxoperators*
      *            nwop)
       call getmem('eowops','Free','Inte',eowops,maxuops)
       call getmem('woporder','Free','Inte',woporder,maxuops*3)
       call getmem('wopsleng','Free','Inte',wopsleng,maxuops)
-      call getmem('wops','Free','Inte',wops,maxuops)
+      call getmem('wops','Free','Char',wops,maxuops)
       call getmem('dwops','Free','Real',dwops,maxuops)
       call getmem('evenodd','Free','Inte',evenodd,maxoperators)
       call getmem('oporder','Free','Inte',oporder,maxoperators*3)
       call getmem('operleng','Free','Inte',operleng,maxoperators)
       call getmem('doperators','Free','Real',doperators,maxoperators)
-      call getmem('operators','Free','Inte',operators,maxoperators*nwop)
+      call getmem('operators','Free','Char',operators,maxoperators*nwop)
 #else
       call get_dkhstring (dkhorder,xorder,paramtype,dkhscfflg,
      *          ordercounter,opcounter,operleng,oporder,evenodd,

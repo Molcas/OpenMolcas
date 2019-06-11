@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Xprop(short,
+      Subroutine Xprop(short, ifallorb,
      &                 nirrep,nbas,ntotv,vec,ntoto,occ,thrs,
      &                 ntotd,opel,
      &                 out)
@@ -21,8 +21,11 @@
 *                                                                      *
 *     Parameters                                                       *
 *                                                                      *
-*       short          logical, if (short) than only the total average *
+*       short          logical, if (short) then only the total average *
 *                      value is calculated and transferred in out(1)   *
+*       ifallorb       logical, if (ifallorb) then print the property  *
+*                      of all orbitals (including virtuals) and none is*
+*                      weighted by occupation number (S.S.Dong, 2018)  *
 *                                                                      *
 *       nirrep         number of irreps                                *
 *       nbas(0:nirrep) dimension for each irrep                        *
@@ -40,7 +43,8 @@
 *       (1:ntoto)      else                                            *
 *                      occ stores the occupation numbers               *
 *                      size: sum(i,i=0,nirrep-1)(nbas(i))              *
-*       thrs           if (short) then this parameter is a dummy       *
+*       thrs           if (short) or (ifallorb) then this parameter is *
+*                      a dummy                                         *
 *                      else                                            *
 *                      if the orbital occupation number is .le.        *
 *                      thrs the orbital contribution will not be       *
@@ -59,9 +63,12 @@
 *                      contains the orbital contributions (multiplied  *
 *                      by the corresponding occupation numbers)        *
 *                                                                      *
+* Modified by S.S.Dong, 2018, Univ. of Minnesota                       *
+* - Enable properties to be printed for all orbitals                   *
+* (including virtuals) and not weighted by occupation numbers          *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-      logical short
+      logical short, ifallorb
       dimension nbas(0:nirrep-1),vec(1:ntotv),
      &          occ(1:ntoto),opel(1:ntotd),out(1:ntoto)
 *
@@ -69,7 +76,7 @@
         icount=1
         sum=DDOT_(ntotd,vec,1,opel,1)
         Out(1) = Sum
-      else
+      else if (.Not.ifallorb) then
         ndim2=0
         do 1 i=0,nirrep-1
           ndim2=ndim2+nbas(i)**2
@@ -98,6 +105,35 @@
   200   continue
         jCount = jCount + nBas(i)*(nBas(i)+1)/2
   199   continue
+      else if (ifallorb) then
+        ndim2=0
+        do 2 i=0,nirrep-1
+          ndim2=ndim2+nbas(i)**2
+    2   continue
+*
+        iadv=0
+        iado=0
+        iadout=0
+        jCount = 1
+        do 195 i=0,nirrep-1
+        do 196 iv=1,nbas(i)
+          iado=iado+1
+          iadout=iadout+1
+          sum=0.0d+00
+          icount=jCount
+          do 197 iv1=1,nbas(i)
+            do 198 iv2=1,iv1-1
+              sum=sum+2.0d+00*vec(iadv+iv1)*vec(iadv+iv2)*opel(icount)
+              icount=icount+1
+  198       continue
+            sum=sum+vec(iadv+iv1)*vec(iadv+iv1)*opel(icount)
+            icount=icount+1
+  197     continue
+          out(iadout)=sum
+          iadv=iadv+nbas(i)
+  196   continue
+        jCount = jCount + nBas(i)*(nBas(i)+1)/2
+  195   continue
       endif
 *
 *     if (short) then

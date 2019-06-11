@@ -40,6 +40,7 @@
       dimension idx_idisk(64)
       dimension cmo(max_orb**2)
       character bsbl(2*4*maxmolcasorb)*1
+      dimension dum(1),idum(1)
 
       fnonemo="TRAONE"
       fndrt="CIDRT"
@@ -56,8 +57,10 @@ c      call molcas_open(ludrt,fndrt)
 c      call molcas_open(luonemo,fnonemo)
       idisk=0
       call idafile(luonemo,2,ncone,64,idisk)
-      call ddafile(luonemo,2,ecor,1,idisk)
-      call idafile(luonemo,2,nsym,1,idisk)
+      call ddafile(luonemo,2,dum,1,idisk)
+      ecor=dum(1)
+      call idafile(luonemo,2,idum,1,idisk)
+      nsym=idum(1)
       call idafile(luonemo,2,nbas,8,idisk)
       call idafile(luonemo,2,norb,8,idisk)
       call idafile(luonemo,2,nfro,8,idisk)
@@ -282,12 +285,12 @@ cbsuo, jun. 30, 2009 - neglect them
       goto 10
 *
 *---  process extract  command ----------------------------------------*
-1500  write (6,*) 'input: extract option is redudant and is ignored!'
+1500  write (6,*) 'input: extract option is redundant and is ignored!'
       goto 10
 *
 *---  process non-interact command -------------------------------------
 1600  continue
-      write (6,*) 'input: non-interact option is redudant and is',
+      write (6,*) 'input: non-interact option is redundant and is',
      *            ' ignored!'
       intnum=0
       goto 10
@@ -514,17 +517,17 @@ c write date into cidrt for ci calculation
       idisk=0
       call idafile(ludrt,1,noidx,2,idisk)
 ! group symmetry
-      call idafile(ludrt,1,ng_sm,1,idisk)
+      call idafile(ludrt,1,[ng_sm],1,idisk)
 ! state symmetry
-      call idafile(ludrt,1,ns_sm,1,idisk)
+      call idafile(ludrt,1,[ns_sm],1,idisk)
 ! number of roots to be cal
-      call idafile(ludrt,1,mroot,1,idisk)
+      call idafile(ludrt,1,[mroot],1,idisk)
 ! number of corelation electrons
-      call idafile(ludrt,1,n_electron,1,idisk)
+      call idafile(ludrt,1,[n_electron],1,idisk)
 ! number of active electrons
-      call idafile(ludrt,1,nactel,1,idisk)
+      call idafile(ludrt,1,[nactel],1,idisk)
 ! spin symmetry of the state, 2s+1
-      call idafile(ludrt,1,ispin,1,idisk)
+      call idafile(ludrt,1,[ispin],1,idisk)
 ! dbl orb
       call idafile(ludrt,1,nlsm_dbl,8,idisk)
 ! act orb
@@ -535,8 +538,8 @@ c write date into cidrt for ci calculation
       call idafile(ludrt,1,nlsm_bas,8,idisk)
 ! method to choose ref. state, 4 for cas, 2 for rst
       if(logic_mr) then
-        call idafile(ludrt,1,2,1,idisk)
-        call idafile(ludrt,1,n_ref,1,idisk)
+        call idafile(ludrt,1,[2],1,idisk)
+        call idafile(ludrt,1,[n_ref],1,idisk)
 ! reference states
 !       iref_occ(norb_dz+1:norb_dz+norb_act,i)=itmpstr(1:norb_act)
         do i=1,n_ref
@@ -544,7 +547,7 @@ c write date into cidrt for ci calculation
         enddo
       endif
       if(logic_mrelcas) then
-        call idafile(ludrt,1,4,1,idisk)
+        call idafile(ludrt,1,[4],1,idisk)
       endif
 ! number of ref. states, if logic_mr = .true.
       noidx(2)=idisk
@@ -2729,14 +2732,14 @@ c...end of reabtm
 !  number of nodes
       call idafile(ludrt,2,idx,2,idisk)
       idisk=idx(2)
-      call idafile(ludrt,1,id,1,idisk)
+      call idafile(ludrt,1,[id],1,idisk)
       call idafile(ludrt,1,ja,id,idisk)
       call idafile(ludrt,1,jb,id,idisk)
       call idafile(ludrt,1,jm,id,idisk)
       call idafile(ludrt,1,jbuf,4*(id+1),idisk)
       call idafile(ludrt,1,kk(0),1+id,idisk)
       call idafile(ludrt,1,no(0),norb_inn+2,idisk)
-      call idafile(ludrt,1,jv,1,idisk)
+      call idafile(ludrt,1,[jv],1,idisk)
       call idafile(ludrt,1,jd,8,idisk)
       call idafile(ludrt,1,jt,8,idisk)
       call idafile(ludrt,1,js,8,idisk)

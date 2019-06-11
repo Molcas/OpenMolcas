@@ -30,9 +30,9 @@
 #include "cicisp_mclr.fh"
       Call Getmem('OneOff','ALLO','INTE',KpINT1,nSym)
       Kapin1=KpINt1
-      Call iCopy(nSym,0,0,iWork(kpint1),1)
+      Call iCopy(nSym,[0],0,iWork(kpint1),1)
       Call Getmem('TwoOff','ALLO','INTE',KpINT2,nSym**3)
-      Call iCopy(nSym**3,0,0,iWork(kpint2),1)
+      Call iCopy(nSym**3,[0],0,iWork(kpint2),1)
 *EAW
       Pntgrp=1
       NOCSF  = 0

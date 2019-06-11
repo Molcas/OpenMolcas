@@ -19,13 +19,9 @@ SBIN=0
 TMPDIR=$(mktemp -d)
 trap 'rm -rf "$TMPDIR"' EXIT
 
-# check changes to sbin/
+# checkout changed files
 for FILE in $(git diff-index --cached --name-only HEAD)
 do
-    if [[ "$FILE" == sbin\/* ]]
-    then
-        SBIN=1
-    fi
     git checkout-index --prefix=$TMPDIR/ $FILE 2> /dev/null
 done
 DIR=$PWD
@@ -50,17 +46,16 @@ BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
 case "$BRANCH" in
   # protected branches: disallow
-  master|daily-snapshot)
+  master)
     echo "    ==========================================================="
-    echo "    You tried to commit to one of the protected branches"
-    echo "    (master, daily-snapshot)."
+    echo "    You tried to commit to the master branch"
     echo "    This is not recommended, even in your local machine."
     echo ""
-    echo "    If you really want to commit to one of these branches,"
+    echo "    If you really want to do so,"
     echo "    use the \"--no-verify\" flag with \"git commit\"".
     echo ""
-    echo "    Maybe you wanted to commit to your own \"nickname\" branch,"
-    echo "    in that case you should \"git checkout\" your branch first."
+    echo "    Maybe you wanted to commit to a different branch, in that"
+    echo "    case you should \"git checkout\" that branch first."
     echo ""
     echo "    You can always create a new local branch to commit to:"
     echo "    \"git branch <new-branch-name>\""
@@ -75,27 +70,6 @@ esac
 if (( $RC ))
 then
     exit $RC
-fi
-
-# check changes to sbin/
-# (if this is a merge commit, bypass the check)
-if [ -z "$(git rev-parse -q --verify MERGE_HEAD)" ]
-then
-    if (( $SBIN ))
-    then
-        echo "    ==========================================================="
-        echo "    You tried to commit changes to the sbin/ directory."
-        echo "    This is restricted and only allowed for administrators."
-        echo ""
-        echo "    If you wish to apply the changes, please send the modified"
-        echo "    files to one of the administrators."
-        echo ""
-        echo "    If you are working on a local or special branch that is"
-        echo "    not meant to be merged, you can disable this check by using"
-        echo "    the \"--no-verify\" flag with \"git commit\"".
-        echo "    ==========================================================="
-        RC=2
-    fi
 fi
 
 exit $RC

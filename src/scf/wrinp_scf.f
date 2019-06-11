@@ -45,6 +45,7 @@
 #include "infso.fh"
 #include "rctfld.fh"
 #include "ldfscf.fh"
+#include "ksdft.fh"
 *
 *---- Define local variables
       Character*60 Fmt, FmtR, FmtI
@@ -203,6 +204,8 @@ c           Call Abend()
 *---- Print out grid information in case of DFT
 *
       If (KSDFT.ne.'SCF') Then
+         Call Put_dScalar('DFT exch coeff',CoefX)
+         Call Put_dScalar('DFT corr coeff',CoefR)
          Call Put_dScalar('EThr',EThr)
          Call Funi_Print
          If (jPrint.ge.2) Then
@@ -394,7 +397,7 @@ c           Call Abend()
 *
 *---- Print out number of iterations
       Write(6,FmtI) 'Maximum number of NDDO SCF iterations',nIter(0)
-      Write(6,FmtI) 'Maximum number of HF  SCF iterations',nIter(1)
+      Write(6,FmtI) 'Maximum number of HF SCF iterations',nIter(1)
 *
 *---- Print out thresholds for SCF
       Write(6,FmtR) 'Threshold for SCF energy change',EThr
@@ -455,8 +458,12 @@ c           Call Abend()
          Write(6,Fmt)
      &         'NDDO MOs are generated before actual HF SCF computation'
       Else If (InVec.eq.2) Then
-         Write(6,Fmt) 'Input vectors read from INPORB'
-         Write(6,Fmt) 'Orbital file label: ',VTitle(:mylen(VTitle))
+         If (isHDF5) Then
+            Write(6,Fmt) 'Input vectors read from HDF5 file'
+         Else
+            Write(6,Fmt) 'Input vectors read from INPORB'
+            Write(6,Fmt) 'Orbital file label: ',VTitle(:mylen(VTitle))
+         End If
       Else If (InVec.eq.3) Then
          Write(6,Fmt) 'Input density matrix read from RUNFILE'
       Else If (InVec.eq.4) Then
@@ -468,7 +475,6 @@ c           Call Abend()
       End If
       If (Scrmbl) Write(6,Fmt) 'Start orbitals are scrambled in order '
      &      //'to introduce symmetry breaking'
-      Write(6,*)
       Write(6,*)
 *
       End If

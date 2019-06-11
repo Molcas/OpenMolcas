@@ -79,10 +79,16 @@ C initialize global common-block variables appropriately.
           BSHIFT=0.25D0
           HZERO = TRIM(HZERO)//' WITH DEFAULT IPEA'
         End If
+* Notifiy that Hzero is different for XMS calculations.
+* SB: Don't talk about IPEA. Actually, I am not sure that
+* IPEA can be used with XMS
+        If (Input % XMUL) Then
+          HZERO = 'XMS'
+        End If
       END IF
 * print warnings if deviating from the default
-      If (HZERO.NE.'STANDARD WITH DEFAULT IPEA'.OR.
-     &    FOCKTYPE.NE.'STANDARD') Then
+      If (HZERO.NE.'STANDARD WITH DEFAULT IPEA'.AND.
+     &    HZERO.NE.'XMS'.OR.FOCKTYPE.NE.'STANDARD') Then
         IF (IPRGLB.ge.TERSE) THEN
           Call WarningMessage(1,'User-modified 0-order hamiltonian!')
         End If
@@ -127,38 +133,48 @@ C     really parallel or not.
       PRORB=.TRUE.
       PRSD=.FALSE.
       NCASES=13
-      JMS=.FALSE.
-      NLYROOT=0
 
-      DoCumulant = Input%DoCumulant
+      JMS = Input % JMS
+      NLYROOT = Input % OnlyRoot
+      NLYGROUP = 0
+
+      DoCumulant = Input % DoCumulant
 
 ************************************************************************
 *
 * Root selection
 *
 ************************************************************************
-*SVC: create a flat array, putting regular MS states first with
-* the group number increasing, then put groups of XMS states.
+*SB: create a flat array, putting (X)MS states with increasing
+* group number. Do not allow to run both MS and XMS in the same
+* calculation, it can lead to catastrophic results.
+* For MS, put one state per group, for XMS put all states in
+* a single group.
 * Example: lets say the input is:
-* MULTistate
-*  3 3 4 5
-* XMULtistate
-*  2
-*  2 1 2
-*  4 6 7 8 9
+* MULTistate = 3 3 4 5
+*
 * Then the arrays that are created will be:
-* nstate = 9
-* mstate(nstate): 3 4 5 1 2 6 7 8 9
-* nGroup = 5
-* nGroupState(nGroup): 1 1 1 2 4
+* nstate = 3
+* mstate(nstate): 3 4 5
+* nGroup = 3
+* nGroupState(nGroup): 1 1 1
+*
+* On the other hand, if the input is
+* XMULtistate = 4 1 2 3 4
+*
+* Then the arrays that are created will be:
+* nstate = 4
+* mstate(nstate): 1 2 3 4
+* nGroup = 1
+* nGroupState(nGroup): 4
       NSTATE = 0
       MSTATE = 0
       NGROUP = 0
       NGROUPSTATE = 0
       If(Input%MULT) Then
-        If (Input%AllXMult) Then
-          Call WarningMessage(2,'Keyword MULT cannot be used together'//
-     &                          'with XMUL=ALL.')
+        If (Input%XMUL) Then
+          Call WarningMessage(2,'Keyword MULTistate cannot be used '//
+     &                          'together with keyword XMULtistate.')
           Call Quit_OnUserError
         End If
         Do I=1,Input%nMultState
@@ -170,19 +186,30 @@ C     really parallel or not.
       End If
       IOFF=NSTATE
       If(Input%XMUL) Then
-        If (Input%AllMult) Then
-          Call WarningMessage(2,'Keyword XMUL cannot be used together'//
-     &                          'with MULT=ALL.')
+        If (Input%MULT) Then
+          Call WarningMessage(2,'Keyword XMULtistate cannot be used '//
+     &                          'together with keyword MULTistate.')
           Call Quit_OnUserError
         End If
-        Do iGroup=1,Input%nXMulGroup
-          NGROUP = NGROUP + 1
-          NGROUPSTATE(NGROUP) = Input%nXMulState(iGroup)
-          Do I=1,Input%nXMulState(iGroup)
-            MSTATE(IOFF+I) = Input%XMulGroup(iGroup)%State(I)
-            NSTATE = NSTATE + 1
+        NGROUP = NGROUP + 1
+        NGROUPSTATE(NGROUP) = Input%nXMulState
+        Do I=1,Input%nXMulState
+          MSTATE(IOFF+I) = Input%XMulGroup%State(I)
+          NSTATE = NSTATE + 1
+        End Do
+        IOFF = IOFF + Input%nXMulState
+      End If
+* After parsing mult or xmult, check that no two equal states where
+* given in the input
+      If (Input%MULT.OR.Input%XMUL) Then
+        Do I=1,NSTATE
+          Do J=I+1,NSTATE
+            If (MSTATE(I).EQ.MSTATE(J)) Then
+             Call WarningMessage(2,'The same root cannot be used '//
+     &                             'twice in MULT/XMULT blocks.')
+              Call Quit_OnUserError
+            End If
           End Do
-          IOFF = IOFF + Input%nXMulState(iGroup)
         End Do
       End If
 * The LROOt keyword specifies a single root to be used. It should not be
@@ -211,6 +238,16 @@ C     really parallel or not.
           NGROUPSTATE(1:NGROUP)=1
         End If
       END IF
+* Find the group number for OnlyRoot
+      If (NLYROOT.ne.0) Then
+        IOFF=0
+        Do IGROUP=1,NGROUP
+          Do I=1,NGROUPSTATE(IGROUP)
+            If (IOFF+I.eq.NLYROOT) NLYGROUP=IGROUP
+          End Do
+          IOFF=IOFF+NGROUPSTATE(IGROUP)
+        End Do
+      End If
 * Finally, some sanity checks.
       IF(NSTATE.LE.0.OR.NSTATE.GT.MXROOT) Then
         Call WarningMessage(2,'Number of states is <0 or too large.')
@@ -322,6 +359,7 @@ C     really parallel or not.
       IFMIX = .NOT.Input % NoMix
       IFMSCOUP = (Input % MULT .OR. Input % XMUL)
      &           .AND.(.NOT.Input % NoMult)
+      IFXMS = Input % XMUL
 
 * Choice? of preprocessing route
       ORBIN='TRANSFOR'

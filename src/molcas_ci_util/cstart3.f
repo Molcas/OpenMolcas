@@ -10,7 +10,8 @@
 *                                                                      *
 * Copyright (C) 1996, Markus P. Fuelscher                              *
 ************************************************************************
-      Subroutine CStart_CI_Util(C,h0,TUVX,iSel,ExplE,ExplV,iFinal)
+      Subroutine CStart_CI_Util(C,h0,TUVX,iSel,ExplE,ExplV,
+     &                          nMaxSel,iFinal)
 ************************************************************************
 *                                                                      *
 *     Find initial CI-vectors                                          *
@@ -73,7 +74,7 @@ c      Dimension iToc(15)
 C$$$        ExplE(1) = C(1)  ! Commented out by Jesper
 C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
         C(1) = 1.0d0
-        Call Save_tmp_CI_vec(1,lRoots,nConf,C,LuDavid)
+        Call Save_tmp_CI_vec(1,nConf,C,LuDavid)
         Call qExit('CStart')
         Return
       End If
@@ -86,18 +87,18 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
 
 * special case: nSel=nConf
 
-      If ( nSel.eq.nConf ) then
+      If ( nSel.eq.nMaxSel ) then
         If ( IPRLEV.ge. DEBUG ) Write (6,*)
      &                  ' Initial CI-vectors are obtained by',
      &                  ' diagonalizing the explicit Hamiltonian'
         iDisk = IADR15(4)
         Do i = 1,lRoots
-          Call dCopy_(nConf,0.0D0,0,C,1)
+          Call dCopy_(nConf,[0.0D0],0,C,1)
           Do j = 1,nSel
             k = iSel(j)
             C(k) = ExplV(j+(i-1)*nSel)
           End Do
-          Call Save_tmp_CI_vec(i,lRoots,nConf,C,LuDavid)
+          Call Save_tmp_CI_vec(i,nConf,C,LuDavid)
           If ( IPRLEV.ge. INSANE ) then
             Write (String,'(A,I2)') 'CI vector of root',i
             Write (String,'(A,I4,A)') '(max. ',nSel,' elements)'
@@ -130,7 +131,7 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
                 Call Reord2(NAC,NACTEL,LSYM,1,
      &                  iWork(KICONF(1)),iWork(KCFTP),
      &                  Work(iTmp1),C,iwork(ivkcnf))
-                Call Save_CI_vec(1,i,lRoots,nConf,C,LuDavid)
+                Call Save_CI_vec(i,nConf,C,LuDavid)
               End Do
               call GetMem('kcnf','free','inte',ivkcnf,nactel)
               Call GetMem('Scr1','Free','Real',iTmp1,nConf)
@@ -174,7 +175,7 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
      &              iWork(KICONF(1)),iWork(KCFTP),
      &              Work(iTmp1),C,iwork(ivkcnf))
             call GetMem('kcnf','free','inte',ivkcnf,nactel)
-            Call Save_CI_vec(1,i,lRoots,nConf,C,LuDavid)
+            Call Save_CI_vec(i,nConf,C,LuDavid)
             If ( IPRLEV.ge. INSANE ) then
               Write (String,'(A,I2)') 'Start vector of root',i
               Write (String,'(A,I4,A)') '(max. ',nSel,' elements)'
@@ -201,12 +202,12 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
      &            ' Initial CI-vectors are obtained by',
      &            ' diagonalizing the explicit Hamiltonian'
           Do i = 1,lRoots
-            Call dCopy_(nConf,0.0d0,0,C,1)
+            Call dCopy_(nConf,[0.0d0],0,C,1)
             Do j = 1,nSel
               k = iSel(j)
               C(k) = ExplV(j+(i-1)*nSel)
             End Do
-            Call Save_CI_vec(1,i,lRoots,nConf,C,LuDavid)
+            Call Save_CI_vec(i,nConf,C,LuDavid)
             If ( IPRLEV.ge. INSANE ) then
               Write (String,'(A,I2)') 'Start vector of root',i
               Write (String,'(A,I4,A)') '(max. ',nSel,' elements)'
@@ -230,15 +231,25 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
      &            ' CI-vectors of the previous RASSCF iteration'
         End If
         iDisk = IADR15(4)
-        Do i = 1,lRoots
+        Do i = 1,lRoots-hRoots
           Call DDafile(JOBIPH,2,C,nConf,iDisk)
-          Call Save_CI_vec((1),i,lRoots,nConf,C,LuDavid)
+          Call Save_CI_vec(i,nConf,C,LuDavid)
           If ( IPRLEV.gt.10 ) then
             Write (String,'(A,I2)') 'Start vector of root',i
             Write (String,'(A,I4,A)') '(max. ',nSel,' elements)'
             l = Min(nSel,nConf)
             Call dVcPrt(String,' ',C,l)
           End If
+        End Do
+*MGD simple guess for missing ones : explV
+*dangerous if linear dependence with converged states
+        Do i= lRoots-hRoots+1,lRoots
+           Call dCopy_(nConf,[0.0d0],0,C,1)
+           Do j = 1,nSel
+             k = iSel(j)
+             C(k) = ExplV(j+(i-1)*nSel)
+           End Do
+          Call Save_CI_vec(i,nConf,C,LuDavid)
         End Do
 
       End If

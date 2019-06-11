@@ -49,7 +49,7 @@ c
      *                 xdoperators(maxoperators)
 #if defined(_MOLCAS_) || defined(MOLPRO)
       character*(maxlength) opstring,xopstring
-      integer operators(*),xoperators(*)
+      character operators(*),xoperators(*)
 #else
       character*(maxlength) operators(maxoperators),
      *                      xoperators(maxoperators)

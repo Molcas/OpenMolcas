@@ -50,9 +50,12 @@
       Character*3 lIrrep(8)
       Character*80 Note
       Character*120 Line
+#ifdef _ENABLE_CHEMPS2_DMRG_
+      Character*3 SNAC
+#endif
       Logical FullMlk, get_BasisType
 cnf
-      Logical Do_ESPF,lSave, lOPTO
+      Logical Do_ESPF,lSave, lOPTO, Do_DM
 cnf
       DIMENSION CMO(*),OCCN(*),SMAT(*)
       Dimension Temp(2,mxRoot)
@@ -67,6 +70,7 @@ cnf
 #else
       character(len=100) :: dmrg_start_guess
 #endif
+      Dimension Dum(1),iDum(56)
 *----------------------------------------------------------------------*
 *     Start and define the paper width                                 *
 *----------------------------------------------------------------------*
@@ -196,6 +200,10 @@ C Local print level (if any)
      &                           Do3RDM
       Write(LF,Fmt2//'A,T45,I6)')'Restart scheme in 3-RDM and F.4-RDM',
      &                           chemps2_lrestart
+      write(SNAC, '(I3)') NAC
+      Write(LF,Fmt2//'A,T45,'//trim(adjustl(SNAC))//'I2)')
+     &                           'Occupation guess',
+     &                           (HFOCC(ihfocc), ihfocc=1,NAC)
 #endif
 
 * NN.14 FIXME: haven't yet checked whether geometry opt. works correctly with DMRG
@@ -216,6 +224,11 @@ C Local print level (if any)
         Write(LF,Fmt2//'A)')'----------------------------'
         Write(LF,*)
 #ifdef _DMRG_
+       if(dmrg_warmup%docideas .and. nsym > 1)then
+          Write(LF,*) ' CI-DEAS decativated for point group symmetry'//
+     &                ' other than C1'
+          dmrg_warmup%docideas = .false.
+       end if
        if(dmrg_orbital_space%initial_occ(1,1) > 0)then
          dmrg_start_guess = "Single determinant"
        else
@@ -420,7 +433,7 @@ C Local print level (if any)
 * End of long if-block B over IPRLEV
       END IF
 
-      call dcopy_(2*mxRoot,0.0d0,0,Temp,1)
+      call dcopy_(2*mxRoot,[0.0d0],0,Temp,1)
       iRc1=0
       iRc2=0
       iOpt=1
@@ -428,8 +441,10 @@ C Local print level (if any)
       iSyLbl=1
       nMVInt=0
       nDCInt=0
-      Call iRdOne(iRc1,iOpt,'MassVel ',iComp,nMVInt,iSyLbl)
-      Call iRdOne(iRc2,iOpt,'Darwin  ',iComp,nDCInt,iSyLbl)
+      Call iRdOne(iRc1,iOpt,'MassVel ',iComp,iDum,iSyLbl)
+      If (iRc1.eq.0) nMVInt=iDum(1)
+      Call iRdOne(iRc2,iOpt,'Darwin  ',iComp,iDum,iSyLbl)
+      If (iRc2.eq.0) nDCInt=iDum(1)
       If ( (nMVInt+nDCInt).ne.0 ) Then
         IAD12=IADR15(12)
         CALL GETMEM('OPER','ALLO','REAL',LX1,NTOT1)
@@ -474,11 +489,11 @@ C Local print level (if any)
        Write(LF,*)
        If ( (nMVInt+nDCInt).ne.0) then
          Write(LF,Fmt2//'A)')
-     &        'root  nonrelativistic    mass-velocity   '//
-     &        'Darwin-contact    relativistic'
+     &        'root     nonrelativistic        mass-velocity       '//
+     &        'Darwin-contact         relativistic'
          Write(LF,Fmt2//'A)')
-     &        '           energy           term         '//
-     &        '    term             energy   '
+     &        '             energy                term             '//
+     &        '     term                 energy'
          Do i=1,lRoots
             Emv=Temp(1,i)
             Edc=Temp(2,i)
@@ -506,6 +521,7 @@ C Local print level (if any)
       Call Free_Work(ipEneTmp)
 
       iTol = Cho_X_GetTol(8)
+      if(doDMRG) iTol = 6
       Call Add_Info('E_RASSCF',ENER(1,ITER),NRoots,iTol)
 *---------------------------------------------------------------
 * New JOBIPH layout: Also write hamiltonian matrix at IADR15(17):
@@ -532,9 +548,18 @@ C Local print level (if any)
 * Start of if-block D over IPRLEV
       If (OutFmt1.NE.'NOTHING ') then
         If(IPT2.EQ.0) THEN
-           CALL PRIMO_RASSCF('Pseudonatural active'//
+          If(kIvo) Then
+            Call ivogen_rasscf(nSym,nBas,nFro,nIsh,nAsh,nTot2,nTot,
+     &                         CMO,FDIAG)
+            CALL PRIMO_RASSCF('Pseudonatural active'//
+     &       ' orbitals and approximate occupation numbers + IVO,'//
+     &       ' not suitable for CASPT2',
+     &                         FDIAG,OCCN,CMO)
+          Else
+            CALL PRIMO_RASSCF('Pseudonatural active'//
      &                  ' orbitals and approximate occupation numbers',
      &                         FDIAG,OCCN,CMO)
+          End If
         Else
            CALL PRIMO_RASSCF('All orbitals are'//
      &                  ' eigenfunctions of the PT2 Fock matrix',
@@ -569,6 +594,13 @@ C Local print level (if any)
 *
       Call Get_D1AO(ipDSave,NTOT1)
 *
+*     The dipole moments will also be stored over all kroot states.
+*
+      Call GetMem('DIPM', 'Allo','Real',ipDM,3)
+      Call GetMem('DIPMs','Allo','Real',ipDMs,3*LROOTS)
+      CALL FZERO(Work(ipDMs),3*LROOTS)
+      Do_DM=.False.
+*
       DO KROOT=1,LROOTS
 *
 * Read natural orbitals
@@ -580,7 +612,7 @@ C Local print level (if any)
 * Put the density matrix of this state on the runfile for
 *  LoProp utility
         Call GetMem('DState','ALLO','REAL',ipD,nTot1)
-        call dcopy_(nTot1,0.0D0,0,Work(ipD),1)
+        call dcopy_(nTot1,[0.0D0],0,Work(ipD),1)
         Call DONE_RASSCF(CMO,OCCN,Work(ipD))
         Call Put_D1AO(Work(ipD),NTOT1)
         Call Free_Work(ipD)
@@ -603,7 +635,7 @@ C Local print level (if any)
 *       Compute Mulliken's population analysis
 *
         Write(LF,'(/6X,A,I3)')
-     *  'Mulliken population Analysis for root number:',KROOT
+     *  'Mulliken population analysis for root number:',KROOT
         Write(LF,'(6X,A)')
      *  '-----------------------------------------------'
         Write(LF,*)
@@ -632,13 +664,27 @@ C Local print level (if any)
         Call WrVec('TMPORB',LuTmp,'CO',nSym,nBas,nBas,
      &            CMO,OCCN,Dum,iDum,Note)
         CALL PRPT()
-
+*                                                                     *
+***********************************************************************
+*       Store away the dipole moment of this state                    *
+*
+        Call Qpg_dArray('Dipole Moment',Do_DM,iDum(1))
+        If (Do_DM) Then
+*          Write (6,*) 'iRoot=',kRoot
+           Call Get_dArray('Dipole Moment',Work(ipDM),3)
+*          Call RecPrt('Dipole Moment',' ',Work(ipDM),1,3)
+           Call DCopy_(3,Work(ipDM),1,Work(ipDMs+(KROOT-1)*3),1)
+        End If
+*                                                                     *
+***********************************************************************
+*                                                                     *
 *
 *       Compute spin orbitals and spin population
 *       (Note: this section overwrites the pseudo natural orbitals
 *              with the spin orbitals).
 *
-* PAM2008: Only for at most MAXORBOUT orbitals. Default 10, reset by keyword.
+* PAM2008: Only for at most MAXORBOUT orbitals. Default 10, reset by
+*       keyword.
         IF(KROOT.LE.MAXORBOUT) THEN
 
         CALL GETMEM('RHO1S','ALLO','REAL',LX6,NACPAR)
@@ -652,11 +698,11 @@ C Local print level (if any)
 * Start of long if-block F over IPRLEV
          IF(ISPDEN .EQ. 1) THEN
 *         Print spin density matrix
-           Write(LF,'(/6X,A,I3)')
-     &     'Spin density matrix for root number:',KROOT
-           Write(LF,'(6X,A)')
-     &     '--------------------------------------'
-           Write(LF,*)
+          Write(LF,'(/6X,A,I3)')
+     &    'Spin density matrix for root number:',KROOT
+          Write(LF,'(6X,A)')
+     &    '--------------------------------------'
+          Write(LF,*)
           IND=0
           IDIMV=0
           IDIMO=0
@@ -668,12 +714,9 @@ C Local print level (if any)
             IDIMV=IDIMV+NAO*NAO
             IDIMO=IDIMO+NAO
             IDIMN=IDIMN+NO*NAO
-            If(iprlev.ge.VERBOSE) then
-             Write(LF,'(/6X,A,I2)')
-     &      'symmetry species',ISYM
-             Write(LF,*)
-             CALL TRIPRT(' ',' ',WORK(LX6+IND),NASH(ISYM))
-            Endif
+            Write(LF,'(/6X,A,I2)') 'symmetry species',ISYM
+            Write(LF,*)
+            CALL TRIPRT(' ',' ',WORK(LX6+IND),NASH(ISYM))
             IND=IND+NASH(ISYM)*(NASH(ISYM)+1)/2
   50        CONTINUE
           END DO
@@ -682,7 +725,7 @@ C Local print level (if any)
         END IF
 
 *       Compute spin orbitals and spin population
-        CALL DCOPY_(NTOT,0.0D0,0,OCCN,1)
+        CALL DCOPY_(NTOT,[0.0D0],0,OCCN,1)
 *SVC-11-01-2007 store original cmon in cmoso, which gets changed
         CALL GETMEM('CMOSO','ALLO','REAL',ICMOSO,NTOT2)
         CALL DCOPY_(NTOT2,WORK(ICMON),1,WORK(ICMOSO),1)
@@ -698,7 +741,7 @@ C Local print level (if any)
 * Start of long if-block G over IPRLEV
          IF(ISPDEN .EQ. 1) THEN
           Write(LF,'(/6X,A,I3)')
-     &    'Mulliken spin population Analysis for root number:',KROOT
+     &    'Mulliken spin population analysis for root number:',KROOT
           Write(LF,'(6X,A)')
      &    '---------------------------------------------------'
           Write(LF,*)
@@ -713,13 +756,13 @@ C Local print level (if any)
 *
          If (get_BasisType('ANO')) Then
            Write(LF,'(/6X,A,I3)')
-     *     'LoProp population Analysis for root number:',KROOT
+     *     'LoProp population analysis for root number:',KROOT
            Write(LF,'(6X,A)')
      *     '-----------------------------------------------'
            Write(LF,*)
            Write(LF,*)
            Line=''
-           Write(Line(left-2:),'(A)') 'LoProp Analysis:'
+           Write(Line(left-2:),'(A)') 'LoProp analysis:'
            Call CollapseOutput(1,Line)
            Write(LF,Fmt2//'A)') '----------------'
            Write(LF,*)
@@ -731,9 +774,9 @@ C Local print level (if any)
            Call LoProp(iRC)
            Write(LF,*)
            Write(LF,'(6X,A,I3)')
-     &     'Natural Bond Order Analysis for root number:',KROOT
+     &     'Natural Bond Order analysis for root number:',KROOT
            Call Nat_Bond_Order(nSym,nBas,Name,2)
-           Call CollapseOutput(0,'LoProp Analysis:')
+           Call CollapseOutput(0,'LoProp analysis:')
            Write(6,*)
          End If
 * End of long if-block G over IPRLEV
@@ -755,6 +798,14 @@ cnf
 *
       Call Put_D1AO(Work(ipDSave),NTOT1)
       Call GetMem('DSave','Free','REAL',ipDSave,nTot1)
+*
+*     Save the list of dipole moments on the run file.
+*
+      If (Do_DM)
+     &   Call Put_dArray('Last Dipole Moments',Work(ipDMs),3*LROOTS)
+*     Call RecPrt('Last Dipole Moments',' ',Work(ipDMs),3,LROOTS)
+      Call GetMem('DipM', 'Free','Real',ipDM, 3)
+      Call GetMem('DipMs','Free','Real',ipDMs,3*LROOTS)
 *                                                                      *
 ************************************************************************
 *                                                                      *

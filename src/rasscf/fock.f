@@ -49,6 +49,7 @@ C
 #include "WrkSpc.fh"
       Logical DoActive,DoQmat,DoCholesky
       Integer ALGO
+      Dimension P2reo(1)
 
       COMMON /CHOTODO /DoActive,DoQmat,ipQmat
       COMMON /CHLCAS  /DoCholesky,ALGO
@@ -76,7 +77,7 @@ C
         HALFQ1=0.0d0
         If(Exfac.ne.1.0d0) Then
           Call Get_Temp('nP2reo  ',P2reo,1)
-          nP2reo=Int(P2reo)
+          nP2reo=Int(P2reo(1))
           CALL GETMEM('P2_reo','ALLO','REAL',ipP2reo,nP2reo)
           Call Get_Temp('P2_reo  ',Work(ipP2reo),nP2reo)
         End If
@@ -117,7 +118,7 @@ C
 *************************
 * clear F_gen matrix
 *************************
-       CALL VCLR(F(ISTFCK+1),1,NO**2)
+       CALL FZERO(F(ISTFCK+1),NO**2)
 
 *********************************************************************************
 * first index in F is inactive: F_gen is twice FP=FI+FA (Eq.10.8.27 MEST)

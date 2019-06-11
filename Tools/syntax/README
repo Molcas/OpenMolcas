@@ -4,11 +4,15 @@ Place the files 'emil.vim' and 'molcasoutput.vim' in your ~/.vim/syntax
 directory. Paste the contents of 'molcasvimrc' in your ~/.vimrc.
 
 Syntax coloring will take effect on any file with extension *.input or *.log.
-If you do not want this, uncomment the corresponding autocmd line(s).  For the
-molcas help feature, pressing K (shift-k) while the cursor is on a keyword in
-an input file, a buffer will pop up with the relevant molcas help. Close the
-buffer with :q as usual. It works with module names, keywords inside a module,
-and  emil commands (if the line begins with >).
+If you do not want this, uncomment the corresponding autocmd line(s) in
+~/.vimrc. If you prefer detection of molcas output files based on file contents
+instead of filename, comment out the line in ~/.vimrc and copy the
+'scripts.vim' file in your ~/.vim directory.
+
+For the molcas help feature, pressing K (shift-k) while the cursor is on a
+keyword in an input file, a buffer will pop up with the relevant molcas help.
+Close the buffer with :q as usual. It works with module names, keywords inside
+a module, and emil commands (if the line begins with >).
 
 Nedit setup
 ===========

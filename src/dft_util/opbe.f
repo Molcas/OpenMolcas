@@ -27,6 +27,7 @@
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
+#include "ksdft.fh"
       Real*8 Rho(nRho,mGrid), dF_dRho(ndF_dRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
@@ -39,19 +40,19 @@
 *                                                                      *
 *---- Dirac Exchange with the a1 OPTX factor!
 *
-      Coeff= 1.051510d0
+      Coeff= 1.051510d0*CoefX
       Call Diracx(mGrid,Rho,nRho,iSpin,F_xc,
      &            dF_dRho,ndF_dRho,Coeff,T_X)
 *
 *---- OPTX Exchange, the a2 coeff is here!
 *
-      Coeff= 1.431690d0
+      Coeff= 1.431690d0*CoefX
       Call xOPT(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
      &          Coeff,iSpin,F_xc,T_X)
 *
 *---- PBEc
 *
-      Coeff=One
+      Coeff=One*CoefR
       Call CPBE(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
      &         Coeff,iSpin,F_xc,T_X)
 *                                                                      *

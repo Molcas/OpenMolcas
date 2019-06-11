@@ -11,7 +11,7 @@
 * Copyright (C) 1990-1992,1999, Roland Lindh                           *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine Drv2_RF(Label,llOper,Ccoor,nOrdOp,Fldxyz,lMax,h0,nh0)
+      SubRoutine Drv2_RF(llOper,Ccoor,nOrdOp,Fldxyz,lMax,h0,nh0)
 ************************************************************************
 *                                                                      *
 * Object: to compute the one-electron integrals. The method employed at*
@@ -60,18 +60,17 @@
       use Real_Spherical
       use iSD_data
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
+#include "angtp.fh"
 #include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
-#include "angtp.fh"
 #include "lundio.fh"
 #include "print.fh"
 #include "nsd.fh"
 #include "setup.fh"
       Real*8 A(3), B(3), Ccoor(3),
      &       Fldxyz((lMax+1)*(lMax+2)*(lMax+3)/6), h0(nh0)
-      Character ChOper(0:7)*3, Label*8
+      Character ChOper(0:7)*3
       Integer   nOp(2), iStabO(0:7),
      &          iDCRR(0:7), iDCRT(0:7), iStabM(0:7)
       Logical AeqB
@@ -192,7 +191,7 @@
 *           this batch of AO integrals.
 *
             Call GetMem(' SO ','ALLO','REAL',ipSO,nSO*iBas*jBas)
-            call dcopy_(nSO*iBas*jBas,Zero,0,Work(ipSO),1)
+            call dcopy_(nSO*iBas*jBas,[Zero],0,Work(ipSO),1)
 *
 *           Find the DCR for A and B
 *
@@ -289,7 +288,7 @@
 *           electric field and the multipole moments.
 *
             nFnc=iPrim*jPrim*nElem(iAng)*nElem(jAng)
-            call dcopy_(nFnc,Zero,0,Work(ipFnl1),1)
+            call dcopy_(nFnc,[Zero],0,Work(ipFnl1),1)
             Call DNaXpY(nComp,nFnc,Fldxyz,1,
      &                  Work(ipFnl),1,nFnc,
      &                  Work(ipFnl1),1,0)
@@ -385,8 +384,7 @@
             If (Prprt) iSmLbl=iAnd(1,iSmLbl)
             Call SOAdd(Work(ipSO),iBas,jBas,mSO,h0,
      &                 n2Tri(iSmLbl),iSmLbl,
-     &                 iCmp,jCmp,iShell,jShell,AeqB,iAO,jAO,
-     &                 1,Label,llOper)
+     &                 iCmp,jCmp,iShell,jShell,AeqB,iAO,jAO)
 *
             Call GetMem('  SO ','FREE','REAL',ipSO,nSO*iBas*jBas)
             Call GetMem('ScrSph','FREE','REAL',iScrt2,nScr2)

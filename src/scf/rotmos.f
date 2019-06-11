@@ -28,7 +28,7 @@
 *     output:                                                          *
 *       CMO     : orthonormal vectors, rotated by U=exp(delta)         *
 *                                                                      *
-*     called from: WfCtl,LinSer                                        *
+*     called from: WfCtl                                               *
 *                                                                      *
 *     calls to: ExpKap                                                 *
 *                                                                      *

@@ -103,7 +103,7 @@ c  2nd-order term for structure coefficients
 
       if(orbopt2.and.nort.gt.0)then
 c  Non-linear correction for orthogonality constraints :
-        call fmove(sorbs,owrk,norb*norb)
+        call fmove_cvb(sorbs,owrk,norb*norb)
         call mxinv_cvb(owrk,norb)
         do 100 iort=1,nort
         iorb=iorts(1,iort)

@@ -56,6 +56,7 @@
      &             lOper, mDens, nBasC, nBT, nBVT, nBVTi, nFock, nij,
      &             nInd, nOneHam, Nr_Dens, nSkal, nSkal_Fragments,
      &             nSkal_Valence
+      Dimension    Ind(1,1,2)
 
       Real*8       Aint, Count, Disc, Disc_Mx, Dix_Mx, Dtst, ExFac,
      &             P_Eff, TCpu1, TCpu2, Thize, ThrAO, TMax_all,
@@ -132,8 +133,8 @@ c     End Do
       Call GetMem('Density','Allo','Real',ipDens,nBT)
       Call GetMem('Result','Allo','Real',ipFock,nBT)
 * Valence part is zero
-      call dcopy_(nBT, Zero, 0, Work(ipDens), 1)
-      call dcopy_(nBT, Zero, 0, Work(ipFock), 1)
+      call dcopy_(nBT, [Zero], 0, Work(ipDens), 1)
+      call dcopy_(nBT, [Zero], 0, Work(ipFock), 1)
 * Each fragment needs it's (symmetrized) density matrix added along the diagonal
 * This density matrix first has to be constructed from the MO coefficients
 * so allocate space for the largest possible density matrix
@@ -336,8 +337,8 @@ c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
      &                     iTOffs,nShi,nShj,nShk,nShl,
      &                     nShOffi,nShOffj,nShOffk,nShOffl,
      &                     No_Routine,
-     &                     Work(ipDq),Work(ipFq),mDens,ExFac,Nr_Dens,
-     &                     Ind,nInd,NoCoul,NoExch,
+     &                     Work(ipDq),Work(ipFq),mDens,[ExFac],Nr_Dens,
+     &                     Ind,nInd,[NoCoul],[NoExch],
      &                     Thize,W2Disc,PreSch,Disc_Mx,Disc,
      &                     Count,DoIntegrals,DoFock)
            If(iPrint.ge.99) Then

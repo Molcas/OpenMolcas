@@ -28,6 +28,7 @@
 #include "general.fh"
 #include "output_ras.fh"
 #include "orthonormalize.fh"
+#include "ksdft.fh"
       Parameter (ROUTINE='READIN  ')
 #include "casvb.fh"
 #include "pamint.fh"
@@ -53,7 +54,7 @@
 *
       Character*180  Line
 !      Character*8 NewJobIphName
-      logical lExists, RunFile_Exists, RlxRCheck, lExists2
+      logical lExists, RunFile_Exists, RlxRCheck
 * Some strange extra logical variables...
       logical lOPTO
       logical DSCF
@@ -103,8 +104,14 @@
       Character*256 myTitle
       Character*256 RealName
       Logical, External :: Is_First_Iter
+      Dimension Dummy(1)
+      Character*(LENIN8*mxOrb) lJobH1
+      Character*(2*72) lJobH2
 
-      Logical :: DoDMRG
+      INTEGER :: iDNG,IPRLEV
+      Logical :: DoDMRG,DNG
+      Character*8 emiloop
+      Character*8 inGeo
       Logical :: MustCopy
 
       Intrinsic INDEX,NINT,DBLE,SQRT
@@ -116,9 +123,14 @@ C   No changing about read in orbital information from INPORB yet.
 !      DBG = .TRUE.
       DBG = .FALSE.
       DoFaro = .FALSE.
+      IPRLEV = TERSE
 
 * NN.14 Block DMRG flag
       DoDMRG = .false.
+
+      doGradPDFT = .false.
+      doNOGRad = .false.
+      DoGSOR=.false.
 
 * Orbital-free embedding
       Do_OFemb=.false.
@@ -413,40 +425,26 @@ C   No changing about read in orbital information from INPORB yet.
 * 'JOBIPH', 'JOBIPH01', 'JOBIPH02', etc.
 
 !Check if JOBOLD exists
-      Call F_Inquire('JOBOLD',lExists)
-      If(lExists.and..not.MustCopy) Then
+      Call F_Inquire('JOBIPH',lExists)
+      If(lExists) Then
+        Call PrgmTranslate('JOBIPH',RealName,not_sure)
         If (DBG) Then
-          Write(6,*)' A JOBOLD file has been given.'
+          Write(6,*)' A JOBIPH file has been found:'
+          write(6,*) RealName
         End If
-      Else !JOBOLD does not exist
-        If(MustCopy) Then
-          If (DBG) Then
-            Write(6,*)' Must overwrite JOBOLD with JOBIPH for grad calc'
-          End If
-        Else
-          If (DBG) Then
-            Write(6,*)' No JOBOLD file, checking for JOBIPH.'
-          End If
-        End If
-        Call F_Inquire('JOBIPH',lExists2)
-        If(lExists2) then
-          If (DBG) Then
-            Write(6,*)' JOBIPH found, copy to JOBOLD.'
-          End If
-          Call PrgmTranslate('JOBIPH',RealName,not_sure)
-          Call fcopy(RealName,'JOBOLD',iErr)
-        Else
+!        JOBOLD=IsFreeUnit(19)
+!        Call DANAME(JOBOLD,RealName)
+      Else
           Write(LF,*)
           Write(LF,*)'******************************************'
-          Write(LF,*)' Neither JOBIPH or JOBOLD seem to exist,  '
+          Write(LF,*)' JOBIPH does not seem to exist,           '
           Write(LF,*)' so the calculation cannot continue.      '
           Write(LF,*)'******************************************'
           Call Abend()
-        End If
       End If
-      If (DBG) Then
-        Write(6,*)' A fresh JOBIPH file will be used.'
-      End If
+!      If (DBG) Then
+!        Write(6,*)' A fresh JOBPDFT file may be produced.'
+!      End If
       IPHNAME='ToBeFoun'
       If (KeyIPHN) Then
         If (DBG) Then
@@ -459,17 +457,76 @@ C   No changing about read in orbital information from INPORB yet.
         ReadStatus=' O.K. after reading IPHNAME string.'
         Call UpCase(IPHNAME)
       End If
-* The JOBIPH file:
       IF(IPHNAME.EQ.'ToBeFoun') THEN
-* Choose a new jobiph name.
-        IPHNAME='JOBPDFT'
+!        IPHNAME='JOBPDFT'
+      IPHNAME='JOBIPH'
       END IF
       if(JOBIPH.gt.0) Then
         Call DaClos(JOBIPH)
         JOBIPH=-1
       end if
       JOBIPH=IsFreeUnit(15)
-      CALL DANAME(JOBIPH,IPHNAME)
+!      CALL DANAME(JOBIPH,IPHNAME)
+      CALL DANAME(JOBIPH,"JOBIPH")
+
+!      Call F_Inquire('JOBOLD',lExists)
+!      If(lExists.and..not.MustCopy) Then
+!        If (DBG) Then
+!          Write(6,*)' A JOBOLD file has been given.'
+!        End If
+!      Else !JOBOLD does not exist
+!        If(MustCopy) Then
+!          If (DBG) Then
+!            Write(6,*)' Must overwrite JOBOLD with JOBIPH for grad calc'
+!          End If
+!        Else
+!          If (DBG) Then
+!            Write(6,*)' No JOBOLD file, checking for JOBIPH.'
+!          End If
+!        End If
+!        Call F_Inquire('JOBIPH',lExists2)
+!        If(lExists2) then
+!          If (DBG) Then
+!            Write(6,*)' JOBIPH found, copy to JOBOLD.'
+!          End If
+!          Call PrgmTranslate('JOBIPH',RealName,not_sure)
+!          write(*,*) 'realname',RealName
+!!          Call fcopy(RealName,'JOBOLD',iErr)
+!        Else
+!          Write(LF,*)
+!          Write(LF,*)'******************************************'
+!          Write(LF,*)' Neither JOBIPH or JOBOLD seem to exist,  '
+!          Write(LF,*)' so the calculation cannot continue.      '
+!          Write(LF,*)'******************************************'
+!          Call Abend()
+!        End If
+!      End If
+!      If (DBG) Then
+!        Write(6,*)' A fresh JOBIPH file will be used.'
+!      End If
+!      IPHNAME='ToBeFoun'
+!      If (KeyIPHN) Then
+!        If (DBG) Then
+!          Write(6,*)' Reading file name for JOBIPH file.'
+!        End If
+!        Call SetPos_m(LUInput,'IPHN',Line,iRc)
+!        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+!        ReadStatus=' Failure reading IPHNAME string.'
+!        Read(LUInput,*,End=9910,Err=9920) IPHNAME
+!        ReadStatus=' O.K. after reading IPHNAME string.'
+!        Call UpCase(IPHNAME)
+!      End If
+!* The JOBIPH file:
+!      IF(IPHNAME.EQ.'ToBeFoun') THEN
+!* Choose a new jobiph name.
+!        IPHNAME='JOBPDFT'
+!      END IF
+!      if(JOBIPH.gt.0) Then
+!        Call DaClos(JOBIPH)
+!        JOBIPH=-1
+!      end if
+!      JOBIPH=IsFreeUnit(15)
+!      CALL DANAME(JOBIPH,IPHNAME)
 
 
 
@@ -689,71 +746,71 @@ C   No changing about read in orbital information from INPORB yet.
 *  If ORBONLY keyword was used, then the JOBIPH file should be used
 * only to produce orbital files, then the program stops.
 *---  Process ORBO command -( new! generate orbitals from jobiph, only)*
-      If (KeyORBO) Then
-       If (DBG) Write(6,*) ' ORBOnly command was used.'
-       iOrbOnly=1
-       Call OrbFiles_m(JOBIPH,IPRLEV)
-       If(JOBIPH.gt.0) Then
-         Call DaClos(JOBIPH)
-         JOBIPH=-1
-       End If
-* Nothing more to be done, so return.
-       iReturn=_RC_ALL_IS_WELL_
-       Call xQuit(iReturn)
-      End If
+!      If (KeyORBO) Then
+!       If (DBG) Write(6,*) ' ORBOnly command was used.'
+!       iOrbOnly=1
+!       Call OrbFiles_m(JOBIPH,IPRLEV)
+!       If(JOBIPH.gt.0) Then
+!         Call DaClos(JOBIPH)
+!         JOBIPH=-1
+!       End If
+!* Nothing more to be done, so return.
+!       iReturn=_RC_ALL_IS_WELL_
+!       Call xQuit(iReturn)
+!      End If
 *
 *---  Process ALTEr command (G. Ghigo Sep 03)--------------------------*
-      If (KeyALTE) Then
-       If (DBG) Write(6,*) ' ALTER command has been used.'
-       Call SetPos_m(LUInput,'ALTE',Line,iRc)
-       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-       ReadStatus=' Failure after reading ALTER keyword.'
-       Read(LUInput,*,End=9910,Err=9920) NAlter
-       ReadStatus=' O.K. after reading ALTER keyword.'
-       If ( NAlter.gt.8 ) Then
-        Write(LF,*)
-        Call WarningMessage(2,'Alter: too many orbital pairs.')
-        Write(LF,*) ' ************* ERROR **************'
-        Write(LF,*) ' ALTEr: Too many pairs of orbitals '
-        Write(LF,*) ' to exchange (max 8).              '
-        Write(LF,*) ' **********************************'
-        Call Abend()
-       End If
-       Do iAlter=1,NAlter
-        ReadStatus=' Failure reading data after ALTER keyword.'
-        Read(LUInput,*,End=9910,Err=9920) (MAlter(iAlter,i),i=1,3)
-        ReadStatus=' O.K. after reading data after ALTER keyword.'
-       END DO
-* (SVC) get absolute orbital values for the alterations so that
-* iMAlter is symmetry independent
-       If (DBG) Write(6,*)' ''Absolute'' iMAlter indices:'
-       Do iAlter=1,NAlter
-        iEnd=0
-        iStart=1
-        Do iSym=1,MAlter(iAlter,1)
-          iStart=iEnd+1
-          iEnd=iEnd+nBas(iSym)
-        End Do
-        iMAlter(iAlter,1)=MAlter(iAlter,2)+iStart-1
-        iMAlter(iAlter,2)=MAlter(iAlter,3)+iStart-1
-        If (DBG) Write(6,'(1x,2I5)')
-     &                          iMAlter(iAlter,1),iMAlter(iAlter,2)
-       End Do
-      End If
+!      If (KeyALTE) Then
+!       If (DBG) Write(6,*) ' ALTER command has been used.'
+!       Call SetPos_m(LUInput,'ALTE',Line,iRc)
+!       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+!       ReadStatus=' Failure after reading ALTER keyword.'
+!       Read(LUInput,*,End=9910,Err=9920) NAlter
+!       ReadStatus=' O.K. after reading ALTER keyword.'
+!       If ( NAlter.gt.8 ) Then
+!        Write(LF,*)
+!        Call WarningMessage(2,'Alter: too many orbital pairs.')
+!        Write(LF,*) ' ************* ERROR **************'
+!        Write(LF,*) ' ALTEr: Too many pairs of orbitals '
+!        Write(LF,*) ' to exchange (max 8).              '
+!        Write(LF,*) ' **********************************'
+!        Call Abend()
+!       End If
+!       Do iAlter=1,NAlter
+!        ReadStatus=' Failure reading data after ALTER keyword.'
+!        Read(LUInput,*,End=9910,Err=9920) (MAlter(iAlter,i),i=1,3)
+!        ReadStatus=' O.K. after reading data after ALTER keyword.'
+!       END DO
+!* (SVC) get absolute orbital values for the alterations so that
+!* iMAlter is symmetry independent
+!       If (DBG) Write(6,*)' ''Absolute'' iMAlter indices:'
+!       Do iAlter=1,NAlter
+!        iEnd=0
+!        iStart=1
+!        Do iSym=1,MAlter(iAlter,1)
+!          iStart=iEnd+1
+!          iEnd=iEnd+nBas(iSym)
+!        End Do
+!        iMAlter(iAlter,1)=MAlter(iAlter,2)+iStart-1
+!        iMAlter(iAlter,2)=MAlter(iAlter,3)+iStart-1
+!        If (DBG) Write(6,'(1x,2I5)')
+!     &                          iMAlter(iAlter,1),iMAlter(iAlter,2)
+!       End Do
+!      End If
 *---  Process ATOM command (P A Malmqvist Apr 07)----------------------*
-      If(KeyATOM) Then
-       PURIFY='ATOM    '
-       ISUPSM=1
-       Call SetPos_m(LUInput,'ATOM',Line,iRc)
-       Call ChkIfKey_m()
-      End If
-*---  Process LINEAR command (P A Malmqvist Apr 05)----------------------*
-      If(KeyLINE) Then
-       PURIFY='LINEAR'
-       ISUPSM=1
-       Call SetPos_m(LUInput,'LINE',Line,iRc)
-       Call ChkIfKey_m()
-      End If
+!      If(KeyATOM) Then
+!       PURIFY='ATOM    '
+!       ISUPSM=1
+!       Call SetPos_m(LUInput,'ATOM',Line,iRc)
+!       Call ChkIfKey_m()
+!      End If
+!*---  Process LINEAR command (P A Malmqvist Apr 05)----------------------*
+!      If(KeyLINE) Then
+!       PURIFY='LINEAR'
+!       ISUPSM=1
+!       Call SetPos_m(LUInput,'LINE',Line,iRc)
+!       Call ChkIfKey_m()
+!      End If
       If (DBG) Write(6,*) ' Purify=',PURIFY
 
 *---  process KSDF command --------------------------------------------*
@@ -808,7 +865,7 @@ CGG This part will be removed. (PAM 2009: What on earth does he mean??)
        If ( KSDFT(1:3).eq.'PAM') Then
         If ( KSDFT(4:4).eq.'G') PamGen =.True.
         If ( KSDFT(4:4).eq.'G') PamGen1=.False.
-        call dcopy_(nPAMintg,0.0d0,0,CPAM,1)
+        call dcopy_(nPAMintg,[0.0d0],0,CPAM,1)
         ReadStatus=' Failure reading data following KSDF=PAM.'
         Read(LUInput,*,End=9910,Err=9920) nPAM
         ReadStatus=' O.K. after reading data following KSDF=PAM.'
@@ -828,6 +885,18 @@ CGG This part will be removed. (PAM 2009: What on earth does he mean??)
         Write(LF,*) ' specified for MCPDFT calculations '
         Write(LF,*) ' **********************************'
         Call Abend()
+      End If
+*---  Process DFCF command (S Dong, 2018)--------------------------*
+      If (DBG) Write(6,*) ' Check if DFCF was provided.'
+      If (KeyDFCF) Then
+       If (DBG) Write(6,*) ' DFCF command has been used.'
+       Call SetPos_m(LUInput,'DFCF',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure after reading DFCF keyword.'
+       Read(LUInput,*,End=9910,Err=9920) CoefX,CoefR
+       ReadStatus=' O.K. after reading DFCF keyword.'
+!       Write(6,*) ' Exchange energy scaling factor is ',CoefX
+!       Write(6,*) ' Correlation energy scaling factor is ',CoefR
       End If
 *---  Process CION command --------------------------------------------*
       If (DBG) Write(6,*) ' Check if CIONLY case.'
@@ -948,7 +1017,7 @@ CBOR.. End modification 001011
          ReadStatus=' Failure reading after CIROOTS keyword.'
          Read(Line,*,Err=9920,End=9920) (IROOT(I),I=1,NROOTS)
          ReadStatus=' O.K.after CIROOTS keyword.'
-         Call dCopy_(mxRoot,0.0D0,0,WEIGHT,1)
+         Call dCopy_(mxRoot,[0.0D0],0,WEIGHT,1)
          If ( NROOTS.eq.1 ) then
            WEIGHT(1)=1.0D0
          Else
@@ -1181,14 +1250,11 @@ CIgorS End
           iOrbData=3
           call mma_allocate(typestring, sum(nbas(1:nsym)))
           call mh5_fetch_dset(mh5id, 'TYPEINDEX', typestring)
-          iStart=1
-          Do iSym=1,nSym_L
-            call tpstr2orb(typestring(iStart),nbas_l(isym),
-     $              nFro_L(iSym),nISh_L(iSym),
-     $              NRS1_L(iSym),NRS2_L(iSym),NRS3_L(iSym),
-     $              nSSh_L(iSym),nDel_L(iSym))
-            iStart=iStart+nBas_L(iSym)
-          End Do
+          call tpstr2orb(nSym,nbas_l,
+     $            typestring,
+     $            nFro_L,nISh_L,
+     $            NRS1_L,NRS2_L,NRS3_L,
+     $            nSSh_L,nDel_L)
           call mma_deallocate(typestring)
         end if
 *     CI requested?
@@ -1557,51 +1623,44 @@ CIgorS End
        IF(IPRLEV.ge.VERBOSE)
      &          Write(LF,*)' No explicit orbital specs in user input.'
        IF(KeyCIRE) Then
-        IF(IPRLEV.ge.VERBOSE) Then
-         Write(LF,*)' This is a CIRESTART case, so take them from'
-         Write(LF,*)' the JOBIPH or JOBOLD file.'
-        End If
-        IORBDATA=2
-        IF(IPRLEV.ge.VERBOSE)
-     &    Write(LF,*)' Orbital specs taken from JOBIPH or JOBOLD.'
+!        IF(IPRLEV.ge.VERBOSE) Then
+!         Write(LF,*)' This is a CIRESTART case, so take them from'
+!         Write(LF,*)' the JOBIPH or JOBOLD file.'
+!        End If
+!        IORBDATA=2
+!        IF(IPRLEV.ge.VERBOSE)
+!     &    Write(LF,*)' Orbital specs taken from JOBIPH or JOBOLD.'
         IAD19=0
-        iJOB=0
-        Call f_Inquire('JOBOLD',lExists)
-        If (lExists) iJOB=1
-        if(JOBOLD.le.0) Then
-          JOBOLD=20
-        end if
-        If (iJOB.eq.1) Then
-           Call DaName(JOBOLD,'JOBOLD')
-        Else
-           If (IPRLEV.ge.TERSE) then
-              Call WarningMessage(1,'JOBOLD not found, using JOBIPH.')
-           End If
-           If (JOBIPH.gt.0) Then
-              JOBOLD=JOBIPH
-           Else
-              Call DaName(JOBOLD,'JOBIPH')
-           End If
-        End If
-        Call IDaFile(JOBOLD,2,IADR19,10,IAD19)
-        lll = 1
-        lll = MAX(lll,mxSym)
-        lll = MAX(lll,mxOrb)
-        lll = MAX(lll,RtoI)
-        lll = MAX(lll,4*2*mxOrb/ItoB)
-        lll = MAX(lll,2*72/ItoB)
-        lll = MAX(lll,RtoI*mxRoot)
-        CALL GETMEM('JOBOLD','ALLO','INTEGER',lJobH,lll)
+!        iJOB=0
+!        Call f_Inquire('JOBOLD',lExists)
+!        If (lExists) iJOB=1
+!        if(JOBOLD.le.0) Then
+!          JOBOLD=20
+!        end if
+!        If (iJOB.eq.1) Then
+!           Call DaName(JOBOLD,'JOBOLD')
+!        Else
+!           If (IPRLEV.ge.TERSE) then
+!              Call WarningMessage(1,'JOBOLD not found, using JOBIPH.')
+!           End If
+!           If (JOBIPH.gt.0) Then
+!              JOBOLD=JOBIPH
+!           Else
+!              Call DaName(JOBOLD,'JOBIPH')
+!           End If
+!        End If
+!        Call IDaFile(JOBOLD,2,IADR19,10,IAD19)
+        Call IDaFile(JOBIPH,2,IADR19,10,IAD19)
 * PAM Jan 2014 -- do not take POTNUC from JOBIPH; take it directly
 * from runfile, where it was stored by seward.
         iAd19=iAdr19(1)
-        CALL WR_RASSCF_Info(JobOld,2,iAd19,NACTEL,ISPIN,NSYM,LSYM,
+!        CALL WR_RASSCF_Info(JobOld,2,iAd19,NACTEL,ISPIN,NSYM,LSYM,
+        CALL WR_RASSCF_Info(JobIPH,2,iAd19,NACTEL,ISPIN,NSYM,LSYM,
      &                      NFRO,NISH,NASH,NDEL,NBAS,
-     &                      mxSym,iWork(lJobH),4*2*mxOrb,NCONF,
-     &                      iWork(lJobH),2*72,JobTit,4*18*mxTit,
+     &                      mxSym,lJobH1,LENIN8*mxOrb,NCONF,
+     &                      lJobH2,2*72,JobTit,4*18*mxTit,
      &                      POTNUCDUMMY,LROOTS,NROOTS,IROOT,mxRoot,
      &                      NRS1,NRS2,NRS3,NHOLE1,NELEC3,IPT2,WEIGHT)
-        CALL GETMEM('JOBOLD','FREE','INTEGER',lJobH,lll)
        ELSE
         IF(IPRLEV.ge.VERBOSE) Then
          Write(LF,*)' This is not a CIRESTART case, so take them from'
@@ -2467,6 +2526,24 @@ c       write(6,*)          '  --------------------------------------'
        Call ChkIfKey_m()
       End If
 *
+*---  Process NOGR command --------------------------------------------*
+      If (DBG) Write(6,*) ' Check if NOGRadient case.'
+      If (KeyNOGR) Then
+       If (DBG) Write(6,*) ' NOGRadient keyword was used.'
+       DoNoGrad=.true.
+       Call SetPos_m(LUInput,'NOGR',Line,iRc)
+       Call ChkIfKey_m()
+      End If
+*
+*---  Process GSOR command --------------------------------------------*
+      If (DBG) Write(6,*) ' Check if Gram-Schmidt case.'
+      If (KeyGSOR) Then
+       If (DBG) Write(6,*) ' GSOR keyword was used.'
+       DoGSOR=.true.
+       Call SetPos_m(LUInput,'GSOR',Line,iRc)
+       Call ChkIfKey_m()
+      End If
+*
 *---  Process DMRG command --------------------------------------------*
 #ifdef _ENABLE_BLOCK_DMRG_
       If (KeyDMRG) Then
@@ -2512,6 +2589,35 @@ c       write(6,*)          '  --------------------------------------'
         IGSOCCX(3,1) = NACTEL
         IGSOCCX(3,2) = NACTEL
       END IF
+*
+!Consideraations for gradients/geometry optimizations
+
+*     Numerical gradients requested in GATEWAY
+      Call Qpg_iScalar('DNG',DNG)
+      If (DNG) Then
+         Call Get_iScalar('DNG',iDNG)
+         DNG = iDNG.eq.1
+      End If
+      DNG=DoNoGrad.or.DNG
+*
+*     Inside LAST_ENERGY we do not need analytical gradients
+      ProgName=Get_SuperName()
+      If (ProgName(1:11).eq.'last_energy') DNG=.true.
+*
+*     Inside NUMERICAL_GRADIENT override input!
+      If (ProgName(1:18).eq.'numerical_gradient') Then
+         DNG=.true.
+         DoGradPDFT=.false.
+      End If
+*
+*     Check to see if we are in a Do While loop
+         Call GetEnvF('EMIL_InLoop',emiloop)
+         If (emiloop.eq.' ') emiloop='0'
+         Call GetEnvF('MOLCAS_IN_GEO',inGeo)
+         If ((emiloop(1:1).ne.'0') .and. inGeo(1:1) .ne. 'Y'
+     &       .and. .not.DNG) Then
+            DoGradPDFT=.true.
+         End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -2667,8 +2773,10 @@ C Test read failed. JOBOLD cannot be used.
 *
 *     In DMRG-CASSCF, skip GUGA and LUCIA settings
 *
-      NCONF=1
-      GoTo 9000
+      if(.not.DoGSOR) then
+        NCONF=1
+        GoTo 9000
+      end if
       If(DoDMRG) GoTo 9000
 * ===============================================================
 *

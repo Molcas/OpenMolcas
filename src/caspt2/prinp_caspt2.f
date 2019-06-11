@@ -118,8 +118,13 @@
         WRITE(6,Fmt1) 'This is a MULTI-STATE CASSCF reference'
         WRITE(6,Fmt2//'A,T45,I6)')'Number of CI roots used',
      &                           NSTATE
-        WRITE(6,Fmt2//'A,(T45,10I3))')'These are:',
+        WRITE(6,Fmt2//'A,(T45,10I4))')'These are:',
      &                           (MSTATE(I),I=1,NSTATE)
+        IF(IFMSCOUP) THEN
+           WRITE(6,Fmt1) 'Off-diagonal elements of Heff are computed.'
+        ELSE
+           WRITE(6,Fmt1) 'Heff is assumed diagonal.'
+        ENDIF
       ELSE
         If ( ISCF.eq.0 ) then
            WRITE(6,Fmt1) 'This is a CASSCF or RASSCF reference function'
@@ -190,6 +195,9 @@
          WRITE(6,*)
       End If
       WRITE(6,*)
+      If (IFXMS.AND.IFMSCOUP) Then
+         WRITE(6,Fmt1) 'This is an XMS-CASPT2 calculation.'
+      End If
       WRITE(6,Fmt2//'A,A)')'Type of Fock operator: ',TRIM(FOCKTYPE)
       WRITE(6,Fmt2//'A,A)')'Type of 0-order Hamiltonian: ',TRIM(HZERO)
       WRITE(6,Fmt2//'A,F9.2)')'  "IP-EA" denominator shift = ',BSHIFT

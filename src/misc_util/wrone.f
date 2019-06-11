@@ -11,7 +11,7 @@
 * Copyright (C) 1993, Per-Olof Widmark                                 *
 *               1993, Markus P. Fuelscher                              *
 ************************************************************************
-      Subroutine WrOne(rc,Option,InLab,Comp,Data,SymLab)
+      Subroutine iWrOne(rc,Option,InLab,Comp,Data,SymLab)
 ************************************************************************
 *                                                                      *
 *     Purpose: write data to one-electron integral file                *
@@ -190,3 +190,25 @@
 *     Call qExit('WrOne')
       Return
       End
+
+      Subroutine WrOne(rc,Option,InLab,Comp,Data,SymLab)
+      Implicit Integer (A-Z)
+*
+      Character*(*) InLab
+      Real*8 Data(*)
+*
+      Call WrOne_Internal(Data)
+*
+*     This is to allow type punning without an explicit interface
+      Contains
+      Subroutine WrOne_Internal(Data)
+      Use Iso_C_Binding
+      Real*8, Target :: Data(*)
+      Integer, Pointer :: iData(:)
+      Call C_F_Pointer(C_Loc(Data(1)),iData,[1])
+      Call iWrOne(rc,Option,InLab,Comp,iData,SymLab)
+      Nullify(iData)
+      return
+      End Subroutine WrOne_Internal
+*
+      end

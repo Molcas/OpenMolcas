@@ -9,7 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Character*16 KSDFA
+      REAL*8            CoefR,CoefX
       Common /KSDFT_GLM / KSDFA,funcaa,funcbb,funccc,
-     &                        ip_F_xca,ip_F_xcb,ip_tmpB,LuMC,LuMT
+     &                        ip_F_xca,ip_F_xcb,ip_tmpB,LuMC,LuMT,
+     &                        CoefR,CoefX
       Logical           do_pdftpot
-      Common/KSDFT_AMS/ do_pdftpot
+      Integer ifiv,ifav
+      Common/KSDFT_AMS/ do_pdftpot,ifiv,ifav

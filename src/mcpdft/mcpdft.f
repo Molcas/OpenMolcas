@@ -115,8 +115,12 @@
 !      real*8 Elec_Ener
       integer iRef_E,IAD19
       integer IADR19(1:15)
+      integer NMAYBE,KROOT
+      real*8 EAV
 !
       real*8, allocatable :: PLWO(:)
+      integer ivkcnf
+      Dimension Dummy(1)
 * Start the traceback utilities
 *
       Call QENTER(ROUTINE)
@@ -143,6 +147,7 @@
       IfVB=0
       If (ProgName(1:5).eq.'casvb') IfVB=2
 * Default option switches and values, and initial data.
+      EAV = 0.0d0
       EAV1=0.0d0
       Call RasScf_Init_m()
       Call Seward_Init()
@@ -281,8 +286,8 @@
          Call GetMem('DSPN','Allo','Real',LDSPN,NACPAR)
          Call GetMem('PMAT','Allo','Real',LPMAT,NACPR2)
          Call GetMem('P2AS','Allo','Real',LPA,NACPR2)
-         call dcopy_(NACPAR,0.0d0,0,Work(LDMAT),1)
-         call dcopy_(NACPAR,0.0d0,0,Work(LDSPN),1)
+         call dcopy_(NACPAR,[0.0d0],0,Work(LDMAT),1)
+         call dcopy_(NACPAR,[0.0d0],0,Work(LDSPN),1)
       Else
          LTUVX = ip_Dummy
          ltuvx_cvb=ltuvx
@@ -296,7 +301,7 @@
 
 * Initialize OCCN array, to prevent false alarms later from
 * automated detection of using uninitialized variables:
-      call dcopy_(NTot,0.0D0,0,Work(lOCCN),1)
+      call dcopy_(NTot,[0.0D0],0,Work(lOCCN),1)
 
 * PAM03: Note that removal of linear dependence may change the nr
 * of secondary/deleted orbitals, affecting some of the global
@@ -364,7 +369,9 @@ CGG03 Aug 03
      &   KSDFT(1:8).eq.'FTREVPBE'.or.
      &   KSDFT(1:6).eq.'FTLSDA'.or.
      &   KSDFT(1:6).eq.'FTBLYP'.or.
-     &   KSDFT(1:4).eq.'TPBE' ) then
+     &   KSDFT(1:4).eq.'TPBE'.or.
+     &   KSDFT(1:5).eq.'TOPBE'.or.
+     &   KSDFT(1:6).eq.'FTOPBE' ) then
       KSDFT_TEMP=KSDFT
         KSDFT='SCF'
         ExFac=1.0D0
@@ -390,11 +397,12 @@ CGG03 Aug 03
            lRf = .false.
            IF(KSDFT_TEMP(1:5).ne.'TLSDA'.and. !GLM
      &        KSDFT_TEMP(1:5).ne.'TBLYP'.and.
-     &        KSDFT_TEMP(1:4).ne.'TPBE')  then
+     &        KSDFT_TEMP(1:4).ne.'TPBE'.and.
+     &        KSDFT_TEMP(1:5).ne.'TOPBE')  then
             KSDFT='SCF'
             ExFac=1.0D0
            end IF
-           Call dcopy_(NTOT2,0.0D0,0,WORK(LD1A),1)
+           Call dcopy_(NTOT2,[0.0D0],0,WORK(LD1A),1)
            DoActive = .false.
         End If
         DoQmat=.false.
@@ -446,11 +454,10 @@ CGG03 Aug 03
         NMAYBE=IT
       END DO
   11  CONTINUE
-!      Write(*,*) NMAYBE
       do KROOT=1,lROOTS
         ENER(IROOT(KROOT),1)=Work(iEList+MXROOT*(NMAYBE-1) +
      &                                     (KROOT-1))
-         EAV=EAV+ENER(IROOT(KROOT),ITER)*WEIGHT(KROOT)
+         EAV = EAV + ENER(IROOT(KROOT),ITER) * WEIGHT(KROOT)
          Work(iRef_E + KROOT-1) = ENER(IROOT(KROOT),1)
       end do
       Call GetMem('ELIST','FREE','REAL',iEList,MXROOT*MXITER)
@@ -480,7 +487,9 @@ CGG03 Aug 03
      &     KSDFT_TEMP(1:8).eq.'FTREVPBE'.or.
      &     KSDFT_TEMP(1:6).eq.'FTLSDA'.or.
      &     KSDFT_TEMP(1:6).eq.'FTBLYP'.or.
-     &     KSDFT_TEMP(1:4).eq.'TPBE') then
+     &     KSDFT_TEMP(1:4).eq.'TPBE'.or.
+     &     KSDFT_TEMP(1:5).eq.'TOPBE'.or.
+     &     KSDFT_TEMP(1:6).eq.'FTOPBE') then
             KSDFT=KSDFT_TEMP
             ExFac=0.0d0
 *        ExFac=Get_ExFac(KSDFT)
@@ -521,6 +530,73 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
      &              WORK(LFI),WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
        Call Put_CMO(Work(LCMO),ntot2)
 
+       if (doGSOR) then
+        Call f_Inquire('JOBOLD',Found)
+        if (.not.found) then
+          Call f_Inquire('JOBIPH',Found)
+          if(Found) JOBOLD=JOBIPH
+        end if
+        If (Found) iJOB=1
+        If (iJOB.eq.1) Then
+           if(JOBOLD.le.0) Then
+             JOBOLD=20
+             Call DaName(JOBOLD,'JOBOLD')
+           end if
+        end if
+       IADR19(:)=0
+       IAD19=0
+       Open(unit=87,file='CI_THETA',iostat=ios,
+     &    action='read')
+
+      Call IDaFile(JOBOLD,2,IADR19,15,IAD19)
+          CALL GETMEM('CIVEC','ALLO','REAL',LW4,NCONF)
+          CALL GETMEM('Dtmp ','ALLO','REAL',LW6,NACPAR)
+          CALL GETMEM('DStmp','ALLO','REAL',LW7,NACPAR)
+          CALL GETMEM('Ptmp ','ALLO','REAL',LW8,NACPR2)
+          CALL GETMEM('PAtmp','ALLO','REAL',LW9,NACPR2)
+          CALL GETMEM('Pscr','ALLO','REAL',LW10,NACPR2)
+
+          call dcopy_(NACPAR,[0.0D0],0,WORK(LW6),1)
+          call dcopy_(NACPAR,[0.0D0],0,WORK(LW7),1)
+          call dcopy_(NACPR2,[0.0D0],0,WORK(LW8),1)
+          call dcopy_(NCONF,[0.0D0],0,WORK(LW4),1)
+          iDisk = IADR19(4)
+          jDisk = IADR19(3)
+
+       Call GetMem('CIVtmp','Allo','Real',LW11,nConf)
+          DO jRoot=1,lroots
+           do i=1,nconf
+             read(87,*) Work(LW4-1+i)
+           end do
+           Call DDafile(JOBOLD,1,Work(LW4),nConf,iDisk)
+          call getmem('kcnf','allo','inte',ivkcnf,nactel)
+          Call Reord2(NAC,NACTEL,LSYM,1,
+     &                iWork(KICONF(1)),iWork(KCFTP),
+     &                Work(LW4),Work(LW11),iWork(ivkcnf))
+          Call dcopy_(nconf,Work(LW11),1,Work(LW4),1)
+          call getmem('kcnf','free','inte',ivkcnf,nactel)
+         C_Pointer = Lw4
+         CALL GetMem('Lucia','Allo','Real',Lucia_Base, 1)
+!Andrew - changed here
+         CALL Lucia_Util('Densi',0,iDummy,Dummy)
+                 If (IFCAS.GT.2 .OR. iDoGAS) Then
+                   Call CISX_m(IDXSX,Work(LW6),Work(LW7),Work(LW8),
+     &                     Work(LW9),Work(LW10))
+                 End If
+         CALL GetMem('Lucia','Free','Real',Lucia_Base, 1)
+
+!         write(6,*) 'jDisk',jDisk
+         Call DDafile(JOBOLD,1,Work(LW6),NACPAR,jDisk)
+         Call DDafile(JOBOLD,1,Work(LW7),NACPAR,jDisk)
+         Call DDafile(JOBOLD,1,Work(LW8),NACPR2,jDisk)
+         Call DDafile(JOBOLD,1,Work(LW9),NACPR2,jDisk)
+       end do
+       Close(87)
+
+       Call fCopy('JOBIPH','JOBGS',ierr)
+
+       end if!DoGSOR
+
 
 !      write(*,*) "two ints",Work(LPUVX:LPUVX+NACPR2-1)
 !      write(*,*) "LCMO",Work(LCMO:LCMO+NTOT2-1)
@@ -545,7 +621,9 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
      &     KSDFT_TEMP(1:8).eq.'FTREVPBE'.or.
      &     KSDFT_TEMP(1:6).eq.'FTLSDA'.or.
      &     KSDFT_TEMP(1:6).eq.'FTBLYP'.or.
-     &    KSDFT_TEMP(1:4).eq.'TPBE') THEN
+     &    KSDFT_TEMP(1:4).eq.'TPBE'.or.
+     &     KSDFT_TEMP(1:5).eq.'TOPBE'.or.
+     &     KSDFT_TEMP(1:6).eq.'FTOPBE') THEN
 
         CALL GETMEM('CASDFT_Fock','ALLO','REAL',LFOCK,NACPAR)
         Call MSCtl(Work(LCMO),Work(LFOCK),Work(LFI),Work(LFA),
@@ -613,7 +691,8 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
         Call GetMem('Fcore','FREE','Real',iTmp1,nTot1)
         Call GetMem('PUVX','FREE','Real',LPUVX,NFINT)
         deallocate(PLWO)
-        Call Put_iScalar('PDFT ready',0) !Necessary for analgrad in Alaska.
+!       Necessary for analgrad in Alaska.
+        Call Put_iScalar('PDFT ready',0)
 
 
       End If
@@ -662,8 +741,17 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
 * Create output orbital files:
 !      Call OrbFiles(JOBIPH,IPRLEV)
 *
-!      Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
-*
+       if (doGSOR) then
+          CALL GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
+          CALL GETMEM('Dtmp ','FREE','REAL',LW6,NACPAR)
+          CALL GETMEM('DStmp','FREE','REAL',LW7,NACPAR)
+          CALL GETMEM('Ptmp ','FREE','REAL',LW8,NACPR2)
+          CALL GETMEM('PAtmp','FREE','REAL',LW9,NACPR2)
+          CALL GETMEM('Pscr','FREE','REAL',LW10,NACPR2)
+          Call GetMem('CIVtmp','FREE','Real',LW11,nConf)
+          Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
+          Call MKGUGA_FREE_m
+       end if
 * Exit
 *
       Call StatusLine('MCPDFT:','Finished.')

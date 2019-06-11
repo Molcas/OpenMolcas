@@ -135,6 +135,7 @@ c Avoid unused argument warnings
       Logical Save_tmp, NonEq
       Real*8 RepNuc_Save
       Common /RF/RepNuc_Save
+      Dimension ip(1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -167,7 +168,7 @@ c Avoid unused argument warnings
 *
 *       Compute the electrostatic potential due to slow charges
 *
-        call dcopy_(nTs,Zero,0,VSlow,1)
+        call dcopy_(nTs,[Zero],0,VSlow,1)
         Do iTile = 1, nTs
           XI=Tessera(1,iTile)
           YI=Tessera(2,iTile)
@@ -206,8 +207,8 @@ c Avoid unused argument warnings
 *
       Call Allocate_Work(ipFactOp,nTs)
       Call Allocate_iWork(iplOper,nTs)
-      call dcopy_(nTs,One,0,Work(ipFactOp),1)
-      Call ICopy(nTs,255,0,iWork(iplOper),1)
+      call dcopy_(nTs,[One],0,Work(ipFactOp),1)
+      Call ICopy(nTs,[255],0,iWork(iplOper),1)
 *
       Call Drv1_PCM(Work(ipFactOp),nTs,D,nh1,Tessera,iWork(iplOper),
      &              VTessera,nOrdOp)
@@ -243,7 +244,7 @@ c Avoid unused argument warnings
 *
 *      Compute the electrostatic potential due to slow charges
 *
-       call dcopy_(nTs,Zero,0,VSlow,1)
+       call dcopy_(nTs,[Zero],0,VSlow,1)
        Do iTile = 1, nTs
          XI=Tessera(1,iTile)
          YI=Tessera(2,iTile)
@@ -326,7 +327,7 @@ c Avoid unused argument warnings
      &            - Half * W_0_or_Inf
          RepNuc_Save=RepNuc
          Label='PotNuc00'
-         Call Put_Temp(Label,RepNuc,1)
+         Call Put_Temp(Label,[RepNuc],1)
       End If
 
 *                                                                      *
@@ -350,13 +351,13 @@ c Avoid unused argument warnings
 *
          call dcopy_(nTs,QTessera,2,Work(ipQ),1)
          If (NonEq) Call DaXpY_(nTs,One,QTessera_Slow,1,Work(ipQ),1)
-         Call OneEl_Integrals(PCMInt,NaMem,Label,ip,lOper,nComp,Origin,
-     &                        nOrdOp,rHrmt,kOper)
+         Call OneEl_Integrals(PCMInt,NaMem,Label,ip,[lOper],nComp,
+     &                        Origin,nOrdOp,rHrmt,[kOper])
          nInt=n2Tri(lOper)
-         Call CmpInt(Work(ip),nInt,nBas,nIrrep,lOper)
+         Call CmpInt(Work(ip(1)),nInt,nBas,nIrrep,lOper)
          Alpha=One
-         Call DaXpY_(nInt,Alpha,Work(ip),1,h1,1)
-         Call Free_Work(ip)
+         Call DaXpY_(nInt,Alpha,Work(ip(1)),1,h1,1)
+         Call Free_Work(ip(1))
 *
 *------  Save the modified h1 matrix
 *
@@ -370,13 +371,13 @@ c Avoid unused argument warnings
 *     TwoHam + correction
 *
       call dcopy_(nTs,QTessera(2,1),2,Work(ipQ),1)
-      Call OneEl_Integrals(PCMInt,NaMem,Label,ip,lOper,nComp,Origin,
-     &                     nOrdOp,rHrmt,kOper)
+      Call OneEl_Integrals(PCMInt,NaMem,Label,ip,[lOper],nComp,Origin,
+     &                     nOrdOp,rHrmt,[kOper])
       nInt=n2Tri(lOper)
-      Call CmpInt(Work(ip),nInt,nBas,nIrrep,lOper)
+      Call CmpInt(Work(ip(1)),nInt,nBas,nIrrep,lOper)
       Alpha=One
-      Call DaXpY_(nInt,Alpha,Work(ip),1,TwoHam,1)
-      Call Free_Work(ip)
+      Call DaXpY_(nInt,Alpha,Work(ip(1)),1,TwoHam,1)
+      Call Free_Work(ip(1))
 *                                                                      *
 ************************************************************************
 *                                                                      *

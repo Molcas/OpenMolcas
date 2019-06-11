@@ -33,7 +33,7 @@ C     - Molcas part
       Logical LFirstRun
       Logical LLumOrb
       Logical Exist
-      Dimension dLimmo(2)
+      Dimension dLimmo(2),iDum(1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -196,7 +196,8 @@ C     Call OneBas('PRIM')
             irc=-1
             iopt=1
 !EB            Call RdOne (irc,iopt,label,iComp,nInt,iSmLbl)
-            Call iRdOne (irc,iopt,label,iComp,nInt,iSmLbl)
+            Call iRdOne (irc,iopt,label,iComp,iDum,iSmLbl)
+            If (irc.eq.0) nInt=iDum(1)
             if (irc.ne.0) Then
                If(iComp.ne.1) Then
                   Write (6,'(2A)')'MPProp: Error reading iComp.ne.0 lab'
@@ -278,7 +279,8 @@ C     Call OneBas('PRIM')
       iopt=1
       iComp=1
 !EB      Call RdOne (irc,iopt,label,iComp,nInt,iSmLbl)
-      Call iRdOne (irc,iopt,label,iComp,nInt,iSmLbl)
+      Call iRdOne (irc,iopt,label,iComp,iDum,iSmLbl)
+      nInt=iDum(1)
       If (irc.ne.0) Then
          Write (6,'(2A)') 'MPProp: Error getting length of ',
      &                            label
@@ -370,7 +372,8 @@ c                    ! The 2* is for technical reason
         If(Method.eq.'UHF-SCF') Then
           Call RdVec_(FName,Lu_,'COE',1,nSym,nBas,nBas,Work(ip_Vec),
      &         Work(ip_Vec+nVec),Work(ip_Occ),Work(ip_Occ+nOcc),
-     &         Work(ip_Ene),Work(ip_Ene+nOcc),iDum,VTitle,iWarn,iErr)
+     &         Work(ip_Ene),Work(ip_Ene+nOcc),iDum,VTitle,iWarn,iErr,
+     &         iWFtype)
         Else
           Call RdVec(FName,Lu_,'COE',nSym,nBas,nBas,Work(ip_Vec),
      &         Work(ip_Occ),Work(ip_Ene),iDum,VTitle,iWarn,iErr)

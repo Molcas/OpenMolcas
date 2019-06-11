@@ -21,7 +21,7 @@
 * Original exponents recontracted: W.A. de Jong, R.J. Harrison and D.A. Dixon, J. Chem. Phys. 114, 48 (2001).
 * Sc - Zn: N.B. Balabanov and K.A. Peterson, J. Chem. Phys. 123, 064107 (2005)
 ********************************************************************************
-/H.cc-pVDZ-DK....
+/H.cc-pVDZ-DK..4s1p.2s1p.
 For reference to original basis set, see header.
 HYDROGEN       (4s,1p) -> [2s,1p]
           1.   1
@@ -39,7 +39,7 @@ HYDROGEN       (4s,1p) -> [2s,1p]
     1    1
               0.7270000
       1.0000000
-/He.cc-pVDZ-DK....
+/He.cc-pVDZ-DK..4s1p.2s1p.
 For reference to original basis set, see header.
 HELIUM       (4s,1p) -> [2s,1p]
           2.   1
@@ -57,7 +57,7 @@ HELIUM       (4s,1p) -> [2s,1p]
     1    1
               1.2750000
       1.0000000
-/Li.cc-pVDZ-DK....
+/Li.cc-pVDZ-DK..9s4p1d.3s2p1d.
 For reference to original basis set, see header.
 LITHIUM       (9s,4p,1d) -> [3s,2p,1d]
           3.   2
@@ -95,7 +95,7 @@ LITHIUM       (9s,4p,1d) -> [3s,2p,1d]
     1    1
               0.1239000
       1.0000000
-/Be.cc-pVDZ-DK....
+/Be.cc-pVDZ-DK..9s4p1d.3s2p1d.
 For reference to original basis set, see header.
 BERYLLIUM       (9s,4p,1d) -> [3s,2p,1d]
           4.   2
@@ -133,7 +133,7 @@ BERYLLIUM       (9s,4p,1d) -> [3s,2p,1d]
     1    1
               0.2380000
       1.0000000
-/B.cc-pVDZ-DK....
+/B.cc-pVDZ-DK..9s4p1d.3s2p1d.
 For reference to original basis set, see header.
 BORON       (9s,4p,1d) -> [3s,2p,1d]
           5.   2
@@ -171,7 +171,7 @@ BORON       (9s,4p,1d) -> [3s,2p,1d]
     1    1
               0.3430000
       1.0000000
-/C.cc-pVDZ-DK....
+/C.cc-pVDZ-DK..9s4p1d.3s2p1d.
 For reference to original basis set, see header.
 CARBON       (9s,4p,1d) -> [3s,2p,1d]
           6.   2
@@ -209,7 +209,7 @@ CARBON       (9s,4p,1d) -> [3s,2p,1d]
     1    1
               0.5500000
       1.0000000
-/N.cc-pVDZ-DK....
+/N.cc-pVDZ-DK..9s4p1d.3s2p1d.
 For reference to original basis set, see header.
 NITROGEN       (9s,4p,1d) -> [3s,2p,1d]
           7.   2
@@ -247,7 +247,7 @@ NITROGEN       (9s,4p,1d) -> [3s,2p,1d]
     1    1
               0.8170000
       1.0000000
-/O.cc-pVDZ-DK....
+/O.cc-pVDZ-DK..9s4p1d.3s2p1d.
 For reference to original basis set, see header.
 OXYGEN       (9s,4p,1d) -> [3s,2p,1d]
           8.   2
@@ -285,7 +285,7 @@ OXYGEN       (9s,4p,1d) -> [3s,2p,1d]
     1    1
               1.1850000
       1.0000000
-/F.cc-pVDZ-DK....
+/F.cc-pVDZ-DK..9s4p1d.3s2p1d.
 For reference to original basis set, see header.
 FLUORINE       (9s,4p,1d) -> [3s,2p,1d]
           9.   2
@@ -323,7 +323,7 @@ FLUORINE       (9s,4p,1d) -> [3s,2p,1d]
     1    1
               1.6400000
       1.0000000
-/Ne.cc-pVDZ-DK....
+/Ne.cc-pVDZ-DK..9s4p1d.3s2p1d.
 For reference to original basis set, see header.
 NEON       (9s,4p,1d) -> [3s,2p,1d]
           10.   2
@@ -361,7 +361,7 @@ NEON       (9s,4p,1d) -> [3s,2p,1d]
     1    1
               2.2020000
       1.0000000
-/Na.cc-pVDZ-DK....
+/Na.cc-pVDZ-DK..12s8p1d.4s3p1d.
 For reference to original basis set, see header.
 SODIUM       (12s,8p,1d) -> [4s,3p,1d]
           11.   2
@@ -413,7 +413,7 @@ SODIUM       (12s,8p,1d) -> [4s,3p,1d]
     1    1
               0.0973000
       1.0000000
-/Mg.cc-pVDZ-DK....
+/Mg.cc-pVDZ-DK..12s8p1d.4s3p1d.
 For reference to original basis set, see header.
 MAGNESIUM       (12s,8p,1d) -> [4s,3p,1d]
           12.   2
@@ -465,7 +465,7 @@ MAGNESIUM       (12s,8p,1d) -> [4s,3p,1d]
     1    1
               0.1870000
       1.0000000
-/Al.cc-pVDZ-DK....
+/Al.cc-pVDZ-DK..12s8p1d.4s3p1d.
 For reference to original basis set, see header.
 ALUMINUM       (12s,8p,1d) -> [4s,3p,1d]
           13.   2
@@ -517,7 +517,7 @@ ALUMINUM       (12s,8p,1d) -> [4s,3p,1d]
     1    1
               0.1890000
       1.0000000
-/Si.cc-pVDZ-DK....
+/Si.cc-pVDZ-DK..12s8p1d.4s3p1d.
 For reference to original basis set, see header.
 SILICON       (12s,8p,1d) -> [4s,3p,1d]
           14.   2
@@ -569,7 +569,7 @@ SILICON       (12s,8p,1d) -> [4s,3p,1d]
     1    1
               0.2750000
       1.0000000
-/P.cc-pVDZ-DK....
+/P.cc-pVDZ-DK..12s8p1d.4s3p1d.
 For reference to original basis set, see header.
 PHOSPHOROUS       (12s,8p,1d) -> [4s,3p,1d]
           15.   2
@@ -621,7 +621,7 @@ PHOSPHOROUS       (12s,8p,1d) -> [4s,3p,1d]
     1    1
               0.3730000
       1.0000000
-/S.cc-pVDZ-DK....
+/S.cc-pVDZ-DK..12s8p1d.4s3p1d.
 For reference to original basis set, see header.
 SULFUR       (12s,8p,1d) -> [4s,3p,1d]
           16.   2
@@ -673,7 +673,7 @@ SULFUR       (12s,8p,1d) -> [4s,3p,1d]
     1    1
               0.4790000
       1.0000000
-/Cl.cc-pVDZ-DK....
+/Cl.cc-pVDZ-DK..12s8p1d.4s3p1d.
 For reference to original basis set, see header.
 CHLORINE       (12s,8p,1d) -> [4s,3p,1d]
           17.   2
@@ -725,7 +725,7 @@ CHLORINE       (12s,8p,1d) -> [4s,3p,1d]
     1    1
               0.6000000
       1.0000000
-/Ar.cc-pVDZ-DK....
+/Ar.cc-pVDZ-DK..12s8p1d.4s3p1d.
 For reference to original basis set, see header.
 ARGON       (12s,8p,1d) -> [4s,3p,1d]
           18.   2
@@ -777,7 +777,7 @@ ARGON       (12s,8p,1d) -> [4s,3p,1d]
     1    1
               0.7380000
       1.0000000
-/Sc.cc-pVDZ-DK....
+/Sc.cc-pVDZ-DK..20s16p8d2d.6s5p3d1f.
 For reference to original basis set, see header.
 SCANDIUM       (20s,16p,8d,2f) -> [6s,5p,3d,1f]
           21.   3
@@ -881,7 +881,7 @@ SCANDIUM       (20s,16p,8d,2f) -> [6s,5p,3d,1f]
               1.636000E-01
       3.617450E-01
       8.218680E-01
-/Ti.cc-pVDZ-DK....
+/Ti.cc-pVDZ-DK..20s16p8d2f.6s5p3d1f.
 For reference to original basis set, see header.
 TITANIUM       (20s,16p,8d,2f) -> [6s,5p,3d,1f]
           22.   3
@@ -985,7 +985,7 @@ TITANIUM       (20s,16p,8d,2f) -> [6s,5p,3d,1f]
               2.788000E-01
       3.581580E-01
       8.257940E-01
-/V.cc-pVDZ-DK....
+/V.cc-pVDZ-DK..20s16p8d2f.6s5p3d1f.
 For reference to original basis set, see header.
 VANADIUM       (20s,16p,8d,2f) -> [6s,5p,3d,1f]
           23.   3
@@ -1089,7 +1089,7 @@ VANADIUM       (20s,16p,8d,2f) -> [6s,5p,3d,1f]
               4.057000E-01
       3.900680E-01
       8.008410E-01
-/Cr.cc-pVDZ-DK....
+/Cr.cc-pVDZ-DK..20s16p8d2f.6s5p3d1f.
 For reference to original basis set, see header.
 CHROMIUM       (20s,16p,8d,2f) -> [6s,5p,3d,1f]
           24.   3
@@ -1193,7 +1193,7 @@ CHROMIUM       (20s,16p,8d,2f) -> [6s,5p,3d,1f]
               5.231000E-01
       4.235450E-01
       7.741140E-01
-/Mn.cc-pVDZ-DK....
+/Mn.cc-pVDZ-DK..20s16p8d2f.6s5p3d1f.
 For reference to original basis set, see header.
 MANGANESE       (20s,16p,8d,2f) -> [6s,5p,3d,1f]
           25.   3
@@ -1297,7 +1297,7 @@ MANGANESE       (20s,16p,8d,2f) -> [6s,5p,3d,1f]
               6.438000E-01
       4.267760E-01
       7.697990E-01
-/Fe.cc-pVDZ-DK....
+/Fe.cc-pVDZ-DK..20s16p8d2f.6s5p3d1f.
 For reference to original basis set, see header.
 IRON       (20s,16p,8d,2f) -> [6s,5p,3d,1f]
           26.   3
@@ -1401,7 +1401,7 @@ IRON       (20s,16p,8d,2f) -> [6s,5p,3d,1f]
               7.758000E-01
       4.222490E-01
       7.714680E-01
-/Co.cc-pVDZ-DK....
+/Co.cc-pVDZ-DK..20s16p8d2f.6s5p3d1f.
 For reference to original basis set, see header.
 COBALT       (20s,16p,8d,2f) -> [6s,5p,3d,1f]
           27.   3
@@ -1505,7 +1505,7 @@ COBALT       (20s,16p,8d,2f) -> [6s,5p,3d,1f]
               9.170000E-01
       4.239660E-01
       7.684290E-01
-/Ni.cc-pVDZ-DK....
+/Ni.cc-pVDZ-DK..20s16p8d2f.6s5p3d1f.
 For reference to original basis set, see header.
 NICKEL       (20s,16p,8d,2f) -> [6s,5p,3d,1f]
           28.   3
@@ -1609,7 +1609,7 @@ NICKEL       (20s,16p,8d,2f) -> [6s,5p,3d,1f]
               1.068000E+00
       4.174290E-01
       7.714830E-01
-/Cu.cc-pVDZ-DK....
+/Cu.cc-pVDZ-DK..20s16p8d2f.6s5p3d1f.
 For reference to original basis set, see header.
 COPPER       (20s,16p,8d,2f) -> [6s,5p,3d,1f]
           29.   3
@@ -1713,7 +1713,7 @@ COPPER       (20s,16p,8d,2f) -> [6s,5p,3d,1f]
               1.259400E+00
       4.242800E-01
       7.630250E-01
-/Zn.cc-pVDZ-DK....
+/Zn.cc-pVDZ-DK..20s16p8d2f.6s5p3d1f.
 For reference to original basis set, see header.
 ZINC       (20s,16p,8d,2f) -> [6s,5p,3d,1f]
           30.   3
@@ -1817,7 +1817,7 @@ ZINC       (20s,16p,8d,2f) -> [6s,5p,3d,1f]
               1.461500E+00
       4.311320E-01
       7.546420E-01
-/Ga.cc-pVDZ-DK....
+/Ga.cc-pVDZ-DK..14s11p6d.5s4p2d.
 For reference to original basis set, see header.
 GALLIUM       (14s,11p,6d) -> [5s,4p,2d]
           31.   2
@@ -1889,7 +1889,7 @@ GALLIUM       (14s,11p,6d) -> [5s,4p,2d]
       0.4767142              0.0000000
       0.2888317              0.0000000
       0.0000000              1.0000000
-/Ge.cc-pVDZ-DK....
+/Ge.cc-pVDZ-DK..14s11p6d.5s4p2d.
 For reference to original basis set, see header.
 GERMANIUM       (14s,11p,6d) -> [5s,4p,2d]
           32.   2
@@ -1961,7 +1961,7 @@ GERMANIUM       (14s,11p,6d) -> [5s,4p,2d]
       0.4817361              0.0000000
       0.2811764              0.0000000
       0.0000000              1.0000000
-/As.cc-pVDZ-DK....
+/As.cc-pVDZ-DK..14s11p6d.5s4p2d.
 For reference to original basis set, see header.
 ARSENIC       (14s,11p,6d) -> [5s,4p,2d]
           33.   2
@@ -2033,7 +2033,7 @@ ARSENIC       (14s,11p,6d) -> [5s,4p,2d]
       0.4858423              0.0000000
       0.2745897              0.0000000
       0.0000000              1.0000000
-/Se.cc-pVDZ-DK....
+/Se.cc-pVDZ-DK..14s11p6d.5s4p2d.
 For reference to original basis set, see header.
 SELENIUM       (14s,11p,6d) -> [5s,4p,2d]
           34.   2
@@ -2105,7 +2105,7 @@ SELENIUM       (14s,11p,6d) -> [5s,4p,2d]
       0.4891696              0.0000000
       0.2695446              0.0000000
       0.0000000              1.0000000
-/Br.cc-pVDZ-DK....
+/Br.cc-pVDZ-DK..14s11p6d.5s4p2d.
 For reference to original basis set, see header.
 BROMINE       (14s,11p,6d) -> [5s,4p,2d]
           35.   2
@@ -2177,7 +2177,7 @@ BROMINE       (14s,11p,6d) -> [5s,4p,2d]
       0.4918818              0.0000000
       0.2654955              0.0000000
       0.0000000              1.0000000
-/Kr.cc-pVDZ-DK....
+/Kr.cc-pVDZ-DK..14s11p6d.5s4p2d.
 For reference to original basis set, see header.
 KRYPTON       (14s,11p,6d) -> [5s,4p,2d]
           36.   2

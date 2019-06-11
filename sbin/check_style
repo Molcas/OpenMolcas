@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 #***********************************************************************
@@ -20,8 +20,6 @@
 This script checks some basic stylistic and formatting rules in the source code
 '''
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
-
 import sys
 from os import environ, walk
 from os.path import isdir, join, relpath
@@ -42,6 +40,8 @@ if (not isdir(MOLCAS)):
 
 # Non-ASCII characters
 def non_ascii(line, filename):
+  if (filename.endswith(('.py'))):
+    return False
   try:
     a = line.decode('ascii')
     return False
@@ -69,7 +69,7 @@ def test_write(line, filename):
   return write_star.search(line.decode('ascii', 'ignore').strip('\n'))
 
 # Bare (without wrapper) LAPACK/BLAS calls
-unwrapped_sub = re.compile(r'call\s*(drot|dswap|dscal|[ds]copy|daxpy|dgemm|dspmv|dgemv|dopmtr|dspgv|dsptrd|dstevr|dgetrs|dspev|dgesvd|dgetrf|dgesv|dsyev|dsyevr|dgetri|zhpev|dsygv|dpotrf|dgels|dsytrd|dposv|dsterf|dsteqr|dlascl|dorgtr)\s*\(', re.IGNORECASE)
+unwrapped_sub = re.compile(r'call\s*(drot|dswap|dscal|[ds]copy|daxpy|dgemm|dspmv|dgemv|dopmtr|dspgv|dsptrd|dstevr|dgetrs|dspev|dgeev|dgesvd|dgetrf|dgesv|dsyev|dsyevr|dgetri|zhpev|dsygv|dpotrf|dgels|dsytrd|dposv|dsterf|dsteqr|dlascl|dorgtr)\s*\(', re.IGNORECASE)
 unwrapped_func = re.compile(r'\b(ddot|dnrm2|dasum|idamax|dlamch|ilaenv|dlansy)\s*\(', re.IGNORECASE)
 def test_unwrapped(line, filename):
   if (not filename.endswith(('.f', '.F', '.f90', '.F90'))):
@@ -105,6 +105,13 @@ def test_printst(line, filename):
     return False
   return printst.match(line.decode('ascii', 'ignore').strip('\n'))
 
+# OPEN statement
+openst = re.compile(r'[\s\d]*open\s*\(', re.IGNORECASE)
+def test_openst(line, filename):
+  if (not filename.endswith(('.f', '.F', '.f90', '.F90'))):
+    return False
+  return openst.match(line.decode('ascii', 'ignore').strip('\n'))
+
 #====================================================
 
 #====================================================
@@ -124,6 +131,7 @@ tests.append({'func': test_unwrapped, 'print': '[{0}] "Unwrapped LAPACK/BLAS cal
 tests.append({'func': test_dp, 'print': '[{0}] "double precision" in {1}, line {2}', 'error': True})
 tests.append({'func': test_stop, 'print': '[{0}] "STOP" statement in {1}, line {2}', 'error': True})
 tests.append({'func': test_printst, 'print': '[{0}] "PRINT" statement in {1}, line {2}', 'error': True})
+tests.append({'func': test_openst, 'print': '[{0}] "OPEN" statement in {1}, line {2} (use molcas_open)', 'error': False})
 
 def run_tests(line, fname, ln):
   j = 0

@@ -29,7 +29,7 @@ C
       Character*19 SecNam
       Parameter (SecNam = 'Cho_Stat_ParentDiag')
 
-      Character*(LENIN4) AtomLabel(MxBas)
+      Character*(LENIN8) AtomLabel(MxBas)
 
       Logical Debug
 
@@ -85,7 +85,7 @@ C     Call Get_nAtoms_All(nAtom)
 C     Get atomic labels and basis function labels.
 C     --------------------------------------------
 
-      Call Get_cArray('Unique Basis Names',AtomLabel,LENIN4*nBasT)
+      Call Get_cArray('Unique Basis Names',AtomLabel,LENIN8*nBasT)
 
 C     Allocate and get index arrays for indexation of basis functions on
 C     each atom.
@@ -152,8 +152,8 @@ C     -------------------
       Rmin = 1.0d15
       Rmax = -1.0d15
       Rave = 0.0d0
-      Call iCopy(l_PC1,0,0,iWork(ip_PC1),1)
-      Call dCopy_(l_RC2,0.0d0,0,Work(ip_RC2),1)
+      Call iCopy(l_PC1,[0],0,iWork(ip_PC1),1)
+      Call dCopy_(l_RC2,[0.0d0],0,Work(ip_RC2),1)
       Do iVec = 1,NumChT
          iRS1 = InfVec(iVec,1,1)
          iA = mapRS2F(1,iRS1)
@@ -200,7 +200,8 @@ C     --------------------------------------
       nBatch = (nAtom-nPseudo-1)/numAt + 1 ! exclude pseudo-atoms
       Do iBatch = 1,nBatch
          If (iBatch .eq. nBatch) Then
-            nAt = nAtom - nPseudo - numAt*(nBatch-1) ! exclude pseudo-atoms
+!           exclude pseudo-atoms
+            nAt = nAtom - nPseudo - numAt*(nBatch-1)
          Else
             nAt = numAt
          End If
@@ -242,7 +243,7 @@ C     --------------------------------------
          RClass(1) = Rave - (Rave-Rmin)/2.0d0
          RClass(2) = Rave
          RClass(3) = Rave + (Rmax-Rave)/2.0d0
-         Call iCopy(4,0,0,iClass,1)
+         Call iCopy(4,[0],0,iClass,1)
          nChk = 0
          Do iVec = 1,NumChT
             If (RC2(iVec) .gt. 0.0d0) Then

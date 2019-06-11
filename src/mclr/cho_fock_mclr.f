@@ -23,7 +23,7 @@
       Character*13 SECNAM
       Parameter (SECNAM = 'CHO_FOCK_MCLR')
       Integer   ISTLT(8),ISTSQ(8),ISSQ(8,8),kaOff(8),ipLpq(8,3)
-      Integer   ipAsh(2),ipAorb(8,2),LuAChoVec(8)
+      Integer   ipAsh(*),ipAorb(8,2),LuAChoVec(8)
       Integer   nAsh(8),nIsh(8)
 #include "cholesky.fh"
 #include "choptr.fh"
@@ -207,10 +207,10 @@ C -------------------------------------------------------------
 
                 k = Muld2h(i,JSYM)
 
-                ipLpq(k,1) = ipLF + lChoa       ! Lvb,J
-                ipLpq(k,2) = ipLpq(k,1)         ! Lvi,J i general MO index
+                ipLpq(k,1) = ipLF + lChoa   ! Lvb,J
+                ipLpq(k,2) = ipLpq(k,1)     ! Lvi,J i general MO index
      &                     + nAsh(k)*nBas(i)*JNUM
-                ipLpq(k,3) = ipLpq(k,2)         ! L~vi,J ~ transformed index
+                ipLpq(k,3) = ipLpq(k,2)     ! L~vi,J ~ transformed index
      &                       + nAsh(k)*nBas(i)*JNUM
 
                 lChoa= lChoa + nAsh(k)*nBas(i)*3*JNUM
@@ -399,7 +399,8 @@ c --- backtransform fock matrix to full storage
      &                1.0d0,Work(ipFkA+ISTSQ(iS)),nBas(iS),
      &                Work(ipCMO+ISTSQ(iS)),nBas(iS),0.0d0,
      &                Work(ipJA+ISTSQ(iS)),nBas(jS))
-          call dcopy_(nBas(jS)*nBas(iS),0.0d0,0,Work(ipFkA+ISTSQ(iS)),1)
+          call dcopy_(nBas(jS)*nBas(iS),[0.0d0],0,
+     &                Work(ipFkA+ISTSQ(iS)),1)
           Call DGEMM_('T','N',nBas(jS),nIsh(jS),nBas(iS),
      &                1.0d0,Work(ipJA+ISTSQ(iS)),
      &                nBas(iS),Work(ipCMO+ISTSQ(jS)),nBas(jS),

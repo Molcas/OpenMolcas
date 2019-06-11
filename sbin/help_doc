@@ -1,0 +1,198 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+#***********************************************************************
+# This file is part of OpenMolcas.                                     *
+#                                                                      *
+# OpenMolcas is free software; you can redistribute it and/or modify   *
+# it under the terms of the GNU Lesser General Public License, v. 2.1. *
+# OpenMolcas is distributed in the hope that it will be useful, but it *
+# is provided "as is" and without any express or implied warranties.   *
+# For more details see the full text of the license in the file        *
+# LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#                                                                      *
+# Copyright (C) 2017, Ignacio Fdez. Galván                             *
+#***********************************************************************
+
+import sys
+from os.path import join
+from os import environ
+import re
+
+try:
+  from colorama import init, Fore, Style
+except ImportError:
+  def init(*args, **kwargs):
+    pass
+  class Dummy(object):
+    pass
+  Fore = Dummy()
+  Fore.RED = ''
+  Fore.BLUE = ''
+  Fore.GREEN = ''
+  Style = Dummy()
+  Style.RESET_ALL = ''
+
+helptext = '''
+{1}################################################################################
+#                              Molcas quick help                               #
+################################################################################{0}
+
+Display documentation for modules and keywords. The module and optional keyword
+names are given as command-line arguments. Keywords are first searched with
+exact match, and if that fails a four-character match is attempted.
+
+Examples:
+
+  {2}rasscf{0}           show description and list of keywords for the RASSCF module
+
+  {2}scf uhf{0}          show the UHF keyword in the SCF module
+
+  {2}slapaf thermo{0}    show the THER keyword in the SLAPAF module
+
+  {2}gateway basis{0}    show two variants of the BASIS keywords in the GATEWAY module
+'''.format(Style.RESET_ALL, Fore.BLUE, Fore.GREEN)
+
+# Function to print a list with a separator in lines of a maximum width
+# Returns the lines as a list
+def wrap_list(items, sep=' | ', width=80):
+  # split the separator to account for when it is put at the end of a line
+  sep1 = sep.rstrip()
+  sep2 = sep[len(sep1):]
+  lines = []
+  text = None
+  # add the items one by one
+  for i in items:
+    if (text is not None):
+      # if an item and the separator do not fit in the current line,
+      # "save" the line and start a new one
+      if (len(text)+len(i)+len(sep) > width):
+        lines.append(text)
+        text = None
+      # if they fit, add them: first the second part of the separator,
+      # then the item, then the first part of the separator
+      else:
+        text += '{0}{1}{2}'.format(sep2, i, sep1)
+    # if this is the first item in the line (also the case if it did not
+    # fit in the previous line), add the item and the first part of the
+    # separator regardless of length
+    if (text is None):
+      text = '{0}{1}'.format(i, sep1)
+  if (text is not None):
+    lines.append(text[:-len(sep1)])
+  return lines
+
+# Use colors in terminal, not if output is redirected to file
+if sys.stdout.isatty():
+  init()
+else:
+  init(strip=True)
+
+try:
+  MOLCAS = environ['MOLCAS']
+except KeyError:
+  MOLCAS = '.'
+
+comment= re.compile(r'#')
+module = re.compile(r'^\[(\S*)\]$')
+tag = re.compile(r':([^:]*):([^:]*)[:\n]')
+
+# Parse the "keyword.db" file.
+# This file should have been generated when building the documentation
+db = {}
+try:
+  db_file = join(MOLCAS, 'data', 'keyword.db')
+  key = None
+  mod = None
+  with open(db_file, 'r') as f:
+    for line in f:
+      # ignore comments
+      if comment.match(line):
+        continue
+      # a module starts, convert to uppercase
+      match = module.match(line)
+      if match:
+        mod = match.group(1).upper()
+        db[mod] = {}
+      # a keyword starts, convert to lowercase
+      match = tag.match(line)
+      if match:
+        key = match.group(1)
+        # special case for module description (no keyword)
+        if (match.group(2) == 'D'):
+          key = '_desc'
+        db[mod][key.lower()] = {'_name': key, '_type': match.group(2), '_text': ''}
+        key = key.lower()
+      # text lines should be added to the current keyword
+      elif ((mod in db) and (key in db[mod])):
+        db[mod][key]['_text'] += line
+except:
+  print('{0} file malformed or not found.'.format(db_file))
+  print('You may need to build the documentation first.')
+  sys.exit(1)
+
+# Function to print all modules
+def print_modules(db):
+  print('Known modules:')
+  text = '\n'.join(wrap_list(sorted(db.keys())))
+  print(text)
+  print()
+
+# Function to print all keywords in a module
+def print_keywords(db):
+  print('Available keywords:')
+  keylist = [i['_name'] for i in db.values()]
+  keylist.remove('_desc')
+  text = '\n'.join(wrap_list(sorted(keylist)))
+  print(text)
+  print()
+
+try:
+  query = sys.argv[1]
+except IndexError:
+  print(helptext)
+  print_modules(db)
+  sys.exit(0)
+
+print()
+mod = query.upper()
+# if the requested module exists, print more help
+if (mod in db):
+  query = ' '.join(sys.argv[2:])
+  if (query.strip() != ''):
+    kw = query.lower()
+    # find existing keywords matching the requested one
+    # first: an exact match
+    if (kw in db[mod]):
+      find_kw = [kw]
+    # in non-standard modules: match the beginning of the name
+    elif (mod in ['EMIL', 'ENVIRONMENT']):
+      find_kw = [k for k in db[mod].keys() if k.startswith(kw)]
+    # in standard modules: match the first 4 characters
+    else:
+      find_kw = [k for k in db[mod].keys() if k.startswith(kw[0:4].ljust(4))]
+      if (len(find_kw) > 0):
+        print('Keywords matching {1}{0}{2}\n'.format(kw[0:4].ljust(4), Fore.RED, Style.RESET_ALL))
+    # print description for all matching keywords found
+    if (len(find_kw) > 0):
+      for k in find_kw:
+        text = db[mod][k]['_text']
+        kw = db[mod][k]['_name']
+        print('Keyword {2}{0}{3} found for module {2}{1}{3}\n'.format(kw, mod, Fore.GREEN, Style.RESET_ALL))
+        print('{1}{0}{2}'.format(text, Fore.BLUE, Style.RESET_ALL))
+    # if the requested keyword is not found, print list of keywords
+    else:
+      print('No keyword {2}{0}{4} found for module {3}{1}{4}\n'.format(kw, mod, Fore.RED, Fore.GREEN, Style.RESET_ALL))
+      print_keywords(db[mod])
+      sys.exit(1)
+  # if no keyword requested, print description and list of keywords
+  else:
+    print('Module {1}{0}{2} found\n'.format(mod, Fore.GREEN, Style.RESET_ALL))
+    if ('_desc' in db[mod]):
+      print('{1}{0}{2}'.format(db[mod]['_desc']['_text'], Fore.BLUE, Style.RESET_ALL))
+    print_keywords(db[mod])
+# if the requested module does not exist, print list of modules
+else:
+  print('No module {1}{0}{2} found\n'.format(mod, Fore.RED, Style.RESET_ALL))
+  print_modules(db)
+  sys.exit(1)

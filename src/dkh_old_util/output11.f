@@ -49,7 +49,7 @@ c
 1001  format ('***',/A4,1X,A9,1X,I2,1X,I2,1X,I2,2X,I7)
       do 10 j=1,sscounter
 #if defined(_MOLCAS_) || defined(MOLPRO)
-        call get_dkoperators(j,termstr,term)
+        call get_dkoperators_i(j,termstr,term)
         write (unit,2001) j,termleng(j),termorder(j,1),termorder(j,2),
      *                    termorder(j,3),termstr(1:termleng(j)),
      *                    dtcoeff(j)

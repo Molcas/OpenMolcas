@@ -471,7 +471,7 @@ CONTAINS
 
       iRHS = T_pair%paras%RHS_id
       hi = T_pair%lm_max
-      CALL DSYMV('L',hi,1d0,T_matrix,TLDA,qlm_ptr(1,iRHS),1,0D0,Vff_tmp,1)
+      CALL DSYMV('L',hi,1d0,T_matrix,TLDA,qlm_ptr(:,iRHS),1,0D0,Vff_tmp,1)
 
       iLHS = T_pair%paras%LHS_id
       hi = (1+T_pair%paras%LHS_LMAX)**2

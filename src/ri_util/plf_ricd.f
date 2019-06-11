@@ -52,7 +52,7 @@ C     Call qEnter('PLF_RICD')
       iprint = nprint(irout)
 *define _DEBUG_
 #ifdef _DEBUG_
-      r1=DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,One,0)
+      r1=DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,[One],0)
       r2=DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1)
       Write (6,*) ' Sum=',r1
       Write (6,*) ' Dot=',r2

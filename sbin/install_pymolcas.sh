@@ -10,6 +10,12 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #***********************************************************************
 
+if [ `uname` = "Darwin" ] ; then
+  MD5="md5 -r"
+else
+  MD5="md5sum"
+fi
+
 # current pymolcas checksum
 if [ -z "$1" ] ; then
   pymolcas_file="Tools/pymolcas/pymolcas"
@@ -17,7 +23,7 @@ else
   pymolcas_file="$1"
 fi
 if [ -f $pymolcas_file ] ; then
-  current_checksum=`md5sum $pymolcas_file | awk '{print $1}'`
+  current_checksum=`$MD5 $pymolcas_file | awk '{print $1}'`
 else
   echo "*** $pymolcas_file does not exist"
   exit 1
@@ -32,7 +38,7 @@ orig_IFS=$IFS
 IFS=':'
 for x in $PATH ; do
   if [ -f "$x/pymolcas" ] ; then
-    l=`md5sum "$x/pymolcas" | awk '{print $1}'`
+    l=`$MD5 "$x/pymolcas" | awk '{print $1}'`
     if [ "$l" != "$current_checksum" ] ; then
       echo "*** Warning! A different pymolcas version was found at: $x"
     else
@@ -120,7 +126,7 @@ else
         cp "$pymolcas_file" "$PYMOLCAS/pymolcas"
         chmod +x "$PYMOLCAS/pymolcas"
         # check again the driver was installed
-        l=`md5sum "$x/pymolcas" | awk '{print $1}'`
+        l=`$MD5 "$x/pymolcas" | awk '{print $1}'`
         if [ "$l" = "$current_checksum" -a -x "$PYMOLCAS/pymolcas" ] ; then
           echo "The installation of pymolcas was successful"
         else

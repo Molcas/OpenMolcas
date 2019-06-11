@@ -28,6 +28,7 @@
       Character*20 PriLbl
       Logical Debug,Exec,Orig,NoCntr
       Data    Debug/.false./
+      Dimension idum(1)
 *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -109,8 +110,9 @@
           iOpt2=2
           iSyLbl=0
           Do iComp=1,6
-            Call iRdOne(iRc,iOpt1,Label,iComp,nInts,iSyLbl)
+            Call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
             If ( iRc.eq.0 ) Then
+              nInts=idum(1)
               Call RdOne(iRc,iOpt2,Label,iComp,Temp,iSyLbl)
               X=Temp(nInts+1)
               Y=Temp(nInts+2)
@@ -143,7 +145,8 @@
           Alpha=-ComVal(2,4,1,iComp)
 *
           If (iComp.ne.6) Then
-             Call iRdOne(iRc,iOpt1,Label,iComp,nInts,iSyLbl)
+             Call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
+             nInts=idum(1)
              If ( iRc.ne.0 ) Goto 991
              Call RdOne(iRc,iOpt2,Label,iComp,Temp,iSyLbl)
              If ( iRc.ne.0 ) Goto 991
@@ -154,7 +157,8 @@
 *             Note that we have not explicit storage of the ZZ term!
 *             It has to be computed as -XX-YY.
              jComp=1  ! the XX-term
-             Call iRdOne(iRc,iOpt1,Label,jComp,nInts,iSyLbl)
+             Call iRdOne(iRc,iOpt1,Label,jComp,idum,iSyLbl)
+             nInts=idum(1)
              If ( iRc.ne.0 ) Goto 991
              Call RdOne(iRc,iOpt2,Label,jComp,Temp,iSyLbl)
              If ( iRc.ne.0 ) Goto 991
@@ -163,7 +167,8 @@
              H0(nInts+4)=H0(nInts+4)+Alpha*Temp(nInts+4)
 *
              jComp=4  ! the YY-term
-             Call iRdOne(iRc,iOpt1,Label,jComp,nInts,iSyLbl)
+             Call iRdOne(iRc,iOpt1,Label,jComp,idum,iSyLbl)
+             nInts=idum(1)
              If ( iRc.ne.0 ) Goto 991
              Call RdOne(iRc,iOpt2,Label,jComp,Temp,iSyLbl)
              If ( iRc.ne.0 ) Goto 991

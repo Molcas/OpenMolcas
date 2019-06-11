@@ -17,14 +17,16 @@
      &                NRS1(mxSym),NRS2(mxSym),NRS3(mxSym),nSkipX(MxSym),
      &                NTOT,NTOT1,NTOT2,NFROT,NDELT,NRS1T,NRS2T,NRS3T,
      &                NACTEL,ISPIN,LSYM,NCONF,NHOLE1,NELEC3,NSEL,
-     &                NTOTSP,INVEC,NALTER,MALTER(MAXALTER,3)
+     &                NTOTSP,INVEC,NALTER,MALTER(MAXALTER,3),
+     &                NCRVEC,LCRVEC,NCRPROJ,LCRPROJ
       COMMON/GENERAL/ SXDAMP,NSYM,MUL,
      &                NBAS,NFRO,NORB,NDEL,
      &                NISH,NASH,NSSH,
      &                NRS1,NRS2,NRS3,nSkipX,
      &                NTOT,NTOT1,NTOT2,NFROT,NDELT,NRS1T,NRS2T,NRS3T,
      &                NACTEL,ISPIN,LSYM,NCONF,NHOLE1,NELEC3,NSEL,
-     &                NTOTSP,INVEC,NALTER,MALTER
+     &                NTOTSP,INVEC,NALTER,MALTER,
+     &                NCRVEC,LCRVEC,NCRPROJ,LCRPROJ
 *
 *     common logical unit numbers
 *

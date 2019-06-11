@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine Chk_Numerical(LuSpool,Numerical)
       Implicit Real*8 (A-H,O-Z)
-      Logical Numerical,Is_Root_Set, DNG, KeepOld
+      Logical Numerical,Is_Root_Set, DNG, KeepOld, Found
       Character KWord*180, Key*180, Get_Ln*180
       External Get_Ln
 #include "nac.fh"
@@ -48,7 +48,7 @@
       End If
 *
       Rewind(LuSpool)
-      Call RdNLst_(LuSpool,'ALASKA',No_Input_OK)
+      Call RdNLst(LuSpool,'ALASKA')
       KWord=' &ALASKA'
  998  Read (LuSpool,'(A72)',END=997,ERR=988) Key
       KWord = Key
@@ -58,12 +58,12 @@
          Goto 998
       Else If (KWord(1:4) .eq. 'ROOT') Then
          Key = Get_Ln(LuSpool)
-         Call Get_I(1,iRoot,1)
+         Call Get_I1(1,iRoot)
          DefRoot = .False.
          Goto 998
       Else If (KWord(1:4) .eq. 'DELT') Then
          Key = Get_Ln(LuSpool)
-         Call Get_F(1,rDelta,1)
+         Call Get_F1(1,rDelta)
          Goto 998
       Else If (KWord(1:4) .eq. 'NAC ') Then
          Key = Get_Ln(LuSpool)
@@ -96,8 +96,14 @@
 *
 * Put on the runfile which root and delta to use
 *
-      Call Put_iScalar('NumGradRoot',iRoot)
-      Call Put_iScalar('Relax CASSCF root',iroot)
+      Call qpg_iScalar('Relax CASSCF root',Found)
+      If (Found) Then
+         Call Get_iScalar('Relax CASSCF root',iRoot0)
+         Call Put_iScalar('NumGradRoot',iRoot)
+         Call Put_iScalar('Relax CASSCF root',iRoot)
+      Else
+         iRoot0=0
+      End If
       Call Put_dScalar('Numerical Gradient rDelta',rDelta)
 *
 * These are really input options for numerical_gradient

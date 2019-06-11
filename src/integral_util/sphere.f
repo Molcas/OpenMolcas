@@ -58,7 +58,7 @@
          nSphr = nSphr + (iAng*(iAng+1)/2 + iAng + 1)**2
       End Do
       Call mma_allocate(RSph,nSphr,label='RSph')
-      Call mma_allocate( ipSph,[0,lMax],label='iSph')
+      Call mma_allocate(ipSph,[0,lMax],label='iSph')
       ipSph(0)=1
       Do 2 iAng = 0, lMax-1
          ipSph(iAng+1) = ipSph(iAng) + (iAng*(iAng+1)/2 + iAng + 1)**2
@@ -167,7 +167,7 @@
 *
 *     Call QEnter('Recurse')
 *
-      call dcopy_((n2+1)*(n2+2)/2,Zero,0,P2,1)
+      call dcopy_((n2+1)*(n2+2)/2,[Zero],0,P2,1)
 *
 *---- Use recurrence relation for Lagrange polynomials
 *
@@ -226,8 +226,8 @@
       Do m = 0, n-1
          m_p=m+1
          m_m=-(m+1)
-         call dcopy_((n+1)*(n+2)/2,Zero,0,P0(1,m_p),1)
-         call dcopy_((n+1)*(n+2)/2,Zero,0,P0(1,m_m),1)
+         call dcopy_((n+1)*(n+2)/2,[Zero],0,P0(1,m_p),1)
+         call dcopy_((n+1)*(n+2)/2,[Zero],0,P0(1,m_m),1)
          Fact=One/(Two*Sqrt(DBLE(n*(n+1)-m*(m-1))))
 *
 *        The spherical harmonic is a two component (real,imaginary)
@@ -304,7 +304,7 @@
 *     Call QEnter('Contaminant')
 *
       Do m = -l, l
-         call dcopy_((i+1)*(i+2)/2,Zero,0,P0(1,m),1)
+         call dcopy_((i+1)*(i+2)/2,[Zero],0,P0(1,m),1)
          Do ix = j, 0, -1
             Do iy = j-ix, 0, -1
                iz = j-ix-iy

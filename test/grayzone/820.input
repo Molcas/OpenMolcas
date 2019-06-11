@@ -1,15 +1,14 @@
-*$ this file belongs to the Molcas repository $
 *-------------------------------------------------------------------------------
 * Molecule: C2
-* Basis: cc-pVDZ   
-* Symmetry: C1  
+* Basis: cc-pVDZ
+* Symmetry: C1
 * Features tested SEWARD, RASSCF, SCF
 * Responsible person: F. Aquilante 090511
-* Comments: Test of Constrained BLYP                 
+* Comments: Test of Constrained BLYP
 *-------------------------------------------------------------------------------
 
  &SEWARD &END
-Title 
+Title
  C2 molecule
 
 Basis Set
@@ -28,7 +27,7 @@ Title
 Spin
  1
 Nactel
- 6 0 0 
+ 6 0 0
 Inactive
  3
 Ras2
@@ -40,7 +39,7 @@ Title
  C2 singlet Constrained
 UHF
 Occupied
- 6 
+ 6
  6
 KSDFT
 blyp
@@ -49,7 +48,7 @@ CONStraints
  1 -1 -1
 SAVEraged
 AddCorrelation
-pbe 
+pbe
 End Of Input
 
 >>FILE checkfile

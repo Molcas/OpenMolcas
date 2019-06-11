@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2013, Ignacio Fdez. Galvan                             *
+* Copyright (C) 2013,2018, Ignacio Fdez. Galvan                        *
 ************************************************************************
 *  Find_RFO_Root
 *
@@ -100,6 +100,13 @@
         ELSE
           xx1=x3
           yy1=y3
+        END IF
+*       If the middle point is shorter than the "short" step, something went
+*       wrong, start again from 1 (signal with -1),
+*       maybe now we will get a better eigenvalue to start with
+        IF ((y3 .LT. y2) .AND. (y3 .GT. Val)) THEN
+          x3 = -One
+          RETURN
         END IF
         new=xx1+(Val-yy1)/(yy2-yy1)*(xx2-xx1)
         IF ((new.LE.xx1).OR.(new.GE.xx2)) new=Half*(xx1+xx2)

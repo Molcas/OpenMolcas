@@ -61,7 +61,7 @@
       Call qEnter('Ovlp')
 
       zero = 0.0d0
-      Call dCopy_(nAc*nAc,zero,0,Smat,1)
+      Call dCopy_(nAc*nAc,[zero],0,Smat,1)
       Call GetMem('OAO','Allo','Real',lOAO,nTot1)
 
 * read the overlap integrals

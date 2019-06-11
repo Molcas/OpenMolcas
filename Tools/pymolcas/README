@@ -7,7 +7,7 @@ What is pymolcas?
 
 pymolcas is the working name (it can, and maybe it should be changed) of a
 reimplementation of the main Molcas driver and EMIL interpreter. It is written
-in python (3.4 or later), initially by Ignacio Fdez. Galván.
+in python (2.7/3.4 or later), initially by Ignacio Fdez. Galván.
 
 
 Why a new driver?
@@ -51,6 +51,7 @@ molcas_wrapper.py
   program). 
 
 molcas_aux.py
+simpleeval.py
 tee.py
   Some auxiliary functions.
 
@@ -66,6 +67,9 @@ emil_parse.py
 
 python_parse.py
   Wraps an input python file in a class of "abstract_flow.py".
+
+check_test.py
+  Checks the results of a test file against the reference.
 
 export.py
 pack.py

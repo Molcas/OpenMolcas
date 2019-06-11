@@ -35,8 +35,6 @@
 *>
 *> @param[in]  Label Name of field
 *> @param[out] Data  Data to get from runfile
-*>
-*> @copyright All rights reserved by Lund University
 ************************************************************************
       Subroutine Peek_dScalar(Label,Data)
       Implicit None

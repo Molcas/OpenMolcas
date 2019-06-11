@@ -1,0 +1,31 @@
+/***********************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+***********************************************************************/
+#include "aoints.inc"
+#include "choints.inc"
+#include "rysfiles.inc"
+#include "rasscffiles.inc"
+#include "orbitals.inc"
+#include "wfnfiles.inc"
+#include "moldenfiles.inc"
+#include "espffiles.inc"
+#include "geodata.inc"
+ (prgm) "$MOLCAS/bin/dmrgscf.exe"  executable
+ (file)  DMRGINP "$WorkDir/$Project."Dmrgscf.Input     rwi
+ (file)  DMRGSINP "$WorkDir/$Project."Dmrgscf.Input     rwi
+ (file)  JOBOLD   "$WorkDir/$Project$SubProject."JobOld     ro
+ (file)  JOBIPH   "$WorkDir/$Project$SubProject."JobIph     rw
+ (file)  NQGRID   "$WorkDir/$Project."NqGrid    rw
+ (file)  GV.off   "$WorkDir/$Project$SubProject."GV.off    rw
+ (file)  GV1.off   "$WorkDir/$Project$SubProject."GV1.off    rw
+ (file)  TRAONE  "$WorkDir/$Project."TraOne       rw*st
+ (file)  FCIDMP  "$WorkDir/$Project."FciDmp       rw*sti
+ (file)  RASWFN   "$WorkDir/$Project$SubProject."dmrgscf.h5   rws
+

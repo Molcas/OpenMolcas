@@ -46,8 +46,8 @@
 *     COEN WANTED IT AS A BLOCKED MATRIX, SO HERE THEY COME...
       ip1=ipC
       ip2=1
-      call dcopy_(nTOT**2,0.0d0,0,CA,1)
-      call dcopy_(nTOT**2,0.0d0,0,CB,1)
+      call dcopy_(nTOT**2,[0.0d0],0,CA,1)
+      call dcopy_(nTOT**2,[0.0d0],0,CB,1)
       Do iS=1,nSym
          Do i=1,nbas(is)
             call dcopy_(nbas(is),Work(ip1),1,CA(ip2),1)
@@ -64,15 +64,15 @@
        If ( iOrbTyp.ne.2 ) then
 *        SIMPLY READ OCC NOS AS ALPHAS AND ZERO BETA OCC NOS
          iad15=IADR15(2)
-         Call DDAFile(JOBIPH,0,DUM,NTOT2,IAD15)
+         Call DDAFile(JOBIPH,0,[0.0d0],NTOT2,IAD15)
          CALL DDAFILE(JOBIPH,2,OCCA,NTOT,IAD15)
-         call dcopy_(nTOT,0.0d0,0,OCCB,1)
+         call dcopy_(nTOT,[0.0d0],0,OCCB,1)
        end if
 * Canonical...
        If ( iOrbTyp.eq.2 ) then
 *        SIMPLY ZERO ALPHA and BETA OCC NOS
-         call dcopy_(nTOT,0.0d0,0,OCCA,1)
-         call dcopy_(nTOT,0.0d0,0,OCCB,1)
+         call dcopy_(nTOT,[0.0d0],0,OCCA,1)
+         call dcopy_(nTOT,[0.0d0],0,OCCB,1)
        end if
 *
          IF (IFVB.NE.0)THEN
@@ -137,8 +137,8 @@ c           Also count no of active electrons ...
       Do i=1,i_root
         Call DDAFile(JOBIPH,2,Work(ipDS),NACPAR,IAD15)
         Call DDAFile(JOBIPH,2,Work(ipDT),NACPAR,IAD15)
-        Call DDAFile(JOBIPH,0,Dum,NACPR2,IAD15)
-        Call DDAFile(JOBIPH,0,dum,NACPR2,IAD15)
+        Call DDAFile(JOBIPH,0,[0.0d0],NACPR2,IAD15)
+        Call DDAFile(JOBIPH,0,[0.0d0],NACPR2,IAD15)
       End Do
 *
 *     CREATE SPIN DENSITIES
@@ -153,8 +153,8 @@ c           Also count no of active electrons ...
 *
 *      FIRST ALPHA
 *
-      call dcopy_(nac**2,0.0d0,0,Work(ipUnity),1)
-      call dcopy_(nac,1.0d0,0,Work(ipUnity),nac+1)
+      call dcopy_(nac**2,[0.0d0],0,Work(ipUnity),1)
+      call dcopy_(nac,[1.0d0],0,Work(ipUnity),nac+1)
       Call Jacob(Work(ipDA),Work(ipUNITY),NAC,NAC)
 *
 * TRANSFORM THE ACTIVE ORBITALS
@@ -183,8 +183,8 @@ c           Also count no of active electrons ...
       i=0
       ii=0
       Do iS=1,nSYM
-         call dcopy_(nBAS(is),0.0d0,0,OCCA(ip),1)
-         call dcopy_((nFro(is)+nish(is)),1.0d0,0,OCCA(ip),1)
+         call dcopy_(nBAS(is),[0.0d0],0,OCCA(ip),1)
+         call dcopy_((nFro(is)+nish(is)),[1.0d0],0,OCCA(ip),1)
          ip=ip+nFro(is)+nish(is)
          Do iA=1,nash(is)
             ii=ii+1
@@ -197,8 +197,8 @@ c           Also count no of active electrons ...
 *
 *      THEN ONCE AGAIN FOR BETA....
 *
-      call dcopy_(nac**2,0.0d0,0,Work(ipUnity),1)
-      call dcopy_(nac,1.0d0,0,Work(ipUnity),nac+1)
+      call dcopy_(nac**2,[0.0d0],0,Work(ipUnity),1)
+      call dcopy_(nac,[1.0d0],0,Work(ipUnity),nac+1)
 *
       Call Jacob(Work(ipDB),Work(ipUNITY),NAC,NAC)
 *
@@ -223,8 +223,8 @@ c           Also count no of active electrons ...
       i=0
       ii=0
       Do iS=1,nSYM
-       call dcopy_(nBAS(is),0.0d0,0,OCCB(ip),1)
-       call dcopy_((nFro(is)+nish(is)),1.0d0,0,OCCB(ip),1)
+       call dcopy_(nBAS(is),[0.0d0],0,OCCB(ip),1)
+       call dcopy_((nFro(is)+nish(is)),[1.0d0],0,OCCB(ip),1)
        ip=ip+nFro(is)+nish(is)
        Do iA=1,nash(is)
         ii=ii+1

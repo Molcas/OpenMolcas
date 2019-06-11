@@ -119,8 +119,8 @@
           ELSE
             LROW = NACOB
           END IF
-          Call iCOPY(NSTFTP(ITYP)*LROW,0,0,iWork(KSTSTM(ITYP,1)),1)
-          Call iCOPY(NSTFTP(ITYP)*LROW,0,0,iWork(KSTSTM(ITYP,2)),1)
+          Call iCOPY(NSTFTP(ITYP)*LROW,[0],0,iWork(KSTSTM(ITYP,1)),1)
+          Call iCOPY(NSTFTP(ITYP)*LROW,[0],0,iWork(KSTSTM(ITYP,2)),1)
           CALL ANNSTR(iWork(KOCSTR(ITYP)),NSTFTP(ITYP),NSTFTP(JTYP),
      &                NELEC(ITYP),NACOB,iWork(KZ(JTYP)),
      &                iwork(KSTREO(JTYP)),LROW,0,ISGSTI,ISGSTO,

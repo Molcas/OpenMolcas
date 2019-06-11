@@ -47,7 +47,7 @@
 ************************************************************************
 *                                                                      *
 *     Subroutine Scheme                                                *
-*          Inizialization                                              *
+*          Initialization                                              *
 *          Retrieve of the LoProp density matrix from the RunFile      *
 *          Loop over atoms i                                           *
 *            generate submatrix SUBDNAO from DS(i)                     *
@@ -60,10 +60,10 @@
 *            diagonalize SUBDNAO                                       *
 *            if (eigenvalues > threshold) => NBO                       *
 *          if NBO-OCCN + CORE-OCCN + LP-OCCN << electrons              *
-*            search for sinlge occupied orbitals                       *
+*            search for single occupied orbitals                       *
 *            same as core orbitals, with thr_SO                        *
 *            or                                                        *
-*            (search for three-centers bonds)                          *
+*            (search for three-center bonds)                           *
 *          print out                                                   *
 *                                                                      *
 ************************************************************************
@@ -77,7 +77,7 @@
       DIMENSION NBAS(*)
 
       Integer NBAST, tNUC, tRealNUC, NPBonds, AtomA, AtomB
-      CHARACTER*(LENIN4) NAME(*)
+      CHARACTER*(LENIN8) NAME(*)
       Integer ICNT(MXBAS), nStab(MxAtom)
       CHARACTER*(LENIN) CNAME(MXATOM)
       Character*(LENIN4) LblCnt4(MxAtom)
@@ -251,24 +251,14 @@ c      EndDo
       Call RecPrt(' Charges',' ',Work(ipCM),tRealNUC,1)
 #endif
 
-*                                                                      *
+*
 *     Transform charges to masses (C=12)
 *
       ii = ipCM
       Call GetMem('ANr','Allo','Inte',ipANr,tRealNUC)
       jj = ipANr
       Do 110 isAtom = 1, tRealNUC
-         ind = Int(Work(ii))
-         If (ind.le.0) Then
-*        If (ind.eq.0) Then
-*           Work(ii) = Zero
-*        Else If (ind.eq.-1) Then
-*           Work(ii) = 1.0D99
-            Work(ii) = 1.0D-10
-         Else
-            Work(ii) = rmass(ind)
-         End If
-         iWork(jj)=ind
+         iWork(jj)=Int(Work(ii))
          ii = ii + 1
          jj = jj + 1
 110   Continue
@@ -293,7 +283,7 @@ c      EndDo
       Call IZero(iWork(ipBondAtomA), NPBonds)
       Call IZero(iWork(ipBondAtomB), NPBonds)
 
-*                                                                      *
+*
 *----------------------------------------------------------------------*
 *     In case of symmetry we need the desymmetrization matrix          *
 *----------------------------------------------------------------------*
@@ -318,7 +308,7 @@ c      EndDo
       End If
 *
 *----------------------------------------------------------------------*
-*     Pick up index array of which center a basis function belongs to. *
+*     Pick up index array of which center a basis function belongs to  *
 *----------------------------------------------------------------------*
 *
       Call Allocate_iWork(ip_center,NBAST)
@@ -354,7 +344,7 @@ c      EndDo
 #endif
 *
 *----------------------------------------------------------------------*
-*     Allocation and Inizialization of matrices                        *
+*     Allocation and Initialization of matrices                        *
 *----------------------------------------------------------------------*
 *
       Call Allocate_Work(ipS    , (NBAST2))
@@ -403,7 +393,7 @@ c      EndDo
 #endif
 *
 *----------------------------------------------------------------------*
-*    Overlap matrix is retrieved in matrix form.                       *
+*    Overlap matrix is retrieved in matrix form                        *
 *----------------------------------------------------------------------*
 *
       IB=0
@@ -727,21 +717,15 @@ c       Call Get_iScalar('nSym',nSym)
 *
 *---- Diagonalization
 *
-           Call Allocate_Work(ipSubScr1,  nBasAtoms)
-           Call Allocate_Work(ipSubScr2,  nBasAtoms)
-
            Call xEigen(1,nBasAtoms,nBasAtoms,work(ipSubDNAO),
      &                 Work(ipSubVal),Work(ipSubIVal),Work(ipSubVec),
-     &                 Work(ipSubScr1),Work(ipSubScr2),iErr)
+     &                 iErr)
 
            If (iErr.ne.0) Then
                Write(6,*) 'Something went wrong when diagonalizing.'
                Write(6,*) 'NBO analysis cannot be finished, sorry.'
                Return
            End If
-
-           Call Free_Work(ipSubScr1)
-           Call Free_Work(ipSubScr2)
 
 #ifdef _DEBUG_
            Write (6,*)
@@ -796,7 +780,7 @@ c       Call Get_iScalar('nSym',nSym)
 #endif
 *
 *----------------------------------------------------------------------*
-*     Now for the real thing: NBO generation.                          *
+*     Now for the real thing: NBO generation                           *
 *----------------------------------------------------------------------*
 *
 *----------------------------------------------------------------------*
@@ -923,21 +907,15 @@ c       Call Get_iScalar('nSym',nSym)
 *
 *---- Diagonalization
 *
-           Call Allocate_Work(ipSubScr1,  nBasAtoms)
-           Call Allocate_Work(ipSubScr2,  nBasAtoms)
-
            Call xEigen(1,nBasAtoms,nBasAtoms,work(ipSubDNAO),
      &                 Work(ipSubVal),Work(ipSubIVal),Work(ipSubVec),
-     &                 Work(ipSubScr1),Work(ipSubScr2),iErr)
+     &                 iErr)
 
            If (iErr.ne.0) Then
                Write(6,*) 'Something went wrong when diagonalizing.'
                Write(6,*) 'NBO analysis cannot be finished, sorry.'
                Return
            End If
-
-           Call Free_Work(ipSubScr1)
-           Call Free_Work(ipSubScr2)
 
 #ifdef _DEBUG_
            Write (6,*)
@@ -1015,8 +993,8 @@ c       Call Get_iScalar('nSym',nSym)
 
 *
 *----------------------------------------------------------------------*
-*     Second: we search for three centres bonds. This part of the code *
-*     is quite sperimental. If the result is inconsistent, it will be  *
+*     Second: we search for three centre bonds. This part of the code  *
+*     is quite experimental. If the result is inconsistent, it will be *
 *     ignored.                                                         *
 *----------------------------------------------------------------------*
 *
@@ -1034,7 +1012,7 @@ c       Call Get_iScalar('nSym',nSym)
        End Do
 *
 *----------------------------------------------------------------------*
-*     Creation of the three centres bond vector and other memory stuff *
+*     Creation of the three centre bond vector and other memory stuff  *
 *     + 100 added to stay on the safe side to avoid memory problems    *
 *----------------------------------------------------------------------*
 *
@@ -1136,21 +1114,15 @@ c       Call Get_iScalar('nSym',nSym)
 *
 *---- Diagonalization
 *
-           Call Allocate_Work(ipSubScr1,  nBasAtoms)
-           Call Allocate_Work(ipSubScr2,  nBasAtoms)
-
            Call xEigen(1,nBasAtoms,nBasAtoms,work(ipSubDNAO),
      &                 Work(ipSubVal),Work(ipSubIVal),Work(ipSubVec),
-     &                 Work(ipSubScr1),Work(ipSubScr2),iErr)
+     &                 iErr)
 
            If (iErr.ne.0) Then
                Write(6,*) 'Something went wrong when diagonalizing.'
                Write(6,*) 'NBO analysis cannot be finished, sorry.'
                Return
            End If
-
-           Call Free_Work(ipSubScr1)
-           Call Free_Work(ipSubScr2)
 
 #ifdef _DEBUG_
            Write (6,*)
@@ -1217,7 +1189,7 @@ c       Call Get_iScalar('nSym',nSym)
       End If
 *
 *----------------------------------------------------------------------*
-*     Third: if no bond hasn't been found, but it should, we do        *
+*     Third: if no bond has been found, but it should, we do           *
 *     EVERYTHING from the beginning, with a lower threshold for lone   *
 *     pairs.                                                           *
 *----------------------------------------------------------------------*
@@ -1234,8 +1206,8 @@ c       Call Get_iScalar('nSym',nSym)
       Call Free_Work(ipDS_Orig)
 *
 *----------------------------------------------------------------------*
-*     Forth: we look for single occupied orbitals on each atom.        *
-*     This part of the code is quite sperimental, so if it will give   *
+*     Fourth: we look for single occupied orbitals on each atom.       *
+*     This part of the code is quite experimental, so if it will give  *
 *     strange results, they will simply be ignored.                    *
 *----------------------------------------------------------------------*
 *
@@ -1288,7 +1260,7 @@ c       Call Get_iScalar('nSym',nSym)
 
           Do MY = 1, NBAST
            AtomA=iWork(ip_center+MY-1)
-*          If (ICNT(MY).le.0) Go To 73   ! skip pseudo center
+*          If (ICNT(MY).le.0) Go To 73 ! skip pseudo center
            If (AtomA.ne.IAtom) Go To 73 ! we want just one atom a time
            Do NY = 1, NBAST
             AtomB=iWork(ip_center+NY-1)
@@ -1313,22 +1285,15 @@ c       Call Get_iScalar('nSym',nSym)
 *
 *---- Diagonalization
 *
-           Call Allocate_Work(ipSubScr1,  nBasAtoms)
-           Call Allocate_Work(ipSubScr2,  nBasAtoms)
-
            Call xEigen(1,nBasAtoms,nBasAtoms,work(ipSubDNAO),
      &                 Work(ipSubVal),Work(ipSubIVal),Work(ipSubVec),
-     &                 Work(ipSubScr1),Work(ipSubScr2),iErr)
+     &                 iErr)
 
            If (iErr.ne.0) Then
                Write(6,*) 'Something went wrong when diagonalizing.'
                Write(6,*) 'NBO analysis cannot be finished, sorry.'
                Return
            End If
-
-           Call Free_Work(ipSubScr1)
-           Call Free_Work(ipSubScr2)
-
 
 #ifdef _DEBUG_
            Write (6,*)
@@ -1627,7 +1592,7 @@ c       Call Get_iScalar('nSym',nSym)
             iWork(ipGood+iFoundOrb-1) = I
             Work(ipEiVal+iFoundOrb-1) = Work(ipSubVal+I-1)
 *
-*----It shouldn't be necessary, but in same cases (like radicals) a bit
+*----It shouldn't be necessary, but in some cases (like radicals) a bit
 *----more than 2 electrons are found in core or lone pair orbitals. This
 *----way everything comes out cleaner. Possibly I'll try to remove this
 *----later.

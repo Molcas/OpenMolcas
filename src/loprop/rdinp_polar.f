@@ -113,7 +113,7 @@ C8000 Continue
 *>>>>>>>>>>>>> DELT <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  8002 Continue
       Key = Get_Ln(LuSpool)
-      Call Get_F(1,Delta,1)
+      Call Get_F1(1,Delta)
       GoTo 999
 *
 *>>>>>>>>>>>>> EXPA <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -141,14 +141,14 @@ C8000 Continue
 * Read max multipole level for output in the MpProp file
  8004 Continue
       Key = Get_Ln(LuSpool)
-      Call Get_I(1,MpProp_Level,1)
+      Call Get_I1(1,MpProp_Level)
       GoTo 999
 *
 *>>>>>>>>>>>>> BOND <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 * Read max bond length - all bonds longer than this will be ignored
  8005 Continue
       Key = Get_Ln(LuSpool)
-      Call Get_F(1,Bond_Threshold,1)
+      Call Get_F1(1,Bond_Threshold)
       GoTo 999
 *
 *>>>>>>>>>>>>> PLOT <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -162,7 +162,7 @@ C8000 Continue
 * Read print level
  8007 Continue
       Key = Get_Ln(LuSpool)
-      Call Get_I(1,iPrint,1)
+      Call Get_I1(1,iPrint)
       GoTo 999
 *
 *>>>>>>>>>>>>>> USER   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -189,7 +189,7 @@ C8000 Continue
       SubtractDen=.True.
       NoField=.True. !Only static properties allowed
       Key = Get_Ln(LuSpool)
-      Call Get_F(1,SubScale,1)
+      Call Get_F1(1,SubScale)
       GoTo 999
 *
 *>>>>>>>>>>>>> NOFI <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -217,8 +217,8 @@ C8000 Continue
       TDensity=.true.
       NoField=.true.
       Key=Get_Ln(LuSpool)
-      Call Get_I(1,nStateI,1)
-      Call Get_I(2,nStateF,1)
+      Call Get_I1(1,nStateI)
+      Call Get_I1(2,nStateF)
       Go To 999
 
 *
@@ -253,10 +253,10 @@ C8000 Continue
           Call Get_F(1,dLimmo,2)
         Elseif(Line(1:4).eq.'THRE') then
           Key=Get_Ln(LuSpool)
-          Call Get_F(1,Thrs1,1)
-          Call Get_F(2,Thrs2,1)
-          Call Get_I(3,nThrs,1)
-          Call Get_F(4,ThrsMul,1)
+          Call Get_F1(1,Thrs1)
+          Call Get_F1(2,Thrs2)
+          Call Get_I1(3,nThrs)
+          Call Get_F1(4,ThrsMul)
         Elseif(Line(1:4).eq.'END ') then
           GoTo 999
         Else
@@ -279,7 +279,7 @@ C8000 Continue
 * Change the alpha in the penalty function for the
 * fluctuating charge contribution to polarisabilities
       Key = Get_Ln(LuSpool)
-      Call Get_F(1,Alpha,1)
+      Call Get_F1(1,Alpha)
       GoTo 999
 
  8016 Continue

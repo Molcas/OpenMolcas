@@ -13,7 +13,7 @@ General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License
 along with OpenMolcas. If not, see <http://www.gnu.org/licenses/>.
 
-Copyright (C) 1989-2017, The OpenMolcas Authors
+Copyright (C) 1989-2019, The OpenMolcas Authors
 
 
 NOTE: Some of the files distributed with OpenMolcas may be subject to a more
@@ -34,6 +34,7 @@ General citations
   *Comput. Mat. Sci.* **28** (2003) 222-239. DOI: [10.1016/S0927-0256(03)00109-5](https://doi.org/10.1016/S0927-0256(03)00109-5)
 
 * **Code development**:
+  *Wiley Interdiscip. Rev. Comput. Mol. Sci.* **3** (2013) 143-149. DOI: [10.1002/wcms.1117](https://doi.org/10.1002/wcms.1117);
   *Int. J. Quantum Chem.* **100** (2004) 626-635. DOI: [10.1002/qua.20166](https://doi.org/10.1002/qua.20166)
 
 
@@ -49,7 +50,9 @@ Kerstin Andersson
 János G. Ángyán  
 Francesco Aquilante  
 Jochen Autschbach  
+Jie J. Bao  
 Maria Barysz  
+Stefano Battaglia  
 Eugeniusz Bednarz  
 Nelson H. F. Beebe  
 Anders Bernhardsson  
@@ -57,19 +60,22 @@ Margareta R. A. Blomberg
 Piotr Borowski  
 Jonas Boström  
 Per Boussard  
-John Burkardt 
+John Burkardt  
 Yannick Carissan  
 Liviu Chibotaru  
 Christophe Chipot  
-Aron Cohen 
+Aron Cohen  
 David L. Cooper  
 Maurizio Cossi  
+Joel Creutzberg  
 Oleh Danyliv  
 Mickaël G. Delcey  
 Ajitha Devarajan  
 Luca De Vico  
 Michael Diedenhofen  
+Sijia S. Dong  
 Thomas Dresselhaus  
+Daniel Fairhead  
 Ignacio Fdez. Galván  
 Nicolas Ferré  
 Timo Fleig  
@@ -78,8 +84,10 @@ Luis Manuel Frutos
 Markus P. Fülscher  
 Alexander Gaenko  
 Laura Gagliardi  
+Walter Gautschi  
 Giovanni Ghigo  
 Coen de Graaf  
+Gene H. Golub  
 Sergey Gusarov  
 Daniel Hagberg  
 Jun-ya Hasegawa  
@@ -87,6 +95,7 @@ José Manuel Hermida-Ramón
 Bernd Artur Heß  
 Asbjørn Holt  
 Chad E. Hoyer  
+Denis Jelovina  
 Marcus Johansson  
 Erik Källman  
 Gunnar Karlström  
@@ -108,6 +117,7 @@ Thomas Müller
 Takahito Nakajima  
 Naoki Nakatani  
 Pavel Neogrády  
+Jesper Norell  
 Anders Öhrn  
 Jeppe Olsen  
 Markus Oppel  
@@ -134,6 +144,7 @@ Luis Seijo
 Luis Serrano-Andrés  
 Kamal Sharkas  
 Grigory A. Shamov  
+Prachi Sharma  
 Per E. M. Siegbahn  
 Pär Söderhjelm  
 Lasse Kragh Sørensen  
@@ -162,3 +173,5 @@ Alexander Wolf
 Sebastian Wouters  
 Felipe Zapata  
 Yan Zhao  
+J. Patrick Zobel  
+

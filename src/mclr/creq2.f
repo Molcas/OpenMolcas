@@ -29,7 +29,7 @@
 *      Q = (pj|kl)d
 *       pi         ijkl
 *
-       call dcopy_(ndens2,0.0d0,0,Q,1)
+       call dcopy_(ndens2,[0.0d0],0,Q,1)
 *
        Do iS=1,nSym
           ipS=iEOr(is-1,idsym-1)+1

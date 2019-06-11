@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE TRACI_RPT2(ISTART,NDIM,XMAT,LSYM,NCI,CI)
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION XMAT(NDIM,NDIM)
+      DIMENSION XMAT(NDIM,NDIM),CI(*)
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
 
@@ -21,7 +21,7 @@
       CALL DCOPY_(NDIM2,XMAT,1,WORK(LXSAV),1)
       CALL GETMEM('TVEC','ALLO','REAL',LTVEC,NDIM)
       CALL GETMEM('SGM','ALLO','REAL',LSGM,NCI)
-      CALL DCOPY_(NCI,0.0D0,0,WORK(LSGM),1)
+      CALL DCOPY_(NCI,[0.0D0],0,WORK(LSGM),1)
 
       DO 100 J=1,NDIM
         FACT=1.0D0/XMAT(J,J)

@@ -18,9 +18,13 @@
 *             September '90                                            *
 ************************************************************************
       use vRys_RW
+      use Leg_RW
       Implicit Real*8 (A-H,O-Z)
 #include "stdalloc.fh"
 *
+#ifdef _RYS_SCRATCH_
+      Call UnSetAux()
+#endif
       If (.Not.Allocated(iHerW2)) Return
       Call mma_deallocate(iHerW2)
       Call mma_deallocate(iHerR2)

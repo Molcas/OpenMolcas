@@ -52,7 +52,7 @@
       CALL mma_allocate(W,nAt,label='W')
 *
 *---- By default, all weights are 1
-      call dcopy_(nAt,One,0,W,1)
+      call dcopy_(nAt,[One],0,W,1)
 *
       IF (Align_Weights(1:4).EQ.'MASS') Then
 *---- Set the weights to the mass of each atom
@@ -60,7 +60,7 @@
         DO i=1,nCnttp
           IF (.NOT.(pChrg(i).OR.FragCnttp(i).OR.AuxCnttp(i))) THEN
             DO iCnt=1,nCntr(i)
-              W(j)=rmass(iAtmNr(i))/UTOAU
+              W(j)=CntMass(i)/UTOAU
               j=j+1
             END DO
           END IF
@@ -134,6 +134,7 @@
         END IF
         CALL RecPrt('Weights used for alignment and distance',' ',
      &              W,nAt,1)
+        WRITE(6,*)
       END IF
 *
 *---- Store weights in the runfile too

@@ -1,5 +1,4 @@
 #/bin/sh
-# $ this file belongs to the Molcas repository $
 export Project=Weigend_RIJ_TestSet
 export Home=$PWD
 #

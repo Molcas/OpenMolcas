@@ -42,6 +42,18 @@
 #include "detdim.fh"
 #include "spinfo_mclr.fh"
 *
+      CALL CNHCNM_INTERNAL(SCR)
+      RETURN
+c Avoid unused argument warnings
+      IF (.FALSE.) CALL Unused_integer(NRCSF)
+*
+*     This is to allow type punning without an explicit interface
+      CONTAINS
+      SUBROUTINE CNHCNM_INTERNAL(SCR)
+      USE ISO_C_BINDING
+      REAL*8, TARGET :: SCR(*)
+      INTEGER, POINTER :: iSCRl(:),iSCRr(:)
+*
       NTERMS = 0
       NDIF0 = 0
       NDIF1 = 0
@@ -67,9 +79,10 @@
 *
 *. LHR
       IILB = 1
+      CALL C_F_POINTER(C_LOC(SCR(KLCONF)),iSCRl,[1])
+      CALL C_F_POINTER(C_LOC(SCR(KRCONF)),iSCRr,[1])
       DO 200 ICNL = 1, NLCNF
-        CALL GETCNF(SCR(KLCONF),ILTYP,ILCNF(ICNL),ICONF,IREFSM,NEL,
-     &              NTEST)
+        CALL GETCNF(iSCRl,ILTYP,ILCNF(ICNL),ICONF,IREFSM,NEL,NTEST)
         NCSFL = NCPCNT(ILTYP)
         IIRB = 1
         IF(ISYM.EQ.0) THEN
@@ -78,10 +91,9 @@
           MXR = ICNL
         END IF
         DO 190 ICNR = 1, MXR
-          CALL GETCNF(SCR(KRCONF),IRTYP,IRCNF(ICNR),ICONF,IREFSM,NEL,
-     &              NTEST)
+          CALL GETCNF(iSCRr,IRTYP,IRCNF(ICNR),ICONF,IREFSM,NEL,NTEST)
           NCSFR = NCPCNT(IRTYP)
-          CALL CNHCN2(SCR(KLCONF),ILTYP,SCR(KRCONF),IRTYP,SCR(KLPHPS),
+          CALL CNHCN2(iSCRl,ILTYP,iSCRr,IRTYP,SCR(KLPHPS),
      &               SCR(KLFREE),NEL,NAEL,NBEL,INTSPC,
      &               NINOB,ECORE,
      &               IPRODT,DTOC,NACOB,ICOMBI,PSSIGN,
@@ -124,9 +136,10 @@
   190   CONTINUE
       IILB = IILB + NCSFL
  200  CONTINUE
+      NULLIFY(iSCRl,iSCRr)
 *
 *
       RETURN
-c Avoid unused argument warnings
-      IF (.FALSE.) CALL Unused_integer(NRCSF)
+      END SUBROUTINE CNHCNM_INTERNAL
+*
       END

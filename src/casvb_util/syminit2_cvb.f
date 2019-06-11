@@ -32,6 +32,7 @@
      >  intger(norb)
       dimension ifxorb(norb),ifxstr(nfxvb),idelstr(nzrvb)
       dimension iorts(2,nort),irots(2,ndrot),izeta(nsyme)
+      dimension dum(1)
       save thresh
       data thresh/1.d-8/
 
@@ -98,7 +99,7 @@ c  Orbital conditions on IORB :
         do 200 ir=nrel,1,-1
         irel=iorbrel(ir+3+ishift)
         call mxatb_cvb(symelm(1,1,irel),b,norb,norb,norb,a)
-200     call fmove(a,b,norb*norb)
+200     call fmove_cvb(a,b,norb*norb)
 c  Everything that hasn't got eigenvalue +1 will be orthogonalised away
 c  Unsymmetric diagonalisation :
         ifail=0
@@ -116,7 +117,8 @@ c  Unsymmetric diagonalisation :
       endif
       ishift=ishift+3+nrel
 150   continue
-      if(plc_const)call rconstr_plc(iorb)
+      !if(plc_const)call rconstr_plc(iorb)
+      if(plc_const)call rconstr_plc()
       call span2_cvb(corth(1,1+nciorth),north(iorb),dum,norb,0)
       nciorth=nciorth+north(iorb)
 100   continue
@@ -239,7 +241,7 @@ c  Operate right-to-left :
           call mxattb_cvb(symelm(1,1,irel),relorb(1,1,ijrel),
      >      norb,norb,norb,a)
         endif
-1500    call fmove(a,relorb(1,1,ijrel),norb*norb)
+1500    call fmove_cvb(a,relorb(1,1,ijrel),norb*norb)
       endif
 1400  continue
 1200  continue

@@ -60,7 +60,7 @@
 *
       UpMeth='RSPRFO'
 *
-      NumVal=2
+      NumVal=Min(2,nInter)
       nVStep=2
       Found=.False.
       Thr=1.0D-6
@@ -94,7 +94,7 @@
           call dcopy_(NumVal*nInter,Work(ipVec),1,Work(ipTmp),1)
           Call GetMem('Vector','Free','Real',ipVec,nInter*NumVal)
           Call GetMem('Values','Free','Real',ipVal,NumVal)
-          NumVal=NumVal+nVStep
+          NumVal=Min(NumVal+nVStep,nInter)
           Call GetMem('Vector','Allo','Real',ipVec,nInter*NumVal)
           Call GetMem('Values','Allo','Real',ipVal,NumVal)
          call dcopy_((NumVal-nVStep)*nInter,Work(ipTmp),1,Work(ipVec),1)
@@ -204,7 +204,8 @@
             Call DaXpY_(nInter,One,Work(ipNStep),1,dq,1)
             dqdq_max=DDot_(nInter,Work(ipNStep),1,Work(ipNStep),1)
 *           write (Lu,*) 'dqdq_max=',dqdq_max
-            EigVal_r=-DDot_(nInter,Work(ipNStep),1,Work(ipNGrad),1) ! Sign
+!           Sign
+            EigVal_r=-DDot_(nInter,Work(ipNStep),1,Work(ipNGrad),1)
             If (iPrint.ge.99) Then
                Call RecPrt('dq_r',' ',Work(ipNStep),1,nInter)
                Call RecPrt(' g_r',' ',Work(ipNGrad),1,nInter)

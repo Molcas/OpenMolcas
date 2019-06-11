@@ -69,7 +69,7 @@ c     Call qEnter('DrvN2')
 ************************************************************************
 *                                                                      *
       nHess = nGrad*(nGrad+1)/2
-      call dcopy_(nHess,Zero,0,Hess,1)
+      call dcopy_(nHess,[Zero],0,Hess,1)
 *
       mdc = 0
 *-----Loop over centers with the same change
@@ -194,8 +194,8 @@ c     Call qEnter('DrvN2')
                d2f_dr2= ( (ddfab*r12)   * r12**2
      &                  - (dfab*r12-fab)* Two*r12 ) / r12**4
 *
-               Call ICopy(nirrep*36,0,0,Indhss,1)
-               Call ICopy(nirrep*6,0,0,indgrd,1)
+               Call ICopy(nirrep*36,[0],0,Indhss,1)
+               Call ICopy(nirrep*6,[0],0,indgrd,1)
 *
 *          Determine which displacement in all IR's, each center is *
 *          associated with
@@ -422,8 +422,8 @@ c     Call qEnter('DrvN2')
                   d2f_dr2= ( (ddfab*r12)   * r12**2
      &                     - (dfab*r12-fab)* Two*r12) / r12**4
 *
-               Call ICopy(nirrep*36,0,0,Indhss,1)
-               Call ICopy(nirrep*6,0,0,indgrd,1)
+               Call ICopy(nirrep*36,[0],0,Indhss,1)
+               Call ICopy(nirrep*6,[0],0,indgrd,1)
 *
 *          Determine which displacement in all IR's, each center is *
 *          associated with
@@ -668,8 +668,8 @@ c     Call qEnter('DrvN2')
                   End If
                   df_dr_CD=(dfcd*r12_CD-fcd)/r12_CD**2
 *
-               Call ICopy(nirrep*36,0,0,Indhss,1)
-               Call ICopy(nirrep*6,0,0,indgrd,1)
+               Call ICopy(nirrep*36,[0],0,Indhss,1)
+               Call ICopy(nirrep*6,[0],0,indgrd,1)
 *
 *          Determine which displacement in all IR's, each center is *
 *          associated with

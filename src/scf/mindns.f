@@ -97,8 +97,8 @@
          Call NrmClc(pDR,nBT*nD,'MinDns','pDR')
 #endif
          Do iD = 1, nD
-            AMat(jRow,jRow,iD) = DDot_(nBT,pDR(1,iD),1,pDR(1,iD),1)
-            BVec(jRow,iD) = DDot_(nBT,pDR(1,iD),1,Dens(1,iD,iPsLst),1)
+            AMat(jRow,jRow,iD) = DDot_(nBT,pDR(:,iD),1,pDR(:,iD),1)
+            BVec(jRow,iD) = DDot_(nBT,pDR(:,iD),1,Dens(1,iD,iPsLst),1)
          End Do ! iD
 *
          jCol = 0
@@ -114,7 +114,7 @@
             End If
 *
             Do iD = 1, nD
-               AMat(jRow,jCol,iD) = DDot_(nBT,pDR(1,iD),1,pDC(1,iD),1)
+               AMat(jRow,jCol,iD) = DDot_(nBT,pDR(:,iD),1,pDC(:,iD),1)
                AMat(jCol,jRow,iD) = AMat(jRow,jCol,iD)
             End Do ! iD
 *
@@ -156,7 +156,7 @@
 
          Do iD = 1, nD
             XC = - XCff(iMat,iD)
-            call daxpy_(nBT,XC,pDR(1,iD),1,Dens(1,iD,iPsLst),1)
+            call daxpy_(nBT,XC,pDR(:,iD),1,Dens(1,iD,iPsLst),1)
          End Do ! iD
 *
       End Do ! iMat
@@ -228,8 +228,8 @@
       Call mma_allocate(EVal,lth ,Label='EVal')
 *
 *---- Put a unit matrix into the eigenvectors work space
-      call dcopy_(lthS,Zero,0,EVec,      1)
-      call dcopy_(lth, One, 0,EVec,lth + 1)
+      call dcopy_(lthS,[Zero],0,EVec,      1)
+      call dcopy_(lth, [One], 0,EVec,lth + 1)
 *
 *---- Copy trialangular part of AMat to work space
       ij = 1
@@ -260,7 +260,7 @@
 #endif
 *
 *---- Form the inverse
-      Call dCopy_(lDm*lth,Zero,0,AMat,1)
+      Call dCopy_(lDm*lth,[Zero],0,AMat,1)
       Do i = 1, lth
          If (EVal(i).gt.1.0d-12) Then
             AMat(i,i) = 1.0d+00/EVal(i)

@@ -651,9 +651,9 @@ c     &             * DBLE(nIrrep) ) / DBLE(LmbdR)
 *
       Call Put_dScalar('PotNuc',PotNuc)
       If (isstructure().eq.1) then
-         Call Add_Info('PotNuc',PotNuc,1,6)
+         Call Add_Info('PotNuc',[PotNuc],1,6)
       Else
-         Call Add_Info('PotNuc',PotNuc,1,12)
+         Call Add_Info('PotNuc',[PotNuc],1,12)
       End If
 *
       Call qExit('DrvN0')

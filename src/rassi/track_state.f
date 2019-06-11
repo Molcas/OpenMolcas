@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE Track_State
+      SUBROUTINE Track_State(OVLP)
       IMPLICIT NONE
 #include "Molcas.fh"
 #include "cntrl.fh"
@@ -20,6 +20,7 @@
       INTEGER j
 #endif
       REAL*8 MaxOv,ThisOv
+      REAL*8 ovlp(nstate,nstate)
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='Track_State')
 

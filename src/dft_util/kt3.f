@@ -29,6 +29,7 @@
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
+#include "ksdft.fh"
       Real*8 Rho(nRho,mGrid), dF_dRho(ndF_dRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
@@ -41,25 +42,25 @@ C      Call QEnter('OLYP')
 *                                                                      *
 *---- Dirac Exchange with the non-UEG factor!
 *
-      Coeff= 1.092d0
+      Coeff= 1.092d0*CoefX
       Call Diracx(mGrid,Rho,nRho,iSpin,F_xc,
      &            dF_dRho,ndF_dRho,Coeff,T_X)
 *
 *---- OPTX Exchange
 *
-      Coeff= 0.925452d0
+      Coeff= 0.925452d0*CoefX
       Call xOPT(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
      &          Coeff,iSpin,F_xc,T_X)
 *
 *---- KT term Exchange
 *
-      Coeff= -0.0040d0
+      Coeff= -0.0040d0*CoefX
       Call KealTozer(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
      &          Coeff,iSpin,F_xc,T_X)
 *
 *---- Lee-Yang-Parr Correlation
 *
-      Coeff=0.864409d0
+      Coeff=0.864409d0*CoefR
       Call LYP(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
      &         Coeff,iSpin,F_xc,T_X)
 *                                                                      *

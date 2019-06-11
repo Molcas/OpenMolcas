@@ -55,12 +55,11 @@
       use Real_Spherical
       use iSD_data
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
+#include "angtp.fh"
 #include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-#include "angtp.fh"
 #include "lundio.fh"
 #include "print.fh"
 #include "nsd.fh"
@@ -113,10 +112,10 @@ C     Call QEnter('DeDe')
       jOffD = 0
       Inc=3
       If (mFD.eq.2) Inc=4
-      Call ICopy(nOffD,ipD00,0,ipOffD(1,1),Inc)
-      If (mFD.eq.2) Call ICopy(nOffD,ipD00,0,ipOffD(4,1),Inc)
-      Call ICopy(nOffD,MaxDCR,0,ipOffD(2,1),Inc)
-      Call ICopy(nOffD,MaxDe,0,ipOffD(3,1),Inc)
+      Call ICopy(nOffD,[ipD00],0,ipOffD(1,1),Inc)
+      If (mFD.eq.2) Call ICopy(nOffD,[ipD00],0,ipOffD(4,1),Inc)
+      Call ICopy(nOffD,[MaxDCR],0,ipOffD(2,1),Inc)
+      Call ICopy(nOffD,[MaxDe],0,ipOffD(3,1),Inc)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -66,7 +66,7 @@
 *     two-body density
       DO  ICASE=1,2
       IJKLO=0
-      CALL DCOPY_(NACPR2,0.0D0,0,SCR,1)
+      CALL DCOPY_(NACPR2,[0.0D0],0,SCR,1)
       DO I=1,NAC
         DO J=1,I
           INEW=IDX(I)

@@ -236,7 +236,7 @@ C     --------------------------------------------------------------
 C     Info for check system.
 C     ----------------------
 
-      Call Add_Info(AddInfoString,AddInfoVal,1,iTol)
+      Call Add_Info(AddInfoString,[AddInfoVal],1,iTol)
 
 C     Order local orbitals according to Cholesky ordering.
 C     ----------------------------------------------------
@@ -335,7 +335,7 @@ C     ----------------------
          EndIf
          lOff=0
          Do iSym=1,nSym
-            xnr0(iSym) = ddot_(nOrb2Loc(iSym),1.0d0,0,
+            xnr0(iSym) = ddot_(nOrb2Loc(iSym),[1.0d0],0,
      &                             Work(jXarray+lOff+nFro(iSym)),1)
             lOff=lOff+nBas(iSym)
          End Do
@@ -358,7 +358,7 @@ C     ----------------------
          write(6,*)' ------------------------------------------------- '
          lOff=0
          Do iSym=1,nSym
-            xnr1 = ddot_(nOrb2Loc(iSym),1.0d0,0,
+            xnr1 = ddot_(nOrb2Loc(iSym),[1.0d0],0,
      &                                 Work(jXarray+lOff+nFro(iSym)),1)
             lOff=lOff+nBas(iSym)
             write(6,'(3X,I4,8X,F11.5,4X,F11.5)') iSym, xnr0(iSym), xnr1

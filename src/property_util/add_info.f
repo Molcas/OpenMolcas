@@ -31,7 +31,7 @@
       Real*8 Array(nArray)
       Character*32 File_Name
 c     Logical Exist
-      Character*24 Junk
+      Character*30 Junk
       Character*8 Toll
 c     Integer irecl
 c     Logical is_error
@@ -45,7 +45,7 @@ c     Logical is_error
       Character*15 Energy_File
       Character*13 GeoDataF
       Integer iGeoData,iuGeoData
-      Integer nIntCoord
+      Integer nIntCoord,iDum(1)
 #include "para_info.fh"
 *------------------------------------------------
 c If this is a fake parallel run (e.g. inside the parallel loop of CASPT2_gradient,
@@ -142,7 +142,8 @@ c666   Continue
             iuGeoData = 10
             iuGeoData = isFreeUnit(iuGeoData)
             Call DaName_WA(iuGeoData,GeoDataF)
-            Call iDaFile(iuGeoData,2,nIntCoord,1,iGeoData)
+            Call iDaFile(iuGeoData,2,iDum,1,iGeoData)
+            nIntCoord=iDum(1)
             iGeoData=iGeoInfo(2)*(nIntCoord+1)+1
             Call dDaFile(iuGeoData,1,Array(nArray),1,iGeoData)
             Call DaClos(iuGeoData)
@@ -162,7 +163,11 @@ C If this label should not be checked, then just return immediately:
       if(icoma.ne.0) then
         STRING=' '
         STRING=STMP(1:icoma-1)
-        STMP=STMP(icoma+1:)
+        if(icoma.lt.len(STMP)) then
+          STMP=STMP(icoma+1:)
+        else
+          STMP=''
+        endif
       else
         STRING=STMP
         STMP=' '
@@ -204,15 +209,15 @@ C If this label should not be checked, then just return immediately:
          Line(nlabel:nlabel)='"'
          ia=int(Array(iArray)+0.3d0)
          if(abs(Array(iArray)-ia).lt.0.0000001.and.ia.ne.0) then
-          write(Junk,'(I24)')ia
+          write(Junk,'(I30)')ia
           else
             if(abs(Array(iArray)).gt.1D-14)then
-              write(Junk,'(F24.12)') Array(iArray)
+              write(Junk,'(F30.12)') Array(iArray)
             else
            Junk='0.0'
            endif
          endif
-         do j=1,24
+         do j=1,30
            if(Junk(j:j).ne.' ') then
            nlabel=nlabel+1
            Line(nlabel:nlabel)=Junk(j:j)

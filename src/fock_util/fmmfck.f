@@ -165,11 +165,11 @@ C     CALL mm_call_get_J_matrix(TwoHam,ndim,nBasTot,LMAX)
 #else
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_real_array(Dens)
-         Call Unused_real_array(ndim)
+         Call Unused_real(Dens)
+         Call Unused_integer(ndim)
       End If
 #endif
 c Avoid unused argument warnings
-      If (.False.) Call Unused_real_array(TwoHam)
+      If (.False.) Call Unused_real(TwoHam)
       Return
       End

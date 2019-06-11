@@ -30,6 +30,7 @@
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
+#include "ksdft.fh"
       Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
@@ -40,9 +41,9 @@ C     Call QEnter('B3LYP5')
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Coeff_A=0.80D0
-      Coeff_B=0.72D0
-      Coeff_C=0.81D0
+      Coeff_A=0.80D0*CoefX
+      Coeff_B=0.72D0*CoefX
+      Coeff_C=0.81D0*CoefR
 *                                                                      *
 *---- Dirac Exchange Functional                                        *
 *                                                                      *
@@ -60,7 +61,7 @@ C     Call QEnter('B3LYP5')
 *                                                                      *
       Call VWN_V(mGrid,Rho,nRho,
      &           iSpin,F_xc,dF_dRho,
-     &           ndF_dRho,One-Coeff_C,T_X)
+     &           ndF_dRho,CoefR-Coeff_C,T_X)
 *                                                                      *
 *---- Lee-Yang-Parr Correlation Functional                             *
 *                                                                      *

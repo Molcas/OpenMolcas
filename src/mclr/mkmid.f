@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE MKMID(NVERT,NLEV,IDRT,IDOWN,IDAW,IUP,IRAW,LTV,
+      SUBROUTINE MKMID_MCLR(NVERT,NLEV,IDRT,IDOWN,IDAW,IUP,IRAW,LTV,
      &                 MIDLEV,NMIDV,MIDV1,MIDV2,MXUP,MXDWN,IPRINT)
 C
 C     PURPOSE: FIND THE MIDLEVEL

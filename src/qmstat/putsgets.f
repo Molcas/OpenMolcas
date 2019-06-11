@@ -62,6 +62,7 @@
 #include "files_qmstat.fh"
 #include "WrkSpc.fh"
 
+      Dimension Coord(MxAt*3)
       Dimension info_atom(MxAt)
       Character Head*200
 

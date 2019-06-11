@@ -144,11 +144,11 @@ c     Parameter (Thresh = 99999.99D99)
         Call mma_allocate(Usm,lAi,Label='Usm')
         Call mma_allocate(A1,lAi,Label='A1')
         Call mma_allocate(Dg,nOccmF,Label='Dg')
-        call dcopy_(lAi,Zero,0,A2,1)
-        call dcopy_(lAi,Zero,0,A3,1)
-        call dcopy_(lAi,Zero,0,Usm,1)
-        call dcopy_(lAi,Zero,0,A1,1)
-        call dcopy_(nOccmF,One,0,Usm,nOccmF+1)
+        call dcopy_(lAi,[Zero],0,A2,1)
+        call dcopy_(lAi,[Zero],0,A3,1)
+        call dcopy_(lAi,[Zero],0,Usm,1)
+        call dcopy_(lAi,[Zero],0,A1,1)
+        call dcopy_(nOccmF,[One],0,Usm,nOccmF+1)
 *       compute A=x(T)x and diagonalize it
         Call MxMt(kapOV(ivoffs),nVrt,1,kapOV(ivoffs),1,nVrt,
      &            A1,nOccmF,nVrt)
@@ -271,7 +271,7 @@ C---End of replacement, PAM Apr 2002
 *--2) virt/virt (VV) Block as 1-0.5xx(T)+xA3x(T)
 *       initiate VV block in U=exp(kappa) as identity matrix
         iptr=1+nOrbmF*nOccmF+nOccmF
-        call dcopy_(nVrt,One,0,UNew(iptr),nOrbmF+1)
+        call dcopy_(nVrt,[One],0,UNew(iptr),nOrbmF+1)
 * compute VV block in U=exp(kappa) as 1-0.5xx(T)+xA3x(T)
         Call DGEMM_('N','T',nVrt,nVrt,nOccmF,
      &             -Half,kapOV(ivoffs),nVrt,
@@ -393,10 +393,10 @@ c        End Do
         Call mma_allocate(rKap,lrkap2,Label='rKap')
         Call mma_allocate(rMat,lrdmat,Label='rMat')
 *       clear kap_red and V
-        call dcopy_(lrkap2,Zero,0,rKap,1)
-        call dcopy_(lrdmat,Zero,0,rMat,1)
+        call dcopy_(lrkap2,[Zero],0,rKap,1)
+        call dcopy_(lrdmat,[Zero],0,rMat,1)
 *       set occ-occ part of V to identity matrix
-        call dcopy_(nOccmF,One,0,rMat,nOrbmF+1)
+        call dcopy_(nOccmF,[One],0,rMat,nOrbmF+1)
 *       copy kap vectors from kapOV to appropriate positions in V
 *       and perform Gram-Schmidt orthonormalization
         nzero=0
@@ -422,7 +422,7 @@ c        End Do
              rKap(iptr3)= vprod
              rKap(iptr4)=-vprod
           Else
-             call dcopy_(nVrt,Zero,0,rMat(iptr),1)
+             call dcopy_(nVrt,[Zero],0,rMat(iptr),1)
              rKap(iptr3)=Zero
              rKap(iptr4)=Zero
              nzero=nzero+1
@@ -435,7 +435,7 @@ c        End Do
         Call mma_allocate(rPro,lrkap2,Label='rPro')
         Call mma_allocate(rAux,lrkap2,Label='rAux')
 *       clear kappa_red_sum
-        call dcopy_(lrkap2,Zero,0,rSum,1)
+        call dcopy_(lrkap2,[Zero],0,rSum,1)
 *       now sum over exp expansion (until machine precision)
         call dcopy_(lrkap2,rKap,1,rPro,1)
         Call DGEADD(rSum,lrkap,'N',rPro,lrkap,'N',
@@ -443,7 +443,7 @@ c        End Do
         Do kexp=2,MxKp2U
           Fact=One/DBLE(kexp)
           call dcopy_(lrkap2,rPro,1,rAux,1)
-          call dcopy_(lrkap2,Zero,0,rPro,1)
+          call dcopy_(lrkap2,[Zero],0,rPro,1)
           Call DGEMM_('N','N',lrkap,lrkap,lrkap,
      &                 Fact,rAux,lrkap,
      &                      rKap,lrkap,

@@ -18,6 +18,7 @@
 #include "files_cpf.fh"
       DIMENSION H(LIC0)
       Character*72 Header
+      Dimension Dummy(1),iDummy(7,8)
 *
       NSUM =0
       N2SUM=0
@@ -48,10 +49,10 @@
       ICMO=LW(87)
       DO 10 M=1,NSYM
 *        set occupation number of orbitals prefrozen in MOTRA
-         CALL DCOPY_(NBAS(M),0.0D0,0,H(IOCC),1)
+         CALL DCOPY_(NBAS(M),[0.0D0],0,H(IOCC),1)
 *        skip orbitals prefrozen in MOTRA
-         CALL DCOPY_(NPFRO(M),2.0D0,0,H(IOCC),1)
-         CALL NATORB(H(LW(62)),H(ICMO+NBAS(M)*NPFRO(M)),H(LW(88)),
+         CALL DCOPY_(NPFRO(M),[2.0D0],0,H(IOCC),1)
+         CALL NATORB_CPF(H(LW(62)),H(ICMO+NBAS(M)*NPFRO(M)),H(LW(88)),
      &               H(LW(89)),H(LW(89)),H(IOCC+NPFRO(M)),M)
          CALL DCOPY_(NORB(M)*NBAS(M),H(LW(89)),1,
      &              H(ICMO+NBAS(M)*NPFRO(M)),1)
@@ -88,7 +89,7 @@
      *            'TOTAL REL. ENERGY    ', ETOT+Erel
       END IF
       CALL XFLUSH(6)
-      CALL PRWF(H(LW(1)),H(LW(2)),H(LW(3)),H(LW(26)))
+      CALL dPRWF(H)
       If (iCPF.eq.1) Then
          Header=' CPF natural orbitals'
       Else If (iSDCI.eq.1) Then
@@ -99,7 +100,7 @@
          Header=' MCPF natural orbitals'
       End If
       Call Primo(Header,.True.,.False.,1.0D-4,dum,nSym,nBas,nBas,
-     *           Name,dum,H(LW(90)),H(LW(87)),-1)
+     *           Name,Dummy,H(LW(90)),H(LW(87)),-1)
 *
 *     Read the overlap matrix in ao basis
       iiRC=-1
@@ -128,4 +129,18 @@
      & H(LW(87)), H(LW(90)), Dummy, iDummy, Header)
 *
       RETURN
+*
+*     This is to allow type punning without an explicit interface
+      CONTAINS
+      SUBROUTINE dPRWF(H)
+      USE ISO_C_BINDING
+      REAL*8, TARGET :: H(*)
+      INTEGER, POINTER :: iH1(:),iH2(:),iH3(:)
+      CALL C_F_POINTER(C_LOC(H(LW(1))),iH1,[1])
+      CALL C_F_POINTER(C_LOC(H(LW(2))),iH2,[1])
+      CALL C_F_POINTER(C_LOC(H(LW(3))),iH3,[1])
+      CALL PRWF_CPF(iH1,iH2,iH3,H(LW(26)))
+      NULLIFY(iH1,iH2,iH3)
+      END SUBROUTINE dPRWF
+*
       END

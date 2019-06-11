@@ -44,10 +44,13 @@ c      Get_ExFac=HFLDA
      &            KSDFT(1:5).eq.'TS12G'   .or.
      &            KSDFT(1:4).eq.'TPBE'    .or.
      &            KSDFT(1:5).eq.'FTPBE'   .or.
+     &            KSDFT(1:5).eq.'TOPBE'   .or.
+     &            KSDFT(1:6).eq.'FTOPBE'  .or.
      &            KSDFT(1:7).eq.'TREVPBE' .or.
      &            KSDFT(1:8).eq.'FTREVPBE'.or.
      &            KSDFT(1:6).eq.'FTLSDA'  .or.
      &            KSDFT(1:6).eq.'FTBLYP'
+
 *                                                                      *
 ************************************************************************
 *                                                                      *

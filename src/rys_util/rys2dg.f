@@ -58,7 +58,7 @@
       nx = 0
       ny = 0
       nz = 0
-      Call ICopy(12,0,0,Index,1)
+      Call ICopy(12,[0],0,Index,1)
 *
 *     Differentiate with respect to the first center
 *

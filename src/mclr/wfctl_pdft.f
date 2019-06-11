@@ -53,7 +53,6 @@
       Real*8 rchc(mxroot)
 
       Integer ipFT99,iptemp5
-      itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *
       Call QEnter('WfCtl_SA')
 *----------------------------------------------------------------------*
@@ -172,9 +171,9 @@
       !displacement, no?
       nDisp = 1
       do iDisp=1,nDisp
-      call dcopy_(nDens2,Zero,0,Work(ipKap),1)
-      call dcopy_(nDens2,Zero,0,Work(ipSigma),1)
-      call dcopy_(nDens2,Zero,0,Work(ipdKap),1)
+      call dcopy_(nDens2,[Zero],0,Work(ipKap),1)
+      call dcopy_(nDens2,[Zero],0,Work(ipSigma),1)
+      call dcopy_(nDens2,[Zero],0,Work(ipdKap),1)
 *
 *-----------------------------------------------------------------------------
 *
@@ -293,6 +292,7 @@
       end do
       end if
 
+      Call GetMem('FockOt ','Free','Real',ipFMO1t,nTri)
       Call GetMem('FockO ','Free','Real',ipFMO1,ndens2)
       Call GetMem('FockT ','Free','Real',ipFMO2,n2dens)
 
@@ -301,8 +301,8 @@
 
       Call GetMem('FockT ','Allo','Real',ipFT99,nDens2)
       Call GetMem('Temp5 ','Allo','Real',ipTemp5,nDens2+6)
-      call dcopy_(nDens2,Zero,0,Work(ipFT99),1)
-      call dcopy_(nDens2+6,Zero,0,Work(ipTemp5),1)
+      call dcopy_(nDens2,[Zero],0,Work(ipFT99),1)
+      call dcopy_(nDens2+6,[Zero],0,Work(ipTemp5),1)
       Call get_dArray('Fock_PDFT',Work(ipFT99),nDens2)
       Do iS=1,nSym
          jS=iEOR(iS-1,0)+1
@@ -328,14 +328,14 @@
 !storage:
 !
       Call GetMem('FockOSq ','Allo','Real',ipFOSq,nDens2)
-      Call dcopy_(nDens2,Zero,0,Work(ipFOSq),1)
+      Call dcopy_(nDens2,[Zero],0,Work(ipFOSq),1)
       Call Get_Fock_Occ(ipFOtr,Length)
       Call dcopy_(Length,Work(ipFOtr),1,Work(ipFOSq),1)
       Call Put_Fock_Occ(Work(ipFOSq),ndens2)
 
 !TEMP TEST
 !      Call GetMem('FockTri2','ALLO','Real',ipFOtmp,Length)
-!      Call dcopy_(nDens2,Zero,0,Work(ipFOSq),1)
+!      Call dcopy_(nDens2,[Zero],0,Work(ipFOSq),1)
 !!      Call Get_Darray('fock_tempo',Work(ipFOtmp),Length)
 !      Call dcopy_(Length,Work(ipFOtmp),1,Work(ipFOSq),1)
 !      Call Put_Darray('fock_tempS',Work(ipFOSq),ndens2)
@@ -371,8 +371,8 @@
       If(debug)Write(6,*) 'Hi how about r1',r1
       Call dDaFile(LuTemp,1,Work(ipSigma),iLen,iDis)
 *
-      call dcopy_(nConf1*nroots,Zero,0,Work(ipIn(ipCIT)),1)
-      call dcopy_(nConf1*nroots,Zero,0,Work(ipIn(ipCID)),1)
+      call dcopy_(nConf1*nroots,[Zero],0,Work(ipIn(ipCIT)),1)
+      call dcopy_(nConf1*nroots,[Zero],0,Work(ipIn(ipCID)),1)
       irc=ipOut(ipCIT)
       Call DSCAL_(nDensC,-One,Work(ipSigma),1)
 *
@@ -392,7 +392,7 @@
       deltaC=Zero
 !AMS _________________________________________________________
 !I need to read in the CI portion of the RHS here.
-      If (CI) Call DMinvCI_SA(ipST,Work(ipIn(ipS2)),rCHC,isym,work(ipS))
+      If (CI) Call DMinvCI_SA(ipST,Work(ipIn(ipS2)),rdum,isym,work(ipS))
       Call dcopy_(nconf1,Work(ipin(ipS2)),1,Work(ipin(ipCId)),1)
 
       If (CI) Then
@@ -405,7 +405,7 @@
 
       irc=ipOut(ipcid)
       deltaK=ddot_(nDensC,Work(ipKap),1,Work(ipSigma),1)
-      call dcopy_(nDens,Zero,0,Work(ipKap),1)
+      call dcopy_(nDens,[Zero],0,Work(ipKap),1)
       delta=deltac+deltaK
       delta0=delta
       iter=1
@@ -459,7 +459,7 @@
 *
          irc=opOut(ipcid)
 
-         Call DMinvCI_SA(ipST,Work(ipIn(ipS2)),rCHC,isym,work(ipS))
+         Call DMinvCI_SA(ipST,Work(ipIn(ipS2)),rdum,isym,work(ipS))
 
          irc=opOut(ipci)
          irc=opOut(ipdia)
@@ -629,6 +629,7 @@
 #include "Input.fh"
       Integer opOut
       Real*8 Kap(*),KapOut(*)
+      Dimension rdum(1)
 *
       Call GetMem('RMOAA','ALLO','REAL',iprmoaa,n2dens)
       Call GetMem('SCR2','ALLO','REAL',ipSc2,ndens2)

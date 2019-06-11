@@ -28,7 +28,7 @@ C                 Modified finally by NEWORB to pseudo-nat orbitals
 C                 Average occupation numbers appended.
 C     IADR15(3):  density matrices for active orbitals
 C                 (4 matrices per root)
-C                 D  : one-bobdy density matrix
+C                 D  : one-body density matrix
 C                 DS : spin density matrix
 C                 P  : symmetric two-body density matrix
 C                 PA : antsymmetric two-body density matrix
@@ -78,6 +78,7 @@ C
 #include "WrkSpc.fh"
 #include "general.fh"
       Common /IDSXCI/ IDXCI(mxAct),IDXSX(mxAct)
+      Dimension Dum(1)
 
       Call qEnter('CREIPH')
 
@@ -94,7 +95,7 @@ C     DUMMY WRITE THE REMAINING RECORDS TO OBTAIN ADDRESSES
 C
       CALL WR_RASSCF_Info(JOBIPH,1,iAD15,NACTEL,ISPIN,NSYM,LSYM,
      &            NFRO,NISH,NASH,NDEL,NBAS,MxSym,
-     &            NAME,4*2*mxOrb,NCONF,HEADER,144,
+     &            NAME,LENIN8*mxOrb,NCONF,HEADER,144,
      &            TITLE,4*18*mxTit,POTNUC,LROOTS,NROOTS,
      &            IROOT,MxRoot,NRS1,NRS2,NRS3,
      &            NHOLE1,NELEC3,IPT2,WEIGHT)

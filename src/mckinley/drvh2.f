@@ -81,7 +81,7 @@
       nComp = 1
       Call GetMem('Coor','Allo','Real',ipC,3*nComp)
       Call GetMem('lOper','Allo','Inte',ip1,nComp)
-      call dcopy_(nComp*3,Zero,0,Work(ipC),1)
+      call dcopy_(nComp*3,[Zero],0,Work(ipC),1)
       iWork(ip1) = 1
 ************************************************************************
 *1)                                                                    *
@@ -91,7 +91,7 @@
 ************************************************************************
 *
       DiffOp = .False.
-      call dcopy_(nHess,Zero,0,Temp,1)
+      call dcopy_(nHess,[Zero],0,Temp,1)
       Label  = ' The Renormalization Contribution'
       Call Dot1El(OvrHss,OvrMmH,Temp,nHess,DiffOp,Work(ipC),
      &           Work(ipFock),nFock,iWork(ip1),nComp,Label)
@@ -107,7 +107,7 @@
 ************************************************************************
 *
       DiffOp = .False.
-      call dcopy_(nHess,Zero,0,Temp,1)
+      call dcopy_(nHess,[Zero],0,Temp,1)
       Label  = ' The Kinetic Energy Contribution'
       Call Dot1El(KneHss,KneMmH,Temp,nHess,DiffOp,Work(ipC),
      &           Work(ipD0),nFock,iWork(ip1),nComp,Label)
@@ -124,7 +124,7 @@
 *
       DiffOp = .True.
       Label = ' The Nuclear Attraction Contribution'
-      call dcopy_(nHess,Zero,0,Temp,1)
+      call dcopy_(nHess,[Zero],0,Temp,1)
       Call Dot1El(NAHss,NAMmH,Temp,nHess,DiffOp,Work(ipC),
      &           Work(ipD0),nFock,iWork(ip1),nComp,Label)
       If (show) write(6,*) label
@@ -141,7 +141,7 @@
       If (lECP) Then
         DiffOp = .True.
         Label = ' The Projection (ECP) Contribution'
-        call dcopy_(nHess,Zero,0,Temp,1)
+        call dcopy_(nHess,[Zero],0,Temp,1)
         Call Dot1El(PrjHss,PRJMMH,Temp,nHess,DiffOp,Work(ipC),
      &              Work(ipD0),nFock,iWork(ip1),nComp,Label)
         If (show) write(6,*) label
@@ -150,7 +150,7 @@
 *
         DiffOp = .True.
         Label = ' The Spec. Res. (ECP) Contribution'
-        call dcopy_(nHess,Zero,0,Temp,1)
+        call dcopy_(nHess,[Zero],0,Temp,1)
         Call Dot1El(SROHss,SROMMH,Temp,nHess,DiffOp,Work(ipC),
      &              Work(ipD0),nFock,iWork(ip1),nComp,Label)
         if (show) Write(6,*) Label,'first part '
@@ -159,7 +159,7 @@
 *
         DiffOp = .True.
         Label = ' The M1 (ECP) Contribution'
-        call dcopy_(nHess,Zero,0,Temp,1)
+        call dcopy_(nHess,[Zero],0,Temp,1)
         Call Dot1El(m1Hss,m1MMH,Temp,nHess,DiffOp,Work(ipC),
      &              Work(ipD0),nFock,iWork(ip1),nComp,Label)
         if (show) Write(6,*) Label,'second part '
@@ -177,7 +177,7 @@
       If (PCM) Then
         DiffOp = .True.
         Label = ' The PCM Contribution'
-        call dcopy_(nHess,Zero,0,Temp,1)
+        call dcopy_(nHess,[Zero],0,Temp,1)
         Call Dot1El(PCMHss,PCMMMH,Temp,nHess,DiffOp,Work(ipC),
      &              Work(ipD0),nFock,iWork(ip1),nComp,Label)
         If (show) write(6,*) label

@@ -56,7 +56,7 @@
        End Do
        nhess=nDIsp*(nDisp+1)/2
        Call GetMem('RESPH','ALLO','REAL',ipRHss,nHss)
-       call dcopy_(nHss,0.0d0,0,Work(ipRHss),1)
+       call dcopy_(nHss,[0.0d0],0,Work(ipRHss),1)
 *
 *-------------------------------------------------------------------*
 *
@@ -283,14 +283,14 @@
 *     If a basis set is dependent on perturbation add terms
 *     constructed in mckinley.
 *
-      call dcopy_(6,0.0d0,0,pola,1)
+      call dcopy_(6,[0.0d0],0,pola,1)
       elec=.False.
       If (Mckinley) Then
          idum=1
          iopt=128
          irc=3*ndisp
          Label='DOTELGR'
-         Call rdMCk(irc,iopt,LaBeL,idum,Work(ipEG),idum)
+         Call drdMCk(irc,iopt,LaBeL,idum,Work(ipEG),idum)
          elec=.true.
          if (irc.ne.0) elec=.false.
       End If
@@ -340,7 +340,7 @@ C
         iRC=-1
         iOpt=0
         Label='StatHess'
-        Call RdMck(iRC,iOpt,Label,idum,Work(ipTemp),idum)
+        Call dRdMck(iRC,iOpt,Label,idum,Work(ipTemp),idum)
         If (iRC.ne.0) Then
            Write (6,*)
            Write (6,*) ' *** Error in subroutine OUTPUT_TD ***'
@@ -374,7 +374,7 @@ C
        iRC=-1
        iOpt=0
        Label='Hess    '
-       Call WrMck(iRC,iOpt,Label,iDum,Work(ipHess),iDum)
+       Call dWrMck(iRC,iOpt,Label,iDum,Work(ipHess),iDum)
        If (iRC.ne.0) Then
          Write (6,*)
          Write (6,*) ' *** Error in subroutine OUTPUT_TD ***'
@@ -390,7 +390,7 @@ C
        iRC=-1
        iOpt=0
        Call GetMem('NRDISP','ALLO','INTE',ipnrdisp,ndisp)
-       Call RdMck(irc,iopt,'NRDISP',idum,iWork(ipnrDisp),idum)
+       Call RdMck(irc,iopt,'NRCTDISP',idum,iWork(ipnrDisp),idum)
        iRC=-1
        iOpt=0
        Call GetMem('DEGDISP','ALLO','INTE',ipdegdisp,ndisp)

@@ -120,7 +120,7 @@ INT add_shmentry(mstat *MM, mentry *tmp, char *path, INT *Id) {
 */
 /* Linux part is here */
 #ifdef _DEBUG_MEM_
-    printf("++++++++ Adding new shared memory entry %s of type = %s with length=%ld and the key=%x\n",tmp->elbl,tmp->etyp,LIFMT(tmp->len),LIFMT(SHM_key));
+    printf("++++++++ Adding new shared memory entry %s of type = %s with length=%ld and the key=%ld\n",tmp->elbl,tmp->etyp,LIFMT(tmp->len),LIFMT(SHM_key));
 #endif
 #ifdef _HUGE_PAGES_
 #ifdef _AIX_
@@ -214,7 +214,7 @@ INT del_shmentry(mentry *tmp, INT shmid) {
 
 #ifdef _DEBUG_MEM_
     dump_mentry("DELETING SHARED MEMORY ENTRY",tmp);
-    printf("requested shmid=%x\n",shmid);
+    printf("requested shmid=%ld\n",shmid);
 #endif
 
     wrkspc=woff2cptr(tmp->etyp, tmp->offset);
@@ -244,7 +244,7 @@ INT c_getshmem(char *name, char* Op, char *dtyp, INT *offset, INT *len, char *pa
     char e_dtyp[MXLINE];
     char action[MXLINE];
 
-    string2UC(name,e_name);strncat(e_name, "_s", 2);
+    string2UC(name,e_name);strcat(e_name, "_s");
     string2UC(dtyp,e_dtyp);
     string2UC(Op,action);
 

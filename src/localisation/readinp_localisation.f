@@ -232,14 +232,14 @@ c NITErations or ITERations
 c
  4000 Continue
       Line=Get_Ln(LuSpool)
-      Call Get_I(1,NMxIter,1)
+      Call Get_I1(1,NMxIter)
       Go To 999
 c
 c THREshold
 c
  5000 Continue
       Line=Get_Ln(LuSpool)
-      Call Get_F(1,Thrs,1)
+      Call Get_F1(1,Thrs)
       Thrs_UsrDef = .True.
       Go To 999
 c
@@ -247,7 +247,7 @@ c THRGrad
 c
  5001 Continue
       Line=Get_Ln(LuSpool)
-      Call Get_F(1,ThrGrad,1)
+      Call Get_F1(1,ThrGrad)
       Go To 999
 c
 c CHOStart (use Cholesky orbitals as start guess for PM/Boys/ER)
@@ -260,7 +260,7 @@ c THRRotation
 c
  6000 Continue
       Line=Get_Ln(LuSpool)
-      Call Get_F(1,ThrRot,1)
+      Call Get_F1(1,ThrRot)
       Go To 999
 c
 c PIPEk-Mezey or PM

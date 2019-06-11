@@ -1,0 +1,43 @@
+% numerical_gradient.tex $ this file belongs to the Molcas repository $
+
+\section{\program{numerical\_gradient}}
+\label{UG:sec:numerical_gradient}
+\index{Program!Numerical\_gradient@\program{Numerical\_gradient}}\index{Numerical\_gradient@\program{Numerical\_gradient}}
+%%Description:
+%%+The Numerical_Gradient module is a program which numerically evaluates the
+%%+gradient of the energy with respect to nuclear perturbations.
+
+The \program{Numerical\_Gradient} module is a program which numerically evaluates the gradient
+of the energy with respect to nuclear perturbations.
+
+Note that this module is automatically invoked by the \program{Alaska} module if the wave function
+method is MBPT2, CCSDT, CASPT2, MS-CASPT2, or a calculation using the Cholesky decomposition.
+The user should normally never request the execution of this module; instead it is advised to use the
+\keyword{NUMErical} keyword in Alaska, if it is necessary to force the use of numerical gradients rather than
+analytical ones.
+
+The module is parallelized over the displacements, which in case of large jobs gives a linear
+speed up compared to a serial execution, although in order to obtain this it is important to
+choose the number of nodes such that the number of contributing perturbations is a multiple of
+the number of nodes. For a given molecule the number of perturbations equals the number of atoms
+times 6 (a perturbation with plus and minus delta for each of the three axes). Symmetry can of
+course reduce this number. If the request of execution originates from the  \program{Slapaf}
+module further reduction in perturbations is achieved due to the utilization of rotational and
+translational invariance.
+
+\subsection{Dependencies}
+\label{UG:sec:Numerical_gradient_dependencies}
+\index{Dependencies!Numerical\_Gradient}\index{Numerical\_Gradient!Dependencies}
+The dependencies of the \program{Numerical\_Gradient} module is the union
+of the dependencies of the \program{SEWARD}, \program{SCF}, \program{RASSCF},
+\program{MBPT2}, \program{MOTRA}, \program{CCSDT}, and
+\program{CASPT2} modules.
+
+\subsection{Files}
+\label{UG:sec:Numerical_gradient_files}
+\index{Files!Numerical\_Gradient}\index{Numerical\_Gradient!Files}
+The files of the \program{Numerical\_Gradient} module is the union
+of the files of the \program{SEWARD}, \program{SCF}, \program{RASSCF},
+\program{MBPT2}, \program{MOTRA}, \program{CCSDT}, and
+\program{CASPT2} modules.
+

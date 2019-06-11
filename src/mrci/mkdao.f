@@ -15,7 +15,7 @@
 
 #include "mrci.fh"
       DIMENSION CNO(NCMO),OCC(NBAST),DAO(NBAST,NBAST)
-      CALL VCLR(DAO,1,NBAST**2)
+      CALL FZERO(DAO,NBAST**2)
       IB=1
       ICNO=1
       DO 100 ISYM=1,NSYM

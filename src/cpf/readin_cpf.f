@@ -87,7 +87,7 @@ CPAM97      IRHP=0
 *
 *---  read the header of TRAONE ---------------------------------------*
 C Note: NORB(i)=NBAS(i)-NPFRO(i)-NPDEL(i)
-      NAMSIZ=(2*MXORB*4)
+      NAMSIZ=LENIN8*MXORB
       IDISK=0
       CALL WR_MOTRA_Info(Lu_TraOne,2,iDisk,
      &                   ITOC17,64, POTNUC,NSYM,
@@ -231,7 +231,7 @@ CPAM97      Read(Line,*,Err=992) ETrsh
       Goto 10
 *
 *---  process EXTR command --------------------------------------------*
-1700  WRITE(6,*) 'The EXTRACT option is redudant and is ignored!'
+1700  WRITE(6,*) 'The EXTRACT option is redundant and is ignored!'
       Goto 10
 *
 *---  The end of the input is reached, print the title ----------------*
@@ -509,7 +509,7 @@ C -- ADDRESSES NOT USED
       LW(10)=LW(9)
 C -- LIMIT FOR PERMANENT VECTORS
       LPERMA=LW(10)
-      CALL INDMAT(H(LW(2)),H(LW(3)),H(LW(4)),ISMAX,H(LW(5)))
+      CALL dINDMAT(H)
       CALL ALLOC_CPF(ISMAX,LPERMA)
       RETURN
 *
@@ -521,4 +521,19 @@ C -- LIMIT FOR PERMANENT VECTORS
       WRITE(6,*)'The line that could not be read is:'
       WRITE(6,*) Line
       Call Quit_OnUserError()
+*
+*     This is to allow type punning without an explicit interface
+      CONTAINS
+      SUBROUTINE dINDMAT(H)
+      USE ISO_C_BINDING
+      REAL*8, TARGET :: H(*)
+      INTEGER, POINTER :: iH2(:),iH3(:),iH4(:),iH5(:)
+      CALL C_F_POINTER(C_LOC(H(LW(2))),iH2,[1])
+      CALL C_F_POINTER(C_LOC(H(LW(3))),iH3,[1])
+      CALL C_F_POINTER(C_LOC(H(LW(4))),iH4,[1])
+      CALL C_F_POINTER(C_LOC(H(LW(5))),iH5,[1])
+      CALL INDMAT_CPF(iH2,iH3,iH4,ISMAX,iH5)
+      NULLIFY(iH2,iH3,iH4,iH5)
+      END SUBROUTINE dINDMAT
+*
       END

@@ -29,7 +29,6 @@
 ************************************************************************
       use Her_RW
       use Real_Spherical
-      use Isotopes
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -76,7 +75,7 @@ C     nPrint(122)=99
 *     Generate a dummy center. This is fine since we will only do
 *     1-center overlap integrals here.
 *
-      call dcopy_(3,Zero,0,A,1)
+      call dcopy_(3,[Zero],0,A,1)
 *
       nOrdOp=2
       iComp = 1
@@ -84,8 +83,8 @@ C     nPrint(122)=99
       nPrp=Max(4,nMltpl)
       nDiff = 0
 *
-      Call ICopy(1+iTabMx,0,0,List   ,1)
-      Call ICopy(1+iTabMx,0,0,List_AE,1)
+      Call ICopy(1+iTabMx,[0],0,List   ,1)
+      Call ICopy(1+iTabMx,[0],0,List_AE,1)
       BasisTypes(1)=0
       BasisTypes(2)=0
       BasisTypes(3)=0
@@ -130,9 +129,8 @@ C     nPrint(122)=99
             xFactor=1.0D0/fMass(iCnttp)
             If (FNMC) Then
                iAtom=iAtmNr(iCnttp)
-               isnx=0
 *              Get the atom mass in au (me=1)
-               Call Isotope(isnx,iAtom,xMass)
+               xMass=CntMass(iCnttp)
 *              Substract the electron mass to get the nuclear mass.
                xMass=xMass-DBLE(iAtom)
                xfactor=xfactor+One/xMass
@@ -208,7 +206,7 @@ C     nPrint(122)=99
 *
                jp1Hm = ip
                ip = ip + nCntrc_a**2 * iCmp_a**2
-               Call Reorder(DInf(ipNAE),DInf(jp1Hm),
+               Call Reorder_GW(DInf(ipNAE),DInf(jp1Hm),
      &                      nCntrc_a,nCntrc_a,iCmp_a,iCmp_a)
 *                                                                      *
 ************************************************************************
@@ -232,7 +230,7 @@ C     nPrint(122)=99
 *
                jpOvr = ip
                ip = ip + nCntrc_a**2 * iCmp_a**2
-               Call Reorder(DInf(ipOvr),DInf(jpOvr),
+               Call Reorder_GW(DInf(ipOvr),DInf(jpOvr),
      &                      nCntrc_a,nCntrc_a,iCmp_a,iCmp_a)
 *                                                                      *
 ************************************************************************
@@ -261,7 +259,7 @@ C     nPrint(122)=99
                ipEVec = ip
                ip = ip + nBF**2
                Call FZero(DInf(ipEVec),nBF**2)
-               Call DCopy_(nBF,1.0D0,0,DInf(ipEVec),nBF+1)
+               Call DCopy_(nBF,[1.0D0],0,DInf(ipEVec),nBF+1)
                Do iBF = 1, nBF
                   Do jBF = 1, iBF
                      ij    =  (jBF-1)*nBF + iBF
@@ -309,7 +307,7 @@ C     nPrint(122)=99
 *              4) Compute C' and the eigenvalues
 *
                Call FZero(DInf(ipEVec),nBF**2)
-               Call DCopy_(nBF,1.0D0,0,DInf(ipEVec),nBF+1)
+               Call DCopy_(nBF,[1.0D0],0,DInf(ipEVec),nBF+1)
                Do iBF = 1, nBF
                   Do jBF = 1, iBF
                      ij    =  (jBF-1)*nBF + iBF
@@ -348,7 +346,7 @@ C     nPrint(122)=99
                   End Do
                End Do
 *
-               Call Reorder(DInf(jp1Hm),DInf(ipNAE),
+               Call Reorder_GW(DInf(jp1Hm),DInf(ipNAE),
      &                      nCntrc_a,iCmp_a,nCntrc_a,iCmp_a)
 *
 *              Make result isotropic and distribute
@@ -492,7 +490,7 @@ C     nPrint(122)=99
 *
 *
          Try_Again=.True.
-         Call ICopy(1+iTabMx,0,0,List_Add,1)
+         Call ICopy(1+iTabMx,[0],0,List_Add,1)
  777     Continue
          Test_Charge=Zero
          Do iAng = 0, nVal_Shells(iCnttp)-1
@@ -671,7 +669,7 @@ ccjd
 *
             ipS_AA = ip
             ip = ip + nSAA
-            Call Reorder(DInf(ipSAA),DInf(ipS_AA),
+            Call Reorder_GW(DInf(ipSAA),DInf(ipS_AA),
      &                   nCntrc_a,nCntrc_a,iCmp_a,iCmp_a)
 #ifdef _DEBUG_
             Call RecPrt('Reordered SAA',' ',DInf(ipS_AA),
@@ -689,7 +687,7 @@ ccjd
 *           Reorder SAR
             ipS_AR = ip
             ip = ip + nSAR
-            Call Reorder(DInf(ipSAR),DInf(ipS_AR),
+            Call Reorder_GW(DInf(ipSAR),DInf(ipS_AR),
      &                   nCntrc_a,nCntrc_r,iCmp_a,iCmp_r)
 #ifdef _DEBUG_
             Call RecPrt('Reordered SAR',' ',DInf(ipS_AR),
@@ -734,7 +732,7 @@ ccjd
             Call RecPrt('Expanded ER',' ',DInf(ipTmp),
      &                  nCntrc_r*nCntrc_r,iCmp_r*iCmp_r)
 #endif
-            Call Reorder(DInf(ipTmp),DInf(ipE_R),
+            Call Reorder_GW(DInf(ipTmp),DInf(ipE_R),
      &                   nCntrc_r,nCntrc_r,iCmp_r,iCmp_r)
             ip = ip - nSRR ! Release ipTmp
 #ifdef _DEBUG_
@@ -788,7 +786,7 @@ ccjd
 *
             ipTmp3 = ip
             ip = ip + nSRR
-            Call Reorder(DInf(ipSAA),DInf(ipTmp3),
+            Call Reorder_GW(DInf(ipSAA),DInf(ipTmp3),
      &                   nCntrc_a,iCmp_a,nCntrc_a,iCmp_a)
 #ifdef _DEBUG_
             Call RecPrt('Reordered EA',' ',DInf(ipTmp3),

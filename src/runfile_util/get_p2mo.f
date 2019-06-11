@@ -20,7 +20,7 @@
       If(.not.Found .or. nDens.eq.0) Then
          Call SysAbendmsg('get_p2mo','Did not find:',label)
       End If
-      Call GetMem('Dens','Allo','Real',ipP2MO,nDens)
+      Call GetMem('P2MO','Allo','Real',ipP2MO,nDens)
       Call get_dArray(Label,Work(ipP2MO),nDens)
 
       Return
@@ -38,7 +38,7 @@
       If(.not.Found .or. nDens.eq.0) Then
          Call SysAbendmsg('get_p2mot','Did not find:',label)
       End If
-      Call GetMem('Dens','Allo','Real',ipP2MO,nDens)
+      Call GetMem('P2MOT','Allo','Real',ipP2MO,nDens)
       Call get_dArray(Label,Work(ipP2MO),nDens)
 
       Return

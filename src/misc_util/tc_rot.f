@@ -21,22 +21,15 @@
       Real*8  CCoor(3,mxAtom)               ! Mass-centered Coords
       Real*8  SOCoor(3,mxAtom)              ! Symmetry-Oriented Coords
       Real*8  Inrt(3,3), RotE(3), Vec(3,3)  ! Inertia components
-      Real*8  Mass(mxAtom), FCharge(mxAtom) ! Masses & Charges
+      Real*8  Mass(mxAtom)                  ! Masses
       Character*(LENIN) FAtLbl(mxAtom)      ! Atomic labes
       Integer nAtomicN(mxAtom)              ! Atomic numbers
       Logical lSlapaf
 
 *
-* --- Get Atomic Full Labels & Coordinates - FAtLbl, FCoor
+* --- Get Atomic Full Labels, Coordinates & Mass - FAtLbl, FCoor, Mass
 *
-      Call GetFullCoord(FCoor,FCharge,FAtLbl,nFAtoms,mxAtm,lSlapaf)
-*
-* --- Get Atomic Number & Masses - nAtomicN(nAtoms), Mass(nAtoms)
-*
-      Do i=1, nFAtoms
-        nAtomicN(i)=INT(FCharge(i))
-        Mass(i)=rmass(nAtomicN(i))/uToau
-      EndDo
+      Call GetFullCoord(FCoor,Mass,FAtLbl,nFAtoms,mxAtm,lSlapaf)
 *
 * --- Define the Center of Masses - CM()
 *
@@ -94,8 +87,8 @@
           Work(ij)=Inrt(i,j)
         End Do
       End Do
-      call dcopy_(3*3,Zero,0,Work(ipEVec),1)
-      call dcopy_(3,One,0,Work(ipEVec),3+1)
+      call dcopy_(3*3,[Zero],0,Work(ipEVec),1)
+      call dcopy_(3,[One],0,Work(ipEVec),3+1)
       Call Jacob (Work(ipEVal),Work(ipEVec),3,3)
       Call Jacord(Work(ipEVal),Work(ipEVec),3,3)
       Do i = 1, 3

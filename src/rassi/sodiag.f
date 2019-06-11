@@ -22,6 +22,7 @@
 #include "rasdef.fh"
 #include "jobin.fh"
 #include "symmul.fh"
+#include "constants.fh"
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='SODIAG')
 
@@ -37,7 +38,6 @@ C subroutine arguments
 
       REAL*8 GTENS(3),MAXES(3,3),MAXES2(3,3)
       COMPLEX*16 H_ZEE(SODIAGNSTATE,SODIAGNSTATE)
-      COMPLEX*16 H_ZEE2(SODIAGNSTATE*(SODIAGNSTATE+1)/2)
       COMPLEX*16 ZOUT(SODIAGNSTATE,SODIAGNSTATE)
 
       REAL*8 RWORK(3*SODIAGNSTATE-2)
@@ -54,8 +54,8 @@ C subroutine arguments
       REAL*8 MU_BOHR
 
 C For creating the filename of the ORB file
-      CHARACTER*10 FILEBASE
-      CHARACTER*10 FILEBASEL
+      CHARACTER*11 FILEBASE
+      CHARACTER*11 FILEBASEL
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C Matrices
@@ -67,9 +67,9 @@ C DEIGVAL     Storage for eigenvalues (REAL!)
 C DEIGVEC     Storage for eigenvectors
 C BPTST       Storage for some testing
 
-C from single_aniso
-      ge=2.0023193043718d0
-      MU_BOHR=0.466864374d0
+      ge=-(CONST_ELECTRON_G_FACTOR_)
+      MU_BOHR=CONST_BOHR_MAGNETON_IN_SI_*
+     &        (CONV_AU_TO_CM1_/CONV_AU_TO_KJ_/1.0D3) ! in cm-1/T
 
       WRITE(6,*)
       WRITE(6,*)
@@ -86,26 +86,18 @@ C from single_aniso
         WRITE(6,*) IWORK(LSODIAG-1+I)
       END DO
 
-      CALL DCOPY_(9*N**2,0.0d0,1,LMATR,1)
-      CALL DCOPY_(9*N**2,0.0d0,1,LMATI,1)
-      CALL DCOPY_(9*N**2,0.0d0,1,SMATR,1)
-      CALL DCOPY_(9*N**2,0.0d0,1,SMATI,1)
-      CALL DCOPY_(9*N**2,0.0d0,1,MUMAT2R,1)
-      CALL DCOPY_(9*N**2,0.0d0,1,MUMAT2I,1)
-
+      CALL DCOPY_(9*N**2,[0.0d0],0,LMATR,1)
+      CALL DCOPY_(9*N**2,[0.0d0],0,LMATI,1)
+      CALL DCOPY_(9*N**2,[0.0d0],0,SMATR,1)
+      CALL DCOPY_(9*N**2,[0.0d0],0,SMATI,1)
+      CALL DCOPY_(9*N**2,[0.0d0],0,MUMAT2R,1)
+      CALL DCOPY_(9*N**2,[0.0d0],0,MUMAT2I,1)
 
       CALL GETMEM('DMATTMPA','ALLO','REAL',LDMATTMP,3*(NBST*(NBST+1)))
 
-c actually the opposite of the identity mat
-      IDENTMAT(1,1) = 1.0d0;
-      IDENTMAT(1,2) = 0.0d0;
-      IDENTMAT(1,3) = 0.0d0;
-      IDENTMAT(2,1) = 0.0d0;
-      IDENTMAT(2,2) = 1.0d0;
-      IDENTMAT(2,3) = 0.0d0;
-      IDENTMAT(3,1) = 0.0d0;
-      IDENTMAT(3,2) = 0.0d0;
-      IDENTMAT(3,3) = 1.0d0;
+      !> identity mat
+      CALL DCOPY_(3*3,[0.0d0],0,IDENTMAT,1)
+      IDENTMAT(1,1)=1.0d0; IDENTMAT(2,2)=1.0d0; IDENTMAT(3,3)=1.0d0
 
 C First, we calculate the expectation values of
 C  (L+ge*S)x (L+ge*S)y (L+ge*S)z
@@ -155,7 +147,7 @@ C      CALL ADD_INFO("SODIAG_PROP",PROP,3*SODIAGNSTATE**2,4)
 
 
 c Calculate the atens as in single_aniso
-      CALL ATENS(PROP,N,GTENS,MAXES,IPGLOB)
+      CALL ATENS_RASSI(PROP,N,GTENS,MAXES,IPGLOB)
 
 
       do l=1,3
@@ -170,7 +162,7 @@ c Calculate the atens as in single_aniso
       enddo
 
 
-      call atens(PROP2, N, GTENS, MAXES2, 2)
+      call atens_RASSI(PROP2, N, GTENS, MAXES2, 2)
 
 c Diagonalize along each direction
 C LOOP OVER THE DIRECTIONS
@@ -224,21 +216,18 @@ c  apply the magnetic field along the main iDir axis
       END IF
 
 c DIAGONALIZE
-      DO J=1,N
-      DO I=1,J
-        IJ=J*(J-1)/2+I
-        H_ZEE2(IJ) = H_ZEE(I,J)
-      END DO
-      END DO
+      lcwork = (2*n-1); info = 0
+      call zheev('V','U',n,h_zee,n,deigval,zwork,lcwork,
+     &           rwork,info)
 
-      call zhpev_('V','U',N,H_ZEE2,DEIGVAL,
-     &           DEIGVEC,N,ZWORK,RWORK,INFO)
-
+      !> put eigenvectors in deigvec
+      call zcopy(n**2,h_zee,1,deigvec,1)
 
       IF(INFO.NE.0) THEN
         WRITE(6,*) "DIAGONALIZATION FAILED! ERROR: ",INFO
         CALL ABEND()
       END IF
+
 
       IF(IPGLOB.GE.DEBUG) THEN
         WRITE(6,*) "EIGENVALUES OF L+ge*S in direction: ",IDIR
@@ -285,7 +274,7 @@ c      SUBROUTINE SPIN_PHASE(IPGLOB,DIPSO2,GMAIN,DIM,ZIN,ZOUT)
         enddo
       enddo
 
-      call SPIN_PHASE(2,PROP2,GTENS,N,DEIGVEC,ZOUT)
+      call SPIN_PHASE_RASSI(2,PROP2,GTENS,N,DEIGVEC,ZOUT)
 
 
 c EXPAND EIGENVECTORS TO SEPARATE R,I MATRICES AND
@@ -293,8 +282,8 @@ c AS A PART OF AN IDENTITY MATRIX
       CALL GETMEM('SODEIGR','ALLO','REAL',LEIGVECR,NSS**2)
       CALL GETMEM('SODEIGI','ALLO','REAL',LEIGVECI,NSS**2)
 
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LEIGVECR),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LEIGVECI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LEIGVECR),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LEIGVECI),1)
 
       DO I=1,NSS
       DO J=1,NSS
@@ -358,12 +347,12 @@ c REDO USING SONATORB_MIX
         WRITE(6,*) "State: ",ISTATE,JSTATE
 
 c file name for the spin density orb file
-        IF(IDIR.EQ.1) FILEBASE='SODIXSDENS'
-        IF(IDIR.EQ.2) FILEBASE='SODIYSDENS'
-        IF(IDIR.EQ.3) FILEBASE='SODIZSDENS'
-        IF(IDIR.EQ.1) FILEBASEL='SODIXLDENS'
-        IF(IDIR.EQ.2) FILEBASEL='SODIYLDENS'
-        IF(IDIR.EQ.3) FILEBASEL='SODIZLDENS'
+        IF(IDIR.EQ.1) FILEBASE='SODISDENS.X'
+        IF(IDIR.EQ.2) FILEBASE='SODISDENS.Y'
+        IF(IDIR.EQ.3) FILEBASE='SODISDENS.Z'
+        IF(IDIR.EQ.1) FILEBASEL='SODILDENS.X'
+        IF(IDIR.EQ.2) FILEBASEL='SODILDENS.Y'
+        IF(IDIR.EQ.3) FILEBASEL='SODILDENS.Z'
 
 
 C For L, mix the AO integrals, leave the density alone
@@ -500,7 +489,7 @@ C      CALL ADD_INFO("SODIAG_SMATI",SMATI,9*N*N,4)
 
 
 
-      SUBROUTINE SPIN_PHASE(IPGLOB,DIPSO2,GMAIN,DIM,ZIN,ZOUT)
+      SUBROUTINE SPIN_PHASE_RASSI(IPGLOB,DIPSO2,GMAIN,DIM,ZIN,ZOUT)
 C
 C     The RASSI program gives a random phase to the spin-orbit functions.
 C
@@ -636,7 +625,7 @@ CC Rewrite the Spin m.e. in a new basis:
 
 
 
-      SUBROUTINE ATENS(moment, dim, gtens, maxes, IPGLOB)
+      SUBROUTINE ATENS_RASSI(moment, dim, gtens, maxes, IPGLOB)
 
       IMPLICIT NONE
       INTEGER dim,ic1,ic2,i,j,k,l,IPGLOB,info
@@ -746,7 +735,7 @@ C
       enddo
       info=0
 
-      call DIAG_R2(A_TENS_TERM,3,info,w,z)
+      call DIAG_R2_RASSI(A_TENS_TERM,3,info,w,z)
       if(INFO.NE.0) goto 199
       if((w(1).LT.0.D0).AND.(w(2).LT.0.D0).AND.(w(3).LT.0.D0)) then
       write(6,'(2x,A)') 'ALL EIGENVALUES OF THE A-TENSOR ARE NEGATIVE'
@@ -905,7 +894,7 @@ C      Call Add_Info('GTENS_MAIN',gtens,3,5)
 
 
 
-      Subroutine DIAG_R2(MATRIX,NBTOT,INFO,W1,Z1)
+      Subroutine DIAG_R2_RASSI(MATRIX,NBTOT,INFO,W1,Z1)
 C
 C   THIS ROUTINE PERFORMS THE DIAGONALIZATION OF A REAL SQUARE
 C   MATRIX WITH THE DIMENSION NBTOT. THE EIGENVALUES OF THE DIAGONALIZATION

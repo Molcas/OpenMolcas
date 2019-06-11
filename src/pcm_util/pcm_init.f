@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine PCM_Init(iPrint,ICharg,NAtm,ToAng,
-     $                    AtmC,IAtm,LcAtmC,LcIAtm,iOper,nIrrep,NonEq)
+     $                    AtmC,IAtm,LcAtmC,LcIAtm,nIrrep,NonEq)
       Implicit Real*8 (a-h,o-z)
 #include "WrkSpc.fh"
 #include "rctfld.fh"
@@ -17,6 +17,7 @@
       Real*8 AtmC(3,NAtm),LcAtmC(3,NAtm)
       Integer IAtm(NAtm),LcIAtm(NAtm)
       Logical NonEq
+      Dimension RJunk(1)
 *
 *     Build the cavity.
 *     Write the input file for GeomView.
@@ -110,12 +111,11 @@
 *---- Define PCM matrix: the inverse is stored in ip_DM
 *
       nTs2 = nTs * nTs
-      LenScr = 2 * nTs
+c     LenScr = 2 * nTs
       Call GetMem('SMat','Allo','Real',ip_SM,nTs2)
       Call GetMem('SDMat','Allo','Real',ip_SDM,nTs2)
       Call GetMem('TMat','Allo','Real',ip_TM,nTs2)
       Call GetMem('RMat','Allo','Real',ip_RM,nTs2)
-      Call GetMem('Scr','Allo','Real',ip_Scr,LenScr)
       If (NonEq) Then
          Eps_=EpsInf
       Else
@@ -124,9 +124,7 @@
       Call MatPCM(nTs,Eps_,Conductor,iWork(ip_ISph),
      &            Work(ip_Sph), Work(ip_Tess),
      &            Work(ip_DM),Work(ip_SM),Work(ip_SDM),
-     &            Work(ip_TM),Work(ip_RM),
-     &            Work(ip_Scr),LenScr)
-      Call GetMem('Scr','Free','Real',ip_Scr,LenScr)
+     &            Work(ip_TM),Work(ip_RM))
       Call GetMem('RMat','Free','Real',ip_RM,nTs2)
       Call GetMem('TMat','Free','Real',ip_TM,nTs2)
       Call GetMem('SDMat','Free','Real',ip_SDM,nTs2)
@@ -135,7 +133,6 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_integer(iOper)
          Call Unused_integer(nIrrep)
       End If
       End

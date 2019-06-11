@@ -60,7 +60,7 @@
       iPrint=99
       If (iPrint.ge.99) Then
          iComp = 1
-         Call PrMtrx(' In PGet2_CD3:DSO ',iD0Lbl,iComp,ipD0,Work)
+         Call PrMtrx(' In PGet2_CD3:DSO ',[iD0Lbl],iComp,[ipD0],Work)
          Call RecPrt('V_K',' ',V_K,1,mV_K)
       End If
 #endif
@@ -143,7 +143,7 @@ C     Fac = One / Four
 *------------------all irreps are different and the 2nd order density
 *                  matrix will be identical to zero for a SCF type wave
 *                  function.
-                   call dcopy_(nijkl,Zero,0,PSO(1,MemSO2),1)
+                   call dcopy_(nijkl,[Zero],0,PSO(1,MemSO2),1)
                    Go To 310
                 End If
 *

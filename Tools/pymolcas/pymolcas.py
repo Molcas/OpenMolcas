@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 #***********************************************************************
@@ -11,10 +11,11 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2015-2017, Ignacio Fdez. Galván                        *
+# Copyright (C) 2015-2018, Ignacio Fdez. Galván                        *
 #***********************************************************************
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
+from six import text_type
 import sys
 sys.dont_write_bytecode = True
 
@@ -22,8 +23,12 @@ warning = ''
 stamp = 'd41d8cd98f00b204e9800998ecf8427e'
 
 def main(my_name):
-  if sys.hexversion < 0x03040000:
-    sys.exit("Python 3.4 or newer is required to run this program.")
+  if sys.hexversion < 0x03000000:
+    if sys.hexversion < 0x02070000:
+      return("Python 2.7 or newer is required to run this program.")
+  else:
+    if sys.hexversion < 0x03040000:
+      return("Python 3.4 or newer is required to run this program.")
 
   import os
   import os.path
@@ -40,11 +45,11 @@ def main(my_name):
   sys.stdout = os.fdopen(sys.stdout.fileno(), 'wb', 0)
   sys.stderr = os.fdopen(sys.stderr.fileno(), 'wb', 0)
   try:
-    sys.stdout = codecs.getwriter('utf8')(sys.stdout.buffer)
-    sys.stderr = codecs.getwriter('utf8')(sys.stderr.buffer)
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer)
+    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer)
   except AttributeError:
-    sys.stdout = codecs.getwriter('utf8')(sys.stdout)
-    sys.stderr = codecs.getwriter('utf8')(sys.stderr)
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
+    sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
 
   with open(my_name, 'rb') as thisfile:
     stamp = hashlib.md5(thisfile.read()).hexdigest()
@@ -55,17 +60,22 @@ def main(my_name):
     os.environ['PYMOLCAS_STARTED'] = ''
 
   # Define this as the driver, so scripts can use the same driver
-  os.environ['MOLCAS_DRIVER'] = sys.argv[0]
+  # (if there is a directory name, we should use the full path)
+  if (os.path.dirname(sys.argv[0])):
+    os.environ['MOLCAS_DRIVER'] = my_name
+  else:
+    os.environ['MOLCAS_DRIVER'] = sys.argv[0]
 
   # Command-line arguments
   parser = argparse.ArgumentParser(formatter_class=lambda prog: argparse.HelpFormatter(prog,max_help_position=42,width=120))
+  parser.add_argument('-s', '--setup', help='set up a custom molcasrc file with useful environment variables', action='store_true')
   parser.add_argument('-env', '--environment', help='display information about environment', action='store_true')
   parser.add_argument('-clean', '--clean_scratch', help='clean scratch area after calculation', action='store_true')
   parser.add_argument('-new', '--new_scratch', help='clean scratch area before calculation', action='store_true')
   parser.add_argument('-old', '--old_scratch', help='reuse scratch area (default)', action='store_true')
   parser.add_argument('-ign', '--ignore_environment', help='run ignoring resource files', action='store_true')
   parser.add_argument('-np', '--nprocs', help='number of parallel (MPI) processes', type=int)
-  parser.add_argument('-v', '--version', help='print version of the EMIL interpreter', action='store_true')
+  parser.add_argument('-v', '--version', help='print version of the driver', action='store_true')
   parser.add_argument('-o', '--output', help='redirect output stream to FILE', metavar='FILE')
   parser.add_argument('-e', '--error', help='redirect error stream to FILE', metavar='FILE')
   parser.add_argument('-oe', '-eo', '--outputerror', help='redirect output and error streams to FILE', metavar='FILE')
@@ -79,14 +89,21 @@ def main(my_name):
   parser.usage = '{0} [options] [input_file | script ...]'.format(parser.prog)
   args = vars(parser.parse_args())
 
-  from molcas_aux import find_molcas, find_sources, attach_streams
+  from molcas_aux import find_molcas, find_sources, attach_streams, dotmolcas
+  from write_molcasrc import write_molcasrc
   from molcas_wrapper import Molcas_wrapper, MolcasException
 
   # Checking for version right at the beginning, in case MOLCAS cannot be found
   if (args['version']):
-    print('python EMIL interpreter version = {0}'.format(Molcas_wrapper.version))
+    print('python driver version = {0}'.format(Molcas_wrapper.version))
     print('(after the original perl EMIL interpreter of Valera Veryazov)')
-    sys.exit(0)
+    return(0)
+
+  if (args['setup']):
+    if (write_molcasrc(dotmolcas('molcasrc'), parser.prog)):
+      return(0)
+    else:
+      return(1)
 
   xbin_list={}
   find_molcas(xbin_list, here=(not args['not_here']))
@@ -99,7 +116,7 @@ def main(my_name):
     print('"{0}" aliased to {1}'.format(args['filename'], target))
     command = '{0} {1}'.format(args['filename'], args['extra'])
     command = [target] + args['extra']
-    sys.exit(subprocess.call(command))
+    return(subprocess.call(command))
 
   # If this is not calling a program in sbin, pass the extra options to the main program
   # Unfortunately we cannot use Molcas.in_sbin yet, because Molcas is not initialized
@@ -124,7 +141,7 @@ def main(my_name):
 
   # Define environment variables according to input arguments
   if (args['nprocs']):
-    os.environ['MOLCAS_NPROCS'] = str(args['nprocs'])
+    os.environ['MOLCAS_NPROCS'] = text_type(args['nprocs'])
 
   if (args['clean_scratch']):
     os.environ['MOLCAS_KEEP_WORKDIR'] = 'NO'
@@ -146,19 +163,19 @@ def main(my_name):
   try:
     Molcas = Molcas_wrapper(warning=warning, stamp=stamp)
   except MolcasException as message:
-    print(message, file=sys.stderr)
-    sys.exit(1)
+    print(text_type(message), file=sys.stderr)
+    return(1)
 
   if (not args['ignore_environment']):
     Molcas.read_environment()
 
   if (args['environment']):
     Molcas.show_environment()
-    sys.exit(0)
+    return(0)
 
   if (args['banner']):
     Molcas.print_banner()
-    sys.exit(0)
+    return(0)
 
   if (args['license']):
     rc = Molcas.check_license()
@@ -170,12 +187,12 @@ def main(my_name):
       print('The license is valid')
       if (Molcas.licensee):
         print('Licensed to {0}'.format(Molcas.licensee))
-    sys.exit(0)
+    return(0)
 
   if (not args['filename']):
     parser.description = 'MOLCAS has been found at {0}'.format(Molcas.molcas)
     parser.print_help()
-    sys.exit(0)
+    return(0)
   else:
     # could this be a program from sbin?
     if (Molcas.in_sbin(args['filename'])):
@@ -183,24 +200,24 @@ def main(my_name):
       try:
         rc = Molcas.run_sbin([args['filename']] + args['extra'])
         if (rc is not None):
-          sys.exit(rc)
+          return(rc)
       except KeyboardInterrupt:
-        sys.exit(1)
+        return(1)
     # if not, it must be an input file
     try:
       attach_streams(output=args['output'], error=args['error'], buffer_size=args['buffer'])
     except IOError as e:
-      print(e, file=sys.stderr)
-      sys.exit(1)
+      print(text_type(e), file=sys.stderr)
+      return(1)
     try:
       Molcas.read_input(args['filename'])
       Molcas.auto()
     except MolcasException as message:
-      print(message, file=sys.stderr)
+      print(text_type(message), file=sys.stderr)
       # Skip verification with unsupported features
       # TODO: remove when ready
-      if ('is unsupported' in str(message) or
-          'Unknown module' in str(message)):
+      if ('is unsupported' in text_type(message) or
+          'Unknown module' in text_type(message)):
         Molcas.rc = '_RC_NOT_AVAILABLE_'
       else:
         Molcas.rc = '_RC_JOB_KILLED_'
@@ -213,5 +230,8 @@ def main(my_name):
 
 # Run pymolcas if not called via import
 if (__name__ == '__main__'):
-  import shutil
-  sys.exit(main(shutil.which(sys.argv[0])))
+  from molcas_aux import which
+  f = which(sys.argv[0])
+  if (f is None):
+    f = sys.argv[0]
+  sys.exit(main(f))

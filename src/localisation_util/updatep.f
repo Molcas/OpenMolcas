@@ -27,7 +27,7 @@ c
 #include "Molcas.fh"
       Integer iTab_Ptr(*),nBas_Start(*)
       Real*8 PACol(nOrb2Loc,2)
-      Character*(LENIN4) Name(*),PALbl
+      Character*(LENIN8) Name(*),PALbl
       Logical Debug
 c
       cosg   = cos(gamma_rot)

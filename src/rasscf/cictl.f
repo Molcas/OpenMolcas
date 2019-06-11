@@ -93,7 +93,10 @@
 #else
       character(len=2300) :: maquis_name_states
       character(len=2300) :: maquis_name_results
+      logical             :: rfh5DMRG
+      logical             :: twordm_qcm
 #endif
+      Dimension rdum(1)
 
 *PAM05      SymProd(i,j)=1+iEor(i-1,j-1)
       Call qEnter('CICTL')
@@ -102,6 +105,18 @@ C Local print level (if any)
       IF(IPRLEV.ge.DEBUG) THEN
         WRITE(LF,*)' Entering ',ROUTINE
       END IF
+
+* PAM 2017-05-23 Modify TUVX by adding a shift vector to TUVX, which has
+* the effect of adding a scalar times a projector for doubly-occupied
+* core states.
+          IF(IfCRPR) Then
+*      write(6,*)' CICTL calling MKPROJ.'
+*      call xflush(6)
+            CALL MKPROJ(Work(LCRVEC),CMO,TUVX)
+*      write(6,*)' CICTL back from MKPROJ.'
+*      call xflush(6)
+          END IF
+
 
 * set up flag 'IFCAS' for GAS option, which is set up in gugatcl originally.
 * IFCAS = 0: This is a CAS calculation
@@ -138,6 +153,7 @@ C Local print level (if any)
         Write(LF,*) ' SGFCIN ',LW1
       END IF
       Call DecideOnESPF(Do_ESPF)
+
 *                                                                      *
 ************************************************************************
 * Global variable for MCPDFT functionals                               *
@@ -190,7 +206,7 @@ C Local print level (if any)
 * Get the spin density in MOs
 *
            IF (NACTEL.EQ.0) THEN
-             CALL DCOPY_(NTOT2,0.0D0,0,WORK(LRCT_FS),1)
+             CALL DCOPY_(NTOT2,[0.0D0],0,WORK(LRCT_FS),1)
            ELSE
              CALL GETMEM('D1S_RCT','ALLO','REAL',LRCT_S,NACPAR)
              Call DDafile(JOBIPH,2,Work(LRCT_S),NACPAR,jDisk)
@@ -243,9 +259,9 @@ C Local print level (if any)
            If ( NAC.ge.1 ) Then
 
               If (NACTEL.eq.0) THEN
-                 call dcopy_(NACPAR,0.0D0,0,WORK(LW6),1)
-                 call dcopy_(NACPAR,0.0D0,0,WORK(LW7),1)
-                 call dcopy_(NACPR2,0.0D0,0,WORK(LW8),1)
+                 call dcopy_(NACPAR,[0.0D0],0,WORK(LW6),1)
+                 call dcopy_(NACPAR,[0.0D0],0,WORK(LW7),1)
+                 call dcopy_(NACPR2,[0.0D0],0,WORK(LW8),1)
               Else
 
                 if(doDMRG)then
@@ -262,7 +278,7 @@ C Local print level (if any)
      &                                 )
 
                 !> import 1p-spin density
-                call dcopy_(NACPAR,Zero,0,work(lw7),1)
+                call dcopy_(NACPAR,[0.0D0],0,work(lw7),1)
                 call dmrg_interface_ctl(
      &                                  task  = 'imp spdX',
      &                                  x1    = work(lw7:lw7+NACPAR-1),
@@ -275,7 +291,7 @@ C Local print level (if any)
                  Call GetMem('PAtmp','ALLO','REAL',LW9,NACPR2)
                  Call GetMem('Pscr','ALLO','REAL',LW10,NACPR2)
                  C_Pointer = Lw4
-                 CALL Lucia_Util('Densi',iDummy,iDummy,Dummy)
+                 CALL Lucia_Util('Densi',0,iDummy,rdum)
                  If (IFCAS.GT.2 .OR. iDoGAS) Then
                    Call CISX(IDXSX,Work(LW6),Work(LW7),Work(LW8),
      &                     Work(LW9),Work(LW10))
@@ -286,9 +302,9 @@ C Local print level (if any)
 
              End If
            Else
-              call dcopy_(NACPAR,0.0D0,0,WORK(LW6),1)
-              call dcopy_(NACPAR,0.0D0,0,WORK(LW7),1)
-              call dcopy_(NACPR2,0.0D0,0,WORK(LW8),1)
+              call dcopy_(NACPAR,[0.0D0],0,WORK(LW6),1)
+              call dcopy_(NACPAR,[0.0D0],0,WORK(LW7),1)
+              call dcopy_(NACPR2,[0.0D0],0,WORK(LW8),1)
            End If
 * Modify the symmetric 2-particle density if only partial
 * "exact exchange" is included.
@@ -319,6 +335,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
 
            Call GetMem('DStmp','FREE','REAL',LW7,NACPAR)
            Call GetMem('Dtmp ','FREE','REAL',LW6,NACPAR)
+           Call GetMem('CIVEC','FREE','REAL',LW4,NCONF)
 *
            Call SGFCIN(CMO,Work(LW1),FI,D1I,Work(LRCT_F),Work(LRCT_FS))
 *
@@ -359,7 +376,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
      &                          energy = emy
      &                         )
         if(dofcidump)then
-          CALL GETMEM('CICTL','FREE','REAL',LW1,NACPAR)
+          CALL GETMEM('CICTL1','FREE','REAL',LW1,NACPAR)
           goto 9000
         end if
 #endif
@@ -378,12 +395,12 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
       if(IfVB.eq.1)then
         call cvbmn_rvb(max(ifinal,1))
       else
-        If (KSDFT(1:3).ne.'SCF'.
-     &      and.DFTFOCK(1:4).eq.'DIFF'.and.nac.ne.0) Then
+        If (KSDFT(1:3).ne.'SCF'
+     &      .and.DFTFOCK(1:4).eq.'DIFF'.and.nac.ne.0) Then
           nTmpPUVX=nFint
           Call GetMem('TmpPUVX','Allo','Real',ipTmpPUVX,nTmpPUVX)
           Call GetMem('TmpTUVX','Allo','Real',ipTmpTUVX,NACPR2)
-          Call dCopy_(NACPR2,0.0d0,0,Work(ipTmpTUVX),1)
+          Call dCopy_(NACPR2,[0.0d0],0,Work(ipTmpTUVX),1)
           Call Get_dArray('DFT_TwoEl',Work(ipTmpPUVX),nTmpPUVX)
           Call Get_TUVX(Work(ipTmpPUVX),Work(ipTmpTUVX))
           Call DaXpY_(NACPR2,1.0d0,TUVX,1,Work(ipTmpTUVX),1)
@@ -443,9 +460,11 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
 ! Call DMRG staff in Molcas - yingjin
            if(doDMRG)then
 #ifdef _DMRG_
+                                                  twordm_qcm = .true.
+             if(KeyCION .and. .not. domcpdftDMRG) twordm_qcm = .false.
              call dmrg_interface_ctl(
      &                               task = 'run DMRG',
-     &                               Key_CION = KeyCION,
+     &                               Key_CION = .not.twordm_qcm,
      &                               IterSCF  = Iter
      &                              )
 ! Keep the root energies
@@ -474,11 +493,10 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
 * LW9: ANTISYMMETRIC TWO-BODY DENSITY
 *
       Call Timing(Rado_1,Swatch,Swatch,Swatch)
-      Zero = 0.0d0
-      Call dCopy_(NACPAR,Zero,0,D,1)
-      Call dCopy_(NACPAR,Zero,0,DS,1)
-      Call dCopy_(NACPR2,Zero,0,P,1)
-      Call dCopy_(NACPR2,Zero,0,PA,1)
+      Call dCopy_(NACPAR,[0.0D0],0,D,1)
+      Call dCopy_(NACPAR,[0.0D0],0,DS,1)
+      Call dCopy_(NACPR2,[0.0D0],0,P,1)
+      Call dCopy_(NACPR2,[0.0D0],0,PA,1)
       CALL GETMEM('CIVEC','ALLO','REAL',LW4,NCONF)
       CALL GETMEM('Dtmp ','ALLO','REAL',LW6,NACPAR)
       CALL GETMEM('DStmp','ALLO','REAL',LW7,NACPAR)
@@ -504,7 +522,7 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
          If ( NAC.ge.1 ) Then
            C_Pointer = Lw4
            if(.not.(doDMRG))
-     &       CALL Lucia_Util('Densi',iDummy,iDummy,Dummy)
+     &       CALL Lucia_Util('Densi',0,iDummy,rdum)
            IF ( IPRLEV.GE.INSANE  ) THEN
              write(6,*) 'At root number =', jroot
              CALL TRIPRT('D after lucia  ',' ',Work(LW6),NAC)
@@ -527,11 +545,11 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
      &                             mdim  = nacpr2,
      &                             state = jroot,
      &                             rdm1  = .true.,
-     &                             rdm2  = (.not.KeyCION)
+     &                             rdm2  = twordm_qcm
      &                            )
 
            !> import 1p-spin density
-           call dcopy_(NACPAR,Zero,0,work(lw7),1)
+           call dcopy_(NACPAR,[0.0D0],0,work(lw7),1)
            call dmrg_interface_ctl(
      &                             task  = 'imp spdX',
      &                             x1    = work(lw7:lw7+NACPAR-1),
@@ -544,7 +562,7 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
            write(6,*)"  Set all elems in anti-symmetric 2-RDM to zero"
            write(6,*)"==============================================="
 #endif
-           call dcopy_(NACPR2,Zero,0,work(lw9),1)
+           call dcopy_(NACPR2,[0.0D0],0,work(lw9),1)
 
            IF ( IPRLEV.GE.INSANE  ) THEN
              CALL TRIPRT('D after  DMRG',' ',Work(LW6),NAC)
@@ -618,7 +636,7 @@ C and for now don't bother with 2-electron active density matrices
 * compute density matrices
         If ( NAC.ge.1 ) Then
            C_Pointer = Lw4
-           CALL Lucia_Util('Densi',iDummy,iDummy,Dummy)
+           CALL Lucia_Util('Densi',0,iDummy,rdum)
            IF ( IPRLEV.GE.INSANE  ) THEN
              CALL TRIPRT('D after lucia',' ',Work(LW6),NAC)
              CALL TRIPRT('DS after lucia',' ',Work(LW7),NAC)
@@ -693,7 +711,7 @@ c
      &     'has been made, which may change the order of the CSFs.'
        END IF
        Call GetMem('PrSel','Allo','Inte',LW12,nConf)
-       Call iCopy(nConf,0,0,iWork(LW12),1)
+       Call iCopy(nConf,[0],0,iWork(LW12),1)
        Call GetMem('CIVtmp','Allo','Real',LW11,nConf)
        iDisk = IADR15(4)
 
@@ -722,6 +740,7 @@ c         if(.not.iDoGas)then
 #ifdef _HDF5_
           call mh5_put_dset_array_real
      $            (wfn_cicoef,Work(LW11),[nconf,1],[0,i-1])
+
 #endif
 c         else
 c         call DDafile(JOBIPH,1,Work(LW4),nConf,jDisk)
@@ -811,6 +830,11 @@ C.. printout of the wave function
         Call GetMem('PrSel','Free','Inte',LW12,nConf)
         Call GetMem('CIVtmp','Free','Real',LW11,nConf)
       ENDIF
+#ifdef _DMRG_
+          call mh5_put_dset_array_str
+     &         (wfn_dmrg_checkpoint,dmrg_file%qcmaquis_checkpoint_file)
+#endif
+
       CALL GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
       CALL GETMEM('CICTL1','FREE','REAL',LW1,NACPAR)
 
@@ -853,6 +877,30 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
         mconf = 0
         Call Allocate_Work(ipRF,nConf)
         Call Qpg_dArray("RF CASSCF Vector",Exist,mConf)
+
+        !> check whether the rf target h5 file exists (needed at this
+        !point for numerical gradient calculations)
+#ifdef _DMRG_
+        if(doDMRG.and.exist)then
+          inquire(file="rf.results_state.h5", exist=rfh5DMRG)
+          if(.not.rfh5DMRG)then
+            maquis_name_states  = ""
+            maquis_name_results = ""
+            call file_name_generator(IPCMROOT-1,"checkpoint_state.",
+     &                               17,".h5",3,maquis_name_states)
+            call file_name_generator(IPCMROOT-1,"results_state.",
+     &                               14,".h5",3,maquis_name_results)
+
+          !> copy current target wave function to local wave function
+            call system(
+     & "cp -f "//trim(maquis_name_results)//" rf.results_state.h5 && "//
+     & "rm -rf rf.checkpoint_state.h5 && "//
+     & "cp -r "//trim(maquis_name_states)//" rf.checkpoint_state.h5"
+     &                 )
+          end if
+        end if
+#endif
+
         If (Exist
      &      .and. mConf .eq. nConf
      &      .and. iFinal.ne.2

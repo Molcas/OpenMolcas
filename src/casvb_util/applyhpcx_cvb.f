@@ -66,11 +66,11 @@ c  If anything there, apply Hamiltonian to vector of this symmetry :
      &      nci)
           if(c_daxpy.ne.zero)
      >      call daxpy_(nci,c_daxpy,w(lcim),1,w(iaddr_ci(icivec)),1)
-          call fmove(w(iaddr_ci(icivec)),w(lcim),nci)
+          call fmove_cvb(w(iaddr_ci(icivec)),w(lcim),nci)
         else
           if(c_daxpy.ne.zero)
      >      call daxpy_(nci,c_daxpy,w(lcim),1,w(iaddr_ci(icivec)),1)
-          call fmove(w(iaddr_ci(icivec)),w(lcim),nci)
+          call fmove_cvb(w(iaddr_ci(icivec)),w(lcim),nci)
         endif
         call mol2vb_cvb(w(iaddr_ci(icivec)),w(lcim),isyml)
       endif

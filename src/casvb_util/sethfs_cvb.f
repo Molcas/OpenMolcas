@@ -13,12 +13,14 @@
       subroutine sethfs_cvb(istring)
       implicit real*8(a-h,o-z)
 
-      call seth_cvb(istring,1)
+      call seth_cvb([istring],1)
       return
       end
 
       subroutine gethfs_cvb(istring)
       implicit real*8(a-h,o-z)
-      call geth_cvb(istring,1)
+      dimension istr(1)
+      call geth_cvb(istr,1)
+      istring=istr(1)
       return
       end

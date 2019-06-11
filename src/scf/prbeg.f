@@ -61,11 +61,11 @@
      &                     'convergence statistics'
         Write(6,*)
         Write(6,'(A,A,A)')'Iter     Tot. ',Label,' One-elec.   '//
-     &          '    Two-elec.    Energy       Max Dij or  Max Fij '//
+     &          '    Two-elec.     Energy      Max Dij or  Max Fij '//
      &          '     DNorm      TNorm      AccCon     Time'
-        Write(6,*)'         Energy          Energy          Energy'//
-     &            '       Change      Delta Norm                     '//
-     &            '                            in Sec.'
+        Write(6,'(A)')'         Energy          Energy          '//
+     &          'Energy        Change      Delta Norm           '//
+     &          '                                     in Sec.'
       Else
          iDummy_run=1
          Write(6,'(45x,A)')'No optimization is performed'
@@ -73,13 +73,8 @@
             Write(6,'(29x,A)') 'Results refer to orbitals obtained '
      &                       //'from core diagonalization'
          Else If (InVec.eq.2) Then
-            if(is_FileOrb.eq.0) then
-            Write(6,'(34x,A)') 'Results refer to input orbitals '
-     &                       //'read from INPORB'
-            else
             Write(6,'(34x,A,A)') 'Results refer to input orbitals '
-     &            //'read from ',SCF_FileOrb(1:index(SCF_FileOrb,' '))
-            endif
+     &            //'read from ',Trim(SCF_FileOrb)
          Else If (InVec.eq.3) Then
             Write(6,'(34x,A)') 'Results refer to density matrix '
      &                       //'read from COMOLD'

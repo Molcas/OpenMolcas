@@ -26,7 +26,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
-      Integer NrDisp(MxAtom*3), nDisp(0:7), DegDisp(MxAtom*3)
+      Integer nDisp(0:7), DegDisp(MxAtom*3)
       Character ChDisp(MxAtom*3)*(LENIN6)
       Logical TstFnc
       Character*1 xyz(0:2)
@@ -79,7 +79,6 @@
                      ChDisp(iDisp)=' '
                      Write (ChDisp(iDisp)(1:(LENIN6)),'(A,1X,A1)')
      &                     LblCnt(mdc)(1:LENIN4),xyz(iCar)
-                     NrDisp(iDisp)=iAtmNr(iCnttp)
                      DegDisp(iDisp)=nIrrep/nstab(mdc)
                      nDisp(iIrrep)=nDisp(iIrrep)+1
                   End If
@@ -99,8 +98,7 @@
       End If
 *
       Call Put_iScalar('nChDisp',iDisp)
-      Call Put_cArray('ChDisp',ChDisp,(LENIN6)*iDisp)
-      Call Put_iArray('NrDisp',NrDisp,iDisp)
+      Call Put_cArray('ChDisp',ChDisp(1),(LENIN6)*iDisp)
       Call Put_iArray('nDisp',nDisp,nIrrep)
       Call Put_iArray('DegDisp',DegDisp,iDisp)
 *                                                                      *

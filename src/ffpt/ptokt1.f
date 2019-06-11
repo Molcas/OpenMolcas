@@ -36,6 +36,7 @@
       Data    zrComp/3,8,10/
       Logical Debug,Orig
       Data    Debug/.False./
+      Dimension idum(1)
 *
 *----------------------------------------------------------------------*
 *     Start procedure                                                  *
@@ -96,7 +97,8 @@
          iOpt1=1
          iOpt2=0
          iSyLbl=0
-         Call iRdOne(iRc,iOpt1,Label,jComp,nInts,iSyLbl)
+         Call iRdOne(iRc,iOpt1,Label,jComp,idum,iSyLbl)
+         nInts=idum(1)
          If ( iRc.ne.0 ) Goto 991
          Call RdOne(iRc,iOpt2,Label,jComp,Temp1,iSyLbl)
          Call CmpInt(Temp1,nInts,nBas,nSym,iSyLbl)

@@ -80,9 +80,9 @@
       CALL REF_NATO(DREF,CMO,WORK(LOCC),WORK(LCNAT))
 
 c Initialize Fock matrices in AO basis to zero:
-      CALL DCOPY_(NBTRI,0.0D0,0,FFAO,1)
-      CALL DCOPY_(NBTRI,0.0D0,0,FIAO,1)
-      CALL DCOPY_(NBTRI,0.0D0,0,FAAO,1)
+      CALL DCOPY_(NBTRI,[0.0D0],0,FFAO,1)
+      CALL DCOPY_(NBTRI,[0.0D0],0,FIAO,1)
+      CALL DCOPY_(NBTRI,[0.0D0],0,FAAO,1)
 * Construct density matrix for frozen orbitals
       Call Getmem('DF','ALLO','REAL',ipDF,NBTRI)
       DO ISYM=1,NSYM
@@ -203,15 +203,15 @@ c Initialize Fock matrices in AO basis to zero:
 
       IF(JSYM.EQ.1) THEN
       NRS=IWORK(IP_NDIMRS-1+NSYM*(JRED-1)+JSYM)
-      CALL DCOPY_(NRS,0.0D0,0,WORK(IPDF_RED),1)
+      CALL DCOPY_(NRS,[0.0D0],0,WORK(IPDF_RED),1)
       CALL full2red(Work(ipDF),Work(ipDF_Red))
-      CALL DCOPY_(NRS,0.0D0,0,WORK(IPDI_RED),1)
+      CALL DCOPY_(NRS,[0.0D0],0,WORK(IPDI_RED),1)
       CALL full2red(Work(ipDI),Work(ipDI_Red))
-      CALL DCOPY_(NRS,0.0D0,0,WORK(IPDA_RED),1)
+      CALL DCOPY_(NRS,[0.0D0],0,WORK(IPDA_RED),1)
       CALL full2red(Work(ipDA),Work(ipDA_Red))
-      CALL DCOPY_(NRS,0.0D0,0,WORK(LFF_RED),1)
-      CALL DCOPY_(NRS,0.0D0,0,WORK(LFI_RED),1)
-      CALL DCOPY_(NRS,0.0D0,0,WORK(LFA_RED ),1)
+      CALL DCOPY_(NRS,[0.0D0],0,WORK(LFF_RED),1)
+      CALL DCOPY_(NRS,[0.0D0],0,WORK(LFI_RED),1)
+      CALL DCOPY_(NRS,[0.0D0],0,WORK(LFA_RED ),1)
       END IF
 
 * Determine batch length for this reduced set.

@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
+*               2018, Sijia S. Dong                                    *
 ************************************************************************
       Subroutine Prpt()
 ************************************************************************
@@ -22,15 +23,18 @@ c
 #include "WrkSpc.fh"
       Integer nBas(8)
       Character*8 Method
-      Logical var, Short
+      Logical var, Short, ifallorb
       Character*81 note, lbl*2, PrpLst*4
+      Dimension Dummy(1),iDummy(1)
 *
       Call GetEnvf("MOLCAS_PROPERTIES",PrpLst)
       Call UpCase(PrpLst)
       If (PrPlst(1:3).eq.'LON') Then
          Short=.False.
+*         ifallorb=.True.
       Else
          Short=.True.
+         ifallorb=.False.
       End If
 *
 *     This variable is used so we know if the density we search for is labeled
@@ -138,7 +142,7 @@ c
 *
       Call Prpt_(nIrrep,nBas,n2Dim,
      &            nDim,Work(ipOcc),n2Tot,Work(ipVec),MaxScr,
-     &            Work(ipScr),var,Short,iUHF)
+     &            Work(ipScr),var,Short,iUHF,ifallorb)
 *
       Call GetMem('Scr','Free','Real',ipScr,MaxScr)
       Call GetMem('Occ','Free','Real',ipOcc,nDim)
@@ -147,7 +151,7 @@ c
       End
 *
       Subroutine Prpt_(nIrrep,nBas,n2Dim,nDim,Occ,n2Tot,Vec,
-     &                 MaxScr,Scr,var,Short,iUHF)
+     &                 MaxScr,Scr,var,Short,iUHF,ifallorb)
 ************************************************************************
 c
 c     Purpose: calculation of expectation values of different
@@ -191,9 +195,16 @@ c                         the l-th moment opartors which are trans-
 c                         formed into l-pole moment. Currently,
 c                         ntComp=15 (hexadecapole moments)
 c
+c     ifallorb        logical option for whether the property of
+c                     all orbitals are printed (and not weighted by
+c                     occupation number)in property calculation
+c                     (S.S.Dong, 2018)
 c
 c
 * 1991 R. Lindh, Dept. of Theor. Chem. Univ. of Lund, Sweden.          *
+* Modified by S.S.Dong, 2018, Univ. of Minnesota                       *
+* - Enable properties to be printed for all orbitals                   *
+* (including virtuals) and not weighted by occupation numbers          *
 ************************************************************************
       Implicit real*8 (a-h,o-z)
 *
@@ -201,13 +212,24 @@ c
 #include "WrkSpc.fh"
 c
       Character*8 label
-      Logical short, NxtOpr, var, Reduce_Prt
+      Logical short, NxtOpr, var, Reduce_Prt, ifallorb
       External Reduce_Prt
       Integer nBas(0:nirrep-1), mBas(0:7)
       Real*8  occ(1:ndim), scr(1:maxscr), Vec(n2Tot)
+      Dimension idum(1)
 c
+      Call Prpt_Internal(Scr)
+c Avoid unused argument warnings
+      If (.False.) Call Unused_integer(n2Dim)
+*
+*     This is to allow type punning without an explicit interface
+      Contains
+      Subroutine Prpt_Internal(Scr)
+      Use Iso_C_Binding
+      Real*8, Target :: Scr(*)
+      Character, Pointer :: cScr(:)
 #ifdef _DEBUG_
-      Call qEnter('PrPt2')
+      Call qEnter('PrPt_')
 #endif
 *                                                                      *
 ************************************************************************
@@ -268,7 +290,7 @@ c        calculate the density matrix with all off-diagonal elements
 c        multipled by 2
 c
 *        If (iUHF.eq.0) then
-            call dcopy_(nblock,Zero,0,Scr(iadDen),1)
+            call dcopy_(nblock,[Zero],0,Scr(iadDen),1)
             If (var) Then
                Call Get_D1ao_Var(ipD1ao,nBlock)
             Else
@@ -284,8 +306,8 @@ c
       Else
 *
 *        Make iadDen to point at the MO vectors
-         ipVec=ip_of_Work(Vec)
-         ipScr=ip_of_Work(Scr)
+         ipVec=ip_of_Work(Vec(1))
+         ipScr=ip_of_Work(Scr(1))
          iadDen=ipVec-ipScr+1
          iadC1=1
          If (iUHF.eq.1) Then
@@ -320,14 +342,15 @@ c
            Go To 999
         End If
 c
-        call dcopy_(nComp,Zero,0,Scr(iadNuc),1)
-        call dcopy_(nComp*mDim,Zero,0,Scr(iadEl ),1)
-        call dcopy_(2*nComp,Zero,0,Scr(iadLab),1)
+        call dcopy_(nComp,[Zero],0,Scr(iadNuc),1)
+        call dcopy_(nComp*mDim,[Zero],0,Scr(iadEl ),1)
+        call dcopy_(2*nComp,[Zero],0,Scr(iadLab),1)
         write (label,'(a,i2)') 'MLTPL ',i
         do 101 iComp=1,nComp
           irc=-1
           iopt=1
-          Call iRdOne (irc,iopt,label,iComp,mInt,iSmLbl)
+          Call iRdOne (irc,iopt,label,iComp,idum,iSmLbl)
+          if (irc.eq.0) mInt=idum(1)
           if (irc.ne.0) go to 101
           NxtOpr = .True.
           irc=-1
@@ -345,11 +368,11 @@ c
 102         continue
           endif
           If (mInt.eq.0) Go To 101
-          Call Xprop(short,
+          Call Xprop(short,ifallorb,
      &               nIrrep,nBas,
      &               nBlock,Scr(iadDen),nDim,Occ,Thrs,
      &               nblock,Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim))
-          If (.Not.Short.and.iUHF.eq.1) Call Xprop(short,
+          If (.Not.Short.and.iUHF.eq.1) Call Xprop(short,ifallorb,
      &               nIrrep,nBas,
      &               nBlock,Scr(iadDen_ab),nDim,Occ(iOcc_ab),Thrs,
      &               nblock,Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim+nDim))
@@ -370,10 +393,12 @@ c
           iadTmp=iadTmt
         endif
 c
+        Call C_F_Pointer(C_Loc(scr(iadLab)),cScr,[1])
         Call prop (short,label,scr(iadC1),scr(iadC2),
      &             nirrep,mBas,mDim,occ,Thrs,
-     &             scr(iadEl),scr(iadNuc),i,scr(iadLab),
-     &             scr(iadTmt),scr(iadTmp))
+     &             scr(iadEl),scr(iadNuc),i,cScr,
+     &             scr(iadTmt),scr(iadTmp),ifallorb)
+        Nullify(cScr)
         If (.Not.Short) Call Free_Work(iadEl_Work)
 100   continue
 c
@@ -393,7 +418,7 @@ C     Write (*,*) ' Starting scan of ONEINT for various elec. field integrals'
          iadLab=iadEl +nComp
          If (.Not.Short) Then
             Call GetMem('iadEl2','Allo','Real',iadEl_Work,nComp*mDim)
-            ip_Scr=ip_of_Work(Scr)
+            ip_Scr=ip_of_Work(Scr(1))
             iadEl=iadEl_Work-(ip_Scr-1)
          End If
 *        create vectors to store the sums of electronic and nuclear components over all centers
@@ -407,15 +432,16 @@ C     Write (*,*) ' Starting scan of ONEINT for various elec. field integrals'
          maxCen=99999
          nCen=0
          Do 200 i=1,maxCen
-            call dcopy_(nComp,Zero,0,Scr(iadNuc),1)
-            call dcopy_(nComp*mDim,Zero,0,Scr(iadEl ),1)
-            call dcopy_(2*nComp,Zero,0,Scr(iadLab),1)
+            call dcopy_(nComp,[Zero],0,Scr(iadNuc),1)
+            call dcopy_(nComp*mDim,[Zero],0,Scr(iadEl ),1)
+            call dcopy_(2*nComp,[Zero],0,Scr(iadLab),1)
             Write (label,'(a,i1,i5)') 'EF',iEF,i
             NxtOpr=.False.
             Do 201 iComp=1,nComp
                irc=-1
                iopt=1
-               Call iRdOne (irc,iopt,label,iComp,mInt,iSmLbl)
+               Call iRdOne (irc,iopt,label,iComp,idum,iSmLbl)
+               If (irc.eq.0) mInt=idum(1)
                If (irc.ne.0) go to 201
                NxtOpr = .True.
                irc=-1
@@ -433,11 +459,11 @@ C     Write (*,*) ' Starting scan of ONEINT for various elec. field integrals'
                   End Do
                Endif
                If (mInt.eq.0) Go To 201
-               Call Xprop(short,
+               Call Xprop(short,ifallorb,
      &                    nIrrep,nBas,
      &                    nBlock,Scr(iadDen),nDim,Occ,Thrs,
      &                    nblock,Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim))
-               If (.Not.Short.and.iUHF.eq.1) Call Xprop(short,
+               If (.Not.Short.and.iUHF.eq.1) Call Xprop(short,ifallorb,
      &                    nIrrep,nBas,
      &                    nBlock,Scr(iadDen_ab),nDim,Occ(iOcc_ab),Thrs,
      &                    nblock,Scr(iadOpr),
@@ -448,10 +474,12 @@ C     Write (*,*) ' Starting scan of ONEINT for various elec. field integrals'
                Go to 299
             End If
 *
+            Call C_F_Pointer(C_Loc(scr(iadLab)),cScr,[1])
             Call Prop (short,label,scr(iadC1),scr(iadC2),
      &                 nirrep,mBas,mDim,occ,Thrs,
-     &                 scr(iadEl),scr(iadNuc),iEF,scr(iadLab),
-     &                 scr(iadTmt),scr(iadTmp))
+     &                 scr(iadEl),scr(iadNuc),iEF,cScr,
+     &                 scr(iadTmt),scr(iadTmp),ifallorb)
+            Nullify(cScr)
 *           add the components to the sums, and update the total number of centers
             Do iComp=0,nComp-1
               iInd1=iadElSum+iComp
@@ -491,7 +519,7 @@ C     Write (*,*) ' Starting scan of ONEINT for various contact term integrals'
       iadLab=iadEl +nComp
       If (.Not.Short) Then
          Call GetMem('iadEl2','Allo','Real',iadEl_Work,nComp*mDim)
-         ip_Scr=ip_of_Work(Scr)
+         ip_Scr=ip_of_Work(Scr(1))
          iadEl=iadEl_Work-(ip_Scr-1)
       End If
 *     create vectors to store the sums of electronic and nuclear components over all centers
@@ -505,16 +533,17 @@ C     Write (*,*) ' Starting scan of ONEINT for various contact term integrals'
       maxCen=99999
       nCen=0
       Do 300 i=1,maxCen
-         call dcopy_(nComp,Zero,0,Scr(iadNuc),1)
-         call dcopy_(nComp*mDim,Zero,0,Scr(iadEl ),1)
-         call dcopy_(2*nComp,Zero,0,Scr(iadLab),1)
+         call dcopy_(nComp,[Zero],0,Scr(iadNuc),1)
+         call dcopy_(nComp*mDim,[Zero],0,Scr(iadEl ),1)
+         call dcopy_(2*nComp,[Zero],0,Scr(iadLab),1)
          Write (label,'(a,i5)') 'CNT',i
          NxtOpr=.False.
 *
          iComp=1
          irc=-1
          iopt=1
-         Call iRdOne (irc,iopt,label,iComp,mInt,iSmLbl)
+         Call iRdOne (irc,iopt,label,iComp,idum,iSmLbl)
+         If (irc.eq.0) mInt=idum(1)
          If (irc.ne.0) go to 301
          NxtOpr = .True.
          irc=-1
@@ -529,11 +558,11 @@ C     Write (*,*) ' Starting scan of ONEINT for various contact term integrals'
             scr(iadC2+k)=scr(iadOpr+mInt+k)
          End Do
          If (mInt.eq.0) Go To 301
-         Call Xprop(short,
+         Call Xprop(short,ifallorb,
      &              nIrrep,nBas,
      &              nBlock,Scr(iadDen),nDim,Occ,Thrs,
      &              nblock,Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim))
-         If (.Not.Short.and.iUHF.eq.1) Call Xprop(short,
+         If (.Not.Short.and.iUHF.eq.1) Call Xprop(short,ifallorb,
      &              nIrrep,nBas,
      &              nBlock,Scr(iadDen_ab),nDim,Occ(iOcc_ab),Thrs,
      &              nblock,Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim+nDim))
@@ -543,10 +572,12 @@ C     Write (*,*) ' Starting scan of ONEINT for various contact term integrals'
             Go To 399
          End If
 *
+         Call C_F_Pointer(C_Loc(scr(iadLab)),cScr,[1])
          Call Prop (short,label,scr(iadC1),scr(iadC2),
      &              nirrep,mBas,mDim,occ,Thrs,
-     &              scr(iadEl),scr(iadNuc),iEF,scr(iadLab),
-     &              scr(iadTmt),scr(iadTmp))
+     &              scr(iadEl),scr(iadNuc),iEF,cScr,
+     &              scr(iadTmt),scr(iadTmp),ifallorb)
+         Nullify(cScr)
 *        add the components to the sums, and update the total number of centers
          Do iComp=0,nComp-1
            iInd1=iadElSum+iComp
@@ -585,7 +616,7 @@ c
       iadLab=iadEl +nComp
       If (.Not.Short) Then
          Call GetMem('iadEl3','Allo','Real',iadEl_Work,nComp*mDim)
-         ip_Scr=ip_of_Work(Scr)
+         ip_Scr=ip_of_Work(Scr(1))
          iadEl=iadEl_Work-(ip_Scr-1)
       End If
 c
@@ -593,9 +624,9 @@ c
       maxCen=99
 c     loop over different gauge origins (max.99)
       do 400 j=1,maxGG
-         call dcopy_(nComp,Zero,0,Scr(iadNuc),1)
-         call dcopy_(nComp*mDim,Zero,0,Scr(iadEl ),1)
-         call dcopy_(2*nComp,Zero,0,Scr(iadLab),1)
+         call dcopy_(nComp,[Zero],0,Scr(iadNuc),1)
+         call dcopy_(nComp*mDim,[Zero],0,Scr(iadEl ),1)
+         call dcopy_(2*nComp,[Zero],0,Scr(iadLab),1)
         jRC = 0
 c       loop over different operator origins (max.99)
         do 401 i=1,maxCen
@@ -604,7 +635,8 @@ c       loop over different operator origins (max.99)
           do 402 iComp=1,nComp
             irc=-1
             iopt=1
-            Call iRdOne (irc,iopt,label,iComp,mInt,iSmLbl)
+            Call iRdOne (irc,iopt,label,iComp,idum,iSmLbl)
+            if (irc.eq.0) mInt=idum(1)
             if (irc.ne.0) go to 402
             NxtOpr = .True.
             irc=-1
@@ -626,11 +658,11 @@ c       loop over different operator origins (max.99)
 404           continue
             endif
             If (mInt.eq.0) Go To 402
-            Call Xprop(short,
+            Call Xprop(short,ifallorb,
      &                 nIrrep,nBas,
      &                 nBlock,Scr(iadDen),nDim,Occ,Thrs,
      &                 nblock,Scr(iadOpr),Scr(iadEl+(iComp-1)*mDim))
-            If (.Not.Short.and.iUHF.eq.1) Call Xprop(short,
+            If (.Not.Short.and.iUHF.eq.1) Call Xprop(short,ifallorb,
      &                 nIrrep,nBas,
      &                 nBlock,Scr(iadDen_ab),nDim,Occ(iOcc_ab),Thrs,
      &                 nblock,Scr(iadOpr),
@@ -638,10 +670,12 @@ c       loop over different operator origins (max.99)
 402       continue
           If (.Not.NxtOpr) Go To 4000
 c
+          Call C_F_Pointer(C_Loc(scr(iadLab)),cScr,[1])
           call prop (short,label,scr(iadC1),scr(iadC2),
      &               nirrep,mBas,mDim,occ,Thrs,
-     &               scr(iadEl),scr(iadNuc),lpole,scr(iadLab),
-     &               scr(iadTmt),scr(iadTmp))
+     &               scr(iadEl),scr(iadNuc),lpole,cScr,
+     &               scr(iadTmt),scr(iadTmp),ifallorb)
+          Nullify(cScr)
            jRC = 1
 401     continue
 4000    If (jRC.eq.0) Then
@@ -655,7 +689,7 @@ c
 *                                                                      *
 499   continue
 #ifdef _DEBUG_
-      Call qExit('PrPt2')
+      Call qExit('PrPt_')
 #endif
       If (iPL.ge.2) Then
          Call CollapseOutput(0,'   Molecular properties:')
@@ -678,6 +712,7 @@ c
          Write(6,*)
       End IF
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(n2Dim)
+      End Subroutine Prpt_Internal
+*
       End
+

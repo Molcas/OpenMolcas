@@ -18,7 +18,7 @@
 #include "files_cpf.fh"
       DIMENSION JSY(*),C(*),S(*),W(*),THET(NII,NII),ENP(*)
 *
-      JSYM(L)=JSUNP(JSY,L)
+      JSYM(L)=JSUNP_CPF(JSY,L)
 *
       IADD25=IAD25S
       CALL dDAFILE(Lu_25,2,COP,nCOP,IADD25)

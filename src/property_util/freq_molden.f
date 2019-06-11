@@ -9,11 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Freq_Molden(Freq,nFreq,Vectors,nVectors,nSym,
-     &                       Intens,mDisp)
+     &                       Intens,mDisp,RedMas)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
-      Real*8 Freq(nFreq), Vectors(nVectors),Intens(nFreq)
+      Real*8 Freq(nFreq), Vectors(nVectors),Intens(nFreq),RedMas(nFreq)
       Integer mDisp(nSym)
 #include "Molcas.fh"
       Character*2 Element(MxAtom*8)
@@ -106,6 +106,16 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*     Alessio Valentini 2018 - add reduced masses to freq.molden file
+*     in order to use this file for computation of initial conditions
+*     in semiclassical molecular dynamics
+*
+      Write (Lu_9,*) '[RMASS]'
+      Do iFreq = 1, nFreq
+         Write (Lu_9,*) RedMas(iFreq)
+      End do
+
+
       Close(Lu_9)
       Call QExit('Freq_Molden')
       Return

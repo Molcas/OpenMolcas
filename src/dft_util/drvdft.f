@@ -51,6 +51,9 @@ c     Call SetQue('Trace=on')
       Call Set_Basis_Mode('Valence')
       Call Setup_iSD()
 *                                                                      *
+      Call Get_dScalar('DFT exch coeff',CoefX)
+      Call Get_dScalar('DFT corr coeff',CoefR)
+*
 ************************************************************************
 *                                                                      *
       If (Do_Grad) Call FZero(Grad,nGrad)
@@ -477,7 +480,14 @@ c         write(6,*) 'Func in drvdft :', Func
 *                                                                      *
 *     OPBE                                                             *
 *                                                                      *
-      Else If (KSDFT.eq.'OPBE') Then
+      Else If (KSDFT.eq.'OPBE'
+     &     .or.KSDFT.eq.'TOPBE' !GLM
+     &     .or.KSDFT.eq.'FTOPBE'!AMS
+     &         ) then
+         If(KSDFT.eq.'TOPBE'
+     &     .or.KSDFT.eq.'FTOPBE') Do_MO=.true.
+         If(KSDFT.eq.'TOPBE'
+     &     .or.KSDFT.eq.'FTOPBE') Do_TwoEl=.true.
          ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          nFckDim = nD

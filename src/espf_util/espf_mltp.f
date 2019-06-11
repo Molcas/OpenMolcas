@@ -20,6 +20,7 @@
       Character*(LENIN) CName(MxAtom)
       Save Axis
       Character*3 Axis(3)
+      Dimension opnuc(1)
       Data Axis/' x ',' y ',' z '/
 *
       Call QEnter('espf_mltp')
@@ -44,15 +45,11 @@
          End If
       EndDo
       Call GetMem('Nuclear charge','Free','Real',ip_Charge,natom)
-      opmol = Dum
       opnuc = Dum
-      idirect = 1
-      isyop = 1
       ncmp = 1
       iAddPot = -2
       Call GetMem('dESPF2','Allo','Real',ipD2,nGrdPt)
-      Call DrvProp('POT',Work(ipGrid),opmol,opnuc,ncmp,idirect,isyop,
-     &             Work(ipD2),nGrdPt,iAddPot)
+      Call DrvPot(Work(ipGrid),opnuc,ncmp,Work(ipD2),nGrdPt,iAddPot)
       If (iPL.ge.5) Call RecPrt('PV',' ',Work(ipD2),nGrdPt,1)
       Do jMlt = 0, nMult-1
          Do kPnt = 0, nGrdPt-1

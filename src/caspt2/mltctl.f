@@ -67,7 +67,7 @@ C Analyze the effective Hamiltonian:
         WRITE(6,*)
         WRITE(6,'(1x,5I16)')(I,I=ISTA,IEND)
         DO J=1,NSTATE
-          WRITE(6,'(1x,I2,3X,5F16.8)')J,(HEFF(J,I),I=ISTA,IEND)
+          WRITE(6,'(1x,I3,3X,5F16.8)')J,(HEFF(J,I),I=ISTA,IEND)
         END DO
        END DO
       END IF
@@ -94,13 +94,13 @@ C Use a symmetrized matrix, in triangular storage:
         WRITE(6,'(1x,5I16)')(I,I=ISTA,IEND)
         DO I=ISTA,NSTATE
           II0=(I*(I-1))/2
-          WRITE(6,'(1x,I2,3X,5F16.8)')
+          WRITE(6,'(1x,I3,3X,5F16.8)')
      &                     I,(WORK(LHTRI-1+II0+J),J=ISTA,MIN(I,IEND))
         END DO
        END DO
       END IF
-      CALL DCOPY_(NSTATE**2,0.0D0,0,WORK(LUMAT),1)
-      CALL DCOPY_(NSTATE,1.0D0,0,WORK(LUMAT),NSTATE+1)
+      CALL DCOPY_(NSTATE**2,[0.0D0],0,WORK(LUMAT),1)
+      CALL DCOPY_(NSTATE,[1.0D0],0,WORK(LUMAT),NSTATE+1)
       CALL NIDiag(WORK(LHTRI),WORK(LUMAT),NSTATE,NSTATE,0)
       CALL JACORD(WORK(LHTRI),WORK(LUMAT),NSTATE,NSTATE)
       DO I=1,NSTATE
@@ -113,12 +113,21 @@ C Use a symmetrized matrix, in triangular storage:
       CALL GETMEM('HTRI','FREE','REAL',LHTRI,NHTRI)
 
       IF(IPRGLB.GE.TERSE) THEN
-       WRITE(6,*)
-       WRITE(6,'(6X,A)')' Total MS-CASPT2 energies:'
-       DO I=1,NSTATE
-        Call PrintResult(6,'(6x,A,I3,5X,A,F16.8)',
+       If (IFXMS) Then
+        WRITE(6,*)
+        WRITE(6,'(6X,A)')' Total XMS-CASPT2 energies:'
+        DO I=1,NSTATE
+         Call PrintResult(6,'(6x,A,I3,5X,A,F16.8)',
+     &    'XMS-CASPT2 Root',I,'Total energy:',ENERGY(I),1)
+        END DO
+       Else
+        WRITE(6,*)
+        WRITE(6,'(6X,A)')' Total MS-CASPT2 energies:'
+        DO I=1,NSTATE
+         Call PrintResult(6,'(6x,A,I3,5X,A,F16.8)',
      &    'MS-CASPT2 Root',I,'Total energy:',ENERGY(I),1)
-       END DO
+        END DO
+       End If
       END IF
 
       IF(IPRGLB.GE.USUAL) THEN
@@ -134,6 +143,11 @@ C Use a symmetrized matrix, in triangular storage:
        CALL CollapseOutput(0,'Multi-State CASPT2 section:')
        WRITE(6,*)
       END IF
+
+* Restore original effective Hamiltonian
+      DO I=1,NSTATE
+        HEFF(I,I)=HEFF(I,I)+DSHIFT
+      END DO
 
 * In automatic verification calculations, the precision is lower
 * in case of Cholesky calculation.

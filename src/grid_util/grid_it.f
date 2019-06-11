@@ -56,7 +56,9 @@ c  iRun =1 normal run, 0=trancated from scf
 c      Character*120 Lines(17)
       Character INPORB*(*)
       Logical OldTst, DoRys
+#ifdef _EXTERNAL_GRID_IT_
 #include "grid.fh"
+#endif
 #include "warnings.fh"
 *
 *     Prologue
@@ -98,8 +100,12 @@ c      Call GetInf(Info,nInfo,DoRys,nDiff,idum)
       if (iReturn.eq._RC_INVOKED_OTHER_MODULE_) then
 c* take care to close files and release the potential memory...
 c       close(unit=LuOrb)
+#ifdef _EXTERNAL_GRID_IT_
         close(unit=LuVal)
         if(isUHF.eq.1) close(unit=LuVal_ab)
+#else
+        call close_grids()
+#endif
       goto 999
       endif
 *

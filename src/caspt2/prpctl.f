@@ -17,6 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE PRPCTL
+      USE PT2WFN
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -33,7 +34,7 @@
       Character(128) FILENAME,MDNAME
       Character(80) Note
       Integer IndType(56)
-      Real*8 Dummy(2)
+      Real*8 Dummy(2),DUM(1)
 
       CALL QENTER('PRPCTL')
 
@@ -90,7 +91,7 @@ C This density matrix may be approximated in several ways, see DENS.
         NOCC=NOCC+NBAS(ISYM)
       END DO
       CALL GETMEM('DMAT','ALLO','REAL',LDMAT,NDMAT)
-      CALL DCOPY_(NDMAT,0.0D0,0,WORK(LDMAT),1)
+      CALL DCOPY_(NDMAT,[0.0D0],0,WORK(LDMAT),1)
       CALL GETMEM('LISTS','ALLO','INTE',LLISTS,NLSTOT)
       CALL MKLIST(iWORK(LLISTS))
       CALL DENS(IVECX,WORK(LDMAT))
@@ -103,6 +104,9 @@ C Compute natural orbitals of CASPT2 wave function.
       CALL GETMEM('OCC','ALLO','REAL',LOCC,NOCC)
       CALL NATORB_CASPT2(WORK(LDMAT),WORK(LCMO),WORK(LOCC),WORK(LCNAT))
       CALL GETMEM('LCMO','FREE','REAL',LCMO,NCMO)
+C Backtransform density matrix to original MO basis before storing
+      CALL TRANSFOCK(WORK(LTORB),WORK(LDMAT),-1)
+      CALL PT2WFN_DENSSTORE(WORK(LDMAT),NDMAT)
       CALL GETMEM('DMAT','FREE','REAL',LDMAT,NDMAT)
 C Write natural orbitals as standard orbital file on LUMORB.
 * PAM2008: Separate PT2ORB files for each state:
@@ -151,8 +155,16 @@ C Write natural orbitals as standard orbital file on LUMORB.
         IndType(6+iShift)= NBAS(ISYM)-IndT
         iShift=iShift+7
       EndDo
+      If (NSTATE.GT.1) THEN
+        Write(Note,'(A41,I3,A3,f22.12)')
+     &   '* CASPT2 natural orbitals for root number',N,
+     &   ' E=',Energy(JSTATE)
+      Else
+        Note='* CASPT2 natural orbitals'
+      End If
+
       CALL WRVEC(FILENAME,LUTMP,'COI',NSYM,NBAS,NBAS,
-     &  WORK(LCNAT), WORK(LOCC),Dummy  ,IndType,'* CASPT2')
+     &  WORK(LCNAT), WORK(LOCC),Dummy  ,IndType,Note)
       AddFragments=.True.
       iUHF=0
       Call Molden_Interface(iUHF,FILENAME,MDNAME,AddFragments)

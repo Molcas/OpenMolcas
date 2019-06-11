@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Rd1Int
+      Subroutine Rd1Int_FFPT
 *
 ************************************************************************
 *                                                                      *
@@ -24,7 +24,7 @@
 #include "input.fh"
 #include "WrkSpc.fh"
 *
-      Call QEnter('Rd1Int')
+      Call QEnter('Rd1Int_FFPT')
 *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -43,6 +43,6 @@
       Call Get_iScalar('Unique atoms',nAtoms)
       Call Get_dArray('Unique Coordinates',Coor,3*nAtoms)
 *
-      Call QExit('Rd1Int')
+      Call QExit('Rd1Int_FFPT')
       Return
       End

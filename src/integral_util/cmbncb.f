@@ -43,7 +43,6 @@
 *
       If (iPrint.ge.99) Then
          Call RecPrt(' In CmbnCB: rKappa',' ',rKappa,1,nZeta)
-         Call RecPrt(' In CmbnCB: Alpha ',' ',Alpha ,1,nZeta)
          Call RecPrt(' In CmbnCB: Beta  ',' ',Beta  ,1,nZeta)
       End If
       Do 10 ixa = 0, la

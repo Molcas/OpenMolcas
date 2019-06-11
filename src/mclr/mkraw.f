@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE MKRAW(NVERT,IDOWN,IDAW,IUP,IRAW,IPRINT)
+      SUBROUTINE MKRAW_MCLR(NVERT,IDOWN,IDAW,IUP,IRAW,IPRINT)
 C
 C     PURPOSE: CONSTRUCT UPCHAIN INDEX TABLE AND REVERSE ARC WEIGHTS
 C
@@ -33,7 +33,7 @@ C
 C
       IF( IPRINT.GE.5 ) THEN
         WRITE(6,*)
-        WRITE(6,*)' THE UPCHAIN TABLE IN MKRAW:'
+        WRITE(6,*)' THE UPCHAIN TABLE IN MKRAW_MCLR:'
         DO 40 IV=1,NVERT
           WRITE(6,'(1X,I4,5X,4(1X,I6))') IV,(IUP(IV,IC),IC=0,3)
 40      CONTINUE
@@ -59,7 +59,7 @@ C
 C
       IF( IPRINT.GE.5 ) THEN
         WRITE(6,*)
-        WRITE(6,*)' THE REVERSE ARC WEIGHT TABLE IN MKRAW:'
+        WRITE(6,*)' THE REVERSE ARC WEIGHT TABLE IN MKRAW_MCLR:'
         DO 140 IV=1,NVERT
           WRITE(6,'(1X,I4,5X,5(1X,I6))') IV,(IRAW(IV,IC),IC=0,4)
 140     CONTINUE

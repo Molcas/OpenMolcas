@@ -29,7 +29,6 @@ C Input from RASSCF
 #include "WrkSpc.fh"
 #include "rasscf_lucia.fh"
 #include "memman.fh"
-#include "loff.fh"
 C Other definitions
       PARAMETER(MXPKW = 125)
       dimension isetkw(MXPKW)
@@ -167,13 +166,6 @@ C ==========================================================
           ngssh(irrep,igas)=ngssh_molcas(igas,irrep)
         end do
       end do
-cSJS      LOFFI=NIRREP**NGAS !Making CI iterations too slow
-      LOFFI=8**6 !SJS
-* Setting LOFFI to 8**6 is a bandaid - it will not be enough for some
-* situations with many GAS spaces at high symmetry.
-* The right thing to do would be some slimmer version of NIRREP**NGAS
-* in which LOFFI will be set based only on active symmetries.
-* Giovanni knows more about this issue. !SJS
 *
 C ==================================================
 C  Generalized active space occupation restrictions
@@ -251,6 +243,7 @@ C ============================================================
 *
 C ===========
 C HEXS - Highly excited states
+C DEXS - Doubly excited states
 C ===========
       I_ELIMINATE_GAS = I_ELIMINATE_GAS_MOLCAS
       N_ELIMINATED_GAS = N_ELIMINATED_GAS_MOLCAS

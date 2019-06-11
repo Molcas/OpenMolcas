@@ -195,9 +195,7 @@
 *                                                                      *
 #ifdef _EFP_
       If (nEFP_fragments.ne.0) Then
-         Call FLUSH(LuWr)
          Call EFP_PRINT_BANNER()
-         Call FLUSH(LuWr)
          Write (LuWr,*)
          Write (LuWr,*)
      &          ' Specification of Effective Fragment Potentials'

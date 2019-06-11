@@ -203,13 +203,13 @@ c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer(nAlpha)
          Call Unused_integer(nBeta)
-         Call Unused_integer(ZtMax)
-         Call Unused_integer(ZtMaxD)
-         Call Unused_integer(abMaxD)
+         Call Unused_real(ZtMax)
+         Call Unused_real(ZtMaxD)
+         Call Unused_real(abMaxD)
          Call Unused_integer(nGamma)
          Call Unused_integer(nDelta)
-         Call Unused_integer(EtMax)
-         Call Unused_integer(EtMaxD)
-         Call Unused_integer(cdMaxD)
+         Call Unused_real(EtMax)
+         Call Unused_real(EtMaxD)
+         Call Unused_real(cdMaxD)
       End If
       End

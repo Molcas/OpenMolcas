@@ -72,12 +72,13 @@ cnf
 cnf
 *     Save ipScr1
       Character AlphaLabel*30
+      Dimension Dumm0(1),Dumm1(1)
 *
 *----------------------------------------------------------------------*
 *     Warning!
-*  this routine uses a durty trick in UHF case
-*  ipScr1 is used to keep temporary array in memory
-*  which released during a second call.
+*  this routine uses a dirty trick in UHF case
+*  ipScr1 is used to keep a temporary array in memory
+*  which is released during a second call.
 *----------------------------------------------------------------------*
 *
 
@@ -177,7 +178,7 @@ cnf      If ( (lRF .or. KSDFT.ne.'SCF') .and.  .Not.NDDO .and.
 *        Call Get_dScalar('PotNuc',PotNuc)
          Call Peek_dScalar('PotNuc',PotNuc)
          Call mma_allocate(RFfld,nBT,Label='RFfld')
-         call dcopy_(nBT,0.0D0,0,RFfld,1)
+         call dcopy_(nBT,[Zero],0,RFfld,1)
          First=.True.
          Dff = .False.
          Do_DFT=.False. ! We do not need to redo the DFT!
@@ -226,8 +227,8 @@ c         print *,'Elumo',Elumo
          Else
             If (jPrint.ge.2) Then
                Write(6,*)
-               Write(6,'(6X,2A,E10.4,A)')'All orbitals with orbital',
-     &              ' energies smaller than ',ThrEne,' are printed'
+               Write(6,'(6X,2A,E11.4,A)')'All orbitals with orbital',
+     &              ' energies smaller than',ThrEne,' are printed'
             End If
          End If
          ThrOcc = -99999.0d+00

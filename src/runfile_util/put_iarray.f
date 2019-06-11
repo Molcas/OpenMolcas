@@ -140,8 +140,8 @@
          RecLab( 35)='iCoSet          '
          RecLab( 36)='LP_A            '
          RecLab( 37)='NumCho          ' ! Number of Cholesky vectors.
-         RecLab( 38)='nFroPT          ' ! Total Number of Frozen for PT methods
-         RecLab( 39)='nDelPT          ' ! Total Number of Deleted for PT methods
+         RecLab( 38)='nFroPT          ' ! Number of Frozen for PT
+         RecLab( 39)='nDelPT          ' ! Number of Deleted for PT
          RecLab( 40)='BasType         '
          RecLab( 41)='Spread of Coord.'
          RecLab( 42)='Unit Cell Atoms '
@@ -168,7 +168,7 @@
          RecLab( 63)='MkNemo.hDisp    '
          RecLab( 64)='Index ZMAT      '
          RecLab( 65)='NAT ZMAT        '
-         RecLab( 66)='NrDisp          '
+         RecLab( 66)='                ' !Free slot
          RecLab( 67)='nDisp           '
          RecLab( 68)='DegDisp         '
          RecLab( 69)='LBList          '
@@ -232,6 +232,9 @@
             Write(6,*) '*** Warning, writing temporary iArray field'
             Write(6,*) '***   Field: ',Label
             Write(6,*) '***'
+#ifdef _BIGOT_
+            Call AbEnd()
+#endif
          End If
       End If
 *----------------------------------------------------------------------*

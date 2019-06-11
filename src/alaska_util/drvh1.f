@@ -89,7 +89,6 @@ CAOM>
 *...  Read the variational 1st order density matrix
 *...  density matrix in AO/SO basis
 *     print *,' Read density matrix'
-      Call Get_D1ao(ipD_var,Length)
 
       Call Get_D1ao_Var(ipD_var,Length)
       If ( length.ne.nDens ) Then
@@ -140,7 +139,7 @@ CAOM>
       nComp = nElem(nOrdOp)
       Call GetMem('Coor','Allo','Real',ipC,3*nComp)
       Call GetMem('lOper','Allo','Inte',ip1,nComp)
-      call dcopy_(nComp*3,Zero,0,Work(ipC),1)
+      call dcopy_(nComp*3,[Zero],0,Work(ipC),1)
       iWork(ip1) = 1
       If (HF_Force) Go To 1003
 ************************************************************************
@@ -341,7 +340,7 @@ CAOM>
             End Do
          End Do
          Call GetMem('Coor','Allo','Real',ipC,3*nComp)
-         call dcopy_(nComp*3,Zero,0,Work(ipC),1)
+         call dcopy_(nComp*3,[Zero],0,Work(ipC),1)
          DiffOp = .True.
          Label = ' The Electronic Reaction Field Contribution'
          Call OneEl_g(RFGrd,RFMmG,Temp,nGrad,DiffOp,Work(ipC),

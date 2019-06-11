@@ -98,7 +98,7 @@
 *
       iV=ip_X
       Do iSym=1,nSym
-        TrD(iSym)=ddot_(lnVir(iSym),Work(iV),1+lnVir(iSym),1.0d0,0)
+        TrD(iSym)=ddot_(lnVir(iSym),Work(iV),1+lnVir(iSym),[1.0d0],0)
         iV=iV+lnVir(iSym)**2
       End Do
       Call GetMem('Dmat','Free','Real',ip_X,nVV+nOA)

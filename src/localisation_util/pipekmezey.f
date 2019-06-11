@@ -26,7 +26,7 @@ C
       Real*8  CMO(*)
       Integer nBas(nSym), nOrb2Loc(nSym), nFro(nSym)
       Logical Maximisation, Converged, Debug, Silent
-      Character*(LENIN4) Name(*) ! dimension should be tot. #bf
+      Character*(LENIN8) Name(*) ! dimension should be tot. #bf
 #include "WrkSpc.fh"
 
       Character*10 SecNam

@@ -56,8 +56,9 @@
 #include "nac.fh"
 #include "alaska_root.fh"
 #include "para_info.fh"
-      Logical OldTst, DoRys, RF_On
+      Logical OldTst, DoRys, RF_On, Found
       Logical Do_OFemb,KEonly,OFE_first
+      Character(Len=180) Label
       COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
 ************ columbus interface ****************************************
         Integer  Columbus, colgradmode
@@ -117,7 +118,7 @@
       If (iPrint.ge.99) Call GetMem(' LIST ','LIST','REAL',iDum,iDum)
       Call GetMem('Grad','Allo','Real',ipGrad,lDisp(0))
       Call GetMem('Temp','Allo','Real',ipTemp,lDisp(0))
-      call dcopy_(lDisp(0),Zero,0,Work(ipGrad),1)
+      call dcopy_(lDisp(0),[Zero],0,Work(ipGrad),1)
 *
 *     remove LuSpool
 *
@@ -290,31 +291,40 @@
       End Do
  1999 Continue
 *
+*     f^AB is the "total derivative coupling"
+*     h^AB is the "CI derivative coupling"
+*     f^AB = <B|dA/dR> = h^AB/(E_A-E_B) + f_CSF^AB = -f^BA
+*     h^AB = <B|dH/dR|A> = h^BA
+*     f_CSF^AB = -f_CSF^BA
+*
+*     Note that we store h^AB + f_CSF^AB*(E_A-E-B), or just h^AB if
+*     NOCSF was given, to avoid division by (nearly) zero
+*
       If (isNAC) Then
         Call PrGrad('CI derivative coupling ',
      &                 Work(ipGrad),lDisp(0),lIrrep,ChDisp,iPrint)
+        EDiff_s = Max(One, Ten**(-Floor(Log10(Abs(EDiff)))-4))
+        EDiff_f = EDiff*EDiff_s
         If (DoCSF) Then
           Call Allocate_Work(ipCSFG,lDisp(0))
           Call CSFGrad(Work(ipCSFG),lDisp(0))
           Call PrGrad('CSF derivative coupling ',
      &                   Work(ipCSFG),lDisp(0),lIrrep,ChDisp,iPrint)
-          Call daxpy_(lDisp(0),Ediff,Work(ipCSFG),1,Work(ipGrad),1)
+          Call daxpy_(lDisp(0),EDiff_f,Work(ipCSFG),1,Work(ipGrad),1)
           Call Free_Work(ipCSFG)
         End If
         write(6,'(15X,A,ES13.6)') 'Energy difference: ',EDiff
-        If (abs(Ediff).gt.1.0d-6) Then
-          Call Allocate_Work(ipTmp,lDisp(0))
-          call dcopy_(lDisp(0),Work(ipGrad),1,Work(ipTmp),1)
-          call dscal_(lDisp(0),One/Ediff,Work(ipTmp),1)
-          Call PrGrad('Total derivative coupling',
-     &                 Work(ipTmp),lDisp(0),lIrrep,ChDisp,iPrint)
-          write(6,'(15X,A,F12.4)') 'norm: ',
-     &              dnrm2_(lDisp(0),Work(ipTmp),1)
-          Call Free_Work(ipTmp)
-        Else
-          Call WarningMessage(0,
-     &   'Small energy difference, the non-adiabatic coupling diverges')
-        EndIf
+        Label = ''
+        If (EDiff_s.gt.One)
+     &      Write(Label,'(A,ES8.1,A)') ' (divided by',EDiff_s,')'
+        Label = 'Total derivative coupling'//Trim(Label)
+        Call Allocate_Work(ipTmp,lDisp(0))
+        call dcopy_(lDisp(0),Work(ipGrad),1,Work(ipTmp),1)
+        call dscal_(lDisp(0),One/EDiff_f,Work(ipTmp),1)
+        Call PrGrad(Trim(Label),
+     &              Work(ipTmp),lDisp(0),lIrrep,ChDisp,iPrint)
+        write(6,'(15X,A,F12.4)') 'norm: ',dnrm2_(lDisp(0),Work(ipTmp),1)
+        Call Free_Work(ipTmp)
       ElseIf (iPrint.ge.4) then
          If (HF_Force) Then
             Call PrGrad('Hellmann-Feynman Forces ',
@@ -325,7 +335,8 @@
          End If
       End If
       If (isNAC) Then
-*        For NAC, the sign is undefined, check only absolute values
+*        For NAC, the sign is undefined (because the wave functions can change sign),
+*        check only absolute values
          Call Allocate_Work(ipTmp,lDisp(0))
          Do i=0,lDisp(0)-1
             Work(ipTmp+i)=Abs(Work(ipGrad+i))
@@ -415,6 +426,20 @@
          Call GetMem(' LIST ','LIST','REAL',iDum,iDum)
       End If
 *
+*     Restore iRlxRoot if changed as set by the RASSCF module.
+*
+      Call qpg_iScalar('Relax CASSCF root',Found)
+      If (Found) Then
+         Call Get_iScalar('Relax CASSCF root',irlxroot1)
+         Call qpg_iScalar('Relax Original ro',Found)
+         If (Found) Then
+            Call Get_iScalar('Relax Original ro',irlxroot2)
+            If (iRlxRoot1.ne.iRlxRoot2) Then
+               Call Put_iScalar('Relax CASSCF root',irlxroot2)
+               Call Put_iScalar('NumGradRoot',irlxroot2)
+            End If
+         End If
+      End If
 *
 *     Epilogue
 *

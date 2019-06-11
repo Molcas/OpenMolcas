@@ -99,7 +99,7 @@ C------Calculate Effective center and exponent for <A|core>
       ABeq(2) = .False.
       ABeq(3) = .False.
       Call CrtCmp(Array(ipZ1),Array(ipP1),nAlpha*nExp(iShll),
-     &            Ccoor,Array(ipRxyz),nOrdOp,HerR(iHerR(nHer)),
+     &            A,Array(ipRxyz),nOrdOp,HerR(iHerR(nHer)),
      &            nHer,ABeq)
       If (debug) Then
         Write (6,*) ' nAlpha = ',nAlpha,' nExp(',ishll,')=',

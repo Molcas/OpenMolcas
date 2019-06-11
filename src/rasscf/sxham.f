@@ -52,6 +52,7 @@ C
      *          G(*),H(*),HDIAG(*),DF(*),DDIAG(*)
 C -- THRA: THRESHOLD FOR WARNING, ACTIVE OCC NO CLOSE TO 0 OR 2.
       DATA THRA/1.D-06/
+      DIMENSION P2Act(1)
       Call qEnter('SXHAM')
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
@@ -166,7 +167,7 @@ C Form the occupied (F1) and active-external (F2) part of FP
 C and the occupied part DIA of the density matrix D
 C
        IPQ=ISTFP
-       CALL VCLR(DIA(ISTIA+1),1,NIA**2)
+       CALL FZERO(DIA(ISTIA+1),NIA**2)
        DO 20 NP=1,NO
        DO 20 NQ=1,NP
         IPQ=IPQ+1
@@ -216,7 +217,7 @@ C G(tu)=sum(vx)(2P(tuvx)-D(tu)D(vx))F(vx)
 C
        If (ExFac.ne.1.0D0) Then
           Call Get_Temp('nP2Act  ',P2Act,1)
-          nP2Act=Int(P2Act)
+          nP2Act=Int(P2Act(1))
           Call Get_Temp('P2_RAW  ',P,nP2Act)
        End If
        DO 30 NP=1,NIA

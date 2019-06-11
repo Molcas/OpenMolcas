@@ -1,0 +1,27 @@
+/***********************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2015,2017, Ignacio Fdez. Galván                        *
+***********************************************************************/
+
+div.header-wrapper, div.sidebar, div.footer-wrapper { background-color: #FFFFFF; }
+div.sidebar li.toctree-l1 a { background-color: #CCCCCC; }
+div.sidebar li.toctree-l2 a { background-color: transparent; }
+div.warning { background: #CCCCCC; background: repeating-linear-gradient(135deg, #DDDDDD, #DDDDDD 10px, transparent 10px, transparent 20px); }
+.filelist { border: 1px solid; }
+.filelist dt { background-color: #EEEEEE; }
+.keywordlist { border: 1px solid; }
+.keywordlist dt { background-color: #EEEEEE; }
+.programlist { border: 1px solid; }
+.programlist dt { background-color: #EEEEEE; }
+.commandlist { border: 1px solid; }
+.commandlist dt { background-color: #EEEEEE; }
+.variablelist { border: 1px solid; }
+.variablelist dt { background-color: #EEEEEE; }

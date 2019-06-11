@@ -120,7 +120,7 @@
       PMax=Zero
       idum=0
       idum1=0
-      call dcopy_(nGrad,Zero,0,Temp,1)
+      call dcopy_(nGrad,[Zero],0,Temp,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -254,6 +254,7 @@ cVV: ifort 11 can't handle the code without this dummy print.
       End Do
 *
       Call Free_Work(ipDMLT(1))
+      If (nKdens.eq.2) Call Free_Work(ipDMLT(2))
 *
 *     Create list of non-vanishing pairs
 *
@@ -653,7 +654,8 @@ cVV: ifort 11 can't handle the code without this dummy print.
 *                      list and exit the loop.
 *
                        If ( PZmnij.ge.xfk*ThrCom ) Then
-                         iWork(ipYmnij(iMOleft)+mj+nj)=jb+1 ! orbital in the list
+!                        orbital in the list
+                         iWork(ipYmnij(iMOleft)+mj+nj)=jb+1
                          mj=mj+1
                          Go To 666
                        End If
@@ -668,7 +670,8 @@ cVV: ifort 11 can't handle the code without this dummy print.
 *               The first element is to keep track on how many elements
 *               that were saved.
 *
-                nYmnij(jSym,iMOleft)=mj ! nOrbs in the list ==> dim(ij)=nOrbs**2
+!               nOrbs in the list ==> dim(ij)=nOrbs**2
+                nYmnij(jSym,iMOleft)=mj
                 iOff_Ymnij(jSym,iMOleft) = nj
                 nj = nj + mj
 *

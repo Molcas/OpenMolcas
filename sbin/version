@@ -81,7 +81,11 @@ fi
 case $arg in
     -v) echo $V;;
     -p) echo $P;;
-    -l) echo "Molcas version $V patch level $P";;
+    -l) if [ -z "$P" ] ; then
+          echo "Molcas version $V"
+        else
+          echo "Molcas version $V patch level $P"
+        fi;;
     -n) echo "$V.$P";;
     -g) echo "$VERSION" > $MOLCAS/.molcasversion;;
     *)  echo "$VERSION_";;

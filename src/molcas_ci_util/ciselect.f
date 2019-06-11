@@ -108,7 +108,7 @@
       If ( ITER.eq.1 ) Return
 
 *     make a local copy of the present selection vector of weights
-      Call iCopy(mxRoot,0,1,iTemp,1)
+      Call iCopy(mxRoot,[0],1,iTemp,1)
 
 *     make a new choice using the overlap ov the etst vector with
 *     the CI vector in the subspace of the test vector

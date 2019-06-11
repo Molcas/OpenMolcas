@@ -50,7 +50,7 @@
 #include "lundio.fh"
 #include "print.fh"
       Parameter (nMamn=MaxBfn+MaxBfn_Aux)
-      Character Mamn(nMamn)*(LENIN4)
+      Character Mamn(nMamn)*(LENIN8)
       Logical Show_Save, lOPTO
       Logical Reduce_Prt
       External Reduce_Prt
@@ -128,7 +128,7 @@
          Call Info2Runfile(DInf,nDInf)
          Call Gen_RelPointers(Info-1)
       End If
-      Call Put_cArray('Unique Basis Names',Mamn,(LENIN4)*nDim)
+      Call Put_cArray('Unique Basis Names',Mamn(1),(LENIN8)*nDim)
       Call Put_iArray('nBas',nBas,nIrrep)
 *                                                                      *
 ************************************************************************

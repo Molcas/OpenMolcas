@@ -67,7 +67,7 @@
          End If
          Do iSym=1,nSym
             If (nFro(iSym).ne.0) Then
-               Write (6,*) 'Some orbtials where frozen in the SCF!'
+               Write (6,*) 'Some orbitals where frozen in the SCF!'
                Call QTrace()
                Call Abend()
             End If
@@ -89,7 +89,7 @@
             iStart   = iStart   + nOrb(iSym)*nBas(iSym)
             iStart_t = iStart_t + nOrb(iSym)*nBas(iSym)
             call dcopy_((nBas(iSym)-nOrb(iSym))*nBas(iSym),
-     &                  Zero,0,Work(iStart),1)
+     &                  [Zero],0,Work(iStart),1)
             iStart   = iStart   +
      &                 (nBas(iSym)-nOrb(iSym))*nBas(iSym)
          End Do
@@ -108,7 +108,7 @@
             iStart  = iStart   + nOrb(iSym)
             iStart_t= iStart_t + nOrb(iSym)
 *
-            call dcopy_(nBas(iSym)-nOrb(iSym),Zero,0,Work(iStart),1)
+            call dcopy_(nBas(iSym)-nOrb(iSym),[Zero],0,Work(iStart),1)
             iStart  = iStart   + nBas(iSym)-nOrb(iSym)
          End Do
          Call GetMem('EOrb_t','Free','Real',ipEOrb_t,lthEOr)

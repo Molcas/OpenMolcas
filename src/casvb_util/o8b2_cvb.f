@@ -43,7 +43,7 @@
         call vecprint_cvb(eigvec(1,iroot),nparm+1)
       endif
       write(6,*)' Following root no :',iroot
-      call fmove(eigvec(2,iroot),dx,nparm)
+      call fmove_cvb(eigvec(2,iroot),dx,nparm)
       if(abs(eigvec(1,iroot)).gt.1d-8)then
         fac1=one/eigvec(1,iroot)
       else

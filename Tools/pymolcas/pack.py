@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 #***********************************************************************
@@ -11,7 +11,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2015, Ignacio Fdez. Galván                             *
+# Copyright (C) 2015,2018, Ignacio Fdez. Galván                        *
 #***********************************************************************
 
 '''
@@ -21,6 +21,12 @@ files, comments included. Obfuscation is not the goal here, just getting
 something that's easy to run, move and distribute.
 '''
 
+from __future__ import (unicode_literals, division, absolute_import, print_function)
+try:
+  from builtins import bytes
+except ImportError:
+  from future.builtins import bytes
+
 import glob, os.path
 
 from setuptools import setup
@@ -28,6 +34,7 @@ from setuptools import setup
 files = [os.path.splitext(x)[0] for x in glob.glob('*.py')]
 files.remove('export')
 files.remove('pack')
+files.remove('imports')
 
 setup(
   script_args=['bdist_wheel', '-d', '.'],
@@ -57,4 +64,3 @@ with open(exe_name, 'wb') as new:
 os.remove(wheel)
 st = os.stat(exe_name)
 os.chmod(exe_name, st.st_mode | stat.S_IEXEC)
-

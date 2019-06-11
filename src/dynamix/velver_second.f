@@ -43,16 +43,15 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 #include "dyn.fh"
 #include "constants2.fh"
       EXTERNAL     IsFreeUnit
-      INTEGER      i,j,natom,file,IsFreeUnit,nsAtom,nIsoAtoms
+      INTEGER      i,j,natom,file,IsFreeUnit,nsAtom
       CHARACTER    filname*80,line*80
       REAL*8       conv,tolerance,DT2,time,kb
       REAL*8       Ekin,Epot,Etot,Etot0,Ekin_target
       REAL*8       EtotLastPoint
-      LOGICAL      hybrid,found,lIsotope
+      LOGICAL      hybrid,found
       CHARACTER  caption*15, lastline*80
       CHARACTER, ALLOCATABLE ::    atom(:)*2
       REAL*8, ALLOCATABLE ::       Mass(:),vel(:),force(:),xyz(:)
-      REAL*8, ALLOCATABLE ::       dIsotopes(:)
       INTEGER Iso
 C
 C     The parameter conv converts the gradients (Hartree/Bohr) to
@@ -62,7 +61,7 @@ C
       PARAMETER   (conv=-1.0d0)
 c     PARAMETER   (conv=-CONV_AU_TO_KJ_PER_MOLE_/Angstrom)
       PARAMETER   (kb = CONST_BOLTZMANN_/
-     &             CONV_AU_TO_KJ_*1.0D3)
+     &             (CONV_AU_TO_KJ_*1.0D3))
 
 *
       IF(IPRINT.EQ.INSANE) WRITE(6,*)' Entering ',ROUTINE
@@ -102,26 +101,14 @@ C
 
       CALL Get_dScalar('MD_Time',time)
 
-C
-C     Check if the Isotope option is selected
-C
-      CALL Qpg_dArray('Isotopes',lIsotope,nIsoAtoms)
-      IF (lIsotope) THEN
-         CALL mma_allocate(dIsotopes,natom)
-         CALL Get_dArray('Isotopes',dIsotopes,natom)
-      WRITE(6,*) 'Isotopes Label:' ,lIsotope
-      END IF
-
+      CALL Get_nAtoms_All(matom)
+      CALL Get_Mass_All(Mass,matom)
       DO i=1, natom
 C     Determines the mass of an atom from its name
-         CALL LeftAd(atom(i))
-         Iso=0
-         CALL Isotope(Iso,atom(i),Mass(i))
-C     Manual isotope modification -----------
-         IF (lIsotope) THEN
-            IF ((dIsotopes(i)).NE.0.0D0) THEN
-               Mass(i)=dIsotopes(i)
-            END IF
+         IF (i.GT.matom) THEN
+            CALL LeftAd(atom(i))
+            Iso=0
+            CALL Isotope(Iso,atom(i),Mass(i))
          END IF
 C-------------------------------------------
          DO j=1, 3
@@ -143,7 +130,7 @@ C Final kinetic energy
          END DO
       END DO
 
-      Call Add_Info('EKin',EKin,1,6)
+      Call Add_Info('EKin',[EKin],1,6)
 C
 
 C
@@ -162,7 +149,7 @@ C
           READ(file,*)line
              DO WHILE (i.le.80)
                 IF (line(i:i).eq.'$') THEN
-                   READ(file,'(E20.14)')Epot
+                   READ(file,'(E20.13)')Epot
                    i=80
                 ELSEIF (i.eq.80.and.line(i:i).ne.'$') THEN
                    WRITE(6,*)'No energy found'
@@ -199,7 +186,7 @@ C--------------------------------------------------------------------C
          WRITE(6,'(5X,A)') 'The temperature is control with a '
          WRITE(6,'(5X,A)') 'Nose-Hoover chain of thermostats'
          WRITE(6,'(5X,A,/)') '========================'
-         WRITE(6,'(5X,A,7X,E9.4,1X,A,//)') 'instantaneous temperature'
+         WRITE(6,'(5X,A,5X,E11.4,1X,A,//)') 'instantaneous temperature'
      &                                  ,tempNow,'kelvin'
 
       ENDIF
@@ -221,7 +208,7 @@ C     Check if the total energy is conserved and scale the velocities
 C     if necessary.
 C
 C        1.0K * k_B
-         tolerance=1.0D-3*CONST_BOLTZMANN_/CONV_AU_TO_KJ_
+         tolerance=1.0D0*kb
          tolerance=1.5D0*natom*tolerance
          IF (ABS(Etot0-Etot).gt.tolerance) THEN
             Ekin_target=Etot0-Epot
@@ -294,16 +281,13 @@ C         write (6,*) nsAtom
       call mh5_put_dset(dyn_vel,vel)
 #endif
 
- 401  FORMAT(5X,A,4X,E10.4)
+ 401  FORMAT(5X,A,3X,E11.4)
 
       CALL mma_deallocate(atom)
       CALL mma_deallocate(Mass)
       CALL mma_deallocate(vel)
       CALL mma_deallocate(force)
       CALL mma_deallocate(xyz)
-      IF (lIsotope) THEN
-         CALL mma_deallocate(dIsotopes)
-      END IF
 
 C
 C     The return code is set in order to continue the loop

@@ -43,6 +43,7 @@
 #include "general.fh"
 #include "output_ras.fh"
 #include "WrkSpc.fh"
+#include "raswfn.fh"
       Parameter (ROUTINE='FCKPT2  ')
 
       DIMENSION CMOO(*),CMON(*),FI(*),FP(*),FTR(*),VEC(*),
@@ -118,7 +119,7 @@
 *
 * Clear the MO transformation matrix CMOX
 *
-       CALL VCLR(CMOX,1,NOT*NOT)
+       CALL FZERO(CMOX,NOT*NOT)
 *
 ************************************************************************
 * Inactive part of the Fock matrix
@@ -136,7 +137,7 @@
         END DO
 * DIAGONALIZE
         NIO2=NIO**2
-        CALL VCLR(VEC,1,NIO2)
+        CALL FZERO(VEC,NIO2)
         II=1
         DO NI=1,NIO
          VEC(II)=1.0D0
@@ -193,7 +194,7 @@
         END DO
 * DIAGONALIZE
         NAO2=NAO**2
-        CALL VCLR(VEC,1,NAO2)
+        CALL FZERO(VEC,NAO2)
         II=1
         DO NT=1,NAO
          VEC(II)=1.0D0
@@ -259,7 +260,7 @@
         END DO
 * DIAGONALIZE
         NEO2=NEO**2
-        CALL VCLR(VEC,1,NEO2)
+        CALL FZERO(VEC,NEO2)
         II=1
         DO NA=1,NEO
          VEC(II)=1.0D0
@@ -393,7 +394,7 @@
       CALL ORTHO_RASSCF(WO,CMOX,CMON,SQ)
 *
 ************************************************************************
-* Write new orbitals to JOBIPH.
+* Write new orbitals to JOBIPH/rasscf.h5
 ************************************************************************
 *
         If ( IPRLEV.ge.DEBUG ) then
@@ -416,6 +417,9 @@
 
       IAD15=IADR15(9)
       CALL DDAFILE(JOBIPH,1,CMON,NTOT2,IAD15)
+#ifdef _HDF5_
+        call mh5_put_dset(wfn_mocoef,CMON)
+#endif
 *
 * Write FI, FP and FDIAG to JOBIPH
 * First remove frozen and deleted part of FDIAG

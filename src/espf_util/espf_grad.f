@@ -23,6 +23,7 @@
       Character*180 Get_Ln
       External Get_Ln
       Dimension FX(4)
+      Dimension opnuc(1)
 *
       Call QEnter('espf_grad')
       iPL = iPL_espf()
@@ -49,15 +50,15 @@
          If (lMMGrd) Then
             Call Get_dArray('MM Grad',Work(ipMMGrd),6*natom)
             call dcopy_(3*natom,Work(ipMMGrd+3*natom),1,Work(ipMMGrd),1)
-            call dcopy_(3*natom,Zero,0,Work(ipMMGrd+3*natom),1)
+            call dcopy_(3*natom,[Zero],0,Work(ipMMGrd+3*natom),1)
          Else
-            call dcopy_(6*natom,Zero,0,Work(ipMMGrd),1)
+            call dcopy_(6*natom,[Zero],0,Work(ipMMGrd),1)
          End If
       End If
 *
       If (Exist .and. DoTinker .and. .not.isNAC) Then
          Call GetMem('Hess','Allo','Real',ipHC,3*natom*(3*natom+1)/2)
-         call dcopy_((3*natom*(3*natom+1)/2),Zero,0,Work(ipHC),1)
+         call dcopy_((3*natom*(3*natom+1)/2),[Zero],0,Work(ipHC),1)
       End If
 *
       If (Exist .and. DoTinker .and. .not.isNAC) Then
@@ -67,9 +68,9 @@
          Do While (Index(Line,'TheEnd ') .eq. 0)
             Line=Get_Ln(ITkQMMM)
             If (Index(Line,'NMM').ne.0) Then
-               Call Get_I(2,natMM,1)
+               Call Get_I1(2,natMM)
             Else If (Index(Line,'MMGradient').ne.0) Then
-               Call Get_I(2,iAtom,1)
+               Call Get_I1(2,iAtom)
                Call Get_F(3,FX,3)
                Do iXYZ = 0, 2
                   iOff = (iAtom-1)*3+iXYZ
@@ -80,7 +81,7 @@
                EndDo
             Else If (Index(Line,'MMHDiag').ne.0) Then
                lMMHess = .True.
-               Call Get_I(2,iAtom,1)
+               Call Get_I1(2,iAtom)
                Call Get_F(3,FX,3)
                Do iXYZ = 1, 3
                   Work(ipHC+LHR(iXYZ,iAtom,iXYZ,iAtom)-1) = FX(iXYZ)
@@ -88,9 +89,9 @@
                EndDo
             Else If (Index(Line,'MMHOff').ne.0) Then
                lMMHess = .True.
-               Call Get_I(2,iAtom,1)
-               Call Get_I(3,iXYZ,1)
-               Call Get_I(4,iNumb,1)
+               Call Get_I1(2,iAtom)
+               Call Get_I1(3,iXYZ)
+               Call Get_I1(4,iNumb)
 c            Write (6,*) 'HOff read ',iAtom,iXYZ,iNumb
                iCur = 0
                jAtom = iAtom
@@ -174,15 +175,11 @@ c            Write (6,'(A,4f10.5)') 'HOff read ',(FX(j),j=1,iStep)
 *
 *     Basically, it should work like the following lines ... but it can't now.
 *
-*      opmol = Dum
 *      opnuc = Dum
-*      idirect = 1
-*      isyop = 1
 *      ncmp = 3
 *      iAddPot = -1
 *      Call GetMem('dESPF1','Allo','Real',ipD1,nGrdPt*natom*3)
-*      Call DrvProp('POT',Work(ipGrid),opmol,opnuc,ncmp,idirect,
-*     &             isyop,Work(ipD1),nGrdPt,iAddPot)
+*      Call DrvPot(Work(ipGrid),opnuc,ncmp,Work(ipD1),nGrdPt,iAddPot)
 *      Call GetMem('dESPF1','Free','Real',ipD1,nGrdPt*natom*3)
 *
 *     Now I try another thing, following the way derivatives with respect to point
@@ -203,15 +200,11 @@ c            Write (6,'(A,4f10.5)') 'HOff read ',(FX(j),j=1,iStep)
 *     Here I need the integrals contracted with the density matrix and weighted
 *     by the derivatives of B: dB/dq * Sum_mu,nu P_mu,nu*(<mu|1/R_grid|nu>)
 *
-      opmol = Dum
       opnuc = Dum
-      idirect = 1
-      isyop = 1
       ncmp = 1
       iAddPot = -1
       Call GetMem('dESPF2','Allo','Real',ipD2,nGrdPt)
-      Call DrvProp('POT',Work(ipGrid),opmol,opnuc,ncmp,idirect,
-     &             isyop,Work(ipD2),nGrdPt,iAddPot)
+      Call DrvPot(Work(ipGrid),opnuc,ncmp,Work(ipD2),nGrdPt,iAddPot)
       If (iPL.ge.4) Then
          Write(6,'(/,A,/)') ' PV = '
          Do iPnt = 1, nGrdPt

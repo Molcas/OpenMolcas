@@ -30,8 +30,8 @@
 *-- Allocate and initialize the eigenvector matrix with the unit matrix.
 *
       Call GetMem('Coeff','Allo','Real',iSTC,nState**2)
-      call dcopy_(nState**2,ZERO,iZERO,Work(iSTC),iONE)
-      call dcopy_(nState,ONE,iZERO,Work(iSTC),nState+1)
+      call dcopy_(nState**2,[ZERO],iZERO,Work(iSTC),iONE)
+      call dcopy_(nState,[ONE],iZERO,Work(iSTC),nState+1)
 *
 *-- Define some numbers.
 *

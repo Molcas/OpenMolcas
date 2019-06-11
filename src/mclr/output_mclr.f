@@ -71,7 +71,7 @@
        End Do
        nhess=nDIsp*(nDisp+1)/2
        Call GetMem('RESPH','ALLO','REAL',ipRHss,nHss)
-       call dcopy_(nHss,0.0d0,0,Work(ipRHss),1)
+       call dcopy_(nHss,[0.0d0],0,Work(ipRHss),1)
 *
 *-------------------------------------------------------------------*
 *
@@ -372,12 +372,12 @@ C     Call GetMem('Temp','ALLO','REAL',ipELEC2,3*ndisp)
 *     If a basis set is dependent on perturbation add terms
 *     constructed in mckinley.
 *
-      call dcopy_(6,0.0d0,0,pola,1)
+      call dcopy_(6,[0.0d0],0,pola,1)
       idum=1
       iopt=128
       irc=3*ndisp
       Label='DOTELGR'
-      Call rdMCk(irc,iopt,LaBeL,idum,Work(ipEG),idum)
+      Call drdMCk(irc,iopt,LaBeL,idum,Work(ipEG),idum)
       elec=.true.
       if (irc.ne.0) elec=.false.
                 Call GADsum(Work(iphss), nhss)
@@ -441,7 +441,7 @@ c       Call HssPrt_MCLR(iwork(ipdegdisp),Work(ipHess2),ldisp2)
          iRC=-1
          iOpt=0
          Label='StatHess'
-         Call RdMck(iRC,iOpt,Label,idum,Work(ipTemp),idum)
+         Call dRdMck(iRC,iOpt,Label,idum,Work(ipTemp),idum)
          If (iRC.ne.0) Then
             Write (6,*) 'OutPut: Error reading MCKINT'
             Write (6,'(A,A)') 'Label=',Label
@@ -479,7 +479,7 @@ c       Call HssPrt_MCLR(iwork(ipdegdisp),Work(ipHess2),ldisp2)
          iRC=-1
          iOpt=0
          Label='Hess    '
-         Call WrMck(iRC,iOpt,Label,iDum,Work(ipHess),iDum)
+         Call dWrMck(iRC,iOpt,Label,iDum,Work(ipHess),iDum)
          If (iRC.ne.0) Then
             Write (6,*) 'OutPut: Error writing to MCKINT'
             Write (6,'(A,A)') 'Label=',Label
@@ -494,7 +494,7 @@ c       Call HssPrt_MCLR(iwork(ipdegdisp),Work(ipHess2),ldisp2)
        iRC=-1
        iOpt=0
        Call GetMem('NRDISP','ALLO','INTE',ipnrdisp,ndisp)
-       Call RdMck(irc,iopt,'NRDISP',idum,iWork(ipnrDisp),idum)
+       Call RdMck(irc,iopt,'NRCTDISP',idum,iWork(ipnrDisp),idum)
        iRC=-1
        iOpt=0
        Call GetMem('DEGDISP','ALLO','INTE',ipdegdisp,ndisp)
@@ -549,7 +549,7 @@ c       Open(unit=Lu_10, file='UNSYM')
        Call TriPrt(' ',' ',Pola,3)
        close(Lu_10)
        Call GetMem('NRDISP','FREE','INTE',ipnrdisp,ndisp)
-       Call GetMem('NRDISP','FREE','INTE',ipdegdisp,ndisp)
+       Call GetMem('DEGDISP','FREE','INTE',ipdegdisp,ndisp)
       End If
 *----------------------------------------------------------------------*
 *     Exit                                                             *

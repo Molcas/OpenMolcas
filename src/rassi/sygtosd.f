@@ -186,7 +186,7 @@ CTEST      write(*,'(1x,a,20i3)')'Spin determinant:',
 CTEST     &                    (ISPNTAB(KSPN-1+I+NOPEN*(ISPD-1)),I=1,nopen)
             IBLK=IBLK+1
 C Construct occupation number array:
-            CALL ICOPY(2*NORB,0,0,IWORK(LOCARR),1)
+            CALL ICOPY(2*NORB,[0],0,IWORK(LOCARR),1)
             DO IEL=1,NCLSD
               IORB=IWORK(LORBARR-1+IEL)
               IWORK(LOCARR-1+2*IORB-1)=1

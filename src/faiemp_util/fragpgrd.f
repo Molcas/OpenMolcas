@@ -244,7 +244,7 @@ c        write(*,*) '  iPrim,iBas =',iPrim,iBas
 * always equivalent of pChrg's
               JndGrd(iCar+1,3) = 0
             End Do
-            Call ICopy(3,0,0,JndGrd(1,4),1)
+            Call ICopy(3,[0],0,JndGrd(1,4),1)
             JfGrad(1,4) = .False.
             JfGrad(2,4) = .False.
             JfGrad(3,4) = .False.
@@ -635,7 +635,7 @@ C what does this do and is it needed? (from PrjGrd)
 *
 *-----------Next Contract (iKaC)*W(KLCD)*(LjDb) producing ijab
 *
-            call dcopy_(nZeta*nElem(la)*nElem(lb)*6,Zero,0,Final,1)
+            call dcopy_(nZeta*nElem(la)*nElem(lb)*6,[Zero],0,Final,1)
 *
             If(iPrint.ge.99) Then
               Call RecPrt('ipF1 (nVecAC x X)',' ',Array(ipF1),

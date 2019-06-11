@@ -1,0 +1,245 @@
+#!/bin/sh
+#***********************************************************************
+# This file is part of OpenMolcas.                                     *
+#                                                                      *
+# OpenMolcas is free software; you can redistribute it and/or modify   *
+# it under the terms of the GNU Lesser General Public License, v. 2.1. *
+# OpenMolcas is distributed in the hope that it will be useful, but it *
+# is provided "as is" and without any express or implied warranties.   *
+# For more details see the full text of the license in the file        *
+# LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#                                                                      *
+# Copyright (C) 2018, Ignacio Fdez. Galván                             *
+#***********************************************************************
+#
+# Utility script to check if some optional features in OpenMolcas are
+# available. Depending on the feature, this means checking whether some
+# file exists and/or whether some symbols or libraries are present in
+# the executables. Features that correspond to separate executables
+# (GRID_IT, WFA, NEVPT2...) are not included here because the driver
+# already returns a specific code in those cases.
+#
+# The features to test are passed as arguments to the script. If all
+# features are available, the return code is 0 (success), if any feature
+# is missing, it will be 1. If an unknown feature is requested the
+# return code is 2.
+#
+# Supported features are:
+#
+# Tinker
+# Gromacs
+# HDF5
+# CheMPS2
+# molcas_extra
+# DGA
+# MPI
+# Block
+# QCMaquis
+# EFP
+# FDE
+# msym
+# NECI
+#
+
+#MOLCAS_HAVE_FEATURE_VERBOSE=1
+
+Echo() {
+  [ -n "$MOLCAS_HAVE_FEATURE_VERBOSE" ] && echo $1
+}
+
+find_library() {
+  Echo "Searching $1 in $2"
+  FILE="$MOLCAS/bin/$2.exe"
+  if [ ! -f "$FILE" ] ; then
+    Echo "$FILE not found"
+    return 1
+  fi
+  if objdump -p "$FILE" | grep NEEDED | grep $1 > /dev/null ; then
+    Echo "$1 found in $FILE"
+    return 0
+  else
+    Echo "$1 not found in $FILE"
+  fi
+  return 1
+}
+
+find_symbol() {
+  Echo "Searching $1 in $2"
+  FILE="$MOLCAS/bin/$2.exe"
+  if [ ! -f "$FILE" ] ; then
+    Echo "$FILE not found"
+    return 1
+  fi
+  REGEXP="${1}_?"
+  if strings "$FILE" | grep -Ex $REGEXP > /dev/null ; then
+    Echo "$1 found in $FILE"
+    return 0
+  else
+    Echo "$1 not found in $FILE"
+    if find_library libmolcas $2 ; then
+      FILE="$MOLCAS/lib/libmolcas.so"
+      if strings "$FILE" | grep -Ex $REGEXP > /dev/null ; then
+        Echo "$1 found in $FILE"
+        return 0
+      else
+        Echo "$1 not found in $FILE"
+      fi
+    fi
+  fi
+  return 1
+}
+
+RC=0
+
+while [ -n "$1" ]; do
+  FEATURE=`echo "$1" | tr '[:upper:]' '[:lower:]'`
+  case "$FEATURE" in
+
+    "tinker")
+      Echo "Processing feature: $FEATURE"
+      TINKER_FILE="$TINKER/tkr2qm_s"
+      if [ -x "$TINKER_FILE" ] ; then
+        Echo "Found: $TINKER_FILE"
+      else
+        Echo "Not found!"
+        RC=1
+      fi
+      Echo
+      ;;
+
+    "gromacs")
+      Echo "Processing feature: $FEATURE"
+      GROMPP=`which grompp_d`
+      if [ -n "$GROMPP" ] ; then
+        Echo "Found: $GROMPP"
+        if ! find_library libgromacs_d gateway ; then
+          Echo "Not compiled!"
+          RC=1
+        fi
+      else
+        Echo "Not found!"
+        RC=1
+      fi
+      Echo
+      ;;
+
+    "hdf5")
+      Echo "Processing feature: $FEATURE"
+      if ! find_library libhdf5 gateway ; then
+        Echo "Not compiled!"
+        RC=1
+      fi
+      Echo
+      ;;
+
+    "chemps2")
+      Echo "Processing feature: $FEATURE"
+      CHEMPS2=`which chemps2`
+      if [ -n "$CHEMPS2" ] ; then
+        Echo "Found: $CHEMPS2"
+        if ! find_symbol chemps2ctl rasscf ; then
+          Echo "Not compiled!"
+          RC=1
+        fi
+      else
+        Echo "Not found!"
+        RC=1
+      fi
+      Echo
+      ;;
+
+    "molcas-extra")
+      Echo "Processing feature: $FEATURE"
+      if ! find_symbol mystring gateway ; then
+        Echo "Not compiled!"
+        RC=1
+      fi
+      Echo
+      ;;
+
+    "dga")
+      Echo "Processing feature: $FEATURE"
+      if ! find_symbol molcas_dga_init gateway ; then
+        Echo "Not compiled!"
+        RC=1
+      fi
+      Echo
+      ;;
+
+    "mpi")
+      Echo "Processing feature: $FEATURE"
+      if ! find_symbol allgather caspt2 ; then
+        Echo "Not compiled!"
+        RC=1
+      fi
+      Echo
+      ;;
+
+    "block")
+      Echo "Processing feature: $FEATURE"
+      if ! find_library libqcdmrg rasscf ; then
+        Echo "Not compiled!"
+        RC=1
+      fi
+      Echo
+      ;;
+
+    "qcmaquis")
+      Echo "Processing feature: $FEATURE"
+      if ! find_symbol qcmaquis_rdinp rasscf ; then
+        Echo "Not compiled!"
+        RC=1
+      fi
+      Echo
+      ;;
+
+    "efp")
+      Echo "Processing feature: $FEATURE"
+      if ! find_library libefp gateway ; then
+        Echo "Not compiled!"
+        RC=1
+      fi
+      Echo
+      ;;
+
+    "fde")
+      Echo "Processing feature: $FEATURE"
+      if ! find_symbol embpotinit gateway ; then
+        Echo "Not compiled!"
+        RC=1
+      fi
+      Echo
+      ;;
+
+    "msym")
+      Echo "Processing feature: $FEATURE"
+      if ! find_library libmsym gateway ; then
+        Echo "Not compiled!"
+        RC=1
+      fi
+      Echo
+      ;;
+
+    "neci")
+      Echo "Processing feature: $FEATURE"
+      if ! find_library libdneci rasscf ; then
+        Echo "Not compiled!"
+        RC=1
+      fi
+      Echo
+      ;;
+
+    *)
+      Echo "Unknown feature: $FEATURE"
+      RC=2
+      break
+      ;;
+
+  esac
+
+  shift
+done
+
+Echo "Return code: $RC"
+
+exit $RC

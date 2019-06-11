@@ -77,8 +77,8 @@
          rms    = 0.0D0
          iCount = 0
          Do m = -k, k
-            Original  = DDot_(nij,One,0,Scratch_Org(iOff),1)
-            Estimated = DDot_(nij,One,0,Scratch_New(iOff),1)
+            Original  = DDot_(nij,[One],0,Scratch_Org(iOff),1)
+            Estimated = DDot_(nij,[One],0,Scratch_New(iOff),1)
             Error     = Original - Estimated
 
             Sum       = Sum + Error*Error

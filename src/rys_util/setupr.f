@@ -29,6 +29,7 @@
 ************************************************************************
       use Her_RW
       use vRys_RW
+      use Leg_RW
       implicit none
 #include "itmax.fh"
 #include "info.fh"
@@ -47,6 +48,10 @@
      &          'SetupR: Rys_Status is already active!')
          Call Abend()
       End If
+*
+#ifdef _RYS_SCRATCH_
+      CALL SetAux(1.0D-16)
+#endif
 *
       CALL Read_ABData
 *

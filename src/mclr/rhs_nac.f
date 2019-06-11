@@ -38,8 +38,8 @@
       Call Getmem('ONED-','ALLO','REAL',ipG1m,ng1)
       Call Allocate_Work(ipG1r,n1dens)
       Call Allocate_Work(ipG2r,n2dens)
-      Call dcopy_(n1dens,zero,0,work(ipG1r),1)
-      Call dcopy_(n2dens,zero,0,work(ipG2r),1)
+      Call dcopy_(n1dens,[zero],0,work(ipG1r),1)
+      Call dcopy_(n2dens,[zero],0,work(ipG2r),1)
 *
 **    Calculate one- and two-particle transition matrices
 **    from the CI vectors of the two NAC states
@@ -69,8 +69,11 @@
         Do j=0,i-1
           Work(ipG1q+ij)=(Work(ipG1r+i*ntAsh+j)+
      &                    Work(ipG1r+j*ntAsh+i))*Half
-          Work(ipG1m+ij)=(Work(ipG1r+i*ntAsh+j)-
-     &                    Work(ipG1r+j*ntAsh+i))*Half
+*         Note that the order of subtraction depends on how the matrix
+*         will be used when contracting with derivative integrals
+*         This is found to give the correct results:
+          Work(ipG1m+ij)=(Work(ipG1r+j*ntAsh+i)-
+     &                    Work(ipG1r+i*ntAsh+j))*Half
           ij=ij+1
         End Do
         Work(ipG1q+ij)=Work(ipG1r+i*ntAsh+i)

@@ -24,7 +24,7 @@
       If(ITypRad.eq.1) then
 * United Atom Topological Model (UATM) radii:
         Call GetMem('Chg','Allo','Real',ip_Chg,NAt)
-        call dcopy_(NAt,Zero,0,Work(ip_chg),1)
+        call dcopy_(NAt,[Zero],0,Work(ip_chg),1)
         Call UATM(IOut,ICharg,NAt,NSinit,ToAng,Rad,Alpha,C,IAt,NOrd,
      &            Work(ip_Chg),iPrint)
         Call GetMem('Chg','Free','Real',ip_Chg,NAt)

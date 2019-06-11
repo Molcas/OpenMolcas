@@ -50,7 +50,7 @@ c  "Augmented" calc:
       if(.not.strucopt)sxc(1)=ddot_(nvb,cvb,1,vec_all(nprorb+1),1)
 
       call fzero(vec_all,nprorb)
-      call fmove(cvb,vec_all(nprorb+1),nvb)
+      call fmove_cvb(cvb,vec_all(nprorb+1),nvb)
       call all2free_cvb(vec_all,c(ic1),1)
       if(.not.strucopt)c(1)=ddot_(nvb,cvb,1,vec_all(nprorb+1),1)
 

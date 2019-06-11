@@ -85,6 +85,11 @@ CSVC: print a banner with module name and runtime information
       else
         write (threads,'(I8,A8)') nthreads, ' threads'
       end if
+* if OPENMP is not compiled in, we don't know how many threads
+* could be available in linear algebra libraries...
+#ifndef _OPENMP
+      threads=trim(threads)//'?'
+#endif
 
       line = 'available to each process: '//
      &        trim(adjustl(memory))//' of memory, '//

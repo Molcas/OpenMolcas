@@ -62,11 +62,11 @@ c***************************************
 c
 c For HF
 c
-      call dcopy_(lDens,0.0d0,0,Work(ipDens),1)
+      call dcopy_(lDens,[0.0d0],0,Work(ipDens),1)
       ip3 = 0
       Do iS=1,nSym
           inc = nBas(iS) + 1
-          call dcopy_(nIsh(iS),2.0d0,0,Work(ipDens+ip3),inc)
+          call dcopy_(nIsh(iS),[2.0d0],0,Work(ipDens+ip3),inc)
           ip3 = ip3 + nBas(iS)*nBas(iS)
       End Do
 *

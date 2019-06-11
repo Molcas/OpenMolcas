@@ -47,13 +47,13 @@
       IF(NTEST.NE.0)
      &WRITE(6,*) ' First word with string information',KSTINF
 *
-      Call ICopy(MXPSTT,ip_iDummy,0,KNSTSO,1)
-      Call ICopy(MXPSTT,ip_iDummy,0,KISTSO,1)
-      Call ICopy(MXPSTT,ip_iDummy,0,KEL1  ,1)
-      Call ICopy(MXPSTT,ip_iDummy,0,KEL3  ,1)
-      Call ICopy(MXPSTT,ip_iDummy,0,KEL123,1)
-      Call ICopy(MXPSTT,ip_iDummy,0,KACTP ,1)
-      Call ICopy(MXPSTT,ip_iDummy,0,KZ    ,1)
+      Call ICopy(MXPSTT,[ip_iDummy],0,KNSTSO,1)
+      Call ICopy(MXPSTT,[ip_iDummy],0,KISTSO,1)
+      Call ICopy(MXPSTT,[ip_iDummy],0,KEL1  ,1)
+      Call ICopy(MXPSTT,[ip_iDummy],0,KEL3  ,1)
+      Call ICopy(MXPSTT,[ip_iDummy],0,KEL123,1)
+      Call ICopy(MXPSTT,[ip_iDummy],0,KACTP ,1)
+      Call ICopy(MXPSTT,[ip_iDummy],0,KZ    ,1)
 * =====================================================================
 *
 * 1 : String information

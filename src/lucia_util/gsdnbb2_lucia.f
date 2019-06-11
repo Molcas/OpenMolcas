@@ -136,7 +136,7 @@
       END IF
       IACTIVE = 0
 *
-      IF(IATP.EQ.JATP.AND.JASM.EQ.IASM) THEN
+      IF(IATP.EQ.JATP.AND.IASM.EQ.JASM) THEN
 *
 * =============================
 *  beta contribution to RHO1
@@ -205,7 +205,7 @@ C    &         NSMOB,NSMST,NSMSX,MXPOBS)
         CALL COPVEC(C2,CB,NJA*NJB)
         CALL TRPMT3(SB,NIA,NIB,C2)
         CALL COPVEC(C2,SB,NIA*NIB)
-C?        WRITE(6,*) ' GSBBD1 will be called (alpha)'
+C?      WRITE(6,*) ' GSBBD1 will be called (alpha)'
         IAB = 1
         CALL TIMING(CPU0,CPU,WALL0,WALL)
         CALL GSBBD1_LUCIA(    RHO1,   NACOB,    IASM,    IATP,    JASM,
@@ -222,7 +222,7 @@ C?        WRITE(6,*) ' GSBBD1 will be called (alpha)'
 *
 * CALL GSBBD1_LUCIA --> 40
 *
-C?        WRITE(6,*) ' GSBBD1 was called '
+C?      WRITE(6,*) ' GSBBD1 was called '
         IF(I12.EQ.2.AND.NAEL.GE.2) THEN
 *
 * ===================================

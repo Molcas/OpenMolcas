@@ -166,24 +166,24 @@
 *
       If (Type.eq.'X     ') Then
          Value = xyz(1,1)
-         call dcopy_(3,Zero,0,Grad,1)
-         call dcopy_(9,Zero,0,Hess,1)
+         call dcopy_(3,[Zero],0,Grad,1)
+         call dcopy_(9,[Zero],0,Hess,1)
          Grad(1,1) = One
          If (lWrite) Write (6,'(1X,A,A,2X,F10.4,A)') Lbl,
      &          ' : x-component=',Value,'/ bohr'
          Deg=D_Cart(Ind(1,1),nStab,jStab,mxdc,nSym)
       Else If (Type.eq.'Y     ') Then
          Value = xyz(2,1)
-         call dcopy_(3,Zero,0,Grad,1)
-         call dcopy_(9,Zero,0,Hess,1)
+         call dcopy_(3,[Zero],0,Grad,1)
+         call dcopy_(9,[Zero],0,Hess,1)
          Grad(2,1) = One
          If (lWrite) Write (6,'(1X,A,A,2X,F10.4,A)') Lbl,
      &          ' : y-component=',Value,'/ bohr'
          Deg=D_Cart(Ind(1,1),nStab,jStab,mxdc,nSym)
       Else If (Type.eq.'Z     ') Then
          Value = xyz(3,1)
-         call dcopy_(3,Zero,0,Grad,1)
-         call dcopy_(9,Zero,0,Hess,1)
+         call dcopy_(3,[Zero],0,Grad,1)
+         call dcopy_(9,[Zero],0,Hess,1)
          Grad(3,1) = One
          If (lWrite) Write (6,'(1X,A,A,2X,F10.4,A)') Lbl,
      &          ' : z-component=',Value,'/ bohr'

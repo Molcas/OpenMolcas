@@ -58,9 +58,9 @@ CONTAINS
 
 ! Avoid unused argument warnings
       IF (.FALSE.) THEN
-         CALL Unused_real(LHS) !not really real, but well...
-         CALL Unused_real(RHS) !not really real, but well...
-         CALL Unused_real(id)  !not really real, but well...
+         CALL Unused_integer_array(LHS%raw_paras%id)
+         CALL Unused_integer_array(RHS%raw_paras%id)
+         CALL Unused_integer(id%LHS)
       END IF
    END SUBROUTINE fmm_set_T_pair_basics
 
@@ -117,8 +117,8 @@ CONTAINS
 
 ! Avoid unused argument warnings
       IF (.FALSE.) THEN
-         CALL Unused_real(X) !not really real, but well...
-         CALL Unused_real(Y) !not really real, but well...
+         CALL Unused_integer_array(X%raw_paras%id)
+         CALL Unused_integer(Y%LHS)
       END IF
    END SUBROUTINE fmm_set_LHS_LMAX
 
@@ -135,8 +135,8 @@ CONTAINS
 
 ! Avoid unused argument warnings
       IF (.FALSE.) THEN
-         CALL Unused_real(X) !not really real, but well...
-         CALL Unused_real(Y) !not really real, but well...
+         CALL Unused_integer_array(X%raw_paras%id)
+         CALL Unused_integer(Y%LHS)
       END IF
    END SUBROUTINE fmm_set_RHS_LMAX
 

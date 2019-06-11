@@ -125,7 +125,7 @@
       Call Molcas_Open(IPotFl,'ESPF.DATA')
 10    Key = Get_Ln(IPotFl)
       If (Key(1:10).eq.'GRID      ') Then
-         Call Get_I(2,nGrdPt,1)
+         Call Get_I1(2,nGrdPt)
          Goto 11
       EndIf
       Goto 10
@@ -191,11 +191,11 @@
 *------- No derivatives with respect to the third or fourth center.
 *        The positions of the points in the external field are frozen.
 *
-         Call ICopy(3,0,0,JndGrd(1,3),1)
+         Call ICopy(3,[0],0,JndGrd(1,3),1)
          JfGrad(1,3) = .False.
          JfGrad(2,3) = .False.
          JfGrad(3,3) = .False.
-         Call ICopy(3,0,0,JndGrd(1,4),1)
+         Call ICopy(3,[0],0,JndGrd(1,4),1)
          JfGrad(1,4) = .False.
          JfGrad(2,4) = .False.
          JfGrad(3,4) = .False.
@@ -238,9 +238,9 @@
             nDiff=1
             mRys=(la+lb+2+nDiff+iOrdOp)/2
             Call Rysg1(iAnga,mRys,nT,
-     &                 Array(ipA),Array(ipB),One,One,
+     &                 Array(ipA),Array(ipB),[One],[One],
      &                 Zeta,ZInv,nZeta,
-     &                 One,One,1,
+     &                 [One],[One],1,
      &                 P,nZeta,TC,1,Coori,Coori,CoorAC,
      &                 Array(nip),nArray,
      &                 TNAI1,Fake,XCff2D,

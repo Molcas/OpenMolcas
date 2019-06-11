@@ -75,7 +75,7 @@
 *
       If (Si.eq.Zero) Then
 *------- Dummy assignment for a linear system!
-         call dcopy_(3*nCent,0.0D0,0,Bf,1)
+         call dcopy_(3*nCent,[0.0D0],0,Bf,1)
       Else
          Do i = 1, 3
             Bf(i,1)= (Co*BRij(i,1)-BRjk(i,2))/(Si*Rij1)

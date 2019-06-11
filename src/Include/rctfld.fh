@@ -68,20 +68,21 @@
 *     explicit parameter statments in the code. Change those too if
 *     the value is changed!
 *     !!!!!!!!!!!!!!!!!!!!!!!
-      Parameter (MxSph=1000,MxTs=6000,MxVert=20,MxPar=100,MxA=100)
-      Integer lRFStrt, lRFEnd
-      Logical lRF, lLangevin, RF_Basis, PCM, Conductor, NonEq_ref,
+      integer, parameter :: MxSph=1000,MxTs=6000,MxVert=20,
+     & MxPar=100,MxA=100
+      integer lRFStrt, lRFEnd
+      logical lRF, lLangevin, RF_Basis, PCM, Conductor, NonEq_ref,
      &        DoDeriv,lRFCav,LSparse,LGridAverage,lDamping,lAmberPol,
      &        Done_Lattice,lFirstIter,lDiprestart
-      Common /lRct/ lRFStrt,
+      common /lRct/ lRFStrt,
      &              lRF, lLangevin, RF_Basis, PCM, Conductor, NonEq_ref,
      &              DoDeriv,lRFCav,LSparse,LGridAverage,lDamping,
      &              lAmberPol,
      &              Done_Lattice,lFirstIter,lDiprestart,
      &              lRFEnd
-      Common /iRct/ iRFStrt,
-     &              lMax, nMM, ipMM, latato, nexpo, maxa, maxb, maxc,
-     &              nabc, ipField, ipDip, ipdField, ipPolEf, ipDipEf,
+      integer :: lMax, nMM, ipMM, latato, nexpo, maxa, maxb, maxc,
+     &              iRFStrt, nabc, ipField, ipDip, ipdField, ipPolEf,
+     &              ipDipEf,
      &              nCavxyz, ipfavxyz, ipdavxyz, ippavxyz, ipCavxyz,
      &              ipravxyz, ipGrid, nGrid, nGrid_Eff,nSparse,
      &              ISlPar(MxPar),NSinit,NS,nTs,NTT(MxA),NOrdInp(MxA),
@@ -90,21 +91,43 @@
      &              nPCM_Info,iCharge_ref,nGridAverage,nGridSeed,
      &              ip_DTes,ip_DPnt,ip_DRad,ip_DCntr,
      &              iRFEnd
-      Real*8 Cordsi(3,4), rRFStrt, rRFEnd
-      Real*8 RDiff,KT,RWT
-      Common /rRct/ rRFStrt,
+      common /iRct/ iRFStrt,
+     &              lMax, nMM, ipMM, latato, nexpo, maxa, maxb, maxc,
+     &              nabc, ipField, ipDip, ipdField, ipPolEf, ipDipEf,
+     &              nCavxyz, ipfavxyz, ipdavxyz, ippavxyz, ipCavxyz,
+     &              ipravxyz, ipGrid, nGrid, nGrid_Eff,nSparse,
+     &              ISlPar,NSinit,NS,nTs,NTT,NOrdInp,
+     &              ip_Sph,ip_N,ip_Tess,ip_Vert,ip_Centr,ip_SSph,
+     &              ip_ISph,ip_NVert,ip_IntS,ip_NewS,ip_DM,ip_Q,
+     &              nPCM_Info,iCharge_ref,nGridAverage,nGridSeed,
+     &              ip_DTes,ip_DPnt,ip_DRad,ip_DCntr,
+     &              iRFEnd
+      real(kind=8) :: Cordsi(3,4), rRfStrt,
      &              EpsInf_User,
-     &              Eps_User,rds, Cordsi, polsi, dipsi, radlat,
+     &              Eps_User,rds, polsi, dipsi, radlat,
      &              scala, scalb, scalc, scaaa, gatom, diedel, tK,
      &              rotAlpha, rotBeta, rotGamma,distSparse,
      &              clim, afac, prefac, tk5, fmax,rsca,
      &              Eps,EpsInf,DerEps,RSolv,VMol,TCE,GCav,GDis,GRep,
      &              RDiff(MxA),KT(MxA),RWT(MxA),RadInp(MxA),
      &              RSlPar(MxPar),dampIter,dipCutoff,
+     &              scal14, rRFEnd
+
+      common /rRct/ rRFStrt,
+     &              EpsInf_User,
+     &              Eps_User,rds, Cordsi, polsi, dipsi, radlat,
+     &              scala, scalb, scalc, scaaa, gatom, diedel, tK,
+     &              rotAlpha, rotBeta, rotGamma,distSparse,
+     &              clim, afac, prefac, tk5, fmax,rsca,
+     &              Eps,EpsInf,DerEps,RSolv,VMol,TCE,GCav,GDis,GRep,
+     &              RDiff,KT,RWT,RadInp,
+     &              RSlPar,dampIter,dipCutoff,
      &              scal14,
      &              rRFEnd
-      Character*32 Solvent
-      Integer cRFStrt, cRFEnd
-      Common /cRct/ cRFStrt,
+
+
+      character(32) :: Solvent
+      integer :: cRFStrt, cRFEnd
+      common /cRct/ cRFStrt,
      &              Solvent,
      &              cRFEnd

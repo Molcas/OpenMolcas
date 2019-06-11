@@ -18,12 +18,11 @@
       REAL*8 SBDMAX,ARII,ARJJ,ARIJ,AIIJ,AAIJ,ERE,EIM
       REAL*8 DIFF,SGN,DUM,CS,SN,TN
       REAL*8 VRKJ,VIKJ,VRKI,VIKI,ARKJ,AIKJ,ARKI,AIKI
-      REAL*8 ARJK,AIJK,ARIK,AIIK,ESEL,EVAL
+      REAL*8 ARJK,AIJK,ARIK,AIIK
       REAL*8 VNSUM,VNOLD
-      INTEGER I,J,K,ISEL
+      INTEGER I,J,K
       INTEGER NR,NROT,NSWEEP,IFTEST,IFERR
       REAL*8 ERRRE,ERRIM
-      REAL*8 O_i, O_j, Thr_EDiff, EDIFF
 
       IFTEST=0
 
@@ -140,60 +139,9 @@ C --- CHECK IF IDLE LOOPS (This should never happen):
 C --- CHECK IF CONVERGED:
       IF(IFERR.EQ.0 .AND. SBDMAX.GT.EPS) GOTO 10
 
-C Order the eigenvalues in increasing sequence:
-C
-C     Note that special care is taken to define some order in case
-C     of degeneracy.
-C
-      Thr_EDiff=1.0D-10
-      DO I=1,NDIMEN-1
-         ESEL=ARRRE(I,I)
-         ISEL=I
-*
-         O_i=0.0D0
-         Do K=1,LDV
-            O_i = O_i + DBLE(K) * (VECRE(K,I)**2+VECIM(K,I)**2)
-         End Do
-*
-*        Check against other eigenvalues
-*
-         DO J=I+1,NDIMEN
-            EVAL=ARRRE(J,J)
-*
-            EDIFF=ABS(EVAL-ESEL)
-            IF (EVAL.LT.ESEL.and.EDIFF.gt.Thr_EDiff) THEN
-               ISEL=J
-               ESEL=EVAL
-            Else If (EDIFF.lt.Thr_EDiff) THEN
-               O_j=0.0D0
-               Do K=1,LDV
-                  O_j = O_j + DBLE(K) * (VECRE(K,J)**2+VECIM(K,J)**2)
-               End Do
-               If (O_j.gt.O_i) Then
-                  ISEL=J
-                  ESEL=EVAL
-               End If
-            END IF
-         END DO
-*
-*        Swap here!
-*
-         IF (ISEL.NE.I) THEN
-            DO K=1,LDV
-               VRKI=VECRE(K,I)
-               VRKJ=VECRE(K,ISEL)
-               VIKI=VECIM(K,I)
-               VIKJ=VECIM(K,ISEL)
-               VECRE(K,I)=VRKJ
-               VECRE(K,ISEL)=VRKI
-               VECIM(K,I)=VIKJ
-               VECIM(K,ISEL)=VIKI
-            END DO
-            ARRRE(ISEL,ISEL)=ARRRE(I,I)
-            ARRRE(I,I)=ESEL
-         END IF
-      END DO
-*
+      !> order the eigenvalues in increasing sequence
+      call zorder(ndimen,ldv,vecre,vecim,arrre,1)
+
       RETURN
  999  CONTINUE
 C Jump here on error.
@@ -224,3 +172,72 @@ C Jump here on error.
       END DO
       RETURN
       END
+
+      subroutine zorder(ndimen,ldv,vecre,vecim,arrre,switch)
+
+C Order the eigenvalues in increasing sequence:
+C
+C Note that special care is taken to define some order in case
+C of degeneracy.
+C
+
+C switch controls whether we assume an array or vector
+C of eigenvalues
+
+      IMPLICIT NONE
+      INTEGER NDIMEN,LDV, switch
+      REAL*8 ARRRE(NDIMEN,*)
+      REAL*8 VECRE(LDV,*),VECIM(LDV,*)
+      REAL*8 O_i, O_j, Thr_EDiff, EDIFF, ESEL, EVAL
+      REAL*8 VRKJ,VIKJ,VRKI,VIKI
+      INTEGER I,J,K,ISEL
+
+      Thr_EDiff=1.0D-10
+      DO I=1,NDIMEN-1
+         ESEL=ARRRE(I,I**(switch))
+         ISEL=I
+*
+         O_i=0.0D0
+         Do K=1,LDV
+            O_i = O_i + DBLE(K) * (VECRE(K,I)**2+VECIM(K,I)**2)
+         End Do
+*
+*        Check against other eigenvalues
+*
+         DO J=I+1,NDIMEN
+            EVAL=ARRRE(J,J**switch)
+*
+            EDIFF=ABS(EVAL-ESEL)
+            IF (EVAL.LT.ESEL.and.EDIFF.gt.Thr_EDiff) THEN
+               ISEL=J
+               ESEL=EVAL
+            Else If (EDIFF.lt.Thr_EDiff) THEN
+               O_j=0.0D0
+               Do K=1,LDV
+                  O_j = O_j + DBLE(K) * (VECRE(K,J)**2+VECIM(K,J)**2)
+               End Do
+               If (O_j.gt.O_i) Then
+                  ISEL=J
+                  ESEL=EVAL
+               End If
+            END IF
+         END DO
+*
+*        Swap here!
+*
+         IF (ISEL.NE.I) THEN
+            DO K=1,LDV
+               VRKI=VECRE(K,I)
+               VRKJ=VECRE(K,ISEL)
+               VIKI=VECIM(K,I)
+               VIKJ=VECIM(K,ISEL)
+               VECRE(K,I)=VRKJ
+               VECRE(K,ISEL)=VRKI
+               VECIM(K,I)=VIKJ
+               VECIM(K,ISEL)=VIKI
+            END DO
+            ARRRE(ISEL,ISEL**switch)=ARRRE(I,I**switch)
+            ARRRE(I,I**switch)=ESEL
+         END IF
+      END DO
+      end subroutine zorder

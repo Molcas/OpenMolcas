@@ -54,7 +54,6 @@
      &       dF_dRho(ndF_dRho,mGrid), TabAOMax(nlist_s)
       Integer nOp(2), list_s(2,nlist_s), ipTabAO(nlist_s),
      &        list_bas(2,nlist_s)
-      Character Label*8
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -71,7 +70,6 @@ C     Call QEnter('DFT_IntX')
 #endif
       VMax=0.0D0
       iSmLbl=1
-      nComp=1
 *
       nGrid_Tot=0
       Do ilist_s=1,nlist_s
@@ -158,8 +156,7 @@ C     Call QEnter('DFT_IntX')
                   Call SOAdd(SOTemp(1,iD),iBas,jBas,nSO,
      &                       FckInt(1,iD),nFckInt,iSmLbl,
      &                       iCmp,jCmp,iShell,jShell,
-     &                       iSkal.eq.jSkal,iAO,jAO,
-     &                       nComp,Label,kOper)
+     &                       iSkal.eq.jSkal,iAO,jAO)
 *
                Else
 *

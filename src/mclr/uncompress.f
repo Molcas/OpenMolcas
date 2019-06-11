@@ -27,7 +27,7 @@
       Fact=1.0d0
       If (idsym.lt.0) Fact=-Fact
       dsym=abs(idsym)
-      call dcopy_(nDens2,0.0d0,0,ArrayOut,1)
+      call dcopy_(nDens2,[0.0d0],0,ArrayOut,1)
       If (TimeDep) Then
          Do i=1,nSym
             Bas(i)=nBas(i)

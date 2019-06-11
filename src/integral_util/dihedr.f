@@ -31,6 +31,7 @@
       Character*(LENIN) Lbls(mCentr)
       Character*8 Label
       Logical Type
+      Dimension Dummy(1)
 *
       Lu=6
       iRout = 127

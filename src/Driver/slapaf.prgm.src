@@ -18,3 +18,4 @@
  (file)  UNSYM         "$WorkDir/$Project."UnSym                 rw
  (file)  RUNREAC       "$WorkDir/$Project."Reac.RunFile          rw
  (file)  RUNPROD       "$WorkDir/$Project."Prod.RunFile          rw
+ (file)  SLAPAFCHK     "$WorkDir/$Project$SubProject."slapaf.h5  rws.

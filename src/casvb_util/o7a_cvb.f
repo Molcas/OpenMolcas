@@ -18,7 +18,7 @@
 
       call ddnewopt_cvb()
       have_solved_it=.false.
-      call ddguess_cvb(one,1,0)
+      call ddguess_cvb([one],1,0)
       return
 c Avoid unused argument warnings
       if (.false.) call Unused_integer(nparm)

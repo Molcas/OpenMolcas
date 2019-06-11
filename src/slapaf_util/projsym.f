@@ -38,7 +38,7 @@
 *
 *---- Project away nonsymmetric displacements
 *
-      call dcopy_(3*nCent,One,0,Tx,1)
+      call dcopy_(3*nCent,[One],0,Tx,1)
       Do i = 1, nCent
          Call NonSym(nStab(Ind(i)),jStab(0,Ind(i)),A(1,i),Tx(1,i))
 *
@@ -145,7 +145,7 @@ c Avoid unused argument warnings
 *
 *---- Project away nonsymmetric displacements
 *
-      call dcopy_(3*nCent,One,0,Tx,1)
+      call dcopy_(3*nCent,[One],0,Tx,1)
       Do i = 1, nCent
          Call NonSym(nStab(Ind(i)),jStab(0,Ind(i)),A(1,i),Tx(1,i))
 *

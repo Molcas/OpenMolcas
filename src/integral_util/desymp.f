@@ -88,7 +88,7 @@
 *
 *-----Initialize second order density matrix in AO basis
 *
-      call dcopy_(ijkl*iCmp*jCmp*kCmp*lCmp,Zero,0,PAO,1)
+      call dcopy_(ijkl*iCmp*jCmp*kCmp*lCmp,[Zero],0,PAO,1)
 *
 *
 *     Quadruple loop over elements of the basis functions angular
@@ -218,7 +218,7 @@
      &                  PAO(i,1,1,1,1),ijkl)
  3333    Continue
         Call WrCheck('DesymP: PAO ',PAO,ijkl*iCmp*jCmp*kCmp*lCmp)
-        write (6,*) ddot_(ijkl*iCmp*jCmp*kCmp*lCmp,PAO,1,One,0)
+        write (6,*) ddot_(ijkl*iCmp*jCmp*kCmp*lCmp,PAO,1,[One],0)
         write (6,*) ddot_(ijkl*iCmp*jCmp*kCmp*lCmp,PAO,1,PAO,1)
       End If
       Call GetMem('X_DesymP','CHECK','REAL',iDum,iDum)

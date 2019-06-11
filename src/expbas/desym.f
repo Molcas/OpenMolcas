@@ -49,12 +49,12 @@
       Real*8 Coor(3,mxdc),Znuc(mxdc)
       Character*(LENIN) AtomLabel(mxdc)
       Character*512 FilesOrb
-      Character*(LENIN4) label(MaxBfn+MaxBfn_Aux)
+      Character*(LENIN8) label(MaxBfn+MaxBfn_Aux)
       Character*8 MO_Label(maxbfn)
       Parameter (nNumber=61)
       Character Number(nNumber)
       Integer ibas_lab(mxdc), nOrb(8),iA(7), iOrdEor(0:maxbfn-1)
-      Character*(LENIN5) gtolabel(maxbfn)
+      Character*(LENIN8+1) gtolabel(maxbfn)
 *      Character*8 Filename
       Character*50 VTitle
       character*128 SymOrbName
@@ -140,12 +140,12 @@
       Call GetMem('ICENTER','ALLO','INTE',ipCent3,nB)
       Call GetMem('CMO2','ALLO','REAL',ipC2,nB**2)
       Call GetMem('VECTOR','ALLO','REAL',ipV,nB**2)
-      call dcopy_(nB**2,Zero,0,Work(ipV),1)
+      call dcopy_(nB**2,[Zero],0,Work(ipV),1)
         Call FZero(Work(ipC2),nB**2)
       If (iUHF.eq.1) Then
          Call GetMem('CMO2','ALLO','REAL',ipC2_ab,nB**2)
          Call GetMem('VECTOR','ALLO','REAL',ipV_ab,nB**2)
-         call dcopy_(nB**2,Zero,0,Work(ipV_ab),1)
+         call dcopy_(nB**2,[Zero],0,Work(ipV_ab),1)
          Call FZero(Work(ipC2_ab),nB**2)
       Else
          ipC2_ab=ip_Dummy
@@ -203,7 +203,8 @@ CC              Do icontr=1,nBasis(ishell)
                 If (l.eq.0) Then
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'1s  '//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'01s     '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
 *                   write(6,*)'kk, gtolabel(kk), iAtom',
 *     &                kk,gtolabel(kk),iAtom
@@ -212,21 +213,24 @@ CC              Do icontr=1,nBasis(ishell)
                 If (l.eq.1) Then
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'2px '//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'02px    '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
 *                   write(6,*)'kk, gtolabel(kk), iAtom',
 *     &                kk,gtolabel(kk),iAtom
                   End do
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'2py '//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'02py    '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
 *                   write(6,*)'kk, gtolabel(kk), iAtom',
 *     &                kk,gtolabel(kk),iAtom
                   End do
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'2pz '//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'02pz    '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
 *                   write(6,*)'kk, gtolabel(kk), iAtom',
 *     &                kk,gtolabel(kk),iAtom
@@ -235,168 +239,200 @@ CC              Do icontr=1,nBasis(ishell)
                 If ((l.eq.2).and.(.not.y_cart)) Then
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'3d2-'//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'03d02-  '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'3d1-'//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'03d01-  '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'3d0 '//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'03d00   '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'3d1+'//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'03d01+  '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'3d2+'//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'03d02+  '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                 End If
                 If ((l.eq.3).and.(.not.y_cart)) Then
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'4f3-'//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'04f03-  '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'4f2-'//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'04f02-  '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'4f1-'//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'04f01-  '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'4f0 '//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'04f00   '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'4f1+'//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'04f01+  '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'4f2+'//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'04f02+  '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'4f3+'//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'04f03+  '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                 End If
                 If ((l.eq.4).and.(.not.y_cart)) Then
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'5g4-'//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'05g04-  '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'5g3-'//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'05g03-  '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'5g2-'//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'05g02-  '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'5g1-'//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'05g01-  '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'5g0 '//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'05g00   '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'5g1+'//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'05g01+  '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'5g2+'//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'05g02+  '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'5g3+'//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'05g03+  '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'5g4+'//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'05g04+  '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                 EndIf
                 If ((l.eq.5).and.(.not.y_cart)) Then
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'6h5-'//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'06h05+  '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'6h4-'//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'06h04-  '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'6h3-'//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'06h03-  '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'6h2-'//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'06h02-  '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'6h1-'//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'06h01-  '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'6h0 '//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'06h00   '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'6h1+'//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'06h01+  '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'6h2+'//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'06h02+  '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'6h3+'//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'06h03+  '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'6h4+'//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'06h04+  '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                   Do icontr=1,nBasis(ishell)
                    kk=kk+1
-                   gtolabel(kk)=AtomLabel(iAtom)//'6h5+'//number(icontr)
+                   gtolabel(kk)=AtomLabel(iAtom)//'06h05+  '//
+     &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                 End If
@@ -509,8 +545,8 @@ CC              Do icontr=1,nBasis(ishell)
 *                   delocalized
 *      ipPhase  --- phase of the AO in the linear combination
 *
-      Call icopy(8*nB,0,0,iWork(ipPhase),1)
-      Call icopy(8*nB,0,0,iWork(ipCent),1)
+      Call icopy(8*nB,[0],0,iWork(ipPhase),1)
+      Call icopy(8*nB,[0],0,iWork(ipCent),1)
       Call SOout(label,iWork(ipCent),iWork(ipPhase))
       ipc=0
       Do iContr=1,nB
@@ -638,9 +674,12 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
 *
         ii=ii+nB
       End Do
-*********************  energy sorting + sort memory ********************
-              call dcopy_(nTot,Work(mAdEor),1,Work(ipAux),1)
+***************************** START SORTING ****************************
+***************************** START SORTING ****************************
+***************************** START SORTING ****************************
 
+*********************  energy sorting + sort memory ********************
+        call dcopy_(nTot,Work(mAdEor),1,Work(ipAux),1)
         do i=0, nTot-1
           iOrdEor(i)=i
         end do
@@ -648,8 +687,6 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
         do i=0,nTot-2
             do k=i+1,nTot-1
               if(work(ipAux+k).lt.Work(ipAux+i)) then
-*                write(6,*)'work(mAdEor+k) e Work(ipAux+i)=',
-*     &                    work(mAdEor+k),Work(ipAux+i)
                 temporary=work(ipAux+i)
                 work(ipAux+i)=Work(ipAux+k)
                 work(ipAux+k)=temporary
@@ -659,28 +696,7 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
               end if
             end do
         end do
-
-*        write(6,*) 'Energy before sorting'
-*        do i=0,nTot-1
-*          write(6,*) work(mAdEor+i)
-*        end do
-
-*        write(6,*) 'Energy after sorting'
-*        do i=0,nTot-1
-*          write(6,*) work(ipAux+i)
-*        end do
-
-*        write(6,*) 'sort memory'
-*        write(6,*) (iOrdEor(k), k=0,nTot-1)
-*                                                                       *
-*************************************************************************
-*                                                                       *
-
-
 ***************************** MOs sorting ******************************
-* In this step the MOs are sorted not the CMOs
-*        write(MF,*) 'start MO sorting'
-*        write(MF,'(7F16.8)') (work(k),k=ipV,ipV+nTot**2-1)
         Call GetMem('OrdC1','ALLO','REAL',ipOrdC1,nTot**2)
         Call FZero(Work(ipOrdC1),nTot**2)
         do i=0,nTot-1
@@ -689,29 +705,20 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
             end do
         end do
 ************************* Occupation sorting ***************************
-
-*        write(6,*) 'Occupation before sorting'
-*        write(6,*) (Work(mAdOcc+k),k=0,nTot-1)
-        Call GetMem('OccC1','ALLO','REAL',ipOccC1,nB**2)
-        Call FZero(Work(ipOccC1),nTot**2)
+        Call GetMem('OccC1','ALLO','REAL',ipOccC1,nTot)
+        Call FZero(Work(ipOccC1),nTot)
         do i=0,nTot-1
           Work(ipOccC1+i) = Work(mAdOcc+iOrdEor(i))
         end do
-*        write(6,*) 'Occupation after sorting'
-*        write(6,*) (Work(ipOccC1+k),k=0,nTot-1)
-
 *************************   index sorting   ****************************
         mpunt=mAdIndt
         do iIrrep=0,nIrrep-1
-*          write(6,*) 'Index= ', (iWork(mpunt+k), k=0,nBas(iIrrep)-1)
           mpunt=mpunt+nBas(iIrrep)
         end do
 
         do i=1,7
           iA(i)=0
         end do
-
-
         kindt=mInd
         mpunt=mAdIndt
         do iIrrep=0,nIrrep-1
@@ -722,20 +729,58 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
            End Do
            mpunt=mpunt+nBas(iIrrep)
         end do
-              call icopy(7,iA,1,iWork(kindt),1)
-*              write(6,*) 'iWork(kindt+k)',(iWork(kindt+k), k=0,6)
+        call icopy(7,iA,1,iWork(kindt),1)
+****************************************************************************
 
+*    Energy after first sorting work(ipAux)
+*    MO after sorting           Work(ipOrdC1)
+*    Occupation after sorting   Work(ipOccC1)
+
+******* Natural Active Orbitals (energy = Zero) are sorted by Occ Numb ***********
+
+        do i=0, nTot-1
+          iOrdEor(i)=i
+        end do
+
+        do i=0,nTot-2
+            do k=i+1,nTot-1
+              if(Work(ipOccC1+k).gt.Work(ipOccC1+i)) then
+                temporary=work(ipOccC1+i)
+                work(ipOccC1+i)=Work(ipOccC1+k)
+                work(ipOccC1+k)=temporary
+                iTempOrd=iOrdEor(i)
+                iOrdEor(i)=iOrdEor(k)
+                iOrdEor(k)= iTempOrd
+              end if
+            end do
+        end do
+***************************** MOs sorting ******************************
+        Call GetMem('OrdC2','ALLO','REAL',ipOrdC2,nTot**2)
+        Call FZero(Work(ipOrdC2),nTot**2)
+        do i=0,nTot-1
+            do k=0,nTot-1
+              work(ipOrdC2+nTot*i+k)=work(ipOrdC1+nTot*iOrdEor(i)+k)
+            end do
+        end do
+************************* Orbital Energy sorting ***************************
+* Energy sorting here it is not needed as the sorting is taking place only at
+* Active orbital level for which energy are zeroes (not defined).
+*        Call GetMem('EorC2','ALLO','REAL',ipEorC2,nTot)
+*        Call FZero(Work(ipEorC2),nTot)
+*        do i=0,nTot-1
+*          Work(ipEorC2+i) = Work(ipAux+iOrdEor(i))
+*        end do
 ******************************  print output **************************
-        notSymm=1
-        iWF=9
+       notSymm=1
+       iWF=9
        SymOrbName='DESORB'
        VTitle = 'Basis set desymmetrized orbital file DESORB'
-       Call WrVec_(SymOrbName,iWF,'COEI',iUHF,notSymm,nTot,nTot,
-     &            Work(ipOrdC1),Work(ipV_ab),
+       Call WrVec_(SymOrbName,iWF,'COEI',iUHF,notSymm,[nTot],[nTot],
+     &            Work(ipOrdC2),Work(ipV_ab),
      &            Work(iPOccC1),Work(mAdOcc_ab),
      &            Work(ipAux),Work(ipAux_ab),
      &            iWork(mInd),VTitle,iWFtype)
-       call Add_Info('desym CMO',Work(ipOrdC1),999,8)
+       call Add_Info('desym CMO',Work(ipOrdC2),999,8)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -757,8 +802,9 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('OccC1','FREE','REAL',ipOccC1,nB**2)
-      Call GetMem('OrdC1','FREE','REAL',ipOrdC1,nB**2)
+      Call GetMem('OccC1','FREE','REAL',ipOccC1,nTot)
+      Call GetMem('OrdC1','FREE','REAL',ipOrdC1,nTot**2)
+      Call GetMem('OrdC2','FREE','REAL',ipOrdC2,nTot**2)
       Call GetMem('Eor','Free','Real',mAdEor,nTot)
       Call GetMem('Occ','Free','Real',mAdOcc,nTot)
       Call GetMem('Aux','FREE','REAL',ipAux,nTot)
@@ -770,7 +816,6 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
          Call GetMem('Aux','FREE','REAL',ipAux_ab,nTot)
          Call GetMem('INDT','Free','Inte',mAdIndt,nTot)
          Call GetMem('IndType','Free','Inte',mInd_ab,56)
-
       End If
       Call GetMem('ICENT','FREE','INTE',ipCent,8*nB)
       Call GetMem('IPHASE','FREE','INTE',ipPhase,8*nB)

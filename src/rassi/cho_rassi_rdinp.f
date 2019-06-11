@@ -143,9 +143,9 @@
 *-----Read Cholesky algorithm parameters
 *
  900  Continue
-c      Call Get_F(1,Eps,1)
-c      Call Get_F(2,rds,1)
-c      Call Get_I(1,ALGO,1)
+c      Call Get_F1(1,Eps)
+c      Call Get_F1(2,rds)
+c      Call Get_I1(1,ALGO)
 C      If (nToken(KWord).gt.1) goto 988
 *
        READ(LuSpool,*) ALGO
@@ -280,11 +280,11 @@ C      If (nToken(KWord).gt.1) goto 988
 *
  700  Key=Get_Ln(LuSpool)
       KWord=Key
-      Call Get_I(1,n,1)
+      Call Get_I1(1,n)
       Do i = 1, n
          KWord=Get_Ln(LuSpool)
-         Call Get_I(1,jRout,1)
-         Call Get_I(2,iPrint,1)
+         Call Get_I1(1,jRout)
+         Call Get_I1(2,iPrint)
          nPrint(jRout)=iPrint
       End Do
       Go To 1000

@@ -98,7 +98,7 @@
       nComp = nElem(nOrdOp)
       Call GetMem('Coor','Allo','Real',ipC,3*nComp)
       Call GetMem('lOper','Allo','Inte',ip1,nComp)
-      call dcopy_(nComp*3,Zero,0,Work(ipC),1)
+      call dcopy_(nComp*3,[Zero],0,Work(ipC),1)
       iWork(ip1) = 1
       DiffOp = .True.
       Call dZero(Temp,nGrad)

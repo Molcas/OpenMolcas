@@ -37,6 +37,7 @@ C
 #include "WrkSpc.fh"
       Logical DoActive,DoQmat,DoCholesky
       Integer ALGO
+      Dimension P2reo(1)
 
       COMMON /CHOTODO /DoActive,DoQmat,ipQmat
       COMMON /CHLCAS  /DoCholesky,ALGO
@@ -70,7 +71,7 @@ c       Call Get_Temp('TmpPUVX ',Work(ipFint),nFint)
         HALFQ1=0.0d0
         If(Exfac.ne.1.0d0) Then
           Call Get_Temp('nP2reo  ',P2reo,1)
-          nP2reo=Int(P2reo)
+          nP2reo=Int(P2reo(1))
           CALL GETMEM('P2_reo','ALLO','REAL',ipP2reo,nP2reo)
           Call Get_Temp('P2_reo  ',Work(ipP2reo),nP2reo)
         End If
@@ -102,7 +103,7 @@ C
        N1=0
        N2=0
        IF(NO.EQ.0) GO TO 90
-       CALL VCLR(F(ISTFCK+1),1,NO**2)
+       CALL FZERO(F(ISTFCK+1),NO**2)
 c
 c      first index in F is inactive
 c
@@ -388,7 +389,7 @@ C
       Call Unused_real_array(BM)
       Call Unused_integer(ifinal)
       Call GetMem('fockt','ALLO','REAL',iTF,NTOT4)
-      Call dcopy_(ntot4,0d0,0,Work(iTF),1)
+      Call dcopy_(ntot4,[0d0],0,Work(iTF),1)
 C
 C *** Cholesky section ********************
 c      Call DecideOnCholesky(DoCholesky)
@@ -474,7 +475,7 @@ C
        N1=0
        N2=0
        IF(NO.EQ.0) GO TO 90
-       CALL VCLR(Work(iTF-1+ISTFCK+1),1,NO**2)
+       CALL FZERO(Work(iTF-1+ISTFCK+1),NO**2)
 
 !    First index in F is inactive
 

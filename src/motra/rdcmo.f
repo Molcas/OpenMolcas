@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine RdCmo(CMO,Ovlp)
+      Subroutine RdCmo_motra(CMO,Ovlp)
 ************************************************************************
 *                                                                      *
 *     Purpose:                                                         *
@@ -28,15 +28,17 @@
 *
       Real*8 CMO(*), Ovlp(*)
       Logical okay
-      Integer itemp2((2*4*MxOrb)/ItoB)
+      Integer itemp2((LENIN8*MxOrb)/ItoB)
+      Character ctemp2(LENIN8*MxOrb)
       Real*8  temp2(MxRoot)
+      Dimension Dummy(1),iDummy(1)
 *
-      Call qEnter('RdCmo')
+      Call qEnter('RdCmo_motra')
 *----------------------------------------------------------------------*
 *     Read MO coefficients from input                                  *
 *----------------------------------------------------------------------*
       If ( iVecTyp.eq.1 ) Then
-        Write (6,*) 'RdCmo: iVecTyp.eq.1'
+        Write (6,*) 'RdCmo_motra: iVecTyp.eq.1'
         Write (6,*) 'This error means someone has put a bug into MOTRA!'
         Call QTrace()
         Call Abend()
@@ -52,7 +54,7 @@
      &          Cmo, Dummy, Dummy, iDummy,
      &          VecTit, 0, iErr)
         Else
-          Write (6,*) 'RdCMO: Error finding MO file'
+          Write (6,*) 'RdCMO_motra: Error finding MO file'
           Call QTrace()
           Call Abend()
         End If
@@ -68,21 +70,21 @@
           Call iDaFile( LuJobIph,2,TcJobIph,10,iDisk)
           iDisk=TcJobIph(1)
           Call WR_RASSCF_Info(LuJobIph,2,iDisk,
+     &                        itemp2(1),itemp2(1),itemp2(1),itemp2(1),
      &                        itemp2,itemp2,itemp2,itemp2,
-     &                        itemp2,itemp2,itemp2,itemp2,
-     &                        itemp2,mxSym,itemp2,4*2*mxOrb,
-     &                        itemp2,itemp2,144,
-     &                        itemp2,4*18*mxTit,
-     &                        temp2,itemp2,itemp2,
+     &                        itemp2,mxSym,ctemp2,lenin8*mxOrb,
+     &                        itemp2(1),ctemp2,144,
+     &                        ctemp2,4*18*mxTit,
+     &                        temp2(1),itemp2(1),itemp2(1),
      &                        itemp2,mxRoot,itemp2,itemp2,itemp2,
-     &                        itemp2,itemp2,iPt2,temp2)
+     &                        itemp2(1),itemp2(1),iPt2,temp2)
           iDisk=TcJobIph(2)
           if ( iPt2.ne.0 ) iDisk=TcJobIph(9)
           Call dDaFile(LuJobIph,2,Cmo,nTot2,iDisk)
           Call DaClos(LuJobIph)
           VecTit='JOBIPH'
         Else
-          Write (6,*) 'RdCMO: Error finding JOBIPH file'
+          Write (6,*) 'RdCMO_motra: Error finding JOBIPH file'
           Call QTrace()
           Call Abend()
         End If
@@ -91,6 +93,6 @@
 *     Normal termination                                               *
 *----------------------------------------------------------------------*
       Call Ortho_Motra(nSym,nBas,nDel,Ovlp,Cmo)
-      Call qExit('RdCmo')
+      Call qExit('RdCmo_motra')
       Return
       End

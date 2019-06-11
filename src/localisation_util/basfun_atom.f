@@ -19,7 +19,7 @@ C
 #include "Molcas.fh"
       Integer nBas, nAtoms
       Integer nBas_per_Atom(nAtoms), nBas_Start(nAtoms)
-      Character*(LENIN4) Name(nBas)
+      Character*(LENIN8) Name(nBas)
       Logical DoPrint
 
       Character*11 SecNam

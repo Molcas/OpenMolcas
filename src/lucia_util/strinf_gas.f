@@ -160,7 +160,7 @@ C     DIMENSION IOCTYP(MXPNGAS)
       IF(NTEST.GT.5) THEN
         WRITE(6,*) ' MINMAX array for sym of groups '
         WRITE(6,*) ' =============================='
-        CALL IWRTMA(MINMAX_SM_GP,1,NSMST,1,NSMST)
+        CALL IWRTMA(MINMAX_SM_GP,2,NGRP,2,NGRP)
       END IF
 *
 *
@@ -264,7 +264,7 @@ C     DIMENSION IOCTYP(MXPNGAS)
           WRITE(6,*)
      &    ' Number of strings per sym (row) and supergroup(column)',
      &    ' for type = ', ITP
-          CALL IWRTMA(WORK(KNSTSO(ITP)),NSMST,NSPGPFTP(ITP),
+          CALL IWRTMA(iWORK(KNSTSO(ITP)),NSMST,NSPGPFTP(ITP),
      &                NSMST,NSPGPFTP(ITP))
           WRITE(6,'(A,3I6)') ' NSMCLS,NSMCLSE,NSMCLSE1=',
      &                         NSMCLS,NSMCLSE,NSMCLSE1

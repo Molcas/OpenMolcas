@@ -339,9 +339,9 @@ CCC END OF ORIGINAL
       Return
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_integer(SP_BatchDim)
-         Call Unused_integer(id_mySP)
-         Call Unused_integer(NVT)
+         Call Unused_integer_array(SP_BatchDim)
+         Call Unused_integer_array(id_mySP)
+         Call Unused_integer_array(NVT)
       End If
 #endif
 

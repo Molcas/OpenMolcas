@@ -11,15 +11,12 @@
 #ifdef _HDF5_
 
       subroutine one2h5_ovlmat(fileid, nsym, nbas)
-*     SVC: read basic molecular information from the RunFile
-*     and 1-electron integral file and write it to the HDF5
-*     file specified with fileid.
+*     IFG: read atomic overlap matrix from the 1-electron integral file
+*     and write it to the HDF5 file specified with fileid.
 *     This routine does nothing if HDF5 is not supported.
 *
-*     Attributes:
-*       NSYM, IRREPS, POTNUC, NBAS
 *     Datasets:
-*       BASIS_LABELS, OVLMAT
+*       AO_OVERLAP_MATRIX
 
       implicit none
       integer :: fileid
@@ -85,15 +82,12 @@
       end
 
       subroutine one2h5_fckint(fileid, nsym, nbas)
-*     SVC: read basic molecular information from the RunFile
-*     and 1-electron integral file and write it to the HDF5
-*     file specified with fileid.
+*     IFG: read atomic Fock matrix from the 1-electron integral file
+*     and write it to the HDF5 file specified with fileid.
 *     This routine does nothing if HDF5 is not supported.
 *
-*     Attributes:
-*       NSYM, IRREPS, POTNUC, NBAS
 *     Datasets:
-*       BASIS_LABELS, OVLMAT
+*       AO_FOCKINT_MATRIX
 
       implicit none
       integer :: fileid
@@ -124,11 +118,11 @@
         nbast2=nbast2+nb**2
       end do
 
-*     atomic orbital overlap matrix
+*     atomic orbital Fock matrix
       dsetid = mh5_create_dset_real(fileid,
      $        'AO_FOCKINT_MATRIX', 1, [NBAST2])
       call mh5_init_attr(dsetid, 'description',
-     $        'Overlap matrix of the atomic orbitals, '//
+     $        'Fock matrix of the atomic orbitals, '//
      $        'arranged as blocks of size [NBAS(i)**2], i=1,#irreps')
 
       call mma_allocate(SAO,NBAST1)

@@ -21,7 +21,7 @@
       i2 = mstackr_cvb(n*n)
       i3 = mstacki_cvb(n)
       ierr=0
-      call fmove(a,w(i1),n*n)
+      call fmove_cvb(a,w(i1),n*n)
       call dgetrf_(n,n,w(i1),n,iw(i3),ierr)
       if(ierr.ne.0) then
         write(6,*)' Error in LU decomposition for inversion:',ierr
@@ -50,7 +50,7 @@ c  Check solution
         call mxprint_cvb(a,1,n,0)
         call abend_cvb()
       endif
-      call fmove(w(i1),a,n*n)
+      call fmove_cvb(w(i1),a,n*n)
       call mfreer_cvb(i1)
       return
       end

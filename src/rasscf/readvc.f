@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 1998, Markus P. Fuelscher                              *
+*               2018, Ignacio Fdez. Galvan                             *
 ************************************************************************
       Subroutine ReadVC(CMO,OCC,D,DS,P,PA)
 ************************************************************************
@@ -87,6 +88,12 @@ c      Integer StrnLn
       Logical Found
       Logical Changed
       Integer nTmp(8)
+#ifdef _HDF5_
+      Character(Len=maxbfn) typestring
+#endif
+      Dimension Dummy(1),iDummy(1)
+      Character*(LENIN8*mxOrb) lJobH1
+      Character*(2*72) lJobH2
 
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -98,7 +105,7 @@ C Local print level (if any)
         WRITE(LF,*)' Entering ',ROUTINE
       END IF
 *----------------------------------------------------------------------*
-* Do we use default orbitals?                                        *
+* Do we use default orbitals?                                          *
 *----------------------------------------------------------------------*
       If(InVec.eq.0) Then
          Call qpg_darray('RASSCF orbitals',Found,nData)
@@ -240,23 +247,22 @@ C Local print level (if any)
         lll = MAX(lll,mxSym)
         lll = MAX(lll,mxOrb)
         lll = MAX(lll,RtoI)
-        lll = MAX(lll,4*2*mxOrb/ItoB)
-        lll = MAX(lll,2*72/ItoB)
         lll = MAX(lll,RtoI*mxRoot)
         CALL GETMEM('JOBOLD','ALLO','INTEGER',lJobH,lll)
+        ldJobH=ip_of_Work_i(iWork(lJobH))
         iAd19=iAdr19(1)
         CALL WR_RASSCF_Info(JobOld,2,iAd19,
      &                      iWork(lJobH),iWork(lJobH),iWork(lJobH),
      &                      iWork(lJobH),iWork(lJobH),iWork(lJobH),
      &                      iWork(lJobH),iWork(lJobH),iWork(lJobH),
      &                      mxSym,
-     &                      iWork(lJobH),4*2*mxOrb,iWork(lJobH),
-     &                      iWork(lJobH),2*72,JobTit,72*mxTit,
-     &                      iWork(lJobH),iWork(lJobH),
+     &                      lJobH1,LENIN8*mxOrb,iWork(lJobH),
+     &                      lJobH2,2*72,JobTit,72*mxTit,
+     &                      Work(ldJobH),iWork(lJobH),
      &                      iWork(lJobH),iWork(lJobH),mxRoot,
      &                      iWork(lJobH),iWork(lJobH),iWork(lJobH),
      &                      iWork(lJobH),iWork(lJobH),iWork(lJobH),
-     &                      iWork(lJobH))
+     &                      Work(ldJobH))
         IF(IPRLEV.ge.TERSE) THEN
          If (iJOB.eq.1) Then
             Write(LF,'(6X,A)')
@@ -330,8 +336,46 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
         END IF
 
         mh5id = mh5_open_file_r(StartOrbFile)
-        call mh5_fetch_dset(mh5id, 'MO_VECTORS', CMO)
-        call mh5_close_file(mh5id)
+        typestring=''
+        Select Case (iAlphaBeta)
+          Case (1)
+            Label='CA  '
+            VecTit='MO_ALPHA_TYPEINDICES'
+          Case (-1)
+            Label='CB  '
+            VecTit='MO_BETA_TYPEINDICES'
+          Case default
+            Label='C   '
+            VecTit='MO_TYPEINDICES'
+        End Select
+        Call RdVec_HDF5(mh5id,Label,NSYM,NBAS,CMO,Dummy,Dummy,iDummy)
+        If (mh5_exists_dset(mh5id,Trim(VecTit)))
+     &    Call mh5_fetch_dset(mh5id,Trim(VecTit),typestring)
+        Call mh5_close_file(mh5id)
+* Reorder orbitals based on typeindex
+        If (typestring.ne.'') Then
+          NNwOrd=0
+          Do iSym=1,nSym
+            NNwOrd=NNwOrd+NBas(iSym)
+          End Do
+          Call GetMem('TInd','Allo','Inte',iTInd,NNWOrd)
+          Call GetMem('NewOrd','Allo','Inte',LNewOrd,NNwOrd)
+          Call tpstr2tpidx(typestring,iWork(iTInd),NNWOrd)
+          Call VecSort(NSYM,NBAS,NBAS,CMO,OCC,iWork(iTInd),
+     &                                NNwOrd,iWork(lNewOrd),iErr)
+* If there is a supersymmetry array, use the orbital mapping:
+          If (iSUPSM.ne.0) Then
+            Call GetMem('TmpXSym','Allo','Inte',LTmpXSym,NNwOrd)
+            Do i=1,NNwOrd
+              j=iWork(lNewOrd-1+i)
+              iWork(lTmpXSym-1+i)=iXSym(j)
+            End Do
+            Call iCopy(NNwOrd,iWork(lTmpXSym),1,iXSym,1)
+            Call GetMem('TmpXSym','Free','Inte',LTmpXSym,NNwOrd)
+          End If
+          Call GetMem('NewOrd','Free','Inte',LNewOrd,NNwOrd)
+          Call GetMem('TInd','Free','Inte',iTInd,maxbfn)
+        End If
 #else
         write (6,*) 'Orbitals requested from HDF5, but this'
         write (6,*) 'installation does not support that, abort!'
@@ -447,7 +491,7 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
 *     print start orbitals
       IF(IPRLEV.GE.DEBUG) THEN
         CALL GETMEM('DumE','Allo','Real',LENE,nTot)
-        CALL DCOPY_(nTot,0.0D0,0,WORK(LENE),1)
+        CALL DCOPY_(nTot,[0.0D0],0,WORK(LENE),1)
         CALL PRIMO_RASSCF('Input orbitals',WORK(LENE),OCC,CMO)
         CALL GETMEM('DumE','Free','Real',LENE,nTot)
       END IF

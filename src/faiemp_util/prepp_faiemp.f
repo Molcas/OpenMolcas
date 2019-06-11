@@ -49,8 +49,9 @@
       Integer ipDLAO,ipDS1,ipDSVar1,ipLCMO,ipPLMO,ipt,ipTmp1,ipTemp
       Integer iSpin,jBas,length,nAct,nDens_Valence,nsa,nTemp,nTst
       Integer iRout,iPrint,iComp
-      Real*8  Get_ExFac
+      Real*8  Get_ExFac,CoefX,CoefR
       External Get_ExFac
+      Character*80 Fmt*60
 
 *
 *...  Prologue
@@ -76,6 +77,8 @@
      &    Method.eq. 'CASDFT  ' ) Then
          Call Get_iScalar('Multiplicity',iSpin)
          Call Get_cArray('DFT functional',KSDFT,16)
+         Call Get_dScalar('DFT exch coeff',CoefX)
+         Call Get_dScalar('DFT corr coeff',CoefR)
          ExFac=Get_ExFac(KSDFT)
          CoulFac=One
       Else
@@ -96,8 +99,12 @@
          If (lPrint) Then
             Write (6,*)
             Write (6,'(2A)') ' Wavefunction type: ',Method
-            If (Method.eq.'KS-DFT  ')
-     &         Write (6,'(2A)') ' Functional type:   ',KSDFT
+            If (Method.eq.'KS-DFT  ') Then
+               Write (6,'(2A)') ' Functional type:   ',KSDFT
+               Fmt = '(1X,A26,20X,F18.6)'
+               Write(6,Fmt)'Exchange scaling factor',CoefX
+               Write(6,Fmt)'Correlation scaling factor',CoefR
+            End If
             Write (6,*)
          End If
 *                                                                      *
@@ -235,13 +242,13 @@
  10   Continue
       If (iPrint.ge.99) Then
          RlxLbl='D1AO    '
-         Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipD0,Work)
+         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[ipD0],Work)
          RlxLbl='D1AO-Var'
-         Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipDVar,Work)
+         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[ipDVar],Work)
          RlxLbl='DSAO    '
-         Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipDS,Work)
+         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[ipDS],Work)
          RlxLbl='DSAO-Var'
-         Call PrMtrx(RlxLbl,iD0Lbl,iComp,ipDSVar,Work)
+         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[ipDSVar],Work)
       End If
 *
 *...  Get the MO-coefficients
@@ -384,7 +391,7 @@
      &                               Work(ipD0+1*ndens),1)
            If (.not.isNAC) call daxpy_(ndens,-Half,Work(ipD0+0*ndens),1,
      &                                             Work(ipD0+1*ndens),1)
-           If (iprint.gt.90)  Call PrMtrx('D0',iD0Lbl,iComp,ipD0,Work)
+           If (iprint.gt.90)Call PrMtrx('D0',[iD0Lbl],iComp,[ipD0],Work)
 *
 *   This is necessary for the kap-lag
 *
@@ -442,7 +449,7 @@
 * move the data
         call dcopy_(nBas_Valence(iIrrep), Array(indexSmall), 1,
      &                                   Array(indexLarge), 1)
-        call dcopy_(nBas_Valence(iIrrep), Zero, 0, Array(indexSmall), 1)
+        call dcopy_(nBas_Valence(iIrrep),[Zero],0,Array(indexSmall),1)
       End Do
       Return
       End
@@ -466,7 +473,7 @@
       Logical EnergyWeight
       Integer iPrint,maxDens,iCnttp,ipFragDensAO,iDpos,ipFragDensSO
       Integer i,j,iCnt,iFpos,iFD,mdc,iIrrep,nBasC
-      Real*8  rDummy
+      Real*8  rDummy(1)
 
       If(nIrrep.ne.1) Then
         write(6,*) 'AddFragDens: Symmetry not implemented yet'

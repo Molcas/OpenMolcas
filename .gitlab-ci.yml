@@ -1,7 +1,28 @@
+# There can only be a single "include" per file
+include:
+  # Configurations defined in an external file
+  - "/.configs.yml"
+  # Jobs for building the documentation
+  - "/doc/.gitlab-ci.yml"
+
 # Define templates for "sub-jobs"
 # - install-key: install the SSH key to access private repositories
-# - compile: compile Molcas with CMake
+# - compile: compile OpenMolcas with CMake
 # - run-tests: run the verification suite
+
+.template: &sources
+  changes:
+    - .gitlab-ci.yml
+    - .configs.yml
+    - .gitmodules
+    - basis_library/**/*
+    - CMakeLists.txt
+    - cmake/**/*
+    - data/**/*
+    - sbin/**/*
+    - src/**/*
+    - test/**/*
+    - Tools/**/*
 
 .template: &install-key
   before_script:
@@ -19,6 +40,7 @@
       [ -f /.dockerenv ] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config && chmod 644 ~/.ssh/config
 
 .template: &compile
+  stage: build
   #<<: *install-key
   script:
     # special pre-script that may be needed in some installations
@@ -54,19 +76,16 @@
       fi
     - cmake -C flags.cmake ..
     - |
-      if [ -n "${tries}" ] && [ "${tries}" -gt 1 ] ; then
-        for i in `seq 1 ${tries}` ; do
-          make && break
-        done
-      else
-        make #VERBOSE=1
+      if [ -n "${pre_make_script}" ] ; then
+        eval "${pre_make_script}"
       fi
+    - make #VERBOSE=1
     - pymolcas verify 000 -k
     # some clean up to reduce artifact size
     - >
       shopt -s globstar ; rm -rf **/CMakeFiles
     # special post-script that may be needed in some installations
-    # (not using before_script because it would be overwritten)
+    # (not using after_script because it would be overwritten)
     - cd ..
     - |
       if [ -n "${post_compile_script}" ] ; then
@@ -77,16 +96,21 @@
       - build/
       - molcas-extra/
     expire_in: 1 day
+    when: always
   only:
-    - branches
-    - web
+    refs:
+      - branches
+      - merge_requests
+      - api
+      - triggers
+      - web
+    <<: *sources
   except:
-    - master
-  # allow failures so that the next stages are not blocked
-  # (but test jobs that depend on this will fail later)
-  allow_failure: true
+    - tags
+    - master@Molcas/OpenMolcas
 
 .template: &run-tests
+  stage: test
   script:
     # special pre-script that may be needed in some installations
     # (not using before_script because it would be overwritten)
@@ -106,9 +130,20 @@
     # default if no tests specified is .all
     - |
       if [ -z "${tests}" ] ; then export tests=".all" ; fi
-      pymolcas verify --status ${tests}
+    # run only a subset of the tests if specified
+    - |
+      if [ -n "${CI_NODE_INDEX}" ] ; then
+        pymolcas verify --flatlist ${tests} > filelist
+        export subset_size=$(($(wc -l < filelist)/${CI_NODE_TOTAL}))
+        split --numeric-suffixes=1 --suffix-length=1 --lines=${subset_size} filelist fl
+        if [ -f "fl${CI_NODE_INDEX}" ] ; then
+          pymolcas verify --status --fromfile fl${CI_NODE_INDEX}
+        fi
+      else
+        pymolcas verify --status ${tests}
+      fi
     # special post-script that may be needed in some installations
-    # (not using before_script because it would be overwritten)
+    # (not using after_script because it would be overwritten)
     - |
       if [ -n "${post_run_script}" ] ; then
         eval "${post_run_script}"
@@ -124,116 +159,25 @@
     expire_in: 1 month
     when: always
   only:
-    - daily-snapshot
-    - web
-
-# Define some configuration groups (variables, tags, etc.) to be used in jobs
-# - plain: default configuration
-# - options: enable several options
-# - pgi: use PGI compilers
-# - sun: use Oracle compilers
-# - intel: use Intel compilers (must install them every time and it's a bit shaky)
-# - nowarn: no warnings allowed
-
-.template: &plain
-  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-5.4:latest
-  variables: &plain_vars
-    cache_file: ""
-    CC: "gcc"
-    CXX: "g++"
-    FC: "gfortran"
-  tags:
-    - docker
-
-.template: &options
-  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-4.8:latest
-  variables: &options_vars
-    cache_file: |
-      set (CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "opt, debug info")
-      set (BUILD_SHARED_LIBS "ON" CACHE STRING "use shared libmolcas")
-      set (BUILD_STATIC_LIB "ON" CACHE STRING "build static libmolcas too")
-      set (LINALG "Runtime" CACHE STRING "runtime blas/lapack linking")
-      set (FDE "ON" CACHE STRING "enable frozen-density-embedding (FDE) interface")
-      set (GRID_IT "ON" CACHE STRING "enable public GRID_IT code")
-      set (TOOLS "ON" CACHE STRING "compile Tools")
-      #set (MSYM "ON" CACHE STRING "enable libmsym (needs submodule)")
-      #set (WFA "ON" CACHE STRING "enable libwfa (needs submodule)")
-    CC: "gcc"
-    CXX: "g++"
-    FC: "gfortran"
-    submodules: "External/lapack External/grid_it External/libmsym External/libwfa"
-    MOLCAS_LINALG: "/opt/OpenBLAS/lib/libopenblas.so"
-    MOLCAS_LINALG_INFO: "YES"
-  tags:
-    - docker
-
-.template: &pgi
-  image: ${CI_REGISTRY}/molcas/dockerfiles/pgi:latest
-  variables: &pgi_vars
-    cache_file: ""
-    # Add -tp=x64 flag to make the result more portable
-    CC: "pgcc '-tp=x64'"
-    CXX: "pgc++ '-tp=x64'"
-    FC: "pgfortran '-tp=x64'"
-  tags:
-    - docker
-
-.template: &sun
-  image: ${CI_REGISTRY}/molcas/dockerfiles/oracle:latest
-  variables: &sun_vars
-    cache_file: |
-      set (DEFMOLCASMEM "1024" CACHE STRING "reduce memory")
-    CC: "suncc -I/usr/include/x86_64-linux-gnu"
-    CXX: "sunCC -I/usr/include/x86_64-linux-gnu"
-    FC: "sunf90 -I/usr/include/x86_64-linux-gnu"
-  tags:
-    - docker
-
-.template: &intel
-  image: ${CI_REGISTRY}/molcas/dockerfiles/ubuntu-14.04:latest
-  variables: &intel_vars
-    cache_file: |
-      set (DEFMOLCASMEM "1024" CACHE STRING "reduce memory")
-    # script to install the Intel compilers
-    intel_path: ${CI_PROJECT_DIR}/intel
-    tries: 5
-    pre_compile_script: |
-      apt-get install -y --no-install-recommends cpio man-db
-      for i in {1..10} ; do
-        wget -q -O /dev/stdout 'https://raw.githubusercontent.com/nemequ/icc-travis/master/install-icc.sh' | sed 's/realpath/readlink -m/' | /bin/sh -s -- --components icc,ifort --dest ${intel_path} && break
-        sleep 10
-      done
-      cp ~/.bashrc ${intel_path}/compilervars.sh
-      . ${intel_path}/compilervars.sh
-    post_compile_script: |
-      cp ${intel_path}/lib/intel64_lin/libirng.so      build/lib
-      cp ${intel_path}/lib/intel64_lin/libcilkrts.so.5 build/lib
-      cp ${intel_path}/lib/intel64_lin/libintlc.so.5   build/lib
-    CC: "icc"
-    CXX: "icpc"
-    FC: "ifort"
-  tags:
-    - docker
-
-.template: &nowarn
-  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-5.4:latest
-  variables: &nowarn_vars
-    cache_file: |
-      set (CMAKE_BUILD_TYPE "Debug" CACHE STRING "no opt, debug info")
-      set (BUILD_SHARED_LIBS "OFF" CACHE STRING "do not use shared libmolcas")
-      set (BIGOT "ON" CACHE STRING "do not allow any warning")
-    CC: "gcc"
-    CXX: "g++"
-    FC: "gfortran"
-  tags:
-    - docker
+    refs:
+      - merge_requests
+      - api
+      - triggers
+      - web
+    <<: *sources
+  except:
+    - master@Molcas/OpenMolcas
+  # run even if the previous stage failed
+  # (in general, we want to run those configurations that didn't fail,
+  #  but there's no harm in running all)
+  when: always
 
 # A special job for compiling the tinker interface
 # By adding "tinker" as a dependency, other jobs can use it
 
 tinker:
   stage: build
-  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-5.4:latest
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-7:latest
   variables:
     # A patch to the tinker patch to make it work in low memory conditions
     patch_to_patch: |
@@ -249,8 +193,10 @@ tinker:
                            parameter (maxval=8)
                            parameter (maxgrp=1000)
                            parameter (maxref=10)
+  before_script:
+    - >
+      if ( ! which patch ) ; then apt-get install -y --no-install-recommends patch ; fi
   script:
-    - apt-get install -y --no-install-recommends patch
     # Use backup if the tinker website is down
     - >
       sed -i -e 's/wget.*/& || \\/' -e '/wget/a wget https://gitlab.com/Molcas/Mirrors/Tinker/raw/master/${TINKERVERSION}.tar.gz?private_token=Y5PsqzY_Ev8U6JQDGyuL -O ${TINKERVERSION}.tar.gz' Tools/patch2tinker/get_tinker
@@ -270,106 +216,142 @@ tinker:
       - build/
     expire_in: 1 day
   only:
-    - branches
-    - web
+    refs:
+      - branches
+      - merge_requests
+      - api
+      - triggers
+      - web
+    <<: *sources
   except:
-    - master
-  allow_failure: false
+    - tags
+    - master@Molcas/OpenMolcas
 
-# Another special job for building doxygen documentation
-# This is done in a different project, so here simply run a trigger
-# whenever the master changes
+# Dummy "test" job for when there were no source code changes
 
-trigger_doc:
-  image: ${CI_REGISTRY}/molcas/dockerfiles/ubuntu-14.04:latest
-  stage: build
+test:dummy:
+  stage: test
   script:
-    - export PROJECT_URL=${CI_PROJECT_URL#https://}
     - >
-      curl --request POST
-      --form "token=$CI_JOB_TOKEN"
-      --form "ref=master"
-      --form "variables[SOURCE_URL]=${PROJECT_URL}"
-      --form "variables[SOURCE_COMMIT]=${CI_COMMIT_SHA}"
-      https://gitlab.com/api/v4/projects/Molcas%2Fdoc/trigger/pipeline
-  only:
-    - master
+      echo "No source code changes"
+  except:
+    refs:
+      - tags
+      - master@Molcas/OpenMolcas
+    <<: *sources
 
 # Define the actual jobs, each job has a "build" and a "test" stage,
-# the latter depends on the former, variables can be overriden.
+# the latter depends on the former.
 
 build:plain:
-  stage: build
-  <<: *plain
+  extends: .plain
   <<: *compile
 test:plain:
-  stage: test
+  extends: .plain
+  <<: *run-tests
   dependencies:
     - build:plain
     - tinker
-  <<: *plain
-  <<: *run-tests
+  parallel: 2
 
 build:options:
-  stage: build
-  <<: *options
+  extends: .options
   <<: *compile
 test:options:
-  stage: test
+  extends: .options
+  <<: *run-tests
   dependencies:
     - build:options
     - tinker
-  <<: *options
-  <<: *run-tests
+  parallel: 2
 
 build:pgi:
-  stage: build
-  <<: *pgi
+  extends: .pgi
   <<: *compile
 test:pgi:
-  stage: test
+  extends: .pgi
+  <<: *run-tests
   dependencies:
     - build:pgi
     - tinker
-  <<: *pgi
-  <<: *run-tests
+  parallel: 2
 
 build:sun:
-  stage: build
-  <<: *sun
+  extends: .sun
   <<: *compile
 test:sun:
-  stage: test
+  extends: .sun
+  <<: *run-tests
   dependencies:
     - build:sun
     - tinker
-  <<: *sun
-  <<: *run-tests
+  parallel: 2
 
 build:intel:
-  stage: build
-  <<: *intel
+  extends: .intel
   <<: *compile
 test:intel:
-  stage: test
+  extends: .intel
+  <<: *run-tests
   dependencies:
     - build:intel
-    - tinker
-  <<: *intel
-  <<: *run-tests
 
-build:nowarn:
-  stage: build
-  <<: *nowarn
+build:intel13:
+  extends: .intel13
   <<: *compile
-test:nowarn:
-  stage: test
-  dependencies:
-    - build:nowarn
-  <<: *nowarn
+test:intel13:
+  extends: .intel13
   <<: *run-tests
-  # only interested in compilation, so run no tests
-  # (but the job will fail if the compilation didn't succeed)
-  variables:
-    <<: *nowarn_vars
-    tests: ".none"
+  dependencies:
+    - build:intel13
+
+# Disable NAG, since the runner is unavailable
+#build:nag:
+#  extends: .nag
+#  <<: *compile
+#test:nag:
+#  extends: .nag
+#  <<: *run-tests
+#  dependencies:
+#    - build:nag
+#    - tinker
+
+build:garble:
+  extends: .garble
+  <<: *compile
+test:garble:
+  extends: .garble
+  <<: *run-tests
+  dependencies:
+    - build:garble
+    - tinker
+  parallel: 4
+
+build:bounds:
+  extends: .bounds
+  <<: *compile
+test:bounds:
+  extends: .bounds
+  <<: *run-tests
+  dependencies:
+    - build:bounds
+  parallel: 4
+
+build:debug:
+  extends: .debug
+  <<: *compile
+test:debug:
+  extends: .debug
+  <<: *run-tests
+  dependencies:
+    - build:debug
+
+build:qcmaquis:
+  extends: .qcmaquis
+  <<: *compile
+test:qcmaquis:
+  extends: .qcmaquis
+  <<: *run-tests
+  dependencies:
+    - build:qcmaquis
+

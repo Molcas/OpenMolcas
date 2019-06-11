@@ -58,11 +58,10 @@
       use iSD_data
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm
-#include "itmax.fh"
+#include "angtp.fh"
 #include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
-#include "angtp.fh"
 #include "lundio.fh"
 #include "print.fh"
 #include "disp.fh"
@@ -83,7 +82,7 @@ CNIKO      Real*8 A(3), B(3), Ccoor(3,nComp), FD(nFD),
       iRout = 112
       iPrint = nPrint(iRout)
 *     Call qEnter('OneEl ')
-      call dcopy_(nGrad,Zero,0,Grad,1)
+      call dcopy_(nGrad,[Zero],0,Grad,1)
 *
       iIrrep = 0
 *

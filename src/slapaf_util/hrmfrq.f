@@ -18,7 +18,7 @@
 #include "print.fh"
       Real*8 dDipM(3,nInter+mTR), DipM(3), IRInt(nInter+mTR)
       Logical Smmtrc(3,nAtom), lTherm, lDoubleIso
-      Integer NrDisp(3*MxAtom), mDisp(8), nUserPT, nsRot
+      Integer mDisp(8), nUserPT, nsRot
       Real*8  UserT(64), UserP
 *                                                                      *
 ************************************************************************
@@ -104,8 +104,6 @@
       nDisp=mInter
       Call GetMem('NMod','Allo','Real',ipNMod,nDisp**2)
       ipNx=ipNMod
-      Call Get_iScalar('nChDisp',nDisp_)
-      Call Get_iArray('NrDisp',NrDisp,nDisp_)
 *
       lModes=0
       nModes=0
@@ -119,14 +117,14 @@
 *     Write stuff on Molden input file
 *
       nSym=1
-      Call ICopy(8,0,0,mDisp,1)
+      Call ICopy(8,[0],0,mDisp,1)
       mDisp(1)=nInter
 !      If (nIrrep.eq.1) Then
          Call Print_Mode_Components(Work(ipNMod),Work(ipEVal),
      &                              nModes,lModes,mDisp)
 !      End If
       Call Freq_Molden(Work(ipEVal),nModes,Work(ipNMod),lModes,nSym,
-     &                 IRInt,mDisp)
+     &                 IRInt,mDisp,Work(ipRedMas))
 *                                                                      *
 ************************************************************************
 *                                                                      *

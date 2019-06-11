@@ -38,21 +38,20 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 #include "dyn.fh"
 #include "constants2.fh"
       PARAMETER  (nh=6)
-      INTEGER     natom,natom3,i,j,nIsoAtoms
+      INTEGER     natom,natom3,i,j
       REAL*8      Ekin,kb
       PARAMETER   (kb = CONST_BOLTZMANN_/
-     &             CONV_AU_TO_KJ_*1.0D3)
+     &             (CONV_AU_TO_KJ_*1.0D3))
       REAL*8      NHC(nh), vel(*)
-      LOGICAL     lIsotope
       CHARACTER, ALLOCATABLE ::   atom(:)*2
-      REAL*8, ALLOCATABLE ::      Mass(:),dIsotopes(:)
+      REAL*8, ALLOCATABLE ::      Mass(:)
       INTEGER Iso
 
 *nh stands for the number of variables in the thermostat
 * NHC = Q1,Q2,X1,X2,VX1,VX2,Scale
 *
 C
-C    The parameter kb is the Boltzmann constant in a.u
+C    The parameter kb is the Boltzmann constant in E_h/K
 
 C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 
@@ -77,34 +76,19 @@ C     Read Thermostat Variables
       Vx1 = NHC(5)
       Vx2 = NHC(6)
 
-C     Check if the Isotope option is selected
-C
-      CALL Qpg_dArray('Isotopes',lIsotope,nIsoAtoms)
-      IF (lIsotope) THEN
-         CALL mma_allocate(dIsotopes,natom)
-         CALL Get_dArray('Isotopes',dIsotopes,natom)
-      WRITE(6,*) 'Isotopes Label:' ,lIsotope
-      END IF
-
 C     Initialize the Mass variable
 C
-      DO i=1, natom
-         Mass(i)=0.D0
-      END DO
+      CALL Get_nAtoms_All(matom)
+      CALL Get_Mass_All(Mass,matom)
 
       Ekin = 0.0D0
 
 
       DO i=1, natom
-
-        CALL LeftAd(atom(i))
-        Iso=0
-        CALL Isotope(Iso,atom(i),Mass(i))
-C     Manual isotope modification -----------
-        IF (lIsotope) THEN
-           IF ((dIsotopes(i)).NE.0.0D0) THEN
-              Mass(i)=dIsotopes(i)
-           END IF
+        IF (i.GT.matom) THEN
+          CALL LeftAd(atom(i))
+          Iso=0
+          CALL Isotope(Iso,atom(i),Mass(i))
         END IF
 C-------------------------------------------
         DO j=1, 3

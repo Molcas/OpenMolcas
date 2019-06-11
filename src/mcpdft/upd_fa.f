@@ -354,18 +354,7 @@
 
 
 
-* $Revision: 8.1.151006-0932 Patch(8.1.151006-0932): $
-* upd_fa $ this file belongs to the Molcas repository $
       Subroutine Upd_FI_m(PUVX,F,D,ExFac)
-************************************************************************
-*                                                                      *
-*     (c) Copyright. All rights reserved                               *
-*                                                                      *
-*     This code or parts thereof may not be copied or redistributed,   *
-*     without the written permission of the author. The use is re-     *
-*     stricted to research purposes only, and the material may not be  *
-*     included in any commercial product.                              *
-*                                                                      *
 ************************************************************************
 *                                                                      *
 *     compute FIA, FAA, and FAS from the integral set (pu!vx)          *
@@ -503,7 +492,7 @@
 !it.
       Call wrtmat(F,1,ntot1,1,ntot1)
 
-      call dcopy_(ntot1,0.0d0,0,F,1)
+      call dcopy_(ntot1,[0.0d0],0,F,1)
 
       CALL GETMEM('OEPOTS','ALLO','REAL',iTMPP,ntot1)
       Call Get_dArray('ONTOPO',work(iTMPP),NTOT1)
@@ -525,15 +514,6 @@
 
       Subroutine Upd_FA_CI(PUVX,F,ExFac)
 
-************************************************************************
-*                                                                      *
-*     (c) Copyright. All rights reserved                               *
-*                                                                      *
-*     This code or parts thereof may not be copied or redistributed,   *
-*     without the written permission of the author. The use is re-     *
-*     stricted to research purposes only, and the material may not be  *
-*     included in any commercial product.                              *
-*                                                                      *
 ************************************************************************
 *                                                                      *
 *     compute FIA, FAA, and FAS from the integral set (pu!vx)          *

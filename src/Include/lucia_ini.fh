@@ -33,7 +33,7 @@
      &         itmax_Molcas,nroots_Molcas,ipt2_Molcas,iprci_Molcas,
      &         ngas_molcas, INOCALC_MOLCAS,ISAVE_EXP_MOLCAS,
      &         IEXPAND_MOLCAS,N_ELIMINATED_GAS_MOLCAS,
-     &         I_ELIMINATE_GAS_MOLCAS
+     &         I_ELIMINATE_GAS_MOLCAS,nCSF_HEXS
 
       Common/Molcas_Ini/potnuc_Molcas,thre_Molcas,rtoi_Molcas,
      &   iRoot_Molcas,norb_Molcas,nbas_Molcas,nish_Molcas,nsym_Molcas,
@@ -43,4 +43,4 @@
      &   ngssh_molcas,igsoccx_molcas,ngas_molcas,
      &   INOCALC_MOLCAS,ISAVE_EXP_MOLCAS,IEXPAND_MOLCAS,
      &   N_ELIMINATED_GAS_MOLCAS,I_ELIMINATE_GAS_MOLCAS,
-     &   IELIMINATED_IN_GAS_MOLCAS
+     &   IELIMINATED_IN_GAS_MOLCAS,nCSF_HEXS

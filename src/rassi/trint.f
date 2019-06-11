@@ -112,7 +112,7 @@ C CALCULATE AN INACTIVE TRANSITION DENSITY MATRIX IN AO BASIS:
 
       NFAO=NBSQ
       Call mma_allocate(FAO,nFAO,Label='FAO')
-      LFAO=ip_of_Work(FAO)
+      LFAO=ip_of_Work(FAO(1))
 
       IF (.not.DoCholesky) THEN
 
@@ -134,7 +134,7 @@ C ADD IN THE TWO-ELECTRON CONTRIBUTIONS TO THE FOCKAO MATRIX:
 *
          Call Allocate_Work(ipTemp,nFAO)
          Call FZero(Work(ipTemp),nFAO)
-         CALL FOCK(DINAO,WORK(ipTemp))
+         CALL FOCK_RASSI(DINAO,WORK(ipTemp))
 
 c --- FAO already contains the one-electron part
          Call DaXpY_(nFAO,1.0D+0,Work(ipTemp),1,FAO,1)
@@ -365,7 +365,7 @@ C TRANSFORM THE FOCK MATRIX TO MO BASIS:
       ISTFMO=1
       ISTFAO=1
       ISTC=1
-      CALL VCLR(FOCKMO,1,NGAM1)
+      CALL FZERO(FOCKMO,NGAM1)
       DO 30 ISYM=1,NSYM
          NA=NASH(ISYM)
          NI=NISH(ISYM)
@@ -422,7 +422,7 @@ c     Call triprt('tuvx',' ',TUVX,nasht)
       RETURN
 901   CONTINUE
       WRITE(6,*)' ERROR IN KEEP PARAMETERS ON ORDINT FILE.'
-      WRITE(6,'(A,8I5)')' KEEP ARRAY:',(KEEP(10+I),I=1,NSYM)
+      WRITE(6,'(A,8I5)')' KEEP ARRAY:',(KEEP(I),I=1,NSYM)
       WRITE(6,'(A,8I5)')' NASH ARRAY:',(NASH(I),I=1,NSYM)
       WRITE(6,*)' A NON-ZERO KEEP PARAMETER INDICATES THAT BASIS'
       WRITE(6,*)' FUNCTIONS WITH A SPECIFIC SYMMETRY LABEL HAS'

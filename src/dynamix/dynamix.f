@@ -30,15 +30,15 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       REAL*8      NHC(nh)
       INTEGER     Task(nTasks),natom,IsFreeUnit,irc
       INTEGER     iRlxRoot,nRoots,i
-      LOGICAL     Found,lHop,lIsotope
+      LOGICAL     Found,lHop
       INTEGER     VelVer, VV_First, VV_Second, Gromacs, VV_Dump
       PARAMETER   (au_time = CONST_AU_TIME_IN_SI_*1.0D15)
       PARAMETER   (kb = CONST_BOLTZMANN_/
-     &             CONV_AU_TO_KJ_*1.0D3)
+     &             (CONV_AU_TO_KJ_*1.0D3))
       PARAMETER  (VelVer=1,VV_First=2,VV_Second=3,Gromacs=4,VV_Dump=5)
       PARAMETER  (iQ1=1,iQ2=2,iX1=3,iX2=4,iVx1=5,iVx2=6)
       CHARACTER, ALLOCATABLE :: atom(:)*2
-      REAL*8, ALLOCATABLE ::    Mass(:),vel(:),dIsotopes(:)
+      REAL*8, ALLOCATABLE ::    Mass(:),vel(:)
       INTEGER Iso
 
 *
@@ -74,14 +74,6 @@ C     Check if this is an initial run of Dynamix
 C
       CALL Qpg_dScalar('MD_Time',Found)
 C
-C     Check if the Isotope option is selected
-C
-      CALL Qpg_dArray('Isotopes',lIsotope,natom)
-      IF (lIsotope) THEN
-         CALL mma_allocate(dIsotopes,natom)
-         CALL Get_dArray('Isotopes',dIsotopes,natom)
-      END IF
-C
 #ifdef _HDF5_
       if (.not.found .and. lH5Restart) then
          call restart_dynamix(file_h5res)
@@ -107,6 +99,9 @@ C     Check if the RESTART keyword was used.
          CALL mma_allocate(atom,natom)
          CALL mma_allocate(Mass,natom)
          CALL mma_allocate(vel,natom*3)
+
+         CALL Get_nAtoms_All(matom)
+         CALL Get_Mass_All(Mass,matom)
 
 C Initialize Thermostat Variables
 
@@ -137,14 +132,10 @@ C Initialize Thermostat Variables
          ELSEIF (VELO.eq.2) THEN
             CALL DxRdVel(vel,natom)
             DO i=1, natom
-               CALL LeftAd(atom(i))
-               Iso=0
-               CALL Isotope(Iso,atom(i),Mass(i))
-C     Manual isotope modification -----------
-               IF (lIsotope) THEN
-                  IF ((dIsotopes(i)).NE.0.0D0) THEN
-                     Mass(i)=dIsotopes(i)
-                  END IF
+               IF (i.gt.matom) THEN
+                  CALL LeftAd(atom(i))
+                  Iso=0
+                  CALL Isotope(Iso,atom(i),Mass(i))
                END IF
 C-------------------------------------------
 
@@ -172,14 +163,10 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
             CALL getSeed(iseed)
 
             DO i=1, natom
-               CALL LeftAd(atom(i))
-               Iso=0
-               CALL Isotope(Iso,atom(i),Mass(i))
-C     Manual isotope modification -----------
-               IF (lIsotope) THEN
-                  IF ((dIsotopes(i)).NE.0.0D0) THEN
-                     Mass(i)=dIsotopes(i)
-                  END IF
+               IF (i.gt.matom) THEN
+                  CALL LeftAd(atom(i))
+                  Iso=0
+                  CALL Isotope(Iso,atom(i),Mass(i))
                END IF
 C-------------------------------------------
 
@@ -211,14 +198,10 @@ C     Calculate the kinetic energy
             Ekin=0.000000000000D0
             CALL Get_Name_Full(atom)
             DO i=1, natom
-               CALL LeftAd(atom(i))
-               Iso=0
-               CALL Isotope(Iso,atom(i),Mass(i))
-C     Manual isotope modification -----------
-               IF (lIsotope) THEN
-                  IF ((dIsotopes(i)).NE.0.0D0) THEN
-                     Mass(i)=dIsotopes(i)
-                  END IF
+               IF (i.GT.matom) THEN
+                  CALL LeftAd(atom(i))
+                  Iso=0
+                  CALL Isotope(Iso,atom(i),Mass(i))
                END IF
 C-------------------------------------------
                DO j=1, 3
@@ -248,9 +231,6 @@ C     Save the total energy on RUNFILE if the total energy should be conserved.
          CALL mma_deallocate(vel)
       END IF
 
-      IF (lIsotope) THEN
-         CALL mma_deallocate(dIsotopes)
-      END IF
 C
 C     Execute the tasks
 C

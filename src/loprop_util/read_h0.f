@@ -13,6 +13,7 @@
 #include "WrkSpc.fh"
       Character*8 Label
       Logical Restart
+      Dimension nInts(1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -35,8 +36,8 @@
             Call QTrace()
             Call Abend()
          End If
-         If (nInts+4.ne.nSize) Then
-            Write (6,*) 'Local_Polar: nInts+4.ne.nSize',nInts+4,nSize
+         If (nInts(1)+4.ne.nSize) Then
+            Write (6,*) 'Local_Polar: nInts+4.ne.nSize',nInts(1)+4,nSize
             Call QTrace
             Call Abend()
          End If

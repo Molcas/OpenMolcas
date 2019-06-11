@@ -82,7 +82,7 @@ C     Call RecPrt('Print_Local: rMP',' ',rMP,nij,nElem)
 *                                                                      *
 *     Set up array for nuclear contributions.
 *
-      Call dCopy_(nij*nElem,Zero,0,xnrMP,1)
+      Call dCopy_(nij*nElem,[Zero],0,xnrMP,1)
       ij = 0
       Do iAtom = 1, nAtoms
          Do jAtom = 1, iAtom
@@ -231,8 +231,8 @@ c****************************************************
 *debug
 C           Call Allocate_Work(ip_EVec,9)
 C           Call Allocate_Work(ip_EVal,6)
-C           call dcopy_(9,Zero,0,Work(ip_EVec),1)
-C           call dcopy_(3,One,0,Work(ip_EVec),4)
+C           call dcopy_(9,[Zero],0,Work(ip_EVec),1)
+C           call dcopy_(3,[One],0,Work(ip_EVec),4)
 C           call dcopy_(6,Polar(1,ij),1,Work(ip_EVal),1)
 C           Call Jacob(Work(ip_EVal),Work(ip_EVec),3,3)
 C           Call TriPrt('EVal',' ',Work(ip_EVal),3)
@@ -332,7 +332,7 @@ C      *** Local ionzations are implemented by A. Holt
          Do iy = l-ix,0,-1
             iz = l-ix-iy
             iElem = iElem + 1
-            rMP_Tot_Electronic=DDot_(nij,One,0,rMP(1,iElem),1)
+            rMP_Tot_Electronic=DDot_(nij,[One],0,rMP(1,iElem),1)
             rMP_Tot_Nuclear=rMPq(iElem)
             rMP_Tot = rMP_Tot_Nuclear + rMP_Tot_Electronic
             Write (6,'(3I1,3F16.8)') ix,iy,iz,rMP_Tot_Nuclear,
@@ -342,7 +342,7 @@ C      *** Local ionzations are implemented by A. Holt
       End Do
       If (.Not.NoField) Then
          Do iPol = 1, 6
-            Polar_M(iPol)=DDot_(nij,One,0,Polar(iPol,1),6)
+            Polar_M(iPol)=DDot_(nij,[One],0,Polar(iPol,1),6)
          End Do
          Call TriPrt(
      &         'Molecular Polarizability Tensor',' ',Polar_M,3)

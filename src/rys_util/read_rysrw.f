@@ -29,10 +29,10 @@ c      implicit none
       integer, parameter :: lu_rysrw = 22
       logical :: found_rysrw
 *
-      integer :: mRys, nOrder
+      integer :: mRys, nOrder, nCff
       real*8 :: acc(maxrys)
 *
-      integer :: iRys
+      integer :: iRys, iOff
       integer :: nMap_Tot, nMem_Tot, nx0_Tot, nMem
       integer :: io
 *
@@ -53,8 +53,17 @@ c      implicit none
 *
       io = 1
       Do While (io .ne. 0)
-        Read (lu_rysrw,*,IOStat=io) mRys,nOrder,Acc
+        Read (lu_rysrw,*,IOStat=io) mRys,nOrder
       End Do
+      If (mRys.gt.MaxRys) Then
+         Call WarningMessage(2,
+     &      ' Database requires new code!'//
+     &      ' Database and code are at incompatible levels!')
+         Call Abend()
+      End If
+      nMxRys=mRys
+      nCff=2*(nOrder+1)
+      Read (lu_rysrw,*) (Acc(i),i=1,mRys)
 #ifdef _DEBUG_
       Write (6,*)
       Write (6,*) ' Reading tables for roots and weights of Rys poly.'
@@ -68,7 +77,8 @@ c      implicit none
 *     Read value of T at which asymptotic formulas will be used
 *
       Call mma_allocate(TMax,mRys,label='TMax')
-      Call InR(Tmax,mRys,lu_rysrw)
+c     Call InR(Tmax,mRys,lu_rysrw)
+      Read (lu_rysrw,*) (TMax(i),i=1,mRys)
 #ifdef _DEBUG_
       Call RecPrt(' Tmax',' ',Tmax,mRys,1)
 #endif
@@ -76,21 +86,24 @@ c      implicit none
 *     Read increment of tables
 *
       Call mma_allocate(ddx,mRys,label='ddx')
-      Call InR(ddx,mRys,lu_rysrw)
+c     Call InR(ddx,mRys,lu_rysrw)
+      Read (lu_rysrw,*) (ddx(i),i=1,mRys)
 #ifdef _DEBUG_
       Call RecPrt(' ddx ',' ',ddx,mRys,1)
 #endif
 *
 *     Read size of map array
 *
-      Call InI(nMap,mRys,lu_rysrw)
+c     Call InI(nMap,mRys,lu_rysrw)
+      Read (lu_rysrw,*) (nMap(i),i=1,mRys)
 #ifdef _DEBUG_
       Write (6,*) ' nMap=',nMap
 #endif
 *
 *     Read number of subranges
 *
-      Call InI(nx0,mRys,lu_rysrw)
+c     Call InI(nx0,mRys,lu_rysrw)
+      Read (lu_rysrw,*) (nx0(i),i=1,mRys)
 #ifdef _DEBUG_
       Write (6,*) ' nx0=',nx0
 #endif
@@ -108,9 +121,13 @@ c      implicit none
       call mma_allocate(Map,nMap_Tot,label='Map')
       Call mma_allocate(x0,nx0_Tot,label='x0')
       Do iRys = 1, mRys
-        Call InI(Map(iMap(iRys)),nMap(iRys),lu_rysrw)
+c       Call InI(Map(iMap(iRys)),nMap(iRys),lu_rysrw)
+        iOff=iMap(iRys)-1
+        Read (lu_rysrw,*) (Map(i),i=iOff+1,iOff+nMap(iRys))
 *
-        Call InR(x0(ix0(iRys)),nx0(iRys),lu_rysrw)
+c       Call InR(x0(ix0(iRys)),nx0(iRys),lu_rysrw)
+        iOff=ix0(iRys)-1
+        Read (lu_rysrw,*) (x0(i),i=iOff+1,iOff+nx0(iRys))
       End Do
 *
 *     Allocate memory for coefficients
@@ -119,7 +136,7 @@ c      implicit none
       Do iRys = 1, mRys
          iCffR(0,iRys) = nMem_Tot + 1
          nMem=nx0(iRys)*iRys
-         nMem_Tot = nMem_Tot + 14*nMem
+         nMem_Tot = nMem_Tot + nCff*nMem
       End Do
       Call mma_allocate(Cff,nMem_Tot,label='Cff')
       Do iRys = 1, mRys
@@ -142,7 +159,9 @@ c      implicit none
         iCffW(5,iRys) = iCffW(4,iRys) + nMem
         iCffW(6,iRys) = iCffW(5,iRys) + nMem
 *
-        Call InR(Cff(iCffR(0,iRys)),nMem*14,lu_rysrw)
+c       Call InR(Cff(iCffR(0,iRys)),nMem*nCff,lu_rysrw)
+        iOff=iCffR(0,iRys)-1
+        Read (lu_rysrw,*) (Cff(i),i=iOff+1,iOff+nMem*nCff)
 *
       End Do
 *

@@ -11,7 +11,7 @@
 * Copyright (C) 1986, Per E. M. Siegbahn                               *
 *               1986, Margareta R. A. Blomberg                         *
 ************************************************************************
-      SUBROUTINE PRWF(ICASE,JSY,INDEX,C)
+      SUBROUTINE PRWF_CPF(ICASE,JSY,INDEX,C)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION C(*),INDEX(*),JSY(*)
       DIMENSION ICASE(*)
@@ -25,7 +25,7 @@ CPAM97      INTEGER UNPACK
 CPAM97      JO(L)=UNPACK(QOCC((L+29)/30), 2*L-(2*L-1)/60*60, 2)
       JO(L)=ICUNP(ICASE,L)
 CPAM96      JSYM(L)=UNPACK(JSY((L+9)/10),3*MOD(L-1,10)+1,3)+1
-      JSYM(L)=JSUNP(JSY,L)
+      JSYM(L)=JSUNP_CPF(JSY,L)
       NA = 0 ! dummy initialized
       NB = 0 ! dummy initialized
       ILIM=4

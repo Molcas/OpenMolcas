@@ -154,6 +154,9 @@ c   Orbital energies, EPS, EPSI,EPSA,EPSE:
       END DO
 
 C EASUM=CONTRACT EPSA WITH DIAGONAL OF ACTIVE DENS
+C This is never used anywhere, and it is actually
+C wrong in XMS, since the DREF used is not the average
+C density.
       EASUM=0.0D00
       DO ISYM=1,NSYM
         NA=NASH(ISYM)

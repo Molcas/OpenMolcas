@@ -18,6 +18,7 @@
 #include "general.fh"
 
       CALL INIT_LINALG
+      CALL PrgmInit('Asc2Job')
 
       JOBIPH=15
       JOBIPH=isFreeUnit(JOBIPH)
@@ -32,7 +33,7 @@
       IAD15=0
       CALL IDAFILE(JOBIPH,1,IADR15,30,IAD15)
 
-      nName=4*2*mxOrb
+      nName=LENIN8*mxOrb
       nHeader=144
       nTitle=4*18*mxTit
 

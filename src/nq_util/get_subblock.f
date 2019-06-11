@@ -25,7 +25,8 @@
      &                        Temp,mGrad,F_xc,dF_dRho,
 cGLM     &                        Temp,mGrad,F_xc,F_xca,F_xcb,dF_dRho,
      &                        dF_dP2ontop,
-     &                        DFTFOCK,mAO,mdRho_dR)
+     &                        DFTFOCK,mAO,mdRho_dR,
+     &                        LOE_DB,LTEG_DB)
 ************************************************************************
 *                                                                      *
 * Object: to generate the list of the shell and exponent that have an  *
@@ -69,6 +70,7 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),
      &        More_to_come
       Logical Do_Mo,Do_TwoEl,l_Xhol
       Character*4 DFTFOCK
+      Integer LOE_DB,LTEG_DB
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -365,7 +367,7 @@ C     Write (6,*) 'Reduction=',DBLE(nAOs_Eff**2)/DBLE(nAOs**2)
 *
       nGrad_Eff=0
       If (Do_Grad) Then
-         Call ICopy(3*nShell*nSym,0,0,List_G,1)
+         Call ICopy(3*nShell*nSym,[0],0,List_G,1)
          lCar(1)=.False.
          lCar(2)=.False.
          lCar(3)=.False.
@@ -467,7 +469,7 @@ C     Write (6,*) 'Reduction=',DBLE(nAOs_Eff**2)/DBLE(nAOs**2)
       End If
       If (Do_Grad.and.nGrad_Eff.eq.0) Go To 998
       If (Grid_Status.eq.Use_Old) Go To 997
-         Call ICopy(3*nBatch_Max,0,0,iBatchInfo,1)
+         Call ICopy(3*nBatch_Max,[0],0,iBatchInfo,1)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -491,7 +493,7 @@ C     Write (6,*) 'Reduction=',DBLE(nAOs_Eff**2)/DBLE(nAOs**2)
 *        do not compute any contibution.
 *
          If (Do_Grad) Then
-            Call ICopy(nGrad_Eff,On,0,iTab(2,1),4)
+            Call ICopy(nGrad_Eff,[On],0,iTab(2,1),4)
             If (Grid_Type.eq.Moving_Grid) Then
                Do iGrad = 1, nGrad_Eff
                   jNQ = iTab(3,iGrad)
@@ -603,7 +605,7 @@ c        translational invariance on the atomic contributions to the
 c        gradient.
 c
          nTotGP_Save = nTotGP
-         ip_iA=ip_of_iWork(Work(ip_Angular(iNQ)))
+         ip_iA=ip_of_iWork_d(Work(ip_Angular(iNQ)))
          ip_A=iWork(ip_iA)
          nR_Eff=iWork(ip_nR_eff-1+iNQ)
          Call Subblock(iNQ,x_NQ,y_NQ,z_NQ,InBox(iNQ),
@@ -673,7 +675,7 @@ c
 *        process.
 *
          If (Do_Grad) Then
-            Call ICopy(nGrad_Eff,On,0,iTab(2,1),4)
+            Call ICopy(nGrad_Eff,[On],0,iTab(2,1),4)
             If (Grid_Type.eq.Moving_Grid) Then
                Do iGrad = 1, nGrad_Eff
                   jNQ = iTab(3,iGrad)
@@ -711,7 +713,7 @@ c
 cGLM     &                 list_g,IndGrd,iTab,Temp,F_xc,F_xca,F_xcb,
      &                 Work(ip_dW_dR),iNQ,
      &                 Maps2p,dF_dRho,dF_dP2ontop,
-     &                 DFTFOCK)
+     &                 DFTFOCK,LOE_DB,LTEG_DB)
 *
          nTotGP=nTotGP+nogp
 * update the "LuGridFile":

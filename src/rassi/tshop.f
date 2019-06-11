@@ -54,14 +54,14 @@ C
 C Get the CI coefficients for current state
 C
 C Open JOBIPH file:
-      JOB1=JBNUM(ISTATE1)
+      JOB1=iWork(lJBNUM+ISTATE1-1)
       CALL DANAME(LUIPH,JBNAME(JOB1))
 C Read table of contents on this JOBIPH file:
       IAD=0
       CALL IDAFILE(LUIPH,2,ITOC15,15,IAD)
 C Read CI coefficients from interface.
       IDISK=ITOC15(4)
-      LROOT1=LROOT(ISTATE1)
+      LROOT1=iWork(lLROOT+ISTATE1-1)
       DO I=1,LROOT1-1
          CALL DDAFILE(LUIPH,0,CI1,NCI1,IDISK)
       END DO
@@ -71,14 +71,14 @@ C
 C Get the CI coefficients for state2
 C
 C Open JOBIPH file:
-      JOB2=JBNUM(ISTATE2)
+      JOB2=iWork(lJBNUM+ISTATE2-1)
       CALL DANAME(LUIPH,JBNAME(JOB2))
 C Read table of contents on this JOBIPH file:
       IAD=0
       CALL IDAFILE(LUIPH,2,ITOC15,15,IAD)
 C Read CI coefficients from interface.
       IDISK=ITOC15(4)
-      LROOT1=LROOT(ISTATE2)
+      LROOT1=iWork(lLROOT+ISTATE2-1)
       DO I=1,LROOT1-1
          CALL DDAFILE(LUIPH,0,CI2,NCI2,IDISK)
       END DO

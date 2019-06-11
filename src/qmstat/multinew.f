@@ -57,6 +57,7 @@
       Data iX/1,1,1,2,2,3/
       Data iY/1,2,3,2,3,3/
       Data Integrals/'MLTPL  0','MLTPL  1','MLTPL  2'/
+      Dimension iDum(1)
 *----------------------------------------------------------------------*
 * Read the multipole integrals in contracted AO-basis.                 *
 *----------------------------------------------------------------------*
@@ -81,7 +82,8 @@
           irc=-1
           iOpt=1
           iSmLbl=1
-          Call iRdOne(irc,iOpt,integrals(iMlt),iComp,nSize,iSmLbl)
+          Call iRdOne(irc,iOpt,integrals(iMlt),iComp,iDum,iSmLbl)
+          If(irc.eq.0) nSize=iDum(1)
           If(irc.ne.0) then
             If(iComp.ne.1) then
               Write(6,*)

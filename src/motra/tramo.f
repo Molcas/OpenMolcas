@@ -17,7 +17,7 @@
 *              are written onto unit LUHALF.
 *
       !> module dependencies
-#ifdef _HDF5_F2003_
+#ifdef _HDF5_QCM_
       use hdf5_utils
 #endif
 
@@ -32,7 +32,7 @@
       Real*8 CMO(*)
 *
       Integer iDsk(3,mOVX)
-#ifdef _HDF5_F2003_
+#ifdef _HDF5_QCM_
       integer, save :: total_number_2ints = 0
       real*8, allocatable :: tmpbuf(:)
       integer             :: iout_total
@@ -42,13 +42,17 @@
 *
 *     Set some constants
 *
-      Call ICopy(mOVX,-1,0,iDsk(1,1),3)
-      Call ICopy(mOVX, 0,0,iDsk(2,1),3)
-      Call ICopy(mOVX, 1,0,iDsk(3,1),3)
+      Call ICopy(mOVX,[-1],0,iDsk(1,1),3)
+      Call ICopy(mOVX, [0],0,iDsk(2,1),3)
+      Call ICopy(mOVX, [1],0,iDsk(3,1),3)
 
-#ifdef _HDF5_F2003_
+#ifdef _HDF5_QCM_
       if(ihdf5 == 1)then
-        allocate(tmpbuf(nx1)); tmpbuf = 0
+!         allocate(tmpbuf(nx1));
+! Stefan's dirty hack to increase the # of BF working in MOTRA with HDF5
+        allocate(tmpbuf(((nop+1)*(noq+1)*(nor+1)*(nos+1))));tmpbuf = 0
+        write(6,*) 'size of tmpbuf:',
+     &  ((nop+1)*(noq+1)*(nor+1)*(nos+1))
         iout_total = 0
       end if
 #endif
@@ -283,7 +287,7 @@
              IF(NT.EQ.NV) IX1=1+NBP*(NX-1)
              IF ( LOQ.GT.0 ) THEN
                IF ( NBP.EQ.0 ) THEN
-                 CALL DCOPY_(LOQ,0.0D0,0,X2(IX2),1)
+                 CALL DCOPY_(LOQ,[0.0D0],0,X2(IX2),1)
                ELSE
                  CALL DGEMM_('T','N',
      &                       LOQ,1,NBP,
@@ -310,7 +314,10 @@
      &               'LU,KBUF,IDISK =',LUTWOMO,KBUF,IAD13
              END IF
              CALL dDAFILE(LUTWOMO,1,OUTBUF(KBUF1),KBUF,IAD13)
-#ifdef _HDF5_F2003_
+#ifdef _HDF5_QCM_
+      !WRITE(6,*)
+      !&'SAVE TRANSFORMED INTEGRALS:',
+      !& KBUF,KBUF1,iout_total,iout_total+kbuf
              if(ihdf5 == 1)then
                call dcopy_(KBUF,OUTBUF(KBUF1),1,tmpbuf(iout_total+1),1)
                iout_total = iout_total + kbuf
@@ -341,7 +348,7 @@
         WRITE(6,'(1X,10F12.6)') (OUTBUF(I+KBUF1-1),I=1,IOUT)
       ENDIF
 
-#ifdef _HDF5_F2003_
+#ifdef _HDF5_QCM_
       if(ihdf5 == 1)then
         !> and the last buffer here as well...
         call dcopy_(iout,OUTBUF(KBUF1),1,tmpbuf(iout_total+1),1)

@@ -12,7 +12,10 @@
      &                      IBSM,   IOCOC,  NOCTPA,  NOCTPB,   NSASO,
      &                     NSBSO,  PSSIGN,  ICOOSC,     IDC,  PLSIGN,
      &                       LUC,     SCR,   NSMST,  ISCALE,  SCLFAC)
-*
+*****************************************************************************
+* Variables status:
+* C     = input CI vector
+* CTT   = output CI vector in SD format
 * obtain  determinant block (iatp iasm, ibtp ibsm )
 * from vector packed in combination format according to IDC
 *
@@ -32,6 +35,8 @@
       DIMENSION C(*),CTT(*),NSASO(NSMST, *),NSBSO(NSMST, *)
       DIMENSION IOCOC(NOCTPA,NOCTPB),ICOOSC(NOCTPA,NOCTPB,*)
       DIMENSION SCR(*)
+      DIMENSION ISGVST(1)
+      DIMENSION IDUMMY(1)
 *
 C?    write(6,*) ' GSTTBL  ,IATP,IASM,IBTP,IBSM,ISCALE'
 C?    write(6,*)            IATP,IASM,IBTP,IBSM,ISCALE
@@ -39,7 +44,8 @@ C?    write(6,*)            IATP,IASM,IBTP,IBSM,ISCALE
 * Read in from disc
 * =================
       IF(LUC.NE.0) THEN
-        CALL IDAFILE(LUC,2,LBL,1,IDISK(LUC))
+        CALL IDAFILE(LUC,2,IDUMMY,1,IDISK(LUC))
+        LBL=IDUMMY(1)
         CALL IDAFILE(LUC,2,IDUMMY,1,IDISK(LUC))
 C?      write(6,*) ' LBL = ', LBL
          IF(ISCALE.EQ.1) THEN
