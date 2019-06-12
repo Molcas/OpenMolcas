@@ -163,7 +163,7 @@ c
           irc=-1
           iopt=1
           Call iRdOne (irc,iopt,label,iComp,idum,iSmLbl)
-          nInt=idum(1)
+          if (irc.eq.0) nInt=idum(1)
           if (irc.ne.0) go to 101
           NxtOpr = .True.
           irc=-1
@@ -233,7 +233,7 @@ c
             irc=-1
             iopt=1
             Call iRdOne (irc,iopt,label,iComp,idum,iSmLbl)
-            nInt=idum(1)
+            if (irc.eq.0) nInt=idum(1)
             if (irc.ne.0) go to 201
             NxtOpr = .True.
             irc=-1
@@ -296,7 +296,7 @@ c       loop over differnt operator origins (max.99)
             irc=-1
             iopt=1
             Call iRdOne (irc,iopt,label,iComp,idum,iSmLbl)
-            nInt=idum(1)
+            if (irc.eq.0) nInt=idum(1)
             if (irc.ne.0) go to 402
             NxtOpr = .True.
             irc=-1

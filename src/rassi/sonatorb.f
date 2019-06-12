@@ -700,7 +700,7 @@ c IOPT=6 Read the property, skipping the nuclear contribution and the origin
 c (see misc_util/OneFlags.fh)
       IOPT=1
       CALL iRDONE(IRC,IOPT,CHARPROP,IC,IDUM,ISCHK)
-      NSIZ=IDUM(1)
+      IF (IRC.EQ.0) NSIZ=IDUM(1)
 
 
 C sanity check?
@@ -1251,7 +1251,7 @@ C read in ao matrix for angmom or mltpl
       IF(ITYPE.EQ.1.OR.ITYPE.EQ.3) THEN
         ICMP=1
         CALL iRDONE(IRC,   1,'MLTPL  0',ICMP,IDUM,       ISYLAB)
-        NSIZ=IDUM(1)
+        IF (IRC.EQ.0) NSIZ=IDUM(1)
         CALL  RDONE(IRC,IOPT,'MLTPL  0',ICMP,WORK(LSANG),ISYLAB)
 
         IF ( IRC.NE.0 ) THEN
@@ -1266,7 +1266,7 @@ C read in ao matrix for angmom or mltpl
       ELSE IF(ITYPE.EQ.2.OR.ITYPE.EQ.4) THEN
         ICMP=3
         CALL iRDONE(IRC,   1,'ANGMOM  ',ICMP,IDUM,       ISYLAB)
-        NSIZ=IDUM(1)
+        IF (IRC.EQ.0) NSIZ=IDUM(1)
         CALL  RDONE(IRC,IOPT,'ANGMOM  ',ICMP,WORK(LSANG),ISYLAB)
 
         IF ( IRC.NE.0 ) THEN

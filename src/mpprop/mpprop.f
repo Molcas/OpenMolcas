@@ -197,7 +197,7 @@ C     Call OneBas('PRIM')
             iopt=1
 !EB            Call RdOne (irc,iopt,label,iComp,nInt,iSmLbl)
             Call iRdOne (irc,iopt,label,iComp,iDum,iSmLbl)
-            nInt=iDum(1)
+            If (irc.eq.0) nInt=iDum(1)
             if (irc.ne.0) Then
                If(iComp.ne.1) Then
                   Write (6,'(2A)')'MPProp: Error reading iComp.ne.0 lab'
