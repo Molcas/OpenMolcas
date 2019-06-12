@@ -522,7 +522,6 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
       call mma_allocate(CMOO, nTot2)
       CMOO(:nTot2) = CMO(:nTot2)
       CALL ONCMO(CMOO, CMO)
-      ! call orthonormalize_CMO(LCMOO, CMO)
       call mma_deallocate(CMOO)
 
 *     save start orbitals
@@ -535,22 +534,4 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
 
       CALL QEXIT('READVC')
       RETURN
-
-!      contains
-!!        subroutine partial_WrVec_(label)
-!!          character(*), intent(in) :: label
-!!          Call WrVec_(filename,LuvvVec,label,0,nSym,nBas,nBas,
-!!     &            CMO,CMO,
-!!     &            Work(ipOcc),Work(ipOcc),
-!!     &            FDIAG,E2act,
-!!     &            indType,VecTyp,0)
-!!        end subroutine
-!        subroutine partial_WrVec_(label)
-!          character(*), intent(in) :: label
-!          Call WrVec_(filename,LuvvVec,label,0,nSym,nBas,nBas,
-!     &            Work(lCMO),Work(lCMO),
-!     &            Work(ipOcc),Work(ipOcc),
-!     &            FDIAG,E2act,
-!     &            indType,VecTyp,0)
-!        end subroutine
       END
