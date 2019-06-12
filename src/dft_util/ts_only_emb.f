@@ -25,7 +25,9 @@
 #include "print.fh"
 #include "hflda.fh"
       Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
-     &       F_xc(mGrid)
+     &       F_xc(mGrid),
+     &       P2_ontop(nP2_ontop, mGrid),
+     &       dF_dP2ontop(ndF_dP2ontop, mGrid)
       Logical Do_OFemb,KEonly,OFE_first
       COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
 *
@@ -36,8 +38,14 @@
       Coeff=One
       Call TF_Ts(mGrid,Rho,nRho,nDmat,F_xc,
      &                 dF_dRho,ndF_dRho,Coeff,T_X)
-
 ************************************************************************
-*                                                                      *
+c Avoid unused argument warnings
+      If (.False.) Then
+         Call Unused_real_array(P2_ontop)
+         Call Unused_real_array(dF_dP2ontop)
+*         Call Unused_integer(nP2_ontop)
+*         Call Unused_integer(ndF_dP2ontop)
+      End If
+
       Return
       End

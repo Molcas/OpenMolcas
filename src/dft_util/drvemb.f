@@ -855,7 +855,8 @@ c Avoid unused argument warnings
         End If
 * Get GS and excited state densities:
         Call GetMem('DState','ALLO','REAL',ipD,nTot1)
-        Call dcopy_(nTot1,0.0D0,0,Work(ipD),1)
+* Fill allocated mem with zeroes.
+        Call dcopy_(nTot1,[0.0D0],0,Work(ipD),1)
 
         Call DONE_RASSCF_X(Work(ipxxCMO),Work(ipxxOCCN),
      &                     Work(ipD)) ! computes D=CnC'
