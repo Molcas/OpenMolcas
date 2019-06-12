@@ -145,14 +145,14 @@ c     &  Work(lCMO), Work(ipOcc), FDIAG, iDummy,VecTyp)
       Call WrVec_(filename,LuvvVec,'COET',0,nSym,nBas,nBas,
      &            Work(lCMO),Work(lCMO),
      &            Work(ipOcc),Work(ipOcc),
-     &            FDIAG,E2act,
+     &            FDIAG,[E2act],
      &            indType,VecTyp,0)
 c      Call WrVec(filename,LuvvVec,'AI',NSYM,NBAS,NBAS,
 c     & Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
       Call WrVec_(filename,LuvvVec,'AIT',0,nSym,nBas,nBas,
      &            Work(lCMO),Work(lCMO),
      &            Work(ipOcc),Work(ipOcc),
-     &            FDIAG,E2act,
+     &            FDIAG,[E2act],
      &            indType,VecTyp,0)
 *----------------------------------------------------------------------*
 *     Second, write natural orbitals
@@ -225,10 +225,4 @@ c     & Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
 
       Call qExit(routine)
       Return
-      contains
-        subroutine partial_WrVec_(label)
-          character(*), intent(in) :: label
-          Call WrVec(filename,LuvvVec,label,nSym,nBas,nBas,
-     &      Work(lCMO), Work(ipOcc), Work(LEDum), IndType,VecTyp)
-        end subroutine
       End subroutine
