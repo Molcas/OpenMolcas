@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2010-2017 Francesco Aquilante                          *
+* Copyright (C) 2010-2017, Francesco Aquilante                         *
+*               2017,      Alexander Zech                              *
 ************************************************************************
       Subroutine DrvEMB(h1,D,RepNuc,nh1,
      &                  KSDFT,ExFac,Do_Grad,Grad,nGrad,

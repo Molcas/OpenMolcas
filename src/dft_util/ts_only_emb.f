@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2010-2017 Francesco Aquilante                          *
+* Copyright (C) 2010-2017, Francesco Aquilante                         *
+*               2015,      Alexander Zech                              *
 ************************************************************************
       Subroutine Ts_only_emb(mGrid,Rho,nRho,P2_ontop,
      &                    nP2_ontop,nDmat,F_xc,
@@ -43,8 +44,6 @@ c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(P2_ontop)
          Call Unused_real_array(dF_dP2ontop)
-*         Call Unused_integer(nP2_ontop)
-*         Call Unused_integer(ndF_dP2ontop)
       End If
 
       Return
