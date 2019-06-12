@@ -21,8 +21,9 @@
 
       use rasscf_data, only : iter, lRoots, nRoots, S, KSDFT, NAC, EMY,
      &    rotmax, ener, iAdr15, iRoot, Weight, nacpr2, nacpar
-      use general_data, only : nSym, nBas, iSpin, nAsh, LuInta, nactel,
-     &    jobIph, ntot, ntot1, ntot2
+      use general_data, only : nSym, iSpin, LuInta, nactel,
+     &    jobIph, ntot, ntot1, ntot2,
+     &    nFro, nIsh, nRs1, nRs2, nRs3, nDel, nAsh, nBas
       use gugx_data, only : IfCAS
       use gas_data, only : ngssh, iDoGas, nGAS, iGSOCCX
 
@@ -42,6 +43,11 @@
 #include "mafdecls.fh"
       integer*4 :: error
 #endif
+      interface
+        integer function isfreeunit(iseed)
+          integer, intent(in) :: iseed
+        end function
+      end interface
       save
       contains
 
@@ -89,8 +95,10 @@
       logical :: fake_run_
       real*8, save :: NECIen
       integer :: iPRLEV, iOff, iSym, iBas, i, j, jRoot,
-     &    permutation(sum(nAsh(:nSym)))
-      real*8 :: orbital_E(nTot), folded_Fock(nAcPar)
+     &    permutation(sum(nAsh(:nSym))), file_id, typeidx(7, 8)
+      character(*), parameter :: filename = 'ORTORB'
+      character(len=80) :: orbfile_title
+      real*8 :: orbital_E(nTot), folded_Fock(nAcPar), vDummy(2)
 
       parameter(ROUTINE = 'FCIQMC_clt')
 
@@ -148,7 +156,7 @@
           permutation = get_P_GAS(nGSSH)
       end select
 
-! This call is not side effect free and sets EMY
+! This call is not side effect free, sets EMY and modifies F_IN
       call transform(iter, CMO, DIAF, D1I_AO, D1A_AO, D1S_MO,
      &      F_IN, orbital_E, folded_Fock)
 
@@ -158,6 +166,14 @@
       else
         call make_fcidumps(orbital_E, folded_Fock, TUVX, EMY)
       end if
+
+      file_id = 50
+      file_id = isfreeunit(file_id)
+      typeidx = get_typeidx(
+     &    nFro, nIsh, nRs1, nRs2, nRs3, nBas, nGSSH, nDel)
+      orbfile_title = 'Orbitals that are used for FCIQMC.'
+      Call WrVec(filename, file_id, 'CIE', nSym, nBas, nBas,
+     &           CMO, vDummy, orbital_E, typeidx, orbfile_title)
 
 ! Run NECI
       call Timing(Rado_1, Swatch, Swatch, Swatch)
@@ -326,52 +342,76 @@
 !>   I will be reading them from those formatted files for the time being.
 !>   Next it will be nice if NECI prints them out already in Molcas format.
       subroutine get_neci_RDM(D1S_MO, DMAT, PSMAT, PAMAT)
-      real*8, intent(out) :: D1S_MO(nAcPar), DMAT(nAcpar),
-     &    PSMAT(nAcpr2), PAMAT(nAcpr2)
-      real*8, allocatable ::
+        real*8, intent(out) :: D1S_MO(nAcPar), DMAT(nAcpar),
+     &      PSMAT(nAcpr2), PAMAT(nAcpr2)
+        real*8, allocatable ::
 !> ONE-BODY DENSITY
-     &  DTMP(:),
+     &    DTMP(:),
 !> SYMMETRIC TWO-BODY DENSITY
-     &  Ptmp(:),
+     &    Ptmp(:),
 !> ANTISYMMETRIC TWO-BODY DENSITY
-     &  PAtmp(:),
+     &    PAtmp(:),
 !> ONE-BODY SPIN DENSITY
-     &  DStmp(:)
-      real*8 :: Scal
-      integer :: jRoot, kRoot, iDisk, jDisk
+     &    DStmp(:)
+        real*8 :: Scal
+        integer :: jRoot, kRoot, iDisk, jDisk
 
-      call mma_allocate(DTMP, nAcPar, label='Dtmp ')
-      call mma_allocate(DStmp, nAcPar, label='DStmp')
-      call mma_allocate(Ptmp, nAcPr2, label='Ptmp ')
-      call mma_allocate(PAtmp, nAcPr2, label='PAtmp')
+        call mma_allocate(DTMP, nAcPar, label='Dtmp ')
+        call mma_allocate(DStmp, nAcPar, label='DStmp')
+        call mma_allocate(Ptmp, nAcPr2, label='Ptmp ')
+        call mma_allocate(PAtmp, nAcPr2, label='PAtmp')
 
-      call read_neci_RDM(DTMP, DStmp, Ptmp, PAtmp)
+        call read_neci_RDM(DTMP, DStmp, Ptmp, PAtmp)
 
 ! COMPUTE AVERAGE DENSITY MATRICES
-      do jRoot = 1, lRoots
-        Scal = 0.0d0
-        do kRoot = 1, nRoots
-          if (iRoot(kRoot) == jRoot) Scal = Weight(kRoot)
-        end do
-        DMAT(:) = SCAL * DTMP(:)
-        D1S_MO(:) = SCAL * PSMAT(:)
-        PSMAT(:) = SCAL * Ptmp(:)
-        PAMAT(:) = SCAL * PAtmp(:)
+        do jRoot = 1, lRoots
+          Scal = 0.0d0
+          do kRoot = 1, nRoots
+            if (iRoot(kRoot) == jRoot) Scal = Weight(kRoot)
+          end do
+          DMAT(:) = SCAL * DTMP(:)
+          D1S_MO(:) = SCAL * PSMAT(:)
+          PSMAT(:) = SCAL * Ptmp(:)
+          PAMAT(:) = SCAL * PAtmp(:)
 ! Put it on the RUNFILE
-        call Put_D1MO(DTMP,NACPAR)
-        call Put_P2MO(Ptmp,NACPR2)
+          call Put_D1MO(DTMP,NACPAR)
+          call Put_P2MO(Ptmp,NACPR2)
 ! Save density matrices on disk
-         iDisk = IADR15(4)
-         jDisk = IADR15(3)
-         call DDafile(JOBIPH, 1, DTMP, NACPAR, jDisk)
-         call DDafile(JOBIPH, 1, DStmp, NACPAR, jDisk)
-         call DDafile(JOBIPH, 1, Ptmp, NACPR2, jDisk)
-         call DDafile(JOBIPH, 1, PAtmp, NACPR2, jDisk)
-       end do
+          iDisk = IADR15(4)
+          jDisk = IADR15(3)
+          call DDafile(JOBIPH, 1, DTMP, NACPAR, jDisk)
+          call DDafile(JOBIPH, 1, DStmp, NACPAR, jDisk)
+          call DDafile(JOBIPH, 1, Ptmp, NACPR2, jDisk)
+          call DDafile(JOBIPH, 1, PAtmp, NACPR2, jDisk)
+        end do
 
-       call mma_deallocate(DTMP)
-       call mma_deallocate(DStmp)
-       call mma_deallocate(Ptmp)
-       call mma_deallocate(PAtmp)
-       end subroutine get_neci_RDM
+        call mma_deallocate(DTMP)
+        call mma_deallocate(DStmp)
+        call mma_deallocate(Ptmp)
+        call mma_deallocate(PAtmp)
+      end subroutine get_neci_RDM
+
+      function get_typeidx(
+     &    nFro, nIsh, nRs1, nRs2, nRs3, nBas, nGSSH, nDel)
+     &      result(typeidx)
+        implicit none
+        integer, intent(in) ::  nFro(:), nIsh(:), nRs1(:), nRs2(:),
+     &    nRs3(:), nBas(:), nGSSH(:, :), nDel(:)
+        integer :: typeidx(7, 8)
+
+        typeidx(1, :nSym) = nFro(:nSym)
+        typeidx(2, :nSym) = nIsh(:nSym)
+        if (.not. iDoGAS) then
+          typeidx(3, :nSym) = nRS1(:nSym)
+          typeidx(4, :nSym) = nRS2(:nSym)
+          typeidx(5, :nSym) = nRS3(:nSym)
+        else
+          typeidx(3, :nSym) = 0
+          typeidx(4, :nSym) = sum(nGssh(1:nGAS, :nSym), dim=1)
+          typeidx(5, :nSym) = 0
+        end if
+        typeidx(7, :nSym) = nDel(:nSym)
+        typeidx(6, :nSym) = 0
+        typeidx(6, :nSym) = nBas(:nSym) - sum(typeidx(:, :nSym), dim=1)
+      end function
       end module fciqmc
