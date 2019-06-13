@@ -1153,13 +1153,13 @@ c printout the Hamiltonians:
 
       !some verification
       If(dnrm2_(exch,WLIN,1).gt.1.0d-13)
-     &   Call Add_Info('EXCHCTL::  WLIN',WLIN(1:NmaxPop),NmaxPop,8)
+     &   Call Add_Info('EXCHCTL::  WLIN',[dnrm2_(exch,WLIN,1)],1,8)
       If(dnrm2_(exch,WDIP,1).gt.1.0d-13)
-     &   Call Add_Info('EXCHCTL::  WDIP',WDIP(1:NmaxPop),NmaxPop,8)
+     &   Call Add_Info('EXCHCTL::  WDIP',[dnrm2_(exch,WDIP,1)],1,8)
       If(dnrm2_(exch,WKEX,1).gt.1.0d-13)
-     &   Call Add_Info('EXCHCTL::  WKEX',WKEX(1:NmaxPop),NmaxPop,8)
+     &   Call Add_Info('EXCHCTL::  WKEX',[dnrm2_(exch,WKEX,1)],1,8)
       If(dnrm2_(exch,W,1).gt.1.0d-13)
-     &   Call Add_Info('EXCHCTL::     W',W(1:exch),exch,8)
+     &   Call Add_Info('EXCHCTL::     W',[dnrm2_(exch,W,1)],1,8)
 c compute the moments:
       Call zcopy_(3*exch*exch,[(0.0_wp,0.0_wp)],0,M,1)
       Call zcopy_(3*exch*exch,[(0.0_wp,0.0_wp)],0,S,1)
