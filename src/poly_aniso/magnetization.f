@@ -500,8 +500,10 @@ c exchange magnetization:
      &               Sex,
      &               Mex, m_paranoid, DBG )
           If(DBG) Write(6,'(A,3F11.7)') 'MEX:',(Mex(l,1),l=1,3)
-          Call Add_Info('MEX_MAGN    ',[dnrm2_(3*nTempMagn,Mex,1)],1,8)
-          Call Add_Info('MR_MAGN  Wex',[dnrm2_(nM,Wex,1)]         ,1,8)
+          If(IM == 1) THEN
+           Call Add_Info('MEX_MAGN    ',[dnrm2_(3*nTempMagn,Mex,1)],1,8)
+           Call Add_Info('MR_MAGN  Wex',[dnrm2_(nM,Wex,1)]         ,1,8)
+          End If
 c compute local magnetizations:
           If(m_accurate) Then
             Do i=1,nneq
@@ -518,7 +520,10 @@ c this check is to avoid the unnecessary computation, in cases when no local exc
      &                     ZL(i,1:nTempMagn),
      &                     SL(i,1:3,1:nTempMagn),
      &                     ML(i,1:3,1:nTempMagn), m_paranoid, DBG )
+                If(IM == 2) THEN
                 Call Add_Info('MR_MAGN  WL',[dnrm2_(nexch(i),WL,1)],1,8)
+                End If
+
                 If(DBG) Write(6,'(A,I2,A,3F11.7)') 'ML: site',i,' : ',
      &                                   (ML(i,l,1),l=1,3)
 c only local "exchange states":
@@ -538,8 +543,10 @@ c only local "exchange states":
               End If
             End Do
 
+          If(IM == 3) THEN
             Call Add_Info('ML_MAGN',[dnrm2_(3*nTempMagn*nneq,ML,1)],1,8)
             Call Add_Info('MR_MAGN',[dnrm2_(3*nTempMagn*nneq,MR,1)],1,8)
+          End If
 
 c expand the basis and rotate local vectors to the general
 c coordinate system:
