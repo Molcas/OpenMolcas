@@ -482,20 +482,8 @@ C printing threshold
 !     At the moment memory is not reduced
 !
       IF(REDUCELOOP) THEN
-        EX=ENSOR(1)
-        L=1
-        LD=1
-        DO ISO = 2, NSS
-           If (ABS(ENSOR(ISO)-EX).gt.1.0D-8) Then
-              LD = LD + 1
-              EX = ENSOR(ISO)
-           Else
-              L = L + 1
-           End If
-           If (LD.gt.LOOPDIVIDE) Exit
-        End Do
-        IEND = L
-        JSTART = L+1
+        IEND = LOOPDIVIDE
+        JSTART = LOOPDIVIDE+1
       ELSE
         IEND = NSS
         JSTART = 1
