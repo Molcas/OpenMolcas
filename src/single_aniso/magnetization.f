@@ -657,10 +657,8 @@ c /// -------------------------------------------------------------------
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-        Call Add_Info('MAGN_AVERAGED(2)   ',MAV( 2,1),1,5)
-        Call Add_Info('MAGN_AVERAGED(nH/2)',
-     &                       MAV((nH-1)/2,1),1,5)
-        Call Add_Info('MAGN_AVERAGED(nH)  ',MAV(NH,1),1,5)
+      Call Add_Info('MAGN_AVERAGED',MAV(1:nH,1:nTempMagn),
+     &               nH*nTempMagn,5)
       If(compute_Mdir_vector) Then
         Call Add_Info('MAGN_VECT_X(2)     ',MVEC(1, 2,1,1),1,5)
         Call Add_Info('MAGN_VECT_X(nH/2)  ',
@@ -678,7 +676,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 !-----------------------------------------------------------------------
-! Allocate necessary memory
+! Deallocate necessary memory
       If(nM>=0) Then
          Call mma_deallocate(WM)
       End If

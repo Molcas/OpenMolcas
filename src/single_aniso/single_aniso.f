@@ -523,6 +523,7 @@ C  read the input
      &                     gtens(imltpl,1:3), maxes(imltpl,1:3,1:3),
      &                     iprint )
               IF(DBG) Write(6,*) 'SINGLE_ANISO2::  Exit g_high',IMLTPL
+              Call Add_Info('GTENS_MAIN', gtens(imltpl,1:3), 3, 4)
            End If
 10         Continue
 

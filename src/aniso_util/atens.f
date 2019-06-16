@@ -270,7 +270,6 @@ c     &                                      (maxes(j,3),j=1,3),'|'
      &       ' gZ = ',gtens(3),' | Zm |',(maxes(j,3),j=1,3),'|'
          Write(6,'(65a)') ('-',i=1,56),'|'
 
-         Call Add_Info('GTENS_MAIN',gtens,3,4)
       End If
 
  199  Continue

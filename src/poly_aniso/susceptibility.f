@@ -95,7 +95,7 @@ c local variables
       Real(kind=wp) :: zstat_ex
       Real(kind=wp) :: boltz_k,coeff_chi
       Real(kind=wp) :: det
-      Real(kind=wp) :: dev
+      Real(kind=wp) :: dev, Fa, Fb, Fc, Fd, Fe, Ff
 !      Real(kind=wp) :: rdummy(1) !, gtens(3),maxes(3,3)
       external dev
       Character(25) :: lbl_XT
@@ -104,7 +104,7 @@ c local variables
       Integer       :: isite,info,mem_local,RtoB
       Logical       :: dbg
       Character(len=50) :: label
-
+      Real(wp), external :: dnrm2_
 
       Call qEnter('PA_suscept')
 
@@ -263,12 +263,19 @@ cc  local susceptibility= total susceptibility coming from individual magnetic c
             End Do ! i (nneq)
             Call chi( dipexch, dipexch, W, exch, T(iT), zstat_ex,
      &                chit_tens_ex )
-            Call Add_Info('XT:  chit_tens_l'   ,chit_tens_l ,9*nneq,6)
-            Call Add_Info('XT:  chit_tens_lr'  ,chit_tens_lr,9*nneq,6)
-            Call Add_Info('XT:  chit_tens_exch',chit_tens_ex,9     ,6)
-            Call Add_Info('XT:  zstat_exch'    ,[zstat_ex]  ,1     ,6)
-            Call Add_Info('XT:  zstat_l'       ,zstat_l     ,  nneq,6)
-            Call Add_Info('XT:  zstat_lr'      ,zstat_lr    ,  nneq,6)
+
+            Fa=0.0_wp; Fb=0.0_wp; Fc=0.0_wp; Fd=0.0_wp; Fe=0.0_wp;
+            Fa=dnrm2_(9*nneq,chit_tens_l ,1)
+            Fb=dnrm2_(9*nneq,chit_tens_lr,1)
+            Fc=dnrm2_(9     ,chit_tens_ex,1)
+            Fd=dnrm2_(nneq  ,zstat_l     ,1)
+            Fe=dnrm2_(nneq  ,zstat_lr    ,1)
+            Call Add_Info('XT:  chit_tens_l'   ,Fa,1,6)
+            Call Add_Info('XT:  chit_tens_lr'  ,Fb,1,6)
+            Call Add_Info('XT:  chit_tens_exch',Fc,1,6)
+            Call Add_Info('XT:  zstat_exch'    ,zstat_ex,1,6)
+            Call Add_Info('XT:  zstat_l'       ,Fd,1,6)
+            Call Add_Info('XT:  zstat_lr'      ,Fe,1,6)
 c expand the basis and rotate local tensors to the general
 c coordinate system:
             isite=0
@@ -295,8 +302,12 @@ c coordinate system:
                   End Do
                End Do
             End Do
-            Call Add_Info('XT:  XL',XL,3*3*nCenter,6)
-            Call Add_Info('XT:  XR',XR,3*3*nCenter,6)
+
+            Fa=0.0_wp; Fb=0.0_wp;
+            Fa=dnrm2_(9*nCenter,XL,1)
+            Fb=dnrm2_(9*nCenter,XR,1)
+            Call Add_Info('XT:  XL',Fa,1,6)
+            Call Add_Info('XT:  XR',Fb,1,6)
 c save some data:
             If(it.le.nTempMagn) Then
                Call dscal_( 3*3*nCenter, coeff_chi, XR, 1 )
@@ -310,9 +321,12 @@ c save some data:
      &                    XL, ZL, XR, ZR, iopt,
      &                    chit_tens_tot(it,1:3,1:3), zstat_tot(it) )
 
-            Call Add_Info('XT:  ZL',ZL,nCenter,6)
-            Call Add_Info('XT:  ZR',ZR,nCenter,6)
-            Call Add_Info('XT: ZEx',[zstat_ex],1,6)
+            Fa=0.0_wp; Fb=0.0_wp;
+            Fa=dnrm2_(nCenter,ZL,1)
+            Fb=dnrm2_(nCenter,ZR,1)
+            Call Add_Info('XT:  ZL',ZL,1,6)
+            Call Add_Info('XT:  ZR',ZR,1,6)
+            Call Add_Info('XT: ZEx',zstat_ex,1,6)
 
             chit(it)=coeff_chi * ( chit_tens_tot(iT,1,1)
      &                            +chit_tens_tot(iT,2,2)
@@ -324,16 +338,14 @@ c save some data:
                chit_theta(iT)=1.0e-20_wp
             End If
             chi_theta_1(iT)=T(iT)/chit(iT)
-
             ! add some verification data:
-            Write(lbl_XT,'(A,i4)') 'XT: T',iT
-            Call Add_Info(lbl_XT,T(iT),1,6)
-!            Write(lbl_XT,'(A,i4)') 'XT: chit_tens_tot',iT
-!            Call Add_Info(lbl_XT,chit_tens_tot(iT,:,:),9,6)
-            Write(lbl_XT,'(A,i4)') 'XT: chit_theta_tens',iT
-            Call Add_Info(lbl_XT,chit_theta_tens(iT,:,:),9,6)
+            Fa=0.0_wp
+            Fa=dnrm2_(9,chit_theta_tens(iT,1:3,1:3),1)
+            Call Add_Info('XT: chit_theta_tens',Fa,1,6)
          End Do ! iT
-
+         Fb=0.0_wp
+         Fb=dnrm2_(nT+nTempMagn,T,1)
+         Call Add_Info('XT: T',T,nT+nTempMagn,6)
 
       Else ! i.e. when (zJ .ne. 0)
 
@@ -433,23 +445,6 @@ c save some data:
      &                 smu_chit_tens_ex )
             Call chi(  s_exch,  s_exch, W, exch, T(iT), zstat_ex,
      &                  ss_chit_tens_ex )
-
-            ! add verification data:
-!            Call Add_Info('XT:  chit_tens_l' ,chit_tens_l     ,9*nneq,6)
-!            Call Add_Info('XT:  chit_tens_lr',chit_tens_lr    ,9*nneq,6)
-!            Call Add_Info('XT:  chit_tens_ex',chit_tens_ex    ,9     ,6)
-!            Call Add_Info('XT:  smu_chit_tens_l' ,smu_chit_tens_l ,
-!     &                                                         9*nneq,6)
-!            Call Add_Info('XT:  smu_chit_tens_lr',smu_chit_tens_lr,
-!     &                                                         9*nneq,6)
-!            Call Add_Info('XT:  smu_chit_tens_ex',smu_chit_tens_ex,9 ,6)
-!            Call Add_Info('XT:  ss_chit_tens_l',ss_chit_tens_l,9*nneq,6)
-!            Call Add_Info('XT:  ss_chit_tens_lr',ss_chit_tens_lr,
-!     &                                                         9*nneq,6)
-!            Call Add_Info('XT:  ss_chit_tens_ex' ,ss_chit_tens_ex ,9 ,6)
-!            Call Add_Info('XT:  zstat_l'         ,zstat_l       ,nneq,6)
-!            Call Add_Info('XT:  zstat_lr'        ,zstat_lr      ,nneq,6)
-!            Call Add_Info('XT:  zstat_ex'        ,[zstat_ex]    ,1   ,6)
 c expand the basis and rotate local tensors to the general
 c coordinate system:
             isite=0
@@ -502,12 +497,21 @@ c coordinate system:
             End Do
 
             ! add verification data:
-!            Call Add_Info('XT:    XR',XR  ,9*nCenter,6)
-!            Call Add_Info('XT:    XL',XL  ,9*nCenter,6)
-!            Call Add_Info('XT:  SMUL',SMUL,9*nCenter,6)
-!            Call Add_Info('XT:  SMUR',SMUR,9*nCenter,6)
-!            Call Add_Info('XT:   SSL',SSL ,9*nCenter,6)
-!            Call Add_Info('XT:   SSR',SSR ,9*nCenter,6)
+            Fa=0.0_wp; Fb=0.0_wp; Fc=0.0_wp; Fd=0.0_wp; Fe=0.0_wp;
+            Ff=0.0_wp;
+            Fa=dnrm2_(9*nCenter,XR  ,1)
+            Fb=dnrm2_(9*nCenter,XL  ,1)
+            Fc=dnrm2_(9*nCenter,SMUL,1)
+            Fd=dnrm2_(9*nCenter,SMUR,1)
+            Fe=dnrm2_(9*nCenter,SSL,1)
+            Ff=dnrm2_(9*nCenter,SSR,1)
+            Call Add_Info('XT:    XR',Fa,1,6)
+            Call Add_Info('XT:    XL',Fb,1,6)
+            Call Add_Info('XT:  SMUL',Fc,1,6)
+            Call Add_Info('XT:  SMUR',Fd,1,6)
+            Call Add_Info('XT:   SSL',Fe,1,6)
+            Call Add_Info('XT:   SSR',Ff,1,6)
+
 c save some data:
             If(iT.le.nTempMagn) Then
                Call dscal_( 3*3*nCenter, coeff_chi, XR, 1 )
@@ -568,17 +572,21 @@ c
             chi_theta_1(iT)=t(iT)/chit_theta(iT)
 
             ! add some verification data:
-            Write(lbl_XT,'(A,i4)') 'XT: T',iT
-            Call Add_Info(lbl_XT,T(iT),1,6)
-!            Write(lbl_XT,'(A,i4)') 'XT: chit_tens_tot',iT
-!            Call Add_Info(lbl_XT,chit_tens_tot(iT,:,:),9,6)
-            Write(lbl_XT,'(A,i4)') 'XT: chit_theta_tens',iT
-            Call Add_Info(lbl_XT,chit_theta_tens(iT,:,:),9,6)
-!            Write(lbl_XT,'(A,i4)') 'XT: smu_chit_tens_tot',iT
-!            Call Add_Info(lbl_XT,smu_chit_tens_tot,9,6)
-!            Write(lbl_XT,'(A,i4)') 'XT: ss_chit_tens_tot',iT
-!            Call Add_Info(lbl_XT,ss_chit_tens_tot,9,6)
+            Fa=0.0_wp; Fb=0.0_wp; Fc=0.0_wp; Fd=0.0_wp; Fe=0.0_wp;
+            Ff=0.0_wp;
+            Fa=dnrm2_(9,    chit_tens_tot(it,1:3,1:3),1)
+            Fb=dnrm2_(9,  chit_theta_tens(it,1:3,1:3),1)
+            Fc=dnrm2_(9,smu_chit_tens_tot(1:3,1:3),1)
+            Fd=dnrm2_(9, ss_chit_tens_tot(1:3,1:3),1)
+
+            Call Add_Info('XT: chit_tens_tot'    ,Fa,1,6)
+            Call Add_Info('XT: chit_theta_tens'  ,Fb,1,6)
+            Call Add_Info('XT: smu_chit_tens_tot',Fc,1,6)
+            Call Add_Info('XT:  ss_chit_tens_tot',Fd,1,6)
          End Do ! it
+         Fb=0.0_wp;
+         Fb=dnrm2_(nT+nTempMagn,T,1)
+         Call Add_Info('XT: T',Fb,1,6)
 
          Call mma_deallocate(smu_chit_tens_l)
          Call mma_deallocate(smu_chit_tens_lr)
@@ -634,11 +642,15 @@ c printing the results
       End Do
       Write(6,'(A)') '-----|----------------------------------------'//
      & '------------------------------------------|'
-
-
-      Call Add_Info('CHIT'        ,chiT       ,(nT+nTempMagn),6)
-      Call Add_Info('CHIT_THETA'  ,chiT_theta ,(nT+nTempMagn),6)
-      Call Add_Info('ZSTAT_TOT'   ,zstat_tot  ,(nT+nTempMagn),6)
+      Fb=0.0_wp;
+      Fb=dnrm2_(nT+nTempMagn,chiT,1)
+      Call Add_Info('XT: T',Fb,1,6)
+      Fa=0.0_wp;
+      Fa=dnrm2_(nT+nTempMagn,chiT_theta,1)
+      Call Add_Info('XT: CHIT_THETA',Fa,1,6)
+      Fa=0.0_wp;
+      Fa=dnrm2_(nT+nTempMagn,zstat_tot,1)
+      Call Add_Info('XT: CHIT_THETA',Fa,1,6)
 c  calcualtion of the standard deviation:
       If (tinput) Then
          Write(6,'(a,5x, f20.14)') 'ST.DEV.CHIT:',
@@ -648,24 +660,6 @@ c  calcualtion of the standard deviation:
 
 
 !-------------------------  PLOTs -------------------------------------!
-!      If ( doplot ) Then
-!         If ( tinput ) Then
-!
-!            Call plot_XT( nT,        T( (1+nTempMagn):(nT) ),
-!     &                      chit_theta( (1+nTempMagn):(nT) ),
-!     &                           XTexp( (1+nTempMagn):(nT) ),
-!     &                    zJ )
-!
-!         Else
-!!
-!            Call plot_XT( nT,        T( (1+nTempMagn):(nT) ),
-!     &                      chit_theta( (1+nTempMagn):(nT) ),
-!     &                          rdummy,
-!     &                    zJ )
-!
-!         End If
-!       End If
-
       WRITE(label,'(A)') "no_field"
       IF ( DoPlot ) THEN
          IF ( tinput ) THEN
@@ -761,7 +755,6 @@ c print out the main VAN VLECK SUSCEPTIBILITY TENSOR, its main values and main a
       End If
       Call mma_deallocate(wt)
       Call mma_deallocate(zt)
-
 
       Call mma_deallocate(chit_tens_tot)
       Call mma_deallocate(chit_theta_tens)

@@ -796,12 +796,14 @@ c compute the total magnetizations according to the derived formulas:
 
          End If ! m_accurate
 
-         Call Add_Info('dM/dH    ST0',ST0,3*(nT+nTempMagn),6)
-         Call Add_Info('dM/dH    ST1',ST1,3*(nT+nTempMagn),6)
-         Call Add_Info('dM/dH    ST2',ST2,3*(nT+nTempMagn),6)
-         Call Add_Info('dM/dH    MT0',MT0,3*(nT+nTempMagn),6)
-         Call Add_Info('dM/dH    MT1',MT1,3*(nT+nTempMagn),6)
-         Call Add_Info('dM/dH    MT2',MT2,3*(nT+nTempMagn),6)
+         ibuf=0
+         ibuf=3*(nT+nTempMagn)
+         Call Add_Info('dM/dH    ST0', [dnrm2_(ibuf, ST0,1)],1,6)
+         Call Add_Info('dM/dH    ST1', [dnrm2_(ibuf, ST1,1)],1,6)
+         Call Add_Info('dM/dH    ST2', [dnrm2_(ibuf, ST2,1)],1,6)
+         Call Add_Info('dM/dH    MT0', [dnrm2_(ibuf, MT0,1)],1,6)
+         Call Add_Info('dM/dH    MT1', [dnrm2_(ibuf, MT1,1)],1,6)
+         Call Add_Info('dM/dH    MT2', [dnrm2_(ibuf, MT2,1)],1,6)
 c  computing the AVERAGE MOMENTS calculated at dIfferent temperatures (T(i))
          Do iT=1,nTempTotal
 
@@ -833,12 +835,18 @@ c computing the XT as tensor's average:
      &                  + XTtens_MH(3,3,iT)   ) / 3.0_wp
       End Do !iT
 
-      Call Add_Info('dM/dH    XTtens_dMdH',XTtens_dMdH,
-     &                                            9*(nT+nTempMagn),6)
-      Call Add_Info('dM/dH    XTtens_MH',XTtens_MH,
-     &                                            9*(nT+nTempMagn),6)
-      Call Add_Info('dM/dH    XTM_dMdH',XTM_dMdH,(nT+nTempMagn),6)
-      Call Add_Info('dM/dH    XTM_MH'  ,XTM_MH  ,(nT+nTempMagn),6)
+      ibuf=0
+      ibuf=9*(nT+nTempMagn)
+      Call Add_Info('dM/dH    XTtens_dMdH',
+     &                              [dnrm2_(ibuf,XTtens_dMdH,1)],1,6)
+      Call Add_Info('dM/dH    XTtens_MH',
+     &                              [dnrm2_(ibuf,XTtens_MH,1)],1,6)
+      ibuf=0
+      ibuf=nT+nTempMagn
+      Call Add_Info('dM/dH    XTM_dMdH',
+     &                              [dnrm2_(ibuf,XTM_dMdH,1)],1,6)
+      Call Add_Info('dM/dH    XTM_MH',
+     &                              [dnrm2_(ibuf,XTM_MH,1)],1,6)
 C -------------------------------------------------------------------
 C   WRITING SOME OF THE OUTPUT....
 C -------------------------------------------------------------------
