@@ -15,7 +15,9 @@
         implicit none
         save
         private
-        public :: t_ON_scheme, ON_scheme, t_procrust_metric
+        public ::
+     &    t_ON_scheme, ON_scheme,
+     &    t_procrust_metric, procrust_metric
 
         type :: t_ON_scheme
           character(:), allocatable :: val

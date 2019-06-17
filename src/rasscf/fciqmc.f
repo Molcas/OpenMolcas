@@ -391,26 +391,4 @@
         call mma_deallocate(Ptmp)
         call mma_deallocate(PAtmp)
       end subroutine get_neci_RDM
-
-      function get_typeidx(
-     &  nFro, nIsh, nRs1, nRs2, nRs3, nBas, nGSSH, nDel) result(typeidx)
-        implicit none
-        integer, intent(in) ::  nFro(:), nIsh(:), nRs1(:), nRs2(:),
-     &    nRs3(:), nBas(:), nGSSH(:, :), nDel(:)
-        integer :: typeidx(7, 8)
-
-        typeidx(:, :nSym) = 0
-
-        typeidx(1, :nSym) = nFro(:nSym)
-        typeidx(2, :nSym) = nIsh(:nSym)
-        if (.not. iDoGAS) then
-          typeidx(3, :nSym) = nRS1(:nSym)
-          typeidx(4, :nSym) = nRS2(:nSym)
-          typeidx(5, :nSym) = nRS3(:nSym)
-        else
-          typeidx(4, :nSym) = sum(nGssh(1:nGAS, :nSym), dim=1)
-        end if
-        typeidx(7, :nSym) = nDel(:nSym)
-        typeidx(6, :nSym) = nBas(:nSym) - sum(typeidx(:, :nSym), dim=1)
-      end function
       end module fciqmc
