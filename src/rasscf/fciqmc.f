@@ -81,6 +81,7 @@
       subroutine fciqmc_ctl(CMO, DIAF, D1I_AO, D1A_AO, TUVX, F_IN,
      &                      D1S_MO, DMAT, PSMAT, PAMAT,
      &                      fake_run)
+      use write_orbital_files, only : get_typeidx
       implicit none
 #include "output_ras.fh"
 #include "rctfld.fh"
@@ -392,12 +393,13 @@
       end subroutine get_neci_RDM
 
       function get_typeidx(
-     &    nFro, nIsh, nRs1, nRs2, nRs3, nBas, nGSSH, nDel)
-     &      result(typeidx)
+     &  nFro, nIsh, nRs1, nRs2, nRs3, nBas, nGSSH, nDel) result(typeidx)
         implicit none
         integer, intent(in) ::  nFro(:), nIsh(:), nRs1(:), nRs2(:),
      &    nRs3(:), nBas(:), nGSSH(:, :), nDel(:)
         integer :: typeidx(7, 8)
+
+        typeidx(:, :nSym) = 0
 
         typeidx(1, :nSym) = nFro(:nSym)
         typeidx(2, :nSym) = nIsh(:nSym)
@@ -406,12 +408,9 @@
           typeidx(4, :nSym) = nRS2(:nSym)
           typeidx(5, :nSym) = nRS3(:nSym)
         else
-          typeidx(3, :nSym) = 0
           typeidx(4, :nSym) = sum(nGssh(1:nGAS, :nSym), dim=1)
-          typeidx(5, :nSym) = 0
         end if
         typeidx(7, :nSym) = nDel(:nSym)
-        typeidx(6, :nSym) = 0
         typeidx(6, :nSym) = nBas(:nSym) - sum(typeidx(:, :nSym), dim=1)
       end function
       end module fciqmc

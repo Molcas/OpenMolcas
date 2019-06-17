@@ -57,6 +57,7 @@
      &    finalize_dmrg, dump_dmrg_info
 #endif
       use stdalloc
+      use write_orbital_files, only : OrbFiles
       use fciqmc, only : FCIQMC_ctl, DoNECI, fciqmc_cleanup => cleanup
       use fcidump, only : make_fcidumps, transform, DumpOnly
 

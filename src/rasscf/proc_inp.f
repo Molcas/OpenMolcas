@@ -19,6 +19,7 @@
       use qcmaquis_interface_cfg
 #endif
       use active_space_solver_cfg
+      use write_orbital_files, only : OrbFiles
       use fcidump, only : DumpOnly
       use fcidump_reorder, only : ReOrInp, ReOrFlag
       use fciqmc, only : DoEmbdNECI, DoNECI

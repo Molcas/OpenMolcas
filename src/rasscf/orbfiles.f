@@ -8,6 +8,18 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+      module write_orbital_files
+
+        use general_data, only : nSym
+        use gas_data, only : iDoGas, nGAS
+
+        implicit none
+        private
+        public :: OrbFiles, get_typeidx
+        save
+
+      contains
+
       Subroutine OrbFiles(JOBIPH, IPRLEV)
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
@@ -17,11 +29,11 @@
       use rasscf_data, only : iToc, name, header, title, lRoots, nRoots,
      &  iRoot, LENIN8, mXORB, mxTit, mXroot, iPt2, Weight, iOrbTyp,
      &  FDiag, E2Act, mxiter, maxorbout
-      use general_data, only : nActel, iSpin, nSym, lSym, mXSym,
+      use general_data, only : nActel, iSpin, lSym, mXSym,
      &  nFro, nIsh, nAsh, nDel, nBas, nRs1, nRs2, nRs3, nHole1, nElec3,
      &  nTot, nTot2, nConf
       use gugx_data, only : ifCas
-      use gas_data, only : nGssh, iDoGas, nGas
+      use gas_data, only : nGssh
 
       implicit none
 #include "output_ras.fh"
@@ -29,7 +41,7 @@
 #include "WrkSpc.fh"
       integer, intent(in) :: JobIph, iPrlev
 
-      integer :: iDisk, iRt, iSym, lCMO, iShift, iNDT, iNDType(56),
+      integer :: iDisk, iRt, lCMO, iNDT, iNDType(7, 8),
      &    lUVVVec, lEdum, nGast, ipEne,ipOcc
       real*8 :: Energy, PotNucDummy
 
@@ -82,32 +94,8 @@
 *----------------------------------------------------------------------*
 *     Make typeindex information                                       *
 *----------------------------------------------------------------------*
-      iShift=0
-      DO ISYM=1,NSYM
-        IndT=0
-        IndType(1+iShift)= NFRO(ISYM)
-        IndT=IndT+NFRO(ISYM)
-        IndType(2+iShift)= NISH(ISYM)
-        IndT=IndT+NISH(ISYM)
-        If (.not. iDoGas) Then
-          IndType(3+iShift)= NRS1(ISYM)
-          IndT=IndT+NRS1(ISYM)
-          IndType(4+iShift)= NRS2(ISYM)
-          IndT=IndT+NRS2(ISYM)
-          IndType(5+iShift)= NRS3(ISYM)
-          IndT=IndT+NRS3(ISYM)
-        Else
-          IndType(3+iShift)=0
-          NGAST=SUM(NGSSH(1:NGAS,ISYM))
-          IndType(4+iShift)=ngast
-          IndT=IndT+ngast
-          IndType(5+iShift)=0
-        End If
-        IndType(7+iShift)= NDEL(ISYM)
-        IndT=IndT+NDEL(ISYM)
-        IndType(6+iShift)= NBAS(ISYM)-IndT
-        iShift=iShift+7
-      EndDo
+      IndType = get_typeidx(
+     &    nFro, nIsh, nRs1, nRs2, nRs3, nBas, nGSSH, nDel)
 *----------------------------------------------------------------------*
 *     First, write orbitals to RasOrb:                                 *
 * IORBTYP=1 for 'Average' orbitals... Default!
@@ -226,3 +214,28 @@ c     & Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
       Call qExit(routine)
       Return
       End subroutine
+
+
+      function get_typeidx(
+     &  nFro, nIsh, nRs1, nRs2, nRs3, nBas, nGSSH, nDel) result(typeidx)
+        implicit none
+        integer, intent(in) ::  nFro(:), nIsh(:), nRs1(:), nRs2(:),
+     &    nRs3(:), nBas(:), nGSSH(:, :), nDel(:)
+        integer :: typeidx(7, 8)
+
+        typeidx(:, :nSym) = 0
+
+        typeidx(1, :nSym) = nFro(:nSym)
+        typeidx(2, :nSym) = nIsh(:nSym)
+        if (.not. iDoGAS) then
+          typeidx(3, :nSym) = nRS1(:nSym)
+          typeidx(4, :nSym) = nRS2(:nSym)
+          typeidx(5, :nSym) = nRS3(:nSym)
+        else
+          typeidx(4, :nSym) = sum(nGssh(1:nGAS, :nSym), dim=1)
+        end if
+        typeidx(7, :nSym) = nDel(:nSym)
+        typeidx(6, :nSym) = nBas(:nSym) - sum(typeidx(:, :nSym), dim=1)
+      end function get_typeidx
+
+      end module write_orbital_files
