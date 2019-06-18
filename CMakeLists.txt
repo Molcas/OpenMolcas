@@ -30,7 +30,7 @@ if (POLICY CMP0074)
         cmake_policy(SET CMP0074 NEW)
 endif ()
 if (POLICY CMP0004)
-        cmake_policy(SET CMP0004 OLD)
+        cmake_policy(SET CMP0004 NEW)
 endif ()
 
 # Prevent in-source builds
