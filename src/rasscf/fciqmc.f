@@ -19,18 +19,9 @@
       use fortran_strings, only : str
       use stdalloc, only : mma_allocate, mma_deallocate
 
-      use rasscf_data, only : iter, lRoots, nRoots, S, KSDFT, NAC, EMY,
-     &    rotmax, ener, iAdr15, iRoot, Weight, nacpr2, nacpar
-      use general_data, only : nSym, iSpin, LuInta, nactel,
-     &    jobIph, ntot, ntot1, ntot2,
-     &    nFro, nIsh, nRs1, nRs2, nRs3, nDel, nAsh, nBas
-      use gugx_data, only : IfCAS
-      use gas_data, only : ngssh, iDoGas, nGAS, iGSOCCX
+      use rasscf_data, only : lRoots, nRoots, iRoot
+      use general_data, only : nSym
 
-      use fcidump_reorder, only : get_P_GAS, get_P_inp,ReOrFlag,ReOrInp
-      use fcidump, only : make_fcidumps, transform
-      use fciqmc_make_inp, only : make_inp
-      use fciqmc_read_RDM, only : read_neci_RDM
       implicit none
       private
       public :: fciqmc_ctl, DoNECI, DoEmbdNECI, cleanup
@@ -81,7 +72,16 @@
       subroutine fciqmc_ctl(CMO, DIAF, D1I_AO, D1A_AO, TUVX, F_IN,
      &                      D1S_MO, DMAT, PSMAT, PAMAT,
      &                      fake_run)
-      use write_orbital_files, only : get_typeidx
+      use general_data, only : iSpin, ntot, ntot1, ntot2, nAsh, nBas
+      use rasscf_data, only : iter, lRoots, nRoots, S, KSDFT, EMY,
+     &    rotmax, Ener, Nac, nAcPar, nAcpr2
+
+      use gugx_data, only : IfCAS
+      use gas_data, only : ngssh, iDoGas, nGAS, iGSOCCX
+
+      use fcidump_reorder, only : get_P_GAS, get_P_inp,ReOrFlag,ReOrInp
+      use fcidump, only : make_fcidumps, transform
+
       implicit none
 #include "output_ras.fh"
 #include "rctfld.fh"
@@ -96,10 +96,8 @@
       logical :: fake_run_
       real*8, save :: NECIen
       integer :: iPRLEV, iOff, iSym, iBas, i, j, jRoot,
-     &    permutation(sum(nAsh(:nSym))), file_id, typeidx(7, 8)
-      character(*), parameter :: filename = 'ORTORB'
-      character(len=80) :: orbfile_title
-      real*8 :: orbital_E(nTot), folded_Fock(nAcPar), vDummy(2)
+     &    permutation(sum(nAsh(:nSym)))
+      real*8 :: orbital_E(nTot), folded_Fock(nAcPar)
 
       parameter(ROUTINE = 'FCIQMC_clt')
 
@@ -115,7 +113,7 @@
         write(lf,*) ' Entering FCIQMC_Ctl'
         write(lf,*) ' ===================='
         write(lf,*)
-        write(lf,*) ' iteration count =', ITER
+        write(lf,*) ' iteration count =', iter
         write(lf,*) ' IFCAS value     =', IFCAS
         write(lf,*) ' lroots,nroots   =', lroots,nroots
         write(lf,*)
@@ -144,7 +142,7 @@
 
 ! SOME DIRTY SETUPS
 ! TODO(Giovanni): No dirty setups
-      S = 0.5D0 * DBLE(ISPIN-1)
+      S = 0.5d0 * dble(iSpin - 1)
 
       call check_options(lRoots, lRf, KSDFT, iDoGAS, iGSOCCX, nGAS)
 
@@ -168,20 +166,19 @@
         call make_fcidumps(orbital_E, folded_Fock, TUVX, EMY)
       end if
 
-      file_id = 50
-      file_id = isfreeunit(file_id)
-      typeidx = get_typeidx(
-     &    nFro, nIsh, nRs1, nRs2, nRs3, nBas, nGSSH, nDel)
-      orbfile_title = 'Orbitals that are used for FCIQMC.'
-      Call WrVec(filename, file_id, 'CIE', nSym, nBas, nBas,
-     &           CMO, vDummy, orbital_E, typeidx, orbfile_title)
+! NOTE: Add fourth argument OCC.
+! If the Occupation number is written properly as well.
+      call write_OrbFile(CMO, orbital_E, iDoGas)
 
 ! Run NECI
       call Timing(Rado_1, Swatch, Swatch, Swatch)
 #ifdef _MOLCAS_MPP_
       if (is_real_par()) call MPI_Barrier(MPI_COMM_WORLD, error)
 #endif
-      if (.not. fake_run_) call run_neci(DoEmbdNECI, NECIen)
+      if (.not. fake_run_) then
+        call run_neci(DoEmbdNECI,
+     &    reuse_pops=iter >= 5 .and. abs(rotmax) < 1d-2, NECIen=NECIen)
+      end if
 ! NECIen so far is only the energy for the GS.
 ! Next step it will be an array containing energies for all the optimized states.
       do jRoot = 1, lRoots
@@ -214,12 +211,13 @@
       end subroutine fciqmc_ctl
 
 
-      subroutine run_neci(DoEmbdNECI, NECien)
+      subroutine run_neci(DoEmbdNECI, reuse_pops, NECien)
+        use fciqmc_make_inp, only : make_inp
         implicit none
-        logical, intent(in) :: DoEmbdNECI
+        logical, intent(in) :: DoEmbdNECI, reuse_pops
         real*8, intent(out) :: NECIen
         if (DoEmbdNECI) then
-          call make_inp(readpops=iter >= 5 .and. abs(rotmax) < 1d-2)
+          call make_inp(readpops=reuse_pops)
 #ifdef _NECI_
           write(6,*) 'NECI called automatically within Molcas!'
           if (myrank /= 0) call chdir_('..')
@@ -343,16 +341,20 @@
 !>   I will be reading them from those formatted files for the time being.
 !>   Next it will be nice if NECI prints them out already in Molcas format.
       subroutine get_neci_RDM(D1S_MO, DMAT, PSMAT, PAMAT)
+        use general_data, only : JobIPH
+        use rasscf_data, only : iAdr15, Weight, nAcPar, nAcPr2
+        use fciqmc_read_RDM, only : read_neci_RDM
+        implicit none
         real*8, intent(out) :: D1S_MO(nAcPar), DMAT(nAcpar),
      &      PSMAT(nAcpr2), PAMAT(nAcpr2)
         real*8, allocatable ::
-!> ONE-BODY DENSITY
+!> one-body density
      &    DTMP(:),
-!> SYMMETRIC TWO-BODY DENSITY
+!> symmetric two-body density
      &    Ptmp(:),
-!> ANTISYMMETRIC TWO-BODY DENSITY
+!> antisymmetric two-body density
      &    PAtmp(:),
-!> ONE-BODY SPIN DENSITY
+!> one-body spin density
      &    DStmp(:)
         real*8 :: Scal
         integer :: jRoot, kRoot, iDisk, jDisk
@@ -364,7 +366,7 @@
 
         call read_neci_RDM(DTMP, DStmp, Ptmp, PAtmp)
 
-! COMPUTE AVERAGE DENSITY MATRICES
+! Compute average density matrices
         do jRoot = 1, lRoots
           Scal = 0.0d0
           do kRoot = 1, nRoots
@@ -391,4 +393,36 @@
         call mma_deallocate(Ptmp)
         call mma_deallocate(PAtmp)
       end subroutine get_neci_RDM
+
+      subroutine write_OrbFile(CMO, orbital_E, iDoGas)
+        use general_data, only : ntot,
+     &    nFro, nIsh, nRs1, nRs2, nRs3, nDel, nAsh, nBas
+        use gas_data, only : nGSSH
+        use write_orbital_files, only : get_typeidx
+        implicit none
+        real*8, intent(in) :: CMO(:), orbital_E(:)
+        logical, intent(in) :: iDoGAS
+        real*8, allocatable :: occ_number(:)
+        integer, parameter :: arbitrary_magic_number = 50
+        integer :: file_id, typeidx(7, 8)
+        character(*), parameter :: filename = 'ORTORB'
+        character(len=80) ::
+     &    orbfile_title = 'Orbitals that are used for FCIQMC.'
+
+        file_id = arbitrary_magic_number
+        file_id = isfreeunit(file_id)
+        if (.not. iDoGas) then
+          typeidx = get_typeidx(nFro, nIsh, nRs1, nRs2, nRs3, nBas,nDel)
+
+        else
+          typeidx = get_typeidx(nFro, nIsh, nGSSH, nBas, nDel)
+        endif
+
+        call mma_allocate(occ_number, nTot)
+        occ_number(:) = 1.d0
+        call WrVec(filename, file_id, 'COIE', nSym, nBas, nBas,
+     &             CMO, occ_number, orbital_E, typeidx, orbfile_title)
+        call mma_deallocate(occ_number)
+      end subroutine
+
       end module fciqmc

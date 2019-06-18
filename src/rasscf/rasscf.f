@@ -1722,7 +1722,7 @@ c Clean-close as much as you can the CASDFT stuff...
       Call Timing(Swatch,Swatch,Zenith_1,Swatch)
 
       if(DoNECI) then
-          call FCIQMC_ctl(CMO=work(LCMO : LCMO + nTot2 - 1),
+        call FCIQMC_ctl(CMO=work(LCMO : LCMO + nTot2 - 1),
      &                    DIAF=work(LDIAF : LDiaf + nTot - 1),
      &                    D1I_AO=work(lD1I : lD1I + nTot2 - 1),
      &                    D1A_AO=work(lD1A : lD1A + nTot2 - 1),

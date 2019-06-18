@@ -18,6 +18,10 @@
         public :: OrbFiles, get_typeidx
         save
 
+        interface get_typeidx
+          module procedure RAS_get_typeidx, GAS_get_typeidx
+        end interface
+
       contains
 
       Subroutine OrbFiles(JOBIPH, IPRLEV)
@@ -41,8 +45,8 @@
 #include "WrkSpc.fh"
       integer, intent(in) :: JobIph, iPrlev
 
-      integer :: iDisk, iRt, lCMO, iNDT, iNDType(7, 8),
-     &    lUVVVec, lEdum, nGast, ipEne,ipOcc
+      integer :: iDisk, iRt, lCMO, iNDType(7, 8),
+     &    lUVVVec, lEdum, ipEne,ipOcc
       real*8 :: Energy, PotNucDummy
 
       character(len=80) :: VecTyp
@@ -94,8 +98,11 @@
 *----------------------------------------------------------------------*
 *     Make typeindex information                                       *
 *----------------------------------------------------------------------*
-      IndType = get_typeidx(
-     &    nFro, nIsh, nRs1, nRs2, nRs3, nBas, nGSSH, nDel)
+      if (.not. iDoGas) then
+        IndType = get_typeidx(nFro, nIsh, nRs1, nRs2, nRs3, nBas, nDel)
+      else
+        IndType = get_typeidx(nFro, nIsh, nGSSH, nBas, nDel)
+      endif
 *----------------------------------------------------------------------*
 *     First, write orbitals to RasOrb:                                 *
 * IORBTYP=1 for 'Average' orbitals... Default!
@@ -216,26 +223,40 @@ c     & Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
       End subroutine
 
 
-      function get_typeidx(
-     &  nFro, nIsh, nRs1, nRs2, nRs3, nBas, nGSSH, nDel) result(typeidx)
+      function RAS_get_typeidx(
+     &    nFro, nIsh, nRs1, nRs2, nRs3, nBas, nDel) result(typeidx)
         implicit none
         integer, intent(in) ::  nFro(:), nIsh(:), nRs1(:), nRs2(:),
-     &    nRs3(:), nBas(:), nGSSH(:, :), nDel(:)
+     &    nRs3(:), nBas(:), nDel(:)
         integer :: typeidx(7, 8)
 
-        typeidx(:, :nSym) = 0
 
         typeidx(1, :nSym) = nFro(:nSym)
         typeidx(2, :nSym) = nIsh(:nSym)
-        if (.not. iDoGAS) then
-          typeidx(3, :nSym) = nRS1(:nSym)
-          typeidx(4, :nSym) = nRS2(:nSym)
-          typeidx(5, :nSym) = nRS3(:nSym)
-        else
-          typeidx(4, :nSym) = sum(nGssh(1:nGAS, :nSym), dim=1)
-        end if
+        typeidx(3, :nSym) = nRS1(:nSym)
+        typeidx(4, :nSym) = nRS2(:nSym)
+        typeidx(5, :nSym) = nRS3(:nSym)
         typeidx(7, :nSym) = nDel(:nSym)
-        typeidx(6, :nSym) = nBas(:nSym) - sum(typeidx(:, :nSym), dim=1)
-      end function get_typeidx
 
+        typeidx(6, :nSym) = 0
+        typeidx(6, :nSym) = nBas(:nSym) - sum(typeidx(:, :nSym), dim=1)
+      end function RAS_get_typeidx
+
+      function GAS_get_typeidx(
+     &      nFro, nIsh, nGSSH, nBas, nDel) result(typeidx)
+        implicit none
+        integer, intent(in) ::
+     &    nFro(:), nIsh(:), nBas(:), nGSSH(:, :), nDel(:)
+        integer :: typeidx(7, 8)
+
+        typeidx(1, :nSym) = nFro(:nSym)
+        typeidx(2, :nSym) = nIsh(:nSym)
+        typeidx(3, :nSym) = 0
+        typeidx(4, :nSym) = sum(nGssh(1:nGAS, :nSym), dim=1)
+        typeidx(5, :nSym) = 0
+        typeidx(7, :nSym) = nDel(:nSym)
+
+        typeidx(6, :nSym) = 0
+        typeidx(6, :nSym) = nBas(:nSym) - sum(typeidx(:, :nSym), dim=1)
+      end function GAS_get_typeidx
       end module write_orbital_files
