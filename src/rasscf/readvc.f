@@ -71,7 +71,7 @@
      &  JobIph, nSSH, maxbfn, mXAct
 
       use orthonormalization, only : t_ON_scheme, ON_scheme_values,
-     &  orthonormalize, v_orthonormalize
+     &  orthonormalize, v_orthonormalize, ONCMO
 
       implicit none
 
@@ -527,7 +527,8 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
       if (scheme%val /= ON_scheme_values%no_ON) then
         call mma_allocate(CMOO, nTot2)
         CMOO(:nTot2) = CMO(:nTot2)
-        CALL ONCMO(CMOO, CMO)
+!        call ONCMO(CMOO(:nTot2), CMO(:nTot2))
+        CMO(:nTot2) = v_orthonormalize(CMOO(:nTot2), scheme)
         call mma_deallocate(CMOO)
 
 !        write(*, *) 'Orthonormalize pew 1'
