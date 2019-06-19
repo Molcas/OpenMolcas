@@ -9,15 +9,23 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine ONCMO(CMO1,CMO2)
-      Implicit Real*8 (A-H,O-Z)
-      Dimension CMO1(*),CMO2(*)
-#include "rasdim.fh"
+      use general_data, only :
+     &    nSym, nBAs, nDel, nActEl, nDelt, nSSH, nDel, nOrb
+      use rasscf_data, only :
+     &    nSec, nTOT3, nTOT4, Tot_Nuc_Charge, nFr, nIn, nOrbT
+      implicit none
+      real*8, intent(in) :: CMO1(*)
+      real*8, intent(out) :: CMO2(*)
 #include "warnings.fh"
-#include "rasscf.fh"
-#include "general.fh"
 #include "output_ras.fh"
-      Parameter (ROUTINE='ONCMO   ')
 #include "WrkSpc.fh"
+      integer :: DDOT_
+      integer :: iPRLEV, nBM, NOM, NSBUF, iSYM, nB, nO, LSBUF, LSMAT,
+     &    LSCTMP, LOVL, i_Rc, i_Opt, i_Component, i_SymLbl,
+     &    xMol_Charge, nDSAVe, NNEGSS, ip_SBUF, ip_CMO, NNEW,
+     &    IOLD, IPOLD, IPNEW, NREMOV, ND, NS, NDNEW, NSNEW
+      real*8 :: XNRM2, XSCL
+      Parameter (ROUTINE='ONCMO   ')
       Call qEnter('ONCMO')
 
 C Local print level (if any)
