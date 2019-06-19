@@ -13,6 +13,7 @@
       Subroutine Proc_Inp(DSCF,Info,lOPTO,iRc)
 
       use stdalloc, only : mma_allocate, mma_deallocate
+      use fortran_strings, only : to_upper
 #ifdef _DMRG_
 ! module dependencies
       use qcmaquis_interface_environment, only: initialize_dmrg
@@ -23,7 +24,7 @@
       use fcidump, only : DumpOnly
       use fcidump_reorder, only : ReOrInp, ReOrFlag
       use fciqmc, only : DoEmbdNECI, DoNECI
-      use orthonormalization, only : ON_scheme
+      use orthonormalization, only : ON_scheme, ON_scheme_values
       use fciqmc_make_inp, only : trial_wavefunction, pops_trial,
      &  t_RDMsampling, RDMsampling,
      &  totalwalkers, Time, nmCyc, memoryfacspawn,
@@ -129,6 +130,8 @@
       Character*(2*72) lJobH2
 
       integer :: start, step, length
+
+      character(50) :: ON_scheme_inp
 
 #ifdef _DMRG_
 !     dmrg(QCMaquis)-stuff
@@ -1900,7 +1903,15 @@ C orbitals accordingly
       if (KeyONSC) then
         call setpos(luinput,'ONSC',line,irc)
         if(irc.ne._RC_ALL_IS_WELL_) goto 9810
-        read(luinput,*,end=9910,err=9920) ON_scheme%val
+        read(luinput,*,end=9910,err=9920) ON_scheme_inp
+        select case (to_upper(trim(ON_scheme_inp)))
+          case ('LOWDIN')
+            ON_scheme%val = ON_scheme_values%Lowdin
+          case ('GRAHM_SCHMIDT')
+            ON_scheme%val = ON_scheme_values%Grahm_Schmidt
+          case ('No_ON')
+            ON_scheme%val = ON_scheme_values%No_ON
+        end select
       end if
 *---  Process NECI commands -------------------------------------------*
       if (KeyNECI) then

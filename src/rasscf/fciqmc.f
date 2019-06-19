@@ -166,8 +166,8 @@
         call make_fcidumps(orbital_E, folded_Fock, TUVX, EMY)
       end if
 
-! NOTE: Add fourth argument OCC.
-! If the Occupation number is written properly as well.
+! TODO(Oskar): Add fourth argument OCC
+!   If the Occupation number is written properly as well.
       call write_OrbFile(CMO, orbital_E, iDoGas)
 
 ! Run NECI
@@ -418,6 +418,7 @@
           typeidx = get_typeidx(nFro, nIsh, nGSSH, nBas, nDel)
         endif
 
+! TODO(Oskar): Implement proper occupation number reading.
         call mma_allocate(occ_number, nTot)
         occ_number(:) = 1.d0
         call WrVec(filename, file_id, 'COIE', nSym, nBas, nBas,

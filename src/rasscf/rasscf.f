@@ -61,6 +61,8 @@
       use fciqmc, only : FCIQMC_ctl, DoNECI, fciqmc_cleanup => cleanup
       use fcidump, only : make_fcidumps, transform, DumpOnly
 
+      use orthonormalization, only : ON_scheme
+
       Implicit Real*8 (A-H,O-Z)
 
 #include "WrkSpc.fh"
@@ -393,7 +395,7 @@
 * of secondary/deleted orbitals, affecting some of the global
 * variables: NSSH(),NDEL(),NORB(),NTOT3, etc etc
       Call ReadVc(Work(LCMO),Work(lOCCN),
-     &             WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA))
+     & WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),ON_scheme)
 * Only now are such variables finally known.
 
       If ( IPRLEV.ge.DEBUG ) then
