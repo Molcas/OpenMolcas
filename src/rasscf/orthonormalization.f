@@ -11,6 +11,7 @@
 * Copyright (C) 2019, Oskar Weser                                      *
 ************************************************************************
       module orthonormalization
+        use stdalloc, only : mma_allocate, mma_deallocate
         use fortran_strings, only : to_upper
         implicit none
         save
@@ -18,7 +19,7 @@
         public ::
      &    t_ON_scheme, ON_scheme, ON_scheme_values,
      &    t_procrust_metric, procrust_metric, metric_values,
-     &    orthonormalize, procrust
+     &    orthonormalize, procrust, v_orthonormalize
 
         type :: t_ON_scheme_values
           integer ::
@@ -51,19 +52,34 @@
 
       contains
 
-      function orthonormalize(A, S, scheme) result(ONB)
+      function orthonormalize(A, scheme) result(ONB)
         real*8, intent(in) :: A(:, :)
-        real*8, intent(in), optional :: S(:, :)
         type(t_ON_scheme), intent(in) :: scheme
-        real*8 :: ONB
+        real*8, allocatable :: ONB(:, :), ONB_v(:)
+
+        call mma_allocate(ONB, size(A, 1), size(A, 2))
+        call mma_allocate(ONB_v, size(A, 1)**2)
 
         select case (scheme%val)
           case(ON_scheme_values%Lowdin)
           case(ON_scheme_values%Grahm_Schmidt)
-          case default
-!            abort_
+            call ONCMO(pack(A, .true.), ONB_v)
+            ONB = reshape(ONB_v, shape(A))
         end select
-        ONB = 1.d0
+
+        call mma_deallocate(ONB_v)
+      end function
+
+      function v_orthonormalize(CMO, scheme) result(ONB)
+        real*8, intent(in) :: CMO(:)
+        type(t_ON_scheme), intent(in) :: scheme
+        real*8 :: ONB(size(CMO))
+
+        select case (scheme%val)
+          case(ON_scheme_values%Lowdin)
+          case(ON_scheme_values%Grahm_Schmidt)
+            call ONCMO(CMO, ONB)
+        end select
       end function
 
 !>  Return an orthogonal transformation to make A match B as closely as possible.

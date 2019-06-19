@@ -11,7 +11,7 @@
 * Copyright (C) 1998, Markus P. Fuelscher                              *
 *               2018, Ignacio Fdez. Galvan                             *
 ************************************************************************
-      Subroutine ReadVC(CMO,OCC,D,DS,P,PA)
+      Subroutine ReadVC(CMO,OCC,D,DS,P,PA,scheme)
 ************************************************************************
 *                                                                      *
 *     purpose:                                                         *
@@ -70,8 +70,8 @@
      &  nTot, nTot2, Invec, LuStartOrb, StartOrbFile, JobOld,
      &  JobIph, nSSH, maxbfn, mXAct
 
-      use orthonormalization, only : ON_scheme, ON_scheme_values,
-     &  orthonormalize
+      use orthonormalization, only : t_ON_scheme, ON_scheme_values,
+     &  orthonormalize, v_orthonormalize
 
       implicit none
 
@@ -87,6 +87,7 @@
       Common /IDSXCI/ IDXCI(mxAct),IDXSX(mxAct)
 
       real*8 :: CMO(*),OCC(*),D(*),DS(*),P(*),PA(*)
+      type(t_ON_scheme), intent(in) :: scheme
 
       logical :: found, changed
       integer :: iPrlev, nData, ifvb,
@@ -523,12 +524,18 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
       If(PURIFY(1:4).eq.'ATOM') CALL SPHPUR(CMO)
 
 *     orthogonalize the molecular orbitals
-      if (ON_scheme%val /= ON_scheme_values%no_ON) then
+      if (scheme%val /= ON_scheme_values%no_ON) then
         call mma_allocate(CMOO, nTot2)
         CMOO(:nTot2) = CMO(:nTot2)
         CALL ONCMO(CMOO, CMO)
         call mma_deallocate(CMOO)
-!        CMO(:nTot2) = orthonormalize(CMO(:nTot2), ON_scheme)
+
+!        write(*, *) 'Orthonormalize pew 1'
+!        CMO(:nTot2) = v_orthonormalize(CMO(:nTot2), scheme)
+!!     &    pack(orthonormalize(reshape(CMO(:nTot2), [nTot2, nTot2]),
+!!     &                        scheme),
+!!     &         .true.)
+!        write(*, *) 'Orthonormalize pew 2'
       end if
 
 *     save start orbitals
