@@ -131,6 +131,9 @@ C for details
 C
 C Note that we work on the x, y, and z components at this time.
 C
+C What follows applies only to the exact operator for the
+C transition moment.
+C
 C On page 234 we have the notation V^{AB}(x), that is the
 C potential has Cartesian components. Here, however, this is
 C partitioned in a slightly different way since we have that
@@ -141,7 +144,6 @@ C Hence, we will compute the contributions to T(i), i=x,y,z
 C here and form the inner product
 C (k x e_l)_i V^{AB} . T(i)
 C outside the code.
-C
 C
 C Note that this code stricktly follows the code of soeig.f where
 C the term L.S is added to the Hamiltonian.
