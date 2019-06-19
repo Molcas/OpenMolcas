@@ -58,6 +58,7 @@
 *                                                                      *
 ************************************************************************
       use stdalloc, only : mma_allocate, mma_deallocate
+      use fortran_strings, only : to_upper
 
       use rasscf_data, only : lRoots, nRoots,
      &  iRoot, LENIN8, mxTit, Weight, mXOrb, mXroot,
@@ -68,6 +69,9 @@
      &  nDel, nBas, nOrb,
      &  nTot, nTot2, Invec, LuStartOrb, StartOrbFile, JobOld,
      &  JobIph, nSSH, maxbfn, mXAct
+
+      use orthonormalization, only : ON_scheme, ON_scheme_values,
+     &  orthonormalize
 
       implicit none
 
@@ -82,7 +86,7 @@
 #include "raswfn.fh"
       Common /IDSXCI/ IDXCI(mxAct),IDXSX(mxAct)
 
-      real*8, intent(in) :: CMO(*),OCC(*),D(*),DS(*),P(*),PA(*)
+      real*8 :: CMO(*),OCC(*),D(*),DS(*),P(*),PA(*)
 
       logical :: found, changed
       integer :: iPrlev, nData, ifvb,
@@ -519,10 +523,13 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
       If(PURIFY(1:4).eq.'ATOM') CALL SPHPUR(CMO)
 
 *     orthogonalize the molecular orbitals
-      call mma_allocate(CMOO, nTot2)
-      CMOO(:nTot2) = CMO(:nTot2)
-      CALL ONCMO(CMOO, CMO)
-      call mma_deallocate(CMOO)
+      if (ON_scheme%val /= ON_scheme_values%no_ON) then
+        call mma_allocate(CMOO, nTot2)
+        CMOO(:nTot2) = CMO(:nTot2)
+        CALL ONCMO(CMOO, CMO)
+        call mma_deallocate(CMOO)
+!        CMO(:nTot2) = orthonormalize(CMO(:nTot2), ON_scheme)
+      end if
 
 *     save start orbitals
 

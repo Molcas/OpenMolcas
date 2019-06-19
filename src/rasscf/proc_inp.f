@@ -23,6 +23,7 @@
       use fcidump, only : DumpOnly
       use fcidump_reorder, only : ReOrInp, ReOrFlag
       use fciqmc, only : DoEmbdNECI, DoNECI
+      use orthonormalization, only : ON_scheme
       use fciqmc_make_inp, only : trial_wavefunction, pops_trial,
      &  t_RDMsampling, RDMsampling,
      &  totalwalkers, Time, nmCyc, memoryfacspawn,
@@ -1895,6 +1896,11 @@ C orbitals accordingly
      & 'for orbital reordering has to be specified.')
           GoTo 9930
         end if
+      end if
+      if (KeyONSC) then
+        call setpos(luinput,'ONSC',line,irc)
+        if(irc.ne._RC_ALL_IS_WELL_) goto 9810
+        read(luinput,*,end=9910,err=9920) ON_scheme%val
       end if
 *---  Process NECI commands -------------------------------------------*
       if (KeyNECI) then
