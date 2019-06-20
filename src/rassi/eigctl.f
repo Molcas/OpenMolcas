@@ -2085,7 +2085,11 @@ C And the same for the Dyson amplitudes
                   C_ikjl=C_ik*EigVec(j,L)
                   If (Abs(C_ikjl).gt.1.0D-14) Then
                      If (Get_TDS) Then
-                        Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
+                        If (iDisk.gt.0) Then
+                           Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
+                        Else
+                           Call FZero(Work(LSCR),4*NSCR)
+                        End If
                         Get_TDS=.False.
                      End If
                      kl=K*(K-1)/2+L
@@ -2106,7 +2110,17 @@ C And the same for the Dyson amplitudes
             JSTATE=MIN(i,j)
             ij=ISTATE*(ISTATE-1)/2+JSTATE
             iDisk=iWork(liTocM+ij-1)
-            Call dDaFile(LuToM,1,TDS(1,ij),4*NSCR,iDisk)
+            If (iDisk.ge.0) Then
+               Call dDaFile(LuToM,1,TDS(1,ij),4*NSCR,iDisk)
+            Else
+*              This should probably never happen
+               dNorm=dDot_(4*NSCR,TDS(1,ij),1,TDS(1,ij),1)
+               If (dNorm.gt.0.0d0) Then
+                  Write(6,*) 'A transition density matrix should be '//
+     &                       'zero, but it is not.'
+                  Call AbEnd()
+               End If
+            End If
          END DO
       END DO
       Call mma_DeAllocate(TDS)
@@ -2344,7 +2358,11 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
                      JSTATE=MIN(i,j)
                      ij=ISTATE*(ISTATE-1)/2+JSTATE
                      iDisk=iWork(liTocM+ij-1)
-                     Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
+                     If (iDisk.gt.0) Then
+                        Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
+                     Else
+                        Call FZero(Work(LSCR),4*NSCR)
+                     End If
                DO IPRP = 1,12
                   IPROP=IPRTMOM(IPRP)
                   ITYPE=0

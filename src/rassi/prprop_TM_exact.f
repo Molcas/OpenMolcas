@@ -511,7 +511,11 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                      JSTATE=min(ISS,JSS)
                      ij=ISTATE*(ISTATE-1)/2+JSTATE
                      iDisk=iWork(liTocM+ij-1)
-                     Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
+                     If (iDisk.gt.0) Then
+                        Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
+                     Else
+                        Call FZero(Work(LSCR),4*NSCR)
+                     End If
 *
 *                    Compute the transition property of the property
 *                    integrals between the two states.
