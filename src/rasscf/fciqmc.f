@@ -15,6 +15,9 @@
 #ifdef _MOLCAS_MPP_
       use MPI
 #endif
+#ifdef NAGFOR
+      use f90_unix_proc, only : sleep
+#endif
       use filesystem, only : chdir_, getcwd_, get_errno_, strerror_
       use fortran_strings, only : str
       use stdalloc, only : mma_allocate, mma_deallocate

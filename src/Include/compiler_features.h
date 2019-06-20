@@ -71,3 +71,9 @@ incomplete.
 #define TRAILING_ZEROS
 #endif
 
+/* c_ptr binding */
+#if (NAGFOR && __NAG_COMPILER_RELEASE < 61 )
+#undef C_PTR_BINDING
+#else
+#define C_PTR_BINDING
+#endif
