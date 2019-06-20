@@ -316,15 +316,17 @@
         end if
       Enddo
 
-*      call dcopy_(nConf1,Zero,0,Work(ipIn(ipst)),1)
+*     all GetMem('FockTt','Free','Real',ipFMO2t,nacpr2)
 
       Call DSCAL_(nconf1*nroots,-2.0d0,Work(ipin(ipST)),1)
+      debug=.true.
       if (debug) then
       write(6,*) 'RHS CI part:'
       do iS=1,nconf1*nroots
         write(6,*) Work(ipin(ipST)-1+iS)
       end do
       end if
+      debug=.false.
 
       Call GetMem('FockO ','Free','Real',ipFMO1,ndens2)
       Call GetMem('FockT ','Free','Real',ipFMO2,n2dens)
@@ -455,6 +457,154 @@
 *      do i=1,nconf1*nroots
 *        write(*,*) Work(ipin(ipst)-1+i),Work(ipin(ipcid)-1+i)
 *      end do
+********************
+*TRS
+* Here I am  subtracting the cjicjizij from the zii
+*          if(.false.) then
+       Call GetMem('lmroots','Allo','Real',lmroots,nroots)
+       Call GetMem('ipst_prime', 'Allo','Real',ipst_prime,nconf1)
+       Call GetMem('lmroots_new','Allo','Real',lmroots_new,nroots)
+       Call GetMem('kap_new','Allo','Real',kap_new,ndensc)
+       Call GetMem('kap_new_temp','Allo','Real',kap_new_temp,ndens)
+*
+      call Dcopy(ndens,Zero,
+     &     0,work(kap_new_temp),1)
+*
+      call Dcopy(ndensc,Zero,
+     &     0,work(kap_new),1)
+*
+       call Dcopy(nconf1,work(ipin(ipst)+(irlxroot-1)*nconf1),
+     &     1,work(ipst_prime),1)
+*
+        Call DgeMV_('T', nconf1, nroots, 1.0d0, work(ipin(ipci)),
+     & nconf1,work(ipin(ipcid)+(irlxroot-1)*nconf1),
+     & 1,0.0d0,work(lmroots),1)
+*
+      write(*,*) 'lmroots'
+       do i=1,nroots
+        write(*,*) work(lmroots-1+i)
+      end do       
+*
+        call dgemv_('N', nconf1, nroots, 1.0d0, work(ipin(ipci)), 
+     & nconf1, work(lmroots),1,0.0d0,
+     & work(ipin(ipcid)+(irlxroot-1)*nconf1),1) 
+*
+      write(*,*) 'ipcd'
+      do i=1,nroots*nconf1
+        write(*,*) work(ipin(ipcid)-1+i)
+      end do
+*
+        Call daxpy(nconf1,-1.0d0,work(ipin(ipcid)+(irlxroot-1)*nconf1),
+     &             1,work(ipst_prime),1) 
+      write(*,*) 'ipst_pime'
+      do i=1,nconf1
+        write(*,*) work(ipst_prime-1+i)
+      end do
+*
+       do i=0, nroots-1
+       if (i.eq.(irlxroot-1)) then
+       work(lmroots_new+i)=0.0d0
+       else
+         diff=(ERASSCF(i+1)-ERASSCF(irlxroot))
+         write(*,*) 'diff',diff
+         wscale =(2.0d0/(diff))*(weight(i+1))
+         write(*,*)'wscale',wscale        
+        work(lmroots_new+i)= wscale*work(lmroots+i)
+       end if
+       end do
+*
+      write(*,*) 'lmroots_new'
+       do i=1,nroots
+        write(*,*) work(lmroots_new-1+i)
+      end do
+*
+        call dgemv_('N', nconf1, nroots, 1.0d0, work(ipin(ipci)),
+     &  nconf1, work(lmroots_new),1,0.0d0,
+     &  work(ipin(ipcid)+(irlxroot-1)*nconf1),1)
+*
+         write(*,*) 'ipcd'
+         do i=1,nroots*nconf1
+           write(*,*) work(ipin(ipcid)-1+i)
+         end do                 
+
+        Call daxpy(nconf1,-1.0d0,work(ipin(ipcid)+(irlxroot-1)*nconf1),
+     &             1,work(ipst_prime),1)
+*
+*        call dcopy_(nconf1*nroots,work(ipin(ipcid)),1,
+*     &       work(ipin(ipcit)),1)
+*           if (.false.) then
+          Call TimesE2_(work(kap_new),ipCId,1,reco,jspin,ipS2,
+     &                work(kap_new_temp),ipS1)
+
+          write(*,*) 'ips1'
+         do i=1,nroots*nconf1
+           write(*,*) work(ipin(ips1)-1+i)
+         end do
+*       Call DaXpY_(nConf1*nroots,1.0,Work(ipIn(ipCId)),1,
+*     &                                   Worik(ipIn(ipCIT)),1)
+        Call DgeMV_('T', nconf1, nroots, 1.0d0, work(ipin(ipci)),
+     & nconf1,work(ipin(ipst)+(irlxroot-1)*nconf1),
+     & 1,0.0d0,work(lmroots),1)
+*
+      write(*,*) 'lmroots_ipst this should be 1lmroots'
+       do i=1,nroots
+        write(*,*) work(lmroots-1+i)
+       end do
+        Call DgeMV_('T', nconf1, nroots, 1.0d0, work(ipin(ipci)),
+     & nconf1,work(ipin(ips1)+(irlxroot-1)*nconf1),
+     & 1,0.0d0,work(lmroots),1)
+*
+      write(*,*) 'lmroots_ips1 thisshould be -lmroots'
+       do i=1,nroots
+        write(*,*) work(lmroots-1+i)
+       end do
+       Call DaXpY_(nConf1*nroots,-1.0d0,Work(ipIn(ipS1)),1,
+     &                                    Work(ipIn(ipST)),1)
+*
+*
+      Call DaxPy_(nDensC,-1.0d0,Work(kap_new_temp),1,Work(ipSigma),1)
+*          end if
+*
+       Call DaXpY_(nConf1*nroots,1.0d0,Work(ipIn(ipCId)),1,
+     &                                   Work(ipIn(ipCIT)),1)
+*
+       Call dcopy_(nconf1*nroots,Work(ipin(ipst)),
+     &   1,Work(ipin(ipcid)),1)
+*
+         irc=opOut(ipci)
+         irc=opOut(ipdia)
+*
+         Call DMInvKap(Work(ipIn(ipPre2)),Work(ipSigma),nDens2+6,
+     &                 Work(ipSc2),nDens2+6,Work(ipSc1),nDens2+6,
+     &                 iSym,iter)
+         irc=opOut(ippre2)
+            Call DaXpY_(nDensC,One,Work(ipSc2),1,Work(ipdKap),1)
+*
+*      call Dcopy(nconf1*nroots,Zero,
+*     &     0,work(ipin(ips1)),1)
+*
+*       call Dcopy(nconf1*nroots,Zero,
+*     &     0,work(ipin(ips2)),1)
+*
+*        call dcopy_(nconf1,work(ipst_prime),1,
+*     &       work(ipin(ipcit)+(irlxroot-1)*nconf1),1)
+       Call GetMem('kap_new','Free','Real',kap_new,ndensc)
+       Call GetMem('kap_new_temp','Free','Real',kap_new_temp,ndens)
+       Call GetMem('lmroots_new','Free','Real',lmroots_new,nroots)
+        Call GetMem('ipst_prime', 'Free','Real',ipst_prime,nconf1)
+*        Call GetMem('lmroots','Free','Real',lmroots,nroots)
+*        end if 
+*TRS
+**********************
+        Call DgeMV_('T', nconf1, nroots, 1.0d0, work(ipin(ipci)),
+     & nconf1,work(ipin(ipst)+(irlxroot-1)*nconf1),
+     & 1,0.0d0,work(lmroots),1)
+*
+      write(*,*) 'lmroots_ipst this should be zero'
+       do i=1,nroots
+        write(*,*) work(lmroots-1+i)
+       end do
+       Call GetMem('lmroots','Free','Real',lmroots,nroots)
 *
 *
       If (CI) Then
@@ -509,6 +659,10 @@
      &                              Work(ipIn(ipCId)),1)
 *
          rAlpha=delta/(rAlphaK+rAlphaC)
+         write(*,*) 'ralpha',ralpha
+         write(*,*) 'delta', delta 
+         write(*,*) 'alphak', ralphaK
+         write(*,*) 'alphac', ralphac
 *
 *-------------------------------------------------------------------*
 *
@@ -540,8 +694,8 @@
 *
          Call DMinvCI_sa(ipST,Work(ipIn(ipS2)),rCHC,isym,work(ipS))
 *REMOVING CI PREC
-         Call dcopy_(nconf1*nroots,Work(ipin(ipst)),1,
-     &   Work(ipin(ips2)),1)
+*         Call dcopy_(nconf1*nroots,Work(ipin(ipST)),1,
+*     &   Work(ipin(ips2)),1)
 *
          irc=opOut(ipci)
          irc=opOut(ipdia)
