@@ -64,13 +64,6 @@
        end function
 #endif
 
-      function strerror_c(errno) bind(C, name="strerror")
-          use, intrinsic :: iso_c_binding
-          implicit none
-          integer(C_INT), value :: errno
-          type(c_ptr) :: strerror_c
-      end function
-
       subroutine remove_c(path, err) bind(C, name="remove_wrapper")
         use, intrinsic :: iso_c_binding
         integer(kind=MOLCAS_C_INT), intent(out) :: err
