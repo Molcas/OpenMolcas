@@ -667,14 +667,14 @@ c Avoid unused argument warnings
          Call mma_Allocate(dqp,nInter,Label='dqp')
          Call mma_Allocate(dqm,nInter,Label='dqm')
          Scale=0.01D0
-#define _PRINT_
+*define _PRINT_
 #ifdef _PRINT_
          Call RecPrt('qInt',' ',qInt(1,kIter),nInter,1)
          Call RecPrt('Grad',' ',Grad(1,kIter),nInter,1)
 #endif
          Do iInter = 1, nInter
             qInt_Save= qInt(iInter,kIter)
-            Delta = 1.0e1!Max(Abs(qInt_Save),1.0D-5)*Scale
+            Delta = Max(Abs(qInt_Save),1.0D-5)*Scale
 #ifdef _PRINT_
             Write (6,*) 'iInter,Delta=',iInter,Delta
 *
@@ -684,7 +684,7 @@ c Avoid unused argument warnings
 *           Write (6,*) 'Energy=',E_test
             Call Gradient_Kriging(qInt(1,kIter),dqp,nInter)
 #ifdef _PRINT_
-            Call RecPrt('dq0',' ',dqp,nInter,1)
+            ! Call RecPrt('dq0',' ',dqp,nInter,1)
 #endif
 *
             qInt(iInter,kIter)=qInt_Save+Delta
@@ -707,15 +707,16 @@ c Avoid unused argument warnings
             Call Gradient_Kriging(qInt(1,kIter),dqm,nInter)
 #ifdef _PRINT_
             Call RecPrt('dqm',' ',dqm,nInter,1)
+            Call RecPrt('Hessian(0)',' ',Hessian,nInter,1)
 #endif
 *
             Do jInter = 1, nInter
                Fact = Half
                If (iInter.eq.jInter) Fact = One
                Hessian(iInter,jInter) = Hessian(iInter,jInter)
-     &                + Fact*(dqp(jInter)-dqm(jInter))/(Two*Delta)
+     &            + Fact*(dqp(jInter)-dqm(jInter))/(Two*Delta)!two
                Hessian(jInter,iInter) = Hessian(jInter,iInter)
-     &                + Fact*(dqp(jInter)-dqm(jInter))/(Two*Delta)
+     &            + Fact*(dqp(jInter)-dqm(jInter))/(Two*Delta)!two
             End Do
 *
             qInt(iInter,kIter)=qInt_Save
@@ -726,6 +727,14 @@ c Avoid unused argument warnings
          Hess_Type='AnalHess'
          Call DCopy_(nInter,1.0D-2,0,Hessian,nInter+1)
          Call Hessian_Kriging(qInt(1,kIter),Hessian,nInter)
+         Do iInter = 1, nInter
+            Do jInter = 1, nInter
+               Fact = Half
+               If (iInter.eq.jInter) Fact = One
+               Hessian(iInter,jInter) = Fact*Hessian(iInter,jInter)
+               Hessian(jInter,iInter) = Fact*Hessian(jInter,iInter)
+            end do
+         enddo
 #endif
          iNeg(1)=0
          iNeg(2)=0
@@ -733,6 +742,7 @@ c Avoid unused argument warnings
       Else
          Call Mk_Hss_Q()
          Call Get_dArray('Hss_Q',Hessian,nInter**2)
+         Hess_Type = 'NormHess'
 *
 *        Perform the Hessian update
 *
@@ -752,12 +762,14 @@ c Avoid unused argument warnings
       End If
 #define _PRINT_HESSIAN_
 #ifdef _PRINT_HESSIAN_
+         Call RecPrt(Hess_Type,'(6F10.4)',Hessian,nInter,nInter)
          if (Kriging_Hessian) then
-            Call RecPrt(Hess_Type,'(6F10.4)',Hessian,nInter,nInter)
+            ! Call RecPrt(Hess_Type,'(6F10.4)',Hessian,nInter,nInter)
             Call Hessian_Kriging(qInt(1,kIter),difH,nInter)
             Call RecPrt('Hessian Kriging','(6F10.4)',difH,nInter,nInter)
-            difH = difH - Hessian
+            difH = difH/Hessian
             Call RecPrt('Dif Hessians','(6F10.4)',difH,nInter,nInter)
+            ! Call RecPrt('Hessian Kriging with facto','(6F10.4)',Hessian,nInter,nInter)
          endif
 #endif
 *

@@ -502,7 +502,11 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *      Analitical or numerical Mat'ern derivatives
 *
 101   Char=Get_Ln(LuRd)
-      If (Char.eq.'False'.or.Char.eq.'false') anAI = .False.
+      If (Char.eq.'False'.or.Char.eq.'false') then
+            anAI = .False.
+      Else
+            anAI = .True.
+      EndIf
       Go To 999
 *                                                                      *
 ****** AIL  ************************************************************
@@ -527,7 +531,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *
 104   Char=Get_Ln(LuRd)
       Call Get_F1(1,pAI)
-      If(pAI.gt.2.or.pAI.lt.1) anAI = .False.
+      If(pAI.gt.3.or.pAI.lt.1) anAI = .False.
       Go To 999
 *                                                                      *
 ****** AISP ************************************************************

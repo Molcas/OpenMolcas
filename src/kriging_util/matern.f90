@@ -39,8 +39,9 @@
                 t=sqrt(2.0*pAI+1)
                 dh = sqrt(d)
                 c=(2.0*pAI+1)/(2.0*pAI-1)*exp(-t*dh)
-                if (pAI.gt.2.or.pAI.lt.1) then
-                    Write(6,*) 'Analytical Matern derivatives (anamat=.True.) is only valid for pAI = 1 or 2 (v = 3/2 or 5/2)'
+                if (pAI.gt.3.or.pAI.lt.1) then
+                    Write(6,*) 'Analytical Matern derivatives (anamat=.True.)'
+                    Write(6,*) 'is only valid for pAI = 1, 2 and 3(v = 3/2, 5/2 and 7/2)'
                 else
                     select case (p0)
                         case (1)
@@ -62,9 +63,21 @@
                                     m = merge(-5.0/8.0*t/dh,dh,dh.ne.0)*c
                                     ! write (6,*) '3th der dh',dh
                             end select
+                        case (3)
+                            ! write (6,*) 'Analitical Matern derivatives num',nd
+                            select case (nd)
+                                case (1)
+                                    m =-c*(1.0+t*dh+dh**2)/2.0
+                                case (2)
+                                    m = c*7.0*(1+t*dh)/12.0
+                                case (3)
+                                    m = -c*49.0/24.0
+                                    ! write (6,*) '3th der dh',dh
+                            end select
                     end select
                 endif
             else
+                ! write (6,*) 'Numerical Matern derivatives num',nd
                 nr = real(nd)
                 a = Gamma(nr+1.0)/h**nd
                 b = 0.0
