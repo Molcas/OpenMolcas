@@ -1,0 +1,106 @@
+>>export MOLCAS_NOCHECK=MLTPL,DFT_ENERGY,SCF_ITER
+
+>> FILE br2.xyz
+2
+
+Br    -3.64283598     0.41879691    -0.04401486
+Br    -1.30200916     0.44717071    -0.07759528
+>> EOF
+>> COPY br2.xyz .
+
+>> FILE h2o.xyz
+3
+
+O    -6.42413461     0.38143709     0.01546786
+H    -6.77641413    -0.38340922     0.49105147
+H    -6.79785612     1.14276451     0.48021082
+>> EOF
+>> COPY h2o.xyz .
+
+*********************************
+* Generation of Rho_B           *
+*********************************
+
+&GATEWAY
+title = (Br2)---H2O, Subsystem B
+coord = br2.xyz
+coord = h2o.xyz
+bsse = 1
+basis = ANO-RCC-VDZP
+NOMOVE
+GROUP
+NOSYM
+RICD
+End Of Input
+
+&SEWARD
+End Of Input
+
+&SCF
+Title = HF for H2O subsystem
+Charge = 0
+End Of Input
+
+>>> COPY $Project.RunFile AUXRFIL
+
+*********************************
+* Generation of Rho_A_ref       *
+*********************************
+
+&GATEWAY
+Title = Br2---(H2O), Subsystem A
+coord = br2.xyz
+coord = h2o.xyz
+basis = ANO-RCC-VDZP
+bsse = 2
+NOMOVE
+GROUP
+NOSYM
+RICD
+End Of Input
+
+&SEWARD
+Fake ricd
+End Of Input
+
+&RASSCF
+title = isolated CASSCF Sub A
+nactel = 8 0 0
+inactive = 31
+ras2 = 5
+spin = 1
+CIONLY
+ciroot = 3 3
+1 2 3
+1 0 0
+orblisting = nothing
+End Of Input
+
+>>> COPY $Project.RunFile PRERFIL
+
+*********************************
+* Embedded CAS-CI               *
+*********************************
+
+&RASSCF
+title = CAS-CI for Subsystem A
+fileorb = $Project.RasOrb
+nactel = 8 0 0
+inactive = 31
+ras2 = 5
+spin = 1
+CIONLY
+ciroot = 3 3
+1 2 3
+1 1 1
+OFEMBEDDING
+ldtf/pbe
+orblisting = nothing
+End Of Input
+
+&CASPT2
+title = caspt2 for Subsystem A
+multistate = 3 1 2 3
+ofembedding
+ghost = 0.1
+End Of Input
