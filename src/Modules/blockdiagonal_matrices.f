@@ -2,7 +2,8 @@
         use stdalloc, only : mma_allocate, mma_deallocate
         implicit none
         private
-        public :: t_blockdiagonal, new, delete
+        public :: t_blockdiagonal, new, delete, fill_from_buffer,
+     &    fill_from_symm_buffer
         save
 
         type :: t_blockdiagonal
@@ -39,6 +40,39 @@
           end do
         end subroutine
 
+        subroutine fill_from_buffer(S_buffer, S)
+          implicit none
+          real*8, intent(in) :: S_buffer(:)
+          type(t_blockdiagonal), intent(inout) :: S(:)
+          integer :: i_block, offset, col, block_size, idx_block
 
+          idx_block = 1
+          do i_block = 1, size(S)
+            block_size = size(S(i_block)%block, 1)
+            do col = 1, block_size
+              offset = idx_block + (col - 1) * block_size
+              S(i_block)%block(:, col) =
+     &          S_buffer(offset : offset - 1 + block_size)
+            end do
+            idx_block = idx_block + (block_size**2)
+          end do
+        end subroutine
+
+        subroutine fill_from_symm_buffer(S_buffer, S)
+          implicit none
+          real*8, intent(in) :: S_buffer(:)
+          type(t_blockdiagonal), intent(inout) :: S(:)
+          integer :: i_block, block_size, idx_block
+
+          idx_block = 1
+          do i_block = 1, size(S)
+            block_size = size(S(i_block)%block, 1)
+            if (block_size > 0) then
+              call square(S_buffer(idx_block), S(i_block)%block,1,
+     &                    block_size, block_size)
+            end if
+            idx_block = idx_block + (block_size**2 + block_size) / 2
+          end do
+        end subroutine
 
       end module blockdiagonal_matrices
