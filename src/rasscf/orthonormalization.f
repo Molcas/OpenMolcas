@@ -14,7 +14,7 @@
         use stdalloc, only : mma_allocate, mma_deallocate
         use fortran_strings, only : to_upper
         use blockdiagonal_matrices, only : t_blockdiagonal, new, delete,
-     &    fill_from_buffer, fill_from_symm_buffer
+     &    fill_from_buffer, fill_from_symm_buffer, fill_to_buffer
 
         implicit none
         save
@@ -186,19 +186,14 @@
       real*8 :: xMol_Charge
       real*8, allocatable :: S_buffer(:), SCTMP(:), OVL(:)
 
+      logical :: inner_loop
+
       real*8 :: XNRM2, XSCL
       Parameter (ROUTINE='ONCMO   ')
-      Call qEnter('ONCMO')
 
-C Local print level (if any)
-      IPRLEV=IPRLOC(1)
-      IF(IPRLEV.ge.DEBUG) THEN
-        WRITE(LF,*)' Entering ',ROUTINE
-      END IF
+      Call qEnter(ROUTINE)
 
-      nBM = maxval(nBas(:nSym))
-      nOM = maxval(nBas(:nSym) - nDel(:nSym))
-      if (NOM == 0) call qExit(routine)
+      if (maxval(nBas(:nSym) - nDel(:nSym)) == 0) call qExit(routine)
 
       oCMO2(:) = oCMO1(:)
       call new(CMO1, blocksizes=nBas(:nSym))
@@ -211,70 +206,56 @@ C Local print level (if any)
       call read_raw_S(S_buffer)
 
       Tot_Nuc_Charge = S_buffer(size_S_buffer + 4)
-      xMol_Charge = Tot_Nuc_Charge - dble(2 * (NFR + NIN) + NACTEL)
+      xMol_Charge = Tot_Nuc_Charge - dble(2 * (nFr + nIn) + nActEl)
       Call put_dscalar('Total Charge    ',xMol_Charge)
       if (iprlev >= usual) then
         write(LF,*)
         write(LF,'(6x,A,f8.2)') 'Total molecular charge',xMol_Charge
-      End If
+      end If
 
       call new(S, blocksizes=nBas(:nSym))
       call fill_from_symm_buffer(S_buffer, S)
 
       call mma_deallocate(S_buffer)
 
-      call mma_allocate(SCTMP, nBM)
-      call mma_allocate(OVL, nBM)
+      call mma_allocate(SCTMP, maxval(nBas(:nSym)))
+      call mma_allocate(OVL, maxval(nBas(:nSym)))
 * Orthonormalize symmetry blocks:
-      NDSAVE = NDELT
-      NNEGSS = 0
-      CMO_block = 1
       do iSym=1, nSym
         nB = nBas(iSym)
         nO = nB - nDel(iSym)
         if (nB > 0 .and. nO > 0) then
 * NNEW=Nr of already orthonormal new CMO''s
-          nNEW = 0
-!          do iPOld = CMO_block, CMO_block + nB * (nO - 1), nB
+          nNew = 0
           do iOld=1, nO
-            IPOLD=CMO_block+NB*(IOLD-1)
-            iPNEW = CMO_block + nB * nNew
-            if (ipnew < ipold) then
-              oCMO2(iPNew : iPNew + nB) = oCMO1(iPOld : iPOld + nB)
+            if (nNew + 1 < iOld) then
               CMO2(iSym)%block(:, nNew + 1) = CMO1(iSym)%block(:, iOld)
             end if
-  10        continue
-!            CALL DGEMM_('N','N',NB,1,NB,1.0D0,S(iSym)%block,NB,
-!     &                 oCMO2(IPNEW),NB,0.0D0,SCTMP,NB)
-!            CALL DGEMM_('N','N',NB,1,NB,1.0D0,S(iSym)%block,NB,
-!     &            CMO2(iSym)%block(:, nNew + 1),NB,0.0D0,SCTMP,NB)
-            SCTMP(:nB) =
-     &          matmul(S(iSym)%block, CMO2(iSym)%block(:, nNew + 1))
-            if (nnew > 0) then
-!              CALL DGEMM_('T','N',NNEW,1,NB,
-!     &                    1.0D0,CMO2(iSym)%block(:, :nNew + 1),NB,
-!     &                    SCTMP, NB, 0.0D0, OVL,NNEW)
-              ovl(:nNew) = matmul(
-     &            transpose(CMO2(iSym)%block(:, :nNew)), sctmp(:nB))
+            inner_loop = .true.
+            do while (inner_loop)
+              SCTMP(:nB) =
+     &            matmul(S(iSym)%block, CMO2(iSym)%block(:, nNew + 1))
+              if (nnew > 0) then
+                ovl(:nNew) = matmul(
+     &              transpose(CMO2(iSym)%block(:, :nNew)), sctmp(:nB))
+                CMO2(iSym)%block(:, nNew + 1) =
+     &              CMO2(iSym)%block(:, nNew + 1)
+     &              - matmul(CMO2(iSym)%block(:, :nNew) , ovl(:nNew))
+              end if
+              xnrm2 = ddot_(nB, SCTMP, 1,
+     &                      CMO2(iSym)%block(:, nNew + 1), 1)
+              if (xnrm2 > 1.0d-10) then
+                call dscal_(nB, 1.0d0 / sqrt(xnrm2),
+     &                      CMO2(isym)%block(:, nNew + 1), 1)
+                inner_loop = xnrm2 < 0.2d0
+              end if
+            end do
+            nNew = nNew + 1
+          end do
 
-!              CALL DGEMM_('N','N',NB,1,NNEW,-1.0D0,oCMO2(CMO_block),NB,
-!     &                  OVL,NNEW,1.0D0,oCMO2(IPNEW),NB)
-
-              CMO2(iSym)%block(:, nNew + 1) =
-     &            CMO2(iSym)%block(:, nNew + 1)
-     &            - matmul(CMO2(iSym)%block(:, :nNew) , ovl(:nNew))
-
-            end if
-            XNRM2 = DDOT_(NB, SCTMP, 1, CMO2(iSym)%block(:, nNew + 1),1)
-!            XSCL = 1.0d0 / sqrt(XNRM2)
-            IF (XNRM2 > 1.0d-10) THEN
-              CALL DSCAL_(NB, 1.0d0 / sqrt(XNRM2),
-     &                    CMO2(iSym)%block(:, nNew + 1), 1)
-              IF(XNRM2 < 0.2d0) GOTO 10
-              NNEW=NNEW+1
-            END IF
-          END DO
-          NREMOV=NO-NNEW
+          NDSAVE = NDELT
+          NNEGSS = 0
+          NREMOV = NO-NNEW
           IF (NREMOV.GT.0) THEN
             ND=NDEL(ISYM)
             NS=NSSH(ISYM)
@@ -309,7 +290,6 @@ C Local print level (if any)
             NSEC =NSEC -NREMOV
             NORBT=NORBT-NREMOV
           END IF
-          CMO_block = CMO_block + nB**2
         End If
       End Do
       IF(NNEGSS.GT.0) CALL QUIT(_RC_GENERAL_ERROR_)
@@ -321,6 +301,8 @@ C Local print level (if any)
 
       call mma_deallocate(SCTMP)
       call mma_deallocate(OVL)
+
+      call fill_to_buffer(CMO2, oCMO2)
       call delete(CMO1)
       call delete(CMO2)
       call delete(S)
