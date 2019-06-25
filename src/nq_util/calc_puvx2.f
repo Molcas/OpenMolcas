@@ -4011,7 +4011,7 @@
       Integer count_tmp
       Real*8 DVX
       real*8 Fact
-      Real*8 time1,time2,interm1,interm2
+      Real*8 time1,time2
       Integer case
       iTrii(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
       iTri(i)=(i*i-i)/2
@@ -10873,8 +10873,8 @@
       Integer count_tmp
       Real*8 DVX
       real*8 Fact
-      Real*8 time1,time2,interm1,interm2
-      Integer iftmpo,izet_stu,sztmp,ipq
+      Real*8 time1,time2
+      Integer iftmpo,sztmp,ipq
       Real*8 junk_test,junk_test_t
       Integer case
       iTrii(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
@@ -11149,6 +11149,7 @@
 
       iFoff=0
       ksym=1
+      junk_test=0d0
       do iSym=1,nSym
         iOrb = nOrb(iSym)
         iAsh = nAsh(iSym)
@@ -11224,6 +11225,7 @@
 !            Work(ifav_n+iFoff+ipq-1) = Work(ifav_n+iFoff+ipq-1) +
 !     &                               DVX*junk_test*dble(nIrrep)
             else
+              junk_test=0
               cycle!skip this gridpt
             end if
           end if
