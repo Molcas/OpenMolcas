@@ -11158,7 +11158,7 @@
         sztmp = iTrii(nOrb(iSym),nOrb(iSym))
         if(iOrb.eq.0) cycle
         CALL GETMEM('TMP_other','ALLO','REAL',iftmpo,sztmp*nCoor)
-        CALL DCOPY_(sztmp*nCoor,0d0,0,Work(iftmpo),1)
+        CALL DCOPY_(sztmp*nCoor,[0.0d0],0,Work(iftmpo),1)
 
         do iP=1,iOrb
           jP = iP + off_basIsh(iSym)
