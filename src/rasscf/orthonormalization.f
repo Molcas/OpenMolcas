@@ -83,7 +83,7 @@
         call mma_deallocate(ONB_v)
       end function
 
-      function v_orthonormalize(CMO, scheme) result(ONB)
+      function legacy_orthonormalize(CMO, scheme) result(ONB)
         implicit none
         real*8, intent(in) :: CMO(:)
         type(t_ON_scheme), intent(in) :: scheme
@@ -169,25 +169,23 @@
       end subroutine
 
 
-      subroutine ONCMO(oCMO1, oCMO2)
+      subroutine ONCMO(CMO1, CMO2)
       use general_data, only :
      &    nSym, nBAs, nDel, nActEl, nDelt, nSSH, nDel, nOrb, nTot
       use rasscf_data, only :
      &    nSec, nTOT3, nTOT4, Tot_Nuc_Charge, nFr, nIn, nOrbT
       implicit none
-      real*8, intent(in) :: oCMO1(:)
-      real*8, intent(out) :: oCMO2(:)
+      type(t_blockdiagonal), intent(in) :: CMO1(nSym)
+      type(t_blockdiagonal), intent(inout) :: CMO2(nSym)
 #include "warnings.fh"
 #include "output_ras.fh"
-      type(t_blockdiagonal) :: S(nSym), CMO1(nSym), CMO2(nSym)
+      type(t_blockdiagonal) :: S(nSym)
       integer :: iPRLEV, nBM, n_to_ON(nSym),
      &    NOM, size_S_buffer, iSYM, nB,
      &    nDSAVe, CMO_block, nNew(nSym), i,
      &    IPOLD, IPNEW, remove(nSym), nD, nS, nDNew, nSNew(nSym)
       real*8 :: xMol_Charge
       real*8, allocatable :: S_buffer(:), SCTMP(:), OVL(:)
-
-      logical :: improve_solution, lin_dep_detected, unrecoverable_error
 
       real*8 :: L, XSCL
       Parameter (ROUTINE='ONCMO   ')
@@ -197,28 +195,20 @@
       n_to_ON(:) = nBas(:nSym) - nDel(:nSym)
       if (all(n_to_ON == 0)) call qExit(routine)
 
-      oCMO2(:) = oCMO1(:)
-      call new(CMO1, blocksizes=nBas(:nSym))
-      call new(CMO2, blocksizes=nBas(:nSym))
-      call fill_from_buffer(oCMO1, CMO1)
-      call fill_from_buffer(oCMO1, CMO2)
-
       size_S_buffer = sum(nBas(:nSym) * (nBas(:nSym) + 1) / 2)
       call mma_allocate(S_buffer, size_S_buffer + 4)
       call read_raw_S(S_buffer)
-
       Tot_Nuc_Charge = S_buffer(size_S_buffer + 4)
+      call new(S, blocksizes=nBas(:nSym))
+      call fill_from_symm_buffer(S_buffer, S)
+      call mma_deallocate(S_buffer)
+
       xMol_Charge = Tot_Nuc_Charge - dble(2 * (nFr + nIn) + nActEl)
       call put_dscalar('Total Charge    ', xMol_Charge)
       if (iprlev >= usual) then
-        write(LF,*)
-        write(LF,'(6x,A,f8.2)') 'Total molecular charge',xMol_Charge
+        write(6,*)
+        write(6,'(6x,A,f8.2)') 'Total molecular charge',xMol_Charge
       end If
-
-      call new(S, blocksizes=nBas(:nSym))
-      call fill_from_symm_buffer(S_buffer, S)
-
-      call mma_deallocate(S_buffer)
 
 * nNew: Nr of orthonormal new CMOs
       nNew(:nSym) = 0
@@ -231,9 +221,6 @@
       call update_orb_numbers(n_to_ON, nNew, nBas,
      &    nDel, nSSH, nOrb, nDelt, nSec, nOrbt, nTot3, nTot4)
 
-      call fill_to_buffer(CMO2, oCMO2)
-      call delete(CMO1)
-      call delete(CMO2)
       call delete(S)
 
       Call qExit(routine)
@@ -260,9 +247,7 @@
 
         n_new = 0
         do i = 1, n_to_ON
-          if (n_new + 1 < i) then
-            ONB(:, n_new + 1) = basis(:, i)
-          end if
+          ONB(:, n_new + 1) = basis(:, i)
 
           improve_solution = .true.
           lin_dep_detected = .false.
