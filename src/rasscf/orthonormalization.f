@@ -181,14 +181,14 @@
 #include "output_ras.fh"
       type(t_blockdiagonal) :: S(nSym), CMO1(nSym), CMO2(nSym)
       integer :: iPRLEV, nBM, nO, NOM, size_S_buffer, iSYM, nB,
-     &    nDSAVe, NNEGSS, CMO_block, NNEW, iOld,
+     &    nDSAVe, NNEGSS, CMO_block, NNEW, i,
      &    IPOLD, IPNEW, NREMOV, ND, NS, NDNEW, NSNEW
       real*8 :: xMol_Charge
       real*8, allocatable :: S_buffer(:), SCTMP(:), OVL(:)
 
-      logical :: inner_loop
+      logical :: improve_solution, lin_dep_detected
 
-      real*8 :: XNRM2, XSCL
+      real*8 :: L, XSCL
       Parameter (ROUTINE='ONCMO   ')
 
       Call qEnter(ROUTINE)
@@ -221,18 +221,20 @@
       call mma_allocate(SCTMP, maxval(nBas(:nSym)))
       call mma_allocate(OVL, maxval(nBas(:nSym)))
 * Orthonormalize symmetry blocks:
-      do iSym=1, nSym
+      do iSym = 1, nSym
         nB = nBas(iSym)
         nO = nB - nDel(iSym)
         if (nB > 0 .and. nO > 0) then
-* NNEW=Nr of already orthonormal new CMO''s
+* nNew: Nr of already orthonormal new CMOs
           nNew = 0
-          do iOld=1, nO
-            if (nNew + 1 < iOld) then
-              CMO2(iSym)%block(:, nNew + 1) = CMO1(iSym)%block(:, iOld)
+          do i = 1, nO
+            if (nNew + 1 < i) then
+              CMO2(iSym)%block(:, nNew + 1) = CMO1(iSym)%block(:, i)
             end if
-            inner_loop = .true.
-            do while (inner_loop)
+
+            improve_solution = .true.
+            lin_dep_detected = .false.
+            do while (improve_solution .and. .not. lin_dep_detected)
               SCTMP(:nB) =
      &            matmul(S(iSym)%block, CMO2(iSym)%block(:, nNew + 1))
               if (nnew > 0) then
@@ -242,15 +244,19 @@
      &              CMO2(iSym)%block(:, nNew + 1)
      &              - matmul(CMO2(iSym)%block(:, :nNew) , ovl(:nNew))
               end if
-              xnrm2 = ddot_(nB, SCTMP, 1,
+              L = ddot_(nB, SCTMP, 1,
      &                      CMO2(iSym)%block(:, nNew + 1), 1)
-              if (xnrm2 > 1.0d-10) then
-                call dscal_(nB, 1.0d0 / sqrt(xnrm2),
+
+              lin_dep_detected = L < 1.0d-10
+              improve_solution = L < 0.2d0
+              if (.not. lin_dep_detected) then
+                call dscal_(nB, 1.0d0 / sqrt(L),
      &                      CMO2(isym)%block(:, nNew + 1), 1)
-                inner_loop = xnrm2 < 0.2d0
+              end if
+              if (.not. (improve_solution .or. lin_dep_detected)) then
+                nNew = nNew + 1
               end if
             end do
-            nNew = nNew + 1
           end do
 
           NDSAVE = NDELT
@@ -309,5 +315,12 @@
 
       Call qExit(routine)
       end subroutine ONCMO
+
+      subroutine Grahm_Schmidt(basis, ONB, nNew)
+        real*8, intent(in) :: basis(:, :)
+        real*8, intent(out) :: ONB(:, :)
+        integer, intent(out) :: nNew
+
+      end subroutine
 
       end module orthonormalization
