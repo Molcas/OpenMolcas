@@ -6,7 +6,7 @@
 * OpenMolcas is distributed in the hope that it will be useful, but it *
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+* LICEnSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 2019, Oskar Weser                                      *
 ************************************************************************
@@ -180,20 +180,22 @@
 #include "warnings.fh"
 #include "output_ras.fh"
       type(t_blockdiagonal) :: S(nSym), CMO1(nSym), CMO2(nSym)
-      integer :: iPRLEV, nBM, n_to_ON, NOM, size_S_buffer, iSYM, nB,
-     &    nDSAVe, NNEGSS, CMO_block, NNEW, i,
-     &    IPOLD, IPNEW, NREMOV, ND, NS, NDNEW, NSNEW
+      integer :: iPRLEV, nBM, n_to_ON(nSym),
+     &    NOM, size_S_buffer, iSYM, nB,
+     &    nDSAVe, CMO_block, nNew(nSym), i,
+     &    IPOLD, IPNEW, remove(nSym), nD, nS, nDNew, nSNew(nSym)
       real*8 :: xMol_Charge
       real*8, allocatable :: S_buffer(:), SCTMP(:), OVL(:)
 
-      logical :: improve_solution, lin_dep_detected
+      logical :: improve_solution, lin_dep_detected, unrecoverable_error
 
       real*8 :: L, XSCL
       Parameter (ROUTINE='ONCMO   ')
 
       Call qEnter(ROUTINE)
 
-      if (maxval(nBas(:nSym) - nDel(:nSym)) == 0) call qExit(routine)
+      n_to_ON(:) = nBas(:nSym) - nDel(:nSym)
+      if (all(n_to_ON == 0)) call qExit(routine)
 
       oCMO2(:) = oCMO1(:)
       call new(CMO1, blocksizes=nBas(:nSym))
@@ -207,7 +209,7 @@
 
       Tot_Nuc_Charge = S_buffer(size_S_buffer + 4)
       xMol_Charge = Tot_Nuc_Charge - dble(2 * (nFr + nIn) + nActEl)
-      Call put_dscalar('Total Charge    ',xMol_Charge)
+      call put_dscalar('Total Charge    ', xMol_Charge)
       if (iprlev >= usual) then
         write(LF,*)
         write(LF,'(6x,A,f8.2)') 'Total molecular charge',xMol_Charge
@@ -218,95 +220,16 @@
 
       call mma_deallocate(S_buffer)
 
-      call mma_allocate(SCTMP, maxval(nBas(:nSym)))
-      call mma_allocate(OVL, maxval(nBas(:nSym)))
-* Orthonormalize symmetry blocks:
+* nNew: Nr of orthonormal new CMOs
+      nNew(:nSym) = 0
       do iSym = 1, nSym
-        nB = size(CMO2(iSym)%block, 1)
-        n_to_ON = nB - nDel(iSym)
-        if (nB > 0 .and. n_to_ON > 0) then
-* nNew: Nr of already orthonormal new CMOs
-          nNew = 0
-          do i = 1, n_to_ON
-            if (nNew + 1 < i) then
-              CMO2(iSym)%block(:, nNew + 1) = CMO1(iSym)%block(:, i)
-            end if
-
-            improve_solution = .true.
-            lin_dep_detected = .false.
-            do while (improve_solution .and. .not. lin_dep_detected)
-              SCTMP(:nB) =
-     &            matmul(S(iSym)%block, CMO2(iSym)%block(:, nNew + 1))
-              if (nnew > 0) then
-                ovl(:nNew) = matmul(
-     &              transpose(CMO2(iSym)%block(:, :nNew)), sctmp(:nB))
-                CMO2(iSym)%block(:, nNew + 1) =
-     &              CMO2(iSym)%block(:, nNew + 1)
-     &              - matmul(CMO2(iSym)%block(:, :nNew) , ovl(:nNew))
-              end if
-              L = ddot_(nB, SCTMP, 1,
-     &                      CMO2(iSym)%block(:, nNew + 1), 1)
-
-              lin_dep_detected = L < 1.0d-10
-              improve_solution = L < 0.2d0
-              if (.not. lin_dep_detected) then
-                call dscal_(nB, 1.0d0 / sqrt(L),
-     &                      CMO2(isym)%block(:, nNew + 1), 1)
-              end if
-              if (.not. (improve_solution .or. lin_dep_detected)) then
-                nNew = nNew + 1
-              end if
-            end do
-          end do
-
-          NDSAVE = NDELT
-          NNEGSS = 0
-          NREMOV = n_to_ON-NNEW
-          IF (NREMOV.GT.0) THEN
-            ND=NDEL(ISYM)
-            NS=NSSH(ISYM)
-            NDNEW=NB-NNEW
-            NSNEW=NS+ND-NDNEW
-            IF(NSNEW.GE.0) THEN
-              IF(IPRLEV.GE.TERSE) THEN
-                Call WarningMessage(1,'ONCMO Warning')
-                Write(LF,*)' * Exact or very near linear dependence '
-                Write(LF,*)' * forces RASSCF to delete additional '//
-     &                      'orbitals.'
-                Write(LF,*)' *                  Symmetry block:',ISYM
-                Write(LF,*)' * Earlier number of deleted orbs =',ND
-                Write(LF,*)' *     New number of deleted orbs =',NDNEW
-              END IF
-            ELSE
-              Write(LF,*)' **** ONCMO Error *************************'
-              Write(LF,*)' * Exact or very near linear dependence '
-              Write(LF,*)' * forces RASSCF to stop execution.'
-              Write(LF,*)' *                  Symmetry block:',ISYM
-              Write(LF,*)' * Effective nr of orthonormal orbs =',NNEW
-              Write(LF,*)' *   Earlier number of deleted orbs =',ND
-              Write(LF,*)' * Earlier number of secondary orbs =',NS
-              Write(LF,*)' *       New number of deleted orbs =',NDNEW
-              Write(LF,*)' *     New number of secondary orbs =',NSNEW
-              NNEGSS=NNEGSS+1
-            END IF
-            NDEL(ISYM)=NDNEW
-            NSSH(ISYM)=NSNEW
-            NORB(ISYM)=NORB(ISYM)-NREMOV
-            NDELT=NDELT+NREMOV
-            NSEC =NSEC -NREMOV
-            NORBT=NORBT-NREMOV
-          END IF
-        End If
-      End Do
-      IF(NNEGSS.GT.0) CALL QUIT(_RC_GENERAL_ERROR_)
-
-      IF (NDSAVE /= NDELT) THEN
-        nTot3 = sum((nOrb(:nsym) + nOrb(:nSym)**2) / 2)
-        nTot3 = sum(nOrb(:nSym)**2)
-      END IF
-
-      call mma_deallocate(SCTMP)
-      call mma_deallocate(OVL)
+        if (nBas(iSym) > 0 .and. n_to_ON(iSym) > 0) then
+          call Grahm_Schmidt(CMO1(iSym)%block, S(iSym)%block,
+     &          n_to_ON(iSym), CMO2(iSym)%block, nNew(iSym))
+        end if
+      end do
+      call update_orb_numbers(n_to_ON, nNew, nBas,
+     &    nDel, nSSH, nOrb, nDelt, nSec, nOrbt, nTot3, nTot4)
 
       call fill_to_buffer(CMO2, oCMO2)
       call delete(CMO1)
@@ -366,8 +289,52 @@
 
         call mma_deallocate(SCTMP)
         call mma_deallocate(OVL)
+      end subroutine Grahm_Schmidt
+
+      subroutine update_orb_numbers(
+     &    n_to_ON, nNew, nBas,
+     &    nDel, nSSH, nOrb, nDelt, nSec, nOrbt, nTot3, nTot4)
+        use general_data, only : nSym
+        implicit none
+#include "warnings.fh"
+#include "output_ras.fh"
+        integer, intent(in) :: n_to_ON(:), nNew(:), nBas(:)
+        integer, intent(inout) :: nDel(:), nSSH(:), nOrb(:),
+     &    nDelt, nSec, nOrbt, nTot3, nTot4
+
+        integer :: iSym, nSnew(nSym), remove(nSym)
+
+        remove = n_to_ON(:nSym) - nNew(:nSym)
+        if (any(remove > 0)) then
+!   nSNew = nSSH(:nSym) + nDel(:nSym) + nNew(:nSym) - nBas(:nSym)
+!   nSNew = nSSH(:nSym) + nNew(:nSym) - (nBas(:nSym) - nDel(:nSym))
+!   nSNew = nSSH(:nSym) + nNew(:nSym) - n_to_ON(:nSym)
+          nSnew = nSSH(:nSym) - remove(:nSym)
+          do iSym = 1, nSym
+            if (remove(iSym) > 0) then
+              call WarningMessage(1,'ONCMO Warning')
+              if(nsnew(iSym) >= 0) then
+                if (IPRLOC(1) >= usual) then
+                  call WarningMessage(1,'ONCMO Warning')
+                end if
+              else
+                call WarningMessage(2,'ONCMO Error')
+                call quit(_RC_GENERAL_ERROR_)
+              end if
+            end if
+          end do
+          nSSH(:nSym) = nSSH(:nSym) - remove(:nSym)
+          nDel(:nSym) = nBas(:nSym) - nNew(:nSym)
+          nOrb(:nSym) = nOrb(:nSym) - remove(:nSym)
+          nDelt = nDelt + sum(remove(:nSym))
+          nSec = nSec - sum(remove(:nSym))
+          nOrbt = nOrbt - sum(remove(:nSym))
+          nTot3 = sum((nOrb(:nsym) + nOrb(:nSym)**2) / 2)
+          nTot4 = sum(nOrb(:nSym)**2)
+        end if
+
+      end subroutine update_orb_numbers
 
 
-      end subroutine
 
       end module orthonormalization
