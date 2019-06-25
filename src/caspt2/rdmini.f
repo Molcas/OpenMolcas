@@ -34,6 +34,11 @@
       CALL GETMEM('LCMO','ALLO','REAL',LCMO,NCMO)
       IDISK=IAD1M(1)
       CALL DDAFILE(LUONEM,2,WORK(LCMO),NCMO,IDISK)
+* Also (for temporary back-compatibility with older code) save as
+*  'current' CMO data on LUONEM:
+      IAD1M(2)=IDISK
+      CALL DDAFILE(LUONEM,1,WORK(LCMO),NCMO,IDISK)
+      IEOF1M=IDISK
 
       CALL GETMEM('LCI','ALLO','REAL',LCI,NCONF)
 
@@ -56,7 +61,7 @@
           CALL DDAFILE(LUCIEX,2,WORK(LCI),NCONF,ID)
         END IF
 
-        IF(IPRGLB.GE.VERBOSE) THEN
+        IF(IPRGLB.GE.DEBUG) THEN
           WRITE(6,*)
           WRITE(6,*)' CI array of CASSCF state nr. ',MSTATE(ISTATE)
           CALL PRWF_CP2(LSYM,NCONF,WORK(LCI),CITHR)
@@ -81,19 +86,22 @@
           SCL = WORK(LFWGT + (ISTATE-1) + NSTATE*(JSTATE-1))
           JOFF = NDREF*(JSTATE-1)
           CALL DAXPY_(NDREF,SCL,WORK(LDREF),1,WORK(LDMIX+JOFF),1)
-
-          IFTEST = 0
-          IF ( IFTEST.NE.0 ) THEN
-            JJOFF = LDMIX+JOFF
-            WRITE(6,*)' DMIX for state nr. ',MSTATE(JSTATE)
-            DO I=1,NASHT
-              WRITE(6,'(1x,14f10.6)')(WORK(JJOFF+(I*(I-1))/2+J-1),J=1,I)
-            END DO
-            WRITE(6,*)
-          END IF
         END DO
 
       END DO
+
+      IFTEST = 1
+      IF ( IFTEST.NE.0 ) THEN
+        DO JSTATE=1,NSTATE
+          JOFF = LDMIX+NDREF*(JSTATE-1)
+          WRITE(6,*)
+          WRITE(6,*)' DMIX for state nr. ',MSTATE(JSTATE)
+          DO I=1,NASHT
+            WRITE(6,'(1x,14f10.6)')(WORK(JOFF+(I*(I-1))/2+J-1),J=1,I)
+          END DO
+          WRITE(6,*)
+        END DO
+      END IF
 
       CALL GETMEM('LCMO','FREE','REAL',LCMO,NCMO)
       CALL GETMEM('LCI','FREE','REAL',LCI,NCONF)

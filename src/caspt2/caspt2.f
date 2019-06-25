@@ -142,13 +142,46 @@ C second-order correction Heff(2) = PH \Omega_1 P to Heff[1]
         END IF
       END IF
 
+* Original code
+      IF (.FALSE.) THEN
 * Weights init
-      CALL WGTINI
+        CALL H0WEIGHTS
+        CALL H1WEIGHTS
 
 * Before entering the long loop over groups and states, precompute
 * the 1-RDMs for all states and mix them according to the type of
 * calculation: MS, XMS, DW-MS, DW-XMS.
-      CALL RDMINI
+        CALL RDMINI
+      END IF
+
+* For the new DW scheme using the TDM for the weights
+      IF (IFVDW) THEN
+* Fake XMS to get the sa-Fock weights
+        IFXMS = .TRUE.
+        CALL H0WEIGHTS
+        IFXMS = .FALSE.
+* Compute sa-RDM (meaning same for all states)
+        CALL RDMINI
+* Compute the weights using TDMs (actually the FOCK...)
+        CALL H1WEIGHTS
+* Recmpute the weights for H0 (as a normal MS-CASPT2)
+        CALL H0WEIGHTS
+* And correspondingly the RDMs
+        CALL RDMINI
+      END IF
+
+* Rotate states according to XMS and then perform a normal (DW)-MS
+      IF (.TRUE.) THEN
+        IFXMS = .TRUE.
+        CALL H0WEIGHTS
+        CALL RDMINI
+        CALL XMSINI(HEFF)
+        IFXMS = .FALSE.
+        CALL H0WEIGHTS
+        CALL H1WEIGHTS
+        CALL RDMINI
+      END IF
+
 
 C For (X)Multi-State, a long loop over root states.
 C The states are ordered by group, with each group containing a number
