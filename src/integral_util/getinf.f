@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1992, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine GetInf(Info,nInfo,DoRys,nDiff,icase)
+      SubRoutine GetInf(Info_,nInfo,DoRys,nDiff,icase)
 ************************************************************************
 *                                                                      *
 * Object: to read all input information on the file INFO.              *
@@ -74,7 +74,7 @@
 *
 *     Load the dynamic input area.
 *
-      Call Get_Info_Dynamic(Info,nInfo,ioffr,icase)
+      Call Get_Info_Dynamic(Info_,nInfo,ioffr,icase)
 *                                                                      *
 ************************************************************************
 *                                                                      *
