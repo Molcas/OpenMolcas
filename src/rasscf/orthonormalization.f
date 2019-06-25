@@ -180,7 +180,7 @@
 #include "warnings.fh"
 #include "output_ras.fh"
       type(t_blockdiagonal) :: S(nSym), CMO1(nSym), CMO2(nSym)
-      integer :: iPRLEV, nBM, nO, NOM, size_S_buffer, iSYM, nB,
+      integer :: iPRLEV, nBM, n_to_ON, NOM, size_S_buffer, iSYM, nB,
      &    nDSAVe, NNEGSS, CMO_block, NNEW, i,
      &    IPOLD, IPNEW, NREMOV, ND, NS, NDNEW, NSNEW
       real*8 :: xMol_Charge
@@ -222,12 +222,12 @@
       call mma_allocate(OVL, maxval(nBas(:nSym)))
 * Orthonormalize symmetry blocks:
       do iSym = 1, nSym
-        nB = nBas(iSym)
-        nO = nB - nDel(iSym)
-        if (nB > 0 .and. nO > 0) then
+        nB = size(CMO2(iSym)%block, 1)
+        n_to_ON = nB - nDel(iSym)
+        if (nB > 0 .and. n_to_ON > 0) then
 * nNew: Nr of already orthonormal new CMOs
           nNew = 0
-          do i = 1, nO
+          do i = 1, n_to_ON
             if (nNew + 1 < i) then
               CMO2(iSym)%block(:, nNew + 1) = CMO1(iSym)%block(:, i)
             end if
@@ -261,7 +261,7 @@
 
           NDSAVE = NDELT
           NNEGSS = 0
-          NREMOV = NO-NNEW
+          NREMOV = n_to_ON-NNEW
           IF (NREMOV.GT.0) THEN
             ND=NDEL(ISYM)
             NS=NSSH(ISYM)
@@ -316,10 +316,57 @@
       Call qExit(routine)
       end subroutine ONCMO
 
-      subroutine Grahm_Schmidt(basis, ONB, nNew)
-        real*8, intent(in) :: basis(:, :)
+      subroutine Grahm_Schmidt(basis, S, n_to_ON, ONB, n_new)
+        implicit none
+        real*8, intent(in) :: basis(:, :), S(:, :)
+        integer, intent(in) :: n_to_ON
         real*8, intent(out) :: ONB(:, :)
-        integer, intent(out) :: nNew
+        integer, intent(out) :: n_new
+
+        real*8, allocatable :: SCTMP(:), OVL(:)
+
+        integer :: i, nB
+        real*8 :: L
+
+        logical :: lin_dep_detected, improve_solution
+
+        nB = size(basis, 1)
+
+        call mma_allocate(SCTMP, nB)
+        call mma_allocate(OVL, nB)
+
+        n_new = 0
+        do i = 1, n_to_ON
+          if (n_new + 1 < i) then
+            ONB(:, n_new + 1) = basis(:, i)
+          end if
+
+          improve_solution = .true.
+          lin_dep_detected = .false.
+          do while (improve_solution .and. .not. lin_dep_detected)
+            SCTMP(:nB) = matmul(S, ONB(:, n_new + 1))
+            if (n_new > 0) then
+              ovl(:n_new) =
+     &          matmul(transpose(ONB(:, :n_new)), sctmp(:nB))
+              ONB(:, n_new + 1) =
+     &          ONB(:, n_new + 1) - matmul(ONB(:, :n_new) , ovl(:n_new))
+            end if
+            L = ddot_(nB, SCTMP, 1, ONB(:, n_new + 1), 1)
+
+            lin_dep_detected = L < 1.0d-10
+            improve_solution = L < 0.2d0
+            if (.not. lin_dep_detected) then
+              call dscal_(nB, 1.0d0 / sqrt(L), ONB(:, n_new + 1), 1)
+            end if
+            if (.not. (improve_solution .or. lin_dep_detected)) then
+              n_new = n_new + 1
+            end if
+          end do
+        end do
+
+        call mma_deallocate(SCTMP)
+        call mma_deallocate(OVL)
+
 
       end subroutine
 
