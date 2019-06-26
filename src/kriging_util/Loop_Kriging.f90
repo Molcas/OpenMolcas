@@ -89,8 +89,8 @@
         npx = npxAI
 !nx is the n-dimensional vector of the last iteration computed in update_sl
 ! subroutine
-        nx = x_
 !
+        nx = x_
         call covarvector(0,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
         call predict(0,nPoints,nInter)
         y_ = sigma

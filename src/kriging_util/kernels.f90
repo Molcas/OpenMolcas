@@ -14,7 +14,6 @@
             use globvar
             integer i, nInter
             real*8 lv(nInter)
-            call miden()
             If (nInter.eq.nInter_Save) Then
                do i = 1,nInter_save
                 l(i)=lv(i)
@@ -27,14 +26,15 @@
                Write (6,*) "setlkriging: illegal nInter value."
                Call Abend()
             End If
-            call covarmatrix(nPoints_Save,nInter_save)
+            call covarMatrix(nPoints_Save,nInter_save)
             call k(nPoints_save)
 !           write (6,*) 'set l value, lh:',l(1)
         END SUBROUTINE setlkriging
 
-        subroutine miden()
-            use globvar
-            integer j
+        subroutine miden(iden,msize)
+            !use globvar
+            integer j,msize
+            real*8 iden(msize,msize)
             iden=0
-            forall(j=1:nPoints_save) iden(j,j)=1
+            forall(j=1:msize) iden(j,j)=1
         end subroutine

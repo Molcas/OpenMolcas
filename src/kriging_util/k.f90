@@ -101,12 +101,12 @@
                 ! write(6,*) 'exp(detR/m_t)', exp(detR/dble(m_t))
                 lh = variance*exp(detR/dble(m_t))
             ! endif
-            ! write(6,*) 'detR',detR
-            ! write(6,*) 'Ys:',Ys
-            ! write(6,*) 'Kv:',Kv
-            ! write(6,*) 'Variance:',variance
-            ! write(6,*) 'm_t',m_t
-            ! lh = variance*exp(detR/m_t)
+            write(6,*) 'detR',detR
+            write(6,*) 'Ys:',Ys
+            write(6,*) 'Kv:',Kv
+            write(6,*) 'Variance:',variance
+            write(6,*) 'm_t',m_t
+            lh = variance*exp(detR/m_t)
             !lh=variance*exp(log(detr)/m_t)
             !lh=variance*detR**(DBLE(1.0D0/DBLE(m_t)))
         END SUBROUTINE k

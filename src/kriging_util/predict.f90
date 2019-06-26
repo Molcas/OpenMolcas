@@ -31,8 +31,7 @@
                     var(j)=var(j)+(1-ddottemp(j))**2/tsum
                     pred(j) = sb + dot_product(tcv(j,:),Kv)
                     sigma(j)=1.96*sqrt(abs(var(j)*variance))
-                !   write(6,*) 'pred:',k,j,l,pred(j),var,variance, &
-                !               sigma, lh
+                  write(6,*) 'pred(before):',pred(j),'var',var,'variance',variance,'sigma',sigma,'lh',lh
                 else
                     if (gh.eq.1) then
                         ! sigma(j)=1.96*sqrt(2*abs(var*variance))
@@ -42,9 +41,9 @@
                             ! write(6,*) 'pred Grad:',k,j,l,gpred(j,k), &
                             !     var,variance,sigma, lh,tcv
                         enddo
-!                       write(6,*) 'final cv', cv(:,:,:,1)
-!                       write(6,*) 'final Kv',kv
-!                       write (6,*) 'pred grad:',gpred
+                      write(6,*) 'final cv', cv(:,:,:,1)
+                      write(6,*) 'final Kv',kv
+                      write (6,*) 'pred grad(gpred):',gpred
                     else
                         ! sigma(j)=1.96*sqrt(2*abs(var*variance))
                         ! write(6,*) 'kv: ',kv
@@ -59,6 +58,7 @@
                                 !     var,variance,sigma, lh, tcv
                             enddo
                         enddo
+                        write (6,*) 'pred hess(hpred):',hpred
                     endif
                 endif
             enddo

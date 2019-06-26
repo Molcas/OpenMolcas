@@ -15,7 +15,7 @@
             integer i,j,i0,i1,j0,j1,k,kl,iter,nInter
             real*8 diffx(iter,iter),diffx0(iter,iter), &
                     matFder(iter,iter),matSder(iter,iter),r(iter,iter,nInter), &
-                    d(iter,iter),m(iter,iter)!,c(iter,iter)
+                    d(iter,iter),m(iter,iter),iden(iter,iter)!,c(iter,iter)
             ! deallocate (dl,mat)
             ! allocate (dl(iter,iter), &
             !          mat(iter,iter))
@@ -23,6 +23,7 @@
             d = 0
             diffx = 0
             diffx0 = 0
+            call miden(iden,iter)
 ! Covariant Matrix in kriging
             do i=1,nInter
                 do k=1,iter
@@ -76,5 +77,5 @@
                     endif
                 enddo
             enddo
-!           Call RecPrt('full_r',  ' ',full_R,m_t,m_t)
+          Call RecPrt('full_r',  ' ',full_R,m_t,m_t)
         END
