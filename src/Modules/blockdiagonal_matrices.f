@@ -99,7 +99,7 @@
           do i_block = 1, size(S)
             block_size = size(S(i_block)%block, 1)
             if (block_size > 0) then
-              call square(S_buffer(idx_block), S(i_block)%block,1,
+              call square(S_buffer(idx_block:), S(i_block)%block,1,
      &                    block_size, block_size)
             end if
             idx_block = idx_block + (block_size**2 + block_size) / 2

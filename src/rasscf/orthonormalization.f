@@ -23,7 +23,7 @@
         public ::
      &    t_ON_scheme, ON_scheme, ON_scheme_values,
      &    t_procrust_metric, procrust_metric, metric_values,
-     &    orthonormalize, procrust, v_orthonormalize, Grahm_Schmidt
+     &    orthonormalize, procrust, Grahm_Schmidt
 
         type :: t_ON_scheme_values
           integer ::
@@ -66,10 +66,13 @@
           module procedure Grahm_Schmidt_Array, Grahm_Schmidt_Blocks
         end interface
 
+        interface orthonormalize
+          module procedure orthonormalize_raw, orthonormalize_blocks
+        end interface
 
       contains
 
-      function orthonormalize(basis, scheme) result(ONB)
+      function orthonormalize_blocks(basis, scheme) result(ONB)
         use general_data, only : nSym, nBAs, nDel, nDelt, nSSH, nOrb
         use rasscf_data, only : nSec, nOrbt, nTot3, nTot4
         implicit none
@@ -77,27 +80,25 @@
         type(t_ON_scheme), intent(in) :: scheme
         type(t_blockdiagonal) :: ONB(size(basis)), S(size(basis))
 
-        integer :: i, n_to_ON(nSym), n_new(nSym)
-
+        integer :: n_to_ON(nSym), n_new(nSym)
 
         call new(S, blocksizes=blocksizes(basis))
         call read_S(S)
 
         call new(ONB, blocksizes=blocksizes(basis))
-
         select case (scheme%val)
           case(ON_scheme_values%Lowdin)
           case(ON_scheme_values%Grahm_Schmidt)
             n_to_ON(:) = nBas(:nSym) - nDel(:nSym)
             call Grahm_Schmidt(basis, S, n_to_ON, ONB, n_new)
-            call update_orb_numbers(n_to_ON, n_new, nBas,
+            call update_orb_numbers(n_to_ON, n_new,
      &          nDel, nSSH, nOrb, nDelt, nSec, nOrbt, nTot3, nTot4)
         end select
         call delete(S)
 
       end function
 
-      function v_orthonormalize(CMO, scheme) result(ONB_v)
+      function orthonormalize_raw(CMO, scheme) result(ONB_v)
         use general_data, only : nBas, nSym
         implicit none
         real*8, intent(in) :: CMO(:)
@@ -218,17 +219,20 @@
       end subroutine Grahm_Schmidt_Array
 
       subroutine update_orb_numbers(
-     &    n_to_ON, nNew, nBas,
+     &    n_to_ON, nNew,
      &    nDel, nSSH, nOrb, nDelt, nSec, nOrbt, nTot3, nTot4)
       use general_data, only : nSym
       implicit none
 #include "warnings.fh"
 #include "output_ras.fh"
-      integer, intent(in) :: n_to_ON(:), nNew(:), nBas(:)
+      integer, intent(in) :: n_to_ON(:), nNew(:)
       integer, intent(inout) :: nDel(:), nSSH(:), nOrb(:),
      &  nDelt, nSec, nOrbt, nTot3, nTot4
+      parameter(ROUTINE='update_orb_numbe')
 
-      integer :: iSym, nSnew(nSym), remove(nSym), total_remove
+      integer :: iSym, remove(nSym), total_remove
+
+      call qEnter(ROUTINE)
 
       remove = n_to_ON(:nSym) - nNew(:nSym)
       total_remove = sum(remove(:nSym))
@@ -266,6 +270,7 @@
         nTot3 = sum((nOrb(:nSym) + nOrb(:nSym)**2) / 2)
         nTot4 = sum(nOrb(:nSym)**2)
       end if
+      call qExit(ROUTINE)
       end subroutine update_orb_numbers
 
 
@@ -299,9 +304,12 @@
 #include "output_ras.fh"
         type(t_blockdiagonal) :: S(nSym)
 
+        parameter(ROUTINE='update_orb_numbe')
         real*8 :: Mol_Charge
         real*8, allocatable :: S_buffer(:)
         integer :: size_S_buffer
+
+        call qEnter(ROUTINE)
 
         size_S_buffer = sum(nBas(:nSym) * (nBas(:nSym) + 1) / 2)
         call mma_allocate(S_buffer, size_S_buffer + 4)
@@ -315,6 +323,8 @@
         if (IPRLOC(1) >= usual) then
           write(6,*)
           write(6,'(6x,A,f8.2)') 'Total molecular charge',Mol_Charge
-        end If
+        end if
+
+        call qExit(ROUTINE)
       end subroutine
       end module orthonormalization
