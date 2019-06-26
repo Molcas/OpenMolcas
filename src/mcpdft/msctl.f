@@ -565,15 +565,12 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
         Call GetMem('id1actao_FA','ALLO','Real',id1actao_FA,ntot2)
 *
         itsDisk = IADR19(3)
-          write(*,*) 'irlxroot'
-        do i=1, irlxroot-1
-          write(*,*) 'hello'
+        do i=1,irlxroot-1
           Call DDaFile(JOBOLD,0,Work(iD1Act_FA),NACPAR,itsDisk)
           Call DDaFile(JOBOLD,0,Work(iD1Spin),NACPAR,itsDisk)
           Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,itsDisk)
           Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,itsDisk)
         end do
-        write(*,*) 'HELLO'
         Call DDaFile(JOBOLD,2,Work(iD1Act_FA),NACPAR,itsDisk)
         Call Get_D1A_RASSCF_m(CMO,Work(iD1Act_FA),Work(iD1ActAO_FA))
 *****
