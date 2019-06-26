@@ -66,6 +66,10 @@
           module procedure Grahm_Schmidt_Array, Grahm_Schmidt_Blocks
         end interface
 
+        interface Lowdin
+          module procedure Lowdin_Array, Lowdin_Blocks
+        end interface
+
         interface orthonormalize
           module procedure orthonormalize_raw, orthonormalize_blocks
         end interface
@@ -87,7 +91,10 @@
 
         call new(ONB, blocksizes=blocksizes(basis))
         select case (scheme%val)
+          case(ON_scheme_values%no_ON)
+            continue
           case(ON_scheme_values%Lowdin)
+            call Lowdin(basis, S, n_to_ON, ONB, n_new)
           case(ON_scheme_values%Grahm_Schmidt)
             n_to_ON(:) = nBas(:nSym) - nDel(:nSym)
             call Grahm_Schmidt(basis, S, n_to_ON, ONB, n_new)
@@ -154,6 +161,44 @@
 
 ! The elemental keyword automatically loops over the blocks
 ! and even allows the compiler to parallelize.
+      impure elemental subroutine Lowdin_Blocks(
+     &    basis, S, n_to_ON, ONB, n_new)
+        implicit none
+        type(t_blockdiagonal), intent(in) :: basis, S
+        integer, intent(in) :: n_to_ON
+        type(t_blockdiagonal), intent(_OUT_) :: ONB
+        integer, intent(out) :: n_new
+
+        call Lowdin(
+     &        basis%block, S%block,  n_to_ON, ONB%block, n_new)
+      end subroutine Lowdin_Blocks
+
+      subroutine Lowdin_Array(basis, S, n_to_ON, ONB, n_new)
+        implicit none
+        real*8, intent(in) :: basis(:, :), S(:, :)
+        integer, intent(in) :: n_to_ON
+        real*8, intent(out) :: ONB(:, :)
+        integer, intent(out) :: n_new
+
+        real*8, allocatable :: S_root(:, :), T(:, :)
+        real*8 :: L
+        integer :: i, nB
+        logical :: lin_dep_detected, improve_solution
+
+        nB = size(basis, 1)
+
+        call mma_allocate(S_root, size(S, 1), size(S, 2))
+        call mma_allocate(T, size(S, 1), size(S, 2))
+
+
+
+
+        call mma_deallocate(T)
+        call mma_deallocate(S_root)
+      end subroutine Lowdin_Array
+
+! The elemental keyword automatically loops over the blocks
+! and even allows the compiler to parallelize.
       impure elemental subroutine Grahm_Schmidt_Blocks(
      &    basis, S, n_to_ON, ONB, n_new)
         implicit none
@@ -163,7 +208,8 @@
         integer, intent(out) :: n_new
 
         call Grahm_Schmidt(
-     &        basis%block, S%block,  n_to_ON, ONB%block, n_new)
+     &        basis%block(:, :n_to_ON), S%block(:n_to_ON, :n_to_ON),
+     &        n_to_ON, ONB%block, n_new)
       end subroutine Grahm_Schmidt_Blocks
 
       subroutine Grahm_Schmidt_Array(basis, S, n_to_ON, ONB, n_new)
