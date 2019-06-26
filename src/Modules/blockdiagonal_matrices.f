@@ -1,9 +1,22 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICEnSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2019, Oskar Weser                                      *
+************************************************************************
+#include "intent.h"
       module blockdiagonal_matrices
         use stdalloc, only : mma_allocate, mma_deallocate
         implicit none
         private
-        public :: t_blockdiagonal, new, delete, fill_from_buffer,
-     &    fill_from_symm_buffer, fill_to_buffer
+        public :: t_blockdiagonal, new, delete, from_raw,
+     &    from_symm_raw, to_raw, blocksizes
         save
 
         type :: t_blockdiagonal
@@ -40,10 +53,10 @@
           end do
         end subroutine
 
-        subroutine fill_from_buffer(S_buffer, S)
+        subroutine from_raw(S_buffer, S)
           implicit none
           real*8, intent(in) :: S_buffer(:)
-          type(t_blockdiagonal), intent(inout) :: S(:)
+          type(t_blockdiagonal), intent(_OUT_) :: S(:)
           integer :: i_block, offset, col, block_size, idx_block
 
           idx_block = 1
@@ -58,10 +71,10 @@
           end do
         end subroutine
 
-        subroutine fill_to_buffer(S, S_buffer)
+        subroutine to_raw(S, S_buffer)
           implicit none
-          real*8, intent(out) :: S_buffer(:)
           type(t_blockdiagonal), intent(in) :: S(:)
+          real*8, intent(out) :: S_buffer(:)
           integer :: i_block, offset, col, block_size, idx_block
 
           idx_block = 1
@@ -76,10 +89,10 @@
           end do
         end subroutine
 
-        subroutine fill_from_symm_buffer(S_buffer, S)
+        subroutine from_symm_raw(S_buffer, S)
           implicit none
           real*8, intent(in) :: S_buffer(:)
-          type(t_blockdiagonal), intent(inout) :: S(:)
+          type(t_blockdiagonal), intent(_OUT_) :: S(:)
           integer :: i_block, block_size, idx_block
 
           idx_block = 1
@@ -93,4 +106,12 @@
           end do
         end subroutine
 
+        pure function blocksizes(A) result(res)
+          implicit none
+          type(t_blockdiagonal), intent(in) :: A(:)
+          integer :: res(size(A))
+
+          integer :: i
+          res = [(size(A(i)%block, 1), i = 1, size(A))]
+        end function
       end module blockdiagonal_matrices

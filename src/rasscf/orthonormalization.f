@@ -10,11 +10,12 @@
 *                                                                      *
 * Copyright (C) 2019, Oskar Weser                                      *
 ************************************************************************
+#include "intent.h"
       module orthonormalization
         use stdalloc, only : mma_allocate, mma_deallocate
         use fortran_strings, only : to_upper
         use blockdiagonal_matrices, only : t_blockdiagonal, new, delete,
-     &    fill_from_buffer, fill_from_symm_buffer, fill_to_buffer
+     &    from_raw, to_raw, from_symm_raw, blocksizes
 
         implicit none
         save
@@ -22,7 +23,7 @@
         public ::
      &    t_ON_scheme, ON_scheme, ON_scheme_values,
      &    t_procrust_metric, procrust_metric, metric_values,
-     &    orthonormalize, procrust, v_orthonormalize, ONCMO
+     &    orthonormalize, procrust, v_orthonormalize, Grahm_Schmidt
 
         type :: t_ON_scheme_values
           integer ::
@@ -61,39 +62,59 @@
           end function
         end interface
 
+        interface Grahm_Schmidt
+          module procedure Grahm_Schmidt_Array, Grahm_Schmidt_Blocks
+        end interface
+
 
       contains
 
-      function orthonormalize(A, scheme) result(ONB)
+      function orthonormalize(basis, scheme) result(ONB)
+        use general_data, only : nSym, nBAs, nDel, nDelt, nSSH, nOrb
+        use rasscf_data, only : nSec, nOrbt, nTot3, nTot4
         implicit none
-        real*8, intent(in) :: A(:, :)
+        type(t_blockdiagonal), intent(in) :: basis(:)
         type(t_ON_scheme), intent(in) :: scheme
-        real*8, allocatable :: ONB(:, :), ONB_v(:)
+        type(t_blockdiagonal) :: ONB(size(basis)), S(size(basis))
 
-        call mma_allocate(ONB, size(A, 1), size(A, 2))
-        call mma_allocate(ONB_v, size(A, 1)**2)
+        integer :: i, n_to_ON(nSym), n_new(nSym)
+
+
+        call new(S, blocksizes=blocksizes(basis))
+        call read_S(S)
+
+        call new(ONB, blocksizes=blocksizes(basis))
 
         select case (scheme%val)
           case(ON_scheme_values%Lowdin)
           case(ON_scheme_values%Grahm_Schmidt)
-            call ONCMO(pack(A, .true.), ONB_v)
-            ONB = reshape(ONB_v, shape(A))
+            n_to_ON(:) = nBas(:nSym) - nDel(:nSym)
+            call Grahm_Schmidt(basis, S, n_to_ON, ONB, n_new)
+            call update_orb_numbers(n_to_ON, n_new, nBas,
+     &          nDel, nSSH, nOrb, nDelt, nSec, nOrbt, nTot3, nTot4)
         end select
+        call delete(S)
 
-        call mma_deallocate(ONB_v)
       end function
 
-      function legacy_orthonormalize(CMO, scheme) result(ONB)
+      function v_orthonormalize(CMO, scheme) result(ONB_v)
+        use general_data, only : nBas, nSym
         implicit none
         real*8, intent(in) :: CMO(:)
         type(t_ON_scheme), intent(in) :: scheme
-        real*8 :: ONB(size(CMO))
+        real*8 :: ONB_v(size(CMO))
 
-        select case (scheme%val)
-          case(ON_scheme_values%Lowdin)
-          case(ON_scheme_values%Grahm_Schmidt)
-            call ONCMO(CMO, ONB)
-        end select
+        type(t_blockdiagonal) :: basis(nSym)
+        type(t_blockdiagonal) :: ONB(nSym)
+
+        call new(basis, blocksizes=nBAS(:nSym))
+        call new(ONB, blocksizes=nBAS(:nSym))
+
+        call from_raw(CMO, basis)
+
+        ONB = orthonormalize(basis, scheme)
+
+        call to_raw(ONB, ONB_v)
       end function
 
 !>  Return an orthogonal transformation to make A match B as closely as possible.
@@ -130,22 +151,123 @@
         R = matmul(A, B)
       end function procrust
 
-      subroutine fill_overlap_matrix(S_buffer, S)
+! The elemental keyword automatically loops over the blocks
+! and even allows the compiler to parallelize.
+      impure elemental subroutine Grahm_Schmidt_Blocks(
+     &    basis, S, n_to_ON, ONB, n_new)
         implicit none
-        real*8, intent(in) :: S_buffer(:)
-        type(t_blockdiagonal), intent(inout) :: S(:)
-        integer :: i_block, block_size, idx_block
+        type(t_blockdiagonal), intent(in) :: basis, S
+        integer, intent(in) :: n_to_ON
+        type(t_blockdiagonal), intent(_OUT_) :: ONB
+        integer, intent(out) :: n_new
 
-        idx_block = 1
-        do i_block = 1, size(S)
-          block_size = size(S(i_block)%block, 1)
-          if (block_size > 0) then
-            call square(S_buffer(idx_block), S(i_block)%block,1,
-     &                  block_size, block_size)
-          end if
-          idx_block = idx_block + (block_size**2 + block_size) / 2
+        call Grahm_Schmidt(
+     &        basis%block, S%block,  n_to_ON, ONB%block, n_new)
+      end subroutine Grahm_Schmidt_Blocks
+
+      subroutine Grahm_Schmidt_Array(basis, S, n_to_ON, ONB, n_new)
+        implicit none
+        real*8, intent(in) :: basis(:, :), S(:, :)
+        integer, intent(in) :: n_to_ON
+        real*8, intent(out) :: ONB(:, :)
+        integer, intent(out) :: n_new
+
+        real*8, allocatable :: SCTMP(:), OVL(:)
+        real*8 :: L
+        integer :: i, nB
+        logical :: lin_dep_detected, improve_solution
+
+        nB = size(basis, 1)
+
+        call mma_allocate(SCTMP, nB)
+        call mma_allocate(OVL, nB)
+
+        n_new = 0
+        ONB(:, n_to_ON + 1 :) = basis(:, n_to_ON + 1 :)
+        do i = 1, n_to_ON
+          ONB(:, n_new + 1) = basis(:, i)
+
+          improve_solution = .true.
+          lin_dep_detected = .false.
+          do while (improve_solution .and. .not. lin_dep_detected)
+            SCTMP(:nB) = matmul(S, ONB(:, n_new + 1))
+! NOTE: One could use DGEMM_ routines,
+!       But the matmul routines seem a lot more readable and
+!       performance is not really a problem here.
+            if (n_new > 0) then
+              ovl(:n_new) =
+     &          matmul(transpose(ONB(:, :n_new)), sctmp(:nB))
+              ONB(:, n_new + 1) =
+     &          ONB(:, n_new + 1) - matmul(ONB(:, :n_new) , ovl(:n_new))
+            end if
+            L = ddot_(nB, SCTMP, 1, ONB(:, n_new + 1), 1)
+
+            lin_dep_detected = L < 1.0d-10
+            improve_solution = L < 0.2d0
+            if (.not. lin_dep_detected) then
+              ONB(:, n_new + 1) = ONB(:, n_new + 1) / sqrt(L)
+            end if
+            if (.not. (improve_solution .or. lin_dep_detected)) then
+              n_new = n_new + 1
+            end if
+          end do
         end do
-      end subroutine
+        ONB(:, n_new + 1 : n_to_ON) = basis(:, n_new + 1 : n_to_ON)
+        call mma_deallocate(SCTMP)
+        call mma_deallocate(OVL)
+      end subroutine Grahm_Schmidt_Array
+
+      subroutine update_orb_numbers(
+     &    n_to_ON, nNew, nBas,
+     &    nDel, nSSH, nOrb, nDelt, nSec, nOrbt, nTot3, nTot4)
+      use general_data, only : nSym
+      implicit none
+#include "warnings.fh"
+#include "output_ras.fh"
+      integer, intent(in) :: n_to_ON(:), nNew(:), nBas(:)
+      integer, intent(inout) :: nDel(:), nSSH(:), nOrb(:),
+     &  nDelt, nSec, nOrbt, nTot3, nTot4
+
+      integer :: iSym, nSnew(nSym), remove(nSym), total_remove
+
+      remove = n_to_ON(:nSym) - nNew(:nSym)
+      total_remove = sum(remove(:nSym))
+      if (total_remove > 0) then
+        do iSym = 1, nSym
+          if (nSSH(iSym) < remove(iSym)) then
+            call WarningMessage(2,'Orthonormalization Error')
+            Write(LF,*) 'Exact or very near linear dependence '
+            Write(LF,*) 'forces RASSCF to stop execution.'
+            Write(LF,*) 'Symmetry block:', iSym
+            Write(LF,*) 'Effective NR of orthonormal orbs:', nNew(iSym)
+            Write(LF,*) 'Earlier number of deleted orbs:', nDel(iSym)
+            Write(LF,*) 'Earlier number of secondary orbs:', nSSH(iSym)
+            Write(LF,*) 'New number of deleted orbs:',
+     &                  nDel(iSym) + remove(iSym)
+            Write(LF,*) 'New number of secondary orbs:',
+     &                  nSSH(iSym) - remove(iSym)
+            call quit(_RC_GENERAL_ERROR_)
+          else if (iPRLoc(1) >= usual) then
+            call WarningMessage(1,'Orthonormalization Warning')
+            Write(LF,*) 'Exact or very near linear dependence'
+            Write(LF,*) 'forces RASSCF to delete additional orbitals.'
+            Write(LF,*) 'Symmetry block:', iSym
+            Write(LF,*) 'Earlier number of deleted orbs =', nDel(iSym)
+            Write(LF,*) 'New number of deleted orbs =',
+     &                  nDel(iSym) + remove(iSym)
+          end if
+        end do
+        nDel(:nSym) = nDel(:nSym) + remove(:nSym)
+        nSSH(:nSym) = nSSH(:nSym) - remove(:nSym)
+        nOrb(:nSym) = nOrb(:nSym) - remove(:nSym)
+        nDelt = nDelt + total_remove
+        nSec = nSec - total_remove
+        nOrbt = nOrbt - total_remove
+        nTot3 = sum((nOrb(:nSym) + nOrb(:nSym)**2) / 2)
+        nTot4 = sum(nOrb(:nSym)**2)
+      end if
+      end subroutine update_orb_numbers
+
 
       subroutine read_raw_S(S_buffer)
         implicit none
@@ -169,157 +291,30 @@
       end subroutine
 
 
-      subroutine ONCMO(CMO1, CMO2)
-      use general_data, only :
-     &    nSym, nBAs, nDel, nActEl, nDelt, nSSH, nDel, nOrb, nTot
-      use rasscf_data, only :
-     &    nSec, nTOT3, nTOT4, Tot_Nuc_Charge, nFr, nIn, nOrbT
-      implicit none
-      type(t_blockdiagonal), intent(in) :: CMO1(nSym)
-      type(t_blockdiagonal), intent(inout) :: CMO2(nSym)
-#include "warnings.fh"
-#include "output_ras.fh"
-      type(t_blockdiagonal) :: S(nSym)
-      integer :: iPRLEV, nBM, n_to_ON(nSym),
-     &    NOM, size_S_buffer, iSYM, nB,
-     &    nDSAVe, CMO_block, nNew(nSym), i,
-     &    IPOLD, IPNEW, remove(nSym), nD, nS, nDNew, nSNew(nSym)
-      real*8 :: xMol_Charge
-      real*8, allocatable :: S_buffer(:), SCTMP(:), OVL(:)
-
-      real*8 :: L, XSCL
-      Parameter (ROUTINE='ONCMO   ')
-
-      Call qEnter(ROUTINE)
-
-      n_to_ON(:) = nBas(:nSym) - nDel(:nSym)
-      if (all(n_to_ON == 0)) call qExit(routine)
-
-      size_S_buffer = sum(nBas(:nSym) * (nBas(:nSym) + 1) / 2)
-      call mma_allocate(S_buffer, size_S_buffer + 4)
-      call read_raw_S(S_buffer)
-      Tot_Nuc_Charge = S_buffer(size_S_buffer + 4)
-      call new(S, blocksizes=nBas(:nSym))
-      call fill_from_symm_buffer(S_buffer, S)
-      call mma_deallocate(S_buffer)
-
-      xMol_Charge = Tot_Nuc_Charge - dble(2 * (nFr + nIn) + nActEl)
-      call put_dscalar('Total Charge    ', xMol_Charge)
-      if (iprlev >= usual) then
-        write(6,*)
-        write(6,'(6x,A,f8.2)') 'Total molecular charge',xMol_Charge
-      end If
-
-* nNew: Nr of orthonormal new CMOs
-      nNew(:nSym) = 0
-      do iSym = 1, nSym
-        if (nBas(iSym) > 0 .and. n_to_ON(iSym) > 0) then
-          call Grahm_Schmidt(CMO1(iSym)%block, S(iSym)%block,
-     &          n_to_ON(iSym), CMO2(iSym)%block, nNew(iSym))
-        end if
-      end do
-      call update_orb_numbers(n_to_ON, nNew, nBas,
-     &    nDel, nSSH, nOrb, nDelt, nSec, nOrbt, nTot3, nTot4)
-
-      call delete(S)
-
-      Call qExit(routine)
-      end subroutine ONCMO
-
-      subroutine Grahm_Schmidt(basis, S, n_to_ON, ONB, n_new)
-        implicit none
-        real*8, intent(in) :: basis(:, :), S(:, :)
-        integer, intent(in) :: n_to_ON
-        real*8, intent(out) :: ONB(:, :)
-        integer, intent(out) :: n_new
-
-        real*8, allocatable :: SCTMP(:), OVL(:)
-
-        integer :: i, nB
-        real*8 :: L
-
-        logical :: lin_dep_detected, improve_solution
-
-        nB = size(basis, 1)
-
-        call mma_allocate(SCTMP, nB)
-        call mma_allocate(OVL, nB)
-
-        n_new = 0
-        do i = 1, n_to_ON
-          ONB(:, n_new + 1) = basis(:, i)
-
-          improve_solution = .true.
-          lin_dep_detected = .false.
-          do while (improve_solution .and. .not. lin_dep_detected)
-            SCTMP(:nB) = matmul(S, ONB(:, n_new + 1))
-            if (n_new > 0) then
-              ovl(:n_new) =
-     &          matmul(transpose(ONB(:, :n_new)), sctmp(:nB))
-              ONB(:, n_new + 1) =
-     &          ONB(:, n_new + 1) - matmul(ONB(:, :n_new) , ovl(:n_new))
-            end if
-            L = ddot_(nB, SCTMP, 1, ONB(:, n_new + 1), 1)
-
-            lin_dep_detected = L < 1.0d-10
-            improve_solution = L < 0.2d0
-            if (.not. lin_dep_detected) then
-              call dscal_(nB, 1.0d0 / sqrt(L), ONB(:, n_new + 1), 1)
-            end if
-            if (.not. (improve_solution .or. lin_dep_detected)) then
-              n_new = n_new + 1
-            end if
-          end do
-        end do
-
-        call mma_deallocate(SCTMP)
-        call mma_deallocate(OVL)
-      end subroutine Grahm_Schmidt
-
-      subroutine update_orb_numbers(
-     &    n_to_ON, nNew, nBas,
-     &    nDel, nSSH, nOrb, nDelt, nSec, nOrbt, nTot3, nTot4)
-        use general_data, only : nSym
+      subroutine read_S(S)
+        use general_data, only : nBas, nSym, nActEl
+        use rasscf_data, only : nFr, nIn, Tot_Nuc_Charge
         implicit none
 #include "warnings.fh"
 #include "output_ras.fh"
-        integer, intent(in) :: n_to_ON(:), nNew(:), nBas(:)
-        integer, intent(inout) :: nDel(:), nSSH(:), nOrb(:),
-     &    nDelt, nSec, nOrbt, nTot3, nTot4
+        type(t_blockdiagonal) :: S(nSym)
 
-        integer :: iSym, nSnew(nSym), remove(nSym)
+        real*8 :: Mol_Charge
+        real*8, allocatable :: S_buffer(:)
+        integer :: size_S_buffer
 
-        remove = n_to_ON(:nSym) - nNew(:nSym)
-        if (any(remove > 0)) then
-!   nSNew = nSSH(:nSym) + nDel(:nSym) + nNew(:nSym) - nBas(:nSym)
-!   nSNew = nSSH(:nSym) + nNew(:nSym) - (nBas(:nSym) - nDel(:nSym))
-!   nSNew = nSSH(:nSym) + nNew(:nSym) - n_to_ON(:nSym)
-          nSnew = nSSH(:nSym) - remove(:nSym)
-          do iSym = 1, nSym
-            if (remove(iSym) > 0) then
-              call WarningMessage(1,'ONCMO Warning')
-              if(nsnew(iSym) >= 0) then
-                if (IPRLOC(1) >= usual) then
-                  call WarningMessage(1,'ONCMO Warning')
-                end if
-              else
-                call WarningMessage(2,'ONCMO Error')
-                call quit(_RC_GENERAL_ERROR_)
-              end if
-            end if
-          end do
-          nSSH(:nSym) = nSSH(:nSym) - remove(:nSym)
-          nDel(:nSym) = nBas(:nSym) - nNew(:nSym)
-          nOrb(:nSym) = nOrb(:nSym) - remove(:nSym)
-          nDelt = nDelt + sum(remove(:nSym))
-          nSec = nSec - sum(remove(:nSym))
-          nOrbt = nOrbt - sum(remove(:nSym))
-          nTot3 = sum((nOrb(:nsym) + nOrb(:nSym)**2) / 2)
-          nTot4 = sum(nOrb(:nSym)**2)
-        end if
+        size_S_buffer = sum(nBas(:nSym) * (nBas(:nSym) + 1) / 2)
+        call mma_allocate(S_buffer, size_S_buffer + 4)
+        call read_raw_S(S_buffer)
+        Tot_Nuc_Charge = S_buffer(size_S_buffer + 4)
+        call from_symm_raw(S_buffer, S)
+        call mma_deallocate(S_buffer)
 
-      end subroutine update_orb_numbers
-
-
-
+        Mol_Charge = Tot_Nuc_Charge - dble(2 * (nFr + nIn) + nActEl)
+        call put_dscalar('Total Charge    ', Mol_Charge)
+        if (IPRLOC(1) >= usual) then
+          write(6,*)
+          write(6,'(6x,A,f8.2)') 'Total molecular charge',Mol_Charge
+        end If
+      end subroutine
       end module orthonormalization
