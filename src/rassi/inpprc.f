@@ -253,6 +253,7 @@ C End dirty fix
          IPUSED(IPRP+12)=0
          IPRP=IPRP+12
 *
+C Not currently in use.
 C        PRPLST(IPRP+ 1)='TMOM2  R'
 C        ICMPLST(IPRP+ 1)=1
 C        IPUSED(IPRP+ 1)=0
@@ -272,15 +273,16 @@ C        PRPLST(IPRP+ 6)='TMOM2  I'
 C        ICMPLST(IPRP+ 6)=3
 C        IPUSED(IPRP+ 6)=0
 C        IPRP=IPRP+6
-      Else IF (Do_TMOM) Then
-         PRPLST(IPRP+ 1)='TMOM0  R'
-         ICMPLST(IPRP+ 1)=1
-         IPUSED(IPRP+ 1)=0
-         PRPLST(IPRP+ 2)='TMOM0  I'
-         ICMPLST(IPRP+ 2)=1
-         IPUSED(IPRP+ 2)=0
-         IPRP=IPRP+2
+C     Else IF (Do_TMOM) Then
+C        PRPLST(IPRP+ 1)='TMOM0  R'
+C        ICMPLST(IPRP+ 1)=1
+C        IPUSED(IPRP+ 1)=0
+C        PRPLST(IPRP+ 2)='TMOM0  I'
+C        ICMPLST(IPRP+ 2)=1
+C        IPUSED(IPRP+ 2)=0
+C        IPRP=IPRP+2
 *
+C Not currently in use.
 C        PRPLST(IPRP+ 1)='TMOM2  R'
 C        ICMPLST(IPRP+ 1)=2
 C        IPUSED(IPRP+ 1)=0
@@ -311,7 +313,6 @@ C If no input at all, use this selection:
 C
                IF (PRPLST(IPRP).eq.'MLTPL  0' .or.
      &             PRPLST(IPRP).eq.'MLTPL  1' .or.
-C              IF (PRPLST(IPRP).eq.'MLTPL  1' .or.
      &             PRPLST(IPRP).eq.'MLTPL  2' .or.
      &             PRPLST(IPRP).eq.'ANGMOM' .or.
      &             PRPLST(IPRP)(1:4).eq.'TMOM' .or.
@@ -350,13 +351,13 @@ C
 C Add properties for the explicit spin part of the transition moments
 C in the case of spin-orbit coupled wave functrions.
 C
-C                 IF  .FALSE.) THEN
                   IF (IFSO) THEN
                      IF (PRPLST(IPRP).EQ.'MLTPL  0') THEN
                         NSOPR=NSOPR+1
                         SOPRNM(NSOPR)=PRPLST(IPRP)
                         ISOCMP(NSOPR)=ICMPLST(IPRP)
                         SOPRTP(NSOPR)='HERMTRIP'
+C Uncomment to activate more options!!!
 C                    ELSE IF (PRPLST(IPRP).EQ.'MLTPL  1') THEN
 C                       NSOPR=NSOPR+1
 C                       SOPRNM(NSOPR)=PRPLST(IPRP)
@@ -647,20 +648,7 @@ C SO eigenstates.
  222   CONTINUE
       END DO
 C
-*define _OLD_
-#ifdef _OLD_
 C Reassemble the PNAME, ICOMP arrays.
-      IPROP=0
-      DO IPRP=1,NPRPLST
-       IF(IPUSED(IPRP).EQ.1) THEN
-        IPROP=IPROP+1
-        PNAME(IPROP)=PRPLST(IPRP)
-        PTYPE(IPROP)='UNDEF.  '
-        ICOMP(IPROP)=ICMPLST(IPRP)
-       END IF
-      END DO
-      NPROP=IPROP
-#else
 C
       DO IPRP=1,NPRPLST
          IF (IPUSED(IPRP).EQ.0) THEN
@@ -695,29 +683,9 @@ C
          END IF
       END DO
       NPROP=MPROP
-#endif
 C
 C Reassemble the SOPRNM, ISOCMP arrays:
-*define _OLD_
-#ifdef _OLD_
-      NSOPRNW=0
-      DO ISOPR=1,NSOPR
-       DO IPRP=1,NPRPLST
-        IF(IPUSED(IPRP).EQ.1) THEN
-         IF (PRPLST(IPRP).EQ.SOPRNM(ISOPR)) THEN
-          IF (ICMPLST(IPRP).EQ.ISOCMP(ISOPR)) THEN
-           NSOPRNW=NSOPRNW+1
-           SOPRNM(NSOPRNW)=SOPRNM(ISOPR)
-           ISOCMP(NSOPRNW)=ISOCMP(ISOPR)
-           GOTO 223
-          END IF
-         END IF
-        END IF
-       END DO
- 223   CONTINUE
-      END DO
-      NSOPR=NSOPRNW
-#else
+C
       DO IPRP=1,NPRPLST
          IF (IPUSED(IPRP).EQ.0) THEN
             DO ISOPR = 1, NSOPR
@@ -751,7 +719,6 @@ C Reassemble the SOPRNM, ISOCMP arrays:
          END IF
       END DO
       NSOPR=MSOPR
-#endif
 
 C IPUSED is used later for other purposes, and should be initialized
 C to zero.
@@ -760,9 +727,9 @@ C to zero.
       END DO
 C
 C PTYPE and SOPRTP is set here if not already set above. Note that this
-C is a fallback procedure that you not be used actively. This fallback
-C comes typically assigns the type of WE-reduced density to be used
-C for user specified lists of properties.
+C is a fallback procedure that you should not be used actively. This
+C fallback comes typically assigns the type of WE-reduced density to be
+C used for user specified lists of properties.
 C
       DO IPROP=1,NPROP
        IF (PTYPE(IPROP).NE.'UNDEF.  ') CYCLE
