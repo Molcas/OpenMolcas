@@ -84,7 +84,7 @@ C HOWEVER, MAX POSSIBLE SIZE IS WHEN LSYM1=LSYM2.
       NTDMA=NTDMS
       NTDMAB=NTRA
 c jochen 02/15: sonatorb needs LUTDM
-c     we'll make it conditional upon the keyword
+c     we will make it conditional upon the keyword
       IF((SONATNSTATE.GT.0).OR.NATO) THEN
         WRITE(6,*) ' Info: creating TDMFILE'
 c ... the following code used to be in init_rassi. The problem
@@ -133,6 +133,7 @@ C (IPUSED will be set later, set it to zero now.)
       PRPLST(1)=LABEL
       ICMPLST(1)=ICMP
       IPUSED(1)=0
+*
       DO I=1,MXPROP
         IF(IPRP.GE.MXPROP) GOTO 110
         IRC=-1
@@ -179,6 +180,7 @@ c Copy the EF2 integral label for hyperfine calculations
       END DO
 110   CONTINUE
       NPRPLST=IPRP
+*
 C Dirty fix (like this routine) for SMQ (spin-magnetic-quadrupole moment)
 C There is no integrals for this operator
 C but because of the reassemble of PNAME we just pretend
@@ -293,22 +295,88 @@ C        ICMPLST(IPRP+ 4)=3
 C        IPUSED(IPRP+ 4)=0
 C        IPRP=IPRP+4
       END IF
+*
       NPRPLST=IPRP
-C Add some property names by defaults, if no input:
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C                                                                     C
+C Add some property names by defaults, if no input:                   C
+C                                                                     C
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C
       IF (NPROP.EQ.0) THEN
+C
          IF (NSOPR.EQ.0) THEN
 C If no input at all, use this selection:
             DO IPRP=1,NPRPLST
-               IF (PRPLST(IPRP).eq.'MLTPL  1' .or.
+C
+               IF (PRPLST(IPRP).eq.'MLTPL  0' .or.
+     &             PRPLST(IPRP).eq.'MLTPL  1' .or.
+C              IF (PRPLST(IPRP).eq.'MLTPL  1' .or.
      &             PRPLST(IPRP).eq.'MLTPL  2' .or.
      &             PRPLST(IPRP).eq.'ANGMOM' .or.
      &             PRPLST(IPRP)(1:4).eq.'TMOM' .or.
      &             PRPLST(IPRP).eq.'VELOCITY' .or.
      &             PRPLST(IPRP)(1:4).eq.'EMFR') THEN
+C
                   NSOPR=NSOPR+1
                   SOPRNM(NSOPR)=PRPLST(IPRP)
+C
+C SET the proper default type label. That is, which WE-reduced density
+C should the integral be contracted with. If not set here it will
+C default to a Hermitian singlet reduced density.
+                  IF (PRPLST(IPRP).EQ.'ANGMOM'  ) THEN
+                     SOPRTP(NSOPR)='ANTISING'
+                  ELSE IF (PRPLST(IPRP).EQ.'VELOCITY'  ) THEN
+                     SOPRTP(NSOPR)='ANTISING'
+                  ELSE IF (PRPLST(IPRP).EQ.'TMOM  RS'  ) THEN
+                     SOPRTP(NSOPR)='HERMSING'
+                  ELSE IF (PRPLST(IPRP).EQ.'TMOM  RA'  ) THEN
+                     SOPRTP(NSOPR)='ANTISING'
+                  ELSE IF (PRPLST(IPRP).EQ.'TMOM  IS'  ) THEN
+                     SOPRTP(NSOPR)='HERMSING'
+                  ELSE IF (PRPLST(IPRP).EQ.'TMOM  IA'  ) THEN
+                     SOPRTP(NSOPR)='ANTISING'
+                  ELSE IF (PRPLST(IPRP).EQ.'TMOM0  R'  ) THEN
+                     SOPRTP(NSOPR)='HERMTRIP'
+                  ELSE IF (PRPLST(IPRP).EQ.'TMOM0  I'  ) THEN
+                     SOPRTP(NSOPR)='ANTITRIP'
+                  ELSE
+                     SOPRTP(NSOPR)='HERMSING'
+                  END IF
+C
+C Set the number of elements of the property
                   ISOCMP(NSOPR)=ICMPLST(IPRP)
+C
+C Add properties for the explicit spin part of the transition moments
+C in the case of spin-orbit coupled wave functrions.
+C
+C                 IF  .FALSE.) THEN
+                  IF (IFSO) THEN
+                     IF (PRPLST(IPRP).EQ.'MLTPL  0') THEN
+                        NSOPR=NSOPR+1
+                        SOPRNM(NSOPR)=PRPLST(IPRP)
+                        ISOCMP(NSOPR)=ICMPLST(IPRP)
+                        SOPRTP(NSOPR)='HERMTRIP'
+C                    ELSE IF (PRPLST(IPRP).EQ.'MLTPL  1') THEN
+C                       NSOPR=NSOPR+1
+C                       SOPRNM(NSOPR)=PRPLST(IPRP)
+C                       ISOCMP(NSOPR)=ICMPLST(IPRP)
+C                       SOPRTP(NSOPR)='HERMTRIP'
+C                    ELSE IF (PRPLST(IPRP).EQ.'MLTPL  2') THEN
+C                       NSOPR=NSOPR+1
+C                       SOPRNM(NSOPR)=PRPLST(IPRP)
+C                       ISOCMP(NSOPR)=ICMPLST(IPRP)
+C                       SOPRTP(NSOPR)='HERMTRIP'
+C                    ELSE IF (PRPLST(IPRP).EQ.'ANGMOM'  ) THEN
+C                       NSOPR=NSOPR+1
+C                       SOPRNM(NSOPR)=PRPLST(IPRP)
+C                       ISOCMP(NSOPR)=ICMPLST(IPRP)
+C                       SOPRTP(NSOPR)='ANTITRIP'
+                     END IF
+                  END IF
+C
                END IF
+C
 C Add some properties if DQVD is requested
                IF (DQVD) THEN
 C                 'MLTPL  2' already there by default
@@ -317,6 +385,7 @@ C                 'MLTPL  2' already there by default
                      SOPRNM(NSOPR)=PRPLST(IPRP)
                      ISOCMP(NSOPR)=ICMPLST(IPRP)
                   END IF
+C
                END IF
             END DO
          END IF
@@ -324,18 +393,32 @@ C If no PROP input, copy the SOPR selection:
          NPROP=NSOPR
          DO IPROP=1,NPROP
             PNAME(IPROP)=SOPRNM(IPROP)
+            PTYPE(IPROP)=SOPRTP(IPROP)
             ICOMP(IPROP)=ISOCMP(IPROP)
          END DO
+C
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C                                                                     C
       ELSE
+C                                                                     C
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C
 C If no SOPR input, copy the PROP selection:
          IF (NSOPR.EQ.0) THEN
             NSOPR=NPROP
             DO ISOPR=1,NSOPR
                SOPRNM(ISOPR)=PNAME(ISOPR)
+               SOPRTP(ISOPR)=PTYPE(ISOPR)
                ISOCMP(ISOPR)=ICOMP(ISOPR)
             END DO
          END IF
+C
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C                                                                     C
       END IF
+C                                                                     C
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C
 * Lists (above) now contain either a default choice, or
 * a selection by the user. Check that integrals are
 * available on the oneint file.
@@ -563,17 +646,60 @@ C SO eigenstates.
        END DO
  222   CONTINUE
       END DO
+C
+*define _OLD_
+#ifdef _OLD_
 C Reassemble the PNAME, ICOMP arrays.
       IPROP=0
       DO IPRP=1,NPRPLST
        IF(IPUSED(IPRP).EQ.1) THEN
         IPROP=IPROP+1
         PNAME(IPROP)=PRPLST(IPRP)
+        PTYPE(IPROP)='UNDEF.  '
         ICOMP(IPROP)=ICMPLST(IPRP)
        END IF
       END DO
       NPROP=IPROP
+#else
+C
+      DO IPRP=1,NPRPLST
+         IF (IPUSED(IPRP).EQ.0) THEN
+            DO IPROP = 1, NPROP
+               IF (PNAME(IPROP).EQ.PRPLST(IPRP)) PNAME(IPROP)='REMOVE'
+            END DO
+         ELSE
+            IADD=1
+            DO IPROP = 1, NPROP
+               IF (PNAME(IPROP).EQ.PRPLST(IPRP) .AND.
+     &             ICOMP(IPROP).EQ.ICMPLST(IPRP)) IADD=0
+            END DO
+            IF (IADD.EQ.1) THEN
+               NPROP=NPROP+1
+               PNAME(NPROP)=PRPLST(IPRP)
+               PTYPE(NPROP)='UNDEF.  '
+               ICOMP(NPROP)=ICMPLST(IPRP)
+            END IF
+         END IF
+      END DO
+      MPROP=NPROP
+      DO IPROP = 1, NPROP
+         IF (PNAME(IPROP).EQ.'DONE') EXIT
+         IF (PNAME(IPROP).EQ.'REMOVE') THEN
+            DO JPROP = IPROP, MPROP-1
+               PNAME(JPROP)=PNAME(JPROP+1)
+               PTYPE(JPROP)=PTYPE(JPROP+1)
+               ICOMP(JPROP)=ICOMP(JPROP+1)
+            END DO
+            PNAME(MPROP)='DONE'
+            MPROP=MPROP-1
+         END IF
+      END DO
+      NPROP=MPROP
+#endif
+C
 C Reassemble the SOPRNM, ISOCMP arrays:
+*define _OLD_
+#ifdef _OLD_
       NSOPRNW=0
       DO ISOPR=1,NSOPR
        DO IPRP=1,NPRPLST
@@ -591,13 +717,53 @@ C Reassemble the SOPRNM, ISOCMP arrays:
  223   CONTINUE
       END DO
       NSOPR=NSOPRNW
+#else
+      DO IPRP=1,NPRPLST
+         IF (IPUSED(IPRP).EQ.0) THEN
+            DO ISOPR = 1, NSOPR
+               IF (SOPRNM(ISOPR).EQ.PRPLST(IPRP)) SOPRNM(ISOPR)='REMOVE'
+            END DO
+         ELSE
+            IADD=1
+            DO ISOPR = 1, NSOPR
+               IF (SOPRNM(ISOPR).EQ.PRPLST(IPRP) .AND.
+     &             ISOCMP(ISOPR).EQ.ICMPLST(IPRP)) IADD=0
+            END DO
+            IF (IADD.EQ.1) THEN
+               NSOPR=NSOPR+1
+               SOPRNM(NSOPR)=PRPLST(IPRP)
+               SOPRTP(NSOPR)='UNDEF.  '
+               ISOCMP(NSOPR)=ICMPLST(IPRP)
+            END IF
+         END IF
+      END DO
+      MSOPR=NSOPR
+      DO ISOPR = 1, NSOPR
+         IF (SOPRNM(ISOPR).EQ.'DONE') EXIT
+         IF (SOPRNM(ISOPR).EQ.'REMOVE') THEN
+            DO JSOPR = ISOPR, MSOPR-1
+               SOPRNM(JSOPR)=SOPRNM(JSOPR+1)
+               SOPRTP(JSOPR)=SOPRTP(JSOPR+1)
+               ISOCMP(JSOPR)=ISOCMP(JSOPR+1)
+            END DO
+            PNAME(MSOPR)='DONE'
+            MSOPR=MSOPR-1
+         END IF
+      END DO
+      NSOPR=MSOPR
+#endif
 
 C IPUSED is used later for other purposes, and should be initialized
 C to zero.
       DO IPRP=1,NPRPLST
        IPUSED(IPRP)=0
       END DO
-
+C
+C PTYPE and SOPRTP is set here if not already set above. Note that this
+C is a fallback procedure that you not be used actively. This fallback
+C comes typically assigns the type of WE-reduced density to be used
+C for user specified lists of properties.
+C
       DO IPROP=1,NPROP
        IF (PTYPE(IPROP).NE.'UNDEF.  ') CYCLE
        PTYPE(IPROP)='HERMSING'
