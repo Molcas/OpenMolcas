@@ -71,7 +71,7 @@
      &  JobIph, nSSH, maxbfn, mXAct
 
       use orthonormalization, only : t_ON_scheme, ON_scheme_values,
-     &  orthonormalize, v_orthonormalize, ONCMO
+     &  orthonormalize
 
       implicit none
 
@@ -96,7 +96,6 @@
      &    lll, lJobH, ldJobH, lscr, iDisk,
      &    jRoot, kRoot, iDXsX, idXCI,
      &    iDummy(1), mh5id, IADR19(30), iAD15, lEne, nTmp(8)
-      real*8, allocatable :: CMOO(:)
       real*8 :: Dummy(1), Scal
 #ifdef _HDF5_
       character(Len=maxbfn) typestring
@@ -523,20 +522,8 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
       If(PURIFY(1:6).eq.'LINEAR') CALL LINPUR(CMO)
       If(PURIFY(1:4).eq.'ATOM') CALL SPHPUR(CMO)
 
-*     orthogonalize the molecular orbitals
       if (scheme%val /= ON_scheme_values%no_ON) then
-        call mma_allocate(CMOO, nTot2)
-        CMOO(:nTot2) = CMO(:nTot2)
-!        call ONCMO(CMOO(:nTot2), CMO(:nTot2))
-        CMO(:nTot2) = v_orthonormalize(CMOO(:nTot2), scheme)
-        call mma_deallocate(CMOO)
-
-!        write(*, *) 'Orthonormalize pew 1'
-!        CMO(:nTot2) = v_orthonormalize(CMO(:nTot2), scheme)
-!!     &    pack(orthonormalize(reshape(CMO(:nTot2), [nTot2, nTot2]),
-!!     &                        scheme),
-!!     &         .true.)
-!        write(*, *) 'Orthonormalize pew 2'
+        CMO(:nTot2) = orthonormalize(CMO(:nTot2), scheme)
       end if
 
 *     save start orbitals
