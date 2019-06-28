@@ -29,9 +29,12 @@
 #include "SysDef.fh"
 #include "rassiwfn.fh"
       LOGICAL TMOgroup
-      INTEGER IOFF(8),IJSF(4),IPRTMOM(14)
+      INTEGER IOFF(8),IJSS(4),IPRTMOM(14)
       CHARACTER*8 LABEL
-      Integer, Dimension(:), Allocatable :: TMOgrp1,TMOgrp2
+      CHARACTER*6 STLNE1
+      CHARACTER*52 STLNE2
+      Integer, Dimension(:), Allocatable :: TMOgrp1,TMOgrp2,ISS_INDEX,
+     &   iMask,jMask,iSSMask,jSSMask
       Real*8 TM_R(3), TM_I(3), TM_C(3)
       Real*8 wavevector(3), UK(3)
 
@@ -48,7 +51,10 @@
       SPEED_OF_LIGHT=CONST_C_IN_AU_
       G_Elec=CONST_ELECTRON_G_FACTOR_
 
+#define _TIME_TMOM_
+#ifdef _TIME_TMOM_
       Call CWTime(TCpu1,TWall1)
+#endif
 C Compute transition strengths for spin-orbit states:
 *
 * Initial setup for exact operator
@@ -68,7 +74,7 @@ C printing threshold
       IF(REDUCELOOP) THEN
         EX=ENSOR(1)
         L=1
-       LD=1
+        LD=1
         DO ISO = 2, NSS
            If (ABS(ENSOR(ISO)-EX).gt.1.0D-8) Then
               LD = LD + 1
@@ -261,8 +267,6 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
           EndIf
         End Do
         TMOgrp1(1)=1
-        write(6,*) (TMOgrp1(i),i=1,ngroup1+1)
-        write(6,*) (TMOgrp2(i),i=1,ngroup2+1)
         maxgrp1=0
         Do i=1,ngroup1
           maxgrp1=max(maxgrp1,TMOgrp1(i+1)-TMOgrp1(i))
@@ -297,8 +301,20 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       iPrint=0
       IJSO=0
 *
-      ThrSparse=1.0D-10
-
+      ThrSparse=0.0D-10
+*
+      Call mma_allocate(iMask,NState,LABEL='iMask')
+      Call mma_allocate(jMask,NState,LABEL='jMask')
+      Call mma_allocate(iSSMask,NSS,LABEL='iSSMask')
+      Call mma_allocate(jSSMask,NSS,LABEL='jSSMask')
+*
+      CALL mma_allocate(ISS_INDEX,NState+1,LABEL='ISS_INDEX')
+      ISS_INDEX(1)=0
+      Do iState=1,NState
+         Job=iWork(lJBNUM+iState-1)
+         ISS_INDEX(iState+1)=ISS_INDEX(IState)+MLTPLT(Job)
+      End Do
+*
       Do igrp=1,ngroup1
 *
          If (TMOgroup) Then
@@ -311,44 +327,26 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
             ENSOR1=ENSOR(istart_)
          EndIf
 *Screening
-         ISFstart=Nstate
-         ISSstart=NSS
-         Do ISO=istart_,iend_
-           ISS=0
-           Do ISF=1,ISFstart-1
-              JOB1=iWork(lJBNUM+ISF-1)
-              MPLET1=MLTPLT(JOB1)
-              Do IMS=1,MPLET1
-                ISS=ISS+1
-                Temp=USOR(ISS,ISO)**2 + USOI(ISS,ISO)**2
-                If (Temp.gt.ThrSparse) Then
-                   ISFstart=ISF
-                   ISSstart=ISS
-                   Go to 21
-                EndIf
-              EndDo
-           End Do
- 21        Continue
-         End Do
-         ISFend=ISFstart
-         ISSend=ISSstart
-         Do ISO=istart_,iend_
-           ISS=NSS+1
-           Do ISF=Nstate,ISFend+1,-1
-             JOB1=iWork(lJBNUM+ISF-1)
-             MPLET1=MLTPLT(JOB1)
-             Do IMS=MPLET1,1,-1
-               ISS=ISS-1
+         Call iCopy(NState,[0],0,iMask,1)
+         Call iCopy(NSS,[0],0,iSSMask,1)
+         ISM=0
+         ISSM=0
+         ISFLoop: Do ISF=1,NState
+           Do ISS=ISS_INDEX(ISF)+1,ISS_INDEX(ISF+1)
+             Do ISO=istart_,iend_
                Temp=USOR(ISS,ISO)**2 + USOI(ISS,ISO)**2
                If (Temp.gt.ThrSparse) Then
-                  ISFend=ISF
-                  ISSend=ISS
-                  Go to 22
-               EndIf
-             EndDo
+                 ISM=ISM+1
+                 iMask(ISM)=ISF
+                 Do IMSS=ISS_INDEX(ISF)+1,ISS_INDEX(ISF+1)
+                   ISSM=ISSM+1
+                   iSSMask(ISSM)=IMSS
+                 End Do
+                 Cycle ISFLoop
+               End If
+             End Do
            End Do
- 22        Continue
-         End Do
+         End Do ISFLoop
 *
          Do jgrp=1,ngroup2
 *
@@ -364,48 +362,36 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
             EDIFF_=ENSOR2-ENSOR1
             n12=(iend_-istart_+1)*(jend_-jstart_+1)
 *Screening
-            JSFstart=NState
-            JSSstart=NSS
-            Do JSO=jstart_,jend_
-              JSS=0
-              Do JSF=1,JSFstart-1
-                 JOB1=iWork(lJBNUM+JSF-1)
-                 MPLET1=MLTPLT(JOB1)
-                 Do JMS=1,MPLET1
-                   JSS=JSS+1
-                   Temp=USOR(JSS,JSO)**2 + USOI(JSS,JSO)**2
-                   If (Temp.gt.ThrSparse) Then
-                      JSFstart=JSF
-                      JSSstart=JSS
-                      Go to 23
-                   EndIf
-                 End Do
-              End Do
- 23           Continue
-            End Do
-            JSFend=JSFstart
-            JSSend=JSSstart
-            Do JSO=jstart_,jend_
-              JSS=NSS+1
-              Do JSF=NState,JSFend+1,-1
-                JOB1=iWork(lJBNUM+JSF-1)
-                MPLET1=MLTPLT(JOB1)
-                Do JMS=MPLET1,1,-1
-                  JSS=JSS-1
+            Call iCopy(NState,[0],0,jMask,1)
+            Call iCopy(NSS,[0],0,jSSMask,1)
+            JSM=0
+            JSSM=0
+            JSFLoop: Do JSF=1,NState
+              Do JSS=ISS_INDEX(JSF)+1,ISS_INDEX(JSF+1)
+                Do JSO=jstart_,jend_
                   Temp=USOR(JSS,JSO)**2 + USOI(JSS,JSO)**2
                   If (Temp.gt.ThrSparse) Then
-                      JSFend=JSF
-                      JSSend=JSS
-                      Go to 24
-                   EndIf
+                    JSM=JSM+1
+                    jMask(JSM)=JSF
+                    Do JMSS=ISS_INDEX(JSF)+1,ISS_INDEX(JSF+1)
+                      JSSM=JSSM+1
+                      jSSMask(JSSM)=JMSS
+                    End Do
+                    Cycle JSFLoop
+                  End If
                 End Do
               End Do
- 24           Continue
-            End Do
-            IJSF(1)=JSFstart
-            IJSF(2)=JSFend
-            IJSF(3)=ISFstart
-            IJSF(4)=ISFend
+            End Do JSFLoop
+*
+            IJSS(1)=istart_
+            IJSS(2)=iend_
+            IJSS(3)=jstart_
+            IJSS(4)=jend_
+*
+            WRITE(STLNE1,'(A6)') 'RASSI:'
+            WRITE(STLNE2,'(A33,I5,A5,I5)')
+     &         'Trans. intensities for SO groups ',igrp,' and ',jgrp
+            Call StatusLine(STLNE1,STLNE2)
 *
             IF (ABS(EDIFF_).LE.1.0D-8) CYCLE
             IF(EDIFF_.LT.0.0D0) CYCLE
@@ -466,19 +452,14 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                   Call FZero(PROP(1,1,IPROP),NSTATE**2)
                End Do
 
-               DO ISS=ISFstart, ISFend
+               DO ISS=1,ISM
 *
 *                 Does this spin-free state contribute to any of the
 *                 two spin states? Check the corresponding coefficients.
 *
-                  DO JSS=JSFstart, JSFend
-                     j=JSS
-                     i=ISS
-                     JOB1=iWork(lJBNUM+I-1)
-                     MPLET1 = MLTPLT(JOB1)
-*
-                     JOB2=iWork(lJBNUM+J-1)
-                     MPLET2 = MLTPLT(JOB2)
+                  i=iMask(ISS)
+                  DO JSS=1,JSM
+                     j=jMask(JSS)
 *
 *                    COMBINED SYMMETRY OF STATES:
                      JOB1=JBNUM(I)
@@ -507,8 +488,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *                    Pick up the transition density between the two
 *                    states from disc. Generated in PROPER.
 *
-                     ISTATE=max(ISS,JSS)
-                     JSTATE=min(ISS,JSS)
+                     ISTATE=max(I,J)
+                     JSTATE=min(I,J)
                      ij=ISTATE*(ISTATE-1)/2+JSTATE
                      iDisk=iWork(liTocM+ij-1)
                      If (iDisk.gt.0) Then
@@ -552,18 +533,24 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                CALL DCOPY_(3*NSS**2,[0.0D0],0,WORK(LTMI),1)
                Do iCar = 1, 3
 *
+*                 ZTRNSF_MASKED uses only the elements set by SMMAT_MASKED,
+*                 so it is not necessary to initialize LDXR & LDXI.
+*                 If the non-masked version of ZTRNSF is used, the matrices
+*                 should be initialized to zero!
+*
 *                 The electric (symmetric) part
 *
-                  CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXR),1)
-                  CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXI),1)
-*
 *                 the real and imaginary symmetric parts
-                  CALL SMMAT2(PROP,WORK(LDXR),NSS,'TMOM  RS',iCar,IJSF)
-                  CALL SMMAT2(PROP,WORK(LDXI),NSS,'TMOM  IS',iCar,IJSF)
+                  CALL SMMAT_MASKED(PROP,WORK(LDXR),NSS,'TMOM  RS',
+     &                              iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
+                  CALL SMMAT_MASKED(PROP,WORK(LDXI),NSS,'TMOM  IS',
+     &                              iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
 *
 *                 Transform properties to the spin-orbit basis
 *                 and pick up correct element
-                  Call ZTRNSF(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI))
+                  CALL ZTRNSF_MASKED(NSS,USOR,USOI,
+     &                               WORK(LDXR),WORK(LDXI),
+     &                               IJSS,iSSMask,ISSM,jSSMask,JSSM)
 *
                   Call DAXPY_(NSS**2, 1.0D0,WORK(LDXI),1,
      &                                      Work(LTMR+iCar-1),3)
@@ -572,16 +559,17 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
 *                 The magnetic (antisymmetric) part
 *
-                  CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXR),1)
-                  CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXI),1)
-*
 *                 the real and imaginary anti-symmetric parts
-                  CALL SMMAT2(PROP,WORK(LDXR),NSS,'TMOM  RA',iCar,IJSF)
-                  CALL SMMAT2(PROP,WORK(LDXI),NSS,'TMOM  IA',iCar,IJSF)
+                  CALL SMMAT_MASKED(PROP,WORK(LDXR),NSS,'TMOM  RA',iCar,
+     &                        ISS_INDEX,iMask,ISM,jMask,JSM)
+                  CALL SMMAT_MASKED(PROP,WORK(LDXI),NSS,'TMOM  IA',iCar,
+     &                        ISS_INDEX,iMask,ISM,jMask,JSM)
 *
 *                 Transform properties to the spin-orbit basis
 *                 and pick up correct element
-                  CALL ZTRNSF(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI))
+                  CALL ZTRNSF_MASKED(NSS,USOR,USOI,
+     &                               WORK(LDXR),WORK(LDXI),
+     &                               IJSS,iSSMask,ISSM,jSSMask,JSSM)
 *
                   Call DAXPY_(NSS**2, 1.0D0,WORK(LDXI),1,
      &                                      Work(LTMR+iCar-1),3)
@@ -623,21 +611,27 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                   If (iCar.eq.1.or.iCar.eq.3) Then
 *
 *                    pick up the real component
-                   CALL SMMAT2(PROP,WORK(LDXR),NSS,'TMOM0  R',iCar,IJSF)
+                     CALL SMMAT_MASKED(PROP,WORK(LDXR),NSS,'TMOM0  R',
+     &                               iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
 *                    pick up the imaginary component
-                   CALL SMMAT2(PROP,WORK(LDXI),NSS,'TMOM0  I',iCar,IJSF)
+                     CALL SMMAT_MASKED(PROP,WORK(LDXI),NSS,'TMOM0  I',
+     &                               iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
                   Else
 *                    For the y-component we have to interchange the real and
 *                    the imaginary components. The real component gets a
 *                    minus sign due to the product ixi=-1
 *
 *                    pick up the real component
-                   CALL SMMAT2(PROP,WORK(LDXI),NSS,'TMOM0  R',iCar,IJSF)
+                     CALL SMMAT_MASKED(PROP,WORK(LDXI),NSS,'TMOM0  R',
+     &                               iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
 *                    pick up the imaginary component
-                   CALL SMMAT2(PROP,WORK(LDXR),NSS,'TMOM0  I',iCar,IJSF)
-                   Call DScal_(NSS**2,-1.0D0,WORK(LDXR),1)
+                     CALL SMMAT_MASKED(PROP,WORK(LDXR),NSS,'TMOM0  I',
+     &                               iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
+                     Call DScal_(NSS**2,-1.0D0,WORK(LDXR),1)
                   End If
-                  CALL ZTRNSF(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI))
+                  CALL ZTRNSF_MASKED(NSS,USOR,USOI,
+     &                               WORK(LDXR),WORK(LDXI),
+     &                               IJSS,iSSMask,ISSM,jSSMask,JSSM)
 *
 *                 i*g/2*(s_y*k_z-s_z*k_y) -> T_x
 *                 i*g/2*(s_z*k_x-s_x*k_z) -> T_y
@@ -776,9 +770,9 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
      &            'The oscillator strength is '//
      &            'integrated over all directions of the polar'//
      &            'ization vector'
-                  WRITE(6,'(4x,a,3F8.4,a)')
+                  WRITE(6,'(4x,a,3F8.4)')
      &                  'Direction of the k-vector: ',
-     &                   (Work(ipR+k),k=0,2),' (a.u.)'
+     &                   (Work(ipR+k),k=0,2)
                Else
                   CALL CollapseOutput(1,
      &            'Isotropic transition moment strengths (SO states):')
@@ -795,7 +789,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
      &             'Integrated over ',nQuad,' directions of the '//
      &             'wave vector'
                  WRITE(6,'(4x,a)')
-     &             'The oscillator and strength is '//
+     &             'The oscillator strength is '//
      &             'integrated over all directions of the polar'//
      &             'ization vector'
                  WRITE(6,*)
@@ -858,6 +852,11 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
          END DO
       END DO
+      Call mma_deallocate(iMask)
+      Call mma_deallocate(jMask)
+      Call mma_deallocate(iSSMask)
+      Call mma_deallocate(jSSMask)
+      Call mma_deallocate(ISS_INDEX)
 *
       If (iPrint.EQ.1) THEN
          WRITE(6,32)
@@ -871,8 +870,10 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       END IF
 *
       End Do ! iVec
+#ifdef _TIME_TMOM_
       Call CWTime(TCpu2,TWall2)
       write(6,*) 'Time for TMOM : ',TCpu2-TCpu1,TWall2-TWall1
+#endif
 *
 #ifdef _HDF5_
       Call mh5_put_dset(wfn_sos_tm,Work(ipStorage))

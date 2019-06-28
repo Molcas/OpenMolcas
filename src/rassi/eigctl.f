@@ -721,9 +721,9 @@ C And the same for the Dyson amplitudes
               IF (LNCNT.EQ.0) THEN
                  If (Do_SK) Then
                     WRITE(6,*)
-                    WRITE(6,'(4x,a,3F8.4,a)')
+                    WRITE(6,'(4x,a,3F8.4)')
      &                 'Direction of the k-vector: ',
-     &                  (k_vector(k,iVec),k=1,3),' (au)'
+     &                  (k_vector(k,iVec),k=1,3)
                     WRITE(6,'(4x,a)')
      &                 'The light is assumed to be unpolarized.'
                     WRITE(6,*)
@@ -922,9 +922,9 @@ C And the same for the Dyson amplitudes
                   IF (LNCNT.EQ.0) THEN
                      If (Do_SK) Then
                         WRITE(6,*)
-                        WRITE(6,'(4x,a,3F8.4,a)')
+                        WRITE(6,'(4x,a,3F8.4)')
      &                        'Direction of the k-vector: ',
-     &                         (k_vector(k,ivec),k=1,3),' (au)'
+     &                         (k_vector(k,ivec),k=1,3)
                         WRITE(6,'(4x,a)')
      &                        'The light is assumed to be unpolarized.'
                         WRITE(6,*)
@@ -1990,7 +1990,10 @@ C And the same for the Dyson amplitudes
 ************************************************************************
 *
       If (.Not.Do_TMOM) Go To 900
+#define _TIME_TMOM_
+#ifdef _TIME_TMOM_
       Call CWTime(TCpu1,TWall1)
+#endif
 *
 *     Here we will use a Lebedev grid to integrate over all possible
 *     directions of the wave vector, k. The property integrals will be
@@ -2389,17 +2392,9 @@ C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
      &                       -PROP(I,J,IPRTMOM(6+iCar)) ! RA
                END DO
 *
-*              Project out the k direction from the real and imaginary components
-*
-               Call DaXpY_(3,-DDot_(3,TM_R,1,UK,1),UK,1,TM_R,1)
-               Call DaXpY_(3,-DDot_(3,TM_I,1,UK,1),UK,1,TM_I,1)
-*
-               Call DCopy_(3,TM_R,1,Work(iStorage+ip_TMR),1)
-               Call DCopy_(3,TM_I,1,Work(iStorage+ip_TMI),1)
-*
 *              (2) the magnetic-spin part
 *
-C                 Well the B.S term is overkill, get ride of it.
+C                 Well the B.S term is overkill, get rid of it.
 C                 Why do it when we don't do the L.S-term!
 *
 *              Finally, evaluate the transition moment from the two
@@ -2408,6 +2403,14 @@ C                 Why do it when we don't do the L.S-term!
 *              Integrate over all directions of the polarization
 *              vector and divide with the "distance", 2*pi, to get
 *              the average value.
+*
+*              Project out the k direction from the real and imaginary components
+*
+               Call DaXpY_(3,-DDot_(3,TM_R,1,UK,1),UK,1,TM_R,1)
+               Call DaXpY_(3,-DDot_(3,TM_I,1,UK,1),UK,1,TM_I,1)
+*
+               Call DCopy_(3,TM_R,1,Work(iStorage+ip_TMR),1)
+               Call DCopy_(3,TM_I,1,Work(iStorage+ip_TMI),1)
 *
                TM1 = DDot_(3,TM_R,1,TM_R,1)
                TM2 = DDot_(3,TM_I,1,TM_I,1)
@@ -2496,9 +2499,9 @@ C                 Why do it when we don't do the L.S-term!
      &              'The oscillator strength is '//
      &              'integrated over all directions of the polar'//
      &              'ization vector'
-                      WRITE(6,'(4x,a,3F8.4,a)')
+                      WRITE(6,'(4x,a,3F8.4)')
      &              'Direction of the k-vector: ',
-     &              (k_vector(k,iVec),k=1,3),' (au)'
+     &              (k_vector(k,iVec),k=1,3)
                 Else
                     CALL CollapseOutput(1,
      &              'Isotropic transition moment strengths '//
@@ -2608,8 +2611,10 @@ C                 Why do it when we don't do the L.S-term!
         Call mma_DeAllocate(TMOgrp1)
         Call mma_DeAllocate(TMOgrp2)
       EndIf
+#ifdef _TIME_TMOM_
       Call CWTime(TCpu2,TWall2)
       write(6,*) 'Time for TMOM : ',TCpu2-TCpu1,TWall2-TWall1
+#endif
 *
 *     Do some cleanup
 *

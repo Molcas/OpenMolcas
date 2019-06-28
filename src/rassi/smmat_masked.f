@@ -8,13 +8,16 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE SMMAT(PROP,PRMAT,NSS,PRLBL,IPRCMP)
+      SUBROUTINE SMMAT_MASKED(PROP,PRMAT,NSS,PRLBL,IPRCMP,ISS_INDEX,
+     &                        IST,INUM,JST,JNUM)
       IMPLICIT REAL*8 (A-H,O-Z)
       CHARACTER*(*) PRLBL
       DIMENSION PRMAT(NSS,NSS)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='SMMAT')
+      PARAMETER (ROUTINE='SMMAT_MASKED')
+      Integer INUM, JNUM
+      Integer ISS_INDEX(NSTATE+1), IST(INUM), JST(JNUM)
 #include "SysDef.fh"
 #include "Molcas.fh"
 #include "cntrl.fh"
@@ -22,10 +25,11 @@
 #include "symmul.fh"
 #include "Files.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       DIMENSION PROP(NSTATE,NSTATE,NPROP)
       REAL*8, EXTERNAL :: DCLEBS
 *
-      IPRNUM=0
+      IPRNUM=-1
 C IFSPIN takes values the values 0,1,2
 C 0 = spin free property
 C 1 = spin operator (S)
@@ -33,45 +37,54 @@ C 2 = spin dependent property, triplet operator
       IFSPIN=0
 
       DO IPROP=1,NPROP
-        IF (PRLBL.EQ.PNAME(IPROP)) THEN
-           IFSPIN=0
-           IF(IPRCMP.EQ.ICOMP(IPROP)) IPRNUM=IPROP
-        ELSE IF (PRLBL(1:4).EQ.'SPIN') THEN
-           IFSPIN=1
-        ELSE IF (PRLBL(1:5).EQ.'TMOM0') THEN
-           IFSPIN=2
-*
-*          Note that the integral is complex. Select the real or the
-*          imaginary component here.
-*
-           IF (PRLBL(1:8).EQ.PNAME(IPROP)) IPRNUM=IPROP
-        END IF
+         IF (PRLBL.EQ.PNAME(IPROP)) THEN
+            IF (PRLBL(1:5).eq.'TMOM0') THEN
+               IFSPIN=2
+               IPRNUM=IPROP
+               EXIT
+            ELSE
+               IFSPIN=0
+               IF (IPRCMP.EQ.ICOMP(IPROP)) THEN
+                  IPRNUM=IPROP
+                  EXIT
+               END IF
+            END IF
+         ELSE IF (PRLBL(1:4).EQ.'SPIN') THEN
+            IFSPIN=1
+            IPRNUM=0
+            EXIT
+         END IF
       END DO
-C Mapping from spin states to spin-free state and to spin:
-      ISS=0
-      DO ISTATE=1,NSTATE
-         JOB1=iWork(lJBNUM+ISTATE-1)
-         MPLET1=MLTPLT(JOB1)
-         S1=0.5D0*DBLE(MPLET1-1)
+      IF (IPRNUM.EQ.-1) THEN
+         Write (6,*) 'SMMAT_MASKED, Abend IPRNUM.EQ.-1'
+         Write (6,*) 'SMMAT_MASKED, PRLBL=','>',PRLBL,'<'
+         Call Abend()
+      ENDIF
 
+C Mapping from spin states to spin-free state and to spin:
+      DO I=1,INUM
+         ISTATE=IST(I)
+         ISS=ISS_INDEX(ISTATE)
+         MPLET1=ISS_INDEX(ISTATE+1)-ISS_INDEX(ISTATE)
+         S1=0.5D0*(MPLET1-1)
          DO MSPROJ1=-MPLET1+1,MPLET1-1,2
-            SM1=0.5D0*DBLE(MSPROJ1)
+            SM1=0.5D0*MSPROJ1
             ISS=ISS+1
 
-            JSS=0
-
-            DO JSTATE=1,NSTATE
-               JOB2=iWork(lJBNUM+JSTATE-1)
-               MPLET2=MLTPLT(JOB2)
-               S2=0.5D0*DBLE(MPLET2-1)
-
+            DO J=1,JNUM
+               JSTATE=JST(J)
+               JSS=ISS_INDEX(JSTATE)
+               MPLET2=ISS_INDEX(JSTATE+1)-ISS_INDEX(JSTATE)
+               S2=0.5D0*(MPLET2-1)
                DO MSPROJ2=-MPLET2+1,MPLET2-1,2
-                  SM2=0.5D0*DBLE(MSPROJ2)
+                  SM2=0.5D0*MSPROJ2
                   JSS=JSS+1
 
                   IF (IFSPIN.EQ.0 .AND. IPRNUM.NE.0) THEN
                      IF (MPLET1.EQ.MPLET2 .AND. MSPROJ1.EQ.MSPROJ2) THEN
                         PRMAT(ISS,JSS)=PROP(ISTATE,JSTATE,IPRNUM)
+                     ELSE
+                        PRMAT(ISS,JSS)=0.0D0
                      END IF
                   ELSE IF (IFSPIN.EQ.1 .AND. IPRNUM.EQ.0) THEN
                      SXMER=0.0D0
@@ -98,36 +111,13 @@ C Mapping from spin states to spin-free state and to spin:
                         ELSE IF (IPRCMP.EQ.3) THEN
                            PRMAT(ISS,JSS)=SZMER
                         END IF
+                     ELSE
+                        PRMAT(ISS,JSS)=0.0D0
                      END IF
                   ELSE IF (IFSPIN.EQ.2) THEN
-C 1-electron triplet operator so only Delta S =0,+-1 and Delta MS =0,+-1
-C Notice S1,S2 and SM1,SM2 need not to be integers
-C Hence MPLET1,MPLET2 and MSPROJ1,MSPROJ2 are used
-C Notice SMINUS and SPLUS is interchanged compared to above
-C Notice that the Y part is imaginary
 C
-C see section 3 (Spin_orbit coupling in RASSI) in
-C P A Malmqvist, et. al CPL, 357 (2002) 230-240
-C for details
-C
-C Note that we work on the x, y, and z components at this time.
-C
-C What follows applies only to the exact operator for the
-C transition moment.
-C
-C On page 234 we have the notation V^{AB}(x), that is the
-C potential has Cartesian components. Here, however, this is
-C partitioned in a slightly different way since we have that
-C V^{AB}(x)=(k x e_l)_x V^{AB}. We will only handle the
-C V^{AB} part.
-C
-C Hence, we will compute the contributions to T(i), i=x,y,z
-C here and form the inner product
-C (k x e_l)_i V^{AB} . T(i)
-C outside the code.
-C
-C Note that this code strictly follows the code of soeig.f where
-C the term L.S is added to the Hamiltonian.
+C                 The code here is a replica from smmat.f. Look in
+C                 that source for comments.
 C
                      FACT=1.0D0/SQRT(DBLE(MPLET1))
                      IF(MPLET1.EQ.MPLET2-2) FACT=-FACT

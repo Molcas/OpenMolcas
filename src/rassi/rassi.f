@@ -38,8 +38,10 @@ C RAS state interaction.
 #include "stdalloc.fh"
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='RASSI')
-      Logical Fake_CMO2
+      Logical Fake_CMO2,CLOSEONE
       COMMON / CHO_JOBS / Fake_CMO2
+      INTEGER IRC,ISFREEUNIT
+      EXTERNAL ISFREEUNIT
 
       IRETURN=20
 
@@ -51,6 +53,15 @@ C RAS state interaction.
 
 C Greetings. Default settings. Initialize data sets.
       CALL INIT_RASSI()
+
+      CLOSEONE=.FALSE.
+      IRC=-1
+      CALL OPNONE(IRC,0,'ONEINT',LUONE)
+      IF (IRC.NE.0) Then
+         WRITE (6,*) 'RASSI: Error opening file'
+         CALL ABEND()
+      END IF
+      CLOSEONE=.TRUE.
 
 C Read and check keywords etc. from stdin. Print out.
       CALL INPCTL_RASSI()
@@ -297,6 +308,15 @@ CIgorS End------------------------------------------------------------C
       CALL GETMEM('INilPt','FREE','INTE',LINILPT,1)
 
       If (Do_SK) Call mma_deallocate(k_Vector)
+
+      IF (CLOSEONE) THEN
+         IRC=-1
+         CALL CLSONE(IRC,0)
+         IF (IRC.NE.0) Then
+            WRITE (6,*) 'RASSI: Error opening file'
+            CALL ABEND()
+         END IF
+      END IF
 
 #ifdef _DMRG_
 !     !> finalize MPS-SI interface
