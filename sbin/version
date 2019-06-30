@@ -27,6 +27,7 @@ fi
 if [ -f "$MOLCAS/.molcasversion" ]
 then
     VERSION=$(cat "$MOLCAS/.molcasversion")
+    VERSION_=$(echo $VERSION | sed 's/ \& /\n/')
 elif [ -e "$MOLCAS_SOURCE/.git" ] && type git >& /dev/null
 then
     if [ -f "$MOLCAS/.stamp" ]

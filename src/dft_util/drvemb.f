@@ -859,8 +859,8 @@ c Avoid unused argument warnings
 * Fill allocated mem with zeroes.
         Call dcopy_(nTot1,[0.0D0],0,Work(ipD),1)
 
-        Call DONE_RASSCF_x(Work(ipxxCMO),Work(ipxxOCCN),
-     &                     Work(ipD)) ! computes D=CnC'
+        Call DONE_RASSCF(Work(ipxxCMO),Work(ipxxOCCN),
+     &                   Work(ipD)) ! computes D=CnC'
 * Nonelectr. Vemb with GS and excited state density
         Vemb_Xstate=ddot_(nVemb,Vemb,1,Work(ipD),1)
 *        Write(6,*) 'Kroot, Vemb_K ', KROOT, Vemb_Xstate
