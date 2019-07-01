@@ -33,7 +33,6 @@ module fcidump_reorder
 contains
 
   subroutine OrbitalTable_reorder(orbitals, P)
-    implicit none
     type(OrbitalTable), intent(inout) :: orbitals
     integer, intent(in) :: P(:)
     integer :: i
@@ -43,7 +42,6 @@ contains
   end subroutine
 
   subroutine FockTable_reorder(fock, P)
-    implicit none
     type(FockTable), intent(inout) :: fock
     integer, intent(in) :: P(:)
     integer :: i, j
@@ -55,7 +53,6 @@ contains
   end subroutine
 
   subroutine TwoElIntTable_reorder(two_el_table, P)
-    implicit none
     type(TwoElIntTable), intent(inout) :: two_el_table
     integer, intent(in) :: P(:)
     integer :: i, j
@@ -68,7 +65,6 @@ contains
 
   function get_P_GAS(ngssh) result(P)
     use sorting, only : argsort
-    implicit none
     integer, intent(in) :: ngssh(:, :)
     integer :: P(sum(ngssh)), X(sum(ngssh))
     integer :: iGAS, iSym, iOrb, bounds(2)
@@ -80,23 +76,33 @@ contains
         iOrb = iOrb + ngssh(iGAS, iSym) + 1
       end do
     end do
-    P = argsort(X)
+    P = argsort(X, le)
+
+    contains
+      logical pure function le(a, b)
+        integer, intent(in) :: a, b
+        le = a <= b
+      end function
   end function
 
   function get_P_inp(ReOrInp) result(P)
     use sorting, only : sort
     use general_data, only : nAsh
-    implicit none
     integer, intent(in) :: ReOrInp(:)
     integer :: P(sum(nAsh)), change_idx(size(ReOrInp)), i
     P = [(i, i = 1, size(P))]
     change_idx = ReOrInp
-    call sort(change_idx)
+    call sort(change_idx, le)
     P(change_idx) = ReOrInp
+
+    contains
+      logical pure function le(a, b)
+        integer, intent(in) :: a, b
+        le = a <= b
+      end function
   end function
 
   subroutine ALL_reorder(orbitals, fock, two_el_table, P)
-    implicit none
     type(OrbitalTable), intent(inout) :: orbitals
     type(FockTable), intent(inout) :: fock
     type(TwoElIntTable), intent(inout) :: two_el_table
@@ -107,7 +113,6 @@ contains
   end subroutine
 
   subroutine cleanup()
-    implicit none
     call mma_deallocate(ReOrInp)
   end subroutine
 end module fcidump_reorder

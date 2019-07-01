@@ -32,7 +32,15 @@
      &      Lowdin = 3
         end type
         type(t_ON_scheme_values), parameter ::
-     &    ON_scheme_values = t_ON_scheme_values()
+! TODO: Dear fellow MOLCAS developer of the future:
+! Please replace the following explicit constructur
+! with the default constructor
+!     instance = type()
+! as soon as possible.
+! As of July 2019 the Sun compiler requires explicit construction
+! for parameter variables. (Which is wrong IMHO.)
+     &    ON_scheme_values =
+     &    t_ON_scheme_values(no_ON = 1, Grahm_Schmidt = 2, Lowdin = 3)
 
         type :: t_ON_scheme
           integer :: val = ON_scheme_values%Grahm_Schmidt
@@ -244,7 +252,7 @@
               ONB(:, n_new + 1) =
      &          ONB(:, n_new + 1) - matmul(ONB(:, :n_new) , ovl(:n_new))
             end if
-            L = ddot_(nB, SCTMP, 1, ONB(:, n_new + 1), 1)
+            L = ddot_(size(ONB, 1), SCTMP, 1, ONB(:, n_new + 1), 1)
 
             lin_dep_detected = L < 1.0d-10
             improve_solution = L < 0.2d0
