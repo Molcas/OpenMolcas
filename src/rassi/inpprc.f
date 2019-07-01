@@ -386,8 +386,8 @@ C                 'MLTPL  2' already there by default
                      SOPRNM(NSOPR)=PRPLST(IPRP)
                      ISOCMP(NSOPR)=ICMPLST(IPRP)
                   END IF
-C
                END IF
+C
             END DO
          END IF
 C If no PROP input, copy the SOPR selection:
@@ -849,7 +849,7 @@ C Write out various input data:
         WRITE(6,*)
      &    '  (note: frozen counts as inactive, deleted as secondary)'
         WRITE(6,*)
-        WRITE(6,'(6X,A,I2)')'NR of irreps:',NSYM
+        WRITE(6,'(6X,A,I2)')'Nr of irreps:',NSYM
         WRITE(6,*)
         WRITE(6,'(6X,A)')
      &       '           Total     No./Irrep '

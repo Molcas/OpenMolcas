@@ -7,6 +7,10 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2018,2019, Roland Lindh                                *
+*               2019, Mickael G. Delcey                                *
+*               2019, Ignacio Fdez Galvan                              *
 ************************************************************************
       SUBROUTINE PRPROP_TM_Exact(PROP,USOR,USOI,ENSOR,NSS,JBNUM)
       USE kVectors
@@ -37,6 +41,7 @@
      &   iMask,jMask,iSSMask,jSSMask
       Real*8 TM_R(3), TM_I(3), TM_C(3)
       Real*8 wavevector(3), UK(3)
+      Real*8 kPhase(2)
 
       CALL QENTER(ROUTINE)
 
@@ -160,13 +165,21 @@ C printing threshold
 *
 *     Generate the quadrature points.
 *
+*     In the spin-coupled case, wave functions are complex and there is
+*     not a simple relation between oscillator and rotatory strengths for
+*     k and -k vectors, but there is between the integrals computed in
+*     the spin-free basis, so we compute them only once and obtain separately
+*     the results for k and -k, given by kPhase
+*
+      kPhase = [1.0D0, -1.0D0]
       If (Do_SK) Then
          nQuad = 1
          nVec=nk_Vector
          Call GetMem('SK','ALLO','REAL',ipR,4*nQuad)
+         If (.Not.(PRRAW.Or.PRWEIGHT)) kPhase(2) = 0.0D0
       Else
          Call Setup_O()
-         Call Do_Lebedev(L_Eff,nQuad,ipR)
+         Call Do_Lebedev_Sym(L_Eff,nQuad,ipR)
          nVec = 1
       End If
 *
@@ -179,8 +192,11 @@ C printing threshold
 *     Allocate some temporary arrays for handling the
 *     properties of the spin-orbit states.
 *
-      CALL GETMEM('DXR','ALLO','REAL',LDXR,NSS**2)
-      CALL GETMEM('DXI','ALLO','REAL',LDXI,NSS**2)
+      CALL GETMEM('DXR','ALLO','REAL',LDXR,3*NSS**2)
+      CALL GETMEM('DXI','ALLO','REAL',LDXI,3*NSS**2)
+      CALL GETMEM('DXRM','ALLO','REAL',LDXRM,3*NSS**2)
+      CALL GETMEM('DXIM','ALLO','REAL',LDXIM,3*NSS**2)
+      CALL GETMEM('DXT','ALLO','REAL',LTMP,NSS**2)
       CALL GETMEM('TMR','ALLO','REAL',LTMR,3*NSS**2)
       CALL GETMEM('TMI','ALLO','REAL',LTMI,3*NSS**2)
 *
@@ -193,18 +209,23 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *     Allocate vector to store all individual transition moments.
 *     We do this for
 *     all unique pairs ISO-JSO, iSO=/=JSO (NSS*(NSS-1)/2)
-*         all k-vectors (nQuad or nVec)
+*         all k-vectors (2*nQuad or 2*nVec)
 *             we store:
 *                 the weight (1)
 *                 the k-vector (3)
 *                 we projected transition vector (real and imaginary parts) (2*3)
 *
       nIJ=nSS*(nSS-1)/2
-      nData= 1 + 3 + 2*3
-      nStorage = nIJ * nQuad * nData
+      ip_w       = 1
+      ip_kvector = ip_w + 1
+      ip_TMR     = ip_kvector + 3
+      ip_TMI     = ip_TMR + 3
+      nData      = ip_TMI + 3 - 1
+      nStorage = nIJ * 2*nQuad * nData
       mStorage = nStorage * nVec
 *MGD Storage is not well handled with groups yet
       Call GetMem('STORAGE','Allo','Real',ipStorage,mStorage)
+      Call DCopy_(mStorage,[0.0D0],0,Work(ipStorage),1)
 *MGD group transitions
       TMOgroup=.false.
       ngroup1=IEND
@@ -280,14 +301,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
 *     Array for printing contributions from different directions
 *
-      CALL GETMEM('RAW   ','ALLO','REAL',LRAW,NQUAD*5*nmax2)
-      CALL GETMEM('WEIGHT','ALLO','REAL',LWEIGH,NQUAD*5*nmax2)
+      CALL GETMEM('RAW   ','ALLO','REAL',LRAW,2*NQUAD*6*nmax2)
       CALL GETMEM('OSCSTR','ALLO','REAL',LF,2*nmax2)
-*
-      ip_w       = 1
-      ip_kvector = ip_w + 1
-      ip_TMR     = ip_kvector + 3
-      ip_TMI     = ip_TMR + 3
 *
       Do iVec = 1, nVec
 *
@@ -301,7 +316,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       iPrint=0
       IJSO=0
 *
-      ThrSparse=0.0D-10
+      ThrSparse=1.0D-12
 *
       Call mma_allocate(iMask,NState,LABEL='iMask')
       Call mma_allocate(jMask,NState,LABEL='jMask')
@@ -396,7 +411,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
             IF (ABS(EDIFF_).LE.1.0D-8) CYCLE
             IF(EDIFF_.LT.0.0D0) CYCLE
             IJSO=IJSO+1
-            iOff_= (IJSO-1)*nQuad*nData
+            iOff_= (IJSO-1)*2*nQuad*nData
 *
 *           The energy difference is used to define the norm of the
 *           wave vector.
@@ -414,11 +429,10 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *           Initialize output arrays
 *
             CALL DCOPY_(2*n12,[0.0D0],0,WORK(LF),1)
-            CALL DCOPY_(NQUAD*5*n12,[0.0D0],0,WORK(LRAW),1)
-            CALL DCOPY_(NQUAD*5*n12,[0.0D0],0,WORK(LWEIGH),1)
+            CALL DCOPY_(2*NQUAD*6*n12,[0.0D0],0,WORK(LRAW),1)
 *
             Do iQuad = 1, nQuad
-               iStorage = iOff_+ (iQuad-1)*nData + ipStorage - 1
+               iStorage = iOff_+ 2*(iQuad-1)*nData + ipStorage - 1
      &                  + (iVec-1)*nStorage
 *
 *              Generate the wavevector associated with this quadrature
@@ -427,12 +441,19 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                UK(1)=Work((iQuad-1)*4  +ipR)
                UK(2)=Work((iQuad-1)*4+1+ipR)
                UK(3)=Work((iQuad-1)*4+2+ipR)
-
-               wavevector(:)=rkNorm*UK(:)
-               Call DCopy_(3,wavevector,1,Work(iStorage+ip_kvector),1)
 *
+*              Note that the weights are normalized to integrate to
+*              4*pi over the solid angles.
+*
+               wavevector(:)=rkNorm*UK(:)
                Weight=Work((iQuad-1)*4+3+ipR)
-               Work(iStorage+ip_w)=Weight
+               If (.Not.Do_SK) Weight = Weight/(4.0D0*PI)
+               Do kp = 1, 2
+                  If (Abs(kPhase(kp)).lt.0.5d0) Cycle
+                  Call daXpY_(3,kPhase(kp),wavevector,1,
+     &               Work(iStorage+ip_kvector+(kp-1)*nData),1)
+                  Work(iStorage+ip_w+(kp-1)*nData)=Weight
+               End Do
 *
 *              Generate the property integrals associated with this
 *              direction of the wave vector k.
@@ -518,154 +539,146 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                   END DO ! J
                END DO ! I
 *
-*              (1) the spin-free part. This part is split into a
-*                  symmetric and an antisymmetric part, being electric
-*                  and magnetic, respectively. We will treat them
-*                  separate for now to facilitate the calculation of
-*                  the rotatory strength.
+*              LDXR & LDXI hold the component that does not change from k to -k
+*              LDXRM & LDXIM hold the component that changes sign
 *
-*              Note that the integrals are not computed for the
-*              momentum operator but rather for nabla. That is
-*              as we assemble to transition momentum we have to
-*              remember to put in a factor of -i.
+               CALL DCOPY_(3*NSS**2,[0.0D0],0,WORK(LDXR),1)
+               CALL DCOPY_(3*NSS**2,[0.0D0],0,WORK(LDXI),1)
+               CALL DCOPY_(3*NSS**2,[0.0D0],0,WORK(LDXRM),1)
+               CALL DCOPY_(3*NSS**2,[0.0D0],0,WORK(LDXIM),1)
+               DO iCar = 1, 3
 *
-               CALL DCOPY_(3*NSS**2,[0.0D0],0,WORK(LTMR),1)
-               CALL DCOPY_(3*NSS**2,[0.0D0],0,WORK(LTMI),1)
-               Do iCar = 1, 3
+*              (1) the spin-free part.
+*                 Note that the integrals are not computed for the
+*                 momentum operator but rather for nabla. That is
+*                 as we assemble to transition momentum we have to
+*                 remember to put in a factor of -i.
 *
-*                 ZTRNSF_MASKED uses only the elements set by SMMAT_MASKED,
-*                 so it is not necessary to initialize LDXR & LDXI.
-*                 If the non-masked version of ZTRNSF is used, the matrices
-*                 should be initialized to zero!
+                  LI_=LDXI+(iCar-1)*NSS**2
+                  LRM_=LDXRM+(iCar-1)*NSS**2
 *
-*                 The electric (symmetric) part
+*                 The real part (symmetric and anti-symmetric) becomes imaginary
 *
-*                 the real and imaginary symmetric parts
-                  CALL SMMAT_MASKED(PROP,WORK(LDXR),NSS,'TMOM  RS',
-     &                              iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
-                  CALL SMMAT_MASKED(PROP,WORK(LDXI),NSS,'TMOM  IS',
-     &                              iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
+                  CALL SMMAT_MASKED(PROP,WORK(LTMP),NSS,'TMOM  RS',
+     &                        iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
+                  CALL DAXPY_(NSS**2,-1.0D0,WORK(LTMP),1,WORK(LI_),1)
+                  CALL SMMAT_MASKED(PROP,WORK(LTMP),NSS,'TMOM  RA',
+     &                        iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
+                  CALL DAXPY_(NSS**2,-1.0D0,WORK(LTMP),1,WORK(LI_),1)
 *
-*                 Transform properties to the spin-orbit basis
-*                 and pick up correct element
-                  CALL ZTRNSF_MASKED(NSS,USOR,USOI,
-     &                               WORK(LDXR),WORK(LDXI),
-     &                               IJSS,iSSMask,ISSM,jSSMask,JSSM)
+*                 The imaginary part (symmetric and anti-symmetric) becomes real
 *
-                  Call DAXPY_(NSS**2, 1.0D0,WORK(LDXI),1,
-     &                                      Work(LTMR+iCar-1),3)
-                  Call DAXPY_(NSS**2,-1.0D0,WORK(LDXR),1,
-     &                                      Work(LTMI+iCar-1),3)
-*
-*                 The magnetic (antisymmetric) part
-*
-*                 the real and imaginary anti-symmetric parts
-                  CALL SMMAT_MASKED(PROP,WORK(LDXR),NSS,'TMOM  RA',iCar,
-     &                        ISS_INDEX,iMask,ISM,jMask,JSM)
-                  CALL SMMAT_MASKED(PROP,WORK(LDXI),NSS,'TMOM  IA',iCar,
-     &                        ISS_INDEX,iMask,ISM,jMask,JSM)
-*
-*                 Transform properties to the spin-orbit basis
-*                 and pick up correct element
-                  CALL ZTRNSF_MASKED(NSS,USOR,USOI,
-     &                               WORK(LDXR),WORK(LDXI),
-     &                               IJSS,iSSMask,ISSM,jSSMask,JSSM)
-*
-                  Call DAXPY_(NSS**2, 1.0D0,WORK(LDXI),1,
-     &                                      Work(LTMR+iCar-1),3)
-                  Call DAXPY_(NSS**2,-1.0D0,WORK(LDXR),1,
-     &                                      Work(LTMI+iCar-1),3)
-*
+                  CALL SMMAT_MASKED(PROP,WORK(LTMP),NSS,'TMOM  IS',
+     &                        iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
+                  CALL DAXPY_(NSS**2, 1.0D0,WORK(LTMP),1,WORK(LRM_),1)
+                  CALL SMMAT_MASKED(PROP,WORK(LTMP),NSS,'TMOM  IA',
+     &                        iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
+                  CALL DAXPY_(NSS**2, 1.0D0,WORK(LTMP),1,WORK(LRM_),1)
 *
 *              (2) the spin-dependent part, magnetic
 *
-*              iCar=1: 1/2(S(+)+S(-))
-*              iCar=2: 1/2i(S(+)-S(-))
-*              iCar=3: Sz
+*                 iCar=1: 1/2(S(+)+S(-))
+*                 iCar=2: 1/2i(S(+)-S(-))
+*                 iCar=3: Sz
 *
-*              Here we need to be very careful. The operator is
-*              similar to the L.S operator, the spin-orbit coupling.
-*              However, here we have that the operator is B.S. Thus
-*              we can do this in a similar fashion as the spin-orbit
-*              coupling, but with some important difference.
+*                 Here we need to be very careful. The operator is
+*                 similar to the L.S operator, the spin-orbit coupling.
+*                 However, here we have that the operator is B.S. Thus
+*                 we can do this in a similar fashion as the spin-orbit
+*                 coupling, but with some important difference.
 *
-*              For the spin-orbit coupling the L operator is divided
-*              into x-, y-, and z-components, that is the operator
-*              will be represented by three different integrals.
-*              For the integrals over B it is similar but the x-, y-,
-*              and z-components are constants outside of the integral.
-*              For example, the x-component is expressed as
-*              (k x e_l)_x <0|e^(i k.r)|n>. In this section we will
-*              handle the (k x e_l)_x part outside the loop over the
-*              Cartesian components.
+*                 For the spin-orbit coupling the L operator is divided
+*                 into x-, y-, and z-components, that is the operator
+*                 will be represented by three different integrals.
+*                 For the integrals over B it is similar but the x-, y-,
+*                 and z-components are constants outside of the integral.
+*                 For example, the x-component is expressed as
+*                 (k x e_l)_x <0|e^(i k.r)|n>. In this section we will
+*                 handle the (k x e_l)_x part outside the loop over the
+*                 Cartesian components.
 *
-*              We have to note one further difference, the integrals
-*              are complex in this case.
+*                 We have to note one further difference, the integrals
+*                 are complex in this case.
 *
-*              Let us now compute the contributions T(i), i=x,y,z
+*                 Let us now compute the contributions T(i), i=x,y,z
 *
-*              In the equations we find that the y-component is imaginary,
-*              see the equations on page 234 in Per Ake's paper. Hence,
-*              the y-component is treated slightly differently.
+*                 In the equations we find that the y-component is imaginary,
+*                 see the equations on page 234 in Per Ake's paper. Hence,
+*                 the y-component is treated slightly differently.
 *
-                  If (iCar.eq.1.or.iCar.eq.3) Then
-*
-*                    pick up the real component
-                     CALL SMMAT_MASKED(PROP,WORK(LDXR),NSS,'TMOM0  R',
-     &                               iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
-*                    pick up the imaginary component
-                     CALL SMMAT_MASKED(PROP,WORK(LDXI),NSS,'TMOM0  I',
-     &                               iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
-                  Else
-*                    For the y-component we have to interchange the real and
-*                    the imaginary components. The real component gets a
-*                    minus sign due to the product ixi=-1
-*
-*                    pick up the real component
-                     CALL SMMAT_MASKED(PROP,WORK(LDXI),NSS,'TMOM0  R',
-     &                               iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
-*                    pick up the imaginary component
-                     CALL SMMAT_MASKED(PROP,WORK(LDXR),NSS,'TMOM0  I',
-     &                               iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
-                     Call DScal_(NSS**2,-1.0D0,WORK(LDXR),1)
-                  End If
-                  CALL ZTRNSF_MASKED(NSS,USOR,USOI,
-     &                               WORK(LDXR),WORK(LDXI),
-     &                               IJSS,iSSMask,ISSM,jSSMask,JSSM)
+*                 Actually, here we compute (<0|e^(i k.r)|n> x k), which
+*                 will be later dotted with e_l.
 *
 *                 i*g/2*(s_y*k_z-s_z*k_y) -> T_x
 *                 i*g/2*(s_z*k_x-s_x*k_z) -> T_y
 *                 i*g/2*(s_x*k_y-s_y*k_x) -> T_z
 *
-                  If (iCar.eq.1) Then
-                     Call DAXPY_(NSS**2,-wavevector(2)*cst,
-     &                           WORK(LDXI),1,Work(LTMR+2),3)
-                     Call DAXPY_(NSS**2, wavevector(2)*cst,
-     &                           WORK(LDXR),1,Work(LTMI+2),3)
-                     Call DAXPY_(NSS**2, wavevector(3)*cst,
-     &                           WORK(LDXI),1,Work(LTMR+1),3)
-                     Call DAXPY_(NSS**2,-wavevector(3)*cst,
-     &                           WORK(LDXR),1,Work(LTMI+1),3)
-                  Else If (iCar.eq.2) Then
-                     Call DAXPY_(NSS**2,-wavevector(3)*cst,
-     &                           WORK(LDXI),1,Work(LTMR+0),3)
-                     Call DAXPY_(NSS**2, wavevector(3)*cst,
-     &                           WORK(LDXR),1,Work(LTMI+0),3)
-                     Call DAXPY_(NSS**2, wavevector(1)*cst,
-     &                           WORK(LDXI),1,Work(LTMR+2),3)
-                     Call DAXPY_(NSS**2,-wavevector(1)*cst,
-     &                           WORK(LDXR),1,Work(LTMI+2),3)
-                  Else If (iCar.eq.3) Then
-                     Call DAXPY_(NSS**2,-wavevector(1)*cst,
-     &                           WORK(LDXI),1,Work(LTMR+1),3)
-                     Call DAXPY_(NSS**2, wavevector(1)*cst,
-     &                           WORK(LDXR),1,Work(LTMI+1),3)
-                     Call DAXPY_(NSS**2, wavevector(2)*cst,
-     &                           WORK(LDXI),1,Work(LTMR+0),3)
-                     Call DAXPY_(NSS**2,-wavevector(2)*cst,
-     &                           WORK(LDXR),1,Work(LTMI+0),3)
-                  End If
-               End Do
+*                 Note also that the "I" parts should change sign with kPhase,
+*                 but so does wavevector, so the net result is the opposite.
+*
+                  IF (iCar.EQ.1) THEN
+                     CALL SMMAT_MASKED(PROP,WORK(LTMP),NSS,'TMOM0  R',
+     &                           iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
+                     CALL DAXPY_(NSS**2, wavevector(2)*cst,
+     &                           WORK(LTMP),1,WORK(LDXIM+2*NSS**2),1)
+                     CALL DAXPY_(NSS**2,-wavevector(3)*cst,
+     &                           WORK(LTMP),1,WORK(LDXIM+1*NSS**2),1)
+                     CALL SMMAT_MASKED(PROP,WORK(LTMP),NSS,'TMOM0  I',
+     &                           iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
+                     CALL DAXPY_(NSS**2,-wavevector(2)*cst,
+     &                           WORK(LTMP),1,WORK(LDXR+2*NSS**2),1)
+                     CALL DAXPY_(NSS**2, wavevector(3)*cst,
+     &                           WORK(LTMP),1,WORK(LDXR+1*NSS**2),1)
+                  ELSE IF (iCar.EQ.2) THEN
+*                    For the y-component we have to interchange the real and
+*                    the imaginary components. The real component gets a
+*                    minus sign due to the product i*i=-1
+                     CALL SMMAT_MASKED(PROP,WORK(LTMP),NSS,'TMOM0  I',
+     &                               iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
+                     CALL DAXPY_(NSS**2,-wavevector(3)*cst,
+     &                           WORK(LTMP),1,WORK(LDXI+0*NSS**2),1)
+                     CALL DAXPY_(NSS**2, wavevector(1)*cst,
+     &                           WORK(LTMP),1,WORK(LDXI+2*NSS**2),1)
+                     CALL SMMAT_MASKED(PROP,WORK(LTMP),NSS,'TMOM0  R',
+     &                           iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
+                     CALL DAXPY_(NSS**2,-wavevector(3)*cst,
+     &                           WORK(LTMP),1,WORK(LDXRM+0*NSS**2),1)
+                     CALL DAXPY_(NSS**2, wavevector(1)*cst,
+     &                           WORK(LTMP),1,WORK(LDXRM+2*NSS**2),1)
+                  ELSE IF (iCar.EQ.3) THEN
+                     CALL SMMAT_MASKED(PROP,WORK(LTMP),NSS,'TMOM0  R',
+     &                           iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
+                     CALL DAXPY_(NSS**2, wavevector(1)*cst,
+     &                           WORK(LTMP),1,WORK(LDXIM+1*NSS**2),1)
+                     CALL DAXPY_(NSS**2,-wavevector(2)*cst,
+     &                           WORK(LTMP),1,WORK(LDXIM+0*NSS**2),1)
+                     CALL SMMAT_MASKED(PROP,WORK(LTMP),NSS,'TMOM0  I',
+     &                           iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
+                     CALL DAXPY_(NSS**2,-wavevector(1)*cst,
+     &                           WORK(LTMP),1,WORK(LDXR+1*NSS**2),1)
+                     CALL DAXPY_(NSS**2, wavevector(2)*cst,
+     &                           WORK(LTMP),1,WORK(LDXR+0*NSS**2),1)
+                  END IF
+               END DO
+*
+*              Now we can compute the transition moments for k and -k
+*
+               DO kp = 1, 2
+*
+               IF (ABS(kPhase(kp)).LT.0.5d0) CYCLE
+               CALL DCOPY_(3*NSS**2,WORK(LDXR),1,WORK(LTMR),1)
+               CALL DCOPY_(3*NSS**2,WORK(LDXI),1,WORK(LTMI),1)
+               CALL DAXPY_(3*NSS**2,kPhase(kp),
+     &                     WORK(LDXRM),1,WORK(LTMR),1)
+               CALL DAXPY_(3*NSS**2,kPhase(kp),
+     &                     WORK(LDXIM),1,WORK(LTMI),1)
+               DO iCar=1, 3
+                  LR_=LTMR+(iCar-1)*NSS**2
+                  LI_=LTMI+(iCar-1)*NSS**2
+                  CALL ZTRNSF_MASKED(NSS,USOR,USOI,
+     &                               WORK(LR_),WORK(LI_),
+     &                               IJSS,iSSMask,ISSM,jSSMask,JSSM)
+               END DO
 *
                IJ_=0
                Do ISO=istart_,iend_
@@ -675,16 +688,17 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                    LFIJ=LF+(ij_-1)*2
                    EDIFF=ENSOR(JSO)-ENSOR(ISO)
 *
-*                  Project out the k direction from the real and imaginary components
+*              Project out the k direction from the real and imaginary components
 *
-                   Call DCopy_(3,Work(LTMR+IJ*3),1,TM_R,1)
-                   Call DCopy_(3,Work(LTMI+IJ*3),1,TM_I,1)
+                   Call DCopy_(3,Work(LTMR+IJ),NSS**2,TM_R,1)
+                   Call DCopy_(3,Work(LTMI+IJ),NSS**2,TM_I,1)
                    Call DaXpY_(3,-DDot_(3,TM_R,1,UK,1),UK,1,TM_R,1)
                    Call DaXpY_(3,-DDot_(3,TM_I,1,UK,1),UK,1,TM_I,1)
-
 *MGD not stored yet
-                   Call DCopy_(3,TM_R,1,Work(iStorage+ip_TMR),1)
-                   Call DCopy_(3,TM_I,1,Work(iStorage+ip_TMI),1)
+                   Call DCopy_(3,TM_R,1,
+     &                           Work(iStorage+ip_TMR+(kp-1)*nData),1)
+                   Call DCopy_(3,TM_I,1,
+     &                           Work(iStorage+ip_TMI+(kp-1)*nData),1)
 *
 *              Integrate over all directions of the polarization
 *              vector and divide with the "distance", 2*pi, to get
@@ -698,24 +712,34 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
                    F_Temp = 2.0D0*TM_2/EDIFF
 *
-*              Compute the rotatory strength
+*              Compute the rotatory strength, note that it depends on kPhase
 *
                    TM_C(1) = TM_R(2)*TM_I(3)-TM_R(3)*TM_I(2)
                    TM_C(2) = TM_R(3)*TM_I(1)-TM_R(1)*TM_I(3)
                    TM_C(3) = TM_R(1)*TM_I(2)-TM_R(2)*TM_I(1)
                    TM_2 = -2.0D0*SQRT(DDot_(3,TM_C,1,TM_C,1))*
-     &                           SIGN(1.0D0,DDot_(3,TM_C,1,UK,1))
+     &                    SIGN(1.0D0,DDot_(3,TM_C,1,kPhase(kp)*UK,1))
                    R_Temp=0.75D0*SPEED_OF_LIGHT/EDIFF**2*TM_2
                    R_Temp=R_Temp*AU2REDR
 *
-*              Save the raw oscillator strengths in a given direction
+*              Save the raw oscillator and rotatory strengths in a given direction
 *
-                   LRAW_=LRAW+5*NQUAD*(ij_-1)
-                   WORK(LRAW_+(IQUAD-1)+0*NQUAD) = F_Temp
-                   WORK(LRAW_+(IQUAD-1)+1*NQUAD) = R_Temp
-                   WORK(LRAW_+(IQUAD-1)+2*NQUAD) = UK(1)
-                   WORK(LRAW_+(IQUAD-1)+3*NQUAD) = UK(2)
-                   WORK(LRAW_+(IQUAD-1)+4*NQUAD) = UK(3)
+                   NQUAD_=2*NQUAD
+                   LRAW_=LRAW+6*NQUAD_*(ij_-1)
+                   IQUAD_=2*(IQUAD-1)+(kp-1)
+                   WORK(LRAW_+IQUAD_+0*NQUAD_) = F_Temp
+                   WORK(LRAW_+IQUAD_+1*NQUAD_) = R_Temp
+*
+*              Save the direction and weight too
+*
+                   WORK(LRAW_+IQUAD_+2*NQUAD_) = UK(1)*kPhase(kp)
+                   WORK(LRAW_+IQUAD_+3*NQUAD_) = UK(2)*kPhase(kp)
+                   WORK(LRAW_+IQUAD_+4*NQUAD_) = UK(3)*kPhase(kp)
+                   WORK(LRAW_+IQUAD_+5*NQUAD_) = Weight
+*
+*              Do not accumulate if not doing an isotropic integration
+*
+                   If (Do_SK.And.(kp.gt.1)) Cycle
 *
 *              Accumulate to the isotropic oscillator strength
 *
@@ -724,23 +748,12 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *              Accumulate to the isotropic rotatory strength
 *
                    Work(LFIJ+1)=Work(LFIJ+1) + Weight * R_Temp
-*
-*              Save the weighted oscillator and rotatory strengths in a
-*              given direction k.
-*
-                   LWEIGH_=LWEIGH+5*NQUAD*(ij_-1)
-                   WORK(LWEIGH_+(IQUAD-1)+0*NQUAD) = F_Temp*WEIGHT
-                   WORK(LWEIGH_+(IQUAD-1)+1*NQUAD) = R_Temp*WEIGHT
-                   WORK(LWEIGH_+(IQUAD-1)+2*NQUAD) = UK(1)
-                   WORK(LWEIGH_+(IQUAD-1)+3*NQUAD) = UK(2)
-                   WORK(LWEIGH_+(IQUAD-1)+4*NQUAD) = UK(3)
                  End Do
                End Do
-
-            End Do ! iQuad
 *
-*           Note that the weights are normalized to integrate to
-*           4*pi over the solid angles.
+               End Do ! kp
+*
+            End Do ! iQuad
 *
             IJ_=0
             Do ISO=istart_,iend_
@@ -752,10 +765,6 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                  F=Work(LFIJ)
                  R=Work(LFIJ+1)
 *
-            If (.NOT.Do_SK) Then
-               F = F / (4.0D0*PI)
-               R = R / (4.0D0*PI)
-            End If
             IF (ABS(F).LT.OSTHR) CYCLE
             A =(AFACTOR*EDIFF**2)*F
 *
@@ -786,7 +795,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                WRITE(6,*)
                If (.NOT.Do_SK) Then
                  WRITE(6,'(4x,a,I4,a)')
-     &             'Integrated over ',nQuad,' directions of the '//
+     &             'Integrated over ',2*nQuad,' directions of the '//
      &             'wave vector'
                  WRITE(6,'(4x,a)')
      &             'The oscillator strength is '//
@@ -810,14 +819,19 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
               WRITE(6,34) 'From', 'To', 'Raw osc. str.',
      &                    'Rot. str.','kx','ky','kz'
               WRITE(6,35)
-              LRAW_=LRAW+5*NQUAD*(ij_-1)
+              NQUAD_=2*NQUAD
+              LRAW_=LRAW+6*NQUAD_*(ij_-1)
               DO IQUAD = 1, NQUAD
-                WRITE(6,33) ISO,JSO,
-     &          WORK(LRAW_+(IQUAD-1)+0*NQUAD),
-     &          WORK(LRAW_+(IQUAD-1)+1*NQUAD),
-     &          WORK(LRAW_+(IQUAD-1)+2*NQUAD),
-     &          WORK(LRAW_+(IQUAD-1)+3*NQUAD),
-     &          WORK(LRAW_+(IQUAD-1)+4*NQUAD)
+                DO kp=1,2
+                  IF (ABS(kPhase(kp)).LT.0.5D0) CYCLE
+                  IQUAD_=2*(IQUAD-1)+(kp-1)
+                  WRITE(6,33) ISO,JSO,
+     &            WORK(LRAW_+IQUAD_+0*NQUAD_),
+     &            WORK(LRAW_+IQUAD_+1*NQUAD_),
+     &            WORK(LRAW_+IQUAD_+2*NQUAD_),
+     &            WORK(LRAW_+IQUAD_+3*NQUAD_),
+     &            WORK(LRAW_+IQUAD_+4*NQUAD_)
+                END DO
               END DO
               WRITE(6,35)
               WRITE(6,*)
@@ -831,14 +845,20 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
               WRITE(6,34) 'From', 'To', 'Weig. osc. str.',
      &                    'Rot. str.','kx','ky','kz'
               WRITE(6,35)
-              LWEIGH_=LWEIGH+5*NQUAD*(ij_-1)
+              NQUAD_=2*NQUAD
+              LRAW_=LRAW+6*NQUAD_*(ij_-1)
               DO IQUAD = 1, NQUAD
-                WRITE(6,33) ISO,JSO,
-     &          WORK(LWEIGH_+(IQUAD-1)+0*NQUAD)/ (4.0D0*PI),
-     &          WORK(LWEIGH_+(IQUAD-1)+1*NQUAD)/ (4.0D0*PI),
-     &          WORK(LWEIGH_+(IQUAD-1)+2*NQUAD)/ (4.0D0*PI),
-     &          WORK(LWEIGH_+(IQUAD-1)+3*NQUAD)/ (4.0D0*PI),
-     &          WORK(LWEIGH_+(IQUAD-1)+4*NQUAD)/ (4.0D0*PI)
+                DO kp=1,2
+                  IF (ABS(kPhase(kp)).LT.0.5D0) CYCLE
+                  IQUAD_=2*(IQUAD-1)+(kp-1)
+                  Weight=WORK(LRAW_+IQUAD_+5*NQUAD_)
+                  WRITE(6,33) ISO,JSO,
+     &            WORK(LRAW_+IQUAD_+0*NQUAD_)*Weight,
+     &            WORK(LRAW_+IQUAD_+1*NQUAD_)*Weight,
+     &            WORK(LRAW_+IQUAD_+2*NQUAD_),
+     &            WORK(LRAW_+IQUAD_+3*NQUAD_),
+     &            WORK(LRAW_+IQUAD_+4*NQUAD_)
+                END DO
               END DO
               WRITE(6,35)
               WRITE(6,*)
@@ -881,13 +901,15 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
 *     Do some cleanup
 *
-      Call GetMem('STORAGE','FREE','Real',ipStorage,nStorage)
-      CALL GETMEM('RAW   ','FREE','REAL',LRAW,NQUAD*5*nmax2)
-      CALL GETMEM('WEIGHT','FREE','REAL',LWEIGH,NQUAD*5*nmax2)
+      Call GetMem('STORAGE','FREE','Real',ipStorage,mStorage)
+      CALL GETMEM('RAW   ','FREE','REAL',LRAW,2*NQUAD*6*nmax2)
       CALL GETMEM('TDMSCR','FREE','Real',LSCR,4*NSCR)
       CALL GETMEM('IP    ','FREE','REAL',LIP,NIP)
       CALL GETMEM('DXR','FREE','REAL',LDXR,NSS**2)
-      CALL GETMEM('DXI','FREE','REAL',LDXI,NSS**2)
+      CALL GETMEM('DXI','FREE','REAL',LDXI,3*NSS**2)
+      CALL GETMEM('DXRM','FREE','REAL',LDXRM,NSS**2)
+      CALL GETMEM('DXIM','FREE','REAL',LDXIM,3*NSS**2)
+      CALL GETMEM('DXT','FREE','REAL',LTMP,3*NSS**2)
       if (TMOgroup) Then
         Call mma_DeAllocate(TMOgrp1)
         Call mma_DeAllocate(TMOgrp2)

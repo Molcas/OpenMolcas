@@ -2037,7 +2037,11 @@ C And the same for the Dyson amplitudes
          nVec = nk_Vector
       Else
          Call Setup_O()
-         Call Do_Lebedev(L_Eff,nQuad,ipR)
+*        In the spin-free case, oscillator and rotatory strengths for k and -k
+*        are equal, so we compute only half the quadrature points and multiply
+*        the weights by 2
+         Call Do_Lebedev_Sym(L_Eff,nQuad,ipR)
+         Call DScal_(nQuad,2.0D0,Work(ipR+3),4)
          nVec = 1
       End If
 *
@@ -2230,8 +2234,7 @@ C And the same for the Dyson amplitudes
 *
 *     Array for printing contributions from different directions
 *
-      CALL GETMEM('RAW   ','ALLO','REAL',LRAW,NQUAD*5*nmax2)
-      CALL GETMEM('WEIGHT','ALLO','REAL',LWEIGH,NQUAD*5*nmax2)
+      CALL GETMEM('RAW   ','ALLO','REAL',LRAW,NQUAD*6*nmax2)
       CALL GETMEM('OSCSTR','ALLO','REAL',LF,2*nmax2)
 *
       ip_w       = 1
@@ -2288,8 +2291,7 @@ C And the same for the Dyson amplitudes
 *
 *           Initialize output arrays
 *
-            CALL DCOPY_(NQUAD*5*n12,[0.0D0],0,WORK(LRAW),1)
-            CALL DCOPY_(NQUAD*5*n12,[0.0D0],0,WORK(LWEIGH),1)
+            CALL DCOPY_(NQUAD*6*n12,[0.0D0],0,WORK(LRAW),1)
 
             Do iQuad = 1, nQuad
                iStorage = iOff_ + (iQuad-1)*nData + ipStorage -1
@@ -2307,8 +2309,13 @@ C And the same for the Dyson amplitudes
                Wavevector(:)=rkNorm*UK(:)
                Call DCopy_(3,Wavevector,1,Work(iStorage+ip_kvector),1)
 *
+*              Note that the weights are normalized to integrate to
+*              4*pi over the solid angles.
+*
                Weight=Work((iQuad-1)*4+3+ipR)
+               If (.Not.Do_SK) Weight=Weight/(4.0D0*PI)
                Work(iStorage+ip_w)=Weight
+*
 *              Generate the property integrals associated with this
 *              direction of the wave vector k.
 *
@@ -2437,28 +2444,23 @@ C                 Why do it when we don't do the L.S-term!
 *
                R_Temp=R_Temp*AU2REDR
 *
-*              Save the raw oscillator strengths in a given direction
+*              Save the raw oscillator and rotatory strengths in a given direction
 *
-               LRAW_=LRAW+5*NQUAD*(ij_-1)
+               LRAW_=LRAW+6*NQUAD*(ij_-1)
                WORK(LRAW_+(IQUAD-1)+0*NQUAD) = F_Temp
                WORK(LRAW_+(IQUAD-1)+1*NQUAD) = R_Temp
+*
+*              Save the direction and weight too
+*
                WORK(LRAW_+(IQUAD-1)+2*NQUAD) = UK(1)
                WORK(LRAW_+(IQUAD-1)+3*NQUAD) = UK(2)
                WORK(LRAW_+(IQUAD-1)+4*NQUAD) = UK(3)
+               WORK(LRAW_+(IQUAD-1)+5*NQUAD) = Weight
 *
 *              Compute the oscillator and rotatory strength
 *
                Work(LFIJ  ) = Work(LFIJ  ) + Weight * F_Temp
                Work(LFIJ+1) = Work(LFIJ+1) + Weight * R_Temp
-*
-*              Save the weighted oscillator strengths in a given direction
-*
-               LWEIGH_=LWEIGH+5*NQUAD*(ij_-1)
-               WORK(LWEIGH_+(IQUAD-1)+0*NQUAD) = F_Temp*WEIGHT
-               WORK(LWEIGH_+(IQUAD-1)+1*NQUAD) = R_Temp*WEIGHT
-               WORK(LWEIGH_+(IQUAD-1)+2*NQUAD) = UK(1)
-               WORK(LWEIGH_+(IQUAD-1)+3*NQUAD) = UK(2)
-               WORK(LWEIGH_+(IQUAD-1)+4*NQUAD) = UK(3)
                   End Do ! j_
                End Do ! i_
 *
@@ -2474,17 +2476,7 @@ C                 Why do it when we don't do the L.S-term!
 *
                 F=Work(LFIJ)
                 R=Work(LFIJ+1)
-                Call Add_Info('ITMS(SF)',[F],1,6)
-                Call Add_Info('ROTS(SF)',[R],1,6)
 *
-*           Note that the weights are normalized to integrate to
-*           4*pi over the solid angles.
-*
-                If (.NOT.Do_SK) Then
-                   F = F / (4.0D0*PI)
-                   R = R / (4.0D0*PI)
-                End If
-
                 IF (ABS(F).LT.OSTHR) CYCLE
                 A =(AFACTOR*EDIFF**2)*F
 *
@@ -2540,9 +2532,9 @@ C                 Why do it when we don't do the L.S-term!
                   WRITE(6,*)
                   WRITE(6,*)
                   WRITE(6,41) 'From', 'To', 'Raw osc. str.',
-     &                        'Rot str.','kx','ky','kz'
+     &                        'Rot. str.','kx','ky','kz'
                   WRITE(6,32)
-                  LRAW_=LRAW+5*NQUAD*(ij_-1)
+                  LRAW_=LRAW+6*NQUAD*(ij_-1)
                   DO IQUAD = 1, NQUAD
                     WRITE(6,'(5X,2I5,5X,5G16.8)') I,J,
      &              WORK(LRAW_+(IQUAD-1)+0*NQUAD),
@@ -2561,20 +2553,25 @@ C                 Why do it when we don't do the L.S-term!
                   WRITE(6,*)
                   WRITE(6,*)
                   WRITE(6,41) 'From', 'To', 'Weig. osc. str.',
-     &                        'Rot str.','kx','ky','kz'
+     &                        'Rot. str.','kx','ky','kz'
                   WRITE(6,32)
-                  LWEIGH_=LWEIGH+5*NQUAD*(ij_-1)
+                  LRAW_=LRAW+5*NQUAD*(ij_-1)
                   DO IQUAD = 1, NQUAD
+                    Weight=WORK(LRAW+(IQUAD-1)+5*NQUAD)
                     WRITE(6,'(5X,2I5,5X,5G16.8)') I,J,
-     &              WORK(LWEIGH+(IQUAD-1)+0*NQUAD)/ (4.0D0*PI),
-     &              WORK(LWEIGH+(IQUAD-1)+1*NQUAD)/ (4.0D0*PI),
-     &              WORK(LWEIGH+(IQUAD-1)+2*NQUAD)            ,
-     &              WORK(LWEIGH+(IQUAD-1)+3*NQUAD)            ,
-     &              WORK(LWEIGH+(IQUAD-1)+4*NQUAD)
+     &                WORK(LRAW+(IQUAD-1)+0*NQUAD)*Weight,
+     &                WORK(LRAW+(IQUAD-1)+1*NQUAD)*Weight,
+     &                WORK(LRAW+(IQUAD-1)+2*NQUAD),
+     &                WORK(LRAW+(IQUAD-1)+3*NQUAD),
+     &                WORK(LRAW+(IQUAD-1)+4*NQUAD)
                   END DO
                   WRITE(6,32)
                   WRITE(6,*)
                 END IF
+*
+                Call Add_Info('ITMS(SF)',[F],1,6)
+                Call Add_Info('ROTS(SF)',[R],1,6)
+*
               End Do
             End Do
 *
@@ -2603,7 +2600,6 @@ C                 Why do it when we don't do the L.S-term!
 *
       Call GetMem('STORAGE','FREE','Real',ipStorage,nStorage)
       CALL GETMEM('RAW   ','FREE','REAL',LRAW,NQUAD*5*nmax2)
-      CALL GETMEM('WEIGHT','FREE','REAL',LWEIGH,NQUAD*5*nmax2)
       CALL GETMEM('TDMSCR','FREE','Real',LSCR,4*NSCR)
       CALL GETMEM('IP    ','FREE','REAL',LIP,NIP)
       CALL GETMEM('OSCSTR','FREE','REAL',LF,2*nmax2)
