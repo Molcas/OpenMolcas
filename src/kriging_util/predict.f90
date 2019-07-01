@@ -14,11 +14,17 @@
             use globvar
             real*8 B(m_t,npx,nInter,nInter),A(m_t,m_t),tsum,ddottemp(npx),tcv(npx,m_t) !AF contains the factors L and U from the factorization A = P*L*U as computed by DGETRF
             integer IPIV(m_t),INFO,i,j,iter,nInter,gh ! ipiv the pivot indices that define the permutation matrix
+            ! ----------------Old calculations --P1
             A=full_R
             B=CV
-            tsum=sum(rones(1:iter))
             CALL DGESV_(size(A,1), size(B,2),A,size(A,2),&
                     IPIV,B,size(B,1),INFO )
+            !-----------------New
+            !  B = matmul(CV(:,:,1,1),full_Rinv)
+            !--------------------
+            write (6,*) 'R^(-1)*CV', B
+            write (6,*) 'size', size(B)
+            tsum = sum(rones(1:iter))
             do j=1,npx
                 if (gh.eq.0) then
                     tcv=transpose(cv(:,:,1,1))
@@ -41,8 +47,8 @@
                             ! write(6,*) 'pred Grad:',k,j,l,gpred(j,k), &
                             !     var,variance,sigma, lh,tcv
                         enddo
-                      write(6,*) 'final cv', cv(:,:,:,1)
-                      write(6,*) 'final Kv',kv
+                    !   write(6,*) 'final cv', cv(:,:,:,1)
+                    !   write(6,*) 'final Kv',kv
                       write (6,*) 'pred grad(gpred):',gpred
                     else
                         ! sigma(j)=1.96*sqrt(2*abs(var*variance))

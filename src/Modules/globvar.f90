@@ -13,8 +13,8 @@
       module globvar
         use AI, only: npxAI, anAI, pAI, lb, blAI, blvAI, mblAI, blaAI, blavAI
         real*8, allocatable :: x(:,:), y(:), dy(:), &
-                rl(:,:,:), dl(:,:), &
-                Iden(:,:), full_R(:,:), nx(:,:), Kv(:), &
+                rl(:,:,:), dl(:,:), full_Rinv(:,:), &
+                full_R(:,:), nx(:,:), Kv(:), & !Iden(:,:),
                 cv(:,:,:,:), cvg(:,:,:),cvh(:,:,:,:), &
                 Ys(:), var(:), Rones(:), sigma(:), l(:), &
                 pred(:), gpred(:,:), hpred(:,:,:), ll(:), &
