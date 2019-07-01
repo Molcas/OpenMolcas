@@ -11,6 +11,8 @@
 * Copyright (C) 2019, Oskar Weser                                      *
 ***********************************************************************/
 
+#include "compiler_features.h"
+
       module filesystem
       private
       public :: getcwd_, chdir_, symlink_, get_errno_, strerror_,
@@ -53,12 +55,14 @@
         integer(MOLCAS_C_INT) :: get_errno_c
       end function
 
+#ifdef C_PTR_BINDING
       function strerror_c(errno) bind(C, name="strerror")
-          use, intrinsic :: iso_c_binding
-          implicit none
-          integer(C_INT), value :: errno
-          type(c_ptr) :: strerror_c
-      end function
+        use, intrinsic :: iso_c_binding
+        implicit none
+        integer(C_INT), value, intent(in) :: errno
+        type(c_ptr) :: strerror_c
+       end function
+#endif
 
       subroutine remove_c(path, err) bind(C, name="remove_wrapper")
         use, intrinsic :: iso_c_binding
@@ -123,7 +127,16 @@
         implicit none
         character(:), allocatable :: res
         integer, intent(in) :: errnum
+#ifdef C_PTR_BINDING
         res = str(strerror_c(int(errnum, C_INT)))
+#else
+        integer :: rc
+        character(80) :: errstr
+        integer, external :: aixerr
+        errstr = ''
+        rc = aixerr(errstr)
+        res = trim(errstr)
+#endif
       end function
 
       subroutine remove_(path, err)
