@@ -25,12 +25,12 @@
             A = full_r !in, coefficent matrix A, out factors L and U from factorization A=PLU on AX=B
 !
             ! ----------------Old calculations --K1
-            ! CALL DGESV_(m_t,1,A,m_t,IPIV,B,m_t,INFO )
-            ! rones=B
+            CALL DGESV_(m_t,1,A,m_t,IPIV,B,m_t,INFO )
+            rones=B
             !-----------------New
-            CALL DGESV_(m_t,m_t,A,m_t,IPIV,full_Rinv,m_t,INFO )
-            rones = matmul(B,full_Rinv)
-            B = rones
+            ! CALL DGESV_(m_t,m_t,A,m_t,IPIV,full_Rinv,m_t,INFO )
+            ! rones = matmul(B,full_Rinv)
+            ! B = rones
             !----------------------------
             If (INFO.ne.0) Then
                Write (6,*) 'k: INFO.ne.0'
@@ -41,7 +41,7 @@
 !
 ! Now A contains the factors L and U from the factorization A = P*L*U as computed by DGESV
 ! Where L in the lower triangular matrix with 1 in the diagonal and U is the upper
-! triangular matrix of A where the determinant is giving by multipling its diagonal
+! triangular matrix of A thus the determinant of A is giving by multipling its diagonal
 !
             do i=1,m_t
                 diagA(i) = A(i,i)
@@ -80,9 +80,10 @@
             detR = 0
             sign = 1
             do i=1,m_t
-                ! if (diagA(i).le.0) sign=sign*(-1)
+                if (diagA(i).le.0) sign=sign*(-1)
                 detR = detR + log(abs(diagA(i)))
             enddo
+            detR = detR*sign
             lh = variance*exp(detR/dble(m_t))
 !
             write(6,*) 'detR',detR

@@ -14,19 +14,20 @@
             use globvar
             real*8 B(m_t,npx,nInter,nInter),A(m_t,m_t),tsum,ddottemp(npx),tcv(npx,m_t) !AF contains the factors L and U from the factorization A = P*L*U as computed by DGETRF
             integer IPIV(m_t),INFO,i,j,iter,nInter,gh ! ipiv the pivot indices that define the permutation matrix
-            ! ----------------Old calculations --P1
-            A=full_R
-            B=CV
-            CALL DGESV_(size(A,1), size(B,2),A,size(A,2),&
-                    IPIV,B,size(B,1),INFO )
-            !-----------------New
-            !  B = matmul(CV(:,:,1,1),full_Rinv)
-            !--------------------
-            write (6,*) 'R^(-1)*CV', B
-            write (6,*) 'size', size(B)
-            tsum = sum(rones(1:iter))
+!
             do j=1,npx
                 if (gh.eq.0) then
+                    ! ----------------Old calculations --P1
+                    A=full_R
+                    B=CV
+                    CALL DGESV_(size(A,1), size(B,2),A,size(A,2),&
+                            IPIV,B,size(B,1),INFO )
+                    !-----------------New
+                    !  B = matmul(CV(:,:,1,1),full_Rinv)
+                    !--------------------
+                    write (6,*) 'R^(-1)*CV', B
+                    write (6,*) 'size', size(B)
+                    tsum = sum(rones(1:iter))
                     tcv=transpose(cv(:,:,1,1))
                     var=0
                     do i=1,m_t
@@ -37,7 +38,10 @@
                     var(j)=var(j)+(1-ddottemp(j))**2/tsum
                     pred(j) = sb + dot_product(tcv(j,:),Kv)
                     sigma(j)=1.96*sqrt(abs(var(j)*variance))
-                  write(6,*) 'pred(before):',pred(j),'var',var,'variance',variance,'sigma',sigma,'lh',lh
+                  write(6,*) 'pred(before):',pred(j),'var',var,'variance',variance
+                  write(6,*) 'sigma',sigma,'lh',lh
+                  write(6,*) 'tcv(j,:)',tcv(j,:)
+                  write(6,*) 'Kv',Kv
                 else
                     if (gh.eq.1) then
                         ! sigma(j)=1.96*sqrt(2*abs(var*variance))
