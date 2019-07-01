@@ -90,13 +90,13 @@
         call read_S(S)
 
         call new(ONB, blocksizes=blocksizes(basis))
+        n_to_ON(:) = nBas(:nSym) - nDel(:nSym)
         select case (scheme%val)
           case(ON_scheme_values%no_ON)
             continue
           case(ON_scheme_values%Lowdin)
             call Lowdin(basis, S, n_to_ON, ONB, n_new)
           case(ON_scheme_values%Grahm_Schmidt)
-            n_to_ON(:) = nBas(:nSym) - nDel(:nSym)
             call Grahm_Schmidt(basis, S, n_to_ON, ONB, n_new)
             call update_orb_numbers(n_to_ON, n_new,
      &          nDel, nSSH, nOrb, nDelt, nSec, nOrbt, nTot3, nTot4)
@@ -208,8 +208,7 @@
         integer, intent(out) :: n_new
 
         call Grahm_Schmidt(
-     &        basis%block(:, :n_to_ON), S%block(:n_to_ON, :n_to_ON),
-     &        n_to_ON, ONB%block, n_new)
+     &        basis%block, S%block, n_to_ON, ONB%block, n_new)
       end subroutine Grahm_Schmidt_Blocks
 
       subroutine Grahm_Schmidt_Array(basis, S, n_to_ON, ONB, n_new)
@@ -221,13 +220,11 @@
 
         real*8, allocatable :: SCTMP(:), OVL(:)
         real*8 :: L
-        integer :: i, nB
+        integer :: i
         logical :: lin_dep_detected, improve_solution
 
-        nB = size(basis, 1)
-
-        call mma_allocate(SCTMP, nB)
-        call mma_allocate(OVL, nB)
+        call mma_allocate(SCTMP, size(basis, 1))
+        call mma_allocate(OVL, size(basis, 1))
 
         n_new = 0
         ONB(:, n_to_ON + 1 :) = basis(:, n_to_ON + 1 :)
@@ -237,13 +234,13 @@
           improve_solution = .true.
           lin_dep_detected = .false.
           do while (improve_solution .and. .not. lin_dep_detected)
-            SCTMP(:nB) = matmul(S, ONB(:, n_new + 1))
-! NOTE: One could use DGEMM_ routines,
-!       But the matmul routines seem a lot more readable and
+            SCTMP = matmul(S, ONB(:, n_new + 1))
+! NOTE: One could use DGEMM_, ddot_ routines,
+!       But the matmul, dot_product routines seem a lot more readable and
 !       performance is not really a problem here.
             if (n_new > 0) then
               ovl(:n_new) =
-     &          matmul(transpose(ONB(:, :n_new)), sctmp(:nB))
+     &          matmul(transpose(ONB(:, :n_new)), sctmp)
               ONB(:, n_new + 1) =
      &          ONB(:, n_new + 1) - matmul(ONB(:, :n_new) , ovl(:n_new))
             end if
