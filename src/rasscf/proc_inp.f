@@ -1908,7 +1908,7 @@ C orbitals accordingly
           case ('LOWDIN')
             ON_scheme%val = ON_scheme_values%Lowdin
           case ('GRAHM_SCHMIDT')
-            ON_scheme%val = ON_scheme_values%Grahm_Schmidt
+            ON_scheme%val = ON_scheme_values%Gram_Schmidt
           case ('No_ON')
             ON_scheme%val = ON_scheme_values%No_ON
         end select

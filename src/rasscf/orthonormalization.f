@@ -23,12 +23,12 @@
         public ::
      &    t_ON_scheme, ON_scheme, ON_scheme_values,
      &    t_procrust_metric, procrust_metric, metric_values,
-     &    orthonormalize, procrust, Grahm_Schmidt
+     &    orthonormalize, procrust, Gram_Schmidt
 
         type :: t_ON_scheme_values
           integer ::
      &      no_ON = 1,
-     &      Grahm_Schmidt = 2,
+     &      Gram_Schmidt = 2,
      &      Lowdin = 3
         end type
         type(t_ON_scheme_values), parameter ::
@@ -40,10 +40,10 @@
 ! As of July 2019 the Sun compiler requires explicit construction
 ! for parameter variables. (Which is wrong IMHO.)
      &    ON_scheme_values =
-     &    t_ON_scheme_values(no_ON = 1, Grahm_Schmidt = 2, Lowdin = 3)
+     &    t_ON_scheme_values(no_ON = 1, Gram_Schmidt = 2, Lowdin = 3)
 
         type :: t_ON_scheme
-          integer :: val = ON_scheme_values%Grahm_Schmidt
+          integer :: val = ON_scheme_values%Gram_Schmidt
         end type
         type(t_ON_scheme) :: ON_scheme
 
@@ -70,8 +70,8 @@
           end function
         end interface
 
-        interface Grahm_Schmidt
-          module procedure Grahm_Schmidt_Array, Grahm_Schmidt_Blocks
+        interface Gram_Schmidt
+          module procedure Gram_Schmidt_Array, Gram_Schmidt_Blocks
         end interface
 
         interface Lowdin
@@ -104,8 +104,8 @@
             continue
           case(ON_scheme_values%Lowdin)
             call Lowdin(basis, S, n_to_ON, ONB, n_new)
-          case(ON_scheme_values%Grahm_Schmidt)
-            call Grahm_Schmidt(basis, S, n_to_ON, ONB, n_new)
+          case(ON_scheme_values%Gram_Schmidt)
+            call Gram_Schmidt(basis, S, n_to_ON, ONB, n_new)
             call update_orb_numbers(n_to_ON, n_new,
      &          nDel, nSSH, nOrb, nDelt, nSec, nOrbt, nTot3, nTot4)
         end select
@@ -207,7 +207,7 @@
 
 ! The elemental keyword automatically loops over the blocks
 ! and even allows the compiler to parallelize.
-      impure elemental subroutine Grahm_Schmidt_Blocks(
+      impure elemental subroutine Gram_Schmidt_Blocks(
      &    basis, S, n_to_ON, ONB, n_new)
         implicit none
         type(t_blockdiagonal), intent(in) :: basis, S
@@ -215,11 +215,11 @@
         type(t_blockdiagonal), intent(_OUT_) :: ONB
         integer, intent(out) :: n_new
 
-        call Grahm_Schmidt(
+        call Gram_Schmidt(
      &        basis%block, S%block, n_to_ON, ONB%block, n_new)
-      end subroutine Grahm_Schmidt_Blocks
+      end subroutine Gram_Schmidt_Blocks
 
-      subroutine Grahm_Schmidt_Array(basis, S, n_to_ON, ONB, n_new)
+      subroutine Gram_Schmidt_Array(basis, S, n_to_ON, ONB, n_new)
         implicit none
         real*8, intent(in) :: basis(:, :), S(:, :)
         integer, intent(in) :: n_to_ON
@@ -267,7 +267,7 @@
         ONB(:, n_new + 1 : n_to_ON) = basis(:, n_new + 1 : n_to_ON)
         call mma_deallocate(SCTMP)
         call mma_deallocate(OVL)
-      end subroutine Grahm_Schmidt_Array
+      end subroutine Gram_Schmidt_Array
 
       subroutine update_orb_numbers(
      &    n_to_ON, nNew,
