@@ -16,6 +16,8 @@
         use fortran_strings, only : to_upper
         use blockdiagonal_matrices, only : t_blockdiagonal, new, delete,
      &    from_raw, to_raw, from_symm_raw, blocksizes
+        use sorting, only : argsort
+        use index_symmetry, only : one_el_idx_flatten
 
         implicit none
         save
@@ -188,21 +190,47 @@
         real*8, intent(out) :: ONB(:, :)
         integer, intent(out) :: n_new
 
-        real*8, allocatable :: S_root(:, :), T(:, :)
-        real*8 :: L
-        integer :: i, nB
-        logical :: lin_dep_detected, improve_solution
+        logical :: lin_dep_detected
+        integer :: i
+        integer, allocatable :: idx(:)
+        real*8, allocatable :: U(:, :), s_diag(:)
 
-        nB = size(basis, 1)
+        call mma_allocate(U, size(S, 1), size(S, 2))
+        call mma_allocate(s_diag, size(S, 2))
+        call mma_allocate(idx, size(S, 1))
 
-        call mma_allocate(S_root, size(S, 1), size(S, 2))
-        call mma_allocate(T, size(S, 1), size(S, 2))
+        call diagonalize(S, U, s_diag)
 
+        idx = argsort(s_diag, ge)
+        U = U(:, idx)
+        s_diag = s_diag(idx)
 
+        i = 0
+        lin_dep_detected = .false.
+        do while(.not. lin_dep_detected .and. i < n_to_ON)
+          if (s_diag(i + 1) < 1.0d-10) then
+            n_new = i
+            lin_dep_detected = .true.
+            exit
+          end if
+        end do
+        if (.not. lin_dep_detected) n_new = n_to_ON
 
+        do concurrent (i = 1:n_new)
+          U(:, i) = U(:, i) / sqrt(s_diag(i))
+        end do
 
-        call mma_deallocate(T)
-        call mma_deallocate(S_root)
+        ONB(:, n_new + 1 :) = basis(:, n_new + 1 :)
+        ONB(:, :n_new) = matmul(U(:, :n_new), basis(:, :n_new))
+        call mma_deallocate(idx)
+        call mma_deallocate(s_diag)
+        call mma_deallocate(U)
+
+        contains
+          logical pure function ge(x, y)
+            real*8, intent(in) :: x, y
+            ge = x >= y
+          end function
       end subroutine Lowdin_Array
 
 ! The elemental keyword automatically loops over the blocks
@@ -356,9 +384,9 @@
         type(t_blockdiagonal) :: S(nSym)
 
         parameter(ROUTINE='update_orb_numbe')
+        integer :: size_S_buffer
         real*8 :: Mol_Charge
         real*8, allocatable :: S_buffer(:)
-        integer :: size_S_buffer
 
         call qEnter(ROUTINE)
 
@@ -377,5 +405,36 @@
         end if
 
         call qExit(ROUTINE)
+      end subroutine
+
+      subroutine diagonalize(A, V, lambda)
+        real*8, intent(in) :: A(:, :)
+        real*8, intent(out) :: V(:, :), lambda(:)
+
+        integer, parameter :: do_worksize_query = -1
+        integer :: info
+        real*8, allocatable :: work(:)
+        real*8 :: dummy(2), query_result(2)
+
+        call dsyev_('V', 'L', size(V, 2), dummy, size(V, 1), dummy,
+     &              query_result, do_worksize_query, info)
+
+        if (info /= 0) call abort_('Error in diagonalize')
+
+        call mma_allocate(work, int(query_result(1)))
+        V = A
+        call dsyev_('V', 'L', size(V, 2), V, size(V, 1), lambda,
+     &              work, size(work), info)
+
+        if (info /= 0) call abort_('Error in diagonalize')
+      end subroutine diagonalize
+
+
+      subroutine abort_(message)
+        implicit none
+        character(*), intent(in) :: message
+        call WarningMessage(2, message)
+        call QTrace()
+        call Abend()
       end subroutine
       end module orthonormalization
