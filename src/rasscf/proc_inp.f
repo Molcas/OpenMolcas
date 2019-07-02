@@ -1900,8 +1900,8 @@ C orbitals accordingly
           GoTo 9930
         end if
       end if
-      if (KeyONSC) then
-        call setpos(luinput,'ONSC',line,irc)
+      if (KeyORTH) then
+        call setpos(luinput,'ORTH',line,irc)
         if(irc.ne._RC_ALL_IS_WELL_) goto 9810
         read(luinput,*,end=9910,err=9920) ON_scheme_inp
         select case (to_upper(trim(ON_scheme_inp)))
@@ -1909,7 +1909,7 @@ C orbitals accordingly
             ON_scheme%val = ON_scheme_values%Lowdin
           case ('GRAHM_SCHMIDT')
             ON_scheme%val = ON_scheme_values%Gram_Schmidt
-          case ('No_ON')
+          case ('NO_ON')
             ON_scheme%val = ON_scheme_values%No_ON
         end select
       end if
