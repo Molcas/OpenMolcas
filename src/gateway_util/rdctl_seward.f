@@ -3247,14 +3247,13 @@ c
         mLine = Len(Project)
         jLast = iCLast(Project,mLine)
         Key = Key(1:iLast)//'/tkr2qm_s '//Project(1:jLast)//'.xyz'//
-     &                 '>'//Project(1:jLast)//'.Tinker.log 2>&1'
+     &                 '>'//Project(1:jLast)//'.Tinker.log'
         mLine = Len(Key)
         iLast = iCLast(Key,mLine)
         Write(6,*) 'TINKER keyword found, run ',Key(1:iLast)
         Call StatusLine(' Gateway:',' Read input from Tinker')
         RC=0
-        !Call Systemf(Key(1:iLast),RC)
-        Call System(Key(1:iLast))
+        Call Systemf(Key(1:iLast),RC)
         If (RC.ne.0) Then
           Key='RdCtl_Seward: Tinker call terminated abnormally'
           Call WarningMessage(2,Key)
