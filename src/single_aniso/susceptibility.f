@@ -36,8 +36,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       External       :: dev
       Real(kind=wp)  :: gtens(3), maxes(3,3)
       Real (kind=wp), allocatable ::        chit_tens(:,:,:)
-      Real (kind=wp), allocatable ::    smu_chit_tens(:,:,:)
-      Real (kind=wp), allocatable ::     ss_chit_tens(:,:,:)
       Real (kind=wp), allocatable ::  chit_theta_tens(:,:,:)
       Real (kind=wp), allocatable ::           zstat1(:)
       Real (kind=wp), allocatable ::             chit(:)
@@ -177,12 +175,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       Else  ! i.e. when zJ .ne. 0.0_wp
          If(dbg) Write(6,*) 'SUSC:  zJ \= 0'
          ! allocate matrices:
-         Call mma_allocate(Smu_chiT_tens  ,3,3,(nT+nTempMagn),'Smu')
-         Call mma_allocate(SS_chiT_tens   ,3,3,(nT+nTempMagn),'SS_')
-         Call mma_allocate(chiT_theta_tens,3,3,(nT+nTempMagn),'XTT')
+         Call mma_allocate(chiT_theta_tens,(nT+nTempMagn),3,3,'XTT')
          ! initialize:
-         Call dcopy_( 3*3*(nT+nTempMagn),[0.0_wp], 0, Smu_chiT_tens,1)
-         Call dcopy_( 3*3*(nT+nTempMagn),[0.0_wp], 0, SS_chiT_tens,1)
          Call dcopy_( 3*3*(nT+nTempMagn),[0.0_wp], 0, chiT_theta_tens,1)
          Call mma_allocate(XMM,3,3,'XMM')
          Call mma_allocate(XSM,3,3,'XSM')
@@ -389,8 +383,6 @@ c print out the main VAN VLECK SUSCEPTIBILITY TENSOR, its main values and main a
      &          ' |  Z:',wt(3),'|',(zt(j,3),j=1,3),'|'
         End Do
         Write(6,'(111A)') ('-',i=1,110),'|'
-         Call mma_deallocate(Smu_chiT_tens)
-         Call mma_deallocate(SS_chiT_tens)
          Call mma_deallocate(chiT_theta_tens)
       End If ! zJ
 
