@@ -204,7 +204,7 @@
      &         'ROOT_ENERGIES',ref_energies)
         DO I=1,NSTAT(JOB)
           ISTATE=ISTAT(JOB)-1+I
-          Work(LREFENE+istate-1)=ref_energies(ref_rootid(I))
+          Work(LREFENE+istate-1)=ref_energies(iWork(lLROOT+ISTATE-1))
         END DO
         call mma_deallocate(ref_energies)
       End If

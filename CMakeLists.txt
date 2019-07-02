@@ -653,7 +653,6 @@ set (FFLAGS_GNU_FAST "-O3")
 if (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND
     CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND
     (NOT CMAKE_C_COMPILER_VERSION VERSION_LESS "4.8"))
-        set (CFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
         set (FFLAGS_GNU_BASIC "${FFLAGS_GNU_BASIC} -fno-aggressive-loop-optimizations")
         set (FFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
 endif ()
