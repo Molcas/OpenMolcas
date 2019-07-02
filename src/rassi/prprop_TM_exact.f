@@ -765,8 +765,11 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                  F=Work(LFIJ)
                  R=Work(LFIJ+1)
 *
-            IF (ABS(F).LT.OSTHR) CYCLE
-            A =(AFACTOR*EDIFF**2)*F
+                 Call Add_Info('ITMS(SO)',[F],1,6)
+                 Call Add_Info('ROTS(SO)',[R],1,6)
+*
+                 IF (ABS(F).LT.OSTHR) CYCLE
+                 A =(AFACTOR*EDIFF**2)*F
 *
             If (iPrint.eq.0) Then
                WRITE(6,*)
@@ -863,9 +866,6 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
               WRITE(6,35)
               WRITE(6,*)
             END IF
-*
-            Call Add_Info('ITMS(SO)',[F],1,6)
-            Call Add_Info('ROTS(SO)',[R],1,6)
 *
                End Do
             End Do

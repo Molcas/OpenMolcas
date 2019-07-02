@@ -2477,6 +2477,9 @@ C                 Why do it when we don't do the L.S-term!
                 F=Work(LFIJ)
                 R=Work(LFIJ+1)
 *
+                Call Add_Info('ITMS(SF)',[F],1,6)
+                Call Add_Info('ROTS(SF)',[R],1,6)
+*
                 IF (ABS(F).LT.OSTHR) CYCLE
                 A =(AFACTOR*EDIFF**2)*F
 *
@@ -2568,10 +2571,6 @@ C                 Why do it when we don't do the L.S-term!
                   WRITE(6,32)
                   WRITE(6,*)
                 END IF
-*
-                Call Add_Info('ITMS(SF)',[F],1,6)
-                Call Add_Info('ROTS(SF)',[R],1,6)
-*
               End Do
             End Do
 *
