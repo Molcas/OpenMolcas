@@ -72,7 +72,7 @@
 !>  \endcode
 !>
 !>  @param[in] V Integer or real vector to be sorted
-!>  @param[in] f A logical pure function of two integer or real arguments.
+!>  @param[in] compare A logical pure function of two integer or real arguments.
 !>  @param[in] scheme The sorting algorithm to use.
         interface argsort
           module procedure I1D_argsort, R1D_argsort
@@ -81,13 +81,12 @@
         contains
 
 
-        function I1D_argsort(V, f, scheme) result(idx)
+        function I1D_argsort(V, compare, scheme) result(idx)
           integer, intent(inout) :: V(:)
-          procedure(compare_int) :: f
+          procedure(compare_int) :: compare
           type(tSortScheme), intent(in), optional :: scheme
           type(tSortScheme)  :: scheme_
-          integer :: idx(lbound(V, 1):ubound(V, 1))
-          integer :: i
+          integer :: idx(lbound(V, 1):ubound(V, 1)), i
           if (present(scheme)) then
             scheme_ = scheme
           else
@@ -97,29 +96,37 @@
 
           idx = [(i, i = lbound(V, 1), ubound(V, 1))]
 
-          call sort(idx, g, scheme_)
+          call sort(idx, my_compare, scheme_)
 
           contains
-            logical pure function g(x, y)
+            logical pure function my_compare(x, y)
               integer, intent(in) :: x, y
-              g = f(V(x), V(y))
+              my_compare = compare(V(x), V(y))
             end function
         end function I1D_argsort
 
 
-        function R1D_argsort(V, f, scheme) result(idx)
+        function R1D_argsort(V, compare, scheme) result(idx)
           real*8, intent(inout) :: V(:)
-          procedure(compare_real) :: f
+          procedure(compare_real) :: compare
           type(tSortScheme), intent(in), optional :: scheme
+          type(tSortScheme)  :: scheme_
+          integer :: idx(lbound(V, 1):ubound(V, 1)), i
+          if (present(scheme)) then
+            scheme_ = scheme
+          else
+! Use default constructor, whatever the default is.
+            scheme_ = tSortScheme()
+          end if
 
-          integer :: idx(lbound(V, 1):ubound(V, 1))
+          idx = [(i, i = lbound(V, 1), ubound(V, 1))]
 
-          call sort(idx, g, scheme)
+          call sort(idx, my_compare, scheme_)
 
           contains
-            logical pure function g(x, y)
+            logical pure function my_compare(x, y)
               integer, intent(in) :: x, y
-              g = f(V(x), V(y))
+              my_compare = compare(V(x), V(y))
             end function
         end function R1D_argsort
 
@@ -161,11 +168,11 @@
 !>  \endcode
 !>
 !>  @param[in] V Integer 1D-Array to be sorted
-!>  @param[in] f A logical pure function of two integer arguments.
+!>  @param[in] compare A logical pure function of two integer arguments.
 !>  @param[in] scheme The sorting algorithm to use.
-        subroutine sort(V, f, scheme)
+        subroutine sort(V, compare, scheme)
           integer, intent(inout) :: V(:)
-          procedure(compare_int) :: f
+          procedure(compare_int) :: compare
           type(tSortScheme), intent(in), optional :: scheme
           type(tSortScheme)  :: scheme_
           if (present(scheme)) then
@@ -177,22 +184,22 @@
 
           select case (scheme_%val)
             case(sort_schemes%mergesort)
-              call mergesort(V, f)
+              call mergesort(V, compare)
             case(sort_schemes%quicksort)
-              call quicksort(V, f)
+              call quicksort(V, compare)
           end select
         end subroutine sort
 
-        subroutine naive_sort(V, f)
+        subroutine naive_sort(V, compare)
           integer, intent(inout) :: V(:)
-          procedure(compare_int) :: f
+          procedure(compare_int) :: compare
 
           integer :: i, j, t
 
           do i = lbound(V, 1) + 1, ubound(V, 1)
             t = V(i)
             j = i
-            do while (j > 1 .and. .not. f(V(j - 1), t))
+            do while (j > 1 .and. .not. compare(V(j - 1), t))
               V(j) = V(j - 1)
               j = j - 1
             end do
@@ -220,11 +227,12 @@
 !>  @param[inout] A Sorted 1D-array to be merged.
 !>  @param[inout] B Sorted 1D-array to be merged.
 !>  @param[inout] C Merged and sorted 1D-array.
-        subroutine merge_(A, B, C, f)
+!>  @param[in] compare A logical pure function of two integer arguments.
+        subroutine merge_(A, B, C, compare)
 ! The target attribute is there to prevent the compiler from
 ! assuming non overlapping memory.
           integer, target, intent(inout) :: A(:), B(:), C(:)
-          procedure(compare_int) :: f
+          procedure(compare_int) :: compare
 
           integer :: i, j, k
 
@@ -234,7 +242,7 @@
           j = lbound(B, 1)
           do k = lbound(C, 1), ubound(C, 1)
             if (i <= ubound(A, 1) .and. j <= ubound(B, 1)) then
-              if (f(A(i), B(j))) then
+              if (compare(A(i), B(j))) then
                 C(k) = A(i)
                 i = i + 1
               else
@@ -252,21 +260,21 @@
         end subroutine merge_
 
 
-        recursive subroutine mergesort(A, f)
+        recursive subroutine mergesort(A, compare)
           integer, intent(inout) :: A(:)
-          procedure(compare_int) :: f
+          procedure(compare_int) :: compare
 
           integer, allocatable :: work(:)
           integer :: half
           half = (ubound(A, 1) - lbound(A, 1)) / 2 + 1
           allocate(work(half))
-          call mergesort_work(A, f, work)
+          call mergesort_work(A, compare, work)
           deallocate(work)
         end subroutine mergesort
 
-        recursive subroutine mergesort_work(A, f, work)
+        recursive subroutine mergesort_work(A, compare, work)
           integer, intent(inout) :: A(:)
-          procedure(compare_int) :: f
+          procedure(compare_int) :: compare
           integer, intent(inout) :: work(:)
 
           integer :: half
@@ -274,21 +282,21 @@
           if (size(A) < 2) then
             continue
           else if (size(A) == 2) then
-            call naive_sort(A, f)
+            call naive_sort(A, compare)
           else
-            call mergesort_work(A( : half), f, work)
-            call mergesort_work(A(half + 1 :), f, work)
-            if (.not. f(A(half), A(half + 1))) then
+            call mergesort_work(A( : half), compare, work)
+            call mergesort_work(A(half + 1 :), compare, work)
+            if (.not. compare(A(half), A(half + 1))) then
               work(1 : half) = A(1 : half)
-              call merge_(work(1 : half), A(half + 1:), A, f)
+              call merge_(work(1 : half), A(half + 1:), A, compare)
             endif
           end if
         end subroutine mergesort_work
 
 
-        recursive subroutine quicksort(idx, f)
+        recursive subroutine quicksort(idx, compare)
           integer, intent(inout) :: idx(:)
-          procedure(compare_int) :: f
+          procedure(compare_int) :: compare
 
           integer :: i, j, pivot
 
@@ -298,10 +306,10 @@
             pivot = idx((j - i) / 2 + 1)
 
             do
-              do while (.not. f(idx(i), pivot))
+              do while (.not. compare(idx(i), pivot))
                  i = i + 1
               end do
-              do while (.not. f(pivot, idx(j)))
+              do while (.not. compare(pivot, idx(j)))
                  j = j - 1
               end do
               if (i >= j) exit
@@ -310,10 +318,14 @@
               j = j - 1
             end do
 
-            if (lbound(idx, 1) + 1 < i) call quicksort(idx(: i  - 1), f)
-            if (j + 1 < ubound(idx, 1)) call quicksort(idx(j + 1 : ), f)
+            if (lbound(idx, 1) + 1 < i) then
+              call quicksort(idx(: i  - 1), compare)
+            end if
+            if (j + 1 < ubound(idx, 1)) then
+              call quicksort(idx(j + 1 : ), compare)
+            end if
           else
-            call naive_sort(idx, f)
+            call naive_sort(idx, compare)
           end if
         end subroutine quicksort
       end module sorting
