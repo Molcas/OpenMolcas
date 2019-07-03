@@ -43,7 +43,7 @@
 
         character(*), parameter ::
      &      UPPERCASE_chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-     &      lowercase_chars = 'abcdefghijklmnopqrtsuvwxyz'
+     &      lowercase_chars = 'abcdefghijklmnopqrstuvwxyz'
 
         contains
 
