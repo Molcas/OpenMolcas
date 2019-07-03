@@ -22,9 +22,8 @@
         save
         private
         public ::
-     &    t_ON_scheme, ON_scheme, ON_scheme_values,
-     &    orthonormalize
-!     &    t_procrust_metric, procrust_metric, metric_values,
+     &    t_ON_scheme, ON_scheme, ON_scheme_values, orthonormalize,
+     &    t_procrust_metric, procrust_metric, metric_values, procrust
 
         type :: t_ON_scheme_values
           integer ::
@@ -50,8 +49,7 @@
         type :: t_ON_scheme
           integer :: val = ON_scheme_values%Gram_Schmidt
         end type
-        type(t_ON_scheme) :: ON_scheme
-
+        type(t_ON_scheme) :: ON_scheme = t_ON_scheme()
 
 
 !>  @brief
@@ -213,7 +211,6 @@
         real*8, intent(in) :: basis(:, :), S(:, :)
         real*8, intent(out) :: ONB(:, :)
 
-        logical :: lin_dep_detected
         integer :: i
         real*8, allocatable :: U(:, :), s_diag(:), X(:, :)
 
@@ -224,9 +221,9 @@
         call diagonalize(S, U, s_diag)
 
         if (any(s_diag < 1.0d-10)) then
-          call abort_("Linear dependency detected. "
-     &      "Lowding can't cure it. Please use other ORTH keyword from "
-     &      "{Gram_Schmidt, Canonical}.")
+          call abort_("Linear dependency detected. "//
+     &      "Lowdin can't cure it. Please use other ORTH keyword "//
+     &      "from {Gram_Schmidt, Canonical}.")
         end if
 
         X = transpose(U)
