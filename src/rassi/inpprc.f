@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE INPPRC
+      use kVectors
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -992,8 +993,24 @@ C Addition of NSTATE, JBNUM, and LROOT to RunFile.
        CALL Put_iscalar('NSTATE_SINGLE',NSTATE)
        CALL Put_iArray('JBNUM_SINGLE',iWork(lJBNUM),NSTATE)
        CALL Put_iArray('LROOT_SINGLE',iWork(lLROOT),NSTATE)
-
-
+*
+* Generate the quadrature points for isotropic integration of the exponential operator
+*
+      If (Do_TMOM) Then
+        If (Do_SK) Then
+          nQuad=1
+        Else
+          nk_Vector = 1
+          Call Setup_O()
+          Call Do_Lebedev_Sym(L_Eff,nQuad,ipR)
+          Call Free_O()
+          Call Free_Work(ipR)
+        End If
+      Else
+        nk_Vector = 0
+        nQuad = 0
+      End If
+*
       CALL XFLUSH(6)
       CALL QEXIT(ROUTINE)
       RETURN

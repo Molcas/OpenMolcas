@@ -44,6 +44,10 @@
       Real*8 TM_R(3), TM_I(3), TM_C(3)
       Character*60 FMTLINE
       Real*8 Wavevector(3), UK(3)
+#ifdef _HDF5_
+      Real*8, Allocatable, Target :: Storage(:,:,:,:)
+      Real*8, Pointer :: flatStorage(:)
+#endif
 
 #ifdef _DEBUG_RASSI_
       logical :: debug_dmrg_rassi_code = .true.
@@ -2136,6 +2140,7 @@ C And the same for the Dyson amplitudes
 *                                                                      *
 ************************************************************************
 *                                                                      *
+#ifdef _HDF5_
 *
 *     Allocate vector to store all individual transition moments.
 *     We do this for
@@ -2147,11 +2152,14 @@ C And the same for the Dyson amplitudes
 *                 the projected transition vector (real and imaginary parts) (2*3)
 *
       nIJ=nState*(nState-1)/2
-      nData= 1 + 3 + 2*3
-      nStorage = nIJ * nQuad * nData
-      mStorage = nStorage * nVec
-      Call GetMem('STORAGE','Allo','Real',ipStorage,mStorage)
-*MGD ipStorage is not well handled with groups yet
+      ip_w       = 1
+      ip_kvector = ip_w + 1
+      ip_TMR     = ip_kvector + 3
+      ip_TMI     = ip_TMR + 3
+      nData      = ip_TMI + 3 - 1
+      Call mma_allocate(Storage,nData,nQuad,nIJ,nVec,label='Storage')
+      Call dCopy_(Size(Storage),[0.0D0],0,Storage,1)
+#endif
 *MGD create the groups of indices
 *Only with reduce loop to make things easier
       TMOgroup=.false.
@@ -2237,11 +2245,6 @@ C And the same for the Dyson amplitudes
       CALL GETMEM('RAW   ','ALLO','REAL',LRAW,NQUAD*6*nmax2)
       CALL GETMEM('OSCSTR','ALLO','REAL',LF,2*nmax2)
 *
-      ip_w       = 1
-      ip_kvector = ip_w + 1
-      ip_TMR     = ip_kvector + 3
-      ip_TMI     = ip_TMR + 3
-*
       Do iVec = 1, nVec
          If (Do_SK) Then
             Work(ipR  )=k_Vector(1,iVec)
@@ -2276,7 +2279,6 @@ C And the same for the Dyson amplitudes
             If (JSTART.eq.1 .AND.  EDIFF_.LT.0.0D0) CYCLE
 *
             IJSO=IJSO+1
-            iOff_=(IJSO-1)*nQuad*nData
 *
 *           The energy difference is used to define the norm of the
 *           wave vector.
@@ -2294,8 +2296,6 @@ C And the same for the Dyson amplitudes
             CALL DCOPY_(NQUAD*6*n12,[0.0D0],0,WORK(LRAW),1)
 
             Do iQuad = 1, nQuad
-               iStorage = iOff_ + (iQuad-1)*nData + ipStorage -1
-     &                  + (iVec-1)*nStorage
 *
 *              Read or generate the wavevector
 *
@@ -2305,16 +2305,13 @@ C And the same for the Dyson amplitudes
                UK(1)=Work((iQuad-1)*4  +ipR)
                UK(2)=Work((iQuad-1)*4+1+ipR)
                UK(3)=Work((iQuad-1)*4+2+ipR)
-*
                Wavevector(:)=rkNorm*UK(:)
-               Call DCopy_(3,Wavevector,1,Work(iStorage+ip_kvector),1)
 *
 *              Note that the weights are normalized to integrate to
 *              4*pi over the solid angles.
 *
                Weight=Work((iQuad-1)*4+3+ipR)
                If (.Not.Do_SK) Weight=Weight/(4.0D0*PI)
-               Work(iStorage+ip_w)=Weight
 *
 *              Generate the property integrals associated with this
 *              direction of the wave vector k.
@@ -2407,17 +2404,23 @@ C                 Why do it when we don't do the L.S-term!
 *              Finally, evaluate the transition moment from the two
 *              different contributions.
 *
-*              Integrate over all directions of the polarization
-*              vector and divide with the "distance", 2*pi, to get
-*              the average value.
+#ifdef _HDF5_
+*              Fix the triangular index because we are not storing the diagonal
+               IJSF=IJ-ISTATE+1
+               Storage(ip_w,iQuad,IJSF,iVec)=Weight
+               Call DCopy_(3,Wavevector,1,
+     &                       Storage(ip_kvector,iQuad,IJSF,iVec),1)
+               Call DCopy_(3,TM_R,1,Storage(ip_TMR,iQuad,IJSF,iVec),1)
+               Call DCopy_(3,TM_I,1,Storage(ip_TMI,iQuad,IJSF,iVec),1)
+#endif
 *
 *              Project out the k direction from the real and imaginary components
 *
                Call DaXpY_(3,-DDot_(3,TM_R,1,UK,1),UK,1,TM_R,1)
                Call DaXpY_(3,-DDot_(3,TM_I,1,UK,1),UK,1,TM_I,1)
 *
-               Call DCopy_(3,TM_R,1,Work(iStorage+ip_TMR),1)
-               Call DCopy_(3,TM_I,1,Work(iStorage+ip_TMI),1)
+*              Implicitly integrate over all directions of the
+*              polarization vector to get the average value.
 *
                TM1 = DDot_(3,TM_R,1,TM_R,1)
                TM2 = DDot_(3,TM_I,1,TM_I,1)
@@ -2539,7 +2542,7 @@ C                 Why do it when we don't do the L.S-term!
                   WRITE(6,32)
                   LRAW_=LRAW+6*NQUAD*(ij_-1)
                   DO IQUAD = 1, NQUAD
-                    WRITE(6,'(5X,2I5,5X,5G16.8)') I,J,
+                    WRITE(6,33) I,J,
      &              WORK(LRAW_+(IQUAD-1)+0*NQUAD),
      &              WORK(LRAW_+(IQUAD-1)+1*NQUAD),
      &              WORK(LRAW_+(IQUAD-1)+2*NQUAD),
@@ -2561,7 +2564,7 @@ C                 Why do it when we don't do the L.S-term!
                   LRAW_=LRAW+5*NQUAD*(ij_-1)
                   DO IQUAD = 1, NQUAD
                     Weight=WORK(LRAW+(IQUAD-1)+5*NQUAD)
-                    WRITE(6,'(5X,2I5,5X,5G16.8)') I,J,
+                    WRITE(6,33) I,J,
      &                WORK(LRAW+(IQUAD-1)+0*NQUAD)*Weight,
      &                WORK(LRAW+(IQUAD-1)+1*NQUAD)*Weight,
      &                WORK(LRAW+(IQUAD-1)+2*NQUAD),
@@ -2592,12 +2595,14 @@ C                 Why do it when we don't do the L.S-term!
       End Do ! iVec
 *
 #ifdef _HDF5_
-      Call mh5_put_dset(wfn_sfs_tm,Work(ipStorage))
+      flatStorage(1:Size(Storage)) => Storage
+      Call mh5_put_dset(wfn_sfs_tm,flatStorage)
+      Nullify(flatStorage)
+      Call mma_deallocate(Storage)
 #endif
 *
 *     Deallocate some arrays.
 *
-      Call GetMem('STORAGE','FREE','Real',ipStorage,nStorage)
       CALL GETMEM('RAW   ','FREE','REAL',LRAW,NQUAD*5*nmax2)
       CALL GETMEM('TDMSCR','FREE','Real',LSCR,4*NSCR)
       CALL GETMEM('IP    ','FREE','REAL',LIP,NIP)
@@ -2654,19 +2659,4 @@ C                 Why do it when we don't do the L.S-term!
 40    FORMAT (5X,63('-'))
 41    FORMAT (5X,2(1X,A4),5X,5(1X,A15))
       END Subroutine EigCtl
-      Subroutine Setup_O()
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "nq_info.fh"
-#include "WrkSpc.fh"
-      Call GetMem('ip_O','ALLO','REAL',ip_O,9)
-      Call DCOPY_(9,[0.0d0],0,Work(ip_O),1)
-      Call DCOPY_(3,[1.0D0],0,Work(ip_O),4)
-      Return
-      End
-      Subroutine Free_O()
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "nq_info.fh"
-#include "WrkSpc.fh"
-      Call GetMem('ip_O','FREE','REAL',ip_O,9)
-      Return
-      End
+

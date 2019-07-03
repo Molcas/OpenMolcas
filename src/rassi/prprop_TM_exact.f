@@ -42,6 +42,10 @@
       Real*8 TM_R(3), TM_I(3), TM_C(3)
       Real*8 wavevector(3), UK(3)
       Real*8 kPhase(2)
+#ifdef _HDF5_
+      Real*8, Allocatable, Target :: Storage(:,:,:,:)
+      Real*8, Pointer :: flatStorage(:)
+#endif
 
       CALL QENTER(ROUTINE)
 
@@ -205,6 +209,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       CALL GETMEM('IP    ','ALLO','REAL',LIP,NIP)
       NSCR=(NBST*(NBST+1))/2
       CALL GETMEM('TDMSCR','Allo','Real',LSCR,4*NSCR)
+#ifdef _HDF5_
 *
 *     Allocate vector to store all individual transition moments.
 *     We do this for
@@ -221,11 +226,9 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       ip_TMR     = ip_kvector + 3
       ip_TMI     = ip_TMR + 3
       nData      = ip_TMI + 3 - 1
-      nStorage = nIJ * 2*nQuad * nData
-      mStorage = nStorage * nVec
-*MGD Storage is not well handled with groups yet
-      Call GetMem('STORAGE','Allo','Real',ipStorage,mStorage)
-      Call DCopy_(mStorage,[0.0D0],0,Work(ipStorage),1)
+      Call mma_allocate(Storage,nData,2*nQuad,nIJ,nVec,label='Storage')
+      Call dCopy_(Size(Storage),[0.0D0],0,Storage,1)
+#endif
 *MGD group transitions
       TMOgroup=.false.
       ngroup1=IEND
@@ -411,7 +414,6 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
             IF (ABS(EDIFF_).LE.1.0D-8) CYCLE
             IF(EDIFF_.LT.0.0D0) CYCLE
             IJSO=IJSO+1
-            iOff_= (IJSO-1)*2*nQuad*nData
 *
 *           The energy difference is used to define the norm of the
 *           wave vector.
@@ -432,8 +434,6 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
             CALL DCOPY_(2*NQUAD*6*n12,[0.0D0],0,WORK(LRAW),1)
 *
             Do iQuad = 1, nQuad
-               iStorage = iOff_+ 2*(iQuad-1)*nData + ipStorage - 1
-     &                  + (iVec-1)*nStorage
 *
 *              Generate the wavevector associated with this quadrature
 *              point and pick up the associated quadrature weight.
@@ -448,12 +448,6 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                wavevector(:)=rkNorm*UK(:)
                Weight=Work((iQuad-1)*4+3+ipR)
                If (.Not.Do_SK) Weight = Weight/(4.0D0*PI)
-               Do kp = 1, 2
-                  If (Abs(kPhase(kp)).lt.0.5d0) Cycle
-                  Call daXpY_(3,kPhase(kp),wavevector,1,
-     &               Work(iStorage+ip_kvector+(kp-1)*nData),1)
-                  Work(iStorage+ip_w+(kp-1)*nData)=Weight
-               End Do
 *
 *              Generate the property integrals associated with this
 *              direction of the wave vector k.
@@ -688,17 +682,27 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                    LFIJ=LF+(ij_-1)*2
                    EDIFF=ENSOR(JSO)-ENSOR(ISO)
 *
-*              Project out the k direction from the real and imaginary components
+*              Store the vectors for this direction
 *
                    Call DCopy_(3,Work(LTMR+IJ),NSS**2,TM_R,1)
                    Call DCopy_(3,Work(LTMI+IJ),NSS**2,TM_I,1)
+#ifdef _HDF5_
+*              Get proper triangular index
+                   IJSO_=(JSO-1)*(JSO-2)/2+ISO
+                   iQuad_=2*(iQuad-1)+kp
+                   Storage(ip_w,iQuad_,IJSO_,iVec)=Weight
+                   Call DCopy_(3,kPhase(kp)*Wavevector,1,
+     &                  Storage(ip_kvector,iQuad_,IJSO_,iVec),1)
+                   Call DCopy_(3,TM_R,1,
+     &                  Storage(ip_TMR,iQuad_,IJSO_,iVec),1)
+                   Call DCopy_(3,TM_I,1,
+     &                  Storage(ip_TMI,iQuad_,IJSO_,iVec),1)
+#endif
+*
+*              Project out the k direction from the real and imaginary components
+*
                    Call DaXpY_(3,-DDot_(3,TM_R,1,UK,1),UK,1,TM_R,1)
                    Call DaXpY_(3,-DDot_(3,TM_I,1,UK,1),UK,1,TM_I,1)
-*MGD not stored yet
-                   Call DCopy_(3,TM_R,1,
-     &                           Work(iStorage+ip_TMR+(kp-1)*nData),1)
-                   Call DCopy_(3,TM_I,1,
-     &                           Work(iStorage+ip_TMI+(kp-1)*nData),1)
 *
 *              Integrate over all directions of the polarization
 *              vector and divide with the "distance", 2*pi, to get
@@ -896,12 +900,14 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 #endif
 *
 #ifdef _HDF5_
-      Call mh5_put_dset(wfn_sos_tm,Work(ipStorage))
+      flatStorage(1:Size(Storage)) => Storage
+      Call mh5_put_dset(wfn_sos_tm,flatStorage)
+      Nullify(flatStorage)
+      Call mma_deallocate(Storage)
 #endif
 *
 *     Do some cleanup
 *
-      Call GetMem('STORAGE','FREE','Real',ipStorage,mStorage)
       CALL GETMEM('RAW   ','FREE','REAL',LRAW,2*NQUAD*6*nmax2)
       CALL GETMEM('TDMSCR','FREE','Real',LSCR,4*NSCR)
       CALL GETMEM('IP    ','FREE','REAL',LIP,NIP)
