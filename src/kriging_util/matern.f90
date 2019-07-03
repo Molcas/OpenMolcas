@@ -12,18 +12,18 @@
 !***********************************************************************
         SUBROUTINE matern(dh, m, d1, d2)
             use globvar
-            integer d1,d2
+            integer d1,d2,i
             REAL*8 b(d1,d2),a,d,d0(d1,d2),dh(d1,d2),m(d1,d2)
-            INTEGER*8 c,i
+            INTEGER*8 c
 ! For this expresion you can check https://en.wikipedia.org/wiki/Mat%C3%A9rn_covariance_function
 ! and equations (11) and (12) on ref.
             d0 = sqrt(dh)
-            c = int(pAI)
+            c = idint(pAI)
             a = Gamma(pAI+1)/Gamma(2*pAI+1)
             b = 0.0
             m = 0.0
             do i=0, c
-                d=real(i)
+                d=DBLE(i)
                 b = b + (Gamma(pAI+1.0+d)/(Gamma(d+1)*Gamma(pAI+1.0-d)))*(2.0*Sqrt(2.0*pAI+1.0)*d0)**(pAI-i)
             enddo
                 m = a*b*exp(-sqrt(2.0*pAI+1)*d0)
@@ -78,11 +78,11 @@
                 endif
             else
                 ! write (6,*) 'Numerical Matern derivatives num',nd
-                nr = real(nd)
+                nr = dble(nd)
                 a = Gamma(nr+1.0)/h**nd
                 b = 0.0
                 do k = 0, nd
-                    kr = real(k)
+                    kr = dble(k)
                     dh = d + kr*h
                     call matern(dh, m, size(dh,1), size(dh,2))
                     b = b + (-1)**(k+1)/(Gamma(nr-kr+1.0)*Gamma(kr+1.0))*m

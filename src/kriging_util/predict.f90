@@ -12,42 +12,44 @@
 !***********************************************************************
         SUBROUTINE predict(gh,iter,nInter)
             use globvar
-            real*8 B(m_t,npx,nInter,nInter),A(m_t,m_t),tsum,ddottemp(npx),tcv(npx,m_t) !AF contains the factors L and U from the factorization A = P*L*U as computed by DGETRF
-            integer IPIV(m_t),INFO,i,j,iter,nInter,gh ! ipiv the pivot indices that define the permutation matrix
+            real*8 B(m_t),tsum!,ddottemp(npx)!,tcv(npx,m_t)
+            real*8 A(m_t,m_t)!AF contains the factors L and U from the factorization A = P*L*U as computed by DGETRF
+            integer IPIV(m_t),INFO
+            integer i,j,iter,nInter,gh ! ipiv the pivot indices that define the permutation matrix
 !
             do j=1,npx
                 if (gh.eq.0) then
+! ---------------calculations for  dispersion ----------------------------
                     ! ----------------Old calculations --P1
-                    A=full_R
-                    B=CV
-                    CALL DGESV_(size(A,1), size(B,2),A,size(A,2),&
-                            IPIV,B,size(B,1),INFO )
+                    A = full_R
+                    B = CV(:,j,1,1)
+                    CALL DGESV_(m_t, 1,A,m_t,IPIV,B,m_t,INFO )
                     !-----------------New
-                    !  B = matmul(CV(:,:,1,1),full_Rinv)
+                    ! Call RecPrt('full_Rinv',  ' ',full_Rinv,m_t,m_t)
+                    ! B = CV(:,j,1,1)
+                    ! B = matmul(B,full_Rinv)
                     !--------------------
-                    write (6,*) 'R^(-1)*CV', B
-                    write (6,*) 'size', size(B)
+                    ! write (6,*) 'R^(-1)*CV', B
+                    ! write (6,*) 'size', size(B)
+                    var(j) = 1 - dot_product(B,CV(:,j,1,1))
                     tsum = sum(rones(1:iter))
-                    tcv=transpose(cv(:,:,1,1))
-                    var=0
-                    do i=1,m_t
-                        var(j)=var(j)+B(i,j,1,1)*CV(i,j,1,1)
-                    enddo
-                    var(j)=1-var(j)
-                    ddottemp(j)=dot_product(tcv(j,:),rones)
-                    var(j)=var(j)+(1-ddottemp(j))**2/tsum
-                    pred(j) = sb + dot_product(tcv(j,:),Kv)
+                    B = cv(:,j,1,1)
+                    var(j)=var(j)+(1-dot_product(B,rones))**2/tsum
                     sigma(j)=1.96*sqrt(abs(var(j)*variance))
-                  write(6,*) 'pred(before):',pred(j),'var',var,'variance',variance
-                  write(6,*) 'sigma',sigma,'lh',lh
-                  write(6,*) 'tcv(j,:)',tcv(j,:)
-                  write(6,*) 'Kv',Kv
+! -------------------------------
+                    pred(j) = sb + dot_product(B,Kv)
+                !   write(6,*) 'pred:',pred(j)
+                !   write(6,*) 'var:',var
+                !   write(6,*) 'variance',variance
+                !   write(6,*) 'sigma',sigma,'lh',lh
+                !   write(6,*) 'tcv(j,:)',B
+                !   write(6,*) 'Kv',Kv
                 else
                     if (gh.eq.1) then
                         ! sigma(j)=1.96*sqrt(2*abs(var*variance))
                         do k=1,nInter
-                            tcv=transpose(cv(:,:,k,1))
-                            gpred(j,k) = dot_product(tcv(j,:),Kv)
+                            B = cv(:,j,k,1)
+                            gpred(j,k) = dot_product(B,Kv)
                             ! write(6,*) 'pred Grad:',k,j,l,gpred(j,k), &
                             !     var,variance,sigma, lh,tcv
                         enddo
@@ -59,10 +61,10 @@
                         ! write(6,*) 'kv: ',kv
                         do k=1,nInter
                             do i=1,nInter
-                                tcv=transpose(cv(:,:,i,k))
+                                B = cv(:,j,i,k)
                                 ! write(6,*) 'tcv', i,k,tcv
                                 !Call RecPrt('Update_: tcv',' ',tcv,npx,m_t)
-                                hpred(j,k,i) = dot_product(tcv(j,:), Kv)
+                                hpred(j,k,i) = dot_product(B, Kv)
                                 !write (6,*) 'partial hpred',hpred(j,k,i)
                                 ! write(6,*) 'pred Hess:',k,j,l,hpred(j,k), &
                                 !     var,variance,sigma, lh, tcv

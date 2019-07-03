@@ -24,20 +24,25 @@
 ! Initiate A according to Eq. (2) of ref.
             A = full_r !in, coefficent matrix A, out factors L and U from factorization A=PLU on AX=B
 !
-            ! ----------------Old calculations --K1
-            CALL DGESV_(m_t,1,A,m_t,IPIV,B,m_t,INFO )
-            rones=B
             !-----------------New
             ! CALL DGESV_(m_t,m_t,A,m_t,IPIV,full_Rinv,m_t,INFO )
-            ! rones = matmul(B,full_Rinv)
+            ! rones = matmul(full_Rinv,B)!matmul(B,full_Rinv)
             ! B = rones
+            ! Write (6,*) 'A new ',A
+            ! ----------------Old calculations --K1
+            ! A = full_r
+            CALL DGESV_(m_t,1,A,m_t,IPIV,B,m_t,INFO )
+            rones=B
+            ! Write (6,*) 'A old ',A
             !----------------------------
             If (INFO.ne.0) Then
                Write (6,*) 'k: INFO.ne.0'
                Write (6,*) 'k: INFO=',INFO
                Call Abend()
             End If
-            Write (6,*) 'rones ',rones
+            ! Call RecPrt('full_Rinv',  ' ',full_Rinv,m_t,m_t)
+            ! Call RecPrt('full_Rinv*full_R = I',  ' ',matmul(full_Rinv,full_r),m_t,m_t)
+            ! Write (6,*) 'rones ',rones
 !
 ! Now A contains the factors L and U from the factorization A = P*L*U as computed by DGESV
 ! Where L in the lower triangular matrix with 1 in the diagonal and U is the upper
@@ -86,10 +91,10 @@
             detR = detR*sign
             lh = variance*exp(detR/dble(m_t))
 !
-            write(6,*) 'detR',detR
-            write(6,*) 'Ys:',Ys
-            write(6,*) 'Kv:',Kv
-            write(6,*) 'Variance:',variance
-            write(6,*) 'm_t',m_t
-            write(6,*) 'lh',lh
+            ! write(6,*) 'detR',detR
+            ! write(6,*) 'Ys:',Ys
+            ! write(6,*) 'Kv:',Kv
+            ! write(6,*) 'Variance:',variance
+            ! write(6,*) 'm_t',m_t
+            ! write(6,*) 'lh',lh
         END SUBROUTINE k
