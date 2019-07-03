@@ -769,7 +769,7 @@ c Avoid unused argument warnings
             Call RecPrt('Hessian Kriging','(6F10.4)',difH,nInter,nInter)
             difH = difH/Hessian
             Call RecPrt('Dif Hessians','(6F10.4)',difH,nInter,nInter)
-            ! Call RecPrt('Hessian Kriging with facto','(6F10.4)',Hessian,nInter,nInter)
+! Call RecPrt('Hessian Kriging with f','(6F10.4)',Hessian,nInter,nInter)
          endif
 #endif
 *

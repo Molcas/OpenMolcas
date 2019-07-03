@@ -56,10 +56,13 @@
                         case (2)
                             select case (nd)
                                 case (1)
+                                    !m = -c*dh*(1.0+t*dh)
                                     m =-c*(1.0+t*dh)/2.0
                                 case (2)
+                                    !m = c*(dh*(5*dh-t)+1)
                                     m = c*5.0/4.0
                                 case (3)
+                                    !m = -c*dh*(5*t*dh-15)
                                     m = merge(-5.0/8.0*t/dh,dh,dh.ne.0)*c
                                     ! write (6,*) '3th der dh',dh
                             end select
