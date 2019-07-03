@@ -1905,6 +1905,8 @@ C orbitals accordingly
         if(irc.ne._RC_ALL_IS_WELL_) goto 9810
         read(luinput,*,end=9910,err=9920) ON_scheme_inp
         select case (to_upper(trim(ON_scheme_inp)))
+          case ('CANONICAL')
+            ON_scheme%val = ON_scheme_values%Canonical
           case ('LOWDIN')
             ON_scheme%val = ON_scheme_values%Lowdin
           case ('GRAHM_SCHMIDT')

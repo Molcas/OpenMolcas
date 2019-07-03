@@ -31,7 +31,8 @@
           integer ::
      &      no_ON = 1,
      &      Gram_Schmidt = 2,
-     &      Lowdin = 3
+     &      Lowdin = 3,
+     &      Canonical = 4
         end type
         type(t_ON_scheme_values), parameter ::
 ! TODO: Dear fellow MOLCAS developer of the future:
@@ -42,7 +43,8 @@
 ! As of July 2019 the Sun compiler requires explicit construction
 ! for parameter variables. (Which is wrong IMHO.)
      &    ON_scheme_values =
-     &    t_ON_scheme_values(no_ON = 1, Gram_Schmidt = 2, Lowdin = 3)
+     &    t_ON_scheme_values(no_ON = 1, Gram_Schmidt = 2,
+     &                       Lowdin = 3, Canonical = 4)
 
         type :: t_ON_scheme
           integer :: val = ON_scheme_values%Gram_Schmidt
@@ -80,6 +82,10 @@
           module procedure Lowdin_Array, Lowdin_Blocks
         end interface
 
+        interface Canonical
+          module procedure Canonical_Array, Canonical_Blocks
+        end interface
+
         interface orthonormalize
           module procedure orthonormalize_raw, orthonormalize_blocks
         end interface
@@ -100,13 +106,18 @@
         call read_S(S)
 
         call new(ONB, blocksizes=blocksizes(basis))
-        n_to_ON(:) = nBas(:nSym) - nDel(:nSym)
         select case (scheme%val)
           case(ON_scheme_values%no_ON)
             continue
           case(ON_scheme_values%Lowdin)
-            call Lowdin(basis, S, n_to_ON, ONB, n_new)
+            call Lowdin(basis, S, ONB)
+          case(ON_scheme_values%Canonical)
+            n_to_ON(:) = nBas(:nSym) - nDel(:nSym)
+            call Canonical(basis, S, n_to_ON, ONB, n_new)
+            call update_orb_numbers(n_to_ON, n_new,
+     &          nDel, nSSH, nOrb, nDelt, nSec, nOrbt, nTot3, nTot4)
           case(ON_scheme_values%Gram_Schmidt)
+            n_to_ON(:) = nBas(:nSym) - nDel(:nSym)
             call Gram_Schmidt(basis, S, n_to_ON, ONB, n_new)
             call update_orb_numbers(n_to_ON, n_new,
      &          nDel, nSSH, nOrb, nDelt, nSec, nOrbt, nTot3, nTot4)
@@ -169,9 +180,53 @@
         R = matmul(A, B)
       end function procrust
 
+
 ! The elemental keyword automatically loops over the blocks
 ! and even allows the compiler to parallelize.
-      impure elemental subroutine Lowdin_Blocks(
+      impure elemental subroutine Lowdin_Blocks(basis, S, ONB)
+        implicit none
+        type(t_blockdiagonal), intent(in) :: basis, S
+        type(t_blockdiagonal), intent(_OUT_) :: ONB
+        call Lowdin(basis%block, S%block, ONB%block)
+      end subroutine Lowdin_Blocks
+
+      subroutine Lowdin_Array(basis, S, ONB)
+        implicit none
+        real*8, intent(in) :: basis(:, :), S(:, :)
+        real*8, intent(out) :: ONB(:, :)
+
+        logical :: lin_dep_detected
+        integer :: i
+        real*8, allocatable :: U(:, :), s_diag(:), X(:, :)
+
+        call mma_allocate(U, size(S, 1), size(S, 2))
+        call mma_allocate(X, size(S, 1), size(S, 2))
+        call mma_allocate(s_diag, size(S, 2))
+
+        call diagonalize(S, U, s_diag)
+
+        if (any(s_diag < 1.0d-10)) then
+          call abort_("Linear dependency detected. "
+     &      "Lowding can't cure it. Please use other ORTH keyword from "
+     &      "{Gram_Schmidt, Canonical}.")
+        end if
+
+        X = transpose(U)
+        do concurrent (i = 1:size(X, 2))
+          X(:, i) = X(:, i) / sqrt(s_diag(i))
+        end do
+        X = matmul(U, X)
+
+        ONB = matmul(X, basis)
+        call mma_deallocate(X)
+        call mma_deallocate(s_diag)
+        call mma_deallocate(U)
+      end subroutine Lowdin_Array
+
+
+! The elemental keyword automatically loops over the blocks
+! and even allows the compiler to parallelize.
+      impure elemental subroutine Canonical_Blocks(
      &    basis, S, n_to_ON, ONB, n_new)
         implicit none
         type(t_blockdiagonal), intent(in) :: basis, S
@@ -179,11 +234,11 @@
         type(t_blockdiagonal), intent(_OUT_) :: ONB
         integer, intent(out) :: n_new
 
-        call Lowdin(
+        call Canonical(
      &        basis%block, S%block,  n_to_ON, ONB%block, n_new)
-      end subroutine Lowdin_Blocks
+      end subroutine Canonical_Blocks
 
-      subroutine Lowdin_Array(basis, S, n_to_ON, ONB, n_new)
+      subroutine Canonical_Array(basis, S, n_to_ON, ONB, n_new)
         implicit none
         real*8, intent(in) :: basis(:, :), S(:, :)
         integer, intent(in) :: n_to_ON
@@ -231,7 +286,7 @@
             real*8, intent(in) :: x, y
             ge = x >= y
           end function
-      end subroutine Lowdin_Array
+      end subroutine Canonical_Array
 
 ! The elemental keyword automatically loops over the blocks
 ! and even allows the compiler to parallelize.
