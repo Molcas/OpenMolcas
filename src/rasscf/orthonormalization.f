@@ -17,18 +17,19 @@
         use blockdiagonal_matrices, only : t_blockdiagonal, new, delete,
      &    from_raw, to_raw, from_symm_raw, blocksizes
         use sorting, only : argsort
-        use index_symmetry, only : one_el_idx_flatten
 
         implicit none
         save
         private
         public ::
      &    t_ON_scheme, ON_scheme, ON_scheme_values,
-     &    t_procrust_metric, procrust_metric, metric_values,
-     &    orthonormalize, procrust, Gram_Schmidt
+     &    orthonormalize
+!     &    t_procrust_metric, procrust_metric, metric_values,
 
         type :: t_ON_scheme_values
           integer ::
+! NOTE: Don't even think about using the integer values directly
+!   unless you want your code to break upon small changes.
      &      no_ON = 1,
      &      Gram_Schmidt = 2,
      &      Lowdin = 3,
@@ -50,6 +51,27 @@
           integer :: val = ON_scheme_values%Gram_Schmidt
         end type
         type(t_ON_scheme) :: ON_scheme
+
+
+
+!>  @brief
+!>    Orthonormalize a basis.
+!>
+!>  @author
+!>    Oskar Weser
+!>
+!>  @details
+!>  Reads in the overlap matrix and orthonormalizes accordingly.
+!>
+!>  @param[in] basis Can be raw memory i.e. a 1D double array
+!>    or a t_blockdiagonal matrix.
+!>    return type depends on input type.
+!>  @param[in] scheme Optional argument. The orthonormalization scheme to use.
+!>    The possibilities are Gram_Schmidt, Lowdin, or Canonical.
+!>    For a detailed explanation see \cite szabo_ostlund (p. 143).
+        interface orthonormalize
+          module procedure orthonormalize_raw, orthonormalize_blocks
+        end interface
 
 
         type :: t_metric_values
@@ -84,10 +106,6 @@
 
         interface Canonical
           module procedure Canonical_Array, Canonical_Blocks
-        end interface
-
-        interface orthonormalize
-          module procedure orthonormalize_raw, orthonormalize_blocks
         end interface
 
       contains
