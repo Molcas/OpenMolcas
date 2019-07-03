@@ -97,6 +97,7 @@
      &    jRoot, kRoot, iDXsX, idXCI,
      &    iDummy(1), mh5id, IADR19(30), iAD15, lEne, nTmp(8)
       real*8 :: Dummy(1), Scal
+      real*8, allocatable :: CMO_copy(:)
 #ifdef _HDF5_
       character(Len=maxbfn) typestring
 #endif
@@ -523,7 +524,10 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
       If(PURIFY(1:4).eq.'ATOM') CALL SPHPUR(CMO)
 
       if (scheme%val /= ON_scheme_values%no_ON) then
-        CMO(:nTot2) = orthonormalize(CMO(:nTot2), scheme)
+        call mma_allocate(CMO_copy, nTot2)
+        CMO_copy = CMO(:nTot2)
+        call orthonormalize(CMO_copy, scheme, CMO(:nTot2))
+        call mma_deallocate(CMO_copy)
       end if
 
 *     save start orbitals

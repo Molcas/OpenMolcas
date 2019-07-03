@@ -40,7 +40,7 @@
 
           do i = 1, size(blocks)
             L = blocksizes(i)
-            call mma_allocate(blocks(i)%block, L, L)
+            call mma_allocate(blocks(i)%block, L, L, label='Block')
           end do
         end subroutine
 

@@ -27,7 +27,7 @@
 
         type :: t_ON_scheme_values
           integer ::
-! NOTE: Don't even think about using the integer values directly
+! NOTE: Don't even think about using the integer values directly,
 !   unless you want your code to break upon small changes.
      &      no_ON = 1,
      &      Gram_Schmidt = 2,
@@ -71,7 +71,6 @@
           module procedure orthonormalize_raw, orthonormalize_blocks
         end interface
 
-
         type :: t_metric_values
           integer ::
      &      Frobenius = 1,
@@ -108,20 +107,20 @@
 
       contains
 
-      function orthonormalize_blocks(basis, scheme) result(ONB)
+      subroutine orthonormalize_blocks(basis, scheme, ONB)
         use general_data, only : nSym, nBAs, nDel, nDelt, nSSH, nOrb
         use rasscf_data, only : nSec, nOrbt, nTot3, nTot4
         implicit none
         type(t_blockdiagonal), intent(in) :: basis(:)
         type(t_ON_scheme), intent(in) :: scheme
-        type(t_blockdiagonal) :: ONB(size(basis)), S(size(basis))
+        type(t_blockdiagonal), intent(_OUT_) :: ONB(size(basis))
+        type(t_blockdiagonal) :: S(size(basis))
 
         integer :: n_to_ON(nSym), n_new(nSym)
 
         call new(S, blocksizes=blocksizes(basis))
         call read_S(S)
 
-        call new(ONB, blocksizes=blocksizes(basis))
         select case (scheme%val)
           case(ON_scheme_values%no_ON)
             continue
@@ -138,16 +137,16 @@
             call update_orb_numbers(n_to_ON, n_new,
      &          nDel, nSSH, nOrb, nDelt, nSec, nOrbt, nTot3, nTot4)
         end select
+
         call delete(S)
+      end subroutine orthonormalize_blocks
 
-      end function
-
-      function orthonormalize_raw(CMO, scheme) result(ONB_v)
+      subroutine orthonormalize_raw(CMO, scheme, ONB_v)
         use general_data, only : nBas, nSym
         implicit none
         real*8, intent(in) :: CMO(:)
         type(t_ON_scheme), intent(in) :: scheme
-        real*8 :: ONB_v(size(CMO))
+        real*8, intent(_OUT_) :: ONB_v(size(CMO))
 
         type(t_blockdiagonal) :: basis(nSym)
         type(t_blockdiagonal) :: ONB(nSym)
@@ -156,11 +155,12 @@
         call new(ONB, blocksizes=nBAS(:nSym))
 
         call from_raw(CMO, basis)
-
-        ONB = orthonormalize(basis, scheme)
-
+        call orthonormalize(basis, scheme, ONB)
         call to_raw(ONB, ONB_v)
-      end function
+
+        call delete(ONB)
+        call delete(basis)
+      end subroutine
 
 !>  Return an orthogonal transformation to make A match B as closely as possible.
 !>
@@ -212,13 +212,18 @@
         real*8, intent(out) :: ONB(:, :)
 
         integer :: i
-        real*8, allocatable :: U(:, :), s_diag(:), X(:, :)
+        real*8, allocatable :: U(:, :), s_diag(:), X(:, :),
+     &        S_transf(:, :)
 
         call mma_allocate(U, size(S, 1), size(S, 2))
+        call mma_allocate(S_transf, size(S, 1), size(S, 2))
         call mma_allocate(X, size(S, 1), size(S, 2))
         call mma_allocate(s_diag, size(S, 2))
 
-        call diagonalize(S, U, s_diag)
+        S_transf = matmul(transpose(basis), matmul(S, basis))
+
+        call diagonalize(S_transf, U, s_diag)
+        call mma_deallocate(S_transf)
 
         if (any(s_diag < 1.0d-10)) then
           call abort_("Linear dependency detected. "//
@@ -226,16 +231,17 @@
      &      "from {Gram_Schmidt, Canonical}.")
         end if
 
-        X = transpose(U)
+! X = U s_diag^{-1/2} U^T
         do concurrent (i = 1:size(X, 2))
-          X(:, i) = X(:, i) / sqrt(s_diag(i))
+          X(:, i) = U(:, i) / sqrt(s_diag(i))
         end do
-        X = matmul(U, X)
-
-        ONB = matmul(X, basis)
-        call mma_deallocate(X)
         call mma_deallocate(s_diag)
+
+        X = matmul(X, transpose(U))
         call mma_deallocate(U)
+
+        ONB = matmul(transpose(X), basis)
+        call mma_deallocate(X)
       end subroutine Lowdin_Array
 
 
@@ -263,13 +269,17 @@
         logical :: lin_dep_detected
         integer :: i
         integer, allocatable :: idx(:)
-        real*8, allocatable :: U(:, :), s_diag(:)
+        real*8, allocatable :: U(:, :), s_diag(:), S_transf(:, :),
+     &      X(:, :)
 
         call mma_allocate(U, size(S, 1), size(S, 2))
+        call mma_allocate(S_transf, size(S, 1), size(S, 2))
         call mma_allocate(s_diag, size(S, 2))
         call mma_allocate(idx, size(S, 1))
 
-        call diagonalize(S, U, s_diag)
+        S_transf = matmul(transpose(basis), matmul(S, basis))
+
+        call diagonalize(S_transf, U, s_diag)
 
         idx = argsort(s_diag, ge)
         U = U(:, idx)
@@ -281,19 +291,24 @@
           if (s_diag(i + 1) < 1.0d-10) then
             n_new = i
             lin_dep_detected = .true.
-            exit
           end if
+          i = i + 1
         end do
         if (.not. lin_dep_detected) n_new = n_to_ON
 
+        call mma_allocate(X, size(U, 1), n_new)
+! X = U s_diag^{-1/2}
         do concurrent (i = 1:n_new)
-          U(:, i) = U(:, i) / sqrt(s_diag(i))
+          X(:, i) = U(:, i) / sqrt(s_diag(i))
         end do
 
         ONB(:, n_new + 1 :) = basis(:, n_new + 1 :)
-        ONB(:, :n_new) = matmul(U(:, :n_new), basis(:, :n_new))
+        ONB(:, :n_new) =
+     &      matmul(transpose(X(:, :n_new)), basis(:, idx(:n_new)))
+        call mma_deallocate(X)
         call mma_deallocate(idx)
         call mma_deallocate(s_diag)
+        call mma_deallocate(S_transf)
         call mma_deallocate(U)
 
         contains
@@ -345,8 +360,7 @@
 !       But the matmul, dot_product routines seem a lot more readable and
 !       performance is not really a problem here.
             if (n_new > 0) then
-              ovl(:n_new) =
-     &          matmul(transpose(ONB(:, :n_new)), sctmp)
+              ovl(:n_new) = matmul(transpose(ONB(:, :n_new)), sctmp)
               ONB(:, n_new + 1) =
      &          ONB(:, n_new + 1) - matmul(ONB(:, :n_new) , ovl(:n_new))
             end if
@@ -486,15 +500,16 @@
         real*8, allocatable :: work(:)
         real*8 :: dummy(2), query_result(2)
 
+        V = A
         call dsyev_('V', 'L', size(V, 2), dummy, size(V, 1), dummy,
      &              query_result, do_worksize_query, info)
 
         if (info /= 0) call abort_('Error in diagonalize')
 
         call mma_allocate(work, int(query_result(1)))
-        V = A
         call dsyev_('V', 'L', size(V, 2), V, size(V, 1), lambda,
      &              work, size(work), info)
+        call mma_deallocate(work)
 
         if (info /= 0) call abort_('Error in diagonalize')
       end subroutine diagonalize

@@ -1909,10 +1909,13 @@ C orbitals accordingly
             ON_scheme%val = ON_scheme_values%Canonical
           case ('LOWDIN')
             ON_scheme%val = ON_scheme_values%Lowdin
-          case ('GRAHM_SCHMIDT')
+          case ('GRAM_SCHMIDT')
             ON_scheme%val = ON_scheme_values%Gram_Schmidt
           case ('NO_ON')
             ON_scheme%val = ON_scheme_values%No_ON
+          case default
+            call WarningMessage(2, 'Invalid ORTH keyword')
+            goto 9930
         end select
       end if
 *---  Process NECI commands -------------------------------------------*
