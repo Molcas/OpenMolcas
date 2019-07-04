@@ -36,7 +36,9 @@
   call rdnlst(luspool,'DMRGSCF')
   blank=' '
 
+#ifdef _DMRG_
   call setpos(luspool,'DMRG',line,irc)
+#endif
 
   if(irc /= 0)then
     call warningmessage(2,'Error in input processing.')
