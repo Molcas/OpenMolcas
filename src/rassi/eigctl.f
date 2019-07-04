@@ -10,6 +10,10 @@
 ************************************************************************
       SUBROUTINE EIGCTL(PROP,OVLP,DYSAMPS,HAM,EIGVEC,ENERGY)
       USE kVectors
+#include "compiler_features.h"
+#ifndef POINTER_REMAP
+      USE ISO_C_Binding
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -2681,7 +2685,11 @@ C                 Why do it when we don't do the L.S-term!
       End Do ! iVec
 *
 #ifdef _HDF5_
-      flatStorage(1:Size(Storage)) => Storage
+#ifdef POINTER_REMAP
+      flatStorage(1:SIZE(Storage)) => Storage
+#else
+      Call C_F_Pointer(C_Loc(Storage), flatStorage, [SIZE(Storage)])
+#endif
       Call mh5_put_dset(wfn_sfs_tm,flatStorage)
       Nullify(flatStorage)
       Call mma_deallocate(Storage)

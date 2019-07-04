@@ -14,6 +14,10 @@
 ************************************************************************
       SUBROUTINE PRPROP_TM_Exact(PROP,USOR,USOI,ENSOR,NSS,JBNUM)
       USE kVectors
+#include "compiler_features.h"
+#ifndef POINTER_REMAP
+      USE ISO_C_Binding
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
 #include "prgm.fh"
@@ -989,7 +993,11 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 #endif
 *
 #ifdef _HDF5_
-      flatStorage(1:Size(Storage)) => Storage
+#ifdef POINTER_REMAP
+      flatStorage(1:SIZE(Storage)) => Storage
+#else
+      Call C_F_Pointer(C_Loc(Storage), flatStorage, [SIZE(Storage)])
+#endif
       Call mh5_put_dset(wfn_sos_tm,flatStorage)
       Nullify(flatStorage)
       Call mma_deallocate(Storage)
