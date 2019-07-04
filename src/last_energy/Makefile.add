@@ -1,4 +1,4 @@
-PROGS = seward scf rasscf caspt2 mbpt2 ccsdt motra chcc cht3 mcpdft
+PROGS = seward scf rasscf caspt2 mbpt2 ccsdt motra chcc cht3 mcpdft dmrgscf
 ULINK += $(addprefix -l, ${PROGS})
 ULIBA += $(addsuffix .a, $(addprefix ${LIBDIR}/lib, ${PROGS}))
 
