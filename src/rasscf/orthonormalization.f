@@ -93,18 +93,15 @@
         end interface
 
         interface Gram_Schmidt
-          module procedure Gram_Schmidt_Array, Gram_Schmidt_Block,
-     &        Gram_Schmidt_1DBlocks
+          module procedure Gram_Schmidt_Array, Gram_Schmidt_Blocks
         end interface
 
         interface Lowdin
-          module procedure Lowdin_Array, Lowdin_Block,
-     &        Lowdin_1DBlocks
+          module procedure Lowdin_Array, Lowdin_Blocks
         end interface
 
         interface Canonical
-          module procedure Canonical_Array, Canonical_Block,
-     &        Canonical_1DBlocks
+          module procedure Canonical_Array, Canonical_Blocks
         end interface
 
       contains
@@ -197,23 +194,16 @@
 
 
 ! TODO: It would be nice, to use `impure elemental`
-! instead of the manual overloading.
+! instead of the manual looping.
 ! As of July 2019 some compilers don't support it.
-      subroutine Lowdin_Block(basis, S, ONB)
-        type(t_blockdiagonal), intent(in) :: basis, S
-        type(t_blockdiagonal), intent(_OUT_) :: ONB
-        call Lowdin(basis%block, S%block, ONB%block)
-      end subroutine Lowdin_Blocks
-
-
-      subroutine Lowdin_1DBlocks(basis, S, ONB)
+      subroutine Lowdin_Blocks(basis, S, ONB)
         type(t_blockdiagonal), intent(in) :: basis(:), S(:)
         type(t_blockdiagonal), intent(_OUT_) :: ONB(:)
 
         integer :: i
 
         do i = 1, size(basis)
-          call Lowdin(basis(i), S(i), ONB(i))
+          call Lowdin(basis(i)%block, S(i)%block, ONB(i)%block)
         end do
       end subroutine Lowdin_Blocks
 
@@ -257,19 +247,9 @@
 
 
 ! TODO: It would be nice, to use `impure elemental`
-! instead of the manual overloading.
+! instead of the manual looping.
 ! As of July 2019 some compilers don't support it.
-      subroutine Canonical_Block(basis, S, n_to_ON, ONB, n_new)
-        type(t_blockdiagonal), intent(in) :: basis, S
-        integer, intent(in) :: n_to_ON
-        type(t_blockdiagonal), intent(_OUT_) :: ONB
-        integer, intent(out) :: n_new
-
-        call Canonical(basis%block, S%block, n_to_ON, ONB%block, n_new)
-      end subroutine Canonical_Block
-
-
-      subroutine Canonical_1DBlocks(basis, S, n_to_ON, ONB, n_new)
+      subroutine Canonical_Blocks(basis, S, n_to_ON, ONB, n_new)
         type(t_blockdiagonal), intent(in) :: basis(:), S(:)
         integer, intent(in) :: n_to_ON(:)
         type(t_blockdiagonal), intent(_OUT_) :: ONB(:)
@@ -278,9 +258,10 @@
         integer :: i
 
         do i = 1, size(basis)
-          call Canonical(basis(i), S(i), n_to_ON(i),ONB(i), n_new(i))
+          call Canonical(basis(i)%block, S(i)%block, n_to_ON(i),
+     &                   ONB(i)%block, n_new(i))
         end do
-      end subroutine Canonical_Block
+      end subroutine Canonical_Blocks
 
 
       subroutine Canonical_Array(basis, S, n_to_ON, ONB, n_new)
@@ -344,18 +325,7 @@
 ! TODO: It would be nice, to use `impure elemental`
 ! instead of the manual overloading.
 ! As of July 2019 some compilers don't support it.
-      subroutine Gram_Schmidt_Block(basis, S, n_to_ON, ONB, n_new)
-        type(t_blockdiagonal), intent(in) :: basis, S
-        integer, intent(in) :: n_to_ON
-        type(t_blockdiagonal), intent(_OUT_) :: ONB
-        integer, intent(out) :: n_new
-
-        call Gram_Schmidt(
-     &        basis%block, S%block, n_to_ON, ONB%block, n_new)
-      end subroutine Gram_Schmidt_Block
-
-
-      subroutine Gram_Schmidt_1DBlocks(basis, S, n_to_ON, ONB, n_new)
+      subroutine Gram_Schmidt_Blocks(basis, S, n_to_ON, ONB, n_new)
         type(t_blockdiagonal), intent(in) :: basis(:), S(:)
         integer, intent(in) :: n_to_ON(:)
         type(t_blockdiagonal), intent(_OUT_) :: ONB(:)
@@ -364,9 +334,10 @@
         integer :: i
 
         do i = 1, size(basis)
-          call Gram_Schmidt(basis(i), S(i), n_to_ON(i),ONB(i), n_new(i))
+          call Gram_Schmidt(basis(i)%block, S(i)%block,
+     &                      n_to_ON(i), ONB(i)%block, n_new(i))
         end do
-      end subroutine Gram_Schmidt_Block
+      end subroutine Gram_Schmidt_Blocks
 
 
 
