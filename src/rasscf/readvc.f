@@ -90,10 +90,11 @@
      &    LNEWORD, LTMPXSYM, iErr, IAD19, iJOB,
      &    lll, lJobH, ldJobH, lscr, iDisk,
      &    jRoot, kRoot, iDXsX, idXCI,
-     &    iDummy(1), mh5id, IADR19(30), iAD15, lEne, nTmp(8)
+     &    iDummy(1), IADR19(30), iAD15, lEne, nTmp(8)
       real*8, allocatable :: CMOO(:)
       real*8 :: Dummy(1), Scal
 #ifdef _HDF5_
+      integer mh5id
       character(Len=maxbfn) typestring
 #endif
       character(LENIN8*mxOrb) :: lJobH1
