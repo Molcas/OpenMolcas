@@ -40,7 +40,7 @@
 ! but requires less overhead.
         integer :: naive_sort_trsh = 30
 
-        abstract interface
+        interface
           logical pure function compare_int(a, b)
             integer, intent(in) :: a, b
           end function
