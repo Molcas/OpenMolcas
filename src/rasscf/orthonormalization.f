@@ -86,7 +86,6 @@
 
         interface
           real*8 function ddot_(n_,dx,incx_,dy,incy_)
-            implicit none
             integer n_, incx_, incy_
             real*8 dx(*), dy(*)
             real*8 ddot
@@ -94,15 +93,18 @@
         end interface
 
         interface Gram_Schmidt
-          module procedure Gram_Schmidt_Array, Gram_Schmidt_Blocks
+          module procedure Gram_Schmidt_Array, Gram_Schmidt_Block,
+     &        Gram_Schmidt_1DBlocks
         end interface
 
         interface Lowdin
-          module procedure Lowdin_Array, Lowdin_Blocks
+          module procedure Lowdin_Array, Lowdin_Block,
+     &        Lowdin_1DBlocks
         end interface
 
         interface Canonical
-          module procedure Canonical_Array, Canonical_Blocks
+          module procedure Canonical_Array, Canonical_Block,
+     &        Canonical_1DBlocks
         end interface
 
       contains
@@ -110,7 +112,6 @@
       subroutine orthonormalize_blocks(basis, scheme, ONB)
         use general_data, only : nSym, nBAs, nDel, nDelt, nSSH, nOrb
         use rasscf_data, only : nSec, nOrbt, nTot3, nTot4
-        implicit none
         type(t_blockdiagonal), intent(in) :: basis(:)
         type(t_ON_scheme), intent(in) :: scheme
         type(t_blockdiagonal), intent(_OUT_) :: ONB(size(basis))
@@ -143,7 +144,6 @@
 
       subroutine orthonormalize_raw(CMO, scheme, ONB_v)
         use general_data, only : nBas, nSym
-        implicit none
         real*8, intent(in) :: CMO(:)
         type(t_ON_scheme), intent(in) :: scheme
         real*8, intent(_OUT_) :: ONB_v(size(CMO))
@@ -181,7 +181,6 @@
 !>  @paramin[in] B Target matrix.
 !>  @paramin[in] metric (Optional parameter) Can be "FROBENIUS", "MAX-4EL-TRACE".
       function procrust(A, B, metric) result(R)
-        implicit none
         real*8, intent(in) :: A(:, :), B(:, :)
         type(t_procrust_metric), intent(in) :: metric
         real*8 :: R(size(B, 1), size(B, 2))
@@ -197,17 +196,29 @@
       end function procrust
 
 
-! The elemental keyword automatically loops over the blocks
-! and even allows the compiler to parallelize.
-      impure elemental subroutine Lowdin_Blocks(basis, S, ONB)
-        implicit none
+! TODO: It would be nice, to use `impure elemental`
+! instead of the manual overloading.
+! As of July 2019 some compilers don't support it.
+      subroutine Lowdin_Block(basis, S, ONB)
         type(t_blockdiagonal), intent(in) :: basis, S
         type(t_blockdiagonal), intent(_OUT_) :: ONB
         call Lowdin(basis%block, S%block, ONB%block)
       end subroutine Lowdin_Blocks
 
+
+      subroutine Lowdin_1DBlocks(basis, S, ONB)
+        type(t_blockdiagonal), intent(in) :: basis(:), S(:)
+        type(t_blockdiagonal), intent(_OUT_) :: ONB(:)
+
+        integer :: i
+
+        do i = 1, size(basis)
+          call Lowdin(basis(i), S(i), ONB(i))
+        end do
+      end subroutine Lowdin_Blocks
+
+
       subroutine Lowdin_Array(basis, S, ONB)
-        implicit none
         real*8, intent(in) :: basis(:, :), S(:, :)
         real*8, intent(out) :: ONB(:, :)
 
@@ -245,22 +256,34 @@
       end subroutine Lowdin_Array
 
 
-! The elemental keyword automatically loops over the blocks
-! and even allows the compiler to parallelize.
-      impure elemental subroutine Canonical_Blocks(
-     &    basis, S, n_to_ON, ONB, n_new)
-        implicit none
+! TODO: It would be nice, to use `impure elemental`
+! instead of the manual overloading.
+! As of July 2019 some compilers don't support it.
+      subroutine Canonical_Block(basis, S, n_to_ON, ONB, n_new)
         type(t_blockdiagonal), intent(in) :: basis, S
         integer, intent(in) :: n_to_ON
         type(t_blockdiagonal), intent(_OUT_) :: ONB
         integer, intent(out) :: n_new
 
-        call Canonical(
-     &        basis%block, S%block,  n_to_ON, ONB%block, n_new)
-      end subroutine Canonical_Blocks
+        call Canonical(basis%block, S%block, n_to_ON, ONB%block, n_new)
+      end subroutine Canonical_Block
+
+
+      subroutine Canonical_1DBlocks(basis, S, n_to_ON, ONB, n_new)
+        type(t_blockdiagonal), intent(in) :: basis(:), S(:)
+        integer, intent(in) :: n_to_ON(:)
+        type(t_blockdiagonal), intent(_OUT_) :: ONB(:)
+        integer, intent(out) :: n_new(:)
+
+        integer :: i
+
+        do i = 1, size(basis)
+          call Canonical(basis(i), S(i), n_to_ON(i),ONB(i), n_new(i))
+        end do
+      end subroutine Canonical_Block
+
 
       subroutine Canonical_Array(basis, S, n_to_ON, ONB, n_new)
-        implicit none
         real*8, intent(in) :: basis(:, :), S(:, :)
         integer, intent(in) :: n_to_ON
         real*8, intent(out) :: ONB(:, :)
@@ -318,11 +341,10 @@
           end function
       end subroutine Canonical_Array
 
-! The elemental keyword automatically loops over the blocks
-! and even allows the compiler to parallelize.
-      impure elemental subroutine Gram_Schmidt_Blocks(
-     &    basis, S, n_to_ON, ONB, n_new)
-        implicit none
+! TODO: It would be nice, to use `impure elemental`
+! instead of the manual overloading.
+! As of July 2019 some compilers don't support it.
+      subroutine Gram_Schmidt_Block(basis, S, n_to_ON, ONB, n_new)
         type(t_blockdiagonal), intent(in) :: basis, S
         integer, intent(in) :: n_to_ON
         type(t_blockdiagonal), intent(_OUT_) :: ONB
@@ -330,10 +352,25 @@
 
         call Gram_Schmidt(
      &        basis%block, S%block, n_to_ON, ONB%block, n_new)
-      end subroutine Gram_Schmidt_Blocks
+      end subroutine Gram_Schmidt_Block
+
+
+      subroutine Gram_Schmidt_1DBlocks(basis, S, n_to_ON, ONB, n_new)
+        type(t_blockdiagonal), intent(in) :: basis(:), S(:)
+        integer, intent(in) :: n_to_ON(:)
+        type(t_blockdiagonal), intent(_OUT_) :: ONB(:)
+        integer, intent(out) :: n_new(:)
+
+        integer :: i
+
+        do i = 1, size(basis)
+          call Gram_Schmidt(basis(i), S(i), n_to_ON(i),ONB(i), n_new(i))
+        end do
+      end subroutine Gram_Schmidt_Block
+
+
 
       subroutine Gram_Schmidt_Array(basis, S, n_to_ON, ONB, n_new)
-        implicit none
         real*8, intent(in) :: basis(:, :), S(:, :)
         integer, intent(in) :: n_to_ON
         real*8, intent(out) :: ONB(:, :)
@@ -385,7 +422,6 @@
      &    n_to_ON, nNew,
      &    nDel, nSSH, nOrb, nDelt, nSec, nOrbt, nTot3, nTot4)
       use general_data, only : nSym
-      implicit none
 #include "warnings.fh"
 #include "output_ras.fh"
       integer, intent(in) :: n_to_ON(:), nNew(:)
@@ -438,7 +474,6 @@
 
 
       subroutine read_raw_S(S_buffer)
-        implicit none
         real*8, intent(inout) :: S_buffer(:)
         integer :: i_Rc, i_Opt, i_Component, i_SymLbl
 #include "warnings.fh"
@@ -462,7 +497,6 @@
       subroutine read_S(S)
         use general_data, only : nBas, nSym, nActEl
         use rasscf_data, only : nFr, nIn, Tot_Nuc_Charge
-        implicit none
 #include "warnings.fh"
 #include "output_ras.fh"
         type(t_blockdiagonal) :: S(nSym)
@@ -516,7 +550,6 @@
 
 
       subroutine abort_(message)
-        implicit none
         character(*), intent(in) :: message
         call WarningMessage(2, message)
         call QTrace()
