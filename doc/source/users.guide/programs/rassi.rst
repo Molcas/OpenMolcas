@@ -745,7 +745,7 @@ Keywords
               </HELP>
               </KEYWORD>
 
-:kword:`DIPRrint`
+:kword:`DIPRint`
   The next entry gives the threshold for printing dipole intensities.
   Default is 1.0D-5.
 
@@ -757,7 +757,7 @@ Keywords
               </HELP>
               </KEYWORD>
 
-:kword:`QIPRrint`
+:kword:`QIPRint`
   The next entry gives the threshold for printing quadrupole intensities.
   Default is 1.0D-5.
   Will overwrite any value chosen for dipole intensities.
@@ -856,6 +856,22 @@ Keywords
               is followed by an integer n, the number of directions,
               and then n lines with three real numbers each specifying the direction. The values
               do not need to be normalized.
+              </HELP>
+              </KEYWORD>
+
+:kword:`POLArization`
+  Define the direction of the polarization of the incident light, see :kword:`DIREction`.
+  The keyword is followed by three real numbers specifying the components of a vector (not necessarily normalized),
+  the polarizarion direction is defined by orthogonalizing this vector with each vector specified in :kword:`DIREction`.
+  Currently, this keyword only works with the oscillator strengths computed with the :kword:`TINTensities` keyword.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="POLARIZATION" APPEAR="Direction of polarization" KIND="REALS" SIZE="3" REQUIRE="DIRECTION,TINT" LEVEL="ADVANCED">
+              %%Keyword: POLArization <advanced>
+              <HELP>
+              Define the direction of the polarization of the incident light, see DIREction.
+              The keyword is followed by three real numbers specifying the components of a vector (not necessarily normalized),
+              the polarizarion direction is defined by orthogonalizing this vector with each vector specified in DIREction.
+              Currently, this keyword only works with the oscillator strengths computed with the TINTensities keyword.
               </HELP>
               </KEYWORD>
 

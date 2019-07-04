@@ -44,6 +44,7 @@
       Real*8 TM_R(3), TM_I(3), TM_C(3)
       Character*60 FMTLINE
       Real*8 Wavevector(3), UK(3)
+      Real*8, Allocatable :: pol_Vector(:,:)
 #ifdef _HDF5_
       Real*8, Allocatable, Target :: Storage(:,:,:,:)
       Real*8, Pointer :: flatStorage(:)
@@ -463,13 +464,13 @@ C REPORT ON SECULAR EQUATION RESULT:
 *
          IF(IFJ2.ne.0 .and. IAMXYZ.gt.0) THEN
           IF(IFJZ.ne.0 .and. IAMZ.gt.0) THEN
-           EFFL=SQRT(MAX(0.5D-12,0.25D0+WORK(LL2DIA-1+ISTATE)))-0.5D0
+           EFFL=SQRT(MAX(0.5D-12,0.25D0+WORK(LL2DIA-1+ISTATE)))-Half
            EFFM=SQRT(MAX(0.5D-12,WORK(LM2DIA-1+ISTATE)))
            FMTLINE='(1X,I5,7X,F18.10,2X,F18.10,2X,F18.4,6X,F6.1,2X,'//
      &             'F6.1)'
            WRITE(6,FMTLINE) ISTATE,E1,E2,E3,EFFL,EFFM
           ELSE
-           EFFL=SQRT(MAX(0.5D-12,0.25D0+WORK(LL2DIA-1+ISTATE)))-0.5D0
+           EFFL=SQRT(MAX(0.5D-12,0.25D0+WORK(LL2DIA-1+ISTATE)))-Half
            FMTLINE='(1X,I5,7X,F18.10,2X,F18.10,2X,F18.4,6X,F6.1)'
            WRITE(6,FMTLINE) ISTATE,E1,E2,E3,EFFL
           END IF
@@ -2048,6 +2049,7 @@ C And the same for the Dyson amplitudes
          Call DScal_(nQuad,2.0D0,Work(ipR+3),4)
          nVec = 1
       End If
+      If (Do_Pol) Call mma_allocate(pol_Vector,3,nVec*nQuad,Label='POL')
 *
 *     Get table of content for density matrices.
 *
@@ -2244,6 +2246,8 @@ C And the same for the Dyson amplitudes
 *
       CALL GETMEM('RAW   ','ALLO','REAL',LRAW,NQUAD*6*nmax2)
       CALL GETMEM('OSCSTR','ALLO','REAL',LF,2*nmax2)
+      CALL GETMEM('MAXMIN','ALLO','REAL',LMAX,8*nmax2)
+      LMAX_=0
 *
       Do iVec = 1, nVec
          If (Do_SK) Then
@@ -2265,7 +2269,7 @@ C And the same for the Dyson amplitudes
               jend_=TMOgrp2(jgrp+1)-1
               EDIFF_=(ENERGY(IndexE(jstart_))+ENERGY(IndexE(jend_))
      &              -ENERGY(IndexE(istart_))-ENERGY(IndexE(iend_)))
-     &              *0.5D0
+     &              *Half
             Else
               istart_=igrp
               iend_=igrp
@@ -2288,14 +2292,14 @@ C And the same for the Dyson amplitudes
 *           Iterate over the quadrature points.
 *
             CALL DCOPY_(2*n12,[0.0D0],0,WORK(LF),1)
-* 5 elements for FX,FY,FZ,F and R
-* even if X, Y and Z are not actually computed yet
 *
 *           Initialize output arrays
 *
             CALL DCOPY_(NQUAD*6*n12,[0.0D0],0,WORK(LRAW),1)
-
+            CALL DCOPY_(8*n12,[0.0D0],0,WORK(LMAX),1)
+*
             Do iQuad = 1, nQuad
+               iVec_=(iVec-1)*nQuad+iQuad
 *
 *              Read or generate the wavevector
 *
@@ -2312,6 +2316,20 @@ C And the same for the Dyson amplitudes
 *
                Weight=Work((iQuad-1)*4+3+ipR)
                If (.Not.Do_SK) Weight=Weight/(4.0D0*PI)
+*
+*              Generate the polarization vector
+*
+               If (Do_Pol) Then
+                  pol_Vector(:,iVec_)=
+     &               e_Vector-DDot_(3,UK,1,e_Vector,1)*UK
+                  rNorm=DDot_(3,pol_Vector(:,iVec_),1,
+     &                         pol_Vector(:,iVec_),1)
+                  If (rNorm.gt.1.0D-12) Then
+                     pol_Vector(:,iVec_)=pol_Vector(:,iVec_)/Sqrt(rNorm)
+                  Else
+                     pol_Vector(:,iVec_)=0.0D0
+                  End If
+               End If
 *
 *              Generate the property integrals associated with this
 *              direction of the wave vector k.
@@ -2426,9 +2444,53 @@ C                 Why do it when we don't do the L.S-term!
                TM2 = DDot_(3,TM_I,1,TM_I,1)
                TM_2 = Half*(TM1+TM2)
 *
+*              Compute maximum and minimum oscillator strengths
+*              and the corresponding polarization vectors
+*
+               If (Do_SK) Then
+                  LMAX_ = LMAX+8*(ij_-1)
+                  TM3 = DDot_(3,TM_R,1,TM_I,1)
+                  Rng = Sqrt((TM1-TM2)**2+4.0D0*TM3**2)
+                  Work(LMAX_+0) = TM_2+Half*Rng
+                  Work(LMAX_+4) = TM_2-Half*Rng
+*                 The direction for the maximum
+                  Ang = Half*Atan2(2.0D0*TM3,TM1-TM2)
+                  Call daXpY_(3, Cos(Ang),TM_R,1,Work(LMAX_+1),1)
+                  Call daXpY_(3, Sin(Ang),TM_I,1,Work(LMAX_+1),1)
+*                 Normalize and compute the direction for the minimum
+*                 as a cross product with k
+                  rNorm = DDot_(3,Work(LMAX_+1),1,Work(LMAX_+1),1)
+                  If (rNorm.gt.1.0D-12) Then
+                     Call dScal_(3,1.0/Sqrt(rNorm),Work(LMAX_+1),1)
+                     Work(LMAX_+5)=Work(LMAX_+2)*UK(3)-
+     &                             Work(LMAX_+3)*UK(2)
+                     Work(LMAX_+6)=Work(LMAX_+3)*UK(1)-
+     &                             Work(LMAX_+1)*UK(3)
+                     Work(LMAX_+7)=Work(LMAX_+1)*UK(2)-
+     &                             Work(LMAX_+2)*UK(1)
+                     rNorm = DDot_(3,Work(LMAX_+5),1,Work(LMAX_+5),1)
+                     Call dScal_(3,1.0/Sqrt(rNorm),Work(LMAX_+5),1)
+                  Else
+                     Call dCopy_(3,[0.0D0],0,Work(LMAX_+1),1)
+                     Call dCopy_(3,[0.0D0],0,Work(LMAX_+5),1)
+                  End If
+               End If
+*
+*              Oscillator strength for a specific polarization vector
+*
+               If (Do_Pol) Then
+                  TM1 = DDot_(3,TM_R,1,pol_Vector(1,iVec_),1)
+                  TM2 = DDot_(3,TM_I,1,pol_Vector(1,iVec_),1)
+                  TM_2 = TM1*TM1+TM2*TM2
+               End If
+*
 *              Compute the oscillator strength
 *
                F_Temp = 2.0D0*TM_2/EDIFF
+               If (Do_SK) Then
+                  Work(LMAX_+0) = 2.0D0*Work(LMAX_+0)/EDIFF
+                  Work(LMAX_+4) = 2.0D0*Work(LMAX_+4)/EDIFF
+               End If
 *
 *              Compute the rotatory strength
 *
@@ -2483,54 +2545,78 @@ C                 Why do it when we don't do the L.S-term!
                 Call Add_Info('ITMS(SF)',[F],1,6)
                 Call Add_Info('ROTS(SF)',[R],1,6)
 *
-                IF (ABS(F).LT.OSTHR) CYCLE
+                IF (Do_Pol) THEN
+                   LMAX_=LMAX+8*(ij_-1)
+                   F_CHECK=ABS(WORK(LMAX_+0))
+                ELSE
+                   F_CHECK=ABS(F)
+                END IF
+                IF (F_CHECK.LT.OSTHR) CYCLE
                 A =(AFACTOR*EDIFF**2)*F
 *
                 If (iPrint.eq.0) Then
                    WRITE(6,*)
                    If (Do_SK) Then
                       CALL CollapseOutput(1,
-     &             'Transition moment strengths (spin-free states):')
+     &                  'Transition moment strengths '//
+     &                  '(spin-free states):')
                       WRITE(6,'(3X,A)')
-     &              '-----------------------------------------------'
-                      WRITE(6,'(4x,a)')
-     &              'The oscillator strength is '//
-     &              'integrated over all directions of the polar'//
-     &              'ization vector'
+     &                  '----------------------------'//
+     &                  '-------------------'
+                      If (Do_Pol) Then
+                         iVec_=(iVec-1)*nQuad+1
+                         WRITE(6,'(4x,a,3F8.4)')
+     &                     'Direction of the polarization: ',
+     &                     (pol_vector(k,iVec_),k=1,3)
+                      Else
+                         WRITE(6,'(4x,a)')
+     &                     'The oscillator strength is integrated '//
+     &                     'over all directions of the polarization '//
+     &                     'vector'
+                      End If
                       WRITE(6,'(4x,a,3F8.4)')
-     &              'Direction of the k-vector: ',
-     &              (k_vector(k,iVec),k=1,3)
-                Else
-                    CALL CollapseOutput(1,
-     &              'Isotropic transition moment strengths '//
-     &              '(spin-free states):')
-                    WRITE(6,'(3X,A)')
-     &              '--------------------------------------'//
-     &              '-------------------'
-                End If
-                IF (OSTHR.GT.0.0D0) THEN
-                    WRITE(6,30) 'for osc. strength at least',OSTHR
-                 END IF
-                 WRITE(6,*)
-                 If (.NOT.Do_SK) Then
-                    WRITE(6,'(4x,a,I4,a)')
-     &                'Integrated over ',nQuad,' directions of the '//
-     &                'wave vector'
-                    WRITE(6,'(4x,a)')
-     &                'The oscillator strength is '//
-     &                'integrated over all directions of the polar'//
-     &                'ization vector'
-                 End If
-                 WRITE(6,*)
-                 WRITE(6,39) 'From','To','Osc. strength',
-     &                   'Red. rot. str.','Total A (sec-1)'
-                 WRITE(6,40)
-                 iPrint=1
+     &                  'Direction of the k-vector: ',
+     &                  (k_vector(k,iVec),k=1,3)
+                   Else
+                      CALL CollapseOutput(1,
+     &                  'Isotropic transition moment strengths '//
+     &                  '(spin-free states):')
+                       WRITE(6,'(3X,A)')
+     &                  '--------------------------------------'//
+     &                  '-------------------'
+                   End If
+                   IF (OSTHR.GT.0.0D0) THEN
+                      WRITE(6,30) 'for osc. strength at least',OSTHR
+                   END IF
+                   WRITE(6,*)
+                   If (.NOT.Do_SK) Then
+                      WRITE(6,'(4x,a,I4,a)')
+     &                  'Integrated over ',nQuad,' directions of the '//
+     &                  'wave vector'
+                      WRITE(6,'(4x,a)')
+     &                  'The oscillator strength is '//
+     &                  'integrated over all directions of the polar'//
+     &                  'ization vector'
+                      WRITE(6,*)
+                   End If
+                   WRITE(6,39) 'From','To','Osc. strength',
+     &                         'Red. rot. str.','Total A (sec-1)'
+                   WRITE(6,40)
+                   iPrint=1
                 END IF
 *
 *     Regular print
 *
                 WRITE(6,33) I,J,F,R,A
+*
+                IF (Do_SK) THEN
+                   WRITE(6,50) 'maximum',WORK(LMAX_+0),
+     &                'for polarization direction:',
+     &                WORK(LMAX_+1),WORK(LMAX_+2),WORK(LMAX_+3)
+                   WRITE(6,50) 'minimum',WORK(LMAX_+4),
+     &                'for polarization direction:',
+     &                WORK(LMAX_+5),WORK(LMAX_+6),WORK(LMAX_+7)
+                END IF
 *
 *     Printing raw (unweighted) and direction for every transition
 *
@@ -2607,10 +2693,12 @@ C                 Why do it when we don't do the L.S-term!
       CALL GETMEM('TDMSCR','FREE','Real',LSCR,4*NSCR)
       CALL GETMEM('IP    ','FREE','REAL',LIP,NIP)
       CALL GETMEM('OSCSTR','FREE','REAL',LF,2*nmax2)
+      CALL GETMEM('MAXMIN','FREE','REAL',LMAX,8*nmax2)
       if (TMOgroup) Then
         Call mma_DeAllocate(TMOgrp1)
         Call mma_DeAllocate(TMOgrp2)
       EndIf
+      If (Do_Pol) Call mma_deallocate(pol_Vector)
 #ifdef _TIME_TMOM_
       Call CWTime(TCpu2,TWall2)
       write(6,*) 'Time for TMOM : ',TCpu2-TCpu1,TWall2-TWall1
@@ -2658,5 +2746,6 @@ C                 Why do it when we don't do the L.S-term!
 39    FORMAT (5X,2(1X,A4),5X,3(1X,A15))
 40    FORMAT (5X,63('-'))
 41    FORMAT (5X,2(1X,A4),5X,5(1X,A15))
+50    FORMAT (10X,A7,3X,1(1X,ES15.8),5X,A27,3(1X,F7.4))
       END Subroutine EigCtl
 

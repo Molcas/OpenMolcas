@@ -42,6 +42,7 @@
       Real*8 TM_R(3), TM_I(3), TM_C(3)
       Real*8 wavevector(3), UK(3)
       Real*8 kPhase(2)
+      Real*8, Allocatable :: pol_Vector(:,:)
 #ifdef _HDF5_
       Real*8, Allocatable, Target :: Storage(:,:,:,:)
       Real*8, Pointer :: flatStorage(:)
@@ -186,6 +187,7 @@ C printing threshold
          Call Do_Lebedev_Sym(L_Eff,nQuad,ipR)
          nVec = 1
       End If
+      If (Do_Pol) Call mma_allocate(pol_Vector,3,nVec*nQuad,Label='POL')
 *
 *     Get table of content for density matrices.
 *
@@ -306,6 +308,8 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
       CALL GETMEM('RAW   ','ALLO','REAL',LRAW,2*NQUAD*6*nmax2)
       CALL GETMEM('OSCSTR','ALLO','REAL',LF,2*nmax2)
+      CALL GETMEM('MAXMIN','ALLO','REAL',LMAX,8*nmax2)
+      LMAX_=0
 *
       Do iVec = 1, nVec
 *
@@ -432,8 +436,10 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
             CALL DCOPY_(2*n12,[0.0D0],0,WORK(LF),1)
             CALL DCOPY_(2*NQUAD*6*n12,[0.0D0],0,WORK(LRAW),1)
+            CALL DCOPY_(8*n12,[0.0D0],0,WORK(LMAX),1)
 *
             Do iQuad = 1, nQuad
+               iVec_=(iVec-1)*nQuad+iQuad
 *
 *              Generate the wavevector associated with this quadrature
 *              point and pick up the associated quadrature weight.
@@ -441,13 +447,27 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                UK(1)=Work((iQuad-1)*4  +ipR)
                UK(2)=Work((iQuad-1)*4+1+ipR)
                UK(3)=Work((iQuad-1)*4+2+ipR)
+               wavevector(:)=rkNorm*UK(:)
 *
 *              Note that the weights are normalized to integrate to
 *              4*pi over the solid angles.
 *
-               wavevector(:)=rkNorm*UK(:)
                Weight=Work((iQuad-1)*4+3+ipR)
                If (.Not.Do_SK) Weight = Weight/(4.0D0*PI)
+*
+*              Generate the polarization vector
+*
+               If (Do_Pol) Then
+                  pol_Vector(:,iVec_)=
+     &               e_Vector-DDot_(3,UK,1,e_Vector,1)*UK
+                  rNorm=DDot_(3,pol_Vector(:,iVec_),1,
+     &                         pol_Vector(:,iVec_),1)
+                  If (rNorm.gt.1.0D-12) Then
+                     pol_Vector(:,iVec_)=pol_Vector(:,iVec_)/Sqrt(rNorm)
+                  Else
+                     pol_Vector(:,iVec_)=0.0D0
+                  End If
+               End If
 *
 *              Generate the property integrals associated with this
 *              direction of the wave vector k.
@@ -704,17 +724,60 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                    Call DaXpY_(3,-DDot_(3,TM_R,1,UK,1),UK,1,TM_R,1)
                    Call DaXpY_(3,-DDot_(3,TM_I,1,UK,1),UK,1,TM_I,1)
 *
-*              Integrate over all directions of the polarization
-*              vector and divide with the "distance", 2*pi, to get
-*              the average value.
+*              Implicitly integrate over all directions of the
+*              polarization vector to get the average value.
 *
                    TM1 = DDot_(3,TM_R,1,TM_R,1)
                    TM2 = DDot_(3,TM_I,1,TM_I,1)
                    TM_2 = Half*(TM1+TM2)
 *
+*              Compute maximum and minimum oscillator strengths
+*              and the corresponding polarization vectors
+*
+                   If (Do_SK) Then
+                      LMAX_ = LMAX+8*(ij_-1)
+                      TM3 = DDot_(3,TM_R,1,TM_I,1)
+                      Rng = Sqrt((TM1-TM2)**2+4.0D0*TM3**2)
+                      Work(LMAX_+0) = TM_2+Half*Rng
+                      Work(LMAX_+4) = TM_2-Half*Rng
+*                     The direction for the maximum
+                      Ang = Half*Atan2(2.0D0*TM3,TM1-TM2)
+                      Call daXpY_(3, Cos(Ang),TM_R,1,Work(LMAX_+1),1)
+                      Call daXpY_(3, Sin(Ang),TM_I,1,Work(LMAX_+1),1)
+*                     Normalize and compute the direction for the minimum
+*                     as a cross product with k
+                      rNorm = DDot_(3,Work(LMAX_+1),1,Work(LMAX_+1),1)
+                      If (rNorm.gt.1.0D-12) Then
+                         Call dScal_(3,1.0/Sqrt(rNorm),Work(LMAX_+1),1)
+                         Work(LMAX_+5)=Work(LMAX_+2)*UK(3)-
+     &                                 Work(LMAX_+3)*UK(2)
+                         Work(LMAX_+6)=Work(LMAX_+3)*UK(1)-
+     &                                 Work(LMAX_+1)*UK(3)
+                         Work(LMAX_+7)=Work(LMAX_+1)*UK(2)-
+     &                                 Work(LMAX_+2)*UK(1)
+                         rNorm=DDot_(3,Work(LMAX_+5),1,Work(LMAX_+5),1)
+                         Call dScal_(3,1.0/Sqrt(rNorm),Work(LMAX_+5),1)
+                      Else
+                         Call dCopy_(3,[0.0D0],0,Work(LMAX_+1),1)
+                         Call dCopy_(3,[0.0D0],0,Work(LMAX_+5),1)
+                      End If
+                   End If
+*
+*              Oscillator strength for a specific polarization vector
+*
+                   If (Do_Pol) Then
+                      TM1 = DDot_(3,TM_R,1,pol_Vector(1,iVec_),1)
+                      TM2 = DDot_(3,TM_I,1,pol_Vector(1,iVec_),1)
+                      TM_2 = TM1*TM1+TM2*TM2
+                   End If
+*
 *              Compute the oscillator strength
 *
                    F_Temp = 2.0D0*TM_2/EDIFF
+                   If (Do_SK) Then
+                      Work(LMAX_+0) = 2.0D0*Work(LMAX_+0)/EDIFF
+                      Work(LMAX_+4) = 2.0D0*Work(LMAX_+4)/EDIFF
+                   End If
 *
 *              Compute the rotatory strength, note that it depends on kPhase
 *
@@ -772,32 +835,46 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                  Call Add_Info('ITMS(SO)',[F],1,6)
                  Call Add_Info('ROTS(SO)',[R],1,6)
 *
-                 IF (ABS(F).LT.OSTHR) CYCLE
+                 IF (Do_Pol) THEN
+                    LMAX_=LMAX+8*(ij_-1)
+                    F_CHECK=ABS(WORK(LMAX_+0))
+                 ELSE
+                    F_CHECK=ABS(F)
+                 END IF
+                 IF (F_CHECK.LT.OSTHR) CYCLE
                  A =(AFACTOR*EDIFF**2)*F
 *
             If (iPrint.eq.0) Then
                WRITE(6,*)
                If (Do_SK) Then
                   CALL CollapseOutput(1,
-     &            'Transition moment strengths (SO states):')
+     &              'Transition moment strengths (SO states):')
                   WRITE(6,'(3X,A)')
-     &            '----------------------------------------'
-                  WRITE(6,'(4x,a)')
-     &            'The oscillator strength is '//
-     &            'integrated over all directions of the polar'//
-     &            'ization vector'
+     &              '----------------------------------------'
+                  If (Do_Pol) Then
+                      iVec_=(iVec-1)*nQuad+1
+                      WRITE(6,'(4x,a,3F8.4)')
+     &                  'Direction of the polarization: ',
+     &                  (pol_vector(k,iVec),k=1,3)
+                  Else
+                     WRITE(6,'(4x,a)')
+     &                 'The oscillator strength is integrated '//
+     &                 'over all directions of the polarization '//
+     &                 'vector'
+                  End If
                   WRITE(6,'(4x,a,3F8.4)')
      &                  'Direction of the k-vector: ',
      &                   (Work(ipR+k),k=0,2)
                Else
                   CALL CollapseOutput(1,
-     &            'Isotropic transition moment strengths (SO states):')
+     &              'Isotropic transition moment strengths '//
+     &              '(SO states):')
                   WRITE(6,'(3X,A)')
-     &            '--------------------------------------------------'
+     &              '--------------------------------------'//
+     &              '------------'
                End If
                IF (OSTHR.GT.0.0D0) THEN
-                  WRITE(6,'(4x,a,ES16.8)')
-     &                  'for osc. strength at least ',OSTHR
+                  WRITE(6,30) 'for osc. strength at least ',OSTHR
                END IF
                WRITE(6,*)
                If (.NOT.Do_SK) Then
@@ -808,15 +885,27 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
      &             'The oscillator strength is '//
      &             'integrated over all directions of the polar'//
      &             'ization vector'
-                 WRITE(6,*)
+                  WRITE(6,*)
                End If
-
                WRITE(6,31) 'From', 'To', 'Osc. strength',
      &                     'Red. rot. str.', 'Total A (sec-1)'
                WRITE(6,32)
               iPrint=1
             END IF
+*
+*     Regular print
+*
             WRITE(6,33) ISO,JSO,F,R,A
+*
+            IF (Do_SK) THEN
+               WRITE(6,50) 'maximum',WORK(LMAX_+0),
+     &            'for polarization direction:',
+     &            WORK(LMAX_+1),WORK(LMAX_+2),WORK(LMAX_+3)
+               WRITE(6,50) 'minimum',WORK(LMAX_+4),
+     &            'for polarization direction:',
+     &            WORK(LMAX_+5),WORK(LMAX_+6),WORK(LMAX_+7)
+            END IF
+*
 *
 *     Printing raw (unweighted) and direction for every transition
 *
@@ -920,20 +1009,24 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
         Call mma_DeAllocate(TMOgrp1)
         Call mma_DeAllocate(TMOgrp2)
       EndIf
+      If (Do_Pol) Call mma_deallocate(pol_Vector)
       CALL GETMEM('TMR','FREE','REAL',LTMR,3*NSS**2)
       CALL GETMEM('TMI','FREE','REAL',LTMI,3*NSS**2)
       CALL GETMEM('OSCSTR','FREE','REAL',LF,2*nmax2)
+      CALL GETMEM('MAXMIN','FREE','REAL',LMAX,8*nmax2)
 *
       Call DaClos(LuToM)
       If (.NOT.Do_SK) Call Free_O()
       Call Free_Work(ipR)
       Call ClsSew()
 *
+30    FORMAT (5X,A,1X,ES15.8)
 31    FORMAT (5X,2(1X,A4),4X,3(1X,A15))
 32    FORMAT (5X,63('-'))
 33    FORMAT (5X,2(1X,I4),5X,5(1X,ES15.8))
 34    FORMAT (5X,2(1X,A4),5X,5(1X,A15))
 35    FORMAT (5X,95('-'))
+50    FORMAT (10X,A7,3X,1(1X,ES15.8),5X,A27,3(1X,F7.4))
 *
 ************************************************************************
 *                                                                      *

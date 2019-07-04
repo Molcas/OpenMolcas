@@ -10,6 +10,7 @@
 ************************************************************************
       Module kVectors
       Real*8, Dimension(:,:), Allocatable :: k_Vector
+      Real*8 :: e_Vector(3)
       Integer :: nk_Vector
       Save
       End Module kVectors

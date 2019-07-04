@@ -746,6 +746,13 @@ C--------------------------------------------
         End Do
         GoTo 100
       Endif
+C--------------------------------------------
+      If(Line(1:4).eq.'POLA') then
+        Do_Pol=.TRUE.
+        Linenr=Linenr+1
+        Read(LuIn,*,ERR=997) (e_Vector(i),i=1,3)
+        GoTo 100
+      Endif
 #ifdef _DMRG_
 C--------------------------------------------
       if (Line(1:4).eq.'QDSC') then
@@ -813,6 +820,12 @@ cnf
          IfDCpl = .False.
       End If
 cnf
+      If (Do_Pol.and..not.Do_SK) Then
+         Call WarningMessage(1,'Input request was ignored.')
+         Write(6,*) ' Polarization direction can only be used with'
+         Write(6,*) ' specific k-vector directions.'
+         Do_Pol = .False.
+      End If
 * Determine file names, if undefined.
       IF(JBNAME(1).EQ.'UNDEFINE') THEN
 * The first (perhaps only) jobiph file is named 'JOB001', or maybe 'JOBIPH'
