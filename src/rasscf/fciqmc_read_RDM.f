@@ -18,7 +18,7 @@
 ! Note that two_el_idx_flatten has also out parameters.
       use index_symmetry, only : two_el_idx_flatten
       private
-      public :: read_neci_RDM
+      public :: read_neci_RDM, cleanup
       contains
 
 !>  @brief
@@ -43,7 +43,7 @@
       implicit none
 #include "para_info.fh"
 #include "output_ras.fh"
-      real*8, intent(inout) :: DMAT(:), DSPN(:), PSMAT(:),PAMAT(:)
+      real*8, intent(out) :: DMAT(:), DSPN(:), PSMAT(:), PAMAT(:)
       integer :: iUnit, isfreeunit, p, q, r, s, pq, rs, ps, rq, psrq,
      &  pqrs, iread, Nalpha, norb, iprlev
       logical :: tExist, switch
@@ -496,4 +496,11 @@ c     call DTRMM('R','L','N','n',nac,nac,1.0d0,MAT,nac,Work(iTmp))
       Call qExit(routine)
       return
       end subroutine cleanMat
+
+      subroutine cleanup()
+        implicit none
+        ! Add your deallocations here.
+        ! This routine will be called when exiting rasscf.
+        continue
+      end subroutine
       end module fciqmc_read_RDM

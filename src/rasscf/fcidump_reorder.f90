@@ -17,7 +17,7 @@ module fcidump_reorder
     mma_allocate, mma_deallocate, length
   implicit none
   private
-  public :: reorder, get_P_GAS, get_P_inp, ReOrFlag, ReOrInp
+  public :: reorder, get_P_GAS, get_P_inp, ReOrFlag, ReOrInp, cleanup
   save
 ! n==0: Don't reorder.
 ! n>=2: User defined permutation with n non-fixed point elements.
@@ -104,5 +104,10 @@ contains
     call reorder(orbitals, P)
     call reorder(fock, P)
     call reorder(two_el_table, P)
+  end subroutine
+
+  subroutine cleanup()
+    implicit none
+    call mma_deallocate(ReOrInp)
   end subroutine
 end module fcidump_reorder
