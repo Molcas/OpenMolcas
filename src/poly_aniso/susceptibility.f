@@ -96,9 +96,7 @@ c local variables
       Real(kind=wp) :: boltz_k,coeff_chi
       Real(kind=wp) :: det
       Real(kind=wp) :: dev, Fa, Fb, Fc, Fd, Fe, Ff
-!      Real(kind=wp) :: rdummy(1) !, gtens(3),maxes(3,3)
       external dev
-      Character(25) :: lbl_XT
       Integer       :: i,iT,jT,ic,jc
       Integer       :: j,n1,n2,im,jm
       Integer       :: isite,info,mem_local,RtoB
