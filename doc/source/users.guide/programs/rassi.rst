@@ -1148,7 +1148,7 @@ Keywords
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="DYSEXPORT" KIND="INTS" SIZE="2" LEVEL="ADVANCED">
               %%Keyword: DYSEXPORT <advanced>
               <HELP>
-              Requires the :kword:`DYSOn` keyword and enables exportation of Dyson orbitals (from which Dyson amplitudes are obtained). The next line specifies the number (starting from the first) of spin-free and spin-orbit states (two numbers, both mandatory) for which the exportation will be done. Note that the ordering of spin-free states depends on the ordering of JOBfiles, whereas spin-orbit states are always energy ordered.
+              Requires the DYSOn keyword and enables exportation of Dyson orbitals (from which Dyson amplitudes are obtained). The next line specifies the number (starting from the first) of spin-free and spin-orbit states (two numbers, both mandatory) for which the exportation will be done. Note that the ordering of spin-free states depends on the ordering of JOBfiles, whereas spin-orbit states are always energy ordered.
               </HELP>
               </KEYWORD>
 
