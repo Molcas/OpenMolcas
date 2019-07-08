@@ -16,26 +16,17 @@
         public ::
      &    sort, argsort,  tAlgorithm, algorithms, naive_sort_trsh
 
+! TODO: Should be changed to default construction in the future.
+! As of July 2019 the Sun and PGI compiler have problems.
         type :: tAlgorithmValues
-          integer ::
-     &      mergesort = 1,
-     &      quicksort = 2
+          integer :: mergesort, quicksort
         end type
         type(tAlgorithmValues), parameter ::
-! TODO: Dear fellow MOLCAS developer of the future:
-! Please replace the following explicit constructur
-! with the default constructor
-!     instance = type()
-! as soon as possible.
-! As of July 2019 the Sun compiler requires explicit construction
-! for parameter variables. (Which is wrong IMHO.)
-     &    algorithms =
-     &      tAlgorithmValues(mergesort = 1, quicksort = 2)
+     &      algorithms = tAlgorithmValues(mergesort=1, quicksort=2)
 
         type :: tAlgorithm
           integer :: val
         end type
-
         type(tAlgorithm), parameter ::
      &      default_algorithm = tAlgorithm(algorithms%mergesort)
 
@@ -90,6 +81,12 @@
           type(tAlgorithm), intent(in), optional :: algorithm
           type(tAlgorithm)  :: algorithm_
           integer :: idx(lbound(V, 1):ubound(V, 1)), i
+          interface
+            logical pure function my_compare(x, y)
+              integer, intent(in) :: x, y
+            end function
+          end interface
+
           if (present(algorithm)) then
             algorithm_ = algorithm
           else
@@ -97,6 +94,7 @@
           end if
 
           idx = [(i, i = lbound(V, 1), ubound(V, 1))]
+
 
           call sort(idx, my_compare, algorithm_)
 
