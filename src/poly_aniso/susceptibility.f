@@ -268,12 +268,12 @@ cc  local susceptibility= total susceptibility coming from individual magnetic c
             Fc=dnrm2_(9     ,chit_tens_ex,1)
             Fd=dnrm2_(nneq  ,zstat_l     ,1)
             Fe=dnrm2_(nneq  ,zstat_lr    ,1)
-            Call Add_Info('XT:  chit_tens_l'   ,Fa,1,6)
-            Call Add_Info('XT:  chit_tens_lr'  ,Fb,1,6)
-            Call Add_Info('XT:  chit_tens_exch',Fc,1,6)
-            Call Add_Info('XT:  zstat_exch'    ,zstat_ex,1,6)
-            Call Add_Info('XT:  zstat_l'       ,Fd,1,6)
-            Call Add_Info('XT:  zstat_lr'      ,Fe,1,6)
+            Call Add_Info('XT:  chit_tens_l'   ,[Fa],1,6)
+            Call Add_Info('XT:  chit_tens_lr'  ,[Fb],1,6)
+            Call Add_Info('XT:  chit_tens_exch',[Fc],1,6)
+            Call Add_Info('XT:  zstat_exch'    ,[zstat_ex],1,6)
+            Call Add_Info('XT:  zstat_l'       ,[Fd],1,6)
+            Call Add_Info('XT:  zstat_lr'      ,[Fe],1,6)
 c expand the basis and rotate local tensors to the general
 c coordinate system:
             isite=0
@@ -304,8 +304,8 @@ c coordinate system:
             Fa=0.0_wp; Fb=0.0_wp;
             Fa=dnrm2_(9*nCenter,XL,1)
             Fb=dnrm2_(9*nCenter,XR,1)
-            Call Add_Info('XT:  XL',Fa,1,6)
-            Call Add_Info('XT:  XR',Fb,1,6)
+            Call Add_Info('XT:  XL',[Fa],1,6)
+            Call Add_Info('XT:  XR',[Fb],1,6)
 c save some data:
             If(it.le.nTempMagn) Then
                Call dscal_( 3*3*nCenter, coeff_chi, XR, 1 )
@@ -322,9 +322,9 @@ c save some data:
             Fa=0.0_wp; Fb=0.0_wp;
             Fa=dnrm2_(nCenter,ZL,1)
             Fb=dnrm2_(nCenter,ZR,1)
-            Call Add_Info('XT:  ZL',ZL,1,6)
-            Call Add_Info('XT:  ZR',ZR,1,6)
-            Call Add_Info('XT: ZEx',zstat_ex,1,6)
+            Call Add_Info('XT:  ZL',[Fa],1,6)
+            Call Add_Info('XT:  ZR',[Fb],1,6)
+            Call Add_Info('XT: ZEx',[zstat_ex],1,6)
 
             chit(it)=coeff_chi * ( chit_tens_tot(iT,1,1)
      &                            +chit_tens_tot(iT,2,2)
@@ -339,11 +339,11 @@ c save some data:
             ! add some verification data:
             Fa=0.0_wp
             Fa=dnrm2_(9,chit_theta_tens(iT,1:3,1:3),1)
-            Call Add_Info('XT: chit_theta_tens',Fa,1,6)
+            Call Add_Info('XT: chit_theta_tens',[Fa],1,6)
          End Do ! iT
-         Fb=0.0_wp
+         Fb=0.0_wp;
          Fb=dnrm2_(nT+nTempMagn,T,1)
-         Call Add_Info('XT: T',T,nT+nTempMagn,6)
+         Call Add_Info('XT: T',[Fb],1,6)
 
       Else ! i.e. when (zJ .ne. 0)
 
@@ -503,12 +503,12 @@ c coordinate system:
             Fd=dnrm2_(9*nCenter,SMUR,1)
             Fe=dnrm2_(9*nCenter,SSL,1)
             Ff=dnrm2_(9*nCenter,SSR,1)
-            Call Add_Info('XT:    XR',Fa,1,6)
-            Call Add_Info('XT:    XL',Fb,1,6)
-            Call Add_Info('XT:  SMUL',Fc,1,6)
-            Call Add_Info('XT:  SMUR',Fd,1,6)
-            Call Add_Info('XT:   SSL',Fe,1,6)
-            Call Add_Info('XT:   SSR',Ff,1,6)
+            Call Add_Info('XT:    XR',[Fa],1,6)
+            Call Add_Info('XT:    XL',[Fb],1,6)
+            Call Add_Info('XT:  SMUL',[Fc],1,6)
+            Call Add_Info('XT:  SMUR',[Fd],1,6)
+            Call Add_Info('XT:   SSL',[Fe],1,6)
+            Call Add_Info('XT:   SSR',[Ff],1,6)
 
 c save some data:
             If(iT.le.nTempMagn) Then
@@ -577,14 +577,14 @@ c
             Fc=dnrm2_(9,smu_chit_tens_tot(1:3,1:3),1)
             Fd=dnrm2_(9, ss_chit_tens_tot(1:3,1:3),1)
 
-            Call Add_Info('XT: chit_tens_tot'    ,Fa,1,6)
-            Call Add_Info('XT: chit_theta_tens'  ,Fb,1,6)
-            Call Add_Info('XT: smu_chit_tens_tot',Fc,1,6)
-            Call Add_Info('XT:  ss_chit_tens_tot',Fd,1,6)
+            Call Add_Info('XT: chit_tens_tot'    ,[Fa],1,6)
+            Call Add_Info('XT: chit_theta_tens'  ,[Fb],1,6)
+            Call Add_Info('XT: smu_chit_tens_tot',[Fc],1,6)
+            Call Add_Info('XT:  ss_chit_tens_tot',[Fd],1,6)
          End Do ! it
          Fb=0.0_wp;
          Fb=dnrm2_(nT+nTempMagn,T,1)
-         Call Add_Info('XT: T',Fb,1,6)
+         Call Add_Info('XT: T',[Fb],1,6)
 
          Call mma_deallocate(smu_chit_tens_l)
          Call mma_deallocate(smu_chit_tens_lr)
@@ -642,13 +642,13 @@ c printing the results
      & '------------------------------------------|'
       Fb=0.0_wp;
       Fb=dnrm2_(nT+nTempMagn,chiT,1)
-      Call Add_Info('XT: T',Fb,1,6)
+      Call Add_Info('XT: T',[Fb],1,6)
       Fa=0.0_wp;
       Fa=dnrm2_(nT+nTempMagn,chiT_theta,1)
-      Call Add_Info('XT: CHIT_THETA',Fa,1,6)
+      Call Add_Info('XT: CHIT_THETA',[Fa],1,6)
       Fa=0.0_wp;
       Fa=dnrm2_(nT+nTempMagn,zstat_tot,1)
-      Call Add_Info('XT: CHIT_THETA',Fa,1,6)
+      Call Add_Info('XT: CHIT_THETA',[Fa],1,6)
 c  calcualtion of the standard deviation:
       If (tinput) Then
          Write(6,'(a,5x, f20.14)') 'ST.DEV.CHIT:',
