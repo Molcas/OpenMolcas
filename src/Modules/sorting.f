@@ -14,14 +14,14 @@
         implicit none
         private
         public ::
-     &    sort, argsort,  tSortScheme, sort_schemes, naive_sort_trsh
+     &    sort, argsort,  tAlgorithm, algorithms, naive_sort_trsh
 
-        type :: tSortSchemeValues
+        type :: tAlgorithmValues
           integer ::
      &      mergesort = 1,
      &      quicksort = 2
         end type
-        type(tSortSchemeValues), parameter ::
+        type(tAlgorithmValues), parameter ::
 ! TODO: Dear fellow MOLCAS developer of the future:
 ! Please replace the following explicit constructur
 ! with the default constructor
@@ -29,12 +29,15 @@
 ! as soon as possible.
 ! As of July 2019 the Sun compiler requires explicit construction
 ! for parameter variables. (Which is wrong IMHO.)
-     &    sort_schemes =
-     &      tSortSchemeValues(mergesort = 1, quicksort = 2)
+     &    algorithms =
+     &      tAlgorithmValues(mergesort = 1, quicksort = 2)
 
-        type :: tSortScheme
-          integer :: val = sort_schemes%mergesort
+        type :: tAlgorithm
+          integer :: val
         end type
+
+        type(tAlgorithm), parameter ::
+     &      default_algorithm = tAlgorithm(algorithms%mergesort)
 
 ! When to switch to naive sort, which scales with n^2,
 ! but requires less overhead.
@@ -67,13 +70,13 @@
 !>  If you want to change the sorting algorithm, you can do so on the fly.
 !>  The default is always a stable sorting algorithm.
 !>  \code{.unparsed}
-!>   call argsort(V, le, tSortScheme(sort_schemes%mergesort))
-!>   call argsort(V, le, tSortScheme(sort_schemes%quicksort))
+!>   call argsort(V, le, tAlgorithm(algorithms%mergesort))
+!>   call argsort(V, le, tAlgorithm(algorithms%quicksort))
 !>  \endcode
 !>
 !>  @param[in] V Integer or real vector to be sorted
 !>  @param[in] compare A logical pure function of two integer or real arguments.
-!>  @param[in] scheme The sorting algorithm to use.
+!>  @param[in] algorithm The sorting algorithm to use.
         interface argsort
           module procedure I1D_argsort, R1D_argsort
         end interface
@@ -81,22 +84,21 @@
         contains
 
 
-        function I1D_argsort(V, compare, scheme) result(idx)
+        function I1D_argsort(V, compare, algorithm) result(idx)
           integer, intent(inout) :: V(:)
           procedure(compare_int) :: compare
-          type(tSortScheme), intent(in), optional :: scheme
-          type(tSortScheme)  :: scheme_
+          type(tAlgorithm), intent(in), optional :: algorithm
+          type(tAlgorithm)  :: algorithm_
           integer :: idx(lbound(V, 1):ubound(V, 1)), i
-          if (present(scheme)) then
-            scheme_ = scheme
+          if (present(algorithm)) then
+            algorithm_ = algorithm
           else
-! Use default constructor, whatever the default is.
-            scheme_ = tSortScheme()
+            algorithm_ = default_algorithm
           end if
 
           idx = [(i, i = lbound(V, 1), ubound(V, 1))]
 
-          call sort(idx, my_compare, scheme_)
+          call sort(idx, my_compare, algorithm_)
 
           contains
             logical pure function my_compare(x, y)
@@ -106,22 +108,21 @@
         end function I1D_argsort
 
 
-        function R1D_argsort(V, compare, scheme) result(idx)
+        function R1D_argsort(V, compare, algorithm) result(idx)
           real*8, intent(inout) :: V(:)
           procedure(compare_real) :: compare
-          type(tSortScheme), intent(in), optional :: scheme
-          type(tSortScheme)  :: scheme_
+          type(tAlgorithm), intent(in), optional :: algorithm
+          type(tAlgorithm)  :: algorithm_
           integer :: idx(lbound(V, 1):ubound(V, 1)), i
-          if (present(scheme)) then
-            scheme_ = scheme
+          if (present(algorithm)) then
+            algorithm_ = algorithm
           else
-! Use default constructor, whatever the default is.
-            scheme_ = tSortScheme()
+            algorithm_ = default_algorithm
           end if
 
           idx = [(i, i = lbound(V, 1), ubound(V, 1))]
 
-          call sort(idx, my_compare, scheme_)
+          call sort(idx, my_compare, algorithm_)
 
           contains
             logical pure function my_compare(x, y)
@@ -163,29 +164,28 @@
 !>  If you want to change the sorting algorithm, you can do so on the fly.
 !>  The default is always a stable sorting algorithm.
 !>  \code{.unparsed}
-!>   call sort(col_idx, col_sum, tSortScheme(sort_schemes%mergesort))
-!>   call sort(col_idx, col_sum, tSortScheme(sort_schemes%quicksort))
+!>   call sort(col_idx, col_sum, tAlgorithm(algorithms%mergesort))
+!>   call sort(col_idx, col_sum, tAlgorithm(algorithms%quicksort))
 !>  \endcode
 !>
 !>  @param[in] V Integer 1D-Array to be sorted
 !>  @param[in] compare A logical pure function of two integer arguments.
-!>  @param[in] scheme The sorting algorithm to use.
-        subroutine sort(V, compare, scheme)
+!>  @param[in] algorithm The sorting algorithm to use.
+        subroutine sort(V, compare, algorithm)
           integer, intent(inout) :: V(:)
           procedure(compare_int) :: compare
-          type(tSortScheme), intent(in), optional :: scheme
-          type(tSortScheme)  :: scheme_
-          if (present(scheme)) then
-            scheme_ = scheme
+          type(tAlgorithm), intent(in), optional :: algorithm
+          type(tAlgorithm)  :: algorithm_
+          if (present(algorithm)) then
+            algorithm_ = algorithm
           else
-! Use default constructor, whatever the default is.
-            scheme_ = tSortScheme()
+            algorithm_ = default_algorithm
           end if
 
-          select case (scheme_%val)
-            case(sort_schemes%mergesort)
+          select case (algorithm_%val)
+            case(algorithms%mergesort)
               call mergesort(V, compare)
-            case(sort_schemes%quicksort)
+            case(algorithms%quicksort)
               call quicksort(V, compare)
           end select
         end subroutine sort
