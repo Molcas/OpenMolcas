@@ -147,7 +147,7 @@ def _read_CAS_idx(f, orbs, cols):
         for _ in range(rows):
             line = f.readline()
             values.extend(line.strip()[2:])
-        idx.append(values)
+        idx.append(np.array(values))
     return idx
 
 
