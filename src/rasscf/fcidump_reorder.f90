@@ -67,11 +67,10 @@ contains
     use sorting, only : argsort
     integer, intent(in) :: ngssh(:, :)
     integer :: P(sum(ngssh)), X(sum(ngssh))
-    integer :: iGAS, iSym, iOrb, bounds(2)
-    bounds = shape(ngssh)
+    integer :: iGAS, iSym, iOrb
     iOrb = 1
-    do iSym = 1, bounds(2)
-      do iGAS = 1, bounds(1)
+    do iSym = 1, size(ngssh, 2)
+      do iGAS = 1, size(ngssh, 1)
         X(iOrb : iOrb + ngssh(iGAS, iSym)) = iGAS
         iOrb = iOrb + ngssh(iGAS, iSym) + 1
       end do
