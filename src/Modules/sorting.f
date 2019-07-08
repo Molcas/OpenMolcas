@@ -81,12 +81,6 @@
           type(tAlgorithm), intent(in), optional :: algorithm
           type(tAlgorithm)  :: algorithm_
           integer :: idx(lbound(V, 1):ubound(V, 1)), i
-          interface
-            logical pure function my_compare(x, y)
-              integer, intent(in) :: x, y
-            end function
-          end interface
-
           if (present(algorithm)) then
             algorithm_ = algorithm
           else
@@ -94,7 +88,6 @@
           end if
 
           idx = [(i, i = lbound(V, 1), ubound(V, 1))]
-
 
           call sort(idx, my_compare, algorithm_)
 
