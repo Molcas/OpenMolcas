@@ -29,6 +29,9 @@ endif ()
 if (POLICY CMP0074)
         cmake_policy(SET CMP0074 NEW)
 endif ()
+if (POLICY CMP0004)
+        cmake_policy(SET CMP0004 NEW)
+endif ()
 
 # Prevent in-source builds
 # If an in-source build is attempted, you will still need to clean up a few files manually.
@@ -653,7 +656,6 @@ set (FFLAGS_GNU_FAST "-O3")
 if (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND
     CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND
     (NOT CMAKE_C_COMPILER_VERSION VERSION_LESS "4.8"))
-        set (CFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
         set (FFLAGS_GNU_BASIC "${FFLAGS_GNU_BASIC} -fno-aggressive-loop-optimizations")
         set (FFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
 endif ()
