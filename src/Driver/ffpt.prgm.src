@@ -9,4 +9,5 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm) "$MOLCAS"/bin/ffpt.exe             executable
+ (file)  FFPTINP "$WorkDir/$Project."Ffpt.Input   rwi
  (file)  ONEINT  "$WorkDir/$Project."OneInt       rw*

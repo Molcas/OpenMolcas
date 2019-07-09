@@ -9,4 +9,5 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm) "$MOLCAS/bin/single_aniso.exe"  executable
+ (file) SINGLINP "$WorkDir/$Project."Single_aniso.Input rwi
  (file) POLYFILE "$WorkDir/$Project".aniso  rw*

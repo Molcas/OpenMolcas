@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm) "$MOLCAS/bin/gugaci.exe"  executable
- (file) DRTINPUT "$WorkDir/$Project."gugaci.input roi
+ (file) GUGACINP "$WorkDir/$Project."Gugaci.Input roi
  (file) CIDRT  "$WorkDir/$Project."CiDrt  ro
  (file) TRAONE "$WorkDir/$Project."TraOne ro
  (file) TRAINT "$WorkDir/$Project."TraInt ro

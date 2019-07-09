@@ -9,11 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm) "$MOLCAS"/bin/mbpt2.exe             executable
+ (file)  MBPT2INP "$WorkDir/$Project."Mbpt2.Input         rwi
 #include "aoints.inc"
 #include "choints.inc"
 #include "mp2_RI_dens.inc"
  (file)  MPPROP   "$WorkDir/$Project."MpProp      rw
- (file)  MBPT2INP "$WorkDir/$Project."Mbpt2.Input         rwi
  (file)  LUHLF   "$WorkDir/"purge.tmp00          rw*p
  (file)  MOLINT  "$WorkDir/"purge.tmp004         rw*p
  (file)  TMPINT  "$WorkDir/"purge.tmp888         rwp

@@ -9,7 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm) "$MOLCAS"/bin/vibrot.exe             executable
- (file)  VIBWVS  "$WorkDir/$Project."VibWvs       rws
- (file)  VIBWVS1 "$WorkDir/$Project."VibWvs1      rw
- (file)  VIBWVS2 "$WorkDir/$Project."VibWvs2      rw
- (file)  VIBPLT  "$WorkDir/$Project."VibPlt       rws*
+ (file)  VIBROINP "$WorkDir/$Project."Vibrot.Input rwi
+ (file)  VIBWVS   "$WorkDir/$Project."VibWvs       rws
+ (file)  VIBWVS1  "$WorkDir/$Project."VibWvs1      rw
+ (file)  VIBWVS2  "$WorkDir/$Project."VibWvs2      rw
+ (file)  VIBPLT   "$WorkDir/$Project."VibPlt       rws*
