@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-* defines two generic interfaces for allocation and deallocation
-* the subroutines are defined in src/mma_util/stdalloc.f
+!************************************************************************
+!* This file is part of OpenMolcas.                                     *
+!*                                                                      *
+!* OpenMolcas is free software; you can redistribute it and/or modify   *
+!* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+!* OpenMolcas is distributed in the hope that it will be useful, but it *
+!* is provided "as is" and without any express or implied warranties.   *
+!* For more details see the full text of the license in the file        *
+!* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!************************************************************************
+!* defines two generic interfaces for allocation and deallocation
+!* the subroutines are defined in src/mma_util/stdalloc.f
 
        interface mma_allocate
 
-* 1D allocate
+!* 1D allocate
          subroutine dmma_allo_1D(buffer,n1,label)
            real*8, allocatable :: buffer(:)
            integer :: n1
@@ -55,7 +55,7 @@
            character (len=*), optional :: label
          end subroutine
 
-* 2D allocate
+!* 2D allocate
          subroutine dmma_allo_2D(buffer,n1,n2,label)
            real*8, allocatable :: buffer(:,:)
            integer :: n1, n2
@@ -87,7 +87,7 @@
            character (len=*), optional :: label
          end subroutine
 
-* 3D allocate
+!* 3D allocate
          subroutine dmma_allo_3D(buffer,n1,n2,n3,label)
            real*8, allocatable :: buffer(:,:,:)
            integer :: n1, n2, n3
@@ -119,7 +119,7 @@
            character (len=*), optional :: label
          end subroutine
 
-* 4D allocate
+!* 4D allocate
          subroutine imma_allo_4D(buffer,n1,n2,n3,n4,label)
            integer, allocatable :: buffer(:,:,:,:)
            integer :: n1, n2, n3, n4
@@ -151,7 +151,7 @@
            character (len=*), optional :: label
          end subroutine
 
-* 5D allocate
+!* 5D allocate
          subroutine imma_allo_5D(buffer,n1,n2,n3,n4,n5,label)
            integer, allocatable :: buffer(:,:,:,:,:)
            integer :: n1, n2, n3, n4, n5
@@ -190,7 +190,7 @@
 
        interface mma_deallocate
 
-* 1D deallocate
+!* 1D deallocate
          subroutine dmma_free_1D(buffer)
            real*8, allocatable :: buffer(:)
          end subroutine
@@ -204,7 +204,7 @@
            character(*), allocatable :: buffer(:)
          end subroutine
 
-* 2D deallocate
+!* 2D deallocate
          subroutine dmma_free_2D(buffer)
            real*8, allocatable :: buffer(:,:)
          end subroutine
@@ -215,7 +215,7 @@
            integer, allocatable :: buffer(:,:)
          end subroutine
 
-* 3D deallocate
+!* 3D deallocate
          subroutine dmma_free_3D(buffer)
            real*8, allocatable :: buffer(:,:,:)
          end subroutine
@@ -226,7 +226,7 @@
            integer, allocatable :: buffer(:,:,:)
          end subroutine
 
-* 4D deallocate
+!* 4D deallocate
          subroutine dmma_free_4D(buffer)
            real*8, allocatable :: buffer(:,:,:,:)
          end subroutine
@@ -237,7 +237,7 @@
            complex*16, allocatable :: buffer(:,:,:,:)
          end subroutine
 
-* 5D deallocate
+!* 5D deallocate
          subroutine dmma_free_5D(buffer)
            real*8, allocatable :: buffer(:,:,:,:,:)
          end subroutine
