@@ -25,6 +25,8 @@
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
       INTEGER LAXITY
+      INTEGER  Cho_X_GetTol
+      EXTERNAL Cho_X_GetTol
       CHARACTER(8) INLAB
       DIMENSION HEFF(NSTATE,NSTATE),EIGVEC(NSTATE,NSTATE)
 
@@ -152,7 +154,7 @@ C Use a symmetrized matrix, in triangular storage:
 * In automatic verification calculations, the precision is lower
 * in case of Cholesky calculation.
       LAXITY=8
-      IF(IfChol) LAXITY=7
+      IF(IfChol) LAXITY=Cho_X_GetTol(LAXITY)
       Call Add_Info('E_MSPT2',ENERGY,nState,LAXITY)
 
       CALL QEXIT('MLTCTL')

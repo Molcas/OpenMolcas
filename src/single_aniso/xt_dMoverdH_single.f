@@ -408,8 +408,9 @@ c computing the XT as tensor's average:
      &                  + XTtens_MH(2,2,iT)
      &                  + XTtens_MH(3,3,iT)   ) / 3.0_wp
       End Do !iT
-c      Call Add_Info('XTM_dMdH          ',XTM_dMdH,nTempTotal,5)
-c      Call Add_Info('XTM_MH            ',XTM_MH  ,nTempTotal,5)
+      Call Add_Info('T_dMdH            ',T       ,nTempTotal,5)
+      Call Add_Info('XTM_dMdH          ',XTM_dMdH,nTempTotal,5)
+      Call Add_Info('XTM_MH            ',XTM_MH  ,nTempTotal,5)
 
 C -------------------------------------------------------------------
 C   WRITING SOME OF THE OUTPUT....

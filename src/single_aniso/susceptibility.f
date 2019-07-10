@@ -36,8 +36,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       External       :: dev
       Real(kind=wp)  :: gtens(3), maxes(3,3)
       Real (kind=wp), allocatable ::        chit_tens(:,:,:)
-      Real (kind=wp), allocatable ::    smu_chit_tens(:,:,:)
-      Real (kind=wp), allocatable ::     ss_chit_tens(:,:,:)
       Real (kind=wp), allocatable ::  chit_theta_tens(:,:,:)
       Real (kind=wp), allocatable ::           zstat1(:)
       Real (kind=wp), allocatable ::             chit(:)
@@ -177,12 +175,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       Else  ! i.e. when zJ .ne. 0.0_wp
          If(dbg) Write(6,*) 'SUSC:  zJ \= 0'
          ! allocate matrices:
-         Call mma_allocate(Smu_chiT_tens  ,3,3,(nT+nTempMagn),'Smu')
-         Call mma_allocate(SS_chiT_tens   ,3,3,(nT+nTempMagn),'SS_')
-         Call mma_allocate(chiT_theta_tens,3,3,(nT+nTempMagn),'XTT')
+         Call mma_allocate(chiT_theta_tens,(nT+nTempMagn),3,3,'XTT')
          ! initialize:
-         Call dcopy_( 3*3*(nT+nTempMagn),[0.0_wp], 0, Smu_chiT_tens,1)
-         Call dcopy_( 3*3*(nT+nTempMagn),[0.0_wp], 0, SS_chiT_tens,1)
          Call dcopy_( 3*3*(nT+nTempMagn),[0.0_wp], 0, chiT_theta_tens,1)
          Call mma_allocate(XMM,3,3,'XMM')
          Call mma_allocate(XSM,3,3,'XSM')
@@ -294,7 +288,6 @@ C
 
 
 
-
       If(TINPUT) Then
         Write(6,'(/)')
         Write(6,'(5X,A      )') 'STANDARD DEVIATION OF THE CALCULATED'//
@@ -307,24 +300,6 @@ C
       End If
 
 !-------------------------  PLOTs -------------------------------------!
-!      If ( doplot ) Then
-!         If ( tinput ) Then
-!
-!            Call plot_XT( nT,        T( (1+nTempMagn):(nT) ),
-!     &                      chit_theta( (1+nTempMagn):(nT) ),
-!     &                           XTexp( (1+nTempMagn):(nT) ),
-!     &                    zJ )
-!
-!         Else
-!
-!            Call plot_XT( nT,        T( (1+nTempMagn):(nT) ),
-!     &                      chit_theta( (1+nTempMagn):(nT) ),
-!     &                          rdummy,
-!     &                    zJ )
-!
-!         End If
-!      End If
-
       WRITE(label,'(A)') "no_field"
       IF ( DoPlot ) THEN
          IF ( tinput ) THEN
@@ -408,8 +383,6 @@ c print out the main VAN VLECK SUSCEPTIBILITY TENSOR, its main values and main a
      &          ' |  Z:',wt(3),'|',(zt(j,3),j=1,3),'|'
         End Do
         Write(6,'(111A)') ('-',i=1,110),'|'
-         Call mma_deallocate(Smu_chiT_tens)
-         Call mma_deallocate(SS_chiT_tens)
          Call mma_deallocate(chiT_theta_tens)
       End If ! zJ
 
@@ -426,43 +399,9 @@ c      Write(6,'(4X,F6.1,6X,3(F8.4,4X))') T(iT),(ChiT_main(iT,ic),ic=1,3)
 c      End Do
 C  saving some information for tests:
 
-!      Call Add_Info('CHIT'      ,chiT      ,nT+nTempMagn,5)
-!      Call Add_Info('CHIT_THETA',chiT_theta,nT+nTempMagn,5)
-
-
-      Call Add_Info('CHIT          ',chiT(nT+nTempMagn)       ,1,5)
-      Call Add_Info('CHIT_ALL( 2)  ',chiT( 2+nTempMagn)       ,1,5)
-      Call Add_Info('CHIT_ALL( 6)  ',chiT( 6+nTempMagn)       ,1,5)
-      Call Add_Info('CHIT_ALL( 8)  ',chiT( 8+nTempMagn)       ,1,5)
-      Call Add_Info('CHIT_ALL(10)  ',chiT(10+nTempMagn)       ,1,5)
-      Call Add_Info('CHIT_ALL(12)  ',chiT(12+nTempMagn)       ,1,5)
-      Call Add_Info('CHIT_ALL(14)  ',chiT(14+nTempMagn)       ,1,5)
-      Call Add_Info('CHIT_ALL(16)  ',chiT(16+nTempMagn)       ,1,5)
-      Call Add_Info('CHIT_ALL(18)  ',chiT(18+nTempMagn)       ,1,5)
-      Call Add_Info('CHIT_ALL(20)  ',chiT(20+nTempMagn)       ,1,5)
-      Call Add_Info('CHIT_ALL(22)  ',chiT(22+nTempMagn)       ,1,5)
-      Call Add_Info('CHIT_ALL(24)  ',chiT(24+nTempMagn)       ,1,5)
-      Call Add_Info('CHIT_ALL(26)  ',chiT(26+nTempMagn)       ,1,5)
-      Call Add_Info('CHIT_ALL(28)  ',chiT(28+nTempMagn)       ,1,5)
-      Call Add_Info('CHIT_ALL(30)  ',chiT(30+nTempMagn)       ,1,5)
-      Call Add_Info('CHIT_THETA( 2)',chiT_theta( 2+nTempMagn) ,1,5)
-      Call Add_Info('CHIT_THETA( 4)',chiT_theta( 4+nTempMagn) ,1,5)
-      Call Add_Info('CHIT_THETA( 6)',chiT_theta( 6+nTempMagn) ,1,5)
-      Call Add_Info('CHIT_THETA( 8)',chiT_theta( 8+nTempMagn) ,1,5)
-      Call Add_Info('CHIT_THETA(10)',chiT_theta(10+nTempMagn) ,1,5)
-      Call Add_Info('CHIT_THETA(12)',chiT_theta(12+nTempMagn) ,1,5)
-      Call Add_Info('CHIT_THETA(14)',chiT_theta(14+nTempMagn) ,1,5)
-      Call Add_Info('CHIT_THETA(16)',chiT_theta(16+nTempMagn) ,1,5)
-      Call Add_Info('CHIT_THETA(18)',chiT_theta(18+nTempMagn) ,1,5)
-      Call Add_Info('CHIT_THETA(20)',chiT_theta(20+nTempMagn) ,1,5)
-      Call Add_Info('CHIT_THETA(22)',chiT_theta(22+nTempMagn) ,1,5)
-      Call Add_Info('CHIT_THETA(24)',chiT_theta(24+nTempMagn) ,1,5)
-      Call Add_Info('CHIT_THETA(26)',chiT_theta(26+nTempMagn) ,1,5)
-      Call Add_Info('CHIT_THETA(28)',chiT_theta(28+nTempMagn) ,1,5)
-      Call Add_Info('CHIT_THETA(30)',chiT_theta(30+nTempMagn) ,1,5)
-
-
-
+      Call Add_Info('Temperature',T         ,nT+nTempMagn,5)
+      Call Add_Info('CHIT'       ,chiT      ,nT+nTempMagn,5)
+      Call Add_Info('CHIT_THETA' ,chiT_theta,nT+nTempMagn,5)
 
       Call mma_deallocate(Zstat1)
       Call mma_deallocate(chiT_tens)

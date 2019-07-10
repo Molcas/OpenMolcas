@@ -32,7 +32,8 @@
       INTEGER I,IC,IS,ITER
       INTEGER IVECP,IVECT,IVECU
       INTEGER LAXITY
-
+      INTEGER Cho_X_GetTol
+      EXTERNAL Cho_X_GetTol
       REAL*8 ALPHA,BETA,PR,PT,UR
       REAL*8 ECORR(0:8,0:MXCASE)
       REAL*8 EAIVX,EATVX,EBJAI,EBJAT,EBVAT,EVJAI,EVJTI,EVJTU
@@ -234,7 +235,7 @@ CPAM End of insert.
 * In automatic verification calculations, the precision is lower
 * in case of Cholesky calculation.
       LAXITY=8
-      IF(IfChol) LAXITY=7
+      IF(IfChol) LAXITY=Cho_X_GetTol(LAXITY)
       Call Add_Info('E_CASPT2',[E2TOT],1,LAXITY)
 
       IF(IPRGLB.GE.USUAL) THEN

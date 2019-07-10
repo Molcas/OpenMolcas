@@ -864,7 +864,8 @@ Keywords
   A spin-free effective Hamiltonian is read from :file:`JOBIPH` instead of being computed.
   It must have been computed by an earlier program. Presently, this is done by
   a multi-state calculation using :program:`CASPT2`. In the future, other programs may add
-  dynamic correlation estimates in a similar way.
+  dynamic correlation estimates in a similar way. This keyword is not needed if the input
+  file is in HDF5 format.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HEFF" APPEAR="Effective Hamiltonian" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: HEff <advanced>
@@ -877,14 +878,17 @@ Keywords
 
 :kword:`EJOB`
   The spin-free effective Hamiltonian is assumed to be diagonal, with energies
-  being read from a :file:`JOBMIX` file from a multi-state :program:`CASPT2` calculation.
-  In the future, other programs may add dynamic correlation estimates in a similar way.
+  being read from a :file:`JOBIPH` or :file:`JOBMIX` file.
+  If this keyword is used together with :kword:`HEFF`, or if the input file is
+  an HDF5 file for which the effective Hamiltonian is automatically read, only
+  the diagonal elements will be read and off-diagonal elements will be set to zero.
+  This can be useful to use the SS-CASPT2 energies from a MS-CASTP2 calculation.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EJOB" APPEAR="MS-CASPT2 Hamiltonian" KIND="SINGLE" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EJOB" APPEAR="Read energies from file" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: EJob <advanced>
               <HELP>
               The spin-free effective Hamiltonian is assumed to be diagonal, with energies
-              being read from a JOBMIX file from a multi-state CASPT2 calculation.
+              being read from a JOBIPH or JOBMIX file from e.g. a multi-state CASPT2 calculation.
               </HELP>
               </KEYWORD>
 
@@ -1148,7 +1152,7 @@ Keywords
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="DYSEXPORT" KIND="INTS" SIZE="2" LEVEL="ADVANCED">
               %%Keyword: DYSEXPORT <advanced>
               <HELP>
-              Requires the :kword:`DYSOn` keyword and enables exportation of Dyson orbitals (from which Dyson amplitudes are obtained). The next line specifies the number (starting from the first) of spin-free and spin-orbit states (two numbers, both mandatory) for which the exportation will be done. Note that the ordering of spin-free states depends on the ordering of JOBfiles, whereas spin-orbit states are always energy ordered.
+              Requires the DYSOn keyword and enables exportation of Dyson orbitals (from which Dyson amplitudes are obtained). The next line specifies the number (starting from the first) of spin-free and spin-orbit states (two numbers, both mandatory) for which the exportation will be done. Note that the ordering of spin-free states depends on the ordering of JOBfiles, whereas spin-orbit states are always energy ordered.
               </HELP>
               </KEYWORD>
 
