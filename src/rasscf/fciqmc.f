@@ -169,10 +169,19 @@
       else
         call make_fcidumps(orbital_E, folded_Fock, TUVX, EMY)
       end if
-
 ! TODO(Oskar): Add fourth argument OCC
 !   If the Occupation number is written properly as well.
+! TODO: permutation has to be applied at more places
       call write_OrbFile(CMO, orbital_E, iDoGas)
+
+
+      if (iDoGAS) then
+        if (ReOrFlag /= 0) then
+          call write_GASORB(nGSSH, permutation)
+        else
+          call write_GASORB(nGSSH)
+        end if
+      end if
 
 ! Run NECI
       call Timing(Rado_1, Swatch, Swatch, Swatch)
@@ -180,7 +189,7 @@
       if (is_real_par()) call MPI_Barrier(MPI_COMM_WORLD, error)
 #endif
       if (.not. fake_run_) then
-        call run_neci(DoEmbdNECI,
+        call run_neci(DoEmbdNECI, doGAS=iDoGAS,
      &    reuse_pops=iter >= 5 .and. abs(rotmax) < 1d-2, NECIen=NECIen)
       end if
 ! NECIen so far is only the energy for the GS.
@@ -215,13 +224,22 @@
       end subroutine fciqmc_ctl
 
 
-      subroutine run_neci(DoEmbdNECI, reuse_pops, NECien)
+      subroutine run_neci(DoEmbdNECI, reuse_pops, doGAS, NECien)
         use fciqmc_make_inp, only : make_inp
         implicit none
         logical, intent(in) :: DoEmbdNECI, reuse_pops
+        logical, intent(in), optional :: doGAS
+        logical :: doGAS_
         real*8, intent(out) :: NECIen
+
+        if (present(doGAS)) then
+          doGAS_ = doGAS
+        else
+          doGAS_ = .false.
+        end if
+
         if (DoEmbdNECI) then
-          call make_inp(readpops=reuse_pops)
+          call make_inp(readpops=reuse_pops, doGAS=doGAS_)
 #ifdef _NECI_
           write(6,*) 'NECI called automatically within Molcas!'
           if (myrank /= 0) call chdir_('..')
@@ -234,7 +252,7 @@
      &'for compiling or use an external NECI.')
 #endif
         else
-          call make_inp()
+          call make_inp(doGAS=doGAS_)
           if (myrank == 0) then
             call write_ExNECI_message()
             call wait_and_read(NECIen)
@@ -413,8 +431,6 @@
         character(len=80) ::
      &    orbfile_title = 'Orbitals that are used for FCIQMC.'
 
-        file_id = arbitrary_magic_number
-        file_id = isfreeunit(file_id)
         if (.not. iDoGas) then
           typeidx = get_typeidx(nFro, nIsh, nRs1, nRs2, nRs3, nBas,nDel)
 
@@ -422,12 +438,42 @@
           typeidx = get_typeidx(nFro, nIsh, nGSSH, nBas, nDel)
         endif
 
-! TODO(Oskar): Implement proper occupation number reading.
+! TODO(Oskar): Implement proper occupation number.
         call mma_allocate(occ_number, nTot)
         occ_number(:) = 1.d0
+        file_id = arbitrary_magic_number
+        file_id = isfreeunit(file_id)
         call WrVec(filename, file_id, 'COIE', nSym, nBas, nBas,
      &             CMO, occ_number, orbital_E, typeidx, orbfile_title)
         call mma_deallocate(occ_number)
+      end subroutine
+
+      subroutine write_GASORB(GAS_spaces, permutation)
+        integer, intent(in) :: GAS_spaces(:, :)
+        integer, intent(in), optional :: permutation(:)
+        integer, parameter :: arbitrary_magic_number = 42
+        integer :: i, j, GAS_ORB(sum(GAS_spaces)), iGAS, iSym, n,
+     &    file_id
+
+        n = 1
+        do iSym = 1, size(GAS_spaces, 2)
+          do iGAS = 1, size(GAS_spaces, 1)
+            do i = 1, GAS_spaces(iGAS, iSym)
+              GAS_ORB(n) = iGAS
+              n = n + 1
+            end do
+          end do
+        end do
+
+        if (present(permutation)) GAS_ORB = GAS_ORB(permutation)
+
+        file_id = arbitrary_magic_number
+        file_id = isfreeunit(file_id)
+        call molcas_open(file_id, 'GASORB')
+          do i = 1, size(GAS_ORB)
+            write(file_id,'(I0, A)', advance='no') GAS_ORB(i), ','
+          end do
+        close(file_id)
       end subroutine
 
       end module fciqmc

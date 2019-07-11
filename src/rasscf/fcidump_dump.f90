@@ -34,13 +34,14 @@ contains
 !>  @param[in] orbital_table Orbital energies with index
 !>  @param[in] fock_table
 !>  @param[in] two_el_table
-  subroutine dump_ascii(EMY, orbital_table, fock_table, two_el_table)
+  subroutine dump_ascii(EMY, orbital_table, fock_table, two_el_table, orbsym)
     use general_data, only : nSym, nActEl, iSpin, lSym, nAsh
     implicit none
     real*8, intent(in) :: EMY
     type(OrbitalTable), intent(in) :: orbital_table
     type(FockTable), intent(in) :: fock_table
     type(TwoElIntTable), intent(in) :: two_el_table
+    integer, intent(in) :: orbsym(:)
     integer :: i, j, ireturn, isFreeUnit, LuFCI
 
     call qEnter('dump_ascii')
@@ -50,8 +51,7 @@ contains
 
     write(LuFCI,'(1X,A11,I3,A7,I3,A5,I3,A)') ' &FCI NORB=',sum(nAsh), &
        ',NELEC=',nActEl,',MS2=',int((ISPIN-1.0d0)),','
-
-    write(LuFCI,'(A,500(I2,","))')'  ORBSYM=',((j,i=1,nAsh(j)), j=1,nSym)
+    write(LuFCI,'(A,500(I2,","))')'  ORBSYM=',(orbsym(i),i=1,size(orbsym))
     write(LuFCI,'(2X,A5,I1)') 'ISYM=', LSYM -1
     write(LuFCI,'(A)') ' &END'
 
@@ -102,7 +102,7 @@ contains
 !>  @param[in] orbital_table Orbital energies with index
 !>  @param[in] fock_table
 !>  @param[in] two_el_table
-  subroutine dump_hdf5(EMY, orbital_table, fock_table, two_el_table)
+  subroutine dump_hdf5(EMY, orbital_table, fock_table, two_el_table, orbsym)
     use general_data, only : nSym, nActEl, multiplicity => iSpin, lSym, nAsh
     use gas_data, only : iDoGAS
     use gugx_data, only : IfCAS
@@ -114,6 +114,7 @@ contains
     type(OrbitalTable), intent(in) :: orbital_table
     type(FockTable), intent(in) :: fock_table
     type(TwoElIntTable), intent(in) :: two_el_table
+    integer, intent(in) :: orbsym(:)
 #ifdef _HDF5_
     integer :: file_id, dset_id
     integer :: ireturn
@@ -126,7 +127,7 @@ contains
 !   symmetry information
     call Get_cArray('Irreps', lIrrep, 24)
     call mh5_init_attr(file_id, 'IRREP_LABELS', 1, [nSym], lIrrep, 3)
-    call mh5_init_attr(file_id, 'ORBSYM', 1, [nSym], nAsh)
+    call mh5_init_attr(file_id, 'ORBSYM', 1, [size(orbsym)], orbsym)
     call mh5_init_attr(file_id, 'NORB', sum(nAsh(:nSym)))
 
     ! Set wavefunction type

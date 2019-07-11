@@ -31,12 +31,14 @@ module fcidump
 contains
 
   subroutine make_fcidumps(orbital_energies, folded_Fock, TUVX, core_energy, permutation)
+    use general_data, only : nSym
     implicit none
     real*8, intent(in) :: orbital_energies(:), folded_Fock(:), TUVX(:), core_energy
     integer, intent(in), optional :: permutation(:)
     type(OrbitalTable) :: orbital_table
     type(FockTable) :: fock_table
     type(TwoElIntTable) :: two_el_table
+    integer :: orbsym(size(orbital_energies)), n, j
 
     call mma_allocate(fock_table, nacpar)
     call mma_allocate(two_el_table, size(TUVX))
@@ -46,12 +48,19 @@ contains
     call fill_fock(fock_table, folded_Fock)
     call fill_2ElInt(two_el_table, TUVX)
 
+    n = 1
+    do j = 1, nSym
+      orbsym(n:nAsh(j)) = 2
+      n = n + nAsh(j) + 1
+    end do
+    orbsym = 2
+
     if (present(permutation)) then
-      call reorder(orbital_table, fock_table, two_el_table, permutation)
+      call reorder(orbital_table, fock_table, two_el_table, orbsym, permutation)
     end if
 
-    call dump_ascii(core_energy, orbital_table, fock_table, two_el_table)
-    call dump_hdf5(core_energy, orbital_table, fock_table, two_el_table)
+    call dump_ascii(core_energy, orbital_table, fock_table, two_el_table, orbsym)
+    call dump_hdf5(core_energy, orbital_table, fock_table, two_el_table, orbsym)
 
     call mma_deallocate(fock_table)
     call mma_deallocate(two_el_table)

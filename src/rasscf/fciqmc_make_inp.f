@@ -63,17 +63,26 @@
 !>    G. Li Manni, Oskar Weser
 !>
 !>  @paramin[in] readpops  If true the readpops option for NECI is set.
-      subroutine make_inp(readpops)
+      subroutine make_inp(readpops, doGAS)
       use general_data, only : nActEl, iSpin
       use stdalloc, only : mma_deallocate
       use fortran_strings, only : str
       implicit none
-      logical, intent(in), optional :: readpops
-      logical :: readpops_
+      logical, intent(in), optional :: readpops, doGAS
+      logical :: readpops_, doGAS_
       integer :: i, isFreeUnit, file_id, indentlevel
       integer, parameter :: indentstep = 4
 
-      readpops_ = merge(readpops, .false., present(readpops))
+      if (present(readpops)) then
+        readpops_ = readpops
+      else
+        readpops_ = .false.
+      end if
+      if (present(doGAS)) then
+        doGAS_ = doGAS
+      else
+        doGAS_ = .false.
+      end if
 
       call add_info('Default number of total walkers',
      &  [dble(totalwalkers)], 1, 6)
@@ -93,10 +102,11 @@
         write(file_id, I_fmt()) 'electrons ', nActEl
         write(file_id,A_fmt()) 'nonuniformrandexcits 4ind-weighted-2'
         write(file_id,A_fmt()) 'nobrillouintheorem'
-        if(iSpin /= 1) then
-          write(file_id, I_fmt()) 'spin-restrict', iSpin - 1
-        end if
+        ! if(iSpin /= 1) then
+        write(file_id, I_fmt()) 'spin-restrict', iSpin - 1
+        ! end if
         write(file_id, A_fmt()) 'freeformat'
+        if (doGas_) write(file_id, A_fmt()) 'part-conserving-gas'
       call dedent()
       write(file_id, A_fmt()) 'endsys'
       write(file_id, *)

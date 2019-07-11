@@ -101,14 +101,16 @@ contains
       end function
   end function
 
-  subroutine ALL_reorder(orbitals, fock, two_el_table, P)
+  subroutine ALL_reorder(orbitals, fock, two_el_table, orbsym, P)
     type(OrbitalTable), intent(inout) :: orbitals
     type(FockTable), intent(inout) :: fock
     type(TwoElIntTable), intent(inout) :: two_el_table
+    integer, intent(inout) :: orbsym(:)
     integer, intent(in) :: P(:)
     call reorder(orbitals, P)
     call reorder(fock, P)
     call reorder(two_el_table, P)
+    orbsym = orbsym(P)
   end subroutine
 
   subroutine cleanup()
