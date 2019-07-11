@@ -176,10 +176,10 @@ C positioning.
             CALL GAIGOP_SCAL(NBUF,'+')
             CALL GETMEM('IDX','ALLO','INTE',LIDX,2*NBUF)
             CALL GETMEM('VAL','ALLO','REAL',LVAL,4*NBUF)
-            CALL ALLGATHER(IWORK(LIDXBUF),2*IBUF,
-     &                     IWORK(LIDX),2*NBUF,'INTE')
-            CALL ALLGATHER(WORK(LVALBUF),4*IBUF,
-     &                     WORK(LVAL),4*NBUF,'REAL')
+            CALL ALLGATHER(cWORK(LIDXBUF),2*IBUF,
+     &                     cWORK(LIDX),2*NBUF,'INTE')
+            CALL ALLGATHER(cWORK(LVALBUF),4*IBUF,
+     &                     cWORK(LVAL),4*NBUF,'REAL')
           ELSE
             LIDX=LIDXBUF
             LVAL=LVALBUF
