@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE H0SPCT
+      use allgather_wrapper, only : allgather
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -176,10 +177,10 @@ C positioning.
             CALL GAIGOP_SCAL(NBUF,'+')
             CALL GETMEM('IDX','ALLO','INTE',LIDX,2*NBUF)
             CALL GETMEM('VAL','ALLO','REAL',LVAL,4*NBUF)
-            CALL ALLGATHER(cWORK(LIDXBUF),2*IBUF,
-     &                     cWORK(LIDX),2*NBUF,'INTE')
-            CALL ALLGATHER(cWORK(LVALBUF),4*IBUF,
-     &                     cWORK(LVAL),4*NBUF,'REAL')
+            CALL allgather(IWORK(LIDXBUF:),2*IBUF,
+     &                         IWORK(LIDX:),2*NBUF)
+            CALL allgather(WORK(LVALBUF: ),4*IBUF,
+     &                         WORK(LVAL: ),4*NBUF)
           ELSE
             LIDX=LIDXBUF
             LVAL=LVALBUF
