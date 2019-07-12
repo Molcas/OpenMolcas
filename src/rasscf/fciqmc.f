@@ -469,7 +469,7 @@
 
         file_id = arbitrary_magic_number
         file_id = isfreeunit(file_id)
-        call molcas_open(file_id, 'GASORB')
+        call molcas_open(file_id, 'GASOrbs')
           do i = 1, size(GAS_ORB)
             write(file_id,'(I0, A)', advance='no') GAS_ORB(i), ','
           end do

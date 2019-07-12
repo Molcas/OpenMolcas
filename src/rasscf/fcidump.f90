@@ -30,15 +30,16 @@ module fcidump
   save
 contains
 
-  subroutine make_fcidumps(orbital_energies, folded_Fock, TUVX, core_energy, permutation)
-    use general_data, only : nSym
+  subroutine make_fcidumps(orbital_energies, folded_Fock, TUVX, &
+                           core_energy, permutation)
+    use general_data, only : nSym, nAsh
     implicit none
     real*8, intent(in) :: orbital_energies(:), folded_Fock(:), TUVX(:), core_energy
     integer, intent(in), optional :: permutation(:)
     type(OrbitalTable) :: orbital_table
     type(FockTable) :: fock_table
     type(TwoElIntTable) :: two_el_table
-    integer :: orbsym(size(orbital_energies)), n, j
+    integer :: orbsym(sum(nAsh(:nSym))), n, j
 
     call mma_allocate(fock_table, nacpar)
     call mma_allocate(two_el_table, size(TUVX))
@@ -50,10 +51,9 @@ contains
 
     n = 1
     do j = 1, nSym
-      orbsym(n:nAsh(j)) = 2
-      n = n + nAsh(j) + 1
+      orbsym(n : n + nAsh(j) - 1) = j
+      n = n + nAsh(j)
     end do
-    orbsym = 2
 
     if (present(permutation)) then
       call reorder(orbital_table, fock_table, two_el_table, orbsym, permutation)
@@ -67,7 +67,8 @@ contains
     call mma_deallocate(orbital_table)
   end subroutine make_fcidumps
 
-  subroutine transform(iter, CMO, DIAF, D1I_AO, D1A_AO, D1S_MO, F_IN, orbital_E, folded_Fock)
+  subroutine transform(iter, CMO, DIAF, D1I_AO, D1A_AO, D1S_MO, &
+                       F_IN, orbital_E, folded_Fock)
     implicit none
     integer, intent(in) :: iter
     real*8, intent(in) :: DIAF(nTot),&

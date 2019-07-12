@@ -102,9 +102,9 @@
         write(file_id, I_fmt()) 'electrons ', nActEl
         write(file_id,A_fmt()) 'nonuniformrandexcits 4ind-weighted-2'
         write(file_id,A_fmt()) 'nobrillouintheorem'
-        ! if(iSpin /= 1) then
-        write(file_id, I_fmt()) 'spin-restrict', iSpin - 1
-        ! end if
+        if(iSpin /= 1) then
+          write(file_id, I_fmt()) 'spin-restrict', iSpin - 1
+        end if
         write(file_id, A_fmt()) 'freeformat'
         if (doGas_) write(file_id, A_fmt()) 'part-conserving-gas'
       call dedent()
