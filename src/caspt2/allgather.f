@@ -119,8 +119,13 @@
       INTEGER*4, PARAMETER :: ONE4 = 1
       integer :: nBytes, myrank, nProcs, i
 
-      ITYPE4 = MPI_REAL8
-      NBYTES = 8 * NRECV
+#ifdef _I8_
+        ITYPE4=MPI_INTEGER8
+        NBYTES=8*NRECV
+#else
+        ITYPE4=MPI_INTEGER4
+        NBYTES=4*NRECV
+#endif
 
       IF (NBYTES.GT.2147483647) THEN
         WRITE(6,'(1X,A)') 'WARNING: ALLGATHER: receive buffer > 2GB'
