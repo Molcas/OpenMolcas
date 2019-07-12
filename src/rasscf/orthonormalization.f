@@ -25,10 +25,14 @@
      &    t_ON_scheme, ON_scheme, ON_scheme_values, orthonormalize,
      &    t_procrust_metric, procrust_metric, metric_values, procrust
 
-! TODO: Should be changed to default construction in the future.
-! As of July 2019 the Sun and PGI compiler have problems.
         type :: t_ON_scheme_values
-          integer :: no_ON, Gram_Schmidt, Lowdin, Canonical
+          integer ::
+! NOTE: Don't even think about using the integer values directly,
+!   unless you want your code to break upon small changes.
+     &      no_ON = 1,
+     &      Gram_Schmidt = 2,
+     &      Lowdin = 3,
+     &      Canonical = 4
         end type
         type(t_ON_scheme_values), parameter ::
 ! TODO: Dear fellow MOLCAS developer of the future:
@@ -68,10 +72,12 @@
         end interface
 
         type :: t_metric_values
-          integer :: Frobenius, Max_4el_trace
+          integer ::
+     &      Frobenius = 1,
+     &      Max_4el_trace = 2
         end type
         type(t_metric_values), parameter ::
-     &    metric_values = t_metric_values(Frobenius=1, Max_4el_trace=2)
+     &    metric_values = t_metric_values()
 
         type :: t_procrust_metric
           integer :: val = metric_values%Frobenius
@@ -227,7 +233,7 @@
         end if
 
 ! X = U s_diag^{-1/2} U^T
-        do i = 1, size(X, 2)
+        do concurrent (i = 1:size(X, 2))
           X(:, i) = U(:, i) / sqrt(s_diag(i))
         end do
         call mma_deallocate(s_diag)
@@ -296,7 +302,7 @@
 
         call mma_allocate(X, size(U, 1), n_new)
 ! X = U s_diag^{-1/2}
-        do i = 1, n_new
+        do concurrent (i = 1:n_new)
           X(:, i) = U(:, i) / sqrt(s_diag(i))
         end do
 
@@ -308,12 +314,13 @@
         call mma_deallocate(s_diag)
         call mma_deallocate(S_transf)
         call mma_deallocate(U)
-      end subroutine Canonical_Array
 
-      logical pure function ge(x, y)
-        real*8, intent(in) :: x, y
-        ge = x >= y
-      end function
+        contains
+          logical pure function ge(x, y)
+            real*8, intent(in) :: x, y
+            ge = x >= y
+          end function
+      end subroutine Canonical_Array
 
 ! TODO: It would be nice, to use `impure elemental`
 ! instead of the manual overloading.
