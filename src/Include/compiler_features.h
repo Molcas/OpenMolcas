@@ -84,5 +84,3 @@ incomplete.
 #else
 #define INTERNAL_PROC_ARG
 #endif
-
-#define INTERNAL_PROC_ARG
