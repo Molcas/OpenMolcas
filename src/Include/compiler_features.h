@@ -77,3 +77,10 @@ incomplete.
 #else
 #define C_PTR_BINDING
 #endif
+
+/* Internal procedures as arguments */
+#if ( __SUNPRO_F90)
+#undef INTERNAL_PROC_ARG
+#else
+#define INTERNAL_PROC_ARG
+#endif

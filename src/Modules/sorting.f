@@ -10,6 +10,7 @@
 *                                                                      *
 * Copyright (C) 2019, Oskar Weser                                      *
 ************************************************************************
+#include "compiler_features.h"
       module sorting
         implicit none
         private
@@ -72,11 +73,29 @@
           module procedure I1D_argsort, R1D_argsort
         end interface
 
+#ifndef INTERNAL_PROC_ARG
+        integer, pointer :: mod_iV(:)
+        real*8, pointer :: mod_rV(:)
+        procedure(compare_int), pointer :: mod_comp_int
+        procedure(compare_real), pointer :: mod_comp_real
+#endif
+
         contains
 
+#ifndef INTERNAL_PROC_ARG
+        logical pure function my_compare_iV(x, y)
+          integer, intent(in) :: x, y
+          my_compare_iV = mod_comp_int(mod_iV(x), mod_iV(y))
+        end function
+
+        logical pure function my_compare_rV(x, y)
+          integer, intent(in) :: x, y
+          my_compare_rV = mod_comp_real(mod_rV(x), mod_rV(y))
+        end function
+#endif
 
         function I1D_argsort(V, compare, algorithm) result(idx)
-          integer, intent(inout) :: V(:)
+          integer, target, intent(inout) :: V(:)
           procedure(compare_int) :: compare
           type(tAlgorithm), intent(in), optional :: algorithm
           type(tAlgorithm)  :: algorithm_
@@ -89,18 +108,28 @@
 
           idx = [(i, i = lbound(V, 1), ubound(V, 1))]
 
+#ifdef INTERNAL_PROC_ARG
           call sort(idx, my_compare, algorithm_)
+#else
+          mod_iV => V
+          mod_comp_int => compare
+          call sort(idx, my_compare_iV, algorithm_)
+#endif
 
           contains
+#ifdef INTERNAL_PROC_ARG
             logical pure function my_compare(x, y)
               integer, intent(in) :: x, y
               my_compare = compare(V(x), V(y))
             end function
+#endif
         end function I1D_argsort
 
 
+
+
         function R1D_argsort(V, compare, algorithm) result(idx)
-          real*8, intent(inout) :: V(:)
+          real*8, target, intent(inout) :: V(:)
           procedure(compare_real) :: compare
           type(tAlgorithm), intent(in), optional :: algorithm
           type(tAlgorithm)  :: algorithm_
@@ -113,13 +142,21 @@
 
           idx = [(i, i = lbound(V, 1), ubound(V, 1))]
 
+#ifdef INTERNAL_PROC_ARG
           call sort(idx, my_compare, algorithm_)
+#else
+          mod_rV => V
+          mod_comp_real => compare
+          call sort(idx, my_compare_rV, algorithm_)
+#endif
 
           contains
+#ifdef INTERNAL_PROC_ARG
             logical pure function my_compare(x, y)
               integer, intent(in) :: x, y
               my_compare = compare(V(x), V(y))
             end function
+#endif
         end function R1D_argsort
 
 !>  @brief

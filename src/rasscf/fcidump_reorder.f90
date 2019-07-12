@@ -76,12 +76,11 @@ contains
       end do
     end do
     P = argsort(X, le)
+  end function
 
-    contains
-      logical pure function le(a, b)
-        integer, intent(in) :: a, b
-        le = a <= b
-      end function
+  logical pure function le(a, b)
+    integer, intent(in) :: a, b
+    le = a <= b
   end function
 
   function get_P_inp(ReOrInp) result(P)
@@ -93,12 +92,6 @@ contains
     change_idx = ReOrInp
     call sort(change_idx, le)
     P(change_idx) = ReOrInp
-
-    contains
-      logical pure function le(a, b)
-        integer, intent(in) :: a, b
-        le = a <= b
-      end function
   end function
 
   subroutine ALL_reorder(orbitals, fock, two_el_table, orbsym, P)
