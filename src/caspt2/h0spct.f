@@ -9,7 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE H0SPCT
+#ifdef _MOLCAS_MPP_
       use allgather_wrapper, only : allgather
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
