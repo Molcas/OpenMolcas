@@ -284,7 +284,7 @@ Keywords
   larger than 1, it must first have been entered using keyword NRROOTS.
   The keywords ROOTS and SELECT are mutually exclusive.
 
-  .. xmldoc:: <GROUP MODULE="MRCI" NAME="HOWCHOOSE" APPEAR="How choose roots?" KIND="RADIO" >
+  .. xmldoc:: <GROUP MODULE="MRCI" NAME="HOWCHOOSE" APPEAR="How choose roots?" KIND="RADIO">
               <HELP>
               Two ways to choose which states to compute.
               </HELP>

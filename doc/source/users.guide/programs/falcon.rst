@@ -98,7 +98,8 @@ Keywords
               %%Keyword: Title <basic>
               <HELP>
               One line title.
-              </HELP></KEYWORD>
+              </HELP>
+              </KEYWORD>
 
 :kword:`FRAGment`
   Takes one, two or three argument(s).
@@ -118,7 +119,8 @@ Keywords
               and the third value is the fragment number that is equivalent to this fragment
               when translational symmetry is used.
               Other keyword(s) specific to this fragment must follow this keyword.
-              </HELP></KEYWORD>
+              </HELP>
+              </KEYWORD>
 
 :kword:`OPERator`
   A real value following this keyword represents a coefficient, :math:`C_i^{\text{fragment}}`,
@@ -129,7 +131,8 @@ Keywords
               %%Keyword: Operator <basic> GUI:keyword
               <HELP>
               An integer following this keyword specifies the number of fragments.
-              </HELP></KEYWORD>
+              </HELP>
+              </KEYWORD>
 
 :kword:`EQUIvalence`
   An integer, :math:`j`, following this keyword declares that current fragment
@@ -141,7 +144,8 @@ Keywords
               %%Keyword: Equivalence <basic> GUI:keyword
               <HELP>
               An integer following this keyword specifies the number of fragments.
-              </HELP></KEYWORD>
+              </HELP>
+              </KEYWORD>
 
 :kword:`TRANslate`
   Three real numbers following this keyword specifies the translational
@@ -153,7 +157,8 @@ Keywords
               %%Keyword: Translate <basic> GUI:keyword
               <HELP>
               An integer following this keyword specifies the number of fragments.
-              </HELP></KEYWORD>
+              </HELP>
+              </KEYWORD>
 
 :kword:`RUNFile`
   Following this keyword specifies the name of RunFile file for the
@@ -164,7 +169,8 @@ Keywords
               <HELP>
               Following this keyword specifies the name of RunFile file for the
               corresponding fragment.
-              </HELP></KEYWORD>
+              </HELP>
+              </KEYWORD>
 
 :kword:`ONEInt`
   Following this keyword specifies the name of OneInt file for the
@@ -175,7 +181,8 @@ Keywords
               <HELP>
               Following this keyword specifies the name of OneInt file for the
               corresponding fragment.
-              </HELP></KEYWORD>
+              </HELP>
+              </KEYWORD>
 
 :kword:`NFRAgment`
   An integer following this keyword specifies the number of fragments.
@@ -186,7 +193,8 @@ Keywords
               %%Keyword: nFragment <basic> GUI:keyword
               <HELP>
               An integer following this keyword specifies the number of fragments.
-              </HELP></KEYWORD>
+              </HELP>
+              </KEYWORD>
 
 :kword:`NIRRep`
   An integer following this keyword specifies the number of irreducible
@@ -197,7 +205,8 @@ Keywords
               <HELP>
               An integer following this keyword specifies the number of irreducible
               representation of point group symmetry.
-              </HELP></KEYWORD>
+              </HELP>
+              </KEYWORD>
 
 :kword:`OCCUpation`
   A list of integer(s) following this keyword specifies the number of
@@ -209,7 +218,8 @@ Keywords
               <HELP>
               A list of integer(s) following this keyword specifies the number of
               occupied orbitals in each symmetry representation.
-              </HELP></KEYWORD>
+              </HELP>
+              </KEYWORD>
 
 :kword:`DISTance`
   A real number following this keyword specifies the distance
@@ -222,7 +232,8 @@ Keywords
               <HELP>
               A real number following this keyword specifies the distance
               of two atoms that are equivalent to each other.
-              </HELP></KEYWORD>
+              </HELP>
+              </KEYWORD>
 
 :kword:`NEAR`
   A real number following this keyword specifies the distance
@@ -235,7 +246,8 @@ Keywords
               <HELP>
               A real number following this keyword specifies the distance
               of two atoms within which atoms are considered to be too close each other.
-              </HELP></KEYWORD>
+              </HELP>
+              </KEYWORD>
 
 :kword:`PRINt`
   An integer following this keyword specifies the format of orbital print out.
@@ -245,7 +257,8 @@ Keywords
               <HELP>
               An integer following this keyword specifies the format of orbital
               print out.
-              </HELP></KEYWORD>
+              </HELP>
+              </KEYWORD>
 
 :kword:`ORBEne`
   A real number follwing this keyword stands for the threshold for orbital print
@@ -257,7 +270,8 @@ Keywords
               <HELP>
               An integer following this keyword specifies the format of orbital
               print out.
-              </HELP></KEYWORD>
+              </HELP>
+              </KEYWORD>
 
 :kword:`ORBOcc`
   A real number follwing this keyword stands for the threshold for orbital print
@@ -269,7 +283,8 @@ Keywords
               <HELP>
               An integer following this keyword specifies the format of orbital
               print out.
-              </HELP></KEYWORD>
+              </HELP>
+              </KEYWORD>
 
 Input examples
 ..............

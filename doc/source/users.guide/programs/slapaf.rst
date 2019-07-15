@@ -296,7 +296,7 @@ Optional coordinate selection keywords
   The default is to
   use the FCW non-redundant internal coordinates.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="INTERNAL" APPEAR="User-defined internal coordinates" KIND="STRINGS" EXCLUSIVE="HWRS,NOHWRS,CARTESIAN" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="INTERNAL" APPEAR="User-defined internal coordinates" KIND="CUSTOM" EXCLUSIVE="HWRS,NOHWRS,CARTESIAN" LEVEL="ADVANCED">
               %%Keyword: Internal <advanced>
               <HELP>
               This marks the start of the definition of the internal
@@ -311,7 +311,7 @@ Optional coordinate selection keywords
   nonredundant internal coordinates. This is the default.
   The Hessian will be modeled by the Hessian Model Functional.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="HWRS" APPEAR="FWC internal coordinates" KIND="SINGLE" EXCLUSIVE="NOHWRS,CARTESIAN,INTERNAL" LEVEL="ADVANCED" >
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="HWRS" APPEAR="FWC internal coordinates" KIND="SINGLE" EXCLUSIVE="NOHWRS,CARTESIAN,INTERNAL" LEVEL="ADVANCED">
               %%Keyword: HWRS <basic>
               <HELP>
               Use the force constant weighted (FCW) redundant space version of the
@@ -326,7 +326,7 @@ Optional coordinate selection keywords
   nonredundant internal coordinates. The default is to use the HWRS option.
   The Hessian will be modeled by the Hessian Model Functional.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="NOHWRS" APPEAR="Integral coordinates" KIND="SINGLE" EXCLUSIVE="HWRS,CARTESIAN,INTERNAL" LEVEL="ADVANCED" >
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="NOHWRS" APPEAR="Integral coordinates" KIND="SINGLE" EXCLUSIVE="HWRS,CARTESIAN,INTERNAL" LEVEL="ADVANCED">
               %%Keyword: NoHWRS <basic>
               <HELP>
               Disable the use of the force constant weighted redundant space version of the
@@ -344,7 +344,7 @@ Optional coordinate selection keywords
   fragments at a distance up to the specified value longer.
   The value can be followed with the unit BOHR or ANGSTROM. The default is 0.5 a.u.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="FUZZ" Appear="Fuzz" KIND="REAL" MIN_VALUE="0.001" DEFAULT_VALUE="0.5" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="FUZZ" APPEAR="Fuzz" KIND="REAL" MIN_VALUE="0.001" DEFAULT_VALUE="0.5" LEVEL="ADVANCED">
               %%Keyword: Fuzz <advanced>
               <HELP>
               When automatically generating the primitive internal coordinates, the system may
@@ -614,7 +614,7 @@ Optional optimization procedure keywords
   :kword:`End of TSConstraints`
   (see section :ref:`UG:sec:definition_of_internal_coordinates` below).
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="TSCO" APPEAR="TS constraints" KIND="STRINGS" REQUIRE="FINDTS" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="TSCONSTRAINTS" APPEAR="TS constraints" KIND="CUSTOM" REQUIRE="FINDTS" LEVEL="BASIC">
               %%Keyword: TSConstraints <basic>
               <HELP>
               Specify constraints that will be active during the initial stage of an
@@ -659,7 +659,7 @@ Optional optimization procedure keywords
   Maximum number of points to find in a minimum energy path search or intrinsic reaction coordinate analysis.
   Synonym of :kword:`NIRC`.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="NMEP" APPEAR="Max points on a MEP" KIND="INT" MIN_VALUE="1" REQUIRE="MEP-SEARCH" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="NMEP" APPEAR="Max points on a MEP" KIND="INT" MIN_VALUE="1" REQUIRE="MEP-SEARCH.OR.RMEP-SEARCH" LEVEL="BASIC">
               %%Keyword: NMEP <basic>
               <HELP>
               Maximum number of points to find in a minimum energy path search or intrinsic reaction coordinate analysis.
@@ -673,7 +673,7 @@ Optional optimization procedure keywords
   (in normalized mass-weighted coordinates).
   Synonym of :kword:`IRCStep`.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEPSTEP" APPEAR="MEP Step" KIND="STRING" REQUIRE="MEP-SEARCH" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEPSTEP" APPEAR="MEP Step" KIND="STRING" REQUIRE="MEP-SEARCH.OR.RMEP-SEARCH" LEVEL="BASIC">
               %%Keyword: MEPStep <basic>
               <HELP>
               The keyword is used to specify the step length done in the MEP search or IRC analysis.
@@ -690,7 +690,7 @@ Optional optimization procedure keywords
   The reference structure changes at each step, according to the :kword:`MEPAlgorithm` keyword.
   Synonym of :kword:`IRCType`.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEPTYPE" APPEAR="MEP Type" KIND="STRING" REQUIRE="MEP-SEARCH" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEPTYPE" APPEAR="MEP Type" KIND="STRING" REQUIRE="MEP-SEARCH.OR.RMEP-SEARCH" LEVEL="ADVANCED">
               %%Keyword: MEPType <basic>
               <HELP>
               Specifies what kind of constraint will be used for optimizing the points during the MEP search or IRC analysis.
@@ -706,7 +706,7 @@ Optional optimization procedure keywords
   The possibilities are GS for the González--Schlegel algorithm, the default, or MB for the Müller--Brown algorithm.
   Synonym of :kword:`IRCAlgorithm`.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEPALGORITHM" APPEAR="MEP Algorithm" KIND="STRING" REQUIRE="MEP-SEARCH" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEPALGORITHM" APPEAR="MEP Algorithm" KIND="STRING" REQUIRE="MEP-SEARCH.OR.RMEP-SEARCH" LEVEL="ADVANCED">
               %%Keyword: MEPAlgorithm <basic>
               <HELP>
               Selects the algorithm for a MEP search or IRC analysis.
@@ -720,7 +720,7 @@ Optional optimization procedure keywords
   of the origin of the hyper sphere. The default origin is the structure
   of the first iteration.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="REFERENCE" APPEAR="MEP reference structure" KIND="REALS_LOOKUP" SIZE="DEG_FREEDOM" REQUIRE="MEP-SEARCH" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="REFERENCE" APPEAR="MEP reference structure" KIND="REALS_LOOKUP" SIZE="DEG_FREEDOM" REQUIRE="MEP-SEARCH.OR.RMEP-SEARCH" LEVEL="BASIC">
               %%Keyword: REFErence <basic>
               <HELP>
               The keyword is followed by a list of the symmetry unique coordinates (in au)
@@ -734,7 +734,7 @@ Optional optimization procedure keywords
   compulsory when using the Transverse kind of constraint. The optimization is performed in
   a space orthogonal to the given vector.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="GRAD" APPEAR="Gradient of reference" KIND="STRINGS" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="GRAD" APPEAR="Gradient of reference" KIND="REALS_LOOKUP" SIZE="DEG_FREEDOM" LEVEL="BASIC">
               %%Keyword: GRADient of reference <basic>
               <HELP>
               The keyword is followed by a list of the gradient vector components. This keyword is
@@ -827,7 +827,7 @@ Optional optimization procedure keywords
   The keyword is followed by the reaction vector specified as the Cartesian vector components
   on each of the symmetry unique atoms.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="REAC" APPEAR="Reaction vector" KIND="STRINGS" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="REAC" APPEAR="Reaction vector" KIND="REALS_LOOKUP" SIZE="DEG_FREEDOM" LEVEL="BASIC">
               %%Keyword: REACtion vector <basic>
               <HELP>
               The keyword is followed by the reaction vector specified as the Cartesian vector components
@@ -956,7 +956,7 @@ Optional force constant keywords
   The eigenvalues and eigenvectors of the Hessian matrix
   are printed. The internal coordinates definitions are also printed.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="PRFC" APPEAR="Print eigen vectors and values of H" KIND="REAL" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="PRFC" APPEAR="Print eigen vectors and values of H" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: PrFC <basic>
               <HELP>
               The eigenvalues and eigenvectors of the Hessian matrix
@@ -967,7 +967,7 @@ Optional force constant keywords
 :kword:`RHIDden`
   Define the hidden atoms selection radius in order to improve a QM/MM Hessian. It can be followed by :kword:`Angstrom`.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="RHID" APPEAR="Hidden atoms selection radius" KIND="STRINGS" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="RHID" APPEAR="Hidden atoms selection radius" KIND="REAL" LEVEL="ADVANCED">
               %%Keyword: rHid <advanced>
               <HELP>
               Define the hidden atoms selection radius in order to improve a QM/MM Hessian.
@@ -987,7 +987,7 @@ Optional miscellaneous keywords
   The keyword must be followed by the definition on the primitive
   coordinate.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="CTOF" KIND="STRINGS" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="CTOF" KIND="STRINGS" SIZE="2" LEVEL="ADVANCED">
               %%Keyword: CTOF <advanced>
               <HELP>
               Coordinates TO Follow defines an internal coordinate whose values
@@ -1010,7 +1010,7 @@ Optional miscellaneous keywords
   :kword:`Bohr`.
   The default values are 15 and 3.0 au.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="RTRN" KIND="STRINGS" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="RTRN" KIND="CUSTOM" LEVEL="ADVANCED">
               %%Keyword: RTRN <advanced>
               <HELP>
               Maximum number of atoms for which bond lengths, angles and dihedral
@@ -1030,7 +1030,7 @@ Optional miscellaneous keywords
   for which the thermochemistry will be calculated.
   The section is ended by the keyword :kword:`End of PT`.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="THERMO" APPEAR="Thermochemical analysis" KIND="STRINGS" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="THERMO" APPEAR="Thermochemical analysis" KIND="CUSTOM" LEVEL="ADVANCED">
               %%Keyword: THER <advanced>
               <HELP>
               Request frequencies to be computed followed by an user specified thermochemical analysis.
@@ -1068,7 +1068,7 @@ Optional miscellaneous keywords
   The keyword must be followed by the name of the module. Moreover, the EMIL command COPY needs to be used
   in the global input to provide a file named LASTEN, containing the input for the specified module.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="LASTenergy" APPEAR="Last Energy method" KIND="STRING" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="LASTENERGY" APPEAR="Last Energy method" KIND="STRING" LEVEL="ADVANCED">
               %%Keyword: LAST <advanced>
               <HELP>
               Specifies the quantum chemical method requested for the Last_Energy module (e.g., SCF, CASSCF, CASPT2, etc.)
@@ -1080,7 +1080,7 @@ Optional miscellaneous keywords
 :kword:`NOLAst energy`
   Disables the call to the Last_Energy module when convergence is achieved.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="NOLAstEnergy" APPEAR="No Last Energy" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="NOLASTENERGY" APPEAR="No Last Energy" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: NoLastEnergy <basic>
               <HELP>
               Disables the call to the Last_Energy module when convergence is achieved.
@@ -1452,4 +1452,13 @@ using automatic calculation of analytical gradients and nonadiabatic coupling.
 
   >>> EndDo
 
+.. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="REDUNDANT" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="RMEP-SEARCH" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+
+.. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="NOEMEP" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+
 .. xmldoc:: </MODULE>
+
+.. xmldoc:: <MODULE NAME="LAST_ENERGY">
+            </MODULE>

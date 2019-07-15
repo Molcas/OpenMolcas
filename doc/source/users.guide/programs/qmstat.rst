@@ -18,8 +18,11 @@
 Description
 -----------
 
-.. xmldoc:: %%Description:
+.. xmldoc:: <MODULE NAME="QMSTAT">
+            %%Description:
+            <HELP>
             Under construction
+            </HELP>
 
 :program:`QmStat` couples a quantum chemical region to a
 statistically mechanically described surrounding thus creating
@@ -209,6 +212,8 @@ are highlighted.
 :kword:`TITLe`
   Title to the calculation.
 
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="TITLE" LEVEL="UNDOCUMENTED" KIND="STRING" />
+
 :kword:`SIMUlation`
   Keywords relating to the how the simulation is to be performed and under
   which conditions.
@@ -238,6 +243,30 @@ are highlighted.
     for the tempering procedure.
   * **END_Simulation Parameters** Marks the end of the input to the simulation parameters.
 
+  .. xmldoc:: <GROUP MODULE="QMSTAT" NAME="SIMULATION" LEVEL="UNDOCUMENTED" KIND="BLOCK">
+
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="RADIUS" LEVEL="UNDOCUMENTED" KIND="REAL" />
+
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="PERMITTIVITY" LEVEL="UNDOCUMENTED" KIND="REAL" />
+
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="TEMPERATURE" LEVEL="UNDOCUMENTED" KIND="REAL" />
+
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="PRESSURE" LEVEL="UNDOCUMENTED" KIND="REAL" />
+
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="SURFACE" LEVEL="UNDOCUMENTED" KIND="REAL" />
+
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="TRANSLATION" LEVEL="UNDOCUMENTED" KIND="REAL" />
+
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="ROTATION" LEVEL="UNDOCUMENTED" KIND="REAL" />
+
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="CAVITY" LEVEL="UNDOCUMENTED" KIND="REAL" />
+
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="FORCE" LEVEL="UNDOCUMENTED" KIND="REAL" />
+
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="SEED" LEVEL="UNDOCUMENTED" KIND="INT" />
+
+  .. xmldoc:: </GROUP>
+
 :kword:`THREshold`
   Followed by three numbers. First the threshold for the induced
   dipoles in the generalized self-consistent field method for the solution
@@ -246,24 +275,40 @@ are highlighted.
   number of iterations in the method is specified. Defaults are 0.0001 0.0000001
   and 30.
 
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="THRESHOLD" LEVEL="UNDOCUMENTED" KIND="REALS" SIZE="3" />
+
 :kword:`STEPs`
   Followed by two entries. Number of macrosteps and number of microsteps.
   The total number of steps is the product of the two numbers above. At
   the end of each macrostep the relevant STFIL is up-dated. Default
   is 1 and 1.
 
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="STEPS" LEVEL="UNDOCUMENTED" KIND="INTS" SIZE="2" />
+
 :kword:`RUN`
   Specify type of simulation. "QMEQ" means quantum chemical equilibration;
   only the startfile is up-dated. "QMPR" means quantum chemical
-  production; startfile is up-dated and sampfile constructed. {\bf Observe}
+  production; startfile is up-dated and sampfile constructed. **Observe**
   that if "QMPR" is specified a line with two entries follows in which
   the interval of sampling is specified and on which sampfile (1-7) the
   data is to be stored. "ANAL" means an analysis of the stored results
   is to be performed.
 
+  .. xmldoc:: <GROUP MODULE="QMSTAT" NAME="RUN" LEVEL="UNDOCUMENTED" KIND="RADIO">
+
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="QMEQ" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
+
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="QMPR" LEVEL="UNDOCUMENTED" KIND="INTS" SIZE="2" />
+
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="ANAL" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
+
+  .. xmldoc:: </GROUP>
+
 :kword:`PRINt`
   Print level. 1 is default and anything above this number can generate
   large outputs. No higher than 10 is recommended for non-developers.
+
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="PRINT" LEVEL="UNDOCUMENTED" KIND="INT" />
 
 :kword:`EXTErnal`
   An external perturbation is to be added to the Hamiltonian
@@ -273,6 +318,8 @@ are highlighted.
   the label of the perturbation as given on SEWARD's one-electron integral file,
   :math:`nc_i` is the component number of the perturbation.
   A final expression for the perturbation would be: :math:`c_1V_1(nc_1)+c_2V_2(nc_2)+\cdots+c_NV_N(nc_N)`.
+
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="EXTERNAL" LEVEL="UNDOCUMENTED" KIND="CUSTOM" />
 
 :kword:`CONFiguration`
   Keywords relating to from which source the initial solvent
@@ -289,10 +336,10 @@ are highlighted.
     * **STARtfile** Read solvent configuration from startfile.
 
       * **SCRAtch** Read solvent configuration from startfile and place
-        the QM-region as given on RUNFILE.
+        the QM-region as given on :file:`RUNFILE`.
       * **COPY** Read solvent and QM configuration from startfile.
         This is he keyword to use if a simulation is to be restarted.
-        **Observe** that consistent startfile and RUNFILE must be used.
+        **Observe** that consistent startfile and :file:`RUNFILE` must be used.
       * **CM_,_** Read solvent configuration from startfile and place
         the QM in the center of mass of the QM placed on startfile.
         For any of the previous keywords two numbers are given, :math:`N_{\text{in}}` and :math:`N_{\text{out}}` which specify from
@@ -311,6 +358,14 @@ are highlighted.
     keyword. One number as argument: the startfile to which
     configurations are written.
   * **END_Configuration** Marks the end of the input to the initial configuration.
+
+  .. xmldoc:: <GROUP MODULE="QMSTAT" NAME="CONFIGURATION" LEVEL="UNDOCUMENTED" KIND="BLOCK">
+
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="ADD" LEVEL="UNDOCUMENTED" KIND="INT" />
+
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="INPUT" LEVEL="UNDOCUMENTED" KIND="INT" />
+
+  .. xmldoc:: </GROUP>
 
 :kword:`EDIT`
   Signify that a startfile is to be edited. If this keyword is
@@ -340,7 +395,7 @@ are highlighted.
 
   * **DPARameters**
     Parameters for the dispersion interaction.
-    Follow :math:`N` lines, which :math:`N` the number of atoms in the QM-region. The general form for each line is: :math:`d_1` and :math:`d_2` where :math:`d_1` is the dispersion parameter between one atom of the QM-region and the water oxygen, and :math:`d_2` is the same but regarding to the hydrogen of the water.The order of the QM atoms is given by RUNFILE.
+    Follow :math:`N` lines, with :math:`N` the number of atoms in the QM-region. The general form for each line is: :math:`d_1` and :math:`d_2` where :math:`d_1` is the dispersion parameter between one atom of the QM-region and the water oxygen, and :math:`d_2` is the same but regarding to the hydrogen of the water. The order of the QM atoms is given by :file:`RUNFILE`.
   * **ELECtrostatic**
     Parameters to describe the electrostatic penetration using Slater integrals.
 
@@ -379,7 +434,7 @@ are highlighted.
 
     * **DISPersion**
       Input parameters to a dispersion damping expression. The parameters
-      are number obtain from a quantum chemical calculation. All lines
+      are numbers obtained from a quantum chemical calculation. All lines
       have the form: :math:`C_{\text{val}}`, :math:`Q_{xx}`, :math:`Q_{yy}`, :math:`Q_{zz}` where
       :math:`C_{\text{val}}` is the valence charge and :math:`Q_{**}` are diagonal terms
       in the quadrupole tensor. First two lines are for the hydrogen
@@ -388,10 +443,10 @@ are highlighted.
       can be obtained from a calculation with :program:`MpProp`.
       The numbers are given as input so that the user can if it is found
       to be needed, modify the damping. Default is no damping.
-      The order of the atoms in the QM region is given by RUNFILE.
+      The order of the atoms in the QM region is given by :file:`RUNFILE`.
     * **FIELd**
       The electric field between QM region and surrounding is damped.
-      Three numbers are arguments::math:`C_{\text{O}}`, :math:`C_{\text{H}}`, :math:`N` where they are
+      Three numbers are arguments: :math:`C_{\text{O}}`, :math:`C_{\text{H}}`, :math:`N` where they are
       parameters to a field damping expression
       (:math:`E=\tilde{E}(1-e^{C_x R})^N`) where :math:`x` is :math:`\text{O}` if the point
       in the surrounding is on a oxygen atom, :math:`\text{H}` if on a hydrogen
@@ -403,6 +458,38 @@ are highlighted.
   * **END QmSurrounding**
     Marks the end of the input related to the interaction between surrounding
     and the quantum chemical region.
+
+  .. xmldoc:: <GROUP MODULE="QMSTAT" NAME="QMSURROUNDING" LEVEL="UNDOCUMENTED" KIND="BLOCK">
+
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="DPARAMETERS" LEVEL="UNDOCUMENTED" KIND="CUSTOM" />
+
+  .. xmldoc:: <GROUP MODULE="QMSTAT" NAME="ELECTROSTATIC" LEVEL="UNDOCUMENTED" KIND="BLOCK">
+
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="NOPENETRATION" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
+
+  .. xmldoc:: </GROUP>
+
+  .. xmldoc:: <GROUP MODULE="QMSTAT" NAME="XPARAMETERS" LEVEL="UNDOCUMENTED" KIND="BLOCK">
+
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="S2" LEVEL="UNDOCUMENTED" KIND="REAL" />
+
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="S4" LEVEL="UNDOCUMENTED" KIND="REAL" />
+
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="S6" LEVEL="UNDOCUMENTED" KIND="REAL" />
+
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="CUTOFF" LEVEL="UNDOCUMENTED" KIND="REALS" SIZE="2" />
+
+  .. xmldoc:: </GROUP>
+
+  .. xmldoc:: <GROUP MODULE="QMSTAT" NAME="DAMPING" LEVEL="UNDOCUMENTED" KIND="BLOCK">
+
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="DISPERSION" LEVEL="UNDOCUMENTED" KIND="CUSTOM" />
+
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="FIELD" LEVEL="UNDOCUMENTED" KIND="REALS" SIZE="3" />
+
+  .. xmldoc:: </GROUP>
+
+  .. xmldoc:: </GROUP>
 
 :kword:`SOLVent`
   Keywords that govern the solvent-solvent interaction and some
@@ -438,6 +525,14 @@ are highlighted.
   * **END Solvent**
     Marks the end of the input that govern the solvent-solvent interaction.
 
+  .. xmldoc:: <GROUP MODULE="QMSTAT" NAME="SOLVENT" LEVEL="UNDOCUMENTED" KIND="BLOCK">
+
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="COORDINATES" LEVEL="UNDOCUMENTED" KIND="REALS_COMPUTED" SIZE="9" />
+
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="ATCECHPOL" LEVEL="UNDOCUMENTED" KIND="INTS" SIZE="5" />
+
+  .. xmldoc:: </GROUP>
+
 :kword:`RASSisection`
   This section provides the information needed to perform QMSTAT calculations
   using the RASSI-construction of the wave function.
@@ -470,6 +565,16 @@ are highlighted.
   * **END RassiSection**
     Marks the end of the input that govern the Rassi calculations.
 
+  .. xmldoc:: <GROUP MODULE="QMSTAT" NAME="RASSISECTION" LEVEL="UNDOCUMENTED" KIND="BLOCK">
+
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="JOBFILES" LEVEL="UNDOCUMENTED" KIND="INTS_COMPUTED" SIZE="1" />
+
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="EQSTATE" LEVEL="UNDOCUMENTED" KIND="INT" />
+
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="MOREDUCE" LEVEL="UNDOCUMENTED" KIND="REAL" />
+
+  .. xmldoc:: </GROUP>
+
 :kword:`SCFSection`
   This section provides additional information to perform QMSTAT calculations
   using the SCF-construction of the wave function.
@@ -480,6 +585,12 @@ are highlighted.
     as a basis in which to solve the Hartree-Fock equation, and
   * **END ScfSection**
     Marks the end of the input that govern the Scf calculations.
+
+  .. xmldoc:: <GROUP MODULE="QMSTAT" NAME="SCFSECTION" LEVEL="UNDOCUMENTED" KIND="BLOCK">
+
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="ORBITALS" LEVEL="UNDOCUMENTED" KIND="INTS" SIZE="2" />
+
+  .. xmldoc:: </GROUP>
 
 :kword:`SINGle-point`
   This keywords signals that a set of single point calculations
@@ -495,6 +606,8 @@ are highlighted.
   the usual meaning of the input. **Observe** that the permittivity
   has to be set to 1 if one attempts to reproduce a quantum chemical
   supermolecular potential.
+
+  .. xmldoc:: <KEYWORD MODULE="QMSTAT" NAME="SINGLE-POINT" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
 
 :kword:`EXTRact Section`
   Give details about the analysis performed to the results stored in the
@@ -606,3 +719,5 @@ files; the ground state interacts with the surrounding. ::
   End RassiSection
 
   End of Input
+
+.. xmldoc:: </MODULE>

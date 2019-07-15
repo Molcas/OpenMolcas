@@ -14,8 +14,7 @@
      :backlinks: none
 
 .. The input format of CASVB is not completely compatible with the XML specification
-   format used by MolGUI. May keywords are given the kind "STRINGS", to allow arbitrary
-   content and repetitions.
+   format used by MolGUI.
 
 .. xmldoc:: <MODULE NAME="CASVB">
             %%Description:
@@ -239,17 +238,17 @@ Optional keywords to define the VB wavefunction
     COUPLE
     key
 
-  ``key`` may be chosen from ``KOTANI`` (default), ``RUMER``, ``PROJECT`` or ``LTRUMER``,
+  ``key`` may be chosen from ``KOTANI`` (default), ``SERBER``, ``RUMER``, ``PROJECT`` or ``LTRUMER``,
   specifying the scheme for constructing the
   spin eigenfunctions used in the definition of valence bond structures. ``PROJECT``
   refers to spin functions generated using a spin projection operator, ``LTRUMER`` to
   Rumer functions with the so-called "leading term" phase convention.
 
-  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="COUPLE" APPEAR="Couple scheme" LEVEL="ADVANCED" KIND="CHOICE" LIST="KOTANI,RUMER,PROJECT,LTRUMER" DEFAULT_VALUE="KOTANI">
+  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="COUPLE" APPEAR="Couple scheme" LEVEL="ADVANCED" KIND="CHOICE" LIST="KOTANI,SERBER,RUMER,PROJECT,LTRUMER" DEFAULT_VALUE="KOTANI">
               %%Keyword: COUPle <advanced>
               <HELP>
               Specifies the scheme for constructing the spin eigenfunctions to be used.
-              Possible values: KOTANI (default), RUMER, PROJECT, LTRUMER
+              Possible values: KOTANI (default), SERBER, RUMER, PROJECT, LTRUMER
               </HELP>
               </KEYWORD>
 
@@ -296,7 +295,7 @@ Optional keywords for the recovery and/or storage of orbitals and vectors
   (``key-i``\=MO).
   By default, the required information is taken from the file :file:`JOBOLD`.
 
-  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="START" APPEAR="Input files" LEVEL="ADVANCED" KIND="STRINGS">
+  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="START" APPEAR="Input files" LEVEL="ADVANCED" KIND="UNKNOWN">
               %%Keyword: STARt <advanced>
               <HELP>
               Specifies various input files. Default is to take the required information
@@ -319,7 +318,7 @@ Optional keywords for the recovery and/or storage of orbitals and vectors
   and/or the VB CI vector (``key-i``\=VBCI). By default, the VB CI
   vector is written to the file JOBIPH.
 
-  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="SAVE" APPEAR="Output files" LEVEL="ADVANCED" KIND="STRINGS">
+  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="SAVE" APPEAR="Output files" LEVEL="ADVANCED" KIND="UNKNOWN">
               %%Keyword: SAVE <advanced>
               <HELP>
               Specifies output files. By default, the VB CI vector is written to the
@@ -375,11 +374,11 @@ Optional keywords to override the starting guess
               manual. The ENDGUESs keyword terminates the guess input.
               </HELP>
 
-  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="ORB" APPEAR="Orbital" LEVEL="BASIC" KIND="STRINGS">
-              </KEYWORD>
+  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="ORB" APPEAR="Orbital" LEVEL="BASIC" KIND="CUSTOM" />
 
-  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="STRUC" APPEAR="Structure" LEVEL="BASIC" KIND="STRINGS">
-              </KEYWORD>
+  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="STRUC" APPEAR="Structure" LEVEL="BASIC" KIND="UNKNOWN" />
+
+  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="AOBASIS" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
 
   .. xmldoc:: </GROUP>
 
@@ -469,19 +468,23 @@ Optional keywords for optimization control
   only the orbital variational parameters. For further details see the bibliography.
   This option may be useful to aid convergence.
 
-  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="CASPROJ" APPEAR="CAS proj" LEVEL="ADVANCED" KIND="SINGLE" EXCLUSIVE="NOCASPROJ">
+  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="CASPROJ" APPEAR="CAS proj" LEVEL="ADVANCED" KIND="SINGLE" EXCLUSIVE="NOCASPROJ,NOPROJCAS">
               %%Keyword: CASProj <advanced>
               <HELP>
               Defines structure coefficients from transformed CASSCF wavefunction.
               </HELP>
               </KEYWORD>
 
-  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="NOCASPROJ" APPEAR="No CAS proj" LEVEL="ADVANCED" KIND="SINGLE" EXCLUSIVE="CASPROJ">
+  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="NOCASPROJ" APPEAR="No CAS proj" LEVEL="ADVANCED" KIND="SINGLE" EXCLUSIVE="CASPROJ,PROJCAS">
               %%Keyword: NOCASProj <advanced>
               <HELP>
               Disables CASProj
               </HELP>
               </KEYWORD>
+
+  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="PROJCAS" LEVEL="UNDOCUMENTED" KIND="SINGLE" EXCLUSIVE="NOCASPROJ,NOPROJCAS" />
+
+  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="NOPROJCAS" LEVEL="UNDOCUMENTED" KIND="SINGLE" EXCLUSIVE="CASPROJ,PROJCAS" />
 
 :kword:`SADDle`
   .. index::
@@ -577,7 +580,7 @@ Optional keywords for optimization control
   Details of the values used are output if ``print(3)`` :math:`\geq` 3 is specified.
   For expert use only.
 
-  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="TUNE" APPEAR="Tune" LEVEL="ADVANCED" KIND="STRINGS">
+  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="TUNE" APPEAR="Tune" LEVEL="ADVANCED" KIND="UNKNOWN">
               %%Keyword: TUNE <advanced>
               <HELP>
               Enables the input of individual parameters to be used in the optimization procedure. Expert use only. See manual.
@@ -613,7 +616,7 @@ Optional keywords for optimization control
   :kword:`OPTIM` keywords. The :kword:`ENDOPTIm` keyword marks the end of the
   specifications of an optimization step.
 
-  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="OPTIM" APPEAR="Optimizations" LEVEL="ADVANCED" KIND="STRINGS">
+  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="OPTIM" APPEAR="Optimizations" LEVEL="ADVANCED" KIND="SINGLE">
               %%Keyword: OPTIm <advanced>
               <HELP>
               Defines one or more optimization steps. Subcommands can be any
@@ -622,6 +625,8 @@ Optional keywords for optimization control
               Terminated by the keyword ENDOPTIm.
               </HELP>
               </KEYWORD>
+
+  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="ENDOPTIM" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
 
 :kword:`ALTErn`
   .. index::
@@ -640,7 +645,7 @@ Optional keywords for optimization control
   The :kword:`ENDALTErn` keyword marks the end of the specification of an
   ALTERN loop.
 
-  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="ALTERN" APPEAR="Alternate" LEVEL="ADVANCED" KIND="STRINGS">
+  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="ALTERN" APPEAR="Alternate" LEVEL="ADVANCED" KIND="UNKNOWN">
               %%Keyword: ALTErn <advanced>
               <HELP>
               Defines alternating optimizations over two or more optimization steps (see
@@ -701,13 +706,19 @@ constraints on the VB wavefunction
   three-dimensional irreducible representation, or if localized orbitals define the CASSCF
   wavefunction. Note that the specified transformation must always be orthogonal.
 
-  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="SYMELM" APPEAR="Symmetry elements" LEVEL="ADVANCED" KIND="STRINGS">
+  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="SYMELM" APPEAR="Symmetry elements" LEVEL="ADVANCED" KIND="STRING">
               %%Keyword: SYMElm <advanced>
               <HELP>
               Initiates the definition of a symmetry operation (see manual).
               Sub-keywords are IRREPS, COEFFS, or TRANS. Terminated with ENDSYMElm.
               </HELP>
               </KEYWORD>
+
+  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="IRREPS" LEVEL="UNDOCUMENTED" KIND="INTS_LOOKUP" SIZE="ANY" />
+
+  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="COEFFS" LEVEL="UNDOCUMENTED" KIND="INTS_LOOKUP" SIZE="ANY" />
+
+  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="ENDSYMELM" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
 
 :kword:`ORBRel`
   .. index::
@@ -726,7 +737,7 @@ constraints on the VB wavefunction
   relations required to define all the orbitals should be provided; an error exit
   will occur if redundant :kword:`ORBREL` specifications are found.
 
-  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="ORBREL" APPEAR="Orbital relations" LEVEL="ADVANCED" KIND="STRINGS">
+  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="ORBREL" APPEAR="Orbital relations" LEVEL="ADVANCED" KIND="CUSTOM">
               %%Keyword: ORBRel <advanced>
               <HELP>
               Specifies the relationship between two VB orbitals under symmetry
@@ -787,7 +798,8 @@ constraints on the VB wavefunction
   normalized and symmetry-adapted according to any :kword:`ORBREL`
   keywords given.
 
-  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="FIXORB" APPEAR="Freeze orbitals" LEVEL="ADVANCED" KIND="STRING">
+  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="FIXORB" APPEAR="Freeze orbitals" LEVEL="ADVANCED" KIND="INTS_LOOKUP" SIZE="ANY">
+              <ALTERNATE KIND="CUSTOM" />
               %%Keyword: FIXOrb <advanced>
               <HELP>
               Freezes a subset of VB orbitals (i1, i2, ...).
@@ -898,20 +910,15 @@ constraints on the VB wavefunction
               manual. The ENDORTHcon keyword terminates the ORTHcon input.
               </HELP>
 
-  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="ORTH" APPEAR="Orbitals" LEVEL="ADVANCED" KIND="STRINGS">
-              </KEYWORD>
+  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="ORTH" APPEAR="Orbitals" LEVEL="ADVANCED" KIND="UNKNOWN" />
 
-  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="PAIRS" APPEAR="Pairs" LEVEL="ADVANCED" KIND="STRINGS">
-              </KEYWORD>
+  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="PAIRS" APPEAR="Pairs" LEVEL="ADVANCED" KIND="UNKNOWN" />
 
-  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="GROUP" APPEAR="Group" LEVEL="ADVANCED" KIND="STRINGS">
-              </KEYWORD>
+  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="GROUP" APPEAR="Group" LEVEL="ADVANCED" KIND="UNKNOWN" />
 
-  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="STRONG" APPEAR="Strong orthogonality" LEVEL="ADVANCED" KIND="SINGLE" EXCLUSIVE="FULL">
-              </KEYWORD>
+  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="STRONG" APPEAR="Strong orthogonality" LEVEL="ADVANCED" KIND="SINGLE" EXCLUSIVE="FULL" />
 
-  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="FULL" APPEAR="Full orthogonality" LEVEL="ADVANCED" KIND="SINGLE" EXCLUSIVE="STRONG">
-              </KEYWORD>
+  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="FULL" APPEAR="Full orthogonality" LEVEL="ADVANCED" KIND="SINGLE" EXCLUSIVE="STRONG" />
 
   .. xmldoc:: </GROUP>
 
@@ -961,13 +968,15 @@ Optional keywords for wavefunction analysis
   The :kword:`ENDREPOrt` keyword can be used to mark the end of the specification
   of a report step.
 
-  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="REPORT" APPEAR="Report" LEVEL="ADVANCED" KIND="STRINGs">
+  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="REPORT" APPEAR="Report" LEVEL="ADVANCED" KIND="SINGLE">
               %%Keyword: REPOrt <advanced>
               <HELP>
               Outputs orbital/structure coefficients and derived information. Terminated
               by ENDREPOrt.
               </HELP>
               </KEYWORD>
+
+  .. xmldoc:: <KEYWORD MODULE="CASVB" NAME="ENDREPORT" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
 
 :kword:`(NO)SCORr`
   .. index::
