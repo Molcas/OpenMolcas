@@ -15,6 +15,7 @@ module fcidump_reorder
   use stdalloc, only : mma_allocate, mma_deallocate
   use fcidump_tables, only :  FockTable, TwoElIntTable, OrbitalTable,&
     mma_allocate, mma_deallocate, length
+
   implicit none
   private
   public :: reorder, get_P_GAS, get_P_inp, ReOrFlag, ReOrInp, cleanup
@@ -61,20 +62,21 @@ contains
         two_el_table%index(i, j) = P(two_el_table%index(i, j))
       end do
     end do
+    do j = 1, length(two_el_table)
+      do i = 1, 4
+        two_el_table%index(i, j) = P(two_el_table%index(i, j))
+      end do
+    end do
   end subroutine
 
   function get_P_GAS(ngssh) result(P)
     use sorting, only : argsort
+    use general_data, only : nSym
+    use gas_data, only : nGAS
     integer, intent(in) :: ngssh(:, :)
     integer :: P(sum(ngssh)), X(sum(ngssh))
-    integer :: iGAS, iSym, iOrb
-    iOrb = 1
-    do iSym = 1, size(ngssh, 2)
-      do iGAS = 1, size(ngssh, 1)
-        X(iOrb : iOrb + ngssh(iGAS, iSym)) = iGAS
-        iOrb = iOrb + ngssh(iGAS, iSym) + 1
-      end do
-    end do
+    integer :: iGAS, iSym, i, n
+    X = [(((iGAS, i = 1, ngssh(iGAS, iSym)), iGAS = 1, nGAS), iSym = 1, nSym)]
     P = argsort(X, le)
   end function
 
