@@ -825,8 +825,8 @@ C And the same for the Dyson amplitudes
            DMAX=MAX(DSZ,DMAX)
            IF(DSZ.ge.TDIPMIN) THEN
             IF(LNCNT.EQ.0) THEN
-             WRITE(6,34) 'From','To','Dx','Dy','Dz','Total D','(a.u.)'
-             WRITE(6,32)
+             WRITE(6,34) 'From','To','Dx','Dy','Dz','Total D (a.u.)'
+             WRITE(6,42)
             END IF
             LNCNT=LNCNT+1
             WRITE(6,33) I,J,DX,DY,DZ,DSZ
@@ -961,6 +961,7 @@ C And the same for the Dyson amplitudes
          End Do ! iVec
          CALL CollapseOutput(0,'Velocity transition strengths '//
      &                         '(spin-free states):')
+         WRITE(6,*)
          I_HAVE_DV = 1
       END IF
 !
@@ -969,6 +970,10 @@ C And the same for the Dyson amplitudes
 !      of 0.1 (10 percent) will be printed.
 !
        IF(I_HAVE_DL.EQ.1.AND.I_HAVE_DV.EQ.1) THEN
+         CALL CollapseOutput(1,'Length and velocity gauge comparison '//
+     &                         '(spin-free states):')
+         WRITE(6,'(3X,A)')     '-------------------------------------'//
+     &                         '-------------------'
 !
 ! I guess that I have to explain it when I print a warning
 !
@@ -1046,6 +1051,9 @@ C And the same for the Dyson amplitudes
      &                  I_PRINT_HEADER
             WRITE(6,*)
           END IF
+         CALL CollapseOutput(0,'Length and velocity gauge comparison '//
+     &                         '(spin-free states):')
+         WRITE(6,*)
         END IF
 *
 * Free the memory
@@ -2501,8 +2509,7 @@ C                 Why do it when we don't do the L.S-term!
                TM_C(1) = TM_R(2)*TM_I(3)-TM_R(3)*TM_I(2)
                TM_C(2) = TM_R(3)*TM_I(1)-TM_R(1)*TM_I(3)
                TM_C(3) = TM_R(1)*TM_I(2)-TM_R(2)*TM_I(1)
-               TM_2 = -2.0D0*SQRT(DDot_(3,TM_C,1,TM_C,1))*
-     &                       SIGN(1.0D0,DDot_(3,TM_C,1,UK,1))
+               TM_2 = 2.0D0*DDot_(3,TM_C,1,UK,1)
 *
 *              R = 3/4 * c*hbar^2/DeltaE^2 * (|T^L|^2 - |T^R|^2)
 *
@@ -2754,6 +2761,7 @@ C                 Why do it when we don't do the L.S-term!
 39    FORMAT (5X,2(1X,A4),5X,3(1X,A15))
 40    FORMAT (5X,63('-'))
 41    FORMAT (5X,2(1X,A4),5X,5(1X,A15))
+42    FORMAT (5X,79('-'))
 50    FORMAT (10X,A7,3X,1(1X,ES15.8),5X,A27,3(1X,F7.4))
       END Subroutine EigCtl
 

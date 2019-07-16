@@ -788,8 +788,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
                    TM_C(1) = TM_R(2)*TM_I(3)-TM_R(3)*TM_I(2)
                    TM_C(2) = TM_R(3)*TM_I(1)-TM_R(1)*TM_I(3)
                    TM_C(3) = TM_R(1)*TM_I(2)-TM_R(2)*TM_I(1)
-                   TM_2 = -2.0D0*SQRT(DDot_(3,TM_C,1,TM_C,1))*
-     &                    SIGN(1.0D0,DDot_(3,TM_C,1,kPhase(kp)*UK,1))
+                   TM_2 = 2.0D0*kPhase(kp)*DDot_(3,TM_C,1,UK,1)
                    R_Temp=0.75D0*SPEED_OF_LIGHT/EDIFF**2*TM_2
                    R_Temp=R_Temp*AU2REDR
 *

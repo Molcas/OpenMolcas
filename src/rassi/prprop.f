@@ -789,6 +789,8 @@ C printing threshold
 !      of 0.1 (10 percent) will be printed.
 !
        IF(I_HAVE_DL.EQ.1.AND.I_HAVE_DV.EQ.1) THEN
+         CALL CollapseOutput(1,'Length and velocity gauge comparison '//
+     &                         '(SO states):')
 !
 ! I guess that I have to explain it when I print a warning
 !
@@ -861,6 +863,9 @@ C printing threshold
      &                  I_PRINT_HEADER
             WRITE(6,*)
           END IF
+         CALL CollapseOutput(0,'Length and velocity gauge comparison '//
+     &                         '(SO states):')
+         WRITE(6,*)
         END IF
 *
 * Free the memory
