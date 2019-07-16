@@ -96,7 +96,6 @@
      &    lll, lJobH, ldJobH, lscr, iDisk,
      &    jRoot, kRoot, iDXsX, idXCI,
      &    iDummy(1), IADR19(30), iAD15, lEne, nTmp(8)
-      real*8, allocatable :: CMOO(:)
       real*8 :: Dummy(1), Scal
       real*8, allocatable :: CMO_copy(:)
 #ifdef _HDF5_
