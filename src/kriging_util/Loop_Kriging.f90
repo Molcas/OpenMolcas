@@ -15,20 +15,22 @@
         Integer nInter,nPoints
         Real*8 x_(ndimx,1),y_
 !
-        nPoints=nPoints_save
-        nInter=nInter_save
-!
-        npx = npxAI
-!nx is the n-dimensional vector of the last iteration computed in update_sl
-! subroutine
-        nx = x_
-!
-!       Write(6,*) 'Entro predict x_', x_
-!       Write(6,*) 'nx', nx
-!       Write(6,*) 'ndimx', ndimx
+        if (all(x_.ne.nx)) then
+                nPoints=nPoints_save
+                nInter=nInter_save
+        !
+                npx = npxAI
+        !nx is the n-dimensional vector of the last iteration computed in update_sl
+        ! subroutine
+                nx = x_
+        !
+        !       Write(6,*) 'Entro predict x_', x_
+        !       Write(6,*) 'nx', nx
+        !       Write(6,*) 'ndimx', ndimx
 
-        call covarvector(0,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
-        call predict(0,nPoints,nInter)
+                call covarvector(0,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+                call predict(0,nPoints,nInter)
+        endif
         y_=pred(npx)
 !
         return
@@ -40,17 +42,22 @@
         Integer nInter,nPoints
         Real*8 x_(ndimx,1),dy_(ndimx)
 !
-        nPoints=nPoints_save
-        nInter=nInter_save
-!
-        npx = npxAI
-!nx is the n-dimensional vector of the last iteration computed in update_sl
-! subroutine
-        nx = x_
-!
-        ! Write(6,*) 'Entro grad'
-        call covarvector(1,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
-        call predict(1,nPoints,nInter)
+        if (all(x_.ne.nx_saveG)) then
+                nPoints=nPoints_save
+                nInter=nInter_save
+                nx_saveG = x_
+        !
+                npx = npxAI
+        !nx is the n-dimensional vector of the last iteration computed in update_sl
+        ! subroutine
+                nx_saveg = x_
+                nx = x_
+
+        !
+                ! Write(6,*) 'Entro grad'
+                call covarvector(1,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+                call predict(1,nPoints,nInter)
+        endif
         dy_=gpred(npx,:)
 !
         return
@@ -61,17 +68,20 @@
         Integer nInter,nPoints
         Real*8 x_(ndimx,1),ddy_(ndimx,ndimx)
 !
-        nPoints=nPoints_save
-        nInter=nInter_save
-!
-        npx = npxAI
-!nx is the n-dimensional vector of the last iteration computed in update_sl
-! subroutine
-        nx = x_
-!
-        ! Write(6,*) 'Entro hess'
-        call covarvector(2,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
-        call predict(2,nPoints,nInter)
+        if (all(x_.ne.nx_saveH)) then
+                nPoints=nPoints_save
+                nInter=nInter_save
+                nx_saveH = x_
+        !
+                npx = npxAI
+        !nx is the n-dimensional vector of the last iteration computed in update_sl
+        ! subroutine
+                nx = x_
+        !
+                ! Write(6,*) 'Entro hess'
+                call covarvector(2,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+                call predict(2,nPoints,nInter)
+        endif
         ddy_=hpred(npx,:,:)
         ! write(6,*) 'Kriging Hessian', ddy_
 !
@@ -83,16 +93,16 @@
         Integer nInter,nPoints
         Real*8 x_(ndimx,1),y_(npxAI)
 !
-        nPoints=nPoints_save
-        nInter=nInter_save
-!
-        npx = npxAI
 !nx is the n-dimensional vector of the last iteration computed in update_sl
 ! subroutine
 !
-        nx = x_
-        call covarvector(0,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
-        call predict(0,nPoints,nInter)
+        if (all(x_.ne.nx)) then
+                nPoints=nPoints_save
+                nInter=nInter_save
+                nx = x_
+                call covarvector(0,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+                call predict(0,nPoints,nInter)
+        endif
         y_ = sigma
 !
         return

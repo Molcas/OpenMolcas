@@ -16,9 +16,6 @@
             real*8 diffx(iter,iter),diffx0(iter,iter), &
                     matFder(iter,iter),matSder(iter,iter),r(iter,iter,nInter), &
                     d(iter,iter),m(iter,iter),iden(iter,iter)!,c(iter,iter)
-            ! deallocate (dl,mat)
-            ! allocate (dl(iter,iter), &
-            !          mat(iter,iter))
             full_R = 0
             d = 0
             diffx = 0
@@ -77,5 +74,8 @@
                     endif
                 enddo
             enddo
+!           definig full_r has srictly possitive define sec. 3 of
+!           DOI: 10.1615/Int.J.UncertaintyQuantification.2013006809
+            ! full_R = abs(full_R)
         !   Call RecPrt('full_r',  ' ',full_R,m_t,m_t)
         END

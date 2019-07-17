@@ -19,6 +19,7 @@
         nPoints_save=nPoints
 !
         allocate (x(nInter,nPoints),y(nPoints),dy(nInter*nPoints),nx(nInter,1))
+        allocate (nx_saveG(nInter,1),nx_saveH(nInter,1))
 !m_t is the dimentionality of the square correlation matrix Gradient-Psi
 ! (equation (2) on:
 !-------- ref. = DOI 10.1007/s00366-015-0397-y)-------

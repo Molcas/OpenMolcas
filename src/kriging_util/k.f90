@@ -22,15 +22,15 @@
             call miden(iden,m_t)
             full_Rinv = iden
 ! Initiate A according to Eq. (2) of ref.
-            A = full_r !in, coefficent matrix A, out factors L and U from factorization A=PLU on AX=B
 !
             !-----------------New
+            ! A = full_r !in, coefficent matrix A, out factors L and U from factorization A=PLU on AX=B
             ! CALL DGESV_(m_t,m_t,A,m_t,IPIV,full_Rinv,m_t,INFO )
             ! rones = matmul(full_Rinv,B)!matmul(B,full_Rinv)
             ! B = rones
             ! Write (6,*) 'A new ',A
             ! ----------------Old calculations --K1
-            ! A = full_r
+            A = full_r
             CALL DGESV_(m_t,1,A,m_t,IPIV,B,m_t,INFO )
             rones=B
             ! Write (6,*) 'A old ',A
@@ -74,7 +74,7 @@
             Ys = B
 ! ----------------Old calculations --K2
             A=full_r
-            CALL DGESV_(m_t,1,A,m_t,IPIV,B,m_t,INFO )
+            CALL DGESV_(m_t,1,A,m_t,IPIV,B,m_t,INFO)
             Kv=b
 !-----------------New
             ! Kv = matmul(B,full_Rinv)
@@ -85,10 +85,10 @@
             detR = 0
             sign = 1
             do i=1,m_t
-                if (diagA(i).le.0) sign=sign*(-1)
+                ! if (diagA(i).le.0) sign=sign*(-1)
                 detR = detR + log(abs(diagA(i)))
             enddo
-            detR = detR*sign
+            ! detR = detR*sign
             lh = variance*exp(detR/dble(m_t))
 !
             ! write(6,*) 'detR',detR

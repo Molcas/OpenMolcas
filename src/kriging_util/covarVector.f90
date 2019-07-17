@@ -15,7 +15,7 @@
             integer i,i0,i1,j,gh,iter,nInter
             ! real*8 tmat(iter,npx),tmat2(iter,npx), &
             real*8 m(iter,npx),diffx(iter,npx),diffx0(iter,npx), &
-                diffxk(iter,npx),sdiffx,sdiffx0!, & dl(iter,npx)
+                diffxk(iter,npx),sdiffx,sdiffx0,sdiffxk!, & dl(iter,npx)
             ! deallocate (dl,mat)
             ! allocate (dl(iter,npx),mat(iter,npx))
             cv = 0
@@ -46,7 +46,7 @@
                     m = cvMatFder * diffx
                     cv(i0:i1,:,1,1) = m
                 enddo
-                ! write (6,*) 'CV-mat',cv
+                write (6,*) 'CV-mat',cv
             endif
 ! Covariant vector in Gradient Enhanced Kriging
             if(gh.ge.1) then
@@ -76,7 +76,7 @@
 !                           write (6,*) 'CV',cv(:,:,:,1)
                     enddo
                 enddo
-                !Write (6,*) 'CV - Krig Grad: ',cv
+                ! Write (6,*) 'CV - Krig Grad: ',cv
             endif
             if(gh.eq.2) then
 !                    print *,'covar vector calling deriv(3) for Kriging Hessian'
@@ -93,7 +93,7 @@
                 ! write (6,*) '3th der',cvMatTder
                 do i = 1, nInter
                     diffx = 2.0*rl(:,:,i)/l(i)
-                    sdiffx = 2.0/l(i)**2
+                    sdiffx = -2.0/l(i)**2
                     do j = 1, nInter
                         diffx0 = -2.0*rl(:,:,j)/l(j)
                         sdiffx0 = 2/l(j)**2
@@ -102,6 +102,7 @@
                         cv(1:iter,:,i,j) = m
                         do k = 1, nInter
                             diffxk = - 2.0*rl(:,:,k)/l(k)
+                            sdiffxk = 2.0/l(i)**2
                             k0 = k*iter + 1
                             k1 = k0+iter - 1
                             if (i.eq.j.and.j.eq.k) then
@@ -118,7 +119,7 @@
                                         !write(6,*) 'i=K!=J',i,j,k
                                     else
                                         if (j.eq.k) then
-                                            m = cvMatTder*diffx0**3 + cvMatSder*diffxk*sdiffx0
+                                            m = cvMatTder*diffx0**3 + cvMatSder*diffxk*sdiffxk
                                             !write(6,*) 'i=j!=k',i,j,k
                                         else
                                             m = cvMatTder*diffx*diffx0*diffxk
@@ -145,16 +146,16 @@
             use globvar
             integer i,j,iter,nInter
             dl=0
-                do i=1,nInter
-                    do j=1,iter
-                        do k=1,int(npx)
-                            rl(j,k,i) = (x(i,j) - nx(i,k))/l(i)
-                            ! write (6,*) i,j,k,'rl,x,nx',rl(j,k,i),x(i,j),nx(i,k),l(i)
-                        enddo
+            do i=1,nInter
+                do j=1,iter
+                    do k=1,int(npx)
+                        rl(j,k,i) = (x(i,j) - nx(i,k))/l(i)
+                        ! write (6,*) i,j,k,'rl,x,nx',rl(j,k,i),x(i,j),nx(i,k),l(i)
                     enddo
-                    !write(6,*) 'CV-rl',i,rl
-                    dl = dl + rl(:,:,i)**2
                 enddo
-                ! write (6,*) 'rl',rl
-                !isdefdlrl = .True.
+                !write(6,*) 'CV-rl',i,rl
+                dl = dl + rl(:,:,i)**2
+            enddo
+            ! write (6,*) 'rl',rl
+            !isdefdlrl = .True.
         END

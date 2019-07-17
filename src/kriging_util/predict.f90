@@ -37,6 +37,7 @@
                     var(j)=var(j)+(1-dot_product(B,rones))**2/tsum
                     sigma(j)=1.96*sqrt(abs(var(j)*variance))
 ! -------------------------------
+! -----Predictiong the Energy
                     pred(j) = sb + dot_product(B,Kv)
                 !   write(6,*) 'pred:',pred(j)
                 !   write(6,*) 'var:',var
@@ -59,6 +60,7 @@
                     else
                         ! sigma(j)=1.96*sqrt(2*abs(var*variance))
                         ! write(6,*) 'kv: ',kv
+! Predicting the Hessian gh = 2
                         do k=1,nInter
                             do i=1,nInter
                                 B = cv(:,j,i,k)
