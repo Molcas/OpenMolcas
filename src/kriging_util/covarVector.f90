@@ -46,7 +46,7 @@
                     m = cvMatFder * diffx
                     cv(i0:i1,:,1,1) = m
                 enddo
-                write (6,*) 'CV-mat',cv
+                ! write (6,*) 'CV-mat',cv
             endif
 ! Covariant vector in Gradient Enhanced Kriging
             if(gh.ge.1) then
@@ -93,7 +93,7 @@
                 ! write (6,*) '3th der',cvMatTder
                 do i = 1, nInter
                     diffx = 2.0*rl(:,:,i)/l(i)
-                    sdiffx = -2.0/l(i)**2
+                    sdiffx = 2.0/l(i)**2
                     do j = 1, nInter
                         diffx0 = -2.0*rl(:,:,j)/l(j)
                         sdiffx0 = 2/l(j)**2

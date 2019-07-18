@@ -58,15 +58,15 @@
                                 case (1)
                                     ! m = -c*dh*(1.0+t*dh) !New way
                                     m =-c*(1.0+t*dh)/2.0
-                                    write (6,*) '1d m',m
+                                    ! write (6,*) '1d m',m
                                 case (2)
                                     ! m = c*(dh*(5*dh-t)+1) !New way
                                     m = c*5.0/4.0
-                                    write (6,*) '2d m',m
+                                    ! write (6,*) '2d m',m
                                 case (3)
                                     ! m = -c*dh*(5*t*dh-15) !New way
                                     m = merge(-5.0/8.0*t/dh,dh,dh.ne.0)*c
-                                    write (6,*) '3d m',m
+                                    ! write (6,*) '3d m',m
                             end select
                         case (3)
                             ! write (6,*) 'Analitical Matern derivatives num',nd
