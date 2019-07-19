@@ -423,7 +423,7 @@ C-SVC: identify runfile with a fingerprint
                   Write (6,'(A)')
      &              ' No packing of integrals has been applied'
                Else
-                  Write (6,'(A,G10.4)') ' Packing accuracy = ',
+                  Write (6,'(A,G11.4)') ' Packing accuracy =',
      &                                   PkAcc
                   Write (6,'(A,I10)')
      &             ' Highest disk address written',MaxDax
@@ -455,7 +455,7 @@ C-SVC: identify runfile with a fingerprint
 *
          Call Drv2El(Integral_WrOut,Zero)
 *
-         ip_Buf=ip_of_iWork(Buf)
+         ip_Buf=ip_of_iWork_d(Buf(1))
          Call iDafile(Lu_28,1,iWork(ip_Buf),lBuf,iDisk)
          nUt=-1
          Call iDafile(Lu_28,1,iWork(ip_Buf),lBuf,iDisk)
@@ -498,7 +498,8 @@ C-SVC: identify runfile with a fingerprint
 *     corruption of the memory.
 *
 
- 9999 Call ClsSew
+ 9999 Call DumpSagit
+      Call ClsSew
       If (Allocated(AdCell)) Call mma_deallocate(AdCell)
       Call mma_deallocate(Coor_MPM)
       Call mma_deallocate(Chrg)

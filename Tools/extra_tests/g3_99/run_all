@@ -1,5 +1,4 @@
 #/bin/ksh
-# $ this file belongs to the Molcas repository $
 export Project=G3
 export Home=$PWD
 #

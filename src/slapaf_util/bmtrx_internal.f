@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine BMtrx_Internal(
      &                 nLines,ipBMx,nAtom,nInter,ip_rInt,Coor,nDim,
-     &                 rMass,Name,nSym,iOper,Smmtrc,Degen,BSet,HSet,
+     &                 dMass,Name,nSym,iOper,Smmtrc,Degen,BSet,HSet,
      &                 nIter,ip_drInt,Gx,Cx,mTtAtm,iAnr,nStab,jStab,
      &                 Numerical,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
      &                 iCoSet,lOld,nFix,iIter,mTR,TRVec,ip_TabAI,
@@ -21,7 +21,7 @@
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
-      Real*8 Coor(3,nAtom), rMass(nAtom), Degen(3*nAtom),
+      Real*8 Coor(3,nAtom), dMass(nAtom), Degen(3*nAtom),
      &       Gx(3*nAtom,nIter), Cx(3*nAtom,nIter), TRVec(nDim,mTR)
       Character Name(nAtom)*(LENIN)
       Integer   iOper(0:nSym-1), iAnr(nAtom),
@@ -45,7 +45,7 @@
      &            nSym,jStab,Degen,Smmtrc,mTR,TRVec,
      &            ip_rInt,ip_drInt,HSet,BSet,ipBMx,
      &            Numerical,iANr,HWRS,Analytic_Hessian,iOptC,
-     &            Name,PrQ,Work(ipProj),rMass,iCoSet,
+     &            Name,PrQ,Work(ipProj),dMass,iCoSet,
      &            iWork(ip_TabB),iWork(ip_TabA),nBonds,nMax,
      &            iWork(ip_TabAI),mTtAtm,lOld,ip_KtB,nQQ,nqInt,MaxItr,
      &            nWndw)

@@ -28,8 +28,8 @@
 *      the preconditioning elements between active and active orbitals *
 *                                                                      *
 *      The spin correction part of the code is a experimental          *
-*      test platform, it is not finnished and is not working,          *
-*      If someone wants to help me finnishing it please contact me     *
+*      test platform, it is not finished and is not working,           *
+*      If someone wants to help me finishing it please contact me      *
 *                                                                      *
 *                                                                      *
 *   "Real programmers don't comment their codes.                       *
@@ -160,18 +160,18 @@ c      idp=rtoi
 *     File pointers
 *
       Call GetMem('KapFile','ALLO','INTE',ifpK,nisp)
-      Call ICOPY(nisp,-1,0,iWork(ifpk),1)
+      Call ICOPY(nisp,[-1],0,iWork(ifpk),1)
       Call GetMem('SigFile','ALLO','INTE',ifpS,nisp)
-      Call ICOPY(nisp,-1,0,iWork(ifps),1)
+      Call ICOPY(nisp,[-1],0,iWork(ifps),1)
       Call GetMem('RHSFile','ALLO','INTE',ifpRHS,nisp)
-      Call ICOPY(nisp,-1,0,iWork(ifprhs),1)
+      Call ICOPY(nisp,[-1],0,iWork(ifprhs),1)
       If (iMethod.eq.2) Then
          Call GetMem('CIFile','ALLO','INTE',ifpCI,nisp)
-         Call ICOPY(nisp,-1,0,iWork(ifpci),1)
+         Call ICOPY(nisp,[-1],0,iWork(ifpci),1)
          Call GetMem('SCFile','ALLO','INTE',ifpSC,nisp)
-         Call ICOPY(nisp,-1,0,iWork(ifpsc),1)
+         Call ICOPY(nisp,[-1],0,iWork(ifpsc),1)
          Call GetMem('RHCCIe','ALLO','INTE',ifpRHSCI,nisp)
-         Call ICOPY(nisp,-1,0,iWork(ifprhsci),1)
+         Call ICOPY(nisp,[-1],0,iWork(ifprhsci),1)
       Else
          ifpCI=1
          ifpSC=1

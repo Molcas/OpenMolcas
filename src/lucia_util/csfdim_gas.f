@@ -38,9 +38,12 @@
 #include "cgas.fh"
 #include "spinfo_lucia.fh"
 #include "warnings.fh"
+#include "gasstr.fh"
 * Input type of occupation classes
       INTEGER IOCCLS(NGAS,*)
       INTEGER IDUM_ARR(1)
+      INTEGER TMP_CNF(MXPORB+1),HEXS_CNF(MXPORB+1),
+     &        maxingas(N_ELIMINATED_GAS)
 *
       IDUM = 0
       IDUM_ARR=0
@@ -121,7 +124,20 @@ C
          WRITE(6,*)' molcas developers!'
          Call Quit(_RC_INTERNAL_ERROR_)
       End If
+*MGD : max occupation in removed GAS spaces
+      Do i=1,N_ELIMINATED_GAS
+        iGAS=IELIMINATED_IN_GAS(i)
+        maxingas(i)=0
+        DO JOCCLS = 1, NOCCLS
+          maxingas(i)=max(IOCCLS(iGAS,JOCCLS),maxingas(i))
+        End Do
+      End Do
+      Do i=1,maxop+1
+        HEXS_CNF(i)=0
+        NCONF_PER_OPEN(i,ISYM)=0
+      End Do
 
+*
       DO JOCCLS = 1, NOCCLS
         IF(JOCCLS.EQ.1) THEN
           INITIALIZE_CONF_COUNTERS = 1
@@ -135,6 +151,9 @@ C
         ELSE
           NCONF_ALL_SYM_PREV = NCONF_ALL_SYM
         END IF
+        Do i=1,maxop+1
+          TMP_CNF(i)=0
+        End Do
         CALL GEN_CONF_FOR_OCCLS(IOCCLS(1,JOCCLS),
      &                             IDUM,
      &                          INITIALIZE_CONF_COUNTERS,
@@ -143,7 +162,7 @@ C
 *
      &                            NOCOB,
      &                            NOBPT,
-     &                          NCONF_PER_OPEN(1,ISYM),
+     &                          TMP_CNF,
      &                          NCONF_OCCLS,
      &                          IB_CONF_REO,
 *
@@ -151,7 +170,26 @@ C
      &                          IDUM_ARR,IDOREO,IDUM_ARR,NCONF_ALL_SYM,
      &                          idum_arr,
      &                          nconf_tot)
-
+         Do i=1,maxop+1
+           NCONF_PER_OPEN(i,ISYM)=NCONF_PER_OPEN(i,ISYM)+TMP_CNF(i)
+         End Do
+*MGD add to hexs_cnf only if the configuration does not have max occupation
+* in the selected GAS space
+         If (N_ELIMINATED_GAS.gt.0) Then
+           ielim=0
+           Do j=1,N_ELIMINATED_GAS
+             jGAS=IELIMINATED_IN_GAS(j)
+             If (IOCCLS(jGAS,JOCCLS).eq.maxingas(j)) ielim=1
+             IF(I_ELIMINATE_GAS.GT.1) THEN
+               If (IOCCLS(jGAS,JOCCLS).eq.maxingas(j)-1) ielim=1
+             END IF
+           End Do
+           If (ielim.eq.0) Then
+             Do i=1,maxop+1
+               HEXS_CNF(i)=HEXS_CNF(i)+TMP_CNF(i)
+             End Do
+           EndIf
+         EndIf
 c.. testing
 c      write(6,*)'nconf_per_open after first call of gen_conf_for_occls'
 c      call iwrtma(nconf_per_open,1,4,1,4)
@@ -184,6 +222,12 @@ c
 *. Number of combinations in expansion
       CALL NCNF_TO_NCOMP(MAXOP,NCONF_PER_OPEN(1,ISYM),NPCMCNF,
      &                    NCMB)
+*MGD
+      nCSF_HEXS=0
+      If (N_ELIMINATED_GAS.gt.0) Then
+        CALL NCNF_TO_NCOMP(MAXOP,HEXS_CNF,NPCSCNF,
+     &                   NCSF_HEXS)
+      EndIf
 *
       NCSF_PER_SYM(ISYM) = NCSF
       NSD_PER_SYM(ISYM) = NSD

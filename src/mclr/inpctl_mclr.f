@@ -45,7 +45,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Rd1Int ! Read in interesting info from RUNFILE and ONEINT
+      Call Rd1Int_MCLR !Read in interesting info from RUNFILE and ONEINT
       Call RdAB   ! Read in orbitals, perturbation type, etc.
 *                                                                      *
 ************************************************************************
@@ -94,7 +94,8 @@
 
          Do i=1,nroots
            ! yma
-           if(doDMRG.and.doMCLR)then ! No need to copy,since there are no CI-vectors
+!          No need to copy,since there are no CI-vectors
+           if(doDMRG.and.doMCLR)then
              Call Getmem('CIROOT','ALLO','REAL',ipT,ndets_RGLR)
            else
              Call Getmem('CIROOT','ALLO','REAL',ipT,nconf)
@@ -104,7 +105,7 @@
            !> If doDMRG
            if(doDMRG.and.doMCLR)then ! yma
            else
-             Call GugaCtl(ipT,1)   ! transform to sym. group
+             Call GugaCtl_MCLR(ipT,1)   ! transform to sym. group
            end if
 
 ! Here should be the position for introducing the CI(SR) coefficients

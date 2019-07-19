@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 1998,2006, Per Ake Malmqvist                           *
+*               2019, Stefano Battaglia                                *
 ************************************************************************
 *--------------------------------------------*
 * 1998, 2006, Per Ake Malmqvist              *
@@ -57,7 +58,7 @@ C This is an ordinary CASSCF or RASSCF calculation.
 
       IF(ORBIN.EQ.'TRANSFOR') THEN
 C Read, and transpose, the active orbital transformation matrices
-        CALL DCOPY_(NTAT,0.0D0,0,WORK(LTAT),1)
+        CALL DCOPY_(NTAT,[0.0D0],0,WORK(LTAT),1)
         IOFF1=0
         IOFF2=0
         DO ISYM=1,NSYM
@@ -107,13 +108,13 @@ C Read, and transpose, the active orbital transformation matrices
       NSG=NCONF
       CALL GETMEM('GRDSGM','ALLO','REAL',LSGM,NSG)
 C Compute (Proj_CAS)*(Ham)*(Wave op) acting on Psi_0:
-      CALL DCOPY_(NCONF,0.0D0,0,WORK(LSGM),1)
+      CALL DCOPY_(NCONF,[0.0D0],0,WORK(LSGM),1)
       IF(ISCF.EQ.0) THEN
        CALL W1TW2(IVECW,IVECC,WORK(LCI),WORK(LSGM))
       ELSE
        WORK(LSGM)=E2TOT*WORK(LCI)
       END IF
-      IF(IFMIX) THEN
+      IF(IFMSCOUP) THEN
 C Multi-State HEFF:
 C Loop over all the other root states, and compute off-diagonal
 C effective Hamiltonian matrix elements.
@@ -172,7 +173,7 @@ C-Multi-State insert ------------------------------------------------
 C In Multi-State calculations, it is very convenient to use the opportunity
 C here, when the SGM wave function is available, to compute the coupling
 C elements in Heff simply by contraction with the bra CAS functions.
-      IF(IFMIX) THEN
+      IF(IFMSCOUP) THEN
 C Multi-State HEFF:
 C Loop over all the other root states, and compute off-diagonal
 C effective Hamiltonian matrix elements. Given that the SGM
@@ -183,10 +184,11 @@ C computing the multi-state coupling elements.
         DO ISTATE=1,NSTATE
           IF(ISTATE.NE.JSTATE) THEN
             CALL DDAFILE(LUCIEX,2,WORK(LBRACI),NCONF,ID)
-            HEFF(ISTATE,JSTATE)=DDOT_(NCONF,WORK(LBRACI),1,WORK(LSGM),1)
+            HEFF(ISTATE,JSTATE)=HEFF(ISTATE,JSTATE) +
+     &      DDOT_(NCONF,WORK(LBRACI),1,WORK(LSGM),1)
           ELSE
             CALL DDAFILE(LUCIEX,0,WORK(LBRACI),NCONF,ID)
-            HEFF(JSTATE,JSTATE)=E2TOT
+            HEFF(JSTATE,JSTATE)=HEFF(JSTATE,JSTATE)+E2CORR
           END IF
         END DO
         CALL GETMEM('BRACI','FREE','REAL',LBRACI,NCONF)
@@ -194,7 +196,7 @@ C computing the multi-state coupling elements.
 C-End of Multi-State insert -----------------------------------------
 
 C Similar, but (Proj_CAS)*((Wave op)**(dagger))*(Ham) | Psi_0 >.
-      CALL DCOPY_(NCONF,0.0D0,0,WORK(LSGM),1)
+      CALL DCOPY_(NCONF,[0.0D0],0,WORK(LSGM),1)
       IF(ISCF.EQ.0) THEN
        CALL W1TW2(IVECC,IVECW,WORK(LCI),WORK(LSGM))
       ELSE

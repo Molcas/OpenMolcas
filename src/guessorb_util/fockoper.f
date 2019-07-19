@@ -117,7 +117,7 @@
                Write(6,'(2(a,i3),3a,i3,f6.2)')
      &            'iSym:',iSym,' iBas:',iBas,
      &            ' = ',Label(iBas+iOff)(1:LENIN),
-     &            Label(iBas+iOff)(LENIN1:LENIN4),
+     &            Label(iBas+iOff)(LENIN1:LENIN8),
      &            iNuc,xCharge(iNuc)
             End If
             If(iNuc.eq.0) Then
@@ -125,58 +125,67 @@
             End If
             energy=0.0d0
             If(Abs(xCharge(iNuc)-1.0d0).lt.1.0d-3) Then
-               If(Label(iBas+iOff)(LENIN1:LENIN4).eq.'1s  ') Then
+               If(Label(iBas+iOff)(LENIN1:LENIN8).eq.'01s     ') Then
                   iUse(iNuc,1)=iUse(iNuc,1)+1
                   If(iUse(iNuc,1).eq.1) energy=-0.50000d0
                End If
             Else If(Abs(xCharge(iNuc)-3.0d0).lt.1.0d-3) Then
-               If(Label(iBas+iOff)(LENIN1:LENIN4).eq.'1s  ') Then
+               If(Label(iBas+iOff)(LENIN1:LENIN8).eq.'01s     ') Then
                   iUse(iNuc,1)=iUse(iNuc,1)+1
                   If(iUse(iNuc,1).eq.1) energy=-2.47773d0
                   If(iUse(iNuc,1).eq.2) energy=-0.19632d0
                End If
             Else If(Abs(xCharge(iNuc)-6.0d0).lt.1.0d-3) Then
-               If(Label(iBas+iOff)(LENIN1:LENIN4).eq.'1s  ') Then
+               If(Label(iBas+iOff)(LENIN1:LENIN8).eq.'01s     ') Then
                   iUse(iNuc,1)=iUse(iNuc,1)+1
                   If(iUse(iNuc,1).eq.1) energy=-11.32554d0
                   If(iUse(iNuc,1).eq.2) energy=-0.70563d0
-               Else If(Label(iBas+iOff)(LENIN1:LENIN4).eq.'2px ') Then
+               Else If(Label(iBas+iOff)(LENIN1:LENIN8).eq.'02px    ')
+     &         Then
                   iUse(iNuc,2)=iUse(iNuc,2)+1
                   If(iUse(iNuc,2).eq.1) energy=-0.43335d0
-               Else If(Label(iBas+iOff)(LENIN1:LENIN4).eq.'2py ') Then
+               Else If(Label(iBas+iOff)(LENIN1:LENIN8).eq.'02py    ')
+     &         Then
                   iUse(iNuc,3)=iUse(iNuc,3)+1
                   If(iUse(iNuc,3).eq.1) energy=-0.43335d0
-               Else If(Label(iBas+iOff)(LENIN1:LENIN4).eq.'2pz ') Then
+               Else If(Label(iBas+iOff)(LENIN1:LENIN8).eq.'02pz    ')
+     &         Then
                   iUse(iNuc,4)=iUse(iNuc,4)+1
                   If(iUse(iNuc,4).eq.1) energy=-0.43335d0
                End If
             Else If(Abs(xCharge(iNuc)-7.0d0).lt.1.0d-3) Then
-               If(Label(iBas+iOff)(LENIN1:LENIN4).eq.'1s  ') Then
+               If(Label(iBas+iOff)(LENIN1:LENIN8).eq.'01s ') Then
                   iUse(iNuc,1)=iUse(iNuc,1)+1
                   If(iUse(iNuc,1).eq.1) energy=-15.62909d0
                   If(iUse(iNuc,1).eq.2) energy=-0.94531d0
-               Else If(Label(iBas+iOff)(LENIN1:LENIN4).eq.'2px ') Then
+               Else If(Label(iBas+iOff)(LENIN1:LENIN8).eq.'02px    ')
+     &         Then
                   iUse(iNuc,2)=iUse(iNuc,2)+1
                   If(iUse(iNuc,2).eq.1) energy=-0.56758d0
-               Else If(Label(iBas+iOff)(LENIN1:LENIN4).eq.'2py ') Then
+               Else If(Label(iBas+iOff)(LENIN1:LENIN8).eq.'02py    ')
+     &         Then
                   iUse(iNuc,3)=iUse(iNuc,3)+1
                   If(iUse(iNuc,3).eq.1) energy=-0.56758d0
-               Else If(Label(iBas+iOff)(LENIN1:LENIN4).eq.'2pz ') Then
+               Else If(Label(iBas+iOff)(LENIN1:LENIN8).eq.'02pz    ')
+     &         Then
                   iUse(iNuc,4)=iUse(iNuc,4)+1
                   If(iUse(iNuc,4).eq.1) energy=-0.56758d0
                End If
             Else If(Abs(xCharge(iNuc)-8.0d0).lt.1.0d-3) Then
-               If(Label(iBas+iOff)(LENIN1:LENIN4).eq.'1s  ') Then
+               If(Label(iBas+iOff)(LENIN1:LENIN8).eq.'01s ') Then
                   iUse(iNuc,1)=iUse(iNuc,1)+1
                   If(iUse(iNuc,1).eq.1) energy=-20.66866d0
                   If(iUse(iNuc,1).eq.2) energy=-1.24433d0
-               Else If(Label(iBas+iOff)(LENIN1:LENIN4).eq.'2px ') Then
+               Else If(Label(iBas+iOff)(LENIN1:LENIN8).eq.'02px    ')
+     &         Then
                   iUse(iNuc,2)=iUse(iNuc,2)+1
                   If(iUse(iNuc,2).eq.1) energy=-0.63192d0
-               Else If(Label(iBas+iOff)(LENIN1:LENIN4).eq.'2py ') Then
+               Else If(Label(iBas+iOff)(LENIN1:LENIN8).eq.'02py    ')
+     &         Then
                   iUse(iNuc,3)=iUse(iNuc,3)+1
                   If(iUse(iNuc,3).eq.1) energy=-0.63192d0
-               Else If(Label(iBas+iOff)(LENIN1:LENIN4).eq.'2pz ') Then
+               Else If(Label(iBas+iOff)(LENIN1:LENIN8).eq.'02pz    ')
+     &         Then
                   iUse(iNuc,4)=iUse(iNuc,4)+1
                   If(iUse(iNuc,4).eq.1) energy=-0.63192d0
                End If

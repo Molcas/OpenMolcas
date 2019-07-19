@@ -63,6 +63,7 @@
 *. Output
       INTEGER IREO(*)
 C     DIMENSION SREO(*)
+      DIMENSION IDUM(1)
 *
       NTEST = 0
 *
@@ -90,11 +91,11 @@ C     MXMNOC_OCCLS(MINEL,MAXEL,NORBTP,NORBFTP,NELFTP,NTESTG)
      &                    NCONF_P,   IZSCR)
 C             CONF_GRAPH(IOCC_MIN,IOCC_MAX,NORB,NEL,IARCW,NCONF,ISCR)
 *. Obtain alpha strings of sym IASM and type IATP
-        IDUM = 0
+        IDUM(1) = 0
         CALL GETSTR_TOTSM_SPGP(      1,   IATP,   IASM,   NAEL, NASTR1,
      &                           IASTR,   NORB,      0,   IDUM,   IDUM)
 *. Obtain Beta  strings of sym IBSM and type IBTP
-        IDUM = 0
+        IDUM(1) = 0
         CALL GETSTR_TOTSM_SPGP(      2,   IBTP,   IBSM,   NBEL, NBSTR1,
      &                           IBSTR,   NORB,      0,   IDUM,   IDUM)
 *. Occupation class corresponding to this combination

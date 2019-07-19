@@ -73,7 +73,7 @@
       NG2=NG1**2
       NTUVX=NG2
       CALL GETMEM('TUVX','ALLO','REAL',LTUVX,NTUVX)
-      CALL DCOPY_(NTUVX,0.0D0,0,WORK(LTUVX),1)
+      CALL DCOPY_(NTUVX,[0.0D0],0,WORK(LTUVX),1)
 *                                                                      *
 ************************************************************************
 *                                                                      *

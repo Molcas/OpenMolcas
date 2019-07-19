@@ -31,6 +31,7 @@
       dimension cvbdet(ndetvb)
       dimension c(nvb,maxdav),sxc(nvb,maxdav),res(nvb),rhs(nvb)
       dimension rhsp(maxdav),solp(maxdav),solp_res(maxdav)
+      dimension dum(max(nvb,maxdav),maxdav)
 
       call makegjorbs_cvb(orbs,gjorb,gjorb2,gjorb3)
 
@@ -46,7 +47,7 @@
       ioptc=1
       nvguess=1
       nvrestart=0
-      call fmove(cvb,c,nvb)
+      call fmove_cvb(cvb,c,nvb)
       if(.not.follow)then
         ifollow=1
       else

@@ -59,8 +59,10 @@
       Integer nCSF(8)           ! Number of CSFs in diff symmetries
       Integer kprint            ! print level
       Integer iBreak            ! Break criteria
-      Integer LuAChoVec(8)      ! Unit for storage of half-transformed Cho vectors
-      Integer LuIChoVec(8)      ! Unit for storage of half-transformed Cho vectors
+!     Unit for storage of half-transformed Cho vectors
+      Integer LuAChoVec(8)
+!     Unit for storage of half-transformed Cho vectors
+      Integer LuIChoVec(8)
       Integer LuChoInt(2)       ! Unit for storage of integrals (ii|ab)
 *
 *   nTPert

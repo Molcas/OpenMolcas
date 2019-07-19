@@ -16,7 +16,7 @@ c  Put matrix product S*C1 in C2:
       dimension c1(n,n2),c2(n,n2),s(*)
 
       if(metr.eq.0)then
-        call fmove(c1,c2,n*n2)
+        call fmove_cvb(c1,c2,n*n2)
       elseif(metr.eq.1)then
         call mxatb_cvb(s,c1,n,n,n2,c2)
       elseif(metr.eq.2)then

@@ -8,9 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE PRPROP(PROP,USOR,USOI,ENSOR,NSS)
+      SUBROUTINE PRPROP(PROP,USOR,USOI,ENSOR,NSS,OVLP,SODYSAMPS,
+     &     ENERGY,JBNUM)
+      USE kVectors
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
+      DIMENSION USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS),
+     &          SODYSAMPS(NSS,NSS)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='PRPROP')
@@ -23,7 +26,8 @@
 #include "Files.fh"
 #include "WrkSpc.fh"
 #include "constants.fh"
-      DIMENSION PROP(NSTATE,NSTATE,NPROP)
+      DIMENSION PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
+     &          ENERGY(NSTATE),JBNUM(NSTATE)
 #include "SysDef.fh"
 #include "rassiwfn.fh"
       Character*1 xyzchr(3)
@@ -34,7 +38,7 @@
 *     Character*8 OVRPROP
       Dimension IPAMFI(3),IPAM(3),IZMR(3),IZMI(3)
       Dimension DTENS(3,3),GTENS(3,3),GSTENS(3,3),SOSTERM(9)
-      Dimension TMPMAT(3,3),TMPVEC(3,3),EVR(3),EVI(3),SCR1(3),SCR2(3)
+      Dimension TMPMAT(3,3),TMPVEC(3,3),EVR(3),EVI(3)
       COMPLEX*16 ZEKL(2,2,3,NSTATE),GCONT(9,NSTATE)
       COMPLEX*16 DIPSOm(3,NSS,NSS),Z(NSS,NSS),DIPSOn(3,NSS,NSS)
       COMPLEX*16 SPNSFS(3,NSS,NSS)
@@ -43,7 +47,9 @@
       COMPLEX*16 DIPSOfcsd(3,NSS,NSS),DIPSOfpso(3,NSS,NSS)
        !REAL*8  DIMSOIJ(3,3,NSS)
       REAL*8 GTOTAL(9),ANGMOME(3,NSTATE,NSTATE),ESO(NSS)
-      REAL*8 EDIP1MOM(3,NSTATE,NSTATE)
+      REAL*8 EDIP1MOM(3,NSTATE,NSTATE),AMFIINT(3,NSTATE,NSTATE)
+      REAL*8 TMPL(NSTATE,NSTATE,3),TMPE(NSTATE,NSTATE,3)
+      REAL*8 TMPA(NSTATE,NSTATE,3)
       Dimension TMPm(NTS),TMPf(NTP)
 *     Dimension TMPm(NTS),TMPf(NTP),TMFC(NTF)
       Dimension c_1(3,3),c_2(3,3)!,Zstat1m(NTS),Zstat1f(NTP)
@@ -57,18 +63,12 @@
 *     Dimension NMRFT(NTF,3,3),NMRFP(NTF,3,3),NMRFC(NTF,3,3)
 *     Dimension NMRFD(NTF,3,3)
       REAL*8 DLTTA,DLTT,Zstat,p_Boltz,Boltz_k,coeff_chi
-      LOGICAL ISGS(NSS),IFANGM,IFDIP1
+      LOGICAL ISGS(NSS),IFANGM,IFDIP1,IFAMFI
       Dimension IMR(3),IMI(3),RMAGM(3),Chi(3)
-      INTEGER IFUNCT
+      INTEGER IFUNCT, SECORD(4)
       REAL*8 J2CM
-      Real*8 P1(3), P2(3), kxe1(3), kxe2(3)
-      INTEGER IOFF(8)
-      CHARACTER*8 LABEL
-      Complex*16 T0(3), T1(3), TM1, TM2, E1A, E2A, E1B, E2B,
-     &           IMAGINARY
+      Complex*16 T0(3), TM1
       REAL*8 COMPARE
-
-
 
 
       CALL QENTER(ROUTINE)
@@ -82,7 +82,6 @@
       AU2JTM=(AU2J/AU2T)*AVOGADRO
       ALPHA=CONST_AU_VELOCITY_IN_SI_/CONST_C_IN_SI_
       ALPHA2= ALPHA*ALPHA
-      IMAGINARY=DCMPLX(0.0D0,1.0D0)
 
       BOLTZ_K=CONST_BOLTZMANN_*J2CM
       coeff_chi=0.1D0*AVOGADRO/CONST_BOLTZMANN_*
@@ -216,6 +215,7 @@ C Addition of ANGMOM to Runfile.
 
       IFANGM=.FALSE.
       IFDIP1=.FALSE.
+      IFAMFI=.FALSE.
       DO IPROP=1,NPROP
          IF(PNAME(IPROP)(1:6).EQ.'ANGMOM') THEN
             IFANGM=.TRUE.
@@ -223,42 +223,93 @@ C Addition of ANGMOM to Runfile.
                DO J=1,NSTATE
                   ANGMOME(ICOMP(IPROP),I,J)=0.0D0
                   ANGMOME(ICOMP(IPROP),I,J)=PROP(I,J,IPROP)
+                  TMPL(I,J,ICOMP(IPROP))=0.0D0
+                  TMPL(I,J,ICOMP(IPROP))=PROP(I,J,IPROP)
                ENDDO
             ENDDO
-#ifdef _HDF5_
-            call mh5_put_dset_array_real(wfn_sfs_angmom,
-     $      PROP(:,:,ICOMP(IPROP)),
-     $      [NSTATE,NSTATE,1], [0,0,ICOMP(IPROP)-1])
-#endif
+c#ifdef _HDF5_
+c            call mh5_put_dset_array_real(wfn_sfs_angmom,
+c     $      PROP(1:NSTATE,1:NSTATE,ICOMP(IPROP)),
+c     $      [NSTATE,NSTATE,1], [0,0,ICOMP(IPROP)-1])
+c#endif
          ENDIF
 c add dipole moment integrals:
-         IF(PNAME(IPROP)(1:6).EQ.'MLTPL1') THEN
+         IF(PNAME(IPROP)(1:8).EQ.'MLTPL  1') THEN
             IFDIP1=.TRUE.
             DO I=1,NSTATE
                DO J=1,NSTATE
                   EDIP1MOM(ICOMP(IPROP),I,J)=0.0D0
                   EDIP1MOM(ICOMP(IPROP),I,J)=PROP(I,J,IPROP)
+                  TMPE(I,J,ICOMP(IPROP))=0.0D0
+                  TMPE(I,J,ICOMP(IPROP))=PROP(I,J,IPROP)
                ENDDO
             ENDDO
 c#ifdef _HDF5_
-c            call mh5_put_dset_array_real(wfn_sfs_angmom,
-c     $      PROP(:,:,ICOMP(IPROP)),
+c            call mh5_put_dset_array_real(wfn_sfs_edipmom,
+c     $      PROP(1:NSTATE,1:NSTATE,ICOMP(IPROP)),
+c     $      [NSTATE,NSTATE,1], [0,0,ICOMP(IPROP)-1])
+c#endif
+         ENDIF
+c add spin-orbit AMFI integrals:
+         IF(PNAME(IPROP)(1:8).EQ.'AMFI    ') THEN
+            IFAMFI=.TRUE.
+            DO I=1,NSTATE
+               DO J=1,NSTATE
+                  AMFIINT(ICOMP(IPROP),I,J)=0.0D0
+                  AMFIINT(ICOMP(IPROP),I,J)=PROP(I,J,IPROP)
+                  TMPA(I,J,ICOMP(IPROP))=0.0D0
+                  TMPA(I,J,ICOMP(IPROP))=PROP(I,J,IPROP)
+               ENDDO
+            ENDDO
+c#ifdef _HDF5_
+c            call mh5_put_dset_array_real(wfn_sfs_amfi,
+c     $      PROP(1:NSTATE,1:NSTATE,ICOMP(IPROP)),
 c     $      [NSTATE,NSTATE,1], [0,0,ICOMP(IPROP)-1])
 c#endif
          ENDIF
       ENDDO
       IF(IFANGM.EQV..TRUE.) THEN
        CALL Put_dArray('ANGM_SINGLE',ANGMOME,3*NSTATE*NSTATE)
+#ifdef _HDF5_
+            call mh5_put_dset_array_real(wfn_sfs_angmom,
+     $      TMPL(:,:,:),
+     $      [NSTATE,NSTATE,3], [0,0,0])
+#endif
       ENDIF
       IF(IFDIP1.EQV..TRUE.) THEN
        CALL Put_dArray('DIP1_SINGLE',EDIP1MOM,3*NSTATE*NSTATE)
+#ifdef _HDF5_
+            call mh5_put_dset_array_real(wfn_sfs_edipmom,
+     $      TMPE(:,:,:),
+     $      [NSTATE,NSTATE,3], [0,0,0])
+#endif
       ENDIF
-
-* removed call to natorb_rassi (this is done in eigctl.f)
+      IF(IFAMFI.EQV..TRUE.) THEN
+       CALL Put_dArray('AMFI_SINGLE',AMFIINT,3*NSTATE*NSTATE)
+#ifdef _HDF5_
+            call mh5_put_dset_array_real(wfn_sfs_amfi,
+     $      TMPA(:,:,:),
+     $      [NSTATE,NSTATE,3], [0,0,0])
+#endif
+      ENDIF
 
 *******************************************************
 * printout of properties over the spin-orbit states
 *******************************************************
+c If PRPR requested, print the spin matrices
+      IF (LPRPR) THEN
+         CALL GETMEM('SOPROPR','ALLO','REAL',LSOPRR,NSS**2*NSOPR)
+         CALL GETMEM('SOPROPI','ALLO','REAL',LSOPRI,NSS**2*NSOPR)
+         DO ISOPR=1,3
+            CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSOPRR),1)
+            CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSOPRI),1)
+            CALL SMMAT(PROP,WORK(LSOPRR),NSS,'SPIN    ',ISOPR)
+            CALL ZTRNSF(NSS,USOR,USOI,WORK(LSOPRR),WORK(LSOPRI))
+            CALL PRCMAT3(NSS,WORK(LSOPRR),WORK(LSOPRI),ISOPR)
+         END DO
+         CALL GETMEM('SOPROPR','FREE','REAL',LSOPRR,NSS**2*NSOPR)
+         CALL GETMEM('SOPROPI','FREE','REAL',LSOPRI,NSS**2*NSOPR)
+      END IF
 
       IF(.not.IFSO) GOTO 300
       NPMSIZ=NSOPR
@@ -346,17 +397,29 @@ C Print out the matrix elements:
 CIFG  should print the origin, but where is it stored (for SO properties)?
         CALL GETMEM('SOPROPR','ALLO','REAL',LSOPRR,NSS**2*NSOPR)
         CALL GETMEM('SOPROPI','ALLO','REAL',LSOPRI,NSS**2*NSOPR)
-        CALL DCOPY_(NSS**2,0.0D0,0,WORK(LSOPRR),1)
-        CALL DCOPY_(NSS**2,0.0D0,0,WORK(LSOPRI),1)
+        CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSOPRR),1)
+        CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSOPRI),1)
 
         CALL SMMAT(PROP,WORK(LSOPRR),NSS,SOPRNM(ISOPR),ISOCMP(ISOPR))
         CALL ZTRNSF(NSS,USOR,USOI,WORK(LSOPRR),WORK(LSOPRI))
         CALL PRCMAT(NSS,WORK(LSOPRR),WORK(LSOPRI))
+C tjd-  BMII: Print out spin-orbit properties to a file
+        IF (LPRPR) THEN
+          CALL PRCMAT2(ISOPR,NSS,WORK(LSOPRR),WORK(LSOPRI))
+        ENDIF
+
 #ifdef _HDF5_
         IF( SOPRNM(ISOPR)(1:6) .EQ.'ANGMOM') THEN
          call mh5_put_dset_array_real(wfn_sos_angmomr,
      $   WORK(LSOPRR),[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
          call mh5_put_dset_array_real(wfn_sos_angmomi,
+     $   WORK(LSOPRI),[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
+        ENDIF
+
+        IF( SOPRNM(ISOPR)(1:8) .EQ.'MLTPL  1') THEN
+         call mh5_put_dset_array_real(wfn_sos_edipmomr,
+     $   WORK(LSOPRR),[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
+         call mh5_put_dset_array_real(wfn_sos_edipmomi,
      $   WORK(LSOPRI),[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
         ENDIF
 #endif
@@ -416,8 +479,20 @@ C printing threshold
 !     At the moment memory is not reduced
 !
       IF(REDUCELOOP) THEN
-        IEND = LOOPDIVIDE
-        JSTART = LOOPDIVIDE+1
+        EX=ENSOR(1)
+        L=1
+        LD=1
+        DO ISO = 2, NSS
+           If (ABS(ENSOR(ISO)-EX).gt.1.0D-8) Then
+              LD = LD + 1
+              EX = ENSOR(ISO)
+           Else
+              L = L + 1
+           End If
+           If (LD.gt.LOOPDIVIDE) Exit
+        End Do
+        IEND = L
+        JSTART = L+1
       ELSE
         IEND = NSS
         JSTART = 1
@@ -431,8 +506,8 @@ C printing threshold
 !
       CALL GETMEM('DL   ','ALLO','REAL',LDL,NSS**2)
       CALL GETMEM('DV   ','ALLO','REAL',LDV,NSS**2)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDL),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDV),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDL),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDV),1)
       I_HAVE_DL = 0
       I_HAVE_DV = 0
 
@@ -451,22 +526,31 @@ C printing threshold
           END IF
         END DO
 
+        If (Do_SK) Then
+           nVec = nk_Vector
+        Else
+           nVec = 1
+        End If
+*
         IF(IFANYD.NE.0) THEN
+*
+           Do iVec = 1, nVec
+*
          i_Print=0
          AFACTOR=32.1299D09
 
          CALL GETMEM('DXR','ALLO','REAL',LDXR,NSS**2)
          CALL GETMEM('DXI','ALLO','REAL',LDXI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXI),1)
          CALL GETMEM('DYR','ALLO','REAL',LDYR,NSS**2)
          CALL GETMEM('DYI','ALLO','REAL',LDYI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDYR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDYI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDYR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDYI),1)
          CALL GETMEM('DZR','ALLO','REAL',LDZR,NSS**2)
          CALL GETMEM('DZI','ALLO','REAL',LDZI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDZR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDZI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDZR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDZI),1)
 
          IF(IPRDX.GT.0) THEN
           CALL SMMAT(PROP,WORK(LDXR),NSS,SOPRNM(IPRDX),ISOCMP(IPRDX))
@@ -492,11 +576,11 @@ C printing threshold
                T0(1)=DCMPLX(WORK(LDXR-1+IJSS),WORK(LDXI-1+IJSS))
                T0(2)=DCMPLX(WORK(LDYR-1+IJSS),WORK(LDYI-1+IJSS))
                T0(3)=DCMPLX(WORK(LDZR-1+IJSS),WORK(LDZI-1+IJSS))
-               TM1=k_vector(1)*T0(1)+k_vector(2)*T0(2)
-     &                              +k_vector(3)*T0(3)
-               T0(1) = T0(1) - TM1 * k_vector(1)
-               T0(2) = T0(2) - TM1 * k_vector(2)
-               T0(3) = T0(3) - TM1 * k_vector(3)
+               TM1=k_vector(1,iVec)*T0(1)+k_vector(2,iVec)*T0(2)
+     &                              +k_vector(3,iVec)*T0(3)
+               T0(1) = T0(1) - TM1 * k_vector(1,iVec)
+               T0(2) = T0(2) - TM1 * k_vector(2,iVec)
+               T0(3) = T0(3) - TM1 * k_vector(3,iVec)
                DX2=ABS(DCONJG(T0(1))*T0(1))
                DY2=ABS(DCONJG(T0(2))*T0(2))
                DZ2=ABS(DCONJG(T0(3))*T0(3))
@@ -529,7 +613,7 @@ C printing threshold
             WRITE(6,*)
             WRITE(6,'(4x,a,3F8.4,a)')
      &            'Direction of the k-vector: ',
-     &             (k_vector(k),k=1,3),' (au)'
+     &             (k_vector(k,iVec),k=1,3),' (au)'
             WRITE(6,'(4x,a)')
      &            'The light is assumed to be unpolarized.'
             WRITE(6,*)
@@ -542,12 +626,10 @@ C printing threshold
                End If
              WRITE(6,'(5X,2I5,5X,5ES16.8)') ISS,JSS,F,AX,AY,AZ,A
             END IF
-            Call Add_Info('TMS(SO,Len)',F,1,6)
+            Call Add_Info('TMS(SO,Len)',[F],1,6)
            END IF
           END DO
          END DO
-         WRITE(6,*)'        -----------------------------------------'//
-     &    '--------------------------------------------------'
 
          CALL GETMEM('DXR','FREE','REAL',LDXR,NSS**2)
          CALL GETMEM('DXI','FREE','REAL',LDXI,NSS**2)
@@ -556,9 +638,16 @@ C printing threshold
          CALL GETMEM('DZR','FREE','REAL',LDZR,NSS**2)
          CALL GETMEM('DZI','FREE','REAL',LDZI,NSS**2)
 
-         Call CollapseOutput(0,
+         If (i_Print.eq.1) THEN
+           WRITE(6,*)'        -----------------------------------------'
+     &      //'--------------------------------------------------'
+           Call CollapseOutput(0,
      &                     'Dipole transition strengths (SO states):')
-         WRITE(6,*)
+           WRITE(6,*)
+         END IF
+*
+         End Do ! iVec
+*
          I_HAVE_DL = 1
         END IF
 
@@ -576,25 +665,34 @@ C printing threshold
            IF(ISOCMP(ISOPR).EQ.3) IPRDZ=ISOPR
           END IF
         END DO
-
+*
+        If (Do_SK) Then
+           nVec = nk_Vector
+        Else
+           nVec = 1
+        End If
+*
         IF(IFANYD.NE.0) THEN
-         AFACTOR=32.1299D09
+*
+        Do iVec = 1, nVec
+*
          i_Print=0
+         AFACTOR=32.1299D09
 
          CALL GETMEM('DXR','ALLO','REAL',LDXR,NSS**2)
          CALL GETMEM('DXI','ALLO','REAL',LDXI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXI),1)
 *
          CALL GETMEM('DYR','ALLO','REAL',LDYR,NSS**2)
          CALL GETMEM('DYI','ALLO','REAL',LDYI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDYR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDYI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDYR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDYI),1)
 *
          CALL GETMEM('DZR','ALLO','REAL',LDZR,NSS**2)
          CALL GETMEM('DZI','ALLO','REAL',LDZI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDZR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDZI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDZR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDZI),1)
 
          IF(IPRDX.GT.0) THEN
           CALL SMMAT(PROP,WORK(LDXR),NSS,SOPRNM(IPRDX),ISOCMP(IPRDX))
@@ -620,11 +718,11 @@ C printing threshold
                T0(1)=DCMPLX(WORK(LDXR-1+IJSS),WORK(LDXI-1+IJSS))
                T0(2)=DCMPLX(WORK(LDYR-1+IJSS),WORK(LDYI-1+IJSS))
                T0(3)=DCMPLX(WORK(LDZR-1+IJSS),WORK(LDZI-1+IJSS))
-               TM1=k_vector(1)*T0(1)+k_vector(2)*T0(2)
-     &                              +k_vector(3)*T0(3)
-               T0(1) = T0(1) - TM1 * k_vector(1)
-               T0(2) = T0(2) - TM1 * k_vector(2)
-               T0(3) = T0(3) - TM1 * k_vector(3)
+               TM1=k_vector(1,iVec)*T0(1)+k_vector(2,iVec)*T0(2)
+     &                              +k_vector(3,iVec)*T0(3)
+               T0(1) = T0(1) - TM1 * k_vector(1,iVec)
+               T0(2) = T0(2) - TM1 * k_vector(2,iVec)
+               T0(3) = T0(3) - TM1 * k_vector(3,iVec)
                DX2=ABS(DCONJG(T0(1))*T0(1))
                DY2=ABS(DCONJG(T0(2))*T0(2))
                DZ2=ABS(DCONJG(T0(3))*T0(3))
@@ -657,7 +755,7 @@ C printing threshold
             WRITE(6,*)
             WRITE(6,'(4x,a,3F8.4,a)')
      &            'Direction of the k-vector: ',
-     &             (k_vector(k),k=1,3),' (au)'
+     &             (k_vector(k,iVec),k=1,3),' (au)'
             WRITE(6,'(4x,a)')
      &            'The light is assumed to be unpolarized.'
             WRITE(6,*)
@@ -670,12 +768,10 @@ C printing threshold
                END IF
              WRITE(6,'(5X,2I5,5X,5ES16.8)') ISS,JSS,F,AX,AY,AZ,A
             END IF
-            Call Add_Info('TMS(SO,Vel)',F,1,6)
+            Call Add_Info('TMS(SO,Vel)',[F],1,6)
            END IF
           END DO
          END DO
-         WRITE(6,*)'        -----------------------------------------'//
-     &    '--------------------------------------------------'
 
          CALL GETMEM('DXR','FREE','REAL',LDXR,NSS**2)
          CALL GETMEM('DXI','FREE','REAL',LDXI,NSS**2)
@@ -684,9 +780,16 @@ C printing threshold
          CALL GETMEM('DZR','FREE','REAL',LDZR,NSS**2)
          CALL GETMEM('DZI','FREE','REAL',LDZI,NSS**2)
 
-         Call CollapseOutput(0,
+         If (i_Print.eq.1) THEN
+           WRITE(6,*)'        -----------------------------------------'
+     &     //'--------------------------------------------------'
+           Call CollapseOutput(0,
      &                     'Velocity transition strengths (SO states):')
-         WRITE(6,*)
+           WRITE(6,*)
+         END IF
+*
+         End Do ! iVec
+*
          I_HAVE_DV = 1
         END IF
 
@@ -699,6 +802,7 @@ C printing threshold
 !
 ! I guess that I have to explain it when I print a warning
 !
+         WRITE(6,*)
          WRITE(6,*) "--------------------------------------------------"
          WRITE(6,*)
          WRITE(6,*) "A comparison between the dipole oscillator "//
@@ -722,32 +826,36 @@ C printing threshold
           DO I=1,IEND
             DO J=JSTART,NSS
                IJ=I+NSS*(J-1)
-               EDIFF=ENERGY(J)-ENERGY(I)
+               EDIFF=ENSOR(J)-ENSOR(I)
                IF(EDIFF.LT.0.0D0) CYCLE
-           IF(WORK(LDL-1+IJ).GE.OSTHR.AND.WORK(LDV-1+IJ).GE.OSTHR) THEN
+               COMPARE=0.0D0
+             IF(WORK(LDL-1+IJ).GE.OSTHR.AND.WORK(LDV-1+IJ).GE.OSTHR)
+     &          THEN
                COMPARE = ABS(1-WORK(LDL-1+IJ)/WORK(LDV-1+IJ))
-               IF(COMPARE.GE.TOLERANCE) THEN
-                 I_PRINT_HEADER = I_PRINT_HEADER + 1
-                 IF(I_PRINT_HEADER.EQ.1) THEN
-                   WRITE(6,*)
-                   WRITE(6,*) " Problematic transitions have been found"
-                   WRITE(6,*)
-                   WRITE(6,*) " From  To  Percent difference "//
-     &                        " Osc. strength (lenght) "//
-     &                        " Osc. strength (velocity) "
-                   WRITE(6,*)
-                   WRITE(6,*) " ---------------------------------------"
-                   WRITE(6,*)
-                 END IF
-                 WRITE(6,'(5X,2I5,5X,5G16.8)') I,J,COMPARE*100D0,
-     &                      WORK(LDL-1+IJ),WORK(LDV-1+IJ)
-              END IF
              ELSE IF(WORK(LDL-1+IJ).GE.OSTHR) THEN
-               WRITE(6,*) " Velocity gauge below threshold. "//
-     &                    " Lenght gauge value = ",WORK(LDL-1+IJ)
+               COMPARE = -1.5D0
              ELSE IF(WORK(LDV-1+IJ).GE.OSTHR) THEN
-               WRITE(6,*) " Length gauge below threshold. "//
-     &                    " Velocity gauge value = ",WORK(LDV-1+IJ)
+               COMPARE = -2.5D0
+             END IF
+             IF(ABS(COMPARE).GE.TOLERANCE) THEN
+               I_PRINT_HEADER = I_PRINT_HEADER + 1
+               IF(I_PRINT_HEADER.EQ.1) THEN
+                 WRITE(6,*)
+                 WRITE(6,*) " Problematic transitions have been found"
+                 WRITE(6,*) "     From   To      Difference (%)  "//
+     &                      "Osc. st. (len.) Osc. st. (vel.)"
+                 WRITE(6,*) "     -------------------------------"//
+     &                      "-------------------------------"
+                 WRITE(6,*)
+               END IF
+               IF (COMPARE.GE.0.0D0) THEN
+                 WRITE(6,33) I,J,COMPARE*100D0,
+     &                    WORK(LDL-1+IJ),WORK(LDV-1+IJ)
+               ELSE IF (COMPARE.GE.2.0D0) THEN
+                 WRITE(6,36) I,J,WORK(LDL-1+IJ),"below threshold"
+               ELSE
+                 WRITE(6,37) I,J,"below threshold",WORK(LDV-1+IJ)
+               END IF
              END IF
             END DO
           END DO
@@ -757,12 +865,17 @@ C printing threshold
      &                 "the tolerance ", TOLERANCE," have been found"
             WRITE(6,*)
           ELSE
+            WRITE(6,*) "     -------------------------------"//
+     &                 "-------------------------------"
             WRITE(6,*)
             WRITE(6,*) "Number of problematic transitions = ",
      &                  I_PRINT_HEADER
             WRITE(6,*)
           END IF
         END IF
+33    FORMAT (5X,2(1X,I4),5X,5(1X,ES15.8))
+36    FORMAT (5X,2(1X,I4),6X,15('-'),1X,ES15.8,1X,A15)
+37    FORMAT (5X,2(1X,I4),6X,15('-'),1X,A15,1X,ES15.8)
 *
 * Free the memory
 *
@@ -772,7 +885,10 @@ C printing threshold
 ! We will first allocate a matrix for the total of the second order wave vector
 !
         CALL GETMEM('TOT2K','ALLO','REAL',LTOT2K,NSS**2)
-        CALL DCOPY_(NSS**2,0.0D0,0,WORK(LTOT2K),1)
+        CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LTOT2K),1)
+!
+! Checking if all are in
+        SECORD = 0
 
 * Magnetic-Dipole - Magnetic-Dipole transitions and
 * Spin-Magnetic-Dipole - Spin-Magnetic-Dipole transitions
@@ -845,30 +961,30 @@ C printing threshold
 ! Magnetic-Dipole
          CALL GETMEM('DXR','ALLO','REAL',LDXR,NSS**2)
          CALL GETMEM('DXI','ALLO','REAL',LDXI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXI),1)
          CALL GETMEM('DYR','ALLO','REAL',LDYR,NSS**2)
          CALL GETMEM('DYI','ALLO','REAL',LDYI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDYR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDYI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDYR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDYI),1)
          CALL GETMEM('DZR','ALLO','REAL',LDZR,NSS**2)
          CALL GETMEM('DZI','ALLO','REAL',LDZI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDZR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDZI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDZR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDZI),1)
 
 ! Spin-Magnetic-Dipole
          CALL GETMEM('SXR','ALLO','REAL',LSXR,NSS**2)
          CALL GETMEM('SXI','ALLO','REAL',LSXI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LSXR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LSXI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSXR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSXI),1)
          CALL GETMEM('SYR','ALLO','REAL',LSYR,NSS**2)
          CALL GETMEM('SYI','ALLO','REAL',LSYI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LSYR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LSYI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSYR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSYI),1)
          CALL GETMEM('DSR','ALLO','REAL',LSZR,NSS**2)
          CALL GETMEM('DSI','ALLO','REAL',LSZI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LSZR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LSZI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSZR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSZI),1)
 
 ! Magnetic-Dipole
          IF(IPRDX.GT.0) THEN
@@ -899,7 +1015,8 @@ C printing threshold
          END IF
 
          ONEOVER6C2=1.0D0/(6.0D0*CONST_C_IN_AU_**2)
-         g = 2.0D0 ! Well I assume that the g-factor for the electron is 2
+!        Well I assume that the g-factor for the electron is 2
+         g = 2.0D0
          DO ISS=1,IEND
           DO JSS=JSTART,NSS
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
@@ -959,6 +1076,7 @@ C printing threshold
           WRITE(6,*)
          END IF
         END IF
+        SECORD(1) = 1
         END IF
 
 *Electric-Quadrupole Electric-Quadrupole transitions
@@ -999,28 +1117,28 @@ C printing threshold
 
          CALL GETMEM('DXXR','ALLO','REAL',LDXXR,NSS**2)
          CALL GETMEM('DXXI','ALLO','REAL',LDXXI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXXR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXXI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXXR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXXI),1)
          CALL GETMEM('DXYR','ALLO','REAL',LDXYR,NSS**2)
          CALL GETMEM('DXYI','ALLO','REAL',LDXYI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXYR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXYI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXYR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXYI),1)
          CALL GETMEM('DXZR','ALLO','REAL',LDXZR,NSS**2)
          CALL GETMEM('DXZI','ALLO','REAL',LDXZI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXZR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXZI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXZR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXZI),1)
          CALL GETMEM('DYYR','ALLO','REAL',LDYYR,NSS**2)
          CALL GETMEM('DYYI','ALLO','REAL',LDYYI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDYYR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDYYI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDYYR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDYYI),1)
          CALL GETMEM('DYZR','ALLO','REAL',LDYZR,NSS**2)
          CALL GETMEM('DYZI','ALLO','REAL',LDYZI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDYZR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDYZI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDYZR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDYZI),1)
          CALL GETMEM('DZZR','ALLO','REAL',LDZZR,NSS**2)
          CALL GETMEM('DZZI','ALLO','REAL',LDZZI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDZZR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDZZI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDZZR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDZZI),1)
 
          IF(IPRDXX.GT.0) THEN
           CALL SMMAT(PROP,WORK(LDXXR),NSS,SOPRNM(IPRDXX),ISOCMP(IPRDXX))
@@ -1114,6 +1232,7 @@ C printing threshold
      &                 'Quadrupole transition strengths (SO states):')
          WRITE(6,*)
         END IF
+        SECORD(2) = 1
         END IF
 
 *Electric-Dipole Electric-Octupole transitions
@@ -1219,55 +1338,55 @@ C printing threshold
 ! Octupole
          CALL GETMEM('DXXXR','ALLO','REAL',LDXXXR,NSS**2)
          CALL GETMEM('DXXXI','ALLO','REAL',LDXXXI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXXXR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXXXI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXXXR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXXXI),1)
          CALL GETMEM('DXXYR','ALLO','REAL',LDXXYR,NSS**2)
          CALL GETMEM('DXXYI','ALLO','REAL',LDXXYI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXXYR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXXYI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXXYR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXXYI),1)
          CALL GETMEM('DXXZR','ALLO','REAL',LDXXZR,NSS**2)
          CALL GETMEM('DXXZI','ALLO','REAL',LDXXZI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXXZR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXXZI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXXZR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXXZI),1)
 
          CALL GETMEM('DYYXR','ALLO','REAL',LDYYXR,NSS**2)
          CALL GETMEM('DYYXI','ALLO','REAL',LDYYXI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDYYXR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDYYXI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDYYXR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDYYXI),1)
          CALL GETMEM('DYYYR','ALLO','REAL',LDYYYR,NSS**2)
          CALL GETMEM('DYYYI','ALLO','REAL',LDYYYI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDYYYR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDYYYI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDYYYR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDYYYI),1)
          CALL GETMEM('DYYZR','ALLO','REAL',LDYYZR,NSS**2)
          CALL GETMEM('DYYZI','ALLO','REAL',LDYYZI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDYYZR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDYYZI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDYYZR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDYYZI),1)
 
          CALL GETMEM('DZZXR','ALLO','REAL',LDZZXR,NSS**2)
          CALL GETMEM('DZZXI','ALLO','REAL',LDZZXI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDZZXR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDZZXI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDZZXR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDZZXI),1)
          CALL GETMEM('DZZYR','ALLO','REAL',LDZZYR,NSS**2)
          CALL GETMEM('DZZYI','ALLO','REAL',LDZZYI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDZZYR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDZZYI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDZZYR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDZZYI),1)
          CALL GETMEM('DZZZR','ALLO','REAL',LDZZZR,NSS**2)
          CALL GETMEM('DZZZI','ALLO','REAL',LDZZZI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDZZZR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDZZZI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDZZZR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDZZZI),1)
 ! Dipole
          CALL GETMEM('DXR','ALLO','REAL',LDXR,NSS**2)
          CALL GETMEM('DXI','ALLO','REAL',LDXI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXI),1)
          CALL GETMEM('DYR','ALLO','REAL',LDYR,NSS**2)
          CALL GETMEM('DYI','ALLO','REAL',LDYI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDYR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDYI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDYR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDYI),1)
          CALL GETMEM('DZR','ALLO','REAL',LDZR,NSS**2)
          CALL GETMEM('DZI','ALLO','REAL',LDZI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDZR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDZI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDZR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDZI),1)
 ! Octupole
          IF(IPRDXXX.GT.0) THEN
           CALL SMMAT(PROP,WORK(LDXXXR),NSS,SOPRNM(IPRDXXX),
@@ -1418,6 +1537,7 @@ C printing threshold
      &                     'transition strengths (SO states):')
          WRITE(6,*)
         END IF
+        SECORD(3) = 1
         END IF
 
 *Electric-Dipole - Magnetic-Quadrupole transitions and
@@ -1578,57 +1698,57 @@ C printing threshold
 ! Magnetic-Quadrupole
          CALL GETMEM('DZXR','ALLO','REAL',LDZXR,NSS**2)
          CALL GETMEM('DZXI','ALLO','REAL',LDZXI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDZXR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDZXI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDZXR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDZXI),1)
          CALL GETMEM('DXZR','ALLO','REAL',LDXZR,NSS**2)
          CALL GETMEM('DXZI','ALLO','REAL',LDXZI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXZR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXZI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXZR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXZI),1)
 
          CALL GETMEM('DXYR','ALLO','REAL',LDXYR,NSS**2)
          CALL GETMEM('DXYI','ALLO','REAL',LDXYI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXYR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXYI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXYR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXYI),1)
          CALL GETMEM('DYXR','ALLO','REAL',LDYXR,NSS**2)
          CALL GETMEM('DYXI','ALLO','REAL',LDYXI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDYXR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDYXI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDYXR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDYXI),1)
 
          CALL GETMEM('DYZR','ALLO','REAL',LDYZR,NSS**2)
          CALL GETMEM('DYZI','ALLO','REAL',LDYZI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDYZR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDYZI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDYZR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDYZI),1)
          CALL GETMEM('DZYR','ALLO','REAL',LDZYR,NSS**2)
          CALL GETMEM('DZYI','ALLO','REAL',LDZYI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDZYR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDZYI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDZYR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDZYI),1)
 ! Spin-Magnetic-Quadrupole
 ! Only AMFI integrals will be needed
          CALL GETMEM('SXR','ALLO','REAL',LSXR,NSS**2)
          CALL GETMEM('SXI','ALLO','REAL',LSXI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LSXR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LSXI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSXR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSXI),1)
          CALL GETMEM('SYR','ALLO','REAL',LSYR,NSS**2)
          CALL GETMEM('SYI','ALLO','REAL',LSYI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LSYR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LSYI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSYR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSYI),1)
          CALL GETMEM('SZR','ALLO','REAL',LSZR,NSS**2)
          CALL GETMEM('SZI','ALLO','REAL',LSZI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LSZR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LSZI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSZR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSZI),1)
 ! Electric-Dipole
          CALL GETMEM('DXR','ALLO','REAL',LDXR,NSS**2)
          CALL GETMEM('DXI','ALLO','REAL',LDXI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXI),1)
          CALL GETMEM('DYR','ALLO','REAL',LDYR,NSS**2)
          CALL GETMEM('DYI','ALLO','REAL',LDYI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDYR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDYI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDYR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDYI),1)
          CALL GETMEM('DZR','ALLO','REAL',LDZR,NSS**2)
          CALL GETMEM('DZI','ALLO','REAL',LDZI,NSS**2)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDZR),1)
-         CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDZI),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDZR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDZI),1)
 ! Magnetic-Quadrupole
          IF(IPRDXY.GT.0) THEN
           CALL SMMAT(PROP,WORK(LDXYR),NSS,SOPRNM(IPRDXY),
@@ -1711,8 +1831,9 @@ C printing threshold
 ! M^s = (a+ib)(c+id) = ac-bd + i(ad+bc) hence the long expressions below
 !
             DYXDZ=((WORK(LDYXR-1+IJSS) ! Magnetic-Quadrupole
+!               Spin-Magnetic-Quadrupole
      &         +g*(WORK(LSYR-1+IJSS)*WORK(LDXR-1+IJSS)
-     &            -WORK(LSYI-1+IJSS)*WORK(LDXI-1+IJSS))) ! Spin-Magnetic-Quadrupole
+     &            -WORK(LSYI-1+IJSS)*WORK(LDXI-1+IJSS)))
      &           *WORK(LDZR-1+IJSS)) ! Electric-Dipole
      &           +((WORK(LDYXI-1+IJSS)
      &         +g*(WORK(LSYR-1+IJSS)*WORK(LDXI-1+IJSS)
@@ -1829,28 +1950,29 @@ C printing threshold
          WRITE(6,*)
          END IF
         END IF
-
+        SECORD(4) = 1
         END IF
 !
 ! Now write out the total
 !
 ! Add it to the total
-         Call CollapseOutput(1,
-     &                  'Total transition strengths ' //
-     &                  'for the second-order expansion of the wave '//
-     &                  'vector (SO states):')
-         WRITE(6,'(3X,A)')
-     &                  '---------------------------' //
-     &                  '-------------------------------------------'//
-     &                  '-------------------'
 !
-         IF(OSTHR2.GT.0.0D0) THEN
-          WRITE(6,*)'   for osc. strength at least ',OSTHR2
-          WRITE(6,*)
-         END IF
-         WRITE(6,*)"        To  From     Osc. strength"
-         WRITE(6,*)'        ----------------------------'
-!
+      I2TOT = 0
+      DO I = 1, 4
+        IF(SECORD(I).EQ.1) THEN
+          I2TOT = I2TOT + 1
+        END IF
+      END DO
+       IF(I2TOT.GE.1) THEN
+         IF(SECORD(1).EQ.0)
+     &   WRITE(6,*) 'Magnetic-dipole - Magnetic-dipole not included'
+         IF(SECORD(2).EQ.0)
+     &   WRITE(6,*) 'Electric-Quadrupole - Electric-Quadrupole not in'
+         IF(SECORD(3).EQ.0)
+     &   WRITE(6,*) 'Electric-Dipole - Electric-Octupole not included'
+         IF(SECORD(4).EQ.0)
+     &   WRITE(6,*) 'Electric-Dipole - Magnetic-Quadrupole not included'
+         i_Print=0
          DO ISS=1,IEND
           DO JSS=JSTART,NSS
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
@@ -1859,554 +1981,90 @@ C printing threshold
             IJSS=ISS+NSS*(JSS-1)
             F = WORK(LTOT2K-1+IJSS)
             IF(ABS(F).GE.OSTHR2) THEN
+             IF(i_Print.eq.0) THEN
+              i_Print=1
+              Call CollapseOutput(1,
+     &                  'Total transition strengths ' //
+     &                  'for the second-order expansion of the wave '//
+     &                  'vector (SO states):')
+              WRITE(6,'(3X,A)')
+     &                  '---------------------------' //
+     &                  '-------------------------------------------'//
+     &                  '-------------------'
+!
+              IF(OSTHR2.GT.0.0D0) THEN
+               WRITE(6,*)'   for osc. strength at least ',OSTHR2
+               WRITE(6,*)
+              END IF
+              WRITE(6,*)"        To  From     Osc. strength"
+              WRITE(6,*)'        ----------------------------'
+             END IF
              WRITE(6,'(5X,2I5,5X,ES16.8)') ISS,JSS,F
             END IF
            END IF
           END DO
          END DO
-         Call CollapseOutput(0,
+         If (i_Print.eq.1) THEN
+           Call CollapseOutput(0,
      &                  'Total transition strengths ' //
      &                  'for the second-order expansion of the wave '//
      &                  'vector (SO states):')
-         WRITE(6,*)
+           WRITE(6,*)
+         END IF
+       END IF
 ! release the memory again
          CALL GETMEM('TOT2K','FREE','REAL',LTOT2K,NSS**2)
 
       END IF
-*
-************************************************************************
-*                                                                      *
-*     Start of section for transition moments                          *
-*                                                                      *
-*     This section has two parts. (1) for matrix elements computed by  *
-*     Seward, i.e. for a specific wavevector, (2) for the computation  *
-*     of the isotropic oscillator strength.                            *
-*                                                                      *
-************************************************************************
-*
-*     Find the section of transition moments in the property list.
-*
-*     The operator is split in 4 different component, each with three
-*     elements corresponding to differentiation in the x, y, and z
-*     direction. The four parts are labels as:
-*     EMFR  RS: The symmetric part of the real comp. of the op.
-*     EMFR  RA: The asymmetric part of the real comp. of the op.
-*     EMFR  IS: The symmetric part of the imaginary comp. of the op.
-*     EMFR  IA: The asymmetric part of the imaginary comp. of the op.
-*
-************************************************************************
-*                                                                      *
-*     Section (2): Computation of the isotropic oscillator strength.
-*                                                                      *
-************************************************************************
-*
-      If (.Not.Do_TMOS) Go To 500
-*
-*     Here we will use a Lebedev grid to integrate over all possible
-*     directions of the wave vector, k. The property integrals will be
-*     computed on the fly and traced with the density to generate the
-*     corresponding values in the PROP matrix.
-*
-*     Find the slot on the one-electron file where we will store the
-*     on-the-fly generated property integrals.
-*
-      IPREMFR_RS=-1
-      IPORIG=-1
-      DO IPROP=1,NPROP
-         IF (PNAME(IPROP).EQ.'TMOS  RS'.AND.IPREMFR_RS.EQ.-1) THEN
-            IPREMFR_RS=IPROP
-            IPORIG=IPROP
-         END IF
-      ENDDO
-      IPREMFR_0R=IPREMFR_RS-6
-      IPREMFR_0I=IPREMFR_RS-3
-      IPREMFR_RA=IPREMFR_RS+3
-      IPREMFR_IS=IPREMFR_RS+6
-      IPREMFR_IA=IPREMFR_RS+9
-*
-*     Initiate the Seward environment
-*
-      nDiff=0
-      Call IniSew(Info,.FALSE.,nDiff)
-*
-*     Generate the quadrature points.
-*
-      If (Do_SK) Then
-         nQuad=1
-         Call GetMem('SK','ALLO','REAL',ipR,4)
-         Work(ipR  )=k_Vector(1)
-         Work(ipR+1)=k_Vector(2)
-         Work(ipR+2)=k_Vector(3)
-         Work(ipR+3)=1.0D0   ! Dummy weight
-      Else
-         Call Setup_O()
-         Call Do_Lebedev(L_Eff,nQuad,ipR)
-      End If
-*
-      IF(DO_KVEC) THEN
-*
-*     Specific directions specified by user
-*     The arrays from the Lebedev procedure is still used
-*
-        NQUAD = NKVEC
-      END IF
-*
-*     Get table of content for density matrices.
-*
-      Call DaName(LuToM,FnToM)
-      iDisk=0
-      Call iDaFile(LuToM,2,iTocM,MxStat*(MxStat+1)/2,iDisk)
-*
-*     Allocate some temporary arrays for handling the
-*     properties of the spin-orbit states.
-*
-      CALL GETMEM('DXR','ALLO','REAL',LDXR,NSS**2)
-      CALL GETMEM('DXI','ALLO','REAL',LDXI,NSS**2)
-      CALL GETMEM('TMP','ALLO','REAL',LTMP,NSS**2)
-*
-C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
-      NIP=4+(NBST*(NBST+1))/2
-      CALL GETMEM('IP    ','ALLO','REAL',LIP,NIP)
-      NSCR=(NBST*(NBST+1))/2
-      CALL GETMEM('TDMSCR','Allo','Real',LSCR,4*NSCR)
-*
-*     Array for printing contributions from different directions
-*
-      CALL GETMEM('RAW   ','ALLO','REAL',LRAW,NQUAD*5)
-      CALL GETMEM('WEIGHT','ALLO','REAL',LWEIGH,NQUAD*5)
-*
-*     Allocate vector to store all individual transition moments.
-*     We do this for
-*     all unique pairs ISO-JSO, iSO=/=JSO (NSS*(NSS-1)/2)
-*         all k-vectors (3*nQuad)
-*             all polarization directions (2*3)
-*                 we store the transition moment (a complex number) (2*2)
-*
-      nIJ=nSS*(nSS-1)/2
-      nData= 1 + 3 + 2*3 + 2*2
-      nStorage = nIJ * nQuad * nData
-      Call GetMem('STORAGE','Allo','Real',ipStorage,nStorage)
-      ip_w      = 1
-      ip_kvector= ip_w + 1
-      ip_e1     = ip_kvector + 3
-      ip_e2     = ip_e1 + 3
-      ip_TM1R   = ip_e2 + 3
-      ip_TM1I   = ip_TM1R + 1
-      ip_TM2R   = ip_TM1I + 1
-      ip_TM2I   = ip_TM2R + 1
-*
-      AFACTOR=32.1299D09
-      HALF=0.5D0
-      PI= CONST_PI_
-      HBAR=1.0D0 ! in a.u.
-      SPEED_OF_LIGHT=CONST_C_IN_AU_
-      G_Elec=CONST_ELECTRON_G_FACTOR_
-      iPrint=0
-      IJSO=0
-      DO ISO=1, IEND
-         DO JSO=JSTART, NSS
-*
-            EDIFF=ENSOR(JSO)-ENSOR(ISO)
-            IF (ABS(EDIFF).LE.1.0D-8) CYCLE
-            IF(EDIFF.LT.0.0D0) CYCLE
-            IJSO=IJSO+1
-            iOff_= (IJSO-1)*nQuad*nData
-*
-*           The energy difference is used to define the norm of the
-*           wave vector.
-*
-            rkNorm=EDIFF/(HBAR*SPEED_OF_LIGHT)
-*
-*           Iterate over the quadrature points.
-*
-            FX=0.0D0
-            FY=0.0D0
-            FZ=0.0D0
-            F =0.0D0
-            Fm=0.0D0
-*
-*           Initialize output arrays
-*
-            CALL DCOPY_(NQUAD*5,0.0D0,0,WORK(LRAW),1)
-            CALL DCOPY_(NQUAD*5,0.0D0,0,WORK(LWEIGH),1)
 
-            Do iQuad = 1, nQuad
-               iStorage = iOff_+ (iQuad-1)*nData + ipStorage - 1
-*
-*              Read or generate the wavevector
-*
-               IF(DO_KVEC) THEN
-*
-*              Get wavevector from input
-*
-               XCOOR = WORK(PKVEC+IQUAD-1)
-               YCOOR = WORK(PKVEC+IQUAD-1+NQUAD)
-               ZCOOR = WORK(PKVEC+IQUAD-1+2*NQUAD)
-               ELSE
-*
-*              Generate the wavevector associated with this quadrature
-*              point and pick up the associated quadrature weight.
-*
-               xcoor=Work((iQuad-1)*4  +ipR)
-               ycoor=Work((iQuad-1)*4+1+ipR)
-               zcoor=Work((iQuad-1)*4+2+ipR)
-               END IF
+! +++ J. Norell 19/7 - 2018
+! Dyson amplitudes for (1-electron) ionization transitions
+      IF (DYSO) THEN
+        Call Add_Info('SODYSAMPS',SODYSAMPS,NSS*NSS,4)
+        DYSTHR=1.0D-5
+        WRITE(6,*)
+        CALL CollapseOutput(1,'Dyson amplitudes '//
+     &                        '(SO states):')
+        WRITE(6,'(3X,A)')     '----------------------------'//
+     &                        '-------------------'
+        IF (DYSTHR.GT.0.0D0) THEN
+           WRITE(6,*) 'for Dyson intensities at least',DYSTHR
+           WRITE(6,*)
+        END IF
+        WRITE(6,*) '       From      To        '//
+     &   'BE (eV)       Dyson intensity'
+              WRITE(6,'(3X,A)')
+     &                  '---------------------------' //
+     &                  '-------------------------------------------'//
+     &                  '-------------------'
+        FMAX=0.0D0
+        DO I=1,NSS
+         DO J=1,NSS
+          F=SODYSAMPS(I,J)*SODYSAMPS(I,J)
+          EDIFF=AU2EV*(ENSOR(J)-ENSOR(I))
+          IF (F.GT.0.00001) THEN
+           IF (EDIFF.GT.0.0D0) THEN
+            WRITE(6,'(A,I8,I8,F15.3,E22.5)') '    ',I,J,EDIFF,F
+           END IF
+          END IF
+         END DO ! J
+        END DO ! I
+        WRITE(6,*)
+        WRITE(6,*)
+       END IF
+! +++ J. Norell
 
-               PORIG(1,IPREMFR_RS)=rkNorm*xcoor
-               PORIG(2,IPREMFR_RS)=rkNorm*ycoor
-               PORIG(3,IPREMFR_RS)=rkNorm*zcoor
-               Call DCopy_(3,PORIG(1,IPREMFR_RS),1,
-     &                       Work(iStorage+ip_kvector),1)
-*
-               Weight=Work((iQuad-1)*4+3+ipR)
-               Work(iStorage+ip_w)=Weight
-*
-*              Generate the associated polarization vectors.
-*
-               IF (PORIG(1,IPREMFR_RS).EQ.0.0D0 .and.
-     &             PORIG(2,IPREMFR_RS).EQ.0.0D0) Then
-                  P1(1)=1.0D0
-                  P1(2)=0.0D0
-                  P1(3)=0.0D0
-               ELSE
-                  P1(1)= PORIG(2,IPREMFR_RS)
-                  P1(2)=-PORIG(1,IPREMFR_RS)
-                  P1(3)= 0.0D0
-               END IF
-               Tmp=1.0D0/SQRT(P1(1)**2+P1(2)**2+P1(3)**2)
-               P1(1)=P1(1)*Tmp
-               P1(2)=P1(2)*Tmp
-               P1(3)=P1(3)*Tmp
-               P2(1)=PORIG(2,IPREMFR_RS)*P1(3)-P1(2)*PORIG(3,IPREMFR_RS)
-               P2(2)=PORIG(3,IPREMFR_RS)*P1(1)-P1(3)*PORIG(1,IPREMFR_RS)
-               P2(3)=PORIG(1,IPREMFR_RS)*P1(2)-P1(1)*PORIG(2,IPREMFR_RS)
-               Tmp=1.0D0/SQRT(P2(1)**2+P2(2)**2+P2(3)**2)
-               P2(1)=P2(1)*Tmp
-               P2(2)=P2(2)*Tmp
-               P2(3)=P2(3)*Tmp
-               Call DCopy_(3,P1,1,Work(iStorage+ip_e1),1)
-               Call DCopy_(3,P2,1,Work(iStorage+ip_e2),1)
-*
-*              Compute the vectors (k x e1) and  (k x e2).
-*
-               kxe1(1)=PORIG(2,IPORIG)*P1(3)-PORIG(3,IPORIG)*P1(2)
-               kxe1(2)=PORIG(3,IPORIG)*P1(1)-PORIG(1,IPORIG)*P1(3)
-               kxe1(3)=PORIG(1,IPORIG)*P1(2)-PORIG(2,IPORIG)*P1(1)
-               kxe2(1)=PORIG(2,IPORIG)*P2(3)-PORIG(3,IPORIG)*P2(2)
-               kxe2(2)=PORIG(3,IPORIG)*P2(1)-PORIG(1,IPORIG)*P2(3)
-               kxe2(3)=PORIG(1,IPORIG)*P2(2)-PORIG(2,IPORIG)*P2(1)
-*
-*              Generate the property integrals associated with this
-*              direction of the wave vector k.
-*
-               Call TMOSInt(PORIG(1,IPREMFR_RS))
 *
 ************************************************************************
 *                                                                      *
-*              Recompute the needed properties for all the spin-free   *
-*              states.                                                 *
+*     Start of section for transition moments using the exact operator *
+*     for the vector potential.                                        *
 *                                                                      *
 ************************************************************************
 *
-*              DO IPROP = IPREMFR_RS-6, IPREMFR_RS+11
-*                 Call FZero(PROP(1,1,IPROP),NSTATE**2)
-*              End Do
-               DO I=1, NSTATE
-                  DO J=1, I
-*
-*                    COMBINED SYMMETRY OF STATES:
-                     JOB1=JBNUM(I)
-                     JOB2=JBNUM(J)
-                     LSYM1=IRREP(JOB1)
-                     LSYM2=IRREP(JOB2)
-                     ISY12=MUL(LSYM1,LSYM2)
-*                    THE SYMMETRY CHECK MASK:
-                     MASK=2**(ISY12-1)
-*                    FIRST SET UP AN OFFSET TABLE FOR SYMMETRY BLOCKS OF
-*                    TDMSCR
-                     IOF=0
-                     Call IZERO(IOFF,8)
-                     DO ISY1=1,NSYM
-                        ISY2=MUL(ISY1,ISY12)
-                        IF (ISY1.LT.ISY2) CYCLE
-                        IOFF(ISY1)=IOF
-                        IOFF(ISY2)=IOF
-                        NB1=NBASF(ISY1)
-                        NB2=NBASF(ISY2)
-                        NB12=NB1*NB2
-                        IF(ISY1.EQ.ISY2) NB12=(NB12+NB1)/2
-                        IOF=IOF+NB12
-                     END DO
-*
-*                    Pick up the transition density between the two
-*                    states from disc. Generated in PROPER.
-*
-                     ISTATE=MAX(i,j)
-                     JSTATE=MIN(i,j)
-                     ij=ISTATE*(ISTATE-1)/2+JSTATE
-                     iDisk=iTocM(ij)
-                     Call dDaFile(LuToM,2,Work(LSCR),4*NSCR,iDisk)
-*
-*                    Compute the transition property of the property
-*                    integrals between the two states.
-*
-                     DO IPROP = IPREMFR_RS-6, IPREMFR_RS+11
-                        ITYPE=0
-                        IF (PTYPE(IPROP).EQ.'HERMSING') ITYPE=1
-                        IF (PTYPE(IPROP).EQ.'ANTISING') ITYPE=2
-                        IF (PTYPE(IPROP).EQ.'HERMTRIP') ITYPE=3
-                        IF (PTYPE(IPROP).EQ.'ANTITRIP') ITYPE=4
-                        LABEL=PNAME(IPROP)
-                        Call MK_PROP(PROP,IPROP,I,J,LABEL,ITYPE,
-     &                               WORK(LIP),NIP,WORK(LSCR),NSCR,
-     &                               MASK,ISY12,IOFF)
-                     END DO
-*
-                  END DO ! J
-               END DO ! I
-*
-*              (1) the oam part
-*
-*              The contribution to the generalized momentum operator.
-*
-               IJ=(JSO-1)*NSS + ISO - 1
-               Do iCar = 1, 3
-                  CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXR),1)
-                  CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXI),1)
-                  CALL DCOPY_(NSS**2,0.0D0,0,WORK(LTMP),1)
-*                 the real symmetric part
-                  CALL SMMAT(PROP,WORK(LDXR),NSS,'TMOS  RS',iCar)
-*                 the real anti-symmetric part
-                  CALL SMMAT(PROP,WORK(LTMP),NSS,'TMOS  RA',iCar)
-                  CALL DAXPY_(NSS**2,1.0D0,WORK(LTMP),1,WORK(LDXR),1)
-                  CALL DCOPY_(NSS**2,0.0D0,0,WORK(LTMP),1)
-*                 the imaginary symmetric part
-                  CALL SMMAT(PROP,WORK(LDXI),NSS,'TMOS  IS',iCar)
-*                 the imaginary anti-symmetric part
-                  CALL SMMAT(PROP,WORK(LTMP),NSS,'TMOS  IA',iCar)
-                  CALL DAXPY_(NSS**2,1.0D0,WORK(LTMP),1,WORK(LDXI),1)
-*                 Transform properties to the spin-orbit basis
-                  CALL ZTRNSF(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI))
-*                 CALL PRCMAT(NSS,WORK(LDXR),WORK(LDXI))
-*                 Pick up the property of the (I,J) element
-*
-                  T0(iCar)=DCMPLX(WORK(LDXR+IJ),WORK(LDXI+IJ))
-               End Do
-*
-               E1A = P1(1)*T0(1) + P1(2)*T0(2) + P1(3)*T0(3)
-               E2A = P2(1)*T0(1) + P2(2)*T0(2) + P2(3)*T0(3)
-*
-*              (2) the magnetic-spin part
-*
-               IJ=(JSO-1)*NSS + ISO - 1
-               Do iCar = 1, 3
-                  CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXR),1)
-                  CALL DCOPY_(NSS**2,0.0D0,0,WORK(LDXI),1)
-*                 pick up the real component
-                  CALL SMMAT(PROP,WORK(LDXR),NSS,'TMOS0  R',iCar)
-*                 pick up the imaginary component
-                  CALL SMMAT(PROP,WORK(LDXI),NSS,'TMOS0  I',iCar)
-                  CALL ZTRNSF(NSS,USOR,USOI,WORK(LDXR),WORK(LDXI))
-*                 CALL PRCMAT(NSS,WORK(LDXR),WORK(LDXI))
-                  T1(iCar)=DCMPLX(WORK(LDXR+IJ),WORK(LDXI+IJ))
-               End Do
-*
-               E1B=kxe1(1)*T1(1)+kxe1(2)*T1(2)+kxe1(3)*T1(3)
-               E2B=kxe2(1)*T1(1)+kxe2(2)*T1(2)+kxe2(3)*T1(3)
-               TM1 = E1A + IMAGINARY*(g_Elec/2.0D0)*E1B
-               TM2 = E2A + IMAGINARY*(g_Elec/2.0D0)*E2B
-               Work(iStorage+ip_TM1R)=DBLE(TM1)
-               Work(iStorage+ip_TM1I)=AIMAG(TM1)
-               Work(iStorage+ip_TM2R)=DBLE(TM2)
-               Work(iStorage+ip_TM2I)=AIMAG(TM2)
-*
-*              Integrate over all directions of the polarization
-*              vector and divide with the "distance", 2*pi, to get
-*              the average value.
-*
-               TM_2 = Half*DBLE(DCONJG(TM1)*TM1 + DCONJG(TM2)*TM2)
-*
-*              Compute the oscillator strength
-*
-               F_Temp = 2.0D0*TM_2/EDIFF
-*
-*              Do only the magnetic part.
-*
-               TM1 = IMAGINARY*(g_Elec/2.0D0)*E1B
-               TM2 = IMAGINARY*(g_Elec/2.0D0)*E2B
-               TM_2 = Half*DBLE(DCONJG(TM1)*TM1 + DCONJG(TM2)*TM2)
-               F_Tempm = 2.0D0*TM_2/EDIFF
-*
-*              Save the raw oscillator strengths in a given direction
-*
-               WORK(LRAW+(IQUAD-1)+0*NQUAD) = F_TEMP
-               WORK(LRAW+(IQUAD-1)+1*NQUAD) = F_TEMPM
-               WORK(LRAW+(IQUAD-1)+2*NQUAD) = XCOOR
-               WORK(LRAW+(IQUAD-1)+3*NQUAD) = YCOOR
-               WORK(LRAW+(IQUAD-1)+4*NQUAD) = ZCOOR
-*
-*              Compute the oscillator strength
-*
-               F = F + Weight * F_Temp
-*
-*              Do only the magnetic part.
-*              TM1 = IMAGINARY*(g_Elec/2.0D0)*E1B
-*              TM2 = IMAGINARY*(g_Elec/2.0D0)*E2B
-*              TM_2 = Half*DBLE(DCONJG(TM1)*TM1 + DCONJG(TM2)*TM2)
-*              F_Temp = 2.0D0*TM_2/EDIFF
-               Fm= Fm+ Weight * F_Tempm
-*
-*              Save the weighted oscillator strengths in a given direction
-*
-               WORK(LWEIGH+(IQUAD-1)+0*NQUAD) = F_TEMP*WEIGHT
-               WORK(LWEIGH+(IQUAD-1)+1*NQUAD) = F_TEMPM*WEIGHT
-               WORK(LWEIGH+(IQUAD-1)+2*NQUAD) = XCOOR
-               WORK(LWEIGH+(IQUAD-1)+3*NQUAD) = YCOOR
-               WORK(LWEIGH+(IQUAD-1)+4*NQUAD) = ZCOOR
-
-            End Do ! iQuad
-*
-*           Note that the weights are normalized to integrate to
-*           4*pi over the solid angles.
-*
-            F = F / (4.0D0*PI)
-            Fm= Fm/ (4.0D0*PI)
-            IF (ABS(F).LT.OSTHR) CYCLE
-            AX=(AFACTOR*EDIFF**2)*FX
-            AY=(AFACTOR*EDIFF**2)*FY
-            AZ=(AFACTOR*EDIFF**2)*FZ
-            A =(AFACTOR*EDIFF**2)*F
-*
-            IF(.NOT.DO_KVEC) THEN
-              If (iPrint.eq.0) Then
-                 WRITE(6,*)
-                 If (Do_SK) Then
-                    CALL CollapseOutput(1,
-     &                  'Transition moment strengths:')
-                 Else
-                    CALL CollapseOutput(1,
-     &                  'Isotropic transition moment strengths:')
-                 End If
-                 WRITE(6,'(3X,A)')
-     &                  '--------------------------------------'
-                 IF (OSTHR.GT.0.0D0) THEN
-                    WRITE(6,'(1x,a,ES16.8)')
-     &                    '   for osc. strength at least ',OSTHR
-                 END IF
-                 WRITE(6,*)
-                 If (Do_SK) Then
-                    WRITE(6,'(4x,a,3F8.4,a)')
-     &                    'Direction of the k-vector: ',
-     &                     (Work(ipR+k),k=0,2),' (au)'
-                    WRITE(6,'(4x,a)')
-     &                    'The light is assumed to be unpolarized.'
-                 Else
-                    WRITE(6,'(1x,a,I4,a)')
-     &                '   Integrated over ',nQuad,' directions of the'//
-     &                ' wave vector'
-                    WRITE(6,'(1x,a)')
-     &                '   Integrated over all directions of the polar'//
-     &                'ization vector'
-                 End If
-                 WRITE(6,*)
-                 WRITE(6,*)"        To  From     Osc. strength"//
-     &             "   Einstein coefficients Ax, Ay, Az (sec-1) "//
-     &             "      Total A (sec-1)  "
-                 WRITE(6,*)
-     &  '        -------------------------------------------'//
-     &  '------------------------------------------------'
-                iPrint=1
-              END IF
-*
-              WRITE(6,'(5X,2I5,5X,5G16.8)') ISO,JSO,F,AX,AY,AZ,A
-              WRITE(6,'(A,6X,G16.8)') ' Magnetic only',Fm
-            END IF
-*
-*     Printing raw (unweighted) and direction for every transition
-*
-            IF(PRRAW) THEN
-              WRITE(6,*)
-              WRITE(6,*)
-              WRITE(6,*)"        To  From     Raw Osc. str."//
-     &          "   Mag. cont.       "//
-     &          "   kx,            ky,            kz "
-              WRITE(6,*)
-     &  '        -------------------------------------------'//
-     &  '------------------------------------------------'
-              DO IQUAD = 1, NQUAD
-                WRITE(6,'(5X,2I5,5X,5G16.8)') ISO,JSO,
-     &          WORK(LRAW+(IQUAD-1)+0*NQUAD),
-     &          WORK(LRAW+(IQUAD-1)+1*NQUAD),
-     &          WORK(LRAW+(IQUAD-1)+2*NQUAD),
-     &          WORK(LRAW+(IQUAD-1)+3*NQUAD),
-     &          WORK(LRAW+(IQUAD-1)+4*NQUAD)
-              END DO
-              WRITE(6,*)
-              WRITE(6,*)
-            END IF
-*
-*     Printing weighted and direction for every transition
-*
-            IF(PRWEIGHT) THEN
-              WRITE(6,*)
-              WRITE(6,*)
-              WRITE(6,*)"        To  From     Wei Osc. str."//
-     &          "   Mag. cont.       "//
-     &          "   kx,            ky,            kz "
-              WRITE(6,*)
-     &  '        -------------------------------------------'//
-     &  '------------------------------------------------'
-              DO IQUAD = 1, NQUAD
-                WRITE(6,'(5X,2I5,5X,5G16.8)') ISO,JSO,
-     &          WORK(LWEIGH+(IQUAD-1)+0*NQUAD)/ (4.0D0*PI),
-     &          WORK(LWEIGH+(IQUAD-1)+1*NQUAD)/ (4.0D0*PI),
-     &          WORK(LWEIGH+(IQUAD-1)+2*NQUAD)/ (4.0D0*PI),
-     &          WORK(LWEIGH+(IQUAD-1)+3*NQUAD)/ (4.0D0*PI),
-     &          WORK(LWEIGH+(IQUAD-1)+4*NQUAD)/ (4.0D0*PI)
-              END DO
-              WRITE(6,*)
-              WRITE(6,*)
-            END IF
-*
-            Call Add_Info('ITMS(SO)',F,1,6)
-*
-         END DO
-      END DO
-      If (IPGLOB.EQ.1) THEN
-         If (Do_SK) Then
-            CALL CollapseOutput(0,
-     &                'Transition moment strengths:')
-         Else
-            CALL CollapseOutput(0,
-     &                'Isotropic transition moment strengths:')
-         End If
-      END IF
-*
-#ifdef _HDF5_
-      Call mh5_put_dset(wfn_sos_tm,Work(ipStorage))
-#endif
-*
-*     Do some cleanup
-*
-      Call GetMem('STORAGE','FREE','Real',ipStorage,nStorage)
-      CALL GETMEM('RAW   ','FREE','REAL',LRAW,NQUAD*5)
-      CALL GETMEM('WEIGHT','FREE','REAL',LWEIGH,NQUAD*5)
-      CALL GETMEM('TDMSCR','FREE','Real',LSCR,4*NSCR)
-      CALL GETMEM('IP    ','FREE','REAL',LIP,NIP)
-      CALL GETMEM('DXR','FREE','REAL',LDXR,NSS**2)
-      CALL GETMEM('DXI','FREE','REAL',LDXI,NSS**2)
-      CALL GETMEM('TMP','FREE','REAL',LTMP,NSS**2)
-*
-      Call DaClos(LuToM)
-      If (.NOT.Do_SK) Call Free_O()
-      Call Free_Work(ipR)
-      Call ClsSew()
-*
-************************************************************************
-*                                                                      *
-*     End of section for transition moments                            *
-*                                                                      *
-************************************************************************
+      If (Do_TMOS)
+     &   Call PRPROP_TM_Exact(PROP,USOR,USOI,ENSOR,NSS,OVLP,ENERGY,
+     &                        JBNUM)
 *
  500  CONTINUE
 
@@ -2501,8 +2159,6 @@ C    &                 PROP(JSTATE,ISTATE,IPAMFI(JXYZ))
       DO I=1,3
       EVR(I)=0.0D0
       EVI(I)=0.0D0
-      SCR1(I)=0.0D0
-      SCR2(I)=0.0D0
       END DO
       DO IXYZ=1,3
        DO JXYZ=1,3
@@ -2514,7 +2170,7 @@ C    &                 PROP(JSTATE,ISTATE,IPAMFI(JXYZ))
         END IF
        END DO
       END DO
-      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,SCR1,SCR2,IERR)
+      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
 
 * D-factor printout
 * D = D_zz - 1/2 * (D_xx + D_yy)
@@ -2702,8 +2358,6 @@ C determine the eigenvalues of the g matrix
       DO I=1,3
       EVR(I)=0.0D0
       EVI(I)=0.0D0
-      SCR1(I)=0.0D0
-      SCR2(I)=0.0D0
       END DO
 C XEIGEN alters the input matrix! copy GTENS to TMPMAT
       DO IXYZ=1,3
@@ -2718,7 +2372,7 @@ C XEIGEN alters the input matrix! copy GTENS to TMPMAT
       ENDDO
 
       IERR=0
-      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,SCR1,SCR2,IERR)
+      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
       IF (IERR.NE.0) THEN
           WRITE(6,*) 'Error: xEigen returned IERR = ', IERR
           RETURN
@@ -2744,8 +2398,6 @@ C determine the eigenvalues of the G = gg* matrix
       DO I=1,3
       EVR(I)=0.0D0
       EVI(I)=0.0D0
-      SCR1(I)=0.0D0
-      SCR2(I)=0.0D0
       ENDDO
       DO IXYZ=1,3
        DO JXYZ=1,3
@@ -2759,7 +2411,7 @@ C determine the eigenvalues of the G = gg* matrix
       ENDDO
 
       IERR=0
-      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,SCR1,SCR2,IERR)
+      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
       IF (IERR.NE.0) THEN
           WRITE(6,*) 'Error: xEigen returned IERR = ', IERR
           RETURN
@@ -2847,11 +2499,11 @@ C and the eigenvectors of G = gg+ by back transformation
       END DO
 
       CALL GETMEM('LXI','ALLO','REAL',LLXI,NSS**2)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LLXI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLXI),1)
       CALL GETMEM('LYI','ALLO','REAL',LLYI,NSS**2)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LLYI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLYI),1)
       CALL GETMEM('LZI','ALLO','REAL',LLZI,NSS**2)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LLZI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLZI),1)
 
       IF(IAMX.GT.0)
      &     CALL SMMAT(PROP,WORK(LLXI),NSS,PNAME(IAMX),ICOMP(IAMX))
@@ -2862,31 +2514,31 @@ C and the eigenvectors of G = gg+ by back transformation
 
 * PAM09 -- This code appears to be unused:
 *      CALL GETMEM('LXR','ALLO','REAL',LLXR,NSS**2)
-*      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LLXR),1)
+*      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLXR),1)
 *      CALL GETMEM('LYR','ALLO','REAL',LLYR,NSS**2)
-*      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LLYR),1)
+*      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLYR),1)
 *      CALL GETMEM('LZR','ALLO','REAL',LLZR,NSS**2)
-*      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LLZR),1)
+*      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLZR),1)
 *------------------------
 
       CALL GETMEM('ZXR','ALLO','REAL',LZXR,NSS**2)
       CALL GETMEM('ZXI','ALLO','REAL',LZXI,NSS**2)
       IZMR(1)=LZXR
       IZMI(1)=LZXI
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZXR),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZXI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZXR),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZXI),1)
       CALL GETMEM('ZYR','ALLO','REAL',LZYR,NSS**2)
       CALL GETMEM('ZYI','ALLO','REAL',LZYI,NSS**2)
       IZMR(2)=LZYR
       IZMI(2)=LZYI
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZYR),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZYI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZYR),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZYI),1)
       CALL GETMEM('ZZR','ALLO','REAL',LZZR,NSS**2)
       CALL GETMEM('ZZI','ALLO','REAL',LZZI,NSS**2)
       IZMR(3)=LZZR
       IZMI(3)=LZZI
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZZR),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZZI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZZR),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZZI),1)
 
 
       CALL SMMAT(PROP,WORK(LZXR),NSS,'SPIN    ',1)
@@ -3373,8 +3025,6 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
       DO I=1,3
       EVR(I)=0.0D0
       EVI(I)=0.0D0
-      SCR1(I)=0.0D0
-      SCR2(I)=0.0D0
       END DO
       DO IXYZ=1,3
        DO JXYZ=1,3
@@ -3387,7 +3037,7 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
        END DO
       ENDDO
 
-      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,SCR1,SCR2,IERR)
+      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
 
 C construct g_s matrix from G by back-transormation of the
 C square root of the G eigenvalues
@@ -3554,11 +3204,11 @@ cccccccccccccccccccccccccccccccccccccccc
 * For A: ?
 
       CALL GETMEM('LXI','ALLO','REAL',LLXI,NSS**2)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LLXI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLXI),1)
       CALL GETMEM('LYI','ALLO','REAL',LLYI,NSS**2)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LLYI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLYI),1)
       CALL GETMEM('LZI','ALLO','REAL',LLZI,NSS**2)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LLZI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLZI),1)
 
       IF(IAMX.GT.0)
      &     CALL SMMAT(PROP,WORK(LLXI),NSS,PNAME(IAMX),ICOMP(IAMX))
@@ -3572,22 +3222,22 @@ cccccccccccccccccccccccccccccccccccccccc
       CALL GETMEM('ZXI','ALLO','REAL',LZXI,NSS**2)
       IZMR(1)=LZXR
       IZMI(1)=LZXI
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZXR),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZXI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZXR),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZXI),1)
 
       CALL GETMEM('ZYR','ALLO','REAL',LZYR,NSS**2)
       CALL GETMEM('ZYI','ALLO','REAL',LZYI,NSS**2)
       IZMR(2)=LZYR
       IZMI(2)=LZYI
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZYR),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZYI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZYR),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZYI),1)
 
       CALL GETMEM('ZZR','ALLO','REAL',LZZR,NSS**2)
       CALL GETMEM('ZZI','ALLO','REAL',LZZI,NSS**2)
       IZMR(3)=LZZR
       IZMI(3)=LZZI
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZZR),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZZI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZZR),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZZI),1)
 
 
       DO ISS=1,NSS
@@ -3662,12 +3312,12 @@ cccccccccccccccccccccccccccccccccccccccc
           AMFI4=AMFI4+ACNT
           AMFI6=AMFI6+ACNT
 
-          CALL ADD_INFO("ASDFC1",AMFI1,1,5)
-          CALL ADD_INFO("ASDFC2",AMFI2,1,5)
-          CALL ADD_INFO("ASDFC3",AMFI3,1,5)
-          CALL ADD_INFO("ASDFC4",AMFI4,1,5)
-          CALL ADD_INFO("ASDFC5",AMFI5,1,5)
-          CALL ADD_INFO("ASDFC6",AMFI6,1,5)
+          CALL ADD_INFO("ASDFC1",[AMFI1],1,5)
+          CALL ADD_INFO("ASDFC2",[AMFI2],1,5)
+          CALL ADD_INFO("ASDFC3",[AMFI3],1,5)
+          CALL ADD_INFO("ASDFC4",[AMFI4],1,5)
+          CALL ADD_INFO("ASDFC5",[AMFI5],1,5)
+          CALL ADD_INFO("ASDFC6",[AMFI6],1,5)
 
 cccccccccccccccccccccccccccccccccccccccc
 c Testing - use overlap matrix
@@ -3959,8 +3609,8 @@ c
       IF(PNAME(KPROP).EQ.DMPPROP) THEN
       CALL GETMEM('SOPROPR','ALLO','REAL',LSOPRR,NSS**2)
       CALL GETMEM('SOPROPI','ALLO','REAL',LSOPRI,NSS**2)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LSOPRR),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LSOPRI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSOPRR),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSOPRI),1)
 
       CALL SMMAT(PROP,WORK(LSOPRR),NSS,PNAME(KPROP),ICOMP(KPROP))
       CALL ZTRNSF(NSS,USOR,USOI,WORK(LSOPRR),WORK(LSOPRI))
@@ -4362,8 +4012,6 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
       DO I=1,3
       EVR(I)=0.0D0
       EVI(I)=0.0D0
-      SCR1(I)=0.0D0
-      SCR2(I)=0.0D0
       END DO
       DO IXYZ=1,3
        DO JXYZ=1,3
@@ -4376,7 +4024,7 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
        END DO
       ENDDO
 
-      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,SCR1,SCR2,IERR)
+      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
 
 C construct g_s matrix from G by back-transormation of the
 C square root of the G eigenvalues
@@ -4447,11 +4095,11 @@ C square root of the G eigenvalues
       END DO
 
       CALL GETMEM('LXI','ALLO','REAL',LLXI,NSS**2)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LLXI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLXI),1)
       CALL GETMEM('LYI','ALLO','REAL',LLYI,NSS**2)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LLYI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLYI),1)
       CALL GETMEM('LZI','ALLO','REAL',LLZI,NSS**2)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LLZI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLZI),1)
 
       IF(IAMX.GT.0)
      &     CALL SMMAT(PROP,WORK(LLXI),NSS,PNAME(IAMX),ICOMP(IAMX))
@@ -4474,12 +4122,12 @@ C square root of the G eigenvalues
       IMR(3)=LMZR
       IMI(3)=LMZI
 
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LMXR),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LMXI),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LMYR),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LMYI),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LMZR),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LMZI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMXR),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMXI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMYR),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMYI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMZR),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMZI),1)
 
       CALL SMMAT(PROP,WORK(LMXR),NSS,'SPIN    ',1)
       CALL SMMAT(PROP,WORK(LMYI),NSS,'SPIN    ',2)
@@ -4505,22 +4153,22 @@ C square root of the G eigenvalues
       CALL GETMEM('ZXI','ALLO','REAL',LZXI,NSS**2)
       IZMR(1)=LZXR
       IZMI(1)=LZXI
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZXR),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZXI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZXR),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZXI),1)
 
       CALL GETMEM('ZYR','ALLO','REAL',LZYR,NSS**2)
       CALL GETMEM('ZYI','ALLO','REAL',LZYI,NSS**2)
       IZMR(2)=LZYR
       IZMI(2)=LZYI
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZYR),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZYI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZYR),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZYI),1)
 
       CALL GETMEM('ZZR','ALLO','REAL',LZZR,NSS**2)
       CALL GETMEM('ZZI','ALLO','REAL',LZZI,NSS**2)
       IZMR(3)=LZZR
       IZMI(3)=LZZI
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZZR),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZZI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZZR),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZZI),1)
 
       DO ISS=1,NSS
         ISTATE=IWORK(LMAPST-1+ISS)
@@ -4890,8 +4538,6 @@ c
       DO I=1,3
       EVR(I)=0.0D0
       EVI(I)=0.0D0
-      SCR1(I)=0.0D0
-      SCR2(I)=0.0D0
       END DO
       DO IXYZ=1,3
        DO JXYZ=1,3
@@ -4904,7 +4550,7 @@ c
        END DO
       ENDDO
 
-      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,SCR1,SCR2,IERR)
+      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
 
       DO IXYZ=1,3
        DO JXYZ=1,3
@@ -4975,22 +4621,22 @@ c
       CALL GETMEM('ZXI','ALLO','REAL',LZXI,NSS**2)
       IZMR(1)=LZXR
       IZMI(1)=LZXI
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZXR),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZXI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZXR),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZXI),1)
 
       CALL GETMEM('ZYR','ALLO','REAL',LZYR,NSS**2)
       CALL GETMEM('ZYI','ALLO','REAL',LZYI,NSS**2)
       IZMR(2)=LZYR
       IZMI(2)=LZYI
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZYR),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZYI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZYR),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZYI),1)
 
       CALL GETMEM('ZZR','ALLO','REAL',LZZR,NSS**2)
       CALL GETMEM('ZZI','ALLO','REAL',LZZI,NSS**2)
       IZMR(3)=LZZR
       IZMI(3)=LZZI
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZZR),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZZI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZZR),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZZI),1)
 
       DO ISS=1,NSS
         ISTATE=IWORK(LMAPST-1+ISS)
@@ -5362,8 +5008,6 @@ c
       DO I=1,3
       EVR(I)=0.0D0
       EVI(I)=0.0D0
-      SCR1(I)=0.0D0
-      SCR2(I)=0.0D0
       END DO
       DO IXYZ=1,3
        DO JXYZ=1,3
@@ -5376,7 +5020,7 @@ c
        END DO
       ENDDO
 
-      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,SCR1,SCR2,IERR)
+      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
 
       DO IXYZ=1,3
        DO JXYZ=1,3
@@ -5474,22 +5118,22 @@ c
       CALL GETMEM('ZXI','ALLO','REAL',LZXI,NSS**2)
       IZMR(1)=LZXR
       IZMI(1)=LZXI
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZXR),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZXI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZXR),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZXI),1)
 
       CALL GETMEM('ZYR','ALLO','REAL',LZYR,NSS**2)
       CALL GETMEM('ZYI','ALLO','REAL',LZYI,NSS**2)
       IZMR(2)=LZYR
       IZMI(2)=LZYI
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZYR),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZYI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZYR),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZYI),1)
 
       CALL GETMEM('ZZR','ALLO','REAL',LZZR,NSS**2)
       CALL GETMEM('ZZI','ALLO','REAL',LZZI,NSS**2)
       IZMR(3)=LZZR
       IZMI(3)=LZZI
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZZR),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZZI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZZR),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZZI),1)
 
       DO ISS=1,NSS
         ISTATE=IWORK(LMAPST-1+ISS)
@@ -5850,8 +5494,6 @@ C     &                 ZEKL(:,:,IXYZ,ISTATE)
       DO I=1,3
       EVR(I)=0.0D0
       EVI(I)=0.0D0
-      SCR1(I)=0.0D0
-      SCR2(I)=0.0D0
       END DO
       DO IXYZ=1,3
        DO JXYZ=1,3
@@ -5863,7 +5505,7 @@ C     &                 ZEKL(:,:,IXYZ,ISTATE)
        END IF
        END DO
       ENDDO
-      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,SCR1,SCR2,IERR)
+      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
 
 C construct g_s matrix from G by back-transormation of the
 C square root of the G eigenvalues
@@ -5930,11 +5572,11 @@ C square root of the G eigenvalues
       END DO
 
       CALL GETMEM('LXI','ALLO','REAL',LLXI,NSS**2)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LLXI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLXI),1)
       CALL GETMEM('LYI','ALLO','REAL',LLYI,NSS**2)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LLYI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLYI),1)
       CALL GETMEM('LZI','ALLO','REAL',LLZI,NSS**2)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LLZI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLZI),1)
 
       IF(IAMX.GT.0)
      &     CALL SMMAT(PROP,WORK(LLXI),NSS,PNAME(IAMX),ICOMP(IAMX))
@@ -5948,22 +5590,22 @@ C square root of the G eigenvalues
       CALL GETMEM('ZXI','ALLO','REAL',LZXI,NSS**2)
       IZMR(1)=LZXR
       IZMI(1)=LZXI
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZXR),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZXI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZXR),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZXI),1)
 
       CALL GETMEM('ZYR','ALLO','REAL',LZYR,NSS**2)
       CALL GETMEM('ZYI','ALLO','REAL',LZYI,NSS**2)
       IZMR(2)=LZYR
       IZMI(2)=LZYI
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZYR),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZYI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZYR),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZYI),1)
 
       CALL GETMEM('ZZR','ALLO','REAL',LZZR,NSS**2)
       CALL GETMEM('ZZI','ALLO','REAL',LZZI,NSS**2)
       IZMR(3)=LZZR
       IZMI(3)=LZZI
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZZR),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZZI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZZR),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZZI),1)
 
 
       CALL DAXPY_(NSS**2,1.0D0,WORK(LLXI),1,WORK(LZXI),1)
@@ -6267,8 +5909,6 @@ c
       DO I=1,3
       EVR(I)=0.0D0
       EVI(I)=0.0D0
-      SCR1(I)=0.0D0
-      SCR2(I)=0.0D0
       END DO
       DO IXYZ=1,3
        DO JXYZ=1,3
@@ -6281,7 +5921,7 @@ c
        END DO
       ENDDO
 
-      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,SCR1,SCR2,IERR)
+      CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
 
 C construct g_s matrix from G by back-transormation of the
 C square root of the G eigenvalues
@@ -6391,11 +6031,11 @@ C initialization same as G-tensor, construct L+gS matrix elements
       END DO
 
       CALL GETMEM('LXI','ALLO','REAL',LLXI,NSS**2)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LLXI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLXI),1)
       CALL GETMEM('LYI','ALLO','REAL',LLYI,NSS**2)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LLYI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLYI),1)
       CALL GETMEM('LZI','ALLO','REAL',LLZI,NSS**2)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LLZI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LLZI),1)
 
       IF(IAMX.GT.0)
      &     CALL SMMAT(PROP,WORK(LLXI),NSS,PNAME(IAMX),ICOMP(IAMX))
@@ -6418,12 +6058,12 @@ C initialization same as G-tensor, construct L+gS matrix elements
       IMR(3)=LMZR
       IMI(3)=LMZI
 
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LMXR),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LMXI),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LMYR),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LMYI),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LMZR),1)
-      CALL DCOPY_(NSS**2,0.0D0,0,WORK(LMZI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMXR),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMXI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMYR),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMYI),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMZR),1)
+      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LMZI),1)
 
       CALL SMMAT(PROP,WORK(LMXR),NSS,'SPIN    ',1)
       CALL SMMAT(PROP,WORK(LMYI),NSS,'SPIN    ',2)
@@ -6492,8 +6132,8 @@ C initialization same as G-tensor, construct L+gS matrix elements
 
        DO IBSTEP=1,NBSTEP
         B=BSTART+BINCRE*(IBSTEP-1)
-        CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZR),1)
-        CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZI),1)
+        CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZR),1)
+        CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZI),1)
         CALL DAXPY_(NSS**2,0.5D0*B/AU2T,WORK(IMR(IXYZ)),1,WORK(LZR),1)
         CALL DAXPY_(NSS**2,0.5D0*B/AU2T,WORK(IMI(IXYZ)),1,WORK(LZI),1)
         DO ISS=1,NSS
@@ -6501,9 +6141,9 @@ C initialization same as G-tensor, construct L+gS matrix elements
          HZER=WORK(LZR-1+IISS)
          WORK(LZR-1+IISS)=HZER+ENSOR(ISS)
         END DO
-        CALL DCOPY_(NSS**2,0.0D0,0,WORK(LUZR),1)
-        CALL DCOPY_(NSS   ,1.0D0,0,WORK(LUZR),NSS+1)
-        CALL DCOPY_(NSS**2,0.0D0,0,WORK(LUZI),1)
+        CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LUZR),1)
+        CALL DCOPY_(NSS   ,[1.0D0],0,WORK(LUZR),NSS+1)
+        CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LUZI),1)
         CALL ZJAC(NSS,WORK(LZR),WORK(LZI),NSS,WORK(LUZR),WORK(LUZI))
         DO JXYZ=1,3
          CALL DCOPY_(NSS**2,WORK(IMR(JXYZ)),1,WORK(IZMR(JXYZ)),1)
@@ -6584,7 +6224,7 @@ C powder magnetization, useful in nonlinear cases
      & "  Mx (J/T)  ","  My (J/T)  ","  Mz (J/T)  "
 
       CALL GETMEM('MAGM','ALLO','REAL',LMAGM,3*NBSTEP*NTSTEP)
-      CALL DCOPY_(3*NBSTEP*NTSTEP,0.0D0,0,WORK(LMAGM),1)
+      CALL DCOPY_(3*NBSTEP*NTSTEP,[0.0D0],0,WORK(LMAGM),1)
 
       NPHISTEP=INT(360.0D0/BANGRES)
       NTHESTEP=INT(180.0D0/BANGRES)
@@ -6612,11 +6252,11 @@ C scale number of points on phi via sin(theta)
         BX=B*SIN(THE)*COS(PHI)
         BY=B*SIN(THE)*SIN(PHI)
         BZ=B*COS(THE)
-        CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZR),1)
+        CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZR),1)
         CALL DAXPY_(NSS**2,0.5D0*BX/AU2T,WORK(LMXR),1,WORK(LZR),1)
         CALL DAXPY_(NSS**2,0.5D0*BY/AU2T,WORK(LMYR),1,WORK(LZR),1)
         CALL DAXPY_(NSS**2,0.5D0*BZ/AU2T,WORK(LMZR),1,WORK(LZR),1)
-        CALL DCOPY_(NSS**2,0.0D0,0,WORK(LZI),1)
+        CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LZI),1)
         CALL DAXPY_(NSS**2,0.5D0*BX/AU2T,WORK(LMXI),1,WORK(LZI),1)
         CALL DAXPY_(NSS**2,0.5D0*BY/AU2T,WORK(LMYI),1,WORK(LZI),1)
         CALL DAXPY_(NSS**2,0.5D0*BZ/AU2T,WORK(LMZI),1,WORK(LZI),1)
@@ -6625,9 +6265,9 @@ C scale number of points on phi via sin(theta)
          HZER=WORK(LZR-1+IISS)
          WORK(LZR-1+IISS)=HZER+ENSOR(ISS)
         END DO
-        CALL DCOPY_(NSS**2,0.0D0,0,WORK(LUZR),1)
-        CALL DCOPY_(NSS   ,1.0D0,0,WORK(LUZR),NSS+1)
-        CALL DCOPY_(NSS**2,0.0D0,0,WORK(LUZI),1)
+        CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LUZR),1)
+        CALL DCOPY_(NSS   ,[1.0D0],0,WORK(LUZR),NSS+1)
+        CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LUZI),1)
         CALL ZJAC(NSS,WORK(LZR),WORK(LZI),NSS,WORK(LUZR),WORK(LUZI))
         DO IXYZ=1,3
          CALL DCOPY_(NSS**2,WORK(IMR(IXYZ)),1,WORK(IZMR(IXYZ)),1)

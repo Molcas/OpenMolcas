@@ -68,7 +68,7 @@
       iPrint = nPrint(iRout)
 C     Call qEnter('NAInt')
 *
-      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,Zero,0,Final,1)
+      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
       lc=0
       ld=0
@@ -188,8 +188,8 @@ C     Call qEnter('NAInt')
                   mcdMin=0
                   mcdMax=0
                   Call Rys(iAnga,nT,Zeta,ZInv,nZeta,
-     &                     Eta,EInv,1,P,nZeta,
-     &                     TC,1,rKappa,rKappcd,Coori,Coora,CoorAC,
+     &                     [Eta],[EInv],1,P,nZeta,
+     &                     TC,1,rKappa,[rKappcd],Coori,Coora,CoorAC,
      &                     mabmin,mabmax,mcdMin,mcdMax,
      &                     Array,nArr*nZeta,
      &                     TERI,ModU2,vCff2D,vRys2D,NoSpecial)
@@ -211,8 +211,8 @@ C     Call qEnter('NAInt')
                   mcdMin=0
                   mcdMax=0
                   Call Rys(iAnga,nT,Zeta,ZInv,nZeta,
-     &                     Eta,EInv,1,P,nZeta,
-     &                     TC,1,rKappa,rKappcd,Coori,Coora,CoorAC,
+     &                     [Eta],[EInv],1,P,nZeta,
+     &                     TC,1,rKappa,[rKappcd],Coori,Coora,CoorAC,
      &                     mabmin,mabmax,mcdMin,mcdMax,
      &                     Array,nArr*nZeta,
      &                     TERI,ModU2,vCff2D,vRys2D,NoSpecial)
@@ -228,8 +228,8 @@ C     Call qEnter('NAInt')
      &                                 * (lb+1)*(lb+2)/2
                      mArr = nArr - (la+1)*(la+2)/2*(lb+1)*(lb+2)/2
                      Call Rys(iAnga,nT,Zeta,ZInv,nZeta,
-     &                        Eta,EInv,1,P,nZeta,
-     &                        TC,1,rKappa,rKappcd,Coori,Coora,CoorAC,
+     &                        [Eta],[EInv],1,P,nZeta,
+     &                        TC,1,rKappa,[rKappcd],Coori,Coora,CoorAC,
      &                        mabMin,mabMax,mcdMin,mcdMax,
      &                        Array(ipOff),mArr*nZeta,
      &                        TERI,ModU2,vCff2D,vRys2D,NoSpecial)
@@ -254,8 +254,8 @@ C     Call qEnter('NAInt')
                   mcdMin=0
                   mcdMax=0
                   Call Rys(iAnga,nT,Zeta,ZInv,nZeta,
-     &                     Eta,EInv,1,P,nZeta,
-     &                     TC,1,rKappa,rKappcd,Coori,Coora,CoorAC,
+     &                     [Eta],[EInv],1,P,nZeta,
+     &                     TC,1,rKappa,[rKappcd],Coori,Coora,CoorAC,
      &                     mabMin,mabMax,mcdMin,mcdMax,
      &                     Array,nArr*nZeta,
      &                     TNAI,Fake,XCff2D,XRys2D,NoSpecial)

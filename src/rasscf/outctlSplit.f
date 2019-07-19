@@ -50,6 +50,7 @@ cnf
 cnf
       DIMENSION CMO(*),OCCN(*),SMAT(*)
       Dimension Temp(2,mxRoot)
+      Dimension Dum(1),iDum(56)
 
 ** (SVC) added for new supsym vector input
 *      DIMENSION NXSYM(mxOrb),nUND(mxOrb)
@@ -280,7 +281,7 @@ C Local print level (if any)
 * End of long if-block B over IPRLEV
       END IF
 
-      call dcopy_(2*mxRoot,0.0d0,0,Temp,1)
+      call dcopy_(2*mxRoot,[0.0d0],0,Temp,1)
       iRc1=0
       iRc2=0
       iOpt=1
@@ -288,8 +289,10 @@ C Local print level (if any)
       iSyLbl=1
       nMVInt=0
       nDCInt=0
-      Call iRdOne(iRc1,iOpt,'MassVel ',iComp,nMVInt,iSyLbl)
-      Call iRdOne(iRc2,iOpt,'Darwin  ',iComp,nDCInt,iSyLbl)
+      Call iRdOne(iRc1,iOpt,'MassVel ',iComp,iDum,iSyLbl)
+      If (iRc1.eq.0) nMVInt=iDum(1)
+      Call iRdOne(iRc2,iOpt,'Darwin  ',iComp,iDum,iSyLbl)
+      If (iRc2.eq.0) nDCInt=iDum(1)
       If ( (nMVInt+nDCInt).ne.0 ) Then
         IAD12=IADR15(12)
         CALL GETMEM('OPER','ALLO','REAL',LX1,NTOT1)
@@ -330,12 +333,12 @@ C Local print level (if any)
         Write(LF,Fmt2//'A)')'------------------------'
         Write(LF,*)
         If ( (nMVInt+nDCInt).ne.0) then
-          Write(LF,Fmt2//'A)')
-     &        'root  nonrelativistic    mass-velocity   '//
-     &        'Darwin-contact    relativistic'
-          Write(LF,Fmt2//'A)')
-     &        '           energy           term         '//
-     &        '    term             energy   '
+         Write(LF,Fmt2//'A)')
+     &        'root     nonrelativistic        mass-velocity       '//
+     &        'Darwin-contact         relativistic'
+         Write(LF,Fmt2//'A)')
+     &        '             energy                term             '//
+     &        '     term                 energy'
           i=lRootSplit
           Emv=Temp(1,i)
           Edc=Temp(2,i)
@@ -356,7 +359,7 @@ C Local print level (if any)
 * End of long if-block C over IPRLEV
       END IF
 
-      call Store_Energies(1,EneTmp,1)
+      call Store_Energies(1,[EneTmp],1)
 
       Call Put_iScalar('NumGradRoot',irlxroot)
       Call Put_dScalar('Last energy',ECAS)
@@ -428,7 +431,7 @@ C Local print level (if any)
 * Put the density matrix of this state on the runfile for
 *  LoProp utility
       Call GetMem('DState','ALLO','REAL',ipD,nTot1)
-      call dcopy_(nTot1,0.0D0,0,Work(ipD),1)
+      call dcopy_(nTot1,[0.0D0],0,Work(ipD),1)
       Call DONE_RASSCF(CMO,OCCN,Work(ipD))
       Call Put_D1AO(Work(ipD),NTOT1)
       Call Free_Work(ipD)
@@ -512,7 +515,7 @@ C Local print level (if any)
       END IF
 
 *     Compute spin orbitals and spin population
-      CALL DCOPY_(NTOT,0.0D0,0,OCCN,1)
+      CALL DCOPY_(NTOT,[0.0D0],0,OCCN,1)
 *SVC-11-01-2007 store original cmon in cmoso, which gets changed
       CALL GETMEM('CMOSO','ALLO','REAL',ICMOSO,NTOT2)
       CALL DCOPY_(NTOT2,WORK(ICMON),1,WORK(ICMOSO),1)
@@ -567,7 +570,7 @@ C Local print level (if any)
 
 *----- ESPF analysis
       Call DecideOnESPF(Do_ESPF)
-      If (Do_ESPF) Call espf_analysis()
+      If (Do_ESPF) Call espf_analysis(.False.)
 
 
 *     Restore the correct 1st order density for gradient calculations.

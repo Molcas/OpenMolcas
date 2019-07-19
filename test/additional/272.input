@@ -1,4 +1,3 @@
-*$ this file belongs to the Molcas repository $
 *-------------------------------------------------------------------------------
 * Molecule: water (H2O)
 * Basis: DEF-SVP
@@ -33,7 +32,7 @@ End of Input
 Occupation
 4 1
 KSDFT
-LDA  
+LDA
 ChoInput
 Algo
  3

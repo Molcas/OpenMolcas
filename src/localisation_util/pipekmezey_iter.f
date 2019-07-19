@@ -26,7 +26,7 @@ C
       Real*8      CMO(nBasis,*), Ovlp(nBasis,*)
       Integer     iTab_Ptr(nAtoms)
       Integer     nBas_per_Atom(nAtoms), nBas_Start(nAtoms)
-      Character*(LENIN4) Name(nBasis)
+      Character*(LENIN8) Name(nBasis)
       Logical     Maximisation, Converged, Debug, Silent
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -73,7 +73,7 @@ C     -----------
       Converged = .False.
       Do While (nIter.lt.nMxIter .and. .not.Converged)
          If (.not.Silent) Call CWTime(C1,W1)
-         Call RotateOrb(Ovlp,CMO,Work(ip_PACol),
+         Call RotateOrb(CMO,Work(ip_PACol),
      &                  nBasis,nAtoms,iTab_Ptr,
      &                  Maximisation,nOrb2Loc,Name,nBas_per_Atom,
      &                  nBas_Start,ThrRot,PctSkp,

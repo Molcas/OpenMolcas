@@ -34,6 +34,8 @@
 parnell_status_t
 parnell_init (void)
 {
+        char tmpWorkDir[FILENAME_MAX+7];
+
         /* all process should have been started in the main work directory */
         if (WorkDir[0]==0 && getcwd(WorkDir, FILENAME_MAX)==NULL) {
                 perror ("while calling getcwd");
@@ -45,7 +47,9 @@ parnell_init (void)
                 if (MyRank == 0) {
                         strncpy (MyWorkDir, WorkDir, FILENAME_MAX);
                 } else {
-                        snprintf (MyWorkDir, FILENAME_MAX, "%s/tmp_%d", WorkDir, MyRank);
+                        snprintf (tmpWorkDir, FILENAME_MAX+7, "%s/tmp_%d", WorkDir, MyRank);
+                        strncpy (MyWorkDir, tmpWorkDir, FILENAME_MAX-1);
+                        MyWorkDir[FILENAME_MAX-1] = 0;
                         if (chdir (MyWorkDir) != 0) {
                                 perror ("cannot change directory");
                                 fprintf(stderr,"%d parnell_init: fatal error, could not switch to directory %s\n", MyRank, MyWorkDir);

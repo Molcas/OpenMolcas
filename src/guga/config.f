@@ -22,8 +22,6 @@
       COMMON/D/JNDX(500 000)
       DIMENSION IOC(55),ISP(55)
 *
-      JO(L)=ICUNP(ICASE,L)
-*
       CALL QENTER('CONFIG')
       JSYL=30000
       JSYLL=3000

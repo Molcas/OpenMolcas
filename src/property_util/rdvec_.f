@@ -86,7 +86,6 @@
       LOGICAL Exist
       Character*7 Crypt, CryptUp
       Character*10 Buff
-      Character*2 sDummy
 *
 * Note! the size of Magic must be exact (thanks to MS formatted inporb!)
 *
@@ -327,15 +326,17 @@
         Rewind(LU)
 57      READ(LU,'(A256)',END=666,ERR=666) Line
         If(Line(1:6).ne.'#INDEX') goto 57
-        if(iVer.eq.iVer10) then
-        FMT='(A4)'
-        NDIV  = 4
+        FMT=FMTIND(iVer)
+        nDiv=nDivInd(iVer)
         iShift=1
         Do ISYM=1,NSYM
 c         iShift=(ISYM-1)*7
-          Do IORB=1,iWork(imyNORB+ISYM-1),NDIV
+          Do i=1,nSkpInd(iVer)
+            read(LU,*)
+          EndDo
+          Do IORB=1,iWork(imyNORB+ISYM-1),nDiv
             READ(LU,FMT,err=666,end=666) Buff
-            Do i=1,4
+            Do i=1,nDiv
               IND=index(Crypt,Buff(i:i))+index(CryptUp,Buff(i:i))
               If(Buff(i:i).ne.' ') Then
                 If(IND.eq.0) Then
@@ -352,35 +353,6 @@ c         iShift=(ISYM-1)*7
             End Do
           End Do
         End Do
-        endif ! Ver10
-c Ver 11
-        if(iVer.ge.iVer11) then
-        FMT='(A4)'
-        NDIV  = 10
-        iShift=1
-        Do ISYM=1,NSYM
-c         iShift=(ISYM-1)*7
-        read(LU,*)
-          Do IORB=1,iWork(imyNORB+ISYM-1),NDIV
-            READ(LU,'(a2,A10)',err=666,end=666) sDummy,Buff
-            Do i=1,10
-              IND=index(Crypt,Buff(i:i))+index(CryptUp,Buff(i:i))
-              If(Buff(i:i).ne.' ') Then
-                If(IND.eq.0) Then
-                  WRITE(6,*) '* ERROR IN RDVEC WHILE READING TypeIndex'
-                  WRITE(6,'(3A)') '* Type=',Buff(i:i), ' is UNKNOWN'
-                  WRITE(6,*) '* TypeIndex information is IGNORED'
-                  iErr=1
-                  Close(Lu)
-                  goto 777
-                End If
-                IndT(iShift)=IND
-                iShift=iShift+1
-              End If
-            End Do
-          End Do
-        End Do
-        endif ! Ver10
 
 
         iA=1

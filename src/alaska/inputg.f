@@ -23,7 +23,6 @@
 *              RecPrt                                                  *
 *              DaXpY   (ESSL)                                          *
 *              DDot_   (ESSL)                                          *
-*              DGeICD  (ESSL)                                          *
 *              DScal   (ESSL)                                          *
 *              DGEMM_  (ESSL)                                          *
 *              QExit                                                   *
@@ -50,7 +49,6 @@
       Character*1 xyz(0:2)
       Character KWord*80, Key*80
       Integer iSym(3), iTemp(3*mxdc)
-      Real*8 Det(2)
       Logical timings,Reduce_Prt
       External Reduce_Prt
       Data xyz/'x','y','z'/
@@ -396,7 +394,8 @@ c      nprint(26)=99
 *
 *     Put the program name and the time stamp onto the extract file
 *
-971   Write (LuWr,*)'InputG: EXTRACT option is redudant and is ignored!'
+971   Write (LuWr,*)'InputG: EXTRACT option is redundant and is',
+     &              ' ignored!'
       Go To 998
 *                                                                      *
 ************************************************************************
@@ -493,7 +492,7 @@ c      nprint(26)=99
          Call Get_iScalar('Number of roots',nRoots)
          Call Allocate_Work(ipTmp,nRoots)
          Call Get_dArray('Last energies',Work(ipTmp),nRoots)
-         Ediff=Work(ipTmp+NACstates(2)-1)-Work(ipTmp+NACstates(1)-1)
+         Ediff=Work(ipTmp+NACstates(1)-1)-Work(ipTmp+NACstates(2)-1)
          Call Free_Work(ipTmp)
       End If
 *
@@ -542,8 +541,8 @@ c      nprint(26)=99
       End If
       If (Show.and.iPrint.ge.6) Then
          Write (LuWr,*)
-         Write (LuWr,'(20X,A,E8.3)')
-     &     ' Threshold for contributions to the gradient: ',CutGrd
+         Write (LuWr,'(20X,A,E10.3)')
+     &     ' Threshold for contributions to the gradient:',CutGrd
          Write (LuWr,*)
       End If
 *
@@ -560,10 +559,10 @@ c      nprint(26)=99
          Write (LuWr,*)
       End If
 *
-      Call ICopy(mxdc*8,0,0,IndDsp,1)
-      Call ICopy(mxdc*3,0,0,InxDsp,1)
-      call dcopy_(3*MxSym*mxdc,One,0,Disp_Fac,1)
-      Call ICopy(3*mxdc,1,0,mult_Disp,1)
+      Call ICopy(mxdc*8,[0],0,IndDsp,1)
+      Call ICopy(mxdc*3,[0],0,InxDsp,1)
+      call dcopy_(3*MxSym*mxdc,[One],0,Disp_Fac,1)
+      Call ICopy(3*mxdc,[1],0,mult_Disp,1)
       nDisp = 0
       Do iIrrep = 0, nIrrep-1
          lDisp(iIrrep) = 0
@@ -678,8 +677,8 @@ c      nprint(26)=99
          Call GetMem('Coor ','Allo','Real',ipC,lDisp(0)*4)
          Call GetMem('Car  ','Allo','Inte',ipCar,lDisp(0))
 *
-         call dcopy_(nTR*lDisp(0),Zero,0,Work(ipAm),1)
-         call dcopy_(4*lDisp(0),Zero,0,Work(ipC),1)
+         call dcopy_(nTR*lDisp(0),[Zero],0,Work(ipAm),1)
+         call dcopy_(4*lDisp(0),[Zero],0,Work(ipC),1)
 *
 *        Generate temporary information of the symmetrical
 *        displacements.
@@ -834,7 +833,7 @@ c      nprint(26)=99
             ipNew = ipAm + nTR*(iTemp(iTR)-1)
             ipIn  = ipTmp + nTR*(iTR-1)
             call dcopy_(nTR,Work(ipNew),1,Work(ipIn),1)
-            call dcopy_(nTR,Zero,0,Work(ipNew),1)
+            call dcopy_(nTR,[Zero],0,Work(ipNew),1)
          End Do
          If (iPrint.ge.99) Then
             Call RecPrt(' The A matrix',' ',Work(ipAm),nTR,lDisp(0))
@@ -844,13 +843,7 @@ c      nprint(26)=99
 *
 *        Compute the inverse of the T matrix
 *
-         nAux = 100*nTR
-         iOpt = 1
-         Call GetMem('Aux','Allo','Real',ipAux,nAux)
-         Call DGeICD(Work(ipTmp),nTR,nTR,iOpt,rcond,
-     &               det,Work(ipAux),nAux)
-         Call GetMem('Aux','Free','Real',ipAux,nAux)
-*        Write (LuWr,*) ' rcond=',rcond
+         Call MatInvert(Work(ipTmp),nTR)
          If (IPrint.ge.99)
      &      Call RecPrt(' The T-1 matrix',' ',Work(ipTmp),nTR,nTR)
          Call DScal_(nTR**2,-One,Work(ipTmp),1)
@@ -865,8 +858,8 @@ c      nprint(26)=99
      &               0.0d0,Work(ipScr),nTR)
          If (IPrint.ge.99)
      &      Call RecPrt(' A-1*A',' ',Work(ipScr),nTR,lDisp(0))
-         call dcopy_(lDisp(0)**2,Zero,0,Work(ipAm),1)
-         call dcopy_(lDisp(0),One,0,Work(ipAm),lDisp(0)+1)
+         call dcopy_(lDisp(0)**2,[Zero],0,Work(ipAm),1)
+         call dcopy_(lDisp(0),[One],0,Work(ipAm),lDisp(0)+1)
          Do 1250 iTR = 1, nTR
             ldsp = iTemp(iTR)
             ipOut = ipScr + iTR - 1

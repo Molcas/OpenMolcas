@@ -44,10 +44,11 @@
       Real*8 FX(3)
       Real*8, Allocatable, Dimension(:,:) :: EnergyArray, GradArray,
      &                                       OldGrads
-      Real*8, Allocatable, Dimension(:) :: Grad
+      Real*8, Allocatable, Dimension(:) :: Grad, GNew
       Integer rc, Read_Grad
       External Read_Grad
-      Parameter (ToHartree = CONV_CAL_TO_J_ / CONV_AU_TO_KJ_PER_MOLE_)
+      Parameter (ToHartree = CONV_CAL_TO_J_ /
+     &           CONV_AU_TO_KJ_PER_MOLE_)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -69,12 +70,23 @@
 *
       Call Get_cArray('Relax Method',Method,8)
       Call DecideOnESPF(Do_ESPF)
-      Call Get_iScalar('NumGradRoot',iRoot)
       Is_Roots_Set = .False.
       Call Qpg_iScalar('Number of roots',Is_Roots_Set)
-      nRoots = 1
       If (Is_Roots_Set) Then
          Call Get_iScalar('Number of roots',nRoots)
+         If (nRoots.eq.1) Then
+            iRoot=1
+         Else
+            Call qpg_iScalar('NumGradRoot',Found)
+            If (Found) Then
+               Call Get_iScalar('NumGradRoot',iRoot)
+            Else
+               iRoot=1
+            End If
+         End If
+      Else
+         nRoots = 1
+         iRoot  = 1
       End If
       Call Allocate_Work(ipEnergies_Ref,nRoots)
 C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
@@ -123,18 +135,18 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
             Else If (Index(Line,'DIRECT ') .ne. 0) Then
               DoDirect = .True.
             Else If (Index(Line,'MLTORD ') .ne. 0) Then
-              Call Get_I(2,MltOrd,1)
+              Call Get_I1(2,MltOrd)
               ibla = 0
               Do ii = 0, MltOrd
                  ibla = ibla + (ii+2)*(ii+1)/2
               End Do
               MltOrd = ibla
             Else If (Index(Line,'MULTIPOLE ') .ne. 0) Then
-              Call Get_I(2,nMult,1)
+              Call Get_I1(2,nMult)
               Call Allocate_Work(ipMltp,nMult)
               Do iMlt = 1, nMult, MltOrd
                 Line = Get_Ln(IPotFl)
-                Call Get_I(1,iAt,1)
+                Call Get_I1(1,iAt)
                 Call Get_F(2,Work(ipMltp+iMlt-1),MltOrd)
               End Do
             End If
@@ -158,10 +170,10 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
             Do While (Index(Line,'TheEnd') .eq. 0)
                Line = Get_Ln(ITkQMMM)
                If (Index(Line,'MMGradient') .ne. 0) Then
-                  Call Get_I(2,iAtom,1)
+                  Call Get_I1(2,iAtom)
                   Call Get_F(3,FX,3)
                   If (iWork(ipIsMM+iAtom-1) .eq. 1)
-     &                Call FMove(FX,Work(ipMMGrd+3*(iAtom-1)),3)
+     &                Call dCopy_(3,FX,1,Work(ipMMGrd+3*(iAtom-1)),1)
                End If
             End Do
             Call DScal_(3*nAtoms,Angstrom*ToHartree,Work(ipMMGrd),1)
@@ -199,9 +211,9 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
          Call GetMem('BMtrx','Allo','Real',ip_BMtrx,nBMtrx)
          Call GetMem('TMtrx','Allo','Real',ip_TMtrx,mInt**2)
          Call FZero(Work(ip_BMtrx),nBMtrx)
-         call dcopy_(3*nAtoms,One,0,Work(ip_BMtrx),3*nAtoms+1)
+         call dcopy_(3*nAtoms,[One],0,Work(ip_BMtrx),3*nAtoms+1)
          Call FZero(Work(ip_TMtrx),mInt**2)
-         call dcopy_(mInt,One,0,Work(ip_TMtrx),mInt+1)
+         call dcopy_(mInt,[One],0,Work(ip_TMtrx),mInt+1)
       End If
 *                                                                      *
 ************************************************************************
@@ -210,6 +222,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
      &    Method(1:6) .eq. 'KS-DFT' .OR.
      &    Method(1:6) .eq. 'CASSCF' .OR.
      &    Method(1:6) .eq. 'RASSCF' .OR.
+     &    Method(1:6) .eq. 'GASSCF' .OR.
      &    Method(1:6) .eq. 'CASPT2' .OR.
      &    Method(1:5) .eq. 'MBPT2'  .OR.
      &    Method(1:5) .eq. 'CCSDT'  .OR.
@@ -220,7 +233,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
             Write (LuWr,*)
             Write (LuWr,'(A,A,A)')
      &    ' Numerical_Gradient: Original ',Method,' Energies:'
-            Write (LuWr,'(G20.14)')
+            Write (LuWr,'(G21.14)')
      &    (Work(ipEnergies_Ref+i-1),i=1,nRoots)
             Write (LuWr,*)
          End If
@@ -381,6 +394,17 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*     Save the "new geometry" field from the RunFile, if any
+*
+      Call qpg_dArray('GeoNew',Found,nGNew)
+      If (.not.Found) nGNew=0
+      If (nGNew.gt.0) Then
+        Call mma_allocate(GNew,nGNew)
+        Call Get_dArray('GeoNew',GNew,nGNew)
+      End If
+*                                                                      *
+************************************************************************
+*                                                                      *
 *     Save global print level
 *
       iPL_Save=iPrintLevel(-1)
@@ -478,7 +502,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
          If (ESPFKey.ne.'MULTIPOLE ') Then
             Write(iSave,'(A132)') Line
          Else
-            Call Get_I(2,nMult,1)
+            Call Get_I1(2,nMult)
             Do iMlt = 1, nMult
                Line = Get_Ln(iData)
             End Do
@@ -597,6 +621,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
                Call Abend()
             End If
          Else If (Method(1:6) .eq. 'RASSCF' .OR.
+     &            Method(1:6) .eq. 'GASSCF' .OR.
      &            Method(1:6) .eq. 'CASSCF' .OR.
      &            Method(1:6) .eq. 'MCPDFT' .OR.
      &            Method(1:6) .eq. 'CASPT2' .OR.
@@ -786,6 +811,17 @@ C_MPP End Do
       If (MyRank.ne.0) Then
          Close(LuWr)
          LuWr=LuWr_save
+      End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Restore the "new geometry" field to the RunFile, if any
+*
+      If (nGNew.eq.0) Then
+        Call Put_Coord_New([Zero],0)
+      Else
+        Call Put_Coord_New(GNew,nGNew/3)
+        Call mma_deallocate(GNew)
       End If
 *                                                                      *
 ************************************************************************
@@ -1009,6 +1045,19 @@ C_MPP End Do
 *
       nfld_tim  = 0
       nfld_stat = 0
+*
+*     Restore iRlxRoot if changed as set by the RASSCF module.
+*
+      If (Method(1:6) .eq. 'CASSCF' .OR.
+     &    Method(1:6) .eq. 'RASSCF' ) Then
+         Call Get_iScalar('Relax CASSCF root',irlxroot1)
+         Call Get_iScalar('Relax Original ro',irlxroot2)
+         If (iRlxRoot1.ne.iRlxRoot2) Then
+            Call Put_iScalar('Relax CASSCF root',irlxroot2)
+            Call Put_iScalar('NumGradRoot',irlxroot2)
+         End If
+      End If
+
 *
       Return
       End

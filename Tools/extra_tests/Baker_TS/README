@@ -1,0 +1,33 @@
+Baker TS test suite, from:
+
+Jon Baker, Fora Chan
+"The Location of Transition States: A Comparison of Cartesian, Z-Matrix, and Natural Internal Coordinates"
+J. Comput. Chem. 17:7 (1996) 888-904
+DOI: 10.1002/(SICI)1096-987X(199605)17:7<888::AID-JCC12>3.0.CO;2-7
+
+
+01: HCN <-> HNC
+02: HCCH <-> CCH2
+03: H2CO <-> H2 + CO
+04: CH3O <-> CH2OH
+05: ring opening cyclopropyl
+06: ring opening bicyclo[1.1.0]butane TS 1
+07: ring opening bicyclo[1.1.0]butane TS 2
+08: 1,2-migration beta-(formyloxy)ethyl
+09: butadiene + ethylene <-> cyclohexene
+10: s-tetrazine <-> 2HCN + N2
+11: trans-butadiene <-> cis-butadiene
+12: CH3CH3 <-> CH2CH2 + H2
+13: CH3CH2F <-> CH2CH2 + HF
+14: vinyl alcohol <-> acetaldehyde
+15: HCOCl <-> HCl + CO
+16: H2O + PO3- <-> H2PO4-
+17: CH2CHCH2-O-CHCH2 <-> CH2CHCH2CH2CHO
+18: SiH2 + CH3CH3 <-> SiH3CH2CH3
+19: HNCCS <-> HNC + CS
+20: HCONH3+ <-> NH4+ + CO
+21: rotational TS in acrolein
+22: HCONHOH <-> HCOHNHO
+23: HNC + H2 <-> H2CNH
+24: H2CNH <-> HCNH2
+25: HCNH2 <-> HCN + H2

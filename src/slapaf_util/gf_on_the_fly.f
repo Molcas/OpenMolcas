@@ -14,7 +14,7 @@
 #include "real.fh"
 #include "WrkSpc.fh"
       Real*8 DipM(3)
-      Integer NrDisp(3*MxAtom), mDisp(8)
+      Integer mDisp(8)
 *define _DEBUG_
 *                                                                      *
 ************************************************************************
@@ -105,12 +105,6 @@
       nDisp=mInter
       Call GetMem('NMod','Allo','Real',ipNMod,nDisp**2)
       ipNx=ipNMod
-      Call Get_iScalar('nChDisp',nDisp_)
-      Call Get_iArray('NrDisp',NrDisp,nDisp_)
-#ifdef _DEBUG_
-      Write (6,*) 'nDisp_=',nDisp_
-      Write (6,*) 'NrDisp=',(NrDisp(i),i=1,nDisp_)
-#endif
 *
       lModes=0
       nModes=0
@@ -132,10 +126,10 @@
 *     Write stuff on Molden input file
 *
       mSym=1
-      Call ICopy(8,0,0,mDisp,1)
+      Call ICopy(8,[0],0,mDisp,1)
       mDisp(1)=nInter
       Call Freq_Molden(Work(ipEVal),nModes,Work(ipNMod),lModes,mSym,
-     &                 Work(ipIRInt),mDisp)
+     &                 Work(ipIRInt),mDisp,Work(ipRedMas))
 *                                                                      *
 ************************************************************************
 *                                                                      *

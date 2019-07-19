@@ -96,7 +96,7 @@
          Write (6,*) ' In SROInt: la,lb=',' ',la,lb
       End If
 *
-      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,Zero,0,Final,1)
+      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
       llOper = lOper(1)
       iComp = 1

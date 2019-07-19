@@ -25,7 +25,7 @@
 #include "WrkSpc.fh"
 #include "print.fh"
       Real*8 B(3,nAtom,nInt), BTILDA(3,nAtom,nInt), Coor(3,nAtom),
-     &       A(3*nAtom,nDim), AB(nDim,nDim), Det(2)
+     &       A(3*nAtom,nDim), AB(nDim,nDim)
       Integer   Index(3,nAtom), iOper(0:7)
       Logical SymDsp, Smmtrc(3,nAtom), TransVar, RotVar
 *
@@ -37,7 +37,7 @@
 *     Complement the B matrix with the vectors of the symmetry
 *     preserving translations and rotations
 *
-      call dcopy_(3*nAtom*nDim,Zero,0,A,1)
+      call dcopy_(3*nAtom*nDim,[Zero],0,A,1)
       call dcopy_(3*nAtom*nInt,B,1,A,1)
 *
       TransVar=iAnd(iSBS,2**7).eq. 2**7
@@ -54,8 +54,8 @@
          If (SymDsp(iOper,nSym,iCmp)) Then
 *           Write (*,*) ' Adding translation, iCmp=',iCmp
             iAdd = iAdd + 1
-*           call dcopy_(3*nAtom,Zero,0,A(1,iAdd),1)
-            call dcopy_(nAtom,One,0,A(i,iAdd),3)
+*           call dcopy_(3*nAtom,[Zero],0,A(1,iAdd),1)
+            call dcopy_(nAtom,[One],0,A(i,iAdd),3)
          End If
  100  Continue
  101  Continue
@@ -80,7 +80,7 @@
 *           Write (*,*) ' Adding rotation, iCmp=',iCmp
             iAdd = iAdd + 1
 *-----------Clear the column  (iAdd)
-*           call dcopy_(3*nAtom,Zero,0,A(1,iAdd),1)
+*           call dcopy_(3*nAtom,[Zero],0,A(1,iAdd),1)
             Call DYaX(nAtom,One,Coor(j,1),3,A(k,iAdd),3)
             Call DYaX(nAtom,-One,Coor(k,1),3,A(j,iAdd),3)
          End If
@@ -118,11 +118,7 @@
 *
 *     Compute the inverse
 *
-      nAux = 33*nDim
-      iOpt=0
-      Call GetMem(' Aux','Allo','Real',ipAux,nAux)
-      Call DGeICD(AB,nDim,nDim,iOpt,rcond,Det,Work(ipAux),nAux)
-      Call GetMem(' Aux','Free','Real',ipAux,nAux)
+      Call MatInvert(AB,nDim)
 *     If (iPrint.ge.99) Call RecPrt(' In BTilde: (B-1)+',' ',
 *    &                                AB,nDim,nDim)
       If (iPrint.ge.99) Call RecPrt(' In BTilde: (B-1)+',
@@ -141,7 +137,7 @@
                call dcopy_(nInt,AB(1,ibc),     1,BTilda(k,isAtom,1),
      &                    3*nAtom)
             Else
-               call dcopy_(nInt,Zero,0,BTilda(k,isAtom,1),3*nAtom)
+               call dcopy_(nInt,[Zero],0,BTilda(k,isAtom,1),3*nAtom)
             End If
          End Do
       End Do

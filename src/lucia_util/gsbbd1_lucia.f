@@ -310,7 +310,7 @@ C         WRITE(6,*) ' NKAEFF NKASTR', NKAEFF,NKASTR
                  CALL WRTMAT(SSCR,IJ_DIM(1),NKI,IJ_DIM(1),NKI)
                 END IF
 *
-*. And then the hard  work
+*. And then the hard work
                 NKI = LKABTC*NIBTC
                 FACTORC = 0.0D0
                 FACTORAB = 1.0D0
@@ -344,13 +344,13 @@ C         WRITE(6,*) ' NKAEFF NKASTR', NKAEFF,NKASTR
 *. /\ end of this I partitioning
 *.end of this K partitioning
             IF(KEND.EQ.0) GOTO 700
-*. End of loop over I partitioninigs
+*. End of loop over I partitionings
   800   CONTINUE
 *.(end of loop over symmetries)
   900 CONTINUE
  1001 CONTINUE
 *
-C!    stop ' enforrced stop in RSBBD1 '
+C!    stop ' enforced stop in RSBBD1 '
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN

@@ -163,8 +163,8 @@
                Call Superpose_w(XYZ(1,iReac),XYZ(1,iProd),W,mAt,
      &                          RMS,RMSMax)
                Call Fix_Symmetry(XYZ(1,iReac),nAt,iStab)
-               Call Add_Info('RMSD',RMS,1,6)
-               Call Add_Info('RMSMax',RMSMax,1,6)
+               Call Add_Info('RMSD',[RMS],1,6)
+               Call Add_Info('RMSMax',[RMSMax],1,6)
                call dcopy_(3*nAt,XYZ(1,iReac),1,DInf(ipRP1),1)
                call dcopy_(3*nAt,XYZ(1,iProd),1,DInf(ipRP2),1)
 *

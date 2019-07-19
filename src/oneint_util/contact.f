@@ -38,7 +38,8 @@
      &       Array(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2),
      &       Axyz(nZeta,3,0:la), Bxyz(nZeta,3,0:lb),
      &       Zeta(nZeta), P(nZeta,3), A(3), RB(3), TC(3)
-      Integer iStabM(0:nStabM-1), iStabO(0:7), iDCRT(0:7), lOper(nComp)
+      Integer iStabM(0:nStabM-1), iStabO(0:7), iDCRT(0:7), lOper(nComp),
+     &       iChO(nComp)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -73,12 +74,12 @@
          TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*Ccoor(2)
          TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*Ccoor(3)
 *
-         call dcopy_(nZeta*nElem(la)*nElem(lb),Zero,0,Array,1)
+         call dcopy_(nZeta*nElem(la)*nElem(lb),[Zero],0,Array,1)
 *
 *--------Compute the value of the angular components associated
 *        to the basis functions centered on the first center.
 *
-         call dcopy_(nZeta*3,One,0,Axyz(1,1,0),1)
+         call dcopy_(nZeta*3,[One],0,Axyz(1,1,0),1)
          If (la.eq.0) Go To 60
 *
          Do iCar = 1, 3
@@ -100,7 +101,7 @@
 *--------Compute the value of the angular components associated to
 *        the basis functions centered on the second center.
 *
-         call dcopy_(nZeta*3,One,0,Bxyz(1,1,0),1)
+         call dcopy_(nZeta*3,[One],0,Bxyz(1,1,0),1)
 *
 *--------Modify z-component to carry the the exponetial
 *        contribution.

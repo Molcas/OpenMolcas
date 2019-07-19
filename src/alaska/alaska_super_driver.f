@@ -98,6 +98,7 @@
      &     (Do_Cholesky.and.Do_1CCD.and.nSym.eq.1))) Then
 *
          If( (Method .eq. 'KS-DFT  ') .or.
+     &       (Method .eq. 'UHF-SCF ') .or.
      &       (Method .eq. 'RHF-SCF ') ) Then
             Do_Numerical_Cholesky= .False.
      &
@@ -115,12 +116,17 @@
 *     If (isNAC) Do_ESPF=.False.
 *                                                                      *
 ************************************************************************
+      if(Method .eq. 'DMRGSCFS')then
+        Call Get_iScalar('SA ready',iGo)
+      end if
 *                                                                      *
       If (Numerical              .OR.
      &    Do_Numerical_Cholesky  .OR.
      &    Method .eq. 'RASSCFSA' .OR.
+     &    Method .eq. 'GASSCFSA' .OR.
+     &  ((Method .eq. 'DMRGSCFS').and.(iGo.ne.2)) .OR.
      &    Method .eq. 'CASPT2'   .OR.
-     &  ((Method .eq. 'MBPT2').and. (iMp2Prpt.ne.2)) .OR.
+     &  ((Method .eq. 'MBPT2').and.(iMp2Prpt.ne.2)) .OR.
      &    Method .eq. 'CCSDT'    ) Then
          If (isNAC) Then
            Call Store_Not_Grad(0,NACstates(1),NACstates(2))
@@ -183,11 +189,12 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Else If (Method.eq.'CASSCFSA') Then
+      Else If (Method.eq.'CASSCFSA' .or.
+     &        (Method.eq.'DMRGSCFS' .and. iGo.ne.2)) Then
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*        State-Average CASSCF
+*        State-Average CASSCF / DMRGSCF
 *
          Call Get_iScalar('SA ready',iGo)
          Call Get_iScalar('Relax CASSCF root',iRlxRoot)

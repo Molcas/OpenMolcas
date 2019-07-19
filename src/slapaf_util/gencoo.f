@@ -43,7 +43,7 @@
          Do ix = 1, 3
             If (Smmtrc(ix,iAtom)) Then
                jDim=jDim+1
-               call dcopy_(3*mAtom,Zero,0,Vctrs(1,jDim),1)
+               call dcopy_(3*mAtom,[Zero],0,Vctrs(1,jDim),1)
                Vctrs((iEnd-1)*3+ix,jDim)=Fact
             End If
          End Do

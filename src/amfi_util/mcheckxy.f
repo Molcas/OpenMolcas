@@ -8,12 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      logical function mcheckxy(m1,m2,m3,m4)
+      integer function mcheckxy(m1,m2,m3,m4)
       integer m1,m2,m3,m4,int12a,int12b,
      *int34a,int34b
 cbs   makes a check, if there is an interaction inbetween cartesian functions
 cbs   with m-values m1-m4
-      mcheckxy=.true.
+      mcheckxy=1
       int12a=m1+m2
       int12b=-m1+m2
       int34a=m3+m4
@@ -27,6 +27,6 @@ cbs   lots of checks
       if (iabs(int12a-int34b).eq.1) return
       if (iabs(int12b+int34a).eq.1) return
       if (iabs(int12b-int34a).eq.1) return
-      mcheckxy=.false.
+      mcheckxy=0
       return
       end

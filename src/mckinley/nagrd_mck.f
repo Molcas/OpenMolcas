@@ -58,6 +58,7 @@ c#include "print.fh"
       Integer iAnga(4), JndGrd(3,4,0:7), mOp(4), iuvwx(4),
      &          JndHss(4,3,4,3,0:7), kndgrd(3,4,0:7),iStabM(0:7)
       Logical JfGrd(3,4),kfgrd(3,4),jfg(4), JfHss(4,3,4,3)
+      Dimension Dum(1),Dum1(nZeta,1)
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *
@@ -86,8 +87,8 @@ c     End If
       iAnga(3) = 0
       iAnga(4) = 0
 *  Dummies
-      Call ICopy(144*nIrrep,0,0,JndHss,1)
-      Call LCopy(144,.false.,0,jfHss,1)
+      Call ICopy(144*nIrrep,[0],0,JndHss,1)
+      Call LCopy(144,[.false.],0,jfHss,1)
 *
       call dcopy_(3,A,1,Coora(1,1),1)
       call dcopy_(3,RB,1,Coora(1,2),1)
@@ -143,8 +144,8 @@ c              Write (*,*) ' Fact=',Fact
 c           End If
             iuvwx(3) = nStab(kdc+kCnt)
             iuvwx(4) = nStab(kdc+kCnt)
-            Call LCopy(12,.false.,0,JFgrd,1)
-            Call ICopy(12*nIrrep,0,0,jndGrd,1)
+            Call LCopy(12,[.false.],0,JFgrd,1)
+            Call ICopy(12*nIrrep,[0],0,jndGrd,1)
             Do iCnt = 1, 2
                   JfGrd(iDCar,iCnt) = IfGrd(iDCar,iCnt)
             End Do
@@ -209,12 +210,12 @@ c           End If
                JFG(3)=.false.
                JFG(4)=.false.
                Call Rysg2(iAnga,nRys,nZeta,
-     &                  Array(ipA),Array(ipB),One,One,
-     &                  Zeta,ZInv,nZeta,One,One,1,
+     &                  Array(ipA),Array(ipB),[One],[One],
+     &                  Zeta,ZInv,nZeta,[One],[One],1,
      &                  P,nZeta,TC,1,Coori,Coora,CoorAC,
      &                  Array(nip),nArray,
      &                  TNAI1,Fake,Cff2D,
-     &                  Dum,nDAO,Dum,1,kfGrd,kndGrd,
+     &                  Dum1,nDAO,Dum,1,kfGrd,kndGrd,
      &                  JfHss,JndHss,mOp,iuvwx,Jfg,
      &                  nGr,Index,.true.,.false.,tr)
 *

@@ -48,8 +48,8 @@
       Character*180  STDINP(mxAtom*2)
 * external functions and procedures
       Integer     iMostAbundantIsotope, iCLast
-      Real*8      NucExp
-      External    NucExp, iMostAbundantIsotope, iCLast
+      Real*8      NucExp, rMass
+      External    NucExp, rMass, iMostAbundantIsotope, iCLast
       Data DefNm/'basis_library'/
 
 *      Call qEnter('FragExpand')
@@ -184,6 +184,7 @@ c           write(*,*) 'Fname = ',Fname
             nPP_Shells(nCnttp)  = nPP
             nTot_Shells(nCnttp) = nVal+nPrj+nSRO+nSOC+nPP
             ipCntr(nCnttp) = ipExp(iShll+1)
+            CntMass(nCnttp) = rMass(iAtmNr(nCnttp))
             Do iSh = jShll+1,iShll
               FragShell(iSh)=.True.
             End Do

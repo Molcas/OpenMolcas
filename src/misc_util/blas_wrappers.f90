@@ -17,10 +17,13 @@
 ! drot_
 ! dswap_
 ! dscal_
+! zscal_
+! zdscal_
 ! dcopy_
 ! zcopy_
 ! scopy_
 ! daxpy_
+! zaxpy_
 ! ddot_
 ! dnrm2_
 ! dasum_
@@ -28,6 +31,8 @@
 ! dgemm_
 ! dspmv_
 ! dgemv_
+! dznrm2_
+! zgemm_
 
 ! Set the appropriate integer size of the library interface:
 #ifdef LINALG_I4
@@ -84,6 +89,35 @@ subroutine dscal_(n_,da,dx,incx_)
 #endif
 end subroutine
 
+subroutine zscal_(n_,da,dx,incx_)
+  implicit none
+  integer n_, incx_
+  complex*16 da, dx(*)
+#ifdef MOLCAS_TO_BLAS_INT
+  BLASINT n,  incx
+  n=n_
+  incx=incx_
+  call zscal(n,da,dx,incx)
+#else
+  call zscal(n_,da,dx,incx_)
+#endif
+end subroutine
+
+subroutine zdscal_(n_,da,dx,incx_)
+  implicit none
+  integer n_, incx_
+  real*8 da
+  complex*16 dx(*)
+#ifdef MOLCAS_TO_BLAS_INT
+  BLASINT n,  incx
+  n=n_
+  incx=incx_
+  call zdscal(n,da,dx,incx)
+#else
+  call zdscal(n_,da,dx,incx_)
+#endif
+end subroutine
+
 subroutine dcopy_(n_,dx,incx_,dy,incy_)
   implicit none
   integer n_, incx_, incy_
@@ -117,7 +151,7 @@ end subroutine
 subroutine scopy_(n_,sx,incx_,sy,incy_)
   implicit none
   integer n_, incx_, incy_
-  real*4 sx(*), sy(*)
+  real sx(*), sy(*)
 #ifdef MOLCAS_TO_BLAS_INT
   BLASINT n,  incx,  incy
   n=n_
@@ -141,6 +175,21 @@ subroutine daxpy_(n_,da,dx,incx_,dy,incy_)
   call daxpy(n,da,dx,incx,dy,incy)
 #else
   call daxpy(n_,da,dx,incx_,dy,incy_)
+#endif
+end subroutine
+
+subroutine zaxpy_(n_,da,dx,incx_,dy,incy_)
+  implicit none
+  integer n_, incx_, incy_
+  complex*16 da, dx(*), dy(*)
+#ifdef MOLCAS_TO_BLAS_INT
+  BLASINT n,  incx,  incy
+  n=n_
+  incx=incx_
+  incy=incy_
+  call zaxpy(n,da,dx,incx,dy,incy)
+#else
+  call zaxpy(n_,da,dx,incx_,dy,incy_)
 #endif
 end subroutine
 
@@ -174,6 +223,24 @@ real*8 function dnrm2_(n_,x,incx_)
   dnrm2_ = dnrm2(n_,x,incx_)
 #endif
 end function
+
+
+real*8 function dznrm2_(n_,x,incx_)
+  implicit none
+  integer n_, incx_
+  complex*16 x(*)
+  real*8, external :: dznrm2
+#ifdef MOLCAS_TO_BLAS_INT
+  BLASINT n,  incx
+  n=n_
+  incx=incx_
+  dznrm2_ = dznrm2(n,x,incx)
+#else
+  dznrm2_ = dznrm2(n_,x,incx_)
+#endif
+end function
+
+
 
 real*8 function dasum_(n_,dx,incx_)
   implicit none
@@ -217,6 +284,7 @@ subroutine dgemm_(transa,transb,m_,n_,k_, &
   BLASINT          k,  lda,  ldb,  ldc,  m,  n
 #endif
 #ifdef _CUDA_BLAS_
+  integer          ncuda
   parameter (ncuda=128*128)
   integer*4        k4,lda4,ldb4,ldc4,m4,n4
 #endif
@@ -224,15 +292,15 @@ subroutine dgemm_(transa,transb,m_,n_,k_, &
   if(m_.eq.0.and.n_.eq.0) return
 
 #ifdef _CUDA_BLAS_
-  if(n*m.gt.ncuda) then
+  if(n_*m_.gt.ncuda) then
     k4=k_
     lda4=lda_
     ldb4=ldb_
     ldc4=ldc_
     m4=m_
     n4=n_
-    call cublas_dgemm(transa,transb,
-    &     m4,n4,k4,alpha,a,lda4,b,ldb4,beta,c,ldc4)
+    call cublas_dgemm(transa,transb, &
+      &               m4,n4,k4,alpha,a,lda4,b,ldb4,beta,c,ldc4)
   else
 #endif
 
@@ -244,16 +312,68 @@ subroutine dgemm_(transa,transb,m_,n_,k_, &
     ldb=ldb_
     ldc=ldc_
     call dgemm(transa,transb, &
-        &      m,n,k,alpha,a,lda,b,ldb,beta,c,ldc)
+      &        m,n,k,alpha,a,lda,b,ldb,beta,c,ldc)
 #else
     call dgemm(transa,transb,m_,n_,k_, &
-        &      alpha,a,lda_,b,ldb_,beta,c,ldc_)
+      &        alpha,a,lda_,b,ldb_,beta,c,ldc_)
 #endif
 
 #ifdef _CUDA_BLAS_
   endif
 #endif
 end subroutine
+
+
+subroutine zgemm_(transa,transb,m_,n_,k_, &
+      &           alpha,a,lda_,b,ldb_,beta,c,ldc_)
+  implicit none
+  character        transa, transb
+  complex*16       alpha, beta
+  integer          k_, lda_, ldb_, ldc_, m_, n_
+  complex*16       a(lda_,*), b(ldb_,*), c(ldc_,*)
+#ifdef MOLCAS_TO_BLAS_INT
+  BLASINT          k,  lda,  ldb,  ldc,  m,  n
+#endif
+#ifdef _CUDA_BLAS_
+  integer          ncuda
+  parameter (ncuda=128*128)
+  integer*4        k4,lda4,ldb4,ldc4,m4,n4
+#endif
+
+  if(m_.eq.0.and.n_.eq.0) return
+
+#ifdef _CUDA_BLAS_
+  if(n_*m_.gt.ncuda) then
+    k4=k_
+    lda4=lda_
+    ldb4=ldb_
+    ldc4=ldc_
+    m4=m_
+    n4=n_
+    call cublas_zgemm(transa,transb, &
+      &               m4,n4,k4,alpha,a,lda4,b,ldb4,beta,c,ldc4)
+  else
+#endif
+
+#ifdef MOLCAS_TO_BLAS_INT
+    m=m_
+    n=n_
+    k=k_
+    lda=lda_
+    ldb=ldb_
+    ldc=ldc_
+    call zgemm(transa,transb, &
+      &        m,n,k,alpha,a,lda,b,ldb,beta,c,ldc)
+#else
+    call zgemm(transa,transb,m_,n_,k_, &
+      &        alpha,a,lda_,b,ldb_,beta,c,ldc_)
+#endif
+
+#ifdef _CUDA_BLAS_
+  endif
+#endif
+end subroutine
+
 
 subroutine dspmv_ ( uplo,n_,alpha,ap,x,incx_,beta,y,incy_)
   implicit none
@@ -265,12 +385,13 @@ subroutine dspmv_ ( uplo,n_,alpha,ap,x,incx_,beta,y,incy_)
   BLASINT            n,  incx,  incy
 #endif
 #ifdef _CUDA_BLAS_
+  integer            ncuda
   parameter (ncuda=128)
   integer*4          n4, incx4, incy4
 #endif
 
 #ifdef _CUDA_BLAS_
-  if(n.gt.ncuda) then
+  if(n_.gt.ncuda) then
     n4=n_
     incx4=incx_
     incy4=incy_
@@ -302,12 +423,13 @@ subroutine dgemv_(trans,m_,n_,alpha,a,lda_,x,incx_,beta,y,incy_)
   BLASINT          incx, incy, lda, m, n
 #endif
 #ifdef _CUDA_BLAS_
+  integer          ncuda
   parameter (ncuda=128*128)
   integer*4        lda4,m4,n4,incx4,incy4
 #endif
 
 #ifdef _CUDA_BLAS_
-  if(n*m.gt.ncuda) then
+  if(n_*m_.gt.ncuda) then
     m4=m_
     n4=n_
     lda4=lda_

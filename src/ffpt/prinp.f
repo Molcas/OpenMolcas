@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine PrInp
+      Subroutine PrInp_FFPT
 *
 ************************************************************************
 *                                                                      *
@@ -34,7 +34,7 @@
 *                                                                      *
 *----------------------------------------------------------------------*
 *
-      Call qEnter('PRINP')
+      Call qEnter('PRINP_FFPT')
 *----------------------------------------------------------------------*
 *     Initialize blank and header lines                                *
 *----------------------------------------------------------------------*
@@ -187,6 +187,6 @@
 *     Terminate procedure                                              *
 *----------------------------------------------------------------------*
 *
-      Call qEXit('PRINP')
+      Call qEXit('PRINP_FFPT')
       Return
       End

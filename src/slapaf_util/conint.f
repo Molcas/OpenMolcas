@@ -71,18 +71,18 @@ C------- Absolute value ----------
       If (lWrite_) Then
          If (NADC) Then
             Write (6,'(2A,F18.8,A,F18.8,A)')
-     &                       Label,' : Energy difference = ',
-     &                       E0, ' hartree, ',
-     &                       E0*CONV_AU_TO_KJ_PER_MOLE_,
-     &                       ' kJ/mol'
+     &                    Label,' : Energy difference = ',
+     &                    E0, ' hartree, ',
+     &                    E0*CONV_AU_TO_KJ_PER_MOLE_,
+     &                    ' kJ/mol'
             Write (6,'( A,F18.8,A)') '           Average energy    = ',
      &                               E1   , ' hartree'
          Else
             Write (6,'(2A,F18.8,A,F18.8,A)')
-     &                       Label,' : Energy difference = ',
-     &                       E1-E0, ' hartree, ',
-     &                       (E1-E0)*CONV_AU_TO_KJ_PER_MOLE_,
-     &                       ' kJ/mol'
+     &                    Label,' : Energy difference = ',
+     &                    E1-E0, ' hartree, ',
+     &                    (E1-E0)*CONV_AU_TO_KJ_PER_MOLE_,
+     &                    ' kJ/mol'
             Write (6,'( A,F18.8,A)') '           E(i)              = ',
      &                               E1   , ' hartree'
             Write (6,'( A,F18.8,A)') '           E(j)              = ',

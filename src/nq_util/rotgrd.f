@@ -44,7 +44,7 @@
 *                                                                      *
 *---- Compute the total charge
 *
-      Z_Tot=DDot_(nAtoms,One,0,ZA,1)
+      Z_Tot=DDot_(nAtoms,[One],0,ZA,1)
 *
 *---- Form the center of nuclear charge
 *

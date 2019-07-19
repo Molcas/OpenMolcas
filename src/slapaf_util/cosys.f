@@ -92,7 +92,7 @@
 *
 *---- Compute the WDC B-matrix
 *
-      call dcopy_(6,Zero,0,xyz,1)
+      call dcopy_(6,[Zero],0,xyz,1)
       If (nComp.eq.0) Then
 *        Write (*,*) ' Case nComp.eq.0'
 *

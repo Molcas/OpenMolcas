@@ -10,18 +10,23 @@
 *                                                                      *
 * Copyright (C) 1996, Markus P. Fuelscher                              *
 ************************************************************************
-      Subroutine Get_D1I_RASSCF(CMO,D1I)
-************************************************************************
-*                                                                      *
-*     Compute one-body density (AO-basis)                              *
-*     from frozen+inactive orbitals                                    *
-*                                                                      *
-*     calling arguments:                                               *
-*     CMO     : input, array of real*8                                 *
-*               MO-coefficients                                        *
-*     D1I     : input, array of real*8                                 *
-*               one-electron density matrix (frozen+inactive)          *
-*                                                                      *
+
+*>  @brief
+*>  Transform the inactive one-body density from MO to AO basis
+*>
+*>  @author
+*>  Markus P. Fuelscher
+*>
+*>  @details
+*>  The underlying equation is the basis transformatin:
+*>  \f[ D^{\text{AO}} = C D C^\dagger \f]
+*>  For inactive orbitals it simplifies to:
+*>  \f[D^{\text{AO}, I} = C^I D^I (C^I)^\dagger = 2 C^I \mathbf{1} (C^I)^\dagger = 2 C (C^I)^\dagger \f]
+*>  Where (\f$ C^I, D^I \f$) are the coefficients and densities of the inactive MOs.
+*>
+*>  @param[in] CMO The MO-coefficients
+*>  @param[out] D1I_AO The inactive one-body density matrix in AO-space
+      Subroutine Get_D1I_RASSCF(CMO, D1I_AO)
 *----------------------------------------------------------------------*
 *                                                                      *
 *     written by:                                                      *
@@ -33,51 +38,25 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-
-      Implicit Real*8 (A-H,O-Z)
-
-      Dimension CMO(*), D1I(*)
-
-#include "rasdim.fh"
-#include "general.fh"
-
-      Parameter ( Zero=0.0d0 , Two=2.0d0 )
+      use general_data, only : nBas, nSym, nFro, nIsh
+      implicit none
+      real*8, intent(in) :: CMO(*)
+      real*8, intent(out) :: D1I_AO(*)
+      real*8, parameter :: Zero = 0.0d0, Two = 2.0d0
+      integer :: ista, iSym, nb, nbsq, nfi
 
       Call qEnter('Get_D1I')
 
-* PAM Aug 2006, replace the following explicit code
-* with the corresponding DGEMM calls.
-*      iOff1 = 0
-*      Do iSym = 1,nSym
-*        iBas = nBas(iSym)
-*        iOrb = nFro(iSym) + nIsh(iSym)
-*        If ( iBas.ne.0 ) then
-*          iOff2 = iOff1
-*          Do i = 1,iBas
-*            Do j = 1,iBas
-*              Sum = Zero
-*              Do k = 0,iOrb-1
-*                Sum = Sum + Two * CMO(iOff1+k*iBas+i)
-*     &                          * CMO(iOff1+k*iBas+j)
-*              End Do
-*              D1I(iOff2 + j) = Sum
-*            End Do
-*            iOff2 = iOff2 + iBas
-*          End Do
-*          iOff1 = iOff1 + iBas*iBas
-*        End If
-*      End Do
-* Replaced by:
       ista=1
       do isym=1,nsym
         nb=nbas(isym)
         nbsq=nb**2
         nfi=nfro(isym)+nish(isym)
         if(nb.gt.0) then
-          call dcopy_(nbsq,0.0d0,0,d1i(ista),1)
+          call dcopy_(nbsq,[0.0d0],0,d1i_AO(ista),1)
           if(nfi.gt.0) then
             call DGEMM_('n','t',nb,nb,nfi,two,
-     &           cmo(ista),nb,cmo(ista),nb,zero,d1i(ista),nb)
+     &           cmo(ista),nb,cmo(ista),nb,zero,d1i_AO(ista),nb)
           end if
           ista=ista+nbsq
         end if

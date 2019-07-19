@@ -36,7 +36,7 @@ C
        if (mhkey.eq.1) then
 c      ESSL
 
-       call dcopy_(length,zero,0,mat,1)
+       call dcopy_(length,[zero],0,mat,1)
 c
        else
 c      Fortran matrix handling

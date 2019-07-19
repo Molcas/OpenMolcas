@@ -143,7 +143,7 @@ c  Shouldn't get here ...
         call abend_cvb()
 1200    continue
 1000    v2(ixa)=phsa(ia)*phsb(ib)*v1(ixato)
-        call fmove(v2,v1,ndetvb)
+        call fmove_cvb(v2,v1,ndetvb)
       elseif(ialg.eq.1)then
 c  Brute force strategy if enough memory (x1.5 faster) :
         do 2000 ib=1,ndb
@@ -151,7 +151,7 @@ c  Brute force strategy if enough memory (x1.5 faster) :
         inboff=(indb(ib)-1)*nda
         do 2000 ia=1,nda
 2000    v2(ia+iboff)=phsa(ia)*phsb(ib)*v1(inda(ia)+inboff)
-        call fmove(v2,v1,ndet)
+        call fmove_cvb(v2,v1,ndet)
       elseif(ialg.eq.2)then
 c  More-or-less in-place update of V1 :
         do 3000 ia=1,nda

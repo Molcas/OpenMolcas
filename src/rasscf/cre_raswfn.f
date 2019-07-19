@@ -11,6 +11,9 @@
       subroutine cre_raswfn
 *     SVC: Create a wavefunction file. If another .wfn file already
 *     exists, it will be overwritten.
+#ifdef _DMRG_
+      use qcmaquis_interface_cfg
+#endif
       implicit none
 #ifdef _HDF5_
 #  include "rasdim.fh"
@@ -21,10 +24,12 @@
 #  include "raswfn.fh"
 #  include "gugx.fh"
 #  include "gas.fh"
+#  include "input_ras.fh"
       Integer         IDXCI(mxAct), IDXSX(mxAct)
       Common /IDSXCI/ IDXCI,        IDXSX
 
       integer :: dsetid
+      integer, dimension(mxsym) :: NTMP1, NTMP2, NTMP3
       character(1), allocatable :: typestring(:)
 
 *     create a new wavefunction file!
@@ -40,7 +45,9 @@
       call one2h5_crtmom(wfn_fileid, nsym, nbas)
 
 *     set wavefunction type
-      if (IFCAS.EQ.0) then
+      if (iDoGAS) then
+        call mh5_init_attr (wfn_fileid,'CI_TYPE', 'GAS')
+      else if (IFCAS.EQ.0) then
         call mh5_init_attr (wfn_fileid,'CI_TYPE', 'CAS')
       else
         call mh5_init_attr (wfn_fileid,'CI_TYPE', 'RAS')
@@ -63,9 +70,18 @@
       wfn_iter = mh5_create_attr_int (wfn_fileid,'RASSCF_ITERATIONS')
 
 *     molecular orbital type index
+      if (iDoGAS) then
+        NTMP1(:)=0
+        NTMP2(:)=sum(NGSSH(1:NGAS,:),dim=1)
+        NTMP3(:)=0
+      else
+        NTMP1(:)=NRS1(:)
+        NTMP2(:)=NRS2(:)
+        NTMP3(:)=NRS3(:)
+      end if
       call mma_allocate(typestring, ntot)
       call orb2tpstr(NSYM,NBAS,
-     $        NFRO,NISH,NRS1,NRS2,NRS3,NSSH,NDEL,
+     $        NFRO,NISH,NTMP1,NTMP2,NTMP3,NSSH,NDEL,
      $        typestring)
       dsetid = mh5_create_dset_str(wfn_fileid,
      $        'MO_TYPEINDICES', 1, [NTOT],1)
@@ -141,12 +157,26 @@
      $        'active 1-body spin density matrix, size [NAC,NAC] '//
      $        'for each root in NROOTS: [NAC,NAC,NROOTS].')
 
-*     fock matrix
-      wfn_fockmat = mh5_create_dset_real (wfn_fileid,
-     $        'FOCK_MATRIX', 1, [NTOT2])
-      call mh5_init_attr(wfn_fockmat, 'description',
-     $        'Fock matrix '//
-     $        'arranged as blocks of size [NBAS(i)**2], i=1,#irreps')
+      if (KeyTDM) then
+      wfn_transdens = mh5_create_dset_real (wfn_fileid,
+     $        'TRANSITION_DENSITY_MATRIX', 3,
+     $        [NAC, NAC, lRoots*(lRoots-1)/2])
+      call mh5_init_attr(wfn_transdens, 'description',
+     $        'active 1-body transition density matrix, '//
+     $        'size [NAC,NAC] for each pair of roots in NROOTS: '//
+     $        '[NAC,NAC,NROOTS*(NROOTS-1)/2].')
+      end if
 
+#ifdef _DMRG_
+      if (doDMRG) then
+! Leon 1/12/2016: Add the QCMaquis checkpoint name to the description of each state
+! maximum allowed filename length is equal to MH5_MAX_LBL_LEN=256
+        wfn_dmrg_checkpoint = mh5_create_dset_str(wfn_fileid,
+     $        'QCMAQUIS_CHECKPOINT', 1, [lRoots], 256)
+        call mh5_init_attr(wfn_dmrg_checkpoint,'description',
+     $        'QCMaquis checkpoint directory names for each root'//
+     $        ' in [NROOTS].')
+      end if
+#endif
 #endif
       end

@@ -159,12 +159,12 @@
         real*8  :: vector(nsdet)             ! determinants
 
         type Slater_determinant
-          integer :: itype                        = 1 ! excitation type
-          integer :: inum                         = 1 ! determinant number
-          integer :: isign                        = 1 ! determinant phase
-          integer,allocatable :: electron(:)          ! determinant
-          integer,allocatable :: ele_conf(:)          ! electron configuration
-          real*8 ,allocatable :: dV(:)                ! for many states
+          integer :: itype                  = 1 ! excitation type
+          integer :: inum                   = 1 ! determinant number
+          integer :: isign                  = 1 ! determinant phase
+          integer,allocatable :: electron(:)    ! determinant
+          integer,allocatable :: ele_conf(:)    ! electron configuration
+          real*8 ,allocatable :: dV(:)          ! for many states
         end type Slater_determinant
 
         type (Slater_determinant), allocatable::SD_DMRG(:)
@@ -290,7 +290,7 @@
      &           SD_DMRG(idet)%ele_conf(i)=2
               if(ele_orb_alpha(i).eq.0.and.ele_orb_beta(i).eq.0)
      &           SD_DMRG(idet)%ele_conf(i)=1
-              !write(6,*)"SD_DMRG(idet)%ele_conf(i)",SD_DMRG(idet)%ele_conf(i)
+!             write(6,*)"SD_DMRG(idet)%ele_conf(i)",SD_DMRG(idet)%ele_conf(i)
             end do
             do i=1,norb
               write(118,"(I1)",advance='no')SD_DMRG(idet)%ele_conf(i)
@@ -310,8 +310,8 @@
           open(unit=118,file="dets.mclr.info")
             read(118,*)ndets_total
           close(118)
-          !> If too many determinants,
-          !> try to use the single, double, triple gradually untill 9999 (as the maximum)
+!         > If too many determinants,
+!         > try to use the single, double, triple gradually untill 9999 (as the maximum)
           if(ndets_total.gt.9999)then
             call systemf("head -9999 dets.mclr > ELE_CISR_FOR_MCLR",rc)
           end if

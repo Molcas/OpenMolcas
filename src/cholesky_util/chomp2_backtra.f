@@ -52,7 +52,7 @@ C
 C     Set up index arrays.
 C     --------------------
 
-      Call iCopy(8*8,0,0,iAB,1)
+      Call iCopy(8*8,[0],0,iAB,1)
       nAB_Tot = 0
       Do iSym = 1,nSym
          nAB(iSym) = 0
@@ -68,7 +68,7 @@ C     Backtransform.
 C     --------------
 
       If (DoDiag) Then
-         Call dCopy_(nAB_Tot,0.0d0,0,Diag,1)
+         Call dCopy_(nAB_Tot,[0.0d0],0,Diag,1)
       End If
 
       kDiag = 0

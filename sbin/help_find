@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 #***********************************************************************
@@ -13,8 +13,6 @@
 #                                                                      *
 # Copyright (C) 2017, Ignacio Fdez. Galván                             *
 #***********************************************************************
-
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 import sys
 import subprocess
@@ -47,6 +45,8 @@ helptext = '''
 Use with a command-line argument to search for a procedure (subroutine/function)
 in the Molcas source code. Wildcards are supported, but the argument may need
 to be put inside quotes to prevent its expansion by the shell.
+
+Examples:
 
   {2}abend{0}       find the definition of the Abend subroutine
 
@@ -130,7 +130,7 @@ except:
   # First try to build the database with ctags, check that it's the right variant
   try:
     output = subprocess.check_output(['ctags', '--version'], stderr=subprocess.STDOUT)
-    if (not output.startswith('Exuberant')):
+    if (not output.startswith(b'Exuberant')):
       raise
   except:
     # If no ctags, process all files with the Fortran regex
@@ -147,7 +147,7 @@ except:
     procs = []
     ctags = subprocess.Popen(['ctags', '-x', '--c-kinds=f', '--fortran-kinds=fsei', '-h .h.fh', '--langmap=c:.c.h,fortran:.f.f90.fh', '--languages=c,fortran', '-R', src_dir], stdout=subprocess.PIPE)
     for line in ctags.stdout:
-      l = line.split()
+      l = line.decode('ascii').split()
       procs.append([l[0], relpath(l[3], src_dir), int(l[2]), ' '+' '.join(l[4:])])
   # Attempt to save the database for later use
   try:

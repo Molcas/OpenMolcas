@@ -31,7 +31,7 @@
 *      INTEGER NTORB, LTORB
       INTEGER I1,I2,LORBE
       INTEGER IDISK
-      REAL*8  OCC_DUM
+      REAL*8  OCC_DUM(1)
 
 C Calculate transformation matrix to PT2 orbitals, defined as those
 C that have standard Fock matrix FIFA diagonal within inactive,
@@ -43,12 +43,12 @@ c Determine PT2 orbitals, and transform CI coeffs.
        WRITE(6,*)' ORBCTL calling MKRPTORB...'
       END IF
 * The CMO coefficient array is changed by ortonormal transformations of
-* each of the inactive,Ras1,Ras2,Ras3,and secondary (i,e,virtual) orbitals
+* each of the inactive,Ras1,Ras2,Ras3,and secondary (i.e. virtual) orbitals
 * in each symmetry. The transformation matrices are stored as a sequence of
 * square matrices in TORB. The transformation is such that each of the
-* diagonal subblocks of the Fock matrix FIFA is diagonalized.
-* MKPT2ORB will at the same time transform each of the CI arrays on file
-* such that, with new CMO vectors, they still represent the orbiginal
+* diagonal blocks of the Fock matrix FIFA is diagonalized.
+* MKRPTORB will at the same time transform each of the CI arrays on file
+* such that, with new CMO vectors, they still represent the original
 * wave function.
 
 * The CI arrays are on file with unit number LUCIEX. There is NSTATE
@@ -60,12 +60,20 @@ c Determine PT2 orbitals, and transform CI coeffs.
       END IF
 
 * Use the transformation matrices to change the HONE, FIMO, and FIFA arrays:
-      CALL TRANSFOCK(WORK(LTORB),WORK(LHONE))
-      CALL TRANSFOCK(WORK(LTORB),WORK(LFIMO))
-      CALL TRANSFOCK(WORK(LTORB),WORK(LFAMO))
-      CALL TRANSFOCK(WORK(LTORB),WORK(LFIFA))
-* Need to recompute DREF:
+      CALL TRANSFOCK(WORK(LTORB),WORK(LHONE),1)
+      CALL TRANSFOCK(WORK(LTORB),WORK(LFIMO),1)
+* When doing XMS, FAMO refers only to the last state, therefore it's wrong!
+* However, we never use it anywhere else...
+      CALL TRANSFOCK(WORK(LTORB),WORK(LFAMO),1)
+*****
+      CALL TRANSFOCK(WORK(LTORB),WORK(LFIFA),1)
+
+* When doing XMS, DREF refers to the last state considered and it is not the
+* state average density, therefore it's wrong to transform it!
+* However, it is never used again in this part, and next time it is used, it
+* is actually recomputed for the right place.
       CALL TRANSDREF(WORK(LTORB),WORK(LDREF))
+*****
       CALL MKEPS(WORK(LFIFA),WORK(LDREF))
       IF(IPRGLB.GE.DEBUG) THEN
        WRITE(6,*)' ORBCTL back from TRANSFOCK.'
@@ -85,7 +93,7 @@ c Print new orbitals. First, form array of orbital energies.
       I2=1
       DO ISYM=1,NSYM
         IF(NFRO(ISYM).GT.0) THEN
-          CALL DCOPY_(NFRO(ISYM),0.0D00,0,WORK(LORBE-1+I2),1)
+          CALL DCOPY_(NFRO(ISYM),[0.0D00],0,WORK(LORBE-1+I2),1)
           I2=I2+NFRO(ISYM)
         END IF
         IF(NORB(ISYM).GT.0) THEN
@@ -94,7 +102,7 @@ c Print new orbitals. First, form array of orbital energies.
           I2=I2+NORB(ISYM)
         END IF
         IF(NDEL(ISYM).GT.0) THEN
-          CALL DCOPY_(NDEL(ISYM),0.0D00,0,WORK(LORBE-1+I2),1)
+          CALL DCOPY_(NDEL(ISYM),[0.0D00],0,WORK(LORBE-1+I2),1)
           I2=I2+NDEL(ISYM)
         END IF
       END DO

@@ -57,7 +57,7 @@ c      write(6,*)'ExFac= ',ExFac
 *
       Call GetMem('LWFSQ','Allo','Real',LWFSQ,NBSQT)
 C zeroing the elements
-      call dcopy_(NBSQT,Zero,0,Work(LWFSQ),1)
+      call dcopy_(NBSQT,[Zero],0,Work(LWFSQ),1)
 
       if((.not.DoCholesky).or.(GenInt)) then
       Call GetMem('LW2','Allo','Real',LW2,NBMX*NBMX)
@@ -69,7 +69,7 @@ C zeroing the elements
 *
       IF(iUHF.eq.1) THEN
         Call GetMem('LWFSQ_ab','Allo','Real',LWFSQ_ab,NBSQT)
-        call dcopy_(NBSQT,Zero,0,Work(LWFSQ_ab),1)
+        call dcopy_(NBSQT,[Zero],0,Work(LWFSQ_ab),1)
         Call Getmem('FLT_ab','Allo','Real',ipTemp_ab,nFlt)
         Call FZero(Work(ipTemp_ab),nFlt)
 *

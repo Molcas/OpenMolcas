@@ -40,7 +40,7 @@ C     Cholesky
       Call Get_iScalar('Unique atoms',nUniqAt)
       nbast=sum(nbas(1:nsym))
       nbsqt=sum(nbas(1:nsym)**2)
-      Call Get_cArray('Unique Basis Names',Name,(LENIN4)*nbast)
+      Call Get_cArray('Unique Basis Names',Name,(LENIN8)*nbast)
       Call DecideOnCholesky(IfChol)
 * PAM Feb 2008: The following statement was moved here from
 * prpctl, in case prpctl call is bypassed by keyword ''NOPROP''.

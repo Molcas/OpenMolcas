@@ -41,12 +41,12 @@ C tridiagonal local array at Work(lg_M)
       ELSE
         nTri=(nSize*(nSize+1))/2
         CALL GETMEM(cNAME,'ALLO','REAL',lg_M,nTri)
-        CALL DCOPY_(nTri,0.0D0,0,WORK(lg_M),1)
+        CALL DCOPY_(nTri,[0.0D0],0,WORK(lg_M),1)
       END IF
 #else
       nTri=(nSize*(nSize+1))/2
       CALL GETMEM(cNAME,'ALLO','REAL',lg_M,nTri)
-      CALL DCOPY_(nTri,0.0D0,0,WORK(lg_M),1)
+      CALL DCOPY_(nTri,[0.0D0],0,WORK(lg_M),1)
 #endif
 
       CALL QEXIT('PSBMAT_GETMEM')

@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 1998, Per Ake Malmqvist                                *
+*               2019, Stefano Battaglia                                *
 ************************************************************************
       SUBROUTINE CASPT2(IRETURN)
       USE SUPERINDEX
@@ -72,7 +73,7 @@ C
 #include "eqsolv.fh"
 #include "chocaspt2.fh"
 #include "stdalloc.fh"
-      CHARACTER(30) STLNE2
+      CHARACTER(60) STLNE2
 #ifdef _MOLCAS_MPP_
       LOGICAL KING, Is_Real_Par
 #endif
@@ -80,15 +81,11 @@ C     timers
       REAL*8 CPTF0,CPTF11,CPTF12,CPTF13,CPTF14,CPE,CPUTOT,
      &       TIOTF0,TIOTF11,TIOTF12,TIOTF13,TIOTF14,TIOE,TIOTOT
 C     indices
-      INTEGER I, J
+      INTEGER I,J
       INTEGER ISTATE
       INTEGER IGROUP,JSTATE_OFF
 C     convergence check
       INTEGER ICONV
-#ifdef _DEBUG_
-C     Memory check
-      INTEGER LCASPT2
-#endif
 C     relative energies
       REAL*8  RELAU,RELEV,RELCM,RELKJ
 
@@ -114,15 +111,30 @@ C     effective hamiltonian
 *======================================================================*
 
       CALL MMA_ALLOCATE(HEFF,NSTATE,NSTATE)
+      CALL DCOPY_(NSTATE**2,[0.D0],0,HEFF,1)
 
 C If the EFFE keyword has been used, we already have the multi state
 C coupling Hamiltonian effective matrix, just copy the energies and
 C proceed to the MS coupling section.
+C Otherwise, put the CASSCF energies on the diagonal, i.e. form the
+C first-order corrected Heff[1] = PHP and later on we will add the
+C second-order correction Heff(2) = PH \Omega_1 P to Heff[1]
       IF(INPUT%JMS) THEN
         DO I=1,NSTATE
           ENERGY(I)=INPUT%HEFF(I,I)
         END DO
+        HEFF=INPUT%HEFF
         GOTO 1000
+      ELSE
+        DO I=1,NSTATE
+          HEFF(I,I) = REFENE(I)
+        END DO
+        IF (IPRGLB.GE.VERBOSE) THEN
+          WRITE(6,*)' HEFF[1] is initialized to:'
+          DO I=1,NSTATE
+            WRITE(6,'(1x,5f16.8)')(HEFF(I,J),J=1,NSTATE)
+          END DO
+        END IF
       END IF
 
 C For (X)Multi-State, a long loop over root states.
@@ -131,9 +143,14 @@ C of group states for which GRPINI is called.
       JSTATE_OFF=0
       STATELOOP: DO IGROUP=1,NGROUP
 
+       IF ((NLYGROUP.NE.0).AND.(IGROUP.NE.NLYGROUP)) THEN
+         JSTATE_OFF = JSTATE_OFF + NGROUPSTATE(IGROUP)
+         CYCLE
+       END IF
+
        IF (IPRGLB.GE.USUAL) THEN
-         WRITE(STLNE2,'(A,1X,I3)') 'CASPT2 computation ',IGROUP
-         CALL CollapseOutput(1,STLNE2)
+         WRITE(STLNE2,'(A,1X,I3)') 'CASPT2 computation for group',IGROUP
+         CALL CollapseOutput(1,TRIM(STLNE2))
          WRITE(6,*)
        END IF
 
@@ -161,7 +178,7 @@ C     SOLVE CASPT2 EQUATION SYSTEM AND COMPUTE CORR ENERGIES.
 
          Write(STLNE2,'(A27,I3)')'Solve CASPT2 eqs for state ',
      &                               MSTATE(JSTATE)
-         Call StatusLine('CASPT2:',STLNE2)
+         Call StatusLine('CASPT2:',TRIM(STLNE2))
          CALL EQCTL2(ICONV)
 
 * Save the final caspt2 energy in the global array ENERGY():
@@ -213,6 +230,7 @@ C     Orbitals, properties:
 C     Gradients.
 C     Note: Quantities computed in gradients section can also
 C     be used efficiently for computing Multi-State HEFF.
+C     NOTE: atm the MS-CASPT2 couplings computed here are wrong!
          IF(IFDENS) THEN
            IF (IPRGLB.GE.VERBOSE) THEN
               WRITE(6,*)
@@ -295,7 +313,7 @@ C     transition density matrices.
 C End of long loop over states in the group
        END DO
        IF (IPRGLB.GE.USUAL) THEN
-         CALL CollapseOutput(0,'CASPT2 computation')
+         CALL CollapseOutput(0,'CASPT2 computation for group ')
          WRITE(6,*)
        END IF
 C End of long loop over groups
@@ -306,26 +324,22 @@ C End of long loop over groups
 
       IF (IRETURN.NE.0) GOTO 9000
 
-* symmetrize the effective hamiltonian
-      DO I=1,NSTATE
-        DO J=1,I-1
-          HEFF(I,J) = 0.5D0*(HEFF(I,J)+HEFF(J,I))
-          HEFF(J,I) = HEFF(I,J)
-        END DO
-      END DO
-
-* Store the PT2 energy and effective hamiltonian on the wavefunction file
-      CALL PT2WFN_ESTORE(HEFF)
-
       IF(IPRGLB.GE.TERSE) THEN
        WRITE(6,*)' Total CASPT2 energies:'
        DO I=1,NSTATE
+        IF ((NLYROOT.NE.0).AND.(I.NE.NLYROOT)) CYCLE
         CALL PrintResult(6,'(6x,A,I3,5X,A,F16.8)',
      &    'CASPT2 Root',I,'Total energy:',ENERGY(I),1)
        END DO
        WRITE(6,*)
+       IF (IFXMS) THEN
+        WRITE(6,*)' Note that these CASPT2 energies are obtained using'
+        WRITE(6,*)' the XMS Fock operator and thus do not correspond'
+        WRITE(6,*)' to the true single-state CASPT2 ones.'
+       END IF
+       WRITE(6,*)
       END IF
-      IF(IPRGLB.GE.VERBOSE) THEN
+      IF(IPRGLB.GE.VERBOSE.AND.(NLYROOT.EQ.0)) THEN
        WRITE(6,*)' Relative CASPT2 energies:'
        WRITE(6,'(1X,A4,4X,A12,1X,A10,1X,A10,1X,A10)')
      &   'Root', '(a.u.)', '(eV)', '(cm^-1)', '(kJ/mol)'
@@ -345,15 +359,18 @@ C End of long loop over groups
       DO I=1,NSTATE
         EIGVEC(I,I) = 1.0D0
       END DO
-      IF(IFMSCOUP.and.NLYROOT.eq.0) THEN
+      IF(NLYROOT.NE.0) IFMSCOUP=.FALSE.
+      IF(IFMSCOUP) THEN
         Call StatusLine('CASPT2:','Effective Hamiltonian')
         CALL MLTCTL(HEFF,EIGVEC)
       END IF
 
-* create a JobMix file when we are not using HDF5 for the PT2 wavefunction
-      IF (.NOT.PT2WFN_IS_H5) THEN
-        CALL CREIPH_CASPT2(HEFF,EIGVEC)
-      END IF
+* create a JobMix file
+* (note that when using HDF5 for the PT2 wavefunction, IFMIX is false)
+      CALL CREIPH_CASPT2(HEFF,EIGVEC)
+
+* Store the PT2 energy and effective hamiltonian on the wavefunction file
+      CALL PT2WFN_ESTORE(HEFF)
 
 * store information on runfile for geometry optimizations
       Call Put_iScalar('NumGradRoot',iRlxRoot)

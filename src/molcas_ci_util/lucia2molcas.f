@@ -12,7 +12,8 @@
      &     KICONF_OCC_LUCIA, KSDREO_I,
      &     NDET_LUCIA, NCSASM_LUCIA, NDTASM_LUCIA,
      &     NCNASM_LUCIA, MXPCSM, MXPORB, NCONF_PER_OPEN,
-     &     NPDTCNF, NPCSCNF, MULTS_LUCIA, NSSOA, NSSOB, KICTS_POINTER)
+     &     NPDTCNF, NPCSCNF, MULTS_LUCIA, NSSOA, NSSOB, KICTS_POINTER,
+     &     nCSF_HEXS_LUCIA)
 *
 C     Transfer arguments to the common blocks used by MOLCAS.
 *
@@ -41,12 +42,13 @@ C     Transfer arguments to the common blocks used by MOLCAS.
          NCSASM(I) = NCSASM_LUCIA(I)
          NCNASM(I) = NCNASM_LUCIA(I)
       ENDDO
-* For small calculations - Lasse
-      IF(I_ELIMINATE_GAS_MOLCAS.EQ.1.AND.2*NSEL.GT.NCSASM(LSYM)) THEN
-        NSEL = NCSASM(LSYM)/2
+      If (NSEL .GT. NCSASM(LSYM)) NSEL=NCSASM(LSYM)
+* For small calculations - Lasse/MGD
+      nCSF_HEXS=nCSF_HEXS_LUCIA
+      IF(N_ELIMINATED_GAS_MOLCAS.gt.0.AND.NSEL.GT.nCSF_HEXS) THEN
+        NSEL =nCSF_HEXS
       END IF
 *
-      If (NSEL .GT. NCSASM(LSYM)) NSEL=NCSASM(LSYM)
 
       If (iDimBlockA .GT. NCSASM(LSYM)) then
           write(6,*) ''
@@ -153,8 +155,8 @@ C     Memory needed to store ICONF array
       NOCTPA = (NORB1 - NEL1MNA + 1) * (NEL3MX + 1)
       NOCTPB = (NORB1 - NEL1MNB + 1) * (NEL3MX + 1)
 *
-      KDFTP = ip_of_iwork(iWork(KDFTP_LUCIA))
-      KCFTP = ip_of_iwork(iWork(KCFTP_LUCIA))
+      KDFTP = KDFTP_LUCIA
+      KCFTP = KCFTP_LUCIA
       KDTOC = KDTOC_LUCIA
 *
       RETURN

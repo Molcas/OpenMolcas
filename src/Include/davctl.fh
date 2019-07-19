@@ -14,11 +14,11 @@
 
 *     max number of successive CI and sigma vectors that are stored
       Integer     mxKeep
-      Parameter ( mxKeep = 6 )
+      Parameter ( mxKeep = 2*mxRoot )
 
 *     dimension of address tables and label stack
       Integer     lAdrTbl
-      Parameter ( lAdrTbl = 1 + 2*mxKeep*mxRoot + 3*mxRoot )
+      Parameter ( lAdrTbl = 1 + 2*mxKeep + 3*mxRoot )
 
 *     falgs indicating the storage mode used by the
 *     Davidson diagonaliztion scheme
@@ -45,3 +45,7 @@
       Integer mxMemStk, mxDiskStk, nMemStk, nDiskStk
       Common /DavCtl3/ LblStk(lAdrTbl),
      &                 mxMemStk,mxDiskStk,nMemStk,nDiskStk
+
+*
+      Integer     nkeep,n_Roots,istart,nvec
+      Common /DavCtl4/ nkeep,nvec,n_Roots,istart

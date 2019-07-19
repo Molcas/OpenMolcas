@@ -8,14 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Reset_ThrGrd(nAtom,nDim,rMass,nSym,iOper,Smmtrc,
+      Subroutine Reset_ThrGrd(nAtom,nDim,dMass,nSym,iOper,Smmtrc,
      &                 Degen,nIter,Cx,mTtAtm,iAnr,DDV_Schlegel,iOptC,
      &                 rHidden,ThrGrd)
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
-      Real*8 rMass(nAtom), Degen(3*nAtom), Cx(3*nAtom,nIter)
+      Real*8 dMass(nAtom), Degen(3*nAtom), Cx(3*nAtom,nIter)
       Integer iOper(0:nSym-1), iANr(nAtom)
       Logical Smmtrc(3*nAtom),DDV_Schlegel,Found
 *                                                                      *
@@ -34,7 +34,7 @@
       Call FZero(Work(ipTR),18*nAtom)
 *
       Call TRPGen(nDim,nAtom,Cx(1,iIter),Degen,nSym,iOper,Smmtrc,mTR,
-     &            rMass,.False.,Work(ipTR))
+     &            dMass,.False.,Work(ipTR))
 *
 *     Call RecPrt('Work(ipTR)',' ',Work(ipTR),nDim,mTR)
 *                                                                      *

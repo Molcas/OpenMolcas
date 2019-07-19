@@ -34,6 +34,7 @@
       Implicit Real*8 (A-H,O-Z)
       Character*80 String
       Logical DBG, Exist
+      Real*8 LW1
       Dimension LW1(*), TUVX(*)
 
 #include "rasdim.fh"
@@ -74,7 +75,7 @@
 
       call cwtime(CSplitTot1,WSplitTot1)
 *     Call Ini_David(lRootSplit,nConf,nDet,nconf,nAc,LuDavid)
-      Call Ini_David(1,nConf,nDet,nconf,nAc,LuDavid)
+      Call Ini_David(1,nConf,nDet,nconf,n_keep,nAc,LuDavid)
 * -------------------------------------------------------------------- C
 * --  COMPUTE THE DIAGONAL ELEMENTS OF THE COMPLETE HAMILTONIAN
 * -------------------------------------------------------------------- C
@@ -84,9 +85,9 @@
         goto 29555
         If(IFINAL.eq.2) then
 *       ^to avoid last diagonalization
-          Call dCopy_(nConf,0.0d0,0,Work(LW4),1)
+          Call dCopy_(nConf,[0.0d0],0,Work(LW4),1)
 *          Call Load_tmp_CI_vec(1,1,nConf,Work(LW4),LuDavid)
-           Call Load_CI_vec(1,1,1,nConf,Work(LW4),LuDavid)
+           Call Load_CI_vec(1,nConf,Work(LW4),LuDavid)
 *          Call dDaFile(JOBIPH,2,Work(LW4),nConf,LuDavid)
           if (DBG) then
             write(6,*) 'LuDavid', LuDavid
@@ -270,9 +271,9 @@ C         CALL SPLITCSF(Work(ipAABlock),EnInSplit,Work(ipDHAM),
           end if
 *         CALL GETMEM('BVEC','FREE','REAL',ipBVEC,iBMAX)
 ************************************************************************
-*      Dressed Hamiltonian DIAGONALIZATION                                *
+*      Dressed Hamiltonian DIAGONALIZATION                             *
 ************************************************************************
-          call dcopy_(iDimBlockA*iDimBlockA,0.0d0,0,Work(ipSplitV),1)
+          call dcopy_(iDimBlockA*iDimBlockA,[0.0d0],0,Work(ipSplitV),1)
           do i=1,iDimBlockA
             ii=i+iDimBlockA*(i-1)
             Work(ipSplitV+ii-1)=1.0D00
@@ -379,13 +380,13 @@ C         CALL SPLITCSF(Work(ipAABlock),EnInSplit,Work(ipDHAM),
 ************************************************************************
 * penso che in SplitCAS si debba usare sempre save_tmp_CI_vec.
 * Ma nel dubbio lo copio anche con save_CI_vec:
-            Call dCopy_(nConf,0.0d0,0,Work(LW4),1)
+            Call dCopy_(nConf,[0.0d0],0,Work(LW4),1)
             do j =1,nConf
               k= iWork(ipCSFtot+j-1)
               Work(LW4+k-1) = Work(ipTotSplitV+j-1)
             end do
-            Call   Save_CI_vec(1,1,1,nConf,Work(LW4),LuDavid)
-            Call Save_tmp_CI_vec(1,1,nConf,Work(LW4),LuDavid)
+            Call   Save_CI_vec(1,nConf,Work(LW4),LuDavid)
+            Call Save_tmp_CI_vec(1,nConf,Work(LW4),LuDavid)
             if (DBG) then
               Write (String,'(A)') 'CI-diag in SplitCTL'
               Call dVcPrt(String,' ',Work(LW4),nConf)
@@ -468,7 +469,7 @@ C        CALL GETMEM('IPCNF','FREE','INTE',LG1,NCNASM(LSYM))
         call getmem('SplitE','Allo','Real',ipSplitE,iDimBlockA)
         call getmem('SplitV','Allo','Real',ipSplitV,
      &              iDimBlockA*iDimBlockA)
-        call dcopy_(iDimBlockA*iDimBlockA,0.0d0,0,Work(ipSplitV),1)
+        call dcopy_(iDimBlockA*iDimBlockA,[0.0d0],0,Work(ipSplitV),1)
 *        call icopy(iDimBlockA,iWork(lSel),1,iWork(ipCSFtot),1)
         do i=1,iDimBlockA
           ii=i+iDimBlockA*(i-1)
@@ -492,14 +493,14 @@ C        CALL GETMEM('IPCNF','FREE','INTE',LG1,NCNASM(LSYM))
 ************************************************************************
 *        Write (6,*) 'Root : ',lRootSplit
 *       Do i = 1,lRootSplit
-          Call dCopy_(nConf,0.0d0,0,Work(LW4),1)
+          Call dCopy_(nConf,[0.0d0],0,Work(LW4),1)
           do j =1,nConf
             k= iWork(lSel+j-1)
             Work(LW4+k-1) = Work(ipSplitV+(lRootSplit-1)*nconf+j-1)
           end do
 *         Call Save_tmp_CI_vec(i,lRootSplit,nConf,Work(LW4),LuDavid)
 *         Call Save_tmp_CI_vec(1,lRootSplit,nConf,Work(LW4),LuDavid)
-          Call Save_tmp_CI_vec(1,1,nConf,Work(LW4),LuDavid)
+          Call Save_tmp_CI_vec(1,nConf,Work(LW4),LuDavid)
 *         If ( IPRLEV.eq. INSANE ) then
 *           Write (6,'(A,I2)') 'Start vector of root',i
 *            write(6,*)'LuDavid',LuDavid
@@ -555,21 +556,23 @@ C        CALL GETMEM('IPCNF','FREE','INTE',LG1,NCNASM(LSYM))
       Call IDafile(JOBOLD,2,iToc,15,iDisk)
       iDisk = iToc(4)
       Call GetMem('Scr1','Allo','Real',iTmp1,nConf)
+      Call GetMem('Scr2','Allo','Real',iTmp2,nConf)
 *      Do i = 1,lRootSplit
         Call DDafile(JOBOLD,2,Work(iTmp1),nConf,iDisk)
         call GetMem('kcnf','allo','inte',ivkcnf,nactel)
         Call Reord2(NAC,NACTEL,LSYM,1,
      &              iWork(KICONF(1)),iWork(KCFTP),
-     &              Work(iTmp1),C,iwork(ivkcnf))
+     &              Work(iTmp1),Work(iTmp2),iwork(ivkcnf))
         call GetMem('kcnf','free','inte',ivkcnf,nactel)
-        Call Save_CI_vec(1,1,1,nConf,C,LuDavid)
+        Call Save_CI_vec(1,nConf,Work(iTmp2),LuDavid)
 *        Write (6,'(A,I2)') 'Start vector of root',i
 *      if (DBG) then
         write(6,*)'LuDavid',LuDavid
         Write (String,'(A)') '(CI coefficient in CIRST)'
-        Call dVcPrt(String,' ',C,nConf)
+        Call dVcPrt(String,' ',Work(iTmp2),nConf)
 *      end if
 *      End Do
+      Call GetMem('Scr2','Free','Real',iTmp2,nConf)
       Call GetMem('Scr1','Free','Real',iTmp1,nConf)
       If (iJOB.eq.1) Then
         If(JOBOLD.gt.0.and.JOBOLD.NE.JOBIPH) Then

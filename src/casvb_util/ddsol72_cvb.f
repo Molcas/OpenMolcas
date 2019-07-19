@@ -24,7 +24,7 @@ c  Solve linear equation in Davidson subspace.
       endif
 
       do it=1,itdav
-      call fmove(hp(1,it),eigvec(1,it),itdav)
+      call fmove_cvb(hp(1,it),eigvec(1,it),itdav)
       enddo
       call mxdiag_cvb(eigvec,eigval,itdav)
 
@@ -56,9 +56,9 @@ c  Eigenvalue-based root following -- determine closest root :
         jroot=iroot
       endif
       eig=eigval(iroot)
-      call fmove(eigvec(1,iroot),solp,itdav)
+      call fmove_cvb(eigvec(1,iroot),solp,itdav)
       eig_res=eigval(jroot)
-      call fmove(eigvec(1,jroot),solp_res,itdav)
+      call fmove_cvb(eigvec(1,jroot),solp_res,itdav)
       if(ip.ge.2)then
         write(6,'(a)')' Eigenvalues :'
         call vecprint_cvb(eigval,itdav)

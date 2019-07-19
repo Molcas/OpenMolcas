@@ -80,7 +80,7 @@
      &                  nStateI,nStateF,XHole,Diffuse,dLimmo,Thrs1,
      &                  Thrs2,nThrs,ThrsMul,Alpha,LIonize)
       Call InfoToMp(nSym,nBas,Energy_Without_FFPT,ip_Ene_Occ,nOcOb,
-     &                  UserDen,Restart,TDensity)
+     &                  UserDen,Restart)
 *                                                                      *
 ************************************************************************
 *                                                                      *

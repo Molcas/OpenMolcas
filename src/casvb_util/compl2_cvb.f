@@ -14,7 +14,7 @@
       implicit real*8 (a-h,o-z)
       dimension a(n,n),awrk(n,nvec+n),bwrk(n,n),cwrk(n),dum(1)
 
-      call fmove(a,awrk,n*nvec)
+      call fmove_cvb(a,awrk,n*nvec)
       call mxunit_cvb(awrk(1,1+nvec),n)
       call schmidt_cvb(awrk,nvec,dum,n,0)
       call schmidtd_cvb(awrk,nvec,awrk(1,nvec+1),n,dum,n,0)
@@ -31,7 +31,7 @@ c  Sort N vectors in order of decreasing norms
       endif
 300   continue
       cwrk(imx)=-DBLE(j)
-200   call fmove(awrk(1,imx+nvec),bwrk(1,j),n)
+200   call fmove_cvb(awrk(1,imx+nvec),bwrk(1,j),n)
       call schmidt_cvb(bwrk,n,dum,n,0)
 c  Extract N-NVEC remaining vectors with largest norms
       do 400 i=1,n
@@ -46,7 +46,7 @@ c  Extract N-NVEC remaining vectors with largest norms
       endif
 600   continue
       cwrk(imx)=-DBLE(j)
-500   call fmove(bwrk(1,imx),a(1,nvec+j),n)
+500   call fmove_cvb(bwrk(1,imx),a(1,nvec+j),n)
       call nize_cvb(a(1,nvec+1),n-nvec,dum,n,0,0)
       return
       end

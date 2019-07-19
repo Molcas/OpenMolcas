@@ -383,10 +383,13 @@ test_configfile () {
     echo "(cd $REPO.$BRANCH"               >> $retry
     echo "    git checkout $SHA1"          >> $retry
     echo "    git clean -f -d -x -q)"      >> $retry
-    echo "git clean -f -d -x -q"           >> $retry
-    echo "echo \"OPENMOLCAS=$OPENMOLCAS_DIR\" > .openmolcashome" >> $retry
+    echo "OPENMOLCAS_DIR=\`readlink -f $REPO_OPEN.$BRANCH\`"      >> $retry
+    echo "cd $REPO.$BRANCH"                                       >> $retry
+    echo "echo \"OPENMOLCAS=\$OPENMOLCAS_DIR\" > .openmolcashome" >> $retry
     echo "./configure $MY_FLAGS > make.log 2>&1 && $MAKE_cmd >> make.log 2>&1" >> $retry
     chmod +x $retry
+
+    export OPENMOLCAS_DIR=`readlink -f $REPO_OPEN.$BRANCH`
 
     #### building ####
     ##################
@@ -439,14 +442,14 @@ test_configfile () {
         echo "Make Failed! See logs." >> auto.log
         echo '************************************' >> auto.log
         echo '----------- parent details ---------' >> auto.log
-        (cd ../$REPO_OPEN.$BRANCH && git checkout origin/master && update_submodules)
+        (cd ../$REPO_OPEN.$BRANCH && git reset --hard && git checkout origin/master && update_submodules)
         for commit in $SHA1 $parents
         do
             if [ "$commit" = "$MASTER" ]
             then
                 continue
             fi
-            git checkout $commit && update_submodules
+            git reset --hard && git checkout $commit && update_submodules
             make distclean >/dev/null 2>&1
             if ./configure $MY_FLAGS >/dev/null 2>&1 && $MAKE_cmd >/dev/null 2>&1
             then
@@ -456,14 +459,14 @@ test_configfile () {
                 git log -1 --pretty=tformat:"developer: %ce" $commit >> auto.log
             fi
         done
-        git checkout origin/master && update_submodules
+        git reset --hard && git checkout origin/master && update_submodules
         for commit in $SHA1_OPEN $parents_open
         do
             if [ "$commit" = "$MASTER_OPEN" ]
             then
                 continue
             fi
-            (cd ../$REPO_OPEN.$BRANCH && git checkout $commit && update_submodules)
+            (cd ../$REPO_OPEN.$BRANCH && git reset --hard && git checkout $commit && update_submodules)
             make distclean >/dev/null 2>&1
             if ./configure $MY_FLAGS >/dev/null 2>&1 && $MAKE_cmd >/dev/null 2>&1
             then
@@ -476,8 +479,8 @@ test_configfile () {
         echo '************************************' >> auto.log
 
         # remake the original branch to save trouble for manual inspection later
-        git checkout $BRANCH && update_submodules
-        (cd ../$REPO_OPEN.$BRANCH && git checkout $BRANCH && update_submodules)
+        git reset --hard && git checkout $BRANCH && update_submodules
+        (cd ../$REPO_OPEN.$BRANCH && git reset --hard && git checkout $BRANCH && update_submodules)
         make distclean >/dev/null 2>&1
         ./configure $MY_FLAGS >/dev/null 2>&1 && $MAKE_cmd >/dev/null 2>&1
 
@@ -546,14 +549,14 @@ test_configfile () {
 
         echo '************************************' >> auto.log
         echo '----------- parent details ---------' >> auto.log
-        (cd ../$REPO_OPEN.$BRANCH && git checkout origin/master && update_submodules)
+        (cd ../$REPO_OPEN.$BRANCH && git reset --hard && git checkout origin/master && update_submodules)
         for commit in $SHA1 $parents
         do
             if [ "$commit" = "$MASTER" ]
             then
                 continue
             fi
-            git checkout $commit && update_submodules
+            git reset --hard && git checkout $commit && update_submodules
             make distclean >/dev/null 2>&1
             if ./configure $MY_FLAGS >/dev/null 2>&1 && $MAKE_cmd >/dev/null 2>&1 && $DRIVER verify --trap $failed_tests
             then
@@ -563,14 +566,14 @@ test_configfile () {
                 git log -1 --pretty=tformat:"developer: %ce" $commit >> auto.log
             fi
         done
-        git checkout origin/master && update_submodules
+        git reset --hard && git checkout origin/master && update_submodules
         for commit in $SHA1_OPEN $parents_open
         do
             if [ "$commit" = "$MASTER_OPEN" ]
             then
                 continue
             fi
-            (cd ../$REPO_OPEN.$BRANCH && git checkout $commit && update_submodules)
+            (cd ../$REPO_OPEN.$BRANCH && git reset --hard && git checkout $commit && update_submodules)
             make distclean >/dev/null 2>&1
             if ./configure $MY_FLAGS >/dev/null 2>&1 && $MAKE_cmd >/dev/null 2>&1 && $DRIVER verify --trap $failed_tests
             then
@@ -583,8 +586,8 @@ test_configfile () {
         echo '************************************' >> auto.log
 
         # remake the original branch to save trouble for manual inspection later
-        git checkout $BRANCH && update_submodules
-        (cd ../$REPO_OPEN.$BRANCH && git checkout $BRANCH && update_submodules)
+        git reset --hard && git checkout $BRANCH && update_submodules
+        (cd ../$REPO_OPEN.$BRANCH && git reset --hard && git checkout $BRANCH && update_submodules)
         make distclean >/dev/null 2>&1
         ./configure $MY_FLAGS >/dev/null 2>&1 && $MAKE_cmd >/dev/null 2>&1
     fi

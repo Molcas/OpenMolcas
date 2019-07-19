@@ -53,7 +53,7 @@
      &                                    iAddrIAD2Mij)   ! Reload Int
               iAddrIAD2Mij=iAddrIAD2Mij-nN_Ex1
             else
-              call dcopy_(nN_Ex1,0.0d0,0,Work(iAddEx1),1)
+              call dcopy_(nN_Ex1,[0.0d0],0,Work(iAddEx1),1)
             EndIf
             Call ChoMP2_GenE(iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV,
      &                                            iAddEx1,nN_Ex1 )
@@ -96,7 +96,7 @@
               iAddrIAD2Mij=iAddrIAD2Mij-nN_Ex2
               Call Trnsps(nA,nB,Work(iAddEx2),Work(iAddEx2t))
             else
-              call dcopy_(nN_Ex2,0.0d0,0,Work(iAddEx2t),1)
+              call dcopy_(nN_Ex2,[0.0d0],0,Work(iAddEx2t),1)
             EndIf
             Call ChoMP2_GenE(iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV,
      &                                           iAddEx2t,nN_Ex2 )

@@ -35,7 +35,7 @@
          iSBS = iEOr(iSBS,2**7)
          iSBS = iEOr(iSBS,2**8)
          Call ddV_(Cart,nTot,Work(ipHBig),iANr,Schlegel,iOptC,iTabBonds,
-     &             iTabAtoms,nBonds,nMax)
+     &             iTabAtoms,nBonds,nMax,nHidden)
          iSBS = iOr(iSBS,2**7)
          iSBS = iOr(iSBS,2**8)
          Call dCopy_((3*nAtoms)*(3*nAtoms+1)/2,Work(ipHBig),1,Hess,1)
@@ -48,13 +48,13 @@
          Call Free_Work(ipHBig)
       Else
          Call ddV_(Cart,nAtoms,Hess,iANr,Schlegel,iOptC,iTabBonds,
-     &             iTabAtoms,nBonds,nMax)
+     &             iTabAtoms,nBonds,nMax,nHidden)
       End If
       Call QExit('ddV')
       End
 *
       Subroutine ddV_(Cart,nAtoms,Hess,iANr,Schlegel,iOptC,iTabBonds,
-     &               iTabAtoms,nBonds,nMax)
+     &               iTabAtoms,nBonds,nMax,nHidden)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -63,7 +63,7 @@
       Real*8 Cart(3,nAtoms),rij(3),rjk(3),rkl(3),
      &       Hess((3*nAtoms)*(3*nAtoms+1)/2),si(3),sj(3),sk(3),
      &       sl(3),sm(3),x(2),y(2),z(2),
-     &       xyz(3,4), C(3,4), Dum,
+     &       xyz(3,4), C(3,4), Dum(1),
      &       ril(3), rik(3)
       Integer   iANr(nAtoms), iTabBonds(3,nBonds),
      &          iTabAtoms(2,0:nMax,nAtoms), iOper(0:7)
@@ -119,7 +119,7 @@
       rZero=1.0d-10
       n3=3*nAtoms
 *
-      call dcopy_((n3*(n3+1)/2),Zero,0,Hess,1)
+      call dcopy_((n3*(n3+1)/2),[Zero],0,Hess,1)
 #ifdef _DEBUG_
       Call TriPrt(' In LNM: Hessian at start','(12f8.3)',
      &               Hess,n3)
@@ -133,6 +133,11 @@
 *
       Call Get_iScalar('NSYM',nSym)
       Call Get_iArray('Symmetry operations',iOper,nSym)
+      Call Allocate_Work(ip_xMass,nAtoms)
+      Call Get_Mass_All(Work(ip_xMass),nAtoms-nHidden)
+      Do iAtom=nAtoms-nHidden+1,nAtoms
+         Work(ip_xMass+iAtom-1)=rMass(iANr(iAtom))
+      End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -154,12 +159,12 @@
 *
       TMass=Zero
       Do iAtom = 1, nAtoms
-         TMass=TMass+rMass(iANr(iAtom))
+         TMass=TMass+Work(ip_xMass+iAtom-1)
       End Do
       Do iAtom = 1, nAtoms
-         f1=rMass(iANr(iAtom))/TMass
+         f1=Work(ip_xMass+iAtom-1)/TMass
          Do jAtom = 1, iAtom-1
-            f2=rMass(iANr(jAtom))/TMass
+            f2=Work(ip_xMass+jAtom-1)/TMass
 *
             f_const=Max(Trans_Const,f_const_Min_)
             gmm=Fact*f_const*f1*f2
@@ -223,13 +228,10 @@ c        Write (6,*)
 c        Call Quit(_RC_GENERAL_ERROR_)
 c     End If
       Call Allocate_Work(ip_Grad,3*3*nAtoms)
-      Call Allocate_Work(ip_xMass,nAtoms)
       Call Allocate_Work(ip_CurrXYZ,3*nAtoms)
       Do iAtom = 1, nAtoms
          If (iANr(iAtom).le.0) Then
             Work(ip_xMass-1+iAtom) = 1.0D-10
-         Else
-            Work(ip_xMass-1+iAtom) = rMass(iANr(iAtom))
          End If
       End Do
       nOrder=1
@@ -240,7 +242,6 @@ c     End If
      &            Trans,RotAng,
      &            RotVec,RotMat,nOrder,Work(ip_Grad),dum,dum,dum)
       Call Free_Work(ip_CurrXYZ)
-      Call Free_Work(ip_xMass)
 *
 *
       Do iAtom = 1, nAtoms
@@ -373,6 +374,7 @@ c     End If
       Call DiagMtrx_T(Hess,n3,iNeg)
 #endif
  778  Continue
+      Call Free_Work(ip_xMass)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1190,8 +1192,8 @@ C                 tij=Max(tij,f_const_Min_)
 *
 *---- Set up a unit matrix
 *
-      call dcopy_(nH*nH,Zero,0,Work(ipEVec),1)
-      call dcopy_(nH,One,0,Work(ipEVec),nH+1)
+      call dcopy_(nH*nH,[Zero],0,Work(ipEVec),1)
+      call dcopy_(nH,[One],0,Work(ipEVec),nH+1)
 *
 *---- Compute eigenvalues and eigenvectors
 *

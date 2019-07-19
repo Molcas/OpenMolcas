@@ -46,7 +46,7 @@ c
       REAL*8 doperators(maxoperators),
      *                 xdoperators(maxoperators)
 #if defined(_MOLCAS_) || defined(MOLPRO)
-      integer operators(*),xoperators(*)
+      character operators(*),xoperators(*)
       character*(maxlength) opstring,xopstring
 #else
       character*(maxlength) operators(maxoperators),

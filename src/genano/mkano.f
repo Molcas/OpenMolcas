@@ -44,7 +44,7 @@ c      Open(Unit=17,File='ANO',Form='FORMATTED')
          If(n.le.0) Go To 1000
          Write(6,*)
          Write(6,*) '*** Contraction coefficients for the ',
-     &              type(iLqn*(iLqn+1)+1),' shell ***'
+     &              type(iLqn*(iLqn+1)+1)(3:3),' shell ***'
          Write(6,*)
          nTri=n*(n+1)/2
          Do 100 i=1,n
@@ -158,7 +158,7 @@ c      Open(Unit=17,File='ANO',Form='FORMATTED')
       Call CollapseOutput(0,'   Contraction coefficients')
       Write(6,*)
 c      Write(6,'(a,f12.6)') 'Check sum is',ChkSum
-      Call Add_Info('GENANO_CHKSUM',ChkSum,1,5)
+      Call Add_Info('GENANO_CHKSUM',[ChkSum],1,5)
       Close(Unit=17)
       call molcas_open(18,'FIG')
 c      Open(Unit=18,File='FIG',Form='FORMATTED')

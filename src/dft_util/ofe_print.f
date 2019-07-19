@@ -35,10 +35,10 @@
       Call NameRun(NamRfil)
 *
       iTol = Cho_X_GetTol(8)
-      Call Add_Info('V_OFE',V_emb,1,iTol)
-      Call Add_Info('V_NUC',V_Nuc_AB,1,iTol)
-      Call Add_Info('E_NAD',Energy_NAD,1,iTol)
-      Call Add_Info('RP_EN',Rep_EN,1,iTol)
+      Call Add_Info('V_OFE',[V_emb],1,iTol)
+      Call Add_Info('V_NUC',[V_Nuc_AB],1,iTol)
+      Call Add_Info('E_NAD',[Energy_NAD],1,iTol)
+      Call Add_Info('RP_EN',[Rep_EN],1,iTol)
 *
       Fmt='(A,F19.10)'
       write(6,*)

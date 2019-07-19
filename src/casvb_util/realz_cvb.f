@@ -22,7 +22,7 @@
 100   call fzero(w(i1),nbuf)
       nleft=nmax-nread
       call real_cvb(w(i1),min(nbuf,nleft),nread1,ifc)
-      call fmove(w(i1),arr(1+nread),nread1)
+      call fmove_cvb(w(i1),arr(1+nread),nread1)
       nread=nread+nread1
       if(nread1.gt.0)goto 100
       call mfreer_cvb(i1)

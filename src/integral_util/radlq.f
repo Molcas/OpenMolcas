@@ -29,7 +29,8 @@
       Character*80 Label
       Real*8 Zeta(nZeta), Rnr(nZeta,0:lsum)
       Parameter(limit=200,lenw=4*limit)
-      Real*8 iScrt(limit), Scrt(lenw)
+      Integer iScrt(limit)
+      Real*8 Scrt(lenw)
 *
       iRout = 122
       iPrint = nPrint(iRout)

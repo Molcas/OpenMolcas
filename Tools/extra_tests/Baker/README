@@ -1,0 +1,43 @@
+Baker test suite, from:
+
+Jon Baker
+"Techniques for geometry optimization: A comparison of cartesian and natural internal coordinates"
+J. Comput. Chem. 14:9 (1993) 1085-1100
+DOI: 10.1002/jcc.540140910
+
+01: water
+02: ammonia
+03: ethane
+04: acetylene
+05: allene
+06: hydroxysulphane
+07: benzene
+08: methylamine
+09: ethanol
+10: acetone
+11: disilyl ether
+12: 1,3,5-trisilacyclohexane
+13: benzaldehyde
+14: 1,3-difluorobenzene
+15: 1,3,5-trifluorobenzene
+16: neopentane
+17: furan
+18: naphthalene
+19: 1,5-difluoronaphthalene
+20: 2-hydroxybicyclopentane
+21: ACHTAR10
+22: ACANIL01
+23: benzidine
+24: pterin
+25: difuropyrazine
+26: mesityl oxide
+27: histidine
+28: 2,3-dimethylpentane
+29: caffeine
+30: menthone
+
+Additional cases, not included in the standard test suite
+
+31: ACTHCP
+32: histamine H+
+33: hydrazobenzene

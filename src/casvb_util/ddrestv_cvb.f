@@ -30,20 +30,22 @@
       endif
       iddvec=1
       call fzero(w(idd(iddvec)+(nvrestart-1)*nparm),ioffs)
-      call fmove(vec,w(ioffs+idd(iddvec)+(nvrestart-1)*nparm),ndim)
+      call fmove_cvb(vec,w(ioffs+idd(iddvec)+(nvrestart-1)*nparm),ndim)
       call fzero(w(ndim+ioffs+idd(iddvec)+(nvrestart-1)*nparm),
      >  nparm-ioffs-ndim)
       if(ause)then
         iddvec=iddvec+1
         call fzero(w(idd(iddvec)+(nvrestart-1)*nparm),ioffs)
-        call fmove(avec,w(ioffs+idd(iddvec)+(nvrestart-1)*nparm),ndim)
+        call fmove_cvb(avec,w(ioffs+idd(iddvec)+(nvrestart-1)*nparm),
+     >    ndim)
         call fzero(w(ndim+ioffs+idd(iddvec)+(nvrestart-1)*nparm),
      >    nparm-ioffs-ndim)
       endif
       if(suse)then
         iddvec=iddvec+1
         call fzero(w(idd(iddvec)+(nvrestart-1)*nparm),ioffs)
-        call fmove(svec,w(ioffs+idd(iddvec)+(nvrestart-1)*nparm),ndim)
+        call fmove_cvb(svec,w(ioffs+idd(iddvec)+(nvrestart-1)*nparm),
+     >    ndim)
         call fzero(w(ndim+ioffs+idd(iddvec)+(nvrestart-1)*nparm),
      >    nparm-ioffs-ndim)
       endif

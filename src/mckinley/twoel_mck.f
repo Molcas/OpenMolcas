@@ -416,8 +416,8 @@
                iy2 = iPhase(2,iDCRT(lDCRT))
                iz2 = iPhase(3,iDCRT(lDCRT))
 *
-               ipIndZ=ip_of_iWork(Data1(ip_IndZ(1,nZeta),lDCR1))-1
-               ipIndE=ip_of_iWork(Data2(ip_IndZ(1,nEta ),lDCR2))-1
+               ipIndZ=ip_of_iWork_d(Data1(ip_IndZ(1,nZeta),lDCR1))-1
+               ipIndE=ip_of_iWork_d(Data2(ip_IndZ(1,nEta ),lDCR2))-1
                nZeta_Tot=iWork(ipIndZ+nZeta+1)
                nEta_Tot =iWork(ipIndE+nEta+1)
 *
@@ -448,8 +448,8 @@
 *-------------------------------------------------------------------------
                      Call LCopy(144,IfHss,1,JfHss,1)
                      Call LCopy(12,IfGrd,1,JfGrd,1)
-                     Call LCopy(4,.true.,0,ifg,1)
-                     Call LCopy(4,.false.,0,Tr,1)
+                     Call LCopy(4,[.true.],0,ifg,1)
+                     Call LCopy(4,[.false.],0,Tr,1)
                      Call ICopy(144*nIrrep,IndHss,1,JndHss,1)
                      Call ICopy(12*nIrrep,IndGrd,1,JndGrd,1)
 *
@@ -459,8 +459,8 @@
                      call Translation(ifg,jfgrd,jfhss,tr,jndgrd,jndhss,
      &                                coorm, nirrep,indgrd,indhss)
 
-                     if (.not.ldot)   Call LCopy(144,.false.,0,JfHss,1)
-                     if (.not.ldot)   Call iCopy(144*8,0,0,JndHss,1)
+                     if (.not.ldot)  Call LCopy(144,[.false.],0,JfHss,1)
+                     if (.not.ldot)  Call iCopy(144*8,[0],0,JndHss,1)
 *-------------------------------------------------------------*
 *     PRE PRESCREENING                                        *
 *-------------------------------------------------------------*

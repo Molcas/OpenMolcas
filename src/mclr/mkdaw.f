@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE MKDAW(NVERT,IDOWN,IDAW,IPRINT)
+      SUBROUTINE MKDAW_MCLR(NVERT,IDOWN,IDAW,IPRINT)
 C
 C     PURPOSE: CONSTRUCT DIRECT ARC WEIGHTS TABLE
 C

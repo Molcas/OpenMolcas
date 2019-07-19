@@ -30,7 +30,7 @@
       Integer irc,nUniqAt
       Real*8  ThrS, CMO(*), EOrb(*)
       Logical isCASPT2
-      Character*(LENIN4) NAME(*)
+      Character*(LENIN8) NAME(*)
       Character*(LENIN) blank, NamAct(mxAtom), tmp
       Integer n_OK(8)
 ************************************************************************

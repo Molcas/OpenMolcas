@@ -41,7 +41,7 @@ c  IC=1 : CIVB will contain only VB structures.
         else
           call cird_cvb(civb,61001.2d0)
         endif
-        call fmove(orbs,w(iorbinv),norb*norb)
+        call fmove_cvb(orbs,w(iorbinv),norb*norb)
         call mxinv_cvb(w(iorbinv),norb)
         call gaussj_cvb(w(iorbinv),w(igjorb))
         call applyt_cvb(civb,w(igjorb))

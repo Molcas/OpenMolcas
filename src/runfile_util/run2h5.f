@@ -13,12 +13,15 @@
 *     SVC: read basic molecular information from the RunFile
 *     and 1-electron integral file and write it to the HDF5
 *     file specified with fileid.
-*     This routine does nothing if HDF5 is not supported.
 *
 *     Attributes:
-*       NSYM, IRREPS, POTNUC, NBAS
+*       NSYM, IRREP_LABELS, POTNUC, NBAS, NATOMS_UNIQUE, NATOMS_ALL,
+*       NPRIM
 *     Datasets:
-*       BASIS_LABELS, OVLMAT
+*       CENTER_LABELS, CENTER_CHARGES, CENTER_COORDINATES,
+*       BASIS_FUNCTION_IDS, DESYM_CENTER_LABELS, DESYM_CENTER_CHARGES,
+*       DESYM_CENTER_COORDINATES, DESYM_BASIS_FUNCTION_IDS,
+*       DESYM_MATRIX, PRIMITIVE_IDS, PRIMITIVES
 
       implicit none
       integer :: fileid
@@ -202,7 +205,7 @@
       dsetid = mh5_create_dset_int(fileid,
      $        'PRIMITIVE_IDS', 2, [3,nPrim])
       call mh5_init_attr(dsetid, 'description',
-     $        'Primitive IDs, aranged as an '//
+     $        'Primitive IDs, arranged as an '//
      $        'array of size [3*NPRIM], with consecutive '//
      $        'center_id, angmom, shell_id (C1 2s <-> 1,0,2)')
       call mma_allocate(PrimIDs,3,nPrim)
@@ -215,7 +218,7 @@
       dsetid = mh5_create_dset_real(fileid,
      $        'PRIMITIVES', 2, [2,nPrim])
       call mh5_init_attr(dsetid, 'description',
-     $        'Primitives, aranged as an '//
+     $        'Primitives, arranged as an '//
      $        'array of size [2*NPRIM], with consecutive '//
      $        'exponent, contraction coefficient')
       call mma_allocate(Primitives,2,nPrim)

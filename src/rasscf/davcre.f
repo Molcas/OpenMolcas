@@ -39,6 +39,7 @@ C             SC scratch area
 C
 C ********** IBM-3090 Release 88 09 08 *****
 C
+      use fciqmc, only : DoNECI
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "warnings.fh"
@@ -46,13 +47,19 @@ C
 #include "WrkSpc.fh"
 #include "wadr.fh"
 #include "output_ras.fh"
-#include "fciqmc.fh"
       Parameter (ROUTINE='DAVCRE  ')
       CHARACTER*4 IOUTW,IOUTX
-      DIMENSION C(*),HC(*),HH(*),CC(*),E(*),SC(*),
-     *          Q(*),QQ(*),S(*)
-      CHARACTER*(*) SXSEL
+      DIMENSION C((NROOT+NSXS)*NROOT*(ITMAX+1))
+      DIMENSION HC((NROOT+NSXS)*NROOT*ITMAX)
+      DIMENSION HH((ITMAX*NROOT)*(ITMAX*NROOT+1))
+      DIMENSION CC((ITMAX*NROOT)**2)
+      DIMENSION E((ITMAX*NROOT))
       DIMENSION HD(NROOT+NSXS)
+      DIMENSION SC((NROOT+NSXS))
+      DIMENSION Q((NROOT+NSXS)*(NROOT+1))
+      DIMENSION QQ(NROOT)
+      DIMENSION S(ITMAX*NROOT**2)
+      CHARACTER*(*) SXSEL
 cvv   DATA THRA/1.D-13/,THRLD2/1.D-15/,THRQ/1.D-07/,THRZ/1.D-06/,
 cvv   Thrld2 changed to 1.D-14 to avoid numerial unstabillity
       DATA THRA/1.D-13/,THRLD2/5.D-14/,THRQ/1.D-07/,THRZ/1.D-06/,
@@ -74,7 +81,7 @@ C
       Rc_SX = 0
       NTRIAL=NROOT
       NCR=NROOT*NDIM
-      CALL VCLR(C,1,NCR)
+      CALL FZERO(C,NCR)
       II=0
       DO I=1,NROOT
         C(II+I)=1.0D0
@@ -118,7 +125,7 @@ C
 C set eigenvector array to identity before JACO call
 C
        NDIMH2=NDIMH**2
-       CALL VCLR(CC,1,NDIMH2)
+       CALL FZERO(CC,NDIMH2)
        II=-NDIMH
        DO I=1,NDIMH
         II=II+NDIMH+1
@@ -384,7 +391,7 @@ C Acceptable, only if it is very close to zero. Else, quit.
          Write(LF,*)' This is possible only for some severe malfunction'
          Write(LF,*)' of the rasscf program. Please issue a bug report.'
          Write(LF,*)
-         if(.not.iDoNECI) then
+         if (.not. DoNECI) then
            Call qTrace
            Call Quit(_RC_GENERAL_ERROR_)
          else

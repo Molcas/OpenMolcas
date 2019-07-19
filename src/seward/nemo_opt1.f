@@ -24,6 +24,7 @@
       Integer ip(3), iSml(3)
       Character*8 Label
       Real*8, Dimension(:), Allocatable :: P_Matrix, MP_Matrix
+      Dimension Length(1),nInt(1)
 *
       iRout=77
       iPrint=nPrint(iRout)
@@ -165,7 +166,7 @@ c                    write(6,'(a11,f20.8)') ' Exponents',rExpi
          iSml(iComp)=iSmLbl
          lOper(iComp)=1
          ip(iComp)=1 + nLength_Tot
-         nLength_Tot = nLength_Tot + Length + 4
+         nLength_Tot = nLength_Tot + Length(1) + 4
       End Do
 *
       Call mma_allocate(P_Matrix,nLength_Tot,label='P_Matrix')
@@ -212,7 +213,7 @@ c                    write(6,'(a11,f20.8)') ' Exponents',rExpi
             nip = nip + 1
             iSm(nip)=iSmLbl
             ipMP(nip)= 1 + nInt_Tot
-            nInt_Tot = nInt_Tot + nInt+4
+            nInt_Tot = nInt_Tot + nInt(1)+4
          End Do
       End Do
  100  Continue

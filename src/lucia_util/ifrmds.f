@@ -17,7 +17,7 @@ C
 C If nblock .eq. 0 NBLOCK = NDIM
       IMPLICIT REAL*8(A-H,O-Z)
 #include "io_util.fh"
-      DIMENSION IARRAY(*)
+      DIMENSION IARRAY(*),IDUMMY(1)
 C
       NBLOCK = MBLOCK
 

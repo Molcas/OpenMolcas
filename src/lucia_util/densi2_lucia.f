@@ -14,8 +14,8 @@
 *
 * Density matrices between L and R
 *
-* I12 = 1 => only one-bodydensity
-* I12 = 2 => one- and two-body-density matrices
+* I12 = 1 => only one-body density
+* I12 = 2 => one- and two-body density matrices
 *
 * Jeppe Olsen,      Oct 94
 * GAS modifications Aug 95
@@ -33,9 +33,9 @@
 * Two-body symmetric density stored in rho2s
 * Two-body anti-symmetric density stored in rho2a
 *
-* If the twobody density matrix is calculated, then also the
-* expectation value of the spin is evalueated.
-* The latter is realixed as
+* If the two-body density matrix is calculated, then also the
+* expectation value of the spin is evaluated.
+* The latter is realized as
 * S**2
 *      = S+S- + Sz(Sz-1)
 *      = -Sum(ij) a+i alpha a+j beta a i beta a j alpha + Nalpha +
@@ -77,6 +77,7 @@ c      REAL*8 INPRDD
 #include "clunit.fh"
 *. Scratch for string information
       COMMON/HIDSCR/KLOCSTR(4),KLREO(4),KLZ(4),KLZSCR
+      INTEGER SXSTSM(1)
 *. Specific input
       REAL*8 L
       DIMENSION L(*),R(*)

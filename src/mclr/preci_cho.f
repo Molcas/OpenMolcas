@@ -39,7 +39,6 @@
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
       itri1(i,j)=nTri-itri(nd-Min(i,j)+1,nd-Min(i,j)+1)
      &          +Max(i,j)-Min(i,j)+1
-      MulD2h(i,j) = iEOR(i-1,j-1) + 1
 *                                                                      *
 ************************************************************************
 *                                                                      *

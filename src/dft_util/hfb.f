@@ -30,6 +30,7 @@
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
+#include "ksdft.fh"
       Real*8 Rho(nRho,mGrid), dF_dRho(ndF_dRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
@@ -42,13 +43,13 @@ C     Call QEnter('HFB')
 *                                                                      *
 *---- Dirac (Slater) exchange                                          *
 *                                                                      *
-      Coeff=One
+      Coeff=One*CoefX
       Call DiracX(mGrid,Rho,nRho,iSpin,F_xc,
      &            dF_dRho,ndF_dRho,Coeff,T_X)
 *                                                                      *
 *---- Becke 88 Exchange Functional                                     *
 *                                                                      *
-      Coeff=One
+      Coeff=One*CoefX
       Call xB88(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
      &          Coeff,iSpin,F_xc,T_X)
 *                                                                      *

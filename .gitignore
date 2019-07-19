@@ -59,6 +59,7 @@ TAGS
 GPATH
 GRTAGS
 GTAGS
+.vscode
 # data
 data/prgms.cntrl
 data/*.prgm
@@ -82,6 +83,7 @@ doc/manual/installation.guide/Linux-x86.cfg
 doc/manual/installation.guide/prgms.cntrl
 doc/manual/users.guide/programs.tex
 doc/manual/*.out
+doc/doxygen/*tmp
 doc/doxygen/html
 doc/doxygen/latex
 doc/doxygen/xml
@@ -105,8 +107,6 @@ lib/
 /tinker
 /tinker*/
 # Test/
-test/qcmaquis
-test/qcmaquis/
 test/sonatorb/
 test/sonatorb
 # pymolcas

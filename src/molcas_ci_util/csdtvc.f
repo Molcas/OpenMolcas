@@ -14,7 +14,7 @@
       SUBROUTINE CSDTVC(CSFVEC,DETVEC,IWAY,DTOCMT,ICTSDT,
      *                  IREFSM,ICOPY)
 C
-C     PURPOSE: TRANDSORM FRON DETERMINANT TO CSF BASIS AND IVCE VERSA
+C     PURPOSE: TRANSFORM FROM DETERMINANT TO CSF BASIS AND VICE VERSA
 C              IWAY = 1 : CSF TO DETERMINANT TRANSFORMATION
 C              IWAY = 2 : DETERMINANT TO CSF TRANSFORMATION
 C
@@ -28,7 +28,7 @@ C
 
       Call qEnter('CSDTVC')
 C
-C     To avoid compiler complains
+C     To avoid compiler complaints
 C
       IOFFCS = 0
       IOFFDT = 0
@@ -61,7 +61,7 @@ C
           CALL WRTMAT(CSFVEC,1,NCSF,1,NCSF)
           WRITE(6,*)
         END IF
-        CALL DCOPY_(NDET,0.0d0,0,DETVEC,1)
+        CALL DCOPY_(NDET,[0.0d0],0,DETVEC,1)
         DO ITYP = 1,NTYP
           IDET = NDTFTP(ITYP)
           ICSF = NCSFTP(ITYP)
@@ -158,7 +158,7 @@ C
 *     University of Lund, Sweden, 1999                                 *
 *                                                                      *
 * It was a great piece of code for those times when memory was a very  *
-* big issue! Nowdays only time is important!                           "
+* big issue! Nowadays only time is important!                          *
 ************************************************************************
 *      Do i = 1,N                                                      *
 *        i_old = i                                                     *

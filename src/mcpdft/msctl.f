@@ -63,9 +63,9 @@
       integer iD1I,iD1Act,iD1ActAO,iD1Spin,iD1SpinAO,IAD19
       integer iJOB,dmDisk,iP2d
       integer itmp0,itmp1,itmp2,itmp3,itmp4
-      integer itmp5,itmp6,itmp7
+      integer itmp5,itmp6,itmp7,itmpn,itmpk,itmpa
       integer ifocki,ifocka
-      integer IADR19(1:15)
+      integer IADR19(1:30)
       integer LP,NQ,LQ,LPUVX
       integer  LOEOTP,NACP,NACP2
       integer vdisk,jroot
@@ -73,7 +73,8 @@
       integer count_tmp1,count_tmp2
       integer  i_off1,i_off2,ifone
       integer isym,iorb,iash,iish,jsym
-      iTrii(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
+      integer LUGS
+c      iTrii(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 
 
       Call qEnter('MSCTL')
@@ -149,9 +150,9 @@ C Local print level (if any)
         End Do
       End If
 
-!Do I need this Kincore and NucElcore?
-      if(iPrLev.ge.DEBUG) then
+c      if(iPrLev.ge.DEBUG) then
       Call GetMem('Kincore','Allo','Real',iTmpk,nTot1)
+c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
       iComp  =  1
       iSyLbl =  1
       iRc    = -1
@@ -179,9 +180,7 @@ C Local print level (if any)
          Call QTrace
          Call Abend
       Endif
-      Call GetMem('Kincore','free','Real',iTmpk,nTot1)
-      Call GetMem('NucElcore','free','Real',iTmpn,nTot1)
-      end if
+c      end if
 
 
 !Here we calculate the D1 Inactive matrix (AO).
@@ -198,6 +197,10 @@ C Local print level (if any)
         iJOB=0
         IAD19=0
         Call f_Inquire('JOBOLD',Found)
+        If (.not.found) then
+          Call f_Inquire('JOBIPH',Found)
+          if (Found) JOBOLD=JOBIPH
+        end if
         If (Found) iJOB=1
         If (iJOB.eq.1) Then
            if(JOBOLD.le.0) Then
@@ -207,6 +210,7 @@ C Local print level (if any)
         end if
        IADR19(:)=0
        Call IDaFile(JOBOLD,2,IADR19,15,IAD19)
+       IADR15 = IADR19
        vDisk =  IADR19(4)
        dmDisk = IADR19(3)
 !       Call GetMem('jVector','Allo','Real',ijVec,nConf)
@@ -361,7 +365,7 @@ C Local print level (if any)
          do i=1,ntot1
            write(6,*) work(itmp3-1+i)
          end do
-         call xflush(6)
+cPS         call xflush(6)
       end if
 
 !Get the spin density matrix for open shell cases
@@ -369,7 +373,7 @@ C Local print level (if any)
 * Generate spin-density
 ***********************************************************
          if(iSpin.eq.1) then
-           Call dcopy_(NACPAR,0.0d0,0,Work(iD1SpinAO),1)
+           Call dcopy_(NACPAR,[0.0d0],0,Work(iD1SpinAO),1)
          end if
          IF ( NASH(1).NE.NAC ) CALL DBLOCK_m(Work(iD1Spin))
          Call Get_D1A_RASSCF_m(CMO,Work(iD1Spin),
@@ -397,8 +401,8 @@ C Local print level (if any)
 *
         Call GetMem('htmp','Allo','Real',iTmp5,nTot1)
         Call GetMem('gtmp','Allo','Real',iTmp6,nTot1)
-        Call dCopy_(nTot1,0.0d0,0,Work(iTmp5),1)
-        Call dCopy_(nTot1,0.0d0,0,Work(iTmp6),1)
+        Call dCopy_(nTot1,[0.0d0],0,Work(iTmp5),1)
+        Call dCopy_(nTot1,[0.0d0],0,Work(iTmp6),1)
 *
         First=.True.
         Dff=.False.
@@ -441,8 +445,8 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
 
         CALL GETMEM('TE_POTG','ALLO','REAL',LTEOTPG,NFINT)
         CALL GETMEM('OE_POT','ALLO','REAL',LOEOTP,NTOT1)
-        Call DCopy_(NTOT1,0.0d0,0,Work(LOEOTP),1)
-        Call DCopy_(NFINT,0.0d0,0,work(LTEOTPG),1)
+        Call DCopy_(NTOT1,[0.0d0],0,Work(LOEOTP),1)
+        Call DCopy_(NFINT,[0.0d0],0,work(LTEOTPG),1)
 
       !preallocate the runfile stuff for inact-containing potentials.
         count_tmp1 = 0
@@ -454,20 +458,20 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
           count_tmp1 = count_tmp1 + nIsh(isym)*(nish(isym)+nAsh(isym))
         end do
         CALL GETMEM('JUNK','ALLO','REAL',ijunk,count_tmp2)
-        Call DCopy_(count_tmp2,0.0d0,0,Work(ijunk),1)
+        Call DCopy_(count_tmp2,[0.0d0],0,Work(ijunk),1)
 !        Call Put_dArray('TEP_I',work(ijunk),count_tmp2)
         CALL GETMEM('JUNK','Free','REAL',ijunk,count_tmp2)
 
         CALL GETMEM('JUNK','ALLO','REAL',ijunk,count_tmp1)
-        Call DCopy_(count_tmp1,0.0d0,0,Work(ijunk),1)
+        Call DCopy_(count_tmp1,[0.0d0],0,Work(ijunk),1)
 !        Call Put_dArray('OEP_I',work(ijunk),count_tmp1)
         CALL GETMEM('JUNK','Free','REAL',ijunk,count_tmp1)
 
         Call Put_dArray('ONTOPO',work(LOEOTP),NTOT1)
         Call Put_dArray('ONTOPT',work(LTEOTPG),NFINT)
 
-        Call DCopy_(NTOT1,0.0d0,0,Work(LOEOTP),1)
-        Call DCopy_(NFINT,0.0d0,0,work(LTEOTPG),1)
+        Call DCopy_(NTOT1,[0.0d0],0,Work(LOEOTP),1)
+        Call DCopy_(NFINT,[0.0d0],0,work(LTEOTPG),1)
 
         Call Put_dArray('FI_V',work(LOEOTP),NTOT1)
         Call Put_dArray('FA_V',work(LOEOTP),NTOT1)
@@ -493,27 +497,55 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
 ***********************************************************
 *     Compute energy contributions
 ***********************************************************
+      iTmp2=0
       Call GetMem('DoneI','Allo','Real',iTmp2,nTot1)
 
       Call Fold(nSym,nBas,Work(iD1I),Work(iTmp2))
+c         call xflush(6)
+
+      Call GetMem('DoneA','Allo','Real',iTmpa,nTot1)
+c         call xflush(6)
+      Call Fold(nSym,nBas,Work(iD1ActAO),Work(iTmpa))
+c         call xflush(6)
 *
       Eone = dDot_(nTot1,Work(iTmp2),1,Work(iTmp1),1)
       Call Get_dScalar('PotNuc',PotNuc_Ref)
       Eone = Eone + (PotNuc-PotNuc_Ref)
       Etwo = dDot_(nTot1,Work(iTmp2),1,Work(iFockI),1)
-      Call GetMem('DoneI','Free','Real',iTmp2,nTot1)
+
+!**************Kinetic energy of inactive electrons********
+      Ekin = dDot_(nTot1,Work(iTmp2),1,Work(iTmpk),1)
+
+!*****Nuclear electron attraction for inactive electrons******
+      Enuc = dDot_(nTot1,Work(iTmp2),1,Work(iTmpn),1)
+
+c**************Kinetic energy of active electrons*********
+      EactK = dDot_(nTot1,Work(iTmpk),1,Work(iTmpa),1)
+
+      EactN = dDot_(nTot1,Work(iTmpn),1,Work(iTmpa),1)
+      EFI = dDot_(nTot1,Work(iFockI),1,Work(iTmpa),1)
+c         call xflush(6)
+      Eact = EactK + EactN + EFI
       EMY  = PotNuc_Ref+Eone+0.5d0*Etwo
 
       CASDFT_Funct = 0.0D0
       Call Get_dScalar('CASDFT energy',CASDFT_Funct)
-      If ( IPRLEV.ge.DEBUG ) then
-         Write(LF,*) ' Nuclear repulsion energy :',PotNuc
-         Write(LF,*) ' One-electron core energy :',Eone
-         Write(LF,*) ' Two-electron core energy :',Etwo
-         Write(LF,*) ' Total core energy        :',EMY
-         Write(LF,*) ' CASDFT Energy            :',CASDFT_Funct
-      End If
-         call xflush(6)
+c      If ( IPRLEV.ge.DEBUG ) then
+       Write(LF,'(4X,A35,F18.8)')
+     &  'Nuclear repulsion energy :',PotNuc
+       Write(LF,'(4X,A35,F18.8)')
+     &  'One-electron kinetic core energy:',Ekin
+       Write(LF,'(4X,A35,F18.8)')
+     &   'Nuc-elec attraction core energy:',Enuc
+       Write(LF,'(4X,A35,F18.8)') 'One-electron core energy:',Eone
+       Write(LF,'(4X,A35,F18.8)') 'Two-electron core energy:',Etwo
+       Write(LF,'(4X,A35,F18.8)') 'Total core energy:',EMY
+       Write(LF,'(4X,A35,F18.8)') 'Active Kinetic energy:',EactK
+       Write(LF,'(4X,A35,F18.8)')
+     &  'Active nuc-elec attraction energy:',EactN
+c       Write(LF,*) ' CASDFT Energy            :',CASDFT_Funct
+c      End If
+c         call xflush(6)
 ***********************************************************
 * Printing matrices
 ***********************************************************
@@ -773,8 +805,6 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
            write(6,*) Work(LP-1+i)
          end do
        end if
-!DANGER!
-         call xflush(6)
          NQ=0
          NSXS=0
          NIAIA=0
@@ -784,16 +814,13 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
            NIAIA = NIAIA+(NASH(ISYM)+NISH(ISYM))**2
          end do
          if(NQ.lt.NIAIA) NQ=NIAIA
-         call xflush(6)
 
          CALL GETMEM('FOCK','ALLO','REAL',LFOCK,NTOT4)
          CALL GETMEM('SXBM','ALLO','REAL',LBM,NSXS)
          CALL GETMEM('SXLQ','ALLO','REAL',LQ,NQ) ! q-matrix(1symmblock)
          IFINAL = 1
-         call xflush(6)
          CALL FOCK_m(WORK(LFOCK),WORK(LBM),Work(iFockI),Work(iFockA),
      &         Work(iD1Act),WORK(LP),WORK(LQ),WORK(LPUVX),IFINAL,CMO)
-!         CALL GETMEM('FOCK','FREE','REAL',LFOCK,NTOT4)
 !TMP TEST
 !         Call Put_Darray('fock_tempo',Work(ipFocc),ntot1)
 !END TMP TEST
@@ -813,7 +840,7 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
 *TRS
         Call Print_MCPDFT_2(CASDFT_E,PotNuc,EMY,ECAS,CASDFT_Funct,
      &         jroot,Ref_Ener)
-         call xflush(6)
+c         call xflush(6)
 
          Energies(jroot)=CASDFT_E
 
@@ -848,7 +875,7 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
 !      write(6,*) 'NACPAR (input fock)',nacpar
 !      write(6,*) 'ntot1 (# of V, fock_occ)',ntot1
 !      write(6,*) 'nfint (# of v)',nfint
-         call xflush(6)
+cPS         call xflush(6)
 
 !I will read in the one- and two-electron potentials here
 
@@ -942,7 +969,7 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
         end if
 
       Call GetMem('F_ONE','ALLO','Real',iFone,NTOT1)
-      CALL DCOPY_(NTOT1,0.0D0,0,WORK(iFone),1)
+      CALL DCOPY_(NTOT1,[0.0D0],0,WORK(iFone),1)
 
 !I think I need to generate FI, which will contain both the one-electron
 !potential contribution and the V_kkpu contribution.
@@ -1020,7 +1047,7 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
 
 
       Call GetMem('ttTUVX','Allo','Real',ittTUVX,NACPR2)
-      CALL DCOPY_(nacpr2,0.0D0,0,WORK(ittTUVX),1)
+      CALL DCOPY_(nacpr2,[0.0D0],0,WORK(ittTUVX),1)
       Call Get_TUVX(Work(ipTmpLTEOTP),Work(ittTUVX))
       !Call Get_TUVX(Work(lpuvx),Work(ittTUVX))
 
@@ -1037,8 +1064,8 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
 !This next part is to generate the MC-PDFT generalized fock operator.
 
 
-!      CALL DCOPY_(nFint,0.0D0,0,WORK(ipTmpLTEOTP),1)
-!      CALL DCOPY_(ntot1,0.0D0,0,WORK(ipTmpLOEOTP),1)
+!      CALL DCOPY_(nFint,[0.0D0],0,WORK(ipTmpLTEOTP),1)
+!      CALL DCOPY_(ntot1,[0.0D0],0,WORK(ipTmpLOEOTP),1)
 !        write(6,*) 'ONTOPT'
 !        call wrtmat(Work(ipTmpLTEOTP),1,nFInt,1,nFInt)
 !        write(6,*) 'ONTOPO'
@@ -1046,8 +1073,8 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
 
 !Zero out the matrices.  We will be adding the potential-containing
 !terms as a correction to the Focc component already on the runfile.
-      CALL DCOPY_(ntot1,0.0D0,0,WORK(iFocka),1)
-      CALL DCOPY_(ntot1,0.0D0,0,WORK(iFocki),1)
+      CALL DCOPY_(ntot1,[0.0D0],0,WORK(iFocka),1)
+      CALL DCOPY_(ntot1,[0.0D0],0,WORK(iFocki),1)
 
 !The corrections (from the potentials) to FI and FA are built in the NQ
 !part of the code, for efficiency's sake.  It still needs to be
@@ -1076,7 +1103,7 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
 
         If ( IPRLEV.ge.DEBUG ) then
       CALL GETMEM('FA_t','ALLO','REAL',ifat,Ntot1)
-      Call dcopy_(ntot1,0.0d0,0,work(ifat),1)
+      Call dcopy_(ntot1,[0.0d0],0,work(ifat),1)
       Call DaXpY_(NTOT1,1.0D0,Work(ipTmpLOEOTP),1,Work(ifat),1)
       Call daxpy_(NTOT1,1.0D0,Work(ifiv),1,Work(ifat),1)
       Call daxpy_(NTOT1,1.0D0,Work(ifav),1,Work(ifat),1)
@@ -1110,7 +1137,7 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
 !      Call dcopy_(ISTORP(NSYM+1),Work(LP),1,Work(ip2test),1)
 
        IF(ISTORP(NSYM+1).GT.0) THEN
-      CALL DCOPY_(ISTORP(NSYM+1),0.0D0,0,WORK(LP),1)
+      CALL DCOPY_(ISTORP(NSYM+1),[0.0D0],0,WORK(LP),1)
 !p = work(iP2d)
          CALL PMAT_RASSCF_M(Work(iP2d),WORK(LP))
       END IF
@@ -1133,15 +1160,9 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
 
       write(6,*) 'DONE WITH NEW FOCK OPERATOR'
         end if
-      call xflush(6)
 
-         CALL GETMEM('FOCK','Free','REAL',LFOCK,NTOT4)
          CALL GETMEM('SXBM','Free','REAL',LBM,NSXS)
          CALL GETMEM('SXLQ','Free','REAL',LQ,NQ) ! q-matrix(1symmblock)
-         IF(ISTORP(NSYM+1).GT.0) THEN
-           CALL GETMEM('ISTRP','FREE','REAL',LP,ISTORP(NSYM+1))
-           CALL GETMEM('ISTRP','FREE','REAL',LP1,ISTORP(NSYM+1))
-         END IF
       Call GetMem('ONTOPO','FREE','Real',ipTmpLOEOTP,ntot1)
       Call GetMem('ONTOPT','FREE','Real',ipTmpLTEOTP,nfint)
 
@@ -1151,8 +1172,8 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
       Call Put_dArray('Last energies',Energies,nroots)
       Call Put_cArray('Relax Method','MCPDFT  ',8)
       Call Put_dScalar('Last energy',Energies(iRlxRoot))
-          iSA = 1 !need to do MCLR for gradient runs. (1 to run, 2 to
-*skip)
+          iSA = 1
+       !need to do MCLR for gradient runs. (1 to run, 2 to skip)
        !MUST MODIFY THIS.  I need to check that the calculation is not
        !SA, and if it is, set iSA to -1.
       Call Put_iScalar('SA ready',iSA)
@@ -1183,6 +1204,8 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
       Call Put_iScalar('Relax CASSCF root',irlxroot)
       !end if
 
+
+
       end if !DoGradPDFT
 
       !if (jroot.eq.iRlxRoot) then
@@ -1192,7 +1215,13 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
       Call Put_dScalar('Last energy',Energies(iRlxRoot))
       !end if
 
-!      end do
+      Call GetMem('DoneI','Free','Real',iTmp2,nTot1)
+      Call GetMem('DoneA','Free','Real',iTmpa,nTot1)
+      CALL GETMEM('FOCK','Free','REAL',LFOCK,NTOT4)
+         IF(ISTORP(NSYM+1).GT.0) THEN
+           CALL GETMEM('ISTRP','FREE','REAL',LP,ISTORP(NSYM+1))
+           CALL GETMEM('ISTRP','FREE','REAL',LP1,ISTORP(NSYM+1))
+         END IF
       end do !loop over roots
 
       if(DoGradPDFT) then
@@ -1260,6 +1289,15 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
       end if
 
 
+      if(doGSOR) then
+        LUGS=25
+        LUGS=IsFreeUnit(LUGS)
+        IAD19=0
+        Call DaName(LUGS,'JOBGS')
+        Call IDaFile(LUGS,2,IADR19,15,IAD19)
+        Call DDAFile(LUGS,1,Energies,lroots,IADR19(6))
+        Call DaClos(LUGS)
+      end if
 
       If (.not.DoCholesky .or. ALGO.eq.1) Then
         if (nFint.gt.0) then
@@ -1281,7 +1319,9 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
 *      Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,dmDisk)
       Call GetMem('P2','Free','Real',iP2d,NACPR2)
       Call GetMem('D1Inact','Free','Real',iD1i,NTOT2)
-      call xflush(6)
+      Call GetMem('Kincore','free','Real',iTmpk,nTot1)
+      Call GetMem('NucElcore','free','Real',iTmpn,nTot1)
+c      call xflush(6)
       Call qExit('MSCTL')
       Return
       END

@@ -32,10 +32,10 @@
 #include "stdalloc.fh"
       Integer :: nGrad,iRoot,iNAC,jNAC
       Real*8 :: Grad(nGrad)
-      Real*8 , Dimension(:), Allocatable :: TmpGrad
       Integer, Dimension(5) :: TOC
+      Integer, Dimension(1) :: Length
       Integer, Dimension(:), Allocatable :: i_grad,i_nac
-      Integer :: nRoots,nCoup,LuGrad,iAd,Length,iSt,jSt,idx
+      Integer :: nRoots,nCoup,LuGrad,iAd,iSt,jSt,idx
       Integer, External :: AixRm
       Logical :: Found, BadFile
       Character(Len=5) :: Filename
@@ -58,10 +58,10 @@
       Call iDaFile(LuGrad,2,TOC,Size(TOC),iAd)
       iAd=TOC(1)
       Call iDaFile(LuGrad,2,Length,1,iAd)
-      If (Length.ne.nRoots) BadFile=.True.
+      If (Length(1).ne.nRoots) BadFile=.True.
       iAd=TOC(2)
       Call iDaFile(LuGrad,2,Length,1,iAd)
-      If (Length.ne.nGrad) BadFile=.True.
+      If (Length(1).ne.nGrad) BadFile=.True.
       If (BadFile) Then
         Call DaClos(LuGrad)
         If (AixRm('GRADS').ne.0) Call Abend()
@@ -84,24 +84,20 @@
 *
       If (iRoot.eq.0) Then
         If ((iNAC.ne.0).and.(jNAC.ne.0)) Then
-          Call mma_Allocate(TmpGrad,nGrad)
-          Call dCopy_(nGrad,Grad,1,TmpGrad,1)
-          If (iNAC.lt.jNAC) Call dScal_(nGrad,-One,TmpGrad,1)
           iSt=Max(iNAC,jNAC)-1
           jSt=Min(iNAC,jNAC)
           idx=iSt*(iSt-1)/2+jSt
           If (i_nac(idx).eq.0) Then
             i_nac(idx)=TOC(5)
-            Call dDaFile(LuGrad,1,TmpGrad,nGrad,TOC(5))
+            Call dDaFile(LuGrad,1,Grad,nGrad,TOC(5))
             iAd=0
             Call iDaFile(LuGrad,1,TOC,Size(TOC),iAd)
             iAd=TOC(4)
             Call iDaFile(LuGrad,1,i_nac,nCoup,iAd)
           Else
             iAd=i_nac(idx)
-            Call dDaFile(LuGrad,1,TmpGrad,nGrad,iAd)
+            Call dDaFile(LuGrad,1,Grad,nGrad,iAd)
           End If
-          Call mma_Deallocate(TmpGrad)
         End If
       Else
         idx=iRoot

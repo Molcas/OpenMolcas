@@ -93,6 +93,7 @@
 #include "rctfld.fh"
       Logical First, Dff, NonEq
       Real*8 Q_solute(nComp,2), Vs(nComp,2), QV(nComp,2)
+      Dimension FactOp(1), lOper(1)
 *
 *-----Statement Functions
 *
@@ -102,7 +103,7 @@
       iPrint = nPrint(iRout)
       Call qEnter('RctFld')
 *
-      lOper=1
+      lOper(1)=1
       nOrdOp=lMax
 *-----Set flag so only the diagonal blocks are computed
       Prprt=.True.
@@ -190,8 +191,7 @@
             Call DaXpY_(nComp,One,QV(1,2),1,Vs(1,1),1)
          End If
 *
-         Call Drv2_RF('hMod    ',lOper,Origin,nOrdOp,Vs(1,1),
-     &             lMax,h1,nh1)
+         Call Drv2_RF(lOper(1),Origin,nOrdOp,Vs(1,1),lMax,h1,nh1)
 *
          If (iPrint.ge.19) Then
             Write (6,*) 'h1(mod)'
@@ -210,7 +210,7 @@
 *------- Update h1 and RepNuc_save with respect to static contributions!
 *
          Label2='PotNuc00'
-         Call Put_Temp(Label2,RepNuc,1)
+         Call Put_Temp(Label2,[RepNuc],1)
          Label2='h1_raw  '
          Call Put_Temp(Label2,h1,nh1)
 *
@@ -224,9 +224,9 @@
 *     M(el,nl) =  - Sum(p,q) Dpq <p|M(nl)|q>
 *
       nOpr=1
-      FactOp=One
+      FactOp(1)=One
 *-----Reset array for storage of multipole moment expansion
-      call dcopy_(nComp,Zero,0,Q_solute(1,2),1)
+      call dcopy_(nComp,[Zero],0,Q_solute(1,2),1)
       Do iMltpl = 1, lMax
          Do ix = iMltpl, 0, -1
             If (Mod(ix,2).eq.0) Then
@@ -255,7 +255,7 @@
 *
                iTemp = MltLbl(iSymX,MltLbl(iSymY,iSymZ,
      &                            nIrrep),nIrrep)
-               lOper=iOr(lOper,iTemp)
+               lOper(1)=iOr(lOper(1),iTemp)
             End Do
          End Do
       End Do
@@ -289,8 +289,7 @@
 *
 *     T(D)pq = T(D)pq + Sum(nl) E(el,nl)*<p|M(nl)|q>
 *
-      Call Drv2_RF('hMod    ',lOper,Origin,nOrdOp,Vs(1,2),lMax,
-     &             TwoHam,nh1)
+      Call Drv2_RF(lOper(1),Origin,nOrdOp,Vs(1,2),lMax,TwoHam,nh1)
 *
       If (iPrint.ge.19) Then
          Write (6,*) 'h1(mod)'

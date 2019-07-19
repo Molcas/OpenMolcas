@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE TRANSFOCK(TORB,F)
+      SUBROUTINE TRANSFOCK(TORB,F,IDIR)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -45,7 +45,7 @@
         NO=NI+NR1+NR2+NR3+NS
         IF (NO.eq.0) GOTO 99
 * Copy the matrices to square storage: first fill with zeroes.
-        CALL DCOPY_(NO**2,0.0D0,0,WORK(LTSQ),1)
+        CALL DCOPY_(NO**2,[0.0D0],0,WORK(LTSQ),1)
 * Copy inactive TORB block to TSQ
         IOFF=0
         DO I=1,NI
@@ -103,12 +103,20 @@
           WORK(LFSQ-1+I+NO*(J-1))=F(IJOFF+IJ)
          END DO
         END DO
+       IF (IDIR.GE.0) THEN
 * Transform, first do FSQ*TSQ -> TMP...
-       CALL DGEMM_('N','N',NO,NO,NO,1.0D0,WORK(LFSQ),NO,WORK(LTSQ),NO,
+        CALL DGEMM_('N','N',NO,NO,NO,1.0D0,WORK(LFSQ),NO,WORK(LTSQ),NO,
      &              0.0D0,WORK(LTMP),NO)
 * ... and then do TSQ(transpose)*TMP -> FSQ.
-       CALL DGEMM_('T','N',NO,NO,NO,1.0D0,WORK(LTSQ),NO,WORK(LTMP),NO,
+        CALL DGEMM_('T','N',NO,NO,NO,1.0D0,WORK(LTSQ),NO,WORK(LTMP),NO,
      &              0.0D0,WORK(LFSQ),NO)
+       ELSE
+* Or inverse transformation
+        CALL DGEMM_('N','T',NO,NO,NO,1.0D0,WORK(LFSQ),NO,WORK(LTSQ),NO,
+     &              0.0D0,WORK(LTMP),NO)
+        CALL DGEMM_('N','N',NO,NO,NO,1.0D0,WORK(LTSQ),NO,WORK(LTMP),NO,
+     &              0.0D0,WORK(LFSQ),NO)
+       END IF
 * Transfer FSQ values back to F, in triangular storage.
        IJ=0
        DO I=1,NO

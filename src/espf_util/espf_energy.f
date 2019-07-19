@@ -23,6 +23,7 @@
       Character*8 Label
       Logical DoTinker,DoGromacs,DynExtPot
       Real*8 h1(nh1)
+      Dimension opnuc(1),idum(1)
 *
       Call QEnter('espf_energy')
       iPL = iPL_espf()
@@ -36,7 +37,7 @@
          Line = ' '
          Do While (Index(Line,'TheEnd ') .eq. 0)
             Line=Get_Ln(ITkQMMM)
-            If (Index(Line,'MMEnergy ').ne.0) Call Get_F(2,TkE,1)
+            If (Index(Line,'MMEnergy ').ne.0) Call Get_F1(2,TkE)
          End Do
          Close (ITkQMMM)
          TkE = TkE * ToHartree
@@ -51,20 +52,15 @@
 *
  3000 Format(/,' RepNuc + MM = ',F13.8,' + ',F13.8,' = ',F13.8)
 *
-*     Call to DrvProp to compute the integrals
-*     Actually, H.-J. Werner told me the following arguments
-*     are only for Molpro use: opmol, idirect, isyop.
-*     Moreover here we don't care about opnuc (nuclear potential)
+*     Call to DrvPot to compute the integrals
+*     Here we don't care about opnuc (nuclear potential)
 *
       nSize = nBas0*(nBas0+1)/2 + 4
       If (nSize .ne. (nh1+4)) Then
          Write(6,*) 'In espf_energy, nSize ne nh1',nSize,nh1+4
          Call Abend()
       End If
-      opmol = Dum
       opnuc = Dum
-      idirect = 1
-      isyop = 1
 *
       ncmp = 1
       iAddPot = 1
@@ -75,13 +71,13 @@
  1234       Format('Grid point ',I4,/,4F12.6)
          End Do
       End If
-      Call DrvProp('POT',Work(ipGrid),opmol,opnuc,ncmp,idirect,
-     &             isyop,Work(ipB),nGrdPt,iAddPot)
+      Call DrvPot(Work(ipGrid),opnuc,ncmp,Work(ipB),nGrdPt,iAddPot)
       Label = 'Pot     '
       iComp = 1
       iSyLbl = 1
       iRc = -1
-      Call iRdOne(iRc,1,Label,iComp,nInts,iSyLbl)
+      Call iRdOne(iRc,1,Label,iComp,idum,iSyLbl)
+      nInts=idum(1)
       If (iRc.ne.0) Then
          Write (6,'(A)')' ESPF: Error reading ONEINT'
          Write (6,'(A,A8)')' Label = ',Label
@@ -116,9 +112,9 @@
       EQC = ExtNuc(ipExt,natom)
       RepNuc = RepNuc + EQC
       If (IsStructure().eq.1) Then
-        Call Add_Info('PotNuc',RepNuc,1,6)
+        Call Add_Info('PotNuc',[RepNuc],1,6)
       Else
-        Call Add_Info('PotNuc',RepNuc,1,12)
+        Call Add_Info('PotNuc',[RepNuc],1,12)
       End If
 *
       Call QExit('espf_energy')

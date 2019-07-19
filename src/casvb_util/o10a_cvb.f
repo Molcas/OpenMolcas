@@ -20,7 +20,7 @@
       have_solved_it=.false.
 
       ixp=mstackr_cvb(nparm)
-      call fmove(w(ix(2)),w(ixp),nparm)
+      call fmove_cvb(w(ix(2)),w(ixp),nparm)
       call ddproj_cvb(w(ixp),nparm)
       cnrm1=dnrm2_(n_div,w(ixp),1)
       cnrm2=dnrm2_(nparm-n_div,w(n_div+ixp),1)

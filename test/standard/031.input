@@ -1,4 +1,3 @@
-*$ this file belongs to the Molcas repository $
 *-------------------------------------------------------------------------------
 * Molecule: O4+
 * Basis: cc-pvdz
@@ -48,8 +47,6 @@ End of Basis
 XField
 1
  15.000 0.0 0.0 4.0 0.0 0.0 0.0
-FileOrb
-SCFORB
 End of Input
 *-------------------------------------------------------------------------------
  &RASSCF &END

@@ -23,7 +23,7 @@ up and running is the following:
 1.  Clone the repository:
 
     ```
-    git clone https://gitlab.com/Molcas/OpenMolcas
+    git clone https://gitlab.com/Molcas/OpenMolcas.git
     ```
 
 2.  Get the `lapack` submodule (only needed if you don't use another linear
@@ -57,17 +57,21 @@ up and running is the following:
 
 For running other calculations you should define the `MOLCAS` environment
 variable to point to the `build` directory. Run `pymolcas --help` to see the
-available options of the script.
+available options of the script. In particular it is recommended to run:
+```
+pymolcas -setup
+```
+for your first installation.
 
 Documentation
 -------------
 
-The current documentation can be found in the [`doc` project](/../../doc), you
-can read it in [HTML format](https://molcas.gitlab.io/doc/sphinx/) or [PDF
-format](https://gitlab.com/Molcas/doc/builds/artifacts/master/raw/build/latex/Manual.pdf?job=sphinx).
-Note that most of it precedes the creation of OpenMolcas and it is probably
-outdated in several points. It may also mention features not available in
-OpenMolcas.
+The documentation can be found in the
+[`doc`](https://gitlab.com/Molcas/OpenMolcas/tree/master/doc) directory, you
+can read it in [HTML format](https://molcas.gitlab.io/OpenMolcas/sphinx/) or
+[PDF format](https://molcas.gitlab.io/OpenMolcas/Manual.pdf). Note that most
+of it precedes the creation of OpenMolcas and it is probably outdated in
+several points. It may also mention features not available in OpenMolcas.
 
 There may be more information in the [wiki pages](/../wikis/home).
 

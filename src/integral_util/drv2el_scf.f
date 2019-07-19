@@ -78,6 +78,7 @@
      &        nShOffi(8), nShOffj(8), nShOffk(8), nShOffl(8)
       Logical Debug
       Character*72 SLine
+      Dimension Ind(1,1,2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -279,8 +280,8 @@ c       iPrint=200
      &                   iTOffs,nShi,nShj,nShk,nShl,
      &                   nShOffi,nShOffj,nShOffk,nShOffl,
      &                   No_Routine,
-     &                   Work(ipDq),Work(ipFq),mDens,ExFac,Nr_Dens,
-     &                   Ind,nInd,NoCoul,NoExch,
+     &                   Work(ipDq),Work(ipFq),mDens,[ExFac],Nr_Dens,
+     &                   Ind,nInd,[NoCoul],[NoExch],
      &                   Thize,W2Disc,PreSch,Disc_Mx,Disc,
      &                   Count,DoIntegrals,DoFock)
 
@@ -358,6 +359,7 @@ CMAW end
       Return
       End
       Subroutine Init_SemiDSCF(FstItr,Thize,Cutint)
+      use dEAF
       implicit real*8 (a-h,o-z)
 #include "IOBuf.fh"
 #include "SysDef.fh"
@@ -383,7 +385,7 @@ CMAW end
          control(4)=cutint
 *        write(6,*) 'control written:',control
 C        Write (6,*) ' Initiate write @', Disk,'iBuf=',iBuf
-         If(OnDisk) Call EAFAwrite(LuTmp,control,4*RtoI,Disk,id)
+         If(OnDisk) Call dEAFAwrite(LuTmp,control,4*RtoI,Disk,id)
       Else
          iStatIO = Mode_Read
 *        write(6,*) 'read istatio=',istatio
@@ -394,7 +396,7 @@ C        Write (6,*) ' Initiate write @', Disk,'iBuf=',iBuf
 *        Call GetMem('ISemi','List','Real',iDum,iDum)
          If (OnDisk) then
 C           Write (6,*) ' Initiate read @', Disk,'iBuf=',iBuf
-            Call EAFread(LuTmp,control,4*RtoI,Disk)
+            Call dEAFread(LuTmp,control,4*RtoI,Disk)
             Disk_2 = Disk
             Disk_1 = Disk
 *           write(6,*) 'control read:',control
@@ -427,7 +429,7 @@ C           Write (6,*) ' Initiate read @', Disk,'iBuf=',iBuf
             end if
 c           Write (6,*) ' Initiate read @', Disk,'iBuf=',iBuf
 *           If(OnDisk) Write (6,*) ' Initial EAFARead'
-            Call EAFARead(LuTmp,Work((iBuf-1)*lBuf+ipBuf),
+            Call dEAFARead(LuTmp,Work((iBuf-1)*lBuf+ipBuf),
      &                               lBuf*RtoI,Disk,id)
          End If
       End If

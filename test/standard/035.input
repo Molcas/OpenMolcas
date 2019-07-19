@@ -1,5 +1,3 @@
-*$ this file belongs to the Molcas repository $
->export MOLCAS_DISK=1
 *-------------------------------------------------------------------------------
 * Molecule:C3H5 (Allyl radical)
 * Basis: ANO-L
@@ -9,6 +7,7 @@
 * Responsible person: P.-O. Widmark 041228
 * Comments: Geometry optimization plus test of several codes.
 *-------------------------------------------------------------------------------
+>export MOLCAS_DISK=1
 >>>>>>>>>>>>>>>>>>> DO while <<<<<<<<<<<<<<<<<<<<
  &SEWARD &END
 Title
@@ -54,7 +53,6 @@ CIMX
 End of Input
 *-------------------------------------------------------------------------------
  &ALASKA &END
-Extract
 End of input
 *-------------------------------------------------------------------------------
  &SLAPAF &END

@@ -13,7 +13,7 @@
 #endif
 
       integer                 wfn_fileid,
-     $        wfn_energy, wfn_mocoef, wfn_occnum, wfn_orbene
+     $        wfn_energy, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
 
       common /gsswfn_handles/ wfn_fileid,
-     $        wfn_energy, wfn_mocoef, wfn_occnum, wfn_orbene
+     $        wfn_energy, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx

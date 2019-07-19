@@ -24,10 +24,10 @@
 
       call str2vbc_cvb(cvb,cvbdet)
       ioffs=0
-      call wris_cvb(ndetvb,1,recn_tmp04,ioffs)
-      call wris_cvb(norb,1,recn_tmp04,ioffs)
-      call wris_cvb(nalf,1,recn_tmp04,ioffs)
-      call wris_cvb(nbet,1,recn_tmp04,ioffs)
+      call wris_cvb([ndetvb],1,recn_tmp04,ioffs)
+      call wris_cvb([norb],1,recn_tmp04,ioffs)
+      call wris_cvb([nalf],1,recn_tmp04,ioffs)
+      call wris_cvb([nbet],1,recn_tmp04,ioffs)
       call wrrs_cvb(orbs,norb*norb,recn_tmp04,ioffs)
       idetvb=0
       do 100 ia=1,nda

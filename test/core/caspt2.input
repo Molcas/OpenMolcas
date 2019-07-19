@@ -80,7 +80,6 @@ IPEA = 0.25
 >> CLONE refwfn.jobiph $Project.JobIph
  &CASPT2
 XMultiState
-1
 2 1 2
 SHIFt = 0.20
 Properties

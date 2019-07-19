@@ -11,7 +11,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2013,2017, Ignacio Fdez. Galvan                        *
+# Copyright (C) 2013,2017, Ignacio Fdez. Galván                        *
 #               2008,2009, Neil Martinsen-Burrell (FortranFile)        *
 #***********************************************************************
 # ==============================================================================

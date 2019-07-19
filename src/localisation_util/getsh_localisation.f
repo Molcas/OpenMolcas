@@ -23,7 +23,7 @@
       Call UpCase(myNorm)
 
       If (iOpt .eq. 1) Then
-         Call dCopy_(nShell*m,0.0d0,0,XSh,1)
+         Call dCopy_(nShell*m,[0.0d0],0,XSh,1)
          If (myNorm .eq. 'MAX') Then
             Do j = 1,m
                Do i = 1,nBas
@@ -47,7 +47,7 @@
             Call SysAbendMsg('GetSh_Localisation','Fatal error',
      &                       'm != nBas')
          End If
-         Call dCopy_(nShell*nShell,0.0d0,0,XSh,1)
+         Call dCopy_(nShell*nShell,[0.0d0],0,XSh,1)
          If (myNorm .eq. 'MAX') Then
             Do j = 1,nBas
                jShell = iSO2Sh(j)

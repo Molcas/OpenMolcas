@@ -14,7 +14,7 @@
      &                  nSym,jStab,Degen,Smmtrc,mTR,TRVec,
      &                  ip_rInt,ip_drInt,HSet,BSet,ipBMx,Numerical,iANr,
      &                  HWRS,Analytic_Hessian,iOptC,Name,PrQ,Proj,
-     &                  rMass,iCoSet,iTabBonds,
+     &                  dMass,iCoSet,iTabBonds,
      &                  iTabAtoms, nBonds,nMax,iTabAI,mAtoms,lOld,
      &                  ip_KtB_Hessian,nQQ,nqInt,MaxItr,nWndw)
 ************************************************************************
@@ -34,7 +34,7 @@
 #include "db.fh"
 #include "print.fh"
       Real*8 Cx(3*nAtoms,nIter), Degen(3*nAtoms),
-     &       Gx(3*nAtoms,nIter), Proj(nDim), rMass(nAtoms),
+     &       Gx(3*nAtoms,nIter), Proj(nDim), dMass(nAtoms),
      &       TRVec(nDim,mTR)
       Integer nStab(nAtoms), iOper(0:nSym-1), iCoSet(0:7,nAtoms),
      &        jStab(0:7,nAtoms), iANr(nAtoms), iDum(6),
@@ -46,6 +46,7 @@
       Character filnam*32
       Character*(LENIN) Name(nAtoms)
       Character*14 cDum
+      Dimension Dum(1)
       Save g12K
       Data g12K/.False./
 *                                                                      *
@@ -127,12 +128,13 @@
      &           nAtoms,iIter,nIter,Cx,iOper,nSym,jStab,
      &           nStab,nDim,Smmtrc,Proc,Dum,1,iANr,cDum,
      &           iRef,Dum,Dum,iOptC,LuIC,
-     &           Name,iDum,iIter,rMass,iCoSet,Dum,
+     &           Name,iDum,iIter,dMass,iCoSet,Dum,
      &           iDum(1),iDum(1),
      &           Proc_dB,
      &           iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,
      &           mB_Tot,mdB_Tot,Dum,Dum,iDum,iDum,1,1,
      &           iDum)
+
       Rewind(LuIC)
 *
       If (nq.eq.0) Then
@@ -189,7 +191,7 @@
      &           nStab,nDim,Smmtrc,Proc,
      &           Work(ipqVal),nq,iANr,cWork(ipqLbl),
      &           iRef,Work(ipf_c),Work(ipMult),iOptC,
-     &           LuIC,Name,iWork(ipInd),iIter,rMass,iCoSet,Work(ipGRef),
+     &           LuIC,Name,iWork(ipInd),iIter,dMass,iCoSet,Work(ipGRef),
      &           iGlow,iGHi,
      &           Proc_dB,
      &           iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,
@@ -284,7 +286,8 @@
          Call GetMem('EVal','Allo','Real',ipEVal,nq*(nq+1)/2)
          Call ElRed2(nq,ndim,Work(ipG),Work(ipEVal),Work(ipK),nK,Proj,
      &               g12K,Thr_ElRed,Work(ip_B),iWork(ip_iB),mB_Tot,
-     &               iWork(ip_nqB),TRVec,mTR)
+     &               iWork(ip_nqB))
+
          If (nK.gt.nQQ) Then
             Call Remove_TR(nq,ndim,nQQ,Work(ipK),nK,TRVec,mTR,
      &                     Work(ip_B),iWork(ip_iB),iWork(ip_nqB),mB_Tot)
@@ -398,7 +401,7 @@ C        iEnd = 1
      &              nStab,nDim,Smmtrc,Proc,
      &              Work(ipqVal),nq,iANr,cWork(ipqLbl),
      &              iRef, Work(ipf_c),Work(ipMult),
-     &              iOptC,LuIC,Name,iWork(ipInd),iIter,rMass,iCoSet,
+     &              iOptC,LuIC,Name,iWork(ipInd),iIter,dMass,iCoSet,
      &              Work(ipGRef),iGlow,iGHi,
      &              Proc_dB,
      &              iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,

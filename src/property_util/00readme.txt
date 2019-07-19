@@ -10,7 +10,7 @@ letter denote the data type the routine process:
 
 o i -- integer data type
 o s -- real*4 data type
-o d -- real_8 data type
+o d -- real*8 data type
 o c -- complex*4 data type
 o z -- complex*8 data type
 

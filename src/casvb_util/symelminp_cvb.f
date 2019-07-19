@@ -20,6 +20,7 @@
       character*3 tags(mxsyme)
       dimension izeta(*)
       dimension ityp(mxorb)
+      dimension iaux(1),daux(1)
       save symelm,sign
       data symelm/'IRREPS  ','COEFFS  ','TRANS   ','END     ',
      >            'ENDSYMEL'/
@@ -50,8 +51,9 @@
       if(istr2.eq.1)then
 c    'IRREPS'
         do 1100 i=1,mxirrep
-        irrep=0
-        call int_cvb(irrep,1,nread,0)
+        iaux=0
+        call int_cvb(iaux,1,nread,0)
+        irrep=iaux(1)
         if(irrep.ne.0)then
           do 1200 iorb=1,mxorb
 1200      if(irrep.eq.ityp(iorb))
@@ -61,8 +63,9 @@ c    'IRREPS'
       elseif(istr2.eq.2)then
 c    'COEFFS'
         do 1300 i=1,mxorb
-        iorb=0
-        call int_cvb(iorb,1,nread,0)
+        iaux=0
+        call int_cvb(iaux,1,nread,0)
+        iorb=iaux(1)
         if(iorb.ne.0)then
           w(iorb+(iorb-1)*mxorb+ishft+ip_symelm-1)=-one
         else
@@ -72,15 +75,17 @@ c    'COEFFS'
 1301    continue
       elseif(istr2.eq.3)then
 c    'TRANS'
-        idim=0
-        call int_cvb(idim,1,nread,0)
+        iaux=0
+        call int_cvb(iaux,1,nread,0)
+        idim=iaux(1)
         if(idim.lt.1.or.idim.gt.mxorb)then
           write(6,*)' Illegal dimension in TRANS:',idim,mxorb
           call abend_cvb()
         endif
         itmp = mstacki_cvb(idim)
         do 1400 i=1,idim
-        call int_cvb(iorb,1,nread,0)
+        call int_cvb(iaux,1,nread,0)
+        iorb=iaux(1)
         if(iorb.lt.1.or.iorb.gt.mxorb)then
           write(6,*)' Illegal orbital number in TRANS:',iorb
           call abend_cvb()
@@ -90,9 +95,9 @@ c    'TRANS'
         iorb=iw(ior+itmp-1)
         do 1500 jor=1,idim
         jorb=iw(jor+itmp-1)
-        value=zero
-        call real_cvb(value,1,nread,0)
-1500    w(iorb+(jorb-1)*mxorb+ishft+ip_symelm-1)=value
+        daux=zero
+        call real_cvb(daux(1),1,nread,0)
+1500    w(iorb+(jorb-1)*mxorb+ishft+ip_symelm-1)=daux(1)
         call mfreei_cvb(itmp)
       endif
 c    'END' , 'ENDSYMEL' or unrecognized keyword -- end SYMELM input :

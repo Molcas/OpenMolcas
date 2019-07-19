@@ -31,7 +31,7 @@
       If(.not.Found .or.nDens.eq.0) Then
          Call SysAbendMsg('get_d1ao','Could not locate:',Label)
       End If
-      Call GetMem('Dens','Allo','Real',ipD1ao,nDens)
+      Call GetMem('D1ao','Allo','Real',ipD1ao,nDens)
       Call get_dArray(Label,Work(ipD1ao),nDens)
 *                                                                      *
 ************************************************************************

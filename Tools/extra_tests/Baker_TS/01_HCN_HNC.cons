@@ -1,0 +1,5 @@
+TSConstraints
+  a = angle C1 N2 H3
+Values
+  a = 45 degree
+End of TSConstraints

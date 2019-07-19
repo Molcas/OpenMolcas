@@ -573,7 +573,8 @@ c           !set index arrays at iLoc
 
 *Store nVec to make sure the routine always uses the same
             If (iAChoVec.eq.1) nVec_=nVec
-            ReadInter=(iAChoVec.eq.2).and.(nVec.eq.nVec_) ! nVec.ne.nVec_ should happen only if lack of memory
+            ReadInter=(iAChoVec.eq.2).and.(nVec.eq.nVec_)
+!           nVec.ne.nVec_ should happen only if lack of memory
 *            ReadInter=.false.
 
 
@@ -1520,9 +1521,9 @@ C -------------------------------------------------------------
      &                 nBas(i)*nAsh(k))
 
                   ipLpq(k,1) = ipLF + lChoa       ! Lvb,J
-                  ipLpq(k,2) = ipLpq(k,1)         ! Lvi,J i general MO index
+                  ipLpq(k,2) = ipLpq(k,1)     ! Lvi,J i general MO index
      &                       + nAsh(k)*nBas(i)*JNUM
-                  ipLpq(k,3) = ipLpq(k,2)         ! L~vi,J ~ transformed index
+                  ipLpq(k,3) = ipLpq(k,2)   ! L~vi,J ~ transformed index
      &                         + nAsh(k)*nBas(i)*JNUM
 
 *                  If (Fake_CMO2) Then

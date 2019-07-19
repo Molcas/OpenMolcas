@@ -190,8 +190,8 @@
          Do i=1,nOrb(iSym)
             Eta(iOffEta+i)=-Eta(iOffEta+i)
          End Do
-         Call Sort(Eta(iOffEta+1),Nato(iOffCMO+1),
-     &             nOrb(iSym),nBas(iSym))
+         Call SortEig(Eta(iOffEta+1),Nato(iOffCMO+1),
+     &                nOrb(iSym),nBas(iSym))
          Do i=1,nOrb(iSym)
             Eta(iOffEta+i)=-Eta(iOffEta+i)
          End Do

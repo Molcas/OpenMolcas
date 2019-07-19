@@ -25,12 +25,13 @@
 #include "sa.fh"
 #include "dmrginfo_mclr.fh"
 #include "SysDef.fh"
-       Logical CI
+       Logical CI, Is_Roots_Set
        Character*80 Note
 ! Added for DMRG calculation
        real*8,allocatable::tmpDe(:,:),tmpP(:),tmpDeM(:,:),tmpPM(:,:,:,:)
        Integer iKapDisp(nDisp),iCiDisp(nDisp)
        Character(Len=16) mstate
+       Dimension rdum(1),idum(7,8)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -266,8 +267,8 @@ c
 !         Call Put_DLMO(Work(ipD1),ndim1) ! \bar{D} triangular  ! yma
 !         Call Put_PLMO(Work(ipP1),ndim2) ! \bar{d} triangular  ! yma
 
-         Call Put_DLMO(Work(ipD1),nDLMO) ! \bar{D} triangular ! origional
-         Call Put_PLMO(Work(ipP1),nPLMO) ! \bar{d} triangular ! origional
+         Call Put_DLMO(Work(ipD1),nDLMO) ! \bar{D} triangular ! original
+         Call Put_PLMO(Work(ipP1),nPLMO) ! \bar{d} triangular ! original
 *
        End If
 *
@@ -320,7 +321,8 @@ c Mult all terms that are not diag by 2
 *
 *      Now with active density too, to form the variational density
 *
-       Call OITD(Work(ipK2),1,Work(ipD_K),Work(ipDtmp),.True.) ! gives \tilde{D}
+!      gives \tilde{D}
+       Call OITD(Work(ipK2),1,Work(ipD_K),Work(ipDtmp),.True.)
 *
        Do iS=1,nsym
 c
@@ -343,6 +345,7 @@ c
 *
        If (isNAC) Then
          Call Get_D1MO(ipG1q,ng1)
+         iR = 0 ! set to dummy value.
        Else
          iR=iroot(istate)
          jdisk=itoc(3)
@@ -367,7 +370,7 @@ c D_eff = D^j + \tilde{D} +\bar{D}
 c ipD_K = (ipG1q + inact) + ipD_K + ipD_CI
 *
 C
-C       call dcopy_(ndens2, Zero, 0, Work(ipD_K), 1)  !DEBUG
+C       call dcopy_(ndens2, [Zero], 0, Work(ipD_K), 1)  !DEBUG
 C
        If (isNAC) Then
 *
@@ -390,7 +393,7 @@ c Note: no inactive part for transition densities
          End Do
          Call Getmem('TMP', 'ALLO','Real',ipT,nBuf/2)
          Call NatOrb(Work(ipD_K),Work(ipCMO),Work(ipCMON),Work(ipO))
-         Call dmat(Work(ipCMON),Work(ipO),Work(ipT))
+         Call dmat_MCLR(Work(ipCMON),Work(ipO),Work(ipT))
          Call Put_D1ao_var(Work(ipT),nTot1)
          Call Getmem('TMP', 'FREE','Real',ipT,nBuf/2)
 *
@@ -403,7 +406,7 @@ c Note: no inactive part for transition densities
          Call dDaFile(LuDens,2,Work(ipG1q),ng1,iDisk)
          Call DaClos(LuDens)
          Call Getmem('D1ao-','ALLO','Real',ipG1m,ndens2)
-         Call DCopy_(ndens2,Zero,0,Work(ipG1m),1)
+         Call DCopy_(ndens2,[Zero],0,Work(ipG1m),1)
 * Reconstruct the square matrix
          Do is=1,nSym
           Do iA=1,nash(is)
@@ -471,21 +474,53 @@ c ipO eigenvalues of eff dens
 c ipCMON eigenvectors (new orb coef)
 c
          Call Getmem('TMP', 'ALLO','Real',ipT,nBuf/2)
-         Call Getmem('TMP', 'ALLO','Real',ipTt,nBuf/2)
          Call NatOrb(Work(ipD_K),Work(ipCMO),Work(ipCMON),Work(ipO))
-         Call dmat(Work(ipCMON),Work(ipO),Work(ipT))
+         Call dmat_MCLR(Work(ipCMON),Work(ipO),Work(ipT))
          Call Put_D1ao_Var(Work(ipT),nTot1)
+         Call Getmem('TMP', 'FREE','Real',ipT,nBuf/2)
          Call get_D1MO(ipT,nTot1)
          Call get_DLMO(ipTt,nTot1)
-       Call DaxPy_(nTot1,1.0d0,Work(ipTt),1,Work(ipT),1)
-         Call Getmem('TMP', 'FREE','Real',ipT,nBuf/2)
+         Call DaxPy_(nTot1,1.0d0,Work(ipTt),1,Work(ipT),1)
+         Call Getmem('DENS','FREE','Real',ipT,nTot1)
+         Call Getmem('DENS','FREE','Real',ipTt,nTot1)
          Note='var'
          LuTmp=50
          LuTmp=IsFreeUnit(LuTmp)
          Call WrVec('TMPORB',LuTmp,'O',nSym,nBas,nBas,
-     &            Dum,Work(ipO),Dum,iDum,Note)
+     &            rDum,Work(ipO),rDum,iDum,Note)
          Call Prpt()
-       EndIf
+*                                                                     *
+***********************************************************************
+*        There should now be dipole moments on the runfile which
+*        corresponds to the gradient of the energy w.r.t. the
+*        electric field. Let's update the list of values stored
+*        on the runfile.
+*
+         Is_Roots_Set = .False.
+         Call Qpg_iScalar('Number of roots',Is_Roots_Set)
+         nRoots = 1
+         If (Is_Roots_Set) Then
+            Call Get_iScalar('Number of roots',nRoots)
+         End If
+*
+         If (nRoots.ne.1) Then
+*           Write (*,*) 'iR=',iR
+            Call GetMem('DIPM', 'Allo','Real',ipDM,3)
+            Call GetMem('DIPMs','Allo','Real',ipDMs,3*nROOTS)
+            Call Get_dArray('Last Dipole Moments',Work(ipDMs),3*nRoots)
+*           Call RecPrt('Last Dipole Moments',' ',Work(ipDMS),3,nRoots)
+            Call Get_dArray('Dipole Moment',Work(ipDM),3)
+*           Call RecPrt('Dipole Moment',' ',Work(ipDM),1,3)
+            Call DCopy_(3,Work(ipDM),1,
+     &                    Work(ipDMS+(iR-1)*3),1)
+*           Call RecPrt('Last Dipole Moments',' ',Work(ipDMS),3,nRoots)
+            Call Put_dArray('Last Dipole Moments',Work(ipDMs),3*nRoots)
+            Call Free_Work(ipDMs)
+            Call Free_Work(ipDM)
+         End If
+***********************************************************************
+*                                                                     *
+       End If
        Call Getmem('TMP', 'FREE','Real',ipG1q,ng1)
 C
 c--------------------------  debug -----
@@ -522,7 +557,7 @@ c ipCMON eigenvectors (new orb coef)
 c
 c      Call NatOrb(Work(ipD_K),Work(ipCMO),Work(ipCMON),Work(ipO))
 c      Call Getmem('TMP', 'ALLO','Real',ipT,nBuf/2)
-c      Call dmat(Work(ipCMON),Work(ipO),Work(ipT))
+c      Call dmat_MCLR(Work(ipCMON),Work(ipO),Work(ipT))
 c      Call Put_D1ao_Var(Work(ipT),nTot1)
 c      Note='var'
 c      LuTmp=50
@@ -534,7 +569,7 @@ c      Call Prpt()
 c
 c Standard routine, ipT effective dens in AO
 c
-*       Call dmat(Work(ipCMON),Work(ipO),Work(ipT))
+*       Call dmat_MCLR(Work(ipCMON),Work(ipO),Work(ipT))
 c
 *       Call Put_D1ao_Var(Work(ipT),nTot1)
 c      Call Getmem('TMP', 'FREE','Real',ipT,nBuf/2)
@@ -584,7 +619,7 @@ c
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *
       Call QEnter('OITD')
-      call dcopy_(ndens2,Zero,0,Dtmp,1)
+      call dcopy_(ndens2,[Zero],0,Dtmp,1)
 *
 *     Note: even with NAC we set the inactive block,
 *     because this is the SA density, not the transition density
@@ -649,8 +684,8 @@ C
                ij=ij+1
             End DO
          End DO
-         Call dCopy_(nBas(iS)**2,Zero,0,Work(ipS),1)
-         Call dCopy_(nBas(is),One,0,Work(ipS),nbas(is)+1)
+         Call dCopy_(nBas(iS)**2,[Zero],0,Work(ipS),1)
+         Call dCopy_(nBas(is),[One],0,Work(ipS),nbas(is)+1)
          CALL JACOB(Work(ipS2),Work(ipS),nbas(is),nbas(is))
          ii=0
          DO i=1,nbas(is)

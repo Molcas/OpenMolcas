@@ -61,7 +61,7 @@
                If (iBy.gt.3) iBy=iBy-3
                iBz = iBy + 1
                If (iBz.gt.3) iBz=iBz-3
-               Call ICopy(6,0,0,ix_,1)
+               Call ICopy(6,[0],0,ix_,1)
                ix_(iBz,1)=1
                ix_(iBy,2)=1
             iComp = 0

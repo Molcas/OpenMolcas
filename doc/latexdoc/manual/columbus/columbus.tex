@@ -1,0 +1,613 @@
+%! columbus.tex $ this file belongs to the Molcas repository $*/
+% Revision 1.1 (may, 6th 2012)     
+% th.mueller@fz-juelich.de
+\chapter{Usage in Combination with MOLCAS}
+\section{\program{COLUMBUS}}
+\label{UG:sec:COLUMBUS}
+\index{Program!COLUMBUS@\program{COLUMBUS}}\index{COLUMBUS@\program{COLUMBUS}}
+%%Description: 
+%%+The COLUMBUS interface permits to run automatically 
+%%+seriel and (configuration dependent) parallel MRCI calculations
+%%+with the COLUMBUS MRCI code. The interface is based upon the
+%%+most recent COLUMBUS 7.0 beta revision (May 2012) available from the  
+%%+Institute of Theoretical Chemistry, University of Vienna
+%%+http://www.itc.univie.ac.at:xxxx
+%%+This code has to be installed separately.
+%%+The interface is limited to a subset of features available 
+%%+with the COLUMBUS package.
+
+The \program{COLUMBUS} interface permits executing the
+\program{COLUMBUS MRCI} program after molecular orbital optimization
+by means of the \program{SCF} or \program{RASSCF} programs.
+This includes both standard non-relativistic or scalar relativistic
+MRCI calculations as well as two-component spin-orbit CI calculations\cite{Lischka:01}.
+
+The \program{COLUMBUS MRCI} program generates 
+Multi Reference SDCI\cite{Lischka:01},  ACPF\cite{Gdanitz:88}, AQCC\cite{Szalay:93}
+and AQCC-v\cite{Szalay:97}
+\index{SDCI!using \program{MRCI}}
+\index{ACPF!using \program{MRCI}} 
+\index{AQCC!using \program{MRCI}} 
+\index{Multireference!SDCI}
+\index{Multireference!ACPF}
+\index{Multireference!AQCC}
+\index{Direct CI}
+\index{Coupling coefficients!MRCI}
+wavefunctions. AQCC and ACPF belong to a class of approximately 
+size-extensive functionals applicable to the multi reference case.
+The program uses spin-adapted configuration state functions (CSF)
+and is based on the Direct CI method\cite{Roos:72}.
+Coupling coefficients are generated on the fly 
+with the Graphical Unitary Group Approach\cite{Shavitt:77}.
+The (multi-state) multi-reference perturbation theory second and third order
+\cite{shavitt:02} is deactivated in the current version due 
+to excessive I/O demands. 
+
+The \program{COLUMBUS MRCI} program also generates state-specific
+natural orbitals that can be fed into
+the property program to evaluate certain one electron properties.
+The natural orbitals are also useful for Iterated Natural Orbital
+(INO) \index{INO} calculations.
+
+The program is particularly well-suited for large configuration
+spaces. Several eigenvectors can be computed simultaneously
+for MR-SDCI calculations while approximate size-extensive 
+functionals  are state-selective.  
+
+Several features, such as inclusion of solvent effects through
+the continuum solvent model COSMO \cite{Klamt:93} 
+and via QM-MM coupling \cite{XX:XX} 
+are currently not available in combination with MOLCAS due to 
+incompatibilities with the COLUMBUS module for the fast evaluation
+of the electrostatic potential. 
+
+Single state geometrical gradients and geometry optimizatons at the MRCI 
+(not at the Spin-Orbit-MRCI level) can be carried out straightforwardly 
+having the COLUMBUS section followed by ALASKA and SLAPAF input sections. 
+
+\subsubsection{Functionals}
+
+The available energy functionals differ in the normalization of the denominator
+of the following equation
+\begin{eqnarray}
+ E &=& \frac{\langle \Psi_0 + \Psi_1 \vert {\mathbf H} \vert \Psi_0 + \Psi_1 \rangle}
+            {1 + g\langle\Psi_1\vert\Psi_1\rangle} + E_{nuc}
+\end{eqnarray}
+ where $\Psi_0$ refers to the relaxed reference wave function normalized to unity
+ and its orthogonal complement $\Psi_1$. $E_{nuc}$ designates the effective nuclear
+ repulsion energy. The functionals and associated $g$-values are given as
+
+\begin{center}
+\begin{tabular*}{0.5\hsize}{l@{\extracolsep\fill}l}
+\hline
+method & $g$ \\
+\hline
+MR-CISD & 1 \\
+MR-ACPF & $\frac{2}{N}$ \\
+MR-AQCC & $1-\frac{(N-3)(N-2)}{N(N-1)}$ \\
+MR-AQCC-v & $1-\frac{(N-3)(N-2) (V-3)(V-2)}{N(N-1)V(V-1)}$ \\
+\hline
+\end{tabular*}
+
+{\small $N$ denotes the number of correlated electrons $N$ and $V$ the number of virtual (unoccupied) MOs.}
+\end{center}
+
+Note, that wavefunctions for ground and excited states of the same symmetry
+based on the size-extensivity corrected functionals are not orthogonal. 
+The wavefunction optimization is carried out by the standard Davidson subspace scheme
+using modified subspace representations of the CI and Overlap matrices\cite{Szalay:97}.
+
+\subsubsection{Configuration space definition}
+
+The total CSF space of an MR-CISD calculation 
+is obtained by all single and double 
+excitations from a given set of reference CSFs constrained 
+by the requested symmetry.  The \program{COLUMBUS MRCI} program allows
+for a large degree of flexibility in defining reference configuration spaces. 
+The orbital space is divided into internal and external orbitals. The
+internal orbitals are normally occupied in at least one reference 
+configurations whereas the external orbitals contain at most two
+electrons in any configuration and do not contribute to any reference CSF. 
+The entire configuration space is 
+encoded in terms of a distinct row table (DRT). As for efficiency 
+reasons only the internal orbital space is explicitly encoded there
+is only very limited control over the external orbital space. 
+
+Commonly the reference configuration space is built first by
+dividing the orbitals into subspaces and imposing constraints
+on the number of electrons within each subspace. Additional 
+constraints such as spin-coupling are also possible. The final
+configuration space is obtained by all single and double excitations
+from the reference configurations. Constraints on the number of 
+electrons and spin-coupling are possible at the final stage of
+configuration space generation as well. 
+
+This interface utility supports the construction of a number of
+standard configuration spaces, writes the corresponding configuration
+and input files for the necessary COLUMBUS programs and executes them
+in appropriate order. For more specialized configuration spaces 
+it is necessary to manipulate the input files manually or to invoke
+the interactive input facility of the COLUMBUS suite of programs.
+
+Certain orbitals may be eliminated completely from the subsequent calculation:
+{\bf frozen core} orbitals are always doubly occupied, i.e. they are
+not correlated; {\bf frozen virtual} orbitals are unoccupied in all reference
+configurations. 
+
+For reference configuration space definition 
+the remaining orbitals are further subdivided into 
+
+\begin{itemize}
+\itemsep 9pt plus 3pt minus 3pt
+\item
+{\bf REFDOCC:}
+\index{MRCI!REFDOCC}
+These (inactive) orbitals are always doubly occupied in all reference configurations. 
+\item
+{\bf REFRAS:}
+\index{MRCI!REFRAS}
+The restricted active space  
+is fully occupied  with a maximum number of holes in any of the reference configurations.  
+\item
+{\bf REFCAS:}
+\index{MRCI!REFCAS}
+The complete active space may contain any number of electrons  
+for the different reference configurations.
+\item
+{\bf REFAUX:}
+\index{MRCI!REFAUX}
+The auxiliary orbital space contains a maximum number of electrons in any
+of the reference configurations.
+\end{itemize}
+
+The ordering is bottom-up within each irreducible representation.
+
+
+\subsubsection{Multiple Distinct Row Tables}
+The computation of transition moments requires the computation of
+transition densities between pairs of wavefunctions which may belong
+to different irreducible representations. Under such circumstances
+it is necessary to create one distinct row table for each irreducible representation
+appearing in the contributing wavefunctions. Furthermore these DRTs must 
+obey certain constraints on their internal structure in order to 
+make them amenable to the transition density code. Therefore, transition
+densities can be computed only, if all the configuration spaces for 
+the individual irreducible representations of interest are specified
+in one input file.
+
+\subsection{Dependencies}
+\label{UG:sec:columbus_dependencies}
+\index{Dependencies!COLUMBUS}\index{COLUMBUS!Dependencies}
+The program needs 
+the transformed one- and two-electron integrals
+generated by the program
+\program{MOTRA}.
+
+\subsection{Files}
+\label{UG:sec:columbus_files}
+\index{Files!COLUMBUS}\index{COLUMBUS!Files}
+\subsubsection{Input files}
+
+\begin{filelist}
+%------
+\item[ORDINT]
+{Two-{}electron integrals from \program{SEWARD}.}
+%------
+\item[ONEINT]
+{One-{}electron property integrals from \program{SEWARD}.}
+%------
+\item[ONEREL]
+{Relativistic one-electron integrals from \program{SEWARD}.}
+%------
+\item[AMFI]
+{Relativistic one-electron atomic mean field integrals from \program{SEWARD}.}
+%------
+\end{filelist}
+
+\subsubsection{Output files}
+%\newpage
+\begin{filelist}
+%------
+\item[nocoef\_ci.drtn.m]
+The natural orbitals for CI root m of DRT n where n and m are
+integers.
+%------
+\item[civout.drtn]
+The CI vector information file for the calculation of the n th 
+DRT. 
+%------
+\item[civfl.drtn]
+The CI vector file containing all roots for the calculation of the n th 
+DRT. 
+%------
+\item[ciudgls.drtn]
+The output of the CI calculation for DRT n.
+%------
+\item[ciudgsm.drtn]
+The short summary of the results for DRT n.
+%------
+\item[molcasinfo]
+Symmetry and basis set information extracted from MOLCAS files.
+\end{filelist}
+
+Note that these file names are the FORTRAN file names used by the program,
+so they have to be mapped to the actual file names. This is usually done
+automatically in the \molcas\ system. This does not apply to the output
+files. 
+
+\subsubsection{Local files}
+\begin{filelist}
+\item[cidrtin,cidrtmsin]
+ These automatically generated 
+ input files contain the configuration space definition for the 
+ \program{cidrt.x} and \program{cidrtms.x} which write the DRT files
+ cidrtfl.drtn.  
+\item[cisrtin]
+ The automatically generated input file for the integral sorting step. 
+\item[ciudgin]
+ The automatically generated input file for the \program{COLUMBUS MRCI}
+ program.
+\end{filelist}
+
+These input files can be edited manually for special options (refer to
+the original COLUMBUS documentation). To avoid overwriting the modified
+input files use the \program{NOAUTO} key word. 
+
+\subsection{Input}
+\label{UG:sec:columbus_input}
+\index{Input!COLUMBUS}\index{COLUMBUS!Input}
+This section describes the input to the
+\program{COLUMBUS MRCI} interface in the \molcas\ program system, with
+the namelist input:
+
+\namelist{\&COLUMBUS \&END}
+ 
+\subsubsection{Keywords}
+ 
+Keywords must be provided with their full name.
+The following is a list of compulsory keywords:
+\index{COLUMBUS!Keywords} \index{Keywords!COLUMBUS}
+\begin{keywordlist}
+%---
+\item[END of input]
+%%Keyword: End_Of_Input basic
+%%+ This marks the end of the input data.
+This marks the end of the input data.
+%---
+\end{keywordlist}
+ 
+The following is a list of general keywords.
+\begin{keywordlist}
+%---
+\item[TITLE]
+The following line is treated as title line.
+%---
+\item[MRCISD]
+This keyword is used to perform an ordinary Multi-{}Reference
+Singles and Doubles CI, MR-{}SDCI, calculation. 
+%---
+\item[MRACPF]
+This keyword tells the program to use the Average Coupled Pair
+Functional, MRACPF.
+%---
+\item[MRAQCC]
+This keyword tells the program to use the Average Quadratic Coupled Cluster 
+Functional, MRAQCC.
+%---
+\item[MRAQCC-V]
+This keyword tells the program to use the Average Quadratic Coupled Cluster
+Functional, MRAQCC-v.
+Note, that the keywords MRCISD, MRACPF, MRAQCC, MRAQCC-V are mutually 
+exclusive. Default is MRCISD.
+%---
+\item[EXLVL]
+This keyword defines the maximum excitation level used to create the final 
+configuration space from the reference configuration space. The allowed
+values 0,1 and 2 are entered on the following line. Default is 2
+(single and double excitations). 
+%---
+\item[SUBSPACEDIM]
+This keyword defines the maximum subspace dimension used with the
+integer value entered the following line. This value
+must be at least the number of roots plus 1. The default is 
+number of roots plus 4. Note, that for the serial code  this keyword determines 
+the amount of disk I/O, whereas for the parallel code it affects memory consumption. 
+%---
+\item[ACCURACY] 
+This keyword defines the requested accuracy in terms of the maximum norm
+of the residuum vector,i.e. $|{\mathbf r}|=|{\mathbf HC}-{\mathbf EC}|$. This corresponds 
+approximately to a convergence to $\Delta E\approx |{\mathbf r}|^2$. Default 
+is 0.0001.  
+%---
+\item[ITERATIONS] 
+This keyword defines the maximum number of Davidson subspace
+iterations to be carried out.
+Default is 10. 
+%---
+\item[REFSPACE]
+This keyword indicates the kind of reference space diagonalization 
+to be used. Valid values are {\bf NONE}, {\bf FULL} and {\bf ITERATIVE}. 
+{\bf NONE} indicates that no reference space diagonalization is carried
+out. Start vectors are the NROOT unit vectors with the lowest diagonal 
+CI matrix elements. This option is available with MRCISD, only. 
+{\bf FULL} indicates full reference space diagonalization by a standard
+eigensolver. Start vectors are the NROOT eigenvectors with the lowest
+energy. {\bf ITERATIVE} indicates that iterative reference space diagonalization
+is carried out using the Davidson subspace method for the lowest NROOT 
+roots, which form the start vector set. Default is {\bf FULL}. Usually
+reference space diagonalization is beneficial for convergence and 
+pre-requisite for any non-MRCISD calculation. For large reference 
+spaces (N>500) the cubic scaling of the (serial) eigensolver may result in 
+prohibitively long startup times. Here the (parallel) iterative scheme is much faster
+and thus to be preferred. However, the iterative diagonalization may not 
+necessarily provide all low-energy roots for calculations on molecules
+using a point group of lower order than they actually belong to (e.g. diatomics
+treated in an abelian point group).  
+%---
+\item[TEST]
+Test the input. The input is processed, the DRT generated
+and some tests are carried out with no further action.
+%---
+\item[NOAUTO]
+Don't create input files automatically. Allows to modify the input
+files manually and start the calculation without overwriting. 
+%---
+\item[MEMORY]
+This keyword specifies the total amount of usable memory in units of
+megabyte (MB). Default is 80MB.
+%---
+\item[REFDOCC]
+The line following this keyword specifies the number of reference doubly
+occupied orbitals per irreducible representation. Default is empty REFDOCC. 
+%---
+\item[REFRAS]
+The line following this keyword specifies the number of reference restricted 
+active orbitals per irreducible representation. Default is empty REFRAS.
+%---
+\item[REFCAS]
+The line following this keyword specifies the number of reference complete 
+active orbitals per irreducible representation. Default is empty REFCAS.
+%---
+\item[REFAUX]
+The line following this keyword specifies the number of reference  auxiliary 
+orbitals per irreducible representation. Default is empty REFAUX.
+%---
+\item[GENSPACE]
+This keywords indicates to apply generalized interacting space restrictions.
+Only those configurations are included into the final configuration space 
+which have a non-vanishing matrix element with at least one of the 
+reference configurations. Default is no generalized interacting space restrictions.
+%--- 
+\item [MULTIPLICITY]
+The spin multiplicity of the electronic state of interest. Default is 1.
+\item[MULTIDRT]
+This keyword indicates multiple DRTs in one calculation. Default is a 
+single DRT calculation. Note, that the spin multiplicity is shared by 
+all DRTs.
+\end{keywordlist}
+
+The following is a list of DRT specific keywords. In case of multiple DRTs
+they are bracketed by the keywords DRTn (where n runs from 1 to at most 8)
+and END\_DRT. In case of a single DRT bracketing is not necessary. 
+\begin{keywordlist}
+%---
+\item[ELECTRONS]
+The line following this keyword specifies the total number of electrons,
+the maximum number of holes in the REFRAS space and the maximum number 
+of electrons in the REFAUX space. Default is 0 0 0. Note, that the total
+number of electrons must not vary among different DRTs.
+%---
+\item[SYMMETRY]
+The following line indicates the symmetry of the wavefunction as 
+the $n$th irreducible representation where their ordering is determined by
+the  \program{SEWARD} integral program.
+%---
+\item[NROOT]
+The number of roots with the lowest eigenvalues to converge. Default is 1.
+%\item[RESTART]
+%Restarting a previous unconverged calculation.
+\end{keywordlist}
+
+In order to compute analytical gradients at the MRCI level of theory, 
+additional data must be available from the MCSCF orbital optimization 
+step. 
+
+The following is a list of keywords for parallel operation.
+\begin{keywordlist}
+%---
+\item[NCPU]
+The number of CPUs (i.e. the number of processes initiated) used for the
+parallel MRCI calculation. Default is 1 (seriel operation).
+%-------
+%\item[MAXSEG]
+%The following number indicates the maximum number of segments into which 
+%V and W vector may be split. The larger the number of segments the larger
+%the communication load. Use this keyword to terminate calculations 
+%automatically. The default is 4 which corresponds to serial operation.
+%----
+%\item[NSEG0X] 
+%The minimum segmentation for z, y, x and w configurations for contributions
+%of the integrals with all-internal indices. Note, that
+%in case of memory shortage, segmentation is automatically increased
+%in order to reduce memory requirements. Defaults 1 1 1 1.
+%----
+%\item[NSEG1X]
+%The minimum segmentation for z, y, x and w configurations for contributions
+%of the integrals with one external index. Note, that
+%in case of memory shortage, segmentation is automatically increased
+%in order to reduce memory requirements. Defaults 1 1 1 1.
+%----
+%\item[NSEG2X]
+%The minimum segmentation for z, y, x and w configurations for contributions
+%of the integrals with two external indices. Note, that
+%in case of memory shortage, segmentation is automatically increased
+%in order to reduce memory requirements. Defaults 1 1 1 1.
+%----
+%\item[NSEG3X]
+%The minimum segmentation for z, y, x and w configurations for contributions
+%of the integrals with three external indices. Note, that
+%in case of memory shortage, segmentation is automatically increased
+%in order to reduce memory requirements. Defaults 1 1 1 1.
+%----
+%\item[NSEG4X]
+%The minimum segmentation for z, y, x and w configurations for contributions
+%of the integrals with four external indices. Note, that
+%in case of memory shortage, segmentation is automatically increased
+%in order to reduce memory requirements. Defaults 1 1 1 1.
+%----
+%\item[NSEGDG]
+%The minimum segmentation for z, y, x and w configurations for contributions
+%of the \"diagonal\" integrals. Note, that
+%in case of memory shortage, segmentation is automatically increased
+%in order to reduce memory requirements. Defaults 1 1 1 1.
+%----
+%\item[REDUCE]
+%In spite of segmentation memory requirements may be reduced by treating
+%some contributions of different integral types together,.i.e. (1) all-internal
+%and two-external, (2) one-external and three-external, (3) diagonal and four-external
+%integral contributions. An integer value of 1 activates, a value of 0 deactivates
+%combining integral contributions. Default 0 0 1, i.e. diagonal and four-external
+%integral contributions are always treated together. Note, that this affects
+%load balancing. 
+%-----
+\item[FINALW]
+If this keyword appears the final W vector as also written to disk. This
+essentially saves one Davidson iteration on restart. 
+\item[FINALV]
+If this keyword appears the final V vector is written to disk. 
+This allows for subsequent analysis of the CI wavefunction and is 
+a prerequisite for restarting a calculation. 
+
+%-----
+%\item[INTGSTOR]
+%This keyword allows to select between distributed memory and disk storage
+%of the (most numerous) three- and four-external integrals. Note, that 
+%it is not recommended to store these integrals on a parallel or even
+%worse an NFS type filesystem, because these integral files have to be
+%read several times potentially by several processes simultaneously and
+%if the filesystem cannot cope with the transfer load it is likely to hang
+%or to crash the system. However, it is a very convenient choice for computer
+%clusters with local filesystems. Supported are clusters composed of individual
+%nodes composed of up to 4-processor SMP systems with a local file system. 
+%However, due to large variety of possible setups, it is entirely the 
+%responsibility of the user to clean up disk space. Additionally it is assumed
+%that each work directory on the individual nodes is accessible by the same
+%local path. Possible values are MEMORY (default), DISK1, DISK2,  DISK4
+%(local filesystems on one, two and four processor nodes, respectively), and
+%PDISK (parallel file system accessible by all nodes).
+%-----
+%\item[LOADBALANCE]
+%This keywords provides several options to ensure load balance.\\
+%SIMPLE indicates the default behaviour on one or a few SMP nodes. \\
+%TASKLIST generates tasks. \\
+%MANUAL  
+
+\end{keywordlist}
+
+
+\subsubsection{Input example 1 (MRCI calculation)}
+ 
+\begin{inputlisting}
+ &COLUMBUS &END
+TITLE
+ NH3
+MULTIPLICITY
+ 1
+SUBSPACEDIM
+ 5
+ITERATIONS
+40 
+ACCURACY
+ 0.0001
+REFSPACE
+ full
+MRCISD
+GENSPACE
+EXLVL
+ 2
+REFDOCC
+ 0 0
+REFRAS
+ 2 0
+REFCAS
+ 1 2
+REFAUX
+ 1 0
+ELECTRONS
+ 10  2  2
+SYMMETRY
+ 1
+NROOT
+ 2
+End of input
+\end{inputlisting}
+
+\subsubsection{Full input example 2 (RASSCF followed by MRCI)}
+
+\begin{inputlisting}
+*-------------------------------------------------------------------------------
+* CH2 / cc-pvtz / C2v
+*-------------------------------------------------------------------------------
+ &SEWARD   &END
+symmetry
+x y
+basis set
+C.cc-pVTZ.Dunning.10s5p2d1f.4s3p2d1f.
+C 0.000000 0.000000 -0.190085345
+end of basis
+basis set
+H.cc-pVTZ.Dunning.5s2p1d.3s2p1d.
+H 0.00000000 1.645045225 1.132564974
+end of basis
+end of input
+
+ &SCF  &END
+occupied
+3 0 1 0
+end of input
+
+ &RASSCF  &END
+inactive
+1 0 0 0
+ras2
+3 1 2 0
+nactel
+6 0 0
+lumorb
+end of input
+
+ &COLUMBUS &END
+TITLE
+ METHYLEN TEST CASE
+MULTIPLICITY
+ 1
+SYMMETRY
+ 1
+SUBSPACEDIM
+ 5
+ITERATIONS
+ 40 
+ACCURACY
+ 0.001
+REFSPACE
+ FULL
+MRCISD
+GENSPACE
+EXLVL
+ 2
+REFDOCC
+ 1 0 0 0
+REFRAS
+ 0 0 0 0
+REFCAS
+ 3 1 2
+NROOT
+ 1
+ELECTRONS
+ 8
+end of input 
+
+\end{inputlisting}
+
+
+

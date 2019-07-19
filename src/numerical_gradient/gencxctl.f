@@ -18,7 +18,7 @@
 *     differentiation based on the rlxctl.f routine.                   *
 *                                                                      *
 *     Author: R. Lindh, Uppsala University                             *
-*             (c) 2013, November                                       *
+*             2013, November                                           *
 ************************************************************************
 #include "info_slapaf.fh"
       Parameter(nLbl=10*MxAtom)
@@ -93,6 +93,20 @@
 *                                                                      *
       Call Put_dArray('BMtrx',Work(ipB),3*nsAtom*mInt)
       Call Put_iScalar('No of Internal coordinates',mInt)
+*
+*     Too many constraints?
+*
+      If (nLambda.gt.mInt) Then
+         Call WarningMessage(2,'Error in GenCxCTL')
+         Write (Lu,*)
+         Write (Lu,*) '********************************************'
+         Write (Lu,*) ' ERROR: nLambda.gt.mInt'
+         Write (Lu,*) ' nLambda=',nLambda
+         Write (Lu,*) ' mInt=',mInt
+         Write (Lu,*) ' There are more constraints than coordinates'
+         Write (Lu,*) '********************************************'
+         Call Quit_OnUserError()
+      End If
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -223,7 +237,7 @@
      &               nStab,jStab,Curvilinear,Numerical,
      &               DDV_Schlegel,HWRS, Analytic_Hessian,
      &               iOptC,PrQ,mxdc,iCoSet,rHidden,ipRef,
-     &               Redundant,nqInt,MaxItr,nWndw)
+     &               Redundant,nqInt,MaxItr)
 *
          ip_To   = ipCList + (iDisp-1)*3*nsAtom
 *

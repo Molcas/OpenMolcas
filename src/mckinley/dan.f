@@ -41,7 +41,7 @@
       Call GetMem('Temp3','ALLO','REAL',ipUrk,ndensSQ)
 *
       Do iS=0,nIrrep-1
-         call dcopy_(nBas(is)**2,0.0d0,0,Work(ipTemp1),1)
+         call dcopy_(nBas(is)**2,[0.0d0],0,Work(ipTemp1),1)
          If (nBas(is).gt.0) Then
             Do iB=1,nAsh(iS)
                iiB=nA(iS)+iB

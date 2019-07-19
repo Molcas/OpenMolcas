@@ -36,9 +36,10 @@
       Integer :: Read_Grad,nGrad,iRoot,iNAC,jNAC
       Real*8 :: Grad(nGrad)
       Integer, Dimension(5) :: TOC
+      Integer, Dimension(1) :: iDum
       Integer, Dimension(:), Allocatable :: i_grad,i_nac
-      Integer :: nRoots,nCoup,LuGrad,iAd,Length,iSt,jSt,idx
-      Logical :: Found,Reverse
+      Integer :: nRoots,nCoup,LuGrad,iAd,iSt,jSt,idx
+      Logical :: Found
       Character(Len=5) :: Filename
 *
 * If the GRADS file does not exist, there is no gradient
@@ -55,13 +56,14 @@
         Call DaName(LuGrad,Filename)
         iAd=0
         Call iDaFile(LuGrad,2,TOC,Size(TOC),iAd)
-        Call iDaFile(LuGrad,2,nRoots,1,iAd)
+        Call iDaFile(LuGrad,2,iDum,1,iAd)
+        nRoots=iDum(1)
         If (Max(iRoot,iNAC,jNAC).gt.nRoots) Then
           Call WarningMessage(2,'Bad number of roots in GRADS file')
           Call Abend()
         End If
-        Call iDaFile(LuGrad,2,Length,1,iAd)
-        If (Length.ne.nGrad) Then
+        Call iDaFile(LuGrad,2,iDum,1,iAd)
+        If (iDum(1).ne.nGrad) Then
           Call WarningMessage(2,'Bad length in GRADS file')
           Call Abend()
         End If
@@ -73,14 +75,12 @@
 *
 * Read the gradient or NAC vector
 *
-        Reverse=.False.
         If (iRoot.eq.0) Then
           If ((iNAC.ne.0).and.(jNAC.ne.0)) Then
             iSt=Max(iNAC,jNAC)-1
             jSt=Min(iNAC,jNAC)
             idx=iSt*(iSt-1)/2+jSt
             iAd=i_nac(idx)
-            If (iNAC.lt.jNAC) Reverse=.True.
           Else
             iAd=-1
           End If
@@ -95,7 +95,6 @@
           Read_Grad=-1
         Else
           Call dDaFile(LuGrad,2,Grad,nGrad,iAd)
-          If (Reverse) Call dScal_(nGrad,-One,Grad,1)
           Read_Grad=1
         End If
 *

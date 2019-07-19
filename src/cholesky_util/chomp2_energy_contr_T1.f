@@ -31,7 +31,7 @@ C
 #include "chomp2.fh"
 #include "WrkSpc.fh"
 
-      Integer a, b, aibj, biaj, ab, ba, abij, baij
+      Integer a, b, aibj, biaj, abij, baij
 
       MulD2h(i,j)=iEor(i-1,j-1)+1
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
@@ -57,17 +57,17 @@ C
                         iSyma = iSymb
                         If (iSymj.eq.iSymb) Then
                          Do b = 1,nVir(iSymb)
+                           abij = LiT2am(1)
+     &                          + nMatab(1)*(ij-1)
+     &                          + iMatab(iSyma,iSymb)
+     &                          + nVir(iSyma)*(b-1)
+                           baij = LiT2am(1)
+     &                          + nMatab(1)*(ij-1)
+     &                          + iMatab(iSymb,iSyma)
+     &                          - nVir(iSymb) + b
                            Do a = 1,nVir(iSyma)
-                              ab = iMatab(iSyma,iSymb)
-     &                           + nVir(iSyma)*(b-1) + a
-                              ba = iMatab(iSymb,iSyma)
-     &                           + nVir(iSymb)*(a-1) + b
-                              abij = LiT2am(1)
-     &                             + nMatab(1)*(ij-1)
-     &                             + ab
-                              baij = LiT2am(1)
-     &                             + nMatab(1)*(ij-1)
-     &                             + ba
+                              abij = abij+1
+                              baij = baij+nVir(iSymb)
                               Dnom = EVir(iVir(iSyma)+a)
      &                             - EOcc(iOcc(iSymi)+i)
      &                             + EVir(iVir(iSymb)+b)
@@ -86,17 +86,17 @@ C
                          End Do
                         Else
                          Do b = 1,nVir(iSymb)
+                           abij = LiT2am(1)
+     &                          + nMatab(1)*(ij-1)
+     &                          + iMatab(iSyma,iSymb)
+     &                          + nVir(iSyma)*(b-1)
+                           baij = LiT2am(1)
+     &                          + nMatab(1)*(ij-1)
+     &                          + iMatab(iSymb,iSyma)
+     &                          - nVir(iSymb) + b
                            Do a = 1,nVir(iSyma)
-                              ab = iMatab(iSyma,iSymb)
-     &                           + nVir(iSyma)*(b-1) + a
-                              ba = iMatab(iSymb,iSyma)
-     &                           + nVir(iSymb)*(a-1) + b
-                              abij = LiT2am(1)
-     &                             + nMatab(1)*(ij-1)
-     &                             + ab
-                              baij = LiT2am(1)
-     &                             + nMatab(1)*(ij-1)
-     &                             + ba
+                              abij = abij+1
+                              baij = baij+nVir(iSymb)
                               Dnom = EVir(iVir(iSyma)+a)
      &                             - EOcc(iOcc(iSymi)+i)
      &                             + EVir(iVir(iSymb)+b)
@@ -132,17 +132,17 @@ C
                            iSyma = MulD2h(iSymb,iSymab)
                            If(iSymi.eq.iSyma .and. iSymj.eq.iSymb)Then
                             Do b = 1,nVir(iSymb)
+                              abij = LiT2am(iSymij)
+     &                             + nMatab(iSymab)*(ij-1)
+     &                             + iMatab(iSyma,iSymb)
+     &                             + nVir(iSyma)*(b-1)
+                              baij = LiT2am(iSymij)
+     &                             + nMatab(iSymab)*(ij-1)
+     &                             + iMatab(iSymb,iSyma)
+     &                             - nVir(iSymb) + b
                               Do a = 1,nVir(iSyma)
-                                 ab = iMatab(iSyma,iSymb)
-     &                              + nVir(iSyma)*(b-1) + a
-                                 ba = iMatab(iSymb,iSyma)
-     &                              + nVir(iSymb)*(a-1) + b
-                                 abij = LiT2am(iSymij)
-     &                                + nMatab(iSymab)*(ij-1)
-     &                                + ab
-                                 baij = LiT2am(iSymij)
-     &                                + nMatab(iSymab)*(ij-1)
-     &                                + ba
+                                 abij = abij+1
+                                 baij = baij+nVir(iSymb)
                                  Dnom = EVir(iVir(iSyma)+a)
      &                                - EOcc(iOcc(iSymi)+i)
      &                                + EVir(iVir(iSymb)+b)
@@ -161,17 +161,17 @@ C
                             End Do
                            Else
                             Do b = 1,nVir(iSymb)
+                              abij = LiT2am(iSymij)
+     &                             + nMatab(iSymab)*(ij-1)
+     &                             + iMatab(iSyma,iSymb)
+     &                             + nVir(iSyma)*(b-1)
+                              baij = LiT2am(iSymij)
+     &                             + nMatab(iSymab)*(ij-1)
+     &                             + iMatab(iSymb,iSyma)
+     &                             - nVir(iSymb) + b
                               Do a = 1,nVir(iSyma)
-                                 ab = iMatab(iSyma,iSymb)
-     &                              + nVir(iSyma)*(b-1) + a
-                                 ba = iMatab(iSymb,iSyma)
-     &                              + nVir(iSymb)*(a-1) + b
-                                 abij = LiT2am(iSymij)
-     &                                + nMatab(iSymab)*(ij-1)
-     &                                + ab
-                                 baij = LiT2am(iSymij)
-     &                                + nMatab(iSymab)*(ij-1)
-     &                                + ba
+                                 abij = abij+1
+                                 baij = baij+nVir(iSymb)
                                  Dnom = EVir(iVir(iSyma)+a)
      &                                - EOcc(iOcc(iSymi)+i)
      &                                + EVir(iVir(iSymb)+b)

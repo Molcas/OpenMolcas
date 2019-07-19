@@ -164,7 +164,7 @@ COLD. Loop over partitionings of the row strings
               CALL DGEMM_('T','N',NIORB,NJORB,NKI,1.0D0,SSCR,NKI,CSCR,
      &                    NKI,0.0D0,RHO1S,NIORB)
               Else
-               call dcopy_(NIORB*NJORB,0.0d0,0,RHO1S,1)
+               call dcopy_(NIORB*NJORB,[0.0d0],0,RHO1S,1)
               End IF
 *. Scatter out to complete matrix
               DO 610 JJORB = 1, NJORB

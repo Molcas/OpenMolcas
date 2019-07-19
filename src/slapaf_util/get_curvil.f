@@ -14,14 +14,14 @@
      &              nStab,nDim,Smmtrc,Process,Value,nB,
      &              iANr,qLbl,iRef,
      &              fconst,rMult,iOptC,LuIC,Name,Indq,iPrv,
-     &              rMass,iCoSet,Grad_all,iGlow,iGhi,Proc_dB,
+     &              dMass,iCoSet,Grad_all,iGlow,iGhi,Proc_dB,
      &              iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,
      &              mB_Tot,mdB_Tot,
      &              BM,dBM,iBM,idBM,
      &              nB_Tot,ndB_Tot,mqB)
       Implicit Real*8 (a-h,o-z)
       Real*8 Cx(3,nAtoms,nIter), fconst(nB),
-     &       Value(nB,nIter), rMult(nB), rMass(nAtoms),
+     &       Value(nB,nIter), rMult(nB), dMass(nAtoms),
      &       Grad_all(9,iGlow:iGhi,nIter),
      &       BM(nB_Tot),dBM(ndB_Tot)
       Integer nStab(nAtoms), iOper(0:nSym-1), iANr(nAtoms),
@@ -48,7 +48,7 @@
      &              nStab,nDim,Smmtrc,Process,Value,nB,
      &              iANr,qLbl,iRef,
      &              fconst,rMult,LuIC,Indq,
-     &              rMass,iCoSet,Proc_dB,mB_Tot,mdB_Tot,
+     &              dMass,iCoSet,Proc_dB,mB_Tot,mdB_Tot,
      &              BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,mqB)
       nqRF=nq-nq_
 *

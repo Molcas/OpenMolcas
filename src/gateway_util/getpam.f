@@ -33,7 +33,8 @@
 #include "print.fh"
       Real*8 DInf(nDInf)
 #include "real.fh"
-      Character*180 Line, BLine, Get_Ln
+      Character*80 BLine
+      Character*180 Line, Get_Ln
 *     External Get_Ln
       Integer ipExp(MxShll), ipCff(MxShll), nExp(MxShll), nBasis(MxShll)
       Logical test
@@ -55,11 +56,11 @@ c     data test /.True./
          Call Quit_OnUserError()
       Endif
       Line=Get_Ln(lUnit)
-      Call Get_i(1,nPAM2,1)
+      Call Get_i1(1,nPAM2)
       Do iPAM_Ang=0, nPAM2
          Line=Get_Ln(lUnit)
-         Call Get_i(1,nPAM2Prim,1)
-         Call Get_i(2,nPAM2Bas,1)
+         Call Get_i1(1,nPAM2Prim)
+         Call Get_i1(2,nPAM2Bas)
          DInf(iStrt)=nPAM2Prim
          DInf(iStrt+1)=nPAM2Bas
          iStrt=iStrt+2

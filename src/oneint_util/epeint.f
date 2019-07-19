@@ -59,7 +59,7 @@
       iPrint = nPrint(iRout)
       Call qEnter('EPEInt')
 *
-      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,Zero,0,Final,1)
+      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
       iAnga(1) = la
       iAnga(2) = lb
@@ -105,8 +105,8 @@
 *
          nT = nZeta
          NoSpecial=.True.
-         Call Rys(iAnga,nt,Zeta,ZInv,nZeta,One,One,1,P,nZeta,
-     &            TC,1,rKappa,One,Coori,Coora,CoorAC,
+         Call Rys(iAnga,nt,Zeta,ZInv,nZeta,[One],[One],1,P,nZeta,
+     &            TC,1,rKappa,[One],Coori,Coora,CoorAC,
      &            mabmin,mabmax,0,0,Array,nArr*nZeta,
      &            TNAI,Fake,Cff2D,xRys2D,NoSpecial)
 *

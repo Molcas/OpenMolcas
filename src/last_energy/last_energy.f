@@ -41,6 +41,9 @@
      &    Method(1:5) .eq. 'CCSDT'  .OR.
      &    Method(1:4) .eq. 'CHCC'   .OR.
      &    Method(1:6) .eq. 'MCPDFT' .OR.
+#ifdef _DMRG_
+     &    Method(1:7) .eq. 'DMRGSCF'.OR.
+#endif
      &    Method(1:4) .eq. 'CHT3') Then
          Continue
       Else
@@ -81,7 +84,7 @@
 *
 *     Compute the wave function
 *
-      If (Method(5:7) .eq. 'SCF' .OR.
+      If ((Method(5:7) .eq. 'SCF' .and. Method(1:4) .ne. 'DMRG') .OR.
      &    Method(1:6) .eq. 'KS-DFT' .OR.
      &    Method(1:5) .eq. 'MBPT2' . OR.
      &    Method(1:4) .eq. 'CHCC' . OR.
@@ -110,6 +113,18 @@
      &                  iReturn
             Call Abend()
          End If
+#ifdef _DMRG_
+      Else If (Method(1:7) .eq. 'DMRGSCF') Then
+         Call StartLight('dmrgscf')
+         Call Disable_Spool()
+         Call DMRGSCF(ireturn)
+         If (iReturn .ne. 0) Then
+            Write(6,*) 'Last_Energy failed ...'
+            Write(6,*) 'DMRGSCF returned with return code, rc = ',
+     &                  iReturn
+            Call Abend()
+         End If
+#endif
       End If
 
 *

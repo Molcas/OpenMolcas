@@ -187,7 +187,7 @@ C ii counter on CURRENT STEP
          jjj=0
          do i=1,NSTATE
             if (decVec(i) .eq. 1) then
-               if (ABS(sp(stateRi,i)) .gt. prod) then
+               if (ABS(sp(stateRi,i)) .gt. ABS(prod)) then
                   prod = sp(stateRi,i)
                   jjj = i
                end if
@@ -406,7 +406,8 @@ C                                                                      C
       do i=1,NSTATE
         do j=1,NSTATE
          if(i.eq.j) then
-          Bmatrix(i,j)=2*aimag(CONJG(Amatrix(i,j))*V(i,j)) ! B(i,i) not used
+!         B(i,i) not used
+          Bmatrix(i,j)=2*aimag(CONJG(Amatrix(i,j))*V(i,j))
          else
           Bmatrix(i,j)=-2*real(CONJG(Amatrix(i,j))*Dmatrix(i,j))
          endif
@@ -586,6 +587,7 @@ C start the HOPPING procedure
 
       call Put_iScalar('NumGradRoot',ISTATE2)
       call Put_iScalar('Relax CASSCF root',ISTATE2)
+      call Put_iScalar('Relax Original root',ISTATE2)
       call Put_dScalar('Last energy',Venergy(ISTATE2))
       end if
 C scale velocities

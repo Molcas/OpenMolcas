@@ -63,7 +63,7 @@
 * Jeppe Olsen, Winter of 1991
 *
       IMPLICIT REAL*8(A-H,O-Z)
-      INTEGER ADSXA(MXPOBS,2*MXPOBS),SXSTST,
+      INTEGER ADSXA(MXPOBS,2*MXPOBS),SXSTST(*),
      &        STSTSX(NSMST,NSMST)
       INTEGER NTSOB(3,*),IBTSOB(3,*),ITSOB(*)
 *.Input
@@ -167,7 +167,7 @@
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN
-        CALL Unused_integer(SXSTST)
+        CALL Unused_integer_array(SXSTST)
         CALL Unused_integer(NSMSX)
       END IF
       END

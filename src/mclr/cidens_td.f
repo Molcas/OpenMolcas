@@ -60,8 +60,8 @@
 
       Call GetMem('1Dens2','ALLO','Real',ipDe,2*n1dens)
       Call GetMem('2Dens2','ALLO','Real',ipP,3*n2dens)
-      call dcopy_(n1dens,0.0d0,0,rD,1)
-      call dcopy_(n2dens,0.0d0,0,rP,1)
+      call dcopy_(n1dens,[0.0d0],0,rD,1)
+      call dcopy_(n2dens,[0.0d0],0,rP,1)
       If (nocsf.eq.0) Then
         nConfL=Max(ncsf(iS),nint(xispsm(iS,1)))
         nConfR=Max(ncsf(State_SYM),nint(xispsm(STATE_SYM,1)))
@@ -87,8 +87,8 @@ c
 *
 *       <P|E_pq|0> & <P|e_pqrs|0> -> ipDe & ipP
 *       ipL is the bra side vector
-        call dcopy_(n1dens,0.0d0,0,Work(ipDe),1)
-        call dcopy_(n2dens,0.0d0,0,Work(ipP),1)
+        call dcopy_(n1dens,[0.0d0],0,Work(ipDe),1)
+        call dcopy_(n2dens,[0.0d0],0,Work(ipP),1)
         Call Densi2(2,Work(ipDe),Work(ipP),
      &               Work(ipL),Work(ipR),0,0,0,n1dens,n2dens)
 *
@@ -116,8 +116,8 @@ c
         irc=ipnout(-1)
         issm=iS
         icsm=STATE_SYM
-        call dcopy_(n1dens,0.0d0,0,Work(ipDe),1)
-        call dcopy_(n2dens,0.0d0,0,Work(ipP),1)
+        call dcopy_(n1dens,[0.0d0],0,Work(ipDe),1)
+        call dcopy_(n2dens,[0.0d0],0,Work(ipP),1)
         Call Densi2(2,Work(ipDe),Work(ipP),Work(ipl),Work(ipr),
      &               0,0,0,n1dens,n2dens)
 *

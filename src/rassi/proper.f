@@ -31,8 +31,8 @@
 
 
 C COMBINED SYMMETRY OF STATES:
-      JOB1=JBNUM(ISTATE)
-      JOB2=JBNUM(JSTATE)
+      JOB1=iWork(lJBNUM+ISTATE-1)
+      JOB2=iWork(lJBNUM+JSTATE-1)
       LSYM1=IRREP(JOB1)
       LSYM2=IRREP(JOB2)
       ISY12=MUL(LSYM1,LSYM2)
@@ -60,7 +60,7 @@ C CALCULATE THE SYMMETRIC AND ANTISYMMETRIC FOLDED TRANS D MATRICES
 C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
       NSCR=(NBST*(NBST+1))/2
       CALL GETMEM('TDMSCR','Allo','Real',LSCR,4*NSCR)
-      CALL DCOPY_(4*NSCR,0.0D00,0,WORK(LSCR),1)
+      CALL DCOPY_(4*NSCR,[0.0D00],0,WORK(LSCR),1)
 C SPECIAL CASE: DIAGONAL SYMMETRY BLOCKS.
       IF(ISY12.EQ.1) THEN
         IOF=0
@@ -151,23 +151,23 @@ C-------------------------------------------
         Call DaName(LuToM,FnToM)
         If(iCall.eq.0) then  !Make room for table-of-contents
           iDisk=0
-          Call ICOPY(MxStat*(MxStat+1)/2,-1,0,iTocM,1)
-          Call iDaFile(LuToM,1,iTocM,MxStat*(MxStat+1)/2,iDisk)
-          iTocM(1)=iDisk
+          Call ICOPY(nState*(nState+1)/2,[-1],0,iWork(liTocM),1)
+          Call iDaFile(LuToM,1,iWork(liTocM),nState*(nstate+1)/2,iDisk)
+          iWork(liTocM)=iDisk
           iDiskSav=iDisk
           iCall=1
         Endif
         i=Max(iState,jState)
         j=Min(iState,jState)
         indCall=i*(i-1)/2+j  !Which call this is
-        iToCM(indCall)=iDiskSav
+        iWork(liToCM+indCall-1)=iDiskSav
         ind=indCall+1
         iDisk=iDiskSav
 *       Write (*,*) 'IndCall,iDisk=',IndCall,iDisk
         Call dDaFile(LuToM,1,Work(Lscr),4*nscr,iDisk) !The THING.
         iDiskSav=iDisk  !Save diskaddress.
         iDisk=0
-        Call iDaFile(LuToM,1,iTocM,MxStat*(MxStat+1)/2,iDisk)
+        Call iDaFile(LuToM,1,iWork(liTocM),nState*(nState+1)/2,iDisk)
                             !Put table of contents.
         Call DaClos(LuToM)
       Endif

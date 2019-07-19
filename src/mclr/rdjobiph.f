@@ -36,6 +36,7 @@
       Character*8 Method
       real*8 dv_ci2  ! yma added
       Logical Found
+      Dimension rdum(1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -64,14 +65,15 @@
 *----------------------------------------------------------------------*
 *     Read the the system description                                  *
 *----------------------------------------------------------------------*
-      Call Getmem('TMP','ALLO','INTE',ipdum,16*mxorb/itob)
+      ndum=lenin8*mxorb
+      Call Getmem('TMP','ALLO','CHAR',ipdum,ndum)
       iDisk=iToc(1)
 
 !      write(*,*)"if dmrg, it should be something else "
       Call WR_RASSCF_Info(LuJob,2,iDisk,
      &                    nActEl,iSpin,nSym,State_sym,nFro,
      &                    nIsh,nAsh,nDel,
-     &                    nBas,MxSym,iwork(ipdum),8*mxorb,
+     &                    nBas,MxSym,cwork(ipdum),LENIN8*mxorb,
      &                    nConf,HeaderJP,144,
      &                    TitleJP,4*18*mxTit,PotNuc0,lRoots,
      &                    nRoots,iRoot,mxRoot,
@@ -87,7 +89,7 @@
 !        call xflush(6)
 !      end do
 
-      Call Getmem('TMP','FREE','INTE',ipdum,ndum)
+      Call Getmem('TMP','FREE','CHAR',ipdum,ndum)
 *----------------------------------------------------------------------*
 *     Overwrite the variable lroots if approriate, i.e if lroot        *
 *     was set by input.                                                *
@@ -213,7 +215,7 @@ C
       If( .false. ) then
          jpCMO=ipCMO
          Do 15 iSym=1,nSym
-            call dcopy_(nbas(isym)*ndel(isym),0d0,0,
+            call dcopy_(nbas(isym)*ndel(isym),[0d0],0,
      *                 Work(jpCMO+norb(isym)*nbas(isym)),1)
             Write(Line,'(A,i2.2)') 'MO coefficients, iSym = ',iSym
             Call RecPrt(Line,' ',Work(jpCMO),nBas(iSym),nBas(iSym))
@@ -248,7 +250,8 @@ C
           inum=0
           dv_ci2=0.0d0
           do j=1,nconf
-            if(abs(Work(ipCI+nconf*i+j-1)).lt.0.0d0)then !yma CI-threshold
+!yma        CI-threshold
+            if(abs(Work(ipCI+nconf*i+j-1)).lt.0.0d0)then
               inum=inum+1
               Work(ipCI+nconf*i+j-1)=0.0d0
             else

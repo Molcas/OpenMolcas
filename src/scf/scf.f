@@ -50,6 +50,7 @@
       Character*8 EMILOOP
       Logical FstItr, Semi_Direct
       Real*8 SIntTh
+#include "interfaces_scf.fh"
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *

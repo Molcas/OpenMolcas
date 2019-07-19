@@ -9,6 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE READIN_RASSI
+
+      use kVectors
+#ifdef _DMRG_
+      use qcmaquis_interface_cfg
+#endif
+
       IMPLICIT NONE
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -18,6 +24,7 @@
 #include "cntrl.fh"
 #include "jobin.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       CHARACTER*80 LINE
       INTEGER MXPLST
       PARAMETER (MXPLST=50)
@@ -32,7 +39,8 @@
       Integer I, J, ISTATE, JSTATE, IJOB, ILINE, LINENR
       Integer LuIn
       Integer NFLS
-      REAL*8 ANORM
+
+      character(len=7) :: input_id = '&RASSI '
 
       CALL QENTER(ROUTINE)
 
@@ -53,11 +61,23 @@ C --- Default settings for Cholesky
       ChFracMem=0.0d0
 #endif
 
+      !> set some defaults for MPSSI
+      QDPT2SC = .true.
+      QDPT2EV = .false.
+#ifdef _DMRG_
+      !> make sure that we read checkpoint names from xxx.h5 files, for example: rasscf.h5, nevpt2.h5, caspt2.h5, ...
+      doMPSSICheckpoints = .true.
+      if(doDMRG) input_id = '&MPSSI '
+#endif
+
+      !Defaults for SI-PDFT runs:
+      Second_time = .false.
+      DoGSOR = .false.
 
 C Find beginning of input:
  50   Read(LuIn,'(A72)',END=998) LINE
       CALL NORMAL(LINE)
-      IF(LINE(1:7).NE.'&RASSI ') GOTO 50
+      IF(LINE(1:7).NE.input_id) GOTO 50
       LINENR=0
 100   Read(LuIn,'(A72)',END=998) LINE
       LINENR=LINENR+1
@@ -74,12 +94,22 @@ C ------------------------------------------
         GOTO 100
       END IF
 C ------------------------------------------
+      IF (LINE(1:4).EQ.'SECO') THEN
+        SECOND_TIME = .true.
+        GOTO 100
+      END IF
+C ------------------------------------------
+      IF (LINE(1:4).EQ.'GSOR') THEN
+        DoGSOR = .true.
+        GOTO 100
+      END IF
+C ------------------------------------------
       IF (LINE(1:4).EQ.'BINA') THEN
+        BINA=.TRUE.
+        NATO=.TRUE.
+        Read(LuIn,*,ERR=997) NBINA
         LINENR=LINENR+1
-        WRITE(6,*)' The BINAtural orbitals option is not possible yet'
-        WRITE(6,*)' with this version of RASSI, since the TDMFILE is'
-        WRITE(6,*)' no longer used -- code must be revised!'
-        WRITE(6,*)' The BINA keyword is ignored.'
+        Read(LuIn,*,ERR=997) (IBINA(1,I),IBINA(2,I),I=1,NBINA)
         GOTO 100
       END IF
 C ------------------------------------------
@@ -92,11 +122,9 @@ C ------------------------------------------
       END IF
 C ------------------------------------------
       IF (LINE(1:4).EQ.'NATO') THEN
+        NATO=.TRUE.
+        Read(LuIn,*,ERR=997) NRNATO
         LINENR=LINENR+1
-        WRITE(6,*)' The natural orbitals option is not possible yet'
-        WRITE(6,*)' with this version of RASSI, since the TDMFILE is'
-        WRITE(6,*)' no longer used -- code must be revised!'
-        WRITE(6,*)' The NATO keyword is ignored.'
         GOTO 100
       END IF
 C-------------------------------------------
@@ -230,23 +258,23 @@ C ------------------------------------------
         ELSE
           BACKSPACE(LuIn)
           Read(LuIn,*,ERR=997) NJOB,(NSTAT(I),I=1,NJOB)
+          DO IJOB=1,NJOB
+            NSTATE=NSTATE+NSTAT(IJOB)
+          END DO
+          Call GetMem('JBNUM','Allo','Inte',LJBNUM,NSTATE)
+          Call GetMem('LROOT','Allo','Inte',LLROOT,NSTATE)
           LINENR=LINENR+1
+          NSTATE=0
           DO IJOB=1,NJOB
             ISTAT(IJOB)=NSTATE+1
-            Read(LuIn,*,ERR=997) (LROOT(NSTATE+J),J=1,NSTAT(IJOB))
+            Read(LuIn,*,ERR=997) (iWork(lLROOT+NSTATE+J),
+     &                                 J=0,NSTAT(IJOB)-1)
             LINENR=LINENR+1
             DO ISTATE=NSTATE+1,NSTATE+NSTAT(IJOB)
-              JBNUM(ISTATE)=IJOB
+              iWork(lJBNUM+ISTATE-1)=IJOB
             END DO
             NSTATE=NSTATE+NSTAT(IJOB)
           END DO
-        END IF
-        IF(NSTATE.GT.MXSTAT) THEN
-          Call WarningMessage(2,'Too many states.')
-          WRITE(6,*)' Max nr of (spin-free) states is MXSTAT=',MXSTAT
-          WRITE(6,*)' with value taken from parameter MXROOT in'
-          WRITE(6,*)' ''Molcas.fh''. Increase and recompile.'
-          CALL ABEND()
         END IF
         GOTO 100
       END IF
@@ -276,11 +304,14 @@ C ------------------------------------------
       IF(LINE(1:4).EQ.'HEXT') THEN
         IFHEXT=.TRUE.
         IFHAM =.TRUE.
-        Read(LuIn,*,ERR=997)((HAM(ISTATE,JSTATE),JSTATE=1,ISTATE),
-     &                                           ISTATE=1,NSTATE)
-        DO ISTATE=1,NSTATE-1
-         DO JSTATE=ISTATE+1,NSTATE
-          HAM(ISTATE,JSTATE)=HAM(JSTATE,ISTATE)
+        Call GetMem('HAM','Allo','Real',LHAM,NSTATE**2)
+        Read(LuIn,*,ERR=997)((WORK(LHAM+ISTATE*NSTATE+JSTATE),
+     &                                           JSTATE=0,ISTATE),
+     &                                           ISTATE=0,NSTATE-1)
+        DO ISTATE=0,NSTATE-2
+         DO JSTATE=ISTATE,NSTATE-1
+           WORK(LHAM+JSTATE*NSTATE+ISTATE)=
+     &     WORK(LHAM+ISTATE*NSTATE+JSTATE)
          END DO
         END DO
         LINENR=LINENR+NSTATE
@@ -302,20 +333,23 @@ C ------------------------------------------
       IF(LINE(1:4).EQ.'EJOB') THEN
         IFEJOB=.TRUE.
         IFHAM=.TRUE.
-        LINENR=LINENR+1
+!   Leon: Is it really needed?
+!        LINENR=LINENR+1
         GOTO 100
       END IF
 C ------------------------------------------
       IF(LINE(1:4).EQ.'HDIA') THEN
         IFHDIA=.TRUE.
-        Read(LuIn,*,ERR=997)(HDIAG(ISTATE),ISTATE=1,NSTATE)
+        Call GetMem('HDIAG','ALLO','REAL',LHDIAG,NSTATE)
+        Read(LuIn,*,ERR=997)(Work(LHDIAG+ISTATE),ISTATE=0,NSTATE-1)
         LINENR=LINENR+1
         GOTO 100
       END IF
 C ------------------------------------------
       IF(LINE(1:4).EQ.'SHIF') THEN
         IFSHFT=.TRUE.
-        Read(LuIn,*,ERR=997)(ESHFT(ISTATE),ISTATE=1,NSTATE)
+        Call GetMem('ESHFT','Allo','Real',LESHFT,NSTATE)
+        Read(LuIn,*,ERR=997)(Work(LESHFT+ISTATE),ISTATE=0,NSTATE-1)
         LINENR=LINENR+1
         GOTO 100
       END IF
@@ -346,7 +380,21 @@ C-SVC 2007-----------------------------------
         GoTo 100
       Endif
 
+C tjd- BMII: Print out spin-orbit properties to files
+      IF(Line(1:4).eq.'PRPR') then
+        WRITE(6,*) "SPIN-ORBIT PROPERTY PRINT ON"
+        LPRPR=.TRUE.
+        Linenr=Linenr+1
+        GoTo 100
+      Endif
 
+C tjd- Yoni: Force an identity SO hamiltonian
+      IF (LINE(1:4).eq.'HAMI') then
+        WRITE(6,*) "Identity Hamiltonian turned on"
+        LHAMI=.TRUE.
+        Linenr=Linenr+1
+        GoTo 100
+      Endif
 
 c BP - Hyperfine calculations
       If(Line(1:4).eq.'EPRA') then
@@ -598,6 +646,21 @@ C ------------------------------------------
         GOTO 100
       END IF
 C ------------------------------------------
+      IF(LINE(1:4).EQ.'DYSO')THEN
+! Enable Dyson orbital calculations
+        DYSO=.TRUE.
+        LINENR=LINENR+1
+        GOTO 100
+      END IF
+C ------------------------------------------
+      IF(LINE(1:4).EQ.'DYSE')THEN
+! Enable Dyson orbital calculations
+        DYSEXPORT=.TRUE.
+        Read(LuIn,*,ERR=997) DYSEXPSF,DYSEXPSO
+        LINENR=LINENR+1
+        GOTO 100
+      END IF
+C ------------------------------------------
       If(Line(1:4).eq.'TMOS') then
 ! Calculate exact isotropically averaged semi-classical intensities
 ! Activate integration of transition moment oscillator strengths
@@ -608,34 +671,19 @@ C ------------------------------------------
         Linenr=Linenr+1
         GoTo 100
       Endif
-C ------------------------------------------
-      IF(LINE(1:4).EQ.'KVEC')THEN
-! Calculate exact semi-classical intensities in given directions
-        DO_KVEC=.TRUE.
-        PRRAW=.TRUE.
-        Do_TMOS=.TRUE.
-        ToFile=.TRUE.
-        Read(LuIn,*,ERR=997) NKVEC
-        CALL GETMEM('KVEC  ','ALLO','REAL',PKVEC,3*NKVEC)
-        Linenr=Linenr+1
-        DO ILINE=1,NKVEC
-          Read(LuIn,*,ERR=997) (WORK(PKVEC+ILINE-1+(I-1)*NKVEC),I=1,3)
-          Linenr=Linenr+1
-        END DO
-! Ensure that the wavectors are normalized
-        DO ILINE=1,NKVEC
-          ANORM = WORK(PKVEC+ILINE-1)**2 +
-     &            WORK(PKVEC+ILINE-1+NKVEC)**2 +
-     &            WORK(PKVEC+ILINE-1+2*NKVEC)**2
-          WORK(PKVEC+ILINE-1) = 
-     &    WORK(PKVEC+ILINE-1)/DSQRT(ANORM)
-          WORK(PKVEC+ILINE-1+NKVEC) = 
-     &    WORK(PKVEC+ILINE-1+NKVEC)/DSQRT(ANORM)
-          WORK(PKVEC+ILINE-1+2*NKVEC) = 
-     &    WORK(PKVEC+ILINE-1+2*NKVEC)/DSQRT(ANORM)
-        END DO
-        GOTO 100
-      END IF
+C--------------------------------------------
+#ifdef _DMRG_
+C--------------------------------------------
+      if (Line(1:4).eq.'QDSC') then
+        QDPT2SC = .true.
+        goto 100
+      end if
+C--------------------------------------------
+      if (Line(1:4).eq.'QDPC') then
+        QDPT2SC = .false.
+        goto 100
+      end if
+#endif
 C--------------------------------------------
       IF(LINE(1:4).EQ.'PRRA')THEN
 ! Print the raw directions for exact semi-classical intensities
@@ -676,19 +724,28 @@ C ------------------------------------------
         GoTo 100
       Endif
 C--------------------------------------------
-      If(Line(1:4).eq.'K-VE') then
+      If(Line(1:4).eq.'KVEC') then
 ! Set a specific direction of the incident light when computing
 ! the transition moment and oscillator stength in the use of
 ! the vector field (A) in the non-relativistic Hamiltonian.
         Do_SK=.TRUE.
-        Read(LuIn,*,ERR=997) (K_Vector(i),i=1,3)
+        Read(LuIn,*,ERR=401) nk_Vector
         Linenr=Linenr+1
-        tmp=K_Vector(1)**2+k_Vector(2)**2+k_Vector(3)**2
-        tmp = 1.0D0/Sqrt(tmp)
-        k_Vector(1)=k_Vector(1)*tmp
-        k_Vector(2)=k_Vector(2)*tmp
-        k_Vector(3)=k_Vector(3)*tmp
+ 400    Call mma_allocate(k_Vector,3,nk_Vector,label='k-Vector')
+        Do j = 1, nk_Vector
+           Read(LuIn,*,ERR=997) (k_Vector(i,j),i=1,3)
+           Linenr=Linenr+1
+           tmp=k_Vector(1,j)**2+k_Vector(2,j)**2+k_Vector(3,j)**2
+           tmp = 1.0D0/Sqrt(tmp)
+           k_Vector(1,j)=k_Vector(1,j)*tmp
+           k_Vector(2,j)=k_Vector(2,j)*tmp
+           k_Vector(3,j)=k_Vector(3,j)*tmp
+        End Do
         GoTo 100
+ 401    nk_Vector=1
+        BackSpace(LuIn)
+        Linenr=Linenr-1
+        GoTo 400
       Endif
 C--------------------------------------------
 *

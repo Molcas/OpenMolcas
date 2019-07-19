@@ -32,8 +32,8 @@
 *
       iOrba=iOrb(1)
       Call GetMem('Coeff','Allo','Real',iMOC,iOrba**2)
-      call dcopy_(iOrba**2,ZERO,iZERO,Work(iMOC),iONE)
-      call dcopy_(iOrba,ONE,iZERO,Work(iMOC),iOrba+1)
+      call dcopy_(iOrba**2,[ZERO],iZERO,Work(iMOC),iONE)
+      call dcopy_(iOrba,[ONE],iZERO,Work(iMOC),iOrba+1)
 
 *
 *-- Define some numbers.

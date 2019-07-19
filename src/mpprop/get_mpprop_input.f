@@ -252,10 +252,10 @@
           Call Get_F(1,dLimmo,2)
         Elseif(Key(1:4).eq.'THRE') then
           Key=Get_Ln(LuRd)
-          Call Get_F(1,Thrs1,1)
-          Call Get_F(2,Thrs2,1)
-          Call Get_I(3,nThrs,1)
-          Call Get_F(4,ThrsMul,1)
+          Call Get_F1(1,Thrs1)
+          Call Get_F1(2,Thrs2)
+          Call Get_I1(3,nThrs)
+          Call Get_F1(4,ThrsMul)
         Elseif(Key(1:4).eq.'END ') then
           GoTo 987 !Not an error, Diffuse implies AllCenters
         Else
@@ -278,7 +278,7 @@
 991   Continue
       Key = Get_Ln(LuRd)
       Call UpCase(Key)
-      Call Get_I(1,iPrint,1)
+      Call Get_I1(1,iPrint)
       GoTo 998
 
 997   Continue

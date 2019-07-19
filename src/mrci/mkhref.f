@@ -17,7 +17,7 @@ cpgi$g opt=1
 *
       CALL QENTER('MKHREF')
       NHREF=(NREF*(NREF+1))/2
-      CALL VCLR(HREF,1,NHREF)
+      CALL FZERO(HREF,NHREF)
       ICHK=0
       IK=0
       FINI=0.0D00
@@ -70,7 +70,7 @@ cpgi$g opt=1
       ICHK=0
       NIJ=IROW(LN+1)
       NIJKL=NIJ*(NIJ+1)/2
-      CALL VCLR(FIJKL,1,NIJKL)
+      CALL FZERO(FIJKL,NIJKL)
       FINI=0.0D00
       IADR=LASTAD(1)
 201   CONTINUE

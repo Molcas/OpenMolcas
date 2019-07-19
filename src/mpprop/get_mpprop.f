@@ -231,7 +231,8 @@ C
                   Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)
      &            +nA*(nA+1)/2-1)=
      &            Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)
-     &            +nA*(nA+1)/2-1)-sum     ! minus from the negative sign of the electron
+!                                minus from the negative sign of the electron
+     &            +nA*(nA+1)/2-1)-sum
                   Work(iAtBoMltPlAdCopy(iMltpl)+nCenters*(iComp-1)
      &            +nA*(nA+1)/2-1)=
      &            Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)
@@ -434,7 +435,8 @@ C Find the closest atom
                   Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)
      &            +nA*(nA-1)/2+nB-1)=
      &            Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)
-     &            +nA*(nA-1)/2+nB-1)-sum     ! minus from the negative sign of the electron
+!                                   minus from the negative sign of the electron
+     &            +nA*(nA-1)/2+nB-1)-sum
                   ! Copy the multipole arrays
                   Work(iAtBoMltPlAdCopy(iMltpl)+nCenters*(iComp-1)
      &            +nA*(nA-1)/2+nB-1)=

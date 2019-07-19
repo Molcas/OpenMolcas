@@ -301,7 +301,7 @@ c mess started here :)
          RecLab(142)='ESFS_SINGLE     '
          RecLab(143)='LA Fact         '
          RecLab(144)='primitives      '
-         RecLab(145)='Isotopes        '
+         RecLab(145)='Isotopes        ' ! Atom masses in a.u.
          RecLab(146)='P2AO            '
          RecLab(147)='State Overlaps  '
          RecLab(148)='EFP_Coors       ' ! EFP fragment coordinates
@@ -314,6 +314,10 @@ c mess started here :)
          RecLab(155)='FI_V            '
          RecLab(156)='FA_V            '
          RecLab(157)='FOCK_PDFT       '
+         RecLab(158)='AMFI_SINGLE     '
+         RecLab(159)='HAMSOR_SINGLE   '
+         RecLab(160)='HAMSOI_SINGLE   '
+         RecLab(161)='Last Dipole Mome' !nts
 *                     1234567890123456
 *
 *        If you go beyond 256: update pg_da_info.fh and this line!
@@ -359,6 +363,9 @@ c mess started here :)
             Write(6,*) '*** Warning, writing temporary dArray field'
             Write(6,*) '***   Field: ',Label
             Write(6,*) '***'
+#ifdef _BIGOT_
+            Call AbEnd()
+#endif
          End If
       End If
 *----------------------------------------------------------------------*

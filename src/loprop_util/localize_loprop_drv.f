@@ -17,6 +17,7 @@
       Integer iCenter(nBas1), iType(nBas1), nBas(nSym)
       Character*8 Label
       Logical Found,Restart
+      Dimension idum(1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -51,20 +52,21 @@
          Call Free_Work(ip_all_ints)
          Call Free_iWork(ip_restart)
       Else
-         Call iRdOne(iRc,iOpt1,Label,1,nInts,iSyLbl)
-         Call GetMem('Tmp','Allo','Real',ip_SSym,nInts+4)
+         Call iRdOne(iRc,iOpt1,Label,1,idum,iSyLbl)
          If ( iRc.ne.0 ) Then
             Write (6,*) 'Polar: error reading length of mu!'
             Write (6,*) 'Mu=',0
             Call QTrace
             Call Abend()
-          End If
-          Call RdOne(iRc,iOpt0,Label,1,Work(ip_SSym),iSyLbl)
-          If ( iRc.ne.0 ) Then
-             Write (6,*) 'Polar: error reading mu!'
-             Write (6,*) 'Mu=',0
-             Call QTrace
-             Call Abend()
+         End If
+         nInts=idum(1)
+         Call GetMem('Tmp','Allo','Real',ip_SSym,nInts+4)
+         Call RdOne(iRc,iOpt0,Label,1,Work(ip_SSym),iSyLbl)
+         If ( iRc.ne.0 ) Then
+            Write (6,*) 'Polar: error reading mu!'
+            Write (6,*) 'Mu=',0
+            Call QTrace
+            Call Abend()
          End If
       End If
 #ifdef _DEBUG_

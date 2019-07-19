@@ -97,7 +97,7 @@
 *----------------------------------------------------------------------*
       Else If( NewToc ) Then
          Call DaName(LuMCK,FnMCK)
-         Call iCopy(lToc,NaN,0,TocOne,1)
+         Call iCopy(lToc,[NaN],0,TocOne,1)
          TocOne(pFID)=IDone
          TocOne(pVersN)=VNone
          iDisk=0

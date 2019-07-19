@@ -12,11 +12,5 @@
       Parameter(nRout=1024)
       Integer nPrint(nRout)
       Logical Show
-#ifdef MOLPRO
-      common /ccprint/ nprint
-      logical qtimes
-      common/csewtim/ qtimes
-#else
       Common /Print/ nPrint
-#endif
       Common/lPrint/ Show

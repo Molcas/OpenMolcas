@@ -22,6 +22,8 @@ c  *********************************************************************
 #include "direct_cvb.fh"
       external asonc,ddres2upd
 
+      dimension vec(*)
+
       call axesx2_cvb(asonc,ddres2upd,vec,
      >  resthr_inp,ioptc,iter,fx_exp,
      >  w(idd(1)),w(idd(2)),w(idd(1)),.true.,w(idd(3)),

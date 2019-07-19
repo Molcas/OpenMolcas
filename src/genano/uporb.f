@@ -23,7 +23,7 @@
       Dimension Orb(n)
 #include "parm.fh"
 #include "common.fh"
-      Character*(LENIN4) Lab(n)
+      Character*(LENIN8) Lab(n)
       dimension indx((MxLqn+1)*(MxLqn+1))
       dimension jndx((MxLqn+1)*(MxLqn+1))
 #include "symlab.fh"
@@ -36,12 +36,12 @@
          If(Lab(iBas)(1:LENIN).eq.Center) Then
             iBlk=0
             Do 210 i=1,(MxLqn+1)*(MxLqn+1)
-               If(type(i).eq.Lab(iBas)(LENIN1:LENIN4)) iBlk=i
+               If(type(i).eq.Lab(iBas)(LENIN1:LENIN8)) iBlk=i
 210         Continue
 *           Write(*,'(a,i5)') '       iBlk:',iBlk
             If(iBlk.eq.0) Then
                Write(6,*) 'Unknown basis function: ',
-     &                    Lab(iBas)(LENIN1:LENIN4)
+     &                    Lab(iBas)(LENIN1:LENIN8)
                Call Quit_OnUserError()
             End If
             indx(iBlk)=indx(iBlk)+1
@@ -50,8 +50,8 @@
             Do 220 jBas=1,iBas
 *              Write(*,'(a,i5)') '       jBas:',jBas
                If(Lab(jBas)(1:LENIN).eq.Center) Then
-                  If(Lab(iBas)(LENIN1:LENIN4).eq.
-     &               Lab(jBas)(LENIN1:LENIN4)) Then
+                  If(Lab(iBas)(LENIN1:LENIN8).eq.
+     &               Lab(jBas)(LENIN1:LENIN8)) Then
                      jndx(iBlk)=jndx(iBlk)+1
 *                    Write(*,'(a,i5)') '     jndx:',jndx(iBlk)
                      ind=jndx(iBlk)

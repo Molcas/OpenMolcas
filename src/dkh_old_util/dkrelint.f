@@ -46,6 +46,7 @@ c
       Integer snumber,tnumber,unumber,nbasp,nbaso
       Integer Get_sNumber, Get_tNumber, Get_uNumber
       logical delflag,no_hamil,no_prop,no_s,no_u,LDKpert
+      dimension nInt(1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -207,7 +208,7 @@ c                   write(stdout,'(a11,f20.8)') ' Exponents',rExpi
 *
 *     Allocate memory for relativistic part
 *
-      VELIT=CLight
+      VELIT=CLightAU
       iSizep=0
       iSizec=0
       Do L=0,nSym-1
@@ -241,7 +242,7 @@ c                   write(stdout,'(a11,f20.8)') ' Exponents',rExpi
       End If
       nComp=1
       ipaddr(1)=iSS
-      If (iPrint.ge.20) Call PrMtrx(Label,lOper,nComp,ipaddr,Work)
+      If (iPrint.ge.20) Call PrMtrx(Label,[lOper],nComp,ipaddr,Work)
       Label='Attract '
       iRC = -1
       Call RdOne(iRC,iOpt,Label,1,Work(iV),lOper)
@@ -466,9 +467,9 @@ C           Write (6,*) 'dkhmemmax=',dkhmemmax
             Call dkhparser_driver(n,isize,dkhscfflg,dkhorder,xorder,
      &                            Work(iSS+k), Work(iK+k),Work(iV+k),
 *    &                            Work(ipVp+k),Work(ip_Dummy),
-*    &                            Work(ip_Dummy),clight,paramtype,
+*    &                            Work(ip_Dummy),clightau,paramtype,
      &                            Work(ipVp+k),Work(ip1),Work(ip2),
-     &                            clight,paramtype,dkhmemmax,
+     &                            clightau,paramtype,dkhmemmax,
      &                            Work(iDKHmem),no_hamil,no_prop,
      &                            nbasp,nbaso,LDKroll,iWork(indx2),
      &                            nAtom,maxsiz,nblock,LDKpert)
@@ -566,7 +567,7 @@ C           Write (6,*)
             lOper=-1
             Call iRdOne(iRC,iOpt,Label,iComp,nInt,lOper)
 C           Write (6,*) 'lOper=',lOper
-            CALL GetMem('X       ','ALLO','REAL',iX,nInt+4)
+            CALL GetMem('X       ','ALLO','REAL',iX,nInt(1)+4)
             iRC = -1
             iOpt=0
             Call RdOne(iRC,iOpt,Label,iComp,Work(iX),lOper)
@@ -576,8 +577,8 @@ C           Write (6,*) 'lOper=',lOper
                Write (stdout,'(A,A)') 'iRC=',iRC
                Call Abend
             End If
-            Call CmpInt(Work(iX),nInt,nBas_Prim,nSym,lOper)
-            If (nInt.eq.0) Then
+            Call CmpInt(Work(iX),nInt(1),nBas_Prim,nSym,lOper)
+            If (nInt(1).eq.0) Then
                iOpt=0
                Call ClsOne(iRC,iOpt)
                Go To 666
@@ -593,7 +594,7 @@ C           Write (6,*) 'lOper=',lOper
             iOpt=1
             iRC = -1
             Call iRdOne(iRC,iOpt,pXpLbl,iComp,nInt,lOper)
-            CALL GetMem('pXp     ','ALLO','REAL',ipXp,nInt+4)
+            CALL GetMem('pXp     ','ALLO','REAL',ipXp,nInt(1)+4)
             iOpt=0
             iRC = -1
             Call RdOne(iRC,iOpt,pXpLbl,iComp,Work(ipXp),lOper)
@@ -603,7 +604,7 @@ C           Write (6,*) 'lOper=',lOper
                Write (stdout,'(A,A)') 'iRC=',iRC
                Call Abend
             End If
-            Call CmpInt(Work(ipXp),nInt,nBas_Prim,nSym,lOper)
+            Call CmpInt(Work(ipXp),nInt(1),nBas_Prim,nSym,lOper)
 *
             iOpt=0
             Call ClsOne(iRC,iOpt)
@@ -676,7 +677,7 @@ C              Write (6,*) 'dkhmemmax=',dkhmemmax
                Call dkhparser_driver(n,isize,dkhscfflg,dkhorder,xorder,
      &                               Work(iSS+k), Work(iK+k),Work(iV+k),
      &                               Work(ipVp+k),Work(iX+k),
-     &                               Work(ipXp+k),clight,paramtype,
+     &                               Work(ipXp+k),clightau,paramtype,
      &                               dkhmemmax,Work(iDKHmem),no_hamil,
      &                               no_prop,nbasp,nbaso,LDKroll,
      &                               iWork(indx2),nAtom,maxsiz,nblock,
@@ -713,11 +714,11 @@ C              Write (6,*) 'dkhmemmax=',dkhmemmax
             iRC = -1
             lOper=-1
             Call iRdOne(iRC,iOpt,Label,iComp,nInt,lOper)
-            CALL GetMem('Y       ','ALLO','REAL',iY,nInt+4)
+            CALL GetMem('Y       ','ALLO','REAL',iY,nInt(1)+4)
             iRC = -1
             iOpt=0
             Call RdOne(iRC,iOpt,Label,iComp,Work(iY),lOper)
-C           Write (6,*) 'Y1=',DDot_(nInt,Work(iY),1,
+C           Write (6,*) 'Y1=',DDot_(nInt(1),Work(iY),1,
 C    &                                  1.0D0,0)
             If (iRC.ne.0) then
                Write (stdout,*) 'DKRelInt: Error reading from ONEINT'
@@ -728,7 +729,7 @@ C    &                                  1.0D0,0)
 *           Put the picture change corrected blocks in. Note that this
 *           is just the diagonal symmetry blocks.
 *
-            Call Cp_Prop_Int(Work(iY),nInt,Work(ip_Prop),iSizec,
+            Call Cp_Prop_Int(Work(iY),nInt(1),Work(ip_Prop),iSizec,
      &                       nrBas,nIrrep,lOper)
 *
 *           Now write it back to disc
@@ -923,11 +924,11 @@ c... reset contracted basis size
       Call DaXpY_(iSizep+4,One,Work(iSS),1,Work(iV),1)
       If (iPrint.ge.20) Then
          Call iSwap(8,nBas,1,nBas_Prim,1)
-         Call PrMtrx('Attract+Kinetic (prim)',lOper,nComp,iV,Work)
-         Call PrMtrx('Kinetic (prim)',lOper,nComp,iSS,Work)
+         Call PrMtrx('Attract+Kinetic (prim)',[lOper],nComp,[iV],Work)
+         Call PrMtrx('Kinetic (prim)',[lOper],nComp,[iSS],Work)
          Call iSwap(8,nBas,1,nBas_Prim,1)
       End If
-      call dcopy_(4,Zero,0,Work(iH_Temp+iSizec),1)
+      call dcopy_(4,[Zero],0,Work(iH_Temp+iSizec),1)
 *     Contract and store in iH_temp
       Call repmat(idbg,Work(iV),Work(iH_temp))
 *
@@ -948,7 +949,7 @@ c... reset contracted basis size
 *
       If (iPrint.ge.20) Then
          Call iSwap(8,nBas,1,nBas_Cont,1)
-         Call PrMtrx('iH_temp (cont)',lOper,nComp,iH_temp,Work)
+         Call PrMtrx('iH_temp (cont)',[lOper],nComp,[iH_temp],Work)
          Call iSwap(8,nBas,1,nBas_Cont,1)
       End If
 *
@@ -956,13 +957,13 @@ c... reset contracted basis size
 *
       If (iPrint.ge.20) Then
          Call iSwap(8,nBas,1,nBas_Prim,1)
-         Call PrMtrx('iK (prim)',lOper,nComp,iK,Work)
+         Call PrMtrx('iK (prim)',[lOper],nComp,[iK],Work)
          Call iSwap(8,nBas,1,nBas_Prim,1)
       End If
       Call repmat(idbg,Work(iK),Work(iH))
       If (iPrint.ge.20) Then
          Call iSwap(8,nBas,1,nBas_Cont,1)
-         Call PrMtrx('iH (cont)',lOper,nComp,iH,Work)
+         Call PrMtrx('iH (cont)',[lOper],nComp,[iH],Work)
          Call iSwap(8,nBas,1,nBas_Cont,1)
       End If
 *
@@ -995,7 +996,7 @@ c... reset contracted basis size
       lOper=1
       nComp=1
       ipaddr(1)=iH
-      If (iPrint.ge.20) Call PrMtrx(Label,lOper,nComp,ipaddr,Work)
+      If (iPrint.ge.20) Call PrMtrx(Label,[lOper],nComp,ipaddr,Work)
 *
 *     Replace 1-el Hamiltonian on ONEINT
 *

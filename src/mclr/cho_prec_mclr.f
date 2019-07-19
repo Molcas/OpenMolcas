@@ -51,15 +51,9 @@
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
-      iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-******
       InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
 ******
       nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
-******
-      NBASSH(I,J)=IWORK(ip_NBASSH-1+NSYM*(J-1)+I)
-******
-      kOffSh(i,j) = iWork(ip_kOffSh+nShell*(j-1)+i-1)
 ************************************************************************
       timings=.false.
       CALL CWTIME(TCstart1,TWstart1)
@@ -104,8 +98,10 @@
           maxpq  =max(npq,nBas(iSymb)**2)
           maxtpq  =max(maxtpq,nAsh(iSyma)*nBas(iSymb)**2)
 
-          nip  =nip + nIsh(iSyma)*(nBas(isymb)+1) ! For inactive half-transformed Cho vector + Lii^J
-          ntp  =ntp + nAsh(iSyma)*(nBas(isymb)+nAsh(iSyma)) ! For active half-transformed Cho vector + Lij^J
+!         For inactive half-transformed Cho vector + Lii^J
+          nip  =nip + nIsh(iSyma)*(nBas(isymb)+1)
+!         For active half-transformed Cho vector + Lij^J
+          ntp  =ntp + nAsh(iSyma)*(nBas(isymb)+nAsh(iSyma))
 
           ntoti=ntoti+nIsh(isymb)
           ntota=ntota+nAsh(isymb)
@@ -143,15 +139,17 @@
 *
 **      First, do we have enough memory at all!
 *
-        memneeded=maxRS+max(nip,ntp)                    ! for 1 Jbatch
-        memneeded=max(memneeded,maxpq)                  ! for MO transform
+        memneeded=maxRS+max(nip,ntp)                  ! for 1 Jbatch
+        memneeded=max(memneeded,maxpq)                ! for MO transform
         If (ntota.gt.0) Then
-           memneeded=memneeded+ maxtpq                  ! for 1 (ta|ub)
+           memneeded=memneeded+ maxtpq                ! for 1 (ta|ub)
+!          for 1 (tu|ab) and 1 reduced set
            If (jsym.eq.1)
-     &        memneeded=memneeded+ ntota*(maxpq+maxRS)    ! for 1 (tu|ab) and 1 reduced set
+     &        memneeded=memneeded+ ntota*(maxpq+maxRS)
         ElseIf (ntoti.gt.0) Then
-           memneeded=memneeded+ maxpq                   ! for 1 (ia|ib)
-           If (jsym.eq.1) memneeded=memneeded+npq+maxRS   ! for 1 (ii|ab) and 1 reduced set
+           memneeded=memneeded+ maxpq                 ! for 1 (ia|ib)
+!          for 1 (ii|ab) and 1 reduced set
+           If (jsym.eq.1) memneeded=memneeded+npq+maxRS
         EndIf
 *
         If (memneeded.gt.lWork) Then
@@ -229,7 +227,7 @@
           Call GetMem('iirs','Allo','Real',ipiirs,ntotie*maxRS)
         EndIf
         ipiaib=ipiiab+nab*ntotie
-        Call dcopy_(libatch,0.0d0,0,Work(ipiiab),1)
+        Call dcopy_(libatch,[0.0d0],0,Work(ipiiab),1)
 
 *init for compilers
         iptupq=ip_Dummy
@@ -287,7 +285,7 @@
      &          Call GetMem('turs','Allo','Real',ipturs,ntue*maxRS)
            EndIf
            iptpuq=iptupq+nab*ntue
-           call dcopy_(labatch,0.0d0,0,Work(iptupq),1)
+           call dcopy_(labatch,[0.0d0],0,Work(iptupq),1)
            If (taskleft) Then
               write(6,*) 'Batching loop a'
            EndIf
@@ -340,9 +338,9 @@ c         !set index arrays at iLoc
 
           If (jSym.eq.1) Then
             If (ntotie.gt.0)
-     &         call dcopy_(ntotie*nRS,0.0d0,0,Work(ipiirs),1)
+     &         call dcopy_(ntotie*nRS,[0.0d0],0,Work(ipiirs),1)
             If (ntue.gt.0)
-     &         call dcopy_(ntue*nRS,0.0d0,0,Work(ipturs),1)
+     &         call dcopy_(ntue*nRS,[0.0d0],0,Work(ipturs),1)
           EndIf
 
           Call GetMem('MaxM','Max','Real',KDUM,LWORKe)

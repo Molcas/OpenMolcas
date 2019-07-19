@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
 c
-        subroutine Reord (wrk,wrksize,
+        subroutine Reord_chcc (wrk,wrksize,
      c             NaGrpR,NaSGrpR,NchBlk,LunAux)
 c
 c       This routine do:
@@ -122,6 +122,7 @@ c
         real*8 e2,e2os
 c
         integer isfreeunit
+        integer idum(1)
 c
 c       Def parameters
         call DefParReord (NaGrpR,maxdim)
@@ -144,17 +145,18 @@ c        Distribute memory
         write (6,*) ' Last Value :',PossT,wrksize
         end if
         if (PossT.gt.wrksize) then
-cmp!          write (6,*) ' Nieje dobre - Reord, Dr. Ch. Kokotopuloss',
-        write (6,*) ' Not Enough memory in Reord step!',
+cmp!          write (6,*) ' Nieje dobre - Reord_chcc, Dr. Ch. Kokotopuloss',
+        write (6,*) ' Not Enough memory in Reord_chcc step!',
      & 'Increase large and/or small segmentation ',
      c    (1.0d0*PossT)/(1.0d0*wrksize)
           call abend()
         end if
 c
-c*      Get Oorital energies
+c*      Get Orbital energies
 c
 c       nOrbE=nfr+no+nv ! wrong size if ndel.ne.0
-        Call Get_iArray('nBas',nOrbE,1) ! must read always nBas fr runf
+        Call Get_iArray('nBas',idum,1) ! must read always nBas fr runf
+        nOrbE=idum(1)
         Label='OrbE'
         Call qpg_dArray(Label,Found,nOrbE)
         If(.not.Found .or. nOrbE.eq.0) Then

@@ -1,0 +1,459 @@
+#***********************************************************************
+# This file is part of OpenMolcas.                                     *
+#                                                                      *
+# OpenMolcas is free software; you can redistribute it and/or modify   *
+# it under the terms of the GNU Lesser General Public License, v. 2.1. *
+# OpenMolcas is distributed in the hope that it will be useful, but it *
+# is provided "as is" and without any express or implied warranties.   *
+# For more details see the full text of the license in the file        *
+# LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#                                                                      *
+# Copyright (C) 2017, Stefan Knecht                                    *
+# Copyright (C) 2018, Leon Freitag                                     *
+#***********************************************************************
+#                                                                      *
+#***********************************************************************
+# CMakeLists.txt for QCMaquis                                          *
+#***********************************************************************
+
+cmake_minimum_required(VERSION 3.7)
+# load External Project macro
+include(ExternalProject)
+# Set up compilation of QCMaquis components
+set(CUSTOM_QCMaquis_LOCATION "${PROJECT_BINARY_DIR}/External/qcmaquis-full")
+
+# QCMaquis does not know profile
+if(CMAKE_BUILD_TYPE MATCHES "profile")
+        set(QCM_BUILD_TYPE "release")
+else()
+        set(QCM_BUILD_TYPE ${CMAKE_BUILD_TYPE})
+endif()
+
+if(MPI)
+        set(CMAKE_QCM_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -D_MOLCAS_MPP_")
+endif()
+
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_ROOT})
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/custom)
+
+set(CMAKE_Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/mod)
+
+list(APPEND QCMaquisDriverCMakeArgs
+        -DCMAKE_BUILD_TYPE=${QCM_BUILD_TYPE}
+        -DCMAKE_INSTALL_PREFIX=${PROJECT_BINARY_DIR}/External
+        -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER}
+        -DCMAKE_Fortran_FLAGS=${CMAKE_QCM_Fortran_FLAGS}
+        -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+        -DCMAKE_C_FLAGS=${CMake_C_FLAGS}
+        -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+        -DCMAKE_INSTALL_LIBDIR=lib
+        -DCMAKE_Fortran_MODULE_DIRECTORY=${CMAKE_Fortran_MODULE_DIRECTORY}
+        )
+
+######################################
+#          QCMaquis driver           #
+######################################
+set(EP_PROJECT qcmaquis-driver)
+
+# Enabling source changes to keep ExternalProject happy
+set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
+
+
+## Download QCMaquis driver.
+## We use a helper download script in src/qcmaquis that passes the name and e-mail to the SCINE download server, which is a pre-requisite to download QCMaquis
+set (QCMaquis_dl_interface_cmd "sh" "-c" "${QCMaquis_dl_SCRIPT} ${QCMaquis_URL} dmrg_interface_utils \'${QCMaquis_GIVEN_NAME}\' \'${QCMaquis_SURNAME}\' ${QCMaquis_EMAIL} && cd ${EP_PROJECT} && tar xvjf ../dmrg_interface_utils.tar.bz2")
+
+# Force QCMaquis update:
+# There is no way for OpenMolcas to know when SCINE/QCMaquis is updated upstream,
+# so QCMaquis update is triggered with the QCMaquis_UPDATE flag.
+# If QCMaquis_UPDATE flag is set, an appropriate UPDATE_COMMAND is set that redownloads
+# the QCMaquis sources.
+if (QCMaquis_UPDATE)
+        message (STATUS "QCMaquis update:" ${QCMaquis_UPDATE} "; Triggering QCMaquis update")
+        set (QCMaquis_up_interface_cmd "sh" "-c" "cd ../ && rm dmrg_interface_utils.tar.bz2 || true && ${QCMaquis_dl_SCRIPT} ${QCMaquis_URL} dmrg_interface_utils \'${QCMaquis_GIVEN_NAME}\' \'${QCMaquis_SURNAME}\' ${QCMaquis_EMAIL} && cd ${EP_PROJECT} && tar xvjf ../dmrg_interface_utils.tar.bz2")
+endif()
+
+ExternalProject_Add(${EP_PROJECT}
+                    PREFIX ${CUSTOM_QCMaquis_LOCATION}
+                    DOWNLOAD_COMMAND ${QCMaquis_dl_interface_cmd}
+                    UPDATE_COMMAND ${QCMaquis_up_interface_cmd}
+                    CMAKE_ARGS "${QCMaquisDriverCMakeArgs}"
+                    INSTALL_DIR "${PROJECT_BINARY_DIR}"
+                    LOG_DOWNLOAD 1
+                    LOG_CONFIGURE 1
+                    LOG_UPDATE 1
+                   )
+
+set (CMAKE_DISABLE_SOURCE_CHANGES ON)
+
+# post installation steps
+ExternalProject_Add_Step(${EP_PROJECT} install_tools DEPENDEES update
+                         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CUSTOM_QCMaquis_LOCATION}/src/${EP_PROJECT}/tools/pytools ${PROJECT_BINARY_DIR}/pytools
+                         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CUSTOM_QCMaquis_LOCATION}/src/${EP_PROJECT}/template-files ${PROJECT_BINARY_DIR}/template-files
+                         COMMENT "Copying QCMaquis python tools and template files"
+                        )
+
+# set variables for use in parent CMakeLists.txt
+ExternalProject_Get_Property(${EP_PROJECT} install_dir)
+set(DMRG_INCLUDE ${CMAKE_Fortran_MODULE_DIRECTORY} PARENT_SCOPE)
+set(DMRG_LIBRARIES ${install_dir}/lib/${CMAKE_FIND_LIBRARY_PREFIXES}qcmaquis-driver-utils.a PARENT_SCOPE)
+
+
+##########################################################
+# QCMaquis suite (consisting of ALPS/BOOST and QCMaquis) #
+##########################################################
+include(qcmaquis)
+if(NOT MAQUIS_DMRG_FOUND)
+        # Enabling source changes to keep ExternalProject happy
+        set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
+
+
+        # Set compilation flags for QCMaquis
+        list(APPEND QCMaquisCMakeArgs
+                -DCMAKE_BUILD_TYPE=${QCM_BUILD_TYPE}
+                -DCMAKE_INSTALL_PREFIX=${PROJECT_BINARY_DIR}/External
+                -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+                -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+                -DCMAKE_CXX_FLAGS="${CMake_CXX_FLAGS} -std=c++11"
+                -DCMAKE_Fortran_MODULE_DIRECTORY=${CMAKE_Fortran_MODULE_DIRECTORY}
+        )
+
+        if (LINALG STREQUAL "Internal" OR LINALG STREQUAL "Runtime")
+                list(APPEND QCMaquisCMakeArgs
+                    -DBLAS_LAPACK_SELECTOR=""
+                 )
+        endif ()
+
+        if (LINALG STREQUAL "MKL")
+                list(APPEND QCMaquisCMakeArgs
+                  -DBLAS_LAPACK_SELECTOR=mkl_sequential
+                )
+        endif ()
+        if (LINALG STREQUAL "OpenBLAS")
+                list(APPEND QCMaquisCMakeArgs
+                  -DBLAS_LAPACK_SELECTOR=openblas
+                  -DOPENBLASROOT=${OPENBLASROOT}
+                  -DBLAS_LIBRARY=-lopenblas
+                  -DLAPACK_LIBRARY=-lopenblas
+                  )
+        endif ()
+        if (LINALG STREQUAL "Accelerate")
+                list(APPEND QCMaquisCMakeArgs
+                  -DBLAS_LAPACK_SELECTOR=veclib
+                )
+        endif ()
+
+        set(LOCAL_QCM_INSTALL_PATH ${PROJECT_BINARY_DIR})
+
+        #########################
+        # Python 2 for QCMaquis #
+        #########################
+
+        execute_process(COMMAND env python2 -c "import sys; print(sys.executable)" RESULT_VARIABLE PYTHONINTERP_RET OUTPUT_VARIABLE PYTHON_EXECUTABLE OUTPUT_STRIP_TRAILING_WHITESPACE)
+        set (PYTHONINTERP_FOUND FALSE)
+        if (PYTHONINTERP_RET EQUAL 0)
+                set (PYTHONINTERP_FOUND TRUE)
+        endif()
+        if(PYTHONINTERP_FOUND)
+                execute_process(COMMAND env python2 -c "import distutils.sysconfig as sysconfig; print(sysconfig.get_config_var('VERSION'))" RESULT_VARIABLE PYTHONINTERP_RET OUTPUT_VARIABLE PYTHON_VERSION_STRING OUTPUT_STRIP_TRAILING_WHITESPACE)
+                message (STATUS " Python 2: (for QCMaquis DMRG interface): ")
+                message (STATUS "  path   : ${PYTHON_EXECUTABLE}")
+                message (STATUS "  version: ${PYTHON_VERSION_STRING}")
+
+                # Check for the NumPy and SciPy presence
+                execute_process(COMMAND env python2 -c "import numpy, scipy, h5py" RESULT_VARIABLE PYTHONINTERP_RET OUTPUT_VARIABLE PYTHON_VERSION_STRING OUTPUT_STRIP_TRAILING_WHITESPACE)
+                if (NOT PYTHONINTERP_RET EQUAL 0)
+                        message (FATAL_ERROR "Python 2 SciPy, NumPy or H5Py not found. These packages are required for QCMaquis DMRG.")
+                endif ()
+        else()
+                message (FATAL_ERROR "Python 2 not found. Python 2 is required for QCMaquis DMRG.")
+        endif(PYTHONINTERP_FOUND)
+        if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+                execute_process(COMMAND env python2 -c "import distutils.sysconfig as sysconfig; print sysconfig.get_config_var('PYTHONFRAMEWORKPREFIX')+'/'+sysconfig.get_config_var('LDLIBRARY')" RESULT_VARIABLE PYTHONINTERP_RET OUTPUT_VARIABLE PYTHON_LIBRARIES OUTPUT_STRIP_TRAILING_WHITESPACE)
+        else()
+                # get the library name
+                execute_process(COMMAND env python2 -c "import distutils.sysconfig as sysconfig; print sysconfig.get_config_var('LDLIBRARY')" RESULT_VARIABLE PYTHONINTERP_RET OUTPUT_VARIABLE PYTHON_LDLIBRARY OUTPUT_STRIP_TRAILING_WHITESPACE)
+                # get the standard library path from python
+                # On Cent OS 7.4, Manjaro, Ubuntu 16.04 and Ubuntu 18.04, the python lib path is found at sysconfig.get_config_var('LIBPC') + "../"
+                # this seems to be valid both for multiarch-enabled and non-multiarch-enabled OS.
+                # However, using a relative path including a "../" compiles and links QCMaquis, but pyalps fails with a segfault
+                # Hence, to convert the path from "/some/path/pkgconfig/../" to "/some/path/" it is piped into 'dirname'.
+                execute_process(COMMAND "sh" "-c" "dirname $(env python2 -c \"import distutils.sysconfig as sysconfig; print sysconfig.get_config_var('LIBPC')\")"  RESULT_VARIABLE PYTHONINTERP_RET OUTPUT_VARIABLE PYTHON_LIBDIR OUTPUT_STRIP_TRAILING_WHITESPACE)
+                set (PYTHON_LIBRARIES "${PYTHON_LIBDIR}/${PYTHON_LDLIBRARY}")
+                if (NOT EXISTS ${PYTHON_LIBRARIES})
+                        set (PYTHONINTERP_RET 1)
+                endif()
+        endif()
+
+        set (PYTHONLIBS_FOUND FALSE)
+        if (PYTHONINTERP_RET EQUAL 0)
+                set (PYTHONLIBS_FOUND TRUE)
+        endif()
+        if(PYTHONLIBS_FOUND)
+                execute_process(COMMAND env python2 -c "import distutils.sysconfig as sysconfig; print(sysconfig.get_config_var('INCLUDEPY'))" RESULT_VARIABLE PYTHONINTERP_RET OUTPUT_VARIABLE PYTHON_INCLUDE_DIRS OUTPUT_STRIP_TRAILING_WHITESPACE)
+                message (STATUS " Python 2 libraries: ")
+                message (STATUS "  path    : ${PYTHON_LIBRARIES}")
+                message (STATUS "  Python.h: ${PYTHON_INCLUDE_DIRS}")
+        else()
+                message (FATAL_ERROR "Python 2 libraries not found. Python 2 libraries are required for QCMaquis DMRG.")
+        endif(PYTHONLIBS_FOUND)
+
+        # Figure out the python executable and the binary path for python2
+        # Fixes the python2/3 conflicts in ALPS
+        set (PYTHON_INTERPRETER ${PYTHON_EXECUTABLE})
+
+        ##########################
+        # GNU scientific library #
+        ##########################
+        find_package(GSL REQUIRED)
+
+        ##########
+        # OpenMP #
+        ##########
+        find_package(OpenMP)
+
+        # OpenBLAS support. To be tested! (Probably doesn't work yet!)
+        if (LINALG STREQUAL "OpenBLAS")
+                list(APPEND QCMaquisCMakeArgs
+                    "-DBLAS_LIBRARY=-lopenblas"
+                    "-DLAPACK_LIBRARY=-lopenblas"
+                )
+        endif()
+
+        ################################################
+        # set CXX FLAGS for ALPS/BOOST and QCMaquis    #
+        ################################################
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-attributes -Wno-deprecated-declarations")
+
+        set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+
+        # default
+        set(ALPS_BOOST_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+        set(QCMaquis_CXX_FLAGS   "${CMAKE_CXX_FLAGS}")
+
+        # OpenMP flags
+        if(OPENMP_FOUND)
+                set(QCMaquis_CXX_FLAGS "${QCMaquis_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+                set(QCMaquis_OPENMP    "-DENABLE_OMP:BOOL=ON")
+        else()
+                set(QCMaquis_OPENMP    "-DENABLE_OMP:BOOL=OFF")
+        endif()
+        unset(OPENMP_FOUND)
+
+        set(extprojpathsrcpath ${CMAKE_SOURCE_DIR}/External/qcmaquis_suite)
+
+        set(extprojpath     "${LOCAL_QCM_INSTALL_PATH}/External")
+
+        ###############
+        #    ALPS     #
+        ###############
+        set( EP_PROJECT      "alps"    )
+        set( EP_PROJ_DIR "${extprojpath}/alps")
+
+        set(CMAKE_INSTALL_PREFIX "${LOCAL_QCM_INSTALL_PATH}/${EP_PROJECT}")
+
+        set(EP_CMAKE_ARGS       "${ExternalProjectCMakeArgs}"
+                                "-DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}"
+                                "-DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}"
+                                "-DCMAKE_Fortran_COMPILER:STRING=${CMAKE_Fortran_COMPILER}"
+                                "-DCMAKE_CXX_FLAGS:STRING=${ALPS_BOOST_CXX_FLAGS}"
+          )
+
+        set(EP_CMAKE_CACHE_ARGS "-DCMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT:BOOL=OFF"
+                                "-DCMAKE_INSTALL_PREFIX:STRING=${LOCAL_QCM_INSTALL_PATH}/${EP_PROJECT}"
+                                "-DBUILD_SHARED_LIBS:BOOL=ON"
+                                "-DBoost_ROOT_DIR:STRING=${EP_PROJ_DIR}/src/${EP_PROJECT}/boost"
+                                "-DBoost_INCLUDE_DIR:STRING=${EP_PROJ_DIR}/src/${EP_PROJECT}/boost"
+                                "-DPYTHON_INTERPRETER:STRING=${PYTHON_INTERPRETER}"
+                                "-DPYTHON_LIBRARY:STRING=${PYTHON_LIBRARIES}"
+                                "-DCMAKE_BUILD_TYPE:STRING=Release"
+                                "-DALPS_BUILD_PYTHON:BOOL=ON"
+                                "-DALPS_INCLUDE_TUTORIALS:BOOL=OFF"
+                                "-DALPS_BUILD_APPLICATIONS:BOOL=OFF"
+                                "-DALPS_USE_VISTRAILS:BOOL=OFF"
+                                "-DALPS_BUILD_TESTS:BOOL=OFF"
+                                "-DALPS_BUILD_EXAMPLES:BOOL=OFF"
+                                "-DALPS_INSTALL_HEADERS:BOOL=ON"
+                                "-DALPS_ENABLE_MPI:BOOL=OFF"
+                                "-DALPS_ENABLE_OPENMP:BOOL=OFF"
+                                " ${EP_PROJ_DIR}/src/${EP_PROJECT}/alps"
+          )
+
+        if (EXISTS ${EP_PROJ_DIR}/src/${EP_PROJECT}/CMakeLists.txt)
+                message(STATUS "Upgrading from previous gitlab.com build. Removing old CMakeLists.txt and CMakeCache.txt for ALPS.")
+                file(REMOVE ${EP_PROJ_DIR}/src/${EP_PROJECT}/CMakeLists.txt)
+                file(REMOVE ${EP_PROJ_DIR}/src/${EP_PROJECT}-build/CMakeCache.txt)
+        endif()
+        ExternalProject_Add(${EP_PROJECT}
+                            PREFIX ${EP_PROJ_DIR}
+                            URL http://alps.comp-phys.org/static/software/releases/alps-2.2.b4-src-with-boost.tar.gz
+                            PATCH_COMMAND
+                              patch -p0 -r - -N < ${CMAKE_SOURCE_DIR}/src/qcmaquis/pyalps_parse_labels.patch || true && patch -r - -p0 -N < ${CMAKE_SOURCE_DIR}/src/qcmaquis/alps_find_hdf5.patch || true
+                            SOURCE_DIR ${EP_PROJ_DIR}/src/${EP_PROJECT}
+                            SOURCE_SUBDIR alps
+                            CMAKE_ARGS ${EP_CMAKE_ARGS}
+                            CMAKE_CACHE_ARGS ${EP_CMAKE_CACHE_ARGS}
+                            INSTALL_DIR ${LOCAL_QCM_INSTALL_PATH}/${EP_PROJECT}
+                            LOG_DOWNLOAD 1
+                            LOG_UPDATE 1
+                            LOG_BUILD 1
+          )
+
+        ExternalProject_Get_Property(${EP_PROJECT} install_dir)
+
+        # Fixes for MacOS X and MKL
+        if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" AND ${CMAKE_SYSTEM_VERSION} STREQUAL "15.0.0" AND DEFINED BLAS_LAPACK_SELECTOR AND BLAS_LAPACK_SELECTOR MATCHES "mkl")
+                # MKLROOT should be defined to end up here
+                # we use a fixed list of pyalps libs - FIXME: make this general
+                list(APPEND pyalpslibs
+                    pyalea_c.so
+                    pymcdata_c.so
+                    pyngsapi_c.so
+                    pyngsbase_c.so
+                    pyngshdf5_c.so
+                    pyngsobservable_c.so
+                    pyngsobservables_c.so
+                    pyngsparams_c.so
+                    pyngsrandom01_c.so
+                    pyngsresult_c.so
+                    pyngsresults_c.so
+                    pytools_c.so
+                    )
+                foreach (pylib ${pyalpslibs})
+                        ExternalProject_Add_Step(${EP_PROJECT}
+                                            fixMKLdylib_${pylib}
+                                            DEPENDEES install
+                                            COMMAND ${CMAKE_SOURCE_DIR}/sbin/fixdylib  ${install_dir}/lib/pyalps/${pylib} libmkl ${MKLROOT}
+                                            COMMENT "Enforce absolute path to MKL in dynamically linked pyalps libs"
+                                            LOG 1
+                                            )
+                endforeach(pylib)
+        endif()
+
+        #################################################################################
+        # Add ALPS/BOOST properties so that the correct versions for QCMaquis are found #
+        #################################################################################
+        set(BOOST_ROOT ${install_dir} CACHE INTERNAL "")
+        set(ALPS_ROOT  ${install_dir} CACHE INTERNAL "")
+
+        list(APPEND QCMaquis_THIRDPARTYLIBS_ARGS
+                "-DBOOST_ROOT:PATH=${BOOST_ROOT}"
+                "-DBoost_INCLUDE_DIR:PATH=${BOOST_ROOT}/include"
+                "-DBOOST_LIBRARYDIR:PATH=${BOOST_ROOT}/lib"
+                "-DBoost_NO_SYSTEM_PATHS:BOOL=ON"
+                "-DALPS_DIR:PATH=${ALPS_ROOT}"
+                "-DALPS_ROOT_DIR:PATH=${ALPS_ROOT}"
+          )
+
+        set( EP_PROJECT_A ${EP_PROJECT})
+
+        message(STATUS "ALPS_ROOT and BOOST_ROOT: ${ALPS_ROOT}")
+
+        ###############
+        #  QCMaquis   #
+        ###############
+        set( EP_PROJECT  "qcmaquis")
+        set( EP_PROJ_DIR "${extprojpath}/qcmaquis_suite")
+
+        set(EP_CMAKE_ARGS       "${QCMaquisCMakeArgs}"
+                                "-DCMAKE_CXX_FLAGS:STRING=${QCMaquis_CXX_FLAGS}"
+                                "-DCMAKE_PREFIX_PATH:PATH=${ALPS_ROOT}"
+                                "-DCMAKE_INSTALL_PREFIX:STRING=${LOCAL_QCM_INSTALL_PATH}/${EP_PROJECT}"
+                                "-DCMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT:BOOL=OFF"
+          )
+
+        list (APPEND EP_CMAKE_ARGS
+                                " ${EP_PROJ_DIR}/src/${EP_PROJECT}/dmrg"
+          )
+
+        set(EP_CMAKE_CACHE_ARGS "-DBUILD_SYMMETRIES:STRING=TwoU1;TwoU1PG;SU2U1PG;SU2U1"
+                                "${QCMaquis_OPENMP}"
+                                "-DCMAKE_BUILD_TYPE:STRING=Release"
+                                "-DDMRG_NUMSYMM:STRING=6"
+                                "-DBUILD_DMRG:BOOL=ON"
+                                "-DBUILD_TIME_EVOLUTION:BOOL=OFF"
+                                "-DUSE_AMBIENT:BOOL=OFF"
+                                "-DENABLE_ALPS_MODELS:BOOL=OFF"
+                                "-DBUILD_TOOLS:BOOL=ON"
+                                "${QCMaquis_THIRDPARTYLIBS_ARGS}"
+                                "${QCMaquis_MATHLIBS}"
+          )
+
+        ###############################
+        # Download QCMaquis           #
+        ###############################
+
+        if ( "${QCMaquis_NAME}" STREQUAL "" OR "${QCMaquis_EMAIL}" STREQUAL "")
+                message (FATAL_ERROR "Please set your name and e-mail with -DQCMaquis_NAME and -DQCMaquis_EMAIL to be able to download QCMaquis.")
+        endif ()
+
+        separate_arguments (QCMaquis_NAME)
+        list(LENGTH QCMaquis_NAME qcm_name_len)
+        if (qcm_name_len LESS 2)
+                message (FATAL_ERROR "Please specify both name and surname. If you have only one name, please specify it twice.")
+        endif()
+
+        set(QCMaquis_dl_cmd "sh" "-c" "${QCMaquis_dl_SCRIPT} ${QCMaquis_URL} dmrg \'${QCMaquis_GIVEN_NAME}\' \'${QCMaquis_SURNAME}\' ${QCMaquis_EMAIL} && cd qcmaquis && tar xvjf ../dmrg.tar.bz2")
+
+        if (QCMaquis_UPDATE)
+                # Ensure seamless update from the old gitlab.com-based version
+                # This version installed a CMakeLists.txt into ${EP_PROJ_DIR}/src/${EP_PROJECT} that included the CMakeLists.txt from the dmrg subdirectory
+                # In this version we use the SOURCE_SUBDIR option of ExternalProject_Add, so this isn't needed anymore
+                # However, it leads to a complaint about wrong path saved in CMakeCache.txt
+                # So if we detect this CMakeLists.txt, we delete it and the corresponding CMakeCache.txt
+                if (EXISTS ${EP_PROJ_DIR}/src/${EP_PROJECT}/CMakeLists.txt)
+                        message(STATUS "Upgrading from previous gitlab.com build. Removing old CMakeLists.txt and CMakeCache.txt for QCMaquis.")
+                        file(REMOVE ${EP_PROJ_DIR}/src/${EP_PROJECT}/CMakeLists.txt)
+                        file(REMOVE ${EP_PROJ_DIR}/src/${EP_PROJECT}-build/CMakeCache.txt)
+                endif()
+                set(QCMaquis_up_cmd "sh" "-c" "cd ../ && rm dmrg.tar.bz2 || true && ${QCMaquis_dl_SCRIPT} ${QCMaquis_URL} dmrg \'${QCMaquis_GIVEN_NAME}\' \'${QCMaquis_SURNAME}\' ${QCMaquis_EMAIL} && cd qcmaquis && tar xvjf ../dmrg.tar.bz2")
+        endif()
+
+        ExternalProject_Add(${EP_PROJECT}
+                            PREFIX ${EP_PROJ_DIR}
+                            DOWNLOAD_COMMAND ${QCMaquis_dl_cmd}
+                            UPDATE_COMMAND ${QCMaquis_up_cmd}
+                            SOURCE_DIR ${EP_PROJ_DIR}/src/${EP_PROJECT}
+                            SOURCE_SUBDIR dmrg
+                            CMAKE_ARGS ${EP_CMAKE_ARGS}
+                            CMAKE_CACHE_ARGS ${EP_CMAKE_CACHE_ARGS}
+                            INSTALL_DIR ${LOCAL_QCM_INSTALL_PATH}/${EP_PROJECT}
+                            LOG_DOWNLOAD 1
+                            LOG_UPDATE 1
+          )
+
+        ###################################################################
+        # introduce dependecy so that ALPS/BOOST is built before QCMaquis #
+        ###################################################################
+        ExternalProject_Add_StepDependencies(${EP_PROJECT} build ${EP_PROJECT_A})
+
+        ##############################
+        # final message for the user #
+        ##############################
+        if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+                set(lib_path_message "export LIBRARY_PATH=${LOCAL_QCM_INSTALL_PATH}/alps/lib:$LIBRARY_PATH\nexport DYLD_LIBRARY_PATH=$LIBRARY_PATH:$DYLD_LIBRARY_PATH\n")
+                set(lib_path1 "export LIBRARY_PATH=${LOCAL_QCM_INSTALL_PATH}/alps/lib:$LIBRARY_PATH")
+                set(lib_path2 "export DYLD_LIBRARY_PATH=$LIBRARY_PATH:$DYLD_LIBRARY_PATH")
+        else()
+                set(lib_path_message "export LD_LIBRARY_PATH=${LOCAL_QCM_INSTALL_PATH}/alps/lib:$LD_LIBRARY_PATH\n")
+                set(lib_path1 "export LIBRARY_PATH=${LOCAL_QCM_INSTALL_PATH}/alps/lib:$LIBRARY_PATH")
+                set(lib_path2 "export LD_LIBRARY_PATH=${LOCAL_QCM_INSTALL_PATH}/alps/lib:$LD_LIBRARY_PATH")
+        endif()
+        ExternalProject_Add_Step(${EP_PROJECT} final_comment DEPENDEES install COMMENT " Installation of QCMaquis, ALPS and Boost was successful!\n To run QCMaquis calculations (through Molcas) you have to adjust your paths as follows:\n export PATH=${LOCAL_QCM_INSTALL_PATH}/alps/bin:${LOCAL_QCM_INSTALL_PATH}/qcmaquis/bin:$PATH\n export PYTHONPATH=${LOCAL_QCM_INSTALL_PATH}/alps/lib:${LOCAL_QCM_INSTALL_PATH}/qcmaquis/lib/python/pyeval:${LOCAL_QCM_INSTALL_PATH}/qcmaquis/lib/python:$PYTHONPATH\n ${lib_path_message} For further information on please read the documentation carefully.")
+
+        #########################################
+        # setup configuration file for the user #
+        #########################################
+        ExternalProject_Add_Step(${EP_PROJECT} creating_configuration_file  DEPENDEES install
+        COMMAND echo "#!/bin/bash" >  ${LOCAL_QCM_INSTALL_PATH}/qcmaquis/bin/qcmaquis.sh
+        COMMAND echo "export PATH=${LOCAL_QCM_INSTALL_PATH}/alps/bin:${LOCAL_QCM_INSTALL_PATH}/qcmaquis/bin:$PATH" >>  ${LOCAL_QCM_INSTALL_PATH}/qcmaquis/bin/qcmaquis.sh
+        COMMAND echo "export PYTHONPATH=${LOCAL_QCM_INSTALL_PATH}/alps/lib:${LOCAL_QCM_INSTALL_PATH}/qcmaquis/lib/python/pyeval:${LOCAL_QCM_INSTALL_PATH}/qcmaquis/lib/python:$PYTHONPATH" >> ${LOCAL_QCM_INSTALL_PATH}/qcmaquis/bin/qcmaquis.sh
+        COMMAND echo "${lib_path1}" >> ${LOCAL_QCM_INSTALL_PATH}/qcmaquis/bin/qcmaquis.sh
+        COMMAND echo "${lib_path2}" >> ${LOCAL_QCM_INSTALL_PATH}/qcmaquis/bin/qcmaquis.sh
+        COMMENT " Creating a sourceable configuration file for QCMaquis/Boost/ALPS runtime environment settings that can be used with\n source ${LOCAL_QCM_INSTALL_PATH}/qcmaquis/bin/qcmaquis.sh\n For further information on runtime environment settings please read the documentation carefully."
+        )
+
+        ExternalProject_Add_StepDependencies(${EP_PROJECT} build ${EP_PROJECT_A})
+
+        set (CMAKE_DISABLE_SOURCE_CHANGES ON)
+endif()

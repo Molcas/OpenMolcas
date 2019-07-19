@@ -181,15 +181,15 @@
                 Endif
               ElseIf(iLB.eq.2) then
                 If(iLA.eq.0) then
-                  Do ijhr=1,6               ! Remember Qsigma=z2-0.5(x2+y2)
+                  Do ijhr=1,6            ! Remember Qsigma=z2-0.5(x2+y2)
                     EintSl(ijhr+4)=EintSl(ijhr+4)
      &                   +Colle(1)*(TR(6,ijhr)-0.5d0*(TR(1,ijhr)
      &                   +TR(4,ijhr)))
                   End do
                 Else              ! if iLA not 0 then it is 1
-                  Do ijhr=1,6               ! Remember Qsigma=z2-0.5(x2+y2)
-                                            ! QPi1=sqrt(3)*xz
-                                            ! QPi2=sqrt(3)*yz
+                  Do ijhr=1,6            ! Remember Qsigma=z2-0.5(x2+y2)
+                                         ! QPi1=sqrt(3)*xz
+                                         ! QPi2=sqrt(3)*yz
                     EintSl(ijhr+4)=EintSl(ijhr+4)
      &                +Colle(1)*(TR(6,ijhr)-0.5d0*(TR(1,ijhr)
      &                +TR(4,ijhr)))
@@ -246,15 +246,15 @@
                 Endif
               ElseIf(iLB.eq.2) then
                 If(iLA.eq.0) then
-                  Do ijhr=1,6               ! Remember Qsigma=z2-0.5(x2+y2)
+                  Do ijhr=1,6            ! Remember Qsigma=z2-0.5(x2+y2)
                     EintSl(ijhr+4)=EintSl(ijhr+4)
      &                   +Colle(1)*(TR(6,ijhr)-0.5d0*(TR(1,ijhr)
      &                   +TR(4,ijhr)))
                   End do
                 ElseIf(iLA.eq.1) then
-                  Do ijhr=1,6               ! Remember Qsigma=z2-0.5(x2+y2)
-                                            ! QPi1=sqrt(3)*xz
-                                            ! QPi2=sqrt(3)*yz
+                  Do ijhr=1,6            ! Remember Qsigma=z2-0.5(x2+y2)
+                                         ! QPi1=sqrt(3)*xz
+                                         ! QPi2=sqrt(3)*yz
                     EintSl(ijhr+4)=EintSl(ijhr+4)
      &                +Colle(1)*(TR(6,ijhr)-0.5d0*(TR(1,ijhr)
      &                +TR(4,ijhr)))
@@ -264,11 +264,11 @@
 
 *------------------Jose. This will be for a d-d interaction
 C                  ElseIf(iLA.eq.2) then
-C                    Do ijhr=1,6               ! Remember Qsigma=z2-0.5(x2+y2)
-C                                              ! QPi1=sqrt(3)*xz
-C                                              ! QPi2=sqrt(3)*yz
-C                                              ! Del1=sqrt(3)*xy
-C                                              ! Del2=0.5*sqrt(3)*(x2-y2)
+C                    Do ijhr=1,6         ! Remember Qsigma=z2-0.5(x2+y2)
+C                                        ! QPi1=sqrt(3)*xz
+C                                        ! QPi2=sqrt(3)*yz
+C                                        ! Del1=sqrt(3)*xy
+C                                        ! Del2=0.5*sqrt(3)*(x2-y2)
 C                      EintSl(ijhr+4)=EintSl(ijhr+4)
 C     &                  +Colle(1)*(TR(6,ijhr)-0.5d0*(TR(1,ijhr)
 C     &                  +TR(4,ijhr)))+Colle(2)*sqrt(3.d0)*TR(3,ijhr)

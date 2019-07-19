@@ -61,8 +61,8 @@ C
       Integer lPaper
       Parameter (lPaper=132)
 
-      Integer  RPA_iUHF, RPA_LENIN4
-      External RPA_iUHF, RPA_LENIN4
+      Integer  RPA_iUHF, RPA_LENIN8
+      External RPA_iUHF, RPA_LENIN8
 
       Character*3 lIrrep(8)
       Character*7 spin(2)
@@ -77,7 +77,7 @@ C
       Integer i, j, k
       Integer left
       Integer iSym
-      Integer LENIN4
+      Integer LENIN8
       Integer nB
       Integer ip_Name, l_Name
       Integer iCount
@@ -274,14 +274,14 @@ C
 
       ! print orbitals
       If (iPrint.ge.2) Then
-         LENIN4=RPA_LENIN4()
+         LENIN8=RPA_LENIN8()
          nB=nBas(1)
          Do iSym=2,nSym
             nB=nB+nBas(iSym)
          End Do
-         l_Name=LENIN4*nB
+         l_Name=LENIN8*nB
          Call GetMem('Name','Allo','Char',ip_Name,l_Name)
-         Call Get_cArray('Unique Basis Names',cWork(ip_Name),LENIN4*nB)
+         Call Get_cArray('Unique Basis Names',cWork(ip_Name),LENIN8*nB)
          Do k=1,iUHF
             Call PriMO(Reference//' '//orbitals//' '//spin(k),
      *                 .false.,.true.,-9.9d9,9.9d9,

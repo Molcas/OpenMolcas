@@ -73,6 +73,7 @@
       Logical lTit,lFro,lFre,lDel,lSFro,lSDel,lExt,lPrt,LumOrb
       Character*80 VecTitle
       Real*8 ESCF
+      Dimension iDummy(1)
 *----------------------------------------------------------------------*
 *     Locate "start of input"                                          *
 *----------------------------------------------------------------------*
@@ -280,7 +281,7 @@ C        nFro1(iSym)=0
          Case Default
             Goto 1000
       End Select
-*---  Process the "average orbitals" input ----------------------------*
+*---  Process the "TITL" input card -----------------------------------*
  501  Continue
       If ( lTit ) Then
          Write (6,*) 'RdInp: Error while reading input!'
@@ -570,7 +571,7 @@ c     not used
      &              //' is overwritten by user input.'
       Write (6,'(A,8I4)') 'Default values:',(nFro1(iSym),iSym=1,nSym)
       Write (6,*)
-      Call ICopy(nSym,0,0,nFro1,1)
+      Call ICopy(nSym,[0],0,nFro1,1)
 *
       lFre=.true.
       Line = Get_Ln(LuSpool)

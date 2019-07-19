@@ -56,7 +56,7 @@
         iAsh = nAsh(iSym)
         iIsh = nIsh(iSym)
         iFro = nFro(iSym)
-        Call dCopy_(iBas*iBas,Zero,0,D1A_AO(iOff3),1)
+        Call dCopy_(iBas*iBas,[Zero],0,D1A_AO(iOff3),1)
         If ( iAsh.ne.0 ) then
           Call GetMem('Scr1','Allo','Real',iTmp1,iAsh*iAsh)
           Call GetMem('Scr2','Allo','Real',iTmp2,iAsh*iBas)

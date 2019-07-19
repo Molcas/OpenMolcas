@@ -129,7 +129,7 @@ c  Skip collection if not necessary ...
               ioff_bikcof=1+ikcoff(nelsing,nalfsing,i2s(iS))
               ioff_i1=i1+i_spin*n_det+i_det
               do 1100 j_spin=1,ifnss(nelsing,i2s(iS))
-              call fmove(bikcof(ioff_bikcof),w(ioff_i1),
+              call fmove_cvb(bikcof(ioff_bikcof),w(ioff_i1),
      >          ndetvbs(nelsing,nalfsing))
               ioff_bikcof=ioff_bikcof+ndetvbs(nelsing,nalfsing)
 1100          ioff_i1=ioff_i1+n_det

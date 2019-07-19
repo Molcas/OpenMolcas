@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE TSHinit()
+      SUBROUTINE TSHinit(Energy)
 C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
@@ -25,7 +25,7 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 #include "tshcntrl.fh"
       DIMENSION ISGSTR1(NSGSIZE), ISGSTR2(NSGSIZE)
       DIMENSION ICISTR1(NCISIZE), ICISTR2(NCISIZE)
-      DIMENSION IXSTR1(NXSIZE), IXSTR2(NXSIZE)
+      DIMENSION IXSTR1(NXSIZE), IXSTR2(NXSIZE),ENERGY(NSTATE)
       INTEGER      I,JOB1,JOB2,iRlxRoot
       CHARACTER*8  WFTYP1,WFTYP2
       LOGICAL   LOWROOT, UPROOT
@@ -64,7 +64,7 @@ C
 C Get wave function parameters for current state
 C
       ISTATE1=iRlxRoot
-      JOB1=JBNUM(ISTATE1)
+      JOB1=iWork(lJBNUM+ISTATE1-1)
       NACTE1=NACTE(JOB1)
       MPLET1=MLTPLT(JOB1)
       LSYM1=IRREP(JOB1)
@@ -112,7 +112,7 @@ C
          LOWROOT=.TRUE.
          IF (IPGLOB.GE.USUAL) THEN
            WRITE(6,'(6X,A,I2)') "There is a lower root, which is: "
-     &     ,LROOT(ISTATE1-1)
+     &     ,iWork(lLROOT+ISTATE1-2)
          END IF
       ELSE
          LOWROOT=.FALSE.
@@ -127,7 +127,7 @@ C
          UPROOT=.TRUE.
          IF (IPGLOB.GE.USUAL) THEN
            WRITE(6,'(6X,A,I2,/)') "There is an upper root, which is: "
-     &     ,LROOT(ISTATE1+1)
+     &     ,iWork(lLROOT+ISTATE1)
          END IF
       ELSE
          UPROOT=.FALSE.
@@ -151,7 +151,7 @@ C
 * Adapted from RASSI subroutines GTMCTL and READCI                    *
 *                                                                     *
 C Get wave function parameters for ISTATE2
-         JOB2=JBNUM(ISTATE2)
+         JOB2=iWork(lJBNUM+ISTATE2-1)
          NACTE2=NACTE(JOB2)
          MPLET2=MLTPLT(JOB2)
          LSYM2=IRREP(JOB2)
@@ -234,7 +234,7 @@ C
 * Adapted from RASSI subroutines GTMCTL and READCI                    *
 *                                                                     *
 C Get wave function parameters for ISTATE2
-         JOB2=JBNUM(ISTATE2)
+         JOB2=iWork(lJBNUM+ISTATE2-1)
          NACTE2=NACTE(JOB2)
          MPLET2=MLTPLT(JOB2)
          LSYM2=IRREP(JOB2)

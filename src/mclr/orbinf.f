@@ -26,6 +26,7 @@
 * Orbital information in /ORBINP/
 *
       DIMENSION NRAS1(NIRREP),NRAS2(NIRREP),NRAS3(NIRREP)
+      DIMENSION ITFSO(1)
 *
 #include "detdim.fh"
 #include "orbinp_mclr.fh"
@@ -46,7 +47,7 @@
 * 2 : Shell information to orbital information for each group of orbital
 *
 *. RAS1
-      Call iCopy(3*MXPOBS,0,0,NRSOBS,1)
+      Call iCopy(3*MXPOBS,[0],0,NRSOBS,1)
       NORB1 = 0
       DO 20 IRREP = 1, NIRREP
         DO 30 ISM = 1, NOSPIR(IRREP)

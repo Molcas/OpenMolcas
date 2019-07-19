@@ -43,7 +43,7 @@
 *     set it to a unit matrix
 *
       If (iPrint.ge.99) Call RecPrt('IntFcm: Initial Hessian',' ',
-     &                              ipH,nQQ,nQQ)
+     &                              Work(ipH),nQQ,nQQ)
 *
       If (lOld .AND. iter.eq.1) Then
          Call OldFcm(ipH,nQQ,nsAtom,iPrint,'RUNOLD')

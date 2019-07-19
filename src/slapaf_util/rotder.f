@@ -123,7 +123,7 @@ c     MOIInv(3,3)=G(3,3)*DetInv
         If (Abs(sval(i)).gt.1.0d-12) Then
           call dscal_(3,1.0d0/sval(i),umat(1,i),1)
         Else
-          call dcopy_(3,0.0d0,0,umat(1,i),1)
+          call dcopy_(3,[0.0d0],0,umat(1,i),1)
         End If
       End Do
       Call dgemm_('T','T',3,3,3,1.0d0,vmat,3,umat,3,0.0d0,MOIInv,3)
@@ -804,7 +804,7 @@ c     end do
         If (Abs(sval(i)).gt.1.0d-12) Then
           call dscal_(3,1.0d0/sval(i),umat(1,i),1)
         Else
-          call dcopy_(3,0.0d0,0,umat(1,i),1)
+          call dcopy_(3,[0.0d0],0,umat(1,i),1)
         End If
       End Do
       Call dgemm_('T','T',3,3,3,1.0d0,vmat,3,umat,3,0.0d0,dXdA,3)

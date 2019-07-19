@@ -28,9 +28,6 @@
 *             University of Lund, SWEDEN                               *
 *             January 1992                                             *
 *                                                                      *
-* (c) Copyright 1992 R. Lindh, Dept. of Theor. Chem. Univ. of Lund,    *
-* Sweden. All rights reserved.                                         *
-*                                                                      *
 * modified by M.P. Fuelscher                                           *
 * - changed to used communication file                                 *
 ************************************************************************
@@ -53,17 +50,32 @@
       nbyte_i = iiloc(iix(2)) - iiloc(iix(1))
       nbyte_r = idloc(rix(2)) - idloc(rix(1))
 *
+      Call Real_Spherical_Internal(cxStrt,ixStrt,lxStrt,rxStrt,
+     & cRFStrt,iRFStrt,lRFStrt,rRFStrt,cQStrt,iQStrt,rQStrt)
+*
+*     This is to allow type punning without an explicit interface
+      Contains
+      SubRoutine Real_Spherical_Internal(cxStrt,ixStrt,lxStrt,rxStrt,
+     & cRFStrt,iRFStrt,lRFStrt,rRFStrt,cQStrt,iQStrt,rQStrt)
+      Use Iso_C_Binding
+      Integer, Target :: cxStrt,ixStrt,lxStrt,cRFStrt,iRFStrt,lRFStrt,
+     &                   cQStrt,iQStrt
+      Real*8, Target :: rxStrt,rRFStrt,rQStrt
+      Integer, Pointer :: p_cx(:),p_ix(:),p_lx(:),p_cRF(:),p_iRF(:),
+     &                    p_lRF(:),p_cQ(:),p_iQ(:)
+      Real*8, Pointer :: p_rx(:),p_rRF(:),p_rQ(:)
+*
 *     Prologue
 *
-*
       iRELAE_info=iRELAE
-      CLight_Info=CLight
+      CLight_Info=CLightAU
 *
 *     Save the common INFO
 *
       Len = iiLoc(ixEnd)-iiLoc(ixStrt)
       Len = (Len+nByte_i)/nByte_i
-      Call Put_iArray('SewIInfo',ixStrt,Len)
+      Call C_F_Pointer(C_Loc(ixStrt),p_ix,[Len])
+      Call Put_iArray('SewIInfo',p_ix,Len)
       Call Put_iArray('nExp',nExp,Mx_Shll)
       Call Put_iArray('nBasis',nBasis,Mx_Shll)
       Call Put_iArray('nBasis_Cntrct',nBasis_Cntrct,Mx_Shll)
@@ -95,7 +107,8 @@
 *
       Len = iiLoc(lxEnd)-iiLoc(lxStrt)
       Len = (Len+nByte_i)/nByte_i
-      Call Put_iArray('SewLInfo',lxStrt,Len)
+      Call C_F_Pointer(C_Loc(lxStrt),p_lx,[Len])
+      Call Put_iArray('SewLInfo',p_lx,Len)
 *
       Len = ilLoc(Prjct(Mx_Shll))-ilLoc(Prjct(1))
       Len = (Len+nByte_i)/nByte_i
@@ -109,7 +122,8 @@
 *
       Len = idLoc(rxEnd)-idLoc(rxStrt)
       Len = (Len+nByte_r)/nByte_r
-      Call Put_dArray('SewRInfo',rxStrt,Len)
+      Call C_F_Pointer(C_Loc(rxStrt),p_rx,[Len])
+      Call Put_dArray('SewRInfo',p_rx,Len)
 *
       Len = idLoc(RMax_Shll(Mx_Shll))-idLoc(RMax_Shll(1))
       Len = (Len+nByte_r)/nByte_r
@@ -119,12 +133,15 @@
 *
       Len = icLoc(cxEnd)-icLoc(cxStrt)
       Len = (Len+nByte_i)/nByte_i
-      Call Put_iArray('SewCInfo',cxStrt,Len)
+      Call C_F_Pointer(C_Loc(cxStrt),p_cx,[Len])
+      Call Put_iArray('SewCInfo',p_cx,Len)
 *
 *     Dump the dynamic input area.
 *
       Len=nDInf
       Call Put_dArray('SewXInfo',DInf,Len)
+*
+      Nullify(p_ix,p_lx,p_rx,p_cx)
 **************************
       if(lPAM2) Then
       lPAM = 0
@@ -178,19 +195,25 @@
 *
       Len = iiLoc(lRFEnd)-iiLoc(lRFStrt)
       Len = (Len+nByte_i)/nByte_i
-      Call Put_iArray('RFlInfo',lRFStrt,Len)
+      Call C_F_Pointer(C_Loc(lRFStrt),p_lRF,[Len])
+      Call Put_iArray('RFlInfo',p_lRF,Len)
 *
       Len = idLoc(rRFEnd)-idLoc(rRFStrt)
       Len = (Len+nByte_r)/nByte_r
-      Call Put_dArray('RFrInfo',rRFStrt,Len)
+      Call C_F_Pointer(C_Loc(rRFStrt),p_rRF,[Len])
+      Call Put_dArray('RFrInfo',p_rRF,Len)
 *
       Len = iiLoc(iRFEnd)-iiLoc(iRFStrt)
       Len = (Len+nByte_i)/nByte_i
-      Call Put_iArray('RFiInfo',iRFStrt,Len)
+      Call C_F_Pointer(C_Loc(iRFStrt),p_iRF,[Len])
+      Call Put_iArray('RFiInfo',p_iRF,Len)
 *
       Len = iiLoc(cRFEnd)-iiLoc(cRFStrt)
       Len = (Len+nByte_i)/nByte_i
-      Call Put_iArray('RFcInfo',cRFStrt,Len)
+      Call C_F_Pointer(C_Loc(cRFStrt),p_cRF,[Len])
+      Call Put_iArray('RFcInfo',p_cRF,Len)
+*
+      Nullify(p_lRF,p_rRF,p_iRF,p_cRF)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -198,15 +221,20 @@
 *
       Len = idLoc(rQEnd)-idLoc(rQStrt)
       Len = (Len+nByte_r)/nByte_r
-      Call Put_dArray('Quad_r',rQStrt,Len)
+      Call C_F_Pointer(C_Loc(rQStrt),p_rQ,[Len])
+      Call Put_dArray('Quad_r',p_rQ,Len)
 *
       Len = iiLoc(iQEnd)-iiLoc(iQStrt)
       Len = (Len+nByte_i)/nByte_i
-      Call Put_iArray('Quad_i',iQStrt,Len)
+      Call C_F_Pointer(C_Loc(iQStrt),p_iQ,[Len])
+      Call Put_iArray('Quad_i',p_iQ,Len)
 *
       Len = iiLoc(cQEnd)-iiLoc(cQStrt)
       Len = (Len+nByte_i)/nByte_i
-      Call Put_iArray('Quad_c',cQStrt,Len)
+      Call C_F_Pointer(C_Loc(cQStrt),p_cQ,[Len])
+      Call Put_iArray('Quad_c',p_cQ,Len)
+*
+      Nullify(p_rQ,p_iQ,p_cQ)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -215,4 +243,6 @@
 ************************************************************************
 *                                                                      *
       Return
+      End SubRoutine Real_Spherical_Internal
+*
       End

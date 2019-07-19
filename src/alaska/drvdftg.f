@@ -40,6 +40,7 @@
       Real*8 Grad(nGrad), Temp(nGrad)
       Logical First, Dff, Do_Grad, King, l_casdft
       Character*4 DFTFOCK
+      Dimension Dummy1(1),Dummy2(1),Dummy3(1),Dumm0(1),Dumm1(1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -82,6 +83,7 @@
 
       If( l_casdft ) then
         DFTFOCK='ROKS'
+        Call Get_iScalar('System BitSwitch',iOpt)
         iOpt=iOr(iOpt,2**6)
         Call Put_iScalar('System BitSwitch',iOpt)
       End IF

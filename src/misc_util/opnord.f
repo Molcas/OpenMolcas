@@ -51,6 +51,7 @@
 #include "Molcas.fh"
 #include "TwoDat.fh"
 *
+      Parameter (NaN = -1)
       Character*(*) Name
       Character*8   FnTwo
       Logical Exist,NewToc
@@ -101,7 +102,7 @@
 *----------------------------------------------------------------------*
       Else If( NewToc )  Then
          Call DaName_MF(LuTwo,FnTwo)
-         Call iCopy(lTocTwo,NaN,0,TocTwo,1)
+         Call iCopy(lTocTwo,[NaN],0,TocTwo,1)
          TocTwo(isId)=IDtwo
          TocTwo(isVer)=VNtwo
          TocTwo(isForm)=0

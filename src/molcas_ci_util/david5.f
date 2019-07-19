@@ -36,7 +36,11 @@
       Dimension HTUTRI(*), GTUVXTRI(*)
       real*8, allocatable :: sgm(:,:), psi(:,:)
       real*8, allocatable :: htu(:,:), gtuvx(:,:,:,:)
+      Dimension Dummy(1)
 *-------------------------------------------------------------------
+*MGD dec 2017 : When optimizing many states, the lowest ones tend to
+*converge much faster than the rest. Changed the code so that the converged states
+*are not optimize further, saving potentially a lot of time.
 
       if (DoFaro) then
         ! fill in the integrals from their triangular storage
@@ -85,7 +89,7 @@
       IPRLEV=IPRLOC(3)
 
 * allocate space for CI-vectors
-      l1 = lRoots*mxKeep
+      l1 = nKeep
       l2 = l1*l1
       l3 = (l2+l1)/2
 C Trying to avoid writing out of bound in CSDTVC :::: JESPER :::: CHEAT
@@ -119,14 +123,19 @@ C Trying to avoid writing out of bound in CSDTVC :::: JESPER :::: CHEAT
       Call xFlush(IterFile)
 *===================================================================
 * start long loop over iterations
+      nconverged=0
+      iskipconv=1
+      nnew=0
+      nvec=lRoots
       Do iterci=1,mxItr
-         ntrial=Min(iterci,mxKeep)*lRoots
 *-------------------------------------------------------------------
+*MGD for stability purposes recompute sigma vec from time to time
+         idelta=1
+         if ((mod(iterci-1,24).eq.0)) idelta=0
+         Do mRoot=lRoots*idelta+1,lRoots+nnew
 * New CI vectors (iterci,mroot) are available.
 * compute new sigma vectors
-         Do mRoot = 1,lRoots
-            Call Load_CI_vec(iterci,mRoot,lRoots,nConf,Work(iVec1),
-     &                  LuDavid)
+            Call Load_CI_vec(mRoot,nConf,Work(iVec1),LuDavid)
             If ( iprlev.ge.DEBUG ) then
                lPrint = Min(nConf,200)
                Write (6,'(1X,A,I2,A,I2)')
@@ -144,7 +153,7 @@ C Trying to avoid writing out of bound in CSDTVC :::: JESPER :::: CHEAT
               allocate(sgm(ndeta,ndetb))
               allocate(psi(ndeta,ndetb))
 
-              CALL DCOPY_(NCONF, 0.0D0, 0, WORK(IVECSVC), 1)
+              CALL DCOPY_(NCONF, [0.0D0], 0, WORK(IVECSVC), 1)
               CALL REORD2(MY_NORB,NACTEL,1,0,
      &                    IWORK(KICONF(1)),IWORK(KCFTP),
      &                    WORK(IVEC1),WORK(IVECSVC),IWORK(IVKCNF))
@@ -169,10 +178,10 @@ C Trying to avoid writing out of bound in CSDTVC :::: JESPER :::: CHEAT
             Else
 C     Convert the CI-vector from CSF to Det. basis
               call dcopy_(nconf, work(ivec1), 1, work(kctemp),1)
-              call dcopy_(ndet, 0.0d0, 0, work(ksigtemp), 1)
-              CALL csdtvc(work(kctemp), work(ksigtemp), 1, work(kdtoc),
-     &           iwork(kicts(1)), LSym, 1)
-              call dcopy_(ndet, 0.0d0, 0, work(ksigtemp), 1)
+              call dcopy_(ndet, [0.0d0], 0, work(ksigtemp), 1)
+              CALL csdtvc(work(kctemp), work(ksigtemp), 1, work(kdtoc)
+     &           ,iwork(kicts(1)), LSym, 1)
+              call dcopy_(ndet, [0.0d0], 0, work(ksigtemp), 1)
               c_pointer = kctemp
 C     Calling Lucia to determine the sigma vector
               CALL Lucia_Util('Sigma',iDummy,iDummy,Dummy)
@@ -206,8 +215,7 @@ C Timings on generation of the sigma vector
      &              '--------------------------------'
                Call dVcPrt(' ',' ',Work(iVec2),lPrint)
             End If
-            Call Save_Sig_vec(iterci,mRoot,lRoots,nConf,Work(iVec2),
-     &               LuDavid)
+            Call Save_Sig_vec(mRoot,nConf,Work(iVec2),LuDavid)
          End Do
 * Sigma vectors (iterci,mroot) have been computed, for mroot=1..lroots
 *-------------------------------------------------------------------
@@ -218,30 +226,19 @@ C Timings on generation of the sigma vector
 * (Fewer, at the beginning)
 
          jtrial = 0
-         Do jter = Max(1,iterci-mxKeep+1),iterci
-            Do jRoot = 1,lRoots
-               jtrial = jtrial+1
-               Call Load_CI_vec(jter,jRoot,lRoots,nConf,Work(iVec1),
-     &                    LuDavid)
-               Call Load_Sig_vec(jter,jRoot,lRoots,nConf,Work(iVec2),
-     &                    LuDavid)
-               ktrial = 0
-               Do kter = Max(1,iterci-mxKeep+1),jter
-                  max_kRoot = lRoots
-                  If ( kter.eq.jter ) max_kRoot = jRoot
-                  Do kRoot = 1, max_kRoot
-                     ktrial = ktrial+1
-                     Call Load_CI_vec(kter,kRoot,lRoots,nConf,
-     &                    Work(iVec3),LuDavid)
-                     ij = ktrial+(jtrial*jtrial-jtrial)/2
-                     Sji = dDot_(nConf,Work(iVec1),1,Work(iVec3),1)
-                     Hji = dDot_(nConf,Work(iVec2),1,Work(iVec3),1)
-                     Work(iSs+ij-1) = Sji
-                     Work(iHs+ij-1) = Hji
-                  End Do
-               End Do
+         Do jRoot = 1,nvec
+            Call Load_CI_vec(jRoot,nConf,Work(iVec1),LuDavid)
+            Call Load_Sig_vec(jRoot,nConf,Work(iVec2),LuDavid)
+            Do kRoot = 1,jRoot
+               Call Load_CI_vec(kRoot,nConf,Work(iVec3),LuDavid)
+               ij = kRoot+(jRoot*jRoot-jRoot)/2
+               Sji = dDot_(nConf,Work(iVec1),1,Work(iVec3),1)
+               Hji = dDot_(nConf,Work(iVec2),1,Work(iVec3),1)
+               Work(iSs+ij-1) = Sji
+               Work(iHs+ij-1) = Hji
             End Do
          End Do
+         ntrial=nvec
          If ( iprlev.ge.DEBUG ) then
             Call TriPrt('Hsmall',' ',Work(iHs),ntrial)
             Call TriPrt('Ssmall',' ',Work(iSs),ntrial)
@@ -279,25 +276,23 @@ C Timings on generation of the sigma vector
 * residual vector is saved in Work(iVec3)
          Do mRoot=1,lRoots
 *...      initialize 'best' CI and sigma vector
-            Call dCopy_(nConf,0.0d0,0,Work(iVec1),1)
-            Call dCopy_(nConf,0.0d0,0,Work(iVec2),1)
+            Call dCopy_(nConf,[0.0d0],0,Work(iVec1),1)
+            Call dCopy_(nConf,[0.0d0],0,Work(iVec2),1)
 *...      accumulate contributions
             jtrial = 0
-            Do jter=Max(1,iterci-mxKeep+1),iterci
-               Do jRoot=1,lRoots
-                  jtrial = jtrial+1
-                  Cik=Work(iCs-1+jtrial+(mRoot-1)*ntrial)
-                  Call Load_CI_vec(jter,jRoot,lRoots,nConf,Work(iVec3),
-     &                       LuDavid)
-                  Call Daxpy_(nConf,Cik,Work(iVec3),1,Work(iVec1),1)
-                  Call Load_Sig_vec(jter,jRoot,lRoots,nConf,Work(iVec3),
-     &                       LuDavid)
-                  Call Daxpy_(nConf,Cik,Work(iVec3),1,Work(iVec2),1)
-               End Do
+            Do jRoot=1,nvec
+               Cik=Work(iCs-1+jRoot+(mRoot-1)*ntrial)
+               Call Load_CI_vec(jRoot,nConf,Work(iVec3),LuDavid)
+               Call Daxpy_(nConf,Cik,Work(iVec3),1,Work(iVec1),1)
+               Call Load_Sig_vec(jRoot,nConf,Work(iVec3),LuDavid)
+               Call Daxpy_(nConf,Cik,Work(iVec3),1,Work(iVec2),1)
             End Do
-            Call Save_tmp_CI_vec(mRoot,lRoots,nConf,Work(iVec1),LuDavid)
-            Call Save_tmp_Sig_vec(mRoot,lRoots,nConf,Work(iVec2),
-     &                       LuDavid)
+            RR = dDot_(nConf,Work(iVec1),1,Work(iVec1),1)
+            scl=1.0d0/sqrt(RR)
+            Call DScal_(nConf,scl,Work(iVec1),1)
+            Call DScal_(nConf,scl,Work(iVec2),1)
+            Call Save_tmp_CI_vec(mRoot,nConf,Work(iVec1),LuDavid)
+            Call Save_tmp_Sig_vec(mRoot,nConf,Work(iVec2),LuDavid)
 *...      compute residual vector
             E0 = Work(iEs+mRoot-1)
             Call dCopy_(nConf,Work(iVec2),1,Work(iVec3),1)
@@ -391,7 +386,9 @@ C Timings on generation of the sigma vector
          End If
          ThrRes = Max(0.2d-6,SQRT(ThrEne))
          iConv = 0
-         Do jRoot=1,lRoots
+         nconverged=0
+*Do not check for convergence of hidden roots
+         Do jRoot=1,lRoots-hroots
             If ( iterci.gt.1 ) then
                dE = CI_conv(1,jroot,iterci-1) - CI_conv(1,jroot,iterci)
             Else
@@ -399,22 +396,27 @@ C Timings on generation of the sigma vector
             End If
             dE = abs(dE)
             R  = CI_conv(2,jroot,iterci)
-            If ( (dE.lt.ThrEne) .and. (R.lt.ThrRes) )
-     &           iConv = iConv+1
+            If ( (dE.lt.ThrEne) .and. (R.lt.ThrRes) ) Then
+               iConv = iConv+1
+               If (jRoot.eq.nconverged+1) nconverged=nconverged+1
+            EndIf
          End Do
-         If ( iConv.ge.lRoots ) Goto 100
+         if (iskipconv.eq.0) nconverged=0
+         If ( iConv.ge.lRoots-hroots ) Goto 100
 *-------------------------------------------------------------------
 * compute correction vectors q1 = r/(E0-H) and q2 = c/(E0-H)
 
+         nleft=lRoots-nconverged
          If ( nSel.gt.1 ) then
+            ioff=nconverged*nSel
             Call DGEMM_('T','N',
-     &                  nSel,lRoots,nSel,
+     &                  nSel,nleft,nSel,
      &                  1.0d0,ExplV,nSel,
-     &                  Work(iScr3),nSel,
+     &                  Work(iScr3+ioff),nSel,
      &                  0.0d0,Work(iScr5),nSel)
-            Do mRoot=1,lRoots
+            Do mRoot=nconverged+1,lRoots
                E0 = Work(iEs+mRoot-1)
-               iOff = (mRoot-1)*nSel
+               iOff = (mRoot-nconverged-1)*nSel
                Do i = 1,nSel
                   Z = E0-ExplE(i)
                   If ( Abs(Z).lt.0.001d0 ) Z = 0.001d0
@@ -422,18 +424,19 @@ C Timings on generation of the sigma vector
                End Do
             End Do
             Call DGEMM_('N','N',
-     &                  nSel,lRoots,nSel,
+     &                  nSel,nleft,nSel,
      &                  1.0d0,ExplV,nSel,
      &                  Work(iScr5),nSel,
      &                  0.0d0,Work(iScr3),nSel)
+            ioff=nconverged*nSel
             Call DGEMM_('T','N',
-     &                  nSel,lRoots,nSel,
+     &                  nSel,nleft,nSel,
      &                  1.0d0,ExplV,nSel,
-     &                  Work(iScr4),nSel,
+     &                  Work(iScr4+ioff),nSel,
      &                  0.0d0,Work(iScr5),nSel)
-            Do mRoot=1,lRoots
+            Do mRoot=nconverged+1,lRoots
                E0 = Work(iEs+mRoot-1)
-               iOff = (mRoot-1)*nSel
+               iOff = (mRoot-nconverged-1)*nSel
                Do i = 1,nSel
                   Z = E0-ExplE(i)
                   If ( Abs(Z).lt.0.001d0 ) Z = 0.001d0
@@ -441,17 +444,17 @@ C Timings on generation of the sigma vector
                End Do
             End Do
             Call DGEMM_('N','N',
-     &                  nSel,lRoots,nSel,
+     &                  nSel,nleft,nSel,
      &                  1.0d0,ExplV,nSel,
      &                  Work(iScr5),nSel,
      &                  0.0d0,Work(iScr4),nSel)
          End If
 *-------------------------------------------------------------------
-         Do mRoot=1,lRoots
+         Do mRoot=nconverged+1,lRoots
             E0 = -Work(iEs+mRoot-1)
-            Call Load_tmp_Sig_vec(mRoot,lRoots,nConf,Work(iVec1),
+            Call Load_tmp_Sig_vec(mRoot,nConf,Work(iVec1),
      &                LuDavid)
-            Call Load_tmp_CI_vec(mRoot,lRoots,nConf,Work(iVec2),LuDavid)
+            Call Load_tmp_CI_vec(mRoot,nConf,Work(iVec2),LuDavid)
             call daxpy_(nConf,E0,Work(iVec2),1,Work(iVec1),1)
             Call Load_H_diag(nConf,Work(iVec3),LuDavid)
             E0 = Work(iEs+mRoot-1)
@@ -461,7 +464,7 @@ C Timings on generation of the sigma vector
                Work(iVec3+i) = Work(iVec1+i)/Z
             End Do
             If ( nSel.gt.1 ) then
-               iOff = (mRoot-1)*nSel
+               iOff = (mRoot-nconverged-1)*nSel
                Do i = 1,nSel
                   iConf = iSel(i)
                   Work(iVec3+iConf-1) = Work(iScr3+iOff+i-1)
@@ -476,7 +479,7 @@ C Timings on generation of the sigma vector
                Work(iVec3+i) = Work(iVec2+i)/Z
             End Do
             If ( nSel.gt.1 ) then
-               iOff = (mRoot-1)*nSel
+               iOff = (mRoot-nconverged-1)*nSel
                Do i = 1,nSel
                   iConf = iSel(i)
                   Work(iVec3+iConf-1) = Work(iScr4+iOff+i-1)
@@ -488,29 +491,29 @@ C Timings on generation of the sigma vector
 
 * compute correction vectors q3 = (r-E1*q2)/(E0-H)
          If ( nSel.gt.1 ) then
-            Do mRoot=1,lRoots
-               Call Load_tmp_Sig_vec(mRoot,lRoots,nConf,Work(iVec1),
+            Do mRoot=nconverged+1,lRoots
+               Call Load_tmp_Sig_vec(mRoot,nConf,Work(iVec1),
      &                     LuDavid)
-               Call Load_tmp_CI_vec(mRoot,lRoots,nConf,Work(iVec2),
+               Call Load_tmp_CI_vec(mRoot,nConf,Work(iVec2),
      &                     LuDavid)
                E0 = -Work(iEs+mRoot-1)
                call daxpy_(nConf,E0,Work(iVec2),1,Work(iVec1),1)
                E1 = -Alpha(mRoot)/Beta(mRoot)
                call daxpy_(nConf,E1,Work(iVec2),1,Work(iVec1),1)
-               iOff = (mRoot-1)*nSel
+               iOff = (mRoot-nconverged-1)*nSel
                Do i = 1,nSel
                   iConf = iSel(i)
                   Work(iScr3+iOff+i-1) = Work(iVec1+iConf-1)
                End Do
             End Do
             Call DGEMM_('T','N',
-     &                  nSel,lRoots,nSel,
+     &                  nSel,nleft,nSel,
      &                  1.0d0,ExplV,nSel,
      &                  Work(iScr3),nSel,
      &                  0.0d0,Work(iScr5),nSel)
-            Do mRoot=1,lRoots
+            Do mRoot=nconverged+1,lRoots
                E0 = Work(iEs+mRoot-1)
-               iOff = (mRoot-1)*nSel
+               iOff = (mRoot-nconverged-1)*nSel
                Do i = 1,nSel
                   Z = E0-ExplE(i)
                   If ( Abs(Z).lt.0.001d0 ) Z = 0.001d0
@@ -518,15 +521,20 @@ C Timings on generation of the sigma vector
                End Do
             End Do
             Call DGEMM_('N','N',
-     &                  nSel,lRoots,nSel,
+     &                  nSel,nleft,nSel,
      &                  1.0d0,ExplV,nSel,
      &                  Work(iScr5),nSel,
      &                  0.0d0,Work(iScr3),nSel)
          End If
-         Do mRoot=1,lRoots
-            Call Load_tmp_Sig_vec(mRoot,lRoots,nConf,Work(iVec1),
+*move the index of CI_vec
+         istart=istart+nnew
+         istart=mod(istart,nkeep-n_Roots)
+*
+         nnew=0
+         Do mRoot=nconverged+1,lRoots
+            Call Load_tmp_Sig_vec(mRoot,nConf,Work(iVec1),
      &                    LuDavid)
-            Call Load_tmp_CI_vec(mRoot,lRoots,nConf,Work(iVec2),LuDavid)
+            Call Load_tmp_CI_vec(mRoot,nConf,Work(iVec2),LuDavid)
             E0 = -Work(iEs+mRoot-1)
             call daxpy_(nConf,E0,Work(iVec2),1,Work(iVec1),1)
             E1 = -Alpha(mRoot)/Beta(mRoot)
@@ -539,41 +547,47 @@ C Timings on generation of the sigma vector
                Work(iVec3+i) = Work(iVec1+i)/Z
             End Do
             If ( nSel.gt.1 ) then
-               iOff = (mRoot-1)*nSel
+               iOff = (mRoot-nconverged-1)*nSel
                Do i = 1,nSel
                   iConf = iSel(i)
                   Work(iVec3+iConf-1) = Work(iScr3+iOff+i-1)
                End Do
             End If
+*Orthonormalize wrt previous vectors
             updsiz=dnrm2_(nconf,Work(iVec3),1)
             scl=1.0D0/updsiz
             Call DScal_(nConf,scl,Work(iVec3),1)
-            Call Save_CI_vec(iterci+1,mRoot,lRoots,nConf,Work(iVec3),
-     &                    LuDavid)
+            Do jRoot=lRoots+1,min(nvec,nkeep-nconverged)
+               Call Load_CI_vec(jRoot,nConf,Work(iVec2),LuDavid)
+               ovl = dDot_(nConf,Work(iVec3),1,Work(iVec2),1)
+               call daxpy_(nConf,-ovl,Work(iVec2),1,Work(iVec3),1)
+            End Do
+            updsiz=dnrm2_(nconf,Work(iVec3),1)
+            If (updsiz.gt.1.0d-6) then
+              scl=1.0D0/updsiz
+              Call DScal_(nConf,scl,Work(iVec3),1)
+              nnew=nnew+1
+              nvec=nvec+1
+              nvec=min(nvec,nkeep)
+              Call Save_CI_vec(lRoots+mRoot-nconverged,nConf,
+     &                         Work(iVec3),LuDavid)
+            EndIf
          End Do
 *-------------------------------------------------------------------
-
 * move the current best CI and sigma vectors to the first place
 * in the list of retained CI vectors
-         If ( iterci.gt.1 ) then
-            jter=Max(1,iterci-mxKeep+2)
-            Do mRoot=1,lRoots
-               Call Load_tmp_CI_vec(mRoot,lRoots,nConf,Work(iVec1),
-     &                        LuDavid)
-               Call Save_CI_vec(jter,mRoot,lRoots,nConf,Work(iVec1),
-     &                        LuDavid)
-               Call Load_tmp_Sig_vec(mRoot,lRoots,nConf,Work(iVec1),
-     &                        LuDavid)
-               Call Save_Sig_vec(jter,mRoot,lRoots,nConf,Work(iVec1),
-     &                        LuDavid)
-            End Do
-         End If
+         Do mRoot=1,lRoots
+           Call Load_tmp_CI_vec(mRoot,nConf,Work(iVec1),LuDavid)
+           Call Save_CI_vec(mRoot,nConf,Work(iVec1),LuDavid)
+           Call Load_tmp_Sig_vec(mRoot,nConf,Work(iVec1),LuDavid)
+           Call Save_Sig_vec(mRoot,nConf,Work(iVec1),LuDavid)
+         End Do
 
 * end of the long loop over iterations
       End Do
 *===================================================================
 
-      mxItr = Min(mxCiIt-2,mxItr+2)
+      mxItr = Min(mxCiIt,mxItr+12)
       If (IPRLEV.ge.USUAL) Then
         Write (6,*) '       ',
      &     'No convergence in the CI section: ',
@@ -596,6 +610,10 @@ C Timings on generation of the sigma vector
       Call GetMem('Scr3','Free','Real',iScr3,lRoots*nSel)
       Call GetMem('Scr4','Free','Real',iScr4,lRoots*nSel)
       Call GetMem('Scr5','Free','Real',iScr5,lRoots*nSel)
+      If (DoFaro) Then
+        CALL GetMem('CIVEC','Free','Real',IVECSVC, nconf)
+        call getmem('kcnf','free','inte',ivkcnf,nactel)
+      End If
 
       Call Timing(Alfex_2,Swatch,Swatch,Swatch)
       Alfex_2 = Alfex_2 - Alfex_1

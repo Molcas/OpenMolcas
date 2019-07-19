@@ -1,0 +1,54 @@
+% tut_guga.tex $ this file belongs to the Molcas repository $*/
+\section[GUGA --- CI Coupling Coefficients Program]
+        {GUGA --- A Configuration Interaction Coupling Coefficients Program}
+\label{TUT:sec:guga}
+\index{GUGA}\index{Program!GUGA}
+Several of the Configuration Interaction (CI) modules in \molcas\ use
+the \program{guga} module to compute the CI coupling coefficients. 
+We continue our water calculations using the input file shown in
+the input below. The \keyword{TITLe} keyword behaves
+in a similar fashion as described in previous modules.  
+There are several compulsory keywords of the \program{guga} module. The
+number of electrons to be correlated is specified using the 
+\keyword{ELECtrons} keyword.  We are correlating the valence electrons.
+The spin state is specified using the \keyword{SPIN} keyword.  
+\index{GUGA!Input}
+
+Sample input requesting the the GUGA module to calculate the coupling 
+coefficients for neutral triplet water in C$_{2v}$ symmetry with six electrons 
+in the active space:
+\begin{inputlisting}
+ &GUGA
+Title= GUGA for C2v Water
+Electrons= 8; Spin= 3
+Inactive= 1 0 0 0; Active= 2 2 0 1
+CIAll= 1
+\end{inputlisting}
+
+The keywords \keyword{CIALl} and \keyword{REFErence} are mutually
+exclusive.  We specify \keyword{CIALl} which will calculate the
+energy using all possible references functions that can be constructed 
+using the input set of occupation numbers of the active orbitals regardless of 
+the spin coupling (all configurations used to build the corresponding CASSCF
+wave function).  Specific selected references  can be chosen using the 
+\keyword{REFErence} keyword. Either the \keyword{ACTIve} or \keyword{INACtive} 
+keyword should be used for a meaningful calculation.  The default for both 
+keywords is zero for all symmetries.  These keywords function in a similar 
+fashion to these in the \program{RASSCF} program module.  The \keyword{INACtive}
+keyword specifies the orbitals that are fully occupied in each symmetry
+in all the reference functions and the \keyword{ACTIve} keyword
+specifies the orbitals that may have varying occupations in all references.  
+The selection of \keyword{INACtive} orbitals in the input above 
+is forcing the bonding $sp$ hybrid orbital to remain fully occupied in all 
+reference states.
+
+\subsection{\program{GUGA} Output}
+
+The \program{GUGA} section of the output lists the possible configurations
+in the active space. There are nine possible triplet configurations of
+six electrons in five orbitals. Apart from the various types of orbital in each
+symmetry the \program{GUGA} section of the output also gives the number of 
+states that will coupled with various states. There are no input files for the 
+\program{GUGA} module but the calculated coupling coefficients are stored in 
+\file{CIGUGA}.
+

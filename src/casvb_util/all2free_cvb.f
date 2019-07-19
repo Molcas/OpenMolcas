@@ -26,10 +26,10 @@
         call mxattb_cvb(w(ls(14)),vecfrom(1,ivec),
      >    nfrorb,nprorb,1,vecto(1,ivec))
       else
-        if(nprorb.gt.0) call fmove(vecfrom(1,ivec),
+        if(nprorb.gt.0) call fmove_cvb(vecfrom(1,ivec),
      >    vecto(1,ivec),nprorb)
       endif
-      if(nprvb.gt.0) call fmove(vecfrom(nprorb+1,ivec),
+      if(nprvb.gt.0) call fmove_cvb(vecfrom(nprorb+1,ivec),
      >  vecto(nfrorb+1,ivec),nprvb)
 100   continue
       return

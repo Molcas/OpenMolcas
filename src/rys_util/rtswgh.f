@@ -28,6 +28,11 @@ c
       iPrint = nPrint(iRout)
       RYSD(0)=ZERO
 c
+      IF (NRYS.gt.maxdeg) THEN
+        CALL WarningMessage(2,' Too many requested Rys roots.')
+        CALL AbEnd()
+      ENDIF
+c
       DO 5000 IT=1,NT
         T=TARR(IT)
 c Use asymptotic formulae if outside table.

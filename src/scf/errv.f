@@ -8,8 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (c): Martin Schuetz                                        *
-*                2017, Roland Lindh                                    *
+* Copyright (C) Martin Schuetz                                         *
+*               2017, Roland Lindh                                     *
 ************************************************************************
       Subroutine ErrV(lvec,ivec,QNRstp,ErrVec,HDiag)
 ************************************************************************
@@ -48,7 +48,7 @@
 *
         Call mma_allocate(Grad,lvec,Label='Grad')
         Call iVPtr(LuGrd,Grad,lvec,inode)
-        Call SOrUpV(MemRsv,Grad,HDiag,lvec,ErrVec,'DISP')
+        Call SOrUpV(MemRsv,Grad,HDiag,lvec,ErrVec,'DISP','BFGS')
         Call mma_deallocate(Grad)
 *
       Else

@@ -19,7 +19,7 @@
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
      &                     nWndw,Mode,ipMF,
      &                     iOptH,HUpMet,kIter,GNrm_Threshold,IRC,
-     &                     rMass,HrmFrq_Show,CnstWght,Curvilinear,
+     &                     dMass,HrmFrq_Show,CnstWght,Curvilinear,
      &                     Redundant,Degen)
 ************************************************************************
 *                                                                      *
@@ -84,7 +84,7 @@
       Real*8 qInt(nInter,iter+1), Shift(nInter,iter),
      &       Grad(nInter,iter), GNrm(iter), Energy(iter),
      &       BMx(3*nsAtom,3*nsAtom), rLambda(nLambda,iter+1),
-     &       rMass(nsAtom), Degen(3*nsAtom)
+     &       dMass(nsAtom), Degen(3*nsAtom)
       Integer iOper(0:nSym-1), jStab(0:7,nsAtom), nStab(nsAtom),
      &        iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
@@ -150,7 +150,7 @@ c Avoid unused argument warnings
      &                   rLambda,ipCx,GrdMax,StpMax,GrdLbl,StpLbl,
      &                   iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
      &                   nWndw,Mode,ipMF,
-     &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,rMass,
+     &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,dMass,
      &                   HrmFrq_Show,CnstWght,Curvilinear,Degen)
 *
 *------- Move new coordinates to the correct position and compute the
@@ -174,7 +174,7 @@ c Avoid unused argument warnings
      &                   GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &                   Labels,nLabels,FindTS,TSC,nRowH,
      &                   nWndw,Mode,ipMF,
-     &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,rMass,
+     &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,dMass,
      &                   HrmFrq_Show,CnstWght,Curvilinear,Degen)
 *
       End If
@@ -207,7 +207,7 @@ c Avoid unused argument warnings
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
      &                     nWndw,Mode,ipMF,
      &                     iOptH,HUpMet,mIter,GNrm_Threshold,IRC,
-     &                     rMass,HrmFrq_Show,CnstWght,Curvilinear,
+     &                     dMass,HrmFrq_Show,CnstWght,Curvilinear,
      &                     Degen)
 ************************************************************************
 *     Object: to update coordinates                                    *
@@ -268,7 +268,7 @@ c Avoid unused argument warnings
 #include "Molcas.fh"
       Real*8 qInt(nInter,kIter+1), Shift(nInter,kIter),
      &       Grad(nInter,kIter), GNrm(kIter), Energy(kIter),
-     &       rMass(nsAtom), BMx(3*nsAtom,3*nsAtom),
+     &       dMass(nsAtom), BMx(3*nsAtom,3*nsAtom),
      &       rLambda(nLambda,kIter+1), Degen(3*nsAtom)
       Integer iOper(0:nSym-1), jStab(0:7,nsAtom), nStab(nsAtom),
      &        iNeg(2)
@@ -457,7 +457,8 @@ C           Write (*,*) 'tBeta=',tBeta
 *
 *---------- Set shift vector to zero for frozen internal coordinates.
 *
-           If (nFix.gt.0) call dcopy_(nFix,Zero,0,Shift(iInt+1,kIter),1)
+           If (nFix.gt.0)
+     &        call dcopy_(nFix,[Zero],0,Shift(iInt+1,kIter),1)
 *
 *           Rough conversion to Cartesians
 *
@@ -538,7 +539,7 @@ C           Write (*,*) 'tBeta=',tBeta
      &                   Lbl(nInter+1),AtomLbl,Work(ipCoor_l),
      &                   (lIter.eq.kIter),nSym,iOper,jStab,nStab,mxdc,
      &                   Work(ipMult),Smmtrc,nDimBC,Work(ipdBMx),
-     &                   Work(ipValue0),lIter,iWork(ip_iFlip),rMass)
+     &                   Work(ipValue0),lIter,iWork(ip_iFlip),dMass)
 *
 *           Assemble r
 *
@@ -574,8 +575,8 @@ C           Write (*,*) 'tBeta=',tBeta
             LudRdX=30
             Call DaName(LudRdX,'dRdX')
             iAd=0
-            Call iDaFile(LudRdX,1,nLambda,1,iAd)
-            Call iDaFile(LudRdX,1,3*nsAtom,1,iAd)
+            Call iDaFile(LudRdX,1,[nLambda],1,iAd)
+            Call iDaFile(LudRdX,1,[3*nsAtom],1,iAd)
             Call dDaFile(LudRdX,1,Work(ipBMx),nLambda*3*nsAtom,iAd)
             Call DaClos(LudRdX)
             Call Eq_Solver('N',M,N,NRHS,BMx,Curvilinear,Degen,

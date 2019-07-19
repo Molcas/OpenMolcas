@@ -168,12 +168,12 @@
 100   FORMAT(A24,
      &',Cho_ALGO=',I2,
      &',Chotime=',L2,
-     &',dmpK=',E10.4,
+     &',dmpK=',E11.4,
      &',nScreen=',I4,
      &',MaxIter=',I4,
-     &',ThrE=',E10.4,
-     &',ThrSX=',E10.4,
-     &',ThrTE=',E10.4)
+     &',ThrE=',E11.4,
+     &',ThrSX=',E11.4,
+     &',ThrTE=',E11.4)
 
 101   write(6,*) 'RasScf_Mcontrol: error in data Input. ( icount= ',
      &           icount,' )'

@@ -12,7 +12,7 @@
       INTEGER    N
       REAL*8     B(N)
 
-      CALL DCOPY_(N,0.0D0,0,B,1)
+      CALL DCOPY_(N,[0.0D0],0,B,1)
 
       RETURN
       END
@@ -21,7 +21,7 @@
       INTEGER    N
       INTEGER    B(N)
 
-      CALL ICOPY(N,0,0,B,1)
+      CALL ICOPY(N,[0],0,B,1)
 
       RETURN
       END
@@ -30,23 +30,7 @@
       INTEGER    N,INCX
       REAL*8     SX(N),SA
 
-      CALL DCOPY_(N,SA,0,SX,INCX)
-
-      RETURN
-      END
-
-
-      SUBROUTINE FMOVE(IA,IB,N)
-C      INTEGER    N
-C      REAL*8     IA(N),IB(N)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION   IA(*),IB(*)
-#include "SysDef.fh"
-
-C      CALL DCOPY_(N*RtoI,IA,1,IB,1)
-      DO I=1,N*RtoI
-         IB(I)=IA(I)
-      END DO
+      CALL DCOPY_(N,[SA],0,SX,INCX)
 
       RETURN
       END

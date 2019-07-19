@@ -18,7 +18,7 @@
 #include "print.fh"
 #include "stdalloc.fh"
 *
-      Character ChOper(0:7)*3,ChTemp*4, Mamn(nMamn)*(LENIN4)
+      Character ChOper(0:7)*3,ChTemp*8,Mamn(nMamn)*(LENIN8)
       Character LP_Names(MxAtom)*(LENIN4)
       Character*60 Fmt
       Logical Type(0:7), lSkip, kECP, TstFnc, output, Get_BasisType
@@ -35,11 +35,15 @@
       Real*8, Dimension(:), Allocatable :: LPQ
       Real*8, Dimension(:,:), Allocatable :: SM, LPC
       Real*8 DInf(nDInf)
+      Character*(LENIN8) Clean_BName,ChTmp
+      External Clean_BName
 
 CSVC: the basis ids are tuples (c,n,l,m) with c the center index,
 C     n the shell index, l the angmom value, and m the angmom component.
 C     the angmom components of p are mapped (x,y,z) -> (1,-1,0)
 C     examples: 3d1+ on atom 1: (1,3,2,1); 2py on atom 5: (5,2,1,-1)
+CIFG: for Cartesian shells, l -> -l, m -> T(ly+lz)-(lx+ly), where T(n)=n*(n+1)/2
+      integer :: llab,mlab
       integer, allocatable :: basis_ids(:,:), desym_basis_ids(:,:)
       integer, allocatable :: fermion_type(:)
       Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
@@ -81,6 +85,7 @@ cvv LP_NAMES was used later without initialization.
 ************************************************************************
 *                                                                      *
 *     initialize LVAL and MVAL
+*     (note: this is wrong for Cartesian shells)
 *
       k=0
       do i=0,MxAng
@@ -95,14 +100,14 @@ C     write(6,*) ' lval',k,(MxAng+1)**2
       mval(2)=1
       mval(3)=-1
       mval(4)=0
-      Call ICopy(MxAO,-99,0,iCent,1)
-      Call ICopy(MxAO,-99,0,lnAng,1)
+      Call ICopy(MxAO,[-99],0,iCent,1)
+      Call ICopy(MxAO,[-99],0,lnAng,1)
 C     write(6,'(20i4)') (lval(i),i=1,k)
 C     write(6,*) ' lval',k
 C     write(6,'(20i4)') (mval(i),i=1,k)
 *
-      Call ICopy(1+iTabMx,0,0,List   ,1)
-      Call ICopy(1+iTabMx,0,0,List_AE,1)
+      Call ICopy(1+iTabMx,[0],0,List   ,1)
+      Call ICopy(1+iTabMx,[0],0,List_AE,1)
 *
       isymunit=isfreeunit(58)
       call molcas_open(isymunit,'SYMINFO')
@@ -132,13 +137,16 @@ C     Show=Show.and..Not.Primitive_Pass
       iAO=0
       lSkip=.False.
 *
-      Call ICopy(8,0,0,nFCore,1)
+      Call ICopy(8,[0],0,nFCore,1)
 
       Call mma_Allocate(iCI,iBas,label='iCI')       ! Stuff for LoProp
-      Call mma_Allocate(jCI,iBas,label='jCI')       ! Stuff for LocalDKH/X2C/BSS
+      Call mma_Allocate(jCI,iBas,label='jCI')
+!     Stuff for LocalDKH/X2C/BSS
       Call mma_Allocate(iOT,iBas,label='iOT')       ! Stuff for LoProp
-      Call mma_Allocate(LPC,3,mCentr,label='LPC')   ! Stuff for LoProp
-      Call mma_Allocate(LPQ,mCentr,label='LPQ')     ! Stuff for LoProp
+      Call mma_Allocate(LPC,3,mCentr,label='LPC')
+!     Stuff (not just) for LoProp
+      Call mma_Allocate(LPQ,mCentr,label='LPQ')
+!     Stuff (not just) for LoProp
       Call mma_Allocate(LPA,mCentr,label='LPA')     ! Stuff for LoProp
       call mma_allocate(basis_ids,4,maxbfn+maxbfn_aux)
       call mma_allocate(desym_basis_ids,4,maxbfn+maxbfn_aux)
@@ -171,8 +179,8 @@ C     Show=Show.and..Not.Primitive_Pass
 *
       Call mma_allocate(Index,5*iBas,label='Index')
       Call mma_allocate(Index2,5*iBas,label='Index2')
-      Call ICopy(5*iBas,0,0,Index,1)
-      Call ICopy(5*iBas,0,0,Index2,1)
+      Call ICopy(5*iBas,[0],0,Index,1)
+      Call ICopy(5*iBas,[0],0,Index2,1)
       iCounter=0
       jCounter=0
       Call mma_Allocate(SM,iBas,iBas,label='SM')
@@ -242,7 +250,7 @@ C     Show=Show.and..Not.Primitive_Pass
 *
 *              No core to freeze!
 *
-               Call ICopy(lMax+1,0,0,nCore_Sh,1)
+               Call ICopy(lMax+1,[0],0,nCore_Sh,1)
             Else
 *
 *              Non-ECP case
@@ -276,6 +284,25 @@ C     Show=Show.and..Not.Primitive_Pass
                kComp = 0
                kculf = 0
                iSh = ipVal(iCnttp) - 1
+               If (nVal_Shells(iCnttp).lt.1) Then
+                  Do iCo = 0, nIrrep/nStab(mdc)-1
+                     iyy=Index_Center(mdc,iCo,IndC,iAtoms,mCentr)
+                     iR=NrOpr(iCoSet(iCo,0,mdc),iOper,nIrrep)
+                     ipxyz=(iCnt-1)*3+ipCntr(iCnttp)
+                     XCoor=Dinf(ipxyz  )
+                     If (iAnd(iOper(iR),1).ne.0) XCoor=-XCoor
+                     YCoor=Dinf(ipxyz+1)
+                     If (iAnd(iOper(iR),2).ne.0) YCoor=-YCoor
+                     ZCoor=Dinf(ipxyz+2)
+                     If (iAnd(iOper(iR),4).ne.0) ZCoor=-ZCoor
+                     LPC(1,iyy)=XCoor
+                     LPC(2,iyy)=YCoor
+                     LPC(3,iyy)=ZCoor
+                     LPQ(iyy)=Charge(iCnttp)
+                     LP_Names(iyy)=LblCnt(mdc)(1:LENIN)//':'
+     &                       //ChOper(iOper(iR))
+                  End Do
+               End If
                Do 203 iAng = 0, nVal_Shells(iCnttp)-1
                   nCore=nCore_Sh(iAng)
                   iSh = iSh + 1
@@ -358,35 +385,48 @@ C     Show=Show.and..Not.Primitive_Pass
                         ChTemp=LblCBs(lComp)
                         If (Transf(iSh)) ChTemp=LblSbs(lComp)
 *
+                        Call Name_to_lm(ChTemp,llab,mlab)
+*
 *                       Introduce a somewhat better labelling. Thnx LG!
 *
                         If (IsBasisAE) Then
                            If (IsBasisANO) Then
-                              Write (ChTemp(1:1),'(I1)') iAng+iCntrc
+                              Write (ChTemp(1:2),'(I2.2)') iAng+iCntrc
                            Else
                               If (nExp(iSh).eq.nBasis(iSh)) Then
                                  Write (ChTemp(1:1),'(A1)') '*'
+                                 If (llab.ge.0)
+     &                              Write(ChTemp(2:2),'(A1)') '0'
                               Else If (iCntrc.le.list(iAng)) Then
-                                 Write (ChTemp(1:1),'(I1)') iAng+iCntrc
+                                 Write (ChTemp(1:2),'(I2.2)')
+     &                                 iAng+iCntrc
                               Else
                                  Write (ChTemp(1:1),'(A1)') '*'
+                                 If (llab.ge.0)
+     &                              Write(ChTemp(2:2),'(A1)') '0'
                               End If
                            End If
                         Else If (.Not.IsBasisUNK) Then
                            If (nExp(iSh).eq.nBasis(iSh)) Then
                               Write (ChTemp(1:1),'(A1)') '*'
+                              If (llab.ge.0)
+     &                           Write(ChTemp(2:2),'(A1)') '0'
                            Else If (iCntrc.le.list(iAng)) Then
-                                 Write (ChTemp(1:1),'(I1)') iAng+iCntrc+
+                                 Write (ChTemp(1:2),'(I2.2)')
+     &                                 iAng+iCntrc+
      &                                 (List_AE(iAng)-List(iAng))
                            Else
                               Write (ChTemp(1:1),'(A1)') '*'
+                              If (llab.ge.0)
+     &                           Write(ChTemp(2:2),'(A1)') '0'
                            End If
 *
                         End If
+                        ChTmp=Clean_BName(ChTemp,0)
 *
                         If(output)
-     &                  Write (6,'(I4,3X,A8,5X,A4,4X,8(I3,4X,I2,4X))')
-     &                        iSO_,LblCnt(mdc),ChTemp,
+     &                  Write (6,'(I5,3X,A8,4X,A8,8(I3,4X,I2,4X))')
+     &                        iSO_,LblCnt(mdc),ChTmp,
      &                        (mc+iCo,iPrmt(NrOpr(iCoSet(iCo,0,mdc),
      &                        iOper,nIrrep),iChbs)*
      &                        iChTbl(iIrrep,NrOpr(iCoSet(iCo,0,mdc),
@@ -416,7 +456,7 @@ C     Show=Show.and..Not.Primitive_Pass
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*---------------------------- Stuff for LoProp
+*---------------------------- Stuff (not just) for LoProp
 *
                          Do iCo = 0, nIrrep/nStab(mdc)-1
                             ixxx = Index_NoSym(iCntrc,iComp,iAng,
@@ -466,20 +506,20 @@ C     Show=Show.and..Not.Primitive_Pass
      &                                    //ChOper(iOper(iR))
                             desym_basis_ids(1,ixxx) = iyy
                             desym_basis_ids(2,ixxx) = iCntrc
-                            desym_basis_ids(3,ixxx) = lval(lculf)
-                            desym_basis_ids(4,ixxx) = mval(lculf)
+                            desym_basis_ids(3,ixxx) = llab
+                            desym_basis_ids(4,ixxx) = mlab
                         End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *
-                        Mamn(iSO)=LblCnt(mdc)(1:LENIN)//ChTemp(1:4)
+                        Mamn(iSO)=LblCnt(mdc)(1:LENIN)//ChTemp(1:8)
                         basis_ids(1,iSO) = mdc
                         basis_ids(2,iSO) = iCntrc
-                        basis_ids(3,iSO) = lval(lculf)
-                        basis_ids(4,iSO) = mval(lculf)
+                        basis_ids(3,iSO) = llab
+                        basis_ids(4,iSO) = mlab
                         fermion_type(iSO)=0
                         If (fMass(iCnttp).ne.1.0D0) fermion_type(iSO)=1
-                        if(.Not.Primitive_Pass) then
+                        if (.Not.Primitive_Pass) then
                            kIrrep=kIrrep+1
                            icent(kIrrep)=mdc
                            lnang(kIrrep)=lval(lculf)
@@ -489,8 +529,7 @@ C     Show=Show.and..Not.Primitive_Pass
  205                 Continue
 *
  204              Continue
- 2033             continue
-                  kComp = kComp + (iAng+1)*(iAng+2)/2
+ 2033             kComp = kComp + (iAng+1)*(iAng+2)/2
                   kculf=kculf+ 2*iAng+1
  203           Continue
                mc = mc + nIrrep/nStab(mdc)
@@ -599,7 +638,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
             Call OrbType(iAtmNr(iCnttp),List_AE,31)
             If (kECP) Then
                Call ECP_Shells(iAtmNr(iCnttp),list)
-               Call ICopy(lmax+1,0,0,nCore_Sh,1)
+               Call ICopy(lmax+1,[0],0,nCore_Sh,1)
             Else
                Call ICopy(1+iTabMx,List_AE,1,List,1)
                If (Charge(iCnttp).ne.Zero) Then
@@ -620,6 +659,18 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                kComp = 0
                kculf = 0
                iSh = ipVal(iCnttp) - 1
+               If (nVal_Shells(iCnttp).lt.1) Then
+                  ipxyz=(iCnt-1)*3+ipCntr(iCnttp)
+                  XCoor=Dinf(ipxyz  )
+                  YCoor=Dinf(ipxyz+1)
+                  ZCoor=Dinf(ipxyz+2)
+                  LPC(1,mdc)=XCoor
+                  LPC(2,mdc)=YCoor
+                  LPC(3,mdc)=ZCoor
+                  LPQ(mdc)=Charge(iCnttp)
+                  LPA(mdc)=iAtmnr(iCnttp)
+                  LP_Names(mdc)=LblCnt(mdc)(1:LENIN)//'    '
+               End If
                Do 303 iAng = 0, nVal_Shells(iCnttp)-1
                   nCore=nCore_Sh(iAng)
                   iSh = iSh + 1
@@ -694,35 +745,50 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                            Call Abend
                         End If
                         jSO = jSO + 1
+*
                         ChTemp=LblCBs(lComp)
                         If (Transf(iSh)) ChTemp=LblSbs(lComp)
+*
+                        Call Name_to_lm(ChTemp,llab,mlab)
 *
 *                       Introduce a somewhat better labelling. Thnx LG!
 *
                         If (IsBasisAE) Then
                            If (IsBasisANO) Then
-                              Write (ChTemp(1:1),'(I1)') iAng+iCntrc
+                              Write (ChTemp(1:2),'(I2.2)') iAng+iCntrc
                            Else
                               If (nExp(iSh).eq.nBasis(iSh)) Then
                                  Write (ChTemp(1:1),'(A1)') '*'
+                                 If (llab.ge.0)
+     &                              Write(ChTemp(2:2),'(A1)') '0'
                               Else If (iCntrc.le.list(iAng)) Then
-                                 Write (ChTemp(1:1),'(I1)') iAng+iCntrc
+                                 Write (ChTemp(1:2),'(I2.2)')
+     &                                 iAng+iCntrc
                               Else
                                  Write (ChTemp(1:1),'(A1)') '*'
+                                 If (llab.ge.0)
+     &                              Write(ChTemp(2:2),'(A1)') '0'
                               End If
                            End If
                         Else If (.Not.IsBasisUNK) Then
                            If (nExp(iSh).eq.nBasis(iSh)) Then
                               Write (ChTemp(1:1),'(A1)') '*'
+                              If (llab.ge.0)
+     &                           Write(ChTemp(2:2),'(A1)') '0'
                            Else If (iCntrc.le.list(iAng)) Then
-                                 Write (ChTemp(1:1),'(I1)') iAng+iCntrc+
+                                 Write (ChTemp(1:2),'(I2.2)')
+     &                                 iAng+iCntrc+
      &                                 (List_AE(iAng)-List(iAng))
                            Else
                               Write (ChTemp(1:1),'(A1)') '*'
+                              If (llab.ge.0)
+     &                           Write(ChTemp(2:2),'(A1)') '0'
                            End If
                         End If
-                        if(output) Write (6,'(I4,3X,A8,5X,A4,4X,I3)')
-     &                        iSO_,LblCnt(mdc),ChTemp,mc+imc
+                        ChTmp=Clean_BName(ChTemp,0)
+*
+                        if(output) Write (6,'(I5,2X,A8,5X,A8,I3)')
+     &                        iSO_,LblCnt(mdc),ChTmp,mc+imc
 *
                         iSOInf(1,iSO_)=iCnttp
                         iSOInf(2,iSO_)=iCnt
@@ -740,7 +806,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*---------------------------- Stuff for LoProp
+*---------------------------- Stuff (not just) for LoProp
 *
                         iCI(iSO)=mdc
                         jCI(iSO)=mdc
@@ -762,11 +828,11 @@ CSVC: basis IDs of both symmetric and non-symmetric case
 *                                                                      *
 ************************************************************************
 *                                                                      *
-                        Mamn(iSO)=LblCnt(mdc)(1:LENIN)//ChTemp(1:4)
+                        Mamn(iSO)=LblCnt(mdc)(1:LENIN)//ChTemp(1:8)
                         basis_ids(1,iSO) = mdc
                         basis_ids(2,iSO) = iCntrc
-                        basis_ids(3,iSO) = lval(lculf)
-                        basis_ids(4,iSO) = mval(lculf)
+                        basis_ids(3,iSO) = llab
+                        basis_ids(4,iSO) = mlab
                         fermion_type(iSO)=0
                         If (fMass(iCnttp).ne.1.0D0) fermion_type(iSO)=1
                         If (.Not.Primitive_Pass) Then
@@ -882,10 +948,10 @@ CSVC: basis IDs of non-symmetric case
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*---- Write info for LoProp
+*---- Write info (not just) for LoProp
 *
       If (.Not.Primitive_Pass) Then
-         Call Put_cArray('LP_L',LP_Names,(LENIN4)*mCentr)
+         Call Put_cArray('LP_L',LP_Names(1),(LENIN4)*mCentr)
          Call Put_iArray('LP_A',LPA,mCentr)
          Call Put_dArray('LP_Q',LPQ,mCentr)
          Call Put_dArray('LP_Coor',LPC,3*mCentr)

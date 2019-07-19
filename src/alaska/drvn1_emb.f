@@ -51,7 +51,7 @@
       iPrint = nPrint(iRout)
 *
       iIrrep = 0
-      call dcopy_(nGrad,Zero,0,Temp,1)
+      call dcopy_(nGrad,[Zero],0,Temp,1)
 *
       Call Get_NameRun(NamRfil) ! save the old RUNFILE name
       Call NameRun('AUXRFIL')   ! switch RUNFILE name

@@ -15,11 +15,14 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 #include "stdalloc.fh"
 #include "dyn.fh"
 #include "constants2.fh"
-      INTEGER Task(nTasks),maxHop, nIsotope, n
+      INTEGER Task(nTasks),maxHop
       INTEGER VelVer, VV_First, VV_Second, Gromacs, VV_Dump
       PARAMETER(VelVer=1,VV_First=2,VV_Second=3,Gromacs=4,VV_Dump=5)
-      LOGICAL lHop, lIsotope
-      REAL*8, ALLOCATABLE ::    dIsotopes(:)
+#ifdef _HDF5_
+      REAL*8, ALLOCATABLE :: Mass(:)
+#endif
+      LOGICAL lHop
+      CHARACTER Title*72
 
 C
 C     Define local variables
@@ -69,7 +72,7 @@ C
 *>>>>>>>>>>>>>>>>>>>> PRIN <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1101 CONTINUE
       Line = Get_Ln(LuSpool)
-      CALL Get_I(1,iPrint,1)
+      CALL Get_I1(1,iPrint)
 *>>>>>>>>>>>>>>>>>>>> VV_First <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1102 CONTINUE
       WRITE(6,*) ' VV_First 1'
@@ -93,7 +96,7 @@ C
       WRITE(6,*) ' Dynamix starts reading THERMO.'
 #endif
       Line = Get_Ln(LuSpool)
-      CALL Get_I(1,THERMO,1)
+      CALL Get_I1(1,THERMO)
 #ifdef _DEBUG_
       WRITE(6,*) ' Dynamix ends reading THERMO.'
 #endif
@@ -104,7 +107,7 @@ C
       WRITE(6,*) ' Dynamix starts reading VELO.'
 #endif
       Line = Get_Ln(LuSpool)
-      CALL Get_I(1,VELO,1)
+      CALL Get_I1(1,VELO)
 #ifdef _DEBUG_
       WRITE(6,*) ' Dynamix ends reading VELO.'
 #endif
@@ -115,7 +118,7 @@ C
       WRITE(6,*) ' Dynamix starts reading DT.'
 #endif
       Line = Get_Ln(LuSpool)
-      CALL Get_F(1,DT,1)
+      CALL Get_F1(1,DT)
       CALL Put_dScalar('Timestep',DT)
 #ifdef _HDF5_
       call mh5_put_dset(dyn_dt,DT)
@@ -132,7 +135,7 @@ C
 *>>>>>>>>>>>>>>>>>>>> TIME <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1109 CONTINUE
       Line = Get_Ln(LuSpool)
-      CALL Get_F(1,TIME,1)
+      CALL Get_F1(1,TIME)
       GOTO 999
 *>>>>>>>>>>>>>>>>>>>> VelVer <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1110 CONTINUE
@@ -143,7 +146,7 @@ C     This is the keyword for Velocity Verlet algorithm
 *>>>>>>>>>>>>>>>>>>>> Hop    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1111 CONTINUE
       Line = Get_Ln(LuSpool)
-      CALL Get_I(1,maxHop,1)
+      CALL Get_I1(1,maxHop)
       lHop=.FALSE.
       CALL qpg_iScalar('MaxHops',lHop)
       IF (.NOT.lHop) THEN
@@ -159,7 +162,7 @@ C     This is the keyword for Velocity Verlet algorithm
 #ifdef _DEBUG_
       WRITE(6,*) ' Dynamix starts reading RESTART.'
 #endif
-      CALL Get_F(1,RESTART,1)
+      CALL Get_F1(1,RESTART)
       GOTO 999
 #ifdef _DEBUG_
       WRITE(6,*) ' Dynamix ends reading RESTART.'
@@ -171,48 +174,16 @@ C     This is the keyword for Velocity Verlet algorithm
       WRITE(6,*) ' Dynamix starts reading Temperature.'
 #endif
       Line = Get_Ln(LuSpool)
-      CALL Get_F(1,TEMP,1)
+      CALL Get_F1(1,TEMP)
 #ifdef _DEBUG_
       WRITE(6,*) ' Dynamix ends reading Temperature.'
 #endif
       GOTO 999
 *>>>>>>>>>>>>>>>>>>>> Isotope <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1114 CONTINUE
-C     The isotope keyword allows to change the mass of any atom
-C
-C     to change the mass of atom 3 to 5.0 Da and atom 4 to 9.0 Da:
-C
-C     ISOTOPE
-C      2          * nIsotope
-C      3 5.0      * isoatom(1)
-C      4 9.0      * isoatom(2)
-C
-C     note masses are input in u (= Da), but stored in a.u.
-C
-      Line = Get_Ln(LuSpool)
-      lIsotope=.TRUE.
-C     Get the total number of isotopes
-      CALL Get_I(1,nIsotope,1)
-C     Get the total number of atoms and allocate memory
-      CALL Get_nAtoms_All(natom)
-      CALL mma_allocate(dIsotopes,natom)
-      WRITE(6,*) ' Manual isotopes defined '
-      DO n=1, natom
-         dIsotopes(n)=0.0D0
-      END DO
-C     Read the first line with isotope information
-      DO n=1, nIsotope
-         Line = Get_Ln(LuSpool)
-         CALL Get_I(1,isoatom,1)
-         CALL Get_F(2,dIsotopes(isoatom),1)
-         dIsotopes(isoatom)=dIsotopes(isoatom)*uToau
-      END DO
-C     Save it on RunFile and free memory
-      CALL Put_dArray('Isotopes',dIsotopes,natom)
-#ifdef _HDF5_
-      call mh5_put_dset(dyn_iso,dIsotopes)
-#endif
-      CALL mma_deallocate(dIsotopes)
+      Write (6,*) 'ISOTope keyword is obsolete in DYNAMIX,'
+      Write (6,*) 'use it in GATEWAY to specify isotopes/masses'
+      CALL Abend()
       GOTO 999
 c      Write (6,*) 'Unknown keyword:', Key
 c      CALL Abend()
@@ -232,6 +203,14 @@ c      CALL Abend()
 *>>>>>>>>>>>>>>>>>>>> END <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  9000 CONTINUE
       WRITE (6,*)
+*
+#ifdef _HDF5_
+      CALL Get_nAtoms_All(natom)
+      CALL mma_allocate(Mass,natom)
+      CALL Get_Mass_All(Mass,natom)
+      CALL mh5_put_dset(dyn_mass,Mass)
+      CALL mma_deallocate(Mass)
+#endif
       CALL qExit('RdInp')
 *
       RETURN

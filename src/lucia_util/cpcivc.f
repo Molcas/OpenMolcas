@@ -50,7 +50,7 @@
 
          CALL todscn(work(c_pointer), nrec, lrec,
      &        -1, ifile)
-         CALL itods(-1,1,-1,ifile)
+         CALL itods([-1],1,-1,ifile)
 *
 *   ==============================
 *      Read CI-vector from disc
@@ -99,7 +99,7 @@
 #include "WrkSpc.fh"
 #include "rasscf_lucia.fh"
 
-      CALL DCOPY_(NTOOB**2,0.0D0,0,Work(kint1_pointer),1)
+      CALL DCOPY_(NTOOB**2,[0.0D0],0,Work(kint1_pointer),1)
       CALL DCOPY_(NDIM,W1,1,Work(kint1_pointer),1)
       CALL DCOPY_(NTOOB**2,Work(kint1_pointer),1,Work(kint1o_pointer),1)
 

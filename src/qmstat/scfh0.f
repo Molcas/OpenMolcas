@@ -26,7 +26,9 @@
       Dimension nBasM(MxSym),nOrbM(MxSym),nDelM(MxSym),nFroM(MxSym)
       Dimension nBas(MxSym)
       Dimension iToc(64)
-      Character NameM*40000,firstind*10
+      Parameter (lenin8=6+8)
+      Parameter (maxbfn=10000)
+      Character NameM*(lenin8*maxbfn),firstind*10
 
 *
 *-- Wilkommen.
@@ -49,8 +51,8 @@
       iDisk=0
 *--- This is special utility to read header of TRAONE.
       Call Wr_Motra_Info(iLu1,2,iDisk,iToc,64,Ecor,nSymM,nBasM,nOrbM
-     &,nFroM,nDelM,MxSym,NameM,4*2*5000) !Last argument depends on
-                                         !mxorb in Molcas.fh.
+     &,nFroM,nDelM,MxSym,NameM,lenin8*maxbfn) !Last argument depends on
+                                              !mxorb in Molcas.fh.
       nOrbMFirst=nOrbM(1)
 
 *

@@ -19,9 +19,10 @@
 cnf
 #include "real.fh"
 #include "rctfld.fh"
-      Logical Do_ESPF,First,Dff,Do_DFT
+      Logical Do_ESPF,First,Dff,Do_DFT,NonEq
 cnf
       Character*8 Label
+      Dimension idum(1)
 *
       iRc=-1
       iOpt=1
@@ -31,7 +32,8 @@ cnf
         nDens2=nDens2+Nbas(is)**2
       End Do
       Label='ONEHAM'
-      Call iRdOne(iRc,iOpt,Label,1,leng,iisym)
+      Call iRdOne(iRc,iOpt,Label,1,idum,iisym)
+      leng=idum(1)
       If (iRC.ne.0)  Then
          Write (6,*) 'InpOne: Error reading ONEINT'
          Write (6,'(A,A)') 'Label=',Label
@@ -87,10 +89,11 @@ cnf
 *
          Call GetMem('Htmp','Allo','Real',iHtmp,leng)
          Call GetMem('Gtmp','Allo','Real',iGtmp,leng)
-         Call dCopy_(leng,Zero,0,Work(iHtmp),1)
-         Call dCopy_(leng,Zero,0,Work(iGtmp),1)
+         Call dCopy_(leng,[Zero],0,Work(iHtmp),1)
+         Call dCopy_(leng,[Zero],0,Work(iGtmp),1)
          Call Get_D1ao(ipD1ao,leng)
 *
+         NonEq=.False.
          First=.True.
          Dff=.False.
          Do_DFT=.True.

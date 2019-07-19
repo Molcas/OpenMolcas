@@ -23,6 +23,8 @@
 #  endif
 
 void* replace_malloc (size_t bytes, int align, char* name) {
+        (void)align;
+        (void)name;
         return allomblck("GA", (INT*)&bytes);
 }
 
@@ -33,4 +35,6 @@ void replace_free (void* ptr) {
 void ga_replace_ma (void) {
         GA_Register_stack_memory(replace_malloc, replace_free);
 }
+#else
+typedef int make_iso_compilers_happy;
 #endif

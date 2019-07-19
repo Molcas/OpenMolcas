@@ -14,10 +14,10 @@
 
       integer                 wfn_fileid,
      $        wfn_mocoef, wfn_occnum, wfn_dens, wfn_spindens,
-     $        wfn_fockmat, wfn_supsym, wfn_basfns, wfn_ovlmat,
+     $        wfn_supsym, wfn_basfns, wfn_ovlmat,
      $        wfn_cicoef, wfn_orbene, wfn_energy, wfn_iter
 
       common /raswfn_handles/ wfn_fileid,
      $        wfn_mocoef, wfn_occnum, wfn_dens, wfn_spindens,
-     $        wfn_fockmat, wfn_supsym, wfn_basfns, wfn_ovlmat,
+     $        wfn_supsym, wfn_basfns, wfn_ovlmat,
      $        wfn_cicoef, wfn_orbene, wfn_energy, wfn_iter

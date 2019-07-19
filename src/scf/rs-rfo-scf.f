@@ -9,16 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 1994,2004,2014,2017, Roland Lindh                      *
-*               2014, Ignacio Fdez. Galvan                             *
+*               2014,2018, Ignacio Fdez. Galvan                        *
 ************************************************************************
-*define _DEBUG_SORUPV_
-#ifdef _DEBUG_SORUPV_
-      Subroutine RS_RFO_SCF(HDiag,g,nInter,dq,UpMeth,dqdq,dqHdq,StepMax,
-     &                      Step_Trunc,MemRsv,iter_SCF)
-#else
       Subroutine RS_RFO_SCF(HDiag,g,nInter,dq,UpMeth,dqdq,dqHdq,StepMax,
      &                      Step_Trunc,MemRsv)
-#endif
 ************************************************************************
 *                                                                      *
 *     Object: Automatic restricted-step rational functional            *
@@ -42,17 +36,11 @@
       Real*8 HDiag(nInter), g(nInter), dq(nInter)
       Character UpMeth*6, Step_Trunc*1
       Real*8 dqdq, dqHdq, StepMax
-#ifdef _DEBUG_SORUPV_
-      Logical Update_H
-#endif
 *     Local variables
       Real*8, Dimension(:), Allocatable:: Tmp, Val, Vec
-      Logical Iterate
+      Logical Iterate, Restart
       Real*8 Lambda
 *
-#ifdef _DEBUG_SORUPV_
-      Update_H = .True.
-#endif
       UpMeth='RS-RFO'
       Step_Trunc=' '
       Lu=6
@@ -76,6 +64,7 @@
       IterMx=25
       Iter=0
       Iterate=.False.
+      Restart=.False.
       Thr=1.0D-3
       NumVal=1
       Call mma_allocate(Vec,(nInter+1)*NumVal,Label='Vec')
@@ -104,21 +93,11 @@
 *        augmented Hessian to be explicitly expressed by rather will
 *        handle the gradient and Hessian part separated. The gradient
 *        will be explicit, while the Hessian part will use an approach
-*        which computes Hc, where c is a trial vector, from the use
-*        an Hessian based on a diagonal approximation and a BFGS update.
+*        which computes Hc, where c is a trial vector, from an initial
+*        Hessian based on a diagonal approximation and a BFGS update.
 *
-*        UNDER DEVELOPMENT
-*
-#ifdef _DEBUG_SORUPV_
-         Call Davidson_SCF(HDiag,g,nInter,NumVal,A_RFO,Val,Vec,MemRsv,
-     &                     iStatus,iter_SCF,Update_H)
-#else
          Call Davidson_SCF(HDiag,g,nInter,NumVal,A_RFO,Val,Vec,MemRsv,
      &                     iStatus)
-#endif
-*
-*        END DEVELOPMENT
-*
          If (iStatus.gt.0) Then
             Call SysWarnMsg('RS_RFO',
      &       'Davidson procedure did not converge','')
@@ -171,7 +150,7 @@
 *                                                                      *
 *------- Initialize data for iterative scheme (only at first iteration)
 *
-         If (.Not.Iterate) Then
+         If (.Not.Iterate.Or.Restart) Then
             A_RFO_long=A_RFO
             dqdq_long=Sqrt(dqdq)
             A_RFO_short=Zero
@@ -183,7 +162,10 @@
 *------- RF with constraints. Start iteration scheme if computed step
 *        is too long.
 *
-         If (Iter.eq.1.and.dqdq.gt.StepMax**2) Iterate=.True.
+         If ((Iter.eq.1.or.Restart).and.dqdq.gt.StepMax**2) Then
+            Iterate=.True.
+            Restart=.False.
+         End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -192,18 +174,28 @@
          If (Iterate.and.Abs(StepMax-Sqrt(dqdq)).gt.Thr) Then
             Step_Trunc='*'
 *           Write (Lu,*) 'StepMax-Sqrt(dqdq)=',StepMax-Sqrt(dqdq)
+*
+*           Converge if small interval
+*
+            If ((dqdq.lt.StepMax**2).and.
+     &          (Abs(A_RFO_long-A_RFO_short).lt.Thr)) Go To 997
             Call Find_RFO_Root(A_RFO_long,dqdq_long,
      &                         A_RFO_short,dqdq_short,
      &                         A_RFO,Sqrt(dqdq),StepMax)
+            If (A_RFO.eq.-One) Then
+               A_RFO=One
+               Step_Trunc=' '
+               Restart=.True.
+               Iterate=.False.
+            End If
             If (Iter.gt.IterMx) Then
                Write (Lu,*) ' Too many iterations in RF'
-               Call Abend()
-*              Go To 997
+               Go To 997
             End If
             Go To 998
          End If
 *
-*997  Continue
+ 997  Continue
       Call mma_deallocate(Tmp)
       dqHdq=dqHdq+EigVal*Half
 #ifdef _DEBUG_

@@ -133,7 +133,7 @@
 #ifdef _DEBUG_
             Write (6,*) 'Translation'
 #endif
-            call dcopy_(3,Zero,0,dDipM(1,iTR),1)
+            call dcopy_(3,[Zero],0,dDipM(1,iTR),1)
 *
          Else If (Tx**2+Ty**2+Tz**2.lt.thr .and.
      &            Rx**2+Ry**2+Rz**2.gt.thr) Then

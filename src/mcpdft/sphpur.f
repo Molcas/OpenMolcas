@@ -20,6 +20,8 @@
 #include "general.fh"
 * rasscf.fh defines NAME:
 #include "rasscf.fh"
+* angtp.fh defines ITABMX,ANGTP
+#include "angtp.fh"
 
 #include "WrkSpc.fh"
 
@@ -35,29 +37,11 @@
       END DO
       CALL GETMEM('LQN','ALLO','INTE',LLQN,NBTOT)
       DO IBAS=1,NBTOT
-       LCHAR=NAME(IBAS)(LENIN2:LENIN2)
+       LCHAR=NAME(IBAS)(LENIN3:LENIN3)
        L=-999999
-       IF(LCHAR.EQ.'s') THEN
-         L=0
-       ELSE IF(LCHAR.EQ.'p') THEN
-         L=1
-       ELSE IF(LCHAR.EQ.'d') THEN
-         L=2
-       ELSE IF(LCHAR.EQ.'f') THEN
-         L=3
-       ELSE IF(LCHAR.EQ.'g') THEN
-         L=4
-       ELSE IF(LCHAR.EQ.'h') THEN
-         L=5
-       ELSE IF(LCHAR.EQ.'i') THEN
-         L=6
-       ELSE IF(LCHAR.EQ.'k') THEN
-         L=7
-       ELSE IF(LCHAR.EQ.'l') THEN
-         L=8
-       ELSE IF(LCHAR.EQ.'m') THEN
-         L=9
-       END IF
+       DO ITP=0,ITABMX
+         IF(LCHAR.EQ.ANGTP(ITP)) L=ITP
+       END DO
        IWORK(LLQN-1+IBAS)=L
       END DO
       ICMOES=0

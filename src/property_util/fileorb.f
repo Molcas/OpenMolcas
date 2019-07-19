@@ -13,7 +13,7 @@
         Character*(*) fileout
         Character*256 tmp
         Logical Exist
-        if(filein(1:1).eq.'/') then
+        if(index(filein,'/').ne.0) then
            fileout=filein
            goto 100
         endif

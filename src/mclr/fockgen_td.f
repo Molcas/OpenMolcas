@@ -34,7 +34,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      call dcopy_(nDens2,0.0d0,0,Fock,1)
+      call dcopy_(nDens2,[0.0d0],0,Fock,1)
 *
       n1=0
       Do iS = 1, nSym
@@ -141,7 +141,7 @@
 c QB is calc here
       Call CreQADD(Fock,rdens2,idsym,Work(ip_MO),Work(ipScr),n2)
       Call Getmem('TQ','ALLO','REAL',ipTQ,ndens2)
-      call dcopy_(ndens2,0.0d0,0,Work(ipTQ),1)
+      call dcopy_(ndens2,[0.0d0],0,Work(ipTQ),1)
 c QA here
       Call CreQADD2(Work(ipTQ),rdens2,idsym,Work(ip_MO),Work(ipScr),n2)
       Call Free_Work(ipScr)

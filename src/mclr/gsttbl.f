@@ -19,6 +19,8 @@
       DIMENSION C(*),CTT(*),NSASO(NOCTPA,*),NSBSO(NOCTPB,*)
       DIMENSION IOCOC(NOCTPA,NOCTPB),ICOOSC(NOCTPA,NOCTPB,*)
       DIMENSION SCR(*)
+      DIMENSION ISGVST(IBSM)
+      DIMENSION IDUM(1)
 *
       PSIGN=0.0D0 ! dummy initialize
 *
@@ -26,7 +28,8 @@
 * Read in from disc
 * =================
       IF(LUC.NE.0) THEN
-        CALL IFRMDS(LBL,1,-1,LUC)
+        CALL IFRMDS(IDUM,1,-1,LUC)
+        LBL=IDUM(1)
         CALL FRMDSC_MCLR(SCR,LBL,-1,LUC,IMZERO)
         NAST = NSASO(IATP,IASM)
         NBST = NSBSO(IBTP,IBSM)

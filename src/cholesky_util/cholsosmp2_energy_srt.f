@@ -170,7 +170,7 @@ C
 #if defined (_DEBUG_)
                If (lenX.gt.l_X) Then
                   Call WarningMessage(2,
-     &                             SecNam,': insufficient X allocation')
+     &                            SecNam//': insufficient X allocation')
                   Write(6,'(A,2(1X,I10))') 'lenX,l_X=',lenX,l_X
                   Call Abend()
                End If
@@ -189,7 +189,7 @@ C
 #if defined (_DEBUG_)
                      If (l_Tot.gt.l_V) Then
                         Call WarningMessage(2,
-     &                             SecNam,': insufficient V allocation')
+     &                            SecNam//': insufficient V allocation')
                         Write(6,'(A,2(1X,I10))') 'l_Tot,l_V=',l_Tot,l_V
                         Call Abend()
                      End If

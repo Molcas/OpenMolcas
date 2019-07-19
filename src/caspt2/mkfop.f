@@ -92,7 +92,7 @@
       CALL GETMEM('LKET','ALLO','REAL',LKET,NCONF)
 * Allocate array for sigma, = average Fock operator acting on ket:
       CALL GETMEM('SGM','ALLO','REAL',LSGM,NCONF)
-      CALL DCOPY_(NGRP**2,0.0D0,0,FOPXMS,1)
+      CALL DCOPY_(NGRP**2,[0.0D0],0,FOPXMS,1)
 
 * Loop over ket functions:
       DO J2=1,NGRP
@@ -113,7 +113,7 @@
 
 * Compute (lowering part of) FIFA operator acting on
 * the ket wave function.
-       CALL DCOPY_(NCONF,0.0D0,0,WORK(LSGM),1)
+       CALL DCOPY_(NCONF,[0.0D0],0,WORK(LSGM),1)
        DO LEVU=1,NLEV
         IUABS=L2ACT(LEVU)
         ISU=ISM(LEVU)
@@ -187,7 +187,7 @@
 * Compute (strictly lowering part of) FIFA operator acting on |BRA>.
 *  We are computing contributions <KET|Etu|BRA> with t<u, then
 * using them as <BRA|Eut|KET>
-       CALL DCOPY_(NCONF,0.0D0,0,WORK(LSGM),1)
+       CALL DCOPY_(NCONF,[0.0D0],0,WORK(LSGM),1)
        DO LEVU=2,NLEV
         IUABS=L2ACT(LEVU)
         ISU=ISM(LEVU)

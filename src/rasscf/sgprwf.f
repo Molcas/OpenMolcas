@@ -153,7 +153,7 @@ C -- PRINT IT!
 
       IF (KeyPRSD) THEN
         ! free memory for determinant expansion
-        CALL GETMEM ('LEX','ALLO','INTEGER',LLEX,NLEV)
+        CALL GETMEM ('LEX','FREE','INTEGER',LLEX,NLEV)
       END IF
 
       RETURN

@@ -18,7 +18,7 @@
       Real*8 Vtrans(3)
       integer igeom,iLU
       character*6 fname
-      logical isfreeunit
+      integer isfreeunit
 
       Do igeom=3,ngeoms+2
         call dcopy_(nat(igeom)*3,Work(ipgeo(2)),1,Work(ipgeo(igeom)),1)
@@ -30,13 +30,8 @@
         Call TranslateGeoms(Vtrans)
        End If
 
-      Do iLU=12,99
-        if (isfreeunit(iLU)) goto 999
-      End Do
-      iLU=-1
-      Call SysWarnMsg("GenerateGeoms","No free unit number found",
-     &                "Geometries not written to files")
-999   continue
+      iLU=12
+      iLU=isfreeunit(iLU)
       Do igeom=1,ngeoms+2
         if (igeom.lt.100) write(fname,'(a4,i2)') "GEOM",igeom
         if (igeom.lt.10) write(fname,'(a5,i1)') "GEOM0",igeom

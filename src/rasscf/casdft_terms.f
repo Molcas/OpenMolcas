@@ -25,6 +25,10 @@
 *     M.P. Fuelscher, Lund, July 1990
 *     GLM, Minneapolis,   May 2013
 *
+#ifdef _DMRG_
+!     module dependencies
+      use qcmaquis_interface_cfg
+#endif
       Implicit Real*8 (A-H,O-Z)
 *
 #include "rasdim.fh"
@@ -214,8 +218,8 @@ c      write(6,*) 'PotNuc in casdft_terms.f:', PotNuc
 *
       Call GetMem('htmp','Allo','Real',iTmp5,nTot1)
       Call GetMem('gtmp','Allo','Real',iTmp6,nTot1)
-      Call dcopy_(nTot1,0.0d0,0,Work(iTmp5),1)
-      Call dcopy_(nTot1,0.0d0,0,Work(iTmp6),1)
+      Call dcopy_(nTot1,[0.0d0],0,Work(iTmp5),1)
+      Call dcopy_(nTot1,[0.0d0],0,Work(iTmp6),1)
 *
       First=.True.
       Dff=.False.
@@ -349,7 +353,7 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
       CALL MOTRAC(CMO,WORK(LX1),WORK(LX2),WORK(LX3))
       CALL GETMEM('XXX3','FREE','REAL',LX3,MXNB*MXNA)
       CALL GETMEM('XXX2','FREE','REAL',LX2,MXNB*MXNB)
-      CALL dcopy_(NACPAR,ZERO,0,F,1)
+      CALL dcopy_(NACPAR,[ZERO],0,F,1)
       NTU=0
       ITU=0
       IADD=0
@@ -375,7 +379,11 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
           IADD=IADD+NAT
         ENDIF
       END DO
-      CALL CP_ONE_INT(WORK(LX0),ITU)
+#ifdef _DMRG_
+      if(.not.doDMRG)then
+        CALL CP_ONE_INT(WORK(LX0),ITU)
+      end if
+#endif
       CALL GETMEM('XXX1','FREE','REAL',LX1,NTOT1)
       CALL GETMEM('XXX0','FREE','REAL',LX0,NTOT1)
 

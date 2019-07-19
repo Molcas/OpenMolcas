@@ -13,6 +13,8 @@
       Integer iTabMx
 #ifndef _DEMO_
       Parameter (iTabMx=15)
+*     See angtp.fh too
 #else
       Parameter (iTabMx=2)
+*     See angtp.fh too
 #endif

@@ -95,7 +95,7 @@ CAOM>
       nComp = nElem(nOrdOp)
       Call GetMem('Coor','Allo','Real',ipC,3*nComp)
       Call GetMem('lOper','Allo','Inte',ip1,nComp)
-      call dcopy_(nComp*3,Zero,0,Work(ipC),1)
+      call dcopy_(nComp*3,[Zero],0,Work(ipC),1)
       iWork(ip1) = 1
 *
 ************************************************************************
@@ -204,7 +204,7 @@ CAOM>
       Call GetMem('nB_per_Atom','Allo','Inte',ip_nBas_per_Atom,nAtoms)
       Call GetMem('nB_Start','Allo','Inte',ip_nBas_Start,nAtoms)
 
-      Call Get_cArray('Unique Basis Names',Name,(LENIN4)*nBas)
+      Call Get_cArray('Unique Basis Names',Name,(LENIN8)*nBas)
 
       Call BasFun_Atom(iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),
      &                 Name,nBas,nAtoms,.false.)

@@ -14,7 +14,6 @@
 * Object: driver for computation of TMOS integrals                     *
 *                                                                      *
 ************************************************************************
-      Use GeoList
       Use MpmC
       Implicit Real*8 (A-H,O-Z)
       External EMFInt, EMFMem
@@ -38,10 +37,10 @@
 #include "oneswi.fh"
 #include "warnings.fh"
       Character*8 Label
+      Dimension dum(1),idum(1)
 *
       Call Set_Basis_Mode('Valence')
       Call Setup_iSD()
-*     Write (*,*) 'wavevector=',wavevector
 *
 ************************************************************************
 ************************************************************************
@@ -54,10 +53,12 @@
 ************************************************************************
       rHrmt=-One ! Note used
 *
+*     B*s Magnetic * Spin
+*
       nOrdOp = 0
       Label='TMOS0'
       nComp = 2
-      Call Allocate_Auxiliary()
+      Call Allocate_Aux()
       Call GetMem('Nuc   ','ALLO','REAL',ipNuc,nComp)
 *     Here we put in the k-vector
       Call FZero(CoorO,3*nComp)
@@ -72,20 +73,21 @@
       OperC(1   ) = 0 ! Dummy
       OperC(1+1 ) = 0 ! Dummy
 *
-      Call dcopy_(nComp,Zero,0,Work(ipNuc),1)
-*     Write (*,*) 'Here we go!'
+      Call dcopy_(nComp,[Zero],0,Work(ipNuc),1)
       Call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,
      &           CoorO,nOrdOp,Work(ipNuc),rHrmt,OperC,
      &           dum,1,dum,idum,0,0,
      &           dum,1,0)
 *
       Call GetMem('Nuc   ','FREE','REAL',ipNuc,nComp)
-      Call Deallocate_Auxiliary()
+      Call Deallocate_Aux()
+*
+*     A*p
 *
       nOrdOp = 1
       Label='TMOS'
       nComp = 12
-      Call Allocate_Auxiliary()
+      Call Allocate_Aux()
       Call GetMem('Nuc   ','ALLO','REAL',ipNuc,nComp)
 *     Here we put in the k-vector
       Call FZero(CoorO,3*nComp)
@@ -93,7 +95,7 @@
 *
 *     The electromagnetic field operator contributes to all
 *     irreducible irreps, hence OperI=255. Since the operator
-*     it self is not symmetry adopted OperC is set to a dummy value.
+*     it self is not symmetry adapted OperC is set to a dummy value.
 *
       OperI(1   ) = 255
       OperI(1+1 ) = 255
@@ -120,22 +122,21 @@
       OperC(1+10) = 0 ! Dummy
       OperC(1+11) = 0 ! Dummy
 *
-      Call dcopy_(nComp,Zero,0,Work(ipNuc),1)
-*     Write (*,*) 'Here we go!'
+      Call dcopy_(nComp,[Zero],0,Work(ipNuc),1)
       Call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,
      &           CoorO,nOrdOp,Work(ipNuc),rHrmt,OperC,
      &           dum,1,dum,idum,0,0,
      &           dum,1,0)
 *
       Call GetMem('Nuc   ','FREE','REAL',ipNuc,nComp)
-      Call Deallocate_Auxiliary()
+      Call Deallocate_Aux()
 *
 *     The A^2 term
 *
       nOrdOp = 0
       Label='TMOS2'
       nComp = 2
-      Call Allocate_Auxiliary()
+      Call Allocate_Aux()
       Call GetMem('Nuc   ','ALLO','REAL',ipNuc,nComp)
 *     Here we put in the k-vector
       Call FZero(CoorO,3*nComp)
@@ -152,15 +153,14 @@
       OperC(1   ) = 0 ! Dummy
       OperC(1+1 ) = 0 ! Dummy
 *
-      Call dcopy_(nComp,Zero,0,Work(ipNuc),1)
-*     Write (*,*) 'Here we go!'
+      Call dcopy_(nComp,[Zero],0,Work(ipNuc),1)
       Call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,
      &           CoorO,nOrdOp,Work(ipNuc),rHrmt,OperC,
      &           dum,1,dum,idum,0,0,
      &           dum,1,0)
 *
       Call GetMem('Nuc   ','FREE','REAL',ipNuc,nComp)
-      Call Deallocate_Auxiliary()
+      Call Deallocate_Aux()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -171,7 +171,7 @@
       Return
 *
       Contains
-      Subroutine Allocate_Auxiliary()
+      Subroutine Allocate_Aux()
       Implicit None
 #include "stdalloc.fh"
 *
@@ -181,8 +181,8 @@
       Call mma_Allocate(CoorO,3*nComp)
 *
       Return
-      End Subroutine Allocate_Auxiliary
-      Subroutine Deallocate_Auxiliary()
+      End Subroutine Allocate_Aux
+      Subroutine Deallocate_Aux()
       Implicit None
 #include "stdalloc.fh"
 *
@@ -192,6 +192,6 @@
       Call mma_Deallocate(CoorO)
 *
       Return
-      End Subroutine Deallocate_Auxiliary
+      End Subroutine Deallocate_Aux
 *
       End Subroutine TMOSInt

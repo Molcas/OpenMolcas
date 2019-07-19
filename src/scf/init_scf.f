@@ -26,7 +26,7 @@
 *
 *---- Set number of active shells on the RUNFILE to zero
 *
-      Call ICopy(8,0,0,nAsh,1)
+      Call ICopy(8,[0],0,nAsh,1)
       Call Peek_iScalar('nSym',i)
 * PAM Jan 2007 -- deactivated, improper. Fixed in nqutil in
 * another way (query rather than get from runfile)
@@ -37,7 +37,7 @@
       Call IniLLs
 *     clear MapDns ...
       iZero=0
-      Call ICopy(MxKeep,iZero,0,MapDns,1)
+      Call ICopy(MxKeep,[iZero],0,MapDns,1)
 *
       Return
       End

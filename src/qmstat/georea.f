@@ -18,6 +18,7 @@
 #include "qminp.fh"
 
       Logical quantum
+      Dimension Dum(1)
 *-----------------------------------------------------------------------*
 * Enter.                                                                *
 *-----------------------------------------------------------------------*
@@ -33,11 +34,16 @@
       Endif
       Do 11, j=1,nSkipp+1
         If(j.ne.1.and.iRead.ne.9) then
-          Call dDaFile(9,2,Etot,1,iDisk)
-          Call dDaFile(9,2,Ract,1,iDisk)
-          Call dDaFile(9,2,GamOld,1,iDisk)
-          Call dDaFile(9,2,Gam,1,iDisk)
-          Call dDaFile(9,2,ESub,1,iDisk)
+          Call dDaFile(9,2,Dum,1,iDisk)
+          Etot=Dum(1)
+          Call dDaFile(9,2,Dum,1,iDisk)
+          Ract=Dum(1)
+          Call dDaFile(9,2,Dum,1,iDisk)
+          GamOld=Dum(1)
+          Call dDaFile(9,2,Dum,1,iDisk)
+          Gam=Dum(1)
+          Call dDaFile(9,2,Dum,1,iDisk)
+          ESub=Dum(1)
         Endif
         If(iRead.eq.9) then  !If this is a sampfile we do not care about
                           !the induced dipoles, so we just read them to

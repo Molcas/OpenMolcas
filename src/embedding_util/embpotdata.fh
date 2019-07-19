@@ -83,11 +83,12 @@
       Character*256 embOutHessPath
 
 *******
-      COMMON /EmbPotData/ nEmbGridPoints, Eemb,
+      COMMON /EmbPotData/ Eemb,
      &         posEmbGridCoord, posEmbPotVal, posEmbWeight,
-     &         ipEmb,
      &         embPot, embPotInBasis,
      &         outGridPathGiven, embWriteDens, embWriteEsp,
      &         embWriteGrad, embWriteHess, embDebug,
      &         embPotPath, outGridPath, embOutDensPath,
      &         embOutEspPath, embOutGradPath, embOutHessPath
+CVV: shaky aligment
+      COMMON /EmbPotDataI/ nEmbGridPoints, ipEmb

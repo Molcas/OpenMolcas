@@ -51,7 +51,7 @@
 *----------------------------------------------------------------------*
 C     Call Hello
       Call MkCom
-      Call Rd1Int
+      Call Rd1Int_FFPT
 *----------------------------------------------------------------------*
       nSize=0
       nTemp=0
@@ -66,8 +66,8 @@ C     Call Hello
       Call GetMem('RR','Allo','Real',ipRR,nSize)
       Call GetMem('Temp','Allo','Real',ipTemp,nTemp)
 *----------------------------------------------------------------------*
-      Call RdInp
-      Call PrInp
+      Call RdInp_FFPT
+      Call PrInp_FFPT
       Call PtAdd(Work(ipH0),Work(ipOvlp),Work(ipRR),nSize,
      &           Work(ipTemp),nTemp)
 *----------------------------------------------------------------------*

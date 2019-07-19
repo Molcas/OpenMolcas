@@ -18,8 +18,7 @@
 *----------------------------------------------------------------------*
       Do n = 1, MxFile
          If (CtlBlk(pStat,n).ne.0) Then
-c#define _HARD_CHECK_
-#ifdef _HARD_CHECK_
+#ifdef _BIGOT_
             Call SysAbendFileMsg('AixCheck',FCtlBlk(n),'Active unit.',
      &                           'Should have been closed!')
 #else
@@ -33,7 +32,7 @@ c#define _HARD_CHECK_
           inquire(unit=n,name=name)
             Write (6,*) 'Fortran file:', n, '(',name(1:index(name,' ')),
      *        ')  is still open!'
-#ifdef _HARD_CHECK_
+#ifdef _BIGOT_
             Call Abend()
 #endif
          End If

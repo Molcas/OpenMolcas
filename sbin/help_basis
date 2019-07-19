@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 #***********************************************************************
@@ -13,8 +13,6 @@
 #                                                                      *
 # Copyright (C) 2017, Ignacio Fdez. Galván                             *
 #***********************************************************************
-
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 import sys
 from glob import glob
@@ -50,6 +48,8 @@ Use with a command-line argument that is a basis label in Molcas format:
 
 trailing dots can be omitted.
 
+Examples:
+
 In the simplest form, just write an element symbol to get a list of basis sets
 for that element:
   {3}Fe{0}               lists all basis sets for iron
@@ -71,8 +71,19 @@ Minimum number of primitives for ANO-type basis sets can be specified:
 Exact matches are printed in green, "fuzzy" matches in red
 '''.format(Style.RESET_ALL, Fore.BLUE, Fore.RED, Fore.GREEN)
 
+compat = False
+try:
+  flag = sys.argv[1]
+except IndexError:
+  flag = None
+  pass
+if (flag == '-bw'):
+  sys.argv.pop(1)
+  compat = True
+
+# First get the template from the command line,
 # Use colors in terminal, not if output is redirected to file
-if sys.stdout.isatty():
+if (sys.stdout.isatty() and not compat):
   init()
 else:
   init(strip=True)
@@ -115,7 +126,7 @@ def match_field(field, basis, template):
     funcs_template = []
     # Catch wrong angular momentum labels (e.g. "j")
     if (any(i not in angs for i in re.sub(r'\d', '', template[field]))):
-      print('The [primitives] field ({0}) contains an invalid label.'.format(Fore.RED + template[field] + Style.RESET_ALL))
+      print('The [contraction] field ({0}) contains an invalid label.'.format(Fore.RED + template[field] + Style.RESET_ALL))
       print('Valid labels are: {0}'.format(Fore.BLUE + ', '.join(angs) + Style.RESET_ALL))
       print()
       sys.exit(1)
@@ -172,7 +183,6 @@ def name_basis(basis, template=None):
   else:
     return '.'.join([color(basis[k], template[k]) for k in props]).rstrip('.')
 
-# First get the template from the command line,
 # so we can spare reading the library
 try:
   template = parse_basis(sys.argv[1])
@@ -233,18 +243,25 @@ except:
     pass
 
 # Print the location of the basis library
-print(Fore.BLUE + 'Basis library:' + Style.RESET_ALL)
-print(basis_lib)
+if (not compat):
+  print(Fore.BLUE + 'Basis library:' + Style.RESET_ALL)
+  print(basis_lib)
 
 # Print the aliases and basis sets that match the template given as command-line argument
-fmt = '{0}   ->   {1}'
+if (compat):
+  fmt = '{0}              {1}'
+else:
+  fmt = '{0}   ->   {1}'
 first = True
 for alias, basis in filter_basis_alias(template):
   name1 = name_basis(parse_basis(alias), template)
   name2 = name_basis(parse_basis(basis), template)
   if (first):
-    print('')
-    print(Fore.BLUE + 'Basis aliases for ' + Fore.GREEN + name_basis(template) + Style.RESET_ALL + '\n')
+    if (compat):
+      print('#RECOMMENDED')
+    else:
+      print('')
+      print(Fore.BLUE + 'Basis aliases for ' + Fore.GREEN + name_basis(template) + Style.RESET_ALL + '\n')
     first = False
   # Can't use width in format, because it doesn't work with ANSI codes
   name1 += (27 - len(name_basis(parse_basis(alias))))*' '
@@ -253,8 +270,11 @@ if (not first):
   first = True
 for basis in filter_basis_sets(template):
   if (first):
-    print('')
-    print(Fore.BLUE + 'Basis sets for ' + Fore.GREEN + name_basis(template) + Style.RESET_ALL + '\n')
+    if (compat):
+      print('#OTHER')
+    else:
+      print('')
+      print(Fore.BLUE + 'Basis sets for ' + Fore.GREEN + name_basis(template) + Style.RESET_ALL + '\n')
     first = False
   print(name_basis(basis, template))
 if (first):

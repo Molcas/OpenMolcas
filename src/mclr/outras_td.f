@@ -94,7 +94,7 @@
           iopt=128
           isyml=2**(isym-1)
           ipert=kdisp
-          Call WrMCk(iRC,iOpt,Label,ipert,Work(ipKap3),isyml)
+          Call dWrMCk(iRC,iOpt,Label,ipert,Work(ipKap3),isyml)
           if (irc.ne.0) Call Abend()
           irc=nconfM
           iopt=128
@@ -124,13 +124,13 @@
                   Work(ipcip1+1)=0.0d0
               End If
 *           Call RecPrt('M',' ',Work(ipCItmp2),nconfM,1)
-              Call WrMCk(iRC,iOpt,Label,ipert,Work(ipcitmp2),isyml)
+              Call dWrMCk(iRC,iOpt,Label,ipert,Work(ipcitmp2),isyml)
               Call GetMem('TEMPCI2','FREE','REAL',ipCITmp2,nconfM)
             End If
           Else
             If (imethod.eq.2.and.(.not.CI).and.nconf1.eq.1)
      &            Work(ipcip1)=0.0d0
-            Call WrMCk(iRC,iOpt,Label,ipert,Work(ipcip1),isyml)
+            Call dWrMCk(iRC,iOpt,Label,ipert,Work(ipcip1),isyml)
             if (irc.ne.0) Call Abend()
           End If
 **********************************************************************

@@ -24,12 +24,12 @@
       Return
       End
       Subroutine mk_G_(G,GInv,nX,mInter,nAtom,Auto,nrc,Smmtrc,Degen,
-     &                 rMass)
+     &                 dMass)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "constants2.fh"
 *
-      Real*8 G(mInter,mInter), GInv(mInter**2), rMass(nAtom),
+      Real*8 G(mInter,mInter), GInv(mInter**2), dMass(nAtom),
      &       Degen(3,nAtom)
       Logical Auto, nrc, Smmtrc(3,nAtom)
 *                                                                      *
@@ -45,9 +45,9 @@
             If (Smmtrc(ix,i)) Then
                ii = ii + 1
                If (Auto.and..Not.nrc) Then
-                  G(ii,ii) = Degen(ix,i)/rMass(i)
+                  G(ii,ii) = Degen(ix,i)/dMass(i)
                Else
-                  G(ii,ii) = One/(Degen(ix,i)*rMass(i))
+                  G(ii,ii) = One/(Degen(ix,i)*dMass(i))
                End If
                jj = (ii-1)*mInter + ii
                GInv(jj) = One/(G(ii,ii)*UTOAU)

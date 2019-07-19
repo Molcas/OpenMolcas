@@ -12,6 +12,18 @@
       Implicit Integer (A-Z)
       Character*(*) InLab
       Real*8 dData(*)
-      Call WrMCK(rc,Option,InLab,iComp,dData,iSymLab)
+      Call dWrMCK_Internal(dData)
+*
+*     This is to allow type punning without an explicit interface
+      Contains
+      Subroutine dWrMCK_Internal(dData)
+      Use Iso_C_Binding
+      Real*8, Target :: dData(*)
+      Integer, Pointer :: iData(:)
+      Call C_F_Pointer(C_Loc(dData),iData,[1])
+      Call WrMCK(rc,Option,InLab,iComp,iData,iSymLab)
+      Nullify(iData)
       Return
+      End Subroutine dWrMCK_Internal
+*
       End

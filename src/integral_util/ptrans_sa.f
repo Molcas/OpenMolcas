@@ -60,7 +60,7 @@ c Offsets into the ipam array:
         nnpam4=nnpam4+npam(4,isym)
   10  continue
       nPSOP=nnpam1*nnpam2*nnpam3*nnpam4
-      call dcopy_(nPSOP,Zero,0,PSOPam,1)
+      call dcopy_(nPSOP,[Zero],0,PSOPam,1)
       iopam1=0
       iopam2=nnpam1
       iopam3=iopam2+nnpam2
@@ -165,7 +165,7 @@ c
 c Transform:
 c  scr2(l,tuv)= sum cmo(sl,x)*scr1(tuv,x)
       Do 777 ioit=1,4
-      Call icopy(4,1,0,indi,1)
+      Call icopy(4,[1],0,indi,1)
       indi(ioit)=2
       ncopy=nash(lsym)
       nskip1=mbas(lsym)

@@ -38,7 +38,7 @@
       Do i=1,lroots
        Call GetMem('OCIvec','Allo','Real',ipTmp,nConf)
        Call dDaFile(LuJob,2,Work(ipTmp),nConf,iDisk)
-       Call Gugactl(ipTmp,1)
+       Call Gugactl_MCLR(ipTmp,1)
        Call dDafile(LuCIV,1,Work(ipTmp),nconf,iDisk1)
        Call GetMem('OCIVEC','Free','Real',ipTmp,nConf)
       End Do

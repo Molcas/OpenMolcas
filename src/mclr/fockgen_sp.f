@@ -40,7 +40,7 @@
 *     Coulomb term: F  =2(pk|ji)d
 *                    kp          ij
 *
-      call dcopy_(nDens2,0.0d0,0,Fock,1)
+      call dcopy_(nDens2,[0.0d0],0,Fock,1)
 *
       n1=0
       Do iS = 1, nSym

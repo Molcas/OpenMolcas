@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine RlxCtl(iStop)
+      Use Chkpnt
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *     Program for determination of the new molecular geometry          *
@@ -45,6 +46,8 @@
       Call RdCtl_Slapaf(iRow,iInt,nFix,LuSpool,.False.)
 *
       Call Close_LuSpool(LuSpool)
+*
+      Call Chkpnt_open()
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -84,7 +87,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (lCtoF .AND. PrQ) Call Def_CtoF(.False.,nsAtom,AtomLbl,
+      If (lCtoF .AND. PrQ) Call Def_CtoF(.False.,Work(ipCM),
+     &                                   nsAtom,AtomLbl,
      &                                   Work(ipCoor),nSym,iOper,
      &                                   jStab,nStab)
 *                                                                      *
@@ -133,6 +137,20 @@
 *
       Call Put_dArray('BMtrx',Work(ipB),3*nsAtom*nQQ)
       Call Put_iScalar('No of Internal coordinates',nQQ)
+*
+*     Too many constraints?
+*
+      If (nLambda.gt.nQQ) Then
+         Call WarningMessage(2,'Error in RlxCtl')
+         Write (Lu,*)
+         Write (Lu,*) '********************************************'
+         Write (Lu,*) ' ERROR: nLambda.gt.nQQ'
+         Write (Lu,*) ' nLambda=',nLambda
+         Write (Lu,*) ' nQQ=',nQQ
+         Write (Lu,*) ' There are more constraints than coordinates'
+         Write (Lu,*) '********************************************'
+         Call Quit_OnUserError()
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -309,7 +327,7 @@
 *
       Call DstInf(iStop,Just_Frequencies,
      &            (lNmHss.or.lRowH) .and.iter.le.NmIter)
-      If (lCtoF) Call Def_CtoF(.True.,
+      If (lCtoF) Call Def_CtoF(.True.,Work(ipCM),
      &         nsAtom,AtomLbl,Work(ipCoor),nSym,iOper,jStab,nStab)
       If (.Not.User_Def .and.
      &   ((lNmHss.and.iter.ge.NmIter).or..Not.lNmHss)) Call cp_SpcInt
@@ -371,6 +389,9 @@
       If (Found) Then
          If (AixRm('GRADS').ne.0) Call Abend()
       End If
+*
+      Call Chkpnt_update()
+      Call Chkpnt_close()
 *                                                                      *
 ************************************************************************
 *                                                                      *

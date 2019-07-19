@@ -52,8 +52,8 @@ c
 c
 c     NOW DIAGONALIZE X2
 c
-      call dcopy_(n*n, (0.0d0), (0), v, 1)
-      call dcopy_(n, (1.0d0), (0), v, n+1)
+      call dcopy_(n*n, [0.0d0], 0, v, 1)
+      call dcopy_(n, [1.0d0], 0, v, n+1)
       CALL Jacob (x2, v, n, n)
 c
 c     CHECK FOR SMALL VALUES OF THE EIGENVALUES

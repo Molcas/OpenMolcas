@@ -33,8 +33,8 @@
 *     (2) Do diagnostics on how poorly or good the
 *         new basis spans the old space
 *
-      Error = DDot_(nA,A,nA+1,A,nA+1)
-     &      - DDot_(nB,B,nB+1,B,nB+1)
+      Error = DDot_(nA,AA,nA+1,AA,nA+1)
+     &      - DDot_(nB,BB,nB+1,BB,nB+1)
 *
       Return
       End

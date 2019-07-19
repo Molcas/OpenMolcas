@@ -9,13 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Freq2(nIter,Grdn,Shift,nInter,Delta,Stop,
-     &                qInt,ANM,nAtom,rMass)
+     &                qInt,ANM,nAtom,dMass)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
       Real*8 Grdn(nInter,nIter), Shift(nInter,nIter),
-     &       qInt(nInter,nIter+1), rMass(nAtom)
+     &       qInt(nInter,nIter+1), dMass(nAtom)
       Logical Stop, ANM
 *
       Call QEnter('Freq2')
@@ -37,6 +37,6 @@
 c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_logical(ANM)
-         Call Unused_real_array(rMass)
+         Call Unused_real_array(dMass)
       End If
       End

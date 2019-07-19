@@ -204,7 +204,7 @@ C     REAL * 8  INPROD
             write(6,*) ' number of diagonal elements to disc ',IDET
             CALL WRTMAT(DIAG,1,IDET,1,IDET)
           END IF
-          CALL ITODS(IDET,1,-1,LUDIA)
+          CALL ITODS([IDET],1,-1,LUDIA)
           CALL TODSC(DIAG,IDET,-1,LUDIA)
           IDET = 0
         END IF
@@ -219,7 +219,7 @@ C     REAL * 8  INPROD
         CALL WRTMAT(DIAG(1),1,IDET,1,IDET)
       END IF
 *
-      IF ( ICISTR.GE.2 ) CALL ITODS(-1,1,-1,LUDIA)
+      IF ( ICISTR.GE.2 ) CALL ITODS([-1],1,-1,LUDIA)
 *
       RETURN
       END

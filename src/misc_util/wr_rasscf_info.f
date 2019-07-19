@@ -23,30 +23,52 @@
       Character Name(nName)*1, Header(nHeader)*1, Title(nTitle)*1
       Real*8 Weight(MxRoot)
 *
-      Call iDaFile(Lu,iOpt, nActEl, 1,      iDisk)
-      Call iDaFile(Lu,iOpt, iSpin,  1,      iDisk)
-      Call iDaFile(Lu,iOpt, nSym,   1,      iDisk)
-      Call iDaFile(Lu,iOpt, lSym,   1,      iDisk)
+      Call s_iDaFile_rasscf(Lu,iOpt, nActEl, 1,      iDisk)
+      Call s_iDaFile_rasscf(Lu,iOpt, iSpin,  1,      iDisk)
+      Call s_iDaFile_rasscf(Lu,iOpt, nSym,   1,      iDisk)
+      Call s_iDaFile_rasscf(Lu,iOpt, lSym,   1,      iDisk)
       Call iDaFile(Lu,iOpt, nFro,   MxSym,  iDisk)
       Call iDaFile(Lu,iOpt, nISh,   MxSym,  iDisk)
       Call iDaFile(Lu,iOpt, nASh,   MxSym,  iDisk)
       Call iDaFile(Lu,iOpt, nDel,   MxSym,  iDisk)
       Call iDaFile(Lu,iOpt, nBas,   MxSym,  iDisk)
       Call cDaFile(Lu,iOpt, Name,   nName,  iDisk)
-      Call iDaFile(Lu,iOpt, nConf,  1,      iDisk)
+      Call s_iDaFile_rasscf(Lu,iOpt, nConf,  1,      iDisk)
       Call cDaFile(Lu,iOpt, Header, nHeader,iDisk)
       Call cDaFile(Lu,iOpt, Title,  nTitle, iDisk)
-      Call dDaFile(Lu,iOpt, PotNuc, 1,      iDisk)
-      Call iDaFile(Lu,iOpt, lRoots, 1,      iDisk)
-      Call iDaFile(Lu,iOpt, nRoots, 1,      iDisk)
+      Call s_dDaFile_rasscf(Lu,iOpt, PotNuc, 1,      iDisk)
+      Call s_iDaFile_rasscf(Lu,iOpt, lRoots, 1,      iDisk)
+      Call s_iDaFile_rasscf(Lu,iOpt, nRoots, 1,      iDisk)
       Call iDaFile(Lu,iOpt, iRoot,  MxRoot, iDisk)
       Call iDaFile(Lu,iOpt, nRS1,   MxSym,  iDisk)
       Call iDaFile(Lu,iOpt, nRS2,   MxSym,  iDisk)
       Call iDaFile(Lu,iOpt, nRS3,   MxSym,  iDisk)
-      Call iDaFile(Lu,iOpt, nHole1, 1,      iDisk)
-      Call iDaFile(Lu,iOpt, nElec3, 1,      iDisk)
-      Call iDaFile(Lu,iOpt, iPT2,   1,      iDisk)
+      Call s_iDaFile_rasscf(Lu,iOpt, nHole1, 1,      iDisk)
+      Call s_iDaFile_rasscf(Lu,iOpt, nElec3, 1,      iDisk)
+      Call s_iDaFile_rasscf(Lu,iOpt, iPT2,   1,      iDisk)
       Call dDaFile(Lu,iOpt, Weight, MxRoot, iDisk)
 *
       Return
+*
+*     This is to allow type punning without an explicit interface
+      Contains
+      Subroutine s_iDaFile_rasscf(Lu,iOpt,Buf,lBuf_,iDisk_)
+      Use Iso_C_Binding
+      Integer Lu, iOpt, lBuf_, iDisk_
+      Integer, Target :: Buf
+      Integer, Pointer :: pBuf(:)
+      Call C_F_Pointer(C_Loc(Buf),pBuf,[1])
+      Call iDaFile(Lu,iOpt,pBuf,lBuf_,iDisk_)
+      Nullify(pBuf)
+      End Subroutine s_iDaFile_rasscf
+      Subroutine s_dDaFile_rasscf(Lu,iOpt,Buf,lBuf_,iDisk_)
+      Use Iso_C_Binding
+      Integer Lu, iOpt, lBuf_, iDisk_
+      Real*8, Target :: Buf
+      Real*8, Pointer :: pBuf(:)
+      Call C_F_Pointer(C_Loc(Buf),pBuf,[1])
+      Call dDaFile(Lu,iOpt,pBuf,lBuf_,iDisk_)
+      Nullify(pBuf)
+      End Subroutine s_dDaFile_rasscf
+*
       End

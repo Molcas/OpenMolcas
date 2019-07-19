@@ -32,7 +32,7 @@ c      save iter,ipp
       endif
 
       do 100 ivec=1,nvec
-      call fmove(c(1,ivec),axc(1,ivec),nprm)
+      call fmove_cvb(c(1,ivec),axc(1,ivec),nprm)
       call hess_cvb(axc(1,ivec))
       call ddproj_cvb(axc(1,ivec),nprm)
 100   continue

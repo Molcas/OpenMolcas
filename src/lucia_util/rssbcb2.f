@@ -107,7 +107,7 @@
       DIMENSION CB(*),SB(*)
 *. Scratch
       DIMENSION SSCR(*),CSCR(*),I1(*),XI1S(*),I2(*),XI2S(*)
-      DIMENSION I3(*),XI3S(*)
+      DIMENSION I3(*),XI3S(*),I4(*),XI4S(*)
       DIMENSION C2(*)
       DIMENSION CJRES(*),SIRES(*)
       DIMENSION IBLOCK(8)
@@ -297,7 +297,7 @@ c          IF( IUSE_PA.EQ.0 ) THEN
      &                            I2,   XI2S,     I3,   XI3S,     I4,
      &                          XI4S,   XINT,  NSMOB,  NSMST,  NSMSX,
      &                         NSMDX, MXPOBS, IUSEAB,  CJRES,  SIRES,
-     &                        SCLFAC,  NTEST,      0,      0,IUSE_PH,
+     &                        SCLFAC,  NTEST,      0,    [0],IUSE_PH,
 *
      &                        IPHGAS,  XINT2)
           CALL TIMING(CPU1,CPU,WALL1,WALL)
@@ -340,7 +340,7 @@ c          IF(IUSE_PA.EQ.0) THEN
      &                            I2,   XI2S,     I3,   XI3S,     I4,
      &                          XI4S,   XINT,  NSMOB,  NSMST,  NSMSX,
      &                         NSMDX, MXPOBS, IUSEAB,  CJRES,  SIRES,
-     &                        SCLFAC,  NTEST,      0,      0,IUSE_PH,
+     &                        SCLFAC,  NTEST,      0,    [0],IUSE_PH,
 *
      &                        IPHGAS,  XINT2)
           CALL TIMING(CPU1,CPU,WALL1,WALL)

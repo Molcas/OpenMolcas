@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE PRDRT(NVERT,DRT,DOWN)
+      SUBROUTINE PRDRT_MCLR(NVERT,DRT,DOWN)
       IMPLICIT INTEGER (A-Z)
       DIMENSION DRT(NVERT,5),DOWN(NVERT,0:3)
       WRITE(6,*)

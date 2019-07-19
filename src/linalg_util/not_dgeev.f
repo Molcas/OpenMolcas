@@ -8,12 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine not_DGeEV(iOpt,a,lda,w,z,ldz,select,n,aux,naux)
+      Subroutine not_DGeEV(iOpt,a,lda,w,z,ldz,n,aux,naux)
       Implicit Real*8 (a-h,o-z)
       Real*8 a(lda,n),w(2,n), z(2*ldz*n), aux(naux)
       parameter(nw1=200)
       Real*8 w1(nw1)
-      Logical select(n)
 *
       If (iOpt.eq.2) Then
          Write (6,*) 'not_DGeEV: iOpt=2 is not implemented yet!'
@@ -37,7 +36,7 @@
          Call Abend()
       End If
       iErr=0
-      Call XEIGEN(iOpt,lda,n,a,w,w1,z,aux,aux(iOff),iErr)
+      Call XEIGEN(iOpt,lda,n,a,w,w1,z,iErr)
       If (iErr.ne.0) Then
          Write (6,*) ' not_DGeEV: iErr=/= 0!'
          Call Abend()
@@ -75,12 +74,10 @@
            call dcopy_(N,Z(iOff+1),1,Aux,1)
            iOff=(i-1)*2*n
            call dcopy_(N,Aux(1  ),1,Z(iOff+1),2)
-           call dcopy_(N,0.0D0,   0,Z(iOff+2),2)
+           call dcopy_(N,[0.0D0], 0,Z(iOff+2),2)
         End If
         i=i-1
       End Do
 *
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_logical_array(select)
       End

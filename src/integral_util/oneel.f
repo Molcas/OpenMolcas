@@ -76,7 +76,7 @@
 *     Will just store the unique elements, i.e. low triangular blocks
 *     and lower triangular elements in the diagonal blocks.
 *
-      Call ICopy(nComp,-1,0,ip,1)
+      Call ICopy(nComp,[-1],0,ip,1)
       LenTot=0
       Do iComp = 1, nComp
          LenInt=n2Tri(lOper(iComp))
@@ -84,7 +84,7 @@
       End Do
       Call mma_allocate(Array,LenTot,label='Array')
       ip(1)=1
-      call dcopy_(LenTot,Zero,0,Array(ip(1)),1)
+      call dcopy_(LenTot,[Zero],0,Array(ip(1)),1)
       iadr=ip(1)
       do iComp = 1, nComp
          LenInt=n2Tri(lOper(iComp))
@@ -141,17 +141,18 @@
                End If
                call mma_allocate(Out,mDim*nComp,label='Out')
                ipOut=1
-               call dcopy_(mDim*nComp,Zero,0,Out,1)
+               call dcopy_(mDim*nComp,[Zero],0,Out,1)
                call mma_allocate(Nuc,nComp,label='Nuc')
                ipNuc=1
-               call dcopy_(nComp,Zero,0,Nuc,1)
+               call dcopy_(nComp,[Zero],0,Nuc,1)
             End If
             nInt=n2Tri(iSmLbl)
             If (nInt.ne.0)
      &      Call CmpInt(Array(ip(iComp)),nInt,nBas,nIrrep,iSmLbl)
             Nuc(ipNuc+(iComp-1)) = Array(ip(iComp)+nInt+3)
             If (nInt.ne.0)
-     &      Call XProp(Short,nIrrep,nBas,nVec,Vec,nOcc,Occ,
+     &      Call XProp(Short,ifallorb,
+     &                 nIrrep,nBas,nVec,Vec,nOcc,Occ,
      &                 Thrs,nDen,Array(ip(iComp)),
      &                 Out(ipOut+(iComp-1)*mDim))
 *
@@ -198,7 +199,7 @@ c               Close(28)
                End If
                Call Prop(Short,Label,Ccoor(1,1),Ccoor(1,ipC2),
      &                   nIrrep,nBas,mDim,Occ,Thrs,
-     &                   Out,Nuc,lpole,plabs,TMat,Temp)
+     &                   Out,Nuc,lpole,plabs,TMat,Temp,ifallorb)
 *
 * For a properties calculation, save the values of EF or CNT operators,
 * they will be used to write the sum through Add_Info in Drv1El
@@ -550,7 +551,7 @@ C     Logical Addpot
          l_SOInt=iBas*jBas*nSO
          Call mma_allocate(SOInt,l_SOInt,label='SOInt')
          ipSO=1
-         Call dCopy_(l_SOInt,Zero,0,SOInt,1)
+         Call dCopy_(l_SOInt,[Zero],0,SOInt,1)
          Call OneEl_IJ(iS,jS,iPrint,Do_PGamma,
      &                 Zeta,ZI,Kappa,PCoor,
      &                 Kernel,KrnlMm,Label,lOper,nComp,CCoor,
@@ -571,10 +572,9 @@ C     Logical Addpot
 *           Special trick for integrals over electromagnetic field
 *           radiation integrals.
 *
-            rHrmt_Save=Zero
+            rHrmt_Save=rHrmt
 
             If (Label(1:5).eq.'EMFR '.or.Label(1:5).eq.'TMOS ') Then
-               rHrmt_Save=rHrmt
                If (MOD((iComp+5),6).lt.3) Then
                   rHrmt= One
                Else
@@ -588,15 +588,14 @@ C     Logical Addpot
                   rHrmt=-One
                End If
             End If
-*           Write (*,*) ',iComp,rHrmt=',iComp,rHrmt
+*           Write (*,*) 'Label,iComp,rHrmt=',Label,iComp,rHrmt
             If (mSO.ne.0) Then
                Call SOSctt(SOInt(iSOBlk),iBas,jBas,mSO,Array(ip(iComp)),
      &                     n2Tri(iSmLbl),iSmLbl,iCmp,jCmp,iShell,
      &                     jShell,iAO,jAO,nComp,Label,lOper,rHrmt)
                iSOBlk = iSOBlk + mSO*iBas*jBas
             End If
-            If (Label(1:4).eq.'EMFR'.or.Label(1:4).eq.'TMOS')
-     &          rHrmt=rHrmt_Save
+            rHrmt=rHrmt_Save
          End Do
          Call mma_deallocate(SOInt)
       End If

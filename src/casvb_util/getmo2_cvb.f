@@ -22,7 +22,7 @@ c  Construct full matrix of MOs in symmetry-adapted AO basis :
       call fzero(cmo,nbas_mo*nbas_mo)
       do 100 isk=1,nsym_mo
       do 100 jbas=1,nbasi_mo(isk)
-100   call fmove(cmoblk(1+nbassqf_mo(isk)+(jbas-1)*nbasi_mo(isk)),
+100   call fmove_cvb(cmoblk(1+nbassqf_mo(isk)+(jbas-1)*nbasi_mo(isk)),
      >  cmo(nbasf_mo(isk)+1,jbas+nbasf_mo(isk)),nbasi_mo(isk))
 
       if(mod(ic,2).eq.1)then
@@ -32,7 +32,7 @@ c  Construct full matrix of MOs in symmetry-adapted AO basis :
 
       if(ic.ge.2)then
         do 200 iorb=1,nact_mo
-200     call fmove(cmo(1,iact_mo(iorb)),cmo2(1,iorb),nbas_mo)
+200     call fmove_cvb(cmo(1,iact_mo(iorb)),cmo2(1,iorb),nbas_mo)
       endif
       return
       end

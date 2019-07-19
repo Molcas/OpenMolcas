@@ -20,8 +20,23 @@
 #include "cpfmcpf.fh"
 C
       CALL QENTER('CPFCTL')
-      CALL EPSBIS(H(LW(2)),H(LW(3)),H(LW(26)),H(LW(28)),H(LW(75)))
-      CALL EPSPRIM(H(LW(2)),H(LW(3)),H(LW(26)),H(LW(27)),H(LW(32)))
+      CALL CPFCTL_INTERNAL(H)
+      CALL QEXIT('CPFCTL')
+*
+*     This is to allow type punning without an explicit interface
+      CONTAINS
+      SUBROUTINE CPFCTL_INTERNAL(H)
+      USE ISO_C_BINDING
+      REAL*8, TARGET :: H(*)
+      INTEGER, POINTER :: iH1(:),iH2(:),iH3(:)
+      CALL C_F_POINTER(C_LOC(H(LW(2))),iH2,[1])
+      CALL C_F_POINTER(C_LOC(H(LW(3))),iH3,[1])
+      CALL EPSBIS(iH2,iH3,H(LW(26)),H(LW(28)),H(LW(75)))
+      NULLIFY(iH2,iH3)
+      CALL C_F_POINTER(C_LOC(H(LW(2))),iH2,[1])
+      CALL C_F_POINTER(C_LOC(H(LW(3))),iH3,[1])
+      CALL EPSPRIM(iH2,iH3,H(LW(26)),H(LW(27)),H(LW(32)))
+      NULLIFY(iH2,iH3)
       IP=IRC(4)
       CALL VECSUM_CPFMCPF(H(LW(32)),ENER,IP)
       ETOTT=ENER+POTNUC
@@ -54,11 +69,11 @@ C If more iterations should be done, goto 20.
       CALL XFLUSH(6)
 31    FORMAT(5X,'FINAL CORRELATION ENERGY',F14.8,'  REFERENCE ENERGY',
      *F17.8)
-      If (ISDCI.EQ.1) Call Add_Info('E_SDCI',ETOT,1,8)
-      If (ICPF.EQ.1)  Call Add_Info('E_CPF',ETOT,1,8)
-      If (INCPF.EQ.1) Call Add_Info('E_ACPF',ETOT,1,8)
+      If (ISDCI.EQ.1) Call Add_Info('E_SDCI',[ETOT],1,8)
+      If (ICPF.EQ.1)  Call Add_Info('E_CPF',[ETOT],1,8)
+      If (INCPF.EQ.1) Call Add_Info('E_ACPF',[ETOT],1,8)
       If (ISDCI.EQ.0.AND.ICPF.EQ.0.AND.INCPF.EQ.0)
-     &                Call Add_Info('E_MCPF',ETOT,1,8)
+     &                Call Add_Info('E_MCPF',[ETOT],1,8)
       CALL XFLUSH(6)
       IF(ISDCI.EQ.0)GO TO 21
       EENP=H(LW(31)+IRC(4)-1)
@@ -79,20 +94,25 @@ C If more iterations should be done, goto 20.
 34      FORMAT(/,(5X,'ENP',5F10.6))
       END IF
 
-      CALL QEXIT('CPFCTL')
       RETURN
 
 20    CONTINUE
 C Here if ICONV.EQ.0 and  ITER.NE.MAXIT (More iterations to do).
       IDIIS=0
       IF(ITPUL.EQ.MAXITP)IDIIS=1
+      CALL C_F_POINTER(C_LOC(H(LW(1))),iH1,[1])
       CALL  APPRIM(H(LW(32)),H(LW(75)),H(LW(30)),H(LW(76)),H(LW(31)),
-     &             H(LW(79)),H(LW(80)),H(LW(1)))
-      CALL CUPDATE(H(LW(2)),H(LW(3)),H(LW(26)),H(LW(27)),
+     &             H(LW(79)),H(LW(80)),iH1)
+      NULLIFY(iH1)
+      CALL C_F_POINTER(C_LOC(H(LW(2))),iH2,[1])
+      CALL C_F_POINTER(C_LOC(H(LW(3))),iH3,[1])
+      CALL CUPDATE(iH2,iH3,H(LW(26)),H(LW(27)),
      &             H(LW(76)),H(LW(33)),H(LW(80)),H(LW(31)))
+      NULLIFY(iH2,iH3)
       ITP=ITPUL+1
       CALL    DIIS_CPF(H(LW(26)),H(LW(27)),H(LW(33)),
      &             MAXIT,H(LW(77)),ITP,H(LW(78)))
-      CALL QEXIT('CPFCTL')
       RETURN
+      END SUBROUTINE CPFCTL_INTERNAL
+*
       END

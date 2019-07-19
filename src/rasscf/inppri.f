@@ -31,6 +31,8 @@
       use qcmaquis_interface_cfg
       use qcmaquis_interface_environment, only: print_dmrg_info
 #endif
+      use fcidump, only : DumpOnly
+      use fciqmc, only : DoNECI
 
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -43,10 +45,14 @@
 #include "rctfld.fh"
 #include "WrkSpc.fh"
 #include "splitcas.fh"
-#include "fciqmc.fh"
+#include "lucia_ini.fh"
+#include "ksdft.fh"
       Character*8   Fmt1,Fmt2,Label
       Character*120  Line,BlLine,StLine
       Character*3 lIrrep(8)
+#ifdef _ENABLE_CHEMPS2_DMRG_
+      Character*3 SNAC
+#endif
       Logical DoCholesky
       Logical DoLocK,Deco, lOPTO, l_casdft
       Real*8  dmpK
@@ -171,7 +177,7 @@ C.. for GAS
       else
         DO IGAS=1,NGAS
           Write(LF,Fmt2//'A,I1,A,T45,2I6)')
-     &      'Min/Max nr of electrons up to GAS',IGAS,' space',
+     &      'Min/Max nr of electrons up to GAS',IGAS,' sp.',
      &                           igsoccx(igas,1),igsoccx(igas,2)
         END DO
       end if
@@ -232,8 +238,14 @@ C.. for GAS
      &                            (nDel(iSym),iSym=1,nSym)
       Write(LF,Fmt2//'A,T47,8I4)') 'Number of basis functions',
      &                            (nBas(iSym),iSym=1,nSym)
-      Call CollapseOutput(0,'Orbital specifications:')
       Write(LF,*)
+      If (kIVO) Then
+        Write(LF,Fmt2//'A,T47)') 'Improved Virtual Orbitals '//
+     &                           'option is used'
+        Write(LF,Fmt2//'A,T47)') 'Molecular Orbitals are NOT '//
+     &                           'suitable for CASPT2 & MRCI!'
+      End If
+      Call CollapseOutput(0,'Orbital specifications:')
 
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
       If(.Not.DoBlockDMRG) GoTo 113
@@ -268,6 +280,10 @@ C.. for GAS
      &                           Do3RDM
       Write(LF,Fmt2//'A,T45,I6)')'Restart scheme in 3-RDM and F.4-RDM',
      &                           chemps2_lrestart
+      write(SNAC, '(I3)') NAC
+      Write(LF,Fmt2//'A,T45,'//trim(adjustl(SNAC))//'I2)')
+     &                           'Occupation guess',
+     &                           (HFOCC(ihfocc), ihfocc=1,NAC)
 #endif
 
 * NN.14 FIXME: haven't yet checked whether geometry opt. works correctly with DMRG
@@ -291,18 +307,26 @@ C.. for GAS
       Write(LF,Fmt1)'----------------------------'
       Write(LF,*)
 
-      if(doDMRG)then  ! Information for DMRG
+      if(doDMRG)then  !> Information for QCMaquis-DMRG
 #ifdef _DMRG_
        if(dmrg_orbital_space%initial_occ(1,1) > 0)then
          dmrg_start_guess = "Single determinant"
        else
-         dmrg_start_guess = "Random numbers (default)"
+         if(dmrg_warmup%doCIDEAS)then
+           dmrg_start_guess = "CI-DEAS"
+         else
+           dmrg_start_guess = "Random numbers (default)"
+         end if
        end if
        call print_dmrg_info(lf,fmt2,1,dmrg_start_guess,nroots,thre)
 #endif
       else
         Write(LF,Fmt2//'A,T40,I11)')'Number of CSFs',
      &                           NCSASM(LSYM)
+        if (N_ELIMINATED_GAS_MOLCAS.gt.0) Then
+          Write(LF,Fmt2//'A,T40,I11)')'Number of highly excited CSFs',
+     &                           nCSF_HEXS
+        EndIf
         Write(LF,Fmt2//'A,T40,I11)')'Number of determinants',
      &                           NDTASM(LSYM)
       end if
@@ -429,8 +453,8 @@ C.. for GAS
 * NN.14 FIXME: in DMRG-CASSCF, skip this check for the time
 *              since Block DMRG code will check this internally
 *     If (NROOTS .GT. NCSASM(LSYM)) Then
-      If (.not.iDoNeci .and. .not.doDMRG
-     &    .and. .not.doBlockDMRG .and. NROOTS .GT. NCSASM(LSYM)) Then
+      If (.not. (DoNECI .or. DumpOnly .or. doDMRG .or. doBlockDMRG)
+     &    .and. (NROOTS > NCSASM(LSYM))) Then
          Write(LF,*) '************ ERROR ***********'
          Write(LF,*) ' You can''t ask for more roots'
          Write(LF,*) ' than there are configurations '
@@ -494,6 +518,9 @@ C.. for GAS
        IF(l_casdft) then
           Write(LF,Fmt2//'A)') 'This is a MC-PDFT calculation '//
      &                         'with functional: '//KSDFT
+          Write(LF,Fmt2//'A,T45,E10.3)')'Exchange scaling factor',CoefX
+          Write(LF,Fmt2//'A,T45,E10.3)')'Correlation scaling factor',
+     &                                 CoefR
        end if
 ************************************************************************
 
@@ -580,6 +607,8 @@ C.. for GAS
 *---- Print out grid information in case of DFT
 *
        If (KSDFT.ne.'SCF') Then
+         Call Put_dScalar('DFT exch coeff',CoefX)
+         Call Put_dScalar('DFT corr coeff',CoefR)
          Call Funi_Print
        End If
       END IF

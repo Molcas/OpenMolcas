@@ -12,6 +12,7 @@
 * Initialization procedure for a program module.
       Implicit None
       Character*(*) ModuleName
+      Character*8 Prin
 #include "para_info.fh"
 #ifdef _MOLCAS_MPP_
       Logical parallelized
@@ -185,10 +186,13 @@
 * At this point, everything should have been properly initialized!     *
 ************************************************************************
 * Finally, print useful runtime information about the module
+      call getenvf("MOLCAS_PRINT", Prin)
+      if(Prin(1:1).ne.'0'.and.Prin(1:1).ne.'S') then
       Call Print_Module_Header(ModuleName)
 * Force output to be written to stdout, such that in case of problems
 * later on, at least all the start info has been printed.
       Call xFlush(6)
+      endif
 * Write to the status file that the moduel has started
       Call StatusLine(ModuleName,' properly started!')
       Return

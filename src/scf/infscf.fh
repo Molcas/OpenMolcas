@@ -128,8 +128,8 @@
 * nConstr - number of constrained MOs for irrep                        *
 *                                                                      *
 * Atom    - name of atom *LENIN                                        *
-* Type    - type of basis function *4                                  *
-* Name    - Atom = Name(1:LENIN); Type = Name(LENIN+1:LENIN+4)         *
+* Type    - type of basis function *8                                  *
+* Name    - Atom = Name(1:LENIN); Type = Name(LENIN+1:LENIN+8)         *
 * AccCon  - acceleration convergence scheeme used in iteration         *
 *                                                                      *
 * ChFracMem - fraction of memory used as a buffer for keeping          *
@@ -173,7 +173,7 @@
      &        kIvo,iCoCo,iUHF,iROHF,jVOut,iPrOrb,iPrint,MinDMx,iDMin,
      &        MaxBas,MaxOrb,ivvloop,MaxFro,MaxOrF,MaxBxO,MaxBOO,MaxBOF,
      &        MaxOrO,nBB,nBO,nOO,nOV,nnB,nnO,nBT,nOT,nnOc,nnFr,nOFS,
-     &        nOFT,nDisc,nCore,iPrForm,MaxFlip,is_FileOrb,iterprlv,
+     &        nOFT,nDisc,nCore,iPrForm,MaxFlip,iterprlv,
      &        UHF_Size,nSkip(MxSym),iAu_ab,LstVec(nStOpt),
      &        iDummy_run, iTer2run
       Common /FIX_SCF/ iFix_Strt,
@@ -188,22 +188,24 @@
      &        MaxBOO,MaxBOF,MaxOrO,
      &        nBB,nBO,nOO,nOV,nnB,nnO,nBT,nOT,nnOc,nnFr,nOFS,
      &        nOFT,nDisc,nCore,UHF_Size,nSkip,iAu_ab,iPrForm,
-     &        MaxFlip,is_FileOrb,
+     &        MaxFlip,
      &        iDummy_run, iTer2run
 
-      Character*(LENIN4)   Name(MxBS)
+      Character*(LENIN8)   Name(MxBS)
       Character*9   AccCon
       Character*(LENIN)  Atom(MxBS)
-      Character*4   Type(MxBS)
+      Character*8   Type(MxBS)
       Character*4   Neg2_Action
       Character*16  KSDFT
       Character*512 SCF_FileOrb
+      Logical isHDF5
+      Integer fileorb_id
       Logical MSYMON
 
       Common /TEXTS1/ AccCon,KSDFT
       Common /TEXTS2/ Name,Atom,Type
       Common /SCFNG2/ Neg2_Action
-      Common /SCF_FileOrb/ SCF_FileOrb
+      Common /SCF_FileOrb/ SCF_FileOrb,isHDF5,fileorb_id
       Common /MSYMON/ MSYMON
 *----------------------------------------------------------------------*
 * Allocate space for timing informations                               *
@@ -273,23 +275,23 @@
 *                  => to be moved to Seward due to move of GuessOrb    *
 * NoExchange - Skip calculation of exchange contribution to the Fock   *
 *              matrix (introduced for debugging purposes)              *
-* Falcon     -T    = Fock matrix is stored in Runfile
+* Falcon     - T   = Fock matrix is stored in Runfile                  *
+* RSRFO      - F   = Use RS-RFO instead of DIIS extrapolation          *
 *----------------------------------------------------------------------*
       Logical Lgcl_Strt,Lgcl_End,FrstDs,FrstDa,DSCF,lRel,
      &        PreSch,MiniDn,WrOutD,c1Diis,Scrmbl,RFpert,Aufb,Teee,
      &        Damping,Diis,One_Grid,DoCholesky,DDnOFF,Two_Thresholds,
      &        PmTime,EmConv,WarnCfg,DoHLgap,AddFragments,WarnPocc,
      &        DoFMM,LKon,OnlyProp,DoLDF,NoExchange,WarnSlow,NoProp,
-     &        FckAuf,
-     &        Falcon
+     &        FckAuf,Falcon,RSRFO
       Common /Lgcl  / Lgcl_Strt,
      &                FrstDs,FrstDa,DSCF,lRel,Teee,
      &                PreSch,MiniDn,WrOutD,c1Diis,Scrmbl,RFpert,Aufb,
      &                Damping,Diis,One_Grid,DoCholesky,DDnOFF,
      &                Two_Thresholds,PmTime,EmConv,WarnCfg,DoHLgap,
      &                AddFragments,WarnPocc,DoFMM,LKon,OnlyProp,
-     &                DoLDF,NoExchange,WarnSlow,NoProp,Falcon,
-     &                FckAuf,
+     &                DoLDF,NoExchange,WarnSlow,NoProp,FckAuf,
+     &                Falcon,RSRFO,
      &                Lgcl_End
       Integer iStatPRN
       Common/PrintLev/ iStatPRN

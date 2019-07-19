@@ -25,8 +25,8 @@
       Implicit Real*8 (a-h,o-z)
       Integer   rc,nBas(8),nSym,iUHF
       Integer   ISTSQ(8),ISTLT(8)
-      Integer   ipFLT(3),ipFSQ(3)
-      Logical DoExchange(3),Debug
+      Integer   ipFLT(*),ipFSQ(*)
+      Logical DoExchange(*),Debug
 
 
 #include "WrkSpc.fh"

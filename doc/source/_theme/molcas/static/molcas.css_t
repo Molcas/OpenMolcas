@@ -1,0 +1,737 @@
+/***********************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2015,2017, Ignacio Fdez. Galván                        *
+***********************************************************************/
+
+/*
+ * molcas.css_t
+ * ~~~~~~~~~~~
+ *
+ * Sphinx stylesheet -- molcas theme, based on agogo.
+ */
+
+* {
+  margin: 0px;
+  padding: 0px;
+  box-sizing:border-box;
+  -moz-box-sizing:border-box;
+  -webkit-box-sizing:border-box;
+}
+
+body {
+  width: {{ theme_pagewidth }};
+  font-family: {{ theme_bodyfont }};
+  color: {{ theme_textcolor }};
+  background-color: {{ theme_bgcolor }};
+}
+
+
+/* Page layout */
+
+div.header, div.content, div.footer {
+  /*width: {{ theme_pagewidth }};*/
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+/* Default body styles */
+
+a {
+  color: {{ theme_linkcolor }};
+}
+
+div.source_link a {
+  text-decoration: none;
+}
+
+div.bodywrapper a, div.source_link a:hover {
+  text-decoration: underline;
+}
+
+.clearer {
+  clear: both;
+}
+
+.left {
+  float: left;
+}
+
+.right {
+  float: right;
+}
+
+.line-block {
+    display: block;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.line-block .line-block {
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 1.5em;
+}
+
+h1, h2, h3, h4, h5, h6,
+div.document p.rubric {
+  font-family: {{ theme_headerfont }};
+  font-weight: normal;
+  color: {{ theme_headercolor }};
+  margin-bottom: 0.8em;
+  text-align: left;
+}
+
+div.document p.rubric {
+  font-size: 120%;
+  margin-top: 0.8em;
+}
+
+h2 {
+  padding-bottom: 0.5em;
+  border-bottom: 1px solid {{ theme_headercolor }};
+}
+
+a.headerlink {
+  visibility: hidden;
+  text-decoration: none;
+  color: {{ theme_faintcolor }};
+  padding-left: 0.3em;
+}
+
+h1:hover > a.headerlink,
+h2:hover > a.headerlink,
+h3:hover > a.headerlink,
+h4:hover > a.headerlink,
+h5:hover > a.headerlink,
+h6:hover > a.headerlink,
+dt:hover > a.headerlink,
+caption:hover > a.headerlink,
+p.caption:hover > a.headerlink,
+div.code-block-caption:hover > a.headerlink {
+  visibility: visible;
+  text-decoration: none;
+}
+
+img {
+  border: 0;
+}
+
+div.admonition {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 2px 7px 1px 7px;
+  border-left: 0.2em solid black;
+}
+
+p.admonition-title {
+  margin: 0px 10px 5px 0px;
+  font-weight: bold;
+}
+
+div.warning {
+  background-color: #ffdddd;
+  background: repeating-linear-gradient(135deg, #ffdddd, #ffdddd 10px, transparent 10px, transparent 20px);
+}
+
+dt:target, .highlighted {
+  background-color: {{ theme_hlcolor }};
+}
+
+/* Header */
+
+div.header-wrapper {
+  background: {{ theme_headerbg }};
+  border-bottom: 4px solid {{ theme_headerbordercolor }};
+}
+
+div.header {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 20px;
+  padding-right: 20px;
+  color: {{ theme_headercolor }};
+}
+
+div.header .headertitle {
+  font-family: {{ theme_headerfont }};
+  font-weight: normal;
+  font-size: 180%;
+  margin-bottom: 0.8em;
+}
+
+div.header div.styles {
+  font-size: 75%;
+}
+div.header div.placeholder {
+  position: absolute;
+  top: 1em;
+  right: 1em;
+  display: inline;
+  opacity: 1;
+  transition: opacity 0s 1s;
+}
+div.header div.styleswitcher {
+  position: absolute;
+  top: 1em;
+  right: 1em;
+  display: inline;
+  opacity: 0;
+  transition: opacity 0s 1s;
+}
+div.header div.styles:hover div.placeholder {
+  opacity: 0;
+  transition-delay: 0s;
+}
+div.header div.styles:hover div.styleswitcher {
+  opacity: 1;
+  transition-delay: 0s;
+}
+
+div.header div.currenttitle {
+  /* default display:none, it will be activated with javascript,
+     because this element is only useful with static navigation */
+  display: none;
+  float: right;
+}
+
+div.header div.rel {
+  margin-top: 1em;
+}
+
+div.header div.rel a {
+  color: {{ theme_headerlinkcolor }};
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+p.logo {
+    float: left;
+    margin-right: 20px;
+}
+
+img.logo {
+    max-height: 5em;
+    border: 0;
+}
+
+
+/* Content */
+div.content-wrapper {
+  background-color: {{ theme_bgcolor }} ;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+div.document {
+  width: {{ theme_documentwidth }};
+  float: right;
+}
+
+div.body {
+  padding: 0 20px;
+  text-align: {{ theme_textalign }};
+}
+
+div.document h1 {
+  line-height: 120%;
+}
+
+div.document ul {
+  text-align: left;
+  margin: 1.5em;
+  list-style-type: disc;
+}
+
+div.document dd {
+  margin-left: 1.2em;
+  margin-top: 0.4em;
+  margin-bottom: 1em;
+}
+
+div.document .section {
+  margin-top: 1.7em;
+}
+div.document .section:first-child {
+  margin-top: 0px;
+}
+
+div.document div.highlight {
+  padding: 3px;
+  background-color: #eeeeec;
+  border-top: 2px solid #dddddd;
+  border-bottom: 2px solid #dddddd;
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+
+div.document h2 {
+  margin-top: 0.7em;
+}
+
+div.document p {
+  line-height: {{ theme_lineheight }};
+  margin-bottom: 0.5em;
+}
+
+div.document li.toctree-l1 {
+  margin-bottom: 1em;
+}
+
+div.document .descname {
+  font-weight: bold;
+}
+
+div.document .sig-paren {
+  font-size: larger;
+}
+
+div.document .docutils.literal {
+  background-color: #eeeeec;
+  padding: 1px;
+}
+
+div.document .docutils.xref.literal {
+  background-color: transparent;
+  padding: 0px;
+}
+
+div.document blockquote {
+  margin: 1em;
+}
+
+div.document ol {
+  margin: 1.5em;
+}
+
+pre, .pre {
+  font-family: {{ theme_codefont }};
+  line-height: normal;
+}
+
+div.document div.math p {
+  text-indent: 0;
+  text-align: center;
+  margin: 0.5em 0;
+}
+
+
+/* Sidebar */
+
+div.sidebar {
+  width: {{ theme_sidebarwidth }};
+  float: left;
+  font-size: 0.9em;
+  background-color: {{ theme_sidebarbg }};
+  color: {{ theme_sidebarcolor }};
+  padding: 1em;
+  margin-top: -20px;
+  border: solid {{ theme_headerbordercolor }};
+  border-width: 0 2px 2px 0;
+}
+
+div.sidebar a, div.header a {
+  text-decoration: none;
+}
+
+div.sidebar a:hover, div.header a:hover {
+  text-decoration: underline;
+}
+
+div.sidebar h3 {
+  color: {{ theme_sidebarcolor }};
+  text-transform: uppercase;
+  font-size: 130%;
+  letter-spacing: 0.1em;
+}
+
+div.sidebar ul {
+  list-style-type: none;
+}
+
+div.sidebar li.toctree-l1 a {
+  display: block;
+  padding: 1px;
+  border: 1px solid {{ theme_sidebarcolor }};
+  background-color: {{ theme_sidebarhlcolor }};
+  margin-bottom: 0.4em;
+  padding-left: 3px;
+  color: {{ theme_sidebarlinkcolor }};
+}
+
+div.sidebar li.toctree-l2 a {
+  background-color: transparent;
+  border: none;
+  margin-left: 1em;
+  border-bottom: 1px solid {{ theme_sidebarcolor}};
+}
+
+div.sidebar li.toctree-l3 a {
+  background-color: transparent;
+  border: none;
+  margin-left: 2em;
+  border-bottom: 1px solid {{ theme_sidebarcolor}};
+}
+
+div.sidebar li.toctree-l1.current a {
+  border-right: 10px solid {{ theme_sidebarcolor }};
+}
+
+div.sidebar li.toctree-l1.current li.toctree-l2 a {
+  border-right: none;
+}
+
+div.sidebar input[type="text"] {
+  width: 170px;
+  font-family: {{ theme_headerfon }};
+}
+
+div.sidebar input[type="submit"] {
+  width: 30px;
+}
+
+
+/* Footer */
+
+div.footer-wrapper {
+  background: {{ theme_footerbg }};
+  border-top: 4px solid {{ theme_footerbordercolor }};
+}
+
+div.footer-wrapper > div.footer {
+  color: {{ theme_footercolor }};
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+div.footer a {
+  color: {{ theme_footerlinkcolor }};
+}
+
+div.footer .right {
+  text-align: right;
+}
+
+div.footer .left {
+  text-transform: uppercase;
+}
+
+div.source_link {
+  margin-top: 10px;
+}
+
+
+/* Styles copied from basic theme */
+
+img.align-left, .figure.align-left, object.align-left {
+    clear: left;
+    float: left;
+    margin-right: 1em;
+}
+
+img.align-right, .figure.align-right, object.align-right {
+    clear: right;
+    float: right;
+    margin-left: 1em;
+}
+
+img.align-center, .figure.align-center, object.align-center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.align-left {
+    text-align: left;
+}
+
+.align-center {
+    text-align: center;
+}
+
+.align-right {
+    text-align: right;
+}
+
+/* -- search page ----------------------------------------------------------- */
+
+ul.search {
+    margin: 10px 0 0 20px;
+    padding: 0;
+}
+
+ul.search li {
+/*
+    padding: 5px 0 5px 20px;
+    background-image: url(file.png);
+    background-repeat: no-repeat;
+    background-position: 0 7px;
+*/
+}
+
+ul.search li a {
+    font-weight: bold;
+}
+
+ul.search li div.context {
+    color: {{ theme_faintcolor }};
+    margin: 2px 0 0 30px;
+    text-align: left;
+}
+
+ul.keywordmatches li.goodmatch a {
+    font-weight: bold;
+}
+
+/* -- index page ------------------------------------------------------------ */
+
+table.contentstable {
+    width: 90%;
+}
+
+table.contentstable p.biglink {
+    line-height: 150%;
+}
+
+a.biglink {
+    font-size: 1.3em;
+}
+
+span.linkdescr {
+    font-style: italic;
+    padding-top: 5px;
+    font-size: 90%;
+}
+
+/* -- general index --------------------------------------------------------- */
+
+table.indextable td {
+    text-align: left;
+    vertical-align: top;
+}
+
+table.indextable dl, table.indextable dd {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+table.indextable tr.pcap {
+    height: 10px;
+}
+
+table.indextable tr.cap {
+    margin-top: 10px;
+    background-color: {{ theme_bgcolor }};
+}
+
+img.toggler {
+    margin-right: 3px;
+    margin-top: 3px;
+    cursor: pointer;
+}
+
+/* -- viewcode extension ---------------------------------------------------- */
+
+.viewcode-link {
+    float: right;
+}
+
+.viewcode-back {
+    float: right;
+    font-family:: {{ theme_bodyfont }};
+}
+
+div.viewcode-block:target {
+    margin: -1px -3px;
+    padding: 0 3px;
+    background-color: #f4debf;
+    border-top: 1px solid #ac9;
+    border-bottom: 1px solid #ac9;
+}
+
+
+/* Changes for indented paragraphs */
+
+div.document p {
+  text-indent: 1em;
+  margin: 0;
+}
+
+div.document p.compound-last,
+div.document p.compound-middle {
+  text-indent: 0;
+}
+
+dd p.first,
+li p.first,
+dd .first p.compound-first,
+li .first p.compound-first {
+  text-indent: 0;
+}
+
+.container.list {
+  margin-bottom: 0;
+}
+
+.container.list p {
+  text-indent: -2em;
+  margin-top: 0;
+  margin-bottom: 0;
+  margin-left: 3em;
+  text-align: left;
+}
+
+div.document ul,
+div.document ol,
+div.document dd,
+div.line-block {
+  line-height: {{ theme_lineheight }};
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+
+/* Other additions */
+
+/* missing cross-references */
+em.xref {
+  background-color: #A00;
+  color: white;
+}
+
+/* local TOC */
+div.contents {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  padding-bottom: 0.5em;
+  border-bottom: 1px solid {{ theme_headercolor }};
+}
+
+/* equations */
+.eqno {
+  float: right;
+}
+
+/* bibliography */
+div.document table.docutils.citation {
+  border: none;
+  margin: 0.8em 0;
+}
+
+.citation {
+  margin-top: 0.5em;
+  text-align: left;
+}
+
+.citation .label {
+  width: 3.2em;
+}
+
+/* captions */
+div.document p.caption,
+div.document caption,
+div.document div.code-block-caption {
+  font-size: 85%;
+  text-indent: 0;
+  text-align: center;
+  line-height: normal;
+}
+
+div.document caption,
+div.float-wrapper p.caption {
+  margin-bottom: 0.5em;
+}
+div.document div.code-block-caption {
+  margin-top: 0.5em;
+}
+
+div.document div.code-block-caption + div.highlight-none {
+  margin-top: calc( -0.8em / 0.85 + 0.5em );
+  margin-bottom: calc( 0.8em / 0.85 );
+}
+
+div.figure p.caption,
+div.float-wrapper p.caption {
+  width: 66%;
+  margin-left: 17%;
+  margin-right: 17%;
+}
+
+span.caption-number {
+  font-style: italic;
+}
+
+/* footnotes */
+div.document table.docutils.footnote {
+  border: none;
+  margin: 0;
+}
+
+div.document table.docutils:not([class~="footnote"]) + table.docutils.footnote {
+  margin-top: -0.8em;
+}
+
+div.document table.docutils.footnote + p {
+  margin-top: 0.8em;
+}
+
+table.footnote {
+  font-size: 85%;
+  line-height: normal;
+}
+
+table.footnote td.label {
+  padding-right: 0.5em;
+}
+
+.footnote-reference sup {
+  vertical-align: text-top;
+}
+
+.fn-backref {
+  font-style: italic;
+}
+
+/* Code blocks */
+div.document div.highlight {
+  overflow: auto;
+}
+
+/* Tables */
+div.document table.docutils {
+  border-collapse: separate;
+  border: solid black;
+  border-width: 2px 0;
+  border-spacing: 0.5em 0;
+  margin: 0.8em auto;
+}
+
+div.document table.docutils td,
+div.document table.docutils th {
+  text-align: left;
+  vertical-align: baseline;
+  font-weight: normal;
+  border: none;
+}
+
+div.document table.docutils th[colspan] {
+  text-align: center;
+}
+
+div.document div.figure,
+div.toctree-wrapper,
+div.document div.float-wrapper {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+

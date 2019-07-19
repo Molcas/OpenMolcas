@@ -152,8 +152,9 @@ C?    WRITE(6,*) ' NTEST = ',NTEST
 *
         IMZERO=0
         IF(LUIN.GT.0) THEN
-          CALL IDAFILE(LUIN,2,LDET,1,IDISK(LUIN))
-          CALL IDAFILE(LUIN,2,IDUMMY,1,IDISK(LUIN))
+          CALL IDAFILE(LUIN,2,IDUM_ARR,1,IDISK(LUIN))
+          LDET=IDUM_ARR(1)
+          CALL IDAFILE(LUIN,2,IDUM_ARR,1,IDISK(LUIN))
           IDET = 0
           CALL FRMDSC(   VEC(1),     LDET,       -1,     LUIN,   IMZERO,
      &                  IAMPACK)
@@ -231,7 +232,7 @@ C?         write(6,*) ' IDET,X,VEC(IDET) ', IDET,X,VEC(IDET)
         END IF
 *
         IF(LUOUT.GT.0) THEN
-          CALL ITODS(LDET,1,-1,LUOUT)
+          CALL ITODS([LDET],1,-1,LUOUT)
           CALL TODSC(VEC,LDET,-1,LUOUT)
 C?        WRITE(6,*) ' Number of elements transferred to DISC ',
 C?   &    LDET
@@ -242,8 +243,7 @@ C?   &    LDET
       END DO
 *
       IF(LUOUT.GT.0) THEN
-       IONEM = -1
-       CALL ITODS(IONEM,1,-1,LUOUT)
+       CALL ITODS([-1],1,-1,LUOUT)
       END IF
 *
 C?    WRITE(6,*) ' Mission DIATERMS finished '

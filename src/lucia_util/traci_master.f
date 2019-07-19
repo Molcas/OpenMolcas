@@ -26,6 +26,7 @@
 *
       LOGICAL IPACK
       DIMENSION LREC(MXNTTS),CMOMO(*)
+      DIMENSION IDUMMY(1)
 *
       NTEST = 0
       LBLK  = -1
@@ -70,7 +71,7 @@ C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
             CALL XFLUSH(6)
          END IF
          CALL TODSCN(WORK(KVEC1),NREC,LREC,LBLK,LUC)
-         CALL ITODS(-1,1,LBLK,LUC)
+         CALL ITODS([-1],1,LBLK,LUC)
       END DO
 
 *. MO-MO transformation matrix :
@@ -93,7 +94,7 @@ C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
 * The input transformation matrix contains a lot of zeros which
 * is expected not to be there in Traci_Lucia, so remove them.
 *
-      CALL DCOPY_(NDIM,0.0D0,0,WORK(KLCMOMO),1)
+      CALL DCOPY_(NDIM,[0.0D0],0,WORK(KLCMOMO),1)
       IOFF = 0
       IADR = 1
       ICOL = 1

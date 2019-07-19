@@ -13,6 +13,7 @@
       Parameter(NodSiz=6)
       Parameter(MAXnodes=MxIter*5)
       Logical Debug_LnkLst
+      Integer lLList, nLList
       Common /LnkLst/ Debug_LnkLst
       Common /nLList/ lLList, nLList(MAXnodes,0:NodSiz-1)
 *
