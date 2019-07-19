@@ -124,7 +124,7 @@
         write(file_id, A_fmt()) 'endmethods'
         write(file_id, *)
         if (readpops_) write(file_id, A_fmt()) 'readpops'
-        if (readpops_) write(file_id, A_fmt()) 'walkcontgrow'
+!         if (readpops_) write(file_id, A_fmt()) 'walkcontgrow'
         write(file_id, I_fmt()) 'semi-stochastic', semi_stochastic
         write(file_id, *)
         write(file_id, I_fmt()) 'totalwalkers', totalwalkers

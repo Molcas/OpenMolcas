@@ -86,7 +86,6 @@
       use fcidump_reorder, only : get_P_GAS, get_P_inp,ReOrFlag,ReOrInp
       use fcidump, only : make_fcidumps, transform
 
-      implicit none
 #include "output_ras.fh"
 #include "rctfld.fh"
 #include "timers.fh"
@@ -189,9 +188,8 @@
       if (is_real_par()) call MPI_Barrier(MPI_COMM_WORLD, error)
 #endif
       if (.not. fake_run_) then
-        call run_neci(DoEmbdNECI, doGAS=iDoGAS,
-     &    reuse_pops=iter >= 5 .and. abs(rotmax) < 1d-2, NECIen=NECIen)
-      end if
+        call run_neci(DoEmbdNECI,
+     &    reuse_pops=iter >= 5 .and. abs(rotmax) < 1d-3, NECIen=NECIen)
 ! NECIen so far is only the energy for the GS.
 ! Next step it will be an array containing energies for all the optimized states.
       do jRoot = 1, lRoots
@@ -226,7 +224,6 @@
 
       subroutine run_neci(DoEmbdNECI, reuse_pops, doGAS, NECien)
         use fciqmc_make_inp, only : make_inp
-        implicit none
         logical, intent(in) :: DoEmbdNECI, reuse_pops
         logical, intent(in), optional :: doGAS
         logical :: doGAS_
@@ -266,7 +263,6 @@
 
 
       subroutine wait_and_read(NECIen)
-        implicit none
         real*8, intent(out) :: NECIen
         logical :: newcycle_found
         integer :: LuNewC
@@ -284,7 +280,6 @@
 
 
       subroutine abort_(message)
-        implicit none
         character(*), intent(in) :: message
         call WarningMessage(2, message)
         call QTrace()
@@ -296,7 +291,6 @@
         use fciqmc_make_inp, only : make_inp_cleanup => cleanup
         use fciqmc_read_RDM, only : read_RDM_cleanup => cleanup
         use fcidump, only : fcidump_cleanup => cleanup
-        implicit none
         call make_inp_cleanup()
         call read_RDM_cleanup()
         call fcidump_cleanup()
@@ -305,7 +299,6 @@
 
       subroutine check_options(lroots, lRf, KSDFT,
      &      DoGAS, iGSOCCX, nGAS)
-        implicit none
         integer, intent(in) :: lroots, iGSOCCX(:, :),nGAS
         logical, intent(in) :: lRf, DoGAS
         character(*), intent(in) :: KSDFT
@@ -327,7 +320,6 @@
 
 
       subroutine write_ExNECI_message()
-        implicit none
         character(1024) :: h5fcidmp, fcidmp, fcinp, newcycle, WorkDir
         integer :: L, err
 
@@ -366,7 +358,6 @@
         use general_data, only : JobIPH
         use rasscf_data, only : iAdr15, Weight, nAcPar, nAcPr2
         use fciqmc_read_RDM, only : read_neci_RDM
-        implicit none
         real*8, intent(out) :: D1S_MO(nAcPar), DMAT(nAcpar),
      &      PSMAT(nAcpr2), PAMAT(nAcpr2)
         real*8, allocatable ::
@@ -421,7 +412,6 @@
      &    nFro, nIsh, nRs1, nRs2, nRs3, nDel, nAsh, nBas
         use gas_data, only : nGSSH
         use write_orbital_files, only : get_typeidx
-        implicit none
         real*8, intent(in) :: CMO(:), orbital_E(:)
         logical, intent(in) :: iDoGAS
         real*8, allocatable :: occ_number(:)

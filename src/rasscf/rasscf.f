@@ -1982,11 +1982,11 @@ c deallocating TUVX memory...
 
 *
 * Skip Lucia stuff if NECI or BLOCK-DMRG is on
-      If(.not.(DoNECI.or.DumpOnly.or.doDMRG.or.doBlockDMRG)) then
+      If (.not.(DoNECI.or.DumpOnly.or.doDMRG.or.doBlockDMRG)) then
           Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
       end if
-      if(DoNECI) then
-         CALL GETMEM('INT1  ','FREE','REAL',kint1_pointer,NAC**2)
+      if (DoNECI) then
+          CALL GETMEM('INT1  ','FREE','REAL',kint1_pointer,NAC**2)
           call fciqmc_cleanup()
       end if
 * We better deallocate before it is too late...
@@ -2040,7 +2040,6 @@ c      End If
      &          .or. DoNECI .or. DumpOnly)) then
         Call MKGUGA_FREE
       end if
-
 
 !Leon: The velociraptor comes! xkcd.com/292/
  9989 Continue
