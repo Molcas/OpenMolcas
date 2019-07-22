@@ -89,15 +89,15 @@
                                 hpred(npx,i,j) = hpred(npx,i,j) + (thgrad(j)-tgrad(j))/h
                                 hpred(npx,j,i) = hpred(npx,i,j)
                         enddo
-                        write (6,*) 'Delta: ', Delta
+                        ! write (6,*) 'Delta: ', Delta
                 enddo
         endif
         ddy_=hpred(npx,:,:)
-        write(6,*) 'Kriging Hessian, Analitical?', anHe, ddy_
+        ! write(6,*) 'Kriging Hessian, Analitical?', anHe, ddy_
 !--------temp
         call covarvector(2,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
         call predict(2,nPoints,nInter)
-        write(6,*) 'Kriging Hessian, Analitical', hpred(npx,:,:)
+        ! write(6,*) 'Kriging Hessian, Analitical', hpred(npx,:,:)
 !
         return
       end
