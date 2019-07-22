@@ -188,8 +188,9 @@
       if (is_real_par()) call MPI_Barrier(MPI_COMM_WORLD, error)
 #endif
       if (.not. fake_run_) then
-        call run_neci(DoEmbdNECI,
-     &    reuse_pops=iter >= 5 .and. abs(rotmax) < 1d-3, NECIen=NECIen)
+        call run_neci(DoEmbdNECI=DoEmbdNECI,
+     &    reuse_pops=iter >= 5 .and. abs(rotmax) < 1d-3, doGAS=iDoGAS,
+     &    NECIen=NECIen)
       end if
 ! NECIen so far is only the energy for the GS.
 ! Next step it will be an array containing energies for all the optimized states.
