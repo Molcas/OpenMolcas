@@ -190,6 +190,7 @@
       if (.not. fake_run_) then
         call run_neci(DoEmbdNECI,
      &    reuse_pops=iter >= 5 .and. abs(rotmax) < 1d-3, NECIen=NECIen)
+      end if
 ! NECIen so far is only the energy for the GS.
 ! Next step it will be an array containing energies for all the optimized states.
       do jRoot = 1, lRoots
