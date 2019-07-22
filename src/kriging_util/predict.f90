@@ -56,7 +56,7 @@
                         enddo
                     !   write(6,*) 'final cv', cv(:,:,:,1)
                     !   write(6,*) 'final Kv',kv
-                      write (6,*) 'pred grad(gpred):',gpred
+                    !   write (6,*) 'pred grad(gpred):',gpred
                     else
                         ! sigma(j)=1.96*sqrt(2*abs(var*variance))
                         ! write(6,*) 'kv: ',kv

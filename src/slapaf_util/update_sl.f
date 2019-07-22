@@ -182,7 +182,7 @@ c Avoid unused argument warnings
 *
       Else
 *        ------- AI loop begin here
-#define _DEBUG_
+*define _DEBUG_
          If (Kriging .AND. iter.ge.nspAI) then
             Kriging_Hessian =.TRUE.
             iOpt_RS=1   ! Activate restricted variance.
@@ -209,12 +209,68 @@ c Avoid unused argument warnings
 *           Note that we could have some kind of sorting here if we
 *           like!
 *
+*define _DEFAULT_
+#ifdef _DEFAULT_
             Call DScal_(nInter*nRaw,-One,Grad(1,iFirst),1)
             Call Start_Kriging(nRaw,nInter,
      &                            qInt(1,iFirst),
      &                            Grad(1,iFirst),
      &                            Energy(iFirst))
             Call DScal_(nInter*nRaw,-One,Grad(1,iFirst),1)
+#else
+*
+*           This code will have to be cleanup up later.
+*
+            ipCx_Ref=ipCx + (iter-1)*3*nsAtom
+            Call GetMem('qInt','ALLO','REAL',ip_qInt,nRaw*nInter)
+            Call GetMem('Grad','ALLO','REAL',ip_Grad,nRaw*nInter)
+            Call GetMem('Energy','ALLO','REAL',ip_Energy,nRaw)
+*
+            Call DCopy_(nInter,qInt(1,iter),1,Work(ip_qInt),1)
+            Call DCopy_(nInter,Grad(1,iter),1,Work(ip_Grad),1)
+            Work(ip_Energy)=Energy(iter)
+*
+            Thr_low = 0.0D0
+            Thr_high= 99.0D0
+            Do iRaw = 2, nRaw
+               kter=-1
+               Do jter = 1, iter-1
+                  Distance=Zero
+                  Do ix = 1, 3*nsAtom
+                     Distance= Degen(ix) *
+     &                        (Work(ipCx_ref+ix-1) -
+     &                         Work(ipCx + (jter-1)*3*nsAtom+ix-1))**2
+                  End Do
+                  Distance = sqrt(Distance)
+                  If (Distance.gt.Thr_low .and.
+     &                Distance.lt.Thr_high) Then
+                     kter=jter
+                     Thr_high=Distance
+                  End If
+               End Do
+               If (kter.eq.-1) Then
+                  Write (6,*) 'kter not set!'
+               Else
+                  Call DCopy_(nInter,qInt(1,kter),1,
+     &                               Work(ip_qInt+(iraw-1)*nInter),1)
+                  Call DCopy_(nInter,Grad(1,kter),1,
+     &                               Work(ip_Grad+(iraw-1)*nInter),1)
+                  Work(ip_Energy+(iraw-1))=Energy(kter)
+                  Thr_low=Thr_high
+                  Thr_high= 99.0D0
+               End If
+            End Do
+*
+            Call DScal_(nInter*nRaw,-One,Work(ip_Grad),1)
+            Call Start_Kriging(nRaw,nInter,
+     &                            Work(ip_qInt),
+     &                            Work(ip_Grad),
+     &                            Work(ip_Energy))
+*
+            Call GetMem('Energy','FREE','REAL',ip_Energy,nRaw)
+            Call GetMem('Grad','FREE','REAL',ip_Grad,nRaw*nInter)
+            Call GetMem('qInt','FREE','REAL',ip_qInt,nRaw*nInter)
+#endif
 *
 *           Update the l value dynamically. Here we compare the actual,
 *           ab inito value with the GEK prediction of the gradient.
@@ -760,7 +816,7 @@ c Avoid unused argument warnings
      &                 iNeg,iOptH,HUpMet,nRowH,jPrint,GNrm(kIter),
      &                 GNrm_Threshold,nsAtom,IRC,.True.)
       End If
-#define _PRINT_HESSIAN_
+*define _PRINT_HESSIAN_
 #ifdef _PRINT_HESSIAN_
          Call RecPrt(Hess_Type,'(6F10.4)',Hessian,nInter,nInter)
          if (Kriging_Hessian) then

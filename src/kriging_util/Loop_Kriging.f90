@@ -95,7 +95,7 @@
                 call predict(0,nPoints,nInter)
         endif
         y_ = sigma
-        write (6,*) 'sigma', sigma
+       !write (6,*) 'sigma', sigma
 !
         return
       end
