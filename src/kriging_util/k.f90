@@ -67,7 +67,7 @@
                     endif
                 endif
             endif
-            Write (6,*) 'sb ',sb
+            ! Write (6,*) 'sb ',sb
 !
             B = [y-sb,dy]
 !

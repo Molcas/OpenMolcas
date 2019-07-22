@@ -67,7 +67,7 @@
      &               nspAI
        Write (Lu,*) '  Max number of data sets used in GEK:       ',
      &               nWndw
-*      Write (Lu,*) '  Analytical Mat`ern derivatives:            ',anAI
+*      Write (Lu,*) '  Analytical Mat`ern derivatives:            ',anMd
 *      Write (Lu,*) '  Width of Mat`ern: 0.1:6 # of steps:',lb
        Write (Lu,*) '  Resolution of the predicted path:          ',
      &               npxAI

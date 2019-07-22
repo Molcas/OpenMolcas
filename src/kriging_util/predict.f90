@@ -72,7 +72,7 @@
                                 !     var,variance,sigma, lh, tcv
                             enddo
                         enddo
-                        write (6,*) 'pred hess(hpred):',hpred
+                        ! write (6,*) 'pred hess(hpred):',hpred
                     endif
                 endif
             enddo

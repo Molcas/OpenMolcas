@@ -183,6 +183,7 @@ c Avoid unused argument warnings
       Else
 *        ------- AI loop begin here
 *define _DEBUG_
+*#define _DEBUG_
          If (Kriging .AND. iter.ge.nspAI) then
             Kriging_Hessian =.TRUE.
             iOpt_RS=1   ! Activate restricted variance.
@@ -774,6 +775,7 @@ c Avoid unused argument warnings
                Hessian(jInter,iInter) = Hessian(jInter,iInter)
      &            + Fact*(dqp(jInter)-dqm(jInter))/(Two*Delta)!two
             End Do
+            ! write (6,*) 'Delta: ', Delta
 *
             qInt(iInter,kIter)=qInt_Save
          End Do

@@ -16,7 +16,9 @@ C     Initiate Kriging parameters.
 C
       Kriging = .False.
       nspAI = 3
-      anAI = .True.
+      anMd = .True.
+      anHe = .True.
+      anGr = .True.
       pAI = 2
       npxAI = 1
       lb(1) = 20.0
