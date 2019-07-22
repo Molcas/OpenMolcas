@@ -1,0 +1,919 @@
+\documentclass[aps,prb,twocolumn,superscriptaddress,floatfix,longbibliography,10pt]{revtex4-2}
+%\documentclass[aps,prb,preprint,superscriptaddress,floatfix,longbibliography]{revtex4-2}
+
+% You should use BibTeX and apsrev.bst for references
+% Choosing a journal automatically selects the correct APS
+% BibTeX style file (bst file), so only uncomment the line
+% below if necessary.
+\bibliographystyle{apsrev4-2}
+
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{bm}
+\usepackage{textcomp} % This package is just to give the text quote '
+\usepackage{enumitem}
+\usepackage[super]{nth}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[thinc]{esdiff}
+\setlist{noitemsep,leftmargin=*}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+
+\usepackage{hyperref}
+\hypersetup{
+colorlinks=true,
+urlcolor= blue,
+citecolor=blue,
+linkcolor= blue,
+%bookmarks=true,
+bookmarksopen=false,
+}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+ 
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    language=Fortran
+}
+ 
+\lstset{style=mystyle}
+
+% Uncomment this line if you prefer your vectors to appear as bold letters.
+% By default they will appear with arrows over them.
+% \renewcommand{\vec}[1]{\bm{#1}}
+
+\begin{document}
+
+\title{Gradient-Enhanced Kriging for Geometry Optimization}
+
+\author{G. Raggi}
+\author{I. Fdez. Galv\'{a}n}
+\affiliation{Department of Organic Chemistry, BMC, Uppsala University, Uppsala, Sweden}
+\author{M. Vacher} 
+\affiliation{Department of Chemistry, \r{A}ngstr\"{o}m Laboratory, Uppsala University, Uppsala, Sweden}
+\author{R. Lindh}
+\email[]{roland.lindh@kemi.uu.se}
+\affiliation{Department of Organic Chemistry, BMC, Uppsala University, Uppsala, Sweden}
+
+\date{\today}
+
+\begin{abstract}
+Machine learning techniques specifically Gradient-Enhanced Kriging (GEK) has been implemented in the quantum chemistry software OpenMolcas\cite{Aquilante2016} improving molecular geometry optimization.The implementation includes internal and cartesian coordinates. The results show...
+\end{abstract}
+
+\maketitle
+\section{\label{sec:Start}Introduction}
+The usual approach in computational chemistry for geometry optimization is the standard surrogate model \nth{2} order Taylor expansion\cite{Schlegel2011, Thøgersen2004}. Is usually used  with a combination of approximative \nth{2} order derivatives and a Hessian update method, for example, the iterative BFGS update method...
+
+\vspace{1mm}
+
+The Kriging model is a method of interpolation...
+
+\vspace{-2mm}
+
+\section{\label{sec:Theory}Theory}
+
+\subsection{Kriging}
+
+The Kriging equation or gaussian regretion preocess (GRP) hold two terms. The first term $\hat{\tau}$ is the trend function and the second term is the local deviation of the first term\citep{Ulaganathan2016}
+
+\begin{equation} \label{eqn:kriging}
+\mathbf{\hat{k}}(\mathbf{x}^N) =  \hat{\tau} + \mathbf{V} \mathbf{M}^{-1}(\mathbf{y} - \mathbf{I}\hat{\tau})
+\end{equation}
+
+where the covariant matrix $\mathbf{M}$ holds the correlation between the sample data points (source data), in this case the correlation could be calculated in internal coordinates  or cartesian coordinates. The covariant  vector $\mathbf{V}$ contains the correlation between coordinates of the sample data $\mathbf{x}$ and the prediction data $\mathbf{x}^N$. $\mathbf{y}$ is the column vector of function values from the source data which in this case is the Energy of the system and $\mathbf{I}$ is a vector of $\mathbf{n}$ elements of ones, where $\mathbf{n}$ is the number of elements of $\mathbf{x}$ (source points). 
+The covariant matrix $\mathbf{M}$ is a $\mathbf{n}\: \times \: \mathbf{n}$ matrix defined as follows \nameref{code.matern}
+
+\begin{equation} \label{eqn:covmatrix}
+\begin{split}
+\mathbf{M} & =  M_{p}(\mathbf{d}) \\
+& = \exp{\left(-\sqrt{(2p+1)\mathbf{d}}\right)}\frac{p!}{(2p)!}\sum^p_{i=0}\left(2\sqrt{(2p+1)\mathbf{d}}\right)^{p-i}
+\end{split}
+\end{equation}
+
+where $M_{p}(\mathbf{d})$ is the Mat\'ern covariance function\cite{Stein2019}, $p$ is the order of the polynomial and $\mathbf{d}$ is the matrix formed by the distances between the sample data points \nameref{code.CMdr}
+
+\begin{equation} \label{eqn:dpmatrix}
+\mathbf{d} = \sum^K_{i=1}\mathbf{r}_i^2
+\end{equation}
+
+where $K$ is the number of dimensions, $l_i$ is a parameter that influence the width of the Mat\'ern function in the $i$ dimension and $\mathbf{r_i}$ is a $\mathbf{n}\: \times \: \mathbf{n}$ matrix of source datapoints of the $i$ dimension
+
+\begin{equation} \label{eqn:xdata}
+\mathbf{r_i} = \frac{1}{l_i}\left[
+\begin{pmatrix}
+x_{i1} & x_{i2} & \dots  & x_{in} \\
+\vdots & \vdots & \ddots & \vdots \\
+x_{i1} & x_{i2} & \dots  & x_{in}
+\end{pmatrix}
+-
+\begin{pmatrix}
+x_{i1} & x_{i2} & \dots  & x_{in} \\
+\vdots & \vdots & \ddots & \vdots \\
+x_{i1} & x_{i2} & \dots  & x_{in}
+\end{pmatrix}^\intercal
+\right]
+\end{equation}
+
+which give us a matrix with the diagonal zeros. 
+
+\subsection{GEK}
+
+The formulation of GEK is the same that the Kriging model except a first-order Taylor expanssion is applied creating new source datapoints around the original ones as follows\cite{Yamazaki2012}
+
+\begin{equation} \label{eqn:xynewdata}
+\begin{aligned}
+\mathbf{q_i^+} &= \mathbf{q_i}+\delta\mathbf{q} \\
+\mathbf{y(q_i^+)} &= \mathbf{y(q_i)}+\delta\mathbf{q}^\intercal\left[\frac{\partial \mathbf{y(q_i)}}{\partial \mathbf{q}}\right] + \frac{1}{2}\delta\mathbf{q}^\intercal\left[\frac{\partial^2 \mathbf{y(q_i)}}{\partial \mathbf{q}\partial \mathbf{q}}\right]
+\end{aligned}
+\end{equation}
+
+where $\mathbf{q_i^+}$ and $\mathbf{y(q_i^+)}$ are the locations of the new additional source datapoints, and $\delta\mathbf{q}$ is the step size vector determined by the accuracy of the Taylor expansion for the relative location of the additional source datapoints. The second-order Taylor expansion is for the gradient (first derivatives) and Hessian (second derivatives) of the coordinates. Then the GEK model approach in matrix representation is \nameref{code.predE}:
+
+\begin{equation} \label{eqn:GEK}
+\mathbf{\hat{E}}(\mathbf{x}^*) =  \hat{\dot \tau} + \mathbf{\dot V} \mathbf{\dot M}^{-1}(\mathbf{\dot y} - \mathbf{o}\hat{\dot \tau})
+\end{equation}
+
+with \nameref{code.CM}
+
+\begin{equation} \label{eqn:dotM}
+\mathbf{\dot M} = 
+\begin{bmatrix}
+\mathbf{M}-\epsilon_1 & \frac{\partial\mathbf{M}}{\partial x_1^i} & \dots  & \frac{\partial\mathbf{M}}{\partial x_K^i} \\
+\frac{\partial\mathbf{M}}{\partial x_1^i} & \frac{\partial^2\mathbf{M}}{\partial x_1^i\partial x_1^j}-\epsilon_2 & \dots & \frac{\partial^2\mathbf{M}}{\partial x_1^i\partial x_K^j} \\
+\vdots & \vdots & \ddots & \vdots \\
+\frac{\partial\mathbf{M}}{\partial x_K^i} & \frac{\partial^2\mathbf{M}}{\partial x_K^i\partial x_1^j} & \dots & \frac{\partial^2\mathbf{M}}{\partial x_K^i\partial x_K^j}-\epsilon_2
+\end{bmatrix}
+\end{equation} 
+
+where $\mathbf{M}$ is the eq. (\ref{eqn:covmatrix}) and $\mathbf{\dot M}$ is a covariant matrix of $(K+1)\mathbf{n} \: \times \: (K+1)\mathbf{n}$ elements and $\epsilon_1$ and $\epsilon_2$ are constants to avoid singularities in the matrix.
+
+The dot covariant vector $\mathbf{\dot V}$, which contains the correlation between the sample data, the prediction data and its derivatives are defined as \nameref{code.CV}
+
+\begin{equation} \label{eqn:dV}
+\mathbf{\dot V} = \left(\mathbf{V},\left(\frac{\partial\mathbf{V}}{\partial x_1}\right),\dots,\left(\frac{\partial\mathbf{V}}{\partial x_K}\right)\right)
+\end{equation} 
+
+The first part of eq. (\ref{eqn:dV}) $\mathbf{V}$ is the correlation between source data points $\mathbf{r_i}$ and the ones we want to predict $\mathbf{x}^\mathbf{N}$ \nameref{code.CVdr}
+
+\begin{equation} \label{eqn:CVdr}
+\mathbf{d} = \sum^K_{i=1}\mathbf{r}_i^2
+\end{equation}
+
+with
+
+\begin{equation} \label{eqn:xdataV}
+\mathbf{r_i} = \frac{1}{l_i}\left[
+\begin{pmatrix}
+x_{i1} & x_{i2} & \dots  & x_{in} \\
+\vdots & \vdots & \ddots & \vdots \\
+x_{i1} & x_{i2} & \dots  & x_{in}
+\end{pmatrix}
+-
+\begin{pmatrix}
+x_{i1}^N  \\
+\vdots  \\
+x_{in}^N 
+\end{pmatrix}
+\right]
+\end{equation}
+
+then
+
+\begin{equation} \label{eqn:Vdr}
+\mathbf{V} = M_p\left(\mathbf{d}\right)
+\end{equation}
+
+The original source points that come from the energy and gradients are expressed in the vector $\mathbf{\dot y}$ as \nameref{code.yto}
+
+\begin{equation} \label{eqn:ydy}
+\mathbf{\dot y} = \left(\mathbf{y},\left(\frac{\partial\mathbf{y}}{\partial x_1}\right),\dots,\left(\frac{\partial\mathbf{y}}{\partial x_K}\right)\right)
+\end{equation}
+
+The trend function $\hat{\dot \tau}$ (baseline) is obtained from the correlation of the source data points of the coordinates, energy and gradients as follows \nameref{code.yto}
+
+\begin{equation} \label{eqn:tau}
+\hat{\dot \tau} = \frac{\mathbf{\dot y} \cdot \mathbf{o}\mathbf{\dot M^{-1}}}{\mathbf{o}\mathbf{\dot M^{-1}}\mathbf{o^\intercal}}
+\end{equation}
+
+where 
+
+\begin{equation} \label{eqn:O}
+\mathbf{o} = \left(1_1,\dots,1_n,0_{n+1},\dots,0_{(K+1)n}\right)
+\end{equation}
+
+The derivatives of the mat\'ern function eq. (\ref{eqn:covmatrix}) for eq. (\ref{eqn:dotM}) and (\ref{eqn:dV}) are introduced in the next section.
+
+\subsection{Details of the correlation function}
+
+The smoothness of the Mat\'ern correlation function $M_p$ used for this paper was the second-order polynomial ($p = 2$) that allow us to satisfy the differentiability requirements for gradients and Hesssians of the GEK according to Stein \cite{Stein2019}. However, OpenMolcas is programmed to calculate $M_p$ and derivatives $\partial^n M_p$ for any $p$ numerically \nameref{code.nmatder} or $p = 1-3$ analitically solutions. The correspondent polynomial for $p = 2$ is \nameref{code.matern}
+
+\begin{equation} \label{eqn:mat2p}
+M_2(\mathbf{d}) = \left(\dfrac{5\mathbf{d}}{3}+\sqrt{5\mathbf{d}}+1\right)\mathrm{e}^{-\sqrt{5\mathbf{d}}}
+\end{equation}
+
+and the correspond derivatives \nameref{code.amatder}
+
+\begin{equation} \label{eqn:d1mat2p}
+\dfrac{\partial M_2(\mathbf{d})}{\partial \mathbf{d}} = -\dfrac{5\left(\sqrt{\mathbf{5d}}+1\right)\mathrm{e}^{-\sqrt{5\mathbf{d}}}}{6}
+\end{equation}
+
+\begin{equation} \label{eqn:d2mat2p}
+\dfrac{\partial^2 M_2(\mathbf{d})}{\partial\mathbf{d}^2} = \dfrac{25\mathrm{e}^{-\sqrt{5\mathbf{d}}}}{12}
+\end{equation}
+
+The 3th derivative of the Mat\'ern function eq. (\ref{eqn:d3mat2p}) in not use to calculate $\mathbf{\hat{E}}(\mathbf{x}^*)$, but is use it later to calculate the Gradient $\mathbf{\hat{\dot{E}}}(\mathbf{x}^*)$ and Hessian of GEK $\mathbf{\hat{\ddot{E}}}(\mathbf{x}^*)$. Since $\mathbf{d(r(x))}$ is a function of the coordinates $\mathbf{x}$ then using the chain rule, eqs. (\ref{eqn:dpmatrix}) and (\ref{eqn:d1mat2p})
+
+\begin{equation} \label{eqn:CRmat2pd1}
+\dfrac{\partial M_2(\mathbf{d})}{\partial x_i} = \dfrac{\partial M_2(\mathbf{d})}{\partial\mathbf{d}} \dfrac{\partial\mathbf{d}}{\partial \mathbf{r_i}} \dfrac{\partial\mathbf{r_i}}{\partial \mathbf{x_i}}
+\end{equation}
+
+with
+
+\begin{equation} \label{eqn:ddr}
+\dfrac{\partial\mathbf{d}}{\partial \mathbf{r}} = 2\sum^K_{i=1}\mathbf{r_i}
+\end{equation}
+
+and
+
+\begin{equation} \label{eqn:drdx}
+\dfrac{\partial\mathbf{r_i}}{\partial \mathbf{x_i}} = \sum^K_{i=1}\dfrac{1}{l_i} = l^{-1}
+\end{equation}
+
+Simplifying notation, the second derivatives have two different cases when $i = j$ and $i \ne j$.
+
+\vspace{2mm}
+
+Case $i = j$:
+
+\begin{equation} \label{eqn:Cmatd2}
+\begin{split}
+\dfrac{\partial^2 M_2}{\partial x_i^2} & = \dfrac{\partial}{\partial x_i} \left(\dfrac{\partial M_2}{\partial x_i}\right) \\
+& = \dfrac{\partial^2 M_2}{\partial\mathbf{d}^2}\left(\dfrac{\partial\mathbf{d}}{\partial x_i}\right)^2 +  \dfrac{\partial M_2}{\partial\mathbf{d}}\dfrac{\partial^2\mathbf{d}}{\partial x_i^2}
+\end{split}
+\end{equation}
+
+with
+
+\begin{equation} \label{eqn:d2dr}
+\dfrac{\partial^2\mathbf{d}}{\partial x_i^2} = 2\sum^K_{i=1}\frac{1}{l_i}
+\end{equation}
+
+Case $i \ne j$:
+
+\begin{equation} \label{eqn:Cmatd2ne}
+\begin{split}
+\dfrac{\partial^2 M_2}{\partial x_i\partial x_j} & = \dfrac{\partial}{\partial x_j} \left(\dfrac{\partial M_2}{\partial x_i}\right) \\
+& = \dfrac{\partial^2 M_2}{\partial\mathbf{d}^2} \left(\dfrac{\partial\mathbf{d_i}}{\partial\mathbf{x_i}}\dfrac{\partial\mathbf{d_j}}{\partial\mathbf{x_j}}\right)
+\end{split}
+\end{equation}
+
+\subsection{Gradient of GEK}
+
+In order to construct the potential energy surface (PES) and find the minimum energy it becomes necessary to obtain the gradient information. The most efficient way is obtaining the analytical solution of the gradient of GEK, taking into account that the derivative is with respect to the correlated coordinates between the sample data and prediction data $\mathbf{x^*}$ \nameref{code.ggek}
+
+\begin{equation} \label{eqn:GGEK}
+\mathbf{\hat{\dot E}}(\mathbf{x^*}) = \mathbf{K_v}\mathbf{\ddot V}
+\end{equation}
+
+with \nameref{code.kv}
+
+\begin{equation} \label{eqn:kv}
+\mathbf{K_v} = \mathbf{\dot M}^{-1}\mathbf{Y_s}
+\end{equation}
+
+and
+
+\begin{equation} \label{eqn:ys}
+\mathbf{Y_s} = \mathbf{\dot y} - \mathbf{o}\hat{\dot \tau}
+\end{equation}
+
+Instead of calculate $\mathbf{\dot M}^{-1}$ which implies to solve $(n+1)K$ equations and the fact that larger the matrix is, becomes increasingly ill-conditioned\citep{DeBaar2013} we solve two equations for two systems. The vector $\mathbf{K_v}$ constitutes the base of the GEK model and is calculated is two steps procedure, the first step is to solve for one equation only the system $\mathbf{\dot Mx} = \mathbf{o}^\intercal$ using Lapack DGSCV  library\citep{lapack1999}. With this only operation, we obtained $\hat{\dot \tau} =  \mathbf{x}\cdot\mathbf{y}$ and the determinant $|\mathbf{\dot M}|$ which we could use it later to calculate the likelyhood function. With $\hat{\dot \tau}$ defined we can define $\mathbf{Y_s}$ eq. (\ref{eqn:ys}).
+
+The second step is to solve the system $\mathbf{\dot M K_v} = \mathbf{Y_s}$ in order to get $\mathbf{K_v}$, and finally the covar vector $\mathbf{\ddot V}$ which is a matrix that takes the form \nameref{code.ggek}
+
+\begin{equation} \label{eqn:ddV}
+\mathbf{\ddot V} = 
+\begin{pmatrix}
+\dfrac{\partial\mathbf{M}}{\partial x_1^i}  & \dfrac{\partial\mathbf{M}}{\partial x_2^i} & \dots  & \dfrac{\partial\mathbf{M}}{\partial x_K^i} \\
+\dfrac{\partial^2\mathbf{M}}{\partial x_1^i\partial x_1^j}  & \dfrac{\partial^2\mathbf{M}}{\partial x_1^i\partial x_2^j} & \dots  & \dfrac{\partial^2\mathbf{M}}{\partial x_1^i\partial x_K^j} \\
+\dfrac{\partial^2\mathbf{M}}{\partial x_2^i\partial x_1^j}  & \dfrac{\partial^2\mathbf{M}}{\partial x_2^i\partial x_2^j} & \dots  & \dfrac{\partial^2\mathbf{M}}{\partial x_2^i\partial x_K^j} \\
+\vdots & \vdots & \ddots & \vdots \\
+\dfrac{\partial^2\mathbf{M}}{\partial x_K^i\partial x_1^j}  & \dfrac{\partial^2\mathbf{M}}{\partial x_K^i\partial x_2^j} & \dots  & \dfrac{\partial^2\mathbf{M}}{\partial x_K^i\partial x_K^j}
+\end{pmatrix}
+\end{equation}
+
+\subsection{Hessian of GEK}
+
+To calculate the curvature of the PES, the 3rd derivative of the Mat\'ern function becomes necessary to calculate the hessian of GEK by numerical or analytical means. Numericaly by passing twice into the analitical or numerical gradient of GEK. However, the analytical solution of the gradient and hessian of GEK is more efficient and exact than its numerical counterpart, a simple numerical test of 10,000 cycles demonstrated that for the gradient was $\sim 31\%$ faster. The 3rd derivative of the Mat\'ern function for $p = 2$ is\nameref{code.amatder}
+
+\begin{equation} \label{eqn:d3mat2p}
+\dfrac{\partial^3 M_2(\mathbf{d})}{\partial \mathbf{d}^3} = -\dfrac{5^\frac{5}{2}\mathrm{e}^{-\sqrt{5\mathbf{d}}}}{24\sqrt{d}}
+\end{equation}
+
+For the 3th derivative we have three diferent cases $i=j=k$, $i=j\ne k$ and combinations and $i\ne j\ne k$. \nameref{code.12}
+
+\vspace{2mm}
+
+Case $i = j = k$:
+
+\begin{equation} \label{eqn:Cmatd3}
+\begin{split}
+\dfrac{\partial^3 M_2}{\partial x_i^3} & = \dfrac{\partial}{\partial x_i} \left(\dfrac{\partial^2 M_2}{\partial x_i^2}\right) \\
+& = \dfrac{\partial^3 M_2}{\partial\mathbf{d}^3}\left(\dfrac{\partial\mathbf{d}}{\partial x_i}\right)^3 +  3\dfrac{\partial^2 M_2}{\partial\mathbf{d}^2}\dfrac{\partial^2\mathbf{d}}{\partial x_i^2}\dfrac{\partial\mathbf{d}}{\partial x_i}
+\end{split}
+\end{equation}
+
+Case $i = j \ne k$ and combinations:
+
+\begin{equation} \label{eqn:hd3}
+\begin{split}
+\dfrac{\partial^3 M_2}{\partial x_i^2\partial x_j} & = \dfrac{\partial}{\partial x_j} \left(\dfrac{\partial^2 M_2}{\partial x_i^2}\right) \\
+& = \dfrac{\partial^3 M_2}{\partial\mathbf{d}^3}\left(\dfrac{\partial\mathbf{d}}{\partial x_i}\right)^2 \dfrac{\partial\mathbf{d}}{\partial x_j} +  \dfrac{\partial^2 M_2}{\partial\mathbf{d}^2}\dfrac{\partial^2\mathbf{d}}{\partial x_i^2}\dfrac{\partial\mathbf{d}}{\partial x_j}
+\end{split}
+\end{equation}
+
+and case $i \ne j \ne k$ and combinations:
+
+\begin{equation} \label{eqn:hd3-2}
+\begin{split}
+\dfrac{\partial^3 M_2}{\partial x_i\partial x_j\partial x_k} & = \dfrac{\partial^2}{\partial x_k\partial x_j} \left(\dfrac{\partial M_2}{\partial x_i}\right) \\
+& = \dfrac{\partial^3 M_2}{\partial\mathbf{d}^3}\dfrac{\partial^3\mathbf{d}}{\partial x_i\partial x_j\partial x_k}
+\end{split}
+\end{equation}
+
+The Hessian of GEK is a matrix of $K \times K$ elements of the form \nameref{code.13}
+
+\begin{equation} \label{eqn:hgek}
+\mathbf{\hat{\ddot E}}(\mathbf{x^*}) = \mathbf{K_v}\mathbf{\dddot V}
+\end{equation}
+
+in which $\mathbf{K_v} = \mathbf{\dot M}^{-1}(\mathbf{\dot y} - \mathbf{o}\hat{\dot \tau})$ is the same vector than eq. \ref{eqn:GEK} and \ref{eqn:GGEK} since it does not depend on the predicted data points becoming a constant. The matrix $\mathbf{\dddot V}$ takes the form
+
+\begin{equation}
+\mathbf{\dddot V_{ij1}} = 
+\begin{pmatrix}
+\dfrac{\partial^2\mathbf{M}}{\partial x_1^i\partial x_1^j}  & \dfrac{\partial^2\mathbf{M}}{\partial x_1^i\partial x_2^j} & \dots  & \dfrac{\partial^2\mathbf{M}}{\partial x_1^i\partial x_K^j} \\
+\dfrac{\partial^3\mathbf{M}}{\partial x_1^i\partial x_1^j\partial x_1^k}  & \dfrac{\partial^3\mathbf{M}}{\partial x_1^i\partial x_2^j\partial x_1^k} & \dots  & \dfrac{\partial^3\mathbf{M}}{\partial x_1^i\partial x_K^j\partial x_1^k} \\
+\dfrac{\partial^3\mathbf{M}}{\partial x_2^i\partial x_1^j\partial x_1^k}  & \dfrac{\partial^3\mathbf{M}}{\partial x_2^i\partial x_2^j\partial x_1^k} & \dots  & \dfrac{\partial^3\mathbf{M}}{\partial x_2^i\partial x_K^j\partial x_1^k} \\
+\vdots & \vdots & \ddots & \vdots \\
+\dfrac{\partial^3\mathbf{M}}{\partial x_K^i\partial x_1^j\partial x_1^k}  & \dfrac{\partial^3\mathbf{M}}{\partial x_K^i\partial x_2^j\partial x_1^k} & \dots  & \dfrac{\partial^3\mathbf{M}}{\partial x_K^i\partial x_K^j\partial x_1^k} \nonumber
+\end{pmatrix}
+\end{equation}
+
+\begin{equation} \label{eqn:dddV}
+\vdots
+\end{equation}
+
+\begin{equation} 
+\mathbf{\dddot V_{ijK}} = 
+\begin{pmatrix}
+\dfrac{\partial^2\mathbf{M}}{\partial x_K^i\partial x_1^j}  & \dfrac{\partial^2\mathbf{M}}{\partial x_K^i\partial x_2^j} & \dots  & \dfrac{\partial^2\mathbf{M}}{\partial x_K^i\partial x_K^j} \\
+\dfrac{\partial^3\mathbf{M}}{\partial x_1^i\partial x_1^j\partial x_K^k}  & \dfrac{\partial^3\mathbf{M}}{\partial x_1^i\partial x_2^j\partial x_K^k} & \dots  & \dfrac{\partial^3\mathbf{M}}{\partial x_1^i\partial x_K^j\partial x_K^k} \\
+\dfrac{\partial^3\mathbf{M}}{\partial x_2^i\partial x_1^j\partial x_K^k}  & \dfrac{\partial^3\mathbf{M}}{\partial x_2^i\partial x_2^j\partial x_K^k} & \dots  & \dfrac{\partial^3\mathbf{M}}{\partial x_2^i\partial x_K^j\partial x_K^k} \\
+\vdots & \vdots & \ddots & \vdots \\
+\dfrac{\partial^3\mathbf{M}}{\partial x_K^i\partial x_1^j\partial x_K^k}  & \dfrac{\partial^3\mathbf{M}}{\partial x_K^i\partial x_2^j\partial x_K^k} & \dots  & \dfrac{\partial^3\mathbf{M}}{\partial x_K^i\partial x_K^j\partial x_K^k} \nonumber
+\end{pmatrix}
+\end{equation}
+
+\vspace{10mm}
+
+\section{\label{sec:Methods}Methods}
+
+
+
+\section{\label{sec:Benchmark}Benchmark}
+
+\vspace{10mm}
+
+\section{\label{sec:Summary}Summary}
+
+\vspace{50mm}
+
+\section{\label{sec:Acknowledgments}Acknowledgments}
+
+\vspace{50mm}
+
+\bibliography{AI_in_Molcas}
+
+\appendix
+
+\section{Source Code}
+
+\begin{lstlisting}[caption={(Code: 1)}, title={Code: 1. Mat\'ern Function}, label=code.matern]
+! File: ~/OpenMolcas/src/kriging_util/matern.f90
+!
+SUBROUTINE matern(dh, m, d1, d2)
+     use globvar
+     integer d1,d2,i
+     REAL*8 b(d1,d2),a,d,d0(d1,d2),dh(d1,d2),m(d1,d2)
+     INTEGER*8 c
+! For this expresion you can check https://en.wikipedia.org/wiki/Mat%C3%A9rn_covariance_function
+! and equations (11) and (12) on ref.
+     d0 = sqrt(dh)
+     c = idint(pAI)
+     a = Gamma(pAI+1)/Gamma(2*pAI+1)
+     b = 0.0
+     m = 0.0
+     do i=0, c
+        d=DBLE(i)
+        b = b + (Gamma(pAI+1.0+d)/(Gamma(d+1)*Gamma(pAI+1.0-d)))*(2.0*Sqrt(2.0*pAI+1.0)*d0)**(pAI-i)
+     enddo
+     m = a*b*exp(-sqrt(2.0*pAI+1)*d0)
+END
+\end{lstlisting}
+
+\begin{lstlisting}[caption={(Code: 2)}, title={Code: 2. Defining matrix d and r for the covariant matrix}, label=code.CMdr]
+! File: ~/OpenMolcas/src/kriging_util/covarMatrix.f90
+!
+		SUBROUTINE covarMatrix(iter,nInter)
+            use globvar
+            integer i,j,i0,i1,j0,j1,k,kl,iter,nInter
+            real*8 diffx(iter,iter),diffx0(iter,iter), &
+                    matFder(iter,iter),matSder(iter,iter),r(iter,iter,nInter), &
+                    d(iter,iter),m(iter,iter),iden(iter,iter)!,c(iter,iter)
+            ...
+            ...
+! Covariant Matrix in kriging
+            do i=1,nInter
+                do k=1,iter
+                    do kl=1,iter
+                        r(k,kl,i)=(x(i,k)-x(i,kl))/l(i)
+                    end do
+                end do
+                d = d + r(:,:,i)**2
+            end do
+! Matern Function
+            Call matern(d, m, iter, iter)
+! Writing the covariant matrix in GEK (eq 2 of DOI 10.1007/s00366-015-0397)
+            full_R(1:iter,1:iter) = m + iden*eps
+    		...
+    		...
+        END
+\end{lstlisting}
+
+\begin{lstlisting}[caption={(Code: 3)}, title={Code: 3. Predicting Energy}, label=code.predE]
+! File: ~/OpenMolcas/src/kriging_util/predict.f90
+!
+        SUBROUTINE predict(gh,iter,nInter)
+            use globvar
+            real*8 B(m_t),tsum!,ddottemp(npx)!,tcv(npx,m_t)
+            real*8 A(m_t,m_t)!AF contains the factors L and U from the factorization A = P*L*U as computed by DGETRF
+            integer IPIV(m_t),INFO
+            integer i,j,iter,nInter,gh ! ipiv the pivot indices that define the permutation matrix
+!
+            do j=1,npx
+                if (gh.eq.0) then
+! ---------------calculations for  dispersion ----------------------------
+                    A = full_R
+                    B = CV(:,j,1,1)
+                    CALL DGESV_(m_t, 1,A,m_t,IPIV,B,m_t,INFO )
+                    var(j) = 1 - dot_product(B,CV(:,j,1,1))
+                    tsum = sum(rones(1:iter))
+                    B = cv(:,j,1,1)
+                    var(j)=var(j)+(1-dot_product(B,rones))**2/tsum
+                    sigma(j)=1.96*sqrt(abs(var(j)*variance))
+! -------------------------------
+! ---------------------Predicting Energy
+                    pred(j) = sb + dot_product(B,Kv)
+! --------------------------------------
+                else
+					...
+					...
+                endif
+            enddo
+        END
+\end{lstlisting}
+
+\begin{lstlisting}[caption={(Code: 4)}, title={Code: 4. Covariant Matrix}, label=code.CM]
+! File: ~/OpenMolcas/src/kriging_util/covarMatrix.f90
+!
+SUBROUTINE covarMatrix(iter,nInter)
+    use globvar
+    integer i,j,i0,i1,j0,j1,k,kl,iter,nInter
+    real*8 diffx(iter,iter),diffx0(iter,iter), &
+            matFder(iter,iter),matSder(iter,iter),r(iter,iter,nInter), &
+            d(iter,iter),m(iter,iter),iden(iter,iter)!,c(iter,iter)
+    full_R = 0
+    d = 0
+    diffx = 0
+    diffx0 = 0
+    call miden(iden,iter)
+! Covariant Matrix in kriging
+    do i=1,nInter
+        do k=1,iter
+            do kl=1,iter
+                r(k,kl,i)=(x(i,k)-x(i,kl))/l(i)
+            end do
+        end do
+        d = d + r(:,:,i)**2
+    end do
+!Matern Function
+    Call matern(d, m, iter, iter)
+! Writing the covariant matrix in GEK (eq 2 of DOI 10.1007/s00366-015-0397)
+    full_R(1:iter,1:iter) = m + iden*eps
+!Matern first derivative
+    call matderiv(1, d, m, iter, iter)
+    matFder = m
+!Matern second derivative
+    call matderiv(2, d, m, iter, iter)
+    matSder = m
+! Covariant matrix in Gradient Enhanced Kriging (eq 2 of DOI 10.1007/s00366-015-0397)):
+!
+! First line and first column derivative in Psi matrix
+    do i=1,nInter
+        i0=i*iter+1
+        i1=i0+iter-1
+        diffx0 = -2.0*r(:,:,i)/l(i)
+        m = matFder*diffx0
+!  Writing the 1st row of 1st derivatives with respect the coordinates
+        full_R(1:iter,i0:i1) = m
+!  Writing the column of derivatives
+        full_R(i0:i1,1:iter) = transpose(m)
+    enddo
+! Second derivatives
+    do i = 1,nInter
+        i0 = i*iter+1
+        i1 = i0+iter-1
+        do j = i,nInter
+            j0 = j*iter+1
+            j1 = j0+iter-1
+            diffx = 2.0*r(:,:,j)/l(j)
+            diffx0 = -2.0*r(:,:,i)/l(i)
+            m = matSder*diffx*diffx0
+!   if differentiating twice on the same dimension
+            if (i.eq.j) m = m - matfder*(2/(l(i)*l(j)))
+!   Writing the second derivatives in eq(2)
+            full_R(i0:i1,j0:j1) = m
+            if (i.ne.j) then
+                full_R(j0:j1,i0:i1) = transpose(m)
+            else
+                full_R(i0:i1,j0:j1) = full_R(i0:i1,j0:j1) + iden*eps2
+            endif
+        enddo
+    enddo
+END
+\end{lstlisting}
+
+\begin{lstlisting}[caption={(Code: 5)}, title={Code: 5. The Covariant Vector}, label=code.CV]
+! File: ~/OpenMolcas/src/kriging_util/covarVector.f90
+!
+SUBROUTINE covarVector(gh,iter,nInter)
+    use globvar
+    integer i,i0,i1,j,gh,iter,nInter
+    real*8 m(iter,npx),diffx(iter,npx),diffx0(iter,npx), &
+        diffxk(iter,npx),sdiffx,sdiffx0!, & dl(iter,npx)
+    cv = 0
+    i0 = 0
+! Covariant Vector in kriging - First part of eq (8)
+    if (gh.eq.0) then
+        call defdlrl(iter,nInter)
+        call matern(dl, m, iter, npx)
+        cv(1:iter,:,1,1) = m
+        call matderiv(1, dl, m, iter, npx)
+        cvMatFder = m
+        do i=1,nInter
+! 1st derivatives second part of eq. (8)
+            diffx = 2.0*rl(:,:,i)/l(i)
+            i0 = i*iter + 1
+            i1 = i0 + iter - 1
+            m = cvMatFder * diffx
+            cv(i0:i1,:,1,1) = m
+        enddo
+    endif
+	...
+	...
+END
+\end{lstlisting}
+
+\begin{lstlisting}[caption={(Code: 6)}, title={Code: 6. Defining matrix d and r for the covariant vector}, label=code.CVdr]
+! File: ~/OpenMolcas/src/kriging_util/covarVector.f90
+!
+SUBROUTINE defdlrl(iter,nInter)
+    use globvar
+    integer i,j,iter,nInter
+    dl=0
+    do i=1,nInter
+        do j=1,iter
+            do k=1,int(npx)
+                rl(j,k,i) = (x(i,j) - nx(i,k))/l(i)
+            enddo
+        enddo
+        dl = dl + rl(:,:,i)**2
+    enddo
+END
+\end{lstlisting}
+
+\begin{lstlisting}[caption={(Code: 7)}, title={Code: 7. Calculating dot y (energy and gradients), the trend function and the vector o}, label=code.yto]
+! File: ~/OpenMolcas/src/kriging_util/k.f90
+!
+SUBROUTINE k(iter)
+    use globvar
+    real*8 B(m_t),A(m_t,m_t),diagA(m_t), iden(m_t,m_t)
+    integer IPIV(m_t),INFO,iter,sign ! ipiv the pivot indices that define the permutation matrix
+!
+! Initiate B according to Eq. (13) of ref.
+    B=0.0D0
+    B(1:iter)=1.0D0
+!
+    call miden(iden,m_t)
+    full_Rinv = iden
+! Initiate A according to Eq. (2) of ref.
+!
+    A = full_r
+    CALL DGESV_(m_t,1,A,m_t,IPIV,B,m_t,INFO )
+    rones=B
+!
+    If (INFO.ne.0) Then
+        Write (6,*) 'k: INFO.ne.0'
+        Write (6,*) 'k: INFO=',INFO
+        Call Abend()
+    End If
+!
+! Now A contains the factors L and U from the factorization A = P*L*U as computed by DGESV
+! Where L in the lower triangular matrix with 1 in the diagonal and U is the upper
+! triangular matrix of A thus the determinant of A is giving by multipling its diagonal
+!
+    do i=1,m_t
+        diagA(i) = A(i,i)
+    enddo
+!
+!Trend Function (baseline)
+    sbO = dot_product(y,B(1:iter))/sum(B(1:iter))
+    if (blaAI) then
+        sb = y(iter) + blavAI
+    else
+        if (mblAI) then
+            sb = sbmev
+        else
+            if (blAI) Then
+                sb = blvAI
+            else
+                sb = sbO
+            endif
+        endif
+    endif
+!
+    B = [y-sb,dy]
+!
+    Ys = B
+!
+	...
+	...
+END SUBROUTINE k
+\end{lstlisting}
+
+\begin{lstlisting}[caption={(Code: 8)}, title={Code: 8. Numerical Mat\'ern Derivatives}, label=code.nmatder]
+! File: ~/OpenMolcas/src/kriging_util/matern.f90
+!
+SUBROUTINE matderiv(nd, d, m, d1, d2)
+    use globvar
+    integer nd,d1,d2,p0,k
+    real*8 nr,kr,a,b(d1,d2),dh(d1,d2),d(d1,d2),m(d1,d2),c(d1,d2),t
+    m = 0
+    if (anAI) then
+        ...
+        ...
+    else
+!  'Numerical Matern derivatives' derivative number nd
+        nr = dble(nd)
+        a = Gamma(nr+1.0)/h**nd
+        b = 0.0
+        do k = 0, nd
+            kr = dble(k)
+            dh = d + kr*h
+            call matern(dh, m, size(dh,1), size(dh,2))
+            b = b + (-1)**(k+1)/(Gamma(nr-kr+1.0)*Gamma(kr+1.0))*m
+        enddo
+        m = a*b*(-1)**(nr+1)
+    endif
+END
+\end{lstlisting}
+
+\begin{lstlisting}[caption={(Code: 9)}, title={Code: 9. Analitical Mat\'ern Derivatives}, label=code.amatder]
+! File: ~/OpenMolcas/src/kriging_util/matern.f90
+!
+SUBROUTINE matderiv(nd, d, m, d1, d2)
+    use globvar
+    integer nd,d1,d2,p0,k
+    real*8 nr,kr,a,b(d1,d2),dh(d1,d2),d(d1,d2),m(d1,d2),c(d1,d2),t
+    m = 0
+    if (anAI) then
+        p0=int(pAI)
+        t=sqrt(2.0*pAI+1)
+        dh = sqrt(d)
+        c=(2.0*pAI+1)/(2.0*pAI-1)*exp(-t*dh)
+        if (pAI.gt.3.or.pAI.lt.1) then
+            Write(6,*) 'Analytical Matern derivatives (anamat=.True.)'
+            Write(6,*) 'is only valid for pAI = 1, 2 and 3(v = 3/2, 5/2 and 7/2)'
+        else
+            select case (p0)
+                case (1)
+                    select case (nd)
+                        case (1)
+                            m = -c/2.0
+                        case (2)
+                            m = c*merge(0.75*t/dh,dh,dh.ne.0)/3.0
+                        case (3)
+                            m = -(2.0*t-3.0*dh)*c
+                    end select
+                case (2)
+                    select case (nd)
+                        case (1)
+                            m =-c*(1.0+t*dh)/2.0
+                        case (2)
+                            m = c*5.0/4.0
+                        case (3)
+                            m = merge(-5.0/8.0*t/dh,dh,dh.ne.0)*c
+                    end select
+                case (3)
+                    select case (nd)
+                        case (1)
+                            m =-c*(1.0+t*dh+dh**2)/2.0
+                        case (2)
+                            m = c*7.0*(1+t*dh)/12.0
+                        case (3)
+                            m = -c*49.0/24.0
+                    end select
+            end select
+        endif
+    else
+        ...
+        ...
+    endif
+END
+\end{lstlisting}
+
+\begin{lstlisting}[caption={(Code: 10)}, title={Code: 10. Calculating Kv}, label=code.kv]
+! File: ~/OpenMolcas/src/kriging_util/k.f90
+!
+SUBROUTINE k(iter)
+    use globvar
+    real*8 B(m_t),A(m_t,m_t),diagA(m_t), iden(m_t,m_t)
+    integer IPIV(m_t),INFO,iter,sign ! ipiv the pivot indices that define the permutation matrix
+    ...
+    ...
+	!
+    B = [y-sb,dy]
+!
+    Ys = B
+!
+    A=full_r
+    CALL DGESV_(m_t,1,A,m_t,IPIV,B,m_t,INFO)
+    Kv=b
+    ...
+    ...
+END SUBROUTINE k
+\end{lstlisting}
+
+\begin{lstlisting}[caption={(Code: 11)}, title={Code:11. Gradient of GEK}, label=code.ggek]
+! File: ~/OpenMolcas/src/kriging_util/covarVector.f90
+!
+SUBROUTINE covarVector(gh,iter,nInter)
+    use globvar
+    integer i,i0,i1,j,gh,iter,nInter
+    real*8 m(iter,npx),diffx(iter,npx),diffx0(iter,npx), &
+        diffxk(iter,npx),sdiffx,sdiffx0!, & dl(iter,npx)
+    cv = 0
+    i0 = 0
+! Covariant Vector in kriging - First part of eq (8)
+	...
+	...
+! Covariant vector in Gradient Enhanced Kriging
+    if(gh.ge.1) then
+        call defdlrl(iter,nInter)
+        call matderiv(1, dl, m, iter, npx)
+        cvMatFder = m
+        call matderiv(2, dl, m, iter, npx)
+        cvMatSder = m
+        do i=1,nInter
+            diffx = 2.0*rl(:,:,i)/l(i)
+            cv(1:iter,:,i,1) = -cvMatFder * diffx
+            do j = 1,nInter
+                j0 = j*iter + 1
+                j1 = j0+iter - 1
+                diffx0 = -2.0*rl(:,:,j)/l(j)
+                m = cvMatSder * diffx*diffx0
+                if (i.eq.j) m = m - cvMatFder*(2/(l(i)*l(j)))
+                cv(j0:j1,:,i,1) = m
+            enddo
+        enddo
+    endif
+    ...
+    ...
+END
+\end{lstlisting}
+
+\begin{lstlisting}[caption={(Code: 12)}, title={Code:12. Hessian of GEK}, label=code.12]
+! File: ~/OpenMolcas/src/kriging_util/covarVector.f90
+!
+SUBROUTINE covarVector(gh,iter,nInter)
+    use globvar
+    integer i,i0,i1,j,gh,iter,nInter
+    real*8 m(iter,npx),diffx(iter,npx),diffx0(iter,npx), &
+        diffxk(iter,npx),sdiffx,sdiffx0!, & dl(iter,npx)
+    cv = 0
+    i0 = 0
+! Covariant Vector in kriging - First part of eq (8)
+	...
+	...
+! Covariant vector in Gradient Enhanced Kriging
+	...
+	...
+if(gh.eq.2) then
+    call defdlrl(iter,nInter) ! In Code: 6
+    call matderiv(1, dl, m, iter, npx)
+    cvMatFder = m
+    call matderiv(2, dl, m, iter, npx)
+    cvMatSder = m
+    call matderiv(3, dl, m, iter, npx)
+    cvMatTder = m
+    do i = 1, nInter
+        diffx = 2.0*rl(:,:,i)/l(i)
+        sdiffx = -2.0/l(i)**2
+        do j = 1, nInter
+            diffx0 = -2.0*rl(:,:,j)/l(j)
+            sdiffx0 = 2/l(j)**2
+            m = cvMatSder * diffx*diffx0
+            if (i.eq.j) m = m - cvMatFder*2/(l(i)*l(j))
+            cv(1:iter,:,i,j) = m
+            do k = 1, nInter
+                diffxk = - 2.0*rl(:,:,k)/l(k)
+                sdiffxk = 2.0/l(i)**2
+                k0 = k*iter + 1
+                k1 = k0+iter - 1
+                if (i.eq.j.and.j.eq.k) then
+                    m = (cvMatTder*diffx0**3 + 3*cvMatSder*diffx0*sdiffx0)
+                else
+                    if (i.eq.j) then
+                        m = cvMatTder*diffx0**3 + cvMatSder*diffx0*sdiffx
+                    else
+                        if (i.eq.k) then
+                            m = cvMatTder*diffxk**3 + cvMatSder*diffxk*sdiffx
+                        else
+                            if (j.eq.k) then
+                                m = cvMatTder*diffx0**3 + cvMatSder*diffxk*sdiffxk
+                            else
+                                m = cvMatTder*diffx*diffx0*diffxk
+                            endif
+                        endif
+                    endif
+                endif
+                cv(k0:k1,:,i,j) = m
+            enddo
+        enddo
+    enddo
+endif
+END
+\end{lstlisting}
+
+\begin{lstlisting}[caption={(Code: 13)}, title={Code: 13. Predicting the Heassian}, label=code.13]
+! File: ~/OpenMolcas/src/kriging_util/predict.f90
+!
+SUBROUTINE predict(gh,iter,nInter)
+    use globvar
+    real*8 B(m_t),tsum!,ddottemp(npx)!,tcv(npx,m_t)
+    real*8 A(m_t,m_t)!AF contains the factors L and U from the factorization A = P*L*U as computed by DGETRF
+    integer IPIV(m_t),INFO
+    integer i,j,iter,nInter,gh ! ipiv the pivot indices that define the permutation matrix
+!
+    do j=1,npx
+	        ...
+	        ...
+            if (gh.eq.1) then
+ 	        ...
+	        ...
+            else
+! Predicting the Hessian gh = 2
+                do k=1,nInter
+                    do i=1,nInter
+                        B = cv(:,j,i,k)
+                        hpred(j,k,i) = dot_product(B, Kv)
+                    enddo
+                enddo
+            endif
+        endif
+    enddo
+END
+\end{lstlisting}
+
+\end{document}

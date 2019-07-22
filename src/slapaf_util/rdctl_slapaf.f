@@ -98,7 +98,7 @@ C     Write (Lu,*) iOptC
       If (Char.eq.BLine) Go To 999
       If (Char(1:1).eq.'*') Go To 999
       If (Char(1:4).eq.'AI  ') Go To 100
-      If (Char(1:4).eq.'AIAM') Go To 101
+      If (Char(1:4).eq.'AIMD') Go To 101
       If (Char(1:4).eq.'AIL ') Go To 102
       If (Char(1:4).eq.'AINX') Go To 103
       If (Char(1:4).eq.'AIP ') Go To 104
@@ -109,6 +109,8 @@ C     Write (Lu,*) iOptC
       If (Char(1:4).eq.'AIMB') Go To 109
       If (Char(1:4).eq.'AIAB') Go To 110
       If (Char(1:4).eq.'L-VA') Go To 112
+      If (Char(1:4).eq.'AIHE') Go To 113
+      If (Char(1:4).eq.'AIGR') Go To 114
       If (Char(1:4).eq.'BAKE') Go To 926
       If (Char(1:4).eq.'C1-D') Go To 936
       If (Char(1:4).eq.'C2-D') Go To 937
@@ -497,15 +499,15 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
       EndIf
       Go To 999
 *                                                                      *
-****** AIAM ************************************************************
+****** AIMD ************************************************************
 *                                                                      *
 *      Analitical or numerical Mat'ern derivatives
 *
 101   Char=Get_Ln(LuRd)
       If (Char.eq.'False'.or.Char.eq.'false') then
-            anAI = .False.
+            anMd = .False.
       Else
-            anAI = .True.
+            anMd = .True.
       EndIf
       Go To 999
 *                                                                      *
@@ -531,7 +533,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *
 104   Char=Get_Ln(LuRd)
       Call Get_F1(1,pAI)
-      If(pAI.gt.3.or.pAI.lt.1) anAI = .False.
+      If(pAI.gt.3.or.pAI.lt.1) anMd = .False.
       Go To 999
 *                                                                      *
 ****** AISP ************************************************************
@@ -578,7 +580,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
       mblAI = .True.
       Go To 999
 *                                                                      *
-****** AIMB ************************************************************
+****** AIAB ************************************************************
 *                                                                      *
 *     adding energy to the last energy value of the base line
 *     This option superseas any value assigned to blAI and mblAI
@@ -596,6 +598,32 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
       Call Get_F1(1,Value_l)
       Call Qpg_dScalar('Value_l',Found)
       If (.Not.Found) Call Put_dScalar('Value_l',Value_l)
+      Go To 999
+*                                                                      *
+****** AIHE ************************************************************
+*                                                                      *
+*     Analitical or Numerical Hessian of GEK
+*
+*
+113   Char=Get_Ln(LuRd)
+      If (Char.eq.'False'.or.Char.eq.'false') then
+            anHe = .False.
+      Else
+            anHe = .True.
+      EndIf
+      Go To 999
+*                                                                      *
+****** AIGR************************************************************
+*                                                                      *
+*     Analitical or Numerical Gradient of GEK
+*
+*
+114   Char=Get_Ln(LuRd)
+      If (Char.eq.'False'.or.Char.eq.'false') then
+            anGr = .False.
+      Else
+            anGr = .True.
+      EndIf
       Go To 999
 *                                                                      *
 ****** BAKE ************************************************************

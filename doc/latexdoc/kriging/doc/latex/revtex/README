@@ -1,0 +1,190 @@
+%% ****** Start of file README ****** %
+%%
+%%   This file is part of the APS files in the REVTeX 4 distribution.
+%%   Version 4.2c of REVTeX, January, 2019.
+%%
+%%   Copyright (c) 1999-2019 American Physical Society.
+%%
+
+Last updated 18 January 2019
+
+This file describes the contents of this distribution of REVTeX 4.2,
+version 4.2c. The definitive source of information about REVTeX 4
+is the APS web page http://journals.aps.org/revtex/.
+
+User queries should be directed to revtex@aps.org.
+
+Manifest
+--------
+All files in this release are contained within a second zip file within the
+main zip file called revtex4-2-tds.zip. This contains all of the REVTeX 4.2
+files in the TeX Directory Structure (TDS) layout used with most current TeX
+distributions. Install REVTeX 4.2 by unzipping the files in the appropriate
+place (usually the texmf-local directory of your local TeX installation) and
+running texhash or the equivalent command to index the files. Please consult your
+TeX distribution's guide for installing new packages.
+
+NOTE: The only files necessary for running REVTeX 4.2 are those under 
+tex/latex/revtex and bibtex/bst/revtex, but it is a good idea to install
+the entire distribution, especially the documentation.
+
+TeX inputs:          tex/latex/revtex/
+                     -----------------  
+revtex4-2.cls     - The REVTeX 4.2 class file
+aps4-2.rtx        - APS-specific customizations for REVTeX 4.2
+aip4-2.rtx        - AIP-specific customizations for REVTeX 4.2
+aapm4-2.rtx       - AAPM-specific custommizations for REVTeX 4.2
+sor4-2.rtx        - SOR-specific customizations for REVTeX 4.2
+apsrmp4-2.rtx     - APS-specific customizations for REVTeX 4.2 for Rev. Mod. Phys.
+aps10pt4-2.rtx    - 10-point size class option file for REVTeX
+aps11pt4-2.rtx    - 11-point size class option file for REVTeX
+aps12pt4-2.rtx    - 12-point size class option file for REVTeX
+revsymb4-2.sty    - A collection of common symbols for use outside of REVTeX
+reftest4-2.tex    - A helpful diagnostics check for bibliographies when not using BibTeX
+
+ltxdocext.sty     - Part of ltxgrid package used for page layout in REVTeX
+ltxfront.sty      - Part of ltxgrid package used for page layout in REVTeX
+ltxgrid.sty       - Part of ltxgrid package used for page layout in REVTeX
+ltxutil.sty       - Part of ltxgrid package used for page layout in REVTeX
+  
+BibTeX inputs:       bibtex/bst/revtex/
+                     ------------------ 
+apsrev4-2.bst     - BibTeX styles for use for Phys. Rev. journals
+apsrmp4-2.bst     - BibTeX styles for use for Rev. Mod. Phys.
+aipauth4-2.bst    - BibTeX styles for AIP journals with author/year style citations
+aipnum4-2.bst     - BibTeX styles for AIP journals with numerical style citations
+aapmrev4-2.bst    - BibTeX styles for AAPM journals
+
+
+Documentation:       doc/latex/revtex/
+                     -----------------
+README       - How to get started (this file)
+
+Author guide:           doc/latex/revtex/auguide/
+                        ------
+auguide4-2.tex (pdf)  - REVTeX 4.2 Author's Guide
+summary4-2.tex (pdf)  - REVTeX 4.2 Command and Options Summary
+docs.sty              - Package used by REVTeX documentation
+
+APS guide:              doc/latex/revtex/aps
+                        ------
+apsguide4-2.tex (pdf) - APS Author Guide for REVTeX 4.2
+
+AIP guide:              doc/latex/revtex/aip
+                        ------
+aipguide4-2.tex (pdf) - Author's Guide to AIP Substyles for REVTeX 4.2
+
+APS Sample document:    doc/latex/revtex/sample/aps
+                        -------
+apssamp.tex (pdf)  - A sample file showing most common features of an APS
+                     REVTeX 4.2 document
+fig_1.eps          - sample figure for apssamp.tex
+fig_2.eps          - sample wide figure for apssamp.tex
+vid_1a.eps         - sample figure for apssamp.tex
+vid_1b.eps         - sample figure for apssamp.tex
+apssamp.bib        - sample BibTeX source file for apssamp.tex
+apstemplate.tex    - A template for APS authors to follow
+
+AIP Sample document:    doc/latex/revtex/sample/aip
+                        -------
+aipsamp.tex (pdf)  - A sample file showing most common features of an AIP
+                     REVTeX 4.2 document
+fig_1.eps          - sample figure for aipsamp.tex
+fig_2.eps          - sample wide figure for aipsamp.tex
+aipsamp.bib        - sample BibTeX source file for aipsamp.tex
+aiptemplate.tex    - A template for AIP authors to follow
+
+AAPM Sample document:    doc/latex/revtex/sample/aapm
+                        -------
+aapmsamp.tex (pdf)  - A sample file showing most common features of an AAPM
+                     REVTeX 4.2 document
+fig_1.eps          - sample figure for aapmsamp.tex
+fig_2.eps          - sample wide figure for aapmsamp.tex
+aapmsamp.bib        - sample BibTeX source file for aapmsamp.tex
+aapmtemplate.tex    - A template for AAPM authors to follow
+
+
+SOR Sample document:    doc/latex/revtex/sample/sor
+                        -------
+sorsamp.tex (pdf)  - A sample file showing most common features of an SOR
+                     REVTeX 4.2 document
+fig_1.eps          - sample figure for sorsamp.tex
+fig_2.eps          - sample wide figure for sorsamp.tex
+sorsamp.bib        - sample BibTeX source file for sorsamp.tex
+sortemplate.tex    - A template for SOR authors to follow
+
+Programmer's docs:      doc/latex/revtex/source/
+                        -------
+ltxdocext.pdf - Programmer's documentation for the ltxdocext package
+ltxfront.pdf  - Programmer's documentation for the ltxfront package
+ltxgrid.pdf   - Programmer's documentation for the ltxgrid package
+ltxutil.pdf   - Programmer's documentation for the ltxutil package
+revtex4-2.pdf - Programmer's documentation for the revtex4.2 document class
+aip4-2.pdf       - Programmer's documentation for the AIP journal styles
+
+Source files:        source/latex/revtex
+                     -------------------
+ltxdocext.dtx - The source file for the ltxdocext package
+ltxfront.dtx  - The source file for the ltxfront package
+ltxgrid.dtx   - The source file for the ltxgrid package
+ltxutil.dtx   - The source file for the ltxutil package
+revtex4-2.dtx - The source file for revtex4.cls and revsymb.sty.
+aip4-2.dtx       - The source file for AIP journal styles
+
+Not Included   
+------------
+The following packages are required by REVTeX but are not
+included in this distribution. Please obtain from CTAN
+(Comprehensive TeX Archive Network), e.g. <http://www.ctan.org/>. Direct
+links to the necessary files can be found at <http://journals.aps.org/revtex/>.
+
+natbib.dtx   - Version 8.31a or later; found in latex/contrib/natbib on CTAN
+natbib.ins   - LaTeX this to create natbib.sty and natbib
+               documentation from natbib.dtx
+bm.dtx       - Bold math style - part of (current!) standard LaTeX2e tools
+bm.sty       - generated from bm.dtx by running tools.ins
+textcase.dtx - Found in latex/contrib/textcase on CTAN
+textcase.ins - LaTeX this to generate textcase.sty from textcase.dtx
+url.sty      - Found in latex/contrib/misc on CTAN
+
+An up-to-date installation of AMS-LaTeX is also required for certain
+documentclass options. Version 2.0 or higher is needed. It is
+available from <http://www.ams.org/tex/>.
+
+Recommended styles and packages
+--------------------------
+With REVTeX implemented as a native LaTeX2e document class, users can 
+take advantage of many of the well-supported LaTeX2e packages available.
+Here are some that are particularly useful and recommended.
+
+longtable.sty for tables running to multiple pages - part of a
+standard LaTeX2e distribution.
+
+hyperref.sty for hyperlinking - should work well with REVTeX 4.2.
+
+graphics.sty and graphicx.sty for figure inclusion - part of LaTeX2e's
+standard distribution.
+
+Credits
+-------
+David Carlisle created the first draft of REVTeX 4; Arthur Ogawa has 
+supported the TeX development versions 4.0 and 4.1. Patrick Daly was so kind
+as to incorporate needed changes into natbib and custom-bib. All worked under 
+commission from the APS, with the support of AIP, and was coordinated by Mark
+Doyle, APS. Version 4.2 was initially developed by Aptara Corporation under
+the guidance of Mark Doyle, APS, and Brian Goss, AIP. Development of the final
+version of 4.2 was done by Mark Doyle. The APS is the maintainer of REVTeX,
+and all bugs are our responsibility. Please e-mail feedback to revtex@aps.org.
+
+Backwards compatibility
+-----------------------
+The REVTeX 4.2 class file has been named revtex4-2.cls to distinguish it
+from its predecessors. Files prepared under REVTeX 4.0 or 4.1 may need minor
+changes to process under 4.2 and the output may be formatted differently.
+
+LaTeX2e requirements
+--------------------
+REVTeX 4 requires: 
+LaTeX2e [1996/06/01],
+natbib  [2009/11/07]
+textcase

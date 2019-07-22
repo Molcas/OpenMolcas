@@ -1,0 +1,823 @@
+%%
+%% This is file `sor4-2.rtx',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% aip4-2.dtx  (with options: `sor')
+%% 
+%% This is a generated file;
+%% altering it directly is inadvisable;
+%% instead, modify the original source file.
+%% See the URL in the file README-AIP.
+%% 
+%% Copyright (c) 2019 American Institute of Physics.
+%% mailto:tex@aip.org
+%% 
+%% Maintained by Arthur Ogawa (mailto:arthur_ogawa at sbcglobal.net)
+%% under contract to American Institute of Physics
+%% 
+%% Version (4.2c)
+%% Modified by Aptara
+%% under contract to American Institute of Physics
+%% 
+%% License
+%%    You may distribute this file under the conditions of the
+%%    LaTeX Project Public License 1.3c or later
+%%    (http://www.latex-project.org/lppl.txt).
+%% 
+%%    This file is distributed WITHOUT ANY WARRANTY;
+%%    without even the implied warranty of MERCHANTABILITY
+%%    or FITNESS FOR A PARTICULAR PURPOSE.
+%% 
+%% \CharacterTable
+%%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%%   Digits        \0\1\2\3\4\5\6\7\8\9
+%%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%%   Dollar        \$     Percent       \%     Ampersand     \&
+%%   Acute accent  \'     Left paren    \(     Right paren   \)
+%%   Asterisk      \*     Plus          \+     Comma         \,
+%%   Minus         \-     Point         \.     Solidus       \/
+%%   Colon         \:     Semicolon     \;     Less than     \<
+%%   Equals        \=     Greater than  \>     Question mark \?
+%%   Commercial at \@     Left bracket  \[     Backslash     \\
+%%   Right bracket \]     Circumflex    \^     Underscore    \_
+%%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%%   Right brace   \}     Tilde         \~}
+%%
+\NeedsTeXFormat{LaTeX2e}[1996/12/01]%
+\ProvidesFile{sor4-2.rtx}%
+\ifx\undefined\substyle@ext
+ \def\@tempa{%
+  \endinput
+  \GenericWarning{I must be read in by REVTeX! (Bailing out)}%
+ }%
+ \expandafter\else
+  \def\@tempa{}%
+ \expandafter\fi\@tempa
+ \class@info{RevTeX society AIP selected}%
+%%
+\DeclareOption{jor}{\change@journal{jor}}%
+\def\adv{AIP Advances}%
+\def\ao{Appl.\  Opt.}%
+\def\ap{Appl.\  Phys.}%
+\def\apl{Appl.\ Phys.\ Lett.}%
+\def\apm{Appl.\ Phys.\ Lett.\ Mater.}%
+\def\apj{Astrophys.\ J.}%
+\def\bell{Bell Syst.\ Tech.\ J.}%
+\def\bmf{Biomicrofluidics}%
+\def\cha{Chaos}%
+\def\jqe{IEEE J.\ Quantum Electron.}%
+\def\assp{IEEE Trans.\ Acoust.\ Speech Signal Process.}%
+\def\aprop{IEEE Trans.\ Antennas Propag.}%
+\def\mtt{IEEE Trans.\ Microwave Theory Tech.}%
+\def\iovs{Invest.\ Ophthalmol.\ Vis.\ Sci.}%
+\def\jcp{J.\ Chem.\ Phys.}%
+\def\jap{J.\Appl.\Phys.}%
+\def\jmp{j.\Math.\Phys.}%
+\def\jmo{J.\ Mod.\ Opt.}%
+\def\josa{J.\ Opt.\ Soc.\ Am.}%
+\def\josaa{J.\ Opt.\ Soc.\ Am.\ A}%
+\def\josab{J.\ Opt.\ Soc.\ Am.\ B}%
+\def\jpp{J.\ Phys.\ (Paris)}%
+\def\jpr{j.\Phys.\Chem.\Ref.\Data}%
+\def\ltp{Low.\Temp.\Phys.}%
+\def\nat{Nature (London)}%
+\def\oc{Opt.\ Commun.}%
+\def\ol{Opt.\ Lett.}%
+\def\pl{Phys.\ Lett.}%
+\def\pop{Phys.\Plasmas}%
+\def\pof{Phys.\Fluids}%
+\def\pra{Phys.\ Rev.\ A}%
+\def\prb{Phys.\ Rev.\ B}%
+\def\prc{Phys.\ Rev.\ C}%
+\def\prd{Phys.\ Rev.\ D}%
+\def\pre{Phys.\ Rev.\ E}%
+\def\prl{Phys.\ Rev.\ Lett.}%
+\def\rmp{Rev.\ Mod.\ Phys.}%
+\def\rsi{Rev.\Sci.\Instrum.}%
+\def\rse{J. \Renewable Sustainable Energy}%
+\def\pspie{Proc.\ Soc.\ Photo-Opt.\ Instrum.\ Eng.}%
+\def\sjqe{Sov.\ J.\ Quantum Electron.}%
+\def\vr{Vision Res.}%
+\def\sd{Structural Dynamics}%
+\def\jor{J.\ Rheol.}%
+\def\cp{AIP\ Conference\ Proceedings}%
+%%
+\DeclareOption{author-numerical}{%
+  \@booleantrue\authoryear@sw
+  \@booleantrue\authornum@sw
+}%
+\DeclareOption{article-title}{%
+  \@booleanfalse\sor@jtitx@sw
+}%
+\@booleantrue \sor@jtitx@sw
+\@booleanfalse\authoryear@sw
+\@booleanfalse\authornum@sw
+\@booleanfalse\onecolumn@sw
+\@booleanfalse\newonecolumn@sw
+\appdef\@bibdataout@rev{\@bibdataout@sor}%
+\def\@bibdataout@sor{%
+ \immediate\write\@bibdataout{%
+  @CONTROL{%
+   sor41Control%% TeXSupport: aip
+   \longbibliography@sw{\true@sw}{\sor@jtitx@sw{\false@sw}{\true@sw}}%
+   {%
+    ,pages="1",title="0"%
+   }{%
+    ,pages="0",title=""%
+   }%
+  }%
+ }%
+ \if@filesw
+  \immediate\write\@auxout{\string\citation{sor41Control}}%% TeXSupport: aip
+ \fi
+}%
+\@booleantrue\preprintsty@sw
+\@booleantrue\showPACS@sw
+\@booleantrue\showKEYS@sw
+%% TeXSupport
+\let\old@refname\refname
+\appdef\setup@hook{%
+ \preprintsty@sw{}{%
+  \let\refname\@empty
+ }%
+}%
+\appdef\setup@hook{%
+ \preprintsty@sw{%
+  \ps@preprint
+ }{%
+  \ps@article
+ }%
+}%
+\def\ps@preprint{%
+  \def\@oddhead{\@runningtitle\hfil}%
+  \def\@evenhead{\@runningtitle\hfil}%
+  \def\@oddfoot{\hfil\thepage\quad\checkindate\hfil}%
+  \def\@evenfoot{\hfil\thepage\quad\checkindate\hfil}%
+  \let\@mkboth\@gobbletwo
+  \let\sectionmark\@gobble
+  \let\subsectionmark\@gobble
+}%
+\def\ps@article{%
+  \def\@evenhead{\let\\\heading@cr\thepage\quad\checkindate\hfil\@runningtitle}%
+  \def\@oddhead{\let\\\heading@cr\@runningtitle\hfil\checkindate\quad\thepage}%
+  \def\@oddfoot{}%
+  \def\@evenfoot{}%
+  \let\@mkboth\@gobbletwo
+  \let\sectionmark\@gobble
+  \let\subsectionmark\@gobble
+}%
+\def\@runningtitle{\@shorttitle}%
+\renewenvironment{titlepage}{%
+  \let\wastwocol@sw\twocolumn@sw
+  \onecolumngrid
+  \newpage
+  \thispagestyle{titlepage}%
+  \c@page\z@% article sets this to one not zero???
+}{%
+  \wastwocol@sw{\twocolumngrid}{\newpage}%
+}%
+\let\@fnsymbol@latex\@fnsymbol
+\let\@fnsymbol\@alph
+\def\adjust@abstractwidth{%
+ \parindent1em\relax
+ \advance\leftskip.5in\relax
+ \@totalleftmargin\leftskip
+ \@afterheading\@afterindentfalse
+}%
+\def\frontmatter@abstractheading{}%
+\def\frontmatter@abstractfont{%
+ \adjust@abstractwidth
+}%
+\appdef\setup@hook{%
+ \preprintsty@sw{%
+  \@booleantrue\titlepage@sw
+  \let\section\section@preprintsty
+  \let\subsection\subsection@preprintsty
+  \let\subsubsection\subsubsection@preprintsty
+ }{}%
+}%
+\def\frontmatter@@indent{%
+ \skip@\@flushglue
+ \@flushglue\z@ plus.3\hsize\relax
+ \raggedright
+ \advance\leftskip.5in\relax
+ \@totalleftmargin\leftskip
+ \@flushglue\skip@
+}%
+\def\frontmatter@authorformat{%
+ \frontmatter@@indent
+ \sffamily
+}%
+\renewcommand*\email[1][Electronic mail: ]{\begingroup\sanitize@url\@email{#1}}%
+\def\frontmatter@above@affilgroup{%
+}%
+\def\frontmatter@above@affiliation@script{%
+ \frontmatter@@indent
+}%
+\def\frontmatter@above@affiliation{%
+}%
+\def\frontmatter@affiliationfont{%
+ \frontmatter@@indent
+ \preprintsty@sw{}{\small}%
+ \it
+}%
+\def\frontmatter@collaboration@above{%
+}%
+\def\frontmatter@setup{%
+ \normalfont
+}%
+\def\frontmatter@title@above{\addvspace{6\p@}}%
+\def\frontmatter@title@format{%
+ \preprintsty@sw{}{\Large}%
+ \sffamily
+ \bfseries
+ \raggedright
+ \parskip\z@skip
+}%
+\def\frontmatter@title@below{\addvspace{3\p@}}%
+\def\@author@parskip{3\p@}%
+\@booleantrue\altaffilletter@sw
+\def\frontmatter@makefnmark{%
+ \@textsuperscript{%
+  \normalfont\@thefnmark%(
+  )%
+ }%
+}%
+\def\frontmatter@authorbelow{%
+\addvspace{3\p@}%
+}%
+\let\affil@cutoff\tw@
+\def\frontmatter@RRAP@format{%
+  \addvspace{5\p@}%
+  \small
+  \raggedright
+  \advance\leftskip.5in\relax
+ \@totalleftmargin\leftskip
+  \everypar{%
+   \hbox\bgroup(\@gobble@leavemode@uppercase%)
+  }%
+  \def\par{%
+   \@ifvmode{}{%(
+    \unskip)\egroup\@@par
+   }%
+  }%
+}%
+\def\punct@RRAP{;\egroup\ \hbox\bgroup}%
+\def\@gobble@leavemode@uppercase#1#2{\expandafter\MakeTextUppercase}%
+\def\frontmatter@PACS@format{%
+   \addvspace{11\p@}%
+   \adjust@abstractwidth
+   \parskip\z@skip
+   \samepage
+}%
+\def\frontmatter@keys@format{%
+   \adjust@abstractwidth
+   \samepage
+}%
+\def\ps@titlepage{%
+  \def\@oddhead{%
+   \@runningtitle
+   \hfill
+   \produce@preprints\@preprint
+  }%
+  \let\@evenhead\@oddhead
+  \def\@oddfoot{%
+   \hb@xt@\z@{\byrevtex\hss}%
+   \hfil
+   \preprintsty@sw{\thepage}{}%
+   \quad\checkindate
+   \hfil
+  }%
+  \let\@evenfoot\@oddfoot
+}%
+\def\byrevtex{\byrevtex@sw{Typeset by REV\TeX and AIP}{}}%
+\def\produce@preprints#1{%
+ \preprint@sw{%
+  \vtop to \z@{%
+   \def\baselinestretch{1}%
+   \small
+   \let\preprint\preprint@count
+   \count@\z@#1\@ifnum{\count@>\tw@}{%
+    \hbox{%
+     \let\preprint\preprint@hlist
+     #1\setbox\z@\lastbox
+    }%
+   }{%
+    \let\preprint\preprint@cr
+    \halign{\hfil##\cr#1\crcr}%
+    \par
+    \vss
+   }%
+  }%
+ }{}%
+}%
+\def\preprint@cr#1{#1\cr}%
+\def\preprint@count#1{\advance\count@\@ne}%
+\def\preprint@hlist#1{#1\hbox{, }}%
+\newenvironment{Lead@inParagraph}{%
+ \par
+ \bfseries
+ \@afterheading\@afterindentfalse
+}{%
+ \par
+ \hb@xt@\hsize{\hfil\leaders\hrule\hfil\leaders\hrule\hfil\hfil}%
+}%
+\appdef\frontmatter@init{%
+ \let@environment{quotation@ltx}{quotation}%
+ \let@environment{quotation}{Lead@inParagraph}%
+}%
+\appdef\@startsection@hook{%
+ \let@environment{quotation}{quotation@ltx}%
+}%
+\def\@seccntformat#1{\csname the#1\endcsname.\quad}%
+\def\@hang@from#1#2#3{#1#2#3}%
+\def\section{%
+  \@startsection
+    {section}%
+    {1}%
+    {\z@}%
+    {0.8cm \@plus1ex \@minus .2ex}%
+    {0.5cm}%
+    {%
+     \normalfont
+     \small
+     \sffamily
+     \bfseries
+     \raggedright
+    }%
+}%
+\def\@hangfrom@section#1#2#3{\@hangfrom{#1#2}\MakeTextUppercase{#3}}%
+\def\@hangfroms@section#1#2{#1\MakeTextUppercase{#2}}%
+\def\subsection{%
+  \@startsection
+    {subsection}%
+    {2}%
+    {\z@}%
+    {.8cm \@plus1ex \@minus .2ex}%
+    {.5cm}%
+    {%
+     \normalfont
+     \small
+     \sffamily
+     \bfseries
+     \raggedright
+    }%
+}%
+\def\subsubsection{%
+  \@startsection
+    {subsubsection}%
+    {3}%
+    {\z@}%
+    {.8cm \@plus1ex \@minus .2ex}%
+    {.5cm}%
+    {%
+     \normalfont
+     \small
+     \sffamily
+     \bfseries
+     \itshape
+     \raggedright
+    }%
+}%
+\def\paragraph{%
+  \@startsection
+    {paragraph}%
+    {4}%
+    {\parindent}%
+    {\z@}%
+    {-1em}%
+    {\normalfont\normalsize\itshape}%
+}%
+\def\subparagraph{%
+  \@startsection
+    {subparagraph}%
+    {5}%
+    {\parindent}%
+    {3.25ex \@plus1ex \@minus .2ex}%
+    {-1em}%
+    {\normalfont\normalsize\bfseries}%
+}%
+\def\section@preprintsty{%
+  \@startsection
+    {section}%
+    {1}%
+    {\z@}%
+    {0.8cm \@plus1ex \@minus .2ex}%
+    {0.5cm}%
+    {%
+     \normalfont
+     \bfseries
+     \raggedright
+    }%
+}%
+\def\subsection@preprintsty{%
+  \@startsection
+    {subsection}%
+    {2}%
+    {\z@}%
+    {.8cm \@plus1ex \@minus .2ex}%
+    {.5cm}%
+    {%
+     \normalfont
+     \bfseries
+     \raggedright
+    }%
+}%
+\def\subsubsection@preprintsty{%
+  \@startsection
+    {subsubsection}%
+    {3}%
+    {\z@}%
+    {.8cm \@plus1ex \@minus .2ex}%
+    {.5cm}%
+    {%
+     \normalfont
+     \itshape\bfseries
+     \raggedright
+    }%
+}%
+\let\frontmatter@footnote@produce\frontmatter@footnote@produce@footnote
+\def\@pnumwidth{1.55em}
+\def\@tocrmarg {2.55em}
+\def\@dotsep{2}
+\def\ltxu@dotsep{4.5pt}
+\setcounter{tocdepth}{3}
+\def\tableofcontents{%
+ \addtocontents{toc}{\string\tocdepth@munge}%
+ \print@toc{toc}%
+ \addtocontents{toc}{\string\tocdepth@restore}%
+}%
+\def\tocdepth@munge{%
+  \let\l@section@saved\l@section
+  \let\l@section\@gobble@tw@
+}%
+\def\@gobble@tw@#1#2{}%
+\def\tocdepth@restore{%
+  \let\l@section\l@section@saved
+}%
+\def\l@part#1#2{\addpenalty{\@secpenalty}%
+ \begingroup
+  \set@tocdim@pagenum{#2}%
+  \parindent \z@
+  \rightskip\tocleft@pagenum plus 1fil\relax
+  \skip@\parfillskip\parfillskip\z@
+  \addvspace{2.25em plus\p@}%
+  \large \bf %
+  \leavevmode\ignorespaces#1\unskip\nobreak\hskip\skip@
+  \hb@xt@\rightskip{\hfil\unhbox\z@}\hskip-\rightskip\hskip\z@skip
+  \par
+  \nobreak %
+ \endgroup
+}%
+\def\tocleft@{\z@}%
+\def\tocdim@min{5\p@}%
+\def\l@section{%
+ \l@@sections{}{section}% Implicit #3#4
+}%
+\def\l@f@section{%
+ \addpenalty{\@secpenalty}%
+ \addvspace{1.0em plus\p@}%
+ \bf
+}%
+\def\l@subsection{%
+ \l@@sections{section}{subsection}% Implicit #3#4
+}%
+\def\l@subsubsection{%
+ \l@@sections{subsection}{subsubsection}% Implicit #3#4
+}%
+\def\l@paragraph#1#2{}%
+\def\l@subparagraph#1#2{}%
+\let\toc@pre\toc@pre@auto
+\let\toc@post\toc@post@auto
+\def\listoffigures{\print@toc{lof}}%
+\def\l@figure{\@dottedtocline{1}{1.5em}{2.3em}}
+\def\listoftables{\print@toc{lot}}%
+\let\l@table\l@figure
+\@booleanfalse\raggedcolumn@sw
+\def\tableft@skip@float{\z@ plus\hsize}%
+\def\tabmid@skip@float{\@flushglue}%
+\def\tabright@skip@float{\z@ plus\hsize}%
+\def\array@row@pre@float{\hline\hline\noalign{\vskip\doublerulesep}}%
+\def\array@row@pst@float{\noalign{\vskip\doublerulesep}\hline\hline}%
+\def\@makefntext#1{%
+ \def\baselinestretch{1}%
+ \leftskip1em%
+ \parindent1em%
+ \noindent
+ \nobreak\hskip-\leftskip
+ \hb@xt@\leftskip{%
+  \hss\@makefnmark\ %
+ }%
+ #1%
+ \par
+}%
+\prepdef\appendix{%
+ \par
+ \let\@hangfrom@section\@hangfrom@appendix
+ \let\@sectioncntformat\@appendixcntformat
+}%
+\def\@hangfrom@appendix#1#2#3{%
+ #1%
+ \@if@empty{#2}{%
+  #3%
+ }{%
+  #2\@if@empty{#3}{}{:\ #3}%
+ }%
+}%
+\def\@hangfroms@appendix#1#2{%
+ #1#2%
+}%
+\def\@appendixcntformat#1{\appendixname\ \csname the#1\endcsname}%
+ \def\pre@bibdata{\jobname\bibdata@app}%
+\def\refname{References}%
+\def\rtx@bibsection{%
+ \@ifx@empty\refname{%
+  \par\vspace{6\p@ plus 6\p@}%
+ }{%
+  \expandafter\section\expandafter*\expandafter{\refname}%
+  \@nobreaktrue
+ }%
+}%
+\let\bibpreamble\@empty
+\appdef\setup@hook{%
+ \bibsep\z@\relax
+}%
+\def\newblock{\ }%
+\appdef\setup@hook{%
+ \def\bibfont{%
+  \preprintsty@sw{}{\footnotesize}%
+  \@clubpenalty\clubpenalty
+  \labelsep\z@
+ }%
+}%
+\let\place@bibnumber\place@bibnumber@sup
+\newenvironment{theindex}{%
+ \columnseprule \z@
+ \columnsep 35\p@
+ \c@secnumdepth-\maxdimen
+ \onecolumngrid@push
+ \section{\indexname}%
+ \thispagestyle{plain}%
+ \parindent\z@
+ \parskip\z@ plus.3\p@\relax
+ \let\item\@idxitem
+ \onecolumngrid@pop
+}{%
+}%
+\def\@idxitem{\par\hangindent 40\p@}
+\def\subitem{\par\hangindent 40\p@ \hspace*{20\p@}}
+\def\subsubitem{\par\hangindent 40\p@ \hspace*{30\p@}}
+\def\indexspace{\par \vskip 10\p@ plus5\p@ minus3\p@\relax}
+\expandafter\def\csname rtx@sor10pt\endcsname{%% TeXSupport: aip
+ \let\@currname@class\@currname
+ \def\@currname{aps10pt\substyle@post}%
+ \class@info{Reading file \@currname.\substyle@ext}%
+ \input{\@currname.\substyle@ext}%
+ \let\@currname\@currname@class
+ \class@info{Overriding 10pt}%
+ \sorreprint
+}%
+\expandafter\def\csname rtx@sor11pt\endcsname{\csname rtx@sor12pt\endcsname}%
+\expandafter\def\csname rtx@sor12pt\endcsname{%
+ \let\@currname@class\@currname
+ \def\@currname{aps12pt\substyle@post}%
+ \class@info{Reading file \@currname.\substyle@ext}%
+ \input{\@currname.\substyle@ext}%
+ \let\@currname\@currname@class
+ \class@info{Overriding 12pt}%
+ \sorpreprint
+}%
+\def\today{%
+  \number\day\space
+  \ifcase\month
+   \or January\or February\or March\or     April\or   May\or      June%
+   \or July\or    August\or   September\or October\or November\or December%
+  \fi\space
+  \number\year
+}%
+ \clo@superscriptaddress
+\def\@journal@default{cha}%
+\def\@pointsize@default{12}%
+\@booleanfalse\pagerestrict@sw%
+%%
+\def\rtx@sorjor{%
+ \typeout{Using journal substyle \@journal.}%
+ \@booleantrue\authoryear@sw%
+ \@booleantrue\twoside@sw\@mparswitchfalse%
+}%
+%%
+\@booleantrue\footinbib@sw
+\let\old@place@bibnumber\place@bibnumber
+\let\place@bibnumber\place@bibnumber@sup
+\appdef\setup@hook{%
+ \authoryear@sw{%
+  \sor@jtitx@sw{%
+   \def\@bibstyle{aipauth\substyle@post}%
+  }{%
+   \def\@bibstyle{aipauth\substyle@post}%
+  }%
+  \authornum@sw{%
+   \bibpunct{}{}{,}{s}{}{\textsuperscript{,}}%
+   \let\onlinecite\rev@citealpnum
+  }{%
+   \bibhang10\p@
+   \bibpunct{(%)
+              }{%(
+                )}{; }{a}{,}{,}%
+   \@booleanfalse\footinbib@sw
+   \let\NAT@mcite\@ne
+   \let\NAT@sort\z@
+   \def\NAT@cmprs{\z@}%
+   \let\NAT@def@citea\rtx@def@citea
+   \let\NAT@def@citea@close\rtx@def@citea@close
+  }%
+ }{%
+  \sor@jtitx@sw{%
+   \def\@bibstyle{sornum\substyle@post}%
+  }{%
+   \def\@bibstyle{sornum\substyle@post}%
+  }%
+  \bibpunct{}{}{,}{s}{}{\textsuperscript{,}}%
+  \let\onlinecite\rev@citealpnum
+ }%
+}%
+\def\make@footnote@endnote{%
+ \footinbib@sw{%
+  \authoryear@sw{\authornum@sw{\false@sw}{\true@sw}}{\false@sw}%
+  {}{%
+   \ltx@footnote@push
+   \def\thempfn{Note\thefootnote}%
+   \let\ltx@footmark\rev@citemark
+   \let\ltx@foottext\rev@endtext
+   \appdef\class@enddocumenthook{\auto@bib}%
+   \let\printendnotes\relax
+  }%
+ }{}%
+}%
+\def\sorreprint{%
+}%
+\def\sorpreprint{%
+}%
+%%
+\xdef\t@talAU{0}% TeXSupport
+\def\frontmatter@author@produce@script{%
+  \begingroup
+    \let\@author@present\@author@present@script
+    \frontmatterverbose@sw{\typeout{\string\frontmatter@author@produce@script:}\say\@AAC@list\say\@AFF@list\say\@AFG@list}{}%
+    \let\AU@temp\@empty
+    \@tempcnta\z@
+    \let\AF@opr \@gobble
+    \def\AU@opr{\@author@count\@tempcnta}%
+    \def\CO@opr{\@collaboration@count\AU@temp\@tempcnta}%
+    \@AAC@list%
+    \xdef\t@talAU{\the\@tempcnta}% TeXSupport
+    \expandafter\CO@opr\@author@cleared
+    \begingroup
+     \frontmatter@authorformat
+     \let\AF@opr \@affilID@def
+     \let\AU@opr \@author@present
+     \def\CO@opr{\@collaboration@present\AU@temp}%
+     \set@listcomma@list\AU@temp
+     \@AAC@list
+     \unskip\unskip
+     \par
+    \endgroup
+    \begingroup
+     \frontmatter@above@affiliation@script
+     \let\AFF@opr \@affil@script
+     \@AFF@list
+     \frontmatter@footnote@produce
+     \par
+    \endgroup
+  \endgroup
+}%
+\def\doauthor#1#2#3{% TeXSupport
+  \ignorespaces#1\unskip\@listcomma
+  \begingroup
+  \ifnum\t@talAU=1\else\ifnum\c@affil=\@ne\relax\else#3\fi\fi% TeXSupport
+  \@if@empty{#2}{\endgroup{}{}}{\endgroup{\ifnum\t@talAU=1\else\ifnum\c@affil=\@ne\relax\else\comma@space\fi\fi}{}\frontmatter@footnote{#2}}% TeXSupport
+  \space \@listand
+}%
+%%
+\appdef\rtx@require@packages{%
+%%
+%%
+%% Journal of Rheology (jor)
+%%
+\def\jnl@jor{jor}%
+\preprintsty@sw{}%
+ {\ifx\@journal\jnl@jor%
+    \typeout{SOR Info: \@journal\space journal style Single column, 2013/10/24}%
+\@booleanfalse\twocolumn@sw%
+\appdef\setup@hook{%
+ \twoside@sw{%
+      \oddsidemargin  28pt%
+      \evensidemargin 28pt%
+      \marginparwidth 30pt%
+ }{%
+  \oddsidemargin 28pt
+  \evensidemargin 0pt
+  \marginparwidth 44pt
+ }%
+}%
+\marginparsep 10pt
+\topmargin -17pt
+\headheight 12pt
+\headsep 25pt
+\topskip 10pt
+\splittopskip\topskip
+\footskip 30pt
+\textheight=53.5pc
+\textwidth 33pc
+\columnsep 10pt
+ \def\title@column#1{%
+  \minipagefootnote@init
+  \begingroup
+   \let\@footnotetext\frontmatter@footnotetext
+   \ltx@no@footnote
+   #1%
+  \endgroup
+  \minipagefootnote@foot
+ }%
+\def\frontmatter@title@format{%
+ \preprintsty@sw{}{\Large}%
+ \sffamily%
+ \bfseries%
+ \leftskip0pt plus1fill%
+ \rightskip0pt plus1fill%
+ \parindent\z@%
+%% \raggedright%
+ \parskip\z@skip%
+}%
+\def\frontmatter@@indent{%
+ \skip@\@flushglue
+ \@flushglue\z@ plus.3\hsize\relax
+ \leftskip0pt plus1fill%
+ \rightskip0pt plus1fill%
+ \parindent\z@%
+%% \raggedright
+%% \advance\leftskip.5in\relax
+ \@totalleftmargin\leftskip
+ \@flushglue\skip@
+}%
+%% \def\frontmatter@authorformat{%
+%%  \frontmatter@@indent
+%%  \sffamily
+%% }%
+\def\frontmatter@RRAP@format{%
+  \addvspace{5\p@}%
+  \small
+  \leftskip0pt plus1fill%
+  \rightskip0pt plus1fill%
+  \parindent\z@%
+%%\raggedright
+%%\advance\leftskip.5in\relax
+ \@totalleftmargin\leftskip
+  \everypar{%
+   \hbox\bgroup(\@gobble@leavemode@uppercase%)
+  }%
+  \def\par{%
+   \@ifvmode{}{%(
+    \unskip)\egroup\@@par
+   }%
+  }%
+}%
+\def\frontmatter@abstractfont{}%
+\def\frontmatter@abstractwidth{\textwidth}
+\def\abstractname{Synopsis}
+\def\frontmatter@abstractheading{%
+ \begingroup
+  \centering\large
+  {\bfseries\abstractname}
+  \par\vskip.25\baselineskip
+ \endgroup
+}%
+\appdef\setup@hook{%
+ \preprintsty@sw{}{%
+  \let\refname\old@refname%\@empty
+ }%
+}%
+\def\ps@article{%
+  \def\@evenhead{\let\\\heading@cr\sffamily\thepage\quad\checkindate\hfil\@runningtitle\hfil}%
+  \def\@oddhead{\let\\\heading@cr\hfil\sffamily\@runningtitle\hfil\checkindate\quad\thepage}%
+  \def\@oddfoot{}%
+  \def\@evenfoot{}%
+  \let\@mkboth\@gobbletwo
+  \let\sectionmark\@gobble
+  \let\subsectionmark\@gobble
+}%
+\def\@make@capt@title#1#2{%
+ \@ifx@empty\float@link{\@firstofone}{\expandafter\href\expandafter{\float@link}}%
+  {{\bfseries#1}}\@caption@fignum@sep#2%
+}%
+\def\@caption@fignum@sep{{\bfseries.} }%
+%%
+ \fi%
+}
+}%
+\endinput
+%%
+%% End of file `sor4-2.rtx'.

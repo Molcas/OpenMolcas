@@ -59,7 +59,8 @@
       Subroutine Hessian_Kriging(x_,ddy_,ndimx)
         use globvar
         Integer nInter,nPoints
-        Real*8 x_(ndimx,1),ddy_(ndimx,ndimx)
+        Real*8 x_(ndimx,1),ddy_(ndimx,ndimx),tgrad(ndimx),thgrad(ndimx)
+        ! Real*8 Scale,Delta
 !
         nPoints=nPoints_save
         nInter=nInter_save
@@ -70,10 +71,33 @@
         nx = x_
 !
         ! Write(6,*) 'Entro hess'
+! Analitical Hessian of GEK
+        if (anHe) then
+                call covarvector(2,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+                call predict(2,nPoints,nInter)
+        else
+! Numerical Hessian of GEK
+                hpred = 0
+                do i = 1,nInter
+                        ! Scale=0.01D0
+                        ! Delta = Max(Abs(nx(i,1)),1.0D-5)*Scale
+                        call Gradient_Kriging(nx,tgrad,ndimx)
+                        call Gradient_Kriging(nx+h,thgrad,ndimx)
+                        do j=1,nInter
+                                ! Fact = 0.5
+                                ! If (i.eq.j) Fact = 1.0
+                                hpred(npx,i,j) = hpred(npx,i,j) + (thgrad(j)-tgrad(j))/h
+                                hpred(npx,j,i) = hpred(npx,i,j)
+                        enddo
+                        write (6,*) 'Delta: ', Delta
+                enddo
+        endif
+        ddy_=hpred(npx,:,:)
+        write(6,*) 'Kriging Hessian, Analitical?', anHe, ddy_
+!--------temp
         call covarvector(2,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
         call predict(2,nPoints,nInter)
-        ddy_=hpred(npx,:,:)
-        ! write(6,*) 'Kriging Hessian', ddy_
+        write(6,*) 'Kriging Hessian, Analitical', hpred(npx,:,:)
 !
         return
       end
@@ -95,7 +119,7 @@
                 call predict(0,nPoints,nInter)
         endif
         y_ = sigma
-        write (6,*) 'sigma', sigma
+        ! write (6,*) 'sigma', sigma
 !
         return
       end

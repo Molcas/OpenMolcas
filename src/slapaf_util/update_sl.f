@@ -718,6 +718,7 @@ c Avoid unused argument warnings
                Hessian(jInter,iInter) = Hessian(jInter,iInter)
      &            + Fact*(dqp(jInter)-dqm(jInter))/(Two*Delta)!two
             End Do
+            write (6,*) 'Delta: ', Delta
 *
             qInt(iInter,kIter)=qInt_Save
          End Do

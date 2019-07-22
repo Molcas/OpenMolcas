@@ -34,7 +34,7 @@
             integer nd,d1,d2,p0,k
             real*8 nr,kr,a,b(d1,d2),dh(d1,d2),d(d1,d2),m(d1,d2),c(d1,d2),t
             m = 0
-            if (anAI) then
+            if (anMd) then
                 p0=int(pAI)
                 t=sqrt(2.0*pAI+1)
                 dh = sqrt(d)
