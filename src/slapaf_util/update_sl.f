@@ -1292,6 +1292,7 @@ C           Write (*,*) 'tBeta=',tBeta
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call mma_Deallocate(difH)
       Call mma_Deallocate(Hessian)
       Call GetMem('RHS   ','Free','Real',ipRHS,kIter+1)
       Call GetMem('EMtrx ','Free','Real',ipEMx,(kIter+1)**2)
