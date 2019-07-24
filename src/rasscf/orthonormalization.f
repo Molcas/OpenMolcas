@@ -112,8 +112,6 @@
 
         integer :: n_to_ON(nSym), n_new(nSym)
 
-        allocate(S(size(basis)))
-
         call new(S, blocksizes=blocksizes(basis))
         call read_S(S)
 
@@ -145,9 +143,6 @@
 
         type(t_blockdiagonal), allocatable :: basis(:), ONB(:)
 
-        allocate(ONB(nSym), basis(nSym))
-
-        ONB_v = CMO
         call new(basis, blocksizes=nBAS(:nSym))
         call new(ONB, blocksizes=nBAS(:nSym))
 
@@ -157,7 +152,6 @@
 
         call delete(ONB)
         call delete(basis)
-        deallocate(ONB, basis)
       end subroutine
 
 !>  Return an orthogonal transformation to make A match B as closely as possible.

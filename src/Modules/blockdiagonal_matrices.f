@@ -34,25 +34,25 @@
       contains
 
         subroutine block_new(blocks, blocksizes)
-          type(t_blockdiagonal), intent(out) :: blocks(:)
+          type(t_blockdiagonal), allocatable, intent(out) :: blocks(:)
           integer, intent(in) :: blocksizes(:)
           integer :: i, L
 
+          allocate(blocks(size(blocksizes)))
           do i = 1, size(blocks)
             L = blocksizes(i)
-!             call mma_allocate(blocks(i)%block, L, L, label='Block')
-            allocate(blocks(i)%block(L, L))
+            call mma_allocate(blocks(i)%block, L, L, label='Block')
           end do
         end subroutine
 
         subroutine block_delete(blocks)
-          type(t_blockdiagonal) :: blocks(:)
+          type(t_blockdiagonal), allocatable :: blocks(:)
           integer :: i
 
           do i = 1, size(blocks)
-!             call mma_deallocate(blocks(i)%block)
-            deallocate(blocks(i)%block)
+            call mma_deallocate(blocks(i)%block)
           end do
+          deallocate(blocks)
         end subroutine
 
         subroutine from_raw(S_buffer, S)
