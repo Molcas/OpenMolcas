@@ -25,6 +25,8 @@
      &    t_ON_scheme, ON_scheme, ON_scheme_values, orthonormalize,
      &    t_procrust_metric, procrust_metric, metric_values, procrust
 
+        integer, parameter :: testsize = 8
+
 ! TODO: Should be changed to default construction in the future.
 ! As of July 2019 the Sun and PGI compiler have problems.
         type :: t_ON_scheme_values
@@ -105,10 +107,12 @@
         use rasscf_data, only : nSec, nOrbt, nTot3, nTot4
         type(t_blockdiagonal), intent(in) :: basis(:)
         type(t_ON_scheme), intent(in) :: scheme
-        type(t_blockdiagonal), intent(_OUT_) :: ONB(size(basis))
-        type(t_blockdiagonal) :: S(size(basis))
+        type(t_blockdiagonal), intent(_OUT_) :: ONB(:)
+        type(t_blockdiagonal), allocatable :: S(:)
 
         integer :: n_to_ON(nSym), n_new(nSym)
+
+        allocate(S(size(basis)))
 
         call new(S, blocksizes=blocksizes(basis))
         call read_S(S)
@@ -137,11 +141,13 @@
         use general_data, only : nBas, nSym
         real*8, intent(in) :: CMO(:)
         type(t_ON_scheme), intent(in) :: scheme
-        real*8, intent(_OUT_) :: ONB_v(size(CMO))
+        real*8, intent(out) :: ONB_v(:)
 
-        type(t_blockdiagonal) :: basis(nSym)
-        type(t_blockdiagonal) :: ONB(nSym)
+        type(t_blockdiagonal), allocatable :: basis(:), ONB(:)
 
+        allocate(ONB(nSym), basis(nSym))
+
+        ONB_v = CMO
         call new(basis, blocksizes=nBAS(:nSym))
         call new(ONB, blocksizes=nBAS(:nSym))
 
@@ -151,6 +157,7 @@
 
         call delete(ONB)
         call delete(basis)
+        deallocate(ONB, basis)
       end subroutine
 
 !>  Return an orthogonal transformation to make A match B as closely as possible.
