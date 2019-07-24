@@ -22,8 +22,7 @@
         save
         private
         public ::
-     &    t_ON_scheme, ON_scheme, ON_scheme_values, orthonormalize,
-     &    t_procrust_metric, procrust_metric, metric_values, procrust
+     &    t_ON_scheme, ON_scheme, ON_scheme_values, orthonormalize
 
         integer, parameter :: testsize = 8
 
@@ -69,16 +68,6 @@
           module procedure orthonormalize_raw, orthonormalize_blocks
         end interface
 
-        type :: t_metric_values
-          integer :: Frobenius, Max_4el_trace
-        end type
-        type(t_metric_values), parameter ::
-     &    metric_values = t_metric_values(Frobenius=1, Max_4el_trace=2)
-
-        type :: t_procrust_metric
-          integer :: val = metric_values%Frobenius
-        end type
-        type(t_procrust_metric) :: procrust_metric
 
         interface
           real*8 function ddot_(n_,dx,incx_,dy,incy_)
@@ -153,40 +142,6 @@
         call delete(ONB)
         call delete(basis)
       end subroutine
-
-!>  Return an orthogonal transformation to make A match B as closely as possible.
-!>
-!>  @author Oskar Weser
-!>
-!>  @details
-!>  The orthogonal transformation (\f$ T \f$) is given by
-!>  the minimization of the distance between (\f$ RA \f$) and
-!>  (\f$ B \f$).
-!>  The distance is measured by the metric (\f$ d \f$) which
-!>  leads to
-!>  \f[ T = \text{argmin}\limits_{R \in OG(n)} d(RA, B) \f]
-!>  If the metric is induced by the Frobenius-Norm
-!>  \f[ T = \text{argmin}\limits_{R \in OG(n)} |RA -  B|_F \f]
-!>  it becomes the classical orthogonal procrust's problem.
-!>
-!>  @paramin[in] A Matrix that should be rotated/mirrored etc.
-!>  @paramin[in] B Target matrix.
-!>  @paramin[in] metric (Optional parameter) Can be "FROBENIUS", "MAX-4EL-TRACE".
-      function procrust(A, B, metric) result(R)
-        real*8, intent(in) :: A(:, :), B(:, :)
-        type(t_procrust_metric), intent(in) :: metric
-        real*8 :: R(size(B, 1), size(B, 2))
-
-        select case (metric%val)
-          case (metric_values%Frobenius)
-          case (metric_values%Max_4el_trace)
-          case default
-!            abort_
-        end select
-
-        R = matmul(A, B)
-      end function procrust
-
 
 ! TODO: It would be nice, to use `impure elemental`
 ! instead of the manual looping.
