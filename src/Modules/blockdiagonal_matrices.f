@@ -40,7 +40,8 @@
 
           do i = 1, size(blocks)
             L = blocksizes(i)
-            call mma_allocate(blocks(i)%block, L, L, label='Block')
+!             call mma_allocate(blocks(i)%block, L, L, label='Block')
+            allocate(blocks(i)%block(L, L))
           end do
         end subroutine
 
@@ -49,7 +50,8 @@
           integer :: i
 
           do i = 1, size(blocks)
-            call mma_deallocate(blocks(i)%block)
+!             call mma_deallocate(blocks(i)%block)
+            deallocate(blocks(i)%block)
           end do
         end subroutine
 
