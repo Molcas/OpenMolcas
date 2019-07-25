@@ -302,7 +302,7 @@
         integer :: i
         logical :: lin_dep_detected, improve_solution
 
-        call mma_allocate(SCTMP, size(basis, 1))
+!         call mma_allocate(SCTMP, size(basis, 1))
         allocate(SCTMP(size(basis, 1)))
 !         call mma_allocate(OVL, size(basis, 1))
 
