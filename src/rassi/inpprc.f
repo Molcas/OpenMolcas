@@ -134,7 +134,7 @@ C (IPUSED will be set later, set it to zero now.)
       IOPT=15
       LABEL='UNDEF'
       CALL iRDONE(IRC,IOPT,LABEL,ICMP,IDUM,ISYLAB)
-      NSIZ=IDUM(1)
+      IF(IRC.EQ.0) NSIZ=IDUM(1)
       IF(IRC.NE.0) GOTO 110
       IPRP=1
       CALL UPCASE(LABEL)
@@ -146,7 +146,7 @@ C (IPUSED will be set later, set it to zero now.)
         IRC=-1
         IOPT=23
         CALL iRDONE(IRC,IOPT,LABEL,ICMP,IDUM,ISYLAB)
-        NSIZ=IDUM(1)
+        IF(IRC.EQ.0) NSIZ=IDUM(1)
         IF(IRC.NE.0) GOTO 110
         IPRP=IPRP+1
         CALL UPCASE(LABEL)
@@ -747,6 +747,10 @@ C Write out various input data:
           call Quit_OnUserError
         end if
       else if (ifejob) then
+        if (have_heff) then
+          call WarningMessage(1,'EJOB used when HEFF is available, '//
+     &      'posible extra interaction between states is ignored!')
+        end if
         if (have_diag) then
           DO I=0,NSTATE-1
             Work(LHAM+i*nstate+i)=Work(LREFENE+i)
@@ -755,11 +759,13 @@ C Write out various input data:
           DO I=0,NSTATE-1
             Work(LHAM+i*nstate+i)=Work(L_HEFF+i*nstate+i)
           END DO
-          call WarningMessage(1,'EJOB used when HEFF is available, '//
-     &      'posible extra interaction between states is ignored!')
         else
           call WarningMessage(2,'EJOB used but no energies available!')
           call Quit_OnUserError
+        end if
+        if (jobmatch) then
+          call WarningMessage(1,'EJOB used for a situation where '//
+     &      'posible extra interaction between states is ignored!')
         end if
       else if (.not.(ifhext.or.ifhdia.or.ifshft.or.ifhcom)) then
 * the user has selected no procedure...

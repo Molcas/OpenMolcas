@@ -12,8 +12,10 @@
 ***********************************************************************/
 
       module fortran_strings
+        implicit none
+        save
         private
-        public :: str
+        public :: str, to_lower, to_upper
 #include "molcastypes.fh"
 
 !>  @brief
@@ -39,6 +41,10 @@
           end function
         end interface
 
+        character(*), parameter ::
+     &      UPPERCASE_chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+     &      lowercase_chars = 'abcdefghijklmnopqrtsuvwxyz'
+
         contains
 
         function I_to_str(i) result(str)
@@ -51,7 +57,7 @@
 
         function R_to_str(x) result(str)
           character(:), allocatable :: str
-          real(kind=8), intent(in) :: x
+          real*8, intent(in) :: x
           character(range(x) + 2) :: tmp
           write(tmp, '(I0)') x
           str = trim(tmp)
@@ -72,5 +78,44 @@
             res(i:i) = string(i)
           end do
         end function
+
+
+!> Changes a string to upper case
+        pure function to_upper (in_str) result (string)
+          implicit none
+          character(*), intent(in) :: in_str
+          character(len(in_str)) :: string
+          integer :: ic, i, L
+
+          L = len_trim(in_str)
+          do i = 1, L
+            ic = index(lowercase_chars, in_str(i:i))
+            if (ic > 0) then
+              string(i:i) = UPPERCASE_chars(ic:ic)
+            else
+              string(i:i) = in_str(i:i)
+            end if
+          end do
+          string(L + 1: ) = ' '
+        end function to_upper
+
+!> Changes a string to lower case
+        pure function to_lower (in_str) result (string)
+          implicit none
+          character(*), intent(in) :: in_str
+          character(len(in_str)) :: string
+          integer :: ic, i, L
+
+          L = len_trim(in_str)
+          do i = 1, L
+            ic = index(UPPERCASE_chars, in_str(i:i))
+            if (ic > 0) then
+              string(i:i) = lowercase_chars(ic:ic)
+            else
+              string(i:i) = in_str(i:i)
+            end if
+          end do
+          string(L + 1: ) = ' '
+        end function to_lower
 
       end module

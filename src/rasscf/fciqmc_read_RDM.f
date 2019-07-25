@@ -8,44 +8,48 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2017, Giovanni Li Manni                                *
+* Copyright (C) 2016,2017, Giovanni Li Manni                           *
 *               2019, Oskar Weser                                      *
 ************************************************************************
 
       module fciqmc_read_RDM
-      private
-      public :: read_neci_RDM
-
-
-      contains
-      subroutine read_neci_RDM(DMAT, DSPN, PSMAT, PAMAT)
-* <Arguments>
-*   \Argument{DMAT}{Average 1-dens matrix}{Real*8 array (NACPAR)}...............{out}
-*   \Argument{DSPN}{Average spin 1-dens matrix}{Real*8 array (NACPAR)}..........{out}
-*   \Argument{PSMAT}{Average symm. 2-dens matrix}{Real*8 array (NACPR2)}........{out}
-*   \Argument{PAMAT}{Average antisymm. 2-dens matrix}{Real*8 array (NACPR2)}....{out}
-* </Arguments>
-*
-* <Description>
-*   Read TwoRDM files written by NECI and transfer them to Molcas.
-*   Neci can have some intermediate spin-resolved/spin-free RDMs where basically aaaa contains
-*   average of aaaa and bbbb, abab contains average of abab and baba...
-*   This is ok for CASSCF but not ok for spin-resolved properties, in which case the completely
-*   spin-resolved RDMs need to be read-in.
-*   In principle, NECI could also evaluate and store completely spin-free matrices.
-*   In that case only a reordering following Molcas convention is necessary.
-* </Description>
       use general_data, only : iSpin, nActEl
+      use rasscf_data, only : nAc, nAcPar
+! Note that two_el_idx_flatten has also out parameters.
+      use index_symmetry, only : two_el_idx_flatten
+      private
+      public :: read_neci_RDM, cleanup
+      contains
+
+!>  @brief
+!>    Start and control FCIQMC.
+!>
+!>  @author Giovanni Li Manni, Oskar Weser
+!>
+!>  @details
+!>  Read TwoRDM files written by NECI and transfer them to Molcas.
+!>  Neci can have some intermediate spin-resolved/spin-free RDMs where basically aaaa contains
+!>  average of aaaa and bbbb, abab contains average of abab and baba...
+!>  This is ok for CASSCF but not ok for spin-resolved properties, in which case the completely
+!>  spin-resolved RDMs need to be read-in.
+!>  In principle, NECI could also evaluate and store completely spin-free matrices.
+!>  In that case only a reordering following Molcas convention is necessary.
+!>
+!>  @paramin[out] DMAT Average 1 body density matrix
+!>  @paramin[out] DSPN Average spin 1-dens matrix
+!>  @paramin[out] PSMAT Average symm. 2-dens matrix
+!>  @paramin[out] PAMAT Average antisymm. 2-dens matrix
+      subroutine read_neci_RDM(DMAT, DSPN, PSMAT, PAMAT)
       implicit none
 #include "para_info.fh"
 #include "output_ras.fh"
-      real(kind=8), intent(out) :: DMAT(:), DSPN(:), PSMAT(:),PAMAT(:)
+      real*8, intent(out) :: DMAT(:), DSPN(:), PSMAT(:), PAMAT(:)
       integer :: iUnit, isfreeunit, p, q, r, s, pq, rs, ps, rq, psrq,
      &  pqrs, iread, Nalpha, norb, iprlev
       logical :: tExist, switch
-      real(kind=8) :: fac, RDMval, fcalpha, fcbeta, fcnacte
-      real(kind=8) :: D_alpha(size(DMAT)), D_beta(size(DMAT))
-      parameter(routine = 'neci2molcas_dens')
+      real*8 :: fac, RDMval, fcalpha, fcbeta, fcnacte
+      real*8 :: D_alpha(size(DMAT)), D_beta(size(DMAT))
+      parameter(routine = 'read_neci_RDM')
 
       Call qEnter(routine)
 
@@ -116,7 +120,7 @@
 **************************************************************
         read(iUnit, "(4I6,G25.17)", iostat=iread) s, q, r, p, RDMval
         if(iread /= 0) exit
-        call get_indices(p, q, r, s, pq, rs, pqrs)
+        pqrs = two_el_idx_flatten(p, q, r, s, pq, rs)
 ******* Contribution to PSMAT and PAMAT:
         PSMAT(pqrs) = PSMAT(pqrs) + fac * RDMval
         if (r /= s.and.p == q) PSMAT(pqrs) = PSMAT(pqrs) + fac * RDMval
@@ -131,7 +135,8 @@
         if (r == s) D_alpha(pq) = D_alpha(pq) + RDMval
 ******************* processing as PSRQ ***********************
 **************************************************************
-        call get_indices(p, s, r, q, ps, rq, psrq)
+        psrq = two_el_idx_flatten(p, s, r, q, ps, rq)
+        psrq = two_el_idx_flatten(p, s, r, q, ps, rq)
 ******* Contribution to PSMAT and PAMAT:
         if (r <= q) then
           PSMAT(psrq) = PSMAT(psrq) - fac * RDMval
@@ -170,7 +175,7 @@
 **************************************************************
           read(iUnit,"(4I6,G25.17)",iostat=iread) s, q, r, p, RDMval
           if(iread /= 0) exit
-          call get_indices(p, q, r, s, pq, rs, pqrs)
+          pqrs = two_el_idx_flatten(p, q, r, s, pq, rs)
 ******* Contribution to PSMAT and PAMAT:
           PSMAT(pqrs) = PSMAT(pqrs) + fac * RDMval
           if(r /= s.and.p == q) PSMAT(pqrs) = PSMAT(pqrs) + fac*RDMval
@@ -185,7 +190,7 @@
           if (r == s) D_beta(pq) = D_beta(pq) + RDMval
 ******************* processing as PSRQ ***********************
 **************************************************************
-          call get_indices(p, s, r, q, ps, rq, psrq)
+          psrq = two_el_idx_flatten(p, s, r, q, ps, rq)
 ******* Contribution to PSMAT and PAMAT:
           if(r <= q) then
             PSMAT(psrq) = PSMAT(psrq) - fac*RDMval
@@ -219,7 +224,7 @@
       do
         read(iUnit,"(4I6,G25.17)",iostat=iread) s,q,r,p,RDMval
         if(iread /= 0) exit
-        call get_indices(p, q, r, s, pq, rs, pqrs)
+        pqrs = two_el_idx_flatten(p, q, r, s, pq, rs)
 ******* Contribution to PSMAT and PAMAT:
         PSMAT(pqrs) = PSMAT(pqrs) + fac*RDMval
         if(r > s.and.p /= q) PAMAT(pqrs) = PAMAT(pqrs) + fac*RDMval
@@ -253,7 +258,7 @@
         do
           read(iUnit,"(4I6,G25.17)",iostat=iread) s,q,r,p,RDMval
           if(iread /= 0) exit
-          call get_indices(p, q, r, s, pq, rs, pqrs)
+          pqrs = two_el_idx_flatten(p, q, r, s, pq, rs)
 ******* Contribution to PSMAT and PAMAT:
           PSMAT(pqrs) = PSMAT(pqrs) + fac * RDMval
           if(r > s.and.p /= q) PAMAT(pqrs) = PAMAT(pqrs) + fac*RDMval
@@ -281,7 +286,7 @@
       do
         read(iUnit,"(4I6,G25.17)",iostat=iread) q,s,r,p,RDMval
         if(iread /= 0) exit
-        call get_indices(p, q, r, s, pq, rs, pqrs)
+        pqrs = two_el_idx_flatten(p, q, r, s, pq, rs)
 ******* Contribution to PSMAT and PAMAT:
         PSMAT(pqrs) = PSMAT(pqrs) - fac*RDMval
         if(r < s) then
@@ -316,7 +321,7 @@
         do
           read(iUnit,"(4I6,G25.17)",iostat=iread) q,s,r,p,RDMval
           if(iread /= 0) exit
-          call get_indices(p, q, r, s, pq, rs, pqrs)
+          pqrs = two_el_idx_flatten(p, q, r, s, pq, rs)
 ******* Contribution to PSMAT and PAMAT:
           PSMAT(pqrs) = PSMAT(pqrs) - fac*RDMval
           if(r < s) then
@@ -346,14 +351,15 @@
 
 ******* Clean evil non-positive semi-definite matrices. DMAT is input and output.
       call cleanMat(DMAT)
+
       IF(IPRLEV >= DEBUG) THEN
-       norb  = (int(sqrt(real(1 + 8 * size(DMAT))))-1)/2
+       norb  = (int(sqrt(dble(1 + 8 * size(DMAT)))) - 1) / 2
        call triprt('D_alpha in neci2molcas',' ',D_alpha,norb)
        call triprt('D_beta  in neci2molcas',' ',D_beta ,norb)
        call triprt('DMAT in neci2molcas',' ',DMAT,norb)
        call triprt('DSPN in neci2molcas',' ',DSPN,norb)
       END IF
-      Call qExit('neci2molcas')
+      Call qExit(routine)
       Return
 
 123   continue
@@ -375,14 +381,126 @@
         if (err == 0) write(6, *) strerror_(get_errno_())
       end subroutine bcast_2RDM
 
-      pure subroutine get_indices(p, q, r, s, pq, rs, pqrs)
-        integer, intent(in) :: p, q, r, s
-        integer, intent(out) :: pq, rs, pqrs
-        if (p >= q) pq = p * (p - 1) / 2 + q
-        if (p < q) pq = q * (q - 1) / 2 + p
-        if (r >= s) rs = r * (r - 1) / 2 + s
-        if (r < s) rs = s * (s - 1) / 2 + r
-        if (pq >= rs) pqrs = pq * (pq - 1) / 2 + rs
-        if (pq < rs) pqrs = rs * (rs - 1) / 2 + pq
-      end subroutine get_indices
+      Subroutine CleanMat(MAT)
+************* by G. Li Manni Stuttgart April 2016 *************
+*
+* MAT: One-body density matrix in MO basis as passed by QMC calculation.
+
+* It could well be an average matrix in SA calculation.
+*
+* It has following shape:
+*        11
+*        12 22
+*        ** ** 33
+*        ** ** ** 44
+*        ** ** ** 45 55
+*        ** ** ** 46 56 66
+*        ** ** ** 47 57 67 77
+*        ** ** ** ** ** ** ** 88
+*        ** ** ** ** ** ** ** 89  99
+*        ** ** ** ** ** ** ** 810 910 1010
+*        """""""""""""""""""""""""""""""""""
+* mimicking a system with (2 0 0 1 4 3 0 0)  actice orbitals (blocked by Irreps)
+
+*           DMAT will be destroyed and replaced with a positive semi-definite one.
+*           N-representability will be preserved.
+
+      implicit none
+#include "WrkSpc.fh"
+* NACPAR = NAC*(NAC+1)/2 with NAC total number of active orbitals
+      real*8, intent(inout) :: MAT(NacPar)
+      integer rc,LEVC,j,i,iTmp,iTmp2
+      real*8 :: trace
+      Character*12 routine
+      Parameter (routine = 'CleanMat')
+
+      Call qEnter(routine)
+
+      rc = 0
+      If (nacpar .lt. 1) then
+       rc= -1
+       write(6,*) 'matrix size < 1.'
+       Go To 10
+      end if
+
+* Allocate memory for eigenvectors and new DMAT
+      Call GetMem('EVC','Allo','Real',LEVC,NAC**2)
+* Initialize eigenvectors
+      Call dCopy_(NAC**2,[0.0d0],0,Work(LEVC),1)
+* set eigenvector array to identity for this version of JACOB
+      Call dCopy_(NAC,[1.0d0],0,Work(LEVC),NAC+1)
+
+* Step 1: Diagonalize MAT. Eigenvalues are stored in diagonal of MAT
+      trace = 0.0d0
+      DO I=1,NAC
+         trace = trace+ MAT(I*(I+1)/2)
+      END DO
+      CALL JACOB(MAT,Work(LEVC),NAC,NAC)
+
+#ifdef _DEBUG_
+      write(6,*) 'eigenvalues: '
+      DO I=1,NAC
+         write(6,*) MAT(I*(I+1)/2)
+      END DO
+      write(6,*) 'eigenvectors: '
+      do i = 0, nac -1
+       write(6,*) (Work(LEVC+i*NAC+j), j=0,NAC - 1)
+      end do
+#endif
+* Set to zero negative eigenvalue and to TWO values larger than 2.0d0.
+      do j = 1, nac
+       if(MAT(j*(j+1)/2).gt.2.0d0)     MAT(j*(j+1)/2) = 2.0d0
+       if(MAT(j*(j+1)/2).lt.1.0d-12)   MAT(j*(j+1)/2) = 0.0d0
+      end do
+
+      trace = 0.0d0
+      DO I=1,NAC
+         trace = trace + MAT(I*(I+1)/2)
+      END DO
+      write(6,*) 'trace after removing negative eigenvalues =', trace
+
+* Combine pieced to form the output MAT
+* blas routine for square*triangular operation
+      Call GetMem('Scr','Allo','Real',iTmp,nac*nac)
+      Call GetMem('Scr2','Allo','Real',iTmp2,nac*nac)
+      Call dCopy_(nac*nac,[0.0d0],0,Work(iTmp),1)
+      Call dCopy_(nac*nac,[0.0d0],0,Work(iTmp2),1)
+c     call DTRMM('R','L','N','n',nac,nac,1.0d0,MAT,nac,Work(iTmp))
+      do i = 0, nac-1
+          do j = 0, nac-1
+           work(iTmp+i*nac+j) = Work(LEVC+i*NAC+j)*MAT((I+1)*(I+2)/2)
+          end do
+      end do
+      Call DGEMM_('N','T',nac,nac,nac,
+     &            1.0d0,Work(iTmp),nac,Work(LEVC),nac,
+     &            0.0d0,Work(iTmp2),nac)
+* Copy back to MAT
+      do i = 1, nac
+        do j = 1, i
+         MAT((i-1)*i/2+j) = Work(iTmp2+(i-1)*nac + j-1)
+        end do
+      end do
+#ifdef _DEBUG_
+      write(6,*) 'trace after recombination:'
+      trace = 0.0d0
+      DO I=1,NAC
+         trace = trace+ MAT(I*(I+1)/2)
+      END DO
+#endif
+* Release memory
+      Call GetMem('Scr2','Free','Real',iTmp2,nac*nac)
+      Call GetMem('Scr','Free','Real',iTmp,nac*nac)
+      Call GetMem('EVC','Free','Real',LEVC,nac*nac)
+****************** Exit ****************
+10    Continue
+      Call qExit(routine)
+      return
+      end subroutine cleanMat
+
+      subroutine cleanup()
+        implicit none
+        ! Add your deallocations here.
+        ! This routine will be called when exiting rasscf.
+        continue
+      end subroutine
       end module fciqmc_read_RDM

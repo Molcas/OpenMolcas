@@ -21,11 +21,10 @@
 *> and corresponding eigenvectors of a symmetric matrix.
 *> On input, \p Vec can contain an initial guess for the eigenvectors (from a previous
 *> run with smaller \p k, for example), only the non-zero vectors are used.
-*> If \p k > \p n on input, it will be set to \p n on output.
 *>
 *> @param[in]     A   Symmetric matrix, in upper triangular packed format
 *> @param[in]     n   Size of the matrix
-*> @param[in,out] k   Number of lowest eigenvalues to compute
+*> @param[in]     k   Number of lowest eigenvalues to compute
 *> @param[out]    Eig Lowest eigenvalues
 *> @param[in,out] Vec Lowest eigenvectors
 *> @param[out]    iRC Return code (0 if converged)
@@ -72,8 +71,9 @@
 *      maxk = maximum subspace size (25 if k=1)
 *      mink = subspace size to reduce to when the maximum is exceeded (5 if k=1)
 *
-*     (do not use MIN here, so that it's possible to use an explicit value for k)
-      IF (k.GT.n) k=n
+      IF (k.GT.n) THEN
+        CALL SysAbendMsg('Davidson','Wrong k value.','')
+      END IF
       mink=MIN(MAX(k+2,5),n)
       maxk=MIN(5*mink,n)
       mk=k

@@ -25,7 +25,7 @@
     - docker
 
 .options:
-  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-5.4:latest
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-7:latest
   variables:
     cache_file: |
       set (CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "opt, debug info")
@@ -51,11 +51,12 @@
 .pgi:
   image: ${CI_REGISTRY}/molcas/dockerfiles/pgi:latest
   variables:
-    cache_file: ""
-    # Add -tp=x64 flag to make the result more portable
-    CC: "pgcc '-tp=x64'"
-    CXX: "pgc++ '-tp=x64'"
-    FC: "pgfortran '-tp=x64'"
+    cache_file: |
+      set (DEFMOLCASMEM "1536" CACHE STRING "reduce memory")
+    # Add -tp=px flag to make the result more portable
+    CC: "pgcc '-tp=px'"
+    CXX: "pgc++ '-tp=px'"
+    FC: "pgfortran '-tp=px'"
   tags:
     - docker
 
@@ -144,10 +145,12 @@
     - nag
 
 .garble:
-  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-5.4:latest
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-7:latest
   variables:
     cache_file: |
       set (CMAKE_BUILD_TYPE "Garble" CACHE STRING "garble installation" )
+      set (BIGOT "ON" CACHE STRING "do not allow any warning")
+      set (DEBUG_DEFS "_BIGOT_" CACHE STRING "stricter runtime checks")
       #set (BOUNDS "ON" CACHE STRING "enable bounds checking" )
       set (BUILD_SHARED_LIBS "OFF" CACHE STRING "static molcas lib" )
       set (HDF5 "OFF" CACHE STRING "turn off HDF5")
@@ -159,7 +162,7 @@
     - docker
 
 .bounds:
-  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-5.4:latest
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-7:latest
   variables:
     cache_file: |
       set (CMAKE_BUILD_TYPE "Release" CACHE STRING "opt, no debug info" )
@@ -172,7 +175,7 @@
     - docker
 
 .debug:
-  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-5.4:latest
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-7:latest
   variables:
     cache_file: |
       set (CMAKE_BUILD_TYPE "Debug" CACHE STRING "no opt, debug info")

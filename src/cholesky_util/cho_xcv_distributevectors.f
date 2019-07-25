@@ -193,7 +193,7 @@ C     Number of 'ga_get' has been remarkably reduced by using the stripped mode
             ok=ga_create(mt_dbl,nnBstR(iSym,2),nVec_per_batch,'GA_XCV',
      &                   0,0,g_a)
             If (.not. ok) Then
-               Call Cho_Quit(SecNam,': ga_create() failed!',101)
+               Call Cho_Quit(SecNam//': ga_create() failed!',101)
             End If
             If (iPrint.ge.Inf_Progress) Then
                Write(LuPri,'(3X,A,I8)')

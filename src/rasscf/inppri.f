@@ -31,6 +31,7 @@
       use qcmaquis_interface_cfg
       use qcmaquis_interface_environment, only: print_dmrg_info
 #endif
+      use fcidump, only : DumpOnly
       use fciqmc, only : DoNECI
 
       Implicit Real*8 (A-H,O-Z)
@@ -237,14 +238,8 @@ C.. for GAS
      &                            (nDel(iSym),iSym=1,nSym)
       Write(LF,Fmt2//'A,T47,8I4)') 'Number of basis functions',
      &                            (nBas(iSym),iSym=1,nSym)
-      Write(LF,*)
-      If (kIVO) Then
-        Write(LF,Fmt2//'A,T47)') 'Improved Virtual Orbitals '//
-     &                           'option is used'
-        Write(LF,Fmt2//'A,T47)') 'Molecular Orbitals are NOT '//
-     &                           'suitable for CASPT2 & MRCI!'
-      End If
       Call CollapseOutput(0,'Orbital specifications:')
+      Write(LF,*)
 
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
       If(.Not.DoBlockDMRG) GoTo 113
@@ -452,8 +447,8 @@ C.. for GAS
 * NN.14 FIXME: in DMRG-CASSCF, skip this check for the time
 *              since Block DMRG code will check this internally
 *     If (NROOTS .GT. NCSASM(LSYM)) Then
-      If (.not.DoNECI .and. .not.doDMRG
-     &    .and. .not.doBlockDMRG .and. NROOTS .GT. NCSASM(LSYM)) Then
+      If (.not. (DoNECI .or. DumpOnly .or. doDMRG .or. doBlockDMRG)
+     &    .and. (NROOTS > NCSASM(LSYM))) Then
          Write(LF,*) '************ ERROR ***********'
          Write(LF,*) ' You can''t ask for more roots'
          Write(LF,*) ' than there are configurations '

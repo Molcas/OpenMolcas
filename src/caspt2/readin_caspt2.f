@@ -410,7 +410,7 @@ C end of input
 
       Case('OFEM')
       Input % OFEmbedding = .True.
-      call Quit_OnInstError
+c      call Quit_OnInstError
 
       ! print controls
 

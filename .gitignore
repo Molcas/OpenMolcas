@@ -83,6 +83,7 @@ doc/manual/installation.guide/Linux-x86.cfg
 doc/manual/installation.guide/prgms.cntrl
 doc/manual/users.guide/programs.tex
 doc/manual/*.out
+doc/doxygen/*tmp
 doc/doxygen/html
 doc/doxygen/latex
 doc/doxygen/xml
@@ -108,6 +109,8 @@ lib/
 # Test/
 test/sonatorb/
 test/sonatorb
+#Python
+*__pycache__*
 # pymolcas
 Tools/pymolcas/pymolcas
 Tools/pymolcas/pymolcas.exe

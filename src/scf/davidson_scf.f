@@ -23,7 +23,6 @@
 *> and corresponding eigenvectors of a symmetric matrix.
 *> On input, \p Vec can contain an initial guess for the eigenvectors (from a previous
 *> run with smaller \p k, for example), only the non-zero vectors are used.
-*> If \p k > \p n on input, it will be set to \p n on output.
 *> This routine is adapted to an augmented Hessian, which is not explicitly expressed,
 *> rather the original Hessian is implicitly there, via a diagonal and an on-the-fly
 *> update when multiplied by a vector, and the gradient is explicit there.
@@ -31,7 +30,7 @@
 *> @param[in]     HDiag  Diagonal of the Hessian matrix
 *> @param[in]     g      Gradient vector
 *> @param[in]     m      Size of diagonal Hessian and gradient
-*> @param[in,out] k      Number of lowest eigenvalues to compute
+*> @param[in]     k      Number of lowest eigenvalues to compute
 *> @param[in]     Fact   Scaling factor
 *> @param[out]    Eig    Lowest eigenvalues
 *> @param[in,out] Vec    Lowest eigenvectors
@@ -81,8 +80,9 @@
 *      maxk = maximum subspace size (25 if k=1)
 *      mink = subspace size to reduce to when the maximum is exceeded (5 if k=1)
 *
-*     (do not use MIN here, so that it's possible to use an explicit value for k)
-      IF (k.GT.n) k=n
+      IF (k.GT.n) THEN
+        CALL SysAbendMsg('Davidson_SCF','Wrong k value.','')
+      END IF
       mink=MIN(MAX(k+2,5),n)
       maxk=MIN(5*mink,n)
       mk=k

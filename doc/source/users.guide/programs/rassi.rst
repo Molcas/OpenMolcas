@@ -24,8 +24,8 @@
             computed also for the non-interacting linear combinations of states,
             i.e., doing a limited CI using the RASSCF states as a non-orthogonal basis.
             RASSI is extensively used for computing dipole oscillator strengths.
-            Finally, it can also compute Spin-Orbit interaction matrix elements
-            and e.g. transition dipole moments for spin-orbit eigenstates.
+            Finally, it can also compute e.g. spin-orbit interaction matrix elements,
+            transition dipole moments, (bi-)natural orbitals and other quantities.
             </HELP>
 
 The
@@ -276,9 +276,11 @@ Output files
   A number of files containing natural orbitals, (numbered sequentially as
   :file:`SIORB01`, :file:`SIORB02`, etc.)
 
-:file:`BRAORBnnmm`, :file:`KETORBnnmm`
+:file:`BIORBnnmm`
   A number of files containing binatural orbitals for the transition between
-  states nn and mm.
+  states ``nn`` and ``mm``. Each such file contains pairs of orbitals, in the same format
+  as the :math:`\alpha` and :math:`\beta` components of UHF orbitals. The file for transition
+  to state ``nn``\ =2 from state ``mm``\ =1 will be named :file:`BIORB.2_1`.
 
 :file:`TOFILE`
   This output is only created if :kword:`TOFIle` is given in the input.
@@ -509,13 +511,13 @@ Keywords
 :kword:`SOPRoperty`
   Enter a user-supplied selection of one-electron operators, for which
   matrix elements and expectation values are to be calculated over the
-  of spin--orbital eigenstates. This keyword has no effect unless the
+  spin--orbit eigenstates. This keyword has no effect unless the
   :kword:`SPIN` keyword has been used. Format: see :kword:`PROP` keyword.
 
   .. xmldoc:: %%Keyword: SOProperty <basic>
               Enter a selection of one-electron operators, for which
               matrix elements and expectation values are to be calculated over the
-              of spin-orbital eigenstates. This keyword has no effect unless the
+              spin-orbit eigenstates. This keyword has no effect unless the
               SPIN keyword has been used. Format: see PROP keyword.
 
 :kword:`SPINorbit`
@@ -697,18 +699,18 @@ Keywords
 :kword:`BINAtorb`
   The next entry gives the number of transitions for which binatural
   orbitals will be computed. Then a line should follow for each transition,
-  with the two states involved. The binatural orbitals will be written, formatted, commented,
-  and followed by singular values, on two files for each transition.
-  For file names, see the Files section.
-  The format allows their use as standard orbital input files to
-  other |molcas| programs.
+  with the two states involved. The orbitals and singular values provide a
+  singular value decomposition of a transition density matrix \cite{Malmqvist:2012}.
+  The bra and ket orbitals are written followed by the singular values in the
+  usual UHF format used by other |molcas| programs.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="BINATORB" APPEAR="Binatural Orbitals" KIND="INTS_COMPUTED" SIZE="2" LEVEL="BASIC">
               %%Keyword: BiNatOrb <basic>
               <HELP>
-              Enter the number of eigenstates, for which binatural orbitals should
-              be computed and written to file. These will be written together with
-              the singular values in the usual format used by MOLCAS.
+              Enter the number of transitions, for which binatural orbitals should
+              be computed and written to file. Then a line should follow with the two
+              states for each transition. The ket and the bra orbitals are written
+              followed by the singular values in the the usual format used by MOLCAS.
               </HELP>
               </KEYWORD>
 
@@ -862,7 +864,8 @@ Keywords
   A spin-free effective Hamiltonian is read from :file:`JOBIPH` instead of being computed.
   It must have been computed by an earlier program. Presently, this is done by
   a multi-state calculation using :program:`CASPT2`. In the future, other programs may add
-  dynamic correlation estimates in a similar way.
+  dynamic correlation estimates in a similar way. This keyword is not needed if the input
+  file is in HDF5 format.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HEFF" APPEAR="Effective Hamiltonian" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: HEff <advanced>
@@ -875,14 +878,17 @@ Keywords
 
 :kword:`EJOB`
   The spin-free effective Hamiltonian is assumed to be diagonal, with energies
-  being read from a :file:`JOBMIX` file from a multi-state :program:`CASPT2` calculation.
-  In the future, other programs may add dynamic correlation estimates in a similar way.
+  being read from a :file:`JOBIPH` or :file:`JOBMIX` file.
+  If this keyword is used together with :kword:`HEFF`, or if the input file is
+  an HDF5 file for which the effective Hamiltonian is automatically read, only
+  the diagonal elements will be read and off-diagonal elements will be set to zero.
+  This can be useful to use the SS-CASPT2 energies from a MS-CASTP2 calculation.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EJOB" APPEAR="MS-CASPT2 Hamiltonian" KIND="SINGLE" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EJOB" APPEAR="Read energies from file" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: EJob <advanced>
               <HELP>
               The spin-free effective Hamiltonian is assumed to be diagonal, with energies
-              being read from a JOBMIX file from a multi-state CASPT2 calculation.
+              being read from a JOBIPH or JOBMIX file from e.g. a multi-state CASPT2 calculation.
               </HELP>
               </KEYWORD>
 
@@ -1146,7 +1152,7 @@ Keywords
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="DYSEXPORT" KIND="INTS" SIZE="2" LEVEL="ADVANCED">
               %%Keyword: DYSEXPORT <advanced>
               <HELP>
-              Requires the :kword:`DYSOn` keyword and enables exportation of Dyson orbitals (from which Dyson amplitudes are obtained). The next line specifies the number (starting from the first) of spin-free and spin-orbit states (two numbers, both mandatory) for which the exportation will be done. Note that the ordering of spin-free states depends on the ordering of JOBfiles, whereas spin-orbit states are always energy ordered.
+              Requires the DYSOn keyword and enables exportation of Dyson orbitals (from which Dyson amplitudes are obtained). The next line specifies the number (starting from the first) of spin-free and spin-orbit states (two numbers, both mandatory) for which the exportation will be done. Note that the ordering of spin-free states depends on the ordering of JOBfiles, whereas spin-orbit states are always energy ordered.
               </HELP>
               </KEYWORD>
 

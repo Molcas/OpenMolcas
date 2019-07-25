@@ -350,7 +350,7 @@ c
           irc=-1
           iopt=1
           Call iRdOne (irc,iopt,label,iComp,idum,iSmLbl)
-          mInt=idum(1)
+          if (irc.eq.0) mInt=idum(1)
           if (irc.ne.0) go to 101
           NxtOpr = .True.
           irc=-1
@@ -441,7 +441,7 @@ C     Write (*,*) ' Starting scan of ONEINT for various elec. field integrals'
                irc=-1
                iopt=1
                Call iRdOne (irc,iopt,label,iComp,idum,iSmLbl)
-               mInt=idum(1)
+               If (irc.eq.0) mInt=idum(1)
                If (irc.ne.0) go to 201
                NxtOpr = .True.
                irc=-1
@@ -543,7 +543,7 @@ C     Write (*,*) ' Starting scan of ONEINT for various contact term integrals'
          irc=-1
          iopt=1
          Call iRdOne (irc,iopt,label,iComp,idum,iSmLbl)
-         mInt=idum(1)
+         If (irc.eq.0) mInt=idum(1)
          If (irc.ne.0) go to 301
          NxtOpr = .True.
          irc=-1
@@ -636,7 +636,7 @@ c       loop over different operator origins (max.99)
             irc=-1
             iopt=1
             Call iRdOne (irc,iopt,label,iComp,idum,iSmLbl)
-            mInt=idum(1)
+            if (irc.eq.0) mInt=idum(1)
             if (irc.ne.0) go to 402
             NxtOpr = .True.
             irc=-1

@@ -166,6 +166,12 @@ C Local print level (if any)
      &                            (nDel(iSym),iSym=1,nSym)
       Write(LF,Fmt2//'A,T47,8I4)') 'Number of basis functions',
      &                            (nBas(iSym),iSym=1,nSym)
+      If (kIVO) Then
+        Write(LF,Fmt2//'A,T47)') 'Improved Virtual Orbitals '//
+     &                           'option is used'
+        Write(LF,Fmt2//'A,T47)') 'Molecular Orbitals are NOT '//
+     &                           'suitable for CASPT2 & MRCI!'
+      End If
       Call CollapseOutput(0,'Orbital specifications:')
       Write(LF,*)
 
@@ -442,9 +448,9 @@ C Local print level (if any)
       nMVInt=0
       nDCInt=0
       Call iRdOne(iRc1,iOpt,'MassVel ',iComp,iDum,iSyLbl)
-      nMVInt=iDum(1)
+      If (iRc1.eq.0) nMVInt=iDum(1)
       Call iRdOne(iRc2,iOpt,'Darwin  ',iComp,iDum,iSyLbl)
-      nDCInt=iDum(1)
+      If (iRc2.eq.0) nDCInt=iDum(1)
       If ( (nMVInt+nDCInt).ne.0 ) Then
         IAD12=IADR15(12)
         CALL GETMEM('OPER','ALLO','REAL',LX1,NTOT1)
