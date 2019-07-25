@@ -97,6 +97,7 @@
         type(t_blockdiagonal), intent(in) :: basis(:)
         type(t_ON_scheme), intent(in) :: scheme
         type(t_blockdiagonal), intent(_OUT_) :: ONB(:)
+
         type(t_blockdiagonal), allocatable :: S(:)
 
         integer :: n_to_ON(nSym), n_new(nSym)
@@ -302,7 +303,8 @@
         logical :: lin_dep_detected, improve_solution
 
         call mma_allocate(SCTMP, size(basis, 1))
-        call mma_allocate(OVL, size(basis, 1))
+        allocate(SCTMP(size(basis, 1)))
+!         call mma_allocate(OVL, size(basis, 1))
 
         n_new = 0
         ONB(:, n_to_ON + 1 :) = basis(:, n_to_ON + 1 :)
@@ -334,7 +336,8 @@
           end do
         end do
         ONB(:, n_new + 1 : n_to_ON) = basis(:, n_new + 1 : n_to_ON)
-        call mma_deallocate(SCTMP)
+!         call mma_deallocate(SCTMP)
+        deallocate(SCTMP)
         call mma_deallocate(OVL)
       end subroutine Gram_Schmidt_Array
 
