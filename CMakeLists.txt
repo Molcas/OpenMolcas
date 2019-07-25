@@ -662,7 +662,7 @@ endif ()
 
 set (CXXFLAGS_GNU_BIGOT "-Wall -Wextra -Wpedantic -Werror")
 set (CFLAGS_GNU_BIGOT "-Wall -Wextra -Wpedantic -Werror")
-set (FFLAGS_GNU_BIGOT "-Wall -Werror")
+set (FFLAGS_GNU_BIGOT "-Wall -Werror -Wno-maybe-uninitialized")
 set (GNU_TRAP "-ffpe-trap=invalid,zero,overflow")
 
 #======================================#
