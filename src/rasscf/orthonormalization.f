@@ -24,8 +24,6 @@
         public ::
      &    t_ON_scheme, ON_scheme, ON_scheme_values, orthonormalize
 
-        integer, parameter :: testsize = 8
-
 ! TODO: Should be changed to default construction in the future.
 ! As of July 2019 the Sun and PGI compiler have problems.
         type :: t_ON_scheme_values
@@ -62,7 +60,9 @@
 !>    or a t_blockdiagonal matrix.
 !>    return type depends on input type.
 !>  @param[in] scheme Optional argument. The orthonormalization scheme to use.
-!>    The possibilities are Gram_Schmidt, Lowdin, or Canonical.
+!>    The possibilities are Gram_Schmidt, Lowdin, Canonical, or no_ON
+!>    (no_orthonormalization)
+!>    as given by orthonormalization::ON_scheme_values.
 !>    For a detailed explanation see \cite szabo_ostlund (p. 143).
         interface orthonormalize
           module procedure orthonormalize_raw, orthonormalize_blocks
