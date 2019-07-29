@@ -37,12 +37,6 @@
 #include "mafdecls.fh"
       integer*4 :: error
 #endif
-      interface
-        integer function isfreeunit(iseed)
-          integer, intent(in) :: iseed
-        end function
-      end interface
-
       save
       contains
 
@@ -169,10 +163,6 @@
       else
         call make_fcidumps(orbital_E, folded_Fock, TUVX, EMY)
       end if
-
-! TODO(Oskar): Add fourth argument OCC
-!   If the Occupation number is written properly as well.
-      call write_OrbFile(CMO, orbital_E, iDoGas)
 
 ! Run NECI
       call Timing(Rado_1, Swatch, Swatch, Swatch)
@@ -397,37 +387,5 @@
         call mma_deallocate(Ptmp)
         call mma_deallocate(PAtmp)
       end subroutine get_neci_RDM
-
-      subroutine write_OrbFile(CMO, orbital_E, iDoGas)
-        use general_data, only : ntot,
-     &    nFro, nIsh, nRs1, nRs2, nRs3, nDel, nAsh, nBas
-        use gas_data, only : nGSSH
-        use write_orbital_files, only : get_typeidx
-        implicit none
-        real*8, intent(in) :: CMO(:), orbital_E(:)
-        logical, intent(in) :: iDoGAS
-        real*8, allocatable :: occ_number(:)
-        integer, parameter :: arbitrary_magic_number = 50
-        integer :: file_id, typeidx(7, 8)
-        character(*), parameter :: filename = 'ORTORB'
-        character(len=80) ::
-     &    orbfile_title = 'Orbitals that are used for FCIQMC.'
-
-        file_id = arbitrary_magic_number
-        file_id = isfreeunit(file_id)
-        if (.not. iDoGas) then
-          typeidx = get_typeidx(nFro, nIsh, nRs1, nRs2, nRs3, nBas,nDel)
-
-        else
-          typeidx = get_typeidx(nFro, nIsh, nGSSH, nBas, nDel)
-        endif
-
-! TODO(Oskar): Implement proper occupation number reading.
-        call mma_allocate(occ_number, nTot)
-        occ_number(:) = 1.d0
-        call WrVec(filename, file_id, 'COIE', nSym, nBas, nBas,
-     &             CMO, occ_number, orbital_E, typeidx, orbfile_title)
-        call mma_deallocate(occ_number)
-      end subroutine
 
       end module fciqmc
