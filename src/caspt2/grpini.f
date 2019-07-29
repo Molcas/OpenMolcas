@@ -126,25 +126,7 @@ c Modify the Fock matrix, if needed:
       END DO
 * End of loop over states
 
-      IF (IPRGLB.GE.VERBOSE.AND.IFFDW.AND.IFXMS) THEN
-        WRITE(6,*)
-        WRITE(6,*)' H0 (Asymmetric):'
-        DO I=1,NGRP
-          WRITE(6,'(1x,5F16.8)')(WORK(LFOPXMS-1+I+NGRP*(J-1)),J=1,NGRP)
-        END DO
-      END IF
-
-* Symmetrize FOPXMS (it really does something only for DW-XMS)
-      DO I=1,NGRP
-        DO J=I,NGRP
-          FIJ = WORK(LFOPXMS+I-1+NGRP*(J-1))
-          FJI = WORK(LFOPXMS+J-1+NGRP*(I-1))
-          WORK(LFOPXMS+I-1+NGRP*(J-1)) = 0.5D0*(FIJ+FJI)
-          WORK(LFOPXMS+J-1+NGRP*(I-1)) = 0.5D0*(FIJ+FJI)
-        END DO
-      END DO
-
-      IF (IPRGLB.GE.USUAL.AND.(NGRP.GT.1)) THEN
+      IF (IPRGLB.GE.USUAL.AND.NGRP.GT.1) THEN
         WRITE(6,*)
         WRITE(6,*)' Zeroth-order Hamiltonian matrix (H0):'
         DO ISTA=1,NGRP,5
@@ -157,6 +139,7 @@ c Modify the Fock matrix, if needed:
      &            I,(WORK(LFOPXMS+I-1+NGRP*(J-1)),J=ISTA,IEND)
           END DO
         END DO
+        WRITE(6,*)
       END IF
 
 * Store zeroth order energies
@@ -167,23 +150,23 @@ c Modify the Fock matrix, if needed:
       END DO
 
 ! Form average Fock matrix for DW-XMS before states are rotated
-      IF (IFFDW.AND.IFXMS) THEN
-! Zero out the density matrix
-        CALL DCOPY_(NDREF,[0.0D0],0,WORK(LDREF),1)
-! Compute the SA density matrix on the spot
-        SCL = 1.0d0/NGRP
-        DO J=1,NGRP
-          CALL DAXPY_(NDREF,SCL,WORK(LDMIX+(J-1)*NDREF),1,WORK(LDREF),1)
-        END DO
-! Compute Fock matrix
-        If (IfChol) then
-          IF_TRNSF=.FALSE.
-          CALL INTCTL2(IF_TRNSF)
-        Else
-          CALL INTCTL1(WORK(LCMO))
-          CALL DCOPY_(NCMO,WORK(LCMO),1,WORK(LCMOPT2),1)
-        End If
-      END IF
+!       IF (IFFDW.AND.IFXMS) THEN
+! ! Zero out the density matrix
+!         CALL DCOPY_(NDREF,[0.0D0],0,WORK(LDREF),1)
+! ! Compute the SA density matrix on the spot
+!         SCL = 1.0d0/NGRP
+!         DO J=1,NGRP
+!           CALL DAXPY_(NDREF,SCL,WORK(LDMIX+(J-1)*NDREF),1,WORK(LDREF),1)
+!         END DO
+! ! Compute Fock matrix
+!         If (IfChol) then
+!           IF_TRNSF=.FALSE.
+!           CALL INTCTL2(IF_TRNSF)
+!         Else
+!           CALL INTCTL1(WORK(LCMO))
+!           CALL DCOPY_(NCMO,WORK(LCMO),1,WORK(LCMOPT2),1)
+!         End If
+!       END IF
 
 * Transform the CI arrays of this group of states, to make the FOP matrix diagonal.
 * Note that the Fock matrix, etc are still assumed to be valid -- this seems

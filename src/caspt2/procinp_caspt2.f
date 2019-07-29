@@ -79,10 +79,8 @@ C initialize global common-block variables appropriately.
           BSHIFT=0.25D0
           HZERO = TRIM(HZERO)//' WITH DEFAULT IPEA'
         End If
-* Notifiy that Hzero is different for XMS calculations.
-* SB: Don't talk about IPEA. Actually, I am not sure that
-* IPEA can be used with XMS
-        If (Input%XMUL.OR.Input%FXMS) Then
+* Notify that Hzero is different for XMS calculations.
+        If (Input%XMUL) Then
           HZERO = 'XMS'
         End If
       END IF
@@ -90,7 +88,7 @@ C initialize global common-block variables appropriately.
       If (HZERO.NE.'STANDARD WITH DEFAULT IPEA'.AND.
      &    HZERO.NE.'XMS'.OR.FOCKTYPE.NE.'STANDARD') Then
         IF (IPRGLB.ge.TERSE) THEN
-          Call WarningMessage(1,'User-modified 0-order hamiltonian!')
+          Call WarningMessage(1,'User-modified 0th-order Hamiltonian!')
         End If
       End If
 * real/imaginary shifts
@@ -177,22 +175,13 @@ C     really parallel or not.
      &                          'together with keyword XMULtistate.')
           Call Quit_OnUserError
         End If
-* Save the states that need to be computed, this is the same for both
-* MS and XMS so we do it here
+* Save the states that need to be computed
         Do I=1,Input%nMultState
           MSTATE(I) = Input%MultGroup%State(I)
           NSTATE = NSTATE + 1
         End Do
-* XMS case: 1 group containing all states
-        If (Input%FXMS) Then
-          IFXMS = Input%FXMS
-          NGROUP = 1
-          NGROUPSTATE(NGROUP) = Input%nMultState
-* MS case: as many groups as states, 1 state per group
-        Else
-          NGROUP = Input%nMultState
-          NGROUPSTATE(1:NGROUP) = 1
-        End If
+        NGROUP = Input%nMultState
+        NGROUPSTATE(1:NGROUP) = 1
       End If
       IOFF=NSTATE
       If(Input%XMUL) Then
@@ -241,13 +230,9 @@ C     really parallel or not.
         NSTATE=NROOTS
         MSTATE=IROOT
         If (Input%AllMult) Then
-          If (.NOT.Input%FXMS) Then
-            NGROUP=NSTATE
-            NGROUPSTATE(1:NGROUP)=1
-          Else
-            NGROUP=1
-            NGROUPSTATE(1)=NSTATE
-          End If
+          NGROUP=NSTATE
+          NGROUPSTATE(1:NGROUP)=1
+* Note that this case accounts also for Input%AllXMult !!
         Else
           NGROUP=1
           NGROUPSTATE(1)=NSTATE
@@ -263,14 +248,9 @@ C     really parallel or not.
           IOFF=IOFF+NGROUPSTATE(IGROUP)
         End Do
       End If
-* Set exponent for DWH0
-      If (Input%DWH0) Then
-        ZETAF = Input%ZETAF
-        DWSHIFT = 0.0D0
-      End If
 * Set exponent for DWMS
       If (Input%DWMS) Then
-        ZETAV = Input%ZETAV
+        ZETA = Input%ZETA
       End If
 * Finally, some sanity checks.
       IF(NSTATE.LE.0.OR.NSTATE.GT.MXROOT) Then
@@ -383,8 +363,8 @@ C     really parallel or not.
       IFMIX = .NOT.Input % NoMix
       IFMSCOUP = (Input % MULT .OR. Input % XMUL)
      &           .AND.(.NOT.Input % NoMult)
-      IFFDW  = Input%DWH0
-      IFVDW  = Input%DWMS
+      IFDW   = Input % DWMS
+      IFRXMS = Input % RXMS
 
 * Choice? of preprocessing route
       ORBIN='TRANSFOR'

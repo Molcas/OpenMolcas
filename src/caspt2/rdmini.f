@@ -34,11 +34,6 @@
       CALL GETMEM('LCMO','ALLO','REAL',LCMO,NCMO)
       IDISK=IAD1M(1)
       CALL DDAFILE(LUONEM,2,WORK(LCMO),NCMO,IDISK)
-* Also (for temporary back-compatibility with older code) save as
-*  'current' CMO data on LUONEM:
-      IAD1M(2)=IDISK
-      CALL DDAFILE(LUONEM,1,WORK(LCMO),NCMO,IDISK)
-      IEOF1M=IDISK
 
       CALL GETMEM('LCI','ALLO','REAL',LCI,NCONF)
 
@@ -50,8 +45,6 @@
         IF(ISCF.NE.0) THEN
 * Then we still need the "CI array": It is used in subroutine calls
           WORK(LCI)=1.0D0
-        ELSE IF(DoCumulant) THEN
-          WORK(LCI)=0.0D0
         ELSE
 * Get the CI array
           ID=IDCIEX
@@ -83,14 +76,14 @@
 
 * Average the density
         DO JSTATE=1,NSTATE
-          SCL = WORK(LFWGT + (ISTATE-1) + NSTATE*(JSTATE-1))
+          SCL = WORK(LDWGT + (ISTATE-1) + NSTATE*(JSTATE-1))
           JOFF = NDREF*(JSTATE-1)
           CALL DAXPY_(NDREF,SCL,WORK(LDREF),1,WORK(LDMIX+JOFF),1)
         END DO
 
       END DO
 
-      IFTEST = 1
+      IFTEST = 0
       IF ( IFTEST.NE.0 ) THEN
         DO JSTATE=1,NSTATE
           JOFF = LDMIX+NDREF*(JSTATE-1)

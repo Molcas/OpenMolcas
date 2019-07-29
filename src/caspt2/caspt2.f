@@ -23,15 +23,16 @@
 *     UNIVERSITY OF LUND, SWEDEN                                       *
 *----------------------------------------------------------------------*
 
-C     SECOND ORDER PERTURBATION CALCULATIONS WITH A CASSCF REFERENCE FUNCTION.
+C     SECOND ORDER PERTURBATION CALCULATIONS WITH A CASSCF
+C     REFERENCE FUNCTION.
 
 C     ORIGINAL CASPT2 PROGRAM WRITTEN 890526 BY:
 C     KERSTIN ANDERSSON (ALL CASPT2 CODE WITH FOLLOWING EXCEPTIONS)
 C     PER-AKE MALMQVIST (THE GUGA PART)
 C     BJORN O ROOS      (THE INTEGRAL TRANSFORMATION)
 
-C     MODIFIED 1991-02-23 BY PER-AAKE MALMQUIST, FOR USE WITH THE MOLCAS
-C     RASSCF PROGRAM.
+C     MODIFIED 1991-02-23 BY PER-AAKE MALMQUIST, FOR USE WITH THE
+C     MOLCAS RASSCF PROGRAM.
 
 C     ALL PROGRAM REWRITTEN (MALMQVIST 1993) FOR MOLCAS VERSION 3,
 C     EXCEPT TRACTL AND TRA2 KEPT BUT SLIGHTLY MODIFIED, AND ALSO:
@@ -142,45 +143,25 @@ C second-order correction Heff(2) = PH \Omega_1 P to Heff[1]
         END IF
       END IF
 
-* Original code
-      IF (.FALSE.) THEN
-* Weights init
-        CALL H0WEIGHTS
-        CALL H1WEIGHTS
+
+* In case of a DW-CASPT2 calculation, we first rotate the states
+* according to the XMS prescription in a similar manner to a
+* diabatization procedure. Hence, we "borrow" the XMSINI subroutine
+* which is effectively the initialization of XMS-CASPT2.
+* However, here we only use it to rotate the CASSCF states.
+      IF (IFRXMS) THEN
+        CALL XMSINI(HEFF,H0)
+      END IF
+
+
+* Compute the weights
+      CALL WGTINI
+
 
 * Before entering the long loop over groups and states, precompute
 * the 1-RDMs for all states and mix them according to the type of
 * calculation: MS, XMS, DW-MS, DW-XMS.
-        CALL RDMINI
-      END IF
-
-* For the new DW scheme using the TDM for the weights
-      IF (IFVDW) THEN
-* Fake XMS to get the sa-Fock weights
-        IFXMS = .TRUE.
-        CALL H0WEIGHTS
-        IFXMS = .FALSE.
-* Compute sa-RDM (meaning same for all states)
-        CALL RDMINI
-* Compute the weights using TDMs (actually the FOCK...)
-        CALL H1WEIGHTS
-* Recmpute the weights for H0 (as a normal MS-CASPT2)
-        CALL H0WEIGHTS
-* And correspondingly the RDMs
-        CALL RDMINI
-      END IF
-
-* Rotate states according to XMS and then perform a normal (DW)-MS
-      IF (.TRUE.) THEN
-        IFXMS = .TRUE.
-        CALL H0WEIGHTS
-        CALL RDMINI
-        CALL XMSINI(HEFF)
-        IFXMS = .FALSE.
-        CALL H0WEIGHTS
-        CALL H1WEIGHTS
-        CALL RDMINI
-      END IF
+      CALL RDMINI
 
 
 C For (X)Multi-State, a long loop over root states.
@@ -205,10 +186,6 @@ C of group states for which GRPINI is called.
        DO ISTATE=1,NGROUPSTATE(IGROUP)
          JSTATE = JSTATE_OFF + ISTATE
 
-* Initialize the shift for DW-XMS-CASPT2
-        !  IF (IFDW.AND.IFXMS) THEN
-        !    DWSHIFT=-H0(ISTATE,ISTATE)
-        !  END IF
 
 C skip this state if we only need 1 state and it isn't this "One"
          IF ((NLYROOT.NE.0).AND.(JSTATE.NE.NLYROOT)) CYCLE

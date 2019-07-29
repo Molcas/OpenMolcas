@@ -14,9 +14,9 @@
       Implicit None
 CSVC: this module contains a data structure to keep all input variables.
 C Note that I use the standard 'allocate' here against the appropriate
-C Molcas practices. The reason is that these are (i) very small, and (ii)
-C there is need for allocating complex things such as derived types, which
-C are not supported with stdalloc. Hence, the infraction.
+C Molcas practices. The reason is that these are (i) very small, and
+C (ii) there is need for allocating complex things such as derived
+C types, which are not supported with stdalloc. Hence, the infraction.
 
 #include "compiler_features.h"
 
@@ -39,16 +39,13 @@ C are not supported with stdalloc. Hence, the infraction.
       Integer :: nXMulState = 0
       Type(States) :: XMulGroup
       Logical :: AllXMult = .False.
-      ! FXMS      extended multi-state caspt2
-      Logical :: FXMS = .False.
-      ! DWH0      dynamically-weighted H0 in MS-CASPT2
-      Logical :: DWH0  = .False.
-      Integer :: ZETAF = 0
-      ! DWMS      dynamically-weighted (X)MS-CASPT2
-      Logical :: DWMS  = .False.
-      Integer :: ZETAV = 0
-      ! LROO      compute only a single root, mutually exclusive
-      !           with both MULT or XMUL
+!     RXMS      rotate states a-la-XMS prior caspt2 calculation
+      Logical :: RXMS = .False.
+!     DWMS      dynamically-weighted MS-CASPT2
+      Logical :: DWMS = .False.
+      Integer :: ZETA = 0
+!     LROO      compute only a single root, mutually exclusive
+!               with both MULT or XMUL
       Logical :: LROO = .False.
       Integer :: SingleRoot = 0
 !     RLXR      root for which the gradient is computed
@@ -311,18 +308,13 @@ C end of input
       End Do
       dealloc_dline
 
-      Case('FXMS')
-      Input % FXMS = .True.
-
-      Case('DWH0')
-      Input % DWH0 = .True.
-      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
-      Read(Line,*,Err=9920,End=9920) Input % ZETAF
+      Case('RXMS')
+      Input % RXMS = .True.
 
       Case('DWMS')
       Input % DWMS = .True.
       If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
-      Read(Line,*,Err=9920,End=9920) Input % ZETAV
+      Read(Line,*,Err=9920,End=9920) Input % ZETA
 
       Case('LROO')
       Input % LROO = .True.
