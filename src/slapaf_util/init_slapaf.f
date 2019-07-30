@@ -165,7 +165,10 @@
 *
       Cubic  = .False.
       PDH    = .True.
+*     The threshold for restricted step optimization.
       Beta = 0.30D0
+*     The threshold for restricted variance optimization.
+      Beta_Disp=5.0D-4
       GNrm_Threshold=0.2D0
       CnstWght=1.0D0
       Call DecideOnESPF(Do_ESPF)

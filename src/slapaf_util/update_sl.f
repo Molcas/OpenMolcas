@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine Update_sl(iter,MaxItr,NmIter,iInt,nFix,nInter,qInt,
      &                     Shift,
-     &                     Grad,iOptC,Beta,Lbl,GNrm,
+     &                     Grad,iOptC,Beta,Beta_Disp,Lbl,GNrm,
      &                     Energy,UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,nSym,iOper,
      &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
@@ -187,8 +187,6 @@ c Avoid unused argument warnings
          If (Kriging .AND. iter.ge.nspAI) then
             Kriging_Hessian =.TRUE.
             iOpt_RS=1   ! Activate restricted variance.
-*           The threshold for restricted variance optimization.
-            Beta_Disp=5.0D-4
             iterAI=iter
             dEner=meAI
             nRaw=Min(iter,nWndw)
