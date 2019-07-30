@@ -157,8 +157,8 @@ c Avoid unused argument warnings
          call dcopy_(nInter,qInt,1,Work(iptmp2),1)
 *
          Call Update_sl_(iter_,iInt,nFix,nInter,Work(iptmp2),
-     &                   Work(iptmp1),Grad,iOptC,
-     &                   Beta,Lbl,GNrm,Energy,UpMeth,ed,Line_Search,
+     &                   Work(iptmp1),Grad,iOptC,Beta,Beta_Disp,
+     &                   Lbl,GNrm,Energy,UpMeth,ed,Line_Search,
      &                   Step_Trunc,nLambda,iRow_c,nsAtom,AtomLbl,nSym,
      &                   iOper,mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
      &                   rLambda,ipCx,GrdMax,StpMax,GrdLbl,StpLbl,
@@ -392,8 +392,8 @@ c Avoid unused argument warnings
                Write (6,*) 'Do iterAI: ',iterAI
 #endif
                Call Update_sl_(iterAI,iInt,nFix,nInter,
-     &                qInt,Shift,Grad,
-     &                iOptC,Beta_Disp,Lbl,GNrm,Energy,
+     &                qInt,Shift,Grad,iOptC,Beta,Beta_Disp,
+     &                Lbl,GNrm,Energy,
      &                UpMeth,ed,Line_Search,Step_Trunc,nLambda,
      &                iRow_c,nsAtom,AtomLbl,nSym,iOper,mxdc,jStab,
      &                nStab,BMx,Smmtrc,nDimBC,rLambda,ipCx,
@@ -554,7 +554,7 @@ c Avoid unused argument warnings
 *        ------- AI loop ends here
          Else
             Call Update_sl_(iter,iInt,nFix,nInter,qInt,Shift,
-     &                   Grad,iOptC,Beta,Lbl,GNrm,Energy,
+     &                   Grad,iOptC,Beta,Beta_Disp,Lbl,GNrm,Energy,
      &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,
      &                   iRow_c,nsAtom,AtomLbl,nSym,iOper,mxdc,jStab,
      &                   nStab,BMx,Smmtrc,nDimBC,rLambda,ipCx,
@@ -588,7 +588,7 @@ c Avoid unused argument warnings
       Return
       End
       Subroutine Update_sl_(kIter,iInt,nFix,nInter,qInt,Shift,
-     &                     Grad,iOptC,Beta,Lbl,GNrm,
+     &                     Grad,iOptC,Beta,Beta_Disp,Lbl,GNrm,
      &                     Energy,UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,nSym,iOper,
      &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
@@ -611,7 +611,8 @@ c Avoid unused argument warnings
 *      Shift(*,kIter) : the shift of the internal coordinates          *
 *      Grad(*,kIter)  : the gradient in the internal coordinates       *
 *      iOptC          : option flag for update methods                 *
-*      Beta           : damping factor                                 *
+*      Beta           : damping factor step length                     *
+*      Beta_Disp      : damping factor variance                        *
 *      Lbl            : character labels for internal coordinates      *
 *      nLbl           : length of Lbl                                  *
 *      GNrm           : the norm of the gradient in each iteration     *
@@ -681,7 +682,8 @@ c Avoid unused argument warnings
       iPrint=nPrint(iRout)
       Lu=6
       If (iPrint.ge.99) Then
-         Write (Lu,*)'Update_:iOpt_RS,Beta=',iOpt_RS,Beta
+         Write (Lu,*)'Update_:iOpt_RS,Beta,Beta_Disp=',
+     &                        iOpt_RS,Beta,Beta_Dispa
          Call RecPrt('Update_: qInt',' ',qInt,nInter,kIter)
          Call RecPrt('Update_: Shift',' ',Shift,nInter,kIter-1)
          Call RecPrt('Update_: GNrm',' ',GNrm,kIter,1)
@@ -953,17 +955,20 @@ C           Write (*,*) 'tBeta=',tBeta
 *                                                                      *
 *----------... Compute updated geometry in Internal coordinates
 *
+*           Select restriction if step or variance.
             If (iOpt_RS.eq.0) Then
                qBeta=fCart*tBeta
+               Thr_RS=1.0D-7
             Else
-               qBeta=Beta
+               qBeta=Beta_Disp
+               Thr_RS=1.0D-5
             End If
             Call Newq(qInt,mInter,kIter,Shift,Hessian,Grad,
      &                Work(ipErr),Work(ipEMx),Work(ipRHS),iWork(iPvt),
      &                Work(ipdg),Work(ipA),nA,
      &                ed,iOptC,qBeta,nFix,iWork(ip),UpMeth,
      &                Energy,Line_Search,Step_Trunc,
-     &                Restriction)
+     &                Restriction,Thr_RS)
             Call MxLbls(GrdMax,StpMax,GrdLbl,StpLbl,mInter,
      &                  Grad(1,kIter),Shift(1,kIter),Lbl)
 *

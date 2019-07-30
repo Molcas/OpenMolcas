@@ -13,7 +13,7 @@
       SubRoutine Newq(q,nInter,nIter,dq,H,g,error,B,RHS,iPvt,dg,
      &                Scrt1,nScrt1,dqHdq,iOptC,
      &                Beta,nFix,iP,UpMeth,Energy,
-     &                Line_Search,Step_Trunc,Restriction)
+     &                Line_Search,Step_Trunc,Restriction,Thr_RS)
 ************************************************************************
 *                                                                      *
 * Object: Driver for optimization procedures.                          *
@@ -183,7 +183,7 @@ C     Call View(H,nInter,print)
 *
                Call RS_I_RFO(H,q(1,nIter),g(1,nIter),nInter,dq(1,nIter),
      &                       UpMeth,dqHdq,Beta,Step_Trunc,
-     &                       Restriction)
+     &                       Restriction,Thr_RS)
             End If
 *
          Else
@@ -193,7 +193,7 @@ C     Call View(H,nInter,print)
 *
             Call RS_RFO(H,q(1,nIter),g(1,nIter),nInter,dq(1,nIter),
      &                  UpMeth,dqHdq,Beta,Step_Trunc,
-     &                  Restriction)
+     &                  Restriction,Thr_RS)
 *
          End If
 *                                                                      *

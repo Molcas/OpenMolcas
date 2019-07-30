@@ -11,7 +11,7 @@
 * Copyright (C) 1994,1997, Roland Lindh                                *
 ************************************************************************
       Subroutine RS_I_RFO(H,q,g,nInter,dq,UpMeth,dqHdq,StepMax,
-     &                    Step_Trunc,Restriction)
+     &                    Step_Trunc,Restriction,Thr_RS)
 ************************************************************************
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
@@ -138,7 +138,7 @@
       Call GetMem('Values','Free','Real',ipVal,NumVal)
 *
       Call RS_RFO(H,q,g,nInter,dq,UpMeth,dqHdq,StepMax,Step_Trunc,
-     &            Restriction)
+     &            Restriction,Thr_RS)
 *
 *     Restore the original gradient
 *
