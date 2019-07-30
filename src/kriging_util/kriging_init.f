@@ -24,11 +24,11 @@ C
       lb(1) = 20.0
       lb(2) = 20.0
       lb(3) = 1
-      miAI = 10
+      miAI = 50
       meAI = 1.0D-8
       blAI = .False.
       blaAI = .True.
-      blavAI=10.0D0
+      blavAI=0.04D0
 *
       nInter_save=-1
       nPoints_save=-1
