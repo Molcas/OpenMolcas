@@ -238,14 +238,8 @@ C.. for GAS
      &                            (nDel(iSym),iSym=1,nSym)
       Write(LF,Fmt2//'A,T47,8I4)') 'Number of basis functions',
      &                            (nBas(iSym),iSym=1,nSym)
-      Write(LF,*)
-      If (kIVO) Then
-        Write(LF,Fmt2//'A,T47)') 'Improved Virtual Orbitals '//
-     &                           'option is used'
-        Write(LF,Fmt2//'A,T47)') 'Molecular Orbitals are NOT '//
-     &                           'suitable for CASPT2 & MRCI!'
-      End If
       Call CollapseOutput(0,'Orbital specifications:')
+      Write(LF,*)
 
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
       If(.Not.DoBlockDMRG) GoTo 113

@@ -25,6 +25,7 @@
 ************************************************************************
        Function isFreeUnit(iseed)
 #include "fio.fh"
+       integer, intent(in) :: iseed
 c      check free chanal, starting from init
        Logical Opened
 *

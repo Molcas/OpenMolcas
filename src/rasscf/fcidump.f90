@@ -25,7 +25,7 @@ module fcidump
   use fcidump_dump, only : dump_ascii, dump_hdf5
   implicit none
   private
-  public :: make_fcidumps, transform, DumpOnly
+  public :: make_fcidumps, transform, DumpOnly, cleanup
   logical :: DumpOnly = .false.
   save
 contains
@@ -72,4 +72,10 @@ contains
     call get_orbital_E(iter, DIAF, orbital_E)
     call fold_Fock(CMO, D1I_AO, D1A_AO, D1S_MO, F_In, folded_Fock)
   end subroutine transform
+
+  subroutine cleanup()
+    use fcidump_reorder, only : fcidump_reorder_cleanup => cleanup
+    implicit none
+    call fcidump_reorder_cleanup()
+  end subroutine
 end module fcidump

@@ -109,6 +109,8 @@ lib/
 # Test/
 test/sonatorb/
 test/sonatorb
+#Python
+*__pycache__*
 # pymolcas
 Tools/pymolcas/pymolcas
 Tools/pymolcas/pymolcas.exe
