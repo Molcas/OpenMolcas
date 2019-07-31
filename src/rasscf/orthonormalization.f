@@ -297,13 +297,18 @@
         real*8, intent(out) :: ONB(:, :)
         integer, intent(out) :: n_new
 
-        real*8, allocatable :: SCTMP(:), OVL(:)
         real*8 :: L
         integer :: i
         logical :: lin_dep_detected, improve_solution
 
-        allocate(SCTMP(size(basis, 1)))
-        call mma_allocate(OVL, size(basis, 1))
+
+        real*8, allocatable :: U(:, :), s_diag(:), X(:, :),
+     &        S_transf(:, :), previous(:)
+
+        call mma_allocate(S_transf, size(S, 1), size(S, 2))
+        call mma_allocate(previous, size(S, 1))
+
+        S_transf = matmul(transpose(basis), matmul(S, basis))
 
         n_new = 0
         ONB(:, n_to_ON + 1 :) = basis(:, n_to_ON + 1 :)
@@ -313,20 +318,23 @@
           improve_solution = .true.
           lin_dep_detected = .false.
           do while (improve_solution .and. .not. lin_dep_detected)
-            SCTMP = matmul(S, ONB(:, n_new + 1))
+            previous = ONB(:, n_new + 1)
 ! NOTE: One could use DGEMM_, ddot_ routines,
 !       But the matmul, dot_product routines seem a lot more readable and
 !       performance is not really a problem here.
             if (n_new > 0) then
-              ovl(:n_new) = matmul(transpose(ONB(:, :n_new)), sctmp)
               ONB(:, n_new + 1) =
-     &          ONB(:, n_new + 1) - matmul(ONB(:, :n_new) , ovl(:n_new))
+     &          previous
+     &          - matmul(ONB(:, :n_new), S_transf(:n_new, n_new + 1))
             end if
-            L = ddot_(size(ONB, 1), SCTMP, 1, ONB(:, n_new + 1), 1)
+
+            L = dot_product(matmul(S, previous), ONB(:, n_new + 1))
 
             lin_dep_detected = L < 1.0d-10
             improve_solution = L < 0.2d0
             if (.not. lin_dep_detected) then
+!               L = dot_product(matmul(S, ONB(:, n_new + 1)),
+!      &                        ONB(:, n_new + 1))
               ONB(:, n_new + 1) = ONB(:, n_new + 1) / sqrt(L)
             end if
             if (.not. (improve_solution .or. lin_dep_detected)) then
@@ -335,8 +343,9 @@
           end do
         end do
         ONB(:, n_new + 1 : n_to_ON) = basis(:, n_new + 1 : n_to_ON)
-        deallocate(SCTMP)
-        call mma_deallocate(OVL)
+        do i = 1, size(ONB, 2)
+          write(6, *) dot_product(matmul(S, ONB(:, i)), ONB(:, i))
+        end do
       end subroutine Gram_Schmidt_Array
 
       subroutine update_orb_numbers(
