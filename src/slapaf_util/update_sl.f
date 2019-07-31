@@ -948,7 +948,6 @@ C                 gBeta=gBeta*Sf
 *
             End Do
             tBeta= Max(Beta*Min(xBeta,gBeta),Beta/Ten)
-            qBeta=fCart*tBeta
 C           Write (*,*) 'tBeta=',tBeta
 *                                                                      *
 ************************************************************************
@@ -1238,6 +1237,7 @@ C           Write (*,*) 'tBeta=',tBeta
             Else
               fCart=fCart*0.9D0
             End If
+            qBeta=fCart*Beta
             Call Con_Opt(Work(ipr),Work(ipdrdq),Work(ipT),Grad,
      &                rLambda,qInt,Shift,Work(ipdy),Work(ipdx),
      &                Work(ipdEdq_),Work(ipdu),Work(ipx),Work(ipdEdx),
@@ -1246,11 +1246,10 @@ C           Write (*,*) 'tBeta=',tBeta
      &                iOptC,Mode_,ipMF,iOptH,HUpMet,jPrint,
      &                Work(ipEnergy),nLambda,mIter,nRowH,
      &                Work(ipErr),Work(ipEMx),Work(ipRHS),iWork(iPvt),
-     &                Work(ipdg),Work(ipA),nA,ed,fCart*Beta,nFix,
+     &                Work(ipdg),Work(ipA),nA,ed,qBeta,Beta_Disp,nFix,
      &                iWork(iP),UpMeth,Line_Search,Step_Trunc,Lbl,
      &                GrdLbl,StpLbl,GrdMax,StpMax,Work(ipd2L),nsAtom,
-     &                IRC,CnstWght,
-     &                Restriction,iOpt_RS)
+     &                IRC,CnstWght,Restriction,iOpt_RS,Thr_RS)
 *
 *           Rough conversion to Cartesians
 *
