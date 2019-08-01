@@ -499,18 +499,6 @@
         dot = dot_product(matmul(S, v1), v2)
       end function
 
-      pure subroutine normalize(v, S)
-        real*8, intent(inout) :: v(:)
-        real*8, intent(in), optional :: S(:, :)
-        real*8 :: L
-        if (present(S)) then
-          L = norm(v, S=S)
-        else
-          L = norm(v)
-        end if
-        v = v / L
-      end subroutine
-
       pure function norm(v, S) result(L)
         real*8, intent(in) :: v(:)
         real*8, intent(in), optional :: S(:, :)
@@ -521,24 +509,4 @@
           L = norm2(v)
         end if
       end function
-
-
-      subroutine display(A, float_fmt)
-        real, intent(in) :: A(:, :)
-        character(*), intent(in), optional :: float_fmt
-
-        character(:), allocatable :: float_fmt_
-        integer :: i, j
-
-        if (present(float_fmt)) then
-          float_fmt_ = float_fmt
-        else
-          float_fmt_ = 'F6.2'
-        end if
-
-        do i = lbound(A, 1), ubound(A, 1)
-          write(6, '('//str(size(A, 2))//'('//float_fmt_//'))')
-     &        (A(i, j), j = lbound(A, 2), ubound(A, 2))
-        end do
-      end subroutine
       end module orthonormalization
