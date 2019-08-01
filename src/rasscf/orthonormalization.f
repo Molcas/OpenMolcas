@@ -89,6 +89,10 @@
           module procedure Canonical_Array, Canonical_Blocks
         end interface
 
+        interface dot_product
+          module procedure dot_product_with_overlap
+        end interface
+
       contains
 
       subroutine orthonormalize_blocks(basis, scheme, ONB)
@@ -328,13 +332,12 @@
      &          - matmul(ONB(:, :n_new), S_transf(:n_new, n_new + 1))
             end if
 
-            L = dot_product(matmul(S, previous), ONB(:, n_new + 1))
+            L = dot_product(previous, ONB(:, n_new + 1), S=S)
 
             lin_dep_detected = L < 1.0d-10
             improve_solution = L < 0.2d0
             if (.not. lin_dep_detected) then
-!               L = dot_product(matmul(S, ONB(:, n_new + 1)),
-!      &                        ONB(:, n_new + 1))
+              L = dot_product(ONB(:, n_new + 1), ONB(:, n_new + 1), S=S)
               ONB(:, n_new + 1) = ONB(:, n_new + 1) / sqrt(L)
             end if
             if (.not. (improve_solution .or. lin_dep_detected)) then
@@ -344,7 +347,7 @@
         end do
         ONB(:, n_new + 1 : n_to_ON) = basis(:, n_new + 1 : n_to_ON)
         do i = 1, size(ONB, 2)
-          write(6, *) dot_product(matmul(S, ONB(:, i)), ONB(:, i))
+          write(6, *) dot_product(ONB(:, i), ONB(:, i), S=S)
         end do
       end subroutine Gram_Schmidt_Array
 
@@ -485,4 +488,10 @@
         call QTrace()
         call Abend()
       end subroutine
+
+      pure function dot_product_with_overlap(v1, v2, S) result(dot)
+        real*8, intent(in) :: v1(:), v2(:), S(:, :)
+        real*8 :: dot
+        dot = dot_product(matmul(S, v1), v2)
+      end function
       end module orthonormalization
