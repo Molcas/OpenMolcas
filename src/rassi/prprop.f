@@ -905,7 +905,8 @@ C printing threshold
            IF(ISOCMP(ISOPR).EQ.1) IPRDX=ISOPR
            IF(ISOCMP(ISOPR).EQ.2) IPRDY=ISOPR
            IF(ISOCMP(ISOPR).EQ.3) IPRDZ=ISOPR
-          ELSE IF(SOPRNM(ISOPR).EQ.'SPIN') THEN
+          ELSE IF(SOPRNM(ISOPR).EQ.'MLTPL  0'.AND.
+     &            SOPRTP(ISOPR).EQ.'HERMTRIP') THEN
            IFANYS=1
            IF(ISOCMP(ISOPR).EQ.1) IPRSX=ISOPR
            IF(ISOCMP(ISOPR).EQ.2) IPRSY=ISOPR
@@ -1566,11 +1567,6 @@ C printing threshold
         IPRDY=0
         IPRDZ=0
 ! Spin-Magnetic-Quadrupole = M^s_ab = r_b * s_a
-! Will still keep SMQ as keyword since this term could otherwise
-! be calculated with other inputs!!!
-        IPRSX=0
-        IPRSY=0
-        IPRSZ=0
 
         IFANYD=0
         IFANYS=0
@@ -1579,11 +1575,6 @@ C printing threshold
            IF(ISOCMP(ISOPR).EQ.1) IPRDX=ISOPR
            IF(ISOCMP(ISOPR).EQ.2) IPRDY=ISOPR
            IF(ISOCMP(ISOPR).EQ.3) IPRDZ=ISOPR
-          ELSE IF(SOPRNM(ISOPR).EQ.'AMFI') THEN
-! LKS Should be r*s not AMFI
-           IF(ISOCMP(ISOPR).EQ.1) IPRSX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.2) IPRSY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.3) IPRSZ=ISOPR
           ELSE IF(SOPRNM(ISOPR).EQ.'OMQ') THEN
            IFANYD=1
            IF(ISOCMP(ISOPR).EQ.1) IPRDXX=ISOPR
@@ -1598,7 +1589,8 @@ C printing threshold
            IF(ISOCMP(ISOPR).EQ.8) IPRDZY=ISOPR
            IF(ISOCMP(ISOPR).EQ.9) IPRDZZ=ISOPR
 
-          ELSE IF(SOPRNM(ISOPR).EQ.'SMQ') THEN
+          ELSE IF(SOPRNM(ISOPR).EQ.'MLTPL  1'.AND.
+     &            SOPRTP(ISOPR).EQ.'HERMTRIP') THEN
            IFANYS=1
            IF(ISOCMP(ISOPR).EQ.1) IPRSXX=ISOPR
            IF(ISOCMP(ISOPR).EQ.2) IPRSXY=ISOPR
@@ -1634,18 +1626,18 @@ C printing threshold
         END IF
 
         IF(((IPRSYZ.GT.0.OR.IPRSZY.GT.0)
-     &   .AND.(IPRDX.LE.0.OR.IPRSX.LE.0))) THEN
-         WRITE(6,*) ' Remember to include Dipole, AMFI and Quadrupole'
+     &   .AND.IPRDX.LE.0)) THEN
+         WRITE(6,*) ' Remember to include Dipole and Quadrupole'
          CALL ABEND()
         END IF
         IF(((IPRSZX.GT.0.OR.IPRSXZ.GT.0)
-     &   .AND.(IPRDY.LE.0.OR.IPRSY.LE.0))) THEN
-         WRITE(6,*) ' Remember to include Dipole, AMFI and Quadrupole'
+     &   .AND.IPRDY.LE.0)) THEN
+         WRITE(6,*) ' Remember to include Dipole and Quadrupole'
          CALL ABEND()
         END IF
         IF(((IPRSXY.GT.0.OR.IPRSYX.GT.0)
-     &   .AND.(IPRDZ.LE.0.OR.IPRSZ.LE.0))) THEN
-         WRITE(6,*) ' Remember to include Dipole, AMFI and Quadrupole'
+     &   .AND.IPRDZ.LE.0)) THEN
+         WRITE(6,*) ' Remember to include Dipole and Quadrupole'
          CALL ABEND()
         END IF
 
@@ -1711,19 +1703,32 @@ C printing threshold
          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDZYR),1)
          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDZYI),1)
 ! Spin-Magnetic-Quadrupole
-! Only AMFI integrals will be needed
-         CALL GETMEM('SXR','ALLO','REAL',LSXR,NSS**2)
-         CALL GETMEM('SXI','ALLO','REAL',LSXI,NSS**2)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSXR),1)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSXI),1)
-         CALL GETMEM('SYR','ALLO','REAL',LSYR,NSS**2)
-         CALL GETMEM('SYI','ALLO','REAL',LSYI,NSS**2)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSYR),1)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSYI),1)
-         CALL GETMEM('SZR','ALLO','REAL',LSZR,NSS**2)
-         CALL GETMEM('SZI','ALLO','REAL',LSZI,NSS**2)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSZR),1)
-         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSZI),1)
+         CALL GETMEM('SZXR','ALLO','REAL',LSZXR,NSS**2)
+         CALL GETMEM('SZXI','ALLO','REAL',LSZXI,NSS**2)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSZXR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSZXI),1)
+         CALL GETMEM('SXZR','ALLO','REAL',LSXZR,NSS**2)
+         CALL GETMEM('SXZI','ALLO','REAL',LSXZI,NSS**2)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSXZR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSXZI),1)
+
+         CALL GETMEM('SXYR','ALLO','REAL',LSXYR,NSS**2)
+         CALL GETMEM('SXYI','ALLO','REAL',LSXYI,NSS**2)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSXYR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSXYI),1)
+         CALL GETMEM('SYXR','ALLO','REAL',LSYXR,NSS**2)
+         CALL GETMEM('SYXI','ALLO','REAL',LSYXI,NSS**2)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSYXR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSYXI),1)
+
+         CALL GETMEM('SYZR','ALLO','REAL',LSYZR,NSS**2)
+         CALL GETMEM('SYZI','ALLO','REAL',LSYZI,NSS**2)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSYZR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSYZI),1)
+         CALL GETMEM('SZYR','ALLO','REAL',LSZYR,NSS**2)
+         CALL GETMEM('SZYI','ALLO','REAL',LSZYI,NSS**2)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSZYR),1)
+         CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LSZYI),1)
 ! Electric-Dipole
          CALL GETMEM('DXR','ALLO','REAL',LDXR,NSS**2)
          CALL GETMEM('DXI','ALLO','REAL',LDXI,NSS**2)
@@ -1771,22 +1776,37 @@ C printing threshold
           CALL ZTRNSF(NSS,USOR,USOI,WORK(LDZYR),WORK(LDZYI))
          END IF
 ! Spin-Magnetic-Quadrupole
-! Again only AMFI integrals
-! And only check first index in M^s
-         IF(IPRSXX.GT.0.OR.IPRSXY.GT.0.OR.IPRSXZ.GT.0) THEN
-          CALL SMMAT(PROP,WORK(LSXR),NSS,SOPRNM(IPRSX),
-     &               ISOCMP(IPRSX))
-          CALL ZTRNSF(NSS,USOR,USOI,WORK(LSXR),WORK(LSXI))
+         IF(IPRSXY.GT.0) THEN
+          CALL SMMAT(PROP,WORK(LSXYR),NSS,SOPRNM(IPRSXY),
+     &               ISOCMP(IPRSXY))
+          CALL ZTRNSF(NSS,USOR,USOI,WORK(LSXYR),WORK(LSXYI))
          END IF
-         IF(IPRSYX.GT.0.OR.IPRSYY.GT.0.OR.IPRSYZ.GT.0) THEN
-          CALL SMMAT(PROP,WORK(LSYR),NSS,SOPRNM(IPRSY),
-     &               ISOCMP(IPRSY))
-          CALL ZTRNSF(NSS,USOR,USOI,WORK(LSYR),WORK(LSYI))
+         IF(IPRSYX.GT.0) THEN
+          CALL SMMAT(PROP,WORK(LSYXR),NSS,SOPRNM(IPRSYX),
+     &               ISOCMP(IPRSYX))
+          CALL ZTRNSF(NSS,USOR,USOI,WORK(LSYXR),WORK(LSYXI))
          END IF
-         IF(IPRSZX.GT.0.OR.IPRSZY.GT.0.OR.IPRSZZ.GT.0) THEN
-          CALL SMMAT(PROP,WORK(LSZR),NSS,SOPRNM(IPRSZ),
-     &               ISOCMP(IPRSZ))
-          CALL ZTRNSF(NSS,USOR,USOI,WORK(LSZR),WORK(LSZI))
+
+         IF(IPRSXZ.GT.0) THEN
+          CALL SMMAT(PROP,WORK(LSXZR),NSS,SOPRNM(IPRSXZ),
+     &               ISOCMP(IPRSXZ))
+          CALL ZTRNSF(NSS,USOR,USOI,WORK(LSXZR),WORK(LSXZI))
+         END IF
+         IF(IPRSZX.GT.0) THEN
+          CALL SMMAT(PROP,WORK(LSZXR),NSS,SOPRNM(IPRSZX),
+     &               ISOCMP(IPRSZX))
+          CALL ZTRNSF(NSS,USOR,USOI,WORK(LSZXR),WORK(LSZXI))
+         END IF
+
+         IF(IPRSYZ.GT.0) THEN
+          CALL SMMAT(PROP,WORK(LSYZR),NSS,SOPRNM(IPRSYZ),
+     &               ISOCMP(IPRSYZ))
+          CALL ZTRNSF(NSS,USOR,USOI,WORK(LSYZR),WORK(LSYZI))
+         END IF
+         IF(IPRSZY.GT.0) THEN
+          CALL SMMAT(PROP,WORK(LSZYR),NSS,SOPRNM(IPRSZY),
+     &               ISOCMP(IPRSZY))
+          CALL ZTRNSF(NSS,USOR,USOI,WORK(LSZYR),WORK(LSZYI))
          END IF
 ! Electric-Dipole
          IF(IPRDX.GT.0) THEN
@@ -1806,7 +1826,7 @@ C printing threshold
          END IF
 
          ONEOVER9C2=1.0D0/(9.0D0*CONST_C_IN_AU_**2)
-         g = 2
+         g = FEGVAL*3.0D0/2.0D0 ! To remove the 2/3 factor in ONEOVER9C2
          DO ISS=1,IEND
           DO JSS=JSTART,NSS
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
@@ -1818,60 +1838,36 @@ C printing threshold
 ! Since the Spin-Magnetic-Quadrupole is made from the multiplication of two complex integrals we have
 ! M^s = (a+ib)(c+id) = ac-bd + i(ad+bc) hence the long expressions below
 !
-            DYXDZ=((WORK(LDYXR-1+IJSS) ! Magnetic-Quadrupole
-!               Spin-Magnetic-Quadrupole
-     &         +g*(WORK(LSYR-1+IJSS)*WORK(LDXR-1+IJSS)
-     &            -WORK(LSYI-1+IJSS)*WORK(LDXI-1+IJSS)))
+!                  Magnetic-Quadrupole   Spin-Magnetic-Quadrupole
+            DYXDZ=((WORK(LDYXR-1+IJSS) + g*WORK(LSYXR-1+IJSS))
      &           *WORK(LDZR-1+IJSS)) ! Electric-Dipole
-     &           +((WORK(LDYXI-1+IJSS)
-     &         +g*(WORK(LSYR-1+IJSS)*WORK(LDXI-1+IJSS)
-     &            -WORK(LSYI-1+IJSS)*WORK(LDXR-1+IJSS)))
+     &           +((WORK(LDYXI-1+IJSS) + g*WORK(LSYXI-1+IJSS))
      &           *WORK(LDZI-1+IJSS))
-            DXYDZ=((WORK(LDXYR-1+IJSS)
-     &         +g*(WORK(LSXR-1+IJSS)*WORK(LDYR-1+IJSS)
-     &            -WORK(LSXI-1+IJSS)*WORK(LDYI-1+IJSS)))
+            DXYDZ=((WORK(LDXYR-1+IJSS) + g*WORK(LSXYR-1+IJSS))
      &           *WORK(LDZR-1+IJSS))
-     &           +((WORK(LDXYI-1+IJSS)
-     &         +g*(WORK(LSXR-1+IJSS)*WORK(LDYI-1+IJSS)
-     &            -WORK(LSXI-1+IJSS)*WORK(LDYR-1+IJSS)))
+     &           +((WORK(LDXYI-1+IJSS) + g*WORK(LSXYI-1+IJSS))
      &           *WORK(LDZI-1+IJSS))
             FXY=ONEOVER9C2*EDIFF2*(DXYDZ)
             FYX=-ONEOVER9C2*EDIFF2*(DYXDZ)
 
-            DZXDY=((WORK(LDZXR-1+IJSS)
-     &         +g*(WORK(LSZR-1+IJSS)*WORK(LDXR-1+IJSS)
-     &            -WORK(LSZI-1+IJSS)*WORK(LDXI-1+IJSS)))
+            DZXDY=((WORK(LDZXR-1+IJSS) + g*WORK(LSZXR-1+IJSS))
      &           *WORK(LDYR-1+IJSS))
-     &           +((WORK(LDZXI-1+IJSS)
-     &         +g*(WORK(LSZR-1+IJSS)*WORK(LDXI-1+IJSS)
-     &            -WORK(LSZI-1+IJSS)*WORK(LDXR-1+IJSS)))
+     &           +((WORK(LDZXI-1+IJSS) + g*WORK(LSZXI-1+IJSS))
      &           *WORK(LDYI-1+IJSS))
-            DXZDY=((WORK(LDXZR-1+IJSS)
-     &         +g*(WORK(LSXR-1+IJSS)*WORK(LDZR-1+IJSS)
-     &            -WORK(LSXI-1+IJSS)*WORK(LDZI-1+IJSS)))
+            DXZDY=((WORK(LDXZR-1+IJSS) + g*WORK(LSXZR-1+IJSS))
      &           *WORK(LDYR-1+IJSS))
-     &           +((WORK(LDXZI-1+IJSS)
-     &         +g*(WORK(LSXR-1+IJSS)*WORK(LDZI-1+IJSS)
-     &            -WORK(LSXI-1+IJSS)*WORK(LDZR-1+IJSS)))
+     &           +((WORK(LDXZI-1+IJSS) + g*WORK(LSXZI-1+IJSS))
      &           *WORK(LDYI-1+IJSS))
             FZX=ONEOVER9C2*EDIFF2*(DZXDY)
             FXZ=-ONEOVER9C2*EDIFF2*(DXZDY)
 
-            DYZDX=((WORK(LDYZR-1+IJSS)
-     &         +g*(WORK(LSYR-1+IJSS)*WORK(LDZR-1+IJSS)
-     &            -WORK(LSYI-1+IJSS)*WORK(LDZI-1+IJSS)))
+            DYZDX=((WORK(LDYZR-1+IJSS) + g*WORK(LSYZR-1+IJSS))
      &           *WORK(LDXR-1+IJSS))
-     &           +((WORK(LDYZI-1+IJSS)
-     &         +g*(WORK(LSYR-1+IJSS)*WORK(LDZI-1+IJSS)
-     &            -WORK(LSYI-1+IJSS)*WORK(LDZR-1+IJSS)))
+     &           +((WORK(LDYZI-1+IJSS) + g*WORK(LSYZI-1+IJSS))
      &           *WORK(LDXI-1+IJSS))
-            DZYDX=((WORK(LDZYR-1+IJSS)
-     &         +g*(WORK(LSZR-1+IJSS)*WORK(LDYR-1+IJSS)
-     &            -WORK(LSZI-1+IJSS)*WORK(LDYI-1+IJSS)))
+            DZYDX=((WORK(LDZYR-1+IJSS) + g*WORK(LSZYR-1+IJSS))
      &           *WORK(LDXR-1+IJSS))
-     &           +((WORK(LDZYI-1+IJSS)
-     &         +g*(WORK(LSZR-1+IJSS)*WORK(LDYI-1+IJSS)
-     &            -WORK(LSZI-1+IJSS)*WORK(LDYR-1+IJSS)))
+     &           +((WORK(LDZYI-1+IJSS) + g*WORK(LSZYI-1+IJSS))
      &           *WORK(LDXI-1+IJSS))
             FYZ=ONEOVER9C2*EDIFF2*(DYZDX)
             FZY=-ONEOVER9C2*EDIFF2*(DZYDX)
@@ -1904,12 +1900,20 @@ C printing threshold
          CALL GETMEM('DZYR','FREE','REAL',LDZYR,NSS**2)
          CALL GETMEM('DZYI','FREE','REAL',LDZYI,NSS**2)
 ! Spin-Magnetic-Quadrupole
-         CALL GETMEM('SXR','FREE','REAL',LSXR,NSS**2)
-         CALL GETMEM('SXI','FREE','REAL',LSXI,NSS**2)
-         CALL GETMEM('SYR','FREE','REAL',LSYR,NSS**2)
-         CALL GETMEM('SYI','FREE','REAL',LSYI,NSS**2)
-         CALL GETMEM('SZR','FREE','REAL',LSZR,NSS**2)
-         CALL GETMEM('SZI','FREE','REAL',LSZI,NSS**2)
+         CALL GETMEM('SXYR','FREE','REAL',LSXYR,NSS**2)
+         CALL GETMEM('SXYI','FREE','REAL',LSXYI,NSS**2)
+         CALL GETMEM('SXZR','FREE','REAL',LSXZR,NSS**2)
+         CALL GETMEM('SXZI','FREE','REAL',LSXZI,NSS**2)
+
+         CALL GETMEM('SYXR','FREE','REAL',LSYXR,NSS**2)
+         CALL GETMEM('SYXI','FREE','REAL',LSYXI,NSS**2)
+         CALL GETMEM('SYZR','FREE','REAL',LSYZR,NSS**2)
+         CALL GETMEM('SYZI','FREE','REAL',LSYZI,NSS**2)
+
+         CALL GETMEM('SZXR','FREE','REAL',LSZXR,NSS**2)
+         CALL GETMEM('SZXI','FREE','REAL',LSZXI,NSS**2)
+         CALL GETMEM('SZYR','FREE','REAL',LSZYR,NSS**2)
+         CALL GETMEM('SZYI','FREE','REAL',LSZYI,NSS**2)
 ! Electric-Dipole
          CALL GETMEM('DXR','FREE','REAL',LDXR,NSS**2)
          CALL GETMEM('DXI','FREE','REAL',LDXI,NSS**2)
