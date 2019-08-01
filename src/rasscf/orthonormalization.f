@@ -13,7 +13,7 @@
 #include "intent.h"
       module orthonormalization
         use stdalloc, only : mma_allocate, mma_deallocate
-        use fortran_strings, only : to_upper
+        use fortran_strings, only : to_upper, str
         use blockdiagonal_matrices, only : t_blockdiagonal, new, delete,
      &    from_raw, to_raw, from_symm_raw, blocksizes
         use sorting, only : argsort
@@ -177,38 +177,27 @@
         call mma_allocate(s_diag, size(S, 2))
 
 ! Transform AO-overlap matrix S to the overlap matrix of basis.
+! We search X that diagonalizes basis^T S basis
         S_transf = matmul(transpose(basis), matmul(S, basis))
 
         call diagonalize(S_transf, U, s_diag)
 
-!         do i = 1, size(ONB, 2) - 1
-!           write(*, *)
-!           write(*, *) norm(basis(:, i), S=S)
-!           write(*, *) S_transf(i, i)
-!           write(*, *) dot_product(basis(:, i), basis(:, i + 1), S=S)
-!           write(*, *) S_transf(i, i + 1)
-!           write(*, *) 's_diag', s_diag(i)
-!           write(*, *)
-!         end do
-
-!         if (any(s_diag < 1.0d-10)) then
-!           call abort_("Linear dependency detected. "//
-!      &      "Lowdin can't cure it. Please use other ORTH keyword "//
-!      &      "from {Gram_Schmidt, Canonical}.")
-!         end if
+        if (any(s_diag < 1.0d-10)) then
+          call abort_("Linear dependency detected. "//
+     &      "Lowdin can't cure it. Please use other ORTH keyword "//
+     &      "from {Gram_Schmidt, Canonical}.")
+        end if
 
 ! X = U s_diag^{-1/2} U^T
         do i = 1, size(X, 2)
           X(:, i) = U(:, i) / sqrt(s_diag(i))
         end do
-        X = matmul(transpose(U), X)
-
-        ONB = matmul(transpose(X), transpose(basis))
-
-!         do i = 1, size(ONB, 2) - 1
-!           write(*, *) norm(ONB(:, i), S=S)
-!           write(*, *) dot_product(ONB(:, i), ONB(:, i + 1), S=S)
-!         end do
+        X = matmul(X, transpose(U))
+! With this X the overlap matrix S_transf has diagonal form.
+! X^T basis^T S basis X = 1
+! We finally have to convert to get the form:
+! ONB^T S ONB = 1
+        ONB = matmul(basis, X)
         call mma_deallocate(s_diag)
         call mma_deallocate(U)
         call mma_deallocate(X)
@@ -249,8 +238,11 @@
         call mma_allocate(U, size(S, 1), size(S, 2))
         call mma_allocate(S_transf, size(S, 1), size(S, 2))
         call mma_allocate(s_diag, size(S, 2))
+        call mma_allocate(X, size(S, 1), size(S, 2))
         call mma_allocate(idx, size(S, 1))
 
+! Transform AO-overlap matrix S to the overlap matrix of basis.
+! We search X that diagonalizes basis^T S basis
         S_transf = matmul(transpose(basis), matmul(S, basis))
 
         call diagonalize(S_transf, U, s_diag)
@@ -270,15 +262,17 @@
         end do
         if (.not. lin_dep_detected) n_new = n_to_ON
 
-        call mma_allocate(X, size(U, 1), n_new)
 ! X = U s_diag^{-1/2}
         do i = 1, n_new
           X(:, i) = U(:, i) / sqrt(s_diag(i))
         end do
+! With this X the overlap matrix S_transf has diagonal form.
+! X^T basis^T S basis X = 1
+! We finally have to convert to get the form:
+! ONB^T S ONB = 1
+        ONB(:, n_new + 1:) = basis(:, n_new + 1 :)
+        ONB(:, :n_new) = matmul(basis, X(:, :n_new))
 
-        ONB(:, n_new + 1 :) = basis(:, n_new + 1 :)
-        ONB(:, :n_new) =
-     &      matmul(transpose(X(:, :n_new)), basis(:, idx(:n_new)))
         call mma_deallocate(X)
         call mma_deallocate(idx)
         call mma_deallocate(s_diag)
@@ -359,10 +353,6 @@
         call mma_deallocate(v)
         call mma_deallocate(correction)
         call mma_deallocate(previous)
-!         do i = 1, size(ONB, 2) - 1
-!           write(*, *) norm(ONB(:, i), S=S)
-!           write(*, *) dot_product(ONB(:, i), ONB(:, i + 1), S=S)
-!         end do
       end subroutine Gram_Schmidt_Array
 
       subroutine update_orb_numbers(
@@ -531,4 +521,24 @@
           L = norm2(v)
         end if
       end function
+
+
+      subroutine display(A, float_fmt)
+        real, intent(in) :: A(:, :)
+        character(*), intent(in), optional :: float_fmt
+
+        character(:), allocatable :: float_fmt_
+        integer :: i, j
+
+        if (present(float_fmt)) then
+          float_fmt_ = float_fmt
+        else
+          float_fmt_ = 'F6.2'
+        end if
+
+        do i = lbound(A, 1), ubound(A, 1)
+          write(6, '('//str(size(A, 2))//'('//float_fmt_//'))')
+     &        (A(i, j), j = lbound(A, 2), ubound(A, 2))
+        end do
+      end subroutine
       end module orthonormalization
