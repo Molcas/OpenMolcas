@@ -176,28 +176,43 @@
         call mma_allocate(X, size(S, 1), size(S, 2))
         call mma_allocate(s_diag, size(S, 2))
 
+! Transform AO-overlap matrix S to the overlap matrix of basis.
         S_transf = matmul(transpose(basis), matmul(S, basis))
 
         call diagonalize(S_transf, U, s_diag)
-        call mma_deallocate(S_transf)
 
-        if (any(s_diag < 1.0d-10)) then
-          call abort_("Linear dependency detected. "//
-     &      "Lowdin can't cure it. Please use other ORTH keyword "//
-     &      "from {Gram_Schmidt, Canonical}.")
-        end if
+!         do i = 1, size(ONB, 2) - 1
+!           write(*, *)
+!           write(*, *) norm(basis(:, i), S=S)
+!           write(*, *) S_transf(i, i)
+!           write(*, *) dot_product(basis(:, i), basis(:, i + 1), S=S)
+!           write(*, *) S_transf(i, i + 1)
+!           write(*, *) 's_diag', s_diag(i)
+!           write(*, *)
+!         end do
+
+!         if (any(s_diag < 1.0d-10)) then
+!           call abort_("Linear dependency detected. "//
+!      &      "Lowdin can't cure it. Please use other ORTH keyword "//
+!      &      "from {Gram_Schmidt, Canonical}.")
+!         end if
 
 ! X = U s_diag^{-1/2} U^T
         do i = 1, size(X, 2)
           X(:, i) = U(:, i) / sqrt(s_diag(i))
         end do
+        X = matmul(transpose(U), X)
+
+        ONB = matmul(transpose(X), transpose(basis))
+
+!         do i = 1, size(ONB, 2) - 1
+!           write(*, *) norm(ONB(:, i), S=S)
+!           write(*, *) dot_product(ONB(:, i), ONB(:, i + 1), S=S)
+!         end do
         call mma_deallocate(s_diag)
-
-        X = matmul(X, transpose(U))
         call mma_deallocate(U)
-
-        ONB = matmul(transpose(X), basis)
         call mma_deallocate(X)
+        call mma_deallocate(S_transf)
       end subroutine Lowdin_Array
 
 
@@ -298,43 +313,41 @@
       subroutine Gram_Schmidt_Array(basis, S, n_to_ON, ONB, n_new)
         real*8, intent(in) :: basis(:, :), S(:, :)
         integer, intent(in) :: n_to_ON
-        real*8, intent(out) :: ONB(:, :)
+        real*8, target, intent(out) :: ONB(:, :)
         integer, intent(out) :: n_new
 
         real*8 :: L
-        integer :: i
+        integer :: i, j
         logical :: lin_dep_detected, improve_solution
 
+        real*8, allocatable :: previous(:), correction(:), v(:)
+        real*8, pointer :: curr(:)
 
-        real*8, allocatable :: U(:, :), s_diag(:), X(:, :),
-     &        S_transf(:, :), previous(:)
-
-        call mma_allocate(S_transf, size(S, 1), size(S, 2))
         call mma_allocate(previous, size(S, 1))
-
-        S_transf = matmul(transpose(basis), matmul(S, basis))
+        call mma_allocate(correction, size(S, 1))
+        call mma_allocate(v, size(S, 1))
 
         n_new = 0
         ONB(:, n_to_ON + 1 :) = basis(:, n_to_ON + 1 :)
         do i = 1, n_to_ON
-          ONB(:, n_new + 1) = basis(:, i)
+          curr => ONB(:, n_new + 1)
+          curr = basis(:, i)
 
           improve_solution = .true.
           lin_dep_detected = .false.
           do while (improve_solution .and. .not. lin_dep_detected)
-            previous = ONB(:, n_new + 1)
-            if (n_new > 0) then
-              ONB(:, n_new + 1) =
-     &          previous
-     &          - matmul(ONB(:, :n_new), S_transf(:n_new, n_new + 1))
-            end if
-
-            L = dot_product(previous, ONB(:, n_new + 1), S=S)
-
+            correction = 0.d0
+            v = matmul(S, curr)
+            do j = 1, n_new
+              correction = correction
+     &                     + ONB(:, j) * dot_product(ONB(:, j), v)
+            end do
+            curr = curr - correction
+            improve_solution = norm(correction, S=S) > 0.1d0
+            L = norm(curr, S=S)
             lin_dep_detected = L < 1.0d-10
-            improve_solution = L < 0.2d0
             if (.not. lin_dep_detected) then
-              call normalize(ONB(:, n_new + 1), S=S)
+              curr = curr / L
             end if
             if (.not. (improve_solution .or. lin_dep_detected)) then
               n_new = n_new + 1
@@ -342,6 +355,14 @@
           end do
         end do
         ONB(:, n_new + 1 : n_to_ON) = basis(:, n_new + 1 : n_to_ON)
+
+        call mma_deallocate(v)
+        call mma_deallocate(correction)
+        call mma_deallocate(previous)
+!         do i = 1, size(ONB, 2) - 1
+!           write(*, *) norm(ONB(:, i), S=S)
+!           write(*, *) dot_product(ONB(:, i), ONB(:, i + 1), S=S)
+!         end do
       end subroutine Gram_Schmidt_Array
 
       subroutine update_orb_numbers(
@@ -493,10 +514,21 @@
         real*8, intent(in), optional :: S(:, :)
         real*8 :: L
         if (present(S)) then
+          L = norm(v, S=S)
+        else
+          L = norm(v)
+        end if
+        v = v / L
+      end subroutine
+
+      pure function norm(v, S) result(L)
+        real*8, intent(in) :: v(:)
+        real*8, intent(in), optional :: S(:, :)
+        real*8 :: L
+        if (present(S)) then
           L = sqrt(dot_product(v, v, S))
         else
           L = norm2(v)
         end if
-        v = v / L
-      end subroutine
+      end function
       end module orthonormalization
