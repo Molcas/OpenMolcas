@@ -89,10 +89,6 @@
           module procedure Canonical_Array, Canonical_Blocks
         end interface
 
-        interface dot_product
-          module procedure dot_product_with_overlap
-        end interface
-
       contains
 
       subroutine orthonormalize_blocks(basis, scheme, ONB)
@@ -305,9 +301,14 @@
         integer :: i
         logical :: lin_dep_detected, improve_solution
 
-        real*8, allocatable :: previous(:)
 
+        real*8, allocatable :: U(:, :), s_diag(:), X(:, :),
+     &        S_transf(:, :), previous(:)
+
+        call mma_allocate(S_transf, size(S, 1), size(S, 2))
         call mma_allocate(previous, size(S, 1))
+
+        S_transf = matmul(transpose(basis), matmul(S, basis))
 
         n_new = 0
         ONB(:, n_to_ON + 1 :) = basis(:, n_to_ON + 1 :)
@@ -318,17 +319,22 @@
           lin_dep_detected = .false.
           do while (improve_solution .and. .not. lin_dep_detected)
             previous = ONB(:, n_new + 1)
+! NOTE: One could use DGEMM_, ddot_ routines,
+!       But the matmul, dot_product routines seem a lot more readable and
+!       performance is not really a problem here.
             if (n_new > 0) then
               ONB(:, n_new + 1) =
-     &          previous - matmul(ONB(:, :n_new), S(:n_new, n_new + 1))
+     &          previous
+     &          - matmul(ONB(:, :n_new), S_transf(:n_new, n_new + 1))
             end if
 
-            L = dot_product(previous, ONB(:, n_new + 1), S=S)
+            L = dot_product(matmul(S, previous), ONB(:, n_new + 1))
 
             lin_dep_detected = L < 1.0d-10
             improve_solution = L < 0.2d0
             if (.not. lin_dep_detected) then
-              L = dot_product(ONB(:, n_new + 1), ONB(:, n_new + 1), S=S)
+!               L = dot_product(matmul(S, ONB(:, n_new + 1)),
+!      &                        ONB(:, n_new + 1))
               ONB(:, n_new + 1) = ONB(:, n_new + 1) / sqrt(L)
             end if
             if (.not. (improve_solution .or. lin_dep_detected)) then
@@ -337,8 +343,9 @@
           end do
         end do
         ONB(:, n_new + 1 : n_to_ON) = basis(:, n_new + 1 : n_to_ON)
-
-        call mma_deallocate(previous)
+        do i = 1, size(ONB, 2)
+          write(6, *) dot_product(matmul(S, ONB(:, i)), ONB(:, i))
+        end do
       end subroutine Gram_Schmidt_Array
 
       subroutine update_orb_numbers(
@@ -478,10 +485,4 @@
         call QTrace()
         call Abend()
       end subroutine
-
-      pure function dot_product_with_overlap(v1, v2, S) result(dot)
-        real*8, intent(in) :: v1(:), v2(:), S(:, :)
-        real*8 :: dot
-        dot = dot_product(matmul(S, v1), v2)
-      end function
       end module orthonormalization
