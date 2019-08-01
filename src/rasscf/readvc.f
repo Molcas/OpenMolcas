@@ -530,6 +530,10 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
         call orthonormalize(CMO_copy, scheme, CMO(:nTot2))
         call mma_deallocate(CMO_copy)
       end if
+!       call mma_allocate(CMO_copy, nTot2)
+!       CMO_copy = CMO(:nTot2)
+!       CALL ONCMO(CMO_copy, CMO)
+!       call mma_deallocate(CMO_copy)
 
 *     save start orbitals
 

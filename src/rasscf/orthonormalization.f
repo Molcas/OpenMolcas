@@ -323,9 +323,6 @@
           lin_dep_detected = .false.
           do while (improve_solution .and. .not. lin_dep_detected)
             previous = ONB(:, n_new + 1)
-! NOTE: One could use DGEMM_, ddot_ routines,
-!       But the matmul, dot_product routines seem a lot more readable and
-!       performance is not really a problem here.
             if (n_new > 0) then
               ONB(:, n_new + 1) =
      &          previous
@@ -337,8 +334,7 @@
             lin_dep_detected = L < 1.0d-10
             improve_solution = L < 0.2d0
             if (.not. lin_dep_detected) then
-              L = dot_product(ONB(:, n_new + 1), ONB(:, n_new + 1), S=S)
-              ONB(:, n_new + 1) = ONB(:, n_new + 1) / sqrt(L)
+              call normalize(ONB(:, n_new + 1), S=S)
             end if
             if (.not. (improve_solution .or. lin_dep_detected)) then
               n_new = n_new + 1
@@ -346,9 +342,6 @@
           end do
         end do
         ONB(:, n_new + 1 : n_to_ON) = basis(:, n_new + 1 : n_to_ON)
-        do i = 1, size(ONB, 2)
-          write(6, *) dot_product(ONB(:, i), ONB(:, i), S=S)
-        end do
       end subroutine Gram_Schmidt_Array
 
       subroutine update_orb_numbers(
@@ -494,4 +487,16 @@
         real*8 :: dot
         dot = dot_product(matmul(S, v1), v2)
       end function
+
+      pure subroutine normalize(v, S)
+        real*8, intent(inout) :: v(:)
+        real*8, intent(in), optional :: S(:, :)
+        real*8 :: L
+        if (present(S)) then
+          L = sqrt(dot_product(v, v, S))
+        else
+          L = norm2(v)
+        end if
+        v = v / L
+      end subroutine
       end module orthonormalization
