@@ -15,6 +15,7 @@
         use globvar
 !
 !       write(6,*) 'Deallocating all kriging variables'
+        deallocate (Ys)
         deallocate (x,y,dy,nx,l)
         deallocate (Rones)
         deallocate (full_R,rl)
