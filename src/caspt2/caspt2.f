@@ -155,7 +155,7 @@ C second-order correction Heff(2) = PH \Omega_1 P to Heff[1]
 
 
 * Compute the weights
-      CALL WGTINI(HEFF)
+      CALL WGTINI(H0)
 
 
 * Before entering the long loop over groups and states, precompute
