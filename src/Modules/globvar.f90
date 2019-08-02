@@ -16,7 +16,7 @@
                 rl(:,:,:), dl(:,:), full_Rinv(:,:), &
                 full_R(:,:), nx(:,:), Kv(:), & !Iden(:,:),
                 cv(:,:,:,:), cvg(:,:,:),cvh(:,:,:,:), &
-                Ys(:), var(:), Rones(:), sigma(:), l(:), &
+                var(:), Rones(:), sigma(:), l(:), &
                 pred(:), gpred(:,:), hpred(:,:,:), ll(:), &
                 cvMatFder(:,:), cvMatSder(:,:), cvMatTder(:,:)
         real*8  sb,variance,detR,lh,sbO,sbmev !p

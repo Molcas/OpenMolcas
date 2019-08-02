@@ -12,8 +12,17 @@
 !***********************************************************************
         SUBROUTINE k(iter)
             use globvar
-            real*8 B(m_t),A(m_t,m_t),diagA(m_t), iden(m_t,m_t)
-            integer IPIV(m_t),INFO,iter,sign ! ipiv the pivot indices that define the permutation matrix
+#include "stdalloc.fh"
+            real*8, Allocatable:: B(:), A(:,:), diagA(:), iden(:,:), Ys(:)
+            Integer, Allocatable:: IPIV(:)
+            integer INFO,iter,sign ! ipiv the pivot indices that define the permutation matrix
+!
+            Call mma_Allocate(B,m_t,Label="B")
+            Call mma_Allocate(A,m_t,m_t,Label="A")
+            Call mma_Allocate(diagA,m_t,Label="diagAB")
+            Call mma_Allocate(iden,m_t,m_t,Label="iden")
+            Call mma_Allocate(IPIV,m_t,Label="IPIV")
+            Call mma_Allocate(Ys,m_t,Label="Ys")
 !
 ! Initiate B according to Eq. (6) of ref.
             B=0.0D0
@@ -97,4 +106,11 @@
             ! write(6,*) 'Variance:',variance
             ! write(6,*) 'm_t',m_t
             ! write(6,*) 'lh',lh
+!
+            Call mma_Deallocate(B)
+            Call mma_Deallocate(A)
+            Call mma_Deallocate(diagA)
+            Call mma_Deallocate(iden)
+            Call mma_Deallocate(IPIV)
+            Call mma_Deallocate(Ys)
         END SUBROUTINE k
