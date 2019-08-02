@@ -62,9 +62,9 @@
 ! ref.).
 !Iden is just an identity matrix necesary to avoid that the Grad-Psi becomes
 ! Singular after been multiplied by EPS factor
-          allocate (rl(nPoints,npx,nInter), dl(nPoints,npx)) !dl(nPoints,nPoints), mat(nPoints,nPoints),
-!
-          allocate(Rones(m_t))
+          Call mma_Allocate(rl,nPoints,npx,nInter,Label="rl")
+          Call mma_Allocate(dl,nPoints,npx,Label="dl")
+          Call mma_Allocate(Rones,m_t,Label="Rones")
 !kv is the vector that contains the dot product of the inverse of Grad-Psi and
 !Grad-y minus the dot product of the inverse of Grad-Psi and f-ones multiplied
 ! by the constant Grad-Trend function (eq. (3), (5), (6) and (7)

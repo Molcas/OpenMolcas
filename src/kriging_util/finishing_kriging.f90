@@ -22,9 +22,10 @@
         Call mma_deallocate(dy)
         Call mma_deallocate(full_R)
         Call mma_deallocate(Ys)
+        Call mma_deallocate(dl)
+        Call mma_deallocate(rl)
+        Call mma_deallocate(Rones)
         deallocate (l)
-        deallocate (Rones)
-        deallocate (rl)
         deallocate (kv,pred,gpred,hpred,var,sigma,cv,ll)
         deallocate (cvMatFder,cvMatSder,cvMatTder)
 !

@@ -16,8 +16,6 @@
             ! real*8 tmat(iter,npx),tmat2(iter,npx), &
             real*8 m(iter,npx),diffx(iter,npx),diffx0(iter,npx), &
                 diffxk(iter,npx),sdiffx,sdiffx0,sdiffxk!, & dl(iter,npx)
-            ! deallocate (dl,mat)
-            ! allocate (dl(iter,npx),mat(iter,npx))
             cv = 0
             i0 = 0
 !           write(6,*) 'x: ',x
