@@ -25,8 +25,15 @@
         Call mma_deallocate(dl)
         Call mma_deallocate(rl)
         Call mma_deallocate(Rones)
-        deallocate (l)
-        deallocate (kv,pred,gpred,hpred,var,sigma,cv,ll)
+        Call mma_deallocate(kv)
+        Call mma_deallocate(pred)
+        Call mma_deallocate(gpred)
+        Call mma_deallocate(hpred)
+        Call mma_deallocate(var)
+        Call mma_deallocate(sigma)
+        Call mma_deallocate(l)
+        Call mma_deallocate(ll)
+        deallocate (cv)
         deallocate (cvMatFder,cvMatSder,cvMatTder)
 !
         return
