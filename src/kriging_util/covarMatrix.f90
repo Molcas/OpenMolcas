@@ -12,10 +12,21 @@
 !***********************************************************************
         SUBROUTINE covarMatrix(iter,nInter)
             use globvar
+#include "stdalloc.fh"
             integer i,j,i0,i1,j0,j1,k,kl,iter,nInter
-            real*8 diffx(iter,iter),diffx0(iter,iter), &
-                    matFder(iter,iter),matSder(iter,iter),r(iter,iter,nInter), &
-                    d(iter,iter),m(iter,iter),iden(iter,iter)!,c(iter,iter)
+            Real*8, Allocatable :: diffx(:,:), diffx0(:,:), matFder(:,:),&
+                                   matSder(:,:), r(:,:,:), d(:,:), m(:,:),&
+                                   iden(:,:)
+!
+            Call mma_Allocate(diffx,iter,iter,Label="diffx")
+            Call mma_Allocate(diffx0,iter,iter,Label="diffx0")
+            Call mma_Allocate(matFder,iter,iter,Label="matFder")
+            Call mma_Allocate(matSder,iter,iter,Label="matSder")
+            Call mma_Allocate(r,iter,iter,nInter,Label="r")
+            Call mma_Allocate(d,iter,iter,Label="d")
+            Call mma_Allocate(m,iter,iter,Label="m")
+            Call mma_Allocate(iden,iter,iter,Label="iden")
+!
             full_R = 0
             d = 0
             diffx = 0
@@ -78,4 +89,13 @@
 !           DOI: 10.1615/Int.J.UncertaintyQuantification.2013006809
             ! full_R = abs(full_R)
         !   Call RecPrt('full_r',  ' ',full_R,m_t,m_t)
+!
+            Call mma_deallocate(diffx)
+            Call mma_deallocate(diffx0)
+            Call mma_deallocate(matFder)
+            Call mma_deallocate(matSder)
+            Call mma_deallocate(r)
+            Call mma_deallocate(d)
+            Call mma_deallocate(m)
+            Call mma_deallocate(iden)
         END
