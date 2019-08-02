@@ -20,13 +20,13 @@
             d0 = sqrt(dh)
             c = idint(pAI)
             a = Gamma(pAI+1)/Gamma(2*pAI+1)
-            b = 0.0
-            m = 0.0
+            b = 0.0D0
+            m = 0.0D0
             do i=0, c
                 d=DBLE(i)
-                b = b + (Gamma(pAI+1.0+d)/(Gamma(d+1)*Gamma(pAI+1.0-d)))*(2.0*Sqrt(2.0*pAI+1.0)*d0)**(pAI-i)
+                b = b + (Gamma(pAI+1.0D0+d)/(Gamma(d+1.D0)*Gamma(pAI+1.0D0-d)))*(2.0D0*Sqrt(2.0D0*pAI+1.0D0)*d0)**(pAI-i)
             enddo
-                m = a*b*exp(-sqrt(2.0*pAI+1)*d0)
+                m = a*b*exp(-sqrt(2.0D0*pAI+1)*d0)
         END
 
         SUBROUTINE matderiv(nd, d, m, d1, d2)
@@ -36,9 +36,9 @@
             m = 0
             if (anMd) then
                 p0=int(pAI)
-                t=sqrt(2.0*pAI+1)
+                t=sqrt(2.0D0*pAI+1)
                 dh = sqrt(d)
-                c=(2.0*pAI+1)/(2.0*pAI-1)*exp(-t*dh)
+                c=(2.0D0*pAI+1)/(2.0D0*pAI-1)*exp(-t*dh)
                 if (pAI.gt.3.or.pAI.lt.1) then
                     Write(6,*) 'Analytical Matern derivatives (anamat=.True.)'
                     Write(6,*) 'is only valid for pAI = 1, 2 and 3(v = 3/2, 5/2 and 7/2)'
@@ -47,36 +47,36 @@
                         case (1)
                             select case (nd)
                                 case (1)
-                                    m = -c/2.0
+                                    m = -c/2.0D0
                                 case (2)
-                                    m = c*merge(0.75*t/dh,dh,dh.ne.0)/3.0
+                                    m = c*merge(0.75D0*t/dh,dh,dh.ne.0)/3.0d0
                                 case (3)
-                                    m = -(2.0*t-3.0*dh)*c
+                                    m = -(2.0D0*t-3.0D0*dh)*c
                             end select
                         case (2)
                             select case (nd)
                                 case (1)
                                     ! m = -c*dh*(1.0+t*dh) !New way
-                                    m =-c*(1.0+t*dh)/2.0
+                                    m =-c*(1.0D0+t*dh)/2.0d0
                                     ! write (6,*) '1d m',m
                                 case (2)
                                     ! m = c*(dh*(5*dh-t)+1) !New way
-                                    m = c*5.0/4.0
+                                    m = c*5.0D0/4.0D0
                                     ! write (6,*) '2d m',m
                                 case (3)
                                     ! m = -c*dh*(5*t*dh-15) !New way
-                                    m = merge(-5.0/8.0*t/dh,dh,dh.ne.0)*c
+                                    m = merge(-5.0D0/8.0D0*t/dh,dh,dh.ne.0)*c
                                     ! write (6,*) '3d m',m
                             end select
                         case (3)
                             ! write (6,*) 'Analitical Matern derivatives num',nd
                             select case (nd)
                                 case (1)
-                                    m =-c*(1.0+t*dh+dh**2)/2.0
+                                    m =-c*(1.0D0+t*dh+dh**2)/2.0D0
                                 case (2)
-                                    m = c*7.0*(1+t*dh)/12.0
+                                    m = c*7.0D0*(1.0D0+t*dh)/12.0D0
                                 case (3)
-                                    m = -c*49.0/24.0
+                                    m = -c*49.0D0/24.0D0
                                     ! write (6,*) '3th der dh',dh
                             end select
                     end select
@@ -84,14 +84,14 @@
             else
                 ! write (6,*) 'Numerical Matern derivatives num',nd
                 nr = dble(nd)
-                a = Gamma(nr+1.0)/h**nd
-                b = 0.0
+                a = Gamma(nr+1.0D0)/h**nd
+                b = 0.0D0
                 do k = 0, nd
                     kr = dble(k)
                     dh = d + kr*h
                     call matern(dh, m, size(dh,1), size(dh,2))
-                    b = b + (-1)**(k+1)/(Gamma(nr-kr+1.0)*Gamma(kr+1.0))*m
+                    b = b + DBLE((-1)**(k+1))/(Gamma(nr-kr+1.0D0)*Gamma(kr+1.0D0))*m
                 enddo
-                m = a*b*(-1)**(nr+1)
+                m = a*b*DBLE((-1)**(nr+1))
             endif
         END

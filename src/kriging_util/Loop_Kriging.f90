@@ -84,8 +84,8 @@
                         call Gradient_Kriging(nx,tgrad,ndimx)
                         call Gradient_Kriging(nx+h,thgrad,ndimx)
                         do j=1,nInter
-                                ! Fact = 0.5
-                                ! If (i.eq.j) Fact = 1.0
+                                ! Fact = 0.5D0
+                                ! If (i.eq.j) Fact = 1.0D0
                                 hpred(npx,i,j) = hpred(npx,i,j) + (thgrad(j)-tgrad(j))/h
                                 hpred(npx,j,i) = hpred(npx,i,j)
                         enddo

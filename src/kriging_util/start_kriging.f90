@@ -20,7 +20,6 @@
 !
         allocate (x(nInter,nPoints),y(nPoints),dy(nInter*nPoints),nx(nInter,1))
         allocate (nx_saveG(nInter,1),nx_saveH(nInter,1))
-        allocate (Ys(nPoints))
 !m_t is the dimentionality of the square correlation matrix Gradient-Psi
 ! (equation (2) on:
 !-------- ref. = DOI 10.1007/s00366-015-0397-y)-------
@@ -30,6 +29,7 @@
           npx = 1
 !full_R correspond to the gradient of Psi (eq. (2) ref.)
           allocate (full_R(m_t,m_t))
+          allocate (Ys(m_t))
 !nx is the n-dimensional vector of the last iteration cumputed in update_sl
 ! subroutine
 !x is the n-dimensional internal coordinates

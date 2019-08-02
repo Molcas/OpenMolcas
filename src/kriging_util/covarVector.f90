@@ -40,7 +40,7 @@
                 ! cvMatTder = m
                 do i=1,nInter
 !       1st derivatives second part of eq. (4)
-                    diffx = 2.0*rl(:,:,i)/l(i)
+                    diffx = 2.0D0*rl(:,:,i)/l(i)
                     i0 = i*iter + 1
                     i1 = i0 + iter - 1
                     m = cvMatFder * diffx
@@ -59,14 +59,14 @@
                 cvMatSder = m
                 !endif
                 do i=1,nInter
-                    diffx = 2.0*rl(:,:,i)/l(i)
+                    diffx = 2.0D0*rl(:,:,i)/l(i)
                     cv(1:iter,:,i,1) = -cvMatFder * diffx
                     do j = 1,nInter
                         ! if (j.eq.1) cv(1:iter,:,i,1) = -cvMatFder * diffx
                         j0 = j*iter + 1
                         j1 = j0+iter - 1
 !                           write(6,*) 'i,j',i,j
-                        diffx0 = -2.0*rl(:,:,j)/l(j)
+                        diffx0 = -2.0D0*rl(:,:,j)/l(j)
 !                           write(6,*) 'diffx',diffx
 !                           write(6,*) 'diffx0',diffx0
                         m = cvMatSder * diffx*diffx0
@@ -92,21 +92,21 @@
                 ! write (6,*) 'dl',dl
                 ! write (6,*) '3th der',cvMatTder
                 do i = 1, nInter
-                    diffx = 2.0*rl(:,:,i)/l(i)
-                    sdiffx = 2.0/l(i)**2
+                    diffx = 2.0D0*rl(:,:,i)/l(i)
+                    sdiffx = 2.0D0/l(i)**2
                     do j = 1, nInter
-                        diffx0 = -2.0*rl(:,:,j)/l(j)
-                        sdiffx0 = 2/l(j)**2
+                        diffx0 = -2.0D0*rl(:,:,j)/l(j)
+                        sdiffx0 = 2.0D0/l(j)**2
                         m = cvMatSder * diffx*diffx0
-                        if (i.eq.j) m = m - cvMatFder*2/(l(i)*l(j))
+                        if (i.eq.j) m = m - cvMatFder*2.0D0/(l(i)*l(j))
                         cv(1:iter,:,i,j) = m
                         do k = 1, nInter
-                            diffxk = - 2.0*rl(:,:,k)/l(k)
-                            sdiffxk = 2.0/l(i)**2
+                            diffxk = - 2.0D0*rl(:,:,k)/l(k)
+                            sdiffxk = 2.0D0/l(i)**2
                             k0 = k*iter + 1
                             k1 = k0+iter - 1
                             if (i.eq.j.and.j.eq.k) then
-                                m = (cvMatTder*diffx0**3 + 3*cvMatSder*diffx0*sdiffx0)
+                                m = (cvMatTder*diffx0**3 + 3.0D0*cvMatSder*diffx0*sdiffx0)
                                 ! write(6,*) 'i=j=k',i,j,k
                                 ! write(6,*) 'cvMatTder*diffx0**3',cvMatTder*diffx0**3
                             else

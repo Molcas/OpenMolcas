@@ -35,7 +35,7 @@
                     tsum = sum(rones(1:iter))
                     B = cv(:,j,1,1)
                     var(j)=var(j)+(1-dot_product(B,rones))**2/tsum
-                    sigma(j)=1.96*sqrt(abs(var(j)*variance))
+                    sigma(j)=1.96D0*sqrt(abs(var(j)*variance))
 ! -------------------------------
 ! -----Predictiong the Energy
                     pred(j) = sb + dot_product(B,Kv)

@@ -46,7 +46,7 @@
             do i=1,nInter
                 i0=i*iter+1
                 i1=i0+iter-1
-                diffx0 = -2.0*r(:,:,i)/l(i)
+                diffx0 = -2.0D0*r(:,:,i)/l(i)
                 m = matFder*diffx0
     !  Writing the 1st row of 1st derivatives with respect the coordinates
                 full_R(1:iter,i0:i1) = m
@@ -60,8 +60,8 @@
                 do j = i,nInter
                     j0 = j*iter+1
                     j1 = j0+iter-1
-                    diffx = 2.0*r(:,:,j)/l(j)
-                    diffx0 = -2.0*r(:,:,i)/l(i)
+                    diffx = 2.0D0*r(:,:,j)/l(j)
+                    diffx0 = -2.0D0*r(:,:,i)/l(i)
                     m = matSder*diffx*diffx0
     !   if differentiating twice on the same dimension
                     if (i.eq.j) m = m - matfder*(2/(l(i)*l(j)))

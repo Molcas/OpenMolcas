@@ -20,7 +20,7 @@ subroutine deriv(finder,foutder,nd,d1,d2)
     do k=0,nd
         kr=real(k)
         finder=finder+kr*h
-        b=b+(-1)**(k+1)/(Gamma(nr-kr+1.0)*Gamma(kr+1.0))*finder
+        b=b+DBLE((-1)**(k+1))/(Gamma(nr-kr+1.0D0)*Gamma(kr+1.0D0))*finder
     enddo
-    foutder=a*b*(-1)**(nr+1)
+    foutder=a*b*DBLE((-1)**(nr+1))
 end
