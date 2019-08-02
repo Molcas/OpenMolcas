@@ -21,8 +21,8 @@ C
       anGr = .True.
       pAI = 2
       npxAI = 1
-      lb(1) = 20.0
-      lb(2) = 20.0
+      lb(1) = 20.0D0
+      lb(2) = 20.0D0
       lb(3) = 1
       miAI = 50
       meAI = 1.0D-8
