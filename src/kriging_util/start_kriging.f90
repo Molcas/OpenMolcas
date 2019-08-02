@@ -79,6 +79,7 @@
 ! (eq. 4 ref.).
 !l is a n-dimensional vector of the width of the Mat'ern function.
 !ll is the likelihood function.
+!
           Call mma_allocate(kv,m_t,Label="kv")
           Call mma_allocate(pred,npx,Label="pred")
           Call mma_allocate(gpred,npx,nInter,Label="gpred")
@@ -87,10 +88,10 @@
           Call mma_allocate(sigma,npx,Label="sigma")
           Call mma_allocate(l,nInter,Label="l")
           Call mma_allocate(ll,int(lb(3)),Label="ll")
-          allocate (cv(m_t,npx,nInter,nInter))!, cvg(m_t,npx,nInter), &
-            !cvh(m_t,npx,nInter,nInter))
-          allocate (cvMatFder(nPoints,npx), cvMatSder(nPoints,npx), &
-                    cvMatTder(nPoints,npx))
+          Call mma_allocate(cv,m_t,npx,nInter,nInter,Label="cv")
+          Call mma_allocate(cvMatFder,nPoints,npx,Label="cvMatFder")
+          Call mma_allocate(cvMatSder,nPoints,npx,Label="cvMatSder")
+          Call mma_allocate(cvMatTder,nPoints,npx,Label="cvMatTder")
 !
         return
       end

@@ -33,8 +33,10 @@
         Call mma_deallocate(sigma)
         Call mma_deallocate(l)
         Call mma_deallocate(ll)
-        deallocate (cv)
-        deallocate (cvMatFder,cvMatSder,cvMatTder)
+        Call mma_deallocate(cv)
+        Call mma_deallocate(cvMatFder)
+        Call mma_deallocate(cvMatSder)
+        Call mma_deallocate(cvMatTder)
 !
         return
       end
