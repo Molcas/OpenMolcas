@@ -506,7 +506,8 @@
         if (present(S)) then
           L = sqrt(dot_product(v, v, S))
         else
-          L = norm2(v)
+! One could use norm2 here, but Sun and PGI compilers don't know this.
+          L = sqrt(sum(v**2))
         end if
       end function
       end module orthonormalization
