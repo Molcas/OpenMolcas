@@ -12,13 +12,19 @@
 !***********************************************************************
 
       Subroutine Start_Kriging(nPoints,nInter,x_,dy_,y_)
-        use globvar
+      use globvar
+#include "stdalloc.fh"
+!
         Integer nInter,nPoints
         Real*8 x_(nInter,nPoints),dy_(nInter,nPoints),y_(nPoints)
         nInter_save=nInter
         nPoints_save=nPoints
 !
-        allocate (x(nInter,nPoints),y(nPoints),dy(nInter*nPoints),nx(nInter,1))
+        Call mma_Allocate(x,nInter,nPoints,Label="x")
+        Call mma_Allocate(y,nInter,Label="y")
+        Call mma_Allocate(nx,nInter,1,Label="nx")
+!       allocate (x(nInter,nPoints),y(nPoints),dy(nInter*nPoints),nx(nInter,1))
+        allocate (dy(nInter*nPoints))
         allocate (nx_saveG(nInter,1),nx_saveH(nInter,1))
 !m_t is the dimentionality of the square correlation matrix Gradient-Psi
 ! (equation (2) on:

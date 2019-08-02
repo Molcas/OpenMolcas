@@ -12,11 +12,16 @@
 !***********************************************************************
 
       Subroutine Finish_Kriging()
-        use globvar
+      use globvar
+#include "stdalloc.fh"
 !
 !       write(6,*) 'Deallocating all kriging variables'
         deallocate (Ys)
-        deallocate (x,y,dy,nx,l)
+        Call mma_deallocate(x)
+        Call mma_deallocate(y)
+        Call mma_deallocate(nx)
+        deallocate (dy,l)
+!       deallocate (x,y,dy,nx,l)
         deallocate (Rones)
         deallocate (full_R,rl)
         deallocate (kv,pred,gpred,hpred,var,sigma,cv,ll)
