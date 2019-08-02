@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2019, Stefano Battaglia                                *
 ************************************************************************
-      SUBROUTINE WGTINI
+      SUBROUTINE WGTINI(HAM)
 
       IMPLICIT REAL*8 (A-H,O-Z)
 
@@ -23,6 +23,8 @@
 #include "intgrl.fh"
 #include "eqsolv.fh"
 #include "warnings.fh"
+
+      REAL*8 HAM(NSTATE,NSTATE)
 
       CALL QENTER('WGTINI')
 
@@ -37,13 +39,16 @@
 
 * Compute weights for constructing H0
         IF (IFDW) THEN
-          EBETA = REFENE(ISTATE)
+          ! EBETA = REFENE(ISTATE)
+          EBETA = HAM(ISTATE,ISTATE)
 * Compute normalization factor
           DO JSTATE=1,NSTATE
-            EALPHA = REFENE(JSTATE)
+            ! EALPHA = REFENE(JSTATE)
+            EALPHA = HAM(JSTATE,JSTATE)
             FAC = 0.0D0
             DO KSTATE=1,NSTATE
-              EGAMMA = REFENE(KSTATE)
+              ! EGAMMA = REFENE(KSTATE)
+              EGAMMA = HAM(KSTATE,KSTATE)
               FAC = FAC + EXP(-ZETA*(EALPHA - EGAMMA)**2)
             END DO
             IJ = (ISTATE-1) + NSTATE*(JSTATE-1)
