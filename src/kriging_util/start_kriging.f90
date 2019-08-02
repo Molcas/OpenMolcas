@@ -21,11 +21,11 @@
         nPoints_save=nPoints
 !
         Call mma_Allocate(x,nInter,nPoints,Label="x")
+        Call mma_Allocate(dy,nInter*nPoints,Label="dy")
         Call mma_Allocate(y,nInter,Label="y")
         Call mma_Allocate(nx,nInter,1,Label="nx")
-!       allocate (x(nInter,nPoints),y(nPoints),dy(nInter*nPoints),nx(nInter,1))
-        allocate (dy(nInter*nPoints))
-        allocate (nx_saveG(nInter,1),nx_saveH(nInter,1))
+        Call mma_Allocate(nx_SaveG,nInter,1,Label="nx_SaveG")
+        Call mma_Allocate(nx_SaveH,nInter,1,Label="nx_SaveH")
 !m_t is the dimentionality of the square correlation matrix Gradient-Psi
 ! (equation (2) on:
 !-------- ref. = DOI 10.1007/s00366-015-0397-y)-------
@@ -34,8 +34,8 @@
 ! according to the iteration that was computed in update_sl subroutine
           npx = 1
 !full_R correspond to the gradient of Psi (eq. (2) ref.)
-          allocate (full_R(m_t,m_t))
-          allocate (Ys(m_t))
+        Call mma_Allocate(full_R,m_t,m_t,Label="full_R")
+        Call mma_Allocate(Ys,m_t,Label="Ys")
 !nx is the n-dimensional vector of the last iteration cumputed in update_sl
 ! subroutine
 !x is the n-dimensional internal coordinates
