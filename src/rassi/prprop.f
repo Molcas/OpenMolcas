@@ -237,7 +237,8 @@ c     $      [NSTATE,NSTATE,1], [0,0,ICOMP(IPROP)-1])
 c#endif
          ENDIF
 c add dipole moment integrals:
-         IF(PNAME(IPROP)(1:8).EQ.'MLTPL  1') THEN
+         IF(PNAME(IPROP)(1:8).EQ.'MLTPL  1'.AND.
+     &      SOPRTP(IPROP).EQ.'HERMSING') THEN
             IFDIP1=.TRUE.
             DO I=1,NSTATE
                DO J=1,NSTATE
@@ -419,7 +420,8 @@ C tjd-  BMII: Print out spin-orbit properties to a file
      $   WORK(LSOPRI),[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
         ENDIF
 
-        IF( SOPRNM(ISOPR)(1:8) .EQ.'MLTPL  1') THEN
+        IF( SOPRNM(ISOPR)(1:8) .EQ.'MLTPL  1'.AND.
+     &      SOPRTP(ISOPR).EQ.'HERMSING') THEN
          call mh5_put_dset_array_real(wfn_sos_edipmomr,
      $   WORK(LSOPRR),[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
          call mh5_put_dset_array_real(wfn_sos_edipmomi,
@@ -509,7 +511,8 @@ C printing threshold
         IPRDZ=0
         IFANYD=0
         DO ISOPR=1,NSOPR
-          IF(SOPRNM(ISOPR).EQ.'MLTPL  1') THEN
+          IF(SOPRNM(ISOPR).EQ.'MLTPL  1'.AND.
+     &       SOPRTP(ISOPR).EQ.'HERMSING') THEN
            IFANYD=1
            IF(ISOCMP(ISOPR).EQ.1) IPRDX=ISOPR
            IF(ISOCMP(ISOPR).EQ.2) IPRDY=ISOPR
@@ -1274,7 +1277,8 @@ C printing threshold
 
         IFANYD=0
         DO ISOPR=1,NSOPR
-          IF(SOPRNM(ISOPR).EQ.'MLTPL  1') THEN
+          IF(SOPRNM(ISOPR).EQ.'MLTPL  1'.AND.
+     &       SOPRTP(ISOPR).EQ.'HERMSING') THEN
            IF(ISOCMP(ISOPR).EQ.1) IPRDX=ISOPR
            IF(ISOCMP(ISOPR).EQ.2) IPRDY=ISOPR
            IF(ISOCMP(ISOPR).EQ.3) IPRDZ=ISOPR
@@ -1571,7 +1575,8 @@ C printing threshold
         IFANYD=0
         IFANYS=0
         DO ISOPR=1,NSOPR
-          IF(SOPRNM(ISOPR).EQ.'MLTPL  1') THEN
+          IF(SOPRNM(ISOPR).EQ.'MLTPL  1'.AND.
+     &       SOPRTP(ISOPR).EQ.'HERMSING') THEN
            IF(ISOCMP(ISOPR).EQ.1) IPRDX=ISOPR
            IF(ISOCMP(ISOPR).EQ.2) IPRDY=ISOPR
            IF(ISOCMP(ISOPR).EQ.3) IPRDZ=ISOPR
@@ -2176,7 +2181,8 @@ C printing threshold
         IFANYD=0
         IFANYM=0
         DO ISOPR=1,NSOPR
-          IF (SOPRNM(ISOPR).EQ.'MLTPL  1') THEN
+          IF (SOPRNM(ISOPR).EQ.'MLTPL  1'.AND.
+     &        SOPRTP(ISOPR).EQ.'HERMSING') THEN
            IFANYD=1
            IF(ISOCMP(ISOPR).EQ.1) IPRDXD=ISOPR
            IF(ISOCMP(ISOPR).EQ.2) IPRDYD=ISOPR
