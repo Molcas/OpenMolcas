@@ -12,10 +12,16 @@
 !***********************************************************************
         SUBROUTINE covarVector(gh,iter,nInter)
             use globvar
+#include "stdalloc.fh"
             integer i,i0,i1,j,gh,iter,nInter
-            ! real*8 tmat(iter,npx),tmat2(iter,npx), &
-            real*8 m(iter,npx),diffx(iter,npx),diffx0(iter,npx), &
-                diffxk(iter,npx),sdiffx,sdiffx0,sdiffxk!, & dl(iter,npx)
+            real*8 sdiffx,sdiffx0,sdiffxk
+            real*8, Allocatable ::  m(:,:),diffx(:,:),diffx0(:,:), diffxk(:,:)
+!
+            Call mma_Allocate(m,iter,npx,label="m")
+            Call mma_Allocate(diffx,iter,npx,label="diffx")
+            Call mma_Allocate(diffx0,iter,npx,label="diffx0")
+            Call mma_Allocate(diffxk,iter,npx,label="diffxk")
+!
             cv = 0
             i0 = 0
 !           write(6,*) 'x: ',x
@@ -138,6 +144,12 @@
             endif
             ! Write (6,*) 'CV shape: ',shape(CV)
             ! write (6,*) 'CV: ',CV
+!
+            Call mma_deallocate(m)
+            Call mma_deallocate(diffx)
+            Call mma_deallocate(diffx0)
+            Call mma_deallocate(diffxk)
+!
         END
 !
         SUBROUTINE defdlrl(iter,nInter)
