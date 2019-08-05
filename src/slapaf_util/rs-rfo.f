@@ -46,6 +46,7 @@
       UpMeth='RS-RFO'
       Lu=6
 *define _DEBUG_
+*define _DEBUG2_
 #ifdef _DEBUG_
       Call RecPrt(' In RS_RFO: H',' ',H,nInter,nInter)
       Call RecPrt(' In RS_RFO: g',' ', g,nInter,1)
@@ -54,7 +55,7 @@
 *
       Write (Lu,*)
       Write (Lu,*) 'RS-RF Optimization'
-      Write (Lu,*) ' Iter   alpha   Sqrt(dqdq) StepMax   EigVal'
+      Write (Lu,*) ' Iter   alpha     Sqrt(dqdq)   StepMax     EigVal'
 #endif
 *
       A_RFO=One   ! Initial seed of alpha
@@ -73,7 +74,7 @@
       Call DZero(Tmp,nInter+1)
  998  Continue
          Iter=Iter+1
-#ifdef _DEBUG_
+#ifdef _DEBUG2_
          Write (Lu,*) 'Iter=',Iter
          Write (Lu,*) 'A_RFO=',A_RFO
 #endif
@@ -101,7 +102,7 @@
          End Do
          jj = j*(j+1)/2
          Matrix(jj)=Zero
-#ifdef _DEBUG_
+#ifdef _DEBUG2_
          Call TriPrt('R_Tri',' ',Matrix,nInter+1)
 #endif
 *
@@ -121,7 +122,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUG2_
          Write (Lu,*) ' RF eigenvalue=',Val
 #endif
          ZZ=DDot_(nInter+1,Vec,1,Vec,1)
@@ -140,7 +141,7 @@
 *        Pick v^k_{1,i}
 *
          Fact=Vec(nInter+1)
-#ifdef _DEBUG_
+#ifdef _DEBUG2_
          Write (Lu,*) 'v^k_{1,i}=',Fact
 #endif
 *
@@ -157,7 +158,8 @@
 *
          dqdq=Restriction(q,dq,nInter)
 #ifdef _DEBUG_
-         Write (Lu,'(I5,4E10.5)') Iter,A_RFO,Sqrt(dqdq),StepMax,EigVal
+         Write (Lu,'(I5,5(E12.5,1x))') Iter,A_RFO,Sqrt(dqdq),StepMax,
+     &                                 EigVal
 #endif
 *                                                                      *
 ************************************************************************
@@ -187,7 +189,7 @@
 *
          If (Iterate.and.Abs(StepMax-Sqrt(dqdq)).gt.Thr_RS) Then
             Step_Trunc='*'
-#ifdef _DEBUG_
+#ifdef _DEBUG2_
             Write (Lu,*) 'StepMax-Sqrt(dqdq)=',StepMax-Sqrt(dqdq)
 #endif
 *

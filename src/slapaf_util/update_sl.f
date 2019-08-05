@@ -220,7 +220,7 @@ c Avoid unused argument warnings
 *
 *           This code will have to be cleanup up later.
 *
-            ipCx_Ref=ipCx + (iter-1)*3*nsAtom
+            ipCx_Ref=ipCx + (iter-1)*(3*nsAtom)
             Call GetMem('qInt','ALLO','REAL',ip_qInt,nRaw*nInter)
             Call GetMem('Grad','ALLO','REAL',ip_Grad,nRaw*nInter)
             Call GetMem('Energy','ALLO','REAL',ip_Energy,nRaw)
@@ -229,18 +229,28 @@ c Avoid unused argument warnings
             Call DCopy_(nInter,Grad(1,iter),1,Work(ip_Grad),1)
             Work(ip_Energy)=Energy(iter)
 *
+*           Pick up the coordinates in descending order with the ones
+*           that are the closest to the current structure.
+*
             Thr_low = 0.0D0
             Thr_high= 99.0D0
             Do iRaw = 2, nRaw
+*
                kter=-1
                Do jter = 1, iter-1
+*
+*                 Compute the distance in Cartesian coordinates.
+*
                   Distance=Zero
                   Do ix = 1, 3*nsAtom
-                     Distance= Degen(ix) *
+                     Distance= Distance +
+     &                         Degen(ix) *
      &                        (Work(ipCx_ref+ix-1) -
      &                         Work(ipCx + (jter-1)*3*nsAtom+ix-1))**2
                   End Do
                   Distance = sqrt(Distance)
+*                 Write (*,*) 'jter,Distance=',jter,Distance
+*
                   If (Distance.gt.Thr_low .and.
      &                Distance.lt.Thr_high) Then
                      kter=jter
@@ -259,6 +269,11 @@ c Avoid unused argument warnings
                   Thr_high= 99.0D0
                End If
             End Do
+#ifdef _DEBUG_
+            Call RecPrt('qInt(s)',  ' ',Work(ip_qInt),nInter,nRaw)
+            Call RecPrt('Energy(s)',' ',Work(ip_Energy),1,nRaw)
+            Call RecPrt('Grad(s)',  ' ',Work(ip_Grad),nInter,nRaw)
+#endif
 *
             Call DScal_(nInter*nRaw,-One,Work(ip_Grad),1)
             Call Start_Kriging(nRaw,nInter,
