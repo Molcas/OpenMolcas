@@ -92,7 +92,7 @@
             variance = dot_product(Ys,Kv)/m_t
 !
             detR = 0.0d0
-            sign = 1.0d0
+            sign = 1
             do i=1,m_t
                 ! if (diagA(i).le.0) sign=sign*(-1)
                 detR = detR + log(abs(diagA(i)))
