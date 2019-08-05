@@ -12,9 +12,15 @@
 !***********************************************************************
         SUBROUTINE matern(dh, m, d1, d2)
             use globvar
+#include "stdalloc.fh"
             integer d1,d2,i
-            REAL*8 b(d1,d2),a,d,d0(d1,d2),dh(d1,d2),m(d1,d2)
+            REAL*8 a,d,dh(d1,d2),m(d1,d2)
+            REAL*8, Allocatable :: b(:,:), d0(:,:)
             INTEGER*8 c
+!
+            Call mma_Allocate(b,d1,d2,label="b")
+            Call mma_Allocate(d0,d1,d2,label="d0")
+!
 ! For this expresion you can check https://en.wikipedia.org/wiki/Mat%C3%A9rn_covariance_function
 ! and equations (11) and (12) on ref.
             d0 = sqrt(dh)
@@ -26,13 +32,24 @@
                 d=DBLE(i)
                 b = b + (Gamma(pAI+1.0D0+d)/(Gamma(d+1.D0)*Gamma(pAI+1.0D0-d)))*(2.0D0*Sqrt(2.0D0*pAI+1.0D0)*d0)**(pAI-i)
             enddo
-                m = a*b*exp(-sqrt(2.0D0*pAI+1)*d0)
+            m = a*b*exp(-sqrt(2.0D0*pAI+1)*d0)
+!
+            Call mma_deallocate(b)
+            Call mma_deallocate(d0)
+!
         END
 
         SUBROUTINE matderiv(nd, d, m, d1, d2)
             use globvar
+#include "stdalloc.fh"
             integer nd,d1,d2,p0,k
-            real*8 nr,kr,a,b(d1,d2),dh(d1,d2),d(d1,d2),m(d1,d2),c(d1,d2),t
+            real*8 nr,kr,a,d(d1,d2),m(d1,d2),t
+            real*8, Allocatable :: b(:,:), dh(:,:), c(:,:)
+!
+            Call mma_Allocate(b,d1,d2,label="b")
+            Call mma_Allocate(dh,d1,d2,label="dh")
+            Call mma_Allocate(c,d1,d2,label="c")
+!
             m = 0
             if (anMd) then
                 p0=int(pAI)
@@ -94,4 +111,9 @@
                 enddo
                 m = a*b*DBLE((-1)**(nr+1))
             endif
+!
+            Call mma_deAllocate(b)
+            Call mma_deAllocate(dh)
+            Call mma_deAllocate(c)
+!
         END
