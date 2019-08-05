@@ -22,10 +22,8 @@
 !
         Call mma_Allocate(x,nInter,nPoints,Label="x")
         Call mma_Allocate(dy,nInter*nPoints,Label="dy")
-        Call mma_Allocate(y,nInter,Label="y")
+        Call mma_Allocate(y,nPoints,Label="y")
         Call mma_Allocate(nx,nInter,1,Label="nx")
-        Call mma_Allocate(nx_SaveG,nInter,1,Label="nx_SaveG")
-        Call mma_Allocate(nx_SaveH,nInter,1,Label="nx_SaveH")
 !m_t is the dimentionality of the square correlation matrix Gradient-Psi
 ! (equation (2) on:
 !-------- ref. = DOI 10.1007/s00366-015-0397-y)-------
