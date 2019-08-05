@@ -12,10 +12,17 @@
 !***********************************************************************
         SUBROUTINE predict(gh,iter,nInter)
             use globvar
-            real*8 B(m_t),tsum!,ddottemp(npx)!,tcv(npx,m_t)
-            real*8 A(m_t,m_t)!AF contains the factors L and U from the factorization A = P*L*U as computed by DGETRF
-            integer IPIV(m_t),INFO
+#include "stdalloc.fh"
+            real*8 tsum
+            integer INFO
             integer i,j,iter,nInter,gh ! ipiv the pivot indices that define the permutation matrix
+            real*8, Allocatable :: B(:), A(:,:)
+            integer, Allocatable :: IPIV(:)
+!
+            Call mma_allocate(B,m_t,label="B")
+            !A contains the factors L and U from the factorization A = P*L*U as computed by DGETRF
+            Call mma_allocate(A,m_t,m_t,label="A")
+            Call mma_allocate(IPIV,m_t,label="IPIV")
 !
             do j=1,npx
                 if (gh.eq.0) then
@@ -76,4 +83,9 @@
                     endif
                 endif
             enddo
+!
+            Call mma_deallocate(B)
+            Call mma_deallocate(A)
+            Call mma_deallocate(IPIV)
+!
         END
