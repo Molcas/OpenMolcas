@@ -652,6 +652,7 @@ C And the same for the Dyson amplitudes
        IPRDZ=0
        IFANYD=0
        DO IPROP=1,NPROP
+        IF(PTYPE(IPROP)(5:8).NE.'SING') CYCLE
         IF(IPUSED(IPROP).NE.0) THEN
          IF(PNAME(IPROP).EQ.'MLTPL  1') THEN
           IFANYD=1
@@ -1371,6 +1372,7 @@ C And the same for the Dyson amplitudes
 
         IFANYD=0
         DO IPROP=1,NPROP
+          IF(PTYPE(IPROP)(5:8).NE.'SING') CYCLE
           IF(PNAME(IPROP).EQ.'MLTPL  1') THEN
            IF(ICOMP(IPROP).EQ.1) IPRDX=IPROP
            IF(ICOMP(IPROP).EQ.2) IPRDY=IPROP
@@ -1552,6 +1554,7 @@ C And the same for the Dyson amplitudes
 
         IFANYD=0
         DO IPROP=1,NPROP
+          IF(PTYPE(IPROP)(5:8).NE.'SING') CYCLE
           IF(PNAME(IPROP).EQ.'MLTPL  1') THEN
            IF(ICOMP(IPROP).EQ.1) IPRDX=IPROP
            IF(ICOMP(IPROP).EQ.2) IPRDY=IPROP
@@ -1876,6 +1879,7 @@ C And the same for the Dyson amplitudes
         IFANYD=0
         IFANYM=0
         DO IPROP=1,NPROP
+          IF(PTYPE(IPROP)(5:8).NE.'SING') CYCLE
           IF (PNAME(IPROP).EQ.'MLTPL  1') THEN
            IFANYD=1
            IF(ICOMP(IPROP).EQ.1) IPRDXD=IPROP

@@ -577,20 +577,20 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *
 *                 The real part (symmetric and anti-symmetric) becomes imaginary
 *
-                  CALL SMMAT_MASKED(PROP,WORK(LTMP),NSS,'TMOM  RS',
-     &                        iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
+                  CALL SMMAT_MASKED(PROP,WORK(LTMP),NSS,IPRTMOM(0+iCar),
+     &                        0,ISS_INDEX,iMask,ISM,jMask,JSM)
                   CALL DAXPY_(NSS**2,-1.0D0,WORK(LTMP),1,WORK(LI_),1)
-                  CALL SMMAT_MASKED(PROP,WORK(LTMP),NSS,'TMOM  RA',
-     &                        iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
+                  CALL SMMAT_MASKED(PROP,WORK(LTMP),NSS,IPRTMOM(6+iCar),
+     &                        0,ISS_INDEX,iMask,ISM,jMask,JSM)
                   CALL DAXPY_(NSS**2,-1.0D0,WORK(LTMP),1,WORK(LI_),1)
 *
 *                 The imaginary part (symmetric and anti-symmetric) becomes real
 *
-                  CALL SMMAT_MASKED(PROP,WORK(LTMP),NSS,'TMOM  IS',
-     &                        iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
+                  CALL SMMAT_MASKED(PROP,WORK(LTMP),NSS,IPRTMOM(3+iCar),
+     &                        0,ISS_INDEX,iMask,ISM,jMask,JSM)
                   CALL DAXPY_(NSS**2, 1.0D0,WORK(LTMP),1,WORK(LRM_),1)
-                  CALL SMMAT_MASKED(PROP,WORK(LTMP),NSS,'TMOM  IA',
-     &                        iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
+                  CALL SMMAT_MASKED(PROP,WORK(LTMP),NSS,IPRTMOM(9+iCar),
+     &                        0,ISS_INDEX,iMask,ISM,jMask,JSM)
                   CALL DAXPY_(NSS**2, 1.0D0,WORK(LTMP),1,WORK(LRM_),1)
 *
 *              (2) the spin-dependent part, magnetic
@@ -635,13 +635,13 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *                 but so does wavevector, so the net result is the opposite.
 *
                   IF (iCar.EQ.1) THEN
-                     CALL SMMAT_MASKED(PROP,WORK(LTMP),NSS,'TMOM0  R',
+                     CALL SMMAT_MASKED(PROP,WORK(LTMP),NSS,IPRTMOM(13),
      &                           iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
                      CALL DAXPY_(NSS**2, wavevector(2)*cst,
      &                           WORK(LTMP),1,WORK(LDXIM+2*NSS**2),1)
                      CALL DAXPY_(NSS**2,-wavevector(3)*cst,
      &                           WORK(LTMP),1,WORK(LDXIM+1*NSS**2),1)
-                     CALL SMMAT_MASKED(PROP,WORK(LTMP),NSS,'TMOM0  I',
+                     CALL SMMAT_MASKED(PROP,WORK(LTMP),NSS,IPRTMOM(14),
      &                           iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
                      CALL DAXPY_(NSS**2,-wavevector(2)*cst,
      &                           WORK(LTMP),1,WORK(LDXR+2*NSS**2),1)
@@ -651,26 +651,26 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 *                    For the y-component we have to interchange the real and
 *                    the imaginary components. The real component gets a
 *                    minus sign due to the product i*i=-1
-                     CALL SMMAT_MASKED(PROP,WORK(LTMP),NSS,'TMOM0  I',
+                     CALL SMMAT_MASKED(PROP,WORK(LTMP),NSS,IPRTMOM(14),
      &                               iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
                      CALL DAXPY_(NSS**2,-wavevector(3)*cst,
      &                           WORK(LTMP),1,WORK(LDXI+0*NSS**2),1)
                      CALL DAXPY_(NSS**2, wavevector(1)*cst,
      &                           WORK(LTMP),1,WORK(LDXI+2*NSS**2),1)
-                     CALL SMMAT_MASKED(PROP,WORK(LTMP),NSS,'TMOM0  R',
+                     CALL SMMAT_MASKED(PROP,WORK(LTMP),NSS,IPRTMOM(13),
      &                           iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
                      CALL DAXPY_(NSS**2,-wavevector(3)*cst,
      &                           WORK(LTMP),1,WORK(LDXRM+0*NSS**2),1)
                      CALL DAXPY_(NSS**2, wavevector(1)*cst,
      &                           WORK(LTMP),1,WORK(LDXRM+2*NSS**2),1)
                   ELSE IF (iCar.EQ.3) THEN
-                     CALL SMMAT_MASKED(PROP,WORK(LTMP),NSS,'TMOM0  R',
+                     CALL SMMAT_MASKED(PROP,WORK(LTMP),NSS,IPRTMOM(13),
      &                           iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
                      CALL DAXPY_(NSS**2, wavevector(1)*cst,
      &                           WORK(LTMP),1,WORK(LDXIM+1*NSS**2),1)
                      CALL DAXPY_(NSS**2,-wavevector(2)*cst,
      &                           WORK(LTMP),1,WORK(LDXIM+0*NSS**2),1)
-                     CALL SMMAT_MASKED(PROP,WORK(LTMP),NSS,'TMOM0  I',
+                     CALL SMMAT_MASKED(PROP,WORK(LTMP),NSS,IPRTMOM(14),
      &                           iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
                      CALL DAXPY_(NSS**2,-wavevector(1)*cst,
      &                           WORK(LTMP),1,WORK(LDXR+1*NSS**2),1)

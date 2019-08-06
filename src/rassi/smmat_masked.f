@@ -8,10 +8,9 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE SMMAT_MASKED(PROP,PRMAT,NSS,PRLBL,IPRCMP,ISS_INDEX,
+      SUBROUTINE SMMAT_MASKED(PROP,PRMAT,NSS,ISONUM,ISPINCMP,ISS_INDEX,
      &                        IST,INUM,JST,JNUM)
       IMPLICIT REAL*8 (A-H,O-Z)
-      CHARACTER*(*) PRLBL
       DIMENSION PRMAT(NSS,NSS)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -30,34 +29,34 @@
       REAL*8, EXTERNAL :: DCLEBS
 *
       IPRNUM=-1
+      IPRCMP=0
 C IFSPIN takes values the values 0,1,2
 C 0 = spin free property
 C 1 = spin operator (S)
 C 2 = spin dependent property, triplet operator
       IFSPIN=0
 
-      DO IPROP=1,NPROP
-         IF (PRLBL.EQ.PNAME(IPROP)) THEN
-            IF (PRLBL(1:5).eq.'TMOM0') THEN
-               IFSPIN=2
+      IF (ISONUM.EQ.0) THEN
+         IPRNUM=0
+         IFSPIN=1
+         IPRCMP=ISPINCMP
+      ELSE
+         DO IPROP=1,NPROP
+            IF ((PNAME(IPROP).EQ.SOPRNM(ISONUM)).AND.
+     &          (PTYPE(IPROP).EQ.SOPRTP(ISONUM)).AND.
+     &          (ICOMP(IPROP).EQ.ISOCMP(ISONUM))) THEN
                IPRNUM=IPROP
-               EXIT
-            ELSE
-               IFSPIN=0
-               IF (IPRCMP.EQ.ICOMP(IPROP)) THEN
-                  IPRNUM=IPROP
-                  EXIT
+               IF (PNAME(IPRNUM)(1:5).EQ.'TMOM0') THEN
+                  IFSPIN=2
+                  IPRCMP=ISPINCMP
                END IF
+               EXIT
             END IF
-         ELSE IF (PRLBL(1:4).EQ.'SPIN') THEN
-            IFSPIN=1
-            IPRNUM=0
-            EXIT
-         END IF
-      END DO
+         END DO
+      END IF
       IF (IPRNUM.EQ.-1) THEN
-         Write (6,*) 'SMMAT_MASKED, Abend IPRNUM.EQ.-1'
-         Write (6,*) 'SMMAT_MASKED, PRLBL=','>',PRLBL,'<'
+         Write (6,*) TRIM(ROUTINE),', Abend IPRNUM.EQ.-1'
+         Write (6,*) TRIM(ROUTINE),', PRLBL=','>',PNAME(ISONUM),'<'
          Call Abend()
       ENDIF
 

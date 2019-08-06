@@ -8,9 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE SMMAT(PROP,PRMAT,NSS,PRLBL,IPRCMP)
+      SUBROUTINE SMMAT(PROP,PRMAT,NSS,ISONUM,ISPINCMP)
       IMPLICIT REAL*8 (A-H,O-Z)
-      CHARACTER*(*) PRLBL
       DIMENSION PRMAT(NSS,NSS)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -25,28 +24,38 @@
       DIMENSION PROP(NSTATE,NSTATE,NPROP)
       REAL*8, EXTERNAL :: DCLEBS
 *
-      IPRNUM=0
+      IPRNUM=-1
+      IPRCMP=0
 C IFSPIN takes values the values 0,1,2
 C 0 = spin free property
 C 1 = spin operator (S)
 C 2 = spin dependent property, triplet operator
       IFSPIN=0
 
-      DO IPROP=1,NPROP
-        IF (PRLBL.EQ.PNAME(IPROP)) THEN
-           IFSPIN=0
-           IF(IPRCMP.EQ.ICOMP(IPROP)) IPRNUM=IPROP
-        ELSE IF (PRLBL(1:4).EQ.'SPIN') THEN
-           IFSPIN=1
-        ELSE IF (PRLBL(1:5).EQ.'TMOM0') THEN
-           IFSPIN=2
-*
-*          Note that the integral is complex. Select the real or the
-*          imaginary component here.
-*
-           IF (PRLBL(1:8).EQ.PNAME(IPROP)) IPRNUM=IPROP
-        END IF
-      END DO
+      IF (ISONUM.EQ.0) THEN
+         IPRNUM=0
+         IFSPIN=1
+         IPRCMP=ISPINCMP
+      ELSE
+         DO IPROP=1,NPROP
+            IF ((PNAME(IPROP).EQ.SOPRNM(ISONUM)).AND.
+     &          (PTYPE(IPROP).EQ.SOPRTP(ISONUM)).AND.
+     &          (ICOMP(IPROP).EQ.ISOCMP(ISONUM))) THEN
+               IPRNUM=IPROP
+               IF (PNAME(IPRNUM)(1:5).EQ.'TMOM0') THEN
+                  IFSPIN=2
+                  IPRCMP=ISPINCMP
+               END IF
+               EXIT
+            END IF
+         END DO
+      END IF
+      IF (IPRNUM.EQ.-1) THEN
+         Write (6,*) TRIM(ROUTINE),', Abend IPRNUM.EQ.-1'
+         Write (6,*) TRIM(ROUTINE),', PRLBL=','>',PNAME(ISONUM),'<'
+         Call Abend()
+      ENDIF
+
 C Mapping from spin states to spin-free state and to spin:
       ISS=0
       DO ISTATE=1,NSTATE
