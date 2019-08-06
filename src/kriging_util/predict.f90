@@ -26,7 +26,7 @@
 !
             do j=1,npx
                 if (gh.eq.0) then
-! ---------------calculations for  dispersion ----------------------------
+                    ! calculations of Energy and dispersion
                     ! ----------------Old calculations --P1
                     A = full_R
                     B = CV(:,j,1,1)
@@ -43,46 +43,43 @@
                     B = cv(:,j,1,1)
                     var(j)=var(j)+(1-dot_product(B,rones))**2/tsum
                     sigma(j)=1.96D0*sqrt(abs(var(j)*variance))
-! -------------------------------
-! -----Predictiong the Energy
                     pred(j) = sb + dot_product(B,Kv)
-                !   write(6,*) 'pred:',pred(j)
-                !   write(6,*) 'var:',var
-                !   write(6,*) 'variance',variance
-                !   write(6,*) 'sigma',sigma,'lh',lh
-                !   write(6,*) 'tcv(j,:)',B
-                !   write(6,*) 'Kv',Kv
-                else
-                    if (gh.eq.1) then
-                        ! sigma(j)=1.96*sqrt(2*abs(var*variance))
-                        do k=1,nInter
-                            B = cv(:,j,k,1)
-                            gpred(j,k) = dot_product(B,Kv)
-                            ! write(6,*) 'pred Grad:',k,j,l,gpred(j,k), &
-                            !     var,variance,sigma, lh,tcv
-                        enddo
+                    !   write(6,*) 'pred:',pred(j)
+                    !   write(6,*) 'var:',var
+                    !   write(6,*) 'variance',variance
+                    !   write(6,*) 'sigma',sigma,'lh',lh
+                    !   write(6,*) 'tcv(j,:)',B
+                    !   write(6,*) 'Kv',Kv
+                else if (gh.eq.1) then
+                    ! Predicting the gradient gh = 1
+                    ! Write (6,*) 'Pred: Kv=',Kv
+                    do k=1,nInter
+                        B = cv(:,j,k,1)
+                        ! Write (6,*) 'Pred: B=',B
+                        gpred(j,k) = dot_product(B,Kv)
+                        ! write(6,*) 'pred Grad:',k,j,l,gpred(j,k), &
+                        !     var,variance,sigma, lh,tcv
+                    enddo
                     !   write(6,*) 'final cv', cv(:,:,:,1)
                     !   write(6,*) 'final Kv',kv
                     !   write (6,*) 'pred grad(gpred):',gpred
-                    else
-                        ! sigma(j)=1.96*sqrt(2*abs(var*variance))
-                        ! write(6,*) 'kv: ',kv
-! Predicting the Hessian gh = 2
-                        do k=1,nInter
-                            do i=1,nInter
-                                B = cv(:,j,i,k)
-                                ! write(6,*) 'tcv', i,k,tcv
-                                !Call RecPrt('Update_: tcv',' ',tcv,npx,m_t)
-                                hpred(j,k,i) = dot_product(B, Kv)
-                                !write (6,*) 'partial hpred',hpred(j,k,i)
-                                ! write(6,*) 'pred Hess:',k,j,l,hpred(j,k), &
-                                !     var,variance,sigma, lh, tcv
-                            enddo
-                        enddo
-                        ! write (6,*) 'pred hess(hpred):',hpred
-                    endif
+                else if (gh.eq.2) then
+                    ! write(6,*) 'kv: ',kv
+                    ! Predicting the Hessian gh = 2
+                    do k=1,nInter
+                       do i=1,nInter
+                          B = cv(:,j,i,k)
+                          ! write(6,*) 'tcv', i,k,tcv
+                          !Call RecPrt('Update_: tcv',' ',tcv,npx,m_t)
+                          hpred(j,k,i) = dot_product(B, Kv)
+                          !write (6,*) 'partial hpred',hpred(j,k,i)
+                          ! write(6,*) 'pred Hess:',k,j,l,hpred(j,k), &
+                          !     var,variance,sigma, lh, tcv
+                       enddo
+                    enddo
+                    ! write (6,*) 'pred hess(hpred):',hpred
                 endif
-            enddo
+            enddo ! j=1, npx
 !
             Call mma_deallocate(B)
             Call mma_deallocate(A)

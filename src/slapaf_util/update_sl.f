@@ -210,6 +210,7 @@ c Avoid unused argument warnings
 *
 *define _DEFAULT_
 #ifdef _DEFAULT_
+*           Write (*,*) 'Default'
             Call DScal_(nInter*nRaw,-One,Grad(1,iFirst),1)
             Call Start_Kriging(nRaw,nInter,
      &                            qInt(1,iFirst),
@@ -218,6 +219,12 @@ c Avoid unused argument warnings
             Call DScal_(nInter*nRaw,-One,Grad(1,iFirst),1)
 #else
 *
+*           Sort the data so that it some in an order of the points
+*           closest to the last point. Make sure that the reference
+*           point is the last point such that is always will define
+*           the reference point. This is improtant when the bias is
+*           defined relative to the last points energy.
+*
 *           This code will have to be cleanup up later.
 *
             ipCx_Ref=ipCx + (iter-1)*(3*nsAtom)
@@ -225,16 +232,17 @@ c Avoid unused argument warnings
             Call GetMem('Grad','ALLO','REAL',ip_Grad,nRaw*nInter)
             Call GetMem('Energy','ALLO','REAL',ip_Energy,nRaw)
 *
-            Call DCopy_(nInter,qInt(1,iter),1,Work(ip_qInt),1)
-            Call DCopy_(nInter,Grad(1,iter),1,Work(ip_Grad),1)
-            Work(ip_Energy)=Energy(iter)
+            iOff = (nRaw-1)*nInter
+            Call DCopy_(nInter,qInt(1,iter),1,Work(ip_qInt+iOff),1)
+            Call DCopy_(nInter,Grad(1,iter),1,Work(ip_Grad+iOff),1)
+            Work(ip_Energy+(nRaw-1))=Energy(iter)
 *
 *           Pick up the coordinates in descending order with the ones
 *           that are the closest to the current structure.
 *
             Thr_low = 0.0D0
             Thr_high= 99.0D0
-            Do iRaw = 2, nRaw
+            Do iRaw = nRaw-1, 1, -1
 *
                kter=-1
                Do jter = 1, iter-1

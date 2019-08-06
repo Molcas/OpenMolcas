@@ -65,24 +65,25 @@
             sbO = dot_product(y,B(1:iter))/sum(B(1:iter))
             if (blaAI) then
                 sb = y(iter) + blavAI
+            else if (mblAI) then
+                sb = sbmev
+            else if (blAI) Then
+                sb = blvAI
             else
-                if (mblAI) then
-                    sb = sbmev
-                else
-                    if (blAI) Then
-                        sb = blvAI
-                    else
-                        sb = sbO
-                    endif
-                endif
+                 sb = sbO
             endif
-            ! Write (6,*) 'sb ',sb
+!           Write (6,*) 'K: sb=',sb
+!           Write (6,*) 'K: y=',y
+!           Write (6,*) 'K: dy=',dy
 !
             B = [y-sb,dy]
 !
             Ys = B
 ! ----------------Old calculations --K2
             A=full_r
+!           Write (6,*) 'K: y=',y
+!           Write (6,*) 'K: B=',B
+!           Write (6,*) 'K: A=',A
             CALL DGESV_(m_t,1,A,m_t,IPIV,B,m_t,INFO)
             Kv=b
 !-----------------New
