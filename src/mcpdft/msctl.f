@@ -604,6 +604,7 @@ c         call xflush(6)
           Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,itsDisk)
         end do
         Call DDaFile(JOBOLD,2,Work(iD1Act_FA),NACPAR,itsDisk)
+        IF ( NASH(1).NE.NAC ) CALL DBLOCK_m(Work(iD1Act_FA))
         Call Get_D1A_RASSCF_m(CMO,Work(iD1Act_FA),Work(iD1ActAO_FA))
 *****
         Call GetMem('lcmo','ALLO','Real',lcmo,ntot2)
