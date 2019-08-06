@@ -13,7 +13,7 @@
         SUBROUTINE k(iter)
             use globvar
 #include "stdalloc.fh"
-            real*8, Allocatable:: B(:), A(:,:), diagA(:), iden(:,:), Ys(:)
+            real*8, Allocatable:: B(:), A(:,:), diagA(:), iden(:,:)
             Integer, Allocatable:: IPIV(:)
             integer INFO,iter,sign ! ipiv the pivot indices that define the permutation matrix
 !
@@ -22,7 +22,6 @@
             Call mma_Allocate(diagA,m_t,Label="diagAB")
             Call mma_Allocate(iden,m_t,m_t,Label="iden")
             Call mma_Allocate(IPIV,m_t,Label="IPIV")
-            Call mma_Allocate(Ys,m_t,Label="Ys")
 !
 ! Initiate B according to Eq. (6) of ref.
             B=0.0D0
@@ -77,20 +76,18 @@
 !           Write (6,*) 'K: dy=',dy
 !
             B = [y-sb,dy]
-!
-            Ys = B
 ! ----------------Old calculations --K2
             A=full_r
 !           Write (6,*) 'K: y=',y
 !           Write (6,*) 'K: B=',B
 !           Write (6,*) 'K: A=',A
-            CALL DGESV_(m_t,1,A,m_t,IPIV,B,m_t,INFO)
-            Kv=b
+            Kv=B
+            CALL DGESV_(m_t,1,A,m_t,IPIV,Kv,m_t,INFO)
 !-----------------New
             ! Kv = matmul(B,full_Rinv)
 !------------------------------------
 !Likelihood function
-            variance = dot_product(Ys,Kv)/m_t
+            variance = dot_product(B,Kv)/m_t
 !
             detR = 0.0d0
             sign = 1
@@ -102,7 +99,6 @@
             lh = variance*exp(detR/dble(m_t))
 !
             ! write(6,*) 'detR',detR
-            ! write(6,*) 'Ys:',Ys
             ! write(6,*) 'Kv:',Kv
             ! write(6,*) 'Variance:',variance
             ! write(6,*) 'm_t',m_t
@@ -113,5 +109,4 @@
             Call mma_Deallocate(diagA)
             Call mma_Deallocate(iden)
             Call mma_Deallocate(IPIV)
-            Call mma_Deallocate(Ys)
         END SUBROUTINE k
