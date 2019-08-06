@@ -296,18 +296,25 @@ c Avoid unused argument warnings
 *           ab inito value with the GEK prediction of the gradient.
 *
             Call Get_dScalar('Value_l',Value_l)
+*           Write (6,*) 'Pull l value:',Value_l
             If (iter.gt.nspAI) Then
                iOld=iFirst+nRaw-2
                xxx=DDot_(nInter,Grad(1,iOld),1,Grad(1,iOld),1)
                iNew=iFirst+nRaw-1
                yyy=DDot_(nInter,Grad(1,iNew),1,Grad(1,iNew),1)
-               If (yyy.gt.xxx) Value_l=Value_l * 0.95D0
+*              Write (*,*) 'yyy,xxx=',yyy,xxx
+               If (yyy.gt.xxx) Then
+                  Value_l=Value_l * 0.95D0
+               Else
+                  Value_l=Value_l * 1.05D0
+               End If
 *
 *              Update the restricted variance threshold.
 *
 *              Beta_Disp=Max(Abs(Energy(iNew)-Energy(iOld)),
 *    &                       1.0D-6)
             End If
+*           Write (6,*) 'Modified l value:',Value_l
 *
 *           Single_l_value=.True.
             Single_l_value=.False.
@@ -553,6 +560,7 @@ c Avoid unused argument warnings
             If (Step_trunc.eq.'*') Then
                Call Get_dScalar('Value_l',Value_l)
                Value_l=Value_l * 0.95D0
+*              Write (6,*) ' Set l value to:',Value_l
                Call Put_dScalar('Value_l',Value_l)
             End If
 *
