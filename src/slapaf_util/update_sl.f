@@ -100,6 +100,7 @@
 *
       Logical Kriging_Hessian, Not_Converged, Single_l_value
       Real*8, Allocatable:: Array_l(:)
+      Real*8, Allocatable:: Energy_s(:), qInt_s(:,:), Grad_s(:,:)
 *define _TEST_KRIGING_
 #ifdef _TEST_KRIGING_
       Real*8, Allocatable:: dq(:), dqvalue(:,:)
@@ -208,9 +209,9 @@ c Avoid unused argument warnings
 *           Note that we could have some kind of sorting here if we
 *           like!
 *
-*define _DEFAULT_
-#ifdef _DEFAULT_
-*           Write (*,*) 'Default'
+*define _UNSORTED_
+#ifdef _UNSORTED_
+            Write (6,*) 'Unsorted'
             Call DScal_(nInter*nRaw,-One,Grad(1,iFirst),1)
             Call Start_Kriging(nRaw,nInter,
      &                            qInt(1,iFirst),
@@ -228,14 +229,13 @@ c Avoid unused argument warnings
 *           This code will have to be cleanup up later.
 *
             ipCx_Ref=ipCx + (iter-1)*(3*nsAtom)
-            Call GetMem('qInt','ALLO','REAL',ip_qInt,nRaw*nInter)
-            Call GetMem('Grad','ALLO','REAL',ip_Grad,nRaw*nInter)
-            Call GetMem('Energy','ALLO','REAL',ip_Energy,nRaw)
+            Call mma_Allocate(Energy_s,nRaw,Label="Energy_s")
+            Call mma_Allocate(qInt_s,nInter,nRaw,Label="qInt_s")
+            Call mma_Allocate(Grad_s,nInter,nRaw,Label="Grad_s")
 *
-            iOff = (nRaw-1)*nInter
-            Call DCopy_(nInter,qInt(1,iter),1,Work(ip_qInt+iOff),1)
-            Call DCopy_(nInter,Grad(1,iter),1,Work(ip_Grad+iOff),1)
-            Work(ip_Energy+(nRaw-1))=Energy(iter)
+            Call DCopy_(nInter,qInt(1,iter),1,qInt_s(1,nRaw),1)
+            Call DCopy_(nInter,Grad(1,iter),1,Grad_s(1,nRaw),1)
+            Energy_s(nRaw)=Energy(iter)
 *
 *           Pick up the coordinates in descending order with the ones
 *           that are the closest to the current structure.
@@ -268,30 +268,28 @@ c Avoid unused argument warnings
                If (kter.eq.-1) Then
                   Write (6,*) 'kter not set!'
                Else
-                  Call DCopy_(nInter,qInt(1,kter),1,
-     &                               Work(ip_qInt+(iraw-1)*nInter),1)
-                  Call DCopy_(nInter,Grad(1,kter),1,
-     &                               Work(ip_Grad+(iraw-1)*nInter),1)
-                  Work(ip_Energy+(iraw-1))=Energy(kter)
+                  Call DCopy_(nInter,qInt(1,kter),1,qInt_s(1,iRaw),1)
+                  Call DCopy_(nInter,Grad(1,kter),1,Grad_s(1,iRaw),1)
+                  Energy_s(iRaw)=Energy(kter)
                   Thr_low=Thr_high
                   Thr_high= 99.0D0
                End If
             End Do
 #ifdef _DEBUG_
-            Call RecPrt('qInt(s)',  ' ',Work(ip_qInt),nInter,nRaw)
-            Call RecPrt('Energy(s)',' ',Work(ip_Energy),1,nRaw)
-            Call RecPrt('Grad(s)',  ' ',Work(ip_Grad),nInter,nRaw)
+            Call RecPrt('qInt_s(s)',  ' ',qInt_s,nInter,nRaw)
+            Call RecPrt('Energy_s(s)',' ',Energy_s,1,nRaw)
+            Call RecPrt('Grad_s(s)',  ' ',Grad_s,nInter,nRaw)
 #endif
 *
-            Call DScal_(nInter*nRaw,-One,Work(ip_Grad),1)
+            Call DScal_(nInter*nRaw,-One,Grad_s,1)
             Call Start_Kriging(nRaw,nInter,
-     &                            Work(ip_qInt),
-     &                            Work(ip_Grad),
-     &                            Work(ip_Energy))
+     &                            qInt_s,
+     &                            Grad_s,
+     &                            Energy_s)
 *
-            Call GetMem('Energy','FREE','REAL',ip_Energy,nRaw)
-            Call GetMem('Grad','FREE','REAL',ip_Grad,nRaw*nInter)
-            Call GetMem('qInt','FREE','REAL',ip_qInt,nRaw*nInter)
+            Call mma_deAllocate(Energy_s)
+            Call mma_deAllocate(qInt_s)
+            Call mma_deAllocate(Grad_s)
 #endif
 *
 *           Update the l value dynamically. Here we compare the actual,
