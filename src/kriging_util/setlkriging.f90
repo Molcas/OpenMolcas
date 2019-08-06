@@ -30,11 +30,3 @@
             call k(nPoints_save)
 !           write (6,*) 'set l value, lh:',l(1)
         END SUBROUTINE setlkriging
-
-        subroutine miden(iden,msize)
-            !use globvar
-            integer j,msize
-            real*8 iden(msize,msize)
-            iden=0
-            forall(j=1:msize) iden(j,j)=1
-        end subroutine
