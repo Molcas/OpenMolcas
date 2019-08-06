@@ -25,7 +25,7 @@
       Implicit Real*8 (a-h,o-z)
 #include "stdalloc.fh"
       Integer nInter
-      Real*8 q(nInter), dq(nInter), y(1)
+      Real*8 q(nInter), dq(nInter)
       Real*8, Allocatable:: qNext(:)
 *
 *define _DEBUG_
@@ -40,7 +40,7 @@
 #endif
       Restriction_Dispersion=0.0D0
       Call Dispersion_Kriging(qNext,y,nInter)
-      Restriction_Dispersion=y(1)**2
+      Restriction_Dispersion=y**2
       Call mma_Deallocate(qNext)
 *
       Return

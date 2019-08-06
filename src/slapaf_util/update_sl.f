@@ -89,7 +89,7 @@
       Real*8 qInt(nInter,MaxItr), Shift(nInter,MaxItr),
      &       Grad(nInter,MaxItr), GNrm(MaxItr), Energy(MaxItr),
      &       BMx(3*nsAtom,3*nsAtom), rLambda(nLambda,MaxItr),
-     &       dMass(nsAtom), Degen(3*nsAtom), dEner, Dummy(1)
+     &       dMass(nsAtom), Degen(3*nsAtom), dEner
       Integer iOper(0:nSym-1), jStab(0:7,nsAtom), nStab(nsAtom),
      &        iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
@@ -350,7 +350,7 @@ c Avoid unused argument warnings
                   Call Abend()
                End If
                Call Dispersion_Kriging(qInt(1,i),Dummy,nInter)
-               E_Disp = Dummy(1)
+               E_Disp = Dummy
 *              Write (6,*) 'E_Disp=',E_disp
                If (E_disp.gt.ThrT) Then
                   Write (6,*) 'Kriging error in dispersion'
@@ -504,7 +504,7 @@ c Avoid unused argument warnings
                Call Energy_Kriging(qInt(1,iterAI+1),Energy(iterAI+1),
      &                             nInter)
                Call Dispersion_Kriging(qInt(1,iterAI+1),Dummy,nInter)
-               E_Disp = Dummy(1)
+               E_Disp = Dummy
 *              Write (6,*) 'E_Disp=',E_disp
                Call Gradient_Kriging(qInt(1,iterAI+1),Grad(1,iterAI+1),
      &                               nInter)
