@@ -182,25 +182,6 @@ c Copy the EF2 integral label for hyperfine calculations
 110   CONTINUE
       NPRPLST=IPRP
 *
-C Dirty fix (like this routine) for SMQ (spin-magnetic-quadrupole moment)
-C There is no integrals for this operator
-C but because of the reassemble of PNAME we just pretend
-C operator integral is constructed from dipole and AMFI integrals (see prprop)
-      DO IPROP=1,NPROP
-         IF (PNAME(IPROP).EQ.'SMQ') THEN
-            DO I =1,9 ! Assume all
-               IPRP=IPRP+1
-               LABEL = 'SMQ'
-               PRPLST(IPRP)=LABEL
-               ICMPLST(IPRP)=I
-               IPUSED(IPRP)=0
-            END DO
-            EXIT
-         END IF
-      END DO
-      NPRPLST=IPRP
-C End dirty fix
-*
 *     Add empty slots for on-the-fly TM integrals.
 *
 *     If the RASSI code is run several instances on the same job some
