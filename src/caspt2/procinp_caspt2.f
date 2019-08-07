@@ -365,6 +365,7 @@ C     really parallel or not.
      &           .AND.(.NOT.Input % NoMult)
       IFDW   = Input % DWMS
       IFRXMS = Input % RXMS
+      IFEFOCK = Input % EFOC
 
 * Choice? of preprocessing route
       ORBIN='TRANSFOR'

@@ -39,15 +39,12 @@
 
 * Compute weights for constructing H0
         IF (IFDW) THEN
-          ! EBETA = REFENE(ISTATE)
           EBETA = HAM(ISTATE,ISTATE)
 * Compute normalization factor
           DO JSTATE=1,NSTATE
-            ! EALPHA = REFENE(JSTATE)
             EALPHA = HAM(JSTATE,JSTATE)
             FAC = 0.0D0
             DO KSTATE=1,NSTATE
-              ! EGAMMA = REFENE(KSTATE)
               EGAMMA = HAM(KSTATE,KSTATE)
               FAC = FAC + EXP(-ZETA*(EALPHA - EGAMMA)**2)
             END DO
@@ -66,9 +63,14 @@
       END DO
 
 
-      IF (IPRGLB.GE.USUAL) THEN
+      IF (IFDW) THEN
         WRITE(6,*)
-        WRITE(6,*)' DW calculation with weights:'
+        WRITE(6,*)' *****This is a DW calculation*****'
+        IF (IFEFOCK) THEN
+          WRITE(6,*)' Weights calculated with E_FOCK:'
+        ELSE
+          WRITE(6,*)' Weights calculated with E_CASSCF:'
+        END IF
         DO I=1,NSTATE
           WRITE(6,'(1x,10f8.4)')(WORK(LDWGT + (I-1) + NSTATE*(J-1)),
      &    J=1,NSTATE)

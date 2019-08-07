@@ -44,6 +44,8 @@ C types, which are not supported with stdalloc. Hence, the infraction.
 !     DWMS      dynamically-weighted MS-CASPT2
       Logical :: DWMS = .False.
       Integer :: ZETA = 0
+!     EFOC      uses rotated E_0 energies with DWMS
+      Logical :: EFOC = .False.
 !     LROO      compute only a single root, mutually exclusive
 !               with both MULT or XMUL
       Logical :: LROO = .False.
@@ -315,6 +317,9 @@ C end of input
       Input % DWMS = .True.
       If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
       Read(Line,*,Err=9920,End=9920) Input % ZETA
+
+      Case('EFOC')
+      Input % EFOC = .True.
 
       Case('LROO')
       Input % LROO = .True.
