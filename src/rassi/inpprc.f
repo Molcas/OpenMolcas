@@ -296,6 +296,8 @@ C
                IF (PRPLST(IPRP).eq.'MLTPL  0' .or.
      &             PRPLST(IPRP).eq.'MLTPL  1' .or.
      &             PRPLST(IPRP).eq.'MLTPL  2' .or.
+     &             PRPLST(IPRP).eq.'MLTPL  3' .or.
+     &             PRPLST(IPRP).eq.'OMQ     ' .or.
      &             PRPLST(IPRP).eq.'ANGMOM' .or.
      &             PRPLST(IPRP)(1:4).eq.'TMOM' .or.
      &             PRPLST(IPRP).eq.'VELOCITY' .or.
@@ -310,6 +312,8 @@ C default to a Hermitian singlet reduced density.
                   IF (PRPLST(IPRP).EQ.'ANGMOM'  ) THEN
                      SOPRTP(NSOPR)='ANTISING'
                   ELSE IF (PRPLST(IPRP).EQ.'VELOCITY'  ) THEN
+                     SOPRTP(NSOPR)='ANTISING'
+                  ELSE IF (PRPLST(IPRP).EQ.'OMQ     '  ) THEN
                      SOPRTP(NSOPR)='ANTISING'
                   ELSE IF (PRPLST(IPRP).EQ.'TMOM  RS'  ) THEN
                      SOPRTP(NSOPR)='HERMSING'
