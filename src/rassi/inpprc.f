@@ -342,12 +342,12 @@ C
                         NSOPR=NSOPR+1
                         SOPRNM(NSOPR)=PRPLST(IPRP)
                         ISOCMP(NSOPR)=ICMPLST(IPRP)
-                        SOPRTP(NSOPR)='HERMTRIP'
+                        SOPRTP(NSOPR)='ANTITRIP'
                      ELSE IF (PRPLST(IPRP).EQ.'MLTPL  1') THEN
                         NSOPR=NSOPR+1
                         SOPRNM(NSOPR)=PRPLST(IPRP)
                         ISOCMP(NSOPR)=ICMPLST(IPRP)
-                        SOPRTP(NSOPR)='HERMTRIP'
+                        SOPRTP(NSOPR)='ANTITRIP'
 C Uncomment to activate more options!!!
 C                    ELSE IF (PRPLST(IPRP).EQ.'MLTPL  2') THEN
 C                       NSOPR=NSOPR+1
