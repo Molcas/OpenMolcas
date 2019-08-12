@@ -21,6 +21,7 @@
         Call mma_deallocate(nx)
         Call mma_deallocate(dy)
         Call mma_deallocate(full_R)
+        Call mma_deallocate(full_RInv)
         Call mma_deallocate(dl)
         Call mma_deallocate(rl)
         Call mma_deallocate(Rones)

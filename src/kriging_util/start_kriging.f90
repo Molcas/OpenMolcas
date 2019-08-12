@@ -33,6 +33,7 @@
           npx = 1
 !full_R correspond to the gradient of Psi (eq. (2) ref.)
         Call mma_Allocate(full_R,m_t,m_t,Label="full_R")
+        Call mma_Allocate(full_RInv,m_t,m_t,Label="full_RInv")
 !nx is the n-dimensional vector of the last iteration cumputed in update_sl
 ! subroutine
 !x is the n-dimensional internal coordinates

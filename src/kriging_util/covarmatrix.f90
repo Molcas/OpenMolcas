@@ -31,7 +31,8 @@
             d = 0
             diffx = 0
             diffx0 = 0
-            call miden(iden,iter)
+            iden=0
+            forall(j=1:iter) iden(j,j)=1
 ! Covariant Matrix in kriging
             do i=1,nInter
                 do k=1,iter
