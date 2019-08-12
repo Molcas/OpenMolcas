@@ -807,7 +807,7 @@ A list of these keywords is given below:
 
   .. xmldoc:: <GROUP MODULE="RASSCF" NAME="Charge" KIND="BOX">
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CHARGE" LEVEL="BASIC" APPEAR="Charge" KIND="STRING" DEFAULT_VALUE="0">
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CHARGE" LEVEL="BASIC" APPEAR="Charge" KIND="INT" DEFAULT_VALUE="0">
               %%Keyword: CHARge <basic>
               <HELP>
               Specify the total charge of the system as an integer.
@@ -1397,12 +1397,12 @@ A list of these keywords is given below:
 
 :kword:`ORTH`
    Specify the orthonormalization scheme to apply on the read orbitals.
-   The possibilities are Gram_Schmidt, Lowdin, Canonical, or no_ON
+   The possibilities are ``Gram_Schmidt``, ``Lowdin``, ``Canonical``, ``or no_ON``
    (no_orthonormalization).
-   For a detailed explanation see \cite szabo_ostlund (p. 143).
+   For a detailed explanation see :cite:`szabo_ostlund` (p. 143).
    The default is Gram_Schmidt.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="ORTH" APPEAR="ORTHonormalization" LEVEL="ADVANCED" KIND="CHAR_LOOKUP">
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="ORTH" APPEAR="ORTHonormalization" LEVEL="ADVANCED" KIND="CHOICE" LIST="----,Gram_Schmidt,Lowdin,Canonical,no_ON">
               %%Keyword: ORTH <basic>
               <HELP>
               Specify the orthonormalization scheme to apply on the input orbitals.
