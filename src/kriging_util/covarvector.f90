@@ -15,9 +15,8 @@
 #include "stdalloc.fh"
             integer i,i0,i1,j,gh,iter,nInter
             real*8 sdiffx,sdiffx0,sdiffxk
-            real*8, Allocatable ::  m(:,:),diffx(:,:),diffx0(:,:), diffxk(:,:)
+            real*8, Allocatable ::  diffx(:,:),diffx0(:,:), diffxk(:,:)
 !
-            Call mma_Allocate(m,iter,npx,label="m")
             Call mma_Allocate(diffx,iter,npx,label="diffx")
             Call mma_Allocate(diffx0,iter,npx,label="diffx0")
             Call mma_Allocate(diffxk,iter,npx,label="diffxk")
@@ -93,27 +92,16 @@
                             k0 = k*iter + 1
                             k1 = k0+iter - 1
                             if (i.eq.j.and.j.eq.k) then
-                                m = (cvMatTder*diffx0**3 + 3.0D0*cvMatSder*diffx0*sdiffx0)
-                                ! write(6,*) 'i=j=k',i,j,k
-                                ! write(6,*) 'cvMatTder*diffx0**3',cvMatTder*diffx0**3
+                                cv(k0:k1,:,i,j) = (cvMatTder*diffx0**3 + 3.0D0*cvMatSder*diffx0*sdiffx0)
                             else if (i.eq.j) then
-                                m = cvMatTder*diffx0**3 + cvMatSder*diffx0*sdiffx
-                                !write(6,*) 'i=j!=k',i,j,k
+                                cv(k0:k1,:,i,j) = cvMatTder*diffx0**3 + cvMatSder*diffx0*sdiffx
                             else if (i.eq.k) then
-                                m = cvMatTder*diffxk**3 + cvMatSder*diffxk*sdiffx
-                                !write(6,*) 'i=K!=J',i,j,k
+                                cv(k0:k1,:,i,j) = cvMatTder*diffxk**3 + cvMatSder*diffxk*sdiffx
                             else if (j.eq.k) then
-                                m = cvMatTder*diffx0**3 + cvMatSder*diffxk*sdiffxk
-                                !write(6,*) 'i=j!=k',i,j,k
+                                cv(k0:k1,:,i,j) = cvMatTder*diffx0**3 + cvMatSder*diffxk*sdiffxk
                             else
-                                m = cvMatTder*diffx*diffx0*diffxk
-                                ! write(6,*) 'i!=j!=k',i,j,k
-                                ! write (6,*) m
+                                cv(k0:k1,:,i,j) = cvMatTder*diffx*diffx0*diffxk
                             endif
-                            !write(6,*) 'm',m
-                            ! m = cvMatTder * diffx*diffx0**2 + cvMatSder*(4*diffx**2/l(i) + &
-                            !     4/l(i)**2) + cvMatFder*(4/l(i)**3)
-                            cv(k0:k1,:,i,j) = m
                         enddo
                     enddo
                 enddo
@@ -125,7 +113,6 @@
             ! Write (6,*) 'CV shape: ',shape(CV)
             ! write (6,*) 'CV: ',CV
 !
-            Call mma_deallocate(m)
             Call mma_deallocate(diffx)
             Call mma_deallocate(diffx0)
             Call mma_deallocate(diffxk)
