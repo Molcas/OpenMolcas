@@ -909,7 +909,7 @@ C printing threshold
            IF(ISOCMP(ISOPR).EQ.2) IPRDY=ISOPR
            IF(ISOCMP(ISOPR).EQ.3) IPRDZ=ISOPR
           ELSE IF(SOPRNM(ISOPR).EQ.'MLTPL  0'.AND.
-     &            SOPRTP(ISOPR).EQ.'HERMTRIP') THEN
+     &            SOPRTP(ISOPR).EQ.'ANTITRIP') THEN
            IFANYS=1
            IF(ISOCMP(ISOPR).EQ.1) IPRSX=ISOPR
            IF(ISOCMP(ISOPR).EQ.2) IPRSY=ISOPR
@@ -1583,7 +1583,7 @@ C printing threshold
            IF(ISOCMP(ISOPR).EQ.9) IPRDZZ=ISOPR
 
           ELSE IF(SOPRNM(ISOPR).EQ.'MLTPL  1'.AND.
-     &            SOPRTP(ISOPR).EQ.'HERMTRIP') THEN
+     &            SOPRTP(ISOPR).EQ.'ANTITRIP') THEN
            IFANYS=1
            IF(ISOCMP(ISOPR).EQ.1) IPRSXX=ISOPR
            IF(ISOCMP(ISOPR).EQ.2) IPRSXY=ISOPR
