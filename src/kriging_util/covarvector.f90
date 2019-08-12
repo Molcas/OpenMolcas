@@ -28,32 +28,20 @@
 !           write(6,*) 'nx: ',nx
 ! Covariant Vector in kriging - First part of eq (4) in ref.
             if (gh.eq.0) then
-                ! tmat=0 ! to be removed
-                ! tmat2=0
-!               write(6,*) 'CV-rl',rl
-!               write(6,*) 'CV-d',dl
                 call defdlrl(iter,nInter)
                 call matern(dl, m, iter, npx)
                 cv(1:iter,:,1,1) = m
-!               write (6,*) 'cv-gh,m',gh,m
-                call matderiv(1, dl, m, iter, npx)
-                cvMatFder = m
-                ! call matderiv(2, dl, m, iter, npx)
-                ! cvMatSder = m
-                ! call matderiv(3, dl, m, iter, npx)
-                ! cvMatTder = m
+                call matderiv(1, dl, cvMatFDer, iter, npx)
                 do i=1,nInter
 !       1st derivatives second part of eq. (4)
                     diffx = 2.0D0*rl(:,:,i)/l(i)
                     i0 = i*iter + 1
                     i1 = i0 + iter - 1
-                    m = cvMatFder * diffx
-                    cv(i0:i1,:,1,1) = m
+                    cv(i0:i1,:,1,1) = cvMatFder * diffx
                 enddo
                 ! write (6,*) 'CV-mat',cv
-            endif
 ! Covariant vector in Gradient Enhanced Kriging
-            if(gh.ge.1) then
+            else if(gh.ge.1) then
                 ! print *,'covar vector calling deriv(2) for Kriging Gradients'
                 call defdlrl(iter,nInter)
                 call matderiv(1, dl, m, iter, npx)
@@ -81,8 +69,7 @@
                     enddo
                 enddo
                 ! Write (6,*) 'CV - Krig Grad: ',cv
-            endif
-            if(gh.eq.2) then
+            else if(gh.eq.2) then
 !                    print *,'covar vector calling deriv(3) for Kriging Hessian'
                 call defdlrl(iter,nInter)
                 ! anAI = .False.
@@ -141,6 +128,9 @@
                     enddo
                 enddo
                 !Write (6,*) 'CV - Krig Hessian: ',cv
+            else
+                Write (6,*) ' Illegal value of gh:',gh
+                Call Abend()
             endif
             ! Write (6,*) 'CV shape: ',shape(CV)
             ! write (6,*) 'CV: ',CV
