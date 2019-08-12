@@ -55,13 +55,10 @@
                 i0=i*iter+1
                 i1=i0+iter-1
                 diffx0 = -2.0D0*r(:,:,i)/l(i)
-                m = matFder*diffx0
     !  Writing the 1st row of 1st derivatives with respect the coordinates
                 full_R(1:iter,i0:i1) = matFDer*diffx0
-!               full_R(1:iter,i0:i1) = m
     !  Writing the column of derivatives
                 full_R(i0:i1,1:iter) = transpose(full_R(1:iter,i0:i1))
-!               full_R(i0:i1,1:iter) = transpose(m)
             enddo
 !
     !Matern second derivative
@@ -76,14 +73,14 @@
                     j1 = j0+iter-1
                     diffx = 2.0D0*r(:,:,j)/l(j)
                     diffx0 = -2.0D0*r(:,:,i)/l(i)
-                    m = matSder*diffx*diffx0
     !   if differentiating twice on the same dimension
-                    if (i.eq.j) m = m - matfder*(2/(l(i)*l(j)))
+                    if (i.eq.j) Then
+                       full_R(i0:i1,j0:j1) = matSder*diffx*diffx0 - matfder*(2/(l(i)*l(j)))
+                    else
+                       full_R(i0:i1,j0:j1) = matSder*diffx*diffx0
+                    end if
     !   Writing the second derivatives in eq(2)
-                    full_R(i0:i1,j0:j1) = m
-                    if (i.ne.j) then
-                        full_R(j0:j1,i0:i1) = transpose(m)
-                    endif
+                    if (i.ne.j) full_R(j0:j1,i0:i1) = transpose(Full_r(i0:i1,j0:j1))
                 enddo
             enddo
 !
