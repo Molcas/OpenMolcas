@@ -24,13 +24,13 @@
 !
             cv = 0
             i0 = 0
+            call defdlrl(iter,nInter)
 !           write(6,*) 'x: ',x
 !           write(6,*) 'nx: ',nx
 ! Covariant Vector in kriging - First part of eq (4) in ref.
 !
             if (gh.eq.0) then
 !
-                call defdlrl(iter,nInter)
                 call matern(dl, m, iter, npx)
                 cv(1:iter,:,1,1) = m
                 call matderiv(1, dl, cvMatFDer, iter, npx)
@@ -47,7 +47,6 @@
             else if(gh.ge.1) then
 !
                 ! print *,'covar vector calling deriv(2) for Kriging Gradients'
-                call defdlrl(iter,nInter)
                 call matderiv(1, dl, cvMatFder, iter, npx)
                 ! Call RecPrt('cvMatFder',' ',cvMatFder,iter,npx)
                 call matderiv(2, dl, cvMatSder, iter, npx)
@@ -74,7 +73,6 @@
             else if(gh.eq.2) then
 !
 !                    print *,'covar vector calling deriv(3) for Kriging Hessian'
-                call defdlrl(iter,nInter)
                 ! anAI = .False.
                 call matderiv(1, dl, cvMatFder, iter, npx)
                 call matderiv(2, dl, cvMatSder, iter, npx)
@@ -133,7 +131,7 @@
             Call mma_deallocate(diffx0)
             Call mma_deallocate(diffxk)
 !
-        END
+        END Subroutine covarvector
 !
         SUBROUTINE defdlrl(iter,nInter)
             use globvar
@@ -151,4 +149,4 @@
             enddo
             ! write (6,*) 'rl',rl
             !isdefdlrl = .True.
-        END
+        END Subroutine defdlrl
