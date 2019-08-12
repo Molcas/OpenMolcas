@@ -13,13 +13,12 @@
         SUBROUTINE k(iter)
             use globvar
 #include "stdalloc.fh"
-            real*8, Allocatable:: B(:), A(:,:), diagA(:)
+            real*8, Allocatable:: B(:), A(:,:)
             Integer, Allocatable:: IPIV(:)
             integer INFO,iter,sign ! ipiv the pivot indices that define the permutation matrix
 !
             Call mma_Allocate(B,m_t,Label="B")
             Call mma_Allocate(A,m_t,m_t,Label="A")
-            Call mma_Allocate(diagA,m_t,Label="diagAB")
             Call mma_Allocate(IPIV,m_t,Label="IPIV")
 !
 ! Initiate B according to Eq. (6) of ref.
@@ -47,17 +46,18 @@
                Write (6,*) 'k: INFO=',INFO
                Call Abend()
             End If
-            ! Call RecPrt('full_Rinv',  ' ',full_Rinv,m_t,m_t)
-            ! Call RecPrt('full_Rinv*full_R = I',  ' ',matmul(full_Rinv,full_r),m_t,m_t)
-            ! Write (6,*) 'rones ',rones
 !
 ! Now A contains the factors L and U from the factorization A = P*L*U as computed by DGESV
 ! Where L in the lower triangular matrix with 1 in the diagonal and U is the upper
 ! triangular matrix of A thus the determinant of A is giving by multipling its diagonal
 !
+            detR = 0.0d0
+            sign = 1
             do i=1,m_t
-                diagA(i) = A(i,i)
+                ! if (A(i,i).le.0) sign=sign*(-1)
+                detR = detR + log(abs(A(i,i)))
             enddo
+            ! detR = detR*sign
 !
 !Trend Function (baseline)
             sbO = dot_product(y,B(1:iter))/sum(B(1:iter))
@@ -75,26 +75,18 @@
 !           Write (6,*) 'K: dy=',dy
 !
             B = [y-sb,dy]
+            Kv=B
 ! ----------------Old calculations --K2
             A=full_r
 !           Write (6,*) 'K: y=',y
 !           Write (6,*) 'K: B=',B
 !           Write (6,*) 'K: A=',A
-            Kv=B
             CALL DGESV_(m_t,1,A,m_t,IPIV,Kv,m_t,INFO)
 !-----------------New
             ! Kv = matmul(B,full_Rinv)
 !------------------------------------
 !Likelihood function
             variance = dot_product(B,Kv)/m_t
-!
-            detR = 0.0d0
-            sign = 1
-            do i=1,m_t
-                ! if (diagA(i).le.0) sign=sign*(-1)
-                detR = detR + log(abs(diagA(i)))
-            enddo
-            ! detR = detR*sign
             lh = variance*exp(detR/dble(m_t))
 !
             ! write(6,*) 'detR',detR
@@ -105,6 +97,5 @@
 !
             Call mma_Deallocate(B)
             Call mma_Deallocate(A)
-            Call mma_Deallocate(diagA)
             Call mma_Deallocate(IPIV)
         END SUBROUTINE k
