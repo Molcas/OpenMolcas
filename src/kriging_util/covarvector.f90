@@ -60,9 +60,11 @@
                         j0 = j*iter + 1
                         j1 = j0+iter - 1
                         diffx0 = -2.0D0*rl(:,:,j)/l(j)
-                        m = cvMatSder * diffx*diffx0
-                        if (i.eq.j) m = m - cvMatFder*(2/(l(i)*l(j)))
-                        cv(j0:j1,:,i,1) = m
+                        if (i.eq.j) Then
+                           cv(j0:j1,:,i,1) = cvMatSder * diffx*diffx0 - cvMatFder*(2/(l(i)*l(j)))
+                        else
+                           cv(j0:j1,:,i,1) = cvMatSder * diffx*diffx0
+                        end if
                         ! Write (6,*) 'cvMatSder - Krig Grad: ',cvMatSder
                         ! write (6,*) 'CV',cv(:,:,:,1)
                     enddo
