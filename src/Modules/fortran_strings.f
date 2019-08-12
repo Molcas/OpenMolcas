@@ -15,7 +15,7 @@
         implicit none
         save
         private
-        public :: str, to_lower, to_upper
+        public :: str, to_lower, to_upper, operator(.in.)
 #include "molcastypes.fh"
 
 !>  @brief
@@ -39,6 +39,10 @@
             type(c_ptr) :: c_string
             integer(MOLCAS_C_INT) :: strlen_c
           end function
+        end interface
+
+        interface operator(.in.)
+          module procedure contains
         end interface
 
         character(*), parameter ::
@@ -82,7 +86,6 @@
 
 !> Changes a string to upper case
         pure function to_upper (in_str) result (string)
-          implicit none
           character(*), intent(in) :: in_str
           character(len(in_str)) :: string
           integer :: ic, i, L
@@ -101,7 +104,6 @@
 
 !> Changes a string to lower case
         pure function to_lower (in_str) result (string)
-          implicit none
           character(*), intent(in) :: in_str
           character(len(in_str)) :: string
           integer :: ic, i, L
@@ -117,5 +119,11 @@
           end do
           string(L + 1: ) = ' '
         end function to_lower
+
+        logical pure function contains(substring, string)
+          character(*), intent(in) :: string, substring
+
+          contains = index(string, substring) /= 0
+        end function
 
       end module
