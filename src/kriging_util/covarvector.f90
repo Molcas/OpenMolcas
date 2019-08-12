@@ -31,8 +31,7 @@
 !
             if (gh.eq.0) then
 !
-                call matern(dl, m, iter, npx)
-                cv(1:iter,:,1,1) = m
+                call matern(dl, cv(1:iter,:,1,1), iter, npx)
                 call matderiv(1, dl, cvMatFDer, iter, npx)
                 do i=1,nInter
 !       1st derivatives second part of eq. (4)
