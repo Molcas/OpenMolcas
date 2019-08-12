@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-        SUBROUTINE setlkriging(lv,nInter)
+        SUBROUTINE set_l_kriging(lv,nInter)
             use globvar
             integer i, nInter
             real*8 lv(nInter)

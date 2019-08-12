@@ -98,7 +98,7 @@
       Request_Alaska=.False.
       Request_RASSI=.False.
 *
-      Call Kriging_Init()
+      Call Init_Kriging()
 *                                                                      *
 ************************************************************************
 *                                                                      *
