@@ -27,7 +27,9 @@
 !           write(6,*) 'x: ',x
 !           write(6,*) 'nx: ',nx
 ! Covariant Vector in kriging - First part of eq (4) in ref.
+!
             if (gh.eq.0) then
+!
                 call defdlrl(iter,nInter)
                 call matern(dl, m, iter, npx)
                 cv(1:iter,:,1,1) = m
@@ -41,14 +43,14 @@
                 enddo
                 ! write (6,*) 'CV-mat',cv
 ! Covariant vector in Gradient Enhanced Kriging
+!
             else if(gh.ge.1) then
+!
                 ! print *,'covar vector calling deriv(2) for Kriging Gradients'
                 call defdlrl(iter,nInter)
-                call matderiv(1, dl, m, iter, npx)
-                cvMatFder = m
+                call matderiv(1, dl, cvMatFder, iter, npx)
                 ! Call RecPrt('cvMatFder',' ',cvMatFder,iter,npx)
-                call matderiv(2, dl, m, iter, npx)
-                cvMatSder = m
+                call matderiv(2, dl, cvMatSder, iter, npx)
                 ! Call RecPrt('cvMatSder',' ',cvMatSder,iter,npx)
                 do i=1,nInter
                     diffx = 2.0D0*rl(:,:,i)/l(i)
@@ -57,10 +59,7 @@
                         ! if (j.eq.1) cv(1:iter,:,i,1) = -cvMatFder * diffx
                         j0 = j*iter + 1
                         j1 = j0+iter - 1
-!                       write(6,*) 'i,j',i,j
                         diffx0 = -2.0D0*rl(:,:,j)/l(j)
-!                       write(6,*) 'diffx',diffx
-!                       write(6,*) 'diffx0',diffx0
                         m = cvMatSder * diffx*diffx0
                         if (i.eq.j) m = m - cvMatFder*(2/(l(i)*l(j)))
                         cv(j0:j1,:,i,1) = m
@@ -69,19 +68,15 @@
                     enddo
                 enddo
                 ! Write (6,*) 'CV - Krig Grad: ',cv
+!
             else if(gh.eq.2) then
+!
 !                    print *,'covar vector calling deriv(3) for Kriging Hessian'
                 call defdlrl(iter,nInter)
                 ! anAI = .False.
-                call matderiv(1, dl, m, iter, npx)
-                cvMatFder = m
-                call matderiv(2, dl, m, iter, npx)
-                cvMatSder = m
-                ! Write (6,*) 'cvMatSder - Krig Grad(hess): ',cvMatSder
-                call matderiv(3, dl, m, iter, npx)
-                cvMatTder = m
-                ! write (6,*) 'dl',dl
-                ! write (6,*) '3th der',cvMatTder
+                call matderiv(1, dl, cvMatFder, iter, npx)
+                call matderiv(2, dl, cvMatSder, iter, npx)
+                call matderiv(3, dl, cvMatTder, iter, npx)
                 do i = 1, nInter
                     diffx = 2.0D0*rl(:,:,i)/l(i)
                     sdiffx = 2.0D0/l(i)**2
