@@ -15,8 +15,7 @@
 #include "stdalloc.fh"
             integer i,j,i0,i1,j0,j1,k,kl,iter,nInter
             Real*8, Allocatable :: diffx(:,:), diffx0(:,:), matFder(:,:),&
-                                   matSder(:,:), r(:,:,:), d(:,:), m(:,:),&
-                                   iden(:,:)
+                                   matSder(:,:), r(:,:,:), d(:,:), m(:,:)
 !
             Call mma_Allocate(diffx,iter,iter,Label="diffx")
             Call mma_Allocate(diffx0,iter,iter,Label="diffx0")
@@ -25,14 +24,12 @@
             Call mma_Allocate(r,iter,iter,nInter,Label="r")
             Call mma_Allocate(d,iter,iter,Label="d")
             Call mma_Allocate(m,iter,iter,Label="m")
-            Call mma_Allocate(iden,iter,iter,Label="iden")
 !
             full_R = 0
             d = 0
             diffx = 0
             diffx0 = 0
-            iden=0
-            forall(j=1:iter) iden(j,j)=1
+!
 ! Covariant Matrix in kriging
             do i=1,nInter
                 do k=1,iter
@@ -42,16 +39,15 @@
                 end do
                 d = d + r(:,:,i)**2
             end do
+!
     !Matern Function
-            Call matern(d, m, iter, iter)
+            Call matern     (d, m,       iter, iter)
+!
 ! Writing the covariant matrix in GEK (eq 2 of DOI 10.1007/s00366-015-0397)
-            full_R(1:iter,1:iter) = m + iden*eps
+            full_R(1:iter,1:iter) = m
+!
     !Matern first derivative
-            call matderiv(1, d, m, iter, iter)
-            matFder = m
-    !Matern second derivative
-            call matderiv(2, d, m, iter, iter)
-            matSder = m
+            call matderiv(1, d, MatFder, iter, iter)
 ! Covariant matrix in Gradient Enhanced Kriging (eq 2 of DOI 10.1007/s00366-015-0397)):
 !
     ! First line and first column derivative in Psi matrix
@@ -61,10 +57,16 @@
                 diffx0 = -2.0D0*r(:,:,i)/l(i)
                 m = matFder*diffx0
     !  Writing the 1st row of 1st derivatives with respect the coordinates
-                full_R(1:iter,i0:i1) = m
+                full_R(1:iter,i0:i1) = matFDer*diffx0
+!               full_R(1:iter,i0:i1) = m
     !  Writing the column of derivatives
-                full_R(i0:i1,1:iter) = transpose(m)
+                full_R(i0:i1,1:iter) = transpose(full_R(1:iter,i0:i1))
+!               full_R(i0:i1,1:iter) = transpose(m)
             enddo
+!
+    !Matern second derivative
+            call matderiv(2, d, matSder, iter, iter)
+!
     ! Second derivatives
             do i = 1,nInter
                 i0 = i*iter+1
@@ -81,11 +83,16 @@
                     full_R(i0:i1,j0:j1) = m
                     if (i.ne.j) then
                         full_R(j0:j1,i0:i1) = transpose(m)
-                    else
-                        full_R(i0:i1,j0:j1) = full_R(i0:i1,j0:j1) + iden*eps2
                     endif
                 enddo
             enddo
+!
+!           Add constants to reflect the error in the energy and the
+!           gradient, respectively.
+!
+            forall (j=1:iter) Full_R(j,j) = Full_R(j,j) + eps
+            forall (j=iter+1:m_t) Full_R(j,j) = Full_R(j,j) + eps2
+!
 !           definig full_r has srictly possitive define sec. 3 of
 !           DOI: 10.1615/Int.J.UncertaintyQuantification.2013006809
             ! full_R = abs(full_R)
@@ -98,5 +105,4 @@
             Call mma_deallocate(r)
             Call mma_deallocate(d)
             Call mma_deallocate(m)
-            Call mma_deallocate(iden)
         END
