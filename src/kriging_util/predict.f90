@@ -20,12 +20,12 @@
             integer, Allocatable :: IPIV(:)
 !
             Call mma_allocate(B,m_t,label="B")
-            !A contains the factors L and U from the factorization A = P*L*U as computed by DGETRF
-            Call mma_allocate(A,m_t,m_t,label="A")
-            Call mma_allocate(IPIV,m_t,label="IPIV")
 !
             do j=1,npx
                 if (gh.eq.0) then
+                    !A contains the factors L and U from the factorization A = P*L*U as computed by DGETRF
+                    Call mma_allocate(A,m_t,m_t,label="A")
+                    Call mma_allocate(IPIV,m_t,label="IPIV")
                     ! calculations of Energy and dispersion
                     ! ----------------Old calculations --P1
                     A = full_R
@@ -50,6 +50,8 @@
                     !   write(6,*) 'sigma',sigma,'lh',lh
                     !   write(6,*) 'tcv(j,:)',B
                     !   write(6,*) 'Kv',Kv
+                    Call mma_deallocate(A)
+                    Call mma_deallocate(IPIV)
                 else if (gh.eq.1) then
                     ! Predicting the gradient gh = 1
                     ! Write (6,*) 'Pred: Kv=',Kv
@@ -82,7 +84,5 @@
             enddo ! j=1, npx
 !
             Call mma_deallocate(B)
-            Call mma_deallocate(A)
-            Call mma_deallocate(IPIV)
 !
         END
