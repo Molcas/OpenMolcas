@@ -95,25 +95,19 @@
                                 m = (cvMatTder*diffx0**3 + 3.0D0*cvMatSder*diffx0*sdiffx0)
                                 ! write(6,*) 'i=j=k',i,j,k
                                 ! write(6,*) 'cvMatTder*diffx0**3',cvMatTder*diffx0**3
+                            else if (i.eq.j) then
+                                m = cvMatTder*diffx0**3 + cvMatSder*diffx0*sdiffx
+                                !write(6,*) 'i=j!=k',i,j,k
+                            else if (i.eq.k) then
+                                m = cvMatTder*diffxk**3 + cvMatSder*diffxk*sdiffx
+                                !write(6,*) 'i=K!=J',i,j,k
+                            else if (j.eq.k) then
+                                m = cvMatTder*diffx0**3 + cvMatSder*diffxk*sdiffxk
+                                !write(6,*) 'i=j!=k',i,j,k
                             else
-                                if (i.eq.j) then
-                                    m = cvMatTder*diffx0**3 + cvMatSder*diffx0*sdiffx
-                                    !write(6,*) 'i=j!=k',i,j,k
-                                else
-                                    if (i.eq.k) then
-                                        m = cvMatTder*diffxk**3 + cvMatSder*diffxk*sdiffx
-                                        !write(6,*) 'i=K!=J',i,j,k
-                                    else
-                                        if (j.eq.k) then
-                                            m = cvMatTder*diffx0**3 + cvMatSder*diffxk*sdiffxk
-                                            !write(6,*) 'i=j!=k',i,j,k
-                                        else
-                                            m = cvMatTder*diffx*diffx0*diffxk
-                                            ! write(6,*) 'i!=j!=k',i,j,k
-                                            ! write (6,*) m
-                                        endif
-                                    endif
-                                endif
+                                m = cvMatTder*diffx*diffx0*diffxk
+                                ! write(6,*) 'i!=j!=k',i,j,k
+                                ! write (6,*) m
                             endif
                             !write(6,*) 'm',m
                             ! m = cvMatTder * diffx*diffx0**2 + cvMatSder*(4*diffx**2/l(i) + &
