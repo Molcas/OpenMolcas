@@ -15,7 +15,7 @@
 #include "stdalloc.fh"
             integer i,j,i0,i1,j0,j1,k,kl,iter,nInter
             Real*8, Allocatable :: diffx(:,:), diffx0(:,:), matFder(:,:),&
-                                   matSder(:,:), r(:,:,:), d(:,:), m(:,:)
+                                   matSder(:,:), r(:,:,:), d(:,:)
 !
             Call mma_Allocate(diffx,iter,iter,Label="diffx")
             Call mma_Allocate(diffx0,iter,iter,Label="diffx0")
@@ -23,7 +23,6 @@
             Call mma_Allocate(matSder,iter,iter,Label="matSder")
             Call mma_Allocate(r,iter,iter,nInter,Label="r")
             Call mma_Allocate(d,iter,iter,Label="d")
-            Call mma_Allocate(m,iter,iter,Label="m")
 !
             full_R = 0
             d = 0
@@ -41,10 +40,9 @@
             end do
 !
     !Matern Function
-            Call matern     (d, m,       iter, iter)
+            Call matern     (d, full_R(1:iter,1:iter), iter, iter)
 !
 ! Writing the covariant matrix in GEK (eq 2 of DOI 10.1007/s00366-015-0397)
-            full_R(1:iter,1:iter) = m
 !
     !Matern first derivative
             call matderiv(1, d, MatFder, iter, iter)
@@ -101,5 +99,4 @@
             Call mma_deallocate(matSder)
             Call mma_deallocate(r)
             Call mma_deallocate(d)
-            Call mma_deallocate(m)
         END
