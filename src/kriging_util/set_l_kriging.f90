@@ -29,4 +29,4 @@
             call covarMatrix(nPoints_Save,nInter_save)
             call k(nPoints_save)
 !           write (6,*) 'set l value, lh:',l(1)
-        END SUBROUTINE setlkriging
+        END SUBROUTINE set_l_kriging
