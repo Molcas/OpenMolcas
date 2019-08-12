@@ -15,10 +15,9 @@
 #include "stdalloc.fh"
             integer d1,d2,i
             REAL*8 a,d,dh(d1,d2),m(d1,d2)
-            REAL*8, Allocatable :: b(:,:), d0(:,:)
+            REAL*8, Allocatable :: d0(:,:)
             INTEGER*8 c
 !
-            Call mma_Allocate(b,d1,d2,label="b")
             Call mma_Allocate(d0,d1,d2,label="d0")
 !
 ! For this expresion you can check https://en.wikipedia.org/wiki/Mat%C3%A9rn_covariance_function
@@ -26,15 +25,13 @@
             d0 = sqrt(dh)
             c = idint(pAI)
             a = Gamma(pAI+1)/Gamma(2*pAI+1)
-            b = 0.0D0
             m = 0.0D0
             do i=0, c
                 d=DBLE(i)
-                b = b + (Gamma(pAI+1.0D0+d)/(Gamma(d+1.D0)*Gamma(pAI+1.0D0-d)))*(2.0D0*Sqrt(2.0D0*pAI+1.0D0)*d0)**(pAI-i)
+                m = m + (Gamma(pAI+1.0D0+d)/(Gamma(d+1.D0)*Gamma(pAI+1.0D0-d)))*(2.0D0*Sqrt(2.0D0*pAI+1.0D0)*d0)**(pAI-i)
             enddo
-            m = a*b*exp(-sqrt(2.0D0*pAI+1)*d0)
+            m = a*m*exp(-sqrt(2.0D0*pAI+1)*d0)
 !
-            Call mma_deallocate(b)
             Call mma_deallocate(d0)
 !
         END
