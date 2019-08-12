@@ -15,6 +15,7 @@
 #include "WrkSpc.fh"
 #include "info_slapaf.fh"
 #include "print.fh"
+#include "constants.fh"
 *
       iRout=3
       iPrint=nPrint(iRout)
@@ -58,8 +59,12 @@
      &    ' Parameters for constrained optimization'
       Write (Lu,'(A,E9.2)')
      &    ' Max step length (initial seed):          ',Beta
-      Write (Lu,'(A,E9.2)')
-     &    ' Max variance accepted:                   ',Beta_disp
+      Write (Lu,'(A,F9.5,A)')
+     &    ' Max variance accepted:                   ',Beta_disp,' a.u.'
+      Write (Lu,'(A,F9.5,A)')
+     &    '                                          ',
+     &      Beta_disp*CONV_AU_TO_KJ_PER_MOLE_,
+     &    ' kcal/mol'
       Write (Lu,*)
 *                                                                      *
 ************************************************************************
