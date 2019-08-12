@@ -85,9 +85,11 @@
                     do j = 1, nInter
                         diffx0 = -2.0D0*rl(:,:,j)/l(j)
                         sdiffx0 = 2.0D0/l(j)**2
-                        m = cvMatSder * diffx*diffx0
-                        if (i.eq.j) m = m - cvMatFder*2.0D0/(l(i)*l(j))
-                        cv(1:iter,:,i,j) = m
+                        if (i.eq.j) Then
+                           cv(1:iter,:,i,j) = cvMatSder * diffx*diffx0 - cvMatFder*2.0D0/(l(i)*l(j))
+                        else
+                           cv(1:iter,:,i,j) = cvMatSder * diffx*diffx0
+                        end if
                         do k = 1, nInter
                             diffxk = - 2.0D0*rl(:,:,k)/l(k)
                             sdiffxk = 2.0D0/l(i)**2
