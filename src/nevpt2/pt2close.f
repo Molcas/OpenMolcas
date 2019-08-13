@@ -25,6 +25,11 @@
       call deinit_energies
       call finalize_inforb_molcas
 
+      if(allocated(MultGroup%State))
+     &  deallocate(MultGroup%State)
+      if(allocated(MultGroup%h5_file_name))
+     &  deallocate(MultGroup%h5_file_name)
+
       !> close file LUONEM
       call DaClos(LUONEM)
 
