@@ -255,8 +255,13 @@
       if(allocated(qcm_group_names))then
         write (6,'(a)') " DMRG wavefunction data will be read from"
         write (6,'(a)') " ----------------------------------------"
+        if(.not.allocated(MultGroup%h5_file_name))
+     &  allocate(MultGroup%h5_file_name(nr_states))
+        MultGroup%h5_file_name = ''
         do istate = 1, nr_states
-          !> copy reference energies
+          MultGroup%h5_file_name(istate) =
+     &    trim(qcm_group_names(1)%states(MultGroup%State(istate)))
+          !> copy reference wfn file names
           write (6,'(a,i4,a,a)') " State ...",MultGroup%State(istate),
      &           " .......................... ",
      &          trim(qcm_group_names(1)%states(MultGroup%State(istate)))
