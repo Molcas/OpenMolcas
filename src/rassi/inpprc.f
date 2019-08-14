@@ -301,6 +301,7 @@ C
      &             PRPLST(IPRP).eq.'ANGMOM' .or.
      &             PRPLST(IPRP)(1:4).eq.'TMOM' .or.
      &             PRPLST(IPRP).eq.'VELOCITY' .or.
+     &             PRPLST(IPRP).eq.'MLTPV  2' .or.
      &             PRPLST(IPRP)(1:4).eq.'EMFR') THEN
 C
                   NSOPR=NSOPR+1
@@ -314,6 +315,8 @@ C default to a Hermitian singlet reduced density.
                   ELSE IF (PRPLST(IPRP).EQ.'VELOCITY'  ) THEN
                      SOPRTP(NSOPR)='ANTISING'
                   ELSE IF (PRPLST(IPRP).EQ.'OMQ     '  ) THEN
+                     SOPRTP(NSOPR)='ANTISING'
+                  ELSE IF (PRPLST(IPRP).EQ.'MLTPV  2'  ) THEN
                      SOPRTP(NSOPR)='ANTISING'
                   ELSE IF (PRPLST(IPRP).EQ.'TMOM  RS'  ) THEN
                      SOPRTP(NSOPR)='HERMSING'
@@ -713,15 +716,16 @@ C to zero.
       END DO
 C
 C PTYPE and SOPRTP is set here if not already set above. Note that this
-C is a fallback procedure that you should not be used actively. This
-C fallback comes typically assigns the type of WE-reduced density to be
-C used for user specified lists of properties.
+C is a fallback procedure that should not be used actively. This
+C fallback typically assigns the type of WE-reduced density to be
+C used for user-specified lists of properties.
 C
       DO IPROP=1,NPROP
        IF (PTYPE(IPROP).NE.'UNDEF.  ') CYCLE
        PTYPE(IPROP)='HERMSING'
        IF(PNAME(IPROP).EQ.'VELOCITY') PTYPE(IPROP)='ANTISING'
        IF(PNAME(IPROP).EQ.'ANGMOM  ') PTYPE(IPROP)='ANTISING'
+       IF(PNAME(IPROP).EQ.'MLTPV  2') PTYPE(IPROP)='ANTISING'
        IF(PNAME(IPROP)(1:4).EQ.'PSOP') PTYPE(IPROP)='ANTISING'
        IF(PNAME(IPROP).EQ.'OMQ     ') PTYPE(IPROP)='ANTISING'
        IF(PNAME(IPROP).EQ.'AMFI    ') PTYPE(IPROP)='ANTITRIP'
@@ -742,6 +746,7 @@ C
        SOPRTP(ISOPR)='HERMSING'
        IF(SOPRNM(ISOPR).EQ.'VELOCITY') SOPRTP(ISOPR)='ANTISING'
        IF(SOPRNM(ISOPR).EQ.'ANGMOM  ') SOPRTP(ISOPR)='ANTISING'
+       IF(SOPRNM(ISOPR).EQ.'MLTPV  2') SOPRTP(ISOPR)='ANTISING'
        IF(SOPRNM(ISOPR)(1:4).EQ.'PSOP') SOPRTP(ISOPR)='ANTISING'
        IF(SOPRNM(IPROP).EQ.'OMQ     ') SOPRTP(IPROP)='ANTISING'
        IF(SOPRNM(ISOPR).EQ.'AMFI    ') SOPRTP(ISOPR)='ANTITRIP'

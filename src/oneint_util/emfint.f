@@ -185,6 +185,7 @@ c Avoid unused argument warnings
      &                     [nZeta*3*(la+1)*(lb+1)*(nOrdOp+1)])
          Call CCmbnMP(zQxyz,nZeta,la,lb,nOrdOp,Zeta,
      &                rKappa,Array(ipRes),nComp)
+         Nullify(zQxyz)
       End If
 *
       llOper=lOper(1)

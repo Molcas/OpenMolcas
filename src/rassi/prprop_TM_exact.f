@@ -65,7 +65,7 @@
       SPEED_OF_LIGHT=CONST_C_IN_AU_
       G_Elec=CONST_ELECTRON_G_FACTOR_
 
-#define _TIME_TMOM_
+*define _TIME_TMOM_
 #ifdef _TIME_TMOM_
       Call CWTime(TCpu1,TWall1)
 #endif

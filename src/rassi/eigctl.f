@@ -61,6 +61,7 @@
 #endif
       logical TMOgroup
       REAL*8 COMPARE
+      REAL*8 RT(3,3)
 
 
 
@@ -679,7 +680,7 @@ C And the same for the Dyson amplitudes
         losc_strength=20
         losc_strength=isFreeUnit(losc_strength)
         Call Molcas_Open(losc_strength,'osc_strength.au')
-
+*
         If (Do_SK) Then
            nVec = nk_Vector
         Else
@@ -699,25 +700,23 @@ C And the same for the Dyson amplitudes
           EDIFF=ENERGY(J)-ENERGY(I)
 *
           IF(EDIFF.GT.0.0D0) THEN
-           DX2=0.0D0
-           DY2=0.0D0
-           DZ2=0.0D0
+           DX=0.0D0
+           DY=0.0D0
+           DZ=0.0D0
+           IF(IPRDX.GT.0) DX=PROP(J,I,IPRDX)
+           IF(IPRDY.GT.0) DY=PROP(J,I,IPRDY)
+           IF(IPRDZ.GT.0) DZ=PROP(J,I,IPRDZ)
            If (Do_SK) Then
-              tmp=0.0D0
-              IF(IPRDX.GT.0) tmp=tmp+PROP(J,I,IPRDX)*k_vector(1,iVec)
-              IF(IPRDY.GT.0) tmp=tmp+PROP(J,I,IPRDY)*k_vector(2,iVec)
-              IF(IPRDZ.GT.0) tmp=tmp+PROP(J,I,IPRDZ)*k_vector(2,iVec)
-              IF(IPRDX.GT.0)
-     &           DX2=(PROP(J,I,IPRDX)-tmp*k_vector(1,iVec))**2
-              IF(IPRDY.GT.0)
-     &           DY2=(PROP(J,I,IPRDY)-tmp*k_vector(2,iVec))**2
-              IF(IPRDZ.GT.0)
-     &           DZ2=(PROP(J,I,IPRDZ)-tmp*k_vector(3,iVec))**2
-           Else
-              IF(IPRDX.GT.0) DX2=PROP(J,I,IPRDX)**2
-              IF(IPRDY.GT.0) DY2=PROP(J,I,IPRDY)**2
-              IF(IPRDZ.GT.0) DZ2=PROP(J,I,IPRDZ)**2
+              tmp=DX*k_vector(1,iVec)+
+     &            DY*k_vector(2,iVec)+
+     &            DZ*k_vector(3,iVec)
+              DX=DX-tmp*k_vector(1,iVec)
+              DY=DY-tmp*k_vector(2,iVec)
+              DZ=DZ-tmp*k_vector(3,iVec)
            End If
+           DX2=DX**2
+           DY2=DY**2
+           DZ2=DZ**2
            FX=Two3rds*EDIFF*(DX2)
            FY=Two3rds*EDIFF*(DY2)
            FZ=Two3rds*EDIFF*(DZ2)
@@ -802,30 +801,34 @@ C And the same for the Dyson amplitudes
         DO K_=1,NSTATE-1
            I=IndexE(K_)
          DO L_=I+1,NSTATE
-            J=IndexE(L_)
+           J=IndexE(L_)
            DX=0.0D0
            DY=0.0D0
            DZ=0.0D0
-           If (Do_SK) Then
-              tmp=0.0D0
-              IF(IPRDX.GT.0) tmp=tmp+PROP(J,I,IPRDX)*k_vector(1,iVec)
-              IF(IPRDY.GT.0) tmp=tmp+PROP(J,I,IPRDY)*k_vector(2,iVec)
-              IF(IPRDZ.GT.0) tmp=tmp+PROP(J,I,IPRDZ)*k_vector(3,iVec)
-              IF(IPRDX.GT.0) DX=PROP(J,I,IPRDX)-tmp*k_vector(1,iVec)
-              IF(IPRDY.GT.0) DY=PROP(J,I,IPRDY)-tmp*k_vector(2,iVec)
-              IF(IPRDZ.GT.0) DZ=PROP(J,I,IPRDZ)-tmp*k_vector(3,iVec)
-           Else
-              IF(IPRDX.GT.0) DX2=PROP(J,I,IPRDX)**2
-              IF(IPRDY.GT.0) DY2=PROP(J,I,IPRDY)**2
-              IF(IPRDZ.GT.0) DZ2=PROP(J,I,IPRDZ)**2
-           End If
            IF(IPRDX.GT.0) DX=PROP(J,I,IPRDX)
            IF(IPRDY.GT.0) DY=PROP(J,I,IPRDY)
            IF(IPRDZ.GT.0) DZ=PROP(J,I,IPRDZ)
+           If (Do_SK) Then
+              tmp=DX*k_vector(1,iVec)+
+     &            DY*k_vector(2,iVec)+
+     &            DZ*k_vector(3,iVec)
+              DX=DX-tmp*k_vector(1,iVec)
+              DY=DY-tmp*k_vector(2,iVec)
+              DZ=DZ-tmp*k_vector(3,iVec)
+           End If
            DSZ = SQRT(DX**2+DY**2+DZ**2)
            DMAX=MAX(DSZ,DMAX)
            IF(DSZ.ge.TDIPMIN) THEN
             IF(LNCNT.EQ.0) THEN
+             If (Do_SK) Then
+                WRITE(6,*)
+                WRITE(6,'(4x,a,3F8.4)')
+     &             'Direction of the k-vector: ',
+     &              (k_vector(k,iVec),k=1,3)
+                WRITE(6,'(4x,a)')
+     &             'The light is assumed to be unpolarized.'
+                WRITE(6,*)
+             End If
              WRITE(6,34) 'From','To','Dx','Dy','Dz','Total D (a.u.)'
              WRITE(6,42)
             END IF
@@ -900,25 +903,23 @@ C And the same for the Dyson amplitudes
                IJ=I+NSTATE*(J-1)
                EDIFF=ENERGY(J)-ENERGY(I)
                IF(EDIFF.GT.0.0D0) THEN
-               DX2=0.0D0
-               DY2=0.0D0
-               DZ2=0.0D0
+               DX=0.0D0
+               DY=0.0D0
+               DZ=0.0D0
+               IF(IPRDX.GT.0) DX=PROP(J,I,IPRDX)
+               IF(IPRDY.GT.0) DY=PROP(J,I,IPRDY)
+               IF(IPRDZ.GT.0) DZ=PROP(J,I,IPRDZ)
                If (Do_SK) Then
-                 tmp=0.0D0
-                 IF(IPRDX.GT.0) tmp=tmp+PROP(J,I,IPRDX)*k_vector(1,iVec)
-                 IF(IPRDY.GT.0) tmp=tmp+PROP(J,I,IPRDY)*k_vector(2,iVec)
-                 IF(IPRDZ.GT.0) tmp=tmp+PROP(J,I,IPRDZ)*k_vector(3,iVec)
-                 IF(IPRDX.GT.0)
-     &              DX2=(PROP(J,I,IPRDX)-tmp*k_vector(1,iVec))**2
-                 IF(IPRDY.GT.0)
-     &              DY2=(PROP(J,I,IPRDY)-tmp*k_vector(2,iVec))**2
-                 IF(IPRDZ.GT.0)
-     &              DZ2=(PROP(J,I,IPRDZ)-tmp*k_vector(3,iVec))**2
-               Else
-                  IF(IPRDX.GT.0) DX2=PROP(J,I,IPRDX)**2
-                  IF(IPRDY.GT.0) DY2=PROP(J,I,IPRDY)**2
-                  IF(IPRDZ.GT.0) DZ2=PROP(J,I,IPRDZ)**2
+                  tmp=DX*k_vector(1,iVec)+
+     &                DY*k_vector(2,iVec)+
+     &                DZ*k_vector(3,iVec)
+                  DX=DX-tmp*k_vector(1,iVec)
+                  DY=DY-tmp*k_vector(2,iVec)
+                  DZ=DZ-tmp*k_vector(3,iVec)
                End If
+               DX2=DX**2
+               DY2=DY**2
+               DZ2=DZ**2
                FX=Two3rds*(DX2)/EDIFF
                FY=Two3rds*(DY2)/EDIFF
                FZ=Two3rds*(DZ2)/EDIFF
@@ -1066,14 +1067,10 @@ C And the same for the Dyson amplitudes
 *
       SECORD = 0
 !
-! Lazy mans version
-!
-      NSS = NSTATE
-!
 ! We will first allocate a matrix for the total of the second order wave vector
 !
-      CALL GETMEM('TOT2K','ALLO','REAL',LTOT2K,NSS**2)
-      CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LTOT2K),1)
+      CALL GETMEM('TOT2K','ALLO','REAL',LTOT2K,NSTATE**2)
+      CALL DCOPY_(NSTATE**2,[0.0D0],0,WORK(LTOT2K),1)
 
 * Magnetic-Dipole - Magnetic-Dipole transitions
 !
@@ -1121,28 +1118,28 @@ C And the same for the Dyson amplitudes
 
          ONEOVER6C2=1.0D0/(6.0D0*CONST_C_IN_AU_**2)
 
-         DO ISS_=1,IEND
-            ISS=IndexE(ISS_)
-          DO JSS_=JSTART,NSS
-             JSS=IndexE(JSS_)
-           EDIFF=ENERGY(JSS)-ENERGY(ISS)
+         DO K_=1,IEND
+            I=IndexE(K_)
+          DO L_=JSTART,NSTATE
+             J=IndexE(L_)
+           EDIFF=ENERGY(J)-ENERGY(I)
            IF(EDIFF.GT.0.0D0) THEN
-            IJSS=JSS+NSS*(ISS-1)
+            IJ=J+NSTATE*(I-1)
 
             DX2=0.0D0
             DY2=0.0D0
             DZ2=0.0D0
 
-            IF(IPRDX.GT.0) DX2=PROP(JSS,ISS,IPRDX)**2
-            IF(IPRDY.GT.0) DY2=PROP(JSS,ISS,IPRDY)**2
-            IF(IPRDZ.GT.0) DZ2=PROP(JSS,ISS,IPRDZ)**2
+            IF(IPRDX.GT.0) DX2=PROP(J,I,IPRDX)**2
+            IF(IPRDY.GT.0) DY2=PROP(J,I,IPRDY)**2
+            IF(IPRDZ.GT.0) DZ2=PROP(J,I,IPRDZ)**2
 
             F = (DX2 + DY2 + DZ2)*EDIFF*ONEOVER6C2
 ! Add it to the total
-            WORK(LTOT2K-1+IJSS) = WORK(LTOT2K-1+IJSS) + F
+            WORK(LTOT2K-1+IJ) = WORK(LTOT2K-1+IJ) + F
             IF(ABS(F).GE.OSTHR2) THEN
 !            WRITE(6,*) ' value at distance '
-             IF(QIALL) WRITE(6,33) ISS,JSS,F
+             IF(QIALL) WRITE(6,33) I,J,F
             END IF
 !
 ! Debug to move along z. Change DX and DY (1 Aangstrom)
@@ -1150,26 +1147,26 @@ C And the same for the Dyson amplitudes
 !     DO I = 1, 9
 !     AA = 1.889726D0*ZVAL(I)*EDIFF!/(2.0D0*CONST_C_IN_AU_)
 ! z-direction
-!     DX2=(PROP(JSS,ISS,IPRDX)
-!    &    -AA*PROP(JSS,ISS,IPRDY_TEMP))**2
-!     DY2=(PROP(JSS,ISS,IPRDY)
-!    &    +AA*PROP(JSS,ISS,IPRDX_TEMP))**2
+!     DX2=(PROP(J,I,IPRDX)
+!    &    -AA*PROP(J,I,IPRDY_TEMP))**2
+!     DY2=(PROP(J,I,IPRDY)
+!    &    +AA*PROP(J,I,IPRDX_TEMP))**2
 !           F = (DX2 + DY2 + DZ2)*EDIFF*ONEOVER6C2
 ! x-direction
-!     DZ2=(PROP(JSS,ISS,IPRDZ)
-!    &    +AA*PROP(JSS,ISS,IPRDY_TEMP))**2
-!     DY2=(PROP(JSS,ISS,IPRDY)
-!    &    -AA*PROP(JSS,ISS,IPRDZ_TEMP))**2
+!     DZ2=(PROP(J,I,IPRDZ)
+!    &    +AA*PROP(J,I,IPRDY_TEMP))**2
+!     DY2=(PROP(J,I,IPRDY)
+!    &    -AA*PROP(J,I,IPRDZ_TEMP))**2
 !           F = (DX2 + DY2 + DZ2)*EDIFF*ONEOVER6C2
 ! y-direction
-!     DX2=(PROP(JSS,ISS,IPRDX)
-!    &    +AA*PROP(JSS,ISS,IPRDZ_TEMP))**2
-!     DZ2=(PROP(JSS,ISS,IPRDZ)
-!    &    -AA*PROP(JSS,ISS,IPRDX_TEMP))**2
+!     DX2=(PROP(J,I,IPRDX)
+!    &    +AA*PROP(J,I,IPRDZ_TEMP))**2
+!     DZ2=(PROP(J,I,IPRDZ)
+!    &    -AA*PROP(J,I,IPRDX_TEMP))**2
 !           F = (DX2 + DY2 + DZ2)*EDIFF*ONEOVER6C2
 !           IF(ABS(F).GE.OSTHR2) THEN
 !            WRITE(6,*) ' moved value ',ZVAL(I)
-!            WRITE(6,'(5X,2I5,5X,G16.8)') ISS,JSS,F
+!            WRITE(6,'(5X,2I5,5X,G16.8)') I,J,F
 !           END IF
 !     END DO
            END IF
@@ -1226,15 +1223,15 @@ C And the same for the Dyson amplitudes
          ONEOVER10C=1.0D0/(10.0D0*CONST_C_IN_AU_**2)
          ONEOVER30C=ONEOVER10C/3.0D0
 
-         DO ISS_=1,IEND
-            ISS=IndexE(ISS_)
-          DO JSS_=JSTART,NSS
-             JSS=IndexE(JSS_)
-           EDIFF=ENERGY(JSS)-ENERGY(ISS)
+         DO K_=1,IEND
+            I=IndexE(K_)
+          DO L_=JSTART,NSTATE
+             J=IndexE(L_)
+           EDIFF=ENERGY(J)-ENERGY(I)
            IF(EDIFF.GT.0.0D0) THEN
 !
             EDIFF3=EDIFF**3
-            IJSS=JSS+NSS*(ISS-1)
+            IJ=J+NSTATE*(I-1)
 
             DXX=0.0D0
             DYY=0.0D0
@@ -1242,12 +1239,12 @@ C And the same for the Dyson amplitudes
             DXY=0.0D0
             DXZ=0.0D0
             DYZ=0.0D0
-            IF(IPRDXX.GT.0) DXX=PROP(JSS,ISS,IPRDXX)
-            IF(IPRDYY.GT.0) DYY=PROP(JSS,ISS,IPRDYY)
-            IF(IPRDZZ.GT.0) DZZ=PROP(JSS,ISS,IPRDZZ)
-            IF(IPRDXY.GT.0) DXY=PROP(JSS,ISS,IPRDXY)
-            IF(IPRDXZ.GT.0) DXZ=PROP(JSS,ISS,IPRDXZ)
-            IF(IPRDYZ.GT.0) DYZ=PROP(JSS,ISS,IPRDYZ)
+            IF(IPRDXX.GT.0) DXX=PROP(J,I,IPRDXX)
+            IF(IPRDYY.GT.0) DYY=PROP(J,I,IPRDYY)
+            IF(IPRDZZ.GT.0) DZZ=PROP(J,I,IPRDZZ)
+            IF(IPRDXY.GT.0) DXY=PROP(J,I,IPRDXY)
+            IF(IPRDXZ.GT.0) DXZ=PROP(J,I,IPRDXZ)
+            IF(IPRDYZ.GT.0) DYZ=PROP(J,I,IPRDYZ)
 
             DXX2=DXX**2
             DYY2=DYY**2
@@ -1272,34 +1269,34 @@ C And the same for the Dyson amplitudes
 
             F =FXX+FXY+FXZ+FYY+FYZ+FZZ+FXXFYY+FXXFZZ+FYYFZZ
 ! Add it to the total
-            WORK(LTOT2K-1+IJSS) = WORK(LTOT2K-1+IJSS) + F
+            WORK(LTOT2K-1+IJ) = WORK(LTOT2K-1+IJ) + F
 
             IF(ABS(F).GE.OSTHR2) THEN
-             IF(QIALL) WRITE(6,33) ISS,JSS,F
+             IF(QIALL) WRITE(6,33) I,J,F
             END IF
 !
 ! Debug to move along z. Change DZZ, DXZ and DYZ
 !
 !     DO I = 1, 9
-!           DZZ2=(PROP(JSS,ISS,IPRDZZ)+
-!    &           1.889726D0*ZVAL(I)*2.0D0*PROP(JSS,ISS,IPRDZ_TEMP))**2
-!           DXZ2=(PROP(JSS,ISS,IPRDXZ)+
-!    &           1.889726D0*ZVAL(I)*  PROP(JSS,ISS,IPRDX_TEMP))**2
-!           DYZ2=(PROP(JSS,ISS,IPRDYZ)+
-!    &           1.889726D0*ZVAL(I)*  PROP(JSS,ISS,IPRDY_TEMP))**2
+!           DZZ2=(PROP(J,I,IPRDZZ)+
+!    &           1.889726D0*ZVAL(I)*2.0D0*PROP(J,I,IPRDZ_TEMP))**2
+!           DXZ2=(PROP(J,I,IPRDXZ)+
+!    &           1.889726D0*ZVAL(I)*  PROP(J,I,IPRDX_TEMP))**2
+!           DYZ2=(PROP(J,I,IPRDYZ)+
+!    &           1.889726D0*ZVAL(I)*  PROP(J,I,IPRDY_TEMP))**2
 !           FZZ=ONEOVER30C*EDIFF3*(DZZ2)
 !           FXZ=ONEOVER10C*EDIFF3*(DXZ2)
 !           FYZ=ONEOVER10C*EDIFF3*(DYZ2)
-!           DXXDZZ=PROP(JSS,ISS,IPRDXX)*(PROP(JSS,ISS,IPRDZZ)+
-!    &             1.889726D0*ZVAL(I)*2.0D0*PROP(JSS,ISS,IPRDZ_TEMP))
-!           DYYDZZ=PROP(JSS,ISS,IPRDYY)*(PROP(JSS,ISS,IPRDZZ)+
-!    &             1.889726D0*ZVAL(I)*2.0D0*PROP(JSS,ISS,IPRDZ_TEMP))
+!           DXXDZZ=PROP(J,I,IPRDXX)*(PROP(J,I,IPRDZZ)+
+!    &             1.889726D0*ZVAL(I)*2.0D0*PROP(J,I,IPRDZ_TEMP))
+!           DYYDZZ=PROP(J,I,IPRDYY)*(PROP(J,I,IPRDZZ)+
+!    &             1.889726D0*ZVAL(I)*2.0D0*PROP(J,I,IPRDZ_TEMP))
 !           FXXFZZ=-ONEOVER30C*EDIFF3*(DXXDZZ)
 !           FYYFZZ=-ONEOVER30C*EDIFF3*(DYYDZZ)
 !           F =FXX+FXY+FXZ+FYY+FYZ+FZZ+FXXFYY+FXXFZZ+FYYFZZ
 !           IF(ABS(F).GE.OSTHR2) THEN
 !            WRITE(6,*) ' moved value ',ZVAL(I)
-!            WRITE(6,'(5X,2I5,5X,G16.8)') ISS,JSS,F
+!            WRITE(6,'(5X,2I5,5X,G16.8)') I,J,F
 !           END IF
 !     END DO
            END IF
@@ -1427,25 +1424,25 @@ C And the same for the Dyson amplitudes
         END IF
 
          TWOOVERM45C=-2.0D0/(45.0D0*CONST_C_IN_AU_**2)
-         DO ISS_=1,IEND
-            ISS=IndexE(ISS_)
-          DO JSS_=JSTART,NSS
-             JSS=IndexE(JSS_)
-           EDIFF=ENERGY(JSS)-ENERGY(ISS)
+         DO K_=1,IEND
+            I=IndexE(K_)
+          DO L_=JSTART,NSTATE
+             J=IndexE(L_)
+           EDIFF=ENERGY(J)-ENERGY(I)
            IF(EDIFF.GT.0.0D0) THEN
 !
             EDIFF3=EDIFF**3
-            IJSS=JSS+NSS*(ISS-1)
+            IJ=J+NSTATE*(I-1)
 
             DXXXDX=0.0D0
             DYYXDX=0.0D0
             DZZXDX=0.0D0
-            IF(IPRDXXX.GT.0) DXXXDX=PROP(JSS,ISS,IPRDXXX)
-     &                             *PROP(JSS,ISS,IPRDX)
-            IF(IPRDYYX.GT.0) DYYXDX=PROP(JSS,ISS,IPRDYYX)
-     &                             *PROP(JSS,ISS,IPRDX)
-            IF(IPRDZZX.GT.0) DZZXDX=PROP(JSS,ISS,IPRDZZX)
-     &                             *PROP(JSS,ISS,IPRDX)
+            IF(IPRDXXX.GT.0) DXXXDX=PROP(J,I,IPRDXXX)
+     &                             *PROP(J,I,IPRDX)
+            IF(IPRDYYX.GT.0) DYYXDX=PROP(J,I,IPRDYYX)
+     &                             *PROP(J,I,IPRDX)
+            IF(IPRDZZX.GT.0) DZZXDX=PROP(J,I,IPRDZZX)
+     &                             *PROP(J,I,IPRDX)
             FXXX=TWOOVERM45C*EDIFF3*(DXXXDX)
             FYYX=TWOOVERM45C*EDIFF3*(DYYXDX)
             FZZX=TWOOVERM45C*EDIFF3*(DZZXDX)
@@ -1453,12 +1450,12 @@ C And the same for the Dyson amplitudes
             DXXYDY=0.0D0
             DYYYDY=0.0D0
             DZZYDY=0.0D0
-            IF(IPRDXXY.GT.0) DXXYDY=PROP(JSS,ISS,IPRDXXY)
-     &                             *PROP(JSS,ISS,IPRDY)
-            IF(IPRDYYY.GT.0) DYYYDY=PROP(JSS,ISS,IPRDYYY)
-     &                             *PROP(JSS,ISS,IPRDY)
-            IF(IPRDZZY.GT.0) DZZYDY=PROP(JSS,ISS,IPRDZZY)
-     &                             *PROP(JSS,ISS,IPRDY)
+            IF(IPRDXXY.GT.0) DXXYDY=PROP(J,I,IPRDXXY)
+     &                             *PROP(J,I,IPRDY)
+            IF(IPRDYYY.GT.0) DYYYDY=PROP(J,I,IPRDYYY)
+     &                             *PROP(J,I,IPRDY)
+            IF(IPRDZZY.GT.0) DZZYDY=PROP(J,I,IPRDZZY)
+     &                             *PROP(J,I,IPRDY)
             FXXY=TWOOVERM45C*EDIFF3*(DXXYDY)
             FYYY=TWOOVERM45C*EDIFF3*(DYYYDY)
             FZZY=TWOOVERM45C*EDIFF3*(DZZYDY)
@@ -1466,49 +1463,49 @@ C And the same for the Dyson amplitudes
             DXXZDZ=0.0D0
             DYYZDZ=0.0D0
             DZZZDZ=0.0D0
-            IF(IPRDXXZ.GT.0) DXXZDZ=PROP(JSS,ISS,IPRDXXZ)
-     &                             *PROP(JSS,ISS,IPRDZ)
-            IF(IPRDYYZ.GT.0) DYYZDZ=PROP(JSS,ISS,IPRDYYZ)
-     &                             *PROP(JSS,ISS,IPRDZ)
-            IF(IPRDZZZ.GT.0) DZZZDZ=PROP(JSS,ISS,IPRDZZZ)
-     &                             *PROP(JSS,ISS,IPRDZ)
+            IF(IPRDXXZ.GT.0) DXXZDZ=PROP(J,I,IPRDXXZ)
+     &                             *PROP(J,I,IPRDZ)
+            IF(IPRDYYZ.GT.0) DYYZDZ=PROP(J,I,IPRDYYZ)
+     &                             *PROP(J,I,IPRDZ)
+            IF(IPRDZZZ.GT.0) DZZZDZ=PROP(J,I,IPRDZZZ)
+     &                             *PROP(J,I,IPRDZ)
             FXXZ=TWOOVERM45C*EDIFF3*(DXXZDZ)
             FYYZ=TWOOVERM45C*EDIFF3*(DYYZDZ)
             FZZZ=TWOOVERM45C*EDIFF3*(DZZZDZ)
 
             F =FXXX+FYYX+FZZX+FXXY+FYYY+FZZY+FXXZ+FYYZ+FZZZ
 ! Add it to the total
-            WORK(LTOT2K-1+IJSS) = WORK(LTOT2K-1+IJSS) + F
+            WORK(LTOT2K-1+IJ) = WORK(LTOT2K-1+IJ) + F
 
             IF(ABS(F).GE.OSTHR2) THEN
-             IF(QIALL) WRITE(6,33) ISS,JSS,F
+             IF(QIALL) WRITE(6,33) I,J,F
             END IF
 !
 ! Debug to move along z. Change DZZX,DZZY,DXXZ,DYYZ and DZZZ
 !
 !     DO I = 1, 9
-!     DZZXDX=(PROP(JSS,ISS,IPRDZZX)+
-!    &        1.889726D0*ZVAL(I)*2*PROP(JSS,ISS,IPRDXZ_TEMP)+
-!    &       (1.889726D0*ZVAL(I))**2*PROP(JSS,ISS,IPRDX_TEMP))*
-!    &        PROP(JSS,ISS,IPRDX)
+!     DZZXDX=(PROP(J,I,IPRDZZX)+
+!    &        1.889726D0*ZVAL(I)*2*PROP(J,I,IPRDXZ_TEMP)+
+!    &       (1.889726D0*ZVAL(I))**2*PROP(J,I,IPRDX_TEMP))*
+!    &        PROP(J,I,IPRDX)
 !           FZZX=TWOOVERM45C*EDIFF3*(DZZXDX)
 
-!     DZZYDY=(PROP(JSS,ISS,IPRDZZY)+
-!    &        1.889726D0*ZVAL(I)*2*PROP(JSS,ISS,IPRDYZ_TEMP)+
-!    &       (1.889726D0*ZVAL(I))**2*PROP(JSS,ISS,IPRDY_TEMP))*
-!    &        PROP(JSS,ISS,IPRDY)
+!     DZZYDY=(PROP(J,I,IPRDZZY)+
+!    &        1.889726D0*ZVAL(I)*2*PROP(J,I,IPRDYZ_TEMP)+
+!    &       (1.889726D0*ZVAL(I))**2*PROP(J,I,IPRDY_TEMP))*
+!    &        PROP(J,I,IPRDY)
 !           FZZY=TWOOVERM45C*EDIFF3*(DZZYDY)
 
-!     DXXZDZ=(PROP(JSS,ISS,IPRDXXZ)+
-!    &        1.889726D0*ZVAL(I)*PROP(JSS,ISS,IPRDXX_TEMP))*
-!    &        PROP(JSS,ISS,IPRDZ)
-!     DYYZDZ=(PROP(JSS,ISS,IPRDYYZ)+
-!    &        1.889726D0*ZVAL(I)*PROP(JSS,ISS,IPRDYY_TEMP))*
-!    &        PROP(JSS,ISS,IPRDZ)
-!     DZZZDZ=(PROP(JSS,ISS,IPRDZZZ)+
-!    &        1.889726D0*ZVAL(I)*3*PROP(JSS,ISS,IPRDZZ_TEMP)+
-!    &       (1.889726D0*ZVAL(I))**2*3*PROP(JSS,ISS,IPRDZ_TEMP))*
-!    &        PROP(JSS,ISS,IPRDZ)
+!     DXXZDZ=(PROP(J,I,IPRDXXZ)+
+!    &        1.889726D0*ZVAL(I)*PROP(J,I,IPRDXX_TEMP))*
+!    &        PROP(J,I,IPRDZ)
+!     DYYZDZ=(PROP(J,I,IPRDYYZ)+
+!    &        1.889726D0*ZVAL(I)*PROP(J,I,IPRDYY_TEMP))*
+!    &        PROP(J,I,IPRDZ)
+!     DZZZDZ=(PROP(J,I,IPRDZZZ)+
+!    &        1.889726D0*ZVAL(I)*3*PROP(J,I,IPRDZZ_TEMP)+
+!    &       (1.889726D0*ZVAL(I))**2*3*PROP(J,I,IPRDZ_TEMP))*
+!    &        PROP(J,I,IPRDZ)
 !           FXXZ=TWOOVERM45C*EDIFF3*(DXXZDZ)
 !           FYYZ=TWOOVERM45C*EDIFF3*(DYYZDZ)
 !           FZZZ=TWOOVERM45C*EDIFF3*(DZZZDZ)
@@ -1517,7 +1514,7 @@ C And the same for the Dyson amplitudes
 
 !           IF(ABS(F).GE.OSTHR2) THEN
 !            WRITE(6,*) ' moved value ',ZVAL(I)
-!            WRITE(6,'(5X,2I5,5X,G16.8)') ISS,JSS,F
+!            WRITE(6,'(5X,2I5,5X,G16.8)') I,J,F
 !           END IF
 !     END DO
            END IF
@@ -1612,88 +1609,88 @@ C And the same for the Dyson amplitudes
          END IF
 
          ONEOVER9C2=1.0D0/(9.0D0*CONST_C_IN_AU_**2)
-         DO ISS_=1,IEND
-            ISS=IndexE(ISS_)
-          DO JSS_=JSTART,NSS
-             JSS=IndexE(JSS_)
-           EDIFF=ENERGY(JSS)-ENERGY(ISS)
+         DO K_=1,IEND
+            I=IndexE(K_)
+          DO L_=JSTART,NSTATE
+             J=IndexE(L_)
+           EDIFF=ENERGY(J)-ENERGY(I)
            IF(EDIFF.GT.0.0D0) THEN
 !
             EDIFF2=EDIFF**2
-            IJSS=JSS+NSS*(ISS-1)
+            IJ=J+NSTATE*(I-1)
 !
             DXYDZ=0.0D0
             DYXDZ=0.0D0
-            IF(IPRDXY.GT.0) DXYDZ=PROP(JSS,ISS,IPRDXY)
-     &                           *PROP(JSS,ISS,IPRDZ)
-            IF(IPRDXY.GT.0) DYXDZ=PROP(JSS,ISS,IPRDYX)
-     &                           *PROP(JSS,ISS,IPRDZ)
+            IF(IPRDXY.GT.0) DXYDZ=PROP(J,I,IPRDXY)
+     &                           *PROP(J,I,IPRDZ)
+            IF(IPRDXY.GT.0) DYXDZ=PROP(J,I,IPRDYX)
+     &                           *PROP(J,I,IPRDZ)
             FXY=ONEOVER9C2*EDIFF2*(DXYDZ)
             FYX=-ONEOVER9C2*EDIFF2*(DYXDZ)
 
             DZXDY=0.0D0
             DXZDY=0.0D0
-            IF(IPRDZX.GT.0) DZXDY=PROP(JSS,ISS,IPRDZX)
-     &                           *PROP(JSS,ISS,IPRDY)
-            IF(IPRDXZ.GT.0) DXZDY=PROP(JSS,ISS,IPRDXZ)
-     &                           *PROP(JSS,ISS,IPRDY)
+            IF(IPRDZX.GT.0) DZXDY=PROP(J,I,IPRDZX)
+     &                           *PROP(J,I,IPRDY)
+            IF(IPRDXZ.GT.0) DXZDY=PROP(J,I,IPRDXZ)
+     &                           *PROP(J,I,IPRDY)
             FZX=ONEOVER9C2*EDIFF2*(DZXDY)
             FXZ=-ONEOVER9C2*EDIFF2*(DXZDY)
 
             DYZDX=0.0D0
             DZYDX=0.0D0
-            IF(IPRDYZ.GT.0) DYZDX=PROP(JSS,ISS,IPRDYZ)
-     &                           *PROP(JSS,ISS,IPRDX)
-            IF(IPRDZY.GT.0) DZYDX=PROP(JSS,ISS,IPRDZY)
-     &                           *PROP(JSS,ISS,IPRDX)
+            IF(IPRDYZ.GT.0) DYZDX=PROP(J,I,IPRDYZ)
+     &                           *PROP(J,I,IPRDX)
+            IF(IPRDZY.GT.0) DZYDX=PROP(J,I,IPRDZY)
+     &                           *PROP(J,I,IPRDX)
             FYZ=ONEOVER9C2*EDIFF2*(DYZDX)
             FZY=-ONEOVER9C2*EDIFF2*(DZYDX)
 
             F =FYX+FXY+FZX+FXZ+FYZ+FZY
 ! Add it to the total
-            WORK(LTOT2K-1+IJSS) = WORK(LTOT2K-1+IJSS) + F
+            WORK(LTOT2K-1+IJ) = WORK(LTOT2K-1+IJ) + F
 
             IF(ABS(F).GE.OSTHR2) THEN
-             IF(QIALL) WRITE(6,33) ISS,JSS,F
+             IF(QIALL) WRITE(6,33) I,J,F
             END IF
 !
 ! Debug to move along z.
 !
 !           ONEOVER3C = 1.0D0/(3.0D0*CONST_C_IN_AU_)
-!           DYXDZ=(PROP(JSS,ISS,IPRDYX)*ONEOVER3C
-!    &           + PROP(JSS,ISS,IPRDXX_TEMP)*ONEOVER3C*EDIFF*1.889726D0)
-!    &           * PROP(JSS,ISS,IPRDZ)
-!           DXYDZ=(PROP(JSS,ISS,IPRDXY)*ONEOVER3C
-!    &           - PROP(JSS,ISS,IPRDYY_TEMP)*ONEOVER3C*EDIFF*1.889726D0)
-!    &           * PROP(JSS,ISS,IPRDZ)
-!     print*,'YX,XY moved',PROP(JSS,ISS,IPRDYX)
-!    &                   + PROP(JSS,ISS,IPRDXX_TEMP)*EDIFF*1.889726D0,
-!    &                     PROP(JSS,ISS,IPRDXY)
-!    &                   - PROP(JSS,ISS,IPRDYY_TEMP)*EDIFF*1.889726D0
+!           DYXDZ=(PROP(J,I,IPRDYX)*ONEOVER3C
+!    &           + PROP(J,I,IPRDXX_TEMP)*ONEOVER3C*EDIFF*1.889726D0)
+!    &           * PROP(J,I,IPRDZ)
+!           DXYDZ=(PROP(J,I,IPRDXY)*ONEOVER3C
+!    &           - PROP(J,I,IPRDYY_TEMP)*ONEOVER3C*EDIFF*1.889726D0)
+!    &           * PROP(J,I,IPRDZ)
+!     print*,'YX,XY moved',PROP(J,I,IPRDYX)
+!    &                   + PROP(J,I,IPRDXX_TEMP)*EDIFF*1.889726D0,
+!    &                     PROP(J,I,IPRDXY)
+!    &                   - PROP(J,I,IPRDYY_TEMP)*EDIFF*1.889726D0
 !           FXY=ONEOVER3C*EDIFF2*(DXYDZ)
 !           FYX=-ONEOVER3C*EDIFF2*(DYXDZ)
 
-!           DZXDY=PROP(JSS,ISS,IPRDZX)*ONEOVER3C*PROP(JSS,ISS,IPRDY) !independent
-!           DXZDY=(PROP(JSS,ISS,IPRDXZ)*ONEOVER3C
-!    &           - PROP(JSS,ISS,IPRDYZ_TEMP)*ONEOVER3C*EDIFF*1.889726D0  ! changed from IPRDZY_TEMP to IPRDYZ_TEMP
-!    &     + PROP(JSS,ISS,IPRDY_TEMP)*2.0D0*ONEOVER3C*EDIFF*1.889726D0**2)
-!    &           * PROP(JSS,ISS,IPRDY) ! skipped magnetic dipole
-!     print*,'ZX,XZ moved',PROP(JSS,ISS,IPRDZX),
-!    &                     PROP(JSS,ISS,IPRDXZ)
-!    &                   - PROP(JSS,ISS,IPRDYZ_TEMP)*EDIFF*1.889726D0
-!    &                + PROP(JSS,ISS,IPRDY_TEMP)*2.0D0*EDIFF*1.889726D0**2
+!           DZXDY=PROP(J,I,IPRDZX)*ONEOVER3C*PROP(J,I,IPRDY) !independent
+!           DXZDY=(PROP(J,I,IPRDXZ)*ONEOVER3C
+!    &           - PROP(J,I,IPRDYZ_TEMP)*ONEOVER3C*EDIFF*1.889726D0  ! changed from IPRDZY_TEMP to IPRDYZ_TEMP
+!    &     + PROP(J,I,IPRDY_TEMP)*2.0D0*ONEOVER3C*EDIFF*1.889726D0**2)
+!    &           * PROP(J,I,IPRDY) ! skipped magnetic dipole
+!     print*,'ZX,XZ moved',PROP(J,I,IPRDZX),
+!    &                     PROP(J,I,IPRDXZ)
+!    &                   - PROP(J,I,IPRDYZ_TEMP)*EDIFF*1.889726D0
+!    &                + PROP(J,I,IPRDY_TEMP)*2.0D0*EDIFF*1.889726D0**2
 !           FZX=ONEOVER3C*EDIFF2*(DZXDY)
 !           FXZ=-ONEOVER3C*EDIFF2*(DXZDY)
 
-!           DYZDX=(PROP(JSS,ISS,IPRDYZ)*ONEOVER3C
-!    &           + PROP(JSS,ISS,IPRDXZ_TEMP)*ONEOVER3C*EDIFF*1.889726D0 ! changed from IPRDZX_TEMP to IPRDXZ_TEMP
-!    &     - PROP(JSS,ISS,IPRDX_TEMP)*2.0D0*ONEOVER3C*EDIFF*1.889726D0**2)
-!    &           * PROP(JSS,ISS,IPRDX)
-!           DZYDX=PROP(JSS,ISS,IPRDZY)*ONEOVER3C*PROP(JSS,ISS,IPRDX)
-!     print*,'YZ,ZY moved',PROP(JSS,ISS,IPRDYZ)
-!    &                   + PROP(JSS,ISS,IPRDXZ_TEMP)*EDIFF*1.889726D0
-!    &            - PROP(JSS,ISS,IPRDX_TEMP)*2.0D0*EDIFF*1.889726D0**2,
-!    &              PROP(JSS,ISS,IPRDZY)
+!           DYZDX=(PROP(J,I,IPRDYZ)*ONEOVER3C
+!    &           + PROP(J,I,IPRDXZ_TEMP)*ONEOVER3C*EDIFF*1.889726D0 ! changed from IPRDZX_TEMP to IPRDXZ_TEMP
+!    &     - PROP(J,I,IPRDX_TEMP)*2.0D0*ONEOVER3C*EDIFF*1.889726D0**2)
+!    &           * PROP(J,I,IPRDX)
+!           DZYDX=PROP(J,I,IPRDZY)*ONEOVER3C*PROP(J,I,IPRDX)
+!     print*,'YZ,ZY moved',PROP(J,I,IPRDYZ)
+!    &                   + PROP(J,I,IPRDXZ_TEMP)*EDIFF*1.889726D0
+!    &            - PROP(J,I,IPRDX_TEMP)*2.0D0*EDIFF*1.889726D0**2,
+!    &              PROP(J,I,IPRDZY)
 !           FYZ=ONEOVER3C*EDIFF2*(DYZDX)
 !           FZY=-ONEOVER3C*EDIFF2*(DZYDX)
 ! The new diagonal ones?
@@ -1701,7 +1698,7 @@ C And the same for the Dyson amplitudes
 
 !           IF(ABS(F).GE.OSTHR2) THEN
 !            WRITE(6,*) ' The moved value '
-!            WRITE(6,'(5X,2I5,5X,G16.8)') ISS,JSS,F
+!            WRITE(6,'(5X,2I5,5X,G16.8)') I,J,F
 !           END IF
 ! End debug
            END IF
@@ -1738,15 +1735,15 @@ C And the same for the Dyson amplitudes
          IF(SECORD(4).EQ.0)
      &   WRITE(6,*) 'Electric-dipole - magnetic-quadrupole not included'
          iPrint=0
-         DO ISS_=1,IEND
-          ISS=IndexE(ISS_)
-          DO JSS_=JSTART,NSS
-           JSS=IndexE(JSS_)
-           EDIFF=ENERGY(JSS)-ENERGY(ISS)
+         DO K_=1,IEND
+          I=IndexE(K_)
+          DO L_=JSTART,NSTATE
+           J=IndexE(L_)
+           EDIFF=ENERGY(J)-ENERGY(I)
            IF(EDIFF.GT.0.0D0) THEN
 !
-            IJSS=JSS+NSS*(ISS-1)
-            F = WORK(LTOT2K-1+IJSS)
+            IJ=J+NSTATE*(I-1)
+            F = WORK(LTOT2K-1+IJ)
             IF(ABS(F).GE.OSTHR2) THEN
             If (iPrint.eq.0) Then
          WRITE(6,*)
@@ -1767,7 +1764,7 @@ C And the same for the Dyson amplitudes
          WRITE(6,35)
          iPrint=1
              End If
-             WRITE(6,33) ISS,JSS,F
+             WRITE(6,33) I,J,F
             END IF
            END IF
           END DO
@@ -1781,7 +1778,7 @@ C And the same for the Dyson amplitudes
          End If
        END IF
 ! release the memory again
-       CALL GETMEM('TOT2K','FREE','REAL',LTOT2K,NSS**2)
+       CALL GETMEM('TOT2K','FREE','REAL',LTOT2K,NSTATE**2)
 !
 !
       IF(DOCD) THEN
@@ -1793,21 +1790,38 @@ C And the same for the Dyson amplitudes
         IPRDXM=0
         IPRDYM=0
         IPRDZM=0
+        IPRQXX=0
+        IPRQXY=0
+        IPRQXZ=0
+        IPRQYX=0
+        IPRQYY=0
+        IPRQYZ=0
+        IPRQZX=0
+        IPRQZY=0
+        IPRQZZ=0
 
         IFANYD=0
         IFANYM=0
+        IFANYQ=0
         DO IPROP=1,NPROP
           IF (PNAME(IPROP).EQ.'VELOCITY') THEN
            IFANYD=1
            IF(ICOMP(IPROP).EQ.1) IPRDXD=IPROP
            IF(ICOMP(IPROP).EQ.2) IPRDYD=IPROP
            IF(ICOMP(IPROP).EQ.3) IPRDZD=IPROP
-          END IF
-          IF(PNAME(IPROP).EQ.'ANGMOM  ') THEN
+          ELSE IF(PNAME(IPROP).EQ.'ANGMOM  ') THEN
            IFANYM=1
            IF(ICOMP(IPROP).EQ.1) IPRDXM=IPROP
            IF(ICOMP(IPROP).EQ.2) IPRDYM=IPROP
            IF(ICOMP(IPROP).EQ.3) IPRDZM=IPROP
+          ELSE IF(PNAME(IPROP).EQ.'MLTPV  2') THEN
+           IFANYQ=1
+           IF(ICOMP(IPROP).EQ.1) IPRQXX=IPROP
+           IF(ICOMP(IPROP).EQ.2) IPRQXY=IPROP
+           IF(ICOMP(IPROP).EQ.3) IPRQXZ=IPROP
+           IF(ICOMP(IPROP).EQ.4) IPRQYY=IPROP
+           IF(ICOMP(IPROP).EQ.5) IPRQYZ=IPROP
+           IF(ICOMP(IPROP).EQ.6) IPRQZZ=IPROP
           END IF
         END DO
 
@@ -1815,50 +1829,181 @@ C And the same for the Dyson amplitudes
 !
 ! Only print the part calculated
 !
-          WRITE(6,*)
-          Call CollapseOutput(1,
-     &                  'Circular Dichroism - velocity gauge '//
-     &                  'Electric-Dipole - Magnetic-Dipole '//
-     &                  'rotatory strengths (spin-free states):')
-          WRITE(6,'(3X,A)')
-     &                  '------------------------------------'//
-     &                  '----------------------------------'//
-     &                  '--------------------------------------'
-          WRITE(6,*)
-          WRITE(6,31) 'From','To','Red. rot. str.'
-          WRITE(6,35)
+         WRITE(6,*)
+         Call CollapseOutput(1,
+     &                 'Circular Dichroism - velocity gauge '//
+     &                 'Electric-Dipole - Magnetic-Dipole '//
+     &                 'rotatory strengths (spin-free states):')
+         WRITE(6,'(3X,A)')
+     &                 '------------------------------------'//
+     &                 '----------------------------------'//
+     &                 '--------------------------------------'
+         WRITE(6,*)
+*
+         If (Do_SK.AND.(IFANYQ.NE.0)) Then
+            nVec = nk_Vector
+         Else
+            nVec = 1
+         End If
+*
+         Do iVec = 1, nVec
+*
+         If (Do_SK.AND.(IFANYQ.NE.0)) Then
+            WRITE(6,*)
+            WRITE(6,'(4x,a,3F8.4)')
+     &         'Direction of the k-vector: ',
+     &          (k_vector(k,iVec),k=1,3)
+            WRITE(6,*)
+            WRITE(6,31) 'From','To','Red. rot. str.'
+         Else
+            WRITE(6,31) 'From','To','Red. rot. str.'
+            IF (IFANYQ.NE.0)
+     &         WRITE(6,44) 'Rxx','Rxy','Rxz','Ryy','Ryz','Rzz'
+         End If
+         WRITE(6,35)
 !
-         DO ISS_=1,IEND
-            ISS=IndexE(ISS_)
-          DO JSS_=JSTART,NSS
-             JSS=IndexE(JSS_)
-           EDIFF=ENERGY(JSS)-ENERGY(ISS)
+         DO K_=1,IEND
+            I=IndexE(K_)
+          DO L_=JSTART,NSTATE
+             J=IndexE(L_)
+           EDIFF=ENERGY(J)-ENERGY(I)
            IF(EDIFF.GT.0.0D0) THEN
 
 *           R = e^2*hbar/(2*m^2*E) <J|p|I>.<I|l|J>
 *             = e^2*hbar/(2*m^2*E) -i*hbar*<J|nabla|I>.-i*hbar*<I|r x nabla|J>
 *             = e^2*hbar^3/(2*m^2*E) <J|nabla|I>.<J|r x nabla|I>
-            R=0.0D0
 
-            IF((IPRDXM.GT.0).AND.(IPRDXD.GT.0)) THEN
-              R=R+PROP(JSS,ISS,IPRDXD)*PROP(JSS,ISS,IPRDXM)
+            RXX=0.0D0
+            RYY=0.0D0
+            RZZ=0.0D0
+            IF((IPRDXD.GT.0).AND.(IPRDXM.GT.0)) THEN
+              RXX=PROP(J,I,IPRDXD)*PROP(J,I,IPRDXM)
             END IF
-            IF((IPRDYM.GT.0).AND.(IPRDYD.GT.0)) THEN
-              R=R+PROP(JSS,ISS,IPRDYD)*PROP(JSS,ISS,IPRDYM)
+            IF((IPRDYD.GT.0).AND.(IPRDYM.GT.0)) THEN
+              RYY=PROP(J,I,IPRDYD)*PROP(J,I,IPRDYM)
             END IF
-            IF((IPRDZM.GT.0).AND.(IPRDZD.GT.0)) THEN
-              R=R+PROP(JSS,ISS,IPRDZD)*PROP(JSS,ISS,IPRDZM)
+            IF((IPRDZD.GT.0).AND.(IPRDZM.GT.0)) THEN
+              RZZ=PROP(J,I,IPRDZD)*PROP(J,I,IPRDZM)
             END IF
-
+            R = RXX+RYY+RZZ
             R = R*Half/EDIFF*AU2REDR
-
-            WRITE(6,33) ISS,JSS,R
+*
+* Compute full rotatory strength tensor
+* (see Hansen and Bak, 10.1021/jp001899+)
+*
+            IF (IFANYQ.NE.0) THEN
+             RXY=0.0D0
+             RXZ=0.0D0
+             RYX=0.0D0
+             RYZ=0.0D0
+             RZX=0.0D0
+             RZY=0.0D0
+             RXXY=0.0D0
+             RXXZ=0.0D0
+             RXYX=0.0D0
+             RXYZ=0.0D0
+             RXZX=0.0D0
+             RXZY=0.0D0
+             RYXY=0.0D0
+             RYYX=0.0D0
+             RYYZ=0.0D0
+             RYZX=0.0D0
+             RYZY=0.0D0
+             RZXZ=0.0D0
+             RZYZ=0.0D0
+             RZZX=0.0D0
+             RZZY=0.0D0
+             IF((IPRDXD.GT.0).AND.(IPRDYM.GT.0)) THEN
+               RXY=PROP(J,I,IPRDXD)*PROP(J,I,IPRDYM)
+             END IF
+             IF((IPRDXD.GT.0).AND.(IPRDZM.GT.0)) THEN
+               RXZ=PROP(J,I,IPRDXD)*PROP(J,I,IPRDZM)
+             END IF
+             IF((IPRDYD.GT.0).AND.(IPRDXM.GT.0)) THEN
+               RYX=PROP(J,I,IPRDYD)*PROP(J,I,IPRDXM)
+             END IF
+             IF((IPRDYD.GT.0).AND.(IPRDZM.GT.0)) THEN
+               RYZ=PROP(J,I,IPRDYD)*PROP(J,I,IPRDZM)
+             END IF
+             IF((IPRDZD.GT.0).AND.(IPRDXM.GT.0)) THEN
+               RZX=PROP(J,I,IPRDZD)*PROP(J,I,IPRDXM)
+             END IF
+             IF((IPRDZD.GT.0).AND.(IPRDYM.GT.0)) THEN
+               RZY=PROP(J,I,IPRDZD)*PROP(J,I,IPRDYM)
+             END IF
+             IF((IPRQXX.GT.0).AND.(IPRDYD.GT.0)) THEN
+               RXXY=PROP(J,I,IPRQXX)*PROP(J,I,IPRDYD)
+             END IF
+             IF((IPRQXX.GT.0).AND.(IPRDZD.GT.0)) THEN
+               RXXZ=PROP(J,I,IPRQXX)*PROP(J,I,IPRDZD)
+             END IF
+             IF((IPRQXY.GT.0).AND.(IPRDXD.GT.0)) THEN
+               RXYX=PROP(J,I,IPRQXY)*PROP(J,I,IPRDXD)
+             END IF
+             IF((IPRQXY.GT.0).AND.(IPRDZD.GT.0)) THEN
+               RXYZ=PROP(J,I,IPRQXY)*PROP(J,I,IPRDZD)
+             END IF
+             IF((IPRQXZ.GT.0).AND.(IPRDXD.GT.0)) THEN
+               RXZX=PROP(J,I,IPRQXZ)*PROP(J,I,IPRDXD)
+             END IF
+             IF((IPRQXZ.GT.0).AND.(IPRDYD.GT.0)) THEN
+              RXZY=PROP(J,I,IPRQXZ)*PROP(J,I,IPRDYD)
+             END IF
+             IF((IPRQXY.GT.0).AND.(IPRDYD.GT.0)) THEN
+               RYXY=PROP(J,I,IPRQXY)*PROP(J,I,IPRDYD)
+             END IF
+             IF((IPRQYY.GT.0).AND.(IPRDXD.GT.0)) THEN
+               RYYX=PROP(J,I,IPRQYY)*PROP(J,I,IPRDXD)
+             END IF
+             IF((IPRQYY.GT.0).AND.(IPRDZD.GT.0)) THEN
+               RYYZ=PROP(J,I,IPRQYY)*PROP(J,I,IPRDZD)
+             END IF
+             IF((IPRQYZ.GT.0).AND.(IPRDXD.GT.0)) THEN
+               RYZX=PROP(J,I,IPRQYZ)*PROP(J,I,IPRDXD)
+             END IF
+             IF((IPRQYZ.GT.0).AND.(IPRDYD.GT.0)) THEN
+               RYZY=PROP(J,I,IPRQYZ)*PROP(J,I,IPRDYD)
+             END IF
+             IF((IPRQXZ.GT.0).AND.(IPRDZD.GT.0)) THEN
+               RZXZ=PROP(J,I,IPRQXZ)*PROP(J,I,IPRDZD)
+             END IF
+             IF((IPRQYZ.GT.0).AND.(IPRDZD.GT.0)) THEN
+               RZYZ=PROP(J,I,IPRQYZ)*PROP(J,I,IPRDZD)
+             END IF
+             IF((IPRQZZ.GT.0).AND.(IPRDXD.GT.0)) THEN
+               RZZX=PROP(J,I,IPRQZZ)*PROP(J,I,IPRDXD)
+             END IF
+             IF((IPRQZZ.GT.0).AND.(IPRDYD.GT.0)) THEN
+               RZZY=PROP(J,I,IPRQZZ)*PROP(J,I,IPRDYD)
+             END IF
+             RT(1,1) =  0.75D0 *(RYY+RZZ + (RXYZ-RXZY))
+             RT(1,2) = -0.375D0*(RXY+RYX + (RXXZ+RYZY-RXZX-RYYZ))
+             RT(1,3) = -0.375D0*(RXZ+RZX + (RXYX+RZZY-RXXY-RZYZ))
+             RT(2,1) = RT(1,2)
+             RT(2,2) =  0.75D0 *(RXX+RZZ + (RYZX-RXYZ))
+             RT(2,3) = -0.375D0*(RYZ+RZY + (RYYX+RZXZ-RYXY-RZZX))
+             RT(3,1) = RT(1,3)
+             RT(3,2) = RT(2,3)
+             RT(3,3) =  0.75D0 *(RXX+RYY + (RXZY-RYZX))
+             CALL DSCAL_(9,AU2REDR/EDIFF,RT,1)
+             IF (Do_SK) THEN
+              R = k_vector(1,iVec)*DDot_(3,k_vector(1,iVec),1,RT(1,1),1)
+     &           +k_vector(2,iVec)*DDot_(3,k_vector(1,iVec),1,RT(1,2),1)
+     &           +k_vector(3,iVec)*DDot_(3,k_vector(1,iVec),1,RT(1,3),1)
+             ELSE
+                WRITE(6,43) 'tensor: ',
+     &                   RT(1,1),RT(1,2),RT(1,3),RT(2,2),RT(2,3),RT(3,3)
+             END IF
+            END IF
+*
+            WRITE(6,33) I,J,R
 !
             Call Add_Info('CD_V(SF)',[R],1,6)
            END IF
           END DO
          END DO
          WRITE(6,35)
+         End Do
 
          Call CollapseOutput(0,
      &                  'Circular Dichroism - velocity gauge '//
@@ -1875,9 +2020,16 @@ C And the same for the Dyson amplitudes
         IPRDXM=0
         IPRDYM=0
         IPRDZM=0
+        IPRQXX=0
+        IPRQXY=0
+        IPRQXZ=0
+        IPRQYY=0
+        IPRQYZ=0
+        IPRQZZ=0
 
         IFANYD=0
         IFANYM=0
+        IFANYQ=0
         DO IPROP=1,NPROP
           IF(PTYPE(IPROP)(5:8).NE.'SING') CYCLE
           IF (PNAME(IPROP).EQ.'MLTPL  1') THEN
@@ -1885,12 +2037,19 @@ C And the same for the Dyson amplitudes
            IF(ICOMP(IPROP).EQ.1) IPRDXD=IPROP
            IF(ICOMP(IPROP).EQ.2) IPRDYD=IPROP
            IF(ICOMP(IPROP).EQ.3) IPRDZD=IPROP
-          END IF
-          IF(PNAME(IPROP).EQ.'ANGMOM  ') THEN
+          ELSE IF(PNAME(IPROP).EQ.'ANGMOM  ') THEN
            IFANYM=1
            IF(ICOMP(IPROP).EQ.1) IPRDXM=IPROP
            IF(ICOMP(IPROP).EQ.2) IPRDYM=IPROP
            IF(ICOMP(IPROP).EQ.3) IPRDZM=IPROP
+          ELSE IF(PNAME(IPROP).EQ.'MLTPL  2') THEN
+           IFANYQ=1
+           IF(ICOMP(IPROP).EQ.1) IPRQXX=IPROP
+           IF(ICOMP(IPROP).EQ.2) IPRQXY=IPROP
+           IF(ICOMP(IPROP).EQ.3) IPRQXZ=IPROP
+           IF(ICOMP(IPROP).EQ.4) IPRQYY=IPROP
+           IF(ICOMP(IPROP).EQ.5) IPRQYZ=IPROP
+           IF(ICOMP(IPROP).EQ.6) IPRQZZ=IPROP
           END IF
         END DO
 
@@ -1898,55 +2057,186 @@ C And the same for the Dyson amplitudes
 !
 ! Only print the part calculated
 !
-          WRITE(6,*)
-          Call CollapseOutput(1,
-     &                  'Circular Dichroism - mixed gauge '//
-     &                  'Electric-Dipole - Magnetic-Dipole '//
-     &                  'rotatory strengths (spin-free states):')
-          WRITE(6,'(3X,A)')
-     &                  '---------------------------------'//
-     &                  '----------------------------------'//
-     &                  '--------------------------------------'
-          WRITE(6,*)
-          WRITE(6,*) ' WARNING WARNING WARNING !!! '
-          WRITE(6,*)
-          WRITE(6,*) ' Circular Dichroism in the mixed gauge '
-          WRITE(6,*) ' is NOT origin independent - check your results '
-          WRITE(6,*)
-          WRITE(6,31) 'From','To','Red. rot. str.'
-          WRITE(6,35)
+         WRITE(6,*)
+         Call CollapseOutput(1,
+     &                 'Circular Dichroism - mixed gauge '//
+     &                 'Electric-Dipole - Magnetic-Dipole '//
+     &                 'rotatory strengths (spin-free states):')
+         WRITE(6,'(3X,A)')
+     &                 '---------------------------------'//
+     &                 '----------------------------------'//
+     &                 '--------------------------------------'
+         WRITE(6,*)
+         WRITE(6,*) ' WARNING WARNING WARNING !!! '
+         WRITE(6,*)
+         WRITE(6,*) ' Circular Dichroism in the mixed gauge '
+         WRITE(6,*) ' is NOT origin independent - check your results '
+         WRITE(6,*)
+*
+         If (Do_SK.AND.(IFANYQ.NE.0)) Then
+            nVec = nk_Vector
+         Else
+            nVec = 1
+         End If
+*
+         Do iVec = 1, nVec
+*
+         If (Do_SK.AND.(IFANYQ.NE.0)) Then
+            WRITE(6,*)
+            WRITE(6,'(4x,a,3F8.4)')
+     &         'Direction of the k-vector: ',
+     &          (k_vector(k,iVec),k=1,3)
+            WRITE(6,*)
+            WRITE(6,31) 'From','To','Red. rot. str.'
+         Else
+            WRITE(6,31) 'From','To','Red. rot. str.'
+            IF (IFANYQ.NE.0)
+     &         WRITE(6,44) 'Rxx','Rxy','Rxz','Ryy','Ryz','Rzz'
+         End If
+         WRITE(6,35)
 !
-         DO ISS_=1,IEND
-            ISS=IndexE(ISS_)
-          DO JSS_=JSTART,NSS
-             JSS=IndexE(JSS_)
-           EDIFF=ENERGY(JSS)-ENERGY(ISS)
+         DO K_=1,IEND
+            I=IndexE(K_)
+          DO L_=JSTART,NSTATE
+             J=IndexE(L_)
+           EDIFF=ENERGY(J)-ENERGY(I)
            IF(EDIFF.GT.0.0D0) THEN
 
 *           R = -i*e^2/(2*m) <J|r|I>.<I|l|J>
 *             = -i*e^2/(2*m) <J|r|I>.-i*hbar*<I|r x nabla|J>
 *             = e^2*hbar/(2*m) <J|r|I>.<J|r x nabla|I>
-            R=0.0D0
 
-            IF((IPRDXM.GT.0).AND.(IPRDXD.GT.0)) THEN
-              R=R+PROP(JSS,ISS,IPRDXD)*PROP(JSS,ISS,IPRDXM)
+            RXX=0.0D0
+            RYY=0.0D0
+            RZZ=0.0D0
+            IF((IPRDXD.GT.0).AND.(IPRDXM.GT.0)) THEN
+              RXX=PROP(J,I,IPRDXD)*PROP(J,I,IPRDXM)
             END IF
-            IF((IPRDYM.GT.0).AND.(IPRDYD.GT.0)) THEN
-              R=R+PROP(JSS,ISS,IPRDYD)*PROP(JSS,ISS,IPRDYM)
+            IF((IPRDYD.GT.0).AND.(IPRDYM.GT.0)) THEN
+              RYY=PROP(J,I,IPRDYD)*PROP(J,I,IPRDYM)
             END IF
-            IF((IPRDZM.GT.0).AND.(IPRDZD.GT.0)) THEN
-              R=R+PROP(JSS,ISS,IPRDZD)*PROP(JSS,ISS,IPRDZM)
+            IF((IPRDZD.GT.0).AND.(IPRDZM.GT.0)) THEN
+              RZZ=PROP(J,I,IPRDZD)*PROP(J,I,IPRDZM)
             END IF
-
+            R = RXX+RYY+RZZ
             R = R*Half*AU2REDR
-
-            WRITE(6,33) ISS,JSS,R
+*
+* Compute full rotatory strength tensor
+* (see Hansen and Bak, 10.1021/jp001899+)
+*
+            IF (IFANYQ.NE.0) THEN
+             RXY=0.0D0
+             RXZ=0.0D0
+             RYX=0.0D0
+             RYZ=0.0D0
+             RZX=0.0D0
+             RZY=0.0D0
+             RXXY=0.0D0
+             RXXZ=0.0D0
+             RXYX=0.0D0
+             RXYZ=0.0D0
+             RXZX=0.0D0
+             RXZY=0.0D0
+             RYXY=0.0D0
+             RYYX=0.0D0
+             RYYZ=0.0D0
+             RYZX=0.0D0
+             RYZY=0.0D0
+             RZXZ=0.0D0
+             RZYZ=0.0D0
+             RZZX=0.0D0
+             RZZY=0.0D0
+             IF((IPRDXD.GT.0).AND.(IPRDYM.GT.0)) THEN
+               RXY=PROP(J,I,IPRDXD)*PROP(J,I,IPRDYM)
+             END IF
+             IF((IPRDXD.GT.0).AND.(IPRDZM.GT.0)) THEN
+               RXZ=PROP(J,I,IPRDXD)*PROP(J,I,IPRDZM)
+             END IF
+             IF((IPRDYD.GT.0).AND.(IPRDXM.GT.0)) THEN
+               RYX=PROP(J,I,IPRDYD)*PROP(J,I,IPRDXM)
+             END IF
+             IF((IPRDYD.GT.0).AND.(IPRDZM.GT.0)) THEN
+               RYZ=PROP(J,I,IPRDYD)*PROP(J,I,IPRDZM)
+             END IF
+             IF((IPRDZD.GT.0).AND.(IPRDXM.GT.0)) THEN
+               RZX=PROP(J,I,IPRDZD)*PROP(J,I,IPRDXM)
+             END IF
+             IF((IPRDZD.GT.0).AND.(IPRDYM.GT.0)) THEN
+               RZY=PROP(J,I,IPRDZD)*PROP(J,I,IPRDYM)
+             END IF
+             IF((IPRQXX.GT.0).AND.(IPRDYD.GT.0)) THEN
+               RXXY=PROP(J,I,IPRQXX)*PROP(J,I,IPRDYD)
+             END IF
+             IF((IPRQXX.GT.0).AND.(IPRDZD.GT.0)) THEN
+               RXXZ=PROP(J,I,IPRQXX)*PROP(J,I,IPRDZD)
+             END IF
+             IF((IPRQXY.GT.0).AND.(IPRDXD.GT.0)) THEN
+               RXYX=PROP(J,I,IPRQXY)*PROP(J,I,IPRDXD)
+             END IF
+             IF((IPRQXY.GT.0).AND.(IPRDZD.GT.0)) THEN
+               RXYZ=PROP(J,I,IPRQXY)*PROP(J,I,IPRDZD)
+             END IF
+             IF((IPRQXZ.GT.0).AND.(IPRDXD.GT.0)) THEN
+               RXZX=PROP(J,I,IPRQXZ)*PROP(J,I,IPRDXD)
+             END IF
+             IF((IPRQXZ.GT.0).AND.(IPRDYD.GT.0)) THEN
+               RXZY=PROP(J,I,IPRQXZ)*PROP(J,I,IPRDYD)
+             END IF
+             IF((IPRQXY.GT.0).AND.(IPRDYD.GT.0)) THEN
+               RYXY=PROP(J,I,IPRQXY)*PROP(J,I,IPRDYD)
+             END IF
+             IF((IPRQYY.GT.0).AND.(IPRDXD.GT.0)) THEN
+               RYYX=PROP(J,I,IPRQYY)*PROP(J,I,IPRDXD)
+             END IF
+             IF((IPRQYY.GT.0).AND.(IPRDZD.GT.0)) THEN
+               RYYZ=PROP(J,I,IPRQYY)*PROP(J,I,IPRDZD)
+             END IF
+             IF((IPRQYZ.GT.0).AND.(IPRDXD.GT.0)) THEN
+               RYZX=PROP(J,I,IPRQYZ)*PROP(J,I,IPRDXD)
+             END IF
+             IF((IPRQYZ.GT.0).AND.(IPRDYD.GT.0)) THEN
+               RYZY=PROP(J,I,IPRQYZ)*PROP(J,I,IPRDYD)
+             END IF
+             IF((IPRQXZ.GT.0).AND.(IPRDZD.GT.0)) THEN
+               RZXZ=PROP(J,I,IPRQXZ)*PROP(J,I,IPRDZD)
+             END IF
+             IF((IPRQYZ.GT.0).AND.(IPRDZD.GT.0)) THEN
+               RZYZ=PROP(J,I,IPRQYZ)*PROP(J,I,IPRDZD)
+             END IF
+             IF((IPRQZZ.GT.0).AND.(IPRDXD.GT.0)) THEN
+               RZZX=PROP(J,I,IPRQZZ)*PROP(J,I,IPRDXD)
+             END IF
+             IF((IPRQZZ.GT.0).AND.(IPRDYD.GT.0)) THEN
+               RZZY=PROP(J,I,IPRQZZ)*PROP(J,I,IPRDYD)
+             END IF
+             RT(1,1) =  0.75D0 *(RYY+RZZ + EDIFF*(RXYZ-RXZY))
+             RT(1,2) = -0.375D0*(RXY+RYX + EDIFF*(RXXZ+RYZY-RXZX-RYYZ))
+             RT(1,3) = -0.375D0*(RXZ+RZX + EDIFF*(RXYX+RZZY-RXXY-RZYZ))
+             RT(2,1) = RT(1,2)
+             RT(2,2) =  0.75D0 *(RXX+RZZ + EDIFF*(RYZX-RXYZ))
+             RT(2,3) = -0.375D0*(RYZ+RZY + EDIFF*(RYYX+RZXZ-RYXY-RZZX))
+             RT(3,1) = RT(1,3)
+             RT(3,2) = RT(2,3)
+             RT(3,3) =  0.75D0 *(RXX+RYY + EDIFF*(RXZY-RYZX))
+             CALL DSCAL_(9,AU2REDR,RT,1)
+             IF (Do_SK) THEN
+              R = k_vector(1,iVec)*DDot_(3,k_vector(1,iVec),1,RT(1,1),1)
+     &           +k_vector(2,iVec)*DDot_(3,k_vector(1,iVec),1,RT(1,2),1)
+     &           +k_vector(3,iVec)*DDot_(3,k_vector(1,iVec),1,RT(1,3),1)
+             ELSE
+                WRITE(6,43) 'tensor: ',
+     &                   RT(1,1),RT(1,2),RT(1,3),RT(2,2),RT(2,3),RT(3,3)
+             END IF
+            END IF
+*
+            WRITE(6,33) I,J,R
 !
             Call Add_Info('CD_M(SF)',[R],1,6)
            END IF
           END DO
          END DO
          WRITE(6,35)
+         End Do
 
          Call CollapseOutput(0,
      &                  'Circular Dichroism - mixed gauge '//
@@ -2002,7 +2292,6 @@ C And the same for the Dyson amplitudes
 *     The operator is split in 4 different component, each with three
 *     elements corresponding to differentiation in the x, y, and z
 *     direction.
-*     The B.s term is split into 2 component.
 *
 ************************************************************************
 *                                                                      *
@@ -2011,7 +2300,7 @@ C And the same for the Dyson amplitudes
 ************************************************************************
 *
       If (.Not.Do_TMOM) Go To 900
-#define _TIME_TMOM_
+*define _TIME_TMOM_
 #ifdef _TIME_TMOM_
       Call CWTime(TCpu1,TWall1)
 #endif
@@ -2162,7 +2451,7 @@ C And the same for the Dyson amplitudes
 *
 *     Allocate vector to store all individual transition moments.
 *     We do this for
-*     all unique pairs ISO-JSO, iSO=/=JSO (NSS*(NSS-1)/2)
+*     all unique pairs I-J, I=/=J (NSTATE*(NSTATE-1)/2)
 *         all k-vectors (nQuad or nVec)
 *             we store:
 *                 the weight (1)
@@ -2766,6 +3055,8 @@ C                 Why do it when we don't do the L.S-term!
 40    FORMAT (5X,63('-'))
 41    FORMAT (5X,2(1X,A4),5X,5(1X,A15))
 42    FORMAT (5X,79('-'))
+43    FORMAT (12X,A8,6(1X,ES15.8))
+44    FORMAT (20X,6(1X,A15))
 50    FORMAT (10X,A7,3X,1(1X,ES15.8),5X,A27,3(1X,F7.4))
       END Subroutine EigCtl
 
