@@ -878,7 +878,7 @@ c           iPAMcount=iPAMcount+1
          OperI(1+5) = MltLbl(iSymCz,iSymZ,nIrrep)
          OperC(1+5) = iChBas(4)
 *
-         Call DCopy_(nComp,Zero,0,Nuc,1)
+         Call DCopy_(nComp,[Zero],0,Nuc,1)
          Call OneEl(QpVInt,QpVMem,Label,ipList,OperI,nComp,
      &              CoorO,nOrdOp,Nuc,rHrmt,OperC,
      &              dum,1,dum,idum,0,0,
