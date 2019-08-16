@@ -167,10 +167,6 @@ include:
     <<: *sources
   except:
     - master@Molcas/OpenMolcas
-  # run even if the previous stage failed
-  # (in general, we want to run those configurations that didn't fail,
-  #  but there's no harm in running all)
-  when: always
 
 # A special job for compiling the tinker interface
 # By adding "tinker" as a dependency, other jobs can use it
@@ -252,6 +248,9 @@ test:plain:
   dependencies:
     - build:plain
     - tinker
+  needs:
+    - build:plain
+    - tinker
   parallel: 2
 
 build:options:
@@ -261,6 +260,9 @@ test:options:
   extends: .options
   <<: *run-tests
   dependencies:
+    - build:options
+    - tinker
+  needs:
     - build:options
     - tinker
   parallel: 2
@@ -274,6 +276,9 @@ test:pgi:
   dependencies:
     - build:pgi
     - tinker
+  needs:
+    - build:pgi
+    - tinker
   parallel: 2
 
 build:sun:
@@ -283,6 +288,9 @@ test:sun:
   extends: .sun
   <<: *run-tests
   dependencies:
+    - build:sun
+    - tinker
+  needs:
     - build:sun
     - tinker
   parallel: 2
@@ -295,6 +303,8 @@ test:intel:
   <<: *run-tests
   dependencies:
     - build:intel
+  needs:
+    - build:intel
 
 build:intel13:
   extends: .intel13
@@ -303,6 +313,8 @@ test:intel13:
   extends: .intel13
   <<: *run-tests
   dependencies:
+    - build:intel13
+  needs:
     - build:intel13
 
 # Disable NAG, since the runner is unavailable
@@ -315,6 +327,9 @@ test:intel13:
 #  dependencies:
 #    - build:nag
 #    - tinker
+#  needs:
+#    - build:nag
+#    - tinker
 
 build:garble:
   extends: .garble
@@ -323,6 +338,9 @@ test:garble:
   extends: .garble
   <<: *run-tests
   dependencies:
+    - build:garble
+    - tinker
+  needs:
     - build:garble
     - tinker
   parallel: 4
@@ -335,16 +353,20 @@ test:bounds:
   <<: *run-tests
   dependencies:
     - build:bounds
+  needs:
+    - build:bounds
   parallel: 4
 
 build:debug:
   extends: .debug
   <<: *compile
-test:debug:
-  extends: .debug
-  <<: *run-tests
-  dependencies:
-    - build:debug
+#test:debug:
+#  extends: .debug
+#  <<: *run-tests
+#  dependencies:
+#    - build:debug
+#  needs:
+#    - build:debug
 
 build:qcmaquis:
   extends: .qcmaquis
@@ -353,5 +375,7 @@ test:qcmaquis:
   extends: .qcmaquis
   <<: *run-tests
   dependencies:
+    - build:qcmaquis
+  needs:
     - build:qcmaquis
 
