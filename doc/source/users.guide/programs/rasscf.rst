@@ -1397,7 +1397,7 @@ A list of these keywords is given below:
 
 :kword:`ORTH`
    Specify the orthonormalization scheme to apply on the read orbitals.
-   The possibilities are ``Gram_Schmidt``, ``Lowdin``, ``Canonical``, ``or no_ON``
+   The possibilities are ``Gram_Schmidt``, ``Lowdin``, ``Canonical``, or ``no_ON``
    (no_orthonormalization).
    For a detailed explanation see :cite:`szabo_ostlund` (p. 143).
    The default is Gram_Schmidt.
