@@ -131,8 +131,7 @@
 
       integer :: start, step, length
 
-      character(50) :: ON_scheme_inp
-      character(:), allocatable :: uppercased
+      character(50) :: ON_scheme_inp, uppercased
 
 #ifdef _DMRG_
 !     dmrg(QCMaquis)-stuff
