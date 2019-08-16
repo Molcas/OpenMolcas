@@ -18,7 +18,10 @@ try:
   from builtins import bytes
 except ImportError:
   from future.builtins import bytes
-from six import text_type
+try:
+  from six import text_type
+except ImportError:
+  text_type = str
 
 from os import environ, access, W_OK, X_OK, listdir, remove, getpid, getcwd, makedirs, symlink, devnull
 from os.path import isfile, isdir, isabs, join, basename, splitext, getmtime, abspath, exists, relpath, realpath
