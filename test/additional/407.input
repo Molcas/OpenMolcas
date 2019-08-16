@@ -27,12 +27,10 @@
 
 >foreach ON_scheme in (Gram_Schmidt, Lowdin, Canonical)
     >copy loc.ArtOrb INPORB
-    >if ($ON_scheme != No_ON)
-        &RASSCF
-            LUMOrb
-            Spin = 1
-            ORTHonormalisation = $ON_scheme
-    >endif
+    &RASSCF
+        LUMOrb
+        Spin = 1
+        ORTHonormalisation = $ON_scheme
 >enddo
 
 
