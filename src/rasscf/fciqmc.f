@@ -38,6 +38,12 @@
       integer*4 :: error
 #endif
       save
+
+      interface
+        integer function isfreeunit(iseed)
+          integer, intent(in) :: iseed
+        end function
+      end interface
       contains
 
 !>  @brief
@@ -225,14 +231,8 @@
 #endif
         else
           call make_inp()
-          if (myrank == 0) then
-            call write_ExNECI_message()
-            call wait_and_read(NECIen)
-            write(6,*) 'I read the following energy:', NECIen
-          end if
-#ifdef _MOLCAS_MPP_
-          call MPI_Bcast(NECIen, 1, MPI_REAL8, 0,MPI_COMM_WORLD,error)
-#endif
+          if (myrank == 0) call write_ExNECI_message()
+          call wait_and_read(NECIen)
         end if
       end subroutine run_neci
 
@@ -245,13 +245,27 @@
         newcycle_found = .false.
         do while(.not. newcycle_found)
           call sleep(1)
-          call f_Inquire('NEWCYCLE', newcycle_found)
+          if (myrank == 0) call f_Inquire('NEWCYCLE', newcycle_found)
+#ifdef _MOLCAS_MPP_
+          if (is_real_par()) then
+            call MPI_Bcast(newcycle_found, 1, MPI_LOGICAL,
+     &                     0, MPI_COMM_WORLD, error)
+          end if
+#endif
         end do
-        write(6, *) 'NEWCYCLE file found. Proceding with SuperCI'
-        LuNewC = 12
-        call molcas_open(LuNewC, 'NEWCYCLE')
-          read(LuNewC,*) NECIen
-        close(LuNewC, status='delete')
+        if (myrank == 0) then
+          write(6, *) 'NEWCYCLE file found. Proceding with SuperCI'
+          LuNewC = isFreeUnit(12)
+          call molcas_open(LuNewC, 'NEWCYCLE')
+            read(LuNewC,*) NECIen
+          close(LuNewC, status='delete')
+          write(6, *) 'I read the following energy:', NECIen
+        end if
+#ifdef _MOLCAS_MPP_
+        if (is_real_par()) then
+          call MPI_Bcast(NECIen, 1, MPI_REAL8, 0,MPI_COMM_WORLD,error)
+        end if
+#endif
       end subroutine wait_and_read
 
 
