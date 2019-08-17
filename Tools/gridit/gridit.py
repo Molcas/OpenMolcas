@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+"""Script to automatically generate grid files from Orbfiles.
+"""
 
 import os
 from os import remove
@@ -47,7 +49,7 @@ def create_input(coord, basis, inporb, density='sparse', group=None,
     return inp
 
 
-def start_calc(input_str, inp_path='make_grid.inp', molcas_exe='molcas'):
+def start_calc(input_str, inp_path='make_grid.inp', molcas_exe='pymolcas'):
 
     with open(inp_path, 'w') as f:
         f.write(input_str)
