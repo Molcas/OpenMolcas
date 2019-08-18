@@ -89,7 +89,7 @@ def cleanup(project):
               show_default=True,
               help=('Prefix for the grid calculations. '
                     'The gridfile will be named ${project}.grid.'))
-@click.option('--molcas_exe', '-m', default='molcas', type=str,
+@click.option('--molcas_exe', '-m', default='pymolcas', type=str,
               show_default=True,
               help='Filepath of the Molcas driver script.')
 @click.option('--clean/--no-clean', default=True,
