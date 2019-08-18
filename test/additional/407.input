@@ -25,12 +25,13 @@
 &SEWARD
 
 
->foreach ON_scheme in (Gram_Schmidt, Lowdin, Canonical)
+>foreach ON_scheme in (No_ON, Gram_Schmidt, Lowdin, Canonical)
     >copy loc.ArtOrb INPORB
     &RASSCF
         LUMOrb
         Spin = 1
         ORTHonormalisation = $ON_scheme
+        DMPOnly
 >enddo
 
 
