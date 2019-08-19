@@ -235,7 +235,7 @@
         real*8, allocatable :: U(:, :), s_diag(:), S_transf(:, :),
      &      X(:, :)
 
-        allocate(S_transf, mold=S)
+        allocate(S_transf(size(S, 1), size(S, 2)))
         call mma_allocate(U, size(S, 1), size(S, 2))
         call mma_allocate(s_diag, size(S, 2))
         call mma_allocate(X, size(S, 1), size(S, 2))
