@@ -54,6 +54,9 @@
       integer, allocatable :: PrimIDs(:,:)
       real*8, allocatable :: Primitives(:,:)
 
+      integer :: i,j
+      integer, allocatable :: QMMap(:)
+
       integer :: dsetid
 
 *     symmetry information
@@ -141,7 +144,7 @@
      $          'DESYM_CENTER_LABELS', 1, [mcentr], LENIN4)
         call mh5_init_attr(dsetid, 'description',
      $          'Desymmetrized center labels '//
-     $          'arranged as one [MCENTR] block')
+     $          'arranged as one [NATOMS_ALL] block')
         call mma_allocate(desym_atomlbl,mcentr)
         Call get_cArray('LP_L',desym_atomlbl,(LENIN4)*mCentr)
         call mh5_put_dset(dsetid,desym_atomlbl)
@@ -153,7 +156,7 @@
      $          'DESYM_CENTER_CHARGES', 1, [MCENTR])
         call mh5_init_attr(dsetid, 'description',
      $          'Desymmetrized Center charges, '//
-     $          'stored as array of size [MCENTR]')
+     $          'stored as array of size [NATOMS_ALL]')
         call mma_allocate(charges,mcentr)
         call get_dArray('LP_Q',charges,mcentr)
         call mh5_put_dset(dsetid,charges)
@@ -164,7 +167,7 @@
         dsetid = mh5_create_dset_real(fileid,
      $          'DESYM_CENTER_COORDINATES', 2, [3,MCENTR])
         call mh5_init_attr(dsetid, 'description',
-     $          'Desymmetrized coordinates, size [MCENTR,3], '//
+     $          'Desymmetrized coordinates, size [NATOMS_ALL,3], '//
      $          'stored with atom index varying slowest')
         call mma_allocate(coord,3,MCENTR)
         call get_dArray('LP_Coor',coord,3*mcentr)
@@ -196,6 +199,8 @@
         call mma_deallocate(desym_matrix)
         call mh5_close_dset(dsetid)
 
+      ELSE
+        mcentr = nAtoms
       END IF
 
       call get_iScalar('nPrim',nPrim)
@@ -210,6 +215,23 @@
      $        'center_id, angmom, shell_id (C1 2s <-> 1,0,2)')
       call mma_allocate(PrimIDs,3,nPrim)
       call get_iArray('primitive ids', PrimIDs, 3*nPrim)
+*     only QM atoms have basis functions,
+*     remap the center_id numbers to skip MM atoms
+      call mma_allocate(QMMap,mcentr)
+      call get_iArray('IsMM Atoms', QMMap, mcentr)
+      j=0
+      do i=1,mcentr
+        if (QMMap(i).eq.0) then
+          j = j+1
+          QMMap(j) = i
+        end if
+      end do
+      if (j.lt.mcentr) then
+        do i=1,nPrim
+          PrimIDs(1,i) = QMMap(PrimIDs(1,i))
+        end do
+      end if
+      call mma_deallocate(QMMap)
       call mh5_put_dset_array_int(dsetid,PrimIDs)
       call mma_deallocate(PrimIDs)
       call mh5_close_dset(dsetid)
