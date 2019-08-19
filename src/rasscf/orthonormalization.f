@@ -235,8 +235,8 @@
         real*8, allocatable :: U(:, :), s_diag(:), S_transf(:, :),
      &      X(:, :)
 
+        allocate(S_transf, size(S, 1), size(S, 2))
         call mma_allocate(U, size(S, 1), size(S, 2))
-        call mma_allocate(S_transf, size(S, 1), size(S, 2))
         call mma_allocate(s_diag, size(S, 2))
         call mma_allocate(X, size(S, 1), size(S, 2))
         call mma_allocate(idx, size(S, 1))
@@ -276,8 +276,8 @@
         call mma_deallocate(X)
         call mma_deallocate(idx)
         call mma_deallocate(s_diag)
-        call mma_deallocate(S_transf)
         call mma_deallocate(U)
+        call deallocate(S_transf)
       end subroutine Canonical_Array
 
       logical pure function ge(x, y)
