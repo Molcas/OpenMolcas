@@ -175,18 +175,15 @@
 #ifdef _MOLCAS_MPP_
       if (is_real_par()) call MPI_Barrier(MPI_COMM_WORLD, error)
 #endif
-      if (.not. fake_run_) then
-        call run_neci(DoEmbdNECI,
-     &    reuse_pops=iter >= 5 .and. abs(rotmax) < 1d-2, NECIen=NECIen)
-      end if
+      call run_neci(DoEmbdNECI, fake_run_,
+     &  reuse_pops=iter >= 5 .and. abs(rotmax) < 1d-2,
+     &  NECIen=NECIen,
+     &  D1S_MO=D1S_MO, DMAT=DMAT, PSMAT=PSMAT, PAMAT=PAMAT)
 ! NECIen so far is only the energy for the GS.
 ! Next step it will be an array containing energies for all the optimized states.
       do jRoot = 1, lRoots
         ENER(jRoot, ITER) = NECIen
       end do
-
-
-      call get_neci_RDM(D1S_MO, DMAT, PSMAT, PAMAT)
 
 ! print matrices
       if (IPRLEV >= DEBUG) then
@@ -211,29 +208,40 @@
       end subroutine fciqmc_ctl
 
 
-      subroutine run_neci(DoEmbdNECI, reuse_pops, NECien)
+      subroutine run_neci(DoEmbdNECI, fake_run, reuse_pops, NECIen,
+     &                    D1S_MO, DMAT, PSMAT, PAMAT)
         use fciqmc_make_inp, only : make_inp
+        use rasscf_data, only : nAcPar, nAcPr2
         implicit none
-        logical, intent(in) :: DoEmbdNECI, reuse_pops
-        real*8, intent(out) :: NECIen
-        if (DoEmbdNECI) then
-          call make_inp(readpops=reuse_pops)
+        logical, intent(in) :: DoEmbdNECI, fake_run, reuse_pops
+        real*8, intent(out) :: NECIen, D1S_MO(nAcPar), DMAT(nAcpar),
+     &      PSMAT(nAcpr2), PAMAT(nAcpr2)
+        real*8, save :: previous_NECIen = 0.0d0
+
+        if (fake_run) then
+          NECIen = previous_NECIen
+        else
+          if (DoEmbdNECI) then
+            call make_inp(readpops=reuse_pops)
 #ifdef _NECI_
-          write(6,*) 'NECI called automatically within Molcas!'
-          if (myrank /= 0) call chdir_('..')
-          call necimain(NECIen)
-          if (myrank /= 0) call chdir_('tmp_'//str(myrank))
+            write(6,*) 'NECI called automatically within Molcas!'
+            if (myrank /= 0) call chdir_('..')
+            call necimain(NECIen)
+            if (myrank /= 0) call chdir_('tmp_'//str(myrank))
 #else
-          call WarningMessage(2, 'EmbdNECI is given in input, '//
+            call WarningMessage(2, 'EmbdNECI is given in input, '//
      &'so the embedded NECI should be used. Unfortunately MOLCAS was '//
      &'not compiled with embedded NECI. Please use -DNECI=ON '//
      &'for compiling or use an external NECI.')
 #endif
-        else
-          call make_inp()
-          if (myrank == 0) call write_ExNECI_message()
-          call wait_and_read(NECIen)
+          else
+            call make_inp()
+            if (myrank == 0) call write_ExNECI_message()
+            call wait_and_read(NECIen)
+          end if
+          previous_NECIen = NECIen
         end if
+        call get_neci_RDM(D1S_MO, DMAT, PSMAT, PAMAT)
       end subroutine run_neci
 
 
@@ -353,7 +361,8 @@
         use rasscf_data, only : iAdr15, Weight, nAcPar, nAcPr2
         use fciqmc_read_RDM, only : read_neci_RDM
         implicit none
-        real*8, intent(out) :: D1S_MO(nAcPar), DMAT(nAcpar),
+        real*8, intent(out) ::
+     &  D1S_MO(nAcPar), DMAT(nAcpar),
      &      PSMAT(nAcpr2), PAMAT(nAcpr2)
         real*8, allocatable ::
 !> one-body density
