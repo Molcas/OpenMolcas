@@ -45,7 +45,7 @@ pages:
     - mv build/doc/latex/Manual.pdf public/
     - mv doc/doxygen/html public/doxygen
     - du -sh public/*
-  dependencies:
+  needs:
     - doc
   artifacts:
     paths:

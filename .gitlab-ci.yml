@@ -245,9 +245,6 @@ build:plain:
 test:plain:
   extends: .plain
   <<: *run-tests
-  dependencies:
-    - build:plain
-    - tinker
   needs:
     - build:plain
     - tinker
@@ -259,9 +256,6 @@ build:options:
 test:options:
   extends: .options
   <<: *run-tests
-  dependencies:
-    - build:options
-    - tinker
   needs:
     - build:options
     - tinker
@@ -273,9 +267,6 @@ build:pgi:
 test:pgi:
   extends: .pgi
   <<: *run-tests
-  dependencies:
-    - build:pgi
-    - tinker
   needs:
     - build:pgi
     - tinker
@@ -287,9 +278,6 @@ build:sun:
 test:sun:
   extends: .sun
   <<: *run-tests
-  dependencies:
-    - build:sun
-    - tinker
   needs:
     - build:sun
     - tinker
@@ -301,8 +289,6 @@ build:intel:
 test:intel:
   extends: .intel
   <<: *run-tests
-  dependencies:
-    - build:intel
   needs:
     - build:intel
 
@@ -312,8 +298,6 @@ build:intel13:
 test:intel13:
   extends: .intel13
   <<: *run-tests
-  dependencies:
-    - build:intel13
   needs:
     - build:intel13
 
@@ -324,9 +308,6 @@ test:intel13:
 #test:nag:
 #  extends: .nag
 #  <<: *run-tests
-#  dependencies:
-#    - build:nag
-#    - tinker
 #  needs:
 #    - build:nag
 #    - tinker
@@ -337,9 +318,6 @@ build:garble:
 test:garble:
   extends: .garble
   <<: *run-tests
-  dependencies:
-    - build:garble
-    - tinker
   needs:
     - build:garble
     - tinker
@@ -351,8 +329,6 @@ build:bounds:
 test:bounds:
   extends: .bounds
   <<: *run-tests
-  dependencies:
-    - build:bounds
   needs:
     - build:bounds
   parallel: 4
@@ -363,8 +339,6 @@ build:debug:
 #test:debug:
 #  extends: .debug
 #  <<: *run-tests
-#  dependencies:
-#    - build:debug
 #  needs:
 #    - build:debug
 
@@ -374,8 +348,6 @@ build:qcmaquis:
 test:qcmaquis:
   extends: .qcmaquis
   <<: *run-tests
-  dependencies:
-    - build:qcmaquis
   needs:
     - build:qcmaquis
 
