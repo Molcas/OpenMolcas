@@ -171,8 +171,8 @@
         real*8, allocatable :: U(:, :), s_diag(:), X(:, :),
      &        S_transf(:, :)
 
+        allocate(S_transf(size(S, 1), size(S, 2)))
         call mma_allocate(U, size(S, 1), size(S, 2))
-        call mma_allocate(S_transf, size(S, 1), size(S, 2))
         call mma_allocate(X, size(S, 1), size(S, 2))
         call mma_allocate(s_diag, size(S, 2))
 
@@ -198,10 +198,11 @@
 ! We finally have to convert to get the form:
 ! ONB^T S ONB = 1
         ONB = matmul(basis, X)
+
         call mma_deallocate(s_diag)
-        call mma_deallocate(U)
         call mma_deallocate(X)
-        call mma_deallocate(S_transf)
+        call mma_deallocate(U)
+        deallocate(S_transf)
       end subroutine Lowdin_Array
 
 
