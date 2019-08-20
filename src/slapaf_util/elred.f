@@ -118,10 +118,14 @@
       End If
       Call DScal_(nQ*(nQ+1)/2,-1.0D0,EVal,1)
       Call JacOrd(EVal,EVec,nQ,nQ)
+*     Fix standard direction.
+      Do iQ = 1, nQ
+         tmp=OrbPhase(EVec(1,iQ),nQ)
+      End Do
       Call DScal_(nQ*(nQ+1)/2,-1.0D0,EVal,1)
 #ifdef _DEBUG_
-C     Call RecPrt('ElRed: Eigenvectors',' ',EVec,nQ,nQ)
-C     Call TriPrt('ElRed: Eigenvalues',' ',EVal,nQ)
+      Call RecPrt('ElRed: Eigenvectors',' ',EVec,nQ,nQ)
+      Call TriPrt('ElRed: Eigenvalues',' ',EVal,nQ)
 #endif
 *
 *                                        -1/2
@@ -134,13 +138,6 @@ C     Call TriPrt('ElRed: Eigenvalues',' ',EVal,nQ)
          If (EVal(ii).gt.Thr) Then
             nK = nK + 1
          End If
-*        Fix standard direction.
-         rZ = 0.0D0
-         Do iElem = 1, nQ
-            If (Abs(EVec(iElem,i)).gt.Abs(rZ)+ThrD)
-     &         rZ = EVec(iElem,i)
-         End Do
-         If (rZ.lt.0.0D0) Call DScal_(nQ,-One,EVec(1,i),1)
          EVal(i) = EVal(ii)
 c        If (g12K .and. Abs(EVal(i)).gt.Zero)
          If (g12K .and. Abs(EVal(i)).gt.Zero_Approx)
@@ -276,10 +273,14 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
       End If
       Call DScal_(nQ*(nQ+1)/2,-1.0D0,EVal,1)
       Call JacOrd(EVal,EVec,nQ,nQ)
+*     Fix standard direction.
+      Do iQ = 1, nQ
+         tmp=OrbPhase(EVec(1,iQ),nQ)
+      End Do
       Call DScal_(nQ*(nQ+1)/2,-1.0D0,EVal,1)
 #ifdef _DEBUG_
-C     Call RecPrt('ElRed2: Eigenvectors',' ',EVec,nQ,nQ)
-C     Call TriPrt('ElRed2: Eigenvalues',' ',EVal,nQ)
+      Call RecPrt('ElRed2: Eigenvectors',' ',EVec,nQ,nQ)
+      Call TriPrt('ElRed2: Eigenvalues',' ',EVal,nQ)
 #endif
 *
 *                                        -1/2
@@ -292,13 +293,6 @@ C     Call TriPrt('ElRed2: Eigenvalues',' ',EVal,nQ)
          If (EVal(ii).gt.Thr) Then
             nK = nK + 1
          End If
-*        Fix standard direction.
-         rZ = 0.0D0
-         Do iElem = 1, nQ
-            If (Abs(EVec(iElem,i)).gt.Abs(rZ)+ThrD)
-     &         rZ = EVec(iElem,i)
-         End Do
-         If (rZ.lt.0.0D0) Call DScal_(nQ,-One,EVec(1,i),1)
          EVal(i) = EVal(ii)
 c        If (g12K .and. Abs(EVal(i)).gt.Zero)
          If (g12K .and. Abs(EVal(i)).gt.Zero_Approx)
