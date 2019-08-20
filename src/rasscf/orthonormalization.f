@@ -564,7 +564,7 @@
         logical, intent(in), optional :: transpA
         logical :: transpA_
 
-        integer :: M, N, K_1, K_2, K
+        integer :: M, N, K
 
         C = 0.d0
 
