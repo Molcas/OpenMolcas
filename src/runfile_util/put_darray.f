@@ -318,6 +318,8 @@ c mess started here :)
          RecLab(159)='HAMSOR_SINGLE   '
          RecLab(160)='HAMSOI_SINGLE   '
          RecLab(161)='Last Dipole Mome' !nts
+         RecLab(162)='Un_cen Charge   '
+         RecLab(163)='Un_cen Coordinat' !es
 *                     1234567890123456
 *
 *        If you go beyond 256: update pg_da_info.fh and this line!
