@@ -68,13 +68,8 @@
           module procedure orthonormalize_raw, orthonormalize_blocks
         end interface
 
-
-        interface
-          real*8 function ddot_(n_,dx,incx_,dy,incy_)
-            integer n_, incx_, incy_
-            real*8 dx(*), dy(*)
-            real*8 ddot
-          end function
+        interface mult
+          module procedure mult_2D_2D, mult_2D_1D
         end interface
 
         interface Gram_Schmidt
@@ -169,40 +164,43 @@
 
         integer :: i
         real*8, allocatable :: U(:, :), s_diag(:), X(:, :),
-     &        S_transf(:, :)
+     &        S_transf(:, :), tmp(:, :)
 
-        allocate(S_transf(size(S, 1), size(S, 2)))
+        call mma_allocate(S_transf, size(S, 1), size(S, 2))
         call mma_allocate(U, size(S, 1), size(S, 2))
         call mma_allocate(X, size(S, 1), size(S, 2))
+        call mma_allocate(tmp, size(S, 1), size(S, 2))
         call mma_allocate(s_diag, size(S, 2))
 
 ! Transform AO-overlap matrix S to the overlap matrix of basis.
-! We search X that diagonalizes basis^T S basis
-        S_transf = matmul(transpose(basis), matmul(S, basis))
+! S_transf = basis^T S basis
+! We search X that diagonalizes S_transf
+        call mult(S, basis, tmp)
+        call mult(basis, tmp, S_transf, transpA=.true.)
 
         call diagonalize(S_transf, U, s_diag)
 
-        if (any(s_diag < 1.0d-10)) then
-          call abort_("Linear dependency detected. "//
+        call assert_(all(s_diag > 1.0d-10),
+     &      "Linear dependency detected. "//
      &      "Lowdin can't cure it. Please use other ORTH keyword "//
      &      "from {Gram_Schmidt, Canonical}.")
-        end if
 
 ! X = U s_diag^{-1/2} U^T
-        do i = 1, size(X, 2)
-          X(:, i) = U(:, i) / sqrt(s_diag(i))
+        do i = 1, size(tmp, 2)
+          tmp(:, i) = U(:, i) / sqrt(s_diag(i))
         end do
-        X = matmul(X, transpose(U))
+        call mult(tmp, U, X, transpB=.true.)
 ! With this X the overlap matrix S_transf has diagonal form.
 ! X^T basis^T S basis X = 1
 ! We finally have to convert to get the form:
 ! ONB^T S ONB = 1
-        ONB = matmul(basis, X)
+        call mult(basis, X, ONB)
 
+        call mma_deallocate(tmp)
         call mma_deallocate(s_diag)
         call mma_deallocate(X)
         call mma_deallocate(U)
-        deallocate(S_transf)
+        call mma_deallocate(S_transf)
       end subroutine Lowdin_Array
 
 
@@ -234,17 +232,19 @@
         integer :: i
         integer, allocatable :: idx(:)
         real*8, allocatable :: U(:, :), s_diag(:), S_transf(:, :),
-     &      X(:, :)
+     &      X(:, :), tmp(:, :)
 
-        allocate(S_transf(size(S, 1), size(S, 2)))
+        call mma_allocate(S_transf, size(S, 1), size(S, 2))
         call mma_allocate(U, size(S, 1), size(S, 2))
         call mma_allocate(s_diag, size(S, 2))
         call mma_allocate(X, size(S, 1), size(S, 2))
         call mma_allocate(idx, size(S, 1))
+        call mma_allocate(tmp, size(S, 1), size(S, 2))
 
 ! Transform AO-overlap matrix S to the overlap matrix of basis.
 ! We search X that diagonalizes basis^T S basis
-        S_transf = matmul(transpose(basis), matmul(S, basis))
+        call mult(S, basis, tmp)
+        call mult(basis, tmp, S_transf, transpA=.true.)
 
         call diagonalize(S_transf, U, s_diag)
 
@@ -272,13 +272,14 @@
 ! We finally have to convert to get the form:
 ! ONB^T S ONB = 1
         ONB(:, n_new + 1:) = basis(:, n_new + 1 :)
-        ONB(:, :n_new) = matmul(basis, X(:, :n_new))
+        call mult(basis, X(:, :n_new), ONB(:, :n_new))
 
+        call mma_deallocate(tmp)
         call mma_deallocate(X)
         call mma_deallocate(idx)
         call mma_deallocate(s_diag)
         call mma_deallocate(U)
-        deallocate(S_transf)
+        call mma_deallocate(S_transf)
       end subroutine Canonical_Array
 
       logical pure function ge(x, y)
@@ -332,7 +333,8 @@
           lin_dep_detected = .false.
           do while (improve_solution .and. .not. lin_dep_detected)
             correction = 0.d0
-            v = matmul(S, curr)
+            call mult(S, curr, v)
+
             do j = 1, n_new
               correction = correction
      &                     + ONB(:, j) * dot_product(ONB(:, j), v)
@@ -476,14 +478,14 @@
         call dsyev_('V', 'L', size(V, 2), dummy, size(V, 1), dummy,
      &              query_result, do_worksize_query, info)
 
-        if (info /= 0) call abort_('Error in diagonalize')
+        call assert_(info == 0, 'Error in diagonalize')
 
         call mma_allocate(work, int(query_result(1)))
         call dsyev_('V', 'L', size(V, 2), V, size(V, 1), lambda,
      &              work, size(work), info)
         call mma_deallocate(work)
 
-        if (info /= 0) call abort_('Error in diagonalize')
+        call assert_(info == 0, 'Error in diagonalize')
       end subroutine diagonalize
 
 
@@ -492,6 +494,14 @@
         call WarningMessage(2, message)
         call QTrace()
         call Abend()
+      end subroutine
+
+      subroutine assert_(test_expression, message)
+        logical, intent(in) :: test_expression
+        character(*), intent(in) :: message
+        if (.not. test_expression) then
+          call abort_(message)
+        end if
       end subroutine
 
       pure function dot_product_with_overlap(v1, v2, S) result(dot)
@@ -511,4 +521,68 @@
           L = sqrt(sum(v**2))
         end if
       end function
+
+      subroutine mult_2D_2D(A, B, C, transpA, transpB)
+        real*8, intent(in) :: A(:, :), B(:, :)
+        real*8, intent(out) :: C(:, :)
+        logical, intent(in), optional :: transpA, transpB
+        logical :: transpA_, transpB_
+
+        integer :: M, N, K_1, K_2, K
+
+        C = 0.d0
+
+        if (present(transpA)) then
+          transpA_ = transpA
+        else
+          transpA_ = .false.
+        end if
+        if (present(transpB)) then
+          transpB_ = transpB
+        else
+          transpB_ = .false.
+        end if
+
+        M = size(A, merge(1, 2, .not. transpA_))
+        call assert_(M == size(C, 1), 'Shape mismatch.')
+        N = size(B, merge(2, 1, .not. transpB_))
+        call assert_(N == size(C, 2), 'Shape mismatch.')
+        K_1 = size(A, merge(2, 1, .not. transpA_))
+        K_2 = size(B, merge(1, 2, .not. transpB_))
+        call assert_(K_1 == K_2, 'Shape mismatch.')
+        K = K_1
+
+        call dgemm_(merge('T', 'N', transpA_), merge('T', 'N',transpB_),
+     &              M, N, K, 1.d0,
+     &              A, size(A, 1), B, size(B, 1),
+     &              0.d0, C, size(C, 1))
+      end subroutine
+
+      subroutine mult_2D_1D(A, B, C, transpA)
+        real*8, intent(in) :: A(:, :), B(:)
+        real*8, intent(out) :: C(:)
+        logical, intent(in), optional :: transpA
+        logical :: transpA_
+
+        integer :: M, N, K_1, K_2, K
+
+        C = 0.d0
+
+        if (present(transpA)) then
+          transpA_ = transpA
+        else
+          transpA_ = .false.
+        end if
+
+        M = size(A, merge(1, 2, .not. transpA_))
+        call assert_(M == size(C, 1), 'Shape mismatch.')
+        N = 1
+        K = size(A, merge(2, 1, .not. transpA_))
+        call assert_(K == size(B, 1), 'Shape mismatch.')
+
+        call dgemm_(merge('T', 'N', transpA_), 'N',
+     &              M, N, K, 1.d0,
+     &              A, size(A, 1), B, size(B, 1),
+     &              0.d0, C, size(C, 1))
+      end subroutine
       end module orthonormalization
