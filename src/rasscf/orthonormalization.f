@@ -84,10 +84,6 @@
           module procedure Canonical_Array, Canonical_Blocks
         end interface
 
-        interface dot_product
-          module procedure dot_product_with_overlap
-        end interface
-
       contains
 
       subroutine orthonormalize_blocks(basis, scheme, ONB)
@@ -504,18 +500,45 @@
         end if
       end subroutine
 
-      pure function dot_product_with_overlap(v1, v2, S) result(dot)
-        real*8, intent(in) :: v1(:), v2(:), S(:, :)
+!>
+!>  @brief
+!>    Calculates v1^T S v2.
+!>
+!>  @author
+!>    Oskar Weser
+!>
+!>  @details
+!>  Calculates \f[ v1^T S v2 \f]
+!>  S has to be a symmetric positive definite matrix, which is not
+!>  tested.
+!>  If S is ommited, it defaults to the unit matrix,
+!>  i.e. the Euclidean dot-product.
+      function dot_product_(v1, v2, S) result(dot)
+! One cannot use matmul + customly allocated arrays.
+! .and. One cannot overload dot_product with a non pure function
+! => call it dot_product_
+        real*8, intent(in) :: v1(:), v2(:)
+        real*8, intent(in), optional :: S(:, :)
         real*8 :: dot
-        dot = dot_product(matmul(S, v1), v2)
+
+        real*8, allocatable :: tmp(:)
+
+        if (present(S)) then
+          call mma_allocate(tmp, size(v1))
+          call mult(S, v1, tmp)
+          dot = dot_product(tmp, v2)
+          call mma_deallocate(tmp)
+        else
+          dot = dot_product(v1, v2)
+        end if
       end function
 
-      pure function norm(v, S) result(L)
+      function norm(v, S) result(L)
         real*8, intent(in) :: v(:)
         real*8, intent(in), optional :: S(:, :)
         real*8 :: L
         if (present(S)) then
-          L = sqrt(dot_product(v, v, S))
+          L = sqrt(dot_product_(v, v, S))
         else
 ! One could use norm2 here, but Sun and PGI compilers don't know this.
           L = sqrt(sum(v**2))
