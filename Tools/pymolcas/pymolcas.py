@@ -15,7 +15,10 @@
 #***********************************************************************
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-from six import text_type
+try:
+  from six import text_type
+except ImportError:
+  text_type = str
 import sys
 sys.dont_write_bytecode = True
 

@@ -107,8 +107,8 @@ cvv      Character*(*) Data(nData)
          RecLab(  3)='Relax Method    '
          RecLab(  4)='Seward Title    '
          RecLab(  5)='Slapaf Info 3   '
-         RecLab(  6)='Unique Atom Name'
-         RecLab(  7)='Unique Basis Nam'
+         RecLab(  6)='Unique Atom Name' !s
+         RecLab(  7)='Unique Basis Nam' !es
          RecLab(  8)='LP_L            '
          RecLab(  9)='MkNemo.lMole    '
          RecLab( 10)='MkNemo.lCluster '
@@ -124,6 +124,7 @@ cvv      Character*(*) Data(nData)
          RecLab( 20)='MCLR Root       '
          RecLab( 21)='Frag_Type       ' ! EFP fragment labels
          RecLab( 22)='ABC             ' ! EFP atom labels
+         RecLab( 23)='Un_cen Names    '
 *                     1234567890123456
          Call cWrRun('cArray labels',RecLab,16*nTocCA)
          Call iWrRun('cArray indices',RecIdx,nTocCA)
