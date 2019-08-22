@@ -14,7 +14,10 @@
 #***********************************************************************
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-from six import text_type
+try:
+  from six import text_type
+except ImportError:
+  text_type = str
 
 from os import environ, getcwd, symlink, access, F_OK, X_OK, pathsep, defpath, curdir
 from os.path import join, split, isfile, isdir, exists, expanduser, realpath, dirname, normcase
