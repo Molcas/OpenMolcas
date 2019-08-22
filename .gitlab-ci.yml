@@ -167,10 +167,6 @@ include:
     <<: *sources
   except:
     - master@Molcas/OpenMolcas
-  # run even if the previous stage failed
-  # (in general, we want to run those configurations that didn't fail,
-  #  but there's no harm in running all)
-  when: always
 
 # A special job for compiling the tinker interface
 # By adding "tinker" as a dependency, other jobs can use it
@@ -199,7 +195,7 @@ tinker:
   script:
     # Use backup if the tinker website is down
     - >
-      sed -i -e 's/wget.*/& || \\/' -e '/wget/a wget https://gitlab.com/Molcas/Mirrors/Tinker/raw/master/${TINKERVERSION}.tar.gz?private_token=Y5PsqzY_Ev8U6JQDGyuL -O ${TINKERVERSION}.tar.gz' Tools/patch2tinker/get_tinker
+      sed -i -e 's/wget.*/& || \\/' -e '/wget/a git clone --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/Molcas/Mirrors/Tinker.git ; mv Tinker/${TINKERVERSION}.tar.gz .' Tools/patch2tinker/get_tinker
     # Apply the low-memory patch
     - |
       eval `grep TINKERVERSION= Tools/patch2tinker/get_tinker`
@@ -249,7 +245,7 @@ build:plain:
 test:plain:
   extends: .plain
   <<: *run-tests
-  dependencies:
+  needs:
     - build:plain
     - tinker
   parallel: 2
@@ -260,7 +256,7 @@ build:options:
 test:options:
   extends: .options
   <<: *run-tests
-  dependencies:
+  needs:
     - build:options
     - tinker
   parallel: 2
@@ -271,7 +267,7 @@ build:pgi:
 test:pgi:
   extends: .pgi
   <<: *run-tests
-  dependencies:
+  needs:
     - build:pgi
     - tinker
   parallel: 2
@@ -282,7 +278,7 @@ build:sun:
 test:sun:
   extends: .sun
   <<: *run-tests
-  dependencies:
+  needs:
     - build:sun
     - tinker
   parallel: 2
@@ -293,7 +289,7 @@ build:intel:
 test:intel:
   extends: .intel
   <<: *run-tests
-  dependencies:
+  needs:
     - build:intel
 
 build:intel13:
@@ -302,7 +298,7 @@ build:intel13:
 test:intel13:
   extends: .intel13
   <<: *run-tests
-  dependencies:
+  needs:
     - build:intel13
 
 # Disable NAG, since the runner is unavailable
@@ -312,7 +308,7 @@ test:intel13:
 #test:nag:
 #  extends: .nag
 #  <<: *run-tests
-#  dependencies:
+#  needs:
 #    - build:nag
 #    - tinker
 
@@ -322,7 +318,7 @@ build:garble:
 test:garble:
   extends: .garble
   <<: *run-tests
-  dependencies:
+  needs:
     - build:garble
     - tinker
   parallel: 4
@@ -333,18 +329,18 @@ build:bounds:
 test:bounds:
   extends: .bounds
   <<: *run-tests
-  dependencies:
+  needs:
     - build:bounds
   parallel: 4
 
 build:debug:
   extends: .debug
   <<: *compile
-test:debug:
-  extends: .debug
-  <<: *run-tests
-  dependencies:
-    - build:debug
+#test:debug:
+#  extends: .debug
+#  <<: *run-tests
+#  needs:
+#    - build:debug
 
 build:qcmaquis:
   extends: .qcmaquis
@@ -352,6 +348,6 @@ build:qcmaquis:
 test:qcmaquis:
   extends: .qcmaquis
   <<: *run-tests
-  dependencies:
+  needs:
     - build:qcmaquis
 

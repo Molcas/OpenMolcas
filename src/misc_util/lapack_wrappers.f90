@@ -255,11 +255,14 @@ subroutine dgetrf_( m_,n_,a,lda_,ipiv_,info_ )
   LAPACKINT          info, lda, m, n
   LAPACKINT, allocatable :: ipiv(:)
   integer :: i
+  lda=lda_
+  m=m_
+  n=n_
   allocate(ipiv(n))
-  do i=1,n
-    ipiv(i)=ipiv_(i)
-  end do
   call dgetrf( m,n,a,lda,ipiv,info )
+  do i=1,n
+    ipiv_(i)=ipiv(i)
+  end do
   deallocate(ipiv)
   info_=info
 #else
