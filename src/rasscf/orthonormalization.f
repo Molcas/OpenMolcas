@@ -244,9 +244,9 @@
 
         call diagonalize(S_transf, U, s_diag)
 
-        idx = argsort(s_diag, ge)
-        U = U(:, idx)
-        s_diag = s_diag(idx)
+        idx(:) = argsort(s_diag, ge)
+        U(:, :) = U(:, idx)
+        s_diag(:) = s_diag(idx)
 
         i = 0
         lin_dep_detected = .false.
@@ -470,7 +470,7 @@
         real*8, allocatable :: work(:)
         real*8 :: dummy(2), query_result(2)
 
-        V = A
+        V(:, :) = A(:, :)
         call dsyev_('V', 'L', size(V, 2), dummy, size(V, 1), dummy,
      &              query_result, do_worksize_query, info)
 
@@ -553,8 +553,6 @@
 
         integer :: M, N, K_1, K_2, K
 
-        C = 0.d0
-
         if (present(transpA)) then
           transpA_ = transpA
         else
@@ -588,8 +586,6 @@
         logical :: transpA_
 
         integer :: M, N, K
-
-        C = 0.d0
 
         if (present(transpA)) then
           transpA_ = transpA

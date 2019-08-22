@@ -79,7 +79,7 @@ incomplete.
 #endif
 
 /* Internal procedures as arguments */
-#if ( __SUNPRO_F90)
+#if ( __SUNPRO_F90 || __PGI)
 #undef INTERNAL_PROC_ARG
 #else
 #define INTERNAL_PROC_ARG

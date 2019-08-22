@@ -116,8 +116,8 @@
           call sort(idx, my_compare_iV, algorithm_)
 #endif
 
-          contains
 #ifdef INTERNAL_PROC_ARG
+          contains
             logical pure function my_compare(x, y)
               integer, intent(in) :: x, y
               my_compare = compare(V(x), V(y))
@@ -150,8 +150,8 @@
           call sort(idx, my_compare_rV, algorithm_)
 #endif
 
-          contains
 #ifdef INTERNAL_PROC_ARG
+          contains
             logical pure function my_compare(x, y)
               integer, intent(in) :: x, y
               my_compare = compare(V(x), V(y))
