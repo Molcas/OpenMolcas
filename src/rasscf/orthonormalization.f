@@ -171,10 +171,8 @@
 ! Transform AO-overlap matrix S to the overlap matrix of basis.
 ! S_transf = basis^T S basis
 ! We search X that diagonalizes S_transf
-!         call mult(S, basis, tmp)
-!         call mult(basis, tmp, S_transf, transpA=.true.)
-        S_transf(:, :) = matmul(transpose(basis), matmul(S, basis))
-
+        call mult(S, basis, tmp)
+        call mult(basis, tmp, S_transf, transpA=.true.)
 
         call diagonalize(S_transf, U, s_diag)
 
