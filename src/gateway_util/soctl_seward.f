@@ -31,7 +31,7 @@
      &        List_AE(0:iTabMx)
       Integer jOffSO(0:7)
       Integer, Dimension(:), Allocatable :: Index, Index2, IndC, iCI,
-     &                                      jCI, iOT, LPA
+     &                                      jCI, iOT, LPA, LPMM
       Real*8, Dimension(:), Allocatable :: LPQ
       Real*8, Dimension(:,:), Allocatable :: SM, LPC
       Real*8 DInf(nDInf)
@@ -147,6 +147,7 @@ C     Show=Show.and..Not.Primitive_Pass
 !     Stuff (not just) for LoProp
       Call mma_Allocate(LPQ,mCentr,label='LPQ')
 !     Stuff (not just) for LoProp
+      Call mma_Allocate(LPMM,mCentr,label='LPMM')
       Call mma_Allocate(LPA,mCentr,label='LPA')     ! Stuff for LoProp
       call mma_allocate(basis_ids,4,maxbfn+maxbfn_aux)
       call mma_allocate(desym_basis_ids,4,maxbfn+maxbfn_aux)
@@ -668,6 +669,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                   LPC(2,mdc)=YCoor
                   LPC(3,mdc)=ZCoor
                   LPQ(mdc)=Charge(iCnttp)
+                  LPMM(mdc)=IsMM(iCnttp)
                   LPA(mdc)=iAtmnr(iCnttp)
                   LP_Names(mdc)=LblCnt(mdc)(1:LENIN)//'    '
                End If
@@ -823,6 +825,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                         LPC(2,mdc)=YCoor
                         LPC(3,mdc)=ZCoor
                         LPQ(mdc)=Charge(iCnttp)
+                        LPMM(mdc)=IsMM(iCnttp)
                         LPA(mdc)=iAtmnr(iCnttp)
                         LP_Names(mdc)=LblCnt(mdc)(1:LENIN)//'    '
 *                                                                      *
@@ -956,6 +959,7 @@ CSVC: basis IDs of non-symmetric case
          Call Put_dArray('LP_Q',LPQ,mCentr)
          Call Put_dArray('LP_Coor',LPC,3*mCentr)
          Call Put_iScalar('LP_nCenter',mCentr)
+         Call Put_iArray('IsMM Atoms',LPMM,mCentr)
          Call Put_iArray('Center Index',iCI,iBas)
          Call Put_iArray('Orbital Type',iOT,iBas)
          Call Put_iArray('Non valence orbitals',nFCore,nIrrep)
@@ -967,6 +971,7 @@ CSVC: basis IDs of non-symmetric case
       call mma_deallocate(desym_basis_ids)
       call mma_deallocate(basis_ids)
       Call mma_deallocate(LPA)
+      Call mma_deallocate(LPMM)
       Call mma_deallocate(LPQ)
       Call mma_deallocate(LPC)
       Call mma_deallocate(iCI)
