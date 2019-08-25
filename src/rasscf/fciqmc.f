@@ -183,7 +183,7 @@
       if (is_real_par()) call MPI_Barrier(MPI_COMM_WORLD, error)
 #endif
 
-      call run_neci(DoEmbdNECI, fake_run_,
+      call run_neci(DoEmbdNECI, fake_run_, doGAS=iDoGAS,
      &  reuse_pops=iter >= 5 .and. abs(rotmax) < 1d-2,
      &  NECIen=NECIen,
      &  D1S_MO=D1S_MO, DMAT=DMAT, PSMAT=PSMAT, PAMAT=PAMAT)
@@ -238,7 +238,7 @@
           NECIen = previous_NECIen
         else
           if (DoEmbdNECI) then
-            call make_inp(readpops=reuse_pops)
+            call make_inp(doGAS=doGAS_, readpops=reuse_pops)
 #ifdef _NECI_
             write(6,*) 'NECI called automatically within Molcas!'
             if (myrank /= 0) call chdir_('..')
@@ -426,7 +426,7 @@
         integer, intent(in) :: GAS_spaces(:, :)
         integer, intent(in), optional :: permutation(:)
         integer, parameter :: arbitrary_magic_number = 42
-        integer :: i, j, GAS_ORB(sum(GAS_spaces)), iGAS, iSym, n,
+        integer :: i, GAS_ORB(sum(GAS_spaces)), iGAS, iSym, n,
      &    file_id
 
         n = 1

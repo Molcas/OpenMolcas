@@ -205,6 +205,7 @@ contains
       call unused(orbital_table)
       call unused(fock_table)
       call unused(two_el_table)
+      call unused_integer(orbsym)
     end if
 #endif
   end subroutine dump_hdf5

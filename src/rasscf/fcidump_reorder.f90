@@ -75,7 +75,7 @@ contains
     use gas_data, only : nGAS
     integer, intent(in) :: ngssh(:, :)
     integer :: P(sum(ngssh)), X(sum(ngssh))
-    integer :: iGAS, iSym, i, n
+    integer :: iGAS, iSym, i
     X = [(((iGAS, i = 1, ngssh(iGAS, iSym)), iGAS = 1, nGAS), iSym = 1, nSym)]
     P = argsort(X, le)
   end function
