@@ -169,14 +169,13 @@
         call make_fcidumps(orbital_E, folded_Fock, TUVX, EMY)
       end if
 
-
-!       if (iDoGAS) then
-!         if (ReOrFlag /= 0) then
-!           call write_GASORB(nGSSH, permutation)
-!         else
-!           call write_GASORB(nGSSH)
-!         end if
-!       end if
+      if (iDoGAS) then
+        if (ReOrFlag /= 0) then
+          call write_GASORB(nGSSH, permutation)
+        else
+          call write_GASORB(nGSSH)
+        end if
+      end if
 
 ! Run NECI
       call Timing(Rado_1, Swatch, Swatch, Swatch)
@@ -422,5 +421,33 @@
         call mma_deallocate(Ptmp)
         call mma_deallocate(PAtmp)
       end subroutine get_neci_RDM
+
+      subroutine write_GASORB(GAS_spaces, permutation)
+        integer, intent(in) :: GAS_spaces(:, :)
+        integer, intent(in), optional :: permutation(:)
+        integer, parameter :: arbitrary_magic_number = 42
+        integer :: i, j, GAS_ORB(sum(GAS_spaces)), iGAS, iSym, n,
+     &    file_id
+
+        n = 1
+        do iSym = 1, size(GAS_spaces, 2)
+          do iGAS = 1, size(GAS_spaces, 1)
+            do i = 1, GAS_spaces(iGAS, iSym)
+              GAS_ORB(n) = iGAS
+              n = n + 1
+            end do
+          end do
+        end do
+
+        if (present(permutation)) GAS_ORB = GAS_ORB(permutation)
+
+        file_id = arbitrary_magic_number
+        file_id = isfreeunit(file_id)
+        call molcas_open(file_id, 'GASOrbs')
+          do i = 1, size(GAS_ORB)
+            write(file_id,'(I0, A)', advance='no') GAS_ORB(i), ','
+          end do
+        close(file_id)
+      end subroutine
 
       end module fciqmc
