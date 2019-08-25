@@ -33,7 +33,6 @@ contains
   subroutine make_fcidumps(orbital_energies, folded_Fock, TUVX, &
                            core_energy, permutation)
     use general_data, only : nSym, nAsh
-    implicit none
     real*8, intent(in) :: orbital_energies(:), folded_Fock(:), TUVX(:), core_energy
     integer, intent(in), optional :: permutation(:)
     type(OrbitalTable) :: orbital_table
@@ -69,7 +68,6 @@ contains
 
   subroutine transform(iter, CMO, DIAF, D1I_AO, D1A_AO, D1S_MO, &
                        F_IN, orbital_E, folded_Fock)
-    implicit none
     integer, intent(in) :: iter
     real*8, intent(in) :: DIAF(nTot),&
       CMO(nTot2),&
@@ -85,7 +83,6 @@ contains
 
   subroutine cleanup()
     use fcidump_reorder, only : fcidump_reorder_cleanup => cleanup
-    implicit none
     call fcidump_reorder_cleanup()
   end subroutine
 end module fcidump

@@ -13,7 +13,7 @@
 #include "intent.h"
       module orthonormalization
         use stdalloc, only : mma_allocate, mma_deallocate
-        use fortran_strings, only : to_upper
+        use fortran_strings, only : to_upper, str
         use blockdiagonal_matrices, only : t_blockdiagonal, new, delete,
      &    from_raw, to_raw, from_symm_raw, blocksizes
         use sorting, only : argsort
@@ -22,8 +22,7 @@
         save
         private
         public ::
-     &    t_ON_scheme, ON_scheme, ON_scheme_values, orthonormalize,
-     &    t_procrust_metric, procrust_metric, metric_values, procrust
+     &    t_ON_scheme, ON_scheme, ON_scheme_values, orthonormalize
 
 ! TODO: Should be changed to default construction in the future.
 ! As of July 2019 the Sun and PGI compiler have problems.
@@ -61,29 +60,16 @@
 !>    or a t_blockdiagonal matrix.
 !>    return type depends on input type.
 !>  @param[in] scheme Optional argument. The orthonormalization scheme to use.
-!>    The possibilities are Gram_Schmidt, Lowdin, or Canonical.
+!>    The possibilities are Gram_Schmidt, Lowdin, Canonical, or no_ON
+!>    (no_orthonormalization)
+!>    as given by orthonormalization::ON_scheme_values.
 !>    For a detailed explanation see \cite szabo_ostlund (p. 143).
         interface orthonormalize
           module procedure orthonormalize_raw, orthonormalize_blocks
         end interface
 
-        type :: t_metric_values
-          integer :: Frobenius, Max_4el_trace
-        end type
-        type(t_metric_values), parameter ::
-     &    metric_values = t_metric_values(Frobenius=1, Max_4el_trace=2)
-
-        type :: t_procrust_metric
-          integer :: val = metric_values%Frobenius
-        end type
-        type(t_procrust_metric) :: procrust_metric
-
-        interface
-          real*8 function ddot_(n_,dx,incx_,dy,incy_)
-            integer n_, incx_, incy_
-            real*8 dx(*), dy(*)
-            real*8 ddot
-          end function
+        interface mult
+          module procedure mult_2D_2D, mult_2D_1D
         end interface
 
         interface Gram_Schmidt
@@ -105,8 +91,9 @@
         use rasscf_data, only : nSec, nOrbt, nTot3, nTot4
         type(t_blockdiagonal), intent(in) :: basis(:)
         type(t_ON_scheme), intent(in) :: scheme
-        type(t_blockdiagonal), intent(_OUT_) :: ONB(size(basis))
-        type(t_blockdiagonal) :: S(size(basis))
+        type(t_blockdiagonal), intent(_OUT_) :: ONB(:)
+
+        type(t_blockdiagonal), allocatable :: S(:)
 
         integer :: n_to_ON(nSym), n_new(nSym)
 
@@ -137,10 +124,9 @@
         use general_data, only : nBas, nSym
         real*8, intent(in) :: CMO(:)
         type(t_ON_scheme), intent(in) :: scheme
-        real*8, intent(_OUT_) :: ONB_v(size(CMO))
+        real*8, intent(out) :: ONB_v(:)
 
-        type(t_blockdiagonal) :: basis(nSym)
-        type(t_blockdiagonal) :: ONB(nSym)
+        type(t_blockdiagonal), allocatable :: basis(:), ONB(:)
 
         call new(basis, blocksizes=nBAS(:nSym))
         call new(ONB, blocksizes=nBAS(:nSym))
@@ -152,40 +138,6 @@
         call delete(ONB)
         call delete(basis)
       end subroutine
-
-!>  Return an orthogonal transformation to make A match B as closely as possible.
-!>
-!>  @author Oskar Weser
-!>
-!>  @details
-!>  The orthogonal transformation (\f$ T \f$) is given by
-!>  the minimization of the distance between (\f$ RA \f$) and
-!>  (\f$ B \f$).
-!>  The distance is measured by the metric (\f$ d \f$) which
-!>  leads to
-!>  \f[ T = \text{argmin}\limits_{R \in OG(n)} d(RA, B) \f]
-!>  If the metric is induced by the Frobenius-Norm
-!>  \f[ T = \text{argmin}\limits_{R \in OG(n)} |RA -  B|_F \f]
-!>  it becomes the classical orthogonal procrust's problem.
-!>
-!>  @paramin[in] A Matrix that should be rotated/mirrored etc.
-!>  @paramin[in] B Target matrix.
-!>  @paramin[in] metric (Optional parameter) Can be "FROBENIUS", "MAX-4EL-TRACE".
-      function procrust(A, B, metric) result(R)
-        real*8, intent(in) :: A(:, :), B(:, :)
-        type(t_procrust_metric), intent(in) :: metric
-        real*8 :: R(size(B, 1), size(B, 2))
-
-        select case (metric%val)
-          case (metric_values%Frobenius)
-          case (metric_values%Max_4el_trace)
-          case default
-!            abort_
-        end select
-
-        R = matmul(A, B)
-      end function procrust
-
 
 ! TODO: It would be nice, to use `impure elemental`
 ! instead of the manual looping.
@@ -208,35 +160,43 @@
 
         integer :: i
         real*8, allocatable :: U(:, :), s_diag(:), X(:, :),
-     &        S_transf(:, :)
+     &        S_transf(:, :), tmp(:, :)
 
-        call mma_allocate(U, size(S, 1), size(S, 2))
         call mma_allocate(S_transf, size(S, 1), size(S, 2))
+        call mma_allocate(U, size(S, 1), size(S, 2))
         call mma_allocate(X, size(S, 1), size(S, 2))
+        call mma_allocate(tmp, size(S, 1), size(S, 2))
         call mma_allocate(s_diag, size(S, 2))
 
-        S_transf = matmul(transpose(basis), matmul(S, basis))
+! Transform AO-overlap matrix S to the overlap matrix of basis.
+! S_transf = basis^T S basis
+! We search X that diagonalizes S_transf
+        call mult(S, basis, tmp)
+        call mult(basis, tmp, S_transf, transpA=.true.)
 
         call diagonalize(S_transf, U, s_diag)
-        call mma_deallocate(S_transf)
 
-        if (any(s_diag < 1.0d-10)) then
-          call abort_("Linear dependency detected. "//
+        call assert_(all(s_diag > 1.0d-10),
+     &      "Linear dependency detected. "//
      &      "Lowdin can't cure it. Please use other ORTH keyword "//
      &      "from {Gram_Schmidt, Canonical}.")
-        end if
 
 ! X = U s_diag^{-1/2} U^T
-        do i = 1, size(X, 2)
-          X(:, i) = U(:, i) / sqrt(s_diag(i))
+        do i = 1, size(tmp, 2)
+          tmp(:, i) = U(:, i) / sqrt(s_diag(i))
         end do
+        call mult(tmp, U, X, transpB=.true.)
+! With this X the overlap matrix S_transf has diagonal form.
+! X^T basis^T S basis X = 1
+! We finally have to convert to get the form:
+! ONB^T S ONB = 1
+        call mult(basis, X, ONB)
+
+        call mma_deallocate(tmp)
         call mma_deallocate(s_diag)
-
-        X = matmul(X, transpose(U))
-        call mma_deallocate(U)
-
-        ONB = matmul(transpose(X), basis)
         call mma_deallocate(X)
+        call mma_deallocate(U)
+        call mma_deallocate(S_transf)
       end subroutine Lowdin_Array
 
 
@@ -268,20 +228,25 @@
         integer :: i
         integer, allocatable :: idx(:)
         real*8, allocatable :: U(:, :), s_diag(:), S_transf(:, :),
-     &      X(:, :)
+     &      X(:, :), tmp(:, :)
 
-        call mma_allocate(U, size(S, 1), size(S, 2))
         call mma_allocate(S_transf, size(S, 1), size(S, 2))
+        call mma_allocate(U, size(S, 1), size(S, 2))
         call mma_allocate(s_diag, size(S, 2))
+        call mma_allocate(X, size(S, 1), size(S, 2))
         call mma_allocate(idx, size(S, 1))
+        call mma_allocate(tmp, size(S, 1), size(S, 2))
 
-        S_transf = matmul(transpose(basis), matmul(S, basis))
+! Transform AO-overlap matrix S to the overlap matrix of basis.
+! We search X that diagonalizes basis^T S basis
+        call mult(S, basis, tmp)
+        call mult(basis, tmp, S_transf, transpA=.true.)
 
         call diagonalize(S_transf, U, s_diag)
 
-        idx = argsort(s_diag, ge)
-        U = U(:, idx)
-        s_diag = s_diag(idx)
+        idx(:) = argsort(s_diag, ge)
+        U(:, :) = U(:, idx)
+        s_diag(:) = s_diag(idx)
 
         i = 0
         lin_dep_detected = .false.
@@ -294,20 +259,23 @@
         end do
         if (.not. lin_dep_detected) n_new = n_to_ON
 
-        call mma_allocate(X, size(U, 1), n_new)
 ! X = U s_diag^{-1/2}
         do i = 1, n_new
           X(:, i) = U(:, i) / sqrt(s_diag(i))
         end do
+! With this X the overlap matrix S_transf has diagonal form.
+! X^T basis^T S basis X = 1
+! We finally have to convert to get the form:
+! ONB^T S ONB = 1
+        ONB(:, n_new + 1:) = basis(:, n_new + 1 :)
+        call mult(basis, X(:, :n_new), ONB(:, :n_new))
 
-        ONB(:, n_new + 1 :) = basis(:, n_new + 1 :)
-        ONB(:, :n_new) =
-     &      matmul(transpose(X(:, :n_new)), basis(:, idx(:n_new)))
+        call mma_deallocate(tmp)
         call mma_deallocate(X)
         call mma_deallocate(idx)
         call mma_deallocate(s_diag)
-        call mma_deallocate(S_transf)
         call mma_deallocate(U)
+        call mma_deallocate(S_transf)
       end subroutine Canonical_Array
 
       logical pure function ge(x, y)
@@ -337,40 +305,42 @@
       subroutine Gram_Schmidt_Array(basis, S, n_to_ON, ONB, n_new)
         real*8, intent(in) :: basis(:, :), S(:, :)
         integer, intent(in) :: n_to_ON
-        real*8, intent(out) :: ONB(:, :)
+        real*8, target, intent(out) :: ONB(:, :)
         integer, intent(out) :: n_new
 
-        real*8, allocatable :: SCTMP(:), OVL(:)
         real*8 :: L
-        integer :: i
+        integer :: i, j
         logical :: lin_dep_detected, improve_solution
 
-        call mma_allocate(SCTMP, size(basis, 1))
-        call mma_allocate(OVL, size(basis, 1))
+        real*8, allocatable :: previous(:), correction(:), v(:)
+        real*8, pointer :: curr(:)
+
+        call mma_allocate(previous, size(S, 1))
+        call mma_allocate(correction, size(S, 1))
+        call mma_allocate(v, size(S, 1))
 
         n_new = 0
         ONB(:, n_to_ON + 1 :) = basis(:, n_to_ON + 1 :)
         do i = 1, n_to_ON
-          ONB(:, n_new + 1) = basis(:, i)
+          curr => ONB(:, n_new + 1)
+          curr = basis(:, i)
 
           improve_solution = .true.
           lin_dep_detected = .false.
           do while (improve_solution .and. .not. lin_dep_detected)
-            SCTMP = matmul(S, ONB(:, n_new + 1))
-! NOTE: One could use DGEMM_, ddot_ routines,
-!       But the matmul, dot_product routines seem a lot more readable and
-!       performance is not really a problem here.
-            if (n_new > 0) then
-              ovl(:n_new) = matmul(transpose(ONB(:, :n_new)), sctmp)
-              ONB(:, n_new + 1) =
-     &          ONB(:, n_new + 1) - matmul(ONB(:, :n_new) , ovl(:n_new))
-            end if
-            L = ddot_(size(ONB, 1), SCTMP, 1, ONB(:, n_new + 1), 1)
+            correction = 0.d0
+            call mult(S, curr, v)
 
+            do j = 1, n_new
+              correction = correction
+     &                     + ONB(:, j) * dot_product(ONB(:, j), v)
+            end do
+            curr = curr - correction
+            improve_solution = norm(correction, S=S) > 0.1d0
+            L = norm(curr, S=S)
             lin_dep_detected = L < 1.0d-10
-            improve_solution = L < 0.2d0
             if (.not. lin_dep_detected) then
-              ONB(:, n_new + 1) = ONB(:, n_new + 1) / sqrt(L)
+              curr = curr / L
             end if
             if (.not. (improve_solution .or. lin_dep_detected)) then
               n_new = n_new + 1
@@ -378,8 +348,10 @@
           end do
         end do
         ONB(:, n_new + 1 : n_to_ON) = basis(:, n_new + 1 : n_to_ON)
-        call mma_deallocate(SCTMP)
-        call mma_deallocate(OVL)
+
+        call mma_deallocate(v)
+        call mma_deallocate(correction)
+        call mma_deallocate(previous)
       end subroutine Gram_Schmidt_Array
 
       subroutine update_orb_numbers(
@@ -498,18 +470,18 @@
         real*8, allocatable :: work(:)
         real*8 :: dummy(2), query_result(2)
 
-        V = A
+        V(:, :) = A(:, :)
         call dsyev_('V', 'L', size(V, 2), dummy, size(V, 1), dummy,
      &              query_result, do_worksize_query, info)
 
-        if (info /= 0) call abort_('Error in diagonalize')
+        call assert_(info == 0, 'Error in diagonalize')
 
         call mma_allocate(work, int(query_result(1)))
         call dsyev_('V', 'L', size(V, 2), V, size(V, 1), lambda,
      &              work, size(work), info)
         call mma_deallocate(work)
 
-        if (info /= 0) call abort_('Error in diagonalize')
+        call assert_(info == 0, 'Error in diagonalize')
       end subroutine diagonalize
 
 
@@ -518,5 +490,118 @@
         call WarningMessage(2, message)
         call QTrace()
         call Abend()
+      end subroutine
+
+      subroutine assert_(test_expression, message)
+        logical, intent(in) :: test_expression
+        character(*), intent(in) :: message
+        if (.not. test_expression) then
+          call abort_(message)
+        end if
+      end subroutine
+
+!>
+!>  @brief
+!>    Calculates v1^T S v2.
+!>
+!>  @author
+!>    Oskar Weser
+!>
+!>  @details
+!>  Calculates \f[ v1^T S v2 \f]
+!>  S has to be a symmetric positive definite matrix, which is not
+!>  tested.
+!>  If S is ommited, it defaults to the unit matrix,
+!>  i.e. the Euclidean dot-product.
+      function dot_product_(v1, v2, S) result(dot)
+! One cannot use matmul + customly allocated arrays.
+! .and. One cannot overload dot_product with a non pure function
+! => call it dot_product_
+        real*8, intent(in) :: v1(:), v2(:)
+        real*8, intent(in), optional :: S(:, :)
+        real*8 :: dot
+
+        real*8, allocatable :: tmp(:)
+
+        if (present(S)) then
+          call mma_allocate(tmp, size(v1))
+          call mult(S, v1, tmp)
+          dot = dot_product(tmp, v2)
+          call mma_deallocate(tmp)
+        else
+          dot = dot_product(v1, v2)
+        end if
+      end function
+
+      function norm(v, S) result(L)
+        real*8, intent(in) :: v(:)
+        real*8, intent(in), optional :: S(:, :)
+        real*8 :: L
+        if (present(S)) then
+          L = sqrt(dot_product_(v, v, S))
+        else
+! One could use norm2 here, but Sun and PGI compilers don't know this.
+          L = sqrt(sum(v**2))
+        end if
+      end function
+
+      subroutine mult_2D_2D(A, B, C, transpA, transpB)
+        real*8, intent(in) :: A(:, :), B(:, :)
+        real*8, intent(out) :: C(:, :)
+        logical, intent(in), optional :: transpA, transpB
+        logical :: transpA_, transpB_
+
+        integer :: M, N, K_1, K_2, K
+
+        if (present(transpA)) then
+          transpA_ = transpA
+        else
+          transpA_ = .false.
+        end if
+        if (present(transpB)) then
+          transpB_ = transpB
+        else
+          transpB_ = .false.
+        end if
+
+        M = size(A, merge(1, 2, .not. transpA_))
+        call assert_(M == size(C, 1), 'Shape mismatch.')
+        N = size(B, merge(2, 1, .not. transpB_))
+        call assert_(N == size(C, 2), 'Shape mismatch.')
+        K_1 = size(A, merge(2, 1, .not. transpA_))
+        K_2 = size(B, merge(1, 2, .not. transpB_))
+        call assert_(K_1 == K_2, 'Shape mismatch.')
+        K = K_1
+
+        call dgemm_(merge('T', 'N', transpA_), merge('T', 'N',transpB_),
+     &              M, N, K, 1.d0,
+     &              A, size(A, 1), B, size(B, 1),
+     &              0.d0, C, size(C, 1))
+      end subroutine
+
+      subroutine mult_2D_1D(A, B, C, transpA)
+        real*8, intent(in) :: A(:, :), B(:)
+        real*8, intent(out) :: C(:)
+        logical, intent(in), optional :: transpA
+        logical :: transpA_
+
+        integer :: M, N, K
+
+        if (present(transpA)) then
+          transpA_ = transpA
+        else
+          transpA_ = .false.
+        end if
+
+        M = size(A, merge(1, 2, .not. transpA_))
+        call assert_(M == size(C, 1), 'Shape mismatch.')
+        N = 1
+        K = size(A, merge(2, 1, .not. transpA_))
+        call assert_(K == size(B, 1), 'Shape mismatch.')
+
+        call dgemm_(merge('T', 'N', transpA_), 'N',
+     &              M, N, K, 1.d0,
+     &              A, size(A, 1), B, size(B, 1),
+     &              0.d0, C, size(C, 1))
       end subroutine
       end module orthonormalization

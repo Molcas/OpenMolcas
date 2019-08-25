@@ -10,7 +10,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2015-2018, Ignacio Fdez. Galván                        *
+# Copyright (C) 2015-2019, Ignacio Fdez. Galván                        *
 #***********************************************************************
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
@@ -18,7 +18,10 @@ try:
   from builtins import bytes
 except ImportError:
   from future.builtins import bytes
-from six import text_type
+try:
+  from six import text_type
+except ImportError:
+  text_type = str
 
 from os import environ, access, W_OK, X_OK, listdir, remove, getpid, getcwd, makedirs, symlink, devnull
 from os.path import isfile, isdir, isabs, join, basename, splitext, getmtime, abspath, exists, relpath, realpath
@@ -134,6 +137,7 @@ class Molcas_wrapper(object):
     self._check_count = 0
     self._loop_level = 0
     self._nest_level = 0
+    self._last_module = True
     self.parnell = join(self.molcas, 'bin', 'parnell.exe')
     if (self.input_filename):
       self.read_input(self.input_filename)
@@ -688,6 +692,9 @@ class Molcas_wrapper(object):
       if (self._goto):
         print('Label "{0}" not found'.format(self._goto))
         self.rc = '_RC_INPUT_ERROR_'
+      if ((self.rc_to_name(self.rc) == '_RC_ALL_IS_WELL_') and (not self._last_module)):
+        print('*** Extra labels in check file')
+        self.rc = '_RC_CHECK_ERROR_'
       self.run_logue('epilogue')
     except KeyboardInterrupt:
       self.rc = '_RC_JOB_KILLED_'
@@ -757,7 +764,9 @@ class Molcas_wrapper(object):
           raise MolcasException('EMIL: {0}'.format(message))
         self.add_files(files)
         rc = new_inp.run(self)
-        if (rc is not None):
+        if (rc is None):
+          self.rc = '_RC_ALL_IS_WELL_'
+        else:
           self.rc = rc
           rcname = self.rc_to_name(self.rc)
         self._nest_level -= 1
@@ -790,7 +799,8 @@ class Molcas_wrapper(object):
         if (rc == '_RC_NOT_AVAILABLE_'):
           raise Exception
       except:
-        rc = check_test(join(self.scratch, 'molcas_info'), join(self.scratch, 'checkfile'), self._check_count)
+        (rc, last) = check_test(join(self.scratch, 'molcas_info'), join(self.scratch, 'checkfile'), self._check_count)
+        self._last_module = last
       if (self.rc_to_name(rc) != '_RC_ALL_IS_WELL_'):
         self.rc = rc
     self.parallel_task(['x', 'molcas_info'], force=True)

@@ -13,7 +13,7 @@
       Subroutine Proc_Inp(DSCF,Info,lOPTO,iRc)
 
       use stdalloc, only : mma_allocate, mma_deallocate
-      use fortran_strings, only : to_upper
+      use fortran_strings, only : to_upper, operator(.in.)
 #ifdef _DMRG_
 ! module dependencies
       use qcmaquis_interface_environment, only: initialize_dmrg
@@ -131,7 +131,7 @@
 
       integer :: start, step, length
 
-      character(50) :: ON_scheme_inp
+      character(50) :: ON_scheme_inp, uppercased
 
 #ifdef _DMRG_
 !     dmrg(QCMaquis)-stuff
@@ -1904,19 +1904,19 @@ C orbitals accordingly
         call setpos(luinput,'ORTH',line,irc)
         if(irc.ne._RC_ALL_IS_WELL_) goto 9810
         read(luinput,*,end=9910,err=9920) ON_scheme_inp
-        select case (to_upper(trim(ON_scheme_inp)))
-          case ('CANONICAL')
-            ON_scheme%val = ON_scheme_values%Canonical
-          case ('LOWDIN')
-            ON_scheme%val = ON_scheme_values%Lowdin
-          case ('GRAM_SCHMIDT')
-            ON_scheme%val = ON_scheme_values%Gram_Schmidt
-          case ('NO_ON')
-            ON_scheme%val = ON_scheme_values%No_ON
-          case default
-            call WarningMessage(2, 'Invalid ORTH keyword')
-            goto 9930
-        end select
+        uppercased = to_upper(trim(ON_scheme_inp))
+        if ('CANO' .in. uppercased) then
+          ON_scheme%val = ON_scheme_values%Canonical
+        else if ('LOWD' .in. uppercased) then
+          ON_scheme%val = ON_scheme_values%Lowdin
+        else if ('GRAM' .in. uppercased) then
+          ON_scheme%val = ON_scheme_values%Gram_Schmidt
+        else if ('NO_O' .in. uppercased) then
+          ON_scheme%val = ON_scheme_values%No_ON
+        else
+          call WarningMessage(2, 'Invalid ORTH keyword')
+          goto 9930
+        end if
       end if
 *---  Process NECI commands -------------------------------------------*
       if (KeyNECI) then

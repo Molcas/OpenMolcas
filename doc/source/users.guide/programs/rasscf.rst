@@ -1395,6 +1395,23 @@ A list of these keywords is given below:
               </HELP>
               </KEYWORD>
 
+:kword:`ORTH`
+   Specify the orthonormalization scheme to apply on the read orbitals.
+   The possibilities are ``Gram_Schmidt``, ``Lowdin``, ``Canonical``, or ``no_ON``
+   (no_orthonormalization).
+   For a detailed explanation see :cite:`szabo_ostlund` (p. 143).
+   The default is Gram_Schmidt.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="ORTH" APPEAR="ORTHonormalization" LEVEL="ADVANCED" KIND="CHOICE" LIST="----,Gram_Schmidt,Lowdin,Canonical,no_ON">
+              %%Keyword: ORTH <basic>
+              <HELP>
+              Specify the orthonormalization scheme to apply on the input orbitals.
+              The possibilities are Gram_Schmidt, Lowdin, Canonical, or no_ON
+              (no_orthonormalization).
+              The default is Gram_Schmidt.
+              </HELP>
+              </KEYWORD>
+
 :kword:`CLEAnup`
   This input is used to set to zero specific coefficients of the input
   orbitals. It is of value, for example, when the actual symmetry is

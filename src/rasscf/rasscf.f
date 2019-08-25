@@ -57,7 +57,7 @@
      &    finalize_dmrg, dump_dmrg_info
 #endif
       use stdalloc
-      use write_orbital_files, only : OrbFiles
+      use write_orbital_files, only : OrbFiles, putOrbFile
       use fciqmc, only : FCIQMC_ctl, DoNECI, fciqmc_cleanup => cleanup
       use fcidump, only : make_fcidumps, transform, DumpOnly
 
@@ -396,6 +396,13 @@
 * variables: NSSH(),NDEL(),NORB(),NTOT3, etc etc
       Call ReadVc(Work(LCMO),Work(lOCCN),
      & WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),ON_scheme)
+      if (KeyORTH) then
+! TODO(Oskar): Add fourth argument OCC
+!   If the Occupation number is written properly as well.
+        call putOrbFile(CMO=Work(lCMO : lCMO + nTot2 - 1),
+     &                  orbital_E=work(lDIAF : lDIAF + nTot - 1),
+     &                  iDoGAS=iDoGAS)
+      end if
 * Only now are such variables finally known.
 
       If ( IPRLEV.ge.DEBUG ) then
@@ -1979,7 +1986,6 @@ c deallocating TUVX memory...
       Call GetMem('LCMO','Free','Real',LCMO,NTOT2)
       If (iClean.eq.1) Call Free_iWork(ipCleanMask)
 
-
 *
 * Skip Lucia stuff if NECI or BLOCK-DMRG is on
       If (.not.(DoNECI.or.DumpOnly.or.doDMRG.or.doBlockDMRG)) then
@@ -2083,7 +2089,6 @@ c      End If
       end if
 ! ==========================================================
 ! Exit
-
 
  9990 Continue
 C Close the one-electron integral file:

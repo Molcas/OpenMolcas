@@ -15,7 +15,7 @@
         implicit none
         private
         public ::
-     &    sort, argsort,  tAlgorithm, algorithms, naive_sort_trsh
+     &    sort, argsort,  tAlgorithm, algorithms, bubble_sort_trsh
 
 ! TODO: Should be changed to default construction in the future.
 ! As of July 2019 the Sun and PGI compiler have problems.
@@ -33,7 +33,7 @@
 
 ! When to switch to naive sort, which scales with n^2,
 ! but requires less overhead.
-        integer :: naive_sort_trsh = 30
+        integer, parameter :: bubble_sort_trsh = 20
 
         interface
           logical pure function compare_int(a, b)
@@ -116,8 +116,8 @@
           call sort(idx, my_compare_iV, algorithm_)
 #endif
 
-          contains
 #ifdef INTERNAL_PROC_ARG
+          contains
             logical pure function my_compare(x, y)
               integer, intent(in) :: x, y
               my_compare = compare(V(x), V(y))
@@ -150,8 +150,8 @@
           call sort(idx, my_compare_rV, algorithm_)
 #endif
 
-          contains
 #ifdef INTERNAL_PROC_ARG
+          contains
             logical pure function my_compare(x, y)
               integer, intent(in) :: x, y
               my_compare = compare(V(x), V(y))
@@ -218,22 +218,20 @@
           end select
         end subroutine sort
 
-        subroutine naive_sort(V, compare)
+        subroutine bubble_sort(V, compare)
           integer, intent(inout) :: V(:)
           procedure(compare_int) :: compare
 
-          integer :: i, j, t
+          integer :: n, i
 
-          do i = lbound(V, 1) + 1, ubound(V, 1)
-            t = V(i)
-            j = i
-            do while (j > 1 .and. .not. compare(V(j - 1), t))
-              V(j) = V(j - 1)
-              j = j - 1
+          do n = ubound(V, 1), lbound(V, 1) + 1, -1
+            do i = lbound(V, 1), ubound(V, 1) - 1
+              if (.not. compare(V(i), V(i + 1))) then
+                call swap(V(i), V(i + 1))
+              end if
             end do
-            V(j) = t
           end do
-        end subroutine naive_sort
+        end subroutine bubble_sort
 
         subroutine swap(a, b)
           integer, intent(inout) :: a, b
@@ -310,7 +308,7 @@
           if (size(A) < 2) then
             continue
           else if (size(A) == 2) then
-            call naive_sort(A, compare)
+            call bubble_sort(A, compare)
           else
             call mergesort_work(A( : half), compare, work)
             call mergesort_work(A(half + 1 :), compare, work)
@@ -328,7 +326,7 @@
 
           integer :: i, j, pivot
 
-          if (size(idx) > naive_sort_trsh) then
+          if (size(idx) > bubble_sort_trsh) then
             i = lbound(idx, 1)
             j = ubound(idx, 1)
             pivot = idx((j - i) / 2 + 1)
@@ -353,7 +351,7 @@
               call quicksort(idx(j + 1 : ), compare)
             end if
           else
-            call naive_sort(idx, compare)
+            call bubble_sort(idx, compare)
           end if
         end subroutine quicksort
       end module sorting

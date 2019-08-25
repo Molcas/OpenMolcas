@@ -34,10 +34,13 @@
       contains
 
         subroutine block_new(blocks, blocksizes)
-          type(t_blockdiagonal), intent(out) :: blocks(:)
+          type(t_blockdiagonal), allocatable, intent(out) :: blocks(:)
           integer, intent(in) :: blocksizes(:)
-          integer :: i, L
+          integer :: i, L, err
 
+          allocate(blocks(size(blocksizes)), stat=err)
+          if (err /= 0) call abort_('Allocation failed in '//
+     &        'blockdiagonal_matrices::new')
           do i = 1, size(blocks)
             L = blocksizes(i)
             call mma_allocate(blocks(i)%block, L, L, label='Block')
@@ -45,12 +48,13 @@
         end subroutine
 
         subroutine block_delete(blocks)
-          type(t_blockdiagonal) :: blocks(:)
+          type(t_blockdiagonal), allocatable :: blocks(:)
           integer :: i
 
           do i = 1, size(blocks)
             call mma_deallocate(blocks(i)%block)
           end do
+          deallocate(blocks)
         end subroutine
 
         subroutine from_raw(S_buffer, S)
@@ -114,4 +118,11 @@
           integer :: i
           res = [(size(A(i)%block, 1), i = 1, size(A))]
         end function
+
+      subroutine abort_(message)
+        character(*), intent(in) :: message
+        call WarningMessage(2, message)
+        call QTrace()
+        call Abend()
+      end subroutine
       end module blockdiagonal_matrices
