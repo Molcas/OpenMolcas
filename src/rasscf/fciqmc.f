@@ -153,9 +153,9 @@
 ! TODO: permutation has to be applied at more places
       select case (ReOrFlag)
         case (2:)
-          permutation = get_P_inp(ReOrInp)
+          permutation(:) = get_P_inp(ReOrInp)
         case (-1)
-          permutation = get_P_GAS(nGSSH)
+          permutation(:) = get_P_GAS(nGSSH)
       end select
 
 ! This call is not side effect free, sets EMY and modifies F_IN

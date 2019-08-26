@@ -76,8 +76,8 @@ contains
     integer, intent(in) :: ngssh(:, :)
     integer :: P(sum(ngssh)), X(sum(ngssh))
     integer :: iGAS, iSym, i
-    X = [(((iGAS, i = 1, ngssh(iGAS, iSym)), iGAS = 1, nGAS), iSym = 1, nSym)]
-    P = argsort(X, le)
+    X(:) = [(((iGAS, i = 1, ngssh(iGAS, iSym)), iGAS = 1, nGAS), iSym = 1, nSym)]
+    P(:) = argsort(X, le)
   end function
 
   logical pure function le(a, b)
@@ -90,8 +90,8 @@ contains
     use general_data, only : nAsh
     integer, intent(in) :: ReOrInp(:)
     integer :: P(sum(nAsh)), change_idx(size(ReOrInp)), i
-    P = [(i, i = 1, size(P))]
-    change_idx = ReOrInp
+    P(:) = [(i, i = 1, size(P))]
+    change_idx(:) = ReOrInp
     call sort(change_idx, le)
     P(change_idx) = ReOrInp
   end function
@@ -105,7 +105,7 @@ contains
     call reorder(orbitals, P)
     call reorder(fock, P)
     call reorder(two_el_table, P)
-    orbsym = orbsym(P)
+    orbsym(:) = orbsym(P)
   end subroutine
 
   subroutine cleanup()
