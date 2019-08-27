@@ -1990,8 +1990,7 @@ c deallocating TUVX memory...
 * Skip Lucia stuff if NECI or BLOCK-DMRG is on
       If (.not.(DoNECI.or.DumpOnly.or.doDMRG.or.doBlockDMRG)) then
           Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
-      end if
-      if (DoNECI) then
+      else if (DoNECI) then
           CALL GETMEM('INT1  ','FREE','REAL',kint1_pointer,NAC**2)
           call fciqmc_cleanup()
       end if
