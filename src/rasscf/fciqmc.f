@@ -426,18 +426,10 @@
         integer, intent(in) :: GAS_spaces(:, :)
         integer, intent(in), optional :: permutation(:)
         integer, parameter :: arbitrary_magic_number = 42
-        integer :: i, GAS_ORB(sum(GAS_spaces)), iGAS, iSym, n,
-     &    file_id
+        integer :: i, GAS_ORB(sum(GAS_spaces)), iGAS, iSym, file_id
 
-        n = 1
-        do iSym = 1, size(GAS_spaces, 2)
-          do iGAS = 1, size(GAS_spaces, 1)
-            do i = 1, GAS_spaces(iGAS, iSym)
-              GAS_ORB(n) = iGAS
-              n = n + 1
-            end do
-          end do
-        end do
+        GAS_ORB(:) = [(((iGAS, i = 1, GAS_spaces(iGAS, iSym)),
+     &                 iGAS = 1, size(GAS_spaces, 1)), iSym = 1, nSym)]
 
         if (present(permutation)) GAS_ORB = GAS_ORB(permutation)
 
