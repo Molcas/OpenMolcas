@@ -404,26 +404,24 @@
 
 *           DMAT will be destroyed and replaced with a positive semi-definite one.
 *           N-representability will be preserved.
+
+      implicit none
 #include "WrkSpc.fh"
 * NACPAR = NAC*(NAC+1)/2 with NAC total number of active orbitals
       real*8, intent(inout) :: MAT(NacPar)
-      integer :: rc, LEVC, j, i, iTmp, iTmp2
+      integer rc,LEVC,j,i,iTmp,iTmp2
       real*8 :: trace
-      real*8, allocatable :: MAT_copy(:)
-      logical :: transformation_needed
-      character(12), parameter :: routine = 'CleanMat'
+      Character*12 routine
+      Parameter (routine = 'CleanMat')
 
       Call qEnter(routine)
 
       rc = 0
       If (nacpar .lt. 1) then
-        rc= -1
-        write(6,*) 'matrix size < 1.'
-        Go To 10
+       rc= -1
+       write(6,*) 'matrix size < 1.'
+       Go To 10
       end if
-
-      call mma_allocate(MAT_copy, NacPar)
-      MAT_copy(:) = MAT
 
 * Allocate memory for eigenvectors and new DMAT
       Call GetMem('EVC','Allo','Real',LEVC,NAC**2)
@@ -435,14 +433,14 @@
 * Step 1: Diagonalize MAT. Eigenvalues are stored in diagonal of MAT
       trace = 0.0d0
       DO I=1,NAC
-         trace = trace+ MAT_copy(I*(I+1)/2)
+         trace = trace+ MAT(I*(I+1)/2)
       END DO
-      CALL JACOB(MAT_copy,Work(LEVC),NAC,NAC)
+      CALL JACOB(MAT,Work(LEVC),NAC,NAC)
 
 #ifdef _DEBUG_
       write(6,*) 'eigenvalues: '
       DO I=1,NAC
-         write(6,*) MAT_copy(I*(I+1)/2)
+         write(6,*) MAT(I*(I+1)/2)
       END DO
       write(6,*) 'eigenvectors: '
       do i = 0, nac -1
@@ -450,62 +448,49 @@
       end do
 #endif
 * Set to zero negative eigenvalue and to TWO values larger than 2.0d0.
-      transformation_needed = .false.
       do j = 1, nac
-        if (MAT_copy(j * (j + 1) / 2) > 2.0d0) then
-            MAT_copy(j * (j + 1) / 2) = 2.0d0
-            transformation_needed = .true.
-        end if
-        if (MAT_copy(j * (j + 1) / 2) < 1.0d-12) then
-            MAT_copy(j * (j + 1) / 2) = 0.0d0
-            transformation_needed = .true.
-        end if
+       if(MAT(j*(j+1)/2).gt.2.0d0)     MAT(j*(j+1)/2) = 2.0d0
+       if(MAT(j*(j+1)/2).lt.1.0d-12)   MAT(j*(j+1)/2) = 0.0d0
       end do
 
-      if (transformation_needed) then
-
-        trace = 0.0d0
-        DO I=1,NAC
-          trace = trace + MAT_copy(I*(I+1)/2)
-        END DO
-        write(6,*) 'trace after removing negative eigenvalues =', trace
+      trace = 0.0d0
+      DO I=1,NAC
+         trace = trace + MAT(I*(I+1)/2)
+      END DO
+      write(6,*) 'trace after removing negative eigenvalues =', trace
 
 * Combine pieced to form the output MAT
 * blas routine for square*triangular operation
-        Call GetMem('Scr','Allo','Real',iTmp,nac*nac)
-        Call GetMem('Scr2','Allo','Real',iTmp2,nac*nac)
-        Call dCopy_(nac*nac,[0.0d0],0,Work(iTmp),1)
-        Call dCopy_(nac*nac,[0.0d0],0,Work(iTmp2),1)
+      Call GetMem('Scr','Allo','Real',iTmp,nac*nac)
+      Call GetMem('Scr2','Allo','Real',iTmp2,nac*nac)
+      Call dCopy_(nac*nac,[0.0d0],0,Work(iTmp),1)
+      Call dCopy_(nac*nac,[0.0d0],0,Work(iTmp2),1)
 c     call DTRMM('R','L','N','n',nac,nac,1.0d0,MAT,nac,Work(iTmp))
-        do i = 0, nac-1
+      do i = 0, nac-1
           do j = 0, nac-1
-            work(iTmp+i*nac+j) =
-     &        Work(LEVC+i*NAC+j) * MAT_copy((I+1)*(I+2)/2)
+           work(iTmp+i*nac+j) = Work(LEVC+i*NAC+j)*MAT((I+1)*(I+2)/2)
           end do
-        end do
-        Call DGEMM_('N','T',nac,nac,nac,
-     &              1.0d0,Work(iTmp),nac,Work(LEVC),nac,
-     &              0.0d0,Work(iTmp2),nac)
+      end do
+      Call DGEMM_('N','T',nac,nac,nac,
+     &            1.0d0,Work(iTmp),nac,Work(LEVC),nac,
+     &            0.0d0,Work(iTmp2),nac)
 * Copy back to MAT
-        do i = 1, nac
-          do j = 1, i
-            MAT_copy((i-1)*i/2+j) = Work(iTmp2+(i-1)*nac + j-1)
-          end do
+      do i = 1, nac
+        do j = 1, i
+         MAT((i-1)*i/2+j) = Work(iTmp2+(i-1)*nac + j-1)
         end do
+      end do
 #ifdef _DEBUG_
-        write(6,*) 'trace after recombination:'
-        trace = 0.0d0
-        DO I=1,NAC
-          trace = trace+ MAT_copy(I*(I+1)/2)
-        END DO
+      write(6,*) 'trace after recombination:'
+      trace = 0.0d0
+      DO I=1,NAC
+         trace = trace+ MAT(I*(I+1)/2)
+      END DO
 #endif
-        MAT(:) = MAT_copy
-      end if
 * Release memory
       Call GetMem('Scr2','Free','Real',iTmp2,nac*nac)
       Call GetMem('Scr','Free','Real',iTmp,nac*nac)
       Call GetMem('EVC','Free','Real',LEVC,nac*nac)
-      call mma_deallocate(MAT_copy)
 ****************** Exit ****************
 10    Continue
       Call qExit(routine)
