@@ -34,6 +34,14 @@ class RasOrb:
     energy = attrib()
     idx = attrib()
 
+    def copy(self):
+        return self.__class__(
+            orbs=self.orbs.copy(),
+            coeff=self.coeff.copy(),
+            occ=self.occ.copy(),
+            energy=self.energy.copy(),
+            idx=self.idx.copy())
+
     @classmethod
     def read_orbfile(cls, path):
         coeff, occ, energy, idx = _read_orbfile(path)
@@ -51,6 +59,20 @@ class RasOrb:
                 print(line, file=f)
             for line in self._write_CAS_idx():
                 print(line, file=f)
+
+    def reindex(self, new_idx, inplace=False):
+        if inplace:
+            self.coeff = [
+                coeff[:, idx] for idx, coeff in zip(new_idx, self.coeff)]
+            self.energy = [
+                energy[idx] for idx, energy in zip(new_idx, self.energy)]
+            self.idx = [kind[idx] for idx, kind in zip(new_idx, self.idx)]
+            self.occ = [occ[idx] for idx, occ in zip(new_idx, self.occ)]
+            self.orbs = [len(idx) for idx in new_idx]
+        else:
+            new = self.copy()
+            new.reindex(new_idx, inplace=True)
+            return new
 
     def _get_header(self):
         return f"""#INPORB 2.2
