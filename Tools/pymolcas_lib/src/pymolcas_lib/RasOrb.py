@@ -74,6 +74,9 @@ class RasOrb:
             new.reindex(new_idx, inplace=True)
             return new
 
+    def get_index(self):
+        return [range(len(energy)) for energy in self.energy]
+
     def _get_header(self):
         return f"""#INPORB 2.2
 #INFO
