@@ -332,7 +332,7 @@
             call mult(S, curr, v)
 
             do j = 1, n_new
-              correction = correction
+              correction(:) = correction(:)
      &                     + ONB(:, j) * dot_product(ONB(:, j), v)
             end do
             curr = curr - correction
