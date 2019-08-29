@@ -1,7 +1,15 @@
+from __future__ import annotations
+from typing import Sequence
+import re
+from enum import Enum
 import numpy as np
 from numpy.linalg import svd
 
 from attr import attrs, attrib
+
+
+class RasOrb_version(Enum):
+    v2_0, v2_2 = range(2)
 
 
 def procrust(A, B):
@@ -60,7 +68,7 @@ class RasOrb:
             for line in self._write_CAS_idx():
                 print(line, file=f)
 
-    def reindex(self, new_idx, inplace=False):
+    def reindex(self, new_idx: Sequence[Sequence[int]], inplace: bool=False) -> RasOrb:
         if inplace:
             self.coeff = [
                 coeff[:, idx] for idx, coeff in zip(new_idx, self.coeff)]
@@ -75,7 +83,7 @@ class RasOrb:
             return new
 
     def get_index(self):
-        return [range(len(energy)) for energy in self.energy]
+        return [np.arange(len(energy)) for energy in self.energy]
 
     def _get_header(self):
         return f"""#INPORB 2.2
@@ -176,9 +184,24 @@ def _read_CAS_idx(f, orbs, cols):
     return idx
 
 
+def _read_version(line: str) -> RasOrb_version:
+    match = re.match('#INPORB (2).([02])', line)
+    if match:
+        major, minor = match.group(1, 2)
+        if major == '2':
+            if minor == '0':
+                return RasOrb_version.v2_0
+            elif minor == '2':
+                return RasOrb_version.v2_2
+        raise ValueError(f'Unknown version {major}.{minor}')
+    else:
+        raise ValueError('Inporb version could not be determined.')
+
+
 def _read_orbfile(path):
     with open(path, 'r') as f:
-        _forward(f, 5)
+        version = _read_version(f.readline())
+        _forward(f, 4)
         line = f.readline()
         orbs = [int(irrep) for irrep in line.split()]
 
@@ -187,7 +210,8 @@ def _read_orbfile(path):
             if 'ORBITAL' in line:
                 MO_coeff = _read_coeffs(f, orbs, 5)
             if 'OCCUPATION NUMBERS' in line and 'HUMAN-READABLE' not in line:
-                MO_occ = _read_orb_property(f, orbs, 5)
+                MO_occ = _read_orb_property(
+                    f, orbs, 10 if version == RasOrb_version.v2_0 else 5)
             if 'ONE ELECTRON ENERGIES' in line:
                 MO_E = _read_orb_property(f, orbs, 10)
             if 'INDEX' in line:
