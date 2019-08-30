@@ -41,8 +41,9 @@ statistical analysis of exciton wavefunctions is included :cite:`Bappler2014,Pla
 which provides various quantitative descriptors to describe the excited states.
 Output is printed for the 1-electron transition density matrix (1TDM) and for the 1-electron difference density matrix (1DDM).
 A decomposition into local and charge transfer contributions on different chromophores
-is possible through the charge transfer number analysis :cite:`Plasser2012`, which is
-available in connection with the external TheoDORE :cite:`TheoDORE` program.
+is possible through the charge transfer number analysis :cite:`Plasser2012`,
+which has been integrated into |molcas| recently.
+Postprocessing is possible through the external `TheoDORE <http://theodore-qc.sourceforge.net/>`_ :cite:`TheoDORE` program.
 
 Installation
 ------------
@@ -53,7 +54,7 @@ It requires a working HDF5 installation and access to the include files of the A
 In the current settings, external BLAS/LAPACK libraries have to be used.
 Use, e.g., the following commands for installation: ::
 
-  FC=ifort cmake -D LINALG=MKL -D WFA=ON -D ARMADILLO_INC=../armadillo-7.300.0/include ../openmolcas/
+  FC=ifort cmake -D LINALG=MKL -D WFA=ON -D ARMADILLO_INC=../armadillo-7.300.0/include ..
 
 .. _UG\:sec\:wfa_dependencies:
 
@@ -87,14 +88,21 @@ Output files
   The orbital coefficients of NOs, NTOs, and NDOs are written to the same HDF5 file that
   is also used for input.
 
-:file:`*atomic.om`
+:file:`*.om`
   These are input files for the external TheoDORE program.
 
-.. _UG\:sec\:wfa_input:
+:file:`OmFrag.txt`
+  Input file for TheoDORE.
 
-Extraction of the NOs, NTOs, and NDOs from the HDF5 file occurs with the external Molpy program. Call, e.g.: ::
+For a seamless interface to TheoDORE, you can also create the :file:`tden_summ.txt` file via ::
+
+  grep '^|' molcas.log > tden_summ.txt
+
+Extraction of the NOs, NTOs, and NDOs from the HDF5 file occurs with the external `Molpy program <https://github.com/steabert/molpy>`_. Call, e.g.: ::
 
   penny molcas.rassi.h5 --wfaorbs molden
+
+.. _UG\:sec\:wfa_input:
 
 Input
 -----
@@ -122,30 +130,64 @@ Basic Keywords:
               You either have to use this option or rename the file of
               interest to WFAH5.
 
-:kword:`REFState`
-  Index of the reference state for 1TDM and 1DDM analysis.
-
-  .. xmldoc:: %%Keyword:REFState <basic>
-              Index of the reference state for 1TDM and 1DDM analysis.
-
 :kword:`WFALevel`
   Select how much output is produced (0-4, default: 3).
 
   .. xmldoc:: %%Keyword:WFALevel <basic>
               Select how much output is produced (0-4, default: 3).
 
+:kword:`CTNUmmode`
+  Specifies what properties are computed in a `TheoDORE <http://theodore-qc.sourceforge.net/>`_-style fragment-based analysis (0-3, default: 1).
+  This requires defining fragments via :kword:`ATLIsts`.
+
+  0 --- none
+
+  1 --- Basic: POS, PR, DEL, CT, CTnt
+
+  2 --- Extended:  POS, POSi, POSf, PR, PRi, PRf, DEL, COH, CT, CTnt
+
+  3 --- For transition metal complexes: POSi, POSf, PR, CT, MC, LC, MLCT, LMCT, LLCT
+
+  The definition of the descriptors is provided
+  `here <https://sourceforge.net/p/theodore-qc/wiki/Transition%20density%20matrix%20analysis/attachment/Om_desc.pdf>`_.
+  For a more fine-grained input use :kword:`PROPlist`.
+
+  .. xmldoc:: %%Keyword:CTNUmmode <basic>
+              Define what properties are computed in a TheoDORE-style analysis. (0-3, default: 1).
+
+:kword:`ATLIsts`
+  Define the fragments in a `TheoDORE <http://theodore-qc.sourceforge.net/>`_-style analysis.
+
+  The first entry is the number of fragments.
+  Then enter the atomic indices of the fragment followed by a \*.
+  Example: ::
+
+    ATLISTS
+    2
+    1 2 4 *
+    3 *
+
+  .. xmldoc:: %%Keyword:ATLIsts <basic>
+            Define the fragments in a TheoDORE-style analysis.
+
+:kword:`REFState`
+  Index of the reference state for 1TDM and 1DDM analysis (default: 1).
+
+  .. xmldoc:: %%Keyword:REFState <basic>
+              Index of the reference state for 1TDM and 1DDM analysis.
+
 Advanced keywords for fine grain output options and debug information:
 
 .. class:: keywordlist
 
 :kword:`MULLiken`
-  Activate Mulliken population analysis.
+  Activate Mulliken population analysis (also for CT numbers).
 
   .. xmldoc:: %%Keyword:MULLiken <advanced>
               Activate Mulliken population analysis.
 
 :kword:`LOWDin`
-  Activate Löwdin population analysis.
+  Activate Löwdin population analysis (also for CT numbers).
 
   .. xmldoc:: %%Keyword:LOWDin <advanced>
               Activate Lowdin population analysis.
@@ -162,10 +204,10 @@ Advanced keywords for fine grain output options and debug information:
   .. xmldoc:: %%Keyword:EXCIton <advanced>
               Activate exciton and multipole analysis.
 
-:kword:`CTNUmbers`
+:kword:`DOCTnumbers`
   Activate charge transfer number analysis and creation of :file:`*.om` files.
 
-  .. xmldoc:: %%Keyword:CTNUmbers <advanced>
+  .. xmldoc:: %%Keyword:DOCTnumbers <advanced>
               Activate charge transfer number analysis and creation of *.om files.
 
 :kword:`H5ORbitals`
@@ -174,6 +216,20 @@ Advanced keywords for fine grain output options and debug information:
   .. xmldoc:: %%Keyword:H5ORbitals <advanced>
               Print the NOs, NTOs, and/or NDOs to the HDF file.
 
+:kword:`PROPlist`
+  Manual input of properties to be printed out in a `TheoDORE <http://theodore-qc.sourceforge.net/>`_-style fragment based analysis.
+  Use only if :kword:`CTNUMMODE` does not provide what you want.
+
+  .. xmldoc:: %%Keyword:PROPlist <advanced>
+            Manual input of properties to be printed out in a TheoDORE-style analysis.
+
+  Enter as a list followed by a \*, e.g. ::
+
+    PROPLIST Om POS PR CT COH CTnt *
+
+  The full list of descriptors is provided
+  `here <https://sourceforge.net/p/theodore-qc/wiki/Transition%20density%20matrix%20analysis/attachment/Om_desc.pdf>`_.
+
 :kword:`DEBUg`
   Print debug information.
 
@@ -181,10 +237,10 @@ Advanced keywords for fine grain output options and debug information:
               Print debug information.
 
 :kword:`ADDInfo`
-  Add info for :command:`molcas verify`.
+  Add info for verification runs with :command:`molcas verify`.
 
   .. xmldoc:: %%Keyword:ADDInfo <advanced>
-              Add info for molcas verify.
+              Add info for verifications runs with molcas verify.
 
 Input example
 .............
@@ -200,24 +256,25 @@ Input example
 ::
 
   * Analysis of RASSCF job
-  * Reduced output: only charge transfer numbers
+  * Reduced output
   &RASSCF
 
   &WFA
   H5file = $Project.rasscf.h5
-  wfalevel = 0
-  ctnumbers
+  wfalevel = 1
 
 ::
 
   * Analysis of RASSI job, use the TRD1 keyword
-  * Second state as reference
   &RASSI
   TRD1
 
   &WFA
   H5file = $Project.rassi.h5
-  Refstate = 2
+  ATLISTS
+  2
+  1 2 4 *
+  3 *
 
 .. _UG\:sec\:wfa_output:
 
