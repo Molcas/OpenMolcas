@@ -191,7 +191,7 @@ CSVC: take the global sum of the individual maxima
 * available from the CHOVEC_IO module.
 
       ALLOCATE(NVGLB_CHOBATCH(NBATCH_TOT))
-      NVGLB_CHOBATCH=NVLOC_CHOBATCH
+      NVGLB_CHOBATCH(:)=NVLOC_CHOBATCH(:)
 #ifdef _MOLCAS_MPP_
       ! for parrallel, sum over processes
       CALL GAIGOP(NVGLB_CHOBATCH,NBATCH_TOT,'+')

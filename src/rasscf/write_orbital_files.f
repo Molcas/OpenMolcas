@@ -10,18 +10,24 @@
 ************************************************************************
       module write_orbital_files
 
+        use stdalloc, only : mma_allocate, mma_deallocate
         use general_data, only : nSym
         use gas_data, only : iDoGas, nGAS
 
         implicit none
         private
-        public :: OrbFiles, get_typeidx
+        public :: OrbFiles, get_typeidx, putOrbFile
         save
 
         interface get_typeidx
           module procedure RAS_get_typeidx, GAS_get_typeidx
         end interface
 
+        interface
+          integer function isfreeunit(iseed)
+            integer, intent(in) :: iseed
+          end function
+        end interface
       contains
 
       Subroutine OrbFiles(JOBIPH, IPRLEV)
@@ -39,7 +45,6 @@
       use gugx_data, only : ifCas
       use gas_data, only : nGssh
 
-      implicit none
 #include "output_ras.fh"
       Parameter (ROUTINE='ORBFILES')
 #include "WrkSpc.fh"
@@ -225,7 +230,6 @@ c     & Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
 
       function RAS_get_typeidx(
      &    nFro, nIsh, nRs1, nRs2, nRs3, nBas, nDel) result(typeidx)
-        implicit none
         integer, intent(in) ::  nFro(:), nIsh(:), nRs1(:), nRs2(:),
      &    nRs3(:), nBas(:), nDel(:)
         integer :: typeidx(7, 8)
@@ -244,7 +248,6 @@ c     & Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
 
       function GAS_get_typeidx(
      &      nFro, nIsh, nGSSH, nBas, nDel) result(typeidx)
-        implicit none
         integer, intent(in) ::
      &    nFro(:), nIsh(:), nBas(:), nGSSH(:, :), nDel(:)
         integer :: typeidx(7, 8)
@@ -259,4 +262,36 @@ c     & Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
         typeidx(6, :nSym) = 0
         typeidx(6, :nSym) = nBas(:nSym) - sum(typeidx(:, :nSym), dim=1)
       end function GAS_get_typeidx
+
+      subroutine putOrbFile(CMO, orbital_E, iDoGAS)
+        use general_data, only : ntot,
+     &    nFro, nIsh, nRs1, nRs2, nRs3, nDel, nAsh, nBas
+        use gas_data, only : nGSSH
+        real*8, intent(in) :: CMO(:), orbital_E(:)
+        logical, intent(in) :: iDoGAS
+
+        character(*), parameter :: filename = 'ORTHORB'
+        real*8, allocatable :: occ_number(:)
+        integer, parameter :: arbitrary_magic_number = 50
+        integer :: file_id, typeidx(7, 8)
+        character(len=80) ::
+     &    orbfile_title = 'Orbitals that are used for FCIQMC.'
+
+        file_id = arbitrary_magic_number
+        file_id = isfreeunit(file_id)
+        if (.not. iDoGas) then
+          typeidx = get_typeidx(nFro, nIsh, nRs1, nRs2, nRs3, nBas,nDel)
+
+        else
+          typeidx = get_typeidx(nFro, nIsh, nGSSH, nBas, nDel)
+        endif
+
+! TODO(Oskar): Implement proper occupation number reading.
+        call mma_allocate(occ_number, nTot)
+        occ_number(:) = 1.d0
+        call WrVec(filename, file_id, 'COIE', nSym, nBas, nBas,
+     &             CMO, occ_number, orbital_E, typeidx, orbfile_title)
+        call mma_deallocate(occ_number)
+      end subroutine putOrbFile
+
       end module write_orbital_files
