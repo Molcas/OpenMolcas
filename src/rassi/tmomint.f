@@ -53,7 +53,8 @@
 ************************************************************************
       rHrmt=-One ! Not used
 *
-*     B*s Magnetic * Spin
+*     B*s Magnetic * Spin: not that this boils down to just integrals
+*     over A.
 *
       If (iOpt.eq.2) Then
       nOrdOp = 0
@@ -68,10 +69,8 @@
 *     irreducible irreps, hence OperI=255. Since the operator
 *     itself is not symmetry-adapted OperC is set to a dummy value.
 *
-      OperI(1   ) = 255
-      OperI(1+1 ) = 255
-      OperC(1   ) = 0 ! Dummy
-      OperC(1+1 ) = 0 ! Dummy
+      OperI(:) = 255
+      OperC(:) = 0 ! Dummy
 *
       Call dcopy_(nComp,[Zero],0,Nuc,1)
       Call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,
@@ -82,7 +81,8 @@
       Call Deallocate_Aux()
       End If
 *
-*     A*p
+*     A*nabla. Note that when used the numbers are multiplied with -i to
+*     generate A*p.
 *
       If (iOpt.le.2) Then
       nOrdOp = 1
@@ -97,30 +97,8 @@
 *     irreducible irreps, hence OperI=255. Since the operator
 *     itself is not symmetry-adapted OperC is set to a dummy value.
 *
-      OperI(1   ) = 255
-      OperI(1+1 ) = 255
-      OperI(1+2 ) = 255
-      OperI(1+3 ) = 255
-      OperI(1+4 ) = 255
-      OperI(1+5 ) = 255
-      OperI(1+6 ) = 255
-      OperI(1+7 ) = 255
-      OperI(1+8 ) = 255
-      OperI(1+9 ) = 255
-      OperI(1+10) = 255
-      OperI(1+11) = 255
-      OperC(1   ) = 0 ! Dummy
-      OperC(1+1 ) = 0 ! Dummy
-      OperC(1+2 ) = 0 ! Dummy
-      OperC(1+3 ) = 0 ! Dummy
-      OperC(1+4 ) = 0 ! Dummy
-      OperC(1+5 ) = 0 ! Dummy
-      OperC(1+6 ) = 0 ! Dummy
-      OperC(1+7 ) = 0 ! Dummy
-      OperC(1+8 ) = 0 ! Dummy
-      OperC(1+9 ) = 0 ! Dummy
-      OperC(1+10) = 0 ! Dummy
-      OperC(1+11) = 0 ! Dummy
+      OperI(:) = 255
+      OperC(:) = 0 ! Dummy
 *
       Call dcopy_(nComp,[Zero],0,Nuc,1)
       Call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,
@@ -148,10 +126,8 @@
 *     irreducible irreps, hence OperI=255. Since the operator
 *     itself is not symmetry-adapted OperC is set to a dummy value.
 *
-      OperI(1   ) = 255
-      OperI(1+1 ) = 255
-      OperC(1   ) = 0 ! Dummy
-      OperC(1+1 ) = 0 ! Dummy
+      OperI(:) = 255
+      OperC(:) = 0 ! Dummy
 *
       Call dcopy_(nComp,[Zero],0,Nuc,1)
       Call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,
