@@ -134,7 +134,8 @@ states.
 
 In some cases, where one can expect strong interaction between different CASSCF
 wave functions, it is advisable to use the Multi-State (MS) CASPT2 method
-:cite:`Finley:98b`. A second order effective Hamiltonian is constructed for a
+:cite:`Finley:98b` or the new Extended Multi-State (XMS) method :cite:`Granovsky2011,Shiozaki2011`.
+A second order effective Hamiltonian is constructed for a
 number of CASSCF wave functions obtained in a state-average calculation. This
 introduces interaction matrix elements at second order between the different
 CASSCF states. The effective Hamiltonian is diagonalized to obtain the final
@@ -143,6 +144,12 @@ effective zeroth order wave functions, which are linear combinations of the
 original CASSCF states. This method has been used successfully to separate
 artificially mixed valence and Rydberg states and for transition metal compounds
 with low lying excited states of the same symmetry as the ground state.
+In the original multi-state method, perturbed wave functions are computed
+for each of several root functions, separately; these are used to compute
+the effective Hamiltonian. In the newer (XMS) method, the perturbations are
+computed with one common zeroth-order Hamiltonian, and the eigenstates of
+the effective Hamiltonian are written onto the :file:`JOBIPH` file rather than used
+to generate a new :file:`JOBMIX` file.
 
 It is clear from the discussion above that it is not a "black box" procedure
 to perform CASPT2 calculations on excited states. It is often necessary to
@@ -265,6 +272,8 @@ Keywords
   The special value "``all``" can be used if all the states included
   in the CASSCF orbital optimization (keyword :kword:`CIRoot` in :program:`RASSCF`)
   are desired.
+  Please note thet this is different from an extended multi-state calculation,
+  see also :kword:`XMULtistate`.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="MULTISTATE" APPEAR="Multi-State" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC">
               %%Keyword: Multistate <basic> GUI:list
@@ -528,14 +537,14 @@ Keywords
 
 :kword:`RLXRoot`
   Specifies which root to be relaxed in a geometry optimization of a
-  multi state CASPT2 wave function. Defaults to the highest root or
+  multi-state CASPT2 wave function. Defaults to the highest root or
   root defined by the same keyword in the :program:`RASSCF` module.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="RLXROOT" APPEAR="Relaxed root" KIND="INT" LEVEL="ADVANCED" MIN_VALUE="1">
               %%Keyword: RLXRoot <advanced>
               <HELP>
               Which root to use in a geometry optimization of a
-              multi state CASPT2 wave function. Default: root
+              multi-state CASPT2 wave function. Default: root
               defined by RLXROOT in the RASSCF module, if any,
               else the highest root.
               </HELP>
@@ -782,7 +791,7 @@ Keywords
   Activate DMRG-CASPT2 calculation with |molcas|--CheMPS2 interface.
   The keyword :kword:`3RDM` must be used in :program:`RASSCF`.
   The program will skip the calculations of the :math:`n`-particle reduced density matrix.
-  Note that multistate calculations are not supported, the calculation will run but produce wrong CASPT2 total energy.
+  Note that multi-state calculations are not supported, the calculation will run but produce wrong CASPT2 total energy.
   Always specify :kword:`MULTi` = 1 *iroot*, where *iroot* is the root index.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="CHEMPS2" APPEAR="DMRG-CASPT2 (CheMPS2)" KIND="SINGLE" LEVEL="BASIC">
