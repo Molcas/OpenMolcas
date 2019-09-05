@@ -36,7 +36,7 @@
                         r(k,kl,i)=(x(i,k)-x(i,kl))/l(i)
                     end do
                 end do
-                d = d + r(:,:,i)**2
+                d(:,:) = d(:,:) + r(:,:,i)**2
             end do
 !
     !Matern Function
@@ -52,7 +52,7 @@
             do i=1,nInter
                 i0=i*iter+1
                 i1=i0+iter-1
-                diffx0 = -2.0D0*r(:,:,i)/l(i)
+                diffx0(:,:) = -2.0D0*r(:,:,i)/l(i)
     !  Writing the 1st row of 1st derivatives with respect the coordinates
                 full_R(1:iter,i0:i1) = matFDer*diffx0
     !  Writing the column of derivatives
@@ -69,8 +69,8 @@
                 do j = i,nInter
                     j0 = j*iter+1
                     j1 = j0+iter-1
-                    diffx = 2.0D0*r(:,:,j)/l(j)
-                    diffx0 = -2.0D0*r(:,:,i)/l(i)
+                    diffx(:,:)  =  2.0D0*r(:,:,j)/l(j)
+                    diffx0(:,:) = -2.0D0*r(:,:,i)/l(i)
     !   if differentiating twice on the same dimension
                     if (i.eq.j) Then
                        full_R(i0:i1,j0:j1) = matSder*diffx*diffx0 - matfder*(2/(l(i)*l(j)))
