@@ -36,11 +36,11 @@ contains
 !>  @param[in] DIAF
 !>  @param[out] orbital_energies
   subroutine get_orbital_E(iter, DIAF, orbital_energies)
-    implicit none
     integer, intent(in) :: iter
     real*8, intent(in) :: DIAF(:)
-    real*8, intent(inout) :: orbital_energies(:)
+    real*8, intent(out) :: orbital_energies(:)
 
+    orbital_energies = 0.d0
     if (iter == 1) then
       call read_orbital_energies(nSym, nBas, orbital_energies)
     else
@@ -48,7 +48,6 @@ contains
     end if
   contains
     subroutine read_orbital_energies(nSym, nBas, orbital_energies)
-      implicit none
       integer, intent(in) :: nSym, nBas(:)
       real*8, intent(inout) :: orbital_energies(:)
       real*8 :: Dummy(1)
@@ -97,7 +96,6 @@ contains
 !>  @param[out] folded_Fock The inactive Fock matrix
 !>    in the basis of the active MOs as obtained from ::SGFCIN.
   subroutine fold_Fock(CMO, D1I_AO, D1A_AO, D1S_MO, F_In, folded_Fock)
-    implicit none
     real*8, intent(in) :: CMO(nTot2), D1A_AO(nTot2), D1I_AO(nTot2), D1S_MO(nAcPar)
     real*8, intent(inout) :: F_In(nTot1)
     real*8, intent(out) :: folded_Fock(nAcPar)

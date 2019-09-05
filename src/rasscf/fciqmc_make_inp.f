@@ -107,17 +107,18 @@
      &        'definedet', (definedet(i), i = 1,nActEl)
           write(file_id, A_fmt()) ''
         end if
+        write(file_id, *)
+        write(file_id, I_fmt()) 'totalwalkers', totalwalkers
+        write(file_id, A_fmt()) merge(' ', '(', readpops_)//'readpops'
+        write(file_id, A_fmt())merge(' ', '(',readpops_)//'walkcontgrow'
+        write(file_id, I_fmt()) 'semi-stochastic', semi_stochastic
+        write(file_id, *)
         write(file_id, A_fmt()) 'methods'
         call indent()
           write(file_id, A_fmt()) 'method vertex fcimc'
         call dedent()
         write(file_id, A_fmt()) 'endmethods'
         write(file_id, *)
-        if (readpops_) write(file_id, A_fmt()) 'readpops'
-        if (readpops_) write(file_id, A_fmt()) 'walkcontgrow'
-        write(file_id, I_fmt()) 'semi-stochastic', semi_stochastic
-        write(file_id, *)
-        write(file_id, I_fmt()) 'totalwalkers', totalwalkers
         write(file_id, R_fmt()) 'diagshift', diagshift
         write(file_id, R_fmt()) 'shiftdamp', shiftdamp
         write(file_id, I_fmt()) 'nmcyc', nmcyc
@@ -136,7 +137,8 @@
         write(file_id, I_fmt()) 'time', time
         write(file_id, I_fmt()) 'startsinglepart', startsinglepart
         write(file_id, I_fmt()) 'pops-core', pops_core
-        write(file_id, I_fmt()) 'rdmsamplingiters', RDMsampling%start
+        write(file_id, I_fmt())
+     &    'rdmsamplingiters', RDMsampling%start * RDMsampling%n_samples
       call dedent()
       write(file_id, A_fmt()) 'endcalc'
       write(file_id, *)
@@ -151,8 +153,7 @@
 !     &     'RDMlinspace',
 !     &      RDMsampling%start, RDMsampling%n_samples, RDMsampling%step
         write(file_id,'('//str(indentlevel)//'x, A,1x,I0,1x,I0,1x,I0)')
-     &    'calcrdmonfly', 3,
-     &    RDMsampling%n_samples * RDMsampling%start, RDMsampling%step
+     &    'calcrdmonfly', 3, RDMsampling%start, RDMsampling%step
       call dedent()
       write(file_id, A_fmt()) 'endlog'
       write(file_id, A_fmt()) 'end'

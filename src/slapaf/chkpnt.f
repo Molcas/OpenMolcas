@@ -226,7 +226,7 @@
      &     'size [DOF*(DOF+1)/2]')
 
 *     MEP/IRC information
-      If (MEP) Then
+      If (MEP.or.rMEP) Then
         Call mh5_init_attr(chkpnt_id, 'MEP_STEP', dMEPStep)
         attrid = mh5_create_attr_int(chkpnt_id, 'MEP_ITERATIONS')
 
